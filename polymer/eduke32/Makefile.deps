@@ -1,0 +1,60 @@
+duke3d_h=$(EINC)build.h $(EINC)pragmas.h $(EINC)compat.h $(EINC)cache1d.h $(EINC)baselayer.h $(SRC)jmact/types.h $(SRC)jmact/file_lib.h $(SRC)jmact/util_lib.h $(SRC)jmact/keyboard.h $(SRC)jmact/control.h $(INC)develop.h $(INC)gamedefs.h $(INC)function.h $(INC)config.h $(INC)sounds.h $(INC)rts.h $(INC)_rts.h $(INC)soundefs.h $(SRC)jaudiolib/fx_man.h $(SRC)jaudiolib/music.h $(INC)namesdyn.h $(INC)funct.h $(INC)duke3d.h $(EINC)mmulti.h
+gamedef_h=$(SRC)gamedef.h
+
+$(OBJ)game.$o: $(SRC)*.c $(SRC)jmact/scriplib.h $(duke3d_h) $(INC)osdfuncs.h $(INC)osdcmds.h
+$(OBJ)actors.$o: $(SRC)actors.c $(duke3d_h)
+$(OBJ)anim.$o: $(SRC)anim.c $(duke3d_h) $(SRC)jmact/animlib.h
+$(OBJ)gamedef.$o: $(SRC)gamedef.c $(duke3d_h) $(gamedef_h)
+$(OBJ)gameexec.$o: $(SRC)gameexec.c $(duke3d_h) $(gamedef_h)
+$(OBJ)global.$o: $(SRC)global.c $(duke3d_h)
+$(OBJ)menus.$o: $(SRC)menus.c $(duke3d_h) $(SRC)jmact/mouse.h
+$(OBJ)namesdyn.$o: $(SRC)namesdyn.c $(duke3d_h)
+$(OBJ)player.$o: $(SRC)player.c $(duke3d_h)
+$(OBJ)premap.$o: $(SRC)premap.c $(duke3d_h) $(EINC)osd.h
+$(OBJ)savegame.$o: $(SRC)savegame.c $(duke3d_h)
+$(OBJ)sector.$o: $(SRC)sector.c $(duke3d_h)
+$(OBJ)sounds.$o: $(SRC)sounds.c $(duke3d_h)
+$(OBJ)jfaud_sounds.$o: $(SRC)jfaud_sounds.cpp $(duke3d_h) $(EINC)osd.h
+$(OBJ)rts.$o: $(SRC)rts.c $(duke3d_h)
+$(OBJ)config.$o: $(SRC)config.c $(duke3d_h) $(SRC)jmact/scriplib.h $(INC)_functio.h
+$(OBJ)testcd.$o: $(SRC)testcd.c
+$(OBJ)winbits.$o: $(SRC)winbits.c
+$(OBJ)osdfuncs.$o: $(SRC)names.h $(EINC)build.h
+$(OBJ)osdcmds.$o: $(SRC)osdcmds.c $(INC)osdcmds.h $(EINC)osd.h $(duke3d_h)
+
+$(OBJ)astub.$o: $(SRC)astub.c $(EINC)build.h $(EINC)pragmas.h $(EINC)compat.h $(EINC)editor.h
+
+$(OBJ)game_icon.$o: $(RSRC)game_icon.c
+$(OBJ)build_icon.$o: $(RSRC)build_icon.c
+
+$(OBJ)gameres.$o: $(SRC)misc/gameres.rc $(RSRC)game.bmp $(RSRC)game_icon.ico
+$(OBJ)buildres.$o: $(SRC)misc/buildres.rc $(RSRC)build.bmp $(RSRC)build_icon.ico
+
+# jMACT objects
+$(OBJ)animlib.$o: $(SRC)jmact/animlib.c $(SRC)jmact/types.h $(INC)develop.h $(SRC)jmact/util_lib.h $(SRC)jmact/animlib.h $(EINC)compat.h
+$(OBJ)util_lib.$o: $(SRC)jmact/util_lib.c $(SRC)jmact/util_lib.h $(SRC)jmact/types.h $(EINC)compat.h
+$(OBJ)file_lib.$o: $(SRC)jmact/file_lib.c $(SRC)jmact/file_lib.h $(SRC)jmact/types.h
+$(OBJ)control.$o: $(SRC)jmact/control.c $(SRC)jmact/types.h $(SRC)jmact/control.h $(SRC)jmact/keyboard.h $(SRC)jmact/mouse.h $(EINC)baselayer.h
+$(OBJ)keyboard.$o: $(SRC)jmact/keyboard.c $(SRC)jmact/types.h $(SRC)jmact/keyboard.h $(EINC)compat.h $(EINC)baselayer.h
+$(OBJ)mouse.$o: $(SRC)jmact/mouse.c $(SRC)jmact/types.h $(SRC)jmact/mouse.h $(EINC)baselayer.h
+$(OBJ)mathutil.$o: $(SRC)jmact/mathutil.c $(SRC)jmact/types.h
+$(OBJ)scriplib.$o: $(SRC)jmact/scriplib.c $(SRC)jmact/scriplib.h $(SRC)jmact/util_lib.h $(SRC)jmact/_scrplib.h $(SRC)jmact/types.h $(EINC)compat.h
+
+# jAudioLib objects
+$(OBJ)audiolib_fxstub.$o: $(SRC)jaudiolib/audiolib_fxstub.c $(SRC)jaudiolib/fx_man.h
+$(OBJ)audiolib_musicstub.$o: $(SRC)jaudiolib/audiolib_musicstub.c $(SRC)jaudiolib/music.h
+
+$(OBJ)audiolib_fx_fmod.$o: $(SRC)jaudiolib/audiolib_fx_fmod.c $(SRC)jaudiolib/fx_man_fmod.h $(INC)duke3d.h
+
+$(OBJ)mv_mix.$o: $(SRC)jaudiolib/mv_mix.nasm
+$(OBJ)mv_mix16.$o: $(SRC)jaudiolib/mv_mix16.nasm
+$(OBJ)mvreverb.$o: $(SRC)jaudiolib/mvreverb.nasm
+$(OBJ)pitch.$o: $(SRC)jaudiolib/pitch.c $(SRC)jaudiolib/pitch.h
+$(OBJ)multivoc.$o: $(SRC)jaudiolib/multivoc.c $(SRC)jaudiolib/usrhooks.h $(SRC)jaudiolib/linklist.h $(SRC)jaudiolib/pitch.h $(SRC)jaudiolib/multivoc.h $(SRC)jaudiolib/_multivc.h
+$(OBJ)fx_man.$o: $(SRC)jaudiolib/fx_man.c $(SRC)jaudiolib/multivoc.h $(SRC)jaudiolib/ll_man.h $(SRC)jaudiolib/fx_man.h
+$(OBJ)dsoundout.$o: $(SRC)jaudiolib/dsoundout.c $(SRC)jaudiolib/dsoundout.h
+
+$(OBJ)midi.$o: $(SRC)jaudiolib/midi.c $(SRC)jaudiolib/standard.h $(SRC)jaudiolib/usrhooks.h $(SRC)jaudiolib/music.h $(SRC)jaudiolib/_midi.h $(SRC)jaudiolib/midi.h
+$(OBJ)mpu401.$o: $(SRC)jaudiolib/mpu401.c $(SRC)jaudiolib/mpu401.h
+$(OBJ)music.$o: $(SRC)jaudiolib/music.c $(SRC)jaudiolib/music.h $(SRC)jaudiolib/midi.h $(SRC)jaudiolib/mpu401.h
+

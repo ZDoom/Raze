@@ -1,0 +1,69 @@
+// Duke Nukem 3D Sample Defs file
+//
+// For an explanation of the contents of this file, read releasenotes.html
+// in the section titled "DEF-file Language"
+
+include DEFS.CON
+
+// These entries define Hightile tints
+// definetint <pal> <r> <g> <b> <effects>
+definetint 1 110 110 255 1
+definetint 2 255 110 80 1
+definetint 4 0 0 0 0
+definetint 6 192 255 138 3
+definetint 7 228 200 172 0
+definetint 8 180 255 200 0
+
+// This entry defines a texture replacement
+// definetexture <tilenum> <pal> 0 0 -1 -1 <filename>
+//definetexture FEMPIC7 0 0 0 -1 -1 "textures/rikaa.png"
+
+// These entries demonstrate replacing the Pig Cop character with a model
+   // Editart tile indices:
+   // walk   2000-2019
+   // pump   2025-2027
+   // stand  2030-2034
+   // shoot  2035-2037
+   // dive   2040-2044
+   // dived  2045-2049
+   // dshoot 2050-2052
+   // hit    2055
+   // die    2056-2059
+   // dead   2060
+// definemodel <filename> <scale> <shadeoffs>
+// defineskin <palette> <filename>
+// definemodelanim <startframe> <endframe> <fps> <flags>
+// definemodelframe <framename> <starttile> <endtile>
+definemodel "models/pigcop.md2" 1.30 0
+definemodelskin 0 "models/pigcop.jpg"
+
+definemodelanim "walk0" "walk13" 20 0
+definemodelframe "walk0" 2000 2019
+
+definemodelanim "pump0" "pump2" 10 1
+definemodelframe "pump0" 2025 2027
+
+definemodelframe "stand" 2030 2034
+
+definemodelanim "shoot0" "shoot2" 10 1
+definemodelframe "shoot0" 2035 2037
+
+definemodelanim "dive0" "dive3" 8 1
+definemodelframe "dive0" 2040 2044
+definemodelframe "dive3" 2045 2049
+
+definemodelanim "dshoot0" "dshoot2" 10 1
+definemodelframe "dshoot0" 2050 2052
+
+definemodelframe "die0" 2055 2055
+definemodelanim "die1" "dead" 13 1
+definemodelframe "die1" 2056 2059
+definemodelframe "dead" 2060 2060 
+
+
+// These entries demonstrate voxel replacements
+// definevoxel <filename>
+// definevoxeltiles <starttile> <endtile>
+//definevoxel "voxels/barstool.kvx"
+//definevoxeltiles 1006 1006
+
