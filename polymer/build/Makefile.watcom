@@ -1,0 +1,174 @@
+# Build Makefile for Watcom Make
+
+!ifdef OVERRIDES
+!include $(OVERRIDES)
+!endif
+
+SRC=src\
+!ifndef OBJ
+OBJ=obj.watcom\
+!endif
+INC=include\
+!ifndef CFLAGS
+CFLAGS=-dSUPERBUILD -dPOLYMOST -dUSE_OPENGL -dDYNAMIC_OPENGL -dKSFORBUILD
+!endif
+
+o=obj
+res=res
+asm=wasm
+
+ENGINELIB=engine.lib
+EDITORLIB=build.lib
+
+DXROOT=c:\sdks\msc\dx7
+FMODROOT=c:\sdks\fmodapi374win\api
+
+!ifdef __LOADDLL__
+! loaddll wcc386 wccd386
+!endif
+
+# -d these to enable certain features of the port's compile process
+# USE_A_C   This uses a C version of the classic renderer code rather
+#           than the assembly version in A.ASM.
+#           If this is defined, alter the $(OBJ)a.$o in the
+#           ENGINEOBJS declaration to be $(OBJ)a-c.$o
+# NOASM     When defined, uses C code instead of Watcom inline
+#           assembly for the features in PRAGMAS.H
+TARGETOPTS=#-dUSE_A_C #-dNOASM
+
+CC=wcc386
+AS=wasm
+RC=wrc
+CFLAGS+= -5r -s -orb -fp5 $(TARGETOPTS) -d2 -dRENDERTYPEWIN=1 &
+	-i=$(INC) -i=$(DXROOT)\include -i=$(FMODROOT)\inc
+LIBS=dxguid.lib wsock32.lib fmodwc.lib #opengl32.lib
+ASFLAGS=# -d1
+EXESUFFIX=.exe
+
+ENGINEOBJS=$(OBJ)a.$o &
+	$(OBJ)baselayer.$o &
+	$(OBJ)cache1d.$o &
+	$(OBJ)compat.$o &
+	$(OBJ)crc32.$o &
+	$(OBJ)defs.$o &
+	$(OBJ)engine.$o &
+	$(OBJ)engineinfo.$o &
+	$(OBJ)glbuild.$o &
+	$(OBJ)kplib.$o &
+	$(OBJ)lzf_c.$o &
+	$(OBJ)lzf_d.$o &
+	$(OBJ)lzwnew.$o &
+	$(OBJ)md4.$o &
+	$(OBJ)mmulti.$o &
+	$(OBJ)osd.$o &
+	$(OBJ)pragmas.$o &
+	$(OBJ)scriptfile.$o &
+	$(OBJ)winlayer.$o
+
+EDITOROBJS=$(OBJ)build.$o &
+	$(OBJ)config.$o &
+	$(OBJ)buildstartwin.$o
+
+GAMEEXEOBJS=$(OBJ)game.$o &
+	$(OBJ)sound.$o &
+	$(OBJ)config.$o &
+	$(OBJ)gamestartwin.$o
+
+EDITOREXEOBJS=$(OBJ)bstub.$o
+
+# RULES
+.EXTENSIONS: .wasm .res .rc
+
+.wasm:	$(SRC)
+.c:	$(SRC)
+.c:	$(SRC)tmp/
+.c:	$(SRC)util/
+.rc:	$(SRC)misc/
+
+.wasm.$o:
+	$(AS) $(ASFLAGS) -fo=$(OBJ).$o $[@
+
+.c.$o:
+	$(CC) $(CFLAGS) -fo=$(OBJ).$o $[@
+
+.rc.$(res):
+	$(RC) -fo=$^*.$(res) -r $[@
+
+# TARGETS
+UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX)
+
+all: game$(EXESUFFIX) build$(EXESUFFIX)	$(OBJ)$(ENGINELIB) $(OBJ)$(EDITORLIB) .SYMBOLIC
+	%null
+
+utils: $(UTILS) .SYMBOLIC
+	%null
+
+enginelib: $(OBJ)$(ENGINELIB) .SYMBOLIC
+	%null
+
+$(OBJ)$(ENGINELIB): $(ENGINEOBJS)
+	%create $(OBJ)$(ENGINELIB).tmp
+	for %i in ($(ENGINEOBJS)) do %append $(OBJ)$(ENGINELIB).tmp +%i
+	wlib -b -n $^* @$(OBJ)$(ENGINELIB).tmp
+	erase $(OBJ)$(ENGINELIB).tmp
+
+editorlib: $(OBJ)$(EDITORLIB) .SYMBOLIC
+	%null
+
+$(OBJ)$(EDITORLIB): $(EDITOROBJS)
+	%create $(OBJ)$(EDITORLIB).tmp
+	for %i in ($(EDITOROBJS)) do %append $(OBJ)$(EDITORLIB).tmp +%i
+	wlib -b -n $^* @$(OBJ)$(EDITORLIB).tmp
+	erase $(OBJ)$(EDITORLIB).tmp
+
+game$(EXESUFFIX): $(GAMEEXEOBJS) $(OBJ)gameres.$(res) $(OBJ)$(ENGINELIB)
+	wlink	NAME     $@ &
+		SYSTEM   WIN95 &
+		DEBUG    ALL &
+		OPTION   MAP &
+		FILE     { $(GAMEEXEOBJS) } &
+		RESOURCE $(OBJ)gameres.$(res) &
+		LIBPATH  $(DXROOT)\lib &
+		LIBPATH  $(FMODROOT)\lib &
+		LIBPATH  $(OBJ) &
+		LIBRARY  { $(ENGINELIB) $(LIBS) }
+	
+build$(EXESUFFIX): $(EDITOREXEOBJS) $(OBJ)buildres.$(res) $(OBJ)$(ENGINELIB) $(OBJ)$(EDITORLIB)
+	wlink	NAME     $@ &
+		SYSTEM   WIN95 &
+		DEBUG    ALL &
+		OPTION   MAP &
+		FILE     { $(EDITOREXEOBJS) } &
+		RESOURCE $(OBJ)buildres.$(res) &
+		LIBPATH  $(DXROOT)\lib &
+		LIBPATH  $(FMODROOT)\lib &
+		LIBPATH  $(OBJ) &
+		LIBRARY  { $(ENGINELIB) $(EDITORLIB) $(LIBS) }
+
+kextract$(EXESUFFIX): $(OBJ)kextract.$o $(OBJ)compat.$o
+	wlink	NAME $@  SYSTEM 386  DEBUG ALL  FILE { $< }
+kgroup$(EXESUFFIX): $(OBJ)kgroup.$o $(OBJ)compat.$o
+	wlink	NAME $@  SYSTEM 386  DEBUG ALL  FILE { $< }
+transpal$(EXESUFFIX): $(OBJ)transpal.$o $(OBJ)pragmas.$o $(OBJ)compat.$o
+	wlink	NAME $@  SYSTEM 386  DEBUG ALL  FILE { $< }
+wad2art$(EXESUFFIX): $(OBJ)wad2art.$o $(OBJ)pragmas.$o $(OBJ)compat.$o
+	wlink	NAME $@  SYSTEM 386  DEBUG ALL  FILE { $< }
+wad2map$(EXESUFFIX): $(OBJ)wad2map.$o $(OBJ)pragmas.$o $(OBJ)compat.$o
+	wlink	NAME $@  SYSTEM 386  DEBUG ALL  FILE { $< }
+
+# DEPENDENCIES
+!include Makefile.deps
+
+$(OBJ)engineinfo.$o: writeengineinfo $(SRC)tmp\engineinfo.c
+
+writeengineinfo: .SYMBOLIC
+	echo const char _engine_cflags[] = "$(CFLAGS:\=\\)"; > $(SRC)tmp\engineinfo.c
+	echo const char _engine_libs[] = "$(LIBS:\=\\)"; >> $(SRC)tmp\engineinfo.c
+	echo const char _engine_uname[] = "unknown"; >> $(SRC)tmp\engineinfo.c
+	echo const char _engine_compiler[] = "$(CC)"; >> $(SRC)tmp\engineinfo.c
+	echo const char _engine_date[] = __DATE__ " " __TIME__; >> $(SRC)tmp\engineinfo.c
+
+# PHONIES	
+clean: .SYMBOLIC
+	-erase /q $(OBJ)* game$(EXESUFFIX) build$(EXESUFFIX) $(UTILS) *.err
+

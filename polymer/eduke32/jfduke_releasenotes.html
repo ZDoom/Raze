@@ -1,0 +1,511 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+		<meta name="Author" content="Jonathon Fowler" />
+		<title>Release Notes for JFDuke3D</title>
+		<style type="text/css">
+			body {
+				font-family: "Bitstream Vera Sans","Tahoma","Arial",sans-serif;
+				font-size: 10pt;
+				margin: 0.5em;
+				border: 2px dashed #ccc;
+				padding: 1em;
+			}
+			h2,h3,h4 {
+				margin-top: 0;
+				margin-bottom: 0.5em;
+				color: #777;
+			}
+			h1 {
+				margin-top: 0; margin-bottom: 0.5em;
+				padding: 3px;
+				background-color: #ddd;
+				font-size: 170%;
+				color: #444;
+			}
+			h2 { font-size: 145%; }
+			h3 { font-size: 125%; }
+			h4 { font-size: 110%; }
+			p { margin-top: 0.5em; margin-bottom: 0.75em; }
+			pre { margin-left: 0.75em; padding-left: 0.75em; border-left: 2px solid #ddd; }
+
+			dl { margin-left: 3em; }
+			dt { font-weight: bold; }
+			dd { padding-bottom: 1em; margin-left: 2em; }
+			table { margin: 1em; }
+			table.center { margin-left: auto; margin-right: auto; }
+			caption { font-style: oblique; }
+
+			span.warning { color: #f00; }
+
+			address {
+				margin-top: 3em;
+				font-size: 85%;
+				font-style: normal;
+			}
+
+			@media print {
+				body { border: none; margin: 0; }
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>Release Notes for JFDuke3D</h1>
+		<p>Release date: 9 October 2005</p>
+
+		<h2>New Features and Improvements</h2>
+		<ul>
+			<li>Improved stability with mods, particularly Duke Meets Doom which no longer crashes when you
+			punch a wall for instance. Big thanks to Richard "TerminX" Gobeille for his help with identifying
+			the cause of this problem and fixing it.</li>
+			<li>MD3 models may now have a skin for each surface of the model. If you don't know what this
+			means, don't worry. If you do, then you ought to realise the significance of this.</li>
+			<li>Polymost high-resolution texture and model skin caching has been made far more comprehensive.
+			This has the effect of reducing the number of pauses during gameplay when textures are loaded at
+			the expense of a longer wait during the level load phase while the textures and skins are loaded
+			from disk.</li>
+			<li>Individual user profile support. See <a href="#profiles">this section</a> for more
+			information.</li>
+		</ul>
+			
+		<h2>Known Issues</h2>
+		<ul>
+			<li>You may have instances where the game goes out of sync. The master can often restart the game
+			from the menu without everyone having to restart the game from scratch, and things should be
+			fine.</li>
+			<li>A test version in the near future will include my new sound code that supports OggVorbis and
+			other sound formats. For now, the existing AudioLib code is in use.</li>
+		</ul>
+
+		<h3><a name="profiles">Individual User Profiles</a></h3>
+
+		<p>With Windows 2000 and XP, having multiple user accounts for different people on the one computer has
+		been very easy, with XP especially so. Linux, BSD, and other *nix-like OS users have had this ability
+		forever and now JFDuke3D properly supports installations where each user can have his/her own set of
+		configuration and savegame files without interfering with other players on the same PC. On Windows the
+		default mode of behaviour is the same as in previous versions: everything is shared, but it is now possible
+		to enable "user profile mode". Linux/BSD users will run in "user profile mode" permanently; your personal
+		files will be located in <code>~/.jfduke3d</code> so if you used previous versions of the port, you will
+		have to move your config and savegames there. Windows users can turn on "user profile mode" by creating an
+		empty file in the JFDuke3D directory named 'user_profiles_enabled'. Here is how:</p>
+		<ol>
+			<li>In Windows Explorer, navigate to the JFDuke3D directory.</li>
+			<li>Open the File menu, move to the "New" option, and select "Text Document".</li>
+			<li>Type <code>user_profiles_enabled</code> and press Enter.</li>
+			<li>If a dialog box appears asking to confirm changing the filename extension to one that may
+			make the file unusable, choose "Yes".</li>
+		</ol>
+		<p>When you next run JFDuke3D, a JFDuke3D directory will be created in <code>C:\Documents and
+		Settings\<em>your username</em>\Application Data</code> along with a new configuration file. You will
+		then have to move your existing DUKE3D.CFG file to this location if you have used the game previously.</p>
+		
+		<h3><a name="multiplayer">Multiplayer games</a></h3>
+
+		<p>Multiplayer games are started via command-line parameters passed to DUKE3D.EXE. This is a short guide
+		to getting a multiplayer game running between these three hypothetical computers:</p>
+		<table class="center" border="1" rules="groups" cellpadding="2">
+			<colgroup><col /></colgroup>
+			<thead>
+				<tr><th>Host name</th><th>IP address</th></tr>
+			</thead>
+			<tbody>
+				<tr><td>faye</td><td>192.168.1.2</td></tr>
+				<tr><td>asuka</td><td>192.168.1.5</td></tr>
+				<tr><td>kaoru</td><td>192.168.1.6</td></tr>
+			</tbody>
+		</table>
+		<p><span class="warning">Keep in mind that the networking features are still being refined and there are
+		certain issues and caveats to be aware of when using it.</span> The basic syntax of the network command
+		line is like so: <code>DUKE3D <em>(normal game parameters)</em> /net <em>(network parameters)</em></code></p>
+		<table border="1" rules="cols" cellpadding="2" class="center">
+			<caption>Network parameters</caption>
+			<colgroup>
+				<col valign="top" />
+			</colgroup>
+			<tr>
+				<td>/nx:y</td>
+				<td>Game comm type. <em>x</em> = 0 for master/slave or 1 for peer-to-peer.<br />
+					If unspecified, <em>y</em> defaults to 2. For more than two players in a
+					master-slave game, you have to indicate the number on the <em>master</em>.
+					eg: /n0 or /n0:4</td>
+			</tr>
+			<tr>
+				<td>/px</td>
+				<td>Overrides the default port (23513) with <em>x</em> being the new port value.</td>
+			</tr>
+			<tr>
+				<td>address:port</td>
+				<td>An address of a machine. See the items below for more information.</td>
+			</tr>
+		</table>
+
+		<h4>Master/Slave mode</h4>
+		<p>This mode is the easiest mode for use with Internet play since it requires only the address of the master
+		of the game (the person hosting the game) be specified by each slave who joins. Here are example command
+		lines each machine must run to join the game hosted by the machine named 'asuka':
+		</p>
+		<table border="1" rules="cols" cellpadding="2">
+			<tr><td>asuka</td><td><code>DUKE3D.EXE /net /n0:3</code></td></tr>
+			<tr><td>faye</td><td><code>DUKE3D.EXE /net /n0 192.168.1.5</code></td></tr>
+			<tr><td>kaoru</td><td><code>DUKE3D.EXE /net /n0 192.168.1.5</code></td></tr>
+		</table>
+
+		<h4>Peer-to-peer mode</h4>
+		<p>This mode is often useful for playing on a LAN where it is easier to coordinate and organise the order of
+		peers in the game. This mode will become simpler to set up in the future but for now this is how to do
+		it. Peer-to-peer mode requires each machine specify the addresses of each other machine in the game in the
+		same order, but indicating its own position in the sequence with the <code>/n1</code> option.</p>
+		<table border="1" rules="cols" cellpadding="2">
+			<tr><td>asuka</td><td><code>DUKE3D.EXE /net /n1 192.168.1.2 192.168.1.6</code></td></tr>
+			<tr><td>faye</td><td><code>DUKE3D.EXE /net 192.168.1.5 /n1 192.168.1.6</code></td></tr>
+			<tr><td>kaoru</td><td><code>DUKE3D.EXE /net 192.168.1.5 192.168.1.2 /n1</code></td></tr>
+		</table>
+
+		<h4>Addresses and ports</h4>
+		<p>The networking code is capable of resolving WINS host names (on Windows) and DNS names to their
+		corresponding addresses, so if your network is configured with such services, instead of having to specify
+		raw IP addresses, you can give the computer's WINS host name or a DNS host name.</p>
+		<p>The default port the game communicates on is 23513. Some users may find it necessary to set up a
+		forward through their Internet firewall in order to get games working when playing across the Internet.
+		You can override the default port via the <code>/p<em>???</em></code> switch where <em>???</em> is the new
+		port number. If a master is running a game on a port other than the default, the slaves will have to
+		specify the alternative port with <code>address:port</code> notation, eg. 192.168.1.5:20000</p>
+
+		<h3><a name="md2sprite">3D Models</a></h3>
+
+		<p>Polymost uses the Quake II MD2 and Quake III MD3 format for 3D models. You can replace any wall-aligned or
+		face sprite in the game with a 3D model using a declaration in the DUKE3D.DEF file. For more information
+		on the specifics of the DEF-file commands for 3D models, <a href="#deffile">see here</a>.</p>
+		<p>Included in this release is a model of the Pig Cop by Parkar, and the skin by Motionblur. You should
+		visit <a href="http://www.planetduke.com/hrp/">this site</a> for a much larger pack of
+		textures and models. I shall use this model to demonstrate how to replace the Pig Cop character in Duke.</p>
+
+		<p>Here is the definition for the pig cop which is also included in the sample DUKE3D.DEF file.</p>
+<pre>
+   //New syntax:
+model "models/pigcop.md2"
+{
+   scale 1.30 shade 0
+   skin { pal 0 file "models/pigcop.jpg" }
+   anim { frame0 "walk0" frame1 "walk13" fps 20 flags 0 }
+   frame { name "walk0" tile0 2000 tile1 2019 }
+
+   anim { frame0 "pump0" frame1 "pump2" fps 10 flags 1 }
+   frame { name "pump0" tile0 2025 tile1 2027 }
+
+   frame { name "stand" tile0 2030 tile1 2034 }
+
+   anim { frame0 "shoot0" frame1 "shoot2" fps 10 flags 1 }
+   frame { name "shoot0" tile0 2035 tile1 2037 }
+
+   anim { frame0 "dive0" frame1 "dive3" fps 8 flags 1 }
+   frame { name "dive0" tile0 2040 tile1 2044 }
+   frame { name "dive3" tile0 2045 tile1 2049 }
+
+   anim { frame0 "dshoot0" frame1 "dshoot2" fps 10 flags 1 }
+   frame { name "dshoot0" tile0 2050 tile1 2052 }
+
+   frame { name "die0" tile 2055 }
+   anim { frame0 "die1" frame1 "dead" fps 13 flags 1 }
+   frame { name "die1" tile0 2056 tile1 2059 }
+   frame { name "dead" tile 2060 }
+}
+
+
+   //Old syntax:
+definemodel "models/pigcop.md2" 1.30 0
+definemodelskin 0 "models/pigcop.jpg"
+
+definemodelanim "walk0" "walk13" 20 0
+definemodelframe "walk0" 2000 2019
+
+definemodelanim "pump0" "pump2" 10 1
+definemodelframe "pump0" 2025 2027
+
+definemodelframe "stand" 2030 2034
+
+definemodelanim "shoot0" "shoot2" 10 1
+definemodelframe "shoot0" 2035 2037
+
+definemodelanim "dive0" "dive3" 8 1
+definemodelframe "dive0" 2040 2044
+definemodelframe "dive3" 2045 2049
+
+definemodelanim "dshoot0" "dshoot2" 10 1
+definemodelframe "dshoot0" 2050 2052
+
+definemodelframe "die0" 2055 2055
+definemodelanim "die1" "dead" 13 1
+definemodelframe "die1" 2056 2059
+definemodelframe "dead" 2060 2060</pre>
+		<p>Without going through every line of the example, here is the basis of how the definitions work.
+		You must put a
+		definemodel line before any other definemodelframe or definemodelanim lines. The frame and anim lines
+		refer the the definemodel line which precedes them. You can define frames and animations in any order, ie.
+		the animations do not need to be given before the frames, but it is a good convention to keep them
+		together for clarity.</p>
+		<p>The walking loop for the pig cop spans tiles 2000 to 2019. The model contains a fourteen frame walking
+		animation which we play at 20 frames per second. The first line of the example specifies the
+		"models/pigcop.md2" model should be drawn at 1.3 times its normal scale and be left undarkened or
+		lightened. The definemodelskin line specifies the skin to use for palette 0 for all the definemodelframe
+		lines that follow it. The first of the definemodelanim lines declares the fourteen frame walking animation
+		at 20fps which should loop (the 0 for the flags parameter says to loop). The definemodelframe line which
+		follows it maps the ART tiles from 2000 through to 2019 to play the walking animation. Because the name in
+		the definemodelframe line matches the first frame of the definemodelanim line, the animation will
+		automatically play.</p>
+
+		<p><small>Quake II and Quake III are registered trademarks of <a href="http://www.idsoftware.com">id
+				Software</a></small></p>
+
+		<h2><a name="deffile">DEF-file Language</a></h2>
+
+		<p>Documentation of the DEF file language can now be found on <a
+			href="http://jonof.edgenetwork.org/?p=jfbuild.def">my website</a> as the information there is
+		common to all JFBuild-based ports.</p>
+
+		<h2><a name="maphack">Map Hack scripts</a></h2>
+
+		<p>"Map Hack" scripts are files that override certain aspects of a map file when it is rendered in OpenGL
+		Polymost mode. Currently they allow for angle adjustment on sprites, and the ability to prevent particular
+		sprites from being drawn as a model. These are useful for making small corrections to ornamental sprites in
+		a way that doesn't require modifying the original map.</p>
+		<p>The game will automatically load a map hack script whenever a map is loaded. The script should have the
+		same base name as the original .MAP file, but with an .MHK extension. The map hack language is described
+		below. It uses the same parser as DEF files, so you can use comments in the same way.</p>
+
+		<dl>
+			<dt>sprite <em>number</em></dt>
+			<dd>Begins a sprite definition. <em>number</em> is the sprite number to affect. You can find this in
+			the Build editor by highlighting the sprite in 2D mode and pressing Control+Tab. The next group of
+			commands describe the changes to make to the sprite.
+			<dl>
+				<dt>notmd<br />
+				notmd2<br />
+				notmd3</dt>
+				<dd>Prevents the sprite from being drawn as a model. It gets drawn as a regular sprite
+				instead. <strong>notmd2</strong> and <strong>notmd3</strong> are synonyms for
+				<strong>notmd</strong>.</dd>
+
+				<dt>nomdanim<br />
+				nomd2anim<br />
+				nomd3anim</dt>
+				<dd>Prevents model animation from playing if the sprite is being drawn as a model.
+				<strong>nomd2anim</strong> and <strong>nomd3anim</strong> are synonyms for
+				<strong>nomdanim</strong>.</dd>
+
+				<dt>angleoff <em>angle</em><br />
+				angoff <em>angle</em></dt>
+				<dd>Adds <em>angle</em> to the angle of the sprite just before it is rendered. This is good
+				for fixing up things like toilet sprites that are facing the wrong way.
+				<strong>angoff</strong> is a synonym for <strong>angleoff</strong>.</dd>
+			</dl></dd>
+		</dl>
+
+		<p>Here is an example map hack script:</p>
+<pre>// Map hack file for JFDuke3D
+// Level: E1L2.MAP (Original Atomic Edition version)
+// Prepared by jonof@edgenetwork.org
+
+// Invisible switch behind hand dryer in toilet of porn shop
+sprite 191 notmd2
+
+// Invisible switches on telephones near billiards room in club
+sprite 254 notmd2
+sprite 517 notmd2
+
+// Toilet in restroom in club
+sprite 478 angoff -512</pre>
+
+		<h2><a name="hightile">Hightile</a></h2>
+
+		<p>This release features the "Hightile" texturing improvements to Polymost. Hightile allows Polymost to use
+		true-colour textures instead of the artwork in the game's usual .ART file.</p>
+		<p>Replacement textures can be saved as JPEG, PNG (alpha channel supported), TGA, BMP, CEL, GIF, and PCX
+		formats. Hightile uses Ken Silverman's picture library to provide rapid picture file loading.</p>
+		<p>Hightile textures are defined in the DUKE3D.DEF file. See the <a href="#deffile">DEF-file language</a>
+		reference for information on how to specify Hightile textures.</p>
+		
+		<h3>Limitations to Hightile</h3>
+		<ul>
+			<li>Hightile will squash or stretch the replacement to fit in the dimensions of the original tile
+			it replaces. Artists should keep their replacements in the same ratio as the original tile for the
+			art to not look distorted.</li>
+		</ul>
+		
+		<h2><a name="hightile-zip">ZIP file support</a></h2>
+
+		<p>Duke (and Build games in general) can load game resources from a ZIP file.</p>
+		<p>ZIP files are used in Duke in the same manner as extra GRP files are specified. Use the "/g" command-line
+		switch to specify the ZIP to load. eg. <code>DUKE3D.EXE /gMYFILE.ZIP</code></p>
+
+		<h2><a name="polymost">Polymost</a></h2>
+
+		<p>Polymost is a full 3D implementation of the Build engine renderer, with hardware acceleration capability,
+		and perspective in six degrees of freedom. In Ken's own words (copied from POLYMOST.C in my Build engine
+		source distribution):</p>
+		<pre>
+"POLYMOST" code written by Ken Silverman
+Ken Silverman's official web site: http://www.advsys.net/ken
+
+Motivation:
+When 3D Realms released the Duke Nukem 3D source code, I thought somebody would do a OpenGL or
+Direct3D port. Well, after a few months passed, I saw no sign of somebody working on a true
+hardware-accelerated port of Build, just people saying it wasn't possible. Eventually, I realized
+the only way this was going to happen was for me to do it myself. First, I needed to port Build to
+Windows. I could have done it myself, but instead I thought I'd ask my Australian buddy, Jonathon
+Fowler, if he would upgrade his Windows port to my favorite compiler (MSVC) - which he did. Once
+that was done, I was ready to start the "POLYMOST" project.
+
+About:
+This source file is basically a complete rewrite of the entire rendering part of the Build engine.
+There are small pieces in ENGINE.C to activate this code, and other minor hacks in other source
+files, but most of it is in here. If you're looking for polymost-related code in the other source
+files, you should find most of them by searching for either "polymost" or "rendmode". Speaking of
+rendmode, there are now 4 rendering modes in Build:
+
+    rendmode 0: The original code I wrote from 1993-1997
+    rendmode 1: Solid-color rendering: my debug code before I did texture mapping
+    rendmode 2: Software rendering before I started the OpenGL code (Note: this is just a quick
+                hack to make testing easier - it's not optimized to my usual standards!)
+    rendmode 3: The OpenGL code
+
+The original Build engine did hidden surface removal by using a vertical span buffer on the tops
+and bottoms of walls. This worked nice back in the day, but it it's not suitable for a polygon
+engine. So I decided to write a brand new hidden surface removal algorithm - using the same idea
+as the original Build - but one that worked with vectors instead of already rasterized data.
+		</pre>
+		<p>Polymost is the default renderer choice for any video mode with a colour depth greater than 256
+		colours.</p>
+		<p><strong>NOTE:</strong> If your computer does not have an OpenGL graphics card, Polymost in OpenGL mode
+		will most likely use the default Windows OpenGL rasterising facility which does all rendering in software.
+		This may be extremely slow. If your Windows installation doesn't have any form of OpenGL rendering ability,
+		Polymost will probably crash.</p>
+		<p><strong>NOTE 2:</strong> OpenGL Polymost has been tested on an nVidia Riva TNT 16MB, an nVidia GeForce2
+		GTS 32MB, an nVidia GeForce4 Ti4600 128MB, an nVidia GeForce 6800GT 256MB, an ATi Radeon Mobility 9000 64MB,
+		and a 3D-Labs Oxygen GVX420 128MB (minor texturing issues).</p>
+
+		<h2>Console Commands</h2>
+
+		<p>This is a list of console commands and variables and their purpose:</p>
+
+		<dl>
+			<dt>changelevel &lt;episode&gt; &lt;level&gt;</dt>
+			<dd>Warps to a new level.</dd>
+			
+			<dt>dumpbuildinfo</dt>
+			<dd>Displays the compilation information for the game when it was built.</dd>
+
+			<dt>echo &lt;text...&gt;</dt>
+			<dd>Displays to the console what is passed as parameters to the command.</dd>
+
+			<dt>fileinfo &lt;filename&gt;</dt>
+			<dd>Displays some information about a given file, eg. size, CRC-32 checksum.</dd>
+
+			<dt>glinfo</dt>
+			<dd>Displays some information about the OpenGL driver.</dd>
+
+			<dt>glredbluemode &lt;0 or 1&gt;</dt>
+			<dd>Enables or disables the red-blue stereovision mode in OpenGL. This mode is experimental
+			at this time. We know the flicker is nasty and the menu background will mix into the screen.
+			To avoid the menu bug, run the game in fullscreen mode and type "glredbluemode 1" AFTER
+			beginning the game. Sorry, there is no way to change parallax or separation. Do not contact
+			us about bugs with this mode... if you do, we'll think twice about documenting hidden features
+			in future releases. :P</dd>
+
+			<dt>gltextureanisotropy &lt;level&gt;</dt>
+			<dd>Sets the OpenGL anisotropic filtering level.</dd>
+
+			<dt>gltexturemode &lt;mode-number&gt;</dt>
+			<dd>Sets the OpenGL texturing mode. Valid values are:
+			<table class="center" cellpadding="2" rules="cols" border="1">
+				<tr><td>0</td><td>GL_NEAREST (looks rather like the original software renderer)</td></tr>
+				<tr><td>1</td><td>GL_LINEAR</td></tr>
+				<tr><td>2</td><td>GL_NEAREST_MIPMAP_NEAREST</td></tr>
+				<tr><td>3</td><td>GL_LINEAR_MIPMAP_NEAREST (bilinear)</td></tr>
+				<tr><td>4</td><td>GL_NEAREST_MIPMAP_LINEAR</td></tr>
+				<tr><td>5</td><td>GL_LINEAR_MIPMAP_LINEAR (trilinear)</td></tr>
+			</table></dd>
+
+			<dt>glusetexcompr &lt;0 or 1&gt;</dt>
+			<dd>Enables or disables the use of OpenGL texture compression for hightile textures. You need
+			to use 'restartvid' to apply any changes to this value.</dd>
+
+			<dt>god</dt>
+			<dd>Enables God mode.</dd>
+
+			<dt>help &lt;name&gt;</dt>
+			<dd>Displays a help message for a particular console variable or command.</dd>
+
+			<dt>listsymbols</dt>
+			<dd>Displays the names of all commands and variables available in the console.</dd>
+
+			<dt>map &lt;mapname&gt;</dt>
+			<dd>Loads a user map.</dd>
+
+			<dt>noclip</dt>
+			<dd>Disables player collisions with world objects.</dd>
+
+			<dt>novoxmips &lt;0 or 1&gt;</dt>
+			<dd>Disables or enables the use of voxel mipmaps to improve voxel visual quality.</dd>
+
+			<dt>osdrows &lt;num&gt;</dt>
+			<dd>Sets the number of visible lines of the console when it is open.</dd>
+
+			<dt>quit</dt>
+			<dd>Exits the game.</dd>
+
+			<dt>restartvid</dt>
+			<dd>Resets the video system, reinitialising the video mode.</dd>
+
+			<dt>screencaptureformat &lt;0 or 1&gt;</dt>
+			<dd>0 = Targa, 1 = PCX</dd>
+
+			<dt>setrendermode &lt;mode&gt;</dt>
+			<dd>Sets the current Polymost render mode.</dd>
+
+			<dt>setstatusbarscale &lt;percent&gt;</dt>
+			<dd>Sets the size of the status bar as a percentage of its original full-width size. Minimum size is
+			10%, maximum 100%.</dd>
+
+			<dt>showcoords &lt;0 or 1&gt;</dt>
+			<dd>Same as typing "DNCOORDS" cheat.</dd>
+
+			<dt>showfps &lt;0 or 1&gt;</dt>
+			<dd>Shows/hides the framerate counter. Same as typing "DNRATE" cheat.</dd>
+
+			<dt>spawn &lt;tile-number or name&gt; [pal] [cstat] [angle] [x y z]</dt>
+			<dd>Places a sprite of the given tile number or name at the current position, or if given, the "x
+			y z" location. A name is a label defined in the CON code. The sprite may be spawned with a
+			specific palette, cstat value, and angle if those parameters are given.</dd>
+
+			<dt>usegoodalpha &lt;0 or 1&gt;</dt>
+			<dd>If 1, a lower alpha cutoff value is used when rendering textures with transparency, which
+			gives better looking transparent textures at the expense of some sprites behind the transparent
+			item potentially being invisible in certain circumstances. 0 is a more compatible value (and is
+			the default) for this option but slight visual degradation will result.</dd>
+
+			<dt>usehightile &lt;0 or 1&gt;</dt>
+			<dd>Disables or enables the use of Hightile textures in GL Polymost mode if any are defined.</dd>
+
+			<dt>usemodels &lt;0 or 1&gt;</dt>
+			<dd>Disables or enables the use of 3D models in GL Polymost mode if any are defined.</dd>
+
+			<dt>usevoxels &lt;0 or 1&gt;</dt>
+			<dd>Disables or enables the use of voxels in the classic renderer if any are defined.</dd>
+
+			<dt>vidmode [xres yres] [bpp]</dt>
+			<dd>Changes the current video mode. You may pass either a new resolution (eg 640 480),
+			a new colour depth (eg 32), or both a resolution and colour depth (eg 640 480 32).</dd>
+
+			<dt>bpp &lt;colourdepth&gt;</dt>
+			<dd>Sets the display colour depth. Does not apply it immediately though. You need to use
+			'restartvid' after setting this if you want to apply the change.</dd>
+		</dl>
+		
+		<address>Happy Duke'ing!<br />
+			Jonathon Fowler (<a href="mailto:jonof@edgenetwork.org">jonof@edgenetwork.org</a>)</address>
+	</body>
+</html>
+
