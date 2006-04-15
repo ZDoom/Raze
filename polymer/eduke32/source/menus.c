@@ -2068,10 +2068,10 @@ cheat_for_port_credits:
                     modval(0,1,(int *)&ud.mouseflip,1,probey==5);
                     gametextpal(d,yy, ud.mouseflip ? "On" : "Off", 0, 0); break;
                 case 6:  if (ps[myconnectindex].gm&MODE_GAME || numplayers > 1) enabled = 0;
-                    if (enabled && x==io) { AutoAim = (AutoAim == 2) ? 0 : AutoAim+1; }
+                if (enabled && x==io) { AutoAim = (AutoAim == 2) ? 0 : AutoAim+1; }
                     if (enabled) modval(0,2,(int *)&AutoAim,1,probey==6);
                     { char *s[] = { "Off", "Full", "Hitscan" };
-                    gametextpal(d,yy, s[AutoAim], enabled?0:10, 0); break; }
+                        gametextpal(d,yy, s[AutoAim], enabled?0:10, 0); break; }
                 case 7:  if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
                     modval(0,1,(int *)&ud.runkey_mode,1,probey==7);
                     gametextpal(d,yy, ud.runkey_mode ? "Classic" : "Modern", 0, 0); break;
@@ -2488,7 +2488,7 @@ cheat_for_port_credits:
             gltexapplyprops();
             break;
         case 7:
-			cmenu(230);
+            cmenu(230);
             break;
 #endif
         }
