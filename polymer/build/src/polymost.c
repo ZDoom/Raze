@@ -585,15 +585,16 @@ void resizeglcheck ()
 		glox1 = windowx1; gloy1 = windowy1;
 		glox2 = windowx2; gloy2 = windowy2;
 
-		bglViewport(windowx1,yres-(windowy2+1),windowx2-windowx1+1,windowy2-windowy1+1);
+		bglViewport(windowx1,yres-(windowy2+1),windowx2-windowx1+1,(windowy2-windowy1+1) / 1.2);
 
 		bglMatrixMode(GL_PROJECTION);
 		memset(m,0,sizeof(m));
-		m[0][0] = (float)ydimen; m[0][2] = 1.0;
+		m[0][0] = (float)ydimen / 1.2; m[0][2] = 1.0;
 		m[1][1] = (float)xdimen; m[1][2] = 1.0;
-		m[2][2] = 1.0; m[2][3] = (float)ydimen;
+		m[2][2] = 1.0; m[2][3] = (float)ydimen / 1.2;
 		m[3][2] =-1.0;
 		bglLoadMatrixf(&m[0][0]);
+		//bglLoadIdentity();
 
 		bglMatrixMode(GL_MODELVIEW);
 		bglLoadIdentity();
