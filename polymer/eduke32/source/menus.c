@@ -1924,15 +1924,15 @@ cheat_for_port_credits:
         {
             int io, ii, yy, d=c+160+40, enabled;
             char *opts[] = {
-                               "Ratio correction",
+                               "Aspect ratio correction",
                                "-",
+                               "Hightile textures",
+                               "Precache textures",
+                               "GL texture compression",
+                               "Cache textures on disk",
+                               "Compress disk cache",
                                "-",
-                               "-",
-                               "-",
-                               "-",
-                               "-",
-                               "-",
-                               "-",
+                               "Models",
                                "-",
                                "-",
                                "-",
@@ -1972,6 +1972,31 @@ cheat_for_port_credits:
                 case 0:
                     barsm(d+8,yy+7, (short *)&glratiocorrection,8,x==io,SHX(-5),PHX(-5));
                     break;
+                case 1: if (x==io) usehightile = 1-usehightile;
+                    modval(0,1,(int *)&usehightile,1,probey==2);
+                    gametextpal(d,yy, usehightile ? "On" : "Off", 0, 0); break;
+                case 2:  enabled = usehightile;
+                    if (enabled && x==io) useprecache = !useprecache;
+                    if (enabled) modval(0,1,(int *)&useprecache,1,probey==3);
+                    // don't change when in a multiplayer game
+                    // because the state is sent during getnames()
+                    // however, this will be fixed later
+                    gametextpal(d,yy, useprecache && enabled ? "On" : "Off", enabled?0:10, 0); break;
+                case 3:  enabled = usehightile;
+                    if (enabled && x==io) glusetexcompr = !glusetexcompr;
+                    if (enabled) modval(0,1,(int *)&glusetexcompr,1,probey==4);
+                    gametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?0:10, 0); break;
+                case 4:  enabled = (glusetexcompr && usehightile && useprecache);
+                    if (enabled && x==io) glusetexcache = !glusetexcache;
+                    if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==5);
+                    gametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?0:10, 0); break;
+                case 5:  enabled = (glusetexcompr && usehightile && useprecache && glusetexcache);
+                    if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
+                    if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==6);
+                    gametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?0:10, 0); break;
+                case 6: if (x==io) usemodels = 1-usemodels;
+                    modval(0,1,(int *)&usemodels,1,probey==7);
+                    gametextpal(d,yy, usemodels ? "On" : "Off", 0, 0); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?5:15, 2);
@@ -2122,13 +2147,13 @@ cheat_for_port_credits:
                                "HUD weapon",
                                "FPS counter",
                                "-",
-                               "Hightile textures",
-                               "Precache textures",
-                               "GL texture compression",
-                               "Cache textures on disk",
-                               "Compress disk cache",
                                "-",
-                               "Models",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
                                "-",
                                "-",
                                "-",
@@ -2157,7 +2182,6 @@ cheat_for_port_credits:
                 io++;
             }
 
-            onbar = (probey == 2 || probey == 9);
             x = probesm(c,yy+5,0,io);
 
         if (x == -1) { cmenu(202); break; }
@@ -2176,32 +2200,6 @@ cheat_for_port_credits:
                 case 1: if (x==io) ud.tickrate = 1-ud.tickrate;
                     modval(0,1,(int *)&ud.tickrate,1,probey==1);
                     gametextpal(d,yy, ud.tickrate ? "On" : "Off", 0, 0); break;
-                case 2: if (x==io) usehightile = 1-usehightile;
-                    modval(0,1,(int *)&usehightile,1,probey==2);
-                    gametextpal(d,yy, usehightile ? "On" : "Off", 0, 0); break;
-                case 3:  enabled = usehightile;
-                    if (enabled && x==io) useprecache = !useprecache;
-                    if (enabled) modval(0,1,(int *)&useprecache,1,probey==3);
-                    // don't change when in a multiplayer game
-                    // because the state is sent during getnames()
-                    // however, this will be fixed later
-                    gametextpal(d,yy, useprecache && enabled ? "On" : "Off", enabled?0:10, 0); break;
-                case 4:  enabled = usehightile;
-                    if (enabled && x==io) glusetexcompr = !glusetexcompr;
-                    if (enabled) modval(0,1,(int *)&glusetexcompr,1,probey==4);
-                    gametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?0:10, 0); break;
-                case 5:  enabled = (glusetexcompr && usehightile && useprecache);
-                    if (enabled && x==io) glusetexcache = !glusetexcache;
-                    if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==5);
-                    gametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?0:10, 0); break;
-                case 6:  enabled = (glusetexcompr && usehightile && useprecache && glusetexcache);
-                    if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
-                    if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==6);
-                    gametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?0:10, 0); break;
-                case 7: if (x==io) usemodels = 1-usemodels;
-                    modval(0,1,(int *)&usemodels,1,probey==7);
-                    gametextpal(d,yy, usemodels ? "On" : "Off", 0, 0); break;
-                case 8: if (x==io) cmenu(200); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?5:15, 2);
@@ -2488,6 +2486,7 @@ cheat_for_port_credits:
             gltexapplyprops();
             break;
         case 7:
+			if (bpp==8) break;
             cmenu(230);
             break;
 #endif
@@ -2532,7 +2531,7 @@ cheat_for_port_credits:
         if (glanisotropy == 1) strcpy(tempbuf,"NONE");
         else sprintf(tempbuf,"%ld-tap",glanisotropy);
         menutext(c+154,50+62+16+16+16,0,bpp==8,tempbuf);
-        menutext(c,50+62+16+16+16+16,0,0,"ADVANCED OPTIONS");
+        menutext(c,50+62+16+16+16+16,0,bpp==8,"ADVANCED OPTIONS");
 
 #endif
         break;
