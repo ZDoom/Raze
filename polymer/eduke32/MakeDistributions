@@ -29,6 +29,8 @@ source:
 	find . -name "*~" -exec rm -rf '{}' ';';
 	find . -name "*.orig" -exec rm -rf '{}' ';';
 	find . -name "*.rej" -exec rm -rf '{}' ';';
+	find . -name "*.mine" -exec rm -rf '{}' ';';
+	find . -name "*.c.r*" -exec rm -rf '{}' ';';
 	cp -R source rsrc $(sourcedir)
 	find $(sourcedir) | grep -i svn | xargs rm -rf
 	kzip -r $(sourcedir).zip $(sourcedir)
