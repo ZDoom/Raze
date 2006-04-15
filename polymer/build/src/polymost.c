@@ -595,9 +595,9 @@ void resizeglcheck ()
 
 		bglMatrixMode(GL_PROJECTION);
 		memset(m,0,sizeof(m));
-		m[0][0] = (float)ydimen / 1.2; m[0][2] = 1.0;
+		m[0][0] = (float)ydimen / (1 + (glratiocorrection / (63 / (ratioratio - 1)))); m[0][2] = 1.0;
 		m[1][1] = (float)xdimen; m[1][2] = 1.0;
-		m[2][2] = 1.0; m[2][3] = (float)ydimen / 1.2;
+		m[2][2] = 1.0; m[2][3] = (float)ydimen / (1 + (glratiocorrection / (63 / (ratioratio - 1))));
 		m[3][2] =-1.0;
 		bglLoadMatrixf(&m[0][0]);
 		//bglLoadIdentity();
@@ -4038,7 +4038,7 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
 			if ((dastat&10) == 2) 
                         {
                             ratioratio = 1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
-                            fovcorrect = (ratioratio > 1) ? (((windowx2-windowx1+1) * ratioratio) - windowx2-windowx1+1) * ((float)glratiocorrection / 63) : 0;
+                            fovcorrect = (ratioratio > 1) ? (((windowx2-windowx1+1) * ratioratio) - windowx2-windowx1+1) * ((float)glratiocorrection / 63) * 2 : 0;
                             bglViewport(windowx1 - (fovcorrect / 2),yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect,windowy2-windowy1+1);
                         }
 			else
@@ -4051,9 +4051,9 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
 			memset(m,0,sizeof(m));
 			if ((dastat&10) == 2)
 			{
-				m[0][0] = (float)ydimen / ratioratio; m[0][2] = 1.0;
+				m[0][0] = (float)ydimen / (1 + (glratiocorrection / (63 / (ratioratio - 1)))); m[0][2] = 1.0;
 				m[1][1] = (float)xdimen; m[1][2] = 1.0;
-				m[2][2] = 1.0; m[2][3] = (float)ydimen / ratioratio;
+				m[2][2] = 1.0; m[2][3] = (float)ydimen / (1 + (glratiocorrection / (63 / (ratioratio - 1))));
 				m[3][2] =-1.0;
 			}
 			else { m[0][0] = m[2][3] = 1.0; m[1][1] = ((float)xdim)/((float)ydim); m[2][2] = 1.0001; m[3][2] = 1-m[2][2]; }

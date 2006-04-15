@@ -13,7 +13,7 @@ NOASM = 0
 
 # Debugging options
 RELEASE?=1
-JFAUD?=1
+JFAUD?=0
 
 # build locations
 
