@@ -274,8 +274,10 @@ int xyzsound(short num,short i,long x,long y,long z)
 
     if( soundm[num]&4 )
     {
-        if(VoiceToggle==0 || (ud.multimode > 1 && PN == APLAYER && sprite[i].yvel != screenpeek && !(gametype_flags[ud.coop]&GAMETYPE_FLAG_COOPSOUND)) ) return -1;
-
+        if(VoiceToggle==0)
+			return -1;
+        else if (ud.multimode > 1 && PN == APLAYER && sprite[i].yvel != screenpeek && (!(gametype_flags[ud.coop]&GAMETYPE_FLAG_COOPSOUND)?1:VoiceToggle!=2))
+			return -1;
         for(j=0;j<NUM_SOUNDS;j++)
             for(k=0;k<Sound[j].num;k++)
                 if( (Sound[j].num > 0) && (soundm[j]&4) )

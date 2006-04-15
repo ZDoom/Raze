@@ -2194,9 +2194,10 @@ cheat_for_port_credits:
                 }
                 enabled = 1;
                 switch (io) {
-                case 0: if (x==io) ud.drawweapon = 1-ud.drawweapon;
-                    modval(0,1,(int *)&ud.drawweapon,1,probey==0);
-                    gametextpal(d,yy, ud.drawweapon ? "On" : "Off", 0, 0); break;
+                case 0: if (x==io) { ud.drawweapon = (ud.drawweapon == 2) ? 0 : ud.drawweapon+1; }
+                    modval(0,2,(int *)&ud.drawweapon,1,probey==0);
+                    { char *s[] = { "Off", "On", "Icon" };
+                        gametextpal(d,yy, s[ud.drawweapon], 0, 0); break; }
                 case 1: if (x==io) ud.tickrate = 1-ud.tickrate;
                     modval(0,1,(int *)&ud.tickrate,1,probey==1);
                     gametextpal(d,yy, ud.tickrate ? "On" : "Off", 0, 0); break;
@@ -3326,7 +3327,7 @@ cheat_for_port_credits:
 
             break;
         case 4:
-            if(SoundToggle && (FXDevice >= 0)) VoiceToggle = 1-VoiceToggle;
+            if(SoundToggle && (FXDevice >= 0)) { VoiceToggle = (VoiceToggle == 2) ? 0 : VoiceToggle+1; }
             onbar = 0;
             break;
         case 5:
@@ -3383,8 +3384,8 @@ cheat_for_port_credits:
 
         menutext(c,50+16+16+16+16+16+16,SHX(-8),(FXDevice<0)||SoundToggle==0,"FLIP STEREO");
 
-        if(VoiceToggle) menutext(c+160+40,50+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,"ON");
-        else menutext(c+160+40,50+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,"OFF");
+        { char *s[] = { "OFF", "LOCAL", "ALL" };
+        menutext(c+160+40,50+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,s[VoiceToggle]); }
 
         if(AmbienceToggle) menutext(c+160+40,50+16+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,"ON");
         else menutext(c+160+40,50+16+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,"OFF");
