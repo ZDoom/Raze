@@ -1914,6 +1914,72 @@ cheat_for_port_credits:
         menutext(c,70+19+19,SHX(-4),PHX(-4),skill_names[2]);
         menutext(c,70+19+19+19,SHX(-5),PHX(-5),skill_names[3]);
         break;
+    case 230:
+
+        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        menutext(320>>1,24,0,0,"OMFG LOL VIDEO S3TT1NGZ");
+
+        c = (320>>1)-120;
+
+        {
+            int io, ii, yy, d=c+160+40, enabled;
+            char *opts[] = {
+                               "Ratio correction",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "Boobs",
+                               NULL
+                           };
+
+            yy = 34;
+            for (ii=io=0; opts[ii]; ii++) {
+                if (opts[ii][0] == '-' && !opts[ii][1]) {
+                    if (io <= probey) yy += 4;
+                    continue;
+                }
+                if (io < probey) yy += 8;
+                io++;
+            }
+
+            onbar = (probey == 0);
+            x = probesm(c,yy+5,0,io);
+
+        if (x == -1) { cmenu(202); break; }
+
+            yy = 34;
+            for (ii=io=0; opts[ii]; ii++) {
+                if (opts[ii][0] == '-' && !opts[ii][1]) {
+                    yy += 4;
+                    continue;
+                }
+                enabled = 1;
+                switch (io) {
+                case 0:
+                    barsm(d+8,yy+7, (short *)&glratiocorrection,1,x==io,SHX(-5),PHX(-5));
+                    break;
+                default: break;
+                }
+                gametextpal(c,yy, opts[ii], enabled?5:15, 2);
+                io++;
+                yy += 8;
+            }
+        }
+        break;
 
     case 200:
 
