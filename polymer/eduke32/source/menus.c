@@ -1970,7 +1970,7 @@ cheat_for_port_credits:
                 enabled = 1;
                 switch (io) {
                 case 0:
-                    barsm(d+8,yy+7, (short *)&glratiocorrection,1,x==io,SHX(-5),PHX(-5));
+                    barsm(d+8,yy+7, (short *)&glratiocorrection,4,x==io,SHX(-5),PHX(-5));
                     break;
                 default: break;
                 }
