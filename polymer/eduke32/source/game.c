@@ -2786,8 +2786,8 @@ void displayrest(long smoothratio)
                  (ps[myconnectindex].player_par/26)%60);
         minitext(320-5*12,200-i-6-6-6,tempbuf,0,26);
 
-        if(ud.player_skill > 3 )
-            Bsprintf(tempbuf,"Kills: %ld",ps[myconnectindex].actors_killed);
+        if(ud.player_skill > 3 || !(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY))
+            Bsprintf(tempbuf,"Kills: %ld",ud.multimode>1?ps[i].frag-ps[i].fraggedself:ps[myconnectindex].actors_killed);
         else
             Bsprintf(tempbuf,"Kills: %ld/%ld",ps[myconnectindex].actors_killed,
                      ps[myconnectindex].max_actors_killed>ps[myconnectindex].actors_killed?
