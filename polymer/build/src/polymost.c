@@ -553,8 +553,8 @@ void polymost_glinit()
 void resizeglcheck ()
 {
 	float m[4][4];
-        float ratioratio;
-        int fovcorrect;
+    float ratioratio = 1.0;
+    int fovcorrect;
 
 	if (glredbluemode < lastglredbluemode) {
 		glox1 = -1;
@@ -588,8 +588,8 @@ void resizeglcheck ()
 		glox1 = windowx1; gloy1 = windowy1;
 		glox2 = windowx2; gloy2 = windowy2;
                         
-                ratioratio = 1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
-                fovcorrect = (ratioratio > 1) ? (((windowx2-windowx1+1) * ratioratio) - (windowx2-windowx1+1)) * ((float)glratiocorrection / 63) : 0;
+        ratioratio = 1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
+        fovcorrect = (ratioratio > 1) ? (((windowx2-windowx1+1) * ratioratio) - (windowx2-windowx1+1)) * ((float)glratiocorrection / 63) : 0;
 
 		bglViewport(windowx1 - (fovcorrect / 2), yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect, windowy2-windowy1+1);
 
@@ -863,7 +863,7 @@ long trytexcache(char *fn, long len, long dameth, char effect, texcacheheader *h
 	fil = kopen4load(cachefn, 0);
 	if (fil < 0) return -1;
 	
-	initprintf("Loading cached tex: %s\n", cachefn);
+	/* initprintf("Loading cached tex: %s\n", cachefn); */
 	
 	if (kread(fil, head, sizeof(texcacheheader)) < (int)sizeof(texcacheheader)) goto failure;
 	if (memcmp(head->magic, "Polymost", 8)) goto failure;
@@ -1063,7 +1063,7 @@ failure:
 int gloadtile_hi(long dapic, long facen, hicreplctyp *hicr, long dameth, pthtyp *pth, long doalloc, char effect)
 {
 	coltype *pic = NULL, *rpptr;
-	long j, x, y, x2, y2, xsiz, ysiz, tsizx, tsizy;
+	long j, x, y, x2, y2, xsiz = -1, ysiz = -1, tsizx, tsizy;
 
 	char *picfil = NULL, *fn, hasalpha = 255;
 	long picfillen, texfmt = GL_RGBA, intexfmt = GL_RGBA, filh;
@@ -3635,7 +3635,7 @@ void polymost_drawsprite (long snum)
 	double px[6], py[6];
 	float f, r, c, s, fx, fy, sx0, sy0, sx1, sy1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1, ft[4];
 	float x0, y0, x1, y1, sc0, sf0, sc1, sf1, px2[6], py2[6], xv, yv, t0, t1;
-	long i, j, spritenum, xoff, yoff, method, npoints;
+	long i, j, spritenum, xoff = -1, yoff = -1, method, npoints;
 	spritetype *tspr;
 
 	tspr = tspriteptr[snum];
@@ -3966,8 +3966,8 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
 	double ogrhalfxdown10, ogrhalfxdown10x;
 	double d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
 	float m[4][4];
-        float ratioratio;
-        int fovcorrect;
+    float ratioratio = 1.0;
+    int fovcorrect;
 
 #ifdef USE_OPENGL
 	if (rendmode == 3 && usemodels && hudmem[(dastat&4)>>2][picnum].angadd)
@@ -4697,7 +4697,7 @@ static int gltextureanisotropy(const osdfuncparm_t *parm)
 
 static int osdcmd_polymostvars(const osdfuncparm_t *parm)
 {
-	int showval = (parm->numparms < 1), val;
+	int showval = (parm->numparms < 1), val = 0;
 	
 	if (!showval) val = atoi(parm->parms[0]);
 	if (!Bstrcasecmp(parm->name, "usemodels")) {
@@ -4943,7 +4943,7 @@ int dxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *pac
 		//alpha_4x4
 		cptr = midbuf;
 		for(k=0;k<8;k++) *cptr++ = pic[k];
-		for(j=stride;j<miplen;j+=stride)
+		for(j=stride;(unsigned)j<miplen;j+=stride)
 			for(k=0;k<8;k++) *cptr++ = pic[j+k];
 		if (glusetexcachecompression) {
 #ifdef USELZF
@@ -4969,7 +4969,7 @@ int dxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *pac
 	//rgb0,rgb1
 	cptr = midbuf;
 	for(k=0;k<=2;k+=2)
-		for(j=0;j<miplen;j+=stride)
+		for(j=0;(unsigned)j<miplen;j+=stride)
 			{ *(short *)cptr = hicosub(*(short *)(&pic[offs+j+k])); cptr += 2; }
 	if (glusetexcachecompression) {
 #ifdef USELZF
@@ -4993,7 +4993,7 @@ int dxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *pac
 	
 	//index_4x4
 	cptr = midbuf;
-	for(j=0;j<miplen;j+=stride)
+	for(j=0;(unsigned)j<miplen;j+=stride)
 	{
 		char *c2 = &pic[j+offs+4];
 		cptr[0] = ((c2[0]>>0)&3) + (((c2[1]>>0)&3)<<2) + (((c2[2]>>0)&3)<<4) + (((c2[3]>>0)&3)<<6);

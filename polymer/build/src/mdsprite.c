@@ -570,7 +570,7 @@ long mdloadskin_trytexcache(char *fn, long len, char effect, texcacheheader *hea
 	fil = kopen4load(cachefn, 0);
 	if (fil < 0) return -1;
 	
-	initprintf("Loading cached skin: %s\n", cachefn);
+	/* initprintf("Loading cached skin: %s\n", cachefn); */
 	
 	if (kread(fil, head, sizeof(texcacheheader)) < (int)sizeof(texcacheheader)) goto failure;
 	if (memcmp(head->magic, "Polymost", 8)) goto failure;
