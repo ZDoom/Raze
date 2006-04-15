@@ -124,6 +124,7 @@ long gltexmaxsize = 0;      // 0 means autodetection on first run
 long gltexmiplevel = 0;		// discards this many mipmap levels
 static long lastglpolygonmode = 0; //FUK
 long glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
+long glratiocorrection = 33;
 static GLuint polymosttext = 0;
 extern char nofog;
 #endif
@@ -587,10 +588,8 @@ void resizeglcheck ()
 		glox1 = windowx1; gloy1 = windowy1;
 		glox2 = windowx2; gloy2 = windowy2;
                         
-                int variable_between_0_and_63_which_is_a_placeholder = 33;
-                
                 ratioratio = 1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
-                fovcorrect = (ratioratio > 1) ? (((windowx2-windowx1+1) * ratioratio) - (windowx2-windowx1+1)) * ((float)variable_between_0_and_63_which_is_a_placeholder / 63) : 0;
+                fovcorrect = (ratioratio > 1) ? (((windowx2-windowx1+1) * ratioratio) - (windowx2-windowx1+1)) * ((float)glratiocorrection / 63) : 0;
 
 		bglViewport(windowx1 - (fovcorrect / 2), yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect, windowy2-windowy1+1);
 
@@ -4036,12 +4035,10 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
 			tspr.owner = uniqid+MAXSPRITES;
 			globalorientation = (dastat&1)+((dastat&32)<<4)+((dastat&4)<<1);
 
-                        int variable_between_0_and_63_which_is_a_placeholder = 33;
-                      
 			if ((dastat&10) == 2) 
                         {
                             ratioratio = 1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
-                            fovcorrect = (ratioratio > 1) ? (((windowx2-windowx1+1) * ratioratio) - windowx2-windowx1+1) * ((float)variable_between_0_and_63_which_is_a_placeholder / 63) : 0;
+                            fovcorrect = (ratioratio > 1) ? (((windowx2-windowx1+1) * ratioratio) - windowx2-windowx1+1) * ((float)glratiocorrection / 63) : 0;
                             bglViewport(windowx1 - (fovcorrect / 2),yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect,windowy2-windowy1+1);
                         }
 			else

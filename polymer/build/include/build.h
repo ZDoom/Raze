@@ -472,7 +472,7 @@ extern long glusetexcompr;
 extern long gltexfiltermode;
 extern long glredbluemode;
 extern long glusetexcache, glusetexcachecompression;
-extern long glmultisample, glnvmultisamplehint;
+extern long glmultisample, glnvmultisamplehint, glratiocorrection;
 void gltexapplyprops (void);
 #endif
 
