@@ -529,14 +529,14 @@ void editinput(void)
 
     if (mlook == 1)
     {
-        ang += (mousx);
-        horiz -= (mousy+mouseysurp);
+        ang += mousx;
+        horiz -= mousy>>1;
         if (horiz > 299)
             horiz = 299;
         if (horiz < -99)
             horiz = -99;
-        searchx = (xdim/2);
-        searchy = (ydim/2);
+        searchx = xdim>>1;
+        searchy = ydim>>1;
         osearchx = searchx-mousx;
         osearchy = searchy-(mousy+mouseysurp);
     }
