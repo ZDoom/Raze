@@ -585,7 +585,7 @@ void resizeglcheck ()
 		glox1 = windowx1; gloy1 = windowy1;
 		glox2 = windowx2; gloy2 = windowy2;
 
-		bglViewport(windowx1 - 202,yres-(windowy2+1),windowx2-windowx1+1 + 202,windowy2-windowy1+1);
+		bglViewport(windowx1 - 102, yres-(windowy2+1),windowx2-windowx1+1 + 204, windowy2-windowy1+1);
 
 		bglMatrixMode(GL_PROJECTION);
 		memset(m,0,sizeof(m));
