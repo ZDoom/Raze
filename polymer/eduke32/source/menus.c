@@ -528,8 +528,7 @@ void menus(void)
     x = 0;
 
     sh = 4-(sintable[(totalclock<<4)&2047]>>11);
-
-    if(bpp > 8 && (ps[myconnectindex].gm&MODE_GAME || (ps[myconnectindex].gm&MODE_DEMO && ud.recstat != 0)))
+    if(bpp > 8)
     {
         long x,y,y1=0,y2=ydim;
         for(y=y1;y<y2;y+=tilesizy[BIGHOLE])
@@ -2032,7 +2031,7 @@ cheat_for_port_credits:
                     }
                     if( (ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1 )
                         enabled = 0;
-                    gametextpal(d,yy, ud.m_recstat ? ((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME) ? "Recording" : "On") : "Off", 0, !enabled ? 1 : 0); break;
+                    gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Recording":"On"):"Off",0,enabled?0:1); break;
                 case 14: if (x==io) cmenu(201); break;
                 default: break;
                 }

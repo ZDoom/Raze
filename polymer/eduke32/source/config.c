@@ -83,9 +83,9 @@ int32 JoystickAnalogueSaturate[MAXJOYAXES];
 //
 
 int32 ScreenMode = 1;
-int32 ScreenWidth = 640;
-int32 ScreenHeight = 480;
-int32 ScreenBPP = 8;
+int32 ScreenWidth = 800;
+int32 ScreenHeight = 600;
+int32 ScreenBPP = 32;
 
 static char setupfilename[256]={SETUPFILENAME};
 int32 scripthandle = -1;
@@ -562,7 +562,7 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "Out",&ud.lockout);
 
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "ScreenBPP", &ScreenBPP);
-        if (ScreenBPP < 8) ScreenBPP = 8;
+        if (ScreenBPP < 8) ScreenBPP = 32;
 
 #ifdef RENDERTYPEWIN
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "MaxRefreshFreq", (int32*)&maxrefreshfreq);

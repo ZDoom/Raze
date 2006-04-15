@@ -31,7 +31,6 @@ struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 int osdcmd_quit(const osdfuncparm_t *parm)
 {
     extern long quittimer;
-    parm=parm;
     if( gamequit == 0 && ( numplayers > 1 ) )
     {
         if(ps[myconnectindex].gm&MODE_GAME)
@@ -93,8 +92,8 @@ int osdcmd_changelevel(const osdfuncparm_t *parm)
     }
 
     if (volume == 0) {
-        if (level > 5) {
-            OSD_Printf("changelevel: invalid volume 1 level number (range 1-6)\n");
+        if (level > 6) {
+            OSD_Printf("changelevel: invalid volume 1 level number (range 1-7)\n");
             return OSDCMD_OK;
         }
     } else {
@@ -177,7 +176,6 @@ int osdcmd_map(const osdfuncparm_t *parm)
 
 int osdcmd_god(const osdfuncparm_t *parm)
 {
-    parm=parm;
     if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME) {
         osdcmd_cheatsinfo_stat.cheatnum = 0;
     } else {
@@ -189,7 +187,6 @@ int osdcmd_god(const osdfuncparm_t *parm)
 
 int osdcmd_noclip(const osdfuncparm_t *parm)
 {
-    parm=parm;
     if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME) {
         osdcmd_cheatsinfo_stat.cheatnum = 20;
     } else {
@@ -380,19 +377,27 @@ int osdcmd_setvar(const osdfuncparm_t *parm)
     varval = Batol(parm->parms[1]);
 
     for(i=0;i<iGameVarCount;i++)
-    {
-        if( strcmp(varname, aGameVars[i].szLabel) == 0 )
+        if(Bstrcmp(varname, aGameVars[i].szLabel))
         {
             SetGameVarID(i, varval, ps[myconnectindex].i, myconnectindex);
         }
+    return OSDCMD_OK;
     }
+
+int osdcmd_addpath(const osdfuncparm_t *parm)
+{
+    char pathname[BMAX_PATH];
+
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    strcpy(pathname,parm->parms[0]);
+    addsearchpath(pathname);
     return OSDCMD_OK;
 }
 
 int osdcmd_cmenu(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-    parm=parm;
     if (numplayers > 1) {
         OSD_Printf("cmenu: disallowed in multiplayer\n");
         return OSDCMD_OK;
@@ -418,38 +423,6 @@ int osdcmd_exec(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-/*
-static int osdcmd_vars(const osdfuncparm_t *parm)
-{
-	int showval = (parm->numparms < 1);
-	
-	if (!Bstrcasecmp(parm->name, "myname")) {
-		if (showval) { OSD_Printf("Your name is \"%s\"\n", myname); }
-		else {
-			Bstrncpy(myname, parm->parms[0], sizeof(myname)-1);
-			myname[sizeof(myname)-1] = 0;
-			// XXX: now send the update over the wire
-		}
-		return OSDCMD_OK;
-	}
-	else if (!Bstrcasecmp(parm->name, "showcoords")) {
-		if (showval) { OSD_Printf("showcoords is %d\n", ud.coords); }
-		else ud.coords = (atoi(parm->parms[0]) != 0);
-		return OSDCMD_OK;
-	}
-	else if (!Bstrcasecmp(parm->name, "useprecache")) {
-		if (showval) { OSD_Printf("useprecache is %d\n", useprecache); }
-		else useprecache = (atoi(parm->parms[0]) != 0);
-		return OSDCMD_OK;
-	}
-	else if (!Bstrcasecmp(parm->name, "drawweapon")) {
-		if (showval) { OSD_Printf("drawweapon is %d\n", ud.drawweapon); }
-		else ud.drawweapon = (atoi(parm->parms[0]) != 0);
-		return OSDCMD_OK;
-	}
-	return OSDCMD_SHOWHELP;
-}
-*/
 enum cvartypes {
     CVAR_INT,
     CVAR_UNSIGNEDINT,
@@ -634,6 +607,7 @@ int registerosdcommands(void)
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
+    OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
 
     OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);

@@ -378,18 +378,10 @@ static int defsparser(scriptfile *script)
 				break;
 			case T_LOADGRP:
 				{
-					char *fn;
-					if (!scriptfile_getstring(script,&fn)) 
-					{
-						int j = initgroupfile(fn);
-
-                        if( j == -1 )
-                            initprintf("Could not find GRP file %s.\n",fn);
-                        else
-                            initprintf("Using GRP file %s.\n",fn);
+					char *bs;
+					scriptfile_getstring(script,&bs);
 					}
 					break;
-				}
 			case T_DEFINEMODEL:
 				{
 					char *modelfn;
@@ -1062,6 +1054,52 @@ int loaddefinitionsfile(char *fn)
 	if (!script) return -1;
 
 	defsparser(script);
+
+	scriptfile_close(script);
+	scriptfile_clearsymbols();
+
+	return 0;
+}
+
+static int defsparserpassone(scriptfile *script)
+{
+	int tokn;
+	char *cmdtokptr;
+	while (1) {
+		tokn = getatoken(script,basetokens,sizeof(basetokens)/sizeof(tokenlist));
+		cmdtokptr = script->ltextptr;
+		switch (tokn) {
+			case T_LOADGRP:
+				{
+					char *fn;
+					if (!scriptfile_getstring(script,&fn)) 
+					{
+						int j = initgroupfile(fn);
+
+                        if( j == -1 )
+                            initprintf("Could not find GRP file %s.\n",fn);
+                        else
+                            initprintf("Using GRP file %s.\n",fn);
+					}
+				}
+				break;
+			case T_EOF:
+				return(0);
+			default:
+				break;
+		}
+	}
+	return 0;
+}
+
+int loadgroupfiles(char *fn)
+{
+	scriptfile *script;
+
+	script = scriptfile_fromfile(fn);
+	if (!script) return -1;
+
+	defsparserpassone(script);
 
 	scriptfile_close(script);
 	scriptfile_clearsymbols();

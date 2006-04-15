@@ -19,7 +19,7 @@ asm=masm
 ENGINELIB=engine.lib
 EDITORLIB=build.lib
 
-DXROOT=c:\sdks\msc\dx7
+DXROOT=c:\sdks\directx\dx7
 FMODROOT=c:\sdks\fmodapi374win\api
 
 # /D these to enable certain features of the port's compile process
@@ -152,11 +152,13 @@ wad2art$(EXESUFFIX): $(OBJ)wad2art.$o $(OBJ)pragmas.$o $(OBJ)compat.$o
 $(OBJ)engineinfo.$o: writeengineinfo $(SRC)tmp\engineinfo.c
 
 writeengineinfo:
-	echo const char _engine_cflags[] = "$(CFLAGS:\=\\)"; > $(SRC)tmp\engineinfo.c
-	echo const char _engine_libs[] = "$(LIBS)"; >> $(SRC)tmp\engineinfo.c
-	echo const char _engine_uname[] = "unknown"; >> $(SRC)tmp\engineinfo.c
-	echo const char _engine_compiler[] = "$(CC)"; >> $(SRC)tmp\engineinfo.c
-	echo const char _engine_date[] = __DATE__ " " __TIME__; >> $(SRC)tmp\engineinfo.c
+	copy /y << $(SRC)tmp\engineinfo.c
+const char _engine_cflags[] = "$(CFLAGS:\=\\)";
+const char _engine_libs[] = "$(LIBS)";
+const char _engine_uname[] = "unknown";
+const char _engine_compiler[] = "$(CC)";
+const char _engine_date[] = __DATE__ " " __TIME__;
+<<NOKEEP
 
 # PHONIES	
 clean:

@@ -34,7 +34,7 @@ CFLAGS= /MD /J /nologo $(flags_cl)  \
  	/DNOCOPYPROTECT $(ENGINEOPTS) \
  	/I$(DXROOT)\include /DRENDERTYPEWIN=1
 LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib wsock32.lib \
-     ..\jfaud\jfaud.lib ..\jfaud\mpadec\libmpadec\mpadec.lib /NODEFAULTLIB:libFLAC.lib \
+     ..\jfaud\jfaud.lib ..\jfaud\mpadec\mpadec.lib /NODEFAULTLIB:libFLAC.lib \
      #opengl32.lib
  ASFLAGS=/nologo /coff
 ASFLAGS=/nologo /coff

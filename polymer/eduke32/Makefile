@@ -13,6 +13,7 @@ NOASM = 0
 
 # Debugging options
 RELEASE?=1
+JFAUD?=1
 
 # build locations
 
@@ -39,7 +40,10 @@ OURCFLAGS=$(debug) -W -Wall -Wimplicit -Wno-char-subscripts -Wno-unused \
 	-I$(INC:/=) -I$(EINC:/=) -I$(SRC)jmact -I$(SRC)jaudiolib -I../jfaud/src
 OURCXXFLAGS=-fno-exceptions -fno-rtti
 LIBS=-lm
-#JFAUDLIBS=../jfaud/libjfaud.a ../jfaud/mpadec/libmpadec/libmpadec.a
+ifneq (0,$(JFAUD))
+	JFAUDLIBS=../jfaud/libjfaud.a ../jfaud/mpadec/libmpadec/libmpadec.a
+endif
+
 NASMFLAGS=-s #-g
 EXESUFFIX=
 
@@ -91,7 +95,6 @@ GAMEOBJS=$(OBJ)game.$o \
 	$(OBJ)premap.$o \
 	$(OBJ)savegame.$o \
 	$(OBJ)sector.$o \
-	$(OBJ)sounds.$o \
 	$(OBJ)rts.$o \
 	$(OBJ)testcd.$o \
 	$(OBJ)osdfuncs.$o \
@@ -109,8 +112,12 @@ endif
 
 ifeq ($(RENDERTYPE),SDL)
  	OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell sdl-config --cflags))
-	AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_STUB) $(AUDIOLIB_FX_STUB) $(OBJ)sounds.$o
-	#AUDIOLIBOBJ=$(AUDIOLIB_JFAUD)
+
+	ifneq (0,$(JFAUD))
+		AUDIOLIBOBJ=$(AUDIOLIB_JFAUD)
+	else
+		AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_STUB) $(AUDIOLIB_FX_STUB) $(OBJ)sounds.$o
+	endif
 
 	ifeq (1,$(HAVE_GTK2))
 		OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
@@ -123,8 +130,11 @@ ifeq ($(RENDERTYPE),SDL)
 endif
 
 ifeq ($(RENDERTYPE),WIN)
-	AUDIOLIBOBJ=$(AUDIOLIB_MUSIC) $(AUDIOLIB_FX) $(OBJ)sounds.$o
-	#AUDIOLIBOBJ=$(AUDIOLIB_JFAUD)
+	ifneq (0,$(JFAUD))
+		AUDIOLIBOBJ=$(AUDIOLIB_JFAUD)
+	else
+		AUDIOLIBOBJ=$(AUDIOLIB_MUSIC) $(AUDIOLIB_FX) $(OBJ)sounds.$o
+	endif
 endif
 
 GAMEOBJS+= $(AUDIOLIBOBJ)

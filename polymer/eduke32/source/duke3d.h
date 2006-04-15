@@ -63,6 +63,8 @@ extern int shareware;
 
 #define FOURSLEIGHT (1<<8)
 
+#define MAXVOLUMES 7
+
 #include "types.h"
 #include "file_lib.h"
 #include "develop.h"
@@ -451,8 +453,8 @@ extern char *music_pointer;
 
 extern char ipath[80],opath[80];
 
-extern char music_fn[8][11][13],music_select;
-extern char env_music_fn[8][13];
+extern char music_fn[MAXVOLUMES+1][11][13],music_select;
+extern char env_music_fn[MAXVOLUMES+1][13];
 extern short camsprite;
 
 // extern char gotz;
@@ -505,9 +507,9 @@ extern char screencapt;
 extern short soundps[NUM_SOUNDS],soundpe[NUM_SOUNDS],soundvo[NUM_SOUNDS];
 extern char soundpr[NUM_SOUNDS],soundm[NUM_SOUNDS];
 extern long soundsiz[NUM_SOUNDS];
-extern char level_names[77][33];
-extern long partime[77],designertime[77];
-extern char volume_names[7][33];
+extern char level_names[MAXVOLUMES*11][33];
+extern long partime[MAXVOLUMES*11],designertime[MAXVOLUMES*11];
+extern char volume_names[MAXVOLUMES][33];
 extern char skill_names[5][33];
 
 #define MAXGAMETYPES 32
@@ -534,7 +536,7 @@ enum gametypeflags {
     GAMETYPE_FLAG_PRESERVEINVENTORYDEATH = 32768
 };
 
-extern char level_file_names[77][BMAX_PATH];
+extern char level_file_names[MAXVOLUMES*11][BMAX_PATH];
 extern char num_volumes;
 
 extern int32 SoundToggle,MusicToggle;
@@ -765,7 +767,6 @@ extern long *aplWeaponInitialSound[MAX_WEAPONS];    // Sound made when initialy 
 extern long *aplWeaponFireSound[MAX_WEAPONS];       // Sound made when firing (each time for automatic)
 extern long *aplWeaponSound2Time[MAX_WEAPONS];      // Alternate sound time
 extern long *aplWeaponSound2Sound[MAX_WEAPONS];     // Alternate sound sound ID
-extern long *aplWeaponRenderSize[MAX_WEAPONS];      // Rendering size
 extern long *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
 extern long *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
 
@@ -800,14 +801,14 @@ enum weaponflags {
 // custom projectiles
 
 enum projectileflags {
-    PROJECTILE_FLAG_BULLET              = 1,
+    PROJECTILE_FLAG_HITSCAN             = 1,
     PROJECTILE_FLAG_RPG                 = 2,
     PROJECTILE_FLAG_BOUNCESOFFWALLS     = 4,
     PROJECTILE_FLAG_BOUNCESOFFMIRRORS   = 8,
     PROJECTILE_FLAG_KNEE                = 16,
     PROJECTILE_FLAG_WATERBUBBLES        = 32,
     PROJECTILE_FLAG_TIMED               = 64,
-    PROJECTILE_FLAG_NOENEMYHITS         = 128,
+    PROJECTILE_FLAG_BOUNCESOFFSPRITES   = 128,
     PROJECTILE_FLAG_SPIT                = 256,
     PROJECTILE_FLAG_COOLEXPLOSION1      = 512,
     PROJECTILE_FLAG_BLOOD               = 1024,

@@ -167,7 +167,7 @@ byte * ANIM_DrawFrame (int32 framenumber);
 
 byte * ANIM_GetPalette ( void );
 
-extern anim_t * anim;
+// extern anim_t * anim;
 
 #ifdef __cplusplus
 };

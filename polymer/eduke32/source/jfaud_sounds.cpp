@@ -46,7 +46,6 @@ long numenvsnds;
 #define SOUNDM_PLAYER 128
 
 #define UNITSPERMETRE 1024.0
-#define ZUNITSPERMETRE 8192.0
 
 #include <cmath>
 
@@ -191,7 +190,7 @@ void SoundStartup(void)
 #endif
 
 	havewave = havemidi = false;
-	if (!jfaud->InitWave(NULL, NumVoices, MixRate)) {
+	if (!jfaud->InitWave("software", NumVoices, MixRate)) {
 		delete jfaud;
 		jfaud = NULL;
 		return;
@@ -332,8 +331,8 @@ int xyzsound(short num, short i, long x, long y, long z)
 		return 0;
 	}
 	
-//	swaplong(&y,&z);
-//	y = -y>>4;
+	swaplong(&y,&z);
+	y = -y>>4;
 	
 	if (soundm[num] & SOUNDM_DUKE) {
 		// Duke speech, one at a time only
@@ -360,13 +359,11 @@ int xyzsound(short num, short i, long x, long y, long z)
 		} else pitch = translatepitch(ps);
 	}
 	
-	if (ps[screenpeek].sound_pitch) pitch = translatepitch(ps[screenpeek].sound_pitch);
-
 	//gain += soundvo[num];
-/*	if (PN != MUSICANDSFX &&
+	if (PN != MUSICANDSFX &&
 		!cansee(ps[screenpeek].oposx,ps[screenpeek].oposy,ps[screenpeek].oposz-(24<<8),
 		ps[screenpeek].cursectnum,SX,SY,SZ-(24<<8),SECT) )
-        gain *= 1.0/32.0; */
+        gain *= 1.0/32.0;
 	
 	switch(num)
 	{
@@ -384,7 +381,8 @@ int xyzsound(short num, short i, long x, long y, long z)
 			//	return -1;
 			break;
 	}
-	if (ps[screenpeek].sound_pitch) pitch = translatepitch(ps[screenpeek].sound_pitch);
+	if(ps[screenpeek].sound_pitch)
+		pitch = translatepitch(ps[screenpeek].sound_pitch);
 /*
 	// XXX: this is shit
 	if( Sound[num].num > 0 && PN != MUSICANDSFX )
@@ -398,7 +396,10 @@ int xyzsound(short num, short i, long x, long y, long z)
 	chan = jfaud->PlaySound(sounds[num], NULL, soundpr[num]);
 	if (!chan) return -1;
 	
-	chan->SetGain(gain);
+	if(ps[screenpeek].sound_pitch)
+		pitch = translatepitch(ps[screenpeek].sound_pitch);
+
+	chan->SetGain(gain*(FXVolume/252.0));
 	chan->SetPitch(pitch);
 	chan->SetLoop(soundm[num] & SOUNDM_LOOP);
 	if (soundm[num] & SOUNDM_GLOBAL) global = 1;
@@ -409,9 +410,9 @@ int xyzsound(short num, short i, long x, long y, long z)
 		chan->SetFollowListener(true);
 		chan->SetPosition(0.0, 0.0, 0.0);
 	} else {
-		chan->SetRolloff(global ? 0.0 : 0.3);
+		chan->SetRolloff(global ? 0.0 : 0.2);
 		chan->SetFollowListener(false);
-		chan->SetPosition((float)x/UNITSPERMETRE, (float)z/ZUNITSPERMETRE, (float)y/UNITSPERMETRE);
+		chan->SetPosition((float)x/UNITSPERMETRE, (float)y/UNITSPERMETRE, (float)z/UNITSPERMETRE);
 	}
 	
 	r = keephandle(chan, num, i);
@@ -443,10 +444,16 @@ void sound(short num)
 		} else pitch = translatepitch(ps);
 	}
 	
+	if(ps[screenpeek].sound_pitch)
+		pitch = translatepitch(ps[screenpeek].sound_pitch);	
+
 	chan = jfaud->PlaySound(sounds[num], NULL, soundpr[num]);
 	if (!chan) return;
 
-	chan->SetGain(1.0);
+	if(ps[screenpeek].sound_pitch)
+		pitch = translatepitch(ps[screenpeek].sound_pitch);
+
+	chan->SetGain(FXVolume/252.0);
 	chan->SetPitch(pitch);
 	chan->SetLoop(soundm[num] & SOUNDM_LOOP);
 	chan->SetRolloff(0.0);
@@ -524,20 +531,20 @@ void pan3dsound(void)
 
 	if(ud.camerasprite == -1) {
 		cx = ps[screenpeek].oposx;
-		cy = -ps[screenpeek].oposz>>4;
-		cz = ps[screenpeek].oposy;
+		cy = ps[screenpeek].oposy;
+		cz = ps[screenpeek].oposz;
 		cs = ps[screenpeek].cursectnum;
 		ca = ps[screenpeek].ang+ps[screenpeek].look_ang;
 	} else {
 		cx = sprite[ud.camerasprite].x;
-		cy = -sprite[ud.camerasprite].z>>4;
-		cz = sprite[ud.camerasprite].y;
+		cy = sprite[ud.camerasprite].y;
+		cz = sprite[ud.camerasprite].z;
 		cs = sprite[ud.camerasprite].sectnum;
 		ca = sprite[ud.camerasprite].ang;
 	}
 
-	mix->SetListenerPosition((float)cx/UNITSPERMETRE, (float)cy/UNITSPERMETRE, (float)cz/ZUNITSPERMETRE);
-	mix->SetListenerOrientation((float)sintable[(ca-512)&2047]/16384.0, 0.0, (float)sintable[ca&2047]/16384.0,
+	mix->SetListenerPosition((float)cx/UNITSPERMETRE, (float)(-cz>>4)/UNITSPERMETRE, (float)cy/UNITSPERMETRE);
+	mix->SetListenerOrientation((float)sintable[(ca+512)&2047]/16384.0, 0.0, (float)sintable[ca&2047]/16384.0,
 		0.0, 1.0, 0.0);
 	
 	for (j=NumVoices-1; j>=0; j--) {
@@ -548,12 +555,12 @@ void pan3dsound(void)
 		i = chans[j].owner;
 
 		sx = sprite[i].x;
-		sy = -sprite[i].z >> 4;
-		sz = sprite[i].y;
+		sy = sprite[i].y;
+		sz = sprite[i].z;
 
 		//gain += soundvo[num];
-//		if (PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,sx,sy,sz-(24<<8),SECT) )
-//			gain *= 1.0/32.0;
+		if (PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,sx,sy,sz-(24<<8),SECT) )
+			gain *= 1.0/32.0;
 		
 		if(PN == MUSICANDSFX && SLT < 999) numenvsnds++;
 		if( soundm[ chans[j].soundnum ]&SOUNDM_GLOBAL ) global = 1;
@@ -575,15 +582,15 @@ void pan3dsound(void)
 		
 		// A sound may move from player-relative 3D if the viewpoint shifts from the player
 		// through a viewscreen or viewpoint switching
-		chans[j].chan->SetGain(gain);
+		chans[j].chan->SetGain(gain*(FXVolume/252.0));
 		if (PN == APLAYER && sprite[i].yvel == screenpeek) {
 			chans[j].chan->SetRolloff(0.0);
 			chans[j].chan->SetFollowListener(true);
 			chans[j].chan->SetPosition(0.0, 0.0, 0.0);
 		} else {
-			chans[j].chan->SetRolloff(global ? 0.0 : 0.3);
+			chans[j].chan->SetRolloff(global ? 0.0 : 0.2);
 			chans[j].chan->SetFollowListener(false);
-			chans[j].chan->SetPosition((float)sx/UNITSPERMETRE, (float)sy/UNITSPERMETRE, (float)sz/ZUNITSPERMETRE);
+			chans[j].chan->SetPosition((float)sx/UNITSPERMETRE, (float)(-sz>>4)/UNITSPERMETRE, (float)sy/UNITSPERMETRE);
 		}
 	}
 }

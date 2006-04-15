@@ -59,7 +59,6 @@ long *aplWeaponInitialSound[MAX_WEAPONS];   // Sound made when initialy firing. 
 long *aplWeaponFireSound[MAX_WEAPONS];      // Sound made when firing (each time for automatic)
 long *aplWeaponSound2Time[MAX_WEAPONS];     // Alternate sound time
 long *aplWeaponSound2Sound[MAX_WEAPONS];    // Alternate sound sound ID
-long *aplWeaponRenderSize[MAX_WEAPONS];     // size of weapon sprite, 0 = normal, 1 = half size (RR style)
 long *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
 long *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
 
@@ -4372,7 +4371,7 @@ repeatcase:
         j = *scriptptr;
         while( *textptr == ' ' ) textptr++;
 
-        if (j < 0 || j > 6)
+        if (j < 0 || j > MAXVOLUMES-1)
         {
             initprintf("%s:%ld: error: volume number exceeds maximum volume count.\n",compilefile,line_number);
             error++;
@@ -4480,7 +4479,7 @@ repeatcase:
         k = *scriptptr;
         while( *textptr == ' ' ) textptr++;
 
-        if (j < 0 || j > 6)
+        if (j < 0 || j > MAXVOLUMES-1)
         {
             initprintf("%s:%ld: error: volume number exceeds maximum volume count.\n",compilefile,line_number);
             error++;
@@ -4998,8 +4997,6 @@ void InitGameVarPointers(void)
         aplWeaponSound2Time[i]=GetGameValuePtr(aszBuf);
         Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",i);
         aplWeaponSound2Sound[i]=GetGameValuePtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",i);
-        aplWeaponRenderSize[i]=GetGameValuePtr(aszBuf);
         Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",i);
         aplWeaponReloadSound1[i]=GetGameValuePtr(aszBuf);
         Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND2",i);
@@ -5045,8 +5042,6 @@ void AddSystemVars()
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",KNEE_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
-    Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",KNEE_WEAPON);
-    AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",KNEE_WEAPON);
     AddGameVar(aszBuf, EJECT_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND2",KNEE_WEAPON);
@@ -5082,8 +5077,6 @@ void AddSystemVars()
     Bsprintf(aszBuf,"WEAPON%d_SOUND2TIME",PISTOL_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",PISTOL_WEAPON);
-    AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
-    Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",PISTOL_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",PISTOL_WEAPON);
     AddGameVar(aszBuf, EJECT_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
@@ -5121,8 +5114,6 @@ void AddSystemVars()
     AddGameVar(aszBuf, 15, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",SHOTGUN_WEAPON);
     AddGameVar(aszBuf, SHOTGUN_COCK, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
-    Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",SHOTGUN_WEAPON);
-    AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",SHOTGUN_WEAPON);
     AddGameVar(aszBuf, EJECT_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND2",SHOTGUN_WEAPON);
@@ -5160,8 +5151,6 @@ void AddSystemVars()
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",CHAINGUN_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
-    Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",CHAINGUN_WEAPON);
-    AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",CHAINGUN_WEAPON);
     AddGameVar(aszBuf, EJECT_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND2",CHAINGUN_WEAPON);
@@ -5197,8 +5186,6 @@ void AddSystemVars()
     Bsprintf(aszBuf,"WEAPON%d_SOUND2TIME",RPG_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",RPG_WEAPON);
-    AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
-    Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",RPG_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",RPG_WEAPON);
     AddGameVar(aszBuf, EJECT_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
@@ -5236,8 +5223,6 @@ void AddSystemVars()
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",HANDBOMB_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
-    Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",HANDBOMB_WEAPON);
-    AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",HANDBOMB_WEAPON);
     AddGameVar(aszBuf, EJECT_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND2",HANDBOMB_WEAPON);
@@ -5273,8 +5258,6 @@ void AddSystemVars()
     Bsprintf(aszBuf,"WEAPON%d_SOUND2TIME",SHRINKER_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",SHRINKER_WEAPON);
-    AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
-    Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",SHRINKER_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",SHRINKER_WEAPON);
     AddGameVar(aszBuf, EJECT_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
@@ -5312,8 +5295,6 @@ void AddSystemVars()
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",DEVISTATOR_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
-    Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",DEVISTATOR_WEAPON);
-    AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",DEVISTATOR_WEAPON);
     AddGameVar(aszBuf, EJECT_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND2",DEVISTATOR_WEAPON);
@@ -5349,8 +5330,6 @@ void AddSystemVars()
     Bsprintf(aszBuf,"WEAPON%d_SOUND2TIME",TRIPBOMB_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",TRIPBOMB_WEAPON);
-    AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
-    Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",TRIPBOMB_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",TRIPBOMB_WEAPON);
     AddGameVar(aszBuf, EJECT_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
@@ -5388,8 +5367,6 @@ void AddSystemVars()
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",FREEZE_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
-    Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",FREEZE_WEAPON);
-    AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",FREEZE_WEAPON);
     AddGameVar(aszBuf, EJECT_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND2",FREEZE_WEAPON);
@@ -5426,8 +5403,6 @@ void AddSystemVars()
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",HANDREMOTE_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
-    Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",HANDREMOTE_WEAPON);
-    AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",HANDREMOTE_WEAPON);
     AddGameVar(aszBuf, EJECT_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND2",HANDREMOTE_WEAPON);
@@ -5463,8 +5438,6 @@ void AddSystemVars()
     Bsprintf(aszBuf,"WEAPON%d_SOUND2TIME",GROW_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",GROW_WEAPON);
-    AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
-    Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",GROW_WEAPON);
     AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",GROW_WEAPON);
     AddGameVar(aszBuf, EJECT_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
@@ -5655,27 +5628,21 @@ void AddDefaultDefinitions(void)
 void InitProjectiles(void)
 {
     int i;
-    for(i=0;i<MAXTILES;i++)
-    {
+    for(i=0;i<MAXTILES;i++) {
         projectile[i].workslike = 1;
         projectile[i].spawns = SMALLSMOKE;
-        projectile[i].sxrepeat = -1;
-        projectile[i].syrepeat = -1;
-        projectile[i].sound = -1;
-        projectile[i].isound = -1;
+        projectile[i].sxrepeat = projectile[i].syrepeat = -1;
+        projectile[i].sound = projectile[i].isound = -1;
         projectile[i].vel = 600;
         projectile[i].extra = 100;
         projectile[i].decal = BULLETHOLE;
         projectile[i].trail = -1;
-        projectile[i].tnum = 0;
-        projectile[i].txrepeat = -1;
-        projectile[i].tyrepeat = -1;
-        projectile[i].toffset = 0;
-        projectile[i].drop = 0;
+        projectile[i].tnum = projectile[i].toffset = 0;
+        projectile[i].txrepeat = projectile[i].tyrepeat = -1;
+        projectile[i].drop = projectile[i].range = 0;
         projectile[i].cstat = -1;
         projectile[i].shade = -96;
-        projectile[i].xrepeat = 18;
-        projectile[i].yrepeat = 18;
+        projectile[i].xrepeat = projectile[i].yrepeat = 18;
         projectile[i].clipdist = 32;
         projectile[i].pal = 0;
         projectile[i].extra_rand = -1;
@@ -5684,7 +5651,6 @@ void InitProjectiles(void)
         projectile[i].offset = 448;
         projectile[i].bounces = numfreezebounces;
         projectile[i].bsound = PIPEBOMB_BOUNCE;
-        projectile[i].range = 0;
         //      defaultprojectile[i] = projectile[i];
     }
     Bmemcpy(&defaultprojectile, &projectile, sizeof(projectile));
@@ -5733,8 +5699,6 @@ void ResetSystemDefaults(void)
             aplWeaponSound2Time[i][j]=GetGameVar(aszBuf,0, -1, j);
             Bsprintf(aszBuf,"WEAPON%d_SOUND2SOUND",i);
             aplWeaponSound2Sound[i][j]=GetGameVar(aszBuf,0, -1, j);
-            Bsprintf(aszBuf,"WEAPON%d_RENDERSIZE",i);
-            aplWeaponRenderSize[i][j]=GetGameVar(aszBuf,0, -1, j);
             Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND1",i);
             aplWeaponReloadSound1[i][j]=GetGameVar(aszBuf,0, -1, j);
             Bsprintf(aszBuf,"WEAPON%d_RELOADSOUND2",i);

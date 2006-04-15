@@ -55,9 +55,9 @@ int current_menu;
 
 char betaname[80];
 
-char level_names[77][33],level_file_names[77][BMAX_PATH];
-long partime[77],designertime[77];
-char volume_names[7][33] = { "L.A. MELTDOWN", "LUNAR APOCALYPSE", "SHRAPNEL CITY" };
+char level_names[MAXVOLUMES*11][33],level_file_names[MAXVOLUMES*11][BMAX_PATH];
+long partime[MAXVOLUMES*11],designertime[MAXVOLUMES*11];
+char volume_names[MAXVOLUMES][33] = { "L.A. MELTDOWN", "LUNAR APOCALYPSE", "SHRAPNEL CITY" };
 char skill_names[5][33] = { "PIECE OF CAKE", "LET'S ROCK", "COME GET SOME", "DAMN I'M GOOD" };
 
 char gametype_names[MAXGAMETYPES][33] = { "DUKEMATCH (SPAWN)","COOPERATIVE PLAY","DUKEMATCH (NO SPAWN)"};
@@ -97,7 +97,6 @@ long avgfvel, avgsvel, avgavel, avghorz, avgbits, avgbits2;
 
 
 input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
-input recsync[RECSYNCBUFSIZ];
 
 long movefifosendplc;
 
@@ -121,8 +120,8 @@ long script[MAXSCRIPTSIZE+16];
 
 char display_mirror,typebuflen,typebuf[41];
 
-char music_fn[8][11][13],music_select;
-char env_music_fn[8][13];
+char music_fn[MAXVOLUMES+1][11][13],music_select;
+char env_music_fn[MAXVOLUMES+1][13];
 char rtsplaying;
 
 

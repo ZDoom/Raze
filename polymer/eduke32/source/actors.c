@@ -2515,7 +2515,7 @@ void moveweapons(void)
                             }
                     }
 
-                if(thisprojectile[i].workslike & 8192)
+/*                if(thisprojectile[i].workslike & 8192)
                 {
                     for(k=-3;k<2;k++)
                     {
@@ -2531,7 +2531,8 @@ void moveweapons(void)
 
                     }
                 }
-                else if(thisprojectile[i].workslike & PROJECTILE_FLAG_SPIT) if(s->zvel < 6144)
+                else */
+				if(thisprojectile[i].workslike & PROJECTILE_FLAG_SPIT) if(s->zvel < 6144)
                         s->zvel += gc-112;
 
                 if(thisprojectile[i].workslike & PROJECTILE_FLAG_WATERBUBBLES && sector[s->sectnum].lotag == 2 && rnd(140))
@@ -2562,7 +2563,7 @@ void moveweapons(void)
                                                         KILLIT(i);
                                                     }*/
 
-                        if(thisprojectile[i].workslike & PROJECTILE_FLAG_NOENEMYHITS)
+                        if(thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFSPRITES)
                         {
                             if( wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR )
                                 s->yvel--;
@@ -2597,7 +2598,7 @@ void moveweapons(void)
 
                                 if(ps[p].loogcnt == 0)
                                 {
-                                    if(Sound[DUKE_LONGTERM_PAIN].num < 1)
+                                    if(!isspritemakingsound(ps[p].i, DUKE_LONGTERM_PAIN))
                                         spritesound(DUKE_LONGTERM_PAIN,ps[p].i);
 
                                     j = 3+(TRAND&3);
@@ -2752,7 +2753,7 @@ void moveweapons(void)
                     }
 
 
-                    if (thisprojectile[i].workslike & PROJECTILE_FLAG_BULLET)
+                    if (thisprojectile[i].workslike & PROJECTILE_FLAG_HITSCAN)
                     {
                         p = findplayer(s,&x);
                         execute(i,p,x);

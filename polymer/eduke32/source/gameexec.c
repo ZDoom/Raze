@@ -4783,7 +4783,7 @@ SKIPJIBS:
 		Bsprintf(ud.savegame[lastsavedpos],"Auto");
 		for(i=0;i<13;i++)
 			Bmemcpy(&ud.savegame[lastsavedpos][i+4],&tempbuf[i+3],sizeof(tempbuf[i+3]));
-		ud.savegame[lastsavedpos][Bstrlen(ud.savegame[lastsavedpos])] = '\0';
+		ud.savegame[lastsavedpos][i+4] = '\0';
 		OSD_Printf("Saving to slot %d\n",lastsavedpos);
 
         KB_FlushKeyboardQueue();

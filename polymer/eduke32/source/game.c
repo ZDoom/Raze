@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "util_lib.h"
 
-#define VERSION " 1.3.1-2"
+#define VERSION ""
 
 #define HEAD  "EDuke32"VERSION" (shareware mode)"
 #define HEAD2 "EDuke32"VERSION
@@ -6185,7 +6185,7 @@ char cheatquotes[][MAXCHEATLEN] = {
                                       "keys",         // 23
                                       "debug",        // 24
                                       "<RESERVED>",   // 25
-                                      "txisgod",      // 26
+                                      "screamforme",  // 26
                                   };
 
 enum cheats {
@@ -6215,7 +6215,7 @@ enum cheats {
     CHEAT_KEYS,
     CHEAT_DEBUG,
     CHEAT_RESERVED3,
-    CHEAT_TXISGOD,
+    CHEAT_SCREAMFORME,
 };
 
 void CheatGetInventory(void)
@@ -6415,7 +6415,6 @@ FOUNDCHEAT:
                                 fprintf(fp,"WEAPON%d_FIRESOUND %ld\n",i,aplWeaponFireSound[i][j]);
                                 fprintf(fp,"WEAPON%d_SOUND2TIME %ld\n",i,aplWeaponSound2Time[i][j]);
                                 fprintf(fp,"WEAPON%d_SOUND2SOUND %ld\n",i,aplWeaponSound2Sound[i][j]);
-                                fprintf(fp,"WEAPON%d_RENDERSIZE %ld\n",i,aplWeaponRenderSize[i][j]);
                             }
                             fprintf(fp,"\n");
                         }
@@ -6519,7 +6518,7 @@ FOUNDCHEAT:
                     KB_FlushKeyBoardQueue();
                     return;
 
-                case CHEAT_TXISGOD:
+                case CHEAT_SCREAMFORME:
                     ud.god = 1-ud.god;
 
                     if(ud.god)
@@ -6936,17 +6935,16 @@ void nonsharedkeys(void)
             {
                 if(i == 5 && ps[myconnectindex].fta > 0 && ps[myconnectindex].ftq == 26)
                 {
+					i = (VOLUMEALL?num_volumes*11:6);
                     music_select++;
-                    if (VOLUMEALL) {
-                        if(music_select == 44) music_select = 0;
-                    } else {
-                        if(music_select == 6) music_select = 0;
-                    }
-                    strcpy(&tempbuf[0],"PLAYING ");
-                    strcat(&tempbuf[0],&music_fn[0][music_select][0]);
-                    playmusic(&music_fn[0][music_select][0]);
-                    strcpy(&fta_quotes[26][0],&tempbuf[0]);
+					while(!music_fn[0][music_select][0] && music_select < i)
+	                    music_select++;
+                    if(music_select == i)
+						music_select = 0;
+                    Bstrcpy(&fta_quotes[26][0],"PLAYING ");
+                    Bstrcat(&fta_quotes[26][0],&music_fn[0][music_select][0]);
                     FTA(26,&ps[myconnectindex]);
+                    playmusic(&music_fn[0][music_select][0]);
                     return;
                 }
 
@@ -8277,12 +8275,17 @@ void app_main(int argc,char **argv)
 
     initprintf("%s%s\n",apptitle," ("__DATE__" "__TIME__")");
     initprintf("Copyright (c) 1996, 2003 3D Realms Entertainment\n");
-    initprintf("Copyright (c) 2006 EDuke32 team\n\n");
+    initprintf("Copyright (c) 2006 EDuke32 team\n");
 
     ud.multimode = 1;
 
     checkcommandline(argc,argv);
-    if (!loaddefinitionsfile(duke3ddef)) initprintf("Definitions file loaded.\n");
+
+	if (VOLUMEALL)
+		loadgroupfiles(duke3ddef);
+
+	initprintf("\n");
+
     if (condebug)
         initprintf("CON debugging activated (%d).\n\n",condebug);
 
@@ -8296,6 +8299,7 @@ void app_main(int argc,char **argv)
     }
 
     Startup(); // a bunch of stuff including compiling cons
+    if (!loaddefinitionsfile(duke3ddef)) initprintf("Definitions file loaded.\n");
 
     if (quitevent) return;
 
@@ -8343,13 +8347,22 @@ void app_main(int argc,char **argv)
 
     if( setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP) < 0 )
     {
+		int i = 0;
+		int xres[] = {800,640,320};
+		int yres[] = {600,480,240};
+		int bpp[] = {32,16,8};
         initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...",
                    ScreenWidth,ScreenHeight,ScreenBPP,ScreenMode?"fullscreen":"windowed");
-        ScreenMode = 0;     // JBF: was 2
-        ScreenWidth = 320;
-        ScreenHeight = 240; // JBF: was 200
-        ScreenBPP = 8;
-        setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP);
+/*        ScreenMode = 0;     // JBF: was 2
+        ScreenWidth = 800;
+        ScreenHeight = 600; // JBF: was 200
+        ScreenBPP = 32; */
+		while(setgamemode(0,xres[i],yres[i],bpp[i]) < 0) {
+			i++;
+		}
+		ScreenWidth = xres[i];
+		ScreenHeight = yres[i];
+		ScreenBPP = bpp[i];
     }
 
     initprintf("Initializing OSD...\n");
@@ -8630,7 +8643,7 @@ void opendemowrite(void)
 
     ver = BYTEVERSION;
 
-    if ((frecfilep = fopenfrompath(d,"wb")) == NULL) return;
+    if ((frecfilep = fopen(d,"wb")) == NULL) return;
     fwrite(&dummylong,4,1,frecfilep);
     fwrite(&ver,sizeof(char),1,frecfilep);
     fwrite((char *)&ud.volume_number,sizeof(char),1,frecfilep);
@@ -8817,6 +8830,7 @@ RECHECK:
         }
         else
         {
+			if(ud.recstat != 2)
             menus();
             if( ud.multimode > 1 )
             {

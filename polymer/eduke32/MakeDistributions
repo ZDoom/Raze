@@ -22,7 +22,9 @@ all: source binary
 source:
 	rm -rf $(sourcedir) $(sourcedir).zip
 	mkdir -p $(sourcedir) $(sourcedir)/eobj $(sourcedir)/obj
+	mkdir -p $(sourcedir)/eobj.nix $(sourcedir)/obj.nix
 	touch $(sourcedir)/eobj/keep.me $(sourcedir)/obj/keep.me
+	touch $(sourcedir)/eobj.nix/keep.me $(sourcedir)/obj.nix/keep.me
 	cp $(SOURCEFILES) $(sourcedir)
 	find . -name "*~" -exec rm -rf '{}' ';';
 	find . -name "*.orig" -exec rm -rf '{}' ';';

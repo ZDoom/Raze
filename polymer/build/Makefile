@@ -31,7 +31,7 @@ RELEASE?=1
 EFENCE?=0
 
 # SDK locations - adjust to match your setup
-DXROOT=c:/sdks/msc/dx61
+DXROOT=c:/sdks/directx/dx61
 FMODROOTWIN=c:/sdks/fmodapi374win/api
 
 # build locations - OBJ gets overridden to the game-specific objects dir

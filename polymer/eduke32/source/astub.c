@@ -4275,7 +4275,7 @@ int ExtInit(void)
         defsfilename = getenv("DUKE3DDEF");
         initprintf("Using %s as definitions file\n", defsfilename);
     }
-
+	loadgroupfiles(defsfilename);
     bpp = 8;
     if (loadsetup("build.cfg") < 0) initprintf("Configuration file not found, using defaults.\n"), rv = 1;
 
