@@ -552,6 +552,8 @@ void polymost_glinit()
 void resizeglcheck ()
 {
 	float m[4][4];
+        float ratioratio;
+        int fovcorrect;
 
 	if (glredbluemode < lastglredbluemode) {
 		glox1 = -1;
@@ -584,8 +586,13 @@ void resizeglcheck ()
 	{
 		glox1 = windowx1; gloy1 = windowy1;
 		glox2 = windowx2; gloy2 = windowy2;
+                        
+                int variable_between_0_and_63_which_is_a_placeholder = 33;
+                
+                ratioratio = 1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
+                fovcorrect = (ratioratio > 1) ? (((windowx2-windowx1+1) * ratioratio) - (windowx2-windowx1+1)) * ((float)variable_between_0_and_63_which_is_a_placeholder / 63) : 0;
 
-		bglViewport(windowx1 - 102, yres-(windowy2+1),windowx2-windowx1+1 + 204, windowy2-windowy1+1);
+		bglViewport(windowx1 - (fovcorrect / 2), yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect, windowy2-windowy1+1);
 
 		bglMatrixMode(GL_PROJECTION);
 		memset(m,0,sizeof(m));
@@ -3960,6 +3967,8 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
 	double ogrhalfxdown10, ogrhalfxdown10x;
 	double d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
 	float m[4][4];
+        float ratioratio;
+        int fovcorrect;
 
 #ifdef USE_OPENGL
 	if (rendmode == 3 && usemodels && hudmem[(dastat&4)>>2][picnum].angadd)
@@ -4027,16 +4036,27 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
 			tspr.owner = uniqid+MAXSPRITES;
 			globalorientation = (dastat&1)+((dastat&32)<<4)+((dastat&4)<<1);
 
-			if ((dastat&10) == 2) bglViewport(windowx1,yres-(windowy2+1),windowx2-windowx1+1,windowy2-windowy1+1);
-			else { bglViewport(0,0,xdim,ydim); glox1 = -1; } //Force fullscreen (glox1=-1 forces it to restore)
+                        int variable_between_0_and_63_which_is_a_placeholder = 33;
+                      
+			if ((dastat&10) == 2) 
+                        {
+                            ratioratio = 1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
+                            fovcorrect = (ratioratio > 1) ? (((windowx2-windowx1+1) * ratioratio) - windowx2-windowx1+1) * ((float)variable_between_0_and_63_which_is_a_placeholder / 63) : 0;
+                            bglViewport(windowx1 - (fovcorrect / 2),yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect,windowy2-windowy1+1);
+                        }
+			else
+                        {
+                            bglViewport(0,0,xdim,ydim);
+                            glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
+                        } 
 
 			bglMatrixMode(GL_PROJECTION);
 			memset(m,0,sizeof(m));
 			if ((dastat&10) == 2)
 			{
-				m[0][0] = (float)ydimen; m[0][2] = 1.0;
+				m[0][0] = (float)ydimen / ratioratio; m[0][2] = 1.0;
 				m[1][1] = (float)xdimen; m[1][2] = 1.0;
-				m[2][2] = 1.0; m[2][3] = (float)ydimen;
+				m[2][2] = 1.0; m[2][3] = (float)ydimen / ratioratio;
 				m[3][2] =-1.0;
 			}
 			else { m[0][0] = m[2][3] = 1.0; m[1][1] = ((float)xdim)/((float)ydim); m[2][2] = 1.0001; m[3][2] = 1-m[2][2]; }
