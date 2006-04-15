@@ -2201,6 +2201,7 @@ cheat_for_port_credits:
                 case 1: if (x==io) ud.tickrate = 1-ud.tickrate;
                     modval(0,1,(int *)&ud.tickrate,1,probey==1);
                     gametextpal(d,yy, ud.tickrate ? "On" : "Off", 0, 0); break;
+                case 2: if (x==io) cmenu(200); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?5:15, 2);
