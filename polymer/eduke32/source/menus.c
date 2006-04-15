@@ -1917,7 +1917,7 @@ cheat_for_port_credits:
     case 230:
 
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,24,0,0,"OMFG LOL VIDEO S3TT1NGZ");
+        menutext(320>>1,24,0,0,"ADVANCED VIDEO");
 
         c = (320>>1)-120;
 
@@ -1942,7 +1942,7 @@ cheat_for_port_credits:
                                "-",
                                "-",
                                "-",
-                               "Boobs",
+                               "-",
                                NULL
                            };
 
@@ -1959,7 +1959,7 @@ cheat_for_port_credits:
             onbar = (probey == 0);
             x = probesm(c,yy+5,0,io);
 
-        if (x == -1) { cmenu(202); break; }
+        if (x == -1) { cmenu(203); break; }
 
             yy = 34;
             for (ii=io=0; opts[ii]; ii++) {
@@ -2068,9 +2068,10 @@ cheat_for_port_credits:
                     modval(0,1,(int *)&ud.mouseflip,1,probey==5);
                     gametextpal(d,yy, ud.mouseflip ? "On" : "Off", 0, 0); break;
                 case 6:  if (ps[myconnectindex].gm&MODE_GAME || numplayers > 1) enabled = 0;
-                    if (enabled && x==io) AutoAim = 1-AutoAim;
-                    if (enabled) modval(0,1,(int *)&AutoAim,1,probey==6);
-                    gametextpal(d,yy, AutoAim ? "On" : "Off", enabled?0:10, 0); break;
+                    if (enabled && x==io) { AutoAim = (AutoAim == 2) ? 0 : AutoAim+1; }
+                    if (enabled) modval(0,2,(int *)&AutoAim,1,probey==6);
+                    { char *s[] = { "Off", "Full", "Hitscan" };
+                    gametextpal(d,yy, s[AutoAim], enabled?0:10, 0); break; }
                 case 7:  if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
                     modval(0,1,(int *)&ud.runkey_mode,1,probey==7);
                     gametextpal(d,yy, ud.runkey_mode ? "Classic" : "Modern", 0, 0); break;
@@ -2294,7 +2295,7 @@ cheat_for_port_credits:
         c = (320>>1)-120;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        x = 7;
+        x = 8;
 #else
         x = 5;
 #endif
@@ -2486,6 +2487,9 @@ cheat_for_port_credits:
             if (glanisotropy > glinfo.maxanisotropy) glanisotropy = 1;
             gltexapplyprops();
             break;
+        case 7:
+			cmenu(230);
+            break;
 #endif
         }
 
@@ -2528,6 +2532,8 @@ cheat_for_port_credits:
         if (glanisotropy == 1) strcpy(tempbuf,"NONE");
         else sprintf(tempbuf,"%ld-tap",glanisotropy);
         menutext(c+154,50+62+16+16+16,0,bpp==8,tempbuf);
+        menutext(c,50+62+16+16+16+16,0,0,"ADVANCED OPTIONS");
+
 #endif
         break;
 

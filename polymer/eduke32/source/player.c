@@ -268,7 +268,7 @@ long hitawall(struct player_struct *p,short *hitw)
     return ( FindDistance2D(sx-p->posx,sy-p->posy) );
 }
 
-short aim(spritetype *s,short aang)
+short aim(spritetype *s,short aang,short atwith)
 {
     char gotshrinker,gotfreezer;
     short i, j, a, k, cans;
@@ -279,8 +279,27 @@ short aim(spritetype *s,short aang)
     a = s->ang;
 
     j = -1;
-    if(s->picnum == APLAYER && !ps[s->yvel].auto_aim) return -1;
-
+    if(s->picnum == APLAYER) {
+		if(!ps[s->yvel].auto_aim)
+			return -1;
+		if(ps[s->yvel].auto_aim == 2)
+		{
+			if(checkspriteflagsp(atwith,SPRITE_FLAG_PROJECTILE) && (projectile[atwith].workslike & PROJECTILE_FLAG_RPG))
+				return -1;
+			else switch(dynamictostatic[atwith]) {
+	            case TONGUE__STATIC:
+	            case FREEZEBLAST__STATIC:
+	            case SHRINKSPARK__STATIC:
+	            case RPG__STATIC:
+	            case FIRELASER__STATIC:
+	            case SPIT__STATIC:
+	            case COOLEXPLOSION1__STATIC:
+					return -1;
+				default:
+					break;
+			}
+		}
+	}
     gotshrinker = s->picnum == APLAYER && *aplWeaponWorksLike[ps[s->yvel].curr_weapon] == SHRINKER_WEAPON;
     gotfreezer = s->picnum == APLAYER && *aplWeaponWorksLike[ps[s->yvel].curr_weapon] == FREEZE_WEAPON;
 
@@ -617,7 +636,7 @@ short shoot(short i,short atwith)
                 j=-1;
                 if( GetGameVarID(g_iAimAngleVarID,i,p) > 0 )
                 {
-                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p));
+                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p),atwith);
                 }
                 if(j >= 0)
                 {
@@ -903,7 +922,7 @@ DOSKIPBULLETHOLE:
                 j=-1;
                 if( GetGameVarID(g_iAimAngleVarID,i,p) > 0 )
                 {
-                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p));
+                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p),atwith);
                 }
                 if(j >= 0)
                 {
@@ -1142,7 +1161,7 @@ DOSKIPBULLETHOLE:
                 j=-1;
                 if( GetGameVarID(g_iAimAngleVarID,i,p) > 0 )
                 {
-                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p));
+                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p),atwith);
                 }
                 if(j >= 0)
                 {
@@ -1386,7 +1405,7 @@ SKIPBULLETHOLE:
                 j=-1;
                 if( GetGameVarID(g_iAimAngleVarID,i,p) > 0 )
                 {
-                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p));
+                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p),atwith);
                 }
 
                 if(j >= 0)
@@ -1482,7 +1501,7 @@ SKIPBULLETHOLE:
                 j=-1;
                 if( GetGameVarID(g_iAimAngleVarID,i,p) > 0 )
                 {
-                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p));
+                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p),atwith);
                 }
 
                 if(j >= 0)
@@ -1682,7 +1701,7 @@ SKIPBULLETHOLE:
                 j=-1;
                 if( GetGameVarID(g_iAimAngleVarID,i,p) > 0 )
                 {
-                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p));
+                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p),atwith);
                 }
 
                 if(j >= 0)
@@ -1773,7 +1792,7 @@ SKIPBULLETHOLE:
                 j=-1;
                 if( GetGameVarID(g_iAimAngleVarID,i,p) > 0 )
                 {
-                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p));
+                    j = aim( s, GetGameVarID(g_iAimAngleVarID,i,p),atwith);
                 }
 
                 if(j >= 0)

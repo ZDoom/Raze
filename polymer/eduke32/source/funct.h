@@ -119,7 +119,7 @@ extern void tracers(long x1,long y1,long z1,long x2,long y2,long z2,long n);
 extern long hits(short i);
 extern long hitasprite(short i,short *hitsp);
 extern long hitawall(struct player_struct *p,short *hitw);
-extern short aim(spritetype *s,short aang);
+extern short aim(spritetype *s,short aang,short atwith);
 extern short shoot(short i,short atwith);
 extern void displayloogie(short snum);
 extern char animatefist(short gs,short snum);
