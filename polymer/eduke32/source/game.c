@@ -1872,11 +1872,9 @@ void tics(void)
     {
         j=(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]);
         Bsprintf(b,"%ld",j>0?j:0);
-        /*        printext256(windowx1,windowy1,31,-21,b,1); */
-        minitext(320-strlen(b)*4,ud.multimode>1&&ud.multimode<5?9:ud.multimode>4?17:1,b,(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
+        minitext(320-strlen(b)*4,ud.screen_size!=0?(ud.multimode>1&&ud.multimode<5?9:(ud.multimode>4?17:1)):1,b,(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
         frameval[framecnt] = i;
     }
-
     framecnt = ((framecnt+1)&(AVERAGEFRAMES-1));
 }
 
