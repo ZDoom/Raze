@@ -3588,7 +3588,8 @@ char parse(void)
     case CON_SOUNDONCE:
         insptr++;
         if(!isspritemakingsound(g_i,*insptr))
-            spritesound((short) *insptr++,g_i);
+            spritesound((short) *insptr,g_i);
+		insptr++;
         break;
     case CON_IFSOUND:
         insptr++;
@@ -3598,12 +3599,14 @@ char parse(void)
     case CON_STOPSOUND:
         insptr++;
         if(isspritemakingsound(g_i,*insptr))
-            stopspritesound((short)*insptr++,g_i);
+            stopspritesound((short)*insptr,g_i);
+		insptr++;
         break;
     case CON_GLOBALSOUND:
         insptr++;
         if(g_p == screenpeek || (gametype_flags[ud.coop]&GAMETYPE_FLAG_COOPSOUND))
-            spritesound((short) *insptr++,ps[screenpeek].i);
+            spritesound((short) *insptr,ps[screenpeek].i);
+		insptr++;
         break;
     case CON_SOUND:
         insptr++;
@@ -5769,7 +5772,6 @@ good:
         {
             int i;
             long l;
-            long lResult;
             insptr++;
             i=*insptr++;  // ID of def
             l=*insptr++;
@@ -5777,44 +5779,37 @@ good:
             {
                 gameexit("CON_MODVAR: Mod by zero.");
             }
-            lResult=GetGameVarID(i, g_i, g_p) % l;
-            SetGameVarID(i, lResult, g_i, g_p );
+            SetGameVarID(i,GetGameVarID(i, g_i, g_p)%l, g_i, g_p );
             break;
         }
     case CON_ANDVAR:
         {
             int i;
             long l;
-            long lResult;
             insptr++;
             i=*insptr++;  // ID of def
             l=*insptr++;
-            lResult=GetGameVarID(i, g_i, g_p) & l;
-            SetGameVarID(i, lResult, g_i, g_p );
+            SetGameVarID(i,GetGameVarID(i, g_i, g_p) & l, g_i, g_p );
             break;
         }
     case CON_ORVAR:
         {
             int i;
             long l;
-            long lResult;
             insptr++;
             i=*insptr++;  // ID of def
             l=*insptr++;
-            lResult=GetGameVarID(i, g_i, g_p) | l;
-            SetGameVarID(i, lResult, g_i, g_p );
+            SetGameVarID(i,GetGameVarID(i, g_i, g_p) | l, g_i, g_p );
             break;
         }
     case CON_XORVAR:
         {
             int i;
             long l;
-            long lResult;
             insptr++;
             i=*insptr++;  // ID of def
             l=*insptr++;
-            lResult=GetGameVarID(i, g_i, g_p) ^ l;
-            SetGameVarID(i, lResult, g_i, g_p );
+            SetGameVarID(i,GetGameVarID(i, g_i, g_p) ^ l, g_i, g_p );
             break;
         }
 
@@ -5822,12 +5817,10 @@ good:
         {
             int i;
             long l1;
-            long lResult;
             insptr++;
             i=*insptr++;  // ID of def
             l1=GetGameVarID(*insptr++, g_i, g_p);
-            lResult=mulscale(krand(), l1+1, 16);
-            SetGameVarID(i, lResult , g_i, g_p );
+            SetGameVarID(i,mulscale(krand(), l1+1, 16), g_i, g_p );
             break;
         }
 
@@ -5835,12 +5828,11 @@ good:
         {
             int i;
             long l1;
-            long lResult;
             insptr++;
             i=*insptr++;  // ID of def
             l1=GetGameVarID(*insptr++, g_i, g_p);
-            lResult=mulscale(rand(), l1+1, 15);
-            SetGameVarID(i, lResult , g_i, g_p );
+
+            SetGameVarID(i,mulscale(rand(), l1+1, 15), g_i, g_p );
             break;
         }
 
