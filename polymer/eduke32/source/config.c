@@ -631,6 +631,7 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Controls","AutoAim",&AutoAim);         // JBF 20031125
         ps[0].auto_aim = AutoAim;
         SCRIPT_GetNumber( scripthandle, "Controls","WeaponSwitchMode",&ud.weaponswitch);
+        ps[0].weaponswitch = ud.weaponswitch;
         glusetexcache = glusetexcachecompression = -1;
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseTextureCacheCompression", &glusetexcachecompression);
