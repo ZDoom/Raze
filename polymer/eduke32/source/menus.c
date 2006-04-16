@@ -649,7 +649,7 @@ void menus(void)
         }
         else if (x == 0) cmenu(20011);
 
-        menutext(40,50,0,0,"GAME OPTIONS");
+        menutext(40,50,0,0,        "GAME OPTIONS");
         minitext(90,60,            "GAME TYPE"    ,2,26);
         minitext(90,60+8,          "EPISODE"      ,2,26);
         minitext(90,60+8+8,        "LEVEL"        ,2,26);
@@ -1513,7 +1513,7 @@ cheat_for_port_credits:
 
         if(KB_KeyPressed(sc_Q)) cmenu(500);
 
-        if(x == -1)
+        if(x == -1 && (ps[myconnectindex].gm&MODE_GAME || ud.recstat == 2))
         {
             ps[myconnectindex].gm &= ~MODE_MENU;
             if(ud.multimode < 2 && ud.recstat != 2)
@@ -2220,10 +2220,10 @@ cheat_for_port_credits:
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,24,0,0,"OPTIONS");
 
-        c = 200>>1;
+        c = 50;
 
         onbar = 0;
-        x = probe(160,c-18-18-18,18,6);
+        x = probe(160,c,18,6);
 
         switch (x) {
         case -1:
@@ -2276,12 +2276,12 @@ cheat_for_port_credits:
             break;
         }
 
-        menutext(160,c-18-18-18,0,0,"GAME OPTIONS");
-        menutext(160,c-18-18,   0,0,"SOUND OPTIONS");
-        menutext(160,c-18,      0,0,"VIDEO SETTINGS");
-        menutext(160,c,         0,0,"KEYBOARD SETUP");
-        menutext(160,c+18,      0,0,"MOUSE SETUP");
-        menutext(160,c+18+18,   0,CONTROL_JoyPresent==0 || CONTROL_JoystickEnabled==0,"JOYSTICK SETUP");
+        menutext(160,c,                  0,0,"GAME OPTIONS");
+        menutext(160,c+18,               0,0,"SOUND OPTIONS");
+        menutext(160,c+18+18,            0,0,"VIDEO SETTINGS");
+        menutext(160,c+18+18+18,         0,0,"KEYBOARD SETUP");
+        menutext(160,c+18+18+18+18,      0,0,"MOUSE SETUP");
+        menutext(160,c+18+18+18+18+18,   0,CONTROL_JoyPresent==0 || CONTROL_JoystickEnabled==0,"JOYSTICK SETUP");
         break;
 
         // JBF 20031206: Video settings menu
@@ -3886,6 +3886,16 @@ VOLUME_ALL_40x:
         menutext(160,31,0,0,&ud.user_name[myconnectindex][0]);
 
         x = probe(c,57-8,16,8);
+
+        modval(0,num_gametypes-1,(int *)&ud.m_coop,1,probey==0);
+        if(!VOLUMEONE)
+            modval(0,num_volumes-1,(int *)&ud.m_volume_number,1,probey==1);
+        modval(0,ud.m_volume_number == 0?6:10,(int *)&ud.m_level_number,1,probey==2);
+
+        if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION))
+            modval(0,1,(int *)&ud.m_marker,1,probey==4);
+        if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_COOP))
+            modval(0,1,(int *)&ud.m_ffire,1,probey==5);
 
         switch(x)
         {
