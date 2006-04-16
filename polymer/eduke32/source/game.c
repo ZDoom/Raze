@@ -5852,6 +5852,9 @@ PALONLY:
             if( t->z > hittype[i].floorz && t->xrepeat < 32 )
                 t->z = hittype[i].floorz;
 
+			if(ud.brightskins)
+				t->shade -= 15;
+
             break;
 
         case JIBS1__STATIC:

@@ -205,7 +205,7 @@ void CONFIG_SetDefaults( void )
     MixRate = 22050;
     SoundToggle = 1;
     MusicToggle = 1;
-    VoiceToggle = 1;
+    VoiceToggle = 2;
     AmbienceToggle = 1;
     FXVolume = 220;
     MusicVolume = 200;
@@ -229,6 +229,7 @@ void CONFIG_SetDefaults( void )
     ud.m_ffire = 1;
     ud.levelstats = 0;
     ud.drawweapon = 1;
+	ud.brightskins = 0;
     ShowOpponentWeapons = 0;
     Bstrcpy(ud.rtsname, "DUKE.RTS");
     Bstrcpy(myname, "Duke");
@@ -583,6 +584,7 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowLevelStats",&ud.levelstats);
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowOpponentWeapons",&ShowOpponentWeapons);
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowViewWeapon",&ud.drawweapon);
+        SCRIPT_GetNumber( scripthandle, "Misc", "BrightSkins",&ud.brightskins);
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         dummy = useprecache; SCRIPT_GetNumber( scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
         if(ud.wchoice[0][0] == 0 && ud.wchoice[0][1] == 0)
@@ -710,6 +712,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Misc", "ShowOpponentWeapons",ShowOpponentWeapons,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "UsePrecache",useprecache,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "ShowViewWeapon",ud.drawweapon,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "BrightSkins",ud.brightskins,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "ShowFPS",ud.tickrate,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls", "MouseAimingFlipped",ud.mouseflip,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);

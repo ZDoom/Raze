@@ -2147,7 +2147,7 @@ cheat_for_port_credits:
                                "HUD weapon",
                                "FPS counter",
                                "-",
-                               "-",
+                               "Bright players",
                                "-",
                                "-",
                                "-",
@@ -2201,7 +2201,10 @@ cheat_for_port_credits:
                 case 1: if (x==io) ud.tickrate = 1-ud.tickrate;
                     modval(0,1,(int *)&ud.tickrate,1,probey==1);
                     gametextpal(d,yy, ud.tickrate ? "On" : "Off", 0, 0); break;
-                case 2: if (x==io) cmenu(200); break;
+                case 2: if (x==io) ud.brightskins = 1-ud.brightskins;
+                    modval(0,1,(int *)&ud.brightskins,1,probey==1);
+                    gametextpal(d,yy, ud.brightskins ? "On" : "Off", 0, 0); break;
+                case 3: if (x==io) cmenu(200); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?5:15, 2);

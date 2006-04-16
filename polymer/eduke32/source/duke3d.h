@@ -336,6 +336,7 @@ struct user_defs {
     long reccnt;
 
     int32 runkey_mode,statusbarscale,mouseaiming,weaponswitch,drawweapon;   // JBF 20031125
+	int32 brightskins;
 
     int32 entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
     int32 coords,tickrate,levelstats,m_coop,coop,screen_size,lockout,crosshair;

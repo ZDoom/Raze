@@ -588,6 +588,13 @@ void DoUserDef(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, s
             SetGameVarID((int)lVar2, ud.weaponswitch, sActor, sPlayer);
         break;
 
+    case USERDEFS_BRIGHTSKINS:
+        if(bSet)
+            ud.brightskins = lValue;
+        else
+            SetGameVarID((int)lVar2, ud.brightskins, sActor, sPlayer);
+        break;
+
     default:
         break;
     }

@@ -797,6 +797,7 @@ LABELS userdefslabels[]= {
                              { "drawweapon", USERDEFS_DRAWWEAPON, 0, 0 },
                              { "mouseaiming", USERDEFS_MOUSEAIMING, 0, 0 },
                              { "weaponswitch", USERDEFS_WEAPONSWITCH, 0, 0 },
+                             { "brightskins", USERDEFS_BRIGHTSKINS, 0, 0 },
                              { "", -1, 0, 0  }     // END OF LIST
                          };
 
