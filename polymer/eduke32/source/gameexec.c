@@ -3589,7 +3589,7 @@ char parse(void)
         insptr++;
         if(!isspritemakingsound(g_i,*insptr))
             spritesound((short) *insptr,g_i);
-		insptr++;
+        insptr++;
         break;
     case CON_IFSOUND:
         insptr++;
@@ -3600,13 +3600,13 @@ char parse(void)
         insptr++;
         if(isspritemakingsound(g_i,*insptr))
             stopspritesound((short)*insptr,g_i);
-		insptr++;
+        insptr++;
         break;
     case CON_GLOBALSOUND:
         insptr++;
         if(g_p == screenpeek || (gametype_flags[ud.coop]&GAMETYPE_FLAG_COOPSOUND))
             spritesound((short) *insptr,ps[screenpeek].i);
-		insptr++;
+        insptr++;
         break;
     case CON_SOUND:
         insptr++;
@@ -4280,16 +4280,16 @@ SKIPJIBS:
             lIn=GetGameVarID(lIn, g_i, g_p);
             if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
                 lReturn = spawn(g_i, lIn);
-			switch(tw) {
-				case CON_EQSPAWNVAR:
-					insertspriteq(lReturn);
-				case CON_ESPAWNVAR:
-		            SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
-					break;
-				case CON_QSPAWNVAR:
-					insertspriteq(lReturn);
-					break;
-			}
+            switch(tw) {
+            case CON_EQSPAWNVAR:
+                insertspriteq(lReturn);
+            case CON_ESPAWNVAR:
+                SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
+                break;
+            case CON_QSPAWNVAR:
+                insertspriteq(lReturn);
+                break;
+            }
             break;
         }
 
@@ -4302,16 +4302,16 @@ SKIPJIBS:
             insptr++;
             if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
                 lReturn = spawn(g_i,*insptr++);
-			switch(tw) {
-				case CON_EQSPAWN:
-					insertspriteq(lReturn);
-				case CON_ESPAWN:
-		            SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
-					break;
-				case CON_QSPAWN:
-					insertspriteq(lReturn);
-					break;
-			}
+            switch(tw) {
+            case CON_EQSPAWN:
+                insertspriteq(lReturn);
+            case CON_ESPAWN:
+                SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
+                break;
+            case CON_QSPAWN:
+                insertspriteq(lReturn);
+                break;
+            }
             break;
         }
 
@@ -4990,7 +4990,7 @@ SKIPJIBS:
     case CON_GUTS:
         insptr += 2;
         guts(g_sp,*(insptr-1),*insptr,g_p);
-		insptr++;
+        insptr++;
         break;
     case CON_IFSPAWNEDBY:
         insptr++;
