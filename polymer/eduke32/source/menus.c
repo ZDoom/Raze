@@ -944,7 +944,7 @@ void menus(void)
         menutext(160,24,0,0,"ADULT MODE");
 
         x = probe(60,50+16,16,2);
-    if(x == -1) { cmenu(202); probey = 6; break; }
+    if(x == -1) { cmenu(201); probey = 3; break; }
 
         menutext(c,50+16,SHX(-2),PHX(-2),"ADULT MODE");
         menutext(c,50+16+16,SHX(-3),PHX(-3),"ENTER PASSWORD");
@@ -1959,7 +1959,7 @@ cheat_for_port_credits:
             onbar = (probey == 0);
             x = probesm(c,yy+5,0,io);
 
-            if (x == -1) { cmenu(203); break; }
+        if (x == -1) { cmenu(203); probey = 7; break; }
 
             yy = 34;
             for (ii=io=0; opts[ii]; ii++) {
@@ -2149,7 +2149,7 @@ cheat_for_port_credits:
                                "-",
                                "Bright players",
                                "-",
-                               "-",
+                               "Parental lock",
                                "-",
                                "-",
                                "-",
@@ -2184,7 +2184,7 @@ cheat_for_port_credits:
 
             x = probesm(c,yy+5,0,io);
 
-        if (x == -1) { cmenu(202); break; }
+        if (x == -1) { cmenu(200); probey = 14; break; }
 
             yy = 34;
             for (ii=io=0; opts[ii]; ii++) {
@@ -2204,7 +2204,8 @@ cheat_for_port_credits:
                 case 2: if (x==io) ud.brightskins = 1-ud.brightskins;
                     modval(0,1,(int *)&ud.brightskins,1,probey==1);
                     gametextpal(d,yy, ud.brightskins ? "On" : "Off", 0, 0); break;
-                case 3: if (x==io) cmenu(200); break;
+                case 3: if (x==io) cmenu(10000); break;
+                case 4: if (x==io) cmenu(200); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?5:15, 2);
@@ -2222,7 +2223,7 @@ cheat_for_port_credits:
         c = 200>>1;
 
         onbar = 0;
-        x = probe(160,c-18-18-18,18,7);
+        x = probe(160,c-18-18-18,18,6);
 
         switch (x) {
         case -1:
@@ -2273,12 +2274,6 @@ cheat_for_port_credits:
             if (x==5 && (!CONTROL_JoystickEnabled || !CONTROL_JoyPresent)) break;
             cmenu(204+x-3);
             break;
-
-        case 6:
-#ifndef AUSTRALIA
-            cmenu(10000);
-#endif
-            break;
         }
 
         menutext(160,c-18-18-18,0,0,"GAME OPTIONS");
@@ -2287,7 +2282,6 @@ cheat_for_port_credits:
         menutext(160,c,         0,0,"KEYBOARD SETUP");
         menutext(160,c+18,      0,0,"MOUSE SETUP");
         menutext(160,c+18+18,   0,CONTROL_JoyPresent==0 || CONTROL_JoystickEnabled==0,"JOYSTICK SETUP");
-        menutext(160,c+18+18+18,0,0,"PARENTAL LOCK");
         break;
 
         // JBF 20031206: Video settings menu

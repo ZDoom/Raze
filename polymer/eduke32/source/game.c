@@ -2053,7 +2053,7 @@ else if(ud.recstat == 2) { if (frecfilep) fclose(frecfilep); }  // JBF: fixes cr
     if( *t != 0 && *(t+1) != 'V' && *(t+1) != 'Y')
         showtwoscreens();
 
-GOTOHERE:
+    GOTOHERE:
 
     if (qsetmode == 200)
         Shutdown();
@@ -8809,7 +8809,7 @@ RECHECK:
         if( (ps[myconnectindex].gm&MODE_MENU) && (ps[myconnectindex].gm&MODE_EOL) )
             goto RECHECK;
 
-        if (KB_KeyPressed(sc_Escape))
+        if (KB_KeyPressed(sc_Escape) && (ps[myconnectindex].gm&MODE_MENU) == 0)
         {
             KB_ClearKeyDown(sc_Escape);
             FX_StopAllSounds();
