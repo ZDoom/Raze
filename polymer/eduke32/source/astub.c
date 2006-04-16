@@ -1843,33 +1843,33 @@ void Keys3d(void)
         {
         case 0:
             strcpy(tempbuf,"Wall picnum: ");
-			i = getnumber256(tempbuf,wall[searchwall].picnum,MAXTILES-1,0);
-			if(tilesizx[i] != 0)
-	            wall[searchwall].picnum = i;
+            i = getnumber256(tempbuf,wall[searchwall].picnum,MAXTILES-1,0);
+            if(tilesizx[i] != 0)
+                wall[searchwall].picnum = i;
             break;
         case 1:
             strcpy(tempbuf,"Sector ceiling picnum: ");
-			i = getnumber256(tempbuf,sector[searchsector].ceilingpicnum,MAXTILES-1,0);
-			if(tilesizx[i] != 0)
-	            sector[searchsector].ceilingpicnum = i;
+            i = getnumber256(tempbuf,sector[searchsector].ceilingpicnum,MAXTILES-1,0);
+            if(tilesizx[i] != 0)
+                sector[searchsector].ceilingpicnum = i;
             break;
         case 2:
             strcpy(tempbuf,"Sector floor picnum: ");
-			i = getnumber256(tempbuf,sector[searchsector].floorpicnum,MAXTILES-1,0);
-			if(tilesizx[i] != 0)
-            	sector[searchsector].floorpicnum = i;
+            i = getnumber256(tempbuf,sector[searchsector].floorpicnum,MAXTILES-1,0);
+            if(tilesizx[i] != 0)
+                sector[searchsector].floorpicnum = i;
             break;
         case 3:
             strcpy(tempbuf,"Sprite picnum: ");
-			i = getnumber256(tempbuf,sprite[searchwall].picnum,MAXTILES-1,0);
-			if(tilesizx[i] != 0)
-	            sprite[searchwall].picnum = i;
+            i = getnumber256(tempbuf,sprite[searchwall].picnum,MAXTILES-1,0);
+            if(tilesizx[i] != 0)
+                sprite[searchwall].picnum = i;
             break;
         case 4:
             strcpy(tempbuf,"Masked wall picnum: ");
-			i = getnumber256(tempbuf,wall[searchwall].overpicnum,MAXTILES-1,0);
-			if(tilesizx[i] != 0)
-	            wall[searchwall].overpicnum = i;
+            i = getnumber256(tempbuf,wall[searchwall].overpicnum,MAXTILES-1,0);
+            if(tilesizx[i] != 0)
+                wall[searchwall].overpicnum = i;
             break;
         }
         asksave = 1;
@@ -3355,12 +3355,12 @@ void Keys2d(void)
         Bsprintf(tempbuf,"Delete all sprites of picnum: ");
         i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
         if (i >= 0)
-		{
+        {
             for(j=0;j<MAXSPRITES-1;j++)
                 if(sprite[j].picnum == i)
                     deletesprite(j);
-			printmessage16("Sprites deleted.");
-		}
+            printmessage16("Sprites deleted.");
+        }
     }
 
     getpoint(searchx,searchy,&mousxplc,&mousyplc);
@@ -3510,40 +3510,40 @@ void Keys2d(void)
     {
         if (pointhighlight >= 16384)
         {
-	        keystatus[0x1f] = 0;
-	        Bsprintf(tempbuf,"Sprite (%d) xrepeat: ",cursprite);
-	        sprite[cursprite].xrepeat=getnumber16(tempbuf, sprite[cursprite].xrepeat, 256,0);
-	        Bsprintf(tempbuf,"Sprite (%d) yrepeat: ",cursprite);
-	        sprite[cursprite].yrepeat=getnumber16(tempbuf, sprite[cursprite].yrepeat, 256,0);
-	        Bsprintf(tempbuf,"Sprite (%d) updated",i);
-	        printmessage16(tempbuf);
-		}
+            keystatus[0x1f] = 0;
+            Bsprintf(tempbuf,"Sprite (%d) xrepeat: ",cursprite);
+            sprite[cursprite].xrepeat=getnumber16(tempbuf, sprite[cursprite].xrepeat, 256,0);
+            Bsprintf(tempbuf,"Sprite (%d) yrepeat: ",cursprite);
+            sprite[cursprite].yrepeat=getnumber16(tempbuf, sprite[cursprite].yrepeat, 256,0);
+            Bsprintf(tempbuf,"Sprite (%d) updated",i);
+            printmessage16(tempbuf);
+        }
     }
 
     if(keystatus[KEYSC_QUOTE] && keystatus[KEYSC_F]) // ' F
     {
         keystatus[KEYSC_F] = 0;
-		j = 0;
-		for(i=0;i<MAXSECTORS;i++)
-		{
-			if(tilesizx[sector[i].ceilingpicnum] <= 0)
-				sector[i].ceilingpicnum = 0,j++;
-			if(tilesizx[sector[i].floorpicnum] <= 0)
-				sector[i].floorpicnum = 0,j++;
-		}
-		for(i=0;i<MAXWALLS;i++)
-		{
-			if(tilesizx[wall[i].picnum] <= 0)
-				wall[i].picnum = 0,j++;
-			if(tilesizx[wall[i].overpicnum] <= 0)
-				wall[i].overpicnum = 0,j++;
-		}
-		for(i=0;i<MAXSPRITES;i++)
-		{
-			if(tilesizx[sprite[i].picnum] <= 0)
-				sprite[i].picnum = 0,j++;
-		}
-		Bsprintf(tempbuf,"Replaced %d invalid tiles",j);
+        j = 0;
+        for(i=0;i<MAXSECTORS;i++)
+        {
+            if(tilesizx[sector[i].ceilingpicnum] <= 0)
+                sector[i].ceilingpicnum = 0,j++;
+            if(tilesizx[sector[i].floorpicnum] <= 0)
+                sector[i].floorpicnum = 0,j++;
+        }
+        for(i=0;i<MAXWALLS;i++)
+        {
+            if(tilesizx[wall[i].picnum] <= 0)
+                wall[i].picnum = 0,j++;
+            if(tilesizx[wall[i].overpicnum] <= 0)
+                wall[i].overpicnum = 0,j++;
+        }
+        for(i=0;i<MAXSPRITES;i++)
+        {
+            if(tilesizx[sprite[i].picnum] <= 0)
+                sprite[i].picnum = 0,j++;
+        }
+        Bsprintf(tempbuf,"Replaced %d invalid tiles",j);
         printmessage16(tempbuf);
     }
 
@@ -4275,7 +4275,7 @@ int ExtInit(void)
         defsfilename = getenv("DUKE3DDEF");
         initprintf("Using %s as definitions file\n", defsfilename);
     }
-	loadgroupfiles(defsfilename);
+    loadgroupfiles(defsfilename);
     bpp = 8;
     if (loadsetup("build.cfg") < 0) initprintf("Configuration file not found, using defaults.\n"), rv = 1;
 

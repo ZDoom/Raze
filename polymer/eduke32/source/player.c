@@ -2113,29 +2113,29 @@ char animateaccess(short gs,short snum)
 
 void myospalw(long x, long y, short tilenum, signed char shade, char orientation, char p)
 {
-	if(!ud.drawweapon)
-		return;
-	else if(ud.drawweapon == 1)
-	    myospal(x,y,tilenum,shade,orientation,p);
-	else if(ud.drawweapon == 2)
-	{
-		switch(g_currentweapon)
-		{
-			case PISTOL_WEAPON:
-			case CHAINGUN_WEAPON:
-			case RPG_WEAPON:
-			case FREEZE_WEAPON:
-			case SHRINKER_WEAPON:
-			case GROW_WEAPON:
-			case DEVISTATOR_WEAPON:
-			case TRIPBOMB_WEAPON:
-			case HANDREMOTE_WEAPON:
-			case HANDBOMB_WEAPON:
-			case SHOTGUN_WEAPON:
-				rotatesprite(160<<16,(180+(ps[screenpeek].weapon_pos*ps[screenpeek].weapon_pos))<<16,scale(65536,ud.statusbarscale,100),0,weapon_sprites[g_currentweapon],0,0,2,windowx1,windowy1,windowx2,windowy2);
-				break;
-		}
-	}
+    if(!ud.drawweapon)
+        return;
+    else if(ud.drawweapon == 1)
+        myospal(x,y,tilenum,shade,orientation,p);
+    else if(ud.drawweapon == 2)
+    {
+        switch(g_currentweapon)
+        {
+        case PISTOL_WEAPON:
+        case CHAINGUN_WEAPON:
+        case RPG_WEAPON:
+        case FREEZE_WEAPON:
+        case SHRINKER_WEAPON:
+        case GROW_WEAPON:
+        case DEVISTATOR_WEAPON:
+        case TRIPBOMB_WEAPON:
+        case HANDREMOTE_WEAPON:
+        case HANDBOMB_WEAPON:
+        case SHOTGUN_WEAPON:
+            rotatesprite(160<<16,(180+(ps[screenpeek].weapon_pos*ps[screenpeek].weapon_pos))<<16,scale(65536,ud.statusbarscale,100),0,weapon_sprites[g_currentweapon],0,0,2,windowx1,windowy1,windowx2,windowy2);
+            break;
+        }
+    }
 }
 
 short fistsign;
@@ -2285,14 +2285,14 @@ void displayweapon(short snum)
                         looking_arc += ((*kb)<<3);
                     else if((*kb) < 4)
                         myospalw(weapon_xoffset+142-(p->look_ang>>1),
-                                looking_arc+234-gun_pos,HANDHOLDINGLASER+3,gs,o,pal);
+                                 looking_arc+234-gun_pos,HANDHOLDINGLASER+3,gs,o,pal);
 
                     myospalw(weapon_xoffset+130-(p->look_ang>>1),
-                            looking_arc+249-gun_pos,
-                            HANDHOLDINGLASER+((*kb)>>2),gs,o,pal);
+                             looking_arc+249-gun_pos,
+                             HANDHOLDINGLASER+((*kb)>>2),gs,o,pal);
                     myospalw(weapon_xoffset+152-(p->look_ang>>1),
-                            looking_arc+249-gun_pos,
-                            HANDHOLDINGLASER+((*kb)>>2),gs,o|4,pal);
+                             looking_arc+249-gun_pos,
+                             HANDHOLDINGLASER+((*kb)>>2),gs,o|4,pal);
                 }
                 break;
 
@@ -2314,12 +2314,12 @@ void displayweapon(short snum)
                         if(*kb < 8)
                         {
                             myospalw(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
-                                    RPGGUN+((*kb)>>1),gs,o,pal);
+                                     RPGGUN+((*kb)>>1),gs,o,pal);
                         }
                     }
 
                     myospalw(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
-                            RPGGUN,gs,o,pal);
+                             RPGGUN,gs,o,pal);
                 }
                 break;
 
@@ -2342,13 +2342,13 @@ void displayweapon(short snum)
                     case 1:
                     case 2:
                         myospalw(weapon_xoffset+168-(p->look_ang>>1),looking_arc+201-gun_pos,
-                                SHOTGUN+2,-128,o,pal);
+                                 SHOTGUN+2,-128,o,pal);
                     case 0:
                     case 6:
                     case 7:
                     case 8:
                         myospalw(weapon_xoffset+146-(p->look_ang>>1),looking_arc+202-gun_pos,
-                                SHOTGUN,gs,o,pal);
+                                 SHOTGUN,gs,o,pal);
                         break;
                     case 3:
                     case 4:
@@ -2363,45 +2363,45 @@ void displayweapon(short snum)
                             weapon_xoffset += 20;
 
                             myospalw(weapon_xoffset+178-(p->look_ang>>1),looking_arc+194-gun_pos,
-                                    SHOTGUN+1+((*(kb)-1)>>1),-128,o,pal);
+                                     SHOTGUN+1+((*(kb)-1)>>1),-128,o,pal);
                         }
 
                         myospalw(weapon_xoffset+158-(p->look_ang>>1),looking_arc+220-gun_pos,
-                                SHOTGUN+3,gs,o,pal);
+                                 SHOTGUN+3,gs,o,pal);
 
                         break;
                     case 13:
                     case 14:
                     case 15:
                         myospalw(32+weapon_xoffset+166-(p->look_ang>>1),looking_arc+210-gun_pos,
-                                SHOTGUN+4,gs,o,pal);
+                                 SHOTGUN+4,gs,o,pal);
                         break;
                     case 16:
                     case 17:
                     case 18:
                     case 19:
                         myospalw(64+weapon_xoffset+170-(p->look_ang>>1),looking_arc+196-gun_pos,
-                                SHOTGUN+5,gs,o,pal);
+                                 SHOTGUN+5,gs,o,pal);
                         break;
                     case 20:
                     case 21:
                     case 22:
                     case 23:
                         myospalw(64+weapon_xoffset+176-(p->look_ang>>1),looking_arc+196-gun_pos,
-                                SHOTGUN+6,gs,o,pal);
+                                 SHOTGUN+6,gs,o,pal);
                         break;
                     case 24:
                     case 25:
                     case 26:
                     case 27:
                         myospalw(64+weapon_xoffset+170-(p->look_ang>>1),looking_arc+196-gun_pos,
-                                SHOTGUN+5,gs,o,pal);
+                                 SHOTGUN+5,gs,o,pal);
                         break;
                     case 28:
                     case 29:
                     case 30:
                         myospalw(32+weapon_xoffset+156-(p->look_ang>>1),looking_arc+206-gun_pos,
-                                SHOTGUN+4,gs,o,pal);
+                                 SHOTGUN+4,gs,o,pal);
                         break;
                     }
                 }
@@ -2425,12 +2425,12 @@ void displayweapon(short snum)
                     if(*kb > 0 && sprite[p->i].pal != 1) weapon_xoffset += 1-(rand()&3);
 
                     myospalw(weapon_xoffset+168-(p->look_ang>>1),looking_arc+260-gun_pos,
-                            CHAINGUN,gs,o,pal);
+                             CHAINGUN,gs,o,pal);
                     switch(*kb)
                     {
                     case 0:
                         myospalw(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
-                                CHAINGUN+1,gs,o,pal);
+                                 CHAINGUN+1,gs,o,pal);
                         break;
                     default:
                         if(*kb > *aplWeaponFireDelay[CHAINGUN_WEAPON] && *kb < *aplWeaponTotalTime[CHAINGUN_WEAPON])
@@ -2438,21 +2438,21 @@ void displayweapon(short snum)
                             i = 0;
                             if(sprite[p->i].pal != 1) i = rand()&7;
                             myospalw(i+weapon_xoffset-4+140-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
-                                    CHAINGUN+5+((*kb-4)/5),gs,o,pal);
+                                     CHAINGUN+5+((*kb-4)/5),gs,o,pal);
                             if(sprite[p->i].pal != 1) i = rand()&7;
                             myospalw(i+weapon_xoffset-4+184-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
-                                    CHAINGUN+5+((*kb-4)/5),gs,o,pal);
+                                     CHAINGUN+5+((*kb-4)/5),gs,o,pal);
                         }
                         if(*kb < *aplWeaponTotalTime[CHAINGUN_WEAPON]-2)
                         {
                             i = rand()&7;
                             myospalw(i+weapon_xoffset-4+162-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
-                                    CHAINGUN+5+((*kb-2)/5),gs,o,pal);
+                                     CHAINGUN+5+((*kb-2)/5),gs,o,pal);
                             myospalw(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
-                                    CHAINGUN+1+((*kb)>>1),gs,o,pal);
+                                     CHAINGUN+1+((*kb)>>1),gs,o,pal);
                         }
                         else myospalw(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
-                                         CHAINGUN+1,gs,o,pal);
+                                          CHAINGUN+1,gs,o,pal);
                         break;
                     }
                 }
@@ -2655,21 +2655,21 @@ void displayweapon(short snum)
                             }
 
                             myospalw(weapon_xoffset+184-(p->look_ang>>1),
-                                    looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
-                                    o,2);
+                                     looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
+                                     o,2);
 
                             myospalw(weapon_xoffset+188-(p->look_ang>>1),
-                                    looking_arc+240-gun_pos,SHRINKER-1,gs,o,pal);
+                                     looking_arc+240-gun_pos,SHRINKER-1,gs,o,pal);
                         }
                         else
                         {
                             myospalw(weapon_xoffset+184-(p->look_ang>>1),
-                                    looking_arc+240-gun_pos,SHRINKER+2,
-                                    16-(sintable[p->random_club_frame&2047]>>10),
-                                    o,2);
+                                     looking_arc+240-gun_pos,SHRINKER+2,
+                                     16-(sintable[p->random_club_frame&2047]>>10),
+                                     o,2);
 
                             myospalw(weapon_xoffset+188-(p->look_ang>>1),
-                                    looking_arc+240-gun_pos,SHRINKER-2,gs,o,pal);
+                                     looking_arc+240-gun_pos,SHRINKER-2,gs,o,pal);
                         }
                     }
                 }
@@ -2696,22 +2696,22 @@ void displayweapon(short snum)
                         }
 
                         myospalw(weapon_xoffset+184-(p->look_ang>>1),
-                                looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
-                                o,0);
+                                 looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
+                                 o,0);
 
                         myospalw(weapon_xoffset+188-(p->look_ang>>1),
-                                looking_arc+240-gun_pos,SHRINKER+1,gs,o,pal);
+                                 looking_arc+240-gun_pos,SHRINKER+1,gs,o,pal);
 
                     }
                     else
                     {
                         myospalw(weapon_xoffset+184-(p->look_ang>>1),
-                                looking_arc+240-gun_pos,SHRINKER+2,
-                                16-(sintable[p->random_club_frame&2047]>>10),
-                                o,0);
+                                 looking_arc+240-gun_pos,SHRINKER+2,
+                                 16-(sintable[p->random_club_frame&2047]>>10),
+                                 o,0);
 
                         myospalw(weapon_xoffset+188-(p->look_ang>>1),
-                                looking_arc+240-gun_pos,SHRINKER,gs,o,pal);
+                                 looking_arc+240-gun_pos,SHRINKER,gs,o,pal);
                     }
                 }
                 break;

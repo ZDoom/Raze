@@ -2491,7 +2491,7 @@ cheat_for_port_credits:
             gltexapplyprops();
             break;
         case 7:
-			if (bpp==8) break;
+            if (bpp==8) break;
             cmenu(230);
             break;
 #endif
@@ -3331,7 +3331,7 @@ cheat_for_port_credits:
 
             break;
         case 4:
-            if(SoundToggle && (FXDevice >= 0)) { VoiceToggle = (VoiceToggle == 2) ? 0 : VoiceToggle+1; }
+        if(SoundToggle && (FXDevice >= 0)) { VoiceToggle = (VoiceToggle == 2) ? 0 : VoiceToggle+1; }
             onbar = 0;
             break;
         case 5:
@@ -3389,7 +3389,7 @@ cheat_for_port_credits:
         menutext(c,50+16+16+16+16+16+16,SHX(-8),(FXDevice<0)||SoundToggle==0,"FLIP STEREO");
 
         { char *s[] = { "OFF", "LOCAL", "ALL" };
-        menutext(c+160+40,50+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,s[VoiceToggle]); }
+            menutext(c+160+40,50+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,s[VoiceToggle]); }
 
         if(AmbienceToggle) menutext(c+160+40,50+16+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,"ON");
         else menutext(c+160+40,50+16+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,"OFF");

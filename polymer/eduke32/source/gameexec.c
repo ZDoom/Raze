@@ -1876,44 +1876,44 @@ void DoInput(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sho
 
     switch(lLabelID)
     {
-        case INPUT_AVEL:
-            if(bSet)
-                sync[iPlayer].avel=lValue;
-            else
-                SetGameVarID((int)lVar2, sync[iPlayer].avel, sActor, sPlayer);
-            break;
-        case INPUT_HORZ:
-            if(bSet)
-                sync[iPlayer].horz=lValue;
-            else
-                SetGameVarID((int)lVar2, sync[iPlayer].horz, sActor, sPlayer);
-            break;
-        case INPUT_FVEL:
-            if(bSet)
-                sync[iPlayer].fvel=lValue;
-            else
-                SetGameVarID((int)lVar2, sync[iPlayer].fvel, sActor, sPlayer);
-            break;
-        case INPUT_SVEL:
-            if(bSet)
-                sync[iPlayer].svel=lValue;
-            else
-                SetGameVarID((int)lVar2, sync[iPlayer].svel, sActor, sPlayer);
-            break;
-        case INPUT_BITS:
-            if(bSet)
-                sync[iPlayer].bits=lValue;
-            else
-                SetGameVarID((int)lVar2, sync[iPlayer].bits, sActor, sPlayer);
-            break;
-        case INPUT_BITS2:
-            if(bSet)
-                sync[iPlayer].bits2=lValue;
-            else
-                SetGameVarID((int)lVar2, sync[iPlayer].bits2, sActor, sPlayer);
-            break;
-        default:
-            break;
+    case INPUT_AVEL:
+        if(bSet)
+            sync[iPlayer].avel=lValue;
+        else
+            SetGameVarID((int)lVar2, sync[iPlayer].avel, sActor, sPlayer);
+        break;
+    case INPUT_HORZ:
+        if(bSet)
+            sync[iPlayer].horz=lValue;
+        else
+            SetGameVarID((int)lVar2, sync[iPlayer].horz, sActor, sPlayer);
+        break;
+    case INPUT_FVEL:
+        if(bSet)
+            sync[iPlayer].fvel=lValue;
+        else
+            SetGameVarID((int)lVar2, sync[iPlayer].fvel, sActor, sPlayer);
+        break;
+    case INPUT_SVEL:
+        if(bSet)
+            sync[iPlayer].svel=lValue;
+        else
+            SetGameVarID((int)lVar2, sync[iPlayer].svel, sActor, sPlayer);
+        break;
+    case INPUT_BITS:
+        if(bSet)
+            sync[iPlayer].bits=lValue;
+        else
+            SetGameVarID((int)lVar2, sync[iPlayer].bits, sActor, sPlayer);
+        break;
+    case INPUT_BITS2:
+        if(bSet)
+            sync[iPlayer].bits2=lValue;
+        else
+            SetGameVarID((int)lVar2, sync[iPlayer].bits2, sActor, sPlayer);
+        break;
+    default:
+        break;
     }
     return;
 }
@@ -4403,14 +4403,14 @@ SKIPJIBS:
             switch(tw)
             {
             case CON_SOUNDONCEVAR:
-				if(!isspritemakingsound(g_i,sound))
+                if(!isspritemakingsound(g_i,sound))
                     spritesound((short)sound,g_i);
                 break;
             case CON_GLOBALSOUNDVAR:
                 spritesound((short)sound,ps[screenpeek].i);
                 break;
             case CON_STOPSOUNDVAR:
-				if(isspritemakingsound(g_i,sound))
+                if(isspritemakingsound(g_i,sound))
                     stopspritesound((short)sound,g_i);
                 break;
             case CON_SOUNDVAR:
@@ -4774,37 +4774,37 @@ SKIPJIBS:
         g_sp->cstat = (short) *insptr++;
         break;
     case CON_SAVE:
-	{
-		int i;
-		time_t curtime;
-		
-        insptr++;
-		i = *insptr++;
-        if(movesperpacket == 4 && connecthead != myconnectindex)
+        {
+            int i;
+            time_t curtime;
+
+            insptr++;
+            i = *insptr++;
+            if(movesperpacket == 4 && connecthead != myconnectindex)
+                break;
+
+            lastsavedpos = i;
+            curtime = time(NULL);
+            Bstrcpy(tempbuf,asctime(localtime(&curtime)));
+            clearbuf(ud.savegame[lastsavedpos],sizeof(ud.savegame[lastsavedpos]),0);
+            Bsprintf(ud.savegame[lastsavedpos],"Auto");
+            for(i=0;i<13;i++)
+                Bmemcpy(&ud.savegame[lastsavedpos][i+4],&tempbuf[i+3],sizeof(tempbuf[i+3]));
+            ud.savegame[lastsavedpos][i+4] = '\0';
+            OSD_Printf("Saving to slot %d\n",lastsavedpos);
+
+            KB_FlushKeyboardQueue();
+
+            screencapt = 1;
+            displayrooms(myconnectindex,65536);
+            //savetemp("duke3d.tmp",waloff[TILE_SAVESHOT],160*100);
+            screencapt = 0;
+            if(ud.multimode > 1)
+                saveplayer(-1-(lastsavedpos));
+            else saveplayer(lastsavedpos);
+
             break;
-
-        lastsavedpos = i;
-		curtime = time(NULL);
-		Bstrcpy(tempbuf,asctime(localtime(&curtime)));
-		clearbuf(ud.savegame[lastsavedpos],sizeof(ud.savegame[lastsavedpos]),0);
-		Bsprintf(ud.savegame[lastsavedpos],"Auto");
-		for(i=0;i<13;i++)
-			Bmemcpy(&ud.savegame[lastsavedpos][i+4],&tempbuf[i+3],sizeof(tempbuf[i+3]));
-		ud.savegame[lastsavedpos][i+4] = '\0';
-		OSD_Printf("Saving to slot %d\n",lastsavedpos);
-
-        KB_FlushKeyboardQueue();
-
-        screencapt = 1;
-        displayrooms(myconnectindex,65536);
-        //savetemp("duke3d.tmp",waloff[TILE_SAVESHOT],160*100);
-        screencapt = 0;
-        if(ud.multimode > 1)
-            saveplayer(-1-(lastsavedpos));
-        else saveplayer(lastsavedpos);
-
-        break;
-	}
+        }
     case CON_IFMOVE:
         insptr++;
         parseifelse(g_t[1] == *insptr);
@@ -5522,8 +5522,8 @@ good:
             break;
         }
 
-        case CON_SETINPUT:
-        case CON_GETINPUT:
+    case CON_SETINPUT:
+    case CON_GETINPUT:
         {
             // syntax [gs]etplayer[<var>].x <VAR>
             // <varid> <xxxid> <varid>

@@ -229,7 +229,7 @@ void CONFIG_SetDefaults( void )
     ud.m_ffire = 1;
     ud.levelstats = 0;
     ud.drawweapon = 1;
-	ud.brightskins = 0;
+    ud.brightskins = 0;
     ShowOpponentWeapons = 0;
     Bstrcpy(ud.rtsname, "DUKE.RTS");
     Bstrcpy(myname, "Duke");

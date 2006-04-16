@@ -36,25 +36,25 @@ static int  precachecount;
 static void tloadtile(short tilenume, char type)
 {
     if ((picanm[tilenume]&63) > 0) {
-		int i,j;
+        int i,j;
 
-		if ((picanm[tilenume]&192)==192) {
-			i = tilenume - (picanm[tilenume]&63);
-			j = tilenume;
-		} else {
-			i = tilenume;
-			j = tilenume + (picanm[tilenume]&63);
-		}
-		for (;i<=j;i++) {
-			if (!(gotpic[i>>3] & pow2char[i&7])) precachecount++;
-			gotpic[i>>3] |= pow2char[i&7];
-			precachehightile[type][i>>3] |= pow2char[i&7];
-		}
+        if ((picanm[tilenume]&192)==192) {
+            i = tilenume - (picanm[tilenume]&63);
+            j = tilenume;
+        } else {
+            i = tilenume;
+            j = tilenume + (picanm[tilenume]&63);
+        }
+        for (;i<=j;i++) {
+            if (!(gotpic[i>>3] & pow2char[i&7])) precachecount++;
+            gotpic[i>>3] |= pow2char[i&7];
+            precachehightile[type][i>>3] |= pow2char[i&7];
+        }
     } else {
-		if (!(gotpic[tilenume>>3] & pow2char[tilenume&7])) precachecount++;
-		gotpic[tilenume>>3] |= pow2char[tilenume&7];
-		precachehightile[type][tilenume>>3] |= pow2char[tilenume&7];
-	}
+        if (!(gotpic[tilenume>>3] & pow2char[tilenume&7])) precachecount++;
+        gotpic[tilenume>>3] |= pow2char[tilenume&7];
+        precachehightile[type][tilenume>>3] |= pow2char[tilenume&7];
+    }
 }
 
 void cachespritenum(short i)
@@ -162,17 +162,17 @@ void cachespritenum(short i)
     case CAMERA1__STATIC:
         maxc = 5;
         break;
-		// caching of HUD sprites for weapons that may be in the level
-		case CHAINGUNSPRITE__STATIC: for (j=CHAINGUN; j<=CHAINGUN+7; j++) tloadtile(j,1); break;
-		case RPGSPRITE__STATIC: for (j=RPGGUN; j<=RPGGUN+2; j++) tloadtile(j,1); break;
-		case FREEZESPRITE__STATIC: for (j=FREEZE; j<=FREEZE+5; j++) tloadtile(j,1); break;
-		case GROWSPRITEICON__STATIC:
-		case SHRINKERSPRITE__STATIC: for (j=SHRINKER-2; j<=SHRINKER+5; j++) tloadtile(j,1); break;
-		case HBOMBAMMO__STATIC:
-		case HEAVYHBOMB__STATIC: for (j=HANDREMOTE; j<=HANDREMOTE+5; j++) tloadtile(j,1); break;
-		case TRIPBOMBSPRITE__STATIC: for (j=HANDHOLDINGLASER; j<=HANDHOLDINGLASER+4; j++) tloadtile(j,1); break;
-		case SHOTGUNSPRITE__STATIC: tloadtile(SHOTGUNSHELL,1); for (j=SHOTGUN; j<=SHOTGUN+6; j++) tloadtile(j,1); break;
-		case DEVISTATORSPRITE__STATIC: for (j=DEVISTATOR; j<=DEVISTATOR+1; j++) tloadtile(j,1); break;
+        // caching of HUD sprites for weapons that may be in the level
+    case CHAINGUNSPRITE__STATIC: for (j=CHAINGUN; j<=CHAINGUN+7; j++) tloadtile(j,1); break;
+    case RPGSPRITE__STATIC: for (j=RPGGUN; j<=RPGGUN+2; j++) tloadtile(j,1); break;
+    case FREEZESPRITE__STATIC: for (j=FREEZE; j<=FREEZE+5; j++) tloadtile(j,1); break;
+    case GROWSPRITEICON__STATIC:
+    case SHRINKERSPRITE__STATIC: for (j=SHRINKER-2; j<=SHRINKER+5; j++) tloadtile(j,1); break;
+    case HBOMBAMMO__STATIC:
+    case HEAVYHBOMB__STATIC: for (j=HANDREMOTE; j<=HANDREMOTE+5; j++) tloadtile(j,1); break;
+    case TRIPBOMBSPRITE__STATIC: for (j=HANDHOLDINGLASER; j<=HANDHOLDINGLASER+4; j++) tloadtile(j,1); break;
+    case SHOTGUNSPRITE__STATIC: tloadtile(SHOTGUNSHELL,1); for (j=SHOTGUN; j<=SHOTGUN+6; j++) tloadtile(j,1); break;
+    case DEVISTATORSPRITE__STATIC: for (j=DEVISTATOR; j<=DEVISTATOR+1; j++) tloadtile(j,1); break;
 
     }
 
@@ -275,12 +275,12 @@ void cacheit(void)
 {
     long i,j,k, pc=0;
     long tc;
-	unsigned long starttime, endtime;
- 	
-	if(ud.recstat == 2)
-		return;
- 	
-	starttime = getticks();
+    unsigned long starttime, endtime;
+
+    if(ud.recstat == 2)
+        return;
+
+    starttime = getticks();
 
     precachenecessarysounds();
 
@@ -314,44 +314,44 @@ void cacheit(void)
         }
     }
 
-	tc = totalclock;
+    tc = totalclock;
     j = 0;
 
-	for(i=0;i<MAXTILES;i++) {
-		if (!(i&7) && !gotpic[i>>3]) {
-			i+=7;
-			continue;
-		}
-		if(gotpic[i>>3] & pow2char[i&7]) {
-			if (waloff[i] == 0)
-				loadtile((short)i);
+    for(i=0;i<MAXTILES;i++) {
+        if (!(i&7) && !gotpic[i>>3]) {
+            i+=7;
+            continue;
+        }
+        if(gotpic[i>>3] & pow2char[i&7]) {
+            if (waloff[i] == 0)
+                loadtile((short)i);
 
-			if (useprecache) { 
-				if (precachehightile[0][i>>3] & pow2char[i&7])
-					for (k=0; k<MAXPALOOKUPS; k++)
-						polymost_precache(i,k,0);
+            if (useprecache) {
+                if (precachehightile[0][i>>3] & pow2char[i&7])
+                    for (k=0; k<MAXPALOOKUPS; k++)
+                        polymost_precache(i,k,0);
 
-				if (precachehightile[1][i>>3] & pow2char[i&7])
-					for (k=0; k<MAXPALOOKUPS; k++)
-						polymost_precache(i,k,1);
-			}
+                if (precachehightile[1][i>>3] & pow2char[i&7])
+                    for (k=0; k<MAXPALOOKUPS; k++)
+                        polymost_precache(i,k,1);
+            }
 
-			j++;
-			pc++;
-		} else continue;
+            j++;
+            pc++;
+        } else continue;
 
-		if((j&7) == 0) { handleevents(); getpackets(); }
-		if (totalclock - tc > TICRATE/4) {
-			sprintf(tempbuf,"Loading textures ... %ld%%\n",min(100,100*pc/precachecount));
-			dofrontscreens(tempbuf);
-			tc = totalclock;
-		}
+    if((j&7) == 0) { handleevents(); getpackets(); }
+        if (totalclock - tc > TICRATE/4) {
+            sprintf(tempbuf,"Loading textures ... %ld%%\n",min(100,100*pc/precachecount));
+            dofrontscreens(tempbuf);
+            tc = totalclock;
+        }
     }
 
     clearbufbyte(gotpic,sizeof(gotpic),0L);
 
-	endtime = getticks();
-	OSD_Printf("Cache time: %dms\n", endtime-starttime);
+    endtime = getticks();
+    OSD_Printf("Cache time: %dms\n", endtime-starttime);
 }
 
 void xyzmirror(short i,short wn)
@@ -1004,7 +1004,7 @@ void newgame(char vn,char ln,char sk)
     short i;
 
     if(globalskillsound >= 0)
-        while(issoundplaying(globalskillsound)) { handleevents(); getpackets(); }
+    while(issoundplaying(globalskillsound)) { handleevents(); getpackets(); }
     globalskillsound = -1;
 
     waitforeverybody();
@@ -1113,7 +1113,7 @@ void resetpspritevars(char g)
         {
             aimmode[i] = ps[i].aim_mode;
             autoaim[i] = ps[i].auto_aim;
-			weaponswitch[i] = ps[i].weaponswitch;
+            weaponswitch[i] = ps[i].weaponswitch;
             if(ud.multimode > 1 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
             {
                 for(j=0;j<MAX_WEAPONS;j++)
@@ -1145,7 +1145,7 @@ void resetpspritevars(char g)
         {
             ps[i].aim_mode = aimmode[i];
             ps[i].auto_aim = autoaim[i];
-			ps[i].weaponswitch = weaponswitch[i];
+            ps[i].weaponswitch = weaponswitch[i];
             if(ud.multimode > 1 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
             {
                 for(j=0;j<MAX_WEAPONS;j++)

@@ -433,7 +433,7 @@ char *keyw[] = {
                    "dynamicremap",             // 285
                    "setinput",                 // 286
                    "getinput",                 // 287
-				   "save",					   // 288
+                   "save",					   // 288
                    "<null>"
                };
 
@@ -802,14 +802,14 @@ LABELS userdefslabels[]= {
                          };
 
 LABELS inputlabels[]= {
-                            { "avel", INPUT_AVEL, 0, 0 },
-                            { "horz", INPUT_HORZ, 0, 0 },
-                            { "fvel", INPUT_FVEL, 0, 0 },
-                            { "svel", INPUT_SVEL, 0, 0 },
-                            { "bits", INPUT_BITS, 0, 0 },
-                            { "bits2", INPUT_BITS2, 0, 0 },
-                            { "", -1, 0, 0  }     // END OF LIST
-};
+                          { "avel", INPUT_AVEL, 0, 0 },
+                          { "horz", INPUT_HORZ, 0, 0 },
+                          { "fvel", INPUT_FVEL, 0, 0 },
+                          { "svel", INPUT_SVEL, 0, 0 },
+                          { "bits", INPUT_BITS, 0, 0 },
+                          { "bits2", INPUT_BITS2, 0, 0 },
+                          { "", -1, 0, 0  }     // END OF LIST
+                      };
 
 void skipcomments(void)
 {
@@ -3151,10 +3151,10 @@ char parsecommand(void)
             break;
         }
 
-        case CON_SETINPUT:
-            if(!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_GETINPUT:
+    case CON_SETINPUT:
+        if(!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_GETINPUT:
         {
             long lLabelID;
 
@@ -3463,7 +3463,7 @@ char parsecommand(void)
     case CON_OPERATEMASTERSWITCHES:
     case CON_CHECKACTIVATORMOTION:
     case CON_TIME:
-	case CON_INITTIMER:
+    case CON_INITTIMER:
     case CON_LOCKPLAYER:
     case CON_SHOOTVAR:
         if(!CheckEventSync(current_event))
@@ -3588,15 +3588,15 @@ char parsecommand(void)
 
         switch(tw)
         {
-	        case CON_DIST:
-	        case CON_LDIST:
-	        case CON_TXDIST:
-	        case CON_GETANGLE:
-	            transvartype(GAMEVAR_FLAG_READONLY);
-	            break;
-	        case CON_MULSCALE:
-	            transmultvars(2);
-	            break;
+        case CON_DIST:
+        case CON_LDIST:
+        case CON_TXDIST:
+        case CON_GETANGLE:
+            transvartype(GAMEVAR_FLAG_READONLY);
+            break;
+        case CON_MULSCALE:
+            transmultvars(2);
+            break;
         }
         return 0;
 
@@ -5899,59 +5899,59 @@ void ReportError(int iError)
     }
     switch(iError)
     {
-        case ERROR_CLOSEBRACKET:
-            initprintf("%s:%ld: error: found more `}' than `{' before `%s'.\n",compilefile,line_number,tempbuf);
-            break;
-        case ERROR_EVENTONLY:
-            initprintf("%s:%ld: error: command `%s' only valid during events.\n",compilefile,line_number,tempbuf);
-            break;
-        case ERROR_EXCEEDSMAXTILES:
-            initprintf("%s:%ld: error: `%s' value exceeds MAXTILES.  Maximum is %d.\n",compilefile,line_number,tempbuf,MAXTILES-1);
-            break;
-        case ERROR_EXPECTEDKEYWORD:
-            initprintf("%s:%ld: error: expected a keyword but found `%s'.\n",compilefile,line_number,tempbuf);
-            break;
-        case ERROR_FOUNDWITHIN:
-            initprintf("%s:%ld: error: found `%s' within %s.\n",compilefile,line_number,tempbuf,parsing_event?"an event":parsing_actor?"an actor":"a state");
-            break;
-        case ERROR_ISAKEYWORD:
-            initprintf("%s:%ld: error: symbol `%s' is a keyword.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case ERROR_NOENDSWITCH:
-            initprintf("%s:%ld: error: did not find `endswitch' before `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case ERROR_NOTAGAMEDEF:
-            initprintf("%s:%ld: error: symbol `%s' is not a game definition.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case ERROR_NOTAGAMEVAR:
-            initprintf("%s:%ld: error: symbol `%s' is not a game variable.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case ERROR_OPENBRACKET:
-            initprintf("%s:%ld: error: found more `{' than `}' before `%s'.\n",compilefile,line_number,tempbuf);
-            break;
-        case ERROR_PARAMUNDEFINED:
-            initprintf("%s:%ld: error: parameter `%s' is undefined.\n",compilefile,line_number,tempbuf);
-            break;
-        case ERROR_SYMBOLNOTRECOGNIZED:
-            initprintf("%s:%ld: error: symbol `%s' is not recognized.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case ERROR_SYNTAXERROR:
-            initprintf("%s:%ld: error: syntax error.\n",compilefile,line_number);
-            break;
-        case ERROR_VARREADONLY:
-            initprintf("%s:%ld: error: variable `%s' is read-only.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case ERROR_VARTYPEMISMATCH:
-            initprintf("%s:%ld: error: variable `%s' is of the wrong type.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case WARNING_DUPLICATEDEFINITION:
-            initprintf("%s:%ld: warning: duplicate game definition `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case WARNING_EVENTSYNC:
-            initprintf("%s:%ld: warning: found `%s' within a local event.\n",compilefile,line_number,tempbuf);
-            break;
-        case WARNING_LABELSONLY:
-            initprintf("%s:%ld: warning: expected a label, found a constant.\n",compilefile,line_number);
-            break;
+    case ERROR_CLOSEBRACKET:
+        initprintf("%s:%ld: error: found more `}' than `{' before `%s'.\n",compilefile,line_number,tempbuf);
+        break;
+    case ERROR_EVENTONLY:
+        initprintf("%s:%ld: error: command `%s' only valid during events.\n",compilefile,line_number,tempbuf);
+        break;
+    case ERROR_EXCEEDSMAXTILES:
+        initprintf("%s:%ld: error: `%s' value exceeds MAXTILES.  Maximum is %d.\n",compilefile,line_number,tempbuf,MAXTILES-1);
+        break;
+    case ERROR_EXPECTEDKEYWORD:
+        initprintf("%s:%ld: error: expected a keyword but found `%s'.\n",compilefile,line_number,tempbuf);
+        break;
+    case ERROR_FOUNDWITHIN:
+        initprintf("%s:%ld: error: found `%s' within %s.\n",compilefile,line_number,tempbuf,parsing_event?"an event":parsing_actor?"an actor":"a state");
+        break;
+    case ERROR_ISAKEYWORD:
+        initprintf("%s:%ld: error: symbol `%s' is a keyword.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_NOENDSWITCH:
+        initprintf("%s:%ld: error: did not find `endswitch' before `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_NOTAGAMEDEF:
+        initprintf("%s:%ld: error: symbol `%s' is not a game definition.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_NOTAGAMEVAR:
+        initprintf("%s:%ld: error: symbol `%s' is not a game variable.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_OPENBRACKET:
+        initprintf("%s:%ld: error: found more `{' than `}' before `%s'.\n",compilefile,line_number,tempbuf);
+        break;
+    case ERROR_PARAMUNDEFINED:
+        initprintf("%s:%ld: error: parameter `%s' is undefined.\n",compilefile,line_number,tempbuf);
+        break;
+    case ERROR_SYMBOLNOTRECOGNIZED:
+        initprintf("%s:%ld: error: symbol `%s' is not recognized.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_SYNTAXERROR:
+        initprintf("%s:%ld: error: syntax error.\n",compilefile,line_number);
+        break;
+    case ERROR_VARREADONLY:
+        initprintf("%s:%ld: error: variable `%s' is read-only.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_VARTYPEMISMATCH:
+        initprintf("%s:%ld: error: variable `%s' is of the wrong type.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case WARNING_DUPLICATEDEFINITION:
+        initprintf("%s:%ld: warning: duplicate game definition `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case WARNING_EVENTSYNC:
+        initprintf("%s:%ld: warning: found `%s' within a local event.\n",compilefile,line_number,tempbuf);
+        break;
+    case WARNING_LABELSONLY:
+        initprintf("%s:%ld: warning: expected a label, found a constant.\n",compilefile,line_number);
+        break;
     }
 }

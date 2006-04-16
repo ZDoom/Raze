@@ -44,24 +44,24 @@ long backflag,numenvsnds;
 
 void SoundStartup( void )
 {
-   int32 status;
+    int32 status;
 
-   // if they chose None lets return
-   if (FXDevice < 0) return;
+    // if they chose None lets return
+    if (FXDevice < 0) return;
 
-   status = FX_Init( FXDevice, NumVoices, NumChannels, NumBits, MixRate );
-   if ( status == FX_Ok ) {
-      FX_SetVolume( FXVolume );
-      if (ReverseStereo == 1) {
-         FX_SetReverseStereo(!FX_GetReverseStereo());
-      }
-	  status = FX_SetCallBack( testcallback );
-  }
+    status = FX_Init( FXDevice, NumVoices, NumChannels, NumBits, MixRate );
+    if ( status == FX_Ok ) {
+        FX_SetVolume( FXVolume );
+        if (ReverseStereo == 1) {
+            FX_SetReverseStereo(!FX_GetReverseStereo());
+        }
+        status = FX_SetCallBack( testcallback );
+    }
 
-   if ( status != FX_Ok ) {
-	  sprintf(tempbuf, "Sound startup error: %s", FX_ErrorString( FX_Error ));
-	  gameexit(tempbuf);
-   }
+    if ( status != FX_Ok ) {
+        sprintf(tempbuf, "Sound startup error: %s", FX_ErrorString( FX_Error ));
+        gameexit(tempbuf);
+    }
 }
 
 /*
@@ -74,17 +74,17 @@ void SoundStartup( void )
 
 void SoundShutdown( void )
 {
-   int32 status;
+    int32 status;
 
-   // if they chose None lets return
-   if (FXDevice < 0)
-      return;
+    // if they chose None lets return
+    if (FXDevice < 0)
+        return;
 
-   status = FX_Shutdown();
-   if ( status != FX_Ok ) {
-	  sprintf(tempbuf, "Sound shutdown error: %s", FX_ErrorString( FX_Error ));
-      gameexit(tempbuf);
-   }
+    status = FX_Shutdown();
+    if ( status != FX_Ok ) {
+        sprintf(tempbuf, "Sound shutdown error: %s", FX_ErrorString( FX_Error ));
+        gameexit(tempbuf);
+    }
 }
 
 /*
@@ -275,9 +275,9 @@ int xyzsound(short num,short i,long x,long y,long z)
     if( soundm[num]&4 )
     {
         if(VoiceToggle==0)
-			return -1;
+            return -1;
         else if (ud.multimode > 1 && PN == APLAYER && sprite[i].yvel != screenpeek && (!(gametype_flags[ud.coop]&GAMETYPE_FLAG_COOPSOUND)?1:VoiceToggle!=2))
-			return -1;
+            return -1;
         for(j=0;j<NUM_SOUNDS;j++)
             for(k=0;k<Sound[j].num;k++)
                 if( (Sound[j].num > 0) && (soundm[j]&4) )
@@ -463,7 +463,7 @@ int spritesound(unsigned short num, short i)
 
 void stopspritesound(short num, short i)
 {
-	stopsound(num);
+    stopsound(num);
 }
 
 void stopsound(short num)
@@ -624,11 +624,11 @@ void clearsoundlocks(void)
 
 int isspritemakingsound(short i, int num)
 {
-	if (num < 0) num=0;	// FIXME
-	return issoundplaying(num) > 0;
+    if (num < 0) num=0;	// FIXME
+    return issoundplaying(num) > 0;
 }
 
 int issoundplaying(int num)
 {
-	return Sound[num].num;
+    return Sound[num].num;
 }

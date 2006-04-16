@@ -502,31 +502,31 @@ void getpackets(void)
             if (enterlevel(MODE_GAME)) backtomenu();
 
             break;
-            case 6:
-					//slaves in M/S mode only send to master
-					//Master re-transmits message to all others
-				if ((!networkmode) && (myconnectindex == connecthead))
-					for(i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-						if (i != other) sendpacket(i,packbuf,packbufleng);
+        case 6:
+            //slaves in M/S mode only send to master
+            //Master re-transmits message to all others
+            if ((!networkmode) && (myconnectindex == connecthead))
+                for(i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    if (i != other) sendpacket(i,packbuf,packbufleng);
 
-				if (packbuf[2] != BYTEVERSION)
-					gameexit("\nYou cannot play Duke with different versions.");
+            if (packbuf[2] != BYTEVERSION)
+                gameexit("\nYou cannot play Duke with different versions.");
 
-				other = packbuf[1];
+            other = packbuf[1];
 
-				for (i=3;packbuf[i];i++)
-					ud.user_name[other][i-3] = packbuf[i];
-				ud.user_name[other][i-3] = 0;
-				i++;
+            for (i=3;packbuf[i];i++)
+                ud.user_name[other][i-3] = packbuf[i];
+            ud.user_name[other][i-3] = 0;
+            i++;
 
-				j = i; //This used to be Duke packet #9... now concatenated with Duke packet #6
-				for (;i-j<10;i++) ud.wchoice[other][i-j] = packbuf[i];
+            j = i; //This used to be Duke packet #9... now concatenated with Duke packet #6
+            for (;i-j<10;i++) ud.wchoice[other][i-j] = packbuf[i];
 
-				ps[other].aim_mode = packbuf[i++];
-				ps[other].auto_aim = packbuf[i++];
-				ps[other].weaponswitch = packbuf[i++];
-					 
-                break;
+            ps[other].aim_mode = packbuf[i++];
+            ps[other].auto_aim = packbuf[i++];
+            ps[other].weaponswitch = packbuf[i++];
+
+            break;
         case 7:
             //slaves in M/S mode only send to master
             //Master re-transmits message to all others
@@ -1870,7 +1870,7 @@ void tics(void)
     i = totalclock;
     if (i != frameval[framecnt])
     {
-		j=(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]);
+        j=(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]);
         Bsprintf(b,"%ld",j>0?j:0);
         /*        printext256(windowx1,windowy1,31,-21,b,1); */
         minitext(320-strlen(b)*4,ud.multimode>1&&ud.multimode<5?9:ud.multimode>4?17:1,b,(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
@@ -2525,24 +2525,24 @@ void palto(char r,char g,char b,long e)
     int i;
     char temparray[768];
     long tc;
-/*
-    for(i=0;i<768;i+=3)
-    {
-        temparray[i  ] =
-            ps[myconnectindex].palette[i+0]+((((long)r-(long)ps[myconnectindex].palette[i+0])*(long)(e&127))>>6);
-        temparray[i+1] =
-            ps[myconnectindex].palette[i+1]+((((long)g-(long)ps[myconnectindex].palette[i+1])*(long)(e&127))>>6);
-        temparray[i+2] =
-            ps[myconnectindex].palette[i+2]+((((long)b-(long)ps[myconnectindex].palette[i+2])*(long)(e&127))>>6);
-    }
-*/
+    /*
+        for(i=0;i<768;i+=3)
+        {
+            temparray[i  ] =
+                ps[myconnectindex].palette[i+0]+((((long)r-(long)ps[myconnectindex].palette[i+0])*(long)(e&127))>>6);
+            temparray[i+1] =
+                ps[myconnectindex].palette[i+1]+((((long)g-(long)ps[myconnectindex].palette[i+1])*(long)(e&127))>>6);
+            temparray[i+2] =
+                ps[myconnectindex].palette[i+2]+((((long)b-(long)ps[myconnectindex].palette[i+2])*(long)(e&127))>>6);
+        }
+    */
 
     //setbrightness(ud.brightness>>2,temparray);
-	setpalettefade(r,g,b,e&127);
-	if (getrendermode() >= 3) pus = pub = NUMPAGES;	// JBF 20040110: redraw the status bar next time
+    setpalettefade(r,g,b,e&127);
+    if (getrendermode() >= 3) pus = pub = NUMPAGES;	// JBF 20040110: redraw the status bar next time
     if ((e&128) == 0) {
-	    nextpage();
-	    for (tc = totalclock; totalclock < tc + 4; handleevents(), getpackets() );
+        nextpage();
+        for (tc = totalclock; totalclock < tc + 4; handleevents(), getpackets() );
     }
 }
 
@@ -3461,7 +3461,7 @@ short EGS(short whatsect,long s_x,long s_y,long s_z,short s_pn,signed char s_s,s
 
     T1=T3=T4=T6=T7=T8=T9=0;
 
-	actorspriteflags[i] = 0;
+    actorspriteflags[i] = 0;
 
     if( actorscrptr[s_pn] )
     {
@@ -3591,7 +3591,7 @@ short spawn( short j, short pn )
 
         T1 = T2 = T3 = T4 = T5 = T6 = T7 = T8 = T9 = 0;
 
-		actorspriteflags[i] = 0;
+        actorspriteflags[i] = 0;
 
         if( PN != SPEAKER && PN != LETTER && PN != DUCK && PN != TARGET && PN != TRIPBOMB && PN != VIEWSCREEN && PN != VIEWSCREEN2 && (CS&48) )
             if( !(PN >= CRACK1 && PN <= CRACK4) )
@@ -5470,15 +5470,15 @@ void animatesprites(long x,long y,short a,long smoothratio)
 
         if (checkspriteflags(i,SPRITE_FLAG_NOSHADE))
             l = sprite[j].shade;
-		else
-		{
-	        if (sector[t->sectnum].ceilingstat&1)
-	            l = sector[t->sectnum].ceilingshade;
-	        else
-	            l = sector[t->sectnum].floorshade;
-	        if(l < -127) l = -127;
-	        if(l > 128) l =  127;
-		}
+        else
+        {
+            if (sector[t->sectnum].ceilingstat&1)
+                l = sector[t->sectnum].ceilingshade;
+            else
+                l = sector[t->sectnum].floorshade;
+            if(l < -127) l = -127;
+            if(l > 128) l =  127;
+        }
         t->shade = l;
     }
 
@@ -5847,13 +5847,13 @@ PALONLY:
             if( sector[sect].floorpal && sector[sect].floorpal < numl)
                 t->pal = sector[sect].floorpal;
 
+            if(ud.brightskins)
+                t->shade = -32; // yes?  no?
+
             if(s->owner == -1) continue;
 
             if( t->z > hittype[i].floorz && t->xrepeat < 32 )
                 t->z = hittype[i].floorz;
-
-			if(ud.brightskins)
-				t->shade -= 15;
 
             break;
 
@@ -5883,9 +5883,6 @@ PALONLY:
         case SCRAP3__STATIC:
         case SCRAP4__STATIC:
         case SCRAP5__STATIC:
-
-
-
             if(hittype[i].picnum == BLIMP && t->picnum == SCRAP1 && s->yvel >= 0)
                 t->picnum = s->yvel;
             else t->picnum += T1;
@@ -5902,7 +5899,6 @@ PALONLY:
                 break;
             }
         default:
-
             if( sector[sect].floorpal && sector[sect].floorpal < numl )
                 t->pal = sector[sect].floorpal;
             break;
@@ -6938,12 +6934,12 @@ void nonsharedkeys(void)
             {
                 if(i == 5 && ps[myconnectindex].fta > 0 && ps[myconnectindex].ftq == 26)
                 {
-					i = (VOLUMEALL?num_volumes*11:6);
+                    i = (VOLUMEALL?num_volumes*11:6);
                     music_select++;
-					while(!music_fn[0][music_select][0] && music_select < i)
-	                    music_select++;
+                    while(!music_fn[0][music_select][0] && music_select < i)
+                        music_select++;
                     if(music_select == i)
-						music_select = 0;
+                        music_select = 0;
                     Bstrcpy(&fta_quotes[26][0],"PLAYING ");
                     Bstrcat(&fta_quotes[26][0],&music_fn[0][music_select][0]);
                     FTA(26,&ps[myconnectindex]);
@@ -7137,9 +7133,9 @@ FAKE_F3:
             screencapt = 0;
             if( lastsavedpos >= 0 )
             {
-/*                inputloc = strlen(&ud.savegame[lastsavedpos][0]);
-                current_menu = 360+lastsavedpos;
-                probey = lastsavedpos; */
+                /*                inputloc = strlen(&ud.savegame[lastsavedpos][0]);
+                                current_menu = 360+lastsavedpos;
+                                probey = lastsavedpos; */
                 if(ud.multimode > 1)
                     saveplayer(-1-(lastsavedpos));
                 else saveplayer(lastsavedpos);
@@ -7193,23 +7189,23 @@ FAKE_F3:
             if(lastsavedpos == -1) goto FAKE_F3;
 
             if( lastsavedpos >= 0 )
-	        {
-	            KB_FlushKeyboardQueue();
-	            KB_ClearKeysDown();
-	            FX_StopAllSounds();
+            {
+                KB_FlushKeyboardQueue();
+                KB_ClearKeysDown();
+                FX_StopAllSounds();
 
-	            if(ud.multimode > 1)
-	            {
-	                loadplayer(-1-lastsavedpos);
-	                ps[myconnectindex].gm = MODE_GAME;
-	            }
-	            else
-	            {
-	                i = loadplayer(lastsavedpos);
-	                if(i == 0)
-	                    ps[myconnectindex].gm = MODE_GAME;
-	            }
-	        }
+                if(ud.multimode > 1)
+                {
+                    loadplayer(-1-lastsavedpos);
+                    ps[myconnectindex].gm = MODE_GAME;
+                }
+                else
+                {
+                    i = loadplayer(lastsavedpos);
+                    if(i == 0)
+                        ps[myconnectindex].gm = MODE_GAME;
+                }
+            }
         }
 
         if(KB_KeyPressed( sc_F10 ))
@@ -8284,10 +8280,10 @@ void app_main(int argc,char **argv)
 
     checkcommandline(argc,argv);
 
-	if (VOLUMEALL)
-		loadgroupfiles(duke3ddef);
+    if (VOLUMEALL)
+        loadgroupfiles(duke3ddef);
 
-	initprintf("\n");
+    initprintf("\n");
 
     if (condebug)
         initprintf("CON debugging activated (%d).\n\n",condebug);
@@ -8350,22 +8346,22 @@ void app_main(int argc,char **argv)
 
     if( setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP) < 0 )
     {
-		int i = 0;
-		int xres[] = {800,640,320};
-		int yres[] = {600,480,240};
-		int bpp[] = {32,16,8};
+        int i = 0;
+        int xres[] = {800,640,320};
+        int yres[] = {600,480,240};
+        int bpp[] = {32,16,8};
         initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...",
                    ScreenWidth,ScreenHeight,ScreenBPP,ScreenMode?"fullscreen":"windowed");
-/*        ScreenMode = 0;     // JBF: was 2
-        ScreenWidth = 800;
-        ScreenHeight = 600; // JBF: was 200
-        ScreenBPP = 32; */
-		while(setgamemode(0,xres[i],yres[i],bpp[i]) < 0) {
-			i++;
-		}
-		ScreenWidth = xres[i];
-		ScreenHeight = yres[i];
-		ScreenBPP = bpp[i];
+        /*        ScreenMode = 0;     // JBF: was 2
+                ScreenWidth = 800;
+                ScreenHeight = 600; // JBF: was 200
+                ScreenBPP = 32; */
+        while(setgamemode(0,xres[i],yres[i],bpp[i]) < 0) {
+            i++;
+        }
+        ScreenWidth = xres[i];
+        ScreenHeight = yres[i];
+        ScreenBPP = bpp[i];
     }
 
     initprintf("Initializing OSD...\n");
@@ -8833,8 +8829,8 @@ RECHECK:
         }
         else
         {
-			if(ud.recstat != 2)
-            menus();
+            if(ud.recstat != 2)
+                menus();
             if( ud.multimode > 1 )
             {
                 ControlInfo noshareinfo;
@@ -9840,23 +9836,23 @@ void dobonus(char bonusonly)
 
             playanm("RADLOGO.ANM",3);
 
-             if( ud.lockout == 0 && !KB_KeyWaiting() )
-             {
-                 sound(ENDSEQVOL3SND5);
-                 while(issoundplaying(ENDSEQVOL3SND5)) { handleevents(); getpackets(); }
-                 if(KB_KeyWaiting()) goto ENDANM;
-                 sound(ENDSEQVOL3SND6);
-                 while(issoundplaying(ENDSEQVOL3SND6)) { handleevents(); getpackets(); }
-                 if(KB_KeyWaiting()) goto ENDANM;
-                 sound(ENDSEQVOL3SND7);
-                 while(issoundplaying(ENDSEQVOL3SND7)) { handleevents(); getpackets(); }
-                 if(KB_KeyWaiting()) goto ENDANM;
-                 sound(ENDSEQVOL3SND8);
-                 while(issoundplaying(ENDSEQVOL3SND8)) { handleevents(); getpackets(); }
-                 if(KB_KeyWaiting()) goto ENDANM;
-                 sound(ENDSEQVOL3SND9);
-                 while(issoundplaying(ENDSEQVOL3SND9)) { handleevents(); getpackets(); }
-             }
+            if( ud.lockout == 0 && !KB_KeyWaiting() )
+            {
+                sound(ENDSEQVOL3SND5);
+                while(issoundplaying(ENDSEQVOL3SND5)) { handleevents(); getpackets(); }
+                if(KB_KeyWaiting()) goto ENDANM;
+                sound(ENDSEQVOL3SND6);
+            while(issoundplaying(ENDSEQVOL3SND6)) { handleevents(); getpackets(); }
+                if(KB_KeyWaiting()) goto ENDANM;
+                sound(ENDSEQVOL3SND7);
+            while(issoundplaying(ENDSEQVOL3SND7)) { handleevents(); getpackets(); }
+                if(KB_KeyWaiting()) goto ENDANM;
+                sound(ENDSEQVOL3SND8);
+            while(issoundplaying(ENDSEQVOL3SND8)) { handleevents(); getpackets(); }
+                if(KB_KeyWaiting()) goto ENDANM;
+                sound(ENDSEQVOL3SND9);
+            while(issoundplaying(ENDSEQVOL3SND9)) { handleevents(); getpackets(); }
+            }
 
             KB_FlushKeyBoardQueue();
             totalclock = 0;

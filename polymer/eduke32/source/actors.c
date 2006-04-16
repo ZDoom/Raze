@@ -107,11 +107,11 @@ void addammo( short weapon,struct player_struct *p,short amount)
 
 void addweaponnoswitch( struct player_struct *p, short weapon)
 {
-	if ( p->gotweapon[weapon] == 0 )
+    if ( p->gotweapon[weapon] == 0 )
     {
-         p->gotweapon[weapon] = 1;
-         if(weapon == SHRINKER_WEAPON)
-             p->gotweapon[GROW_WEAPON] = 1;
+        p->gotweapon[weapon] = 1;
+        if(weapon == SHRINKER_WEAPON)
+            p->gotweapon[GROW_WEAPON] = 1;
     }
     switch(weapon)
     {
@@ -124,13 +124,13 @@ void addweaponnoswitch( struct player_struct *p, short weapon)
     default:      spritesound(SELECT_WEAPON,p->i);break;
     }
 }
- 
+
 void addweapon( struct player_struct *p,short weapon)
 {
     short snum;
     snum = sprite[p->i].yvel;
 
-	addweaponnoswitch(p,weapon);
+    addweaponnoswitch(p,weapon);
 
     if (p->reloading) return;
 
@@ -210,8 +210,8 @@ void checkavailweapon( struct player_struct *p )
     weap = p->curr_weapon;
     if( p->gotweapon[weap] && p->ammo_amount[weap] > 0 )
         return;
-	if( p->gotweapon[weap] && !(p->weaponswitch & 2))
-		return;
+    if( p->gotweapon[weap] && !(p->weaponswitch & 2))
+        return;
 
     snum = sprite[p->i].yvel;
 
@@ -2515,24 +2515,24 @@ void moveweapons(void)
                             }
                     }
 
-/*                if(thisprojectile[i].workslike & 8192)
-                {
-                    for(k=-3;k<2;k++)
-                    {
+                /*                if(thisprojectile[i].workslike & 8192)
+                                {
+                                    for(k=-3;k<2;k++)
+                                    {
 
-                        x = EGS(s->sectnum,
-                                s->x+((k*sintable[(s->ang+512)&2047])>>9),
-                                s->y+((k*sintable[s->ang&2047])>>9),
-                                s->z+((k*ksgn(s->zvel))*klabs(s->zvel/24)),s->picnum,-40+(k<<2), // FIRELASER
-                                s->xrepeat,s->yrepeat,0,0,0,s->owner,5);
+                                        x = EGS(s->sectnum,
+                                                s->x+((k*sintable[(s->ang+512)&2047])>>9),
+                                                s->y+((k*sintable[s->ang&2047])>>9),
+                                                s->z+((k*ksgn(s->zvel))*klabs(s->zvel/24)),s->picnum,-40+(k<<2), // FIRELASER
+                                                s->xrepeat,s->yrepeat,0,0,0,s->owner,5);
 
-                        sprite[x].cstat = 128;
-                        sprite[x].pal = s->pal;
+                                        sprite[x].cstat = 128;
+                                        sprite[x].pal = s->pal;
 
-                    }
-                }
-                else */
-				if(thisprojectile[i].workslike & PROJECTILE_FLAG_SPIT) if(s->zvel < 6144)
+                                    }
+                                }
+                                else */
+                if(thisprojectile[i].workslike & PROJECTILE_FLAG_SPIT) if(s->zvel < 6144)
                         s->zvel += gc-112;
 
                 if(thisprojectile[i].workslike & PROJECTILE_FLAG_WATERBUBBLES && sector[s->sectnum].lotag == 2 && rnd(140))

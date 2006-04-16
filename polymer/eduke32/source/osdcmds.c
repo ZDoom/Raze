@@ -382,7 +382,7 @@ int osdcmd_setvar(const osdfuncparm_t *parm)
             SetGameVarID(i, varval, ps[myconnectindex].i, myconnectindex);
         }
     return OSDCMD_OK;
-    }
+}
 
 int osdcmd_addpath(const osdfuncparm_t *parm)
 {

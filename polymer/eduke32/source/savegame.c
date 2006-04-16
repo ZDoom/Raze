@@ -60,7 +60,7 @@ int loadpheader(char spot,struct savehead *saveh)
 
     return(0);
 corrupt:
-        kclose(fil);
+    kclose(fil);
     return 1;
 }
 
@@ -203,25 +203,25 @@ int loadplayer(signed char spot)
     if (kdfread(&script[0],4,MAXSCRIPTSIZE,fil) != MAXSCRIPTSIZE) goto corrupt;
     for(i=0;i<MAXSCRIPTSIZE;i++)
         if( scriptptrs[i] )
-    {
-        j = (long)script[i]+(long)&script[0];
-        script[i] = j;
-    }
+        {
+            j = (long)script[i]+(long)&script[0];
+            script[i] = j;
+        }
 
     if (kdfread(&actorscrptr[0],4,MAXTILES,fil) != MAXTILES) goto corrupt;
     for(i=0;i<MAXTILES;i++)
         if(actorscrptr[i])
-    {
-        j = (long)actorscrptr[i]+(long)&script[0];
-        actorscrptr[i] = (long *)j;
-    }
+        {
+            j = (long)actorscrptr[i]+(long)&script[0];
+            actorscrptr[i] = (long *)j;
+        }
     if (kdfread(&actorLoadEventScrptr[0],4,MAXTILES,fil) != MAXTILES) goto corrupt;
     for(i=0;i<MAXTILES;i++)
         if(actorLoadEventScrptr[i])
-    {
-        j = (long)actorLoadEventScrptr[i]+(long)&script[0];
-        actorLoadEventScrptr[i] = (long *)j;
-    }
+        {
+            j = (long)actorLoadEventScrptr[i]+(long)&script[0];
+            actorLoadEventScrptr[i] = (long *)j;
+        }
 
     if (kdfread(&scriptptrs[0],1,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
     if (kdfread(&hittype[0],sizeof(struct weaponhit),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
@@ -326,7 +326,7 @@ int loadplayer(signed char spot)
     {
         for(x=0;x<numanimwalls;x++)
             switch(dynamictostatic[wall[animwall[x].wallnum].picnum])
-        {
+            {
             case FEMPIC1__STATIC:
                 wall[animwall[x].wallnum].picnum = BLANKSCREEN;
                 break;
@@ -334,7 +334,7 @@ int loadplayer(signed char spot)
             case FEMPIC3__STATIC:
                 wall[animwall[x].wallnum].picnum = SCREENBREAK6;
                 break;
-        }
+            }
     }
 
     numinterpolations = 0;
@@ -345,31 +345,31 @@ int loadplayer(signed char spot)
     {
         switch(sprite[k].lotag)
         {
-            case 31:
-                setinterpolation(&sector[sprite[k].sectnum].floorz);
-                break;
-            case 32:
-                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
-                break;
-            case 25:
-                setinterpolation(&sector[sprite[k].sectnum].floorz);
-                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
-                break;
-            case 17:
-                setinterpolation(&sector[sprite[k].sectnum].floorz);
-                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
-                break;
-            case 0:
-            case 5:
-            case 6:
-            case 11:
-            case 14:
-            case 15:
-            case 16:
-            case 26:
-            case 30:
-                setsectinterpolate(k);
-                break;
+        case 31:
+            setinterpolation(&sector[sprite[k].sectnum].floorz);
+            break;
+        case 32:
+            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+            break;
+        case 25:
+            setinterpolation(&sector[sprite[k].sectnum].floorz);
+            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+            break;
+        case 17:
+            setinterpolation(&sector[sprite[k].sectnum].floorz);
+            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+            break;
+        case 0:
+        case 5:
+        case 6:
+        case 11:
+        case 14:
+        case 15:
+        case 16:
+        case 26:
+        case 30:
+            setsectinterpolate(k);
+            break;
         }
 
         k = nextspritestat[k];
@@ -396,7 +396,7 @@ int loadplayer(signed char spot)
 
     return(0);
 corrupt:
-        Bsprintf(tempbuf,"Save game file \"%s\" is corrupt.",fnptr);
+    Bsprintf(tempbuf,"Save game file \"%s\" is corrupt.",fnptr);
     gameexit(tempbuf);
     return -1;
 }
@@ -511,38 +511,38 @@ int saveplayer(signed char spot)
 
     for(i=0;i<MAXSCRIPTSIZE;i++)
         if( scriptptrs[i] )
-    {
-        j = script[i]+(long)&script[0];
-        script[i] = j;
-    }
+        {
+            j = script[i]+(long)&script[0];
+            script[i] = j;
+        }
 
     for(i=0;i<MAXTILES;i++)
         if(actorscrptr[i])
-    {
-        j = (long)actorscrptr[i]-(long)&script[0];
-        actorscrptr[i] = (long *)j;
-    }
+        {
+            j = (long)actorscrptr[i]-(long)&script[0];
+            actorscrptr[i] = (long *)j;
+        }
     dfwrite(&actorscrptr[0],4,MAXTILES,fil);
     for(i=0;i<MAXTILES;i++)
         if(actorscrptr[i])
-    {
-        j = (long)actorscrptr[i]+(long)&script[0];
-        actorscrptr[i] = (long *)j;
-    }
+        {
+            j = (long)actorscrptr[i]+(long)&script[0];
+            actorscrptr[i] = (long *)j;
+        }
 
     for(i=0;i<MAXTILES;i++)
         if(actorLoadEventScrptr[i])
-    {
-        j = (long)actorLoadEventScrptr[i]-(long)&script[0];
-        actorLoadEventScrptr[i] = (long *)j;
-    }
+        {
+            j = (long)actorLoadEventScrptr[i]-(long)&script[0];
+            actorLoadEventScrptr[i] = (long *)j;
+        }
     dfwrite(&actorLoadEventScrptr[0],4,MAXTILES,fil);
     for(i=0;i<MAXTILES;i++)
         if(actorLoadEventScrptr[i])
-    {
-        j = (long)actorLoadEventScrptr[i]+(long)&script[0];
-        actorLoadEventScrptr[i] = (long *)j;
-    }
+        {
+            j = (long)actorLoadEventScrptr[i]+(long)&script[0];
+            actorLoadEventScrptr[i] = (long *)j;
+        }
 
 
     for(i=0;i<MAXSPRITES;i++)
