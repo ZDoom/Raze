@@ -1959,7 +1959,7 @@ cheat_for_port_credits:
             onbar = (probey == 0);
             x = probesm(c,yy+5,0,io);
 
-        if (x == -1) { cmenu(203); break; }
+            if (x == -1) { cmenu(203); break; }
 
             yy = 34;
             for (ii=io=0; opts[ii]; ii++) {
