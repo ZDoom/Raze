@@ -5365,10 +5365,10 @@ good:
                     if(sprite[j].picnum == lType && j != g_i)
                     {
                         lTemp=ldist(&sprite[g_i], &sprite[j]);
-                        lTemp2=txdist(&sprite[g_i], &sprite[j]);
-                        if( (lTemp < lMaxDist) && (lTemp2 < lMaxZDist) )
+                        if(lTemp < lMaxDist && lTemp < lDist)
                         {
-                            if (lTemp < lDist)
+                            lTemp2=txdist(&sprite[g_i], &sprite[j]);
+                            if (lTemp2 < lMaxZDist)
                             {
                                 lFound=j;
                                 j = MAXSPRITES;
@@ -5416,10 +5416,10 @@ good:
                     if(sprite[j].picnum == lType && j != g_i)
                     {
                         lTemp=ldist(&sprite[g_i], &sprite[j]);
-                        lTemp2=txdist(&sprite[g_i], &sprite[j]);
-                        if( (lTemp < lMaxDist) && (lTemp2 < lMaxZDist) )
+                        if(lTemp < lMaxDist && lTemp < lDist)
                         {
-                            if (lTemp < lDist)
+                            lTemp2=txdist(&sprite[g_i], &sprite[j]);
+                            if (lTemp2 < lMaxZDist)
                             {
                                 lFound=j;
                                 j = MAXSPRITES;
@@ -5429,7 +5429,7 @@ good:
                     }
                     j = nextspritestat[j];
                 }
-                if(tw==CON_FINDNEARACTOR3DVAR || j == MAXSPRITES)
+                if(tw==CON_FINDNEARACTOR3D || j == MAXSPRITES)
                     break;
             }
             SetGameVarID(lVarID, lFound, g_i, g_p);

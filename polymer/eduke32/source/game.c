@@ -8582,7 +8582,7 @@ char opendemoread(char which_demo) // 0 = mine
     if (kread(recfilep,&ud.reccnt,sizeof(long)) != sizeof(long)) goto corrupt;
     if (kread(recfilep,&ver,sizeof(char)) != sizeof(char)) goto corrupt;
 
-    if(ver != BYTEVERSION && ver != 160 && ver != 116 && ver != 117) { /* old demo playback */
+    if(ver != BYTEVERSION && ver != 160 /*&& ver != 116 && ver != 117*/) { /* old demo playback */
         if      (ver == BYTEVERSION_JF)   initprintf("Demo %s is for Regular edition.\n", d);
         else if (ver == BYTEVERSION_JF+1) initprintf("Demo %s is for Atomic edition.\n", d);
         else if (ver == BYTEVERSION_JF+2) initprintf("Demo %s is for Shareware version.\n", d);
