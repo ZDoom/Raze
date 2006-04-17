@@ -7092,7 +7092,7 @@ void moveeffectors(void)   //STATNUM 3
 
         case 27:
 
-            if(ud.recstat == 0) break;
+            if(ud.recstat == 0 || !ud.democams) break;
 
             hittype[i].tempang = s->ang;
 

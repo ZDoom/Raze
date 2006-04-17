@@ -230,6 +230,8 @@ void CONFIG_SetDefaults( void )
     ud.levelstats = 0;
     ud.drawweapon = 1;
     ud.brightskins = 0;
+    ud.democams = 1;
+
     ShowOpponentWeapons = 0;
     Bstrcpy(ud.rtsname, "DUKE.RTS");
     Bstrcpy(myname, "Duke");
@@ -585,6 +587,7 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowOpponentWeapons",&ShowOpponentWeapons);
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowViewWeapon",&ud.drawweapon);
         SCRIPT_GetNumber( scripthandle, "Misc", "BrightSkins",&ud.brightskins);
+        SCRIPT_GetNumber( scripthandle, "Misc", "DemoCams",&ud.democams);
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         dummy = useprecache; SCRIPT_GetNumber( scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
         if(ud.wchoice[0][0] == 0 && ud.wchoice[0][1] == 0)
@@ -714,6 +717,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Misc", "UsePrecache",useprecache,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "ShowViewWeapon",ud.drawweapon,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "BrightSkins",ud.brightskins,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "DemoCams",ud.democams,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "ShowFPS",ud.tickrate,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls", "MouseAimingFlipped",ud.mouseflip,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);

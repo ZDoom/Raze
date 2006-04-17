@@ -595,6 +595,13 @@ void DoUserDef(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, s
             SetGameVarID((int)lVar2, ud.brightskins, sActor, sPlayer);
         break;
 
+    case USERDEFS_DEMOCAMS:
+        if(bSet)
+            ud.democams = lValue;
+        else
+            SetGameVarID((int)lVar2, ud.democams, sActor, sPlayer);
+        break;
+
     default:
         break;
     }

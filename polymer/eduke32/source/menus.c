@@ -944,7 +944,7 @@ void menus(void)
         menutext(160,24,0,0,"ADULT MODE");
 
         x = probe(60,50+16,16,2);
-    if(x == -1) { cmenu(201); probey = 3; break; }
+        if(x == -1) { cmenu(201); probey = 4; break; }
 
         menutext(c,50+16,SHX(-2),PHX(-2),"ADULT MODE");
         menutext(c,50+16+16,SHX(-3),PHX(-3),"ENTER PASSWORD");
@@ -2148,9 +2148,9 @@ cheat_for_port_credits:
                                "FPS counter",
                                "-",
                                "Bright players",
+                               "Demo cameras",
                                "-",
                                "Parental lock",
-                               "-",
                                "-",
                                "-",
                                "-",
@@ -2204,8 +2204,11 @@ cheat_for_port_credits:
                 case 2: if (x==io) ud.brightskins = 1-ud.brightskins;
                     modval(0,1,(int *)&ud.brightskins,1,probey==1);
                     gametextpal(d,yy, ud.brightskins ? "On" : "Off", 0, 0); break;
-                case 3: if (x==io) cmenu(10000); break;
-                case 4: if (x==io) cmenu(200); break;
+                case 3: if (x==io) ud.democams = 1-ud.democams;
+                    modval(0,1,(int *)&ud.democams,1,probey==1);
+                    gametextpal(d,yy, ud.democams ? "On" : "Off", 0, 0); break;
+                case 4: if (x==io) cmenu(10000); break;
+                case 5: if (x==io) cmenu(200); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?5:15, 2);
@@ -2537,7 +2540,7 @@ cheat_for_port_credits:
 
     case 204:
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,24,0,0,"KEYS SETUP");
+        menutext(320>>1,24,0,0,"KEYBOARD SETUP");
 
         c = (320>>1)-120;
 
