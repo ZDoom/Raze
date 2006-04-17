@@ -1938,34 +1938,19 @@ void DoFire(short snum)
     {
         if (p->weapon_pos != 0) return;
 
-        //    if ((aplWeaponWorksLike[p->curr_weapon][snum]!=KNEE_WEAPON) && (p->ammo_amount[p->curr_weapon] == 0))
-        //  return;
-
-        //AddLog("DoFire()");
         if(aplWeaponWorksLike[p->curr_weapon][snum]!=KNEE_WEAPON)
-        {
-            //Bsprintf(g_szBuf,"%d: using Ammo. was: %d",p->curr_weapon,p->ammo_amount[p->curr_weapon]);
-            // AddLog(g_szBuf);
             p->ammo_amount[p->curr_weapon]--;
-        }
 
         if(aplWeaponFireSound[p->curr_weapon][snum])
         {
-            //Bsprintf(g_szBuf,"DoFire():firesound(%ld)",aplWeaponFireSound[p->curr_weapon][snum]);
-            //AddLog(g_szBuf);
             spritesound(aplWeaponFireSound[p->curr_weapon][snum],p->i);
         }
 
         SetGameVarID(g_iWeaponVarID,p->curr_weapon,p->i,snum);
         SetGameVarID(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-        //Bsprintf(g_szBuf,"DoFire():shoot(%ld)",aplWeaponShoots[p->curr_weapon][snum]);
-        //AddLog(g_szBuf);
         shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
         for(i=1;i<aplWeaponShotsPerBurst[p->curr_weapon][snum];i++)
         {
-            //Bsprintf(g_szBuf,"DoFire():shoot(%ld)",aplWeaponShoots[p->curr_weapon][snum]);
-            //AddLog(g_szBuf);
-
             if(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AMMOPERSHOT)
             {
                 if(p->ammo_amount[p->curr_weapon] > 0)
@@ -1975,14 +1960,11 @@ void DoFire(short snum)
                 }
             }
             else
-            {
                 shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
-            }
         }
 
         if(! (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE ))
         {
-            // make them visible if not set...
             lastvisinc = totalclock+32;
             p->visibility = 0;
         }
@@ -1991,17 +1973,10 @@ void DoFire(short snum)
             aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]
             && p->ammo_amount[p->curr_weapon] > 0
             && (aplWeaponClip[p->curr_weapon][snum])
-            && ((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0)
-        )
+            && ((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))
         {
-            //AddLog("DoFire():ClipCheck");
-            // do clip check...
             p->kickback_pic=aplWeaponTotalTime[p->curr_weapon][snum];
-            // is same as (*kb)....
         }
-
-        //Bsprintf(g_szBuf,"%d: Do fire: exit ammo: %d",p->curr_weapon,p->ammo_amount[p->curr_weapon]);
-        //AddLog(g_szBuf);
     }
 }
 
@@ -2017,12 +1992,6 @@ void DoSpawn(short snum)
 
     j = spawn(p->i, aplWeaponSpawn[p->curr_weapon][snum]);
 
-    /*    if((aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_SPAWNTYPE2 ) )
-        {
-            // like shotgun shells
-            //      p->kickback_pic++;
-        }
-        else */
     if((aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_SPAWNTYPE3 ) )
     {
         // like chaingun shells
@@ -2140,6 +2109,8 @@ void myospalw(long x, long y, short tilenum, signed char shade, char orientation
 
 short fistsign;
 
+char last_quick_kick[MAXPLAYERS];
+
 void displayweapon(short snum)
 {
     long gun_pos, looking_arc, cw;
@@ -2176,13 +2147,9 @@ void displayweapon(short snum)
     gun_pos -= (p->hard_landing<<3);
 
     if(p->last_weapon >= 0)
-    {
         cw = aplWeaponWorksLike[p->last_weapon][snum];
-    }
     else
-    {
         cw = aplWeaponWorksLike[p->curr_weapon][snum];
-    }
 
     g_gun_pos=gun_pos;
     g_looking_arc=looking_arc;
@@ -2198,7 +2165,7 @@ void displayweapon(short snum)
     if(GetGameVarID(g_iReturnVarID,p->i,snum) == 0)
     {
         j = 14-p->quick_kick;
-        if(j != 14)
+        if(j != 14 || last_quick_kick[snum])
         {
             if(sprite[p->i].pal == 1)
                 pal = 1;
@@ -2210,7 +2177,7 @@ void displayweapon(short snum)
             }
 
 
-            if( j < 5 || j > 9 )
+            if( j < 7 || j > 12 )
                 myospal(weapon_xoffset+80-(p->look_ang>>1),
                         looking_arc+250-gun_pos,KNEE,gs,o|4,pal);
             else myospal(weapon_xoffset+160-16-(p->look_ang>>1),
@@ -2471,14 +2438,14 @@ void displayweapon(short snum)
 
                     if( (*kb) < *aplWeaponTotalTime[PISTOL_WEAPON]+1)
                     {
-                        short kb_frames[] = {0,1,2,0,0,0,0},l;
+                        short kb_frames[] = {0,1,2},l;
 
                         l = 195-12+weapon_xoffset;
 
                         if((*kb) == *aplWeaponFireDelay[PISTOL_WEAPON])
                             l -= 3;
 
-                        myospalw((l-(p->look_ang>>1)),(looking_arc+244-gun_pos),FIRSTGUN+kb_frames[*kb],gs,2,pal);
+                        myospalw((l-(p->look_ang>>1)),(looking_arc+244-gun_pos),FIRSTGUN+kb_frames[*kb>2?0:*kb],gs,2,pal);
                     }
                     else
                     {
@@ -3095,10 +3062,11 @@ char doincrements(struct player_struct *p)
 
     if(p->quick_kick > 0 && sprite[p->i].pal != 1)
     {
+        last_quick_kick[snum] = p->quick_kick+1;
         p->quick_kick--;
         if( p->quick_kick == 8 )
             shoot(p->i,KNEE);
-    }
+    } else if(last_quick_kick[snum] > 0) last_quick_kick[snum]--;
 
     if(p->access_incs && sprite[p->i].pal != 1)
     {
@@ -4884,15 +4852,10 @@ SHOOTINCODE:
                     }
                 }
                 else if(*kb >= aplWeaponReload[p->curr_weapon][snum])
-                {
                     checkavailweapon(p);
-                }
             }
-
             else if(aplWeaponWorksLike[p->curr_weapon][snum]!=KNEE_WEAPON && *kb >= aplWeaponFireDelay[p->curr_weapon][snum])
-            {
                 checkavailweapon(p);
-            }
 
             if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_STANDSTILL
                     && *kb < (aplWeaponFireDelay[p->curr_weapon][snum]+1) )
@@ -4902,40 +4865,23 @@ SHOOTINCODE:
             }
             if(*kb == aplWeaponSound2Time[p->curr_weapon][snum])
             {
-                //AddLog("Sound2Time");
                 if(aplWeaponSound2Sound[p->curr_weapon][snum])
                 {
                     spritesound(aplWeaponSound2Sound[p->curr_weapon][snum],pi);
                 }
             }
             if(*kb == aplWeaponSpawnTime[p->curr_weapon][snum])
-            {
-                //AddLog("SpawnTime");
                 DoSpawn(snum);
-            }
 
             if ( *kb > aplWeaponFireDelay[p->curr_weapon][snum]
                     && (*kb) < aplWeaponTotalTime[p->curr_weapon][snum]
                     && (aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON ? 1 : p->ammo_amount[p->curr_weapon] > 0))
             {
-                //Bsprintf(g_szBuf,"%s %ld, kb=%d %ld",__FILE__,__LINE__,*kb,aplWeaponWorksLike[p->curr_weapon][snum]);
-                //AddLog(g_szBuf);
-                // we are waiting for initial fire to complete
-
                 if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
-                { // an 'automatic'
-                    //Bsprintf(g_szBuf,"%s %ld, kb=%d %ld",__FILE__,__LINE__,*kb,aplWeaponWorksLike[p->curr_weapon][snum]);
-                    //AddLog(g_szBuf);
+                {
                     if( ( sb_snum&(1<<2) ) == 0 )
                     {
-                        // 'fire' not still down... stop...
-                        //Bsprintf(g_szBuf,"%s %ld, kb=%d %ld",__FILE__,__LINE__,*kb,aplWeaponWorksLike[p->curr_weapon][snum]);
-                        //AddLog(g_szBuf);
-                        //                          *kb = 0;
-
-                        // check for clip change...
                         *kb = aplWeaponTotalTime[p->curr_weapon][snum];
-                        //                          break;
                     }
 
                     if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYTHIRD)
@@ -4948,59 +4894,35 @@ SHOOTINCODE:
                     }
                     if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYOTHER)
                     {
-                        // fire every other...
                         DoFire(snum);
                         DoSpawn(snum);
                     }
-
-                } // 'automatic
+                }
             }
             else if(*kb == aplWeaponFireDelay[p->curr_weapon][snum]
                     && (aplWeaponWorksLike[p->curr_weapon][snum]==KNEE_WEAPON ? 1 : p->ammo_amount[p->curr_weapon] > 0))
             {
-                //Bsprintf(g_szBuf,"FireDelayTime:%s %ld, kb=%d %ld",__FILE__,__LINE__,*kb,aplWeaponWorksLike[p->curr_weapon][snum]);
-                //AddLog(g_szBuf);
-                //AddLog("FireDelay Time");
                 DoFire(snum);
             }
             else if ((*kb) >=  aplWeaponTotalTime[p->curr_weapon][snum])
             {
-                //Bsprintf(g_szBuf,"end of TotalTime(%ld) %s %ld, kb=%d %ld",
-                //      aplWeaponTotalTime[p->curr_weapon][snum],
-                //      __FILE__,__LINE__,*kb,
-                //      aplWeaponWorksLike[p->curr_weapon][snum]);
-                //AddLog(g_szBuf);
-                // we are >= total time...
                 if( //!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD) &&
                     (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]
                      && p->ammo_amount[p->curr_weapon] > 0
                      && (aplWeaponClip[p->curr_weapon][snum])
                      && (((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))) || p->reloading == 1 )
                 {
-                    // reload in progress...
                     int i;
-                    //Bsprintf(g_szBuf,"C %s %ld, kb=%d",__FILE__,__LINE__,*kb);
-                    //AddLog(g_szBuf);
-                    //Bsprintf(g_szBuf,"ammo=%d clip=%ld mod=%ld",p->ammo_amount[p->curr_weapon],
-                    //      aplWeaponClip[p->curr_weapon][snum],
-                    //      (p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))
-                    //       );
-                    //AddLog(g_szBuf);
-
                     i=aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
-                    // time for 'reload'
                     p->reloading = 1;
                     if( (*kb) == (aplWeaponTotalTime[p->curr_weapon][snum] + 1))
-                    { // eject shortly after 'total time'
+                    {
                         if(aplWeaponReloadSound1[p->curr_weapon][snum])
                             spritesound(aplWeaponReloadSound1[p->curr_weapon][snum],pi);
                     }
-                    else if( ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i/3)) &&
-                              !(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RELOAD_TIMING)) ||
-                             ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - i+4) &&
-                              (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RELOAD_TIMING)) )
+                    else if( ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i/3)) && !(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RELOAD_TIMING)) ||
+                             ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - i+4) && (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RELOAD_TIMING)) )
                     {
-                        // insert occurs 2/3 of way through reload delay
                         if(aplWeaponReloadSound2[p->curr_weapon][snum])
                             spritesound(aplWeaponReloadSound2[p->curr_weapon][snum],pi);
                     }
@@ -5010,51 +4932,25 @@ SHOOTINCODE:
                         *kb=0;
                         p->reloading = 0;
                     }
-
                 }
                 else
                 {
-                    //Bsprintf(g_szBuf,"NC %s %ld, kb=%d",__FILE__,__LINE__,*kb);
-                    //AddLog(g_szBuf);
-                    // no clip reload going on...
-                    if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC
-                            && (aplWeaponWorksLike[p->curr_weapon][snum]==KNEE_WEAPON ? 1 : p->ammo_amount[p->curr_weapon] > 0))
-                    { // an 'automatic'
+                    if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC &&
+                       (aplWeaponWorksLike[p->curr_weapon][snum]==KNEE_WEAPON?1:p->ammo_amount[p->curr_weapon] > 0))
+                    {
                         if( sb_snum&(1<<2) )
                         {
-                            // we are an AUTOMATIC.  Fire again...
                             if(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RANDOMRESTART)
-                            {
                                 *kb = 1+(TRAND&3);
-                            }
-                            else
-                            {
-                                *kb=1;
-                            }
+                            else *kb=1;
                         }
-                        else
-                        {
-                            //Bsprintf(g_szBuf,"NC %s %ld, kb=%d",__FILE__,__LINE__,*kb);
-                            //AddLog(g_szBuf);
-                            // time to recycle automatic fire
-                            *kb = 0;
-                        }
+                        else *kb = 0;
                     }
-                    else
-                    { // not 'automatic' and >totaltime
-                        //Bsprintf(g_szBuf,"NA %s %ld, kb=%d",__FILE__,__LINE__,*kb);
-                        //AddLog(g_szBuf);
-                        *kb=0;
-                    }
+                    else *kb=0;
                 }
             }
         }
-
-        //Bsprintf(g_szBuf,"%s %ld, kb=%d %ld",__FILE__,__LINE__,*kb,aplWeaponWorksLike[p->curr_weapon][snum]);
-        //AddLog(g_szBuf);
-
     }
-
 }
 
 //UPDATE THIS FILE OVER THE OLD GETSPRITESCORE/COMPUTERGETINPUT FUNCTIONS
