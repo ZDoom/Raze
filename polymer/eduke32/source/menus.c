@@ -2009,7 +2009,7 @@ cheat_for_port_credits:
     case 200:
 
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,24,0,0,"GAME OPTIONS");
+        menutext(320>>1,24,0,0,"GAME SETUP");
 
         c = (320>>1)-120;
 
@@ -2137,7 +2137,7 @@ cheat_for_port_credits:
     case 201:
 
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,24,0,0,"GAME OPTIONS");
+        menutext(320>>1,24,0,0,"GAME SETUP");
 
         c = (320>>1)-120;
 
@@ -2276,9 +2276,9 @@ cheat_for_port_credits:
             break;
         }
 
-        menutext(160,c,                  0,0,"GAME OPTIONS");
-        menutext(160,c+18,               0,0,"SOUND OPTIONS");
-        menutext(160,c+18+18,            0,0,"VIDEO SETTINGS");
+        menutext(160,c,                  0,0,"GAME SETUP");
+        menutext(160,c+18,               0,0,"SOUND SETUP");
+        menutext(160,c+18+18,            0,0,"VIDEO SETUP");
         menutext(160,c+18+18+18,         0,0,"KEYBOARD SETUP");
         menutext(160,c+18+18+18+18,      0,0,"MOUSE SETUP");
         menutext(160,c+18+18+18+18+18,   0,CONTROL_JoyPresent==0 || CONTROL_JoystickEnabled==0,"JOYSTICK SETUP");
@@ -2287,7 +2287,7 @@ cheat_for_port_credits:
         // JBF 20031206: Video settings menu
     case 203:
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,24,0,0,"VIDEO SETTINGS");
+        menutext(320>>1,24,0,0,"VIDEO SETUP");
 
         c = (320>>1)-120;
 
@@ -2530,7 +2530,7 @@ cheat_for_port_credits:
         if (glanisotropy == 1) strcpy(tempbuf,"NONE");
         else sprintf(tempbuf,"%ld-tap",glanisotropy);
         menutext(c+154,50+62+16+16+16,0,bpp==8,tempbuf);
-        menutext(c,50+62+16+16+16+16,0,bpp==8,"ADVANCED OPTIONS");
+        menutext(c,50+62+16+16+16+16,0,bpp==8,"ADVANCED SETTINGS");
 
 #endif
         break;
@@ -2641,8 +2641,8 @@ cheat_for_port_credits:
             break;
         }
     case 205:
-        rotatesprite(320<<15,10<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,15,0,0,"MOUSE SETUP");
+        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        menutext(320>>1,24,0,0,"MOUSE SETUP");
 
         c = 60-4;
 
@@ -2650,7 +2650,7 @@ cheat_for_port_credits:
         if (probey < (MAXMOUSEBUTTONS-2)*2+2)
             x = probe(0,0,0,(MAXMOUSEBUTTONS-2)*2+2+2);
         else
-            x = probe(c+6,125-((MAXMOUSEBUTTONS-2)*2+2)*16,16,(MAXMOUSEBUTTONS-2)*2+2+2);
+            x = probe(c+6,131-((MAXMOUSEBUTTONS-2)*2+2)*16,16,(MAXMOUSEBUTTONS-2)*2+2+2);
 
         if (x==-1) {
             cmenu(202);
@@ -2689,14 +2689,14 @@ cheat_for_port_credits:
                 m = MouseFunctions[l-(MAXMOUSEBUTTONS-2)][0];
             }
 
-            minitextshade(c+20,30+l*8,tempbuf,(l==probey)?0:16,1,10+16);
+            minitextshade(c+20,36+l*8,tempbuf,(l==probey)?0:16,1,10+16);
 
             if (m == -1)
-                minitextshade(c+100+20,30+l*8,"  -NONE-",(l==probey)?0:16,2,10+16);
+                minitextshade(c+100+20,36+l*8,"  -NONE-",(l==probey)?0:16,2,10+16);
             else {
                 strcpy(tempbuf, CONFIG_FunctionNumToName(m));
                 for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-                minitextshade(c+100+20,30+l*8,tempbuf,(l==probey)?0:16,2,10+16);
+                minitextshade(c+100+20,36+l*8,tempbuf,(l==probey)?0:16,2,10+16);
             }
         }
 
@@ -2704,25 +2704,25 @@ cheat_for_port_credits:
             short sense;
             sense = CONTROL_GetMouseSensitivity()>>10;
 
-            menutext(c,125,SHX(-7),PHX(-7),"SENSITIVITY");
-            bar(c+167,125,&sense,4,x==(MAXMOUSEBUTTONS-2)*2+2,SHX(-7),PHX(-7));
+            menutext(c,131,SHX(-7),PHX(-7),"SENSITIVITY");
+            bar(c+167,131,&sense,4,x==(MAXMOUSEBUTTONS-2)*2+2,SHX(-7),PHX(-7));
             CONTROL_SetMouseSensitivity( sense<<10 );
         }
 
-        menutext(c,125+16,0,0,"ADVANCED...");
+        menutext(c,131+16,0,0,"ADVANCED...");
 
         if (probey < (MAXMOUSEBUTTONS-2)*2+2) {
-            gametext(160,149,"UP/DOWN = SELECT BUTTON",0,2+8+16);
-            gametext(160,149+9,"ENTER = MODIFY",0,2+8+16);
+            gametext(160,155,"UP/DOWN = SELECT BUTTON",0,2+8+16);
+            gametext(160,155+9,"ENTER = MODIFY",0,2+8+16);
         }
         break;
 
     case 211:
-        rotatesprite(320<<15,10<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        if (function == 0) menutext(320>>1,15,0,0,"MOUSE SETUP");
-        else if (function == 1) menutext(320>>1,15,0,0,"ADVANCED MOUSE");
-        else if (function == 2) menutext(320>>1,15,0,0,"JOYSTICK BUTTONS");
-        else if (function == 3) menutext(320>>1,15,0,0,"JOYSTICK AXES");
+        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        if (function == 0) menutext(320>>1,24,0,0,"MOUSE SETUP");
+        else if (function == 1) menutext(320>>1,24,0,0,"ADVANCED MOUSE");
+        else if (function == 2) menutext(320>>1,24,0,0,"JOYSTICK BUTTONS");
+        else if (function == 3) menutext(320>>1,24,0,0,"JOYSTICK AXES");
 
         x = probe(0,0,0,NUMGAMEFUNCTIONS);
 
@@ -2778,7 +2778,7 @@ cheat_for_port_credits:
             break;
         }
 
-        gametext(320>>1,25,"SELECT A FUNCTION TO ASSIGN",0,2+8+16);
+        gametext(320>>1,31,"SELECT A FUNCTION TO ASSIGN",0,2+8+16);
 
         if (function == 0) {
             if (whichkey < (MAXMOUSEBUTTONS-2)*2)
@@ -2803,7 +2803,7 @@ cheat_for_port_credits:
             Bsprintf(tempbuf,"TO DIGITAL %s %s",getjoyname(0,whichkey>>1),(whichkey&1)?"POSITIVE":"NEGATIVE");
         }
 
-        gametext(320>>1,25+9,tempbuf,0,2+8+16);
+        gametext(320>>1,31+9,tempbuf,0,2+8+16);
 
         if (KB_KeyPressed( sc_End )) { KB_ClearKeyDown(sc_End); probey = NUMGAMEFUNCTIONS-1; sound(KICK_HIT); }
         else if (KB_KeyPressed( sc_Home )) { KB_ClearKeyDown(sc_Home); probey = 0; sound(KICK_HIT); }
@@ -2819,27 +2819,27 @@ cheat_for_port_credits:
                 strcpy(tempbuf, CONFIG_FunctionNumToName(m+l));
 
             for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-            minitext(100,46+l*8,tempbuf,(m+l == probey)?0:16,10+16);
+            minitext(100,51+l*8,tempbuf,(m+l == probey)?0:16,10+16);
         }
 
-        gametext(320>>1,154,"PRESS \"ESCAPE\" TO CANCEL",0,2+8+16);
+        gametext(320>>1,161,"PRESS \"ESCAPE\" TO CANCEL",0,2+8+16);
 
         break;
 
     case 212:
-        rotatesprite(320<<15,10<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,15,0,0,"ADVANCED MOUSE");
+        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        menutext(320>>1,24,0,0,"ADVANCED MOUSE");
 
         c = (320>>1)-120;
 
         onbar = (probey == 0 || probey == 1);
         if (probey < 2)
-            x = probe(c+6,40,16,6);
+            x = probe(c+6,46,16,6);
         else if (probey < 6) {
             m=50;
-            x = probe(c+6+10,91-(10+10),10,6);
+            x = probe(c+6+10,97-(10+10),10,6);
         } else {
-            x = probe(c+6,140-(16+16+16+16+16+16),16,6);
+            x = probe(c+6,146-(16+16+16+16+16+16),16,6);
         }
 
         switch (x) {
@@ -2885,65 +2885,65 @@ cheat_for_port_credits:
 
         }
 
-        menutext(c,40,0,0,"X-AXIS SCALE");
+        menutext(c,46,0,0,"X-AXIS SCALE");
         l = (MouseAnalogueScale[0]+262144) >> 13;
-        bar(c+160+40,40,(short *)&l,1,x==0,0,0);
+        bar(c+160+40,46,(short *)&l,1,x==0,0,0);
         l = (l<<13)-262144;
         if (l != MouseAnalogueScale[0]) {
             CONTROL_SetAnalogAxisScale( 0, l, controldevice_mouse );
             MouseAnalogueScale[0] = l;
         }
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
-        gametext(c+160-16,40-8,tempbuf,0,2+8+16);
+        gametext(c+160-16,46-8,tempbuf,0,2+8+16);
 
-        menutext(c,40+16,0,0,"Y-AXIS SCALE");
+        menutext(c,46+16,0,0,"Y-AXIS SCALE");
         l = (MouseAnalogueScale[1]+262144) >> 13;
-        bar(c+160+40,40+16,(short *)&l,1,x==1,0,0);
+        bar(c+160+40,46+16,(short *)&l,1,x==1,0,0);
         l = (l<<13)-262144;
         if (l != MouseAnalogueScale[1]) {
             CONTROL_SetAnalogAxisScale( 1, l, controldevice_mouse );
             MouseAnalogueScale[1] = l;
         }
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
-        gametext(c+160-16,40+16-8,tempbuf,0,2+8+16);
+        gametext(c+160-16,46+16-8,tempbuf,0,2+8+16);
 
-        menutext(c,40+16+16+8,0,0,"DIGITAL AXES ACTIONS");
+        menutext(c,46+16+16+8,0,0,"DIGITAL AXES ACTIONS");
 
-        gametext(c+10,84,"UP:",0,2+8+16);
+        gametext(c+10,90,"UP:",0,2+8+16);
         if (MouseDigitalFunctions[1][0] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[1][0]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitext(c+10+60,85,tempbuf,0,10+16);
+        minitext(c+10+60,91,tempbuf,0,10+16);
 
-        gametext(c+10,84+10,"DOWN:",0,2+8+16);
+        gametext(c+10,90+10,"DOWN:",0,2+8+16);
         if (MouseDigitalFunctions[1][1] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[1][1]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitext(c+10+60,85+10,tempbuf,0,10+16);
+        minitext(c+10+60,91+10,tempbuf,0,10+16);
 
-        gametext(c+10,84+10+10,"LEFT:",0,2+8+16);
+        gametext(c+10,90+10+10,"LEFT:",0,2+8+16);
         if (MouseDigitalFunctions[0][0] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[0][0]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitext(c+10+60,85+10+10,tempbuf,0,10+16);
+        minitext(c+10+60,91+10+10,tempbuf,0,10+16);
 
-        gametext(c+10,84+10+10+10,"RIGHT:",0,2+8+16);
+        gametext(c+10,90+10+10+10,"RIGHT:",0,2+8+16);
         if (MouseDigitalFunctions[0][1] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[0][1]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitext(c+10+60,85+10+10+10,tempbuf,0,10+16);
+        minitext(c+10+60,91+10+10+10,tempbuf,0,10+16);
 
         /* JBF 20040107: It would appear giving these options confuses some tinkerers, so they've
          * been moved to the bottom, and hidden in case I dare to reenable them again.
@@ -3273,7 +3273,7 @@ cheat_for_port_credits:
     case 701:
         c = (320>>1)-120;
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,24,0,0,"SOUND OPTIONS");
+        menutext(320>>1,24,0,0,"SOUND SETUP");
         onbar = ( probey == 2 || probey == 3 );
 
         x = probe(c,50,16,7);
