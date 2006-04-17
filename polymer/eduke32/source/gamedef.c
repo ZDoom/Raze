@@ -3926,8 +3926,10 @@ char parsecommand(void)
         if(!CheckEventSync(current_event))
             ReportError(WARNING_EVENTSYNC);
         transmultvars(4);
-        if (tw == CON_MOVESPRITE)
+        if (tw == CON_MOVESPRITE) {
             transvar();
+            transvartype(GAMEVAR_FLAG_READONLY);
+        }
         break;
 
     case CON_MINITEXT:
