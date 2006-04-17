@@ -21,12 +21,6 @@
  * Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
  */
 
-#ifdef __APPLE__
-# include <jfaud/jfaud.hpp>
-#else
-# include "jfaud.hpp"
-#endif
-
 #include "types.h"
 #include "duke3d.h"
 extern "C" {
@@ -36,6 +30,13 @@ extern "C" {
 #include "osd.h"
 long numenvsnds;
 }
+
+typedef uint64 uint64_t;
+#ifdef __APPLE__
+# include <jfaud/jfaud.hpp>
+#else
+# include "jfaud.hpp"
+#endif
 
 #define SOUNDM_LOOP   1
 #define SOUNDM_MSFX   2
@@ -195,6 +196,8 @@ void SoundStartup(void)
 		jfaud = NULL;
 		return;
 	}
+
+	jfaud->SetCacheSize(1048576,1048576/2);
 	
 	chans = new SoundChannel[NumVoices];
 	if (!chans) {
