@@ -8582,7 +8582,7 @@ char opendemoread(char which_demo) // 0 = mine
     if (kread(recfilep,&ud.reccnt,sizeof(long)) != sizeof(long)) goto corrupt;
     if (kread(recfilep,&ver,sizeof(char)) != sizeof(char)) goto corrupt;
 
-    if(ver != BYTEVERSION && ver != 27 && ver != 28 && ver != 116 && ver != 117) { /* old demo playback */
+    if(ver != BYTEVERSION && ver != 160 && ver != 116 && ver != 117) { /* old demo playback */
         if      (ver == BYTEVERSION_JF)   initprintf("Demo %s is for Regular edition.\n", d);
         else if (ver == BYTEVERSION_JF+1) initprintf("Demo %s is for Atomic edition.\n", d);
         else if (ver == BYTEVERSION_JF+2) initprintf("Demo %s is for Shareware version.\n", d);
@@ -8592,7 +8592,9 @@ char opendemoread(char which_demo) // 0 = mine
         demo_version = 0;
         return 0;
     } else {
-        demo_version = ver;
+        if(ver == 160)
+            demo_version = ver = BYTEVERSION;
+        else demo_version = ver;
         OSD_Printf("Demo %s is of version %d.\n", d, ver);
     }
 
@@ -8651,7 +8653,7 @@ char opendemoread(char which_demo) // 0 = mine
     newgame(ud.volume_number,ud.level_number,ud.player_skill);
     return(1);
 corrupt:
-    OSD_Printf("Demo file %d is corrupt.\n",which_demo);
+    OSD_Printf("Demo %d header is corrupt.\n",which_demo);
     ud.reccnt = 0;
     kclose(recfilep);
     return 0;
@@ -8816,20 +8818,19 @@ RECHECK:
                             ud.reccnt = 0;
                             kclose(recfilep);
                             ps[myconnectindex].gm |= MODE_MENU;
-                            break;
+                            goto RECHECK;
                         }
                         OSD_Printf("ud.reccnt: %d\n",ud.reccnt);
                     }
 
                     for(j=connecthead;j>=0;j=connectpoint2[j])
                     {
-                        OSD_Printf("a:%d, h:%d, s:%d, f:%d, b:%d\n",oldrecsync[i].avel,oldrecsync[i].horz,oldrecsync[i].svel,oldrecsync[i].fvel,oldrecsync[i].bits);
+                        OSD_Printf("ud.reccnt: %d, a:%d, h:%d, s:%d, f:%d, b:%d\n",ud.reccnt,oldrecsync[i].avel,oldrecsync[i].horz,oldrecsync[i].svel,oldrecsync[i].fvel,oldrecsync[i].bits);
                         clearbufbyte(&inputfifo[movefifoend[j]&(MOVEFIFOSIZ-1)][j],sizeof(input),0L);
                         copybufbyte(&oldrecsync[i],&inputfifo[movefifoend[j]&(MOVEFIFOSIZ-1)][j],sizeof(oldinput));
                         movefifoend[j]++;
                         i++;
                         ud.reccnt--;
-                        OSD_Printf("ud.reccnt: %d\n",ud.reccnt);
                     }
                 }
                 else
@@ -8844,7 +8845,7 @@ RECHECK:
                             ud.reccnt = 0;
                             kclose(recfilep);
                             ps[myconnectindex].gm |= MODE_MENU;
-                            break;
+                            goto RECHECK;
                         }
                     }
 
