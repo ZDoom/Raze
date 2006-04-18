@@ -356,7 +356,7 @@ void getpackets(void)
 
             k = j;
             for(i=connecthead;i>=0;i=connectpoint2[i])
-                j += playerquitflag[i] + playerquitflag[i];
+                j += playerquitflag[i]+1;
             for(i=connecthead;i>=0;i=connectpoint2[i])
             {
                 if (playerquitflag[i] == 0) continue;

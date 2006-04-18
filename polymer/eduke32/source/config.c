@@ -231,6 +231,7 @@ void CONFIG_SetDefaults( void )
     ud.drawweapon = 1;
     ud.brightskins = 0;
     ud.democams = 1;
+    ud.color = 0;
 
     ShowOpponentWeapons = 0;
     Bstrcpy(ud.rtsname, "DUKE.RTS");
