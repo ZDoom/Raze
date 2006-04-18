@@ -4524,7 +4524,7 @@ DETONATEB:
                         {
                             /* addweapon(&ps[p],HANDBOMB_WEAPON); */
                             if (!(ps[p].weaponswitch & 1)) addweaponnoswitch(&ps[p],HANDBOMB_WEAPON);
-                                else addweapon( &ps[p],HANDBOMB_WEAPON);
+                            else addweapon( &ps[p],HANDBOMB_WEAPON);
                         }
 
                         if( sprite[s->owner].picnum != APLAYER )

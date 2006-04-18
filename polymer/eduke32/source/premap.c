@@ -1221,7 +1221,7 @@ void resetpspritevars(char g)
                     int k;
 
                     for(k=0;k<MAXPLAYERS-1;k++) {
-                        if(which_palookup == ud.pcolor[k]) {
+                        if(which_palookup == ps[k].palookup) {
                             which_palookup++;
                             if( which_palookup >= 17 )
                                 which_palookup = 9;

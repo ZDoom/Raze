@@ -591,7 +591,7 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "DemoCams",&ud.democams);
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         SCRIPT_GetNumber( scripthandle, "Misc", "Color",&ud.color);
-        ud.pcolor[0] = ud.color;
+        ps[0].palookup = ud.pcolor[0] = ud.color;
         dummy = useprecache; SCRIPT_GetNumber( scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
         if(ud.wchoice[0][0] == 0 && ud.wchoice[0][1] == 0)
         {

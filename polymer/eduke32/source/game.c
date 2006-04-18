@@ -1582,9 +1582,9 @@ void displayfragbar(void)
 
     for(i=connecthead;i>=0;i=connectpoint2[i])
     {
-        minitext(21+(73*(i&3)),2+((i&28)<<1),&ud.user_name[i][0],sprite[ps[i].i].pal,2+8+16);
+        minitext(21+(73*(i&3)),2+((i&28)<<1),&ud.user_name[i][0],/*sprite[ps[i].i].pal*/ps[i].palookup,2+8+16);
         Bsprintf(tempbuf,"%d",ps[i].frag-ps[i].fraggedself);
-        minitext(17+50+(73*(i&3)),2+((i&28)<<1),tempbuf,sprite[ps[i].i].pal,2+8+16);
+        minitext(17+50+(73*(i&3)),2+((i&28)<<1),tempbuf,/*sprite[ps[i].i].pal*/ps[i].palookup,2+8+16);
     }
 }
 
@@ -8627,7 +8627,7 @@ char opendemoread(char which_demo) // 0 = mine
     if (kread(recfilep,(int32 *)&i,sizeof(int32)) != sizeof(int32)) goto corrupt;
 
     if(ver == BYTEVERSION) {
-        if (kread(recfilep,(char *)boardfilename,sizeof(boardfilename)) != sizeof(boardfilename)) goto corrupt; 
+        if (kread(recfilep,(char *)boardfilename,sizeof(boardfilename)) != sizeof(boardfilename)) goto corrupt;
     } else if (kread(recfilep,(char *)boardfilename,128) != 128) goto corrupt;
 
     if( boardfilename[0] != 0 )
