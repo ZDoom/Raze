@@ -39,6 +39,9 @@ void DoUserDef(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, s
     int iPlayer;
     long lValue;
 
+    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
+        return;
+
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
 
     if(sPlayer != myconnectindex) return;
@@ -176,7 +179,6 @@ void DoUserDef(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, s
         else
             SetGameVarID((int)lVar2, ud.showweapons, sActor, sPlayer);
         break;
-
 
     case USERDEFS_PAUSE_ON:
         if(bSet)
@@ -612,17 +614,14 @@ void DoThisProjectile(char bSet, long lVar1, long lLabelID, long lVar2, short sA
 {
     long lValue,proj;
 
+    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
+        return;
+
     if(lVar1 == g_iThisActorID )
-    {
         // if they've asked for 'this', then use 'this'...
         proj=sActor;
-    }
     else
-    {
-        if(sActor < 0 || sActor >= MAXSPRITES)
-            return;
         proj=GetGameVarID((int)lVar1, sActor, sPlayer);
-    }
 
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
 
@@ -836,19 +835,16 @@ void DoPlayer(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sh
     long lValue;
     long lTemp;
 
+    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
+        return;
+
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
 
     if(lVar1 == g_iThisActorID )
-    {
         // if they've asked for 'this', then use 'this player'...
         iPlayer=g_p;
-    }
     else
-    {
-        if(sPlayer<0 || sPlayer >= MAXPLAYERS)
-            return;
         iPlayer=GetGameVarID((int)lVar1, sActor, sPlayer);
-    }
 
     if(iPlayer<0 || iPlayer >= MAXPLAYERS)
         return;
@@ -1864,6 +1860,9 @@ void DoInput(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sho
     long lValue;
     long lTemp;
 
+    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
+        return;
+
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
 
     if(lVar1 == g_iThisActorID )
@@ -1872,11 +1871,7 @@ void DoInput(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sho
         iPlayer=g_p;
     }
     else
-    {
-        if(sPlayer<0 || sPlayer >= MAXPLAYERS)
-            return;
         iPlayer=GetGameVarID((int)lVar1, sActor, sPlayer);
-    }
 
     if(iPlayer<0 || iPlayer >= MAXPLAYERS)
         return;
@@ -1889,30 +1884,35 @@ void DoInput(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sho
         else
             SetGameVarID((int)lVar2, sync[iPlayer].avel, sActor, sPlayer);
         break;
+
     case INPUT_HORZ:
         if(bSet)
             sync[iPlayer].horz=lValue;
         else
             SetGameVarID((int)lVar2, sync[iPlayer].horz, sActor, sPlayer);
         break;
+
     case INPUT_FVEL:
         if(bSet)
             sync[iPlayer].fvel=lValue;
         else
             SetGameVarID((int)lVar2, sync[iPlayer].fvel, sActor, sPlayer);
         break;
+
     case INPUT_SVEL:
         if(bSet)
             sync[iPlayer].svel=lValue;
         else
             SetGameVarID((int)lVar2, sync[iPlayer].svel, sActor, sPlayer);
         break;
+
     case INPUT_BITS:
         if(bSet)
             sync[iPlayer].bits=lValue;
         else
             SetGameVarID((int)lVar2, sync[iPlayer].bits, sActor, sPlayer);
         break;
+
     case INPUT_BITS2:
         if(bSet)
             sync[iPlayer].bits2=lValue;
@@ -1930,6 +1930,9 @@ void DoWall(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, shor
     int iWall;
     long lValue;
 
+    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
+        return;
+
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
 
     iWall=GetGameVarID((int)lVar1, sActor, sPlayer);
@@ -1945,96 +1948,112 @@ void DoWall(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, shor
         else
             SetGameVarID((int)lVar2, wall[iWall].x, sActor, sPlayer);
         break;
+
     case WALL_Y:
         if(bSet)
             wall[iWall].y=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].y, sActor, sPlayer);
         break;
+
     case WALL_POINT2:
         if(bSet)
             wall[iWall].point2=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].point2, sActor, sPlayer);
         break;
+
     case WALL_NEXTWALL:
         if(bSet)
             wall[iWall].nextwall=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].nextwall, sActor, sPlayer);
         break;
+
     case WALL_NEXTSECTOR:
         if(bSet)
             wall[iWall].nextsector=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].nextsector, sActor, sPlayer);
         break;
+
     case WALL_CSTAT:
         if(bSet)
             wall[iWall].cstat=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].cstat, sActor, sPlayer);
         break;
+
     case WALL_PICNUM:
         if(bSet)
             wall[iWall].picnum=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].picnum, sActor, sPlayer);
         break;
+
     case WALL_OVERPICNUM:
         if(bSet)
             wall[iWall].overpicnum=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].overpicnum, sActor, sPlayer);
         break;
+
     case WALL_SHADE:
         if(bSet)
             wall[iWall].shade=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].shade, sActor, sPlayer);
         break;
+
     case WALL_PAL:
         if(bSet)
             wall[iWall].pal=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].pal, sActor, sPlayer);
         break;
+
     case WALL_XREPEAT:
         if(bSet)
             wall[iWall].xrepeat=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].xrepeat, sActor, sPlayer);
         break;
+
     case WALL_YREPEAT:
         if(bSet)
             wall[iWall].yrepeat=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].yrepeat, sActor, sPlayer);
         break;
+
     case WALL_XPANNING:
         if(bSet)
             wall[iWall].xpanning=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].xpanning, sActor, sPlayer);
         break;
+
     case WALL_YPANNING:
         if(bSet)
             wall[iWall].ypanning=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].ypanning, sActor, sPlayer);
         break;
+
     case WALL_LOTAG:
         if(bSet)
             wall[iWall].lotag=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].lotag, sActor, sPlayer);
         break;
+
     case WALL_HITAG:
         if(bSet)
             wall[iWall].hitag=lValue;
         else
             SetGameVarID((int)lVar2, wall[iWall].hitag, sActor, sPlayer);
         break;
+
     case WALL_EXTRA:
         if(bSet)
             wall[iWall].extra=lValue;
@@ -2052,16 +2071,14 @@ void DoSector(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sh
     int iSector;
     long lValue;
 
+    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
+        return;
 
     if(lVar1 == g_iThisActorID )
-    {
         // if they've asked for 'this', then use 'this'...
         iSector=sprite[g_i].sectnum;
-    }
     else
-    {
         iSector=GetGameVarID((int)lVar1, sActor, sPlayer);
-    }
 
     if(iSector<0 || iSector >= MAXSECTORS)
         return;
@@ -2076,132 +2093,154 @@ void DoSector(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sh
         else
             SetGameVarID((int)lVar2, sector[iSector].wallptr,sActor,sPlayer);
         break;
+
     case SECTOR_WALLNUM:
         if(bSet)
             sector[iSector].wallnum=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].wallnum,sActor,sPlayer);
         break;
+
     case SECTOR_CEILINGZ:
         if(bSet)
             sector[iSector].ceilingz=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].ceilingz,sActor,sPlayer);
         break;
+
     case SECTOR_FLOORZ:
         if(bSet)
             sector[iSector].floorz=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].floorz,sActor,sPlayer);
         break;
+
     case SECTOR_CEILINGSTAT:
         if(bSet)
             sector[iSector].ceilingstat=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].ceilingstat,sActor,sPlayer);
         break;
+
     case SECTOR_FLOORSTAT:
         if(bSet)
             sector[iSector].floorstat=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].floorstat,sActor,sPlayer);
         break;
+
     case SECTOR_CEILINGPICNUM:
         if(bSet)
             sector[iSector].ceilingpicnum=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].ceilingpicnum,sActor,sPlayer);
         break;
+
     case SECTOR_CEILINGSLOPE:
         if(bSet)
             sector[iSector].ceilingheinum=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].ceilingheinum,sActor,sPlayer);
         break;
+
     case SECTOR_CEILINGSHADE:
         if(bSet)
             sector[iSector].ceilingshade=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].ceilingshade,sActor,sPlayer);
         break;
+
     case SECTOR_CEILINGPAL:
         if(bSet)
             sector[iSector].ceilingpal=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].ceilingpal,sActor,sPlayer);
         break;
+
     case SECTOR_CEILINGXPANNING:
         if(bSet)
             sector[iSector].ceilingxpanning=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].ceilingypanning,sActor,sPlayer);
         break;
+
     case SECTOR_FLOORPICNUM:
         if(bSet)
             sector[iSector].floorpicnum=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].floorpicnum,sActor,sPlayer);
         break;
+
     case SECTOR_FLOORSLOPE:
         if(bSet)
             sector[iSector].floorheinum=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].floorheinum,sActor,sPlayer);
         break;
+
     case SECTOR_FLOORSHADE:
         if(bSet)
             sector[iSector].floorshade=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].floorshade,sActor,sPlayer);
         break;
+
     case SECTOR_FLOORPAL:
         if(bSet)
             sector[iSector].floorpal=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].floorpal,sActor,sPlayer);
         break;
+
     case SECTOR_FLOORXPANNING:
         if(bSet)
             sector[iSector].floorxpanning=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].floorxpanning,sActor,sPlayer);
         break;
+
     case SECTOR_FLOORYPANNING:
         if(bSet)
             sector[iSector].floorypanning=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].floorypanning,sActor,sPlayer);
         break;
+
     case SECTOR_VISIBILITY:
         if(bSet)
             sector[iSector].visibility=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].visibility,sActor,sPlayer);
         break;
+
     case SECTOR_ALIGNTO:
         if(bSet)
             sector[iSector].filler=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].filler,sActor,sPlayer);
         break;
+
     case SECTOR_LOTAG:
         if(bSet)
             sector[iSector].lotag=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].lotag,sActor,sPlayer);
         break;
+
     case SECTOR_HITAG:
         if(bSet)
             sector[iSector].hitag=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].hitag,sActor,sPlayer);
         break;
+
     case SECTOR_EXTRA:
         if(bSet)
             sector[iSector].extra=lValue;
         else
             SetGameVarID((int)lVar2, sector[iSector].extra,sActor,sPlayer);
         break;
+
     default:
         break;
     }
@@ -2214,19 +2253,16 @@ void DoActor(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sho
     long lValue;
     long lTemp;
 
+    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
+        return;
+
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
 
     if(lVar1 == g_iThisActorID )
-    {
         // if they've asked for 'this', then use 'this'...
         iActor=g_i;
-    }
     else
-    {
-        if(sActor < 0 || sActor >= MAXSPRITES)
-            return;
         iActor=GetGameVarID((int)lVar1, sActor, sPlayer);
-    }
 
     if(iActor < 0 || iActor >= MAXSPRITES)
         return;
@@ -2239,240 +2275,280 @@ void DoActor(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sho
         else
             SetGameVarID((int)lVar2, sprite[iActor].x,sActor,sPlayer);
         break;
+
     case ACTOR_Y:
         if(bSet)
             sprite[iActor].y=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].y,sActor,sPlayer);
         break;
+
     case ACTOR_Z:
         if(bSet)
             sprite[iActor].z=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].z,sActor,sPlayer);
         break;
+
     case ACTOR_CSTAT:
         if(bSet)
             sprite[iActor].cstat=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].cstat,sActor,sPlayer);
         break;
+
     case ACTOR_PICNUM:
         if(bSet)
             sprite[iActor].picnum=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].picnum,sActor,sPlayer);
         break;
+
     case ACTOR_SHADE:
         if(bSet)
             sprite[iActor].shade=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].shade,sActor,sPlayer);
         break;
+
     case ACTOR_PAL:
         if(bSet)
             sprite[iActor].pal=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].pal,sActor,sPlayer);
         break;
+
     case ACTOR_CLIPDIST:
         if(bSet)
             sprite[iActor].clipdist=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].clipdist,sActor,sPlayer);
         break;
+
     case ACTOR_DETAIL:
         if(bSet)
             sprite[iActor].filler=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].filler,sActor,sPlayer);
         break;
+
     case ACTOR_XREPEAT:
         if(bSet)
             sprite[iActor].xrepeat=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].xrepeat,sActor,sPlayer);
         break;
+
     case ACTOR_YREPEAT:
         if(bSet)
             sprite[iActor].yrepeat=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].yrepeat,sActor,sPlayer);
         break;
+
     case ACTOR_XOFFSET:
         if(bSet)
             sprite[iActor].xoffset=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].xoffset,sActor,sPlayer);
         break;
+
     case ACTOR_YOFFSET:
         if(bSet)
             sprite[iActor].yoffset=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].yoffset,sActor,sPlayer);
         break;
+
     case ACTOR_SECTNUM:
         if(bSet)
             changespritesect(iActor,lValue);
         else
             SetGameVarID((int)lVar2, sprite[iActor].sectnum,sActor,sPlayer);
         break;
+
     case ACTOR_STATNUM:
         if(bSet)
             changespritestat(iActor,lValue);
         else
             SetGameVarID((int)lVar2, sprite[iActor].statnum,sActor,sPlayer);
         break;
+
     case ACTOR_ANG:
         if(bSet)
             sprite[iActor].ang=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].ang,sActor,sPlayer);
         break;
+
     case ACTOR_OWNER:
         if(bSet)
             sprite[iActor].owner=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].owner,sActor,sPlayer);
         break;
+
     case ACTOR_XVEL:
         if(bSet)
             sprite[iActor].xvel=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].xvel,sActor,sPlayer);
         break;
+
     case ACTOR_YVEL:
         if(bSet)
             sprite[iActor].yvel=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].yvel,sActor,sPlayer);
         break;
+
     case ACTOR_ZVEL:
         if(bSet)
             sprite[iActor].zvel=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].zvel,sActor,sPlayer);
         break;
+
     case ACTOR_LOTAG:
         if(bSet)
             sprite[iActor].lotag=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].lotag,sActor,sPlayer);
         break;
+
     case ACTOR_HITAG:
         if(bSet)
             sprite[iActor].hitag=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].hitag,sActor,sPlayer);
         break;
+
     case ACTOR_EXTRA:
         if(bSet)
             sprite[iActor].extra=lValue;
         else
             SetGameVarID((int)lVar2, sprite[iActor].extra,sActor,sPlayer);
         break;
+
     case ACTOR_HTCGG:
         if(bSet)
             hittype[iActor].cgg=lValue;
         else
             SetGameVarID((int)lVar2, hittype[iActor].cgg, sActor, sPlayer);
         break;
+
     case ACTOR_HTPICNUM :
         if(bSet)
             hittype[iActor].picnum=lValue;
         else
             SetGameVarID((int)lVar2, hittype[iActor].picnum, sActor, sPlayer);
         break;
+
     case ACTOR_HTANG:
         if(bSet)
             hittype[iActor].ang=lValue;
         else
             SetGameVarID((int)lVar2, hittype[iActor].ang, sActor, sPlayer);
         break;
+
     case ACTOR_HTEXTRA:
         if(bSet)
             hittype[iActor].extra=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].extra, sActor, sPlayer);
         break;
+
     case ACTOR_HTOWNER:
         if(bSet)
             hittype[iActor].owner=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].owner, sActor, sPlayer);
         break;
+
     case ACTOR_HTMOVFLAG:
         if(bSet)
             hittype[iActor].movflag=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].movflag, sActor, sPlayer);
         break;
+
     case ACTOR_HTTEMPANG:
         if(bSet)
             hittype[iActor].tempang=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].tempang, sActor, sPlayer);
         break;
+
     case ACTOR_HTACTORSTAYPUT:
         if(bSet)
             hittype[iActor].actorstayput=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].actorstayput, sActor, sPlayer);
         break;
+
     case ACTOR_HTDISPICNUM:
         if(bSet)
             hittype[iActor].dispicnum=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].dispicnum, sActor, sPlayer);
         break;
+
     case ACTOR_HTTIMETOSLEEP:
         if(bSet)
             hittype[iActor].timetosleep=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].timetosleep, sActor, sPlayer);
         break;
+
     case ACTOR_HTFLOORZ:
         if(bSet)
             hittype[iActor].floorz=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].floorz, sActor, sPlayer);
         break;
+
     case ACTOR_HTCEILINGZ:
         if(bSet)
             hittype[iActor].ceilingz=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].ceilingz, sActor, sPlayer);
         break;
+
     case ACTOR_HTLASTVX:
         if(bSet)
             hittype[iActor].lastvx=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].lastvx, sActor, sPlayer);
         break;
+
     case ACTOR_HTLASTVY:
         if(bSet)
             hittype[iActor].lastvy=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].lastvy, sActor, sPlayer);
         break;
+
     case ACTOR_HTBPOSX:
         if(bSet)
             hittype[iActor].bposx=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].bposx, sActor, sPlayer);
         break;
+
     case ACTOR_HTBPOSY:
         if(bSet)
             hittype[iActor].bposy=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].bposy, sActor, sPlayer);
         break;
+
     case ACTOR_HTBPOSZ:
         if(bSet)
             hittype[iActor].bposz=lValue;
         else
             SetGameVarID((int)lVar2,hittype[iActor].bposz, sActor, sPlayer);
         break;
+
     case ACTOR_HTG_T:
         lTemp=lParm2;
         if(bSet)
@@ -2480,36 +2556,42 @@ void DoActor(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sho
         else
             SetGameVarID((int)lVar2, hittype[iActor].temp_data[lTemp], sActor, sPlayer);
         break;
+
     case ACTOR_ANGOFF:
         if(bSet)
             spriteext[iActor].angoff=lValue;
         else
             SetGameVarID((int)lVar2,spriteext[iActor].angoff, sActor, sPlayer);
         break;
+
     case ACTOR_PITCH:
         if(bSet)
             spriteext[iActor].pitch=lValue;
         else
             SetGameVarID((int)lVar2,spriteext[iActor].pitch, sActor, sPlayer);
         break;
+
     case ACTOR_ROLL:
         if(bSet)
             spriteext[iActor].roll=lValue;
         else
             SetGameVarID((int)lVar2,spriteext[iActor].roll, sActor, sPlayer);
         break;
+
     case ACTOR_MDXOFF:
         if(bSet)
             spriteext[iActor].xoff=lValue;
         else
             SetGameVarID((int)lVar2,spriteext[iActor].xoff, sActor, sPlayer);
         break;
+
     case ACTOR_MDYOFF:
         if(bSet)
             spriteext[iActor].yoff=lValue;
         else
             SetGameVarID((int)lVar2,spriteext[iActor].yoff, sActor, sPlayer);
         break;
+
     case ACTOR_MDZOFF:
         if(bSet)
             spriteext[iActor].zoff=lValue;
@@ -2529,6 +2611,10 @@ void DoProjectile(char bSet, long lVar1, long lLabelID, long lVar2, short sActor
 
     //     proj=GetGameVarID((int)lVar1, sActor, sPlayer);
     proj=lVar1;
+
+    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
+        return;
+
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
 
     switch(lLabelID)
@@ -3102,7 +3188,6 @@ void move()
         g_sp->ang += angdif;
     }
 
-
     if((a&jumptoplayer) == jumptoplayer)
     {
         if(g_t[0] < 16)
@@ -3336,6 +3421,7 @@ char parse(void)
         insptr++;
         parseifelse( rnd(*insptr));
         break;
+
     case CON_IFCANSHOOTTARGET:
 
         if(g_x > 1024)
@@ -3391,6 +3477,7 @@ char parse(void)
 
         parseifelse(j);
         break;
+
     case CON_IFCANSEETARGET:
         j = cansee(g_sp->x,g_sp->y,g_sp->z-((TRAND&41)<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz/*-((TRAND&41)<<8)*/,sprite[ps[g_p].i].sectnum);
         parseifelse(j);
@@ -3400,6 +3487,7 @@ char parse(void)
     case CON_IFACTORNOTSTAYPUT:
         parseifelse(hittype[g_i].actorstayput == -1);
         break;
+
     case CON_IFCANSEE:
         {
             spritetype *s;
@@ -3468,9 +3556,11 @@ char parse(void)
     case CON_IFHITWEAPON:
         parseifelse(ifhitbyweapon(g_i) >= 0);
         break;
+
     case CON_IFSQUISHED:
         parseifelse( ifsquished(g_i, g_p) == 1);
         break;
+
     case CON_IFDEAD:
         {
             j = g_sp->extra;
@@ -3479,6 +3569,7 @@ char parse(void)
             parseifelse(j < 0);
         }
         break;
+
     case CON_AI:
         insptr++;
         g_t[5] = *insptr++;
@@ -3489,6 +3580,7 @@ char parse(void)
         if(g_sp->hitag&random_angle)
             g_sp->ang = TRAND&2047;
         break;
+
     case CON_ACTION:
         insptr++;
         g_t[2] = 0;
@@ -3502,23 +3594,28 @@ char parse(void)
         if(g_x > MAXSLEEPDIST && hittype[g_i].timetosleep == 0)
             hittype[g_i].timetosleep = SLEEPTIME;
         break;
+
     case CON_IFPDISTG:
         insptr++;
         parseifelse(g_x > *insptr);
         if(g_x > MAXSLEEPDIST && hittype[g_i].timetosleep == 0)
             hittype[g_i].timetosleep = SLEEPTIME;
         break;
+
     case CON_ELSE:
         insptr = (long *) *(insptr+1);
         break;
+
     case CON_ADDSTRENGTH:
         insptr++;
         g_sp->extra += *insptr++;
         break;
+
     case CON_STRENGTH:
         insptr++;
         g_sp->extra = *insptr++;
         break;
+
     case CON_IFGOTWEAPONCE:
         insptr++;
 
@@ -3540,6 +3637,7 @@ char parse(void)
         }
         else parseifelse(0);
         break;
+
     case CON_GETLASTPAL:
         insptr++;
         if(g_sp->picnum == APLAYER)
@@ -3547,18 +3645,22 @@ char parse(void)
         else g_sp->pal = hittype[g_i].tempang;
         hittype[g_i].tempang = 0;
         break;
+
     case CON_TOSSWEAPON:
         insptr++;
         checkweapons(&ps[g_sp->yvel]);
         break;
+
     case CON_NULLOP:
         insptr++;
         break;
+
     case CON_MIKESND:
         insptr++;
         if(!isspritemakingsound(g_i,g_sp->yvel))
             spritesound(g_sp->yvel,g_i);
         break;
+
     case CON_PKICK:
         insptr++;
 
@@ -3570,6 +3672,7 @@ char parse(void)
         else if(g_sp->picnum != APLAYER && ps[g_p].quick_kick == 0)
             ps[g_p].quick_kick = 14;
         break;
+
     case CON_SIZETO:
         insptr++;
 
@@ -3582,46 +3685,55 @@ char parse(void)
             if( klabs(j) ) g_sp->yrepeat += ksgn(j);
         }
         break;
+
     case CON_SIZEAT:
         insptr++;
         g_sp->xrepeat = (char) *insptr++;
         g_sp->yrepeat = (char) *insptr++;
         break;
+
     case CON_SHOOT:
         insptr++;
         shoot(g_i,(short)*insptr++);
         break;
+
     case CON_SOUNDONCE:
         insptr++;
         if(!isspritemakingsound(g_i,*insptr))
             spritesound((short) *insptr,g_i);
         insptr++;
         break;
+
     case CON_IFSOUND:
         insptr++;
         parseifelse( Sound[*insptr].num > 0 );
         //    parseifelse(SoundOwner[*insptr][0].i == g_i);
         break;
+
     case CON_STOPSOUND:
         insptr++;
         if(isspritemakingsound(g_i,*insptr))
             stopspritesound((short)*insptr,g_i);
         insptr++;
         break;
+
     case CON_GLOBALSOUND:
         insptr++;
         if(g_p == screenpeek || (gametype_flags[ud.coop]&GAMETYPE_FLAG_COOPSOUND))
             spritesound((short) *insptr,ps[screenpeek].i);
         insptr++;
         break;
+
     case CON_SOUND:
         insptr++;
         spritesound((short) *insptr++,g_i);
         break;
+
     case CON_TIP:
         insptr++;
         ps[g_p].tipincs = 26;
         break;
+
     case CON_FALL:
         insptr++;
         g_sp->xoffset = 0;
@@ -3704,6 +3816,7 @@ SKIPJIBS:
         }
 
         break;
+
     case CON_ENDA:
     case CON_BREAK:
     case CON_ENDS:
@@ -3726,35 +3839,43 @@ SKIPJIBS:
             }
         insptr += 2;
         break;
+
     case CON_MONEY:
         insptr++;
         lotsofmoney(g_sp,*insptr++);
         break;
+
     case CON_MAIL:
         insptr++;
         lotsofmail(g_sp,*insptr++);
         break;
+
     case CON_SLEEPTIME:
         insptr++;
         hittype[g_i].timetosleep = (short)*insptr++;
         break;
+
     case CON_PAPER:
         insptr++;
         lotsofpaper(g_sp,*insptr++);
         break;
+
     case CON_ADDKILLS:
         insptr++;
         ps[g_p].actors_killed += *insptr++;
         hittype[g_i].actorstayput = -1;
         break;
+
     case CON_LOTSOFGLASS:
         insptr++;
         spriteglass(g_i,*insptr++);
         break;
+
     case CON_KILLIT:
         insptr++;
         killit_flag = 1;
         break;
+
     case CON_ADDWEAPON:
         insptr++;
         if( ps[g_p].gotweapon[*insptr] == 0 ) {
@@ -3774,16 +3895,19 @@ SKIPJIBS:
             }
         insptr+=2;
         break;
+
     case CON_DEBUG:
         insptr++;
         printf("%ld\n",*insptr++);
         break;
+
     case CON_ENDOFGAME:
         insptr++;
         ps[g_p].timebeforeexit = *insptr++;
         ps[g_p].customexitsound = -1;
         ud.eog = 1;
         break;
+
     case CON_ADDPHEALTH:
         insptr++;
 
@@ -3849,6 +3973,7 @@ SKIPJIBS:
 
         insptr++;
         break;
+
     case CON_STATE:
         {
             long *tempscrptr;
@@ -3860,10 +3985,12 @@ SKIPJIBS:
             insptr = tempscrptr;
         }
         break;
+
     case CON_LEFTBRACE:
         insptr++;
         while(1) if(parse()) break;
         break;
+
     case CON_MOVE:
         insptr++;
         g_t[0]=0;
@@ -4678,26 +4805,32 @@ SKIPJIBS:
             spawn(g_i,*insptr);
         insptr++;
         break;
+
     case CON_IFWASWEAPON:
         insptr++;
         parseifelse( hittype[g_i].picnum == *insptr);
         break;
+
     case CON_IFAI:
         insptr++;
         parseifelse(g_t[5] == *insptr);
         break;
+
     case CON_IFACTION:
         insptr++;
         parseifelse(g_t[4] == *insptr);
         break;
+
     case CON_IFACTIONCOUNT:
         insptr++;
         parseifelse(g_t[2] >= *insptr);
         break;
+
     case CON_RESETACTIONCOUNT:
         insptr++;
         g_t[2] = 0;
         break;
+
     case CON_DEBRIS:
         {
             short dnum;
@@ -4730,18 +4863,22 @@ SKIPJIBS:
         insptr++;
         g_t[0] = (short) *insptr++;
         break;
+
     case CON_CSTATOR:
         insptr++;
         g_sp->cstat |= (short) *insptr++;
         break;
+
     case CON_CLIPDIST:
         insptr++;
         g_sp->clipdist = (short) *insptr++;
         break;
+
     case CON_CSTAT:
         insptr++;
         g_sp->cstat = (short) *insptr++;
         break;
+
     case CON_SAVE:
         {
             int i;
@@ -4779,6 +4916,7 @@ SKIPJIBS:
         insptr++;
         parseifelse(g_t[1] == *insptr);
         break;
+
     case CON_RESETPLAYER:
         {
             insptr++;
@@ -4861,24 +4999,30 @@ SKIPJIBS:
             //AddLog("EOF: resetplayer");
         }
         break;
+
     case CON_IFONWATER:
         parseifelse( klabs(g_sp->z-sector[g_sp->sectnum].floorz) < (32<<8) && sector[g_sp->sectnum].lotag == 1);
         break;
+
     case CON_IFINWATER:
         parseifelse( sector[g_sp->sectnum].lotag == 2);
         break;
+
     case CON_IFCOUNT:
         insptr++;
         parseifelse(g_t[0] >= *insptr);
         break;
+
     case CON_IFACTOR:
         insptr++;
         parseifelse(g_sp->picnum == *insptr);
         break;
+
     case CON_RESETCOUNT:
         insptr++;
         g_t[0] = 0;
         break;
+
     case CON_ADDINVENTORY:
         insptr+=2;
         switch(*(insptr-1))
@@ -4887,23 +5031,28 @@ SKIPJIBS:
             ps[g_p].steroids_amount = *insptr;
             ps[g_p].inven_icon = 2;
             break;
+
         case GET_SHIELD:
             ps[g_p].shield_amount +=          *insptr;// 100;
             if(ps[g_p].shield_amount > max_player_health)
                 ps[g_p].shield_amount = max_player_health;
             break;
+
         case GET_SCUBA:
             ps[g_p].scuba_amount =             *insptr;// 1600;
             ps[g_p].inven_icon = 6;
             break;
+
         case GET_HOLODUKE:
             ps[g_p].holoduke_amount =          *insptr;// 1600;
             ps[g_p].inven_icon = 3;
             break;
+
         case GET_JETPACK:
             ps[g_p].jetpack_amount =           *insptr;// 1600;
             ps[g_p].inven_icon = 4;
             break;
+
         case GET_ACCESS:
             switch(g_sp->pal)
             {
@@ -4912,14 +5061,17 @@ SKIPJIBS:
             case 23: ps[g_p].got_access |= 4;break;
             }
             break;
+
         case GET_HEATS:
             ps[g_p].heat_amount = *insptr;
             ps[g_p].inven_icon = 5;
             break;
+
         case GET_FIRSTAID:
             ps[g_p].inven_icon = 1;
             ps[g_p].firstaid_amount = *insptr;
             break;
+
         case GET_BOOTS:
             ps[g_p].inven_icon = 7;
             ps[g_p].boot_amount = *insptr;
@@ -4927,10 +5079,12 @@ SKIPJIBS:
         }
         insptr++;
         break;
+
     case CON_HITRADIUS:
         hitradius(g_i,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5));
         insptr+=6;
         break;
+
     case CON_IFP:
         {
             insptr++;
@@ -4985,20 +5139,21 @@ SKIPJIBS:
                 else
                     j = 0;
             }
-
             parseifelse((long) j);
-
         }
         break;
+
     case CON_IFSTRENGTH:
         insptr++;
         parseifelse(g_sp->extra <= *insptr);
         break;
+
     case CON_GUTS:
         insptr += 2;
         guts(g_sp,*(insptr-1),*insptr,g_p);
         insptr++;
         break;
+
     case CON_IFSPAWNEDBY:
         insptr++;
         //            if(g_sp->owner >= 0 && sprite[g_sp->owner].picnum == *insptr)
@@ -5006,34 +5161,42 @@ SKIPJIBS:
         //            else
         parseifelse( hittype[g_i].picnum == *insptr);
         break;
+
     case CON_WACKPLAYER:
         insptr++;
         forceplayerangle(&ps[g_p]);
         return 0;
+
     case CON_FLASH:
         insptr++;
         sprite[g_i].shade = -127;
         ps[g_p].visibility = -127;
         lastvisinc = totalclock+32;
         return 0;
+
     case CON_STOPALLSOUNDS:
         insptr++;
         if (screenpeek == g_p)
             FX_StopAllSounds();
         return 0;
+
     case CON_IFGAPZL:
         insptr++;
         parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) < *insptr);
         break;
+
     case CON_IFHITSPACE:
         parseifelse( sync[g_p].bits&(1<<29));
         break;
+
     case CON_IFOUTSIDE:
         parseifelse(sector[g_sp->sectnum].ceilingstat&1);
         break;
+
     case CON_IFMULTIPLAYER:
         parseifelse(ud.multimode > 1);
         break;
+
     case CON_OPERATE:
         insptr++;
         if( sector[g_sp->sectnum].lotag == 0 )
@@ -5056,22 +5219,27 @@ SKIPJIBS:
                         }
         }
         break;
+
     case CON_IFINSPACE:
         parseifelse(ceilingspace(g_sp->sectnum));
         break;
+
     case CON_SPRITEPAL:
         insptr++;
         if(g_sp->picnum != APLAYER)
             hittype[g_i].tempang = g_sp->pal;
         g_sp->pal = *insptr++;
         break;
+
     case CON_CACTOR:
         insptr++;
         g_sp->picnum = *insptr++;
         break;
+
     case CON_IFBULLETNEAR:
         parseifelse( dodge(g_sp) == 1);
         break;
+
     case CON_IFRESPAWN:
         if( badguy(g_sp) )
             parseifelse( ud.respawn_monsters );
@@ -5080,23 +5248,24 @@ SKIPJIBS:
         else
             parseifelse( ud.respawn_items );
         break;
+
     case CON_IFFLOORDISTL:
         insptr++;
         //            getglobalz(g_i);
         parseifelse( (hittype[g_i].floorz - g_sp->z) <= ((*insptr)<<8));
         break;
+
     case CON_IFCEILINGDISTL:
         insptr++;
         //            getglobalz(g_i);
         parseifelse( ( g_sp->z - hittype[g_i].ceilingz ) <= ((*insptr)<<8));
         break;
+
     case CON_PALFROM:
         insptr++;
         ps[g_p].pals_time = *insptr++;
         for(j=0;j<3;j++)
-        {
             ps[g_p].pals[j] = *insptr++;
-        }
         break;
 
     case CON_DYNQUOTE:
@@ -5119,7 +5288,6 @@ SKIPJIBS:
         parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) >= *insptr);
         break;
         */
-
 
     case CON_ADDLOG:
         {
@@ -5784,9 +5952,7 @@ good:
             insptr++;
             i=*insptr++;  // ID of def
             if( (*insptr) == 0 )
-            {
                 gameexit("CON_DIVVAR: Divide by zero.");
-            }
             SetGameVarID(i, GetGameVarID(i, g_i, g_p) / *insptr++, g_i, g_p );
             break;
         }
@@ -5799,9 +5965,7 @@ good:
             i=*insptr++;  // ID of def
             l=*insptr++;
             if( l == 0 )
-            {
                 gameexit("CON_MODVAR: Mod by zero.");
-            }
             SetGameVarID(i,GetGameVarID(i, g_i, g_p)%l, g_i, g_p );
             break;
         }
@@ -5922,9 +6086,7 @@ good:
             l1=GetGameVarID(i, g_i, g_p);
             l2=GetGameVarID(*insptr++, g_i, g_p);
             if(l2==0)
-            {
                 gameexit("CON_MODVARVAR: Mod by zero.");
-            }
             SetGameVarID(i, l1 % l2, g_i, g_p );
             break;
         }
@@ -5988,8 +6150,6 @@ good:
             int i;
             insptr++;
             i=*insptr++;  // ID of def
-            //Bsprintf(g_szBuf,"AddVar %d to Var ID=%d, g_i=%d, g_p=%d\n",*insptr, i, g_i, g_p);
-            //AddLog(g_szBuf);
             SetGameVarID(i, GetGameVarID(i, g_i, g_p) + *insptr++, g_i, g_p );
             break;
         }
@@ -5999,8 +6159,6 @@ good:
             int i;
             insptr++;
             i=*insptr++;  // ID of def
-            //Bsprintf(g_szBuf,"AddVar %d to Var ID=%d, g_i=%d, g_p=%d\n",*insptr, i, g_i, g_p);
-            //AddLog(g_szBuf);
             SetGameVarID(i, GetGameVarID(i, g_i, g_p) << *insptr++, g_i, g_p );
             break;
         }
@@ -6010,8 +6168,6 @@ good:
             int i;
             insptr++;
             i=*insptr++;  // ID of def
-            //Bsprintf(g_szBuf,"AddVar %d to Var ID=%d, g_i=%d, g_p=%d\n",*insptr, i, g_i, g_p);
-            //AddLog(g_szBuf);
             SetGameVarID(i, GetGameVarID(i, g_i, g_p) >> *insptr++, g_i, g_p );
             break;
         }
@@ -6035,8 +6191,6 @@ good:
             insptr++;
             i=*insptr++;  // ID of def
             lValue=GetGameVarID(*insptr++, g_i, g_p);
-            // propiedad trigonometrica con el seno para hallar coseno: cos = sqrt(1-sen^2)
-            // I don't know anything about sin/cos, and I don't know anything about foreign languages, either. :(
             lValue=sintable[(lValue+512)&2047];
             SetGameVarID(i, lValue , g_i, g_p );
             break;
@@ -6108,9 +6262,7 @@ good:
             i=*insptr++;  // ID of def
             j=0;
             if(GetGameVarID(i, g_i, g_p) & GetGameVarID(*(insptr), g_i, g_p) )
-            {
                 j=1;
-            }
             parseifelse( j );
             break;
         }
@@ -6122,9 +6274,7 @@ good:
             i=*insptr++;  // ID of def
             j=0;
             if(GetGameVarID(i, g_i, g_p) != GetGameVarID(*(insptr), g_i, g_p) )
-            {
                 j=1;
-            }
             parseifelse( j );
             break;
         }
@@ -6136,9 +6286,7 @@ good:
             i=*insptr++;  // ID of def
             j=0;
             if(GetGameVarID(i, g_i, g_p) == GetGameVarID(*(insptr), g_i, g_p) )
-            {
                 j=1;
-            }
             parseifelse( j );
             break;
         }
@@ -6150,9 +6298,7 @@ good:
             i=*insptr++;  // ID of def
             j=0;
             if(GetGameVarID(i, g_i, g_p) > GetGameVarID(*(insptr), g_i, g_p) )
-            {
                 j=1;
-            }
             parseifelse( j );
             break;
         }
@@ -6164,9 +6310,7 @@ good:
             i=*insptr++;  // ID of def
             j=0;
             if(GetGameVarID(i, g_i, g_p) < GetGameVarID(*(insptr), g_i, g_p) )
-            {
                 j=1;
-            }
             parseifelse( j );
             break;
         }
@@ -6178,9 +6322,7 @@ good:
             i=*insptr++;  // ID of def
             j=0;
             if(GetGameVarID(i, g_i, g_p) == *insptr)
-            {
                 j=1;
-            }
             parseifelse( j );
             break;
         }
@@ -6192,9 +6334,7 @@ good:
             i=*insptr++;  // ID of def
             j=0;
             if(GetGameVarID(i, g_i, g_p) != *insptr)
-            {
                 j=1;
-            }
             parseifelse( j );
             break;
         }
@@ -6213,9 +6353,7 @@ good:
                 j=0;
 
                 if(GetGameVarID(i, g_i, g_p) != *insptr)
-                {
                     j=1;
-                }
                 parseifelse( j );
             }
             break;
@@ -6236,9 +6374,7 @@ good:
                 j=0;
 
                 if(GetGameVarID(i, g_i, g_p) != GetGameVarID(k, g_i, g_p))
-                {
                     j=1;
-                }
                 parseifelse( j );
             }
             break;
@@ -6251,9 +6387,7 @@ good:
             i=*insptr++;  // ID of def
             j=0;
             if(GetGameVarID(i, g_i, g_p) & *insptr)
-            {
                 j=1;
-            }
             parseifelse( j );
             break;
         }
@@ -6265,9 +6399,7 @@ good:
             i=*insptr++;  // ID of def
             j=0;
             if(GetGameVarID(i, g_i, g_p) > *insptr)
-            {
                 j=1;
-            }
             parseifelse( j );
             break;
         }
@@ -6279,9 +6411,7 @@ good:
             i=*insptr++;  // ID of def
             j=0;
             if(GetGameVarID(i, g_i, g_p) < *insptr)
-            {
                 j=1;
-            }
             parseifelse( j );
             break;
         }
@@ -6336,6 +6466,7 @@ good:
                 ps[g_p].actorsqu = g_i;
             }
         break;
+
     case CON_IFAWAYFROMWALL:
         {
             short s1;
@@ -6361,23 +6492,27 @@ good:
             }
             parseifelse( j );
         }
-
         break;
+
     case CON_QUOTE:
         insptr++;
         FTA(*insptr++,&ps[g_p]);
         break;
+
     case CON_USERQUOTE:
         insptr++;
         adduserquote(fta_quotes[*insptr]);
         insptr++;
         break;
+
     case CON_IFINOUTERSPACE:
         parseifelse( floorspace(g_sp->sectnum));
         break;
+
     case CON_IFNOTMOVING:
         parseifelse( (hittype[g_i].movflag&49152) > 16384 );
         break;
+
     case CON_RESPAWNHITAG:
         insptr++;
         switch(dynamictostatic[g_sp->picnum])
@@ -6402,6 +6537,7 @@ good:
             break;
         }
         break;
+
     case CON_IFSPRITEPAL:
         insptr++;
         parseifelse( g_sp->pal == *insptr);
@@ -6434,7 +6570,6 @@ good:
         gameexit("An error has occurred in the EDuke32 CON parser.\n\nPlease mail all of your CON files along with the file eduke32.log\nto terminx@gmail.com.\n\nThank you.");
         break;
     }
-
     return 0;
 }
 

@@ -1111,7 +1111,6 @@ void ReadGameVars(long fil)
     g_szBuf[l]=0;
     AddLog(g_szBuf);
 
-
 #if 0
     {
         FILE *fp;
@@ -1125,7 +1124,6 @@ void ReadGameVars(long fil)
         AddLog("Done Dumping...");
     }
 #endif
-
 }
 
 void SaveGameVars(FILE *fil)
@@ -1183,7 +1181,6 @@ void SaveGameVars(FILE *fil)
     l=strlen(g_szBuf);
     dfwrite(&l,sizeof(l),1,fil);
     dfwrite(g_szBuf,l,1,fil);
-
 }
 
 void DumpGameVars(FILE *fp)
@@ -1258,7 +1255,6 @@ void ResetGameVars(void)
         //AddLog(g_szBuf);
         AddGameVar(aDefaultGameVars[i].szLabel,aDefaultGameVars[i].lValue,aDefaultGameVars[i].dwFlags|GAMEVAR_FLAG_NODEFAULT);
     }
-
 }
 
 char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
@@ -1381,7 +1377,6 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
         // no room to add...
         return 0;
     }
-
 }
 
 void ResetActorGameVars(short sActor)
@@ -1470,7 +1465,6 @@ long GetGameVarID(int id, short sActor, short sPlayer)
         if(m) return -aGameVars[id].lValue;
         else return aGameVars[id].lValue;
     }
-
 }
 
 void SetGameVarID(int id, long lValue, short sActor, short sPlayer)
@@ -1501,7 +1495,6 @@ void SetGameVarID(int id, long lValue, short sActor, short sPlayer)
     {
         aGameVars[id].lValue=lValue;
     }
-
 }
 
 long GetGameVar(char *szGameLabel, long lDefault, short sActor, short sPlayer)
@@ -1515,7 +1508,6 @@ long GetGameVar(char *szGameLabel, long lDefault, short sActor, short sPlayer)
         }
     }
     return lDefault;
-
 }
 
 long *GetGameValuePtr(char *szGameLabel)
@@ -1539,7 +1531,6 @@ long *GetGameValuePtr(char *szGameLabel)
     //Bsprintf(g_szBuf,"Could not find value '%s'\n",szGameLabel);
     //AddLog(g_szBuf);
     return NULL;
-
 }
 
 long GetDefID(char *szGameLabel)
@@ -1553,7 +1544,6 @@ long GetDefID(char *szGameLabel)
         }
     }
     return -1;
-
 }
 
 char ispecial(char c)
@@ -1922,7 +1912,6 @@ long CountCaseStatements()
     long *savescript;
     long *savecase;
     short temp_line_number;
-
 
     temp_line_number=line_number;
 
@@ -2943,14 +2932,12 @@ char parsecommand(void)
     case CON_FINDNEARSPRITE:
     case CON_FINDNEARSPRITE3D:
         {
-
             // syntax findnearactor <type> <maxdist> <getvar>
             // gets the sprite ID of the nearest actor within max dist
             // that is of <type> into <getvar>
             // -1 for none found
 
             transnum(LABEL_DEFINE); // get <type>
-
             transnum(LABEL_DEFINE); // get maxdist
 
             switch(tw)
@@ -2973,12 +2960,6 @@ char parsecommand(void)
     case CON_FINDNEARSPRITEVAR:
     case CON_FINDNEARSPRITE3DVAR:
         {
-
-            // syntax findnearactorvar <type> <maxdistvar> <getvar>
-            // gets the sprite ID of the nearest actor within max dist
-            // that is of <type> into <getvar>
-            // -1 for none found
-
             transnum(LABEL_DEFINE); // get <type>
 
             // get the ID of the DEF
@@ -3016,7 +2997,6 @@ char parsecommand(void)
     case CON_GETWALL:
         {
             long lLabelID;
-
 
             // syntax getwall[<var>].x <VAR>
             // gets the value of wall[<var>].xxx into <VAR>
@@ -3080,7 +3060,6 @@ char parsecommand(void)
     case CON_GETPLAYER:
         {
             long lLabelID;
-
 
             // syntax getwall[<var>].x <VAR>
             // gets the value of wall[<var>].xxx into <VAR>
@@ -3158,7 +3137,6 @@ char parsecommand(void)
     case CON_GETINPUT:
         {
             long lLabelID;
-
 
             // syntax getwall[<var>].x <VAR>
             // gets the value of wall[<var>].xxx into <VAR>
@@ -4384,7 +4362,6 @@ repeatcase:
             break;
         }
 
-
         i = 0;
 
         while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 )
@@ -4417,7 +4394,6 @@ repeatcase:
             while( *textptr != 0x0a && *textptr != 0 ) textptr++;
             break;
         }
-
 
         i = 0;
 
@@ -5728,7 +5704,6 @@ void ResetSystemDefaults(void)
     Bmemcpy(&projectile,&defaultprojectile,sizeof(defaultprojectile));
 
     //AddLog("EOF:ResetWeaponDefaults");
-
 }
 
 void InitGameVars(void)
@@ -5889,7 +5864,6 @@ void loadefs(char *filenam)
         initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((sizeof(sector)/sizeof(long)),(sizeof(sprite)/(1<<6))),iGameVarCount,MAXGAMEVARS);
         initprintf("%ld event definitions, %ld defined actors\n\n",j,k);
     }
-
 }
 
 void ReportError(int iError)
