@@ -597,6 +597,8 @@ void menus(void)
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(160,24,0,0,"PLAYER SETUP");
 
+        rotatesprite((280)<<16,(35+(tilesizy[APLAYER]>>1))<<16,49152L,0,1426,0,ud.color,10,0,0,xdim-1,ydim-1);
+
         if (current_menu == 20002) {
             x = probe(46,50,20,4);
             switch(x) {
@@ -613,6 +615,13 @@ void menus(void)
                 KB_ClearKeyDown(sc_Enter);
                 KB_ClearKeyDown(sc_kpad_Enter);
                 KB_FlushKeyboardQueue();
+                break;
+
+            case 1:
+                ud.color++;
+                if(ud.color > 22)
+                    ud.color = 0;
+                goto check_player_color;
                 break;
 
             case 2:
@@ -694,7 +703,7 @@ player_menu_update:
         menutext(40,50+20,0,0,"COLOR");
 
         {
-            int ud_color,aaim,ud_weaponswitch;
+            int ud_color = -1, aaim = -1, ud_weaponswitch = -1;
 
             ud_color = ud.color;
             aaim = AutoAim;
@@ -703,6 +712,7 @@ player_menu_update:
             modval(0,2,(int *)&AutoAim,1,probey==2);
             modval(0,3,(int *)&ud.weaponswitch,1,probey==3);
 
+check_player_color:
             {
                 int i, disallowed[] = { 1, 2, 3, 4, 5, 6, 7, 8, 17, 18, 19, 20, 22 };
 
@@ -718,7 +728,6 @@ player_menu_update:
                     goto player_menu_update;
             }
         }
-        rotatesprite((280)<<16,(35+(tilesizy[APLAYER]>>1))<<16,49152L,0,1426,0,ud.color,10,0,0,xdim-1,ydim-1);
         menutext(40,50+20+20,0,0,"AUTO AIM");
         menutext(40,50+20+20+20,0,0,"WEAPON SWITCH");
 

@@ -1228,8 +1228,7 @@ void resetpspritevars(char g)
                             k=0;
                         }
                     }
-                    s->pal = ps[j].palookup = which_palookup;
-                    which_palookup++;
+                    s->pal = ps[j].palookup = which_palookup++;
                     if( which_palookup >= 17 )
                         which_palookup = 9;
                 }
