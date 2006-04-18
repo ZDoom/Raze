@@ -8095,41 +8095,47 @@ void sendscore(char *s)
         genericmultifunction(-1,s,strlen(s)+1,5);
 }
 
-void getnames(void)
+void syncnames(void)
 {
     int i,l;
 
-    for(l=0;myname[l];l++)
+    buf[0] = 6;
+    buf[1] = myconnectindex;
+    buf[2] = BYTEVERSION;
+    l = 3;
+
+    //null terminated player name to send
+    for(i=0;myname[i];i++) buf[l++] = Btoupper(myname[i]);
+    buf[l++] = 0;
+
+    for(i=0;i<10;i++)
+    {
+        ud.wchoice[myconnectindex][i] = ud.wchoice[0][i];
+        buf[l++] = (char)ud.wchoice[0][i];
+    }
+
+    buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
+    buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
+    buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
+    buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
+
+    for(i=connecthead;i>=0;i=connectpoint2[i])
+    {
+        if (i != myconnectindex) sendpacket(i,&buf[0],l);
+        if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+    }
+}
+
+void getnames(void)
+{
+    int l;
+
+    for(l=0;(unsigned)l<sizeof(myname)-1;l++)
         ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
 
     if(numplayers > 1)
     {
-        buf[0] = 6;
-        buf[1] = myconnectindex;
-        buf[2] = BYTEVERSION;
-        l = 3;
-
-        //null terminated player name to send
-        for(i=0;myname[i];i++) buf[l++] = Btoupper(myname[i]);
-        buf[l++] = 0;
-
-        for(i=0;i<10;i++)
-        {
-            ud.wchoice[myconnectindex][i] = ud.wchoice[0][i];
-            buf[l++] = (char)ud.wchoice[0][i];
-        }
-
-        buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
-        buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
-        buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
-        buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
-
-        for(i=connecthead;i>=0;i=connectpoint2[i])
-        {
-            if (i != myconnectindex) sendpacket(i,&buf[0],l);
-            if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-        }
-
+        syncnames();
         getpackets();
 
         waitforeverybody();
@@ -8141,42 +8147,16 @@ void getnames(void)
 
 void updatenames(void)
 {
-    int i,l;
+    int l;
+
+    for(l=0;(unsigned)l<sizeof(myname)-1;l++)
+        ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
 
     if(ud.multimode > 1)
     {
-        // send update
-        for(l=0;(unsigned)l<sizeof(myname)-1;l++)
-            ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
-
-        buf[0] = 6;
-        buf[1] = myconnectindex;
-        buf[2] = BYTEVERSION;
-        l = 3;
-
-        //null terminated player name to send
-        for(i=0;myname[i];i++) buf[l++] = Btoupper(myname[i]);
-        buf[l++] = 0;
-
-        for(i=0;i<10;i++)
-        {
-            ud.wchoice[myconnectindex][i] = ud.wchoice[0][i];
-            buf[l++] = (char)ud.wchoice[0][i];
-        }
-
-        buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
-        buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
-        buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
-        buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
-
+        syncnames();
         if(sprite[ps[myconnectindex].i].picnum == APLAYER)
             sprite[ps[myconnectindex].i].pal = ud.color;
-
-        for(i=connecthead;i>=0;i=connectpoint2[i])
-        {
-            if (i != myconnectindex) sendpacket(i,&buf[0],l);
-            if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-        }
     }
     else
     {
@@ -8198,9 +8178,7 @@ void writestring(long a1,long a2,long a3,short a4,long vx,long vy,long vz)
     fp = (FILE *)fopenfrompath("debug.txt","rt+");
 
     fprintf(fp,"%ld %ld %ld %d %ld %ld %ld\n",a1,a2,a3,a4,vx,vy,vz);
-
     fclose(fp);
-
 }
 
 char testcd(char *fn, long testsiz);
