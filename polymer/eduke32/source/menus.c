@@ -598,76 +598,127 @@ void menus(void)
         menutext(160,24,0,0,"PLAYER SETUP");
 
         if (current_menu == 20002) {
-            x = probe(46,50,20,3);
+            x = probe(46,50,20,4);
 
-            if (x == -1) cmenu(20001);
-            else if (x == 0) {
-                strcpy(buf, myname);
-                inputloc = strlen(buf);
-                current_menu = 20003;
+            switch(x) {
+                case -1:
+                    cmenu(202);
+                    probey = 3;
+                    break;
+                case 0:
+                    strcpy(buf, myname);
+                    inputloc = strlen(buf);
+                    current_menu = 20003;
 
-                KB_ClearKeyDown(sc_Enter);
-                KB_ClearKeyDown(sc_kpad_Enter);
-                KB_FlushKeyboardQueue();
-            } else if (x == 2 && numplayers > 1) {
-                // send update
-                for(l=0;myname[l];l++)
-                    ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
+                    KB_ClearKeyDown(sc_Enter);
+                    KB_ClearKeyDown(sc_kpad_Enter);
+                    KB_FlushKeyboardQueue();
+                    break;
+                case 2:
+                    AutoAim = (AutoAim == 2) ? 0 : AutoAim+1;
+                    goto player_menu_update;
+                    break;
 
-                buf[0] = 6;
-                buf[1] = myconnectindex;
-                buf[2] = BYTEVERSION;
-                l = 3;
+                case 3:
+                    ud.weaponswitch = (ud.weaponswitch == 3) ? 0 : ud.weaponswitch+1;
+                    goto player_menu_update;
+                    break;
 
-                //null terminated player name to send
-                for(i=0;myname[i];i++) buf[l++] = Btoupper(myname[i]);
-                buf[l++] = 0;
+                case 4:
+player_menu_update:
+                    if(numplayers > 1) 
+                    {
+                        // send update
+                        for(l=0;myname[l];l++)
+                            ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
 
-                for(i=0;i<10;i++)
-                {
-                    ud.wchoice[myconnectindex][i] = ud.wchoice[0][i];
-                    buf[l++] = (char)ud.wchoice[0][i];
+                        buf[0] = 6;
+                        buf[1] = myconnectindex;
+                        buf[2] = BYTEVERSION;
+                        l = 3;
+
+                        //null terminated player name to send
+                        for(i=0;myname[i];i++) buf[l++] = Btoupper(myname[i]);
+                        buf[l++] = 0;
+
+                        for(i=0;i<10;i++)
+                        {
+                            ud.wchoice[myconnectindex][i] = ud.wchoice[0][i];
+                            buf[l++] = (char)ud.wchoice[0][i];
+                        }
+
+                        buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
+                        buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
+                        buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
+                        buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
+                        if(sprite[ps[myconnectindex].i].picnum == APLAYER)
+                            sprite[ps[myconnectindex].i].pal = ud.color;
+
+                        for(i=connecthead;i>=0;i=connectpoint2[i])
+                        {
+                            if (i != myconnectindex) sendpacket(i,&buf[0],l);
+                            if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                        }
+                    }
+                    break;
                 }
-
-                buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
-                buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
-                buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
-                buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
-                if(sprite[ps[myconnectindex].i].picnum == APLAYER)
-                    sprite[ps[myconnectindex].i].pal = ud.color;
-
-                for(i=connecthead;i>=0;i=connectpoint2[i])
-                {
-                    if (i != myconnectindex) sendpacket(i,&buf[0],l);
-                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                }
-
-            }
         } else {
-            x = strget(40+100,50-9,buf,31,0);
+            x = strget(200,50-9,buf,12,0);
             if (x) {
                 if (x == 1) {
                     strcpy(myname,buf);
                     // send name update
                 }
-
                 KB_ClearKeyDown(sc_Enter);
                 KB_ClearKeyDown(sc_kpad_Enter);
                 KB_FlushKeyboardQueue();
 
                 current_menu = 20002;
+                goto player_menu_update;
             }
         }
 
         menutext(40,50,0,0,"NAME");
-        if (current_menu == 20002) gametext(40+100,50-9,myname,0,2+8+16);
-
         menutext(40,50+20,0,0,"COLOR");
-        modval(0,25,(int *)&ud.color,1,probey==1);
-        rotatesprite((40+120)<<16,(50+20+(tilesizy[APLAYER]>>1))<<16,65536L,0,APLAYER,0,ud.color,10,0,0,xdim-1,ydim-1);
 
-        menutext(40,50+20+20,0,0,"ACCEPT");
+        { 
+            int ud_color,aaim,ud_weaponswitch;
 
+            ud_color = ud.color;
+            aaim = AutoAim;
+            ud_weaponswitch = ud.weaponswitch;
+            modval(0,23,(int *)&ud.color,1,probey==1);
+            modval(0,2,(int *)&AutoAim,1,probey==2);
+            modval(0,3,(int *)&ud.weaponswitch,1,probey==3);
+
+            { 
+                int i, disallowed[] = { 1, 2, 4, 5, 6, 7, 8, 9, 17, 18, 19, 20, 22 };
+
+                for(i=0;i<(signed)(sizeof(disallowed)/sizeof(disallowed[0]));i++) {
+                        if(ud.color == disallowed[i]) {
+                        if(ud.color > ud_color)
+                            ud.color++;
+                        else ud.color--;
+                        i=0;
+                    }
+                }
+                if(ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch)
+                    goto player_menu_update; 
+            }
+        }
+        rotatesprite((280)<<16,(35+(tilesizy[APLAYER]>>1))<<16,49152L,0,1426,0,ud.color,10,0,0,xdim-1,ydim-1);
+        menutext(40,50+20+20,0,0,"AUTO AIM");
+        menutext(40,50+20+20+20,0,0,"WEAPON SWITCH");
+
+        if (current_menu == 20002) {
+            gametext(200,50-9,myname,0,2+8+16); }
+        { char *s[] = { "Map","","","Blue","","","","","","","Dark red","Green","Gray","Dark gray","Dark green","Brown",
+                        "Dark blue","","","","","Red","","Yellow","","" };
+            gametext(200,50+20-9,s[ud.color],0,2+8+16); }
+        { char *s[] = { "Off", "Full", "Hitscan" };
+            gametext(200,50+20+20-9,s[AutoAim],0,2+8+16); }
+        { char *s[] = { "Off", "Pickup", "Empty", "Both" };
+            gametext(200,50+20+20+20-9,s[ud.weaponswitch],0,2+8+16); }
         break;
 
     case 20010:
@@ -2260,7 +2311,7 @@ cheat_for_port_credits:
         c = 50;
 
         onbar = 0;
-        x = probe(160,c,18,6);
+        x = probe(160,c,18,7);
 
         switch (x) {
         case -1:
@@ -2310,8 +2361,8 @@ cheat_for_port_credits:
             currentlist = 0;
         case 5:
         case 6:
-            if (x==5 && (!CONTROL_JoystickEnabled || !CONTROL_JoyPresent)) break;
-            cmenu(204+x-3);
+            if (x==6 && (!CONTROL_JoystickEnabled || !CONTROL_JoyPresent)) break;
+            cmenu(204+x-4);
             break;
         }
 
@@ -2586,7 +2637,7 @@ cheat_for_port_credits:
 
         if (x==-1) {
             cmenu(202);
-            probey = 3;
+            probey = 4;
         } else if (x>=0) {
             function = probey;
             whichkey = currentlist;
@@ -2694,7 +2745,7 @@ cheat_for_port_credits:
 
         if (x==-1) {
             cmenu(202);
-            probey = 4;
+            probey = 5;
             break;
         } else if (x == (MAXMOUSEBUTTONS-2)*2+2) {
             // sensitivity
@@ -3016,7 +3067,7 @@ cheat_for_port_credits:
         switch (x) {
         case -1:
             cmenu(202);
-            probey = 5;
+            probey = 6;
             break;
         case 0:
         case 1:
