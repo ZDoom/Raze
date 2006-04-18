@@ -598,7 +598,7 @@ void menus(void)
         menutext(160,24,0,0,"PLAYER SETUP");
 
         if (current_menu == 20002) {
-            x = probe(46,50,20,2);
+            x = probe(46,50,20,3);
 
             if (x == -1) cmenu(20001);
             else if (x == 0) {
@@ -609,8 +609,39 @@ void menus(void)
                 KB_ClearKeyDown(sc_Enter);
                 KB_ClearKeyDown(sc_kpad_Enter);
                 KB_FlushKeyboardQueue();
-            } else if (x == 1) {
-                // send colour update
+            } else if (x == 2 && numplayers > 1) {
+                // send update
+                for(l=0;myname[l];l++)
+                    ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
+
+                buf[0] = 6;
+                buf[1] = myconnectindex;
+                buf[2] = BYTEVERSION;
+                l = 3;
+
+                //null terminated player name to send
+                for(i=0;myname[i];i++) buf[l++] = Btoupper(myname[i]);
+                buf[l++] = 0;
+
+                for(i=0;i<10;i++)
+                {
+                    ud.wchoice[myconnectindex][i] = ud.wchoice[0][i];
+                    buf[l++] = (char)ud.wchoice[0][i];
+                }
+
+                buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
+                buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
+                buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
+                buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
+                if(sprite[ps[myconnectindex].i].picnum == APLAYER)
+                    sprite[ps[myconnectindex].i].pal = ud.color;
+
+                for(i=connecthead;i>=0;i=connectpoint2[i])
+                {
+                    if (i != myconnectindex) sendpacket(i,&buf[0],l);
+                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                }
+
             }
         } else {
             x = strget(40+100,50-9,buf,31,0);
@@ -632,7 +663,10 @@ void menus(void)
         if (current_menu == 20002) gametext(40+100,50-9,myname,0,2+8+16);
 
         menutext(40,50+20,0,0,"COLOR");
-        rotatesprite((40+120)<<16,(50+20+(tilesizy[APLAYER]>>1))<<16,65536L,0,APLAYER,0,0,10,0,0,xdim-1,ydim-1);
+        modval(0,25,(int *)&ud.color,1,probey==1);
+        rotatesprite((40+120)<<16,(50+20+(tilesizy[APLAYER]>>1))<<16,65536L,0,APLAYER,0,ud.color,10,0,0,xdim-1,ydim-1);
+
+        menutext(40,50+20+20,0,0,"ACCEPT");
 
         break;
 
@@ -2269,11 +2303,13 @@ cheat_for_port_credits:
                 cmenu(203);
             }
             break;
-
         case 3:
-            currentlist = 0;
+            cmenu(20002);
+            break;
         case 4:
+            currentlist = 0;
         case 5:
+        case 6:
             if (x==5 && (!CONTROL_JoystickEnabled || !CONTROL_JoyPresent)) break;
             cmenu(204+x-3);
             break;
@@ -2282,9 +2318,10 @@ cheat_for_port_credits:
         menutext(160,c,                  0,0,"GAME SETUP");
         menutext(160,c+18,               0,0,"SOUND SETUP");
         menutext(160,c+18+18,            0,0,"VIDEO SETUP");
-        menutext(160,c+18+18+18,         0,0,"KEYBOARD SETUP");
-        menutext(160,c+18+18+18+18,      0,0,"MOUSE SETUP");
-        menutext(160,c+18+18+18+18+18,   0,CONTROL_JoyPresent==0 || CONTROL_JoystickEnabled==0,"JOYSTICK SETUP");
+        menutext(160,c+18+18+18,         0,0,"PLAYER SETUP");
+        menutext(160,c+18+18+18+18,      0,0,"KEYBOARD SETUP");
+        menutext(160,c+18+18+18+18+18,   0,0,"MOUSE SETUP");
+        menutext(160,c+18+18+18+18+18+18,0,CONTROL_JoyPresent==0 || CONTROL_JoystickEnabled==0,"JOYSTICK SETUP");
         break;
 
         // JBF 20031206: Video settings menu
@@ -3740,11 +3777,13 @@ VOLUME_ALL_40x:
         {
             KB_ClearKeyDown(sc_N);
             quittimer = 0;
-            if( ps[myconnectindex].gm&MODE_DEMO )
+            if( ps[myconnectindex].gm&MODE_DEMO && ud.recstat == 2 )
                 ps[myconnectindex].gm = MODE_DEMO;
             else
             {
-                ps[myconnectindex].gm &= ~MODE_MENU;
+                if(!(ps[myconnectindex].gm & MODE_GAME || ud.recstat == 2))
+                    cmenu(0);
+                else ps[myconnectindex].gm &= ~MODE_MENU;
                 if(ud.multimode < 2  && ud.recstat != 2)
                 {
                     ready2send = 1;
@@ -3990,7 +4029,6 @@ VOLUME_ALL_40x:
                 {
                     resetweapons(c);
                     resetinventory(c);
-
                 }
                 for(c=connecthead;c>=0;c=connectpoint2[c])
                 {

@@ -589,6 +589,8 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "BrightSkins",&ud.brightskins);
         SCRIPT_GetNumber( scripthandle, "Misc", "DemoCams",&ud.democams);
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowFPS",&ud.tickrate);
+        SCRIPT_GetNumber( scripthandle, "Misc", "Color",&ud.color);
+        ps[0].palookup = ud.color;
         dummy = useprecache; SCRIPT_GetNumber( scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
         if(ud.wchoice[0][0] == 0 && ud.wchoice[0][1] == 0)
         {
@@ -719,6 +721,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Misc", "BrightSkins",ud.brightskins,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "DemoCams",ud.democams,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "ShowFPS",ud.tickrate,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "Color",ud.color,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls", "MouseAimingFlipped",ud.mouseflip,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
     //SCRIPT_PutNumber( scripthandle, "Controls","GameMouseAiming",(int32) ps[myconnectindex].aim_mode,false,false);

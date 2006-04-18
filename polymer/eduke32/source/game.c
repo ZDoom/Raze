@@ -525,7 +525,9 @@ void getpackets(void)
             ps[other].aim_mode = packbuf[i++];
             ps[other].auto_aim = packbuf[i++];
             ps[other].weaponswitch = packbuf[i++];
-
+            ps[other].palookup = ud.pcolor[other] = packbuf[i++];
+            if(sprite[ps[other].i].picnum == APLAYER)
+                sprite[ps[other].i].pal = ud.pcolor[other];
             break;
         case 7:
             //slaves in M/S mode only send to master
@@ -8120,6 +8122,7 @@ void getnames(void)
         buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
         buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
         buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
+        buf[l++] = ud.pcolor[myconnectindex] = ud.color;
 
         for(i=connecthead;i>=0;i=connectpoint2[i])
         {
@@ -8452,6 +8455,7 @@ MAIN_LOOP_RESTART:
     ps[myconnectindex].aim_mode = ud.mouseaiming;
     ps[myconnectindex].auto_aim = AutoAim;
     ps[myconnectindex].weaponswitch = ud.weaponswitch;
+    ud.pcolor[myconnectindex] = ud.color;
 
     ud.warp_on = 0;
     KB_KeyDown[sc_Pause] = 0;   // JBF: I hate the pause key
@@ -8637,6 +8641,7 @@ char opendemoread(char which_demo) // 0 = mine
             if (kread(recfilep,(int32 *)&ps[i].aim_mode,sizeof(int32)) != sizeof(int32)) goto corrupt;
             if (kread(recfilep,(int32 *)&ps[i].auto_aim,sizeof(int32)) != sizeof(int32)) goto corrupt;	// JBF 20031126
             if (kread(recfilep,(int32 *)&ps[i].weaponswitch,sizeof(int32)) != sizeof(int32)) goto corrupt;
+            if (kread(recfilep,(int32 *)&ud.pcolor[i],sizeof(int32)) != sizeof(int32)) goto corrupt;
         } else {
             if (kread(recfilep,(int32 *)&ps[i].aim_mode,sizeof(char)) != sizeof(char)) goto corrupt;
             OSD_Printf("aim_mode: %d\n",ps[i].aim_mode);
@@ -8690,6 +8695,7 @@ void opendemowrite(void)
         fwrite((int32 *)&ps[i].aim_mode,sizeof(int32),1,frecfilep);
         fwrite((int32 *)&ps[i].auto_aim,sizeof(int32),1,frecfilep);		// JBF 20031126
         fwrite(&ps[i].weaponswitch,sizeof(int32),1,frecfilep);
+        fwrite(&ud.pcolor[i],sizeof(int32),1,frecfilep);
     }
 
     totalreccnt = 0;
