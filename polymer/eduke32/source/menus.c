@@ -494,6 +494,20 @@ int getfilenames(char *path, char kind[])
 
 long quittimer = 0;
 
+void check_player_color(int *color,int prev_color)
+{
+    int i, disallowed[] = { 1, 2, 3, 4, 5, 6, 7, 8, 17, 18, 19, 20, 22 };
+
+    for(i=0;i<(signed)(sizeof(disallowed)/sizeof(disallowed[0]));i++) {
+        if(*color == disallowed[i]) {
+            if(*color > prev_color)
+                (*color)++;
+            else (*color)--;
+            i=0;
+        }
+    }
+}
+
 void menus(void)
 {
     CACHE1D_FIND_REC *dir;
@@ -621,73 +635,25 @@ void menus(void)
                 ud.color++;
                 if(ud.color > 22)
                     ud.color = 0;
-                goto check_player_color;
+                check_player_color((int *)&ud.color,-1);
+                updatenames();
                 break;
 
             case 2:
                 AutoAim = (AutoAim == 2) ? 0 : AutoAim+1;
-                goto player_menu_update;
+                updatenames();
                 break;
 
             case 3:
                 ud.weaponswitch = (ud.weaponswitch == 3) ? 0 : ud.weaponswitch+1;
-                goto player_menu_update;
-                break;
-
-            case 4:
-player_menu_update:
-                if(ud.multimode > 1)
-                {
-                    // send update
-                    for(l=0;myname[l];l++)
-                        ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
-
-                    buf[0] = 6;
-                    buf[1] = myconnectindex;
-                    buf[2] = BYTEVERSION;
-                    l = 3;
-
-                    //null terminated player name to send
-                    for(i=0;myname[i];i++) buf[l++] = Btoupper(myname[i]);
-                    buf[l++] = 0;
-
-                    for(i=0;i<10;i++)
-                    {
-                        ud.wchoice[myconnectindex][i] = ud.wchoice[0][i];
-                        buf[l++] = (char)ud.wchoice[0][i];
-                    }
-
-                    buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
-                    buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
-                    buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
-
-                    buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
-                    if(sprite[ps[myconnectindex].i].picnum == APLAYER)
-                        sprite[ps[myconnectindex].i].pal = ud.color;
-
-                    for(i=connecthead;i>=0;i=connectpoint2[i])
-                    {
-                        if (i != myconnectindex) sendpacket(i,&buf[0],l);
-                        if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                    }
-                }
-                else
-                {
-                    ps[myconnectindex].aim_mode = ud.mouseaiming;
-                    ps[myconnectindex].auto_aim = AutoAim;
-                    ps[myconnectindex].weaponswitch = ud.weaponswitch;
-
-                    ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
-                    if(sprite[ps[myconnectindex].i].picnum == APLAYER)
-                        sprite[ps[myconnectindex].i].pal = ud.color;
-                }
+                updatenames();
                 break;
             }
         } else {
             x = strget(200,50-9,buf,12,0);
             if (x) {
                 if (x == 1) {
-                    strcpy(myname,buf);
+                    Bstrcpy(myname,buf);
                     // send name update
                 }
                 KB_ClearKeyDown(sc_Enter);
@@ -695,7 +661,7 @@ player_menu_update:
                 KB_FlushKeyboardQueue();
 
                 current_menu = 20002;
-                goto player_menu_update;
+                updatenames();
             }
         }
 
@@ -711,22 +677,9 @@ player_menu_update:
             modval(0,23,(int *)&ud.color,1,probey==1);
             modval(0,2,(int *)&AutoAim,1,probey==2);
             modval(0,3,(int *)&ud.weaponswitch,1,probey==3);
-
-check_player_color:
-            {
-                int i, disallowed[] = { 1, 2, 3, 4, 5, 6, 7, 8, 17, 18, 19, 20, 22 };
-
-                for(i=0;i<(signed)(sizeof(disallowed)/sizeof(disallowed[0]));i++) {
-                    if(ud.color == disallowed[i]) {
-                        if(ud.color > ud_color)
-                            ud.color++;
-                        else ud.color--;
-                        i=0;
-                    }
-                }
-                if(ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch)
-                    goto player_menu_update;
-            }
+            check_player_color((int *)&ud.color,ud_color);
+            if(ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch)
+                updatenames();
         }
         menutext(40,50+20+20,0,0,"AUTO AIM");
         menutext(40,50+20+20+20,0,0,"WEAPON SWITCH");

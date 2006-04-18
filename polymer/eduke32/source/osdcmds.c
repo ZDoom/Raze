@@ -434,7 +434,7 @@ struct cvarmappings {
     char *name;
     char *helpstr;
     void *var;
-    int type;       // 0 = integer, 1 = unsigned integer, 2 = boolean, 3 = string, |128 = not in multiplayer
+    int type;       // 0 = integer, 1 = unsigned integer, 2 = boolean, 3 = string, |128 = not in multiplayer, |256 = update multi
     int extra;      // for string, is the length
 } cvar[] =
     {
@@ -442,7 +442,7 @@ struct cvarmappings {
         { "showcoords", "showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0 },
         { "useprecache", "useprecache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0 },
         { "drawweapon", "drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0 },
-        { "name", "name: change your multiplayer nickname", (void*)&myname[0], CVAR_STRING|128, sizeof(myname) }
+        { "name", "name: change your multiplayer nickname", (void*)&myname[0], CVAR_STRING|256, sizeof(myname) }
     };
 
 int osdcmd_cvar_set(const osdfuncparm_t *parm)
@@ -486,6 +486,8 @@ int osdcmd_cvar_set(const osdfuncparm_t *parm)
                     } break;
                 default: break;
                 }
+            if(cvar[i].type&256)
+                updatenames();
         }
     }
     OSD_Printf("\n");

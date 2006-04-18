@@ -2979,8 +2979,6 @@ char doincrements(struct player_struct *p)
     //    j = sync[snum].avel;
     //    p->weapon_ang = -(j/5);
 
-    p->player_par++;
-
     if(p->invdisptime > 0)
         p->invdisptime--;
 
@@ -3206,6 +3204,8 @@ void processinput(short snum)
     s = &sprite[pi];
 
     kb = &p->kickback_pic;
+
+    p->player_par++;
 
     OnEvent(EVENT_PROCESSINPUT, pi, snum, -1);
 

@@ -8122,7 +8122,7 @@ void getnames(void)
         buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
         buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
         buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
-        buf[l++] = ud.pcolor[myconnectindex] = ud.color;
+        buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
 
         for(i=connecthead;i>=0;i=connectpoint2[i])
         {
@@ -8137,6 +8137,57 @@ void getnames(void)
 
     if(cp == 1 && numplayers < 2)
         gameexit("Please put the Duke Nukem 3D Atomic Edition CD in the CD-ROM drive.");
+}
+
+void updatenames(void)
+{
+    int i,l;
+
+    if(ud.multimode > 1)
+    {
+        // send update
+        for(l=0;l<sizeof(myname)-1;l++)
+            ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
+
+        buf[0] = 6;
+        buf[1] = myconnectindex;
+        buf[2] = BYTEVERSION;
+        l = 3;
+
+        //null terminated player name to send
+        for(i=0;myname[i];i++) buf[l++] = Btoupper(myname[i]);
+        buf[l++] = 0;
+
+        for(i=0;i<10;i++)
+        {
+            ud.wchoice[myconnectindex][i] = ud.wchoice[0][i];
+            buf[l++] = (char)ud.wchoice[0][i];
+        }
+
+        buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
+        buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
+        buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
+        buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
+
+        if(sprite[ps[myconnectindex].i].picnum == APLAYER)
+            sprite[ps[myconnectindex].i].pal = ud.color;
+
+        for(i=connecthead;i>=0;i=connectpoint2[i])
+        {
+            if (i != myconnectindex) sendpacket(i,&buf[0],l);
+            if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+        }
+    }
+    else
+    {
+        ps[myconnectindex].aim_mode = ud.mouseaiming;
+        ps[myconnectindex].auto_aim = AutoAim;
+        ps[myconnectindex].weaponswitch = ud.weaponswitch;
+        ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
+
+        if(sprite[ps[myconnectindex].i].picnum == APLAYER)
+            sprite[ps[myconnectindex].i].pal = ud.color;
+    }
 }
 
 void writestring(long a1,long a2,long a3,short a4,long vx,long vy,long vz)
@@ -8455,7 +8506,7 @@ MAIN_LOOP_RESTART:
     ps[myconnectindex].aim_mode = ud.mouseaiming;
     ps[myconnectindex].auto_aim = AutoAim;
     ps[myconnectindex].weaponswitch = ud.weaponswitch;
-    ud.pcolor[myconnectindex] = ud.color;
+    ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
 
     ud.warp_on = 0;
     KB_KeyDown[sc_Pause] = 0;   // JBF: I hate the pause key
