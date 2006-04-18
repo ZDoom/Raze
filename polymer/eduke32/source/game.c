@@ -8146,7 +8146,7 @@ void updatenames(void)
     if(ud.multimode > 1)
     {
         // send update
-        for(l=0;l<sizeof(myname)-1;l++)
+        for(l=0;(unsigned)l<sizeof(myname)-1;l++)
             ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
 
         buf[0] = 6;

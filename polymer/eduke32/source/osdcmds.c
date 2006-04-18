@@ -436,13 +436,17 @@ struct cvarmappings {
     void *var;
     int type;       // 0 = integer, 1 = unsigned integer, 2 = boolean, 3 = string, |128 = not in multiplayer, |256 = update multi
     int extra;      // for string, is the length
+    int min;
+    int max;
 } cvar[] =
     {
-        { "showfps", "showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0 },
-        { "showcoords", "showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0 },
-        { "useprecache", "useprecache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0 },
-        { "drawweapon", "drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0 },
-        { "name", "name: change your multiplayer nickname", (void*)&myname[0], CVAR_STRING|256, sizeof(myname) }
+        { "showfps", "showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
+        { "showcoords", "showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
+        { "useprecache", "useprecache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0, 0, 1 },
+        { "drawweapon", "drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
+        { "weaponswitch", "weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|256, 0, 0, 3 },
+        { "autoaim", "autoaim: enable/disable weapon autoaim", (void*)&AutoAim, CVAR_INT|256, 0, 0, 2 },
+        { "name", "name: change your multiplayer nickname", (void*)&myname[0], CVAR_STRING|256, sizeof(myname), 0, 0 }
     };
 
 int osdcmd_cvar_set(const osdfuncparm_t *parm)
@@ -464,24 +468,30 @@ int osdcmd_cvar_set(const osdfuncparm_t *parm)
                     {
                         int val;
                         if (showval) {
-                            OSD_Printf("%s %d\n",cvar[i].name,*(int*)cvar[i].var);
+                            OSD_Printf("%s: %d\n",cvar[i].name,*(int*)cvar[i].var);
                             return OSDCMD_OK;
                         }
 
                         val = atoi(parm->parms[0]);
                         if (cvar[i].type == CVAR_BOOL) val = val != 0;
+
+                        if (val < cvar[i].min || val > cvar[i].max) {
+                            OSD_Printf("%s value out of range\n",cvar[i].name);
+                            return OSDCMD_OK;
+                        }
                         *(int*)cvar[i].var = val;
+                        OSD_Printf("%s %d",cvar[i].name,*(int*)cvar[i].var);
                     } break;
                 case CVAR_STRING:
                     {
                         if (showval) {
-                            OSD_Printf("%s \"%s\"\n",cvar[i].name,(char*)cvar[i].var);
+                            OSD_Printf("%s: \"%s\"\n",cvar[i].name,(char*)cvar[i].var);
                             return OSDCMD_OK;
                         }
                         else {
                             Bstrncpy((char*)cvar[i].var, parm->parms[0], cvar[i].extra-1);
                             ((char*)cvar[i].var)[cvar[i].extra-1] = 0;
-                            // XXX: now send the update over the wire
+                            OSD_Printf("%s \"%s\"",cvar[i].name,(char*)cvar[i].var);
                         }
                     } break;
                 default: break;
