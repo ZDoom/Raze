@@ -944,7 +944,7 @@ void menus(void)
         menutext(160,24,0,0,"ADULT MODE");
 
         x = probe(60,50+16,16,2);
-        if(x == -1) { cmenu(201); probey = 4; break; }
+    if(x == -1) { cmenu(201); probey = 4; break; }
 
         menutext(c,50+16,SHX(-2),PHX(-2),"ADULT MODE");
         menutext(c,50+16+16,SHX(-3),PHX(-3),"ENTER PASSWORD");

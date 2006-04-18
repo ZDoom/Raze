@@ -1969,14 +1969,14 @@ void DoFire(short snum)
             p->visibility = 0;
         }
 
-/*        if( //!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD) &&
-            aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]
-            && p->ammo_amount[p->curr_weapon] > 0
-            && (aplWeaponClip[p->curr_weapon][snum])
-            && ((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))
-        {
-            p->kickback_pic=aplWeaponTotalTime[p->curr_weapon][snum];
-        } */
+        /*        if( //!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD) &&
+                    aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]
+                    && p->ammo_amount[p->curr_weapon] > 0
+                    && (aplWeaponClip[p->curr_weapon][snum])
+                    && ((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))
+                {
+                    p->kickback_pic=aplWeaponTotalTime[p->curr_weapon][snum];
+                } */
     }
 }
 
@@ -4848,8 +4848,8 @@ SHOOTINCODE:
             if ((*kb) >=  aplWeaponTotalTime[p->curr_weapon][snum])
             {
                 if(/*!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD) && */ p->reloading == 1 ||
-                    (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum] && p->ammo_amount[p->curr_weapon] > 0
-                     && (aplWeaponClip[p->curr_weapon][snum]) && (((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))))
+                        (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum] && p->ammo_amount[p->curr_weapon] > 0
+                         && (aplWeaponClip[p->curr_weapon][snum]) && (((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))))
                 {
                     int i;
                     i=aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
@@ -4875,7 +4875,7 @@ SHOOTINCODE:
                 else
                 {
                     if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC &&
-                       (aplWeaponWorksLike[p->curr_weapon][snum]==KNEE_WEAPON?1:p->ammo_amount[p->curr_weapon] > 0))
+                            (aplWeaponWorksLike[p->curr_weapon][snum]==KNEE_WEAPON?1:p->ammo_amount[p->curr_weapon] > 0))
                     {
                         if( sb_snum&(1<<2) )
                         {
@@ -4889,7 +4889,7 @@ SHOOTINCODE:
                 }
             }
             else if ( *kb > aplWeaponFireDelay[p->curr_weapon][snum] && (*kb) < aplWeaponTotalTime[p->curr_weapon][snum]
-                    && (aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON ? 1 : p->ammo_amount[p->curr_weapon] > 0)) 
+                      && (aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON ? 1 : p->ammo_amount[p->curr_weapon] > 0))
             {
                 if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
                 {
