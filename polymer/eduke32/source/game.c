@@ -1523,9 +1523,9 @@ void displayinventory(struct player_struct *p)
 
     if(ud.screen_size > 4)
         y = 154;
-    else y = 172;
+    else y = (ud.drawweapon == 2?150:172);
 
-    if(ud.screen_size == 4)
+    if(ud.screen_size == 4 && ud.drawweapon != 2)
     {
         if(ud.multimode > 1)
             xoff += 56;
