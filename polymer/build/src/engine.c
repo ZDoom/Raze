@@ -10586,8 +10586,8 @@ void draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
                                         drawline16(halfxdim16+xp1,midydim16+yp1-1,halfxdim16+xp1+xp2,midydim16+yp1+yp2-1,col);
                                         drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,col);
                                         drawline16(halfxdim16+xp1,midydim16+yp1+1,halfxdim16+xp1+xp2,midydim16+yp1+yp2+1,col);
-                                        xp2 = mulscale10(sintable[(sprite[j].ang+1024)&2047],zoome) * fx / 32768;
-                                        yp2 = mulscale10(sintable[(sprite[j].ang+512)&2047],zoome) * fx / 32768;
+                                        xp2 = mulscale13(sintable[(sprite[j].ang+1024)&2047],zoome) * fx / 4096;
+                                        yp2 = mulscale13(sintable[(sprite[j].ang+512)&2047],zoome) * fx / 4096;
                                         drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,col);
                                         drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1-xp2-1,midydim16+yp1-yp2,col);
                                         drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,col);
@@ -10612,8 +10612,8 @@ void draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
                                         drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,col);
                                         drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,col);
                                         drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,col);
-                                        xp2 = mulscale10(sintable[(sprite[j].ang+1024)&2047],zoome) * fx / 32768;
-                                        yp2 = mulscale10(sintable[(sprite[j].ang+512)&2047],zoome) * fx / 32768;
+                                        xp2 = mulscale13(sintable[(sprite[j].ang+1024)&2047],zoome) * fx / 4096;
+                                        yp2 = mulscale13(sintable[(sprite[j].ang+512)&2047],zoome) * fx / 4096;
                                         drawline16(halfxdim16+xp1+1,midydim16+yp1,halfxdim16+xp1+xp2+1,midydim16+yp1+yp2,col);
                                         drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1-xp2-1,midydim16+yp1-yp2,col);
                                         drawline16(halfxdim16+xp1-1,midydim16+yp1,halfxdim16+xp1+xp2-1,midydim16+yp1+yp2,col);
@@ -10642,8 +10642,8 @@ void draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
 
                                 drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,col);
                                 if (!(sprite[j].cstat&64)) drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,col);
-                                xp2 = mulscale10(sintable[(sprite[j].ang+1024)&2047],zoome) * fx / 32768;
-                                yp2 = mulscale10(sintable[(sprite[j].ang+512)&2047],zoome) * fx / 32768;
+                                xp2 = mulscale13(sintable[(sprite[j].ang+1024)&2047],zoome) * fx / 4096;
+                                yp2 = mulscale13(sintable[(sprite[j].ang+512)&2047],zoome) * fx / 4096;
 
                                 drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1+xp2,midydim16+yp1+yp2,col);
                                 drawline16(halfxdim16+xp1,midydim16+yp1,halfxdim16+xp1-xp2,midydim16+yp1-yp2,col);
