@@ -4521,7 +4521,11 @@ DETONATEB:
                         spritesound(DUKE_GET,ps[p].i);
 
                         if( ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || s->owner == ps[p].i )
-                            addweapon(&ps[p],HANDBOMB_WEAPON);
+                        {
+                            /* addweapon(&ps[p],HANDBOMB_WEAPON); */
+                            if (!(ps[p].weaponswitch & 1)) addweaponnoswitch(&ps[p],HANDBOMB_WEAPON);
+                                else addweapon( &ps[p],HANDBOMB_WEAPON);
+                        }
 
                         if( sprite[s->owner].picnum != APLAYER )
                         {

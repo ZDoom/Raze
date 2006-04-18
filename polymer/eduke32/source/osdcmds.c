@@ -442,7 +442,7 @@ struct cvarmappings {
         { "showcoords", "showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0 },
         { "useprecache", "useprecache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0 },
         { "drawweapon", "drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0 },
-        { "name", "name: change your multiplayer nickname", (void*)&myname[0], CVAR_STRING, sizeof(myname) }
+        { "name", "name: change your multiplayer nickname", (void*)&myname[0], CVAR_STRING|128, sizeof(myname) }
     };
 
 int osdcmd_cvar_set(const osdfuncparm_t *parm)

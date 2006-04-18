@@ -599,12 +599,12 @@ void menus(void)
 
         if (current_menu == 20002) {
             x = probe(46,50,20,4);
-
             switch(x) {
                 case -1:
                     cmenu(202);
                     probey = 3;
                     break;
+
                 case 0:
                     strcpy(buf, myname);
                     inputloc = strlen(buf);
@@ -614,6 +614,7 @@ void menus(void)
                     KB_ClearKeyDown(sc_kpad_Enter);
                     KB_FlushKeyboardQueue();
                     break;
+
                 case 2:
                     AutoAim = (AutoAim == 2) ? 0 : AutoAim+1;
                     goto player_menu_update;
@@ -626,7 +627,7 @@ void menus(void)
 
                 case 4:
 player_menu_update:
-                    if(numplayers > 1) 
+                    if(ud.multimode > 1) 
                     {
                         // send update
                         for(l=0;myname[l];l++)
@@ -650,6 +651,7 @@ player_menu_update:
                         buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
                         buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
                         buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
+
                         buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
                         if(sprite[ps[myconnectindex].i].picnum == APLAYER)
                             sprite[ps[myconnectindex].i].pal = ud.color;
@@ -660,6 +662,16 @@ player_menu_update:
                             if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                         }
                     }
+                    else
+                    {
+                        ps[myconnectindex].aim_mode = ud.mouseaiming;
+                        ps[myconnectindex].auto_aim = AutoAim;
+                        ps[myconnectindex].weaponswitch = ud.weaponswitch;
+
+                        ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
+                        if(sprite[ps[myconnectindex].i].picnum == APLAYER)
+                            sprite[ps[myconnectindex].i].pal = ud.color;
+                    }                        
                     break;
                 }
         } else {
@@ -712,8 +724,8 @@ player_menu_update:
 
         if (current_menu == 20002) {
             gametext(200,50-9,myname,0,2+8+16); }
-        { char *s[] = { "Map","","","Blue","","","","","","","Dark red","Green","Gray","Dark gray","Dark green","Brown",
-                        "Dark blue","","","","","Red","","Yellow","","" };
+        { char *s[] = { "Auto","","","Blue","","","","","","","Dk red","Green","Gray","Dk gray","Dk green","Brown",
+                        "Dk blue","","","","","Red","","Yellow","","" };
             gametext(200,50+20-9,s[ud.color],0,2+8+16); }
         { char *s[] = { "Off", "Full", "Hitscan" };
             gametext(200,50+20+20-9,s[AutoAim],0,2+8+16); }
