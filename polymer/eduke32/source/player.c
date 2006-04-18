@@ -1969,14 +1969,14 @@ void DoFire(short snum)
             p->visibility = 0;
         }
 
-        if( //!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD) &&
+/*        if( //!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD) &&
             aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]
             && p->ammo_amount[p->curr_weapon] > 0
             && (aplWeaponClip[p->curr_weapon][snum])
             && ((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))
         {
             p->kickback_pic=aplWeaponTotalTime[p->curr_weapon][snum];
-        }
+        } */
     }
 }
 
@@ -3575,9 +3575,7 @@ void processinput(short snum)
         doincrements(p);
 
         if(*aplWeaponWorksLike[p->curr_weapon] == HANDREMOTE_WEAPON)
-        {
             goto SHOOTINCODE;
-        }
 
         return;
     }
@@ -4511,8 +4509,6 @@ HORIZONLY:
     // HACKS
 
 SHOOTINCODE:
-    //#define WEAPON2_CLIP  20
-    // reload clip
     if( sb_snum & (1<<19) ) // 'Holster Weapon
     {
         SetGameVarID(g_iReturnVarID,0,pi,snum);
@@ -4521,18 +4517,14 @@ SHOOTINCODE:
         OnEvent(EVENT_HOLSTER, pi, snum, -1);
         if(GetGameVarID(g_iReturnVarID,pi,snum) == 0)
         {
-
-            // now it uses the game definitions...
             if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_HOLSTER_CLEARS_CLIP)
             {
                 if( p->ammo_amount[p->curr_weapon] > aplWeaponClip[p->curr_weapon][snum]
                         && (p->ammo_amount[p->curr_weapon] % aplWeaponClip[p->curr_weapon][snum]) != 0 )
                 {
-                    // throw away the remaining clip
                     p->ammo_amount[p->curr_weapon]-=
                         p->ammo_amount[p->curr_weapon] % aplWeaponClip[p->curr_weapon][snum] ;
-                    //              (*kb) = aplWeaponFireDelay[p->curr_weapon][snum]+1; // animate, but don't shoot...
-                    (*kb) = aplWeaponTotalTime[p->curr_weapon][snum];   // animate, but don't shoot...
+                    (*kb) = aplWeaponTotalTime[p->curr_weapon][snum];
                     sb_snum &= ~(1<<2); // not firing...
                 }
                 return;
@@ -4541,7 +4533,6 @@ SHOOTINCODE:
     }
 
     if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_GLOWS)
-        //== SHRINKER_WEAPON || p->curr_weapon == GROW_WEAPON )
         p->random_club_frame += 64; // Glowing
 
     if(p->rapid_fire_hold == 1)
@@ -4554,7 +4545,6 @@ SHOOTINCODE:
     else if ( shrunk == 0 && (sb_snum&(1<<2)) && (*kb) == 0 && p->fist_incs == 0 &&
               p->last_weapon == -1 && ( p->weapon_pos == 0 || p->holster_weapon == 1 ) )
     {
-
         p->crack_time = 777;
 
         if(p->holster_weapon == 1)
@@ -4574,7 +4564,6 @@ SHOOTINCODE:
             OnEvent(EVENT_FIRE, pi, snum, -1);
             if(GetGameVarID(g_iReturnVarID,pi,snum) == 0)
             {
-
                 switch(aplWeaponWorksLike[p->curr_weapon][snum])
                 {
                 case HANDBOMB_WEAPON:
@@ -4705,19 +4694,10 @@ SHOOTINCODE:
     }
     else if((*kb))
     {
-        // already firing...
-
-        //Bsprintf(g_szBuf,"%s %ld, kb=%d %ld",__FILE__,__LINE__,*kb,aplWeaponWorksLike[p->curr_weapon][snum]);
-        //AddLog(g_szBuf);
         if(aplWeaponWorksLike[p->curr_weapon][snum] == HANDBOMB_WEAPON)
         {
-            if( aplWeaponHoldDelay[p->curr_weapon][snum]    // there is a hold delay
-                    && ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])  // and we are 'at' hold
-                    && (sb_snum&(1<<2)) // and 'fire' button is still down
-              )
-                // just hold here...
+            if( aplWeaponHoldDelay[p->curr_weapon][snum] && ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum]) && (sb_snum&(1<<2)))
             {
-                //AddLog("Holding HANDBOMB");
                 p->rapid_fire_hold = 1;
                 return;
             }
@@ -4726,7 +4706,6 @@ SHOOTINCODE:
             {
                 long lPipeBombControl;
 
-                // AddLog("Releasing HANDBOMB");
                 p->ammo_amount[p->curr_weapon]--;
 
                 if(p->on_ground && (sb_snum&2) )
@@ -4752,9 +4731,6 @@ SHOOTINCODE:
                 {
                     long lGrenadeLifetime=GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
                     long lGrenadeLifetimeVar=GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
-                    //Bsprintf(g_szBuf,"Lifetime=%ld Var=%ld snum=%d",lGrenadeLifetime, lGrenadeLifetimeVar, snum);
-                    //AddLog(g_szBuf);
-                    // set timer.  blows up when at zero....
                     hittype[j].temp_data[7]=lGrenadeLifetime
                                             + mulscale(krand(),lGrenadeLifetimeVar, 14)
                                             - lGrenadeLifetimeVar;
@@ -4776,9 +4752,7 @@ SHOOTINCODE:
                     sprite[j].zvel /= 3;
                     sprite[j].xvel /= 3;
                 }
-
                 p->hbomb_on = 1;
-
             }
             else if( (*kb) < aplWeaponHoldDelay[p->curr_weapon][snum] && (sb_snum&(1<<2)) )
             {
@@ -4814,7 +4788,6 @@ SHOOTINCODE:
                 {
                     if(! (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE ))
                     {
-                        // make them visible if not set...
                         lastvisinc = totalclock+32;
                         p->visibility = 0;
                     }
@@ -4828,7 +4801,6 @@ SHOOTINCODE:
             {
                 long lPipeBombControl=GetGameVar("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
                 (*kb) = 0;
-                /// WHAT THE HELL DOES THIS DO....?????????????
                 if((p->ammo_amount[HANDBOMB_WEAPON] > 0) && lPipeBombControl == PIPEBOMB_REMOTE)
                     addweapon(p,HANDBOMB_WEAPON);
                 else
@@ -4873,49 +4845,17 @@ SHOOTINCODE:
             if(*kb == aplWeaponSpawnTime[p->curr_weapon][snum])
                 DoSpawn(snum);
 
-            if ( *kb > aplWeaponFireDelay[p->curr_weapon][snum]
-                    && (*kb) < aplWeaponTotalTime[p->curr_weapon][snum]
-                    && (aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON ? 1 : p->ammo_amount[p->curr_weapon] > 0))
+            if ((*kb) >=  aplWeaponTotalTime[p->curr_weapon][snum])
             {
-                if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
-                {
-                    if( ( sb_snum&(1<<2) ) == 0 )
-                    {
-                        *kb = aplWeaponTotalTime[p->curr_weapon][snum];
-                    }
-
-                    if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYTHIRD)
-                    {
-                        if( ((*(kb))%3) == 0 )
-                        {
-                            DoFire(snum);
-                            DoSpawn(snum);
-                        }
-                    }
-                    if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYOTHER)
-                    {
-                        DoFire(snum);
-                        DoSpawn(snum);
-                    }
-                }
-            }
-            else if(*kb == aplWeaponFireDelay[p->curr_weapon][snum]
-                    && (aplWeaponWorksLike[p->curr_weapon][snum]==KNEE_WEAPON ? 1 : p->ammo_amount[p->curr_weapon] > 0))
-            {
-                DoFire(snum);
-            }
-            else if ((*kb) >=  aplWeaponTotalTime[p->curr_weapon][snum])
-            {
-                if( //!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD) &&
-                    (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]
-                     && p->ammo_amount[p->curr_weapon] > 0
-                     && (aplWeaponClip[p->curr_weapon][snum])
-                     && (((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))) || p->reloading == 1 )
+                if(/*!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD) && */ p->reloading == 1 ||
+                    (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum] && p->ammo_amount[p->curr_weapon] > 0
+                     && (aplWeaponClip[p->curr_weapon][snum]) && (((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))))
                 {
                     int i;
                     i=aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
                     p->reloading = 1;
-                    if( (*kb) == (aplWeaponTotalTime[p->curr_weapon][snum] + 1))
+                    if( (*kb) == (aplWeaponTotalTime[p->curr_weapon][snum]));
+                    else if( (*kb) == (aplWeaponTotalTime[p->curr_weapon][snum]+1))
                     {
                         if(aplWeaponReloadSound1[p->curr_weapon][snum])
                             spritesound(aplWeaponReloadSound1[p->curr_weapon][snum],pi);
@@ -4926,7 +4866,6 @@ SHOOTINCODE:
                         if(aplWeaponReloadSound2[p->curr_weapon][snum])
                             spritesound(aplWeaponReloadSound2[p->curr_weapon][snum],pi);
                     }
-
                     else if( (*kb) >= (aplWeaponReload[p->curr_weapon][snum]) )
                     {
                         *kb=0;
@@ -4948,6 +4887,33 @@ SHOOTINCODE:
                     }
                     else *kb=0;
                 }
+            }
+            else if ( *kb > aplWeaponFireDelay[p->curr_weapon][snum] && (*kb) < aplWeaponTotalTime[p->curr_weapon][snum]
+                    && (aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON ? 1 : p->ammo_amount[p->curr_weapon] > 0)) 
+            {
+                if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
+                {
+                    if( ( sb_snum&(1<<2) ) == 0 )
+                        *kb = aplWeaponTotalTime[p->curr_weapon][snum];
+                    if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYTHIRD)
+                    {
+                        if( ((*(kb))%3) == 0 )
+                        {
+                            DoFire(snum);
+                            DoSpawn(snum);
+                        }
+                    }
+                    if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYOTHER)
+                    {
+                        DoFire(snum);
+                        DoSpawn(snum);
+                    }
+                }
+            }
+            else if(*kb == aplWeaponFireDelay[p->curr_weapon][snum]
+                    && (aplWeaponWorksLike[p->curr_weapon][snum]==KNEE_WEAPON ? 1 : p->ammo_amount[p->curr_weapon] > 0))
+            {
+                DoFire(snum);
             }
         }
     }
