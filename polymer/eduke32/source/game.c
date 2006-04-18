@@ -2514,7 +2514,7 @@ void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
             else if(j > (65536<<1)) j = (65536<<1);
 
             rotatesprite((x1<<4)+(xdim<<15),(y1<<4)+(ydim<<15),j,
-                         daang,i,sprite[ps[p].i].shade,sprite[ps[p].i].pal,
+                         daang,i,sprite[ps[p].i].shade,/*sprite[ps[p].i].pal*/sector[ps[p].cursectnum].floorpal,
                          (sprite[ps[p].i].cstat&2)>>1,windowx1,windowy1,windowx2,windowy2);
         }
     }

@@ -611,10 +611,10 @@ void menus(void)
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(160,24,0,0,"PLAYER SETUP");
 
-        rotatesprite((280)<<16,(35+(tilesizy[APLAYER]>>1))<<16,49152L,0,1426,0,ud.color,10,0,0,xdim-1,ydim-1);
+        rotatesprite((280)<<16,(37+(tilesizy[APLAYER]>>1))<<16,49152L,0,1426,0,ud.color,10,0,0,xdim-1,ydim-1);
 
         if (current_menu == 20002) {
-            x = probe(46,50,20,4);
+            x = probe(46,50,16,4);
             switch(x) {
             case -1:
                 cmenu(202);
@@ -666,7 +666,7 @@ void menus(void)
         }
 
         menutext(40,50,0,0,"NAME");
-        menutext(40,50+20,0,0,"COLOR");
+        menutext(40,50+16,0,0,"COLOR");
 
         {
             int ud_color = -1, aaim = -1, ud_weaponswitch = -1;
@@ -681,18 +681,18 @@ void menus(void)
             if(ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch)
                 updatenames();
         }
-        menutext(40,50+20+20,0,0,"AUTO AIM");
-        menutext(40,50+20+20+20,0,0,"WEAPON SWITCH");
+        menutext(40,50+16+16,0,0,"AUTO AIM");
+        menutext(40,50+16+16+16,0,0,"WEAPON SWITCH");
 
         if (current_menu == 20002) {
             gametext(200,50-9,myname,0,2+8+16); }
         { char *s[] = { "Auto","","","","","","","","","Blue","Dk red","Green","Gray","Dk gray","Dk green","Brown",
                             "Dk blue","","","","","Red","","Yellow","","" };
-            gametext(200,50+20-9,s[ud.color],0,2+8+16); }
+            gametext(200,50+16-9,s[ud.color],0,2+8+16); }
         { char *s[] = { "Off", "Full", "Hitscan" };
-            gametext(200,50+20+20-9,s[AutoAim],0,2+8+16); }
+            gametext(200,50+16+16-9,s[AutoAim],0,2+8+16); }
         { char *s[] = { "Off", "Pickup", "Empty", "Both" };
-            gametext(200,50+20+20+20-9,s[ud.weaponswitch],0,2+8+16); }
+            gametext(200,50+16+16+16-9,s[ud.weaponswitch],0,2+8+16); }
         break;
 
     case 20010:

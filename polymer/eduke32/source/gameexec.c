@@ -3683,14 +3683,16 @@ char parse(void)
     case CON_SIZETO:
         insptr++;
 
-        j = (*(insptr++)-g_sp->xrepeat)<<1;
+        j = (*insptr++-g_sp->xrepeat)<<1;
         g_sp->xrepeat += ksgn(j);
 
-        if( ( g_sp->picnum == APLAYER && g_sp->yrepeat < 36 ) || *insptr++ < g_sp->yrepeat || ((g_sp->yrepeat*(tilesizy[g_sp->picnum]+8))<<2) < (hittype[g_i].floorz - hittype[g_i].ceilingz) )
+        if( ( g_sp->picnum == APLAYER && g_sp->yrepeat < 36 ) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat*(tilesizy[g_sp->picnum]+8))<<2) < (hittype[g_i].floorz - hittype[g_i].ceilingz) )
         {
             j = ((*insptr)-g_sp->yrepeat)<<1;
             if( klabs(j) ) g_sp->yrepeat += ksgn(j);
         }
+        insptr++;
+
         break;
 
     case CON_SIZEAT:
