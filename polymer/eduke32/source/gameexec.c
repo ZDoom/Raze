@@ -3314,6 +3314,7 @@ char parse(void)
             Bstrcpy(fta_quotes[q],redefined_fta_quotes[i]);
             break;
         }
+
     case CON_GETTHISPROJECTILE:
     case CON_SETTHISPROJECTILE:
         {
@@ -3330,6 +3331,7 @@ char parse(void)
             DoThisProjectile(tw==CON_SETTHISPROJECTILE,lVar1,lLabelID,lVar2,g_i,g_p);
             break;
         }
+
     case CON_IFRND:
         insptr++;
         parseifelse( rnd(*insptr));
@@ -3948,7 +3950,6 @@ SKIPJIBS:
             break;
         }
 
-
     case CON_INSERTSPRITEQ:
         insptr++;
         insertspriteq(g_i);
@@ -4178,6 +4179,7 @@ SKIPJIBS:
             SetGameVarID(i, rand(), g_i, g_p );
             break;
         }
+
     case CON_DRAGPOINT:
         {
             short wallnum;
@@ -4772,6 +4774,7 @@ SKIPJIBS:
 
             break;
         }
+
     case CON_IFMOVE:
         insptr++;
         parseifelse(g_t[1] == *insptr);
@@ -5127,6 +5130,7 @@ SKIPJIBS:
             AddLog(g_szBuf);
             break;
         }
+
     case CON_ADDLOGVAR:
         {
             long l,m=1,lVarID;
@@ -5195,6 +5199,7 @@ good:
             DoSector(tw==CON_SETSECTOR, lVar1, lLabelID, lVar2, g_i, g_p);
             break;
         }
+
     case CON_SQRT:
         {
             // syntax sqrt <invar> <outvar>
@@ -5210,6 +5215,7 @@ good:
             SetGameVarID(lOutVarID, ksqrt(lIn), g_i, g_p);
             break;
         }
+
     case CON_FINDNEARACTOR:
     case CON_FINDNEARSPRITE:
         {
@@ -5332,7 +5338,6 @@ good:
 
             break;
         }
-
 
     case CON_FINDNEARACTOR3DVAR:
     case CON_FINDNEARSPRITE3DVAR:
@@ -5505,6 +5510,7 @@ good:
             DoUserDef(tw==CON_SETUSERDEF, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
             break;
         }
+
     case CON_GETPROJECTILE:
     case CON_SETPROJECTILE:
         {
@@ -5523,7 +5529,6 @@ good:
             break;
         }
 
-
     case CON_SETWALL:
     case CON_GETWALL:
         {
@@ -5540,6 +5545,7 @@ good:
             DoWall(tw==CON_SETWALL, lVar1, lLabelID, lVar2, g_i, g_p);
             break;
         }
+
     case CON_SETACTORVAR:
     case CON_GETACTORVAR:
         {
@@ -5633,6 +5639,7 @@ good:
             DoActor(tw==CON_SETACTOR, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
             break;
         }
+
     case CON_GETANGLETOTARGET:
         {
             int i;
@@ -5646,6 +5653,7 @@ good:
             SetGameVarID(i, ang, g_i, g_p );
             break;
         }
+
     case CON_ANGOFFVAR:
         {
             int i;
@@ -5654,6 +5662,7 @@ good:
             spriteext[g_i].angoff=GetGameVarID(i, g_i, g_p);
             break;
         }
+
     case CON_LOCKPLAYER:
         {
             int i;
@@ -5662,6 +5671,7 @@ good:
             ps[g_p].transporter_hold=GetGameVarID(i, g_i, g_p);
             break;
         }
+
     case CON_CHECKAVAILWEAPON:
     case CON_CHECKAVAILINVEN:
         {
@@ -5684,6 +5694,7 @@ good:
             }
             break;
         }
+
     case CON_GETPLAYERANGLE:
         {
             int i;
@@ -5692,6 +5703,7 @@ good:
             SetGameVarID(i, ps[g_p].ang, g_i, g_p );
             break;
         }
+
     case CON_SETPLAYERANGLE:
         {
             int i;
@@ -5701,6 +5713,7 @@ good:
             ps[g_p].ang &= 2047;
             break;
         }
+
     case CON_GETACTORANGLE:
         {
             int i;
@@ -5709,6 +5722,7 @@ good:
             SetGameVarID(i, g_sp->ang, g_i, g_p );
             break;
         }
+
     case CON_SETACTORANGLE:
         {
             int i;
@@ -5718,6 +5732,7 @@ good:
             g_sp->ang &= 2047;
             break;
         }
+
     case CON_SETVAR:
         {
             int i;
@@ -5726,6 +5741,7 @@ good:
             SetGameVarID(i, *insptr++, g_i, g_p );
             break;
         }
+
     case CON_SETVARVAR:
         {
             int i;
@@ -5743,6 +5759,7 @@ good:
             SetGameVarID(i, mulscale(krand(), *insptr++, 16), g_i, g_p );
             break;
         }
+
     case CON_DISPLAYRANDVAR:
         {
             int i;
@@ -5751,6 +5768,7 @@ good:
             SetGameVarID(i, mulscale(rand(), *insptr++, 15), g_i, g_p );
             break;
         }
+
     case CON_MULVAR:
         {
             int i;
@@ -5772,6 +5790,7 @@ good:
             SetGameVarID(i, GetGameVarID(i, g_i, g_p) / *insptr++, g_i, g_p );
             break;
         }
+
     case CON_MODVAR:
         {
             int i;
@@ -5786,6 +5805,7 @@ good:
             SetGameVarID(i,GetGameVarID(i, g_i, g_p)%l, g_i, g_p );
             break;
         }
+
     case CON_ANDVAR:
         {
             int i;
@@ -5796,6 +5816,7 @@ good:
             SetGameVarID(i,GetGameVarID(i, g_i, g_p) & l, g_i, g_p );
             break;
         }
+
     case CON_ORVAR:
         {
             int i;
@@ -5806,6 +5827,7 @@ good:
             SetGameVarID(i,GetGameVarID(i, g_i, g_p) | l, g_i, g_p );
             break;
         }
+
     case CON_XORVAR:
         {
             int i;
@@ -5874,6 +5896,7 @@ good:
             SetGameVarID(i, l1*l2, g_i, g_p );
             break;
         }
+
     case CON_DIVVARVAR:
         {
             int i;
@@ -5889,6 +5912,7 @@ good:
             SetGameVarID(i, l1/l2 , g_i, g_p );
             break;
         }
+
     case CON_MODVARVAR:
         {
             int i;
@@ -5904,6 +5928,7 @@ good:
             SetGameVarID(i, l1 % l2, g_i, g_p );
             break;
         }
+
     case CON_ANDVARVAR:
         {
             int i;
@@ -5915,6 +5940,7 @@ good:
             SetGameVarID(i, l1 & l2 , g_i, g_p );
             break;
         }
+
     case CON_XORVARVAR:
         {
             int i;
@@ -5926,6 +5952,7 @@ good:
             SetGameVarID(i, l1 ^ l2 , g_i, g_p );
             break;
         }
+
     case CON_ORVARVAR:
         {
             int i;
@@ -5937,6 +5964,7 @@ good:
             SetGameVarID(i, l1 | l2 , g_i, g_p );
             break;
         }
+
     case CON_SUBVAR:
         {
             int i;
@@ -5945,6 +5973,7 @@ good:
             SetGameVarID(i, GetGameVarID(i, g_i, g_p) - *insptr++, g_i, g_p );
             break;
         }
+
     case CON_SUBVARVAR:
         {
             int i;
@@ -5953,6 +5982,7 @@ good:
             SetGameVarID(i, GetGameVarID(i, g_i, g_p) - GetGameVarID(*insptr++, g_i, g_p), g_i, g_p );
             break;
         }
+
     case CON_ADDVAR:
         {
             int i;
@@ -5963,6 +5993,7 @@ good:
             SetGameVarID(i, GetGameVarID(i, g_i, g_p) + *insptr++, g_i, g_p );
             break;
         }
+
     case CON_SHIFTVARL:
         {
             int i;
@@ -5985,7 +6016,6 @@ good:
             break;
         }
 
-
     case CON_SIN:
         {
             int i;
@@ -5997,6 +6027,7 @@ good:
             SetGameVarID(i, lValue , g_i, g_p );
             break;
         }
+
     case CON_COS:
         {
             int i;
@@ -6010,6 +6041,7 @@ good:
             SetGameVarID(i, lValue , g_i, g_p );
             break;
         }
+
     case CON_ADDVARVAR:
         {
             int i;
@@ -6018,36 +6050,42 @@ good:
             SetGameVarID(i, GetGameVarID(i, g_i, g_p) + GetGameVarID(*insptr++, g_i, g_p), g_i, g_p );
             break;
         }
+
     case CON_SPGETLOTAG:
         {
             insptr++;
             SetGameVarID(g_iLoTagID, g_sp->lotag, g_i, g_p);
             break;
         }
+
     case CON_SPGETHITAG:
         {
             insptr++;
             SetGameVarID(g_iHiTagID, g_sp->hitag, g_i, g_p);
             break;
         }
+
     case CON_SECTGETLOTAG:
         {
             insptr++;
             SetGameVarID(g_iLoTagID, sector[g_sp->sectnum].lotag, g_i, g_p);
             break;
         }
+
     case CON_SECTGETHITAG:
         {
             insptr++;
             SetGameVarID(g_iHiTagID, sector[g_sp->sectnum].hitag, g_i, g_p);
             break;
         }
+
     case CON_GETTEXTUREFLOOR:
         {
             insptr++;
             SetGameVarID(g_iTextureID, sector[g_sp->sectnum].floorpicnum, g_i, g_p);
             break;
         }
+
     case CON_STARTTRACK:
         {
             insptr++;
@@ -6055,12 +6093,14 @@ good:
             playmusic(&music_fn[ud.volume_number][music_select][0]);
             break;
         }
+
     case CON_GETTEXTURECEILING:
         {
             insptr++;
             SetGameVarID(g_iTextureID, sector[g_sp->sectnum].ceilingpicnum, g_i, g_p);
             break;
         }
+
     case CON_IFVARVARAND:
         {
             int i;
@@ -6074,6 +6114,7 @@ good:
             parseifelse( j );
             break;
         }
+
     case CON_IFVARVARN:
         {
             int i;
@@ -6087,6 +6128,7 @@ good:
             parseifelse( j );
             break;
         }
+
     case CON_IFVARVARE:
         {
             int i;
@@ -6100,6 +6142,7 @@ good:
             parseifelse( j );
             break;
         }
+
     case CON_IFVARVARG:
         {
             int i;
@@ -6113,6 +6156,7 @@ good:
             parseifelse( j );
             break;
         }
+
     case CON_IFVARVARL:
         {
             int i;
@@ -6126,6 +6170,7 @@ good:
             parseifelse( j );
             break;
         }
+
     case CON_IFVARE:
         {
             int i;
@@ -6139,6 +6184,7 @@ good:
             parseifelse( j );
             break;
         }
+
     case CON_IFVARN:
         {
             int i;
@@ -6152,6 +6198,7 @@ good:
             parseifelse( j );
             break;
         }
+
     case CON_WHILEVARN:
         {
             int i;
@@ -6173,6 +6220,7 @@ good:
             }
             break;
         }
+
     case CON_WHILEVARVARN:
         {
             int i,k;
@@ -6195,6 +6243,7 @@ good:
             }
             break;
         }
+
     case CON_IFVARAND:
         {
             int i;
@@ -6208,6 +6257,7 @@ good:
             parseifelse( j );
             break;
         }
+
     case CON_IFVARG:
         {
             int i;
@@ -6221,6 +6271,7 @@ good:
             parseifelse( j );
             break;
         }
+
     case CON_IFVARL:
         {
             int i;
@@ -6273,6 +6324,7 @@ good:
             parseifelse(j);
             break;
         }
+
     case CON_PSTOMP:
         insptr++;
         if( ps[g_p].knee_incs == 0 && sprite[ps[g_p].i].xrepeat >= 40 )

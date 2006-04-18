@@ -4285,6 +4285,7 @@ repeatcase:
             transnum(LABEL_DEFINE);
             break;
         }
+
     case CON_IFONWATER:
     case CON_IFINWATER:
     case CON_IFACTORNOTSTAYPUT:
