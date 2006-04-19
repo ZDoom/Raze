@@ -51,7 +51,7 @@ static long GetTickCount(void)
 #define MAXPAKSIZ 256 //576
 
 
-#define PAKRATE 40   //Packet rate/sec limit ... necessary?
+#define PAKRATE 26   //Packet rate/sec limit ... necessary?
 #define SIMMIS 0     //Release:0  Test:100 Packets per 256 missed.
 #define SIMLAG 0     //Release:0  Test: 10 Packets to delay receipt
 static long simlagcnt[MAXPLAYERS];
