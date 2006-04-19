@@ -30,7 +30,7 @@ extern int recfilep;
 //extern char vgacompatible;
 short probey=0,lastprobey=0,last_menu,globalskillsound=-1;
 short sh,onbar,buttonstat,deletespot;
-short last_zero,last_fifty,last_onehundred,last_threehundred = 0;
+short last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehundred = 0;
 
 static char fileselect = 1, menunamecnt, menuname[256][64], curpath[80], menupath[80];
 
@@ -57,6 +57,8 @@ void cmenu(short cm)
         probey = last_fifty;
     else if(cm == 100)
         probey = last_onehundred;
+    else if(cm == 202)
+        probey = last_twoohtwo;
     else if(cm >= 300 && cm < 400)
         probey = last_threehundred;
     else if(cm == 110)
@@ -614,7 +616,7 @@ void menus(void)
         rotatesprite((280)<<16,(37+(tilesizy[APLAYER]>>1))<<16,49152L,0,1426,0,ud.color,10,0,0,xdim-1,ydim-1);
 
         if (current_menu == 20002) {
-            x = probe(46,50,16,4);
+            x = probe(46,50,16,5);
             switch(x) {
             case -1:
                 cmenu(202);
@@ -648,6 +650,10 @@ void menus(void)
                 ud.weaponswitch = (ud.weaponswitch == 3) ? 0 : ud.weaponswitch+1;
                 updatenames();
                 break;
+            case 4:
+                ud.mouseaiming = !ud.mouseaiming;
+                updatenames();
+                break;
             }
         } else {
             x = strget(200,50-9,buf,12,0);
@@ -669,20 +675,23 @@ void menus(void)
         menutext(40,50+16,0,0,"COLOR");
 
         {
-            int ud_color = -1, aaim = -1, ud_weaponswitch = -1;
+            int ud_color = -1, aaim = -1, ud_weaponswitch = -1, ud_maim = -1;
 
             ud_color = ud.color;
             aaim = AutoAim;
             ud_weaponswitch = ud.weaponswitch;
+            ud_maim = ud.mouseaiming;
             modval(0,23,(int *)&ud.color,1,probey==1);
             modval(0,2,(int *)&AutoAim,1,probey==2);
             modval(0,3,(int *)&ud.weaponswitch,1,probey==3);
+            modval(0,1,(int *)&ud.mouseaiming,1,probey==4);
             check_player_color((int *)&ud.color,ud_color);
-            if(ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch)
+            if(ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch || ud_maim != ud.mouseaiming)
                 updatenames();
         }
         menutext(40,50+16+16,0,0,"AUTO AIM");
         menutext(40,50+16+16+16,0,0,"WEAPON SWITCH");
+        menutext(40,50+16+16+16+16,0,0,"AIMING TYPE");
 
         if (current_menu == 20002) {
             gametext(200,50-9,myname,0,2+8+16); }
@@ -693,6 +702,8 @@ void menus(void)
             gametext(200,50+16+16-9,s[AutoAim],0,2+8+16); }
         { char *s[] = { "Off", "Pickup", "Empty", "Both" };
             gametext(200,50+16+16+16-9,s[ud.weaponswitch],0,2+8+16); }
+        gametext(200,50+16+16+16+16-9,ud.mouseaiming?"Held":"Toggle",0,2+8+16);
+
         break;
 
     case 20010:
@@ -2037,9 +2048,6 @@ cheat_for_port_credits:
                 case 2:  enabled = usehightile;
                     if (enabled && x==io) useprecache = !useprecache;
                     if (enabled) modval(0,1,(int *)&useprecache,1,probey==3);
-                    // don't change when in a multiplayer game
-                    // because the state is sent during getnames()
-                    // however, this will be fixed later
                     gametextpal(d,yy, useprecache && enabled ? "On" : "Off", enabled?0:10, 0); break;
                 case 3:  enabled = usehightile;
                     if (enabled && x==io) glusetexcompr = !glusetexcompr;
@@ -2077,21 +2085,23 @@ cheat_for_port_credits:
             char *opts[] = {
                                "Crosshair",
                                "Level stats",
-                               "Status bar size",
-                               "-",
-                               "Mouse aiming type",
-                               "Mouse aiming toggle",
-                               "Invert mouse aim",
-                               "Auto-aiming",
-                               "Run key style",
-                               "Auto weapon switching",
                                "-",
                                "Screen size",
+                               "Status bar size",
+                               "-",
+                               "Run key style",
+                               "-",
                                "Detail",
                                "Shadows",
                                "Screen tilting",
                                "-",
                                "Record demo",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
+                               "-",
                                "-",
                                "More...",
                                NULL
@@ -2107,7 +2117,7 @@ cheat_for_port_credits:
                 io++;
             }
 
-            onbar = (probey == 2 || probey == 9);
+            onbar = (probey == 2 || probey == 3);
             x = probesm(c,yy+5,0,io);
 
         if (x == -1) { cmenu(202); break; }
@@ -2126,7 +2136,8 @@ cheat_for_port_credits:
                 case 1:  if (x==io) ud.levelstats = 1-ud.levelstats;
                     modval(0,1,(int *)&ud.levelstats,1,probey==1);
                     gametextpal(d,yy, ud.levelstats ? "Shown" : "Hidden", 0, 0); break;
-                case 2:
+                case 2:  barsm(d+8,yy+7, (short *)&ud.screen_size,-4,x==io,SHX(-5),PHX(-5)); break;
+                case 3:
                     {
                         short sbs, sbsl;
                         sbs = sbsl = scale(max(0,ud.statusbarscale-50),63,100-50);
@@ -2137,45 +2148,19 @@ cheat_for_port_credits:
                         }
                     }
                     break;
-                case 3:  if (ps[myconnectindex].gm&MODE_GAME || numplayers > 1) enabled = 0;
-                    if (enabled && x==io) ud.mouseaiming = !ud.mouseaiming;
-                    if (enabled) modval(0,1,(int *)&ud.mouseaiming,1,probey==3);
-                    // don't change when in a multiplayer game
-                    // because the state is sent during getnames()
-                    // however, this will be fixed later
-                    gametextpal(d,yy, ud.mouseaiming ? "Held" : "Toggle", enabled?0:10, 0); break;
-                case 4:  enabled = !ud.mouseaiming;
-                    if (enabled && x==io) myaimmode = 1-myaimmode;
-                    if (enabled) modval(0,1,(int *)&myaimmode,1,probey==4);
-                    gametextpal(d,yy, myaimmode && enabled ? "On" : "Off", enabled?0:10, 0); break;
-                case 5:  if (x==io) ud.mouseflip = 1-ud.mouseflip;
-                    modval(0,1,(int *)&ud.mouseflip,1,probey==5);
-                    gametextpal(d,yy, ud.mouseflip ? "On" : "Off", 0, 0); break;
-                case 6:  if (ps[myconnectindex].gm&MODE_GAME || numplayers > 1) enabled = 0;
-                if (enabled && x==io) { AutoAim = (AutoAim == 2) ? 0 : AutoAim+1; }
-                    if (enabled) modval(0,2,(int *)&AutoAim,1,probey==6);
-                    { char *s[] = { "Off", "Full", "Hitscan" };
-                        gametextpal(d,yy, s[AutoAim], enabled?0:10, 0); break; }
-                case 7:  if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
-                    modval(0,1,(int *)&ud.runkey_mode,1,probey==7);
+                case 4:  if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
+                    modval(0,1,(int *)&ud.runkey_mode,1,probey==4);
                     gametextpal(d,yy, ud.runkey_mode ? "Classic" : "Modern", 0, 0); break;
-                case 8:  if (ps[myconnectindex].gm&MODE_GAME || numplayers > 1) enabled = 0;
-                if (enabled && x==io) { ud.weaponswitch = (ud.weaponswitch == 3) ? 0 : ud.weaponswitch+1; }
-                    if (enabled) modval(0,3,(int *)&ud.weaponswitch,1,probey==8);
-                    { char *s[] = { "Off", "Pickup", "Empty", "Both" };
-                        gametextpal(d,yy, s[ud.weaponswitch], enabled?0:10, 0); break; }
-                    break;
-                case 9:  barsm(d+8,yy+7, (short *)&ud.screen_size,-4,x==io,SHX(-5),PHX(-5)); break;
-                case 10: if (x==io) ud.detail = 1-ud.detail;
-                    modval(0,1,(int *)&ud.detail,1,probey==10);
+                case 5: if (x==io) ud.detail = 1-ud.detail;
+                    modval(0,1,(int *)&ud.detail,1,probey==5);
                     gametextpal(d,yy, ud.detail ? "High" : "Low", 0, 0); break;
-                case 11: if (x==io) ud.shadows = 1-ud.shadows;
-                    modval(0,1,(int *)&ud.shadows,1,probey==11);
+                case 6: if (x==io) ud.shadows = 1-ud.shadows;
+                    modval(0,1,(int *)&ud.shadows,1,probey==6);
                     gametextpal(d,yy, ud.shadows ? "On" : "Off", 0, 0); break;
-                case 12: if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
-                    modval(0,1,(int *)&ud.screen_tilting,1,probey==12);
+                case 7: if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
+                    modval(0,1,(int *)&ud.screen_tilting,1,probey==7);
                     gametextpal(d,yy, ud.screen_tilting ? "On" : "Off", 0, 0); break;  // original had a 'full' option
-                case 13: if (x==io) {
+                case 8: if (x==io) {
                         enabled = !((ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1);
                         if( (ps[myconnectindex].gm&MODE_GAME) ) closedemowrite();
                         else ud.m_recstat = !ud.m_recstat;
@@ -2183,7 +2168,7 @@ cheat_for_port_credits:
                     if( (ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1 )
                         enabled = 0;
                     gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Recording":"On"):"Off",0,enabled?0:1); break;
-                case 14: if (x==io) cmenu(201); break;
+                case 9: if (x==io) cmenu(201); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?5:15, 2);
@@ -2243,7 +2228,7 @@ cheat_for_port_credits:
 
             x = probesm(c,yy+5,0,io);
 
-        if (x == -1) { cmenu(200); probey = 14; break; }
+        if (x == -1) { cmenu(200); probey = 9; break; }
 
             yy = 34;
             for (ii=io=0; opts[ii]; ii++) {
@@ -2286,6 +2271,8 @@ cheat_for_port_credits:
 
         onbar = 0;
         x = probe(160,c,18,7);
+
+        last_twoohtwo = probey;
 
         switch (x) {
         case -1:
@@ -2714,9 +2701,9 @@ cheat_for_port_credits:
 
         onbar = (probey == (MAXMOUSEBUTTONS-2)*2+2);
         if (probey < (MAXMOUSEBUTTONS-2)*2+2)
-            x = probe(0,0,0,(MAXMOUSEBUTTONS-2)*2+2+2);
+            x = probe(0,0,0,(MAXMOUSEBUTTONS-2)*2+2+2+2);
         else
-            x = probe(c+6,131-((MAXMOUSEBUTTONS-2)*2+2)*16,16,(MAXMOUSEBUTTONS-2)*2+2+2);
+            x = probesm(40,125-((MAXMOUSEBUTTONS-2)*2+2)*9,9,(MAXMOUSEBUTTONS-2)*2+2+2+2);
 
         if (x==-1) {
             cmenu(202);
@@ -2725,6 +2712,12 @@ cheat_for_port_credits:
         } else if (x == (MAXMOUSEBUTTONS-2)*2+2) {
             // sensitivity
         } else if (x == (MAXMOUSEBUTTONS-2)*2+2+1) {
+            // mouse aiming toggle
+            if (!ud.mouseaiming) myaimmode = 1-myaimmode;
+        } else if (x == (MAXMOUSEBUTTONS-2)*2+2+2) {
+            // invert mouse aim
+            ud.mouseflip = 1-ud.mouseflip;
+        } else if (x == (MAXMOUSEBUTTONS-2)*2+2+2+1) {
             //advanced
             cmenu(212);
             break;
@@ -2766,20 +2759,27 @@ cheat_for_port_credits:
             }
         }
 
+        gametextpal(40,119,"SENSITIVITY",5,2);
+        gametextpal(40,119+9,"MOUSE AIMING TOGGLE",!ud.mouseaiming?5:15,2);
+        gametextpal(40,119+9+9,"INVERT MOUSE AIM",5,2);
+        gametextpal(40,119+9+9+9,"ADVANCED...",5,2);
+
         {
             short sense;
             sense = CONTROL_GetMouseSensitivity()>>10;
-
-            menutext(c,131,SHX(-7),PHX(-7),"SENSITIVITY");
-            bar(c+167,131,&sense,4,x==(MAXMOUSEBUTTONS-2)*2+2,SHX(-7),PHX(-7));
+            barsm(248,125,&sense,4,x==(MAXMOUSEBUTTONS-2)*2+2,SHX(-7),PHX(-7));
             CONTROL_SetMouseSensitivity( sense<<10 );
         }
 
-        menutext(c,131+16,0,0,"ADVANCED...");
+        if (!ud.mouseaiming) modval(0,1,(int *)&myaimmode,1,probey == (MAXMOUSEBUTTONS-2)*2+2+1);
+        modval(0,1,(int *)&ud.mouseflip,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2);
+
+        gametextpal(240,119+9, myaimmode && !ud.mouseaiming ? "On" : "Off", !ud.mouseaiming?0:10, 0);
+        gametextpal(240,119+9+9, ud.mouseflip ? "On" : "Off", 0, 0);
 
         if (probey < (MAXMOUSEBUTTONS-2)*2+2) {
-            gametext(160,155,"UP/DOWN = SELECT BUTTON",0,2+8+16);
-            gametext(160,155+9,"ENTER = MODIFY",0,2+8+16);
+            gametext(160,164,"UP/DOWN = SELECT BUTTON",0,2+8+16);
+            gametext(160,164+9,"ENTER = MODIFY",0,2+8+16);
         }
         break;
 
@@ -2911,7 +2911,7 @@ cheat_for_port_credits:
         switch (x) {
         case -1:
             cmenu(205);
-            probey = (MAXMOUSEBUTTONS-2)*2+2+1;
+            probey = (MAXMOUSEBUTTONS-2)*2+2+2+1;
             break;
 
         case 0:

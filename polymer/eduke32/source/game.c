@@ -6113,7 +6113,7 @@ PALONLY:
                         }
                 if( (sprite[s->owner].cstat&32768) == 0 )
                 {
-                    if(!hittype[s->owner].dispicnum) 
+                    if(!hittype[s->owner].dispicnum)
                         t->picnum = hittype[i].temp_data[1];
                     else t->picnum = hittype[s->owner].dispicnum;
                     t->pal = sprite[s->owner].pal;
