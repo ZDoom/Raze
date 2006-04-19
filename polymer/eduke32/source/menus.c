@@ -616,7 +616,7 @@ void menus(void)
         rotatesprite((280)<<16,(37+(tilesizy[APLAYER]>>1))<<16,49152L,0,1426,0,ud.color,10,0,0,xdim-1,ydim-1);
 
         if (current_menu == 20002) {
-            x = probe(46,50,16,5);
+            x = probe(40,50,16,5);
             switch(x) {
             case -1:
                 cmenu(202);
@@ -2016,7 +2016,7 @@ cheat_for_port_credits:
                                NULL
                            };
 
-            yy = 34;
+            yy = 37;
             for (ii=io=0; opts[ii]; ii++) {
                 if (opts[ii][0] == '-' && !opts[ii][1]) {
                     if (io <= probey) yy += 4;
@@ -2031,7 +2031,7 @@ cheat_for_port_credits:
 
         if (x == -1) { cmenu(203); probey = 7; break; }
 
-            yy = 34;
+            yy = 37;
             for (ii=io=0; opts[ii]; ii++) {
                 if (opts[ii][0] == '-' && !opts[ii][1]) {
                     yy += 4;
@@ -2043,26 +2043,26 @@ cheat_for_port_credits:
                     barsm(d+8,yy+7, (short *)&glratiocorrection,8,x==io,SHX(-5),PHX(-5));
                     break;
                 case 1: if (x==io) usehightile = 1-usehightile;
-                    modval(0,1,(int *)&usehightile,1,probey==2);
+                    modval(0,1,(int *)&usehightile,1,probey==io);
                     gametextpal(d,yy, usehightile ? "On" : "Off", 0, 0); break;
                 case 2:  enabled = usehightile;
                     if (enabled && x==io) useprecache = !useprecache;
-                    if (enabled) modval(0,1,(int *)&useprecache,1,probey==3);
+                    if (enabled) modval(0,1,(int *)&useprecache,1,probey==io);
                     gametextpal(d,yy, useprecache && enabled ? "On" : "Off", enabled?0:10, 0); break;
                 case 3:  enabled = usehightile;
                     if (enabled && x==io) glusetexcompr = !glusetexcompr;
-                    if (enabled) modval(0,1,(int *)&glusetexcompr,1,probey==4);
+                    if (enabled) modval(0,1,(int *)&glusetexcompr,1,probey==io);
                     gametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?0:10, 0); break;
                 case 4:  enabled = (glusetexcompr && usehightile && useprecache);
                     if (enabled && x==io) glusetexcache = !glusetexcache;
-                    if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==5);
+                    if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==io);
                     gametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?0:10, 0); break;
                 case 5:  enabled = (glusetexcompr && usehightile && useprecache && glusetexcache);
                     if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
-                    if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==6);
+                    if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==io);
                     gametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?0:10, 0); break;
                 case 6: if (x==io) usemodels = 1-usemodels;
-                    modval(0,1,(int *)&usemodels,1,probey==7);
+                    modval(0,1,(int *)&usemodels,1,probey==io);
                     gametextpal(d,yy, usemodels ? "On" : "Off", 0, 0); break;
                 default: break;
                 }
@@ -2095,17 +2095,16 @@ cheat_for_port_credits:
                                "Shadows",
                                "Screen tilting",
                                "-",
+                               "Show opponent weapon",
                                "Bright players",
                                "Demo playback cameras",
                                "Record demo",
-                               "-",
-                               "-",
                                "-",
                                "More...",
                                NULL
                            };
 
-            yy = 34;
+            yy = 37;
             for (ii=io=0; opts[ii]; ii++) {
                 if (opts[ii][0] == '-' && !opts[ii][1]) {
                     if (io <= probey) yy += 4;
@@ -2123,7 +2122,7 @@ cheat_for_port_credits:
                 break;
             }
 
-            yy = 34;
+            yy = 37;
             for (ii=io=0; opts[ii]; ii++) {
                 if (opts[ii][0] == '-' && !opts[ii][1]) {
                     yy += 4;
@@ -2132,10 +2131,10 @@ cheat_for_port_credits:
                 enabled = 1;
                 switch (io) {
                 case 0:  if (x==io) ud.crosshair = 1-ud.crosshair;
-                    modval(0,1,(int *)&ud.crosshair,1,probey==0);
+                    modval(0,1,(int *)&ud.crosshair,1,probey==io);
                     gametextpal(d,yy, ud.crosshair ? "On" : "Off", 0, 0); break;
                 case 1:  if (x==io) ud.levelstats = 1-ud.levelstats;
-                    modval(0,1,(int *)&ud.levelstats,1,probey==1);
+                    modval(0,1,(int *)&ud.levelstats,1,probey==io);
                     gametextpal(d,yy, ud.levelstats ? "Shown" : "Hidden", 0, 0); break;
                 case 2:  barsm(d+8,yy+7, (short *)&ud.screen_size,-4,x==io,SHX(-5),PHX(-5)); break;
                 case 3:
@@ -2150,24 +2149,28 @@ cheat_for_port_credits:
                     }
                     break;
                 case 4:  if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
-                    modval(0,1,(int *)&ud.runkey_mode,1,probey==4);
+                    modval(0,1,(int *)&ud.runkey_mode,1,probey==io);
                     gametextpal(d,yy, ud.runkey_mode ? "Classic" : "Modern", 0, 0); break;
                 case 5: if (x==io) ud.detail = 1-ud.detail;
-                    modval(0,1,(int *)&ud.detail,1,probey==5);
+                    modval(0,1,(int *)&ud.detail,1,probey==io);
                     gametextpal(d,yy, ud.detail ? "High" : "Low", 0, 0); break;
                 case 6: if (x==io) ud.shadows = 1-ud.shadows;
-                    modval(0,1,(int *)&ud.shadows,1,probey==6);
+                    modval(0,1,(int *)&ud.shadows,1,probey==io);
                     gametextpal(d,yy, ud.shadows ? "On" : "Off", 0, 0); break;
                 case 7: if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
-                    modval(0,1,(int *)&ud.screen_tilting,1,probey==7);
+                    modval(0,1,(int *)&ud.screen_tilting,1,probey==io);
                     gametextpal(d,yy, ud.screen_tilting ? "On" : "Off", 0, 0); break;  // original had a 'full' option
-                case 8: if (x==io) ud.brightskins = 1-ud.brightskins;
-                    modval(0,1,(int *)&ud.brightskins,1,probey==8);
+                case 8: if (x==io) ud.showweapons = 1-ud.showweapons;
+                    modval(0,1,(int *)&ud.showweapons,1,probey==io);
+                    ShowOpponentWeapons = ud.showweapons;
+                    gametextpal(d,yy, ShowOpponentWeapons ? "On" : "Off", 0, 0); break;
+                case 9: if (x==io) ud.brightskins = 1-ud.brightskins;
+                    modval(0,1,(int *)&ud.brightskins,1,probey==io);
                     gametextpal(d,yy, ud.brightskins ? "On" : "Off", 0, 0); break;
-                case 9: if (x==io) ud.democams = 1-ud.democams;
-                    modval(0,1,(int *)&ud.democams,1,probey==9);
+                case 10: if (x==io) ud.democams = 1-ud.democams;
+                    modval(0,1,(int *)&ud.democams,1,probey==io);
                     gametextpal(d,yy, ud.democams ? "On" : "Off", 0, 0); break;
-                case 10: if (x==io) {
+                case 11: if (x==io) {
                         enabled = !((ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1);
                         if( (ps[myconnectindex].gm&MODE_GAME) ) closedemowrite();
                         else ud.m_recstat = !ud.m_recstat;
@@ -2175,7 +2178,7 @@ cheat_for_port_credits:
                     if( (ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1 )
                         enabled = 0;
                     gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Recording":"On"):"Off",0,enabled?0:1); break;
-                case 11: if (x==io) cmenu(201); break;
+                case 12: if (x==io) cmenu(201); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?5:15, 2);
@@ -2225,7 +2228,7 @@ cheat_for_port_credits:
                                NULL
                            };
 
-            yy = 34;
+            yy = 37;
             for (ii=io=0; opts[ii]; ii++) {
                 if (opts[ii][0] == '-' && !opts[ii][1]) {
                     if (io <= probey) yy += 4;
@@ -2237,9 +2240,9 @@ cheat_for_port_credits:
 
             x = probesm(c,yy+5,0,io);
 
-        if (x == -1) { cmenu(200); probey = 11; break; }
+        if (x == -1) { cmenu(200); probey = 12; break; }
 
-            yy = 34;
+            yy = 37;
             for (ii=io=0; opts[ii]; ii++) {
                 if (opts[ii][0] == '-' && !opts[ii][1]) {
                     yy += 4;
@@ -2249,11 +2252,11 @@ cheat_for_port_credits:
                 switch (io) {
                 case 0: if (x==io) cmenu(10000); break;
             case 1: if (x==io) { ud.drawweapon = (ud.drawweapon == 2) ? 0 : ud.drawweapon+1; }
-                    modval(0,2,(int *)&ud.drawweapon,1,probey==1);
+                    modval(0,2,(int *)&ud.drawweapon,1,probey==io);
                     { char *s[] = { "Off", "On", "Icon" };
                         gametextpal(d,yy, s[ud.drawweapon], 0, 0); break; }
                 case 2: if (x==io) ud.tickrate = 1-ud.tickrate;
-                    modval(0,1,(int *)&ud.tickrate,1,probey==2);
+                    modval(0,1,(int *)&ud.tickrate,1,probey==io);
                     gametextpal(d,yy, ud.tickrate ? "On" : "Off", 0, 0); break;
                 case 3: if (x==io) cmenu(200); break;
                 default: break;
@@ -2354,11 +2357,11 @@ cheat_for_port_credits:
 #endif
         onbar = (probey == 4);
         if (probey == 0 || probey == 1 || probey == 2)
-            x = probe(c+6,50,16,x);
+            x = probe(c,50,16,x);
         else if (probey == 3)
-            x = probe(c+6,50+16+16+22,0,x);
+            x = probe(c,50+16+16+22,0,x);
         else
-            x = probe(c+6,50+62-16-16-16,16,x);
+            x = probe(c,50+62-16-16-16,16,x);
 
         if (probey==0 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_RightArrow))) {
             sound(PISTOL_BODYHIT);
@@ -2903,12 +2906,12 @@ cheat_for_port_credits:
 
         onbar = (probey == 0 || probey == 1);
         if (probey < 2)
-            x = probe(c+6,46,16,6);
+            x = probe(c,46,16,6);
         else if (probey < 6) {
             m=50;
-            x = probe(c+6+10,97-(10+10),10,6);
+            x = probesm(c+10,96-(10+10),10,6);
         } else {
-            x = probe(c+6,146-(16+16+16+16+16+16),16,6);
+            x = probe(c,146-(16+16+16+16+16+16),16,6);
         }
 
         switch (x) {

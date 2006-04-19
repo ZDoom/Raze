@@ -5758,7 +5758,7 @@ void animatesprites(long x,long y,short a,long smoothratio)
                 tsprite[spritesortcnt].yrepeat = ( t->yrepeat>>3 );
                 if(t->yrepeat < 4) t->yrepeat = 4;
 
-                tsprite[spritesortcnt].shade = t->shade;
+                tsprite[spritesortcnt].shade = ud.brightskins?-32:t->shade;
                 tsprite[spritesortcnt].cstat = 0;
 
                 switch(ps[p].curr_weapon)
