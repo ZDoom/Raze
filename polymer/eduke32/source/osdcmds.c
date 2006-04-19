@@ -468,7 +468,7 @@ int osdcmd_cvar_set(const osdfuncparm_t *parm)
                     {
                         int val;
                         if (showval) {
-                            OSD_Printf("%s: %d\n",cvar[i].name,*(int*)cvar[i].var);
+                            OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvar[i].name,*(int*)cvar[i].var,(char*)cvar[i].helpstr);
                             return OSDCMD_OK;
                         }
 
@@ -480,18 +480,18 @@ int osdcmd_cvar_set(const osdfuncparm_t *parm)
                             return OSDCMD_OK;
                         }
                         *(int*)cvar[i].var = val;
-                        OSD_Printf("%s %d",cvar[i].name,*(int*)cvar[i].var);
+                        OSD_Printf("%s %d",cvar[i].name,val);
                     } break;
                 case CVAR_STRING:
                     {
                         if (showval) {
-                            OSD_Printf("%s: \"%s\"\n",cvar[i].name,(char*)cvar[i].var);
+                            OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvar[i].name,(char*)cvar[i].var,(char*)cvar[i].helpstr);
                             return OSDCMD_OK;
                         }
                         else {
                             Bstrncpy((char*)cvar[i].var, parm->parms[0], cvar[i].extra-1);
                             ((char*)cvar[i].var)[cvar[i].extra-1] = 0;
-                            OSD_Printf("%s \"%s\"",cvar[i].name,(char*)cvar[i].var);
+                            OSD_Printf("%s %s",cvar[i].name,(char*)cvar[i].var);
                         }
                     } break;
                 default: break;

@@ -8671,6 +8671,7 @@ char opendemoread(char which_demo) // 0 = mine
             if (kread(recfilep,(int32 *)&ps[i].auto_aim,sizeof(int32)) != sizeof(int32)) goto corrupt;	// JBF 20031126
             if (kread(recfilep,(int32 *)&ps[i].weaponswitch,sizeof(int32)) != sizeof(int32)) goto corrupt;
             if (kread(recfilep,(int32 *)&ud.pcolor[i],sizeof(int32)) != sizeof(int32)) goto corrupt;
+            ps[i].palookup = ud.pcolor[i];
         } else {
             if (kread(recfilep,(int32 *)&ps[i].aim_mode,sizeof(char)) != sizeof(char)) goto corrupt;
             OSD_Printf("aim_mode: %d\n",ps[i].aim_mode);
