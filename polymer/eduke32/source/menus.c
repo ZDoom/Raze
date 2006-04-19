@@ -1014,7 +1014,7 @@ void menus(void)
         menutext(160,24,0,0,"ADULT MODE");
 
         x = probe(60,50+16,16,2);
-    if(x == -1) { cmenu(201); probey = 4; break; }
+    if(x == -1) { cmenu(201); probey = 0; break; }
 
         menutext(c,50+16,SHX(-2),PHX(-2),"ADULT MODE");
         menutext(c,50+16+16,SHX(-3),PHX(-3),"ENTER PASSWORD");
@@ -2095,11 +2095,9 @@ cheat_for_port_credits:
                                "Shadows",
                                "Screen tilting",
                                "-",
+                               "Bright players",
+                               "Demo playback cameras",
                                "Record demo",
-                               "-",
-                               "-",
-                               "-",
-                               "-",
                                "-",
                                "-",
                                "-",
@@ -2120,7 +2118,10 @@ cheat_for_port_credits:
             onbar = (probey == 2 || probey == 3);
             x = probesm(c,yy+5,0,io);
 
-        if (x == -1) { cmenu(202); break; }
+            if (x == -1) {
+                cmenu(202);
+                break;
+            }
 
             yy = 34;
             for (ii=io=0; opts[ii]; ii++) {
@@ -2160,7 +2161,13 @@ cheat_for_port_credits:
                 case 7: if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
                     modval(0,1,(int *)&ud.screen_tilting,1,probey==7);
                     gametextpal(d,yy, ud.screen_tilting ? "On" : "Off", 0, 0); break;  // original had a 'full' option
-                case 8: if (x==io) {
+                case 8: if (x==io) ud.brightskins = 1-ud.brightskins;
+                    modval(0,1,(int *)&ud.brightskins,1,probey==8);
+                    gametextpal(d,yy, ud.brightskins ? "On" : "Off", 0, 0); break;
+                case 9: if (x==io) ud.democams = 1-ud.democams;
+                    modval(0,1,(int *)&ud.democams,1,probey==9);
+                    gametextpal(d,yy, ud.democams ? "On" : "Off", 0, 0); break;
+                case 10: if (x==io) {
                         enabled = !((ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1);
                         if( (ps[myconnectindex].gm&MODE_GAME) ) closedemowrite();
                         else ud.m_recstat = !ud.m_recstat;
@@ -2168,7 +2175,7 @@ cheat_for_port_credits:
                     if( (ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1 )
                         enabled = 0;
                     gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Recording":"On"):"Off",0,enabled?0:1); break;
-                case 9: if (x==io) cmenu(201); break;
+                case 11: if (x==io) cmenu(201); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?5:15, 2);
@@ -2188,13 +2195,15 @@ cheat_for_port_credits:
         {
             int io, ii, yy, d=c+160+40, enabled;
             char *opts[] = {
+                               "Parental lock",
+                               "-",
                                "HUD weapon",
                                "FPS counter",
                                "-",
-                               "Bright players",
-                               "Demo cameras",
                                "-",
-                               "Parental lock",
+                               "-",
+                               "-",
+                               "-",
                                "-",
                                "-",
                                "-",
@@ -2228,7 +2237,7 @@ cheat_for_port_credits:
 
             x = probesm(c,yy+5,0,io);
 
-        if (x == -1) { cmenu(200); probey = 9; break; }
+        if (x == -1) { cmenu(200); probey = 11; break; }
 
             yy = 34;
             for (ii=io=0; opts[ii]; ii++) {
@@ -2238,21 +2247,15 @@ cheat_for_port_credits:
                 }
                 enabled = 1;
                 switch (io) {
-                case 0: if (x==io) { ud.drawweapon = (ud.drawweapon == 2) ? 0 : ud.drawweapon+1; }
-                    modval(0,2,(int *)&ud.drawweapon,1,probey==0);
+                case 0: if (x==io) cmenu(10000); break;
+            case 1: if (x==io) { ud.drawweapon = (ud.drawweapon == 2) ? 0 : ud.drawweapon+1; }
+                    modval(0,2,(int *)&ud.drawweapon,1,probey==1);
                     { char *s[] = { "Off", "On", "Icon" };
                         gametextpal(d,yy, s[ud.drawweapon], 0, 0); break; }
-                case 1: if (x==io) ud.tickrate = 1-ud.tickrate;
-                    modval(0,1,(int *)&ud.tickrate,1,probey==1);
+                case 2: if (x==io) ud.tickrate = 1-ud.tickrate;
+                    modval(0,1,(int *)&ud.tickrate,1,probey==2);
                     gametextpal(d,yy, ud.tickrate ? "On" : "Off", 0, 0); break;
-                case 2: if (x==io) ud.brightskins = 1-ud.brightskins;
-                    modval(0,1,(int *)&ud.brightskins,1,probey==1);
-                    gametextpal(d,yy, ud.brightskins ? "On" : "Off", 0, 0); break;
-                case 3: if (x==io) ud.democams = 1-ud.democams;
-                    modval(0,1,(int *)&ud.democams,1,probey==1);
-                    gametextpal(d,yy, ud.democams ? "On" : "Off", 0, 0); break;
-                case 4: if (x==io) cmenu(10000); break;
-                case 5: if (x==io) cmenu(200); break;
+                case 3: if (x==io) cmenu(200); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?5:15, 2);
@@ -2701,9 +2704,9 @@ cheat_for_port_credits:
 
         onbar = (probey == (MAXMOUSEBUTTONS-2)*2+2);
         if (probey < (MAXMOUSEBUTTONS-2)*2+2)
-            x = probe(0,0,0,(MAXMOUSEBUTTONS-2)*2+2+2+2);
+            x = probesm(73,40,8,(MAXMOUSEBUTTONS-2)*2+2+2+2);
         else
-            x = probesm(40,125-((MAXMOUSEBUTTONS-2)*2+2)*9,9,(MAXMOUSEBUTTONS-2)*2+2+2+2);
+            x = probesm(40,124-((MAXMOUSEBUTTONS-2)*2+2)*9,9,(MAXMOUSEBUTTONS-2)*2+2+2+2);
 
         if (x==-1) {
             cmenu(202);
