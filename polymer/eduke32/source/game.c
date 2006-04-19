@@ -3674,7 +3674,6 @@ short spawn( short j, short pn )
     else switch(dynamictostatic[sp->picnum])
         {
         default:
-
             if( actorscrptr[sp->picnum] )
             {
                 if( j == -1 && sp->lotag > ud.player_skill )
@@ -6114,7 +6113,9 @@ PALONLY:
                         }
                 if( (sprite[s->owner].cstat&32768) == 0 )
                 {
-                    t->picnum = hittype[s->owner].dispicnum;
+                    if(!hittype[s->owner].dispicnum) 
+                        t->picnum = hittype[i].temp_data[1];
+                    else t->picnum = hittype[s->owner].dispicnum;
                     t->pal = sprite[s->owner].pal;
                     t->shade = sprite[s->owner].shade;
                     t->ang = sprite[s->owner].ang;
