@@ -2709,7 +2709,7 @@ cheat_for_port_credits:
         if (probey < (MAXMOUSEBUTTONS-2)*2+2)
             x = probesm(73,40,8,(MAXMOUSEBUTTONS-2)*2+2+2+2);
         else
-            x = probesm(40,124-((MAXMOUSEBUTTONS-2)*2+2)*9,9,(MAXMOUSEBUTTONS-2)*2+2+2+2);
+            x = probesm(40,128-((MAXMOUSEBUTTONS-2)*2+2)*9,9,(MAXMOUSEBUTTONS-2)*2+2+2+2);
 
         if (x==-1) {
             cmenu(202);
@@ -2765,23 +2765,23 @@ cheat_for_port_credits:
             }
         }
 
-        gametextpal(40,119,"SENSITIVITY",5,2);
-        gametextpal(40,119+9,"MOUSE AIMING TOGGLE",!ud.mouseaiming?5:15,2);
-        gametextpal(40,119+9+9,"INVERT MOUSE AIM",5,2);
-        gametextpal(40,119+9+9+9,"ADVANCED...",5,2);
+        gametextpal(40,122,"SENSITIVITY",5,2);
+        gametextpal(40,122+9,"MOUSE AIMING TOGGLE",!ud.mouseaiming?5:15,2);
+        gametextpal(40,122+9+9,"INVERT MOUSE AIM",5,2);
+        gametextpal(40,122+9+9+9,"ADVANCED...",5,2);
 
         {
             short sense;
             sense = CONTROL_GetMouseSensitivity()>>10;
-            barsm(248,125,&sense,4,x==(MAXMOUSEBUTTONS-2)*2+2,SHX(-7),PHX(-7));
+            barsm(248,128,&sense,4,x==(MAXMOUSEBUTTONS-2)*2+2,SHX(-7),PHX(-7));
             CONTROL_SetMouseSensitivity( sense<<10 );
         }
 
         if (!ud.mouseaiming) modval(0,1,(int *)&myaimmode,1,probey == (MAXMOUSEBUTTONS-2)*2+2+1);
         modval(0,1,(int *)&ud.mouseflip,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2);
 
-        gametextpal(240,119+9, myaimmode && !ud.mouseaiming ? "On" : "Off", !ud.mouseaiming?0:10, 0);
-        gametextpal(240,119+9+9, ud.mouseflip ? "On" : "Off", 0, 0);
+        gametextpal(240,122+9, myaimmode && !ud.mouseaiming ? "On" : "Off", !ud.mouseaiming?0:10, 0);
+        gametextpal(240,122+9+9, ud.mouseflip ? "On" : "Off", 0, 0);
 
         if (probey < (MAXMOUSEBUTTONS-2)*2+2) {
             gametext(160,164,"UP/DOWN = SELECT BUTTON",0,2+8+16);

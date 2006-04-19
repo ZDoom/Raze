@@ -2659,7 +2659,7 @@ void displayrest(long smoothratio)
             dointerpolations(smoothratio);
             if( ud.scrollmode == 0 )
             {
-                if(pp->newowner == -1)
+                if(pp->newowner == -1 && !ud.pause_on)
                 {
                     if (screenpeek == myconnectindex && numplayers > 1)
                     {
@@ -2683,11 +2683,12 @@ void displayrest(long smoothratio)
             }
             else
             {
-
-                ud.fola += ud.folavel>>3;
-                ud.folx += (ud.folfvel*sintable[(512+2048-ud.fola)&2047])>>14;
-                ud.foly += (ud.folfvel*sintable[(512+1024-512-ud.fola)&2047])>>14;
-
+                if(!ud.pause_on)
+                {
+                    ud.fola += ud.folavel>>3;
+                    ud.folx += (ud.folfvel*sintable[(512+2048-ud.fola)&2047])>>14;
+                    ud.foly += (ud.folfvel*sintable[(512+1024-512-ud.fola)&2047])>>14;
+                }
                 cposx = ud.folx;
                 cposy = ud.foly;
                 cang = ud.fola;
