@@ -5761,25 +5761,12 @@ void animatesprites(long x,long y,short a,long smoothratio)
                 tsprite[spritesortcnt].shade = ud.brightskins?-32:t->shade;
                 tsprite[spritesortcnt].cstat = 0;
 
-                switch(ps[p].curr_weapon)
-                {
-                case PISTOL_WEAPON:      tsprite[spritesortcnt].picnum = FIRSTGUNSPRITE;       break;
-                case SHOTGUN_WEAPON:     tsprite[spritesortcnt].picnum = SHOTGUNSPRITE;        break;
-                case CHAINGUN_WEAPON:    tsprite[spritesortcnt].picnum = CHAINGUNSPRITE;       break;
-                case RPG_WEAPON:         tsprite[spritesortcnt].picnum = RPGSPRITE;            break;
-                case HANDREMOTE_WEAPON:
-                case HANDBOMB_WEAPON:    tsprite[spritesortcnt].picnum = HEAVYHBOMB;           break;
-                case TRIPBOMB_WEAPON:    tsprite[spritesortcnt].picnum = TRIPBOMBSPRITE;       break;
-                case GROW_WEAPON:        tsprite[spritesortcnt].picnum = GROWSPRITEICON;       break;
-                case SHRINKER_WEAPON:    tsprite[spritesortcnt].picnum = SHRINKERSPRITE;       break;
-                case FREEZE_WEAPON:      tsprite[spritesortcnt].picnum = FREEZESPRITE;         break;
-                case DEVISTATOR_WEAPON:  tsprite[spritesortcnt].picnum = DEVISTATORSPRITE;     break;
-                }
+                tsprite[spritesortcnt].picnum = (ps[p].curr_weapon==GROW_WEAPON?GROWSPRITEICON:weapon_sprites[ps[p].curr_weapon]);
 
                 if(s->owner >= 0)
                     tsprite[spritesortcnt].z = ps[p].posz-(12<<8);
                 else tsprite[spritesortcnt].z = s->z-(51<<8);
-                if(ps[p].curr_weapon == HANDBOMB_WEAPON)
+                if(tsprite[spritesortcnt].picnum == HEAVYHBOMB)
                 {
                     tsprite[spritesortcnt].xrepeat = 10;
                     tsprite[spritesortcnt].yrepeat = 10;

@@ -2101,7 +2101,7 @@ void myospalw(long x, long y, short tilenum, signed char shade, char orientation
         case HANDREMOTE_WEAPON:
         case HANDBOMB_WEAPON:
         case SHOTGUN_WEAPON:
-            rotatesprite(160<<16,(180+(ps[screenpeek].weapon_pos*ps[screenpeek].weapon_pos))<<16,scale(65536,ud.statusbarscale,100),0,weapon_sprites[g_currentweapon],0,0,2,windowx1,windowy1,windowx2,windowy2);
+            rotatesprite(160<<16,(180+(ps[screenpeek].weapon_pos*ps[screenpeek].weapon_pos))<<16,scale(65536,ud.statusbarscale,100),0,g_currentweapon==GROW_WEAPON?GROWSPRITEICON:weapon_sprites[g_currentweapon],0,0,2,windowx1,windowy1,windowx2,windowy2);
             break;
         }
     }
