@@ -2329,7 +2329,8 @@ cheat_for_port_credits:
             }
             break;
         case 3:
-            cmenu(20002);
+            if(ud.recstat != 1)
+                cmenu(20002);
             break;
         case 4:
             currentlist = 0;
@@ -2343,7 +2344,7 @@ cheat_for_port_credits:
         menutext(160,c,                  0,0,"GAME SETUP");
         menutext(160,c+18,               0,0,"SOUND SETUP");
         menutext(160,c+18+18,            0,0,"VIDEO SETUP");
-        menutext(160,c+18+18+18,         0,0,"PLAYER SETUP");
+        menutext(160,c+18+18+18,         0,ud.recstat == 1,"PLAYER SETUP");
         menutext(160,c+18+18+18+18,      0,0,"KEYBOARD SETUP");
         menutext(160,c+18+18+18+18+18,   0,0,"MOUSE SETUP");
         menutext(160,c+18+18+18+18+18+18,0,CONTROL_JoyPresent==0 || CONTROL_JoystickEnabled==0,"JOYSTICK SETUP");

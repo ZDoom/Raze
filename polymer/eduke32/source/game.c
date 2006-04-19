@@ -8150,6 +8150,9 @@ void updatenames(void)
 {
     int l;
 
+    if(ud.recstat != 0)
+        return;
+
     for(l=0;(unsigned)l<sizeof(myname)-1;l++)
         ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
 
