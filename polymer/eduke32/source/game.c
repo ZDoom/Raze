@@ -325,6 +325,47 @@ void getpackets(void)
     {
         switch(packbuf[0])
         {
+        case 254:
+            //slaves in M/S mode only send to master
+            if (myconnectindex == connecthead)
+            {
+                //Master re-transmits message to all others
+                for(i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    if (i != other)
+                        sendpacket(i,packbuf,packbufleng);
+            }
+
+            j = packbuf[1];
+            playerquitflag[j] = 0;
+            Bsprintf(buf,"%s is history!",ud.user_name[j]);
+            adduserquote(buf);
+
+            if(j == connecthead && networkmode == 0 )
+                gameexit( " \nThe 'MASTER/First player' just quit the game.  All\nplayers are returned from the game.");
+ 
+            for(i=connecthead;i>=0;i=connectpoint2[i])
+            {
+                if (playerquitflag[i] != 0)
+                    continue;
+                if (i == connecthead)
+                    connecthead = connectpoint2[connecthead];
+                else 
+                {
+                    for(j=connecthead;j>=0;j=connectpoint2[j]) {
+                        if(connectpoint2[j] == i)
+                            connectpoint2[j] = connectpoint2[i];
+                    }
+                }
+            }
+
+            numplayers--;
+            ud.multimode--;
+
+            if (numplayers < 2)
+                sound(GENERIC_AMBIENCE17);
+
+            break;
+
         case 9:
             //slaves in M/S mode only send to master
             if (myconnectindex == connecthead)
@@ -661,7 +702,7 @@ void getpackets(void)
             playerreadyflag[other]++;
             break;
         case 255:
-            gameexit(" ");
+            sendquit();
             break;
         }
     }
@@ -2068,19 +2109,17 @@ void gameexit(char *t)
     if(ud.recstat == 1) closedemowrite();
 else if(ud.recstat == 2) { if (frecfilep) fclose(frecfilep); }  // JBF: fixes crash on demo playback
 
-    if(qe || cp)
-        goto GOTOHERE;
-
-    if(playerswhenstarted > 1 && (gametype_flags[ud.coop] & GAMETYPE_FLAG_SCORESHEET) && *t == ' ')
+    if(!qe && !cp)
     {
-        dobonus(1);
-        setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP);
+        if(playerswhenstarted > 1 && ps[myconnectindex].gm&MODE_GAME && (gametype_flags[ud.coop] & GAMETYPE_FLAG_SCORESHEET) && *t == ' ')
+        {
+            dobonus(1);
+            setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP);
+        }
+
+        if( *t != 0 && *(t+1) != 'V' && *(t+1) != 'Y')
+            showtwoscreens();
     }
-
-    if( *t != 0 && *(t+1) != 'V' && *(t+1) != 'Y')
-        showtwoscreens();
-
-    GOTOHERE:
 
     if (qsetmode == 200)
         Shutdown();
@@ -9657,7 +9696,7 @@ char domovethings(void)
         adduserquote(buf);
 
         if(j < 0 && networkmode == 0 )
-            gameexit( " \nThe 'MASTER/First player' just quit the game.  All\nplayers are returned from the game. This only happens in 5-8\nplayer mode as a different network scheme is used.");
+            gameexit( " \nThe 'MASTER/First player' just quit the game.  All\nplayers are returned from the game.");
     }
 
     if ((numplayers >= 2) && ((movefifoplc&7) == 7))

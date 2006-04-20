@@ -438,7 +438,7 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
     }
 }
 
-#define MENUHIGHLIGHT(x) probey==x?(sintable[(totalclock<<4)&2047]>>12):10
+#define MENUHIGHLIGHT(x) probey==x?2-(sintable[(totalclock<<4)&2047]>>12):10
 #define SHX(X) 0
 // ((x==X)*(-sh))
 #define PHX(X) 0
@@ -510,6 +510,37 @@ void check_player_color(int *color,int prev_color)
             i=0;
         }
     }
+}
+
+void sendquit(void)
+{
+    int i;
+
+    if( gamequit == 0 && ( numplayers > 1 ) )
+    {
+        if(ps[myconnectindex].gm&MODE_GAME)
+        {
+            gamequit = 1;
+            quittimer = totalclock+120;
+        }
+        else
+        {
+            tempbuf[0] = 254;
+            tempbuf[1] = myconnectindex;
+
+            for(i=connecthead;i >= 0;i=connectpoint2[i])
+            {
+                if (i != myconnectindex) sendpacket(i,tempbuf,2);
+                if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+            }
+            gameexit(" ");
+        }
+    }
+    else if( numplayers < 2 )
+        gameexit(" ");
+
+    if( ( totalclock > quittimer ) && ( gamequit == 1) )
+        gameexit("Timed out.");
 }
 
 void menus(void)
@@ -3798,24 +3829,7 @@ VOLUME_ALL_40x:
         {
             KB_FlushKeyboardQueue();
 
-            if( gamequit == 0 && ( numplayers > 1 ) )
-            {
-                if(ps[myconnectindex].gm&MODE_GAME)
-                {
-                    gamequit = 1;
-                    quittimer = totalclock+120;
-                }
-                else
-                {
-                    sendlogoff();
-                    gameexit(" ");
-                }
-            }
-            else if( numplayers < 2 )
-                gameexit(" ");
-
-            if( ( totalclock > quittimer ) && ( gamequit == 1) )
-                gameexit("Timed out.");
+            sendquit();
         }
 
         x = probe(186,124,0,0);

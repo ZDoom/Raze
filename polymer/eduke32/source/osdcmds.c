@@ -30,23 +30,7 @@ struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 
 int osdcmd_quit(const osdfuncparm_t *parm)
 {
-    extern long quittimer;
-    if( gamequit == 0 && ( numplayers > 1 ) )
-    {
-        if(ps[myconnectindex].gm&MODE_GAME)
-        {
-            gamequit = 1;
-            quittimer = totalclock+120;
-        }
-        else
-        {
-            sendlogoff();
-            gameexit(" ");
-        }
-    }
-    else if( numplayers < 2 )
-        gameexit(" ");
-
+    sendquit();
     return OSDCMD_OK;
 }
 
