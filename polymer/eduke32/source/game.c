@@ -8440,6 +8440,14 @@ void app_main(int argc,char **argv)
 
 MAIN_LOOP_RESTART:
 
+    if(ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
+    {
+        if(setgamemode(!ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP) < 0)
+            setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP);
+        else ScreenMode = !ScreenMode;
+        KB_ClearKeyDown(sc_Enter);
+    }
+
     if(ud.warp_on == 0)
         Logo();
     else if(ud.warp_on == 1)

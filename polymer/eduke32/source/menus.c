@@ -517,6 +517,14 @@ void menus(void)
     long l,m;
     char *p = NULL;
 
+    if(ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
+    {
+        if(setgamemode(!ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP) < 0)
+            setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP);
+        else ScreenMode = !ScreenMode;
+        KB_ClearKeyDown(sc_Enter);
+    }
+
     getpackets();
 
     if(ControllerType == 1 && CONTROL_MousePresent)
