@@ -2892,15 +2892,15 @@ void drawbackground(void)
         }
     } else {
         // when not rendering a game, fullscreen wipe
-        SetGameVarID(g_iReturnVarID,BIGHOLE, -1, -1);
+        SetGameVarID(g_iReturnVarID,tilesizx[MENUSCREEN]==320&&tilesizy[MENUSCREEN]==200?MENUSCREEN:BIGHOLE, -1, -1);
         OnEvent(EVENT_GETMENUTILE, -1, -1, -1);
-        if (GetGameVar("MENU_TILE", 1, -1, -1))
+        if (GetGameVar("MENU_TILE", tilesizx[MENUSCREEN]==320&&tilesizy[MENUSCREEN]==200?0:1, -1, -1))
         {
             for(y=y1;y<y2;y+=tilesizy[GetGameVarID(g_iReturnVarID, -1, -1)])
                 for(x=0;x<xdim;x+=tilesizx[GetGameVarID(g_iReturnVarID, -1, -1)])
-                    rotatesprite(x<<16,y<<16,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),8,0,8+16+64+128,0,0,xdim-1,ydim-1);
+                    rotatesprite(x<<16,y<<16,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),bpp==8?16:8,0,8+16+64+128,0,0,xdim-1,ydim-1);
         }
-        else rotatesprite(320<<15,200<<15,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),0,0,2+8+64,0,0,xdim-1,ydim-1);
+        else rotatesprite(320<<15,200<<15,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),bpp==8?16:0,0,2+8+64,0,0,xdim-1,ydim-1);
         return;
     }
     y2 = scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200);

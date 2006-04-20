@@ -5480,7 +5480,6 @@ void AddSystemVars()
     AddGameVar("yxaspect",(long)&yxaspect, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("gravitationalconstant",(long)&gc, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
     AddGameVar("gametype_flags",(long)&gametype_flags[ud.coop], GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
-    AddGameVar("MENU_TILE", 1, GAMEVAR_FLAG_SYSTEM);
     AddGameVar("CLIPMASK0", CLIPMASK0, GAMEVAR_FLAG_SYSTEM|GAMEVAR_FLAG_READONLY);
     AddGameVar("CLIPMASK1", CLIPMASK1, GAMEVAR_FLAG_SYSTEM|GAMEVAR_FLAG_READONLY);
 }

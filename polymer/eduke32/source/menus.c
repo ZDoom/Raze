@@ -28,7 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern char inputloc;
 extern int recfilep;
 //extern char vgacompatible;
-short probey=0,lastprobey=0,last_menu,globalskillsound=-1;
+short probey=0,lastprobey=0,globalskillsound=-1,last_probey=0;
+int last_menu;
 short sh,onbar,buttonstat,deletespot;
 short last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehundred = 0;
 
@@ -437,6 +438,7 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
     }
 }
 
+#define MENUHIGHLIGHT(x) probey==x?(sintable[(totalclock<<4)&2047]>>12):10
 #define SHX(X) 0
 // ((x==X)*(-sh))
 #define PHX(X) 0
@@ -562,6 +564,13 @@ void menus(void)
     if(!(current_menu >= 1000 && current_menu <= 2999 && current_menu >= 300 && current_menu <= 369))
         vscrn();
 
+    if(KB_KeyPressed(sc_Q) && current_menu >= 0 && (current_menu > 502 || current_menu < 500))
+    {
+        last_menu = current_menu;
+        last_probey = probey;
+        cmenu(502);
+    }
+
     switch(current_menu)
     {
     case 25000:
@@ -611,17 +620,16 @@ void menus(void)
         else if (x == 1) cmenu(20020);
         else if (x == 0) cmenu(20002);
 
-        menutext(160,100-18,0,0,"PLAYER SETUP");
-        menutext(160,100,0,0,"JOIN GAME");
-        menutext(160,100+18,0,0,"HOST GAME");
+        menutext(160,100-18,MENUHIGHLIGHT(0),0,"PLAYER SETUP");
+        menutext(160,100,MENUHIGHLIGHT(1),0,"JOIN GAME");
+        menutext(160,100+18,MENUHIGHLIGHT(2),0,"HOST GAME");
         break;
 
     case 20002:
     case 20003:
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(160,24,0,0,"PLAYER SETUP");
-
-        rotatesprite((280)<<16,(37+(tilesizy[APLAYER]>>1))<<16,49152L,0,1426,0,ud.color,10,0,0,xdim-1,ydim-1);
+        rotatesprite((280)<<16,(37+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,ud.color,10,0,0,xdim-1,ydim-1);
 
         if (current_menu == 20002) {
             x = probe(40,50,16,5);
@@ -679,8 +687,8 @@ void menus(void)
             }
         }
 
-        menutext(40,50,0,0,"NAME");
-        menutext(40,50+16,0,0,"COLOR");
+        menutext(40,50,MENUHIGHLIGHT(0),0,"NAME");
+        menutext(40,50+16,MENUHIGHLIGHT(1),0,"COLOR");
 
         {
             int ud_color = -1, aaim = -1, ud_weaponswitch = -1, ud_maim = -1;
@@ -697,20 +705,20 @@ void menus(void)
             if(ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch || ud_maim != ud.mouseaiming)
                 updatenames();
         }
-        menutext(40,50+16+16,0,0,"AUTO AIM");
-        menutext(40,50+16+16+16,0,0,"WEAPON SWITCH");
-        menutext(40,50+16+16+16+16,0,0,"AIMING TYPE");
+        menutext(40,50+16+16,MENUHIGHLIGHT(2),0,"AUTO AIM");
+        menutext(40,50+16+16+16,MENUHIGHLIGHT(3),0,"WEAPON SWITCH");
+        menutext(40,50+16+16+16+16,MENUHIGHLIGHT(4),0,"AIMING TYPE");
 
         if (current_menu == 20002) {
-            gametext(200,50-9,myname,0,2+8+16); }
+            gametext(200,50-9,myname,MENUHIGHLIGHT(0),2+8+16); }
         { char *s[] = { "Auto","","","","","","","","","Blue","Dk red","Green","Gray","Dk gray","Dk green","Brown",
                             "Dk blue","","","","","Red","","Yellow","","" };
-            gametext(200,50+16-9,s[ud.color],0,2+8+16); }
+            gametext(200,50+16-9,s[ud.color],MENUHIGHLIGHT(1),2+8+16); }
         { char *s[] = { "Off", "Full", "Hitscan" };
-            gametext(200,50+16+16-9,s[AutoAim],0,2+8+16); }
+            gametext(200,50+16+16-9,s[AutoAim],MENUHIGHLIGHT(2),2+8+16); }
         { char *s[] = { "Off", "Pickup", "Empty", "Both" };
-            gametext(200,50+16+16+16-9,s[ud.weaponswitch],0,2+8+16); }
-        gametext(200,50+16+16+16+16-9,ud.mouseaiming?"Held":"Toggle",0,2+8+16);
+            gametext(200,50+16+16+16-9,s[ud.weaponswitch],MENUHIGHLIGHT(3),2+8+16); }
+        gametext(200,50+16+16+16+16-9,ud.mouseaiming?"Held":"Toggle",MENUHIGHLIGHT(4),2+8+16);
 
         break;
 
@@ -862,34 +870,34 @@ void menus(void)
 
         c -= 44;
 
-        menutext(c,57-9,SHX(-2),PHX(-2),"GAME TYPE");
+        menutext(c,57-9,MENUHIGHLIGHT(0),PHX(-2),"GAME TYPE");
 
         sprintf(tempbuf,"EPISODE %ld",ud.m_volume_number+1);
-        menutext(c,57+16-9,SHX(-3),PHX(-3),tempbuf);
+        menutext(c,57+16-9,MENUHIGHLIGHT(1),PHX(-3),tempbuf);
 
         sprintf(tempbuf,"LEVEL %ld",ud.m_level_number+1);
-        menutext(c,57+16+16-9,SHX(-4),PHX(-4),tempbuf);
+        menutext(c,57+16+16-9,MENUHIGHLIGHT(2),PHX(-4),tempbuf);
 
-        menutext(c,57+16+16+16-9,SHX(-5),PHX(-5),"MONSTERS");
+        menutext(c,57+16+16+16-9,MENUHIGHLIGHT(3),PHX(-5),"MONSTERS");
 
         if(ud.m_coop == 0)
-            menutext(c,57+16+16+16+16-9,SHX(-6),PHX(-6),"MARKERS");
+            menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),PHX(-6),"MARKERS");
         else
-            menutext(c,57+16+16+16+16-9,SHX(-6),1,"MARKERS");
+            menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),1,"MARKERS");
 
         if(ud.m_coop == 1)
-            menutext(c,57+16+16+16+16+16-9,SHX(-6),PHX(-6),"FR. FIRE");
-        else menutext(c,57+16+16+16+16+16-9,SHX(-6),1,"FR. FIRE");
+            menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),PHX(-6),"FR. FIRE");
+        else menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),1,"FR. FIRE");
 
         if (VOLUMEALL) {
-            menutext(c,57+16+16+16+16+16+16-9,SHX(-7),boardfilename[0] == 0,"USER MAP");
+            menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),boardfilename[0] == 0,"USER MAP");
             if( boardfilename[0] != 0 )
                 gametext(c+70+44,57+16+16+16+16+16,boardfilename,0,2+8+16);
         } else {
-            menutext(c,57+16+16+16+16+16+16-9,SHX(-7),1,"USER MAP");
+            menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),1,"USER MAP");
         }
 
-        menutext(c,57+16+16+16+16+16+16+16-9,SHX(-8),PHX(-8),"ACCEPT");
+        menutext(c,57+16+16+16+16+16+16+16-9,MENUHIGHLIGHT(7),PHX(-8),"ACCEPT");
         break;
 
     case 20020:
@@ -1024,11 +1032,10 @@ void menus(void)
         x = probe(60,50+16,16,2);
     if(x == -1) { cmenu(201); probey = 0; break; }
 
-        menutext(c,50+16,SHX(-2),PHX(-2),"ADULT MODE");
-        menutext(c,50+16+16,SHX(-3),PHX(-3),"ENTER PASSWORD");
+        menutext(c,50+16,MENUHIGHLIGHT(0),PHX(-2),"ADULT MODE");
+        menutext(c,50+16+16,MENUHIGHLIGHT(1),PHX(-3),"ENTER PASSWORD");
 
-        if(ud.lockout) menutext(c+160+40,50+16,0,0,"OFF");
-        else menutext(c+160+40,50+16,0,0,"ON");
+        menutext(c+160+40,50+16,MENUHIGHLIGHT(0),0,ud.lockout?"OFF":"ON");
 
         if(current_menu == 10001)
         {
@@ -1604,33 +1611,33 @@ cheat_for_port_credits:
         if(movesperpacket == 4)
         {
             if( myconnectindex == connecthead )
-                menutext(c,67,SHX(-2),PHX(-2),"NEW GAME");
+                menutext(c,67,MENUHIGHLIGHT(0),PHX(-2),"NEW GAME");
             else
-                menutext(c,67,SHX(-2),1,"NEW GAME");
+                menutext(c,67,MENUHIGHLIGHT(0),1,"NEW GAME");
         }
         else
-            menutext(c,67,SHX(-2),PHX(-2),"NEW GAME");
+            menutext(c,67,MENUHIGHLIGHT(0),PHX(-2),"NEW GAME");
 
         //    menutext(c,67+16,0,1,"NETWORK GAME");
 
-        menutext(c,67+16/*+16*/,SHX(-3),PHX(-3),"OPTIONS");
+        menutext(c,67+16/*+16*/,MENUHIGHLIGHT(1),PHX(-3),"OPTIONS");
 
         if(movesperpacket == 4 && connecthead != myconnectindex)
-            menutext(c,67+16+16/*+16*/,SHX(-4),1,"LOAD GAME");
-        else menutext(c,67+16+16/*+16*/,SHX(-4),PHX(-4),"LOAD GAME");
+            menutext(c,67+16+16/*+16*/,MENUHIGHLIGHT(2),1,"LOAD GAME");
+        else menutext(c,67+16+16/*+16*/,MENUHIGHLIGHT(2),PHX(-4),"LOAD GAME");
 
         if (!VOLUMEALL) {
 
-            menutext(c,67+16+16+16/*+16*/,SHX(-5),PHX(-5),"HOW TO ORDER");
+            menutext(c,67+16+16+16/*+16*/,MENUHIGHLIGHT(3),PHX(-5),"HOW TO ORDER");
         } else {
 
-            menutext(c,67+16+16+16/*+16*/,SHX(-5),PHX(-5),"HELP");
+            menutext(c,67+16+16+16/*+16*/,MENUHIGHLIGHT(3),PHX(-5),"HELP");
         }
 
-        menutext(c,67+16+16+16+16/*+16*/,SHX(-6),PHX(-6),"CREDITS");
+        menutext(c,67+16+16+16+16/*+16*/,MENUHIGHLIGHT(4),PHX(-6),"CREDITS");
 
 
-        menutext(c,67+16+16+16+16+16/*+16*/,SHX(-7),PHX(-7),"QUIT");
+        menutext(c,67+16+16+16+16+16/*+16*/,MENUHIGHLIGHT(5),PHX(-7),"QUIT");
         break;
 
     case 50:
@@ -1703,27 +1710,27 @@ cheat_for_port_credits:
 
         if(movesperpacket == 4 && connecthead != myconnectindex)
         {
-            menutext(c,67                  ,SHX(-2),1,"NEW GAME");
-            menutext(c,67+16               ,SHX(-3),1,"SAVE GAME");
-            menutext(c,67+16+16            ,SHX(-4),1,"LOAD GAME");
+            menutext(c,67                  ,MENUHIGHLIGHT(0),1,"NEW GAME");
+            menutext(c,67+16               ,MENUHIGHLIGHT(1),1,"SAVE GAME");
+            menutext(c,67+16+16            ,MENUHIGHLIGHT(2),1,"LOAD GAME");
         }
         else
         {
-            menutext(c,67                  ,SHX(-2),PHX(-2),"NEW GAME");
-            menutext(c,67+16               ,SHX(-3),PHX(-3),"SAVE GAME");
-            menutext(c,67+16+16            ,SHX(-4),PHX(-4),"LOAD GAME");
+            menutext(c,67                  ,MENUHIGHLIGHT(0),PHX(-2),"NEW GAME");
+            menutext(c,67+16               ,MENUHIGHLIGHT(1),PHX(-3),"SAVE GAME");
+            menutext(c,67+16+16            ,MENUHIGHLIGHT(2),PHX(-4),"LOAD GAME");
         }
 
-        menutext(c,67+16+16+16         ,SHX(-5),PHX(-5),"OPTIONS");
+        menutext(c,67+16+16+16         ,MENUHIGHLIGHT(3),PHX(-5),"OPTIONS");
         if (!VOLUMEALL) {
-            menutext(c,67+16+16+16+16      ,SHX(-6),PHX(-6),"HOW TO ORDER");
+            menutext(c,67+16+16+16+16      ,MENUHIGHLIGHT(4),PHX(-6),"HOW TO ORDER");
         } else {
-            menutext(c,67+16+16+16+16      ,SHX(-6),PHX(-6)," HELP");
+            menutext(c,67+16+16+16+16      ,MENUHIGHLIGHT(4),PHX(-6)," HELP");
         }
         if(numplayers > 1)
-            menutext(c,67+16+16+16+16+16   ,SHX(-7),1,"QUIT TO TITLE");
-        else menutext(c,67+16+16+16+16+16   ,SHX(-7),PHX(-7),"QUIT TO TITLE");
-        menutext(c,67+16+16+16+16+16+16,SHX(-8),PHX(-8),"QUIT GAME");
+            menutext(c,67+16+16+16+16+16   ,MENUHIGHLIGHT(5),1,"QUIT TO TITLE");
+        else menutext(c,67+16+16+16+16+16   ,MENUHIGHLIGHT(5),PHX(-7),"QUIT TO TITLE");
+        menutext(c,67+16+16+16+16+16+16,MENUHIGHLIGHT(6),PHX(-8),"QUIT GAME");
         break;
 
     case 100:
@@ -1779,16 +1786,16 @@ cheat_for_port_credits:
 
         c = 80;
         if (VOLUMEONE) {
-            menutext(160,60,SHX(-2),PHX(-2),volume_names[0]);
-            menutext(160,60+20,SHX(-3),1,volume_names[1]);
-            menutext(160,60+20+20,SHX(-4),1,volume_names[2]);
+            menutext(160,60,MENUHIGHLIGHT(0),PHX(-2),volume_names[0]);
+            menutext(160,60+20,MENUHIGHLIGHT(1),1,volume_names[1]);
+            menutext(160,60+20+20,MENUHIGHLIGHT(2),1,volume_names[2]);
             if (PLUTOPAK)
-                menutext(160,60+20+20,SHX(-5),1,volume_names[3]);
+                menutext(160,60+20+20,MENUHIGHLIGHT(3),1,volume_names[3]);
         } else {
             for (i=0;i<num_volumes;i++)
-                menutext(160,60-(num_volumes*2)+(20*i),SHX(-2),PHX(-2),volume_names[i]);
+                menutext(160,60-(num_volumes*2)+(20*i),MENUHIGHLIGHT(i),PHX(-2),volume_names[i]);
 
-            menutext(160,60-(num_volumes*2)+(20*i),SHX(-6),PHX(-6),"USER MAP");
+            menutext(160,60-(num_volumes*2)+(20*i),MENUHIGHLIGHT(i),PHX(-6),"USER MAP");
         }
         break;
 
@@ -1987,10 +1994,10 @@ cheat_for_port_credits:
             KB_FlushKeyboardQueue();
         }
 
-        menutext(c,70,SHX(-2),PHX(-2),skill_names[0]);
-        menutext(c,70+19,SHX(-3),PHX(-3),skill_names[1]);
-        menutext(c,70+19+19,SHX(-4),PHX(-4),skill_names[2]);
-        menutext(c,70+19+19+19,SHX(-5),PHX(-5),skill_names[3]);
+        menutext(c,70,MENUHIGHLIGHT(0),PHX(-2),skill_names[0]);
+        menutext(c,70+19,MENUHIGHLIGHT(1),PHX(-3),skill_names[1]);
+        menutext(c,70+19+19,MENUHIGHLIGHT(2),PHX(-4),skill_names[2]);
+        menutext(c,70+19+19+19,MENUHIGHLIGHT(3),PHX(-5),skill_names[3]);
         break;
     case 230:
 
@@ -2048,33 +2055,33 @@ cheat_for_port_credits:
                 enabled = 1;
                 switch (io) {
                 case 0:
-                    barsm(d+8,yy+7, (short *)&glratiocorrection,8,x==io,SHX(-5),PHX(-5));
+                    barsm(d+8,yy+7, (short *)&glratiocorrection,8,x==io,MENUHIGHLIGHT(io),PHX(-5));
                     break;
                 case 1: if (x==io) usehightile = 1-usehightile;
                     modval(0,1,(int *)&usehightile,1,probey==io);
-                    gametextpal(d,yy, usehightile ? "On" : "Off", 0, 0); break;
+                    gametextpal(d,yy, usehightile ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
                 case 2:  enabled = usehightile;
                     if (enabled && x==io) useprecache = !useprecache;
                     if (enabled) modval(0,1,(int *)&useprecache,1,probey==io);
-                    gametextpal(d,yy, useprecache && enabled ? "On" : "Off", enabled?0:10, 0); break;
+                    gametextpal(d,yy, useprecache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):10, 0); break;
                 case 3:  enabled = usehightile;
                     if (enabled && x==io) glusetexcompr = !glusetexcompr;
                     if (enabled) modval(0,1,(int *)&glusetexcompr,1,probey==io);
-                    gametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?0:10, 0); break;
+                    gametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):10, 0); break;
                 case 4:  enabled = (glusetexcompr && usehightile && useprecache);
                     if (enabled && x==io) glusetexcache = !glusetexcache;
                     if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==io);
-                    gametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?0:10, 0); break;
+                    gametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):10, 0); break;
                 case 5:  enabled = (glusetexcompr && usehightile && useprecache && glusetexcache);
                     if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
                     if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==io);
-                    gametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?0:10, 0); break;
+                    gametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):10, 0); break;
                 case 6: if (x==io) usemodels = 1-usemodels;
                     modval(0,1,(int *)&usemodels,1,probey==io);
-                    gametextpal(d,yy, usemodels ? "On" : "Off", 0, 0); break;
+                    gametextpal(d,yy, usemodels ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
                 default: break;
                 }
-                gametextpal(c,yy, opts[ii], enabled?5:15, 2);
+                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
                 io++;
                 yy += 8;
             }
@@ -2140,16 +2147,16 @@ cheat_for_port_credits:
                 switch (io) {
                 case 0:  if (x==io) ud.crosshair = 1-ud.crosshair;
                     modval(0,1,(int *)&ud.crosshair,1,probey==io);
-                    gametextpal(d,yy, ud.crosshair ? "On" : "Off", 0, 0); break;
+                    gametextpal(d,yy, ud.crosshair ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
                 case 1:  if (x==io) ud.levelstats = 1-ud.levelstats;
                     modval(0,1,(int *)&ud.levelstats,1,probey==io);
-                    gametextpal(d,yy, ud.levelstats ? "Shown" : "Hidden", 0, 0); break;
-                case 2:  barsm(d+8,yy+7, (short *)&ud.screen_size,-4,x==io,SHX(-5),PHX(-5)); break;
+                    gametextpal(d,yy, ud.levelstats ? "Shown" : "Hidden", MENUHIGHLIGHT(io), 0); break;
+                case 2:  barsm(d+8,yy+7, (short *)&ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),PHX(-5)); break;
                 case 3:
                     {
                         short sbs, sbsl;
                         sbs = sbsl = scale(max(0,ud.statusbarscale-50),63,100-50);
-                        barsm(d+8,yy+7, (short *)&sbs,9,x==io,SHX(-5),PHX(-5));
+                        barsm(d+8,yy+7, (short *)&sbs,9,x==io,MENUHIGHLIGHT(io),PHX(-5));
                         if (x == io && sbs != sbsl) {
                             sbs = scale(sbs,100-50,63)+50;
                             setstatusbarscale(sbs);
@@ -2158,26 +2165,26 @@ cheat_for_port_credits:
                     break;
                 case 4:  if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
                     modval(0,1,(int *)&ud.runkey_mode,1,probey==io);
-                    gametextpal(d,yy, ud.runkey_mode ? "Classic" : "Modern", 0, 0); break;
+                    gametextpal(d,yy, ud.runkey_mode ? "Classic" : "Modern", MENUHIGHLIGHT(io), 0); break;
                 case 5: if (x==io) ud.detail = 1-ud.detail;
                     modval(0,1,(int *)&ud.detail,1,probey==io);
-                    gametextpal(d,yy, ud.detail ? "High" : "Low", 0, 0); break;
+                    gametextpal(d,yy, ud.detail ? "High" : "Low", MENUHIGHLIGHT(io), 0); break;
                 case 6: if (x==io) ud.shadows = 1-ud.shadows;
                     modval(0,1,(int *)&ud.shadows,1,probey==io);
-                    gametextpal(d,yy, ud.shadows ? "On" : "Off", 0, 0); break;
+                    gametextpal(d,yy, ud.shadows ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
                 case 7: if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
                     modval(0,1,(int *)&ud.screen_tilting,1,probey==io);
-                    gametextpal(d,yy, ud.screen_tilting ? "On" : "Off", 0, 0); break;  // original had a 'full' option
+                    gametextpal(d,yy, ud.screen_tilting ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;  // original had a 'full' option
                 case 8: if (x==io) ud.showweapons = 1-ud.showweapons;
                     modval(0,1,(int *)&ud.showweapons,1,probey==io);
                     ShowOpponentWeapons = ud.showweapons;
-                    gametextpal(d,yy, ShowOpponentWeapons ? "On" : "Off", 0, 0); break;
+                    gametextpal(d,yy, ShowOpponentWeapons ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
                 case 9: if (x==io) ud.brightskins = 1-ud.brightskins;
                     modval(0,1,(int *)&ud.brightskins,1,probey==io);
-                    gametextpal(d,yy, ud.brightskins ? "On" : "Off", 0, 0); break;
+                    gametextpal(d,yy, ud.brightskins ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
                 case 10: if (x==io) ud.democams = 1-ud.democams;
                     modval(0,1,(int *)&ud.democams,1,probey==io);
-                    gametextpal(d,yy, ud.democams ? "On" : "Off", 0, 0); break;
+                    gametextpal(d,yy, ud.democams ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
                 case 11: if (x==io) {
                         enabled = !((ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1);
                         if( (ps[myconnectindex].gm&MODE_GAME) ) closedemowrite();
@@ -2185,11 +2192,11 @@ cheat_for_port_credits:
                     }
                     if( (ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1 )
                         enabled = 0;
-                    gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Recording":"On"):"Off",0,enabled?0:1); break;
+                    gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Recording":"On"):"Off",enabled?MENUHIGHLIGHT(io):15,enabled?0:1); break;
                 case 12: if (x==io) cmenu(201); break;
                 default: break;
                 }
-                gametextpal(c,yy, opts[ii], enabled?5:15, 2);
+                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
                 io++;
                 yy += 8;
             }
@@ -2262,14 +2269,14 @@ cheat_for_port_credits:
             case 1: if (x==io) { ud.drawweapon = (ud.drawweapon == 2) ? 0 : ud.drawweapon+1; }
                     modval(0,2,(int *)&ud.drawweapon,1,probey==io);
                     { char *s[] = { "Off", "On", "Icon" };
-                        gametextpal(d,yy, s[ud.drawweapon], 0, 0); break; }
+                        gametextpal(d,yy, s[ud.drawweapon], MENUHIGHLIGHT(io), 0); break; }
                 case 2: if (x==io) ud.tickrate = 1-ud.tickrate;
                     modval(0,1,(int *)&ud.tickrate,1,probey==io);
-                    gametextpal(d,yy, ud.tickrate ? "On" : "Off", 0, 0); break;
+                    gametextpal(d,yy, ud.tickrate ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
                 case 3: if (x==io) cmenu(200); break;
                 default: break;
                 }
-                gametextpal(c,yy, opts[ii], enabled?5:15, 2);
+                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
                 io++;
                 yy += 8;
             }
@@ -2342,13 +2349,13 @@ cheat_for_port_credits:
             break;
         }
 
-        menutext(160,c,                  0,0,"GAME SETUP");
-        menutext(160,c+18,               0,0,"SOUND SETUP");
-        menutext(160,c+18+18,            0,0,"VIDEO SETUP");
-        menutext(160,c+18+18+18,         0,ud.recstat == 1,"PLAYER SETUP");
-        menutext(160,c+18+18+18+18,      0,0,"KEYBOARD SETUP");
-        menutext(160,c+18+18+18+18+18,   0,0,"MOUSE SETUP");
-        menutext(160,c+18+18+18+18+18+18,0,CONTROL_JoyPresent==0 || CONTROL_JoystickEnabled==0,"JOYSTICK SETUP");
+        menutext(160,c,                  MENUHIGHLIGHT(0),0,"GAME SETUP");
+        menutext(160,c+18,               MENUHIGHLIGHT(1),0,"SOUND SETUP");
+        menutext(160,c+18+18,            MENUHIGHLIGHT(2),0,"VIDEO SETUP");
+        menutext(160,c+18+18+18,         MENUHIGHLIGHT(3),ud.recstat == 1,"PLAYER SETUP");
+        menutext(160,c+18+18+18+18,      MENUHIGHLIGHT(4),0,"KEYBOARD SETUP");
+        menutext(160,c+18+18+18+18+18,   MENUHIGHLIGHT(5),0,"MOUSE SETUP");
+        menutext(160,c+18+18+18+18+18+18,MENUHIGHLIGHT(6),CONTROL_JoyPresent==0 || CONTROL_JoystickEnabled==0,"JOYSTICK SETUP");
         break;
 
         // JBF 20031206: Video settings menu
@@ -2558,25 +2565,25 @@ cheat_for_port_credits:
 #endif
         }
 
-        menutext(c,50,0,0,"RESOLUTION");
+        menutext(c,50,MENUHIGHLIGHT(0),0,"RESOLUTION");
         sprintf(tempbuf,"%ld x %ld",
                 (newvidmode==validmodecnt)?xdim:validmode[newvidmode].xdim,
                 (newvidmode==validmodecnt)?ydim:validmode[newvidmode].ydim);
-        gametext(c+154,50-8,tempbuf,0,2+8+16);
+        gametext(c+154,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
 
-        menutext(c,50+16,0,0,"VIDEO MODE");
+        menutext(c,50+16,MENUHIGHLIGHT(1),0,"VIDEO MODE");
         sprintf(tempbuf, "%dbit %s", vidsets[newvidset]&0x0ffff, (vidsets[newvidset]&0x20000)?"Polymost":"Classic");
-        gametext(c+154,50+16-8,tempbuf,0,2+8+16);
+        gametext(c+154,50+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
-        menutext(c,50+16+16,0,0,"FULLSCREEN");
-        menutext(c+154,50+16+16,0,0,newfullscreen?"YES":"NO");
+        menutext(c,50+16+16,MENUHIGHLIGHT(2),0,"FULLSCREEN");
+        menutext(c+154,50+16+16,MENUHIGHLIGHT(2),0,newfullscreen?"YES":"NO");
 
-        menutext(c+16,50+16+16+22,0,changesmade==0,"APPLY CHANGES");
+        menutext(c+16,50+16+16+22,MENUHIGHLIGHT(3),changesmade==0,"APPLY CHANGES");
 
-        menutext(c,50+62+16,SHX(-6),PHX(-6),"BRIGHTNESS");
+        menutext(c,50+62+16,MENUHIGHLIGHT(4),PHX(-6),"BRIGHTNESS");
         {
             short ss = ud.brightness;
-            bar(c+167,50+62+16,&ss,8,x==4,SHX(-6),PHX(-6));
+            bar(c+167,50+62+16,&ss,8,x==4,MENUHIGHLIGHT(4),PHX(-6));
             if(x==4) {
                 ud.brightness = ss;
                 setbrightness(ud.brightness>>2,&ps[myconnectindex].palette[0],0);
@@ -2584,20 +2591,20 @@ cheat_for_port_credits:
         }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        menutext(c,50+62+16+16,0,bpp==8,"FILTERING");
+        menutext(c,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,"FILTERING");
         switch (gltexfiltermode) {
         case 0: strcpy(tempbuf,"NEAREST"); break;
         case 3: strcpy(tempbuf,"BILINEAR"); break;
         case 5: strcpy(tempbuf,"TRILINEAR"); break;
         default: strcpy(tempbuf,"OTHER"); break;
         }
-        menutext(c+154,50+62+16+16,0,bpp==8,tempbuf);
+        menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,tempbuf);
 
-        menutext(c,50+62+16+16+16,0,bpp==8,"ANISOTROPY");
+        menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"ANISOTROPY");
         if (glanisotropy == 1) strcpy(tempbuf,"NONE");
         else sprintf(tempbuf,"%ld-tap",glanisotropy);
-        menutext(c+154,50+62+16+16+16,0,bpp==8,tempbuf);
-        menutext(c,50+62+16+16+16+16,0,bpp==8,"ADVANCED SETTINGS");
+        menutext(c+154,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,tempbuf);
+        menutext(c,50+62+16+16+16+16,MENUHIGHLIGHT(7),bpp==8,"ADVANCED SETTINGS");
 
 #endif
         break;
@@ -2773,10 +2780,10 @@ cheat_for_port_credits:
             }
         }
 
-        gametextpal(40,122,"SENSITIVITY",5,2);
-        gametextpal(40,122+9,"MOUSE AIMING TOGGLE",!ud.mouseaiming?5:15,2);
-        gametextpal(40,122+9+9,"INVERT MOUSE AIM",5,2);
-        gametextpal(40,122+9+9+9,"ADVANCED...",5,2);
+        gametextpal(40,122,"SENSITIVITY",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),2);
+        gametextpal(40,122+9,"MOUSE AIMING TOGGLE",!ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):15,2);
+        gametextpal(40,122+9+9,"INVERT MOUSE AIM",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2),2);
+        gametextpal(40,122+9+9+9,"ADVANCED...",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1),2);
 
         {
             short sense;
@@ -2788,8 +2795,8 @@ cheat_for_port_credits:
         if (!ud.mouseaiming) modval(0,1,(int *)&myaimmode,1,probey == (MAXMOUSEBUTTONS-2)*2+2+1);
         modval(0,1,(int *)&ud.mouseflip,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2);
 
-        gametextpal(240,122+9, myaimmode && !ud.mouseaiming ? "On" : "Off", !ud.mouseaiming?0:10, 0);
-        gametextpal(240,122+9+9, ud.mouseflip ? "On" : "Off", 0, 0);
+        gametextpal(240,122+9, myaimmode && !ud.mouseaiming ? "On" : "Off", !ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):15, 0);
+        gametextpal(240,122+9+9, ud.mouseflip ? "On" : "Off", MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2), 0);
 
         if (probey < (MAXMOUSEBUTTONS-2)*2+2) {
             gametext(160,164,"UP/DOWN = SELECT BUTTON",0,2+8+16);
@@ -2965,31 +2972,31 @@ cheat_for_port_credits:
 
         }
 
-        menutext(c,46,0,0,"X-AXIS SCALE");
+        menutext(c,46,MENUHIGHLIGHT(0),0,"X-AXIS SCALE");
         l = (MouseAnalogueScale[0]+262144) >> 13;
-        bar(c+160+40,46,(short *)&l,1,x==0,0,0);
+        bar(c+160+40,46,(short *)&l,1,x==0,MENUHIGHLIGHT(0),0);
         l = (l<<13)-262144;
         if (l != MouseAnalogueScale[0]) {
             CONTROL_SetAnalogAxisScale( 0, l, controldevice_mouse );
             MouseAnalogueScale[0] = l;
         }
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
-        gametext(c+160-16,46-8,tempbuf,0,2+8+16);
+        gametext(c+160-16,46-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
 
-        menutext(c,46+16,0,0,"Y-AXIS SCALE");
+        menutext(c,46+16,MENUHIGHLIGHT(1),0,"Y-AXIS SCALE");
         l = (MouseAnalogueScale[1]+262144) >> 13;
-        bar(c+160+40,46+16,(short *)&l,1,x==1,0,0);
+        bar(c+160+40,46+16,(short *)&l,1,x==1,MENUHIGHLIGHT(1),0);
         l = (l<<13)-262144;
         if (l != MouseAnalogueScale[1]) {
             CONTROL_SetAnalogAxisScale( 1, l, controldevice_mouse );
             MouseAnalogueScale[1] = l;
         }
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
-        gametext(c+160-16,46+16-8,tempbuf,0,2+8+16);
+        gametext(c+160-16,46+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
         menutext(c,46+16+16+8,0,0,"DIGITAL AXES ACTIONS");
 
-        gametext(c+10,90,"UP:",0,2+8+16);
+        gametext(c+10,90,"UP:",MENUHIGHLIGHT(2),2+8+16);
         if (MouseDigitalFunctions[1][0] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
@@ -2998,7 +3005,7 @@ cheat_for_port_credits:
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitext(c+10+60,91,tempbuf,0,10+16);
 
-        gametext(c+10,90+10,"DOWN:",0,2+8+16);
+        gametext(c+10,90+10,"DOWN:",MENUHIGHLIGHT(3),2+8+16);
         if (MouseDigitalFunctions[1][1] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
@@ -3007,7 +3014,7 @@ cheat_for_port_credits:
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitext(c+10+60,91+10,tempbuf,0,10+16);
 
-        gametext(c+10,90+10+10,"LEFT:",0,2+8+16);
+        gametext(c+10,90+10+10,"LEFT:",MENUHIGHLIGHT(4),2+8+16);
         if (MouseDigitalFunctions[0][0] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
@@ -3016,7 +3023,7 @@ cheat_for_port_credits:
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitext(c+10+60,91+10+10,tempbuf,0,10+16);
 
-        gametext(c+10,90+10+10+10,"RIGHT:",0,2+8+16);
+        gametext(c+10,90+10+10+10,"RIGHT:",MENUHIGHLIGHT(5),2+8+16);
         if (MouseDigitalFunctions[0][1] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
@@ -3425,52 +3432,46 @@ cheat_for_port_credits:
             break;
         }
 
-        if(SoundToggle && FXDevice >= 0) menutext(c+160+40,50,0,(FXDevice<0),"ON");
-        else menutext(c+160+40,50,0,(FXDevice<0),"OFF");
+        menutext(c+160+40,50,MENUHIGHLIGHT(0),(FXDevice<0),SoundToggle && FXDevice >= 0?"ON":"OFF");
 
-        if(MusicToggle && (MusicDevice >= 0) && (numplayers<2))
-            menutext(c+160+40,50+16,0,(MusicDevice < 0),"ON");
-        else menutext(c+160+40,50+16,0,(MusicDevice < 0),"OFF");
+        menutext(c+160+40,50+16,MENUHIGHLIGHT(1),(MusicDevice < 0),MusicToggle && (MusicDevice >= 0) && (numplayers<2)?"ON":"OFF");
 
-        menutext(c,50,SHX(-2),(FXDevice<0),"SOUND");
-        menutext(c,50+16+16,SHX(-4),(FXDevice<0)||SoundToggle==0,"SOUND VOLUME");
+        menutext(c,50,MENUHIGHLIGHT(0),(FXDevice<0),"SOUND");
+        menutext(c,50+16+16,MENUHIGHLIGHT(2),(FXDevice<0)||SoundToggle==0,"SOUND VOLUME");
         {
             l = FXVolume;
             FXVolume >>= 2;
-            bar(c+167+40,50+16+16,(short *)&FXVolume,4,(FXDevice>=0)&&x==2,SHX(-4),SoundToggle==0||(FXDevice<0));
+            bar(c+167+40,50+16+16,(short *)&FXVolume,4,(FXDevice>=0)&&x==2,MENUHIGHLIGHT(2),SoundToggle==0||(FXDevice<0));
             if(l != FXVolume)
                 FXVolume <<= 2;
             if(l != FXVolume)
                 FX_SetVolume( (short) FXVolume );
         }
-        menutext(c,50+16,SHX(-3),(MusicDevice<0),"MUSIC");
-        menutext(c,50+16+16+16,SHX(-5),(MusicDevice<0)||MusicToggle==0,"MUSIC VOLUME");
+        menutext(c,50+16,MENUHIGHLIGHT(1),(MusicDevice<0),"MUSIC");
+        menutext(c,50+16+16+16,MENUHIGHLIGHT(3),(MusicDevice<0)||MusicToggle==0,"MUSIC VOLUME");
         {
             l = MusicVolume;
             MusicVolume >>= 2;
             bar(c+167+40,50+16+16+16,
                 (short *)&MusicVolume,4,
-                (MusicDevice>=0) && x==3,SHX(-5),
+                (MusicDevice>=0) && x==3,MENUHIGHLIGHT(3),
                 MusicToggle==0||(MusicDevice<0));
             MusicVolume <<= 2;
             if(l != MusicVolume)
                 MUSIC_SetVolume( (short) MusicVolume );
 
         }
-        menutext(c,50+16+16+16+16,SHX(-6),(FXDevice<0)||SoundToggle==0,"DUKE TALK");
-        menutext(c,50+16+16+16+16+16,SHX(-7),(FXDevice<0)||SoundToggle==0,"AMBIENCE");
+        menutext(c,50+16+16+16+16,MENUHIGHLIGHT(4),(FXDevice<0)||SoundToggle==0,"DUKE TALK");
+        menutext(c,50+16+16+16+16+16,MENUHIGHLIGHT(5),(FXDevice<0)||SoundToggle==0,"AMBIENCE");
 
-        menutext(c,50+16+16+16+16+16+16,SHX(-8),(FXDevice<0)||SoundToggle==0,"FLIP STEREO");
+        menutext(c,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(FXDevice<0)||SoundToggle==0,"FLIP STEREO");
 
         { char *s[] = { "OFF", "LOCAL", "ALL" };
-            menutext(c+160+40,50+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,s[VoiceToggle]); }
+            menutext(c+160+40,50+16+16+16+16,MENUHIGHLIGHT(4),(FXDevice<0)||SoundToggle==0,s[VoiceToggle]); }
 
-        if(AmbienceToggle) menutext(c+160+40,50+16+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,"ON");
-        else menutext(c+160+40,50+16+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,"OFF");
+        menutext(c+160+40,50+16+16+16+16+16,MENUHIGHLIGHT(5),(FXDevice<0)||SoundToggle==0,AmbienceToggle?"ON":"OFF");
 
-        if(ReverseStereo) menutext(c+160+40,50+16+16+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,"ON");
-        else menutext(c+160+40,50+16+16+16+16+16+16,0,(FXDevice<0)||SoundToggle==0,"OFF");
-
+        menutext(c+160+40,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(FXDevice<0)||SoundToggle==0,ReverseStereo?"ON":"OFF");
 
         break;
 
@@ -3783,6 +3784,7 @@ VOLUME_ALL_40x:
         break;
 
     case 500:
+    case 502:
         c = 320>>1;
 
         gametext(c,90,"Are you sure you want to quit?",0,2+8+16);
@@ -3821,7 +3823,12 @@ VOLUME_ALL_40x:
                 ps[myconnectindex].gm = MODE_DEMO;
             else
             {
-                if(!(ps[myconnectindex].gm & MODE_GAME || ud.recstat == 2))
+                if(current_menu == 502)
+                {
+                    cmenu(last_menu);
+                    probey = last_probey;
+                }
+                else if(!(ps[myconnectindex].gm & MODE_GAME || ud.recstat == 2))
                     cmenu(0);
                 else ps[myconnectindex].gm &= ~MODE_MENU;
                 if(ud.multimode < 2  && ud.recstat != 2)
