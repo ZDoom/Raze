@@ -325,6 +325,31 @@ void getpackets(void)
     {
         switch(packbuf[0])
         {
+        case 9:
+            //slaves in M/S mode only send to master
+            if (myconnectindex == connecthead)
+            {
+                //Master re-transmits message to all others
+                for(i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    if (i != other)
+                        sendpacket(i,packbuf,packbufleng);
+            }
+
+            strcpy(boardfilename,packbuf+1);
+            boardfilename[packbufleng-1] = 0;
+            if(boardfilename[0] != 0)
+            {
+                if ((i = kopen4load(boardfilename,0)) < 0) {
+                    Bmemset(boardfilename,0,sizeof(boardfilename));
+                    sendboardname();
+                } else kclose(i);
+            }
+
+            if(ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
+                ud.m_level_number = 0;
+
+            break;
+
         case 126:
             //Slaves in M/S mode only send to master
             //Master re-transmits message to all others
@@ -2892,15 +2917,16 @@ void drawbackground(void)
         }
     } else {
         // when not rendering a game, fullscreen wipe
-        SetGameVarID(g_iReturnVarID,tilesizx[MENUSCREEN]==320&&tilesizy[MENUSCREEN]==200?MENUSCREEN:BIGHOLE, -1, -1);
+        #define MENUTILE bpp==8?MENUSCREEN:LOADSCREEN
+        SetGameVarID(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
         OnEvent(EVENT_GETMENUTILE, -1, -1, -1);
-        if (GetGameVar("MENU_TILE", tilesizx[MENUSCREEN]==320&&tilesizy[MENUSCREEN]==200?0:1, -1, -1))
+        if (GetGameVar("MENU_TILE", tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?0:1, -1, -1))
         {
             for(y=y1;y<y2;y+=tilesizy[GetGameVarID(g_iReturnVarID, -1, -1)])
                 for(x=0;x<xdim;x+=tilesizx[GetGameVarID(g_iReturnVarID, -1, -1)])
                     rotatesprite(x<<16,y<<16,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),bpp==8?16:8,0,8+16+64+128,0,0,xdim-1,ydim-1);
         }
-        else rotatesprite(320<<15,200<<15,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),bpp==8?16:0,0,2+8+64,0,0,xdim-1,ydim-1);
+        else rotatesprite(320<<15,200<<15,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),bpp==8?16:8,0,2+8+64,0,0,xdim-1,ydim-1);
         return;
     }
     y2 = scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200);
@@ -8115,6 +8141,28 @@ void syncnames(void)
     }
 }
 
+void sendboardname(void)
+{
+    if(ud.multimode > 1)
+    {
+        int j;
+        int ch;
+
+        tempbuf[0] = 9;
+        tempbuf[1] = 0;
+
+        j = strlen(boardfilename);
+        boardfilename[j] = 0;
+        strcat(tempbuf+1,boardfilename);
+
+        for(ch=connecthead;ch >= 0;ch=connectpoint2[ch])
+        {
+            if (ch != myconnectindex) sendpacket(ch,tempbuf,j+1);
+            if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+        }
+    }
+}
+
 void getnames(void)
 {
     int l;
@@ -8125,6 +8173,7 @@ void getnames(void)
     if(numplayers > 1)
     {
         syncnames();
+        sendboardname();
         getpackets();
 
         waitforeverybody();

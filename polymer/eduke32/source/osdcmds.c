@@ -590,6 +590,30 @@ void onvideomodechange(int newmode)
     restorepalette = 1;
 }
 
+int osdcmd_mpmap(const osdfuncparm_t *parm)
+{
+    int i;
+    char filename[256];
+
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    strcpy(filename,parm->parms[0]);
+    if( strchr(filename,'.') == 0)
+        strcat(filename,".map");
+
+    if ((i = kopen4load(filename,0)) < 0) {
+        OSD_Printf("map: file \"%s\" not found.\n", filename);
+        return OSDCMD_OK;
+    }
+    kclose(i);
+
+    strcpy(boardfilename, filename);
+
+    sendboardname();
+
+    return OSDCMD_OK;
+}
+
 int registerosdcommands(void)
 {
     unsigned int i;
@@ -607,6 +631,7 @@ int registerosdcommands(void)
     } else {
         OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
+        OSD_RegisterFunction("mpmap","mpmap <mapfile>: sets user map name in multiplayer", osdcmd_mpmap);
     }
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("exec","exec <scriptfile>: executes a script", osdcmd_exec);

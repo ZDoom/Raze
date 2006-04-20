@@ -352,4 +352,6 @@ extern int isspritemakingsound(short i, int num);
 extern int issoundplaying(int num);
 extern void stopspritesound(short num, short i);
 extern void updatenames(void);
+extern void sendboardname(void);
+
 #endif // __funct_h__

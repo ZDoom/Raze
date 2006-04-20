@@ -723,7 +723,6 @@ void menus(void)
         break;
 
     case 20010:
-        //note: this menu does not seem to be used and has not been updated to support custom game types
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(160,24,0,0,"HOST NETWORK GAME");
 
@@ -746,9 +745,6 @@ void menus(void)
             minitext(90,60+8+8+8+8,    "FRIENDLY FIRE",2,26);
         minitext(90,60+8+8+8+8+8,  "USER MAP"     ,2,26);
 
-        /*        if (ud.m_coop == 1) minitext(90+60,60,"COOPERATIVE PLAY",0,26);
-                else if (ud.m_coop == 2) minitext(90+60,60,"DUKEMATCH (NO SPAWN)",0,26);
-                else minitext(90+60,60,"DUKEMATCH (SPAWN)",0,26);*/
         gametext(90+60,60,gametype_names[ud.m_coop],0,26);
 
         minitext(90+60,60+8,      volume_names[ud.m_volume_number],0,26);
@@ -1923,9 +1919,14 @@ cheat_for_port_credits:
         }
 
         if(x == -1) {
-            cmenu(100);
             clearfilenames();
             boardfilename[0] = 0;
+            if(ud.multimode > 1)
+            {
+                sendboardname();
+                cmenu(600);
+                probey = last_probey;
+            } else cmenu(100);
         }
         else if(x >= 0)
         {
@@ -1941,13 +1942,16 @@ cheat_for_port_credits:
                 strcat(boardfilename, findfileshigh->name);
                 ud.m_volume_number = 0;
                 ud.m_level_number = 7;
-                cmenu(110);
+                if(ud.multimode > 1)
+                {
+                    sendboardname();
+                    cmenu(600);
+                    probey = last_probey;
+                } else cmenu(110);
             }
             clearfilenames();
         }
         break;
-
-
 
     case 110:
         c = (320>>1);
@@ -2788,7 +2792,7 @@ cheat_for_port_credits:
         {
             short sense;
             sense = CONTROL_GetMouseSensitivity()>>10;
-            barsm(248,128,&sense,4,x==(MAXMOUSEBUTTONS-2)*2+2,SHX(-7),PHX(-7));
+            barsm(248,128,&sense,4,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
             CONTROL_SetMouseSensitivity( sense<<10 );
         }
 
@@ -3979,7 +3983,7 @@ VOLUME_ALL_40x:
         modval(0,num_gametypes-1,(int *)&ud.m_coop,1,probey==0);
         if(!VOLUMEONE)
             modval(0,num_volumes-1,(int *)&ud.m_volume_number,1,probey==1);
-        modval(0,ud.m_volume_number == 0?6:10,(int *)&ud.m_level_number,1,probey==2);
+        modval(0,ud.m_volume_number == 0?6+(boardfilename[0]!=0):10,(int *)&ud.m_level_number,1,probey==2);
 
         if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION))
             modval(0,1,(int *)&ud.m_marker,1,probey==4);
@@ -4009,7 +4013,7 @@ VOLUME_ALL_40x:
         case 2:
             ud.m_level_number++;
             if (!VOLUMEONE) {
-                if(ud.m_volume_number == 0 && ud.m_level_number > 6)
+                if(ud.m_volume_number == 0 && ud.m_level_number > 6+(boardfilename[0]!=0))
                     ud.m_level_number = 0;
             } else {
                 if(ud.m_volume_number == 0 && ud.m_level_number > 5)
@@ -4046,48 +4050,52 @@ VOLUME_ALL_40x:
 
         case 6:
             if (VOLUMEALL) {
-                if(boardfilename[0] == 0) break;
+                /*                if(boardfilename[0] == 0) break;
 
-                tempbuf[0] = 5;
-                tempbuf[1] = ud.m_level_number = 7;
-                tempbuf[2] = ud.m_volume_number = 0;
-                tempbuf[3] = ud.m_player_skill+1;
+                                tempbuf[0] = 5;
+                                tempbuf[1] = ud.m_level_number = 7;
+                                tempbuf[2] = ud.m_volume_number = 0;
+                                tempbuf[3] = ud.m_player_skill+1;
 
-                ud.level_number = ud.m_level_number;
-                ud.volume_number = ud.m_volume_number;
+                                ud.level_number = ud.m_level_number;
+                                ud.volume_number = ud.m_volume_number;
 
-                if( ud.m_player_skill == 3 ) ud.m_respawn_monsters = 1;
-                else ud.m_respawn_monsters = 0;
+                                if( ud.m_player_skill == 3 ) ud.m_respawn_monsters = 1;
+                                else ud.m_respawn_monsters = 0;
 
-                if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_ITEMRESPAWN)) ud.m_respawn_items = 1;
-                else ud.m_respawn_items = 0;
+                                if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_ITEMRESPAWN)) ud.m_respawn_items = 1;
+                                else ud.m_respawn_items = 0;
 
-                ud.m_respawn_inventory = 1;
+                                ud.m_respawn_inventory = 1;
 
-                tempbuf[4] = ud.m_monsters_off;
-                tempbuf[5] = ud.m_respawn_monsters;
-                tempbuf[6] = ud.m_respawn_items;
-                tempbuf[7] = ud.m_respawn_inventory;
-                tempbuf[8] = ud.m_coop;
-                tempbuf[9] = ud.m_marker;
-                tempbuf[10] = ud.m_ffire;
+                                tempbuf[4] = ud.m_monsters_off;
+                                tempbuf[5] = ud.m_respawn_monsters;
+                                tempbuf[6] = ud.m_respawn_items;
+                                tempbuf[7] = ud.m_respawn_inventory;
+                                tempbuf[8] = ud.m_coop;
+                                tempbuf[9] = ud.m_marker;
+                                tempbuf[10] = ud.m_ffire;
 
-                for(c=connecthead;c>=0;c=connectpoint2[c])
-                {
-                    resetweapons(c);
-                    resetinventory(c);
-                }
-                for(c=connecthead;c>=0;c=connectpoint2[c])
-                {
-                    if (c != myconnectindex) sendpacket(c,tempbuf,11);
-                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                }
+                                for(c=connecthead;c>=0;c=connectpoint2[c])
+                                {
+                                    resetweapons(c);
+                                    resetinventory(c);
+                                }
+                                for(c=connecthead;c>=0;c=connectpoint2[c])
+                                {
+                                    if (c != myconnectindex) sendpacket(c,tempbuf,11);
+                                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                                }
 
-                newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
-                if (enterlevel(MODE_GAME)) backtomenu();
+                                newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
+                                if (enterlevel(MODE_GAME)) backtomenu();
 
-                return;
+                                return; */
+                currentlist = 1;
+                last_probey = probey;
+                cmenu(101);
             }
+            break;
         case 7:
 
             tempbuf[0] = 5;
@@ -4135,68 +4143,58 @@ VOLUME_ALL_40x:
         //if(ud.m_coop==1) gametext(c+70,57-7-9,"COOPERATIVE PLAY",0,2+8+16);
         //else if(ud.m_coop==2) gametext(c+70,57-7-9,"DUKEMATCH (NO SPAWN)",0,2+8+16);
         //else gametext(c+70,57-7-9,"DUKEMATCH (SPAWN)",0,2+8+16);
-        gametext(c+70,57-7-9,gametype_names[ud.m_coop],0,2+8+16);
+        gametext(c+70,57-7-9,gametype_names[ud.m_coop],MENUHIGHLIGHT(0),2+8+16);
         if (VOLUMEONE) {
-            gametext(c+70,57+16-7-9,volume_names[ud.m_volume_number],0,2+8+16);
+            gametext(c+70,57+16-7-9,volume_names[ud.m_volume_number],MENUHIGHLIGHT(1),2+8+16);
         } else {
-            gametext(c+70,57+16-7-9,volume_names[ud.m_volume_number],0,2+8+16);
+            gametext(c+70,57+16-7-9,volume_names[ud.m_volume_number],MENUHIGHLIGHT(1),2+8+16);
         }
 
-        gametext(c+70,57+16+16-7-9,&level_names[11*ud.m_volume_number+ud.m_level_number][0],0,2+8+16);
+        gametext(c+70,57+16+16-7-9,&level_names[11*ud.m_volume_number+ud.m_level_number][0],MENUHIGHLIGHT(2),2+8+16);
 
-        if(ud.m_monsters_off == 0 || ud.m_player_skill > 0)
-            gametext(c+70,57+16+16+16-7-9,skill_names[ud.m_player_skill],0,2+8+16);
-        else gametext(c+70,57+16+16+16-7-9,"NONE",0,2+8+16);
+        gametext(c+70,57+16+16+16-7-9,ud.m_monsters_off == 0 || ud.m_player_skill > 0?skill_names[ud.m_player_skill]:"NONE",MENUHIGHLIGHT(3),2+8+16);
 
         if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION)
-        {
-            if(ud.m_marker)
-                gametext(c+70,57+16+16+16+16-7-9,"ON",0,2+8+16);
-            else gametext(c+70,57+16+16+16+16-7-9,"OFF",0,2+8+16);
-        }
+            gametext(c+70,57+16+16+16+16-7-9,ud.m_marker?"ON":"OFF",MENUHIGHLIGHT(4),2+8+16);
 
         if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_COOP)
-        {
-            if(ud.m_ffire)
-                gametext(c+70,57+16+16+16+16+16-7-9,"ON",0,2+8+16);
-            else gametext(c+70,57+16+16+16+16+16-7-9,"OFF",0,2+8+16);
-        }
+            gametext(c+70,57+16+16+16+16+16-7-9,ud.m_ffire?"ON":"OFF",MENUHIGHLIGHT(5),2+8+16);
 
         c -= 44;
 
-        menutext(c,57-9,SHX(-2),PHX(-2),"GAME TYPE");
+        menutext(c,57-9,MENUHIGHLIGHT(0),PHX(-2),"GAME TYPE");
 
         if (VOLUMEONE) {
             sprintf(tempbuf,"EPISODE %ld",ud.m_volume_number+1);
-            menutext(c,57+16-9,SHX(-3),1,tempbuf);
+            menutext(c,57+16-9,MENUHIGHLIGHT(1),1,tempbuf);
         } else {
             sprintf(tempbuf,"EPISODE %ld",ud.m_volume_number+1);
-            menutext(c,57+16-9,SHX(-3),PHX(-3),tempbuf);
+            menutext(c,57+16-9,MENUHIGHLIGHT(1),PHX(-3),tempbuf);
         }
 
         sprintf(tempbuf,"LEVEL %ld",ud.m_level_number+1);
-        menutext(c,57+16+16-9,SHX(-4),PHX(-4),tempbuf);
+        menutext(c,57+16+16-9,MENUHIGHLIGHT(2),PHX(-4),tempbuf);
 
-        menutext(c,57+16+16+16-9,SHX(-5),PHX(-5),"MONSTERS");
+        menutext(c,57+16+16+16-9,MENUHIGHLIGHT(3),PHX(-5),"MONSTERS");
 
         if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION)
-            menutext(c,57+16+16+16+16-9,SHX(-6),PHX(-6),"MARKERS");
+            menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),PHX(-6),"MARKERS");
         else
-            menutext(c,57+16+16+16+16-9,SHX(-6),1,"MARKERS");
+            menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),1,"MARKERS");
 
         if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_COOP)
-            menutext(c,57+16+16+16+16+16-9,SHX(-6),PHX(-6),"FR. FIRE");
-        else menutext(c,57+16+16+16+16+16-9,SHX(-6),1,"FR. FIRE");
+            menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),PHX(-6),"FR. FIRE");
+        else menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),1,"FR. FIRE");
 
         if (VOLUMEALL) {
-            menutext(c,57+16+16+16+16+16+16-9,SHX(-7),boardfilename[0] == 0,"USER MAP");
+            menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),0,"USER MAP");
             if( boardfilename[0] != 0 )
-                gametext(c+70+44,57+16+16+16+16+16,boardfilename,0,2+8+16);
+                gametext(c+70+44,57+16+16+16+16+16,boardfilename,MENUHIGHLIGHT(6),2+8+16);
         } else {
-            menutext(c,57+16+16+16+16+16+16-9,SHX(-7),1,"USER MAP");
+            menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),1,"USER MAP");
         }
 
-        menutext(c,57+16+16+16+16+16+16+16-9,SHX(-8),PHX(-8),"START GAME");
+        menutext(c,57+16+16+16+16+16+16+16-9,MENUHIGHLIGHT(7),PHX(-8),"START GAME");
 
         break;
     }
