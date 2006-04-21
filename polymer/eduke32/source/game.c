@@ -162,7 +162,7 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
 }
 
 #define MPTEXT(x,y) ((xdim >= 640 && ydim >= 480)?x:y)
-#define QUOTEWRAPLEN 75
+#define TEXTWRAPLEN 76
 
 int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2)
 {
@@ -204,7 +204,7 @@ int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,shor
         if(*t >= '0' && *t <= '9')
             x += small?4:8;
         else x += (tilesizx[ac]>>small);
-        if((t-oldt >= QUOTEWRAPLEN-5 && *t == 32) || t-oldt > QUOTEWRAPLEN) oldt = t, x = oldx, y+=small?4:8;
+        if((t-oldt > TEXTWRAPLEN-5 && *t == 32) || t-oldt > TEXTWRAPLEN) oldt = t, x = oldx, y+=small?4:8;
         t++;
     }
 
@@ -2003,7 +2003,7 @@ void operatefta(void)
     for(i=0;i<MAXUSERQUOTES;i++)
     {
         k = user_quote_time[i]; if (k <= 0) break;
-        if(Bstrlen(user_quote[i]) >= QUOTEWRAPLEN) j -= MPTEXT(4,8);
+        if(Bstrlen(user_quote[i]) > TEXTWRAPLEN) j -= MPTEXT(4,8);
         if (k > 4)
             mpgametext(320>>1,j,user_quote[i],0,2+8+16);
         else if (k > 2) mpgametext(320>>1,j,user_quote[i],0,2+8+16+1);
@@ -2031,7 +2031,7 @@ void operatefta(void)
         for(i=0;i<MAXUSERQUOTES;i++)
         {
             if (user_quote_time[i] <= 0) break;
-            k -= MPTEXT(4,8)<<(Bstrlen(user_quote[i]) >= QUOTEWRAPLEN);
+            k -= MPTEXT(4,8)<<(Bstrlen(user_quote[i]) > TEXTWRAPLEN);
         }
         k -= MPTEXT(2,4);
     }
@@ -2210,8 +2210,7 @@ short strget(short x,short y,char *t,short dalen,short c)
         else x = gametext(x,y,t,c,2+8+16);
     }
     c = 4-(sintable[(totalclock<<4)&2047]>>11);
-    rotatesprite((x+MPTEXT(4,8))<<16,(y+MPTEXT(2,4))<<16,MPTEXT(16384,32768),0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,2+8,0,0,xdim-1,ydim-1);
-
+    rotatesprite((x+MPTEXT(4,8))<<16,(y+MPTEXT(2,4)+((Bstrlen(t) > TEXTWRAPLEN+1)?4:0))<<16,MPTEXT(16384,32768),0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,2+8,0,0,xdim-1,ydim-1);
     return (0);
 }
 
@@ -2246,7 +2245,7 @@ void typemode(void)
                     if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                 }
                 adduserquote(recbuf);
-                quotebot += MPTEXT(4,8)<<(Bstrlen(recbuf) >= QUOTEWRAPLEN);
+                quotebot += MPTEXT(4,8)<<(Bstrlen(recbuf) > TEXTWRAPLEN);
                 quotebotgoal = quotebot;
             }
             else if(sendmessagecommand >= 0)
