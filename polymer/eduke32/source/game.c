@@ -341,6 +341,8 @@ short user_quote_time[MAXUSERQUOTES];
 char user_quote[MAXUSERQUOTES][128];
 // char typebuflen,typebuf[41];
 
+#define MPTEXT(x,y) ((xdim >= 640 && ydim >= 480)?x:y)
+
 void adduserquote(char *daquote)
 {
     long i;
@@ -2033,7 +2035,7 @@ void operatefta(void)
     if(ud.screen_size > 0) j = 200-45; else j = 200-8;
     quotebot = min(quotebot,j);
     quotebotgoal = min(quotebotgoal,j);
-    if(ps[myconnectindex].gm&MODE_TYPE) j -= (xdim >= 640 && ydim >= 480)?4:8;
+    if(ps[myconnectindex].gm&MODE_TYPE) j -= MPTEXT(4,8);
     quotebotgoal = j; j = quotebot;
     for(i=0;i<MAXUSERQUOTES;i++)
     {
@@ -2043,7 +2045,7 @@ void operatefta(void)
             mpgametext(320>>1,j,user_quote[i],0,2+8+16);
         else if (k > 2) mpgametext(320>>1,j,user_quote[i],0,2+8+16+1);
         else mpgametext(320>>1,j,user_quote[i],0,2+8+16+1+32);
-        j -= (xdim >= 640 && ydim >= 480)?4:8;
+        j -= MPTEXT(4,8);
     }
 
     if (ps[screenpeek].fta <= 1) return;
@@ -2066,9 +2068,9 @@ void operatefta(void)
         for(i=0;i<MAXUSERQUOTES;i++)
         {
             if (user_quote_time[i] <= 0) break;
-            k -= (xdim >= 640 && ydim >= 480)?4:8;
+            k -= MPTEXT(4,8);
         }
-        k -= (xdim >= 640 && ydim >= 480)?2:4;
+        k -= MPTEXT(2,4);
     }
 
     j = ps[screenpeek].fta;
@@ -2245,7 +2247,7 @@ short strget(short x,short y,char *t,short dalen,short c)
         else x = gametext(x,y,t,c,2+8+16);
     }
     c = 4-(sintable[(totalclock<<4)&2047]>>11);
-    rotatesprite((x+8)<<16,(y+4)<<16,32768L,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,2+8,0,0,xdim-1,ydim-1);
+    rotatesprite((x+MPTEXT(4,8))<<16,(y+MPTEXT(2,4))<<16,MPTEXT(16384,32768),0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,2+8,0,0,xdim-1,ydim-1);
 
     return (0);
 }
@@ -2281,7 +2283,7 @@ void typemode(void)
                     if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                 }
                 adduserquote(recbuf);
-                quotebot += (xdim >= 640 && ydim >= 480)?4:8;
+                quotebot += MPTEXT(4,8);
                 quotebotgoal = quotebot;
             }
             else if(sendmessagecommand >= 0)
@@ -2356,7 +2358,7 @@ void typemode(void)
     else
     {
         if(ud.screen_size > 0) j = 200-45; else j = 200-8;
-        hitstate = strget(320>>1,j,typebuf,(xdim >= 640 && ydim >= 480)?70:30,1);
+        hitstate = strget(320>>1,j,typebuf,MPTEXT(70,30),1);
 
         if(hitstate == 1)
         {
