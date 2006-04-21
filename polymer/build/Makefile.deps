@@ -10,7 +10,7 @@ $(OBJ)compat.$o: $(SRC)compat.c $(INC)compat.h
 $(OBJ)config.$o: $(SRC)config.c $(INC)compat.h $(INC)osd.h $(INC)editor.h
 $(OBJ)crc32.$o: $(SRC)crc32.c $(INC)crc32.h
 $(OBJ)defs.$o: $(SRC)defs.c $(INC)build.h $(INC)baselayer.h $(INC)scriptfile.h $(INC)compat.h
-$(OBJ)engine.$o: $(SRC)engine.c $(SRC)polymost.c $(INC)kplib.h $(SRC)hightile.c $(SRC)mdsprite.c $(INC)md4.h $(INC)lzf.h $(INC)lzwnew.h $(INC)compat.h $(INC)build.h $(INC)pragmas.h $(INC)cache1d.h $(INC)a.h $(INC)osd.h $(INC)baselayer.h
+$(OBJ)engine.$o: $(SRC)engine.c $(SRC)polymost.c $(SRC)polymer.c $(INC)kplib.h $(SRC)hightile.c $(SRC)mdsprite.c $(INC)md4.h $(INC)lzf.h $(INC)lzwnew.h $(INC)compat.h $(INC)build.h $(INC)pragmas.h $(INC)cache1d.h $(INC)a.h $(INC)osd.h $(INC)baselayer.h
 $(OBJ)game.$o: $(SRC)game.c $(INC)compat.h $(INC)build.h $(INC)names.h $(INC)pragmas.h $(INC)cache1d.h $(INC)game.h $(INC)osd.h $(INC)baselayer.h
 $(OBJ)glbuild.$o: $(SRC)glbuild.c $(INC)glbuild.h $(INC)baselayer.h
 $(OBJ)jfaud_sound.$o: $(SRC)jfaud_sound.cpp $(INC)osd.h $(INC)compat.h $(INC)cache1d.h
