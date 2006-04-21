@@ -213,12 +213,12 @@ int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,shor
 
 inline int txgametext(int starttile, int x,int y,char *t,char s,char p,short dabits,long x1, long y1, long x2, long y2)
 {
-    return(txgametext_(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+    return(txgametext_(0,STARTALPHANUM, x,y,t,s,p,dabits,x1, y1, x2, y2));
 }
 
 inline int txgametextsm(int starttile, int x,int y,char *t,char s,char p,short dabits,long x1, long y1, long x2, long y2)
 {
-    return(txgametext_(1,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+    return(txgametext_(1,STARTALPHANUM, x,y,t,s,p,dabits,x1, y1, x2, y2));
 }
 
 inline int gametext(int x,int y,char *t,char s,short dabits)
@@ -6928,7 +6928,7 @@ void nonsharedkeys(void)
         FTA(103,&ps[myconnectindex]);
     }
 
-    if( !ALT_IS_PRESSED && ud.overhead_on == 0)
+    if( !ALT_IS_PRESSED && ud.overhead_on == 0 && (ps[myconnectindex].gm & MODE_TYPE) == 0)
     {
         if( BUTTON( gamefunc_Enlarge_Screen ) )
         {
