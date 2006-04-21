@@ -438,7 +438,9 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
     }
 }
 
-#define MENUHIGHLIGHT(x) probey==x?2-(sintable[(totalclock<<4)&2047]>>12):10
+#define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<5)&2047]>>12):8
+// #define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<4)&2047]>>12):probey-x>=0?(probey-x)<<2:-((probey-x)<<2)
+
 #define SHX(X) 0
 // ((x==X)*(-sh))
 #define PHX(X) 0

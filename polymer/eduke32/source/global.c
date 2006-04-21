@@ -118,7 +118,7 @@ char *music_pointer;
 char actortype[MAXTILES];
 long script[MAXSCRIPTSIZE+16];
 
-char display_mirror,typebuflen,typebuf[41];
+char display_mirror,typebuflen,typebuf[91];
 
 char music_fn[MAXVOLUMES+1][11][13],music_select;
 char env_music_fn[MAXVOLUMES+1][13];

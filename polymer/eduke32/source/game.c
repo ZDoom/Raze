@@ -208,9 +208,64 @@ int txgametext(int starttile, int x,int y,char *t,char s,char p,short orientatio
     return (x);
 }
 
+int txgametextsm(int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2)
+{
+    short ac,newx;
+    char centre, *oldt;
+
+    centre = ( x == (320>>1) );
+    newx = 0;
+    oldt = t;
+
+    if(centre)
+    {
+        while(*t)
+        {
+            if(*t == 32) {newx+=3;t++;continue;}
+            else ac = *t - '!' + starttile;
+
+            if( ac < starttile || ac > (starttile + 93) ) break;
+
+            if(*t >= '0' && *t <= '9')
+                newx += 4;
+            else newx += tilesizx[ac]>>1;
+            if(x>=300) { y+= 4; x = 0; }
+            t++;
+        }
+
+        t = oldt;
+        x = (320>>1)-(newx>>1);
+    }
+
+    while(*t)
+    {
+        if(*t == 32) {x+=3;t++;continue;}
+        else ac = *t - '!' + starttile;
+
+        if( ac < starttile || ac > (starttile + 93) )
+            break;
+
+        rotatesprite(x<<16,y<<16,32768L,0,ac,s,p,2|orientation,x1,y1,x2,y2);
+        if(*t >= '0' && *t <= '9')
+            x += 4;
+        else x += tilesizx[ac]>>1;
+        if(x>=310) { y+= 4; x = 0; }
+        t++;
+    }
+
+    return (x);
+}
+
 inline int gametext(int x,int y,char *t,char s,short dabits)
 {
     return(txgametext(STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+}
+
+inline int mpgametext(int x,int y,char *t,char s,short dabits)
+{
+    if(xdim >= 640 && ydim >= 480)
+        return(txgametextsm(STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+    else return(txgametext(STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
 }
 
 inline int gametextpal(int x,int y,char *t,char s,char p)
@@ -254,7 +309,7 @@ void gamenumber(long x,long y,long n,char s)
     gametext(x,y,b,s,2+8+16);
 }
 
-char recbuf[80];
+char recbuf[130];
 void allowtimetocorrecterrorswhenquitting(void)
 {
     long i, j, oldtotalclock;
@@ -340,26 +395,16 @@ void getpackets(void)
             Bsprintf(buf,"%s is history!",ud.user_name[j]);
             adduserquote(buf);
 
-            if(j == connecthead && networkmode == 0 )
-                gameexit( " \nThe 'MASTER/First player' just quit the game.  All\nplayers are returned from the game.");
- 
-            for(i=connecthead;i>=0;i=connectpoint2[i])
-            {
-                if (playerquitflag[i] != 0)
-                    continue;
-                if (i == connecthead)
-                    connecthead = connectpoint2[connecthead];
-                else 
-                {
-                    for(j=connecthead;j>=0;j=connectpoint2[j]) {
-                        if(connectpoint2[j] == i)
-                            connectpoint2[j] = connectpoint2[i];
-                    }
-                }
-            }
-
             numplayers--;
             ud.multimode--;
+
+            if(j == connecthead && networkmode == 0 )
+                gameexit( " \nThe 'MASTER/First player' just quit the game.  All\nplayers are returned from the game.");
+            else 
+            {
+                connectpoint2[j] = -1;
+                connectpoint2[numplayers-1] = -1;
+            }
 
             if (numplayers < 2)
                 sound(GENERIC_AMBIENCE17);
@@ -1988,17 +2033,17 @@ void operatefta(void)
     if(ud.screen_size > 0) j = 200-45; else j = 200-8;
     quotebot = min(quotebot,j);
     quotebotgoal = min(quotebotgoal,j);
-    if(ps[myconnectindex].gm&MODE_TYPE) j -= 8;
+    if(ps[myconnectindex].gm&MODE_TYPE) j -= (xdim >= 640 && ydim >= 480)?4:8;
     quotebotgoal = j; j = quotebot;
     for(i=0;i<MAXUSERQUOTES;i++)
     {
         k = user_quote_time[i]; if (k <= 0) break;
 
         if (k > 4)
-            gametext(320>>1,j,user_quote[i],0,2+8+16);
-        else if (k > 2) gametext(320>>1,j,user_quote[i],0,2+8+16+1);
-        else gametext(320>>1,j,user_quote[i],0,2+8+16+1+32);
-        j -= 8;
+            mpgametext(320>>1,j,user_quote[i],0,2+8+16);
+        else if (k > 2) mpgametext(320>>1,j,user_quote[i],0,2+8+16+1);
+        else mpgametext(320>>1,j,user_quote[i],0,2+8+16+1+32);
+        j -= (xdim >= 640 && ydim >= 480)?4:8;
     }
 
     if (ps[screenpeek].fta <= 1) return;
@@ -2021,9 +2066,9 @@ void operatefta(void)
         for(i=0;i<MAXUSERQUOTES;i++)
         {
             if (user_quote_time[i] <= 0) break;
-            k -= 8;
+            k -= (xdim >= 640 && ydim >= 480)?4:8;
         }
-        k -= 4;
+        k -= (xdim >= 640 && ydim >= 480)?2:4;
     }
 
     j = ps[screenpeek].fta;
@@ -2185,13 +2230,20 @@ short strget(short x,short y,char *t,short dalen,short c)
     if( c == 999 ) return(0);
     if( c == 998 )
     {
-        char b[41],ii;
+        char b[91],ii;
         for(ii=0;ii<inputloc;ii++)
             b[ii] = '*';
         b[ii] = 0;
-        x = gametext(x,y,b,c,2+8+16);
+        if(ps[myconnectindex].gm&MODE_TYPE) 
+            x = mpgametext(x,y,b,c,2+8+16);
+        else x = gametext(x,y,b,c,2+8+16);
     }
-    else x = gametext(x,y,t,c,2+8+16);
+    else 
+    {
+        if(ps[myconnectindex].gm&MODE_TYPE)
+            x = mpgametext(x,y,t,c,2+8+16);
+        else x = gametext(x,y,t,c,2+8+16);
+    }
     c = 4-(sintable[(totalclock<<4)&2047]>>11);
     rotatesprite((x+8)<<16,(y+4)<<16,32768L,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,2+8,0,0,xdim-1,ydim-1);
 
@@ -2229,7 +2281,7 @@ void typemode(void)
                     if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                 }
                 adduserquote(recbuf);
-                quotebot += 8;
+                quotebot += (xdim >= 640 && ydim >= 480)?4:8;
                 quotebotgoal = quotebot;
             }
             else if(sendmessagecommand >= 0)
@@ -2265,7 +2317,7 @@ void typemode(void)
             minitext((320>>1)-40-4,j,"    ESC - Abort",0,2+8+16); j += 7;
 
             if (ud.screen_size > 0) j = 200-45; else j = 200-8;
-            gametext(320>>1,j,typebuf,0,2+8+16);
+            mpgametext(320>>1,j,typebuf,0,2+8+16);
 
             if( KB_KeyWaiting() )
             {
@@ -2304,7 +2356,7 @@ void typemode(void)
     else
     {
         if(ud.screen_size > 0) j = 200-45; else j = 200-8;
-        hitstate = strget(320>>1,j,typebuf,30,1);
+        hitstate = strget(320>>1,j,typebuf,(xdim >= 640 && ydim >= 480)?70:30,1);
 
         if(hitstate == 1)
         {
@@ -6592,7 +6644,8 @@ FOUNDCHEAT:
                         sprite[ps[myconnectindex].i].pal =
                             ps[myconnectindex].palookup;
 
-                        FTA(17,&ps[myconnectindex]);
+                        Bsprintf(fta_quotes[122],"Scream for me, Long Beach!");
+                        FTA(122,&ps[myconnectindex]);
                     }
                     else
                     {
