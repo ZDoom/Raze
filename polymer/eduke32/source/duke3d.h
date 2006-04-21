@@ -306,7 +306,7 @@ struct animwalltype {
 extern struct animwalltype animwall[MAXANIMWALLS];
 extern short numanimwalls,probey,lastprobey;
 
-extern char typebuflen,typebuf[91];
+extern char typebuflen,typebuf[141];
 extern char MusicPtr[72000*2];
 extern long msx[2048],msy[2048];
 extern short cyclers[MAXCYCLERS][6],numcyclers;
