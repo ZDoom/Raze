@@ -161,7 +161,7 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
     player->palette = pal;
 }
 
-int txgametext(int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2)
+int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2)
 {
     short ac,newx;
     char centre, *oldt;
@@ -174,14 +174,14 @@ int txgametext(int starttile, int x,int y,char *t,char s,char p,short orientatio
     {
         while(*t)
         {
-            if(*t == 32) {newx+=5;t++;continue;}
+            if(*t == 32) {newx+=small?3:5;t++;continue;}
             else ac = *t - '!' + starttile;
 
             if( ac < starttile || ac > (starttile + 93) ) break;
 
             if(*t >= '0' && *t <= '9')
-                newx += 8;
-            else newx += tilesizx[ac];
+                newx += small?4:8;
+            else newx += (tilesizx[ac]>>small);
             t++;
         }
 
@@ -191,74 +191,36 @@ int txgametext(int starttile, int x,int y,char *t,char s,char p,short orientatio
 
     while(*t)
     {
-        if(*t == 32) {x+=5;t++;continue;}
+        if(*t == 32) {x+=small?3:5;t++;continue;}
         else ac = *t - '!' + starttile;
 
         if( ac < starttile || ac > (starttile + 93) )
             break;
 
-        rotatesprite(x<<16,y<<16,65536L,0,ac,s,p,2|orientation,x1,y1,x2,y2);
+        rotatesprite(x<<16,y<<16,65536>>small,0,ac,s,p,2|orientation,x1,y1,x2,y2);
         if(*t >= '0' && *t <= '9')
-            x += 8;
-        else x += tilesizx[ac];
-
+            x += small?4:8;
+        else x += (tilesizx[ac]>>small);
+        if(x > 310) x = 0, y+=small?4:8;
         t++;
     }
 
     return (x);
 }
 
-int txgametextsm(int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2)
+inline int txgametext(int starttile, int x,int y,char *t,char s,char p,short dabits,long x1, long y1, long x2, long y2)
 {
-    short ac,newx;
-    char centre, *oldt;
+    return(txgametext_(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+}
 
-    centre = ( x == (320>>1) );
-    newx = 0;
-    oldt = t;
-
-    if(centre)
-    {
-        while(*t)
-        {
-            if(*t == 32) {newx+=3;t++;continue;}
-            else ac = *t - '!' + starttile;
-
-            if( ac < starttile || ac > (starttile + 93) ) break;
-
-            if(*t >= '0' && *t <= '9')
-                newx += 4;
-            else newx += tilesizx[ac]>>1;
-            if(x>=300) { y+= 4; x = 0; }
-            t++;
-        }
-
-        t = oldt;
-        x = (320>>1)-(newx>>1);
-    }
-
-    while(*t)
-    {
-        if(*t == 32) {x+=3;t++;continue;}
-        else ac = *t - '!' + starttile;
-
-        if( ac < starttile || ac > (starttile + 93) )
-            break;
-
-        rotatesprite(x<<16,y<<16,32768L,0,ac,s,p,2|orientation,x1,y1,x2,y2);
-        if(*t >= '0' && *t <= '9')
-            x += 4;
-        else x += tilesizx[ac]>>1;
-        if(x>=310) { y+= 4; x = 0; }
-        t++;
-    }
-
-    return (x);
+inline int txgametextsm(int starttile, int x,int y,char *t,char s,char p,short dabits,long x1, long y1, long x2, long y2)
+{
+    return(txgametext_(1,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
 }
 
 inline int gametext(int x,int y,char *t,char s,short dabits)
 {
-    return(txgametext(STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+    return(txgametext_(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
 }
 
 inline int mpgametext(int x,int y,char *t,char s,short dabits)
@@ -404,8 +366,8 @@ void getpackets(void)
                 gameexit( " \nThe 'MASTER/First player' just quit the game.  All\nplayers are returned from the game.");
             else 
             {
-                connectpoint2[j] = -1;
-                connectpoint2[numplayers-1] = -1;
+	    	connectpoint2[numplayers] = -1;
+                connectpoint2[numplayers-1] = connecthead;
             }
 
             if (numplayers < 2)

@@ -585,8 +585,8 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "Crosshairs",&ud.crosshair);
         SCRIPT_GetNumber( scripthandle, "Misc", "StatusBarScale",&ud.statusbarscale);
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowLevelStats",&ud.levelstats);
-        SCRIPT_GetNumber( scripthandle, "Misc", "ShowOpponentWeapons",(int32 *)&ud.showweapons);
-        ShowOpponentWeapons = ud.showweapons;
+        SCRIPT_GetNumber( scripthandle, "Misc", "ShowOpponentWeapons",&ShowOpponentWeapons);
+        ud.showweapons = ShowOpponentWeapons;
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowViewWeapon",&ud.drawweapon);
         SCRIPT_GetNumber( scripthandle, "Misc", "BrightSkins",&ud.brightskins);
         SCRIPT_GetNumber( scripthandle, "Misc", "DemoCams",&ud.democams);
