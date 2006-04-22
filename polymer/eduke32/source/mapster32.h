@@ -71,7 +71,6 @@ extern long halfxdim16, midydim16, zoom;
 extern void fixrepeats(short i);
 
 char autospritehelp=0,autosecthelp=0;
-static char pskysearch[MAXSECTORS];
 short MinRate=24, MinD=3;
 long xoldtimerhandler, lastmessagetime;
 
@@ -94,7 +93,6 @@ long ppointhighlight;
 static int counter=0;
 char nosprites=0,purpleon=0,skill=4;
 char framerateon=1,tabgraphic=2,shadepreview=0,autosave=1;
-
 
 static char sidemode=0;
 extern long vel, svel, hvel, angvel;

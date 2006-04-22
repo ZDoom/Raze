@@ -907,7 +907,6 @@ void CONTROL_Ack( void )
 boolean CONTROL_Startup(controltype which, int32 ( *TimeFunction )( void ), int32 ticspersecond)
 {
 	int32 i;
-	char *p;
 	
 	if (CONTROL_Started) return false;
 
@@ -968,8 +967,6 @@ boolean CONTROL_Startup(controltype which, int32 ( *TimeFunction )( void ), int3
 
 void CONTROL_Shutdown(void)
 {
-	int i;
-	
 	if (!CONTROL_Started) return;
 
 	CONTROL_JoyPresent = false;

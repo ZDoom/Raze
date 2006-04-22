@@ -48,7 +48,7 @@ int osdcmd_echo(const osdfuncparm_t *parm)
 
 int osdcmd_changelevel(const osdfuncparm_t *parm)
 {
-    int volume=0,level,i;
+    int volume=0,level;
     char *p;
 
     if (!VOLUMEONE) {
@@ -214,8 +214,6 @@ int osdcmd_fileinfo(const osdfuncparm_t *parm)
 
 static int osdcmd_restartvid(const osdfuncparm_t *parm)
 {
-    extern long qsetmode;
-
     resetvideomode();
     if (setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP))
         gameexit("restartvid: Reset failed...\n");

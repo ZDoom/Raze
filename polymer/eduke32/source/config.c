@@ -371,7 +371,7 @@ void CONFIG_ReadKeys( void )
 void CONFIG_SetupMouse( void )
 {
     int32 i;
-    char str[80],*p;
+    char str[80];
     char temp[80];
     int32 function, scale;
 
@@ -438,9 +438,9 @@ void CONFIG_SetupMouse( void )
 void CONFIG_SetupJoystick( void )
 {
     int32 i;
-    char str[80],*p;
+    char str[80];
     char temp[80];
-    int32 function, scale;
+    int32 scale;
 
     if (scripthandle < 0) return;
 

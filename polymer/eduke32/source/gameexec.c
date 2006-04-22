@@ -34,9 +34,8 @@ static spritetype *g_sp;
 
 extern int32 scripthandle;
 
-void DoUserDef(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, short sPlayer, long lParm2)
+void DoUserDef(char bSet, long lLabelID, long lVar2, short sActor, short sPlayer)
 {
-    int iPlayer;
     long lValue;
 
     if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
@@ -1872,7 +1871,6 @@ void DoInput(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sho
 {
     int iPlayer;
     long lValue;
-    long lTemp;
 
     if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
         return;
@@ -2959,7 +2957,7 @@ short furthestangle(short sActor,short angs)
 
 short furthestcanseepoint(short sActor,spritetype *ts,long *dax,long *day)
 {
-    short j, hitsect,hitwall,hitspr, angincs, tempang;
+    short j, hitsect,hitwall,hitspr, angincs;
     long hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
     spritetype *s = &sprite[sActor];
 
@@ -3166,7 +3164,7 @@ void alterang(short a)
 void move()
 {
     long l, *moveptr;
-    short j, a, goalang, angdif;
+    short a, goalang, angdif;
     long daxvel;
 
     a = g_sp->hitag;
@@ -3421,7 +3419,6 @@ char parse(void)
             // <varid> <xxxid> <varid>
             long lLabelID;
             long lVar1, lVar2;
-            long lParm2;
 
             insptr++;
             lVar1=*insptr++;
@@ -3505,7 +3502,6 @@ char parse(void)
     case CON_IFCANSEE:
         {
             spritetype *s;
-            short sect;
 
             // select sprite for monster to target
             // if holoduke is on, let them target holoduke first.
@@ -4593,9 +4589,8 @@ SKIPJIBS:
     case CON_GAMETEXT:
     case CON_DIGITALNUMBER:
         {
-            long x,y,z;
+            long x,y;
             short tilenum=0;
-            short a;
             signed char shade;
             char orientation=0;
             char pal;
@@ -5683,15 +5678,13 @@ good:
             // syntax [gs]etuserdef.xxx <VAR>
             //  <xxxid> <varid>
             long lLabelID;
-            long lVar1, lVar2;
-            long lParm2=0;
+            long lVar2;
 
             insptr++;
-            lVar1=-1;
             lLabelID=*insptr++;
             lVar2=*insptr++;
 
-            DoUserDef(tw==CON_SETUSERDEF, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
+            DoUserDef(tw==CON_SETUSERDEF, lLabelID, lVar2, g_i, g_p);
             break;
         }
 
@@ -5702,7 +5695,6 @@ good:
             // <varid> <xxxid> <varid>
             long lLabelID;
             long lVar1, lVar2;
-            long lParm2;
 
             insptr++;
             lVar1=GetGameVarID(*insptr++, g_i, g_p);

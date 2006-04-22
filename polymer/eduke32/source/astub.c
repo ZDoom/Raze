@@ -305,8 +305,6 @@ const char *ExtGetSectorCaption(short sectnum)
 
 const char *ExtGetWallCaption(short wallnum)
 {
-    long i=0;
-
     if(!(onnames==2 || onnames==4))
     {
         tempbuf[0] = 0;
@@ -478,7 +476,7 @@ void ExtShowSectorData(short sectnum)   //F5
     short statnum=0;
     int x,x2,y;
     int nexti;
-    int i,c=0;
+    int i;
     int secrets=0;
     int totalactors1=0,totalactors2=0,totalactors3=0,totalactors4=0;
     int totalrespawn=0;
@@ -912,8 +910,7 @@ void ExtShowWallData(short wallnum)       //F6
 
 void Show2dText(char *name)
 {
-    int i,fp;
-    int t;
+    int fp,t;
     char x=0,y=4,xmax=0,xx=0,col=0;
     clearmidstatbar16();
     if((fp=kopen4load(name,0)) == -1)
@@ -951,9 +948,9 @@ void Show2dText(char *name)
 
 void Show3dText(char *name)
 {
-    int i,fp;
+    int fp,t;
     char x=0,y=4,xmax=0,xx=0,col=0;
-    int t;
+
     if((fp=kopen4load(name,0)) == -1)
     {
         begindrawing();
@@ -988,8 +985,7 @@ void Show3dText(char *name)
 void ShowHelpText(char *name)
 {
     BFILE *fp;
-    int i,t;
-    char x=0,y=4,xmax=0,xx=0,col=0;
+    char x=0,y=4;
     if((fp=fopenfrompath("helpdoc.txt","rb")) == NULL)
     {
         begindrawing();
@@ -1390,7 +1386,7 @@ long lastupdate, mousecol, mouseadd = 1, bstatus;
 
 void m32_showmouse(void)
 {
-    int i, j, k, col;
+    int i, j, col;
 
     j = (xdimgame > 640);
 
@@ -1477,15 +1473,11 @@ int AskIfSure(void)
 void Keys3d(void)
 {
     long i,count,rate,nexti;
-    short statnum=0;
-
-    char smooshyalign=0, repeatpanalign=0, *ptr, buffer[80];
-    short sectnum, nextsectnum, startwall, endwall, dasector, daang;
-    long j, k, cnt, templong, doubvel, changedir, wallfind[2], daz[2];
-    long dashade[2], goalz, xvect, yvect, hiz, loz;
-    short hitsect, hitwall, hitsprite;
-    long hitx, hity, hitz, dax, day, hihit, lohit;
+    long j, k, templong, changedir, hiz, loz;
+    long hitx, hity, hitz, hihit, lohit;
     long repeatcountx=0,repeatcounty=0;
+    char smooshyalign=0, repeatpanalign=0, buffer[80];
+    short startwall, endwall, dasector, hitsect, hitwall, hitsprite, statnum=0;
 
     /* start Mapster32 */
 
@@ -1695,7 +1687,7 @@ void Keys3d(void)
 
     if (keystatus[KEYSC_SEMI] && keystatus[KEYSC_V])   // ; V
     {
-        short w, start_wall, end_wall, currsector;
+        short currsector;
         unsigned char visval;
 
         keystatus[KEYSC_V] = 0;
@@ -3696,8 +3688,6 @@ void Keys2d(void)
 
     if ((totalclock > getmessagetimeoff) && (totalclock > (lastpm16time + 120*3)))
     {
-        long olinehighlight, opointhighlight, ocursectornum;
-
         updatesector(mousxplc,mousyplc,&cursectornum);
         if (pointhighlight >= 16384)
         {
@@ -4225,7 +4215,7 @@ int osdcmd_quit(const osdfuncparm_t *parm)
 
 int ExtInit(void)
 {
-    long fil, rv = 0;
+    long rv = 0;
     char *duke3dgrp = "duke3d.grp";
 
 #if 1 // defined(_WIN32)
@@ -4336,7 +4326,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
 void ExtAnalyzeSprites(void)
 {
-    long i, j, k;
+    long i, k;
     spritetype *tspr;
     char frames=0;
     signed char l;
@@ -4572,7 +4562,7 @@ void ExtCheckKeys(void)
 
 void faketimerhandler(void)
 {
-    long i, j, dax, day, dist;
+    long i, dist;
     long hiz, hihit, loz, lohit, oposx, oposy;
     short hitwall, daang;
 
@@ -4648,7 +4638,7 @@ void faketimerhandler(void)
 }
 
 void SetBOSS1Palette()
-{int x;
+{
     if(acurpalette==3) return;
     acurpalette=3;
     kensetpalette(BOSS1palette);
@@ -4656,14 +4646,14 @@ void SetBOSS1Palette()
 
 
 void SetSLIMEPalette()
-{int x;
+{
     if(acurpalette==2) return;
     acurpalette=2;
     kensetpalette(SLIMEpalette);
 }
 
 void SetWATERPalette()
-{int x;
+{
     if(acurpalette==1) return;
     acurpalette=1;
     kensetpalette(WATERpalette);
@@ -4671,7 +4661,7 @@ void SetWATERPalette()
 
 
 void SetGAMEPalette()
-{int x;
+{
     if(acurpalette==0) return;
     acurpalette=0;
     kensetpalette(GAMEpalette);
@@ -4743,7 +4733,6 @@ void EditSectorData(short sectnum)
 {
     char disptext[80];
     char edittext[80];
-    char snotbuf[80];
     char col=1, row=0, rowmax = 6, dispwidth = 24;
     long xpos = 200, ypos = ydim-STATUS2DSIZ+48;
     int i = -1;
@@ -4981,8 +4970,7 @@ void EditWallData(short wallnum)
 {
     char disptext[80];
     char edittext[80];
-    char snotbuf[80];
-    char col=1, row=0, dispwidth = 24;
+    char row=0, dispwidth = 24;
     long xpos = 200, ypos = ydim-STATUS2DSIZ+48;
     int i = -1;
     char editval = 0;
@@ -5114,7 +5102,6 @@ void EditSpriteData(short spritenum)
 {
     char disptext[80];
     char edittext[80];
-    char snotbuf[80];
     char col=1, row=0, rowmax=5, dispwidth = 24;
     long xpos = 200, ypos = ydim-STATUS2DSIZ+48;
     int i = -1;
@@ -5428,9 +5415,10 @@ void Msg(char *string, char color)
 
 }
 
+/*
 long GetAToken(char *name, char *tc, long length)
 {
-    int i,x=0;
+    int x=0;
     char t,*tmp,tokenfound=0;
     char *token;
     long count=0;
@@ -5479,7 +5467,7 @@ long GetAToken(char *name, char *tc, long length)
     return(count);
 
 }
-/*
+
 void ContextHelp(short spritenum)
 {
     int i,fp;

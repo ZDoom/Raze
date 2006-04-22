@@ -33,7 +33,7 @@ int last_menu;
 short sh,onbar,buttonstat,deletespot;
 short last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehundred = 0;
 
-static char fileselect = 1, menunamecnt, menuname[256][64], curpath[80], menupath[80];
+static char fileselect = 1, menunamecnt, menuname[256][64];
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int numdirs=0, numfiles=0;
@@ -799,6 +799,10 @@ void menus(void)
             if(current_menu == 20005 && i == last_probey) continue;
             gametextpal(26,40+(i<<3),ud.ridecule[i],MENUHIGHLIGHT(i),0);
         }
+
+        gametext(160,144,"UP/DOWN = SELECT MACRO",0,2+8+16);
+        gametext(160,144+9,"ENTER = MODIFY",0,2+8+16);
+
         break;
 
     case 20010:

@@ -229,7 +229,6 @@ void KB_FlushKeyboardQueue( void )
 
 void KB_ClearKeysDown( void )
 {
-	int i;
 	KB_LastScan = 0;
 	memset(keystatus, 0, sizeof(keystatus));
 	//keyfifoplc = keyfifoend = 0;

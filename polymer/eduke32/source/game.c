@@ -212,12 +212,12 @@ int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,shor
 
 inline int txgametext(int starttile, int x,int y,char *t,char s,char p,short dabits,long x1, long y1, long x2, long y2)
 {
-    return(txgametext_(0,STARTALPHANUM, x,y,t,s,p,dabits,x1, y1, x2, y2));
+    return(txgametext_(0,starttile, x,y,t,s,p,dabits,x1, y1, x2, y2));
 }
 
 inline int txgametextsm(int starttile, int x,int y,char *t,char s,char p,short dabits,long x1, long y1, long x2, long y2)
 {
-    return(txgametext_(1,STARTALPHANUM, x,y,t,s,p,dabits,x1, y1, x2, y2));
+    return(txgametext_(1,starttile, x,y,t,s,p,dabits,x1, y1, x2, y2));
 }
 
 inline int gametext(int x,int y,char *t,char s,short dabits)
@@ -225,7 +225,7 @@ inline int gametext(int x,int y,char *t,char s,short dabits)
     return(txgametext_(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
 }
 
-inline int mpgametext(int x,int y,char *t,char s,short dabits)
+inline int mpgametext(int y,char *t,char s,short dabits)
 {
     if(xdim >= 640 && ydim >= 480)
         return(txgametextsm(STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
@@ -324,7 +324,6 @@ void adduserquote(char *daquote)
 void getpackets(void)
 {
     long i, j, k, l;
-    FILE *fp;
     long other, packbufleng;
     input *osyn, *nsyn;
 
@@ -722,8 +721,7 @@ extern void computergetinput(long snum, input *syn);
 
 void faketimerhandler()
 {
-    long i, j, k, l;
-    long momx, momy;
+    long i, j, k;
     //    short who;
     input *osyn, *nsyn;
 
@@ -1064,7 +1062,7 @@ void caches(void)
 
 void checksync(void)
 {
-    long i, k;
+    long i;
 
     for(i=connecthead;i>=0;i=connectpoint2[i])
         if (syncvalhead[i] == syncvaltottail) break;
@@ -1320,7 +1318,7 @@ void invennum(long x,long y,char num1,char ha,char sbits)
         rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
 }
 
-void orderweaponnum(short ind,long x,long y,long num1, long num2,char ha)
+void orderweaponnum(short ind,long x,long y,char ha)
 {
     rotatesprite(sbarx(x-7),sbary(y),sbarsc(65536L),0,THREEBYFIVE+ind+1,ha-10,7,10,0,0,xdim-1,ydim-1);
     rotatesprite(sbarx(x-3),sbary(y),sbarsc(65536L),0,THREEBYFIVE+10,ha,0,10,0,0,xdim-1,ydim-1);
@@ -1444,7 +1442,6 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
 
         if (VOLUMEONE) {
             orderweaponnum(SHRINKER_WEAPON,x+39,y+12,
-                           p->ammo_amount[SHRINKER_WEAPON],max_ammo_amount[SHRINKER_WEAPON],
                            (!p->gotweapon[SHRINKER_WEAPON]*9)+12-18*
                            (cw == SHRINKER_WEAPON) );
         } else {
@@ -1466,7 +1463,6 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
 
         if (VOLUMEONE) {
             orderweaponnum(DEVISTATOR_WEAPON,x+70,y,
-                           p->ammo_amount[DEVISTATOR_WEAPON],max_ammo_amount[DEVISTATOR_WEAPON],
                            (!p->gotweapon[DEVISTATOR_WEAPON]*9)+12-18*
                            (cw == DEVISTATOR_WEAPON) );
         } else {
@@ -1481,7 +1477,6 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
         if (u != -1) patchstatusbar(158,184,162+29,184+6); //original code: (166,184,166+8,184+6);
         if (VOLUMEONE) {
             orderweaponnum(TRIPBOMB_WEAPON,x+70,y+6,
-                           p->ammo_amount[TRIPBOMB_WEAPON],max_ammo_amount[TRIPBOMB_WEAPON],
                            (!p->gotweapon[TRIPBOMB_WEAPON]*9)+12-18*
                            (cw == TRIPBOMB_WEAPON) );
         } else {
@@ -1497,7 +1492,6 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
         if (u != -1) patchstatusbar(158,190,162+29,190+6); //original code: (166,190,166+8,190+6);
         if (VOLUMEONE) {
             orderweaponnum(-1,x+70,y+12,
-                           p->ammo_amount[FREEZE_WEAPON],max_ammo_amount[FREEZE_WEAPON],
                            (!p->gotweapon[FREEZE_WEAPON]*9)+12-18*
                            (cw == FREEZE_WEAPON) );
         } else {
@@ -1668,7 +1662,7 @@ void coolgaugetext(short snum)
 {
     struct player_struct *p;
     long i, j, o, ss, u;
-    char c, permbit;
+    char permbit;
 
     p = &ps[snum];
 
@@ -2010,9 +2004,9 @@ void operatefta(void)
             j -= 8;
         }
         if (k > 4)
-            mpgametext(320>>1,j,user_quote[i],0,2+8+16);
-        else if (k > 2) mpgametext(320>>1,j,user_quote[i],0,2+8+16+1);
-        else mpgametext(320>>1,j,user_quote[i],0,2+8+16+1+32);
+            mpgametext(j,user_quote[i],0,2+8+16);
+        else if (k > 2) mpgametext(j,user_quote[i],0,2+8+16+1);
+        else mpgametext(j,user_quote[i],0,2+8+16+1+32);
         j -= 8;
     }
 
@@ -2089,8 +2083,6 @@ void FTA(short q,struct player_struct *p)
 
 void showtwoscreens(void)
 {
-    short i;
-
     if (!VOLUMEALL) {
         setview(0,0,xdim-1,ydim-1);
         flushperms();
@@ -2128,8 +2120,6 @@ extern long qsetmode;
 
 void gameexit(char *t)
 {
-    short i;
-
     if(*t != 0) ps[myconnectindex].palette = (char *) &palette[0];
 
     if(numplayers > 1)
@@ -2224,13 +2214,13 @@ short strget_(int small,short x,short y,char *t,short dalen,short c)
             b[ii] = '*';
         b[ii] = 0;
         if(ps[myconnectindex].gm&MODE_TYPE)
-            x = mpgametext(x,y,b,c,2+8+16);
+            x = mpgametext(y,b,c,2+8+16);
         else x = gametext(x,y,b,c,2+8+16);
     }
     else
     {
         if(ps[myconnectindex].gm&MODE_TYPE)
-            x = mpgametext(x,y,t,c,2+8+16);
+            x = mpgametext(y,t,c,2+8+16);
         else x = gametext(x,y,t,c,2+8+16);
     }
     c = 4-(sintable[(totalclock<<4)&2047]>>11);
@@ -2336,7 +2326,7 @@ void typemode(void)
             minitext((320>>1)-40-4,j,"    ESC - Abort",0,2+8+16); j += 7;
 
             if (ud.screen_size > 0) j = 200-45; else j = 200-8;
-            mpgametext(320>>1,j,typebuf,0,2+8+16);
+            mpgametext(j,typebuf,0,2+8+16);
 
             if( KB_KeyWaiting() )
             {
@@ -2657,8 +2647,6 @@ void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
 
 void palto(char r,char g,char b,long e)
 {
-    int i;
-    char temparray[768];
     long tc;
     /*
         for(i=0;i<768;i+=3)
@@ -2939,7 +2927,7 @@ void displayrest(long smoothratio)
 void view(struct player_struct *pp, long *vx, long *vy,long *vz,short *vsectnum, short ang, short horiz)
 {
     spritetype *sp;
-    long i, nx, ny, nz, hx, hy, hz, hitx, hity, hitz;
+    long i, nx, ny, nz, hx, hy, hitx, hity, hitz;
     short bakcstat, hitsect, hitwall, hitsprite, daang;
 
     nx = (sintable[(ang+1536)&2047]>>4);
@@ -3293,10 +3281,10 @@ static long oyrepeat=-1;
 
 void displayrooms(short snum,long smoothratio)
 {
-    long cposx,cposy,cposz,dst,j,fz,cz,hz,lz;
-    short sect, cang, k, choriz,tsect;
+    long cposx,cposy,cposz,dst,j,fz,cz;
+    short sect, cang, k, choriz;
     struct player_struct *p;
-    long tposx,tposy,tposz,dx,dy,thoriz,i;
+    long tposx,tposy,i;
     short tang;
     long tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
 
@@ -6413,7 +6401,7 @@ char cheatbuf[MAXCHEATLEN],cheatbuflen;
 
 void cheats(void)
 {
-    short ch, i, j, k=0,x,y, keystate, weapon;
+    short ch, i, j, k=0,x,y, weapon;
     static char z=0;
     char consolecheat = 0;  // JBF 20030914
 
@@ -6967,7 +6955,7 @@ FOUNDCHEAT:
 long nonsharedtimer;
 void nonsharedkeys(void)
 {
-    short i,ch, weapon;
+    short i,ch;
     long j;
 
     if(ud.recstat == 2)
@@ -7799,38 +7787,9 @@ void checkcommandline(int argc,char **argv)
     }
 }
 
-void printstr(short x, short y, char string[81], char attribute)
-{
-    char character;
-    short i, pos;
-    /*
-            pos = (y*80+x)<<1;
-            i = 0;
-            while (string[i] != 0)
-            {
-                    character = string[i];
-                    printchrasm(0xb8000+(long)pos,1L,((long)attribute<<8)+(long)character);
-                    i++;
-                    pos+=2;
-            }
-    */
-}
-
-/*
-void cacheicon(void)
-{
-    if(cachecount > 0)
-    {
-        if( (ps[myconnectindex].gm&MODE_MENU) == 0 )
-            rotatesprite((320-7)<<16,(200-23)<<16,32768L,0,SPINNINGNUKEICON,0,0,2,windowx1,windowy1,windowx2,windowy2);
-        cachecount = 0;
-    }
-}
-       */
-
 void Logo(void)
 {
-    short i,j,soundanm;
+    short soundanm;
     long logoflags=GetGameVar("LOGO_FLAGS",255, -1, -1);
     soundanm = 0;
 
@@ -8030,7 +7989,6 @@ void Shutdown( void )
 
 void compilecons(void)
 {
-    char *tempname;
     int i;
     label     = (char *)&sprite[0]; // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
     labelcode = (long *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
@@ -8387,7 +8345,7 @@ int load_script(char *szScript)
 
 void app_main(int argc,char **argv)
 {
-    long i, j, k, l;
+    long i, j;
 #ifdef RENDERTYPEWIN
     if (win_checkinstance()) {
         if (!wm_ynbox("EDuke32","Another Build game is currently running. "
@@ -8939,8 +8897,7 @@ oldinput oldrecsync[RECSYNCBUFSIZ];
 // extern long syncs[];
 long playback(void)
 {
-    long i,j,k,l,t,tc;
-    short p;
+    long i,j,k,l;
     char foundemo;
 
     if( ready2send ) return 0;
@@ -9833,8 +9790,6 @@ char domovethings(void)
 
 void doorders(void)
 {
-    short i;
-
     setview(0,0,xdim-1,ydim-1);
 
     fadepal(0,0,0, 0,63,7);
@@ -9866,7 +9821,7 @@ void doorders(void)
 
 void dobonus(char bonusonly)
 {
-    short t, r, tinc,gfx_offset;
+    short t, tinc,gfx_offset;
     long i, y,xfragtotal,yfragtotal;
     short bonuscnt;
     int clockpad = 2;

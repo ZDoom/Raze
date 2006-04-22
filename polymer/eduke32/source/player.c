@@ -58,8 +58,7 @@ void fadepal(int r, int g, int b, int start, int end, int step)
 
 void incur_damage(short snum)
 {
-    long  damage = 0L, shield_damage = 0L;
-    short i;
+    long damage = 0L, shield_damage = 0L;
 
     struct player_struct *p;
 
@@ -2008,7 +2007,7 @@ void DoSpawn(short snum)
 
 void displaymasks(short snum)
 {
-    short i, p;
+    short p;
 
     if(sprite[ps[snum].i].pal == 1)
         p = 1;
@@ -2115,7 +2114,7 @@ char last_quick_kick[MAXPLAYERS];
 void displayweapon(short snum)
 {
     long gun_pos, looking_arc, cw;
-    long weapon_xoffset, i, j, x1, y1, x2;
+    long weapon_xoffset, i, j;
     char o,pal;
     signed char gs;
     struct player_struct *p;
@@ -2713,7 +2712,6 @@ void getinput(short snum)
     int32 keymove;
     int32 momx,momy;
     struct player_struct *p;
-    unsigned char tmpbuf[2048];
 
     momx = momy = 0;
     p = &ps[snum];
@@ -2974,7 +2972,7 @@ void getinput(short snum)
 
 char doincrements(struct player_struct *p)
 {
-    long /*j,*/i,snum;
+    long snum;
 
     snum = sprite[p->i].yvel;
     //    j = sync[snum].avel;
@@ -3167,8 +3165,7 @@ short weapon_sprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATIC, SHOT
 
 void checkweapons(struct player_struct *p)
 {
-    short j,cw;
-
+    short cw;
     long snum;
 
     snum = sprite[p->i].yvel;

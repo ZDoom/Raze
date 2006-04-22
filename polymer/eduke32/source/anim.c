@@ -198,7 +198,7 @@ void endanimvol43(long fr)
 void playanm(char *fn,char t)
 {
     char *animbuf, *palptr;
-    long i, j, k, length=0, numframes=0;
+    long i, j, length=0, numframes=0;
     int32 handle=-1;
 
     //    return;

@@ -1264,8 +1264,6 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
     int i;
     int j;
 
-    int b=0;
-
     //Bsprintf(g_szBuf,"AddGameVar(%s, %d, %X)",pszLabel, lValue, dwFlags);
     //AddLog(g_szBuf);
 
@@ -1590,7 +1588,6 @@ long getlabeloffset(LABELS *pLabel, char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the offset in the array for the label, or -1
-    long l=-1;
     int i;
 
     for(i=0;pLabel[i].lId >=0 ; i++)
@@ -1716,7 +1713,7 @@ long transword(void) //Returns its code #
 
 void transvartype(int type)
 {
-    int i=0,l,f=0;
+    int i=0,f=0;
 
     skipcomments();
     if(!type && !labelsonly && (isdigit(*textptr) || ((*textptr == '-') && (isdigit(*(textptr+1))))))
@@ -4937,7 +4934,7 @@ void ClearGameVars(void)
 
 void InitGameVarPointers(void)
 {
-    int i,j;
+    int i;
     char aszBuf[64];
     // called from game Init AND when level is loaded...
 
@@ -4990,7 +4987,6 @@ void InitGameVarPointers(void)
 void AddSystemVars()
 {
     // only call ONCE
-    int i;
     char aszBuf[64];
 
     //AddLog("AddSystemVars");

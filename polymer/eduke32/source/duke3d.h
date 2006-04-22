@@ -452,8 +452,6 @@ extern long *actorLoadEventScrptr[MAXTILES];
 extern char actortype[MAXTILES];
 extern char *music_pointer;
 
-extern char ipath[80],opath[80];
-
 extern char music_fn[MAXVOLUMES+1][11][13],music_select;
 extern char env_music_fn[MAXVOLUMES+1][13];
 extern short camsprite;
@@ -826,7 +824,7 @@ typedef struct {
     signed char sxrepeat, syrepeat, txrepeat, tyrepeat, shade, xrepeat, yrepeat, pal, velmult;
 } proj_struct;
 
-proj_struct projectile[MAXTILES], thisprojectile[MAXSPRITES], defaultprojectile[MAXTILES];
+extern proj_struct projectile[MAXTILES], thisprojectile[MAXSPRITES], defaultprojectile[MAXTILES];
 
 // logo control
 

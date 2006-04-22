@@ -600,7 +600,7 @@ boolean SCRIPT_GetDoubleString( int32 scripthandle, char * sectionname, char * e
 	ScriptSectionType *s;
 	ScriptEntryType *e;
 	char *p, ch;
-	int c,d=0;
+	int c;
 
 	if (!SC(scripthandle)) return 1;
 	if (!SCRIPT(scripthandle,script)) return 1;

@@ -475,7 +475,7 @@ BOLT:
 int movesprite(short spritenum, long xchange, long ychange, long zchange, unsigned long cliptype)
 {
     long daz,h, oldx, oldy;
-    short retval, dasectnum, a, cd;
+    short retval, dasectnum, cd;
     char bg;
 
     bg = badguy(&sprite[spritenum]);
@@ -859,7 +859,7 @@ short ifhitsectors(short sectnum)
 
 short ifhitbyweapon(short sn)
 {
-    short j, k, p;
+    short j,p;
     spritetype *npc;
 
     if( hittype[sn].extra >= 0 )
@@ -1366,8 +1366,8 @@ BOLT:
 
 void movestandables(void)
 {
-    short i, j, k, m, nexti, nextj, nextk, p=0, q, sect;
-    long l=0, x, *t, x1, y1;
+    short i, j, k, m, nexti, nextj, p=0, sect;
+    long l=0, x, *t;
     spritetype *s;
     int switchpicnum;
 
@@ -2340,8 +2340,8 @@ void bounce(short i)
 
 void moveweapons(void)
 {
-    short i, j=0, k, f, nexti, p, q, tempsect;
-    long dax,day,daz, x, l, ll, x1, y1;
+    short i, j=0, k, f, nexti, p, q;
+    long dax,day,daz, x, ll;
     unsigned long qq;
     spritetype *s;
 
@@ -3125,7 +3125,7 @@ BOLT:
 void movetransports(void)
 {
     char warpspriteto;
-    short i, j, k, l, p, sect, sectlotag, nexti, nextj, nextk;
+    short i, j, k, l, p, sect, sectlotag, nexti, nextj;
     long ll,onfloorz,q;
 
     i = headspritestat[9]; //Transporters
@@ -4762,7 +4762,7 @@ BOLT:
 
 void moveexplosions(void)  // STATNUM 5
 {
-    short i, j, k, nexti, sect, p;
+    short i, j, nexti, sect, p;
     long l, x, *t;
     spritetype *s;
     int switchpicnum;

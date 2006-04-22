@@ -174,7 +174,6 @@ char menunum=0;
 
 void intomenusounds(void)
 {
-    short i;
     short menusnds[] =
         {
             LASERTRIP_EXPLODE,

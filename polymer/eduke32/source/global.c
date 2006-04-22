@@ -176,4 +176,6 @@ int nextvoxid = 0;
 
 int spriteflags[MAXTILES], actorspriteflags[MAXSPRITES];
 
+proj_struct projectile[MAXTILES], thisprojectile[MAXSPRITES], defaultprojectile[MAXTILES];
+
 char cheatkey[2] = { sc_D, sc_N };

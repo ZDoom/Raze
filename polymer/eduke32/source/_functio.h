@@ -276,15 +276,6 @@ static char * mousedigitaldefaults[] =
    };
 
 
-static char * gamepaddigitaldefaults[] =
-   {
-   "Turn_Left",
-   "Turn_Right",
-   "Move_Forward",
-   "Move_Backward",
-   };
-
-
 static char * joystickanalogdefaults[] =
    {
    "analog_turning",

@@ -427,7 +427,6 @@ void pickrandomspot(short snum)
 void resetplayerstats(short snum)
 {
     struct player_struct *p;
-    short i;
 
     p = &ps[snum];
 
@@ -568,7 +567,6 @@ void resetweapons(short snum)
 void resetinventory(short snum)
 {
     struct player_struct *p;
-    short i;
 
     p = &ps[snum];
 
@@ -1049,7 +1047,6 @@ void newgame(char vn,char ln,char sk)
     p->gm              = 0;
 
     {
-        int j;
         //AddLog("Newgame");
         ResetGameVars();
 
@@ -1351,7 +1348,7 @@ void waitforeverybody()
 
 void dofrontscreens(char *statustext)
 {
-    long tincs,i=0,j;
+    long i=0;
 
     if(ud.recstat != 2)
     {
@@ -1454,7 +1451,7 @@ extern void adduserquote(char *daquote);
 
 int enterlevel(char g)
 {
-    short i,j;
+    short i;
     long l;
     char levname[BMAX_PATH];
 
