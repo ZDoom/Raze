@@ -432,7 +432,7 @@ void getpackets(void)
 
             k = j;
             for(i=connecthead;i>=0;i=connectpoint2[i])
-                j += playerquitflag[i]+1;
+                j += playerquitflag[i]+playerquitflag[i];
             for(i=connecthead;i>=0;i=connectpoint2[i])
             {
                 if (playerquitflag[i] == 0) continue;
@@ -712,7 +712,7 @@ void getpackets(void)
             playerreadyflag[other]++;
             break;
         case 255:
-            sendquit();
+            gameexit(" ");
             break;
         }
     }
@@ -9749,12 +9749,13 @@ char domovethings(void)
         pus = NUMPAGES;
         vscrn();
 
-        Bsprintf(buf,"%s is history!",ud.user_name[i]);
-
         quickkill(&ps[i]);
         deletesprite(ps[i].i);
 
+        Bsprintf(buf,"%s is history!",ud.user_name[i]);
         adduserquote(buf);
+        Bstrcpy(fta_quotes[116],buf);
+        ps[myconnectindex].ftq = 116, ps[myconnectindex].fta = 60;
 
         if(j < 0 && networkmode == 0 )
             gameexit( " \nThe 'MASTER/First player' just quit the game.  All\nplayers are returned from the game.");

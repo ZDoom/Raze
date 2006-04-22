@@ -766,7 +766,7 @@ void menus(void)
 
         if (current_menu == 20004)
         {
-            x = probesm(23,45,8,10);
+            x = probesm(24,45,8,10);
             if(x == -1)
             {
                 cmenu(20002);
@@ -783,7 +783,7 @@ void menus(void)
                 KB_FlushKeyboardQueue();
             }
         } else {
-            x = strget(25,40+(8*probey),buf,34,0);
+            x = strget(26,40+(8*probey),buf,34,0);
             if (x) {
                 if (x == 1) {
                     Bstrcpy(ud.ridecule[last_probey],buf);
@@ -797,7 +797,7 @@ void menus(void)
         for(i=0;i<10;i++)
         {
             if(current_menu == 20005 && i == last_probey) continue;
-            gametextpal(25,40+(i<<3),ud.ridecule[i],MENUHIGHLIGHT(i),0);
+            gametextpal(26,40+(i<<3),ud.ridecule[i],MENUHIGHLIGHT(i),0);
         }
         break;
 
