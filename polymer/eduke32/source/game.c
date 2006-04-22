@@ -161,7 +161,7 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
     player->palette = pal;
 }
 
-#define TEXTWRAPLEN ((scale(35,ScreenWidth,320))-1)// 76
+#define TEXTWRAPLEN (scale(35,ScreenWidth,320))
 
 int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2)
 {
@@ -203,7 +203,7 @@ int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,shor
         if((*t >= '0' && *t <= '9'))
             x += 8;
         else x += tilesizx[ac];//(tilesizx[ac]>>small);
-        if((t-oldt > (signed)TEXTWRAPLEN-5 && *t == 32) || t-oldt > (signed)TEXTWRAPLEN) oldt = t, x = oldx, y+=8;
+        if(t-oldt >= (signed)TEXTWRAPLEN-!small) oldt = t, x = oldx, y+=8;
         t++;
     }
 
@@ -316,7 +316,8 @@ void adduserquote(char *daquote)
     }
     strcpy(user_quote[0],daquote);
     OSD_Printf("%s\n", daquote);
-    user_quote_time[0] = 180;
+
+    user_quote_time[0] = 360;
     pub = NUMPAGES;
 }
 
@@ -2003,7 +2004,6 @@ void operatefta(void)
     {
         k = user_quote_time[i]; if (k <= 0) break;
         l = Bstrlen(user_quote[i]); 
-//        if(Bstrlen(user_quote[i]) > TEXTWRAPLEN) j -= 8;
         while(l > TEXTWRAPLEN)
         {
             l -= TEXTWRAPLEN;
@@ -2015,6 +2015,17 @@ void operatefta(void)
         else mpgametext(320>>1,j,user_quote[i],0,2+8+16+1+32);
         j -= 8;
     }
+
+    for(i=0;i<MAXUSERQUOTES;i++)
+        if (user_quote_time[i])
+        {
+            user_quote_time[i]--;
+            if (!user_quote_time[i]) pub = NUMPAGES;
+        }
+    if ((klabs(quotebotgoal-quotebot) <= 16) && (ud.screen_size <= 8))
+        quotebot += ksgn(quotebotgoal-quotebot);
+    else
+        quotebot = quotebotgoal;
 
     if (ps[screenpeek].fta <= 1) return;
 
@@ -2225,9 +2236,9 @@ short strget_(int small,short x,short y,char *t,short dalen,short c)
     c = 4-(sintable[(totalclock<<4)&2047]>>11);
 
     i = Bstrlen(t); 
-    while(i > TEXTWRAPLEN+1)
+    while(i > TEXTWRAPLEN-!small)
     {
-        i -= TEXTWRAPLEN;
+        i -= TEXTWRAPLEN-!small;
         y += 8;
     }
 
@@ -2283,7 +2294,7 @@ void typemode(void)
                     if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                 }
                 adduserquote(recbuf);
-                quotebot += 8; // <<(Bstrlen(recbuf) > TEXTWRAPLEN);
+                quotebot += 8;
                 l = Bstrlen(recbuf); 
                 while(l > TEXTWRAPLEN)
                 {
@@ -9692,17 +9703,6 @@ char domovethings(void)
 
     if(earthquaketime > 0) earthquaketime--;
     if(rtsplaying > 0) rtsplaying--;
-
-    for(i=0;i<MAXUSERQUOTES;i++)
-        if (user_quote_time[i])
-        {
-            user_quote_time[i]--;
-            if (!user_quote_time[i]) pub = NUMPAGES;
-        }
-    if ((klabs(quotebotgoal-quotebot) <= 16) && (ud.screen_size <= 8))
-        quotebot += ksgn(quotebotgoal-quotebot);
-    else
-        quotebot = quotebotgoal;
 
     if( show_shareware > 0 )
     {
