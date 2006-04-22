@@ -365,9 +365,9 @@ void getpackets(void)
 
             if(j == connecthead && networkmode == 0 )
                 gameexit( " \nThe 'MASTER/First player' just quit the game.  All\nplayers are returned from the game.");
-            else 
+            else
             {
-	    	connectpoint2[numplayers] = -1;
+                connectpoint2[numplayers] = -1;
                 connectpoint2[numplayers-1] = connecthead;
             }
 
@@ -2003,7 +2003,7 @@ void operatefta(void)
     for(i=0;i<MAXUSERQUOTES;i++)
     {
         k = user_quote_time[i]; if (k <= 0) break;
-        l = Bstrlen(user_quote[i]); 
+        l = Bstrlen(user_quote[i]);
         while(l > TEXTWRAPLEN)
         {
             l -= TEXTWRAPLEN;
@@ -2048,7 +2048,7 @@ void operatefta(void)
         {
             if (user_quote_time[i] <= 0) break;
             k -= 8;
-            l = Bstrlen(user_quote[i]); 
+            l = Bstrlen(user_quote[i]);
             while(l > TEXTWRAPLEN)
             {
                 l -= TEXTWRAPLEN;
@@ -2223,11 +2223,11 @@ short strget_(int small,short x,short y,char *t,short dalen,short c)
         for(ii=0;ii<inputloc;ii++)
             b[ii] = '*';
         b[ii] = 0;
-        if(ps[myconnectindex].gm&MODE_TYPE) 
+        if(ps[myconnectindex].gm&MODE_TYPE)
             x = mpgametext(x,y,b,c,2+8+16);
         else x = gametext(x,y,b,c,2+8+16);
     }
-    else 
+    else
     {
         if(ps[myconnectindex].gm&MODE_TYPE)
             x = mpgametext(x,y,t,c,2+8+16);
@@ -2235,7 +2235,7 @@ short strget_(int small,short x,short y,char *t,short dalen,short c)
     }
     c = 4-(sintable[(totalclock<<4)&2047]>>11);
 
-    i = Bstrlen(t); 
+    i = Bstrlen(t);
     while(i > TEXTWRAPLEN-!small)
     {
         i -= TEXTWRAPLEN-!small;
@@ -2295,7 +2295,7 @@ void typemode(void)
                 }
                 adduserquote(recbuf);
                 quotebot += 8;
-                l = Bstrlen(recbuf); 
+                l = Bstrlen(recbuf);
                 while(l > TEXTWRAPLEN)
                 {
                     l -= TEXTWRAPLEN;
@@ -2898,7 +2898,7 @@ void displayrest(long smoothratio)
         OnEvent(EVENT_DISPLAYCROSSHAIR, ps[screenpeek].i, screenpeek, -1);
 
         if(GetGameVarID(g_iReturnVarID,ps[screenpeek].i,screenpeek) == 0)
-            rotatesprite((160L-(ps[myconnectindex].look_ang>>1))<<16,100L<<16,65536L,0,CROSSHAIR,0,0,2+1,windowx1,windowy1,windowx2,windowy2);
+            rotatesprite((160L-(ps[myconnectindex].look_ang>>1))<<16,100L<<16,ud.crosshair>1?65536L>>(ud.crosshair-1):65536L,0,CROSSHAIR,0,0,2+1,windowx1,windowy1,windowx2,windowy2);
     }
     if(ps[myconnectindex].gm&MODE_TYPE)
         typemode();

@@ -800,6 +800,7 @@ LABELS userdefslabels[]= {
                              { "brightskins", USERDEFS_BRIGHTSKINS, 0, 0 },
                              { "democams", USERDEFS_DEMOCAMS, 0, 0 },
                              { "color", USERDEFS_COLOR, 0, 0 },
+                             { "msgdisptime", USERDEFS_MSGDISPTIME, 0, 0 },
                              { "", -1, 0, 0  }     // END OF LIST
                          };
 

@@ -224,7 +224,7 @@ void CONFIG_SetDefaults( void )
     ud.detail = 1;
     ud.lockout = 0;
     ud.pwlockout[0] = '\0';
-    ud.crosshair = 0;
+    ud.crosshair = 1;
     ud.m_marker = 1;
     ud.m_ffire = 1;
     ud.levelstats = 0;
@@ -250,7 +250,7 @@ void CONFIG_SetDefaults( void )
     Bstrcpy(ud.ridecule[9], "AARRRGHHHHH!!!");
 
     // JBF 20031211
-    memset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
+    Bmemset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
     for (i=0; i < (int32)(sizeof(keydefaults)/sizeof(keydefaults[0]))/3; i++) {
         f = CONFIG_FunctionNameToNum( keydefaults[3*i+0] );
         if (f == -1) continue;
@@ -261,7 +261,7 @@ void CONFIG_SetDefaults( void )
         KeyboardKeys[f][1] = k2;
     }
 
-    memset(MouseFunctions, -1, sizeof(MouseFunctions));
+    Bmemset(MouseFunctions, -1, sizeof(MouseFunctions));
     for (i=0; i<MAXMOUSEBUTTONS; i++) {
         MouseFunctions[i][0] = CONFIG_FunctionNameToNum( mousedefaults[i] );
 
@@ -270,7 +270,7 @@ void CONFIG_SetDefaults( void )
         MouseFunctions[i][1] = CONFIG_FunctionNameToNum( mouseclickeddefaults[i] );
     }
 
-    memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
+    Bmemset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
     for (i=0; i<MAXMOUSEAXES; i++) {
         MouseAnalogueScale[i] = 65536;
 
@@ -281,13 +281,13 @@ void CONFIG_SetDefaults( void )
     }
     CONTROL_SetMouseSensitivity(32768);
 
-    memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
+    Bmemset(JoystickFunctions, -1, sizeof(JoystickFunctions));
     for (i=0; i<MAXJOYBUTTONS; i++) {
         JoystickFunctions[i][0] = CONFIG_FunctionNameToNum( joystickdefaults[i] );
         JoystickFunctions[i][1] = CONFIG_FunctionNameToNum( joystickclickeddefaults[i] );
     }
 
-    memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
+    Bmemset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
     for (i=0; i<MAXJOYAXES; i++) {
         JoystickAnalogueScale[i] = 65536;
         JoystickAnalogueDead[i] = 1000;

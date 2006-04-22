@@ -797,7 +797,7 @@ void menus(void)
         for(i=0;i<10;i++)
         {
             if(current_menu == 20005 && i == last_probey) continue;
-            gametextpal(25,40+(8*i),ud.ridecule[i],MENUHIGHLIGHT(i),0);
+            gametextpal(25,40+(i<<3),ud.ridecule[i],MENUHIGHLIGHT(i),0);
         }
         break;
 
