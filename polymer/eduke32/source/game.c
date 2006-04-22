@@ -2036,12 +2036,12 @@ void operatefta(void)
         for(i=0;i<MAXUSERQUOTES;i++)
         {
             if (user_quote_time[i] <= 0) break;
-            k -= 8; // <<(Bstrlen(user_quote[i]) > TEXTWRAPLEN);
+            k -= scale(8,200,ScreenHeight);
             l = Bstrlen(user_quote[i]); 
             while(l > TEXTWRAPLEN)
             {
                 l -= TEXTWRAPLEN;
-                k -= 8;
+                k -= scale(8,200,ScreenHeight);
             }
         }
         k -= 4;
