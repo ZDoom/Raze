@@ -161,8 +161,7 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
     player->palette = pal;
 }
 
-#define MPTEXT(x,y) ((xdim >= 640 && ydim >= 480)?x:y)
-#define TEXTWRAPLEN 76
+#define TEXTWRAPLEN ((scale(35,ScreenWidth,320))-1)// 76
 
 int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2)
 {
@@ -177,14 +176,14 @@ int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,shor
     {
         while(*t)
         {
-            if(*t == 32) {newx+=small?3:5;t++;continue;}
+            if(*t == 32) {newx+=5;t++;continue;}
             else ac = *t - '!' + starttile;
 
             if( ac < starttile || ac > (starttile + 93) ) break;
 
-            if(*t >= '0' && *t <= '9')
-                newx += small?4:8;
-            else newx += (tilesizx[ac]>>small);
+            if((*t >= '0' && *t <= '9') || (small && !(*t >= 'a' && *t <= 'Z')))
+                newx += 8;
+            else newx += tilesizx[ac];
             t++;
         }
 
@@ -194,17 +193,17 @@ int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,shor
 
     while(*t)
     {
-        if(*t == 32) {x+=small?3:5;t++;continue;}
+        if(*t == 32) {x+=5;t++;continue;}
         else ac = *t - '!' + starttile;
 
         if( ac < starttile || ac > (starttile + 93) )
             break;
 
-        rotatesprite(x<<16,y<<16,65536>>small,0,ac,s,p,2|orientation,x1,y1,x2,y2);
-        if(*t >= '0' && *t <= '9')
-            x += small?4:8;
-        else x += (tilesizx[ac]>>small);
-        if((t-oldt > TEXTWRAPLEN-5 && *t == 32) || t-oldt > TEXTWRAPLEN) oldt = t, x = oldx, y+=small?4:8;
+        rotatesprite(x<<16,(y<<16)+(small?ScreenHeight<<15:0),65536,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
+        if((*t >= '0' && *t <= '9'))
+            x += 8;
+        else x += tilesizx[ac];//(tilesizx[ac]>>small);
+        if((t-oldt > (signed)TEXTWRAPLEN-5 && *t == 32) || t-oldt > (signed)TEXTWRAPLEN) oldt = t, x = oldx, y+=8;
         t++;
     }
 
@@ -1993,22 +1992,28 @@ void coords(short snum)
 
 void operatefta(void)
 {
-    long i, j, k;
+    long i, j, k, l;
 
     if(ud.screen_size > 0) j = 200-45; else j = 200-8;
     quotebot = min(quotebot,j);
     quotebotgoal = min(quotebotgoal,j);
-    if(ps[myconnectindex].gm&MODE_TYPE) j -= MPTEXT(4,8);
+    if(ps[myconnectindex].gm&MODE_TYPE) j -= 8;
     quotebotgoal = j; j = quotebot;
     for(i=0;i<MAXUSERQUOTES;i++)
     {
         k = user_quote_time[i]; if (k <= 0) break;
-        if(Bstrlen(user_quote[i]) > TEXTWRAPLEN) j -= MPTEXT(4,8);
+        l = Bstrlen(user_quote[i]); 
+//        if(Bstrlen(user_quote[i]) > TEXTWRAPLEN) j -= 8;
+        while(l > TEXTWRAPLEN)
+        {
+            l -= TEXTWRAPLEN;
+            j -= 8;
+        }
         if (k > 4)
             mpgametext(320>>1,j,user_quote[i],0,2+8+16);
         else if (k > 2) mpgametext(320>>1,j,user_quote[i],0,2+8+16+1);
         else mpgametext(320>>1,j,user_quote[i],0,2+8+16+1+32);
-        j -= MPTEXT(4,8);
+        j -= 8;
     }
 
     if (ps[screenpeek].fta <= 1) return;
@@ -2031,9 +2036,15 @@ void operatefta(void)
         for(i=0;i<MAXUSERQUOTES;i++)
         {
             if (user_quote_time[i] <= 0) break;
-            k -= MPTEXT(4,8)<<(Bstrlen(user_quote[i]) > TEXTWRAPLEN);
+            k -= 8; // <<(Bstrlen(user_quote[i]) > TEXTWRAPLEN);
+            l = Bstrlen(user_quote[i]); 
+            while(l > TEXTWRAPLEN)
+            {
+                l -= TEXTWRAPLEN;
+                k -= 8;
+            }
         }
-        k -= MPTEXT(2,4);
+        k -= 4;
     }
 
     j = ps[screenpeek].fta;
@@ -2153,9 +2164,11 @@ else if(ud.recstat == 2) { if (frecfilep) fclose(frecfilep); }  // JBF: fixes cr
 }
 
 short inputloc = 0;
-short strget(short x,short y,char *t,short dalen,short c)
+
+short strget_(int small,short x,short y,char *t,short dalen,short c)
 {
     short ch;
+    int i;
 
     while((ch = KB_Getch()) != 0)
     {
@@ -2210,13 +2223,38 @@ short strget(short x,short y,char *t,short dalen,short c)
         else x = gametext(x,y,t,c,2+8+16);
     }
     c = 4-(sintable[(totalclock<<4)&2047]>>11);
-    rotatesprite((x+MPTEXT(4,8))<<16,(y+MPTEXT(2,4)+((Bstrlen(t) > TEXTWRAPLEN+1)?4:0))<<16,MPTEXT(16384,32768),0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,2+8,0,0,xdim-1,ydim-1);
+
+    i = Bstrlen(t); 
+    while(i > TEXTWRAPLEN+1)
+    {
+        i -= TEXTWRAPLEN;
+        y += 8;
+    }
+
+    rotatesprite((x+(small?4:8))<<16,((y+(small?0:4))<<16)+(small?ScreenHeight<<15:0),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,small?(8|16):2+8,0,0,xdim-1,ydim-1);
     return (0);
+}
+
+inline short strget(short x,short y,char *t,short dalen,short c)
+{
+    return(strget_(0,x,y,t,dalen,c));
+}
+
+inline short strgetsm(short x,short y,char *t,short dalen,short c)
+{
+    return(strget_(1,x,y,t,dalen,c));
+}
+
+inline short mpstrget(short x,short y,char *t,short dalen,short c)
+{
+    if(xdim >= 640 && ydim >= 480)
+        return(strgetsm(x,y,t,dalen,c));
+    else return(strget(x,y,t,dalen,c));
 }
 
 void typemode(void)
 {
-    short ch, hitstate, i, j;
+    short ch, hitstate, i, j, l;
 
     if( ps[myconnectindex].gm&MODE_SENDTOWHOM )
     {
@@ -2245,7 +2283,13 @@ void typemode(void)
                     if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                 }
                 adduserquote(recbuf);
-                quotebot += MPTEXT(4,8)<<(Bstrlen(recbuf) > TEXTWRAPLEN);
+                quotebot += 8; // <<(Bstrlen(recbuf) > TEXTWRAPLEN);
+                l = Bstrlen(recbuf); 
+                while(l > TEXTWRAPLEN)
+                {
+                    l -= TEXTWRAPLEN;
+                    quotebot += 8;
+                }
                 quotebotgoal = quotebot;
             }
             else if(sendmessagecommand >= 0)
@@ -2320,7 +2364,7 @@ void typemode(void)
     else
     {
         if(ud.screen_size > 0) j = 200-45; else j = 200-8;
-        hitstate = strget(320>>1,j,typebuf,MPTEXT(120,30),1);
+        hitstate = mpstrget(320>>1,j,typebuf,120,1);
 
         if(hitstate == 1)
         {
