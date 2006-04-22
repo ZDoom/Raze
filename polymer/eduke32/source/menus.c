@@ -665,7 +665,7 @@ void menus(void)
         rotatesprite((280)<<16,(37+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,ud.color,10,0,0,xdim-1,ydim-1);
 
         if (current_menu == 20002) {
-            x = probe(40,50,16,5);
+            x = probe(40,50,16,6);
             switch(x) {
             case -1:
                 cmenu(202);
@@ -702,6 +702,9 @@ void menus(void)
             case 4:
                 ud.mouseaiming = !ud.mouseaiming;
                 updatenames();
+                break;
+            case 5:
+                cmenu(20004);
                 break;
             }
         } else {
@@ -741,6 +744,7 @@ void menus(void)
         menutext(40,50+16+16,MENUHIGHLIGHT(2),0,"AUTO AIM");
         menutext(40,50+16+16+16,MENUHIGHLIGHT(3),0,"WEAPON SWITCH");
         menutext(40,50+16+16+16+16,MENUHIGHLIGHT(4),0,"AIMING TYPE");
+        menutext(40,50+16+16+16+16+16,MENUHIGHLIGHT(5),0,"MACRO SETUP");
 
         if (current_menu == 20002) {
             gametext(200,50-9,myname,MENUHIGHLIGHT(0),2+8+16); }
@@ -753,6 +757,48 @@ void menus(void)
             gametext(200,50+16+16+16-9,s[ud.weaponswitch],MENUHIGHLIGHT(3),2+8+16); }
         gametext(200,50+16+16+16+16-9,ud.mouseaiming?"Held":"Toggle",MENUHIGHLIGHT(4),2+8+16);
 
+        break;
+
+    case 20004:
+    case 20005:
+        rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        menutext(160,24,0,0,"MACRO SETUP");
+
+        if (current_menu == 20004)
+        {
+            x = probesm(23,45,8,10);
+            if(x == -1)
+            {
+                cmenu(20002);
+                probey = 5;
+            }
+            else if(x >= 0 && x <= 9)
+            {
+                strcpy(buf, ud.ridecule[x]);
+                inputloc = strlen(buf);
+                last_probey = probey;
+                current_menu = 20005;
+                KB_ClearKeyDown(sc_Enter);
+                KB_ClearKeyDown(sc_kpad_Enter);
+                KB_FlushKeyboardQueue();
+            }
+        } else {
+            x = strget(25,40+(8*probey),buf,34,0);
+            if (x) {
+                if (x == 1) {
+                    Bstrcpy(ud.ridecule[last_probey],buf);
+                }
+                KB_ClearKeyDown(sc_Enter);
+                KB_ClearKeyDown(sc_kpad_Enter);
+                KB_FlushKeyboardQueue();
+                current_menu = 20004;
+            }
+        }
+        for(i=0;i<10;i++)
+        {
+            if(current_menu == 20005 && i == last_probey) continue;
+            gametextpal(25,40+(8*i),ud.ridecule[i],MENUHIGHLIGHT(i),0);
+        }
         break;
 
     case 20010:

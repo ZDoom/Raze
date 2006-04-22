@@ -317,7 +317,7 @@ void adduserquote(char *daquote)
     strcpy(user_quote[0],daquote);
     OSD_Printf("%s\n", daquote);
 
-    user_quote_time[0] = 360;
+    user_quote_time[0] = ud.msgdisptime;
     pub = NUMPAGES;
 }
 
@@ -2047,7 +2047,7 @@ void operatefta(void)
         for(i=0;i<MAXUSERQUOTES;i++)
         {
             if (user_quote_time[i] <= 0) break;
-            k -= scale(8,200,ScreenHeight);
+            k -= 8;
             l = Bstrlen(user_quote[i]); 
             while(l > TEXTWRAPLEN)
             {

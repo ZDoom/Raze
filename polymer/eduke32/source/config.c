@@ -232,6 +232,7 @@ void CONFIG_SetDefaults( void )
     ud.brightskins = 0;
     ud.democams = 1;
     ud.color = 0;
+    ud.msgdisptime = 360;
 
     ShowOpponentWeapons = 0;
     Bstrcpy(ud.rtsname, "DUKE.RTS");
@@ -592,6 +593,7 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "DemoCams",&ud.democams);
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         SCRIPT_GetNumber( scripthandle, "Misc", "Color",&ud.color);
+        SCRIPT_GetNumber( scripthandle, "Misc", "MPMessageDisplayTime",&ud.msgdisptime);
         ps[0].palookup = ud.pcolor[0] = ud.color;
         dummy = useprecache; SCRIPT_GetNumber( scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
         if(ud.wchoice[0][0] == 0 && ud.wchoice[0][1] == 0)
@@ -724,6 +726,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Misc", "DemoCams",ud.democams,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "ShowFPS",ud.tickrate,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "Color",ud.color,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "MPMessageDisplayTime",ud.msgdisptime,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls", "MouseAimingFlipped",ud.mouseflip,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
     //SCRIPT_PutNumber( scripthandle, "Controls","GameMouseAiming",(int32) ps[myconnectindex].aim_mode,false,false);
@@ -797,6 +800,17 @@ void CONFIG_WriteSetup( void )
     }
 
     SCRIPT_PutString( scripthandle, "Comm Setup","PlayerName",&myname[0]);
+    SCRIPT_PutString( scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
+
+    {
+        char commmacro[] = "CommbatMacro# ";
+
+        for(dummy = 0;dummy < 10;dummy++)
+        {
+            commmacro[13] = dummy+'0';
+            SCRIPT_PutString( scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
+        }
+    }
 
     SCRIPT_Save (scripthandle, setupfilename);
     SCRIPT_Free (scripthandle);

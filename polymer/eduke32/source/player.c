@@ -290,6 +290,7 @@ short aim(spritetype *s,short aang,short atwith)
                 case TONGUE__STATIC:
                 case FREEZEBLAST__STATIC:
                 case SHRINKSPARK__STATIC:
+                case SHRINKER__STATIC:
                 case RPG__STATIC:
                 case FIRELASER__STATIC:
                 case SPIT__STATIC:
