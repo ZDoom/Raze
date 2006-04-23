@@ -1057,18 +1057,12 @@ void ReadGameVars(long fil)
     {
 
         if(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
-        {
             aGameVars[i].plValues=SafeMalloc(sizeof(long) * MAXPLAYERS);
-        }
         else if( aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
-        {
             aGameVars[i].plValues=SafeMalloc(sizeof(long) * MAXSPRITES);
-        }
         else
-        {
             // else nothing 'extra...'
             aGameVars[i].plValues=NULL;
-        }
     }
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
@@ -1203,38 +1197,22 @@ void DumpGameVars(FILE *fp)
             fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
 
             if(aGameVars[i].dwFlags & (GAMEVAR_FLAG_PLONG) )
-            {
                 fprintf(fp,"%ld",*((long*)aGameVars[i].lValue));
-            }
             else
-            {
                 fprintf(fp,"%ld",aGameVars[i].lValue);
-            }
             if(aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERPLAYER) )
-            {
                 fprintf(fp," GAMEVAR_FLAG_PERPLAYER");
-            }
             else if(aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERACTOR) )
-            {
                 fprintf(fp," GAMEVAR_FLAG_PERACTOR");
-            }
             else
-            {
                 fprintf(fp," %ld",aGameVars[i].dwFlags & (GAMEVAR_FLAG_USER_MASK));
-            }
             fprintf(fp," // ");
             if(aGameVars[i].dwFlags & (GAMEVAR_FLAG_SYSTEM))
-            {
                 fprintf(fp," (system)");
-            }
             if(aGameVars[i].dwFlags & (GAMEVAR_FLAG_PLONG))
-            {
                 fprintf(fp," (pointer)");
-            }
             if(aGameVars[i].dwFlags & (GAMEVAR_FLAG_READONLY) )
-            {
                 fprintf(fp," (read only)");
-            }
             fprintf(fp,"\n");
         }
     }
@@ -1350,24 +1328,16 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
         if(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
         {
             if(!aGameVars[i].plValues)
-            {
                 aGameVars[i].plValues=SafeMalloc(sizeof(long) * MAXPLAYERS);
-            }
             for(j=0;j<MAXPLAYERS;j++)
-            {
                 aGameVars[i].plValues[j]=lValue;
-            }
         }
         else if( aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
         {
             if(!aGameVars[i].plValues)
-            {
                 aGameVars[i].plValues=SafeMalloc(sizeof(long) * MAXSPRITES);
-            }
             for(j=0;j<MAXSPRITES;j++)
-            {
                 aGameVars[i].plValues[j]=lValue;
-            }
         }
         return 1;
     }
@@ -4544,7 +4514,8 @@ repeatcase:
             if (!fta_quotes[k])
             {
                 fta_quotes[k] = NULL;
-                gameexit("Failed allocating 64 byte quote text buffer.");
+                Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
+                gameexit(tempbuf);
             }
             scriptptr--;
         }
@@ -4562,7 +4533,8 @@ repeatcase:
             if (!redefined_quotes[redefined_quote_count])
             {
                 redefined_quotes[redefined_quote_count] = NULL;
-                gameexit("Failed allocating 64 byte quote text buffer.");
+                Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
+                gameexit(tempbuf);
             }
         }
 
@@ -4924,7 +4896,6 @@ void FreeGameVars(void)
 
         if(aGameVars[i].plValues)
             Bfree(aGameVars[i].plValues);
-
         aGameVars[i].plValues=NULL;
     }
     iGameVarCount=0;
@@ -4943,6 +4914,9 @@ void ClearGameVars(void)
         aGameVars[i].lValue=0;
         aGameVars[i].szLabel[0]=0;
         aGameVars[i].dwFlags=0;
+
+        if(aGameVars[i].plValues)
+            Bfree(aGameVars[i].plValues);
         aGameVars[i].plValues=NULL;
     }
     iGameVarCount=0;
@@ -5812,6 +5786,7 @@ void loadefs(char *filenam)
     *script = (long) scriptptr;
 
     Bfree(mptr);
+    mptr = NULL;
 
     if(warning|error)
         initprintf("Found %ld warning(s), %ld error(s).\n",warning,error);

@@ -41,7 +41,7 @@ OURCFLAGS=$(debug) -W -Wall -Wimplicit -Wno-char-subscripts -Wunused \
 OURCXXFLAGS=-fno-exceptions -fno-rtti
 LIBS=-lm
 ifneq (0,$(JFAUD))
-	JFAUDLIBS=../jfaud/libjfaud.a ../jfaud/mpadec/libmpadec/libmpadec.a
+	JFAUDLIBS=../jfaud/libjfaud.a ../jfaud/mpadec/libmpadec.a
 endif
 
 NASMFLAGS=-s #-g
