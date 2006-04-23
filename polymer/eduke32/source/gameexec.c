@@ -3408,7 +3408,7 @@ char parse(void)
             insptr++;
             q = *insptr++;
             i = *insptr++;
-            Bstrcpy(fta_quotes[q],redefined_fta_quotes[i]);
+            Bstrcpy(fta_quotes[q],redefined_quotes[i]);
             break;
         }
 
@@ -4107,15 +4107,19 @@ SKIPJIBS:
             switch(tw)
             {
             case CON_GETPNAME:
-                if (ud.user_name[j][0] != 0)
-                    Bsprintf(fta_quotes[i],ud.user_name[j]);
-                else Bsprintf(fta_quotes[i],"%d",j);
+                if (ud.user_name[j][0])
+                    Bsprintf(fta_quotes[i],"%s",ud.user_name[j]);
+                else
+                    Bsprintf(fta_quotes[i],"%d",j);
                 break;
             case CON_QSTRCAT:
-                Bstrncat(fta_quotes[i],fta_quotes[j],63-Bstrlen(fta_quotes[i]));
+                Bmemcpy(tempbuf,fta_quotes[i],64);
+                Bmemcpy(buf,fta_quotes[j],64);
+                Bstrncat(tempbuf,buf,63-Bstrlen(tempbuf));
+                Bmemcpy(fta_quotes[i],tempbuf,64);
                 break;
             case CON_QSTRCPY:
-                Bstrcpy(fta_quotes[i],fta_quotes[j]);
+                Bstrcpy(fta_quotes[j],fta_quotes[i]);
                 break;
             case CON_CHANGESPRITESTAT:
                 changespritestat(i,j);
@@ -4613,7 +4617,6 @@ SKIPJIBS:
                 x2=GetGameVarID(*insptr++,g_i,g_p);
                 y2=GetGameVarID(*insptr++,g_i,g_p);
             }
-
             if (tw == CON_MINITEXT) minitextshade(x,y,fta_quotes[q],shade,pal,26);
             else if (tw == CON_GAMETEXT) txgametext(tilenum,x>>1,y,fta_quotes[q],shade,pal,orientation,x1,y1,x2,y2);
             else if (tw == CON_DIGITALNUMBER) txdigitalnumber(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2);

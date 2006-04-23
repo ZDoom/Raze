@@ -41,8 +41,8 @@ signed char checking_switch = 0, current_event = -1;
 char labelsonly = 0, nokeywordcheck = 0, dynamicremap = 0;
 static short num_braces = 0;    // init to some sensible defaults
 
-char redefined_fta_quotes[NUMOFFIRSTTIMEACTIVE][64];
-int redefined_quotes = 0;
+char *redefined_quotes[NUMOFFIRSTTIMEACTIVE];
+int redefined_quote_count = 0;
 
 long *aplWeaponClip[MAX_WEAPONS];       // number of items in magazine
 long *aplWeaponReload[MAX_WEAPONS];     // delay to reload (include fire)
@@ -4539,7 +4539,11 @@ repeatcase:
         }
 
         if (tw == CON_DEFINEQUOTE)
+        {
+            if(fta_quotes[k] == NULL)
+                fta_quotes[k] = Bmalloc(sizeof(char) * 64);
             scriptptr--;
+        }
 
         i = 0;
 
@@ -4547,7 +4551,11 @@ repeatcase:
             textptr++;
 
         if (tw == CON_REDEFINEQUOTE)
-            redefined_quotes++;
+        {
+            redefined_quote_count++;
+            if(redefined_quotes[redefined_quote_count] == NULL)
+                redefined_quotes[redefined_quote_count] = Bmalloc(sizeof(char) * 64);
+        }
 
         while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 )
         {
@@ -4559,23 +4567,26 @@ repeatcase:
                 break;
             }
             if (tw == CON_DEFINEQUOTE)
-                fta_quotes[k][i] = *textptr;
-            else redefined_fta_quotes[redefined_quotes][i] = *textptr;
+                *(fta_quotes[k]+i) = *textptr;
+            else
+                *(redefined_quotes[redefined_quote_count]+i) = *textptr;
             textptr++,i++;
-            if(i >= (signed)sizeof(fta_quotes[k])-1)
+            if(i >= 63)
             {
-                initprintf("%s:%ld: error: quote text exceeds limit of %ld characters.\n",compilefile,line_number,sizeof(fta_quotes[k])-1);
+                initprintf("%s:%ld: error: quote text exceeds limit of %ld characters.\n",compilefile,line_number,63);
                 error++;
                 while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 ) textptr++;
                 break;
             }
         }
         if (tw == CON_DEFINEQUOTE)
-            fta_quotes[k][i] = '\0';
+        {
+            *(fta_quotes[k]+i) = '\0';
+        }
         else
         {
-            redefined_fta_quotes[redefined_quotes][i] = '\0';
-            *scriptptr++=redefined_quotes;
+            *(fta_quotes[redefined_quote_count]+i) = '\0';
+            *scriptptr++=redefined_quote_count;
         }
         return 0;
 

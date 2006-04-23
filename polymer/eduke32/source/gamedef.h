@@ -39,7 +39,7 @@ extern long *actorLoadEventScrptr[MAXTILES];
 
 extern long *apScriptGameEvent[MAXGAMEEVENTS];
 
-extern char redefined_fta_quotes[NUMOFFIRSTTIMEACTIVE][64];
+extern char *redefined_quotes[NUMOFFIRSTTIMEACTIVE];
 
 extern short otherp;
 extern long g_currentweapon;

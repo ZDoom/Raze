@@ -1002,7 +1002,7 @@ void operaterespawns(short low)
 
 void operateactivators(short low,short snum)
 {
-    short i, j, k, *p, nexti;
+    short i, j, k, *p;
     walltype *wal;
 
     for(i=numcyclers-1;i>=0;i--)
@@ -1610,10 +1610,7 @@ void breakwall(short newpn,short spr,short dawallnum)
 void checkhitwall(short spr,short dawallnum,long x,long y,long z,short atwith)
 {
     short j, i, sn = -1, darkestwall;
-    signed char nfloors,nceilings;
-    short nextj;
     walltype *wal;
-    spritetype *s;
 
     wal = &wall[dawallnum];
 
@@ -1932,9 +1929,7 @@ void checkplayerhurt(struct player_struct *p,short j)
 
 char checkhitceiling(short sn)
 {
-    short i, j, q, darkestwall, darkestceiling;
-    signed char nfloors,nceilings;
-    walltype *wal;
+    short i, j;
 
     switch(dynamictostatic[sector[sn].ceilingpicnum])
     {
@@ -2007,7 +2002,7 @@ char checkhitceiling(short sn)
 
 void checkhitsprite(short i,short sn)
 {
-    short j, k, l, nextj, p, rpg=0;
+    short j, k, p, rpg=0;
     spritetype *s;
     int switchpicnum;
 

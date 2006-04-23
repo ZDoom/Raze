@@ -2076,7 +2076,8 @@ void FTA(short q,struct player_struct *p)
             p->ftq = q;
             pub = NUMPAGES;
             pus = NUMPAGES;
-            if (p == &ps[screenpeek]) OSD_Printf("%s\n",fta_quotes[q]);
+            if (p == &ps[screenpeek])
+                OSD_Printf("%s\n",fta_quotes[q]);
         }
     }
 }
@@ -6648,10 +6649,8 @@ FOUNDCHEAT:
 
                         sprite[ps[myconnectindex].i].hitag = 0;
                         sprite[ps[myconnectindex].i].lotag = 0;
-                        sprite[ps[myconnectindex].i].pal =
-                            ps[myconnectindex].palookup;
-
-                        Bsprintf(fta_quotes[122],"Scream for me, Long Beach!");
+                        sprite[ps[myconnectindex].i].pal = ps[myconnectindex].palookup;
+                        Bstrcpy(fta_quotes[122],"Scream for me, Long Beach!");
                         FTA(122,&ps[myconnectindex]);
                     }
                     else
@@ -7054,8 +7053,7 @@ void nonsharedkeys(void)
                         music_select++;
                     if(music_select == i)
                         music_select = 0;
-                    Bstrcpy(&fta_quotes[26][0],"PLAYING ");
-                    Bstrcat(&fta_quotes[26][0],&music_fn[0][music_select][0]);
+                    Bsprintf(fta_quotes[26],"PLAYING %s",&music_fn[0][music_select][0]);
                     FTA(26,&ps[myconnectindex]);
                     playmusic(&music_fn[0][music_select][0]);
                     return;
@@ -7273,9 +7271,8 @@ FAKE_F3:
         if( KB_KeyPressed( sc_F5 ) && MusicDevice >= 0 )
         {
             KB_ClearKeyDown( sc_F5 );
-            strcpy(&tempbuf[0],&music_fn[0][music_select][0]);
-            strcat(&tempbuf[0],".  USE SHIFT-F5 TO CHANGE.");
-            strcpy(&fta_quotes[26][0],&tempbuf[0]);
+            Bstrcpy(fta_quotes[26],&music_fn[0][music_select][0]);
+            Bstrcat(fta_quotes[26],".  USE SHIFT-F5 TO CHANGE.");
             FTA(26,&ps[myconnectindex]);
 
         }
@@ -9618,13 +9615,12 @@ char domovethings(void)
 
                 if(multiwho != myconnectindex)
                 {
-                    strcpy(fta_quotes[122],&ud.user_name[multiwho][0]);
-                    strcat(fta_quotes[122]," SAVED A MULTIPLAYER GAME");
+                    Bsprintf(fta_quotes[122],"%s SAVED A MULTIPLAYER GAME",&ud.user_name[multiwho][0]);
                     FTA(122,&ps[myconnectindex]);
                 }
                 else
                 {
-                    strcpy(fta_quotes[122],"MULTIPLAYER GAME SAVED");
+                    Bstrcpy(fta_quotes[122],"MULTIPLAYER GAME SAVED");
                     FTA(122,&ps[myconnectindex]);
                 }
                 break;
@@ -9641,13 +9637,12 @@ char domovethings(void)
                 {
                     if(multiwho != myconnectindex)
                     {
-                        strcpy(fta_quotes[122],&ud.user_name[multiwho][0]);
-                        strcat(fta_quotes[122]," LOADED A MULTIPLAYER GAME");
+                        Bsprintf(fta_quotes[122],"%s LOADED A MULTIPLAYER GAME",&ud.user_name[multiwho][0]);
                         FTA(122,&ps[myconnectindex]);
                     }
                     else
                     {
-                        strcpy(fta_quotes[122],"MULTIPLAYER GAME LOADED");
+                        Bstrcpy(fta_quotes[122],"MULTIPLAYER GAME LOADED");
                         FTA(122,&ps[myconnectindex]);
                     }
                     return 1;
@@ -9712,6 +9707,7 @@ char domovethings(void)
         Bsprintf(buf,"%s is history!",ud.user_name[i]);
         adduserquote(buf);
         Bstrcpy(fta_quotes[116],buf);
+
         ps[myconnectindex].ftq = 116, ps[myconnectindex].fta = 60;
 
         if(j < 0 && networkmode == 0 )
