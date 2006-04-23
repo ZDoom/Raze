@@ -8141,7 +8141,7 @@ void Startup(void)
 
     //initprintf("* Hold Esc to Abort. *\n");
     initprintf("Loading art header.\n");
-    if (loadpics("tiles000.art",32*1048576) < 0)
+    if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
         gameexit("Failed loading art.");
 
     initprintf("Loading palette/lookups...\n");

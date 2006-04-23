@@ -197,7 +197,18 @@ void SoundStartup(void)
 		return;
 	}
 
-	jfaud->SetCacheSize(1048576,1048576/2);
+	{
+		// the engine will take 60% of the system memory size for cache1d if there
+		// is less than the 16MB asked for in loadpics(), so we'll
+		// take 30% of what's left for the sound cache if that happened, or
+		// 50% of the system memory sans the 16MB maximum otherwise
+		unsigned k;
+		if (Bgetsysmemsize() <= MAXCACHE1DSIZE)
+			k = Bgetsysmemsize()/100*30;
+		else
+			k = Bgetsysmemsize()/100*50 - MAXCACHE1DSIZE;
+		jfaud->SetCacheSize(k,k/2);
+	}
 	
 	chans = new SoundChannel[NumVoices];
 	if (!chans) {
@@ -334,9 +345,6 @@ int xyzsound(short num, short i, long x, long y, long z)
 		return 0;
 	}
 	
-	swaplong(&y,&z);
-	y = -y>>4;
-	
 	if (soundm[num] & SOUNDM_DUKE) {
 		// Duke speech, one at a time only
 		int j;
@@ -415,7 +423,7 @@ int xyzsound(short num, short i, long x, long y, long z)
 	} else {
 		chan->SetRolloff(global ? 0.0 : 0.2);
 		chan->SetFollowListener(false);
-		chan->SetPosition((float)x/UNITSPERMETRE, (float)y/UNITSPERMETRE, (float)z/UNITSPERMETRE);
+        chan->SetPosition((float)x/UNITSPERMETRE, (float)(-z>>4)/UNITSPERMETRE, (float)y/UNITSPERMETRE);
 	}
 	
 	r = keephandle(chan, num, i);

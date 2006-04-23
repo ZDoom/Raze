@@ -1063,7 +1063,7 @@ failure:
 int gloadtile_hi(long dapic, long facen, hicreplctyp *hicr, long dameth, pthtyp *pth, long doalloc, char effect)
 {
 	coltype *pic = NULL, *rpptr;
-	long j, x, y, x2, y2, xsiz = -1, ysiz = -1, tsizx, tsizy;
+    long j, x, y, x2, y2, xsiz=0, ysiz=0, tsizx, tsizy;
 
 	char *picfil = NULL, *fn, hasalpha = 255;
 	long picfillen, texfmt = GL_RGBA, intexfmt = GL_RGBA, filh;
@@ -3635,7 +3635,7 @@ void polymost_drawsprite (long snum)
 	double px[6], py[6];
 	float f, r, c, s, fx, fy, sx0, sy0, sx1, sy1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1, ft[4];
 	float x0, y0, x1, y1, sc0, sf0, sc1, sf1, px2[6], py2[6], xv, yv, t0, t1;
-	long i, j, spritenum, xoff = -1, yoff = -1, method, npoints;
+	long i, j, spritenum, xoff=0, yoff=0, method, npoints;
 	spritetype *tspr;
 
 	tspr = tspriteptr[snum];
@@ -4929,7 +4929,7 @@ int dxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *pac
 	if (Bwrite(fil, &j, sizeof(unsigned long)) != sizeof(unsigned long)) return -1;
 	if (Bwrite(fil, writebuf, cleng) != cleng) return -1;
 #else
-	long j, k, offs, stride, cleng;
+	unsigned long j, k, offs, stride, cleng;
 	char *cptr;
 	
 	if ((pict->format == B_LITTLE32(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)) ||

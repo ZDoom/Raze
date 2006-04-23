@@ -861,7 +861,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 	{
 		int i,j;
 		for (i=0; path[i] == '.' || toupperlookup[path[i]] == '/'; ) i++;
-		for (j=0; path[j] = path[i]; j++,i++) ;
+		for (j=0; (path[j] = path[i]); j++,i++) ;
 		while (j>0 && toupperlookup[path[j-1]] == '/') j--;
 		path[j] = 0;
 		//initprintf("Cleaned up path = \"%s\"\n",path);

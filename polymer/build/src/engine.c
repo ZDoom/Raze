@@ -7356,7 +7356,11 @@ long loadpics(char *filename, long askedsize)
 
     //try dpmi_DETERMINEMAXREALALLOC!
 
-    cachesize = min((long)((Bgetsysmemsize()/100)*60),max(artsize,askedsize));
+	//cachesize = min((long)((Bgetsysmemsize()/100)*60),max(artsize,askedsize));
+	if (Bgetsysmemsize() <= (unsigned long)askedsize)
+		cachesize = (Bgetsysmemsize()/100)*60;
+	else
+		cachesize = askedsize;
     while ((pic = kkmalloc(cachesize)) == NULL)
     {
         cachesize -= 65536L;

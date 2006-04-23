@@ -25,6 +25,7 @@
 #define ioctlsocket ioctl
 #define LPHOSTENT struct hostent *
 
+#include "compat.h"
 #include <sys/time.h>
 static long GetTickCount(void)
 {

@@ -1105,6 +1105,7 @@ void showframe(int w)
 			bglPushMatrix();
 			bglLoadIdentity();
 
+			bglDisable(GL_ALPHA_TEST);
 			bglDisable(GL_DEPTH_TEST);
 			bglDisable(GL_ALPHA_TEST);
 			bglDisable(GL_TEXTURE_2D);
