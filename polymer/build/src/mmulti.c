@@ -366,6 +366,13 @@ long initmultiplayersparms(long argc, char **argv)
 long initmultiplayerscycle(void)
 {
 	long i, k;
+    extern long totalclock;
+    
+#ifdef _WIN32
+    Sleep(1);
+#else
+    usleep(1);
+#endif
 
 	getpacket(&i,0);
 
