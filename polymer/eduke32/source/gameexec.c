@@ -4113,10 +4113,10 @@ SKIPJIBS:
                     Bsprintf(fta_quotes[i],"%d",j);
                 break;
             case CON_QSTRCAT:
-                Bmemcpy(tempbuf,fta_quotes[i],64);
-                Bmemcpy(buf,fta_quotes[j],64);
-                Bstrncat(tempbuf,buf,63-Bstrlen(tempbuf));
-                Bmemcpy(fta_quotes[i],tempbuf,64);
+                Bmemcpy(tempbuf,fta_quotes[i],MAXQUOTELEN);
+                Bmemcpy(buf,fta_quotes[j],MAXQUOTELEN);
+                Bstrncat(tempbuf,buf,(MAXQUOTELEN-1)-Bstrlen(tempbuf));
+                Bmemcpy(fta_quotes[i],tempbuf,MAXQUOTELEN);
                 break;
             case CON_QSTRCPY:
                 Bstrcpy(fta_quotes[j],fta_quotes[i]);

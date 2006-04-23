@@ -4541,7 +4541,7 @@ repeatcase:
         if (tw == CON_DEFINEQUOTE)
         {
             if(fta_quotes[k] == NULL)
-                fta_quotes[k] = Bmalloc(sizeof(char) * 64);
+                fta_quotes[k] = Bmalloc(sizeof(char) * MAXQUOTELEN);
             scriptptr--;
         }
 
@@ -4554,7 +4554,7 @@ repeatcase:
         {
             redefined_quote_count++;
             if(redefined_quotes[redefined_quote_count] == NULL)
-                redefined_quotes[redefined_quote_count] = Bmalloc(sizeof(char) * 64);
+                redefined_quotes[redefined_quote_count] = Bmalloc(sizeof(char) * MAXQUOTELEN);
         }
 
         while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 )
@@ -4571,9 +4571,9 @@ repeatcase:
             else
                 *(redefined_quotes[redefined_quote_count]+i) = *textptr;
             textptr++,i++;
-            if(i >= 63)
+            if(i >= MAXQUOTELEN-1)
             {
-                initprintf("%s:%ld: error: quote text exceeds limit of %ld characters.\n",compilefile,line_number,63);
+                initprintf("%s:%ld: error: quote text exceeds limit of %ld characters.\n",compilefile,line_number,MAXQUOTELEN-1);
                 error++;
                 while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 ) textptr++;
                 break;
