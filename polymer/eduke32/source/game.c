@@ -7010,8 +7010,8 @@ void nonsharedkeys(void)
     if( BUTTON(gamefunc_Toggle_Crosshair) )
     {
         CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
-        ud.crosshair = 1-ud.crosshair;
-        FTA(21-ud.crosshair,&ps[screenpeek]);
+        ud.crosshair = (ud.crosshair==3)?0:ud.crosshair+1;
+        FTA(ud.crosshair?20:21,&ps[screenpeek]);
     }
 
     if(ud.overhead_on && BUTTON(gamefunc_Map_Follow_Mode) )

@@ -207,7 +207,7 @@ void SoundStartup(void)
 			k = Bgetsysmemsize()/100*30;
 		else
 			k = Bgetsysmemsize()/100*50 - MAXCACHE1DSIZE;
-		jfaud->SetCacheSize(k,k/2);
+        jfaud->SetCacheItemAge(24*120);	// 24 movements per second, 120 seconds max lifetime
 	}
 	
 	chans = new SoundChannel[NumVoices];
@@ -253,7 +253,7 @@ void AudioUpdate(void)
 		if (chans[i].chan && !jfaud->IsValidSound(chans[i].chan))
 			chans[i].chan = NULL;
 	}
-	jfaud->Update();
+	jfaud->Update(false);
 }
 
 
@@ -331,6 +331,7 @@ int xyzsound(short num, short i, long x, long y, long z)
 	JFAudMixerChannel *chan;
 	int r, global = 0;
 	float gain = 1.0, pitch = 1.0;
+    int sndist;
 
 	if (!jfaud || !havewave ||
 	    num >= NUM_SOUNDS ||
@@ -370,11 +371,19 @@ int xyzsound(short num, short i, long x, long y, long z)
 		} else pitch = translatepitch(ps);
 	}
 	
+    sndist = FindDistance3D((ps[screenpeek].oposx-SX),(ps[screenpeek].oposy-SY),(ps[screenpeek].oposz-SZ)>>4);
+
+    if( i >= 0 && (soundm[num]&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9 )
+        sndist = divscale14(sndist,(SHT+1));
+
+    sndist += soundvo[num];
+    if(sndist < 0) sndist = 0;
+
 	//gain += soundvo[num];
-	if (PN != MUSICANDSFX &&
+	if (sndist && PN != MUSICANDSFX &&
 		!cansee(ps[screenpeek].oposx,ps[screenpeek].oposy,ps[screenpeek].oposz-(24<<8),
 		ps[screenpeek].cursectnum,SX,SY,SZ-(24<<8),SECT) )
-        gain *= 1.0/32.0;
+        gain *= 0.4;
 	
 	switch(num)
 	{
@@ -540,6 +549,8 @@ void pan3dsound(void)
 	mix = jfaud->GetWave();
 	if (!mix) return;
 
+    jfaud->AgeCache();
+
 	if(ud.camerasprite == -1) {
 		cx = ps[screenpeek].oposx;
 		cy = ps[screenpeek].oposy;
@@ -559,6 +570,7 @@ void pan3dsound(void)
 		0.0, 1.0, 0.0);
 	
 	for (j=NumVoices-1; j>=0; j--) {
+        int sndist;
 		if (!chans[j].chan || !jfaud->IsValidSound(chans[j].chan) || chans[j].owner < 0) continue;
 
 		global = 0;
@@ -569,9 +581,23 @@ void pan3dsound(void)
 		sy = sprite[i].y;
 		sz = sprite[i].z;
 
+        if( PN == APLAYER && sprite[i].yvel == screenpeek)
+        {
+            sndist = 0;
+        }
+        else
+        {
+            sndist = FindDistance3D((cx-sx),(cy-sy),(cz-sz)>>4);
+            if( i >= 0 && (soundm[j]&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9 )
+                sndist = divscale14(sndist,(SHT+1));
+        }
+
+        sndist += soundvo[j];
+        if(sndist < 0) sndist = 0;
+
 		//gain += soundvo[num];
-		if (PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,sx,sy,sz-(24<<8),SECT) )
-			gain *= 1.0/32.0;
+		if (sndist && PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,sx,sy,sz-(24<<8),SECT) )
+			gain *= 0.4;
 		
 		if(PN == MUSICANDSFX && SLT < 999) numenvsnds++;
 		if( soundm[ chans[j].soundnum ]&SOUNDM_GLOBAL ) global = 1;
@@ -599,7 +625,7 @@ void pan3dsound(void)
 			chans[j].chan->SetFollowListener(true);
 			chans[j].chan->SetPosition(0.0, 0.0, 0.0);
 		} else {
-			chans[j].chan->SetRolloff(global ? 0.0 : 0.2);
+			chans[j].chan->SetRolloff(global ? 0.0 : 0.1);
 			chans[j].chan->SetFollowListener(false);
 			chans[j].chan->SetPosition((float)sx/UNITSPERMETRE, (float)(-sz>>4)/UNITSPERMETRE, (float)sy/UNITSPERMETRE);
 		}
