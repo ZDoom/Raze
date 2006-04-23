@@ -4688,6 +4688,25 @@ SKIPJIBS:
             break;
         }
 
+    case CON_CANSEE:
+        {
+            long x1, y1, z1, sect1, x2, y2, z2, sect2, r, rvar;
+
+            insptr++;
+            x1=GetGameVarID(*insptr++,g_i,g_p);
+            y1=GetGameVarID(*insptr++,g_i,g_p);
+            z1=GetGameVarID(*insptr++,g_i,g_p);
+            sect1=GetGameVarID(*insptr++,g_i,g_p);
+            x2=GetGameVarID(*insptr++,g_i,g_p);
+            y2=GetGameVarID(*insptr++,g_i,g_p);
+            z2=GetGameVarID(*insptr++,g_i,g_p);
+            sect2=GetGameVarID(*insptr++,g_i,g_p);
+            rvar=*insptr++;
+            r = cansee(x1,y1,z1,sect1,x2,y2,z2,sect2);
+            SetGameVarID(rvar, r, g_i, g_p);
+            break;
+        }
+
     case CON_ROTATEPOINT:
         {
             long xpivot, ypivot, x, y, x2, y2, x2var, y2var;

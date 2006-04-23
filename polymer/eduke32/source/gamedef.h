@@ -713,5 +713,6 @@ enum keywords {
     CON_SETINPUT,           // 286
     CON_GETINPUT,           // 287
 	CON_SAVE,				// 288
+    CON_CANSEE,             // 289
     END
 };

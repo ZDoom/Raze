@@ -433,6 +433,7 @@ char *keyw[] = {
                    "setinput",                 // 286
                    "getinput",                 // 287
                    "save",					   // 288
+                   "cansee",                   // 289
                    "<null>"
                };
 
@@ -3850,9 +3851,10 @@ char parsecommand(void)
         break;
 
     case CON_HITSCAN:
+    case CON_CANSEE:
         // get the ID of the DEF
-        transmultvars(7);
-        transmultvarstype(GAMEVAR_FLAG_READONLY,6);
+        transmultvars(tw==CON_CANSEE?8:7);
+        transmultvarstype(GAMEVAR_FLAG_READONLY,tw==CON_CANSEE?1:6);
         transvar();
         break;
 
