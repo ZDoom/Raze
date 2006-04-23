@@ -711,7 +711,9 @@ void menus(void)
             x = strget(200,50-9,buf,12,0);
             if (x) {
                 if (x == 1) {
-                    Bstrcpy(myname,buf);
+                    if(buf[0]) {
+                        Bstrcpy(myname,buf);
+                    }
                     // send name update
                 }
                 KB_ClearKeyDown(sc_Enter);

@@ -9034,7 +9034,7 @@ RECHECK:
         if( (ps[myconnectindex].gm&MODE_MENU) && (ps[myconnectindex].gm&MODE_EOL) )
             goto RECHECK;
 
-        if (KB_KeyPressed(sc_Escape) && (ps[myconnectindex].gm&MODE_MENU) == 0)
+        if (KB_KeyPressed(sc_Escape) && (ps[myconnectindex].gm&MODE_MENU) == 0 && (ps[myconnectindex].gm&MODE_TYPE) == 0)
         {
             KB_ClearKeyDown(sc_Escape);
             FX_StopAllSounds();
@@ -9054,7 +9054,7 @@ RECHECK:
         {
             if(ud.recstat != 2)
                 menus();
-            if( ud.multimode > 1 )
+            if( ud.multimode > 1  && current_menu != 20003 && current_menu != 20005)
             {
                 ControlInfo noshareinfo;
                 CONTROL_GetInput( &noshareinfo );

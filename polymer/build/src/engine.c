@@ -6173,9 +6173,10 @@ void drawmapview(long dax, long day, long zoome, short ang)
             globalorientation = (long)sec->floorstat;
             if ((globalorientation&1) != 0) continue;
 
+            globalpal = sec->floorpal;
+
             if (palookup[sec->floorpal] != globalpalwritten)
             {
-                globalpal = sec->floorpal;
                 globalpalwritten = palookup[sec->floorpal];
                 if (!globalpalwritten) globalpalwritten = palookup[globalpal];  // JBF: fixes null-pointer crash
                 setpalookupaddress(globalpalwritten);
