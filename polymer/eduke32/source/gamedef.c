@@ -41,7 +41,6 @@ signed char checking_switch = 0, current_event = -1;
 char labelsonly = 0, nokeywordcheck = 0, dynamicremap = 0;
 static short num_braces = 0;    // init to some sensible defaults
 
-char *redefined_quotes[NUMOFFIRSTTIMEACTIVE];
 int redefined_quote_count = 0;
 
 long *aplWeaponClip[MAX_WEAPONS];       // number of items in magazine
@@ -4542,6 +4541,11 @@ repeatcase:
         {
             if(fta_quotes[k] == NULL)
                 fta_quotes[k] = Bmalloc(sizeof(char) * MAXQUOTELEN);
+            if (!fta_quotes[k])
+            {
+                fta_quotes[k] = NULL;
+                gameexit("Failed allocating 64 byte quote text buffer.");
+            }
             scriptptr--;
         }
 
@@ -4555,6 +4559,11 @@ repeatcase:
             redefined_quote_count++;
             if(redefined_quotes[redefined_quote_count] == NULL)
                 redefined_quotes[redefined_quote_count] = Bmalloc(sizeof(char) * MAXQUOTELEN);
+            if (!redefined_quotes[redefined_quote_count])
+            {
+                redefined_quotes[redefined_quote_count] = NULL;
+                gameexit("Failed allocating 64 byte quote text buffer.");
+            }
         }
 
         while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 )
@@ -4914,9 +4923,7 @@ void FreeGameVars(void)
         aGameVars[i].dwFlags=0;
 
         if(aGameVars[i].plValues)
-        {
-            Bfree(aGameVars[i].plValues); // crash point
-        }
+            Bfree(aGameVars[i].plValues);
 
         aGameVars[i].plValues=NULL;
     }

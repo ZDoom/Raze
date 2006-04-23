@@ -42,7 +42,7 @@ short animatesect[MAXANIMATES];
 long msx[2048],msy[2048];
 short cyclers[MAXCYCLERS][6],numcyclers;
 
-char *fta_quotes[NUMOFFIRSTTIMEACTIVE];
+char *fta_quotes[NUMOFFIRSTTIMEACTIVE],*redefined_quotes[NUMOFFIRSTTIMEACTIVE];
 
 char tempbuf[2048], packbuf[576];
 

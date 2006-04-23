@@ -6298,7 +6298,7 @@ char cheatquotes[][MAXCHEATLEN] = {
                                       "keys",         // 23
                                       "debug",        // 24
                                       "<RESERVED>",   // 25
-                                      "screamforme",  // 26
+                                      "sfm",  // 26
                                   };
 
 enum cheats {
@@ -7967,6 +7967,8 @@ void loadtmb(void)
 
 void Shutdown( void )
 {
+    int i;
+
     SoundShutdown();
     MusicShutdown();
     uninittimer();
@@ -7974,6 +7976,13 @@ void Shutdown( void )
     CONTROL_Shutdown();
     CONFIG_WriteSetup();
     KB_Shutdown();
+    for(i=0;i<NUMOFFIRSTTIMEACTIVE;i++)
+    {
+        if(fta_quotes[i] != NULL)
+            Bfree(fta_quotes[i]);
+        if(redefined_quotes[i] != NULL)
+            Bfree(redefined_quotes[i]);
+    }
 }
 
 /*
