@@ -1051,6 +1051,7 @@ void ReadGameVars(long fil)
     {
         kdfread(&(aGameVars[i]),sizeof(MATTGAMEVAR),1,fil);
         aGameVars[i].szLabel=Bmalloc(sizeof(char) * MAXVARLABEL);
+        Bmemset(aGameVars[i].szLabel,0,MAXVARLABEL);
         kdfread(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil);
     }
 
@@ -1305,14 +1306,20 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
         else
         {
             if(aGameVars[i].szLabel == NULL)
+            {
                 aGameVars[i].szLabel=Bmalloc(sizeof(char) * MAXVARLABEL);
+                Bmemset(aGameVars[i].szLabel,0,MAXVARLABEL);
+            }
             Bstrcpy(aGameVars[i].szLabel,pszLabel);
             aGameVars[i].dwFlags=dwFlags;
             aGameVars[i].lValue=lValue;
             if(!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
             {
                 if(aDefaultGameVars[i].szLabel == NULL)
+                {
                     aDefaultGameVars[i].szLabel=Bmalloc(sizeof(char) * MAXVARLABEL);
+                    Bmemset(aDefaultGameVars[i].szLabel,0,MAXVARLABEL);
+                }
                 Bstrcpy(aDefaultGameVars[i].szLabel,pszLabel);
                 aDefaultGameVars[i].dwFlags=dwFlags;
                 aDefaultGameVars[i].lValue=lValue;
@@ -4532,18 +4539,17 @@ repeatcase:
             error++;
         }
 
-        if (tw == CON_DEFINEQUOTE)
+        if(fta_quotes[k] == NULL)
+            fta_quotes[k] = Bmalloc(sizeof(char) * MAXQUOTELEN);
+        if (!fta_quotes[k])
         {
-            if(fta_quotes[k] == NULL)
-                fta_quotes[k] = Bmalloc(sizeof(char) * MAXQUOTELEN);
-            if (!fta_quotes[k])
-            {
-                fta_quotes[k] = NULL;
-                Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
-                gameexit(tempbuf);
-            }
+            fta_quotes[k] = NULL;
+            Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
+            gameexit(tempbuf);
+        } else Bmemset(fta_quotes[k],0,MAXQUOTELEN);
+
+        if (tw == CON_DEFINEQUOTE)
             scriptptr--;
-        }
 
         i = 0;
 
@@ -4560,7 +4566,7 @@ repeatcase:
                 redefined_quotes[redefined_quote_count] = NULL;
                 Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
                 gameexit(tempbuf);
-            }
+            } else Bmemset(redefined_quotes[redefined_quote_count],0,MAXQUOTELEN);
         }
 
         while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 )
@@ -5883,9 +5889,12 @@ void loadefs(char *filenam)
         initprintf("\nCompiled code size: %ld/%ld bytes\n",(unsigned)(scriptptr-script),MAXSCRIPTSIZE);
         initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((sizeof(sector)/sizeof(long)),(sizeof(sprite)/(1<<6))),iGameVarCount,MAXGAMEVARS);
         initprintf("%ld event definitions, %ld defined actors\n\n",j,k);
-        for(i=0;i<124;i++)
+        for(i=0;i<128;i++)
             if(fta_quotes[i] == NULL)
+            {
                 fta_quotes[i] = Bmalloc(sizeof(char) * MAXQUOTELEN);
+                Bmemset(fta_quotes[i],0,MAXQUOTELEN);
+            }
     }
 }
 

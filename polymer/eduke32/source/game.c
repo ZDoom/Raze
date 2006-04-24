@@ -7994,6 +7994,13 @@ void Shutdown( void )
         if(redefined_quotes[i] != NULL)
             Bfree(redefined_quotes[i]);
     }
+    for(i=0;i<iGameVarCount;i++)
+    {
+        if(aGameVars[i].szLabel != NULL)
+            Bfree(aGameVars[i].szLabel);
+        if(aDefaultGameVars[i].szLabel != NULL)
+            Bfree(aDefaultGameVars[i].szLabel);
+    }
 }
 
 /*

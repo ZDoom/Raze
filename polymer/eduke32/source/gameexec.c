@@ -3408,9 +3408,9 @@ char parse(void)
             insptr++;
             q = *insptr++;
             i = *insptr++;
-            if(fta_quotes[q] != NULL && redefined_quotes[i] != NULL)
-                Bstrcpy(fta_quotes[q],redefined_quotes[i]);
-            else OSD_Printf("%s %d null quote %d %d\n",__FILE__,__LINE__,q,i);
+            if(fta_quotes[q] == NULL || redefined_quotes[i] == NULL)
+                OSD_Printf("%s %d null quote %d %d\n",__FILE__,__LINE__,q,i);
+            else Bstrcpy(fta_quotes[q],redefined_quotes[i]);
             break;
         }
 
@@ -4115,7 +4115,7 @@ SKIPJIBS:
                         Bsprintf(fta_quotes[i],"%s",ud.user_name[j]);
                     else
                         Bsprintf(fta_quotes[i],"%d",j);
-                }
+                } else OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,i);
                 break;
             case CON_QSTRCAT:
                 if(fta_quotes[i] != NULL && fta_quotes[j] != NULL)
