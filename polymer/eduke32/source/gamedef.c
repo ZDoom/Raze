@@ -434,6 +434,7 @@ char *keyw[] = {
                    "getinput",                 // 287
                    "save",					   // 288
                    "cansee",                   // 289
+                   "canseespr",                // 290
                    "<null>"
                };
 
@@ -3879,6 +3880,11 @@ char parsecommand(void)
         transmultvars(tw==CON_CANSEE?8:7);
         transmultvarstype(GAMEVAR_FLAG_READONLY,tw==CON_CANSEE?1:6);
         transvar();
+        break;
+
+    case CON_CANSEESPR:
+        transmultvars(2);
+        transvartype(GAMEVAR_FLAG_READONLY);
         break;
 
     case CON_ROTATEPOINT:

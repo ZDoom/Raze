@@ -714,5 +714,6 @@ enum keywords {
     CON_GETINPUT,           // 287
 	CON_SAVE,				// 288
     CON_CANSEE,             // 289
+    CON_CANSEESPR,          // 290
     END
 };

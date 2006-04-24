@@ -4067,6 +4067,21 @@ SKIPJIBS:
             break;
         }
 
+    case CON_CANSEESPR:
+        {
+            long var1, var2, rvar;
+
+            insptr++;
+
+            var1 = GetGameVarID(*insptr++,g_i,g_p);
+            var2 = GetGameVarID(*insptr++,g_i,g_p);
+            rvar = *insptr++;
+
+            SetGameVarID(rvar, cansee(sprite[var1].x,sprite[var1].y,sprite[var1].z,sprite[var1].sectnum,
+                                      sprite[var2].x,sprite[var2].y,sprite[var2].z,sprite[var2].sectnum), g_i, g_p);
+            break;
+        }
+
     case CON_OPERATERESPAWNS:
     case CON_OPERATEMASTERSWITCHES:
     case CON_CHECKACTIVATORMOTION:
@@ -5322,7 +5337,7 @@ SKIPJIBS:
                 var4 = GetGameVarID(*insptr++, g_i, g_p);
                 Bsprintf(fta_quotes[122],tempbuf,var1,var2,var3,var4);
                 FTA(122,&ps[g_p]);
-            } else { 
+            } else {
                 OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,*insptr);
                 insptr += 5;
             }
@@ -6536,7 +6551,7 @@ good:
         insptr++;
         if(fta_quotes[*insptr] != NULL)
             FTA(*insptr++,&ps[g_p]);
-        else { 
+        else {
             OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,*insptr);
             insptr++;
         }
@@ -6546,7 +6561,7 @@ good:
         insptr++;
         if(fta_quotes[*insptr] != NULL)
             adduserquote(fta_quotes[*insptr++]);
-        else { 
+        else {
             OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,*insptr);
             insptr++;
         }

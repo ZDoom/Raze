@@ -299,7 +299,7 @@ int loadplayer(signed char spot)
 
         if(kdfread((char *)fta_quotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
         if(kdfread(&i,sizeof(long),1,fil) != 1) goto corrupt;
-    }    
+    }
 
     if (kdfread(&redefined_quote_count,sizeof(redefined_quote_count),1,fil) != 1) goto corrupt;
 
@@ -311,7 +311,7 @@ int loadplayer(signed char spot)
         redefined_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
 
         if(kdfread((char *)redefined_quotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
-    }    
+    }
 
     ReadGameVars(fil);
 
@@ -662,7 +662,7 @@ int saveplayer(signed char spot)
 
     for(i=0;i<NUMOFFIRSTTIMEACTIVE;i++)
     {
-        if(fta_quotes[i] != NULL) 
+        if(fta_quotes[i] != NULL)
         {
             dfwrite(&i,sizeof(long),1,fil);
             dfwrite(fta_quotes[i],MAXQUOTELEN, 1, fil);
@@ -673,7 +673,7 @@ int saveplayer(signed char spot)
     dfwrite(&redefined_quote_count,sizeof(redefined_quote_count),1,fil);
     for(i=0;i<redefined_quote_count;i++)
     {
-        if(redefined_quotes[i] != NULL) 
+        if(redefined_quotes[i] != NULL)
             dfwrite(redefined_quotes[i],MAXQUOTELEN, 1, fil);
     }
 
