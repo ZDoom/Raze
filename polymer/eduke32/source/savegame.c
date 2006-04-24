@@ -283,6 +283,36 @@ int loadplayer(signed char spot)
     if (kdfread(&defaultprojectile[0],sizeof(proj_struct),MAXTILES,fil) != MAXTILES) goto corrupt;
     if (kdfread(&thisprojectile[0],sizeof(proj_struct),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
+    if (kdfread(&spriteflags[0],sizeof(spriteflags[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
+    if (kdfread(&actorspriteflags[0],sizeof(actorspriteflags[0]),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+
+    if (kdfread(&spritecache[0],sizeof(spritecache[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
+
+    if (kdfread(&i,sizeof(long),1,fil) != 1) goto corrupt;
+
+    while(i != NUMOFFIRSTTIMEACTIVE)
+    {
+        if(fta_quotes[i] != NULL)
+            Bfree(fta_quotes[i]);
+
+        fta_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
+
+        if(kdfread((char *)fta_quotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
+        if(kdfread(&i,sizeof(long),1,fil) != 1) goto corrupt;
+    }    
+
+    if (kdfread(&redefined_quote_count,sizeof(redefined_quote_count),1,fil) != 1) goto corrupt;
+
+    for(i=0;i<redefined_quote_count;i++)
+    {
+        if(redefined_quotes[i] != NULL)
+            Bfree(redefined_quotes[i]);
+
+        redefined_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
+
+        if(kdfread((char *)redefined_quotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
+    }    
+
     ReadGameVars(fil);
 
     kclose(fil);
@@ -624,6 +654,28 @@ int saveplayer(signed char spot)
     dfwrite(&projectile[0],sizeof(proj_struct),MAXTILES,fil);
     dfwrite(&defaultprojectile[0],sizeof(proj_struct),MAXTILES,fil);
     dfwrite(&thisprojectile[0],sizeof(proj_struct),MAXSPRITES,fil);
+
+    dfwrite(&spriteflags[0],sizeof(spriteflags[0]),MAXTILES,fil);
+    dfwrite(&actorspriteflags[0],sizeof(actorspriteflags[0]),MAXSPRITES,fil);
+
+    dfwrite(&spritecache[0],sizeof(spritecache[0]),MAXTILES,fil);
+
+    for(i=0;i<NUMOFFIRSTTIMEACTIVE;i++)
+    {
+        if(fta_quotes[i] != NULL) 
+        {
+            dfwrite(&i,sizeof(long),1,fil);
+            dfwrite(fta_quotes[i],MAXQUOTELEN, 1, fil);
+        }
+    }
+    dfwrite(&i,sizeof(long),1,fil);
+
+    dfwrite(&redefined_quote_count,sizeof(redefined_quote_count),1,fil);
+    for(i=0;i<redefined_quote_count;i++)
+    {
+        if(redefined_quotes[i] != NULL) 
+            dfwrite(redefined_quotes[i],MAXQUOTELEN, 1, fil);
+    }
 
     SaveGameVars(fil);
 

@@ -845,11 +845,15 @@ enum logoflags {
 
 extern char numl, condebug;
 
-extern char cheatkey[2];
-
 #define MAXCHEATLEN 20
+#define NUMCHEATCODES (signed int)(sizeof(cheatquotes)/sizeof(cheatquotes[MAXCHEATLEN]))
+
+extern char cheatkey[2];
+extern char cheatquotes[][MAXCHEATLEN];
 
 extern short weapon_sprites[MAX_WEAPONS];
+
+extern int redefined_quote_count;
 
 #ifdef __cplusplus
 }

@@ -4551,7 +4551,6 @@ repeatcase:
 
         if (tw == CON_REDEFINEQUOTE)
         {
-            redefined_quote_count++;
             if(redefined_quotes[redefined_quote_count] == NULL)
                 redefined_quotes[redefined_quote_count] = Bcalloc(MAXQUOTELEN,sizeof(char));
             if (!redefined_quotes[redefined_quote_count])
@@ -4590,6 +4589,7 @@ repeatcase:
         {
             *(fta_quotes[redefined_quote_count]+i) = '\0';
             *scriptptr++=redefined_quote_count;
+            redefined_quote_count++;
         }
         return 0;
 

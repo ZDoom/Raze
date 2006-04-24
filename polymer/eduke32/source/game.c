@@ -6280,9 +6280,6 @@ PALONLY:
 
 static char terminx[64] = { "Undead TC still sucks." };
 
-// #define NUMCHEATCODES 26
-// #define NUMCHEATCODES (signed int)(sizeof(cheatquotes)/sizeof(cheatquotes[14]))
-#define NUMCHEATCODES (signed int)(sizeof(cheatquotes)/sizeof(cheatquotes[MAXCHEATLEN]))
 char cheatquotes[][MAXCHEATLEN] = {
                                       "cornholio",    // 0
                                       "stuff",        // 1
