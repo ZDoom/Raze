@@ -713,7 +713,7 @@ enum gamevarflags {
 
 typedef struct {
     long lValue;
-    char szLabel[MAXVARLABEL];
+    char *szLabel;
     unsigned long dwFlags;
 
     long *plValues;     // array of values when 'per-player', or 'per-actor'

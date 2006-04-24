@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "util_lib.h"
 
-#define VERSION ""
+#define VERSION " 1.4.0svn"
 
 #define HEAD  "EDuke32"VERSION" (shareware mode)"
 #define HEAD2 "EDuke32"VERSION
@@ -171,6 +171,9 @@ int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,shor
     centre = ( x == (320>>1) );
     newx = 0;
     oldt = t;
+
+    if(t == NULL)
+        return -1;
 
     if(centre)
     {
@@ -2052,6 +2055,12 @@ void operatefta(void)
         k -= 4;
     }
 
+    if(fta_quotes[ps[screenpeek].ftq] == NULL)
+    {
+        OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,ps[screenpeek].ftq);
+        return;
+    }
+
     j = ps[screenpeek].fta;
     if (j > 4)
         gametext(320>>1,k,fta_quotes[ps[screenpeek].ftq],0,2+8+16);
@@ -2063,23 +2072,26 @@ void operatefta(void)
 
 void FTA(short q,struct player_struct *p)
 {
-    if( ud.fta_on == 1)
+    if(fta_quotes[p->ftq] != NULL)
     {
-        if( p->fta > 0 && q != 115 && q != 116 )
-            if( p->ftq == 115 || p->ftq == 116 ) return;
-
-        p->fta = 100;
-
-        if( p->ftq != q || q == 26 )
-            // || q == 26 || q == 115 || q ==116 || q == 117 || q == 122 )
+        if( ud.fta_on == 1)
         {
-            p->ftq = q;
-            pub = NUMPAGES;
-            pus = NUMPAGES;
-            if (p == &ps[screenpeek])
-                OSD_Printf("%s\n",fta_quotes[q]);
+            if( p->fta > 0 && q != 115 && q != 116 )
+                if( p->ftq == 115 || p->ftq == 116 ) return;
+
+            p->fta = 100;
+
+            if( p->ftq != q || q == 26 )
+                // || q == 26 || q == 115 || q ==116 || q == 117 || q == 122 )
+            {
+                p->ftq = q;
+                pub = NUMPAGES;
+                pus = NUMPAGES;
+                if (p == &ps[screenpeek])
+                    OSD_Printf("%s\n",fta_quotes[q]);
+            }
         }
-    }
+    } else OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,p->ftq);
 }
 
 void showtwoscreens(void)
@@ -7274,7 +7286,6 @@ FAKE_F3:
             Bstrcpy(fta_quotes[26],&music_fn[0][music_select][0]);
             Bstrcat(fta_quotes[26],".  USE SHIFT-F5 TO CHANGE.");
             FTA(26,&ps[myconnectindex]);
-
         }
 
         if(KB_KeyPressed( sc_F8 ))

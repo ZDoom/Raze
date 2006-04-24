@@ -359,10 +359,9 @@ int osdcmd_setvar(const osdfuncparm_t *parm)
     varval = Batol(parm->parms[1]);
 
     for(i=0;i<iGameVarCount;i++)
-        if(Bstrcmp(varname, aGameVars[i].szLabel))
-        {
-            SetGameVarID(i, varval, ps[myconnectindex].i, myconnectindex);
-        }
+        if(aGameVars[i].szLabel != NULL)
+            if(Bstrcmp(varname, aGameVars[i].szLabel) == 0)
+                SetGameVarID(i, varval, ps[myconnectindex].i, myconnectindex);
     return OSDCMD_OK;
 }
 

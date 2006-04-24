@@ -2234,8 +2234,8 @@ cheat_for_port_credits:
                 }
                 enabled = 1;
                 switch (io) {
-                case 0:  if (x==io) ud.crosshair = 1-ud.crosshair;
-                    modval(0,1,(int *)&ud.crosshair,1,probey==io);
+                case 0:  if (x==io) ud.crosshair = (ud.crosshair==3)?0:ud.crosshair+1;
+                    modval(0,3,(int *)&ud.crosshair,1,probey==io);
                     gametextpal(d,yy, ud.crosshair ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
                 case 1:  if (x==io) ud.levelstats = 1-ud.levelstats;
                     modval(0,1,(int *)&ud.levelstats,1,probey==io);

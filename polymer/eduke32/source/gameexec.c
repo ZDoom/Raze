@@ -3408,7 +3408,9 @@ char parse(void)
             insptr++;
             q = *insptr++;
             i = *insptr++;
-            Bstrcpy(fta_quotes[q],redefined_quotes[i]);
+            if(fta_quotes[q] != NULL && redefined_quotes[i] != NULL)
+                Bstrcpy(fta_quotes[q],redefined_quotes[i]);
+            else OSD_Printf("%s %d null quote %d %d\n",__FILE__,__LINE__,q,i);
             break;
         }
 
@@ -4107,16 +4109,23 @@ SKIPJIBS:
             switch(tw)
             {
             case CON_GETPNAME:
-                if (ud.user_name[j][0])
-                    Bsprintf(fta_quotes[i],"%s",ud.user_name[j]);
-                else
-                    Bsprintf(fta_quotes[i],"%d",j);
+                if(fta_quotes[i] != NULL)
+                {
+                    if (ud.user_name[j][0])
+                        Bsprintf(fta_quotes[i],"%s",ud.user_name[j]);
+                    else
+                        Bsprintf(fta_quotes[i],"%d",j);
+                }
                 break;
             case CON_QSTRCAT:
-                Bstrncat(fta_quotes[i],fta_quotes[j],(MAXQUOTELEN-1)-Bstrlen(fta_quotes[i]));
+                if(fta_quotes[i] != NULL && fta_quotes[j] != NULL)
+                    Bstrncat(fta_quotes[i],fta_quotes[j],(MAXQUOTELEN-1)-Bstrlen(fta_quotes[i]));
+                else OSD_Printf("%s %d null quote %d %d\n",__FILE__,__LINE__,i,j);
                 break;
             case CON_QSTRCPY:
-                Bstrcpy(fta_quotes[j],fta_quotes[i]);
+                if(fta_quotes[i] != NULL && fta_quotes[j] != NULL)
+                    Bstrcpy(fta_quotes[j],fta_quotes[i]);
+                else OSD_Printf("%s %d null quote %d %d\n",__FILE__,__LINE__,i,j);
                 break;
             case CON_CHANGESPRITESTAT:
                 changespritestat(i,j);
@@ -4614,9 +4623,11 @@ SKIPJIBS:
                 x2=GetGameVarID(*insptr++,g_i,g_p);
                 y2=GetGameVarID(*insptr++,g_i,g_p);
             }
-            if (tw == CON_MINITEXT) minitextshade(x,y,fta_quotes[q],shade,pal,26);
-            else if (tw == CON_GAMETEXT) txgametext(tilenum,x>>1,y,fta_quotes[q],shade,pal,orientation,x1,y1,x2,y2);
+            if (tw == CON_MINITEXT && fta_quotes[q] != NULL) minitextshade(x,y,fta_quotes[q],shade,pal,26);
+            else if (tw == CON_GAMETEXT && fta_quotes[q] != NULL) txgametext(tilenum,x>>1,y,fta_quotes[q],shade,pal,orientation,x1,y1,x2,y2);
             else if (tw == CON_DIGITALNUMBER) txdigitalnumber(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2);
+            if((tw == CON_MINITEXT || tw == CON_GAMETEXT) && fta_quotes[q] == NULL)
+                OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,q);
             break;
         }
 
@@ -5302,13 +5313,19 @@ SKIPJIBS:
         {
             long var1, var2, var3, var4;
             insptr++;
-            Bstrcpy(tempbuf,fta_quotes[*insptr++]);
-            var1 = GetGameVarID(*insptr++, g_i, g_p);
-            var2 = GetGameVarID(*insptr++, g_i, g_p);
-            var3 = GetGameVarID(*insptr++, g_i, g_p);
-            var4 = GetGameVarID(*insptr++, g_i, g_p);
-            Bsprintf(fta_quotes[122],tempbuf,var1,var2,var3,var4);
-            FTA(122,&ps[g_p]);
+            if(fta_quotes[*insptr] != NULL)
+            {
+                Bstrcpy(tempbuf,fta_quotes[*insptr++]);
+                var1 = GetGameVarID(*insptr++, g_i, g_p);
+                var2 = GetGameVarID(*insptr++, g_i, g_p);
+                var3 = GetGameVarID(*insptr++, g_i, g_p);
+                var4 = GetGameVarID(*insptr++, g_i, g_p);
+                Bsprintf(fta_quotes[122],tempbuf,var1,var2,var3,var4);
+                FTA(122,&ps[g_p]);
+            } else { 
+                OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,*insptr);
+                insptr += 5;
+            }
             break;
         }
 
@@ -6523,13 +6540,22 @@ good:
 
     case CON_QUOTE:
         insptr++;
-        FTA(*insptr++,&ps[g_p]);
+        if(fta_quotes[*insptr] != NULL)
+            FTA(*insptr++,&ps[g_p]);
+        else { 
+            OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,*insptr);
+            insptr++;
+        }
         break;
 
     case CON_USERQUOTE:
         insptr++;
-        adduserquote(fta_quotes[*insptr]);
-        insptr++;
+        if(fta_quotes[*insptr] != NULL)
+            adduserquote(fta_quotes[*insptr++]);
+        else { 
+            OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,*insptr);
+            insptr++;
+        }
         break;
 
     case CON_IFINOUTERSPACE:

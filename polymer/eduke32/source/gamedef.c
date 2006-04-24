@@ -1050,13 +1050,14 @@ void ReadGameVars(long fil)
     for(i=0;i<iGameVarCount;i++)
     {
         kdfread(&(aGameVars[i]),sizeof(MATTGAMEVAR),1,fil);
+        aGameVars[i].szLabel=Bmalloc(sizeof(char) * MAXVARLABEL);
+        kdfread(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil);
     }
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
     for(i=0;i<iGameVarCount;i++)
     {
-
         if(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
             aGameVars[i].plValues=SafeMalloc(sizeof(long) * MAXPLAYERS);
         else if( aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
@@ -1074,7 +1075,6 @@ void ReadGameVars(long fil)
     //  AddLog(g_szBuf);
     for(i=0;i<iGameVarCount;i++)
     {
-
         if(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
         {
             //Bsprintf(g_szBuf,"Reading value array for %s (%d)",aGameVars[i].szLabel,sizeof(long) * MAXPLAYERS);
@@ -1138,6 +1138,7 @@ void SaveGameVars(FILE *fil)
     for(i=0;i<iGameVarCount;i++)
     {
         dfwrite(&(aGameVars[i]),sizeof(MATTGAMEVAR),1,fil);
+        dfwrite(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil);
     }
 
     //     dfwrite(&aGameVars,sizeof(aGameVars),1,fil);
@@ -1253,31 +1254,34 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
     }
     for(i=0;i<iGameVarCount;i++)
     {
-        if( Bstrcmp(pszLabel,aGameVars[i].szLabel) == 0 )
+        if(aGameVars[i].szLabel != NULL)
         {
-            // found it...
-            if(aGameVars[i].dwFlags & GAMEVAR_FLAG_PLONG)
+            if( Bstrcmp(pszLabel,aGameVars[i].szLabel) == 0 )
             {
-                //                 warning++;
-                //                 initprintf("%s:%ld: warning: Internal gamevar '%s' cannot be redefined.\n",compilefile,line_number,label+(labelcnt<<6));
-                ReportError(-1);
-                initprintf("%s:%ld: warning: cannot redefine internal gamevar `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
-                return 0;
-            }
-            else if((aGameVars[i].dwFlags & GAMEVAR_FLAG_DEFAULT) || (aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM))
-            {
-                //Bsprintf(g_szBuf,"Replacing %s at %d",pszLabel,i);
-                //AddLog(g_szBuf);
-                //b=1;
-                // it's OK to replace
-                break;
-            }
-            else
-            {
-                // it's a duplicate in error
-                warning++;
-                ReportError(WARNING_DUPLICATEDEFINITION);
-                return 0;
+                // found it...
+                if(aGameVars[i].dwFlags & GAMEVAR_FLAG_PLONG)
+                {
+                    //                 warning++;
+                    //                 initprintf("%s:%ld: warning: Internal gamevar '%s' cannot be redefined.\n",compilefile,line_number,label+(labelcnt<<6));
+                    ReportError(-1);
+                    initprintf("%s:%ld: warning: cannot redefine internal gamevar `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
+                    return 0;
+                }
+                else if((aGameVars[i].dwFlags & GAMEVAR_FLAG_DEFAULT) || (aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM))
+                {
+                    //Bsprintf(g_szBuf,"Replacing %s at %d",pszLabel,i);
+                    //AddLog(g_szBuf);
+                    //b=1;
+                    // it's OK to replace
+                    break;
+                }
+                else
+                {
+                    // it's a duplicate in error
+                    warning++;
+                    ReportError(WARNING_DUPLICATEDEFINITION);
+                    return 0;
+                }
             }
         }
     }
@@ -1300,11 +1304,15 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
         }
         else
         {
+            if(aGameVars[i].szLabel == NULL)
+                aGameVars[i].szLabel=Bmalloc(sizeof(char) * MAXVARLABEL);
             Bstrcpy(aGameVars[i].szLabel,pszLabel);
             aGameVars[i].dwFlags=dwFlags;
             aGameVars[i].lValue=lValue;
             if(!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
             {
+                if(aDefaultGameVars[i].szLabel == NULL)
+                    aDefaultGameVars[i].szLabel=Bmalloc(sizeof(char) * MAXVARLABEL);
                 Bstrcpy(aDefaultGameVars[i].szLabel,pszLabel);
                 aDefaultGameVars[i].dwFlags=dwFlags;
                 aDefaultGameVars[i].lValue=lValue;
@@ -1365,9 +1373,12 @@ int GetGameID(char *szGameLabel)
 
     for(i=0;i<iGameVarCount;i++)
     {
-        if( Bstrcmp(szGameLabel, aGameVars[i].szLabel) == 0 )
+        if(aGameVars[i].szLabel != NULL)
         {
-            return i;
+            if( Bstrcmp(szGameLabel, aGameVars[i].szLabel) == 0 )
+            {
+                return i;
+            }
         }
     }
     return -1;
@@ -1472,9 +1483,12 @@ long GetGameVar(char *szGameLabel, long lDefault, short sActor, short sPlayer)
     int i;
     for(i=0;i<iGameVarCount;i++)
     {
-        if( Bstrcmp(szGameLabel, aGameVars[i].szLabel) == 0 )
+        if(aGameVars[i].szLabel != NULL)
         {
-            return GetGameVarID(i, sActor, sPlayer);
+            if( Bstrcmp(szGameLabel, aGameVars[i].szLabel) == 0 )
+            {
+                return GetGameVarID(i, sActor, sPlayer);
+            }
         }
     }
     return lDefault;
@@ -1485,17 +1499,20 @@ long *GetGameValuePtr(char *szGameLabel)
     int i;
     for(i=0;i<iGameVarCount;i++)
     {
-        if( Bstrcmp(szGameLabel, aGameVars[i].szLabel) == 0 )
+        if(aGameVars[i].szLabel != NULL)
         {
-            if(aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERACTOR | GAMEVAR_FLAG_PERPLAYER))
+            if( Bstrcmp(szGameLabel, aGameVars[i].szLabel) == 0 )
             {
-                if(!aGameVars[i].plValues)
+                if(aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERACTOR | GAMEVAR_FLAG_PERPLAYER))
                 {
-                    AddLog("INTERNAL ERROR: NULL array !!!");
+                    if(!aGameVars[i].plValues)
+                    {
+                        AddLog("INTERNAL ERROR: NULL array !!!");
+                    }
+                    return aGameVars[i].plValues;
                 }
-                return aGameVars[i].plValues;
+                return &(aGameVars[i].lValue);
             }
-            return &(aGameVars[i].lValue);
         }
     }
     //Bsprintf(g_szBuf,"Could not find value '%s'\n",szGameLabel);
@@ -1508,9 +1525,12 @@ long GetDefID(char *szGameLabel)
     int i;
     for(i=0;i<iGameVarCount;i++)
     {
-        if( Bstrcmp(szGameLabel, aGameVars[i].szLabel) == 0 )
+        if(aGameVars[i].szLabel != NULL)
         {
-            return i;
+            if( Bstrcmp(szGameLabel, aGameVars[i].szLabel) == 0 )
+            {
+                return i;
+            }
         }
     }
     return -1;
@@ -2138,11 +2158,14 @@ char parsecommand(void)
 #if 0
         for(i=0;i<iGameVarCount;i++)
         {
-            if( Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0 )
+            if(aGameVars[i].szLabel != NULL)
             {
-                warning++;
-                initprintf("  * WARNING.(L%ld) duplicate Game definition `%s' ignored.\n",line_number,label+(labelcnt<<6));
-                break;
+                if( Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0 )
+                {
+                    warning++;
+                    initprintf("  * WARNING.(L%ld) duplicate Game definition `%s' ignored.\n",line_number,label+(labelcnt<<6));
+                    break;
+                }
             }
         }
 #endif
@@ -4563,9 +4586,7 @@ repeatcase:
             }
         }
         if (tw == CON_DEFINEQUOTE)
-        {
             *(fta_quotes[k]+i) = '\0';
-        }
         else
         {
             *(fta_quotes[redefined_quote_count]+i) = '\0';
@@ -4893,7 +4914,9 @@ void FreeGameVars(void)
     for(i=0;i<MAXGAMEVARS;i++)
     {
         aGameVars[i].lValue=0;
-        aGameVars[i].szLabel[0]=0;
+        if(aGameVars[i].szLabel)
+            Bfree(aGameVars[i].szLabel);
+        aGameVars[i].szLabel=NULL;
         aGameVars[i].dwFlags=0;
 
         if(aGameVars[i].plValues)
@@ -4914,7 +4937,12 @@ void ClearGameVars(void)
     for(i=0;i<MAXGAMEVARS;i++)
     {
         aGameVars[i].lValue=0;
-        aGameVars[i].szLabel[0]=0;
+        if(aGameVars[i].szLabel)
+            Bfree(aGameVars[i].szLabel);
+        if(aDefaultGameVars[i].szLabel)
+            Bfree(aDefaultGameVars[i].szLabel);
+        aGameVars[i].szLabel=NULL;
+        aDefaultGameVars[i].szLabel=NULL;
         aGameVars[i].dwFlags=0;
 
         if(aGameVars[i].plValues)
@@ -5855,6 +5883,9 @@ void loadefs(char *filenam)
         initprintf("\nCompiled code size: %ld/%ld bytes\n",(unsigned)(scriptptr-script),MAXSCRIPTSIZE);
         initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((sizeof(sector)/sizeof(long)),(sizeof(sprite)/(1<<6))),iGameVarCount,MAXGAMEVARS);
         initprintf("%ld event definitions, %ld defined actors\n\n",j,k);
+        for(i=0;i<124;i++)
+            if(fta_quotes[i] == NULL)
+                fta_quotes[i] = Bmalloc(sizeof(char) * MAXQUOTELEN);
     }
 }
 
