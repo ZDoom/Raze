@@ -5464,14 +5464,11 @@ good:
                     if(sprite[j].picnum == lType && j != g_i)
                     {
                         lTemp=ldist(&sprite[g_i], &sprite[j]);
-                        if( lTemp < lMaxDist )
+                        if(lTemp < lMaxDist && lTemp < lDist)
                         {
-                            if (lTemp < lDist)
-                            {
-                                lFound=j;
-                                j = MAXSPRITES;
-                                break;
-                            }
+                            lFound=j;
+                            j = MAXSPRITES;
+                            break;
                         }
                     }
                     j = nextspritestat[j];
@@ -5512,14 +5509,11 @@ good:
                     if(sprite[j].picnum == lType && j != g_i)
                     {
                         lTemp=ldist(&sprite[g_i], &sprite[j]);
-                        if( lTemp < lMaxDist )
+                        if( lTemp < lMaxDist && lTemp < lDist)
                         {
-                            if (lTemp < lDist)
-                            {
-                                lFound=j;
-                                j = MAXSPRITES;
-                                break;
-                            }
+                            lFound=j;
+                            j = MAXSPRITES;
+                            break;
                         }
                     }
                     j = nextspritestat[j];

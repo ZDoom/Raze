@@ -1050,8 +1050,7 @@ void ReadGameVars(long fil)
     for(i=0;i<iGameVarCount;i++)
     {
         kdfread(&(aGameVars[i]),sizeof(MATTGAMEVAR),1,fil);
-        aGameVars[i].szLabel=Bmalloc(sizeof(char) * MAXVARLABEL);
-        Bmemset(aGameVars[i].szLabel,0,MAXVARLABEL);
+        aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
         kdfread(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil);
     }
 
@@ -1060,9 +1059,9 @@ void ReadGameVars(long fil)
     for(i=0;i<iGameVarCount;i++)
     {
         if(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
-            aGameVars[i].plValues=SafeMalloc(sizeof(long) * MAXPLAYERS);
+            aGameVars[i].plValues=Bcalloc(MAXPLAYERS,sizeof(long));
         else if( aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
-            aGameVars[i].plValues=SafeMalloc(sizeof(long) * MAXSPRITES);
+            aGameVars[i].plValues=Bcalloc(MAXSPRITES,sizeof(long));
         else
             // else nothing 'extra...'
             aGameVars[i].plValues=NULL;
@@ -1306,20 +1305,14 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
         else
         {
             if(aGameVars[i].szLabel == NULL)
-            {
-                aGameVars[i].szLabel=Bmalloc(sizeof(char) * MAXVARLABEL);
-                Bmemset(aGameVars[i].szLabel,0,MAXVARLABEL);
-            }
+                aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
             Bstrcpy(aGameVars[i].szLabel,pszLabel);
             aGameVars[i].dwFlags=dwFlags;
             aGameVars[i].lValue=lValue;
             if(!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
             {
                 if(aDefaultGameVars[i].szLabel == NULL)
-                {
-                    aDefaultGameVars[i].szLabel=Bmalloc(sizeof(char) * MAXVARLABEL);
-                    Bmemset(aDefaultGameVars[i].szLabel,0,MAXVARLABEL);
-                }
+                    aDefaultGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
                 Bstrcpy(aDefaultGameVars[i].szLabel,pszLabel);
                 aDefaultGameVars[i].dwFlags=dwFlags;
                 aDefaultGameVars[i].lValue=lValue;
@@ -1344,14 +1337,14 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
         if(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
         {
             if(!aGameVars[i].plValues)
-                aGameVars[i].plValues=SafeMalloc(sizeof(long) * MAXPLAYERS);
+                aGameVars[i].plValues=Bcalloc(MAXPLAYERS,sizeof(long));
             for(j=0;j<MAXPLAYERS;j++)
                 aGameVars[i].plValues[j]=lValue;
         }
         else if( aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
         {
             if(!aGameVars[i].plValues)
-                aGameVars[i].plValues=SafeMalloc(sizeof(long) * MAXSPRITES);
+                aGameVars[i].plValues=Bcalloc(MAXSPRITES,sizeof(long));
             for(j=0;j<MAXSPRITES;j++)
                 aGameVars[i].plValues[j]=lValue;
         }
@@ -4540,13 +4533,13 @@ repeatcase:
         }
 
         if(fta_quotes[k] == NULL)
-            fta_quotes[k] = Bmalloc(sizeof(char) * MAXQUOTELEN);
+            fta_quotes[k] = Bcalloc(MAXQUOTELEN,sizeof(char));
         if (!fta_quotes[k])
         {
             fta_quotes[k] = NULL;
             Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
             gameexit(tempbuf);
-        } else Bmemset(fta_quotes[k],0,MAXQUOTELEN);
+        }
 
         if (tw == CON_DEFINEQUOTE)
             scriptptr--;
@@ -4560,13 +4553,13 @@ repeatcase:
         {
             redefined_quote_count++;
             if(redefined_quotes[redefined_quote_count] == NULL)
-                redefined_quotes[redefined_quote_count] = Bmalloc(sizeof(char) * MAXQUOTELEN);
+                redefined_quotes[redefined_quote_count] = Bcalloc(MAXQUOTELEN,sizeof(char));
             if (!redefined_quotes[redefined_quote_count])
             {
                 redefined_quotes[redefined_quote_count] = NULL;
                 Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
                 gameexit(tempbuf);
-            } else Bmemset(redefined_quotes[redefined_quote_count],0,MAXQUOTELEN);
+            }
         }
 
         while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 )
@@ -5886,15 +5879,14 @@ void loadefs(char *filenam)
             if(actorscrptr[i])
                 k++;
         }
+
         initprintf("\nCompiled code size: %ld/%ld bytes\n",(unsigned)(scriptptr-script),MAXSCRIPTSIZE);
         initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((sizeof(sector)/sizeof(long)),(sizeof(sprite)/(1<<6))),iGameVarCount,MAXGAMEVARS);
         initprintf("%ld event definitions, %ld defined actors\n\n",j,k);
+
         for(i=0;i<128;i++)
             if(fta_quotes[i] == NULL)
-            {
-                fta_quotes[i] = Bmalloc(sizeof(char) * MAXQUOTELEN);
-                Bmemset(fta_quotes[i],0,MAXQUOTELEN);
-            }
+                fta_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
     }
 }
 
