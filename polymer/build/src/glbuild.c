@@ -79,7 +79,7 @@ void (APIENTRY * bglGetCompressedTexImageARB)(GLenum, GLint, GLvoid *);
 void (APIENTRY * bglFogf)( GLenum pname, GLfloat param );
 void (APIENTRY * bglFogi)( GLenum pname, GLint param );
 void (APIENTRY * bglFogfv)( GLenum pname, const GLfloat *params );
-			
+
 #ifdef RENDERTYPEWIN
 // Windows
 HGLRC (WINAPI * bwglCreateContext)(HDC);
@@ -101,20 +101,20 @@ char *gldriver = NULL;
 
 static void * getproc_(const char *s, int *err, int fatal, int extension)
 {
-	void *t;
+    void *t;
 #if defined RENDERTYPESDL
-	t = (void*)SDL_GL_GetProcAddress(s);
+    t = (void*)SDL_GL_GetProcAddress(s);
 #elif defined _WIN32
-	if (extension) t = (void*)bwglGetProcAddress(s);
-	else t = (void*)GetProcAddress(hGLDLL,s);
+    if (extension) t = (void*)bwglGetProcAddress(s);
+    else t = (void*)GetProcAddress(hGLDLL,s);
 #else
 #error Need a dynamic loader for this platform...
 #endif
-	if (!t && fatal) {
-		initprintf("Failed to find %s in %s\n", s, gldriver);
-		*err = 1;
-	}
-	return t;
+    if (!t && fatal) {
+        initprintf("Failed to find %s in %s\n", s, gldriver);
+        *err = 1;
+    }
+    return t;
 }
 #define GETPROC(s)        getproc_(s,&err,1,0)
 #define GETPROCSOFT(s)    getproc_(s,&err,0,0)
@@ -123,229 +123,229 @@ static void * getproc_(const char *s, int *err, int fatal, int extension)
 
 int loadgldriver(const char *driver)
 {
-	void *t;
-	int err=0;
-	
+    void *t;
+    int err=0;
+
 #ifdef RENDERTYPEWIN
-	if (hGLDLL) return 0;
+    if (hGLDLL) return 0;
 #endif
 
-	if (!driver) {
+    if (!driver) {
 #ifdef _WIN32
-		driver = "OPENGL32.DLL";
+        driver = "OPENGL32.DLL";
 #else
-		driver = "libGL.so";
+        driver = "libGL.so";
 #endif
-	}
+    }
 
-	initprintf("Loading %s\n",driver);
+    initprintf("Loading %s\n",driver);
 
 #if defined RENDERTYPESDL
-	if (SDL_GL_LoadLibrary(driver)) return -1;
+    if (SDL_GL_LoadLibrary(driver)) return -1;
 #elif defined _WIN32
-	hGLDLL = LoadLibrary(driver);
-	if (!hGLDLL) return -1;
+    hGLDLL = LoadLibrary(driver);
+    if (!hGLDLL) return -1;
 #endif
-	gldriver = strdup(driver);
+    gldriver = strdup(driver);
 
 #ifdef RENDERTYPEWIN
-	bwglCreateContext	= GETPROC("wglCreateContext");
-	bwglDeleteContext	= GETPROC("wglDeleteContext");
-	bwglGetProcAddress	= GETPROC("wglGetProcAddress");
-	bwglMakeCurrent		= GETPROC("wglMakeCurrent");
+    bwglCreateContext	= GETPROC("wglCreateContext");
+    bwglDeleteContext	= GETPROC("wglDeleteContext");
+    bwglGetProcAddress	= GETPROC("wglGetProcAddress");
+    bwglMakeCurrent		= GETPROC("wglMakeCurrent");
 
-	bwglSwapBuffers		= GETPROC("wglSwapBuffers");
-	bwglChoosePixelFormat	= GETPROC("wglChoosePixelFormat");
-	bwglDescribePixelFormat	= GETPROC("wglDescribePixelFormat");
-	bwglGetPixelFormat	= GETPROC("wglGetPixelFormat");
-	bwglSetPixelFormat	= GETPROC("wglSetPixelFormat");
+    bwglSwapBuffers		= GETPROC("wglSwapBuffers");
+    bwglChoosePixelFormat	= GETPROC("wglChoosePixelFormat");
+    bwglDescribePixelFormat	= GETPROC("wglDescribePixelFormat");
+    bwglGetPixelFormat	= GETPROC("wglGetPixelFormat");
+    bwglSetPixelFormat	= GETPROC("wglSetPixelFormat");
 #endif
 
-	bglClearColor		= GETPROC("glClearColor");
-	bglClear		= GETPROC("glClear");
-	bglColorMask		= GETPROC("glColorMask");
-	bglAlphaFunc		= GETPROC("glAlphaFunc");
-	bglBlendFunc		= GETPROC("glBlendFunc");
-	bglCullFace		= GETPROC("glCullFace");
-	bglFrontFace		= GETPROC("glFrontFace");
-	bglPolygonOffset	= GETPROC("glPolygonOffset");
-	bglPolygonMode		= GETPROC("glPolygonMode");
-	bglEnable		= GETPROC("glEnable");
-	bglDisable		= GETPROC("glDisable");
-	bglGetFloatv		= GETPROC("glGetFloatv");
-	bglGetIntegerv		= GETPROC("glGetIntegerv");
-	bglPushAttrib		= GETPROC("glPushAttrib");
-	bglPopAttrib		= GETPROC("glPopAttrib");
-	bglGetError		= GETPROC("glGetError");
-	bglGetString		= GETPROC("glGetString");
-	bglHint			= GETPROC("glHint");
+    bglClearColor		= GETPROC("glClearColor");
+    bglClear		= GETPROC("glClear");
+    bglColorMask		= GETPROC("glColorMask");
+    bglAlphaFunc		= GETPROC("glAlphaFunc");
+    bglBlendFunc		= GETPROC("glBlendFunc");
+    bglCullFace		= GETPROC("glCullFace");
+    bglFrontFace		= GETPROC("glFrontFace");
+    bglPolygonOffset	= GETPROC("glPolygonOffset");
+    bglPolygonMode		= GETPROC("glPolygonMode");
+    bglEnable		= GETPROC("glEnable");
+    bglDisable		= GETPROC("glDisable");
+    bglGetFloatv		= GETPROC("glGetFloatv");
+    bglGetIntegerv		= GETPROC("glGetIntegerv");
+    bglPushAttrib		= GETPROC("glPushAttrib");
+    bglPopAttrib		= GETPROC("glPopAttrib");
+    bglGetError		= GETPROC("glGetError");
+    bglGetString		= GETPROC("glGetString");
+    bglHint			= GETPROC("glHint");
 
-	// Depth
-	bglDepthFunc		= GETPROC("glDepthFunc");
-	bglDepthMask		= GETPROC("glDepthMask");
-	bglDepthRange		= GETPROC("glDepthRange");
+    // Depth
+    bglDepthFunc		= GETPROC("glDepthFunc");
+    bglDepthMask		= GETPROC("glDepthMask");
+    bglDepthRange		= GETPROC("glDepthRange");
 
-	// Matrix
-	bglMatrixMode		= GETPROC("glMatrixMode");
-	bglOrtho		= GETPROC("glOrtho");
-	bglFrustum		= GETPROC("glFrustum");
-	bglViewport		= GETPROC("glViewport");
-	bglPushMatrix		= GETPROC("glPushMatrix");
-	bglPopMatrix		= GETPROC("glPopMatrix");
-	bglLoadIdentity		= GETPROC("glLoadIdentity");
-	bglLoadMatrixf		= GETPROC("glLoadMatrixf");
+    // Matrix
+    bglMatrixMode		= GETPROC("glMatrixMode");
+    bglOrtho		= GETPROC("glOrtho");
+    bglFrustum		= GETPROC("glFrustum");
+    bglViewport		= GETPROC("glViewport");
+    bglPushMatrix		= GETPROC("glPushMatrix");
+    bglPopMatrix		= GETPROC("glPopMatrix");
+    bglLoadIdentity		= GETPROC("glLoadIdentity");
+    bglLoadMatrixf		= GETPROC("glLoadMatrixf");
 
-	// Drawing
-	bglBegin		= GETPROC("glBegin");
-	bglEnd			= GETPROC("glEnd");
-	bglVertex2f		= GETPROC("glVertex2f");
-	bglVertex2i		= GETPROC("glVertex2i");
-	bglVertex3d		= GETPROC("glVertex3d");
-	bglVertex3fv		= GETPROC("glVertex3fv");
-	bglColor4f		= GETPROC("glColor4f");
-	bglColor4ub		= GETPROC("glColor4ub");
-	bglTexCoord2d		= GETPROC("glTexCoord2d");
-	bglTexCoord2f		= GETPROC("glTexCoord2f");
+    // Drawing
+    bglBegin		= GETPROC("glBegin");
+    bglEnd			= GETPROC("glEnd");
+    bglVertex2f		= GETPROC("glVertex2f");
+    bglVertex2i		= GETPROC("glVertex2i");
+    bglVertex3d		= GETPROC("glVertex3d");
+    bglVertex3fv		= GETPROC("glVertex3fv");
+    bglColor4f		= GETPROC("glColor4f");
+    bglColor4ub		= GETPROC("glColor4ub");
+    bglTexCoord2d		= GETPROC("glTexCoord2d");
+    bglTexCoord2f		= GETPROC("glTexCoord2f");
 
-	// Lighting
-	bglShadeModel		= GETPROC("glShadeModel");
+    // Lighting
+    bglShadeModel		= GETPROC("glShadeModel");
 
-	// Raster funcs
-	bglReadPixels		= GETPROC("glReadPixels");
+    // Raster funcs
+    bglReadPixels		= GETPROC("glReadPixels");
 
-	// Texture mapping
-	bglTexEnvf		= GETPROC("glTexEnvf");
-	bglGenTextures		= GETPROC("glGenTextures");
-	bglDeleteTextures	= GETPROC("glDeleteTextures");
-	bglBindTexture		= GETPROC("glBindTexture");
-	bglTexImage2D		= GETPROC("glTexImage2D");
-	bglTexSubImage2D	= GETPROC("glTexSubImage2D");
-	bglTexParameterf	= GETPROC("glTexParameterf");
-	bglTexParameteri	= GETPROC("glTexParameteri");
-	bglGetTexLevelParameteriv = GETPROC("glGetTexLevelParameteriv");
+    // Texture mapping
+    bglTexEnvf		= GETPROC("glTexEnvf");
+    bglGenTextures		= GETPROC("glGenTextures");
+    bglDeleteTextures	= GETPROC("glDeleteTextures");
+    bglBindTexture		= GETPROC("glBindTexture");
+    bglTexImage2D		= GETPROC("glTexImage2D");
+    bglTexSubImage2D	= GETPROC("glTexSubImage2D");
+    bglTexParameterf	= GETPROC("glTexParameterf");
+    bglTexParameteri	= GETPROC("glTexParameteri");
+    bglGetTexLevelParameteriv = GETPROC("glGetTexLevelParameteriv");
 
-	// Fog
-	bglFogf			= GETPROC("glFogf");
-	bglFogi			= GETPROC("glFogi");
-	bglFogfv		= GETPROC("glFogfv");
+    // Fog
+    bglFogf			= GETPROC("glFogf");
+    bglFogi			= GETPROC("glFogi");
+    bglFogfv		= GETPROC("glFogfv");
 
-	loadglextensions();
+    loadglextensions();
 
-	if (err) unloadgldriver();
-	return err;
+    if (err) unloadgldriver();
+    return err;
 }
 
 int loadglextensions(void)
 {
-	int err = 0;
+    int err = 0;
 #ifdef RENDERTYPEWIN
-	if (!hGLDLL) return 0;
+    if (!hGLDLL) return 0;
 #endif
 
-	bglCompressedTexImage2DARB  = GETPROCEXTSOFT("glCompressedTexImage2DARB");
-	bglGetCompressedTexImageARB = GETPROCEXTSOFT("glGetCompressedTexImageARB");
+    bglCompressedTexImage2DARB  = GETPROCEXTSOFT("glCompressedTexImage2DARB");
+    bglGetCompressedTexImageARB = GETPROCEXTSOFT("glGetCompressedTexImageARB");
 
-	return err;
+    return err;
 }
 
 int unloadgldriver(void)
 {
 #ifdef RENDERTYPEWIN
-	if (!hGLDLL) return 0;
+    if (!hGLDLL) return 0;
 #endif
 
-	free(gldriver);
-	gldriver = NULL;
-	
+    free(gldriver);
+    gldriver = NULL;
+
 #ifdef RENDERTYPEWIN
-	FreeLibrary(hGLDLL);
-	hGLDLL = NULL;
+    FreeLibrary(hGLDLL);
+    hGLDLL = NULL;
 #endif
-	
-	bglClearColor		= NULL;
-	bglClear		= NULL;
-	bglColorMask		= NULL;
-	bglAlphaFunc		= NULL;
-	bglBlendFunc		= NULL;
-	bglCullFace		= NULL;
-	bglFrontFace		= NULL;
-	bglPolygonOffset	= NULL;
-	bglPolygonMode   = NULL;
-	bglEnable		= NULL;
-	bglDisable		= NULL;
-	bglGetFloatv		= NULL;
-	bglGetIntegerv		= NULL;
-	bglPushAttrib		= NULL;
-	bglPopAttrib		= NULL;
-	bglGetError		= NULL;
-	bglGetString		= NULL;
-	bglHint			= NULL;
 
-	// Depth
-	bglDepthFunc		= NULL;
-	bglDepthMask		= NULL;
-	bglDepthRange		= NULL;
+    bglClearColor		= NULL;
+    bglClear		= NULL;
+    bglColorMask		= NULL;
+    bglAlphaFunc		= NULL;
+    bglBlendFunc		= NULL;
+    bglCullFace		= NULL;
+    bglFrontFace		= NULL;
+    bglPolygonOffset	= NULL;
+    bglPolygonMode   = NULL;
+    bglEnable		= NULL;
+    bglDisable		= NULL;
+    bglGetFloatv		= NULL;
+    bglGetIntegerv		= NULL;
+    bglPushAttrib		= NULL;
+    bglPopAttrib		= NULL;
+    bglGetError		= NULL;
+    bglGetString		= NULL;
+    bglHint			= NULL;
 
-	// Matrix
-	bglMatrixMode		= NULL;
-	bglOrtho		= NULL;
-	bglFrustum		= NULL;
-	bglViewport		= NULL;
-	bglPushMatrix		= NULL;
-	bglPopMatrix		= NULL;
-	bglLoadIdentity		= NULL;
-	bglLoadMatrixf		= NULL;
+    // Depth
+    bglDepthFunc		= NULL;
+    bglDepthMask		= NULL;
+    bglDepthRange		= NULL;
 
-	// Drawing
-	bglBegin		= NULL;
-	bglEnd			= NULL;
-	bglVertex2f		= NULL;
-	bglVertex2i		= NULL;
-	bglVertex3d		= NULL;
-	bglVertex3fv		= NULL;
-	bglColor4f		= NULL;
-	bglColor4ub		= NULL;
-	bglTexCoord2d		= NULL;
-	bglTexCoord2f		= NULL;
+    // Matrix
+    bglMatrixMode		= NULL;
+    bglOrtho		= NULL;
+    bglFrustum		= NULL;
+    bglViewport		= NULL;
+    bglPushMatrix		= NULL;
+    bglPopMatrix		= NULL;
+    bglLoadIdentity		= NULL;
+    bglLoadMatrixf		= NULL;
 
-	// Lighting
-	bglShadeModel		= NULL;
+    // Drawing
+    bglBegin		= NULL;
+    bglEnd			= NULL;
+    bglVertex2f		= NULL;
+    bglVertex2i		= NULL;
+    bglVertex3d		= NULL;
+    bglVertex3fv		= NULL;
+    bglColor4f		= NULL;
+    bglColor4ub		= NULL;
+    bglTexCoord2d		= NULL;
+    bglTexCoord2f		= NULL;
 
-	// Raster funcs
-	bglReadPixels		= NULL;
+    // Lighting
+    bglShadeModel		= NULL;
 
-	// Texture mapping
-	bglTexEnvf		= NULL;
-	bglGenTextures		= NULL;
-	bglDeleteTextures	= NULL;
-	bglBindTexture		= NULL;
-	bglTexImage2D		= NULL;
-	bglTexSubImage2D	= NULL;
-	bglTexParameterf	= NULL;
-	bglTexParameteri	= NULL;
-	bglGetTexLevelParameteriv   = NULL;
-	bglCompressedTexImage2DARB  = NULL;
-	bglGetCompressedTexImageARB = NULL;
+    // Raster funcs
+    bglReadPixels		= NULL;
 
-	// Fog
-	bglFogf			= NULL;
-	bglFogi			= NULL;
-	bglFogfv		= NULL;
-			
+    // Texture mapping
+    bglTexEnvf		= NULL;
+    bglGenTextures		= NULL;
+    bglDeleteTextures	= NULL;
+    bglBindTexture		= NULL;
+    bglTexImage2D		= NULL;
+    bglTexSubImage2D	= NULL;
+    bglTexParameterf	= NULL;
+    bglTexParameteri	= NULL;
+    bglGetTexLevelParameteriv   = NULL;
+    bglCompressedTexImage2DARB  = NULL;
+    bglGetCompressedTexImageARB = NULL;
+
+    // Fog
+    bglFogf			= NULL;
+    bglFogi			= NULL;
+    bglFogfv		= NULL;
+
 #ifdef RENDERTYPEWIN
-	bwglCreateContext	= NULL;
-	bwglDeleteContext	= NULL;
-	bwglGetProcAddress	= NULL;
-	bwglMakeCurrent		= NULL;
+    bwglCreateContext	= NULL;
+    bwglDeleteContext	= NULL;
+    bwglGetProcAddress	= NULL;
+    bwglMakeCurrent		= NULL;
 
-	bwglSwapBuffers		= NULL;
-	bwglChoosePixelFormat	= NULL;
-	bwglDescribePixelFormat	= NULL;
-	bwglGetPixelFormat	= NULL;
-	bwglSetPixelFormat	= NULL;
+    bwglSwapBuffers		= NULL;
+    bwglChoosePixelFormat	= NULL;
+    bwglDescribePixelFormat	= NULL;
+    bwglGetPixelFormat	= NULL;
+    bwglSetPixelFormat	= NULL;
 #endif
 
-	return 0;
+    return 0;
 }
 
 #else

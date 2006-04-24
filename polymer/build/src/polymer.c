@@ -18,7 +18,7 @@ void            polymer_drawsector(short sectnum)
 {
     sectortype  *sec;
     walltype    *wal;
-    
+
     sec = &sector[sectnum];
     wal = &wall[sec->wallptr];
     OSD_Printf("%i\n", sec->wallnum);

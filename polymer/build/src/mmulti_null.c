@@ -15,23 +15,23 @@ char syncstate = 0;
 
 long isvalidipaddress (char *st)
 {
-	return 0;
+    return 0;
 }
 
 long initmultiplayersparms(long argc, char **argv)
 {
-	return 0;
+    return 0;
 }
 
 long initmultiplayerscycle(void)
 {
-	return 0;
+    return 0;
 }
 
 void initmultiplayers(long argc, char **argv, char damultioption, char dacomrateoption, char dapriority)
 {
-	numplayers = 1; myconnectindex = 0;
-	connecthead = 0; connectpoint2[0] = -1;
+    numplayers = 1; myconnectindex = 0;
+    connecthead = 0; connectpoint2[0] = -1;
 }
 
 void setpackettimeout(long datimeoutcount, long daresendagaincount)
@@ -52,7 +52,7 @@ void sendlogoff(void)
 
 long getoutputcirclesize(void)
 {
-	return 0;
+    return 0;
 }
 
 void setsocket(short newsocket)
@@ -65,7 +65,7 @@ void sendpacket(long other, char *bufptr, long messleng)
 
 long getpacket (long *other, char *bufptr)
 {
-	return 0;
+    return 0;
 }
 
 void flushpackets(void)

@@ -1738,10 +1738,10 @@ void coolgaugetext(short snum)
             case 6: i = ((p->scuba_amount+63)>>6); break;
             case 7: i = (p->boot_amount>>1); break;
             }
-			invennum(284-30-o,200-6,(char)i,0,10+permbit);
-			if (j > 0) minitext(288-30-o,180,"ON",0,10+16+permbit + 256);
-			else if ((unsigned long)j != 0x80000000) minitext(284-30-o,180,"OFF",2,10+16+permbit + 256);
-			if (p->inven_icon >= 6) minitext(284-35-o,180,"AUTO",2,10+16+permbit + 256);
+            invennum(284-30-o,200-6,(char)i,0,10+permbit);
+            if (j > 0) minitext(288-30-o,180,"ON",0,10+16+permbit + 256);
+            else if ((unsigned long)j != 0x80000000) minitext(284-30-o,180,"OFF",2,10+16+permbit + 256);
+            if (p->inven_icon >= 6) minitext(284-35-o,180,"AUTO",2,10+16+permbit + 256);
         }
         return;
     }

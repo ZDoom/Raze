@@ -82,161 +82,161 @@
 
 unsigned int
 lzf_compress (const void *const in_data, unsigned int in_len,
-	      void *out_data, unsigned int out_len
+              void *out_data, unsigned int out_len
 #if LZF_STATE_ARG
               , LZF_STATE *htab
 #endif
-              )
+             )
 {
 #if !LZF_STATE_ARG
-  LZF_STATE htab;
+    LZF_STATE htab;
 #endif
-  const u8 **hslot;
-  const u8 *ip = (const u8 *)in_data;
-        u8 *op = (u8 *)out_data;
-  const u8 *in_end  = ip + in_len;
-        u8 *out_end = op + out_len;
-  const u8 *ref;
+    const u8 **hslot;
+    const u8 *ip = (const u8 *)in_data;
+    u8 *op = (u8 *)out_data;
+    const u8 *in_end  = ip + in_len;
+    u8 *out_end = op + out_len;
+    const u8 *ref;
 
-  unsigned int hval = FRST (ip);
-  unsigned long off;
-           int lit = 0;
+    unsigned int hval = FRST (ip);
+    unsigned long off;
+    int lit = 0;
 
 #if INIT_HTAB
 # if USE_MEMCPY
     memset (htab, 0, sizeof (htab));
 # else
     for (hslot = htab; hslot < htab + HSIZE; hslot++)
-      *hslot++ = ip;
+        *hslot++ = ip;
 # endif
 #endif
 
-  for (;;)
+    for (;;)
     {
-      if (ip < in_end - 2)
+        if (ip < in_end - 2)
         {
-          hval = NEXT (hval, ip);
-          hslot = htab + IDX (hval);
-          ref = *hslot; *hslot = ip;
+            hval = NEXT (hval, ip);
+            hslot = htab + IDX (hval);
+            ref = *hslot; *hslot = ip;
 
-          if (1
+            if (1
 #if INIT_HTAB && !USE_MEMCPY
-              && ref < ip /* the next test will actually take care of this, but this is faster */
+                    && ref < ip /* the next test will actually take care of this, but this is faster */
 #endif
-              && (off = ip - ref - 1) < MAX_OFF
-              && ip + 4 < in_end
-              && ref > (u8 *)in_data
+                    && (off = ip - ref - 1) < MAX_OFF
+                    && ip + 4 < in_end
+                    && ref > (u8 *)in_data
 #if STRICT_ALIGN
-              && ref[0] == ip[0]
-              && ref[1] == ip[1]
-              && ref[2] == ip[2]
+                    && ref[0] == ip[0]
+                    && ref[1] == ip[1]
+                    && ref[2] == ip[2]
 #else
-              && *(u16 *)ref == *(u16 *)ip
-              && ref[2] == ip[2]
+                    && *(u16 *)ref == *(u16 *)ip
+                    && ref[2] == ip[2]
 #endif
-            )
+               )
             {
-              /* match found at *ref++ */
-              unsigned int len = 2;
-              unsigned int maxlen = in_end - ip - len;
-              maxlen = maxlen > MAX_REF ? MAX_REF : maxlen;
+                /* match found at *ref++ */
+                unsigned int len = 2;
+                unsigned int maxlen = in_end - ip - len;
+                maxlen = maxlen > MAX_REF ? MAX_REF : maxlen;
 
-              if (op + lit + 1 + 3 >= out_end)
-                return 0;
+                if (op + lit + 1 + 3 >= out_end)
+                    return 0;
 
-              do
-                len++;
-              while (len < maxlen && ref[len] == ip[len]);
+                do
+                    len++;
+                while (len < maxlen && ref[len] == ip[len]);
 
-              if (lit)
+                if (lit)
                 {
-                  *op++ = lit - 1;
-                  lit = -lit;
-                  do
-                    *op++ = ip[lit];
-                  while (++lit);
+                    *op++ = lit - 1;
+                    lit = -lit;
+                    do
+                        *op++ = ip[lit];
+                    while (++lit);
                 }
 
-              len -= 2;
-              ip++;
+                len -= 2;
+                ip++;
 
-              if (len < 7)
+                if (len < 7)
                 {
-                  *op++ = (off >> 8) + (len << 5);
+                    *op++ = (off >> 8) + (len << 5);
                 }
-              else
+                else
                 {
-                  *op++ = (off >> 8) + (  7 << 5);
-                  *op++ = len - 7;
+                    *op++ = (off >> 8) + (  7 << 5);
+                    *op++ = len - 7;
                 }
 
-              *op++ = off;
+                *op++ = off;
 
 #if ULTRA_FAST || VERY_FAST
-              ip += len;
+                ip += len;
 #if VERY_FAST && !ULTRA_FAST
-              --ip;
+                --ip;
 #endif
-              hval = FRST (ip);
+                hval = FRST (ip);
 
-              hval = NEXT (hval, ip);
-              htab[IDX (hval)] = ip;
-              ip++;
+                hval = NEXT (hval, ip);
+                htab[IDX (hval)] = ip;
+                ip++;
 
 #if VERY_FAST && !ULTRA_FAST
-              hval = NEXT (hval, ip);
-              htab[IDX (hval)] = ip;
-              ip++;
+                hval = NEXT (hval, ip);
+                htab[IDX (hval)] = ip;
+                ip++;
 #endif
 #else
-              do
+                do
                 {
-                  hval = NEXT (hval, ip);
-                  htab[IDX (hval)] = ip;
-                  ip++;
+                    hval = NEXT (hval, ip);
+                    htab[IDX (hval)] = ip;
+                    ip++;
                 }
-              while (len--);
+                while (len--);
 #endif
-              continue;
+                continue;
             }
         }
-      else if (ip == in_end)
-        break;
+        else if (ip == in_end)
+            break;
 
-      /* one more literal byte we must copy */
-      lit++;
-      ip++;
+        /* one more literal byte we must copy */
+        lit++;
+        ip++;
 
-      if (lit == MAX_LIT)
+        if (lit == MAX_LIT)
         {
-          if (op + 1 + MAX_LIT >= out_end)
-            return 0;
+            if (op + 1 + MAX_LIT >= out_end)
+                return 0;
 
-          *op++ = MAX_LIT - 1;
+            *op++ = MAX_LIT - 1;
 #if USE_MEMCPY
-          memcpy (op, ip - MAX_LIT, MAX_LIT);
-          op += MAX_LIT;
-          lit = 0;
+            memcpy (op, ip - MAX_LIT, MAX_LIT);
+            op += MAX_LIT;
+            lit = 0;
 #else
-          lit = -lit;
-          do
-            *op++ = ip[lit];
-          while (++lit);
+            lit = -lit;
+            do
+                *op++ = ip[lit];
+            while (++lit);
 #endif
         }
     }
 
-  if (lit)
+    if (lit)
     {
-      if (op + lit + 1 >= out_end)
-	return 0;
+        if (op + lit + 1 >= out_end)
+            return 0;
 
-      *op++ = lit - 1;
-      lit = -lit;
-      do
-	*op++ = ip[lit];
-      while (++lit);
+        *op++ = lit - 1;
+        lit = -lit;
+        do
+            *op++ = ip[lit];
+        while (++lit);
     }
 
-  return op - (u8 *) out_data;
+    return op - (u8 *) out_data;
 }
