@@ -128,7 +128,7 @@ enum gamemodes {
 #define MAXANIMWALLS 512
 #define MAXINTERPOLATIONS 8192
 
-#define NUMOFFIRSTTIMEACTIVE 16384
+#define MAXQUOTES 16384
 
 #define MAXCYCLERS 1024
 
@@ -435,7 +435,7 @@ extern char buf[1024]; //My own generic input buffer
 
 #define MAXQUOTELEN 64
 
-extern char *fta_quotes[NUMOFFIRSTTIMEACTIVE],*redefined_quotes[NUMOFFIRSTTIMEACTIVE];
+extern char *fta_quotes[MAXQUOTES],*redefined_quotes[MAXQUOTES];
 extern char scantoasc[128],ready2send;
 extern char scantoascwithshift[128];
 
@@ -549,7 +549,6 @@ extern char restorepalette;
 extern short buttonstat;
 extern long cachecount;
 extern char boardfilename[BMAX_PATH],waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768];
-extern char betaname[80];
 extern char cachedebug,earthquaketime;
 extern char networkmode;
 extern char lumplockbyte[11];

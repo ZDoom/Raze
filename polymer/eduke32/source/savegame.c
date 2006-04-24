@@ -290,7 +290,7 @@ int loadplayer(signed char spot)
 
     if (kdfread(&i,sizeof(long),1,fil) != 1) goto corrupt;
 
-    while(i != NUMOFFIRSTTIMEACTIVE)
+    while(i != MAXQUOTES)
     {
         if(fta_quotes[i] != NULL)
             Bfree(fta_quotes[i]);
@@ -660,7 +660,7 @@ int saveplayer(signed char spot)
 
     dfwrite(&spritecache[0],sizeof(spritecache[0]),MAXTILES,fil);
 
-    for(i=0;i<NUMOFFIRSTTIMEACTIVE;i++)
+    for(i=0;i<MAXQUOTES;i++)
     {
         if(fta_quotes[i] != NULL)
         {

@@ -246,6 +246,9 @@ void OSD_Cleanup(void)
 		Bfree(symbols);
 	}
 
+	if (osdlog) Bfclose(osdlog);
+	osdlog = NULL;
+
 	osdinited=0;
 }
 

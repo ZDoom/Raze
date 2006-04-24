@@ -384,6 +384,7 @@ int Bcorrectfilename(char *filename, int removefn)
 	if (trailslash) *(first++) = '/';
 	*(first++) = 0;
 
+    Bfree(fn);
 	return 0;
 }
 

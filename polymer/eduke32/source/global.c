@@ -42,7 +42,7 @@ short animatesect[MAXANIMATES];
 long msx[2048],msy[2048];
 short cyclers[MAXCYCLERS][6],numcyclers;
 
-char *fta_quotes[NUMOFFIRSTTIMEACTIVE],*redefined_quotes[NUMOFFIRSTTIMEACTIVE];
+char *fta_quotes[MAXQUOTES],*redefined_quotes[MAXQUOTES];
 
 char tempbuf[2048], packbuf[576];
 
@@ -52,8 +52,6 @@ short camsprite;
 short mirrorwall[64], mirrorsector[64], mirrorcnt;
 
 int current_menu;
-
-char betaname[80];
 
 char level_names[MAXVOLUMES*11][33],level_file_names[MAXVOLUMES*11][BMAX_PATH];
 long partime[MAXVOLUMES*11],designertime[MAXVOLUMES*11];

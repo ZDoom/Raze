@@ -274,7 +274,7 @@ long initmultiplayersparms(long argc, char **argv)
 		if ((argv[i][1] == 'p' || argv[i][1] == 'P') && argv[i][2]) {
 			char *p;
 			j = strtol(argv[i]+2, &p, 10);
-			if (!(*p) && j > 0 && j<65535) portnum = j;
+			if (!(*p) && j > 1024 && j<65535) portnum = j;
 
 			printf("mmulti: Using port %ld\n", portnum);
 		}

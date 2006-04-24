@@ -4339,11 +4339,7 @@ repeatcase:
         scriptptr--;
         j = 0;
         while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 )
-        {
-            betaname[j] = *textptr;
-            j++; textptr++;
-        }
-        betaname[j] = 0;
+            textptr++;
         return 0;
 
     case CON_DEFINEVOLUMENAME:
@@ -4532,9 +4528,9 @@ repeatcase:
 
         k = *(scriptptr-1);
 
-        if(k >= NUMOFFIRSTTIMEACTIVE)
+        if(k >= MAXQUOTES)
         {
-            initprintf("%s:%ld: error: quote number exceeds limit of %ld.\n",compilefile,line_number,NUMOFFIRSTTIMEACTIVE);
+            initprintf("%s:%ld: error: quote number exceeds limit of %ld.\n",compilefile,line_number,MAXQUOTES);
             error++;
         }
 

@@ -3829,7 +3829,7 @@ void processinput(short snum)
                     if( p->dummyplayersprite == -1 )
                         p->dummyplayersprite =
                             spawn(pi,PLAYERONWATER);
-
+                    sprite[p->dummyplayersprite].pal = sprite[p->i].pal;
                     p->footprintcount = 6;
                     if(sector[p->cursectnum].floorpicnum == FLOORSLIME)
                         p->footprintpal = 8;
