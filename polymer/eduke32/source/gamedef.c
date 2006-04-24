@@ -1607,7 +1607,7 @@ void getlabel(void)
     }
 
     i = 0;
-    while( ispecial(*textptr) == 0 && *textptr!=']' )
+    while( ispecial(*textptr) == 0 && *textptr!=']' && *textptr!='\t' && *textptr!='\n' && *textptr!='\r')
         label[(labelcnt<<6)+i++] = *(textptr++);
 
     label[(labelcnt<<6)+i] = 0;
@@ -4647,8 +4647,7 @@ repeatcase:
         }
         scriptptr--;
         i = 0;
-        while( *textptr == ' ')
-            textptr++;
+        skipcomments();
 
         while( *textptr != ' ' )
         {
@@ -4656,10 +4655,9 @@ repeatcase:
             textptr++,i++;
             if(i >= BMAX_PATH)
             {
-                puts(sounds[k]);
                 initprintf("%s:%ld: error: sound filename exceeds limit of %d characters.\n",compilefile,line_number,BMAX_PATH);
                 error++;
-                while( *textptr != ' ' ) textptr++;
+                skipcomments();
                 break;
             }
         }
