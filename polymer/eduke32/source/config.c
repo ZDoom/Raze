@@ -195,7 +195,6 @@ void CONFIG_SetDefaults( void )
 {
     // JBF 20031211
     int32 i,f;
-    byte k1,k2;
 
     FXDevice = -1;
     MusicDevice = -1;
@@ -252,52 +251,65 @@ void CONFIG_SetDefaults( void )
     Bstrcpy(ud.ridecule[9], "AARRRGHHHHH!!!");
 
     // JBF 20031211
-    Bmemset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
-    for (i=0; i < NUMGAMEFUNCTIONS; i++) {
-        f = CONFIG_FunctionNameToNum( keydefaults[3*i+0] );
-        if (f == -1) continue;
-        k1 = KB_StringToScanCode( keydefaults[3*i+1] );
-        k2 = KB_StringToScanCode( keydefaults[3*i+2] );
+	memset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
+	for (i=0; i < NUMGAMEFUNCTIONS; i+=3) {
+		f = CONFIG_FunctionNameToNum( keydefaults[i+0] );
+		if (f == -1) continue;
+		KeyboardKeys[f][0] = KB_StringToScanCode( keydefaults[i+1] );
+		KeyboardKeys[f][1] = KB_StringToScanCode( keydefaults[i+2] );
 
-        KeyboardKeys[f][0] = k1;
-        KeyboardKeys[f][1] = k2;
-    }
+		if (f == gamefunc_Show_Console) OSD_CaptureKey(KeyboardKeys[f][0]);
+		else CONTROL_MapKey( f, KeyboardKeys[f][0], KeyboardKeys[f][1] );
+	}
 
-    Bmemset(MouseFunctions, -1, sizeof(MouseFunctions));
-    for (i=0; i<MAXMOUSEBUTTONS; i++) {
-        MouseFunctions[i][0] = CONFIG_FunctionNameToNum( mousedefaults[i] );
-        if (i<4) continue;
-        MouseFunctions[i][1] = CONFIG_FunctionNameToNum( mouseclickeddefaults[i] );
-    }
+	memset(MouseFunctions, -1, sizeof(MouseFunctions));
+	for (i=0; i<MAXMOUSEBUTTONS; i++) {
+		MouseFunctions[i][0] = CONFIG_FunctionNameToNum( mousedefaults[i] );
+		CONTROL_MapButton( MouseFunctions[i][0], i, 0, controldevice_mouse );
+		if (i<4) continue;
 
-    Bmemset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
-    for (i=0; i<MAXMOUSEAXES; i++) {
-        MouseAnalogueScale[i] = 65536;
+		MouseFunctions[i][1] = CONFIG_FunctionNameToNum( mouseclickeddefaults[i] );
+		CONTROL_MapButton( MouseFunctions[i][1], i, 1, controldevice_mouse );
+	}
 
-        MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum( mousedigitaldefaults[i*2] );
-        MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum( mousedigitaldefaults[i*2+1] );
+	memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
+	for (i=0; i<MAXMOUSEAXES; i++) {
+		MouseAnalogueScale[i] = 65536;
+		CONTROL_SetAnalogAxisScale( i, MouseAnalogueScale[i], controldevice_mouse );
 
-        MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum( mouseanalogdefaults[i] );
-    }
-    CONTROL_SetMouseSensitivity(32768);
+		MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum( mousedigitaldefaults[i*2] );
+		MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum( mousedigitaldefaults[i*2+1] );
+		CONTROL_MapDigitalAxis( i, MouseDigitalFunctions[i][0], 0, controldevice_mouse );
+		CONTROL_MapDigitalAxis( i, MouseDigitalFunctions[i][1], 1, controldevice_mouse );
 
-    Bmemset(JoystickFunctions, -1, sizeof(JoystickFunctions));
-    for (i=0; i<MAXJOYBUTTONS; i++) {
-        JoystickFunctions[i][0] = CONFIG_FunctionNameToNum( joystickdefaults[i] );
-        JoystickFunctions[i][1] = CONFIG_FunctionNameToNum( joystickclickeddefaults[i] );
-    }
+		MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum( mouseanalogdefaults[i] );
+		CONTROL_MapAnalogAxis( i, MouseAnalogueAxes[i], controldevice_mouse);
+	}
+	CONTROL_SetMouseSensitivity(32768);
 
-    Bmemset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
-    for (i=0; i<MAXJOYAXES; i++) {
-        JoystickAnalogueScale[i] = 65536;
-        JoystickAnalogueDead[i] = 1000;
-        JoystickAnalogueSaturate[i] = 9500;
+	memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
+	for (i=0; i<MAXJOYBUTTONS; i++) {
+		JoystickFunctions[i][0] = CONFIG_FunctionNameToNum( joystickdefaults[i] );
+		JoystickFunctions[i][1] = CONFIG_FunctionNameToNum( joystickclickeddefaults[i] );
+		CONTROL_MapButton( JoystickFunctions[i][0], i, 0, controldevice_joystick );
+		CONTROL_MapButton( JoystickFunctions[i][1], i, 1, controldevice_joystick );
+	}
 
-        JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum( joystickdigitaldefaults[i*2] );
-        JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum( joystickdigitaldefaults[i*2+1] );
+	memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
+	for (i=0; i<MAXJOYAXES; i++) {
+		JoystickAnalogueScale[i] = 65536;
+		JoystickAnalogueDead[i] = 1000;
+		JoystickAnalogueSaturate[i] = 9500;
+		CONTROL_SetAnalogAxisScale( i, JoystickAnalogueScale[i], controldevice_joystick );
 
-        JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum( joystickanalogdefaults[i] );
-    }
+		JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum( joystickdigitaldefaults[i*2] );
+		JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum( joystickdigitaldefaults[i*2+1] );
+		CONTROL_MapDigitalAxis( i, JoystickDigitalFunctions[i][0], 0, controldevice_joystick );
+		CONTROL_MapDigitalAxis( i, JoystickDigitalFunctions[i][1], 1, controldevice_joystick );
+
+		JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum( joystickanalogdefaults[i] );
+		CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
+	}
 }
 /*
 ===================
@@ -539,6 +551,8 @@ void CONFIG_ReadSetup( void )
     CONTROL_ClearAssignments();
     CONFIG_SetDefaults();
 
+    setupread = 1;
+
     if (SafeFileExists(setupfilename))  // JBF 20031211
         scripthandle = SCRIPT_Load( setupfilename );
 
@@ -680,7 +694,8 @@ void CONFIG_WriteSetup( void )
 {
     int32 dummy;
 
-    //if (!setupread) return;
+    if (!setupread) return;
+
     if (scripthandle < 0)
         scripthandle = SCRIPT_Init(setupfilename);
 

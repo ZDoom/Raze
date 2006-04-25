@@ -7977,16 +7977,15 @@ void loadtmb(void)
 void Shutdown( void )
 {
     int i;
-    extern int32 scripthandle;
 
     SoundShutdown();
     MusicShutdown();
     uninittimer();
     uninitengine();
     CONTROL_Shutdown();
-    if (scripthandle)
-        CONFIG_WriteSetup();
+    CONFIG_WriteSetup();
     KB_Shutdown();
+
     for(i=0;i<MAXQUOTES;i++)
     {
         if(fta_quotes[i] != NULL)
@@ -7994,6 +7993,7 @@ void Shutdown( void )
         if(redefined_quotes[i] != NULL)
             Bfree(redefined_quotes[i]);
     }
+
     for(i=0;i<iGameVarCount;i++)
     {
         if(aGameVars[i].szLabel != NULL)
@@ -8003,6 +8003,7 @@ void Shutdown( void )
         if(aGameVars[i].plValues != NULL)
             Bfree(aGameVars[i].plValues);
     }
+
     if(label != NULL)
         Bfree(label);
     if(labelcode != NULL)
@@ -8520,7 +8521,7 @@ void app_main(int argc,char **argv)
         int xres[] = {800,640,320};
         int yres[] = {600,480,240};
         int bpp[] = {32,16,8};
-        initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...",
+        initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n",
                    ScreenWidth,ScreenHeight,ScreenBPP,ScreenMode?"fullscreen":"windowed");
         /*        ScreenMode = 0;     // JBF: was 2
                 ScreenWidth = 800;
