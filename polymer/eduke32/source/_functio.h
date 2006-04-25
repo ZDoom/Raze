@@ -38,7 +38,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #ifdef __cplusplus
 extern "C" {
 #endif
-char * gamefunctions[] =
+char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    {
    "Move_Forward",
    "Move_Backward",
@@ -98,25 +98,25 @@ char * gamefunctions[] =
 
 #define NUMKEYENTRIES 53
 
-static char * keydefaults[] =
+char keydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN] =
    {
-   "Move_Forward", "Up", "Kpad8",
-   "Move_Backward", "Down", "Kpad2",
+   "Move_Forward", "W", "Kpad8",
+   "Move_Backward", "S", "Kpad2",
    "Turn_Left", "Left", "Kpad4",
    "Turn_Right", "Right", "KPad6",
    "Strafe", "LAlt", "RAlt",
-   "Fire", "LCtrl", "RCtrl",
-   "Open", "Space", "",
+   "Fire", "", "RCtrl",
+   "Open", "E", "",
    "Run", "LShift", "RShift",
    "AutoRun", "CapLck", "",
-   "Jump", "A", "/",
-   "Crouch", "Z", "",
+   "Jump", "Space", "/",
+   "Crouch", "LCtrl", "",
    "Look_Up", "PgUp", "Kpad9",
    "Look_Down", "PgDn", "Kpad3",
    "Look_Left", "Insert", "Kpad0",
    "Look_Right", "Delete", "Kpad.",
-   "Strafe_Left", ",", "",
-   "Strafe_Right", ".", "",
+   "Strafe_Left", "A", "",
+   "Strafe_Right", "D", "",
    "Aim_Up", "Home", "KPad7",
    "Aim_Down", "End", "Kpad1",
    "Weapon_1", "1", "",
@@ -143,16 +143,16 @@ static char * keydefaults[] =
    "Enlarge_Screen", "=", "Kpad+",
    "Center_View", "KPad5", "",
    "Holster_Weapon", "ScrLck", "",
-   "Show_Opponents_Weapon", "W", "",
+   "Show_Opponents_Weapon", "Y", "",
    "Map_Follow_Mode", "F", "",
    "See_Coop_View", "K", "",
    "Mouse_Aiming", "U", "",
    "Toggle_Crosshair", "I", "",
    "Steroids", "R", "",
-   "Quick_Kick", "`", "",
+   "Quick_Kick", "Q", "",
    "Next_Weapon", "'", "",
    "Previous_Weapon", ";", "",
-   "Show_Console", "NumLck", ""
+   "Show_Console", "`", ""
    };
 
 

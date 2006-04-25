@@ -39,9 +39,12 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 extern "C" {
 #endif
 
+#define NUMKEYENTRIES 53
 #define NUMGAMEFUNCTIONS 53
+#define MAXGAMEFUNCLEN 32
 
-extern char * gamefunctions[];
+extern char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN];
+extern char keydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN];
 
 enum
    {

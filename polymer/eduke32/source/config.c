@@ -82,7 +82,7 @@ int32 JoystickAnalogueSaturate[MAXJOYAXES];
 // Screen variables
 //
 
-int32 ScreenMode = 1;
+int32 ScreenMode = 0;
 int32 ScreenWidth = 800;
 int32 ScreenHeight = 600;
 int32 ScreenBPP = 32;
@@ -199,10 +199,10 @@ void CONFIG_SetDefaults( void )
 
     FXDevice = -1;
     MusicDevice = -1;
-    NumVoices = 8;
+    NumVoices = 32;
     NumChannels = 2;
-    NumBits = 8;
-    MixRate = 22050;
+    NumBits = 16;
+    MixRate = 44100;
     SoundToggle = 1;
     MusicToggle = 1;
     VoiceToggle = 2;
@@ -210,15 +210,16 @@ void CONFIG_SetDefaults( void )
     FXVolume = 220;
     MusicVolume = 200;
     ReverseStereo = 0;
-    myaimmode = ps[0].aim_mode = 0;
+    myaimmode = ps[0].aim_mode = 1;
     ud.mouseaiming = 0;
     ud.weaponswitch = 3;	// new+empty
     AutoAim = 1;
     ControllerType = 1;
-    ud.mouseflip = 0;
+    ud.mouseflip = 1;
     ud.runkey_mode = 0;
+    RunMode = ud.auto_run = 1;
     ud.statusbarscale = 100;
-    ud.screen_size = 8;
+    ud.screen_size = 4;
     ud.screen_tilting = 1;
     ud.shadows = 1;
     ud.detail = 1;
@@ -232,7 +233,8 @@ void CONFIG_SetDefaults( void )
     ud.brightskins = 0;
     ud.democams = 1;
     ud.color = 0;
-    ud.msgdisptime = 360;
+    ud.msgdisptime = 640;
+    ud.brightness = 16;
 
     ShowOpponentWeapons = 0;
     Bstrcpy(ud.rtsname, "DUKE.RTS");
@@ -251,7 +253,7 @@ void CONFIG_SetDefaults( void )
 
     // JBF 20031211
     Bmemset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
-    for (i=0; i < (int32)(sizeof(keydefaults)/sizeof(keydefaults[0]))/3; i++) {
+    for (i=0; i < NUMGAMEFUNCTIONS; i++) {
         f = CONFIG_FunctionNameToNum( keydefaults[3*i+0] );
         if (f == -1) continue;
         k1 = KB_StringToScanCode( keydefaults[3*i+1] );
@@ -264,9 +266,7 @@ void CONFIG_SetDefaults( void )
     Bmemset(MouseFunctions, -1, sizeof(MouseFunctions));
     for (i=0; i<MAXMOUSEBUTTONS; i++) {
         MouseFunctions[i][0] = CONFIG_FunctionNameToNum( mousedefaults[i] );
-
         if (i<4) continue;
-
         MouseFunctions[i][1] = CONFIG_FunctionNameToNum( mouseclickeddefaults[i] );
     }
 

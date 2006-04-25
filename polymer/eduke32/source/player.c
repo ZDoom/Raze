@@ -56,18 +56,14 @@ void fadepal(int r, int g, int b, int start, int end, int step)
     else for (; start >= end; start += step) palto(r,g,b,start);
 }
 
-void incur_damage(short snum)
+void incur_damage(struct player_struct *p)
 {
     long damage = 0L, shield_damage = 0L;
 
-    struct player_struct *p;
+    SetGameVarID(g_iReturnVarID,0,p->i,sprite[p->i].yvel);
+    OnEvent(EVENT_INCURDAMAGE, p->i, sprite[p->i].yvel, -1);
 
-    p = &ps[snum];
-
-    SetGameVarID(g_iReturnVarID,0,p->i,snum);
-    OnEvent(EVENT_INCURDAMAGE, p->i, snum, -1);
-
-    if(GetGameVarID(g_iReturnVarID,p->i,snum) == 0)
+    if(GetGameVarID(g_iReturnVarID,p->i,sprite[p->i].yvel) == 0)
 
     {
         sprite[p->i].extra -= p->extra_extra8>>8;
@@ -1924,12 +1920,11 @@ char animateknuckles(short gs,short snum)
 
 long lastvisinc;
 
-void DoFire(short snum)
+void DoFire(struct player_struct *p)
 {
     int i;
 
-    struct player_struct *p;
-    p = &ps[snum];
+    short snum = sprite[p->i].yvel;
 
     SetGameVarID(g_iReturnVarID,0,p->i,snum);
     OnEvent(EVENT_DOFIRE, p->i, snum, -1);
@@ -1980,12 +1975,11 @@ void DoFire(short snum)
     }
 }
 
-void DoSpawn(short snum)
+void DoSpawn(struct player_struct *p)
 {
     int j;
 
-    struct player_struct *p;
-    p = &ps[snum];
+    short snum = sprite[p->i].yvel;
 
     if(!aplWeaponSpawn[p->curr_weapon][snum])
         return;
@@ -2972,7 +2966,7 @@ void getinput(short snum)
 
 char doincrements(struct player_struct *p)
 {
-    long snum;
+    short snum;
 
     snum = sprite[p->i].yvel;
     //    j = sync[snum].avel;
@@ -3166,9 +3160,7 @@ short weapon_sprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATIC, SHOT
 void checkweapons(struct player_struct *p)
 {
     short cw;
-    long snum;
-
-    snum = sprite[p->i].yvel;
+    short snum = sprite[p->i].yvel;
 
     cw = aplWeaponWorksLike[p->curr_weapon][snum];
 
@@ -3301,7 +3293,7 @@ void processinput(short snum)
     }
 
 
-    if ( s->extra > 0 ) incur_damage( snum );
+    if ( s->extra > 0 ) incur_damage( p );
     else
     {
         s->extra = 0;
@@ -4841,7 +4833,7 @@ SHOOTINCODE:
                 }
             }
             if(*kb == aplWeaponSpawnTime[p->curr_weapon][snum])
-                DoSpawn(snum);
+                DoSpawn(p);
 
             if ((*kb) >=  aplWeaponTotalTime[p->curr_weapon][snum])
             {
@@ -4897,21 +4889,21 @@ SHOOTINCODE:
                     {
                         if( ((*(kb))%3) == 0 )
                         {
-                            DoFire(snum);
-                            DoSpawn(snum);
+                            DoFire(p);
+                            DoSpawn(p);
                         }
                     }
                     if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYOTHER)
                     {
-                        DoFire(snum);
-                        DoSpawn(snum);
+                        DoFire(p);
+                        DoSpawn(p);
                     }
                 }
             }
             else if(*kb == aplWeaponFireDelay[p->curr_weapon][snum]
                     && (aplWeaponWorksLike[p->curr_weapon][snum]==KNEE_WEAPON ? 1 : p->ammo_amount[p->curr_weapon] > 0))
             {
-                DoFire(snum);
+                DoFire(p);
             }
         }
     }

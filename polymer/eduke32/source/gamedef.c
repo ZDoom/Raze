@@ -435,6 +435,7 @@ char *keyw[] = {
                    "save",					   // 288
                    "cansee",                   // 289
                    "canseespr",                // 290
+                   "definegamefuncname",       // 291
                    "<null>"
                };
 
@@ -4373,6 +4374,40 @@ repeatcase:
         }
         num_volumes = j+1;
         volume_names[j][i] = '\0';
+        return 0;
+
+    case CON_DEFINEGAMEFUNCNAME:
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+        j = *scriptptr;
+        while( *textptr == ' ' ) textptr++;
+
+        if (j < 0 || j > NUMGAMEFUNCTIONS-1)
+        {
+            initprintf("%s:%ld: error: function number exceeds number of game functions.\n",compilefile,line_number);
+            error++;
+            while( *textptr != 0x0a && *textptr != 0 ) textptr++;
+            break;
+        }
+
+        i = 0;
+
+        while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 )
+        {
+            gamefunctions[j][i] = *textptr;
+            keydefaults[j*3][i] = *textptr;
+            textptr++,i++;
+            if(i >= MAXGAMEFUNCLEN-1)
+            {
+                initprintf("%s:%ld: error: function name exceeds limit of %ld characters.\n",compilefile,line_number,MAXGAMEFUNCLEN);
+                error++;
+                while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 ) textptr++;
+                break;
+            }
+        }
+        gamefunctions[j][i] = '\0';
+        keydefaults[j*3][i] = '\0';
         return 0;
 
     case CON_DEFINESKILLNAME:

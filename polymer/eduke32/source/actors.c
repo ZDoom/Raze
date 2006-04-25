@@ -298,7 +298,7 @@ void hitradius( short i, long  r, long  hp1, long  hp2, long  hp3, long  hp4 )
     walltype *wal;
     long d, q, x1, y1;
     long sectcnt, sectend, dasect, startwall, endwall, nextsect;
-    short j,k,p,x,nextj,sect;
+    short j,k,p,x,nextj,sect=-1;
     char statlist[] = {0,1,6,10,12,2,5};
     short *tempshort = (short *)tempbuf;
 

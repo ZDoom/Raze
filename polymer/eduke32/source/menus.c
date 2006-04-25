@@ -597,7 +597,8 @@ void menus(void)
     if(!(current_menu >= 1000 && current_menu <= 2999 && current_menu >= 300 && current_menu <= 369))
         vscrn();
 
-    if(KB_KeyPressed(sc_Q) && current_menu >= 0 && (current_menu > 502 || current_menu < 500))
+    if(KB_KeyPressed(sc_Q) && current_menu >= 0 && (current_menu > 502 || current_menu < 500) && current_menu != 20003 &&
+            current_menu != 20005 && current_menu != 210)
     {
         last_menu = current_menu;
         last_probey = probey;
@@ -2772,7 +2773,7 @@ cheat_for_port_credits:
     case 210: {
             int32 sc;
             rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-            menutext(320>>1,24,0,0,"KEYS SETUP");
+            menutext(320>>1,24,0,0,"KEYBOARD SETUP");
 
             gametext(320>>1,90,"PRESS THE KEY TO ASSIGN AS",0,2+8+16);
             sprintf(tempbuf,"%s FOR \"%s\"", whichkey?"SECONDARY":"PRIMARY", CONFIG_FunctionNumToName(function));

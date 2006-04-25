@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "duke3d.h"
 #include "types.h"
 #include "develop.h"
 #include "scriplib.h"
@@ -39,8 +40,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osdcmds.h"
 
 //#include "crc32.h"
-
-#include "duke3d.h"
 
 #include "util_lib.h"
 
@@ -8093,11 +8092,11 @@ void Startup(void)
 {
     int i;
 
-    CONFIG_ReadSetup();
-
     //     readnames();
 
-    compilecons();  // JBF 20040116: Moved to below setup reading, because otherwise blown
+    compilecons();
+
+    CONFIG_ReadSetup();
 
     setupdynamictostatic();
 
@@ -9077,7 +9076,7 @@ RECHECK:
         {
             if(ud.recstat != 2)
                 menus();
-            if( ud.multimode > 1  && current_menu != 20003 && current_menu != 20005)
+            if( ud.multimode > 1  && current_menu != 20003 && current_menu != 20005 && current_menu != 210)
             {
                 ControlInfo noshareinfo;
                 CONTROL_GetInput( &noshareinfo );

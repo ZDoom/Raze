@@ -112,7 +112,7 @@ extern void resetmys(void);
 extern int  enterlevel(char g);
 extern void backtomenu(void);
 extern void setpal(struct player_struct *p);
-extern void incur_damage(short snum);
+extern void incur_damage(struct player_struct *p);
 extern void quickkill(struct player_struct *p);
 extern void forceplayerangle(struct player_struct *p);
 extern void tracers(long x1,long y1,long z1,long x2,long y2,long z2,long n);
