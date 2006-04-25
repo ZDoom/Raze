@@ -196,8 +196,8 @@ void CONFIG_SetDefaults( void )
     // JBF 20031211
     int32 i,f;
 
-    FXDevice = -1;
-    MusicDevice = -1;
+    FXDevice = 0;
+    MusicDevice = 0;
     NumVoices = 32;
     NumChannels = 2;
     NumBits = 16;
@@ -251,65 +251,65 @@ void CONFIG_SetDefaults( void )
     Bstrcpy(ud.ridecule[9], "AARRRGHHHHH!!!");
 
     // JBF 20031211
-	memset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
-	for (i=0; i < NUMGAMEFUNCTIONS; i+=3) {
-		f = CONFIG_FunctionNameToNum( keydefaults[i+0] );
-		if (f == -1) continue;
-		KeyboardKeys[f][0] = KB_StringToScanCode( keydefaults[i+1] );
-		KeyboardKeys[f][1] = KB_StringToScanCode( keydefaults[i+2] );
+    memset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
+    for (i=0; i < (int32)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3) {
+        f = CONFIG_FunctionNameToNum( keydefaults[i+0] );
+        if (f == -1) continue;
+        KeyboardKeys[f][0] = KB_StringToScanCode( keydefaults[i+1] );
+        KeyboardKeys[f][1] = KB_StringToScanCode( keydefaults[i+2] );
 
-		if (f == gamefunc_Show_Console) OSD_CaptureKey(KeyboardKeys[f][0]);
-		else CONTROL_MapKey( f, KeyboardKeys[f][0], KeyboardKeys[f][1] );
-	}
+        if (f == gamefunc_Show_Console) OSD_CaptureKey(KeyboardKeys[f][0]);
+        else CONTROL_MapKey( f, KeyboardKeys[f][0], KeyboardKeys[f][1] );
+    }
 
-	memset(MouseFunctions, -1, sizeof(MouseFunctions));
-	for (i=0; i<MAXMOUSEBUTTONS; i++) {
-		MouseFunctions[i][0] = CONFIG_FunctionNameToNum( mousedefaults[i] );
-		CONTROL_MapButton( MouseFunctions[i][0], i, 0, controldevice_mouse );
-		if (i<4) continue;
+    memset(MouseFunctions, -1, sizeof(MouseFunctions));
+    for (i=0; i<MAXMOUSEBUTTONS; i++) {
+        MouseFunctions[i][0] = CONFIG_FunctionNameToNum( mousedefaults[i] );
+        CONTROL_MapButton( MouseFunctions[i][0], i, 0, controldevice_mouse );
+        if (i<4) continue;
 
-		MouseFunctions[i][1] = CONFIG_FunctionNameToNum( mouseclickeddefaults[i] );
-		CONTROL_MapButton( MouseFunctions[i][1], i, 1, controldevice_mouse );
-	}
+        MouseFunctions[i][1] = CONFIG_FunctionNameToNum( mouseclickeddefaults[i] );
+        CONTROL_MapButton( MouseFunctions[i][1], i, 1, controldevice_mouse );
+    }
 
-	memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
-	for (i=0; i<MAXMOUSEAXES; i++) {
-		MouseAnalogueScale[i] = 65536;
-		CONTROL_SetAnalogAxisScale( i, MouseAnalogueScale[i], controldevice_mouse );
+    memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
+    for (i=0; i<MAXMOUSEAXES; i++) {
+        MouseAnalogueScale[i] = 65536;
+        CONTROL_SetAnalogAxisScale( i, MouseAnalogueScale[i], controldevice_mouse );
 
-		MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum( mousedigitaldefaults[i*2] );
-		MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum( mousedigitaldefaults[i*2+1] );
-		CONTROL_MapDigitalAxis( i, MouseDigitalFunctions[i][0], 0, controldevice_mouse );
-		CONTROL_MapDigitalAxis( i, MouseDigitalFunctions[i][1], 1, controldevice_mouse );
+        MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum( mousedigitaldefaults[i*2] );
+        MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum( mousedigitaldefaults[i*2+1] );
+        CONTROL_MapDigitalAxis( i, MouseDigitalFunctions[i][0], 0, controldevice_mouse );
+        CONTROL_MapDigitalAxis( i, MouseDigitalFunctions[i][1], 1, controldevice_mouse );
 
-		MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum( mouseanalogdefaults[i] );
-		CONTROL_MapAnalogAxis( i, MouseAnalogueAxes[i], controldevice_mouse);
-	}
-	CONTROL_SetMouseSensitivity(32768);
+        MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum( mouseanalogdefaults[i] );
+        CONTROL_MapAnalogAxis( i, MouseAnalogueAxes[i], controldevice_mouse);
+    }
+    CONTROL_SetMouseSensitivity(32768);
 
-	memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
-	for (i=0; i<MAXJOYBUTTONS; i++) {
-		JoystickFunctions[i][0] = CONFIG_FunctionNameToNum( joystickdefaults[i] );
-		JoystickFunctions[i][1] = CONFIG_FunctionNameToNum( joystickclickeddefaults[i] );
-		CONTROL_MapButton( JoystickFunctions[i][0], i, 0, controldevice_joystick );
-		CONTROL_MapButton( JoystickFunctions[i][1], i, 1, controldevice_joystick );
-	}
+    memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
+    for (i=0; i<MAXJOYBUTTONS; i++) {
+        JoystickFunctions[i][0] = CONFIG_FunctionNameToNum( joystickdefaults[i] );
+        JoystickFunctions[i][1] = CONFIG_FunctionNameToNum( joystickclickeddefaults[i] );
+        CONTROL_MapButton( JoystickFunctions[i][0], i, 0, controldevice_joystick );
+        CONTROL_MapButton( JoystickFunctions[i][1], i, 1, controldevice_joystick );
+    }
 
-	memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
-	for (i=0; i<MAXJOYAXES; i++) {
-		JoystickAnalogueScale[i] = 65536;
-		JoystickAnalogueDead[i] = 1000;
-		JoystickAnalogueSaturate[i] = 9500;
-		CONTROL_SetAnalogAxisScale( i, JoystickAnalogueScale[i], controldevice_joystick );
+    memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
+    for (i=0; i<MAXJOYAXES; i++) {
+        JoystickAnalogueScale[i] = 65536;
+        JoystickAnalogueDead[i] = 1000;
+        JoystickAnalogueSaturate[i] = 9500;
+        CONTROL_SetAnalogAxisScale( i, JoystickAnalogueScale[i], controldevice_joystick );
 
-		JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum( joystickdigitaldefaults[i*2] );
-		JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum( joystickdigitaldefaults[i*2+1] );
-		CONTROL_MapDigitalAxis( i, JoystickDigitalFunctions[i][0], 0, controldevice_joystick );
-		CONTROL_MapDigitalAxis( i, JoystickDigitalFunctions[i][1], 1, controldevice_joystick );
+        JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum( joystickdigitaldefaults[i*2] );
+        JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum( joystickdigitaldefaults[i*2+1] );
+        CONTROL_MapDigitalAxis( i, JoystickDigitalFunctions[i][0], 0, controldevice_joystick );
+        CONTROL_MapDigitalAxis( i, JoystickDigitalFunctions[i][1], 1, controldevice_joystick );
 
-		JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum( joystickanalogdefaults[i] );
-		CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
-	}
+        JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum( joystickanalogdefaults[i] );
+        CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
+    }
 }
 /*
 ===================
@@ -544,9 +544,9 @@ void readsavenames(void)
 
 void CONFIG_ReadSetup( void )
 {
-    int i;
-    int32 dummy;
+    int32 dummy, i;
     char commmacro[] = "CommbatMacro# ";
+    extern int32 CommandWeaponChoice;
 
     CONTROL_ClearAssignments();
     CONFIG_SetDefaults();
@@ -610,25 +610,16 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "MPMessageDisplayTime",&ud.msgdisptime);
         ps[0].palookup = ud.pcolor[0] = ud.color;
         dummy = useprecache; SCRIPT_GetNumber( scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
-        if(ud.wchoice[0][0] == 0 && ud.wchoice[0][1] == 0)
-        {
-            ud.wchoice[0][0] = 3;
-            ud.wchoice[0][1] = 4;
-            ud.wchoice[0][2] = 5;
-            ud.wchoice[0][3] = 7;
-            ud.wchoice[0][4] = 8;
-            ud.wchoice[0][5] = 6;
-            ud.wchoice[0][6] = 0;
-            ud.wchoice[0][7] = 2;
-            ud.wchoice[0][8] = 9;
-            ud.wchoice[0][9] = 1;
 
-            for(dummy=0;dummy<10;dummy++)
+        // weapon choices are defaulted in checkcommandline, which may override them
+        if (!CommandWeaponChoice)
+            for(i=0;i<10;i++)
             {
-                Bsprintf(buf,"WeaponChoice%ld",dummy);
-                SCRIPT_GetNumber( scripthandle, "Misc", buf, &ud.wchoice[0][dummy]);
+                Bsprintf(buf,"WeaponChoice%ld",i);
+                dummy = -1;
+                SCRIPT_GetNumber( scripthandle, "Misc", buf, &dummy);
+                if (dummy >= 0) ud.wchoice[0][i] = dummy;
             }
-        }
 
         SCRIPT_GetNumber( scripthandle, "Sound Setup", "FXDevice",&FXDevice);
         SCRIPT_GetNumber( scripthandle, "Sound Setup", "MusicDevice",&MusicDevice);
