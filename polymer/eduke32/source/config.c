@@ -82,7 +82,7 @@ int32 JoystickAnalogueSaturate[MAXJOYAXES];
 // Screen variables
 //
 
-int32 ScreenMode = 0;
+int32 ScreenMode = 1;
 int32 ScreenWidth = 800;
 int32 ScreenHeight = 600;
 int32 ScreenBPP = 32;

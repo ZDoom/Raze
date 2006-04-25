@@ -7977,13 +7977,15 @@ void loadtmb(void)
 void Shutdown( void )
 {
     int i;
+    extern int32 scripthandle;
 
     SoundShutdown();
     MusicShutdown();
     uninittimer();
     uninitengine();
     CONTROL_Shutdown();
-    CONFIG_WriteSetup();
+    if (scripthandle)
+        CONFIG_WriteSetup();
     KB_Shutdown();
     for(i=0;i<MAXQUOTES;i++)
     {
