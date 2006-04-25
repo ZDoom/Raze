@@ -83,8 +83,8 @@ int32 JoystickAnalogueSaturate[MAXJOYAXES];
 //
 
 int32 ScreenMode = 1;
-int32 ScreenWidth = 800;
-int32 ScreenHeight = 600;
+int32 ScreenWidth = 1024;
+int32 ScreenHeight = 768;
 int32 ScreenBPP = 32;
 
 static char setupfilename[256]={SETUPFILENAME};
@@ -224,7 +224,7 @@ void CONFIG_SetDefaults( void )
     ud.detail = 1;
     ud.lockout = 0;
     ud.pwlockout[0] = '\0';
-    ud.crosshair = 1;
+    ud.crosshair = 2;
     ud.m_marker = 1;
     ud.m_ffire = 1;
     ud.levelstats = 0;
@@ -266,8 +266,7 @@ void CONFIG_SetDefaults( void )
     for (i=0; i<MAXMOUSEBUTTONS; i++) {
         MouseFunctions[i][0] = CONFIG_FunctionNameToNum( mousedefaults[i] );
         CONTROL_MapButton( MouseFunctions[i][0], i, 0, controldevice_mouse );
-        if (i<4) continue;
-
+        if (i>=4) continue;
         MouseFunctions[i][1] = CONFIG_FunctionNameToNum( mouseclickeddefaults[i] );
         CONTROL_MapButton( MouseFunctions[i][1], i, 1, controldevice_mouse );
     }

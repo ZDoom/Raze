@@ -159,22 +159,22 @@ char keydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN] =
 static char * mousedefaults[] =
    {
    "Fire",
-   "Strafe",
-   "Move_Forward",
+   "MedKit",
+   "Jetpack",
    "",
-   "",
-   "",
+   "Next_Weapon",
+   "Previous_Weapon"
    };
 
 
 static char * mouseclickeddefaults[] =
    {
    "",
-   "Open",
    "",
    "",
    "",
    "",
+   ""
    };
 
 

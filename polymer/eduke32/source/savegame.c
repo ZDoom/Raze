@@ -313,6 +313,8 @@ int loadplayer(signed char spot)
         if(kdfread((char *)redefined_quotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
     }
 
+    if (kdfread(&dynamictostatic[0],sizeof(dynamictostatic[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
+
     ReadGameVars(fil);
 
     kclose(fil);
@@ -676,6 +678,8 @@ int saveplayer(signed char spot)
         if(redefined_quotes[i] != NULL)
             dfwrite(redefined_quotes[i],MAXQUOTELEN, 1, fil);
     }
+
+    dfwrite(&dynamictostatic[0],sizeof(dynamictostatic[0]),MAXTILES,fil);
 
     SaveGameVars(fil);
 

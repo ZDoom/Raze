@@ -255,9 +255,12 @@ void playanm(char *fn,char t)
     {
         while(totalclock < ototalclock)
         {
+            extern char restorepalette;
             if( KB_KeyWaiting() )
                 goto ENDOFANIMLOOP;
             handleevents(); getpackets();
+            if(restorepalette == 1)
+                setgamepalette(&ps[myconnectindex],tempbuf,2);
         }
 
         if(t == 10) ototalclock += 14;

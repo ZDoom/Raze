@@ -552,14 +552,6 @@ void menus(void)
     long l,m;
     char *p = NULL;
 
-    if(ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
-    {
-        if(setgamemode(!ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP) < 0)
-            setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP);
-        else ScreenMode = !ScreenMode;
-        KB_ClearKeyDown(sc_Enter);
-    }
-
     getpackets();
 
     if(ControllerType == 1 && CONTROL_MousePresent)
@@ -2237,7 +2229,8 @@ cheat_for_port_credits:
                 switch (io) {
                 case 0:  if (x==io) ud.crosshair = (ud.crosshair==3)?0:ud.crosshair+1;
                     modval(0,3,(int *)&ud.crosshair,1,probey==io);
-                    gametextpal(d,yy, ud.crosshair ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
+                    { char *s[] = { "OFF", "ON [100%]", "ON [50%]", "ON [25%]" };
+                        gametextpal(d,yy,s[ud.crosshair], MENUHIGHLIGHT(io), 0); break; }
                 case 1:  if (x==io) ud.levelstats = 1-ud.levelstats;
                     modval(0,1,(int *)&ud.levelstats,1,probey==io);
                     gametextpal(d,yy, ud.levelstats ? "Shown" : "Hidden", MENUHIGHLIGHT(io), 0); break;

@@ -333,6 +333,18 @@ void getpackets(void)
     sampletimer();
     AudioUpdate();
 
+    if(ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
+    {
+        if(setgamemode(!ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP)) {
+            OSD_Printf("Failed setting fullscreen video mode.\n");
+            if (setgamemode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP))
+                gameexit("Failed to recover from failure to set fullscreen video mode.\n");
+        }
+        else ScreenMode = !ScreenMode;
+        KB_ClearKeyDown(sc_Enter);
+        restorepalette = 1;
+    }
+
     // only dispatch commands here when not in a game
     if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
 
@@ -356,25 +368,30 @@ void getpackets(void)
                     if (i != other)
                         sendpacket(i,packbuf,packbufleng);
             }
-
+/*
             j = packbuf[1];
             playerquitflag[j] = 0;
-            Bsprintf(buf,"%s is history!",ud.user_name[j]);
-            adduserquote(buf);
 
-            numplayers--;
-            ud.multimode--;
-
-            if(j == connecthead && networkmode == 0 )
-                gameexit( " \nThe 'MASTER/First player' just quit the game.  All\nplayers are returned from the game.");
-            else
+            j = -1;
+            for(i=connecthead;i>=0;i=connectpoint2[i])
             {
-                connectpoint2[numplayers] = -1;
-                connectpoint2[numplayers-1] = connecthead;
-            }
+                if (playerquitflag[i]) { j = i; continue; }
 
-            if (numplayers < 2)
-                sound(GENERIC_AMBIENCE17);
+                if (i == connecthead) connecthead = connectpoint2[connecthead];
+                else connectpoint2[j] = connectpoint2[i];
+
+                numplayers--;
+                ud.multimode--;
+
+                Bsprintf(buf,"%s is history!",ud.user_name[i]);
+                adduserquote(buf);
+
+                if (numplayers < 2)
+                    sound(GENERIC_AMBIENCE17);
+
+                if(i == 0 && networkmode == 0 ) */
+                    gameexit( "Game aborted from menu; disconnected.");
+//            }
 
             break;
 
@@ -8177,7 +8194,7 @@ void Startup(void)
     inittimer(TICRATE);
 
     //initprintf("* Hold Esc to Abort. *\n");
-    initprintf("Loading art header.\n");
+    initprintf("Loading art header...\n");
     if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
         gameexit("Failed loading art.");
 
@@ -8540,6 +8557,7 @@ void app_main(int argc,char **argv)
                 ScreenHeight = 600; // JBF: was 200
                 ScreenBPP = 32; */
         while(setgamemode(0,xres[i],yres[i],bpp[i]) < 0) {
+            initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],bpp[i]);
             i++;
         }
         ScreenWidth = xres[i];
@@ -8600,14 +8618,6 @@ void app_main(int argc,char **argv)
     //    getpackets();
 
 MAIN_LOOP_RESTART:
-
-    if(ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
-    {
-        if(setgamemode(!ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP) < 0)
-            setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP);
-        else ScreenMode = !ScreenMode;
-        KB_ClearKeyDown(sc_Enter);
-    }
 
     if(ud.warp_on == 0)
         Logo();
@@ -9757,7 +9767,7 @@ char domovethings(void)
         ps[myconnectindex].ftq = 116, ps[myconnectindex].fta = 60;
 
         if(j < 0 && networkmode == 0 )
-            gameexit( " \nThe 'MASTER/First player' just quit the game.  All\nplayers are returned from the game.");
+            gameexit( "The server/master player just quit the game; disconnected.");
     }
 
     if ((numplayers >= 2) && ((movefifoplc&7) == 7))
