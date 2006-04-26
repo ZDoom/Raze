@@ -61,6 +61,7 @@ enum {
     T_SPRITECOL,T_2DCOL,
     T_FOGPAL,
     T_LOADGRP,
+    T_DUMMYTILE,T_DUMMYTILERANGE
 };
 
 typedef struct { char *text; int tokenid; } tokenlist;
@@ -104,6 +105,8 @@ static tokenlist basetokens[] =
         { "2dcol",	     	 T_2DCOL 			},
         { "fogpal",	     	 T_FOGPAL	 		},
         { "loadgrp",     	 T_LOADGRP	 		},
+        { "dummytile",     	 T_DUMMYTILE		},
+        { "dummytilerange",  T_DUMMYTILERANGE   },
     };
 
 static tokenlist modeltokens[] = {
@@ -382,6 +385,47 @@ static int defsparser(scriptfile *script)
                 scriptfile_getstring(script,&bs);
             }
             break;
+        case T_DUMMYTILE:
+            {
+                int tile, xsiz, ysiz;
+
+                if (scriptfile_getsymbol(script,&tile)) break;
+                if (scriptfile_getsymbol(script,&xsiz)) break;
+                if (scriptfile_getsymbol(script,&ysiz)) break;
+
+                if(xsiz >= 0) tilesizx[tile] = xsiz;
+                if(ysiz >= 0) tilesizy[tile] = ysiz;
+                invalidatetile(tile,-1,-1);
+                break;
+            }
+        case T_DUMMYTILERANGE:
+            {
+                int tile1,tile2,xsiz,ysiz,i;
+
+                if (scriptfile_getsymbol(script,&tile1)) break;
+                if (scriptfile_getsymbol(script,&tile2)) break;
+                if (scriptfile_getsymbol(script,&xsiz)) break;
+                if (scriptfile_getsymbol(script,&ysiz)) break;
+                if (tile2 < tile1) {
+                    initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+                    i = tile2;
+                    tile2 = tile1;
+                    tile1 = i;
+                }
+                if ((tile1 >= 0 && tile1 < MAXTILES) && (tile2 >= 0 && tile2 < MAXTILES))
+                {
+                    for (i=tile1;i<=tile2;i++)
+                    {
+                        if ((unsigned long)i < MAXTILES)
+                        {
+                            if(xsiz >= 0) tilesizx[i] = xsiz;
+                            if(ysiz >= 0) tilesizy[i] = ysiz;
+                            invalidatetile(i,-1,-1);
+                        }
+                    }
+                }
+            }
+
         case T_DEFINEMODEL:
             {
                 char *modelfn;
