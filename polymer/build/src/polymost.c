@@ -124,7 +124,7 @@ long gltexmaxsize = 0;      // 0 means autodetection on first run
 long gltexmiplevel = 0;		// discards this many mipmap levels
 static long lastglpolygonmode = 0; //FUK
 long glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
-long glratiocorrection = 33;
+long glratiocorrection = 63;
 static GLuint polymosttext = 0;
 extern char nofog;
 #endif
@@ -595,9 +595,9 @@ void resizeglcheck ()
 
         bglMatrixMode(GL_PROJECTION);
         memset(m,0,sizeof(m));
-        m[0][0] = (float)ydimen / (1 + (glratiocorrection / (63 / (ratioratio - 1)))); m[0][2] = 1.0;
+        m[0][0] = (float)ydimen / 1.2; m[0][2] = 1.0;
         m[1][1] = (float)xdimen; m[1][2] = 1.0;
-        m[2][2] = 1.0; m[2][3] = (float)ydimen / (1 + (glratiocorrection / (63 / (ratioratio - 1))));
+        m[2][2] = 1.0; m[2][3] = (float)ydimen / 1.2;
         m[3][2] =-1.0;
         bglLoadMatrixf(&m[0][0]);
         //bglLoadIdentity();
@@ -4051,9 +4051,9 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
             memset(m,0,sizeof(m));
             if ((dastat&10) == 2)
             {
-                m[0][0] = (float)ydimen / (1 + (glratiocorrection / (63 / (ratioratio - 1)))); m[0][2] = 1.0;
+                m[0][0] = (float)ydimen / 1.2; m[0][2] = 1.0;
                 m[1][1] = (float)xdimen; m[1][2] = 1.0;
-                m[2][2] = 1.0; m[2][3] = (float)ydimen / (1 + (glratiocorrection / (63 / (ratioratio - 1))));
+                m[2][2] = 1.0; m[2][3] = (float)ydimen / 1.2;
                 m[3][2] =-1.0;
             }
             else { m[0][0] = m[2][3] = 1.0; m[1][1] = ((float)xdim)/((float)ydim); m[2][2] = 1.0001; m[3][2] = 1-m[2][2]; }
