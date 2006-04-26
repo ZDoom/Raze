@@ -543,6 +543,9 @@ void polymost_glinit()
 
     bglBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
+    //bglHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    //bglEnable(GL_LINE_SMOOTH);
+
     if (glmultisample > 0 && glinfo.multisample) {
         if (glinfo.nvmultisamplehint)
             bglHint(GL_MULTISAMPLE_FILTER_HINT_NV, glnvmultisamplehint ? GL_NICEST:GL_FASTEST);
@@ -2755,11 +2758,11 @@ static void polymost_drawalls (long bunch)
                 if ((oy < cy0) && (oy < cy1)) domost(x1,oy,x0,oy);
                 else if ((oy < cy0) != (oy < cy1))
                 {      /*         cy1        cy0
-                    		//        /             \
-                    		//oy----------      oy---------
-                    		//    /                    \
-                    		//  cy0                     cy1
-                    		*/
+                        		//        /             \
+                        		//oy----------      oy---------
+                        		//    /                    \
+                        		//  cy0                     cy1
+                        		*/
                     ox = (oy-cy0)*(x1-x0)/(cy1-cy0) + x0;
                     if (oy < cy0) { domost(ox,oy,x0,oy); domost(x1,cy1,ox,oy); }
                     else { domost(ox,oy,x0,cy0); domost(x1,oy,ox,oy); }

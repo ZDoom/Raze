@@ -1,14 +1,15 @@
-#ifdef __APPLE__
-# include <jfaud/jfaud.hpp>
-#else
-# include "jfaud.hpp"
-#endif
-
 #include <ctype.h>
 
 #include "compat.h"
 #include "baselayer.h"
 #include "cache1d.h"
+
+typedef uint64 uint64_t;
+#ifdef __APPLE__
+# include <jfaud/jfaud.hpp>
+#else
+# include "jfaud.hpp"
+#endif
 
 extern "C" {
 void initsb(char,char,long,char,char,char,char);
