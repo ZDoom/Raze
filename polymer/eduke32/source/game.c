@@ -7619,7 +7619,7 @@ void checkcommandline(int argc,char **argv)
 
                     else if( *c == 'D')
                     {
-                        FILE * fp=fopenfrompath("gamevars.txt","w");
+                        FILE * fp=fopen("gamevars.txt","w");
                         InitGameVars();
                         DumpGameVars(fp);
                         fclose(fp);

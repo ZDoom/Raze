@@ -4069,16 +4069,16 @@ SKIPJIBS:
 
     case CON_CANSEESPR:
         {
-            long var1, var2, rvar;
+            long lVar1, lVar2, lVar3;
 
             insptr++;
 
-            var1 = GetGameVarID(*insptr++,g_i,g_p);
-            var2 = GetGameVarID(*insptr++,g_i,g_p);
-            rvar = *insptr++;
+            lVar1 = GetGameVarID(*insptr++,g_i,g_p);
+            lVar2 = GetGameVarID(*insptr++,g_i,g_p);
+            lVar3 = *insptr++;
 
-            SetGameVarID(rvar, cansee(sprite[var1].x,sprite[var1].y,sprite[var1].z,sprite[var1].sectnum,
-                                      sprite[var2].x,sprite[var2].y,sprite[var2].z,sprite[var2].sectnum), g_i, g_p);
+            SetGameVarID(lVar3, cansee(sprite[lVar1].x,sprite[lVar1].y,sprite[lVar1].z,sprite[lVar1].sectnum,
+                                      sprite[lVar2].x,sprite[lVar2].y,sprite[lVar2].z,sprite[lVar2].sectnum), g_i, g_p);
             break;
         }
 

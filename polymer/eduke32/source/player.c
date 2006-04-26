@@ -154,33 +154,20 @@ void hitscantrail(long x1, long y1, long z1, long x2, long y2, long z2, short an
     long xv, yv, zv, n, j, i;
     short sect = -1;
 
-    /* mathematical bullshit */
-
     x1 += (sintable[(348+ang+512)&2047]/projectile[atwith].offset);
     y1 += (sintable[(ang+348)&2047]/projectile[atwith].offset);
 
-    /* find the distance between our player's projectile firing position and the impact point */
-
-    n = (FindDistance2D(x1-x2,y1-y2))/256;
-
-    /* apply an offset if needed, defined in CONs */
+    n = (FindDistance2D(x1-x2,y1-y2))>>8;
 
     z1 += (projectile[atwith].toffset<<8)+1024;
-
-    /* figure out how much distance to put between each sprite */
 
     xv = (x2-x1)/n;
     yv = (y2-y1)/n;
     zv = (z2-z1)/n;
 
-    //    Bsprintf(tempbuf,"%ld, %ld, %ld (%ld)",xv,yv,zv,n);
-    //    AddLog(tempbuf);
-
-    x1 += xv/4;
-    y1 += yv/4;
-    z1 += zv/4;
-
-    /* spawn the trail sprites */
+    x1 += xv>>2;
+    y1 += yv>>2;
+    z1 += zv>>2;
 
     for(i=0;i<projectile[atwith].tnum;i++)
     {

@@ -402,10 +402,10 @@ static int defsparser(scriptfile *script)
             {
                 int tile1,tile2,xsiz,ysiz,i;
 
-                if (scriptfile_getsymbol(script,&tile1)) break;
-                if (scriptfile_getsymbol(script,&tile2)) break;
-                if (scriptfile_getsymbol(script,&xsiz)) break;
-                if (scriptfile_getsymbol(script,&ysiz)) break;
+                if (scriptfile_getnumber(script,&tile1)) break;
+                if (scriptfile_getnumber(script,&tile2)) break;
+                if (scriptfile_getnumber(script,&xsiz)) break;
+                if (scriptfile_getnumber(script,&ysiz)) break;
                 if (tile2 < tile1) {
                     initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
                     i = tile2;
@@ -424,6 +424,7 @@ static int defsparser(scriptfile *script)
                         }
                     }
                 }
+                break;
             }
 
         case T_DEFINEMODEL:
