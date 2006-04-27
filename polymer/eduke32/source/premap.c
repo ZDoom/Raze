@@ -1348,7 +1348,7 @@ void waitforeverybody()
 
 void dofrontscreens(char *statustext)
 {
-    long i=0;
+    long i=0,j;
 
     if(ud.recstat != 2)
     {
@@ -1364,7 +1364,13 @@ void dofrontscreens(char *statustext)
 
         SetGameVarID(g_iReturnVarID,LOADSCREEN, -1, -1);
         OnEvent(EVENT_GETLOADTILE, -1, -1, -1);
-        rotatesprite(320<<15,200<<15,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),0,0,2+8+64,0,0,xdim-1,ydim-1);
+        j = GetGameVarID(g_iReturnVarID, -1, -1);
+        rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
+        if(j > MAXTILES-1)
+        {
+            nextpage();
+            return;
+        }
         if( boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0 )
         {
             menutext(160,90,0,0,"ENTERING USER MAP");
@@ -1399,7 +1405,13 @@ void dofrontscreens(char *statustext)
         }
         SetGameVarID(g_iReturnVarID,LOADSCREEN, -1, -1);
         OnEvent(EVENT_GETLOADTILE, -1, -1, -1);
-        rotatesprite(320<<15,200<<15,65536L,0,GetGameVarID(g_iReturnVarID, -1, -1),0,0,2+8+64,0,0,xdim-1,ydim-1);
+        j = GetGameVarID(g_iReturnVarID, -1, -1);
+        rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
+        if(j > MAXTILES-1)
+        {
+            nextpage();
+            return;
+        }
         menutext(160,105,0,0,"LOADING...");
         if (statustext) gametext(160,180,statustext,0,2+8+16);
         nextpage();
