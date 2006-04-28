@@ -686,7 +686,7 @@ enum keywords {
     CON_CHEATKEYS,          // 259
     CON_USERQUOTE,          // 260
     CON_PRECACHE,           // 261
-    CON_PROJECTILE,         // 262
+    CON_DEFINEGAMEFUNCNAME, // 262
     CON_REDEFINEQUOTE,      // 263
     CON_DYNQUOTE,           // 264
     CON_GETPNAME,           // 265
@@ -715,6 +715,5 @@ enum keywords {
 	CON_SAVE,				// 288
     CON_CANSEE,             // 289
     CON_CANSEESPR,          // 290
-    CON_DEFINEGAMEFUNCNAME, // 291
     END
 };

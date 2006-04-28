@@ -406,7 +406,7 @@ char *keyw[] = {
                    "cheatkeys",                // 259
                    "userquote",                // 260
                    "precache",                 // 261
-                   "projectile",               // 262
+                   "definegamefuncname",       // 262
                    "redefinequote",            // 263
                    "dynquote",                 // 264
                    "getpname",                 // 265
@@ -435,7 +435,6 @@ char *keyw[] = {
                    "save",					   // 288
                    "cansee",                   // 289
                    "canseespr",                // 290
-                   "definegamefuncname",       // 291
                    "<null>"
                };
 
@@ -1836,6 +1835,7 @@ long transnum(long type)
                 ReportError(ERROR_ISAKEYWORD);
                 textptr+=l;
             }
+
     for(i=0;i<labelcnt;i++)
     {
         if( !Bstrcmp(tempbuf,label+(i<<6)) )
@@ -2631,7 +2631,7 @@ char parsecommand(void)
         current_event = j;
         //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, parsing_event);
         //AddLog(g_szBuf);
-        if(j>=MAXGAMEEVENTS || j < 0)
+        if(j > MAXGAMEEVENTS-1 || j < 0)
         {
             initprintf("%s:%ld: error: invalid event ID.\n",compilefile,line_number);
             error++;
@@ -3595,7 +3595,7 @@ char parsecommand(void)
             transnum(LABEL_DEFINE);
             j = *(scriptptr-1);
 
-            if(j>=MAXTILES)
+            if(j > MAXTILES-1)
             {
                 ReportError(ERROR_EXCEEDSMAXTILES);
                 error++;
@@ -3611,93 +3611,6 @@ char parsecommand(void)
             return 0;
         }
 
-    case CON_PROJECTILE:
-        {
-            int y;
-            signed long z;
-            char *bracepos;
-
-            scriptptr--;
-
-            if( parsing_state || parsing_actor )
-            {
-                ReportError(ERROR_FOUNDWITHIN);
-                error++;
-            }
-
-            transnum(LABEL_DEFINE);
-            scriptptr--;
-            j = *(scriptptr);
-            if(j>=MAXTILES)
-            {
-                ReportError(ERROR_EXCEEDSMAXTILES);
-                error++;
-            }
-
-            num_braces = 0;
-            skipcomments();
-            if(textptr[0]!='{')
-            {
-                while(textptr[0] != '}')
-                {
-                    textptr++;
-                    if (textptr[0] == '\n' || textptr[0] == '\r')
-                        line_number++;
-                }
-                if(textptr[0]=='}')
-                    textptr++;
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
-                return 0;
-            }
-            num_braces++;
-            temptextptr = ++textptr;
-
-            while(textptr[0] != '}')
-                textptr++;
-            if(textptr[0]!='}')
-            {
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
-                return 0;
-            }
-
-            bracepos=textptr;
-            textptr=temptextptr;
-
-            while(textptr < bracepos)
-            {
-                getlabel();
-                initprintf("%s:%ld: debug: label is `%s'\n",compilefile,line_number,label+(labelcnt<<6));
-                y=getlabeloffset(projectilelabels,label+(labelcnt<<6));
-                if(y != -1 )
-                {
-                    nokeywordcheck = 1;
-                    transnum(LABEL_DEFINE);
-                    nokeywordcheck = 0;
-                    scriptptr--;
-                    z = *(scriptptr);
-                    DefineProjectile(j,y,z);
-                    skipcomments();
-                    continue;
-                }
-                error++;
-                ReportError(ERROR_SYMBOLNOTRECOGNIZED);
-                return 0;
-            }
-            textptr = bracepos;
-            if(textptr[0] != '}')
-            {
-                initprintf("%s:%ld: error: EOF in projectile definition!\n",compilefile,line_number);
-                error++;
-                return 0;
-            }
-            num_braces--;
-            textptr++;
-            spriteflags[j] |= SPRITE_FLAG_PROJECTILE;
-            return 0;
-        }
-
     case CON_SPRITEFLAGS:
         {
             if( parsing_actor == 0 && parsing_state == 0 )
@@ -3708,7 +3621,7 @@ char parsecommand(void)
                 scriptptr--;
                 j = *scriptptr;
 
-                if(j>=MAXTILES)
+                if(j > MAXTILES-1)
                 {
                     ReportError(ERROR_EXCEEDSMAXTILES);
                     error++;
@@ -3743,7 +3656,7 @@ char parsecommand(void)
             scriptptr--;
             j = *scriptptr;
 
-            if(j>=MAXTILES)
+            if(j > MAXTILES-1)
             {
                 ReportError(ERROR_EXCEEDSMAXTILES);
                 error++;
@@ -3765,7 +3678,7 @@ char parsecommand(void)
                 transnum(LABEL_DEFINE);
                 scriptptr--;
                 i = *scriptptr;
-                if(i>=MAXTILES)
+                if(i > MAXTILES-1)
                 {
                     ReportError(ERROR_EXCEEDSMAXTILES);
                     error++;
@@ -4410,7 +4323,7 @@ repeatcase:
         j = *scriptptr;
         while( *textptr == ' ' ) textptr++;
 
-        if (j < 0 || j >= 5)
+        if (j < 0 || j > 4)
         {
             initprintf("%s:%ld: error: skill number exceeds maximum skill count.\n",compilefile,line_number);
             error++;
@@ -4447,7 +4360,7 @@ repeatcase:
 
         while( *textptr == ' ' ) textptr++;
 
-        if (j < 0 || j >= MAXGAMETYPES)
+        if (j < 0 || j > MAXGAMETYPES-1)
         {
             initprintf("%s:%ld: error: gametype number exceeds maximum gametype count.\n",compilefile,line_number);
             error++;
@@ -4490,7 +4403,7 @@ repeatcase:
             while( *textptr != 0x0a && *textptr != 0 ) textptr++;
             break;
         }
-        if (k < 0 || k >= 11)
+        if (k < 0 || k > 10)
         {
             initprintf("%s:%ld: error: level number exceeds maximum number of levels per episode.\n",
                        line_number,compilefile);
@@ -4504,7 +4417,7 @@ repeatcase:
         {
             level_file_names[j*11+k][i] = *textptr;
             textptr++,i++;
-            if(i > BMAX_PATH)
+            if(i >= BMAX_PATH)
             {
                 initprintf("%s:%ld: error: level file name exceeds limit of %d characters.\n",compilefile,line_number,BMAX_PATH);
                 error++;
