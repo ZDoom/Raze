@@ -346,7 +346,7 @@ void getpackets(void)
     }
 
     // only dispatch commands here when not in a game
-    if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
+if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
 
     if(qe == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && KB_KeyPressed(sc_Delete))
     {
@@ -368,30 +368,30 @@ void getpackets(void)
                     if (i != other)
                         sendpacket(i,packbuf,packbufleng);
             }
-/*
-            j = packbuf[1];
-            playerquitflag[j] = 0;
+            /*
+                        j = packbuf[1];
+                        playerquitflag[j] = 0;
 
-            j = -1;
-            for(i=connecthead;i>=0;i=connectpoint2[i])
-            {
-                if (playerquitflag[i]) { j = i; continue; }
+                        j = -1;
+                        for(i=connecthead;i>=0;i=connectpoint2[i])
+                        {
+                            if (playerquitflag[i]) { j = i; continue; }
 
-                if (i == connecthead) connecthead = connectpoint2[connecthead];
-                else connectpoint2[j] = connectpoint2[i];
+                            if (i == connecthead) connecthead = connectpoint2[connecthead];
+                            else connectpoint2[j] = connectpoint2[i];
 
-                numplayers--;
-                ud.multimode--;
+                            numplayers--;
+                            ud.multimode--;
 
-                Bsprintf(buf,"%s is history!",ud.user_name[i]);
-                adduserquote(buf);
+                            Bsprintf(buf,"%s is history!",ud.user_name[i]);
+                            adduserquote(buf);
 
-                if (numplayers < 2)
-                    sound(GENERIC_AMBIENCE17);
+                            if (numplayers < 2)
+                                sound(GENERIC_AMBIENCE17);
 
-                if(i == 0 && networkmode == 0 ) */
-                    gameexit( "Game aborted from menu; disconnected.");
-//            }
+                            if(i == 0 && networkmode == 0 ) */
+            gameexit( "Game aborted from menu; disconnected.");
+            //            }
 
             break;
 

@@ -35,6 +35,11 @@ int loadpheader(char spot,struct savehead *saveh)
 
     walock[TILE_LOADSHOT] = 255;
 
+    if(kdfread(&bv,sizeof(bv),1,fil) != 1) goto corrupt;
+    if(kdfread(g_szBuf,bv,1,fil) != 1) goto corrupt;
+    g_szBuf[bv]=0;
+    AddLog(g_szBuf);
+
     if (kdfread(&bv,4,1,fil) != 1) goto corrupt;
     if(bv != BYTEVERSION) {
         FTA(114,&ps[myconnectindex]);
@@ -104,6 +109,11 @@ int loadplayer(signed char spot)
     if ((fil = kopen4load(fnptr,0)) == -1) return(-1);
 
     ready2send = 0;
+
+    if(kdfread(&bv,sizeof(bv),1,fil) != 1) goto corrupt;
+    if(kdfread(g_szBuf,bv,1,fil) != 1) goto corrupt;
+    g_szBuf[bv]=0;
+    AddLog(g_szBuf);
 
     if (kdfread(&bv,4,1,fil) != 1) return -1;
     if(bv != BYTEVERSION)
@@ -315,7 +325,7 @@ int loadplayer(signed char spot)
 
     if (kdfread(&dynamictostatic[0],sizeof(dynamictostatic[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
 
-    ReadGameVars(fil);
+    if(ReadGameVars(fil)) goto corrupt;
 
     kclose(fil);
 
@@ -475,6 +485,11 @@ int saveplayer(signed char spot)
     if ((fil = fopen(fnptr,"wb")) == 0) return(-1);
 
     ready2send = 0;
+
+    Bsprintf(g_szBuf,"EDuke32");
+    i=strlen(g_szBuf);
+    dfwrite(&i,sizeof(i),1,fil);
+    dfwrite(g_szBuf,i,1,fil);
 
     dfwrite(&bv,4,1,fil);
     dfwrite(&ud.multimode,sizeof(ud.multimode),1,fil);

@@ -4078,7 +4078,7 @@ SKIPJIBS:
             lVar3 = *insptr++;
 
             SetGameVarID(lVar3, cansee(sprite[lVar1].x,sprite[lVar1].y,sprite[lVar1].z,sprite[lVar1].sectnum,
-                                      sprite[lVar2].x,sprite[lVar2].y,sprite[lVar2].z,sprite[lVar2].sectnum), g_i, g_p);
+                                       sprite[lVar2].x,sprite[lVar2].y,sprite[lVar2].z,sprite[lVar2].sectnum), g_i, g_p);
             break;
         }
 

@@ -513,7 +513,7 @@ void CONFIG_SetupJoystick( void )
 
 void readsavenames(void)
 {
-    long dummy;
+    long dummy,j;
     short i;
     char fn[13];
     BFILE *fil;
@@ -524,8 +524,9 @@ void readsavenames(void)
     {
         fn[4] = i+'0';
         if ((fil = Bfopen(fn,"rb")) == NULL ) continue;
-    if (dfread(&dummy,4,1,fil) != 1) { Bfclose(fil); continue; }
-
+    if(dfread(&j,sizeof(long),1,fil) != 1) { Bfclose(fil); continue; }
+        if(dfread(g_szBuf,j,1,fil) != 1) { Bfclose(fil); continue; }
+        if (dfread(&dummy,4,1,fil) != 1) { Bfclose(fil); continue; }
         if(dummy != BYTEVERSION) return;
     if (dfread(&dummy,4,1,fil) != 1) { Bfclose(fil); continue; }
         if (dfread(&ud.savegame[i][0],19,1,fil) != 1) { ud.savegame[i][0] = 0; }

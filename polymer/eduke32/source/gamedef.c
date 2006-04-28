@@ -1031,29 +1031,24 @@ void AddLog(char *psz)
 
 char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags);
 
-void ReadGameVars(long fil)
+int ReadGameVars(long fil)
 {
     int i;
     long l;
 
     //     AddLog("Reading gamevars from savegame");
 
-    kdfread(&l,sizeof(l),1,fil);
-    kdfread(g_szBuf,l,1,fil);
-    g_szBuf[l]=0;
-    AddLog(g_szBuf);
-
     FreeGameVars(); // nuke 'em from orbit, it's the only way to be sure...
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
 
-    kdfread(&iGameVarCount,sizeof(iGameVarCount),1,fil);
+    if(kdfread(&iGameVarCount,sizeof(iGameVarCount),1,fil) != 1) goto corrupt;
 
     for(i=0;i<iGameVarCount;i++)
     {
-        kdfread(&(aGameVars[i]),sizeof(MATTGAMEVAR),1,fil);
+        if(kdfread(&(aGameVars[i]),sizeof(MATTGAMEVAR),1,fil) != 1) goto corrupt;
         aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
-        kdfread(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil);
+        if(kdfread(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil) != 1) goto corrupt;
     }
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
@@ -1081,20 +1076,20 @@ void ReadGameVars(long fil)
         {
             //Bsprintf(g_szBuf,"Reading value array for %s (%d)",aGameVars[i].szLabel,sizeof(long) * MAXPLAYERS);
             //AddLog(g_szBuf);
-            kdfread(aGameVars[i].plValues,sizeof(long) * MAXPLAYERS, 1, fil);
+            if(kdfread(aGameVars[i].plValues,sizeof(long) * MAXPLAYERS, 1, fil) != 1) goto corrupt;
         }
         else if( aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
         {
             //Bsprintf(g_szBuf,"Reading value array for %s (%d)",aGameVars[i].szLabel,sizeof(long) * MAXSPRITES);
             //AddLog(g_szBuf);
-            kdfread(aGameVars[i].plValues,sizeof(long) * MAXSPRITES, 1, fil);
+            if(kdfread(aGameVars[i].plValues,sizeof(long) * MAXSPRITES, 1, fil) != 1) goto corrupt;
         }
         // else nothing 'extra...'
     }
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
-    kdfread(apScriptGameEvent,sizeof(apScriptGameEvent),1,fil);
+    if(kdfread(apScriptGameEvent,sizeof(apScriptGameEvent),1,fil) != 1) goto corrupt;
     for(i=0;i<MAXGAMEEVENTS;i++)
         if(apScriptGameEvent[i])
         {
@@ -1104,8 +1099,8 @@ void ReadGameVars(long fil)
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
-    kdfread(&l,sizeof(l),1,fil);
-    kdfread(g_szBuf,l,1,fil);
+    if(kdfread(&l,sizeof(l),1,fil) != 1) goto corrupt;
+    if(kdfread(g_szBuf,l,1,fil) != 1) goto corrupt;
     g_szBuf[l]=0;
     AddLog(g_szBuf);
 
@@ -1122,6 +1117,9 @@ void ReadGameVars(long fil)
         AddLog("Done Dumping...");
     }
 #endif
+    return(0);
+corrupt:
+    return(1);
 }
 
 void SaveGameVars(FILE *fil)
@@ -1130,11 +1128,6 @@ void SaveGameVars(FILE *fil)
     long l;
 
     //   AddLog("Saving Game Vars to File");
-    Bsprintf(g_szBuf,"EDuke32");
-    l=strlen(g_szBuf);
-    dfwrite(&l,sizeof(l),1,fil);
-    dfwrite(g_szBuf,l,1,fil);
-
     dfwrite(&iGameVarCount,sizeof(iGameVarCount),1,fil);
 
     for(i=0;i<iGameVarCount;i++)

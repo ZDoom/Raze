@@ -258,9 +258,6 @@ short aim(spritetype *s,short aang,short atwith)
     long dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
     long xv, yv;
 
-    a = s->ang;
-
-    j = -1;
     if(s->picnum == APLAYER) {
         if(!ps[s->yvel].auto_aim)
             return -1;
@@ -283,6 +280,11 @@ short aim(spritetype *s,short aang,short atwith)
                 }
         }
     }
+
+    a = s->ang;
+
+    j = -1;
+
     gotshrinker = s->picnum == APLAYER && *aplWeaponWorksLike[ps[s->yvel].curr_weapon] == SHRINKER_WEAPON;
     gotfreezer = s->picnum == APLAYER && *aplWeaponWorksLike[ps[s->yvel].curr_weapon] == FREEZE_WEAPON;
 

@@ -338,7 +338,7 @@ extern void ResetSystemDefaults(void);
 extern void InitGameVarPointers(void);
 extern void InitGameVars(void);
 extern void SaveGameVars(FILE *fil);
-extern void ReadGameVars(long fil);
+extern int ReadGameVars(long fil);
 
 extern int GetGameID(char *szGameLabel);
 extern long GetGameVarID(int id, short sActor, short sPlayer);
