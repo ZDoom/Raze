@@ -2871,7 +2871,7 @@ cheat_for_port_credits:
         {
             short sense;
             sense = CONTROL_GetMouseSensitivity()>>10;
-            barsm(248,128,&sense,4,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
+            barsm(248,128,&sense,2,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
             CONTROL_SetMouseSensitivity( sense<<10 );
         }
 

@@ -2706,7 +2706,7 @@ void getinput(short snum)
 
     info.dx += lastinfo.dx;
     info.dy += lastinfo.dy;
-    info.dz += lastinfo.dz;
+/*    info.dz += lastinfo.dz; */
     info.dyaw   += lastinfo.dyaw;
     info.dpitch += lastinfo.dpitch;
     info.droll  += lastinfo.droll;
@@ -2748,7 +2748,7 @@ void getinput(short snum)
     }
 
     if(BUTTON(gamefunc_Jump))
-        jump_input = 4;
+        jump_input = 2;
 
     loc.bits =   jump_input?1:0; //BUTTON(gamefunc_Jump);
     loc.bits |=   BUTTON(gamefunc_Crouch)<<1;
@@ -2836,11 +2836,13 @@ void getinput(short snum)
 
     if( myaimmode )
     {
-        lastinfo.dz = info.dz % (314-128);
         if(ud.mouseflip)
-            horiz -= info.dz/(314-128);
-        else horiz += info.dz/(314-128);
+            horiz = -(info.dz+lastinfo.dz)/(314-128);
+        else horiz = (info.dz+lastinfo.dz)/(314-128);
 
+        if(horiz > -1)
+            horiz++;
+        lastinfo.dz = (lastinfo.dz+info.dz) % (314-128);
         info.dz = 0;
     } else {
         lastinfo.dz = info.dz % (1<<6);
