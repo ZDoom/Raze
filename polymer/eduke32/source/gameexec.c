@@ -6513,10 +6513,19 @@ good:
         if( ps[g_p].knee_incs == 0 && sprite[ps[g_p].i].xrepeat >= 40 )
             if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+(16<<8),sprite[ps[g_p].i].sectnum) )
             {
-                ps[g_p].knee_incs = 1;
-                if(ps[g_p].weapon_pos == 0)
-                    ps[g_p].weapon_pos = -1;
-                ps[g_p].actorsqu = g_i;
+                int i;
+                for(i=0;i<MAXPLAYERS;i++)
+                {
+                    if(ps[i].actorsqu == g_i)
+                        break;
+                }
+                if(i == MAXPLAYERS)
+                {
+                    ps[g_p].knee_incs = 1;
+                    if(ps[g_p].weapon_pos == 0)
+                        ps[g_p].weapon_pos = -1;
+                    ps[g_p].actorsqu = g_i;
+                }
             }
         break;
 

@@ -2684,6 +2684,9 @@ void displayweapon(short snum)
 long myaimmode = 0, myaimstat = 0, omyaimstat = 0;
 
 static ControlInfo lastinfo = { 0,0,0,0,0,0 };
+
+static int jump_input = 0;
+
 void getinput(short snum)
 {
     short j, daang;
@@ -2744,7 +2747,10 @@ void getinput(short snum)
         return;
     }
 
-    loc.bits =   BUTTON(gamefunc_Jump);
+    if(BUTTON(gamefunc_Jump))
+        jump_input = 4;
+
+    loc.bits =   jump_input?1:0; //BUTTON(gamefunc_Jump);
     loc.bits |=   BUTTON(gamefunc_Crouch)<<1;
     loc.bits |=   BUTTON(gamefunc_Fire)<<2;
     loc.bits |=   BUTTON(gamefunc_Aim_Up)<<3;
@@ -2756,6 +2762,9 @@ void getinput(short snum)
 
     if ( aplWeaponFlags[ps[snum].curr_weapon][snum] & WEAPON_FLAG_SEMIAUTO && BUTTON( gamefunc_Fire ) )
         CONTROL_ClearButton(gamefunc_Fire);
+
+    if(jump_input > 0)
+        jump_input--;
 
     j=0;
 
@@ -4424,7 +4433,7 @@ HORIZONLY:
             p->holster_weapon = 0;
             if(p->weapon_pos < 0)
                 p->weapon_pos = -p->weapon_pos;
-            if(p->actorsqu >= 0 && dist(&sprite[pi],&sprite[p->actorsqu]) < 1400 )
+            if(p->actorsqu >= 0 && dist(&sprite[pi],&sprite[p->actorsqu]) < 1400 && sprite[p->actorsqu].statnum != MAXSTATUS)
             {
                 guts(&sprite[p->actorsqu],JIBS6,7,myconnectindex);
                 spawn(p->actorsqu,BLOODPOOL);

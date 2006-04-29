@@ -748,7 +748,7 @@ void menus(void)
             gametext(200,50+16-9,s[ud.color],MENUHIGHLIGHT(1),2+8+16); }
         { char *s[] = { "Off", "Full", "Hitscan" };
             gametext(200,50+16+16-9,s[AutoAim],MENUHIGHLIGHT(2),2+8+16); }
-        { char *s[] = { "Off", "Pickup", "Empty", "Both" };
+        { char *s[] = { "Off", "On pickup", "When empty", "Both" };
             gametext(200,50+16+16+16-9,s[ud.weaponswitch],MENUHIGHLIGHT(3),2+8+16); }
         gametext(200,50+16+16+16+16-9,ud.mouseaiming?"Held":"Toggle",MENUHIGHLIGHT(4),2+8+16);
 

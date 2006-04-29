@@ -9534,7 +9534,7 @@ void fakedomovethings(void)
 
     if ( myxvel || myyvel || syn->fvel || syn->svel )
     {
-        if(p->steroids_amount > 0 && p->steroids_amount < 400)
+        if(p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
             doubvel <<= 1;
 
         myxvel += ((syn->fvel*doubvel)<<6);
