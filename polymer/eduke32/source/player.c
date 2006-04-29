@@ -2706,8 +2706,8 @@ void getinput(short snum)
 
     info.dx += lastinfo.dx;
     info.dy += lastinfo.dy;
-/*    info.dz += lastinfo.dz; */
-    info.dyaw   += lastinfo.dyaw;
+/*    info.dz += lastinfo.dz;
+    info.dyaw   += lastinfo.dyaw; */
     info.dpitch += lastinfo.dpitch;
     info.droll  += lastinfo.droll;
     memset(&lastinfo.dx, 0, sizeof(lastinfo));
@@ -2750,7 +2750,7 @@ void getinput(short snum)
     if(BUTTON(gamefunc_Jump))
         jump_input = 2;
 
-    loc.bits =   jump_input?1:0; //BUTTON(gamefunc_Jump);
+    loc.bits =   (jump_input > 0); //BUTTON(gamefunc_Jump);
     loc.bits |=   BUTTON(gamefunc_Crouch)<<1;
     loc.bits |=   BUTTON(gamefunc_Fire)<<2;
     loc.bits |=   BUTTON(gamefunc_Aim_Up)<<3;
@@ -2827,11 +2827,11 @@ void getinput(short snum)
         if ( running ) info.dz *= 2;
 
     if( BUTTON(gamefunc_Strafe) ) {
-        lastinfo.dyaw = info.dyaw % 8;
-        svel = -info.dyaw/8;
+        svel = -(info.dyaw+lastinfo.dyaw)/8;
+        lastinfo.dyaw = (lastinfo.dyaw+info.dyaw) % 8;
     } else {
-        lastinfo.dyaw = info.dyaw % 64;
-        angvel = info.dyaw/64;
+        angvel = (info.dyaw+lastinfo.dyaw)/64;
+        lastinfo.dyaw = (lastinfo.dyaw+info.dyaw) % 64;
     }
 
     if( myaimmode )
