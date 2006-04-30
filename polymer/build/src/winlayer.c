@@ -1621,8 +1621,8 @@ static void ProcessInputDevices(void)
 
             if (result == DI_OK) {
                 // process the mouse events
-                mousex=0;
-                mousey=0;
+//                mousex=0;
+//                mousey=0;
                 for (i=0; i<dwElements; i++) {
                     switch (didod[i].dwOfs) {
                     case DIMOFS_BUTTON0:
@@ -1650,9 +1650,9 @@ static void ProcessInputDevices(void)
                             mousepresscallback(4, (mouseb&8)==8);
                         break;
                     case DIMOFS_X:
-                        mousex = (short)didod[i].dwData; break;
+                        mousex += (short)didod[i].dwData; break;
                     case DIMOFS_Y:
-                        mousey = (short)didod[i].dwData; break;
+                        mousey += (short)didod[i].dwData; break;
                     case DIMOFS_Z:
                         if ((int)didod[i].dwData > 0) {		// wheel up
                             if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);

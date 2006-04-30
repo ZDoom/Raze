@@ -395,7 +395,7 @@ void vscrn(void)
         if (j >= 12) y1 += 8;
     }
 
-    if (ud.screen_size >= 8) y2 -= (ss+scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100));
+    if (ud.screen_size >= 8 && !(ud.screen_size == 8 && ud.statusbarmode && bpp > 8)) y2 -= (ss+scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100));
 
     y1 = scale(y1,ydim,200);
     y2 = scale(y2,ydim,200);

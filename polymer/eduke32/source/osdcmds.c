@@ -271,6 +271,19 @@ static int osdcmd_setstatusbarscale(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int osdcmd_setstatusbarmode(const osdfuncparm_t *parm)
+{
+    if (parm->numparms == 0) {
+        OSD_Printf("cl_statusbarmode: \"%d\"\n", ud.statusbarmode);
+        return OSDCMD_OK;
+    } else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    ud.statusbarmode = Batol(parm->parms[0]);
+    vscrn();
+    OSD_Printf("cl_statusbarmode: \"%d\"\n", ud.statusbarmode);
+    return OSDCMD_OK;
+}
+
 static int osdcmd_spawn(const osdfuncparm_t *parm)
 {
     long x=0,y=0,z=0;
@@ -624,6 +637,7 @@ int registerosdcommands(void)
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
     OSD_RegisterFunction("cl_statusbarscale","cl_statusbarscale: changes the status bar scale", osdcmd_setstatusbarscale);
+    OSD_RegisterFunction("cl_statusbarmode","cl_statusbarmode: enable/disable status bar drawing hack", osdcmd_setstatusbarmode);
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);

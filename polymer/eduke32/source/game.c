@@ -343,6 +343,7 @@ void getpackets(void)
         else ScreenMode = !ScreenMode;
         KB_ClearKeyDown(sc_Enter);
         restorepalette = 1;
+        vscrn();
     }
 
     // only dispatch commands here when not in a game

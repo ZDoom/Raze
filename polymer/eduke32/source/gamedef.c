@@ -802,6 +802,7 @@ LABELS userdefslabels[]= {
                              { "democams", USERDEFS_DEMOCAMS, 0, 0 },
                              { "color", USERDEFS_COLOR, 0, 0 },
                              { "msgdisptime", USERDEFS_MSGDISPTIME, 0, 0 },
+                             { "statusbarmode", USERDEFS_STATUSBARMODE, 0, 0 },
                              { "", -1, 0, 0  }     // END OF LIST
                          };
 

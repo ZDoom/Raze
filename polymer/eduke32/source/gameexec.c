@@ -617,6 +617,13 @@ void DoUserDef(char bSet, long lLabelID, long lVar2, short sActor, short sPlayer
             SetGameVarID((int)lVar2, ud.msgdisptime, sActor, sPlayer);
         break;
 
+    case USERDEFS_STATUSBARMODE:
+        if(bSet)
+            ud.statusbarmode = lValue;
+        else
+            SetGameVarID((int)lVar2, ud.statusbarmode, sActor, sPlayer);
+        break;
+
     default:
         break;
     }

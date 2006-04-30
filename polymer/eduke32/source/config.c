@@ -234,7 +234,8 @@ void CONFIG_SetDefaults( void )
     ud.color = 0;
     ud.msgdisptime = 640;
     ud.brightness = 16;
-
+    ud.statusbarmode = 0;
+    
     ShowOpponentWeapons = 0;
     Bstrcpy(ud.rtsname, "DUKE.RTS");
     Bstrcpy(myname, "Duke");
@@ -608,6 +609,7 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         SCRIPT_GetNumber( scripthandle, "Misc", "Color",&ud.color);
         SCRIPT_GetNumber( scripthandle, "Misc", "MPMessageDisplayTime",&ud.msgdisptime);
+        SCRIPT_GetNumber( scripthandle, "Misc", "StatusBarMode",&ud.statusbarmode);
         ps[0].palookup = ud.pcolor[0] = ud.color;
         dummy = useprecache; SCRIPT_GetNumber( scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
 
@@ -733,6 +735,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Misc", "ShowFPS",ud.tickrate,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "Color",ud.color,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "MPMessageDisplayTime",ud.msgdisptime,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "StatusBarMode",ud.statusbarmode,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls", "MouseAimingFlipped",ud.mouseflip,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
     //SCRIPT_PutNumber( scripthandle, "Controls","GameMouseAiming",(int32) ps[myconnectindex].aim_mode,false,false);
