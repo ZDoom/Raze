@@ -1042,14 +1042,12 @@ int ReadGameVars(long fil)
     //  AddLog(g_szBuf);
 
     if(kdfread(&iGameVarCount,sizeof(iGameVarCount),1,fil) != 1) goto corrupt;
-
     for(i=0;i<iGameVarCount;i++)
     {
         if(kdfread(&(aGameVars[i]),sizeof(MATTGAMEVAR),1,fil) != 1) goto corrupt;
         aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
         if(kdfread(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil) != 1) goto corrupt;
     }
-
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
     for(i=0;i<iGameVarCount;i++)
@@ -1081,7 +1079,7 @@ int ReadGameVars(long fil)
         {
             //Bsprintf(g_szBuf,"Reading value array for %s (%d)",aGameVars[i].szLabel,sizeof(long) * MAXSPRITES);
             //AddLog(g_szBuf);
-            if(kdfread(aGameVars[i].plValues,sizeof(long) * MAXSPRITES, 1, fil) != 1) goto corrupt;
+            if(kdfread(&aGameVars[i].plValues[0],sizeof(long), MAXSPRITES, fil) != MAXSPRITES) goto corrupt;
         }
         // else nothing 'extra...'
     }
@@ -1149,7 +1147,7 @@ void SaveGameVars(FILE *fil)
         {
             //Bsprintf(g_szBuf,"Writing value array for %s (%d)",aGameVars[i].szLabel,sizeof(long) * MAXSPRITES);
             //AddLog(g_szBuf);
-            dfwrite(aGameVars[i].plValues,sizeof(long) * MAXSPRITES, 1, fil);
+            dfwrite(&aGameVars[i].plValues[0],sizeof(long), MAXSPRITES, fil);
         }
         // else nothing 'extra...'
     }
