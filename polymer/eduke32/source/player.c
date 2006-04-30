@@ -2832,8 +2832,6 @@ void getinput(short snum)
             horiz = -(info.dz+lastinfo.dz)/(314-128);
         else horiz = (info.dz+lastinfo.dz)/(314-128);
 
-        if(horiz > -1)
-            horiz++;
         lastinfo.dz = (lastinfo.dz+info.dz) % (314-128);
         info.dz = 0;
     } else {
@@ -4390,7 +4388,7 @@ HORIZONLY:
     }
 
     if(p->aim_mode)
-        p->horiz += sync[snum].horz>>1;
+        p->horiz += sync[snum].horz/2;
     else
     {
         if( p->horiz > 95 && p->horiz < 105) p->horiz = 100;

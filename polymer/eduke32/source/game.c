@@ -1344,7 +1344,7 @@ void orderweaponnum(short ind,long x,long y,char ha)
     rotatesprite(sbarx(x-7),sbary(y),sbarsc(65536L),0,THREEBYFIVE+ind+1,ha-10,7,10,0,0,xdim-1,ydim-1);
     rotatesprite(sbarx(x-3),sbary(y),sbarsc(65536L),0,THREEBYFIVE+10,ha,0,10,0,0,xdim-1,ydim-1);
 
-    minitextshade(x+1,y-4,"ORDER",26,6,2+8+16+128 + 256);
+    minitextshade(x+1,y-4,"ORDER",26,6,2+8+16);
 }
 
 void weaponnum(short ind,long x,long y,long num1, long num2,char ha)
@@ -9615,7 +9615,7 @@ FAKEHORIZONLY:
         }
 
     if(p->aim_mode)
-        myhoriz += syn->horz>>1;
+        myhoriz += syn->horz/2;
     else
     {
         if( myhoriz > 95 && myhoriz < 105) myhoriz = 100;

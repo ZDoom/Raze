@@ -361,7 +361,8 @@ if ((danetmode == 255) && (daindex)) { numplayers = 2; danetmode = 0; } //an IP 
     for(i=0;i<numplayers-1;i++) connectpoint2[i] = i+1;
     connectpoint2[numplayers-1] = -1;
 
-    return (((!danetmode) && (numplayers >= 2)) || (numplayers == 2));
+//    return (((!danetmode) && (numplayers >= 2)) || (numplayers == 2));
+    return (numplayers >= 2);
 }
 
 long initmultiplayerscycle(void)

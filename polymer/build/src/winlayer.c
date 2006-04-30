@@ -121,7 +121,7 @@ char inputdevices=0;
 char quitevent=0, appactive=1;
 long mousex=0, mousey=0, mouseb=0;
 static unsigned long mousewheel[2] = { 0,0 };
-#define MouseWheelFakePressTime (100)	// getticks() is a 1000Hz timer, and the button press is faked for 100ms
+#define MouseWheelFakePressTime (25)	// getticks() is a 1000Hz timer, and the button press is faked for 100ms
 long *joyaxis = NULL, joyb=0, *joyhat = NULL;
 char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
 

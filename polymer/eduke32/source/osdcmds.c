@@ -262,25 +262,25 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 static int osdcmd_setstatusbarscale(const osdfuncparm_t *parm)
 {
     if (parm->numparms == 0) {
-        OSD_Printf("setstatusbarscale: scale is %d%%\n", ud.statusbarscale);
-        return OSDCMD_OK;
+        OSD_Printf("\"cl_statusbarscale\" is \"%d\"\n", ud.statusbarscale);
+        return OSDCMD_SHOWHELP;
     } else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
     setstatusbarscale(Batol(parm->parms[0]));
-    OSD_Printf("setstatusbarscale: new scale is %d%%\n", ud.statusbarscale);
+    OSD_Printf("cl_statusbarscale %d\n", ud.statusbarscale);
     return OSDCMD_OK;
 }
 
 static int osdcmd_setstatusbarmode(const osdfuncparm_t *parm)
 {
     if (parm->numparms == 0) {
-        OSD_Printf("cl_statusbarmode: \"%d\"\n", ud.statusbarmode);
-        return OSDCMD_OK;
+        OSD_Printf("\"cl_statusbarmode\" is \"%d\"\n", ud.statusbarmode);
+        return OSDCMD_SHOWHELP;
     } else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
     ud.statusbarmode = Batol(parm->parms[0]);
     vscrn();
-    OSD_Printf("cl_statusbarmode: \"%d\"\n", ud.statusbarmode);
+    OSD_Printf("cl_statusbarmode %d\n", ud.statusbarmode);
     return OSDCMD_OK;
 }
 
@@ -503,8 +503,8 @@ int osdcmd_cvar_set(const osdfuncparm_t *parm)
 int osdcmd_sensitivity(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1) {
-        OSD_Printf("sensitivity %d\n",CONTROL_GetMouseSensitivity());
-        return OSDCMD_OK;
+        OSD_Printf("\"sensitivity\" is \"%d\"\n",CONTROL_GetMouseSensitivity());
+        return OSDCMD_SHOWHELP;
     }
     CONTROL_SetMouseSensitivity(atoi(parm->parms[0]));
     OSD_Printf("sensitivity %d\n",CONTROL_GetMouseSensitivity());
@@ -514,12 +514,12 @@ int osdcmd_sensitivity(const osdfuncparm_t *parm)
 int osdcmd_gamma(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1) {
-        OSD_Printf("gamma %d\n",ud.brightness>>2);
-        return OSDCMD_OK;
+        OSD_Printf("\"gamma\" \"%d\"\n",ud.brightness>>2);
+        return OSDCMD_SHOWHELP;
     }
     ud.brightness = atoi(parm->parms[0])<<2;
     setbrightness(ud.brightness>>2,&ps[screenpeek].palette[0],0);
-    OSD_Printf("\n");
+    OSD_Printf("gamma %d\n",ud.brightness>>2);
     return OSDCMD_OK;
 }
 

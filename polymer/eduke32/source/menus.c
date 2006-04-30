@@ -2870,16 +2870,16 @@ cheat_for_port_credits:
 
         {
             short sense;
-            sense = CONTROL_GetMouseSensitivity();
-            barsm(248,128,&sense,1,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
-            CONTROL_SetMouseSensitivity( sense );
+            sense = CONTROL_GetMouseSensitivity()-1;
+            barsm(248,128,&sense,2,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
+            CONTROL_SetMouseSensitivity( sense+1 );
         }
 
         if (!ud.mouseaiming) modval(0,1,(int *)&myaimmode,1,probey == (MAXMOUSEBUTTONS-2)*2+2+1);
         modval(0,1,(int *)&ud.mouseflip,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2);
 
         gametextpal(240,122+9, myaimmode && !ud.mouseaiming ? "On" : "Off", !ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):15, 0);
-        gametextpal(240,122+9+9, ud.mouseflip ? "On" : "Off", MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2), 0);
+        gametextpal(240,122+9+9, !ud.mouseflip ? "On" : "Off", MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2), 0);
 
         if (probey < (MAXMOUSEBUTTONS-2)*2+2) {
             gametext(160,164,"UP/DOWN = SELECT BUTTON",0,2+8+16);
