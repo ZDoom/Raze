@@ -2160,7 +2160,7 @@ void displayweapon(short snum)
             }
 
 
-            if( j < 7 || j > 12 )
+            if( j < 6 || j > 12 )
                 myospal(weapon_xoffset+80-(p->look_ang>>1),
                         looking_arc+250-gun_pos,KNEE,gs,o|4,pal);
             else myospal(weapon_xoffset+160-16-(p->look_ang>>1),
@@ -2703,14 +2703,6 @@ void getinput(short snum)
     p = &ps[snum];
 
     CONTROL_GetInput( &info );
-
-    info.dx += lastinfo.dx;
-    info.dy += lastinfo.dy;
-/*    info.dz += lastinfo.dz;
-    info.dyaw   += lastinfo.dyaw; */
-    info.dpitch += lastinfo.dpitch;
-    info.droll  += lastinfo.droll;
-    memset(&lastinfo.dx, 0, sizeof(lastinfo));
 
     if( (p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)) )
     {

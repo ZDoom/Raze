@@ -490,11 +490,11 @@ int osdcmd_cvar_set(const osdfuncparm_t *parm)
 int osdcmd_sensitivity(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1) {
-        OSD_Printf("sensitivity %d\n",CONTROL_GetMouseSensitivity()>>10);
+        OSD_Printf("sensitivity %d\n",CONTROL_GetMouseSensitivity());
         return OSDCMD_OK;
     }
-    CONTROL_SetMouseSensitivity(atoi(parm->parms[0])<<10);
-    OSD_Printf("\n");
+    CONTROL_SetMouseSensitivity(atoi(parm->parms[0]));
+    OSD_Printf("sensitivity %d\n",CONTROL_GetMouseSensitivity());
     return OSDCMD_OK;
 }
 

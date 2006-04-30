@@ -284,7 +284,7 @@ void CONFIG_SetDefaults( void )
         MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum( mouseanalogdefaults[i] );
         CONTROL_MapAnalogAxis( i, MouseAnalogueAxes[i], controldevice_mouse);
     }
-    CONTROL_SetMouseSensitivity(32768);
+    CONTROL_SetMouseSensitivity(DEFAULTMOUSESENSITIVITY);
 
     memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
     for (i=0; i<MAXJOYBUTTONS; i++) {
@@ -420,8 +420,8 @@ void CONFIG_SetupMouse( void )
         MouseAnalogueScale[i] = scale;
     }
 
-    function = 32768;
-    SCRIPT_GetNumber( scripthandle, "Controls","MouseSensitivity",&function);
+    function = DEFAULTMOUSESENSITIVITY;
+    SCRIPT_GetNumber( scripthandle, "Controls","Mouse_Sensitivity",&function);
     CONTROL_SetMouseSensitivity(function);
 
     for (i=0; i<MAXMOUSEBUTTONS; i++)
@@ -776,7 +776,7 @@ void CONFIG_WriteSetup( void )
         SCRIPT_PutNumber(scripthandle, "Controls", buf, MouseAnalogueScale[dummy], false, false);
     }
     dummy = CONTROL_GetMouseSensitivity();
-    SCRIPT_PutNumber( scripthandle, "Controls","MouseSensitivity",dummy,false,false);
+    SCRIPT_PutNumber( scripthandle, "Controls","Mouse_Sensitivity",dummy,false,false);
 
     for (dummy=0;dummy<MAXJOYBUTTONS;dummy++) {
         Bsprintf(buf,"JoystickButton%ld",dummy);

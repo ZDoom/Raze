@@ -2870,9 +2870,9 @@ cheat_for_port_credits:
 
         {
             short sense;
-            sense = CONTROL_GetMouseSensitivity()>>10;
-            barsm(248,128,&sense,2,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
-            CONTROL_SetMouseSensitivity( sense<<10 );
+            sense = CONTROL_GetMouseSensitivity();
+            barsm(248,128,&sense,1,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
+            CONTROL_SetMouseSensitivity( sense );
         }
 
         if (!ud.mouseaiming) modval(0,1,(int *)&myaimmode,1,probey == (MAXMOUSEBUTTONS-2)*2+2+1);

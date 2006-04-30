@@ -72,18 +72,18 @@ void CONTROL_GetMouseDelta(void)
 	*x = (*x * 32 * CONTROL_MouseSensitivity) >> 15;
 	*/
 
-    CONTROL_MouseAxes[0].analog = (x * CONTROL_MouseSensitivity>>8);
-    CONTROL_MouseAxes[1].analog = (y * CONTROL_MouseSensitivity>>6);
+    CONTROL_MouseAxes[0].analog = (x * (CONTROL_MouseSensitivity<<1));
+    CONTROL_MouseAxes[1].analog = (y * (CONTROL_MouseSensitivity<<1))<<2;
 }
 
 int32 CONTROL_GetMouseSensitivity(void)
 {
-	return (CONTROL_MouseSensitivity - MINIMUMMOUSESENSITIVITY);
+	return (CONTROL_MouseSensitivity);
 }
 
 void CONTROL_SetMouseSensitivity(int32 newsensitivity)
 {
-	CONTROL_MouseSensitivity = newsensitivity + MINIMUMMOUSESENSITIVITY;
+	CONTROL_MouseSensitivity = newsensitivity;
 }
 
 boolean CONTROL_StartMouse(void)
@@ -604,12 +604,12 @@ void CONTROL_ApplyAxis(int32 axis, ControlInfo *info, controldevice device)
 	}
 
 	switch (map[axis].analogmap) {
-		case analog_turning:          info->dyaw   += set[axis].analog; break;
-		case analog_strafing:         info->dx     += set[axis].analog; break;
-		case analog_lookingupanddown: info->dpitch += set[axis].analog; break;
-		case analog_elevation:        info->dy     += set[axis].analog; break;
-		case analog_rolling:          info->droll  += set[axis].analog; break;
-		case analog_moving:           info->dz     += set[axis].analog; break;
+		case analog_turning:          info->dyaw   = set[axis].analog; break;
+		case analog_strafing:         info->dx     = set[axis].analog; break;
+		case analog_lookingupanddown: info->dpitch = set[axis].analog; break;
+		case analog_elevation:        info->dy     = set[axis].analog; break;
+		case analog_rolling:          info->droll  = set[axis].analog; break;
+		case analog_moving:           info->dz     = set[axis].analog; break;
 		default: break;
 	}
 }
@@ -706,7 +706,7 @@ void CONTROL_ButtonFunctionState( int32 *p1 )
 			p1[j] |= CONTROL_JoyButtonState[i];
 	}
 }
-
+/*
 void CONTROL_GetUserInput( UserInput *info )
 {
 	ControlInfo ci;
@@ -792,7 +792,7 @@ void CONTROL_ClearUserInput( UserInput *info )
 	if (info->button0) CONTROL_UserInputCleared[1] = true;
 	if (info->button1) CONTROL_UserInputCleared[2] = true;
 }
-
+*/
 void CONTROL_ClearButton( int32 whichbutton )
 {
 	if (CONTROL_CheckRange( whichbutton )) return;
