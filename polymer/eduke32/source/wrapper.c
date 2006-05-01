@@ -21,24 +21,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     PROCESS_INFORMATION pi;
 
     ZeroMemory(&szFileName,sizeof(szFileName));
-
-    for(i=0;i<strlen(lpCmdLine);i++)
+    strcpy(sCmdLine,lpCmdLine);
+    for(i=0;i<(signed)strlen(sCmdLine);i++)
     {
-        if(lpCmdLine[i] == '-' && lpCmdLine[i+1] == 'n' && lpCmdLine[i+2] == 'e' && lpCmdLine[i+3] == 't')
+        if(sCmdLine[i] == '-' && sCmdLine[i+1] == 'n' && sCmdLine[i+2] == 'e' && sCmdLine[i+3] == 't')
         {
-            i += 5;
-            j = 0;
-            while(!ISWS(lpCmdLine[i]) && i<strlen(lpCmdLine))
+            j = 0,i += 5;
+            while(!sCmdLine[i] != ' ' && i<(signed)strlen(sCmdLine))
             {
-                szFileName[j] = lpCmdLine[i];
-                fprintf(fp,"%d %d\n",j,i);
-                if(lpCmdLine[i+1] == ' ' || lpCmdLine[i+1] == '\n' || lpCmdLine[i+1] == '\r')
+                szFileName[j] = sCmdLine[i];
+                if(sCmdLine[i+1] == ' ')
                     break;
                 j++,i++;
             }
             break;
         }
-        else CmdLine[i] = lpCmdLine[i];
+        else CmdLine[i] = sCmdLine[i];
     }
 
     if(szFileName[0])
@@ -47,11 +45,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 
     szCmdLine = sCmdLine;
 
-    fprintf(fp,"EDuke32 wrapper for Dukester X v0.01\
-            \nCopyright (c) 2006 EDuke32 team\n\
-            \nArgs passed to wrapper: %s\
-            \nRancidmeat net filename: %s\
-            \nFinal command line: %s\n",lpCmdLine,szFileName,szCmdLine);
+    fprintf(fp,"EDuke32 wrapper for Dukester X v0.01\n");
+    fprintf(fp,"Copyright (c) 2006 EDuke32 team\n\n");
+    fprintf(fp,"Args passed to wrapper: %s\n",lpCmdLine);
+    fprintf(fp,"Final command line: %s",szCmdLine);
 
     fclose(fp);
 

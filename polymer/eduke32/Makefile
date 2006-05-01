@@ -160,7 +160,7 @@ endif
 all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)$(ENGINELIB)
-	$(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(JFAUDLIBS) $(LIBS) $(STDCPPLIB) -Wl,-Map=$@.map
+	$(CC) -o $@ $^ $(JFAUDLIBS) $(LIBS) $(STDCPPLIB) -Wl,-Map=$@.map
 	-rm eduke32.sym$(EXESUFFIX)
 	cp eduke32$(EXESUFFIX) eduke32.sym$(EXESUFFIX)
 	strip eduke32$(EXESUFFIX)
@@ -170,6 +170,10 @@ mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)$(EDITORLIB) $(EOBJ)$(ENGINELIB)
 	-rm mapster32.sym$(EXESUFFIX)
 	cp mapster32$(EXESUFFIX) mapster32.sym$(EXESUFFIX)
 	strip mapster32$(EXESUFFIX)
+
+duke3d_w32$(EXESUFFIX): $(OBJ)wrapper.$o
+	$(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ -Wl
+	strip duke3d_w32$(EXESUFFIX)
 
 include Makefile.deps
 
@@ -222,7 +226,7 @@ clean:
 ifeq ($(PLATFORM),DARWIN)
 	cd osx && xcodebuild -target All clean
 else
-	-rm -f $(OBJ)* eduke32$(EXESUFFIX) eduke32.sym$(EXESUFFIX) mapster32$(EXESUFFIX) mapster32.sym$(EXESUFFIX) core*
+	-rm -f $(OBJ)* eduke32$(EXESUFFIX) eduke32.sym$(EXESUFFIX) mapster32$(EXESUFFIX) mapster32.sym$(EXESUFFIX) core* duke3d_w32$(EXESUFFIX)
 endif
 
 veryclean: clean
