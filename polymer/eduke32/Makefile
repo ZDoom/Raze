@@ -157,7 +157,11 @@ alldarwin:
 	cd osx && xcodebuild -target All -buildstyle $(style)
 endif
 
+ifeq ($(PLATFORM),WINDOWS) 
+all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX) 
+else
 all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
+endif
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)$(ENGINELIB)
 	$(CC) -o $@ $^ $(JFAUDLIBS) $(LIBS) $(STDCPPLIB) -Wl,-Map=$@.map

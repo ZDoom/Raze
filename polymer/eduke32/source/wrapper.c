@@ -9,7 +9,7 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
 {
-    int i,j;
+    int i=0,j=0;
     char CmdLine[1024], sCmdLine[1024], szFileName[255];
     LPTSTR szCmdLine;
 
@@ -19,14 +19,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 
     strcpy(sCmdLine,lpCmdLine);
 
-    i = 0;
-
+    while(sCmdLine[i] == ' ') i++;
     while(i < (signed)strlen(sCmdLine))
     {
         if(sCmdLine[i] == '-' && sCmdLine[i+1] == 'n' && sCmdLine[i+2] == 'e' && sCmdLine[i+3] == 't')
         {
             CmdLine[i-1] = '\0';
-            j = 0,i += 5;
+            i += 5;
             while(sCmdLine[i] != ' ' && i < (signed)strlen(sCmdLine))
             {
                 szFileName[j] = sCmdLine[i];
@@ -39,9 +38,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         i++;
     }
 
-    if(szFileName[0])
-        sprintf(sCmdLine,"eduke32.exe %s -rmnet %s",CmdLine,szFileName);
-    else sprintf(sCmdLine,"eduke32.exe %s",CmdLine);
+    if(szFileName[0] && CmdLine[0]) sprintf(sCmdLine,"eduke32.exe %s -rmnet %s",CmdLine,szFileName);
+    else if(CmdLine[0]) sprintf(sCmdLine,"eduke32.exe %s",CmdLine);
+    else sprintf(sCmdLine,"eduke32.exe");
 
     szCmdLine = sCmdLine;
 

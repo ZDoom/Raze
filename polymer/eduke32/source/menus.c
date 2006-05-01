@@ -701,7 +701,7 @@ void menus(void)
                 break;
             }
         } else {
-            x = strget(200,50-9,buf,12,0);
+            x = strget(200,50-9,buf,10,0);
             if (x) {
                 if (x == 1) {
                     if(buf[0]) {
@@ -3476,9 +3476,7 @@ cheat_for_port_credits:
             }
             break;
         case 1:
-
-            if(numplayers < 2)
-                if(MusicDevice >= 0)
+               if(MusicDevice >= 0 && (numplayers < 2 || MusicToggle))
                 {
                     MusicToggle = 1-MusicToggle;
                     if( MusicToggle == 0 ) MUSIC_Pause();
@@ -3517,7 +3515,7 @@ cheat_for_port_credits:
 
         menutext(c+160+40,50,MENUHIGHLIGHT(0),(FXDevice<0),SoundToggle && FXDevice >= 0?"ON":"OFF");
 
-        menutext(c+160+40,50+16,MENUHIGHLIGHT(1),(MusicDevice < 0),MusicToggle && (MusicDevice >= 0) && (numplayers<2)?"ON":"OFF");
+        menutext(c+160+40,50+16,MENUHIGHLIGHT(1),(MusicDevice<0||(numplayers > 1 && !MusicToggle)),(MusicToggle && (MusicDevice >= 0))?"ON":"OFF");
 
         menutext(c,50,MENUHIGHLIGHT(0),(FXDevice<0),"SOUND");
         menutext(c,50+16+16,MENUHIGHLIGHT(2),(FXDevice<0)||SoundToggle==0,"SOUND VOLUME");
@@ -3530,7 +3528,7 @@ cheat_for_port_credits:
             if(l != FXVolume)
                 FX_SetVolume( (short) FXVolume );
         }
-        menutext(c,50+16,MENUHIGHLIGHT(1),(MusicDevice<0),"MUSIC");
+        menutext(c,50+16,MENUHIGHLIGHT(1),(MusicDevice<0||(numplayers > 1 && !MusicToggle)),"MUSIC");
         menutext(c,50+16+16+16,MENUHIGHLIGHT(3),(MusicDevice<0)||MusicToggle==0,"MUSIC VOLUME");
         {
             l = MusicVolume;

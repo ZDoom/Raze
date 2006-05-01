@@ -567,6 +567,9 @@ void CONFIG_ReadSetup( void )
 
         SCRIPT_GetString( scripthandle, "Comm Setup","PlayerName",&myname[0]);
 
+        if(Bstrlen(myname) > 9)
+            myname[10] = 0;
+
         SCRIPT_GetString( scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "Shadows",&ud.shadows);

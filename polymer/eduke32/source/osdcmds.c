@@ -442,7 +442,7 @@ struct cvarmappings {
         { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|256, 0, 0, 3 },
         { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&AutoAim, CVAR_INT|256, 0, 0, 2 },
         { "cl_messagetime", "cl_messagetime: length of time to display multiplayer chat messages\n", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
-        { "name", "name: change your multiplayer nickname", (void*)&myname[0], CVAR_STRING|256, sizeof(myname), 0, 0 }
+        { "name", "name: change your multiplayer nickname", (void*)&myname[0], CVAR_STRING|256, 11, 0, 0 }
     };
 
 int osdcmd_cvar_set(const osdfuncparm_t *parm)

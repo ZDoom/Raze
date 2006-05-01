@@ -8261,7 +8261,13 @@ void Startup(void)
 
     if (CommandSoundToggleOff) SoundToggle = 0;
     if (CommandMusicToggleOff) MusicToggle = 0;
-    if (CommandName) strcpy(myname,CommandName);
+
+    if (CommandName) 
+    {
+        Bstrncpy(myname, CommandName, 10);
+        myname[10] = 0;
+    }
+
     if (CommandMap) {
         if (VOLUMEONE) {
             initprintf("The -map option is available in the registered version only!\n");
