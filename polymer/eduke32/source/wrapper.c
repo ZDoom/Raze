@@ -2,6 +2,7 @@
 // gcc -o duke3d_w32.exe wrapper.c
 
 #include <windows.h>
+#include <string.h>
 #include <stdio.h>
 
 #define ISWS(x) ((x == ' ') || (x == '\t') || (x == '\r') || (x == '\n'))
@@ -19,32 +20,39 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
 
-    for(i=0;i<sizeof(CmdLine);i++)
+    ZeroMemory(&szFileName,sizeof(szFileName));
+
+    for(i=0;i<strlen(lpCmdLine);i++)
     {
-        if(lpCmdLine[i] == ' ' && lpCmdLine[i+1] == '-' && lpCmdLine[i+2] == 'n' && lpCmdLine[i+3] == 'e' && lpCmdLine[i+4] == 't')
+        if(lpCmdLine[i] == '-' && lpCmdLine[i+1] == 'n' && lpCmdLine[i+2] == 'e' && lpCmdLine[i+3] == 't')
         {
-            i += 6;
+            i += 5;
             j = 0;
-            while(!ISWS(lpCmdLine[i]))
+            while(!ISWS(lpCmdLine[i]) && i<strlen(lpCmdLine))
             {
                 szFileName[j] = lpCmdLine[i];
-                j++,i++;
                 fprintf(fp,"%d %d\n",j,i);
-                if(lpCmdLine[i] == ' ' || lpCmdLine[i] == '\n' || lpCmdLine[i] == '\r')
+                if(lpCmdLine[i+1] == ' ' || lpCmdLine[i+1] == '\n' || lpCmdLine[i+1] == '\r')
                     break;
+                j++,i++;
             }
             break;
         }
         else CmdLine[i] = lpCmdLine[i];
     }
 
-    sprintf(sCmdLine,"eduke32.exe %s -rmnet %s",CmdLine,szFileName);
+    if(szFileName[0])
+        sprintf(sCmdLine,"eduke32.exe %s -rmnet %s",CmdLine,szFileName);
+    else sprintf(sCmdLine,"eduke32.exe %s",CmdLine);
+
     szCmdLine = sCmdLine;
+
     fprintf(fp,"EDuke32 wrapper for Dukester X v0.01\
             \nCopyright (c) 2006 EDuke32 team\n\
             \nArgs passed to wrapper: %s\
             \nRancidmeat net filename: %s\
             \nFinal command line: %s\n",lpCmdLine,szFileName,szCmdLine);
+
     fclose(fp);
 
     ZeroMemory(&si,sizeof(si));

@@ -235,7 +235,7 @@ void CONFIG_SetDefaults( void )
     ud.msgdisptime = 640;
     ud.brightness = 16;
     ud.statusbarmode = 0;
-    
+
     ShowOpponentWeapons = 0;
     Bstrcpy(ud.rtsname, "DUKE.RTS");
     Bstrcpy(myname, "Duke");

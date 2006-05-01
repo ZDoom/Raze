@@ -61,7 +61,7 @@ char qe,cp;
 static int32 CommandSoundToggleOff = 0;
 static int32 CommandMusicToggleOff = 0;
 static char *CommandMap = NULL;
-static char *CommandName = NULL;
+static char *CommandName = NULL,*CommandNet = NULL;
 int32 CommandWeaponChoice = 0;
 
 char confilename[BMAX_PATH] = {"EDUKE.CON"}, boardfilename[BMAX_PATH] = {0};
@@ -7471,7 +7471,7 @@ enum {
 };
 
 signed int rancid_players = 0;
-char rancid_ips[MAXPLAYERS][16];
+char rancid_ips[MAXPLAYERS+1][16];
 
 typedef struct { char *text; int tokenid; } tokenlist;
 static tokenlist basetokens[] =
@@ -7507,6 +7507,13 @@ static int parserancidnet(scriptfile *script)
         cmdtokptr = script->ltextptr;
         switch (tokn) {
         case T_INTERFACE:
+            {
+                char *ip;
+                if (scriptfile_getstring(script,&ip)) break;
+                Bstrcpy(rancid_ips[MAXPLAYERS],ip);
+                Bstrcpy(rancid_ips[rancid_players++],ip);
+            }
+            break;
         case T_ALLOW:
             {
                 char *ip;
@@ -7536,6 +7543,11 @@ int loadrancidnet(char *fn)
     scriptfile_clearsymbols();
 
     return 0;
+}
+
+static int stringsort(const char *p1, const char *p2)
+{
+    return Bstrcmp(&p1[0],&p2[0]);
 }
 
 void checkcommandline(int argc,char **argv)
@@ -7574,14 +7586,20 @@ void checkcommandline(int argc,char **argv)
             {
                 if (!Bstrcasecmp(c+1,"rmnet")) {
                     if (argc > i+1) {
-                        CommandName = argv[i+1];
+                        CommandNet = argv[i+1];
                         i++;
                     }
-                    if(CommandName) {
-                        loadrancidnet(CommandName);
+                    if(CommandNet) {
+                        loadrancidnet(CommandNet);
+                        qsort((char *)rancid_ips, rancid_players, sizeof(rancid_ips[0]), (int(*)(const void*,const void*))stringsort);
                         for(j=0;j<rancid_players;j++)
-                            initprintf("Rancidmeat configuration IP %d: %s\n",j,rancid_ips[j]);
-                        CommandName = 0;
+                            if(Bstrcmp(rancid_ips[j],rancid_ips[MAXPLAYERS]) == 0)
+                                Bsprintf(rancid_ips[j],"/n1");
+                        CommandNet = 0;
+                        netparamcount = rancid_players;
+                        netparam = (char **)calloc(netparamcount, sizeof(char **));
+                        for(j=0;j<netparamcount;j++)
+                            netparam[j] = rancid_ips[j];
                     }
                     i++;
                     continue;
