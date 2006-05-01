@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 #include "osdfuncs.h"
 #include "osdcmds.h"
+#include "scriptfile.h"
 
 //#include "crc32.h"
 
@@ -7461,6 +7462,82 @@ void comlinehelp(char **argv)
     wm_msgbox(apptitle,s);
 }
 
+enum {
+    T_EOF = -2,
+    T_ERROR = -1,
+    T_INTERFACE = 0,
+    T_MODE,
+    T_ALLOW
+};
+
+signed int rancid_players = 0;
+char rancid_ips[MAXPLAYERS][16];
+
+typedef struct { char *text; int tokenid; } tokenlist;
+static tokenlist basetokens[] =
+    {
+        { "interface",       T_INTERFACE       },
+        { "mode",            T_MODE            },
+        { "allow",           T_ALLOW           },
+    };
+
+static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
+{
+    char *tok;
+    int i;
+
+    if (!sf) return T_ERROR;
+    tok = scriptfile_gettoken(sf);
+    if (!tok) return T_EOF;
+
+    for(i=0;i<ntokens;i++) {
+        if (!Bstrcasecmp(tok, tl[i].text))
+            return tl[i].tokenid;
+    }
+
+    return T_ERROR;
+}
+
+static int parserancidnet(scriptfile *script)
+{
+    int tokn;
+    char *cmdtokptr;
+    while (1) {
+        tokn = getatoken(script,basetokens,sizeof(basetokens)/sizeof(tokenlist));
+        cmdtokptr = script->ltextptr;
+        switch (tokn) {
+        case T_INTERFACE:
+        case T_ALLOW:
+            {
+                char *ip;
+                if (scriptfile_getstring(script,&ip)) break;
+                Bstrcpy(rancid_ips[rancid_players++],ip);
+            }
+            break;
+        case T_EOF:
+            return(0);
+        default:
+            break;
+        }
+    }
+    return 0;
+}
+
+int loadrancidnet(char *fn)
+{
+    scriptfile *script;
+
+    script = scriptfile_fromfile(fn);
+    if (!script) return -1;
+
+    parserancidnet(script);
+
+    scriptfile_close(script);
+    scriptfile_clearsymbols();
+
+    return 0;
+}
+
 void checkcommandline(int argc,char **argv)
 {
     short i, j;
@@ -7495,6 +7572,20 @@ void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
+                if (!Bstrcasecmp(c+1,"rmnet")) {
+                    if (argc > i+1) {
+                        CommandName = argv[i+1];
+                        i++;
+                    }
+                    if(CommandName) {
+                        loadrancidnet(CommandName);
+                        for(j=0;j<rancid_players;j++)
+                            initprintf("Rancidmeat configuration IP %d: %s\n",j,rancid_ips[j]);
+                        CommandName = 0;
+                    }
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"net")) {
                     firstnet = i;
                     netparamcount = argc - i - 1;
@@ -8346,7 +8437,7 @@ void writestring(long a1,long a2,long a3,short a4,long vx,long vy,long vz)
 
     FILE *fp;
 
-    fp = (FILE *)fopenfrompath("debug.txt","rt+");
+    fp = (FILE *)fopen("debug.txt","rt+");
 
     fprintf(fp,"%ld %ld %ld %d %ld %ld %ld\n",a1,a2,a3,a4,vx,vy,vz);
     fclose(fp);
@@ -9615,7 +9706,7 @@ FAKEHORIZONLY:
         }
 
     if(p->aim_mode)
-        myhoriz += syn->horz/2;
+        myhoriz += syn->horz>>1;
     else
     {
         if( myhoriz > 95 && myhoriz < 105) myhoriz = 100;
