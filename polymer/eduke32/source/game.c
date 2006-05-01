@@ -7471,7 +7471,7 @@ enum {
 };
 
 signed int rancid_players = 0;
-char rancid_ips[MAXPLAYERS+1][16];
+char rancid_ips[MAXPLAYERS][16];
 
 typedef struct { char *text; int tokenid; } tokenlist;
 static tokenlist basetokens[] =

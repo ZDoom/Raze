@@ -10,33 +10,33 @@
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
 {
     int i,j;
+    char CmdLine[1024], sCmdLine[1024], szFileName[255];
     LPTSTR szCmdLine;
-
-    char CmdLine[1024];
-    char sCmdLine[1024];
-    char szFileName[255];
 
     FILE * fp=fopen("wrapper.log","w");
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
 
-    ZeroMemory(&szFileName,sizeof(szFileName));
     strcpy(sCmdLine,lpCmdLine);
-    for(i=0;i<(signed)strlen(sCmdLine);i++)
+
+    i = 0;
+
+    while(i < (signed)strlen(sCmdLine))
     {
         if(sCmdLine[i] == '-' && sCmdLine[i+1] == 'n' && sCmdLine[i+2] == 'e' && sCmdLine[i+3] == 't')
         {
+            CmdLine[i-1] = '\0';
             j = 0,i += 5;
-            while(!sCmdLine[i] != ' ' && i<(signed)strlen(sCmdLine))
+            while(sCmdLine[i] != ' ' && i < (signed)strlen(sCmdLine))
             {
                 szFileName[j] = sCmdLine[i];
-                if(sCmdLine[i+1] == ' ')
-                    break;
                 j++,i++;
             }
+            szFileName[j] = '\0';
             break;
         }
         else CmdLine[i] = sCmdLine[i];
+        i++;
     }
 
     if(szFileName[0])
@@ -59,7 +59,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     if (!CreateProcess(NULL,szCmdLine,NULL,NULL,0,0,NULL,NULL,&si,&pi)) {
         MessageBox(0,"Failed to start eduke32.exe.", "Failure starting game", MB_OK|MB_ICONSTOP);
         return 1;
-    }
+    } else WaitForSingleObject(pi.hProcess,INFINITE);
+
     return 0;
 }
 
