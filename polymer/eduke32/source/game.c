@@ -7471,7 +7471,7 @@ enum {
 };
 
 signed int rancid_players = 0;
-char rancid_ips[MAXPLAYERS][16];
+char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
 typedef struct { char *text; int tokenid; } tokenlist;
 static tokenlist basetokens[] =
@@ -7498,7 +7498,7 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
     return T_ERROR;
 }
 
-static int parserancidnet(scriptfile *script)
+static int parse_rancid_net(scriptfile *script)
 {
     int tokn;
     char *cmdtokptr;
@@ -7510,15 +7510,25 @@ static int parserancidnet(scriptfile *script)
             {
                 char *ip;
                 if (scriptfile_getstring(script,&ip)) break;
-                Bstrcpy(rancid_ips[MAXPLAYERS],ip);
-                Bstrcpy(rancid_ips[rancid_players++],ip);
+                Bstrcpy(rancid_ip_strings[MAXPLAYERS],ip);
+                Bstrcpy(rancid_ip_strings[rancid_players++],ip);
+                strtok(ip,":");
+                Bsprintf(tempbuf,"%s",strtok(NULL,":"));
+                if(atoi(tempbuf) > 1024)
+                    Bsprintf(rancid_local_port_string,"-p %s",tempbuf);
+            }
+            break;
+        case T_MODE:
+            {
+                char *mode;
+                if (scriptfile_getstring(script,&mode)) break;
             }
             break;
         case T_ALLOW:
             {
                 char *ip;
                 if (scriptfile_getstring(script,&ip)) break;
-                Bstrcpy(rancid_ips[rancid_players++],ip);
+                Bstrcpy(rancid_ip_strings[rancid_players++],ip);
             }
             break;
         case T_EOF:
@@ -7530,14 +7540,14 @@ static int parserancidnet(scriptfile *script)
     return 0;
 }
 
-int loadrancidnet(char *fn)
+int load_rancid_net(char *fn)
 {
     scriptfile *script;
 
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
 
-    parserancidnet(script);
+    parse_rancid_net(script);
 
     scriptfile_close(script);
     scriptfile_clearsymbols();
@@ -7590,16 +7600,21 @@ void checkcommandline(int argc,char **argv)
                         i++;
                     }
                     if(CommandNet) {
-                        loadrancidnet(CommandNet);
-                        qsort((char *)rancid_ips, rancid_players, sizeof(rancid_ips[0]), (int(*)(const void*,const void*))stringsort);
-                        for(j=0;j<rancid_players;j++)
-                            if(Bstrcmp(rancid_ips[j],rancid_ips[MAXPLAYERS]) == 0)
-                                Bsprintf(rancid_ips[j],"/n1");
+                        load_rancid_net(CommandNet);
+                        qsort((char *)rancid_ip_strings, rancid_players, sizeof(rancid_ip_strings[0]), (int(*)(const void*,const void*))stringsort);
                         CommandNet = 0;
                         netparamcount = rancid_players;
+                        if(rancid_local_port_string[0] == '-')
+                            netparamcount++;
                         netparam = (char **)calloc(netparamcount, sizeof(char **));
-                        for(j=0;j<netparamcount;j++)
-                            netparam[j] = rancid_ips[j];
+                        for(j=0;j<rancid_players;j++)
+                        {
+                            if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
+                                Bsprintf(rancid_ip_strings[j],"/n1");
+                            netparam[j] = rancid_ip_strings[j];
+                        }
+                        if(j != netparamcount)
+                            netparam[j] = rancid_local_port_string;
                     }
                     i++;
                     continue;
