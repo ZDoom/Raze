@@ -7611,12 +7611,8 @@ void checkcommandline(int argc,char **argv)
                         {
                             char tmp[16];
 
-                            qsort((char *)rancid_ip_strings, rancid_players, sizeof(rancid_ip_strings[0]), (int(*)(const void*,const void*))stringsort);
                             CommandNet = 0;
-                            netparamcount = rancid_players;
-                            if(rancid_local_port_string[0] == '-')
-                                netparamcount++;
-                            netparam = (char **)calloc(netparamcount, sizeof(char **));
+
                             for(j=0;j<rancid_players;j++)
                             {
                                 if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) != 0)
@@ -7639,6 +7635,7 @@ void checkcommandline(int argc,char **argv)
                                     }
                                 }
                             }
+
                             Bstrcpy(tempbuf,rancid_ip_strings[MAXPLAYERS]);
                             Bstrcpy(tmp,strtok(tempbuf,"."));
                             if(j == rancid_players && ((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0) || (Bstrcmp(tmp,"10") == 0)))
@@ -7656,6 +7653,14 @@ void checkcommandline(int argc,char **argv)
                                     }
                                 }
                             }
+
+                            qsort((char *)rancid_ip_strings, rancid_players, sizeof(rancid_ip_strings[0]), (int(*)(const void*,const void*))stringsort);
+
+                            netparamcount = rancid_players;
+                            if(rancid_local_port_string[0] == '-')
+                                netparamcount++;
+                            netparam = (char **)calloc(netparamcount, sizeof(char **));
+
                             for(j=0;j<rancid_players;j++)
                             {
                                 if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
