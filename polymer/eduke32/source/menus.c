@@ -3476,19 +3476,19 @@ cheat_for_port_credits:
             }
             break;
         case 1:
-               if(MusicDevice >= 0 && (numplayers < 2 || MusicToggle))
+            if(MusicDevice >= 0 && (numplayers < 2 || MusicToggle))
+            {
+                MusicToggle = 1-MusicToggle;
+                if( MusicToggle == 0 ) MUSIC_Pause();
+                else
                 {
-                    MusicToggle = 1-MusicToggle;
-                    if( MusicToggle == 0 ) MUSIC_Pause();
-                    else
-                    {
-                        if(ud.recstat != 2 && ps[myconnectindex].gm&MODE_GAME)
-                            playmusic(&music_fn[0][music_select][0]);
-                        else playmusic(&env_music_fn[0][0]);
+                    if(ud.recstat != 2 && ps[myconnectindex].gm&MODE_GAME)
+                        playmusic(&music_fn[0][music_select][0]);
+                    else playmusic(&env_music_fn[0][0]);
 
-                        MUSIC_Continue();
-                    }
+                    MUSIC_Continue();
                 }
+            }
             onbar = 0;
 
             break;

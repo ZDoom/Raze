@@ -7670,7 +7670,6 @@ void checkcommandline(int argc,char **argv)
                             if(j != netparamcount)
                                 netparam[j] = rancid_local_port_string;
                         }
-                        //                        initprintf("ip: %s\n",rancid_ip_strings[MAXPLAYERS]);
                     }
                     i++;
                     continue;
@@ -8393,6 +8392,9 @@ void Startup(void)
     tilesizx[MIRROR] = tilesizy[MIRROR] = 0;
 
     for(i=0;i<MAXPLAYERS;i++) playerreadyflag[i] = 0;
+
+    if(rancid_ip_strings[MAXPLAYERS])
+        initprintf("net: Using %s as sort IP\n",rancid_ip_strings[MAXPLAYERS]);
 
     //initmultiplayers(netparamcount,netparam, 0,0,0);
     if (initmultiplayersparms(netparamcount,netparam)) {

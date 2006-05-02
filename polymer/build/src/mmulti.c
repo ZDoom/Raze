@@ -362,7 +362,7 @@ if ((danetmode == 255) && (daindex)) { numplayers = 2; danetmode = 0; } //an IP 
     for(i=0;i<numplayers-1;i++) connectpoint2[i] = i+1;
     connectpoint2[numplayers-1] = -1;
 
-//    return (((!danetmode) && (numplayers >= 2)) || (numplayers == 2));
+    //    return (((!danetmode) && (numplayers >= 2)) || (numplayers == 2));
     return (numplayers >= 2);
 }
 
@@ -664,12 +664,12 @@ const char *getexternaladdress(void)
     WSADATA ws;
 
     if (WSAStartup(0x101,&ws) == SOCKET_ERROR)  {
-        initprintf("winsock error %d\n",errno);
+        initprintf("mmulti: Winsock error in getexternaladdress() (%d)\n",errno);
         return(0);
     }
 #endif
     if ((h=gethostbyname(host)) == NULL) {
-        initprintf("gethostbyname error %d\n",h_errno);
+        initprintf("mmulti: gethostbyname() error in getexternaladdress() (%d)\n",h_errno);
         return(0);
     }
 
@@ -681,22 +681,22 @@ const char *getexternaladdress(void)
 
     sockfd = socket(PF_INET, SOCK_STREAM, 0);
     if(sockfd == SOCKET_ERROR) {
-        initprintf("socket error %d\n",errno);
+        initprintf("mmulti: socket() error in getexternaladdress() (%d)\n",errno);
         return(0);
     }
 
     if(connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR) {
-        initprintf("connect error %d\n",errno);
+        initprintf("mmulti: connect() error in getexternaladdress() (%d)\n",errno);
         return(0);
     }
 
     bytes_sent = send(sockfd, req, strlen(req), 0);
     if(bytes_sent == SOCKET_ERROR) {
-        initprintf("bytes_sent error %d\n",errno);
+        initprintf("mmulti: send() error in getexternaladdress() (%d)\n",errno);
         return(0);
     }
 
-//    initprintf("sent %d bytes\n",bytes_sent);
+    //    initprintf("sent %d bytes\n",bytes_sent);
     recv(sockfd, (char *)&tempbuf, sizeof(tempbuf), 0);
     closesocket(sockfd);
 

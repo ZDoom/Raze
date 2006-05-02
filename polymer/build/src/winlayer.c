@@ -1621,8 +1621,8 @@ static void ProcessInputDevices(void)
 
             if (result == DI_OK) {
                 // process the mouse events
-//                mousex=0;
-//                mousey=0;
+                //                mousex=0;
+                //                mousey=0;
                 for (i=0; i<dwElements; i++) {
                     switch (didod[i].dwOfs) {
                     case DIMOFS_BUTTON0:
