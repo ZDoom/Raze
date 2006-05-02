@@ -7607,60 +7607,65 @@ void checkcommandline(int argc,char **argv)
                     }
                     if(CommandNet)
                     {
-                        load_rancid_net(CommandNet);
-                        qsort((char *)rancid_ip_strings, rancid_players, sizeof(rancid_ip_strings[0]), (int(*)(const void*,const void*))stringsort);
-                        CommandNet = 0;
-                        netparamcount = rancid_players;
-                        if(rancid_local_port_string[0] == '-')
-                            netparamcount++;
-                        netparam = (char **)calloc(netparamcount, sizeof(char **));
-                        for(j=0;j<rancid_players;j++)
+                        if(load_rancid_net(CommandNet) != -1)
                         {
-                            if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) != 0)
+                            char tmp[16];
+
+                            qsort((char *)rancid_ip_strings, rancid_players, sizeof(rancid_ip_strings[0]), (int(*)(const void*,const void*))stringsort);
+                            CommandNet = 0;
+                            netparamcount = rancid_players;
+                            if(rancid_local_port_string[0] == '-')
+                                netparamcount++;
+                            netparam = (char **)calloc(netparamcount, sizeof(char **));
+                            for(j=0;j<rancid_players;j++)
                             {
-                                char tmp[16];
-                                Bstrncpy(tempbuf,rancid_ip_strings[j], 8);
-                                Bstrcpy(tmp,strtok(tempbuf,"."));
-                                if(Bstrcmp(tmp,"10") == 0)
+                                if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) != 0)
                                 {
-                                    j = 0;
-                                    break;
-                                }
-                                if((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0))
-                                {
-                                    Bstrcpy(tmp,strtok(NULL,"."));
-                                    if((Bstrcmp(tmp,"168") == 0) || (Bstrcmp(tmp,"16") == 0))
+                                    Bstrncpy(tempbuf,rancid_ip_strings[j], 8);
+                                    Bstrcpy(tmp,strtok(tempbuf,"."));
+                                    if(Bstrcmp(tmp,"10") == 0)
                                     {
                                         j = 0;
                                         break;
                                     }
-                                }
-                            }
-                        }
-                        if(j == rancid_players)
-                        {
-                            Bsprintf(tempbuf, getexternaladdress());
-                            if(tempbuf[0])
-                            {
-                                for(j=0;j<rancid_players;j++)
-                                {
-                                    if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
+                                    if((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0))
                                     {
-                                        Bstrcpy(rancid_ip_strings[MAXPLAYERS],tempbuf);
-                                        Bstrcpy(rancid_ip_strings[j],tempbuf);
+                                        Bstrcpy(tmp,strtok(NULL,"."));
+                                        if((Bstrcmp(tmp,"168") == 0) || (Bstrcmp(tmp,"16") == 0))
+                                        {
+                                            j = 0;
+                                            break;
+                                        }
                                     }
                                 }
                             }
+                            Bstrcpy(tempbuf,rancid_ip_strings[MAXPLAYERS]);
+                            Bstrcpy(tmp,strtok(tempbuf,"."));
+                            if(j == rancid_players && ((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0) || (Bstrcmp(tmp,"10") == 0)))
+                            {
+                                Bsprintf(tempbuf, getexternaladdress());
+                                if(tempbuf[0])
+                                {
+                                    for(j=0;j<rancid_players;j++)
+                                    {
+                                        if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
+                                        {
+                                            Bstrcpy(rancid_ip_strings[MAXPLAYERS],tempbuf);
+                                            Bstrcpy(rancid_ip_strings[j],tempbuf);
+                                        }
+                                    }
+                                }
+                            }
+                            for(j=0;j<rancid_players;j++)
+                            {
+                                if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
+                                    Bsprintf(rancid_ip_strings[j],"/n1");
+                                netparam[j] = rancid_ip_strings[j];
+                            }
+                            if(j != netparamcount)
+                                netparam[j] = rancid_local_port_string;
                         }
-                        for(j=0;j<rancid_players;j++)
-                        {
-                            if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
-                                Bsprintf(rancid_ip_strings[j],"/n1");
-                            netparam[j] = rancid_ip_strings[j];
-                        }
-                        if(j != netparamcount)
-                            netparam[j] = rancid_local_port_string;
-                        initprintf("ip: %s\n",rancid_ip_strings[MAXPLAYERS]);
+                        //                        initprintf("ip: %s\n",rancid_ip_strings[MAXPLAYERS]);
                     }
                     i++;
                     continue;
@@ -8308,7 +8313,7 @@ void Startup(void)
     if (CommandSoundToggleOff) SoundToggle = 0;
     if (CommandMusicToggleOff) MusicToggle = 0;
 
-    if (CommandName) 
+    if (CommandName)
     {
         Bstrncpy(myname, CommandName, 10);
         myname[10] = 0;
