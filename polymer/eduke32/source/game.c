@@ -459,7 +459,7 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
                 if (playerquitflag[i] == 0) continue;
 
                 l = packbuf[k++];
-                l |= (long)packbuf[k++] << 8;
+                l += (long)(packbuf[k++]<<8);
 
                 if (i == myconnectindex)
                 { j += ((l&1)<<1)+(l&2)+((l&4)>>2)+((l&8)>>3)+((l&16)>>4)+((l&32)>>5)+((l&64)>>6)+((l&128)>>7)+((l&256)>>8)+((l&512)>>9)+((l&1024)>>10)+((l&2048)>>11); continue; }
@@ -505,7 +505,7 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
 
             break;
         case 1:  //[1] (receive slave sync buffer)
-            j = 3; k = packbuf[1] + ((long)packbuf[2] << 8);
+            j = 3; k = packbuf[1] + (long)(packbuf[2]<<8);
 
             osyn = (input *)&inputfifo[(movefifoend[other]-1)&(MOVEFIFOSIZ-1)][0];
             nsyn = (input *)&inputfifo[(movefifoend[other])&(MOVEFIFOSIZ-1)][0];
@@ -695,7 +695,8 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
 
             copybufbyte(&osyn[other],&nsyn[other],sizeof(input));
             k = packbuf[j++];
-            k |= (long)packbuf[j++] << 8;
+            k += (long)(packbuf[j++]<<8);
+
             if (k&1)   nsyn[other].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
             if (k&2)   nsyn[other].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
             if (k&4)   nsyn[other].avel = (signed char)packbuf[j++];
@@ -7593,11 +7594,18 @@ void checkcommandline(int argc,char **argv)
 
     if(argc > 1)
     {
+        int keepaddr = 0;
+
         while(i < argc)
         {
             c = argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
+                if (!Bstrcasecmp(c+1,"keepaddr")) {
+                    keepaddr = 1;
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"rmnet"))
                 {
                     if (argc > i+1)
@@ -7613,47 +7621,49 @@ void checkcommandline(int argc,char **argv)
 
                             CommandNet = 0;
 
-                            for(j=0;j<rancid_players;j++)
+                            if(keepaddr == 0)
                             {
-                                if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) != 0)
+                                for(j=0;j<rancid_players;j++)
                                 {
-                                    Bstrncpy(tempbuf,rancid_ip_strings[j], 8);
-                                    Bstrcpy(tmp,strtok(tempbuf,"."));
-                                    if(Bstrcmp(tmp,"10") == 0)
+                                    if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) != 0)
                                     {
-                                        j = 0;
-                                        break;
-                                    }
-                                    if((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0))
-                                    {
-                                        Bstrcpy(tmp,strtok(NULL,"."));
-                                        if((Bstrcmp(tmp,"168") == 0) || (Bstrcmp(tmp,"16") == 0))
+                                        Bstrncpy(tempbuf,rancid_ip_strings[j], 8);
+                                        Bstrcpy(tmp,strtok(tempbuf,"."));
+                                        if(Bstrcmp(tmp,"10") == 0)
                                         {
                                             j = 0;
                                             break;
                                         }
+                                        if((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0))
+                                        {
+                                            Bstrcpy(tmp,strtok(NULL,"."));
+                                            if((Bstrcmp(tmp,"168") == 0) || (Bstrcmp(tmp,"16") == 0))
+                                            {
+                                                j = 0;
+                                                break;
+                                            }
+                                        }
                                     }
                                 }
-                            }
 
-                            Bstrcpy(tempbuf,rancid_ip_strings[MAXPLAYERS]);
-                            Bstrcpy(tmp,strtok(tempbuf,"."));
-                            if(j == rancid_players && ((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0) || (Bstrcmp(tmp,"10") == 0)))
-                            {
-                                Bsprintf(tempbuf, getexternaladdress());
-                                if(tempbuf[0])
+                                Bstrcpy(tempbuf,rancid_ip_strings[MAXPLAYERS]);
+                                Bstrcpy(tmp,strtok(tempbuf,"."));
+                                if(j == rancid_players && ((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0) || (Bstrcmp(tmp,"10") == 0)))
                                 {
-                                    for(j=0;j<rancid_players;j++)
+                                    Bsprintf(tempbuf, getexternaladdress());
+                                    if(tempbuf[0])
                                     {
-                                        if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
+                                        for(j=0;j<rancid_players;j++)
                                         {
-                                            Bstrcpy(rancid_ip_strings[MAXPLAYERS],tempbuf);
-                                            Bstrcpy(rancid_ip_strings[j],tempbuf);
+                                            if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
+                                            {
+                                                Bstrcpy(rancid_ip_strings[MAXPLAYERS],tempbuf);
+                                                Bstrcpy(rancid_ip_strings[j],tempbuf);
+                                            }
                                         }
                                     }
                                 }
                             }
-
                             qsort((char *)rancid_ip_strings, rancid_players, sizeof(rancid_ip_strings[0]), (int(*)(const void*,const void*))stringsort);
 
                             netparamcount = rancid_players;
