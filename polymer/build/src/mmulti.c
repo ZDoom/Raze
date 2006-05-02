@@ -660,6 +660,9 @@ const char *getexternaladdress(void)
     char *host = "checkip.dyndns.org";
     char *req = "GET / HTTP/1.0\r\n\r\n";
 
+    if(ipaddr[0])
+        return(ipaddr);
+
 #ifdef _WIN32
     WSADATA ws;
 
@@ -668,6 +671,7 @@ const char *getexternaladdress(void)
         return(0);
     }
 #endif
+
     if ((h=gethostbyname(host)) == NULL) {
         initprintf("mmulti: gethostbyname() error in getexternaladdress() (%d)\n",h_errno);
         return(0);

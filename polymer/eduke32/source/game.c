@@ -7634,10 +7634,19 @@ void checkcommandline(int argc,char **argv)
                                             j = 0;
                                             break;
                                         }
-                                        if((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0))
+                                        else if(Bstrcmp(tmp,"192") == 0)
                                         {
                                             Bstrcpy(tmp,strtok(NULL,"."));
-                                            if((Bstrcmp(tmp,"168") == 0) || (Bstrcmp(tmp,"16") == 0))
+                                            if(Bstrcmp(tmp,"168") == 0)
+                                            {
+                                                j = 0;
+                                                break;
+                                            }
+                                        }
+                                        else if(Bstrcmp(tmp,"172") == 0)
+                                        {
+                                            Bstrcpy(tmp,strtok(NULL,"."));
+                                            if(Bstrcmp(tmp,"16") == 0)
                                             {
                                                 j = 0;
                                                 break;
@@ -9815,7 +9824,7 @@ FAKEHORIZONLY:
         }
 
     if(p->aim_mode)
-        myhoriz += syn->horz>>1;
+        myhoriz += syn->horz;
     else
     {
         if( myhoriz > 95 && myhoriz < 105) myhoriz = 100;

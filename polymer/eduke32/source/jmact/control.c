@@ -73,7 +73,7 @@ void CONTROL_GetMouseDelta(void)
 	*/
 
     CONTROL_MouseAxes[0].analog = (x * (CONTROL_MouseSensitivity<<1));
-    CONTROL_MouseAxes[1].analog = (y * (CONTROL_MouseSensitivity<<1))<<2;
+    CONTROL_MouseAxes[1].analog = (y * (CONTROL_MouseSensitivity<<1))<<1;
 }
 
 int32 CONTROL_GetMouseSensitivity(void)
