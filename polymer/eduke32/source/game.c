@@ -7494,9 +7494,10 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
         if (!Bstrcasecmp(tok, tl[i].text))
             return tl[i].tokenid;
     }
-
     return T_ERROR;
 }
+
+extern const char *getexternaladdress(void);
 
 static int parse_rancid_net(scriptfile *script)
 {
@@ -7509,6 +7510,7 @@ static int parse_rancid_net(scriptfile *script)
         case T_INTERFACE:
             {
                 char *ip;
+
                 if (scriptfile_getstring(script,&ip)) break;
                 Bstrcpy(rancid_ip_strings[MAXPLAYERS],ip);
                 Bstrcpy(rancid_ip_strings[rancid_players++],ip);
@@ -7521,12 +7523,14 @@ static int parse_rancid_net(scriptfile *script)
         case T_MODE:
             {
                 char *mode;
+
                 if (scriptfile_getstring(script,&mode)) break;
             }
             break;
         case T_ALLOW:
             {
                 char *ip;
+
                 if (scriptfile_getstring(script,&ip)) break;
                 Bstrcpy(rancid_ip_strings[rancid_players++],ip);
             }
@@ -7594,12 +7598,15 @@ void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
-                if (!Bstrcasecmp(c+1,"rmnet")) {
-                    if (argc > i+1) {
+                if (!Bstrcasecmp(c+1,"rmnet"))
+                {
+                    if (argc > i+1)
+                    {
                         CommandNet = argv[i+1];
                         i++;
                     }
-                    if(CommandNet) {
+                    if(CommandNet)
+                    {
                         load_rancid_net(CommandNet);
                         qsort((char *)rancid_ip_strings, rancid_players, sizeof(rancid_ip_strings[0]), (int(*)(const void*,const void*))stringsort);
                         CommandNet = 0;
@@ -7609,12 +7616,51 @@ void checkcommandline(int argc,char **argv)
                         netparam = (char **)calloc(netparamcount, sizeof(char **));
                         for(j=0;j<rancid_players;j++)
                         {
+                            if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) != 0)
+                            {
+                                char tmp[16];
+                                Bstrncpy(tempbuf,rancid_ip_strings[j], 8);
+                                Bstrcpy(tmp,strtok(tempbuf,"."));
+                                if(Bstrcmp(tmp,"10") == 0)
+                                {
+                                    j = 0;
+                                    break;
+                                }
+                                if((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0))
+                                {
+                                    Bstrcpy(tmp,strtok(NULL,"."));
+                                    if((Bstrcmp(tmp,"168") == 0) || (Bstrcmp(tmp,"16") == 0))
+                                    {
+                                        j = 0;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if(j == rancid_players)
+                        {
+                            Bsprintf(tempbuf, getexternaladdress());
+                            if(tempbuf[0])
+                            {
+                                for(j=0;j<rancid_players;j++)
+                                {
+                                    if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
+                                    {
+                                        Bstrcpy(rancid_ip_strings[MAXPLAYERS],tempbuf);
+                                        Bstrcpy(rancid_ip_strings[j],tempbuf);
+                                    }
+                                }
+                            }
+                        }
+                        for(j=0;j<rancid_players;j++)
+                        {
                             if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
                                 Bsprintf(rancid_ip_strings[j],"/n1");
                             netparam[j] = rancid_ip_strings[j];
                         }
                         if(j != netparamcount)
                             netparam[j] = rancid_local_port_string;
+                        initprintf("ip: %s\n",rancid_ip_strings[MAXPLAYERS]);
                     }
                     i++;
                     continue;

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -647,4 +648,74 @@ long getpacket (long *retother, char *bufptr)
     }
 
     return(0);
+}
+
+char tempbuf[512],ipaddr[32];
+
+const char *getexternaladdress(void)
+{
+    int sockfd, bytes_sent, i=0, j=0;
+    struct sockaddr_in dest_addr;
+    struct hostent *h;
+    char *host = "checkip.dyndns.org";
+    char *req = "GET / HTTP/1.0\r\n\r\n";
+
+#ifdef _WIN32
+    WSADATA ws;
+
+    if (WSAStartup(0x101,&ws) == SOCKET_ERROR)  {
+        initprintf("winsock error %d\n",errno);
+        return(0);
+    }
+#endif
+    if ((h=gethostbyname(host)) == NULL) {
+        initprintf("gethostbyname error %d\n",h_errno);
+        return(0);
+    }
+
+    dest_addr.sin_addr.s_addr = ((struct in_addr *)(h->h_addr))->s_addr;
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(8245);
+
+    memset(&(dest_addr.sin_zero), '\0', 8);
+
+    sockfd = socket(PF_INET, SOCK_STREAM, 0);
+    if(sockfd == SOCKET_ERROR) {
+        initprintf("socket error %d\n",errno);
+        return(0);
+    }
+
+    if(connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR) {
+        initprintf("connect error %d\n",errno);
+        return(0);
+    }
+
+    bytes_sent = send(sockfd, req, strlen(req), 0);
+    if(bytes_sent == SOCKET_ERROR) {
+        initprintf("bytes_sent error %d\n",errno);
+        return(0);
+    }
+
+//    initprintf("sent %d bytes\n",bytes_sent);
+    recv(sockfd, (char *)&tempbuf, sizeof(tempbuf), 0);
+    closesocket(sockfd);
+
+#ifdef _WIN32
+    WSACleanup();
+#endif
+
+    for(i=0;(unsigned)i<strlen(tempbuf);i++)
+    {
+        if(isdigit(tempbuf[i]) && (isdigit(tempbuf[i+1]) || (tempbuf[i+1] == '.')) && (isdigit(tempbuf[i+2]) || (tempbuf[i+2] == '.')) && (isdigit(tempbuf[i+3]) || (tempbuf[i+3] == '.')))
+        {
+            while(isdigit(tempbuf[i]) || (tempbuf[i] == '.'))
+            {
+                ipaddr[j] = tempbuf[i];
+                i++, j++;
+            }
+            ipaddr[j] = '\0';
+            break;
+        }
+    }
+    return(ipaddr);
 }
