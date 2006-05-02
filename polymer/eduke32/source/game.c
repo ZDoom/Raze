@@ -8868,18 +8868,20 @@ MAIN_LOOP_RESTART:
 
         if( ps[myconnectindex].gm&MODE_EOL || ps[myconnectindex].gm&MODE_RESTART )
         {
-            if( ps[myconnectindex].gm&MODE_EOL && display_bonus_screen == 1)
+            if( ps[myconnectindex].gm&MODE_EOL)
             {
                 closedemowrite();
 
                 ready2send = 0;
 
-                i = ud.screen_size;
-                ud.screen_size = 0;
-                vscrn();
-                ud.screen_size = i;
-                dobonus(0);
-
+                if(display_bonus_screen == 1)
+                {
+                    i = ud.screen_size;
+                    ud.screen_size = 0;
+                    vscrn();
+                    ud.screen_size = i;
+                    dobonus(0);
+                }
                 if(ud.eog)
                 {
                     ud.eog = 0;
