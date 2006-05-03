@@ -355,4 +355,6 @@ extern void updatenames(void);
 extern void sendboardname(void);
 extern void sendquit(void);
 
+extern void adduserquote(char *daquote);
+
 #endif // __funct_h__

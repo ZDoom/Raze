@@ -7933,7 +7933,8 @@ void checkcommandline(int argc,char **argv)
                     ud.m_respawn_monsters = ud.respawn_monsters = 1;
                     ud.m_respawn_items = ud.respawn_items = 1;
                     ud.m_respawn_inventory = ud.respawn_inventory = 1;
-
+                    for(j=numplayers;j<ud.multimode;j++)
+                        Bsprintf(ud.user_name[j],"PLAYER %d",j+1);
                     break;
                 case 'r':
                 case 'R':

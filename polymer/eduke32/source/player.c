@@ -3450,40 +3450,25 @@ void processinput(short snum)
                     ps[p->frag_ps].frag++;
                     frags[p->frag_ps][snum]++;
 
-                    if(ud.user_name[p->frag_ps][0])
+                    if(snum == screenpeek)
                     {
-                        if(snum == screenpeek)
-                        {
-                            Bsprintf(fta_quotes[115],"KILLED BY %s",&ud.user_name[p->frag_ps][0]);
-                            FTA(115,p);
-                        }
-                        else
-                        {
-                            Bsprintf(fta_quotes[116],"KILLED %s",&ud.user_name[snum][0]);
-                            FTA(116,&ps[p->frag_ps]);
-                        }
+                        Bsprintf(fta_quotes[115],"KILLED BY %s",&ud.user_name[p->frag_ps][0]);
+                        FTA(115,p);
                     }
                     else
                     {
-                        if(snum == screenpeek)
-                        {
-                            Bsprintf(fta_quotes[115],"KILLED BY PLAYER %d",p->frag_ps);
-                            FTA(115,p);
-                        }
-                        else
-                        {
-                            Bsprintf(fta_quotes[116],"KILLED PLAYER %d",snum);
-                            FTA(116,&ps[p->frag_ps]);
-                        }
+                        Bsprintf(fta_quotes[116],"KILLED %s",&ud.user_name[snum][0]);
+                        FTA(116,&ps[p->frag_ps]);
                     }
+                    Bsprintf(tempbuf,"%s WAS KILLED BY %s",&ud.user_name[snum][0],&ud.user_name[p->frag_ps][0]);
+                    adduserquote(tempbuf);
                 }
                 else p->fraggedself++;
 
                 if(myconnectindex == connecthead)
                 {
-                    unsigned char tmpbuf[2048];
-                    Bsprintf(tmpbuf,"frag %d killed %d\n",p->frag_ps+1,snum+1);
-                    sendscore(tmpbuf);
+                    Bsprintf(tempbuf,"frag %d killed %d\n",p->frag_ps+1,snum+1);
+                    sendscore(tempbuf);
                     //                    printf(tempbuf);
                 }
 
