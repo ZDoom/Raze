@@ -2532,7 +2532,8 @@ void moveweapons(void)
                                     }
                                 }
                                 else */
-                if(thisprojectile[i].workslike & PROJECTILE_FLAG_SPIT) if(s->zvel < 6144)
+                if(thisprojectile[i].workslike & PROJECTILE_FLAG_SPIT)
+                    if(s->zvel < 6144)
                         s->zvel += gc-112;
 
                 if(thisprojectile[i].workslike & PROJECTILE_FLAG_WATERBUBBLES && sector[s->sectnum].lotag == 2 && rnd(140))

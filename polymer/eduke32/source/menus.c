@@ -2508,7 +2508,11 @@ cheat_for_port_credits:
                     do {
                         newvidmode++;
                         if (newvidmode == lastvidmode) break;   // end of cycle
-                        if (newvidmode >= validmodecnt) newvidmode = 0;
+                        if (newvidmode >= validmodecnt) {
+                            if(safevidmode != -1)
+                                break;
+                            newvidmode = 0;
+                        }
                         if (validmode[newvidmode].bpp == (vidsets[newvidset]&0x0ffff) &&
                                 validmode[newvidmode].fs == newfullscreen &&
                                 validmode[newvidmode].xdim <= validmode[lastvidmode].xdim &&
@@ -2607,6 +2611,8 @@ cheat_for_port_credits:
                         gameexit("Failed restoring old video mode.");
                     } else onvideomodechange(pbpp > 8);
                 } else onvideomodechange(nbpp > 8);
+
+                restorepalette = 1;
                 vscrn();
                 setrendermode(nrend);
 
