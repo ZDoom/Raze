@@ -7606,6 +7606,14 @@ void checkcommandline(int argc,char **argv)
                     i++;
                     continue;
                 }
+                if (!Bstrcasecmp(c+1,"stun")) {
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"disableautoaim")) {
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"rmnet"))
                 {
                     if (argc > i+1)
@@ -7652,12 +7660,21 @@ void checkcommandline(int argc,char **argv)
                                                 break;
                                             }
                                         }
+                                        else if(Bstrcmp(tmp,"169") == 0)
+                                        {
+                                            Bstrcpy(tmp,strtok(NULL,"."));
+                                            if(Bstrcmp(tmp,"254") == 0)
+                                            {
+                                                j = 0;
+                                                break;
+                                            }
+                                        }
                                     }
                                 }
 
                                 Bstrcpy(tempbuf,rancid_ip_strings[MAXPLAYERS]);
                                 Bstrcpy(tmp,strtok(tempbuf,"."));
-                                if(j == rancid_players && ((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0) || (Bstrcmp(tmp,"10") == 0)))
+                                if(j == rancid_players && ((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0) || (Bstrcmp(tmp,"169") == 0) || (Bstrcmp(tmp,"10") == 0)))
                                 {
                                     Bsprintf(tempbuf, getexternaladdress());
                                     if(tempbuf[0])
