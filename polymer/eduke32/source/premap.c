@@ -1211,7 +1211,7 @@ void resetpspritevars(char g)
 
             s->yvel = j;
 
-            if(!ud.pcolor[j])
+            if(!ud.pcolor[j] && ud.multimode > 1)
             {
                 if(s->pal == 0)
                 {
