@@ -33,7 +33,7 @@ int last_menu;
 short sh,onbar,buttonstat,deletespot;
 short last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehundred = 0;
 
-static char fileselect = 1, menunamecnt, menuname[256][64];
+static char menunamecnt;
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int numdirs=0, numfiles=0;
@@ -44,6 +44,8 @@ static int changesmade, newvidmode, curvidmode, newfullscreen;
 static int vidsets[16] = { -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }, curvidset, newvidset = 0;
 
 static char *mousebuttonnames[] = { "Left", "Right", "Middle", "Thumb", "Wheel Down", "Wheel Up" };
+
+extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting;
 
 void cmenu(short cm)
 {
@@ -3963,80 +3965,107 @@ VOLUME_ALL_40x:
             if (menunamecnt == 0)
                 cmenu(600);
         }
+
     case 603:
-        c = (320>>1) - 120;
-        displayfragbar();
-        rotatesprite(320>>1<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,24,0,0,"USER MAPS");
-        for(x=0;x<menunamecnt;x++)
         {
-            if(x == fileselect)
-                minitext(15 + (x/15)*54,32 + (x%15)*8,menuname[x],0,26);
-            else minitext(15 + (x/15)*54,32 + (x%15)*8,menuname[x],16,26);
-        }
+            int plrvotes = 0, j = 0;
 
-        fileselect = probey;
-        if( KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) )
-        {
-            KB_ClearKeyDown( sc_LeftArrow );
-            KB_ClearKeyDown( sc_kpad_4 );
-            probey -= 15;
-            if(probey < 0) probey += 15;
-            else sound(KICK_HIT);
-        }
-        if( KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ) )
-        {
-            KB_ClearKeyDown( sc_RightArrow );
-            KB_ClearKeyDown( sc_kpad_6 );
-            probey += 15;
-            if(probey >= menunamecnt)
-                probey -= 15;
-            else sound(KICK_HIT);
-        }
+            x = probe(186,124,0,0);
 
-        onbar = 0;
-        x = probe(0,0,0,menunamecnt);
+            if (x == -1) {
+                if(voting != -1)
+                {
+                    Bmemset(votes,0,sizeof(votes));
+                    Bmemset(gotvote,0,sizeof(gotvote));
 
-        if(x == -1) cmenu(600);
-        else if(x >= 0)
-        {
-            tempbuf[0] = 8;
-            tempbuf[1] = ud.m_level_number = 6;
-            tempbuf[2] = ud.m_volume_number = 0;
-            tempbuf[3] = ud.m_player_skill+1;
+                    tempbuf[0] = 18;
+                    tempbuf[1] = 2;
+                    tempbuf[2] = myconnectindex;
 
-            if(ud.player_skill == 3)
-                ud.m_respawn_monsters = 1;
-            else ud.m_respawn_monsters = 0;
-
-            if(ud.m_coop == 0) ud.m_respawn_items = 1;
-            else ud.m_respawn_items = 0;
-
-            ud.m_respawn_inventory = 1;
-
-            tempbuf[4] = ud.m_monsters_off;
-            tempbuf[5] = ud.m_respawn_monsters;
-            tempbuf[6] = ud.m_respawn_items;
-            tempbuf[7] = ud.m_respawn_inventory;
-            tempbuf[8] = ud.m_coop;
-            tempbuf[9] = ud.m_marker;
-
-            x = strlen(menuname[probey]);
-
-            copybufbyte(menuname[probey],tempbuf+10,x);
-            copybufbyte(menuname[probey],boardfilename,x+1);
-
-            for(c=connecthead;c>=0;c=connectpoint2[c])
-            {
-                if (c != myconnectindex) sendpacket(c,tempbuf,x+10);
-                if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                    for(c=connecthead;c>=0;c=connectpoint2[c])
+                    {
+                        if(c != myconnectindex) sendpacket(c,tempbuf,3);
+                        if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                    }
+                    voting = -1;
+                }
+                cmenu(0);
             }
 
-            newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
-            if (enterlevel(MODE_GAME)) backtomenu();
-        }
-        break;
+            for(i=0;i<MAXPLAYERS;i++)
+            {
+                plrvotes += votes[i];
+                j += gotvote[i];
+            }
+            if(j == numplayers || !ps[myconnectindex].i || (plrvotes > (numplayers>>1)))
+            {
+                if(plrvotes > (numplayers>>1) || !ps[myconnectindex].i)
+                {
+                    tempbuf[0] = 5;
+                    tempbuf[1] = ud.m_level_number;
+                    tempbuf[2] = ud.m_volume_number;
+                    tempbuf[3] = ud.m_player_skill+1;
 
+                    if( ud.m_player_skill == 3 ) ud.m_respawn_monsters = 1;
+                    else ud.m_respawn_monsters = 0;
+
+                    if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_ITEMRESPAWN)) ud.m_respawn_items = 1;
+                    else ud.m_respawn_items = 0;
+
+                    ud.m_respawn_inventory = 1;
+
+                    tempbuf[4] = ud.m_monsters_off;
+                    tempbuf[5] = ud.m_respawn_monsters;
+                    tempbuf[6] = ud.m_respawn_items;
+                    tempbuf[7] = ud.m_respawn_inventory;
+                    tempbuf[8] = ud.m_coop;
+                    tempbuf[9] = ud.m_marker;
+                    tempbuf[10] = ud.m_ffire;
+                    tempbuf[11] = ud.m_noexits;
+
+                    for(c=connecthead;c>=0;c=connectpoint2[c])
+                    {
+                        resetweapons(c);
+                        resetinventory(c);
+
+                    }
+                    for(c=connecthead;c>=0;c=connectpoint2[c])
+                    {
+                        if(c != myconnectindex) sendpacket(c,tempbuf,12);
+                        if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                    }
+
+                    if(voting != -1)
+                        adduserquote("VOTE SUCCEEDED");
+
+                    newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
+                    if (enterlevel(MODE_GAME)) backtomenu();
+
+                    return;
+                }
+                else if(j == numplayers) {
+                    Bmemset(votes,0,sizeof(votes));
+                    Bmemset(gotvote,0,sizeof(gotvote));
+
+                    tempbuf[0] = 18;
+                    tempbuf[1] = 2;
+                    tempbuf[2] = myconnectindex;
+                    tempbuf[3] = 1;
+
+                    for(c=connecthead;c>=0;c=connectpoint2[c])
+                    {
+                        if(c != myconnectindex) sendpacket(c,tempbuf,4);
+                        if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                    }
+                    voting = -1;
+                    adduserquote("VOTE FAILED");
+                    cmenu(0);
+                }
+            } else {
+                gametext(160,60,"WAITING FOR VOTES",0,2);
+            }
+            break;
+        }
     case 600:
         c = (320>>1) - 120;
         if((ps[myconnectindex].gm&MODE_GAME) != MODE_GAME)
@@ -4053,8 +4082,9 @@ VOLUME_ALL_40x:
 
         if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION))
             modval(0,1,(int *)&ud.m_marker,1,probey==4);
-        if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_COOP))
+        if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY))
             modval(0,1,(int *)&ud.m_ffire,1,probey==5);
+        else modval(0,1,(int *)&ud.m_noexits,1,probey==5);
 
         switch(x)
         {
@@ -4110,98 +4140,43 @@ VOLUME_ALL_40x:
             break;
 
         case 5:
-            if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_COOP))
+            if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY))
                 ud.m_ffire = !ud.m_ffire;
+            else ud.m_noexits = !ud.m_noexits;
             break;
 
         case 6:
             if (VOLUMEALL) {
-                /*                if(boardfilename[0] == 0) break;
-
-                                tempbuf[0] = 5;
-                                tempbuf[1] = ud.m_level_number = 7;
-                                tempbuf[2] = ud.m_volume_number = 0;
-                                tempbuf[3] = ud.m_player_skill+1;
-
-                                ud.level_number = ud.m_level_number;
-                                ud.volume_number = ud.m_volume_number;
-
-                                if( ud.m_player_skill == 3 ) ud.m_respawn_monsters = 1;
-                                else ud.m_respawn_monsters = 0;
-
-                                if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_ITEMRESPAWN)) ud.m_respawn_items = 1;
-                                else ud.m_respawn_items = 0;
-
-                                ud.m_respawn_inventory = 1;
-
-                                tempbuf[4] = ud.m_monsters_off;
-                                tempbuf[5] = ud.m_respawn_monsters;
-                                tempbuf[6] = ud.m_respawn_items;
-                                tempbuf[7] = ud.m_respawn_inventory;
-                                tempbuf[8] = ud.m_coop;
-                                tempbuf[9] = ud.m_marker;
-                                tempbuf[10] = ud.m_ffire;
-
-                                for(c=connecthead;c>=0;c=connectpoint2[c])
-                                {
-                                    resetweapons(c);
-                                    resetinventory(c);
-                                }
-                                for(c=connecthead;c>=0;c=connectpoint2[c])
-                                {
-                                    if (c != myconnectindex) sendpacket(c,tempbuf,11);
-                                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                                }
-
-                                newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
-                                if (enterlevel(MODE_GAME)) backtomenu();
-
-                                return; */
                 currentlist = 1;
                 last_probey = probey;
                 cmenu(101);
             }
             break;
         case 7:
-
-            tempbuf[0] = 5;
-            tempbuf[1] = ud.m_level_number;
-            tempbuf[2] = ud.m_volume_number;
-            tempbuf[3] = ud.m_player_skill+1;
-
-            if( ud.m_player_skill == 3 ) ud.m_respawn_monsters = 1;
-            else ud.m_respawn_monsters = 0;
-
-            if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_ITEMRESPAWN)) ud.m_respawn_items = 1;
-            else ud.m_respawn_items = 0;
-
-            ud.m_respawn_inventory = 1;
-
-            tempbuf[4] = ud.m_monsters_off;
-            tempbuf[5] = ud.m_respawn_monsters;
-            tempbuf[6] = ud.m_respawn_items;
-            tempbuf[7] = ud.m_respawn_inventory;
-            tempbuf[8] = ud.m_coop;
-            tempbuf[9] = ud.m_marker;
-            tempbuf[10] = ud.m_ffire;
-
-            for(c=connecthead;c>=0;c=connectpoint2[c])
+            if(voting == -1)
             {
-                resetweapons(c);
-                resetinventory(c);
+                if(ps[myconnectindex].i)
+                {
+                    Bmemset(votes,0,sizeof(votes));
+                    Bmemset(gotvote,0,sizeof(gotvote));
+                    votes[myconnectindex] = gotvote[myconnectindex] = 1;
+                    voting = myconnectindex;
 
+                    tempbuf[0] = 18;
+                    tempbuf[1] = 1;
+                    tempbuf[2] = myconnectindex;
+                    tempbuf[3] = ud.m_volume_number;
+                    tempbuf[4] = ud.m_level_number;
+
+                    for(c=connecthead;c>=0;c=connectpoint2[c])
+                    {
+                        if(c != myconnectindex) sendpacket(c,tempbuf,5);
+                        if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                    }
+                }
+                cmenu(603);
             }
-            for(c=connecthead;c>=0;c=connectpoint2[c])
-            {
-                if(c != myconnectindex) sendpacket(c,tempbuf,11);
-                if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-            }
-
-            newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
-            if (enterlevel(MODE_GAME)) backtomenu();
-
-            return;
-
+            break;
         }
 
         c += 40;
@@ -4223,8 +4198,9 @@ VOLUME_ALL_40x:
         if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION)
             gametext(c+70,57+16+16+16+16-7-9,ud.m_marker?"ON":"OFF",MENUHIGHLIGHT(4),2+8+16);
 
-        if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_COOP)
+        if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY)
             gametext(c+70,57+16+16+16+16+16-7-9,ud.m_ffire?"ON":"OFF",MENUHIGHLIGHT(5),2+8+16);
+        else gametext(c+70,57+16+16+16+16+16-7-9,ud.m_noexits?"OFF":"ON",MENUHIGHLIGHT(5),2+8+16);
 
         c -= 44;
 
@@ -4248,9 +4224,9 @@ VOLUME_ALL_40x:
         else
             menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),1,"MARKERS");
 
-        if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_COOP)
-            menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),PHX(-6),"FR. FIRE");
-        else menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),1,"FR. FIRE");
+        if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY)
+            menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),0,"FR. FIRE");
+        else menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),0,"MAP EXITS");
 
         if (VOLUMEALL) {
             menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),0,"USER MAP");
@@ -4260,7 +4236,7 @@ VOLUME_ALL_40x:
             menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),1,"USER MAP");
         }
 
-        menutext(c,57+16+16+16+16+16+16+16-9,MENUHIGHLIGHT(7),PHX(-8),"START GAME");
+        menutext(c,57+16+16+16+16+16+16+16-9,MENUHIGHLIGHT(7),voting!=-1,"START GAME");
 
         break;
     }

@@ -803,6 +803,8 @@ LABELS userdefslabels[]= {
                              { "color", USERDEFS_COLOR, 0, 0 },
                              { "msgdisptime", USERDEFS_MSGDISPTIME, 0, 0 },
                              { "statusbarmode", USERDEFS_STATUSBARMODE, 0, 0 },
+                             { "m_noexits", USERDEFS_M_NOEXITS, 0, 0 },
+                             { "noexits", USERDEFS_NOEXITS, 0, 0 },
                              { "", -1, 0, 0  }     // END OF LIST
                          };
 

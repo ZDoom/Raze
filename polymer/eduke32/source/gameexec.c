@@ -624,6 +624,20 @@ void DoUserDef(char bSet, long lLabelID, long lVar2, short sActor, short sPlayer
             SetGameVarID((int)lVar2, ud.statusbarmode, sActor, sPlayer);
         break;
 
+    case USERDEFS_M_NOEXITS:
+        if(bSet)
+            ud.m_noexits = lValue;
+        else
+            SetGameVarID((int)lVar2, ud.m_noexits, sActor, sPlayer);
+        break;
+
+    case USERDEFS_NOEXITS:
+        if(bSet)
+            ud.noexits = lValue;
+        else
+            SetGameVarID((int)lVar2, ud.noexits, sActor, sPlayer);
+        break;
+
     default:
         break;
     }
@@ -4209,9 +4223,10 @@ SKIPJIBS:
                 tempbuf[8] = ud.m_coop;
                 tempbuf[9] = ud.m_marker;
                 tempbuf[10] = ud.m_ffire;
+                tempbuf[11] = ud.m_noexits;
 
                 for(i=connecthead;i>=0;i=connectpoint2[i])
-                    sendpacket(i,tempbuf,11);
+                    sendpacket(i,tempbuf,12);
             }
         else { ps[myconnectindex].gm |= MODE_EOL; display_bonus_screen = 0; } // MODE_RESTART;
 

@@ -3372,12 +3372,20 @@ void checksectors(short snum)
                 if(j >= 0 && wall[j].overpicnum == 0)
                     if(hittype[neartagsprite].temp_data[0] == 0)
                     {
-                        hittype[neartagsprite].temp_data[0] = 1;
-                        sprite[neartagsprite].owner = p->i;
-                        p->buttonpalette = sprite[neartagsprite].pal;
-                        if(p->buttonpalette)
-                            ud.secretlevel = sprite[neartagsprite].lotag;
-                        else ud.secretlevel = 0;
+                        if(ud.noexits)
+                        {
+                            hittype[p->i].picnum = NUKEBUTTON;
+                            hittype[p->i].extra = 250;
+                        }
+                        else
+                        {
+                            hittype[neartagsprite].temp_data[0] = 1;
+                            sprite[neartagsprite].owner = p->i;
+                            p->buttonpalette = sprite[neartagsprite].pal;
+                            if(p->buttonpalette)
+                                ud.secretlevel = sprite[neartagsprite].lotag;
+                            else ud.secretlevel = 0;
+                        }
                     }
                 return;
             case WATERFOUNTAIN__STATIC:

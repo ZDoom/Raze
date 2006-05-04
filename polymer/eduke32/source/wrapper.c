@@ -55,6 +55,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     ZeroMemory(&pi,sizeof(pi));
     si.cb = sizeof(si);
 
+    printf("Launching EDuke32...\n\nPlease leave this window open for the entire duration of your game.");
+
     if (!CreateProcess(NULL,szCmdLine,NULL,NULL,0,0,NULL,NULL,&si,&pi)) {
         MessageBox(0,"Failed to start eduke32.exe.", "Failure starting game", MB_OK|MB_ICONSTOP);
         return 1;

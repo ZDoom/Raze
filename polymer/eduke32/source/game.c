@@ -72,6 +72,8 @@ int display_bonus_screen = 1, userconfiles = 0;
 static int netparamcount = 0;
 static char **netparam = NULL;
 
+int votes[MAXPLAYERS], gotvote[MAXPLAYERS], voting = -1;
+
 void setstatusbarscale(long sc)
 {
     ud.statusbarscale = min(100,max(10,sc));
@@ -422,6 +424,58 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
 
             break;
 
+        case 18: // map vote
+
+            if (myconnectindex == connecthead)
+            {
+                //Master re-transmits message to all others
+                for(i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    if (i != other)
+                        sendpacket(i,packbuf,packbufleng);
+            }
+
+            switch(packbuf[1])
+            {
+            case 0:
+                if(voting == myconnectindex)
+                {
+                    gotvote[packbuf[2]] = 1;
+                    votes[packbuf[2]] = packbuf[3];
+                    Bsprintf(tempbuf,"GOT VOTE FROM %s",ud.user_name[packbuf[2]]);
+                    adduserquote(tempbuf);
+                }
+                break;
+
+            case 1: // call map vote
+                voting = packbuf[2];
+                Bsprintf(tempbuf,"%s HAS CALLED A VOTE FOR MAP %s",ud.user_name[packbuf[2]],level_names[packbuf[3]*11 + packbuf[4]]);
+                adduserquote(tempbuf);
+                Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
+                adduserquote(tempbuf);
+                Bmemset(votes,0,sizeof(votes));
+                Bmemset(gotvote,0,sizeof(gotvote));
+                gotvote[voting] = votes[voting] = 1;
+                break;
+
+            case 2: // cancel map vote
+                if(packbuf[2] == voting)
+                {
+                    voting = -1;
+                    i = 0;
+                    for(j=0;j<MAXPLAYERS;j++)
+                        i += gotvote[j];
+
+                    if(i != numplayers)
+                        Bsprintf(tempbuf,"%s HAS CANCELED THE VOTE",ud.user_name[packbuf[2]]);
+                    else Bsprintf(tempbuf,"VOTE FAILED");
+                    Bmemset(votes,0,sizeof(votes));
+                    Bmemset(gotvote,0,sizeof(gotvote));
+                    adduserquote(tempbuf);
+                }
+                break;
+            }
+            break;
+
         case 126:
             //Slaves in M/S mode only send to master
             //Master re-transmits message to all others
@@ -576,6 +630,9 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
                 for(i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                     if (i != other) sendpacket(i,packbuf,packbufleng);
 
+            if(voting != -1)
+                adduserquote("VOTE SUCCEEDED");
+
             ud.m_level_number = ud.level_number = packbuf[1];
             ud.m_volume_number = ud.volume_number = packbuf[2];
             ud.m_player_skill = ud.player_skill = packbuf[3];
@@ -586,6 +643,7 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
             ud.m_coop = packbuf[8];
             ud.m_marker = ud.marker = packbuf[9];
             ud.m_ffire = ud.ffire = packbuf[10];
+            ud.m_noexits = ud.noexits = packbuf[11];
 
             for(i=connecthead;i>=0;i=connectpoint2[i])
             {
@@ -643,36 +701,6 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
             else
                 FX_PlayWAV3D(rtsptr,0,0,0,255,-packbuf[1]);
             rtsplaying = 7;
-            break;
-        case 8:
-            //Slaves in M/S mode only send to master
-            //Master re-transmits message to all others
-            if ((!networkmode) && (myconnectindex == connecthead))
-                for(i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other) sendpacket(i,packbuf,packbufleng);
-
-            ud.m_level_number = ud.level_number = packbuf[1];
-            ud.m_volume_number = ud.volume_number = packbuf[2];
-            ud.m_player_skill = ud.player_skill = packbuf[3];
-            ud.m_monsters_off = ud.monsters_off = packbuf[4];
-            ud.m_respawn_monsters = ud.respawn_monsters = packbuf[5];
-            ud.m_respawn_items = ud.respawn_items = packbuf[6];
-            ud.m_respawn_inventory = ud.respawn_inventory = packbuf[7];
-            ud.m_coop = ud.coop = packbuf[8];
-            ud.m_marker = ud.marker = packbuf[9];
-            ud.m_ffire = ud.ffire = packbuf[10];
-
-            copybufbyte(packbuf+10,boardfilename,packbufleng-11);
-            boardfilename[packbufleng-11] = 0;
-
-            for(i=connecthead;i>=0;i=connectpoint2[i])
-            {
-                resetweapons(i);
-                resetinventory(i);
-            }
-
-            newgame(ud.volume_number,ud.level_number,ud.player_skill);
-            if (enterlevel(MODE_GAME)) backtomenu();
             break;
 
         case 16:
@@ -2062,18 +2090,18 @@ void operatefta(void)
 
     if (ps[screenpeek].ftq == 115 || ps[screenpeek].ftq == 116)
     {
-        k = quotebot;
-        for(i=0;i<MAXUSERQUOTES;i++)
-        {
-            if (user_quote_time[i] <= 0) break;
-            k -= 8;
-            l = Bstrlen(user_quote[i]);
-            while(l > TEXTWRAPLEN)
-            {
-                l -= TEXTWRAPLEN;
-                k -= scale(8,200,ScreenHeight);
-            }
-        }
+        k = quotebot-8;
+        /*        for(i=0;i<MAXUSERQUOTES;i++)
+                {
+                    if (user_quote_time[i] <= 0) break;
+                    k -= 8;
+                    l = Bstrlen(user_quote[i]);
+                    while(l > TEXTWRAPLEN)
+                    {
+                        l -= TEXTWRAPLEN;
+                        k -= 8;
+                    }
+                } */
         k -= 4;
     }
 
@@ -6809,9 +6837,10 @@ FOUNDCHEAT:
                         tempbuf[8] = ud.m_coop;
                         tempbuf[9] = ud.m_marker;
                         tempbuf[10] = ud.m_ffire;
+                        tempbuf[11] = ud.m_noexits;
 
                         for(i=connecthead;i>=0;i=connectpoint2[i])
-                            sendpacket(i,tempbuf,11);
+                            sendpacket(i,tempbuf,12);
                     }
                     else ps[myconnectindex].gm |= MODE_RESTART;
 
@@ -7157,6 +7186,42 @@ void nonsharedkeys(void)
             inputloc = 0;
         }
 
+        if(gotvote[myconnectindex] == 0 && voting != -1)
+        {
+            gametext(160,60,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2);
+            if(KB_KeyPressed(sc_F1))
+            {
+                KB_ClearKeyDown(sc_F1);
+                tempbuf[0] = 18;
+                tempbuf[1] = 0;
+                tempbuf[2] = myconnectindex;
+                tempbuf[3] = 1;
+
+                for(i=connecthead;i >= 0;i=connectpoint2[i])
+                {
+                    if (i != myconnectindex) sendpacket(i,tempbuf,4);
+                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                }
+                adduserquote("VOTE CAST");
+                gotvote[myconnectindex] = 1;
+            }
+            else if(KB_KeyPressed(sc_F2))
+            {
+                KB_ClearKeyDown(sc_F2);
+                tempbuf[0] = 18;
+                tempbuf[1] = 0;
+                tempbuf[2] = myconnectindex;
+                tempbuf[3] = 0;
+
+                for(i=connecthead;i >= 0;i=connectpoint2[i])
+                {
+                    if (i != myconnectindex) sendpacket(i,tempbuf,4);
+                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                }
+                adduserquote("VOTE CAST");
+                gotvote[myconnectindex] = 1;
+            }
+        }
         if( KB_KeyPressed(sc_F1) || ( ud.show_help && ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) ) ) )
         {
             KB_ClearKeyDown(sc_F1);
@@ -9071,11 +9136,13 @@ char opendemoread(char which_demo) // 0 = mine
             if (kread(recfilep,(int32 *)&ps[i].weaponswitch,sizeof(int32)) != sizeof(int32)) goto corrupt;
             if (kread(recfilep,(int32 *)&ud.pcolor[i],sizeof(int32)) != sizeof(int32)) goto corrupt;
             ps[i].palookup = ud.pcolor[i];
+            if (kread(recfilep,(int32 *)&ud.m_noexits,sizeof(int32)) != sizeof(int32)) goto corrupt;
         } else {
             if (kread(recfilep,(int32 *)&ps[i].aim_mode,sizeof(char)) != sizeof(char)) goto corrupt;
             OSD_Printf("aim_mode: %d\n",ps[i].aim_mode);
             ps[i].auto_aim = 1;
             ps[i].weaponswitch = 3;
+            ud.m_noexits = 0;
         }
     }
 
@@ -9125,6 +9192,7 @@ void opendemowrite(void)
         fwrite((int32 *)&ps[i].auto_aim,sizeof(int32),1,frecfilep);		// JBF 20031126
         fwrite(&ps[i].weaponswitch,sizeof(int32),1,frecfilep);
         fwrite(&ud.pcolor[i],sizeof(int32),1,frecfilep);
+        fwrite((int32 *)&ud.m_noexits,sizeof(int32),1,frecfilep);
     }
 
     totalreccnt = 0;
@@ -9992,7 +10060,7 @@ char domovethings(void)
         adduserquote(buf);
         Bstrcpy(fta_quotes[116],buf);
 
-        ps[myconnectindex].ftq = 116, ps[myconnectindex].fta = 60;
+        ps[myconnectindex].ftq = 116, ps[myconnectindex].fta = 180;
 
         if(j < 0 && networkmode == 0 )
             gameexit( "The server/master player just quit the game; disconnected.");

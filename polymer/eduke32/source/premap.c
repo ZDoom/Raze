@@ -1461,6 +1461,8 @@ void resetmys(void)
 
 extern void adduserquote(char *daquote);
 
+extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting;
+
 int enterlevel(char g)
 {
     short i;
@@ -1475,6 +1477,11 @@ int enterlevel(char g)
     ud.coop = ud.m_coop;
     ud.marker = ud.m_marker;
     ud.ffire = ud.m_ffire;
+    ud.noexits = ud.m_noexits;
+
+    voting = -1;
+    Bmemset(votes,0,sizeof(votes));
+    Bmemset(gotvote,0,sizeof(gotvote));
 
     if( (g&MODE_DEMO) == 0 && ud.recstat == 2)
         ud.recstat = 0;

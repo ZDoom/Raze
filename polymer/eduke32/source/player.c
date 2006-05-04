@@ -731,7 +731,7 @@ short shoot(short i,short atwith)
                 if(hitspr >= 0)
                 {
                     checkhitsprite(hitspr,k);
-                    if( sprite[hitspr].picnum == APLAYER && (!(gametype_flags[ud.coop] & GAMETYPE_FLAG_COOP) || ud.ffire == 1) )
+                    if( sprite[hitspr].picnum == APLAYER && (!(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) || ud.ffire == 1) )
                     {
                         l = spawn(k,JIBS6);
                         sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -1237,7 +1237,7 @@ DOSKIPBULLETHOLE:
                 if(hitspr >= 0)
                 {
                     checkhitsprite(hitspr,k);
-                    if( sprite[hitspr].picnum == APLAYER && (!(gametype_flags[ud.coop]&GAMETYPE_FLAG_COOP ) || ud.ffire == 1) )
+                    if( sprite[hitspr].picnum == APLAYER && (!(gametype_flags[ud.coop]&GAMETYPE_FLAG_PLAYERSFRIENDLY ) || ud.ffire == 1) )
                     {
                         l = spawn(k,JIBS6);
                         sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -3460,10 +3460,55 @@ void processinput(short snum)
                         Bsprintf(fta_quotes[116],"KILLED %s",&ud.user_name[snum][0]);
                         FTA(116,&ps[p->frag_ps]);
                     }
-                    Bsprintf(tempbuf,"%s WAS KILLED BY %s",&ud.user_name[snum][0],&ud.user_name[p->frag_ps][0]);
+                    char *s[] = {
+                                    "%s WAS KICKED TO THE CURB BY %s",
+                                    "%s WAS PICKED OFF BY %s",
+                                    "%s TOOK %s'S SHOT TO THE FACE",
+                                    "%s DANCED THE CHAINGUN CHA-CHA WITH %s",
+                                    "%s TRIED TO MAKE A BONG OUT OF %s'S ROCKET",
+                                    "%s TOOK A FEW TOO MANY HITS OFF OF %s'S PIPE",
+                                    "%s FELT THE EFFECTS OF %s'S CORPORATE DOWNSIZING",
+                                    "%s WAS TOO COOL FOR %s",
+                                    "%s HAD HIS HORIZONS EXPANDED BY %s",
+                                };
+                    switch(dynamictostatic[hittype[p->i].picnum]) {
+                    case KNEE__STATIC:
+                        if(hittype[p->i].temp_data[1] == 1)
+                            i = 7;
+                        else i = 0;
+                        break;
+                    case SHOTSPARK1__STATIC:
+                        switch(ps[p->frag_ps].curr_weapon)
+                        {
+                        default:
+                        case PISTOL_WEAPON:
+                            i = 1;
+                            break;
+                        case SHOTGUN_WEAPON:
+                            i = 2;
+                            break;
+                        case CHAINGUN_WEAPON:
+                            i = 3;
+                            break;
+                        }
+                        break;
+                    case RPG__STATIC: i = 4; break;
+                    case RADIUSEXPLOSION__STATIC: i = 5; break;
+                    case SHRINKSPARK__STATIC: i = 6; break;
+                    case GROWSPARK__STATIC: i = 8; break;
+                    default: i = 0; break;
+                    }
+                    initprintf("%d\n",dynamictostatic[hittype[p->i].picnum]);
+                    Bsprintf(tempbuf,s[i],&ud.user_name[snum][0],&ud.user_name[p->frag_ps][0]);
                     adduserquote(tempbuf);
                 }
-                else p->fraggedself++;
+                else
+                {
+                    char *s[] = { "%s KILLED HIMSELF.  WHAT A TOOL!","%s TRIED TO LEAVE" };
+                    p->fraggedself++;
+                    Bsprintf(tempbuf,(hittype[p->i].picnum==NUKEBUTTON)?s[1]:s[0],&ud.user_name[snum][0]);
+                    adduserquote(tempbuf);
+                }
 
                 if(myconnectindex == connecthead)
                 {

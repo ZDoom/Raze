@@ -325,6 +325,10 @@ int loadplayer(signed char spot)
 
     if (kdfread(&dynamictostatic[0],sizeof(dynamictostatic[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
 
+    if (kdfread(&ud.noexits,sizeof(ud.noexits),1,fil) != 1) goto corrupt;
+    ud.m_noexits = ud.noexits;
+
+
     if(ReadGameVars(fil)) goto corrupt;
 
     kclose(fil);
@@ -695,6 +699,8 @@ int saveplayer(signed char spot)
     }
 
     dfwrite(&dynamictostatic[0],sizeof(dynamictostatic[0]),MAXTILES,fil);
+
+    dfwrite(&ud.noexits,sizeof(ud.noexits),1,fil);
 
     SaveGameVars(fil);
 
