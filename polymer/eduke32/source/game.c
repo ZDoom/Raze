@@ -448,7 +448,7 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
 
             case 1: // call map vote
                 voting = packbuf[2];
-                Bsprintf(tempbuf,"%s HAS CALLED A VOTE FOR MAP %s",ud.user_name[packbuf[2]],level_names[packbuf[3]*11 + packbuf[4]]);
+                Bsprintf(tempbuf,"%s HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[packbuf[2]],level_names[packbuf[3]*11 + packbuf[4]],packbuf[3]+1,packbuf[4]+1);
                 adduserquote(tempbuf);
                 Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
                 adduserquote(tempbuf);
@@ -7023,6 +7023,29 @@ void nonsharedkeys(void)
         CONTROL_GetInput( &noshareinfo );
     }
 
+    if(gotvote[myconnectindex] == 0 && voting != -1)
+    {
+        gametext(160,60,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2);
+
+        if(KB_KeyPressed(sc_F1) || KB_KeyPressed(sc_F2) || ud.autovote)
+        {
+            tempbuf[0] = 18;
+            tempbuf[1] = 0;
+            tempbuf[2] = myconnectindex;
+            tempbuf[3] = (KB_KeyPressed(sc_F1) || ud.autovote-1);
+
+            for(i=connecthead;i >= 0;i=connectpoint2[i])
+            {
+                if (i != myconnectindex) sendpacket(i,tempbuf,4);
+                if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+            }
+            adduserquote("VOTE CAST");
+            gotvote[myconnectindex] = 1;
+            KB_ClearKeyDown(sc_F1);
+            KB_ClearKeyDown(sc_F2);
+        }
+    }
+
     if( KB_KeyPressed( sc_F12 ) )
     {
         KB_ClearKeyDown( sc_F12 );
@@ -7186,42 +7209,6 @@ void nonsharedkeys(void)
             inputloc = 0;
         }
 
-        if(gotvote[myconnectindex] == 0 && voting != -1)
-        {
-            gametext(160,60,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2);
-            if(KB_KeyPressed(sc_F1))
-            {
-                KB_ClearKeyDown(sc_F1);
-                tempbuf[0] = 18;
-                tempbuf[1] = 0;
-                tempbuf[2] = myconnectindex;
-                tempbuf[3] = 1;
-
-                for(i=connecthead;i >= 0;i=connectpoint2[i])
-                {
-                    if (i != myconnectindex) sendpacket(i,tempbuf,4);
-                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                }
-                adduserquote("VOTE CAST");
-                gotvote[myconnectindex] = 1;
-            }
-            else if(KB_KeyPressed(sc_F2))
-            {
-                KB_ClearKeyDown(sc_F2);
-                tempbuf[0] = 18;
-                tempbuf[1] = 0;
-                tempbuf[2] = myconnectindex;
-                tempbuf[3] = 0;
-
-                for(i=connecthead;i >= 0;i=connectpoint2[i])
-                {
-                    if (i != myconnectindex) sendpacket(i,tempbuf,4);
-                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                }
-                adduserquote("VOTE CAST");
-                gotvote[myconnectindex] = 1;
-            }
-        }
         if( KB_KeyPressed(sc_F1) || ( ud.show_help && ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) ) ) )
         {
             KB_ClearKeyDown(sc_F1);

@@ -638,6 +638,13 @@ void DoUserDef(char bSet, long lLabelID, long lVar2, short sActor, short sPlayer
             SetGameVarID((int)lVar2, ud.noexits, sActor, sPlayer);
         break;
 
+    case USERDEFS_AUTOVOTE:
+        if(bSet)
+            ud.autovote = lValue;
+        else
+            SetGameVarID((int)lVar2, ud.autovote, sActor, sPlayer);
+        break;
+
     default:
         break;
     }

@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "compat.h"
- 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -301,11 +301,12 @@ int  length, num;
 } SAMPLE;
 
 struct animwalltype {
-    short wallnum;
-    long tag;
+short wallnum;
+long tag;
 };
 
 extern struct animwalltype animwall[MAXANIMWALLS];
+
 extern short numanimwalls,probey,lastprobey;
 
 extern char typebuflen,typebuf[141];
@@ -338,8 +339,8 @@ struct user_defs {
     long reccnt;
 
     int32 runkey_mode,statusbarscale,mouseaiming,weaponswitch,drawweapon;   // JBF 20031125
-	int32 brightskins,democams,color,pcolor[MAXPLAYERS],msgdisptime,statusbarmode;
-    int32 m_noexits,noexits;
+    int32 brightskins,democams,color,pcolor[MAXPLAYERS],msgdisptime,statusbarmode;
+    int32 m_noexits,noexits,autovote;
 
     int32 entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
     int32 coords,tickrate,levelstats,m_coop,coop,screen_size,lockout,crosshair;

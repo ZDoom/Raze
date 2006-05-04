@@ -2303,8 +2303,7 @@ cheat_for_port_credits:
                                "HUD weapon",
                                "FPS counter",
                                "-",
-                               "-",
-                               "-",
+                               "Automatic voting",
                                "-",
                                "-",
                                "-",
@@ -2358,7 +2357,11 @@ cheat_for_port_credits:
                 case 2: if (x==io) ud.tickrate = 1-ud.tickrate;
                     modval(0,1,(int *)&ud.tickrate,1,probey==io);
                     gametextpal(d,yy, ud.tickrate ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 3: if (x==io) cmenu(200); break;
+            case 3: if (x==io) { ud.autovote = (ud.autovote == 2) ? 0 : ud.autovote+1; }
+                    modval(0,2,(int *)&ud.autovote,1,probey==io);
+                    { char *s[] = { "Off", "Vote No", "Vote Yes" };
+                        gametextpal(d,yy, s[ud.autovote], MENUHIGHLIGHT(io), 0); break; }
+                case 4: if (x==io) cmenu(200); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
@@ -4058,11 +4061,12 @@ VOLUME_ALL_40x:
                         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                     }
                     voting = -1;
-                    adduserquote("VOTE FAILED");
-                    cmenu(0);
+                    Bsprintf(fta_quotes[116],"VOTE FAILED");
+                    FTA(116,&ps[myconnectindex]);
+                    ps[myconnectindex].gm &= ~MODE_MENU;
                 }
             } else {
-                gametext(160,60,"WAITING FOR VOTES",0,2);
+                gametext(160,90,"WAITING FOR VOTES",0,2);
             }
             break;
         }

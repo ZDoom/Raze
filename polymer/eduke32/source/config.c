@@ -235,6 +235,7 @@ void CONFIG_SetDefaults( void )
     ud.msgdisptime = 640;
     ud.brightness = 16;
     ud.statusbarmode = 0;
+    ud.autovote = 0;
 
     ShowOpponentWeapons = 0;
     Bstrcpy(ud.rtsname, "DUKE.RTS");
@@ -611,9 +612,11 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "DemoCams",&ud.democams);
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         SCRIPT_GetNumber( scripthandle, "Misc", "Color",&ud.color);
+        ps[0].palookup = ud.pcolor[0] = ud.color;
         SCRIPT_GetNumber( scripthandle, "Misc", "MPMessageDisplayTime",&ud.msgdisptime);
         SCRIPT_GetNumber( scripthandle, "Misc", "StatusBarMode",&ud.statusbarmode);
-        ps[0].palookup = ud.pcolor[0] = ud.color;
+        SCRIPT_GetNumber( scripthandle, "Misc", "AutoVote",&ud.autovote);
+
         dummy = useprecache; SCRIPT_GetNumber( scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
 
         // weapon choices are defaulted in checkcommandline, which may override them
@@ -739,6 +742,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Misc", "Color",ud.color,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "MPMessageDisplayTime",ud.msgdisptime,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "StatusBarMode",ud.statusbarmode,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "AutoVote",ud.autovote,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls", "MouseAimingFlipped",ud.mouseflip,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
     //SCRIPT_PutNumber( scripthandle, "Controls","GameMouseAiming",(int32) ps[myconnectindex].aim_mode,false,false);
