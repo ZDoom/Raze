@@ -7032,7 +7032,7 @@ void nonsharedkeys(void)
             tempbuf[0] = 18;
             tempbuf[1] = 0;
             tempbuf[2] = myconnectindex;
-            tempbuf[3] = (KB_KeyPressed(sc_F1) || ud.autovote-1);
+            tempbuf[3] = (KB_KeyPressed(sc_F1) || ud.autovote?ud.autovote-1:0);
 
             for(i=connecthead;i >= 0;i=connectpoint2[i])
             {
@@ -10046,6 +10046,13 @@ char domovethings(void)
         Bsprintf(buf,"%s is history!",ud.user_name[i]);
         adduserquote(buf);
         Bstrcpy(fta_quotes[116],buf);
+
+        if(voting == i)
+        {
+            Bmemset(votes,0,sizeof(votes));
+            Bmemset(gotvote,0,sizeof(gotvote));
+            voting = -1;
+        }
 
         ps[myconnectindex].ftq = 116, ps[myconnectindex].fta = 180;
 

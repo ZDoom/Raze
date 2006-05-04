@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Savage Baggage Masters
 
 #include "duke3d.h"
+#include "osd.h"
 
 long g_currentweapon;
 long g_gun_pos;
@@ -3466,47 +3467,89 @@ void processinput(short snum)
                                     "%s TOOK %s'S SHOT TO THE FACE",
                                     "%s DANCED THE CHAINGUN CHA-CHA WITH %s",
                                     "%s TRIED TO MAKE A BONG OUT OF %s'S ROCKET",
-                                    "%s TOOK A FEW TOO MANY HITS OFF OF %s'S PIPE",
+                                    "%s EXPLODED.  BLAME %s!",
                                     "%s FELT THE EFFECTS OF %s'S CORPORATE DOWNSIZING",
                                     "%s WAS TOO COOL FOR %s",
-                                    "%s HAD HIS HORIZONS EXPANDED BY %s",
+                                    "%s EXPANDED HIS HORIZONS WITH HELP FROM %s",
+                                    "%s THINKS %s SHOULD CHECK HIS GLASSES",
+
+                                    "%s TOOK %s'S BOOT TO THE HEAD",
+                                    "%s FELL VICTIM TO %s's MAGIC AUTOAIMING PISTOL",
+                                    "%s WAS CHASED OFF OF %s'S PORCH",
+                                    "%s COULDN'T DANCE FAST ENOUGH FOR %s",
+                                    "%s TRIED TO OUTRUN %s'S ROCKET",
+                                    "%s FINALLY FOUND %s'S HIDDEN WMDS",
+                                    "%s SHOULDN'T HAVE DELETED ALL THE VIAGRA SPAM FROM %s",
+                                    "%s HAD TO SIT AND LISTEN TO %s QUOTE TERMINATOR 2 AGAIN",
+                                    "%s INFLATED FASTER THAN GASOLINE PRICES AND %s POCKETED THE PROFIT",
+                                    "%s WISHES %s HAD PRACTICED BEFORE PLAYING",
+
+                                    "%s WAS WALKED ALL OVER BY %s",
+                                    "%s WAS PICKED OFF BY %s",
+                                    "%s MASQUERADED AS QUAIL FOR VICE PRESIDENT %s",
+                                    "%s HELPED %s RE-ENACT SCARFACE",
+                                    "%s BECAME THE SALSA FOR %s'S CHIPS",
+                                    "%s WONDERS WHY %s HATES FREEDOM",
+                                    "%s'S HEIGHT DROPPED FASTER THAN %s'S ENRON STOCK",
+                                    "%s WENT TO PIECES.  %s, HOW COULD YOU?",
+                                    "%s EXPANDED HIS HORIZONS WITH HELP FROM %s",
+                                    "%s WONDERS IF %s WILL EVER KILL ENEMIES, NOT TEAMMATES",
                                 };
-                    switch(dynamictostatic[hittype[p->i].picnum]) {
-                    case KNEE__STATIC:
-                        if(hittype[p->i].temp_data[1] == 1)
-                            i = 7;
-                        else i = 0;
-                        break;
-                    case SHOTSPARK1__STATIC:
-                        switch(ps[p->frag_ps].curr_weapon)
-                        {
-                        default:
-                        case PISTOL_WEAPON:
-                            i = 1;
+
+                    if(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY)
+                        i = 9;
+                    else
+                    {
+                        switch(dynamictostatic[hittype[p->i].picnum]) {
+                        case KNEE__STATIC:
+                            if(hittype[p->i].temp_data[1] == 1)
+                                i = 7;
+                            else i = 0;
                             break;
-                        case SHOTGUN_WEAPON:
-                            i = 2;
+                        case SHOTSPARK1__STATIC:
+                            switch(ps[p->frag_ps].curr_weapon)
+                            {
+                            default:
+                            case PISTOL_WEAPON:
+                                i = 1;
+                                break;
+                            case SHOTGUN_WEAPON:
+                                i = 2;
+                                break;
+                            case CHAINGUN_WEAPON:
+                                i = 3;
+                                break;
+                            }
                             break;
-                        case CHAINGUN_WEAPON:
-                            i = 3;
-                            break;
+                        case RPG__STATIC: i = 4; break;
+                        case RADIUSEXPLOSION__STATIC: i = 5; break;
+                        case SHRINKSPARK__STATIC: i = 6; break;
+                        case GROWSPARK__STATIC: i = 8; break;
+                        default: i = 0; break;
                         }
-                        break;
-                    case RPG__STATIC: i = 4; break;
-                    case RADIUSEXPLOSION__STATIC: i = 5; break;
-                    case SHRINKSPARK__STATIC: i = 6; break;
-                    case GROWSPARK__STATIC: i = 8; break;
-                    default: i = 0; break;
                     }
-                    initprintf("%d\n",dynamictostatic[hittype[p->i].picnum]);
-                    Bsprintf(tempbuf,s[i],&ud.user_name[snum][0],&ud.user_name[p->frag_ps][0]);
-                    adduserquote(tempbuf);
+                    Bsprintf(tempbuf,s[i+(mulscale(krand(), 3, 16)*10)],&ud.user_name[snum][0],&ud.user_name[p->frag_ps][0]);
+                    if(ScreenWidth >= 640)
+                        adduserquote(tempbuf);
+                    else OSD_Printf("%s\n",tempbuf);
                 }
                 else
                 {
-                    char *s[] = { "%s KILLED HIMSELF.  WHAT A TOOL!","%s TRIED TO LEAVE" };
+                    char *s[] = {
+                                    "%s KILLED HIMSELF.  WHAT A TOOL!",
+                                    "%s TRIED TO LEAVE",
+                                    "%s GOT FRAGGED BY A MONSTER.  IT WAS PROBABLY A LIZTROOP."
+                                };
+
                     p->fraggedself++;
-                    Bsprintf(tempbuf,(hittype[p->i].picnum==NUKEBUTTON)?s[1]:s[0],&ud.user_name[snum][0]);
+
+                    if(badguypic(sprite[p->wackedbyactor].picnum))
+                        i = 2;
+                    else if(hittype[p->i].picnum == NUKEBUTTON)
+                        i = 1;
+                    else i = 0;
+
+                    Bsprintf(tempbuf,s[i],&ud.user_name[snum][0]);
                     adduserquote(tempbuf);
                 }
 
