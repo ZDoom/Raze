@@ -166,7 +166,29 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
 
 #define TEXTWRAPLEN (scale(35,ScreenWidth,320))
 
-int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2)
+char colstrip[1024];
+
+char *strip_color_codes(char *t)
+{
+    int i = 0;
+
+    while(*t)
+    {
+        if(*t == '^' && isdigit(*(t+1)))
+        {
+            t += 2;
+            if(isdigit(*t))
+                t++;
+            if(!(*t)) continue;
+        }
+        colstrip[i] = *t;
+        i++,t++;
+    }
+    colstrip[i] = '\0';
+    return(colstrip);
+}
+
+int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2)
 {
     short ac,newx,oldx=x;
     char centre, *oldt;
@@ -182,7 +204,13 @@ int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,shor
     {
         while(*t)
         {
-            if(*t == 32) {newx+=5;t++;continue;}
+            if(*t == '^' && isdigit(*(t+1)))
+            {
+                t += 2;
+                if(isdigit(*t)) t++;
+                if(!(*t)) continue;
+            }
+        if(*t == 32) {newx+=5;t++;continue;}
             else ac = *t - '!' + starttile;
 
             if( ac < starttile || ac > (starttile + 93) ) break;
@@ -199,7 +227,24 @@ int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,shor
 
     while(*t)
     {
-        if(*t == 32) {x+=5;t++;continue;}
+        if(*t == '^' && isdigit(*(t+1)))
+        {
+            char smallbuf[3];
+            t += 1;
+            if(isdigit(*(t+1)))
+            {
+                smallbuf[0] = *(t++);
+                smallbuf[1] = *(t++);
+                smallbuf[2] = '\0';
+                p = atol(smallbuf);
+            } else {
+                smallbuf[0] = *(t++);
+                smallbuf[1] = '\0';
+                p = atol(smallbuf);
+            }
+            if(!(*t)) continue;
+        }
+    if(*t == 32) {x+=5;t++;continue;}
         else ac = *t - '!' + starttile;
 
         if( ac < starttile || ac > (starttile + 93) )
@@ -216,34 +261,24 @@ int txgametext_(int small, int starttile, int x,int y,char *t,char s,char p,shor
     return (x);
 }
 
-inline int txgametext(int starttile, int x,int y,char *t,char s,char p,short dabits,long x1, long y1, long x2, long y2)
-{
-    return(txgametext_(0,starttile, x,y,t,s,p,dabits,x1, y1, x2, y2));
-}
-
-inline int txgametextsm(int starttile, int x,int y,char *t,char s,char p,short dabits,long x1, long y1, long x2, long y2)
-{
-    return(txgametext_(1,starttile, x,y,t,s,p,dabits,x1, y1, x2, y2));
-}
-
 inline int gametext(int x,int y,char *t,char s,short dabits)
 {
-    return(txgametext_(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+    return(gametext_(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+}
+
+inline int gametextpal(int x,int y,char *t,char s,char p)
+{
+    return(gametext_(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1));
 }
 
 inline int mpgametext(int y,char *t,char s,short dabits)
 {
     if(xdim >= 640 && ydim >= 480)
-        return(txgametextsm(STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
-    else return(txgametext(STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+        return(gametext_(1,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+    else return(gametext_(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
 }
 
-inline int gametextpal(int x,int y,char *t,char s,char p)
-{
-    return(txgametext(STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1));
-}
-
-int minitextshade(int x,int y,char *t,char s,char p,short sb)
+int minitext_(int x,int y,char *t,char s,char p,short sb)
 {
     short ac;
     char ch,cmode;
@@ -266,9 +301,14 @@ int minitextshade(int x,int y,char *t,char s,char p,short sb)
     return (x);
 }
 
+inline int minitextshade(int x,int y,char *t,char s,char p,short sb)
+{
+    return (minitext_(x,y,(char *)strip_color_codes(t),s,p,sb));
+}
+
 inline int minitext(int x,int y,char *t,char p,short sb)
 {
-    return (minitextshade(x,y,t,0,p,sb));
+    return (minitext_(x,y,(char *)strip_color_codes(t),0,p,sb));
 }
 
 void gamenumber(long x,long y,long n,char s)
@@ -321,7 +361,7 @@ void adduserquote(char *daquote)
         user_quote_time[i] = user_quote_time[i-1];
     }
     strcpy(user_quote[0],daquote);
-    OSD_Printf("%s\n", daquote);
+    OSD_Printf("%s\n",strip_color_codes(daquote));
 
     user_quote_time[0] = ud.msgdisptime;
     pub = NUMPAGES;
@@ -2227,7 +2267,7 @@ else if(ud.recstat == 2) { if (frecfilep) fclose(frecfilep); }  // JBF: fixes cr
     exit(0);
 }
 
-short inputloc = 0;
+char inputloc = 0;
 
 short strget_(int small,short x,short y,char *t,short dalen,short c)
 {
@@ -2332,7 +2372,7 @@ void typemode(void)
                 sendmessagecommand = 2;
 
             strcat(recbuf,ud.user_name[myconnectindex]);
-            strcat(recbuf,": ");
+            strcat(recbuf,":^0 ");
             strcat(recbuf,typebuf);
             j = strlen(recbuf);
             recbuf[j] = 0;
@@ -8413,8 +8453,8 @@ void Startup(void)
 
     if (CommandName)
     {
-        Bstrncpy(myname, CommandName, 10);
-        myname[10] = 0;
+        Bstrncpy(myname, CommandName, 9);
+        myname[10] = '\0';
     }
 
     if (CommandMap) {

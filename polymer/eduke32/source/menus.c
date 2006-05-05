@@ -703,10 +703,22 @@ void menus(void)
                 break;
             }
         } else {
-            x = strget(200,50-9,buf,10,0);
+            x = strget(200,50-9,buf,30,0);
+
+            while(Bstrlen(strip_color_codes(buf)) > 9)
+            {
+                buf[Bstrlen(buf)-1] = '\0';
+                inputloc--;
+            }
+
             if (x) {
                 if (x == 1) {
                     if(buf[0]) {
+                        if(Bstrlen(strip_color_codes(buf)) > 9)
+                        {
+                            Bstrncpy(buf,strip_color_codes(buf),9);
+                            buf[10] = '\0';
+                        }
                         Bstrcpy(myname,buf);
                     }
                     // send name update

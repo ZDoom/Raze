@@ -3448,6 +3448,41 @@ void processinput(short snum)
             {
                 if(p->frag_ps != snum)
                 {
+                    char *s[] = {
+                                    "%^2%s WAS KICKED TO THE CURB BY %s",
+                                    "%^2%s WAS PICKED OFF BY %s",
+                                    "%^2%s TOOK %s'S SHOT TO THE FACE",
+                                    "%^2%s DANCED THE CHAINGUN CHA-CHA WITH %s",
+                                    "%^2%s TRIED TO MAKE A BONG OUT OF %s'S ROCKET",
+                                    "%^2%s EXPLODED.  BLAME %s!",
+                                    "%^2%s FELT THE EFFECTS OF %s'S CORPORATE DOWNSIZING",
+                                    "%^2%s WAS TOO COOL FOR %s",
+                                    "%^2%s EXPANDED HIS HORIZONS WITH HELP FROM %s",
+                                    "%^2%s THINKS %s SHOULD CHECK HIS GLASSES",
+
+                                    "%^2%s TOOK %s'S BOOT TO THE HEAD",
+                                    "%^2%s FELL VICTIM TO %s's MAGIC AUTOAIMING PISTOL",
+                                    "%^2%s WAS CHASED OFF OF %s'S PORCH",
+                                    "%^2%s COULDN'T DANCE FAST ENOUGH FOR %s",
+                                    "%^2%s TRIED TO OUTRUN %s'S ROCKET",
+                                    "%^2%s FINALLY FOUND %s'S HIDDEN WMDS",
+                                    "%^2%s SHOULDN'T HAVE DELETED ALL THE VIAGRA SPAM FROM %s",
+                                    "%^2%s HAD TO SIT AND LISTEN TO %s QUOTE TERMINATOR 2 AGAIN",
+                                    "%^2%s INFLATED FASTER THAN GASOLINE PRICES AND %s POCKETED THE PROFIT",
+                                    "%^2%s WISHES %s HAD PRACTICED BEFORE PLAYING",
+
+                                    "%^2%s WAS WALKED ALL OVER BY %s",
+                                    "%^2%s WAS PICKED OFF BY %s",
+                                    "%^2%s MASQUERADED AS QUAIL FOR VICE PRESIDENT %s",
+                                    "%^2%s HELPED %s RE-ENACT SCARFACE",
+                                    "%^2%s BECAME THE SALSA FOR %s'S CHIPS",
+                                    "%^2%s WONDERS WHY %s HATES FREEDOM",
+                                    "%^2%s'S HEIGHT DROPPED FASTER THAN %s'S ENRON STOCK",
+                                    "%^2%s WENT TO PIECES.  %s, HOW COULD YOU?",
+                                    "%^2%s EXPANDED HIS HORIZONS WITH HELP FROM %s",
+                                    "%^2%s WONDERS IF %s WILL EVER KILL ENEMIES, NOT TEAMMATES",
+                                };
+
                     ps[p->frag_ps].frag++;
                     frags[p->frag_ps][snum]++;
 
@@ -3461,40 +3496,6 @@ void processinput(short snum)
                         Bsprintf(fta_quotes[116],"KILLED %s",&ud.user_name[snum][0]);
                         FTA(116,&ps[p->frag_ps]);
                     }
-                    char *s[] = {
-                                    "%s WAS KICKED TO THE CURB BY %s",
-                                    "%s WAS PICKED OFF BY %s",
-                                    "%s TOOK %s'S SHOT TO THE FACE",
-                                    "%s DANCED THE CHAINGUN CHA-CHA WITH %s",
-                                    "%s TRIED TO MAKE A BONG OUT OF %s'S ROCKET",
-                                    "%s EXPLODED.  BLAME %s!",
-                                    "%s FELT THE EFFECTS OF %s'S CORPORATE DOWNSIZING",
-                                    "%s WAS TOO COOL FOR %s",
-                                    "%s EXPANDED HIS HORIZONS WITH HELP FROM %s",
-                                    "%s THINKS %s SHOULD CHECK HIS GLASSES",
-
-                                    "%s TOOK %s'S BOOT TO THE HEAD",
-                                    "%s FELL VICTIM TO %s's MAGIC AUTOAIMING PISTOL",
-                                    "%s WAS CHASED OFF OF %s'S PORCH",
-                                    "%s COULDN'T DANCE FAST ENOUGH FOR %s",
-                                    "%s TRIED TO OUTRUN %s'S ROCKET",
-                                    "%s FINALLY FOUND %s'S HIDDEN WMDS",
-                                    "%s SHOULDN'T HAVE DELETED ALL THE VIAGRA SPAM FROM %s",
-                                    "%s HAD TO SIT AND LISTEN TO %s QUOTE TERMINATOR 2 AGAIN",
-                                    "%s INFLATED FASTER THAN GASOLINE PRICES AND %s POCKETED THE PROFIT",
-                                    "%s WISHES %s HAD PRACTICED BEFORE PLAYING",
-
-                                    "%s WAS WALKED ALL OVER BY %s",
-                                    "%s WAS PICKED OFF BY %s",
-                                    "%s MASQUERADED AS QUAIL FOR VICE PRESIDENT %s",
-                                    "%s HELPED %s RE-ENACT SCARFACE",
-                                    "%s BECAME THE SALSA FOR %s'S CHIPS",
-                                    "%s WONDERS WHY %s HATES FREEDOM",
-                                    "%s'S HEIGHT DROPPED FASTER THAN %s'S ENRON STOCK",
-                                    "%s WENT TO PIECES.  %s, HOW COULD YOU?",
-                                    "%s EXPANDED HIS HORIZONS WITH HELP FROM %s",
-                                    "%s WONDERS IF %s WILL EVER KILL ENEMIES, NOT TEAMMATES",
-                                };
 
                     if(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY)
                         i = 9;
@@ -3528,17 +3529,24 @@ void processinput(short snum)
                         default: i = 0; break;
                         }
                     }
-                    Bsprintf(tempbuf,s[i+(mulscale(krand(), 3, 16)*10)],&ud.user_name[snum][0],&ud.user_name[p->frag_ps][0]);
-                    if(ScreenWidth >= 640)
-                        adduserquote(tempbuf);
-                    else OSD_Printf("%s\n",tempbuf);
+                    {
+                        char name1[32],name2[32];
+
+                        Bstrcpy(name1,strip_color_codes(&ud.user_name[snum][0]));
+                        Bstrcpy(name2,strip_color_codes(&ud.user_name[p->frag_ps][0]));
+
+                        Bsprintf(tempbuf,s[i+(mulscale(krand(), 3, 16)*10)],name1,name2);
+                        if(ScreenWidth >= 640)
+                            adduserquote(tempbuf);
+                        else OSD_Printf("%s\n",strip_color_codes(tempbuf));
+                    }
                 }
                 else
                 {
                     char *s[] = {
-                                    "%s KILLED HIMSELF.  WHAT A TOOL!",
-                                    "%s TRIED TO LEAVE",
-                                    "%s GOT FRAGGED BY A MONSTER.  IT WAS PROBABLY A LIZTROOP."
+                                    "%^2%s KILLED HIMSELF.  WHAT A TOOL!",
+                                    "%^2%s TRIED TO LEAVE",
+                                    "%^2%s GOT FRAGGED BY A MONSTER.  IT WAS PROBABLY A LIZTROOP."
                                 };
 
                     p->fraggedself++;
@@ -3549,7 +3557,7 @@ void processinput(short snum)
                         i = 1;
                     else i = 0;
 
-                    Bsprintf(tempbuf,s[i],&ud.user_name[snum][0]);
+                    Bsprintf(tempbuf,s[i],strip_color_codes(&ud.user_name[snum][0]));
                     adduserquote(tempbuf);
                 }
 

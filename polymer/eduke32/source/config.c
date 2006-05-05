@@ -569,8 +569,12 @@ void CONFIG_ReadSetup( void )
 
         SCRIPT_GetString( scripthandle, "Comm Setup","PlayerName",&myname[0]);
 
-        if(Bstrlen(myname) > 9)
-            myname[10] = 0;
+        if(Bstrlen(strip_color_codes(myname)) > 9)
+        {
+            Bstrcpy(tempbuf,myname);
+            Bstrncpy(myname,strip_color_codes(tempbuf),9);
+            myname[10] = '\0';
+        }
 
         SCRIPT_GetString( scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
@@ -703,7 +707,7 @@ void CONFIG_WriteSetup( void )
 
     SCRIPT_PutNumber( scripthandle, "Controls","AimingFlag",(long) myaimmode,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","AutoAim",AutoAim,false,false);
-// SCRIPT_PutNumber( scripthandle, "Controls","GameMouseAiming",(int32) ps[myconnectindex].aim_mode,false,false);
+    // SCRIPT_PutNumber( scripthandle, "Controls","GameMouseAiming",(int32) ps[myconnectindex].aim_mode,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls", "MouseAimingFlipped",ud.mouseflip,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","RunKeyBehaviour",ud.runkey_mode,false,false);

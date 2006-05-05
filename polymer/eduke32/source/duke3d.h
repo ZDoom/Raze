@@ -435,7 +435,7 @@ extern short int global_random;
 extern long scaredfallz;
 extern char buf[1024]; //My own generic input buffer
 
-#define MAXQUOTELEN 64
+#define MAXQUOTELEN 128
 
 extern char *fta_quotes[MAXQUOTES],*redefined_quotes[MAXQUOTES];
 extern char scantoasc[128],ready2send;

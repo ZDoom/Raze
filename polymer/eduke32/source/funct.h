@@ -315,7 +315,7 @@ extern void setgamepalette(struct player_struct *player, char *pal, int set);
 extern void fadepal(int r, int g, int b, int start, int end, int step);
 
 extern int minitextshade(int x,int y,char *t,char s,char p,short sb);
-extern int txgametext(int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2);
+extern int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2);
 extern void txdigitalnumber(short starttile, long x,long y,long n,char s,char pal,char cs,long x1, long y1, long x2, long y2);
 extern long txdist(spritetype *s1,spritetype *s2);
 extern void myosx(long x,long y,short tilenum,signed char shade,char orientation);
@@ -356,5 +356,6 @@ extern void sendboardname(void);
 extern void sendquit(void);
 
 extern void adduserquote(char *daquote);
+extern char *strip_color_codes(char *t);
 
 #endif // __funct_h__

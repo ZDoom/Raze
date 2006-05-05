@@ -4675,7 +4675,7 @@ SKIPJIBS:
                 y2=GetGameVarID(*insptr++,g_i,g_p);
             }
             if (tw == CON_MINITEXT && fta_quotes[q] != NULL) minitextshade(x,y,fta_quotes[q],shade,pal,26);
-            else if (tw == CON_GAMETEXT && fta_quotes[q] != NULL) txgametext(tilenum,x>>1,y,fta_quotes[q],shade,pal,orientation,x1,y1,x2,y2);
+            else if (tw == CON_GAMETEXT && fta_quotes[q] != NULL) gametext_(0,tilenum,x>>1,y,fta_quotes[q],shade,pal,orientation,x1,y1,x2,y2);
             else if (tw == CON_DIGITALNUMBER) txdigitalnumber(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2);
             if((tw == CON_MINITEXT || tw == CON_GAMETEXT) && fta_quotes[q] == NULL)
                 OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,q);
