@@ -237,6 +237,7 @@ void CONFIG_SetDefaults( void )
     ud.statusbarmode = 0;
     ud.autovote = 0;
     ud.automsg = 0;
+    ud.idplayers = 1;
 
     ShowOpponentWeapons = 0;
     Bstrcpy(ud.rtsname, "DUKE.RTS");
@@ -622,6 +623,7 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "StatusBarMode",&ud.statusbarmode);
         SCRIPT_GetNumber( scripthandle, "Misc", "AutoVote",&ud.autovote);
         SCRIPT_GetNumber( scripthandle, "Misc", "AutoMsg",&ud.automsg);
+        SCRIPT_GetNumber( scripthandle, "Misc", "IDPlayers",&ud.automsg);
 
         dummy = useprecache; SCRIPT_GetNumber( scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
 
@@ -720,6 +722,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Misc", "Crosshairs",ud.crosshair,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "DemoCams",ud.democams,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "Executions",ud.executions,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "IDPlayers",ud.idplayers,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "MPMessageDisplayTime",ud.msgdisptime,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "RunMode",RunMode,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "ShowFPS",ud.tickrate,false,false);

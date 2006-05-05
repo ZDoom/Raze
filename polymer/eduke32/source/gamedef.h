@@ -289,7 +289,8 @@ enum userdefslabels {
     USERDEFS_M_NOEXITS,
     USERDEFS_NOEXITS,
     USERDEFS_AUTOVOTE,
-    USERDEFS_AUTOMSG
+    USERDEFS_AUTOMSG,
+    USERDEFS_IDPLAYERS
 };
 
 enum sectorlabels {

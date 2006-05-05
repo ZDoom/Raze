@@ -196,7 +196,7 @@ static int probe_(int type,int x,int y,int i,int n)
 int probe(int x,int y,int i,int n) { return probe_(0,x,y,i,n); }
 int probesm(int x,int y,int i,int n) { return probe_(1,x,y,i,n); }
 
-int menutext(int x,int y,short s,short p,char *t)
+int menutext_(int x,int y,short s,short p,char *t)
 {
     short i, ac, centre;
 
@@ -309,6 +309,11 @@ int menutext(int x,int y,short s,short p,char *t)
         t++;
     }
     return (x);
+}
+
+int menutext(int x,int y,short s,short p,char *t)
+{
+    return(menutext_(x,y,s,p,strip_color_codes(t)));
 }
 
 static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short s, short pa)
@@ -2317,7 +2322,7 @@ cheat_for_port_credits:
                                "-",
                                "Automatic voting",
                                "Send MP messages to all",
-                               "-",
+                               "Display other player IDs",
                                "-",
                                "-",
                                "-",
@@ -2375,7 +2380,10 @@ cheat_for_port_credits:
                 case 4: if (x==io) ud.automsg = 1-ud.automsg;
                     modval(0,1,(int *)&ud.automsg,1,probey==io);
                     gametextpal(d,yy, ud.automsg ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 5: if (x==io) cmenu(200); break;
+                case 5: if (x==io) ud.idplayers = 1-ud.idplayers;
+                    modval(0,1,(int *)&ud.idplayers,1,probey==io);
+                    gametextpal(d,yy, ud.idplayers ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
+                case 6: if (x==io) cmenu(200); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);

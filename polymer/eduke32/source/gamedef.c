@@ -807,6 +807,7 @@ LABELS userdefslabels[]= {
                              { "noexits", USERDEFS_NOEXITS, 0, 0 },
                              { "autovote", USERDEFS_AUTOVOTE, 0, 0 },
                              { "automsg", USERDEFS_AUTOMSG, 0, 0 },
+                             { "idplayers", USERDEFS_IDPLAYERS, 0, 0 },
                              { "", -1, 0, 0  }     // END OF LIST
                          };
 
@@ -5831,6 +5832,66 @@ void loadefs(char *filenam)
         for(i=0;i<128;i++)
             if(fta_quotes[i] == NULL)
                 fta_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
+        {
+            char *ppdeathstrings[] = {
+                                         "%^2%s WAS KICKED TO THE CURB BY %s",
+                                         "%^2%s WAS PICKED OFF BY %s",
+                                         "%^2%s TOOK %s'S SHOT TO THE FACE",
+                                         "%^2%s DANCED THE CHAINGUN CHA-CHA WITH %s",
+                                         "%^2%s TRIED TO MAKE A BONG OUT OF %s'S ROCKET",
+                                         "%^2%s EXPLODED.  BLAME %s!",
+                                         "%^2%s FELT THE EFFECTS OF %s'S CORPORATE DOWNSIZING",
+                                         "%^2%s WAS TOO COOL FOR %s",
+                                         "%^2%s EXPANDED HIS HORIZONS WITH HELP FROM %s",
+                                         "%^2%s THINKS %s SHOULD CHECK HIS GLASSES",
+
+                                         "%^2%s TOOK %s'S BOOT TO THE HEAD",
+                                         "%^2%s FELL VICTIM TO %s's MAGIC AUTOAIMING PISTOL",
+                                         "%^2%s WAS CHASED OFF OF %s'S PORCH",
+                                         "%^2%s COULDN'T DANCE FAST ENOUGH FOR %s",
+                                         "%^2%s TRIED TO OUTRUN %s'S ROCKET",
+                                         "%^2%s FINALLY FOUND %s'S HIDDEN WMDS",
+                                         "%^2%s SHOULDN'T HAVE DELETED ALL THE VIAGRA SPAM FROM %s",
+                                         "%^2%s HAD TO SIT AND LISTEN TO %s QUOTE TERMINATOR 2 AGAIN",
+                                         "%^2%s BECAME A STICKY FILM ON %s'S BOOTS",
+                                         "%^2%s WISHES %s HAD PRACTICED BEFORE PLAYING",
+
+                                         "%^2%s WAS WALKED ALL OVER BY %s",
+                                         "%^2%s WAS PICKED OFF BY %s",
+                                         "%^2%s MASQUERADED AS QUAIL FOR VICE PRESIDENT %s",
+                                         "%^2%s HELPED %s RE-ENACT SCARFACE",
+                                         "%^2%s BECAME THE SALSA FOR %s'S CHIPS",
+                                         "%^2%s WONDERS WHY %s HATES FREEDOM",
+                                         "%^2%s'S HEIGHT DROPPED FASTER THAN %s'S ENRON STOCK",
+                                         "%^2%s WENT TO PIECES.  %s, HOW COULD YOU?",
+                                         "%^2%s EXPANDED HIS HORIZONS WITH HELP FROM %s",
+                                         "%^2%s WANTS TO KNOW WHY %s IS EVEN PLAYING COOP",
+                                     };
+
+            char *podeathstrings[] = {
+                                         "%^2%s KILLED HIMSELF.  WHAT A TOOL!",
+                                         "%^2%s TRIED TO LEAVE",
+                                         "%^2%s GOT FRAGGED BY A MONSTER.  IT WAS PROBABLY A LIZTROOP."
+                                     };
+
+            for(i=0;i<(signed int)(sizeof(ppdeathstrings)/sizeof(ppdeathstrings[0]));i++)
+            {
+                if(fta_quotes[i+16300] == NULL)
+                {
+                    fta_quotes[i+16300] = Bcalloc(MAXQUOTELEN,sizeof(char));
+                    Bstrcpy(fta_quotes[i+16300],ppdeathstrings[i]);
+                }
+            }
+
+            for(i=0;i<(signed int)(sizeof(podeathstrings)/sizeof(podeathstrings[0]));i++)
+            {
+                if(fta_quotes[i+16350] == NULL)
+                {
+                    fta_quotes[i+16350] = Bcalloc(MAXQUOTELEN,sizeof(char));
+                    Bstrcpy(fta_quotes[i+16350],podeathstrings[i]);
+                }
+            }
+        }
     }
 }
 
