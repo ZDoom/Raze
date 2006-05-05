@@ -2433,6 +2433,11 @@ void typemode(void)
         if(hitstate == 1)
         {
             KB_ClearKeyDown(sc_Enter);
+            if(ud.automsg)
+            {
+                if(SHIFTS_IS_PRESSED) sendmessagecommand = -1;
+                else sendmessagecommand = ud.multimode;
+            }
             ps[myconnectindex].gm |= MODE_SENDTOWHOM;
         }
         else if(hitstate == -1)

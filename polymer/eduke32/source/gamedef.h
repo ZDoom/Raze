@@ -288,7 +288,8 @@ enum userdefslabels {
     USERDEFS_STATUSBARMODE,
     USERDEFS_M_NOEXITS,
     USERDEFS_NOEXITS,
-    USERDEFS_AUTOVOTE
+    USERDEFS_AUTOVOTE,
+    USERDEFS_AUTOMSG
 };
 
 enum sectorlabels {

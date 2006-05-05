@@ -236,6 +236,7 @@ void CONFIG_SetDefaults( void )
     ud.brightness = 16;
     ud.statusbarmode = 0;
     ud.autovote = 0;
+    ud.automsg = 0;
 
     ShowOpponentWeapons = 0;
     Bstrcpy(ud.rtsname, "DUKE.RTS");
@@ -616,6 +617,7 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "MPMessageDisplayTime",&ud.msgdisptime);
         SCRIPT_GetNumber( scripthandle, "Misc", "StatusBarMode",&ud.statusbarmode);
         SCRIPT_GetNumber( scripthandle, "Misc", "AutoVote",&ud.autovote);
+        SCRIPT_GetNumber( scripthandle, "Misc", "AutoMsg",&ud.automsg);
 
         dummy = useprecache; SCRIPT_GetNumber( scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
 
@@ -698,58 +700,63 @@ void CONFIG_WriteSetup( void )
     if (scripthandle < 0)
         scripthandle = SCRIPT_Init(setupfilename);
 
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Shadows",ud.shadows,false,false);
-    SCRIPT_PutString( scripthandle, "Screen Setup", "Password",ud.pwlockout);
+
+    SCRIPT_PutNumber( scripthandle, "Controls","AimingFlag",(long) myaimmode,false,false);
+    SCRIPT_PutNumber( scripthandle, "Controls","AutoAim",AutoAim,false,false);
+// SCRIPT_PutNumber( scripthandle, "Controls","GameMouseAiming",(int32) ps[myconnectindex].aim_mode,false,false);
+    SCRIPT_PutNumber( scripthandle, "Controls", "MouseAimingFlipped",ud.mouseflip,false,false);
+    SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
+    SCRIPT_PutNumber( scripthandle, "Controls","RunKeyBehaviour",ud.runkey_mode,false,false);
+    SCRIPT_PutNumber( scripthandle, "Controls","WeaponSwitchMode",ud.weaponswitch,false,false);
+
+    SCRIPT_PutNumber( scripthandle, "Misc", "AutoMsg",ud.automsg,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "AutoVote",ud.autovote,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "BrightSkins",ud.brightskins,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "Color",ud.color,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "Crosshairs",ud.crosshair,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "DemoCams",ud.democams,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "Executions",ud.executions,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "MPMessageDisplayTime",ud.msgdisptime,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "RunMode",RunMode,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "ShowFPS",ud.tickrate,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "ShowLevelStats",ud.levelstats,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "ShowOpponentWeapons",ShowOpponentWeapons,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "ShowViewWeapon",ud.drawweapon,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "StatusBarMode",ud.statusbarmode,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "StatusBarScale",ud.statusbarscale,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "UsePrecache",useprecache,false,false);
+
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "Detail",ud.detail,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Tilt",ud.screen_tilting,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Messages",ud.fta_on,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Out",ud.lockout,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenWidth",ScreenWidth,false,false); // JBF 20031206
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenHeight",ScreenHeight,false,false);   // JBF 20031206
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenMode",ScreenMode,false,false);   // JBF 20031206
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenBPP",ScreenBPP,false,false); // JBF 20040523
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLAnisotropy",glanisotropy,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLRatioCorrection",glratiocorrection,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLTextureMode",gltexfiltermode,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", glusetexcache,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseTextureCacheCompression", glusetexcachecompression,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseTextureCompr",glusetexcompr,false,false);
 #ifdef RENDERTYPEWIN
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);
 #endif
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLTextureMode",gltexfiltermode,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLAnisotropy",glanisotropy,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseTextureCompr",glusetexcompr,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLRatioCorrection",glratiocorrection,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", glusetexcache,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseTextureCacheCompression", glusetexcachecompression,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "UseModels",usemodels,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Messages",ud.fta_on,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Out",ud.lockout,false,false);
+    SCRIPT_PutString( scripthandle, "Screen Setup", "Password",ud.pwlockout);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenBPP",ScreenBPP,false,false); // JBF 20040523
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenGamma",ud.brightness,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenHeight",ScreenHeight,false,false);   // JBF 20031206
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenMode",ScreenMode,false,false);   // JBF 20031206
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenSize",ud.screen_size,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenWidth",ScreenWidth,false,false); // JBF 20031206
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Shadows",ud.shadows,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Tilt",ud.screen_tilting,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "UseHightile",usehightile,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "UseModels",usemodels,false,false);
+
+    SCRIPT_PutNumber( scripthandle, "Sound Setup", "AmbienceToggle",AmbienceToggle,false,false);
     SCRIPT_PutNumber( scripthandle, "Sound Setup", "FXVolume",FXVolume,false,false);
+    SCRIPT_PutNumber( scripthandle, "Sound Setup", "MusicToggle",MusicToggle,false,false);
     SCRIPT_PutNumber( scripthandle, "Sound Setup", "MusicVolume",MusicVolume,false,false);
+    SCRIPT_PutNumber( scripthandle, "Sound Setup", "ReverseStereo",ReverseStereo,false,false);
     SCRIPT_PutNumber( scripthandle, "Sound Setup", "SoundToggle",SoundToggle,false,false);
     SCRIPT_PutNumber( scripthandle, "Sound Setup", "VoiceToggle",VoiceToggle,false,false);
-    SCRIPT_PutNumber( scripthandle, "Sound Setup", "AmbienceToggle",AmbienceToggle,false,false);
-    SCRIPT_PutNumber( scripthandle, "Sound Setup", "MusicToggle",MusicToggle,false,false);
-    SCRIPT_PutNumber( scripthandle, "Sound Setup", "ReverseStereo",ReverseStereo,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenSize",ud.screen_size,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenGamma",ud.brightness,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "Executions",ud.executions,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "RunMode",RunMode,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "Crosshairs",ud.crosshair,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "ShowLevelStats",ud.levelstats,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "StatusBarScale",ud.statusbarscale,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "ShowOpponentWeapons",ShowOpponentWeapons,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "UsePrecache",useprecache,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "ShowViewWeapon",ud.drawweapon,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "BrightSkins",ud.brightskins,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "DemoCams",ud.democams,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "ShowFPS",ud.tickrate,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "Color",ud.color,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "MPMessageDisplayTime",ud.msgdisptime,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "StatusBarMode",ud.statusbarmode,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "AutoVote",ud.autovote,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls", "MouseAimingFlipped",ud.mouseflip,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
-    //SCRIPT_PutNumber( scripthandle, "Controls","GameMouseAiming",(int32) ps[myconnectindex].aim_mode,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","AimingFlag",(long) myaimmode,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","RunKeyBehaviour",ud.runkey_mode,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","AutoAim",AutoAim,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","WeaponSwitchMode",ud.weaponswitch,false,false);
 
     // JBF 20031211
     for(dummy=0;dummy<NUMGAMEFUNCTIONS;dummy++) {

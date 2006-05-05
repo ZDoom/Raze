@@ -2304,8 +2304,7 @@ cheat_for_port_credits:
                                "FPS counter",
                                "-",
                                "Automatic voting",
-                               "-",
-                               "-",
+                               "Send MP messages to all",
                                "-",
                                "-",
                                "-",
@@ -2361,7 +2360,10 @@ cheat_for_port_credits:
                     modval(0,2,(int *)&ud.autovote,1,probey==io);
                     { char *s[] = { "Off", "Vote No", "Vote Yes" };
                         gametextpal(d,yy, s[ud.autovote], MENUHIGHLIGHT(io), 0); break; }
-                case 4: if (x==io) cmenu(200); break;
+                case 4: if (x==io) ud.automsg = 1-ud.automsg;
+                    modval(0,1,(int *)&ud.automsg,1,probey==io);
+                    gametextpal(d,yy, ud.automsg ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
+                case 5: if (x==io) cmenu(200); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);

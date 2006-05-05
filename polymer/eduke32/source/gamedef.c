@@ -806,6 +806,7 @@ LABELS userdefslabels[]= {
                              { "m_noexits", USERDEFS_M_NOEXITS, 0, 0 },
                              { "noexits", USERDEFS_NOEXITS, 0, 0 },
                              { "autovote", USERDEFS_AUTOVOTE, 0, 0 },
+                             { "automsg", USERDEFS_AUTOMSG, 0, 0 },
                              { "", -1, 0, 0  }     // END OF LIST
                          };
 
