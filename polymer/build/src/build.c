@@ -530,7 +530,7 @@ void editinput(void)
     if (mlook == 1)
     {
         ang += mousx;
-        horiz -= mousy>>1;
+        horiz -= (mousy>>1)-1;
         if (horiz > 299)
             horiz = 299;
         if (horiz < -99)

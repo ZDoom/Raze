@@ -2994,28 +2994,29 @@ void displayrest(long smoothratio)
         OnEvent(EVENT_DISPLAYCROSSHAIR, ps[screenpeek].i, screenpeek, -1);
         if(GetGameVarID(g_iReturnVarID,ps[screenpeek].i,screenpeek) == 0)
             rotatesprite((160L-(ps[myconnectindex].look_ang>>1))<<16,100L<<16,ud.crosshair>1?65536L>>(ud.crosshair-1):65536L,0,CROSSHAIR,0,0,2+1,windowx1,windowy1,windowx2,windowy2);
+    }
 
-        if(ud.idplayers)
+    if(ud.idplayers && ud.multimode > 1)
+    {
+        long sx,sy,sz;
+        short sect,hw,hs;
+
+        hitscan(ps[screenpeek].posx,ps[screenpeek].posy,ps[screenpeek].posz,ps[screenpeek].cursectnum,
+                sintable[(ps[screenpeek].ang+512)&2047],
+                sintable[ps[screenpeek].ang&2047],
+                (100-ps[screenpeek].horiz-ps[screenpeek].horizoff)<<11,&sect,&hw,&hs,&sx,&sy,&sz,CLIPMASK1);
+
+        if(sprite[hs].picnum == APLAYER && sprite[hs].yvel != screenpeek)
         {
-            long sx,sy,sz;
-            short sect,hw,hs;
-
-            hitscan(ps[screenpeek].posx,ps[screenpeek].posy,ps[screenpeek].posz,ps[screenpeek].cursectnum,
-                    sintable[(ps[screenpeek].ang+512)&2047],
-                    sintable[ps[screenpeek].ang&2047],
-                    (100-ps[screenpeek].horiz-ps[screenpeek].horizoff)<<11,&sect,&hw,&hs,&sx,&sy,&sz,CLIPMASK1);
-
-            if(sprite[hs].picnum == APLAYER)
+            if(ps[screenpeek].fta == 0 || ps[screenpeek].ftq == 117)
             {
-                if(ps[screenpeek].fta == 0 || ps[screenpeek].ftq == 117)
-                {
-                    Bsprintf(fta_quotes[117],"%s",&ud.user_name[sprite[hs].yvel][0]);
-                    ps[screenpeek].fta = 12;
-                    ps[screenpeek].ftq = 117;
-                } else ps[screenpeek].fta--;
-            }
+                Bsprintf(fta_quotes[117],"%s",&ud.user_name[sprite[hs].yvel][0]);
+                ps[screenpeek].fta = 12;
+                ps[screenpeek].ftq = 117;
+            } else ps[screenpeek].fta--;
         }
     }
+
     if(ps[myconnectindex].gm&MODE_TYPE)
         typemode();
     else
