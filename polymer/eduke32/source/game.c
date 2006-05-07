@@ -3001,16 +3001,26 @@ void displayrest(long smoothratio)
         long sx,sy,sz;
         short sect,hw,hs;
 
+        for(i=0;i<MAXPLAYERS;i++)
+            if(ps[i].holoduke_on != -1)
+                sprite[ps[i].holoduke_on].cstat ^= 256;
+
         hitscan(ps[screenpeek].posx,ps[screenpeek].posy,ps[screenpeek].posz,ps[screenpeek].cursectnum,
                 sintable[(ps[screenpeek].ang+512)&2047],
                 sintable[ps[screenpeek].ang&2047],
                 (100-ps[screenpeek].horiz-ps[screenpeek].horizoff)<<11,&sect,&hw,&hs,&sx,&sy,&sz,0xffff0030);
 
+        for(i=0;i<MAXPLAYERS;i++)
+            if(ps[i].holoduke_on != -1)
+                sprite[ps[i].holoduke_on].cstat ^= 256;
+
+        initprintf("%d\n",sprite[hs].picnum);
+
         if(sprite[hs].picnum == APLAYER && sprite[hs].yvel != screenpeek)
         {
             if(ps[screenpeek].fta == 0 || ps[screenpeek].ftq == 117)
             {
-                if(ldist(&sprite[ps[screenpeek].i],&sprite[hs]) < 12288)
+                if(ldist(&sprite[ps[screenpeek].i],&sprite[hs]) < 9216)
                 {
                     Bsprintf(fta_quotes[117],"%s",&ud.user_name[sprite[hs].yvel][0]);
                     ps[screenpeek].fta = 12;
