@@ -589,13 +589,6 @@ void DoUserDef(char bSet, long lLabelID, long lVar2, short sActor, short sPlayer
             SetGameVarID((int)lVar2, ud.weaponswitch, sActor, sPlayer);
         break;
 
-    case USERDEFS_BRIGHTSKINS:
-        if(bSet)
-            ud.brightskins = lValue;
-        else
-            SetGameVarID((int)lVar2, ud.brightskins, sActor, sPlayer);
-        break;
-
     case USERDEFS_DEMOCAMS:
         if(bSet)
             ud.democams = lValue;

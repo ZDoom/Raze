@@ -6012,7 +6012,7 @@ void animatesprites(long x,long y,short a,long smoothratio)
                 tsprite[spritesortcnt].yrepeat = ( t->yrepeat>>3 );
                 if(t->yrepeat < 4) t->yrepeat = 4;
 
-                tsprite[spritesortcnt].shade = ud.brightskins?-32:t->shade;
+                tsprite[spritesortcnt].shade = t->shade;
                 tsprite[spritesortcnt].cstat = 0;
 
                 tsprite[spritesortcnt].picnum = (ps[p].curr_weapon==GROW_WEAPON?GROWSPRITEICON:weapon_sprites[ps[p].curr_weapon]);
@@ -6086,9 +6086,6 @@ PALONLY:
 
             if( sector[sect].floorpal && sector[sect].floorpal < numl)
                 t->pal = sector[sect].floorpal;
-
-            if(ud.brightskins)
-                t->shade = -32; // yes?  no?
 
             if(s->owner == -1) continue;
 
@@ -8548,7 +8545,7 @@ void Startup(void)
 
     for(i=0;i<MAXPLAYERS;i++) playerreadyflag[i] = 0;
 
-    if(rancid_ip_strings[MAXPLAYERS])
+    if(Bstrlen(rancid_ip_strings[MAXPLAYERS]))
         initprintf("net: Using %s as sort IP\n",rancid_ip_strings[MAXPLAYERS]);
 
     //initmultiplayers(netparamcount,netparam, 0,0,0);
@@ -8562,6 +8559,7 @@ void Startup(void)
             }
         }
     }
+
     if (netparam) Bfree(netparam);
     netparam = NULL; netparamcount = 0;
 

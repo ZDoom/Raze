@@ -339,7 +339,7 @@ struct user_defs {
     long reccnt;
 
     int32 runkey_mode,statusbarscale,mouseaiming,weaponswitch,drawweapon;   // JBF 20031125
-    int32 brightskins,democams,color,pcolor[MAXPLAYERS],msgdisptime,statusbarmode;
+    int32 democams,color,pcolor[MAXPLAYERS],msgdisptime,statusbarmode;
     int32 m_noexits,noexits,autovote,automsg,idplayers;
 
     int32 entered_name,screen_tilting,shadows,fta_on,executions,auto_run;

@@ -2212,9 +2212,10 @@ cheat_for_port_credits:
                                "Screen tilting",
                                "-",
                                "Show opponent weapon",
-                               "Bright players",
                                "Demo playback cameras",
                                "Record demo",
+                               "-",
+                               "-",
                                "-",
                                "More...",
                                NULL
@@ -2281,13 +2282,10 @@ cheat_for_port_credits:
                     modval(0,1,(int *)&ud.showweapons,1,probey==io);
                     ShowOpponentWeapons = ud.showweapons;
                     gametextpal(d,yy, ShowOpponentWeapons ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 9: if (x==io) ud.brightskins = 1-ud.brightskins;
-                    modval(0,1,(int *)&ud.brightskins,1,probey==io);
-                    gametextpal(d,yy, ud.brightskins ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 10: if (x==io) ud.democams = 1-ud.democams;
+                case 9: if (x==io) ud.democams = 1-ud.democams;
                     modval(0,1,(int *)&ud.democams,1,probey==io);
                     gametextpal(d,yy, ud.democams ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 11: if (x==io) {
+                case 10: if (x==io) {
                         enabled = !((ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1);
                         if( (ps[myconnectindex].gm&MODE_GAME) ) closedemowrite();
                         else ud.m_recstat = !ud.m_recstat;
@@ -2295,7 +2293,7 @@ cheat_for_port_credits:
                     if( (ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1 )
                         enabled = 0;
                     gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Recording":"On"):"Off",enabled?MENUHIGHLIGHT(io):15,enabled?0:1); break;
-                case 12: if (x==io) cmenu(201); break;
+                case 11: if (x==io) cmenu(201); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
@@ -2338,7 +2336,6 @@ cheat_for_port_credits:
                                "-",
                                "-",
                                "-",
-                               "-",
                                "Previous page",
                                NULL
                            };
@@ -2355,7 +2352,7 @@ cheat_for_port_credits:
 
             x = probesm(c,yy+5,0,io);
 
-        if (x == -1) { cmenu(200); probey = 12; break; }
+        if (x == -1) { cmenu(200); probey = 11; break; }
 
             yy = 37;
             for (ii=io=0; opts[ii]; ii++) {

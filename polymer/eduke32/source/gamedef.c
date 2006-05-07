@@ -798,7 +798,6 @@ LABELS userdefslabels[]= {
                              { "drawweapon", USERDEFS_DRAWWEAPON, 0, 0 },
                              { "mouseaiming", USERDEFS_MOUSEAIMING, 0, 0 },
                              { "weaponswitch", USERDEFS_WEAPONSWITCH, 0, 0 },
-                             { "brightskins", USERDEFS_BRIGHTSKINS, 0, 0 },
                              { "democams", USERDEFS_DEMOCAMS, 0, 0 },
                              { "color", USERDEFS_COLOR, 0, 0 },
                              { "msgdisptime", USERDEFS_MSGDISPTIME, 0, 0 },

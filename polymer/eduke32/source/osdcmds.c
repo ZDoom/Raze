@@ -453,7 +453,6 @@ struct cvarmappings {
 
         { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|256, 0, 0, 3 },
 
-        { "r_brightskins", "r_brightskins: enable/disable bright players", (void*)&ud.brightskins, CVAR_BOOL, 0, 0, 1 },
         { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0, 0, 1 }
     };
 

@@ -229,7 +229,6 @@ void CONFIG_SetDefaults( void )
     ud.m_ffire = 1;
     ud.levelstats = 0;
     ud.drawweapon = 1;
-    ud.brightskins = 0;
     ud.democams = 1;
     ud.color = 0;
     ud.msgdisptime = 640;
@@ -614,7 +613,6 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowOpponentWeapons",&ShowOpponentWeapons);
         ud.showweapons = ShowOpponentWeapons;
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowViewWeapon",&ud.drawweapon);
-        SCRIPT_GetNumber( scripthandle, "Misc", "BrightSkins",&ud.brightskins);
         SCRIPT_GetNumber( scripthandle, "Misc", "DemoCams",&ud.democams);
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         SCRIPT_GetNumber( scripthandle, "Misc", "Color",&ud.color);
@@ -717,7 +715,6 @@ void CONFIG_WriteSetup( void )
 
     SCRIPT_PutNumber( scripthandle, "Misc", "AutoMsg",ud.automsg,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "AutoVote",ud.autovote,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "BrightSkins",ud.brightskins,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "Color",ud.color,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "Crosshairs",ud.crosshair,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "DemoCams",ud.democams,false,false);
