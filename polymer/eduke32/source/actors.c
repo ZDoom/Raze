@@ -113,6 +113,16 @@ void addweaponnoswitch( struct player_struct *p, short weapon)
         if(weapon == SHRINKER_WEAPON)
             p->gotweapon[GROW_WEAPON] = 1;
     }
+    switch(p->curr_weapon)
+    {
+    case KNEE_WEAPON:
+    case TRIPBOMB_WEAPON:
+    case HANDREMOTE_WEAPON:
+    case HANDBOMB_WEAPON:     break;
+    case SHOTGUN_WEAPON:      stopspritesound(SHOTGUN_COCK,p->i);break;
+    case PISTOL_WEAPON:       stopspritesound(INSERT_CLIP,p->i);break;
+    default:      stopspritesound(SELECT_WEAPON,p->i);break;
+    }
     switch(weapon)
     {
     case KNEE_WEAPON:

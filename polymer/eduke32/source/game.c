@@ -3004,15 +3004,18 @@ void displayrest(long smoothratio)
         hitscan(ps[screenpeek].posx,ps[screenpeek].posy,ps[screenpeek].posz,ps[screenpeek].cursectnum,
                 sintable[(ps[screenpeek].ang+512)&2047],
                 sintable[ps[screenpeek].ang&2047],
-                (100-ps[screenpeek].horiz-ps[screenpeek].horizoff)<<11,&sect,&hw,&hs,&sx,&sy,&sz,CLIPMASK1);
+                (100-ps[screenpeek].horiz-ps[screenpeek].horizoff)<<11,&sect,&hw,&hs,&sx,&sy,&sz,0xffff0030);
 
         if(sprite[hs].picnum == APLAYER && sprite[hs].yvel != screenpeek)
         {
             if(ps[screenpeek].fta == 0 || ps[screenpeek].ftq == 117)
             {
-                Bsprintf(fta_quotes[117],"%s",&ud.user_name[sprite[hs].yvel][0]);
-                ps[screenpeek].fta = 12;
-                ps[screenpeek].ftq = 117;
+                if(ldist(&sprite[ps[screenpeek].i],&sprite[hs]) < 12288)
+                {
+                    Bsprintf(fta_quotes[117],"%s",&ud.user_name[sprite[hs].yvel][0]);
+                    ps[screenpeek].fta = 12;
+                    ps[screenpeek].ftq = 117;
+                }
             } else ps[screenpeek].fta--;
         }
     }
