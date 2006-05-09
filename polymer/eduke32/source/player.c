@@ -2705,6 +2705,30 @@ void getinput(short snum)
 
     CONTROL_GetInput( &info );
 
+    if(MouseFilter)
+    {
+        if(info.dz > 0)
+        {
+            info.dz -= MouseFilter;
+            if(info.dz < 0) info.dz = 0;
+        }
+        else if(info.dz < 0)
+        {
+            info.dz += MouseFilter;
+            if(info.dz > 0) info.dz = 0;
+        }
+        if(info.dyaw > 0)
+        {
+            info.dyaw -= MouseFilter;
+            if(info.dyaw < 0) info.dyaw = 0;
+        }
+        else if(info.dyaw < 0)
+        {
+            info.dyaw += MouseFilter;
+            if(info.dyaw > 0) info.dyaw = 0;
+        }
+    }
+
     if( (p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)) )
     {
         loc.fvel = vel = 0;
@@ -3462,41 +3486,42 @@ void processinput(short snum)
                         FTA(116,&ps[p->frag_ps]);
                     }
 
-                    if(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY)
-                        i = 9;
-                    else
-                    {
-                        switch(dynamictostatic[hittype[p->i].picnum]) {
-                        case KNEE__STATIC:
-                            if(hittype[p->i].temp_data[1] == 1)
-                                i = 7;
-                            else i = 0;
-                            break;
-                        case SHOTSPARK1__STATIC:
-                            switch(ps[p->frag_ps].curr_weapon)
-                            {
-                            default:
-                            case PISTOL_WEAPON:
-                                i = 1;
-                                break;
-                            case SHOTGUN_WEAPON:
-                                i = 2;
-                                break;
-                            case CHAINGUN_WEAPON:
-                                i = 3;
-                                break;
-                            }
-                            break;
-                        case RPG__STATIC: i = 4; break;
-                        case RADIUSEXPLOSION__STATIC: i = 5; break;
-                        case SHRINKSPARK__STATIC: i = 6; break;
-                        case GROWSPARK__STATIC: i = 8; break;
-                        default: i = 0; break;
-                        }
-                    }
                     {
                         char name1[32],name2[32];
 
+                        if(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY)
+                            i = 9;
+                        else
+                        {
+                            switch(dynamictostatic[hittype[p->i].picnum])
+                            {
+                            case KNEE__STATIC:
+                                if(hittype[p->i].temp_data[1] == 1)
+                                    i = 7;
+                                else i = 0;
+                                break;
+                            case SHOTSPARK1__STATIC:
+                                switch(ps[p->frag_ps].curr_weapon)
+                                {
+                                default:
+                                case PISTOL_WEAPON:
+                                    i = 1;
+                                    break;
+                                case SHOTGUN_WEAPON:
+                                    i = 2;
+                                    break;
+                                case CHAINGUN_WEAPON:
+                                    i = 3;
+                                    break;
+                                }
+                                break;
+                            case RPG__STATIC: i = 4; break;
+                            case RADIUSEXPLOSION__STATIC: i = 5; break;
+                            case SHRINKSPARK__STATIC: i = 6; break;
+                            case GROWSPARK__STATIC: i = 8; break;
+                            default: i = 0; break;
+                            }
+                        }
                         Bstrcpy(name1,strip_color_codes(&ud.user_name[snum][0]));
                         Bstrcpy(name2,strip_color_codes(&ud.user_name[p->frag_ps][0]));
 
@@ -3517,7 +3542,9 @@ void processinput(short snum)
                     else i = 0;
 
                     Bsprintf(tempbuf,fta_quotes[16350+i],strip_color_codes(&ud.user_name[snum][0]));
-                    adduserquote(tempbuf);
+                    if(ScreenWidth >= 640)
+                        adduserquote(tempbuf);
+                    else OSD_Printf("%s\n",strip_color_codes(tempbuf));
                 }
 
                 if(myconnectindex == connecthead)

@@ -710,7 +710,7 @@ void menus(void)
         } else {
             x = strget(200,50-9,buf,30,0);
 
-            while(Bstrlen(strip_color_codes(buf)) > 9)
+            while(Bstrlen(strip_color_codes(buf)) > 10)
             {
                 buf[Bstrlen(buf)-1] = '\0';
                 inputloc--;
@@ -719,11 +719,6 @@ void menus(void)
             if (x) {
                 if (x == 1) {
                     if(buf[0]) {
-                        if(Bstrlen(strip_color_codes(buf)) > 9)
-                        {
-                            Bstrncpy(buf,strip_color_codes(buf),9);
-                            buf[10] = '\0';
-                        }
                         Bstrcpy(myname,buf);
                     }
                     // send name update
@@ -2932,7 +2927,7 @@ cheat_for_port_credits:
                 probey = whichkey;
             } else if (function == 1) { // mouse digital axis
                 cmenu(212);
-                probey = 2+(whichkey^2);
+                probey = 3+(whichkey^2);
             } else if (function == 2) { // joystick button/hat
                 cmenu(207);
                 probey = whichkey;
@@ -3032,14 +3027,14 @@ cheat_for_port_credits:
 
         c = (320>>1)-120;
 
-        onbar = (probey == 0 || probey == 1);
-        if (probey < 2)
-            x = probe(c,46,16,6);
-        else if (probey < 6) {
+        onbar = (probey == 0 || probey == 1 || probey == 2);
+        if (probey < 3)
+            x = probe(c,46,16,7);
+        else if (probey < 7) {
             m=50;
-            x = probesm(c+10,96-(10+10),10,6);
+            x = probesm(c+10,96+16-(10+10+10),10,7);
         } else {
-            x = probe(c,146-(16+16+16+16+16+16),16,6);
+            x = probe(c,146+16-(16+16+16+16+16+16),16,7);
         }
 
         switch (x) {
@@ -3052,37 +3047,24 @@ cheat_for_port_credits:
             // x-axis scale
         case 1:
             // y-axis scale
+        case 2:
+            // mouse filter
             break;
 
-        case 2:
-            // digital up
         case 3:
-            // digital down
+            // digital up
         case 4:
-            // digital left
+            // digital down
         case 5:
+            // digital left
+        case 6:
             // digital right
             function = 1;
-            whichkey = (x-2)^2; // flip the actual axis number
+            whichkey = (x-3)^2; // flip the actual axis number
             cmenu(211);
             probey = MouseDigitalFunctions[whichkey>>1][whichkey&1];
             if (probey < 0) probey = NUMGAMEFUNCTIONS-1;
             break;
-
-        case 6:
-            // analogue x
-        case 7:
-            // analogue y
-            l = MouseAnalogueAxes[x-6];
-            if (l == analog_turning) l = analog_strafing;
-            else if (l == analog_strafing) l = analog_lookingupanddown;
-            else if (l == analog_lookingupanddown) l = analog_moving;
-            else if (l == analog_moving) l = -1;
-            else l = analog_turning;
-            MouseAnalogueAxes[x-6] = l;
-            CONTROL_MapAnalogAxis(x-6,l,controldevice_mouse);
-            break;
-
         }
 
         menutext(c,46,MENUHIGHLIGHT(0),0,"X-AXIS SCALE");
@@ -3107,64 +3089,47 @@ cheat_for_port_credits:
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
         gametext(c+160-16,46+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
-        menutext(c,46+16+16+8,0,0,"DIGITAL AXES ACTIONS");
+        menutext(c,46+16+16,MENUHIGHLIGHT(2),0,"INPUT FILTER");
+        bar(c+160+40,46+16+16,(short *)&MouseFilter,4,x==2,MENUHIGHLIGHT(2),0);
 
-        gametext(c+10,90,"UP:",MENUHIGHLIGHT(2),2+8+16);
+        menutext(c,46+16+16+16+8,(MENUHIGHLIGHT(3))+(MENUHIGHLIGHT(4))+(MENUHIGHLIGHT(5))+(MENUHIGHLIGHT(6))-24,0,"DIGITAL AXES ACTIONS");
+
+        gametext(c+10,90+16,"UP:",MENUHIGHLIGHT(3),2+8+16);
         if (MouseDigitalFunctions[1][0] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[1][0]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitext(c+10+60,91,tempbuf,0,10+16);
+        minitext(c+10+60,91+16,tempbuf,0,10+16);
 
-        gametext(c+10,90+10,"DOWN:",MENUHIGHLIGHT(3),2+8+16);
+        gametext(c+10,90+16+10,"DOWN:",MENUHIGHLIGHT(4),2+8+16);
         if (MouseDigitalFunctions[1][1] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[1][1]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitext(c+10+60,91+10,tempbuf,0,10+16);
+        minitext(c+10+60,91+16+10,tempbuf,0,10+16);
 
-        gametext(c+10,90+10+10,"LEFT:",MENUHIGHLIGHT(4),2+8+16);
+        gametext(c+10,90+16+10+10,"LEFT:",MENUHIGHLIGHT(5),2+8+16);
         if (MouseDigitalFunctions[0][0] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[0][0]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitext(c+10+60,91+10+10,tempbuf,0,10+16);
+        minitext(c+10+60,91+16+10+10,tempbuf,0,10+16);
 
-        gametext(c+10,90+10+10+10,"RIGHT:",MENUHIGHLIGHT(5),2+8+16);
+        gametext(c+10,90+16+10+10+10,"RIGHT:",MENUHIGHLIGHT(6),2+8+16);
         if (MouseDigitalFunctions[0][1] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[0][1]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitext(c+10+60,91+10+10+10,tempbuf,0,10+16);
+        minitext(c+10+60,91+16+10+10+10,tempbuf,0,10+16);
 
-        /* JBF 20040107: It would appear giving these options confuses some tinkerers, so they've
-         * been moved to the bottom, and hidden in case I dare to reenable them again.
-                menutext(c,116+16+8,0,0,"ANALOG X");
-                if (CONFIG_AnalogNumToName( MouseAnalogueAxes[0] )) {
-                    p = CONFIG_AnalogNumToName( MouseAnalogueAxes[0] );
-                    if (p) {
-                        gametext(c+148+4,118+16, strchr(p,'_')+1, 0, 2+8+16 );
-                    }
-                }
-                if (probey == 6) gametext(160,158,"Default is \"turning\"",8,2+8+16);
-
-                menutext(c,116+16+16+8,0,0,"ANALOG Y");
-                if (CONFIG_AnalogNumToName( MouseAnalogueAxes[1] )) {
-                    p = CONFIG_AnalogNumToName( MouseAnalogueAxes[1] );
-                    if (p) {
-                        gametext(c+148+4,118+16+16, strchr(p,'_')+1, 0, 2+8+16 );
-                    }
-                }
-                if (probey == 7) gametext(160,158,"Default is \"moving\"",8,2+8+16);
-        */
         break;
 
     case 206:

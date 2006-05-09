@@ -45,6 +45,7 @@ extern int32 ReverseStereo;
 extern int32 ControllerType;
 extern int32 RunMode;
 extern int32 AutoAim;
+extern int32 MouseFilter;
 extern int32 ShowOpponentWeapons;
 extern int32 ScreenMode;
 extern int32 ScreenWidth;

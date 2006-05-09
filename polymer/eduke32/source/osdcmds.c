@@ -435,7 +435,6 @@ struct cvarmappings {
 } cvar[] =
     {
         { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_INT, 0, 0, 3 },
-        { "name", "name: change your multiplayer nickname", (void*)&myname[0], CVAR_STRING|256, 11, 0, 0 },
 
         { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&AutoAim, CVAR_INT|256, 0, 0, 2 },
         { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
@@ -447,6 +446,8 @@ struct cvarmappings {
         { "cl_idplayers", "cl_idplayers: enable/disable name display when aiming at opponents", (void*)&ud.idplayers, CVAR_BOOL, 0, 0, 1 },
 
         { "cl_messagetime", "cl_messagetime: length of time to display multiplayer chat messages\n", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
+
+        { "cl_mousefilter", "cl_mousefilter: amount of mouse movement to filter out\n", (void*)&MouseFilter, CVAR_INT, 0, 0, 512 },
 
         { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
         { "cl_showfps", "cl_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
@@ -621,6 +622,29 @@ int osdcmd_mpmap(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+int osdcmd_name(const osdfuncparm_t *parm)
+{
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("\"name\" is \"%s\"\n",myname);
+        return OSDCMD_SHOWHELP;
+    }
+
+    Bstrcpy(tempbuf,parm->parms[0]);
+
+    while(Bstrlen(strip_color_codes(tempbuf)) > 10)
+        tempbuf[Bstrlen(tempbuf)-1] = '\0';
+
+    Bstrncpy(myname,tempbuf,sizeof(myname)-1);
+    myname[sizeof(myname)] = '\0';
+
+    OSD_Printf("name %s\n",myname);
+
+    updatenames();
+
+    return OSDCMD_OK;
+}
+
 int registerosdcommands(void)
 {
     unsigned int i;
@@ -645,6 +669,7 @@ int registerosdcommands(void)
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     OSD_RegisterFunction("gamma","gamma <value>: changes brightness", osdcmd_gamma);
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
+    OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
     OSD_RegisterFunction("cl_statusbarscale","cl_statusbarscale: changes the status bar scale", osdcmd_setstatusbarscale);
@@ -656,12 +681,6 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
-
-    /*	OSD_RegisterFunction("myname","myname: change your multiplayer nickname", osdcmd_vars);
-    	OSD_RegisterFunction("showfps","showfps: show the frame rate counter", osdcmd_vars);
-    	OSD_RegisterFunction("showcoords","showcoords: show your position in the game world", osdcmd_vars);
-    	OSD_RegisterFunction("useprecache","useprecache: enable/disable the pre-level caching routine", osdcmd_vars);
-    	OSD_RegisterFunction("drawweapon","drawweapon: enable/disable weapon drawing", osdcmd_vars); */
 
     OSD_RegisterFunction("restartvid","restartvid: reinitialised the video mode",osdcmd_restartvid);
     OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: immediately change the video mode",osdcmd_vidmode);

@@ -40,7 +40,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #include "types.h"
 #include "keyboard.h"
 
-#define VERSION " 1.0.4"
+#define VERSION " 1.0.5"
 
 short floor_over_floor;
 

@@ -866,6 +866,8 @@ void faketimerhandler()
                     //clearbufbyte(&inputfifo[movefifoend[i]&(MOVEFIFOSIZ-1)][i],sizeof(input),0L);
                     if(ud.playerai)
                         computergetinput(i,&inputfifo[movefifoend[i]&(MOVEFIFOSIZ-1)][i]);
+                    inputfifo[movefifoend[i]&(MOVEFIFOSIZ-1)][i].svel++;
+                    inputfifo[movefifoend[i]&(MOVEFIFOSIZ-1)][i].fvel++;
                     movefifoend[i]++;
                 }
         return;
@@ -2103,12 +2105,6 @@ void operatefta(void)
         j -= 8;
     }
 
-    for(i=0;i<MAXUSERQUOTES;i++)
-        if (user_quote_time[i])
-        {
-            user_quote_time[i]--;
-            if (!user_quote_time[i]) pub = NUMPAGES;
-        }
     if ((klabs(quotebotgoal-quotebot) <= 16) && (ud.screen_size <= 8))
         quotebot += ksgn(quotebotgoal-quotebot);
     else
@@ -2994,40 +2990,6 @@ void displayrest(long smoothratio)
         OnEvent(EVENT_DISPLAYCROSSHAIR, ps[screenpeek].i, screenpeek, -1);
         if(GetGameVarID(g_iReturnVarID,ps[screenpeek].i,screenpeek) == 0)
             rotatesprite((160L-(ps[myconnectindex].look_ang>>1))<<16,100L<<16,ud.crosshair>1?65536L>>(ud.crosshair-1):65536L,0,CROSSHAIR,0,0,2+1,windowx1,windowy1,windowx2,windowy2);
-    }
-
-    if(ud.idplayers && ud.multimode > 1)
-    {
-        long sx,sy,sz;
-        short sect,hw,hs;
-
-        for(i=0;i<MAXPLAYERS;i++)
-            if(ps[i].holoduke_on != -1)
-                sprite[ps[i].holoduke_on].cstat ^= 256;
-
-        hitscan(ps[screenpeek].posx,ps[screenpeek].posy,ps[screenpeek].posz,ps[screenpeek].cursectnum,
-                sintable[(ps[screenpeek].ang+512)&2047],
-                sintable[ps[screenpeek].ang&2047],
-                (100-ps[screenpeek].horiz-ps[screenpeek].horizoff)<<11,&sect,&hw,&hs,&sx,&sy,&sz,0xffff0030);
-
-        for(i=0;i<MAXPLAYERS;i++)
-            if(ps[i].holoduke_on != -1)
-                sprite[ps[i].holoduke_on].cstat ^= 256;
-
-        initprintf("%d\n",sprite[hs].picnum);
-
-        if(sprite[hs].picnum == APLAYER && sprite[hs].yvel != screenpeek)
-        {
-            if(ps[screenpeek].fta == 0 || ps[screenpeek].ftq == 117)
-            {
-                if(ldist(&sprite[ps[screenpeek].i],&sprite[hs]) < 9216)
-                {
-                    Bsprintf(fta_quotes[117],"%s",&ud.user_name[sprite[hs].yvel][0]);
-                    ps[screenpeek].fta = 12;
-                    ps[screenpeek].ftq = 117;
-                }
-            } else ps[screenpeek].fta--;
-        }
     }
 
     if(ps[myconnectindex].gm&MODE_TYPE)
@@ -6047,6 +6009,28 @@ void animatesprites(long x,long y,short a,long smoothratio)
                 spritesortcnt++;
             }
 
+            if( ( display_mirror == 1 || screenpeek != p || s->owner == -1 ) && ud.multimode > 1 && sync[p].svel == 0 && sync[p].fvel == 0 && !ud.pause_on)
+            {
+                memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
+
+                tsprite[spritesortcnt].statnum = 99;
+
+                tsprite[spritesortcnt].yrepeat = ( t->yrepeat>>3 );
+                if(t->yrepeat < 4) t->yrepeat = 4;
+
+                tsprite[spritesortcnt].cstat = 0;
+
+                tsprite[spritesortcnt].picnum = RESPAWNMARKERGREEN;
+
+                if(s->owner >= 0)
+                    tsprite[spritesortcnt].z = ps[p].posz-(20<<8);
+                else tsprite[spritesortcnt].z = s->z-(96<<8);
+                tsprite[spritesortcnt].xrepeat = 16;
+                tsprite[spritesortcnt].yrepeat = 16;
+                tsprite[spritesortcnt].pal = 20;
+                spritesortcnt++;
+            }
+
             if(s->owner == -1)
             {
                 if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
@@ -8484,8 +8468,15 @@ void Startup(void)
 
     if (CommandName)
     {
-        Bstrncpy(myname, CommandName, 9);
-        myname[10] = '\0';
+        //        Bstrncpy(myname, CommandName, 9);
+        //        myname[10] = '\0';
+        Bstrcpy(tempbuf,CommandName);
+
+        while(Bstrlen(strip_color_codes(tempbuf)) > 10)
+            tempbuf[Bstrlen(tempbuf)-1] = '\0';
+
+        Bstrncpy(myname,tempbuf,sizeof(myname)-1);
+        myname[sizeof(myname)] = '\0';
     }
 
     if (CommandMap) {
@@ -10071,6 +10062,45 @@ char domovethings(void)
 
     if(earthquaketime > 0) earthquaketime--;
     if(rtsplaying > 0) rtsplaying--;
+
+    for(i=0;i<MAXUSERQUOTES;i++)
+        if (user_quote_time[i])
+        {
+            user_quote_time[i]--;
+            if (!user_quote_time[i]) pub = NUMPAGES;
+        }
+
+    if(ud.idplayers && ud.multimode > 1)
+    {
+        long sx,sy,sz;
+        short sect,hw,hs;
+
+        for(i=0;i<MAXPLAYERS;i++)
+            if(ps[i].holoduke_on != -1)
+                sprite[ps[i].holoduke_on].cstat ^= 256;
+
+        hitscan(ps[screenpeek].posx,ps[screenpeek].posy,ps[screenpeek].posz,ps[screenpeek].cursectnum,
+                sintable[(ps[screenpeek].ang+512)&2047],
+                sintable[ps[screenpeek].ang&2047],
+                (100-ps[screenpeek].horiz-ps[screenpeek].horizoff)<<11,&sect,&hw,&hs,&sx,&sy,&sz,0xffff0030);
+
+        for(i=0;i<MAXPLAYERS;i++)
+            if(ps[i].holoduke_on != -1)
+                sprite[ps[i].holoduke_on].cstat ^= 256;
+
+        if(sprite[hs].picnum == APLAYER && sprite[hs].yvel != screenpeek && ps[sprite[hs].yvel].dead_flag == 0)
+        {
+            if(ps[screenpeek].fta == 0 || ps[screenpeek].ftq == 117)
+            {
+                if(ldist(&sprite[ps[screenpeek].i],&sprite[hs]) < 9216)
+                {
+                    Bsprintf(fta_quotes[117],"%s",&ud.user_name[sprite[hs].yvel][0]);
+                    ps[screenpeek].fta = 12;
+                    ps[screenpeek].ftq = 117;
+                }
+            } else if(ps[screenpeek].fta > 2) ps[screenpeek].fta -= 3;
+        }
+    }
 
     if( show_shareware > 0 )
     {
