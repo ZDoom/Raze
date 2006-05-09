@@ -3090,9 +3090,22 @@ cheat_for_port_credits:
         gametext(c+160-16,46+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
         menutext(c,46+16+16,MENUHIGHLIGHT(2),0,"INPUT FILTER");
-        bar(c+160+40,46+16+16,(short *)&MouseFilter,4,x==2,MENUHIGHLIGHT(2),0);
+        l = MouseFilter>>1;
+        bar(c+160+40,46+16+16,(short *)&l,2,x==2,MENUHIGHLIGHT(2),0);
+        MouseFilter = l<<1;
+        menutext(c,46+16+16+16+8,/*(MENUHIGHLIGHT(3))+(MENUHIGHLIGHT(4))+(MENUHIGHLIGHT(5))+(MENUHIGHLIGHT(6))-24*/0,0,"DIGITAL AXES ACTIONS");
 
-        menutext(c,46+16+16+16+8,(MENUHIGHLIGHT(3))+(MENUHIGHLIGHT(4))+(MENUHIGHLIGHT(5))+(MENUHIGHLIGHT(6))-24,0,"DIGITAL AXES ACTIONS");
+        if(MouseFilter == 0)
+            Bsprintf(tempbuf," OFF");
+        else if(MouseFilter < 48)
+            Bsprintf(tempbuf," LOW");
+        else if(MouseFilter < 96)
+            Bsprintf(tempbuf," MED");
+        else if(MouseFilter < 128)
+            Bsprintf(tempbuf,"HIGH");
+
+        gametext(c+160-16,46+16+16-8,tempbuf,MENUHIGHLIGHT(2),2+8+16);
+
 
         gametext(c+10,90+16,"UP:",MENUHIGHLIGHT(3),2+8+16);
         if (MouseDigitalFunctions[1][0] < 0)
@@ -3101,7 +3114,7 @@ cheat_for_port_credits:
             strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[1][0]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitext(c+10+60,91+16,tempbuf,0,10+16);
+        minitextshade(c+10+60,91+16,tempbuf,MENUHIGHLIGHT(3),0,10+16);
 
         gametext(c+10,90+16+10,"DOWN:",MENUHIGHLIGHT(4),2+8+16);
         if (MouseDigitalFunctions[1][1] < 0)
@@ -3110,7 +3123,7 @@ cheat_for_port_credits:
             strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[1][1]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitext(c+10+60,91+16+10,tempbuf,0,10+16);
+        minitextshade(c+10+60,91+16+10,tempbuf,MENUHIGHLIGHT(4),0,10+16);
 
         gametext(c+10,90+16+10+10,"LEFT:",MENUHIGHLIGHT(5),2+8+16);
         if (MouseDigitalFunctions[0][0] < 0)
@@ -3119,7 +3132,7 @@ cheat_for_port_credits:
             strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[0][0]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitext(c+10+60,91+16+10+10,tempbuf,0,10+16);
+        minitextshade(c+10+60,91+16+10+10,tempbuf,MENUHIGHLIGHT(5),0,10+16);
 
         gametext(c+10,90+16+10+10+10,"RIGHT:",MENUHIGHLIGHT(6),2+8+16);
         if (MouseDigitalFunctions[0][1] < 0)
@@ -3128,7 +3141,7 @@ cheat_for_port_credits:
             strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[0][1]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitext(c+10+60,91+16+10+10+10,tempbuf,0,10+16);
+        minitextshade(c+10+60,91+16+10+10+10,tempbuf,MENUHIGHLIGHT(6),0,10+16);
 
         break;
 

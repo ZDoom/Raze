@@ -3453,7 +3453,11 @@ void processinput(short snum)
                 closedemowrite();
 
             if(s->pal != 1)
+            {
                 p->dead_flag = (512-((TRAND&1)<<10)+(TRAND&255)-512)&2047;
+                if(p->dead_flag == 0)
+                    p->dead_flag++;
+            }
 
             p->jetpack_on = 0;
             p->holoduke_on = -1;

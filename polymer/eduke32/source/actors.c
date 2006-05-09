@@ -887,7 +887,7 @@ short ifhitbyweapon(short sn)
 
                 if( j >= 0 &&
                         sprite[j].picnum == APLAYER &&
-                        (gametype_flags[ud.coop] & GAMETYPE_FLAG_COOP) &&
+                        (gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) &&
                         ud.ffire == 0 )
                     return -1;
 
@@ -914,6 +914,13 @@ short ifhitbyweapon(short sn)
                         hittype[sn].extra*(sintable[(hittype[sn].ang+512)&2047])<<2;
                     ps[p].posyv +=
                         hittype[sn].extra*(sintable[hittype[sn].ang&2047])<<2;
+                }
+                else if(checkspriteflagsp(hittype[sn].picnum,SPRITE_FLAG_PROJECTILE))
+                {
+                    ps[p].posxv +=
+                        hittype[sn].extra*(sintable[(hittype[sn].ang+512)&2047])<<1;
+                    ps[p].posyv +=
+                        hittype[sn].extra*(sintable[hittype[sn].ang&2047])<<1;
                 }
 
                 switch(dynamictostatic[hittype[sn].picnum])

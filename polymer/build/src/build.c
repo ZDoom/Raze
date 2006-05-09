@@ -529,16 +529,18 @@ void editinput(void)
 
     if (mlook == 1)
     {
-        ang += mousx;
-        horiz -= (mousy>>1)-1;
+        ang += mousx>>1;
+        horiz -= (mousy>>2);
         if (horiz > 299)
             horiz = 299;
         if (horiz < -99)
             horiz = -99;
+        if (mousy && !(mousy>>2))
+            horiz--;
         searchx = xdim>>1;
         searchy = ydim>>1;
         osearchx = searchx-mousx;
-        osearchy = searchy-(mousy+mouseysurp);
+        osearchy = searchy-mousy;
     }
     else
     {
@@ -7205,8 +7207,8 @@ void keytimerstuff(void)
     if (svel > 0) svel = max(svel-2,0);
     if (vel < 0) vel = min(vel+2,0);
     if (vel > 0) vel = max(vel-2,0);
-    if(mlook)
-        posz -= (horiz-101)*(vel/40);
+/*    if(mlook)
+        posz -= (horiz-101)*(vel/40); */
 }
 
 void _printmessage16(char name[82])
