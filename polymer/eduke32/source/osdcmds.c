@@ -451,6 +451,7 @@ struct cvarmappings {
 
         { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
         { "cl_showfps", "cl_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
+        { "cl_smoothinput", "cl_smoothinput: enable/disable input smoothing\n", (void*)&SmoothInput, CVAR_BOOL, 0, 0, 1 },
 
         { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|256, 0, 0, 3 },
 

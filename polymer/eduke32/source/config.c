@@ -64,6 +64,7 @@ int32 RunMode;
 int32 AutoAim;  // JBF 20031125
 int32 ShowOpponentWeapons;
 int32 MouseFilter;
+int32 SmoothInput;
 
 // JBF 20031211: Store the input settings because
 // (currently) jmact can't regurgitate them
@@ -214,6 +215,7 @@ void CONFIG_SetDefaults( void )
     ReverseStereo = 0;
     RunMode = ud.auto_run = 1;
     ShowOpponentWeapons = 0;
+    SmoothInput = 1;
     SoundToggle = 1;
     ud.automsg = 0;
     ud.autovote = 0;
@@ -569,14 +571,13 @@ void CONFIG_ReadSetup( void )
             SCRIPT_GetString( scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
         }
 
-        SCRIPT_GetString( scripthandle, "Comm Setup","PlayerName",&myname[0]);
+        SCRIPT_GetString( scripthandle, "Comm Setup","PlayerName",&tempbuf);
 
-        if(Bstrlen(strip_color_codes(myname)) > 9)
-        {
-            Bstrcpy(tempbuf,myname);
-            Bstrncpy(myname,strip_color_codes(tempbuf),9);
-            myname[10] = '\0';
-        }
+        while(Bstrlen(strip_color_codes(tempbuf)) > 10)
+            tempbuf[Bstrlen(tempbuf)-1] = '\0';
+
+        Bstrncpy(myname,tempbuf,sizeof(myname)-1);
+        myname[sizeof(myname)] = '\0';
 
         SCRIPT_GetString( scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
@@ -654,7 +655,8 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Controls","ControllerType",&ControllerType);
         SCRIPT_GetNumber( scripthandle, "Controls","MouseAimingFlipped",&ud.mouseflip); // mouse aiming inverted
         SCRIPT_GetNumber( scripthandle, "Controls","MouseAiming",&ud.mouseaiming);		// 1=momentary/0=toggle
-        SCRIPT_GetNumber( scripthandle, "Controls","MouseFilter",&MouseFilter);		// 1=momentary/0=toggle
+        SCRIPT_GetNumber( scripthandle, "Controls","MouseFilter",&MouseFilter);
+        SCRIPT_GetNumber( scripthandle, "Controls","SmoothInput",&SmoothInput);
         //SCRIPT_GetNumber( scripthandle, "Controls","GameMouseAiming",(int32 *)&ps[0].aim_mode);   // dupe of below (?)
         ps[0].aim_mode = ud.mouseaiming;
         SCRIPT_GetNumber( scripthandle, "Controls","AimingFlag",(int32 *)&myaimmode);   // (if toggle mode) gives state
@@ -714,6 +716,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Controls", "MouseAimingFlipped",ud.mouseflip,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseFilter",MouseFilter,false,false);
+    SCRIPT_PutNumber( scripthandle, "Controls","SmoothInput",SmoothInput,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","RunKeyBehaviour",ud.runkey_mode,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","WeaponSwitchMode",ud.weaponswitch,false,false);
 

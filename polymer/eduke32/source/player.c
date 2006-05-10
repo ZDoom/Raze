@@ -2843,24 +2843,43 @@ void getinput(short snum)
     if( CONTROL_JoystickEnabled )
         if ( running ) info.dz *= 2;
 
-    if( BUTTON(gamefunc_Strafe) ) {
-        svel = -(info.dyaw+lastinfo.dyaw)/8;
-        lastinfo.dyaw = (lastinfo.dyaw+info.dyaw) % 8;
-    } else {
-        angvel = (info.dyaw+lastinfo.dyaw)/64;
-        lastinfo.dyaw = (lastinfo.dyaw+info.dyaw) % 64;
-    }
-
-    if( myaimmode )
+    if(SmoothInput)
     {
-        if(ud.mouseflip)
-            horiz = -(info.dz+lastinfo.dz)/(314-128);
-        else horiz = (info.dz+lastinfo.dz)/(314-128);
+        if( BUTTON(gamefunc_Strafe) ) {
+            svel = -(info.dyaw+lastinfo.dyaw)/8;
+            lastinfo.dyaw = (lastinfo.dyaw+info.dyaw) % 8;
+        } else {
+            angvel = (info.dyaw+lastinfo.dyaw)/64;
+            lastinfo.dyaw = (lastinfo.dyaw+info.dyaw) % 64;
+        }
 
-        lastinfo.dz = (lastinfo.dz+info.dz) % (314-128);
-        info.dz = 0;
-    } else {
-        lastinfo.dz = info.dz % (1<<6);
+        if( myaimmode )
+        {
+            if(ud.mouseflip)
+                horiz = -(info.dz+lastinfo.dz)/(314-128);
+            else horiz = (info.dz+lastinfo.dz)/(314-128);
+
+            lastinfo.dz = (lastinfo.dz+info.dz) % (314-128);
+            info.dz = 0;
+        } else {
+            lastinfo.dz = info.dz % (1<<6);
+        }
+    }
+    else
+    {
+        if( BUTTON(gamefunc_Strafe) ) {
+            svel = -info.dyaw/8;
+        } else {
+            angvel = info.dyaw/64;
+        }
+
+        if( myaimmode )
+        {
+            if(ud.mouseflip)
+                horiz -= info.dz/(314-128);
+            else horiz += info.dz/(314-128);
+            info.dz = 0;
+        }
     }
 
     svel -= info.dx;
