@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "util_lib.h"
 
-#define VERSION " 1.4.0svn"
+#define VERSION " 1.4.0 beta 1"
 
 #define HEAD  "EDuke32"VERSION" (shareware mode)"
 #define HEAD2 "EDuke32"VERSION
@@ -215,7 +215,7 @@ int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short 
 
             if( ac < starttile || ac > (starttile + 93) ) break;
 
-            if((*t >= '0' && *t <= '9') || (small && !(*t >= 'a' && *t <= 'Z')))
+            if(*t >= '0' && *t <= '9')
                 newx += 8;
             else newx += tilesizx[ac];
             t++;

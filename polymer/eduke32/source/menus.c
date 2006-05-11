@@ -3997,9 +3997,9 @@ VOLUME_ALL_40x:
                 plrvotes += votes[i];
                 j += gotvote[i];
             }
-            if(j == numplayers || !ps[myconnectindex].i || (plrvotes > (numplayers>>1)))
+            if(j == numplayers || !ps[myconnectindex].i || (plrvotes > (numplayers>>1)) || (!networkmode && myconnectindex == connecthead))
             {
-                if(plrvotes > (numplayers>>1) || !ps[myconnectindex].i)
+                if(plrvotes > (numplayers>>1) || !ps[myconnectindex].i || (!networkmode && myconnectindex == connecthead))
                 {
                     tempbuf[0] = 5;
                     tempbuf[1] = ud.m_level_number;

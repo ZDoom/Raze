@@ -1,5 +1,88 @@
 =EDuke32 ChangeLog=
 
+==1.4.0 beta 1=
+ - Core: added support for defining dummy tiles in the def files to eliminate the need for placeholders for hightile art
+ - Core: added a temporary projection hack to reduce HOM at the top and bottom of the screen
+ - Core: fixed P2P multiplayer with more than two players
+ - Core: fixed a nasty memory corruption issue with screen tinting that resulted in crashes in the classic renderer
+ - Core: fixed a palette issue with the in-game textured 2D map in Polymost
+ - Core: fixed a mouse input bug in winlayer that resulted in loss of input precision
+ - Core: modified the def loader to perform two passes; one to load GRPs early in game startup, and one to do the rest later on
+ - Core: tweaks to caching system to leave more memory available for hightile art
+ - Core: proper alpha sorting on md3 models
+ - Core: removed usegoodalpha in favor of an alternate sprite sorting algorithm (note: rendering glitches may occur)
+ - Core: attempt to correct display perspective in order to properly display HUD models
+ - Core: netcode packet rate now 26 (was 40)
+ - Core: don't use 100% CPU when waiting for players to join a multiplayer game
+ - Core: reduce mouse wheel input lock time to 25ms (was 100ms)
+
+ - Game: completely reworked mouse sensitivity and added an input filter slider
+ - Game: changed the weapon switching to be less restrictive in order to assist weapon changes via mouse wheel
+ - Game: added support for alt+enter to switch between fullscreen and windowed mode
+ - Game: added an option to disable demo playback cameras
+ - Game: added support for scaling the crosshair to 1/2 or 1/4 normal size
+ - Game: added an option to enable autoaim only for hitscan weapons (bullets)
+ - Game: changed the default video mode to 1024x768x32 and added several fallback choices
+ - Game: reworked the quicksave and quickload functions such as to not prompt the player on use
+ - Game: set the default controls to WSAD + mouse aiming
+ - Game: restore the pause key behavior from Duke 1.5 wherein the "GAME PAUSED" message isn't displayed when shift is pressed while pausing
+ - Game: fixed an infinite loop and a palette corruption bug regarding the video setup menu and switching to the classic renderer
+ - Game: fixed an issue where the automap would scroll itself and/or jitter when the game was paused while moving
+ - Game: fixed pistol timing to more closely match Duke 1.5
+ - Game: fixed long-standing quick kick animation bug
+ - Game: fixed kick attack speed to more closely match Duke 1.5
+ - Game: fixed an issue with shift+F5 not allowing selection of music defined for episode 5 and up
+ - Game: changed the default menu background to something more pleasing
+ - Game: restructured the option menus to make more sense
+ - Game: expanded the "HUD weapon" menu option to allow displaying a weapon's pickup sprite instead of the HUD art
+
+ - Multiplayer: Duke Talk menu option can now be set to "all" to hear enemy pain sounds
+ - Multiplayer: added an option to disable nuke button exits in deathmatch
+ - Multiplayer: greatly improved the text chat by increasing the text buffer size and by implementing basic line wrapping
+ - Multiplayer: added a voting system for map changes along with a menu option to automatically vote yes or no
+ - Multiplayer: added an icon above the heads of other players for when they're chatting or using the menu
+ - Multiplayer: added an option to automatically send messages to all players rather than prompting
+ - Multiplayer: added an option to display the name of the opponent you're currently aiming at
+ - Multiplayer: added a player setup menu to configure player name, color, macros, and weapon/aiming options mid-game
+ - Multiplayer: added support for Rancidmeat network configuration files via -rmnet command line parameter
+ - Multiplayer: detect and correct internal vs external IP address issues when using Rancidmeat configuration files
+ - Multiplayer: added dummy duke3d_w32.exe to facilitate EDuke32 multiplayer via DukesterX 1.5
+ - Multiplayer: added support for in-game selection and loading of different user maps
+ - Multiplayer: added support for various player death messages which can be redefined in the CONs
+ - Multiplayer: added support for Quake-style color codes in player names and text chat (code format is ^<palette>)
+ - Multiplayer: limit player name to 10 characters (not counting color codes)
+ - Multiplayer: fixed issue where multiple players trying to step on the same shrunken enemy would kill the game
+ - Multiplayer: fixed issue where briefly tapping the jump key would produce a lag effect during the resulting jump
+ - Multiplayer: fixed issue where using the jetpack + steroids would produce a lag effect in P2P mode
+ - Multiplayer: fixed several out-of-sync issues
+ - Multiplayer: fixed a long-standing bug wherein a player death could be counted as both a death and a suicide
+ - Multiplayer: fixed screen resizing issue when typing - and = in chat
+
+ - CON: added "save" command to allow the creation of automatic checkpoints
+ - CON: added "cansee" and "canseespr" commands to easily determine whether two sprites or sets of coordinates have visibility
+ - CON: added "definegamefuncname" command to change the key names used in the configuration file and in the control setup menus
+ - CON: added additional safety checks to get/setuserdef/player/sector/sprite/wall/input
+ - CON: added support for Quake-style color codes in quotes (code format is ^<palette>)
+ - CON: added extra timing checks to the weapon system; note that weapons with strange TOTALTIME and FIREDELAY values may no longer fire
+ - CON: save quotes, dynamic-to-static tile remapping information, extended sprite flags and sprite caching info to savegames
+ - CON: reworked the quote system to use dynamically allocated memory and doubled the length of each individual quote
+ - CON: fixed a savegame issue where some gamevar values may not have been restored properly and added more sanity checks to savegame loading
+ - CON: fixed an issue with FRAMEEFFECT1 sprites ending up with the wrong tspr->picnum
+ - CON: fixed a potential issue where custom projectiles that hit a player wouldn't knock the player back
+ - CON: fixed a bug in the findnearactor3d command and further sped up findnearactor3d and findnearsprite3d
+ - CON: fixed an issue where tab characters in CON files could screw up label names
+ - CON: fixed a crash that occurred when hitscan type custom projectiles with trails were fired at a wall from a distance of 0
+ - CON: removed the RENDERSIZE attribute for weapons
+ - CON: made slight optimizations to various commands
+
+ - Console: added the following cvars: "crosshair", "cl_autoaim", "cl_automsg", "cl_autovote", "cl_democams", "cl_drawweapon", "cl_idplayers",
+            "cl_messagetime", "cl_mousefilter", "cl_showcoords", "cl_showfps", "cl_smoothinput", "cl_statusbarmode", "cl_statusbarscale",
+            "cl_weaponswitch" and "r_precache"
+ - Console: added "addpath" command to add a new directory to the game's virtual filesystem pool
+
+ - Mapster32: better smoothing of mouse input when using 3D mode mouselook
+ - Mapster32: add ' F key combo to replace nonexistent tiles with tile 0
+
 ==1.3.1-1==
  - Game: fixed issue with multiplayer switches
 

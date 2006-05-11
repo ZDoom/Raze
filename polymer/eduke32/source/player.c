@@ -158,7 +158,7 @@ void hitscantrail(long x1, long y1, long z1, long x2, long y2, long z2, short an
     x1 += (sintable[(348+ang+512)&2047]/projectile[atwith].offset);
     y1 += (sintable[(ang+348)&2047]/projectile[atwith].offset);
 
-    n = (FindDistance2D(x1-x2,y1-y2))>>8;
+    n = ((FindDistance2D(x1-x2,y1-y2))>>8)+1;
 
     z1 += (projectile[atwith].toffset<<8)+1024;
 

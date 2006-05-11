@@ -571,7 +571,7 @@ void CONFIG_ReadSetup( void )
             SCRIPT_GetString( scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
         }
 
-        SCRIPT_GetString( scripthandle, "Comm Setup","PlayerName",&tempbuf);
+        SCRIPT_GetString( scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);
 
         while(Bstrlen(strip_color_codes(tempbuf)) > 10)
             tempbuf[Bstrlen(tempbuf)-1] = '\0';
