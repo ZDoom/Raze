@@ -3,12 +3,12 @@
 
 SOURCEFILES=build.cfg GNU.TXT \
 	   Makefile Makefile.deps Makefile.msvc Makefile.watcom MakeDistributions \
-	   makemsc.bat makew.bat jfduke_releasenotes.html duke3d.def.sample \
+	   makemsc.bat makew.bat ChangeLog.html duke3d.def.sample \
 	   SEHELP.HLP STHELP.HLP ChangeLog enhance.con.sample
 
 BINARYFILES=build.cfg mapster32.exe eduke32.exe GNU.TXT  \
-           jfduke_releasenotes.html setup.exe duke3d.def.sample SEHELP.HLP STHELP.HLP \
-	   ChangeLog enhance.con.sample
+           ChangeLog.html setup.exe duke3d.def.sample SEHELP.HLP STHELP.HLP \
+	   ChangeLog enhance.con.sample duke3d_w32.exe
 
 .PHONY: source binary
 
@@ -37,7 +37,7 @@ source:
 
 binary:
 	make RELEASE=1
-	upx mapster32.exe eduke32.exe
+	upx -9 mapster32.exe eduke32.exe duke3d_w32.exe
 	rm -rf $(binarydir)
 	mkdir $(binarydir)
 #	mkdir $(binarydir) $(binarydir)/models

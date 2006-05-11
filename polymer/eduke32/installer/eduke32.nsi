@@ -46,14 +46,7 @@ var ICONS_GROUP
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
-; !define MUI_FINISHPAGE_RUN "$INSTDIR\datainst.exe"
-; !define MUI_FINISHPAGE_RUN_TEXT "Run GRP file installer"
-; !define MUI_FINISHPAGE_RUN_PARAMETERS ""
-!define MUI_FINISHPAGE_RUN "notepad.exe"
-!define MUI_FINISHPAGE_RUN_TEXT "Show ChangeLog"
-!define MUI_FINISHPAGE_RUN_PARAMETERS "$INSTDIR\ChangeLog"
-
-; !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\ChangeLog"
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\ChangeLog.html"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -81,7 +74,7 @@ Section "!Game" SEC_GAME
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\EDuke32.lnk" "$INSTDIR\eduke32.exe"
   File "..\GNU.TXT"
-  File "..\jfduke_releasenotes.html"
+  File "..\ChangeLog.html"
   File "..\ChangeLog"
   File "..\setup.exe"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Setup.lnk" "$INSTDIR\setup.exe"
@@ -94,6 +87,12 @@ Section "Editor" SEC_EDITOR
   File "..\mapster32.exe"
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Mapster32.lnk" "$INSTDIR\mapster32.exe"
+SectionEnd
+
+Section "Dukester X Support" SEC_DX
+  SetOutPath "$INSTDIR"
+  SetOverwrite ifdiff
+  File "..\duke3d_w32.exe"
 SectionEnd
 
 Section /o "Samples" SEC_SAMPLES
@@ -125,7 +124,8 @@ SectionEnd
 ; Section descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC_GAME} "The main EDuke32 game components (required to play EDuke enhanced mods)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_EDITOR} "Enhanced Mapster32 editor (optional)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_EDITOR} "The enhanced Mapster32 editor (optional)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_DX} "Dukester X 1.5.1 support (optional)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC_SAMPLES} "Sample enhancement definition files (optional)"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
@@ -147,12 +147,13 @@ Section Uninstall
   Delete "$INSTDIR\duke3d.def.sample"
   Delete "$INSTDIR\enhance.con.sample"
   Delete "$INSTDIR\mapster32.exe"
-;  Delete "$INSTDIR\build.cfg"
+  Delete "$INSTDIR\build.cfg"
   Delete "$INSTDIR\setup.exe"
-  Delete "$INSTDIR\jfduke_releasenotes.html"
+  Delete "$INSTDIR\ChangeLog.html"
   Delete "$INSTDIR\ChangeLog"
   Delete "$INSTDIR\GNU.TXT"
   Delete "$INSTDIR\eduke32.exe"
+  Delete "$INSTDIR\duke3d_w32.exe"
 ;  Delete "$INSTDIR\datainst.exe"
   
 ;  Delete "$INSTDIR\duke3d.grp"
