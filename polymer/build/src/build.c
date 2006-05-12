@@ -7207,8 +7207,8 @@ void keytimerstuff(void)
     if (svel > 0) svel = max(svel-2,0);
     if (vel < 0) vel = min(vel+2,0);
     if (vel > 0) vel = max(vel-2,0);
-/*    if(mlook)
-        posz -= (horiz-101)*(vel/40); */
+    /*    if(mlook)
+            posz -= (horiz-101)*(vel/40); */
 }
 
 void _printmessage16(char name[82])

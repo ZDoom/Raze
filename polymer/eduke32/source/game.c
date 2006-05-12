@@ -5644,11 +5644,12 @@ void animatesprites(long x,long y,short a,long smoothratio)
                     t->xrepeat = t->yrepeat = 0;
                 continue;
             case CHAIR3__STATIC:
+#if defined(POLYMOST) && defined(USE_OPENGL)
                 if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0) {
                     t->cstat &= ~4;
                     break;
                 }
-
+#endif
                 k = (((t->ang+3072+128-a)&2047)>>8)&7;
                 if(k>4)
                 {
@@ -5920,11 +5921,12 @@ void animatesprites(long x,long y,short a,long smoothratio)
             t->picnum = GROWSPARK+( (totalclock>>4)&3 );
             break;
         case RPG__STATIC:
+#if defined(POLYMOST) && defined(USE_OPENGL)
             if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0) {
                 t->cstat &= ~4;
                 break;
             }
-
+#endif
             k = getangle(s->x-x,s->y-y);
             k = (((s->ang+3072+128-k)&2047)/170);
             if(k > 6)
@@ -5937,11 +5939,12 @@ void animatesprites(long x,long y,short a,long smoothratio)
             break;
 
         case RECON__STATIC:
+#if defined(POLYMOST) && defined(USE_OPENGL)
             if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0) {
                 t->cstat &= ~4;
                 break;
             }
-
+#endif
             k = getangle(s->x-x,s->y-y);
             if( T1 < 4 )
                 k = (((s->ang+3072+128-k)&2047)/170);
@@ -6025,18 +6028,21 @@ void animatesprites(long x,long y,short a,long smoothratio)
                 if(s->owner >= 0)
                     tsprite[spritesortcnt].z = ps[p].posz-(20<<8);
                 else tsprite[spritesortcnt].z = s->z-(96<<8);
-                tsprite[spritesortcnt].xrepeat = 16;
-                tsprite[spritesortcnt].yrepeat = 16;
+                tsprite[spritesortcnt].xrepeat = 32;
+                tsprite[spritesortcnt].yrepeat = 32;
                 tsprite[spritesortcnt].pal = 20;
                 spritesortcnt++;
             }
 
             if(s->owner == -1)
             {
+#if defined(POLYMOST) && defined(USE_OPENGL)
                 if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
                     k = 0;
                     t->cstat &= ~4;
-                } else {
+                } else
+#endif
+                {
                     k = (((s->ang+3072+128-a)&2047)>>8)&7;
                     if(k>4)
                     {
@@ -6143,12 +6149,14 @@ PALONLY:
             if(t4)
             {
                 l = *(long *)(t4+8);
-
+#if defined(POLYMOST) && defined(USE_OPENGL)
                 if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
                     k = 0;
                     t->cstat &= ~4;
                 }
-                else switch( l )
+                else
+#endif
+                    switch( l )
                     {
                     case 2:
                         k = (((s->ang+3072+128-a)&2047)>>8)&1;
@@ -6245,6 +6253,7 @@ PALONLY:
                                 yrep = tsprite[spritesortcnt].yrepeat;// - (klabs(daz-t->z)>>11);
                                 tsprite[spritesortcnt].yrepeat = yrep;
 
+#if defined(POLYMOST) && defined(USE_OPENGL)
                                 if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0)
                                 {
                                     tsprite[spritesortcnt].yrepeat = 0;
@@ -6252,7 +6261,7 @@ PALONLY:
                                     //1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
                                     tsprite[spritesortcnt].cstat |= (512+1024);
                                 }
-
+#endif
                                 spritesortcnt++;
                             }
                     }
@@ -6303,10 +6312,13 @@ PALONLY:
             t->picnum += (s->shade>>1);
             break;
         case PLAYERONWATER__STATIC:
+#if defined(POLYMOST) && defined(USE_OPENGL)
             if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
                 k = 0;
                 t->cstat &= ~4;
-            } else {
+            } else
+#endif
+            {
                 k = (((t->ang+3072+128-a)&2047)>>8)&7;
                 if(k>4)
                 {
@@ -6362,10 +6374,12 @@ PALONLY:
         case CAMERA1__STATIC:
         case RAT__STATIC:
 
+#if defined(POLYMOST) && defined(USE_OPENGL)
             if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
                 t->cstat &= ~4;
                 break;
             }
+#endif
 
             k = (((t->ang+3072+128-a)&2047)>>8)&7;
             if(k>4)

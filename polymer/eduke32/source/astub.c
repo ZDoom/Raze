@@ -1373,10 +1373,12 @@ void _message(char message[162])
 
 void message(char message[162])
 {
+    char tmpbuf[2048];
+
     _message(message);
-    Bstrcpy(tempbuf,message);
-    tempbuf[Bstrlen(message)] = '\n';
-    OSD_Printf(tempbuf);
+    Bstrcpy(tmpbuf,message);
+    Bstrcat(tmpbuf,"\n");
+    OSD_Printf(tmpbuf);
     lastmessagetime = totalclock;
 }
 
@@ -4421,11 +4423,12 @@ void ExtAnalyzeSprites(void)
             }
             //                else tspr->cstat&=32767;
 
+#if defined(POLYMOST) && defined(USE_OPENGL)
             if (bpp > 8 && usemodels && md_tilehasmodel(tspr->picnum)) {
                 tspr->cstat &= ~4;
                 break;
             }
-
+#endif
             if(frames!=0)
             {
                 if(frames==10) frames=0;

@@ -2096,7 +2096,7 @@ cheat_for_port_credits:
         menutext(c,70+19+19+19,MENUHIGHLIGHT(3),PHX(-5),skill_names[3]);
         break;
     case 230:
-
+#if defined(POLYMOST) && defined(USE_OPENGL)
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,24,0,0,"ADVANCED VIDEO");
 
@@ -2182,6 +2182,7 @@ cheat_for_port_credits:
                 yy += 8;
             }
         }
+#endif
         break;
 
     case 200:
@@ -2953,7 +2954,7 @@ cheat_for_port_credits:
                 MouseDigitalFunctions[whichkey>>1][whichkey&1] = x;
                 CONTROL_MapDigitalAxis(whichkey>>1, x, whichkey&1, controldevice_mouse);
                 cmenu(212);
-                probey = 2+(whichkey^2);
+                probey = 3+(whichkey^2);
             } else if (function == 2) {
                 if (whichkey < 2*joynumbuttons) {
                     JoystickFunctions[whichkey>>1][whichkey&1] = x;

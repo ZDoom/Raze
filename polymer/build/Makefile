@@ -10,7 +10,6 @@
 #  SUPERBUILD     - enables voxels
 #  POLYMOST       - enables Polymost renderer
 #  USE_OPENGL     - enables OpenGL support in Polymost
-#  DYNAMIC_OPENGL - enables run-time loading of OpenGL library
 #  USE_A_C        - enables use of C version of classic renderer
 #  NOASM          - disables the use of inline assembly pragmas
 #
@@ -18,7 +17,6 @@
 SUPERBUILD ?= 1
 POLYMOST ?= 1		
 USE_OPENGL ?= 1
-DYNAMIC_OPENGL ?= 1
 USE_A_C ?= 0
 NOASM ?= 0
 

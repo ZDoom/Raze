@@ -698,9 +698,9 @@ int hicclearsubst(long picnum, long palnum) { return 0; }
 long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen) { return -1; }
 #endif
 //============================================================================= //POLYMOST ENDS
-
+#if defined(POLYMOST) && defined(USE_OPENGL)
 #include "polymer.c"
-
+#endif
 //
 // getpalookup (internal)
 //
@@ -5663,11 +5663,13 @@ void drawrooms(long daposx, long daposy, long daposz,
     umost[0] = shortptr1[0]-windowy1;
     dmost[0] = shortptr2[0]-windowy1;
 
+#if defined(POLYMOST) && defined(USE_OPENGL)
     if (0)
     {
         polymer_drawrooms();
         return;
     }
+#endif
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
     polymost_drawrooms(); if (rendmode) { return; }

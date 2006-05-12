@@ -37,7 +37,7 @@ source:
 
 binary:
 	make RELEASE=1
-	upx -9 mapster32.exe eduke32.exe duke3d_w32.exe
+	upx -9 mapster32.exe eduke32.exe duke3d_w32.exe setup.exe
 	rm -rf $(binarydir)
 	mkdir $(binarydir)
 #	mkdir $(binarydir) $(binarydir)/models

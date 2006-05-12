@@ -599,11 +599,29 @@ void CONFIG_ReadSetup( void )
 #ifdef RENDERTYPEWIN
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "MaxRefreshFreq", (int32*)&maxrefreshfreq);
 #endif
-
+#if defined(POLYMOST) && defined(USE_OPENGL)
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLTextureMode", &gltexfiltermode);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLAnisotropy", &glanisotropy);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseTextureCompr", &glusetexcompr);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLRatioCorrection", &glratiocorrection);
+
+        glusetexcache = glusetexcachecompression = -1;
+        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
+        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseTextureCacheCompression", &glusetexcachecompression);
+        if(glusetexcache == -1 && glusetexcachecompression == -1)
+        {
+            i=wm_ynbox("Texture caching",
+                       "Would you like to enable the on-disk texture cache? "
+                       "This feature may use up to 200 megabytes of disk "
+                       "space if you have a great deal of high resolution "
+                       "textures and skins, but textures will load exponentially "
+                       "faster after the first time they are loaded.");
+            if (i) i = 'y';
+            if(i == 'y' || i == 'Y' )
+                useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
+            else glusetexcache = glusetexcachecompression = 0;
+        }
+#endif
         dummy = usemodels; SCRIPT_GetNumber( scripthandle, "Screen Setup", "UseModels",&dummy); usemodels = dummy != 0;
         dummy = usehightile; SCRIPT_GetNumber( scripthandle, "Screen Setup", "UseHightile",&dummy); usehightile = dummy != 0;
 
@@ -665,23 +683,6 @@ void CONFIG_ReadSetup( void )
         ps[0].auto_aim = AutoAim;
         SCRIPT_GetNumber( scripthandle, "Controls","WeaponSwitchMode",&ud.weaponswitch);
         ps[0].weaponswitch = ud.weaponswitch;
-        glusetexcache = glusetexcachecompression = -1;
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseTextureCacheCompression", &glusetexcachecompression);
-        if(glusetexcache == -1 && glusetexcachecompression == -1)
-        {
-            i=wm_ynbox("Texture caching",
-                       "Would you like to enable the on-disk texture cache? "
-                       "This feature may use up to 200 megabytes of disk "
-                       "space if you have a great deal of high resolution "
-                       "textures and skins, but textures will load exponentially "
-                       "faster after the first time they are loaded.");
-            if (i) i = 'y';
-            if(i == 'y' || i == 'Y' )
-                useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
-            else glusetexcache = glusetexcachecompression = 0;
-        }
-
     }
 
     CONFIG_ReadKeys();
@@ -738,12 +739,14 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Misc", "UsePrecache",useprecache,false,false);
 
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "Detail",ud.detail,false,false);
+#if defined(POLYMOST) && defined(USE_OPENGL)
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLAnisotropy",glanisotropy,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLRatioCorrection",glratiocorrection,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLTextureMode",gltexfiltermode,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", glusetexcache,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseTextureCacheCompression", glusetexcachecompression,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseTextureCompr",glusetexcompr,false,false);
+#endif
 #ifdef RENDERTYPEWIN
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);
 #endif

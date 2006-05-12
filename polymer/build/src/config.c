@@ -129,6 +129,7 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
 #ifdef RENDERTYPEWIN
     if (readconfig(fp, "maxrefreshfreq", val, VL) > 0) maxrefreshfreq = Batoi(val);
 #endif
+#if defined(POLYMOST) && defined(USE_OPENGL)
     glusetexcache = glusetexcachecompression = -1;
     if (readconfig(fp, "glusetexcache", val, VL) > 0) {
         if (Batoi(val) != 0) glusetexcache = 1;
@@ -151,6 +152,7 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
             glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
     }
+#endif
 
     option[0] = 1;	// vesa all the way...
     option[1] = 1;	// sound all the way...
@@ -207,10 +209,12 @@ int writesetup(const char *fn)
              "; 3D-mode colour depth\n"
              "bpp = %ld\n"
              "\n"
+#if defined(POLYMOST) && defined(USE_OPENGL)
              "; OpenGL mode options\n"
              "glusetexcache = %ld\n"
              "glusetexcachecompression = %ld\n"
              "\n"
+#endif
 #ifdef RENDERTYPEWIN
              "; Maximum OpenGL mode refresh rate (Windows only, in Hertz)\n"
              "maxrefreshfreq = %d\n"
@@ -289,7 +293,9 @@ int writesetup(const char *fn)
              "\n",
 
              fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame,
+#if defined(POLYMOST) && defined(USE_OPENGL)
              glusetexcache, glusetexcachecompression,
+#endif
 #ifdef RENDERTYPEWIN
              maxrefreshfreq,
 #endif

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#if defined DYNAMIC_OPENGL && defined USE_OPENGL
+#if defined USE_OPENGL
 
 #ifdef RENDERTYPESDL
 #include "SDL.h"
@@ -347,13 +347,6 @@ int unloadgldriver(void)
 
     return 0;
 }
-
-#else
-
-char *gldriver = "<statically linked>";
-
-int loadgldriver(const char *a) { return 0; }
-int unloadgldriver(void) { return 0; }
 
 #endif
 

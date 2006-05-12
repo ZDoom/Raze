@@ -24,8 +24,6 @@
 #error You should get an updated copy of glext.h from http://oss.sgi.com/projects/ogl-sample/registry/
 #endif
 
-#ifdef DYNAMIC_OPENGL
-
 #ifndef APIENTRY
 # define APIENTRY
 #endif
@@ -112,93 +110,6 @@ extern int (WINAPI * bwglChoosePixelFormat)(HDC,CONST PIXELFORMATDESCRIPTOR*);
 extern int (WINAPI * bwglDescribePixelFormat)(HDC,int,UINT,LPPIXELFORMATDESCRIPTOR);
 extern int (WINAPI * bwglGetPixelFormat)(HDC);
 extern BOOL (WINAPI * bwglSetPixelFormat)(HDC,int,const PIXELFORMATDESCRIPTOR*);
-#endif
-
-#else	// DYNAMIC_OPENGL
-
-#define bglClearColor		glClearColor
-#define bglClear		glClear
-#define bglColorMask		glColorMask
-#define bglAlphaFunc		glAlphaFunc
-#define bglBlendFunc		glBlendFunc
-#define bglCullFace		glCullFace
-#define bglFrontFace		glFrontFace
-#define bglPolygonOffset	glPolygonOffset
-#define bglPolygonMode    glPolygonMode
-#define bglEnable		glEnable
-#define bglDisable		glDisable
-#define bglGetFloatv		glGetFloatv
-#define bglGetIntegerv		glGetIntegerv
-#define bglPushAttrib		glPushAttrib
-#define bglPopAttrib		glPopAttrib
-#define bglGetError		glGetError
-#define bglGetString		glGetString
-#define bglHint			glHint
-
-// Depth
-#define bglDepthFunc		glDepthFunc
-#define bglDepthMask		glDepthMask
-#define bglDepthRange		glDepthRange
-
-// Matrix
-#define bglMatrixMode		glMatrixMode
-#define bglOrtho		glOrtho
-#define bglFrustum		glFrustum
-#define bglViewport		glViewport
-#define bglPushMatrix		glPushMatrix
-#define bglPopMatrix		glPopMatrix
-#define bglLoadIdentity		glLoadIdentity
-#define bglLoadMatrixf		glLoadMatrixf
-
-// Drawing
-#define bglBegin		glBegin
-#define bglEnd			glEnd
-#define bglVertex2f		glVertex2f
-#define bglVertex2i		glVertex2i
-#define bglVertex3d		glVertex3d
-#define bglVertex3fv		glVertex3fv
-#define bglColor4f		glColor4f
-#define bglColor4ub		glColor4ub
-#define bglTexCoord2d		glTexCoord2d
-#define bglTexCoord2f		glTexCoord2f
-
-// Lighting
-#define bglShadeModel		glShadeModel
-
-// Raster funcs
-#define bglReadPixels		glReadPixels
-
-// Texture mapping
-#define bglTexEnvf		glTexEnvf
-#define bglGenTextures		glGenTextures
-#define bglDeleteTextures	glDeleteTextures
-#define bglBindTexture		glBindTexture
-#define bglTexImage2D		glTexImage2D
-#define bglTexSubImage2D	glTexSubImage2D
-#define bglTexParameterf	glTexParameterf
-#define bglTexParameteri	glTexParameteri
-#define bglGetTexLevelParameteriv glGetTexLevelParameteriv
-#define bglCompressedTexImage2DARB glCompressedTexImage2DARB
-#define bglGetCompressedTexImageARB glGetCompressedTexImageARB
-
-// Fog
-#define bglFogf			glFogf
-#define bglFogi			glFogi
-#define bglFogfv		glFogfv
-			
-#ifdef RENDERTYPEWIN
-#define bwglCreateContext	wglCreateContext
-#define bwglDeleteContext	wglDeleteContext
-#define bwglGetProcAddress	wglGetProcAddress
-#define bwglMakeCurrent		wglMakeCurrent
-
-#define bwglSwapBuffers		SwapBuffers
-#define bwglChoosePixelFormat	ChoosePixelFormat
-#define bwglDescribePixelFormat	DescribePixelFormat
-#define bwglGetPixelFormat	GetPixelFormat
-#define bwglSetPixelFormat	SetPixelFormat
-#endif
-
 #endif
 
 #endif //USE_OPENGL

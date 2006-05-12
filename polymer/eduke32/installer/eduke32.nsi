@@ -80,7 +80,7 @@ Section "!Game" SEC_GAME
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Setup.lnk" "$INSTDIR\setup.exe"
 SectionEnd
 
-Section "Editor" SEC_EDITOR
+Section "Level editor" SEC_EDITOR
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File "..\build.cfg"
@@ -89,7 +89,7 @@ Section "Editor" SEC_EDITOR
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Mapster32.lnk" "$INSTDIR\mapster32.exe"
 SectionEnd
 
-Section "Dukester X Support" SEC_DX
+Section /o "Dukester X 1.5 support" SEC_DX
   SetOutPath "$INSTDIR"
   SetOverwrite ifdiff
   File "..\duke3d_w32.exe"
@@ -125,7 +125,7 @@ SectionEnd
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC_GAME} "The main EDuke32 game components (required to play EDuke enhanced mods)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC_EDITOR} "The enhanced Mapster32 editor (optional)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_DX} "Dukester X 1.5.1 support (optional)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_DX} "Support for Dukester X 1.5 (optional)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC_SAMPLES} "Sample enhancement definition files (optional)"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 

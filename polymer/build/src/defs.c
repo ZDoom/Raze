@@ -210,7 +210,9 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
 static int lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
 extern int nextvoxid;
 
+#if defined(POLYMOST) && defined(USE_OPENGL)
 extern float alphahackarray[MAXTILES];
+#endif
 extern char spritecol2d[MAXTILES][2];
 extern char vgapal16[4*256];
 
@@ -311,7 +313,9 @@ static int defsparser(scriptfile *script)
 
                 if (scriptfile_getsymbol(script,&tile)) break;
                 if (scriptfile_getdouble(script,&alpha)) break;
+#if defined(POLYMOST) && defined(USE_OPENGL)
                 if ((unsigned long)tile < MAXTILES) alphahackarray[tile] = alpha;
+#endif
             }
             break;
         case T_ALPHAHACKRANGE:
@@ -328,6 +332,7 @@ static int defsparser(scriptfile *script)
                     tilenume2 = tilenume1;
                     tilenume1 = i;
                 }
+#if defined(POLYMOST) && defined(USE_OPENGL)
                 if ((tilenume1 >= 0 && tilenume1 < MAXTILES) && (tilenume2 >= 0 && tilenume2 < MAXTILES))
                 {
                     for (i=tilenume1;i<=tilenume2;i++)
@@ -336,6 +341,7 @@ static int defsparser(scriptfile *script)
                             alphahackarray[i] = alpha;
                     }
                 }
+#endif
             }
             break;
         case T_SPRITECOL:

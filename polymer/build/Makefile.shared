@@ -3,11 +3,6 @@
 ENGINELIB=libengine.a
 EDITORLIB=libbuild.a
 
-# These are used when DYNAMIC_OPENGL is false
-GLLIBWIN=-lopengl32
-GLLIBBSD=-lopengl32
-GLLIBLIN=-lGL
-
 SDLCONFIG=sdl-config
 #SDLCONFIG=/usr/local/bin/sdl11-config
 
@@ -53,9 +48,6 @@ endif
 
 ifeq ($(PLATFORM),LINUX)
 	RENDERTYPE=SDL
-	ifneq ($(DYNAMIC_OPENGL),1)
-		LIBS+= $(GLLIBLIN)
-	endif
 	ifeq ($(findstring x86_64,$(shell uname -m)),x86_64)
 		# on my 64bit Gentoo these are the 32bit emulation libs
 		LIBS+= -m32 -L/emul/linux/x86/usr/lib
@@ -67,15 +59,9 @@ ifeq ($(PLATFORM),WINDOWS)
 	RENDERTYPE ?= WIN
 	EXESUFFIX=.exe
 	LIBS+= -lmingwex -lwinmm -L$(DXROOT)/lib -lwsock32 #-lshfolder
-	ifneq ($(DYNAMIC_OPENGL),1)
-		LIBS+= $(GLLIBWIN)
-	endif
 endif
 ifeq ($(PLATFORM),BSD)
 	RENDERTYPE=SDL
-	ifneq ($(DYNAMIC_OPENGL),1)
-		LIBS+= $(GLLIBBSD)
-	endif
 endif
 ifeq ($(PLATFORM),BEOS)
 	RENDERTYPE=SDL
@@ -143,9 +129,6 @@ ifneq (0,$(POLYMOST))
 endif
 ifneq (0,$(USE_OPENGL))
   BUILDCFLAGS+= -DUSE_OPENGL
-  ifneq (0,$(DYNAMIC_OPENGL))
-    BUILDCFLAGS+= -DDYNAMIC_OPENGL
-  endif
 endif
 ifneq (0,$(USE_A_C))
   BUILDCFLAGS+= -DUSE_A_C
