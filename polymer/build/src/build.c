@@ -531,12 +531,15 @@ void editinput(void)
     {
         ang += mousx>>1;
         horiz -= (mousy>>2);
+
+        if (mousy && !(mousy>>2))
+            horiz--;
+        if (mousx && !(mousx>>1))
+            ang++;
         if (horiz > 299)
             horiz = 299;
         if (horiz < -99)
             horiz = -99;
-        if (mousy && !(mousy>>2))
-            horiz--;
         searchx = xdim>>1;
         searchy = ydim>>1;
         osearchx = searchx-mousx;

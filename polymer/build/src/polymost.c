@@ -3352,8 +3352,11 @@ void polymost_drawrooms ()
     {
         short hitsect, hitwall, hitsprite;
         long vx, vy, vz, hitx, hity, hitz;
+        float ratioratio = 1.0;
 
-        ox2 = searchx-ghalfx; oy2 = searchy-ghoriz; oz2 = ghalfx;
+        ratioratio = 1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
+
+        ox2 = (searchx-ghalfx)/ratioratio; oy2 = (searchy-ghoriz)/((ratioratio > 1)?1.2:1); oz2 = ghalfx;
 
         //Tilt rotation
         ox = ox2*gctang + oy2*gstang;
