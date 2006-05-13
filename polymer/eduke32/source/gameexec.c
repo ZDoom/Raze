@@ -4078,8 +4078,13 @@ SKIPJIBS:
             long var1, var2;
 
             insptr++;
+
             var1 = GetGameVarID(*insptr++,g_i,g_p);
-            var2 = GetGameVarID(*insptr++,g_i,g_p);
+            if(tw == CON_OPERATEACTIVATORS && *insptr == g_iThisActorID)
+            {
+                var2 = g_p;
+                insptr++;
+            } else var2 = GetGameVarID(*insptr++,g_i,g_p);
 
             switch(tw)
             {
@@ -4154,8 +4159,14 @@ SKIPJIBS:
         {
             int i,j;
             insptr++;
+
             i = GetGameVarID(*insptr++, g_i, g_p);
-            j = GetGameVarID(*insptr++, g_i, g_p);
+            if(tw == CON_GETPNAME && *insptr == g_iThisActorID)
+            {
+                j = g_p;
+                insptr++;
+            } else j = GetGameVarID(*insptr++, g_i, g_p);
+
             switch(tw)
             {
             case CON_GETPNAME:
