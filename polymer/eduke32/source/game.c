@@ -8458,8 +8458,8 @@ void sanitizegametype()
     }
     Bsprintf(tempbuf,"%s\n",gametype_names[ud.m_coop]);
     initprintf(tempbuf);
-    if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_ITEMRESPAWN) ud.m_respawn_items = 1;
-    else ud.m_respawn_items = 0;
+    if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_ITEMRESPAWN)
+        ud.m_respawn_items = ud.m_respawn_inventory = 1;
     //     initprintf("ud.m_coop=%i after sanitisation\n",ud.m_coop);
 }
 

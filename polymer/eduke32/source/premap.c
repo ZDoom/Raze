@@ -1063,16 +1063,11 @@ void newgame(char vn,char ln,char sk)
                     p->curr_weapon = i;
                     p->gotweapon[i] = 1;
                     p->ammo_amount[i] = 48;
-
                 }
                 else if(aplWeaponWorksLike[i][0]==KNEE_WEAPON)
-                {
                     p->gotweapon[i] = 1;
-                }
                 else if(aplWeaponWorksLike[i][0]==HANDREMOTE_WEAPON)
-                {
                     p->gotweapon[i] = 1;
-                }
             }
             p->last_weapon = -1;
         }

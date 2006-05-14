@@ -793,7 +793,8 @@ enum weaponflags {
     WEAPON_FLAG_SPAWNTYPE2          = 4096,  // spawn like shotgun shells
     WEAPON_FLAG_SPAWNTYPE3          = 8192,  // spawn like chaingun shells
     WEAPON_FLAG_SEMIAUTO            = 16384, // cancel button press after each shot
-    WEAPON_FLAG_RELOAD_TIMING       = 32768  // special casing for pistol reload sounds
+    WEAPON_FLAG_RELOAD_TIMING       = 32768, // special casing for pistol reload sounds
+    WEAPON_FLAG_RESET               = 65536  // cycle weapon back to frame 1 if fire is held, 0 if not
 };
 
 #define TRIPBOMB_TRIPWIRE           1
