@@ -4955,12 +4955,13 @@ SHOOTINCODE:
                         }
                         else *kb = 0;
                     }
-                    else if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET)
+                    else *kb = 0;
+
+                    if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET)
                     {
                         if( sb_snum&(1<<2) ) *kb = 1;
                         else *kb = 0;
                     }
-                    else *kb = 0;
                 }
             }
             else if ( *kb >= aplWeaponFireDelay[p->curr_weapon][snum] && (*kb) < aplWeaponTotalTime[p->curr_weapon][snum]
@@ -4968,6 +4969,10 @@ SHOOTINCODE:
             {
                 if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
                 {
+                    if(( sb_snum&(1<<2) ) == 0 )
+                    {
+                        *kb = 0;
+                    }
                     if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYTHIRD)
                     {
                         if( ((*(kb))%3) == 0 )
