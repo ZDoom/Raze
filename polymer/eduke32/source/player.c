@@ -361,7 +361,7 @@ short aim(spritetype *s,short aang,short atwith)
 
 short shoot(short i,short atwith)
 {
-    short sect, hitsect, hitspr, hitwall, l, sa, p, j, k, wh, scount;
+    short sect, hitsect, hitspr, hitwall, l, sa, p, j, k=-1, wh, scount;
     long sx, sy, sz, vel, zvel, hitx, hity, hitz, x, oldzvel, dal;
     unsigned char sizx,sizy;
     spritetype *s;
@@ -462,14 +462,14 @@ short shoot(short i,short atwith)
                                         while(k >= 0)
                                         {
                                             if(sprite[k].statnum == 3 && sprite[k].lotag == 13)
-                                                return 0;
+                                                return -1;
                                             k = nextspritesect[k];
                                         }
                                     }
 
                                     if( wall[hitwall].nextwall >= 0 &&
                                             wall[wall[hitwall].nextwall].hitag != 0 )
-                                        return 0;
+                                        return -1;
 
                                     if(wall[hitwall].hitag == 0)
                                     {
@@ -541,16 +541,16 @@ short shoot(short i,short atwith)
                                         //                                        sprite[k].pal = 6;
                                     }
                                 }
-                return 0;
+                return -1;
             }
 
-            if(hitsect < 0) return 0;
+            if(hitsect < 0) return -1;
 
             if ((projectile[atwith].range == 0) && (projectile[atwith].workslike & PROJECTILE_FLAG_KNEE))
                 projectile[atwith].range = 1024;
 
             if( (projectile[atwith].range > 0) && (( klabs(sx-hitx)+klabs(sy-hity) ) > projectile[atwith].range) )
-                return 0;
+                return -1;
             else
             {
                 if(hitwall >= 0 || hitspr >= 0)
@@ -605,7 +605,7 @@ short shoot(short i,short atwith)
 
                 }
             }
-            return 0;
+            return -1;
         }
 
         if(projectile[atwith].workslike & PROJECTILE_FLAG_HITSCAN)
@@ -630,7 +630,7 @@ short shoot(short i,short atwith)
                     if (((sprite[j].picnum >= GREENSLIME)&&(sprite[j].picnum <= GREENSLIME+7))||(sprite[j].picnum ==ROTATEGUN) )
                     {
                         dal -= (8<<8);
-                        return 0;
+                        return -1;
                     }
                     zvel = ( ( sprite[j].z-sz-dal )<<8 ) / ldist(&sprite[ps[p].i], &sprite[j]) ;
                     sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
@@ -683,9 +683,9 @@ short shoot(short i,short atwith)
             if (projectile[atwith].cstat >= 0) s->cstat |= projectile[atwith].cstat;
             else s->cstat |= 257;
 
-            if(hitsect < 0) return 0;
+            if(hitsect < 0) return -1;
 
-            if( (projectile[atwith].range > 0) && (( klabs(sx-hitx)+klabs(sy-hity) ) > projectile[atwith].range) ) return 0;
+            if( (projectile[atwith].range > 0) && (( klabs(sx-hitx)+klabs(sy-hity) ) > projectile[atwith].range) ) return -1;
 
             if (projectile[atwith].trail > -1)
                 hitscantrail(sx,sy,sz,hitx,hity,hitz,sa,atwith);
@@ -716,7 +716,7 @@ short shoot(short i,short atwith)
                         {
                             sprite[k].xrepeat = 0;
                             sprite[k].yrepeat = 0;
-                            return 0;
+                            return -1;
                         }
                         else
                             checkhitceiling(hitsect);
@@ -760,7 +760,7 @@ short shoot(short i,short atwith)
                                 sprite[hitspr].picnum == HANDSWITCH+1) )
                     {
                         checkhitswitch(p,hitspr,1);
-                        return 0;
+                        return -1;
                     }
                 }
                 else if( hitwall >= 0 )
@@ -784,7 +784,7 @@ short shoot(short i,short atwith)
                                 wall[hitwall].picnum == HANDSWITCH+1) )
                     {
                         checkhitswitch(p,hitwall,0);
-                        return 0;
+                        return -1;
                     }
 
                     if(wall[hitwall].hitag != 0 || ( wall[hitwall].nextwall >= 0 && wall[wall[hitwall].nextwall].hitag != 0 ) )
@@ -884,7 +884,7 @@ DOSKIPBULLETHOLE:
                 if (projectile[atwith].isound >= 0)
                     xyzsound(projectile[atwith].isound,k,hitx,hity,hitz);
 
-            return 0;
+            return -1;
         }
 
         if(projectile[atwith].workslike & PROJECTILE_FLAG_RPG)
@@ -989,7 +989,7 @@ DOSKIPBULLETHOLE:
             //            sa = s->ang+32-(TRAND&63);
             //            zvel = oldzvel+512-(TRAND&1023);
 
-            return 0;
+            return j;
         }
 
     }
@@ -1050,14 +1050,14 @@ DOSKIPBULLETHOLE:
                                     while(k >= 0)
                                     {
                                         if(sprite[k].statnum == 3 && sprite[k].lotag == 13)
-                                            return 0;
+                                            return -1;
                                         k = nextspritesect[k];
                                     }
                                 }
 
                                 if( wall[hitwall].nextwall >= 0 &&
                                         wall[wall[hitwall].nextwall].hitag != 0 )
-                                    return 0;
+                                    return -1;
 
                                 if(wall[hitwall].hitag == 0)
                                 {
@@ -1075,7 +1075,7 @@ DOSKIPBULLETHOLE:
                                         sprite[k].pal = 6;
                                 }
                             }
-                return 0;
+                return -1;
             }
 
             if(hitsect < 0) break;
@@ -1203,7 +1203,7 @@ DOSKIPBULLETHOLE:
                     zvel<<6,&hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
             s->cstat |= 257;
 
-            if(hitsect < 0) return 0;
+            if(hitsect < 0) return -1;
 
             if( (TRAND&15) == 0 && sector[hitsect].lotag == 2 )
                 tracers(hitx,hity,hitz,sx,sy,sz,8-(ud.multimode>>1));
@@ -1227,7 +1227,7 @@ DOSKIPBULLETHOLE:
                         {
                             sprite[k].xrepeat = 0;
                             sprite[k].yrepeat = 0;
-                            return 0;
+                            return -1;
                         }
                         else
                             checkhitceiling(hitsect);
@@ -1260,7 +1260,7 @@ DOSKIPBULLETHOLE:
                                 sprite[hitspr].picnum == HANDSWITCH+1) )
                     {
                         checkhitswitch(p,hitspr,1);
-                        return 0;
+                        return -1;
                     }
                 }
                 else if( hitwall >= 0 )
@@ -1280,7 +1280,7 @@ DOSKIPBULLETHOLE:
                                 wall[hitwall].picnum == HANDSWITCH+1) )
                     {
                         checkhitswitch(p,hitwall,0);
-                        return 0;
+                        return -1;
                     }
 
                     if(wall[hitwall].hitag != 0 || ( wall[hitwall].nextwall >= 0 && wall[wall[hitwall].nextwall].hitag != 0 ) )
@@ -1358,7 +1358,7 @@ SKIPBULLETHOLE:
             if( (TRAND&255) < 4 )
                 xyzsound(PISTOL_RICOCHET,k,hitx,hity,hitz);
 
-            return 0;
+            return -1;
 
         case FIRELASER__STATIC:
         case SPIT__STATIC:
@@ -1466,7 +1466,7 @@ SKIPBULLETHOLE:
                 scount--;
             }
 
-            return 0;
+            return j;
 
         case FREEZEBLAST__STATIC:
             sz += (3<<8);
@@ -1655,7 +1655,7 @@ SKIPBULLETHOLE:
 
 
             }
-            return 0;
+            return j?k:-1;
 
         case BOUNCEMINE__STATIC:
         case MORTER__STATIC:
@@ -1806,10 +1806,10 @@ SKIPBULLETHOLE:
             sprite[j].clipdist = 32;
 
 
-            return 0;
+            return j;
         }
     }
-    return (long) s;
+    return -1;
 }
 
 void displayloogie(short snum)
@@ -4957,7 +4957,8 @@ SHOOTINCODE:
                     }
                     else *kb = 0;
 
-                    if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET)
+                    if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET &&
+                    ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
                     {
                         if( sb_snum&(1<<2) ) *kb = 1;
                         else *kb = 0;
@@ -4965,7 +4966,7 @@ SHOOTINCODE:
                 }
             }
             else if ( *kb >= aplWeaponFireDelay[p->curr_weapon][snum] && (*kb) < aplWeaponTotalTime[p->curr_weapon][snum]
-                      && (aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON ? 1 : p->ammo_amount[p->curr_weapon] > 0))
+                      && ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
             {
                 if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
                 {
@@ -4994,7 +4995,9 @@ SHOOTINCODE:
                             DoSpawn(p);
                         }
                     }
-                    if(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET && (*kb) > aplWeaponTotalTime[p->curr_weapon][snum]-3)
+                    if(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET &&
+                       (*kb) > aplWeaponTotalTime[p->curr_weapon][snum]-aplWeaponHoldDelay[p->curr_weapon][snum] &&
+                       ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
                     {
                         if( sb_snum&(1<<2) ) *kb = 1;
                         else *kb = 0;
