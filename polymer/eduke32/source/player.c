@@ -4968,46 +4968,62 @@ SHOOTINCODE:
             else if ( *kb >= aplWeaponFireDelay[p->curr_weapon][snum] && (*kb) < aplWeaponTotalTime[p->curr_weapon][snum]
                       && ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
             {
-                if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
+                if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC )
                 {
-                    if(( sb_snum&(1<<2) ) == 0 )
+                    if(!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_SEMIAUTO))
                     {
-                        *kb = 0;
-                    }
-                    if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYTHIRD)
-                    {
-                        if( ((*(kb))%3) == 0 )
+                        if(( sb_snum&(1<<2) ) == 0 )
+                        {
+                            *kb = 0;
+                        }
+                        if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYTHIRD)
+                        {
+                            if( ((*(kb))%3) == 0 )
+                            {
+                                DoFire(p);
+                                DoSpawn(p);
+                            }
+                        }
+                        else if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYOTHER)
                         {
                             DoFire(p);
                             DoSpawn(p);
                         }
-                    }
-                    else if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYOTHER)
-                    {
-                        DoFire(p);
-                        DoSpawn(p);
+                        else
+                        {
+                            if(*kb == aplWeaponFireDelay[p->curr_weapon][snum])
+                            {
+                                DoFire(p);
+                                DoSpawn(p);
+                            }
+                        }
+                        if(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET &&
+                                (*kb) > aplWeaponTotalTime[p->curr_weapon][snum]-aplWeaponHoldDelay[p->curr_weapon][snum] &&
+                                ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
+                        {
+                            if( sb_snum&(1<<2) ) *kb = 1;
+                            else *kb = 0;
+                        }
                     }
                     else
                     {
-                        if(*kb == aplWeaponFireDelay[p->curr_weapon][snum])
+                        if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYOTHER)
                         {
                             DoFire(p);
                             DoSpawn(p);
                         }
-                    }
-                    if(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET &&
-                            (*kb) > aplWeaponTotalTime[p->curr_weapon][snum]-aplWeaponHoldDelay[p->curr_weapon][snum] &&
-                            ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
-                    {
-                        if( sb_snum&(1<<2) ) *kb = 1;
-                        else *kb = 0;
+                        else
+                        {
+                            if(*kb == aplWeaponFireDelay[p->curr_weapon][snum])
+                            {
+                                DoFire(p);
+                                DoSpawn(p);
+                            }
+                        }
                     }
                 }
-                else
-                {
-                    if(*kb == aplWeaponFireDelay[p->curr_weapon][snum])
-                        DoFire(p);
-                }
+                else if(*kb == aplWeaponFireDelay[p->curr_weapon][snum])
+                    DoFire(p);
             }
         }
     }
