@@ -435,6 +435,10 @@ char *keyw[] = {
                    "save",					   // 288
                    "cansee",                   // 289
                    "canseespr",                // 290
+                   "findnearactorz",           // 291
+                   "findnearactorzvar",        // 292
+                   "findnearspritez",          // 293
+                   "findnearspritezvar",       // 294
                    "<null>"
                };
 
@@ -2921,6 +2925,8 @@ char parsecommand(void)
     case CON_FINDNEARACTOR3D:
     case CON_FINDNEARSPRITE:
     case CON_FINDNEARSPRITE3D:
+    case CON_FINDNEARACTORZ:
+    case CON_FINDNEARSPRITEZ:
         {
             // syntax findnearactor <type> <maxdist> <getvar>
             // gets the sprite ID of the nearest actor within max dist
@@ -2932,8 +2938,8 @@ char parsecommand(void)
 
             switch(tw)
             {
-            case CON_FINDNEARACTOR3D:
-            case CON_FINDNEARSPRITE3D:
+            case CON_FINDNEARACTORZ:
+            case CON_FINDNEARSPRITEZ:
                 transnum(LABEL_DEFINE);
             default:
                 break;
@@ -2949,6 +2955,8 @@ char parsecommand(void)
     case CON_FINDNEARACTOR3DVAR:
     case CON_FINDNEARSPRITEVAR:
     case CON_FINDNEARSPRITE3DVAR:
+    case CON_FINDNEARACTORZVAR:
+    case CON_FINDNEARSPRITEZVAR:
         {
             transnum(LABEL_DEFINE); // get <type>
 
@@ -2956,8 +2964,8 @@ char parsecommand(void)
             transvar();
             switch(tw)
             {
-            case CON_FINDNEARACTOR3DVAR:
-            case CON_FINDNEARSPRITE3DVAR:
+            case CON_FINDNEARACTORZVAR:
+            case CON_FINDNEARSPRITEZVAR:
                 transvar();
             default:
                 break;

@@ -4958,7 +4958,7 @@ SHOOTINCODE:
                     else *kb = 0;
 
                     if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET &&
-                    ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
+                            ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
                     {
                         if( sb_snum&(1<<2) ) *kb = 1;
                         else *kb = 0;
@@ -4996,8 +4996,8 @@ SHOOTINCODE:
                         }
                     }
                     if(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET &&
-                       (*kb) > aplWeaponTotalTime[p->curr_weapon][snum]-aplWeaponHoldDelay[p->curr_weapon][snum] &&
-                       ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
+                            (*kb) > aplWeaponTotalTime[p->curr_weapon][snum]-aplWeaponHoldDelay[p->curr_weapon][snum] &&
+                            ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
                     {
                         if( sb_snum&(1<<2) ) *kb = 1;
                         else *kb = 0;

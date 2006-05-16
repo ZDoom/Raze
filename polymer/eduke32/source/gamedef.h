@@ -720,5 +720,9 @@ enum keywords {
     CON_SAVE,				// 288
     CON_CANSEE,             // 289
     CON_CANSEESPR,          // 290
+    CON_FINDNEARACTORZ,     // 291
+    CON_FINDNEARACTORZVAR,  // 292
+    CON_FINDNEARSPRITEZ,    // 293
+    CON_FINDNEARSPRITEZVAR, // 294
     END
 };
