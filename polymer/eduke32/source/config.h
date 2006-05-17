@@ -42,7 +42,7 @@ extern int32 MixRate;
 //extern int32 MidiPort;
 extern int32 ReverseStereo;
 
-extern int32 ControllerType;
+extern int32 UseJoystick, UseMouse;
 extern int32 RunMode;
 extern int32 AutoAim;
 extern int32 MouseFilter;

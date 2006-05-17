@@ -7645,6 +7645,7 @@ static int parse_rancid_net(scriptfile *script)
                 Bsprintf(tempbuf,"%s",strtok(NULL,":"));
                 if(atoi(tempbuf) > 1024)
                     Bsprintf(rancid_local_port_string,"-p %s",tempbuf);
+                Bfree(ip);
             }
             break;
         case T_MODE:
@@ -7652,6 +7653,7 @@ static int parse_rancid_net(scriptfile *script)
                 char *mode;
 
                 if (scriptfile_getstring(script,&mode)) break;
+                Bfree(mode);
             }
             break;
         case T_ALLOW:
@@ -7660,6 +7662,7 @@ static int parse_rancid_net(scriptfile *script)
 
                 if (scriptfile_getstring(script,&ip)) break;
                 Bstrcpy(rancid_ip_strings[rancid_players++],ip);
+                Bfree(ip);
             }
             break;
         case T_EOF:
@@ -7751,7 +7754,7 @@ void checkcommandline(int argc,char **argv)
                     {
                         if(load_rancid_net(CommandNet) != -1)
                         {
-                            char tmp[16];
+                            char tmp[32];
 
                             CommandNet = 0;
 
@@ -7827,10 +7830,10 @@ void checkcommandline(int argc,char **argv)
                             {
                                 if(Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
                                     Bsprintf(rancid_ip_strings[j],"/n1");
-                                netparam[j] = rancid_ip_strings[j];
+                                netparam[j] = (char *)&rancid_ip_strings[j];
                             }
                             if(j != netparamcount)
-                                netparam[j] = rancid_local_port_string;
+                                netparam[j] = (char *)&rancid_local_port_string;
                         }
                     }
                     i++;
@@ -8533,21 +8536,22 @@ void Startup(void)
         exit(1);
     }
 
-    if (CONTROL_Startup( ControllerType, &GetTime, TICRATE )) {
+    if (CONTROL_Startup( 1, &GetTime, TICRATE )) {
         uninitengine();
         exit(1);
     }
     SetupGameButtons();
-    CONFIG_SetupMouse();
-    CONFIG_SetupJoystick();
+ 	CONFIG_SetupMouse();
+ 	CONFIG_SetupJoystick();
+ 
+	CONTROL_JoystickEnabled = (UseJoystick && CONTROL_JoyPresent);
+	CONTROL_MouseEnabled = (UseMouse && CONTROL_MousePresent);
 
-    // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-    if (ControllerType == controltype_keyboardandjoystick) {
-        for (i=0;i<joynumaxes;i++)
-            setjoydeadzone(i,JoystickAnalogueDead[i],JoystickAnalogueSaturate[i]);
-    }
-
-    inittimer(TICRATE);
+ 	// JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
+	for (i=0;i<joynumaxes;i++)
+		setjoydeadzone(i,JoystickAnalogueDead[i],JoystickAnalogueSaturate[i]);
+ 
+ 	inittimer(TICRATE);
 
     //initprintf("* Hold Esc to Abort. *\n");
     initprintf("Loading art header...\n");
@@ -8564,7 +8568,10 @@ void Startup(void)
     for(i=0;i<MAXPLAYERS;i++) playerreadyflag[i] = 0;
 
     if(Bstrlen(rancid_ip_strings[MAXPLAYERS]))
-        initprintf("net: Using %s as sort IP\n",rancid_ip_strings[MAXPLAYERS]);
+    {
+        initprintf("rmnet: Using %s as sort IP\n",rancid_ip_strings[MAXPLAYERS]);
+        initprintf("rmnet: %d players\n",rancid_players);
+    }
 
     //initmultiplayers(netparamcount,netparam, 0,0,0);
     if (initmultiplayersparms(netparamcount,netparam)) {
@@ -8893,16 +8900,6 @@ void app_main(int argc,char **argv)
 
     RTS_Init(ud.rtsname);
     if(numlumps) initprintf("Using .RTS file: %s\n",ud.rtsname);
-
-    if (CONTROL_JoystickEnabled)
-        CONTROL_CenterJoystick
-        (
-            CenterCenter,
-            UpperLeft,
-            LowerRight,
-            CenterThrottle,
-            CenterRudder
-        );
 
     if( setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP) < 0 )
     {

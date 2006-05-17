@@ -2684,6 +2684,7 @@ void displayweapon(short snum)
 
 long myaimmode = 0, myaimstat = 0, omyaimstat = 0;
 
+int32 mouseyaxismode = -1;
 static ControlInfo lastinfo = { 0,0,0,0,0,0 };
 
 static int jump_input = 0;
@@ -2691,7 +2692,6 @@ static int jump_input = 0;
 void getinput(short snum)
 {
     short j, daang;
-    // MED
     ControlInfo info;
     int32 tics;
     boolean running;
@@ -2703,19 +2703,54 @@ void getinput(short snum)
     momx = momy = 0;
     p = &ps[snum];
 
+    if( (p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)) )
+    {
+         CONTROL_GetInput( &info );
+	     memset(&lastinfo, 0, sizeof(lastinfo));
+         loc.fvel = vel = 0;
+         loc.svel = svel = 0;
+         loc.avel = angvel = 0;
+         loc.horz = horiz = 0;
+         loc.bits = (((long)gamequit)<<26);
+         return;
+    }
+
+    if (ud.mouseaiming)
+        myaimmode = BUTTON(gamefunc_Mouse_Aiming);
+    else
+    {
+        omyaimstat = myaimstat; myaimstat = BUTTON(gamefunc_Mouse_Aiming);
+        if (myaimstat > omyaimstat)
+        {
+            myaimmode ^= 1;
+            FTA(44+myaimmode,p);
+        }
+    }
+
+	{
+		int32 i;
+		if (myaimmode) i = analog_lookingupanddown;
+		else i = MouseAnalogueAxes[1];
+
+		if (i != mouseyaxismode) {
+			CONTROL_MapAnalogAxis(1, i, controldevice_mouse);
+			mouseyaxismode = i;
+		}
+	}
+
     CONTROL_GetInput( &info );
 
     if(MouseFilter)
     {
-        if(info.dz > 0)
+        if(info.dpitch > 0)
         {
-            info.dz -= MouseFilter;
-            if(info.dz < 0) info.dz = 0;
+            info.dpitch -= MouseFilter;
+            if(info.dpitch < 0) info.dpitch = 0;
         }
-        else if(info.dz < 0)
+        else if(info.dpitch < 0)
         {
-            info.dz += MouseFilter;
-            if(info.dz > 0) info.dz = 0;
+            info.dpitch += MouseFilter;
+            if(info.dpitch > 0) info.dpitch = 0;
         }
         if(info.dyaw > 0)
         {
@@ -2729,31 +2764,8 @@ void getinput(short snum)
         }
     }
 
-    if( (p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)) )
-    {
-        loc.fvel = vel = 0;
-        loc.svel = svel = 0;
-        loc.avel = angvel = 0;
-        loc.horz = horiz = 0;
-        loc.bits = (((long)gamequit)<<26);
-        info.dz = info.dyaw = 0;
-        return;
-    }
-
     tics = totalclock-lastcontroltime;
     lastcontroltime = totalclock;
-
-    if (ud.mouseaiming)
-        myaimmode = BUTTON(gamefunc_Mouse_Aiming);
-    else
-    {
-        omyaimstat = myaimstat; myaimstat = BUTTON(gamefunc_Mouse_Aiming);
-        if (myaimstat > omyaimstat)
-        {
-            myaimmode ^= 1;
-            FTA(44+myaimmode,p);
-        }
-    }
 
     if(multiflag == 1)
     {
@@ -2840,9 +2852,6 @@ void getinput(short snum)
 
     svel = vel = angvel = horiz = 0;
 
-    if( CONTROL_JoystickEnabled )
-        if ( running ) info.dz *= 2;
-
     if(SmoothInput)
     {
         if( BUTTON(gamefunc_Strafe) ) {
@@ -2853,17 +2862,11 @@ void getinput(short snum)
             lastinfo.dyaw = (lastinfo.dyaw+info.dyaw) % 64;
         }
 
-        if( myaimmode )
-        {
-            if(ud.mouseflip)
-                horiz = -(info.dz+lastinfo.dz)/(314-128);
-            else horiz = (info.dz+lastinfo.dz)/(314-128);
+        if(ud.mouseflip)
+            horiz = -(info.dpitch+lastinfo.dpitch)/(314-128);
+        else horiz = (info.dpitch+lastinfo.dpitch)/(314-128);
 
-            lastinfo.dz = (lastinfo.dz+info.dz) % (314-128);
-            info.dz = 0;
-        } else {
-            lastinfo.dz = info.dz % (1<<6);
-        }
+        lastinfo.dpitch = (lastinfo.dpitch+info.dpitch) % (314-128);
     }
     else
     {
@@ -2873,16 +2876,13 @@ void getinput(short snum)
             angvel = info.dyaw/64;
         }
 
-        if( myaimmode )
-        {
-            if(ud.mouseflip)
-                horiz -= info.dz/(314-128);
-            else horiz += info.dz/(314-128);
-            info.dz = 0;
-        }
+        if(ud.mouseflip)
+            horiz -= info.dpitch/(314-128);
+        else horiz += info.dpitch/(314-128);
     }
 
     svel -= info.dx;
+    lastinfo.dz = info.dz % (1<<6);
     vel = -info.dz>>6;
 
     if (running)
@@ -2899,13 +2899,9 @@ void getinput(short snum)
     if (BUTTON(gamefunc_Strafe))
     {
         if ( BUTTON(gamefunc_Turn_Left) && (ps[snum].movement_lock[3] == 0))
-        {
             svel -= -keymove;
-        }
         if ( BUTTON(gamefunc_Turn_Right) && (ps[snum].movement_lock[4] == 0))
-        {
             svel -= keymove;
-        }
     }
     else
     {
@@ -2913,30 +2909,20 @@ void getinput(short snum)
         {
             turnheldtime += tics;
             if (turnheldtime>=TURBOTURNTIME)
-            {
                 angvel -= turnamount;
-            }
             else
-            {
                 angvel -= PREAMBLETURN;
-            }
         }
         else if ( BUTTON(gamefunc_Turn_Right))
         {
             turnheldtime += tics;
             if (turnheldtime>=TURBOTURNTIME)
-            {
                 angvel += turnamount;
-            }
             else
-            {
                 angvel += PREAMBLETURN;
-            }
         }
         else
-        {
             turnheldtime=0;
-        }
     }
 
     if ( BUTTON(gamefunc_Strafe_Left) && (ps[snum].movement_lock[3] == 0))
@@ -4405,6 +4391,7 @@ HORIZONLY:
     }
 
     // center_view
+    i = 0;
     if( sb_snum&(1<<18) || p->hard_landing)
     {
         SetGameVarID(g_iReturnVarID,0,pi,snum);
@@ -4425,6 +4412,7 @@ HORIZONLY:
             p->return_to_center = 9;
             if( sb_snum&(1<<5) ) p->horiz += 12;    // running
             p->horiz += 12;
+            i++;
         }
     }
 
@@ -4438,6 +4426,7 @@ HORIZONLY:
             p->return_to_center = 9;
             if( sb_snum&(1<<5) ) p->horiz -= 12;
             p->horiz -= 12;
+            i++;
         }
     }
 
@@ -4450,6 +4439,7 @@ HORIZONLY:
             // running
             if( sb_snum&(1<<5) ) p->horiz += 6;
             p->horiz += 6;
+            i++;
         }
     }
 
@@ -4462,6 +4452,7 @@ HORIZONLY:
             // running
             if( sb_snum&(1<<5) ) p->horiz -= 6;
             p->horiz -= 6;
+            i++;
         }
     }
     if(p->return_to_center > 0)
@@ -4469,6 +4460,7 @@ HORIZONLY:
         {
             p->return_to_center--;
             p->horiz += 33-(p->horiz/3);
+            i++;
         }
 
     if(p->hard_landing > 0)
@@ -4477,13 +4469,12 @@ HORIZONLY:
         p->horiz -= (p->hard_landing<<4);
     }
 
-    if(p->aim_mode)
-        p->horiz += sync[snum].horz;
-    else
+    if(i)
     {
         if( p->horiz > 95 && p->horiz < 105) p->horiz = 100;
         if( p->horizoff > -5 && p->horizoff < 5) p->horizoff = 0;
     }
+    p->horiz += sync[snum].horz;
 
     if(p->horiz > 299) p->horiz = 299;
     else if(p->horiz < -99) p->horiz = -99;
@@ -4915,7 +4906,7 @@ SHOOTINCODE:
             if(*kb == aplWeaponSpawnTime[p->curr_weapon][snum])
                 DoSpawn(p);
 
-            if ((*kb) >=  aplWeaponTotalTime[p->curr_weapon][snum])
+            if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
             {
                 if(/*!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD) && */ p->reloading == 1 ||
                         (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum] && p->ammo_amount[p->curr_weapon] > 0

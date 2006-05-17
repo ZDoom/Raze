@@ -59,7 +59,7 @@ int32 MixRate;
 //int32 MidiPort;
 int32 ReverseStereo;
 
-int32 ControllerType;
+int32 UseJoystick = 0, UseMouse = 1;
 int32 RunMode;
 int32 AutoAim;  // JBF 20031125
 int32 ShowOpponentWeapons;
@@ -200,7 +200,6 @@ void CONFIG_SetDefaults( void )
 
     AmbienceToggle = 1;
     AutoAim = 1;
-    ControllerType = 1;
     FXDevice = 0;
     FXVolume = 220;
     MixRate = 44100;
@@ -241,6 +240,8 @@ void CONFIG_SetDefaults( void )
     ud.statusbarmode = 0;
     ud.statusbarscale = 100;
     ud.weaponswitch = 3;	// new+empty
+	UseJoystick = 0;
+	UseMouse = 1;
     VoiceToggle = 2;
 
     Bstrcpy(ud.rtsname, "DUKE.RTS");
@@ -670,13 +671,13 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Sound Setup", "MixRate",&MixRate);
         SCRIPT_GetNumber( scripthandle, "Sound Setup", "ReverseStereo",&ReverseStereo);
 
-        SCRIPT_GetNumber( scripthandle, "Controls","ControllerType",&ControllerType);
         SCRIPT_GetNumber( scripthandle, "Controls","MouseAimingFlipped",&ud.mouseflip); // mouse aiming inverted
         SCRIPT_GetNumber( scripthandle, "Controls","MouseAiming",&ud.mouseaiming);		// 1=momentary/0=toggle
+        ps[0].aim_mode = ud.mouseaiming;
         SCRIPT_GetNumber( scripthandle, "Controls","MouseFilter",&MouseFilter);
         SCRIPT_GetNumber( scripthandle, "Controls","SmoothInput",&SmoothInput);
-        //SCRIPT_GetNumber( scripthandle, "Controls","GameMouseAiming",(int32 *)&ps[0].aim_mode);   // dupe of below (?)
-        ps[0].aim_mode = ud.mouseaiming;
+    	SCRIPT_GetNumber( scripthandle, "Controls","UseJoystick",&UseJoystick);
+    	SCRIPT_GetNumber( scripthandle, "Controls","UseMouse",&UseMouse);
         SCRIPT_GetNumber( scripthandle, "Controls","AimingFlag",(int32 *)&myaimmode);   // (if toggle mode) gives state
         SCRIPT_GetNumber( scripthandle, "Controls","RunKeyBehaviour",&ud.runkey_mode);  // JBF 20031125
         SCRIPT_GetNumber( scripthandle, "Controls","AutoAim",&AutoAim);         // JBF 20031125
@@ -713,12 +714,13 @@ void CONFIG_WriteSetup( void )
 
     SCRIPT_PutNumber( scripthandle, "Controls","AimingFlag",(long) myaimmode,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","AutoAim",AutoAim,false,false);
-    // SCRIPT_PutNumber( scripthandle, "Controls","GameMouseAiming",(int32) ps[myconnectindex].aim_mode,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls", "MouseAimingFlipped",ud.mouseflip,false,false);
+    SCRIPT_PutNumber( scripthandle, "Controls","MouseAimingFlipped",ud.mouseflip,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseFilter",MouseFilter,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","SmoothInput",SmoothInput,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","RunKeyBehaviour",ud.runkey_mode,false,false);
+	SCRIPT_PutNumber( scripthandle, "Controls","UseJoystick",UseJoystick,false,false);
+	SCRIPT_PutNumber( scripthandle, "Controls","UseMouse",UseMouse,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","WeaponSwitchMode",ud.weaponswitch,false,false);
 
     SCRIPT_PutNumber( scripthandle, "Misc", "AutoMsg",ud.automsg,false,false);

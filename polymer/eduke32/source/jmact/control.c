@@ -824,84 +824,10 @@ void CONTROL_GetInput( ControlInfo *info )
 
 void CONTROL_WaitRelease( void )
 {
-/*
-155C                          CONTROL_WaitRelease_:
-155C    83 EC 0C                  sub         esp,0x0000000c
-155F                          L$170:
-155F    89 E0                     mov         eax,esp
-1561    E8 00 00 00 00            call        CONTROL_GetUserInput_
-1566    80 7C 24 08 08            cmp         byte ptr 0x8[esp],0x08
-156B    75 F2                     jne         L$170
-156D    83 3C 24 00               cmp         dword ptr [esp],0x00000000
-1571    75 EC                     jne         L$170
-1573    83 7C 24 04 00            cmp         dword ptr 0x4[esp],0x00000000
-1578    75 E5                     jne         L$170
-157A    83 C4 0C                  add         esp,0x0000000c
-157D    C3                        ret         
-157E    8B C0                     mov         eax,eax
-*/
 }
 
 void CONTROL_Ack( void )
 {
-/*
-1580                          CONTROL_Ack_:
-1580    53                        push        ebx
-1581    51                        push        ecx
-1582    52                        push        edx
-1583    56                        push        esi
-1584    55                        push        ebp
-1585    83 EC 18                  sub         esp,0x00000018
-1588    8D 44 24 0C               lea         eax,0xc[esp]
-158C    E8 00 00 00 00            call        CONTROL_GetUserInput_
-1591    31 DB                     xor         ebx,ebx
-1593                          L$171:
-1593    89 E0                     mov         eax,esp
-1595    E8 00 00 00 00            call        CONTROL_GetUserInput_
-159A    8B 14 24                  mov         edx,[esp]
-159D    39 D3                     cmp         ebx,edx
-159F    75 04                     jne         L$172
-15A1    89 54 24 0C               mov         0xc[esp],edx
-15A5                          L$172:
-15A5    8B 4C 24 04               mov         ecx,0x4[esp]
-15A9    39 CB                     cmp         ebx,ecx
-15AB    75 04                     jne         L$173
-15AD    89 4C 24 10               mov         0x10[esp],ecx
-15B1                          L$173:
-15B1    8B 74 24 0C               mov         esi,0xc[esp]
-15B5    39 F3                     cmp         ebx,esi
-15B7    75 0C                     jne         L$174
-15B9    3B 34 24                  cmp         esi,[esp]
-15BC    74 07                     je          L$174
-15BE    B8 01 00 00 00            mov         eax,0x00000001
-15C3    EB 02                     jmp         L$175
-15C5                          L$174:
-15C5    89 D8                     mov         eax,ebx
-15C7                          L$175:
-15C7    8B 6C 24 10               mov         ebp,0x10[esp]
-15CB    89 C2                     mov         edx,eax
-15CD    39 EB                     cmp         ebx,ebp
-15CF    75 0D                     jne         L$176
-15D1    3B 6C 24 04               cmp         ebp,0x4[esp]
-15D5    74 07                     je          L$176
-15D7    B8 01 00 00 00            mov         eax,0x00000001
-15DC    EB 02                     jmp         L$177
-15DE                          L$176:
-15DE    89 D8                     mov         eax,ebx
-15E0                          L$177:
-15E0    85 D2                     test        edx,edx
-15E2    75 04                     jne         L$178
-15E4    85 C0                     test        eax,eax
-15E6    74 AB                     je          L$171
-15E8                          L$178:
-15E8    83 C4 18                  add         esp,0x00000018
-15EB    5D                        pop         ebp
-15EC    5E                        pop         esi
-15ED    5A                        pop         edx
-15EE    59                        pop         ecx
-15EF    5B                        pop         ebx
-15F0    C3                        ret         
-*/
 }
 
 boolean CONTROL_Startup(controltype which, int32 ( *TimeFunction )( void ), int32 ticspersecond)
@@ -925,27 +851,28 @@ boolean CONTROL_Startup(controltype which, int32 ( *TimeFunction )( void ), int3
 	CONTROL_JoyPresent   = CONTROL_JoystickEnabled = false;
 	CONTROL_NumMouseButtons = CONTROL_NumJoyButtons = 0;
 	CONTROL_NumMouseAxes    = CONTROL_NumJoyAxes    = 0;
-	KB_Startup();
-	switch (which) {
-		case controltype_keyboard:
-			break;
+ 	KB_Startup();
+ 
+	//switch (which) {
+	//	case controltype_keyboard:
+	//		break;
 
-		case controltype_keyboardandmouse:
-			CONTROL_NumMouseAxes      = MAXMOUSEAXES;
-			CONTROL_NumMouseButtons   = MAXMOUSEBUTTONS;
-			CONTROL_MousePresent      = MOUSE_Init();
-			CONTROL_MouseEnabled      = CONTROL_MousePresent;
-			break;
-
-		case controltype_keyboardandjoystick:
-			CONTROL_NumJoyAxes    = min(MAXJOYAXES,joynumaxes);
-			CONTROL_NumJoyButtons = min(MAXJOYBUTTONS,joynumbuttons + 4*(joynumhats>0));
-			CONTROL_JoyPresent    = ((inputdevices & 3) == 3);
-			CONTROL_JoystickEnabled = CONTROL_JoyPresent;
-			break;
-	}
-	
-	if (CONTROL_MousePresent)
+	//	case controltype_keyboardandmouse:
+ 			CONTROL_NumMouseAxes      = MAXMOUSEAXES;
+ 			CONTROL_NumMouseButtons   = MAXMOUSEBUTTONS;
+ 			CONTROL_MousePresent      = MOUSE_Init();
+ 			CONTROL_MouseEnabled      = CONTROL_MousePresent;
+	//		break;
+ 
+	//	case controltype_keyboardandjoystick:
+ 			CONTROL_NumJoyAxes    = min(MAXJOYAXES,joynumaxes);
+ 			CONTROL_NumJoyButtons = min(MAXJOYBUTTONS,joynumbuttons + 4*(joynumhats>0));
+ 			CONTROL_JoyPresent    = ((inputdevices & 4) == 4);
+ 			CONTROL_JoystickEnabled = CONTROL_JoyPresent;
+	//		break;
+	//}
+ 	
+ 	if (CONTROL_MousePresent)
 		initprintf("CONTROL_Startup: Mouse Present\n");
 	if (CONTROL_JoyPresent)
 		initprintf("CONTROL_Startup: Joystick Present\n");

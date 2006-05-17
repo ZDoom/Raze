@@ -113,13 +113,10 @@ static int probe_(int type,int x,int y,int i,int n)
 
     s = 1+(CONTROL_GetMouseSensitivity()>>4);
 
-    if( ControllerType == 1 && CONTROL_MousePresent )
     {
         CONTROL_GetInput( &minfo );
         mi += minfo.dz;
     }
-
-    else minfo.dz = minfo.dyaw = 0;
 
     if( x == (320>>1) )
         centre = 320>>2;
@@ -561,7 +558,6 @@ void menus(void)
 
     getpackets();
 
-    if(ControllerType == 1 && CONTROL_MousePresent)
     {
         if(buttonstat != 0 && !onbar)
         {
@@ -572,7 +568,6 @@ void menus(void)
         else
             buttonstat = MOUSE_GetButtons();
     }
-    else buttonstat = 0;
 
     if( (ps[myconnectindex].gm&MODE_MENU) == 0 )
     {
@@ -2447,7 +2442,7 @@ cheat_for_port_credits:
             currentlist = 0;
         case 5:
         case 6:
-            if (x==6 && (!CONTROL_JoystickEnabled || !CONTROL_JoyPresent)) break;
+            if (x==6 && !CONTROL_JoyPresent) break;
             cmenu(204+x-4);
             break;
         }
@@ -2458,7 +2453,7 @@ cheat_for_port_credits:
         menutext(160,c+18+18+18,         MENUHIGHLIGHT(3),ud.recstat == 1,"PLAYER SETUP");
         menutext(160,c+18+18+18+18,      MENUHIGHLIGHT(4),0,"KEYBOARD SETUP");
         menutext(160,c+18+18+18+18+18,   MENUHIGHLIGHT(5),0,"MOUSE SETUP");
-        menutext(160,c+18+18+18+18+18+18,MENUHIGHLIGHT(6),CONTROL_JoyPresent==0 || CONTROL_JoystickEnabled==0,"JOYSTICK SETUP");
+        menutext(160,c+18+18+18+18+18+18,MENUHIGHLIGHT(6),CONTROL_JoyPresent==0,"JOYSTICK SETUP");
         break;
 
         // JBF 20031206: Video settings menu
@@ -3300,6 +3295,10 @@ cheat_for_port_credits:
                 else l = analog_turning;
                 JoystickAnalogueAxes[thispage*2+(x==7)] = l;
                 CONTROL_MapAnalogAxis(thispage*2+(x==7),l,controldevice_joystick);
+				{
+					extern int32 mouseyaxismode;	// player.c
+					mouseyaxismode = -1;
+				}
                 break;
             default:break;
             }
