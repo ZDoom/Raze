@@ -591,16 +591,16 @@ void resizeglcheck ()
         glox1 = windowx1; gloy1 = windowy1;
         glox2 = windowx2; gloy2 = windowy2;
 
-        ratioratio = 1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
-        fovcorrect = (ratioratio > 1) ? (((windowx2-windowx1+1) * ratioratio) - (windowx2-windowx1+1)) * ((float)glratiocorrection / 63) : 0;
+        ratioratio = 1.2; //1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
+        fovcorrect = (((windowx2-windowx1+1) * ratioratio) - (windowx2-windowx1+1)) * ((float)glratiocorrection / 63);
 
         bglViewport(windowx1 - (fovcorrect / 2), yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect, windowy2-windowy1+1);
 
         bglMatrixMode(GL_PROJECTION);
         memset(m,0,sizeof(m));
-        m[0][0] = (float)ydimen / ((ratioratio > 1)?1.2:1); m[0][2] = 1.0;
+        m[0][0] = (float)ydimen / 1.2; m[0][2] = 1.0;
         m[1][1] = (float)xdimen; m[1][2] = 1.0;
-        m[2][2] = 1.0; m[2][3] = (float)ydimen / ((ratioratio > 1)?1.2:1);
+        m[2][2] = 1.0; m[2][3] = (float)ydimen / 1.2;
         m[3][2] =-1.0;
         bglLoadMatrixf(&m[0][0]);
         //bglLoadIdentity();
@@ -3354,9 +3354,9 @@ void polymost_drawrooms ()
         long vx, vy, vz, hitx, hity, hitz;
         float ratioratio = 1.0;
 
-        ratioratio = 1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
+        ratioratio = 1.2; //1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
 
-        ox2 = (searchx-ghalfx)/ratioratio; oy2 = (searchy-ghoriz)/((ratioratio > 1)?1.2:1); oz2 = ghalfx;
+        ox2 = (searchx-ghalfx)/ratioratio; oy2 = (searchy-ghoriz)/ /*((ratioratio > 1)?*/1.2/*:1)*/; oz2 = ghalfx;
 
         //Tilt rotation
         ox = ox2*gctang + oy2*gstang;

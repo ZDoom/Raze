@@ -528,10 +528,7 @@ void resetplayerstats(short snum)
     p->jetpack_on        = 0;
     p->reloading        = 0;
 
-    p->movement_lock[1]     = 0;
-    p->movement_lock[2]     = 0;
-    p->movement_lock[3]     = 0;
-    p->movement_lock[4]     = 0;
+    p->movement_lock     = 0;
 
     setpal(p);
     OnEvent(EVENT_RESETPLAYER, p->i, snum, -1);

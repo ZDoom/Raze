@@ -685,7 +685,7 @@ LABELS playerlabels[]= {
                            { "sbs", PLAYER_SBS, 0, 0 },
                            { "reloading", PLAYER_RELOADING, 0, 0 },
                            { "auto_aim", PLAYER_AUTO_AIM, 0, 0 },
-                           { "movement_lock", PLAYER_MOVEMENT_LOCK, LABEL_HASPARM2, 4 },
+                           { "movement_lock", PLAYER_MOVEMENT_LOCK, 0, 0 },
                            { "sound_pitch", PLAYER_SOUND_PITCH, 0, 0 },
                            { "weaponswitch", PLAYER_WEAPONSWITCH, 0, 0 },
                            { "", -1, 0, 0  }     // END OF LIST
@@ -1362,10 +1362,9 @@ void ResetActorGameVars(short sActor)
 {
     int i;
 
-    for(i=0;i<iDefaultGameVarCount;i++)
-        if( i < MAXGAMEVARS)
-            if( aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
-                aGameVars[i].plValues[sActor]=aDefaultGameVars[i].lValue;
+    for(i=0;i<MAXGAMEVARS;i++)
+        if( aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR && !(aGameVars[i].dwFlags & GAMEVAR_FLAG_NODEFAULT))
+            aGameVars[i].plValues[sActor]=aDefaultGameVars[i].lValue;
 }
 
 int GetGameID(char *szGameLabel)

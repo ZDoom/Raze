@@ -2898,9 +2898,9 @@ void getinput(short snum)
 
     if (BUTTON(gamefunc_Strafe))
     {
-        if ( BUTTON(gamefunc_Turn_Left) && (ps[snum].movement_lock[3] == 0))
+        if ( BUTTON(gamefunc_Turn_Left) && !(ps[snum].movement_lock&4))
             svel -= -keymove;
-        if ( BUTTON(gamefunc_Turn_Right) && (ps[snum].movement_lock[4] == 0))
+        if ( BUTTON(gamefunc_Turn_Right) && !(ps[snum].movement_lock&8))
             svel -= keymove;
     }
     else
@@ -2925,13 +2925,13 @@ void getinput(short snum)
             turnheldtime=0;
     }
 
-    if ( BUTTON(gamefunc_Strafe_Left) && (ps[snum].movement_lock[3] == 0))
+    if ( BUTTON(gamefunc_Strafe_Left) && !(ps[snum].movement_lock&4))
         svel += keymove;
-    if ( BUTTON(gamefunc_Strafe_Right) && (ps[snum].movement_lock[4] == 0))
+    if ( BUTTON(gamefunc_Strafe_Right) && !(ps[snum].movement_lock&8))
         svel += -keymove;
-    if ( BUTTON(gamefunc_Move_Forward) && (ps[snum].movement_lock[1] == 0))
+    if ( BUTTON(gamefunc_Move_Forward) && !(ps[snum].movement_lock&1))
         vel += keymove;
-    if ( BUTTON(gamefunc_Move_Backward) && (ps[snum].movement_lock[2] == 0))
+    if ( BUTTON(gamefunc_Move_Backward) && !(ps[snum].movement_lock&2))
         vel += -keymove;
 
     if(vel < -MAXVEL) vel = -MAXVEL;
@@ -3535,7 +3535,7 @@ void processinput(short snum)
                         Bstrcpy(name2,strip_color_codes(&ud.user_name[p->frag_ps][0]));
 
                         Bsprintf(tempbuf,fta_quotes[16300+i+(mulscale(krand(), 3, 16)*10)],name1,name2);
-                        if(ScreenWidth >= 640)
+                        if(ScreenWidth >= 800)
                             adduserquote(tempbuf);
                         else OSD_Printf("%s\n",strip_color_codes(tempbuf));
                     }
@@ -3551,7 +3551,7 @@ void processinput(short snum)
                     else i = 0;
 
                     Bsprintf(tempbuf,fta_quotes[16350+i],strip_color_codes(&ud.user_name[snum][0]));
-                    if(ScreenWidth >= 640)
+                    if(ScreenWidth >= 800)
                         adduserquote(tempbuf);
                     else OSD_Printf("%s\n",strip_color_codes(tempbuf));
                 }

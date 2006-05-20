@@ -1875,11 +1875,10 @@ void DoPlayer(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sh
         break;
 
     case PLAYER_MOVEMENT_LOCK:
-        lTemp=lParm2;
         if(bSet)
-            ps[iPlayer].movement_lock[lTemp]=lValue;
+            ps[iPlayer].movement_lock=lValue;
         else
-            SetGameVarID((int)lVar2, ps[iPlayer].movement_lock[lTemp], sActor, sPlayer);
+            SetGameVarID((int)lVar2, ps[iPlayer].movement_lock, sActor, sPlayer);
         break;
 
     case PLAYER_SOUND_PITCH:
@@ -5088,10 +5087,7 @@ SKIPJIBS:
 
                 ps[g_p].reloading = 0;
 
-                ps[g_p].movement_lock[1] = 0;
-                ps[g_p].movement_lock[2] = 0;
-                ps[g_p].movement_lock[3] = 0;
-                ps[g_p].movement_lock[4] = 0;
+                ps[g_p].movement_lock = 0;
 
                 OnEvent(EVENT_RESETPLAYER, ps[g_p].i, g_p, -1);
                 cameradist = 0;
@@ -5730,7 +5726,6 @@ good:
             case PLAYER_AMMO_AMOUNT:
             case PLAYER_GOTWEAPON:
             case PLAYER_PALS:
-            case PLAYER_MOVEMENT_LOCK:
             case PLAYER_LOOGIEX:
             case PLAYER_LOOGIEY:
                 lParm2=GetGameVarID(*insptr++, g_i, g_p);
