@@ -10099,15 +10099,14 @@ char domovethings(void)
             if(ps[i].holoduke_on != -1)
                 sprite[ps[i].holoduke_on].cstat ^= 256;
 
-        if(sprite[hs].picnum == APLAYER && sprite[hs].yvel != screenpeek && ps[sprite[hs].yvel].dead_flag == 0)
+        if(!(ps[myconnectindex].gm & MODE_MENU) && sprite[hs].picnum == APLAYER && sprite[hs].yvel != screenpeek && ps[sprite[hs].yvel].dead_flag == 0)
         {
             if(ps[screenpeek].fta == 0 || ps[screenpeek].ftq == 117)
             {
                 if(ldist(&sprite[ps[screenpeek].i],&sprite[hs]) < 9216)
                 {
                     Bsprintf(fta_quotes[117],"%s",&ud.user_name[sprite[hs].yvel][0]);
-                    ps[screenpeek].fta = 12;
-                    ps[screenpeek].ftq = 117;
+                    ps[screenpeek].fta = 12, ps[screenpeek].ftq = 117;
                 }
             } else if(ps[screenpeek].fta > 2) ps[screenpeek].fta -= 3;
         }
