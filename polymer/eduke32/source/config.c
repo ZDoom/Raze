@@ -603,6 +603,7 @@ void CONFIG_ReadSetup( void )
 #if defined(POLYMOST) && defined(USE_OPENGL)
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLTextureMode", &gltexfiltermode);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLAnisotropy", &glanisotropy);
+        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLHUDCorrect", &glhudcorrect);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseTextureCompr", &glusetexcompr);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLRatioCorrection", &glratiocorrection);
 
@@ -743,6 +744,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "Detail",ud.detail,false,false);
 #if defined(POLYMOST) && defined(USE_OPENGL)
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLAnisotropy",glanisotropy,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLHUDCorrect",glhudcorrect,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLRatioCorrection",glratiocorrection,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLTextureMode",gltexfiltermode,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", glusetexcache,false,false);
