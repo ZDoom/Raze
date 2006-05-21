@@ -240,8 +240,8 @@ void CONFIG_SetDefaults( void )
     ud.statusbarmode = 0;
     ud.statusbarscale = 100;
     ud.weaponswitch = 3;	// new+empty
-	UseJoystick = 0;
-	UseMouse = 1;
+    UseJoystick = 0;
+    UseMouse = 1;
     VoiceToggle = 2;
 
     Bstrcpy(ud.rtsname, "DUKE.RTS");
@@ -677,8 +677,8 @@ void CONFIG_ReadSetup( void )
         ps[0].aim_mode = ud.mouseaiming;
         SCRIPT_GetNumber( scripthandle, "Controls","MouseFilter",&MouseFilter);
         SCRIPT_GetNumber( scripthandle, "Controls","SmoothInput",&SmoothInput);
-    	SCRIPT_GetNumber( scripthandle, "Controls","UseJoystick",&UseJoystick);
-    	SCRIPT_GetNumber( scripthandle, "Controls","UseMouse",&UseMouse);
+        SCRIPT_GetNumber( scripthandle, "Controls","UseJoystick",&UseJoystick);
+        SCRIPT_GetNumber( scripthandle, "Controls","UseMouse",&UseMouse);
         SCRIPT_GetNumber( scripthandle, "Controls","AimingFlag",(int32 *)&myaimmode);   // (if toggle mode) gives state
         SCRIPT_GetNumber( scripthandle, "Controls","RunKeyBehaviour",&ud.runkey_mode);  // JBF 20031125
         SCRIPT_GetNumber( scripthandle, "Controls","AutoAim",&AutoAim);         // JBF 20031125
@@ -720,8 +720,8 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Controls","MouseFilter",MouseFilter,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","SmoothInput",SmoothInput,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","RunKeyBehaviour",ud.runkey_mode,false,false);
-	SCRIPT_PutNumber( scripthandle, "Controls","UseJoystick",UseJoystick,false,false);
-	SCRIPT_PutNumber( scripthandle, "Controls","UseMouse",UseMouse,false,false);
+    SCRIPT_PutNumber( scripthandle, "Controls","UseJoystick",UseJoystick,false,false);
+    SCRIPT_PutNumber( scripthandle, "Controls","UseMouse",UseMouse,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","WeaponSwitchMode",ud.weaponswitch,false,false);
 
     SCRIPT_PutNumber( scripthandle, "Misc", "AutoMsg",ud.automsg,false,false);

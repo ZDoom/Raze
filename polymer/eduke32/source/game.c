@@ -8541,17 +8541,17 @@ void Startup(void)
         exit(1);
     }
     SetupGameButtons();
- 	CONFIG_SetupMouse();
- 	CONFIG_SetupJoystick();
- 
-	CONTROL_JoystickEnabled = (UseJoystick && CONTROL_JoyPresent);
-	CONTROL_MouseEnabled = (UseMouse && CONTROL_MousePresent);
+    CONFIG_SetupMouse();
+    CONFIG_SetupJoystick();
 
- 	// JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-	for (i=0;i<joynumaxes;i++)
-		setjoydeadzone(i,JoystickAnalogueDead[i],JoystickAnalogueSaturate[i]);
- 
- 	inittimer(TICRATE);
+    CONTROL_JoystickEnabled = (UseJoystick && CONTROL_JoyPresent);
+    CONTROL_MouseEnabled = (UseMouse && CONTROL_MousePresent);
+
+    // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
+    for (i=0;i<joynumaxes;i++)
+        setjoydeadzone(i,JoystickAnalogueDead[i],JoystickAnalogueSaturate[i]);
+
+    inittimer(TICRATE);
 
     //initprintf("* Hold Esc to Abort. *\n");
     initprintf("Loading art header...\n");

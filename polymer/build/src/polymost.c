@@ -2759,11 +2759,11 @@ static void polymost_drawalls (long bunch)
                 if ((oy < cy0) && (oy < cy1)) domost(x1,oy,x0,oy);
                 else if ((oy < cy0) != (oy < cy1))
                 {      /*         cy1        cy0
-                            		//        /             \
-                            		//oy----------      oy---------
-                            		//    /                    \
-                            		//  cy0                     cy1
-                            		*/
+                                		//        /             \
+                                		//oy----------      oy---------
+                                		//    /                    \
+                                		//  cy0                     cy1
+                                		*/
                     ox = (oy-cy0)*(x1-x0)/(cy1-cy0) + x0;
                     if (oy < cy0) { domost(ox,oy,x0,oy); domost(x1,cy1,ox,oy); }
                     else { domost(ox,oy,x0,cy0); domost(x1,oy,ox,oy); }
@@ -3353,11 +3353,8 @@ void polymost_drawrooms ()
     {
         short hitsect, hitwall, hitsprite;
         long vx, vy, vz, hitx, hity, hitz;
-        float ratioratio = 1.0;
 
-        ratioratio = 1.2; //1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
-
-        ox2 = (searchx-ghalfx)/ratioratio; oy2 = (searchy-ghoriz)/ /*((ratioratio > 1)?*/1.2/*:1)*/; oz2 = ghalfx;
+        ox2 = (searchx-ghalfx)/1.2; oy2 = (searchy-ghoriz)/ 1.2; oz2 = ghalfx;
 
         //Tilt rotation
         ox = ox2*gctang + oy2*gstang;

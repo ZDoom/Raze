@@ -3297,10 +3297,10 @@ cheat_for_port_credits:
                 else l = analog_turning;
                 JoystickAnalogueAxes[thispage*2+(x==7)] = l;
                 CONTROL_MapAnalogAxis(thispage*2+(x==7),l,controldevice_joystick);
-				{
-					extern int32 mouseyaxismode;	// player.c
-					mouseyaxismode = -1;
-				}
+                {
+                    extern int32 mouseyaxismode;	// player.c
+                    mouseyaxismode = -1;
+                }
                 break;
             default:break;
             }

@@ -2705,14 +2705,14 @@ void getinput(short snum)
 
     if( (p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)) )
     {
-         CONTROL_GetInput( &info );
-	     memset(&lastinfo, 0, sizeof(lastinfo));
-         loc.fvel = vel = 0;
-         loc.svel = svel = 0;
-         loc.avel = angvel = 0;
-         loc.horz = horiz = 0;
-         loc.bits = (((long)gamequit)<<26);
-         return;
+        CONTROL_GetInput( &info );
+        memset(&lastinfo, 0, sizeof(lastinfo));
+        loc.fvel = vel = 0;
+        loc.svel = svel = 0;
+        loc.avel = angvel = 0;
+        loc.horz = horiz = 0;
+        loc.bits = (((long)gamequit)<<26);
+        return;
     }
 
     if (ud.mouseaiming)
@@ -2727,16 +2727,16 @@ void getinput(short snum)
         }
     }
 
-	{
-		int32 i;
-		if (myaimmode) i = analog_lookingupanddown;
-		else i = MouseAnalogueAxes[1];
+    {
+        int32 i;
+        if (myaimmode) i = analog_lookingupanddown;
+        else i = MouseAnalogueAxes[1];
 
-		if (i != mouseyaxismode) {
-			CONTROL_MapAnalogAxis(1, i, controldevice_mouse);
-			mouseyaxismode = i;
-		}
-	}
+        if (i != mouseyaxismode) {
+            CONTROL_MapAnalogAxis(1, i, controldevice_mouse);
+            mouseyaxismode = i;
+        }
+    }
 
     CONTROL_GetInput( &info );
 
@@ -4912,25 +4912,28 @@ SHOOTINCODE:
                         (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum] && p->ammo_amount[p->curr_weapon] > 0
                          && (aplWeaponClip[p->curr_weapon][snum]) && (((p->ammo_amount[p->curr_weapon]%(aplWeaponClip[p->curr_weapon][snum]))==0))))
                 {
-                    int i;
-                    i=aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
+                    int i = aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
+
                     p->reloading = 1;
-                    if( (*kb) == (aplWeaponTotalTime[p->curr_weapon][snum]));
-                    else if( (*kb) == (aplWeaponTotalTime[p->curr_weapon][snum]+1))
+
+                    if( (*kb) != (aplWeaponTotalTime[p->curr_weapon][snum]))
                     {
-                        if(aplWeaponReloadSound1[p->curr_weapon][snum])
-                            spritesound(aplWeaponReloadSound1[p->curr_weapon][snum],pi);
-                    }
-                    else if( ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i/3)) && !(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RELOAD_TIMING)) ||
-                             ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - i+4) && (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RELOAD_TIMING)) )
-                    {
-                        if(aplWeaponReloadSound2[p->curr_weapon][snum])
-                            spritesound(aplWeaponReloadSound2[p->curr_weapon][snum],pi);
-                    }
-                    else if( (*kb) >= (aplWeaponReload[p->curr_weapon][snum]) )
-                    {
-                        *kb=0;
-                        p->reloading = 0;
+                        if( (*kb) == (aplWeaponTotalTime[p->curr_weapon][snum]+1))
+                        {
+                            if(aplWeaponReloadSound1[p->curr_weapon][snum])
+                                spritesound(aplWeaponReloadSound1[p->curr_weapon][snum],pi);
+                        }
+                        else if( ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i/3)) && !(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RELOAD_TIMING)) ||
+                                 ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - i+4) && (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RELOAD_TIMING)) )
+                        {
+                            if(aplWeaponReloadSound2[p->curr_weapon][snum])
+                                spritesound(aplWeaponReloadSound2[p->curr_weapon][snum],pi);
+                        }
+                        else if( (*kb) >= (aplWeaponReload[p->curr_weapon][snum]) )
+                        {
+                            *kb=0;
+                            p->reloading = 0;
+                        }
                     }
                 }
                 else
@@ -4949,7 +4952,7 @@ SHOOTINCODE:
                     else *kb = 0;
 
                     if( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET &&
-                            ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
+                            ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
                     {
                         if( sb_snum&(1<<2) ) *kb = 1;
                         else *kb = 0;
@@ -4957,16 +4960,14 @@ SHOOTINCODE:
                 }
             }
             else if ( *kb >= aplWeaponFireDelay[p->curr_weapon][snum] && (*kb) < aplWeaponTotalTime[p->curr_weapon][snum]
-                      && ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
+                      && ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
             {
                 if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC )
                 {
                     if(!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_SEMIAUTO))
                     {
-                        if(( sb_snum&(1<<2) ) == 0 )
-                        {
+                        if(( sb_snum&(1<<2) ) == 0 && !(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RANDOMRESTART))
                             *kb = 0;
-                        }
                         if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYTHIRD)
                         {
                             if( ((*(kb))%3) == 0 )
@@ -4990,7 +4991,7 @@ SHOOTINCODE:
                         }
                         if(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET &&
                                 (*kb) > aplWeaponTotalTime[p->curr_weapon][snum]-aplWeaponHoldDelay[p->curr_weapon][snum] &&
-                                ((aplWeaponWorksLike[p->curr_weapon][snum] & KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
+                                ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
                         {
                             if( sb_snum&(1<<2) ) *kb = 1;
                             else *kb = 0;

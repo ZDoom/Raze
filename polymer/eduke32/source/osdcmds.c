@@ -455,6 +455,8 @@ struct cvarmappings {
 
         { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|256, 0, 0, 3 },
 
+        { "r_arcorrection", "r_arcorrection: sets amount of aspect ratio correction", (void*)&glratiocorrection, CVAR_INT, 0, 0, 63 },
+        { "r_hudcorrect", "r_hudcorrect: enable/disable correct HUD weapon rendering", (void*)&glhudcorrect, CVAR_BOOL, 0, 0, 1 },
         { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0, 0, 1 }
     };
 
@@ -601,24 +603,24 @@ void onvideomodechange(int newmode)
 
 int osdcmd_usemousejoy(const osdfuncparm_t *parm)
 {
-	int showval = (parm->numparms < 1);
-	if (!Bstrcasecmp(parm->name, "usemouse")) {
-		if (showval) { OSD_Printf("usemouse is %d\n", UseMouse); }
-		else {
-			UseMouse = (atoi(parm->parms[0]) != 0);
-			CONTROL_MouseEnabled = (UseMouse && CONTROL_MousePresent);
-		}
-		return OSDCMD_OK;
-	}
-	else if (!Bstrcasecmp(parm->name, "usejoystick")) {
-		if (showval) { OSD_Printf("usejoystick is %d\n", UseJoystick); }
-		else {
-			UseJoystick = (atoi(parm->parms[0]) != 0);
-			CONTROL_JoystickEnabled = (UseJoystick && CONTROL_JoyPresent);
-		}
-		return OSDCMD_OK;
-	}
-	return OSDCMD_SHOWHELP;
+    int showval = (parm->numparms < 1);
+    if (!Bstrcasecmp(parm->name, "usemouse")) {
+        if (showval) { OSD_Printf("usemouse is %d\n", UseMouse); }
+        else {
+            UseMouse = (atoi(parm->parms[0]) != 0);
+            CONTROL_MouseEnabled = (UseMouse && CONTROL_MousePresent);
+        }
+        return OSDCMD_OK;
+    }
+    else if (!Bstrcasecmp(parm->name, "usejoystick")) {
+        if (showval) { OSD_Printf("usejoystick is %d\n", UseJoystick); }
+        else {
+            UseJoystick = (atoi(parm->parms[0]) != 0);
+            CONTROL_JoystickEnabled = (UseJoystick && CONTROL_JoyPresent);
+        }
+        return OSDCMD_OK;
+    }
+    return OSDCMD_SHOWHELP;
 }
 
 int osdcmd_mpmap(const osdfuncparm_t *parm)
@@ -708,8 +710,8 @@ int registerosdcommands(void)
     OSD_RegisterFunction("restartvid","restartvid: reinitialised the video mode",osdcmd_restartvid);
     OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: immediately change the video mode",osdcmd_vidmode);
 
-	OSD_RegisterFunction("usemouse","usemouse: enables input from the mouse if it is present",osdcmd_usemousejoy);
-	OSD_RegisterFunction("usejoystick","usejoystick: enables input from the joystick if it is present",osdcmd_usemousejoy);
+    OSD_RegisterFunction("usemouse","usemouse: enables input from the mouse if it is present",osdcmd_usemousejoy);
+    OSD_RegisterFunction("usejoystick","usejoystick: enables input from the joystick if it is present",osdcmd_usemousejoy);
 
     //baselayer_onvideomodechange = onvideomodechange;
 
