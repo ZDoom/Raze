@@ -4966,7 +4966,7 @@ SHOOTINCODE:
                 {
                     if(!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_SEMIAUTO))
                     {
-                        if(( sb_snum&(1<<2) ) == 0 && !(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RANDOMRESTART))
+                        if(( sb_snum&(1<<2) ) == 0 && aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET)
                             *kb = 0;
                         if ( aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYTHIRD)
                         {
