@@ -4058,7 +4058,7 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
             memset(m,0,sizeof(m));
             if ((dastat&10) == 2)
             {
-                ratioratio = (float)xdimen/ydimen;
+                ratioratio = (float)xdim/ydim;
                 m[0][0] = (float)ydimen*(ratioratio >= 1.6?1.2:1); m[0][2] = 1.0;
                 m[1][1] = (float)xdimen; m[1][2] = 1.0;
                 m[2][2] = 1.0; m[2][3] = (float)ydimen*(ratioratio >= 1.6?1.2:1);
