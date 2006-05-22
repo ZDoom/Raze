@@ -454,9 +454,10 @@ struct cvarmappings {
         { "cl_smoothinput", "cl_smoothinput: enable/disable input smoothing\n", (void*)&SmoothInput, CVAR_BOOL, 0, 0, 1 },
 
         { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|256, 0, 0, 3 },
-
-        { "r_arcorrection", "r_arcorrection: sets amount of aspect ratio correction", (void*)&glratiocorrection, CVAR_INT, 0, 0, 63 },
+#if defined(POLYMOST) && defined(USE_OPENGL)
+        { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glratiocorrection, CVAR_BOOL, 0, 0, 1 },
         { "r_hudcorrect", "r_hudcorrect: enable/disable correct HUD weapon rendering", (void*)&glhudcorrect, CVAR_BOOL, 0, 0, 1 },
+#endif
         { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0, 0, 1 }
     };
 

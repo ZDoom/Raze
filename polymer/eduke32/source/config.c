@@ -605,7 +605,7 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLAnisotropy", &glanisotropy);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLHUDCorrect", &glhudcorrect);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseTextureCompr", &glusetexcompr);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLRatioCorrection", &glratiocorrection);
+        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLWidescreen", &glratiocorrection);
 
         glusetexcache = glusetexcachecompression = -1;
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
@@ -745,11 +745,11 @@ void CONFIG_WriteSetup( void )
 #if defined(POLYMOST) && defined(USE_OPENGL)
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLAnisotropy",glanisotropy,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLHUDCorrect",glhudcorrect,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLRatioCorrection",glratiocorrection,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLTextureMode",gltexfiltermode,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", glusetexcache,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseTextureCacheCompression", glusetexcachecompression,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseTextureCompr",glusetexcompr,false,false);
+    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLWidescreen",glratiocorrection,false,false);
 #endif
 #ifdef RENDERTYPEWIN
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);

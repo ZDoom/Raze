@@ -2100,7 +2100,7 @@ cheat_for_port_credits:
         {
             int io, ii, yy, d=c+160+40, enabled;
             char *opts[] = {
-                               "Aspect ratio correction",
+                               "Widescreen",
                                "-",
                                "Hightile textures",
                                "Precache textures",
@@ -2131,7 +2131,7 @@ cheat_for_port_credits:
                 io++;
             }
 
-            onbar = (probey == 0);
+            onbar = 0;
             x = probesm(c,yy+5,0,io);
 
         if (x == -1) { cmenu(203); probey = 7; break; }
@@ -2144,9 +2144,9 @@ cheat_for_port_credits:
                 }
                 enabled = 1;
                 switch (io) {
-                case 0:
-                    barsm(d+8,yy+7, (short *)&glratiocorrection,8,x==io,MENUHIGHLIGHT(io),PHX(-5));
-                    break;
+                case 0: if (x==io) glratiocorrection = 1-glratiocorrection;
+                    modval(0,1,(int *)&glratiocorrection,1,probey==io);
+                    gametextpal(d,yy, glratiocorrection ? "Off" : "On", MENUHIGHLIGHT(io), 0); break;
                 case 1: if (x==io) usehightile = 1-usehightile;
                     modval(0,1,(int *)&usehightile,1,probey==io);
                     gametextpal(d,yy, usehightile ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;

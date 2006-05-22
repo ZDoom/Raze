@@ -5004,7 +5004,6 @@ SKIPJIBS:
 
             screencapt = 1;
             displayrooms(myconnectindex,65536);
-            //savetemp("duke3d.tmp",waloff[TILE_SAVESHOT],160*100);
             screencapt = 0;
             if(ud.multimode > 1)
                 saveplayer(-1-(lastsavedpos));
@@ -5254,9 +5253,6 @@ SKIPJIBS:
 
     case CON_IFSPAWNEDBY:
         insptr++;
-        //            if(g_sp->owner >= 0 && sprite[g_sp->owner].picnum == *insptr)
-        //            parseifelse(1);
-        //            else
         parseifelse( hittype[g_i].picnum == *insptr);
         break;
 
@@ -5349,13 +5345,11 @@ SKIPJIBS:
 
     case CON_IFFLOORDISTL:
         insptr++;
-        //            getglobalz(g_i);
         parseifelse( (hittype[g_i].floorz - g_sp->z) <= ((*insptr)<<8));
         break;
 
     case CON_IFCEILINGDISTL:
         insptr++;
-        //            getglobalz(g_i);
         parseifelse( ( g_sp->z - hittype[g_i].ceilingz ) <= ((*insptr)<<8));
         break;
 
@@ -5385,13 +5379,6 @@ SKIPJIBS:
             }
             break;
         }
-
-        /*        case 74:
-        insptr++;
-        getglobalz(g_i);
-        parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) >= *insptr);
-        break;
-        */
 
     case CON_ADDLOG:
         {
@@ -5545,18 +5532,16 @@ good:
             // that is of <type> into <getvar>
             // -1 for none found
             // <type> <maxdistvarid> <varid>
-            long lType, lMaxDistVar, lMaxDist;
-            long lVarID, lTemp, lFound, lDist;
+            long lType, lMaxDist;
+            long lVarID, lTemp, lFound;
             short j, k;
 
             insptr++;
 
             lType=*insptr++;
-            lMaxDistVar=*insptr++;
+            lMaxDist=GetGameVarID(*insptr++, g_i, g_p);
             lVarID=*insptr++;
-            lMaxDist=GetGameVarID(lMaxDistVar, g_i, g_p);
             lFound=-1;
-            lDist=32767;    // big number
 
             for (k=0;k<MAXSTATUS;k++)
             {
@@ -5568,7 +5553,7 @@ good:
                         if(tw==CON_FINDNEARACTOR3DVAR || tw==CON_FINDNEARSPRITE3DVAR)
                             lTemp=dist(&sprite[g_i], &sprite[j]);
                         else lTemp=ldist(&sprite[g_i], &sprite[j]);
-                        if( lTemp < lMaxDist && lTemp < lDist)
+                        if( lTemp < lMaxDist)
                         {
                             lFound=j;
                             j = MAXSPRITES;
@@ -5584,29 +5569,6 @@ good:
             break;
         }
 
-    case CON_FINDPLAYER:
-    case CON_FINDOTHERPLAYER:
-        {
-            // syntax findnearactorvar <type> <maxdistvar> <getvar>
-            // gets the sprite ID of the nearest actor within max dist
-            // that is of <type> into <getvar>
-            // -1 for none found
-            // <type> <maxdistvarid> <varid>
-            short j=0;
-            long var1, d;
-
-            insptr++;
-            var1 = *insptr++;
-
-            if (tw == CON_FINDPLAYER) j=findplayer(&sprite[g_i],&d);
-            else if (tw == CON_FINDOTHERPLAYER) j=findotherplayer(g_i,&d);
-
-            SetGameVarID(g_iReturnVarID, j, g_i, g_p);
-            SetGameVarID(var1, d, g_i, g_p);
-
-            break;
-        }
-
     case CON_FINDNEARACTORZVAR:
     case CON_FINDNEARSPRITEZVAR:
         {
@@ -5615,18 +5577,16 @@ good:
             // that is of <type> into <getvar>
             // -1 for none found
             // <type> <maxdistvarid> <varid>
-            long lType, lMaxDistVar, lMaxZDistVar, lMaxDist, lMaxZDist;
+            long lType, lMaxDist, lMaxZDist;
             long lVarID, lTemp, lTemp2, lFound;
             short j, k;
 
             insptr++;
 
             lType=*insptr++;
-            lMaxDistVar=*insptr++;
-            lMaxZDistVar=*insptr++;
+            lMaxDist=GetGameVarID(*insptr++, g_i, g_p);
+            lMaxZDist=GetGameVarID(*insptr++, g_i, g_p);
             lVarID=*insptr++;
-            lMaxDist=GetGameVarID(lMaxDistVar, g_i, g_p);
-            lMaxZDist=GetGameVarID(lMaxZDistVar, g_i, g_p);
             lFound=-1;
 
             for (k=0;k<MAXSTATUS;k++)
@@ -5704,6 +5664,29 @@ good:
                     break;
             }
             SetGameVarID(lVarID, lFound, g_i, g_p);
+            break;
+        }
+
+    case CON_FINDPLAYER:
+    case CON_FINDOTHERPLAYER:
+        {
+            // syntax findnearactorvar <type> <maxdistvar> <getvar>
+            // gets the sprite ID of the nearest actor within max dist
+            // that is of <type> into <getvar>
+            // -1 for none found
+            // <type> <maxdistvarid> <varid>
+            short j=0;
+            long var1, d;
+
+            insptr++;
+            var1 = *insptr++;
+
+            if (tw == CON_FINDPLAYER) j=findplayer(&sprite[g_i],&d);
+            else if (tw == CON_FINDOTHERPLAYER) j=findotherplayer(g_i,&d);
+
+            SetGameVarID(g_iReturnVarID, j, g_i, g_p);
+            SetGameVarID(var1, d, g_i, g_p);
+
             break;
         }
 

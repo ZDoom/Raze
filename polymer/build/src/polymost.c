@@ -124,7 +124,7 @@ long gltexmaxsize = 0;      // 0 means autodetection on first run
 long gltexmiplevel = 0;		// discards this many mipmap levels
 static long lastglpolygonmode = 0; //FUK
 long glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
-long glratiocorrection = 63;
+long glratiocorrection = 1;
 long glhudcorrect = 0;
 static GLuint polymosttext = 0;
 extern char nofog;
@@ -593,7 +593,7 @@ void resizeglcheck ()
         glox2 = windowx2; gloy2 = windowy2;
 
         ratioratio = 1.2; //1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
-        fovcorrect = (((windowx2-windowx1+1) * ratioratio) - (windowx2-windowx1+1)) * ((float)glratiocorrection / 63);
+        fovcorrect = (((windowx2-windowx1+1) * ratioratio) - (windowx2-windowx1+1)) * ((float)glratiocorrection / 1);
 
         bglViewport(windowx1 - (fovcorrect / 2), yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect, windowy2-windowy1+1);
 
