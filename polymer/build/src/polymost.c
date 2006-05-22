@@ -124,7 +124,7 @@ long gltexmaxsize = 0;      // 0 means autodetection on first run
 long gltexmiplevel = 0;		// discards this many mipmap levels
 static long lastglpolygonmode = 0; //FUK
 long glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
-long glratiocorrection = 1;
+long glwidescreen = 0;
 long glhudcorrect = 0;
 static GLuint polymosttext = 0;
 extern char nofog;
@@ -557,7 +557,6 @@ void polymost_glinit()
 void resizeglcheck ()
 {
     float m[4][4];
-    float ratioratio = 1.0;
     int fovcorrect;
 
     if (glredbluemode < lastglredbluemode) {
@@ -592,8 +591,7 @@ void resizeglcheck ()
         glox1 = windowx1; gloy1 = windowy1;
         glox2 = windowx2; gloy2 = windowy2;
 
-        ratioratio = 1.2; //1.6 / (((float)(windowx2-windowx1+1)) / (windowy2-windowy1)); // computes the ratio between 16/10 and current resolution ratio
-        fovcorrect = (((windowx2-windowx1+1) * ratioratio) - (windowx2-windowx1+1)) * ((float)glratiocorrection / 1);
+        fovcorrect = glwidescreen?0:(((windowx2-windowx1+1) * 1.2) - (windowx2-windowx1+1));
 
         bglViewport(windowx1 - (fovcorrect / 2), yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect, windowy2-windowy1+1);
 
@@ -3970,7 +3968,6 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
     double ogrhalfxdown10, ogrhalfxdown10x;
     double d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
     float m[4][4];
-    float ratioratio = 1.0;
     int fovcorrect;
 
 #ifdef USE_OPENGL
@@ -4043,8 +4040,7 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
             {
                 if(glhudcorrect)
                 {
-                    ratioratio = 1.2;
-                    fovcorrect = ((xdimen*ratioratio)-(xdimen+1)) * 2;
+                    fovcorrect = ((xdimen*1.2)-(xdimen+1)) * 2;
                     bglViewport(windowx1 - (fovcorrect / 2),yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect,windowy2-windowy1+1);
                 } else bglViewport(windowx1,yres-(windowy2+1),windowx2-windowx1+1,windowy2-windowy1+1);
             }
@@ -4058,7 +4054,7 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
             memset(m,0,sizeof(m));
             if ((dastat&10) == 2)
             {
-                ratioratio = (float)xdim/ydim;
+                float ratioratio = (float)xdim/ydim;
                 m[0][0] = (float)ydimen*(ratioratio >= 1.6?1.2:1); m[0][2] = 1.0;
                 m[1][1] = (float)xdimen; m[1][2] = 1.0;
                 m[2][2] = 1.0; m[2][3] = (float)ydimen*(ratioratio >= 1.6?1.2:1);

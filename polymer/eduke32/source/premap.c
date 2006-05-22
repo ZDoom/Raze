@@ -998,7 +998,7 @@ void newgame(char vn,char ln,char sk)
     struct player_struct *p = &ps[0];
     short i;
 
-    if(globalskillsound >= 0)
+    if(globalskillsound >= 0 && FXDevice >= 0 && SoundToggle)
     while(issoundplaying(-1,globalskillsound)) { handleevents(); getpackets(); }
     globalskillsound = -1;
 

@@ -455,7 +455,7 @@ struct cvarmappings {
 
         { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|256, 0, 0, 3 },
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glratiocorrection, CVAR_BOOL, 0, 0, 1 },
+        { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
         { "r_hudcorrect", "r_hudcorrect: enable/disable correct HUD weapon rendering", (void*)&glhudcorrect, CVAR_BOOL, 0, 0, 1 },
 #endif
         { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0, 0, 1 }
