@@ -2032,7 +2032,7 @@ void checkhitsprite(short i,short sn)
             sprite[sn].xvel = (sprite[i].xvel>>1)+(sprite[i].xvel>>2);
             sprite[sn].ang -= (SA<<1)+1024;
             SA = getangle(SX-sprite[sn].x,SY-sprite[sn].y)-512;
-            if(issoundplaying(POOLBALLHIT) < 2)
+            if(issoundplaying(i,POOLBALLHIT) < 2)
                 spritesound(POOLBALLHIT,i);
         }
         else

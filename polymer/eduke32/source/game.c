@@ -2174,7 +2174,7 @@ void FTA(short q,struct player_struct *p)
                 pub = NUMPAGES;
                 pus = NUMPAGES;
                 if (p == &ps[screenpeek])
-                    OSD_Printf("%s\n",fta_quotes[q]);
+                    OSD_Printf("%s\n",strip_color_codes(fta_quotes[q]));
             }
         }
     } else OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,p->ftq);
@@ -10503,19 +10503,19 @@ void dobonus(char bonusonly)
             if( ud.lockout == 0 && !KB_KeyWaiting() )
             {
                 sound(ENDSEQVOL3SND5);
-                while(issoundplaying(ENDSEQVOL3SND5)) { handleevents(); getpackets(); }
+                while(issoundplaying(-1,ENDSEQVOL3SND5)) { handleevents(); getpackets(); }
                 if(KB_KeyWaiting()) goto ENDANM;
                 sound(ENDSEQVOL3SND6);
-            while(issoundplaying(ENDSEQVOL3SND6)) { handleevents(); getpackets(); }
+            while(issoundplaying(-1,ENDSEQVOL3SND6)) { handleevents(); getpackets(); }
                 if(KB_KeyWaiting()) goto ENDANM;
                 sound(ENDSEQVOL3SND7);
-            while(issoundplaying(ENDSEQVOL3SND7)) { handleevents(); getpackets(); }
+            while(issoundplaying(-1,ENDSEQVOL3SND7)) { handleevents(); getpackets(); }
                 if(KB_KeyWaiting()) goto ENDANM;
                 sound(ENDSEQVOL3SND8);
-            while(issoundplaying(ENDSEQVOL3SND8)) { handleevents(); getpackets(); }
+            while(issoundplaying(-1,ENDSEQVOL3SND8)) { handleevents(); getpackets(); }
                 if(KB_KeyWaiting()) goto ENDANM;
                 sound(ENDSEQVOL3SND9);
-            while(issoundplaying(ENDSEQVOL3SND9)) { handleevents(); getpackets(); }
+            while(issoundplaying(-1,ENDSEQVOL3SND9)) { handleevents(); getpackets(); }
             }
 
             KB_FlushKeyBoardQueue();

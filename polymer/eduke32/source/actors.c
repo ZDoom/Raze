@@ -2870,7 +2870,7 @@ void moveweapons(void)
             case COOLEXPLOSION1__STATIC:
 
                 if( s->picnum == COOLEXPLOSION1 )
-                    if( !issoundplaying(WIERDSHOT_FLY) )
+                    if( !issoundplaying(i,WIERDSHOT_FLY) )
                         spritesound(WIERDSHOT_FLY,i);
 
                 p = -1;
@@ -4907,7 +4907,7 @@ void moveexplosions(void)  // STATNUM 5
                                             l = getflorzofslope(sect,s->x,s->y)-s->z;
                                             if( l > (16<<8) ) KILLIT(i);
                                         }
-                                        else */ if (!issoundplaying(ITEM_SPLASH))
+                                        else */ if (!issoundplaying(i,ITEM_SPLASH))
                         spritesound(ITEM_SPLASH,i);
                 }
                 if(t[0] == 3)
@@ -5598,7 +5598,7 @@ void moveeffectors(void)   //STATNUM 3
                 {
                     if( (sc->floorstat&1) == 0 && (sc->ceilingstat&1) == 0 )
                     {
-                        if( !issoundplaying(hittype[i].lastvx) )
+                        if( !issoundplaying(i,hittype[i].lastvx) )
                             spritesound(hittype[i].lastvx,i);
                     }
                     else if( ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat&1) && rnd(8) )

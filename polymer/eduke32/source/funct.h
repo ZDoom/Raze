@@ -349,7 +349,7 @@ extern void onvideomodechange(int newmode);
 extern void OnEvent(int iEventID, short sActor,short sPlayer,long lDist);
 
 extern int isspritemakingsound(short i, int num);
-extern int issoundplaying(int num);
+extern int issoundplaying(short i, int num);
 extern void stopspritesound(short num, short i);
 extern void updatenames(void);
 extern void sendboardname(void);

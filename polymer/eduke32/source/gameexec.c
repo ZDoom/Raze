@@ -3754,7 +3754,7 @@ char parse(void)
 
     case CON_IFSOUND:
         insptr++;
-        parseifelse( Sound[*insptr].num > 0 );
+        parseifelse( isspritemakingsound(g_i,*insptr) );
         //    parseifelse(SoundOwner[*insptr][0].i == g_i);
         break;
 
