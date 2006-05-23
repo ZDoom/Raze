@@ -112,7 +112,7 @@ void nfIncCP () //function to handle currentplayer increment
         if (nfCurrentPlayer >= numplayers)
         {
             nfFinished = 1; //Set NatFree finished flag. Perform non-natfree networking routines
-            initprintf("NatFree: Heard from everybody, Let's Rock!\n");
+            initprintf("natfree: all players accounted for.\n");
             return;
         }
     }
@@ -177,9 +177,12 @@ long netsend (long other, char *dabuf, long bufsiz) //0:buffer full... can't sen
             return(0); //Only greet the connecthead if we've heard from them.
 
         if (myconnectindex != connecthead)
-            if (!nfCheckCP(other) && other != connecthead) return(0); //Only connect to currentplayer or connecthead
-            else
-                if (!nfCheckCP(other) && !nfCheckHF(other)) return(0);
+        {
+            if (!nfCheckCP(other) && other != connecthead)
+                return(0); //Only connect to currentplayer or connecthead
+            else if (!nfCheckCP(other) && !nfCheckHF(other))
+                return(0);
+        }
     }
     /*Addfaz NatFree End*/
 
@@ -218,8 +221,8 @@ long netread (long *other, char *dabuf, long bufsiz) //0:no packets in buffer
                 {
                     if (otherport[nfCurrentPlayer] != snatchport) //If Port numbers do not match
                     {
+                        initprintf("natfree: port number for player %d changed from %d to %d.\n",nfCurrentPlayer,otherport[nfCurrentPlayer],snatchport);
                         otherport[nfCurrentPlayer] = snatchport; //Correct the port number
-                        initprintf("NatFree: Port number changed for player %i.\n", nfCurrentPlayer);
                     }
                 }
                 (*other) = nfCurrentPlayer; //Set pointer
@@ -676,7 +679,7 @@ long getpacket (long *retother, char *bufptr)
                         /*Addfaz NatFree Start*/
                         if (natfree && !nfCheckHF(other))
                         {
-                            initprintf("NatFree: Heard from player %i\n", other);
+                            initprintf("natfree: heard from player %d\n", other);
                             HeardFrom[other] = 1;
                             HeardFrom2[other] = 1;
                             nfIncCP();
@@ -706,7 +709,7 @@ long getpacket (long *retother, char *bufptr)
                         /*Addfaz NatFree Start*/
                         if (natfree)
                         {
-                            initprintf("NatFree: Heard from head player %i\n", connecthead);
+                            initprintf("natfree: heard from player %d (head).\n", connecthead);
                             HeardFrom[connecthead] = 1;
                             HeardFrom2[connecthead] = 1;
                             nfIncCP();
@@ -757,7 +760,7 @@ long getpacket (long *retother, char *bufptr)
                 /*Addfaz NatFree Start*/
                 if (natfree && !HeardFrom2[nfCurrentPlayer] && i == nfCurrentPlayer)
                 {
-                    initprintf("NatFree: Heard from player %i\n", i);
+                    initprintf("natfree: heard from player %d.\n", i);
                     HeardFrom2[nfCurrentPlayer] = 1;
                     HeardFrom[nfCurrentPlayer] = 1;
                     nfIncCP();
