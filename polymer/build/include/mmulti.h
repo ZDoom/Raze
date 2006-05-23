@@ -8,6 +8,7 @@
 extern long myconnectindex, numplayers;
 extern long connecthead, connectpoint2[MAXMULTIPLAYERS];
 extern char syncstate;
+extern int natfree; //Addfaz NatFree
 
 long initmultiplayersparms(long argc, char **argv);
 long initmultiplayerscycle(void);
@@ -24,6 +25,10 @@ long getpacket(long *other, char *bufptr);
 void flushpackets(void);
 void genericmultifunction(long other, char *bufptr, long messleng, long command);
 long isvalidipaddress(char *st);
+
+void nfIncCP(void); //Addfaz NatFree
+int nfCheckHF (long other); //Addfaz NatFree
+int nfCheckCP(long other); //Addfaz NatFree
 
 #endif	// __mmulti_h__
 

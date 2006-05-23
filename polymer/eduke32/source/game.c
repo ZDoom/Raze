@@ -7736,6 +7736,7 @@ void checkcommandline(int argc,char **argv)
                     continue;
                 }
                 if (!Bstrcasecmp(c+1,"stun")) {
+                    natfree = 1; //Addfaz NatFree
                     i++;
                     continue;
                 }

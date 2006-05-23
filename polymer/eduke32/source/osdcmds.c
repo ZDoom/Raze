@@ -389,6 +389,17 @@ int osdcmd_addpath(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+int osdcmd_initgroupfile(const osdfuncparm_t *parm)
+{
+    char file[BMAX_PATH];
+
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    strcpy(file,parm->parms[0]);
+    initgroupfile(file);
+    return OSDCMD_OK;
+}
+
 int osdcmd_cmenu(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
@@ -681,8 +692,6 @@ int registerosdcommands(void)
         OSD_RegisterFunction(cvar[i].name, cvar[i].helpstr, osdcmd_cvar_set);
     }
 
-    OSD_RegisterFunction("echo","echo [text]: echoes text to the console", osdcmd_echo);
-
     if (VOLUMEONE) {
         OSD_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
     } else {
@@ -690,29 +699,39 @@ int registerosdcommands(void)
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
         OSD_RegisterFunction("mpmap","mpmap <mapfile>: sets user map name in multiplayer", osdcmd_mpmap);
     }
+
+    OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
+
+    OSD_RegisterFunction("cl_statusbarmode","cl_statusbarmode: enable/disable status bar drawing hack", osdcmd_setstatusbarmode);
+    OSD_RegisterFunction("cl_statusbarscale","cl_statusbarscale: changes the status bar scale", osdcmd_setstatusbarscale);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
+
+    OSD_RegisterFunction("echo","echo [text]: echoes text to the console", osdcmd_echo);
     OSD_RegisterFunction("exec","exec <scriptfile>: executes a script", osdcmd_exec);
-    OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
+
+    OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
+
     OSD_RegisterFunction("gamma","gamma <value>: changes brightness", osdcmd_gamma);
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
+    OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
+
+    OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
+
     OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
-    OSD_RegisterFunction("cl_statusbarscale","cl_statusbarscale: changes the status bar scale", osdcmd_setstatusbarscale);
-    OSD_RegisterFunction("cl_statusbarmode","cl_statusbarmode: enable/disable status bar drawing hack", osdcmd_setstatusbarmode);
-    OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
-    OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
-    OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
-    OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
-
-    OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
 
     OSD_RegisterFunction("restartvid","restartvid: reinitialised the video mode",osdcmd_restartvid);
-    OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: immediately change the video mode",osdcmd_vidmode);
 
-    OSD_RegisterFunction("usemouse","usemouse: enables input from the mouse if it is present",osdcmd_usemousejoy);
+    OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
+    OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
+    OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
+
     OSD_RegisterFunction("usejoystick","usejoystick: enables input from the joystick if it is present",osdcmd_usemousejoy);
+    OSD_RegisterFunction("usemouse","usemouse: enables input from the mouse if it is present",osdcmd_usemousejoy);
+
+    OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: immediately change the video mode",osdcmd_vidmode);
 
     //baselayer_onvideomodechange = onvideomodechange;
 

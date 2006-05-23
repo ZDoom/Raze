@@ -1606,6 +1606,7 @@ cheat_for_port_credits:
                                              "",
                                              "Thanks to these people for their input and contributions:",
                                              "",
+                                             "Adam Fazakerley",
                                              "Ed Coolidge",
                                              "Javier Martinez",
                                              "Jeff Hart",
