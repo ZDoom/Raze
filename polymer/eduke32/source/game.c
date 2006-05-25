@@ -7134,14 +7134,20 @@ void nonsharedkeys(void)
             CONTROL_ClearButton( gamefunc_Enlarge_Screen );
             if(ud.screen_size > 0)
                 sound(THUD);
-            ud.screen_size -= 4;
+            if(ud.screen_size == 8 && ud.statusbarmode == 0 && bpp > 8 && ud.statusbarscale != 100)
+                ud.statusbarmode = 1;
+            else ud.screen_size -= 4;
             vscrn();
         }
         if( BUTTON( gamefunc_Shrink_Screen ) )
         {
             CONTROL_ClearButton( gamefunc_Shrink_Screen );
             if(ud.screen_size < 64) sound(THUD);
-            ud.screen_size += 4;
+            if(ud.screen_size == 4 && ud.statusbarscale == 100 && ud.statusbarmode == 1)
+                ud.statusbarmode == 0;
+            if(ud.screen_size == 8 && ud.statusbarmode == 1 && bpp > 8)
+                ud.statusbarmode = 0;
+            else ud.screen_size += 4;
             vscrn();
         }
     }

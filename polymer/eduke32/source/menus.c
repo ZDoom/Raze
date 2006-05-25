@@ -2248,14 +2248,34 @@ cheat_for_port_credits:
                 case 1:  if (x==io) ud.levelstats = 1-ud.levelstats;
                     modval(0,1,(int *)&ud.levelstats,1,probey==io);
                     gametextpal(d,yy, ud.levelstats ? "Shown" : "Hidden", MENUHIGHLIGHT(io), 0); break;
-                case 2:  barsm(d+8,yy+7, (short *)&ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),PHX(-5)); break;
+                case 2:  
+                    {
+                        int i;
+                        i = ud.screen_size;
+                        barsm(d+8,yy+7, (short *)&ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),PHX(-5));
+                        if(i < ud.screen_size && i == 8 && ud.statusbarmode == 1 && bpp > 8)
+                        {
+                            ud.statusbarmode = 0;
+                            if(ud.statusbarscale != 100)
+                                ud.screen_size = i;
+                        }
+                        else if(i > ud.screen_size && i == 8 && ud.statusbarmode == 0 && bpp > 8)
+                        {
+                            if(ud.statusbarscale != 100)
+                            {
+                                ud.statusbarmode = 1;
+                                ud.screen_size = i;
+                            }
+                        }
+                    }
+                    break;
                 case 3:
                     {
                         short sbs, sbsl;
-                        sbs = sbsl = scale(max(0,ud.statusbarscale-50),63,100-50);
-                        barsm(d+8,yy+7, (short *)&sbs,9,x==io,MENUHIGHLIGHT(io),PHX(-5));
+                        sbs = sbsl = ud.statusbarscale-37;
+                        barsm(d+8,yy+7, (short *)&sbs,8,x==io,MENUHIGHLIGHT(io),PHX(-5));
                         if (x == io && sbs != sbsl) {
-                            sbs = scale(sbs,100-50,63)+50;
+                            sbs += 37;
                             setstatusbarscale(sbs);
                         }
                     }
