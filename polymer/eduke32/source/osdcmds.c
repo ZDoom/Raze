@@ -458,6 +458,7 @@ struct cvarmappings {
 
         { "cl_messagetime", "cl_messagetime: length of time to display multiplayer chat messages\n", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
 
+        { "cl_mousebias", "cl_mousebias: hacky thing to make the mouse suck\n", (void*)&MouseBias, CVAR_INT, 0, 0, 32 },
         { "cl_mousefilter", "cl_mousefilter: amount of mouse movement to filter out\n", (void*)&MouseFilter, CVAR_INT, 0, 0, 512 },
 
         { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },

@@ -4423,12 +4423,6 @@ void ExtAnalyzeSprites(void)
             }
             //                else tspr->cstat&=32767;
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(tspr->picnum)) {
-                tspr->cstat &= ~4;
-                break;
-            }
-#endif
             if(frames!=0)
             {
                 if(frames==10) frames=0;
@@ -4445,6 +4439,13 @@ void ExtAnalyzeSprites(void)
                     tspr->picnum += 8-k;
                     tspr->cstat |= 4;    //set x-flipping bit
                 }
+
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                if (bpp > 8 && usemodels && md_tilehasmodel(tspr->picnum)) {
+                    tspr->cstat &= ~4;
+                    break;
+                }
+#endif
             }
 
             if(frames==2) tspr->picnum+=((((4-(totalclock>>5)))&1)*5);

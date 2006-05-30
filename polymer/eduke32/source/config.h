@@ -45,7 +45,7 @@ extern int32 ReverseStereo;
 extern int32 UseJoystick, UseMouse;
 extern int32 RunMode;
 extern int32 AutoAim;
-extern int32 MouseFilter;
+extern int32 MouseFilter, MouseBias;
 extern int32 SmoothInput;
 extern int32 ShowOpponentWeapons;
 extern int32 ScreenMode;

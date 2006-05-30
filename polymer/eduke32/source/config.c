@@ -63,7 +63,7 @@ int32 UseJoystick = 0, UseMouse = 1;
 int32 RunMode;
 int32 AutoAim;  // JBF 20031125
 int32 ShowOpponentWeapons;
-int32 MouseFilter;
+int32 MouseFilter,MouseBias;
 int32 SmoothInput;
 
 // JBF 20031211: Store the input settings because
@@ -203,6 +203,7 @@ void CONFIG_SetDefaults( void )
     FXDevice = 0;
     FXVolume = 220;
     MixRate = 44100;
+    MouseBias = 0;
     MouseFilter = 0;
     MusicDevice = 0;
     MusicToggle = 1;
@@ -675,6 +676,7 @@ void CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Controls","MouseAimingFlipped",&ud.mouseflip); // mouse aiming inverted
         SCRIPT_GetNumber( scripthandle, "Controls","MouseAiming",&ud.mouseaiming);		// 1=momentary/0=toggle
         ps[0].aim_mode = ud.mouseaiming;
+        SCRIPT_GetNumber( scripthandle, "Controls","MouseBias",&MouseBias);
         SCRIPT_GetNumber( scripthandle, "Controls","MouseFilter",&MouseFilter);
         SCRIPT_GetNumber( scripthandle, "Controls","SmoothInput",&SmoothInput);
         SCRIPT_GetNumber( scripthandle, "Controls","UseJoystick",&UseJoystick);
@@ -717,6 +719,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Controls","AutoAim",AutoAim,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseAimingFlipped",ud.mouseflip,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
+    SCRIPT_PutNumber( scripthandle, "Controls","MouseBias",MouseBias,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseFilter",MouseFilter,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","SmoothInput",SmoothInput,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","RunKeyBehaviour",ud.runkey_mode,false,false);

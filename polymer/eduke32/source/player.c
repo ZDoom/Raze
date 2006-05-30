@@ -2756,6 +2756,13 @@ void getinput(short snum)
         }
     }
 
+    if(MouseBias)
+    {
+        if(klabs(info.dyaw) > klabs(info.dpitch))
+            info.dpitch /= MouseBias;
+        else info.dyaw /= MouseBias;
+    }
+
     tics = totalclock-lastcontroltime;
     lastcontroltime = totalclock;
 
@@ -2768,10 +2775,10 @@ void getinput(short snum)
         return;
     }
 
-    if(BUTTON(gamefunc_Jump))
-        jump_input = 2;
+    if(BUTTON(gamefunc_Jump) && p->on_ground)
+        jump_input = 4;
 
-    loc.bits =   (jump_input > 0); //BUTTON(gamefunc_Jump);
+    loc.bits =   (jump_input > 0 || BUTTON(gamefunc_Jump)); //BUTTON(gamefunc_Jump);
     loc.bits |=   BUTTON(gamefunc_Crouch)<<1;
     loc.bits |=   BUTTON(gamefunc_Fire)<<2;
     loc.bits |=   BUTTON(gamefunc_Aim_Up)<<3;
@@ -3523,8 +3530,8 @@ void processinput(short snum)
                             default: i = 0; break;
                             }
                         }
-                        Bstrcpy(name1,strip_color_codes(&ud.user_name[snum][0]));
-                        Bstrcpy(name2,strip_color_codes(&ud.user_name[p->frag_ps][0]));
+                        Bstrcpy(name1,&ud.user_name[snum][0]);
+                        Bstrcpy(name2,&ud.user_name[p->frag_ps][0]);
 
                         Bsprintf(tempbuf,fta_quotes[16300+i+(mulscale(krand(), 3, 16)*10)],name1,name2);
                         if(ScreenWidth >= 800)
@@ -3542,7 +3549,7 @@ void processinput(short snum)
                         i = 1;
                     else i = 0;
 
-                    Bsprintf(tempbuf,fta_quotes[16350+i],strip_color_codes(&ud.user_name[snum][0]));
+                    Bsprintf(tempbuf,fta_quotes[16350+i],&ud.user_name[snum][0]);
                     if(ScreenWidth >= 800)
                         adduserquote(tempbuf);
                     else OSD_Printf("%s\n",strip_color_codes(tempbuf));
