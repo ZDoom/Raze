@@ -3372,7 +3372,7 @@ void checksectors(short snum)
                 if(j >= 0 && wall[j].overpicnum == 0)
                     if(hittype[neartagsprite].temp_data[0] == 0)
                     {
-                        if(ud.noexits)
+                        if(ud.noexits && ud.multimode > 1)
                         {
                             hittype[p->i].picnum = NUKEBUTTON;
                             hittype[p->i].extra = 250;

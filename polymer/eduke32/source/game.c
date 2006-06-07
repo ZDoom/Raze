@@ -477,7 +477,7 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
             switch(packbuf[1])
             {
             case 0:
-                if(voting == myconnectindex)
+                if(voting == myconnectindex && gotvote[packbuf[2]] == 0)
                 {
                     gotvote[packbuf[2]] = 1;
                     votes[packbuf[2]] = packbuf[3];
@@ -498,7 +498,7 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
                 break;
 
             case 2: // cancel map vote
-                if(packbuf[2] == voting)
+                if(voting == packbuf[2])
                 {
                     voting = -1;
                     i = 0;
@@ -7097,7 +7097,7 @@ void nonsharedkeys(void)
         CONTROL_GetInput( &noshareinfo );
     }
 
-    if(gotvote[myconnectindex] == 0 && voting != -1)
+    if(gotvote[myconnectindex] == 0 && voting != -1 && voting != myconnectindex)
     {
         gametext(160,60,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2);
 
@@ -7117,6 +7117,7 @@ void nonsharedkeys(void)
             gotvote[myconnectindex] = 1;
             KB_ClearKeyDown(sc_F1);
             KB_ClearKeyDown(sc_F2);
+            voting = -1;
         }
     }
 

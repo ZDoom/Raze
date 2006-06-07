@@ -3283,7 +3283,7 @@ void movetransports(void)
 
                         ps[p].jumping_toggle = 1;
                         ps[p].jumping_counter = 0;
-                        ps[p].poszv += 1024;
+//                        ps[p].poszv += 1024;
                     }
 
                     if(k == 1)
