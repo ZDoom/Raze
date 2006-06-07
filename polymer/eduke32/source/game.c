@@ -2367,8 +2367,26 @@ void typemode(void)
             if(ud.multimode < 3)
                 sendmessagecommand = 2;
 
-            strcat(recbuf,ud.user_name[myconnectindex]);
-            strcat(recbuf,":^0 ");
+            if(typebuf[0] == '/' && Btoupper(typebuf[1]) == 'M' && Btoupper(typebuf[2]) == 'E')
+            {
+                strcat(recbuf,"* ");
+                i = 3, j = Bstrlen(typebuf);
+                Bstrcpy(tempbuf,typebuf);
+                while(i < j)
+                {
+                    typebuf[i-3] = tempbuf[i];
+                    i++;
+                }
+                typebuf[i-3] = '\0';
+                strcat(recbuf,ud.user_name[myconnectindex]);
+            }
+            else
+            {
+                strcat(recbuf,ud.user_name[myconnectindex]);
+                strcat(recbuf,": ");
+            }
+
+            strcat(recbuf,"^0");
             strcat(recbuf,typebuf);
             j = strlen(recbuf);
             recbuf[j] = 0;

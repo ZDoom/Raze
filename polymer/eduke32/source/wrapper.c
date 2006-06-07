@@ -39,7 +39,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         i++;
         CmdLine[i] = '\0';
     }
-    
+
     if(szFileName[0] != '\0' && CmdLine[0] != '\0') sprintf(sCmdLine,"eduke32.exe %s -rmnet %s",CmdLine,szFileName);
     else if(CmdLine[0] != '\0') sprintf(sCmdLine,"eduke32.exe %s",CmdLine);
     else sprintf(sCmdLine,"eduke32.exe");
