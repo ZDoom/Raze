@@ -7117,8 +7117,6 @@ void nonsharedkeys(void)
 
     if(gotvote[myconnectindex] == 0 && voting != -1 && voting != myconnectindex)
     {
-        gametext(160,60,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2);
-
         if(KB_KeyPressed(sc_F1) || KB_KeyPressed(sc_F2) || ud.autovote)
         {
             tempbuf[0] = 18;
@@ -7163,7 +7161,7 @@ void nonsharedkeys(void)
             CONTROL_ClearButton( gamefunc_Shrink_Screen );
             if(ud.screen_size < 64) sound(THUD);
             if(ud.screen_size == 4 && ud.statusbarscale == 100 && ud.statusbarmode == 1)
-                ud.statusbarmode == 0;
+                ud.statusbarmode = 0;
             if(ud.screen_size == 8 && ud.statusbarmode == 1 && bpp > 8)
                 ud.statusbarmode = 0;
             else ud.screen_size += 4;
@@ -8933,16 +8931,21 @@ void app_main(int argc,char **argv)
         int xres[] = {800,640,320};
         int yres[] = {600,480,240};
         int bpp[] = {32,16,8};
+
         initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n",
                    ScreenWidth,ScreenHeight,ScreenBPP,ScreenMode?"fullscreen":"windowed");
-        /*        ScreenMode = 0;     // JBF: was 2
-                ScreenWidth = 800;
-                ScreenHeight = 600; // JBF: was 200
-                ScreenBPP = 32; */
+
+#if defined(POLYMOST) && defined(USE_OPENGL)
         while(setgamemode(0,xres[i],yres[i],bpp[i]) < 0) {
             initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],bpp[i]);
             i++;
         }
+#else
+        while(setgamemode(0,xres[i],yres[i],8) < 0) {
+            initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],8);
+            i++;
+        }
+#endif
         ScreenWidth = xres[i];
         ScreenHeight = yres[i];
         ScreenBPP = bpp[i];
@@ -9116,6 +9119,9 @@ MAIN_LOOP_RESTART:
 
         displayrooms(screenpeek,i);
         displayrest(i);
+
+        if(gotvote[myconnectindex] == 0 && voting != -1 && voting != myconnectindex)
+            gametext(160,60,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2+8+16);
 
         //        if( KB_KeyPressed(sc_F) )
         //        {
@@ -9464,6 +9470,9 @@ RECHECK:
 
             if(ud.multimode > 1 && ps[myconnectindex].gm )
                 getpackets();
+
+            if(gotvote[myconnectindex] == 0 && voting != -1 && voting != myconnectindex)
+                gametext(160,60,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2+8+16);
         }
 
         if( (ps[myconnectindex].gm&MODE_MENU) && (ps[myconnectindex].gm&MODE_EOL) )

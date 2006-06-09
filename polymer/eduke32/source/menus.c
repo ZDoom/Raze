@@ -2248,7 +2248,7 @@ cheat_for_port_credits:
                 case 1:  if (x==io) ud.levelstats = 1-ud.levelstats;
                     modval(0,1,(int *)&ud.levelstats,1,probey==io);
                     gametextpal(d,yy, ud.levelstats ? "Shown" : "Hidden", MENUHIGHLIGHT(io), 0); break;
-                case 2:  
+                case 2:
                     {
                         int i;
                         i = ud.screen_size;
@@ -3995,8 +3995,11 @@ VOLUME_ALL_40x:
 
             x = probe(186,124,0,0);
 
+            if(voting != myconnectindex)
+                ps[myconnectindex].gm &= ~MODE_MENU;
+
             if (x == -1) {
-                if(voting != -1)
+                if(voting == myconnectindex)
                 {
                     Bmemset(votes,0,sizeof(votes));
                     Bmemset(gotvote,0,sizeof(gotvote));
@@ -4058,7 +4061,7 @@ VOLUME_ALL_40x:
                         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                     }
 
-                    if(voting != -1)
+                    if(voting == myconnectindex)
                         adduserquote("VOTE SUCCEEDED");
 
                     newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
