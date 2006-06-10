@@ -555,10 +555,10 @@ void editinput(void)
         osearchy = searchy;
         searchx += mousx;
         searchy += mousy;
-        if (searchx < 4) searchx = 4;
-        if (searchy < 4) searchy = 4;
-        if (searchx > xdim-5) searchx = xdim-5;
-        if (searchy > ydim-5) searchy = ydim-5;
+        if (searchx < 8) searchx = 8;
+        if (searchy < 8) searchy = 8;
+        if (searchx > xdim-9) searchx = xdim-9;
+        if (searchy > ydim-9) searchy = ydim-9;
     }
 
     showmouse();

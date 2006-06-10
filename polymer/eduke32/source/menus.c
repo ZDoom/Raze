@@ -4072,6 +4072,7 @@ VOLUME_ALL_40x:
                 else if(j == numplayers) {
                     Bmemset(votes,0,sizeof(votes));
                     Bmemset(gotvote,0,sizeof(gotvote));
+                    voting = -1;
 
                     tempbuf[0] = 18;
                     tempbuf[1] = 2;
@@ -4083,7 +4084,7 @@ VOLUME_ALL_40x:
                         if(c != myconnectindex) sendpacket(c,tempbuf,4);
                         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                     }
-                    voting = -1;
+
                     Bsprintf(fta_quotes[116],"VOTE FAILED");
                     FTA(116,&ps[myconnectindex]);
                     ps[myconnectindex].gm &= ~MODE_MENU;
