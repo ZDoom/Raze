@@ -4540,7 +4540,7 @@ repeatcase:
             *(fta_quotes[k]+i) = '\0';
         else
         {
-            *(fta_quotes[redefined_quote_count]+i) = '\0';
+            *(redefined_quotes[redefined_quote_count]+i) = '\0';
             *scriptptr++=redefined_quote_count;
             redefined_quote_count++;
         }
