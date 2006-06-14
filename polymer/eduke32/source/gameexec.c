@@ -38,9 +38,6 @@ void DoUserDef(char bSet, long lLabelID, long lVar2, short sActor, short sPlayer
 {
     long lValue;
 
-    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
-        return;
-
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
 
     if(sPlayer != myconnectindex) return;
@@ -662,9 +659,6 @@ void DoThisProjectile(char bSet, long lVar1, long lLabelID, long lVar2, short sA
 {
     long lValue,proj;
 
-    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
-        return;
-
     if(lVar1 == g_iThisActorID )
         // if they've asked for 'this', then use 'this'...
         proj=sActor;
@@ -672,6 +666,9 @@ void DoThisProjectile(char bSet, long lVar1, long lLabelID, long lVar2, short sA
         proj=GetGameVarID((int)lVar1, sActor, sPlayer);
 
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
+
+    if(proj < 0 || proj >= MAXSPRITES)
+        return;
 
     switch(lLabelID)
     {
@@ -882,9 +879,6 @@ void DoPlayer(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sh
     int iPlayer;
     long lValue;
     long lTemp;
-
-    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
-        return;
 
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
 
@@ -1906,9 +1900,6 @@ void DoInput(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sho
     int iPlayer;
     long lValue;
 
-    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
-        return;
-
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
 
     if(lVar1 == g_iThisActorID )
@@ -1975,9 +1966,6 @@ void DoWall(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, shor
 {
     int iWall;
     long lValue;
-
-    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
-        return;
 
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
 
@@ -2116,9 +2104,6 @@ void DoSector(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sh
 {
     int iSector;
     long lValue;
-
-    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
-        return;
 
     if(lVar1 == g_iThisActorID )
         // if they've asked for 'this', then use 'this'...
@@ -2298,9 +2283,6 @@ void DoActor(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sho
     int iActor;
     long lValue;
     long lTemp;
-
-    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
-        return;
 
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
 
@@ -2658,7 +2640,7 @@ void DoProjectile(char bSet, long lVar1, long lLabelID, long lVar2, short sActor
     //     proj=GetGameVarID((int)lVar1, sActor, sPlayer);
     proj=lVar1;
 
-    if(sActor < 0 || sActor >= MAXSPRITES || sPlayer < 0 || sPlayer >= MAXPLAYERS)
+    if(proj < 0 || proj >= MAXTILES)
         return;
 
     lValue=GetGameVarID((int)lVar2, sActor, sPlayer);
