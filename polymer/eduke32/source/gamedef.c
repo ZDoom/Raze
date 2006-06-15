@@ -4563,6 +4563,8 @@ repeatcase:
         {
             initprintf("%s:%ld: error: cheat redefinition attempts to redefine nonexistant cheat.\n",compilefile,line_number);
             error++;
+            while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 ) textptr++;
+            break;
         }
         scriptptr--;
         i = 0;
