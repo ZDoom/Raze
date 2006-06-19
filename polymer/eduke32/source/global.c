@@ -70,6 +70,8 @@ char sounds[NUM_SOUNDS][BMAX_PATH];
 
 short title_zoom;
 
+int framerate;
+
 char num_volumes = 3;
 
 short timer=120;

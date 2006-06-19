@@ -2038,8 +2038,12 @@ void tics(void)
     if (i != frameval[framecnt])
     {
         j=(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]);
-        Bsprintf(b,"%ld",j>0?j:0);
-        minitext(320-strlen(b)*4,ud.screen_size!=0?(ud.multimode>1&&ud.multimode<5?9:(ud.multimode>4?17:1)):1,b,(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
+        if (ud.tickrate && !(ps[myconnectindex].gm&MODE_MENU))
+        {
+            Bsprintf(b,"%ld",j>0?j:0);
+            minitext(320-strlen(b)*4,ud.screen_size!=0?(ud.multimode>1&&ud.multimode<5?9:(ud.multimode>4?17:1)):1,b,(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
+        }
+        framerate = j;
         frameval[framecnt] = i;
     }
     framecnt = ((framecnt+1)&(AVERAGEFRAMES-1));
@@ -3020,8 +3024,8 @@ void displayrest(long smoothratio)
 
     if(ud.coords)
         coords(screenpeek);
-    if(ud.tickrate&&!(ps[myconnectindex].gm&MODE_MENU))
-        tics();
+
+    tics();
 
     // JBF 20040124: display level stats in screen corner
     if(ud.levelstats && (ps[myconnectindex].gm&MODE_MENU) == 0) {
@@ -3815,7 +3819,7 @@ short spawn( short j, short pn )
     else
     {
         i = pn;
-
+        ResetActorGameVars(i);
         hittype[i].picnum = PN;
         hittype[i].timetosleep = 0;
         hittype[i].extra = -1;

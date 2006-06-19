@@ -81,7 +81,6 @@ MATTGAMEVAR aGameVars[MAXGAMEVARS];
 int iGameVarCount=0;
 
 MATTGAMEVAR aDefaultGameVars[MAXGAMEVARS];  // the 'original' values
-int iDefaultGameVarCount=0;
 
 void ReportError(int iError);
 void FreeGameVars(void);
@@ -1229,13 +1228,14 @@ void ResetGameVars(void)
     //AddLog("Reset Game Vars");
     FreeGameVars();
 
-    for(i=0;i<iDefaultGameVarCount;i++)
+    for(i=0;i<MAXGAMEVARS;i++)
     {
         //Bsprintf(g_szBuf,"Resetting %d: '%s' to %ld",i,aDefaultGameVars[i].szLabel,
         //      aDefaultGameVars[i].lValue
         //      );
         //AddLog(g_szBuf);
-        AddGameVar(aDefaultGameVars[i].szLabel,aDefaultGameVars[i].lValue,aDefaultGameVars[i].dwFlags|GAMEVAR_FLAG_NODEFAULT);
+        if(aDefaultGameVars[i].szLabel != NULL)
+            AddGameVar(aDefaultGameVars[i].szLabel,aDefaultGameVars[i].lValue,aDefaultGameVars[i].dwFlags);
     }
 }
 
@@ -1298,10 +1298,7 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
             //}
             // if existing is system, they only get to change default value....
             aGameVars[i].lValue=lValue;
-            if(!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
-            {
-                aDefaultGameVars[i].lValue=lValue;
-            }
+            aDefaultGameVars[i].lValue=lValue;
         }
         else
         {
@@ -1310,24 +1307,17 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
             Bstrcpy(aGameVars[i].szLabel,pszLabel);
             aGameVars[i].dwFlags=dwFlags;
             aGameVars[i].lValue=lValue;
-            if(!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
-            {
-                if(aDefaultGameVars[i].szLabel == NULL)
-                    aDefaultGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
-                Bstrcpy(aDefaultGameVars[i].szLabel,pszLabel);
-                aDefaultGameVars[i].dwFlags=dwFlags;
-                aDefaultGameVars[i].lValue=lValue;
-            }
+            if(aDefaultGameVars[i].szLabel == NULL)
+                aDefaultGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
+            Bstrcpy(aDefaultGameVars[i].szLabel,pszLabel);
+            aDefaultGameVars[i].dwFlags=dwFlags;
+            aDefaultGameVars[i].lValue=lValue;
         }
 
         if(i==iGameVarCount)
         {
             // we're adding a new one.
             iGameVarCount++;
-            if(!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
-            {
-                iDefaultGameVarCount++;
-            }
         }
         if(aGameVars[i].plValues && !(aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM))
         {
@@ -1361,10 +1351,13 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
 void ResetActorGameVars(short sActor)
 {
     int i;
-
+    //    OSD_Printf("resetting vars for actor %d\n",sActor);
     for(i=0;i<MAXGAMEVARS;i++)
-        if( aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR && !(aGameVars[i].dwFlags & GAMEVAR_FLAG_NODEFAULT))
+        if((aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR) && !(aGameVars[i].dwFlags & GAMEVAR_FLAG_NODEFAULT))
+        {
+            //            OSD_Printf("reset %s (%d) to %s (%d)\n",aGameVars[i].szLabel,aGameVars[i].plValues[sActor],aDefaultGameVars[i].szLabel,aDefaultGameVars[i].lValue);
             aGameVars[i].plValues[sActor]=aDefaultGameVars[i].lValue;
+        }
 }
 
 int GetGameID(char *szGameLabel)
@@ -3568,7 +3561,7 @@ char parsecommand(void)
         case CON_LDIST:
         case CON_TXDIST:
         case CON_GETANGLE:
-            transvartype(GAMEVAR_FLAG_READONLY);
+            transvar();
             break;
         case CON_MULSCALE:
             transmultvars(2);
@@ -4902,7 +4895,6 @@ void ClearGameVars(void)
         aGameVars[i].plValues=NULL;
     }
     iGameVarCount=0;
-    iDefaultGameVarCount=0;
     return;
 }
 
@@ -5450,6 +5442,7 @@ void AddSystemVars()
     AddGameVar("yxaspect",(long)&yxaspect, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("gravitationalconstant",(long)&gc, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
     AddGameVar("gametype_flags",(long)&gametype_flags[ud.coop], GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
+    AddGameVar("framerate",(long)&framerate, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("CLIPMASK0", CLIPMASK0, GAMEVAR_FLAG_SYSTEM|GAMEVAR_FLAG_READONLY);
     AddGameVar("CLIPMASK1", CLIPMASK1, GAMEVAR_FLAG_SYSTEM|GAMEVAR_FLAG_READONLY);
 }

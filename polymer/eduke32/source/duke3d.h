@@ -252,7 +252,7 @@ enum weapons {
 #define ESCESCAPE if(KB_KeyPressed( sc_Escape ) ) gameexit(" ");
 
 #define IFWITHIN(B,E) if((PN)>=(B) && (PN)<=(E))
-#define KILLIT(KX) {ResetActorGameVars(KX);deletesprite(KX);goto BOLT;}
+#define KILLIT(KX) {deletesprite(KX);goto BOLT;}
 
 
 #define IFMOVING if(ssp(i,CLIPMASK0))
@@ -517,6 +517,8 @@ extern long partime[MAXVOLUMES*11],designertime[MAXVOLUMES*11];
 extern char volume_names[MAXVOLUMES][33];
 extern char skill_names[5][33];
 
+extern int framerate;
+
 #define MAXGAMETYPES 32
 extern char gametype_names[MAXGAMETYPES][33];
 extern int gametype_flags[MAXGAMETYPES];
@@ -705,7 +707,7 @@ enum gamevarflags {
     GAMEVAR_FLAG_USER_MASK  = 3,
     GAMEVAR_FLAG_DEFAULT    = 256,  // allow override
     GAMEVAR_FLAG_SECRET     = 512,  // don't dump...
-    GAMEVAR_FLAG_NODEFAULT  = 1024, // don't add to 'default' array.
+    GAMEVAR_FLAG_NODEFAULT  = 1024, // don't reset on actor spawn
     GAMEVAR_FLAG_SYSTEM     = 2048, // cannot change mode flags...(only default value)
     GAMEVAR_FLAG_READONLY   = 4096, // values are read-only (no setvar allowed)
     GAMEVAR_FLAG_PLONG      = 8192, // plValue is a pointer to a long
