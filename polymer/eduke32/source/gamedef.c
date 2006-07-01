@@ -438,6 +438,7 @@ char *keyw[] = {
                    "findnearactorzvar",        // 292
                    "findnearspritez",          // 293
                    "findnearspritezvar",       // 294
+                   "ezshoot",                  // 295
                    "<null>"
                };
 
@@ -3475,6 +3476,7 @@ char parsecommand(void)
 
     case CON_RANDVAR:
     case CON_ZSHOOT:
+    case CON_EZSHOOT:
         if(!CheckEventSync(current_event))
             ReportError(WARNING_EVENTSYNC);
     case CON_SETVAR:
@@ -3496,7 +3498,7 @@ char parsecommand(void)
         //printf("Found [add|set]var at line= %ld\n",line_number);
 
         // get the ID of the DEF
-        if(tw != CON_ZSHOOT)
+        if(tw != CON_ZSHOOT && tw != CON_EZSHOOT)
             transvartype(GAMEVAR_FLAG_READONLY);
         else transvar();
 

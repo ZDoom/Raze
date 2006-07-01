@@ -4514,23 +4514,24 @@ SKIPJIBS:
         }
 
     case CON_ESHOOT:
+    case CON_EZSHOOT:
+    case CON_ZSHOOT:
         {
             long lReturn=-1;
 
             insptr++;
+            if(tw == CON_ZSHOOT || tw == CON_EZSHOOT)
+            {
+                hittype[g_i].temp_data[9] = GetGameVarID(*insptr++, g_i, g_p);
+                if (hittype[g_i].temp_data[9] == 0)
+                    hittype[g_i].temp_data[9] = 1;
+            }
             if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
+            {
                 lReturn = shoot(g_i,*insptr++);
-            SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
-            break;
-        }
-
-    case CON_ZSHOOT:
-        {
-            insptr++;
-            hittype[g_i].temp_data[9] = GetGameVarID(*insptr++, g_i, g_p);
-            if (hittype[g_i].temp_data[9] == 0)
-                hittype[g_i].temp_data[9] = 1;
-            shoot(g_i,*insptr++);
+                if(tw == CON_EZSHOOT || tw == CON_ESHOOT)
+                    SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
+            }
             hittype[g_i].temp_data[9]=0;
             break;
         }

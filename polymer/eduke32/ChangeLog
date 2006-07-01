@@ -5,7 +5,10 @@
  - Core: added widescreen support for Polymost
  - Core: added support for toggling correct HUD model rendering on/off
  - Core: removed broken support for linking OpenGL statically
+ - Core: added support for DDS textures (JF)
+ - Core: added support for dynamically loading GTK (JF)
 
+ - Game: new startup window (JF)
  - Game: added support for using the mouse and a joystick simultaneously (JF)
  - Game: fixed an issue preventing skill selection, bonus screen and episode ending animation sounds from playing
  - Game: fixed a problem where the player was unable to exit some pools of water in some maps
@@ -24,7 +27,7 @@
  - CON: reworked findnearactor3d, findnearactor3dvar, findnearsprite3d, and findnearsprite3dvar
  - CON: added findnearactorz, findnearactorzvar, findnearspritez, and findnearspritezvar
  - CON: added WEAPON_FLAG_RESET (65536) to weapon system in order to properly emulate the chaingun and freezer
- - CON: fixed eshoot
+ - CON: fixed "eshoot" and added "ezshoot"
  - CON: reworked weapon system; note that your custom weapons may need adjustments to work again
 
 ==1.4.0 beta 1=

@@ -724,5 +724,6 @@ enum keywords {
     CON_FINDNEARACTORZVAR,  // 292
     CON_FINDNEARSPRITEZ,    // 293
     CON_FINDNEARSPRITEZVAR, // 294
+    CON_EZSHOOT,            // 295
     END
 };
