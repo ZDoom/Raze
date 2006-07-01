@@ -13,6 +13,10 @@
 #include "baselayer.h"
 #include "build.h"
 
+#ifndef LINKED_GTK
+# include "dynamicgtk.h"
+#endif
+
 int gtkenabled = 0;
 
 static GdkPixbuf *appicon = NULL;
@@ -61,6 +65,13 @@ extern struct sdlappicon sdlappicon;
 #endif
 void gtkbuild_init(int *argc, char ***argv)
 {
+#ifndef LINKED_GTK
+	gtkenabled = dynamicgtk_init();
+	if (gtkenabled < 0) {
+		gtkenabled = 0;
+		return;
+	}
+#endif
     gtkenabled = gtk_init_check(argc, argv);
     if (!gtkenabled) return;
 #ifdef RENDERTYPESDL
@@ -73,7 +84,10 @@ void gtkbuild_init(int *argc, char ***argv)
 
 void gtkbuild_exit(int r)
 {
-    if (!gtkenabled) return;
-    if (appicon) g_object_unref((gpointer)appicon);
-    //gtk_exit(r);
+	if (gtkenabled) {
+		if (appicon) g_object_unref((gpointer)appicon);
+	}
+#ifndef LINKED_GTK
+	dynamicgtk_uninit();
+#endif
 }

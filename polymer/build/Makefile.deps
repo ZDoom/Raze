@@ -27,7 +27,8 @@ $(OBJ)scriptfile.$o: $(SRC)scriptfile.c $(INC)scriptfile.h $(INC)cache1d.h $(INC
 $(OBJ)sdlayer.$o: $(SRC)sdlayer.c $(INC)compat.h $(INC)sdlayer.h $(INC)baselayer.h $(INC)cache1d.h $(INC)pragmas.h $(INC)a.h $(INC)build.h $(INC)osd.h $(INC)glbuild.h
 $(OBJ)sound.$o: $(SRC)sound.c $(INC)osd.h $(INC)compat.h $(INC)cache1d.h
 $(OBJ)winlayer.$o: $(SRC)winlayer.c $(INC)compat.h $(INC)winlayer.h $(INC)baselayer.h $(INC)pragmas.h $(INC)build.h $(INC)a.h $(INC)osd.h $(INC)dxdidf.h $(INC)glbuild.h
-$(OBJ)gtkbits.$o: $(SRC)gtkbits.c $(INC)baselayer.h $(INC)build.h
+$(OBJ)gtkbits.$o: $(SRC)gtkbits.c $(INC)baselayer.h $(INC)build.h $(INC)dynamicgtk.h
+$(OBJ)dynamicgtk.$o: $(SRC)dynamicgtk.c $(INC)dynamicgtk.h
 
 $(OBJ)gameres.$(res): $(SRC)misc/gameres.rc $(SRC)startwin.game.h
 $(OBJ)buildres.$(res): $(SRC)misc/buildres.rc $(INC)startwin.editor.h

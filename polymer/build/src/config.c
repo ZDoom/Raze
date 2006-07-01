@@ -140,7 +140,7 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
         if (Batoi(val) != 0) glusetexcachecompression = 1;
         else glusetexcachecompression = 0;
     }
-    if(glusetexcache == -1 && glusetexcachecompression == -1)
+    if(glusetexcache == -1 || glusetexcachecompression == -1)
     {
         i=wm_ynbox("Texture caching",
                    "Would you like to enable the on-disk texture cache? "

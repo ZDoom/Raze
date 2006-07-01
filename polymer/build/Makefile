@@ -137,7 +137,7 @@ ifeq ($(RENDERTYPE),SDL)
 	
 	ifeq (1,$(HAVE_GTK2))
 		OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
-		ENGINEOBJS+= $(OBJ)gtkbits.$o
+		ENGINEOBJS+= $(OBJ)gtkbits.$o $(OBJ)dynamicgtk.$o
 		EDITOROBJS+= $(OBJ)startgtk.editor.$o
 		GAMEEXEOBJS+= $(OBJ)game_banner.$o $(OBJ)startgtk.game.$o
 		EDITOREXEOBJS+= $(OBJ)editor_banner.$o

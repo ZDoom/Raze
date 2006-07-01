@@ -623,7 +623,7 @@ int32 CONFIG_ReadSetup( void )
         glusetexcache = glusetexcachecompression = -1;
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseTextureCacheCompression", &glusetexcachecompression);
-        if(glusetexcache == -1 && glusetexcachecompression == -1)
+        if(glusetexcache == -1 || glusetexcachecompression == -1)
         {
             i=wm_ynbox("Texture caching",
                        "Would you like to enable the on-disk texture cache? "

@@ -52,7 +52,10 @@ ifeq ($(PLATFORM),LINUX)
 		# on my 64bit Gentoo these are the 32bit emulation libs
 		LIBS+= -m32 -L/emul/linux/x86/usr/lib
 		BUILDCFLAGS+= -m32
-		override WITHOUT_GTK=1
+		#override WITHOUT_GTK=0
+		GTKCOMPAT32=1
+	else
+		GTKCOMPAT32=0
 	endif
 endif
 ifeq ($(PLATFORM),WINDOWS)
@@ -108,7 +111,14 @@ ifeq ($(RENDERTYPE),SDL)
 	else
 		ifneq (No,$(shell pkg-config --exists gtk+-2.0 || echo No))
 			HAVE_GTK2=1
-			LIBS+= $(shell pkg-config --libs gtk+-2.0)
+			# on my 64bit Gentoo box I have Cairo enabled which means the libs list includes
+			# -lpangocairo-1.0 and -lcairo, however the 32bit compatibility libraries don't
+			# include cairo, so we need to filter out those -l switches in order to link
+			ifeq ($(GTKCOMPAT32),1)
+			#	LIBS+= $(shell pkg-config --libs gtk+-2.0 | sed 's/\s-l\(pango\)\{0,1\}cairo\S*\s/ /g')
+			else
+			#	LIBS+= $(shell pkg-config --libs gtk+-2.0)
+			endif
 		else
 			HAVE_GTK2=0
 		endif

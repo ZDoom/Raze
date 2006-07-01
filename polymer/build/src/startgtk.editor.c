@@ -15,6 +15,10 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
+#ifndef LINKED_GTK
+# include "dynamicgtk.h"
+#endif
+
 #include "baselayer.h"
 #include "compat.h"
 #include "build.h"
@@ -33,7 +37,7 @@ static struct {
 extern int gtkenabled;
 
 static GtkWidget *startwin = NULL;
-static int retval = -1, mode = 0;
+static int retval = -1, mode = TAB_MESSAGES;
 
 // -- SUPPORT FUNCTIONS -------------------------------------------------------
 
@@ -56,17 +60,14 @@ static GdkPixbuf *load_banner(void)
 static void SetPage(int n)
 {
     if (!gtkenabled || !startwin) return;
+	mode = n;
     gtk_notebook_set_current_page(GTK_NOTEBOOK(lookup_widget(startwin,"tabs")), n);
-}
 
-static void EnableConfig(int n)
-{
-    // each control in the config page vertical layout plus the dialogue buttons should be made (in)sensitive
-    mode = n;
-    gtk_container_foreach(GTK_CONTAINER(lookup_widget(startwin,"buttons")),
-                          (GtkCallback)gtk_widget_set_sensitive, (gpointer)mode);
+	// each control in the config page vertical layout plus the start button should be made (in)sensitive
+	if (n == TAB_CONFIG) n = TRUE; else n = FALSE;
+	gtk_widget_set_sensitive(lookup_widget(startwin,"startbutton"), n);
     gtk_container_foreach(GTK_CONTAINER(lookup_widget(startwin,"configvlayout")),
-                          (GtkCallback)gtk_widget_set_sensitive, (gpointer)mode);
+			(GtkCallback)gtk_widget_set_sensitive, (gpointer)n);
 }
 
 static void on_vmode2dcombo_changed(GtkComboBox *, gpointer);
@@ -168,8 +169,8 @@ static void on_alwaysshowcheck_toggled(GtkToggleButton *togglebutton, gpointer u
 
 static void on_cancelbutton_clicked(GtkButton *button, gpointer user_data)
 {
-    retval = 0;
-    gtk_main_quit();
+	if (mode == TAB_CONFIG) { retval = 0; gtk_main_quit(); }
+	else quitevent++;
 }
 
 static void on_startbutton_clicked(GtkButton *button, gpointer user_data)
@@ -180,7 +181,8 @@ static void on_startbutton_clicked(GtkButton *button, gpointer user_data)
 
 static gboolean on_startwin_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-    //quitevent++;
+	if (mode == TAB_CONFIG) { retval = 0; gtk_main_quit(); }
+	else quitevent++;
     return TRUE;	// FALSE would let the event go through. we want the game to decide when to close
 }
 
@@ -373,6 +375,9 @@ static GtkWidget *create_window(void)
     gtk_widget_add_accelerator (cancelbutton, "grab_focus", accel_group,
                                 GDK_C, GDK_MOD1_MASK,
                                 GTK_ACCEL_VISIBLE);
+  gtk_widget_add_accelerator (cancelbutton, "clicked", accel_group,
+                              GDK_Escape, 0,
+                              GTK_ACCEL_VISIBLE);
 
     cancelbuttonalign = gtk_alignment_new (0.5, 0.5, 0, 0);
     gtk_widget_show (cancelbuttonalign);
@@ -398,6 +403,9 @@ static GtkWidget *create_window(void)
     gtk_widget_add_accelerator (startbutton, "grab_focus", accel_group,
                                 GDK_S, GDK_MOD1_MASK,
                                 GTK_ACCEL_VISIBLE);
+  gtk_widget_add_accelerator (startbutton, "clicked", accel_group,
+                              GDK_Return, 0,
+                              GTK_ACCEL_VISIBLE);
 
     startbuttonalign = gtk_alignment_new (0.5, 0.5, 0, 0);
     gtk_widget_show (startbuttonalign);
@@ -487,7 +495,6 @@ int startwin_open(void)
     startwin = create_window();
     if (startwin) {
         SetPage(TAB_MESSAGES);
-        EnableConfig(FALSE);
         gtk_widget_show(startwin);
         gtk_main_iteration_do(FALSE);
         return 0;
@@ -577,7 +584,6 @@ int startwin_run(void)
     if (!startwin) return 1;
 
     SetPage(TAB_CONFIG);
-    EnableConfig(TRUE);
 
     settings.fullscreen = fullscreen;
     settings.xdim2d = xdim2d;
@@ -591,7 +597,6 @@ int startwin_run(void)
     gtk_main();
 
     SetPage(TAB_MESSAGES);
-    EnableConfig(FALSE);
     if (retval) {
         fullscreen = settings.fullscreen;
         xdim2d = settings.xdim2d;

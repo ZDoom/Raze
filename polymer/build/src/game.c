@@ -434,7 +434,7 @@ long app_main(long argc, char *argv[])
 
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
     if (i || forcesetup || cmdsetup) {
-        if (!startwin_run()) return -1;
+		if (quitevent || !startwin_run()) return -1;
     }
 #endif
     writesetup("game.cfg");

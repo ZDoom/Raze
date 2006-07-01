@@ -295,6 +295,7 @@
 		  <property name="focus_on_click">True</property>
 		  <signal name="clicked" handler="on_cancelbutton_clicked" last_modification_time="Fri, 30 Jun 2006 05:13:27 GMT"/>
 		  <accelerator key="C" modifiers="GDK_MOD1_MASK" signal="grab_focus"/>
+		  <accelerator key="Escape" modifiers="0" signal="clicked"/>
 
 		  <child>
 		    <widget class="GtkAlignment" id="cancelbuttonalign">
@@ -367,6 +368,7 @@
 		  <property name="focus_on_click">True</property>
 		  <signal name="clicked" handler="on_startbutton_clicked" last_modification_time="Fri, 30 Jun 2006 05:13:37 GMT"/>
 		  <accelerator key="S" modifiers="GDK_MOD1_MASK" signal="grab_focus"/>
+		  <accelerator key="Return" modifiers="0" signal="clicked"/>
 
 		  <child>
 		    <widget class="GtkAlignment" id="startbuttonalign">

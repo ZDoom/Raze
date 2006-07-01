@@ -26,7 +26,7 @@ static struct {
 
 static HWND startupdlg = NULL;
 static HWND pages[2] = { NULL, NULL};
-static int done = -1;
+static int done = -1, mode = TAB_CONFIG;
 
 static void PopulateForm(void)
 {
@@ -107,13 +107,14 @@ static void SetPage(int n)
     ShowWindow(pages[cur],SW_HIDE);
     SendMessage(tab, TCM_SETCURSEL, n, 0);
     ShowWindow(pages[n],SW_SHOW);
+	mode = n;
 
     SetFocus(GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL));
 }
 
 static void EnableConfig(int n)
 {
-    EnableWindow(GetDlgItem(startupdlg, WIN_STARTWIN_CANCEL), n);
+	//EnableWindow(GetDlgItem(startupdlg, WIN_STARTWIN_CANCEL), n);
     EnableWindow(GetDlgItem(startupdlg, WIN_STARTWIN_START), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDC3DVMODE), n);
@@ -246,7 +247,8 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         }
 
     case WM_CLOSE:
-        done = 0;
+			if (mode == TAB_CONFIG) done = 0;
+			else quitevent++;
         return TRUE;
 
     case WM_DESTROY:
@@ -265,7 +267,10 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
     case WM_COMMAND:
         switch (LOWORD(wParam)) {
-        case WIN_STARTWIN_CANCEL: done = 0; return TRUE;
+				case WIN_STARTWIN_CANCEL:
+					if (mode == TAB_CONFIG) done = 0;
+					else quitevent++;
+					return TRUE;
         case WIN_STARTWIN_START: done = 1; return TRUE;
         }
         return FALSE;
