@@ -8386,25 +8386,9 @@ void loadtmb(void)
     kclose(fil);
 }
 
-/*
-===================
-=
-= ShutDown
-=
-===================
-*/
-
-void Shutdown( void )
+void freeconmem(void)
 {
     int i;
-
-    SoundShutdown();
-    MusicShutdown();
-    uninittimer();
-    uninitengine();
-    CONTROL_Shutdown();
-    CONFIG_WriteSetup();
-    KB_Shutdown();
 
     for(i=0;i<MAXQUOTES;i++)
     {
@@ -8428,6 +8412,28 @@ void Shutdown( void )
         Bfree(label);
     if(labelcode != NULL)
         Bfree(labelcode);
+}
+
+/*
+===================
+=
+= ShutDown
+=
+===================
+*/
+
+void Shutdown( void )
+{
+    int i;
+
+    SoundShutdown();
+    MusicShutdown();
+    uninittimer();
+    uninitengine();
+    CONTROL_Shutdown();
+    CONFIG_WriteSetup();
+    KB_Shutdown();
+    freeconmem();
 }
 
 /*
@@ -8526,6 +8532,7 @@ void Startup(void)
     if (initengine()) {
         wm_msgbox("Build Engine Initialisation Error",
                   "There was a problem initialising the Build engine: %s", engineerrstr);
+        freeconmem();
         exit(1);
     }
 
@@ -8533,6 +8540,7 @@ void Startup(void)
     if (i < 0 || ForceSetup || CommandSetup) {
         if (!startwin_run()) {
             uninitengine();
+            freeconmem();
             exit(0);
         }
     }

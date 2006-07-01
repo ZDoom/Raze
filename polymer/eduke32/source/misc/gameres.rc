@@ -2,6 +2,8 @@
 #include <commctrl.h>
 #include "startwin.game.h"
 
+1 24 "rsrc/eduke32.manifest"
+
 RSRC_ICON ICON "rsrc/game_icon.ico"
 RSRC_ICON+1 ICON "rsrc/game_icon.ico"
 RSRC_ICON+2 ICON "rsrc/game_icon.ico"
