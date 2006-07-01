@@ -119,6 +119,8 @@ static void SetPage(int n)
     ShowWindow(pages[cur],SW_HIDE);
     SendMessage(tab, TCM_SETCURSEL, n, 0);
     ShowWindow(pages[n],SW_SHOW);
+
+    SetFocus(GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL));
 }
 
 static void EnableConfig(int n)

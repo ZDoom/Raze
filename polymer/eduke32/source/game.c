@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "util_lib.h"
 
-#define VERSION " 1.4.0 beta 2"
+#define VERSION " 1.4.0svn"
 
 #define HEAD  "EDuke32"VERSION" (shareware mode)"
 #define HEAD2 "EDuke32"VERSION
@@ -8424,8 +8424,6 @@ void freeconmem(void)
 
 void Shutdown( void )
 {
-    int i;
-
     SoundShutdown();
     MusicShutdown();
     uninittimer();

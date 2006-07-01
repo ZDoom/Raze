@@ -192,7 +192,7 @@ void AutoAlignWalls(long nWall0, long ply);
 long gettile(long tilenum);
 
 long menuselect(void);
-long getfilenames(char *path, char kind[6]);
+long getfilenames(char *path, char *kind);
 void clearfilenames(void);
 
 void clearkeys(void) { memset(keystatus,0,sizeof(keystatus)); }
@@ -6416,7 +6416,7 @@ void clearfilenames(void)
     numfiles = numdirs = 0;
 }
 
-long getfilenames(char *path, char kind[6])
+long getfilenames(char *path, char *kind)
 {
     CACHE1D_FIND_REC *r;
 
