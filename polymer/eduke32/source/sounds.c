@@ -629,7 +629,10 @@ int isspritemakingsound(short i, int num)
 
 int issoundplaying(short i, int num)
 {
-    if(i == -1)
-        return (Sound[num].lock != 199);
+    if(i == -1) {
+        if(Sound[num].lock == 200)
+            return 1;
+        else return 0;
+    }
     else return (Sound[num].num);
 }
