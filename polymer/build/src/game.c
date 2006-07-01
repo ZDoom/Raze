@@ -131,6 +131,7 @@ char keys[NUMKEYS] =
         0x9c,0x1c,0xd,0xc,0xf
     };
 long xdimgame = 320, ydimgame = 200, bppgame = 8, xdim2d = 640, ydim2d = 480;	// JBF 20050318: config.c expects to find these
+long forcesetup = 1;
 
 static long digihz[8] = {6000,8000,11025,16000,22050,32000,44100,48000};
 
@@ -387,15 +388,11 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-#ifdef RENDERTYPEWIN
-int DoLaunchWindow(void);	// gamestartwin.c
-#endif
-
-char *startwin_labeltext = "Starting KenBuild...";
+extern int startwin_run(void);
 
 long app_main(long argc, char *argv[])
 {
-    long i, j, k, l, fil, waitplayers, x1, y1, x2, y2;
+    long cmdsetup = 0, i, j, k, l, fil, waitplayers, x1, y1, x2, y2;
     long other, packleng, netparm;
 
 #ifdef USE_OPENGL
@@ -416,22 +413,15 @@ long app_main(long argc, char *argv[])
             }
             if (isvalidipaddress(argv[i])) continue;
         } else {
-            Bstrcpy(boardfilename, argv[i]);
-            if (!Bstrrchr(boardfilename,'.')) Bstrcat(boardfilename,".map");
+            if (!Bstrcasecmp(argv[i], "-setup")) cmdsetup = 1;
+            else {
+                Bstrcpy(boardfilename, argv[i]);
+                if (!Bstrrchr(boardfilename,'.')) Bstrcat(boardfilename,".map");
+            }
         }
     }
 
     OSD_SetLogFile("console.txt");
-
-    /*
-    if ((fil = open("setup.dat",O_BINARY|O_RDWR,S_IREAD)) != -1)
-    {
-    	read(fil,&option[0],NUMOPTIONS);
-    	read(fil,&keys[0],NUMKEYS);
-    	close(fil);
-    }
-    */
-    if (loadsetup("game.cfg") < 0) initprintf("Configuration file not found, using defaults.\n");
 
     initgroupfile("stuff.dat");
     if (initengine()) {
@@ -439,10 +429,15 @@ long app_main(long argc, char *argv[])
         return -1;
     }
 
-#ifdef RENDERTYPEWIN
-    if (DoLaunchWindow()) return -1;
-    writesetup("game.cfg");
+    if ((i = loadsetup("game.cfg")) < 0)
+        initprintf("Configuration file not found, using defaults.\n");
+
+#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
+    if (i || forcesetup || cmdsetup) {
+        if (!startwin_run()) return -1;
+    }
 #endif
+    writesetup("game.cfg");
 
     initinput();
     if (option[3] != 0) initmouse();
@@ -3633,13 +3628,13 @@ void drawscreen(short snum, long dasmoothratio)
             y2 = y1 + scale(screensize,ydim-32,xdim)-1;
             setview(x1,y1,x2,y2);
 
-            // (ox1,oy1)ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-            //          ³  (x1,y1)        ³
-            //          ³     ÚÄÄÄÄÄ¿     ³
-            //          ³     ³     ³     ³
-            //          ³     ÀÄÄÄÄÄÙ     ³
-            //          ³        (x2,y2)  ³
-            //          ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ(ox2,oy2)
+            // (ox1,oy1)â„Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Ã¸
+            //          â‰¥  (x1,y1)        â‰¥
+            //          â‰¥     â„Æ’Æ’Æ’Æ’Æ’Ã¸     â‰¥
+            //          â‰¥     â‰¥     â‰¥     â‰¥
+            //          â‰¥     Â¿Æ’Æ’Æ’Æ’Æ’Å¸     â‰¥
+            //          â‰¥        (x2,y2)  â‰¥
+            //          Â¿Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Æ’Å¸(ox2,oy2)
 
             drawtilebackground(0L,0L,BACKGROUND,8,ox1,oy1,x1-1,oy2,0);
             drawtilebackground(0L,0L,BACKGROUND,8,x2+1,oy1,ox2,oy2,0);
@@ -3801,7 +3796,7 @@ void drawscreen(short snum, long dasmoothratio)
                     else
                         setviewtotile(MAXTILES-2,320L>>detailmode,320L>>detailmode);
                     if ((tiltlock&1023) == 512)
-                    {     //Block off unscreen section of 90ø tilted screen
+                    {     //Block off unscreen section of 90Â¯ tilted screen
                         j = ((320-60)>>detailmode);
                         for(i=(60>>detailmode)-1;i>=0;i--)
                         {
@@ -4907,13 +4902,7 @@ void initlava(void)
     lavanumframes = 0;
 }
 
-#if defined(NOASM)
-inline long addlava(long bx)
-{
-    char *b = (char *)bx;
-    return b[-133] + b[-132] + b[-131] + b[1] + b[-1] + b[131] + b[132];
-}
-#elif defined(__WATCOMC__)
+#if defined(__WATCOMC__) && !defined(NOASM)
 #pragma aux addlava =\
 	"mov al, byte ptr [ebx-133]",\
 	"mov dl, byte ptr [ebx-1]",\
@@ -4926,7 +4915,7 @@ inline long addlava(long bx)
 	parm [ebx]\
 	modify exact [eax edx]
 long addlava(long);
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) && !defined(NOASM)
 inline long addlava(long b)
 {
     _asm {
@@ -4941,7 +4930,7 @@ inline long addlava(long b)
                             add al, dl
                             }
                         }
-#elif defined(__GNUC__) && defined(__i386__)
+#elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 inline long addlava(long b)
 {
     long r;
@@ -4960,7 +4949,11 @@ inline long addlava(long b)
     return r;
 }
 #else
-#error Unsupported compiler or architecture
+inline long addlava(long bx)
+{
+    char *b = (char *)bx;
+    return b[-133] + b[-132] + b[-131] + b[1] + b[-1] + b[131] + b[132];
+}
 #endif
 
 void movelava(char *dapic)

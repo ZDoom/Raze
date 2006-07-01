@@ -7,107 +7,7 @@
 
 extern long dmval;
 
-#if defined(NOASM)
-
-//
-// Generic C
-//
-
-#define qw(x)	((int64)(x))		// quadword cast
-#define dw(x)	((long)(x))		// doubleword cast
-#define wo(x)	((short)(x))		// word cast
-#define by(x)	((char)(x))		// byte cast
-
-#define _scaler(a) \
-static inline long mulscale##a(long eax, long edx) \
-{ \
-	return dw((qw(eax) * qw(edx)) >> a); \
-} \
-\
-static inline long divscale##a(long eax, long ebx) \
-{ \
-	return dw((qw(eax) << a) / qw(ebx)); \
-} \
-\
-static inline long dmulscale##a(long eax, long edx, long esi, long edi) \
-{ \
-	return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> a); \
-} \
-\
-static inline long tmulscale##a(long eax, long edx, long ebx, long ecx, long esi, long edi) \
-{ \
-	return dw(((qw(eax) * qw(edx)) + (qw(ebx) * qw(ecx)) + (qw(esi) * qw(edi))) >> a); \
-} \
-
-_scaler(1)	_scaler(2)	_scaler(3)	_scaler(4)
-_scaler(5)	_scaler(6)	_scaler(7)	_scaler(8)
-_scaler(9)	_scaler(10)	_scaler(11)	_scaler(12)
-_scaler(13)	_scaler(14)	_scaler(15)	_scaler(16)
-_scaler(17)	_scaler(18)	_scaler(19)	_scaler(20)
-_scaler(21)	_scaler(22)	_scaler(23)	_scaler(24)
-_scaler(25)	_scaler(26)	_scaler(27)	_scaler(28)
-_scaler(29)	_scaler(30)	_scaler(31)	_scaler(32)
-
-static inline void swapchar(void* a, void* b)  { char t = *((char*)b); *((char*)b) = *((char*)a); *((char*)a) = t; }
-static inline void swapchar2(void* a, void* b, long s) { swapchar(a,b); swapchar((char*)a+1,(char*)b+s); }
-static inline void swapshort(void* a, void* b) { short t = *((short*)b); *((short*)b) = *((short*)a); *((short*)a) = t; }
-static inline void swaplong(void* a, void* b)  { long t = *((long*)b); *((long*)b) = *((long*)a); *((long*)a) = t; }
-static inline void swap64bit(void* a, void* b) { int64 t = *((int64*)b); *((int64*)b) = *((int64*)a); *((int64*)a) = t; }
-
-static inline char readpixel(void* s)    { return (*((char*)(s))); }
-static inline void drawpixel(void* s, char a)    { *((char*)(s)) = a; }
-static inline void drawpixels(void* s, short a)  { *((short*)(s)) = a; }
-static inline void drawpixelses(void* s, long a) { *((long*)(s)) = a; }
-
-static inline long mul3(long a) { return (a<<1)+a; }
-static inline long mul5(long a) { return (a<<2)+a; }
-static inline long mul9(long a) { return (a<<3)+a; }
-
-static inline long divmod(long a, long b) { unsigned long _a=(unsigned long)a, _b=(unsigned long)b; dmval = _a%_b; return _a/_b; }
-static inline long moddiv(long a, long b) { unsigned long _a=(unsigned long)a, _b=(unsigned long)b; dmval = _a/_b; return _a%_b; }
-
-static inline long klabs(long a) { if (a < 0) return -a; return a; }
-static inline long ksgn(long a)  { if (a > 0) return 1; if (a < 0) return -1; return 0; }
-
-static inline long umin(long a, long b) { if ((unsigned long)a < (unsigned long)b) return a; return b; }
-static inline long umax(long a, long b) { if ((unsigned long)a < (unsigned long)b) return b; return a; }
-static inline long kmin(long a, long b) { if ((signed long)a < (signed long)b) return a; return b; }
-static inline long kmax(long a, long b) { if ((signed long)a < (signed long)b) return b; return a; }
-
-static inline long sqr(long eax) { return (eax) * (eax); }
-static inline long scale(long eax, long edx, long ecx) { return dw((qw(eax) * qw(edx)) / qw(ecx)); }
-static inline long mulscale(long eax, long edx, long ecx) { return dw((qw(eax) * qw(edx)) >> by(ecx)); }
-static inline long divscale(long eax, long ebx, long ecx) { return dw((qw(eax) << by(ecx)) / qw(ebx)); }
-static inline long dmulscale(long eax, long edx, long esi, long edi, long ecx) { return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> by(ecx)); }
-
-static inline long boundmulscale(long a, long d, long c)
-{ // courtesy of Ken
-    int64 p;
-    p = (((int64)a)*((int64)d))>>c;
-    if (p >= longlong(2147483647)) p = longlong(2147483647);
-    if (p < longlong(-2147483648)) p = longlong(-2147483648);
-    return((long)p);
-}
-
-#undef qw
-#undef dw
-#undef wo
-#undef by
-#undef _scaler
-
-void qinterpolatedown16 (long bufptr, long num, long val, long add);
-void qinterpolatedown16short (long bufptr, long num, long val, long add);
-
-void clearbuf(void* d, long c, long a);
-void copybuf(void* s, void* d, long c);
-void swapbuf4(void* a, void* b, long c);
-
-void clearbufbyte(void *D, long c, long a);
-void copybufbyte(void *S, void *D, long c);
-void copybufreverse(void *S, void *D, long c);
-
-
-#elif defined(__GNUC__) && defined(__i386__)	// NOASM
+#if defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
 //
 // GCC Inline Assembler version
@@ -1164,7 +1064,7 @@ void copybufreverse(void *S, void *D, long c);
 
 //}}}
 	
-#elif defined(__WATCOMC__)	// __GNUC__ && __i386__
+#elif defined(__WATCOMC__) && !defined(NOASM)	// __GNUC__ && __i386__
 
 //
 // Watcom C inline assembler
@@ -3014,7 +2914,7 @@ long swap64bit(void*,void*);
 long swapchar2(void*,void*,long);
 //}}}
 
-#elif defined(_MSC_VER)		// __WATCOMC__
+#elif defined(_MSC_VER) && !defined(NOASM)	// __WATCOMC__
 
 //
 // Microsoft C inline assembler
@@ -3023,31 +2923,39 @@ long swapchar2(void*,void*,long);
 //{{{
 static __inline long sqr(long a)
 {
-	_asm mov eax, a
-	_asm imul eax, eax
+	_asm {
+		mov eax, a
+		imul eax, eax
+	}
 }
 
 static __inline long scale(long a, long d, long c)
 {
-	_asm mov eax, a
-	_asm imul d
-	_asm idiv c
+	_asm {
+		mov eax, a
+		imul d
+		idiv c
+	}
 }
 
 static __inline long mulscale(long a, long d, long c)
 {
-	_asm mov ecx, c
-	_asm mov eax, a
-	_asm imul d
-	_asm shrd eax, edx, cl
+	_asm {
+		mov ecx, c
+		mov eax, a
+		imul d
+		shrd eax, edx, cl
+	}
 }
 
 #define MULSCALE(x) \
 static __inline long mulscale##x (long a, long d) \
 { \
-	_asm mov eax, a \
-	_asm imul d \
-	_asm shrd eax, edx, x \
+	_asm { \
+		mov eax, a \
+		imul d \
+		shrd eax, edx, x \
+	} \
 }
 
 MULSCALE(1)	MULSCALE(2)	MULSCALE(3)	MULSCALE(4)
@@ -3061,37 +2969,43 @@ MULSCALE(29)	MULSCALE(30)	MULSCALE(31)
 #undef MULSCALE	
 static __inline long mulscale32(long a, long d)
 {
-	_asm mov eax, a
-	_asm imul d
-	_asm mov eax, edx
+	_asm {
+		mov eax, a
+		imul d
+		mov eax, edx
+	}
 }
 
 static __inline long dmulscale(long a, long d, long S, long D, long c)
 {
-	_asm mov ecx, c
-	_asm mov eax, a
-	_asm imul d
-	_asm mov ebx, eax
-	_asm mov eax, S
-	_asm mov esi, edx
-	_asm imul D
-	_asm add eax, ebx
-	_asm adc edx, esi
-	_asm shrd eax, edx, cl
+	_asm {
+		mov ecx, c
+		mov eax, a
+		imul d
+		mov ebx, eax
+		mov eax, S
+		mov esi, edx
+		imul D
+		add eax, ebx
+		adc edx, esi
+		shrd eax, edx, cl
+	}
 }
 
 #define DMULSCALE(x) \
 static __inline long dmulscale##x (long a, long d, long S, long D) \
 { \
-	_asm mov eax, a \
-	_asm imul d \
-	_asm mov ebx, eax \
-	_asm mov eax, S \
-	_asm mov esi, edx \
-	_asm imul D \
-	_asm add eax, ebx \
-	_asm adc edx, esi \
-	_asm shrd eax, edx, x \
+	_asm { \
+		mov eax, a \
+		imul d \
+		mov ebx, eax \
+		mov eax, S \
+		mov esi, edx \
+		imul D \
+		add eax, ebx \
+		adc edx, esi \
+		shrd eax, edx, x \
+	} \
 }
 
 DMULSCALE(1)	DMULSCALE(2)	DMULSCALE(3)	DMULSCALE(4)
@@ -3105,33 +3019,38 @@ DMULSCALE(29)	DMULSCALE(30)	DMULSCALE(31)
 #undef DMULSCALE	
 static __inline long dmulscale32(long a, long d, long S, long D)
 {
-	_asm mov eax, a
-	_asm imul d
-	_asm mov ebx, eax
-	_asm mov eax, S
-	_asm mov esi, edx
-	_asm imul D
-	_asm add eax, ebx
-	_asm adc edx, esi
-	_asm mov eax, edx
+	_asm {
+		mov eax, a
+		imul d
+		mov ebx, eax
+		mov eax, S
+		mov esi, edx
+		imul D
+		add eax, ebx
+		adc edx, esi
+		mov eax, edx
+	}
 }
 
 #define TMULSCALE(x) \
 static __inline long tmulscale##x (long a, long d, long b, long c, long S, long D) \
 { \
-	_asm mov eax, a \
-	_asm mov ebx, b \
-	_asm imul d \
-	_asm xchg eax, ebx \
-	_asm mov ecx, c \
-	_asm xchg edx, ecx \
-	_asm imul edx \
-	_asm add ebx, eax \
-	_asm adc ecx, edx \
-	_asm mov eax, S \
-	_asm imul D \
-	_asm add eax, ebx \
-	_asm adc edx, ecx \
+	_asm { \
+		mov eax, a \
+		mov ebx, b \
+		imul d \
+		xchg eax, ebx \
+		mov ecx, c \
+		xchg edx, ecx \
+		imul edx \
+		add ebx, eax \
+		adc ecx, edx \
+		mov eax, S \
+		imul D \
+		add eax, ebx \
+		adc edx, ecx \
+		shrd eax, edx, x \
+	} \
 }
 
 TMULSCALE(1)	TMULSCALE(2)	TMULSCALE(3)	TMULSCALE(4)
@@ -3145,89 +3064,102 @@ TMULSCALE(29)	TMULSCALE(30)	TMULSCALE(31)
 #undef TMULSCALE	
 static __inline long tmulscale32(long a, long d, long b, long c, long S, long D)
 {
-	_asm mov eax, a
-	_asm mov ebx, b
-	_asm imul d
-	_asm xchg eax, ebx
-	_asm mov ecx, c
-	_asm xchg edx, ecx
-	_asm imul edx
-	_asm add ebx, eax
-	_asm adc ecx, edx
-	_asm mov eax, S
-	_asm imul D
-	_asm add eax, ebx
-	_asm adc edx, ecx
-	_asm mov eax, edx
+	_asm {
+		mov eax, a
+		mov ebx, b
+		imul d
+		xchg eax, ebx
+		mov ecx, c
+		xchg edx, ecx
+		imul edx
+		add ebx, eax
+		adc ecx, edx
+		mov eax, S
+		imul D
+		add eax, ebx
+		adc edx, ecx
+		mov eax, edx
+	}
 }
 
 static __inline long boundmulscale(long a, long b, long c)
 {
-	_asm mov eax, a
-	_asm mov ecx, c
-	_asm imul b
-	_asm mov ebx, edx
-	_asm shrd eax, edx, cl
-	_asm sar edx, cl
-	_asm xor edx, eax
-	_asm js checkit
-	_asm xor edx, eax
-	_asm jz skipboundit
-	_asm cmp edx, 0xffffffff
-	_asm je skipboundit
+	_asm {
+		mov eax, a
+		mov ecx, c
+		imul b
+		mov ebx, edx
+		shrd eax, edx, cl
+		sar edx, cl
+		xor edx, eax
+		js checkit
+		xor edx, eax
+		jz skipboundit
+		cmp edx, 0xffffffff
+		je skipboundit
 	checkit:
-	_asm mov eax, ebx
-	_asm sar eax, 31
-	_asm xor eax, 0x7fffffff
+		mov eax, ebx
+		sar eax, 31
+		xor eax, 0x7fffffff
 	skipboundit:
-	;
+	}
 }
 
 static __inline long divscale(long a, long b, long c)
 {
-	_asm mov eax, a
-	_asm mov ecx, c
-	_asm mov edx, eax
-	_asm shl eax, cl
-	_asm neg cl
-	_asm sar edx, cl
-	_asm idiv b
+	_asm {
+		mov eax, a
+		mov ecx, c
+		mov edx, eax
+		shl eax, cl
+		neg cl
+		sar edx, cl
+		idiv b
+	}
 }
 
 static __inline long divscale1(long a, long b)
 {
-	_asm mov eax, a
-	_asm add eax, eax
-	_asm sbb edx, edx
-	_asm idiv b
+	_asm {
+		mov eax, a
+		add eax, eax
+		sbb edx, edx
+		idiv b
+	}
 }
 
 static __inline long divscale2(long a, long b)
 {
-	_asm mov eax, a
-	_asm mov edx, eax
-	_asm sar edx, 30
-	_asm lea eax, [eax*4]
-	_asm idiv b
+	_asm {
+		mov eax, a
+		mov edx, eax
+		sar edx, 30
+		lea eax, [eax*4]
+		idiv b
+	}
 }
 
 static __inline long divscale3(long a, long b)
 {
-	_asm mov eax, a
-	_asm mov edx, eax
-	_asm sar edx, 29
-	_asm lea eax, [eax*8]
-	_asm idiv b
+	_asm {
+		mov eax, a
+		mov edx, eax
+		sar edx, 29
+		lea eax, [eax*8]
+		idiv b
+	}
 }
 
 #define DIVSCALE(x,y) \
 static __inline long divscale##y(long a, long b) \
 { \
-	_asm mov eax, a \
-	_asm mov edx, eax \
-	_asm sar edx, x \
-	_asm shl eax, y \
-	_asm idiv b \
+	_asm { \
+		mov eax, a \
+		mov edx, eax \
+		sar edx, x \
+		shl eax, y \
+		idiv b \
+	} \
 }
 
 DIVSCALE(28,4)	DIVSCALE(27,5)	DIVSCALE(26,6)	DIVSCALE(25,7)
@@ -3240,463 +3172,560 @@ DIVSCALE(4,28)	DIVSCALE(3,29)	DIVSCALE(2,30)	DIVSCALE(1,31)
 
 static __inline long divscale32(long d, long b)
 {
-	_asm mov edx, d
-	_asm xor eax, eax
-	_asm idiv b
+	_asm {
+		mov edx, d
+		xor eax, eax
+		idiv b
+	}
 }
 
 static __inline char readpixel(void *d)
 {
-	_asm mov edx, d
-	_asm mov al, byte ptr [edx]
+	_asm {
+		mov edx, d
+		mov al, byte ptr [edx]
+	}
 }
 
 static __inline void drawpixel(void *d, char a)
 {
-	_asm mov edx, d
-	_asm mov al, a
-	_asm mov byte ptr [edx], al
+	_asm {
+		mov edx, d
+		mov al, a
+		mov byte ptr [edx], al
+	}
 }
 
 static __inline void drawpixels(void *d, short a)
 {
-	_asm mov edx, d
-	_asm mov ax, a
-	_asm mov word ptr [edx], ax
+	_asm {
+		mov edx, d
+		mov ax, a
+		mov word ptr [edx], ax
+	}
 }
 
 static __inline void drawpixelses(void *d, long a)
 {
-	_asm mov edx, d
-	_asm mov eax, a
-	_asm mov dword ptr [edx], eax
+	_asm {
+		mov edx, d
+		mov eax, a
+		mov dword ptr [edx], eax
+	}
 }
 
 static __inline void clearbuf(void *d, long c, long a)
 {
-	_asm mov edi, d
-	_asm mov ecx, c
-	_asm mov eax, a
-	_asm rep stosd
+	_asm {
+		mov edi, d
+		mov ecx, c
+		mov eax, a
+		rep stosd
+	}
 }
 
 static __inline void clearbufbyte(void *d, long c, long a)
 {
-	_asm mov edi, d
-	_asm mov ecx, c
-	_asm mov eax, a
 	_asm {
-	cmp ecx, 4
-	jae longcopy
-	test cl, 1
-	jz preskip
-	stosb
-	}
+		mov edi, d
+		mov ecx, c
+		mov eax, a
+		cmp ecx, 4
+		jae longcopy
+		test cl, 1
+		jz preskip
+		stosb
 	preskip:
-	_asm {
-	shr ecx, 1
-	rep stosw
-	jmp endit
-	}
+		shr ecx, 1
+		rep stosw
+		jmp endit
 	longcopy:
-	_asm {
-	test edi, 1
-	jz skip1
-	stosb
-	dec ecx
-	}
+		test edi, 1
+		jz skip1
+		stosb
+		dec ecx
 	skip1:
-	_asm {
-	test edi, 2
-	jz skip2
-	stosw
-	sub ecx, 2
-	}
+		test edi, 2
+		jz skip2
+		stosw
+		sub ecx, 2
 	skip2:
-	_asm {
-	mov ebx, ecx
-	shr ecx, 2
-	rep stosd
-	test bl, 2
-	jz skip3
-	stosw
-	}
+		mov ebx, ecx
+		shr ecx, 2
+		rep stosd
+		test bl, 2
+		jz skip3
+		stosw
 	skip3:
-	_asm {
-	test bl, 1
-	jz endit
-	stosb
-	}
+		test bl, 1
+		jz endit
+		stosb
 	endit:
-	;
+	}
 }
 
 static __inline void copybuf(void *s, void *d, long c)
 {
-	_asm mov esi, s
-	_asm mov edi, d
-	_asm mov ecx, c
-	_asm rep movsd
+	_asm {
+		mov esi, s
+		mov edi, d
+		mov ecx, c
+		rep movsd
+	}
 }
 
 static __inline void copybufbyte(void *s, void *d, long c)
 {
-	_asm mov esi, s
-	_asm mov edi, d
-	_asm mov ecx, c
 	_asm {
-	cmp ecx, 4
-	jae longcopy
-	test cl, 1
-	jz preskip
-	movsb
-	}
+		mov esi, s
+		mov edi, d
+		mov ecx, c
+		cmp ecx, 4
+		jae longcopy
+		test cl, 1
+		jz preskip
+		movsb
 	preskip:
-	_asm {
-	shr ecx, 1
-	rep movsw
-	jmp endit
-	}
+		shr ecx, 1
+		rep movsw
+		jmp endit
 	longcopy:
-	_asm {
-	test edi, 1
-	jz skip1
-	movsb
-	dec ecx
-	}
+		test edi, 1
+		jz skip1
+		movsb
+		dec ecx
 	skip1:
-	_asm {
-	test edi, 2
-	jz skip2
-	movsw
-	sub ecx, 2
-	}
+		test edi, 2
+		jz skip2
+		movsw
+		sub ecx, 2
 	skip2:
-	_asm {
-	mov ebx, ecx
-	shr ecx, 2
-	rep movsd
-	test bl, 2
-	jz skip3
-	movsw
-	}
+		mov ebx, ecx
+		shr ecx, 2
+		rep movsd
+		test bl, 2
+		jz skip3
+		movsw
 	skip3:
-	_asm {
-	test bl, 1
-	jz endit
-	movsb
-	}
+		test bl, 1
+		jz endit
+		movsb
 	endit:
-	;
+	}
 }
 
 static __inline void copybufreverse(void *s, void *d, long c)
 {
-	_asm mov esi, s
-	_asm mov edi, d
-	_asm mov ecx, c
 	_asm {
-	shr ecx, 1
-	jnc skipit1
-	mov al, byte ptr [esi]
-	dec esi
-	mov byte ptr [edi], al
-	inc edi
-	}
+		mov esi, s
+		mov edi, d
+		mov ecx, c
+		shr ecx, 1
+		jnc skipit1
+		mov al, byte ptr [esi]
+		dec esi
+		mov byte ptr [edi], al
+		inc edi
 	skipit1:
-	_asm {
-	shr ecx, 1
-	jnc skipit2
-	mov ax, word ptr [esi-1]
-	sub esi, 2
-	ror ax, 8
-	mov word ptr [edi], ax
-	add edi, 2
-	}
+		shr ecx, 1
+		jnc skipit2
+		mov ax, word ptr [esi-1]
+		sub esi, 2
+		ror ax, 8
+		mov word ptr [edi], ax
+		add edi, 2
 	skipit2:
-	_asm {
-	test ecx, ecx
-	jz endloop
-	}
+		test ecx, ecx
+		jz endloop
 	begloop:
-	_asm {
-	mov eax, dword ptr [esi-3]
-	sub esi, 4
-	bswap eax
-	mov dword ptr [edi], eax
-	add edi, 4
-	dec ecx
-	jnz begloop
-	}
+		mov eax, dword ptr [esi-3]
+		sub esi, 4
+		bswap eax
+		mov dword ptr [edi], eax
+		add edi, 4
+		dec ecx
+		jnz begloop
 	endloop:
-	;
+	}
 }
 
 static __inline void qinterpolatedown16(long a, long c, long d, long s)
 {
-	_asm mov eax, a
-	_asm mov ecx, c
-	_asm mov edx, d
-	_asm mov esi, s
 	_asm {
-	mov ebx, ecx
-	shr ecx, 1
-	jz skipbegcalc
-	}
+		mov eax, a
+		mov ecx, c
+		mov edx, d
+		mov esi, s
+		mov ebx, ecx
+		shr ecx, 1
+		jz skipbegcalc
 	begqcalc:
-	_asm {
-	lea edi, [edx+esi]
-	sar edx, 16
-	mov dword ptr [eax], edx
-	lea edx, [edi+esi]
-	sar edi, 16
-	mov dword ptr [eax+4], edi
-	add eax, 8
-	dec ecx
-	jnz begqcalc
-	test ebx, 1
-	jz skipbegqcalc2
-	}
+		lea edi, [edx+esi]
+		sar edx, 16
+		mov dword ptr [eax], edx
+		lea edx, [edi+esi]
+		sar edi, 16
+		mov dword ptr [eax+4], edi
+		add eax, 8
+		dec ecx
+		jnz begqcalc
+		test ebx, 1
+		jz skipbegqcalc2
 	skipbegcalc:
-	_asm {
-	sar edx, 16
-	mov dword ptr [eax], edx
-	}
+		sar edx, 16
+		mov dword ptr [eax], edx
 	skipbegqcalc2:
-	;
+	}
 }
 
 static __inline void qinterpolatedown16short(long a, long c, long d, long s)
 {
-	_asm mov eax, a
-	_asm mov ecx, c
-	_asm mov edx, d
-	_asm mov esi, s
 	_asm {
-	test ecx, ecx
-	jz endit
-	test al, 2
-	jz skipalignit
-	mov ebx, edx
-	sar ebx, 16
-	mov word ptr [eax], bx
-	add edx, esi
-	add eax, 2
-	dec ecx
-	jz endit
-	}
+		mov eax, a
+		mov ecx, c
+		mov edx, d
+		mov esi, s
+		test ecx, ecx
+		jz endit
+		test al, 2
+		jz skipalignit
+		mov ebx, edx
+		sar ebx, 16
+		mov word ptr [eax], bx
+		add edx, esi
+		add eax, 2
+		dec ecx
+		jz endit
 	skipalignit:
-	_asm {
-	sub ecx, 2
-	jc finishit
-	}
+		sub ecx, 2
+		jc finishit
 	begqcalc:
-	_asm {
-	mov ebx, edx
-	add edx, esi
-	sar ebx, 16
-	mov edi, edx
-	and edi, 0ffff0000h
-	add edx, esi
-	add ebx, edi
-	mov dword ptr [eax], ebx
-	add eax, 4
-	sub ecx, 2
-	jnc begqcalc
-	test cl, 1
-	jz endit
-	}
+		mov ebx, edx
+		add edx, esi
+		sar ebx, 16
+		mov edi, edx
+		and edi, 0ffff0000h
+		add edx, esi
+		add ebx, edi
+		mov dword ptr [eax], ebx
+		add eax, 4
+		sub ecx, 2
+		jnc begqcalc
+		test cl, 1
+		jz endit
 	finishit:
-	_asm {
-	mov ebx, edx
-	sar ebx, 16
-	mov word ptr [eax], bx
-	}
+		mov ebx, edx
+		sar ebx, 16
+		mov word ptr [eax], bx
 	endit:
-	;
+	}
 }
 
 static __inline long mul3(long a)
 {
-	_asm mov eax, a
-	_asm lea eax, [eax+eax*2]
+	_asm {
+		mov eax, a
+		lea eax, [eax+eax*2]
+	}
 }
 
 static __inline long mul5(long a)
 {
-	_asm mov eax, a
-	_asm lea eax, [eax+eax*4]
+	_asm {
+		mov eax, a
+		lea eax, [eax+eax*4]
+	}
 }
 
 static __inline long mul9(long a)
 {
-	_asm mov eax, a
-	_asm lea eax, [eax+eax*8]
+	_asm {
+		mov eax, a
+		lea eax, [eax+eax*8]
+	}
 }
 
 	//returns eax/ebx, dmval = eax%edx;
 static __inline long divmod(long a, long b)
 {
-	_asm mov eax, a
-	_asm xor edx, edx
-	_asm div b
-	_asm mov dmval, edx
+	_asm {
+		mov eax, a
+		xor edx, edx
+		div b
+		mov dmval, edx
+	}
 }
 
 	//returns eax%ebx, dmval = eax/edx;
 static __inline long moddiv(long a, long b)
 {
-	_asm mov eax, a
-	_asm xor edx, edx
-	_asm div b
-	_asm mov dmval, eax
-	_asm mov eax, edx
+	_asm {
+		mov eax, a
+		xor edx, edx
+		div b
+		mov dmval, eax
+		mov eax, edx
+	}
 }
 
 static __inline long klabs(long a)
 {
-	_asm mov eax, a
-	_asm test eax, eax
-	_asm jns skipnegate
-	_asm neg eax
+	_asm {
+		mov eax, a
+		test eax, eax
+		jns skipnegate
+		neg eax
 	skipnegate:
-	;
+	}
 }
 
 static __inline long ksgn(long b)
 {
-	_asm mov ebx, b
-	_asm add ebx, ebx
-	_asm sbb eax, eax
-	_asm cmp eax, ebx
-	_asm adc al, 0
+	_asm {
+		mov ebx, b
+		add ebx, ebx
+		sbb eax, eax
+		cmp eax, ebx
+		adc al, 0
+	}
 }
 
 	//eax = (unsigned min)umin(eax,ebx)
 static __inline long umin(long a, long b)
 {
-	_asm mov eax, a
-	_asm sub eax, b
-	_asm sbb ecx, ecx
-	_asm and eax, ecx
-	_asm add eax, b
+	_asm {
+		mov eax, a
+		sub eax, b
+		sbb ecx, ecx
+		and eax, ecx
+		add eax, b
+	}
 }
 
 	//eax = (unsigned max)umax(eax,ebx)
 static __inline long umax(long a, long b)
 {
-	_asm mov eax, a
-	_asm sub eax, b
-	_asm sbb ecx, ecx
-	_asm xor ecx, 0xffffffff
-	_asm and eax, ecx
-	_asm add eax, b
+	_asm {
+		mov eax, a
+		sub eax, b
+		sbb ecx, ecx
+		xor ecx, 0xffffffff
+		and eax, ecx
+		add eax, b
+	}
 }
 
 static __inline long kmin(long a, long b)
 {
-	_asm mov eax, a
-	_asm mov ebx, b
-	_asm cmp eax, ebx
-	_asm jl skipit
-	_asm mov eax, ebx
+	_asm {
+		mov eax, a
+		mov ebx, b
+		cmp eax, ebx
+		jl skipit
+		mov eax, ebx
 	skipit:
-	;
+	}
 }
 
 static __inline long kmax(long a, long b)
 {
-	_asm mov eax, a
-	_asm mov ebx, b
-	_asm cmp eax, ebx
-	_asm jg skipit
-	_asm mov eax, ebx
+	_asm {
+		mov eax, a
+		mov ebx, b
+		cmp eax, ebx
+		jg skipit
+		mov eax, ebx
 	skipit:
-	;
+	}
 }
 
 static __inline void swapchar(void *a, void *b)
 {
-	_asm mov eax, a
-	_asm mov ebx, b
-	_asm mov cl, [eax]
-	_asm mov ch, [ebx]
-	_asm mov [ebx], cl
-	_asm mov [eax], ch
+	_asm {
+		mov eax, a
+		mov ebx, b
+		mov cl, [eax]
+		mov ch, [ebx]
+		mov [ebx], cl
+		mov [eax], ch
+	}
 }
 
 static __inline void swapshort(void *a, void *b)
 {
-	_asm mov eax, a
-	_asm mov ebx, b
-	_asm mov cx, [eax]
-	_asm mov dx, [ebx]
-	_asm mov [ebx], cx
-	_asm mov [eax], dx
+	_asm {
+		mov eax, a
+		mov ebx, b
+		mov cx, [eax]
+		mov dx, [ebx]
+		mov [ebx], cx
+		mov [eax], dx
+	}
 }
 
 static __inline void swaplong(void *a, void *b)
 {
-	_asm mov eax, a
-	_asm mov ebx, b
-	_asm mov ecx, [eax]
-	_asm mov edx, [ebx]
-	_asm mov [ebx], ecx
-	_asm mov [eax], edx
+	_asm {
+		mov eax, a
+		mov ebx, b
+		mov ecx, [eax]
+		mov edx, [ebx]
+		mov [ebx], ecx
+		mov [eax], edx
+	}
 }
 
 static __inline void swapbuf4(void *a, void *b, long c)
 {
-	_asm mov eax, a
-	_asm mov ebx, b
-	_asm mov ecx, c
-	begswap:
 	_asm {
-	mov esi, [eax]
-	mov edi, [ebx]
-	mov [ebx], esi
-	mov [eax], edi
-	add eax, 4
-	add ebx, 4
-	dec ecx
-	jnz short begswap
+		mov eax, a
+		mov ebx, b
+		mov ecx, c
+	begswap:
+		mov esi, [eax]
+		mov edi, [ebx]
+		mov [ebx], esi
+		mov [eax], edi
+		add eax, 4
+		add ebx, 4
+		dec ecx
+		jnz short begswap
 	}
 }
 
 static __inline void swap64bit(void *a, void *b)
 {
-	_asm mov eax, a
-	_asm mov ebx, b
-	_asm mov ecx, [eax]
-	_asm mov edx, [ebx]
-	_asm mov [ebx], ecx
-	_asm mov ecx, [eax+4]
-	_asm mov [eax], edx
-	_asm mov edx, [ebx+4]
-	_asm mov [ebx+4], ecx
-	_asm mov [eax+4], edx
+	_asm {
+		mov eax, a
+		mov ebx, b
+		mov ecx, [eax]
+		mov edx, [ebx]
+		mov [ebx], ecx
+		mov ecx, [eax+4]
+		mov [eax], edx
+		mov edx, [ebx+4]
+		mov [ebx+4], ecx
+		mov [eax+4], edx
+	}
 }
 
 	//swapchar2(ptr1,ptr2,xsiz); is the same as:
 	//swapchar(ptr1,ptr2); swapchar(ptr1+1,ptr2+xsiz);
 static __inline void swapchar2(void *a, void *b, long s)
 {
-	_asm mov eax, a
-	_asm mov ebx, b
-	_asm mov esi, s
-	_asm add esi, ebx
-	_asm mov cx, [eax]
-	_asm mov dl, [ebx]
-	_asm mov [ebx], cl
-	_asm mov dh, [esi]
-	_asm mov [esi], ch
-	_asm mov [eax], dx
+	_asm {
+		mov eax, a
+		mov ebx, b
+		mov esi, s
+		add esi, ebx
+		mov cx, [eax]
+		mov dl, [ebx]
+		mov [ebx], cl
+		mov dh, [esi]
+		mov [esi], ch
+		mov [eax], dx
+	}
 }
 //}}}
 
 #else				// _MSC_VER
 
-#error Unsupported compiler or architecture.
+//
+// Generic C
+//
+
+#define qw(x)	((int64)(x))		// quadword cast
+#define dw(x)	((long)(x))		// doubleword cast
+#define wo(x)	((short)(x))		// word cast
+#define by(x)	((char)(x))		// byte cast
+
+#define _scaler(a) \
+static inline long mulscale##a(long eax, long edx) \
+{ \
+	return dw((qw(eax) * qw(edx)) >> a); \
+} \
+\
+static inline long divscale##a(long eax, long ebx) \
+{ \
+	return dw((qw(eax) << a) / qw(ebx)); \
+} \
+\
+static inline long dmulscale##a(long eax, long edx, long esi, long edi) \
+{ \
+	return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> a); \
+} \
+\
+static inline long tmulscale##a(long eax, long edx, long ebx, long ecx, long esi, long edi) \
+{ \
+	return dw(((qw(eax) * qw(edx)) + (qw(ebx) * qw(ecx)) + (qw(esi) * qw(edi))) >> a); \
+} \
+
+_scaler(1)	_scaler(2)	_scaler(3)	_scaler(4)
+_scaler(5)	_scaler(6)	_scaler(7)	_scaler(8)
+_scaler(9)	_scaler(10)	_scaler(11)	_scaler(12)
+_scaler(13)	_scaler(14)	_scaler(15)	_scaler(16)
+_scaler(17)	_scaler(18)	_scaler(19)	_scaler(20)
+_scaler(21)	_scaler(22)	_scaler(23)	_scaler(24)
+_scaler(25)	_scaler(26)	_scaler(27)	_scaler(28)
+_scaler(29)	_scaler(30)	_scaler(31)	_scaler(32)
+
+static inline void swapchar(void* a, void* b)  { char t = *((char*)b); *((char*)b) = *((char*)a); *((char*)a) = t; }
+static inline void swapchar2(void* a, void* b, long s) { swapchar(a,b); swapchar((char*)a+1,(char*)b+s); }
+static inline void swapshort(void* a, void* b) { short t = *((short*)b); *((short*)b) = *((short*)a); *((short*)a) = t; }
+static inline void swaplong(void* a, void* b)  { long t = *((long*)b); *((long*)b) = *((long*)a); *((long*)a) = t; }
+static inline void swap64bit(void* a, void* b) { int64 t = *((int64*)b); *((int64*)b) = *((int64*)a); *((int64*)a) = t; }
+
+static inline char readpixel(void* s)    { return (*((char*)(s))); }
+static inline void drawpixel(void* s, char a)    { *((char*)(s)) = a; }
+static inline void drawpixels(void* s, short a)  { *((short*)(s)) = a; }
+static inline void drawpixelses(void* s, long a) { *((long*)(s)) = a; }
+
+static inline long mul3(long a) { return (a<<1)+a; }
+static inline long mul5(long a) { return (a<<2)+a; }
+static inline long mul9(long a) { return (a<<3)+a; }
+
+static inline long divmod(long a, long b) { unsigned long _a=(unsigned long)a, _b=(unsigned long)b; dmval = _a%_b; return _a/_b; }
+static inline long moddiv(long a, long b) { unsigned long _a=(unsigned long)a, _b=(unsigned long)b; dmval = _a/_b; return _a%_b; }
+
+static inline long klabs(long a) { if (a < 0) return -a; return a; }
+static inline long ksgn(long a)  { if (a > 0) return 1; if (a < 0) return -1; return 0; }
+
+static inline long umin(long a, long b) { if ((unsigned long)a < (unsigned long)b) return a; return b; }
+static inline long umax(long a, long b) { if ((unsigned long)a < (unsigned long)b) return b; return a; }
+static inline long kmin(long a, long b) { if ((signed long)a < (signed long)b) return a; return b; }
+static inline long kmax(long a, long b) { if ((signed long)a < (signed long)b) return b; return a; }
+
+static inline long sqr(long eax) { return (eax) * (eax); }
+static inline long scale(long eax, long edx, long ecx) { return dw((qw(eax) * qw(edx)) / qw(ecx)); }
+static inline long mulscale(long eax, long edx, long ecx) { return dw((qw(eax) * qw(edx)) >> by(ecx)); }
+static inline long divscale(long eax, long ebx, long ecx) { return dw((qw(eax) << by(ecx)) / qw(ebx)); }
+static inline long dmulscale(long eax, long edx, long esi, long edi, long ecx) { return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> by(ecx)); }
+
+static inline long boundmulscale(long a, long d, long c)
+{ // courtesy of Ken
+    int64 p;
+    p = (((int64)a)*((int64)d))>>c;
+    if (p >= longlong(2147483647)) p = longlong(2147483647);
+    if (p < longlong(-2147483648)) p = longlong(-2147483648);
+    return((long)p);
+}
+
+#undef qw
+#undef dw
+#undef wo
+#undef by
+#undef _scaler
+
+void qinterpolatedown16 (long bufptr, long num, long val, long add);
+void qinterpolatedown16short (long bufptr, long num, long val, long add);
+
+void clearbuf(void* d, long c, long a);
+void copybuf(void* s, void* d, long c);
+void swapbuf4(void* a, void* b, long c);
+
+void clearbufbyte(void *D, long c, long a);
+void copybufbyte(void *S, void *D, long c);
+void copybufreverse(void *S, void *D, long c);
 
 #endif
 

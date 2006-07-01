@@ -21,7 +21,7 @@ $(OBJ)lzwnew.$o: $(SRC)lzwnew.c
 $(OBJ)md4.$o: $(SRC)md4.c $(INC)md4.h $(INC)compat.h
 $(OBJ)mmulti_null.$o: $(SRC)mmulti_null.c $(INC)mmulti.h
 $(OBJ)mmulti.$o: $(SRC)mmulti.c
-$(OBJ)osd.$o: $(SRC)osd.c $(INC)build.h $(INC)osd.h $(INC)compat.h $(INC)engineinfo.h $(INC)baselayer.h
+$(OBJ)osd.$o: $(SRC)osd.c $(INC)build.h $(INC)osd.h $(INC)compat.h $(INC)baselayer.h
 $(OBJ)pragmas.$o: $(SRC)pragmas.c $(INC)compat.h
 $(OBJ)scriptfile.$o: $(SRC)scriptfile.c $(INC)scriptfile.h $(INC)cache1d.h $(INC)compat.h
 $(OBJ)sdlayer.$o: $(SRC)sdlayer.c $(INC)compat.h $(INC)sdlayer.h $(INC)baselayer.h $(INC)cache1d.h $(INC)pragmas.h $(INC)a.h $(INC)build.h $(INC)osd.h $(INC)glbuild.h
@@ -29,10 +29,12 @@ $(OBJ)sound.$o: $(SRC)sound.c $(INC)osd.h $(INC)compat.h $(INC)cache1d.h
 $(OBJ)winlayer.$o: $(SRC)winlayer.c $(INC)compat.h $(INC)winlayer.h $(INC)baselayer.h $(INC)pragmas.h $(INC)build.h $(INC)a.h $(INC)osd.h $(INC)dxdidf.h $(INC)glbuild.h
 $(OBJ)gtkbits.$o: $(SRC)gtkbits.c $(INC)baselayer.h $(INC)build.h
 
-$(OBJ)gameres.$(res): $(SRC)misc/gameres.rc
-$(OBJ)buildres.$(res): $(SRC)misc/buildres.rc
-$(OBJ)gamestartwin.$o: $(SRC)gamestartwin.c $(INC)winlayer.h $(INC)build.h $(INC)compat.h
-$(OBJ)buildstartwin.$o: $(SRC)buildstartwin.c $(INC)winlayer.h $(INC)build.h $(INC)compat.h
+$(OBJ)gameres.$(res): $(SRC)misc/gameres.rc $(SRC)startwin.game.h
+$(OBJ)buildres.$(res): $(SRC)misc/buildres.rc $(INC)startwin.editor.h
+$(OBJ)startwin.editor.$o: $(SRC)startwin.editor.c $(INC)build.h $(INC)editor.h $(INC)winlayer.h $(INC)compat.h $(INC)startwin.editor.h
+$(OBJ)startwin.game.$o: $(SRC)startwin.game.c $(INC)build.h $(INC)editor.h $(INC)winlayer.h $(INC)compat.h $(SRC)startwin.game.h
+$(OBJ)startgtk.editor.$o: $(SRC)startgtk.editor.c $(INC)baselayer.h $(INC)build.h $(INC)editor.h $(INC)compat.h
+$(OBJ)startgtk.game.$o: $(SRC)startgtk.game.c $(INC)baselayer.h $(INC)build.h $(INC)compat.h
 
 $(OBJ)game_icon.$o: $(RSRC)game_icon.c
 $(OBJ)build_icon.$o: $(RSRC)build_icon.c

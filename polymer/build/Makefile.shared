@@ -58,7 +58,7 @@ endif
 ifeq ($(PLATFORM),WINDOWS)
 	RENDERTYPE ?= WIN
 	EXESUFFIX=.exe
-	LIBS+= -lmingwex -lwinmm -L$(DXROOT)/lib -lwsock32 #-lshfolder
+	LIBS+= -lmingwex -lwinmm -L$(DXROOT)/lib -lwsock32 -lcomctl32 #-lshfolder
 endif
 ifeq ($(PLATFORM),BSD)
 	RENDERTYPE=SDL

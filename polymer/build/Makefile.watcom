@@ -52,7 +52,6 @@ ENGINEOBJS=$(OBJ)a.$o &
 	$(OBJ)crc32.$o &
 	$(OBJ)defs.$o &
 	$(OBJ)engine.$o &
-	$(OBJ)engineinfo.$o &
 	$(OBJ)glbuild.$o &
 	$(OBJ)kplib.$o &
 	$(OBJ)lzf_c.$o &
@@ -67,12 +66,12 @@ ENGINEOBJS=$(OBJ)a.$o &
 
 EDITOROBJS=$(OBJ)build.$o &
 	$(OBJ)config.$o &
-	$(OBJ)buildstartwin.$o
+	$(OBJ)startwin.editor.$o
 
 GAMEEXEOBJS=$(OBJ)game.$o &
 	$(OBJ)sound.$o &
 	$(OBJ)config.$o &
-	$(OBJ)gamestartwin.$o
+	$(OBJ)startwin.game.$o
 
 EDITOREXEOBJS=$(OBJ)bstub.$o
 
@@ -158,15 +157,6 @@ wad2map$(EXESUFFIX): $(OBJ)wad2map.$o $(OBJ)pragmas.$o $(OBJ)compat.$o
 
 # DEPENDENCIES
 !include Makefile.deps
-
-$(OBJ)engineinfo.$o: writeengineinfo $(SRC)tmp\engineinfo.c
-
-writeengineinfo: .SYMBOLIC
-	echo const char _engine_cflags[] = "$(CFLAGS:\=\\)"; > $(SRC)tmp\engineinfo.c
-	echo const char _engine_libs[] = "$(LIBS:\=\\)"; >> $(SRC)tmp\engineinfo.c
-	echo const char _engine_uname[] = "unknown"; >> $(SRC)tmp\engineinfo.c
-	echo const char _engine_compiler[] = "$(CC)"; >> $(SRC)tmp\engineinfo.c
-	echo const char _engine_date[] = __DATE__ " " __TIME__; >> $(SRC)tmp\engineinfo.c
 
 # PHONIES	
 clean: .SYMBOLIC

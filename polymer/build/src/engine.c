@@ -123,77 +123,7 @@ static char kensmessage[128];
 char *engineerrstr = "No error";
 
 
-#if defined(NOASM)
-
-static inline unsigned long nsqrtasm(unsigned long a)
-{   // JBF 20030901: This was a damn lot simpler to reverse engineer than
-    // msqrtasm was. Really, it was just like simplifying an algebra equation.
-    unsigned short c;
-
-    if (a & 0xff000000) {           // test eax, 0xff000000  /  jnz short over24
-        c = shlookup[(a >> 24) + 4096]; // mov ebx, eax
-        // over24: shr ebx, 24
-        // mov cx, word ptr shlookup[ebx*2+8192]
-    } else {
-        c = shlookup[a >> 12];      // mov ebx, eax
-        // shr ebx, 12
-        // mov cx, word ptr shlookup[ebx*2]
-        // jmp short under24
-    }
-    a >>= c&0xff;               // under24: shr eax, cl
-    a = (a&0xffff0000)|(sqrtable[a]);   // mov ax, word ptr sqrtable[eax*2]
-    a >>= ((c&0xff00) >> 8);        // mov cl, ch
-    // shr eax, cl
-    return a;
-}
-
-static inline long msqrtasm(unsigned long c)
-{
-    unsigned long a,b;
-
-    a = 0x40000000l;        // mov eax, 0x40000000
-    b = 0x20000000l;        // mov ebx, 0x20000000
-    do {                // begit:
-        if (c >= a) {       // cmp ecx, eax  /  jl skip
-            c -= a;     // sub ecx, eax
-            a += b*4;   // lea eax, [eax+ebx*4]
-        }           // skip:
-        a -= b;         // sub eax, ebx
-        a >>= 1;        // shr eax, 1
-        b >>= 2;        // shr ebx, 2
-    } while (b);            // jnz begit
-    if (c >= a)         // cmp ecx, eax
-        a++;            // sbb eax, -1
-    a >>= 1;            // shr eax, 1
-    return a;
-}
-
-static inline void setgotpic(long tilenume)
-{
-    if (walock[tilenume] < 200) walock[tilenume] = 199;
-    gotpic[tilenume>>3] |= pow2char[tilenume&7];
-}
-
-static inline long krecipasm(long i)
-{ // Ken did this
-    float f = (float)i; i = *(long *)&f;
-    return((reciptable[(i>>12)&2047]>>(((i-0x3f800000)>>23)&31))^(i>>31));
-}
-
-
-static inline long getclipmask(long a, long b, long c, long d)
-{ // Ken did this
-    d = ((a<0)*8) + ((b<0)*4) + ((c<0)*2) + (d<0);
-    return(((d<<4)^0xf0)|d);
-}
-
-inline long getkensmessagecrc(long b)
-{
-    return 0x56c764d4l;
-    b=b;
-}
-
-#elif defined(__WATCOMC__)
+#if defined(__WATCOMC__) && !defined(NOASM)
 
 //
 // Watcom Inline Assembly Routines
@@ -297,7 +227,7 @@ long getclipmask(long,long,long,long);
     modify exact [eax ebx ecx edx]
 long getkensmessagecrc(long);
 
-#elif defined(_MSC_VER) // __WATCOMC__
+#elif defined(_MSC_VER) && !defined(NOASM)	// __WATCOMC__
 
 //
 // Microsoft C Inline Assembly Routines
@@ -434,7 +364,7 @@ static inline long getkensmessagecrc(void *b)
     }
 }
 
-#elif defined(__GNUC__) && defined(__i386__)    // _MSC_VER
+#elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)	// _MSC_VER
 
 //
 // GCC "Inline" Assembly Routines
@@ -539,7 +469,73 @@ static inline long getkensmessagecrc(void *b)
 
 #else   // __GNUC__ && __i386__
 
-#error Unsupported compiler or architecture.
+static inline unsigned long nsqrtasm(unsigned long a)
+{	// JBF 20030901: This was a damn lot simpler to reverse engineer than
+    // msqrtasm was. Really, it was just like simplifying an algebra equation.
+    unsigned short c;
+
+    if (a & 0xff000000) {			// test eax, 0xff000000  /  jnz short over24
+        c = shlookup[(a >> 24) + 4096];	// mov ebx, eax
+        // over24: shr ebx, 24
+        // mov cx, word ptr shlookup[ebx*2+8192]
+    } else {
+        c = shlookup[a >> 12];		// mov ebx, eax
+        // shr ebx, 12
+        // mov cx, word ptr shlookup[ebx*2]
+        // jmp short under24
+    }
+    a >>= c&0xff;				// under24: shr eax, cl
+    a = (a&0xffff0000)|(sqrtable[a]);	// mov ax, word ptr sqrtable[eax*2]
+    a >>= ((c&0xff00) >> 8);		// mov cl, ch
+    // shr eax, cl
+    return a;
+}
+
+static inline long msqrtasm(unsigned long c)
+{
+    unsigned long a,b;
+
+    a = 0x40000000l;		// mov eax, 0x40000000
+    b = 0x20000000l;		// mov ebx, 0x20000000
+    do {				// begit:
+        if (c >= a) {		// cmp ecx, eax	 /  jl skip
+            c -= a;		// sub ecx, eax
+            a += b*4;	// lea eax, [eax+ebx*4]
+        }			// skip:
+        a -= b;			// sub eax, ebx
+        a >>= 1;		// shr eax, 1
+        b >>= 2;		// shr ebx, 2
+    } while (b);			// jnz begit
+    if (c >= a)			// cmp ecx, eax
+        a++;			// sbb eax, -1
+    a >>= 1;			// shr eax, 1
+    return a;
+}
+
+static inline void setgotpic(long tilenume)
+{
+    if (walock[tilenume] < 200) walock[tilenume] = 199;
+    gotpic[tilenume>>3] |= pow2char[tilenume&7];
+}
+
+static inline long krecipasm(long i)
+{ // Ken did this
+    float f = (float)i; i = *(long *)&f;
+    return((reciptable[(i>>12)&2047]>>(((i-0x3f800000)>>23)&31))^(i>>31));
+}
+
+
+static inline long getclipmask(long a, long b, long c, long d)
+{ // Ken did this
+    d = ((a<0)*8) + ((b<0)*4) + ((c<0)*2) + (d<0);
+    return(((d<<4)^0xf0)|d);
+}
+
+inline long getkensmessagecrc(long b)
+{
+    return 0x56c764d4l;
+    b=b;
+}
 
 #endif
 

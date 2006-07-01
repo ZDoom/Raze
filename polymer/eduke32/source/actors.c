@@ -2429,7 +2429,7 @@ void moveweapons(void)
 
                 dax = s->x; day = s->y; daz = s->z;
 
-                if(thisprojectile[i].range > 0)
+                if(thisprojectile[i].workslike & PROJECTILE_FLAG_TIMED && thisprojectile[i].range > 0)
                 {
                     if (!(hittype[i].temp_data[8]))
                         hittype[i].temp_data[8] = 1;

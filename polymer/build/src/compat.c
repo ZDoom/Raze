@@ -26,6 +26,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef __APPLE__
+# include <CoreFoundation/CoreFoundation.h>
+# include <CoreServices/CoreServices.h>
+#endif
+
 #if defined(__WATCOMC__)
 # include <direct.h>
 #elif defined(_MSC_VER)
@@ -327,19 +332,54 @@ char *Bgethomedir(void)
 #ifdef _WIN32
     TCHAR appdata[MAX_PATH];
 
-    //# if defined SHGetFolderPath
-    //	if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, 0, appdata)))
-    //# if defined SHGetSpecialFolderPath
     if (SUCCEEDED(SHGetSpecialFolderPathA(NULL, appdata, CSIDL_APPDATA, FALSE)))
-        //# else
-        //#  error Cannot find SHGetFolderPath or SHGetSpecialFolderPath. Perhaps your shlobj.h is ancient?
-        //# endif
         return strdup(appdata);
     return NULL;
+#elif defined __APPLE__
+    FSRef ref;
+    CFStringRef str;
+    CFURLRef base;
+    char *s;
+
+    if (FSFindFolder(kUserDomain, kVolumeRootFolderType, kDontCreateFolder, &ref) < 0) return NULL;
+    base = CFURLCreateFromFSRef(NULL, &ref);
+    if (!base) return NULL;
+    str = CFURLCopyFileSystemPath(base, kCFURLPOSIXPathStyle);
+    CFRelease(base);
+    if (!str) return NULL;
+    s = (char*)CFStringGetCStringPtr(str,CFStringGetSystemEncoding());
+    if (s) s = strdup(s);
+    CFRelease(str);
+    return s;
 #else
     char *e = getenv("HOME");
     if (!e) return NULL;
     return strdup(e);
+#endif
+}
+
+char *Bgetsupportdir(int global)
+{
+#ifndef __APPLE__
+    return Bgethomedir();
+#else
+    FSRef ref;
+    CFStringRef str;
+    CFURLRef base;
+    char *s;
+
+    if (FSFindFolder(global ? kLocalDomain : kUserDomain,
+                     kApplicationSupportFolderType,
+                     kDontCreateFolder, &ref) < 0) return NULL;
+    base = CFURLCreateFromFSRef(NULL, &ref);
+    if (!base) return NULL;
+    str = CFURLCopyFileSystemPath(base, kCFURLPOSIXPathStyle);
+    CFRelease(base);
+    if (!str) return NULL;
+    s = (char*)CFStringGetCStringPtr(str,CFStringGetSystemEncoding());
+    if (s) s = strdup(s);
+    CFRelease(str);
+    return s;
 #endif
 }
 

@@ -82,7 +82,6 @@ ENGINEOBJS+= \
 	$(OBJ)crc32.$o \
 	$(OBJ)defs.$o \
 	$(OBJ)engine.$o \
-	$(OBJ)engineinfo.$o \
 	$(OBJ)glbuild.$o \
 	$(OBJ)kplib.$o \
 	$(OBJ)lzf_c.$o \
@@ -139,7 +138,8 @@ ifeq ($(RENDERTYPE),SDL)
 	ifeq (1,$(HAVE_GTK2))
 		OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
 		ENGINEOBJS+= $(OBJ)gtkbits.$o
-		GAMEEXEOBJS+= $(OBJ)game_banner.$o
+		EDITOROBJS+= $(OBJ)startgtk.editor.$o
+		GAMEEXEOBJS+= $(OBJ)game_banner.$o $(OBJ)startgtk.game.$o
 		EDITOREXEOBJS+= $(OBJ)editor_banner.$o
 	endif
 
@@ -148,8 +148,8 @@ ifeq ($(RENDERTYPE),SDL)
 endif
 ifeq ($(RENDERTYPE),WIN)
 	ENGINEOBJS+= $(OBJ)winlayer.$o
-	EDITOROBJS+= $(OBJ)buildstartwin.$o
-	GAMEEXEOBJS+= $(OBJ)gameres.$(res) $(OBJ)gamestartwin.$o
+	EDITOROBJS+= $(OBJ)startwin.editor.$o
+	GAMEEXEOBJS+= $(OBJ)gameres.$(res) $(OBJ)startwin.game.$o
 	EDITOREXEOBJS+= $(OBJ)buildres.$(res)
 endif
 
@@ -160,7 +160,7 @@ endif
 
 OURCFLAGS+= $(BUILDCFLAGS)
 
-.PHONY: clean veryclean all utils writeengineinfo enginelib editorlib
+.PHONY: clean veryclean all utils enginelib editorlib
 
 # TARGETS
 
@@ -221,15 +221,6 @@ enumdisplay$(EXESUFFIX): src/misc/enumdisplay.c
 # DEPENDENCIES
 include Makefile.deps
 
-.PHONY: $(OBJ)engineinfo.$o
-$(OBJ)engineinfo.$o:
-	echo "const char _engine_cflags[] = \"$(CFLAGS) $(OURCFLAGS)\";" > $(SRC)tmp/engineinfo.c
-	echo "const char _engine_libs[] = \"$(LIBS)\";" >> $(SRC)tmp/engineinfo.c
-	echo "const char _engine_uname[] = \"$(shell uname -a)\";" >> $(SRC)tmp/engineinfo.c
-	echo "const char _engine_compiler[] = \"$(CC) $(shell $(CC) -dumpversion) $(shell $(CC) -dumpmachine)\";" >> $(SRC)tmp/engineinfo.c
-	echo "const char _engine_date[] = __DATE__ \" \" __TIME__;" >> $(SRC)tmp/engineinfo.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $(SRC)tmp/engineinfo.c -o $@ 2>&1
-
 # RULES
 $(OBJ)%.$o: $(SRC)%.nasm
 	$(AS) $(ASFLAGS) $< -o $@
@@ -244,7 +235,7 @@ $(OBJ)%.$o: $(SRC)tmp/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
 
 $(OBJ)%.$o: $(SRC)misc/%.rc
-	$(RC) -i $^ -o $@
+	$(RC) -i $< -o $@ --include-dir=$(INC) --include-dir=$(SRC)
 
 $(OBJ)%.$o: $(SRC)util/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1

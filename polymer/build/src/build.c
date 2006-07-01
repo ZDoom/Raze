@@ -81,6 +81,7 @@ extern long startposx, startposy, startposz;
 extern short startang, startsectnum;
 extern long frameplace, ydim16, halfxdim16, midydim16;
 long xdim2d = 640, ydim2d = 480, xdimgame = 640, ydimgame = 480, bppgame = 8;
+long forcesetup = 1;
 
 extern long cachesize, artsize;
 
@@ -237,14 +238,12 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-#ifdef RENDERTYPEWIN
-int DoLaunchWindow(int initval);	// buildstartwin.c
-#endif
+extern int startwin_run(void);
 
 extern char *defsfilename;	// set in bstub.c
 int app_main(int argc, char **argv)
 {
-    char ch, quitflag, forcesetup = 0, grpstoadd = 0;
+    char ch, quitflag, cmdsetup = 0, grpstoadd = 0;
     char **grps = NULL;
     long i, j, k;
 
@@ -267,7 +266,7 @@ int app_main(int argc, char **argv)
     boardfilename[0] = 0;
     for (i=1; i<argc; i++) {
         if (argv[i][0] == '-') {
-            if (!strcmp(argv[i], "-setup")) forcesetup = 1;
+            if (!strcmp(argv[i], "-setup")) cmdsetup = 1;
             else if (!strcmp(argv[i], "-g") || !strcmp(argv[i], "-grp")) {
                 i++;
                 grps = (char**)realloc(grps, sizeof(char*)*(grpstoadd+1));
@@ -280,11 +279,11 @@ int app_main(int argc, char **argv)
                     "Options:\n"
                     "\t-grp\tUse an extra GRP or ZIP file.\n"
                     "\t-g\tSame as above.\n"
-#ifdef RENDERTYPEWIN
+#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
                     "\t-setup\tDisplays the configuration dialogue box before entering the editor.\n"
 #endif
                     ;
-#ifdef RENDERTYPEWIN
+#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
                 wm_msgbox("Mapster32",s);
 #else
                 puts(s);
@@ -306,8 +305,10 @@ int app_main(int argc, char **argv)
     //Bcanonicalisefilename(boardfilename,0);
 
     if ((i = ExtInit()) < 0) return -1;
-#ifdef RENDERTYPEWIN
-    if (DoLaunchWindow(i|forcesetup)) return -1;
+#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
+    if (i || forcesetup || cmdsetup) {
+        if (!startwin_run()) return -1;
+    }
 #endif
 
     if (grps && grpstoadd > 0) {

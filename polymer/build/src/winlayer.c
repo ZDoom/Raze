@@ -56,10 +56,6 @@ static HWND hWindow = 0;
 static BOOL window_class_registered = FALSE;
 static HANDLE instanceflag = NULL;
 
-static HWND startupdlg = NULL;
-static long startupdlgsaferect[4] = { -1,-1,-1,-1 };
-static int  startupdlgcommand = 0;
-static void (*startupdlgonclose)(void) = NULL;
 int    backgroundidle = 1;
 
 static WORD sysgamma[3][256];
@@ -233,11 +229,7 @@ void wm_setapptitle(char *name)
     }
 
     if (hWindow) SetWindowText(hWindow, apptitle);
-    if (startupdlg) {
-        char buf[1000];
-        Bsnprintf(buf, 1000, "%s Startup", apptitle);
-        SetWindowText(startupdlg, buf);
-    }
+    startwin_settitle(apptitle);
 }
 
 //
@@ -255,143 +247,6 @@ static void SignalHandler(int signum)
         break;
     }
 }
-
-
-//
-// startup_dlgproc() -- dialog procedure for the initialisation dialog
-//
-#define FIELDSWIDE 366
-#define PADWIDE 5		// 5 units of padding
-// An overlayed child dialog should have the DS_CONTROL style
-
-static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    static HBITMAP hbmp = NULL;
-    RECT rdlg, rbmp, rtxt;
-    HDC hdc;
-    int height=5;
-
-    switch (uMsg) {
-    case WM_INITDIALOG:
-        // set the bitmap
-        hbmp = LoadBitmap(hInstance, MAKEINTRESOURCE(WIN_STARTWINBMP));
-        SendDlgItemMessage(hwndDlg, WIN_STARTWIN_ITEMBITMAP, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbmp);
-
-        // fetch the adjusted size
-        GetClientRect(GetDlgItem(hwndDlg,WIN_STARTWIN_ITEMBITMAP), &rbmp);
-        rbmp.right++; rbmp.bottom++;
-
-        GetClientRect(GetDlgItem(hwndDlg,WIN_STARTWIN_ITEMTEXT), &rtxt);
-        rtxt.bottom++;
-
-        // move the bitmap to the top of the client area
-        MoveWindow(GetDlgItem(hwndDlg,WIN_STARTWIN_ITEMBITMAP),
-                   0,0, rbmp.right,rbmp.bottom,
-                   FALSE);
-
-        // move the label
-        MoveWindow(GetDlgItem(hwndDlg,WIN_STARTWIN_ITEMTEXT),
-                   rbmp.right+PADWIDE,PADWIDE, FIELDSWIDE,rtxt.bottom,
-                   FALSE);
-
-        // move the list box
-        MoveWindow(GetDlgItem(hwndDlg,WIN_STARTWIN_ITEMLIST),
-                   rbmp.right+PADWIDE,PADWIDE+rtxt.bottom+PADWIDE,
-                   FIELDSWIDE,rbmp.bottom-(PADWIDE+rtxt.bottom+PADWIDE+PADWIDE),
-                   FALSE);
-
-        SendDlgItemMessage(hwndDlg,WIN_STARTWIN_ITEMLIST, EM_LIMITTEXT, 0,0);
-        {
-            RECT rg;
-            GetWindowRect(GetDlgItem(hwndDlg,WIN_STARTWIN_ITEMLIST),&rg);
-            rg.right -= rg.left + GetSystemMetrics(SM_CXVSCROLL)+4;
-            rg.bottom -= rg.top;
-            rg.left = rg.top = 0;
-            SendDlgItemMessage(hwndDlg,WIN_STARTWIN_ITEMLIST, EM_SETRECTNP,0,(LPARAM)&rg);
-        }
-
-        rdlg.left = 0;
-        rdlg.top = 0;
-        rdlg.right = rbmp.right+PADWIDE+FIELDSWIDE+PADWIDE;
-        rdlg.bottom = rbmp.bottom;
-
-        AdjustWindowRect(&rdlg,
-                         GetWindowLong(hwndDlg, GWL_STYLE),
-                         FALSE);
-
-        rdlg.right -= rdlg.left;
-        rdlg.bottom -= rdlg.top;
-
-        hdc = GetDC(NULL);
-        rdlg.left = (GetDeviceCaps(hdc, HORZRES) - rdlg.right) / 2;
-        rdlg.top = (GetDeviceCaps(hdc, VERTRES) - rdlg.bottom) / 2;
-        ReleaseDC(NULL, hdc);
-
-        SetWindowPos(hwndDlg,NULL,
-                     rdlg.left,rdlg.top,
-                     rdlg.right,rdlg.bottom,
-                     SWP_NOREPOSITION);
-
-        // save the safe region of the window
-        startupdlgsaferect[0] = rbmp.right;		// left
-        startupdlgsaferect[1] = 0;			// top
-        startupdlgsaferect[2] = PADWIDE+FIELDSWIDE+PADWIDE;	// width
-        startupdlgsaferect[3] = rbmp.bottom;		// height
-
-        return TRUE;
-
-    case WM_CLOSE:
-        quitevent = 1;
-        return TRUE;
-
-    case WM_DESTROY:
-        if (hbmp) {
-            DeleteObject(hbmp);
-            hbmp = NULL;
-        }
-
-        if (startupdlgonclose) startupdlgonclose();
-
-        startupdlg = NULL;
-        return TRUE;
-
-    case WM_COMMAND:
-        startupdlgcommand = LOWORD(wParam);
-        return FALSE;
-
-    case WM_CTLCOLORSTATIC:
-        switch (GetDlgCtrlID((HWND)lParam)) {
-        case WIN_STARTWIN_ITEMLIST:
-            return (BOOL)GetSysColorBrush(COLOR_WINDOW);
-        default: break;
-        }
-        break;
-
-    default: break;
-    }
-
-    return FALSE;
-}
-
-
-int win_getstartupwin(long *hwnd, long saferect[4], void (*onclose)(void))
-{
-    if (!startupdlg) return 1;
-
-    *hwnd = (long)startupdlg;
-    memcpy(saferect, startupdlgsaferect, sizeof(long)*4);
-    startupdlgonclose = onclose;
-
-    return 0;
-}
-
-int win_getstartupcommand(void)
-{
-    int t = startupdlgcommand;
-    startupdlgcommand = 0;
-    return t;
-}
-
 
 //
 // WinMain() -- main Windows entry point
@@ -502,16 +357,16 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     atexit(uninitsystem);
 
-    baselayer_init();
-
     instanceflag = CreateSemaphore(NULL, 1,1, WindowClass);
 
-    startupdlg = CreateDialog(hInstance, MAKEINTRESOURCE(WIN_STARTWIN), NULL, startup_dlgproc);
+    startwin_open();
+    baselayer_init();
 
     r = app_main(_buildargc, _buildargv);
 
     fclose(stdout);
 
+    startwin_close();
     if (instanceflag) CloseHandle(instanceflag);
 
     if (argvbuf) free(argvbuf);
@@ -593,9 +448,7 @@ void uninitsystem(void)
 {
     DestroyAppWindow();
 
-    if (startupdlg) {
-        DestroyWindow(startupdlg);
-    }
+    startwin_close();
 
     uninitinput();
     uninittimer();
@@ -615,57 +468,12 @@ void initprintf(const char *f, ...)
 {
     va_list va;
     char buf[1024],*p=NULL,*q=NULL,workbuf[1024];
-    //int i = 0;
-
-    static int newline = 0;//1;
-    //	int overwriteline = -1;
 
     va_start(va, f);
     Bvsnprintf(buf, 1024, f, va);
     va_end(va);
     OSD_Printf(buf);
-    if (!startupdlg) return;
-
-    {
-        int curlen, linesbefore, linesafter;
-        HWND edctl;
-
-        edctl = GetDlgItem(startupdlg,102);
-        if (!edctl) return;
-
-        SendMessage(edctl, WM_SETREDRAW, FALSE,0);
-        curlen = SendMessage(edctl, WM_GETTEXTLENGTH, 0,0);
-        SendMessage(edctl, EM_SETSEL, (WPARAM)curlen, (LPARAM)curlen);
-        linesbefore = SendMessage(edctl, EM_GETLINECOUNT, 0,0);
-        p = buf;
-        while (*p) {
-            if (newline) {
-                SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)"\r\n");
-                newline = 0;
-            }
-            q = p;
-            while (*q && *q != '\n') q++;
-            memcpy(workbuf, p, q-p);
-            if (*q == '\n') {
-                if (!q[1]) {
-                    newline = 1;
-                    workbuf[q-p] = 0;
-                } else {
-                    workbuf[q-p] = '\r';
-                    workbuf[q-p+1] = '\n';
-                    workbuf[q-p+2] = 0;
-                }
-                p = q+1;
-            } else {
-                workbuf[q-p] = 0;
-                p = q;
-            }
-            SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)workbuf);
-        }
-        linesafter = SendMessage(edctl, EM_GETLINECOUNT, 0,0);
-        SendMessage(edctl, EM_LINESCROLL, 0, linesafter-linesbefore);
-        SendMessage(edctl, WM_SETREDRAW, TRUE,0);
-    }
+    startwin_puts(buf);
     handleevents();
 }
 
@@ -705,7 +513,7 @@ int handleevents(void)
         if (msg.message == WM_QUIT)
             quitevent = 1;
 
-        if (IsWindow(startupdlg) && IsDialogMessage(startupdlg, &msg)) continue;
+        if (startwin_idle((void*)&msg) > 0) continue;
 
         TranslateMessage(&msg);
         DispatchMessage(&msg);
@@ -1531,67 +1339,6 @@ static void ProcessInputDevices(void)
                 for (i=0; i<dwElements; i++) {
                     k = didod[i].dwOfs;
 
-#if 0
-                    // When NumLock is on, the shift keys interact differently with the
-                    // numeric keypad, so we cook things a little bit to work around
-                    // the quirks.
-                    if (numlockon) {
-#define NUMPAD 1
-#define SHIFT 2
-#define UP 0
-#define DOWN 4
-                        DWORD j, thiskey = 0, nextkey = 0;
-                        for (j=i; j<=min(i+1,dwElements-1); j++) {
-                            switch (didod[j].dwOfs) {
-                    case DIK_NUMPAD1: case DIK_NUMPAD2: case DIK_NUMPAD3:
-                    case DIK_NUMPAD4: case DIK_NUMPAD5: case DIK_NUMPAD6:
-                    case DIK_NUMPAD7: case DIK_NUMPAD8: case DIK_NUMPAD9:
-                        case DIK_NUMPAD0: case DIK_PERIOD:
-                                if (j==i) thiskey = NUMPAD | ((didod[j].dwData&128)?DOWN:UP);
-                                else nextkey = NUMPAD | ((didod[j].dwData&128)?DOWN:UP);
-                                break;
-                        case DIK_LSHIFT: case DIK_RSHIFT:
-                                if (j==i) thiskey = SHIFT | ((didod[j].dwData&128)?DOWN:UP);
-                                else nextkey = SHIFT | ((didod[j].dwData&128)?DOWN:UP);
-                                break;
-                            default: break;
-                            }
-                        }
-                        if (!shiftkey) {
-                            if (thiskey == (SHIFT|DOWN)) {
-                                shiftkey = 1, shiftkeycount = 0;
-                                initprintf("shift is down --> shiftkey=1, shiftkeycount=0\n");
-                            }
-                        } else {
-                            if ((thiskey == (SHIFT|UP)) && (nextkey == (NUMPAD|DOWN))) {
-                                shiftkeycount--;
-                                initprintf("shift is up and next key is numpad and down, shiftkeycount=%d\n",
-                                           shiftkeycount);
-                                continue;
-                            } else if (thiskey & SHIFT) {
-                                if (thiskey & DOWN) {
-                                    shiftkeycount++;
-                                    initprintf("shift key down, shiftkeycount=%d\n", shiftkeycount);
-                                    continue;
-                                } else {
-                                    if (shiftkeycount == 0) {
-                                        shiftkey = 0;
-                                        initprintf("shift key up and shiftkeycount == 0, shiftkey=0\n");
-                                    } else {
-                                        shiftkeycount--;
-                                        initprintf("shift key up and shiftkeycount=%d\n",shiftkeycount);
-                                        continue;
-                                    }
-                                }
-                            }
-                        }
-#undef NUMPAD
-#undef SHIFT
-#undef UP
-#undef DOWN
-                    }
-#endif
-
                     if (k == DIK_PAUSE) continue;	// fucking pause
 
                     // hook in the osd
@@ -1960,7 +1707,7 @@ static int getgammaramp(WORD gt[3][256]);
 //
 // checkvideomode() -- makes sure the video mode passed is legal
 //
-int checkvideomode(int *x, int *y, int c, int fs)
+int checkvideomode(int *x, int *y, int c, int fs, int forced)
 {
     int i, nearest=-1, dx, dy, odx=9999, ody=9999;
 
@@ -1990,7 +1737,7 @@ int checkvideomode(int *x, int *y, int c, int fs)
     }
 
 #ifdef ANY_WINDOWED_SIZE
-    if ((fs&1) == 0 && (nearest < 0 || validmode[nearest].xdim!=*x || validmode[nearest].ydim!=*y)) {
+    if (!forced && (fs&1) == 0 && (nearest < 0 || validmode[nearest].xdim!=*x || validmode[nearest].ydim!=*y)) {
         // check the colour depth is recognised at the very least
         for (i=0;i<validmodecnt;i++)
             if (validmode[i].bpp == c)
@@ -2025,7 +1772,7 @@ int setvideomode(int x, int y, int c, int fs)
         return 0;
     }
 
-    modenum = checkvideomode(&x,&y,c,fs);
+    modenum = checkvideomode(&x,&y,c,fs,0);
     if (modenum < 0) return -1;
     if (modenum == 0x7fffffff) {
         customxdim = x;
@@ -3190,9 +2937,7 @@ static BOOL CreateAppWindow(int modenum, char *wtitle)
             return TRUE;
         }
 
-        if (startupdlg) {
-            DestroyWindow(startupdlg);
-        }
+        startwin_close();
     } else {
         SetWindowLong(hWindow,GWL_EXSTYLE,stylebitsex);
         SetWindowLong(hWindow,GWL_STYLE,stylebits);

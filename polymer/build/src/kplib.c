@@ -1,10 +1,10 @@
 /**************************************************************************************************
 KPLIB.C: Ken's Picture LIBrary written by Ken Silverman
-Copyright (c) 1998-2005 Ken Silverman
+Copyright (c) 1998-2006 Ken Silverman
 Ken Silverman's official web site: http://advsys.net/ken
 
 Features of KPLIB.C:
-	* Routines for decoding JPG, PNG, GIF, PCX, TGA, BMP, CEL.
+	* Routines for decoding JPG, PNG, GIF, PCX, TGA, BMP, DDS, CEL.
 		See kpgetdim(), kprender(), and optional helper function: kpzload().
 	* Routines for ZIP decompression. All ZIP functions start with the letters "kz".
 	* Multi-platform support: Dos/Windows/Linux/Mac/etc..
@@ -20,6 +20,7 @@ Brief history:
 2003: Added support for BMP
 05/18/2004: Added support for 8&24 bit PCX
 12/09/2005: Added support for progressive JPEG
+01/05/2006: Added support for DDS
 
 I offer this code to the community for free use - all I ask is that my name be included in the
 credits.
@@ -153,8 +154,8 @@ static kzfilestate kzfs;
 //   pow2mask     128*
 //   dcflagor      64
 
-long palcol[256] ASMNAME("palcol"), paleng;
-unsigned char coltype, bitdepth;
+long palcol[256] ASMNAME("palcol"), paleng, bakcol, numhufblocks, zlibcompflags;
+signed char coltype, filtype, bitdepth;
 
 //============================ KPNGILIB begins ===============================
 
@@ -169,7 +170,7 @@ unsigned char coltype, bitdepth;
 //   * Some useless ancillary chunks, like: gAMA(gamma) & pHYs(aspect ratio)
 
 //.PNG specific variables:
-static long bakcol = 0xff808080, bakr = 0x80, bakg = 0x80, bakb = 0x80; //this used to be public...
+static long bakr = 0x80, bakg = 0x80, bakb = 0x80; //this used to be public...
 static long gslidew = 0, gslider = 0, xm, xmn[4], xr0, xr1, xplc, yplc, nfplace;
 static long clen[320], cclen[19], bitpos, filt, xsiz, ysiz;
 static long xsizbpl, ixsiz, ixoff, iyoff, ixstp, iystp, intlac, nbpl, trnsrgb ASMNAME("trnsrgb");
@@ -186,25 +187,7 @@ static long gotcmov = -2, abstab10[1024] ASMNAME("abstab10");
 static long qhufval0[1<<LOGQHUFSIZ0], qhufval1[1<<LOGQHUFSIZ1];
 static unsigned char qhufbit0[1<<LOGQHUFSIZ0], qhufbit1[1<<LOGQHUFSIZ1];
 
-#if defined(NOASM)
-
-static inline unsigned long bswap (unsigned long a)
-{
-    return(((a&0xff0000)>>8) + ((a&0xff00)<<8) + (a<<24) + (a>>24));
-}
-
-static inline long bitrev (long b, long c)
-{
-    long i, j;
-    for(i=1,j=0,c=(1<<c);i<c;i+=i) { j += j; if (b&i) j++; }
-    return(j);
-}
-
-static inline long testflag (long c) { return(0); }
-
-static inline void cpuid(long a, long *s) {}
-
-#elif defined(__WATCOMC__)
+#if defined(__WATCOMC__) && !defined(NOASM)
 
 long bswap (long);
 #pragma aux bswap =\
@@ -256,7 +239,7 @@ void cpuid (long, long *);
 	modify exact [eax ebx ecx edx]\
 	value
 
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) && !defined(NOASM)
 
 static _inline unsigned long bswap (unsigned long a)
 {
@@ -320,7 +303,7 @@ static _inline void cpuid (long a, long *s)
     }
 }
 
-#elif defined(__GNUC__) && defined(__i386__)
+#elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
 static inline unsigned long bswap (unsigned long a)
 {
@@ -358,7 +341,21 @@ static inline void cpuid (long a, long *s)
 
 #else
 
-#error Unsupported compiler or architecture.
+static inline unsigned long bswap (unsigned long a)
+{
+    return(((a&0xff0000)>>8) + ((a&0xff00)<<8) + (a<<24) + (a>>24));
+}
+
+static inline long bitrev (long b, long c)
+{
+    long i, j;
+    for(i=1,j=0,c=(1<<c);i<c;i+=i) { j += j; if (b&i) j++; }
+    return(j);
+}
+
+static inline long testflag (long c) { return(0); }
+
+static inline void cpuid(long a, long *s) {}
 
 #endif
 
@@ -575,35 +572,7 @@ static long Paeth (long a, long b, long c)
     if (pb <= pc) return(b); else return(c);
 }
 
-#if defined(NOASM)
-
-static inline long Paeth686 (long a, long b, long c)
-{
-    return(Paeth(a,b,c));
-}
-
-static inline void rgbhlineasm (long x, long xr1, long p, long ixstp)
-{
-    long i;
-    if (!trnsrgb)
-    {
-        for(;x>xr1;p+=ixstp,x-=3) *(long *)p = (*(long *)&olinbuf[x])|LSWAPIB(0xff000000);
-        return;
-    }
-    for(;x>xr1;p+=ixstp,x-=3)
-    {
-        i = (*(long *)&olinbuf[x])|LSWAPIB(0xff000000);
-        if (i == trnsrgb) i &= LSWAPIB(0xffffff);
-        *(long *)p = i;
-    }
-}
-
-static inline void pal8hlineasm (long x, long xr1, long p, long ixstp)
-{
-    for(;x>xr1;p+=ixstp,x--) *(long *)p = palcol[olinbuf[x]];
-}
-
-#elif defined(__WATCOMC__)
+#if defined(__WATCOMC__) && !defined(NOASM)
 
 //NOTE: cmov now has correctly ordered registers (thx to bug fix in 11.0c!)
 long Paeth686 (long, long, long);
@@ -669,7 +638,7 @@ void pal8hlineasm (long, long, long, long);
 	modify exact [eax ecx edi]\
 	value
 
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) && !defined(NOASM)
 
 static _inline long Paeth686 (long a, long b, long c)
 {
@@ -746,7 +715,7 @@ static _inline void pal8hlineasm (long c, long d, long t, long b)
         }
     }
 
-#elif defined(__GNUC__) && defined(__i386__)
+#elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
 static inline long Paeth686 (long a, long b, long c)
 {
@@ -791,10 +760,43 @@ static inline void pal8hlineasm (long c, long d, long t, long b)
 
 #else
 
-#error Unsupported compiler or architecture.
+static inline long Paeth686 (long a, long b, long c)
+{
+    return(Paeth(a,b,c));
+}
+
+static inline void rgbhlineasm (long x, long xr1, long p, long ixstp)
+{
+    long i;
+    if (!trnsrgb)
+    {
+        for(;x>xr1;p+=ixstp,x-=3) *(long *)p = (*(long *)&olinbuf[x])|LSWAPIB(0xff000000);
+        return;
+    }
+    for(;x>xr1;p+=ixstp,x-=3)
+    {
+        i = (*(long *)&olinbuf[x])|LSWAPIB(0xff000000);
+        if (i == trnsrgb) i &= LSWAPIB(0xffffff);
+        *(long *)p = i;
+    }
+}
+
+static inline void pal8hlineasm (long x, long xr1, long p, long ixstp)
+{
+    for(;x>xr1;p+=ixstp,x--) *(long *)p = palcol[olinbuf[x]];
+}
 
 #endif
 
+//Autodetect filter
+//    /f0: 0000000...
+//    /f1: 1111111...
+//    /f2: 2222222...
+//    /f3: 1333333...
+//    /f3: 3333333...
+//    /f4: 4444444...
+//    /f5: 0142321...
+static long filter1st, filterest;
 static void putbuf (const unsigned char *buf, long leng)
 {
     long i, x, p;
@@ -802,7 +804,9 @@ static void putbuf (const unsigned char *buf, long leng)
     if (filt < 0)
     {
         if (leng <= 0) return;
-        filt = buf[0]; if (filt == gotcmov) filt = 5;
+        filt = buf[0];
+        if (filter1st < 0) filter1st = filt; else filterest |= (1<<filt);
+        if (filt == gotcmov) filt = 5;
         i = 1;
     } else i = 0;
 
@@ -912,7 +916,12 @@ static void putbuf (const unsigned char *buf, long leng)
         *(long *)&opixbuf0[0] = *(long *)&opixbuf1[0] = 0;
         xplc = xsizbpl; yplc += iystp;
     if ((intlac) && (yplc >= globyoffs+ysiz)) { intlac--; initpass(); }
-        if (i < leng) { filt = buf[i++]; if (filt == gotcmov) filt = 5; } else filt = -1;
+        if (i < leng)
+        {
+            filt = buf[i++];
+            if (filter1st < 0) filter1st = filt; else filterest |= (1<<filt);
+            if (filt == gotcmov) filt = 5;
+        } else filt = -1;
     }
 }
 
@@ -960,7 +969,7 @@ static long kpngrend (const char *kfilebuf, long kfilength,
         return(-1); //"Invalid PNG file signature"
     filptr = (unsigned char *)&kfilebuf[8];
 
-    trnsrgb = 0;
+    trnsrgb = 0; filter1st = -1; filterest = 0;
 
     while (1)
     {
@@ -1000,7 +1009,7 @@ static long kpngrend (const char *kfilebuf, long kfilength,
                 bakcol = bakcol*0x10101+0xff000000; break;
         case 2: case 6:
                 if (bitdepth == 8)
-                { bakcol = (((long)filptr[0])<<16)+(((long)filptr[2])<<8)+((long)filptr[4])+0xff000000; }
+                { bakcol = (((long)filptr[1])<<16)+(((long)filptr[3])<<8)+((long)filptr[5])+0xff000000; }
                 else
                 {
                     for(i=0,bakcol=0xff000000;i<3;i++)
@@ -1087,9 +1096,10 @@ static long kpngrend (const char *kfilebuf, long kfilength,
     initpass();
 
     slidew = 0; slider = 16384;
-    suckbits(16); //Actually 2 fields: 8:compmethflags, 8:addflagscheck
+    zlibcompflags = getbits(16); //Actually 2 fields: 8:compmethflags, 8:addflagscheck
     do
     {
+        numhufblocks++;
         bfinal = getbits(1); btype = getbits(2);
         if (btype == 0)
         {
@@ -1101,7 +1111,7 @@ static long kpngrend (const char *kfilebuf, long kfilength,
                 if (slidew >= slider)
                 {
                     putbuf(&slidebuf[(slider-16384)&32767],16384); slider += 16384;
-                    if ((yplc >= yres) && (intlac < 2)) return(0);
+                    if ((yplc >= yres) && (intlac < 2)) goto kpngrend_goodret;
                 }
                 slidebuf[(slidew++)&32767] = (char)getbits(8);
             }
@@ -1153,7 +1163,7 @@ static long kpngrend (const char *kfilebuf, long kfilength,
             if (slidew >= slider)
             {
                 putbuf(&slidebuf[(slider-16384)&32767],16384); slider += 16384;
-                if ((yplc >= yres) && (intlac < 2)) return(0);
+                if ((yplc >= yres) && (intlac < 2)) goto kpngrend_goodret;
             }
 
             k = peekbits(LOGQHUFSIZ0);
@@ -1181,6 +1191,12 @@ static long kpngrend (const char *kfilebuf, long kfilength,
         putbuf(&slidebuf[slider&32767],(-slider)&32767);
         putbuf(slidebuf,slidew&32767);
     }
+
+kpngrend_goodret:;
+    if (!(filterest&~(1<<filter1st))) filtype = filter1st;
+    else if ((filter1st == 1) && (!(filterest&~(1<<3)))) filtype = 3;
+    else filtype = 5;
+    if (coltype == 4) paleng = 0; //For /c4, palcol/paleng used as LUT for "*0x10101": alpha is invalid!
     return(0);
 }
 
@@ -1205,19 +1221,7 @@ static long lcomphvsamp0, lcomphsampshift0, lcompvsampshift0;
 static long colclip[1024], colclipup8[1024], colclipup16[1024];
 static unsigned char pow2char[8] = {1,2,4,8,16,32,64,128};
 
-#if defined(NOASM)
-
-static inline long mulshr24 (long a, long b)
-{
-    return((long)((((__int64)a)*((__int64)b))>>24));
-}
-
-static inline long mulshr32 (long a, long b)
-{
-    return((long)((((__int64)a)*((__int64)b))>>32));
-}
-
-#elif defined(__WATCOMC__)
+#if defined(__WATCOMC__) && !defined(NOASM)
 
 long mulshr24 (long, long);
 #pragma aux mulshr24 =\
@@ -1233,7 +1237,7 @@ long mulshr32 (long, long);
 	modify exact [eax edx]\
 	value [edx]
 
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) && !defined(NOASM)
 
 static _inline long mulshr24 (long a, long d)
 {
@@ -1255,7 +1259,7 @@ static _inline long mulshr32 (long a, long d)
     }
 }
 
-#elif defined(__GNUC__) && defined(__i386__)
+#elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
 #define mulshr24(a,d) \
 	({ long __a=(a), __d=(d); \
@@ -1271,7 +1275,15 @@ static _inline long mulshr32 (long a, long d)
 
 #else
 
-#error Unsupported compiler or architecture.
+static inline long mulshr24 (long a, long b)
+{
+    return((long)((((__int64)a)*((__int64)b))>>24));
+}
+
+static inline long mulshr32 (long a, long b)
+{
+    return((long)((((__int64)a)*((__int64)b))>>32));
+}
 
 #endif
 
@@ -2263,7 +2275,8 @@ if (ysiz < 0) { ysiz = -ysiz; } else { cptr = &cptr[(ysiz-1)*cptrinc]; cptrinc =
     }
     return(0);
 }
-
+//===============================  BMP ends ==================================
+//==============================  PCX begins =================================
 //Note: currently only supports 8 and 24 bit PCX
 static long kpcxrend (const char *buf, long fleng,
                       long daframeplace, long dabytesperline, long daxres, long dayres,
@@ -2343,7 +2356,127 @@ static long kpcxrend (const char *buf, long fleng,
     return(0);
 }
 
-//===============================  BMP ends ==================================
+//===============================  PCX ends ==================================
+//==============================  DDS begins =================================
+
+//Note:currently supports: DXT1,DXT2,DXT3,DXT4,DXT5,A8R8G8B8
+static long kddsrend (const char *buf, long leng,
+                      long frameptr, long bpl, long xdim, long ydim, long xoff, long yoff)
+{
+    long x, y, z, xx, yy, xsiz, ysiz, dxt, al[2], ai, j, k, v, c0, c1, stride;
+    unsigned long lut[256], r[4], g[4], b[4], a[8], rr, gg, bb;
+    unsigned char *uptr, *wptr;
+
+    xsiz = LSWAPIB(*(long *)&buf[16]);
+    ysiz = LSWAPIB(*(long *)&buf[12]);
+    if ((*(long *)&buf[80])&LSWAPIB(64)) //Uncompressed supports only A8R8G8B8 for now
+    {
+        if ((*(long *)&buf[88]) != LSWAPIB(32)) return(-1);
+        if ((*(long *)&buf[92]) != LSWAPIB(0x00ff0000)) return(-1);
+        if ((*(long *)&buf[96]) != LSWAPIB(0x0000ff00)) return(-1);
+        if ((*(long *)&buf[100]) != LSWAPIB(0x000000ff)) return(-1);
+        if ((*(long *)&buf[104]) != LSWAPIB(0xff000000)) return(-1);
+        buf += 128;
+
+        j = yoff*bpl + (xoff<<2) + frameptr; xx = (xsiz<<2);
+    if (xoff < 0) { j -= (xoff<<2); buf -= (xoff<<2); xsiz += xoff; }
+        xsiz = (min(xsiz,xdim-xoff)<<2); ysiz = min(ysiz,ydim);
+        for(y=0;y<ysiz;y++,j+=bpl,buf+=xx)
+        {
+            if ((unsigned long)(y+yoff) >= (unsigned long)ydim) continue;
+            memcpy((void *)j,(void *)buf,xsiz);
+        }
+        return(0);
+    }
+    if (!((*(long *)&buf[80])&LSWAPIB(4))) return(-1); //FOURCC invalid
+    dxt = buf[87]-'0';
+    if ((buf[84] != 'D') || (buf[85] != 'X') || (buf[86] != 'T') || (dxt < 1) || (dxt > 5)) return(-1);
+    buf += 128;
+
+    if (!(dxt&1))
+    {
+        for(z=256-1;z>0;z--) lut[z] = (255<<16)/z;
+        lut[0] = (1<<16);
+    }
+    if (dxt == 1) stride = (xsiz<<1); else stride = (xsiz<<2);
+
+    for(y=0;y<ysiz;y+=4,buf+=stride)
+        for(x=0;x<xsiz;x+=4)
+        {
+            if (dxt == 1) uptr = (unsigned char *)(((long)buf)+(x<<1));
+            else uptr = (unsigned char *)(((long)buf)+(x<<2)+8);
+            c0 = SSWAPIB(*(unsigned short *)&uptr[0]);
+            r[0] = ((c0>>8)&0xf8); g[0] = ((c0>>3)&0xfc); b[0] = ((c0<<3)&0xfc); a[0] = 255;
+            c1 = SSWAPIB(*(unsigned short *)&uptr[2]);
+            r[1] = ((c1>>8)&0xf8); g[1] = ((c1>>3)&0xfc); b[1] = ((c1<<3)&0xfc); a[1] = 255;
+            if ((c0 > c1) || (dxt != 1))
+            {
+                r[2] = (((r[0]*2 + r[1] + 1)*(65536/3))>>16);
+                g[2] = (((g[0]*2 + g[1] + 1)*(65536/3))>>16);
+                b[2] = (((b[0]*2 + b[1] + 1)*(65536/3))>>16); a[2] = 255;
+                r[3] = (((r[0] + r[1]*2 + 1)*(65536/3))>>16);
+                g[3] = (((g[0] + g[1]*2 + 1)*(65536/3))>>16);
+                b[3] = (((b[0] + b[1]*2 + 1)*(65536/3))>>16); a[3] = 255;
+            }
+            else
+            {
+                r[2] = (r[0] + r[1])>>1;
+                g[2] = (g[0] + g[1])>>1;
+                b[2] = (b[0] + b[1])>>1; a[2] = 255;
+                r[3] = g[3] = b[3] = a[3] = 0; //Transparent
+            }
+            v = LSWAPIB(*(long *)&uptr[4]);
+            if (dxt >= 4)
+            {
+                a[0] = uptr[-8]; a[1] = uptr[-7]; k = a[1]-a[0];
+                if (k < 0)
+                {
+                    z = a[0]*6 + a[1] + 3;
+                    for(j=2;j<8;j++) { a[j] = ((z*(65536/7))>>16); z += k; }
+                }
+                else
+                {
+                    z = a[0]*4 + a[1] + 2;
+                    for(j=2;j<6;j++) { a[j] = ((z*(65536/5))>>16); z += k; }
+                    a[6] = 0; a[7] = 255;
+                }
+                al[0] = LSWAPIB(*(long *)&uptr[-6]);
+                al[1] = LSWAPIB(*(long *)&uptr[-3]);
+            }
+            wptr = (unsigned char *)((y+yoff)*bpl + ((x+xoff)<<2) + frameptr);
+            ai = 0;
+            for(yy=0;yy<4;yy++,wptr+=bpl)
+            {
+                if ((unsigned long)(y+yy+yoff) >= (unsigned long)ydim) { ai += 4; continue; }
+                for(xx=0;xx<4;xx++,ai++)
+                {
+                    if ((unsigned long)(x+xx+xoff) >= (unsigned long)xdim) continue;
+
+                    j = ((v>>(ai<<1))&3);
+                    switch(dxt)
+                    {
+                    case 1: z = a[j]; break;
+                case 2: case 3: z = (( uptr[(ai>>1)-8] >> ((xx&1)<<2) )&15)*17; break;
+                case 4: case 5: z = a[( al[yy>>1] >> ((ai&7)*3) )&7]; break;
+                    }
+                    rr = r[j]; gg = g[j]; bb = b[j];
+                    if (!(dxt&1))
+                    {
+                        bb = min((bb*lut[z])>>16,255);
+                        gg = min((gg*lut[z])>>16,255);
+                        rr = min((rr*lut[z])>>16,255);
+                    }
+                    wptr[(xx<<2)+0] = bb;
+                    wptr[(xx<<2)+1] = gg;
+                    wptr[(xx<<2)+2] = rr;
+                    wptr[(xx<<2)+3] = z;
+                }
+            }
+        }
+    return(0);
+}
+
+//===============================  DDS ends ==================================
 //=================== External picture interface begins ======================
 
 void kpgetdim (const char *buf, long leng, long *xsiz, long *ysiz)
@@ -2410,6 +2543,11 @@ void kpgetdim (const char *buf, long leng, long *xsiz, long *ysiz)
         (*xsiz) = SSWAPIB(*(short *)&buf[ 8])-SSWAPIB(*(short *)&buf[4])+1;
         (*ysiz) = SSWAPIB(*(short *)&buf[10])-SSWAPIB(*(short *)&buf[6])+1;
     }
+    else if ((*(long *)ubuf == LSWAPIB(0x20534444)) && (*(long *)&ubuf[4] == LSWAPIB(124))) //.DDS
+    {
+        (*xsiz) = LSWAPIB(*(long *)&buf[16]);
+        (*ysiz) = LSWAPIB(*(long *)&buf[12]);
+    }
     else
     {     //Unreliable .TGA identification - this MUST be final case!
         if ((leng >= 20) && (!(ubuf[1]&0xfe)))
@@ -2428,6 +2566,8 @@ long kprender (const char *buf, long leng, long frameptr, long bpl,
 {
     unsigned char *ubuf = (unsigned char *)buf;
 
+    paleng = 0; bakcol = 0; numhufblocks = zlibcompflags = 0; filtype = -1;
+
     if ((ubuf[0] == 0x89) && (ubuf[1] == 0x50)) //.PNG
         return(kpngrend(buf,leng,frameptr,bpl,xdim,ydim,xoff,yoff));
 
@@ -2445,6 +2585,9 @@ long kprender (const char *buf, long leng, long frameptr, long bpl,
 
     if (*(long *)ubuf == LSWAPIB(0x0801050a)) //.PCX
         return(kpcxrend(buf,leng,frameptr,bpl,xdim,ydim,xoff,yoff));
+
+    if ((*(long *)ubuf == LSWAPIB(0x20534444)) && (*(long *)&ubuf[4] == LSWAPIB(124))) //.DDS
+        return(kddsrend(buf,leng,frameptr,bpl,xdim,ydim,xoff,yoff));
 
     //Unreliable .TGA identification - this MUST be final case!
     if ((leng >= 20) && (!(ubuf[1]&0xfe)))
@@ -2708,7 +2851,8 @@ static struct dirent *findata = NULL;
 
 void kzfindfilestart (const char *st)
 {
-#ifdef _WIN32
+#if defined(__DOS__)
+#elif defined(_WIN32)
     if (hfind != INVALID_HANDLE_VALUE)
     { FindClose(hfind); hfind = INVALID_HANDLE_VALUE; }
 #else
@@ -2794,21 +2938,17 @@ long kzfindfile (char *filnam)
             strcpy(&filnam[i],findata.cFileName);
             if (findata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) strcat(&filnam[i],"\\");
 #else
-            {
-                struct stat st;
-                if ((findata = readdir(hfind)) == NULL)
-                { closedir(hfind); hfind = NULL; if (!kzhashbuf) return 0; srchstat = kzlastfnam; break; }
-                i = wildstpathleng;
-                strcpy(&filnam[i],findata->d_name);
-                if (stat(filnam,&st) < 0) continue;
-                if (st.st_mode & S_IFDIR)
-                { if (findata->d_name[0] == '.' && !findata->d_name[1]) continue; } //skip .
-                else if ((st.st_mode & S_IFREG) || (st.st_mode & S_IFLNK))
-                { if (findata->d_name[0] == '.') continue; } //skip hidden (dot) files
-                else continue; //skip devices and fifos and such
-                if (!wildmatch(findata->d_name,&wildst[wildstpathleng])) continue;
-                if (st.st_mode & S_IFDIR) strcat(&filnam[i],"/");
-            }
+            if ((findata = readdir(hfind)) == NULL)
+            { closedir(hfind); hfind = NULL; if (!kzhashbuf) return 0; srchstat = kzlastfnam; break; }
+            i = wildstpathleng;
+            if (findata->d_type == DT_DIR)
+            { if (findata->d_name[0] == '.' && !findata->d_name[1]) continue; } //skip .
+            else if ((findata->d_type == DT_REG) || (findata->d_type == DT_LNK))
+            { if (findata->d_name[0] == '.') continue; } //skip hidden (dot) files
+            else continue; //skip devices and fifos and such
+            if (!wildmatch(findata->d_name,&wildst[wildstpathleng])) continue;
+            strcpy(&filnam[i],findata->d_name);
+            if (findata->d_type == DT_DIR) strcat(&filnam[i],"/");
 #endif
             return(1);
         }

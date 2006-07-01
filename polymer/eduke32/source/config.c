@@ -95,6 +95,7 @@ int32 ScreenWidth = 800;
 int32 ScreenHeight = 600;
 int32 ScreenBPP = 8;
 #endif
+int32 ForceSetup = 1;
 
 static char setupfilename[256]={SETUPFILENAME};
 int32 scripthandle = -1;
@@ -558,7 +559,7 @@ void readsavenames(void)
 ===================
 */
 
-void CONFIG_ReadSetup( void )
+int32 CONFIG_ReadSetup( void )
 {
     int32 dummy, i;
     char commmacro[] = "CommbatMacro# ";
@@ -571,6 +572,8 @@ void CONFIG_ReadSetup( void )
 
     if (SafeFileExists(setupfilename))  // JBF 20031211
         scripthandle = SCRIPT_Load( setupfilename );
+
+    if (scripthandle < 0) return -1;
 
     if (scripthandle >= 0)
     {
@@ -639,6 +642,7 @@ void CONFIG_ReadSetup( void )
 
         SCRIPT_GetNumber( scripthandle, "Misc", "Executions",&ud.executions);
         ud.executions++;
+        SCRIPT_GetNumber( scripthandle, "Setup", "ForceSetup",&ForceSetup);
         SCRIPT_GetNumber( scripthandle, "Misc", "RunMode",&RunMode);
         SCRIPT_GetNumber( scripthandle, "Misc", "Crosshairs",&ud.crosshair);
         SCRIPT_GetNumber( scripthandle, "Misc", "StatusBarScale",&ud.statusbarscale);
@@ -702,8 +706,8 @@ void CONFIG_ReadSetup( void )
 
     //CONFIG_SetupMouse(scripthandle);
     //CONFIG_SetupJoystick(scripthandle);
-
     setupread = 1;
+    return 0;
 }
 
 /*
@@ -742,6 +746,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Misc", "Crosshairs",ud.crosshair,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "DemoCams",ud.democams,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "Executions",ud.executions,false,false);
+    SCRIPT_PutNumber( scripthandle, "Setup", "ForceSetup",ForceSetup,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "IDPlayers",ud.idplayers,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "MPMessageDisplayTime",ud.msgdisptime,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "RunMode",RunMode,false,false);

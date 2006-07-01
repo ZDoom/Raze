@@ -4220,7 +4220,7 @@ int ExtInit(void)
     long rv = 0;
     char *duke3dgrp = "duke3d.grp";
 
-#if 1 // defined(_WIN32)
+#if defined(_WIN32)
     if (!access("user_profiles_enabled", F_OK))
 #endif
     {

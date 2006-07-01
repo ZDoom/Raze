@@ -1,7 +1,6 @@
 #include "compat.h"
 #include "osd.h"
 #include "build.h"
-#include "engineinfo.h"
 #include "baselayer.h"
 
 #ifdef RENDERTYPEWIN
@@ -24,24 +23,6 @@ struct glinfo glinfo = {
                            0,		// nvidia multisampling hint
                        };
 #endif
-
-static int osdfunc_dumpbuildinfo(const osdfuncparm_t *parm)
-{
-    OSD_Printf(
-        "Build engine compilation:\n"
-        "  CFLAGS: %s\n"
-        "  LIBS: %s\n"
-        "  Host: %s\n"
-        "  Compiler: %s\n"
-        "  Built: %s\n",
-        _engine_cflags,
-        _engine_libs,
-        _engine_uname,
-        _engine_compiler,
-        _engine_date);
-
-    return OSDCMD_OK;
-}
 
 static void onvideomodechange(int newmode) { }
 void (*baselayer_onvideomodechange)(int) = onvideomodechange;
@@ -188,7 +169,6 @@ int baselayer_init(void)
                          ,
                          osdfunc_setrendermode);
 #endif
-    OSD_RegisterFunction("dumpbuildinfo","dumpbuildinfo: outputs engine compilation information",osdfunc_dumpbuildinfo);
     OSD_RegisterFunction("screencaptureformat","screencaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars);
 #ifdef SUPERBUILD
     OSD_RegisterFunction("novoxmips","novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",osdcmd_vars);

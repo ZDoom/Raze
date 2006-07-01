@@ -58,7 +58,6 @@ ENGINEOBJS=$(OBJ)a.$o \
 	$(OBJ)crc32.$o \
 	$(OBJ)defs.$o \
 	$(OBJ)engine.$o \
-	$(OBJ)engineinfo.$o \
 	$(OBJ)glbuild.$o \
 	$(OBJ)kplib.$o \
 	$(OBJ)lzf_c.$o \
@@ -72,13 +71,13 @@ ENGINEOBJS=$(OBJ)a.$o \
 	$(OBJ)winlayer.$o
 
 EDITOROBJS=$(OBJ)build.$o \
-	$(OBJ)buildstartwin.$o \
+	$(OBJ)startwin.editor.$o \
 	$(OBJ)config.$o
 
 GAMEEXEOBJS=$(OBJ)config.$o \
 	$(OBJ)game.$o \
 	$(OBJ)gameres.$(res) \
-	$(OBJ)gamestartwin.$o \
+	$(OBJ)startwin.game.$o \
 	$(OBJ)sound.$o \
 	$(OBJ)$(ENGINELIB)
 
@@ -148,17 +147,6 @@ wad2art$(EXESUFFIX): $(OBJ)wad2art.$o $(OBJ)pragmas.$o $(OBJ)compat.$o
 
 # DEPENDENCIES
 !include Makefile.deps
-
-$(OBJ)engineinfo.$o: writeengineinfo $(SRC)tmp\engineinfo.c
-
-writeengineinfo:
-	copy /y << $(SRC)tmp\engineinfo.c
-const char _engine_cflags[] = "$(CFLAGS:\=\\)";
-const char _engine_libs[] = "$(LIBS)";
-const char _engine_uname[] = "unknown";
-const char _engine_compiler[] = "$(CC)";
-const char _engine_date[] = __DATE__ " " __TIME__;
-<<NOKEEP
 
 # PHONIES	
 clean:

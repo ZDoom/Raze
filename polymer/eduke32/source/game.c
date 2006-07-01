@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "util_lib.h"
 
-#define VERSION " 1.4.0svn"
+#define VERSION " 1.4.0 beta 2"
 
 #define HEAD  "EDuke32"VERSION" (shareware mode)"
 #define HEAD2 "EDuke32"VERSION
@@ -56,8 +56,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 long cameradist = 0, cameraclock = 0;
 char playerswhenstarted;
-char qe,cp;
+char qe,cp,usecwd = 0;
 
+static int32 CommandSetup = 0;
 static int32 CommandSoundToggleOff = 0;
 static int32 CommandMusicToggleOff = 0;
 static char *CommandMap = NULL;
@@ -7611,7 +7612,11 @@ void comlinehelp(char **argv)
               "-map FILE\tUse a map FILE\n"
               "-name NAME\tFoward NAME\n"
               "-net\t\tNet mode game\n"
+              "-setup\t\tDisplays the configuration dialog\n"
               "-nD\t\tDump game definitions to gamevars.txt\n"
+#if !defined(_WIN32)
+              "-usecwd\t\tRead game data and configuration file from working directory\n"
+#endif
               "-condebug, -z#\tLine-by-line CON compilation debugging";
     wm_msgbox(apptitle,s);
 }
@@ -7757,6 +7762,11 @@ void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
+                if (!Bstrcasecmp(c+1,"setup")) {
+                    CommandSetup = 1;
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"keepaddr")) {
                     keepaddr = 1;
                     i++;
@@ -7895,6 +7905,13 @@ void checkcommandline(int argc,char **argv)
                     i++;
                     continue;
                 }
+#if !defined(_WIN32)
+                if (!Bstrcasecmp(c+1,"usecwd")) {
+                    usecwd = 1;
+                    i++;
+                    continue;
+                }
+#endif
             }
 
             if (firstnet > 0) {
@@ -8494,6 +8511,8 @@ void sanitizegametype()
     //     initprintf("ud.m_coop=%i after sanitisation\n",ud.m_coop);
 }
 
+extern int startwin_run(void);
+
 void Startup(void)
 {
     int i;
@@ -8502,7 +8521,22 @@ void Startup(void)
 
     compilecons();
 
-    CONFIG_ReadSetup();
+    i = CONFIG_ReadSetup();
+
+    if (initengine()) {
+        wm_msgbox("Build Engine Initialisation Error",
+                  "There was a problem initialising the Build engine: %s", engineerrstr);
+        exit(1);
+    }
+
+#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
+    if (i < 0 || ForceSetup || CommandSetup) {
+        if (!startwin_run()) {
+            uninitengine();
+            exit(0);
+        }
+    }
+#endif
 
     setupdynamictostatic();
 
@@ -8556,12 +8590,6 @@ void Startup(void)
     if (VOLUMEONE) {
         initprintf("*** You have run Duke Nukem 3D %ld times. ***\n\n",ud.executions);
         if(ud.executions >= 50) initprintf("IT IS NOW TIME TO UPGRADE TO THE COMPLETE VERSION!!!\n");
-    }
-
-    if (initengine()) {
-        wm_msgbox("Build Engine Initialisation Error",
-                  "There was a problem initialising the Build engine: %s", engineerrstr);
-        exit(1);
     }
 
     if (CONTROL_Startup( 1, &GetTime, TICRATE )) {
@@ -8811,8 +8839,10 @@ void app_main(int argc,char **argv)
 
     OSD_SetLogFile("eduke32.log");
 
-#if 1 // defined(_WIN32)
+#if defined(_WIN32)
     if (!access("user_profiles_enabled", F_OK))
+#else
+    if (usecwd == 0)
 #endif
     {
         char cwd[BMAX_PATH];

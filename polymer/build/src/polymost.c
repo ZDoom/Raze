@@ -856,7 +856,7 @@ long trytexcache(char *fn, long len, long dameth, char effect, texcacheheader *h
         return -1;
     }
 
-    md4once(fn, strlen(fn), mdsum);
+    md4once((unsigned char *)fn, strlen(fn), mdsum);
     for (cp = cachefn, fp = 0; (*cp = TEXCACHEDIR[fp]); cp++,fp++);
     *(cp++) = '/';
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
@@ -929,7 +929,7 @@ void writexcache(char *fn, long len, long dameth, char effect, texcacheheader *h
     bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &gi);
     if (gi != GL_TRUE) return;
 
-    md4once(fn, strlen(fn), mdsum);
+    md4once((unsigned char *)fn, strlen(fn), mdsum);
     for (cp = cachefn, fp = 0; (*cp = TEXCACHEDIR[fp]); cp++,fp++);
     *(cp++) = '/';
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
@@ -2757,11 +2757,11 @@ static void polymost_drawalls (long bunch)
                 if ((oy < cy0) && (oy < cy1)) domost(x1,oy,x0,oy);
                 else if ((oy < cy0) != (oy < cy1))
                 {      /*         cy1        cy0
-                                    		//        /             \
-                                    		//oy----------      oy---------
-                                    		//    /                    \
-                                    		//  cy0                     cy1
-                                    		*/
+                                        		//        /             \
+                                        		//oy----------      oy---------
+                                        		//    /                    \
+                                        		//  cy0                     cy1
+                                        		*/
                     ox = (oy-cy0)*(x1-x0)/(cy1-cy0) + x0;
                     if (oy < cy0) { domost(ox,oy,x0,oy); domost(x1,cy1,ox,oy); }
                     else { domost(ox,oy,x0,cy0); domost(x1,oy,ox,oy); }

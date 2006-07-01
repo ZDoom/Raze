@@ -1000,6 +1000,7 @@ void newgame(char vn,char ln,char sk)
 
     if(globalskillsound >= 0 && FXDevice >= 0 && SoundToggle)
     while(issoundplaying(-1,globalskillsound)) { handleevents(); getpackets(); }
+    else { handleevents(); getpackets(); }
     globalskillsound = -1;
 
     waitforeverybody();

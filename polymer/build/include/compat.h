@@ -411,6 +411,7 @@ char *Bgetenv(const char *name);
 #endif
 
 char *Bgethomedir(void);
+char *Bgetsupportdir(int global);
 unsigned int Bgetsysmemsize(void);
 int Bcorrectfilename(char *filename, int removefn);
 int Bcanonicalisefilename(char *filename, int removefn);

@@ -14,7 +14,12 @@ extern char **_buildargv;
 
 extern char quitevent, appactive;
 
-extern char *startwin_labeltext;
+// NOTE: these are implemented in game-land so they may be overridden in game specific ways
+extern int startwin_open(void);
+extern int startwin_close(void);
+extern int startwin_puts(const char *);
+extern int startwin_settitle(const char *);
+extern int startwin_idle(void *);
 
 // video
 extern long xres, yres, bpp, fullscreen, bytesperline, imageSize, frameplace;
@@ -96,7 +101,7 @@ unsigned long getticks(void);
 int gettimerfreq(void);
 void (*installusertimercallback(void (*callback)(void)))(void);
 
-int checkvideomode(int *x, int *y, int c, int fs);
+int checkvideomode(int *x, int *y, int c, int fs, int forced);
 int setvideomode(int x, int y, int c, int fs);
 void getvalidmodes(void);
 void resetvideomode(void);

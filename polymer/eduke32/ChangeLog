@@ -1,5 +1,32 @@
 =EDuke32 ChangeLog=
 
+==1.4.0 beta 2=
+ - Core: cleaned up code to properly build without Polymost/OpenGL support
+ - Core: added widescreen support for Polymost
+ - Core: added support for toggling correct HUD model rendering on/off
+ - Core: removed broken support for linking OpenGL statically
+
+ - Game: added support for using the mouse and a joystick simultaneously (JF)
+ - Game: fixed an issue preventing skill selection, bonus screen and episode ending animation sounds from playing
+ - Game: fixed a problem where the player was unable to exit some pools of water in some maps
+ - Game: made further adjustments to the weapon properties in order to more closely emulate Duke 1.5
+ - Game: fixed an issue where you could disable map exits in multiplayer, have all players quit, start a single player game and then have exits continue to kill you
+
+ - Multiplayer: fixed numerous minor bugs in the voting system
+ - Multiplayer: added a more noticeable message to indicate that the player hasn't voted yet in an active vote
+ - Multiplayer: added support for /me in text chat
+ - Multiplayer: increased size of player chat icon
+ - Multiplayer: added "nat-free" support from Adam Fazakerley
+ - Multiplayer: fixed inventory respawn bug
+ - Multiplayer: minor fixes to DukesterX 1.5 compatibility wrapper
+
+ - CON: reworked movement_lock member of the player struct to use bit flags
+ - CON: reworked findnearactor3d, findnearactor3dvar, findnearsprite3d, and findnearsprite3dvar
+ - CON: added findnearactorz, findnearactorzvar, findnearspritez, and findnearspritezvar
+ - CON: added WEAPON_FLAG_RESET (65536) to weapon system in order to properly emulate the chaingun and freezer
+ - CON: fixed eshoot
+ - CON: reworked weapon system; note that your custom weapons may need adjustments to work again
+
 ==1.4.0 beta 1=
  - Core: added support for defining dummy tiles in the def files to eliminate the need for placeholders for hightile art
  - Core: added a temporary projection hack to reduce HOM at the top and bottom of the screen

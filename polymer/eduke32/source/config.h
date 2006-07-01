@@ -52,6 +52,7 @@ extern int32 ScreenMode;
 extern int32 ScreenWidth;
 extern int32 ScreenHeight;
 extern int32 ScreenBPP;
+extern int32 ForceSetup;
 
 extern byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
 extern int32 MouseFunctions[MAXMOUSEBUTTONS][2];
@@ -65,7 +66,7 @@ extern int32 JoystickAnalogueScale[MAXJOYAXES];
 extern int32 JoystickAnalogueDead[MAXJOYAXES];
 extern int32 JoystickAnalogueSaturate[MAXJOYAXES];
 
-void CONFIG_ReadSetup( void );
+int32 CONFIG_ReadSetup( void );
 void CONFIG_GetSetupFilename( void );
 void CONFIG_WriteSetup( void );
 void CONFIG_SetupMouse( void );

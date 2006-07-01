@@ -26,6 +26,12 @@
 # include "osxbits.h"
 #elif defined HAVE_GTK2
 # include "gtkbits.h"
+#else
+int startwin_open(void) { return 0; }
+int startwin_close(void) { return 0; }
+int startwin_puts(const char *s) { s=s; return 0; }
+int startwin_idle(void *s) { return 0; }
+int startwin_settitle(const char *s) { s=s; return 0; }
 #endif
 
 #define SURFACE_FLAGS	(SDL_SWSURFACE|SDL_HWPALETTE|SDL_HWACCEL)
@@ -130,9 +136,7 @@ void wm_setapptitle(char *name)
 
     SDL_WM_SetCaption(apptitle, NULL);
 
-#ifdef HAVE_GTK2
-    gtkbuild_settitle_startwin(apptitle);
-#endif
+    startwin_settitle(apptitle);
 }
 
 
@@ -154,8 +158,8 @@ int main(int argc, char *argv[])
 
 #ifdef HAVE_GTK2
     gtkbuild_init(&argc, &argv);
-    gtkbuild_create_startwin();
 #endif
+    startwin_open();
 
     _buildargc = argc;
     _buildargv = (char**)argv;
@@ -165,8 +169,8 @@ int main(int argc, char *argv[])
     baselayer_init();
     r = app_main(argc, argv);
 
+    startwin_close();
 #ifdef HAVE_GTK2
-    gtkbuild_close_startwin();
     gtkbuild_exit(r);
 #endif
     return r;
@@ -280,10 +284,8 @@ void initprintf(const char *f, ...)
     va_end(va);
     OSD_Printf(buf);
 
-#ifdef HAVE_GTK2
-    gtkbuild_puts_startwin(buf);
-    gtkbuild_update_startwin();
-#endif
+    startwin_puts(buf);
+    startwin_idle(NULL);
 }
 
 
@@ -689,6 +691,9 @@ void getvalidmodes(void)
 
     // do fullscreen modes first
     for (j=0; cdepths[j]; j++) {
+#ifdef USE_OPENGL
+        if (nogl && cdepths[j] > 8) continue;
+#endif
         pf.BitsPerPixel = cdepths[j];
         pf.BytesPerPixel = cdepths[j] >> 3;
 
@@ -722,6 +727,9 @@ void getvalidmodes(void)
 
     // add windowed modes next
     for (j=0; cdepths[j]; j++) {
+#ifdef USE_OPENGL
+        if (nogl && cdepths[j] > 8) continue;
+#endif
         if (cdepths[j] < 0) continue;
         for (i=0; defaultres[i][0]; i++)
             CHECK(defaultres[i][0],defaultres[i][1])
@@ -740,7 +748,7 @@ void getvalidmodes(void)
 //
 // checkvideomode() -- makes sure the video mode passed is legal
 //
-int checkvideomode(int *x, int *y, int c, int fs)
+int checkvideomode(int *x, int *y, int c, int fs, int forced)
 {
     int i, nearest=-1, dx, dy, odx=9999, ody=9999;
 
@@ -775,10 +783,10 @@ int checkvideomode(int *x, int *y, int c, int fs)
         }
     }
 
-#ifdef ANY_WINDOWED_SIZE
-    if ((fs&1) == 0 && (nearest < 0 || (validmode[nearest].xdim!=*x || validmode[nearest].ydim!=*y)))
+ #ifdef ANY_WINDOWED_SIZE
+    if (!forced && (fs&1) == 0 && (nearest < 0 || (validmode[nearest].xdim!=*x || validmode[nearest].ydim!=*y)))
         return 0x7fffffffl;
-#endif
+ #endif
 
     if (nearest < 0) {
         // no mode that will match (eg. if no fullscreen modes)
@@ -806,11 +814,9 @@ int setvideomode(int x, int y, int c, int fs)
         return 0;
     }
 
-    if (checkvideomode(&x,&y,c,fs) < 0) return -1;
+    if (checkvideomode(&x,&y,c,fs,0) < 0) return -1;
 
-#ifdef HAVE_GTK2
-    gtkbuild_close_startwin();
-#endif
+    startwin_close();
 
     if (mouseacquired) {
         regrab = 1;
@@ -1365,9 +1371,7 @@ int handleevents(void)
 
     sampletimer();
 
-#ifdef HAVE_GTK2
-    gtkbuild_update_startwin();
-#endif
+    startwin_idle(NULL);
 
 #undef SetKey
 

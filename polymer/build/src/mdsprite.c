@@ -561,7 +561,7 @@ long mdloadskin_trytexcache(char *fn, long len, char effect, texcacheheader *hea
         return -1;
     }
 
-    md4once(fn, strlen(fn), mdsum);
+    md4once((unsigned char *)fn, strlen(fn), mdsum);
     for (cp = cachefn, fp = 0; (*cp = TEXCACHEDIR[fp]); cp++,fp++);
     *(cp++) = '/';
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
@@ -2233,9 +2233,9 @@ kread(fil,&i,4); if (B_LITTLE32(i) != 0x6c78764b) { kclose(fil); return(-1); } /
     kread(fil,&xsiz,4);    xsiz = B_LITTLE32(xsiz);
     kread(fil,&ysiz,4);    ysiz = B_LITTLE32(ysiz);
     kread(fil,&zsiz,4);    zsiz = B_LITTLE32(zsiz);
-    kread(fil,&xpiv,4);    xpiv = B_LITTLE32(xpiv);
-    kread(fil,&ypiv,4);    ypiv = B_LITTLE32(ypiv);
-    kread(fil,&zpiv,4);    zpiv = B_LITTLE32(zpiv);
+    kread(fil,&i,4);       xpiv = (float)(B_LITTLE32(i));
+    kread(fil,&i,4);       ypiv = (float)(B_LITTLE32(i));
+    kread(fil,&i,4);       zpiv = (float)(B_LITTLE32(i));
     kread(fil,&numvoxs,4); numvoxs = B_LITTLE32(numvoxs);
 
     ylen = (unsigned short *)malloc(xsiz*ysiz*sizeof(short));

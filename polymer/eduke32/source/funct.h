@@ -260,7 +260,7 @@ extern char *CONFIG_AnalogNumToName(int32 func);
 extern void CONFIG_SetDefaults(void );
 extern void CONFIG_ReadKeys(void );
 extern void readsavenames(void );
-extern void CONFIG_ReadSetup(void );
+extern int32 CONFIG_ReadSetup(void );
 extern void CONFIG_WriteSetup(void );
 extern void CheckAnimStarted(char *funcname);
 extern uint16 findpage(uint16 framenumber);

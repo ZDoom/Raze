@@ -106,6 +106,7 @@ int loadsetup(const char *fn)
 
     if ((fp = Bfopen(fn, "rt")) == NULL) return -1;
 
+if (readconfig(fp, "forcesetup", val, VL) > 0) { if (Batoi(val) != 0) forcesetup = 1; else forcesetup = 0; }
 if (readconfig(fp, "fullscreen", val, VL) > 0) { if (Batoi(val) != 0) fullscreen = 1; else fullscreen = 0; }
     if (readconfig(fp, "resolution", val, VL) > 0) {
         i = Batoi(val) & 0x0f;
@@ -195,6 +196,11 @@ int writesetup(const char *fn)
     if (!fp) return -1;
 
     Bfprintf(fp,
+             "; Always show configuration options on startup\n"
+             ";   0 - No\n"
+             ";   1 - Yes\n"
+             "forcesetup = %ld\n"
+             "\n"
              "; Video mode selection\n"
              ";   0 - Windowed\n"
              ";   1 - Fullscreen\n"
@@ -292,7 +298,7 @@ int writesetup(const char *fn)
              "keyconsole = %X\n"
              "\n",
 
-             fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame,
+             forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame,
 #if defined(POLYMOST) && defined(USE_OPENGL)
              glusetexcache, glusetexcachecompression,
 #endif

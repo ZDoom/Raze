@@ -22,7 +22,7 @@ extern char somethingintab;
 
 extern char buildkeys[NUMBUILDKEYS];
 
-extern long ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d;
+extern long ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
 
 
 extern int ExtInit(void);
