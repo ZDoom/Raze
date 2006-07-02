@@ -2206,7 +2206,9 @@ static void polymost_drawalls (long bunch)
             col[2] = (float)palookupfog[sec->floorpal].b / 63.f;
             col[3] = 0;
             bglFogfv(GL_FOG_COLOR,col);
-            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility+16))));
+            bglFogf(GL_FOG_DENSITY,gvisibility/(sec->floorshade<0?klabs(sec->floorshade):1)*((float)((unsigned char)(sec->visibility+16))));
+
+//            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility+16))));
         }
     }
 #endif
@@ -3042,7 +3044,14 @@ static void polymost_drawalls (long bunch)
                 }
                 if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
-                pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
+                {
+                    float oldfogval;
+                    
+                    bglGetFloatv(GL_FOG_DENSITY,&oldfogval);
+                    bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?klabs(wal->shade):1)*((float)((unsigned char)(sec->visibility+16))));
+                    pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
+                    bglFogf(GL_FOG_DENSITY,oldfogval);
+                }
 
                 if (wal->cstat&8) { gux = ogux; guy = oguy; guo = oguo; }
             }
@@ -3078,7 +3087,14 @@ static void polymost_drawalls (long bunch)
                 }
                 if (nwal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
-                pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
+                {
+                    float oldfogval;
+                    
+                    bglGetFloatv(GL_FOG_DENSITY,&oldfogval);
+                    bglFogf(GL_FOG_DENSITY,gvisibility/(nwal->shade<0?klabs(nwal->shade):1)*((float)((unsigned char)(sec->visibility+16))));
+                    pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
+                    bglFogf(GL_FOG_DENSITY,oldfogval);
+                }
 
                 if (wal->cstat&(2+8)) { guo = oguo; gux = ogux; guy = oguy; }
             }
@@ -3109,7 +3125,15 @@ static void polymost_drawalls (long bunch)
                 guo = gdo*t - guo;
             }
             if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
-            pow2xsplit = 1; domost(x0,-10000,x1,-10000);
+
+            {
+                float oldfogval;
+                
+                bglGetFloatv(GL_FOG_DENSITY,&oldfogval);
+                bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?klabs(wal->shade):1)*((float)((unsigned char)(sec->visibility+16))));
+                pow2xsplit = 1; domost(x0,-10000,x1,-10000);
+                bglFogf(GL_FOG_DENSITY,oldfogval);
+            }
         }
 
         if (nextsectnum >= 0)
@@ -3667,7 +3691,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         col[2] = (float)palookupfog[sector[tspr->sectnum].floorpal].b / 63.f;
         col[3] = 0;
         bglFogfv(GL_FOG_COLOR,col); //default is 0,0,0,0
-        bglFogf(GL_FOG_DENSITY,(gvisibility/2)/(globalshade<0?klabs(globalshade):1)*((float)((unsigned char)(sector[tspr->sectnum].visibility+16))));
+        bglFogf(GL_FOG_DENSITY,gvisibility/(globalshade<0?klabs(globalshade):1)*((float)((unsigned char)(sector[tspr->sectnum].visibility+16))));
     }
 
     while (rendmode == 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
