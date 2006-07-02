@@ -5,6 +5,10 @@
 #ifndef __pragmas_h__
 #define __pragmas_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern long dmval;
 
 #if defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
@@ -1071,251 +1075,252 @@ void copybufreverse(void *S, void *D, long c);
 // 
 
 //{{{
+long sqr(long);
 #pragma aux sqr =\
 	"imul eax, eax",\
 	parm nomemory [eax]\
 	modify exact [eax]\
 	value [eax]
-long sqr(long);
 
+long scale(long,long,long);
 #pragma aux scale =\
 	"imul edx",\
 	"idiv ecx",\
 	parm nomemory [eax][edx][ecx]\
 	modify exact [eax edx]
-long scale(long,long,long);
 
+long mulscale(long,long,long);
 #pragma aux mulscale =\
 	"imul edx",\
 	"shrd eax, edx, cl",\
 	parm nomemory [eax][edx][ecx]\
 	modify exact [eax edx]
-long mulscale(long,long,long);
 
+long mulscale1(long,long);
 #pragma aux mulscale1 =\
 	"imul edx",\
 	"shrd eax, edx, 1",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale1(long,long);
 
+long mulscale2(long,long);
 #pragma aux mulscale2 =\
 	"imul edx",\
 	"shrd eax, edx, 2",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale2(long,long);
 
+long mulscale3(long,long);
 #pragma aux mulscale3 =\
 	"imul edx",\
 	"shrd eax, edx, 3",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale3(long,long);
 
+long mulscale4(long,long);
 #pragma aux mulscale4 =\
 	"imul edx",\
 	"shrd eax, edx, 4",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale4(long,long);
 
+long mulscale5(long,long);
 #pragma aux mulscale5 =\
 	"imul edx",\
 	"shrd eax, edx, 5",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale5(long,long);
 
+long mulscale6(long,long);
 #pragma aux mulscale6 =\
 	"imul edx",\
 	"shrd eax, edx, 6",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale6(long,long);
 
+long mulscale7(long,long);
 #pragma aux mulscale7 =\
 	"imul edx",\
 	"shrd eax, edx, 7",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale7(long,long);
 
+long mulscale8(long,long);
 #pragma aux mulscale8 =\
 	"imul edx",\
 	"shrd eax, edx, 8",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale8(long,long);
 
+long mulscale9(long,long);
 #pragma aux mulscale9 =\
 	"imul edx",\
 	"shrd eax, edx, 9",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale9(long,long);
 
+long mulscale10(long,long);
 #pragma aux mulscale10 =\
 	"imul edx",\
 	"shrd eax, edx, 10",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale10(long,long);
 
+long mulscale11(long,long);
 #pragma aux mulscale11 =\
 	"imul edx",\
 	"shrd eax, edx, 11",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale11(long,long);
 
+long mulscale12(long,long);
 #pragma aux mulscale12 =\
 	"imul edx",\
 	"shrd eax, edx, 12",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale12(long,long);
 
+long mulscale13(long,long);
 #pragma aux mulscale13 =\
 	"imul edx",\
 	"shrd eax, edx, 13",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale13(long,long);
 
+long mulscale14(long,long);
 #pragma aux mulscale14 =\
 	"imul edx",\
 	"shrd eax, edx, 14",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale14(long,long);
 
+long mulscale15(long,long);
 #pragma aux mulscale15 =\
 	"imul edx",\
 	"shrd eax, edx, 15",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale15(long,long);
 
+long mulscale16(long,long);
 #pragma aux mulscale16 =\
 	"imul edx",\
 	"shrd eax, edx, 16",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale16(long,long);
 
+long mulscale17(long,long);
 #pragma aux mulscale17 =\
 	"imul edx",\
 	"shrd eax, edx, 17",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale17(long,long);
 
+long mulscale18(long,long);
 #pragma aux mulscale18 =\
 	"imul edx",\
 	"shrd eax, edx, 18",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale18(long,long);
 
+long mulscale19(long,long);
 #pragma aux mulscale19 =\
 	"imul edx",\
 	"shrd eax, edx, 19",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale19(long,long);
 
+long mulscale20(long,long);
 #pragma aux mulscale20 =\
 	"imul edx",\
 	"shrd eax, edx, 20",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale20(long,long);
 
+long mulscale21(long,long);
 #pragma aux mulscale21 =\
 	"imul edx",\
 	"shrd eax, edx, 21",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale21(long,long);
 
+long mulscale22(long,long);
 #pragma aux mulscale22 =\
 	"imul edx",\
 	"shrd eax, edx, 22",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale22(long,long);
 
+long mulscale23(long,long);
 #pragma aux mulscale23 =\
 	"imul edx",\
 	"shrd eax, edx, 23",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale23(long,long);
 
+long mulscale24(long,long);
 #pragma aux mulscale24 =\
 	"imul edx",\
 	"shrd eax, edx, 24",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale24(long,long);
 
+long mulscale25(long,long);
 #pragma aux mulscale25 =\
 	"imul edx",\
 	"shrd eax, edx, 25",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale25(long,long);
 
+long mulscale26(long,long);
 #pragma aux mulscale26 =\
 	"imul edx",\
 	"shrd eax, edx, 26",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale26(long,long);
 
+long mulscale27(long,long);
 #pragma aux mulscale27 =\
 	"imul edx",\
 	"shrd eax, edx, 27",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale27(long,long);
 
+long mulscale28(long,long);
 #pragma aux mulscale28 =\
 	"imul edx",\
 	"shrd eax, edx, 28",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale28(long,long);
 
+long mulscale29(long,long);
 #pragma aux mulscale29 =\
 	"imul edx",\
 	"shrd eax, edx, 29",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale29(long,long);
 
+long mulscale30(long,long);
 #pragma aux mulscale30 =\
 	"imul edx",\
 	"shrd eax, edx, 30",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale30(long,long);
 
+long mulscale31(long,long);
 #pragma aux mulscale31 =\
 	"imul edx",\
 	"shrd eax, edx, 31",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]
-long mulscale31(long,long);
 
+long mulscale32(long,long);
 #pragma aux mulscale32 =\
 	"imul edx",\
 	parm nomemory [eax][edx]\
 	modify exact [eax edx]\
 	value [edx]
-long mulscale32(long,long);
 
+long dmulscale(long,long,long,long,long);
 #pragma aux dmulscale =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1327,8 +1332,8 @@ long mulscale32(long,long);
 	"shrd eax, edx, cl",\
 	parm nomemory [eax][edx][esi][edi][ecx]\
 	modify exact [eax ebx edx esi]
-long dmulscale(long,long,long,long,long);
 
+long dmulscale1(long,long,long,long);
 #pragma aux dmulscale1 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1340,8 +1345,8 @@ long dmulscale(long,long,long,long,long);
 	"shrd eax, edx, 1",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale1(long,long,long,long);
 
+long dmulscale2(long,long,long,long);
 #pragma aux dmulscale2 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1353,8 +1358,8 @@ long dmulscale1(long,long,long,long);
 	"shrd eax, edx, 2",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale2(long,long,long,long);
 
+long dmulscale3(long,long,long,long);
 #pragma aux dmulscale3 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1366,8 +1371,8 @@ long dmulscale2(long,long,long,long);
 	"shrd eax, edx, 3",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale3(long,long,long,long);
 
+long dmulscale4(long,long,long,long);
 #pragma aux dmulscale4 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1379,8 +1384,8 @@ long dmulscale3(long,long,long,long);
 	"shrd eax, edx, 4",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale4(long,long,long,long);
 
+long dmulscale5(long,long,long,long);
 #pragma aux dmulscale5 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1392,8 +1397,8 @@ long dmulscale4(long,long,long,long);
 	"shrd eax, edx, 5",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale5(long,long,long,long);
 
+long dmulscale6(long,long,long,long);
 #pragma aux dmulscale6 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1405,8 +1410,8 @@ long dmulscale5(long,long,long,long);
 	"shrd eax, edx, 6",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale6(long,long,long,long);
 
+long dmulscale7(long,long,long,long);
 #pragma aux dmulscale7 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1418,8 +1423,8 @@ long dmulscale6(long,long,long,long);
 	"shrd eax, edx, 7",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale7(long,long,long,long);
 
+long dmulscale8(long,long,long,long);
 #pragma aux dmulscale8 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1431,8 +1436,8 @@ long dmulscale7(long,long,long,long);
 	"shrd eax, edx, 8",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale8(long,long,long,long);
 
+long dmulscale9(long,long,long,long);
 #pragma aux dmulscale9 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1444,8 +1449,8 @@ long dmulscale8(long,long,long,long);
 	"shrd eax, edx, 9",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale9(long,long,long,long);
 
+long dmulscale10(long,long,long,long);
 #pragma aux dmulscale10 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1457,8 +1462,8 @@ long dmulscale9(long,long,long,long);
 	"shrd eax, edx, 10",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale10(long,long,long,long);
 
+long dmulscale11(long,long,long,long);
 #pragma aux dmulscale11 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1470,8 +1475,8 @@ long dmulscale10(long,long,long,long);
 	"shrd eax, edx, 11",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale11(long,long,long,long);
 
+long dmulscale12(long,long,long,long);
 #pragma aux dmulscale12 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1483,8 +1488,8 @@ long dmulscale11(long,long,long,long);
 	"shrd eax, edx, 12",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale12(long,long,long,long);
 
+long dmulscale13(long,long,long,long);
 #pragma aux dmulscale13 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1496,8 +1501,8 @@ long dmulscale12(long,long,long,long);
 	"shrd eax, edx, 13",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale13(long,long,long,long);
 
+long dmulscale14(long,long,long,long);
 #pragma aux dmulscale14 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1509,8 +1514,8 @@ long dmulscale13(long,long,long,long);
 	"shrd eax, edx, 14",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale14(long,long,long,long);
 
+long dmulscale15(long,long,long,long);
 #pragma aux dmulscale15 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1522,8 +1527,8 @@ long dmulscale14(long,long,long,long);
 	"shrd eax, edx, 15",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale15(long,long,long,long);
 
+long dmulscale16(long,long,long,long);
 #pragma aux dmulscale16 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1535,8 +1540,8 @@ long dmulscale15(long,long,long,long);
 	"shrd eax, edx, 16",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale16(long,long,long,long);
 
+long dmulscale17(long,long,long,long);
 #pragma aux dmulscale17 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1548,8 +1553,8 @@ long dmulscale16(long,long,long,long);
 	"shrd eax, edx, 17",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale17(long,long,long,long);
 
+long dmulscale18(long,long,long,long);
 #pragma aux dmulscale18 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1561,8 +1566,8 @@ long dmulscale17(long,long,long,long);
 	"shrd eax, edx, 18",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale18(long,long,long,long);
 
+long dmulscale19(long,long,long,long);
 #pragma aux dmulscale19 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1574,8 +1579,8 @@ long dmulscale18(long,long,long,long);
 	"shrd eax, edx, 19",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale19(long,long,long,long);
 
+long dmulscale20(long,long,long,long);
 #pragma aux dmulscale20 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1587,8 +1592,8 @@ long dmulscale19(long,long,long,long);
 	"shrd eax, edx, 20",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale20(long,long,long,long);
 
+long dmulscale21(long,long,long,long);
 #pragma aux dmulscale21 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1600,8 +1605,8 @@ long dmulscale20(long,long,long,long);
 	"shrd eax, edx, 21",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale21(long,long,long,long);
 
+long dmulscale22(long,long,long,long);
 #pragma aux dmulscale22 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1613,8 +1618,8 @@ long dmulscale21(long,long,long,long);
 	"shrd eax, edx, 22",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale22(long,long,long,long);
 
+long dmulscale23(long,long,long,long);
 #pragma aux dmulscale23 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1626,8 +1631,8 @@ long dmulscale22(long,long,long,long);
 	"shrd eax, edx, 23",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale23(long,long,long,long);
 
+long dmulscale24(long,long,long,long);
 #pragma aux dmulscale24 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1639,8 +1644,8 @@ long dmulscale23(long,long,long,long);
 	"shrd eax, edx, 24",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale24(long,long,long,long);
 
+long dmulscale25(long,long,long,long);
 #pragma aux dmulscale25 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1652,8 +1657,8 @@ long dmulscale24(long,long,long,long);
 	"shrd eax, edx, 25",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale25(long,long,long,long);
 
+long dmulscale26(long,long,long,long);
 #pragma aux dmulscale26 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1665,8 +1670,8 @@ long dmulscale25(long,long,long,long);
 	"shrd eax, edx, 26",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale26(long,long,long,long);
 
+long dmulscale27(long,long,long,long);
 #pragma aux dmulscale27 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1678,8 +1683,8 @@ long dmulscale26(long,long,long,long);
 	"shrd eax, edx, 27",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale27(long,long,long,long);
 
+long dmulscale28(long,long,long,long);
 #pragma aux dmulscale28 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1691,8 +1696,8 @@ long dmulscale27(long,long,long,long);
 	"shrd eax, edx, 28",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale28(long,long,long,long);
 
+long dmulscale29(long,long,long,long);
 #pragma aux dmulscale29 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1704,8 +1709,8 @@ long dmulscale28(long,long,long,long);
 	"shrd eax, edx, 29",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale29(long,long,long,long);
 
+long dmulscale30(long,long,long,long);
 #pragma aux dmulscale30 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1717,8 +1722,8 @@ long dmulscale29(long,long,long,long);
 	"shrd eax, edx, 30",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale30(long,long,long,long);
 
+long dmulscale31(long,long,long,long);
 #pragma aux dmulscale31 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1730,8 +1735,8 @@ long dmulscale30(long,long,long,long);
 	"shrd eax, edx, 31",\
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]
-long dmulscale31(long,long,long,long);
 
+long dmulscale32(long,long,long,long);
 #pragma aux dmulscale32 =\
 	"imul edx",\
 	"mov ebx, eax",\
@@ -1743,8 +1748,8 @@ long dmulscale31(long,long,long,long);
 	parm nomemory [eax][edx][esi][edi]\
 	modify exact [eax ebx edx esi]\
 	value [edx]
-long dmulscale32(long,long,long,long);
 
+long tmulscale1(long,long,long,long,long,long);
 #pragma aux tmulscale1 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1759,8 +1764,8 @@ long dmulscale32(long,long,long,long);
 	"shrd eax, edx, 1",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale1(long,long,long,long,long,long);
 
+long tmulscale2(long,long,long,long,long,long);
 #pragma aux tmulscale2 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1775,8 +1780,8 @@ long tmulscale1(long,long,long,long,long,long);
 	"shrd eax, edx, 2",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale2(long,long,long,long,long,long);
 
+long tmulscale3(long,long,long,long,long,long);
 #pragma aux tmulscale3 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1791,8 +1796,8 @@ long tmulscale2(long,long,long,long,long,long);
 	"shrd eax, edx, 3",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale3(long,long,long,long,long,long);
 
+long tmulscale4(long,long,long,long,long,long);
 #pragma aux tmulscale4 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1807,8 +1812,8 @@ long tmulscale3(long,long,long,long,long,long);
 	"shrd eax, edx, 4",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale4(long,long,long,long,long,long);
 
+long tmulscale5(long,long,long,long,long,long);
 #pragma aux tmulscale5 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1823,8 +1828,8 @@ long tmulscale4(long,long,long,long,long,long);
 	"shrd eax, edx, 5",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale5(long,long,long,long,long,long);
 
+long tmulscale6(long,long,long,long,long,long);
 #pragma aux tmulscale6 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1839,8 +1844,8 @@ long tmulscale5(long,long,long,long,long,long);
 	"shrd eax, edx, 6",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale6(long,long,long,long,long,long);
 
+long tmulscale7(long,long,long,long,long,long);
 #pragma aux tmulscale7 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1855,8 +1860,8 @@ long tmulscale6(long,long,long,long,long,long);
 	"shrd eax, edx, 7",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale7(long,long,long,long,long,long);
 
+long tmulscale8(long,long,long,long,long,long);
 #pragma aux tmulscale8 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1871,8 +1876,8 @@ long tmulscale7(long,long,long,long,long,long);
 	"shrd eax, edx, 8",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale8(long,long,long,long,long,long);
 
+long tmulscale9(long,long,long,long,long,long);
 #pragma aux tmulscale9 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1887,8 +1892,8 @@ long tmulscale8(long,long,long,long,long,long);
 	"shrd eax, edx, 9",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale9(long,long,long,long,long,long);
 
+long tmulscale10(long,long,long,long,long,long);
 #pragma aux tmulscale10 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1903,8 +1908,8 @@ long tmulscale9(long,long,long,long,long,long);
 	"shrd eax, edx, 10",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale10(long,long,long,long,long,long);
 
+long tmulscale11(long,long,long,long,long,long);
 #pragma aux tmulscale11 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1919,8 +1924,8 @@ long tmulscale10(long,long,long,long,long,long);
 	"shrd eax, edx, 11",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale11(long,long,long,long,long,long);
 
+long tmulscale12(long,long,long,long,long,long);
 #pragma aux tmulscale12 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1935,8 +1940,8 @@ long tmulscale11(long,long,long,long,long,long);
 	"shrd eax, edx, 12",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale12(long,long,long,long,long,long);
 
+long tmulscale13(long,long,long,long,long,long);
 #pragma aux tmulscale13 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1951,8 +1956,8 @@ long tmulscale12(long,long,long,long,long,long);
 	"shrd eax, edx, 13",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale13(long,long,long,long,long,long);
 
+long tmulscale14(long,long,long,long,long,long);
 #pragma aux tmulscale14 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1967,8 +1972,8 @@ long tmulscale13(long,long,long,long,long,long);
 	"shrd eax, edx, 14",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale14(long,long,long,long,long,long);
 
+long tmulscale15(long,long,long,long,long,long);
 #pragma aux tmulscale15 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1983,8 +1988,8 @@ long tmulscale14(long,long,long,long,long,long);
 	"shrd eax, edx, 15",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale15(long,long,long,long,long,long);
 
+long tmulscale16(long,long,long,long,long,long);
 #pragma aux tmulscale16 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -1999,8 +2004,8 @@ long tmulscale15(long,long,long,long,long,long);
 	"shrd eax, edx, 16",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale16(long,long,long,long,long,long);
 
+long tmulscale17(long,long,long,long,long,long);
 #pragma aux tmulscale17 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2015,8 +2020,8 @@ long tmulscale16(long,long,long,long,long,long);
 	"shrd eax, edx, 17",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale17(long,long,long,long,long,long);
 
+long tmulscale18(long,long,long,long,long,long);
 #pragma aux tmulscale18 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2031,8 +2036,8 @@ long tmulscale17(long,long,long,long,long,long);
 	"shrd eax, edx, 18",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale18(long,long,long,long,long,long);
 
+long tmulscale19(long,long,long,long,long,long);
 #pragma aux tmulscale19 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2047,8 +2052,8 @@ long tmulscale18(long,long,long,long,long,long);
 	"shrd eax, edx, 19",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale19(long,long,long,long,long,long);
 
+long tmulscale20(long,long,long,long,long,long);
 #pragma aux tmulscale20 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2063,8 +2068,8 @@ long tmulscale19(long,long,long,long,long,long);
 	"shrd eax, edx, 20",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale20(long,long,long,long,long,long);
 
+long tmulscale21(long,long,long,long,long,long);
 #pragma aux tmulscale21 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2079,8 +2084,8 @@ long tmulscale20(long,long,long,long,long,long);
 	"shrd eax, edx, 21",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale21(long,long,long,long,long,long);
 
+long tmulscale22(long,long,long,long,long,long);
 #pragma aux tmulscale22 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2095,8 +2100,8 @@ long tmulscale21(long,long,long,long,long,long);
 	"shrd eax, edx, 22",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale22(long,long,long,long,long,long);
 
+long tmulscale23(long,long,long,long,long,long);
 #pragma aux tmulscale23 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2111,8 +2116,8 @@ long tmulscale22(long,long,long,long,long,long);
 	"shrd eax, edx, 23",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale23(long,long,long,long,long,long);
 
+long tmulscale24(long,long,long,long,long,long);
 #pragma aux tmulscale24 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2127,8 +2132,8 @@ long tmulscale23(long,long,long,long,long,long);
 	"shrd eax, edx, 24",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale24(long,long,long,long,long,long);
 
+long tmulscale25(long,long,long,long,long,long);
 #pragma aux tmulscale25 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2143,8 +2148,8 @@ long tmulscale24(long,long,long,long,long,long);
 	"shrd eax, edx, 25",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale25(long,long,long,long,long,long);
 
+long tmulscale26(long,long,long,long,long,long);
 #pragma aux tmulscale26 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2159,8 +2164,8 @@ long tmulscale25(long,long,long,long,long,long);
 	"shrd eax, edx, 26",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale26(long,long,long,long,long,long);
 
+long tmulscale27(long,long,long,long,long,long);
 #pragma aux tmulscale27 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2175,8 +2180,8 @@ long tmulscale26(long,long,long,long,long,long);
 	"shrd eax, edx, 27",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale27(long,long,long,long,long,long);
 
+long tmulscale28(long,long,long,long,long,long);
 #pragma aux tmulscale28 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2191,8 +2196,8 @@ long tmulscale27(long,long,long,long,long,long);
 	"shrd eax, edx, 28",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale28(long,long,long,long,long,long);
 
+long tmulscale29(long,long,long,long,long,long);
 #pragma aux tmulscale29 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2207,8 +2212,8 @@ long tmulscale28(long,long,long,long,long,long);
 	"shrd eax, edx, 29",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale29(long,long,long,long,long,long);
 
+long tmulscale30(long,long,long,long,long,long);
 #pragma aux tmulscale30 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2223,8 +2228,8 @@ long tmulscale29(long,long,long,long,long,long);
 	"shrd eax, edx, 30",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale30(long,long,long,long,long,long);
 
+long tmulscale31(long,long,long,long,long,long);
 #pragma aux tmulscale31 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2239,8 +2244,8 @@ long tmulscale30(long,long,long,long,long,long);
 	"shrd eax, edx, 31",\
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]
-long tmulscale31(long,long,long,long,long,long);
 
+long tmulscale32(long,long,long,long,long,long);
 #pragma aux tmulscale32 =\
 	"imul edx",\
 	"xchg eax, ebx",\
@@ -2255,8 +2260,8 @@ long tmulscale31(long,long,long,long,long,long);
 	parm nomemory [eax][edx][ebx][ecx][esi][edi]\
 	modify exact [eax ebx ecx edx]\
 	value [edx]
-long tmulscale32(long,long,long,long,long,long);
 
+long boundmulscale(long,long,long);
 #pragma aux boundmulscale =\
 	"imul ebx",\
 	"mov ebx, edx",\
@@ -2275,8 +2280,8 @@ long tmulscale32(long,long,long,long,long,long);
 	"skipboundit:",\
 	parm nomemory [eax][ebx][ecx]\
 	modify exact [eax ebx edx]
-long boundmulscale(long,long,long);
 
+long divscale(long,long,long);
 #pragma aux divscale =\
 	"mov edx, eax",\
 	"shl eax, cl",\
@@ -2285,16 +2290,16 @@ long boundmulscale(long,long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx][ecx]\
 	modify exact [eax ecx edx]
-long divscale(long,long,long);
 
+long divscale1(long,long);
 #pragma aux divscale1 =\
 	"add eax, eax",\
 	"sbb edx, edx",\
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale1(long,long);
 
+long divscale2(long,long);
 #pragma aux divscale2 =\
 	"mov edx, eax",\
 	"sar edx, 30",\
@@ -2302,8 +2307,8 @@ long divscale1(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale2(long,long);
 
+long divscale3(long,long);
 #pragma aux divscale3 =\
 	"mov edx, eax",\
 	"sar edx, 29",\
@@ -2311,8 +2316,8 @@ long divscale2(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale3(long,long);
 
+long divscale4(long,long);
 #pragma aux divscale4 =\
 	"mov edx, eax",\
 	"sar edx, 28",\
@@ -2320,8 +2325,8 @@ long divscale3(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale4(long,long);
 
+long divscale5(long,long);
 #pragma aux divscale5 =\
 	"mov edx, eax",\
 	"sar edx, 27",\
@@ -2329,8 +2334,8 @@ long divscale4(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale5(long,long);
 
+long divscale6(long,long);
 #pragma aux divscale6 =\
 	"mov edx, eax",\
 	"sar edx, 26",\
@@ -2338,8 +2343,8 @@ long divscale5(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale6(long,long);
 
+long divscale7(long,long);
 #pragma aux divscale7 =\
 	"mov edx, eax",\
 	"sar edx, 25",\
@@ -2347,8 +2352,8 @@ long divscale6(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale7(long,long);
 
+long divscale8(long,long);
 #pragma aux divscale8 =\
 	"mov edx, eax",\
 	"sar edx, 24",\
@@ -2356,8 +2361,8 @@ long divscale7(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale8(long,long);
 
+long divscale9(long,long);
 #pragma aux divscale9 =\
 	"mov edx, eax",\
 	"sar edx, 23",\
@@ -2365,8 +2370,8 @@ long divscale8(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale9(long,long);
 
+long divscale10(long,long);
 #pragma aux divscale10 =\
 	"mov edx, eax",\
 	"sar edx, 22",\
@@ -2374,8 +2379,8 @@ long divscale9(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale10(long,long);
 
+long divscale11(long,long);
 #pragma aux divscale11 =\
 	"mov edx, eax",\
 	"sar edx, 21",\
@@ -2383,8 +2388,8 @@ long divscale10(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale11(long,long);
 
+long divscale12(long,long);
 #pragma aux divscale12 =\
 	"mov edx, eax",\
 	"sar edx, 20",\
@@ -2392,8 +2397,8 @@ long divscale11(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale12(long,long);
 
+long divscale13(long,long);
 #pragma aux divscale13 =\
 	"mov edx, eax",\
 	"sar edx, 19",\
@@ -2401,8 +2406,8 @@ long divscale12(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale13(long,long);
 
+long divscale14(long,long);
 #pragma aux divscale14 =\
 	"mov edx, eax",\
 	"sar edx, 18",\
@@ -2410,8 +2415,8 @@ long divscale13(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale14(long,long);
 
+long divscale15(long,long);
 #pragma aux divscale15 =\
 	"mov edx, eax",\
 	"sar edx, 17",\
@@ -2419,8 +2424,8 @@ long divscale14(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale15(long,long);
 
+long divscale16(long,long);
 #pragma aux divscale16 =\
 	"mov edx, eax",\
 	"sar edx, 16",\
@@ -2428,8 +2433,8 @@ long divscale15(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale16(long,long);
 
+long divscale17(long,long);
 #pragma aux divscale17 =\
 	"mov edx, eax",\
 	"sar edx, 15",\
@@ -2437,8 +2442,8 @@ long divscale16(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale17(long,long);
 
+long divscale18(long,long);
 #pragma aux divscale18 =\
 	"mov edx, eax",\
 	"sar edx, 14",\
@@ -2446,8 +2451,8 @@ long divscale17(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale18(long,long);
 
+long divscale19(long,long);
 #pragma aux divscale19 =\
 	"mov edx, eax",\
 	"sar edx, 13",\
@@ -2455,8 +2460,8 @@ long divscale18(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale19(long,long);
 
+long divscale20(long,long);
 #pragma aux divscale20 =\
 	"mov edx, eax",\
 	"sar edx, 12",\
@@ -2464,8 +2469,8 @@ long divscale19(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale20(long,long);
 
+long divscale21(long,long);
 #pragma aux divscale21 =\
 	"mov edx, eax",\
 	"sar edx, 11",\
@@ -2473,8 +2478,8 @@ long divscale20(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale21(long,long);
 
+long divscale22(long,long);
 #pragma aux divscale22 =\
 	"mov edx, eax",\
 	"sar edx, 10",\
@@ -2482,8 +2487,8 @@ long divscale21(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale22(long,long);
 
+long divscale23(long,long);
 #pragma aux divscale23 =\
 	"mov edx, eax",\
 	"sar edx, 9",\
@@ -2491,8 +2496,8 @@ long divscale22(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale23(long,long);
 
+long divscale24(long,long);
 #pragma aux divscale24 =\
 	"mov edx, eax",\
 	"sar edx, 8",\
@@ -2500,8 +2505,8 @@ long divscale23(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale24(long,long);
 
+long divscale25(long,long);
 #pragma aux divscale25 =\
 	"mov edx, eax",\
 	"sar edx, 7",\
@@ -2509,8 +2514,8 @@ long divscale24(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale25(long,long);
 
+long divscale26(long,long);
 #pragma aux divscale26 =\
 	"mov edx, eax",\
 	"sar edx, 6",\
@@ -2518,8 +2523,8 @@ long divscale25(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale26(long,long);
 
+long divscale27(long,long);
 #pragma aux divscale27 =\
 	"mov edx, eax",\
 	"sar edx, 5",\
@@ -2527,8 +2532,8 @@ long divscale26(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale27(long,long);
 
+long divscale28(long,long);
 #pragma aux divscale28 =\
 	"mov edx, eax",\
 	"sar edx, 4",\
@@ -2536,8 +2541,8 @@ long divscale27(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale28(long,long);
 
+long divscale29(long,long);
 #pragma aux divscale29 =\
 	"mov edx, eax",\
 	"sar edx, 3",\
@@ -2545,8 +2550,8 @@ long divscale28(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale29(long,long);
 
+long divscale30(long,long);
 #pragma aux divscale30 =\
 	"mov edx, eax",\
 	"sar edx, 2",\
@@ -2554,8 +2559,8 @@ long divscale29(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale30(long,long);
 
+long divscale31(long,long);
 #pragma aux divscale31 =\
 	"mov edx, eax",\
 	"sar edx, 1",\
@@ -2563,45 +2568,45 @@ long divscale30(long,long);
 	"idiv ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax edx]
-long divscale31(long,long);
 
+long divscale32(long,long);
 #pragma aux divscale32 =\
 	"xor eax, eax",\
 	"idiv ebx",\
 	parm nomemory [edx][ebx]\
 	modify exact [eax edx]
-long divscale32(long,long);
 
+long readpixel(void*);
 #pragma aux readpixel =\
 	"mov al, byte ptr [edi]",\
 	parm nomemory [edi]\
 	modify exact [eax]
-long readpixel(void*);
 
+long drawpixel(void*,long);
 #pragma aux drawpixel =\
 	"mov byte ptr [edi], al",\
 	parm [edi][eax]\
 	modify exact
-long drawpixel(void*,long);
 
+long drawpixels(void*,long);
 #pragma aux drawpixels =\
 	"mov word ptr [edi], ax",\
 	parm [edi][eax]\
 	modify exact
-long drawpixels(void*,long);
 
+long drawpixelses(void*,long);
 #pragma aux drawpixelses =\
 	"mov dword ptr [edi], eax",\
 	parm [edi][eax]\
 	modify exact
-long drawpixelses(void*,long);
 
+long clearbuf(void*,long,long);
 #pragma aux clearbuf =\
 	"rep stosd",\
 	parm [edi][ecx][eax]\
 	modify exact [edi ecx]
-long clearbuf(void*,long,long);
 
+long clearbufbyte(void*,long,long);
 #pragma aux clearbufbyte =\
 	"cmp ecx, 4",\
 	"jae longcopy",\
@@ -2631,14 +2636,14 @@ long clearbuf(void*,long,long);
 	"endit:",\
 	parm [edi][ecx][eax]\
 	modify [ebx]
-long clearbufbyte(void*,long,long);
 
+long copybuf(void*,void*,long);
 #pragma aux copybuf =\
 	"rep movsd",\
 	parm [esi][edi][ecx]\
 	modify exact [ecx esi edi]
-long copybuf(void*,void*,long);
 
+long copybufbyte(void*,void*,long);
 #pragma aux copybufbyte =\
 	"cmp ecx, 4",\
 	"jae longcopy",\
@@ -2668,8 +2673,8 @@ long copybuf(void*,void*,long);
 	"endit:",\
 	parm [esi][edi][ecx]\
 	modify [ebx]
-long copybufbyte(void*,void*,long);
 
+long copybufreverse(void*,void*,long);
 #pragma aux copybufreverse =\
 	"shr ecx, 1",\
 	"jnc skipit1",\
@@ -2695,8 +2700,8 @@ long copybufbyte(void*,void*,long);
 	"jnz begloop",\
 	"endloop:",\
 	parm [esi][edi][ecx]
-long copybufreverse(void*,void*,long);
 
+long qinterpolatedown16(long,long,long,long);
 #pragma aux qinterpolatedown16 =\
 	"mov ebx, ecx",\
 	"shr ecx, 1",\
@@ -2717,8 +2722,8 @@ long copybufreverse(void*,void*,long);
 	"skipbegqcalc2:",\
 	parm [eax][ecx][edx][esi]\
 	modify exact [eax ebx ecx edx edi]
-long qinterpolatedown16(long,long,long,long);
 
+long qinterpolatedown16short(long,long,long,long);
 #pragma aux qinterpolatedown16short =\
 	"test ecx, ecx",\
 	"jz endit",\
@@ -2752,24 +2757,24 @@ long qinterpolatedown16(long,long,long,long);
 	"endit:",\
 	parm [eax][ecx][edx][esi]\
 	modify exact [eax ebx ecx edx edi]
-long qinterpolatedown16short(long,long,long,long);
 
+long mul3(long);
 #pragma aux mul3 =\
 	"lea eax, [eax+eax*2]",\
 	parm nomemory [eax]
-long mul3(long);
 
+long mul5(long);
 #pragma aux mul5 =\
 	"lea eax, [eax+eax*4]",\
 	parm nomemory [eax]
-long mul5(long);
 
+long mul9(long);
 #pragma aux mul9 =\
 	"lea eax, [eax+eax*8]",\
 	parm nomemory [eax]
-long mul9(long);
 
 	//returns eax/ebx, dmval = eax%edx;
+long divmod(long,long);
 #pragma aux divmod =\
 	"xor edx, edx",\
 	"div ebx",\
@@ -2777,9 +2782,9 @@ long mul9(long);
 	parm [eax][ebx]\
 	modify exact [eax edx]\
 	value [eax]
-long divmod(long,long);
 
 	//returns eax%ebx, dmval = eax/edx;
+long moddiv(long,long);
 #pragma aux moddiv =\
 	"xor edx, edx",\
 	"div ebx",\
@@ -2787,16 +2792,16 @@ long divmod(long,long);
 	parm [eax][ebx]\
 	modify exact [eax edx]\
 	value [edx]
-long moddiv(long,long);
 
+long klabs(long);
 #pragma aux klabs =\
 	"test eax, eax",\
 	"jns skipnegate",\
 	"neg eax",\
 	"skipnegate:",\
 	parm nomemory [eax]
-long klabs(long);
 
+long ksgn(long);
 #pragma aux ksgn =\
 	"add ebx, ebx",\
 	"sbb eax, eax",\
@@ -2804,9 +2809,9 @@ long klabs(long);
 	"adc al, 0",\
 	parm nomemory [ebx]\
 	modify exact [eax ebx]
-long ksgn(long);
 
 	//eax = (unsigned min)umin(eax,ebx)
+long umin(long,long);
 #pragma aux umin =\
 	"sub eax, ebx",\
 	"sbb ecx, ecx",\
@@ -2814,9 +2819,9 @@ long ksgn(long);
 	"add eax, ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax ecx]
-long umin(long,long);
 
 	//eax = (unsigned max)umax(eax,ebx)
+long umax(long,long);
 #pragma aux umax =\
 	"sub eax, ebx",\
 	"sbb ecx, ecx",\
@@ -2825,8 +2830,8 @@ long umin(long,long);
 	"add eax, ebx",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax ecx]
-long umax(long,long);
 
+long kmin(long,long);
 #pragma aux kmin =\
 	"cmp eax, ebx",\
 	"jl skipit",\
@@ -2834,8 +2839,8 @@ long umax(long,long);
 	"skipit:",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax]
-long kmin(long,long);
 
+long kmax(long,long);
 #pragma aux kmax =\
 	"cmp eax, ebx",\
 	"jg skipit",\
@@ -2843,8 +2848,8 @@ long kmin(long,long);
 	"skipit:",\
 	parm nomemory [eax][ebx]\
 	modify exact [eax]
-long kmax(long,long);
 
+long swapchar(void*,void*);
 #pragma aux swapchar =\
 	"mov cl, [eax]",\
 	"mov ch, [ebx]",\
@@ -2852,8 +2857,8 @@ long kmax(long,long);
 	"mov [eax], ch",\
 	parm [eax][ebx]\
 	modify exact [ecx]
-long swapchar(void*,void*);
 
+long swapshort(void*,void*);
 #pragma aux swapshort =\
 	"mov cx, [eax]",\
 	"mov dx, [ebx]",\
@@ -2861,8 +2866,8 @@ long swapchar(void*,void*);
 	"mov [eax], dx",\
 	parm [eax][ebx]\
 	modify exact [ecx edx]
-long swapshort(void*,void*);
 
+long swaplong(void*,void*);
 #pragma aux swaplong =\
 	"mov ecx, [eax]",\
 	"mov edx, [ebx]",\
@@ -2870,8 +2875,8 @@ long swapshort(void*,void*);
 	"mov [eax], edx",\
 	parm [eax][ebx]\
 	modify exact [ecx edx]
-long swaplong(void*,void*);
 
+long swapbuf4(void*,void*,long);
 #pragma aux swapbuf4 =\
 	"begswap:",\
 	"mov esi, [eax]",\
@@ -2884,8 +2889,8 @@ long swaplong(void*,void*);
 	"jnz short begswap",\
 	parm [eax][ebx][ecx]\
 	modify exact [eax ebx ecx esi edi]
-long swapbuf4(void*,void*,long);
 
+long swap64bit(void*,void*);
 #pragma aux swap64bit =\
 	"mov ecx, [eax]",\
 	"mov edx, [ebx]",\
@@ -2897,10 +2902,10 @@ long swapbuf4(void*,void*,long);
 	"mov [eax+4], edx",\
 	parm [eax][ebx]\
 	modify exact [ecx edx]
-long swap64bit(void*,void*);
 
 	//swapchar2(ptr1,ptr2,xsiz); is the same as:
 	//swapchar(ptr1,ptr2); swapchar(ptr1+1,ptr2+xsiz);
+long swapchar2(void*,void*,long);
 #pragma aux swapchar2 =\
 	"add esi, ebx",\
 	"mov cx, [eax]",\
@@ -2911,7 +2916,6 @@ long swap64bit(void*,void*);
 	"mov [eax], dx",\
 	parm [eax][ebx][esi]\
 	modify exact [ecx edx esi]
-long swapchar2(void*,void*,long);
 //}}}
 
 #elif defined(_MSC_VER) && !defined(NOASM)	// __WATCOMC__
@@ -2951,11 +2955,9 @@ static __inline long mulscale(long a, long d, long c)
 #define MULSCALE(x) \
 static __inline long mulscale##x (long a, long d) \
 { \
-	_asm { \
-		mov eax, a \
-		imul d \
-		shrd eax, edx, x \
-	} \
+	_asm mov eax, a \
+	_asm imul d \
+	_asm shrd eax, edx, x \
 }
 
 MULSCALE(1)	MULSCALE(2)	MULSCALE(3)	MULSCALE(4)
@@ -2995,17 +2997,15 @@ static __inline long dmulscale(long a, long d, long S, long D, long c)
 #define DMULSCALE(x) \
 static __inline long dmulscale##x (long a, long d, long S, long D) \
 { \
-	_asm { \
-		mov eax, a \
-		imul d \
-		mov ebx, eax \
-		mov eax, S \
-		mov esi, edx \
-		imul D \
-		add eax, ebx \
-		adc edx, esi \
-		shrd eax, edx, x \
-	} \
+	_asm mov eax, a \
+	_asm imul d \
+	_asm mov ebx, eax \
+	_asm mov eax, S \
+	_asm mov esi, edx \
+	_asm imul D \
+	_asm add eax, ebx \
+	_asm adc edx, esi \
+	_asm shrd eax, edx, x \
 }
 
 DMULSCALE(1)	DMULSCALE(2)	DMULSCALE(3)	DMULSCALE(4)
@@ -3035,22 +3035,20 @@ static __inline long dmulscale32(long a, long d, long S, long D)
 #define TMULSCALE(x) \
 static __inline long tmulscale##x (long a, long d, long b, long c, long S, long D) \
 { \
-	_asm { \
-		mov eax, a \
-		mov ebx, b \
-		imul d \
-		xchg eax, ebx \
-		mov ecx, c \
-		xchg edx, ecx \
-		imul edx \
-		add ebx, eax \
-		adc ecx, edx \
-		mov eax, S \
-		imul D \
-		add eax, ebx \
-		adc edx, ecx \
-		shrd eax, edx, x \
-	} \
+	_asm mov eax, a \
+	_asm mov ebx, b \
+	_asm imul d \
+	_asm xchg eax, ebx \
+	_asm mov ecx, c \
+	_asm xchg edx, ecx \
+	_asm imul edx \
+	_asm add ebx, eax \
+	_asm adc ecx, edx \
+	_asm mov eax, S \
+	_asm imul D \
+	_asm add eax, ebx \
+	_asm adc edx, ecx \
+	_asm shrd eax, edx, x \
 }
 
 TMULSCALE(1)	TMULSCALE(2)	TMULSCALE(3)	TMULSCALE(4)
@@ -3153,13 +3151,11 @@ static __inline long divscale3(long a, long b)
 #define DIVSCALE(x,y) \
 static __inline long divscale##y(long a, long b) \
 { \
-	_asm { \
-		mov eax, a \
-		mov edx, eax \
-		sar edx, x \
-		shl eax, y \
-		idiv b \
-	} \
+	_asm mov eax, a \
+	_asm mov edx, eax \
+	_asm sar edx, x \
+	_asm shl eax, y \
+	_asm idiv b \
 }
 
 DIVSCALE(28,4)	DIVSCALE(27,5)	DIVSCALE(26,6)	DIVSCALE(25,7)
@@ -3727,6 +3723,10 @@ void clearbufbyte(void *D, long c, long a);
 void copybufbyte(void *S, void *D, long c);
 void copybufreverse(void *S, void *D, long c);
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif // __pragmas_h__

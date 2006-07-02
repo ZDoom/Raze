@@ -3,17 +3,14 @@
 $(OBJ)a-c.$o: $(SRC)a-c.c $(INC)a.h
 $(OBJ)a.$o: $(SRC)a.$(asm)
 $(OBJ)baselayer.$o: $(SRC)baselayer.c $(INC)compat.h $(INC)baselayer.h $(INC)build.h $(INC)osd.h
-$(OBJ)bstub.$o: $(SRC)bstub.c $(INC)compat.h $(INC)a.h $(INC)build.h $(INC)pragmas.h $(INC)baselayer.h $(INC)names.h $(INC)osd.h $(INC)cache1d.h $(INC)editor.h
 $(OBJ)build.$o: $(SRC)build.c $(INC)build.h $(INC)pragmas.h $(INC)compat.h $(INC)baselayer.h $(INC)editor.h
 $(OBJ)cache1d.$o: $(SRC)cache1d.c $(INC)compat.h $(INC)cache1d.h $(INC)pragmas.h $(INC)baselayer.h
 $(OBJ)compat.$o: $(SRC)compat.c $(INC)compat.h
 $(OBJ)config.$o: $(SRC)config.c $(INC)compat.h $(INC)osd.h $(INC)editor.h
 $(OBJ)crc32.$o: $(SRC)crc32.c $(INC)crc32.h
 $(OBJ)defs.$o: $(SRC)defs.c $(INC)build.h $(INC)baselayer.h $(INC)scriptfile.h $(INC)compat.h
-$(OBJ)engine.$o: $(SRC)engine.c $(SRC)polymost.c $(SRC)polymer.c $(INC)kplib.h $(SRC)hightile.c $(SRC)mdsprite.c $(INC)md4.h $(INC)lzf.h $(INC)lzwnew.h $(INC)compat.h $(INC)build.h $(INC)pragmas.h $(INC)cache1d.h $(INC)a.h $(INC)osd.h $(INC)baselayer.h
-$(OBJ)game.$o: $(SRC)game.c $(INC)compat.h $(INC)build.h $(INC)names.h $(INC)pragmas.h $(INC)cache1d.h $(INC)game.h $(INC)osd.h $(INC)baselayer.h
+$(OBJ)engine.$o: $(SRC)engine.c $(SRC)polymost.c $(INC)kplib.h $(SRC)hightile.c $(SRC)mdsprite.c $(INC)md4.h $(INC)lzf.h $(INC)lzwnew.h $(INC)compat.h $(INC)build.h $(INC)pragmas.h $(INC)cache1d.h $(INC)a.h $(INC)osd.h $(INC)baselayer.h
 $(OBJ)glbuild.$o: $(SRC)glbuild.c $(INC)glbuild.h $(INC)baselayer.h
-$(OBJ)jfaud_sound.$o: $(SRC)jfaud_sound.cpp $(INC)osd.h $(INC)compat.h $(INC)cache1d.h
 $(OBJ)kplib.$o: $(SRC)kplib.c $(INC)compat.h
 $(OBJ)lzf_c.$o: $(SRC)lzf_c.c $(SRC)lzfP.h
 $(OBJ)lzf_d.$o: $(SRC)lzf_d.c $(SRC)lzfP.h
@@ -30,12 +27,17 @@ $(OBJ)winlayer.$o: $(SRC)winlayer.c $(INC)compat.h $(INC)winlayer.h $(INC)basela
 $(OBJ)gtkbits.$o: $(SRC)gtkbits.c $(INC)baselayer.h $(INC)build.h $(INC)dynamicgtk.h
 $(OBJ)dynamicgtk.$o: $(SRC)dynamicgtk.c $(INC)dynamicgtk.h
 
-$(OBJ)gameres.$(res): $(SRC)misc/gameres.rc $(SRC)startwin.game.h
+# KenBuild test game
+$(OBJ)game.$o: $(GAME)game.c $(INC)compat.h $(INC)build.h $(GAME)names.h $(INC)pragmas.h $(INC)cache1d.h $(GAME)game.h $(INC)osd.h $(INC)baselayer.h
+$(OBJ)bstub.$o: $(GAME)bstub.c $(INC)compat.h $(INC)a.h $(INC)build.h $(INC)pragmas.h $(INC)baselayer.h $(GAME)names.h $(INC)osd.h $(INC)cache1d.h $(INC)editor.h
+$(OBJ)jfaud_sound.$o: $(GAME)jfaud_sound.cpp $(INC)osd.h $(INC)compat.h $(INC)cache1d.h
+$(OBJ)startwin.game.$o: $(GAME)startwin.game.c $(INC)build.h $(INC)editor.h $(INC)winlayer.h $(INC)compat.h $(GAME)startwin.game.h
+$(OBJ)startgtk.game.$o: $(GAME)startgtk.game.c $(INC)baselayer.h $(INC)build.h $(INC)compat.h
+
+$(OBJ)gameres.$(res): $(SRC)misc/gameres.rc $(GAME)startwin.game.h
 $(OBJ)buildres.$(res): $(SRC)misc/buildres.rc $(INC)startwin.editor.h
 $(OBJ)startwin.editor.$o: $(SRC)startwin.editor.c $(INC)build.h $(INC)editor.h $(INC)winlayer.h $(INC)compat.h $(INC)startwin.editor.h
-$(OBJ)startwin.game.$o: $(SRC)startwin.game.c $(INC)build.h $(INC)editor.h $(INC)winlayer.h $(INC)compat.h $(SRC)startwin.game.h
 $(OBJ)startgtk.editor.$o: $(SRC)startgtk.editor.c $(INC)baselayer.h $(INC)build.h $(INC)editor.h $(INC)compat.h
-$(OBJ)startgtk.game.$o: $(SRC)startgtk.game.c $(INC)baselayer.h $(INC)build.h $(INC)compat.h
 
 $(OBJ)game_icon.$o: $(RSRC)game_icon.c
 $(OBJ)build_icon.$o: $(RSRC)build_icon.c

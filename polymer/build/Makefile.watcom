@@ -5,6 +5,7 @@
 !endif
 
 SRC=src\
+GAME=game\
 !ifndef OBJ
 OBJ=obj.watcom\
 !endif
@@ -21,7 +22,6 @@ ENGINELIB=engine.lib
 EDITORLIB=build.lib
 
 DXROOT=c:\sdks\directx\dx7
-FMODROOT=c:\sdks\fmodapi374win\api
 
 !ifdef __LOADDLL__
 ! loaddll wcc386 wccd386
@@ -37,11 +37,13 @@ FMODROOT=c:\sdks\fmodapi374win\api
 TARGETOPTS=#-dUSE_A_C #-dNOASM
 
 CC=wcc386
+CXX=wpp386
 AS=wasm
 RC=wrc
-CFLAGS+= -5r -s -orb -fp5 $(TARGETOPTS) -d2 -dRENDERTYPEWIN=1 &
-	-i=$(INC) -i=$(DXROOT)\include -i=$(FMODROOT)\inc
-LIBS=dxguid.lib wsock32.lib fmodwc.lib #opengl32.lib
+CFLAGS+= -zq -5r -s -orb -fp5 $(TARGETOPTS) -d2 -dRENDERTYPEWIN=1 &
+	-i=watcomhax -i=$(INC) -i=$(SRC) -i=$(DXROOT)\include -i=..\jfaud\inc
+GAMECFLAGS=-i=$(GAME)
+LIBS=dxguid.lib wsock32.lib ..\jfaud\jfaud.lib winmm.lib #opengl32.lib
 ASFLAGS=# -d1
 EXESUFFIX=.exe
 
@@ -69,7 +71,7 @@ EDITOROBJS=$(OBJ)build.$o &
 	$(OBJ)startwin.editor.$o
 
 GAMEEXEOBJS=$(OBJ)game.$o &
-	$(OBJ)sound.$o &
+	$(OBJ)jfaud_sound.$o &
 	$(OBJ)config.$o &
 	$(OBJ)startwin.game.$o
 
@@ -80,7 +82,9 @@ EDITOREXEOBJS=$(OBJ)bstub.$o
 
 .wasm:	$(SRC)
 .c:	$(SRC)
-.c:	$(SRC)tmp/
+.cpp:	$(SRC)
+.c:	$(GAME)
+.cpp:	$(GAME)
 .c:	$(SRC)util/
 .rc:	$(SRC)misc/
 
@@ -89,9 +93,11 @@ EDITOREXEOBJS=$(OBJ)bstub.$o
 
 .c.$o:
 	$(CC) $(CFLAGS) -fo=$(OBJ).$o $[@
+.cpp.$o:
+	$(CXX) $(CFLAGS) $(GAMECFLAGS) -fo=$(OBJ).$o $[@
 
 .rc.$(res):
-	$(RC) -fo=$^*.$(res) -r $[@
+	$(RC) -i=$(SRC) -i=$(INC) -i=$(GAME) -fo=$^*.$(res) -r $[@
 
 # TARGETS
 UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX)

@@ -35,6 +35,7 @@ FMODROOTWIN=c:/sdks/fmodapi374win/api
 # build locations - OBJ gets overridden to the game-specific objects dir
 OBJ?=obj.gnu/
 SRC=src/
+GAME=game/
 RSRC=rsrc/
 INC=include/
 
@@ -60,8 +61,9 @@ AR=ar
 RANLIB=ranlib
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Wno-char-subscripts -Wno-unused \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
-	-DKSFORBUILD -I$(INC:/=) -I../jfaud/src
+	-DKSFORBUILD -I$(INC:/=)
 OURCXXFLAGS=-fno-exceptions -fno-rtti
+GAMECFLAGS=-I../jfaud/inc -I$(GAME)
 LIBS=
 GAMELIBS=../jfaud/libjfaud.a #../jfaud/mpadec/libmpadec/libmpadec.a
 ASFLAGS=-s #-g
@@ -179,7 +181,7 @@ endif
 
 UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX)
 
-all: game$(EXESUFFIX) build$(EXESUFFIX) $(OBJ)$(ENGINELIB) $(OBJ)$(EDITORLIB)
+all: testgame$(EXESUFFIX) build$(EXESUFFIX) $(OBJ)$(ENGINELIB) $(OBJ)$(EDITORLIB)
 utils: $(UTILS)
 
 enginelib: $(OBJ)$(ENGINELIB)
@@ -192,7 +194,7 @@ $(OBJ)$(EDITORLIB): $(EDITOROBJS)
 	$(AR) rc $@ $^
 	$(RANLIB) $@
 
-game$(EXESUFFIX): $(GAMEEXEOBJS)
+testgame$(EXESUFFIX): $(GAMEEXEOBJS)
 	$(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(GAMELIBS) $(LIBS) $(STDCPPLIB)
 	
 build$(EXESUFFIX): $(EDITOREXEOBJS)
@@ -231,17 +233,20 @@ $(OBJ)%.$o: $(SRC)%.c
 $(OBJ)%.$o: $(SRC)%.cpp
 	$(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
 
-$(OBJ)%.$o: $(SRC)tmp/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
-
 $(OBJ)%.$o: $(SRC)misc/%.rc
-	$(RC) -i $< -o $@ --include-dir=$(INC) --include-dir=$(SRC)
+	$(RC) -i $< -o $@ --include-dir=$(INC) --include-dir=$(SRC) --include-dir=$(GAME)
 
 $(OBJ)%.$o: $(SRC)util/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
 
 $(OBJ)%.$o: $(RSRC)%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
+
+$(OBJ)%.$o: $(GAME)%.c
+	$(CC) $(CFLAGS) $(OURCFLAGS) $(GAMECFLAGS) -c $< -o $@ 2>&1
+
+$(OBJ)%.$o: $(GAME)%.cpp
+	$(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) $(GAMECFLAGS) -c $< -o $@ 2>&1
 
 $(OBJ)game_banner.$o: $(RSRC)game_banner.c
 $(OBJ)editor_banner.$o: $(RSRC)editor_banner.c
@@ -264,7 +269,7 @@ endif
 veryclean: clean
 ifeq ($(PLATFORM),DARWIN)
 else
-	-rm -f $(ENGINELIB) $(EDITORLIB) game$(EXESUFFIX) build$(EXESUFFIX) $(UTILS)
+	-rm -f $(ENGINELIB) $(EDITORLIB) testgame$(EXESUFFIX) build$(EXESUFFIX) $(UTILS)
 endif
 
 .PHONY: fixlineends

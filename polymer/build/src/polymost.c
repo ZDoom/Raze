@@ -82,7 +82,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
-#define FOGSCALE 0.0000700
+#define FOGSCALE 0.0000768
 #define PI 3.14159265358979323
 
 static double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
@@ -3020,7 +3020,7 @@ static void polymost_drawalls (long bunch)
 
             if (((cy0 < ocy0) || (cy1 < ocy1)) && (!((sec->ceilingstat&sector[nextsectnum].ceilingstat)&1)))
             {
-                globalpicnum = wal->picnum; globalshade = (wal->shade+2); globalpal = (long)((unsigned char)wal->pal);
+                globalpicnum = wal->picnum; globalshade = wal->shade; globalpal = (long)((unsigned char)wal->pal);
                 if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,wallnum+16384);
 
                 if (!(wal->cstat&4)) i = sector[nextsectnum].ceilingz; else i = sec->ceilingz;
@@ -3056,7 +3056,7 @@ static void polymost_drawalls (long bunch)
                     gux += (float)(nwal->xpanning-wal->xpanning)*gdx;
                     guy += (float)(nwal->xpanning-wal->xpanning)*gdy;
                 }
-                globalpicnum = nwal->picnum; globalshade = (nwal->shade+2); globalpal = (long)((unsigned char)nwal->pal);
+                globalpicnum = nwal->picnum; globalshade = nwal->shade; globalpal = (long)((unsigned char)nwal->pal);
                 if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,wallnum+16384);
 
                 if (!(nwal->cstat&4)) i = sector[nextsectnum].floorz; else i = sec->ceilingz;
@@ -3087,7 +3087,7 @@ static void polymost_drawalls (long bunch)
         if ((nextsectnum < 0) || (wal->cstat&32))   //White/1-way wall
         {
             if (nextsectnum < 0) globalpicnum = wal->picnum; else globalpicnum = wal->overpicnum;
-            globalshade = (wal->shade+2); globalpal = (long)((unsigned char)wal->pal);
+            globalshade = wal->shade; globalpal = (long)((unsigned char)wal->pal);
             if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,wallnum+16384);
 
         if (nextsectnum >= 0) { if (!(wal->cstat&4)) i = nextsec->ceilingz; else i = sec->ceilingz; }
@@ -3289,7 +3289,7 @@ void polymost_drawrooms ()
     ghalfx = (double)halfxdimen; grhalfxdown10 = 1.0/(((double)ghalfx)*1024);
     ghoriz = (double)globalhoriz;
 
-    gvisibility = ((float)globalvisibility)*gxyaspect*FOGSCALE;
+    gvisibility = ((float)globalvisibility)*FOGSCALE;
 
     //global cos/sin height angle
     r = (double)((ydimen>>1)-ghoriz);
@@ -3483,7 +3483,7 @@ void polymost_drawmaskwall (long damaskwallcnt)
 
     globalpicnum = wal->overpicnum; if ((unsigned long)globalpicnum >= MAXTILES) globalpicnum = 0;
     if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,(short)thewall[z]+16384);
-    globalshade = (long)(wal->shade+2);
+    globalshade = (long)wal->shade;
     globalpal = (long)((unsigned char)wal->pal);
     globalorientation = (long)wal->cstat;
 

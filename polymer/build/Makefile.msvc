@@ -4,6 +4,7 @@
 !endif
 
 SRC=src\ #
+GAME=game\ #
 !ifndef OBJ
 OBJ=obj.msc\ #
 !endif
@@ -47,6 +48,7 @@ AS=ml
 RC=rc
 LINK=link /opt:nowin98 /opt:ref /nologo
 CFLAGS=$(CFLAGS) /nologo /MD /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(DXROOT)\include /I$(FMODROOT)\inc
+GAMECFLAGS=/I$(GAME)
 LIBS=fmodvc.lib #opengl32.lib
 ASFLAGS=/nologo /coff
 EXESUFFIX=.exe
@@ -87,7 +89,7 @@ EDITOREXEOBJS=$(OBJ)bstub.$o \
 	$(OBJ)$(ENGINELIB)
 	
 RENDERTYPE=WIN
-LIBS=$(LIBS) user32.lib gdi32.lib shell32.lib dxguid.lib wsock32.lib
+LIBS=$(LIBS) user32.lib gdi32.lib shell32.lib dxguid.lib wsock32.lib comctl32.lib
 CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1
 
 # RULES
@@ -103,10 +105,19 @@ CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 {$(SRC)misc}.rc{$(OBJ)}.$(res):
-	$(RC) /fo$@ /r $<
+	$(RC) /i$(INC) /i$(GAME) /fo$@ /r $<
 
 {$(SRC)}.c{$(OBJ)}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
+
+{$(SRC)}.cpp{$(OBJ)}.$o:
+	$(CC) /c $(CFLAGS) /Fo$@ $<
+
+{$(GAME)}.c{$(OBJ)}.$o:
+	$(CC) /c $(CFLAGS) $(GAMECFLAGS) /Fo$@ $<
+
+{$(GAME)}.cpp{$(OBJ)}.$o:
+	$(CC) /c $(CFLAGS) $(GAMECFLAGS) /Fo$@ $<
 
 # TARGETS
 UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2map$(EXESUFFIX) wad2map$(EXESUFFIX)

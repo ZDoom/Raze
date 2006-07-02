@@ -262,9 +262,8 @@ void setears(long daposx, long daposy, long daxvect, long dayvect)
 	mixer = jfaud->GetWave();
 	if (!mixer) return;
 
-	mixer->SetListenerPosition((float)daposx/UNITSPERMTR, 0.0, (float)-daposy/UNITSPERMTR);
-	mixer->SetListenerOrientation((float)daxvect/UNITSPERMTR, 0.0, (float)-dayvect/UNITSPERMTR,
-			0.0, 1.0, 0.0);
+	mixer->SetListenerPosition((float)daposx/UNITSPERMTR, 0.0, (float)daposy/UNITSPERMTR);
+	mixer->SetListenerOrientation((float)daxvect/UNITSPERMTR, 0.0, (float)dayvect/UNITSPERMTR, 0.0, 1.0, 0.0);
 }
 
 static int storehandle(JFAudMixerChannel *handle, long *daxplc, long *dayplc)
@@ -311,7 +310,7 @@ void wsayfollow(char *dafilename, long dafreq, long davol, long *daxplc, long *d
 
 	handl->SetPitch((float)dafreq / 4096.0);
 	handl->SetGain((float)davol / 256.0);
-	handl->SetPosition((float)(*daxplc) / UNITSPERMTR, 0.0, (float)(-*dayplc) / UNITSPERMTR);
+	handl->SetPosition((float)(*daxplc) / UNITSPERMTR, 0.0, (float)(*dayplc) / UNITSPERMTR);
 	handl->SetFollowListener(false);
 	handl->SetRolloff(1.0);
 
@@ -373,7 +372,7 @@ void refreshaudio(void)
 		sfxchans[i].handle->SetPosition(
 				(float)(*sfxchans[i].posx)/UNITSPERMTR,
 				0.0,
-				(float)(-*sfxchans[i].posy)/UNITSPERMTR);
+				(float)(*sfxchans[i].posy)/UNITSPERMTR);
 	}
 	jfaud->Update();
 }
