@@ -126,6 +126,7 @@ long gltexmiplevel = 0;		// discards this many mipmap levels
 static long lastglpolygonmode = 0; //FUK
 long glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
 long glwidescreen = 0;
+long glprojectionhacks = 1;
 long glhudcorrect = 0;
 static GLuint polymosttext = 0;
 extern char nofog;
@@ -592,15 +593,15 @@ void resizeglcheck ()
         glox1 = windowx1; gloy1 = windowy1;
         glox2 = windowx2; gloy2 = windowy2;
 
-        fovcorrect = glwidescreen?0:(((windowx2-windowx1+1) * 1.2) - (windowx2-windowx1+1));
+        fovcorrect = glprojectionhacks?(glwidescreen?0:(((windowx2-windowx1+1) * 1.2) - (windowx2-windowx1+1))):0;
 
         bglViewport(windowx1 - (fovcorrect / 2), yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect, windowy2-windowy1+1);
 
         bglMatrixMode(GL_PROJECTION);
         memset(m,0,sizeof(m));
-        m[0][0] = (float)ydimen / 1.2; m[0][2] = 1.0;
+        m[0][0] = (float)ydimen / (glprojectionhacks?1.2:1); m[0][2] = 1.0;
         m[1][1] = (float)xdimen; m[1][2] = 1.0;
-        m[2][2] = 1.0; m[2][3] = (float)ydimen / 1.2;
+        m[2][2] = 1.0; m[2][3] = (float)ydimen / (glprojectionhacks?1.2:1);
         m[3][2] =-1.0;
         bglLoadMatrixf(&m[0][0]);
         //bglLoadIdentity();
