@@ -2110,8 +2110,8 @@ cheat_for_port_credits:
                                "Compress disk cache",
                                "-",
                                "Models",
-                               "-",
                                "HUD model perspective",
+                               "-",
                                "-",
                                "-",
                                "-",
@@ -2170,9 +2170,10 @@ cheat_for_port_credits:
                 case 6: if (x==io) usemodels = 1-usemodels;
                     modval(0,1,(int *)&usemodels,1,probey==io);
                     gametextpal(d,yy, usemodels ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 7: if (x==io) glhudcorrect = 1-glhudcorrect;
-                    modval(0,1,(int *)&glhudcorrect,1,probey==io);
-                    gametextpal(d,yy, glhudcorrect ? "Correct" : "Old", MENUHIGHLIGHT(io), 0); break;
+                case 7: enabled = usemodels;
+                    if (enabled && x==io) glhudcorrect = 1-glhudcorrect;
+                    if (enabled) modval(0,1,(int *)&glhudcorrect,1,probey==io);
+                    gametextpal(d,yy, glhudcorrect ? "Correct" : "Old", enabled?MENUHIGHLIGHT(io):15, 0); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
