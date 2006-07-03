@@ -83,7 +83,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
-#define FOGSCALE 0.0000800
+#define FOGSCALE 0.0000896
 #define PI 3.14159265358979323
 
 static double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
@@ -2208,7 +2208,7 @@ static void polymost_drawalls (long bunch)
             col[2] = (float)palookupfog[sec->floorpal].b / 63.f;
             col[3] = 0;
             bglFogfv(GL_FOG_COLOR,col);
-            bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sec->visibility+16))))/(sec->floorshade<0?klabs(sec->floorshade):1));
+            bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sec->visibility+16))))/(sec->floorshade<0?klabs(sec->floorshade):1)-(sec->floorshade>0?2/sec->floorshade:0));
 
 //            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility+16))));
         }
@@ -3048,7 +3048,7 @@ static void polymost_drawalls (long bunch)
 
                 {
                     bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
-                    bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sec->visibility+16))))/(wal->shade<0?klabs(wal->shade):1));
+                    bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sec->visibility+16))))/(wal->shade<0?klabs(wal->shade):1)-(wal->shade>0?2/wal->shade:0));
                     pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
                     bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
                 }
@@ -3089,7 +3089,7 @@ static void polymost_drawalls (long bunch)
 
                 {
                     bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
-                    bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sec->visibility+16))))/(nwal->shade<0?klabs(nwal->shade):1));
+                    bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sec->visibility+16))))/(nwal->shade<0?klabs(nwal->shade):1)-(nwal->shade>0?2/nwal->shade:0));
                     pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
                     bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
                 }
@@ -3126,7 +3126,7 @@ static void polymost_drawalls (long bunch)
 
             {
                 bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
-                bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sec->visibility+16))))/(wal->shade<0?klabs(wal->shade):1));
+                bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sec->visibility+16))))/(wal->shade<0?klabs(wal->shade):1)-(wal->shade>0?2/wal->shade:0));
                 pow2xsplit = 1; domost(x0,-10000,x1,-10000);
                 bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
             }
@@ -3687,7 +3687,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         col[2] = (float)palookupfog[sector[tspr->sectnum].floorpal].b / 63.f;
         col[3] = 0;
         bglFogfv(GL_FOG_COLOR,col); //default is 0,0,0,0
-        bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sector[tspr->sectnum].visibility+16))))/(globalshade<0?klabs(globalshade):1));
+        bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sector[tspr->sectnum].visibility+16))))/(globalshade<0?klabs(globalshade):1)-(globalshade>0?2/globalshade:0));
     }
 
     while (rendmode == 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
