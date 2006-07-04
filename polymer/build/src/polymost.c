@@ -71,6 +71,8 @@ long usemodels=1, usehightile=1;
 
 float foggymcfogfogger;
 
+float fogtable[] = { 0.132, 0.165, 0.198, 0.231, 0.264, 0.297, 0.330, 0.363, 0.396, 0.429, 0.462, 0.495, 0.528, 0.561, 0.594, 0.627, 0.660, 0.693, 0.726, 0.759, 0.792, 0.825, 0.858, 0.891, 0.924, 0.957, 1.023, 1.056, 1.089, 1.122, 1.155, 1.188 };
+
 #include <math.h> //<-important!
 typedef struct { float x, cy[2], fy[2]; long n, p, tag, ctag, ftag; } vsptyp;
 #define VSPMAX 4096 //<- careful!
@@ -2369,7 +2371,11 @@ static void polymost_drawalls (long bunch)
             domostpolymethod = (globalorientation>>7)&3;
             if (globalposz >= getflorzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
             bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
-            bglFogf(GL_FOG_DENSITY,((gvisibility*((float)((unsigned char)(sec->visibility+16))))/(sec->floorshade<0?klabs(sec->floorshade):1))-(sec->floorshade>0?3/sec->floorshade:0)+(sec->floorshade==1?2.5:0)+(sec->floorshade==-1?-1:0));
+            {
+                int i = klabs(sec->floorshade);
+                if(i > 30) i = 30;
+                bglFogf(GL_FOG_DENSITY,gvisibility/(sec->floorshade<0?klabs(sec->floorshade):1)*(sec->floorshade<0?fogtable[0]:fogtable[i]*3.5)*((float)((unsigned char)(sec->visibility+16))));
+            }
             pow2xsplit = 0; domost(x0,fy0,x1,fy1); //flor
             bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
             domostpolymethod = 0;
@@ -2725,7 +2731,11 @@ static void polymost_drawalls (long bunch)
             domostpolymethod = (globalorientation>>7)&3;
             if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
             bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
-            bglFogf(GL_FOG_DENSITY,((gvisibility*((float)((unsigned char)(sec->visibility+16))))/(sec->ceilingshade<0?klabs(sec->ceilingshade):1))-(sec->ceilingshade>0?3/sec->ceilingshade:0)+(sec->ceilingshade==1?2.5:0)+(sec->ceilingshade==-1?-1:0));
+            {
+                int i = klabs(sec->ceilingshade);
+                if(i > 30) i = 30;
+                bglFogf(GL_FOG_DENSITY,gvisibility/(sec->ceilingshade<0?klabs(sec->ceilingshade):1)*(sec->ceilingshade<0?fogtable[0]:fogtable[i]*3.5)*((float)((unsigned char)(sec->visibility+16))));
+            }
             pow2xsplit = 0; domost(x1,cy1,x0,cy0); //ceil
             bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
             domostpolymethod = 0;
@@ -3053,8 +3063,10 @@ static void polymost_drawalls (long bunch)
                 if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
                 {
+                    int i = klabs(wal->shade);
+                    if(i > 30) i = 30;
                     bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
-                    bglFogf(GL_FOG_DENSITY,((gvisibility*((float)((unsigned char)(sec->visibility+16))))/(wal->shade<0?klabs(wal->shade):1))-(wal->shade>0?3/wal->shade:0)+(wal->shade==1?2.5:0)+(wal->shade==-1?-1:0));
+                    bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?klabs(wal->shade):1)*(wal->shade<0?fogtable[0]:fogtable[i]*3.5)*((float)((unsigned char)(sec->visibility+16))));
                     pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
                     bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
                 }
@@ -3094,8 +3106,10 @@ static void polymost_drawalls (long bunch)
                 if (nwal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
                 {
+                    int i = klabs(nwal->shade);
+                    if(i > 30) i = 30;
                     bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
-                    bglFogf(GL_FOG_DENSITY,((gvisibility*((float)((unsigned char)(sec->visibility+16))))/(nwal->shade<0?klabs(nwal->shade):1))-(nwal->shade>0?3/nwal->shade:0)+(nwal->shade==1?2.5:0)+(nwal->shade==-1?-1:0));
+                    bglFogf(GL_FOG_DENSITY,gvisibility/(nwal->shade<0?klabs(nwal->shade):1)*(nwal->shade<0?fogtable[0]:fogtable[i]*3.5)*((float)((unsigned char)(sec->visibility+16))));
                     pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
                     bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
                 }
@@ -3131,11 +3145,14 @@ static void polymost_drawalls (long bunch)
             if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
             {
+                int i = klabs(wal->shade);
+                if(i > 30) i = 30;
                 bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
-                bglFogf(GL_FOG_DENSITY,((gvisibility*((float)((unsigned char)(sec->visibility+16))))/(wal->shade<0?klabs(wal->shade):1))-(wal->shade>0?3/wal->shade:0)+(wal->shade==1?2.5:0)+(wal->shade==-1?-1:0));
+                bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?klabs(wal->shade):1)*(wal->shade<0?fogtable[0]:fogtable[i]*3.5)*((float)((unsigned char)(sec->visibility+16))));
                 pow2xsplit = 1; domost(x0,-10000,x1,-10000);
                 bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
             }
+
         }
 
         if (nextsectnum >= 0)
@@ -3586,7 +3603,11 @@ if (yp1 < SCISDIST) { t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0;
             col[2] = (float)palookupfog[sec->floorpal].b / 63.f;
             col[3] = 0;
             bglFogfv(GL_FOG_COLOR,col);
-            bglFogf(GL_FOG_DENSITY,((gvisibility*((float)((unsigned char)(sec->visibility+16))))/(wal->shade<0?klabs(wal->shade):1))-(wal->shade>0?3/wal->shade:0)+(wal->shade==1?2.5:0)+(wal->shade==-1?-1:0));
+            {
+                int i = klabs(wal->shade);
+                if(i > 30) i = 30;
+                bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?klabs(wal->shade):1)*(wal->shade<0?fogtable[0]:fogtable[i]*3.5)*((float)((unsigned char)(sec->visibility+16))));
+            }
         }
     }
 #endif
@@ -3693,7 +3714,12 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         col[2] = (float)palookupfog[sector[tspr->sectnum].floorpal].b / 63.f;
         col[3] = 0;
         bglFogfv(GL_FOG_COLOR,col); //default is 0,0,0,0
-        bglFogf(GL_FOG_DENSITY,((gvisibility*0.65*((float)((unsigned char)(sector[tspr->sectnum].visibility+16))))/(globalshade<0?klabs(globalshade):1))-(globalshade>0?3/globalshade:0)+(globalshade==1?2.5:0)+(globalshade==-1?-1:0));
+        {
+            int i = klabs(globalshade);
+            if(i > 30) i = 30;
+            bglFogf(GL_FOG_DENSITY,gvisibility/(globalshade<0?klabs(globalshade):1)*(globalshade<0?fogtable[0]:fogtable[i]*3.5)*((float)((unsigned char)(sector[tspr->sectnum].visibility+16))));
+        }
+
     }
 
     while (rendmode == 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
