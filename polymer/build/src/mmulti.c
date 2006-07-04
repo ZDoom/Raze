@@ -790,11 +790,13 @@ const char *getexternaladdress(void)
         return(ipaddr);
 
 #ifdef _WIN32
-    WSADATA ws;
+    {
+        WSADATA ws;
 
-    if (WSAStartup(0x101,&ws) == SOCKET_ERROR)  {
-        initprintf("mmulti: Winsock error in getexternaladdress() (%d)\n",errno);
-        return(0);
+        if (WSAStartup(0x101,&ws) == SOCKET_ERROR)  {
+            initprintf("mmulti: Winsock error in getexternaladdress() (%d)\n",errno);
+            return(0);
+        }
     }
 #endif
 
