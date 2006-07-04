@@ -46,7 +46,11 @@ typedef uint64 uint64_t;
 #define SOUNDM_NICE   64	// Added for JFDuke3D so JFAud doesn't use nearest filtering for the sound
 #define SOUNDM_PLAYER 128
 
-#define UNITSPERMETRE 512.0
+#define UNITSPERMETRE 1024.0
+#define DEFAULTREFDIST 6.5	// in the original code, ((255-150)<<6) == 6720
+#define DEFAULTMAXDIST 30.0	// in the original code, 31444
+#define DEFAULTROLLOFF 1.0//0.75
+#define OCCLUDEDFACTOR 0.8
 
 #include <cmath>
 
@@ -314,7 +318,7 @@ int isspritemakingsound(short i, int num)	// if num<0, check if making any sound
 	return n;
 }
 
-int issoundplaying(int num)
+int issoundplaying(short i, int num)
 {
 	int j,n=0;
 	
@@ -331,7 +335,7 @@ int xyzsound(short num, short i, long x, long y, long z)
 {
 	JFAudMixerChannel *chan;
 	int r, global = 0;
-	float gain = 1.0, pitch = 1.0;
+	float gain = 1.0, pitch = 1.0, refdist = DEFAULTREFDIST, maxdist = DEFAULTMAXDIST, rolloff = DEFAULTROLLOFF;
 
 	if (!jfaud || !havewave ||
 	    num >= NUM_SOUNDS ||
@@ -360,7 +364,12 @@ int xyzsound(short num, short i, long x, long y, long z)
 		}
 	}
 	
-	// XXX: here goes musicandsfx ranging. This will change the refdist.
+	if( i >= 0 && !(soundm[num] & SOUNDM_GLOBAL) && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9) {
+		float d = (float)SHT/UNITSPERMETRE;
+	        refdist = d / 2.0;
+		maxdist = d;
+		rolloff = 1.0;
+	}
 	
 	{
 		int ps = soundps[num], pe = soundpe[num], cx;
@@ -371,11 +380,15 @@ int xyzsound(short num, short i, long x, long y, long z)
 		} else pitch = translatepitch(ps);
 	}
 	
-	//gain += soundvo[num];
+	{
+		float d = 1.0-(float)soundvo[num]/(12.0*1024.0);
+		maxdist *= d;
+		refdist *= d;
+	}
 	if (PN != MUSICANDSFX &&
-		!cansee(ps[screenpeek].oposx,ps[screenpeek].oposy,ps[screenpeek].oposz-(24<<8),
-		ps[screenpeek].cursectnum,SX,SY,SZ-(24<<8),SECT) )
-        gain *= 1.0/32.0;
+	    !cansee(ps[screenpeek].oposx,ps[screenpeek].oposy,ps[screenpeek].oposz-(24<<8),
+	            ps[screenpeek].cursectnum,SX,SY,SZ-(24<<8),SECT) )
+		gain *= OCCLUDEDFACTOR;
 	
 	switch(num)
 	{
@@ -409,8 +422,10 @@ int xyzsound(short num, short i, long x, long y, long z)
 	
 	chan->SetGain(gain);
 	chan->SetPitch(pitch);
-	chan->SetLoop(soundm[num] & SOUNDM_LOOP);
+	chan->SetLoop((soundm[num] & SOUNDM_LOOP) == SOUNDM_LOOP);
 	if (soundm[num] & SOUNDM_GLOBAL) global = 1;
+	chan->SetRefDist(refdist);
+	chan->SetMaxDist(maxdist);
 	chan->SetFilter((soundm[num]&SOUNDM_NICE) ? JFAudMixerChannel::Filter4Point : JFAudMixerChannel::FilterNearest);
 	
 	if (PN == APLAYER && sprite[i].yvel == screenpeek) {
@@ -418,11 +433,12 @@ int xyzsound(short num, short i, long x, long y, long z)
 		chan->SetFollowListener(true);
 		chan->SetPosition(0.0, 0.0, 0.0);
 	} else {
-		chan->SetRolloff(global ? 0.0 : 1.0);
+		chan->SetRolloff(global ? 0.0 : rolloff);
 		chan->SetFollowListener(false);
 		chan->SetPosition((float)x/UNITSPERMETRE, (float)(-z>>4)/UNITSPERMETRE, (float)y/UNITSPERMETRE);
 	}
-	
+	initprintf("%d gain=%g ptch=%g loop=%d glob=%d refd=%g maxd=%g\n",num,gain,pitch,
+			(soundm[num] & SOUNDM_LOOP) == SOUNDM_LOOP, global, refdist, maxdist);
 	r = keephandle(chan, num, i);
 	if (r >= 0) chan->SetStopCallback(stopcallback, r);
 	chan->Play();
@@ -457,8 +473,9 @@ void sound(short num)
 
 	chan->SetGain(1.0);
 	chan->SetPitch(pitch);
-	chan->SetLoop(soundm[num] & SOUNDM_LOOP);
+	chan->SetLoop((soundm[num] & SOUNDM_LOOP) == SOUNDM_LOOP);
 	chan->SetRolloff(0.0);
+	chan->SetRefDist(DEFAULTREFDIST);
 	chan->SetFollowListener(true);
 	chan->SetPosition(0.0, 0.0, 0.0);
 	chan->SetFilter((soundm[num]&SOUNDM_NICE) ? JFAudMixerChannel::Filter4Point : JFAudMixerChannel::FilterNearest);
@@ -524,7 +541,7 @@ void pan3dsound(void)
 	short i;
 	long cx, cy, cz, sx,sy,sz;
 	short ca,cs;
-	float gain;
+	float gain, rolloff;
 
 	numenvsnds = 0;
 	if (!jfaud || !havewave) return;
@@ -556,17 +573,20 @@ void pan3dsound(void)
 
 		global = 0;
 		gain = 1.0;
+		rolloff = DEFAULTROLLOFF;
 		i = chans[j].owner;
 
 		sx = sprite[i].x;
 		sy = sprite[i].y;
 		sz = sprite[i].z;
 
-		//gain += soundvo[num];
 		if (PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,sx,sy,sz-(24<<8),SECT) )
-			gain *= 1.0/32.0;
+			gain *= OCCLUDEDFACTOR;
 		
-		if(PN == MUSICANDSFX && SLT < 999) numenvsnds++;
+		if(PN == MUSICANDSFX && SLT < 999) {
+			numenvsnds++;
+			rolloff = 1.0;
+		}
 		if( soundm[ chans[j].soundnum ]&SOUNDM_GLOBAL ) global = 1;
 		
 		switch(chans[j].soundnum) {
@@ -592,7 +612,7 @@ void pan3dsound(void)
 			chans[j].chan->SetFollowListener(true);
 			chans[j].chan->SetPosition(0.0, 0.0, 0.0);
 		} else {
-			chans[j].chan->SetRolloff(global ? 0.0 : 1.0);
+			chans[j].chan->SetRolloff(global ? 0.0 : rolloff);
 			chans[j].chan->SetFollowListener(false);
 			chans[j].chan->SetPosition((float)sx/UNITSPERMETRE, (float)(-sz>>4)/UNITSPERMETRE, (float)sy/UNITSPERMETRE);
 		}
