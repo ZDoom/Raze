@@ -35,7 +35,7 @@ FMODROOTWIN=c:/sdks/fmodapi374win/api
 # build locations - OBJ gets overridden to the game-specific objects dir
 OBJ?=obj.gnu/
 SRC=src/
-GAME=game/
+GAME=testgame/
 RSRC=rsrc/
 INC=include/
 

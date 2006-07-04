@@ -1831,45 +1831,6 @@ void Keys3d(void)
         keystatus[KEYSC_L] = 0;
     }
 
-    if ((keystatus[KEYSC_G] > 0)) // G
-    {
-        switch (searchstat)
-        {
-        case 0:
-            strcpy(tempbuf,"Wall picnum: ");
-            i = getnumber256(tempbuf,wall[searchwall].picnum,MAXTILES-1,0);
-            if(tilesizx[i] != 0)
-                wall[searchwall].picnum = i;
-            break;
-        case 1:
-            strcpy(tempbuf,"Sector ceiling picnum: ");
-            i = getnumber256(tempbuf,sector[searchsector].ceilingpicnum,MAXTILES-1,0);
-            if(tilesizx[i] != 0)
-                sector[searchsector].ceilingpicnum = i;
-            break;
-        case 2:
-            strcpy(tempbuf,"Sector floor picnum: ");
-            i = getnumber256(tempbuf,sector[searchsector].floorpicnum,MAXTILES-1,0);
-            if(tilesizx[i] != 0)
-                sector[searchsector].floorpicnum = i;
-            break;
-        case 3:
-            strcpy(tempbuf,"Sprite picnum: ");
-            i = getnumber256(tempbuf,sprite[searchwall].picnum,MAXTILES-1,0);
-            if(tilesizx[i] != 0)
-                sprite[searchwall].picnum = i;
-            break;
-        case 4:
-            strcpy(tempbuf,"Masked wall picnum: ");
-            i = getnumber256(tempbuf,wall[searchwall].overpicnum,MAXTILES-1,0);
-            if(tilesizx[i] != 0)
-                wall[searchwall].overpicnum = i;
-            break;
-        }
-        asksave = 1;
-        keystatus[KEYSC_G] = 0;
-    }
-
     getzrange(posx,posy,posz,cursectnum,&hiz,&hihit,&loz,&lohit,128L,CLIPMASK0);
 
     if (keystatus[KEYSC_CAPS] > 0)
@@ -1882,118 +1843,6 @@ void Keys3d(void)
         else if (zmode == 2) message("Zmode = Locked/Free");
         keystatus[KEYSC_CAPS] = 0;
     }
-
-
-
-    if (keystatus[KEYSC_B] > 0)  // B (clip Blocking xor) (3D)
-    {
-        if (searchstat == 3)
-        {
-            sprite[searchwall].cstat ^= 1;
-            //                                sprite[searchwall].cstat &= ~256;
-            //                                sprite[searchwall].cstat |= ((sprite[searchwall].cstat&1)<<8);
-            sprintf(getmessage,"Sprite (%d) blocking %s",searchwall,sprite[searchwall].cstat&1?"ON":"OFF");
-            message(getmessage);
-            asksave = 1;
-        }
-        else
-        {
-            wall[searchwall].cstat ^= 1;
-            //                                wall[searchwall].cstat &= ~64;
-            if ((wall[searchwall].nextwall >= 0) && ((keystatus[0x2a]|keystatus[0x36]) == 0))
-            {
-                wall[wall[searchwall].nextwall].cstat &= ~(1+64);
-                wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&1);
-            }
-            sprintf(getmessage,"Wall (%d) blocking %s",searchwall,wall[searchwall].cstat&1?"ON":"OFF");
-            message(getmessage);
-            asksave = 1;
-        }
-        keystatus[KEYSC_B] = 0;
-    }
-    if (keystatus[KEYSC_T] > 0)  // T (transluscence for sprites/masked walls)
-    {
-        if (searchstat == 1)   //Set masked/transluscent ceilings/floors
-        {
-            i = (sector[searchsector].ceilingstat&(128+256));
-            sector[searchsector].ceilingstat &= ~(128+256);
-            switch(i)
-            {
-            case 0: sector[searchsector].ceilingstat |= 128; break;
-            case 128: sector[searchsector].ceilingstat |= 256; break;
-            case 256: sector[searchsector].ceilingstat |= 384; break;
-            case 384: sector[searchsector].ceilingstat |= 0; break;
-            }
-            asksave = 1;
-        }
-        if (searchstat == 2)
-        {
-            i = (sector[searchsector].floorstat&(128+256));
-            sector[searchsector].floorstat &= ~(128+256);
-            switch(i)
-            {
-            case 0: sector[searchsector].floorstat |= 128; break;
-            case 128: sector[searchsector].floorstat |= 256; break;
-            case 256: sector[searchsector].floorstat |= 384; break;
-            case 384: sector[searchsector].floorstat |= 0; break;
-            }
-            asksave = 1;
-        }
-
-        if ((keystatus[KEYSC_QUOTE]) > 0)
-        {
-            switch (searchstat)
-            {
-        case 0: case 4:
-                strcpy(buffer,"Wall lotag: ");
-                wall[searchwall].lotag = getnumber256(buffer,(long)wall[searchwall].lotag,65536L,0);
-                break;
-            case 1:
-                strcpy(buffer,"Sector lotag: ");
-                sector[searchsector].lotag = getnumber256(buffer,(long)sector[searchsector].lotag,65536L,0);
-                break;
-            case 2:
-                strcpy(buffer,"Sector lotag: ");
-                sector[searchsector].lotag = getnumber256(buffer,(long)sector[searchsector].lotag,65536L,0);
-                break;
-            case 3:
-                strcpy(buffer,"Sprite lotag: ");
-                sprite[searchwall].lotag = getnumber256(buffer,(long)sprite[searchwall].lotag,65536L,0);
-                break;
-            }
-        }
-        else
-        {
-            if (searchstat == 3)
-            {
-                if ((sprite[searchwall].cstat&2) == 0)
-                    sprite[searchwall].cstat |= 2;
-                else if ((sprite[searchwall].cstat&512) == 0)
-                    sprite[searchwall].cstat |= 512;
-                else
-                    sprite[searchwall].cstat &= ~(2+512);
-                asksave = 1;
-            }
-            if (searchstat == 4)
-            {
-                if ((wall[searchwall].cstat&128) == 0)
-                    wall[searchwall].cstat |= 128;
-                else if ((wall[searchwall].cstat&512) == 0)
-                    wall[searchwall].cstat |= 512;
-                else
-                    wall[searchwall].cstat &= ~(128+512);
-
-                if (wall[searchwall].nextwall >= 0)
-                {
-                    wall[wall[searchwall].nextwall].cstat &= ~(128+512);
-                    wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&(128+512));
-                }
-                asksave = 1;
-            }
-        }
-        keystatus[KEYSC_T] = 0;
-    }
-
 
     if (keystatus[KEYSC_M] > 0 && (keystatus[KEYSC_QUOTE]) > 0)  // M
     {
@@ -3269,8 +3118,154 @@ void Keys3d(void)
         keystatus[0x3b]=0;
     }
 
+    if ((keystatus[KEYSC_G] > 0)) // G
+    {
+        switch (searchstat)
+        {
+        case 0:
+            strcpy(tempbuf,"Wall picnum: ");
+            i = getnumber256(tempbuf,wall[searchwall].picnum,MAXTILES-1,0);
+            if(tilesizx[i] != 0)
+                wall[searchwall].picnum = i;
+            break;
+        case 1:
+            strcpy(tempbuf,"Sector ceiling picnum: ");
+            i = getnumber256(tempbuf,sector[searchsector].ceilingpicnum,MAXTILES-1,0);
+            if(tilesizx[i] != 0)
+                sector[searchsector].ceilingpicnum = i;
+            break;
+        case 2:
+            strcpy(tempbuf,"Sector floor picnum: ");
+            i = getnumber256(tempbuf,sector[searchsector].floorpicnum,MAXTILES-1,0);
+            if(tilesizx[i] != 0)
+                sector[searchsector].floorpicnum = i;
+            break;
+        case 3:
+            strcpy(tempbuf,"Sprite picnum: ");
+            i = getnumber256(tempbuf,sprite[searchwall].picnum,MAXTILES-1,0);
+            if(tilesizx[i] != 0)
+                sprite[searchwall].picnum = i;
+            break;
+        case 4:
+            strcpy(tempbuf,"Masked wall picnum: ");
+            i = getnumber256(tempbuf,wall[searchwall].overpicnum,MAXTILES-1,0);
+            if(tilesizx[i] != 0)
+                wall[searchwall].overpicnum = i;
+            break;
+        }
+        asksave = 1;
+        keystatus[KEYSC_G] = 0;
+    }
 
+    if (keystatus[KEYSC_B] > 0)  // B (clip Blocking xor) (3D)
+    {
+        if (searchstat == 3)
+        {
+            sprite[searchwall].cstat ^= 1;
+            //                                sprite[searchwall].cstat &= ~256;
+            //                                sprite[searchwall].cstat |= ((sprite[searchwall].cstat&1)<<8);
+            sprintf(getmessage,"Sprite (%d) blocking %s",searchwall,sprite[searchwall].cstat&1?"ON":"OFF");
+            message(getmessage);
+            asksave = 1;
+        }
+        else
+        {
+            wall[searchwall].cstat ^= 1;
+            //                                wall[searchwall].cstat &= ~64;
+            if ((wall[searchwall].nextwall >= 0) && ((keystatus[0x2a]|keystatus[0x36]) == 0))
+            {
+                wall[wall[searchwall].nextwall].cstat &= ~(1+64);
+                wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&1);
+            }
+            sprintf(getmessage,"Wall (%d) blocking %s",searchwall,wall[searchwall].cstat&1?"ON":"OFF");
+            message(getmessage);
+            asksave = 1;
+        }
+        keystatus[KEYSC_B] = 0;
+    }
 
+    if (keystatus[KEYSC_T] > 0)  // T (transluscence for sprites/masked walls)
+    {
+        if (searchstat == 1)   //Set masked/transluscent ceilings/floors
+        {
+            i = (sector[searchsector].ceilingstat&(128+256));
+            sector[searchsector].ceilingstat &= ~(128+256);
+            switch(i)
+            {
+            case 0: sector[searchsector].ceilingstat |= 128; break;
+            case 128: sector[searchsector].ceilingstat |= 256; break;
+            case 256: sector[searchsector].ceilingstat |= 384; break;
+            case 384: sector[searchsector].ceilingstat |= 0; break;
+            }
+            asksave = 1;
+        }
+        if (searchstat == 2)
+        {
+            i = (sector[searchsector].floorstat&(128+256));
+            sector[searchsector].floorstat &= ~(128+256);
+            switch(i)
+            {
+            case 0: sector[searchsector].floorstat |= 128; break;
+            case 128: sector[searchsector].floorstat |= 256; break;
+            case 256: sector[searchsector].floorstat |= 384; break;
+            case 384: sector[searchsector].floorstat |= 0; break;
+            }
+            asksave = 1;
+        }
+
+        if ((keystatus[KEYSC_QUOTE]) > 0)
+        {
+            switch (searchstat)
+            {
+        case 0: case 4:
+                strcpy(buffer,"Wall lotag: ");
+                wall[searchwall].lotag = getnumber256(buffer,(long)wall[searchwall].lotag,65536L,0);
+                break;
+            case 1:
+                strcpy(buffer,"Sector lotag: ");
+                sector[searchsector].lotag = getnumber256(buffer,(long)sector[searchsector].lotag,65536L,0);
+                break;
+            case 2:
+                strcpy(buffer,"Sector lotag: ");
+                sector[searchsector].lotag = getnumber256(buffer,(long)sector[searchsector].lotag,65536L,0);
+                break;
+            case 3:
+                strcpy(buffer,"Sprite lotag: ");
+                sprite[searchwall].lotag = getnumber256(buffer,(long)sprite[searchwall].lotag,65536L,0);
+                break;
+            }
+        }
+        else
+        {
+            if (searchstat == 3)
+            {
+                if ((sprite[searchwall].cstat&2) == 0)
+                    sprite[searchwall].cstat |= 2;
+                else if ((sprite[searchwall].cstat&512) == 0)
+                    sprite[searchwall].cstat |= 512;
+                else
+                    sprite[searchwall].cstat &= ~(2+512);
+                asksave = 1;
+            }
+            if (searchstat == 4)
+            {
+                if ((wall[searchwall].cstat&128) == 0)
+                    wall[searchwall].cstat |= 128;
+                else if ((wall[searchwall].cstat&512) == 0)
+                    wall[searchwall].cstat |= 512;
+                else
+                    wall[searchwall].cstat &= ~(128+512);
+
+                if (wall[searchwall].nextwall >= 0)
+                {
+                    wall[wall[searchwall].nextwall].cstat &= ~(128+512);
+                    wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&(128+512));
+                }
+                asksave = 1;
+            }
+        }
+        keystatus[KEYSC_T] = 0;
+    }
 
     if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x1c]==1) // ' ENTER
     {

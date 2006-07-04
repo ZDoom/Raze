@@ -83,7 +83,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
-#define FOGSCALE 0.0000896
+#define FOGSCALE 0.0000820
 #define PI 3.14159265358979323
 
 static double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
@@ -2208,7 +2208,7 @@ static void polymost_drawalls (long bunch)
             col[2] = (float)palookupfog[sec->floorpal].b / 63.f;
             col[3] = 0;
             bglFogfv(GL_FOG_COLOR,col);
-            bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sec->visibility+16))))/(sec->floorshade<0?klabs(sec->floorshade):1)-(sec->floorshade>0?2/sec->floorshade:0));
+            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility+16))));
 
 //            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility+16))));
         }
@@ -2368,7 +2368,10 @@ static void polymost_drawalls (long bunch)
             }
             domostpolymethod = (globalorientation>>7)&3;
             if (globalposz >= getflorzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
+            bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
+            bglFogf(GL_FOG_DENSITY,((gvisibility*((float)((unsigned char)(sec->visibility+16))))/(sec->floorshade<0?klabs(sec->floorshade):1))-(sec->floorshade>0?3/sec->floorshade:0)+(sec->floorshade==1?2.5:0)+(sec->floorshade==-1?-1:0));
             pow2xsplit = 0; domost(x0,fy0,x1,fy1); //flor
+            bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
             domostpolymethod = 0;
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
@@ -2721,7 +2724,10 @@ static void polymost_drawalls (long bunch)
             }
             domostpolymethod = (globalorientation>>7)&3;
             if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
+            bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
+            bglFogf(GL_FOG_DENSITY,((gvisibility*((float)((unsigned char)(sec->visibility+16))))/(sec->ceilingshade<0?klabs(sec->ceilingshade):1))-(sec->ceilingshade>0?3/sec->ceilingshade:0)+(sec->ceilingshade==1?2.5:0)+(sec->ceilingshade==-1?-1:0));
             pow2xsplit = 0; domost(x1,cy1,x0,cy0); //ceil
+            bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
             domostpolymethod = 0;
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
@@ -3048,7 +3054,7 @@ static void polymost_drawalls (long bunch)
 
                 {
                     bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
-                    bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sec->visibility+16))))/(wal->shade<0?klabs(wal->shade):1)-(wal->shade>0?2/wal->shade:0));
+                    bglFogf(GL_FOG_DENSITY,((gvisibility*((float)((unsigned char)(sec->visibility+16))))/(wal->shade<0?klabs(wal->shade):1))-(wal->shade>0?3/wal->shade:0)+(wal->shade==1?2.5:0)+(wal->shade==-1?-1:0));
                     pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
                     bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
                 }
@@ -3089,7 +3095,7 @@ static void polymost_drawalls (long bunch)
 
                 {
                     bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
-                    bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sec->visibility+16))))/(nwal->shade<0?klabs(nwal->shade):1)-(nwal->shade>0?2/nwal->shade:0));
+                    bglFogf(GL_FOG_DENSITY,((gvisibility*((float)((unsigned char)(sec->visibility+16))))/(nwal->shade<0?klabs(nwal->shade):1))-(nwal->shade>0?3/nwal->shade:0)+(nwal->shade==1?2.5:0)+(nwal->shade==-1?-1:0));
                     pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
                     bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
                 }
@@ -3126,7 +3132,7 @@ static void polymost_drawalls (long bunch)
 
             {
                 bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
-                bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sec->visibility+16))))/(wal->shade<0?klabs(wal->shade):1)-(wal->shade>0?2/wal->shade:0));
+                bglFogf(GL_FOG_DENSITY,((gvisibility*((float)((unsigned char)(sec->visibility+16))))/(wal->shade<0?klabs(wal->shade):1))-(wal->shade>0?3/wal->shade:0)+(wal->shade==1?2.5:0)+(wal->shade==-1?-1:0));
                 pow2xsplit = 1; domost(x0,-10000,x1,-10000);
                 bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
             }
@@ -3580,7 +3586,7 @@ if (yp1 < SCISDIST) { t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0;
             col[2] = (float)palookupfog[sec->floorpal].b / 63.f;
             col[3] = 0;
             bglFogfv(GL_FOG_COLOR,col);
-            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility+16))));
+            bglFogf(GL_FOG_DENSITY,((gvisibility*((float)((unsigned char)(sec->visibility+16))))/(wal->shade<0?klabs(wal->shade):1))-(wal->shade>0?3/wal->shade:0)+(wal->shade==1?2.5:0)+(wal->shade==-1?-1:0));
         }
     }
 #endif
@@ -3687,7 +3693,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         col[2] = (float)palookupfog[sector[tspr->sectnum].floorpal].b / 63.f;
         col[3] = 0;
         bglFogfv(GL_FOG_COLOR,col); //default is 0,0,0,0
-        bglFogf(GL_FOG_DENSITY,(gvisibility*((float)((unsigned char)(sector[tspr->sectnum].visibility+16))))/(globalshade<0?klabs(globalshade):1)-(globalshade>0?2/globalshade:0));
+        bglFogf(GL_FOG_DENSITY,((gvisibility*0.65*((float)((unsigned char)(sector[tspr->sectnum].visibility+16))))/(globalshade<0?klabs(globalshade):1))-(globalshade>0?3/globalshade:0)+(globalshade==1?2.5:0)+(globalshade==-1?-1:0));
     }
 
     while (rendmode == 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
