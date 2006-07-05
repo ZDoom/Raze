@@ -473,7 +473,7 @@ extern long gltexfiltermode;
 extern long glredbluemode;
 extern long glusetexcache, glusetexcachecompression;
 extern long glmultisample, glnvmultisamplehint;
-extern long glwidescreen, glhudcorrect, glprojectionhacks;
+extern long glwidescreen, glprojectionhacks;
 void gltexapplyprops (void);
 #endif
 

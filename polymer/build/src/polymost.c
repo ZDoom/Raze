@@ -69,16 +69,16 @@ static long animateoffs(short tilenum, short fakevar);
 long rendmode = 0;
 long usemodels=1, usehightile=1;
 
-float foggymcfogfogger;
+// float fogtable[] = { 0.165, 0.198, 0.231, 0.264, 0.297, 0.330, 0.363, 0.396, 0.429, 0.462, 0.495, 0.528, 0.561, 0.594, 0.627, 0.660, 0.693, 0.726, 0.759, 0.792, 0.825, 0.858, 0.891, 0.924, 0.957, 1.023, 1.056, 1.089, 1.122, 1.155, 1.188, 1.221 };
 
-// float fogtable[] = { 0.132, 0.165, 0.198, 0.231, 0.264, 0.297, 0.330, 0.363, 0.396, 0.429, 0.462, 0.495, 0.528, 0.561, 0.594, 0.627, 0.660, 0.693, 0.726, 0.759, 0.792, 0.825, 0.858, 0.891, 0.924, 0.957, 1.023, 1.056, 1.089, 1.122, 1.155, 1.188 };
+// float fogtable[] = { 0.175, 0.200, 0.225, 0.250, 0.275, 0.300, 0.325, 0.350, 0.375, 0.400, 0.425, 0.450, 0.475, 0.500, 0.525, 0.550, 0.575, 0.600, 0.625, 0.650, 0.675, 0.700, 0.725, 0.750, 0.775, 0.800, 0.825, 0.850, 0.875, 0.900, 0.925, 0.950 };
 
-float fogtable[] = { 0.150, 0.175, 0.200, 0.225, 0.250, 0.275, 0.300, 0.325, 0.350, 0.375, 0.400, 0.425, 0.450, 0.475, 0.500, 0.525, 0.550, 0.575, 0.600, 0.625, 0.650, 0.675, 0.700, 0.725, 0.750, 0.775, 0.800, 0.825, 0.850, 0.875, 0.900, 0.925 };
+float fogtable[] = { 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.025, 1.075, 1.125, 1.175, 1.225, 1.275, 1.325, 1.375, 1.425, 1.475, 1.525, 1.575, 1.625, 1.675, 1.725, 1.775, 1.825 };
 
-#define NEGFOGSUB 0.1
-#define NEGFOGTABLESCALE 16
-#define FOGTABLESCALE 4
-#define SPRFOGTABLESCALE 2.5
+#define NEGFOGSUB 0.08
+#define NEGFOGTABLESCALE 8
+#define FOGTABLESCALE 2
+#define SPRFOGTABLESCALE 1.5
 
 #include <math.h> //<-important!
 typedef struct { float x, cy[2], fy[2]; long n, p, tag, ctag, ftag; } vsptyp;
@@ -92,7 +92,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
-#define FOGSCALE 0.0000820
+#define FOGSCALE 0.0000800
 #define PI 3.14159265358979323
 
 static double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
@@ -136,7 +136,6 @@ static long lastglpolygonmode = 0; //FUK
 long glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
 long glwidescreen = 0;
 long glprojectionhacks = 1;
-long glhudcorrect = 0;
 static GLuint polymosttext = 0;
 extern char nofog;
 #endif
@@ -2377,14 +2376,13 @@ static void polymost_drawalls (long bunch)
             }
             domostpolymethod = (globalorientation>>7)&3;
             if (globalposz >= getflorzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
-            bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
+            if(!nofog)
             {
                 int i = klabs(sec->floorshade);
                 if(i > 30) i = 30;
                 bglFogf(GL_FOG_DENSITY,gvisibility/(sec->floorshade<0?(fogtable[i]-NEGFOGSUB)*NEGFOGTABLESCALE:1)*(sec->floorshade<0?1:fogtable[i]*FOGTABLESCALE)*((float)((unsigned char)(sec->visibility+16))));
             }
             pow2xsplit = 0; domost(x0,fy0,x1,fy1); //flor
-            bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
             domostpolymethod = 0;
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
@@ -2393,11 +2391,18 @@ static void polymost_drawalls (long bunch)
 #ifdef USE_OPENGL
             if (rendmode == 3)
             {
-                if (!nofog) {
+/*                if (!nofog) {
                     bglDisable(GL_FOG);
                     //r = ((float)globalpisibility)*((float)((unsigned char)(sec->visibility+16)))*FOGSCALE;
                     //r *= ((double)xdimscale*(double)viewingrange*gdo) / (65536.0*65536.0);
                     //bglFogf(GL_FOG_DENSITY,r);
+                } */
+
+                if(!nofog)
+                {
+                    int i = klabs(sec->floorshade);
+                    if(i > 30) i = 30;
+                    bglFogf(GL_FOG_DENSITY,0.005*gvisibility/(sec->floorshade<0?(fogtable[i]-NEGFOGSUB)*NEGFOGTABLESCALE:1)*((float)((unsigned char)(sec->visibility+16))));
                 }
 
                 //Use clamping for tiled sky textures
@@ -2737,14 +2742,13 @@ static void polymost_drawalls (long bunch)
             }
             domostpolymethod = (globalorientation>>7)&3;
             if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
-            bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
+            if(!nofog)
             {
                 int i = klabs(sec->ceilingshade);
                 if(i > 30) i = 30;
                 bglFogf(GL_FOG_DENSITY,gvisibility/(sec->ceilingshade<0?(fogtable[i]-NEGFOGSUB)*NEGFOGTABLESCALE:1)*(sec->ceilingshade<0?1:fogtable[i]*FOGTABLESCALE)*((float)((unsigned char)(sec->visibility+16))));
             }
             pow2xsplit = 0; domost(x1,cy1,x0,cy0); //ceil
-            bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
             domostpolymethod = 0;
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
@@ -2752,11 +2756,18 @@ static void polymost_drawalls (long bunch)
 #ifdef USE_OPENGL
             if (rendmode == 3)
             {
-                if (!nofog) {
+/*                if (!nofog) {
                     bglDisable(GL_FOG);
                     //r = ((float)globalpisibility)*((float)((unsigned char)(sec->visibility+16)))*FOGSCALE;
                     //r *= ((double)xdimscale*(double)viewingrange*gdo) / (65536.0*65536.0);
                     //bglFogf(GL_FOG_DENSITY,r);
+                }
+*/
+                if(!nofog)
+                {
+                    int i = klabs(sec->ceilingshade);
+                    if(i > 30) i = 30;
+                    bglFogf(GL_FOG_DENSITY,0.005*gvisibility/(sec->ceilingshade<0?(fogtable[i]-NEGFOGSUB)*NEGFOGTABLESCALE:1)*((float)((unsigned char)(sec->visibility+16))));
                 }
 
                 //Use clamping for tiled sky textures
@@ -3069,15 +3080,13 @@ static void polymost_drawalls (long bunch)
                 }
                 if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
+                if(!nofog)
                 {
                     int i = klabs(wal->shade);
                     if(i > 30) i = 30;
-                    bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
                     bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(fogtable[i]-NEGFOGSUB)*NEGFOGTABLESCALE:1)*(wal->shade<0?1:fogtable[i]*FOGTABLESCALE)*((float)((unsigned char)(sec->visibility+16))));
-                    pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
-                    bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
                 }
-
+                pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
                 if (wal->cstat&8) { gux = ogux; guy = oguy; guo = oguo; }
             }
             if (((ofy0 < fy0) || (ofy1 < fy1)) && (!((sec->floorstat&sector[nextsectnum].floorstat)&1)))
@@ -3112,15 +3121,13 @@ static void polymost_drawalls (long bunch)
                 }
                 if (nwal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
+                if(!nofog)
                 {
                     int i = klabs(nwal->shade);
                     if(i > 30) i = 30;
-                    bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
                     bglFogf(GL_FOG_DENSITY,gvisibility/(nwal->shade<0?(fogtable[i]-NEGFOGSUB)*NEGFOGTABLESCALE:1)*(nwal->shade<0?1:fogtable[i]*FOGTABLESCALE)*((float)((unsigned char)(sec->visibility+16))));
-                    pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
-                    bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
                 }
-
+                pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
                 if (wal->cstat&(2+8)) { guo = oguo; gux = ogux; guy = oguy; }
             }
         }
@@ -3151,15 +3158,13 @@ static void polymost_drawalls (long bunch)
             }
             if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 
+            if(!nofog)
             {
                 int i = klabs(wal->shade);
                 if(i > 30) i = 30;
-                bglGetFloatv(GL_FOG_DENSITY,&foggymcfogfogger);
                 bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(fogtable[i]-NEGFOGSUB)*NEGFOGTABLESCALE:1)*(wal->shade<0?1:fogtable[i]*FOGTABLESCALE)*((float)((unsigned char)(sec->visibility+16))));
-                pow2xsplit = 1; domost(x0,-10000,x1,-10000);
-                bglFogf(GL_FOG_DENSITY,foggymcfogfogger);
             }
-
+            pow2xsplit = 1; domost(x0,-10000,x1,-10000);
         }
 
         if (nextsectnum >= 0)
@@ -3610,6 +3615,8 @@ if (yp1 < SCISDIST) { t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0;
             col[2] = (float)palookupfog[sec->floorpal].b / 63.f;
             col[3] = 0;
             bglFogfv(GL_FOG_COLOR,col);
+
+            if(!nofog)
             {
                 int i = klabs(wal->shade);
                 if(i > 30) i = 30;
@@ -3721,12 +3728,13 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         col[2] = (float)palookupfog[sector[tspr->sectnum].floorpal].b / 63.f;
         col[3] = 0;
         bglFogfv(GL_FOG_COLOR,col); //default is 0,0,0,0
+
+        if(!nofog)
         {
             int i = klabs(globalshade);
             if(i > 30) i = 30;
             bglFogf(GL_FOG_DENSITY,gvisibility/(globalshade<0?(fogtable[i]-NEGFOGSUB)*NEGFOGTABLESCALE:1)*(globalshade<0?1:fogtable[i]*SPRFOGTABLESCALE)*((float)((unsigned char)(sector[tspr->sectnum].visibility+16))));
         }
-
     }
 
     while (rendmode == 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
@@ -4096,13 +4104,7 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
             globalorientation = (dastat&1)+((dastat&32)<<4)+((dastat&4)<<1);
 
             if ((dastat&10) == 2)
-            {
-                if(glhudcorrect)
-                {
-                    fovcorrect = ((xdimen*1.2)-(xdimen+1)) * 2;
-                    bglViewport(windowx1 - (fovcorrect / 2),yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect,windowy2-windowy1+1);
-                } else bglViewport(windowx1,yres-(windowy2+1),windowx2-windowx1+1,windowy2-windowy1+1);
-            }
+                bglViewport(windowx1,yres-(windowy2+1),windowx2-windowx1+1,windowy2-windowy1+1);
             else
             {
                 bglViewport(0,0,xdim,ydim);
