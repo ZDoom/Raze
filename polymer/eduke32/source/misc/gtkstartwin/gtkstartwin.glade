@@ -159,29 +159,6 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkLabel" id="cddrvlabel">
-			  <property name="width_request">88</property>
-			  <property name="height_request">29</property>
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">C_D drive:</property>
-			  <property name="use_underline">True</property>
-			  <property name="use_markup">False</property>
-			  <property name="justify">GTK_JUSTIFY_LEFT</property>
-			  <property name="wrap">False</property>
-			  <property name="selectable">False</property>
-			  <property name="xalign">0</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			  <property name="mnemonic_widget">cddrvcombo</property>
-			</widget>
-			<packing>
-			  <property name="x">0</property>
-			  <property name="y">72</property>
-			</packing>
-		      </child>
-
-		      <child>
 			<widget class="GtkComboBox" id="sounddrvcombo">
 			  <property name="width_request">31</property>
 			  <property name="height_request">30</property>
@@ -192,19 +169,6 @@
 			<packing>
 			  <property name="x">88</property>
 			  <property name="y">40</property>
-			</packing>
-		      </child>
-
-		      <child>
-			<widget class="GtkComboBox" id="cddrvcombo">
-			  <property name="width_request">31</property>
-			  <property name="height_request">30</property>
-			  <property name="visible">True</property>
-			  <signal name="changed" handler="on_cddrvcombo_changed" last_modification_time="Fri, 30 Jun 2006 17:57:23 GMT"/>
-			</widget>
-			<packing>
-			  <property name="x">88</property>
-			  <property name="y">72</property>
 			</packing>
 		      </child>
 

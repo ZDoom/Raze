@@ -47,10 +47,13 @@ typedef uint64 uint64_t;
 #define SOUNDM_PLAYER 128
 
 #define UNITSPERMETRE 1024.0
-#define DEFAULTREFDIST 6.5	// in the original code, ((255-150)<<6) == 6720
-#define DEFAULTMAXDIST 30.0	// in the original code, 31444
+#define DEFAULTREFDIST (6720.0/1024.0)	// in the original code, ((255-150)<<6) == 6720
+#define DEFAULTMAXDIST (31444.0/1024.0)	// in the original code, 31444
 #define DEFAULTROLLOFF 1.0//0.75
 #define OCCLUDEDFACTOR 0.8
+
+static JFAudMixerChannel::Filter DefaultFilter = JFAudMixerChannel::FilterNearest;
+static int osdcmd_setsoundfilter(const osdfuncparm_t *parm);
 
 #include <cmath>
 
@@ -229,6 +232,8 @@ void SoundStartup(void)
 	}
 	
 	if (jfaud->InitMIDI(NULL)) havemidi = true;
+
+	OSD_RegisterFunction("setsoundfilter","setsoundfilter: 0=nearest 1=linear 2=4point",osdcmd_setsoundfilter);
 }
 
 void SoundShutdown(void)
@@ -426,7 +431,8 @@ int xyzsound(short num, short i, long x, long y, long z)
 	if (soundm[num] & SOUNDM_GLOBAL) global = 1;
 	chan->SetRefDist(refdist);
 	chan->SetMaxDist(maxdist);
-	chan->SetFilter((soundm[num]&SOUNDM_NICE) ? JFAudMixerChannel::Filter4Point : JFAudMixerChannel::FilterNearest);
+	chan->SetFilter((soundm[num]&SOUNDM_NICE) ? JFAudMixerChannel::Filter4Point : DefaultFilter);
+	chan->SetDistanceModel(JFAudMixerChannel::DistanceModelLinear);
 	
 	if (PN == APLAYER && sprite[i].yvel == screenpeek) {
 		chan->SetRolloff(0.0);
@@ -437,8 +443,6 @@ int xyzsound(short num, short i, long x, long y, long z)
 		chan->SetFollowListener(false);
 		chan->SetPosition((float)x/UNITSPERMETRE, (float)(-z>>4)/UNITSPERMETRE, (float)y/UNITSPERMETRE);
 	}
-	initprintf("%d gain=%g ptch=%g loop=%d glob=%d refd=%g maxd=%g\n",num,gain,pitch,
-			(soundm[num] & SOUNDM_LOOP) == SOUNDM_LOOP, global, refdist, maxdist);
 	r = keephandle(chan, num, i);
 	if (r >= 0) chan->SetStopCallback(stopcallback, r);
 	chan->Play();
@@ -478,7 +482,8 @@ void sound(short num)
 	chan->SetRefDist(DEFAULTREFDIST);
 	chan->SetFollowListener(true);
 	chan->SetPosition(0.0, 0.0, 0.0);
-	chan->SetFilter((soundm[num]&SOUNDM_NICE) ? JFAudMixerChannel::Filter4Point : JFAudMixerChannel::FilterNearest);
+	chan->SetFilter((soundm[num]&SOUNDM_NICE) ? JFAudMixerChannel::Filter4Point : DefaultFilter);
+	chan->SetDistanceModel(JFAudMixerChannel::DistanceModelLinear);
 
 	r = keephandle(chan, num, -1);
 	if (r >= 0) chan->SetStopCallback(stopcallback, r);
@@ -710,3 +715,14 @@ void MUSIC_RegisterTimbreBank( unsigned char *timbres )
 {
 }
 
+static int osdcmd_setsoundfilter(const osdfuncparm_t *parm)
+{
+	int filt = 0;
+	if (parm->numparms < 1) return OSDCMD_SHOWHELP;
+
+	filt = Batol(parm->parms[0]);
+	if (filt < JFAudMixerChannel::FilterNearest) filt = JFAudMixerChannel::FilterNearest;
+	else if (filt > JFAudMixerChannel::Filter4Point) filt = JFAudMixerChannel::Filter4Point;
+	DefaultFilter = (JFAudMixerChannel::Filter)filt;
+	return OSDCMD_OK;
+}
