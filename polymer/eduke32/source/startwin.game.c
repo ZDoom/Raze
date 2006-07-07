@@ -8,6 +8,8 @@
 #include "winlayer.h"
 #include "compat.h"
 
+#include "startdlg.h"
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h>
@@ -18,56 +20,79 @@
 #include "startwin.game.h"
 
 #define TAB_CONFIG 0
-#define TAB_MESSAGES 1
+#define TAB_GAME 1
+#define TAB_MESSAGES 2
 
 static struct {
     int fullscreen;
     int xdim, ydim, bpp;
     int forcesetup;
     int usemouse, usejoy;
+    char selectedgrp[BMAX_PATH+1];
 } settings;
 
 static HWND startupdlg = NULL;
-static HWND pages[2] = { NULL, NULL};
+static HWND pages[3] = { NULL, NULL, NULL };
 static int done = -1, mode = TAB_CONFIG;
 
-static void PopulateForm(void)
+static void PopulateForm(int pgs)
 {
-    int i,j;
-    char buf[64];
-    int mode;
     HWND hwnd;
+    if (pgs & (1<<TAB_CONFIG)) {
+        int i,j;
+        char buf[64];
+        int mode;
 
-    hwnd = GetDlgItem(pages[TAB_CONFIG], IDCVMODE);
+        hwnd = GetDlgItem(pages[TAB_CONFIG], IDCVMODE);
 
-    mode = checkvideomode(&settings.xdim, &settings.ydim, settings.bpp, settings.fullscreen, 1);
-    if (mode < 0) {
-        int cd[] = { 32, 24, 16, 15, 8, 0 };
-        for (i=0; cd[i]; ) { if (cd[i] >= settings.bpp) i++; else break; }
-        for ( ; cd[i]; i++) {
-            mode = checkvideomode(&settings.xdim, &settings.ydim, cd[i], settings.fullscreen, 1);
-            if (mode < 0) continue;
-            settings.bpp = cd[i];
-            break;
+        mode = checkvideomode(&settings.xdim, &settings.ydim, settings.bpp, settings.fullscreen, 1);
+        if (mode < 0) {
+            int cd[] = { 32, 24, 16, 15, 8, 0 };
+            for (i=0; cd[i]; ) { if (cd[i] >= settings.bpp) i++; else break; }
+            for ( ; cd[i]; i++) {
+                mode = checkvideomode(&settings.xdim, &settings.ydim, cd[i], settings.fullscreen, 1);
+                if (mode < 0) continue;
+                settings.bpp = cd[i];
+                break;
+            }
+        }
+
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), (settings.fullscreen ? BST_CHECKED : BST_UNCHECKED));
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.forcesetup ? BST_CHECKED : BST_UNCHECKED));
+
+        ComboBox_ResetContent(hwnd);
+        for (i=0; i<validmodecnt; i++) {
+            if (validmode[i].fs != settings.fullscreen) continue;
+
+            // all modes get added to the 3D mode list
+            Bsprintf(buf, "%ld x %ld %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
+            j = ComboBox_AddString(hwnd, buf);
+            ComboBox_SetItemData(hwnd, j, i);
+            if (i == mode) ComboBox_SetCurSel(hwnd, j);
+        }
+
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTMOUSE), (settings.usemouse ? BST_CHECKED : BST_UNCHECKED));
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), (settings.usejoy ? BST_CHECKED : BST_UNCHECKED));
+    }
+
+    if (pgs & (1<<TAB_GAME)) {
+        struct grpfile *fg;
+        int i, j;
+        char buf[128+BMAX_PATH];
+
+        hwnd = GetDlgItem(pages[TAB_GAME], IDGDATA);
+
+        for (fg = foundgrps; fg; fg=fg->next) {
+            for (i = 0; i<numgrpfiles; i++)
+                if (fg->crcval == grpfiles[i].crcval) break;
+            if (i == numgrpfiles) continue;	// unrecognised grp file
+
+            Bsprintf(buf, "%s\t%s", grpfiles[i].name, fg->name);
+            j = ListBox_AddString(hwnd, buf);
+            ListBox_SetItemData(hwnd, j, (LPARAM)fg);
+            if (!Bstrcasecmp(fg->name, settings.selectedgrp)) ListBox_SetCurSel(hwnd, j);
         }
     }
-
-    Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), (settings.fullscreen ? BST_CHECKED : BST_UNCHECKED));
-    Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.forcesetup ? BST_CHECKED : BST_UNCHECKED));
-
-    ComboBox_ResetContent(hwnd);
-    for (i=0; i<validmodecnt; i++) {
-        if (validmode[i].fs != settings.fullscreen) continue;
-
-        // all modes get added to the 3D mode list
-        Bsprintf(buf, "%ld x %ld %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
-        j = ComboBox_AddString(hwnd, buf);
-        ComboBox_SetItemData(hwnd, j, i);
-        if (i == mode) ComboBox_SetCurSel(hwnd, j);
-    }
-
-    Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTMOUSE), (settings.usemouse ? BST_CHECKED : BST_UNCHECKED));
-    Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), (settings.usejoy ? BST_CHECKED : BST_UNCHECKED));
 }
 
 static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -77,7 +102,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
         switch (LOWORD(wParam)) {
         case IDCFULLSCREEN:
             settings.fullscreen = !settings.fullscreen;
-            PopulateForm();
+            PopulateForm(1<<TAB_CONFIG);
             return TRUE;
         case IDCVMODE:
             if (HIWORD(wParam) == CBN_SELCHANGE) {
@@ -100,6 +125,26 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
         case IDCINPUTJOY:
             settings.usejoy = IsDlgButtonChecked(hwndDlg, IDCINPUTJOY) == BST_CHECKED;
             return TRUE;
+        default: break;
+        }
+        break;
+    default: break;
+    }
+    return FALSE;
+}
+
+static INT_PTR CALLBACK GamePageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg) {
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDGDATA: {
+                int i;
+                i = ListBox_GetCurSel((HWND)lParam);
+                if (i != CB_ERR) i = ListBox_GetItemData((HWND)lParam, i);
+                if (i != CB_ERR) strcpy(settings.selectedgrp, ((struct grpfile*)i)->name);
+                return TRUE;
+            }
         default: break;
         }
         break;
@@ -132,6 +177,8 @@ static void EnableConfig(int n)
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCVMODE), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUTMOUSE), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), n);
+
+    EnableWindow(GetDlgItem(pages[TAB_GAME], IDGDATA), n);
 }
 
 static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -208,10 +255,13 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
                 ZeroMemory(&tab, sizeof(tab));
                 tab.mask = TCIF_TEXT;
                 tab.pszText = TEXT("Configuration");
-                SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)0, (LPARAM)&tab);
+                SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
+                tab.mask = TCIF_TEXT;
+                tab.pszText = TEXT("Game");
+                SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_GAME, (LPARAM)&tab);
                 tab.mask = TCIF_TEXT;
                 tab.pszText = TEXT("Messages");
-                SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)1, (LPARAM)&tab);
+                SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
 
                 // Work out the position and size of the area inside the tab control for the pages
                 ZeroMemory(&r, sizeof(r));
@@ -225,8 +275,11 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
                 // Create the pages and position them in the tab control, but hide them
                 pages[TAB_CONFIG] = CreateDialog((HINSTANCE)win_gethinstance(),
                                                  MAKEINTRESOURCE(WIN_STARTWINPAGE_CONFIG), hwndDlg, ConfigPageProc);
+                pages[TAB_GAME] = CreateDialog((HINSTANCE)win_gethinstance(),
+                                               MAKEINTRESOURCE(WIN_STARTWINPAGE_GAME), hwndDlg, GamePageProc);
                 pages[TAB_MESSAGES] = GetDlgItem(hwndDlg, WIN_STARTWIN_MESSAGES);
                 SetWindowPos(pages[TAB_CONFIG], hwnd,r.left,r.top,r.right,r.bottom,SWP_HIDEWINDOW);
+                SetWindowPos(pages[TAB_GAME], hwnd,r.left,r.top,r.right,r.bottom,SWP_HIDEWINDOW);
                 SetWindowPos(pages[TAB_MESSAGES], hwnd,r.left,r.top,r.right,r.bottom,SWP_HIDEWINDOW);
 
                 // Tell the editfield acting as the console to exclude the width of the scrollbar
@@ -235,7 +288,14 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
                 r.left = r.top = 0;
                 SendMessage(pages[TAB_MESSAGES], EM_SETRECTNP,0,(LPARAM)&r);
 
+                // Set a tab stop in the game data listbox
+                {
+                    DWORD tabs[1] = { 150 };
+                    ListBox_SetTabStops(GetDlgItem(pages[TAB_GAME], IDGDATA), 1, tabs);
+                }
+
                 SetFocus(GetDlgItem(hwndDlg, WIN_STARTWIN_START));
+                SetWindowText(hwndDlg, apptitle);
             }
             return FALSE;
         }
@@ -261,14 +321,19 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         }
 
     case WM_CLOSE:
-		if (mode == TAB_CONFIG) done = 0;
-		else quitevent++;
+        if (mode == TAB_CONFIG) done = 0;
+        else quitevent++;
         return TRUE;
 
     case WM_DESTROY:
         if (hbmp) {
             DeleteObject(hbmp);
             hbmp = NULL;
+        }
+
+        if (pages[TAB_GAME]) {
+            DestroyWindow(pages[TAB_GAME]);
+            pages[TAB_GAME] = NULL;
         }
 
         if (pages[TAB_CONFIG]) {
@@ -281,10 +346,10 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
     case WM_COMMAND:
         switch (LOWORD(wParam)) {
-		case WIN_STARTWIN_CANCEL:
-			if (mode == TAB_CONFIG) done = 0;
-			else quitevent++;
-			return TRUE;
+        case WIN_STARTWIN_CANCEL:
+            if (mode == TAB_CONFIG) done = 0;
+            else quitevent++;
+            return TRUE;
         case WIN_STARTWIN_START: done = 1; return TRUE;
         }
         return FALSE;
@@ -390,12 +455,16 @@ int startwin_idle(void *v)
     return 0;
 }
 
+extern char *duke3dgrp;
+
 int startwin_run(void)
 {
     MSG msg;
     if (!startupdlg) return 1;
 
     done = -1;
+
+    ScanGroups();
 
     SetPage(TAB_CONFIG);
     EnableConfig(1);
@@ -407,7 +476,8 @@ int startwin_run(void)
     settings.forcesetup = ForceSetup;
     settings.usemouse = UseMouse;
     settings.usejoy = UseJoystick;
-    PopulateForm();
+    strncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
+    PopulateForm(-1);
 
     while (done < 0) {
         switch (GetMessage(&msg, NULL, 0,0)) {
@@ -431,6 +501,7 @@ int startwin_run(void)
         ForceSetup = settings.forcesetup;
         UseMouse = settings.usemouse;
         UseJoystick = settings.usejoy;
+        duke3dgrp = settings.selectedgrp;
     }
 
     return done;

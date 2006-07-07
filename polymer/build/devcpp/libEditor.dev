@@ -48,9 +48,9 @@ ProductVersion=
 AutoIncBuildNr=0
 
 [Unit3]
-FileName=..\src\buildstartwin.c
+FileName=..\src\startwin.editor.c
 CompileCpp=0
-Folder=KenBuild Editor
+Folder=Build Editor library
 Compile=1
 Link=1
 Priority=1000

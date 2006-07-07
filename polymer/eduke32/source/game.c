@@ -127,7 +127,7 @@ void pitch_test( void );
 char restorepalette,screencapt,nomorelogohack;
 int sendmessagecommand = -1;
 
-static char *duke3dgrp = "duke3d.grp";  // JBF 20030925
+char *duke3dgrp = "duke3d.grp";  // JBF 20030925
 static char *duke3ddef = "duke3d.def";
 
 extern long lastvisinc;
@@ -7763,7 +7763,6 @@ void checkcommandline(int argc,char **argv)
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
                 if (!Bstrcasecmp(c+1,"setup")) {
-                    CommandSetup = 1;
                     i++;
                     continue;
                 }
@@ -7927,23 +7926,12 @@ void checkcommandline(int argc,char **argv)
                 continue;
             }
 
-
-            if(*c == '?')
-            {
-                comlinehelp(argv);
-                exit(-1);
-            }
-
             if((*c == '/') || (*c == '-'))
             {
                 c++;
                 switch(*c)
                 {
-                default:
-                    //                      printf("Unknown command line parameter '%s'\n",argv[i]);
-                case '?':
-                    comlinehelp(argv);
-                    exit(0);
+                default: break;
                 case 'x':
                 case 'X':
                     c++;
@@ -8525,7 +8513,7 @@ void Startup(void)
 
     compilecons();
 
-    i = CONFIG_ReadSetup();
+    //    i = CONFIG_ReadSetup();
 
     if (initengine()) {
         wm_msgbox("Build Engine Initialisation Error",
@@ -8533,16 +8521,6 @@ void Startup(void)
         freeconmem();
         exit(1);
     }
-
-#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
-    if (i < 0 || (netparamcount == 0 && ForceSetup) || CommandSetup) {
-        if (quitevent | !startwin_run()) {
-            uninitengine();
-            freeconmem();
-            exit(0);
-        }
-    }
-#endif
 
     setupdynamictostatic();
 
@@ -8814,8 +8792,6 @@ void backtomenu(void)
 
 int shareware = 0;
 
-char *startwin_labeltext = "Starting EDuke32...";
-
 int load_script(char *szScript)
 {
     FILE* fp = fopenfrompath(szScript, "r");
@@ -8888,6 +8864,34 @@ void app_main(int argc,char **argv)
         duke3dgrp = getenv("DUKE3DGRP");
         initprintf("Using `%s' as main GRP file\n", duke3dgrp);
     }
+
+    for (i=1;i<argc;i++) {
+        if (argv[i][0] != '-' && argv[i][0] != '/') continue;
+        if (!Bstrcasecmp(argv[i]+1, "setup")) CommandSetup = TRUE;
+        else if (!Bstrcasecmp(argv[i]+1, "?")) {
+            comlinehelp(argv);
+            exit(0);
+        }
+    }
+
+    wm_setapptitle("EDuke32");
+    if (preinitengine()) {
+        wm_msgbox("Build Engine Initialisation Error",
+                  "There was a problem initialising the Build engine: %s", engineerrstr);
+        exit(1);
+    }
+
+    i = CONFIG_ReadSetup();
+
+#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
+    if (i < 0 || ForceSetup || CommandSetup) {
+        if (quitevent || !startwin_run()) {
+            uninitengine();
+            exit(0);
+        }
+    }
+#endif
+
     initgroupfile(duke3dgrp);
     i = kopen4load("DUKESW.BIN",1); // JBF 20030810
     if (i!=-1) {

@@ -355,6 +355,7 @@ OTHER VARIABLES:
             you call the loadboard function.
 ***************************************************************************/
 
+int    preinitengine(void);	// a partial setup of the engine used for launch windows
 int    initengine(void);
 void   uninitengine(void);
 void   initspritelists(void);

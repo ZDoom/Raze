@@ -6,13 +6,13 @@ Type=0
 Ver=1
 ObjFiles=
 Includes=..\include
-Libs=C:\sdks\msc\dx7\include
+Libs=C:\sdks\directx\dx7\include
 PrivateResource=Build_private.rc
-ResourceIncludes=..\
+ResourceIncludes=..\;..\include
 MakeIncludes=
-Compiler=-DRENDERTYPEWIN=1_@@_-DSUPERBUILD_@@_-DPOLYMOST_@@_-DUSE_OPENGL_@@_-DDYNAMIC_OPENGL_@@_-DNO_GCC_BUILTINS_@@_-DUNDERSCORES_@@_-funsigned-char_@@_
+Compiler=-DRENDERTYPEWIN=1_@@_-DSUPERBUILD_@@_-DPOLYMOST_@@_-DUSE_OPENGL_@@_-DDYNAMIC_OPENGL_@@_-DNO_GCC_BUILTINS_@@_-DUNDERSCORES_@@_-funsigned-char_@@_-fno-strict-aliasing_@@_
 CppCompiler=
-Linker=libeditor.a_@@_libengine.a_@@_-ldxguid_@@_-lws2_32_@@_
+Linker=libeditor.a_@@_libengine.a_@@_-ldxguid_@@_-lws2_32_@@_-lcomctl32_@@_
 IsCpp=0
 Icon=
 ExeOutput=..\devcpp
@@ -48,21 +48,22 @@ ProductVersion=
 AutoIncBuildNr=0
 
 [Unit1]
-FileName=..\src\bstub.c
-CompileCpp=0
-Folder=KenBuild Editor
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit2]
 FileName=..\src\misc\buildres.rc
+CompileCpp=0
 Folder=KenBuild Editor
 Compile=1
 Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+
+[Unit2]
+FileName=..\testgame\bstub.c
+Folder=KenBuild Editor
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+CompileCpp=0
 

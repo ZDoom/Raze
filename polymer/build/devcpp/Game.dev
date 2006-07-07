@@ -5,14 +5,14 @@ UnitCount=5
 Type=0
 Ver=1
 ObjFiles=
-Includes=..\include;C:\sdks\fmodapi373win\api\inc
-Libs=C:\sdks\msc\dx7\include;C:\sdks\fmodapi373win\api\lib
+Includes=..\include;..\testgame;..\..\jfaud\inc
+Libs=C:\sdks\directx\dx7\include;..\..\jfaud
 PrivateResource=Game_private.rc
-ResourceIncludes=..\
+ResourceIncludes=..\;..\testgame
 MakeIncludes=
-Compiler=-DRENDERTYPEWIN=1_@@_-DSUPERBUILD_@@_-DPOLYMOST_@@_-DUSE_OPENGL_@@_-DDYNAMIC_OPENGL_@@_-DNO_GCC_BUILTINS_@@_-DUNDERSCORES_@@_-funsigned-char_@@_
+Compiler=-DRENDERTYPEWIN=1_@@_-DSUPERBUILD_@@_-DPOLYMOST_@@_-DUSE_OPENGL_@@_-DDYNAMIC_OPENGL_@@_-DNO_GCC_BUILTINS_@@_-DUNDERSCORES_@@_-funsigned-char_@@_-fno-strict-aliasing_@@_
 CppCompiler=
-Linker=libeditor.a_@@_libengine.a_@@_-ldxguid_@@_-lws2_32_@@_-lfmod_@@_
+Linker=libeditor.a_@@_libengine.a_@@_-ldxguid_@@_-lws2_32_@@_-lsupc++_@@_-lcomctl32_@@_-ljfaud_@@_-lwinmm_@@_
 IsCpp=0
 Icon=
 ExeOutput=..\devcpp
@@ -48,9 +48,9 @@ ProductVersion=
 AutoIncBuildNr=0
 
 [Unit3]
-FileName=..\src\sound.c
+FileName=..\testgame\startwin.game.c
 CompileCpp=0
-Folder=KenBuild Editor
+Folder=KenBuild Game
 Compile=1
 Link=1
 Priority=1000
@@ -58,13 +58,14 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit4]
-FileName=..\src\misc\gameres.rc
+FileName=..\testgame\jfaud_sound.cpp
 Folder=KenBuild Game
 Compile=1
-Link=0
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=0
 
 [Unit1]
 FileName=..\src\config.c
@@ -76,22 +77,31 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit2]
-FileName=..\src\game.c
+[Unit5]
+FileName=..\testgame\game.c
 CompileCpp=0
-Folder=KenBuild Editor
+Folder=KenBuild Game
 Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit5]
-FileName=..\src\gamestartwin.c
+[Unit6]
+FileName=..\testgame\game.c
 CompileCpp=0
 Folder=KenBuild Game
 Compile=1
 Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit2]
+FileName=..\src\misc\gameres.rc
+Folder=KenBuild Game
+Compile=1
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=

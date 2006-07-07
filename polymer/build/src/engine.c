@@ -5455,12 +5455,37 @@ static void sighandler(int sig, const siginfo_t *info, void *ctx)
 #endif
 
 //
+// preinitengine
+//
+static int preinitcalled = 0;
+int preinitengine(void)
+{
+	char *e;
+	if (initsystem()) exit(1);
+
+	if ((e = Bgetenv("BUILD_NOP6")) != NULL)
+		if (!Bstrcasecmp(e, "TRUE")) {
+			Bprintf("Disabling P6 optimizations.\n");
+			dommxoverlay = 0;
+		}
+	if (dommxoverlay) mmxoverlay();
+
+	validmodecnt = 0;
+	getvalidmodes();
+
+	initcrc32table();
+
+	preinitcalled = 1;
+	return 0;
+}
+
+
+//
 // initengine
 //
 int initengine(void)
 {
     long i, j;
-    char *e;
 
 #if !defined _WIN32 && defined DEBUGGINGAIDS
     struct sigaction sigact, oldact;
@@ -5469,16 +5494,11 @@ int initengine(void)
     sigact.sa_flags = SA_SIGINFO;
     sigaction(SIGFPE, &sigact, &oldact);
 #endif
-
-    if (initsystem()) exit(1);
-
-    if ((e = Bgetenv("BUILD_NOP6")) != NULL)
-        if (!Bstrcasecmp(e, "TRUE")) {
-            Bprintf("Disabling P6 optimizations.\n");
-            dommxoverlay = 0;
-        }
-    if (dommxoverlay) mmxoverlay();
-
+	if (!preinitcalled) {
+		i = preinitengine();
+		if (i) return i;
+	}
+	
     if (loadtables()) return 1;
 
     xyaspect = -1;
@@ -5518,8 +5538,6 @@ int initengine(void)
     clearbuf(&show2dwall[0],(long)((MAXWALLS+3)>>5),0L);
     automapping = 0;
 
-    validmodecnt = 0;
-
     pointhighlight = -1;
     linehighlight = -1;
     highlightcnt = 0;
@@ -5531,13 +5549,10 @@ int initengine(void)
     captureformat = 0;
 
     loadpalette();
-    getvalidmodes();
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (!hicfirstinit) hicinit();
     if (!mdinited) mdinit();
 #endif
-
-    initcrc32table();
 
     return 0;
 }

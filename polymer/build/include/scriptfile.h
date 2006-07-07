@@ -20,6 +20,7 @@ int scriptfile_getbraces(scriptfile *sf, char **braceend);
 scriptfile *scriptfile_fromfile(char *fn);
 scriptfile *scriptfile_fromstring(char *string);
 void scriptfile_close(scriptfile *sf);
+int scriptfile_eof(scriptfile *sf);
 
 int scriptfile_getsymbolvalue(char *name, int *val);
 int scriptfile_addsymbolvalue(char *name, int val);

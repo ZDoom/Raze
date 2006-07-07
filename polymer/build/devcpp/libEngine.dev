@@ -1,16 +1,16 @@
 [Project]
 FileName=libEngine.dev
 Name=Build Engine library
-UnitCount=15
+UnitCount=18
 Type=2
 Ver=1
 ObjFiles=
-Includes=..\include;..\src;C:\sdks\msc\dx7\include
+Includes=..\include;..\src;C:\sdks\directx\dx7\include
 Libs=
 PrivateResource=
 ResourceIncludes=
 MakeIncludes=
-Compiler=-DRENDERTYPEWIN=1_@@_-DSUPERBUILD_@@_-DPOLYMOST_@@_-DUSE_OPENGL_@@_-DDYNAMIC_OPENGL_@@_-DNO_GCC_BUILTINS_@@_-DUNDERSCORES_@@_-DKSFORBUILD_@@_-funsigned-char_@@_
+Compiler=-DRENDERTYPEWIN=1_@@_-DSUPERBUILD_@@_-DPOLYMOST_@@_-DUSE_OPENGL_@@_-DDYNAMIC_OPENGL_@@_-DNO_GCC_BUILTINS_@@_-DUNDERSCORES_@@_-DKSFORBUILD_@@_-funsigned-char_@@_-fno-strict-aliasing_@@_
 CppCompiler=
 Linker=
 IsCpp=0
@@ -190,6 +190,36 @@ AutoIncBuildNr=0
 FileName=..\src\winlayer.c
 CompileCpp=0
 Folder=Build Engine
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit16]
+FileName=..\src\md4.c
+CompileCpp=0
+Folder=Build Engine library
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit17]
+FileName=..\src\lzf_d.c
+CompileCpp=0
+Folder=Build Engine library
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit18]
+FileName=..\src\lzf_c.c
+CompileCpp=0
+Folder=Build Engine library
 Compile=1
 Link=1
 Priority=1000

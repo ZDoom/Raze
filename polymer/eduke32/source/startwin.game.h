@@ -1,6 +1,7 @@
 // resource ids
 #define WIN_STARTWIN		1000
 #define WIN_STARTWINPAGE_CONFIG 2000
+#define WIN_STARTWINPAGE_GAME	3000
 #define WIN_STARTWIN_BITMAP	100	// banner bitmap
 #define WIN_STARTWIN_TABCTL	101
 #define WIN_STARTWIN_CANCEL	IDCANCEL
@@ -20,4 +21,7 @@
 #define IDCINPUTMOUSE	105
 #define IDCINPUTJOY	106
 #define IDCALWAYSSHOW	107
+
+// game page
+#define IDGDATA		100
 

@@ -321,6 +321,12 @@ void scriptfile_close(scriptfile *sf)
     free(sf);
 }
 
+int scriptfile_eof(scriptfile *sf)
+{
+	skipoverws(sf);
+	if (sf->textptr >= sf->eof) return 1;
+	return 0;
+}
 
 #define SYMBTABSTARTSIZE 256
 static int symbtablength=0, symbtaballoclength=0;
