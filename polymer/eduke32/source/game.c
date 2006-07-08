@@ -8511,9 +8511,11 @@ void Startup(void)
 
     //     readnames();
 
+    CONFIG_WriteSetup();
+
     compilecons();
 
-    //    i = CONFIG_ReadSetup();
+    CONFIG_ReadSetup();
 
     if (initengine()) {
         wm_msgbox("Build Engine Initialisation Error",
@@ -8821,6 +8823,12 @@ void app_main(int argc,char **argv)
 
     OSD_SetLogFile("eduke32.log");
 
+    wm_setapptitle(HEAD2);
+
+    initprintf("%s%s\n",apptitle," ("__DATE__" "__TIME__")");
+    initprintf("Copyright (c) 1996, 2003 3D Realms Entertainment\n");
+    initprintf("Copyright (c) 2006 EDuke32 team\n");
+
 #if defined(_WIN32)
     if (!access("user_profiles_enabled", F_OK))
 #else
@@ -8874,7 +8882,6 @@ void app_main(int argc,char **argv)
         }
     }
 
-    wm_setapptitle("EDuke32");
     if (preinitengine()) {
         wm_msgbox("Build Engine Initialisation Error",
                   "There was a problem initialising the Build engine: %s", engineerrstr);
@@ -8906,10 +8913,6 @@ void app_main(int argc,char **argv)
 
     if (VOLUMEALL) wm_setapptitle(HEAD2);
     else wm_setapptitle(HEAD);
-
-    initprintf("%s%s\n",apptitle," ("__DATE__" "__TIME__")");
-    initprintf("Copyright (c) 1996, 2003 3D Realms Entertainment\n");
-    initprintf("Copyright (c) 2006 EDuke32 team\n");
 
     ud.multimode = 1;
 

@@ -727,7 +727,6 @@ void CONFIG_WriteSetup( void )
     if (scripthandle < 0)
         scripthandle = SCRIPT_Init(setupfilename);
 
-
     SCRIPT_PutNumber( scripthandle, "Controls","AimingFlag",(long) myaimmode,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","AutoAim",AutoAim,false,false);
     SCRIPT_PutNumber( scripthandle, "Controls","MouseAimingFlipped",ud.mouseflip,false,false);
