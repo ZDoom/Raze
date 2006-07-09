@@ -161,19 +161,18 @@ void addweapon( struct player_struct *p,short weapon)
     p->kickback_pic = 0;
 
     if(p->curr_weapon != weapon)
-    {
-        p->curr_weapon = weapon;
-
-        SetGameVarID(g_iWeaponVarID,p->curr_weapon, p->i, snum);
-        if(p->curr_weapon>=0)
-        {
-            SetGameVarID(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-        }
-        else
-        {
-            SetGameVarID(g_iWorksLikeVarID,-1, p->i, snum);
-        }
         OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1);
+
+    p->curr_weapon = weapon;
+
+    SetGameVarID(g_iWeaponVarID,p->curr_weapon, p->i, snum);
+    if(p->curr_weapon>=0)
+    {
+        SetGameVarID(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
+    }
+    else
+    {
+        SetGameVarID(g_iWorksLikeVarID,-1, p->i, snum);
     }
 }
 
