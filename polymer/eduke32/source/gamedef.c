@@ -1309,8 +1309,10 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
             aGameVars[i].dwFlags=dwFlags;
             aGameVars[i].lValue=lValue;
             if(aDefaultGameVars[i].szLabel == NULL)
+            {
                 aDefaultGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
-            Bstrcpy(aDefaultGameVars[i].szLabel,pszLabel);
+                Bstrcpy(aDefaultGameVars[i].szLabel,pszLabel);
+            }
             aDefaultGameVars[i].dwFlags=dwFlags;
             aDefaultGameVars[i].lValue=lValue;
         }

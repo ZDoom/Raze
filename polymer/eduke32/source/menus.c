@@ -592,7 +592,7 @@ void menus(void)
         vscrn();
 
     if(KB_KeyPressed(sc_Q) && current_menu >= 0 && (current_menu > 502 || current_menu < 500) && current_menu != 20003 &&
-            current_menu != 20005 && current_menu != 210 && current_menu != 603)
+            current_menu != 20005 && current_menu != 210 && current_menu != 603 && current_menu != 10001 && !(current_menu > 359 && current_menu < 370))
     {
         last_menu = current_menu;
         last_probey = probey;
