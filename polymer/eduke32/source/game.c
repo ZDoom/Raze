@@ -1856,32 +1856,26 @@ if (sbar.frag[myconnectindex] != p->frag) { sbar.frag[myconnectindex] = p->frag;
         }
     }
     if (sbar.curr_weapon != p->curr_weapon) { sbar.curr_weapon = p->curr_weapon; u |= (4+8+16+32+64+128+256+512+1024+65536L); }
-    for(i=1;i < MAX_WEAPONS;i++)
+
+    for(i=1;i<MAX_WEAPONS;i++)
     {
         if (sbar.ammo_amount[i] != p->ammo_amount[i])
         {
             sbar.ammo_amount[i] = p->ammo_amount[i];
             if(i < 9)
                 u |= ((2<<i)+1024);
-            else
-                if(i == 10)
-                {
-                    u |= 65536L+ 1024;
-                }
-                else    // weapon 11...
-                {
-                    u |= 1024 + 128;
-                }
+            else u |= 65536L+1024;
         }
+
         if (sbar.gotweapon[i] != p->gotweapon[i])
         {
             sbar.gotweapon[i] = p->gotweapon[i];
             if(i < 9 )
                 u |= ((2<<i)+1024);
-            else
-                u |= 65536L+1024;
+            else u |= 65536L+1024;
         }
     }
+
 if (sbar.inven_icon != p->inven_icon) { sbar.inven_icon = p->inven_icon; u |= (2048+4096+8192); }
     if (sbar.holoduke_on != p->holoduke_on) { sbar.holoduke_on = p->holoduke_on; u |= (4096+8192); }
     if (sbar.jetpack_on != p->jetpack_on) { sbar.jetpack_on = p->jetpack_on; u |= (4096+8192); }
