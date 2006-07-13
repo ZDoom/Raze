@@ -52,4 +52,16 @@ void MusicStartup( void );
 void MusicShutdown( void );
 void AudioUpdate(void);
 
+struct audioenumdev {
+	char *def;
+	char **devs;
+	struct audioenumdev *next;
+};
+struct audioenumdrv {
+	char *def;
+	char **drvs;
+	struct audioenumdev *devs;
+};
+int EnumAudioDevs(struct audioenumdrv **wave, struct audioenumdev **midi, struct audioenumdev **cda);
+
 #endif

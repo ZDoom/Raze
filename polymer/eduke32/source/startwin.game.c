@@ -3,6 +3,7 @@
 #endif
 
 #include "duke3d.h"
+#include "sounds.h"
 
 #include "build.h"
 #include "winlayer.h"
@@ -23,6 +24,8 @@
 #define TAB_GAME 1
 #define TAB_MESSAGES 2
 
+static struct audioenumdrv *wavedevs = NULL;
+
 static struct {
     int fullscreen;
     int xdim, ydim, bpp;
@@ -35,12 +38,17 @@ static HWND startupdlg = NULL;
 static HWND pages[3] = { NULL, NULL, NULL };
 static int done = -1, mode = TAB_CONFIG;
 
+#define POPULATE_VIDEO 1
+#define POPULATE_CONFIG 2
+#define POPULATE_GAME 4
+
 static void PopulateForm(int pgs)
 {
     HWND hwnd;
-    if (pgs & (1<<TAB_CONFIG)) {
-        int i,j;
-        char buf[64];
+    char buf[256];
+    int i,j;
+
+    if (pgs & POPULATE_VIDEO) {
         int mode;
 
         hwnd = GetDlgItem(pages[TAB_CONFIG], IDCVMODE);
@@ -58,8 +66,6 @@ static void PopulateForm(int pgs)
         }
 
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), (settings.fullscreen ? BST_CHECKED : BST_UNCHECKED));
-        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.forcesetup ? BST_CHECKED : BST_UNCHECKED));
-
         ComboBox_ResetContent(hwnd);
         for (i=0; i<validmodecnt; i++) {
             if (validmode[i].fs != settings.fullscreen) continue;
@@ -70,12 +76,39 @@ static void PopulateForm(int pgs)
             ComboBox_SetItemData(hwnd, j, i);
             if (i == mode) ComboBox_SetCurSel(hwnd, j);
         }
+    }
+
+    if (pgs & POPULATE_CONFIG) {
+        struct audioenumdev *d;
+        char *n;
+
+        hwnd = GetDlgItem(pages[TAB_CONFIG], IDCSOUNDDRV);
+        ComboBox_ResetContent(hwnd);
+        if (wavedevs) {
+            d = wavedevs->devs;
+            for (i=0; wavedevs->drvs[i]; i++) {
+                strcpy(buf, wavedevs->drvs[i]);
+                if (d->devs) {
+                    strcat(buf, ":");
+                    n = buf + strlen(buf);
+                    for (j=0; d->devs[j]; j++) {
+                        strcpy(n, d->devs[j]);
+                        ComboBox_AddString(hwnd, buf);
+                    }
+                } else {
+                    ComboBox_AddString(hwnd, buf);
+                }
+                d = d->next;
+            }
+        }
+
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.forcesetup ? BST_CHECKED : BST_UNCHECKED));
 
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTMOUSE), (settings.usemouse ? BST_CHECKED : BST_UNCHECKED));
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCINPUTJOY), (settings.usejoy ? BST_CHECKED : BST_UNCHECKED));
     }
 
-    if (pgs & (1<<TAB_GAME)) {
+    if (pgs & POPULATE_GAME) {
         struct grpfile *fg;
         int i, j;
         char buf[128+BMAX_PATH];
@@ -102,7 +135,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
         switch (LOWORD(wParam)) {
         case IDCFULLSCREEN:
             settings.fullscreen = !settings.fullscreen;
-            PopulateForm(1<<TAB_CONFIG);
+            PopulateForm(POPULATE_VIDEO);
             return TRUE;
         case IDCVMODE:
             if (HIWORD(wParam) == CBN_SELCHANGE) {
@@ -465,7 +498,9 @@ int startwin_run(void)
     done = -1;
 
     ScanGroups();
-
+#ifdef JFAUD
+    EnumAudioDevs(&wavedevs, NULL, NULL);
+#endif
     SetPage(TAB_CONFIG);
     EnableConfig(1);
 
@@ -503,6 +538,19 @@ int startwin_run(void)
         UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
     }
+
+#ifdef JFAUD
+    if (wavedevs) {
+        struct audioenumdev *d, *e;
+        free(wavedevs->drvs);
+        for (e=wavedevs->devs; e; e=d) {
+            d = e->next;
+            if (e->devs) free(e->devs);
+            free(e);
+        }
+        free(wavedevs);
+    }
+#endif
 
     return done;
 }

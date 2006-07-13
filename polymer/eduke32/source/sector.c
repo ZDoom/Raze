@@ -29,16 +29,16 @@ char haltsoundhack;
 short callsound(short sn,short whatsprite)
 {
     short i;
-
     if(haltsoundhack)
     {
         haltsoundhack = 0;
         return -1;
     }
-
+//    initprintf("begin callsound(%d,%d)\n",sn,whatsprite);
     i = headspritesect[sn];
     while(i >= 0)
     {
+//        initprintf("callsound(%d,%d) i=%d T1-6=%d,%d,%d,%d,%d,%d PN=%d SLT=%d SHT=%d\n",sn,whatsprite,i,T1,T2,T3,T4,T5,T6,PN,SLT,SHT);
         if( PN == MUSICANDSFX && SLT < 1000 )
         {
             if(whatsprite == -1) whatsprite = i;
@@ -51,7 +51,8 @@ short callsound(short sn,short whatsprite)
                     {
                         spritesound(SLT,whatsprite);
                         if(SHT && SLT != SHT && SHT < NUM_SOUNDS)
-                            stopspritesound(SHT,whatsprite);
+                            stopspritesound(SHT,T6);
+                        T6 = whatsprite;
                     }
 
                     if( (sector[SECT].lotag&0xff) != 22)
@@ -62,13 +63,16 @@ short callsound(short sn,short whatsprite)
             {
                 if(SHT) spritesound(SHT,whatsprite);
                 if( (soundm[SLT]&1) || ( SHT && SHT != SLT ) )
-                    stopspritesound(SLT,whatsprite);
+                    stopspritesound(SLT,T6);
+                T6 = whatsprite;
                 T1 = 0;
             }
+//            initprintf("end callsound(%d,%d)\n",sn,whatsprite);
             return SLT;
         }
         i = nextspritesect[i];
     }
+//    initprintf("end callsound(%d,%d) -1\n",sn,whatsprite);
     return -1;
 }
 

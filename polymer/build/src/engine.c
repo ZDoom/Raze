@@ -7212,7 +7212,7 @@ long setgamemode(char davidoption, long daxdim, long daydim, long dabpp)
 
     setview(0L,0L,xdim-1,ydim-1);
     clearallviews(0L);
-    setbrightness(curbrightness,palette,0);
+    setbrightness(curbrightness,&palette[0],0);
 
 if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 

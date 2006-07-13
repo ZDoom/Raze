@@ -140,6 +140,7 @@ typedef struct {
 	JFAudMixerChannel *chan;
 	int owner;	// sprite number
 	int soundnum;	// sound number
+	bool done;
 } SoundChannel;
 
 static SoundChannel *chans = NULL;
@@ -150,9 +151,10 @@ static bool havemidi = false, havewave = false;
 
 static void stopcallback(int r)
 {
-	jfaud->FreeSound(chans[r].chan);
-	chans[r].chan = NULL;
-	chans[r].owner = -1;
+	chans[r].done = true;
+//	jfaud->FreeSound(chans[r].chan);
+//	chans[r].chan = NULL;
+//	chans[r].owner = -1;
 }
 
 void testcallback(unsigned long num)
@@ -163,7 +165,7 @@ static int keephandle(JFAudMixerChannel *handle, int soundnum, int owner)
 {
 	int i, freeh=-1;
 	for (i=NumVoices-1;i>=0;i--) {
-		if ((!chans[i].chan || !jfaud->IsValidSound(chans[i].chan)) && freeh<0) freeh=i;
+		if (!chans[i].chan && freeh<0) freeh=i;
 		else if (chans[i].chan == handle) { freeh=i; break; }
 	}
 	if (freeh<0) {
@@ -174,6 +176,7 @@ static int keephandle(JFAudMixerChannel *handle, int soundnum, int owner)
 	chans[freeh].chan = handle;
 	chans[freeh].soundnum = soundnum;
 	chans[freeh].owner = owner;
+	chans[freeh].done = false;
 	
 	return freeh;
 }
@@ -227,10 +230,6 @@ void SoundStartup(void)
 
 	havewave = true;
 
-	for (i=NumVoices-1; i>=0; i--) {
-		chans[i].owner = -1;
-	}
-	
 	if (jfaud->InitMIDI(NULL)) havemidi = true;
 
 	OSD_RegisterFunction("setsoundfilter","setsoundfilter: 0=nearest 1=linear 2=4point",osdcmd_setsoundfilter);
@@ -260,8 +259,10 @@ void AudioUpdate(void)
 	if (!jfaud) return;
 	if (havewave)
 	for (i=NumVoices-1; i>=0; i--) {
-		if (chans[i].chan && !jfaud->IsValidSound(chans[i].chan))
-			chans[i].chan = NULL;
+		if (!chans[i].done) continue;
+		if (chans[i].chan) jfaud->FreeSound(chans[i].chan);
+		chans[i].chan = NULL;
+		chans[i].done = false;
 	}
 	jfaud->Update(false);	// don't age the cache here
 }
@@ -316,9 +317,9 @@ int isspritemakingsound(short i, int num)	// if num<0, check if making any sound
 	
 	if (!jfaud || !havewave) return 0;
 	for (j=NumVoices-1; j>=0; j--) {
-		if (!chans[j].chan || !jfaud->IsValidSound(chans[j].chan)) continue;
-		if (chans[j].owner == i)
-			if (num < 0 || chans[j].soundnum == num) n++;
+		if (chans[j].done || !chans[j].chan) continue;
+		if (chans[j].owner != i) continue;
+		if (num < 0 || chans[j].soundnum == num) n++;
 	}
 	return n;
 }
@@ -329,7 +330,7 @@ int issoundplaying(short i, int num)
 	
 	if (!jfaud || !havewave) return 0;
 	for (j=NumVoices-1; j>=0; j--) {
-		if (!chans[j].chan || !jfaud->IsValidSound(chans[j].chan)) continue;
+		if (chans[j].done || !chans[j].chan) continue;
 		if (chans[j].soundnum == num) n++;
 	}
 	
@@ -364,7 +365,7 @@ int xyzsound(short num, short i, long x, long y, long z)
 		   ) return -1;
 
 		for (j=NumVoices-1; j>=0; j--) {
-			if (!chans[j].chan || chans[j].owner < 0) continue;
+			if (chans[j].done || !chans[j].chan || chans[j].owner < 0) continue;
 			if (soundm[ chans[j].soundnum ] & SOUNDM_DUKE) return -1;
 		}
 	}
@@ -502,11 +503,11 @@ void stopsound(short num)
 	
 	if (!jfaud || !havewave) return;
 	for (j=NumVoices-1;j>=0;j--) {
-		if (!chans[j].chan || !jfaud->IsValidSound(chans[j].chan) || chans[j].soundnum != num) continue;
+		if (chans[j].done || !chans[j].chan || chans[j].soundnum != num) continue;
 		
 		jfaud->FreeSound(chans[j].chan);
 		chans[j].chan = NULL;
-		chans[j].owner = -1;
+		chans[j].done = false;
 	}
 }
 
@@ -516,11 +517,11 @@ void stopspritesound(short num, short i)
 	
 	if (!jfaud || !havewave) return;
 	for (j=NumVoices-1;j>=0;j--) {
-		if (!chans[j].chan || !jfaud->IsValidSound(chans[j].chan) || chans[j].owner != i || chans[j].soundnum != num) continue;
+		if (chans[j].done || !chans[j].chan || chans[j].owner != i || chans[j].soundnum != num) continue;
 		
 		jfaud->FreeSound(chans[j].chan);
 		chans[j].chan = NULL;
-		chans[j].owner = -1;
+		chans[j].done = false;
 		return;
 	}
 }
@@ -531,11 +532,11 @@ void stopenvsound(short num, short i)
 	
 	if (!jfaud || !havewave) return;
 	for (j=NumVoices-1;j>=0;j--) {
-		if (!chans[j].chan || !jfaud->IsValidSound(chans[j].chan) || chans[j].owner != i) continue;
+		if (chans[j].done || !chans[j].chan || chans[j].owner != i) continue;
 
 		jfaud->FreeSound(chans[j].chan);
 		chans[j].chan = NULL;
-		chans[j].owner = -1;
+		chans[j].done = false;
 	}
 }
 
@@ -574,7 +575,7 @@ void pan3dsound(void)
 		0.0, 1.0, 0.0);
 	
 	for (j=NumVoices-1; j>=0; j--) {
-		if (!chans[j].chan || !jfaud->IsValidSound(chans[j].chan) || chans[j].owner < 0) continue;
+		if (chans[j].done || !chans[j].chan || chans[j].owner < 0) continue;
 
 		global = 0;
 		gain = 1.0;
@@ -726,3 +727,32 @@ static int osdcmd_setsoundfilter(const osdfuncparm_t *parm)
 	DefaultFilter = (JFAudMixerChannel::Filter)filt;
 	return OSDCMD_OK;
 }
+
+int EnumAudioDevs(struct audioenumdrv **wave, struct audioenumdev **midi, struct audioenumdev **cda)
+{
+	char **enumerdrv, *defdrv;
+	int i;
+	bool isdefdrv, isdefdev;
+	struct audioenumdev **d;
+
+	*wave = NULL;
+	//*midi = *cda = NULL;
+
+	enumerdrv = JFAud::EnumerateWaveDevices(NULL, &defdrv);
+	if (enumerdrv) {
+		*wave = (struct audioenumdrv *)calloc(1,sizeof(struct audioenumdrv));
+		(*wave)->def = defdrv;
+		(*wave)->drvs = enumerdrv;
+		(*wave)->devs = NULL;
+		d = &(*wave)->devs;
+		for (i=0; enumerdrv[i]; i++) {
+			*d = (struct audioenumdev *)calloc(1,sizeof(struct audioenumdev));
+			(*d)->devs = JFAud::EnumerateWaveDevices(enumerdrv[i], &(*d)->def);
+			(*d)->next = NULL;
+			d = &(*d)->next;
+		}
+	}
+
+	return 0;
+}
+

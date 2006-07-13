@@ -86,7 +86,7 @@ AUDIOLIBOBJ=$(AUDIOLIB_JFAUD)
 	$(OBJ)osdcmds.$o \
 	$(JMACTOBJ) \
 	$(AUDIOLIBOBJ) \
-	$(OBJ)winbits.$o $(OBJ)gameres.res $(OBJ)startwin.game.$o
+	$(OBJ)winbits.$o $(OBJ)gameres.res $(OBJ)startwin.game.$o $(OBJ)startdlg.$o
 
 EDITOROBJS=$(OBJ)astub.$o \
 	$(OBJ)buildres.res
