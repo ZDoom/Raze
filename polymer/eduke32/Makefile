@@ -42,6 +42,7 @@ OURCXXFLAGS=-fno-exceptions -fno-rtti
 LIBS=-lm
 ifneq (0,$(JFAUD))
 	JFAUDLIBS=../jfaud/libjfaud.a ../jfaud/mpadec/libmpadec.a
+	OURCFLAGS+=-DJFAUD
 endif
 
 NASMFLAGS=-s #-g
@@ -206,10 +207,15 @@ $(OBJ)%.$o: $(SRC)jmact/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
 $(OBJ)%.$o: $(SRC)jaudiolib/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
- 
+
+ifeq (1,$(JFAUD))
+$(OBJ)%.$o: $(SRC)misc/%.rc
+	windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC) -DJFAUD
+else
 $(OBJ)%.$o: $(SRC)misc/%.rc
 	windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC)
- 
+endif
+
 $(OBJ)%.$o: $(SRC)util/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
  
