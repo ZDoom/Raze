@@ -5984,7 +5984,7 @@ good:
             int i;
             insptr++;
             i=*insptr++;  // ID of def
-            SetGameVarID(i, mulscale(krand(), *insptr++, 16), g_i, g_p );
+            SetGameVarID(i, mulscale(krand(), *(insptr++)+1, 16), g_i, g_p );
             break;
         }
 
@@ -5993,7 +5993,7 @@ good:
             int i;
             insptr++;
             i=*insptr++;  // ID of def
-            SetGameVarID(i, mulscale(rand(), *insptr++, 15), g_i, g_p );
+            SetGameVarID(i, mulscale(rand(), *(insptr++)+1, 15), g_i, g_p );
             break;
         }
 
