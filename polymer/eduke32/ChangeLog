@@ -1,6 +1,7 @@
 =EDuke32 ChangeLog=
 
 ==1.4.0 beta 2=
+ - Core: reworked/enhanced Polymost shading
  - Core: cleaned up code to properly build without Polymost/OpenGL support
  - Core: added widescreen support for Polymost
  - Core: added support for toggling correct HUD model rendering on/off
@@ -29,6 +30,7 @@
  - CON: added WEAPON_FLAG_RESET (65536) to weapon system in order to properly emulate the chaingun and freezer
  - CON: fixed "eshoot" and added "ezshoot"
  - CON: reworked weapon system; note that your custom weapons may need adjustments to work again
+ - CON: updated sample enhance.con
 
 ==1.4.0 beta 1=
  - Core: added support for defining dummy tiles in the def files to eliminate the need for placeholders for hightile art

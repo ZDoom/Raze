@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "EDuke32"
-!define PRODUCT_VERSION "1.4.0 beta 1"
+!define PRODUCT_VERSION "1.4.0 beta 2"
 !define PRODUCT_PUBLISHER "EDuke32 Team"
 !define PRODUCT_WEB_SITE "http://www.eduke32.com"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}"
@@ -83,7 +83,6 @@ SectionEnd
 Section "Level editor" SEC_EDITOR
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
-  File "..\build.cfg"
   File "..\mapster32.exe"
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Mapster32.lnk" "$INSTDIR\mapster32.exe"
@@ -147,7 +146,6 @@ Section Uninstall
   Delete "$INSTDIR\duke3d.def.sample"
   Delete "$INSTDIR\enhance.con.sample"
   Delete "$INSTDIR\mapster32.exe"
-  Delete "$INSTDIR\build.cfg"
   Delete "$INSTDIR\setup.exe"
   Delete "$INSTDIR\ChangeLog.html"
   Delete "$INSTDIR\ChangeLog"

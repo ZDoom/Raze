@@ -1,12 +1,12 @@
 # GNU Makefile to prepare source and binary distributions.
 #    make -f MakeDistributions [source|binary]
 
-SOURCEFILES=build.cfg GNU.TXT \
+SOURCEFILES=GNU.TXT \
 	   Makefile Makefile.deps Makefile.msvc Makefile.watcom MakeDistributions \
 	   makemsc.bat makew.bat ChangeLog.html duke3d.def.sample \
 	   SEHELP.HLP STHELP.HLP ChangeLog enhance.con.sample
 
-BINARYFILES=build.cfg mapster32.exe eduke32.exe GNU.TXT  \
+BINARYFILES=mapster32.exe eduke32.exe GNU.TXT  \
            ChangeLog.html setup.exe duke3d.def.sample SEHELP.HLP STHELP.HLP \
 	   ChangeLog enhance.con.sample duke3d_w32.exe
 
@@ -31,7 +31,8 @@ source:
 	find . -name "*.rej" -exec rm -rf '{}' ';';
 	find . -name "*.mine" -exec rm -rf '{}' ';';
 	find . -name "*.c.r*" -exec rm -rf '{}' ';';
-	cp -R source rsrc $(sourcedir)
+	find . -name "*.h.r*" -exec rm -rf '{}' ';';
+	cp -R source rsrc watcomhax $(sourcedir)
 	find $(sourcedir) | grep -i svn | xargs rm -rf
 	kzip -r $(sourcedir).zip $(sourcedir)
 

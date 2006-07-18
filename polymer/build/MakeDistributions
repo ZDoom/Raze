@@ -1,12 +1,12 @@
 # GNU Makefile to prepare source and binary distributions.
 #    make -f MakeDistributions [source|binary]
 
-SOURCEFILES=build.cfg buildlic.txt ChangeLog game.cfg LICENSE \
+SOURCEFILES=buildlic.txt ChangeLog LICENSE \
 	   Makefile Makefile.deps Makefile.shared Makefile.msvc Makefile.watcom \
            MakeDistributions makegnu.bat makemsc.bat makew.bat NAMES.H README
 
-BINARYFILES=build.cfg build.exe buildlic.txt ChangeLog fmod.dll \
-           game.cfg game.exe LICENSE NAMES.H neatsong.ogg README
+BINARYFILES=build.exe buildlic.txt ChangeLog fmod.dll \
+           game.exe LICENSE NAMES.H neatsong.ogg README
 
 BINARYCHECKS=checkfmoddll checkneatsongogg
 
@@ -29,7 +29,8 @@ source:
 	find . -name "*.rej" -exec rm -rf '{}' ';';
 	find . -name "*.mine" -exec rm -rf '{}' ';';
 	find . -name "*.c.r*" -exec rm -rf '{}' ';';
-	cp -R src rsrc include devcpp osx $(sourcedir)
+	find . -name "*.h.r*" -exec rm -rf '{}' ';';
+	cp -R src rsrc include devcpp watcomhax testgame $(sourcedir)
 	find $(sourcedir) | grep -i svn | xargs rm -rf
 	rm -f $(sourcedir)/src/tmp/*
 	touch $(sourcedir)/src/tmp/keep.me

@@ -263,6 +263,12 @@ void AudioUpdate(void)
 		if (chans[i].chan) jfaud->FreeSound(chans[i].chan);
 		chans[i].chan = NULL;
 		chans[i].done = false;
+
+		if (chans[i].owner >= 0 &&
+		    sprite[chans[i].owner].picnum == MUSICANDSFX &&
+		    sector[sprite[chans[i].owner].sectnum].lotag < 3 &&
+		    sprite[chans[i].owner].lotag < 999)
+			hittype[chans[i].owner].temp_data[0] = 0;
 	}
 	jfaud->Update(false);	// don't age the cache here
 }
@@ -589,10 +595,7 @@ void pan3dsound(void)
 		if (PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,sx,sy,sz-(24<<8),SECT) )
 			gain *= OCCLUDEDFACTOR;
 		
-		if(PN == MUSICANDSFX && SLT < 999) {
-			numenvsnds++;
-			rolloff = 1.0;
-		}
+		if(PN == MUSICANDSFX && SLT < 999) rolloff = 1.0;
 		if( soundm[ chans[j].soundnum ]&SOUNDM_GLOBAL ) global = 1;
 		
 		switch(chans[j].soundnum) {
@@ -647,13 +650,8 @@ void FX_SetReverbDelay( int delay )
 
 int FX_VoiceAvailable( int priority )
 {
-	int j;
-	
 	if (!jfaud) return 0;
-	for (j=NumVoices-1;j>=0;j--) {
-		if (!chans[j].chan || !jfaud->IsValidSound(chans[j].chan)) return 1;
-	}
-	return 0;
+	return 1;
 }
 
 int FX_PlayVOC3D( char *ptr, int pitchoffset, int angle, int distance,

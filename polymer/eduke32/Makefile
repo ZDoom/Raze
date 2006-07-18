@@ -26,7 +26,7 @@ o=o
 
 ifneq (0,$(RELEASE))
   # debugging disabled
-  debug=-fomit-frame-pointer -O1
+  debug=-fomit-frame-pointer -O2
 else
   # debugging enabled
   debug=-ggdb -O0

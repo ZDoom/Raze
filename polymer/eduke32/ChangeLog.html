@@ -53,105 +53,48 @@
 
 	<body>
 		<h1>ChangeLog for EDuke32</h1>
-		<p>1.4.0 beta 1, released May 11, 2006</p>
+		<p>1.4.0 beta 2, released July 18, 2006</p>
 
 		<h2>Core changes</h2>
 		<ul>
-            <li>added support for defining dummy tiles in the def files to eliminate the need for placeholders for hightile art</li>
-            <li>added a temporary projection hack to reduce HOM at the top and bottom of the screen</li>
-            <li>fixed P2P multiplayer with more than two players</li>
-            <li>fixed a nasty memory corruption issue with screen tinting that resulted in crashes in the classic renderer</li>
-            <li>fixed a palette issue with the in-game textured 2D map in Polymost</li>
-            <li>fixed a mouse input bug in winlayer that resulted in loss of input precision</li>
-            <li>modified the def loader to perform two passes; one to load GRPs early in game startup, and one to do the rest later on</li>
-            <li>tweaks to caching system to leave more memory available for hightile art</li>
-            <li>proper alpha sorting on md3 models</li>
-            <li>removed usegoodalpha in favor of an alternate sprite sorting algorithm (note: rendering glitches may occur)</li>
-            <li>attempt to correct display perspective in order to properly display HUD models</li>
-            <li>netcode packet rate now 26 (was 40)</li>
-            <li>don't use 100% CPU when waiting for players to join a multiplayer game</li>
-            <li>reduce mouse wheel input lock time to 25ms (was 100ms)</li>
-		</ul>
-
+            <li>reworked/enhanced Polymost shading</li>
+            <li>cleaned up code to properly build without Polymost/OpenGL support</li>
+            <li>added widescreen support for Polymost</li>
+            <li>added support for toggling correct HUD model rendering on/off</li>
+            <li>removed broken support for linking OpenGL statically</li>
+            <li>added support for DDS textures (JF)</li>
+            <li>added support for dynamically loading GTK (JF)</li>
+        </ul>
 		<h2>Game changes</h2>
 		<ul>
-            <li>completely reworked mouse sensitivity and added an input filter slider</li>
-            <li>changed the weapon switching to be less restrictive in order to assist weapon changes via mouse wheel</li>
-            <li>added support for alt+enter to switch between fullscreen and windowed mode</li>
-            <li>added an option to disable demo playback cameras</li>
-            <li>added support for scaling the crosshair to 1/2 or 1/4 normal size</li>
-            <li>added an option to enable autoaim only for hitscan weapons (bullets)</li>
-            <li>changed the default video mode to 1024x768x32 and added several fallback choices</li>
-            <li>reworked the quicksave and quickload functions such as to not prompt the player on use</li>
-            <li>set the default controls to WSAD + mouse aiming</li>
-            <li>restore the pause key behavior from Duke 1.5 wherein the "GAME PAUSED" message isn't displayed when shift is pressed while pausing</li>
-            <li>fixed an infinite loop and a palette corruption bug regarding the video setup menu and switching to the classic renderer</li>
-            <li>fixed an issue where the automap would scroll itself and/or jitter when the game was paused while moving</li>
-            <li>fixed pistol timing to more closely match Duke 1.5</li>
-            <li>fixed long-standing quick kick animation bug</li>
-            <li>fixed kick attack speed to more closely match Duke 1.5</li>
-            <li>fixed an issue with shift+F5 not allowing selection of music defined for episode 5 and up</li>
-            <li>changed the default menu background to something more pleasing</li>
-            <li>restructured the option menus to make more sense</li>
-            <li>expanded the "HUD weapon" menu option to allow displaying a weapon's pickup sprite instead of the HUD art</li>
+            <li>new startup window (JF)</li>
+            <li>added support for using the mouse and a joystick simultaneously (JF)</li>
+            <li>fixed an issue preventing skill selection, bonus screen and episode ending animation sounds from playing</li>
+            <li>fixed a problem where the player was unable to exit some pools of water in some maps</li>
+            <li>made further adjustments to the weapon properties in order to more closely emulate Duke 1.5</li>
+            <li>fixed an issue where you could disable map exits in multiplayer, have all players quit, start a single player game and then have exits continue to kill you</li>
         </ul>
-
 		<h2>Multiplayer changes</h2>
 		<ul>
-            <li>Duke Talk menu option can now be set to "all" to hear enemy pain sounds</li>
-            <li>added an option to disable nuke button exits in deathmatch</li>
-            <li>greatly improved the text chat by increasing the text buffer size and by implementing basic line wrapping</li>
-            <li>added a voting system for map changes along with a menu option to automatically vote yes or no</li>
-            <li>added an icon above the heads of other players for when they're chatting or using the menu</li>
-            <li>added an option to automatically send messages to all players rather than prompting</li>
-            <li>added an option to display the name of the opponent you're currently aiming at</li>
-            <li>added a player setup menu to configure player name, color, macros, and weapon/aiming options mid-game</li>
-            <li>added support for Rancidmeat network configuration files via -rmnet command line parameter</li>
-            <li>detect and correct internal vs external IP address issues when using Rancidmeat configuration files</li>
-            <li>added dummy duke3d_w32.exe to facilitate EDuke32 multiplayer via DukesterX 1.5</li>
-            <li>added support for in-game selection and loading of different user maps</li>
-            <li>added support for various player death messages which can be redefined in the CONs</li>
-            <li>added support for Quake-style color codes in player names and text chat (code format is ^&lt;palette&gt;)</li>
-            <li>limit player name to 10 characters (not counting color codes)</li>
-            <li>fixed issue where multiple players trying to step on the same shrunken enemy would kill the game</li>
-            <li>fixed issue where briefly tapping the jump key would produce a lag effect during the resulting jump</li>
-            <li>fixed issue where using the jetpack + steroids would produce a lag effect in P2P mode</li>
-            <li>fixed several out-of-sync issues</li>
-            <li>fixed a long-standing bug wherein a player death could be counted as both a death and a suicide</li>
-            <li>fixed screen resizing issue when typing - and = in chat</li>
+            <li>fixed numerous minor bugs in the voting system</li>
+            <li>added a more noticeable message to indicate that the player hasn't voted yet in an active vote</li>
+            <li>added support for /me in text chat</li>
+            <li>increased size of player chat icon</li>
+            <li>added "nat-free" support from Adam Fazakerley</li>
+            <li>fixed inventory respawn bug</li>
+            <li>minor fixes to DukesterX 1.5 compatibility wrapper</li>
         </ul>
-
 		<h2>CON changes</h2>
 		<ul>
-            <li>added "save" command to allow the creation of automatic checkpoints</li>
-            <li>added "cansee" and "canseespr" commands to easily determine whether two sprites or sets of coordinates have visibility</li>
-            <li>added "definegamefuncname" command to change the key names used in the configuration file and in the control setup menus</li>
-            <li>added additional safety checks to get/setuserdef/player/sector/sprite/wall/input</li>
-            <li>added support for Quake-style color codes in quotes (code format is ^&lt;palette&gt;)</li>
-            <li>added extra timing checks to the weapon system; note that weapons with strange TOTALTIME and FIREDELAY values may no longer fire</li>
-            <li>save quotes, dynamic-to-static tile remapping information, extended sprite flags and sprite caching info to savegames</li>
-            <li>reworked the quote system to use dynamically allocated memory and doubled the length of each individual quote</li>
-            <li>fixed a savegame issue where some gamevar values may not have been restored properly and added more sanity checks to savegame loading</li>
-            <li>fixed an issue with FRAMEEFFECT1 sprites ending up with the wrong tspr->picnum</li>
-            <li>fixed a potential issue where custom projectiles that hit a player wouldn't knock the player back</li>
-            <li>fixed a bug in the findnearactor3d command and further sped up findnearactor3d and findnearsprite3d</li>
-            <li>fixed an issue where tab characters in CON files could screw up label names</li>
-            <li>fixed a crash that occurred when hitscan type custom projectiles with trails were fired at a wall from a distance of 0</li>
-            <li>removed the RENDERSIZE attribute for weapons</li>
-            <li>made slight optimizations to various commands</li>
+            <li>reworked movement_lock member of the player struct to use bit flags</li>
+            <li>reworked findnearactor3d, findnearactor3dvar, findnearsprite3d, and findnearsprite3dvar</li>
+            <li>added findnearactorz, findnearactorzvar, findnearspritez, and findnearspritezvar</li>
+            <li>added WEAPON_FLAG_RESET (65536) to weapon system in order to properly emulate the chaingun and freezer</li>
+            <li>fixed "eshoot" and added "ezshoot"</li>
+            <li>reworked weapon system; note that your custom weapons may need adjustments to work again</li>
+            <li>updated sample enhance.con</li>
         </ul>
 
-		<h2>Console changes</h2>
-		<ul>
-            <li>added the following cvars: "crosshair", "cl_autoaim", "cl_automsg", "cl_autovote", "cl_democams", "cl_drawweapon", "cl_idplayers", "cl_messagetime", "cl_mousefilter", "cl_showcoords", "cl_showfps", "cl_smoothinput", "cl_statusbarmode", "cl_statusbarscale", "cl_weaponswitch" and "r_precache"</li>
-            <li>added "addpath" command to add a new directory to the game's virtual filesystem pool</li>
-        </ul>
-
-		<h2>Mapster32 changes</h2>
-		<ul>
-            <li>better smoothing of mouse input when using 3D mode mouselook</li>
-            <li>add ' F key combo to replace nonexistent tiles with tile 0</li>
-        </ul>
         <p><br />Please see JonoF's JFDuke3D release notes <a href="http://www.jonof.id.au/modsuppt/jfduke3d/releasenotes.html">here</a> for information on features JFDuke3D shares with EDuke32</p>
 
 		<address>Richard "TerminX" Gobeille (<a href="mailto:terminx@gmail.com">terminx@gmail.com</a>)</address>

@@ -227,7 +227,7 @@ void CONFIG_SetDefaults( void )
     SoundToggle = 1;
     ud.automsg = 0;
     ud.autovote = 0;
-    ud.brightness = 16;
+    ud.brightness = 8;
     ud.color = 0;
     ud.crosshair = 2;
     ud.democams = 1;
