@@ -3,8 +3,6 @@
 #include "startwin.game.h"
 
 RSRC_ICON ICON "rsrc/game_icon.ico"
-RSRC_ICON+1 ICON "rsrc/game_icon.ico"
-RSRC_ICON+2 ICON "rsrc/game_icon.ico"
 RSRC_BMP BITMAP "rsrc/game.bmp"
 
 WIN_STARTWIN DIALOGEX DISCARDABLE  20, 40, 260, 200

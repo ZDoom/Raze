@@ -3814,7 +3814,6 @@ short spawn( short j, short pn )
     else
     {
         i = pn;
-        ResetActorGameVars(i);
         hittype[i].picnum = PN;
         hittype[i].timetosleep = 0;
         hittype[i].extra = -1;
@@ -8503,7 +8502,10 @@ void Startup(void)
 {
     int i;
 
-    //     readnames();
+    // why the fuck aren't these part of CONFIG_ReadSetup()?
+
+    CONFIG_SetupMouse();
+    CONFIG_SetupJoystick();
 
     CONFIG_WriteSetup();
 
@@ -8876,16 +8878,18 @@ void app_main(int argc,char **argv)
         }
     }
 
+    checkcommandline(argc,argv);
+
+    i = CONFIG_ReadSetup();
+
     if (preinitengine()) {
         wm_msgbox("Build Engine Initialisation Error",
                   "There was a problem initialising the Build engine: %s", engineerrstr);
         exit(1);
     }
 
-    i = CONFIG_ReadSetup();
-
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
-    if (i < 0 || ForceSetup || CommandSetup) {
+    if (i < 0 || (netparam == NULL && ForceSetup) || CommandSetup) {
         if (quitevent || !startwin_run()) {
             uninitengine();
             exit(0);
@@ -8909,8 +8913,6 @@ void app_main(int argc,char **argv)
     else wm_setapptitle(HEAD);
 
     ud.multimode = 1;
-
-    checkcommandline(argc,argv);
 
     if (VOLUMEALL)
         loadgroupfiles(duke3ddef);

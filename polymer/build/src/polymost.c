@@ -76,7 +76,7 @@ long usemodels=1, usehightile=1;
 float fogtable[] = { 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.025, 1.075, 1.125, 1.175, 1.225, 1.275, 1.325, 1.375, 1.425, 1.475, 1.525, 1.575, 1.625, 1.675, 1.725, 1.775, 1.825 };
 
 float glnegfogsub = 0.075;
-float glnegshadescale = 6.670;
+float glnegshadescale = 8.300;
 float glshadescale = 1.900;
 
 float glsprshadescale = 1.700;
