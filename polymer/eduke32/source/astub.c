@@ -40,7 +40,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #include "types.h"
 #include "keyboard.h"
 
-#define VERSION " 1.0.5"
+#define VERSION " 1.0.6"
 
 short floor_over_floor;
 
@@ -5557,7 +5557,7 @@ void FuncMenu(void)
                             if(sprite[j].picnum == i)
                                 deletesprite(j);
                         printmessage16("Sprites deleted.");
-                    }
+                    } else printmessage16("Aborted");
                 }
             }
             else if (row == 2)
@@ -5565,14 +5565,12 @@ void FuncMenu(void)
                 for (i=Bsprintf(disptext,"Global sky shade"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    signed char shade;
-
-                    shade=getnumber16("Global sky shade:    ",0,128,1);
+                    j=getnumber16("Global sky shade:    ",0,127,1);
 
                     for(i=0;i<numsectors;i++)
                     {
                         if(sector[i].ceilingstat&1)
-                            sector[i].ceilingshade = shade;
+                            sector[i].ceilingshade = j;
                     }
                     printmessage16("Parallaxed skies adjusted");
                 }
@@ -5582,15 +5580,16 @@ void FuncMenu(void)
                 for (i=Bsprintf(disptext,"Global sky height"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    long height;
-
-                    height=getnumber16("Global sky height:    ",0,16777216,1);
-                    for(i=0;i<numsectors;i++)
+                    j=getnumber16("Global sky height:    ",0,16777216,1);
+                    if(j != 0)
                     {
-                        if(sector[i].ceilingstat&1)
-                            sector[i].ceilingz = height;
-                    }
-                    printmessage16("Parallaxed skies adjusted");
+                        for(i=0;i<numsectors;i++)
+                        {
+                            if(sector[i].ceilingstat&1)
+                                sector[i].ceilingz = j;
+                        }
+                        printmessage16("Parallaxed skies adjusted");
+                    } else printmessage16("Aborted");
                 }
             }
             else if (row == 4)
@@ -5598,18 +5597,18 @@ void FuncMenu(void)
                 for (i=Bsprintf(disptext,"Global Z coord shift"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    long scale;
-
-                    scale=getnumber16("Z offset:    ",0,16777216,1);
-
-                    for(i=0;i<numsectors;i++)
+                    j=getnumber16("Z offset:    ",0,16777216,1);
+                    if(j!=0)
                     {
-                        sector[i].ceilingz += scale;
-                        sector[i].floorz += scale;
-                    }
-                    for(i=0;i<MAXSPRITES;i++)
-                        sprite[i].z += scale;
-                    printmessage16("Map adjusted");
+                        for(i=0;i<numsectors;i++)
+                        {
+                            sector[i].ceilingz += j;
+                            sector[i].floorz += j;
+                        }
+                        for(i=0;i<MAXSPRITES;i++)
+                            sprite[i].z += j;
+                        printmessage16("Map adjusted");
+                    } else printmessage16("Aborted");
                 }
             }
             else if (row == 5)
@@ -5617,29 +5616,30 @@ void FuncMenu(void)
                 for (i=Bsprintf(disptext,"Scale map up"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    signed char scale;
-
-                    scale=getnumber16("Map size multiplier:    ",1,8,0);
-                    for(i=0;i<numsectors;i++)
+                    j=getnumber16("Map size multiplier:    ",1,8,0);
+                    if(j!=1)
                     {
-                        sector[i].ceilingz *= scale;
-                        sector[i].floorz *= scale;
-                    }
-                    for(i=0;i<numwalls;i++)
-                    {
-                        wall[i].x *= scale;
-                        wall[i].y *= scale;
-                        wall[i].yrepeat = min(wall[i].yrepeat/scale,255);
-                    }
-                    for(i=0;i<MAXSPRITES;i++)
-                    {
-                        sprite[i].x *= scale;
-                        sprite[i].y *= scale;
-                        sprite[i].z *= scale;
-                        sprite[i].xrepeat = max(sprite[i].xrepeat*scale,1);
-                        sprite[i].yrepeat = max(sprite[i].yrepeat*scale,1);
-                    }
-                    printmessage16("Map scaled");
+                        for(i=0;i<numsectors;i++)
+                        {
+                            sector[i].ceilingz *= j;
+                            sector[i].floorz *= j;
+                        }
+                        for(i=0;i<numwalls;i++)
+                        {
+                            wall[i].x *= j;
+                            wall[i].y *= j;
+                            wall[i].yrepeat = min(wall[i].yrepeat/j,255);
+                        }
+                        for(i=0;i<MAXSPRITES;i++)
+                        {
+                            sprite[i].x *= j;
+                            sprite[i].y *= j;
+                            sprite[i].z *= j;
+                            sprite[i].xrepeat = max(sprite[i].xrepeat*j,1);
+                            sprite[i].yrepeat = max(sprite[i].yrepeat*j,1);
+                        }
+                        printmessage16("Map scaled");
+                    } else printmessage16("Aborted");
                 }
             }
             else if (row == 6)
@@ -5647,29 +5647,30 @@ void FuncMenu(void)
                 for (i=Bsprintf(disptext,"Scale map down"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    signed char scale;
-
-                    scale=getnumber16("Map size divisor:    ",1,8,0);
-                    for(i=0;i<numsectors;i++)
+                    j=getnumber16("Map size divisor:    ",1,8,0);
+                    if(j!=1)
                     {
-                        sector[i].ceilingz /= scale;
-                        sector[i].floorz /= scale;
-                    }
-                    for(i=0;i<numwalls;i++)
-                    {
-                        wall[i].x /= scale;
-                        wall[i].y /= scale;
-                        wall[i].yrepeat = min(wall[i].yrepeat*scale,255);
-                    }
-                    for(i=0;i<MAXSPRITES;i++)
-                    {
-                        sprite[i].x /= scale;
-                        sprite[i].y /= scale;
-                        sprite[i].z /= scale;
-                        sprite[i].xrepeat = max(sprite[i].xrepeat/scale,1);
-                        sprite[i].yrepeat = max(sprite[i].yrepeat/scale,1);
-                    }
-                    printmessage16("Map scaled");
+                        for(i=0;i<numsectors;i++)
+                        {
+                            sector[i].ceilingz /= j;
+                            sector[i].floorz /= j;
+                        }
+                        for(i=0;i<numwalls;i++)
+                        {
+                            wall[i].x /= j;
+                            wall[i].y /= j;
+                            wall[i].yrepeat = min(wall[i].yrepeat*j,255);
+                        }
+                        for(i=0;i<MAXSPRITES;i++)
+                        {
+                            sprite[i].x /= j;
+                            sprite[i].y /= j;
+                            sprite[i].z /= j;
+                            sprite[i].xrepeat = max(sprite[i].xrepeat/j,1);
+                            sprite[i].yrepeat = max(sprite[i].yrepeat/j,1);
+                        }
+                        printmessage16("Map scaled");
+                    } else printmessage16("Aborted");
                 }
             }
             else if (row == 7)
@@ -5677,19 +5678,20 @@ void FuncMenu(void)
                 for (i=Bsprintf(disptext,"Global shade divide"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    signed char shade;
-
-                    shade=getnumber16("Shade divisor:    ",1,127,1);
-                    for(i=0;i<numsectors;i++)
+                    j=getnumber16("Shade divisor:    ",1,127,1);
+                    if(j!=1)
                     {
-                        sector[i].ceilingshade /= shade;
-                        sector[i].floorshade /= shade;
-                    }
-                    for(i=0;i<numwalls;i++)
-                        wall[i].shade /= shade;
-                    for(i=0;i<MAXSPRITES;i++)
-                        sprite[i].shade /= shade;
-                    printmessage16("Shades adjusted");
+                        for(i=0;i<numsectors;i++)
+                        {
+                            sector[i].ceilingshade /= j;
+                            sector[i].floorshade /= j;
+                        }
+                        for(i=0;i<numwalls;i++)
+                            wall[i].shade /= j;
+                        for(i=0;i<MAXSPRITES;i++)
+                            sprite[i].shade /= j;
+                        printmessage16("Shades adjusted");
+                    } else printmessage16("Aborted");
                 }
             }
             break;
@@ -5699,12 +5701,13 @@ void FuncMenu(void)
                 for (i=Bsprintf(disptext,"Global vis divide"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    signed char vis;
-
-                    vis=getnumber16("Visibility divisor:    ",1,127,0);
-                    for(i=0;i<numsectors;i++)
-                        sector[i].visibility /= vis;
-                    printmessage16("Visibility adjusted");
+                    j=getnumber16("Visibility divisor:    ",1,127,0);
+                    if(j!=1)
+                    {
+                        for(i=0;i<numsectors;i++)
+                            sector[i].visibility /= j;
+                        printmessage16("Visibility adjusted");
+                    } else printmessage16("Aborted");
                 }
             }
             break;
