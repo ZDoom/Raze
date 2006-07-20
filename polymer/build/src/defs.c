@@ -61,7 +61,8 @@ enum {
     T_SPRITECOL,T_2DCOL,
     T_FOGPAL,
     T_LOADGRP,
-    T_DUMMYTILE,T_DUMMYTILERANGE
+    T_DUMMYTILE,T_DUMMYTILERANGE,
+    T_NEGSHADEOFFSET, T_NEGSHADESCALE, T_SHADESCALE, T_SPRSHADESCALE
 };
 
 typedef struct { char *text; int tokenid; } tokenlist;
@@ -107,6 +108,10 @@ static tokenlist basetokens[] =
         { "loadgrp",     	 T_LOADGRP	 		},
         { "dummytile",     	 T_DUMMYTILE		},
         { "dummytilerange",  T_DUMMYTILERANGE   },
+        { "glnegshadeoffset",T_NEGSHADEOFFSET   },
+        { "glnegshadescale", T_NEGSHADESCALE    },
+        { "glshadescale",    T_SHADESCALE       },
+        { "glsprshadescale", T_SPRSHADESCALE    },
     };
 
 static tokenlist modeltokens[] = {
@@ -304,6 +309,50 @@ static int defsparser(scriptfile *script)
                 if (scriptfile_getnumber(script,&b)) break;
                 if (scriptfile_getnumber(script,&f)) break; //effects
                 hicsetpalettetint(pal,r,g,b,f);
+            }
+            break;
+        case T_NEGSHADEOFFSET:
+            {
+                double val;
+                extern float glnegshadeoffset;
+
+                if (scriptfile_getdouble(script,&val)) break;
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                glnegshadeoffset = val;
+#endif
+            }
+            break;
+        case T_NEGSHADESCALE:
+            {
+                double val;
+                extern float glnegshadescale;
+
+                if (scriptfile_getdouble(script,&val)) break;
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                glnegshadescale = val;
+#endif
+            }
+            break;
+        case T_SHADESCALE:
+            {
+                double val;
+                extern float glshadescale;
+
+                if (scriptfile_getdouble(script,&val)) break;
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                glshadescale = val;
+#endif
+            }
+            break;
+        case T_SPRSHADESCALE:
+            {
+                double val;
+                extern float glsprshadescale;
+
+                if (scriptfile_getdouble(script,&val)) break;
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                glsprshadescale = val;
+#endif
             }
             break;
         case T_ALPHAHACK:
