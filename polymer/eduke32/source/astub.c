@@ -57,8 +57,6 @@ char *Help2d[]= {
                     " '4 = MIN FRAMERATE",
 #endif
                     " '7 = Swap tags",
-                    " '9 = Double size map",
-                    " '0 = Shrink map to half size",
                     " X  = Flip sector x",
                     " Y  = Flip sector y",
                     " F5 = Item count",
@@ -5385,7 +5383,11 @@ void FuncMenuOpts(void)
     printext16(8,ydim-STATUS2DSIZ+88,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Scale map down");
     printext16(8,ydim-STATUS2DSIZ+96,11,-1,snotbuf,0);
+    Bsprintf(snotbuf,"Global shade divide");
+    printext16(8,ydim-STATUS2DSIZ+104,11,-1,snotbuf,0);
 
+    Bsprintf(snotbuf,"Global vis divide");
+    printext16(200,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
     /*
         Bsprintf(snotbuf,"     (0x%x), (0x%x)",sprite[spritenum].hitag,sprite[spritenum].lotag);
         printext16(8,ydim-STATUS2DSIZ+104,11,-1,snotbuf,0);
@@ -5423,7 +5425,7 @@ void FuncMenuOpts(void)
 void FuncMenu(void)
 {
     char disptext[80];
-    char col=0, row=0, rowmax=6, dispwidth = 24;
+    char col=0, row=0, rowmax=7, dispwidth = 24;
     long xpos = 8, ypos = ydim-STATUS2DSIZ+48;
     int i = -1, j;
     char editval = 0;
@@ -5457,56 +5459,54 @@ void FuncMenu(void)
             }
             keystatus[0xc8] = 0;
         }
-        /*
-                if (keystatus[0xcb] > 0)
-                {
-                    if (col == 2)
-                    {
-                        printext16(xpos,ypos+row*8,11,0,disptext,0);
-                        col = 1;
-                        xpos = 200;
-                        rowmax = 6;
-                        dispwidth = 24;
-                        disptext[dispwidth] = 0;
-                        if (row > rowmax) row = rowmax;
-                    }
-                    else if (col == 1)
-                    {
-                        printext16(xpos,ypos+row*8,11,0,disptext,0);
-                        col = 0;
-                        xpos = 8;
-                        rowmax = 6;
-                        dispwidth = 23;
-                        disptext[dispwidth] = 0;
-                        if (row > rowmax) row = rowmax;
-                    }
-                    keystatus[0xcb] = 0;
-                }
-                if (keystatus[0xcd] > 0)
-                {
-                    if (col == 0)
-                    {
-                        printext16(xpos,ypos+row*8,11,0,disptext,0);
-                        col = 1;
-                        xpos = 200;
-                        rowmax = 6;
-                        dispwidth = 24;
-                        disptext[dispwidth] = 0;
-                        if (row > rowmax) row = rowmax;
-                    }
-                    else if (col == 1)
-                    {
-                        printext16(xpos,ypos+row*8,11,0,disptext,0);
-                        col = 2;
-                        xpos = 400;
-                        rowmax = 6;
-                        dispwidth = 26;
-                        disptext[dispwidth] = 0;
-                        if (row > rowmax) row = rowmax;
-                    }
-                    keystatus[0xcd] = 0;
-                }
-        */
+        if (keystatus[0xcb] > 0)
+        {
+/*            if (col == 2)
+            {
+                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                col = 1;
+                xpos = 200;
+                rowmax = 6;
+                dispwidth = 24;
+                disptext[dispwidth] = 0;
+                if (row > rowmax) row = rowmax;
+            }
+            else */ if (col == 1)
+            {
+                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                col = 0;
+                xpos = 8;
+                rowmax = 7;
+                dispwidth = 23;
+                disptext[dispwidth] = 0;
+                if (row > rowmax) row = rowmax;
+            }
+            keystatus[0xcb] = 0;
+        }
+        if (keystatus[0xcd] > 0)
+        {
+            if (col == 0)
+            {
+                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                col = 1;
+                xpos = 200;
+                rowmax = 0;
+                dispwidth = 24;
+                disptext[dispwidth] = 0;
+                if (row > rowmax) row = rowmax;
+            }
+/*            else if (col == 1)
+            {
+                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                col = 2;
+                xpos = 400;
+                rowmax = 6;
+                dispwidth = 26;
+                disptext[dispwidth] = 0;
+                if (row > rowmax) row = rowmax;
+            } */
+            keystatus[0xcd] = 0;
+        }
         if (keystatus[0x1c] > 0)
         {
             keystatus[0x1c] = 0;
@@ -5608,9 +5608,7 @@ void FuncMenu(void)
                         sector[i].floorz += scale;
                     }
                     for(i=0;i<MAXSPRITES;i++)
-                    {
                         sprite[i].z += scale;
-                    }
                     printmessage16("Map adjusted");
                 }
             }
@@ -5674,7 +5672,41 @@ void FuncMenu(void)
                     printmessage16("Map scaled");
                 }
             }
+            else if (row == 7)
+            {
+                for (i=Bsprintf(disptext,"Global shade divide"); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
+                {
+                    signed char shade;
 
+                    shade=getnumber16("Shade divisor:    ",1,127,1);
+                    for(i=0;i<numsectors;i++)
+                    {
+                        sector[i].ceilingshade /= shade;
+                        sector[i].floorshade /= shade;
+                    }
+                    for(i=0;i<numwalls;i++)
+                        wall[i].shade /= shade;
+                    for(i=0;i<MAXSPRITES;i++)
+                        sprite[i].shade /= shade;
+                    printmessage16("Shades adjusted");
+                }
+            }
+            break;
+        case 1:
+            if (row == 0)
+            {
+                for (i=Bsprintf(disptext,"Global vis divide"); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
+                {
+                    signed char vis;
+
+                    vis=getnumber16("Visibility divisor:    ",1,127,0);
+                    for(i=0;i<numsectors;i++)
+                        sector[i].visibility /= vis;
+                    printmessage16("Visibility adjusted");
+                }
+            }
             break;
         }
         printext16(xpos,ypos+row*8,11,1,disptext,0);
