@@ -530,10 +530,6 @@ void editinput(void)
 
     if (mlook == 1)
     {
-        if(klabs(mousx) > klabs(mousy))
-            mousy /= 3;
-        else mousx /= 3;
-
         ang += mousx>>1;
         horiz -= (mousy>>2);
 
