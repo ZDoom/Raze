@@ -358,10 +358,10 @@ void adduserquote(char *daquote)
 
     for(i=MAXUSERQUOTES-1;i>0;i--)
     {
-        strcpy(user_quote[i],user_quote[i-1]);
+        Bstrcpy(user_quote[i],user_quote[i-1]);
         user_quote_time[i] = user_quote_time[i-1];
     }
-    strcpy(user_quote[0],daquote);
+    Bstrcpy(user_quote[0],daquote);
     OSD_Printf("%s\n",strip_color_codes(daquote));
 
     user_quote_time[0] = ud.msgdisptime;
@@ -450,7 +450,7 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
                         sendpacket(i,packbuf,packbufleng);
             }
 
-            strcpy(boardfilename,packbuf+1);
+            Bstrcpy(boardfilename,packbuf+1);
             boardfilename[packbufleng-1] = 0;
             if(boardfilename[0] != 0)
             {
@@ -653,7 +653,7 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
                 }
             }
 
-            strcpy(recbuf,packbuf+2);
+            Bstrcpy(recbuf,packbuf+2);
             recbuf[packbufleng-2] = 0;
 
             adduserquote(recbuf);
@@ -1605,7 +1605,7 @@ void digitalnumber(long x,long y,long n,char s,char cs)
 
     //ltoa(n,b,10);
     Bsnprintf(b,10,"%ld",n);
-    i = strlen(b);
+    i = Bstrlen(b);
     j = 0;
 
     for(k=0;k<i;k++)
@@ -1631,7 +1631,7 @@ void txdigitalnumber(short starttile, long x,long y,long n,char s,char pal,char 
 
     //ltoa(n,b,10);
     Bsnprintf(b,10,"%ld",n);
-    i = strlen(b);
+    i = Bstrlen(b);
     j = 0;
 
     for(k=0;k<i;k++)
@@ -2368,7 +2368,7 @@ void typemode(void)
 
             if(typebuf[0] == '/' && Btoupper(typebuf[1]) == 'M' && Btoupper(typebuf[2]) == 'E')
             {
-                strcat(recbuf,"* ");
+                Bstrcat(recbuf,"* ");
                 i = 3, j = Bstrlen(typebuf);
                 Bstrcpy(tempbuf,typebuf);
                 while(i < j)
@@ -2377,19 +2377,19 @@ void typemode(void)
                     i++;
                 }
                 typebuf[i-3] = '\0';
-                strcat(recbuf,ud.user_name[myconnectindex]);
+                Bstrcat(recbuf,ud.user_name[myconnectindex]);
             }
             else
             {
-                strcat(recbuf,ud.user_name[myconnectindex]);
-                strcat(recbuf,": ");
+                Bstrcat(recbuf,ud.user_name[myconnectindex]);
+                Bstrcat(recbuf,": ");
             }
 
-            strcat(recbuf,"^0");
-            strcat(recbuf,typebuf);
-            j = strlen(recbuf);
+            Bstrcat(recbuf,"^0");
+            Bstrcat(recbuf,typebuf);
+            j = Bstrlen(recbuf);
             recbuf[j] = 0;
-            strcat(tempbuf+2,recbuf);
+            Bstrcat(tempbuf+2,recbuf);
 
             if(sendmessagecommand >= ud.multimode || movesperpacket == 4)
             {
@@ -6565,8 +6565,8 @@ void cheats(void)
         return;
 
     if (VOLUMEONE && !z) {
-        strcpy(cheatquotes[2],"scotty##");
-        strcpy(cheatquotes[6],"<RESERVED>");
+        Bstrcpy(cheatquotes[2],"scotty##");
+        Bstrcpy(cheatquotes[6],"<RESERVED>");
         z=1;
     }
 
@@ -6856,7 +6856,7 @@ FOUNDCHEAT:
                 case CHEAT_SKILL:
                     if(k == CHEAT_SCOTTY)
                     {
-                        i = strlen(cheatquotes[k])-3+VOLUMEONE;
+                        i = Bstrlen(cheatquotes[k])-3+VOLUMEONE;
                         if (!consolecheat) {        // JBF 20030914
                             short volnume,levnume;
                             if (VOLUMEALL) {
@@ -6911,7 +6911,7 @@ FOUNDCHEAT:
                     }
                     else
                     {
-                        i = strlen(cheatquotes[k])-1;
+                        i = Bstrlen(cheatquotes[k])-1;
                         ud.m_player_skill = ud.player_skill = cheatbuf[i] - '1';
                     }
                     if(numplayers > 1 && myconnectindex == connecthead)
@@ -7244,7 +7244,7 @@ void nonsharedkeys(void)
                 tempbuf[ch] = 4;
                 tempbuf[ch+1] = 255;
                 tempbuf[ch+2] = 0;
-                strcat(tempbuf+2,ud.ridecule[i-1]);
+                Bstrcat(tempbuf+2,ud.ridecule[i-1]);
 
                 i = 2+strlen(ud.ridecule[i-1]);
 
@@ -7423,7 +7423,7 @@ FAKE_F3:
             screencapt = 0;
             if( lastsavedpos >= 0 )
             {
-                /*                inputloc = strlen(&ud.savegame[lastsavedpos][0]);
+                /*                inputloc = Bstrlen(&ud.savegame[lastsavedpos][0]);
                                 current_menu = 360+lastsavedpos;
                                 probey = lastsavedpos; */
                 if(ud.multimode > 1)
@@ -7930,7 +7930,7 @@ void checkcommandline(int argc,char **argv)
                     c++;
                     if(*c)
                     {
-                        strcpy(confilename,c);
+                        Bstrcpy(confilename,c);
                         userconfiles = 1;
                         /* if(SafeFileExists(c) == 0)
                         {
@@ -7945,9 +7945,9 @@ void checkcommandline(int argc,char **argv)
                     c++;
                     if(*c)
                     {
-                        strcpy(tempbuf,c);
+                        Bstrcpy(tempbuf,c);
                         if( strchr(tempbuf,'.') == 0)
-                            strcat(tempbuf,".grp");
+                            Bstrcat(tempbuf,".grp");
 
                         j = initgroupfile(tempbuf);
                         if( j == -1 )
@@ -8100,9 +8100,9 @@ void checkcommandline(int argc,char **argv)
                 case 'D':
                     c++;
                     if( strchr(c,'.') == 0)
-                        strcat(c,".dmo");
+                        Bstrcat(c,".dmo");
                     initprintf("Play demo %s.\n",c);
-                    strcpy(firstdemofile,c);
+                    Bstrcpy(firstdemofile,c);
                     break;
                 case 'l':
                 case 'L':
@@ -8685,9 +8685,9 @@ void sendboardname(void)
         tempbuf[0] = 9;
         tempbuf[1] = 0;
 
-        j = strlen(boardfilename);
+        j = Bstrlen(boardfilename);
         boardfilename[j] = 0;
-        strcat(tempbuf+1,boardfilename);
+        Bstrcat(tempbuf+1,boardfilename);
 
         for(ch=connecthead;ch >= 0;ch=connectpoint2[ch])
         {
@@ -9201,7 +9201,7 @@ char opendemoread(char which_demo) // 0 = mine
     char ver;
     int32 i;
 
-    strcpy(d, "demo_.dmo");
+    Bstrcpy(d, "demo_.dmo");
 
     if(which_demo == 10)
         d[4] = 'x';

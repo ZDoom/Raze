@@ -4890,7 +4890,7 @@ void EditSpriteData(short spritenum)
 {
     char disptext[80];
     char edittext[80];
-    char col=0, row=0, rowmax=2, dispwidth = 24;
+    char col=0, row=0, rowmax=4, dispwidth = 24;
     long xpos = 8, ypos = ydim-STATUS2DSIZ+48;
     int i = -1;
     char editval = 0;
@@ -4925,49 +4925,59 @@ void EditSpriteData(short spritenum)
         }
         if (keystatus[0xcb] > 0)
         {
-            if (col == 2)
+            switch (col)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
-                col = 1;
-                xpos = 200;
-                rowmax = 5;
-                dispwidth = 24;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-            else if (col == 1)
-            {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
-                col = 0;
-                xpos = 8;
-                rowmax = 2;
-                dispwidth = 23;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
+            case 1:
+                {
+                    printext16(xpos,ypos+row*8,11,0,disptext,0);
+                    col = 0;
+                    xpos = 8;
+                    rowmax = 4;
+                    dispwidth = 23;
+                    disptext[dispwidth] = 0;
+                    if (row > rowmax) row = rowmax;
+                }
+                break;
+            case 2:
+                {
+                    printext16(xpos,ypos+row*8,11,0,disptext,0);
+                    col = 1;
+                    xpos = 200;
+                    rowmax = 5;
+                    dispwidth = 24;
+                    disptext[dispwidth] = 0;
+                    if (row > rowmax) row = rowmax;
+                }
+                break;
             }
             keystatus[0xcb] = 0;
         }
         if (keystatus[0xcd] > 0)
         {
-            if (col == 0)
+            switch (col)
             {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
-                col = 1;
-                xpos = 200;
-                rowmax = 5;
-                dispwidth = 24;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-            else if (col == 1)
-            {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
-                col = 2;
-                xpos = 400;
-                rowmax = 6;
-                dispwidth = 26;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
+            case 0:
+                {
+                    printext16(xpos,ypos+row*8,11,0,disptext,0);
+                    col = 1;
+                    xpos = 200;
+                    rowmax = 5;
+                    dispwidth = 24;
+                    disptext[dispwidth] = 0;
+                    if (row > rowmax) row = rowmax;
+                }
+                break;
+            case 1:
+                {
+                    printext16(xpos,ypos+row*8,11,0,disptext,0);
+                    col = 2;
+                    xpos = 400;
+                    rowmax = 6;
+                    dispwidth = 26;
+                    disptext[dispwidth] = 0;
+                    if (row > rowmax) row = rowmax;
+                }
+                break;
             }
             keystatus[0xcd] = 0;
         }
@@ -4976,194 +4986,239 @@ void EditSpriteData(short spritenum)
             keystatus[0x1c] = 0;
             editval = 1;
         }
-        switch (row)
+        switch (col)
         {
         case 0:
-            if (col == 0)
             {
-                for (i=Bsprintf(disptext,"X-coordinate: %ld",sprite[spritenum].x); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) X-coordinate: ",spritenum);
-                if (editval)
+                switch (row)
                 {
-                    printmessage16(edittext);
-                    sprite[spritenum].x = getnumber16(edittext,sprite[spritenum].x,131072,1);
-                }
-            }
-            else if (col == 1)
-            {
-                for (i=Bsprintf(disptext,"Flags (hex): %x",sprite[spritenum].cstat); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Flags: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].cstat = (short)getnumber16(edittext,(long)sprite[spritenum].cstat,32768L,0);
-                }
-            }
-            else if (col == 2)
-            {
-                for (i=Bsprintf(disptext,"Angle (2048 degrees): %d",sprite[spritenum].ang); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Angle: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].ang = (short)getnumber16(edittext,(long)sprite[spritenum].ang,2048L,0);
+                case 0:
+                    {
+                        for (i=Bsprintf(disptext,"X-coordinate: %ld",sprite[spritenum].x); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) X-coordinate: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].x = getnumber16(edittext,sprite[spritenum].x,131072,1);
+                        }
+                    }
+                    break;
+                case 1:
+                    {
+                        for (i=Bsprintf(disptext,"Y-coordinate: %ld",sprite[spritenum].y); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Y-coordinate: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].y = getnumber16(edittext,sprite[spritenum].y,131072,1);
+                        }
+                    }
+                    break;
+                case 2:
+                    {
+                        for (i=Bsprintf(disptext,"Z-coordinate: %ld",sprite[spritenum].z); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Z-coordinate: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].z = getnumber16(edittext,sprite[spritenum].z,8388608,1); //2147483647L,-2147483648L
+                        }
+                    }
+                    break;
+                case 3:
+                    {
+                        for (i=Bsprintf(disptext,"Sectnum: %d",sprite[spritenum].sectnum); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Sectnum: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            i = getnumber16(edittext,sprite[spritenum].sectnum,MAXSECTORS-1,0);
+                            if(i != sprite[spritenum].sectnum)
+                                changespritesect(spritenum,i);
+                        }
+                    }
+                    break;
+                case 4:
+                    {
+                        for (i=Bsprintf(disptext,"Statnum: %d",sprite[spritenum].statnum); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Statnum: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            i = getnumber16(edittext,sprite[spritenum].statnum,MAXSTATUS-1,0);
+                            if(i != sprite[spritenum].statnum)
+                                changespritestat(spritenum,i);
+                        }
+                    }
+                    break;
                 }
             }
             break;
         case 1:
-            if (col == 0)
             {
-                for (i=Bsprintf(disptext,"Y-coordinate: %ld",sprite[spritenum].y); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Y-coordinate: ",spritenum);
-                if (editval)
+                switch (row)
                 {
-                    printmessage16(edittext);
-                    sprite[spritenum].y = getnumber16(edittext,sprite[spritenum].y,131072,1);
-                }
-            }
-            else if (col == 1)
-            {
-                for (i=Bsprintf(disptext,"Shade: %d",sprite[spritenum].shade); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Shade: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].shade = (char)getnumber16(edittext,(long)sprite[spritenum].shade,127,1);
-                }
-            }
-            else if (col == 2)
-            {
-                for (i=Bsprintf(disptext,"X-Velocity: %d",sprite[spritenum].xvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) X-Velocity: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].xvel = getnumber16(edittext,(long)sprite[spritenum].xvel,32767,1);
+                case 0:
+                    {
+                        for (i=Bsprintf(disptext,"Flags (hex): %x",sprite[spritenum].cstat); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Flags: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].cstat = (short)getnumber16(edittext,(long)sprite[spritenum].cstat,32768L,0);
+                        }
+                    }
+                    break;
+                case 1:
+                    {
+                        for (i=Bsprintf(disptext,"Shade: %d",sprite[spritenum].shade); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Shade: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].shade = (char)getnumber16(edittext,(long)sprite[spritenum].shade,127,1);
+                        }
+                    }
+                    break;
+                case 2:
+                    {
+                        for (i=Bsprintf(disptext,"Pal: %d",sprite[spritenum].pal); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Pal: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].pal = (char)getnumber16(edittext,(long)sprite[spritenum].pal,MAXPALOOKUPS,0);
+                        }
+                    }
+                    break;
+                case 3:
+                    {
+                        for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
+                        {
+                            Bsprintf(edittext,"Sprite (%d) X Repeat: ",spritenum);
+                            printmessage16(edittext);
+                            sprite[spritenum].xrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].xrepeat,256L,0);
+                            Bsprintf(edittext,"Sprite (%d) Y Repeat: ",spritenum);
+                            printmessage16(edittext);
+                            sprite[spritenum].yrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].yrepeat,256L,0);
+                        }
+                    }
+                    break;
+                case 4:
+                    {
+                        for (i=Bsprintf(disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
+                        {
+                            Bsprintf(edittext,"Sprite (%d) X Offset: ",spritenum);
+                            printmessage16(edittext);
+                            sprite[spritenum].xoffset = (char)getnumber16(edittext,(long)sprite[spritenum].xoffset,128L,1);
+                            Bsprintf(edittext,"Sprite (%d) Y Offset: ",spritenum);
+                            printmessage16(edittext);
+                            sprite[spritenum].yoffset = (char)getnumber16(edittext,(long)sprite[spritenum].yoffset,128L,1);
+                        }
+                    }
+                    break;
+                case 5:
+                    {
+                        for (i=Bsprintf(disptext,"Tile number: %d",sprite[spritenum].picnum); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Tile number: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].picnum = (short)getnumber16(edittext,(long)sprite[spritenum].picnum,MAXTILES,0);
+                        }
+                    }
+                    break;
                 }
             }
             break;
         case 2:
-            if (col == 0)
             {
-                for (i=Bsprintf(disptext,"Z-coordinate: %ld",sprite[spritenum].z); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Z-coordinate: ",spritenum);
-                if (editval)
+                switch (row)
                 {
-                    printmessage16(edittext);
-                    sprite[spritenum].z = getnumber16(edittext,sprite[spritenum].z,8388608,1); //2147483647L,-2147483648L
+                case 0:
+                    {
+                        for (i=Bsprintf(disptext,"Angle (2048 degrees): %d",sprite[spritenum].ang); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Angle: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].ang = (short)getnumber16(edittext,(long)sprite[spritenum].ang,2048L,0);
+                        }
+                    }
+                    break;
+                case 1:
+                    {
+                        for (i=Bsprintf(disptext,"X-Velocity: %d",sprite[spritenum].xvel); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) X-Velocity: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].xvel = getnumber16(edittext,(long)sprite[spritenum].xvel,32767,1);
+                        }
+                    }
+                    break;
+                case 2:
+                    {
+                        for (i=Bsprintf(disptext,"Y-Velocity: %d",sprite[spritenum].yvel); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Y-Velocity: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].yvel = getnumber16(edittext,(long)sprite[spritenum].yvel,32767,1);
+                        }
+                    }
+                    break;
+                case 3:
+                    {
+                        for (i=Bsprintf(disptext,"Z-Velocity: %d",sprite[spritenum].zvel); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Z-Velocity: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].zvel = getnumber16(edittext,(long)sprite[spritenum].zvel,32767,1);
+                        }
+                    }
+                    break;
+                case 4:
+                    {
+                        for (i=Bsprintf(disptext,"Owner: %d",sprite[spritenum].owner); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Owner: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].owner = getnumber16(edittext,(long)sprite[spritenum].owner,MAXSPRITES,0);
+                        }
+                    }
+                    break;
+                case 5:
+                    {
+                        for (i=Bsprintf(disptext,"Clipdist: %d",sprite[spritenum].clipdist); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Clipdist: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].clipdist = (char)getnumber16(edittext,(long)sprite[spritenum].clipdist,255,0);
+                        }
+                    }
+                    break;
+                case 6:
+                    {
+                        for (i=Bsprintf(disptext,"Extra: %d",sprite[spritenum].extra); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Extra: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].extra = getnumber16(edittext,(long)sprite[spritenum].extra,32767,1);
+                        }
+                    }
+                    break;
                 }
             }
-            else if (col == 1)
-            {
-                for (i=Bsprintf(disptext,"Pal: %d",sprite[spritenum].pal); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Pal: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].pal = (char)getnumber16(edittext,(long)sprite[spritenum].pal,MAXPALOOKUPS,0);
-                }
-            }
-            else if (col == 2)
-            {
-                for (i=Bsprintf(disptext,"Y-Velocity: %d",sprite[spritenum].yvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Y-Velocity: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].yvel = getnumber16(edittext,(long)sprite[spritenum].yvel,32767,1);
-                }
-            }
-
-            break;
-        case 3:
-            if (col == 1)
-            {
-                for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    Bsprintf(edittext,"Sprite (%d) X Repeat: ",spritenum);
-                    printmessage16(edittext);
-                    sprite[spritenum].xrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].xrepeat,256L,0);
-                    Bsprintf(edittext,"Sprite (%d) Y Repeat: ",spritenum);
-                    printmessage16(edittext);
-                    sprite[spritenum].yrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].yrepeat,256L,0);
-                }
-            }
-            else if (col == 2)
-            {
-                for (i=Bsprintf(disptext,"Z-Velocity: %d",sprite[spritenum].zvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Z-Velocity: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].zvel = getnumber16(edittext,(long)sprite[spritenum].zvel,32767,1);
-                }
-            }
-
-            break;
-        case 4:
-            if (col == 1)
-            {
-                for (i=Bsprintf(disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    Bsprintf(edittext,"Sprite (%d) X Offset: ",spritenum);
-                    printmessage16(edittext);
-                    sprite[spritenum].xoffset = (char)getnumber16(edittext,(long)sprite[spritenum].xoffset,128L,1);
-                    Bsprintf(edittext,"Sprite (%d) Y Offset: ",spritenum);
-                    printmessage16(edittext);
-                    sprite[spritenum].yoffset = (char)getnumber16(edittext,(long)sprite[spritenum].yoffset,128L,1);
-                }
-            }
-            else if (col == 2)
-            {
-                for (i=Bsprintf(disptext,"Owner: %d",sprite[spritenum].owner); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Owner: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].owner = getnumber16(edittext,(long)sprite[spritenum].owner,MAXSPRITES,0);
-                }
-            }
-
-            break;
-        case 5:
-            if (col == 1)
-            {
-                for (i=Bsprintf(disptext,"Tile number: %d",sprite[spritenum].picnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Tile number: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].picnum = (short)getnumber16(edittext,(long)sprite[spritenum].picnum,MAXTILES,0);
-                }
-            }
-            else if (col == 2)
-            {
-                for (i=Bsprintf(disptext,"Clipdist: %d",sprite[spritenum].clipdist); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Clipdist: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].clipdist = (char)getnumber16(edittext,(long)sprite[spritenum].clipdist,255,0);
-                }
-            }
-
-            break;
-        case 6:
-            if (col == 2)
-            {
-                for (i=Bsprintf(disptext,"Extra: %d",sprite[spritenum].extra); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Extra: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].extra = getnumber16(edittext,(long)sprite[spritenum].extra,32767,1);
-                }
-            }
-
             break;
         }
+
         printext16(xpos,ypos+row*8,11,1,disptext,0);
         if (editval)
         {
@@ -5181,187 +5236,6 @@ void EditSpriteData(short spritenum)
 }
 
 // Build edit
-
-#define M_RED 12
-#define M_BLUE 9
-
-void ResetKeys(void)
-{
-    int i;
-
-    for (i = 0; i < MAXKEYBOARDSCAN; i++)
-    {
-        keystatus[i] = 0;
-    }
-}
-
-void Msg(char *string, char color)
-{
-    clearmidstatbar16();
-
-    printext16(1*4,ydim16+4*8,color,-1,string,0);
-
-}
-
-/*
-long GetAToken(char *name, char *tc, long length)
-{
-    int x=0;
-    char t,*tmp,tokenfound=0;
-    char *token;
-    long count=0;
-
-    if(!(token = (char *)malloc(9)))
-    {
-        Msg("Out of heap space!",M_RED);
-        return(tokenfound);
-    }
-
-
-    do{
-
-        // Find the token symbol
-        do {
-            t = *tc;
-            tc++;
-            count++;
-        } while(t!='@' && count < length);
-
-
-        if(t=='@')
-        {
-            tmp = token;
-            x=1;
-
-            do {
-                // Read in the token
-                *tmp = t;
-                tmp++;
-                t = *tc;
-                tc++;
-                x++;
-                count++;
-            } while((t>=48 && t<=127) && t!='@' && x < 9 && count < length);
-
-            *tmp = 0;
-
-            if(!strcmp(name,Bstrupr(token)))
-                tokenfound = 1;
-        }
-    } while(!tokenfound && count < length);
-
-
-    if(!tokenfound) count=0;
-    return(count);
-
-}
-
-void ContextHelp(short spritenum)
-{
-    int i,fp;
-    char t,*tc;
-    char x=0,y=4;
-    char *name,*hightag;
-    char *filebuffer;
-    spritetype *sp;
-    short lotag=0;
-    long size=0,tokresult=0;
-
-
-    sp = &sprite[spritenum];
-
-    clearmidstatbar16();
-
-    if((fp=kopen4load("sehelp.hp2",0)) == -1)
-    {
-        Msg("ERROR: Help file not found.",M_RED);
-        return;
-    }
-
-    // Read in whole file
-    size = kfilelength(fp);
-    filebuffer = (char *)malloc(size);
-    if (filebuffer == NULL)
-    {
-        Msg("Not enough memory to load sehelp.hp2",M_RED);
-        return;
-    }
-
-    if (kread(fp, filebuffer, size) != size)
-    {
-        Msg("Unexpected end of file while reading sehelp.hp2",M_RED);
-        kclose(fp);
-        return;
-    }
-
-    // close the file
-    kclose(fp);
-
-    // Conver filebuffer to all upper case
-    //strupr(filebuffer);
-
-    // Assign a token name to search for based on the sprite being pointed to.
-    name = (char *)malloc(20);
-    hightag = (char *)malloc(sizeof(short));
-
-    // Make the token
-    strcpy(name,"@TAG");
-    // Make sure 500-600 SOBJ bounding tags all say the same thing.
-    lotag = sp->lotag;
-    if(lotag > 500 && lotag <= 600 ) lotag = 500;
-    // Give help summary for unknown sprites.
-    if((lotag == 0 || lotag > 1006) && sp->lotag == 0) lotag = 999;
-
-    sprintf(hightag,"%d",lotag);
-    //itoa(lotag,hightag,10);
-    strcat(name,hightag);
-
-    tc = filebuffer;
-
-    if(!(tokresult = GetAToken(name,tc,size)))
-    {
-        // This message should never happen unless something is real wrong!
-        Msg("No help available.",M_RED);
-        return;
-    }
-
-    tc += tokresult;
-
-    do {
-        tc++;
-        t = *tc;
-        while(t!='\n' && t!='@' && t!='#' && x<128)
-        {
-            tempbuf[x]=t;
-            tc++;
-            t = *tc;
-            x++;
-            if(x >= 128) break;
-        }
-        tempbuf[x]=0;
-        x=0;
-        printext16(x*4,ydim16+(y*6)+2,11,-1,tempbuf,1);
-        y++;
-
-        if(y>16)
-        {
-            y=18;
-            printext16(x*4,ydim16+(y*6)+2,11,-1,"Hit any key to continue or Q to quit....",1);
-            while (bgetchar() == NULL);
-            if (keystatus[KEYSC_Q])
-            {
-                clearmidstatbar16();
-                return;
-            }
-            ResetKeys();
-            clearmidstatbar16();
-
-            y=6;
-        }
-
-    } while(t!='@' && t!='#');
-}
-*/
 
 void FuncMenuOpts(void)
 {
@@ -5386,7 +5260,7 @@ void FuncMenuOpts(void)
     Bsprintf(snotbuf,"Global shade divide");
     printext16(8,ydim-STATUS2DSIZ+104,11,-1,snotbuf,0);
 
-    Bsprintf(snotbuf,"Global vis divide");
+    Bsprintf(snotbuf,"Global visibility divide");
     printext16(200,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
     /*
         Bsprintf(snotbuf,"     (0x%x), (0x%x)",sprite[spritenum].hitag,sprite[spritenum].lotag);
@@ -5461,17 +5335,17 @@ void FuncMenu(void)
         }
         if (keystatus[0xcb] > 0)
         {
-/*            if (col == 2)
-            {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
-                col = 1;
-                xpos = 200;
-                rowmax = 6;
-                dispwidth = 24;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-            else */ if (col == 1)
+            /*            if (col == 2)
+                        {
+                            printext16(xpos,ypos+row*8,11,0,disptext,0);
+                            col = 1;
+                            xpos = 200;
+                            rowmax = 6;
+                            dispwidth = 24;
+                            disptext[dispwidth] = 0;
+                            if (row > rowmax) row = rowmax;
+                        }
+                        else */ if (col == 1)
             {
                 printext16(xpos,ypos+row*8,11,0,disptext,0);
                 col = 0;
@@ -5495,16 +5369,16 @@ void FuncMenu(void)
                 disptext[dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
             }
-/*            else if (col == 1)
-            {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
-                col = 2;
-                xpos = 400;
-                rowmax = 6;
-                dispwidth = 26;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            } */
+            /*            else if (col == 1)
+                        {
+                            printext16(xpos,ypos+row*8,11,0,disptext,0);
+                            col = 2;
+                            xpos = 400;
+                            rowmax = 6;
+                            dispwidth = 26;
+                            disptext[dispwidth] = 0;
+                            if (row > rowmax) row = rowmax;
+                        } */
             keystatus[0xcd] = 0;
         }
         if (keystatus[0x1c] > 0)
@@ -5515,200 +5389,219 @@ void FuncMenu(void)
         switch (col)
         {
         case 0:
-            if (row == 0)
+            switch (row)
             {
-                for (i=Bsprintf(disptext,"Replace invalid tiles"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+            case 0:
                 {
-                    j = 0;
-                    for(i=0;i<MAXSECTORS;i++)
+                    for (i=Bsprintf(disptext,"Replace invalid tiles"); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        if(tilesizx[sector[i].ceilingpicnum] <= 0)
-                            sector[i].ceilingpicnum = 0,j++;
-                        if(tilesizx[sector[i].floorpicnum] <= 0)
-                            sector[i].floorpicnum = 0,j++;
+                        j = 0;
+                        for(i=0;i<MAXSECTORS;i++)
+                        {
+                            if(tilesizx[sector[i].ceilingpicnum] <= 0)
+                                sector[i].ceilingpicnum = 0,j++;
+                            if(tilesizx[sector[i].floorpicnum] <= 0)
+                                sector[i].floorpicnum = 0,j++;
+                        }
+                        for(i=0;i<MAXWALLS;i++)
+                        {
+                            if(tilesizx[wall[i].picnum] <= 0)
+                                wall[i].picnum = 0,j++;
+                            if(tilesizx[wall[i].overpicnum] <= 0)
+                                wall[i].overpicnum = 0,j++;
+                        }
+                        for(i=0;i<MAXSPRITES;i++)
+                        {
+                            if(tilesizx[sprite[i].picnum] <= 0)
+                                sprite[i].picnum = 0,j++;
+                        }
+                        Bsprintf(tempbuf,"Replaced %d invalid tiles",j);
+                        printmessage16(tempbuf);
                     }
-                    for(i=0;i<MAXWALLS;i++)
-                    {
-                        if(tilesizx[wall[i].picnum] <= 0)
-                            wall[i].picnum = 0,j++;
-                        if(tilesizx[wall[i].overpicnum] <= 0)
-                            wall[i].overpicnum = 0,j++;
-                    }
-                    for(i=0;i<MAXSPRITES;i++)
-                    {
-                        if(tilesizx[sprite[i].picnum] <= 0)
-                            sprite[i].picnum = 0,j++;
-                    }
-                    Bsprintf(tempbuf,"Replaced %d invalid tiles",j);
-                    printmessage16(tempbuf);
                 }
-            }
-            else if (row == 1)
-            {
-                for (i=Bsprintf(disptext,"Mass sprite delete"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                break;
+            case 1:
                 {
-                    Bsprintf(tempbuf,"Delete all sprites of picnum: ");
-                    i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
-                    if (i >= 0)
+                    for (i=Bsprintf(disptext,"Mass sprite delete"); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        for(j=0;j<MAXSPRITES-1;j++)
-                            if(sprite[j].picnum == i)
-                                deletesprite(j);
-                        printmessage16("Sprites deleted.");
-                    } else printmessage16("Aborted");
+                        Bsprintf(tempbuf,"Delete all sprites of picnum: ");
+                        i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
+                        if (i >= 0)
+                        {
+                            for(j=0;j<MAXSPRITES-1;j++)
+                                if(sprite[j].picnum == i)
+                                    deletesprite(j);
+                            printmessage16("Sprites deleted.");
+                        } else printmessage16("Aborted");
+                    }
                 }
-            }
-            else if (row == 2)
-            {
-                for (i=Bsprintf(disptext,"Global sky shade"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                break;
+            case 2:
                 {
-                    j=getnumber16("Global sky shade:    ",0,127,1);
+                    for (i=Bsprintf(disptext,"Global sky shade"); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
+                    {
+                        j=getnumber16("Global sky shade:    ",0,127,1);
 
-                    for(i=0;i<numsectors;i++)
-                    {
-                        if(sector[i].ceilingstat&1)
-                            sector[i].ceilingshade = j;
-                    }
-                    printmessage16("Parallaxed skies adjusted");
-                }
-            }
-            else if (row == 3)
-            {
-                for (i=Bsprintf(disptext,"Global sky height"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Global sky height:    ",0,16777216,1);
-                    if(j != 0)
-                    {
                         for(i=0;i<numsectors;i++)
                         {
                             if(sector[i].ceilingstat&1)
-                                sector[i].ceilingz = j;
+                                sector[i].ceilingshade = j;
                         }
                         printmessage16("Parallaxed skies adjusted");
-                    } else printmessage16("Aborted");
+                    }
                 }
-            }
-            else if (row == 4)
-            {
-                for (i=Bsprintf(disptext,"Global Z coord shift"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                break;
+            case 3:
                 {
-                    j=getnumber16("Z offset:    ",0,16777216,1);
-                    if(j!=0)
+                    for (i=Bsprintf(disptext,"Global sky height"); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        for(i=0;i<numsectors;i++)
+                        j=getnumber16("Global sky height:    ",0,16777216,1);
+                        if(j != 0)
                         {
-                            sector[i].ceilingz += j;
-                            sector[i].floorz += j;
-                        }
-                        for(i=0;i<MAXSPRITES;i++)
-                            sprite[i].z += j;
-                        printmessage16("Map adjusted");
-                    } else printmessage16("Aborted");
+                            for(i=0;i<numsectors;i++)
+                            {
+                                if(sector[i].ceilingstat&1)
+                                    sector[i].ceilingz = j;
+                            }
+                            printmessage16("Parallaxed skies adjusted");
+                        } else printmessage16("Aborted");
+                    }
                 }
-            }
-            else if (row == 5)
-            {
-                for (i=Bsprintf(disptext,"Scale map up"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                break;
+            case 4:
                 {
-                    j=getnumber16("Map size multiplier:    ",1,8,0);
-                    if(j!=1)
+                    for (i=Bsprintf(disptext,"Global Z coord shift"); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        for(i=0;i<numsectors;i++)
+                        j=getnumber16("Z offset:    ",0,16777216,1);
+                        if(j!=0)
                         {
-                            sector[i].ceilingz *= j;
-                            sector[i].floorz *= j;
-                        }
-                        for(i=0;i<numwalls;i++)
-                        {
-                            wall[i].x *= j;
-                            wall[i].y *= j;
-                            wall[i].yrepeat = min(wall[i].yrepeat/j,255);
-                        }
-                        for(i=0;i<MAXSPRITES;i++)
-                        {
-                            sprite[i].x *= j;
-                            sprite[i].y *= j;
-                            sprite[i].z *= j;
-                            sprite[i].xrepeat = max(sprite[i].xrepeat*j,1);
-                            sprite[i].yrepeat = max(sprite[i].yrepeat*j,1);
-                        }
-                        printmessage16("Map scaled");
-                    } else printmessage16("Aborted");
+                            for(i=0;i<numsectors;i++)
+                            {
+                                sector[i].ceilingz += j;
+                                sector[i].floorz += j;
+                            }
+                            for(i=0;i<MAXSPRITES;i++)
+                                sprite[i].z += j;
+                            printmessage16("Map adjusted");
+                        } else printmessage16("Aborted");
+                    }
                 }
-            }
-            else if (row == 6)
-            {
-                for (i=Bsprintf(disptext,"Scale map down"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                break;
+            case 5:
                 {
-                    j=getnumber16("Map size divisor:    ",1,8,0);
-                    if(j!=1)
+                    for (i=Bsprintf(disptext,"Scale map up"); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        for(i=0;i<numsectors;i++)
+                        j=getnumber16("Map size multiplier:    ",1,8,0);
+                        if(j!=1)
                         {
-                            sector[i].ceilingz /= j;
-                            sector[i].floorz /= j;
-                        }
-                        for(i=0;i<numwalls;i++)
-                        {
-                            wall[i].x /= j;
-                            wall[i].y /= j;
-                            wall[i].yrepeat = min(wall[i].yrepeat*j,255);
-                        }
-                        for(i=0;i<MAXSPRITES;i++)
-                        {
-                            sprite[i].x /= j;
-                            sprite[i].y /= j;
-                            sprite[i].z /= j;
-                            sprite[i].xrepeat = max(sprite[i].xrepeat/j,1);
-                            sprite[i].yrepeat = max(sprite[i].yrepeat/j,1);
-                        }
-                        printmessage16("Map scaled");
-                    } else printmessage16("Aborted");
+                            for(i=0;i<numsectors;i++)
+                            {
+                                sector[i].ceilingz *= j;
+                                sector[i].floorz *= j;
+                            }
+                            for(i=0;i<numwalls;i++)
+                            {
+                                wall[i].x *= j;
+                                wall[i].y *= j;
+                                wall[i].yrepeat = min(wall[i].yrepeat/j,255);
+                            }
+                            for(i=0;i<MAXSPRITES;i++)
+                            {
+                                sprite[i].x *= j;
+                                sprite[i].y *= j;
+                                sprite[i].z *= j;
+                                sprite[i].xrepeat = max(sprite[i].xrepeat*j,1);
+                                sprite[i].yrepeat = max(sprite[i].yrepeat*j,1);
+                            }
+                            printmessage16("Map scaled");
+                        } else printmessage16("Aborted");
+                    }
                 }
-            }
-            else if (row == 7)
-            {
-                for (i=Bsprintf(disptext,"Global shade divide"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                break;
+            case 6:
                 {
-                    j=getnumber16("Shade divisor:    ",1,127,1);
-                    if(j!=1)
+                    for (i=Bsprintf(disptext,"Scale map down"); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        for(i=0;i<numsectors;i++)
+                        j=getnumber16("Map size divisor:    ",1,8,0);
+                        if(j!=1)
                         {
-                            sector[i].ceilingshade /= j;
-                            sector[i].floorshade /= j;
-                        }
-                        for(i=0;i<numwalls;i++)
-                            wall[i].shade /= j;
-                        for(i=0;i<MAXSPRITES;i++)
-                            sprite[i].shade /= j;
-                        printmessage16("Shades adjusted");
-                    } else printmessage16("Aborted");
+                            for(i=0;i<numsectors;i++)
+                            {
+                                sector[i].ceilingz /= j;
+                                sector[i].floorz /= j;
+                            }
+                            for(i=0;i<numwalls;i++)
+                            {
+                                wall[i].x /= j;
+                                wall[i].y /= j;
+                                wall[i].yrepeat = min(wall[i].yrepeat*j,255);
+                            }
+                            for(i=0;i<MAXSPRITES;i++)
+                            {
+                                sprite[i].x /= j;
+                                sprite[i].y /= j;
+                                sprite[i].z /= j;
+                                sprite[i].xrepeat = max(sprite[i].xrepeat/j,1);
+                                sprite[i].yrepeat = max(sprite[i].yrepeat/j,1);
+                            }
+                            printmessage16("Map scaled");
+                        } else printmessage16("Aborted");
+                    }
                 }
+                break;
+            case 7:
+                {
+                    for (i=Bsprintf(disptext,"Global shade divide"); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
+                    {
+                        j=getnumber16("Shade divisor:    ",1,127,1);
+                        if(j!=1)
+                        {
+                            for(i=0;i<numsectors;i++)
+                            {
+                                sector[i].ceilingshade /= j;
+                                sector[i].floorshade /= j;
+                            }
+                            for(i=0;i<numwalls;i++)
+                                wall[i].shade /= j;
+                            for(i=0;i<MAXSPRITES;i++)
+                                sprite[i].shade /= j;
+                            printmessage16("Shades adjusted");
+                        } else printmessage16("Aborted");
+                    }
+                }
+                break;
             }
             break;
         case 1:
-            if (row == 0)
+            switch (row)
             {
-                for (i=Bsprintf(disptext,"Global vis divide"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+            case 0:
                 {
-                    j=getnumber16("Visibility divisor:    ",1,127,0);
-                    if(j!=1)
+                    for (i=Bsprintf(disptext,"Global visibility divide"); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
                     {
-                        for(i=0;i<numsectors;i++)
-                            sector[i].visibility /= j;
-                        printmessage16("Visibility adjusted");
-                    } else printmessage16("Aborted");
+                        j=getnumber16("Visibility divisor:    ",1,127,0);
+                        if(j!=1)
+                        {
+                            for(i=0;i<numsectors;i++)
+                            {
+                                if(sector[i].visibility < 240)
+                                    sector[i].visibility /= j;
+                                else sector[i].visibility = 240 + (sector[i].visibility>>4)/j;
+                            }
+                            printmessage16("Visibility adjusted");
+                        } else printmessage16("Aborted");
+                    }
                 }
+                break;
             }
             break;
         }
