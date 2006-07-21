@@ -139,6 +139,11 @@ long glwidescreen = 0;
 long glprojectionhacks = 1;
 static GLuint polymosttext = 0;
 extern char nofog;
+
+// Those two globals control the drawing of fullbright tiles
+long fullbrightpass = 0;
+long shadeforfullbrightpass;
+
 #endif
 
 #if defined(USE_MSC_PRAGMAS)
@@ -303,7 +308,7 @@ typedef struct pthtyp_t
     short picnum;
     char palnum;
     char effects;
-    char flags;      // 1 = clamped (dameth&4), 2 = hightile, 4 = skybox face, 8 = hasalpha, 128 = invalidated
+    char flags;      // 1 = clamped (dameth&4), 2 = hightile, 4 = skybox face, 8 = hasalpha, 16 = hasfullbright, 128 = invalidated
     char skyface;
     hicreplctyp *hicr;
 
@@ -385,9 +390,10 @@ tryart:
                 (pth->flags & (1+2)) == ((dameth&4)>>2)
            )
         {
-            if (pth->flags & 128)
+            if ((pth->flags & 128) || (pth->flags & 16))
             {
-                pth->flags &= ~128;
+				if (pth->flags & 128)
+					pth->flags &= ~128;
                 if (gloadtile_art(dapicnum,dapalnum,dameth,pth,0)) return NULL; //reload tile (for animations)
             }
             return(pth);
@@ -747,7 +753,7 @@ int gloadtile_art (long dapic, long dapal, long dameth, pthtyp *pth, long doallo
 {
     coltype *pic, *wpptr;
     long j, x, y, x2, y2, xsiz, ysiz, dacol, tsizx, tsizy;
-    char hasalpha = 0;
+    char hasalpha = 0, hasfullbright = 0;
 
     tsizx = tilesizx[dapic];
     tsizy = tilesizy[dapic];
@@ -785,12 +791,35 @@ int gloadtile_art (long dapic, long dapal, long dameth, pthtyp *pth, long doallo
                 { wpptr->r = wpptr->g = wpptr->b = wpptr->a = 0; continue; }
                 if (x < tsizx) x2 = x; else x2 = x-tsizx;
                 dacol = (long)(*(unsigned char *)(waloff[dapic]+x2*tsizy+y2));
-                if (dacol == 255) {
-                    wpptr->a = 0; hasalpha = 1;
-                } else {
-                    wpptr->a = 255;
-                    dacol = (long)((unsigned char)palookup[dapal][dacol]);
-                }
+				if (!fullbrightpass)
+				{
+					if ((dacol > 239) && (dacol < 255)) { //fullbright colors
+						if (indrawroomsandmasks)
+						{
+							wpptr->a = 0; hasalpha = 1;
+						}
+						else
+						{
+							wpptr->a = 255;
+							dacol = (long)((unsigned char)palookup[dapal][dacol]);
+						}
+						hasfullbright = 1;
+					} else if (dacol == 255) {
+						wpptr->a = 0; hasalpha = 1;
+					} else {
+						wpptr->a = 255;
+						dacol = (long)((unsigned char)palookup[dapal][dacol]);
+					}
+				}
+				else
+				{
+					if ((dacol < 240) || (dacol == 255))  {
+						wpptr->a = 0; hasalpha = 1;
+					} else {
+						wpptr->a = 255; hasfullbright = 1;
+						dacol = (long)((unsigned char)palookup[dapal][dacol]);
+					}
+				}
                 if (gammabrightness) {
                     wpptr->r = curpalette[dacol].r;
                     wpptr->g = curpalette[dacol].g;
@@ -837,7 +866,7 @@ int gloadtile_art (long dapic, long dapal, long dameth, pthtyp *pth, long doallo
     pth->picnum = dapic;
     pth->palnum = dapal;
     pth->effects = 0;
-    pth->flags = ((dameth&4)>>2) | (hasalpha<<3);
+    pth->flags = ((dameth&4)>>2) | (hasalpha<<3) | (hasfullbright<<4);
     pth->hicr = NULL;
 
     return 0;
@@ -1557,6 +1586,15 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             }
             bglEnd();
         }
+		if ((pth->flags & 16) && (!fullbrightpass) && (indrawroomsandmasks)) // tile has fullbright colors ?
+		{
+			fullbrightpass = 1;
+			shadeforfullbrightpass = globalshade;
+			globalshade = 0;
+			drawpoly(dpx, dpy, n, method); // draw them afterwards, then. :)
+			globalshade = shadeforfullbrightpass;
+			fullbrightpass = 0;
+		}
         return;
     }
 #endif

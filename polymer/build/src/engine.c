@@ -71,7 +71,7 @@ static unsigned long distrecip[65536];
 
 static long *lookups = NULL;
 static char lookupsalloctype = 255;
-long dommxoverlay = 1, beforedrawrooms = 1;
+long dommxoverlay = 1, beforedrawrooms = 1, indrawroomsandmasks = 0;
 
 static long oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
@@ -5633,6 +5633,7 @@ void drawrooms(long daposx, long daposy, long daposz,
     short *shortptr1, *shortptr2;
 
     beforedrawrooms = 0;
+	indrawroomsandmasks = 1;
 
     globalposx = daposx; globalposy = daposy; globalposz = daposz;
     globalang = (daang&2047);
@@ -5678,7 +5679,7 @@ void drawrooms(long daposx, long daposy, long daposz,
     if (0)
     {
         polymer_drawrooms();
-        return;
+		return;
     }
 #endif
     //============================================================================= //POLYMOST BEGINS
@@ -6088,6 +6089,7 @@ killsprite:
     free(walldepths);
 #endif /* goodalpha */
 
+	indrawroomsandmasks = 0;
     enddrawing();   //}}}
 }
 
