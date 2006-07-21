@@ -1589,9 +1589,11 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 		if ((pth->flags & 16) && (!fullbrightpass) && (indrawroomsandmasks)) // tile has fullbright colors ?
 		{
 			fullbrightpass = 1;
-			shadeforfullbrightpass = globalshade;
-			globalshade = 0;
+			shadeforfullbrightpass = globalshade; // save the current shade
+			globalshade = -30; // fullbright
+			bglDisable(GL_FOG); // no fog
 			drawpoly(dpx, dpy, n, method); // draw them afterwards, then. :)
+			bglEnable(GL_FOG);
 			globalshade = shadeforfullbrightpass;
 			fullbrightpass = 0;
 		}
