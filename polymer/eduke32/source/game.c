@@ -8932,6 +8932,8 @@ void app_main(int argc,char **argv)
         // something different, they get what they asked for
         Bsprintf(defaultduke3dgrp,"nam.grp");
         Bsprintf(confilename, "nam.con");
+        Bsprintf(gametype_names[0],"GRUNTMATCH (SPAWN)");
+        Bsprintf(gametype_names[2],"GRUNTMATCH (NO SPAWN)");
     }
 
     if (getenv("DUKE3DGRP")) duke3dgrp = getenv("DUKE3DGRP");
@@ -8947,7 +8949,11 @@ void app_main(int argc,char **argv)
     copyprotect();
     if (cp) return;
 
+    ud.multimode = 1;
+
     checkcommandline(argc,argv);
+
+    if (netparamcount > 0) _buildargc = (argc -= netparamcount+1);  // crop off the net parameters
 
     if (VOLUMEALL)
         loadgroupfiles(duke3ddef);
@@ -8957,14 +8963,10 @@ void app_main(int argc,char **argv)
     if (VOLUMEALL) wm_setapptitle(HEAD2);
     else wm_setapptitle(HEAD);
 
-    ud.multimode = 1;
-
     initprintf("\n");
 
     if (condebug)
         initprintf("CON debugging activated (%d).\n\n",condebug);
-
-    if (netparamcount > 0) _buildargc = (argc -= netparamcount+1);  // crop off the net parameters
 
     RegisterShutdownFunction( Shutdown );
 
@@ -8974,9 +8976,8 @@ void app_main(int argc,char **argv)
     }
 
     Startup(); // a bunch of stuff including compiling cons
-    if (!loaddefinitionsfile(duke3ddef)) initprintf("Definitions file loaded.\n");
-
     if (quitevent) return;
+    if (!loaddefinitionsfile(duke3ddef)) initprintf("Definitions file loaded.\n");
 
     //     initprintf("numplayers=%i\n",numplayers);
 
