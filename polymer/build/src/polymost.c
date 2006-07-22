@@ -1477,7 +1477,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             yy = tsizy; oy2 = (double)1.0/(double)yy;
         }
 
-        if (!(method&3)) {
+        if ((!(method&3)) && (!fullbrightdrawingpass)) {
             bglDisable(GL_BLEND);
             bglDisable(GL_ALPHA_TEST);
         } else {
