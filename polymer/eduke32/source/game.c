@@ -5713,8 +5713,8 @@ void animatesprites(long x,long y,short a,long smoothratio)
                     continue;
             }
 
-        if (checkspriteflags(i,SPRITE_FLAG_NOSHADE))
-            l = sprite[j].shade;
+        if (checkspriteflags(t->owner,SPRITE_FLAG_NOSHADE))
+            l = sprite[t->owner].shade;
         else
         {
             if (sector[t->sectnum].ceilingstat&1)
@@ -6230,7 +6230,7 @@ PALONLY:
                 t->cstat |= 4;
         }
 
-        if( s->statnum == 13 || badguy(s) || checkspriteflags(i,SPRITE_FLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0) )
+        if( s->statnum == 13 || badguy(s) || checkspriteflags(t->owner,SPRITE_FLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0) )
             if(t->statnum != 99 && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE)
                 if(s->picnum != HOTMEAT)
                 {
@@ -6282,7 +6282,7 @@ PALONLY:
                             }
                     }
 
-                    if( ps[screenpeek].heat_amount > 0 && ps[screenpeek].heat_on && (badguy(s) || checkspriteflags(i,SPRITE_FLAG_NVG) || s->picnum == APLAYER || s->statnum == 13))
+                    if( ps[screenpeek].heat_amount > 0 && ps[screenpeek].heat_on && (badguy(s) || checkspriteflags(t->owner,SPRITE_FLAG_NVG) || s->picnum == APLAYER || s->statnum == 13))
                     {
                         t->pal = 6;
                         t->shade = 0;
