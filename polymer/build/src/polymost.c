@@ -142,7 +142,7 @@ long glprojectionhacks = 1;
 static GLuint polymosttext = 0;
 extern char nofog;
 
-// Those two globals control the drawing of fullbright tiles
+// Those THREE globals control the drawing of fullbright tiles
 long fullbrightloadingpass = 0;
 long fullbrightdrawingpass = 0;
 long shadeforfullbrightpass;
@@ -395,18 +395,6 @@ tryart:
                 (pth->flags & (1+2)) == ((dameth&4)>>2)
            )
         {
-			if (pth->flags & 16)
-				if (indrawroomsandmasks)
-				{
-					if (!fullbrightdrawingpass)
-					{
-						pth = pth->wofb;
-						fullbrightdrawingpass = 1;
-					}
-					else if (fullbrightdrawingpass == 2)
-						pth = pth->ofb;
-				}
-
             if (pth->flags & 128)
             {
 				pth->flags &= ~128;
@@ -424,18 +412,6 @@ tryart:
     }
     pth->next = gltexcachead[j];
     gltexcachead[j] = pth;
-
-	if (pth->flags & 16)
-		if (indrawroomsandmasks)
-		{
-			if (!fullbrightdrawingpass)
-			{
-				pth = pth->wofb;
-				fullbrightdrawingpass = 1;
-			}
-			else if (fullbrightdrawingpass == 2)
-				pth = pth->ofb;
-		}
 
     return(pth);
 }
@@ -1377,6 +1353,8 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 #ifdef USE_OPENGL
     pthtyp *pth;
 #endif
+	// backup of the n for possible redrawing of fullbright
+	long n_ = n, method_ = method;
 
     if (method == -1) return;
 
@@ -1460,6 +1438,19 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 
         if (skyclamphack) method |= 4;
         pth = gltexcache(globalpicnum,globalpal,method&(~3));
+
+		if (pth->flags & 16)
+			if (indrawroomsandmasks)
+			{
+				if (!fullbrightdrawingpass)
+				{
+					pth = pth->wofb;
+					fullbrightdrawingpass = 1;
+				}
+				else if (fullbrightdrawingpass == 2)
+					pth = pth->ofb;
+			}
+
         bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
         if (pth && (pth->flags & 2))
@@ -1661,7 +1652,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 			shadeforfullbrightpass = globalshade; // save the current shade
 			globalshade = -30; // fullbright
 			bglDisable(GL_FOG); // no fog
-			drawpoly(dpx, dpy, n, method); // draw them afterwards, then. :)
+			drawpoly(dpx, dpy, n_, method_); // draw them afterwards, then. :)
 			bglEnable(GL_FOG);
 			globalshade = shadeforfullbrightpass;
 			fullbrightdrawingpass = 0;
@@ -3867,7 +3858,6 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
     switch((globalorientation>>4)&3)
     {
     case 0: //Face sprite
-
         //Project 3D to 2D
         sx0 = (float)(tspr->x-globalposx);
         sy0 = (float)(tspr->y-globalposy);
