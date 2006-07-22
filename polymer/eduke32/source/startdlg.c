@@ -8,12 +8,13 @@
 #include "startdlg.h"
 
 struct grpfile grpfiles[numgrpfiles] = {
-                                           { "Registered Version 1.3d",	0xBBC9CE44, 26524524, NULL },
-                                           { "Registered Version 1.4",	0x00000000, 0, NULL },
-                                           { "Registered Version 1.5",	0xFD3DCFF1, 44356548, NULL },
-                                           { "Shareware Version",		0x983AD923, 11035779, NULL },
-                                           { "Mac Shareware Version",	0xC5F71561, 10444391, NULL },
-                                           { "Mac Registered Version",     0x00000000, 0, NULL },
+	{ "Registered Version 1.3d",	0xBBC9CE44, 26524524, GAMEDUKE, NULL },
+	{ "Registered Version 1.4",	0xF514A6AC, 44348015, GAMEDUKE, NULL },
+	{ "Registered Version 1.5",	0xFD3DCFF1, 44356548, GAMEDUKE, NULL },
+	{ "Shareware Version",		0x983AD923, 11035779, GAMEDUKE, NULL },
+	{ "Mac Shareware Version",	0xC5F71561, 10444391, GAMEDUKE, NULL },
+	{ "Mac Registered Version",     0x00000000, 0,        GAMEDUKE, NULL },
+	{ "NAM",                        0x75C1F07B, 43448927, GAMENAM,  NULL },
                                        };
 struct grpfile *foundgrps = NULL;
 

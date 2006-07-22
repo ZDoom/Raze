@@ -32,6 +32,7 @@ static struct {
     int forcesetup;
     int usemouse, usejoy;
     char selectedgrp[BMAX_PATH+1];
+	int game;
 } settings;
 
 static HWND startupdlg = NULL;
@@ -121,6 +122,7 @@ static void PopulateForm(int pgs)
             if (i == numgrpfiles) continue;	// unrecognised grp file
 
             Bsprintf(buf, "%s\t%s", grpfiles[i].name, fg->name);
+			fg->game = grpfiles[i].game;
             j = ListBox_AddString(hwnd, buf);
             ListBox_SetItemData(hwnd, j, (LPARAM)fg);
             if (!Bstrcasecmp(fg->name, settings.selectedgrp)) ListBox_SetCurSel(hwnd, j);
@@ -173,9 +175,13 @@ static INT_PTR CALLBACK GamePageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         switch (LOWORD(wParam)) {
         case IDGDATA: {
                 int i;
+					if (HIWORD(wParam) != LBN_SELCHANGE) break;
                 i = ListBox_GetCurSel((HWND)lParam);
                 if (i != CB_ERR) i = ListBox_GetItemData((HWND)lParam, i);
-                if (i != CB_ERR) strcpy(settings.selectedgrp, ((struct grpfile*)i)->name);
+					if (i != CB_ERR) {
+						strcpy(settings.selectedgrp, ((struct grpfile*)i)->name);
+						settings.game = ((struct grpfile*)i)->game;
+					}
                 return TRUE;
             }
         default: break;
@@ -511,6 +517,7 @@ int startwin_run(void)
     settings.forcesetup = ForceSetup;
     settings.usemouse = UseMouse;
     settings.usejoy = UseJoystick;
+	settings.game = namversion;
     strncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
     PopulateForm(-1);
 
@@ -537,6 +544,7 @@ int startwin_run(void)
         UseMouse = settings.usemouse;
         UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
+		namversion = settings.game;
     }
 
     if (wavedevs) {

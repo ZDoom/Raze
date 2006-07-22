@@ -127,7 +127,8 @@ void pitch_test( void );
 char restorepalette,screencapt,nomorelogohack;
 int sendmessagecommand = -1;
 
-char *duke3dgrp = "duke3d.grp";  // JBF 20030925
+char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
+char *duke3dgrp = defaultduke3dgrp;
 static char *duke3ddef = "duke3d.def";
 
 extern long lastvisinc;
@@ -4498,7 +4499,7 @@ short spawn( short j, short pn )
 
                 sp->shade = -8;
 
-                if (sp->yvel == 1)
+                if (sp->yvel == 1 || NAM)
                 {
                     sp->ang = a+512;
                     sp->xvel = 30;
@@ -7755,6 +7756,10 @@ void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
+				if (!Bstrcasecmp(c+1,"nam")) {
+					i++;
+					continue;
+				}
                 if (!Bstrcasecmp(c+1,"setup")) {
                     i++;
                     continue;
@@ -8234,23 +8239,25 @@ void Logo(void)
         if (logoflags & LOGO_FLAG_PLAYMUSIC)
             playmusic(&env_music_fn[0][0]);
 
-        fadepal(0,0,0, 0,64,7);
-        //ps[myconnectindex].palette = drealms;
-        //palto(0,0,0,63);
-        if (logoflags & LOGO_FLAG_3DRSCREEN)
-        {
-            setgamepalette(&ps[myconnectindex], drealms, 3);    // JBF 20040308
-            rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
-            nextpage();
-            fadepal(0,0,0, 63,0,-7);
-            totalclock = 0;
-            while( totalclock < (120*7) && !KB_KeyWaiting() ) {
-                handleevents();
-                getpackets();
+        if (!NAM) {
+            fadepal(0,0,0, 0,64,7);
+            //ps[myconnectindex].palette = drealms;
+            //palto(0,0,0,63);
+            if (logoflags & LOGO_FLAG_3DRSCREEN)
+            {
+                setgamepalette(&ps[myconnectindex], drealms, 3);    // JBF 20040308
+                rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+                nextpage();
+                fadepal(0,0,0, 63,0,-7);
+                totalclock = 0;
+                while( totalclock < (120*7) && !KB_KeyWaiting() ) {
+                    handleevents();
+                    getpackets();
+                }
             }
+            KB_ClearKeysDown(); // JBF
         }
-        KB_ClearKeysDown(); // JBF
-
+    
         fadepal(0,0,0, 0,64,7);
         clearview(0L);
         nextpage();
@@ -8789,6 +8796,7 @@ void backtomenu(void)
 }
 
 int shareware = 0;
+int namversion = 0;
 
 int load_script(char *szScript)
 {
@@ -8863,19 +8871,22 @@ void app_main(int argc,char **argv)
         }
     }
 
-    // JBF 20030925: Because it's annoying renaming GRP files whenever I want to test different game data
-    if (getenv("DUKE3DGRP")) {
-        duke3dgrp = getenv("DUKE3DGRP");
-        initprintf("Using `%s' as main GRP file\n", duke3dgrp);
-    }
-
     for (i=1;i<argc;i++) {
         if (argv[i][0] != '-' && argv[i][0] != '/') continue;
         if (!Bstrcasecmp(argv[i]+1, "setup")) CommandSetup = TRUE;
+		else if (!Bstrcasecmp(argv[i]+1, "nam")) {
+			strcpy(defaultduke3dgrp, "nam.grp");
+			namversion = 1;
+		}
         else if (!Bstrcasecmp(argv[i]+1, "?")) {
             comlinehelp(argv);
             exit(0);
         }
+    }
+
+    if (getenv("DUKE3DGRP")) {
+        duke3dgrp = getenv("DUKE3DGRP");
+        initprintf("Using `%s' as main GRP file\n", duke3dgrp);
     }
 
     checkcommandline(argc,argv);
@@ -8896,6 +8907,13 @@ void app_main(int argc,char **argv)
         }
     }
 #endif
+
+	if (namversion) {
+		// overwrite the default GRP and CON so that if the user chooses
+		// something different, they get what they asked for
+		Bsprintf(defaultduke3dgrp,"nam.grp");
+		Bsprintf(confilename, "nam.con");
+	}
 
     initgroupfile(duke3dgrp);
     i = kopen4load("DUKESW.BIN",1); // JBF 20030810
@@ -10824,7 +10842,8 @@ FRAGBONUS:
             {
                 gametext(10,59+9,"Your Time:",0,2+8+16);
                 gametext(10,69+9,"Par time:",0,2+8+16);
-                gametext(10,78+9,"3D Realms' Time:",0,2+8+16);
+				if (!NAM)
+                    gametext(10,78+9,"3D Realms' Time:",0,2+8+16);
                 if(bonuscnt == 0)
                     bonuscnt++;
 
@@ -10846,11 +10865,12 @@ FRAGBONUS:
                              (partime[ud.volume_number*11+ud.last_level-1]/26)%60);
                     gametext((320>>2)+71,69+9,tempbuf,0,2+8+16);
 
+					if (!NAM) {
                     Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
                              (designertime[ud.volume_number*11+ud.last_level-1]/(26*60)),
                              (designertime[ud.volume_number*11+ud.last_level-1]/26)%60);
                     gametext((320>>2)+71,78+9,tempbuf,0,2+8+16);
-
+                    }
                 }
             }
             if( totalclock > (60*6) )
