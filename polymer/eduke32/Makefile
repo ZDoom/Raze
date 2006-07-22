@@ -100,6 +100,7 @@ GAMEOBJS=$(OBJ)game.$o \
 	$(OBJ)testcd.$o \
 	$(OBJ)osdfuncs.$o \
 	$(OBJ)osdcmds.$o \
+    $(OBJ)grpscan.$o \
 	$(JMACTOBJ)
 
 EDITOROBJS=$(OBJ)astub.$o
@@ -107,7 +108,7 @@ EDITOROBJS=$(OBJ)astub.$o
 ifeq ($(PLATFORM),WINDOWS)
 	OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include
 	NASMFLAGS+= -DUNDERSCORES -f win32
-	GAMEOBJS+= $(OBJ)gameres.$o $(OBJ)winbits.$o $(OBJ)startwin.game.$o $(OBJ)startdlg.$o
+	GAMEOBJS+= $(OBJ)gameres.$o $(OBJ)winbits.$o $(OBJ)startwin.game.$o
 	EDITOROBJS+= $(OBJ)buildres.$o
 endif
 
@@ -122,7 +123,7 @@ ifeq ($(RENDERTYPE),SDL)
 
 	ifeq (1,$(HAVE_GTK2))
 		OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
-		GAMEOBJS+= $(OBJ)game_banner.$o $(OBJ)startgtk.game.$o $(OBJ)startdlg.$o
+		GAMEOBJS+= $(OBJ)game_banner.$o $(OBJ)startgtk.game.$o
 		EDITOROBJS+= $(OBJ)editor_banner.$o
 	endif
 
