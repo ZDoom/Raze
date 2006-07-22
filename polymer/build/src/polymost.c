@@ -127,7 +127,7 @@ static struct glfiltermodes {
 
 long glanisotropy = 1;            // 0 = maximum supported by card
 long glusetexcompr = 1;
-long gltexfiltermode = 3;   // GL_LINEAR_MIPMAP_NEAREST
+long gltexfiltermode = GL_NEAREST;
 long glusetexcache = 0;
 long glusetexcachecompression = 1;
 long glmultisample = 0, glnvmultisamplehint = 0;

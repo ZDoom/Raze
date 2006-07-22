@@ -153,6 +153,9 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
             glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
     }
+    if (readconfig(fp, "gltexfiltermode", val, VL) > 0) {
+        gltexfiltermode = Batoi(val);
+    }
 #endif
 
     option[0] = 1;	// vesa all the way...
@@ -219,6 +222,7 @@ int writesetup(const char *fn)
              "; OpenGL mode options\n"
              "glusetexcache = %ld\n"
              "glusetexcachecompression = %ld\n"
+             "gltexfiltermode = %ld\n"
              "\n"
 #endif
 #ifdef RENDERTYPEWIN
@@ -300,7 +304,7 @@ int writesetup(const char *fn)
 
              forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame,
 #if defined(POLYMOST) && defined(USE_OPENGL)
-             glusetexcache, glusetexcachecompression,
+             glusetexcache, glusetexcachecompression, gltexfiltermode, 
 #endif
 #ifdef RENDERTYPEWIN
              maxrefreshfreq,
