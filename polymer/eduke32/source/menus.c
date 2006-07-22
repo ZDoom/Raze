@@ -442,7 +442,7 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
     }
 }
 
-#define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<5)&2047]>>12):8
+#define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<4)&2047]>>12):8
 // #define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<4)&2047]>>12):probey-x>=0?(probey-x)<<2:-((probey-x)<<2)
 
 #define SHX(X) 0
@@ -2334,8 +2334,7 @@ cheat_for_port_credits:
                                "Send MP messages to all",
                                "Display other player IDs",
                                "-",
-                               "-",
-                               "-",
+                               "Show startup window",
                                "-",
                                "-",
                                "-",
@@ -2392,7 +2391,10 @@ cheat_for_port_credits:
                 case 5: if (x==io) ud.idplayers = 1-ud.idplayers;
                     modval(0,1,(int *)&ud.idplayers,1,probey==io);
                     gametextpal(d,yy, ud.idplayers ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 6: if (x==io) cmenu(200); break;
+                case 6: if (x==io) ForceSetup = 1-ForceSetup;
+                    modval(0,1,(int *)&ForceSetup,1,probey==io);
+                    gametextpal(d,yy, ForceSetup ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
+                case 7: if (x==io) cmenu(200); break;
                 default: break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);

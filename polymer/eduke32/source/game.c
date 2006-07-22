@@ -39,6 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osdfuncs.h"
 #include "osdcmds.h"
 #include "scriptfile.h"
+#include "grpscan.h"
 
 //#include "crc32.h"
 
@@ -7757,10 +7758,10 @@ void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
-				if (!Bstrcasecmp(c+1,"nam")) {
-					i++;
-					continue;
-				}
+                if (!Bstrcasecmp(c+1,"nam")) {
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"setup")) {
                     i++;
                     continue;
@@ -8258,7 +8259,7 @@ void Logo(void)
             }
             KB_ClearKeysDown(); // JBF
         }
-    
+
         fadepal(0,0,0, 0,64,7);
         clearview(0L);
         nextpage();
@@ -8797,7 +8798,7 @@ void backtomenu(void)
 }
 
 int shareware = 0;
-int namversion = 0;
+int gametype = 0;
 
 int load_script(char *szScript)
 {
@@ -8876,10 +8877,9 @@ void app_main(int argc,char **argv)
         if (argv[i][0] != '-' && argv[i][0] != '/') continue;
         if (!Bstrcasecmp(argv[i]+1, "setup")) CommandSetup = TRUE;
         else if (!Bstrcasecmp(argv[i]+1, "net")) NoSetup = TRUE;
-		else if (!Bstrcasecmp(argv[i]+1, "nam")) {
-			strcpy(defaultduke3dgrp, "nam.grp");
-			namversion = 1;
-		}
+        else if (!Bstrcasecmp(argv[i]+1, "nam")) {
+            strcpy(defaultduke3dgrp, "nam.grp");
+        }
         else if (!Bstrcasecmp(argv[i]+1, "?")) {
             comlinehelp(argv);
             exit(0);
@@ -8894,6 +8894,28 @@ void app_main(int argc,char **argv)
         exit(1);
     }
 
+    ScanGroups();
+    {	// try and identify the 'defaultduke3dgrp' in the set of GRPs.
+        // if it is found, set up the environment accordingly for the game it represents.
+        // if it is not found, choose the first GRP from the list of
+        struct grpfile *fg, *first = NULL;
+        int i;
+        for (fg = foundgrps; fg; fg=fg->next) {
+            for (i = 0; i<numgrpfiles; i++) if (fg->crcval == grpfiles[i].crcval) break;
+            if (i == numgrpfiles) continue;	// unrecognised grp file
+            fg->game = grpfiles[i].game;
+            if (!first) first = fg;
+            if (!Bstrcasecmp(fg->name, defaultduke3dgrp)) {
+                gametype = grpfiles[i].game;
+                break;
+            }
+        }
+        if (!fg && first) {
+            Bstrcpy(defaultduke3dgrp, first->name);
+            gametype = first->game;
+        }
+    }
+
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
     if (i < 0 || (!NoSetup && ForceSetup) || CommandSetup) {
         if (quitevent || !startwin_run()) {
@@ -8903,22 +8925,21 @@ void app_main(int argc,char **argv)
     }
 #endif
 
-	if (namversion) {
-		// overwrite the default GRP and CON so that if the user chooses
-		// something different, they get what they asked for
-		Bsprintf(defaultduke3dgrp,"nam.grp");
-		Bsprintf(confilename, "nam.con");
-	}
+    FreeGroups();
 
-    if (getenv("DUKE3DGRP")) {
-        duke3dgrp = getenv("DUKE3DGRP");
-        initprintf("Using `%s' as main GRP file\n", duke3dgrp);
+    if (NAM) {
+        // overwrite the default GRP and CON so that if the user chooses
+        // something different, they get what they asked for
+        Bsprintf(defaultduke3dgrp,"nam.grp");
+        Bsprintf(confilename, "nam.con");
     }
 
+    if (getenv("DUKE3DGRP")) duke3dgrp = getenv("DUKE3DGRP");
+    initprintf("GRP file: %s\n", duke3dgrp);
     initgroupfile(duke3dgrp);
+
     i = kopen4load("DUKESW.BIN",1); // JBF 20030810
     if (i!=-1) {
-        initprintf("Using Shareware GRP file.\n");
         shareware = 1;
         kclose(i);
     }
@@ -10845,7 +10866,7 @@ FRAGBONUS:
             {
                 gametext(10,59+9,"Your Time:",0,2+8+16);
                 gametext(10,69+9,"Par time:",0,2+8+16);
-				if (!NAM)
+                if (!NAM)
                     gametext(10,78+9,"3D Realms' Time:",0,2+8+16);
                 if(bonuscnt == 0)
                     bonuscnt++;
@@ -10868,11 +10889,11 @@ FRAGBONUS:
                              (partime[ud.volume_number*11+ud.last_level-1]/26)%60);
                     gametext((320>>2)+71,69+9,tempbuf,0,2+8+16);
 
-					if (!NAM) {
-                    Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
-                             (designertime[ud.volume_number*11+ud.last_level-1]/(26*60)),
-                             (designertime[ud.volume_number*11+ud.last_level-1]/26)%60);
-                    gametext((320>>2)+71,78+9,tempbuf,0,2+8+16);
+                    if (!NAM) {
+                        Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
+                                 (designertime[ud.volume_number*11+ud.last_level-1]/(26*60)),
+                                 (designertime[ud.volume_number*11+ud.last_level-1]/26)%60);
+                        gametext((320>>2)+71,78+9,tempbuf,0,2+8+16);
                     }
                 }
             }

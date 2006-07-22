@@ -1,3 +1,6 @@
+#ifndef __grpscan_h__
+#define __grpscan_h__
+
 // List of internally-known GRP files
 #define numgrpfiles 7
 struct grpfile {
@@ -8,9 +11,7 @@ struct grpfile {
 	struct grpfile *next;
 } grpfiles[numgrpfiles], *foundgrps;
 
-#define GAMEDUKE 0
-#define GAMENAM 1
-
 int ScanGroups(void);
 void FreeGroups(void);
 
+#endif
