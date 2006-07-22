@@ -75,6 +75,8 @@ long usemodels=1, usehightile=1;
 
 float shadetable[] = { 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.025, 1.075, 1.125, 1.175, 1.225, 1.275, 1.325, 1.375, 1.425, 1.475, 1.525, 1.575, 1.625, 1.675, 1.725, 1.775, 1.825 };
 
+// float shadetable[] = { 0.275, 0.341, 0.407, 0.473, 0.539, 0.605, 0.671, 0.737, 0.803, 0.869, 0.935, 1.001, 1.067, 1.133, 1.199, 1.265, 1.331, 1.397, 1.463, 1.529, 1.595, 1.661, 1.727, 1.793, 1.859, 1.925, 1.991, 2.057, 2.123, 2.189, 2.255, 2.321 };
+
 float glnegshadeoffset = 0.075;
 float glnegshadescale = 8.300;
 float glshadescale = 1.900;
@@ -2324,9 +2326,9 @@ static void polymost_drawalls (long bunch)
             col[2] = (float)palookupfog[sec->floorpal].b / 63.f;
             col[3] = 0;
             bglFogfv(GL_FOG_COLOR,col);
-            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240))));
+            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
 
-//            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240))));
+//            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
         }
     }
 #endif
@@ -2488,7 +2490,7 @@ static void polymost_drawalls (long bunch)
             {
                 int i = klabs(sec->floorshade);
                 if(i > 30) i = 30;
-                bglFogf(GL_FOG_DENSITY,gvisibility/(sec->floorshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(sec->floorshade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240))));
+                bglFogf(GL_FOG_DENSITY,gvisibility/(sec->floorshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(sec->floorshade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
             }
             pow2xsplit = 0; domost(x0,fy0,x1,fy1); //flor
             domostpolymethod = 0;
@@ -2501,7 +2503,7 @@ static void polymost_drawalls (long bunch)
             {
 /*                if (!nofog) {
                     bglDisable(GL_FOG);
-                    //r = ((float)globalpisibility)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240)))*FOGSCALE;
+                    //r = ((float)globalpisibility)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239)))*FOGSCALE;
                     //r *= ((double)xdimscale*(double)viewingrange*gdo) / (65536.0*65536.0);
                     //bglFogf(GL_FOG_DENSITY,r);
                 } */
@@ -2510,7 +2512,7 @@ static void polymost_drawalls (long bunch)
                 {
                     int i = klabs(sec->floorshade);
                     if(i > 30) i = 30;
-                    bglFogf(GL_FOG_DENSITY,0.005*gvisibility/(sec->floorshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240))));
+                    bglFogf(GL_FOG_DENSITY,0.005*gvisibility/(sec->floorshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
                 }
 
                 //Use clamping for tiled sky textures
@@ -2743,7 +2745,7 @@ static void polymost_drawalls (long bunch)
                 skyclamphack = 0;
                 if (!nofog) {
                     bglEnable(GL_FOG);
-                    //bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240))));
+                    //bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
                 }
             }
 #endif
@@ -2854,7 +2856,7 @@ static void polymost_drawalls (long bunch)
             {
                 int i = klabs(sec->ceilingshade);
                 if(i > 30) i = 30;
-                bglFogf(GL_FOG_DENSITY,gvisibility/(sec->ceilingshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(sec->ceilingshade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240))));
+                bglFogf(GL_FOG_DENSITY,gvisibility/(sec->ceilingshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(sec->ceilingshade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
             }
             pow2xsplit = 0; domost(x1,cy1,x0,cy0); //ceil
             domostpolymethod = 0;
@@ -2866,7 +2868,7 @@ static void polymost_drawalls (long bunch)
             {
 /*                if (!nofog) {
                     bglDisable(GL_FOG);
-                    //r = ((float)globalpisibility)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240)))*FOGSCALE;
+                    //r = ((float)globalpisibility)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239)))*FOGSCALE;
                     //r *= ((double)xdimscale*(double)viewingrange*gdo) / (65536.0*65536.0);
                     //bglFogf(GL_FOG_DENSITY,r);
                 }
@@ -2875,7 +2877,7 @@ static void polymost_drawalls (long bunch)
                 {
                     int i = klabs(sec->ceilingshade);
                     if(i > 30) i = 30;
-                    bglFogf(GL_FOG_DENSITY,0.005*gvisibility/(sec->ceilingshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240))));
+                    bglFogf(GL_FOG_DENSITY,0.005*gvisibility/(sec->ceilingshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
                 }
 
                 //Use clamping for tiled sky textures
@@ -3107,7 +3109,7 @@ static void polymost_drawalls (long bunch)
                 skyclamphack = 0;
                 if (!nofog) {
                     bglEnable(GL_FOG);
-                    //bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240))));
+                    //bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
                 }
             }
 #endif
@@ -3192,7 +3194,7 @@ static void polymost_drawalls (long bunch)
                 {
                     int i = klabs(wal->shade);
                     if(i > 30) i = 30;
-                    bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(wal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240))));
+                    bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(wal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
                 }
                 pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
                 if (wal->cstat&8) { gux = ogux; guy = oguy; guo = oguo; }
@@ -3233,7 +3235,7 @@ static void polymost_drawalls (long bunch)
                 {
                     int i = klabs(nwal->shade);
                     if(i > 30) i = 30;
-                    bglFogf(GL_FOG_DENSITY,gvisibility/(nwal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(nwal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240))));
+                    bglFogf(GL_FOG_DENSITY,gvisibility/(nwal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(nwal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
                 }
                 pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
                 if (wal->cstat&(2+8)) { guo = oguo; gux = ogux; guy = oguy; }
@@ -3270,7 +3272,7 @@ static void polymost_drawalls (long bunch)
             {
                 int i = klabs(wal->shade);
                 if(i > 30) i = 30;
-                bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(wal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240))));
+                bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(wal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
             }
             pow2xsplit = 1; domost(x0,-10000,x1,-10000);
         }
@@ -3728,7 +3730,7 @@ if (yp1 < SCISDIST) { t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0;
             {
                 int i = klabs(wal->shade);
                 if(i > 30) i = 30;
-                bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(wal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-240))));
+                bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(wal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
             }
         }
     }
@@ -3841,7 +3843,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         {
             int i = klabs(globalshade);
             if(i > 30) i = 30;
-            bglFogf(GL_FOG_DENSITY,gvisibility/(globalshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(globalshade<0?1:shadetable[i]*glsprshadescale)*((float)((unsigned char)(sector[tspr->sectnum].visibility<240?sector[tspr->sectnum].visibility+16:sector[tspr->sectnum].visibility-240))));
+            bglFogf(GL_FOG_DENSITY,gvisibility/(globalshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(globalshade<0?1:shadetable[i]*glsprshadescale)*((float)((unsigned char)(sector[tspr->sectnum].visibility<240?sector[tspr->sectnum].visibility+16:sector[tspr->sectnum].visibility-239))));
         }
     }
 
