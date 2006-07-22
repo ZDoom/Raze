@@ -594,7 +594,12 @@ int32 CONFIG_ReadSetup( void )
         SCRIPT_GetString( scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "Shadows",&ud.shadows);
-        SCRIPT_GetString( scripthandle, "Screen Setup","Password",&ud.pwlockout[0]);
+
+        if (!NAM) {
+            SCRIPT_GetString( scripthandle, "Screen Setup","Password",&ud.pwlockout[0]);
+            SCRIPT_GetNumber( scripthandle, "Screen Setup", "Out",&ud.lockout);
+        }
+
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "Detail",&ud.detail);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "Tilt",&ud.screen_tilting);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "Messages",&ud.fta_on);
@@ -603,7 +608,6 @@ int32 CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "ScreenMode",&ScreenMode);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "ScreenGamma",&ud.brightness);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "ScreenSize",&ud.screen_size);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "Out",&ud.lockout);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "ScreenBPP", &ScreenBPP);
@@ -771,8 +775,12 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);
 #endif
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "Messages",ud.fta_on,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Out",ud.lockout,false,false);
-    SCRIPT_PutString( scripthandle, "Screen Setup", "Password",ud.pwlockout);
+
+    if (!NAM) {
+        SCRIPT_PutNumber( scripthandle, "Screen Setup", "Out",ud.lockout,false,false);
+        SCRIPT_PutString( scripthandle, "Screen Setup", "Password",ud.pwlockout);
+    }
+
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenBPP",ScreenBPP,false,false); // JBF 20040523
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenGamma",ud.brightness,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenHeight",ScreenHeight,false,false);   // JBF 20031206

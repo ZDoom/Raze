@@ -2373,7 +2373,7 @@ cheat_for_port_credits:
                 }
                 enabled = 1;
                 switch (io) {
-                case 0: if (x==io) cmenu(10000); break;
+                case 0: if(!NAM) { if (x==io) cmenu(10000); } else enabled = 0; break;
             case 1: if (x==io) { ud.drawweapon = (ud.drawweapon == 2) ? 0 : ud.drawweapon+1; }
                     modval(0,2,(int *)&ud.drawweapon,1,probey==io);
                     { char *s[] = { "Off", "On", "Icon" };
