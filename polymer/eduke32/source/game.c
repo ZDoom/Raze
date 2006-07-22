@@ -8895,7 +8895,7 @@ void app_main(int argc,char **argv)
     }
 
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
-    if (i < 0 || !NoSetup && ForceSetup || CommandSetup) {
+    if (i < 0 || (!NoSetup && ForceSetup) || CommandSetup) {
         if (quitevent || !startwin_run()) {
             uninitengine();
             exit(0);
