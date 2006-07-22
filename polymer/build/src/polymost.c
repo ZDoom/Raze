@@ -141,7 +141,8 @@ static GLuint polymosttext = 0;
 extern char nofog;
 
 // Those two globals control the drawing of fullbright tiles
-long fullbrightpass = 0;
+long fullbrightloadingpass = 0;
+long fullbrightdrawingpass = 0;
 long shadeforfullbrightpass;
 
 #endif
@@ -314,6 +315,8 @@ typedef struct pthtyp_t
 
     unsigned short sizx, sizy;
     float scalex, scaley;
+    struct pthtyp_t *wofb; // without fullbright
+    struct pthtyp_t *ofb; // only fullbright
 } pthtyp;
 
 #define GLTEXCACHEADSIZ 8192
@@ -390,10 +393,21 @@ tryart:
                 (pth->flags & (1+2)) == ((dameth&4)>>2)
            )
         {
-            if ((pth->flags & 128) || (pth->flags & 16))
+			if (pth->flags & 16)
+				if (indrawroomsandmasks)
+				{
+					if (!fullbrightdrawingpass)
+					{
+						pth = pth->wofb;
+						fullbrightdrawingpass = 1;
+					}
+					else if (fullbrightdrawingpass == 2)
+						pth = pth->ofb;
+				}
+
+            if (pth->flags & 128)
             {
-				if (pth->flags & 128)
-					pth->flags &= ~128;
+				pth->flags &= ~128;
                 if (gloadtile_art(dapicnum,dapalnum,dameth,pth,0)) return NULL; //reload tile (for animations)
             }
             return(pth);
@@ -408,6 +422,19 @@ tryart:
     }
     pth->next = gltexcachead[j];
     gltexcachead[j] = pth;
+
+	if (pth->flags & 16)
+		if (indrawroomsandmasks)
+		{
+			if (!fullbrightdrawingpass)
+			{
+				pth = pth->wofb;
+				fullbrightdrawingpass = 1;
+			}
+			else if (fullbrightdrawingpass == 2)
+				pth = pth->ofb;
+		}
+
     return(pth);
 }
 
@@ -430,7 +457,14 @@ void gltexinvalidate (long dapicnum, long dapalnum, long dameth)
     j = (dapicnum&(GLTEXCACHEADSIZ-1));
     for(pth=gltexcachead[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum && (pth->flags & 1) == ((dameth&4)>>2) )
-        { pth->flags |= 128; }
+        { 
+			pth->flags |= 128;
+			if (pth->flags & 16)
+			{
+				pth->wofb->flags |= 128;
+				pth->ofb->flags |= 128;
+			}
+		}
 }
 
 //Make all textures "dirty" so they reload, but not re-allocate
@@ -443,7 +477,14 @@ void gltexinvalidateall ()
 
     for(j=GLTEXCACHEADSIZ-1;j>=0;j--)
         for(pth=gltexcachead[j];pth;pth=pth->next)
+		{
             pth->flags |= 128;
+			if (pth->flags & 16)
+			{
+				pth->wofb->flags |= 128;
+				pth->ofb->flags |= 128;
+			}
+		}
     clearskins();
 #ifdef DEBUGGINGAIDS
     OSD_Printf("gltexinvalidateall()\n");
@@ -530,6 +571,13 @@ void polymost_glreset ()
         for (i=GLTEXCACHEADSIZ-1; i>=0; i--) {
             for (pth=gltexcachead[i]; pth;) {
                 next = pth->next;
+				if (pth->flags & 16) // fullbright textures
+				{
+					bglDeleteTextures(1,&pth->wofb->glpic);
+					free(pth->wofb);
+					bglDeleteTextures(1,&pth->ofb->glpic);
+					free(pth->ofb);
+				}
                 bglDeleteTextures(1,&pth->glpic);
                 free(pth);
                 pth = next;
@@ -791,32 +839,36 @@ int gloadtile_art (long dapic, long dapal, long dameth, pthtyp *pth, long doallo
                 { wpptr->r = wpptr->g = wpptr->b = wpptr->a = 0; continue; }
                 if (x < tsizx) x2 = x; else x2 = x-tsizx;
                 dacol = (long)(*(unsigned char *)(waloff[dapic]+x2*tsizy+y2));
-				if (!fullbrightpass)
-				{
-					if ((dacol > 239) && (dacol < 255)) { //fullbright colors
-						if (indrawroomsandmasks)
-						{
-							wpptr->a = 0; hasalpha = 1;
-						}
-						else
-						{
-							wpptr->a = 255;
-							dacol = (long)((unsigned char)palookup[dapal][dacol]);
-						}
+				if (!fullbrightloadingpass)
+				{ // regular texture
+					if ((dacol > 239) && (dacol != 255))
 						hasfullbright = 1;
-					} else if (dacol == 255) {
+					if (dacol == 255) // translucent
+					{
+						wpptr->a = 0;
+						hasalpha = 1;
+					}
+					else
+					{
+						wpptr->a = 255;
+						dacol = (long)((unsigned char)palookup[dapal][dacol]);
+					}
+				}
+				else if (fullbrightloadingpass == 1)
+				{ // texture without fullbright areas
+					if (dacol > 239) { //fullbright colors and translucent
 						wpptr->a = 0; hasalpha = 1;
 					} else {
 						wpptr->a = 255;
 						dacol = (long)((unsigned char)palookup[dapal][dacol]);
 					}
 				}
-				else
-				{
-					if ((dacol < 240) || (dacol == 255))  {
+				else if (fullbrightloadingpass == 2)
+				{ // texture with only fullbright areas
+					if ((dacol < 240) || (dacol == 255))  { // regular colors and translucent
 						wpptr->a = 0; hasalpha = 1;
-					} else {
-						wpptr->a = 255; hasfullbright = 1;
+					} else { // fullbright
+						wpptr->a = 255;
 						dacol = (long)((unsigned char)palookup[dapal][dacol]);
 					}
 				}
@@ -869,6 +921,21 @@ int gloadtile_art (long dapic, long dapal, long dameth, pthtyp *pth, long doallo
     pth->flags = ((dameth&4)>>2) | (hasalpha<<3) | (hasfullbright<<4);
     pth->hicr = NULL;
 
+	if ((hasfullbright) && (!fullbrightloadingpass))
+	{
+		// load the two textures that'll be assembled to make the final texture with fullbright pixels
+		fullbrightloadingpass = 1;
+		pth->wofb = (pthtyp *)calloc(1,sizeof(pthtyp));
+		if (!pth->wofb) return 1;
+		if (gloadtile_art(dapic, dapal, dameth, pth->wofb, 1)) return 1;
+
+		fullbrightloadingpass = 2;
+		pth->ofb = (pthtyp *)calloc(1,sizeof(pthtyp));
+		if (!pth->ofb) return 1;
+		if (gloadtile_art(dapic, dapal, dameth, pth->ofb, 1)) return 1;
+
+		fullbrightloadingpass = 0;
+	}
     return 0;
 }
 
@@ -1586,16 +1653,16 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             }
             bglEnd();
         }
-		if ((pth->flags & 16) && (!fullbrightpass) && (indrawroomsandmasks)) // tile has fullbright colors ?
+		if (fullbrightdrawingpass == 1) // tile has fullbright colors ?
 		{
-			fullbrightpass = 1;
+			fullbrightdrawingpass = 2;
 			shadeforfullbrightpass = globalshade; // save the current shade
 			globalshade = -30; // fullbright
 			bglDisable(GL_FOG); // no fog
 			drawpoly(dpx, dpy, n, method); // draw them afterwards, then. :)
 			bglEnable(GL_FOG);
 			globalshade = shadeforfullbrightpass;
-			fullbrightpass = 0;
+			fullbrightdrawingpass = 0;
 		}
         return;
     }
