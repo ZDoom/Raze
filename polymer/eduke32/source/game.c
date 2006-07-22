@@ -59,6 +59,7 @@ char playerswhenstarted;
 char qe,cp,usecwd = 0;
 
 static int32 CommandSetup = 0;
+static int32 NoSetup = 0;
 static int32 CommandSoundToggleOff = 0;
 static int32 CommandMusicToggleOff = 0;
 static char *CommandMap = NULL;
@@ -8874,6 +8875,7 @@ void app_main(int argc,char **argv)
     for (i=1;i<argc;i++) {
         if (argv[i][0] != '-' && argv[i][0] != '/') continue;
         if (!Bstrcasecmp(argv[i]+1, "setup")) CommandSetup = TRUE;
+        else if (!Bstrcasecmp(argv[i]+1, "net")) NoSetup = TRUE;
 		else if (!Bstrcasecmp(argv[i]+1, "nam")) {
 			strcpy(defaultduke3dgrp, "nam.grp");
 			namversion = 1;
@@ -8884,13 +8886,6 @@ void app_main(int argc,char **argv)
         }
     }
 
-    if (getenv("DUKE3DGRP")) {
-        duke3dgrp = getenv("DUKE3DGRP");
-        initprintf("Using `%s' as main GRP file\n", duke3dgrp);
-    }
-
-    checkcommandline(argc,argv);
-
     i = CONFIG_ReadSetup();
 
     if (preinitengine()) {
@@ -8900,7 +8895,7 @@ void app_main(int argc,char **argv)
     }
 
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
-    if (i < 0 || (netparam == NULL && ForceSetup) || CommandSetup) {
+    if (i < 0 || !NoSetup && ForceSetup || CommandSetup) {
         if (quitevent || !startwin_run()) {
             uninitengine();
             exit(0);
@@ -8915,6 +8910,11 @@ void app_main(int argc,char **argv)
 		Bsprintf(confilename, "nam.con");
 	}
 
+    if (getenv("DUKE3DGRP")) {
+        duke3dgrp = getenv("DUKE3DGRP");
+        initprintf("Using `%s' as main GRP file\n", duke3dgrp);
+    }
+
     initgroupfile(duke3dgrp);
     i = kopen4load("DUKESW.BIN",1); // JBF 20030810
     if (i!=-1) {
@@ -8922,8 +8922,14 @@ void app_main(int argc,char **argv)
         shareware = 1;
         kclose(i);
     }
+
     copyprotect();
     if (cp) return;
+
+    checkcommandline(argc,argv);
+
+    if (VOLUMEALL)
+        loadgroupfiles(duke3ddef);
 
     // gotta set the proper title after we compile the CONs if this is the full version
 
@@ -8931,9 +8937,6 @@ void app_main(int argc,char **argv)
     else wm_setapptitle(HEAD);
 
     ud.multimode = 1;
-
-    if (VOLUMEALL)
-        loadgroupfiles(duke3ddef);
 
     initprintf("\n");
 
