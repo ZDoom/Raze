@@ -556,6 +556,10 @@ int osdcmd_give(const osdfuncparm_t *parm)
     int i;
 
     if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME) {
+        if(ps[myconnectindex].dead_flag != 0) {
+            OSD_Printf("give: Cannot give while dead.\n");
+            return OSDCMD_OK;
+        }
         if (parm->numparms != 1) return OSDCMD_SHOWHELP;
         if (!Bstrcasecmp(parm->parms[0], "all")) {
             osdcmd_cheatsinfo_stat.cheatnum = 1;
