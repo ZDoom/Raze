@@ -438,10 +438,7 @@ void gltexinvalidate (long dapicnum, long dapalnum, long dameth)
         { 
 			pth->flags |= 128;
 			if (pth->flags & 16)
-			{
-				pth->wofb->flags |= 128;
 				pth->ofb->flags |= 128;
-			}
 		}
 }
 
@@ -458,10 +455,7 @@ void gltexinvalidateall ()
 		{
             pth->flags |= 128;
 			if (pth->flags & 16)
-			{
-				pth->wofb->flags |= 128;
 				pth->ofb->flags |= 128;
-			}
 		}
     clearskins();
 #ifdef DEBUGGINGAIDS
@@ -489,6 +483,14 @@ void gltexapplyprops (void)
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
             if (glinfo.maxanisotropy > 1.0)
                 bglTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
+			if (pth->flags & 16)
+			{
+				bglBindTexture(GL_TEXTURE_2D,pth->ofb->glpic);
+				bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
+				bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
+				if (glinfo.maxanisotropy > 1.0)
+					bglTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
+			}
         }
     }
 
@@ -551,8 +553,6 @@ void polymost_glreset ()
                 next = pth->next;
 				if (pth->flags & 16) // fullbright textures
 				{
-					bglDeleteTextures(1,&pth->wofb->glpic);
-					free(pth->wofb);
 					bglDeleteTextures(1,&pth->ofb->glpic);
 					free(pth->ofb);
 				}
@@ -821,34 +821,20 @@ int gloadtile_art (long dapic, long dapal, long dameth, pthtyp *pth, long doallo
 				{ // regular texture
 					if ((dacol > 239) && (dacol != 255))
 						hasfullbright = 1;
-					if (dacol == 255) // translucent
-					{
-						wpptr->a = 0;
-						hasalpha = 1;
-					}
-					else
-					{
-						wpptr->a = 255;
-						dacol = (long)((unsigned char)palookup[dapal][dacol]);
-					}
+					wpptr->a = 255;
 				}
 				else if (fullbrightloadingpass == 1)
-				{ // texture without fullbright areas
-					if (dacol > 239) { //fullbright colors and translucent
-						wpptr->a = 0; hasalpha = 1;
-					} else {
-						wpptr->a = 255;
-						dacol = (long)((unsigned char)palookup[dapal][dacol]);
-					}
-				}
-				else if (fullbrightloadingpass == 2)
 				{ // texture with only fullbright areas
-					if ((dacol < 240) || (dacol == 255))  { // regular colors and translucent
+					if (dacol < 240)  { // regular colors
 						wpptr->a = 0; hasalpha = 1;
 					} else { // fullbright
 						wpptr->a = 255;
-						dacol = (long)((unsigned char)palookup[dapal][dacol]);
 					}
+				}
+				if (dacol != 255)
+					dacol = (long)((unsigned char)palookup[dapal][dacol]);
+				else {
+					wpptr->a = 0; hasalpha = 1;
 				}
                 if (gammabrightness) {
                     wpptr->r = curpalette[dacol].r;
@@ -901,13 +887,8 @@ int gloadtile_art (long dapic, long dapal, long dameth, pthtyp *pth, long doallo
 
 	if ((hasfullbright) && (!fullbrightloadingpass))
 	{
-		// load the two textures that'll be assembled to make the final texture with fullbright pixels
+		// load the ONLY texture that'll be assembled with the regular one to make the final texture with fullbright pixels
 		fullbrightloadingpass = 1;
-		pth->wofb = (pthtyp *)calloc(1,sizeof(pthtyp));
-		if (!pth->wofb) return 1;
-		if (gloadtile_art(dapic, dapal, dameth, pth->wofb, 1)) return 1;
-
-		fullbrightloadingpass = 2;
 		pth->ofb = (pthtyp *)calloc(1,sizeof(pthtyp));
 		if (!pth->ofb) return 1;
 		if (gloadtile_art(dapic, dapal, dameth, pth->ofb, 1)) return 1;
@@ -1443,10 +1424,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 			if (indrawroomsandmasks)
 			{
 				if (!fullbrightdrawingpass)
-				{
-					pth = pth->wofb;
 					fullbrightdrawingpass = 1;
-				}
 				else if (fullbrightdrawingpass == 2)
 					pth = pth->ofb;
 			}
