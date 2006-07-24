@@ -5460,23 +5460,23 @@ static void sighandler(int sig, const siginfo_t *info, void *ctx)
 static int preinitcalled = 0;
 int preinitengine(void)
 {
-	char *e;
-	if (initsystem()) exit(1);
+    char *e;
+    if (initsystem()) exit(1);
 
-	if ((e = Bgetenv("BUILD_NOP6")) != NULL)
-		if (!Bstrcasecmp(e, "TRUE")) {
-			Bprintf("Disabling P6 optimizations.\n");
-			dommxoverlay = 0;
-		}
-	if (dommxoverlay) mmxoverlay();
+    if ((e = Bgetenv("BUILD_NOP6")) != NULL)
+        if (!Bstrcasecmp(e, "TRUE")) {
+            Bprintf("Disabling P6 optimizations.\n");
+            dommxoverlay = 0;
+        }
+    if (dommxoverlay) mmxoverlay();
 
-	validmodecnt = 0;
-	getvalidmodes();
+    validmodecnt = 0;
+    getvalidmodes();
 
-	initcrc32table();
+    initcrc32table();
 
-	preinitcalled = 1;
-	return 0;
+    preinitcalled = 1;
+    return 0;
 }
 
 
@@ -5494,11 +5494,11 @@ int initengine(void)
     sigact.sa_flags = SA_SIGINFO;
     sigaction(SIGFPE, &sigact, &oldact);
 #endif
-	if (!preinitcalled) {
-		i = preinitengine();
-		if (i) return i;
-	}
-	
+    if (!preinitcalled) {
+        i = preinitengine();
+        if (i) return i;
+    }
+
     if (loadtables()) return 1;
 
     xyaspect = -1;
@@ -5633,7 +5633,7 @@ void drawrooms(long daposx, long daposy, long daposz,
     short *shortptr1, *shortptr2;
 
     beforedrawrooms = 0;
-	indrawroomsandmasks = 1;
+    indrawroomsandmasks = 1;
 
     globalposx = daposx; globalposy = daposy; globalposz = daposz;
     globalang = (daang&2047);
@@ -5679,7 +5679,7 @@ void drawrooms(long daposx, long daposy, long daposz,
     if (0)
     {
         polymer_drawrooms();
-		return;
+        return;
     }
 #endif
     //============================================================================= //POLYMOST BEGINS
@@ -6089,7 +6089,7 @@ killsprite:
     free(walldepths);
 #endif /* goodalpha */
 
-	indrawroomsandmasks = 0;
+    indrawroomsandmasks = 0;
     enddrawing();   //}}}
 }
 

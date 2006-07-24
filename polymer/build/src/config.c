@@ -304,7 +304,7 @@ int writesetup(const char *fn)
 
              forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame,
 #if defined(POLYMOST) && defined(USE_OPENGL)
-             glusetexcache, glusetexcachecompression, gltexfiltermode, 
+             glusetexcache, glusetexcachecompression, gltexfiltermode,
 #endif
 #ifdef RENDERTYPEWIN
              maxrefreshfreq,

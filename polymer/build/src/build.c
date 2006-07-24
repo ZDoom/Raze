@@ -307,7 +307,7 @@ int app_main(int argc, char **argv)
     if ((i = ExtInit()) < 0) return -1;
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
     if (i || forcesetup || cmdsetup) {
-		if (quitevent || !startwin_run()) return -1;
+        if (quitevent || !startwin_run()) return -1;
     }
 #endif
 

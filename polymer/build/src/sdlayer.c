@@ -339,7 +339,7 @@ int initinput(void)
     memset(keynames,0,sizeof(keynames));
     for (i=0; i<SDLK_LAST; i++) {
         if (!keytranslation[i]) continue;
-        strncpy(keynames[ keytranslation[i] ], SDL_GetKeyName(i), sizeof(keynames[i])-1);
+        strncpy((char *)keynames[ keytranslation[i] ], SDL_GetKeyName(i), sizeof(keynames[i])-1);
     }
 
     if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
@@ -391,17 +391,17 @@ const unsigned char *getjoyname(int what, int num)
     case 0:	// axis
         if ((unsigned)num > (unsigned)joynumaxes) return NULL;
         sprintf(tmp,"Axis %d",num);
-        return tmp;
+        return (unsigned char *)tmp;
 
     case 1: // button
         if ((unsigned)num > (unsigned)joynumbuttons) return NULL;
         sprintf(tmp,"Button %d",num);
-        return tmp;
+        return (unsigned char *)tmp;
 
     case 2: // hat
         if ((unsigned)num > (unsigned)joynumhats) return NULL;
         sprintf(tmp,"Hat %d",num);
-        return tmp;
+        return (unsigned char *)tmp;
 
     default:
         return NULL;
@@ -931,7 +931,7 @@ int setvideomode(int x, int y, int c, int fs)
 
 #ifdef USE_OPENGL
     if (c > 8) {
-        GLubyte *p,*p2,*p3;
+        char *p,*p2,*p3;
         int i;
 
         polymost_glreset();
@@ -943,10 +943,10 @@ int setvideomode(int x, int y, int c, int fs)
         bglHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
         bglDisable(GL_DITHER);
 
-        glinfo.vendor     = bglGetString(GL_VENDOR);
-        glinfo.renderer   = bglGetString(GL_RENDERER);
-        glinfo.version    = bglGetString(GL_VERSION);
-        glinfo.extensions = bglGetString(GL_EXTENSIONS);
+        glinfo.vendor     = (const char *)bglGetString(GL_VENDOR);
+        glinfo.renderer   = (const char *)bglGetString(GL_RENDERER);
+        glinfo.version    = (const char *)bglGetString(GL_VERSION);
+        glinfo.extensions = (const char *)bglGetString(GL_EXTENSIONS);
 
         glinfo.maxanisotropy = 1.0;
         glinfo.bgra = 0;

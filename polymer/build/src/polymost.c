@@ -397,7 +397,7 @@ tryart:
         {
             if (pth->flags & 128)
             {
-				pth->flags &= ~128;
+                pth->flags &= ~128;
                 if (gloadtile_art(dapicnum,dapalnum,dameth,pth,0)) return NULL; //reload tile (for animations)
             }
             return(pth);
@@ -435,11 +435,11 @@ void gltexinvalidate (long dapicnum, long dapalnum, long dameth)
     j = (dapicnum&(GLTEXCACHEADSIZ-1));
     for(pth=gltexcachead[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum && (pth->flags & 1) == ((dameth&4)>>2) )
-        { 
-			pth->flags |= 128;
-			if (pth->flags & 16)
-				pth->ofb->flags |= 128;
-		}
+        {
+            pth->flags |= 128;
+            if (pth->flags & 16)
+                pth->ofb->flags |= 128;
+        }
 }
 
 //Make all textures "dirty" so they reload, but not re-allocate
@@ -452,11 +452,11 @@ void gltexinvalidateall ()
 
     for(j=GLTEXCACHEADSIZ-1;j>=0;j--)
         for(pth=gltexcachead[j];pth;pth=pth->next)
-		{
+        {
             pth->flags |= 128;
-			if (pth->flags & 16)
-				pth->ofb->flags |= 128;
-		}
+            if (pth->flags & 16)
+                pth->ofb->flags |= 128;
+        }
     clearskins();
 #ifdef DEBUGGINGAIDS
     OSD_Printf("gltexinvalidateall()\n");
@@ -483,14 +483,14 @@ void gltexapplyprops (void)
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
             if (glinfo.maxanisotropy > 1.0)
                 bglTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
-			if (pth->flags & 16)
-			{
-				bglBindTexture(GL_TEXTURE_2D,pth->ofb->glpic);
-				bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
-				bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
-				if (glinfo.maxanisotropy > 1.0)
-					bglTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
-			}
+            if (pth->flags & 16)
+            {
+                bglBindTexture(GL_TEXTURE_2D,pth->ofb->glpic);
+                bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
+                bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
+                if (glinfo.maxanisotropy > 1.0)
+                    bglTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
+            }
         }
     }
 
@@ -551,11 +551,11 @@ void polymost_glreset ()
         for (i=GLTEXCACHEADSIZ-1; i>=0; i--) {
             for (pth=gltexcachead[i]; pth;) {
                 next = pth->next;
-				if (pth->flags & 16) // fullbright textures
-				{
-					bglDeleteTextures(1,&pth->ofb->glpic);
-					free(pth->ofb);
-				}
+                if (pth->flags & 16) // fullbright textures
+                {
+                    bglDeleteTextures(1,&pth->ofb->glpic);
+                    free(pth->ofb);
+                }
                 bglDeleteTextures(1,&pth->glpic);
                 free(pth);
                 pth = next;
@@ -817,25 +817,25 @@ int gloadtile_art (long dapic, long dapal, long dameth, pthtyp *pth, long doallo
                 { wpptr->r = wpptr->g = wpptr->b = wpptr->a = 0; continue; }
                 if (x < tsizx) x2 = x; else x2 = x-tsizx;
                 dacol = (long)(*(unsigned char *)(waloff[dapic]+x2*tsizy+y2));
-				if (!fullbrightloadingpass)
-				{ // regular texture
-					if ((dacol > 239) && (dacol != 255))
-						hasfullbright = 1;
-					wpptr->a = 255;
-				}
-				else if (fullbrightloadingpass == 1)
-				{ // texture with only fullbright areas
-					if (dacol < 240)  { // regular colors
-						wpptr->a = 0; hasalpha = 1;
-					} else { // fullbright
-						wpptr->a = 255;
-					}
-				}
-				if (dacol != 255)
-					dacol = (long)((unsigned char)palookup[dapal][dacol]);
-				else {
-					wpptr->a = 0; hasalpha = 1;
-				}
+                if (!fullbrightloadingpass)
+                { // regular texture
+                    if ((dacol > 239) && (dacol != 255))
+                        hasfullbright = 1;
+                    wpptr->a = 255;
+                }
+                else if (fullbrightloadingpass == 1)
+                { // texture with only fullbright areas
+                    if (dacol < 240)  { // regular colors
+                        wpptr->a = 0; hasalpha = 1;
+                    } else { // fullbright
+                        wpptr->a = 255;
+                    }
+                }
+                if (dacol != 255)
+                    dacol = (long)((unsigned char)palookup[dapal][dacol]);
+                else {
+                    wpptr->a = 0; hasalpha = 1;
+                }
                 if (gammabrightness) {
                     wpptr->r = curpalette[dacol].r;
                     wpptr->g = curpalette[dacol].g;
@@ -885,16 +885,16 @@ int gloadtile_art (long dapic, long dapal, long dameth, pthtyp *pth, long doallo
     pth->flags = ((dameth&4)>>2) | (hasalpha<<3) | (hasfullbright<<4);
     pth->hicr = NULL;
 
-	if ((hasfullbright) && (!fullbrightloadingpass))
-	{
-		// load the ONLY texture that'll be assembled with the regular one to make the final texture with fullbright pixels
-		fullbrightloadingpass = 1;
-		pth->ofb = (pthtyp *)calloc(1,sizeof(pthtyp));
-		if (!pth->ofb) return 1;
-		if (gloadtile_art(dapic, dapal, dameth, pth->ofb, 1)) return 1;
+    if ((hasfullbright) && (!fullbrightloadingpass))
+    {
+        // load the ONLY texture that'll be assembled with the regular one to make the final texture with fullbright pixels
+        fullbrightloadingpass = 1;
+        pth->ofb = (pthtyp *)calloc(1,sizeof(pthtyp));
+        if (!pth->ofb) return 1;
+        if (gloadtile_art(dapic, dapal, dameth, pth->ofb, 1)) return 1;
 
-		fullbrightloadingpass = 0;
-	}
+        fullbrightloadingpass = 0;
+    }
     return 0;
 }
 
@@ -1334,8 +1334,8 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 #ifdef USE_OPENGL
     pthtyp *pth;
 #endif
-	// backup of the n for possible redrawing of fullbright
-	long n_ = n, method_ = method;
+    // backup of the n for possible redrawing of fullbright
+    long n_ = n, method_ = method;
 
     if (method == -1) return;
 
@@ -1420,14 +1420,14 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
         if (skyclamphack) method |= 4;
         pth = gltexcache(globalpicnum,globalpal,method&(~3));
 
-		if (pth->flags & 16)
-			if (indrawroomsandmasks)
-			{
-				if (!fullbrightdrawingpass)
-					fullbrightdrawingpass = 1;
-				else if (fullbrightdrawingpass == 2)
-					pth = pth->ofb;
-			}
+        if (pth->flags & 16)
+            if (indrawroomsandmasks)
+            {
+                if (!fullbrightdrawingpass)
+                    fullbrightdrawingpass = 1;
+                else if (fullbrightdrawingpass == 2)
+                    pth = pth->ofb;
+            }
 
         bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
@@ -1624,17 +1624,17 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             }
             bglEnd();
         }
-		if (fullbrightdrawingpass == 1) // tile has fullbright colors ?
-		{
-			fullbrightdrawingpass = 2;
-			shadeforfullbrightpass = globalshade; // save the current shade
-			globalshade = -30; // fullbright
-			bglDisable(GL_FOG); // no fog
-			drawpoly(dpx, dpy, n_, method_); // draw them afterwards, then. :)
-			bglEnable(GL_FOG);
-			globalshade = shadeforfullbrightpass;
-			fullbrightdrawingpass = 0;
-		}
+        if (fullbrightdrawingpass == 1) // tile has fullbright colors ?
+        {
+            fullbrightdrawingpass = 2;
+            shadeforfullbrightpass = globalshade; // save the current shade
+            globalshade = -30; // fullbright
+            bglDisable(GL_FOG); // no fog
+            drawpoly(dpx, dpy, n_, method_); // draw them afterwards, then. :)
+            bglEnable(GL_FOG);
+            globalshade = shadeforfullbrightpass;
+            fullbrightdrawingpass = 0;
+        }
         return;
     }
 #endif
@@ -2297,7 +2297,7 @@ static void polymost_drawalls (long bunch)
             bglFogfv(GL_FOG_COLOR,col);
             bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
 
-//            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
+            //            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
         }
     }
 #endif
@@ -2470,12 +2470,12 @@ static void polymost_drawalls (long bunch)
 #ifdef USE_OPENGL
             if (rendmode == 3)
             {
-/*                if (!nofog) {
-                    bglDisable(GL_FOG);
-                    //r = ((float)globalpisibility)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239)))*FOGSCALE;
-                    //r *= ((double)xdimscale*(double)viewingrange*gdo) / (65536.0*65536.0);
-                    //bglFogf(GL_FOG_DENSITY,r);
-                } */
+                /*                if (!nofog) {
+                                    bglDisable(GL_FOG);
+                                    //r = ((float)globalpisibility)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239)))*FOGSCALE;
+                                    //r *= ((double)xdimscale*(double)viewingrange*gdo) / (65536.0*65536.0);
+                                    //bglFogf(GL_FOG_DENSITY,r);
+                                } */
 
                 if(!nofog)
                 {
@@ -2835,13 +2835,13 @@ static void polymost_drawalls (long bunch)
 #ifdef USE_OPENGL
             if (rendmode == 3)
             {
-/*                if (!nofog) {
-                    bglDisable(GL_FOG);
-                    //r = ((float)globalpisibility)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239)))*FOGSCALE;
-                    //r *= ((double)xdimscale*(double)viewingrange*gdo) / (65536.0*65536.0);
-                    //bglFogf(GL_FOG_DENSITY,r);
-                }
-*/
+                /*                if (!nofog) {
+                                    bglDisable(GL_FOG);
+                                    //r = ((float)globalpisibility)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239)))*FOGSCALE;
+                                    //r *= ((double)xdimscale*(double)viewingrange*gdo) / (65536.0*65536.0);
+                                    //bglFogf(GL_FOG_DENSITY,r);
+                                }
+                */
                 if(!nofog)
                 {
                     int i = klabs(sec->ceilingshade);
@@ -2874,11 +2874,11 @@ static void polymost_drawalls (long bunch)
                 if ((oy < cy0) && (oy < cy1)) domost(x1,oy,x0,oy);
                 else if ((oy < cy0) != (oy < cy1))
                 {      /*         cy1        cy0
-                                        		//        /             \
-                                        		//oy----------      oy---------
-                                        		//    /                    \
-                                        		//  cy0                     cy1
-                                        		*/
+                                            		//        /             \
+                                            		//oy----------      oy---------
+                                            		//    /                    \
+                                            		//  cy0                     cy1
+                                            		*/
                     ox = (oy-cy0)*(x1-x0)/(cy1-cy0) + x0;
                     if (oy < cy0) { domost(ox,oy,x0,oy); domost(x1,cy1,ox,oy); }
                     else { domost(ox,oy,x0,cy0); domost(x1,oy,ox,oy); }
@@ -3166,7 +3166,7 @@ static void polymost_drawalls (long bunch)
                     bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(wal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
                 }
                 pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
-                if (wal->cstat&8) { gux = ogux; guy = oguy; guo = oguo; }
+            if (wal->cstat&8) { gux = ogux; guy = oguy; guo = oguo; }
             }
             if (((ofy0 < fy0) || (ofy1 < fy1)) && (!((sec->floorstat&sector[nextsectnum].floorstat)&1)))
             {
@@ -3207,7 +3207,7 @@ static void polymost_drawalls (long bunch)
                     bglFogf(GL_FOG_DENSITY,gvisibility/(nwal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(nwal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
                 }
                 pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
-                if (wal->cstat&(2+8)) { guo = oguo; gux = ogux; guy = oguy; }
+            if (wal->cstat&(2+8)) { guo = oguo; gux = ogux; guy = oguy; }
             }
         }
 
@@ -4922,7 +4922,7 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
             Bstrcpy(value,parm->parms[0]);
             val = atof(value);
             glsprshadescale = val;
-         }
+        }
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->name, "r_negshadescale")) {

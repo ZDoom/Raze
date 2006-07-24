@@ -8513,10 +8513,10 @@ void Startup(void)
 
     // why the fuck aren't these part of CONFIG_ReadSetup()?
 
-    CONFIG_SetupMouse();
-    CONFIG_SetupJoystick();
+    //    CONFIG_SetupMouse();
+    //    CONFIG_SetupJoystick();
 
-    CONFIG_WriteSetup();
+    //    CONFIG_WriteSetup();
 
     compilecons();
 
