@@ -45,7 +45,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "util_lib.h"
 
-#define VERSION " 1.4.0svn"
+#define VERSION " 1.4.0 beta 2.1"
 
 #define HEAD  "EDuke32"VERSION" (shareware mode)"
 #define HEAD2 "EDuke32"VERSION
@@ -76,6 +76,73 @@ static int netparamcount = 0;
 static char **netparam = NULL;
 
 int votes[MAXPLAYERS], gotvote[MAXPLAYERS], voting = -1;
+
+int recfilep,totalreccnt;
+char debug_on = 0,actor_tog = 0,*rtsptr,memorycheckoveride=0;
+
+extern char syncstate;
+extern int32 numlumps;
+
+FILE *frecfilep = (FILE *)NULL;
+void pitch_test( void );
+
+char restorepalette,screencapt,nomorelogohack;
+int sendmessagecommand = -1;
+
+char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
+char *duke3dgrp = defaultduke3dgrp;
+static char *duke3ddef = "duke3d.def";
+
+extern long lastvisinc;
+
+// JBF 20031221: These ought to disappear when things mature
+extern int showmultidiags;
+extern int netmode, nethostplayers;
+extern char netjoinhost[64];
+int startupnetworkgame(void);
+int processnetworkrequests(void);
+
+char colstrip[1024];
+
+int shareware = 0;
+int gametype = 0;
+
+#define MAXUSERQUOTES 4
+long quotebot, quotebotgoal;
+short user_quote_time[MAXUSERQUOTES];
+char user_quote[MAXUSERQUOTES][178];
+// char typebuflen,typebuf[41];
+
+long tempwallptr;
+
+long nonsharedtimer;
+
+enum {
+    T_EOF = -2,
+    T_ERROR = -1,
+    T_INTERFACE = 0,
+    T_LOADGRP = 0,
+    T_MODE = 1,
+    T_ALLOW
+};
+
+typedef struct { char *text; int tokenid; } tokenlist;
+
+static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
+{
+    char *tok;
+    int i;
+
+    if (!sf) return T_ERROR;
+    tok = scriptfile_gettoken(sf);
+    if (!tok) return T_EOF;
+
+    for(i=0;i<ntokens;i++) {
+        if (!Bstrcasecmp(tok, tl[i].text))
+            return tl[i].tokenid;
+    }
+    return T_ERROR;
+}
 
 void setstatusbarscale(long sc)
 {
@@ -117,31 +184,6 @@ void patchstatusbar(long x1, long y1, long x2, long y2)
     rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1+clofx,cly1+clofy,clx2+clofx-1,cly2+clofy-1);
 }
 
-int recfilep,totalreccnt;
-char debug_on = 0,actor_tog = 0,*rtsptr,memorycheckoveride=0;
-
-extern char syncstate;
-extern int32 numlumps;
-
-FILE *frecfilep = (FILE *)NULL;
-void pitch_test( void );
-
-char restorepalette,screencapt,nomorelogohack;
-int sendmessagecommand = -1;
-
-char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
-char *duke3dgrp = defaultduke3dgrp;
-static char *duke3ddef = "duke3d.def";
-
-extern long lastvisinc;
-
-// JBF 20031221: These ought to disappear when things mature
-extern int showmultidiags;
-extern int netmode, nethostplayers;
-extern char netjoinhost[64];
-int startupnetworkgame(void);
-int processnetworkrequests(void);
-
 void setgamepalette(struct player_struct *player, char *pal, int set)
 {
     if (player != &ps[screenpeek]) {
@@ -169,8 +211,6 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
 }
 
 #define TEXTWRAPLEN (scale(35,ScreenWidth,320))
-
-char colstrip[1024];
 
 char *strip_color_codes(char *t)
 {
@@ -348,12 +388,6 @@ void allowtimetocorrecterrorswhenquitting(void)
         }
     }
 }
-
-#define MAXUSERQUOTES 4
-long quotebot, quotebotgoal;
-short user_quote_time[MAXUSERQUOTES];
-char user_quote[MAXUSERQUOTES][178];
-// char typebuflen,typebuf[41];
 
 void adduserquote(char *daquote)
 {
@@ -3801,7 +3835,6 @@ char wallswitchcheck(short i)
     return 0;
 }
 
-long tempwallptr;
 short spawn( short j, short pn )
 {
     short i, s, startwall, endwall, sect, clostest=0;
@@ -7104,7 +7137,6 @@ FOUNDCHEAT:
     }
 }
 
-long nonsharedtimer;
 void nonsharedkeys(void)
 {
     short i,ch;
@@ -7617,40 +7649,15 @@ void comlinehelp(char **argv)
     wm_msgbox(apptitle,s);
 }
 
-enum {
-    T_EOF = -2,
-    T_ERROR = -1,
-    T_INTERFACE = 0,
-    T_MODE,
-    T_ALLOW
-};
-
 signed int rancid_players = 0;
 char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
-typedef struct { char *text; int tokenid; } tokenlist;
-static tokenlist basetokens[] =
+static tokenlist rancidtokens[] =
     {
         { "interface",       T_INTERFACE       },
         { "mode",            T_MODE            },
         { "allow",           T_ALLOW           },
     };
-
-static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
-{
-    char *tok;
-    int i;
-
-    if (!sf) return T_ERROR;
-    tok = scriptfile_gettoken(sf);
-    if (!tok) return T_EOF;
-
-    for(i=0;i<ntokens;i++) {
-        if (!Bstrcasecmp(tok, tl[i].text))
-            return tl[i].tokenid;
-    }
-    return T_ERROR;
-}
 
 extern const char *getexternaladdress(void);
 
@@ -7659,7 +7666,7 @@ static int parse_rancid_net(scriptfile *script)
     int tokn;
     char *cmdtokptr;
     while (1) {
-        tokn = getatoken(script,basetokens,sizeof(basetokens)/sizeof(tokenlist));
+        tokn = getatoken(script,rancidtokens,sizeof(rancidtokens)/sizeof(tokenlist));
         cmdtokptr = script->ltextptr;
         switch (tokn) {
         case T_INTERFACE:
@@ -7720,6 +7727,51 @@ int load_rancid_net(char *fn)
 static int stringsort(const char *p1, const char *p2)
 {
     return Bstrcmp(&p1[0],&p2[0]);
+}
+
+static tokenlist grptokens[] =
+    {
+        { "loadgrp",         T_LOADGRP         },
+    };
+
+int loadgroupfiles(char *fn)
+{
+    int tokn;
+    char *cmdtokptr;
+    scriptfile *script;
+
+    script = scriptfile_fromfile(fn);
+    if (!script) return -1;
+
+    while (1) {
+        tokn = getatoken(script,grptokens,sizeof(grptokens)/sizeof(tokenlist));
+        cmdtokptr = script->ltextptr;
+        switch (tokn) {
+        case T_LOADGRP:
+            {
+                char *fn;
+                if (!scriptfile_getstring(script,&fn))
+                {
+                    int j = initgroupfile(fn);
+
+                    if( j == -1 )
+                        initprintf("Could not find GRP file %s.\n",fn);
+                    else
+                        initprintf("Using GRP file %s.\n",fn);
+                }
+            }
+            break;
+        case T_EOF:
+            return(0);
+        default:
+            break;
+        }
+    }
+
+    scriptfile_close(script);
+    scriptfile_clearsymbols();
+
+    return 0;
 }
 
 void checkcommandline(int argc,char **argv)
@@ -8796,9 +8848,6 @@ void backtomenu(void)
     cmenu(0);
     KB_FlushKeyboardQueue();
 }
-
-int shareware = 0;
-int gametype = 0;
 
 int load_script(char *szScript)
 {

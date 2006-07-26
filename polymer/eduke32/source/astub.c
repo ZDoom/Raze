@@ -39,6 +39,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #include "keys.h"
 #include "types.h"
 #include "keyboard.h"
+#include "scriptfile.h"
 
 #define VERSION " 1.0.6"
 
@@ -4004,6 +4005,75 @@ int osdcmd_quit(const osdfuncparm_t *parm)
     exit(0);
 
     return OSDCMD_OK;
+}
+
+enum {
+    T_EOF = -2,
+    T_ERROR = -1,
+    T_LOADGRP = 0,
+};
+
+typedef struct { char *text; int tokenid; } tokenlist;
+
+static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
+{
+    char *tok;
+    int i;
+
+    if (!sf) return T_ERROR;
+    tok = scriptfile_gettoken(sf);
+    if (!tok) return T_EOF;
+
+    for(i=0;i<ntokens;i++) {
+        if (!Bstrcasecmp(tok, tl[i].text))
+            return tl[i].tokenid;
+    }
+    return T_ERROR;
+}
+
+static tokenlist grptokens[] =
+    {
+        { "loadgrp",         T_LOADGRP         },
+    };
+
+int loadgroupfiles(char *fn)
+{
+    int tokn;
+    char *cmdtokptr;
+    scriptfile *script;
+
+    script = scriptfile_fromfile(fn);
+    if (!script) return -1;
+
+    while (1) {
+        tokn = getatoken(script,grptokens,sizeof(grptokens)/sizeof(tokenlist));
+        cmdtokptr = script->ltextptr;
+        switch (tokn) {
+        case T_LOADGRP:
+            {
+                char *fn;
+                if (!scriptfile_getstring(script,&fn))
+                {
+                    int j = initgroupfile(fn);
+
+                    if( j == -1 )
+                        initprintf("Could not find GRP file %s.\n",fn);
+                    else
+                        initprintf("Using GRP file %s.\n",fn);
+                }
+            }
+            break;
+        case T_EOF:
+            return(0);
+        default:
+            break;
+        }
+    }
+
+    scriptfile_close(script);
+    scriptfile_clearsymbols();
+
+    return 0;
 }
 
 int ExtInit(void)

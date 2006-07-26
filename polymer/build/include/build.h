@@ -497,7 +497,6 @@ int md_undefinetile(int tile);
 int md_undefinemodel(int modelid);
 
 int loaddefinitionsfile(char *fn);
-int loadgroupfiles(char *fn);
 
 extern long mapversion;	// if loadboard() fails with -2 return, try loadoldboard(). if it fails with -2, board is dodgy
 long loadoldboard(char *filename, char fromwhere, long *daposx, long *daposy, long *daposz, short *daang, short *dacursectnum);

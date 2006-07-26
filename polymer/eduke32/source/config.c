@@ -587,7 +587,7 @@ int32 CONFIG_ReadSetup( void )
 
     setupread = 1;
 
-    if (SafeFileExists(setupfilename))  // JBF 20031211
+    if (SafeFileExists(setupfilename) && scripthandle < 0)  // JBF 20031211
         scripthandle = SCRIPT_Load( setupfilename );
 
     if (scripthandle < 0) return -1;
@@ -662,7 +662,6 @@ int32 CONFIG_ReadSetup( void )
         dummy = usehightile; SCRIPT_GetNumber( scripthandle, "Screen Setup", "UseHightile",&dummy); usehightile = dummy != 0;
 
         SCRIPT_GetNumber( scripthandle, "Misc", "Executions",&ud.executions);
-        ud.executions++;
         SCRIPT_GetNumber( scripthandle, "Setup", "ForceSetup",&ForceSetup);
         SCRIPT_GetNumber( scripthandle, "Misc", "RunMode",&RunMode);
         SCRIPT_GetNumber( scripthandle, "Misc", "Crosshairs",&ud.crosshair);
@@ -765,6 +764,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Misc", "Color",ud.color,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "Crosshairs",ud.crosshair,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "DemoCams",ud.democams,false,false);
+    ud.executions++;
     SCRIPT_PutNumber( scripthandle, "Misc", "Executions",ud.executions,false,false);
     SCRIPT_PutNumber( scripthandle, "Setup", "ForceSetup",ForceSetup,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "IDPlayers",ud.idplayers,false,false);
