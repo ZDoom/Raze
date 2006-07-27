@@ -8563,16 +8563,9 @@ void Startup(void)
 {
     int i;
 
-    // why the fuck aren't these part of CONFIG_ReadSetup()?
-
-    //    CONFIG_SetupMouse();
-    //    CONFIG_SetupJoystick();
-
-    //    CONFIG_WriteSetup();
-
     compilecons();
 
-    CONFIG_ReadSetup();
+    CONFIG_ReadKeys(); // we re-read the keys after compiling the CONs
 
     if (initengine()) {
         wm_msgbox("Build Engine Initialisation Error",

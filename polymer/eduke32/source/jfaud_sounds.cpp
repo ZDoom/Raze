@@ -136,12 +136,21 @@ static float translatepitch(int p)
 	return t;
 }
 
-typedef struct {
+class SoundChannel {
+public:
 	JFAudMixerChannel *chan;
 	int owner;	// sprite number
 	int soundnum;	// sound number
 	bool done;
-} SoundChannel;
+	
+	SoundChannel()
+	{
+		chan = NULL;
+		owner = -1;
+		soundnum = -1;
+		done = false;
+	}
+};
 
 static SoundChannel *chans = NULL;
 static JFAud *jfaud = NULL;
@@ -152,9 +161,6 @@ static bool havemidi = false, havewave = false;
 static void stopcallback(int r)
 {
 	chans[r].done = true;
-//	jfaud->FreeSound(chans[r].chan);
-//	chans[r].chan = NULL;
-//	chans[r].owner = -1;
 }
 
 void testcallback(unsigned long num)
