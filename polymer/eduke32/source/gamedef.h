@@ -670,7 +670,7 @@ enum keywords {
     CON_SETPLAYERVAR,       // 238
     CON_MULSCALE,           // 239
     CON_SETASPECT,          // 240
-    CON_TXDIST,             // 241
+    CON_EZSHOOT,            // 241
     CON_SPRITENOSHADE,      // 242
     CON_MOVESPRITE,         // 243
     CON_CHECKAVAILWEAPON,   // 244
@@ -724,6 +724,5 @@ enum keywords {
     CON_FINDNEARACTORZVAR,  // 292
     CON_FINDNEARSPRITEZ,    // 293
     CON_FINDNEARSPRITEZVAR, // 294
-    CON_EZSHOOT,            // 295
     END
 };

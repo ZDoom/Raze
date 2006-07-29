@@ -210,15 +210,6 @@ long dist(spritetype *s1,spritetype *s2)
     return(FindDistance3D(vx,vy,vz>>4));
 }
 
-long txdist(spritetype *s1,spritetype *s2)
-{
-    long vx,vy,vz;
-    vx = s1->x - s2->x;
-    vy = s1->y - s2->y;
-    vz = s1->z - s2->z - s2->yrepeat;
-    return(FindDistance3D(vx,vy,vz>>4));
-}
-
 short findplayer(spritetype *s,long *d)
 {
     short j, closest_player;

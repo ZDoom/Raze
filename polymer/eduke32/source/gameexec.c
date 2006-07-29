@@ -4388,7 +4388,6 @@ SKIPJIBS:
 
     case CON_DIST:
     case CON_LDIST:
-    case CON_TXDIST:
         {
             long distvar, xvar, yvar, distx=0;
 
@@ -4404,9 +4403,6 @@ SKIPJIBS:
                 break;
             case CON_LDIST:
                 distx = ldist(&sprite[GetGameVarID(xvar, g_i, g_p)],&sprite[GetGameVarID(yvar, g_i, g_p)]);
-                break;
-            case CON_TXDIST:
-                distx = txdist(&sprite[GetGameVarID(xvar, g_i, g_p)],&sprite[GetGameVarID(yvar, g_i, g_p)]);
                 break;
             }
 
@@ -5582,7 +5578,7 @@ good:
                         lTemp=ldist(&sprite[g_i], &sprite[j]);
                         if(lTemp < lMaxDist)
                         {
-                            lTemp2=klabs(sprite[g_i].z-sprite[j].z);//txdist(&sprite[g_i], &sprite[j]);
+                            lTemp2=klabs(sprite[g_i].z-sprite[j].z);
                             if (lTemp2 < lMaxZDist)
                             {
                                 lFound=j;
@@ -5632,7 +5628,7 @@ good:
                         lTemp=ldist(&sprite[g_i], &sprite[j]);
                         if(lTemp < lMaxDist)
                         {
-                            lTemp2=klabs(sprite[g_i].z-sprite[j].z); // txdist(&sprite[g_i], &sprite[j]);
+                            lTemp2=klabs(sprite[g_i].z-sprite[j].z);
                             if (lTemp2 < lMaxZDist)
                             {
                                 lFound=j;

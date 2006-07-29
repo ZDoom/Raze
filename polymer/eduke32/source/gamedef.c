@@ -384,7 +384,7 @@ char *keyw[] = {
                    "setplayervar",             // 238
                    "mulscale",                 // 239
                    "setaspect",                // 240
-                   "txdist",                   // 241
+                   "ezshoot",                  // 241
                    "spritenoshade",            // 242
                    "movesprite",               // 243
                    "checkavailweapon",         // 244
@@ -438,7 +438,6 @@ char *keyw[] = {
                    "findnearactorzvar",        // 292
                    "findnearspritez",          // 293
                    "findnearspritezvar",       // 294
-                   "ezshoot",                  // 295
                    "<null>"
                };
 
@@ -3536,7 +3535,6 @@ char parsecommand(void)
     case CON_GMAXAMMO:
     case CON_DIST:
     case CON_LDIST:
-    case CON_TXDIST:
     case CON_GETANGLE:
     case CON_MULSCALE:
     case CON_SETASPECT:
@@ -3545,7 +3543,6 @@ char parsecommand(void)
         {
         case CON_DIST:
         case CON_LDIST:
-        case CON_TXDIST:
         case CON_GETANGLE:
             transvartype(GAMEVAR_FLAG_READONLY);
             break;
@@ -3563,7 +3560,6 @@ char parsecommand(void)
         {
         case CON_DIST:
         case CON_LDIST:
-        case CON_TXDIST:
         case CON_GETANGLE:
             transvar();
             break;
