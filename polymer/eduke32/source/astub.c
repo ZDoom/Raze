@@ -2824,8 +2824,19 @@ void Keys3d(void)
         Bsprintf(tempbuf,"LOCK");
     if(tempbuf[0] != 0)
     {
-        printext256(searchx+4+2,searchy+4+2,0,-1,tempbuf,!(xdimgame > 640));
-        printext256(searchx+4,searchy+4,whitecol,-1,tempbuf,!(xdimgame > 640));
+            i = (Bstrlen(tempbuf)<<3)+6;
+            if((searchx+i) < (xdim-1))
+                i = 0;
+            else i = (searchx+i)-(xdim-1);
+            if((searchy+16) < (ydim-1))
+                j = 0;
+            else j = (searchy+16)-(ydim-1);
+//            printext16(searchx+6-i,searchy+6-j,11,-1,tempbuf,0);
+        printext256(searchx+4+2-i,searchy+4+2-j,0,-1,tempbuf,!(xdimgame > 640));
+        printext256(searchx+4-i,searchy+4-j,whitecol,-1,tempbuf,!(xdimgame > 640));
+
+//        printext256(searchx+4+2,searchy+4+2,0,-1,tempbuf,!(xdimgame > 640));
+//        printext256(searchx+4,searchy+4,whitecol,-1,tempbuf,!(xdimgame > 640));
     }
     if(helpon==1)
     {

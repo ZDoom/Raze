@@ -160,7 +160,10 @@ void hitscantrail(long x1, long y1, long z1, long x2, long y2, long z2, short an
 
     n = ((FindDistance2D(x1-x2,y1-y2))>>8)+1;
 
-    z1 += (projectile[atwith].toffset<<8)+1024;
+    if(projectile[atwith].toffset != 0)
+        z1 += (projectile[atwith].toffset<<8);
+
+    z1 += 1024;
 
     xv = (x2-x1)/n;
     yv = (y2-y1)/n;

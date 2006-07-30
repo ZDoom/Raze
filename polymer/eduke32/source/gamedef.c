@@ -5581,7 +5581,8 @@ void InitProjectiles(void)
         projectile[i].extra = 100;
         projectile[i].decal = BULLETHOLE;
         projectile[i].trail = -1;
-        projectile[i].tnum = projectile[i].toffset = 0;
+        projectile[i].tnum = 0;
+        projectile[i].toffset = 1;
         projectile[i].txrepeat = projectile[i].tyrepeat = -1;
         projectile[i].drop = projectile[i].range = 0;
         projectile[i].cstat = -1;

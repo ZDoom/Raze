@@ -2391,11 +2391,10 @@ void moveweapons(void)
                     j = spawn(i,thisprojectile[i].trail);
                     if (thisprojectile[i].toffset != 0)
                         sprite[j].z += (thisprojectile[i].toffset<<8);
-                    else
-                        sprite[j].z += (1<<8);
-                    if (thisprojectile[i].txrepeat >= 0) sprite[j].xrepeat=thisprojectile[i].txrepeat;
-                    if (thisprojectile[i].tyrepeat >= 0) sprite[j].yrepeat=thisprojectile[i].tyrepeat;
-
+                    if (thisprojectile[i].txrepeat >= 0)
+                        sprite[j].xrepeat=thisprojectile[i].txrepeat;
+                    if (thisprojectile[i].tyrepeat >= 0)
+                        sprite[j].yrepeat=thisprojectile[i].tyrepeat;
                 }
             }
 
