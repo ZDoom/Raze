@@ -451,6 +451,11 @@ static int defsparser(scriptfile *script)
                 if(xsiz >= 0) tilesizx[tile] = xsiz;
                 if(ysiz >= 0) tilesizy[tile] = ysiz;
                 invalidatetile(tile,-1,-1);
+                if (waloff[tile] == 0)
+                {
+                    walock[tile] = 199;
+                    allocache(&waloff[tile],xsiz*ysiz,&walock[tile]);
+                }
                 break;
             }
         case T_DUMMYTILERANGE:
@@ -476,6 +481,11 @@ static int defsparser(scriptfile *script)
                             if(xsiz >= 0) tilesizx[i] = xsiz;
                             if(ysiz >= 0) tilesizy[i] = ysiz;
                             invalidatetile(i,-1,-1);
+                            if (waloff[i] == 0)
+                            {
+                                walock[i] = 199;
+                                allocache(&waloff[i],xsiz*ysiz,&walock[i]);
+                            }
                         }
                     }
                 }

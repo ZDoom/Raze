@@ -113,6 +113,12 @@ short user_quote_time[MAXUSERQUOTES];
 char user_quote[MAXUSERQUOTES][178];
 // char typebuflen,typebuf[41];
 
+#ifdef JFAUD
+#define MAXCACHE1DSIZE (16*1048576)
+#else
+#define MAXCACHE1DSIZE (32*1048576)
+#endif
+
 long tempwallptr;
 
 long nonsharedtimer;

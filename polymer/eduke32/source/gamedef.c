@@ -2247,7 +2247,12 @@ char parsecommand(void)
         {
             if(!CheckEventSync(current_event))
                 ReportError(WARNING_EVENTSYNC);
-            transnum(LABEL_MOVE);
+
+            if((transnum(LABEL_MOVE) != LABEL_MOVE) && (*(scriptptr-1) != 0))
+            {
+                error++;
+                ReportError(ERROR_SYNTAXERROR);
+            }
 
             j = 0;
             while(keyword() == -1)

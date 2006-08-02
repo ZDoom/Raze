@@ -92,8 +92,6 @@ extern int conversion, shareware, gametype;
 #define TICRATE (120)
 #define TICSPERFRAME (TICRATE/26)
 
-#define MAXCACHE1DSIZE (16*1048576)
-
 // #define GC (TICSPERFRAME*44)
 
 #define NUM_SOUNDS 1500
