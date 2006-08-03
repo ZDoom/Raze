@@ -109,22 +109,23 @@ enum errors {
 };
 
 enum labeltypes {
-    LABEL_ANY       = -1,
-    LABEL_ACTION    = 1,
-    LABEL_AI        = 2,
-    LABEL_DEFINE    = 4,
-    LABEL_MOVE      = 8,
-    LABEL_STATE     = 16,
+	LABEL_ANY    = -1,
+	LABEL_DEFINE = 1,
+	LABEL_STATE  = 2,
+	LABEL_ACTOR  = 4,
+	LABEL_ACTION = 8,
+	LABEL_AI     = 16,
+	LABEL_MOVE   = 32,
 };
 
 static char *labeltypenames[] = {
-                                    "define",
-                                    "state",
-                                    "actor",
-                                    "action",
-                                    "ai",
-                                    "move"
-                                };
+	"define",
+	"state",
+	"actor",
+	"action",
+	"ai",
+	"move"
+};
 
 static char *translatelabeltype(long type)
 {
@@ -2248,7 +2249,7 @@ char parsecommand(void)
             if(!CheckEventSync(current_event))
                 ReportError(WARNING_EVENTSYNC);
 
-            if((transnum(LABEL_MOVE) != LABEL_MOVE) && (*(scriptptr-1) != 0))
+            if((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
             {
                 error++;
                 ReportError(ERROR_SYNTAXERROR);
@@ -2481,7 +2482,11 @@ char parsecommand(void)
                     transnum(LABEL_ACTION);
                 else if(j == 2)
                 {
-                    transnum(LABEL_MOVE);
+                    if((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
+                    {
+                        error++;
+                        ReportError(ERROR_SYNTAXERROR);
+                    }
                     k = 0;
                     while(keyword() == -1)
                     {
@@ -2601,7 +2606,13 @@ char parsecommand(void)
                 {
                 case 0: transnum(LABEL_DEFINE); break;
                 case 1: transnum(LABEL_ACTION); break;
-                case 2: transnum(LABEL_MOVE|LABEL_DEFINE); break;
+                case 2:
+                    if((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
+                    {
+                        error++;
+                        ReportError(ERROR_SYNTAXERROR);
+                    }
+                    break;
                 }
                 *(parsing_actor+j) = *(scriptptr-1);
             }
@@ -2740,7 +2751,13 @@ char parsecommand(void)
                 {
                 case 0: transnum(LABEL_DEFINE); break;
                 case 1: transnum(LABEL_ACTION); break;
-                case 2: transnum(LABEL_MOVE|LABEL_DEFINE); break;
+                case 2:
+                    if((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
+                    {
+                        error++;
+                        ReportError(ERROR_SYNTAXERROR);
+                    }
+                    break;
                 }
                 *(parsing_actor+j) = *(scriptptr-1);
             }
@@ -4167,7 +4184,11 @@ repeatcase:
             transnum(LABEL_ACTION);
             break;
         case CON_IFMOVE:
-            transnum(LABEL_MOVE);
+            if((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
+            {
+                error++;
+                ReportError(ERROR_SYNTAXERROR);
+            }
             break;
         case CON_IFPINVENTORY:
             transnum(LABEL_DEFINE);
