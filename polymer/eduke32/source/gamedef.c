@@ -109,23 +109,23 @@ enum errors {
 };
 
 enum labeltypes {
-	LABEL_ANY    = -1,
-	LABEL_DEFINE = 1,
-	LABEL_STATE  = 2,
-	LABEL_ACTOR  = 4,
-	LABEL_ACTION = 8,
-	LABEL_AI     = 16,
-	LABEL_MOVE   = 32,
+    LABEL_ANY    = -1,
+    LABEL_DEFINE = 1,
+    LABEL_STATE  = 2,
+    LABEL_ACTOR  = 4,
+    LABEL_ACTION = 8,
+    LABEL_AI     = 16,
+    LABEL_MOVE   = 32,
 };
 
 static char *labeltypenames[] = {
-	"define",
-	"state",
-	"actor",
-	"action",
-	"ai",
-	"move"
-};
+                                    "define",
+                                    "state",
+                                    "actor",
+                                    "action",
+                                    "ai",
+                                    "move"
+                                };
 
 static char *translatelabeltype(long type)
 {
@@ -2251,8 +2251,9 @@ char parsecommand(void)
 
             if((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
             {
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
+                ReportError(-1);
+                *(scriptptr-1) = 0;
+                initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
             }
 
             j = 0;
@@ -2484,8 +2485,9 @@ char parsecommand(void)
                 {
                     if((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
                     {
-                        error++;
-                        ReportError(ERROR_SYNTAXERROR);
+                        ReportError(-1);
+                        *(scriptptr-1) = 0;
+                        initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
                     }
                     k = 0;
                     while(keyword() == -1)
@@ -2609,8 +2611,9 @@ char parsecommand(void)
                 case 2:
                     if((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
                     {
-                        error++;
-                        ReportError(ERROR_SYNTAXERROR);
+                        ReportError(-1);
+                        *(scriptptr-1) = 0;
+                        initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
                     }
                     break;
                 }
@@ -2754,8 +2757,9 @@ char parsecommand(void)
                 case 2:
                     if((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
                     {
-                        error++;
-                        ReportError(ERROR_SYNTAXERROR);
+                        ReportError(-1);
+                        *(scriptptr-1) = 0;
+                        initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
                     }
                     break;
                 }
@@ -4186,8 +4190,9 @@ repeatcase:
         case CON_IFMOVE:
             if((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
             {
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
+                ReportError(-1);
+                *(scriptptr-1) = 0;
+                initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
             }
             break;
         case CON_IFPINVENTORY:
