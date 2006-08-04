@@ -7402,6 +7402,8 @@ long loadpics(char *filename, long askedsize)
 // loadtile
 //
 char cachedebug = 0;
+char faketile[MAXTILES];
+
 void loadtile(short tilenume)
 {
     char *ptr;
@@ -7433,15 +7435,18 @@ void loadtile(short tilenume)
         allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
     }
 
-    if (artfilplc != tilefileoffs[tilenume])
+    if(!faketile[tilenume])
     {
-        klseek(artfil,tilefileoffs[tilenume]-artfilplc,BSEEK_CUR);
+        if (artfilplc != tilefileoffs[tilenume])
+        {
+            klseek(artfil,tilefileoffs[tilenume]-artfilplc,BSEEK_CUR);
+            faketimerhandler();
+        }
+        ptr = (char *)waloff[tilenume];
+        kread(artfil,ptr,dasiz);
         faketimerhandler();
-    }
-    ptr = (char *)waloff[tilenume];
-    kread(artfil,ptr,dasiz);
-    faketimerhandler();
-    artfilplc = tilefileoffs[tilenume]+dasiz;
+        artfilplc = tilefileoffs[tilenume]+dasiz;
+    } else Bmemset((char *)waloff[tilenume],1,dasiz);
 }
 
 

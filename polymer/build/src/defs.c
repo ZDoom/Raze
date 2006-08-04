@@ -443,6 +443,7 @@ static int defsparser(scriptfile *script)
         case T_DUMMYTILE:
             {
                 int tile, xsiz, ysiz;
+                extern char faketile[MAXTILES];
 
                 if (scriptfile_getsymbol(script,&tile)) break;
                 if (scriptfile_getsymbol(script,&xsiz)) break;
@@ -450,17 +451,14 @@ static int defsparser(scriptfile *script)
 
                 if(xsiz >= 0) tilesizx[tile] = xsiz;
                 if(ysiz >= 0) tilesizy[tile] = ysiz;
-                invalidatetile(tile,-1,-1);
-                if (waloff[tile] == 0)
-                {
-                    walock[tile] = 199;
-                    allocache(&waloff[tile],xsiz*ysiz,&walock[tile]);
-                }
+
+                faketile[tile] = 1;
                 break;
             }
         case T_DUMMYTILERANGE:
             {
                 int tile1,tile2,xsiz,ysiz,i;
+                extern char faketile[MAXTILES];
 
                 if (scriptfile_getnumber(script,&tile1)) break;
                 if (scriptfile_getnumber(script,&tile2)) break;
@@ -480,12 +478,7 @@ static int defsparser(scriptfile *script)
                         {
                             if(xsiz >= 0) tilesizx[i] = xsiz;
                             if(ysiz >= 0) tilesizy[i] = ysiz;
-                            invalidatetile(i,-1,-1);
-                            if (waloff[i] == 0)
-                            {
-                                walock[i] = 199;
-                                allocache(&waloff[i],xsiz*ysiz,&walock[i]);
-                            }
+                            faketile[i] = 1;
                         }
                     }
                 }
