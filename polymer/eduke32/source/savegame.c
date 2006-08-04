@@ -133,7 +133,7 @@ int loadplayer(signed char spot)
         ready2send = 1;
         FTA(124,&ps[myconnectindex]);
         return 1;
-    }
+    } else ud.multimode = nump;
 
     if(numplayers > 1)
     {
