@@ -657,10 +657,10 @@ int32 CONFIG_ReadSetup( void )
                 useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
             else glusetexcache = glusetexcachecompression = 0;
         }
-#endif
+
         dummy = usemodels; SCRIPT_GetNumber( scripthandle, "Screen Setup", "UseModels",&dummy); usemodels = dummy != 0;
         dummy = usehightile; SCRIPT_GetNumber( scripthandle, "Screen Setup", "UseHightile",&dummy); usehightile = dummy != 0;
-
+#endif
         SCRIPT_GetNumber( scripthandle, "Misc", "Executions",&ud.executions);
         SCRIPT_GetNumber( scripthandle, "Setup", "ForceSetup",&ForceSetup);
         SCRIPT_GetNumber( scripthandle, "Misc", "RunMode",&RunMode);
@@ -806,9 +806,10 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenWidth",ScreenWidth,false,false); // JBF 20031206
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "Shadows",ud.shadows,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "Tilt",ud.screen_tilting,false,false);
+#if defined(POLYMOST) && defined(USE_OPENGL)
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "UseHightile",usehightile,false,false);
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "UseModels",usemodels,false,false);
-
+#endif
     SCRIPT_PutNumber( scripthandle, "Sound Setup", "AmbienceToggle",AmbienceToggle,false,false);
     SCRIPT_PutNumber( scripthandle, "Sound Setup", "FXVolume",FXVolume,false,false);
     SCRIPT_PutNumber( scripthandle, "Sound Setup", "MusicToggle",MusicToggle,false,false);

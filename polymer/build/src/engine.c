@@ -688,7 +688,7 @@ static void scansector(short sectnum);
 #include "polymost.c"
 #else
 void hicsetpalettetint(long palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect) { }
-int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut) { return 0; }
+int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut, char flags) { return 0; }
 int hicsetskybox(long picnum, long palnum, char *faces[6]) { return 0; }
 int hicclearsubst(long picnum, long palnum) { return 0; }
 long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen) { return -1; }

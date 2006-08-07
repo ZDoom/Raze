@@ -3190,7 +3190,7 @@ void checksectors(short snum)
         else
         {
             ud.level_number++;
-            if( (ud.volume_number && ud.level_number > 10 ) || ud.level_number > 5 )
+            if( (ud.volume_number && ud.level_number > 10 ) || ( ud.volume_number == 0 && ud.level_number > 5 ) )
                 ud.level_number = 0;
             ud.m_level_number = ud.level_number;
         }
