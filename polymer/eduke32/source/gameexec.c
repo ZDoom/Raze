@@ -3928,7 +3928,7 @@ SKIPJIBS:
 
     case CON_DEBUG:
         insptr++;
-        printf("%ld\n",*insptr++);
+        initprintf("%ld\n",*insptr++);
         break;
 
     case CON_ENDOFGAME:

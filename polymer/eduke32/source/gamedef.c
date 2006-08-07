@@ -2601,7 +2601,7 @@ char parsecommand(void)
             {
                 if(keyword() >= 0)
                 {
-                    scriptptr += (4-j);
+                    for (i=4-j; i; i--) *(scriptptr++) = 0;
                     break;
                 }
                 switch(j)

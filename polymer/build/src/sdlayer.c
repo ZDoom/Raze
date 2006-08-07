@@ -39,6 +39,10 @@ int startwin_settitle(const char *s) { s=s; return 0; }
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
 
+// fix for mousewheel
+#define MWHEELTICKS 10
+static unsigned long mwheelup, mwheeldown;
+
 int   _buildargc = 1;
 char **_buildargv = NULL;
 extern long app_main(long argc, char *argv[]);
@@ -1299,14 +1303,22 @@ int handleevents(void)
             case SDL_BUTTON_LEFT: j = 0; break;
             case SDL_BUTTON_RIGHT: j = 1; break;
             case SDL_BUTTON_MIDDLE: j = 2; break;
-            default: j = -1; break;
+            default: j = ev.button.button; break;
             }
             if (j<0) break;
 
-            if (ev.button.state == SDL_PRESSED)
+            if (ev.button.state == SDL_PRESSED) {
+                if (ev.button.button == SDL_BUTTON_WHEELUP) {
+                    mwheelup = totalclock;
+                }
+                if (ev.button.button == SDL_BUTTON_WHEELDOWN) {
+                    mwheeldown = totalclock;
+                }
                 mouseb |= (1<<j);
-            else
-                mouseb &= ~(1<<j);
+            }
+            else {
+                if (j < 4) mouseb &= ~(1<<j);
+            }
 
             if (mousepresscallback)
                 mousepresscallback(j+1, ev.button.state == SDL_PRESSED);
@@ -1370,6 +1382,17 @@ int handleevents(void)
     }
 
     sampletimer();
+
+    if (moustat) {
+        if ((mwheelup) && (mwheelup <= (totalclock - MWHEELTICKS))) {
+            mouseb &= ~16;
+            mwheelup = 0;
+        }
+        if ((mwheeldown) && (mwheeldown <= (totalclock - MWHEELTICKS))) {
+            mouseb &= ~32;
+            mwheeldown = 0;
+        }
+    }
 
     startwin_idle(NULL);
 

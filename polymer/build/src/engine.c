@@ -7446,7 +7446,7 @@ void loadtile(short tilenume)
         kread(artfil,ptr,dasiz);
         faketimerhandler();
         artfilplc = tilefileoffs[tilenume]+dasiz;
-    } else Bmemset((char *)waloff[tilenume],1,dasiz);
+    } else Bmemset((char *)waloff[tilenume],0,dasiz);
 }
 
 

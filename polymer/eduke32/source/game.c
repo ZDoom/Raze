@@ -7667,10 +7667,16 @@ static tokenlist rancidtokens[] =
 
 extern const char *getexternaladdress(void);
 
-static int parse_rancid_net(scriptfile *script)
+int load_rancid_net(char *fn)
 {
     int tokn;
     char *cmdtokptr;
+
+    scriptfile *script;
+
+    script = scriptfile_fromfile(fn);
+    if (!script) return -1;
+
     while (1) {
         tokn = getatoken(script,rancidtokens,sizeof(rancidtokens)/sizeof(tokenlist));
         cmdtokptr = script->ltextptr;
@@ -7712,17 +7718,6 @@ static int parse_rancid_net(scriptfile *script)
             break;
         }
     }
-    return 0;
-}
-
-int load_rancid_net(char *fn)
-{
-    scriptfile *script;
-
-    script = scriptfile_fromfile(fn);
-    if (!script) return -1;
-
-    parse_rancid_net(script);
 
     scriptfile_close(script);
     scriptfile_clearsymbols();
@@ -7997,12 +7992,7 @@ void checkcommandline(int argc,char **argv)
                     {
                         Bstrcpy(confilename,c);
                         userconfiles = 1;
-                        /* if(SafeFileExists(c) == 0)
-                        {
-                            initprintf("Could not find CON file '%s'.\n",confilename );
-                              exit(-1);
-                        }
-                        else */ initprintf("Using CON file: '%s'\n",confilename);
+                        initprintf("Using CON file: '%s'\n",confilename);
                     }
                     break;
                 case 'g':
