@@ -2455,12 +2455,14 @@ static void polymost_drawalls (long bunch)
             }
             domostpolymethod = (globalorientation>>7)&3;
             if (globalposz >= getflorzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
+#ifdef USE_OPENGL
             if(!nofog)
             {
                 int i = klabs(sec->floorshade);
                 if(i > 30) i = 30;
                 bglFogf(GL_FOG_DENSITY,gvisibility/(sec->floorshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(sec->floorshade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
             }
+#endif
             pow2xsplit = 0; domost(x0,fy0,x1,fy1); //flor
             domostpolymethod = 0;
         }
@@ -2821,12 +2823,14 @@ static void polymost_drawalls (long bunch)
             }
             domostpolymethod = (globalorientation>>7)&3;
             if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
+#ifdef USE_OPENGL
             if(!nofog)
             {
                 int i = klabs(sec->ceilingshade);
                 if(i > 30) i = 30;
                 bglFogf(GL_FOG_DENSITY,gvisibility/(sec->ceilingshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(sec->ceilingshade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
             }
+#endif
             pow2xsplit = 0; domost(x1,cy1,x0,cy0); //ceil
             domostpolymethod = 0;
         }
@@ -3158,13 +3162,14 @@ static void polymost_drawalls (long bunch)
                     guo = gdo*t - guo;
                 }
                 if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
-
+#ifdef USE_OPENGL
                 if(!nofog)
                 {
                     int i = klabs(wal->shade);
                     if(i > 30) i = 30;
                     bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(wal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
                 }
+#endif
                 pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
             if (wal->cstat&8) { gux = ogux; guy = oguy; guo = oguo; }
             }
@@ -3199,13 +3204,14 @@ static void polymost_drawalls (long bunch)
                     guo = gdo*t - guo;
                 }
                 if (nwal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
-
+#ifdef USE_OPENGL
                 if(!nofog)
                 {
                     int i = klabs(nwal->shade);
                     if(i > 30) i = 30;
                     bglFogf(GL_FOG_DENSITY,gvisibility/(nwal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(nwal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
                 }
+#endif
                 pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
             if (wal->cstat&(2+8)) { guo = oguo; gux = ogux; guy = oguy; }
             }
@@ -3236,13 +3242,14 @@ static void polymost_drawalls (long bunch)
                 guo = gdo*t - guo;
             }
             if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
-
+#ifdef USE_OPENGL
             if(!nofog)
             {
                 int i = klabs(wal->shade);
                 if(i > 30) i = 30;
                 bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(wal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
             }
+#endif
             pow2xsplit = 1; domost(x0,-10000,x1,-10000);
         }
 
