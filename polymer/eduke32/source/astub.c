@@ -1609,6 +1609,17 @@ void Keys3d(void)
         keystatus[KEYSC_F3] = 0;
     }
 
+    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x0e]==1) // ' del
+    {
+        keystatus[0x0e] = 0;
+        switch (searchstat)
+        {
+    case 0: case 4: wall[searchwall].cstat = 0; break;
+            //            case 1: case 2: sector[searchsector].cstat = 0; break;
+        case 3: sprite[searchwall].cstat = 0; break;
+        }
+    }
+
     // 'P - Will copy palette to all sectors highlighted with R-Alt key
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_P])   // ' P
     {
@@ -1708,7 +1719,6 @@ void Keys3d(void)
         }
         message("Visibility changed on all selected sectors");
     }
-
 
     if (keystatus[0xd3] > 0)
     {
@@ -3074,18 +3084,6 @@ void Keys3d(void)
         }
     }
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x0e]==1) // ' del
-    {
-        keystatus[0x0e] = 0;
-        switch (searchstat)
-        {
-    case 0: case 4: wall[searchwall].cstat = 0; break;
-            //            case 1: case 2: sector[searchsector].cstat = 0; break;
-        case 3: sprite[searchwall].cstat = 0; break;
-        }
-    }
-
-
     if(keystatus[0x3c]>0) // F2
     {
         usedcount=!usedcount;
@@ -4141,7 +4139,26 @@ int ExtInit(void)
     }
     loadgroupfiles(defsfilename);
     bpp = 8;
+
+    glusetexcache = glusetexcachecompression = -1;
+
     if (loadsetup("build.cfg") < 0) initprintf("Configuration file not found, using defaults.\n"), rv = 1;
+
+    if(glusetexcache == -1 || glusetexcachecompression == -1)
+    {
+		int i;
+
+        i=wm_ynbox("Texture caching",
+                   "Would you like to enable the on-disk texture cache? "
+                   "This feature may use up to 200 megabytes of disk "
+                   "space if you have a great deal of high resolution "
+                   "textures and skins, but textures will load exponentially "
+                   "faster after the first time they are loaded.");
+        if (i) i = 'y';
+        if(i == 'y' || i == 'Y' )
+            glusetexcompr = glusetexcache = glusetexcachecompression = 1;
+        else glusetexcache = glusetexcachecompression = 0;
+    }
 
     Bmemcpy((void *)buildkeys,(void *)keys,NUMBUILDKEYS);   //Trick to make build use setup.dat keys
 

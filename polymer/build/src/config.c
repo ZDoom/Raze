@@ -140,19 +140,6 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
         if (Batoi(val) != 0) glusetexcachecompression = 1;
         else glusetexcachecompression = 0;
     }
-    if(glusetexcache == -1 || glusetexcachecompression == -1)
-    {
-        i=wm_ynbox("Texture caching",
-                   "Would you like to enable the on-disk texture cache? "
-                   "This feature may use up to 200 megabytes of disk "
-                   "space if you have a great deal of high resolution "
-                   "textures and skins, but textures will load exponentially "
-                   "faster after the first time they are loaded.");
-        if (i) i = 'y';
-        if(i == 'y' || i == 'Y' )
-            glusetexcompr = glusetexcache = glusetexcachecompression = 1;
-        else glusetexcache = glusetexcachecompression = 0;
-    }
     if (readconfig(fp, "gltexfiltermode", val, VL) > 0) {
         gltexfiltermode = Batoi(val);
     }

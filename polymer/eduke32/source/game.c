@@ -1795,6 +1795,8 @@ void displayfragbar(void)
     }
 }
 
+#define SBY (200-tilesizy[BOTTOMSTATUSBAR])
+
 void coolgaugetext(short snum)
 {
     struct player_struct *p;
@@ -1812,7 +1814,7 @@ void coolgaugetext(short snum)
 
     ss = ud.screen_size; if (ss < 4) return;
 
-    if (getrendermode() >= 3) pus = NUMPAGES;   // JBF 20040101: always redraw in GL
+    if (getrendermode() >= 3) pus = NUMPAGES;	// JBF 20040101: always redraw in GL
 
     if ( ud.multimode > 1 && (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR))
     {
@@ -1886,7 +1888,7 @@ if (pus) { pus = 0; u = -1; } else u = 0;
 
 if (sbar.frag[myconnectindex] != p->frag) { sbar.frag[myconnectindex] = p->frag; u |= 32768; }
     if (sbar.got_access != p->got_access) { sbar.got_access = p->got_access; u |= 16384; }
-    if (sbar.last_extra != p->last_extra) { sbar.last_extra = p->last_extra; u |= 1; }
+
     {
         long lAmount=GetGameVar("PLR_MORALE",-1, p->i, snum);
         if(lAmount == -1)
@@ -1898,6 +1900,7 @@ if (sbar.frag[myconnectindex] != p->frag) { sbar.frag[myconnectindex] = p->frag;
             if (sbar.shield_amount != lAmount) { sbar.shield_amount = lAmount; u |= 2; }
         }
     }
+
     if (sbar.curr_weapon != p->curr_weapon) { sbar.curr_weapon = p->curr_weapon; u |= (4+8+16+32+64+128+256+512+1024+65536L); }
 
     for(i=1;i<MAX_WEAPONS;i++)
@@ -1918,7 +1921,6 @@ if (sbar.frag[myconnectindex] != p->frag) { sbar.frag[myconnectindex] = p->frag;
             else u |= 65536L+1024;
         }
     }
-
 if (sbar.inven_icon != p->inven_icon) { sbar.inven_icon = p->inven_icon; u |= (2048+4096+8192); }
     if (sbar.holoduke_on != p->holoduke_on) { sbar.holoduke_on = p->holoduke_on; u |= (4096+8192); }
     if (sbar.jetpack_on != p->jetpack_on) { sbar.jetpack_on = p->jetpack_on; u |= (4096+8192); }
@@ -1949,60 +1951,58 @@ if (sbar.inven_icon != p->inven_icon) { sbar.inven_icon = p->inven_icon; u |= (2
     //14 - update keys
     //15 - update kills
     //16 - update FREEZE_WEAPON ammo
+
     if (u == -1)
     {
         patchstatusbar(0,0,320,200);
         if (ud.multimode > 1 && (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR))
-            rotatesprite(sbarx(277+1),sbary(200-27-1),sbarsc(65536L),0,KILLSICON,0,0,10+16,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(277+1),sbary(SBY+7-1),sbarsc(65536L),0,KILLSICON,0,0,10+16,0,0,xdim-1,ydim-1);
     }
     if (ud.multimode > 1 && (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR))
     {
         if (u&32768)
         {
-            if (u != -1) patchstatusbar(276,183,299,193);
-            digitalnumber(287,200-17,max(p->frag-p->fraggedself,0),-16,10+16);
+            if (u != -1) patchstatusbar(276,SBY+17,299,SBY+17+10);
+            digitalnumber(287,SBY+17,max(p->frag-p->fraggedself,0),-16,10+16);
         }
     }
     else
     {
         if (u&16384)
         {
-            if (u != -1) patchstatusbar(275,182,299,194);
-            if (p->got_access&4) rotatesprite(sbarx(275),sbary(182),sbarsc(65536L),0,ACCESS_ICON,0,23,10+16,0,0,xdim-1,ydim-1);
-            if (p->got_access&2) rotatesprite(sbarx(288),sbary(182),sbarsc(65536L),0,ACCESS_ICON,0,21,10+16,0,0,xdim-1,ydim-1);
-            if (p->got_access&1) rotatesprite(sbarx(281),sbary(189),sbarsc(65536L),0,ACCESS_ICON,0,0,10+16,0,0,xdim-1,ydim-1);
+            if (u != -1) patchstatusbar(275,SBY+18,299,SBY+18+12);
+            if (p->got_access&4) rotatesprite(sbarx(275),sbary(SBY+16),sbarsc(65536L),0,ACCESS_ICON,0,23,10+16,0,0,xdim-1,ydim-1);
+            if (p->got_access&2) rotatesprite(sbarx(288),sbary(SBY+16),sbarsc(65536L),0,ACCESS_ICON,0,21,10+16,0,0,xdim-1,ydim-1);
+            if (p->got_access&1) rotatesprite(sbarx(281),sbary(SBY+23),sbarsc(65536L),0,ACCESS_ICON,0,0,10+16,0,0,xdim-1,ydim-1);
         }
     }
-    if (u&(4+8+16+32+64+128+256+512+65536L)) weapon_amounts(p,96,182,u);
+    if (u&(4+8+16+32+64+128+256+512+65536L)) weapon_amounts(p,96,SBY+16,u);
 
     if (u&1)
     {
-        if (u != -1) patchstatusbar(20,183,43,194); //Original code:(20,183,43,193);
+        if (u != -1) patchstatusbar(20,SBY+17,43,SBY+17+11);
         if (sprite[p->i].pal == 1 && p->last_extra < 2)
-            digitalnumber(32,200-17,1,-16,10+16);
-        else digitalnumber(32,200-17,p->last_extra,-16,10+16);
+            digitalnumber(32,SBY+17,1,-16,10+16);
+        else digitalnumber(32,SBY+17,p->last_extra,-16,10+16);
     }
     if (u&2)
     {
         long lAmount=GetGameVar("PLR_MORALE",-1, p->i, snum);
-        if (u != -1) patchstatusbar(52,183,75,193);
+        if (u != -1) patchstatusbar(52,SBY+17,75,SBY+17+11);
         if(lAmount == -1)
-        {
-            digitalnumber(64,200-17,p->shield_amount,-16,10+16);
-        }
+            digitalnumber(64,SBY+17,p->shield_amount,-16,10+16);
         else
-        {
-            digitalnumber(64,200-17,lAmount,-16,10+16);
-        }
+            digitalnumber(64,SBY+17,lAmount,-16,10+16);
     }
+
 
     if (u&1024)
     {
-        if (u != -1) patchstatusbar(196,183,219,194); //Original code:(196,183,219,193);
+        if (u != -1) patchstatusbar(196,SBY+17,219,SBY+17+11);
         if (p->curr_weapon != KNEE_WEAPON)
         {
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON; else i = p->curr_weapon;
-            digitalnumber(230-22,200-17,p->ammo_amount[i],-16,10+16);
+            digitalnumber(230-22,SBY+17,p->ammo_amount[i],-16,10+16);
         }
     }
 
@@ -2010,12 +2010,12 @@ if (sbar.inven_icon != p->inven_icon) { sbar.inven_icon = p->inven_icon; u |= (2
     {
         if (u != -1)
         {
-            if (u&(2048+4096)) { patchstatusbar(231,179,265,197); }
-            else { patchstatusbar(250,190,261,196); } //Original code:(250,190,261,195);
+            if (u&(2048+4096)) { patchstatusbar(231,SBY+13,265,SBY+13+18); }
+            else { patchstatusbar(250,SBY+24,261,SBY+24+6); }
         }
         if (p->inven_icon)
         {
-            o = 0; permbit = 0;
+            o = 0; permbit = 128;
 
             if (u&(2048+4096))
             {
@@ -2029,10 +2029,9 @@ if (sbar.inven_icon != p->inven_icon) { sbar.inven_icon = p->inven_icon; u |= (2
                 case 6: i = AIRTANK_ICON; break;
                 case 7: i = BOOT_ICON; break;
                 }
-
-                rotatesprite(sbarx(231-o),sbary(200-21),sbarsc(65536L),0,i,0,0,10+16+permbit,0,0,xdim-1,ydim-1);
-                minitext(292-30-o,190,"%",6,10+16+permbit + 256);
-                if (p->inven_icon >= 6) minitext(284-35-o,180,"AUTO",2,10+16+permbit + 256);
+                rotatesprite(sbarx(231-o),sbary(SBY+13),sbarsc(65536L),0,i,0,0,10+16+permbit,0,0,xdim-1,ydim-1);
+                minitext(292-30-o,SBY+24,"%",6,10+16+permbit + 256);
+                if (p->inven_icon >= 6) minitext(284-35-o,SBY+14,"AUTO",2,10+16+permbit + 256);
             }
             if (u&(2048+4096))
             {
@@ -2043,8 +2042,8 @@ if (sbar.inven_icon != p->inven_icon) { sbar.inven_icon = p->inven_icon; u |= (2
                 case 5: j = p->heat_on; break;
                 default: j = 0x80000000;
                 }
-                if (j > 0) minitext(288-30-o,180,"ON",0,10+16+permbit + 256);
-                else if ((unsigned long)j != 0x80000000) minitext(284-30-o,180,"OFF",2,10+16+permbit + 256);
+                if (j > 0) minitext(288-30-o,SBY+14,"ON",0,10+16+permbit + 256);
+                else if ((unsigned long)j != 0x80000000) minitext(284-30-o,SBY+14,"OFF",2,10+16+permbit + 256);
             }
             if (u&8192)
             {
@@ -2058,7 +2057,7 @@ if (sbar.inven_icon != p->inven_icon) { sbar.inven_icon = p->inven_icon; u |= (2
                 case 6: i = ((p->scuba_amount+63)>>6); break;
                 case 7: i = (p->boot_amount>>1); break;
                 }
-                invennum(284-30-o,200-6,(char)i,0,10+permbit);
+                invennum(284-30-o,SBY+28,(char)i,0,10+permbit);
             }
         }
     }
@@ -7811,6 +7810,16 @@ void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
+                if (!Bstrcasecmp(c+1,"addpath")) {
+                    if (argc > i+1)
+                    {
+                        Bstrcpy(tempbuf,argv[i+1]);
+                        addsearchpath(tempbuf);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"nam")) {
                     i++;
                     continue;
@@ -7992,7 +8001,7 @@ void checkcommandline(int argc,char **argv)
                     {
                         Bstrcpy(confilename,c);
                         userconfiles = 1;
-                        initprintf("Using CON file: '%s'\n",confilename);
+                        initprintf("Using CON file: %s.\n",confilename);
                     }
                     break;
                 case 'g':
@@ -8006,11 +8015,11 @@ void checkcommandline(int argc,char **argv)
 
                         j = initgroupfile(tempbuf);
                         if( j == -1 )
-                            initprintf("Could not find GRP file %s.\n",tempbuf);
+                            initprintf("Could not find GRP file: %s.\n",tempbuf);
                         else
                         {
                             groupfile = j;
-                            initprintf("Using GRP file %s.\n",tempbuf);
+                            initprintf("Using GRP file: %s.\n",tempbuf);
                         }
                     }
 
@@ -8020,7 +8029,7 @@ void checkcommandline(int argc,char **argv)
                     c++;
                     if (*c) {
                         duke3ddef = c;
-                        initprintf("Using DEF file %s.\n",duke3ddef);
+                        initprintf("Using DEF file: %s.\n",duke3ddef);
                     }
                     break;
 
@@ -8924,7 +8933,23 @@ void app_main(int argc,char **argv)
         }
     }
 
+    glusetexcache = glusetexcachecompression = -1;
+
     i = CONFIG_ReadSetup();
+
+    if(glusetexcache == -1 || glusetexcachecompression == -1)
+    {
+        i=wm_ynbox("Texture caching",
+                    "Would you like to enable the on-disk texture cache? "
+                    "This feature may use up to 200 megabytes of disk "
+                    "space if you have a great deal of high resolution "
+                    "textures and skins, but textures will load exponentially "
+                    "faster after the first time they are loaded.");
+        if (i) i = 'y';
+        if(i == 'y' || i == 'Y' )
+            useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
+        else glusetexcache = glusetexcachecompression = 0;
+    }
 
     if (preinitengine()) {
         wm_msgbox("Build Engine Initialisation Error",
@@ -8975,7 +9000,7 @@ void app_main(int argc,char **argv)
     }
 
     if (getenv("DUKE3DGRP")) duke3dgrp = getenv("DUKE3DGRP");
-    initprintf("GRP file: %s\n", duke3dgrp);
+    initprintf("Main GRP file: %s.\n", duke3dgrp);
     initgroupfile(duke3dgrp);
 
     i = kopen4load("DUKESW.BIN",1); // JBF 20030810

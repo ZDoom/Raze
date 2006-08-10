@@ -97,7 +97,7 @@ int32 ScreenBPP = 8;
 #endif
 int32 ForceSetup = 1;
 
-static char setupfilename[256]={SETUPFILENAME};
+static char setupfilename[BMAX_PATH]={SETUPFILENAME};
 int32 scripthandle = -1;
 static int32 setupread=0;
 
@@ -641,22 +641,8 @@ int32 CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseTextureCompr", &glusetexcompr);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLWidescreen", &glwidescreen);
 
-        glusetexcache = glusetexcachecompression = -1;
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
         SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseTextureCacheCompression", &glusetexcachecompression);
-        if(glusetexcache == -1 || glusetexcachecompression == -1)
-        {
-            i=wm_ynbox("Texture caching",
-                       "Would you like to enable the on-disk texture cache? "
-                       "This feature may use up to 200 megabytes of disk "
-                       "space if you have a great deal of high resolution "
-                       "textures and skins, but textures will load exponentially "
-                       "faster after the first time they are loaded.");
-            if (i) i = 'y';
-            if(i == 'y' || i == 'Y' )
-                useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
-            else glusetexcache = glusetexcachecompression = 0;
-        }
 
         dummy = usemodels; SCRIPT_GetNumber( scripthandle, "Screen Setup", "UseModels",&dummy); usemodels = dummy != 0;
         dummy = usehightile; SCRIPT_GetNumber( scripthandle, "Screen Setup", "UseHightile",&dummy); usehightile = dummy != 0;
