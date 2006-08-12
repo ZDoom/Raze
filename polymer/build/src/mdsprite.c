@@ -55,6 +55,13 @@ typedef struct
     md2vert_t verts[1]; //first vertex of this frame
 } md2frame_t;
 
+typedef struct { short u, v; } md2uv_t;
+typedef struct
+{
+    unsigned short v[3];
+    unsigned short u[3];
+} md2tri_t;
+
 typedef struct
 {
     //WARNING: This top block is a union between md2model&md3model: Make sure it matches!
@@ -74,6 +81,8 @@ typedef struct
     char *frames;
     char *basepath;   // pointer to string of base path
     char *skinfn;   // pointer to first of numskins 64-char strings
+    md2uv_t *uv;
+    md2tri_t* tris;
 } md2model;
 
 
@@ -848,40 +857,15 @@ else { if (i >= j) { i -= j; if (i >= j) i %= j; } }
 }
 
 //--------------------------------------- MD2 LIBRARY BEGINS ---------------------------------------
-
-static void md2free (md2model *m)
-{
-    mdanim_t *anim, *nanim = NULL;
-    mdskinmap_t *sk, *nsk = NULL;
-
-    if (!m) return;
-
-    for(anim=m->animations; anim; anim=nanim)
-    {
-        nanim = anim->next;
-        free(anim);
-    }
-    for(sk=m->skinmap; sk; sk=nsk)
-    {
-        nsk = sk->next;
-        free(sk->fn);
-        free(sk);
-    }
-
-    if (m->frames) free(m->frames);
-    if (m->glcmds) free(m->glcmds);
-    if (m->basepath) free(m->basepath);
-    if (m->skinfn) free(m->skinfn);
-
-    if (m->texid) free(m->texid);
-}
-
 static md2model *md2load (int fil, const char *filnam)
 {
     md2model *m;
+    md3model *m3;
+    md3surf_t *s;
+    md2frame_t *f;
     md2head_t head;
     char *buf, st[BMAX_PATH];
-    long i;
+    long i, j, k;
 
     m = (md2model *)calloc(1,sizeof(md2model)); if (!m) return(0);
     m->mdnum = 2; m->scale = .01;
@@ -904,14 +888,27 @@ if ((head.id != 0x32504449) || (head.vers != 8)) { free(m); return(0); } //"IDP2
     m->numverts = head.numverts;
     m->numglcmds = head.numglcmds;
     m->framebytes = head.framebytes;
+
     m->frames = (char *)calloc(m->numframes,m->framebytes); if (!m->frames) { free(m); return(0); }
     m->glcmds = (long *)calloc(m->numglcmds,sizeof(long)); if (!m->glcmds) { free(m->frames); free(m); return(0); }
+    m->tris = (md2tri_t *)calloc(head.numtris, sizeof(md2tri_t)); if (!m->tris) { free(m->glcmds); free(m->frames); free(m); return(0); }
+    m->uv = (md2uv_t *)calloc(head.numuv, sizeof(md2uv_t)); if (!m->uv) { free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+
     klseek(fil,head.ofsframes,SEEK_SET);
     if (kread(fil,(char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
-    { free(m->glcmds); free(m->frames); free(m); return(0); }
+    { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+
     klseek(fil,head.ofsglcmds,SEEK_SET);
     if (kread(fil,(char *)m->glcmds,m->numglcmds*sizeof(long)) != (long)(m->numglcmds*sizeof(long)))
-    { free(m->glcmds); free(m->frames); free(m); return(0); }
+    { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+
+    klseek(fil,head.ofstris,SEEK_SET);
+    if (kread(fil,(char *)m->tris,head.numtris*sizeof(md2tri_t)) != (long)(head.numtris*sizeof(md2tri_t)))
+    { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+
+    klseek(fil,head.ofsuv,SEEK_SET);
+    if (kread(fil,(char *)m->uv,head.numuv*sizeof(md2uv_t)) != (long)(head.numuv*sizeof(md2uv_t)))
+    { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
 #if B_BIG_ENDIAN != 0
     {
@@ -937,232 +934,107 @@ if ((head.id != 0x32504449) || (head.vers != 8)) { free(m); return(0); } //"IDP2
     if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
     if (i<0) i=0;
     st[i] = 0;
-m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->glcmds); free(m->frames); free(m); return(0); }
+    m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
     strcpy(m->basepath, st);
 
-    m->skinfn = (char *)calloc(m->numskins,64); if (!m->skinfn) { free(m->basepath); free(m->glcmds); free(m->frames); free(m); return(0); }
+    m->skinfn = (char *)calloc(m->numskins,64); if (!m->skinfn) { free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
     klseek(fil,head.ofsskins,SEEK_SET);
     if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins)
     { free(m->glcmds); free(m->frames); free(m); return(0); }
 
     m->texid = (GLuint *)calloc(m->numskins, sizeof(GLuint) * (HICEFFECTMASK+1));
-    if (!m->texid) { free(m->skinfn); free(m->basepath); free(m->glcmds); free(m->frames); free(m); return(0); }
+    if (!m->texid) { free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
-    maxmodelverts = max(maxmodelverts, m->numverts);
+    // the MD2 is now loaded internally - let's begin the MD3 conversion process
+    //OSD_Printf("Beginning md3 conversion.\n");
+    m3 = (md3model *)calloc(1, sizeof(md3model)); if (!m3) { free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+    m3->mdnum = 3; m3->texid = 0; m3->scale = m->scale;
+    m3->head.id = 0x33504449; m3->head.vers = 15;
+    m3->head.flags = 0; m3->head.numframes = m->numframes;
+    m3->head.numtags = 0; m3->head.numsurfs = 1;
+    m3->head.numskins = 0;
 
-    return(m);
+    m3->numskins = m3->head.numskins;
+    m3->numframes = m3->head.numframes;
+
+    m3->head.frames = (md3frame_t *)calloc(m3->head.numframes, sizeof(md3frame_t)); if (!m3->head.frames) { free(m3); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+
+    f = (md2frame_t *)(m->frames);
+
+    // frames converting
+    i = 0;
+    while (i < m->numframes)
+    {
+        f = (md2frame_t *)&m->frames[i*m->framebytes];
+        strcpy(m3->head.frames[i].nam, f->name);
+        //OSD_Printf("Copied frame %s.\n", m3->head.frames[i].nam);
+        i++;
+    }
+
+    m3->head.tags = NULL;
+
+    m3->head.surfs = (md3surf_t *)calloc(1, sizeof(md3surf_t)); if (!m3->head.surfs) { free(m3->head.frames); free(m3); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+    s = m3->head.surfs;
+
+    // model converting
+    s->id = 0x33504449; s->flags = 0;
+    s->numframes = m->numframes; s->numshaders = 0;
+    s->numtris = head.numtris;
+    s->numverts = head.numtris * 3; // oh man talk about memory effectiveness :((((
+    // MD2 is actually more accurate than MD3 in term of uv-mapping, because each triangle has a triangle counterpart on the UV-map.
+    // In MD3, each vertex unique UV coordinates, meaning that you have to duplicate vertices if you need non-seamless UV-mapping.
+
+    maxmodelverts = max(maxmodelverts, s->numverts);
+
+    strcpy(s->nam, "Dummy surface from MD2");
+
+    s->shaders = NULL;
+
+    s->tris = (md3tri_t *)calloc(head.numtris, sizeof(md3tri_t)); if (!s->tris) { free(s); free(m3->head.frames); free(m3); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+    s->uv = (md3uv_t *)calloc(s->numverts, sizeof(md3uv_t)); if (!s->uv) { free(s->tris); free(s); free(m3->head.frames); free(m3); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+    s->xyzn = (md3xyzn_t *)calloc(s->numverts * m->numframes, sizeof(md3xyzn_t)); if (!s->xyzn) { free(s->uv); free(s->tris); free(s); free(m3->head.frames); free(m3); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+
+    //OSD_Printf("Number of frames : %i\n", m->numframes);
+    //OSD_Printf("Number of triangles : %i\n", head.numtris);
+    //OSD_Printf("Number of vertices : %i\n", s->numverts);
+
+    // triangle converting
+    i = 0;
+    while (i < head.numtris)
+    {
+        j = 0;
+        //OSD_Printf("Triangle : %i\n", i);
+        while (j < 3)
+        {
+            // triangle vertex indexes
+            s->tris[i].i[j] = i*3 + j;
+
+            // uv coords
+            s->uv[i*3+j].u = (float)(m->uv[m->tris[i].u[j]].u) / (float)(head.skinxsiz);
+            s->uv[i*3+j].v = (float)(m->uv[m->tris[i].u[j]].v) / (float)(head.skinysiz);
+
+            // vertices for each frame
+            k = 0;
+            while (k < m->numframes)
+            {
+                f = (md2frame_t *)&m->frames[k*m->framebytes];
+                s->xyzn[(k*s->numverts) + (i*3) + j].x = ((f->verts[m->tris[i].v[j]].v[0] * f->mul.x) + f->add.x) * 64;
+                s->xyzn[(k*s->numverts) + (i*3) + j].y = ((f->verts[m->tris[i].v[j]].v[1] * f->mul.y) + f->add.y) * 64;
+                s->xyzn[(k*s->numverts) + (i*3) + j].z = ((f->verts[m->tris[i].v[j]].v[2] * f->mul.z) + f->add.z) * 64;
+                k++;
+            }
+            j++;
+        }
+        //OSD_Printf("End triangle.\n");
+        i++;
+    }
+    //OSD_Printf("Finished md3 conversion.\n");
+
+    // die MD2 ! DIE !
+    free(m->texid); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m);
+
+    return((md2model *)m3);
 }
-
-static int md2draw (md2model *m, spritetype *tspr)
-{
-    point3d fp, fp1, fp2, m0, m1, a0, a1;
-    md2frame_t *f0, *f1;
-    unsigned char *c0, *c1;
-    long i, *lptr;
-    float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], pc[4];
-
-    //    if ((tspr->cstat&48) == 32) return 0;
-
-    updateanimation(m,tspr);
-
-    // -------- Unnecessarily clean (lol) code to generate translation/rotation matrix for MD2 ---------
-
-    //create current&next frame's vertex list from whole list
-    f0 = (md2frame_t *)&m->frames[m->cframe*m->framebytes];
-    f1 = (md2frame_t *)&m->frames[m->nframe*m->framebytes];
-    f = m->interpol; g = 1-f;
-    m0.x = f0->mul.x*m->scale*g; m1.x = f1->mul.x*m->scale*f;
-    m0.y = f0->mul.y*m->scale*g; m1.y = f1->mul.y*m->scale*f;
-    m0.z = f0->mul.z*m->scale*g; m1.z = f1->mul.z*m->scale*f;
-    a0.x = f0->add.x*m->scale; a0.x = (f1->add.x*m->scale-a0.x)*f+a0.x;
-    a0.y = f0->add.y*m->scale; a0.y = (f1->add.y*m->scale-a0.y)*f+a0.y;
-    a0.z = f0->add.z*m->scale; a0.z = (f1->add.z*m->scale-a0.z)*f+a0.z + m->zadd*m->scale;
-    c0 = &f0->verts[0].v[0]; c1 = &f1->verts[0].v[0];
-
-    // Parkar: Moved up to be able to use k0 for the y-flipping code
-    k0 = tspr->z;
-    if ((globalorientation&128) && !((globalorientation&48)==32)) k0 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<1);
-
-    // Parkar: Changed to use the same method as centeroriented sprites
-    if (globalorientation&8) //y-flipping
-    {
-        m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
-        k0 -= (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<2);
-    }
-    if (globalorientation&4) { m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y; } //x-flipping
-
-    f = ((float)tspr->xrepeat)/64*m->bscale;
-    m0.x *= f; m1.x *= f; a0.x *= f; f = -f;   // 20040610: backwards models aren't cool
-    m0.y *= f; m1.y *= f; a0.y *= f;
-    f = ((float)tspr->yrepeat)/64*m->bscale;
-    m0.z *= f; m1.z *= f; a0.z *= f;
-
-    // floor aligned
-    k1 = tspr->y;
-    if((globalorientation&48)==32)
-    {
-        m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
-        m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y;
-        f = a0.x; a0.x = a0.z; a0.z = f;
-        k1 += (float)((tilesizy[tspr->picnum]*tspr->yrepeat)>>3);
-    }
-
-    f = (65536.0*512.0)/((float)xdimen*viewingrange);
-    g = 32.0/((float)xdimen*gxyaspect);
-    m0.y *= f; m1.y *= f; a0.y = (((float)(tspr->x-globalposx))/  1024.0 + a0.y)*f;
-    m0.x *=-f; m1.x *=-f; a0.x = (((float)(k1     -globalposy))/ -1024.0 + a0.x)*-f;
-    m0.z *= g; m1.z *= g; a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
-
-    k0 = ((float)(tspr->x-globalposx))*f/1024.0;
-    k1 = ((float)(tspr->y-globalposy))*f/1024.0;
-    f = gcosang2*gshang;
-    g = gsinang2*gshang;
-    k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] / 16384.0;
-    k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] / 16384.0;
-    k2 = k0*(1-k4)+k1*k5;
-    k3 = k1*(1-k4)-k0*k5;
-    k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;
-    mat[0] = k4*k6 + k5*k7; mat[4] = gchang*gstang; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
-    k6 = f*gctang + gsinang*gstang; k7 = g*gctang - gcosang*gstang;
-    mat[1] = k4*k6 + k5*k7; mat[5] = gchang*gctang; mat[ 9] = k4*k7 - k5*k6; mat[13] = k2*k6 + k3*k7;
-    k6 =           gcosang2*gchang; k7 =           gsinang2*gchang;
-    mat[2] = k4*k6 + k5*k7; mat[6] =-gshang;        mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
-
-    mat[12] += a0.y*mat[0] + a0.z*mat[4] + a0.x*mat[ 8];
-    mat[13] += a0.y*mat[1] + a0.z*mat[5] + a0.x*mat[ 9];
-    mat[14] += a0.y*mat[2] + a0.z*mat[6] + a0.x*mat[10];
-
-    // floor aligned
-    if((globalorientation&48)==32)
-    {
-        f = mat[4]; mat[4] = mat[8]*16.0; mat[8] = -f*(1.0/16.0);
-        f = mat[5]; mat[5] = mat[9]*16.0; mat[9] = -f*(1.0/16.0);
-        f = mat[6]; mat[6] = mat[10]*16.0; mat[10] = -f*(1.0/16.0);
-    }
-
-    //Mirrors
-    if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
-
-    // ------ Unnecessarily clean (lol) code to generate translation/rotation matrix for MD2 ends ------
-
-    // PLAG: Cleaner model rotation code
-    if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll)
-    {
-        if (spriteext[tspr->owner].xoff)
-            a0.x = (int)(spriteext[tspr->owner].xoff / (2048 * (m0.x+m1.x)));
-        else
-            a0.x = 0;
-        if (spriteext[tspr->owner].yoff)
-            a0.y = (int)(spriteext[tspr->owner].yoff / (2048 * (m0.y+m1.y)));
-        else
-            a0.y = 0;
-        if ((spriteext[tspr->owner].zoff) && !(tspr->cstat&1024))
-            a0.z = (int)(spriteext[tspr->owner].zoff / (524288 * (m0.z+m1.z)));
-        else
-            a0.z = 0;
-        k0 = (float)sintable[(spriteext[tspr->owner].pitch+512)&2047] / 16384.0;
-        k1 = (float)sintable[spriteext[tspr->owner].pitch&2047] / 16384.0;
-        k2 = (float)sintable[(spriteext[tspr->owner].roll+512)&2047] / 16384.0;
-        k3 = (float)sintable[spriteext[tspr->owner].roll&2047] / 16384.0;
-    }
-    for(i=m->numverts-1;i>=0;i--)
-    {
-        if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll)
-        {
-            fp.z = c0[(i<<2)+0] + a0.x;
-            fp.x = c0[(i<<2)+1] + a0.y;
-            fp.y = c0[(i<<2)+2] + a0.z;
-            fp1.x = fp.x*k2 +       fp.y*k3;
-            fp1.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
-            fp1.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
-            fp.z = c1[(i<<2)+0] + a0.x;
-            fp.x = c1[(i<<2)+1] + a0.y;
-            fp2.y = c1[(i<<2)+2] + a0.z;
-            fp2.x = fp.x*k2 +       fp.y*k3;
-            fp2.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
-            fp2.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
-            fp.z = (fp1.z - a0.x)*m0.x + (fp2.z - a0.x)*m1.x;
-            fp.x = (fp1.x - a0.y)*m0.y + (fp2.x - a0.y)*m1.y;
-            fp.y = (fp1.y - a0.z)*m0.z + (fp2.y - a0.z)*m1.z;
-        }
-        else
-        {
-            fp.z = c0[(i<<2)+0]*m0.x + c1[(i<<2)+0]*m1.x;
-            fp.y = c0[(i<<2)+2]*m0.z + c1[(i<<2)+2]*m1.z;
-            fp.x = c0[(i<<2)+1]*m0.y + c1[(i<<2)+1]*m1.y;
-        }
-        vertlist[i].x = fp.x;
-        vertlist[i].y = fp.y;
-        vertlist[i].z = fp.z;
-    }
-    bglMatrixMode(GL_MODELVIEW); //Let OpenGL (and perhaps hardware :) handle the matrix rotation
-    mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; bglLoadMatrixf(mat);
-    // PLAG: End
-
-    i = mdloadskin(m,tile2model[tspr->picnum].skinnum,globalpal,0); if (!i) return 0;
-
-    //bit 10 is an ugly hack in game.c\animatesprites telling MD2SPRITE
-    //to use Z-buffer hacks to hide overdraw problems with the shadows
-    if (tspr->cstat&1024)
-    {
-        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-        bglDepthRange(0.0,0.9999);
-    }
-    bglPushAttrib(GL_POLYGON_BIT);
-    if ((grhalfxdown10x >= 0) ^ ((globalorientation&8) != 0) ^ ((globalorientation&4) != 0)) bglFrontFace(GL_CW); else bglFrontFace(GL_CCW);
-    bglEnable(GL_CULL_FACE);
-    bglCullFace(GL_BACK);
-
-    bglEnable(GL_TEXTURE_2D);
-    bglBindTexture(GL_TEXTURE_2D, i);
-
-    pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max(globalshade+m->shadeoff,0),numpalookups)))/((float)numpalookups);
-    pc[0] *= (float)hictinting[globalpal].r / 255.0;
-    pc[1] *= (float)hictinting[globalpal].g / 255.0;
-    pc[2] *= (float)hictinting[globalpal].b / 255.0;
-if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } else pc[3] = 1.0;
-    if (m->usesalpha) //Sprites with alpha in texture
-    {
-        //      bglEnable(GL_BLEND);// bglBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        //      bglEnable(GL_ALPHA_TEST); bglAlphaFunc(GL_GREATER,0.32);
-        float al = 0.32;
-        if (alphahackarray[globalpicnum] != 0)
-            al=alphahackarray[globalpicnum];
-        bglEnable(GL_BLEND);
-        bglEnable(GL_ALPHA_TEST);
-        bglAlphaFunc(GL_GREATER,al);
-    }
-    else
-    {
-        if (tspr->cstat&2) bglEnable(GL_BLEND); else bglDisable(GL_BLEND);
-    }
-    bglColor4f(pc[0],pc[1],pc[2],pc[3]);
-
-    for(lptr=m->glcmds;(i=*lptr++);)
-    {
-        if (i < 0) { bglBegin(GL_TRIANGLE_FAN); i = -i; }
-        else { bglBegin(GL_TRIANGLE_STRIP); }
-        for(;i>0;i--,lptr+=3)
-        {
-            bglTexCoord2f(((float *)lptr)[0],((float *)lptr)[1]);
-            bglVertex3fv((float *)&vertlist[lptr[2]]);
-        }
-        bglEnd();
-    }
-
-    if (m->usesalpha) bglDisable(GL_ALPHA_TEST);
-    bglDisable(GL_CULL_FACE);
-    bglPopAttrib();
-    if (tspr->cstat&1024)
-    {
-        bglDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-        bglDepthRange(0.0,0.99999);
-    }
-    bglLoadIdentity();
-
-    return 1;
-}
-
 //---------------------------------------- MD2 LIBRARY ENDS ----------------------------------------
 
 // DICHOTOMIC RECURSIVE SORTING - USED BY MD3DRAW - MAY PUT IT IN ITS OWN SOURCE FILE LATER
@@ -2546,7 +2418,7 @@ int mddraw (spritetype *tspr)
 
     vm = models[tile2model[tspr->picnum].modelid];
     if (vm->mdnum == 1) { return voxdraw((voxmodel *)vm,tspr); }
-    if (vm->mdnum == 2) { return md2draw((md2model *)vm,tspr); }
+    //if (vm->mdnum == 2) { return md2draw((md2model *)vm,tspr); } nope !
     if (vm->mdnum == 3) { return md3draw((md3model *)vm,tspr); }
     return 0;
 }
@@ -2554,7 +2426,7 @@ int mddraw (spritetype *tspr)
 void mdfree (mdmodel *vm)
 {
     if (vm->mdnum == 1) { voxfree((voxmodel *)vm); return; }
-    if (vm->mdnum == 2) { md2free((md2model *)vm); return; }
+    //if (vm->mdnum == 2) { md2free((md2model *)vm); return; } yeah right !
     if (vm->mdnum == 3) { md3free((md3model *)vm); return; }
 }
 
