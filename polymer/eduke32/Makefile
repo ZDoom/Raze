@@ -211,10 +211,10 @@ $(OBJ)%.$o: $(SRC)jaudiolib/%.c
 
 ifeq (1,$(JFAUD))
 $(OBJ)%.$o: $(SRC)misc/%.rc
-	windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC) -DJFAUD
+	windres -i $< -o $@ --include-dir=$(EINC). --include-dir=$(SRC). -DJFAUD
 else
 $(OBJ)%.$o: $(SRC)misc/%.rc
-	windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC)
+	windres -i $< -o $@ --include-dir=$(EINC). --include-dir=$(SRC).
 endif
 
 $(OBJ)%.$o: $(SRC)util/%.c
