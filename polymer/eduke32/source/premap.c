@@ -326,8 +326,8 @@ void cacheit(void)
             if (waloff[i] == 0)
                 loadtile((short)i);
 
-#ifdef POLYMOST
-            if (useprecache) {
+#if defined(POLYMOST) && defined(USE_OPENGL)
+            if (useprecache && !KB_KeyPressed(sc_Space)) {
                 if (precachehightile[0][i>>3] & pow2char[i&7])
                     for (k=0; k<MAXPALOOKUPS; k++)
                         polymost_precache(i,k,0);
