@@ -934,7 +934,7 @@ if ((head.id != 0x32504449) || (head.vers != 8)) { free(m); return(0); } //"IDP2
     if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
     if (i<0) i=0;
     st[i] = 0;
-    m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
     strcpy(m->basepath, st);
 
     m->skinfn = (char *)calloc(m->numskins,64); if (!m->skinfn) { free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
@@ -1029,6 +1029,21 @@ if ((head.id != 0x32504449) || (head.vers != 8)) { free(m); return(0); } //"IDP2
         i++;
     }
     //OSD_Printf("Finished md3 conversion.\n");
+
+    {
+        mdskinmap_t *sk;
+
+        sk = (mdskinmap_t *)calloc(1,sizeof(mdskinmap_t));
+        sk->palette = 0;
+        sk->skinnum = 0;
+        sk->surfnum = 0;
+
+        sk->fn = (char *)malloc(strlen(m->basepath)+strlen(m->skinfn)+1);
+        strcpy(sk->fn, m->basepath);
+        strcat(sk->fn, m->skinfn);
+
+        m3->skinmap = sk;
+    }
 
     // die MD2 ! DIE !
     free(m->texid); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m);
