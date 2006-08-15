@@ -229,7 +229,7 @@ char *strip_color_codes(char *t)
             t += 2;
             if(isdigit(*t))
                 t++;
-            if(!(*t)) continue;
+            continue;
         }
         colstrip[i] = *t;
         i++,t++;
@@ -258,7 +258,7 @@ int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short 
             {
                 t += 2;
                 if(isdigit(*t)) t++;
-                if(!(*t)) continue;
+                continue;
             }
         if(*t == 32) {newx+=5;t++;continue;}
             else ac = *t - '!' + starttile;
@@ -292,7 +292,7 @@ int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short 
                 smallbuf[1] = '\0';
                 p = atol(smallbuf);
             }
-            if(!(*t)) continue;
+            continue;
         }
     if(*t == 32) {x+=5;t++;continue;}
         else ac = *t - '!' + starttile;
@@ -2427,7 +2427,7 @@ void typemode(void)
                 Bstrcat(recbuf,": ");
             }
 
-            Bstrcat(recbuf,"^0");
+            Bstrcat(recbuf,"^00");
             Bstrcat(recbuf,typebuf);
             j = Bstrlen(recbuf);
             recbuf[j] = 0;

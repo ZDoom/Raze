@@ -3108,7 +3108,7 @@ cheat_for_port_credits:
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
         gametext(c+160-16,46+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
-        menutext(c,46+16+16,MENUHIGHLIGHT(2),0,"INPUT FILTER");
+        menutext(c,46+16+16,MENUHIGHLIGHT(2),0,"DEAD ZONE");
         l = MouseFilter>>1;
         bar(c+160+40,46+16+16,(short *)&l,2,x==2,MENUHIGHLIGHT(2),0);
         MouseFilter = l<<1;
