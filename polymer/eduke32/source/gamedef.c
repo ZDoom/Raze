@@ -2722,6 +2722,14 @@ char parsecommand(void)
         parsing_item_name[j] = 0;
 
         j = *scriptptr;
+
+        if(j > 2)
+        {
+            ReportError(-1);
+            error++;
+            initprintf("%s:%ld: error: invalid useractor type.\n",compilefile,line_number);
+        }
+
         transnum(LABEL_DEFINE);
         scriptptr--;
         actorscrptr[*scriptptr] = parsing_actor;
