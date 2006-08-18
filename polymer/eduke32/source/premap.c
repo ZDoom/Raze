@@ -410,12 +410,30 @@ void vscrn(void)
 void pickrandomspot(short snum)
 {
     struct player_struct *p;
-    short i;
+    short i=0,j,k;
+    unsigned long dist,pdist = -1;
 
     p = &ps[snum];
 
     if( ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_FIXEDRESPAWN))
-        i = TRAND%numplayersprites;
+    {
+        if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDMSPAWN)
+        {
+            for(j=0;j<ud.multimode;j++)
+            {
+                if(j != snum && ps[j].team == ps[snum].team && sprite[ps[j].i].extra > 0)
+                {
+                    for(k=0;k<numplayersprites;k++)
+                    {
+                        dist = FindDistance2D(ps[j].posx-po[k].ox,ps[j].posy-po[k].oy);
+                        if(dist < pdist)
+                            i = k, pdist = dist;
+                    }
+                    break;
+                }
+            }
+        } else i = TRAND%numplayersprites;
+    }
     else i = snum;
 
     p->bobposx = p->oposx = p->posx = po[i].ox;
@@ -1205,7 +1223,7 @@ void resetpspritevars(char g)
 
             s->yvel = j;
 
-            if(!ud.pcolor[j] && ud.multimode > 1)
+            if(!ud.pcolor[j] && ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM))
             {
                 if(s->pal == 0)
                 {
@@ -1224,7 +1242,22 @@ void resetpspritevars(char g)
                         which_palookup = 9;
                 }
                 else ps[j].palookup = s->pal;
-            } else s->pal = ps[j].palookup = ud.pcolor[j];
+            }
+            else
+            {
+                int k = ud.pcolor[j];
+
+                if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
+                {
+                    switch(ud.pteam[j])
+                    {
+                    case 0: k = 3; break;
+                    case 1: k = 10; break;
+                    }
+                    ps[j].team = ud.pteam[j];
+                }
+                s->pal = ps[j].palookup = k;
+            }
 
             ps[j].i = i;
             ps[j].frag_ps = j;

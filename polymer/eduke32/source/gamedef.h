@@ -203,7 +203,8 @@ enum playerlabels {
     PLAYER_AUTO_AIM,
     PLAYER_MOVEMENT_LOCK,
     PLAYER_SOUND_PITCH,
-    PLAYER_WEAPONSWITCH
+    PLAYER_WEAPONSWITCH,
+	PLAYER_TEAM
 };
 
 enum userdefslabels {
@@ -289,7 +290,8 @@ enum userdefslabels {
     USERDEFS_NOEXITS,
     USERDEFS_AUTOVOTE,
     USERDEFS_AUTOMSG,
-    USERDEFS_IDPLAYERS
+    USERDEFS_IDPLAYERS,
+	USERDEFS_TEAM
 };
 
 enum sectorlabels {

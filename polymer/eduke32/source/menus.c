@@ -657,10 +657,17 @@ void menus(void)
     case 20003:
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(160,24,0,0,"PLAYER SETUP");
-        rotatesprite((280)<<16,(37+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,ud.color,10,0,0,xdim-1,ydim-1);
+        if(probey == 2)
+        {
+            switch(ud.team) {
+            case 0: x = 3; break;
+            case 1: x = 10; break;
+            }
+        } else x = ud.color;
+        rotatesprite((280)<<16,(37+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,x,10,0,0,xdim-1,ydim-1);
 
         if (current_menu == 20002) {
-            x = probe(40,50,16,6);
+            x = probe(40,50,16,7);
             switch(x) {
             case -1:
                 cmenu(202);
@@ -686,19 +693,24 @@ void menus(void)
                 break;
 
             case 2:
-                AutoAim = (AutoAim == 2) ? 0 : AutoAim+1;
+                ud.team = 1-ud.team;
                 updatenames();
                 break;
 
             case 3:
+                AutoAim = (AutoAim == 2) ? 0 : AutoAim+1;
+                updatenames();
+                break;
+
+            case 4:
                 ud.weaponswitch = (ud.weaponswitch == 3) ? 0 : ud.weaponswitch+1;
                 updatenames();
                 break;
-            case 4:
+            case 5:
                 ud.mouseaiming = !ud.mouseaiming;
                 updatenames();
                 break;
-            case 5:
+            case 6:
                 cmenu(20004);
                 break;
             }
@@ -731,35 +743,40 @@ void menus(void)
         menutext(40,50+16,MENUHIGHLIGHT(1),0,"COLOR");
 
         {
-            int ud_color = -1, aaim = -1, ud_weaponswitch = -1, ud_maim = -1;
+            int ud_color = -1, aaim = -1, ud_weaponswitch = -1, ud_maim = -1, ud_team = -1;
 
             ud_color = ud.color;
             aaim = AutoAim;
             ud_weaponswitch = ud.weaponswitch;
             ud_maim = ud.mouseaiming;
+            ud_team = ud.team;
             modval(0,23,(int *)&ud.color,1,probey==1);
-            modval(0,2,(int *)&AutoAim,1,probey==2);
-            modval(0,3,(int *)&ud.weaponswitch,1,probey==3);
-            modval(0,1,(int *)&ud.mouseaiming,1,probey==4);
+            modval(0,1,(int *)&ud.team,1,probey==2);
+            modval(0,2,(int *)&AutoAim,1,probey==3);
+            modval(0,3,(int *)&ud.weaponswitch,1,probey==4);
+            modval(0,1,(int *)&ud.mouseaiming,1,probey==5);
             check_player_color((int *)&ud.color,ud_color);
-            if(ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch || ud_maim != ud.mouseaiming)
+            if(ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch || ud_maim != ud.mouseaiming || ud_team != ud.team)
                 updatenames();
         }
-        menutext(40,50+16+16,MENUHIGHLIGHT(2),0,"AUTO AIM");
-        menutext(40,50+16+16+16,MENUHIGHLIGHT(3),0,"WEAPON SWITCH");
-        menutext(40,50+16+16+16+16,MENUHIGHLIGHT(4),0,"AIMING TYPE");
-        menutext(40,50+16+16+16+16+16,MENUHIGHLIGHT(5),0,"MACRO SETUP");
+        menutext(40,50+16+16,MENUHIGHLIGHT(2),0,"TEAM");
+        menutext(40,50+16+16+16,MENUHIGHLIGHT(3),0,"AUTO AIM");
+        menutext(40,50+16+16+16+16,MENUHIGHLIGHT(4),0,"WEAPON SWITCH");
+        menutext(40,50+16+16+16+16+16,MENUHIGHLIGHT(5),0,"AIMING TYPE");
+        menutext(40,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),0,"MACRO SETUP");
 
         if (current_menu == 20002) {
             gametext(200,50-9,myname,MENUHIGHLIGHT(0),2+8+16); }
         { char *s[] = { "Auto","","","","","","","","","Blue","Dk red","Green","Gray","Dk gray","Dk green","Brown",
                             "Dk blue","","","","","Red","","Yellow","","" };
             gametext(200,50+16-9,s[ud.color],MENUHIGHLIGHT(1),2+8+16); }
+        { char *s[] = { "Blue", "Red" };
+            gametext(200,50+16+16-9,s[ud.team],MENUHIGHLIGHT(2),2+8+16); }
         { char *s[] = { "Off", "Full", "Hitscan" };
-            gametext(200,50+16+16-9,s[AutoAim],MENUHIGHLIGHT(2),2+8+16); }
+            gametext(200,50+16+16+16-9,s[AutoAim],MENUHIGHLIGHT(3),2+8+16); }
         { char *s[] = { "Off", "On pickup", "When empty", "Both" };
-            gametext(200,50+16+16+16-9,s[ud.weaponswitch],MENUHIGHLIGHT(3),2+8+16); }
-        gametext(200,50+16+16+16+16-9,ud.mouseaiming?"Held":"Toggle",MENUHIGHLIGHT(4),2+8+16);
+            gametext(200,50+16+16+16+16-9,s[ud.weaponswitch],MENUHIGHLIGHT(4),2+8+16); }
+        gametext(200,50+16+16+16+16+16-9,ud.mouseaiming?"Held":"Toggle",MENUHIGHLIGHT(5),2+8+16);
 
         break;
 
@@ -774,7 +791,7 @@ void menus(void)
             if(x == -1)
             {
                 cmenu(20002);
-                probey = 5;
+                probey = 6;
             }
             else if(x >= 0 && x <= 9)
             {
@@ -806,6 +823,7 @@ void menus(void)
 
         gametext(160,144,"UP/DOWN = SELECT MACRO",0,2+8+16);
         gametext(160,144+9,"ENTER = MODIFY",0,2+8+16);
+        gametext(160,144+9+9,"ACTIVATE IN GAME WITH SHIFT-F#",0,2+8+16);
 
         break;
 
@@ -4110,7 +4128,7 @@ VOLUME_ALL_40x:
 
         if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION))
             modval(0,1,(int *)&ud.m_marker,1,probey==4);
-        if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY))
+        if((gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM)))
             modval(0,1,(int *)&ud.m_ffire,1,probey==5);
         else modval(0,1,(int *)&ud.m_noexits,1,probey==5);
 
@@ -4168,7 +4186,7 @@ VOLUME_ALL_40x:
             break;
 
         case 5:
-            if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY))
+            if((gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM)))
                 ud.m_ffire = !ud.m_ffire;
             else ud.m_noexits = !ud.m_noexits;
             break;
@@ -4226,7 +4244,7 @@ VOLUME_ALL_40x:
         if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION)
             gametext(c+70,57+16+16+16+16-7-9,ud.m_marker?"ON":"OFF",MENUHIGHLIGHT(4),2+8+16);
 
-        if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY)
+        if(gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM))
             gametext(c+70,57+16+16+16+16+16-7-9,ud.m_ffire?"ON":"OFF",MENUHIGHLIGHT(5),2+8+16);
         else gametext(c+70,57+16+16+16+16+16-7-9,ud.m_noexits?"OFF":"ON",MENUHIGHLIGHT(5),2+8+16);
 
@@ -4252,7 +4270,7 @@ VOLUME_ALL_40x:
         else
             menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),1,"MARKERS");
 
-        if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY)
+        if(gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM))
             menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),0,"FR. FIRE");
         else menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),0,"MAP EXITS");
 

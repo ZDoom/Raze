@@ -314,7 +314,7 @@ short aim(spritetype *s,short aang,short atwith)
                     {
                         if( PN == APLAYER &&
                                 //                        ud.ffire == 0 &&
-                                (gametype_flags[ud.coop]& GAMETYPE_FLAG_PLAYERSFRIENDLY ) &&
+                                (gametype_flags[ud.coop]& GAMETYPE_FLAG_PLAYERSFRIENDLY || ((gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM) && ps[sprite[i].yvel].team == ps[s->yvel].team)) &&
                                 s->picnum == APLAYER &&
                                 s != &sprite[i])
                             continue;
@@ -735,7 +735,7 @@ short shoot(short i,short atwith)
                 if(hitspr >= 0)
                 {
                     checkhitsprite(hitspr,k);
-                    if( sprite[hitspr].picnum == APLAYER && (!(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) || ud.ffire == 1) )
+                    if( sprite[hitspr].picnum == APLAYER && (ud.ffire == 1 || (!(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM) && ps[sprite[hitspr].yvel].team != ps[sprite[i].yvel].team)))
                     {
                         l = spawn(k,JIBS6);
                         sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -1241,7 +1241,7 @@ DOSKIPBULLETHOLE:
                 if(hitspr >= 0)
                 {
                     checkhitsprite(hitspr,k);
-                    if( sprite[hitspr].picnum == APLAYER && (!(gametype_flags[ud.coop]&GAMETYPE_FLAG_PLAYERSFRIENDLY ) || ud.ffire == 1) )
+                    if( sprite[hitspr].picnum == APLAYER && (ud.ffire == 1 || (!(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM) && ps[sprite[hitspr].yvel].team != ps[sprite[i].yvel].team)))
                     {
                         l = spawn(k,JIBS6);
                         sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -3500,7 +3500,7 @@ void processinput(short snum)
                     {
                         char name1[32],name2[32];
 
-                        if(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY)
+                        if(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY || (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM && ps[snum].team == ps[p->frag_ps].team))
                             i = 9;
                         else
                         {

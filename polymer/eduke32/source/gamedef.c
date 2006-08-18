@@ -688,6 +688,7 @@ LABELS playerlabels[]= {
                            { "movement_lock", PLAYER_MOVEMENT_LOCK, 0, 0 },
                            { "sound_pitch", PLAYER_SOUND_PITCH, 0, 0 },
                            { "weaponswitch", PLAYER_WEAPONSWITCH, 0, 0 },
+                           { "team", PLAYER_TEAM, 0, 0 },
                            { "", -1, 0, 0  }     // END OF LIST
                        };
 
@@ -811,6 +812,7 @@ LABELS userdefslabels[]= {
                              { "autovote", USERDEFS_AUTOVOTE, 0, 0 },
                              { "automsg", USERDEFS_AUTOMSG, 0, 0 },
                              { "idplayers", USERDEFS_IDPLAYERS, 0, 0 },
+                             { "team", USERDEFS_TEAM, 0, 0 },
                              { "", -1, 0, 0  }     // END OF LIST
                          };
 

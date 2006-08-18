@@ -255,6 +255,7 @@ void CONFIG_SetDefaults( void )
     ud.shadows = 1;
     ud.statusbarmode = 0;
     ud.statusbarscale = 100;
+    ud.team = 0;
     ud.weaponswitch = 3;	// new+empty
     UseJoystick = 0;
     UseMouse = 1;
@@ -660,6 +661,8 @@ int32 CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         SCRIPT_GetNumber( scripthandle, "Misc", "Color",&ud.color);
         ps[0].palookup = ud.pcolor[0] = ud.color;
+        SCRIPT_GetNumber( scripthandle, "Misc", "Team",&ud.team);
+        ps[0].team = ud.pteam[0] = ud.team;
         SCRIPT_GetNumber( scripthandle, "Misc", "MPMessageDisplayTime",&ud.msgdisptime);
         SCRIPT_GetNumber( scripthandle, "Misc", "StatusBarMode",&ud.statusbarmode);
         SCRIPT_GetNumber( scripthandle, "Misc", "AutoVote",&ud.autovote);
@@ -762,6 +765,7 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Misc", "ShowViewWeapon",ud.drawweapon,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "StatusBarMode",ud.statusbarmode,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "StatusBarScale",ud.statusbarscale,false,false);
+    SCRIPT_PutNumber( scripthandle, "Misc", "Team",ud.team,false,false);
     SCRIPT_PutNumber( scripthandle, "Misc", "UsePrecache",useprecache,false,false);
 
     SCRIPT_PutNumber( scripthandle, "Screen Setup", "Detail",ud.detail,false,false);

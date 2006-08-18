@@ -54,7 +54,7 @@ extern int conversion, shareware, gametype;
 #define BYTEVERSION_13  27
 #define BYTEVERSION_14  116
 #define BYTEVERSION_15  117
-#define BYTEVERSION_JF  165 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
+#define BYTEVERSION_JF  168 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
 
 #define BYTEVERSION (BYTEVERSION_JF+(PLUTOPAK?1:(VOLUMEONE<<1)))    // JBF 20040116: different data files give different versions
 
@@ -342,6 +342,7 @@ struct user_defs {
     int32 runkey_mode,statusbarscale,mouseaiming,weaponswitch,drawweapon;   // JBF 20031125
     int32 democams,color,pcolor[MAXPLAYERS],msgdisptime,statusbarmode;
     int32 m_noexits,noexits,autovote,automsg,idplayers;
+	int32 team, pteam[MAXPLAYERS];
 
     int32 entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
     int32 coords,tickrate,levelstats,m_coop,coop,screen_size,lockout,crosshair;
@@ -415,7 +416,7 @@ struct player_struct {
     char return_to_center, reloading;
 
     long max_secret_rooms,secret_rooms,max_actors_killed,actors_killed;
-    long runspeed, movement_lock;
+    long runspeed, movement_lock, team;
     short sbs, sound_pitch;
 };
 
@@ -541,7 +542,9 @@ enum gametypeflags {
     GAMETYPE_FLAG_PLAYERSFRIENDLY        = 4096,
     GAMETYPE_FLAG_FIXEDRESPAWN           = 8192,
     GAMETYPE_FLAG_ACCESSATSTART          = 16384,
-    GAMETYPE_FLAG_PRESERVEINVENTORYDEATH = 32768
+    GAMETYPE_FLAG_PRESERVEINVENTORYDEATH = 32768,
+	GAMETYPE_FLAG_TDM					 = 65536,
+	GAMETYPE_FLAG_TDMSPAWN				 = 131072
 };
 
 extern char level_file_names[MAXVOLUMES*11][BMAX_PATH];

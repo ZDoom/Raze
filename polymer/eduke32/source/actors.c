@@ -890,6 +890,13 @@ short ifhitbyweapon(short sn)
                         ud.ffire == 0 )
                     return -1;
 
+                if( j >= 0 &&
+                        sprite[j].picnum == APLAYER &&
+                        (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM) &&
+                        ps[p].team == ps[sprite[j].yvel].team &&
+                        ud.ffire == 0 )
+                    return -1;
+
                 npc->extra -= hittype[sn].extra;
 
                 if(j >= 0)

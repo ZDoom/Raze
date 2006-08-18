@@ -294,7 +294,7 @@ int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short 
             }
             continue;
         }
-    if(*t == 32) {x+=5;t++;continue;}
+        if(*t == 32) {x+=5;t++;continue;}
         else ac = *t - '!' + starttile;
 
         if( ac < starttile || ac > (starttile + 93) )
@@ -765,6 +765,23 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
             ps[other].auto_aim = packbuf[i++];
             ps[other].weaponswitch = packbuf[i++];
             ps[other].palookup = ud.pcolor[other] = packbuf[i++];
+            j = ps[other].team;
+            ps[other].team = ud.pteam[other] = packbuf[i++];
+
+            if(ps[other].team != j && sprite[ps[other].i].picnum == APLAYER)
+                hittype[ps[other].i].extra = 1000;
+
+            if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
+            {
+                j = 0;
+                switch(ps[other].team)
+                {
+                case 0: j = 3; break;
+                case 1: j = 10; break;
+                }
+                ps[other].palookup = ud.pcolor[other] = j;
+            }
+
             if(sprite[ps[other].i].picnum == APLAYER)
                 sprite[ps[other].i].pal = ud.pcolor[other];
             break;
@@ -8152,8 +8169,16 @@ void checkcommandline(int argc,char **argv)
                     ud.m_respawn_monsters = ud.respawn_monsters = 1;
                     ud.m_respawn_items = ud.respawn_items = 1;
                     ud.m_respawn_inventory = ud.respawn_inventory = 1;
-                    for(j=numplayers;j<ud.multimode;j++)
-                        Bsprintf(ud.user_name[j],"PLAYER %d",j+1);
+                    {
+                        char k = 1;
+                        for(j=numplayers;j<ud.multimode;j++)
+                        {
+                            Bsprintf(ud.user_name[j],"PLAYER %d",j+1);
+                            ps[j].team = ud.pteam[j] = k;
+                            initprintf("p %d t %d\n",j,ps[j].team);
+                            k = 1-k;
+                        }
+                    }
                     break;
                 case 'r':
                 case 'R':
@@ -8727,6 +8752,23 @@ void syncnames(void)
     buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
     buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
 
+    i = ps[myconnectindex].team;
+    buf[l++] = ps[myconnectindex].team = ud.pteam[myconnectindex] = ud.team;
+
+    if(ps[myconnectindex].team != i && sprite[ps[myconnectindex].i].picnum == APLAYER)
+        hittype[ps[myconnectindex].i].extra = 1000;
+
+    if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
+    {
+        i = 0;
+        switch(ps[myconnectindex].team)
+        {
+        case 0: i = 3; break;
+        case 1: i = 10; break;
+        }
+        ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = i;
+    }
+
     for(i=connecthead;i>=0;i=connectpoint2[i])
     {
         if (i != myconnectindex) sendpacket(i,&buf[0],l);
@@ -8790,17 +8832,22 @@ void updatenames(void)
     {
         syncnames();
         if(sprite[ps[myconnectindex].i].picnum == APLAYER)
-            sprite[ps[myconnectindex].i].pal = ud.color;
+            sprite[ps[myconnectindex].i].pal = ud.pcolor[myconnectindex];
     }
     else
     {
+        int j;
+
         ps[myconnectindex].aim_mode = ud.mouseaiming;
         ps[myconnectindex].auto_aim = AutoAim;
         ps[myconnectindex].weaponswitch = ud.weaponswitch;
         ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
 
+        j = ps[myconnectindex].team;
+        ps[myconnectindex].team = ud.pteam[myconnectindex] = ud.team;
+
         if(sprite[ps[myconnectindex].i].picnum == APLAYER)
-            sprite[ps[myconnectindex].i].pal = ud.color;
+            sprite[ps[myconnectindex].i].pal = ud.pcolor[myconnectindex];
     }
 }
 
@@ -8940,11 +8987,11 @@ void app_main(int argc,char **argv)
     if(glusetexcache == -1 || glusetexcachecompression == -1)
     {
         i=wm_ynbox("Texture caching",
-                    "Would you like to enable the on-disk texture cache? "
-                    "This feature may use up to 200 megabytes of disk "
-                    "space if you have a great deal of high resolution "
-                    "textures and skins, but textures will load exponentially "
-                    "faster after the first time they are loaded.");
+                   "Would you like to enable the on-disk texture cache? "
+                   "This feature may use up to 200 megabytes of disk "
+                   "space if you have a great deal of high resolution "
+                   "textures and skins, but textures will load exponentially "
+                   "faster after the first time they are loaded.");
         if (i) i = 'y';
         if(i == 'y' || i == 'Y' )
             useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
@@ -9190,7 +9237,19 @@ MAIN_LOOP_RESTART:
     ps[myconnectindex].aim_mode = ud.mouseaiming;
     ps[myconnectindex].auto_aim = AutoAim;
     ps[myconnectindex].weaponswitch = ud.weaponswitch;
-    ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
+    ps[myconnectindex].team = ud.pteam[myconnectindex] = ud.team;
+
+    if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
+    {
+        int k = 0;
+
+        switch(ps[myconnectindex].team)
+        {
+        case 0: k = 3; break;
+        case 1: k = 10; break;
+        }
+        ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = k;
+    } else ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
 
     ud.warp_on = 0;
     KB_KeyDown[sc_Pause] = 0;   // JBF: I hate the pause key
@@ -9383,12 +9442,15 @@ char opendemoread(char which_demo) // 0 = mine
             if (kread(recfilep,(int32 *)&ps[i].weaponswitch,sizeof(int32)) != sizeof(int32)) goto corrupt;
             if (kread(recfilep,(int32 *)&ud.pcolor[i],sizeof(int32)) != sizeof(int32)) goto corrupt;
             ps[i].palookup = ud.pcolor[i];
+            if (kread(recfilep,(int32 *)&ud.pteam[i],sizeof(int32)) != sizeof(int32)) goto corrupt;
+            ps[i].team = ud.pteam[i];
             if (kread(recfilep,(int32 *)&ud.m_noexits,sizeof(int32)) != sizeof(int32)) goto corrupt;
         } else {
             if (kread(recfilep,(int32 *)&ps[i].aim_mode,sizeof(char)) != sizeof(char)) goto corrupt;
             OSD_Printf("aim_mode: %d\n",ps[i].aim_mode);
             ps[i].auto_aim = 1;
             ps[i].weaponswitch = 3;
+            ps[i].team = 0;
             ud.m_noexits = 0;
         }
     }
@@ -9439,6 +9501,7 @@ void opendemowrite(void)
         fwrite((int32 *)&ps[i].auto_aim,sizeof(int32),1,frecfilep);		// JBF 20031126
         fwrite(&ps[i].weaponswitch,sizeof(int32),1,frecfilep);
         fwrite(&ud.pcolor[i],sizeof(int32),1,frecfilep);
+        fwrite(&ud.pteam[i],sizeof(int32),1,frecfilep);
         fwrite((int32 *)&ud.m_noexits,sizeof(int32),1,frecfilep);
     }
 

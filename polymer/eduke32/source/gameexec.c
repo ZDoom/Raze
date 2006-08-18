@@ -649,6 +649,13 @@ void DoUserDef(char bSet, long lLabelID, long lVar2, short sActor, short sPlayer
             SetGameVarID((int)lVar2, ud.idplayers, sActor, sPlayer);
         break;
 
+    case USERDEFS_TEAM:
+        if(bSet)
+            ud.team = lValue;
+        else
+            SetGameVarID((int)lVar2, ud.team, sActor, sPlayer);
+        break;
+
     default:
         break;
     }
@@ -1887,6 +1894,13 @@ void DoPlayer(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sh
             ps[iPlayer].weaponswitch=lValue;
         else
             SetGameVarID((int)lVar2, ps[iPlayer].weaponswitch, sActor, sPlayer);
+        break;
+
+    case PLAYER_TEAM:
+        if(bSet)
+            ps[iPlayer].team=lValue;
+        else
+            SetGameVarID((int)lVar2, ps[iPlayer].team, sActor, sPlayer);
         break;
 
     default:
