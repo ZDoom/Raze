@@ -4223,8 +4223,18 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
                 }
             }
 
+#if 0
+			if(!nofog)
+			{
+    			i = klabs(tspr.shade);
+                bglFogf(GL_FOG_DENSITY,gvisibility/(tspr.shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(tspr.shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sector[tspr.sectnum].visibility<240?sector[tspr.sectnum].visibility+16:sector[tspr.sectnum].visibility-239))));
+			}
             mddraw(&tspr);
-
+#else
+			if(!nofog) bglDisable(GL_FOG);
+            mddraw(&tspr);
+			if(!nofog) bglEnable(GL_FOG);
+#endif
             viewingrange = oldviewingrange;
             gxyaspect = ogxyaspect;
             globalshade  = ogshade;
