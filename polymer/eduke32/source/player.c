@@ -5127,7 +5127,7 @@ void computergetinput(long snum, input *syn)
     {
         j = 0x7fffffff;
         for(i=connecthead;i>=0;i=connectpoint2[i])
-            if (i != snum)
+            if (i != snum && !((gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM) && ps[snum].team == ps[i].team))
             {
                 dist = ksqrt((sprite[ps[i].i].x-x1)*(sprite[ps[i].i].x-x1)+(sprite[ps[i].i].y-y1)*(sprite[ps[i].i].y-y1));
 

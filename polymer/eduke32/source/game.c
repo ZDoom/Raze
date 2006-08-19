@@ -8169,16 +8169,6 @@ void checkcommandline(int argc,char **argv)
                     ud.m_respawn_monsters = ud.respawn_monsters = 1;
                     ud.m_respawn_items = ud.respawn_items = 1;
                     ud.m_respawn_inventory = ud.respawn_inventory = 1;
-                    {
-                        char k = 1;
-                        for(j=numplayers;j<ud.multimode;j++)
-                        {
-                            Bsprintf(ud.user_name[j],"PLAYER %d",j+1);
-                            ps[j].team = ud.pteam[j] = k;
-                            initprintf("p %d t %d\n",j,ps[j].team);
-                            k = 1-k;
-                        }
-                    }
                     break;
                 case 'r':
                 case 'R':
@@ -8912,7 +8902,7 @@ int load_script(char *szScript)
 
 void app_main(int argc,char **argv)
 {
-    long i, j;
+    int i, j;
 #ifdef RENDERTYPEWIN
     if (win_checkinstance()) {
         if (!wm_ynbox("EDuke32","Another Build game is currently running. "
@@ -9086,6 +9076,18 @@ void app_main(int argc,char **argv)
     }
 
     Startup(); // a bunch of stuff including compiling cons
+
+    {
+        i = 1;
+        for(j=numplayers;j<ud.multimode;j++)
+        {
+            Bsprintf(ud.user_name[j],"PLAYER %d",j+1);
+            ps[j].team = ud.pteam[j] = i;
+            initprintf("p %d t %d\n",j,ps[j].team);
+            i = 1-i;
+        }
+    }
+
     if (quitevent) return;
     if (!loaddefinitionsfile(duke3ddef)) initprintf("Definitions file loaded.\n");
 
