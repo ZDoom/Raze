@@ -131,6 +131,9 @@ enum gamemodes {
 
 #define MAXQUOTES 16384
 
+#define PPDEATHSTRINGS MAXQUOTES-128
+#define PSDEATHSTRINGS MAXQUOTES-32
+
 #define MAXCYCLERS 1024
 
 #define MAXSCRIPTSIZE 65536
@@ -546,6 +549,8 @@ enum gametypeflags {
 	GAMETYPE_FLAG_TDM					 = 65536,
 	GAMETYPE_FLAG_TDMSPAWN				 = 131072
 };
+
+#define GTFLAGS(x) (gametype_flags[ud.coop] & x)
 
 extern char level_file_names[MAXVOLUMES*11][BMAX_PATH];
 extern char num_volumes;

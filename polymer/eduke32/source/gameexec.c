@@ -6653,7 +6653,7 @@ good:
         }
 
     default:
-        Bsprintf(tempbuf,"fatal error: Default processing in parse(): %ld, %ld",*insptr,*(insptr-1));
+        Bsprintf(tempbuf,"fatal error: Default processing in parse(): %ld, %ld\ncurrent actor: %ld %ld",*insptr,*(insptr-1),g_i,g_sp->picnum);
         AddLog(tempbuf);
         gameexit("An error has occurred in the EDuke32 CON parser.\n\nPlease mail all of your CON files along with the file eduke32.log\nto terminx@gmail.com.\n\nThank you.");
         break;

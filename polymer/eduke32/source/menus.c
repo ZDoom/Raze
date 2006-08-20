@@ -442,7 +442,7 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
     }
 }
 
-#define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<4)&2047]>>12):8
+#define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<4)&2047]>>12):6
 // #define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<4)&2047]>>12):probey-x>=0?(probey-x)<<2:-((probey-x)<<2)
 
 #define SHX(X) 0
@@ -686,7 +686,7 @@ void menus(void)
 
             case 1:
                 ud.color++;
-                if(ud.color > 22)
+                if(ud.color > 23)
                     ud.color = 0;
                 check_player_color((int *)&ud.color,-1);
                 updatenames();

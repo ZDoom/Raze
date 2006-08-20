@@ -443,6 +443,7 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
     }
 
     if (numplayers < 2) return;
+    Bmemset(packbuf,0,sizeof(packbuf));
     while ((packbufleng = getpacket(&other,packbuf)) > 0)
     {
         switch(packbuf[0])
@@ -769,7 +770,10 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
             ps[other].team = ud.pteam[other] = packbuf[i++];
 
             if(ps[other].team != j && sprite[ps[other].i].picnum == APLAYER)
+            {
                 hittype[ps[other].i].extra = 1000;
+                hittype[ps[other].i].picnum = APLAYERTOP;
+            }
 
             if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
             {
@@ -2122,20 +2126,22 @@ void coords(short snum)
     printext256(250L,y+18L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"A= %d",ps[snum].ang);
     printext256(250L,y+27L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"ZV= %ld",ps[snum].poszv);
+    Bsprintf(tempbuf,"H= %ld",ps[snum].horiz);
     printext256(250L,y+36L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"OG= %d",ps[snum].on_ground);
+    Bsprintf(tempbuf,"ZV= %ld",ps[snum].poszv);
     printext256(250L,y+45L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"AM= %d",ps[snum].ammo_amount[GROW_WEAPON]);
+    Bsprintf(tempbuf,"OG= %d",ps[snum].on_ground);
     printext256(250L,y+54L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"LFW= %d",ps[snum].last_full_weapon);
+    Bsprintf(tempbuf,"AM= %d",ps[snum].ammo_amount[GROW_WEAPON]);
     printext256(250L,y+63L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"SECTL= %d",sector[ps[snum].cursectnum].lotag);
+    Bsprintf(tempbuf,"LFW= %d",ps[snum].last_full_weapon);
     printext256(250L,y+72L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"SEED= %ld",randomseed);
+    Bsprintf(tempbuf,"SECTL= %d",sector[ps[snum].cursectnum].lotag);
     printext256(250L,y+81L,31,-1,tempbuf,0);
+    Bsprintf(tempbuf,"SEED= %ld",randomseed);
+    printext256(250L,y+90L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"THOLD= %d",ps[snum].transporter_hold);
-    printext256(250L,y+90L+7,31,-1,tempbuf,0);
+    printext256(250L,y+99L+7,31,-1,tempbuf,0);
 }
 
 void operatefta(void)
@@ -2170,7 +2176,7 @@ void operatefta(void)
 
     if (ps[screenpeek].fta <= 1) return;
 
-    if ((gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR) && ud.screen_size > 0 && ud.multimode > 1)
+    if (GTFLAGS(GAMETYPE_FLAG_FRAGBAR) && ud.screen_size > 0 && ud.multimode > 1)
     {
         j = 0; k = 8;
         for(i=connecthead;i>=0;i=connectpoint2[i])
@@ -2290,7 +2296,7 @@ else if(ud.recstat == 2) { if (frecfilep) fclose(frecfilep); }  // JBF: fixes cr
 
     if(!qe && !cp)
     {
-        if(playerswhenstarted > 1 && ps[myconnectindex].gm&MODE_GAME && (gametype_flags[ud.coop] & GAMETYPE_FLAG_SCORESHEET) && *t == ' ')
+        if(playerswhenstarted > 1 && ps[myconnectindex].gm&MODE_GAME && GTFLAGS(GAMETYPE_FLAG_SCORESHEET) && *t == ' ')
         {
             dobonus(1);
             setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP);
@@ -2805,7 +2811,7 @@ void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
         x1 = mulscale(ox,xvect,16) - mulscale(oy,yvect,16);
         y1 = mulscale(oy,xvect2,16) + mulscale(ox,yvect2,16);
 
-        if(p == screenpeek || (gametype_flags[ud.coop] & GAMETYPE_FLAG_OTHERPLAYERSINMAP ) )
+        if(p == screenpeek || GTFLAGS(GAMETYPE_FLAG_OTHERPLAYERSINMAP) )
         {
             if(sprite[ps[p].i].xvel > 16 && ps[p].on_ground)
                 i = APLAYERTOP+((totalclock>>4)&3);
@@ -3067,7 +3073,19 @@ void displayrest(long smoothratio)
         if(GetGameVarID(g_iReturnVarID,ps[screenpeek].i,screenpeek) == 0)
             rotatesprite((160L-(ps[myconnectindex].look_ang>>1))<<16,100L<<16,ud.crosshair>1?65536L>>(ud.crosshair-1):65536L,0,CROSSHAIR,0,0,2+1,windowx1,windowy1,windowx2,windowy2);
     }
-
+#if 0
+    if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
+    {
+        for(i=0;i<ud.multimode;i++)
+        {
+            if(ps[i].team == ps[myconnectindex].team)
+            {
+                j = min(max((getincangle(getangle(ps[i].posx-ps[myconnectindex].posx,ps[i].posy-ps[myconnectindex].posy),ps[myconnectindex].ang))>>1,-160),160);
+                rotatesprite((160-j)<<16,100L<<16,65536L,0,DUKEICON,0,0,2+1,windowx1,windowy1,windowx2,windowy2);
+            }
+        }
+    }
+#endif
     if(ps[myconnectindex].gm&MODE_TYPE)
         typemode();
     else
@@ -3090,8 +3108,8 @@ void displayrest(long smoothratio)
                  (ps[myconnectindex].player_par/26)%60);
         minitext(320-5*12,200-i-6-6-6,tempbuf,0,26);
 
-        if(ud.player_skill > 3 || (ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY)))
-            Bsprintf(tempbuf,"Kills: %ld",(ud.multimode>1 &&!(gametype_flags[ud.coop]&GAMETYPE_FLAG_PLAYERSFRIENDLY))?ps[i].frag-ps[i].fraggedself:ps[myconnectindex].actors_killed);
+        if(ud.player_skill > 3 || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY)))
+            Bsprintf(tempbuf,"Kills: %ld",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?ps[i].frag-ps[i].fraggedself:ps[myconnectindex].actors_killed);
         else
             Bsprintf(tempbuf,"Kills: %ld/%ld",ps[myconnectindex].actors_killed,
                      ps[myconnectindex].max_actors_killed>ps[myconnectindex].actors_killed?
@@ -3188,7 +3206,7 @@ void drawbackground(void)
     {
         if (ud.screen_size == 8)
             y1 = scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200);
-        else if((gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR))
+        else if(gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR)
         {
             if (ud.multimode > 1) y1 += scale(ydim,8,200);
             if (ud.multimode > 4) y1 += scale(ydim,8,200);
@@ -3245,7 +3263,7 @@ void drawbackground(void)
     if(ud.screen_size > 8 && ( ready2send || ud.recstat == 2 ))
     {
         y = 0;
-        if((gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR))
+        if(gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR)
         {
             if (ud.multimode > 1) y += 8;
             if (ud.multimode > 4) y += 8;
@@ -3904,7 +3922,7 @@ short spawn( short j, short pn )
                 {
                     if( PN != ACCESSSWITCH && PN != ACCESSSWITCH2 && sprite[i].pal)
                     {
-                        if( (ud.multimode < 2) || (ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_DMSWITCHES)) )
+                        if( (ud.multimode < 2) || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_DMSWITCHES)) )
                         {
                             sprite[i].xrepeat = sprite[i].yrepeat = 0;
                             sprite[i].cstat = SLT = SHT = 0;
@@ -5071,7 +5089,7 @@ short spawn( short j, short pn )
             if(sp->picnum == ATOMICHEALTH)
                 sp->cstat |= 128;
 
-            if(ud.multimode > 1 && !(gametype_flags[ud.coop]&GAMETYPE_FLAG_ACCESSCARDSPRITES) && sp->picnum == ACCESSCARD)
+            if(ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_ACCESSCARDSPRITES) && sp->picnum == ACCESSCARD)
             {
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
@@ -6646,7 +6664,7 @@ void cheats(void)
 
             cheatbuf[cheatbuflen++] = ch;
             cheatbuf[cheatbuflen] = 0;
-            KB_ClearKeysDown();
+            //            KB_ClearKeysDown();
 
             if(cheatbuflen > MAXCHEATLEN)
             {
@@ -7226,7 +7244,7 @@ void nonsharedkeys(void)
 
     if( ps[myconnectindex].cheat_phase == 1 || (ps[myconnectindex].gm&(MODE_MENU|MODE_TYPE))) return;
 
-    if( BUTTON(gamefunc_See_Coop_View) && ( (gametype_flags[ud.coop] & GAMETYPE_FLAG_COOPVIEW) || ud.recstat == 2) )
+    if( BUTTON(gamefunc_See_Coop_View) && ( GTFLAGS(GAMETYPE_FLAG_COOPVIEW) || ud.recstat == 2) )
     {
         CONTROL_ClearButton( gamefunc_See_Coop_View );
         screenpeek = connectpoint2[screenpeek];
@@ -8746,7 +8764,10 @@ void syncnames(void)
     buf[l++] = ps[myconnectindex].team = ud.pteam[myconnectindex] = ud.team;
 
     if(ps[myconnectindex].team != i && sprite[ps[myconnectindex].i].picnum == APLAYER)
+    {
         hittype[ps[myconnectindex].i].extra = 1000;
+        hittype[ps[myconnectindex].i].picnum = APLAYERTOP;
+    }
 
     if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
     {

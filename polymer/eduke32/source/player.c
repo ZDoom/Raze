@@ -314,7 +314,7 @@ short aim(spritetype *s,short aang,short atwith)
                     {
                         if( PN == APLAYER &&
                                 //                        ud.ffire == 0 &&
-                                (gametype_flags[ud.coop]& GAMETYPE_FLAG_PLAYERSFRIENDLY || ((gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM) && ps[sprite[i].yvel].team == ps[s->yvel].team)) &&
+                                (GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY) || (GTFLAGS(GAMETYPE_FLAG_TDM) && ps[sprite[i].yvel].team == ps[s->yvel].team)) &&
                                 s->picnum == APLAYER &&
                                 s != &sprite[i])
                             continue;
@@ -735,7 +735,7 @@ short shoot(short i,short atwith)
                 if(hitspr >= 0)
                 {
                     checkhitsprite(hitspr,k);
-                    if( sprite[hitspr].picnum == APLAYER && (ud.ffire == 1 || (!(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM) && ps[sprite[hitspr].yvel].team != ps[sprite[i].yvel].team)))
+                    if( sprite[hitspr].picnum == APLAYER && (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_FLAG_TDM) && ps[sprite[hitspr].yvel].team != ps[sprite[i].yvel].team)))
                     {
                         l = spawn(k,JIBS6);
                         sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -1241,7 +1241,7 @@ DOSKIPBULLETHOLE:
                 if(hitspr >= 0)
                 {
                     checkhitsprite(hitspr,k);
-                    if( sprite[hitspr].picnum == APLAYER && (ud.ffire == 1 || (!(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM) && ps[sprite[hitspr].yvel].team != ps[sprite[i].yvel].team)))
+                    if( sprite[hitspr].picnum == APLAYER && (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_FLAG_TDM) && ps[sprite[hitspr].yvel].team != ps[sprite[i].yvel].team)))
                     {
                         l = spawn(k,JIBS6);
                         sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -3006,7 +3006,7 @@ char doincrements(struct player_struct *p)
         if( p->last_pissed_time == (26*219) )
         {
             spritesound(FLUSH_TOILET,p->i);
-            if(snum == screenpeek || (gametype_flags[ud.coop] & GAMETYPE_FLAG_COOPSOUND))
+            if(snum == screenpeek || GTFLAGS(GAMETYPE_FLAG_COOPSOUND))
                 spritesound(DUKE_PISSRELIEF,p->i);
         }
 
@@ -3033,7 +3033,7 @@ char doincrements(struct player_struct *p)
         if(p->steroids_amount == 0)
             checkavailinven(p);
         if( !(p->steroids_amount&7) )
-            if(snum == screenpeek || (gametype_flags[ud.coop] & GAMETYPE_FLAG_COOPSOUND))
+            if(snum == screenpeek || GTFLAGS(GAMETYPE_FLAG_COOPSOUND))
                 spritesound(DUKE_HARTBEAT,p->i);
     }
 
@@ -3155,7 +3155,7 @@ char doincrements(struct player_struct *p)
         if(p->knuckle_incs==10)
         {
             if(totalclock > 1024)
-                if(snum == screenpeek || (gametype_flags[ud.coop] & GAMETYPE_FLAG_COOPSOUND))
+                if(snum == screenpeek || GTFLAGS(GAMETYPE_FLAG_COOPSOUND))
                 {
 
                     if(rand()&1)
@@ -3483,8 +3483,13 @@ void processinput(short snum)
             {
                 if(p->frag_ps != snum)
                 {
-                    ps[p->frag_ps].frag++;
-                    frags[p->frag_ps][snum]++;
+                    if(GTFLAGS(GAMETYPE_FLAG_TDM) && ps[p->frag_ps].team == ps[snum].team)
+                        p->fraggedself++;
+                    else
+                    {
+                        ps[p->frag_ps].frag++;
+                        frags[p->frag_ps][snum]++;
+                    }
 
                     if(snum == screenpeek)
                     {
@@ -3500,7 +3505,7 @@ void processinput(short snum)
                     {
                         char name1[32],name2[32];
 
-                        if(gametype_flags[ud.coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY || (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM && ps[snum].team == ps[p->frag_ps].team))
+                        if(GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY) || (GTFLAGS(GAMETYPE_FLAG_TDM) && ps[snum].team == ps[p->frag_ps].team))
                             i = 9;
                         else
                         {
@@ -3536,7 +3541,7 @@ void processinput(short snum)
                         Bstrcpy(name1,&ud.user_name[snum][0]);
                         Bstrcpy(name2,&ud.user_name[p->frag_ps][0]);
 
-                        Bsprintf(tempbuf,fta_quotes[16300+i+(mulscale(krand(), 3, 16)*10)],name1,name2);
+                        Bsprintf(tempbuf,fta_quotes[PPDEATHSTRINGS+i+(mulscale(krand(), 3, 16)*10)],name1,name2);
                         if(ScreenWidth >= 800)
                             adduserquote(tempbuf);
                         else OSD_Printf("%s\n",strip_color_codes(tempbuf));
@@ -3544,15 +3549,18 @@ void processinput(short snum)
                 }
                 else
                 {
-                    p->fraggedself++;
+                    if(hittype[p->i].picnum != APLAYERTOP)
+                    {
+                        p->fraggedself++;
+                        if(badguypic(sprite[p->wackedbyactor].picnum))
+                            i = 2;
+                        else if(hittype[p->i].picnum == NUKEBUTTON)
+                            i = 1;
+                        else i = 0;
+                        Bsprintf(tempbuf,fta_quotes[PSDEATHSTRINGS+i],&ud.user_name[snum][0]);
+                    }
+                    else Bsprintf(tempbuf,fta_quotes[PSDEATHSTRINGS+3],&ud.user_name[snum][0],p->team+1);
 
-                    if(badguypic(sprite[p->wackedbyactor].picnum))
-                        i = 2;
-                    else if(hittype[p->i].picnum == NUKEBUTTON)
-                        i = 1;
-                    else i = 0;
-
-                    Bsprintf(tempbuf,fta_quotes[16350+i],&ud.user_name[snum][0]);
                     if(ScreenWidth >= 800)
                         adduserquote(tempbuf);
                     else OSD_Printf("%s\n",strip_color_codes(tempbuf));
@@ -5127,7 +5135,7 @@ void computergetinput(long snum, input *syn)
     {
         j = 0x7fffffff;
         for(i=connecthead;i>=0;i=connectpoint2[i])
-            if (i != snum && !((gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM) && ps[snum].team == ps[i].team))
+            if (i != snum && !(GTFLAGS(GAMETYPE_FLAG_TDM) && ps[snum].team == ps[i].team))
             {
                 dist = ksqrt((sprite[ps[i].i].x-x1)*(sprite[ps[i].i].x-x1)+(sprite[ps[i].i].y-y1)*(sprite[ps[i].i].y-y1));
 

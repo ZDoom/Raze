@@ -5911,26 +5911,27 @@ void loadefs(char *filenam)
                                      };
 
             char *podeathstrings[] = {
-                                         "%^2%s KILLED HIMSELF.  WHAT A TOOL!",
-                                         "%^2%s TRIED TO LEAVE",
-                                         "%^2%s GOT FRAGGED BY A MONSTER.  IT WAS PROBABLY A LIZTROOP."
+                                         "%^2%s ^2KILLED HIMSELF.  WHAT A TOOL!",
+                                         "%^2%s ^2TRIED TO LEAVE",
+                                         "%^2%s ^2GOT FRAGGED BY A MONSTER.  IT WAS PROBABLY A LIZTROOP.",
+                                         "%^2%s ^2SWITCHED TO TEAM %ld"
                                      };
 
             for(i=0;i<(signed int)(sizeof(ppdeathstrings)/sizeof(ppdeathstrings[0]));i++)
             {
-                if(fta_quotes[i+16300] == NULL)
+                if(fta_quotes[i+PPDEATHSTRINGS] == NULL)
                 {
-                    fta_quotes[i+16300] = Bcalloc(MAXQUOTELEN,sizeof(char));
-                    Bstrcpy(fta_quotes[i+16300],ppdeathstrings[i]);
+                    fta_quotes[i+PPDEATHSTRINGS] = Bcalloc(MAXQUOTELEN,sizeof(char));
+                    Bstrcpy(fta_quotes[i+PPDEATHSTRINGS],ppdeathstrings[i]);
                 }
             }
 
             for(i=0;i<(signed int)(sizeof(podeathstrings)/sizeof(podeathstrings[0]));i++)
             {
-                if(fta_quotes[i+16350] == NULL)
+                if(fta_quotes[i+PSDEATHSTRINGS] == NULL)
                 {
-                    fta_quotes[i+16350] = Bcalloc(MAXQUOTELEN,sizeof(char));
-                    Bstrcpy(fta_quotes[i+16350],podeathstrings[i]);
+                    fta_quotes[i+PSDEATHSTRINGS] = Bcalloc(MAXQUOTELEN,sizeof(char));
+                    Bstrcpy(fta_quotes[i+PSDEATHSTRINGS],podeathstrings[i]);
                 }
             }
         }
