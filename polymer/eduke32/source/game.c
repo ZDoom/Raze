@@ -781,7 +781,7 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
                 switch(ps[other].team)
                 {
                 case 0: j = 3; break;
-                case 1: j = 10; break;
+                case 1: j = 21; break;
                 }
                 ps[other].palookup = ud.pcolor[other] = j;
             }
@@ -8775,7 +8775,7 @@ void syncnames(void)
         switch(ps[myconnectindex].team)
         {
         case 0: i = 3; break;
-        case 1: i = 10; break;
+        case 1: i = 21; break;
         }
         ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = i;
     }
@@ -9269,7 +9269,7 @@ MAIN_LOOP_RESTART:
         switch(ps[myconnectindex].team)
         {
         case 0: k = 3; break;
-        case 1: k = 10; break;
+        case 1: k = 21; break;
         }
         ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = k;
     } else ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;

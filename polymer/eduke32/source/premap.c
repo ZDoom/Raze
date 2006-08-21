@@ -1252,7 +1252,7 @@ void resetpspritevars(char g)
                     switch(ud.pteam[j])
                     {
                     case 0: k = 3; break;
-                    case 1: k = 10; break;
+                    case 1: k = 21; break;
                     }
                     ps[j].team = ud.pteam[j];
                 }

@@ -661,7 +661,7 @@ void menus(void)
         {
             switch(ud.team) {
             case 0: x = 3; break;
-            case 1: x = 10; break;
+            case 1: x = 21; break;
             }
         } else x = ud.color;
         rotatesprite((280)<<16,(37+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,x,10,0,0,xdim-1,ydim-1);
