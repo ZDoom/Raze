@@ -1237,11 +1237,11 @@ void resetpspritevars(char g)
                             k=0;
                         }
                     }
-                    s->pal = ps[j].palookup = which_palookup++;
+                    ud.pcolor[j] = s->pal = ps[j].palookup = which_palookup++;
                     if( which_palookup >= 17 )
                         which_palookup = 9;
                 }
-                else ps[j].palookup = s->pal;
+                else ud.pcolor[j] = ps[j].palookup = s->pal;
             }
             else
             {
