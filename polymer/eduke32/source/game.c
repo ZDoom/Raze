@@ -76,7 +76,7 @@ static int netparamcount = 0;
 static char **netparam = NULL;
 
 int votes[MAXPLAYERS], gotvote[MAXPLAYERS], voting = -1;
-int vote_map, vote_episode;
+int vote_map = -1, vote_episode = -1;
 
 int recfilep,totalreccnt;
 char debug_on = 0,actor_tog = 0,*rtsptr,memorycheckoveride=0;
@@ -534,8 +534,8 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
 
             case 1: // call map vote
                 voting = packbuf[2];
-				vote_episode = packbuf[3];
-				vote_map = packbuf[4];
+                vote_episode = packbuf[3];
+                vote_map = packbuf[4];
                 Bsprintf(tempbuf,"%s HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[packbuf[2]],level_names[packbuf[3]*11 + packbuf[4]],packbuf[3]+1,packbuf[4]+1);
                 adduserquote(tempbuf);
                 Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
@@ -718,7 +718,7 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
                 for(i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                     if (i != other) sendpacket(i,packbuf,packbufleng);
 
-            if(voting != -1)
+            if(vote_map != -1 || vote_episode != -1 || voting != -1)
                 adduserquote("VOTE SUCCEEDED");
 
             ud.m_level_number = ud.level_number = packbuf[1];
@@ -2101,14 +2101,14 @@ void tics(void)
         j=(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]);
         if (ud.tickrate && !(ps[myconnectindex].gm&MODE_MENU))
         {
-			int k = 1;
+            int k = 1;
 
-			if(ud.screen_size != 0 && GTFLAGS(GAMETYPE_FLAG_FRAGBAR))
-			{
-				k += 8;
-    			if(ud.multimode > 4)
-    				k += 8;
-			}
+            if(ud.screen_size != 0 && GTFLAGS(GAMETYPE_FLAG_FRAGBAR) && ud.multimode > 1)
+            {
+                k += 8;
+                if(ud.multimode > 4)
+                    k += 8;
+            }
             Bsprintf(b,"%ld",j>0?j:0);
             minitext(320-strlen(b)*4,k,b,(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
         }
@@ -7736,7 +7736,6 @@ int load_rancid_net(char *fn)
                 Bsprintf(tempbuf,"%s",strtok(NULL,":"));
                 if(atoi(tempbuf) > 1024)
                     Bsprintf(rancid_local_port_string,"-p %s",tempbuf);
-                Bfree(ip);
             }
             break;
         case T_MODE:
@@ -7744,7 +7743,6 @@ int load_rancid_net(char *fn)
                 char *mode;
 
                 if (scriptfile_getstring(script,&mode)) break;
-                Bfree(mode);
             }
             break;
         case T_ALLOW:
@@ -7753,7 +7751,6 @@ int load_rancid_net(char *fn)
 
                 if (scriptfile_getstring(script,&ip)) break;
                 Bstrcpy(rancid_ip_strings[rancid_players++],ip);
-                Bfree(ip);
             }
             break;
         case T_EOF:
@@ -8768,7 +8765,7 @@ void syncnames(void)
     buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
     buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
     buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
-	buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
+    buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
 
     i = ps[myconnectindex].team;
     buf[l++] = ps[myconnectindex].team = ud.pteam[myconnectindex] = ud.team;
@@ -8862,7 +8859,7 @@ void updatenames(void)
         ps[myconnectindex].aim_mode = ud.mouseaiming;
         ps[myconnectindex].auto_aim = AutoAim;
         ps[myconnectindex].weaponswitch = ud.weaponswitch;
-		ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
+        ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
         j = ps[myconnectindex].team;
         ps[myconnectindex].team = ud.pteam[myconnectindex] = ud.team;
 
@@ -9282,9 +9279,9 @@ MAIN_LOOP_RESTART:
         }
         ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = k;
     } else {
-		if(ud.color) ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
-		else ps[myconnectindex].palookup = ud.pcolor[myconnectindex];
-	}
+        if(ud.color) ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
+        else ps[myconnectindex].palookup = ud.pcolor[myconnectindex];
+    }
 
     ud.warp_on = 0;
     KB_KeyDown[sc_Pause] = 0;   // JBF: I hate the pause key
@@ -9364,13 +9361,13 @@ MAIN_LOOP_RESTART:
         displayrest(i);
 
         if(gotvote[myconnectindex] == 0 && voting != -1 && voting != myconnectindex)
-		{
-			Bsprintf(tempbuf,"%s HAS CALLED A VOTE FOR MAP",ud.user_name[voting]);
+        {
+            Bsprintf(tempbuf,"%s HAS CALLED A VOTE FOR MAP",ud.user_name[voting]);
             gametext(160,40,tempbuf,0,2+8+16);
-			Bsprintf(tempbuf,"%s (E%dL%d)",level_names[vote_episode*11 + vote_map],vote_episode+1,vote_map+1);
+            Bsprintf(tempbuf,"%s (E%dL%d)",level_names[vote_episode*11 + vote_map],vote_episode+1,vote_map+1);
             gametext(160,48,tempbuf,0,2+8+16);
             gametext(160,70,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2+8+16);
-		}
+        }
 
         //        if( KB_KeyPressed(sc_F) )
         //        {

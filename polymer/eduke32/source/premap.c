@@ -1488,7 +1488,7 @@ void resetmys(void)
 
 extern void adduserquote(char *daquote);
 
-extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting;
+extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting, vote_map, vote_episode;
 
 int enterlevel(char g)
 {
@@ -1506,7 +1506,7 @@ int enterlevel(char g)
     ud.ffire = ud.m_ffire;
     ud.noexits = ud.m_noexits;
 
-    voting = -1;
+    vote_map = vote_episode = voting = -1;
     Bmemset(votes,0,sizeof(votes));
     Bmemset(gotvote,0,sizeof(gotvote));
 

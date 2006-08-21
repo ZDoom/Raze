@@ -1838,14 +1838,7 @@ cheat_for_port_credits:
     case 100:
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(160,24,0,0,"SELECT AN EPISODE");
-        //            if(boardfilename[0])
-        if (PLUTOPAK)
-            x = probe(160,60-(num_volumes*2),20,num_volumes+1);
-        //            else x = probe(160,60,20,4);
-        //            if(boardfilename[0])
-        else
-            x = probe(160,VOLUMEONE?60:60-(num_volumes*2),20,VOLUMEONE?3:num_volumes+1);
-        //            else x = probe(160,60,20,3);
+        x = probe(160,VOLUMEONE?60:60-(num_volumes*2),20,VOLUMEONE?3:num_volumes+1);
         if(x >= 0)
         {
             if (VOLUMEONE) {
