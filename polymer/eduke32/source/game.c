@@ -444,7 +444,6 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
     }
 
     if (numplayers < 2) return;
-    Bmemset(packbuf,0,sizeof(packbuf));
     while ((packbufleng = getpacket(&other,packbuf)) > 0)
     {
         switch(packbuf[0])
@@ -615,10 +614,10 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
                 if (l&32)  nsyn[i].bits = ((nsyn[i].bits&0xff00ffff)|((long)packbuf[j++])<<16);
                 if (l&64)  nsyn[i].bits = ((nsyn[i].bits&0x00ffffff)|((long)packbuf[j++])<<24);
                 if (l&128) nsyn[i].horz = (signed char)packbuf[j++];
-                if (l&256)  nsyn[i].bits2 = ((nsyn[i].bits2&0xffffff00)|((long)packbuf[j++]));
-                if (l&512)  nsyn[i].bits2 = ((nsyn[i].bits2&0xffff00ff)|((long)packbuf[j++])<<8);
-                if (l&1024) nsyn[i].bits2 = ((nsyn[i].bits2&0xff00ffff)|((long)packbuf[j++])<<16);
-                if (l&2048) nsyn[i].bits2 = ((nsyn[i].bits2&0x00ffffff)|((long)packbuf[j++])<<24);
+                if (l&256)  nsyn[i].extbits = ((nsyn[i].extbits&0xffffff00)|((long)packbuf[j++]));
+                if (l&512)  nsyn[i].extbits = ((nsyn[i].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
+                if (l&1024) nsyn[i].extbits = ((nsyn[i].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
+                if (l&2048) nsyn[i].extbits = ((nsyn[i].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
 
                 if (nsyn[i].bits&(1<<26)) playerquitflag[i] = 0;
                 movefifoend[i]++;
@@ -661,10 +660,10 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
             if (k&32)  nsyn[other].bits = ((nsyn[other].bits&0xff00ffff)|((long)packbuf[j++])<<16);
             if (k&64)  nsyn[other].bits = ((nsyn[other].bits&0x00ffffff)|((long)packbuf[j++])<<24);
             if (k&128) nsyn[other].horz = (signed char)packbuf[j++];
-            if (k&256)  nsyn[other].bits2 = ((nsyn[other].bits2&0xffffff00)|((long)packbuf[j++]));
-            if (k&512)  nsyn[other].bits2 = ((nsyn[other].bits2&0xffff00ff)|((long)packbuf[j++])<<8);
-            if (k&1024) nsyn[other].bits2 = ((nsyn[other].bits2&0xff00ffff)|((long)packbuf[j++])<<16);
-            if (k&2048) nsyn[other].bits2 = ((nsyn[other].bits2&0x00ffffff)|((long)packbuf[j++])<<24);
+            if (k&256)  nsyn[other].extbits = ((nsyn[other].extbits&0xffffff00)|((long)packbuf[j++]));
+            if (k&512)  nsyn[other].extbits = ((nsyn[other].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
+            if (k&1024) nsyn[other].extbits = ((nsyn[other].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
+            if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
             movefifoend[other]++;
 
             while (j != packbufleng)
@@ -841,10 +840,10 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
             if (k&32)  nsyn[other].bits = ((nsyn[other].bits&0xff00ffff)|((long)packbuf[j++])<<16);
             if (k&64)  nsyn[other].bits = ((nsyn[other].bits&0x00ffffff)|((long)packbuf[j++])<<24);
             if (k&128) nsyn[other].horz = (signed char)packbuf[j++];
-            if (k&256)  nsyn[other].bits2 = ((nsyn[other].bits2&0xffffff00)|((long)packbuf[j++]));
-            if (k&512)  nsyn[other].bits2 = ((nsyn[other].bits2&0xffff00ff)|((long)packbuf[j++])<<8);
-            if (k&1024) nsyn[other].bits2 = ((nsyn[other].bits2&0xff00ffff)|((long)packbuf[j++])<<16);
-            if (k&2048) nsyn[other].bits2 = ((nsyn[other].bits2&0x00ffffff)|((long)packbuf[j++])<<24);
+            if (k&256)  nsyn[other].extbits = ((nsyn[other].extbits&0xffffff00)|((long)packbuf[j++]));
+            if (k&512)  nsyn[other].extbits = ((nsyn[other].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
+            if (k&1024) nsyn[other].extbits = ((nsyn[other].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
+            if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
             movefifoend[other]++;
 
             for(i=1;i<movesperpacket;i++)
@@ -854,7 +853,7 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
             }
 
             if (j > packbufleng)
-                initprintf("INVALID GAME PACKET!!! (%ld too many bytes)\n",j-packbufleng);
+                initprintf("INVALID GAME PACKET!!! (packet %d, %ld too many bytes)\n",packbuf[0],j-packbufleng);
 
             while (j != packbufleng)
             {
@@ -908,7 +907,7 @@ void faketimerhandler()
     avgavel += loc.avel;
     avghorz += loc.horz;
     avgbits |= loc.bits;
-    avgbits2 |= loc.bits2;
+    avgextbits |= loc.extbits;
     if (movefifoend[myconnectindex]&(movesperpacket-1))
     {
         copybufbyte(&inputfifo[(movefifoend[myconnectindex]-1)&(MOVEFIFOSIZ-1)][myconnectindex],
@@ -922,8 +921,8 @@ void faketimerhandler()
     nsyn[0].avel = avgavel/movesperpacket;
     nsyn[0].horz = avghorz/movesperpacket;
     nsyn[0].bits = avgbits;
-    nsyn[0].bits2 = avgbits2;
-    avgfvel = avgsvel = avgavel = avghorz = avgbits = avgbits2 = 0;
+    nsyn[0].extbits = avgextbits;
+    avgfvel = avgsvel = avgavel = avghorz = avgbits = avgextbits = 0;
     movefifoend[myconnectindex]++;
 
     if (numplayers < 2)
@@ -1019,10 +1018,10 @@ void faketimerhandler()
         }
         k++;
         packbuf[k] = 0;
-        if ((nsyn[0].bits2^osyn[0].bits2)&0x000000ff) packbuf[j++] = (nsyn[0].bits2&255), packbuf[k] |= 1;
-        if ((nsyn[0].bits2^osyn[0].bits2)&0x0000ff00) packbuf[j++] = ((nsyn[0].bits2>>8)&255), packbuf[k] |= 2;
-        if ((nsyn[0].bits2^osyn[0].bits2)&0x00ff0000) packbuf[j++] = ((nsyn[0].bits2>>16)&255), packbuf[k] |= 4;
-        if ((nsyn[0].bits2^osyn[0].bits2)&0xff000000) packbuf[j++] = ((nsyn[0].bits2>>24)&255), packbuf[k] |= 8;
+        if ((nsyn[0].extbits^osyn[0].extbits)&0x000000ff) packbuf[j++] = (nsyn[0].extbits&255), packbuf[k] |= 1;
+        if ((nsyn[0].extbits^osyn[0].extbits)&0x0000ff00) packbuf[j++] = ((nsyn[0].extbits>>8)&255), packbuf[k] |= 2;
+        if ((nsyn[0].extbits^osyn[0].extbits)&0x00ff0000) packbuf[j++] = ((nsyn[0].extbits>>16)&255), packbuf[k] |= 4;
+        if ((nsyn[0].extbits^osyn[0].extbits)&0xff000000) packbuf[j++] = ((nsyn[0].extbits>>24)&255), packbuf[k] |= 8;
 
         while (syncvalhead[myconnectindex] != syncvaltail)
         {
@@ -1085,10 +1084,10 @@ void faketimerhandler()
             packbuf[1] |= 128;
         }
         packbuf[2] = 0;
-        if ((nsyn[0].bits2^osyn[0].bits2)&0x000000ff) packbuf[j++] = (nsyn[0].bits2&255), packbuf[2] |= 1;
-        if ((nsyn[0].bits2^osyn[0].bits2)&0x0000ff00) packbuf[j++] = ((nsyn[0].bits2>>8)&255), packbuf[2] |= 2;
-        if ((nsyn[0].bits2^osyn[0].bits2)&0x00ff0000) packbuf[j++] = ((nsyn[0].bits2>>16)&255), packbuf[2] |= 4;
-        if ((nsyn[0].bits2^osyn[0].bits2)&0xff000000) packbuf[j++] = ((nsyn[0].bits2>>24)&255), packbuf[2] |= 8;
+        if ((nsyn[0].extbits^osyn[0].extbits)&0x000000ff) packbuf[j++] = (nsyn[0].extbits&255), packbuf[2] |= 1;
+        if ((nsyn[0].extbits^osyn[0].extbits)&0x0000ff00) packbuf[j++] = ((nsyn[0].extbits>>8)&255), packbuf[2] |= 2;
+        if ((nsyn[0].extbits^osyn[0].extbits)&0x00ff0000) packbuf[j++] = ((nsyn[0].extbits>>16)&255), packbuf[2] |= 4;
+        if ((nsyn[0].extbits^osyn[0].extbits)&0xff000000) packbuf[j++] = ((nsyn[0].extbits>>24)&255), packbuf[2] |= 8;
 
         while (syncvalhead[myconnectindex] != syncvaltail)
         {
@@ -1168,10 +1167,10 @@ void faketimerhandler()
             }
             k++;
             packbuf[k] = 0;
-            if ((nsyn[i].bits2^osyn[i].bits2)&0x000000ff) packbuf[j++] = (nsyn[i].bits2&255), packbuf[k] |= 1;
-            if ((nsyn[i].bits2^osyn[i].bits2)&0x0000ff00) packbuf[j++] = ((nsyn[i].bits2>>8)&255), packbuf[k] |= 2;
-            if ((nsyn[i].bits2^osyn[i].bits2)&0x00ff0000) packbuf[j++] = ((nsyn[i].bits2>>16)&255), packbuf[k] |= 4;
-            if ((nsyn[i].bits2^osyn[i].bits2)&0xff000000) packbuf[j++] = ((nsyn[i].bits2>>24)&255), packbuf[k] |= 8;
+            if ((nsyn[i].extbits^osyn[i].extbits)&0x000000ff) packbuf[j++] = (nsyn[i].extbits&255), packbuf[k] |= 1;
+            if ((nsyn[i].extbits^osyn[i].extbits)&0x0000ff00) packbuf[j++] = ((nsyn[i].extbits>>8)&255), packbuf[k] |= 2;
+            if ((nsyn[i].extbits^osyn[i].extbits)&0x00ff0000) packbuf[j++] = ((nsyn[i].extbits>>16)&255), packbuf[k] |= 4;
+            if ((nsyn[i].extbits^osyn[i].extbits)&0xff000000) packbuf[j++] = ((nsyn[i].extbits>>24)&255), packbuf[k] |= 8;
             k++;
         }
 

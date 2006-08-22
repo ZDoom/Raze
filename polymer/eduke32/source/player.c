@@ -2945,12 +2945,12 @@ void getinput(short snum)
     if(horiz < -MAXHORIZ) horiz = -MAXHORIZ;
     if(horiz > MAXHORIZ) horiz = MAXHORIZ;
 
-    loc.bits2 = BUTTON(gamefunc_Move_Forward);
-    loc.bits2 |= BUTTON(gamefunc_Move_Backward)<<1;
-    loc.bits2 |= BUTTON(gamefunc_Strafe_Left)<<2;
-    loc.bits2 |= BUTTON(gamefunc_Strafe_Right)<<3;
-    loc.bits2 |= BUTTON(gamefunc_Turn_Left)<<4;
-    loc.bits2 |= BUTTON(gamefunc_Turn_Right)<<5;
+    loc.extbits = BUTTON(gamefunc_Move_Forward);
+    loc.extbits |= BUTTON(gamefunc_Move_Backward)<<1;
+    loc.extbits |= BUTTON(gamefunc_Strafe_Left)<<2;
+    loc.extbits |= BUTTON(gamefunc_Strafe_Right)<<3;
+    loc.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
+    loc.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
 
     if(ud.scrollmode && ud.overhead_on)
     {
@@ -4254,29 +4254,29 @@ void processinput(short snum)
             doubvel <<= 1;
 
         /*
-            loc.bits2 = BUTTON(gamefunc_Move_Forward);
-            loc.bits2 |= BUTTON(gamefunc_Move_Backward)<<1;
-            loc.bits2 |= BUTTON(gamefunc_Strafe_Left)<<2;
-            loc.bits2 |= BUTTON(gamefunc_Strafe_Right)<<3;
-            loc.bits2 |= BUTTON(gamefunc_Turn_Left)<<4;
-            loc.bits2 |= BUTTON(gamefunc_Turn_Right)<<5;
+            loc.extbits = BUTTON(gamefunc_Move_Forward);
+            loc.extbits |= BUTTON(gamefunc_Move_Backward)<<1;
+            loc.extbits |= BUTTON(gamefunc_Strafe_Left)<<2;
+            loc.extbits |= BUTTON(gamefunc_Strafe_Right)<<3;
+            loc.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
+            loc.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
         */
-        if (sync[snum].bits2&(1))
+        if (sync[snum].extbits&(1))
             OnEvent(EVENT_MOVEFORWARD,pi,snum, -1);
 
-        if (sync[snum].bits2&(1<<1))
+        if (sync[snum].extbits&(1<<1))
             OnEvent(EVENT_MOVEBACKWARD,pi,snum, -1);
 
-        if (sync[snum].bits2&(1<<2))
+        if (sync[snum].extbits&(1<<2))
             OnEvent(EVENT_STRAFELEFT,pi,snum, -1);
 
-        if (sync[snum].bits2&(1<<3))
+        if (sync[snum].extbits&(1<<3))
             OnEvent(EVENT_STRAFERIGHT,pi,snum, -1);
 
-        if (sync[snum].bits2&(1<<4) || sync[snum].avel < 0)
+        if (sync[snum].extbits&(1<<4) || sync[snum].avel < 0)
             OnEvent(EVENT_TURNLEFT,pi,snum, -1);
 
-        if (sync[snum].bits2&(1<<5) || sync[snum].avel > 0)
+        if (sync[snum].extbits&(1<<5) || sync[snum].avel > 0)
             OnEvent(EVENT_TURNRIGHT,pi,snum, -1);
 
         p->posxv += ((sync[snum].fvel*doubvel)<<6);

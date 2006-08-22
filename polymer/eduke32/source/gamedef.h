@@ -396,7 +396,7 @@ enum inputlabels {
     INPUT_FVEL,
     INPUT_SVEL,
     INPUT_BITS,
-    INPUT_BITS2
+    INPUT_EXTBITS
 };
 
 enum projectilelabels {

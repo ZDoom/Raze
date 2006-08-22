@@ -1454,7 +1454,7 @@ void clearfifo(void)
     mymaxlag = otherminlag = 0;
 
     movefifoplc = movefifosendplc = fakemovefifoplc = 0;
-    avgfvel = avgsvel = avgavel = avghorz = avgbits = 0;
+    avgfvel = avgsvel = avgavel = avghorz = avgbits = avgextbits = 0;
     otherminlag = mymaxlag = 0;
 
     clearbufbyte(myminlag,MAXPLAYERS<<2,0L);

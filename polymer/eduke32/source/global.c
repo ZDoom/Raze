@@ -93,7 +93,7 @@ long syncvalhead[MAXPLAYERS], syncvaltail, syncvaltottail;
 
 input sync[MAXPLAYERS], loc;
 input recsync[RECSYNCBUFSIZ];
-long avgfvel, avgsvel, avgavel, avghorz, avgbits, avgbits2;
+long avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
 
 
 input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];

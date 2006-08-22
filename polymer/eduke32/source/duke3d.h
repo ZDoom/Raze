@@ -289,7 +289,7 @@ enum USRHOOKS_Errors {
 typedef struct {
     signed char avel, horz;
     short fvel, svel;
-    unsigned long bits, bits2;
+    unsigned long bits, extbits;
 } input;
 
 #define sync dsync  // JBF 20040604: sync is a function on some platforms
@@ -483,7 +483,7 @@ extern struct weaponhit hittype[MAXSPRITES];
 
 extern input loc;
 extern input recsync[RECSYNCBUFSIZ];
-extern long avgfvel, avgsvel, avgavel, avghorz, avgbits, avgbits2;
+extern long avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
 
 extern long numplayers, myconnectindex;
 extern long connecthead, connectpoint2[MAXPLAYERS];   //Player linked list variables (indeces, not connection numbers)

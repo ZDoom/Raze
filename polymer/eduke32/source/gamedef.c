@@ -822,7 +822,7 @@ LABELS inputlabels[]= {
                           { "fvel", INPUT_FVEL, 0, 0 },
                           { "svel", INPUT_SVEL, 0, 0 },
                           { "bits", INPUT_BITS, 0, 0 },
-                          { "bits2", INPUT_BITS2, 0, 0 },
+                          { "extbits", INPUT_EXTBITS, 0, 0 },
                           { "", -1, 0, 0  }     // END OF LIST
                       };
 

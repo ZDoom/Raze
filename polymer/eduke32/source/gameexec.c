@@ -1964,11 +1964,11 @@ void DoInput(char bSet, long lVar1, long lLabelID, long lVar2, short sActor, sho
             SetGameVarID((int)lVar2, sync[iPlayer].bits, sActor, sPlayer);
         break;
 
-    case INPUT_BITS2:
+    case INPUT_EXTBITS:
         if(bSet)
-            sync[iPlayer].bits2=lValue;
+            sync[iPlayer].extbits=lValue;
         else
-            SetGameVarID((int)lVar2, sync[iPlayer].bits2, sActor, sPlayer);
+            SetGameVarID((int)lVar2, sync[iPlayer].extbits, sActor, sPlayer);
         break;
     default:
         break;
