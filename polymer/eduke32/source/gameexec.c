@@ -4548,16 +4548,26 @@ SKIPJIBS:
 
     case CON_SHOOTVAR:
     case CON_ESHOOTVAR:
+    case CON_EZSHOOTVAR:
+    case CON_ZSHOOTVAR:
         {
             long lIn, lReturn=-1;
 
             insptr++;
 
+            if(tw == CON_ZSHOOTVAR || tw == CON_EZSHOOTVAR)
+            {
+                hittype[g_i].temp_data[9] = GetGameVarID(*insptr++, g_i, g_p);
+                if (hittype[g_i].temp_data[9] == 0)
+                    hittype[g_i].temp_data[9] = 1;
+            }
             lIn=GetGameVarID(*insptr++, g_i, g_p);
             if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
+            {
                 lReturn = shoot(g_i, lIn);
-            if (tw == CON_ESHOOTVAR)
-                SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
+                if (tw == CON_ESHOOTVAR || tw == CON_EZSHOOTVAR)
+                    SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
+            }
             break;
         }
 

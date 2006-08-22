@@ -439,6 +439,8 @@ char *keyw[] = {
                    "findnearactorzvar",        // 292
                    "findnearspritez",          // 293
                    "findnearspritezvar",       // 294
+                   "zshootvar",				   // 295
+                   "ezshootvar",			   // 296
                    "<null>"
                };
 
@@ -4136,6 +4138,8 @@ repeatcase:
 
     case CON_CHANGESPRITESTAT:
     case CON_CHANGESPRITESECT:
+    case CON_ZSHOOTVAR:
+    case CON_EZSHOOTVAR:
         if(!CheckEventSync(current_event))
             ReportError(WARNING_EVENTSYNC);
     case CON_GETPNAME:

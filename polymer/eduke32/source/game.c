@@ -10914,7 +10914,7 @@ FRAGBONUS:
         if( KB_KeyPressed( sc_F12 ) )
         {
             KB_ClearKeyDown( sc_F12 );
-            screencapture("eduke0000.tga",0);
+            screencapture("duke0000.tga",0);
         }
 
         if(bonusonly || ud.multimode > 1) return;
@@ -11126,7 +11126,7 @@ FRAGBONUS:
                 if( KB_KeyPressed( sc_F12 ) )
                 {
                     KB_ClearKeyDown( sc_F12 );
-                    screencapture("eduke0000.tga",0);
+                    screencapture("duke0000.tga",0);
                 }
 
                 if( totalclock < (60*13) )

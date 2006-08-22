@@ -2707,6 +2707,7 @@ void getinput(short snum)
         loc.avel = angvel = 0;
         loc.horz = horiz = 0;
         loc.bits = (((long)gamequit)<<26);
+        loc.extbits = 0;
         return;
     }
 
@@ -3484,7 +3485,7 @@ void processinput(short snum)
                 if(p->frag_ps != snum)
                 {
                     if(GTFLAGS(GAMETYPE_FLAG_TDM) && ps[p->frag_ps].team == ps[snum].team)
-                        p->fraggedself++;
+                        ps[p->frag_ps].fraggedself++;
                     else
                     {
                         ps[p->frag_ps].frag++;
@@ -5112,6 +5113,7 @@ void computergetinput(long snum, input *syn)
     syn->avel = 0;
     syn->horz = 0;
     syn->bits = 0;
+    syn->extbits = 0;
 
     x1 = sprite[p->i].x;
     y1 = sprite[p->i].y;
