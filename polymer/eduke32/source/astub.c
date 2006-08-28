@@ -1597,7 +1597,7 @@ void Keys3d(void)
     if (keystatus[0x4] > 0)  /* 3 (toggle floor-over-floor (cduke3d only) */
     {
         floor_over_floor = !floor_over_floor;
-        if (!floor_over_floor) ResetFOFSize();
+        //        if (!floor_over_floor) ResetFOFSize();
         keystatus[0x4] = 0;
     }
 
@@ -2834,19 +2834,19 @@ void Keys3d(void)
         Bsprintf(tempbuf,"LOCK");
     if(tempbuf[0] != 0)
     {
-            i = (Bstrlen(tempbuf)<<3)+6;
-            if((searchx+i) < (xdim-1))
-                i = 0;
-            else i = (searchx+i)-(xdim-1);
-            if((searchy+16) < (ydim-1))
-                j = 0;
-            else j = (searchy+16)-(ydim-1);
-//            printext16(searchx+6-i,searchy+6-j,11,-1,tempbuf,0);
+        i = (Bstrlen(tempbuf)<<3)+6;
+        if((searchx+i) < (xdim-1))
+            i = 0;
+        else i = (searchx+i)-(xdim-1);
+        if((searchy+16) < (ydim-1))
+            j = 0;
+        else j = (searchy+16)-(ydim-1);
+        //            printext16(searchx+6-i,searchy+6-j,11,-1,tempbuf,0);
         printext256(searchx+4+2-i,searchy+4+2-j,0,-1,tempbuf,!(xdimgame > 640));
         printext256(searchx+4-i,searchy+4-j,whitecol,-1,tempbuf,!(xdimgame > 640));
 
-//        printext256(searchx+4+2,searchy+4+2,0,-1,tempbuf,!(xdimgame > 640));
-//        printext256(searchx+4,searchy+4,whitecol,-1,tempbuf,!(xdimgame > 640));
+        //        printext256(searchx+4+2,searchy+4+2,0,-1,tempbuf,!(xdimgame > 640));
+        //        printext256(searchx+4,searchy+4,whitecol,-1,tempbuf,!(xdimgame > 640));
     }
     if(helpon==1)
     {
@@ -4146,7 +4146,7 @@ int ExtInit(void)
 
     if(glusetexcache == -1 || glusetexcachecompression == -1)
     {
-		int i;
+        int i;
 
         i=wm_ynbox("Texture caching",
                    "Would you like to enable the on-disk texture cache? "

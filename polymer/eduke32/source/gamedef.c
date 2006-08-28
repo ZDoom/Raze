@@ -441,6 +441,8 @@ char *keyw[] = {
                    "findnearspritezvar",       // 294
                    "zshootvar",				   // 295
                    "ezshootvar",			   // 296
+                   "getcurraddress",		   // 297
+                   "jump",					   // 298
                    "<null>"
                };
 
@@ -3464,6 +3466,10 @@ char parsecommand(void)
             break;
         }
 
+    case CON_GETCURRADDRESS:
+        transvartype(GAMEVAR_FLAG_READONLY);
+        return 0;
+
     case CON_ESHOOTVAR:
     case CON_ESPAWNVAR:
     case CON_QSPAWNVAR:
@@ -3477,6 +3483,7 @@ char parsecommand(void)
     case CON_SHOOTVAR:
         if(!CheckEventSync(current_event))
             ReportError(WARNING_EVENTSYNC);
+    case CON_JUMP:
     case CON_SOUNDVAR:
     case CON_GLOBALSOUNDVAR:
     case CON_STOPSOUNDVAR:

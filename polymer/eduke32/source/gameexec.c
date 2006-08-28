@@ -6662,6 +6662,26 @@ good:
             break;
         }
 
+    case CON_GETCURRADDRESS:
+        {
+            int i;
+            insptr++;
+
+            i=*insptr++;
+            SetGameVarID(i, (long)insptr, g_i, g_p );
+            break;
+        }
+
+    case CON_JUMP:
+        {
+            int ptr;
+
+            insptr++;
+            ptr = GetGameVarID(*insptr++, g_i, g_p);
+            insptr = (long *)ptr;
+            break;
+        }
+
     default:
         Bsprintf(tempbuf,"fatal error: Default processing in parse(): %ld, %ld\ncurrent actor: %d %d",*insptr,*(insptr-1),g_i,g_sp->picnum);
         AddLog(tempbuf);
