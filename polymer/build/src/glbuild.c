@@ -47,6 +47,7 @@ void (APIENTRY * bglPushMatrix)( void );
 void (APIENTRY * bglPopMatrix)( void );
 void (APIENTRY * bglLoadIdentity)( void );
 void (APIENTRY * bglLoadMatrixf)( const GLfloat *m );
+void (APIENTRY * bglRotatef)(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
 
 // Drawing
 void (APIENTRY * bglBegin)( GLenum mode );
@@ -200,6 +201,7 @@ int loadgldriver(const char *driver)
     bglPopMatrix		= GETPROC("glPopMatrix");
     bglLoadIdentity		= GETPROC("glLoadIdentity");
     bglLoadMatrixf		= GETPROC("glLoadMatrixf");
+    bglRotatef          = GETPROC("glRotatef");
 
     // Drawing
     bglBegin		= GETPROC("glBegin");

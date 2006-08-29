@@ -1361,7 +1361,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
         loadtile(globalpicnum);
         if (!waloff[globalpicnum])
         {
-            if (rendmode != 3) return;
+            if (rendmode < 3) return;
             tsizx = tsizy = 1; method = 1; //Hack to update Z-buffer for invalid mirror textures
         }
     }
@@ -1386,7 +1386,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             oy = ox2*gstang + oy2*gctang;
             oz = oz2;
 
-            if ((oz < SCISDIST) && (rendmode != 3)) return; //annoying hack to avoid bugs in software rendering
+            if ((oz < SCISDIST) && (rendmode < 3)) return; //annoying hack to avoid bugs in software rendering
 
             r = ghalfx / oz;
 
@@ -1413,7 +1413,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
     n = j;
 
 #ifdef USE_OPENGL
-    if (rendmode == 3)
+    if (rendmode >= 3)
     {
         float hackscx, hackscy;
 
@@ -2288,7 +2288,7 @@ static void polymost_drawalls (long bunch)
 
 #ifdef USE_OPENGL
     if (!nofog) {
-        if (rendmode == 3) {
+        if (rendmode >= 3) {
             float col[4];
             col[0] = (float)palookupfog[sec->floorpal].r / 63.f;
             col[1] = (float)palookupfog[sec->floorpal].g / 63.f;
@@ -2470,7 +2470,7 @@ static void polymost_drawalls (long bunch)
         {
             //Parallaxing sky... hacked for Ken's mountain texture; paper-sky only :/
 #ifdef USE_OPENGL
-            if (rendmode == 3)
+            if (rendmode >= 3)
             {
                 /*                if (!nofog) {
                                     bglDisable(GL_FOG);
@@ -2711,7 +2711,7 @@ static void polymost_drawalls (long bunch)
 #endif
             }
 #ifdef USE_OPENGL
-            if (rendmode == 3)
+            if (rendmode >= 3)
             {
                 skyclamphack = 0;
                 if (!nofog) {
@@ -2837,7 +2837,7 @@ static void polymost_drawalls (long bunch)
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
         {
 #ifdef USE_OPENGL
-            if (rendmode == 3)
+            if (rendmode >= 3)
             {
                 /*                if (!nofog) {
                                     bglDisable(GL_FOG);
@@ -3077,7 +3077,7 @@ static void polymost_drawalls (long bunch)
 #endif
             }
 #ifdef USE_OPENGL
-            if (rendmode == 3)
+            if (rendmode >= 3)
             {
                 skyclamphack = 0;
                 if (!nofog) {
@@ -3381,7 +3381,7 @@ void polymost_drawrooms ()
     frameoffset = frameplace + windowy1*bytesperline + windowx1;
 
 #ifdef USE_OPENGL
-    if (rendmode == 3)
+    if (rendmode >= 3)
     {
         resizeglcheck();
 
@@ -3594,7 +3594,7 @@ void polymost_drawrooms ()
         bunchlast[closest] = bunchlast[numbunches];
     }
 #ifdef USE_OPENGL
-    if (rendmode == 3)
+    if (rendmode >= 3)
     {
         bglDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 
@@ -3694,7 +3694,7 @@ if (yp1 < SCISDIST) { t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0;
 
 #ifdef USE_OPENGL
     if (!nofog) {
-        if (rendmode == 3) {
+        if (rendmode >= 3) {
             float col[4];
             col[0] = (float)palookupfog[sec->floorpal].r / 63.f;
             col[1] = (float)palookupfog[sec->floorpal].g / 63.f;
@@ -3807,7 +3807,7 @@ void polymost_drawsprite (long snum)
 if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
 
 #ifdef USE_OPENGL
-    if (!nofog && rendmode == 3) {
+    if (!nofog && rendmode >= 3) {
         float col[4];
         col[0] = (float)palookupfog[sector[tspr->sectnum].floorpal].r / 63.f;
         col[1] = (float)palookupfog[sector[tspr->sectnum].floorpal].g / 63.f;
@@ -3823,7 +3823,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         }
     }
 
-    while (rendmode == 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
+    while (rendmode >= 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
         if (usemodels && tile2model[tspr->picnum].modelid >= 0 && tile2model[tspr->picnum].framenum >= 0) {
             if (mddraw(tspr)) return;
             break;	// else, render as flat sprite
@@ -3838,6 +3838,8 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         }
         break;
     }
+    //if ((!(tspr->cstat&2)) && (!gltexmayhavealpha(tspr->picnum,tspr->pal)))
+        bglDepthMask(0);
 #endif
 
     switch((globalorientation>>4)&3)
@@ -4123,7 +4125,7 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
     int fovcorrect;
 
 #ifdef USE_OPENGL
-    if (rendmode == 3 && usemodels && hudmem[(dastat&4)>>2][picnum].angadd)
+    if (rendmode >= 3 && usemodels && hudmem[(dastat&4)>>2][picnum].angadd)
     {
         if ((tile2model[picnum].modelid >= 0) && (tile2model[picnum].framenum >= 0))
         {
@@ -4264,7 +4266,7 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
     ogstang = gstang; gstang = 0.0;
 
 #ifdef USE_OPENGL
-    if (rendmode == 3)
+    if (rendmode >= 3)
     {
         bglViewport(0,0,xdim,ydim); glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
         bglMatrixMode(GL_PROJECTION);
@@ -4387,7 +4389,7 @@ if (dastat&16) { xoff = 0; yoff = 0; }
     }
 
 #ifdef USE_OPENGL
-    if (rendmode == 3) {
+    if (rendmode >= 3) {
         bglMatrixMode(GL_PROJECTION); bglPopMatrix();
     }
 #endif
@@ -4616,7 +4618,7 @@ long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen)
     long i;
     pthtyp *pth;
 
-    if ((rendmode != 3) || (qsetmode != 200)) return(-1);
+    if ((rendmode < 3) || (qsetmode != 200)) return(-1);
 
     if (!glinfo.texnpot) {
         i = (1<<(picsiz[wallnum]&15)); if (i < tilesizx[wallnum]) i += i; xdimepad = (float)i;
@@ -4702,7 +4704,7 @@ long polymost_printext256(long xpos, long ypos, short col, short backcol, char *
         b.b = britable[curbrightness][ curpalette[backcol].b ];
     }
 
-    if ((rendmode != 3) || (qsetmode != 200)) return(-1);
+    if ((rendmode < 3) || (qsetmode != 200)) return(-1);
 
     if (!polymosttext) {
         // construct a 256x128 8-bit alpha-only texture for the font glyph matrix

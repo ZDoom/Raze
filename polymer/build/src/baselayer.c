@@ -34,13 +34,13 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 
     char *modestrs[] = {
                            "classic software", "polygonal flat-shaded software",
-                           "polygonal textured software", "polygonal OpenGL"
+                           "polygonal textured software", "polygonal OpenGL", "blah"
                        };
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
     m = Bstrtol(parm->parms[0], &p, 10);
 
-    if (m < 0 || m > 3) return OSDCMD_SHOWHELP;
+    if (m < 0 || m > 4) return OSDCMD_SHOWHELP;
 
     setrendermode(m);
     OSD_Printf("Rendering method changed to %s\n", modestrs[ getrendermode() ] );
@@ -165,6 +165,7 @@ int baselayer_init(void)
                          "   2 - Polygonal textured software\n"
 #ifdef USE_OPENGL
                          "   3 - Polygonal OpenGL\n"
+                         "   4 - great justice renderer\n"
 #endif
                          ,
                          osdfunc_setrendermode);

@@ -92,7 +92,8 @@ ENGINEOBJS+= \
 	$(OBJ)mmulti.$o \
 	$(OBJ)osd.$o \
 	$(OBJ)pragmas.$o \
-	$(OBJ)scriptfile.$o
+	$(OBJ)scriptfile.$o \
+	$(OBJ)polymer.$o
 
 EDITOROBJS=$(OBJ)build.$o \
 	$(OBJ)config.$o

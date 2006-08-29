@@ -61,6 +61,7 @@ extern void (APIENTRY * bglPushMatrix)( void );
 extern void (APIENTRY * bglPopMatrix)( void );
 extern void (APIENTRY * bglLoadIdentity)( void );
 extern void (APIENTRY * bglLoadMatrixf)( const GLfloat *m );
+extern void (APIENTRY * bglRotatef)(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
 
 // Drawing
 extern void (APIENTRY * bglBegin)( GLenum mode );

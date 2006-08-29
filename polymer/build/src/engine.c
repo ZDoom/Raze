@@ -27,6 +27,7 @@
 # endif
 # ifdef USE_OPENGL
 #  include "glbuild.h"
+#  include "polymer.h"
 # endif
 #endif
 
@@ -694,9 +695,7 @@ int hicclearsubst(long picnum, long palnum) { return 0; }
 long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen) { return -1; }
 #endif
 //============================================================================= //POLYMOST ENDS
-#if defined(POLYMOST) && defined(USE_OPENGL)
-#include "polymer.c"
-#endif
+
 //
 // getpalookup (internal)
 //
@@ -3123,7 +3122,13 @@ static void drawsprite(long snum)
 
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
-    if (rendmode) { polymost_drawsprite(snum); return; }
+    if (rendmode) {
+        polymost_drawsprite(snum); 
+    #ifdef USE_OPENGL
+        bglDepthMask(1);
+    #endif
+        return;
+    }
 #endif
     //============================================================================= //POLYMOST ENDS
 
@@ -4141,7 +4146,7 @@ static void fillpolygon(long npoints)
     short *ptr, *ptr2;
 
 #if defined POLYMOST && defined USE_OPENGL
-    if (rendmode == 3) { polymost_fillpolygon(npoints); return; }
+    if (rendmode >= 3) { polymost_fillpolygon(npoints); return; }
 #endif
 
     miny = 0x7fffffff; maxy = 0x80000000;
@@ -5675,13 +5680,12 @@ void drawrooms(long daposx, long daposy, long daposz,
     umost[0] = shortptr1[0]-windowy1;
     dmost[0] = shortptr2[0]-windowy1;
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
-    if (0)
+    if (rendmode == 4)
     {
-        polymer_drawrooms();
+        polymer_drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
         return;
     }
-#endif
+
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
     polymost_drawrooms(); if (rendmode) { return; }
@@ -5780,16 +5784,138 @@ void drawrooms(long daposx, long daposy, long daposz,
     enddrawing();   //}}}
 }
 
+// UTILITY TYPES AND FUNCTIONS FOR DRAWMASKS OCCLUSION TREE
+typedef struct          s_point2d {
+    long                x, y;
+}                       _point2d;
+
+typedef struct          s_equation {
+    float               a, b, c;
+}                       _equation;
+
+typedef struct          s_maskleaf {
+    long                index;
+    _point2d            p1, p2;
+    _equation           maskeq, p1eq, p2eq;
+    struct s_maskleaf*  branch[MAXWALLSB];
+    int                 drawing;
+}                       _maskleaf;
+
+_maskleaf               maskleaves[MAXWALLSB];
+
+// returns equation of a line given two points
+_equation       equation(long x1, long y1, long x2, long y2)
+{
+    _equation   ret;
+
+    if ((x2 - x1) != 0)
+    {
+        ret.a = (float)(y2 - y1)/(x2 - x1);
+        ret.b = -1;
+        ret.c = (y1 - (ret.a * x1));
+    }
+    else // vertical
+    {
+        ret.a = 1; 
+        ret.b = 0;
+        ret.c = -x1;
+    }
+
+    return (ret);
+}
+
+// returns the intersection point between two lines 
+_point2d        intersection(_equation eq1, _equation eq2)
+{
+    _point2d    ret;
+    float       det;
+
+    det = (float)(1) / (eq1.a*eq2.b - eq2.a*eq1.b);
+    ret.x = ((eq1.b*eq2.c - eq2.b*eq1.c) * det);
+    ret.y = ((eq2.a*eq1.c - eq1.a*eq2.c) * det);
+
+    return (ret);
+}
+
+// check if a point that's on the line is within the segment boundaries
+int             pointonmask(_point2d point, _maskleaf* wall)
+{
+    if ((min(wall->p1.x, wall->p2.x) <= point.x) && (point.x <= max(wall->p1.x, wall->p2.x)) && (min(wall->p1.y, wall->p2.y) <= point.y) && (point.y <= max(wall->p1.y, wall->p2.y)))
+        return (1);
+    return (0);
+}
+
+// returns 1 if wall2 is hidden by wall1
+int             wallobstructswall(_maskleaf* wall1, _maskleaf* wall2)
+{
+    _point2d    cross;
+
+    cross = intersection(wall2->p1eq, wall1->maskeq);
+    if (pointonmask(cross, wall1))
+        return (1);
+
+    cross = intersection(wall2->p2eq, wall1->maskeq);
+    if (pointonmask(cross, wall1))
+        return (1);
+
+    cross = intersection(wall1->p1eq, wall2->maskeq);
+    if (pointonmask(cross, wall2))
+        return (1);
+
+    cross = intersection(wall1->p2eq, wall2->maskeq);
+    if (pointonmask(cross, wall2))
+        return (1);
+
+    return (0);
+}
+
+// recursive mask drawing function
+void    drawmaskleaf(_maskleaf* wall)
+{
+    int i;
+
+    wall->drawing = 1;
+    i = 0;
+    while (wall->branch[i] != NULL)
+    {
+        if (wall->branch[i]->drawing == 0)
+        {
+            //OSD_Printf("Drawing parent of %i : mask %i\n", wall->index, wall->branch[i]->index);
+            drawmaskleaf(wall->branch[i]);
+        }
+        i++;
+    }
+
+    //OSD_Printf("Drawing mask %i\n", wall->index);
+    drawmaskwall(wall->index);
+}
+
+int         sameside(_equation* eq, _point2d* p1, _point2d* p2)
+{
+    float   sign1, sign2;
+
+    sign1 = eq->a * p1->x + eq->b * p1->y + eq->c;
+    sign2 = eq->a * p2->x + eq->b * p2->y + eq->c;
+
+    sign1 = sign1 * sign2;
+    if (sign1 > 0)
+    {
+        //OSD_Printf("SAME SIDE !\n");
+        return (1);
+    }
+    //OSD_Printf("OPPOSITE SIDE !\n");
+    return (0);
+}
 
 //
 // drawmasks
 //
 void drawmasks(void)
 {
-    long i, j, k, l, gap, xs, ys, xp, yp, yoff, yspan;
+    long i, j, k, l, m, gap, xs, ys, xp, yp, yoff, yspan;
     // PLAG: sorting stuff
-    long *indexes, *wallindexes, *depths, *walldepths;
-    long x, y;
+    _equation maskeq, p1eq, p2eq;
+    _point2d dot, dot2, middle, pos, spr;
 
     for(i=spritesortcnt-1;i>=0;i--) tspriteptr[i] = &tsprite[i];
     for(i=spritesortcnt-1;i>=0;i--)
@@ -5983,7 +6109,7 @@ killsprite:
     // bubblesort is used, shouldn't cause any problems cpu-wise since the lists are small
 
     // SPRITES PREPROCESSING
-    l = spritesortcnt;
+    /*l = spritesortcnt;
     indexes = malloc(l * sizeof(long));
     depths = malloc(l * sizeof(long));
 
@@ -6011,63 +6137,61 @@ killsprite:
                 j = 0;
             }
         }
-    }
+    }*/
 
     // MASKS PREPROCESSING
-    k = maskwallcnt;
-    wallindexes = malloc(k * sizeof(long));
-    walldepths = malloc(k * sizeof(long));
+    //k = maskwallcnt;
 
-    // first pass to set base indexes and depths
+    // first pass to set wall equations and init the tree
+    /*i = k;
+    while (i > 0)
+    {
+        i--;
+
+        // leaf index
+        maskleaves[i].index = --maskwallcnt;
+
+        // leaf boundaries
+        maskleaves[i].p1.x = wall[thewall[maskwall[maskleaves[i].index]]].x - globalposx;
+        maskleaves[i].p1.y = wall[thewall[maskwall[maskleaves[i].index]]].y - globalposy;
+        maskleaves[i].p2.x = wall[wall[thewall[maskwall[maskleaves[i].index]]].point2].x - globalposx;
+        maskleaves[i].p2.y = wall[wall[thewall[maskwall[maskleaves[i].index]]].point2].y - globalposy;
+    
+        // leaf equations
+        maskleaves[i].maskeq = equation(maskleaves[i].p1.x, maskleaves[i].p1.y, maskleaves[i].p2.x, maskleaves[i].p2.y);
+        maskleaves[i].p1eq = equation(0, 0, maskleaves[i].p1.x, maskleaves[i].p1.y);
+        maskleaves[i].p2eq = equation(0, 0, maskleaves[i].p2.x, maskleaves[i].p2.y);
+
+        // drawing flag
+        maskleaves[i].drawing = 0;
+
+        //OSD_Printf("Processed mask - %i\n", i);
+    }
+
+    // second pass to connect the leaves together
     i = k;
     while (i > 0)
     {
         i--;
-        wallindexes[i] = --maskwallcnt;
 
-        xs = wall[thewall[maskwall[wallindexes[i]]]].x;
-        ys = wall[thewall[maskwall[wallindexes[i]]]].y;
-        xp = wall[wall[thewall[maskwall[wallindexes[i]]]].point2].x;
-        yp = wall[wall[thewall[maskwall[wallindexes[i]]]].point2].y;
-
-        x = ((xs + xp) / 2) - globalposx;
-        y = ((ys + yp) / 2) - globalposy;
-        walldepths[i] = (x * x) + (y * y);
-    }
-
-    // second pass (and possibly more) to sort
-    j = 0;
-    while (j == 0)
-    {
-        j = 1;
-        for(i=k-1;i>0;i--)
-        {
-            if (walldepths[i] < walldepths[i-1])
-            {
-                swaplong(&wallindexes[i-1], &wallindexes[i]);
-                swaplong(&walldepths[i-1], &walldepths[i]);
-                j = 0;
-            }
-        }
-    }
-
-    // DRAWING
-    // in this code all sprites are drawn, and masks are inserted when needed
-    i = l - 1;
-    while (i >= 0)
-    {
+        m = 0;
         j = k;
         while (j > 0)
         {
             j--;
-            // if a mask is farther than the sprite which is about to be drawn, we draw it before then discard it from the stack
-            if ((wallindexes[j] >= 0) && (spriteobstructswall(tspriteptr[indexes[i]],(long)thewall[maskwall[wallindexes[j]]])))
-            {
-                //OSD_Printf("masked - %i\n", walldepths[j]);
-                drawmaskwall(wallindexes[j]);
-                wallindexes[j] = -1;
-            }
+
+            if ((i != j) && (wallobstructswall(&maskleaves[i], &maskleaves[j])))
+                maskleaves[i].branch[m++] = &maskleaves[j];
         }
+        maskleaves[i].branch[m] = NULL;
+        //OSD_Printf("Processed parents for mask %i\n", i);
+    }*/
+
+    // DRAWING
+    // in this code all sprites are drawn, and masks are inserted when needed
+    /*i = l - 1;
+    while (i >= 0)
+    {
         //OSD_Printf("sprite - %i\n", depths[i]);
         drawsprite(indexes[i]);
         i--;
@@ -6077,16 +6201,69 @@ killsprite:
     while (k > 0)
     {
         k--;
-        if (wallindexes[k] >= 0)
-        {
-            //OSD_Printf("masked - %i\n", walldepths[k]);
-            drawmaskwall(wallindexes[k]);
-        }
+        //OSD_Printf("Beginning drawing process for mask %i\n", k);
+        //drawmaskleaf(&maskleaves[k]);
+        drawmaskwall(k);
     }
     free(indexes);
-    free(wallindexes);
-    free(depths);
-    free(walldepths);
+    free(depths);*/
+
+    pos.x = globalposx;
+    pos.y = globalposy;
+
+    //OSD_Printf("EIN OBSERVER POSITION : x=%i y=%i\n", pos.x, pos.y);
+
+    while (maskwallcnt)
+    {
+        maskwallcnt--;
+
+        dot.x = wall[thewall[maskwall[maskwallcnt]]].x;
+        dot.y = wall[thewall[maskwall[maskwallcnt]]].y;
+        dot2.x = wall[wall[thewall[maskwall[maskwallcnt]]].point2].x;
+        dot2.y = wall[wall[thewall[maskwall[maskwallcnt]]].point2].y;
+
+        //OSD_Printf("EIN WALL : x1=%i y1=%i x2=%i y2=%i\n", dot.x, dot.y, dot2.x, dot2.y);
+
+        maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
+        p1eq = equation(pos.x, pos.y, dot.x, dot.y);
+        p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
+
+        //OSD_Printf("EIN WALL EQUATION : a=%f b=%f c=%f\n", maskeq.a, maskeq.b, maskeq.c);
+        //OSD_Printf("EIN WALL POINT1 TO POSITION EQUATION : a=%f b=%f c=%f\n", p1eq.a, p1eq.b, p1eq.c);
+        //OSD_Printf("EIN WALL POINT2 TO POSITION EQUATION : a=%f b=%f c=%f\n", p2eq.a, p2eq.b, p2eq.c);
+
+        middle.x = (dot.x + dot2.x) / 2;
+        middle.y = (dot.y + dot2.y) / 2;
+
+        //OSD_Printf("EIN WALL MIDDLE POINT POSITION : x=%i y=%i\n", middle.x, middle.y);
+
+        i = spritesortcnt;
+        while (i)
+        {
+            i--;
+            if (tspriteptr[i] != NULL)
+            {
+                spr.x = tspriteptr[i]->x;
+                spr.y = tspriteptr[i]->y;
+
+                //OSD_Printf("EIN SPRITE POSITION : x=%i y=%i\n", spr.x, spr.y);
+
+                if ((sameside(&maskeq, &spr, &pos) == 0) && sameside(&p1eq, &middle, &spr) && sameside(&p2eq, &middle, &spr))
+                {
+                    drawsprite(i);
+                    tspriteptr[i] = NULL;
+                }
+            }
+        }
+        drawmaskwall(maskwallcnt);
+    }
+
+    while (spritesortcnt)
+    {
+        spritesortcnt--;
+        if (tspriteptr[spritesortcnt] != NULL)
+            drawsprite(spritesortcnt);
+    }
 #endif /* goodalpha */
 
     indrawroomsandmasks = 0;
@@ -7219,10 +7396,11 @@ long setgamemode(char davidoption, long daxdim, long daydim, long dabpp)
 if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    if (rendmode == 3) {
+    if (rendmode == 3)
         polymost_glinit();
-        polymost_glreset();
-    }
+    else if (rendmode == 4)
+        polymer_glinit();
+    polymost_glreset();
 #endif
     qsetmode = 200;
     return(0);
@@ -9360,7 +9538,7 @@ void setbrightness(char dabrightness, char *dapal, char noapply)
     if ((noapply&1) == 0) setpalette(0,256,(char*)tempbuf);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    if (rendmode == 3) {
+    if (rendmode >= 3) {
         newpalettesum = crc32once((unsigned char *)curpalettefaded, sizeof(curpalettefaded));
 
         // only reset the textures if the preserve flag (bit 1 of noapply) is clear and
@@ -9426,7 +9604,7 @@ void clearview(long dacol)
     if (qsetmode != 200) return;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    if (rendmode == 3) {
+    if (rendmode >= 3) {
         palette_t p;
         if (gammabrightness) p = curpalette[dacol];
         else {
@@ -9467,7 +9645,7 @@ void clearallviews(long dacol)
     //dacol += (dacol<<8); dacol += (dacol<<16);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    if (rendmode == 3) {
+    if (rendmode >= 3) {
         palette_t p;
         if (gammabrightness) p = curpalette[dacol];
         else {
@@ -9501,7 +9679,7 @@ void clearallviews(long dacol)
 void plotpixel(long x, long y, char col)
 {
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    if (rendmode == 3 && qsetmode == 200) {
+    if (rendmode >= 3 && qsetmode == 200) {
         palette_t p;
         if (gammabrightness) p = curpalette[col];
         else {
@@ -9535,7 +9713,7 @@ char getpixel(long x, long y)
     char r;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    if (rendmode == 3 && qsetmode == 200) return 0;
+    if (rendmode >= 3 && qsetmode == 200) return 0;
 #endif
 
     begindrawing(); //{{{
@@ -9901,7 +10079,7 @@ void drawline256(long x1, long y1, long x2, long y2, char col)
     col = palookup[0][col];
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    if (rendmode == 3)
+    if (rendmode >= 3)
     {
         palette_t p;
         if (gammabrightness) p = curpalette[col];
@@ -10787,7 +10965,7 @@ void printext256(long xpos, long ypos, short col, short backcol, char *name, cha
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (!polymost_printext256(xpos,ypos,col,backcol,name,fontsize)) return;
 
-    if (rendmode == 3) {
+    if (rendmode >= 3) {
         long xx, yy;
         int lc=-1;
         palette_t p,b;
@@ -10921,7 +11099,7 @@ long screencapture_tga(char *filename, char inverseit)
 
     // palette first
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    if (rendmode < 3 || (rendmode == 3 && qsetmode != 200)) {
+    if (rendmode < 3 || (rendmode >= 3 && qsetmode != 200)) {
 #endif
         //getpalette(0,256,palette);
         for (i=0; i<256; i++) {
@@ -11122,7 +11300,7 @@ long screencapture_pcx(char *filename, char inverseit)
 
     // palette last
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    if (rendmode < 3 || (rendmode == 3 && qsetmode != 200)) {
+    if (rendmode < 3 || (rendmode >= 3 && qsetmode != 200)) {
 #endif
         //getpalette(0,256,palette);
         Bfputc(12,fil);
@@ -11162,8 +11340,12 @@ int setrendermode(int renderer)
         if (renderer < 0) renderer = 0;
         else if (renderer > 2) renderer = 2;
     } else {
-        renderer = 3;
+        if (renderer < 3) renderer = 3;
+        else if (renderer > 4) renderer = 4;
     }
+
+    if (renderer == 4)
+        polymer_init();
 
     rendmode = renderer;
 #endif
