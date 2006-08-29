@@ -6363,6 +6363,16 @@ PALONLY:
                                     //1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
                                     tsprite[spritesortcnt].cstat |= (512+1024);
                                 }
+                                else if(bpp > 8)
+                                {
+                                    int ii;
+
+                                    ii = getangle(tsprite[spritesortcnt].x-ps[myconnectindex].posx,
+                                                  tsprite[spritesortcnt].y-ps[myconnectindex].posy);
+
+                                    tsprite[spritesortcnt].x += sintable[(ii+2560)&2047]>>9;
+                                    tsprite[spritesortcnt].y += sintable[(ii+2048)&2047]>>9;
+                                }
 #endif
                                 spritesortcnt++;
                             }
