@@ -6367,8 +6367,8 @@ PALONLY:
                                 {
                                     int ii;
 
-                                    ii = getangle(tsprite[spritesortcnt].x-ps[myconnectindex].posx,
-                                                  tsprite[spritesortcnt].y-ps[myconnectindex].posy);
+                                    ii = getangle(tsprite[spritesortcnt].x-ps[screenpeek].posx,
+                                                  tsprite[spritesortcnt].y-ps[screenpeek].posy);
 
                                     tsprite[spritesortcnt].x += sintable[(ii+2560)&2047]>>9;
                                     tsprite[spritesortcnt].y += sintable[(ii+2048)&2047]>>9;
