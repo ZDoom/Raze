@@ -148,7 +148,9 @@ void addweapon( struct player_struct *p,short weapon)
 
     if(p->holster_weapon == 0)
     {
-        p->weapon_pos = -1;
+        if(p->weapon_pos == 0)
+            p->weapon_pos = -1;
+        else p->weapon_pos = -9;
         p->last_weapon = p->curr_weapon;
     }
     else
