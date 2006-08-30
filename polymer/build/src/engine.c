@@ -685,6 +685,7 @@ char palfadedelta = 0;
 //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
 static void scansector(short sectnum);
+#include "polymost.h"
 #include "hightile.c"
 #include "polymost.c"
 #else
@@ -8457,6 +8458,16 @@ void dragpoint(short pointhighlight, long dax, long day)
 
     wall[pointhighlight].x = dax;
     wall[pointhighlight].y = day;
+
+    if (rendmode == 4)
+    {
+        tempshort = wall[pointhighlight].nextwall;
+        if (tempshort >= 0)
+        {
+            prsectors[wall[pointhighlight].nextsector]->invalidate = 1;
+            prsectors[wall[tempshort].nextsector]->invalidate = 1;
+        }
+    }
 
     cnt = MAXWALLS;
     tempshort = pointhighlight;    //search points CCW

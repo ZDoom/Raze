@@ -9,17 +9,19 @@
 #define HICEFFECTMASK (1|2)
 static palette_t hictinting[MAXPALOOKUPS];
 
-struct hicskybox_t {
+//moved into polymost.h
+/*struct hicskybox_t {
     long ignore;
     char *face[6];
 };
+
 typedef struct hicreplc_t {
     struct hicreplc_t *next;
     char palnum, ignore, flags, filler;
     char *filename;
     float alphacut;
     struct hicskybox_t *skybox;
-} hicreplctyp;
+} hicreplctyp;*/
 static hicreplctyp *hicreplc[MAXTILES];
 static char hicfirstinit = 0;
 

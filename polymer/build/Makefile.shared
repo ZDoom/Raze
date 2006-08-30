@@ -126,6 +126,9 @@ ifeq ($(RENDERTYPE),SDL)
 else
 	ifeq ($(RENDERTYPE),WIN)
 		LIBS+= -mwindows -ldxguid
+                    ifneq (0,$(USE_OPENGL))
+                        LIBS+= -lglu32
+                    endif
 	endif
 endif
 

@@ -304,7 +304,8 @@ float alphahackarray[MAXTILES];
 //   every virtual texture, I use a cache where indexing is managed through a hash table.
 //
 
-typedef struct pthtyp_t
+// moved into polymost.h
+/*typedef struct pthtyp_t
 {
     struct pthtyp_t *next;
     GLuint glpic;
@@ -319,7 +320,7 @@ typedef struct pthtyp_t
     float scalex, scaley;
     struct pthtyp_t *wofb; // without fullbright
     struct pthtyp_t *ofb; // only fullbright
-} pthtyp;
+} pthtyp;*/
 
 #define GLTEXCACHEADSIZ 8192
 static pthtyp *gltexcachead[GLTEXCACHEADSIZ];
@@ -329,7 +330,7 @@ static long drawingskybox = 0;
 int gloadtile_art(long,long,long,pthtyp*,long);
 int gloadtile_hi(long,long,hicreplctyp*,long,pthtyp*,long,char);
 static int hicprecaching = 0;
-static pthtyp * gltexcache (long dapicnum, long dapalnum, long dameth)
+pthtyp * gltexcache (long dapicnum, long dapalnum, long dameth)
 {
     long i, j;
     hicreplctyp *si;
@@ -3838,7 +3839,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         }
         break;
     }
-    //if ((!(tspr->cstat&2)) && (!gltexmayhavealpha(tspr->picnum,tspr->pal)))
+    if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && ((tspr->cstat&48) != 0))
         bglDepthMask(0);
 #endif
 

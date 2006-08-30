@@ -7,8 +7,10 @@
 
 #if defined(__APPLE__)
 # include <OpenGL/gl.h>
+# include <OpenGL/glu.h>
 #else
 # include <GL/gl.h>
+# include <GL/glu.h>
 #endif
 
 // get this header from http://oss.sgi.com/projects/ogl-sample/registry/
@@ -62,6 +64,8 @@ extern void (APIENTRY * bglPopMatrix)( void );
 extern void (APIENTRY * bglLoadIdentity)( void );
 extern void (APIENTRY * bglLoadMatrixf)( const GLfloat *m );
 extern void (APIENTRY * bglRotatef)(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
+extern void (APIENTRY * bglScalef)(GLfloat x, GLfloat y, GLfloat z);
+extern void (APIENTRY * bglTranslatef)(GLfloat x, GLfloat y, GLfloat z);
 
 // Drawing
 extern void (APIENTRY * bglBegin)( GLenum mode );
@@ -70,6 +74,7 @@ extern void (APIENTRY * bglVertex2f)( GLfloat x, GLfloat y );
 extern void (APIENTRY * bglVertex2i)( GLint x, GLint y );
 extern void (APIENTRY * bglVertex3d)( GLdouble x, GLdouble y, GLdouble z );
 extern void (APIENTRY * bglVertex3fv)( const GLfloat *v );
+extern void (APIENTRY * bglVertex3dv)( const GLdouble *v );
 extern void (APIENTRY * bglColor4f)( GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha );
 extern void (APIENTRY * bglColor4ub)( GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha );
 extern void (APIENTRY * bglTexCoord2d)( GLdouble s, GLdouble t );
@@ -93,11 +98,17 @@ extern void (APIENTRY * bglTexParameteri)( GLenum target, GLenum pname, GLint pa
 extern void (APIENTRY * bglGetTexLevelParameteriv)( GLenum target, GLint level, GLenum pname, GLint *params );
 extern void (APIENTRY * bglCompressedTexImage2DARB)(GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *);
 extern void (APIENTRY * bglGetCompressedTexImageARB)(GLenum, GLint, GLvoid *);
+extern void (APIENTRY * bglTexGenfv)(GLenum coord, GLenum pname, const GLfloat *params);
 
 // Fog
 extern void (APIENTRY * bglFogf)( GLenum pname, GLfloat param );
 extern void (APIENTRY * bglFogi)( GLenum pname, GLint param );
 extern void (APIENTRY * bglFogfv)( GLenum pname, const GLfloat *params );
+
+// Display Lists
+extern void (APIENTRY * bglNewList)(GLuint list, GLenum mode);
+extern void (APIENTRY * bglEndList)(void);
+extern void (APIENTRY * bglCallList)(GLuint list);
 			
 #ifdef RENDERTYPEWIN
 // Windows

@@ -48,6 +48,8 @@ void (APIENTRY * bglPopMatrix)( void );
 void (APIENTRY * bglLoadIdentity)( void );
 void (APIENTRY * bglLoadMatrixf)( const GLfloat *m );
 void (APIENTRY * bglRotatef)(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
+void (APIENTRY * bglScalef)(GLfloat x, GLfloat y, GLfloat z);
+void (APIENTRY * bglTranslatef)(GLfloat x, GLfloat y, GLfloat z);
 
 // Drawing
 void (APIENTRY * bglBegin)( GLenum mode );
@@ -56,6 +58,7 @@ void (APIENTRY * bglVertex2f)( GLfloat x, GLfloat y );
 void (APIENTRY * bglVertex2i)( GLint x, GLint y );
 void (APIENTRY * bglVertex3d)( GLdouble x, GLdouble y, GLdouble z );
 void (APIENTRY * bglVertex3fv)( const GLfloat *v );
+void (APIENTRY * bglVertex3dv)( const GLdouble *v );
 void (APIENTRY * bglColor4f)( GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha );
 void (APIENTRY * bglColor4ub)( GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha );
 void (APIENTRY * bglTexCoord2d)( GLdouble s, GLdouble t );
@@ -79,11 +82,17 @@ void (APIENTRY * bglTexParameteri)( GLenum target, GLenum pname, GLint param );
 void (APIENTRY * bglGetTexLevelParameteriv)( GLenum target, GLint level, GLenum pname, GLint *params );
 void (APIENTRY * bglCompressedTexImage2DARB)(GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *);
 void (APIENTRY * bglGetCompressedTexImageARB)(GLenum, GLint, GLvoid *);
+void (APIENTRY * bglTexGenfv)(GLenum coord, GLenum pname, const GLfloat *params);
 
 // Fog
 void (APIENTRY * bglFogf)( GLenum pname, GLfloat param );
 void (APIENTRY * bglFogi)( GLenum pname, GLint param );
 void (APIENTRY * bglFogfv)( GLenum pname, const GLfloat *params );
+
+// Display Lists
+void (APIENTRY * bglNewList)(GLuint list, GLenum mode);
+void (APIENTRY * bglEndList)(void);
+void (APIENTRY * bglCallList)(GLuint list);
 
 #ifdef RENDERTYPEWIN
 // Windows
@@ -202,6 +211,8 @@ int loadgldriver(const char *driver)
     bglLoadIdentity		= GETPROC("glLoadIdentity");
     bglLoadMatrixf		= GETPROC("glLoadMatrixf");
     bglRotatef          = GETPROC("glRotatef");
+    bglScalef          = GETPROC("glScalef");
+    bglTranslatef          = GETPROC("glTranslatef");
 
     // Drawing
     bglBegin		= GETPROC("glBegin");
@@ -210,6 +221,7 @@ int loadgldriver(const char *driver)
     bglVertex2i		= GETPROC("glVertex2i");
     bglVertex3d		= GETPROC("glVertex3d");
     bglVertex3fv		= GETPROC("glVertex3fv");
+    bglVertex3dv		= GETPROC("glVertex3dv");
     bglColor4f		= GETPROC("glColor4f");
     bglColor4ub		= GETPROC("glColor4ub");
     bglTexCoord2d		= GETPROC("glTexCoord2d");
@@ -231,11 +243,17 @@ int loadgldriver(const char *driver)
     bglTexParameterf	= GETPROC("glTexParameterf");
     bglTexParameteri	= GETPROC("glTexParameteri");
     bglGetTexLevelParameteriv = GETPROC("glGetTexLevelParameteriv");
+    bglTexGenfv         = GETPROC("glTexGenfv");
 
     // Fog
     bglFogf			= GETPROC("glFogf");
     bglFogi			= GETPROC("glFogi");
     bglFogfv		= GETPROC("glFogfv");
+
+    // Display Lists
+    bglNewList      = GETPROC("glNewList");
+    bglEndList      = GETPROC("glEndList");
+    bglCallList      = GETPROC("glCallList");
 
     loadglextensions();
 
