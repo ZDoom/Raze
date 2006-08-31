@@ -3840,6 +3840,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         break;
     }
     if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && ((tspr->cstat&48) != 0))
+	if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && ((tspr->cstat&48) != 0))
         bglDepthMask(0);
 #endif
 

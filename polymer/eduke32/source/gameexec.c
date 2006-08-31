@@ -4568,6 +4568,7 @@ SKIPJIBS:
                 if (tw == CON_ESHOOTVAR || tw == CON_EZSHOOTVAR)
                     SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
             }
+            hittype[g_i].temp_data[9]=0;
             break;
         }
 

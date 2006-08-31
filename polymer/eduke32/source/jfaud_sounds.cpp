@@ -55,7 +55,11 @@ typedef uint64 uint64_t;
 static JFAudMixerChannel::Filter DefaultFilter = JFAudMixerChannel::FilterNearest;
 static int osdcmd_setsoundfilter(const osdfuncparm_t *parm);
 
-#include <cmath>
+#ifdef SCREWED_UP_CPP
+# include "watcomhax/cmath"
+#else
+# include <cmath>
+#endif
 
 class KenFile : public JFAudFile {
 private:

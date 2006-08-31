@@ -33,11 +33,11 @@ DXROOT=c:/sdks/directx/dx61
 FMODROOTWIN=c:/sdks/fmodapi374win/api
 
 # build locations - OBJ gets overridden to the game-specific objects dir
-OBJ?=obj.gnu/
-SRC=src/
-GAME=testgame/
-RSRC=rsrc/
-INC=include/
+OBJ?=obj.gnu
+SRC=src
+GAME=testgame
+RSRC=rsrc
+INC=include
 
 # filename extensions - these won't need to change
 o=o
@@ -61,9 +61,9 @@ AR=ar
 RANLIB=ranlib
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Wno-char-subscripts -Wno-unused \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
-	-DKSFORBUILD -I$(INC:/=)
+	-DKSFORBUILD -I$(INC)
 OURCXXFLAGS=-fno-exceptions -fno-rtti
-GAMECFLAGS=-I../jfaud/inc -I$(GAME)
+GAMECFLAGS=-I../jfaud/inc -I$(GAME)/
 LIBS=
 GAMELIBS=../jfaud/libjfaud.a #../jfaud/mpadec/libmpadec/libmpadec.a
 ASFLAGS=-s #-g
@@ -72,40 +72,40 @@ EXESUFFIX=
 include Makefile.shared
 
 ifneq (0,$(USE_A_C))
-  ENGINEOBJS=$(OBJ)a-c.$o
+  ENGINEOBJS=$(OBJ)/a-c.$o
 else
-  ENGINEOBJS=$(OBJ)a.$o
+  ENGINEOBJS=$(OBJ)/a.$o
 endif
 
 ENGINEOBJS+= \
-	$(OBJ)baselayer.$o \
-	$(OBJ)cache1d.$o \
-	$(OBJ)compat.$o \
-	$(OBJ)crc32.$o \
-	$(OBJ)defs.$o \
-	$(OBJ)engine.$o \
-	$(OBJ)glbuild.$o \
-	$(OBJ)kplib.$o \
-	$(OBJ)lzf_c.$o \
-	$(OBJ)lzf_d.$o \
-	$(OBJ)md4.$o \
-	$(OBJ)mmulti.$o \
-	$(OBJ)osd.$o \
-	$(OBJ)pragmas.$o \
-	$(OBJ)scriptfile.$o \
-	$(OBJ)polymer.$o
+	$(OBJ)/baselayer.$o \
+	$(OBJ)/cache1d.$o \
+	$(OBJ)/compat.$o \
+	$(OBJ)/crc32.$o \
+	$(OBJ)/defs.$o \
+	$(OBJ)/engine.$o \
+	$(OBJ)/glbuild.$o \
+	$(OBJ)/kplib.$o \
+	$(OBJ)/lzf_c.$o \
+	$(OBJ)/lzf_d.$o \
+	$(OBJ)/md4.$o \
+	$(OBJ)/mmulti.$o \
+	$(OBJ)/osd.$o \
+	$(OBJ)/pragmas.$o \
+	$(OBJ)/scriptfile.$o \
+	$(OBJ)/polymer.$o
 
-EDITOROBJS=$(OBJ)build.$o \
-	$(OBJ)config.$o
+EDITOROBJS=$(OBJ)/build.$o \
+	$(OBJ)/config.$o
 
-GAMEEXEOBJS=$(OBJ)game.$o \
-	$(OBJ)jfaud_sound.$o \
-	$(OBJ)config.$o \
-	$(OBJ)$(ENGINELIB)
+GAMEEXEOBJS=$(OBJ)/game.$o \
+	$(OBJ)/jfaud_sound.$o \
+	$(OBJ)/config.$o \
+	$(OBJ)/$(ENGINELIB)
 
-EDITOREXEOBJS=$(OBJ)bstub.$o \
-	$(OBJ)$(EDITORLIB) \
-	$(OBJ)$(ENGINELIB)
+EDITOREXEOBJS=$(OBJ)/bstub.$o \
+	$(OBJ)/$(EDITORLIB) \
+	$(OBJ)/$(ENGINELIB)
 
 # detect the platform
 ifeq ($(PLATFORM),LINUX)
@@ -135,25 +135,25 @@ ifeq ($(PLATFORM),SYLLABLE)
 endif
 
 ifeq ($(RENDERTYPE),SDL)
-	ENGINEOBJS+= $(OBJ)sdlayer.$o
+	ENGINEOBJS+= $(OBJ)/sdlayer.$o
 	OURCFLAGS+= $(subst -Dmain=SDL_main,,$(SDLCONFIG_CFLAGS))
 	
 	ifeq (1,$(HAVE_GTK2))
 		OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
-		ENGINEOBJS+= $(OBJ)gtkbits.$o $(OBJ)dynamicgtk.$o
-		EDITOROBJS+= $(OBJ)startgtk.editor.$o
-		GAMEEXEOBJS+= $(OBJ)game_banner.$o $(OBJ)startgtk.game.$o
-		EDITOREXEOBJS+= $(OBJ)editor_banner.$o
+		ENGINEOBJS+= $(OBJ)/gtkbits.$o $(OBJ)/dynamicgtk.$o
+		EDITOROBJS+= $(OBJ)/startgtk.editor.$o
+		GAMEEXEOBJS+= $(OBJ)/game_banner.$o $(OBJ)/startgtk.game.$o
+		EDITOREXEOBJS+= $(OBJ)/editor_banner.$o
 	endif
 
-	GAMEEXEOBJS+= $(OBJ)game_icon.$o
-	EDITOREXEOBJS+= $(OBJ)build_icon.$o
+	GAMEEXEOBJS+= $(OBJ)/game_icon.$o
+	EDITOREXEOBJS+= $(OBJ)/build_icon.$o
 endif
 ifeq ($(RENDERTYPE),WIN)
-	ENGINEOBJS+= $(OBJ)winlayer.$o
-	EDITOROBJS+= $(OBJ)startwin.editor.$o
-	GAMEEXEOBJS+= $(OBJ)gameres.$(res) $(OBJ)startwin.game.$o
-	EDITOREXEOBJS+= $(OBJ)buildres.$(res)
+	ENGINEOBJS+= $(OBJ)/winlayer.$o
+	EDITOROBJS+= $(OBJ)/startwin.editor.$o
+	GAMEEXEOBJS+= $(OBJ)/gameres.$(res) $(OBJ)/startwin.game.$o
+	EDITOREXEOBJS+= $(OBJ)/buildres.$(res)
 endif
 
 ifneq (0,$(EFENCE))
@@ -182,16 +182,16 @@ endif
 
 UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX)
 
-all: testgame$(EXESUFFIX) build$(EXESUFFIX) $(OBJ)$(ENGINELIB) $(OBJ)$(EDITORLIB)
+all: testgame$(EXESUFFIX) build$(EXESUFFIX) $(OBJ)/$(ENGINELIB) $(OBJ)/$(EDITORLIB)
 utils: $(UTILS)
 
-enginelib: $(OBJ)$(ENGINELIB)
-$(OBJ)$(ENGINELIB): $(ENGINEOBJS)
+enginelib: $(OBJ)/$(ENGINELIB)
+$(OBJ)/$(ENGINELIB): $(ENGINEOBJS)
 	$(AR) rc $@ $^
 	$(RANLIB) $@
 
-editorlib: $(OBJ)$(EDITORLIB)
-$(OBJ)$(EDITORLIB): $(EDITOROBJS)
+editorlib: $(OBJ)/$(EDITORLIB)
+$(OBJ)/$(EDITORLIB): $(EDITOROBJS)
 	$(AR) rc $@ $^
 	$(RANLIB) $@
 
@@ -201,60 +201,62 @@ testgame$(EXESUFFIX): $(GAMEEXEOBJS)
 build$(EXESUFFIX): $(EDITOREXEOBJS)
 	$(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS)
 
-pragmacheck$(EXESUFFIX): $(OBJ)pragmacheck.$o $(OBJ)pragmas.$o
+pragmacheck$(EXESUFFIX): $(OBJ)/pragmacheck.$o $(OBJ)/pragmas.$o
 	$(CC) $(subst -Dmain=app_main,,$(OURCFLAGS)) -o $@ $^
 	
-kextract$(EXESUFFIX): $(OBJ)kextract.$o $(OBJ)compat.$o
+kextract$(EXESUFFIX): $(OBJ)/kextract.$o $(OBJ)/compat.$o
 	$(CC) -o $@ $^
-kgroup$(EXESUFFIX): $(OBJ)kgroup.$o $(OBJ)compat.$o
+kgroup$(EXESUFFIX): $(OBJ)/kgroup.$o $(OBJ)/compat.$o
 	$(CC) -o $@ $^
-transpal$(EXESUFFIX): $(OBJ)transpal.$o $(OBJ)pragmas.$o $(OBJ)compat.$o
+transpal$(EXESUFFIX): $(OBJ)/transpal.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o
 	$(CC) -o $@ $^
-wad2art$(EXESUFFIX): $(OBJ)wad2art.$o $(OBJ)pragmas.$o $(OBJ)compat.$o
+wad2art$(EXESUFFIX): $(OBJ)/wad2art.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o
 	$(CC) -o $@ $^
-wad2map$(EXESUFFIX): $(OBJ)wad2map.$o $(OBJ)pragmas.$o $(OBJ)compat.$o
+wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o
 	$(CC) -o $@ $^
-generateicon$(EXESUFFIX): $(OBJ)generateicon.$o $(OBJ)kplib.$o
+generateicon$(EXESUFFIX): $(OBJ)/generateicon.$o $(OBJ)/kplib.$o
 	$(CC) -o $@ $^
-cacheinfo$(EXESUFFIX): $(OBJ)cacheinfo.$o $(OBJ)compat.$o
+cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o
 	$(CC) -o $@ $^
 enumdisplay$(EXESUFFIX): src/misc/enumdisplay.c
 	$(CC) -g -Os -o $@ $^ -I$(DXROOT)/include -lgdi32
+mapdump$(EXESUFFIX): $(OBJ)/mapdump.$o
+	$(CC) -o $@ $^
 
 # DEPENDENCIES
 include Makefile.deps
 
 # RULES
-$(OBJ)%.$o: $(SRC)%.nasm
+$(OBJ)/%.$o: $(SRC)/%.nasm
 	$(AS) $(ASFLAGS) $< -o $@
 
-$(OBJ)%.$o: $(SRC)%.c
+$(OBJ)/%.$o: $(SRC)/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
 
-$(OBJ)%.$o: $(SRC)%.cpp
+$(OBJ)/%.$o: $(SRC)/%.cpp
 	$(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
 
-$(OBJ)%.$o: $(SRC)misc/%.rc
+$(OBJ)/%.$o: $(SRC)/misc/%.rc
 	$(RC) -i $< -o $@ --include-dir=$(INC) --include-dir=$(SRC) --include-dir=$(GAME)
 
-$(OBJ)%.$o: $(SRC)util/%.c
+$(OBJ)/%.$o: $(SRC)/util/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
 
-$(OBJ)%.$o: $(RSRC)%.c
+$(OBJ)/%.$o: $(RSRC)/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
 
-$(OBJ)%.$o: $(GAME)%.c
+$(OBJ)/%.$o: $(GAME)/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) $(GAMECFLAGS) -c $< -o $@ 2>&1
 
-$(OBJ)%.$o: $(GAME)%.cpp
+$(OBJ)/%.$o: $(GAME)/%.cpp
 	$(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) $(GAMECFLAGS) -c $< -o $@ 2>&1
 
-$(OBJ)game_banner.$o: $(RSRC)game_banner.c
-$(OBJ)editor_banner.$o: $(RSRC)editor_banner.c
-$(RSRC)game_banner.c: $(RSRC)game.bmp
+$(OBJ)/game_banner.$o: $(RSRC)/game_banner.c
+$(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
+$(RSRC)/game_banner.c: $(RSRC)/game.bmp
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
-$(RSRC)editor_banner.c: $(RSRC)build.bmp
+$(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
@@ -264,7 +266,7 @@ ifeq ($(PLATFORM),DARWIN)
 	cd osx/engine && xcodebuild -target All clean
 	cd osx/game && xcodebuild -target All clean
 else
-	-rm -f $(OBJ)*
+	-rm -f $(OBJ)/*
 endif
 
 veryclean: clean

@@ -62,6 +62,13 @@ ifeq ($(PLATFORM),WINDOWS)
 	RENDERTYPE ?= WIN
 	EXESUFFIX=.exe
 	LIBS+= -lmingwex -lwinmm -L$(DXROOT)/lib -lwsock32 -lcomctl32 #-lshfolder
+    ifneq (0,$(USE_OPENGL))
+        LIBS+= -lglu32
+    endif
+else
+    ifneq (0,$(USE_OPENGL))
+        LIBS+= -lGLU
+    endif
 endif
 ifeq ($(PLATFORM),BSD)
 	RENDERTYPE=SDL
@@ -126,9 +133,6 @@ ifeq ($(RENDERTYPE),SDL)
 else
 	ifeq ($(RENDERTYPE),WIN)
 		LIBS+= -mwindows -ldxguid
-                    ifneq (0,$(USE_OPENGL))
-                        LIBS+= -lglu32
-                    endif
 	endif
 endif
 

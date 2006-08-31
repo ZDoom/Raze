@@ -11,19 +11,35 @@
 // library will need to wrap these functions with suitable emulations.
 #define __compat_h_macrodef__
 
+#if defined(__WATCOMC__) && ((__WATCOMC__ -0) < 1230)
+# define SCREWED_UP_CPP
+#endif
+
 #ifdef __cplusplus
-# include <cstdarg>
+# ifdef SCREWED_UP_CPP
+// Old OpenWatcoms need some help
+#  include "watcomhax/cstdarg"
+#  ifdef __compat_h_macrodef__
+#   include "watcomhax/cstdio"
+#   include "watcomhax/cstring"
+#   include "watcomhax/cstdlib"
+#   include "watcomhax/ctime"
+#  endif
+# else
+#  include <cstdarg>
+#  ifdef __compat_h_macrodef__
+#   include <cstdio>
+#   include <cstring>
+#   include <cstdlib>
+#   include <ctime>
+#  endif
+# endif
 #else
 # include <stdarg.h>
 #endif
 
 #ifdef __compat_h_macrodef__
-# ifdef __cplusplus
-#  include <cstdio>
-#  include <cstring>
-#  include <cstdlib>
-#  include <ctime>
-# else
+# ifndef __cplusplus
 #  include <stdio.h>
 #  include <string.h>
 #  include <stdlib.h>
@@ -144,6 +160,11 @@ typedef unsigned long long uint64;
 #endif
 
 #ifdef __cplusplus
+
+# ifndef SCREWED_UP_CPP
+   using namespace std;
+# endif
+
 extern "C" {
 #endif
 
@@ -272,13 +293,13 @@ int		Bclosedir(BDIR *dir);
 
 
 #ifdef __compat_h_macrodef__
-# define BFILE FILE
+  typedef FILE BFILE;
 # define bsize_t size_t
 # define bssize_t ssize_t
 #else
-typedef void          BFILE;
-typedef unsigned long bsize_t;
-typedef signed   long bssize_t;
+  typedef void          BFILE;
+  typedef unsigned long bsize_t;
+  typedef signed   long bssize_t;
 #endif
 
 

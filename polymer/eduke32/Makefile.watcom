@@ -1,10 +1,10 @@
 # EDuke32 Makefile for Watcom Make
 
-SRC=source\
-OBJ=obj\
-EROOT=..\build\
-EINC=$(EROOT)include\
-EOBJ=eobj\
+SRC=source
+OBJ=obj
+EROOT=..\build
+EINC=$(EROOT)\include
+EOBJ=eobj
 INC=$(SRC)
 o=obj
 
@@ -22,82 +22,82 @@ ENGINEOPTS=-dSUPERBUILD -dPOLYMOST -dUSE_OPENGL
 CC=wcc386
 CXX=wpp386
 CFLAGS= -zq -5r -s -orb -fp5 -d2 -db &
-	-i=watcomhax -i=$(INC) -i=$(EINC) -i=$(SRC)jmact -i=$(SRC)jaudiolib -i=$(DXROOT)\include &
+	-i=$(INC) -i=$(EINC) -i=$(SRC)\jmact -i=$(SRC)\jaudiolib -i=$(DXROOT)\include &
 	-dRENDERTYPEWIN=1 -dNOCOPYPROTECT $(ENGINEOPTS) -i=..\jfaud\inc
 LIBS=wsock32.lib dxguid.lib ..\jfaud\jfaud.lib winmm.lib #opengl32.lib
 WASMFLAGS=-d1
 EXESUFFIX=.exe
 
-JMACTOBJ=$(OBJ)util_lib.$o &
-	$(OBJ)file_lib.$o &
-	$(OBJ)control.$o &
-	$(OBJ)keyboard.$o &
-	$(OBJ)mouse.$o &
-	$(OBJ)mathutil.$o &
-	$(OBJ)scriplib.$o
+JMACTOBJ=$(OBJ)\util_lib.$o &
+	$(OBJ)\file_lib.$o &
+	$(OBJ)\control.$o &
+	$(OBJ)\keyboard.$o &
+	$(OBJ)\mouse.$o &
+	$(OBJ)\mathutil.$o &
+	$(OBJ)\scriplib.$o
 
-JAUDIOLIB_FX_STUB=$(OBJ)jaudiolib_fxstub.$o
-JAUDIOLIB_MUSIC_STUB=$(OBJ)jaudiolib_musicstub.$o
-JAUDIOLIB_JFAUD=$(OBJ)jfaud_sounds.$o
-JAUDIOLIB_FX=$(OBJ)mv_mix.$o &
-	  $(OBJ)mv_mix16.$o &
-	  $(OBJ)mvreverb.$o &
-	  $(OBJ)pitch.$o &
-	  $(OBJ)multivoc.$o &
-	  $(OBJ)ll_man.$o &
-	  $(OBJ)fx_man.$o &
-	  $(OBJ)dsoundout.$o
-JAUDIOLIB_MUSIC=$(OBJ)midi.$o &
-	  $(OBJ)mpu401.$o &
-	  $(OBJ)music.$o
-#JAUDIOLIBOBJ=$(JAUDIOLIB_MUSIC) $(JAUDIOLIB_FX) $(OBJ)sounds.$o
-#JAUDIOLIBOBJ=$(JAUDIOLIB_MUSIC_STUB) $(JAUDIOLIB_FX_STUB) $(OBJ)sounds.$o
+JAUDIOLIB_FX_STUB=$(OBJ)\jaudiolib_fxstub.$o
+JAUDIOLIB_MUSIC_STUB=$(OBJ)\jaudiolib_musicstub.$o
+JAUDIOLIB_JFAUD=$(OBJ)\jfaud_sounds.$o
+JAUDIOLIB_FX=$(OBJ)\mv_mix.$o &
+	  $(OBJ)\mv_mix16.$o &
+	  $(OBJ)\mvreverb.$o &
+	  $(OBJ)\pitch.$o &
+	  $(OBJ)\multivoc.$o &
+	  $(OBJ)\ll_man.$o &
+	  $(OBJ)\fx_man.$o &
+	  $(OBJ)\dsoundout.$o
+JAUDIOLIB_MUSIC=$(OBJ)\midi.$o &
+	  $(OBJ)\mpu401.$o &
+	  $(OBJ)\music.$o
+#JAUDIOLIBOBJ=$(JAUDIOLIB_MUSIC) $(JAUDIOLIB_FX) $(OBJ)\sounds.$o
+#JAUDIOLIBOBJ=$(JAUDIOLIB_MUSIC_STUB) $(JAUDIOLIB_FX_STUB) $(OBJ)\sounds.$o
 JAUDIOLIBOBJ=$(JAUDIOLIB_JFAUD)
 
-GAMEOBJS=$(OBJ)game.$o &
-	$(OBJ)actors.$o &
-	$(OBJ)anim.$o &
-	$(OBJ)gamedef.$o &
-	$(OBJ)gameexec.$o &
-	$(OBJ)global.$o &
-	$(OBJ)menus.$o &
-	$(OBJ)namesdyn.$o &
-	$(OBJ)player.$o &
-	$(OBJ)premap.$o &
-	$(OBJ)savegame.$o &
-	$(OBJ)sector.$o &
-	$(OBJ)rts.$o &
-	$(OBJ)config.$o &
-	$(OBJ)animlib.$o &
-	$(OBJ)testcd.$o &
-	$(OBJ)osdfuncs.$o &
-	$(OBJ)osdcmds.$o &
-	$(OBJ)winbits.$o &
-	$(OBJ)startwin.game.$o &
+GAMEOBJS=$(OBJ)\game.$o &
+	$(OBJ)\actors.$o &
+	$(OBJ)\anim.$o &
+	$(OBJ)\gamedef.$o &
+	$(OBJ)\gameexec.$o &
+	$(OBJ)\global.$o &
+	$(OBJ)\menus.$o &
+	$(OBJ)\namesdyn.$o &
+	$(OBJ)\player.$o &
+	$(OBJ)\premap.$o &
+	$(OBJ)\savegame.$o &
+	$(OBJ)\sector.$o &
+	$(OBJ)\rts.$o &
+	$(OBJ)\config.$o &
+	$(OBJ)\animlib.$o &
+	$(OBJ)\testcd.$o &
+	$(OBJ)\osdfuncs.$o &
+	$(OBJ)\osdcmds.$o &
+	$(OBJ)\winbits.$o &
+	$(OBJ)\startwin.game.$o &
 	$(JMACTOBJ) &
 	$(JAUDIOLIBOBJ)
 
-EDITOROBJS=$(OBJ)astub.$o
+EDITOROBJS=$(OBJ)\astub.$o
 
 # RULES
 .EXTENSIONS: .wasm .res .rc
 
-.wasm:	$(SRC)
-.wasm:	$(SRC)jaudiolib/
-.c:	$(SRC)
-.cpp:	$(SRC)
-.c:	$(SRC)jmact/
-.c:	$(SRC)jaudiolib/
-.c:	$(SRC)util/
-.rc:	$(SRC)misc/
+.wasm:	$(SRC)\
+.wasm:	$(SRC)\jaudiolib
+.c:	$(SRC)\
+.cpp:	$(SRC)\
+.c:	$(SRC)\jmact
+.c:	$(SRC)\jaudiolib
+.c:	$(SRC)\util
+.rc:	$(SRC)\misc
 
 .wasm.$o:
-	wasm $(WASMFLAGS) -fo=$(OBJ).$o $[@
+	wasm $(WASMFLAGS) -fo=$(OBJ)\.$o $[@
 
 .c.$o:
-	$(CC) $(CFLAGS) -fo=$(OBJ).$o $[@
+	$(CC) $(CFLAGS) -fo=$(OBJ)\.$o $[@
 .cpp.$o:
-	$(CXX) $(CFLAGS) -fo=$(OBJ).$o $[@
+	$(CXX) $(CFLAGS) -fo=$(OBJ)\.$o $[@
 
 .rc.res:
 	wrc -i=$(EINC) -i=$(SRC) -fo=$^*.res -r $[@
@@ -107,22 +107,22 @@ EDITOROBJS=$(OBJ)astub.$o
 all: eduke32$(EXESUFFIX) build$(EXESUFFIX) .SYMBOLIC
 	%null
 
-eduke32$(EXESUFFIX): $(GAMEOBJS) $(OBJ)gameres.res $(EOBJ)$(ENGINELIB)
+eduke32$(EXESUFFIX): $(GAMEOBJS) $(OBJ)\gameres.res $(EOBJ)\$(ENGINELIB)
 	wlink	NAME     $@ &
 		SYSTEM   WIN95 &
 		DEBUG    ALL &
 		FILE     { $(GAMEOBJS) $(ENGINEOBJS) } &
-		RESOURCE $(OBJ)gameres.res &
+		RESOURCE $(OBJ)\gameres.res &
 		LIBPATH  $(DXROOT)\lib &
 		LIBPATH  $(EOBJ) &
 		LIBRARY  { $(ENGINELIB) $(LIBS) }
 	
-mapster32$(EXESUFFIX): $(EDITOROBJS) $(OBJ)buildres.res $(EOBJ)$(ENGINELIB) $(EOBJ)$(EDITORLIB)
+mapster32$(EXESUFFIX): $(EDITOROBJS) $(OBJ)\buildres.res $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB)
 	wlink	NAME     $@ &
 		SYSTEM   WIN95 &
 		DEBUG    ALL &
 		FILE     { $(EDITOROBJS) } &
-		RESOURCE $(OBJ)buildres.res &
+		RESOURCE $(OBJ)\buildres.res &
 		LIBPATH  $(DXROOT)\lib &
 		LIBPATH  $(EOBJ) &
 		LIBRARY  { $(LIBS) $(ENGINELIB) $(EDITORLIB) }
@@ -132,18 +132,18 @@ mapster32$(EXESUFFIX): $(EDITOROBJS) $(OBJ)buildres.res $(EOBJ)$(ENGINELIB) $(EO
 cwd=$+ $(%cwd) $-
 enginelib editorlib: .SYMBOLIC
 	-mkdir $(EOBJ)
-	%write $(EOBJ)overrides.mak OBJ=$(cwd)\$(EOBJ)
-	%write $(EOBJ)overrides.mak CFLAGS=$(ENGINEOPTS)
+	%write $(EOBJ)\overrides.mak OBJ=$(cwd)\$(EOBJ)
+	%write $(EOBJ)\overrides.mak CFLAGS=$(ENGINEOPTS)
 	cd $(EROOT)
-	wmake -f Makefile.watcom OVERRIDES=$(cwd)\$(EOBJ)overrides.mak $@
+	wmake -f Makefile.watcom OVERRIDES=$(cwd)\$(EOBJ)\overrides.mak $@
 	cd $(cwd)
 
-$(EOBJ)$(EDITORLIB): editorlib .SYMBOLIC
-$(EOBJ)$(ENGINELIB): enginelib .SYMBOLIC
+$(EOBJ)\$(EDITORLIB): editorlib .SYMBOLIC
+$(EOBJ)\$(ENGINELIB): enginelib .SYMBOLIC
 
 # PHONIES	
 clean: .SYMBOLIC
-	-del $(OBJ)* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
+	-del /q $(OBJ)\* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
 	
 veryclean: clean .SYMBOLIC
-	-del $(EOBJ)*
+	-del /q $(EOBJ)\*

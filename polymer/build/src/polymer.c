@@ -124,7 +124,7 @@ int             polymer_updategeometry(short sectnum)
 
 // This callback is called by the tesselator when it detects an intersection between contours (HELLO ROTATING SPOTLIGHT IN E1L1).
 // In this case, we create a new temporary vertex at the intersection point which will be freed after the polygon is drawn.
-void __stdcall      polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloat weight[4], GLdouble **out)
+void       polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloat weight[4], GLdouble **out)
 {
     GLdouble        *ptr;
 
@@ -141,7 +141,7 @@ void __stdcall      polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloa
 }
 
 // This callback is called by the tesselator whenever it raises an error.
-void __stdcall      polymer_tesserror(GLenum error)
+void       polymer_tesserror(GLenum error)
 {
     if (pr_verbosity >= 1) OSD_Printf("PR : Tesselation error number %i reported : %s.\n", error, gluErrorString(errno));
 }
