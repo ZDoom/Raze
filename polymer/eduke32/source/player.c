@@ -2707,7 +2707,7 @@ void getinput(short snum)
         loc.avel = angvel = 0;
         loc.horz = horiz = 0;
         loc.bits = (((long)gamequit)<<26);
-        loc.extbits = 0;
+        loc.extbits = (ud.pteam[snum] != ps[snum].team)<<6;
         return;
     }
 
@@ -2952,6 +2952,7 @@ void getinput(short snum)
     loc.extbits |= BUTTON(gamefunc_Strafe_Right)<<3;
     loc.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
     loc.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
+    loc.extbits |= (ud.pteam[snum] != ps[snum].team)<<6;
 
     if(ud.scrollmode && ud.overhead_on)
     {

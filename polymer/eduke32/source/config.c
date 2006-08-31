@@ -663,7 +663,7 @@ int32 CONFIG_ReadSetup( void )
         ps[0].palookup = ud.pcolor[0] = ud.color;
         SCRIPT_GetNumber( scripthandle, "Misc", "Team",&ud.team);
         if(ud.team > 1) ud.team = 0;
-        ps[0].team = ud.pteam[0] = ud.team;
+        ud.pteam[0] = ud.team;
         SCRIPT_GetNumber( scripthandle, "Misc", "MPMessageDisplayTime",&ud.msgdisptime);
         SCRIPT_GetNumber( scripthandle, "Misc", "StatusBarMode",&ud.statusbarmode);
         SCRIPT_GetNumber( scripthandle, "Misc", "AutoVote",&ud.autovote);

@@ -768,28 +768,14 @@ if( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
             ps[other].auto_aim = packbuf[i++];
             ps[other].weaponswitch = packbuf[i++];
             ps[other].palookup = ud.pcolor[other] = packbuf[i++];
-            j = ps[other].team;
-            ps[other].team = ud.pteam[other] = packbuf[i++];
+            ud.pteam[other] = packbuf[i++];
 
-            if(ps[other].team != j && sprite[ps[other].i].picnum == APLAYER)
-            {
-                hittype[ps[other].i].extra = 1000;
-                hittype[ps[other].i].picnum = APLAYERTOP;
-            }
+            /*            if(ps[other].team != j && sprite[ps[other].i].picnum == APLAYER)
+                        {
+                            hittype[ps[other].i].extra = 1000;
+                            hittype[ps[other].i].picnum = APLAYERTOP;
+                        } */
 
-            if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
-            {
-                j = 0;
-                switch(ps[other].team)
-                {
-                case 0: j = 3; break;
-                case 1: j = 21; break;
-                }
-                ps[other].palookup = ud.pcolor[other] = j;
-            }
-
-            if(sprite[ps[other].i].picnum == APLAYER)
-                sprite[ps[other].i].pal = ud.pcolor[other];
             break;
         case 7:
             //slaves in M/S mode only send to master
@@ -8776,25 +8762,7 @@ void syncnames(void)
     buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
     buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
 
-    i = ps[myconnectindex].team;
-    buf[l++] = ps[myconnectindex].team = ud.pteam[myconnectindex] = ud.team;
-
-    if(ps[myconnectindex].team != i && sprite[ps[myconnectindex].i].picnum == APLAYER)
-    {
-        hittype[ps[myconnectindex].i].extra = 1000;
-        hittype[ps[myconnectindex].i].picnum = APLAYERTOP;
-    }
-
-    if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
-    {
-        i = 0;
-        switch(ps[myconnectindex].team)
-        {
-        case 0: i = 3; break;
-        case 1: i = 21; break;
-        }
-        ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = i;
-    }
+    buf[l++] = ud.pteam[myconnectindex] = ud.team;
 
     for(i=connecthead;i>=0;i=connectpoint2[i])
     {
@@ -8870,7 +8838,7 @@ void updatenames(void)
         ps[myconnectindex].weaponswitch = ud.weaponswitch;
         ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
         j = ps[myconnectindex].team;
-        ps[myconnectindex].team = ud.pteam[myconnectindex] = ud.team;
+        ud.pteam[myconnectindex] = ud.team;
 
         if(sprite[ps[myconnectindex].i].picnum == APLAYER)
             sprite[ps[myconnectindex].i].pal = ud.pcolor[myconnectindex];
@@ -9275,13 +9243,13 @@ MAIN_LOOP_RESTART:
     ps[myconnectindex].aim_mode = ud.mouseaiming;
     ps[myconnectindex].auto_aim = AutoAim;
     ps[myconnectindex].weaponswitch = ud.weaponswitch;
-    ps[myconnectindex].team = ud.pteam[myconnectindex] = ud.team;
+    ud.pteam[myconnectindex] = ud.team;
 
     if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
     {
         int k = 0;
 
-        switch(ps[myconnectindex].team)
+        switch(ud.pteam[myconnectindex])
         {
         case 0: k = 3; break;
         case 1: k = 21; break;
@@ -10490,6 +10458,25 @@ char domovethings(void)
 
     for(i=connecthead;i>=0;i=connectpoint2[i])
     {
+        if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
+        {
+            if(sync[i].extbits&(1<<6))
+            {
+                ps[i].team = ud.pteam[i];
+                hittype[ps[i].i].picnum = APLAYERTOP;
+                quickkill(&ps[i]);
+            }
+            j = 0;
+            switch(ps[i].team)
+            {
+            case 0: j = 3; break;
+            case 1: j = 21; break;
+            }
+            ps[i].palookup = ud.pcolor[i] = j;
+        }
+
+        sprite[ps[i].i].pal = ud.pcolor[i];
+
         cheatkeys(i);
 
         if( ud.pause_on == 0 )
