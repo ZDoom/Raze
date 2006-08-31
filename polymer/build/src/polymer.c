@@ -172,6 +172,7 @@ int             polymer_buildfloor(short sectnum)
     gluTessProperty(prtess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_POSITIVE);
 
     tempverticescount = 0;
+    tempvertices = NULL;
 
     gluTessBeginPolygon(prtess, NULL);
     gluTessBeginContour(prtess);
@@ -195,6 +196,7 @@ int             polymer_buildfloor(short sectnum)
     if (tempverticescount)
     {
         free(tempvertices);
+        tempvertices = NULL;
         tempverticescount = 0;
     }
 
