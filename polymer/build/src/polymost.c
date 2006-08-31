@@ -2879,11 +2879,11 @@ static void polymost_drawalls (long bunch)
                 if ((oy < cy0) && (oy < cy1)) domost(x1,oy,x0,oy);
                 else if ((oy < cy0) != (oy < cy1))
                 {      /*         cy1        cy0
-                                            		//        /             \
-                                            		//oy----------      oy---------
-                                            		//    /                    \
-                                            		//  cy0                     cy1
-                                            		*/
+                                                		//        /             \
+                                                		//oy----------      oy---------
+                                                		//    /                    \
+                                                		//  cy0                     cy1
+                                                		*/
                     ox = (oy-cy0)*(x1-x0)/(cy1-cy0) + x0;
                     if (oy < cy0) { domost(ox,oy,x0,oy); domost(x1,cy1,ox,oy); }
                     else { domost(ox,oy,x0,cy0); domost(x1,oy,ox,oy); }
@@ -3840,8 +3840,8 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         break;
     }
     if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && ((tspr->cstat&48) != 0))
-	if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && ((tspr->cstat&48) != 0))
-        bglDepthMask(0);
+        if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && ((tspr->cstat&48) != 0))
+            bglDepthMask(0);
 #endif
 
     switch((globalorientation>>4)&3)
@@ -4228,16 +4228,16 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
             }
 
 #if 0
-			if(!nofog)
-			{
-    			i = klabs(tspr.shade);
+            if(!nofog)
+            {
+                i = klabs(tspr.shade);
                 bglFogf(GL_FOG_DENSITY,gvisibility/(tspr.shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(tspr.shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sector[tspr.sectnum].visibility<240?sector[tspr.sectnum].visibility+16:sector[tspr.sectnum].visibility-239))));
-			}
+            }
             mddraw(&tspr);
 #else
-			if(!nofog) bglDisable(GL_FOG);
+            if(!nofog) bglDisable(GL_FOG);
             mddraw(&tspr);
-			if(!nofog) bglEnable(GL_FOG);
+            if(!nofog) bglEnable(GL_FOG);
 #endif
             viewingrange = oldviewingrange;
             gxyaspect = ogxyaspect;

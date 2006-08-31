@@ -148,7 +148,7 @@ int loadgldriver(const char *driver)
  #ifdef _WIN32
         driver = "OPENGL32.DLL";
 #elif defined __APPLE__
-		driver = "/System/Library/Frameworks/OpenGL.framework/OpenGL";
+        driver = "/System/Library/Frameworks/OpenGL.framework/OpenGL";
 #else
         driver = "libGL.so";
 #endif

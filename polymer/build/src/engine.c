@@ -3124,7 +3124,7 @@ static void drawsprite(long snum)
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
     if (rendmode) {
-        polymost_drawsprite(snum); 
+        polymost_drawsprite(snum);
     #ifdef USE_OPENGL
         bglDepthMask(1);
     #endif
@@ -5817,7 +5817,7 @@ _equation       equation(long x1, long y1, long x2, long y2)
     }
     else // vertical
     {
-        ret.a = 1; 
+        ret.a = 1;
         ret.b = 0;
         ret.c = -x1;
     }
@@ -5825,7 +5825,7 @@ _equation       equation(long x1, long y1, long x2, long y2)
     return (ret);
 }
 
-// returns the intersection point between two lines 
+// returns the intersection point between two lines
 _point2d        intersection(_equation eq1, _equation eq2)
 {
     _point2d    ret;
@@ -6118,26 +6118,26 @@ killsprite:
     i = l;
     while (i > 0)
     {
-        i--;
-        indexes[i] = --spritesortcnt;
-        depths[i] = (tspriteptr[spritesortcnt]->x - globalposx) * (tspriteptr[spritesortcnt]->x - globalposx) +
-                    (tspriteptr[spritesortcnt]->y - globalposy) * (tspriteptr[spritesortcnt]->y - globalposy);
+    i--;
+    indexes[i] = --spritesortcnt;
+    depths[i] = (tspriteptr[spritesortcnt]->x - globalposx) * (tspriteptr[spritesortcnt]->x - globalposx) +
+    (tspriteptr[spritesortcnt]->y - globalposy) * (tspriteptr[spritesortcnt]->y - globalposy);
     }
 
     // second pass (and possibly more) to z-sort
     j = 0;
     while (j == 0)
     {
-        j = 1;
-        for(i=l-1;i>0;i--)
-        {
-            if (depths[i] < depths[i-1])
-            {
-                swaplong(&indexes[i-1], &indexes[i]);
-                swaplong(&depths[i-1], &depths[i]);
-                j = 0;
-            }
-        }
+    j = 1;
+    for(i=l-1;i>0;i--)
+    {
+    if (depths[i] < depths[i-1])
+    {
+    swaplong(&indexes[i-1], &indexes[i]);
+    swaplong(&depths[i-1], &depths[i]);
+    j = 0;
+    }
+    }
     }*/
 
     // MASKS PREPROCESSING
@@ -6147,45 +6147,45 @@ killsprite:
     /*i = k;
     while (i > 0)
     {
-        i--;
+    i--;
 
-        // leaf index
-        maskleaves[i].index = --maskwallcnt;
+    // leaf index
+    maskleaves[i].index = --maskwallcnt;
 
-        // leaf boundaries
-        maskleaves[i].p1.x = wall[thewall[maskwall[maskleaves[i].index]]].x - globalposx;
-        maskleaves[i].p1.y = wall[thewall[maskwall[maskleaves[i].index]]].y - globalposy;
-        maskleaves[i].p2.x = wall[wall[thewall[maskwall[maskleaves[i].index]]].point2].x - globalposx;
-        maskleaves[i].p2.y = wall[wall[thewall[maskwall[maskleaves[i].index]]].point2].y - globalposy;
-    
-        // leaf equations
-        maskleaves[i].maskeq = equation(maskleaves[i].p1.x, maskleaves[i].p1.y, maskleaves[i].p2.x, maskleaves[i].p2.y);
-        maskleaves[i].p1eq = equation(0, 0, maskleaves[i].p1.x, maskleaves[i].p1.y);
-        maskleaves[i].p2eq = equation(0, 0, maskleaves[i].p2.x, maskleaves[i].p2.y);
+    // leaf boundaries
+    maskleaves[i].p1.x = wall[thewall[maskwall[maskleaves[i].index]]].x - globalposx;
+    maskleaves[i].p1.y = wall[thewall[maskwall[maskleaves[i].index]]].y - globalposy;
+    maskleaves[i].p2.x = wall[wall[thewall[maskwall[maskleaves[i].index]]].point2].x - globalposx;
+    maskleaves[i].p2.y = wall[wall[thewall[maskwall[maskleaves[i].index]]].point2].y - globalposy;
 
-        // drawing flag
-        maskleaves[i].drawing = 0;
+    // leaf equations
+    maskleaves[i].maskeq = equation(maskleaves[i].p1.x, maskleaves[i].p1.y, maskleaves[i].p2.x, maskleaves[i].p2.y);
+    maskleaves[i].p1eq = equation(0, 0, maskleaves[i].p1.x, maskleaves[i].p1.y);
+    maskleaves[i].p2eq = equation(0, 0, maskleaves[i].p2.x, maskleaves[i].p2.y);
 
-        //OSD_Printf("Processed mask - %i\n", i);
+    // drawing flag
+    maskleaves[i].drawing = 0;
+
+    //OSD_Printf("Processed mask - %i\n", i);
     }
 
     // second pass to connect the leaves together
     i = k;
     while (i > 0)
     {
-        i--;
+    i--;
 
-        m = 0;
-        j = k;
-        while (j > 0)
-        {
-            j--;
+    m = 0;
+    j = k;
+    while (j > 0)
+    {
+    j--;
 
-            if ((i != j) && (wallobstructswall(&maskleaves[i], &maskleaves[j])))
-                maskleaves[i].branch[m++] = &maskleaves[j];
-        }
-        maskleaves[i].branch[m] = NULL;
-        //OSD_Printf("Processed parents for mask %i\n", i);
+    if ((i != j) && (wallobstructswall(&maskleaves[i], &maskleaves[j])))
+    maskleaves[i].branch[m++] = &maskleaves[j];
+    }
+    maskleaves[i].branch[m] = NULL;
+    //OSD_Printf("Processed parents for mask %i\n", i);
     }*/
 
     // DRAWING
@@ -6193,18 +6193,18 @@ killsprite:
     /*i = l - 1;
     while (i >= 0)
     {
-        //OSD_Printf("sprite - %i\n", depths[i]);
-        drawsprite(indexes[i]);
-        i--;
+    //OSD_Printf("sprite - %i\n", depths[i]);
+    drawsprite(indexes[i]);
+    i--;
     }
 
     // this codes draws the remaining (if any) masked walls, meaning those that are directly before the player
     while (k > 0)
     {
-        k--;
-        //OSD_Printf("Beginning drawing process for mask %i\n", k);
-        //drawmaskleaf(&maskleaves[k]);
-        drawmaskwall(k);
+    k--;
+    //OSD_Printf("Beginning drawing process for mask %i\n", k);
+    //drawmaskleaf(&maskleaves[k]);
+    drawmaskwall(k);
     }
     free(indexes);
     free(depths);*/

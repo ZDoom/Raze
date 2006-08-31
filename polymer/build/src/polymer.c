@@ -341,13 +341,13 @@ void            polymer_drawsector(long daposx, long daposy, long daposz, short 
                 bglEnd();
             }
         }
- 
+
 
         i++;
         wal = &wall[sec->wallptr + i];
     }
 
-   if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing sector %i...\n", sectnum);
+    if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing sector %i...\n", sectnum);
 }
 
 void    polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum)

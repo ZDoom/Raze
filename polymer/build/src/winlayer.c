@@ -1786,7 +1786,7 @@ int setvideomode(int x, int y, int c, int fs)
     initprintf("Setting video mode %dx%d (%d-bit %s)\n",
                x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
 
-	if (CreateAppWindow(modenum)) return -1;
+    if (CreateAppWindow(modenum)) return -1;
 
     if (!gammabrightness) {
         float f = 1.0 + ((float)curbrightness / 10.0);
@@ -2035,7 +2035,6 @@ void showframe(int w)
             bglPushMatrix();
             bglLoadIdentity();
 
-			bglDisable(GL_ALPHA_TEST);
             bglDisable(GL_DEPTH_TEST);
             bglDisable(GL_ALPHA_TEST);
             bglDisable(GL_TEXTURE_2D);
@@ -2957,7 +2956,7 @@ static BOOL CreateAppWindow(int modenum)
     }
     SetWindowPos(hWindow, HWND_TOP, x, y, w, h, 0);
 
-	SetWindowText(hWindow, apptitle);
+    SetWindowText(hWindow, apptitle);
     ShowWindow(hWindow, SW_SHOWNORMAL);
     SetForegroundWindow(hWindow);
     SetFocus(hWindow);
