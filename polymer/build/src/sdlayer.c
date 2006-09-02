@@ -353,6 +353,7 @@ int initinput(void)
         joydev = SDL_JoystickOpen(0);
         if (joydev) {
             SDL_JoystickEventState(SDL_ENABLE);
+            inputdevices |= 4;
 
             joynumaxes    = SDL_JoystickNumAxes(joydev);
             joynumbuttons = min(32,SDL_JoystickNumButtons(joydev));
