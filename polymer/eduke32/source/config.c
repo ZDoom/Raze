@@ -417,12 +417,12 @@ void CONFIG_SetupMouse( void )
     {
         Bsprintf(str,"MouseButton%ld",i); temp[0] = 0;
         if (!SCRIPT_GetString( scripthandle,"Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1)
+            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseButtonClicked%ld",i); temp[0] = 0;
         if (!SCRIPT_GetString( scripthandle,"Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1)
+            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
     }
 
@@ -431,17 +431,17 @@ void CONFIG_SetupMouse( void )
     {
         Bsprintf(str,"MouseAnalogAxes%ld",i); temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            if(CONFIG_AnalogNameToNum(temp) != -1)
+            if(CONFIG_AnalogNameToNum(temp) != -1 || temp[0] == 0)
                 MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
 
         Bsprintf(str,"MouseDigitalAxes%ld_0",i); temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1)
+            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseDigitalAxes%ld_1",i); temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1)
+            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseAnalogScale%ld",i);
@@ -489,12 +489,12 @@ void CONFIG_SetupJoystick( void )
     {
         Bsprintf(str,"JoystickButton%ld",i); temp[0] = 0;
         if (!SCRIPT_GetString( scripthandle,"Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1)
+            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"JoystickButtonClicked%ld",i); temp[0] = 0;
         if (!SCRIPT_GetString( scripthandle,"Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1)
+            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
     }
 
@@ -503,17 +503,17 @@ void CONFIG_SetupJoystick( void )
     {
         Bsprintf(str,"JoystickAnalogAxes%ld",i); temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            if(CONFIG_AnalogNameToNum(temp) != -1)
+            if(CONFIG_AnalogNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
 
         Bsprintf(str,"JoystickDigitalAxes%ld_0",i); temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1)
+            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"JoystickDigitalAxes%ld_1",i); temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1)
+            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"JoystickAnalogScale%ld",i);

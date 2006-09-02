@@ -4152,7 +4152,7 @@ int ExtInit(void)
                    "Would you like to enable the on-disk texture cache? "
                    "This feature may use up to 200 megabytes of disk "
                    "space if you have a great deal of high resolution "
-                   "textures and skins, but textures will load exponentially "
+                   "textures and skins, but textures will load dramatically "
                    "faster after the first time they are loaded.");
         if (i) i = 'y';
         if(i == 'y' || i == 'Y' )
