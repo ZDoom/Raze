@@ -5364,21 +5364,23 @@ SKIPJIBS:
             ps[g_p].pals[j] = *insptr++;
         break;
 
-    case CON_DYNQUOTE:
+    case CON_QSPRINTF:
         {
-            long var1, var2, var3, var4;
+            long var1, var2, var3, var4, sq, dq;
             insptr++;
-            if(fta_quotes[*insptr] != NULL)
+			dq = *insptr++;
+			sq = *insptr++;
+            if(fta_quotes[sq] != NULL && fta_quotes[dq] != NULL)
             {
-                Bstrcpy(tempbuf,fta_quotes[*insptr++]);
+                Bstrcpy(tempbuf,fta_quotes[sq]);
                 var1 = GetGameVarID(*insptr++, g_i, g_p);
                 var2 = GetGameVarID(*insptr++, g_i, g_p);
                 var3 = GetGameVarID(*insptr++, g_i, g_p);
                 var4 = GetGameVarID(*insptr++, g_i, g_p);
-                Bsprintf(fta_quotes[122],tempbuf,var1,var2,var3,var4);
-                FTA(122,&ps[g_p]);
+                Bsprintf(fta_quotes[dq],tempbuf,var1,var2,var3,var4);
             } else {
-                OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,*insptr);
+                if(fta_quotes[sq] == NULL) OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,sq);
+                if(fta_quotes[dq] == NULL) OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,dq);
                 insptr += 5;
             }
             break;

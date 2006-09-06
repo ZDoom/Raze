@@ -9087,7 +9087,6 @@ void app_main(int argc,char **argv)
         {
             Bsprintf(ud.user_name[j],"PLAYER %d",j+1);
             ps[j].team = ud.pteam[j] = i;
-            initprintf("p %d t %d\n",j,ps[j].team);
             i = 1-i;
         }
     }

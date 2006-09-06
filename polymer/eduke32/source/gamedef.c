@@ -408,7 +408,7 @@ char *keyw[] = {
                    "precache",                 // 261
                    "definegamefuncname",       // 262
                    "redefinequote",            // 263
-                   "dynquote",                 // 264
+                   "qsprintf",                 // 264
                    "getpname",                 // 265
                    "qstrcat",                  // 266
                    "qstrcpy",                  // 267
@@ -2788,7 +2788,8 @@ char parsecommand(void)
             ReportError(WARNING_EVENTSYNC);
         return 0;
 
-    case CON_DYNQUOTE:
+    case CON_QSPRINTF:
+        transnum(LABEL_DEFINE);
         transnum(LABEL_DEFINE);
         for(j = 0;j < 4;j++)
         {
@@ -4309,7 +4310,7 @@ repeatcase:
         transnum(LABEL_DEFINE);
         scriptptr--;
         j = *scriptptr;
-        while( *textptr == ' ' ) textptr++;
+        skipcomments();
 
         if (j < 0 || j > MAXVOLUMES-1)
         {
@@ -4342,7 +4343,7 @@ repeatcase:
         transnum(LABEL_DEFINE);
         scriptptr--;
         j = *scriptptr;
-        while( *textptr == ' ' ) textptr++;
+        skipcomments();
 
         if (j < 0 || j > NUMGAMEFUNCTIONS-1)
         {
@@ -4376,7 +4377,7 @@ repeatcase:
         transnum(LABEL_DEFINE);
         scriptptr--;
         j = *scriptptr;
-        while( *textptr == ' ' ) textptr++;
+        skipcomments();
 
         if (j < 0 || j > 4)
         {
@@ -4413,7 +4414,7 @@ repeatcase:
         scriptptr--; //remove it from compiled code
         gametype_flags[j] = *scriptptr; //put it into the flags
 
-        while( *textptr == ' ' ) textptr++;
+        skipcomments();
 
         if (j < 0 || j > MAXGAMETYPES-1)
         {
@@ -4449,7 +4450,7 @@ repeatcase:
         transnum(LABEL_DEFINE);
         scriptptr--;
         k = *scriptptr;
-        while( *textptr == ' ' ) textptr++;
+        skipcomments();
 
         if (j < 0 || j > MAXVOLUMES-1)
         {
@@ -4468,7 +4469,7 @@ repeatcase:
         }
 
         i = 0;
-        while( *textptr != ' ' && *textptr != 0x0a )
+        while( *textptr != ' ' && *textptr != 0x0d && *textptr != 0x0a )
         {
             level_file_names[j*11+k][i] = *textptr;
             textptr++,i++;
@@ -4482,21 +4483,21 @@ repeatcase:
         }
         level_names[j*11+k][i] = '\0';
 
-        while( *textptr == ' ' ) textptr++;
+        skipcomments();
 
         partime[j*11+k] =
             (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*26*60)+
             (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*26);
 
         textptr += 5;
-        while( *textptr == ' ' ) textptr++;
+        skipcomments();
 
         designertime[j*11+k] =
             (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*26*60)+
             (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*26);
 
         textptr += 5;
-        while( *textptr == ' ' ) textptr++;
+        skipcomments();
 
         i = 0;
 
@@ -4544,8 +4545,7 @@ repeatcase:
 
         i = 0;
 
-        while( *textptr == ' ' )
-            textptr++;
+        skipcomments();
 
         if (tw == CON_REDEFINEQUOTE)
         {
@@ -4613,8 +4613,9 @@ repeatcase:
         }
         scriptptr--;
         i = 0;
-        while( *textptr == ' ' )
-            textptr++;
+
+        skipcomments();
+
         while( *textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ')
         {
             cheatquotes[k][i] = *textptr;
@@ -4643,7 +4644,7 @@ repeatcase:
         i = 0;
         skipcomments();
 
-        while( *textptr != ' ' )
+        while( *textptr != ' ' && *textptr != 0x0d && *textptr != 0x0a)
         {
             sounds[k][i] = *textptr;
             textptr++,i++;

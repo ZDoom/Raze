@@ -695,7 +695,7 @@ enum keywords {
     CON_PRECACHE,           // 261
     CON_DEFINEGAMEFUNCNAME, // 262
     CON_REDEFINEQUOTE,      // 263
-    CON_DYNQUOTE,           // 264
+    CON_QSPRINTF,           // 264
     CON_GETPNAME,           // 265
     CON_QSTRCAT,            // 266
     CON_QSTRCPY,            // 267
