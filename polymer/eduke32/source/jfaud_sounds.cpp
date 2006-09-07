@@ -61,11 +61,7 @@ static int osdcmd_setsoundfilter(const osdfuncparm_t *parm);
 # include <cmath>
 #endif
 
-#ifdef JFAUD
 #define MAXCACHE1DSIZE (16*1048576)
-#else
-#define MAXCACHE1DSIZE (32*1048576)
-#endif
 
 class KenFile : public JFAudFile {
 private:

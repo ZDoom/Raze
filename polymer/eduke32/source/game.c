@@ -6302,6 +6302,12 @@ PALONLY:
                 t->cstat |= 4;
         }
 
+        if( ps[screenpeek].heat_amount > 0 && ps[screenpeek].heat_on && (badguy(s) || checkspriteflags(t->owner,SPRITE_FLAG_NVG) || s->picnum == APLAYER || s->statnum == 13))
+        {
+            t->pal = 6;
+            t->shade = 0;
+        }
+
         if( s->statnum == 13 || badguy(s) || checkspriteflags(t->owner,SPRITE_FLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0) )
             if(t->statnum != 99 && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE)
                 if(s->picnum != HOTMEAT)
@@ -6362,12 +6368,6 @@ PALONLY:
 #endif
                                 spritesortcnt++;
                             }
-                    }
-
-                    if( ps[screenpeek].heat_amount > 0 && ps[screenpeek].heat_on && (badguy(s) || checkspriteflags(t->owner,SPRITE_FLAG_NVG) || s->picnum == APLAYER || s->statnum == 13))
-                    {
-                        t->pal = 6;
-                        t->shade = 0;
                     }
                 }
 
