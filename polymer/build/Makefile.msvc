@@ -24,13 +24,8 @@ DXROOT=c:\sdks\directx\dx7
 FMODROOT=c:\sdks\fmodapi374win\api
 
 # /D these to enable certain features of the port's compile process
-# USE_A_C   This uses a C version of the classic renderer code rather
-#           than the assembly version in A.ASM.
-#           If this is defined, alter the $(OBJ)\a.$o in the
-#           ENGINEOBJS declaration to be $(OBJ)\a-c.$o
-# NOASM     When defined, uses C instead of Microsoft inline
-#           assembly for the features in PRAGMAS.H
-TARGETOPTS=#/DUSE_A_C #/DNOASM
+# NOASM     When defined, uses C instead of assembly code
+TARGETOPTS=#/DNOASM
 
 !ifdef DEBUG
 # debugging options

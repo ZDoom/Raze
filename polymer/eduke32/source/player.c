@@ -2740,23 +2740,27 @@ void getinput(short snum)
     {
         if(info.dpitch > 0)
         {
-            info.dpitch -= MouseFilter;
-            if(info.dpitch < 0) info.dpitch = 0;
+            if(info.dpitch > MouseFilter)
+                info.dpitch -= MouseFilter;
+            else info.dpitch = 0;
         }
         else if(info.dpitch < 0)
         {
-            info.dpitch += MouseFilter;
-            if(info.dpitch > 0) info.dpitch = 0;
+            if(info.dpitch < -MouseFilter)
+                info.dpitch += MouseFilter;
+            else info.dpitch = 0;
         }
         if(info.dyaw > 0)
         {
-            info.dyaw -= MouseFilter;
-            if(info.dyaw < 0) info.dyaw = 0;
+            if(info.dyaw > MouseFilter)
+                info.dyaw -= MouseFilter;
+            else info.dyaw = 0;
         }
         else if(info.dyaw < 0)
         {
-            info.dyaw += MouseFilter;
-            if(info.dyaw > 0) info.dyaw = 0;
+            if(info.dyaw < -MouseFilter)
+                info.dyaw += MouseFilter;
+            else info.dyaw = 0;
         }
     }
 

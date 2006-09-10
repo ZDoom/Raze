@@ -29,13 +29,8 @@ DXROOT=c:\sdks\directx\dx7
 !endif
 
 # -d these to enable certain features of the port's compile process
-# USE_A_C   This uses a C version of the classic renderer code rather
-#           than the assembly version in A.ASM.
-#           If this is defined, alter the $(OBJ)\a.$o in the
-#           ENGINEOBJS declaration to be $(OBJ)\a-c.$o
-# NOASM     When defined, uses C code instead of Watcom inline
-#           assembly for the features in PRAGMAS.H
-TARGETOPTS=#-dUSE_A_C #-dNOASM
+# NOASM     When defined, uses C code instead assembly code
+TARGETOPTS=#-dNOASM
 
 CC=wcc386
 CXX=wpp386

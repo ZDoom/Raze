@@ -80,7 +80,7 @@ endif
 ifeq ($(PLATFORM),SKYOS)
 	RENDERTYPE=SDL
 	EXESUFFIX=.app
-	override USE_A_C=1
+	override NOASM=1
 	BUILDCFLAGS+= -DUNDERSCORES
 	SDLCONFIG=
 	SDLCONFIG_CFLAGS=-I/boot/programs/sdk/include/sdl
@@ -89,7 +89,7 @@ endif
 ifeq ($(PLATFORM),QNX)
 	RENDERTYPE=SDL
 	override USE_OPENGL=0
-	override USE_A_C=1
+	override NOASM=1
 	STDCPPLIB=-lstdc++
 	LIBS+= -lsocket
 endif
@@ -97,7 +97,6 @@ ifeq ($(PLATFORM),SUNOS)
 	RENDERTYPE=SDL
 	override USE_OPENGL=0
 	override NOASM=1
-	override USE_A_C=1
 	STDCPPLIB=-lstdc++
 	LIBS+= -lsocket -lnsl
 endif
@@ -146,9 +145,6 @@ ifneq (0,$(POLYMOST))
 endif
 ifneq (0,$(USE_OPENGL))
   BUILDCFLAGS+= -DUSE_OPENGL
-endif
-ifneq (0,$(USE_A_C))
-  BUILDCFLAGS+= -DUSE_A_C
 endif
 ifneq (0,$(NOASM))
   BUILDCFLAGS+= -DNOASM

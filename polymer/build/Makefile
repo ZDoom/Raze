@@ -10,14 +10,12 @@
 #  SUPERBUILD     - enables voxels
 #  POLYMOST       - enables Polymost renderer
 #  USE_OPENGL     - enables OpenGL support in Polymost
-#  USE_A_C        - enables use of C version of classic renderer
 #  NOASM          - disables the use of inline assembly pragmas
 #
 #  SETSPRITEZ     - set to 1 for Shadow Warrior
 SUPERBUILD ?= 1
 POLYMOST ?= 1		
 USE_OPENGL ?= 1
-USE_A_C ?= 0
 NOASM ?= 0
 
 SETSPRITEZ ?= 0
@@ -71,13 +69,13 @@ EXESUFFIX=
 
 include Makefile.shared
 
-ifneq (0,$(USE_A_C))
-  ENGINEOBJS=$(OBJ)/a-c.$o
-else
-  ENGINEOBJS=$(OBJ)/a.$o
+ENGINEOBJS=
+ifeq (0,$(NOASM))
+  ENGINEOBJS+= $(OBJ)/a.$o
 endif
 
 ENGINEOBJS+= \
+	$(OBJ)/a-c.$o \
 	$(OBJ)/baselayer.$o \
 	$(OBJ)/cache1d.$o \
 	$(OBJ)/compat.$o \

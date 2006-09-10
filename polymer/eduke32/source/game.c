@@ -66,6 +66,10 @@ static int32 CommandMusicToggleOff = 0;
 static char *CommandMap = NULL;
 static char *CommandName = NULL,*CommandNet = NULL;
 int32 CommandWeaponChoice = 0;
+static struct strllist {
+    struct strllist *next;
+    char *str;
+} *CommandPaths = NULL, *CommandGrps = NULL;
 
 char confilename[BMAX_PATH] = {"EDUKE.CON"}, boardfilename[BMAX_PATH] = {0};
 char waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768];
@@ -7678,6 +7682,7 @@ void comlinehelp(char **argv)
               "-i#\t\tNetwork mode (1/0) (multiplayer only) (default == 1)\n"
               "-f#\t\tSend fewer packets (1, 2, 4) (multiplayer only)\n"
               "-gFILE\t\tUse multiple group files (must be last on command line)\n"
+              "-jDIRECTORY\t\tAdd a directory to the file path stack\n"
               "-hFILE\t\tUse FILE instead of DUKE3D.DEF\n"
               "-xFILE\t\tUse specified CON file (default EDUKE.CON/GAME.CON)\n"
               "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
@@ -7847,21 +7852,13 @@ void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
-                if (!Bstrcasecmp(c+1,"addpath")) {
-                    if (argc > i+1)
-                    {
-                        Bstrcpy(tempbuf,argv[i+1]);
-                        addsearchpath(tempbuf);
-                        i++;
-                    }
-                    i++;
-                    continue;
-                }
                 if (!Bstrcasecmp(c+1,"nam")) {
+                    strcpy(defaultduke3dgrp, "nam.grp");
                     i++;
                     continue;
                 }
                 if (!Bstrcasecmp(c+1,"setup")) {
+                    CommandSetup = TRUE;
                     i++;
                     continue;
                 }
@@ -7881,6 +7878,7 @@ void checkcommandline(int argc,char **argv)
                 }
                 if (!Bstrcasecmp(c+1,"rmnet"))
                 {
+                    NoSetup = TRUE;
                     if (argc > i+1)
                     {
                         CommandNet = argv[i+1];
@@ -7976,6 +7974,7 @@ void checkcommandline(int argc,char **argv)
                     continue;
                 }
                 if (!Bstrcasecmp(c+1,"net")) {
+                    NoSetup = TRUE;
                     firstnet = i;
                     netparamcount = argc - i - 1;
                     netparam = (char **)calloc(netparamcount, sizeof(char**));
@@ -8030,86 +8029,14 @@ void checkcommandline(int argc,char **argv)
                 c++;
                 switch(*c)
                 {
-                default: break;
-                case 'x':
-                case 'X':
-                    c++;
-                    if(*c)
-                    {
-                        Bstrcpy(confilename,c);
-                        userconfiles = 1;
-                        initprintf("Using CON file: %s.\n",confilename);
-                    }
+                case '?':
+                    comlinehelp(argv);
+                    exit(0);
                     break;
-                case 'g':
-                case 'G':
-                    c++;
-                    if(*c)
-                    {
-                        Bstrcpy(tempbuf,c);
-                        if( strchr(tempbuf,'.') == 0)
-                            Bstrcat(tempbuf,".grp");
-
-                        j = initgroupfile(tempbuf);
-                        if( j == -1 )
-                            initprintf("Could not find GRP file: %s.\n",tempbuf);
-                        else
-                        {
-                            groupfile = j;
-                            initprintf("Using GRP file: %s.\n",tempbuf);
-                        }
-                    }
-
-                    break;
-                case 'h':
-                case 'H':
-                    c++;
-                    if (*c) {
-                        duke3ddef = c;
-                        initprintf("Using DEF file: %s.\n",duke3ddef);
-                    }
-                    break;
-
                 case 'a':
                 case 'A':
                     ud.playerai = 1;
                     initprintf("Other player AI.\n");
-                    break;
-                case 'n':
-                case 'N':
-                    c++;
-                    if(*c == 's' || *c == 'S')
-                    {
-                        CommandSoundToggleOff = 2;
-                        initprintf("Sound off.\n");
-                    }
-                    else if(*c == 'm' || *c == 'M')
-                    {
-                        CommandMusicToggleOff = 1;
-                        initprintf("Music off.\n");
-                    }
-
-                    else if( *c == 'D')
-                    {
-                        FILE * fp=fopen("gamevars.txt","w");
-                        InitGameVars();
-                        DumpGameVars(fp);
-                        fclose(fp);
-                        initprintf("Game variables saved to gamevars.txt.\n");
-                    }
-
-                    else
-                    {
-                        comlinehelp(argv);
-                        exit(-1);
-                    }
-                    break;
-                case 'i':
-                case 'I':
-                    c++;
-                    if(*c == '0') networkmode = 0;
-                    if(*c == '1') networkmode = 1;
-                    initprintf("Network Mode %d\n",networkmode);
                     break;
                 case 'c':
                 case 'C':
@@ -8139,6 +8066,14 @@ void checkcommandline(int argc,char **argv)
                     //    break;
                     //}
                     break;
+                case 'd':
+                case 'D':
+                    c++;
+                    if( strchr(c,'.') == 0)
+                        Bstrcat(c,".dmo");
+                    initprintf("Play demo %s.\n",c);
+                    Bstrcpy(firstdemofile,c);
+                    break;
                 case 'f':
                 case 'F':
                     c++;
@@ -8152,19 +8087,64 @@ void checkcommandline(int argc,char **argv)
                         setpackettimeout(0x3fffffff,0x3fffffff);
                     }
                     break;
-                case 't':
-                case 'T':
+                case 'g':
+                case 'G':
                     c++;
-                    if(*c == '1') ud.m_respawn_monsters = 1;
-                    else if(*c == '2') ud.m_respawn_items = 1;
-                    else if(*c == '3') ud.m_respawn_inventory = 1;
-                    else
+                    if(!*c) break;
+                    strcpy(tempbuf,c);
+                    if( strchr(tempbuf,'.') == 0)
+                        strcat(tempbuf,".grp");
+
                     {
-                        ud.m_respawn_monsters = 1;
-                        ud.m_respawn_items = 1;
-                        ud.m_respawn_inventory = 1;
+                        struct strllist *s;
+                        s = (struct strllist *)calloc(1,sizeof(struct strllist));
+                        s->str = strdup(tempbuf);
+                        if (CommandGrps) {
+                            struct strllist *t;
+                            for (t = CommandGrps; t->next; t=t->next) ;
+                            t->next = s;
+                        } else {
+                            CommandGrps = s;
+                        }
                     }
-                    initprintf("Respawn on.\n");
+                    break;
+                case 'h':
+                case 'H':
+                    c++;
+                    if (*c) {
+                        duke3ddef = c;
+                        initprintf("Using DEF file: %s.\n",duke3ddef);
+                    }
+                    break;
+                case 'i':
+                case 'I':
+                    c++;
+                    if(*c == '0') networkmode = 0;
+                    if(*c == '1') networkmode = 1;
+                    initprintf("Network Mode %d\n",networkmode);
+                    break;
+                case 'j':
+                case 'J':
+                    c++;
+                    if(!*c) break;
+                    {
+                        struct strllist *s;
+                        s = (struct strllist *)calloc(1,sizeof(struct strllist));
+                        s->str = strdup(c);
+                        if (CommandPaths) {
+                            struct strllist *t;
+                            for (t = CommandPaths; t->next; t=t->next) ;
+                            t->next = s;
+                        } else {
+                            CommandPaths = s;
+                        }
+                    }
+                    break;
+                case 'l':
+                case 'L':
+                    ud.warp_on = 1;
+                    c++;
+                    ud.m_level_number = ud.level_number = (atol(c)-1)%11;
                     break;
                 case 'm':
                 case 'M':
@@ -8175,9 +8155,32 @@ void checkcommandline(int argc,char **argv)
                         initprintf("Monsters off.\n");
                     }
                     break;
-                case 'w':
-                case 'W':
-                    ud.coords = 1;
+                case 'n':
+                case 'N':
+                    c++;
+                    if(*c == 's' || *c == 'S')
+                    {
+                        CommandSoundToggleOff = 2;
+                        initprintf("Sound off.\n");
+                    }
+                    else if(*c == 'm' || *c == 'M')
+                    {
+                        CommandMusicToggleOff = 1;
+                        initprintf("Music off.\n");
+                    }
+                    else if(*c == 'd' || *c == 'D')
+                    {
+                        FILE * fp=fopen("gamevars.txt","w");
+                        InitGameVars();
+                        DumpGameVars(fp);
+                        fclose(fp);
+                        initprintf("Game variables saved to gamevars.txt.\n");
+                    }
+                    else
+                    {
+                        comlinehelp(argv);
+                        exit(-1);
+                    }
                     break;
                 case 'q':
                 case 'Q':
@@ -8195,31 +8198,6 @@ void checkcommandline(int argc,char **argv)
                     ud.m_recstat = 1;
                     initprintf("Demo record mode on.\n");
                     break;
-                case 'd':
-                case 'D':
-                    c++;
-                    if( strchr(c,'.') == 0)
-                        Bstrcat(c,".dmo");
-                    initprintf("Play demo %s.\n",c);
-                    Bstrcpy(firstdemofile,c);
-                    break;
-                case 'l':
-                case 'L':
-                    ud.warp_on = 1;
-                    c++;
-                    ud.m_level_number = ud.level_number = (atol(c)-1)%11;
-                    break;
-                case 'j':
-                case 'J':
-                    initprintf(HEAD2);
-                    exit(0);
-
-                case 'v':
-                case 'V':
-                    c++;
-                    ud.warp_on = 1;
-                    ud.m_volume_number = ud.volume_number = atol(c)-1;
-                    break;
                 case 's':
                 case 'S':
                     c++;
@@ -8227,17 +8205,19 @@ void checkcommandline(int argc,char **argv)
                     if(ud.m_player_skill == 4)
                         ud.m_respawn_monsters = ud.respawn_monsters = 1;
                     break;
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    ud.warp_on = 2 + (*c) - '0';
+                case 't':
+                case 'T':
+                    c++;
+                    if(*c == '1') ud.m_respawn_monsters = 1;
+                    else if(*c == '2') ud.m_respawn_items = 1;
+                    else if(*c == '3') ud.m_respawn_inventory = 1;
+                    else
+                    {
+                        ud.m_respawn_monsters = 1;
+                        ud.m_respawn_items = 1;
+                        ud.m_respawn_inventory = 1;
+                    }
+                    initprintf("Respawn on.\n");
                     break;
                 case 'u':
                 case 'U':
@@ -8277,7 +8257,38 @@ void checkcommandline(int argc,char **argv)
                         ud.wchoice[0][8] = 9;
                         ud.wchoice[0][9] = 1;
                     }
-
+                    break;
+                case 'v':
+                case 'V':
+                    c++;
+                    ud.warp_on = 1;
+                    ud.m_volume_number = ud.volume_number = atol(c)-1;
+                    break;
+                case 'w':
+                case 'W':
+                    ud.coords = 1;
+                    break;
+                case 'x':
+                case 'X':
+                    c++;
+                    if(*c)
+                    {
+                        Bstrcpy(confilename,c);
+                        userconfiles = 1;
+                        initprintf("Using CON file: %s.\n",confilename);
+                    }
+                    break;
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    ud.warp_on = 2 + (*c) - '0';
                     break;
                 case 'z':
                 case 'Z':
@@ -8923,6 +8934,29 @@ void app_main(int argc,char **argv)
     initprintf("Copyright (c) 1996, 2003 3D Realms Entertainment\n");
     initprintf("Copyright (c) 2006 EDuke32 team\n");
 
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+    addsearchpath("/usr/share/games/eduke32");
+    addsearchpath("/usr/local/share/games/eduke32");
+#elif defined(__APPLE__)
+    addsearchpath("/Library/Application Support/EDuke32");
+#endif
+
+    ud.multimode = 1;
+
+    checkcommandline(argc,argv);
+
+    {
+        struct strllist *s;
+        while (CommandPaths) {
+            s = CommandPaths->next;
+            addsearchpath(CommandPaths->str);
+
+            free(CommandPaths->str);
+            free(CommandPaths);
+            CommandPaths = s;
+        }
+    }
+
 #if defined(_WIN32)
     if (!access("user_profiles_enabled", F_OK))
 #else
@@ -8933,12 +8967,6 @@ void app_main(int argc,char **argv)
         char *homedir;
         int asperr;
 
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-        addsearchpath("/usr/share/games/eduke32");
-        addsearchpath("/usr/local/share/games/eduke32");
-#elif defined(__APPLE__)
-        addsearchpath("/Library/Application Support/EDuke32");
-#endif
         if (getcwd(cwd,BMAX_PATH)) addsearchpath(cwd);
         if ((homedir = Bgethomedir())) {
             Bsnprintf(cwd,sizeof(cwd),"%s/"
@@ -8961,22 +8989,10 @@ void app_main(int argc,char **argv)
         }
     }
 
-    for (i=1;i<argc;i++) {
-        if (argv[i][0] != '-' && argv[i][0] != '/') continue;
-        if (!Bstrcasecmp(argv[i]+1, "setup")) CommandSetup = TRUE;
-        else if (!Bstrcasecmp(argv[i]+1, "net")) NoSetup = TRUE;
-        else if (!Bstrcasecmp(argv[i]+1, "nam")) {
-            strcpy(defaultduke3dgrp, "nam.grp");
-        }
-        else if (!Bstrcasecmp(argv[i]+1, "?")) {
-            comlinehelp(argv);
-            exit(0);
-        }
-    }
-
     glusetexcache = glusetexcachecompression = -1;
 
     i = CONFIG_ReadSetup();
+    if (getenv("DUKE3DGRP")) duke3dgrp = getenv("DUKE3DGRP");
 
     if(glusetexcache == -1 || glusetexcachecompression == -1)
     {
@@ -9040,7 +9056,6 @@ void app_main(int argc,char **argv)
         Bsprintf(gametype_names[2],"GRUNTMATCH (NO SPAWN)");
     }
 
-    if (getenv("DUKE3DGRP")) duke3dgrp = getenv("DUKE3DGRP");
     initprintf("Main GRP file: %s.\n", duke3dgrp);
     initgroupfile(duke3dgrp);
 
@@ -9050,17 +9065,30 @@ void app_main(int argc,char **argv)
         kclose(i);
     }
 
+    {
+        struct strllist *s;
+        while (CommandGrps) {
+            s = CommandGrps->next;
+            j = initgroupfile(CommandGrps->str);
+            if( j == -1 ) initprintf("Warning: could not find group file %s.\n",CommandGrps->str);
+            else {
+                groupfile = j;
+                initprintf("Using group file %s.\n",CommandGrps->str);
+            }
+
+            free(CommandGrps->str);
+            free(CommandGrps);
+            CommandGrps = s;
+        }
+    }
+
+    loadgroupfiles(duke3ddef);
+
     copyprotect();
     if (cp) return;
 
-    ud.multimode = 1;
-
-    checkcommandline(argc,argv);
-
     if (netparamcount > 0) _buildargc = (argc -= netparamcount+1);  // crop off the net parameters
 
-    if (VOLUMEALL)
-        loadgroupfiles(duke3ddef);
 
     // gotta set the proper title after we compile the CONs if this is the full version
 
@@ -10457,14 +10485,17 @@ char domovethings(void)
 
     for(i=connecthead;i>=0;i=connectpoint2[i])
     {
-        if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
+        if(sync[i].extbits&(1<<6))
         {
-            if(sync[i].extbits&(1<<6))
+            ps[i].team = ud.pteam[i];
+            if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
             {
-                ps[i].team = ud.pteam[i];
                 hittype[ps[i].i].picnum = APLAYERTOP;
                 quickkill(&ps[i]);
             }
+        }
+        if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
+        {
             j = 0;
             switch(ps[i].team)
             {

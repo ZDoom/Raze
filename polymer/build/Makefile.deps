@@ -40,8 +40,8 @@ $(OBJ)/buildres.$(res): $(SRC)/misc/buildres.rc $(INC)/startwin.editor.h
 $(OBJ)/startwin.editor.$o: $(SRC)/startwin.editor.c $(INC)/build.h $(INC)/editor.h $(INC)/winlayer.h $(INC)/compat.h $(INC)/startwin.editor.h
 $(OBJ)/startgtk.editor.$o: $(SRC)/startgtk.editor.c $(INC)/baselayer.h $(INC)/build.h $(INC)/editor.h $(INC)/compat.h
 
-$(OBJ)/game_icon.$o: $(RSRC)game_icon.c
-$(OBJ)/build_icon.$o: $(RSRC)build_icon.c
+$(OBJ)/game_icon.$o: $(RSRC)/game_icon.c
+$(OBJ)/build_icon.$o: $(RSRC)/build_icon.c
 
 $(OBJ)/kextract.$o: $(SRC)/util/kextract.c $(INC)/compat.h
 $(OBJ)/kgroup.$o: $(SRC)/util/kgroup.c $(INC)/compat.h

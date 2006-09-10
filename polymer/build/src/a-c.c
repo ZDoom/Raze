@@ -8,10 +8,7 @@
 
 #include "a.h"
 
-#ifndef ENGINE_USING_A_C
-# error A.H has indicated that optimized code has been requested. This means a-c.c is being compiled \
-	when USE_A_C has not been defined.
-#endif
+#ifdef ENGINE_USING_A_C
 
 long krecip(long num);	// from engine.c
 
@@ -292,6 +289,7 @@ void stretchhline (long p0, long u, long cnt, long uinc, long rptr, long p)
 
 void mmxoverlay() { }
 
+#endif
 /*
  * vim:ts=4:
  */

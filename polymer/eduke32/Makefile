@@ -7,7 +7,6 @@
 SUPERBUILD = 1
 POLYMOST = 1
 USE_OPENGL = 1
-USE_A_C = 0
 NOASM = 0
 
 # Debugging options
@@ -36,7 +35,7 @@ CC=gcc
 CXX=g++
 # -Werror-implicit-function-declaration
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Wno-char-subscripts -Wunused \
-	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -DNOCOPYPROTECT \
+	-fno-pic -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -DNOCOPYPROTECT \
 	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib -I../jfaud/inc
 OURCXXFLAGS=-fno-exceptions -fno-rtti
 LIBS=-lm
@@ -188,7 +187,7 @@ enginelib editorlib:
 	-mkdir $(EOBJ)
 	$(MAKE) -C $(EROOT)/ "OBJ=$(CURDIR)/$(EOBJ)" \
 		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) \
-		USE_OPENGL=$(USE_OPENGL) USE_A_C=$(USE_A_C) \
+		USE_OPENGL=$(USE_OPENGL) \
 		NOASM=$(NOASM) RELEASE=$(RELEASE) $@
 	
 $(EOBJ)/$(ENGINELIB): enginelib
