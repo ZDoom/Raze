@@ -577,6 +577,8 @@ void readsavenames(void)
 ===================
 */
 
+extern void check_player_color(int *color,int prev_color);
+
 int32 CONFIG_ReadSetup( void )
 {
     int32 dummy, i;
@@ -660,6 +662,7 @@ int32 CONFIG_ReadSetup( void )
         SCRIPT_GetNumber( scripthandle, "Misc", "DemoCams",&ud.democams);
         SCRIPT_GetNumber( scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         SCRIPT_GetNumber( scripthandle, "Misc", "Color",&ud.color);
+        check_player_color((int *)&ud.color,-1);
         ps[0].palookup = ud.pcolor[0] = ud.color;
         SCRIPT_GetNumber( scripthandle, "Misc", "Team",&ud.team);
         if(ud.team > 1) ud.team = 0;
