@@ -145,6 +145,7 @@ typedef struct
 
     //MD3 specific
     md3head_t head;
+    point3d *muladdframes;
 } md3model;
 
 #define VOXBORDWIDTH 1 //use 0 to save memory, but has texture artifacts; 1 looks better...
@@ -990,6 +991,7 @@ m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris
     m3->numframes = m3->head.numframes;
 
     m3->head.frames = (md3frame_t *)calloc(m3->head.numframes, sizeof(md3frame_t)); if (!m3->head.frames) { free(m3); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+    m3->muladdframes = (point3d *)calloc(m->numframes * 2, sizeof(point3d));
 
     f = (md2frame_t *)(m->frames);
 
@@ -1000,6 +1002,8 @@ m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris
         f = (md2frame_t *)&m->frames[i*m->framebytes];
         strcpy(m3->head.frames[i].nam, f->name);
         //OSD_Printf("Copied frame %s.\n", m3->head.frames[i].nam);
+        m3->muladdframes[i*2] = f->mul;
+        m3->muladdframes[i*2+1] = f->add;
         i++;
     }
 
@@ -1025,6 +1029,7 @@ m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris
     s->tris = (md3tri_t *)calloc(head.numtris, sizeof(md3tri_t)); if (!s->tris) { free(s); free(m3->head.frames); free(m3); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
     s->uv = (md3uv_t *)calloc(s->numverts, sizeof(md3uv_t)); if (!s->uv) { free(s->tris); free(s); free(m3->head.frames); free(m3); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
     s->xyzn = (md3xyzn_t *)calloc(s->numverts * m->numframes, sizeof(md3xyzn_t)); if (!s->xyzn) { free(s->uv); free(s->tris); free(s); free(m3->head.frames); free(m3); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+
     //memoryusage += (s->numverts * m->numframes * sizeof(md3xyzn_t));
     //OSD_Printf("Current model geometry memory usage : %i.\n", memoryusage);
 
@@ -1052,9 +1057,12 @@ m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris
             while (k < m->numframes)
             {
                 f = (md2frame_t *)&m->frames[k*m->framebytes];
-                s->xyzn[(k*s->numverts) + (i*3) + j].x = ((f->verts[m->tris[i].v[j]].v[0] * f->mul.x) + f->add.x);
-                s->xyzn[(k*s->numverts) + (i*3) + j].y = ((f->verts[m->tris[i].v[j]].v[1] * f->mul.y) + f->add.y);
-                s->xyzn[(k*s->numverts) + (i*3) + j].z = ((f->verts[m->tris[i].v[j]].v[2] * f->mul.z) + f->add.z);
+                //s->xyzn[(k*s->numverts) + (i*3) + j].x = ((f->verts[m->tris[i].v[j]].v[0] * f->mul.x) + f->add.x);
+                //s->xyzn[(k*s->numverts) + (i*3) + j].y = ((f->verts[m->tris[i].v[j]].v[1] * f->mul.y) + f->add.y);
+                //s->xyzn[(k*s->numverts) + (i*3) + j].z = ((f->verts[m->tris[i].v[j]].v[2] * f->mul.z) + f->add.z);
+                s->xyzn[(k*s->numverts) + (i*3) + j].x = f->verts[m->tris[i].v[j]].v[0];
+                s->xyzn[(k*s->numverts) + (i*3) + j].y = f->verts[m->tris[i].v[j]].v[1];
+                s->xyzn[(k*s->numverts) + (i*3) + j].z = f->verts[m->tris[i].v[j]].v[2];
                 k++;
             }
             j++;
@@ -1349,6 +1357,8 @@ static md3model *md3load (int fil)
     m = (md3model *)calloc(1,sizeof(md3model)); if (!m) return(0);
     m->mdnum = 3; m->texid = 0; m->scale = .01;
 
+    m->muladdframes = NULL;
+
     kread(fil,&m->head,sizeof(md3head_t));
     m->head.id = B_LITTLE32(m->head.id);             m->head.vers = B_LITTLE32(m->head.vers);
     m->head.flags = B_LITTLE32(m->head.flags);       m->head.numframes = B_LITTLE32(m->head.numframes);
@@ -1500,15 +1510,25 @@ static int md3draw (md3model *m, spritetype *tspr)
 
     //create current&next frame's vertex list from whole list
 
-    if (m->head.flags == 1337)
-        mult = 1 * m->scale; // md2
-    else
-        mult = (1.0/64.0) * m->scale;
     f = m->interpol; g = 1-f;
-    m0.x = mult*g; m1.x = mult*f;
-    m0.y = mult*g; m1.y = mult*f;
-    m0.z = mult*g; m1.z = mult*f;
-    a0.x = a0.y = 0; a0.z = m->zadd*m->scale;
+
+    if (m->head.flags == 1337)
+    { // md2
+        m0.x = m->scale * g * m->muladdframes[m->cframe*2].x; m1.x = m->scale * f * m->muladdframes[m->nframe*2].x;
+        m0.y = m->scale * g * m->muladdframes[m->cframe*2].y; m1.y = m->scale * f * m->muladdframes[m->nframe*2].y;
+        m0.z = m->scale * g * m->muladdframes[m->cframe*2].z; m1.z = m->scale * f * m->muladdframes[m->nframe*2].z;
+        a0.x = m->muladdframes[m->cframe*2+1].x * m->scale; a0.x = (m->muladdframes[m->nframe*2+1].x * m->scale - a0.x)*f+a0.x;
+        a0.y = m->muladdframes[m->cframe*2+1].y * m->scale; a0.y = (m->muladdframes[m->nframe*2+1].y * m->scale - a0.y)*f+a0.y;
+        a0.z = m->muladdframes[m->cframe*2+1].z * m->scale; a0.z = (m->muladdframes[m->nframe*2+1].z * m->scale - a0.z)*f+a0.z + m->zadd*m->scale;
+    }
+    else
+    {
+        m0.x = (1.0/64.0) * m->scale * g; m1.x = (1.0/64.0) * m->scale *f;
+        m0.y = (1.0/64.0) * m->scale * g; m1.y = (1.0/64.0) * m->scale *f;
+        m0.z = (1.0/64.0) * m->scale * g; m1.z = (1.0/64.0) * m->scale *f;
+        a0.x = a0.y = 0; a0.z = m->zadd*m->scale;
+    }
+
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
     k0 = tspr->z;
@@ -1612,8 +1632,8 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         if (tspr->cstat&2) bglEnable(GL_BLEND); else bglDisable(GL_BLEND);
     }
     bglColor4f(pc[0],pc[1],pc[2],pc[3]);
-    if (m->head.flags == 1337)
-        bglColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+    //if (m->head.flags == 1337)
+    //    bglColor4f(0.0f, 0.0f, 1.0f, 1.0f);
     //------------
 
     // PLAG: Cleaner model rotation code
@@ -1856,6 +1876,8 @@ static void md3free (md3model *m)
     if (m->head.frames) free(m->head.frames);
 
     if (m->texid) free(m->texid);
+
+    if (m->muladdframes) free(m->muladdframes);
 
     free(m);
 }

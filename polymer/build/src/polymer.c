@@ -10,7 +10,7 @@ float           polymostmodelmatrix[16];
 // tesselation variables
 GLUtesselator*  prtess;
 int             tempverticescount;
-GLdouble*       tempvertices;
+GLdouble        tempvertice[3];
 
 // Polymer cvars
 char    pr_verbosity = 1; // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
@@ -51,7 +51,7 @@ void            polymer_glinit(void)
     bglViewport(0, 0, 1024, 768);
 
     // texturing
-    bglEnable(GL_TEXTURE_2D);
+    bglDisable(GL_TEXTURE_2D);
     //bglEnable(GL_TEXTURE_GEN_S);
     //bglEnable(GL_TEXTURE_GEN_T);
     params[0] = GL_OBJECT_LINEAR;
@@ -84,6 +84,7 @@ int             polymer_updategeometry(short sectnum)
     sectortype  *sec;
     walltype    *wal;
     int         i, ret;
+    long        ceilz, florz;
 
     s = prsectors[sectnum];
     sec = &sector[sectnum];
@@ -105,13 +106,16 @@ int             polymer_updategeometry(short sectnum)
     else
         ret = 0;
 
+    
+
     i = 0;
     while (i < s->wallcount)
     {
         s->verts[i].wallnum = sec->wallptr + i;
         s->verts[i].v[2] = -wal->x;
         s->verts[i].v[0] = wal->y;
-        s->verts[i].v[1] = -sec->floorz;
+        getzsofslope(sectnum, wal->x, wal->y, &ceilz, &florz);
+        s->verts[i].v[1] = -florz;
 
         i++;
         wal = &wall[sec->wallptr + i];
@@ -123,25 +127,24 @@ int             polymer_updategeometry(short sectnum)
 }
 
 // This callback is called by the tesselator when it detects an intersection between contours (HELLO ROTATING SPOTLIGHT IN E1L1).
-// In this case, we create a new temporary vertex at the intersection point which will be freed after the polygon is drawn.
-void       polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloat weight[4], GLdouble **out)
+void PR_CALLBACK    polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloat weight[4], GLdouble **out)
 {
-    GLdouble        *ptr;
+    GLdouble*       ptr;
 
-    tempverticescount++;
-    tempvertices = realloc(tempvertices, tempverticescount * sizeof(GLdouble) * 3);
-    tempvertices[(tempverticescount * 3) - 3] = v[0];
-    tempvertices[(tempverticescount * 3) - 2] = v[1];
-    tempvertices[(tempverticescount * 3) - 1] = v[2];
+    //tempverticescount++;
+    //tempvertices = realloc(tempvertices, tempverticescount * sizeof(GLdouble) * 3);
+    tempvertice[0] = v[0];
+    tempvertice[1] = v[1];
+    tempvertice[2] = v[2];
 
-    ptr = &tempvertices[(tempverticescount - 1) * 3];
+    ptr = tempvertice;
     *out = ptr;
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Created additional geometry for sector tesselation.\n");
 }
 
 // This callback is called by the tesselator whenever it raises an error.
-void       polymer_tesserror(GLenum error)
+void PR_CALLBACK    polymer_tesserror(GLenum error)
 {
     if (pr_verbosity >= 1) OSD_Printf("PR : Tesselation error number %i reported : %s.\n", error, gluErrorString(errno));
 }
@@ -171,8 +174,8 @@ int             polymer_buildfloor(short sectnum)
 
     gluTessProperty(prtess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_POSITIVE);
 
-    tempverticescount = 0;
-    tempvertices = NULL;
+    //tempverticescount = 0;
+    //tempvertice = NULL;
 
     gluTessBeginPolygon(prtess, NULL);
     gluTessBeginContour(prtess);
@@ -193,12 +196,12 @@ int             polymer_buildfloor(short sectnum)
 
     bglEndList();
 
-    if (tempverticescount)
+    /*if (tempverticescount)
     {
         free(tempvertices);
         tempvertices = NULL;
         tempverticescount = 0;
-    }
+    }*/
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Tesselated floor of sector %i.\n", sectnum);
 
@@ -255,7 +258,7 @@ void            polymer_drawsector(long daposx, long daposy, long daposz, short 
         polymer_updategeometry(sectnum);
         polymer_buildfloor(sectnum);
     }
-    else if (prsectors[sectnum]->invalidate)
+    else if ((prsectors[sectnum]->invalidate) || 1)
     {
         if (pr_verbosity >= 2) OSD_Printf("PR : Sector %i invalidated. Tesselating...\n", sectnum);
         polymer_updategeometry(sectnum);
