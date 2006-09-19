@@ -562,8 +562,8 @@ void readsavenames(void)
     if(dfread(&j,sizeof(long),1,fil) != 1) { Bfclose(fil); continue; }
         if(dfread(g_szBuf,j,1,fil) != 1) { Bfclose(fil); continue; }
         if (dfread(&dummy,4,1,fil) != 1) { Bfclose(fil); continue; }
-        if(dummy != BYTEVERSION) return;
-    if (dfread(&dummy,4,1,fil) != 1) { Bfclose(fil); continue; }
+        if(dummy != BYTEVERSION) { Bfclose(fil); continue; }
+        if (dfread(&dummy,4,1,fil) != 1) { Bfclose(fil); continue; }
         if (dfread(&ud.savegame[i][0],19,1,fil) != 1) { ud.savegame[i][0] = 0; }
         Bfclose(fil);
     }

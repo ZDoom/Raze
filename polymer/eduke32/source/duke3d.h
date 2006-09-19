@@ -136,7 +136,7 @@ enum gamemodes {
 
 #define MAXCYCLERS 1024
 
-#define MAXSCRIPTSIZE 65536
+#define MAXSCRIPTSIZE 98304
 
 #define MAXANIMATES 256
 
@@ -702,13 +702,14 @@ enum events {
     EVENT_DOFIRE,
     EVENT_PRESSEDFIRE,
     EVENT_USE,
-    EVENT_PROCESSINPUT
+    EVENT_PROCESSINPUT,
+	EVENT_FAKEDOMOVETHINGS
 };
 
 // store global game definitions
 
 enum gamevarflags {
-    MAXGAMEVARS             = 1024,
+    MAXGAMEVARS             = 2048,
     MAXVARLABEL             = 26,
     GAMEVAR_FLAG_NORMAL     = 0,    // normal
     GAMEVAR_FLAG_PERPLAYER  = 1,    // per-player variable

@@ -656,6 +656,153 @@ void DoUserDef(char bSet, long lLabelID, long lVar2, short sActor, short sPlayer
             SetGameVarID((int)lVar2, ud.team, sActor, sPlayer);
         break;
 
+    case USERDEFS_MYX:
+        if(bSet)
+            myx = lValue;
+        else
+            SetGameVarID((int)lVar2, myx, sActor, sPlayer);
+        break;
+
+    case USERDEFS_OMYX:
+        if(bSet)
+            omyx = lValue;
+        else
+            SetGameVarID((int)lVar2, omyx, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYXVEL:
+        if(bSet)
+            myxvel = lValue;
+        else
+            SetGameVarID((int)lVar2, myxvel, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYY:
+        if(bSet)
+            myy = lValue;
+        else
+            SetGameVarID((int)lVar2, myy, sActor, sPlayer);
+        break;
+
+    case USERDEFS_OMYY:
+        if(bSet)
+            omyy = lValue;
+        else
+            SetGameVarID((int)lVar2, omyy, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYYVEL:
+        if(bSet)
+            myyvel = lValue;
+        else
+            SetGameVarID((int)lVar2, myyvel, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYZ:
+        if(bSet)
+            myx = lValue;
+        else
+            SetGameVarID((int)lVar2, myx, sActor, sPlayer);
+        break;
+
+    case USERDEFS_OMYZ:
+        if(bSet)
+            omyz = lValue;
+        else
+            SetGameVarID((int)lVar2, omyz, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYZVEL:
+        if(bSet)
+            myzvel = lValue;
+        else
+            SetGameVarID((int)lVar2, myzvel, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYHORIZ:
+        if(bSet)
+            myhoriz = lValue;
+        else
+            SetGameVarID((int)lVar2, myhoriz, sActor, sPlayer);
+        break;
+
+    case USERDEFS_OMYHORIZ:
+        if(bSet)
+            omyhoriz = lValue;
+        else
+            SetGameVarID((int)lVar2, omyhoriz, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYHORIZOFF:
+        if(bSet)
+            myhorizoff = lValue;
+        else
+            SetGameVarID((int)lVar2, myhorizoff, sActor, sPlayer);
+        break;
+
+    case USERDEFS_OMYHORIZOFF:
+        if(bSet)
+            omyhorizoff = lValue;
+        else
+            SetGameVarID((int)lVar2, omyhorizoff, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYANG:
+        if(bSet)
+            myang = lValue;
+        else
+            SetGameVarID((int)lVar2, myang, sActor, sPlayer);
+        break;
+
+    case USERDEFS_OMYANG:
+        if(bSet)
+            omyang = lValue;
+        else
+            SetGameVarID((int)lVar2, omyang, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYCURSECTNUM:
+        if(bSet)
+            mycursectnum = lValue;
+        else
+            SetGameVarID((int)lVar2, mycursectnum, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYJUMPINGCOUNTER:
+        if(bSet)
+            myjumpingcounter = lValue;
+        else
+            SetGameVarID((int)lVar2, myjumpingcounter, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYJUMPINGTOGGLE:
+        if(bSet)
+            myjumpingtoggle = lValue;
+        else
+            SetGameVarID((int)lVar2, myjumpingtoggle, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYONGROUND:
+        if(bSet)
+            myonground = lValue;
+        else
+            SetGameVarID((int)lVar2, myonground, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYHARDLANDING:
+        if(bSet)
+            myhardlanding = lValue;
+        else
+            SetGameVarID((int)lVar2, myhardlanding, sActor, sPlayer);
+        break;
+
+    case USERDEFS_MYRETURNTOCENTER:
+        if(bSet)
+            myreturntocenter = lValue;
+        else
+            SetGameVarID((int)lVar2, myreturntocenter, sActor, sPlayer);
+        break;
+
     default:
         break;
     }
@@ -5368,8 +5515,8 @@ SKIPJIBS:
         {
             long var1, var2, var3, var4, sq, dq;
             insptr++;
-			dq = *insptr++;
-			sq = *insptr++;
+            dq = *insptr++;
+            sq = *insptr++;
             if(fta_quotes[sq] != NULL && fta_quotes[dq] != NULL)
             {
                 Bstrcpy(tempbuf,fta_quotes[sq]);
@@ -5813,19 +5960,16 @@ good:
             lVar3=*insptr++;
 
             lSprite=GetGameVarID(lVar1, g_i, g_p);
-            if(lSprite >= 0)
+            switch(tw)
             {
-                switch(tw)
-                {
-                case CON_SETACTORVAR:
-                    lTemp=GetGameVarID(lVar3, g_i, g_p);
-                    SetGameVarID(lVar2, lTemp, lSprite, g_p);
-                    break;
-                case CON_GETACTORVAR:
-                    lTemp=GetGameVarID(lVar2, lSprite, g_p);
-                    SetGameVarID(lVar3, lTemp, g_i, g_p);
-                    break;
-                }
+            case CON_SETACTORVAR:
+                lTemp=GetGameVarID(lVar3, g_i, g_p);
+                SetGameVarID(lVar2, lTemp, lSprite, g_p);
+                break;
+            case CON_GETACTORVAR:
+                lTemp=GetGameVarID(lVar2, lSprite, g_p);
+                SetGameVarID(lVar3, lTemp, g_i, g_p);
+                break;
             }
             break;
         }
@@ -5846,19 +5990,16 @@ good:
             lVar3=*insptr++;
 
             lSprite=GetGameVarID(lVar1, g_i, g_p);
-            if(lSprite >= 0)
+            switch(tw)
             {
-                switch(tw)
-                {
-                case CON_SETPLAYERVAR:
-                    lTemp=GetGameVarID(lVar3, g_i, g_p);
-                    SetGameVarID(lVar2, lTemp, g_i, lSprite);
-                    break;
-                case CON_GETPLAYERVAR:
-                    lTemp=GetGameVarID(lVar2, g_i, lSprite);
-                    SetGameVarID(lVar3, lTemp, g_i, g_p);
-                    break;
-                }
+            case CON_SETPLAYERVAR:
+                lTemp=GetGameVarID(lVar3, g_i, g_p);
+                SetGameVarID(lVar2, lTemp, g_i, lSprite);
+                break;
+            case CON_GETPLAYERVAR:
+                lTemp=GetGameVarID(lVar2, g_i, lSprite);
+                SetGameVarID(lVar3, lTemp, g_i, g_p);
+                break;
             }
             break;
         }
@@ -6686,9 +6827,8 @@ good:
         }
 
     default:
-        Bsprintf(tempbuf,"fatal error: Default processing in parse(): %ld, %ld\ncurrent actor: %d %d",*insptr,*(insptr-1),g_i,g_sp->picnum);
-        AddLog(tempbuf);
-        gameexit("An error has occurred in the EDuke32 CON parser.\n\nPlease mail all of your CON files along with the file eduke32.log\nto terminx@gmail.com.\n\nThank you.");
+        OSD_Printf("fatal error: default processing: %ld, %ld\ncurrent actor: %d (%d)\n",*insptr,*(insptr-1),g_i,g_sp->picnum);
+        gameexit("An error has occurred in the EDuke32 CON executor.\n\nPlease mail all of your CON files along with the file eduke32.log\nto terminx@gmail.com.\n\nThank you.");
         break;
     }
     return 0;

@@ -817,6 +817,27 @@ LABELS userdefslabels[]= {
                              { "automsg", USERDEFS_AUTOMSG, 0, 0 },
                              { "idplayers", USERDEFS_IDPLAYERS, 0, 0 },
                              { "team", USERDEFS_TEAM, 0, 0 },
+                             { "myx", USERDEFS_MYX, 0, 0 },
+                             { "omyx", USERDEFS_OMYX, 0, 0 },
+                             { "myxvel", USERDEFS_MYXVEL, 0, 0 },
+                             { "myy", USERDEFS_MYY, 0, 0 },
+                             { "omyy", USERDEFS_OMYY, 0, 0 },
+                             { "myyvel", USERDEFS_MYYVEL, 0, 0 },
+                             { "myz", USERDEFS_MYZ, 0, 0 },
+                             { "omyz", USERDEFS_OMYZ, 0, 0 },
+                             { "myzvel", USERDEFS_MYZVEL, 0, 0 },
+                             { "myhoriz", USERDEFS_MYHORIZ, 0, 0 },
+                             { "omyhoriz", USERDEFS_OMYHORIZ, 0, 0 },
+                             { "myhorizoff", USERDEFS_MYHORIZOFF, 0, 0 },
+                             { "omyhorizoff", USERDEFS_OMYHORIZOFF, 0, 0 },
+                             { "myang", USERDEFS_MYANG, 0, 0 },
+                             { "omyang", USERDEFS_OMYANG, 0, 0 },
+                             { "mycursectnum", USERDEFS_MYCURSECTNUM, 0, 0 },
+                             { "myjumpingcounter", USERDEFS_MYJUMPINGCOUNTER, 0, 0 },
+                             { "myjumpingtoggle", USERDEFS_MYJUMPINGTOGGLE, 0, 0 },
+                             { "myonground", USERDEFS_MYONGROUND, 0, 0 },
+                             { "myhardlanding", USERDEFS_MYHARDLANDING, 0, 0 },
+                             { "myreturntocenter", USERDEFS_MYRETURNTOCENTER, 0, 0 },
                              { "", -1, 0, 0  }     // END OF LIST
                          };
 
@@ -1022,6 +1043,7 @@ char CheckEventSync(int iEventID)
         case EVENT_DISPLAYCROSSHAIR:
         case EVENT_DISPLAYREST:
         case EVENT_ENTERLEVEL:
+        case EVENT_FAKEDOMOVETHINGS:
         case EVENT_GETLOADTILE:
         case EVENT_GETMENUTILE:
         case EVENT_INIT:
@@ -1796,19 +1818,19 @@ void transvartype(int type)
     *scriptptr++=i;
 }
 
-inline void transvar(void)
+static inline void transvar(void)
 {
     transvartype(0);
 }
 
-inline void transmultvarstype(int type, char num)
+static inline void transmultvarstype(int type, char num)
 {
     char i;
     for(i=0;i<num;i++)
         transvartype(type);
 }
 
-inline void transmultvars(char num)
+static inline void transmultvars(char num)
 {
     transmultvarstype(0,num);
 }
@@ -1950,6 +1972,9 @@ char parsecommand(void)
     }
 
     if( (error+warning) > 63 || ( *textptr == '\0' ) || ( *(textptr+1) == '\0' ) ) return 1;
+
+    if(condebug)
+        ReportError(-1);
 
     if (checking_switch > 0 )
     {
@@ -2732,8 +2757,8 @@ char parsecommand(void)
         if(j > 2)
         {
             ReportError(-1);
-            error++;
-            initprintf("%s:%ld: error: invalid useractor type.\n",compilefile,line_number);
+            initprintf("%s:%ld: warning: invalid useractor type.\n",compilefile,line_number);
+            j = 0;
         }
 
         transnum(LABEL_DEFINE);
@@ -4763,11 +4788,11 @@ repeatcase:
                 if (j != 25) continue;
 
                 if (keyword() != -1) {
-                    initprintf("Version 1.3D CON files detected.\n");
+                    initprintf("Duke Nukem 3D v1.3D style CON files detected.\n");
                     break;
                 } else {
                     conversion = 14;
-                    initprintf("Version 1.4+ CON files detected.\n");
+                    initprintf("Duke Nukem 3D v1.4+ style CON files detected.\n");
                 }
 
             }
@@ -5531,6 +5556,7 @@ void AddDefaultDefinitions(void)
     AddDefinition("EVENT_DRAWWEAPON",EVENT_DRAWWEAPON,LABEL_DEFINE);
     AddDefinition("EVENT_EGS",EVENT_EGS,LABEL_DEFINE);
     AddDefinition("EVENT_ENTERLEVEL",EVENT_ENTERLEVEL,LABEL_DEFINE);
+    AddDefinition("EVENT_FAKEDOMOVETHINGS",EVENT_FAKEDOMOVETHINGS,LABEL_DEFINE);
     AddDefinition("EVENT_FIRE",EVENT_FIRE,LABEL_DEFINE);
     AddDefinition("EVENT_FIREWEAPON",EVENT_FIREWEAPON,LABEL_DEFINE);
     AddDefinition("EVENT_GAME",EVENT_GAME,LABEL_DEFINE);
