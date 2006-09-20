@@ -9876,8 +9876,6 @@ void fakedomovethings(void)
 
     syn = (input *)&inputfifo[fakemovefifoplc&(MOVEFIFOSIZ-1)][myconnectindex];
 
-    OnEvent(EVENT_FAKEDOMOVETHINGS, ps[myconnectindex].i, myconnectindex, -1);
-
     p = &ps[myconnectindex];
 
     backcstat = sprite[p->i].cstat;
@@ -10292,8 +10290,9 @@ FAKEHORIZONLY:
         myreturntocenter = 9;
     }
 
-
 ENDFAKEPROCESSINPUT:
+
+    OnEvent(EVENT_FAKEDOMOVETHINGS, ps[myconnectindex].i, myconnectindex, -1);
 
     myxbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myx;
     myybak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myy;

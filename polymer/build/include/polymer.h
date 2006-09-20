@@ -6,7 +6,7 @@
 # ifdef _WIN32
 #  define PR_CALLBACK __stdcall
 # else
-#  defube PR_CALLBACK
+#  define PR_CALLBACK
 # endif
 
 # include "compat.h"

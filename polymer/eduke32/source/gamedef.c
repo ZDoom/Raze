@@ -31,13 +31,13 @@ static char compilefile[BMAX_PATH] = "(none)";  // file we're currently compilin
 static char parsing_item_name[MAXVARLABEL] = "(none)", previous_item_name[MAXVARLABEL] = "NULL";
 
 static short total_lines,line_number;
-static char checking_ifelse,parsing_state;
+static short checking_ifelse,parsing_state;
 char g_szBuf[1024];
 
 long *casescriptptr=NULL;      // the pointer to the start of the case table in a switch statement
 // first entry is 'default' code.
 int casecount = 0;
-signed char checking_switch = 0, current_event = -1;
+signed short checking_switch = 0, current_event = -1;
 char labelsonly = 0, nokeywordcheck = 0, dynamicremap = 0;
 static short num_braces = 0;    // init to some sensible defaults
 
