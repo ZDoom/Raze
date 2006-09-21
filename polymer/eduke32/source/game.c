@@ -7695,7 +7695,8 @@ void comlinehelp(char **argv)
 #if !defined(_WIN32)
               "-usecwd\t\tRead game data and configuration file from working directory\n"
 #endif
-              "-condebug, -z#\tLine-by-line CON compilation debugging";
+              "-condebug, -z#\tLine-by-line CON compilation debugging"
+			  ;
     wm_msgbox(apptitle,s);
 }
 

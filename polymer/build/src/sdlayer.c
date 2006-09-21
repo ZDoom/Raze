@@ -88,7 +88,7 @@ static SDL_Surface * loadappicon(void);
 
 int wm_msgbox(char *name, char *fmt, ...)
 {
-    char buf[1000];
+    char buf[2048];
     va_list va;
 
     va_start(va,fmt);
@@ -109,7 +109,7 @@ int wm_msgbox(char *name, char *fmt, ...)
 
 int wm_ynbox(char *name, char *fmt, ...)
 {
-    char buf[1000];
+    char buf[2048];
     char c;
     va_list va;
     int r;
