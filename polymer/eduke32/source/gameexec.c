@@ -4315,9 +4315,8 @@ SKIPJIBS:
                 if(fta_quotes[i] != NULL)
                 {
                     if (ud.user_name[j][0])
-                        Bsprintf(fta_quotes[i],"%s",ud.user_name[j]);
-                    else
-                        Bsprintf(fta_quotes[i],"%d",j);
+                        Bstrcpy(fta_quotes[i],ud.user_name[j]);
+                    else Bsprintf(fta_quotes[i],"%d",j);
                 } else OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,i);
                 break;
             case CON_QSTRCAT:
