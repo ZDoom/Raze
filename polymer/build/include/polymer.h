@@ -14,17 +14,22 @@
 # include "glbuild.h"
 # include "osd.h"
 # include "polymost.h"
+# include "pragmas.h"
 
 void    polymer_glinit(void);
 int     polymer_init(void);
 void    polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum);
 
 typedef struct      s_prsector {
+    // geometry
     GLdouble*       verts;
     GLfloat*        floorbuffer;
     GLfloat*        ceilbuffer;
+    // elements
     GLushort*       indices;
     short           curindice;
+    int             indicescount;
+
     short           wallcount;
     char            invalidate;
 }                   _prsector;

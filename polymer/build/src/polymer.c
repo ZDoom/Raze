@@ -51,9 +51,11 @@ void            polymer_glinit(void)
     bglViewport(0, 0, 1024, 768);
 
     // texturing
-    bglDisable(GL_TEXTURE_2D);
-    //bglEnable(GL_TEXTURE_GEN_S);
-    //bglEnable(GL_TEXTURE_GEN_T);
+    bglEnable(GL_TEXTURE_2D);
+    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+    /*bglEnable(GL_TEXTURE_GEN_S);
+    bglEnable(GL_TEXTURE_GEN_T);
     params[0] = GL_OBJECT_LINEAR;
     bglTexGenfv(GL_S, GL_TEXTURE_GEN_MODE, params);
     bglTexGenfv(GL_T, GL_TEXTURE_GEN_MODE, params);
@@ -62,7 +64,7 @@ void            polymer_glinit(void)
     params[2] = 1.0 / 10000.0;
     params[3] = 1.0 / 10000.0;
     bglTexGenfv(GL_S, GL_OBJECT_PLANE, params);
-    bglTexGenfv(GL_T, GL_OBJECT_PLANE, params);
+    bglTexGenfv(GL_T, GL_OBJECT_PLANE, params);*/
 
     bglDisable(GL_FOG);
     bglEnable(GL_DEPTH_TEST);
@@ -83,17 +85,31 @@ int             polymer_updategeometry(short sectnum)
     _prsector*  s;
     sectortype  *sec;
     walltype    *wal;
-    int         i, ret;
+    int         i, j;
     long        ceilz, florz;
+    long        tex, tey;
+    float       secangcos, secangsin, scalecoef;
+    long        ang;
+    short       curstat;
+    GLfloat*    curbuffer;
 
     s = prsectors[sectnum];
     sec = &sector[sectnum];
     wal = &wall[sec->wallptr];
 
+    secangcos = secangsin = 0;
+
     if (s == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Can't update uninitialized sector %i.\n", sectnum);
         return (-1);
+    }
+
+    if ((sec->floorstat & 64) || (sec->ceilingstat & 64))
+    {
+        ang = (getangle(wall[wal->point2].x - wal->x, wall[wal->point2].y - wal->y) + 512) & 2047;
+        secangcos = (float)(sintable[(ang+512)&2047]) / 16383.0f;
+        secangsin = (float)(sintable[ang&2047]) / 16383.0f;
     }
 
     i = 0;
@@ -106,13 +122,42 @@ int             polymer_updategeometry(short sectnum)
         s->floorbuffer[(i*5)+1] = -florz;
         s->ceilbuffer[(i*5)+1] = -ceilz;
 
+        j = 2;
+        curstat = sec->floorstat;
+        curbuffer = s->floorbuffer;
+
+        while (j)
+        {
+            if (j == 1)
+            {
+                curstat = sec->ceilingstat;
+                curbuffer = s->ceilbuffer;
+            }
+
+            tex = (curstat & 64) ? ((wal->x - wall[sec->wallptr].x) * secangsin) + ((-wal->y - -wall[sec->wallptr].y) * secangcos) : wal->x;
+            tey = (curstat & 64) ? ((wal->x - wall[sec->wallptr].x) * secangcos) - ((-wal->y - -wall[sec->wallptr].y) * secangsin) : -wal->y;
+
+            if (curstat & 4)
+                swaplong(&tex, &tey);
+
+            if (curstat & 16) tex = -tex;
+            if (curstat & 32) tey = -tey;
+
+            scalecoef = (curstat & 8) ? 8.0f : 16.0f;
+
+            curbuffer[(i*5)+3] = ((float)(tex) / (scalecoef * tilesizx[sec->floorpicnum])) + ((float)(sec->floorxpanning) / 256.0f);
+            curbuffer[(i*5)+4] = ((float)(tey) / (scalecoef * tilesizy[sec->floorpicnum])) + ((float)(sec->floorypanning) / 256.0f);
+
+            j--;
+        }
+
         i++;
         wal = &wall[sec->wallptr + i];
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated sector %i.\n", sectnum);
 
-    return (ret = 0);
+    return (0);
 }
 
 // This callback is called by the tesselator when it detects an intersection between contours (HELLO ROTATING SPOTLIGHT IN E1L1).
@@ -145,12 +190,29 @@ void PR_CALLBACK    polymer_tessedgeflag(GLboolean flag)
     return;
 }
 
+void PR_CALLBACK    polymer_tessbegin(GLenum type)
+{
+    if (type != GL_TRIANGLES)
+    {
+        OSD_Printf("PR : NOT A TRIANGLE LIST !§//... !\n");
+    }
+}
+
+void PR_CALLBACK    polymer_tessend(void)
+{
+}
 void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
 {
     _prsector*      s;
 
     s = (_prsector*)sector;
 
+    if (s->curindice >= s->indicescount)
+    {
+        if (pr_verbosity >= 2) OSD_Printf("PR : Indice overflow, extending the indices list... !\n");
+        s->indicescount++;
+        s->indices = realloc(s->indices, s->indicescount * sizeof(GLushort));
+    }
     s->indices[s->curindice] = (GLushort)vertex;
     s->curindice++;
 }
@@ -173,11 +235,12 @@ int             polymer_buildfloor(short sectnum)
     if (s->indices != NULL)
         free(s->indices);
 
-    s->indices = calloc((sec->wallnum - 2) * 3, sizeof(GLushort));
+    s->indicescount = (s->wallcount - 2) * 3;
+    s->indices = calloc(s->indicescount, sizeof(GLushort));
     s->curindice = 0;
 
-    gluTessCallback(prtess, GLU_TESS_BEGIN, bglBegin);
-    gluTessCallback(prtess, GLU_TESS_END, bglEnd);
+    //gluTessCallback(prtess, GLU_TESS_BEGIN, polymer_tessbegin);
+    //gluTessCallback(prtess, GLU_TESS_END, polymer_tessend);
     gluTessCallback(prtess, GLU_TESS_VERTEX_DATA, polymer_tessvertex);
     gluTessCallback(prtess, GLU_TESS_EDGE_FLAG, polymer_tessedgeflag);
     //gluTessCallback(prtess, GLU_TESS_COMBINE, polymer_tesscombine);
@@ -215,9 +278,7 @@ int             polymer_initsector(short sectnum)
     if (pr_verbosity >= 2) OSD_Printf("PR : Initalizing sector %i...\n", sectnum);
 
     sec = &sector[sectnum];
-    if (pr_verbosity >= 0) OSD_Printf("PR : Preparing to allocate sector %i...\n", sectnum);
     s = malloc(sizeof(_prsector));
-    if (pr_verbosity >= 0) OSD_Printf("PR : Allocated sector %i...\n", sectnum);
     if (s == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize sector %i : malloc failed.\n", sectnum);
@@ -282,6 +343,9 @@ void            polymer_drawsector(long daposx, long daposy, long daposz, short 
     pos[1] = daposz;
     pos[2] = daposx;
 
+    bglEnableClientState(GL_VERTEX_ARRAY);
+    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
     bglRotatef(ang, 0.0f, 1.0f, 0.0f);
@@ -292,15 +356,19 @@ void            polymer_drawsector(long daposx, long daposy, long daposz, short 
     pth = gltexcache(sec->floorpicnum,sec->floorpal,0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
     bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    bglEnableClientState(GL_VERTEX_ARRAY);
     bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
-    bglDrawElements(GL_TRIANGLES, (sec->wallnum - 2) * 3, GL_UNSIGNED_SHORT, s->indices);
-    bglDisableClientState(GL_VERTEX_ARRAY);
+    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
+    bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->indices);
 
     // ceiling
     pth = gltexcache(sec->ceilingpicnum,sec->ceilingpal,0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
-    bglColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->ceilbuffer);
+    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->ceilbuffer[3]);
+    bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->indices);
+
+    bglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    bglDisableClientState(GL_VERTEX_ARRAY);
 
     /*// walls
     i = 0;

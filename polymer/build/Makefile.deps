@@ -26,7 +26,7 @@ $(OBJ)/sound.$o: $(SRC)/sound.c $(INC)/osd.h $(INC)/compat.h $(INC)/cache1d.h
 $(OBJ)/winlayer.$o: $(SRC)/winlayer.c $(INC)/compat.h $(INC)/winlayer.h $(INC)/baselayer.h $(INC)/pragmas.h $(INC)/build.h $(INC)/a.h $(INC)/osd.h $(INC)/dxdidf.h $(INC)/glbuild.h
 $(OBJ)/gtkbits.$o: $(SRC)/gtkbits.c $(INC)/baselayer.h $(INC)/build.h $(INC)/dynamicgtk.h
 $(OBJ)/dynamicgtk.$o: $(SRC)/dynamicgtk.c $(INC)/dynamicgtk.h
-$(OBJ)/polymer.$o: $(SRC)/polymer.c $(INC)/polymer.h $(INC)/compat.h $(INC)/build.h $(INC)/glbuild.h $(INC)/osd.h $(INC)/polymost.h
+$(OBJ)/polymer.$o: $(SRC)/polymer.c $(INC)/polymer.h $(INC)/compat.h $(INC)/build.h $(INC)/glbuild.h $(INC)/osd.h $(INC)/polymost.h $(INC)/pragmas.h
 
 # KenBuild test game
 $(OBJ)/game.$o: $(GAME)/game.c $(INC)/compat.h $(INC)/build.h $(GAME)/names.h $(INC)/pragmas.h $(INC)/cache1d.h $(GAME)/game.h $(INC)/osd.h $(INC)/baselayer.h
