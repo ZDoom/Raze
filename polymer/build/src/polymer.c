@@ -96,26 +96,15 @@ int             polymer_updategeometry(short sectnum)
         return (-1);
     }
 
-    if (sec->wallnum != s->wallcount)
-    {
-        s->wallcount = sec->wallnum;
-        s->verts = realloc(s->verts, sizeof(_prvertex) * s->wallcount);
-        memset(s->verts, 0, sizeof(_prvertex) * s->wallcount);
-        ret = 1;
-    }
-    else
-        ret = 0;
-
-    
-
     i = 0;
     while (i < s->wallcount)
     {
-        s->verts[i].wallnum = sec->wallptr + i;
-        s->verts[i].v[2] = -wal->x;
-        s->verts[i].v[0] = wal->y;
+        s->verts[(i*3)+2] = s->floorbuffer[(i*5)+2] = s->ceilbuffer[(i*5)+2] = -wal->x;
+        s->verts[i*3] = s->floorbuffer[i*5] = s->ceilbuffer[i*5] = wal->y;
         getzsofslope(sectnum, wal->x, wal->y, &ceilz, &florz);
-        s->verts[i].v[1] = -florz;
+        s->verts[(i*3)+1] = 0;
+        s->floorbuffer[(i*5)+1] = -florz;
+        s->ceilbuffer[(i*5)+1] = -ceilz;
 
         i++;
         wal = &wall[sec->wallptr + i];
@@ -123,7 +112,7 @@ int             polymer_updategeometry(short sectnum)
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated sector %i.\n", sectnum);
 
-    return (ret);
+    return (ret = 0);
 }
 
 // This callback is called by the tesselator when it detects an intersection between contours (HELLO ROTATING SPOTLIGHT IN E1L1).
@@ -138,7 +127,7 @@ void PR_CALLBACK    polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloa
     tempvertice[2] = v[2];
 
     ptr = tempvertice;
-    *out = ptr;
+    *out = tempvertice;
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Created additional geometry for sector tesselation.\n");
 }
@@ -147,6 +136,23 @@ void PR_CALLBACK    polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloa
 void PR_CALLBACK    polymer_tesserror(GLenum error)
 {
     if (pr_verbosity >= 1) OSD_Printf("PR : Tesselation error number %i reported : %s.\n", error, gluErrorString(errno));
+}
+
+// Passing an edgeflag callback forces the tesselator to output a triangle list
+void PR_CALLBACK    polymer_tessedgeflag(GLboolean flag)
+{
+    flag = 0;
+    return;
+}
+
+void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
+{
+    _prsector*      s;
+
+    s = (_prsector*)sector;
+
+    s->indices[s->curindice] = (GLushort)vertex;
+    s->curindice++;
 }
 
 // This function tesselates the floor/ceiling of a sector and stores the triangles in a display list.
@@ -164,27 +170,29 @@ int             polymer_buildfloor(short sectnum)
     if (s == NULL)
         return (-1);
 
-    bglNewList(sectnum + 1, GL_COMPILE);
+    if (s->indices != NULL)
+        free(s->indices);
+
+    s->indices = calloc((sec->wallnum - 2) * 3, sizeof(GLushort));
+    s->curindice = 0;
 
     gluTessCallback(prtess, GLU_TESS_BEGIN, bglBegin);
-    gluTessCallback(prtess, GLU_TESS_VERTEX, bglVertex3dv);
     gluTessCallback(prtess, GLU_TESS_END, bglEnd);
-    gluTessCallback(prtess, GLU_TESS_COMBINE, polymer_tesscombine);
+    gluTessCallback(prtess, GLU_TESS_VERTEX_DATA, polymer_tessvertex);
+    gluTessCallback(prtess, GLU_TESS_EDGE_FLAG, polymer_tessedgeflag);
+    //gluTessCallback(prtess, GLU_TESS_COMBINE, polymer_tesscombine);
     gluTessCallback(prtess, GLU_TESS_ERROR, polymer_tesserror);
 
     gluTessProperty(prtess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_POSITIVE);
 
-    //tempverticescount = 0;
-    //tempvertice = NULL;
-
-    gluTessBeginPolygon(prtess, NULL);
+    gluTessBeginPolygon(prtess, s);
     gluTessBeginContour(prtess);
 
     i = 0;
     while (i < sec->wallnum)
     {
-        gluTessVertex(prtess, s->verts[i].v, s->verts[i].v);
-        if ((i != (sec->wallnum - 1)) && (s->verts[i].wallnum > wall[s->verts[i].wallnum].point2))
+        gluTessVertex(prtess, s->verts + (3 * i), (void *)i);
+        if ((i != (sec->wallnum - 1)) && ((sec->wallptr + i) > wall[sec->wallptr + i].point2))
         {
             gluTessEndContour(prtess);
             gluTessBeginContour(prtess);
@@ -193,15 +201,6 @@ int             polymer_buildfloor(short sectnum)
     }
     gluTessEndContour(prtess);
     gluTessEndPolygon(prtess);
-
-    bglEndList();
-
-    /*if (tempverticescount)
-    {
-        free(tempvertices);
-        tempvertices = NULL;
-        tempverticescount = 0;
-    }*/
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Tesselated floor of sector %i.\n", sectnum);
 
@@ -216,7 +215,9 @@ int             polymer_initsector(short sectnum)
     if (pr_verbosity >= 2) OSD_Printf("PR : Initalizing sector %i...\n", sectnum);
 
     sec = &sector[sectnum];
+    if (pr_verbosity >= 0) OSD_Printf("PR : Preparing to allocate sector %i...\n", sectnum);
     s = malloc(sizeof(_prsector));
+    if (pr_verbosity >= 0) OSD_Printf("PR : Allocated sector %i...\n", sectnum);
     if (s == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize sector %i : malloc failed.\n", sectnum);
@@ -225,12 +226,17 @@ int             polymer_initsector(short sectnum)
 
     s->invalidate = 0;
     s->wallcount = sec->wallnum;
-    s->verts = malloc(s->wallcount * sizeof(_prvertex));
-    if (s->verts == NULL)
+
+    s->verts = calloc(s->wallcount, sizeof(GLdouble) * 3);
+    s->floorbuffer = calloc(s->wallcount, sizeof(GLfloat) * 5);
+    s->ceilbuffer = calloc(s->wallcount, sizeof(GLfloat) * 5);
+    if ((s->verts == NULL) || (s->floorbuffer == NULL) || (s->ceilbuffer == NULL))
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize geometry of sector %i : malloc failed.\n", sectnum);
         return (0);
     }
+   
+    s->indices = NULL;
 
     prsectors[sectnum] = s;
 
@@ -258,13 +264,12 @@ void            polymer_drawsector(long daposx, long daposy, long daposz, short 
         polymer_updategeometry(sectnum);
         polymer_buildfloor(sectnum);
     }
-    else if ((prsectors[sectnum]->invalidate) || 1)
+    else if (prsectors[sectnum]->invalidate)
     {
         if (pr_verbosity >= 2) OSD_Printf("PR : Sector %i invalidated. Tesselating...\n", sectnum);
         polymer_updategeometry(sectnum);
         polymer_buildfloor(sectnum);
-        if (prsectors[sectnum]->invalidate)
-            prsectors[sectnum]->invalidate = 0;
+        prsectors[sectnum]->invalidate = 0;
     }
 
     sec = &sector[sectnum];
@@ -287,18 +292,17 @@ void            polymer_drawsector(long daposx, long daposy, long daposz, short 
     pth = gltexcache(sec->floorpicnum,sec->floorpal,0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
     bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    bglCallList(sectnum + 1); // DONT FORGET THE +1 DAMMIT
+    bglEnableClientState(GL_VERTEX_ARRAY);
+    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
+    bglDrawElements(GL_TRIANGLES, (sec->wallnum - 2) * 3, GL_UNSIGNED_SHORT, s->indices);
+    bglDisableClientState(GL_VERTEX_ARRAY);
 
     // ceiling
     pth = gltexcache(sec->ceilingpicnum,sec->ceilingpal,0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
     bglColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-    bglPushMatrix();
-    bglTranslatef(0.0f, sec->floorz - sec->ceilingz, 0.0f);
-    bglCallList(sectnum + 1);
-    bglPopMatrix();
 
-    // walls
+    /*// walls
     i = 0;
     while (i < sec->wallnum)
     {
@@ -348,7 +352,7 @@ void            polymer_drawsector(long daposx, long daposy, long daposz, short 
 
         i++;
         wal = &wall[sec->wallptr + i];
-    }
+    }*/
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing sector %i...\n", sectnum);
 }

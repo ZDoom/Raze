@@ -94,6 +94,13 @@ void (APIENTRY * bglNewList)(GLuint list, GLenum mode);
 void (APIENTRY * bglEndList)(void);
 void (APIENTRY * bglCallList)(GLuint list);
 
+// Vertex Arrays
+void (APIENTRY * bglEnableClientState)(GLenum cap);
+void (APIENTRY * bglDisableClientState)(GLenum cap);
+void (APIENTRY * bglVertexPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+void (APIENTRY * bglTexCoordPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+void (APIENTRY * bglDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
+
 #ifdef RENDERTYPEWIN
 // Windows
 HGLRC (WINAPI * bwglCreateContext)(HDC);
@@ -255,6 +262,13 @@ int loadgldriver(const char *driver)
     bglEndList      = GETPROC("glEndList");
     bglCallList      = GETPROC("glCallList");
 
+    // Vertex Arrays
+    bglEnableClientState    = GETPROC("glEnableClientState");
+    bglDisableClientState   = GETPROC("glDisableClientState");
+    bglVertexPointer        = GETPROC("glVertexPointer");
+    bglTexCoordPointer      = GETPROC("glTexCoordPointer");
+    bglDrawElements         = GETPROC("glDrawElements");
+
     loadglextensions();
 
     if (err) unloadgldriver();
@@ -357,6 +371,18 @@ int unloadgldriver(void)
     bglFogf			= NULL;
     bglFogi			= NULL;
     bglFogfv		= NULL;
+
+    // Display Lists
+    bglNewList      = NULL;
+    bglEndList      = NULL;
+    bglCallList      = NULL;
+
+    // Vertex Arrays
+    bglEnableClientState    = NULL;
+    bglDisableClientState   = NULL;
+    bglVertexPointer        = NULL;
+    bglTexCoordPointer      = NULL;
+    bglDrawElements         = NULL;
 
 #ifdef RENDERTYPEWIN
     bwglCreateContext	= NULL;

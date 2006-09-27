@@ -109,6 +109,13 @@ extern void (APIENTRY * bglFogfv)( GLenum pname, const GLfloat *params );
 extern void (APIENTRY * bglNewList)(GLuint list, GLenum mode);
 extern void (APIENTRY * bglEndList)(void);
 extern void (APIENTRY * bglCallList)(GLuint list);
+
+// Vertex Arrays
+extern void (APIENTRY * bglEnableClientState)(GLenum cap);
+extern void (APIENTRY * bglDisableClientState)(GLenum cap);
+extern void (APIENTRY * bglVertexPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+extern void (APIENTRY * bglTexCoordPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+extern void (APIENTRY * bglDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
 			
 #ifdef RENDERTYPEWIN
 // Windows
