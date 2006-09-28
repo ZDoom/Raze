@@ -4326,7 +4326,7 @@ SKIPJIBS:
                 break;
             case CON_QSTRCPY:
                 if(fta_quotes[i] != NULL && fta_quotes[j] != NULL)
-                    Bstrcpy(fta_quotes[j],fta_quotes[i]);
+                    Bstrcpy(fta_quotes[i],fta_quotes[j]);
                 else OSD_Printf("%s %d null quote %d %d\n",__FILE__,__LINE__,i,j);
                 break;
             case CON_CHANGESPRITESTAT:

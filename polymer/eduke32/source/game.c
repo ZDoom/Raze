@@ -8838,7 +8838,7 @@ void updatenames(void)
     if(ud.multimode > 1)
     {
         syncnames();
-        if(sprite[ps[myconnectindex].i].picnum == APLAYER)
+        if(sprite[ps[myconnectindex].i].picnum == APLAYER && sprite[ps[myconnectindex].i].pal != 1)
             sprite[ps[myconnectindex].i].pal = ud.pcolor[myconnectindex];
     }
     else
@@ -8852,7 +8852,7 @@ void updatenames(void)
         j = ps[myconnectindex].team;
         ud.pteam[myconnectindex] = ud.team;
 
-        if(sprite[ps[myconnectindex].i].picnum == APLAYER)
+        if(sprite[ps[myconnectindex].i].picnum == APLAYER && sprite[ps[myconnectindex].i].pal != 1)
             sprite[ps[myconnectindex].i].pal = ud.pcolor[myconnectindex];
     }
 }
@@ -10510,7 +10510,9 @@ char domovethings(void)
             ps[i].palookup = ud.pcolor[i] = j;
         }
 
-        sprite[ps[i].i].pal = ud.pcolor[i];
+
+		if(sprite[ps[i].i].pal != 1)
+	        sprite[ps[i].i].pal = ud.pcolor[i];
 
         cheatkeys(i);
 
