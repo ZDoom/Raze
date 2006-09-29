@@ -6671,6 +6671,9 @@ long loadboard(char *filename, char fromwhere, long *daposx, long *daposy, long 
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     memset(spriteext, 0, sizeof(spriteext));
+
+    if (rendmode == 4)
+        polymer_loadboard();
 #endif
     guniqhudid = 0;
 

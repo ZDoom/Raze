@@ -35,4 +35,6 @@ typedef struct pthtyp_t
 
 pthtyp * gltexcache (long dapicnum, long dapalnum, long dameth);
 
+extern palette_t hictinting[MAXPALOOKUPS];
+
 #endif // !_polymost_h_

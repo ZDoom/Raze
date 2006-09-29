@@ -99,6 +99,7 @@ void (APIENTRY * bglEnableClientState)(GLenum cap);
 void (APIENTRY * bglDisableClientState)(GLenum cap);
 void (APIENTRY * bglVertexPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 void (APIENTRY * bglTexCoordPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+void (APIENTRY * bglDrawArrays)(GLenum mode, GLint first, GLsizei count);
 void (APIENTRY * bglDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
 
 #ifdef RENDERTYPEWIN
@@ -267,6 +268,7 @@ int loadgldriver(const char *driver)
     bglDisableClientState   = GETPROC("glDisableClientState");
     bglVertexPointer        = GETPROC("glVertexPointer");
     bglTexCoordPointer      = GETPROC("glTexCoordPointer");
+    bglDrawArrays           = GETPROC("glDrawArrays");
     bglDrawElements         = GETPROC("glDrawElements");
 
     loadglextensions();

@@ -115,6 +115,7 @@ extern void (APIENTRY * bglEnableClientState)(GLenum cap);
 extern void (APIENTRY * bglDisableClientState)(GLenum cap);
 extern void (APIENTRY * bglVertexPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 extern void (APIENTRY * bglTexCoordPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+extern void (APIENTRY * bglDrawArrays)(GLenum mode, GLint first, GLsizei count);
 extern void (APIENTRY * bglDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
 			
 #ifdef RENDERTYPEWIN

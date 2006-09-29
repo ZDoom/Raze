@@ -7,7 +7,7 @@
 #include "kplib.h"
 
 #define HICEFFECTMASK (1|2)
-static palette_t hictinting[MAXPALOOKUPS];
+palette_t hictinting[MAXPALOOKUPS];
 
 //moved into polymost.h
 /*struct hicskybox_t {
