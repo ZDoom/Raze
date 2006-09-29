@@ -7696,7 +7696,7 @@ void comlinehelp(char **argv)
               "-usecwd\t\tRead game data and configuration file from working directory\n"
 #endif
               "-condebug, -z#\tLine-by-line CON compilation debugging"
-			  ;
+              ;
     wm_msgbox(apptitle,s);
 }
 
@@ -10511,8 +10511,8 @@ char domovethings(void)
         }
 
 
-		if(sprite[ps[i].i].pal != 1)
-	        sprite[ps[i].i].pal = ud.pcolor[i];
+        if(sprite[ps[i].i].pal != 1)
+            sprite[ps[i].i].pal = ud.pcolor[i];
 
         cheatkeys(i);
 
