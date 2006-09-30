@@ -204,7 +204,7 @@ enum playerlabels {
     PLAYER_MOVEMENT_LOCK,
     PLAYER_SOUND_PITCH,
     PLAYER_WEAPONSWITCH,
-	PLAYER_TEAM
+    PLAYER_TEAM
 };
 
 enum userdefslabels {
@@ -291,8 +291,8 @@ enum userdefslabels {
     USERDEFS_AUTOVOTE,
     USERDEFS_AUTOMSG,
     USERDEFS_IDPLAYERS,
-	USERDEFS_TEAM,
-	// this stuff isn't really userdef stuff, but getuserdef/setuserdef is already set up for what I want to do
+    USERDEFS_TEAM,
+    // this stuff isn't really userdef stuff, but getuserdef/setuserdef is already set up for what I want to do
     USERDEFS_MYX,
     USERDEFS_OMYX,
     USERDEFS_MYXVEL,
@@ -748,9 +748,10 @@ enum keywords {
     CON_FINDNEARACTORZVAR,  // 292
     CON_FINDNEARSPRITEZ,    // 293
     CON_FINDNEARSPRITEZVAR, // 294
-	CON_ZSHOOTVAR,			// 295
-	CON_EZSHOOTVAR,			// 296
-	CON_GETCURRADDRESS,		// 297
-	CON_JUMP,				// 298
+    CON_ZSHOOTVAR,			// 295
+    CON_EZSHOOTVAR,			// 296
+    CON_GETCURRADDRESS,		// 297
+    CON_JUMP,				// 298
+    CON_QSTRLEN,			// 299
     END
 };

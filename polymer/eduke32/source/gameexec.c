@@ -4293,6 +4293,18 @@ SKIPJIBS:
         insertspriteq(g_i);
         break;
 
+    case CON_QSTRLEN:
+        {
+            int i,j;
+            insptr++;
+            i=*insptr++;
+            j=GetGameVarID(*insptr++, g_i, g_p);
+            if(fta_quotes[j] != NULL)
+                SetGameVarID(i,Bstrlen(fta_quotes[j]),g_i,g_p);
+            else SetGameVarID(i,-1,g_i,g_p);
+            break;
+        }
+
     case CON_GETPNAME:
     case CON_QSTRCAT:
     case CON_QSTRCPY:

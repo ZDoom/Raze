@@ -443,6 +443,7 @@ char *keyw[] = {
                    "ezshootvar",			   // 296
                    "getcurraddress",		   // 297
                    "jump",					   // 298
+                   "qstrlen",				   // 299
                    "<null>"
                };
 
@@ -4179,6 +4180,7 @@ repeatcase:
     case CON_STARTLEVEL:
     case CON_QSTRCAT:
     case CON_QSTRCPY:
+    case CON_QSTRLEN:
         transmultvars(2);
         return 0;
     case CON_SETACTORANGLE:
