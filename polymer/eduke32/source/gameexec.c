@@ -5351,7 +5351,7 @@ SKIPJIBS:
             l = *insptr;
             j = 0;
 
-            s = g_sp->xvel;
+            s = sprite[ps[g_p].i].xvel;
 
             if( (l&8) && ps[g_p].on_ground && (sync[g_p].bits&2) )
                 j = 1;
