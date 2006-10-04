@@ -117,7 +117,12 @@ extern void (APIENTRY * bglVertexPointer)(GLint size, GLenum type, GLsizei strid
 extern void (APIENTRY * bglTexCoordPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 extern void (APIENTRY * bglDrawArrays)(GLenum mode, GLint first, GLsizei count);
 extern void (APIENTRY * bglDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
-			
+
+// Stencil Buffer
+extern void (APIENTRY * bglClearStencil)(GLint s);
+extern void (APIENTRY * bglStencilOp)(GLenum fail, GLenum zfail, GLenum zpass);
+extern void (APIENTRY * bglStencilFunc)(GLenum func, GLint ref, GLuint mask);
+
 #ifdef RENDERTYPEWIN
 // Windows
 extern HGLRC (WINAPI * bwglCreateContext)(HDC);

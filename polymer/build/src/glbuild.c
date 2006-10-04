@@ -102,6 +102,11 @@ void (APIENTRY * bglTexCoordPointer)(GLint size, GLenum type, GLsizei stride, co
 void (APIENTRY * bglDrawArrays)(GLenum mode, GLint first, GLsizei count);
 void (APIENTRY * bglDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
 
+// Stencil Buffer
+void (APIENTRY * bglClearStencil)(GLint s);
+void (APIENTRY * bglStencilOp)(GLenum fail, GLenum zfail, GLenum zpass);
+void (APIENTRY * bglStencilFunc)(GLenum func, GLint ref, GLuint mask);
+
 #ifdef RENDERTYPEWIN
 // Windows
 HGLRC (WINAPI * bwglCreateContext)(HDC);
@@ -271,6 +276,11 @@ int loadgldriver(const char *driver)
     bglDrawArrays           = GETPROC("glDrawArrays");
     bglDrawElements         = GETPROC("glDrawElements");
 
+    // Stencil Buffer
+    bglClearStencil = GETPROC("glClearStencil");
+    bglStencilOp    = GETPROC("glStencilOp");
+    bglStencilFunc  = GETPROC("glStencilFunc");
+
     loadglextensions();
 
     if (err) unloadgldriver();
@@ -385,6 +395,11 @@ int unloadgldriver(void)
     bglVertexPointer        = NULL;
     bglTexCoordPointer      = NULL;
     bglDrawElements         = NULL;
+
+    // Stencil Buffer
+    bglClearStencil = NULL;
+    bglStencilOp    = NULL;
+    bglStencilFunc  = NULL;
 
 #ifdef RENDERTYPEWIN
     bwglCreateContext	= NULL;

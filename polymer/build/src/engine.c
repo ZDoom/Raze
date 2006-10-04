@@ -5683,7 +5683,9 @@ void drawrooms(long daposx, long daposy, long daposz,
 
     if (rendmode == 4)
     {
-        polymer_drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
+        polymer_glinit();
+        polymer_drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum, 1);
+        bglDisable(GL_CULL_FACE);
         return;
     }
 

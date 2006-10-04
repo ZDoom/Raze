@@ -30,7 +30,8 @@ typedef struct      s_prsector {
     GLfloat         floorcolor[4], ceilcolor[4];
     GLuint          floorglpic, ceilglpic;
     // elements
-    GLushort*       indices;
+    GLushort*       floorindices;
+    GLushort*       ceilindices;
     short           curindice;
     int             indicescount;
 
@@ -57,7 +58,7 @@ extern _prwall*     prwalls[MAXWALLS];
 int                 polymer_init(void);
 void                polymer_glinit(void);
 void                polymer_loadboard(void);
-void                polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum);
+void                polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum, int root);
 // SECTOR MANAGEMENT
 int                 polymer_initsector(short sectnum);
 int                 polymer_updatesector(short sectnum);
@@ -66,7 +67,7 @@ void PR_CALLBACK    polymer_tesserror(GLenum error);
 void PR_CALLBACK    polymer_tessedgeflag(GLenum error);
 void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector);
 int                 polymer_buildfloor(short sectnum);
-void                polymer_drawsector(long daposx, long daposy, long daposz, short daang, long dahoriz, short sectnum);
+void                polymer_drawsector(long daposx, long daposy, long daposz, short daang, long dahoriz, short sectnum, int root);
 // WALL MANAGEMENT
 int                 polymer_initwall(short wallnum);
 void                polymer_updatewall(short wallnum);

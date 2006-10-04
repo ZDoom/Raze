@@ -58,7 +58,8 @@ void                polymer_glinit(void)
     bglGetFloatv(GL_PROJECTION_MATRIX, polymostprojmatrix);
     bglGetFloatv(GL_MODELVIEW_MATRIX, polymostmodelmatrix);
     bglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    bglClearStencil(0);
+    bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     bglViewport(0, 0, 1024, 768);
 
     // texturing
@@ -93,6 +94,8 @@ void                polymer_glinit(void)
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
+    bglEnable(GL_CULL_FACE);
+    bglCullFace(GL_BACK);
 }
 
 void                polymer_loadboard(void)
@@ -118,18 +121,16 @@ void                polymer_loadboard(void)
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Board loaded.\n");
 }
-void                polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum)
+void                polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum, int root)
 {
     int             i;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
 
-    polymer_glinit();
-
     i = 0;
     while (i < numsectors)
     {
-        polymer_drawsector(daposx, daposy, daposz, daang, dahoriz, i);
+        polymer_drawsector(daposx, daposy, daposz, daang, dahoriz, i, 0);
         i++;
     }
 
@@ -169,7 +170,7 @@ int                 polymer_initsector(short sectnum)
         return (0);
     }
    
-    s->indices = NULL;
+    s->floorindices = s->ceilindices = NULL;
 
     prsectors[sectnum] = s;
 
@@ -347,9 +348,10 @@ void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
     {
         if (pr_verbosity >= 2) OSD_Printf("PR : Indice overflow, extending the indices list... !\n");
         s->indicescount++;
-        s->indices = realloc(s->indices, s->indicescount * sizeof(GLushort));
+        s->floorindices = realloc(s->floorindices, s->indicescount * sizeof(GLushort));
+        s->ceilindices = realloc(s->ceilindices, s->indicescount * sizeof(GLushort));
     }
-    s->indices[s->curindice] = (int)vertex;
+    s->ceilindices[s->curindice] = (int)vertex;
     s->curindice++;
 }
 int                 polymer_buildfloor(short sectnum)
@@ -366,10 +368,11 @@ int                 polymer_buildfloor(short sectnum)
     if (s == NULL)
         return (-1);
 
-    if (s->indices == NULL)
+    if (s->floorindices == NULL)
     {
         s->indicescount = (sec->wallnum - 2) * 3;
-        s->indices = calloc(s->indicescount, sizeof(GLushort));
+        s->floorindices = calloc(s->indicescount, sizeof(GLushort));
+        s->ceilindices = calloc(s->indicescount, sizeof(GLushort));
     }
 
     s->curindice = 0;
@@ -398,17 +401,25 @@ int                 polymer_buildfloor(short sectnum)
     gluTessEndContour(prtess);
     gluTessEndPolygon(prtess);
 
+    i = 0;
+    while (i < s->indicescount)
+    {
+        s->floorindices[s->indicescount - i - 1] = s->ceilindices[i];
+
+        i++;
+    }
+
     if (pr_verbosity >= 2) OSD_Printf("PR : Tesselated floor of sector %i.\n", sectnum);
 
     return (1);
 }
 
-void                polymer_drawsector(long daposx, long daposy, long daposz, short daang, long dahoriz, short sectnum)
+void                polymer_drawsector(long daposx, long daposy, long daposz, short daang, long dahoriz, short sectnum, int root)
 {
     sectortype      *sec, *nextsec;
     walltype        *wal;
     _prsector*      s;
-    float           ang, horizang;
+    float           ang, horizang, tiltang;
     double          pos[3];
     int             i;
     long            zdiff;
@@ -425,7 +436,7 @@ void                polymer_drawsector(long daposx, long daposy, long daposz, sh
         polymer_updatesector(sectnum);
         polymer_buildfloor(sectnum);
     }
-    else if (prsectors[sectnum]->invalidate)
+    else if (prsectors[sectnum]->invalidate || 0)
     {
         if (pr_verbosity >= 2) OSD_Printf("PR : Sector %i invalidated. Tesselating...\n", sectnum);
         polymer_updatesector(sectnum);
@@ -442,6 +453,7 @@ void                polymer_drawsector(long daposx, long daposy, long daposz, sh
 
     ang = (float)(daang) / (2048.0f / 360.0f);
     horizang = (float)(100 - dahoriz) / (256.0f / 90.0f);
+    tiltang = (gtang * 90.0f);
 
     pos[0] = -daposy;
     pos[1] = daposz;
@@ -452,26 +464,69 @@ void                polymer_drawsector(long daposx, long daposy, long daposz, sh
 
     bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
     bglRotatef(ang, 0.0f, 1.0f, 0.0f);
+    bglRotatef(tiltang, 0.0f, 0.0f, -1.0f);
 
     bglScalef(1.0f, 1.0f / 16.0f, 1.0f);
     bglTranslatef(pos[0], pos[1], pos[2]);
 
-
     bglEnable(GL_TEXTURE_2D);
 
     // floor
-    bglBindTexture(GL_TEXTURE_2D, s->floorglpic);
-    bglColor4f(s->floorcolor[0], s->floorcolor[1], s->floorcolor[2], s->floorcolor[3]);
-    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
-    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
-    bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->indices);
+    if (!(sec->floorstat & 1))
+    {
+        if (root)
+        {
+            bglDisable(GL_TEXTURE_2D);
+            bglColorMask(0, 0, 0, 0);
+            bglEnable(GL_STENCIL_TEST);
+
+            bglStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+            bglStencilFunc(GL_ALWAYS, 1, 1);
+
+            bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
+            bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
+            bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
+
+            bglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+            bglStencilFunc(GL_EQUAL, 1, 1);
+            bglColorMask(1, 1, 1, 1);
+            bglEnable(GL_TEXTURE_2D);
+
+            //bglDepthMask(0);
+            polymer_drawrooms(daposx, daposy, daposz - ((daposz - sec->floorz) * 2), daang, dahoriz, sectnum, 0);
+            //bglDepthMask(1);
+
+            bglDisable(GL_STENCIL_TEST);
+            bglEnable(GL_BLEND);
+            bglBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+            bglBindTexture(GL_TEXTURE_2D, s->floorglpic);
+            bglColor4f(s->floorcolor[0], s->floorcolor[1], s->floorcolor[2], 0.5f);
+            bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
+            bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
+            bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
+
+            bglDisable(GL_BLEND);
+        }
+        else
+        {
+            bglBindTexture(GL_TEXTURE_2D, s->floorglpic);
+            bglColor4f(s->floorcolor[0], s->floorcolor[1], s->floorcolor[2], s->floorcolor[3]);
+            bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
+            bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
+            bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
+        }
+    }
 
     // ceiling
-    bglBindTexture(GL_TEXTURE_2D, s->ceilglpic);
-    bglColor4f(s->ceilcolor[0], s->ceilcolor[1], s->ceilcolor[2], s->ceilcolor[3]);
-    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->ceilbuffer);
-    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->ceilbuffer[3]);
-    bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->indices);
+    if (!(sec->ceilingstat & 1))
+    {
+        bglBindTexture(GL_TEXTURE_2D, s->ceilglpic);
+        bglColor4f(s->ceilcolor[0], s->ceilcolor[1], s->ceilcolor[2], s->ceilcolor[3]);
+        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->ceilbuffer);
+        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->ceilbuffer[3]);
+        bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->ceilindices);
+    }
 
     // walls
     i = 0;
@@ -632,7 +687,8 @@ void                polymer_updatewall(short wallnum)
                 i++;
             }
 
-            w->underover |= 1;
+            if (!((sec->floorstat & 1) && (nsec->floorstat & 1)))
+                w->underover |= 1;
         }
 
         if (((s->ceilbuffer[((wallnum - sec->wallptr) * 5) + 1] != ns->ceilbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
@@ -680,7 +736,8 @@ void                polymer_updatewall(short wallnum)
                 i++;
             }
 
-            w->underover |= 2;
+            if (!((sec->ceilingstat & 1) && (nsec->ceilingstat & 1)))
+                w->underover |= 2;
         }
     }
 

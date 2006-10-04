@@ -34,7 +34,7 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 
     char *modestrs[] = {
                            "classic software", "polygonal flat-shaded software",
-                           "polygonal textured software", "polygonal OpenGL", "blah"
+                           "polygonal textured software", "polygonal OpenGL", "great justice"
                        };
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;

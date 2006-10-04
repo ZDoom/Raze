@@ -101,7 +101,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 static double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
 static double gcosang, gsinang, gcosang2, gsinang2;
 static double gchang, gshang, gctang, gstang, gvisibility;
-static float gtang = 0.0;
+float gtang = 0.0;
 double guo, gux, guy; //Screen-based texture mapping parameters
 double gvo, gvx, gvy;
 double gdo, gdx, gdy;
