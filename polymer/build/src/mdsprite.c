@@ -198,6 +198,8 @@ mdmodel *mdload (const char *);
 int mddraw (spritetype *);
 void mdfree (mdmodel *);
 
+extern int timerticspersec;
+
 static void freeallmodels ()
 {
     int i;
@@ -839,14 +841,13 @@ if (!anim) { m->interpol = 0; return; }
         return;
     }
 
-    i = (mdtims-spriteext[tspr->owner].mdanimtims)*anim->fpssc;
+    i = (mdtims-spriteext[tspr->owner].mdanimtims)*anim->fpssc*timerticspersec/120;
     j = ((anim->endframe+1-anim->startframe)<<16);
-
     //Just in case you play the game for a VERY long time...
     if (i < 0) { i = 0; spriteext[tspr->owner].mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
-    if ((i >= j+j) && (anim->fpssc)) //Keep mdanimtims close to mdtims to avoid the use of MOD
-        spriteext[tspr->owner].mdanimtims += j/anim->fpssc;
+    if ((i >= j+j) && (anim->fpssc)*timerticspersec/120) //Keep mdanimtims close to mdtims to avoid the use of MOD
+        spriteext[tspr->owner].mdanimtims += j/anim->fpssc*timerticspersec/120;
 
     if (anim->flags&MDANIM_ONESHOT)
     { if (i > j-65536) i = j-65536; }

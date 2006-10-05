@@ -5002,7 +5002,7 @@ SHOOTINCODE:
                             if(*kb == aplWeaponFireDelay[p->curr_weapon][snum])
                             {
                                 DoFire(p);
-                                DoSpawn(p);
+//                                DoSpawn(p);
                             }
                         }
                         if(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RESET &&
@@ -5025,7 +5025,7 @@ SHOOTINCODE:
                             if(*kb == aplWeaponFireDelay[p->curr_weapon][snum])
                             {
                                 DoFire(p);
-                                DoSpawn(p);
+//                                DoSpawn(p);
                             }
                         }
                     }

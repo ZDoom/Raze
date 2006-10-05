@@ -1541,7 +1541,7 @@ static const char * GetDInputError(HRESULT code)
 
 static int64 timerfreq=0;
 static long timerlastsample=0;
-static int timerticspersec=0;
+int timerticspersec=0;
 static void (*usertimercallback)(void) = NULL;
 
 //  This timer stuff is all Ken's idea.
@@ -1569,7 +1569,7 @@ int inittimer(int tickspersecond)
 
     if (timerfreq) return 0;	// already installed
 
-    initprintf("Initialising timer\n");
+//    initprintf("Initialising timer\n");
 
     // OpenWatcom seems to want us to query the value into a local variable
     // instead of the global 'timerfreq' or else it gets pissed with an

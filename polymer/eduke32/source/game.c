@@ -2087,7 +2087,7 @@ void tics(void)
     i = totalclock;
     if (i != frameval[framecnt])
     {
-        j=(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]);
+        j=(timer*AVERAGEFRAMES)/(i-frameval[framecnt]);
         if (ud.tickrate && !(ps[myconnectindex].gm&MODE_MENU))
         {
             int k = 1;
@@ -2099,7 +2099,7 @@ void tics(void)
                     k += 8;
             }
             Bsprintf(b,"%ld",j>0?j:0);
-            minitext(320-strlen(b)*4,k,b,(TICRATE*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
+            minitext(320-strlen(b)*4,k,b,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
         }
         framerate = j;
         frameval[framecnt] = i;

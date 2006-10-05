@@ -546,7 +546,7 @@ void releaseallbuttons(void)
 
 static Uint32 timerfreq=0;
 static Uint32 timerlastsample=0;
-static Uint32 timerticspersec=0;
+Uint32 timerticspersec=0;
 static void (*usertimercallback)(void) = NULL;
 
 //
@@ -556,7 +556,7 @@ int inittimer(int tickspersecond)
 {
     if (timerfreq) return 0;	// already installed
 
-    initprintf("Initialising timer\n");
+//    initprintf("Initialising timer\n");
 
     timerfreq = 1000;
     timerticspersec = tickspersecond;
