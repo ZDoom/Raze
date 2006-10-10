@@ -2716,101 +2716,50 @@ CHECKINV1:
 
         j = ( (sb_snum&(15<<8))>>8 ) - 1;
 
-        if (j == 0)
+        SetGameVarID(g_iReturnVarID,j,p->i,snum);
+
+        switch(j)
         {
-            SetGameVarID(g_iReturnVarID,j,p->i,snum);
+        case 0:
             OnEvent(EVENT_WEAPKEY1,p->i,snum, -1);
-            if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-                j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
-        }
-
-        if (j == 1)
-        {
-            SetGameVarID(g_iReturnVarID,j,p->i,snum);
+            break;
+        case 1:
             OnEvent(EVENT_WEAPKEY2,p->i,snum, -1);
-            if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-                j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
-        }
-
-        if (j == 2)
-        {
-            SetGameVarID(g_iReturnVarID,j,p->i,snum);
+            break;
+        case 2:
             OnEvent(EVENT_WEAPKEY3,p->i,snum, -1);
-            if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-                j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
-        }
-
-        if (j == 3)
-        {
-            SetGameVarID(g_iReturnVarID,j,p->i,snum);
+            break;
+        case 3:
             OnEvent(EVENT_WEAPKEY4,p->i,snum, -1);
-            if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-                j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
-        }
-
-        if (j == 4)
-        {
-            SetGameVarID(g_iReturnVarID,j,p->i,snum);
+            break;
+        case 4:
             OnEvent(EVENT_WEAPKEY5,p->i,snum, -1);
-            if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-                j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
-        }
-
-        if (j == 5)
-        {
-            SetGameVarID(g_iReturnVarID,j,p->i,snum);
+            break;
+        case 5:
             OnEvent(EVENT_WEAPKEY6,p->i,snum, -1);
-            if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-                j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
-        }
-
-        if (j == 6)
-        {
-            SetGameVarID(g_iReturnVarID,j,p->i,snum);
+            break;
+        case 6:
             OnEvent(EVENT_WEAPKEY7,p->i,snum, -1);
-            if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-                j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
-        }
-
-        if (j == 7)
-        {
-            SetGameVarID(g_iReturnVarID,j,p->i,snum);
+            break;
+        case 7:
             OnEvent(EVENT_WEAPKEY8,p->i,snum, -1);
-            if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-                j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
-        }
-
-        if (j == 8)
-        {
-            SetGameVarID(g_iReturnVarID,j,p->i,snum);
+            break;
+        case 8:
             OnEvent(EVENT_WEAPKEY9,p->i,snum, -1);
-            if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-                j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
-        }
-
-        if (j == 9)
-        {
-            SetGameVarID(g_iReturnVarID,j,p->i,snum);
+            break;
+        case 9:
             OnEvent(EVENT_WEAPKEY10,p->i,snum, -1);
-            if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-                j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
-        }
-
-        if (j == 10)
-        {
-            SetGameVarID(g_iReturnVarID,j,p->i,snum);
+            break;
+        case 10:
             OnEvent(EVENT_PREVIOUSWEAPON,p->i,snum, -1);
-            if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-                j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
+            break;
+        case 11:
+            OnEvent(EVENT_NEXTWEAPON,p->i,snum, -1);
+            break;
         }
 
-        if (j == 11)
-        {
-            SetGameVarID(g_iReturnVarID,j,p->i,snum);
-            OnEvent(EVENT_NEXTWEAPON,p->i,snum, -1);
-            if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-                j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
-        }
+        if((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
+            j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
 
         if (p->reloading == 1)
             j = -1;

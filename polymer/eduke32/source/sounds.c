@@ -232,8 +232,9 @@ char loadsound(unsigned short num)
     fp = kopen4load(sounds[num],loadfromgrouponly);
     if(fp == -1)
     {
-        Bsprintf(fta_quotes[113],"Sound %s(#%d) not found.",sounds[num],num);
-        FTA(113,&ps[myconnectindex]);
+//        Bsprintf(fta_quotes[113],"Sound %s(#%d) not found.",sounds[num],num);
+//        FTA(113,&ps[myconnectindex]);
+        initprintf("Sound %s(#%d) not found.\n",sounds[num],num);
         return 0;
     }
 
@@ -329,7 +330,7 @@ int xyzsound(short num,short i,long x,long y,long z)
         break;
     }
 
-    if (ps[screenpeek].sound_pitch) pitch = ps[screenpeek].sound_pitch;
+    if (ps[screenpeek].sound_pitch) pitch += ps[screenpeek].sound_pitch;
 
     if( Sound[num].num > 0 && PN != MUSICANDSFX )
     {

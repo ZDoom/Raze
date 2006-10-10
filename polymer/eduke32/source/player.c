@@ -569,6 +569,9 @@ short shoot(short i,short atwith)
                         {
                             k = spawn(j,projectile[atwith].spawns);
                             sprite[k].z -= (8<<8);
+                            hittype[k].temp_data[6] = hitwall;
+                            hittype[k].temp_data[7] = hitsect;
+                            hittype[k].temp_data[8] = hitspr;
                         }
                         if (projectile[atwith].sound > -1) spritesound(projectile[atwith].sound,j);
                     }
@@ -729,6 +732,9 @@ short shoot(short i,short atwith)
                         wh=spawn(k,projectile[atwith].spawns);
                         if (projectile[atwith].sxrepeat > 4) sprite[wh].xrepeat=projectile[atwith].sxrepeat;
                         if (projectile[atwith].syrepeat > 4) sprite[wh].yrepeat=projectile[atwith].syrepeat;
+                        hittype[wh].temp_data[6] = hitwall;
+                        hittype[wh].temp_data[7] = hitsect;
+                        hittype[wh].temp_data[8] = hitspr;
                     }
                 }
 
@@ -750,6 +756,9 @@ short shoot(short i,short atwith)
                             wh=spawn(k,projectile[atwith].spawns);
                             if (projectile[atwith].sxrepeat > 4) sprite[wh].xrepeat=projectile[atwith].sxrepeat;
                             if (projectile[atwith].syrepeat > 4) sprite[wh].yrepeat=projectile[atwith].syrepeat;
+                            hittype[wh].temp_data[6] = hitwall;
+                            hittype[wh].temp_data[7] = hitsect;
+                            hittype[wh].temp_data[8] = hitspr;
                         }
                     }
                     if(p >= 0 && (
@@ -773,6 +782,9 @@ short shoot(short i,short atwith)
                         wh=spawn(k,projectile[atwith].spawns);
                         if (projectile[atwith].sxrepeat > 4) sprite[wh].xrepeat=projectile[atwith].sxrepeat;
                         if (projectile[atwith].syrepeat > 4) sprite[wh].yrepeat=projectile[atwith].syrepeat;
+                        hittype[wh].temp_data[6] = hitwall;
+                        hittype[wh].temp_data[7] = hitsect;
+                        hittype[wh].temp_data[8] = hitspr;
                     }
                     if( isadoorwall(wall[hitwall].picnum) == 1 )
                         goto DOSKIPBULLETHOLE;
@@ -875,6 +887,9 @@ DOSKIPBULLETHOLE:
                             wh=spawn(k,projectile[atwith].spawns);
                             if (projectile[atwith].sxrepeat > 4) sprite[wh].xrepeat=projectile[atwith].sxrepeat;
                             if (projectile[atwith].syrepeat > 4) sprite[wh].yrepeat=projectile[atwith].syrepeat;
+                            hittype[wh].temp_data[6] = hitwall;
+                            hittype[wh].temp_data[7] = hitsect;
+                            hittype[wh].temp_data[8] = hitspr;
                         }
                     }
                     else sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -1094,6 +1109,9 @@ DOSKIPBULLETHOLE:
                         k = spawn(j,SMALLSMOKE);
                         sprite[k].z -= (8<<8);
                         spritesound(KICK_HIT,j);
+                        hittype[k].temp_data[6] = hitwall;
+                        hittype[k].temp_data[7] = hitsect;
+                        hittype[k].temp_data[8] = hitspr;
                     }
 
                     if ( p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400 )
@@ -1235,7 +1253,10 @@ DOSKIPBULLETHOLE:
                         else
                             checkhitceiling(hitsect);
                     }
-                    spawn(k,SMALLSMOKE);
+                    l = spawn(k,SMALLSMOKE);
+                    hittype[l].temp_data[6] = hitwall;
+                    hittype[l].temp_data[7] = hitsect;
+                    hittype[l].temp_data[8] = hitspr;
                 }
 
                 if(hitspr >= 0)
@@ -1250,7 +1271,13 @@ DOSKIPBULLETHOLE:
                         sprite[l].xrepeat = sprite[l].yrepeat = 24;
                         sprite[l].ang += 64-(TRAND&127);
                     }
-                    else spawn(k,SMALLSMOKE);
+                    else 
+                    {
+                        l = spawn(k,SMALLSMOKE);
+                        hittype[l].temp_data[6] = hitwall;
+                        hittype[l].temp_data[7] = hitsect;
+                        hittype[l].temp_data[8] = hitspr;
+                    }
 
                     if(p >= 0 && (
                                 sprite[hitspr].picnum == DIPSWITCH ||
@@ -1268,7 +1295,10 @@ DOSKIPBULLETHOLE:
                 }
                 else if( hitwall >= 0 )
                 {
-                    spawn(k,SMALLSMOKE);
+                    l = spawn(k,SMALLSMOKE);
+                    hittype[l].temp_data[6] = hitwall;
+                    hittype[l].temp_data[7] = hitsect;
+                    hittype[l].temp_data[8] = hitspr;
 
                     if( isadoorwall(wall[hitwall].picnum) == 1 )
                         goto SKIPBULLETHOLE;
@@ -1351,7 +1381,12 @@ SKIPBULLETHOLE:
                 {
                     checkhitsprite(hitspr,k);
                     if( sprite[hitspr].picnum != APLAYER )
-                        spawn(k,SMALLSMOKE);
+                    {
+                        l = spawn(k,SMALLSMOKE);
+                        hittype[l].temp_data[6] = hitwall;
+                        hittype[l].temp_data[7] = hitsect;
+                        hittype[l].temp_data[8] = hitspr;
+                    }
                     else sprite[k].xrepeat = sprite[k].yrepeat = 0;
                 }
                 else if( hitwall >= 0 )

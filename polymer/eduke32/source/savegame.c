@@ -126,7 +126,7 @@ int loadplayer(signed char spot)
     }
 
     if (kdfread(&nump,sizeof(nump),1,fil) != 1) return -1;
-    if(nump != numplayers)
+    if(nump != ud.multimode)
     {
         kclose(fil);
         ototalclock = totalclock;
