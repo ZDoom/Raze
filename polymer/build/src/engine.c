@@ -3123,13 +3123,14 @@ static void drawsprite(long snum)
 
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
-    if (rendmode) {
+    if (rendmode == 3) {
         polymost_drawsprite(snum);
     #ifdef USE_OPENGL
         bglDepthMask(1);
     #endif
         return;
     }
+    if (rendmode == 4) { polymer_drawsprite(snum); return; }
 #endif
     //============================================================================= //POLYMOST ENDS
 
@@ -4045,7 +4046,8 @@ static void drawmaskwall(short damaskwallcnt)
 
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
-    if (rendmode) { polymost_drawmaskwall(damaskwallcnt); return; }
+    if (rendmode == 3) { polymost_drawmaskwall(damaskwallcnt); return; }
+    if (rendmode == 4) { polymer_drawmaskwall(damaskwallcnt); return; }
 #endif
     //============================================================================= //POLYMOST ENDS
 
@@ -4523,7 +4525,8 @@ static void dorotatesprite(long sx, long sy, long z, short a, short picnum, sign
 
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
-    if (rendmode) { polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,uniqid); return; }
+    if (rendmode >= 3) { polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,uniqid); return; }
+    if (rendmode == 4) { polymer_rotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2); return; }
 #endif
     //============================================================================= //POLYMOST ENDS
 
@@ -5788,14 +5791,6 @@ void drawrooms(long daposx, long daposy, long daposz,
 }
 
 // UTILITY TYPES AND FUNCTIONS FOR DRAWMASKS OCCLUSION TREE
-typedef struct          s_point2d {
-    long                x, y;
-}                       _point2d;
-
-typedef struct          s_equation {
-    float               a, b, c;
-}                       _equation;
-
 typedef struct          s_maskleaf {
     long                index;
     _point2d            p1, p2;
@@ -7403,10 +7398,12 @@ if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (rendmode == 3)
+    {
         polymost_glinit();
-    else if (rendmode == 4)
+        polymost_glreset();
+    }
+    if (rendmode == 4)
         polymer_glinit();
-    polymost_glreset();
 #endif
     qsetmode = 200;
     return(0);

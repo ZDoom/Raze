@@ -472,6 +472,7 @@ struct cvarmappings {
         { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
         { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_BOOL, 0, 0, 1 },
         // polymer cvars
+        { "pr_fov", "pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_UNSIGNEDINT, 0, 0, 1024},
         { "pr_verbosity", "pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
         { "pr_wireframe", "pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_BOOL, 0, 0, 1 },
 #endif

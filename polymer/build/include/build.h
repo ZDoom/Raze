@@ -433,6 +433,16 @@ long   setsprite(short spritenum, long newx, long newy, long newz);
 
 long   screencapture(char *filename, char inverseit);
 
+// PLAG: line utility functions
+typedef struct  s_equation {
+    float       a, b, c;
+}               _equation;
+typedef struct  s_point2d {
+    long        x, y;
+}               _point2d;
+_equation       equation(long x1, long y1, long x2, long y2);
+int             sameside(_equation* eq, _point2d* p1, _point2d* p2);
+
 #define STATUS2DSIZ 144
 void   qsetmode640350(void);
 void   qsetmode640480(void);

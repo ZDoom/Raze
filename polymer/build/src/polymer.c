@@ -3,15 +3,15 @@
 #include "polymer.h"
 
 // CVARS
-char    pr_verbosity = 1; // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
-char    pr_wireframe = 0;
+unsigned int    pr_fov = 340; // 60 degrees, appears to be the classic setting.
+char            pr_verbosity = 1; // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
+char            pr_wireframe = 0;
 
 // DATA
 _prsector       *prsectors[MAXSECTORS];
 _prwall         *prwalls[MAXWALLS];
 
-float           polymostprojmatrix[16];
-float           polymostmodelmatrix[16];
+_cliplane       cliplane;
 
 GLUtesselator*  prtess;
 int             tempverticescount;
@@ -53,30 +53,15 @@ int                 polymer_init(void)
 
 void                polymer_glinit(void)
 {
-    GLfloat         params[4];
-
-    bglGetFloatv(GL_PROJECTION_MATRIX, polymostprojmatrix);
-    bglGetFloatv(GL_MODELVIEW_MATRIX, polymostmodelmatrix);
     bglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     bglClearStencil(0);
     bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    bglViewport(0, 0, 1024, 768);
+    bglViewport(0, 0, xdim, ydim);
 
     // texturing
     bglEnable(GL_TEXTURE_2D);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-    /*bglEnable(GL_TEXTURE_GEN_S);
-    bglEnable(GL_TEXTURE_GEN_T);
-    params[0] = GL_OBJECT_LINEAR;
-    bglTexGenfv(GL_S, GL_TEXTURE_GEN_MODE, params);
-    bglTexGenfv(GL_T, GL_TEXTURE_GEN_MODE, params);
-    params[0] = 1.0 / 10000.0;
-    params[1] = 1.0 / 10000.0;
-    params[2] = 1.0 / 10000.0;
-    params[3] = 1.0 / 10000.0;
-    bglTexGenfv(GL_S, GL_OBJECT_PLANE, params);
-    bglTexGenfv(GL_T, GL_OBJECT_PLANE, params);*/
 
     bglDisable(GL_FOG);
     bglEnable(GL_DEPTH_TEST);
@@ -87,7 +72,8 @@ void                polymer_glinit(void)
 
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
-    bglFrustum(-1.0f, 1.0f, -0.75f, 0.75, 1.0f, 1000000.0f);
+    gluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 1.0f, 1000000.0f);
+
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
 
@@ -123,23 +109,118 @@ void                polymer_loadboard(void)
 }
 void                polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum, int root)
 {
-    int             i;
+    int             i, j;
+    float           ang, horizang, tiltang;
+    double          pos[3];
+    _point2d        ref;
+    sectortype      *sec;
+    walltype        *wal;
+    short           drawnsectors, fov;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
+
+    OSD_Printf("PR : %d\n", dahoriz);
+
+    ang = (float)(daang) / (2048.0f / 360.0f);
+    horizang = (float)(100 - dahoriz) / (512.0f / 180.0f);
+    tiltang = (gtang * 90.0f);
+    fov = (pr_fov * (float)xdim / (float)ydim * 1) / 2;
+
+    // FOV cliplane
+    rotatepoint(daposx, daposy, daposx, daposy - 1000, daang, &ref.x, &ref.y);
+    cliplane.clip = equation(daposx, daposy, ref.x, ref.y);
+    rotatepoint(daposx, daposy, daposx, daposy - 1000, (daang + 512 - fov) & 2047, &ref.x, &ref.y);
+    cliplane.left = equation(daposx, daposy, ref.x, ref.y);
+    rotatepoint(daposx, daposy, daposx, daposy - 1000, (daang + 512 + fov) & 2047, &ref.x, &ref.y);
+    cliplane.right = equation(daposx, daposy, ref.x, ref.y);
+    rotatepoint(daposx, daposy, daposx, daposy - 1000, (daang + 512) & 2047, &ref.x, &ref.y);
+    cliplane.ref = ref;
+    cliplane.clipsign = 1;
+
+    pos[0] = -daposy;
+    pos[1] = daposz;
+    pos[2] = daposx;
+
+    bglMatrixMode(GL_MODELVIEW);
+    bglLoadIdentity();
+
+    bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
+    bglRotatef(ang, 0.0f, 1.0f, 0.0f);
+    bglRotatef(tiltang, 0.0f, 0.0f, -1.0f);
+
+    bglScalef(1.0f, 1.0f / 16.0f, 1.0f);
+    bglTranslatef(pos[0], pos[1], pos[2]);
 
     i = 0;
     while (i < numsectors)
     {
-        polymer_drawsector(daposx, daposy, daposz, daang, dahoriz, i, 0);
+        if (prsectors[i])
+        {
+            if (i == dacursectnum)
+                prsectors[i]->drawingstate = 2;
+            else
+                prsectors[i]->drawingstate = 0;
+        }
         i++;
     }
 
-    bglMatrixMode(GL_PROJECTION);
-    bglLoadMatrixf(polymostprojmatrix);
-    bglMatrixMode(GL_MODELVIEW);
-    bglLoadMatrixf(polymostmodelmatrix);
+    drawnsectors = 1;
+    while (drawnsectors > 0)
+    {
+        drawnsectors = 0;
+
+        i = 0;
+        while (i < numsectors)
+        {
+            if (prsectors[i] && prsectors[i]->drawingstate == 2)
+            {
+                polymer_drawsector(i);
+
+                sec = &sector[i];
+                wal = &wall[sec->wallptr];
+
+                j = 0;
+                while (j < sec->wallnum)
+                {
+                    if (wallincliplane(sec->wallptr + j, &cliplane))
+                    {
+                        polymer_drawwall(sec->wallptr + j);
+                        if ((wal->nextsector != -1) && (prsectors[wal->nextsector]->drawingstate == 0))
+                            prsectors[wal->nextsector]->drawingstate = 1;
+                    }
+
+                    j++;
+                    wal = &wall[sec->wallptr + j];
+                }
+
+                prsectors[i]->drawingstate = 3;
+                drawnsectors++;
+            }
+            i++;
+        }
+
+        i = 0;
+        while (i < numsectors)
+        {
+            if (prsectors[i] && prsectors[i]->drawingstate == 1)
+                prsectors[i]->drawingstate = 2;
+            i++;
+        }
+    }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
+}
+
+void                polymer_rotatesprite(long sx, long sy, long z, short a, short picnum, signed char dashade, char dapalnum, char dastat, long cx1, long cy1, long cx2, long cy2)
+{
+}
+
+void                polymer_drawmaskwall(long damaskwallcnt)
+{
+}
+
+void                polymer_drawsprite(long snum)
+{
 }
 
 // SECTOR MANAGEMENT
@@ -414,13 +495,11 @@ int                 polymer_buildfloor(short sectnum)
     return (1);
 }
 
-void                polymer_drawsector(long daposx, long daposy, long daposz, short daang, long dahoriz, short sectnum, int root)
+void                polymer_drawsector(short sectnum)
 {
     sectortype      *sec, *nextsec;
     walltype        *wal;
     _prsector*      s;
-    float           ang, horizang, tiltang;
-    double          pos[3];
     int             i;
     long            zdiff;
 
@@ -436,7 +515,7 @@ void                polymer_drawsector(long daposx, long daposy, long daposz, sh
         polymer_updatesector(sectnum);
         polymer_buildfloor(sectnum);
     }
-    else if (prsectors[sectnum]->invalidate || 0)
+    else if (prsectors[sectnum]->invalidate || 1)
     {
         if (pr_verbosity >= 2) OSD_Printf("PR : Sector %i invalidated. Tesselating...\n", sectnum);
         polymer_updatesector(sectnum);
@@ -450,72 +529,14 @@ void                polymer_drawsector(long daposx, long daposy, long daposz, sh
         prsectors[sectnum]->invalidate = 0;
     }
 
-
-    ang = (float)(daang) / (2048.0f / 360.0f);
-    horizang = (float)(100 - dahoriz) / (256.0f / 90.0f);
-    tiltang = (gtang * 90.0f);
-
-    pos[0] = -daposy;
-    pos[1] = daposz;
-    pos[2] = daposx;
-
-    bglMatrixMode(GL_MODELVIEW);
-    bglLoadIdentity();
-
-    bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
-    bglRotatef(ang, 0.0f, 1.0f, 0.0f);
-    bglRotatef(tiltang, 0.0f, 0.0f, -1.0f);
-
-    bglScalef(1.0f, 1.0f / 16.0f, 1.0f);
-    bglTranslatef(pos[0], pos[1], pos[2]);
-
-    bglEnable(GL_TEXTURE_2D);
-
     // floor
     if (!(sec->floorstat & 1))
     {
-        if (root)
-        {
-            bglDisable(GL_TEXTURE_2D);
-            bglColorMask(0, 0, 0, 0);
-            bglEnable(GL_STENCIL_TEST);
-
-            bglStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-            bglStencilFunc(GL_ALWAYS, 1, 1);
-
-            bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
-            bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
-            bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
-
-            bglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            bglStencilFunc(GL_EQUAL, 1, 1);
-            bglColorMask(1, 1, 1, 1);
-            bglEnable(GL_TEXTURE_2D);
-
-            //bglDepthMask(0);
-            polymer_drawrooms(daposx, daposy, daposz - ((daposz - sec->floorz) * 2), daang, dahoriz, sectnum, 0);
-            //bglDepthMask(1);
-
-            bglDisable(GL_STENCIL_TEST);
-            bglEnable(GL_BLEND);
-            bglBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-            bglBindTexture(GL_TEXTURE_2D, s->floorglpic);
-            bglColor4f(s->floorcolor[0], s->floorcolor[1], s->floorcolor[2], 0.5f);
-            bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
-            bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
-            bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
-
-            bglDisable(GL_BLEND);
-        }
-        else
-        {
-            bglBindTexture(GL_TEXTURE_2D, s->floorglpic);
-            bglColor4f(s->floorcolor[0], s->floorcolor[1], s->floorcolor[2], s->floorcolor[3]);
-            bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
-            bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
-            bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
-        }
+        bglBindTexture(GL_TEXTURE_2D, s->floorglpic);
+        bglColor4f(s->floorcolor[0], s->floorcolor[1], s->floorcolor[2], s->floorcolor[3]);
+        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
+        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
+        bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
     }
 
     // ceiling
@@ -526,16 +547,6 @@ void                polymer_drawsector(long daposx, long daposy, long daposz, sh
         bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->ceilbuffer);
         bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->ceilbuffer[3]);
         bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->ceilindices);
-    }
-
-    // walls
-    i = 0;
-    while (i < sec->wallnum)
-    {
-        polymer_drawwall(sec->wallptr + i);
-
-        i++;
-        wal = &wall[sec->wallptr + i];
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing sector %i...\n", sectnum);
@@ -770,4 +781,30 @@ void                polymer_drawwall(short wallnum)
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing wall %i...\n", wallnum);
+}
+
+// HSR
+int                 wallincliplane(short wallnum, _cliplane* cliplane)
+{
+    walltype        *wal;
+    _point2d        p1, p2;
+    
+    wal = &wall[wallnum];
+
+    p1.x = wal->x;
+    p1.y = wal->y;
+
+    p2.x = wall[wal->point2].x;
+    p2.y = wall[wal->point2].y;
+
+    if ((sameside(&cliplane->clip, &cliplane->ref, &p1) != cliplane->clipsign) && (sameside(&cliplane->clip, &cliplane->ref, &p2) != cliplane->clipsign))
+        return (0);
+
+    /*if ((sameside(&cliplane->left, &cliplane->ref, &p1) == 0) && (sameside(&cliplane->left, &cliplane->ref, &p2) == 0))
+        return (0);
+
+    if ((sameside(&cliplane->right, &cliplane->ref, &p1) == 0) && (sameside(&cliplane->right, &cliplane->ref, &p2) == 0))
+        return (0);*/
+
+    return (1);
 }

@@ -17,6 +17,7 @@
 # include "pragmas.h"
 
 // CVARS
+extern unsigned int pr_fov;
 extern char         pr_verbosity;
 extern char         pr_wireframe;
 
@@ -37,6 +38,7 @@ typedef struct      s_prsector {
 
     short           wallcount;
     char            invalidate;
+    char            drawingstate; // 0: fcuk, 1: in queue, 2: todraw, 3: drawn
 }                   _prsector;
 
 typedef struct      s_prwall {
@@ -51,6 +53,12 @@ typedef struct      s_prwall {
     char            invalidate;
 }                   _prwall;
 
+typedef struct      s_cliplane {
+    _equation       left, right, clip;
+    _point2d        ref;
+    char            clipsign;
+}                   _cliplane;
+
 extern _prsector*   prsectors[MAXSECTORS];
 extern _prwall*     prwalls[MAXWALLS];
 
@@ -59,6 +67,9 @@ int                 polymer_init(void);
 void                polymer_glinit(void);
 void                polymer_loadboard(void);
 void                polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum, int root);
+void                polymer_rotatesprite(long sx, long sy, long z, short a, short picnum, signed char dashade, char dapalnum, char dastat, long cx1, long cy1, long cx2, long cy2);
+void                polymer_drawmaskwall(long damaskwallcnt);
+void                polymer_drawsprite(long snum);
 // SECTOR MANAGEMENT
 int                 polymer_initsector(short sectnum);
 int                 polymer_updatesector(short sectnum);
@@ -67,10 +78,12 @@ void PR_CALLBACK    polymer_tesserror(GLenum error);
 void PR_CALLBACK    polymer_tessedgeflag(GLenum error);
 void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector);
 int                 polymer_buildfloor(short sectnum);
-void                polymer_drawsector(long daposx, long daposy, long daposz, short daang, long dahoriz, short sectnum, int root);
+void                polymer_drawsector(short sectnum);
 // WALL MANAGEMENT
 int                 polymer_initwall(short wallnum);
 void                polymer_updatewall(short wallnum);
 void                polymer_drawwall(short wallnum);
+// HSR
+int                 wallincliplane(short wallnum, _cliplane* cliplane);
 
 #endif // !_polymer_h_
