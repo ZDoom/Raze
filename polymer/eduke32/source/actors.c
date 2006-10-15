@@ -2643,7 +2643,7 @@ void moveweapons(void)
 
                             hittype[j].owner = s->owner;
                             hittype[j].picnum = s->picnum;
-                            hittype[j].extra = thisprojectile[i].extra;
+                            hittype[j].extra += thisprojectile[i].extra;
 
                             if (thisprojectile[i].spawns >= 0 )
                             {

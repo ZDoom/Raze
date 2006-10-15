@@ -30,7 +30,7 @@ source:
 	find . -name "*.mine" -exec rm -rf '{}' ';';
 	find . -name "*.c.r*" -exec rm -rf '{}' ';';
 	find . -name "*.h.r*" -exec rm -rf '{}' ';';
-	cp -R src rsrc include devcpp watcomhax testgame $(sourcedir)
+	cp -R src rsrc include devcpp testgame $(sourcedir)
 	find $(sourcedir) | grep -i svn | xargs rm -rf
 	rm -f $(sourcedir)/src/tmp/*
 	touch $(sourcedir)/src/tmp/keep.me
