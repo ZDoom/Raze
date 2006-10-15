@@ -10562,6 +10562,10 @@ char domovethings(void)
         movecyclers();
         pan3dsound();
     }
+
+    //polymer invalidate
+    updatesectors = 1;
+
     return 0;
 }
 

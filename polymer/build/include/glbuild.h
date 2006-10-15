@@ -63,6 +63,7 @@ extern void (APIENTRY * bglPushMatrix)( void );
 extern void (APIENTRY * bglPopMatrix)( void );
 extern void (APIENTRY * bglLoadIdentity)( void );
 extern void (APIENTRY * bglLoadMatrixf)( const GLfloat *m );
+extern void (APIENTRY * bglMultMatrixf)( const GLfloat *m );
 extern void (APIENTRY * bglRotatef)(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
 extern void (APIENTRY * bglScalef)(GLfloat x, GLfloat y, GLfloat z);
 extern void (APIENTRY * bglTranslatef)(GLfloat x, GLfloat y, GLfloat z);

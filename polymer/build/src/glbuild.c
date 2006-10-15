@@ -47,6 +47,7 @@ void (APIENTRY * bglPushMatrix)( void );
 void (APIENTRY * bglPopMatrix)( void );
 void (APIENTRY * bglLoadIdentity)( void );
 void (APIENTRY * bglLoadMatrixf)( const GLfloat *m );
+void (APIENTRY * bglMultMatrixf)( const GLfloat *m );
 void (APIENTRY * bglRotatef)(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
 void (APIENTRY * bglScalef)(GLfloat x, GLfloat y, GLfloat z);
 void (APIENTRY * bglTranslatef)(GLfloat x, GLfloat y, GLfloat z);
@@ -223,6 +224,7 @@ int loadgldriver(const char *driver)
     bglPopMatrix		= GETPROC("glPopMatrix");
     bglLoadIdentity		= GETPROC("glLoadIdentity");
     bglLoadMatrixf		= GETPROC("glLoadMatrixf");
+    bglMultMatrixf		= GETPROC("glMultMatrixf");
     bglRotatef          = GETPROC("glRotatef");
     bglScalef          = GETPROC("glScalef");
     bglTranslatef          = GETPROC("glTranslatef");
@@ -315,23 +317,23 @@ int unloadgldriver(void)
 #endif
 
     bglClearColor		= NULL;
-    bglClear		= NULL;
+    bglClear		    = NULL;
     bglColorMask		= NULL;
     bglAlphaFunc		= NULL;
     bglBlendFunc		= NULL;
-    bglCullFace		= NULL;
+    bglCullFace		    = NULL;
     bglFrontFace		= NULL;
     bglPolygonOffset	= NULL;
-    bglPolygonMode   = NULL;
-    bglEnable		= NULL;
-    bglDisable		= NULL;
+    bglPolygonMode      = NULL;
+    bglEnable		    = NULL;
+    bglDisable		    = NULL;
     bglGetFloatv		= NULL;
     bglGetIntegerv		= NULL;
     bglPushAttrib		= NULL;
     bglPopAttrib		= NULL;
-    bglGetError		= NULL;
+    bglGetError		    = NULL;
     bglGetString		= NULL;
-    bglHint			= NULL;
+    bglHint			    = NULL;
 
     // Depth
     bglDepthFunc		= NULL;
@@ -340,13 +342,17 @@ int unloadgldriver(void)
 
     // Matrix
     bglMatrixMode		= NULL;
-    bglOrtho		= NULL;
-    bglFrustum		= NULL;
-    bglViewport		= NULL;
+    bglOrtho		    = NULL;
+    bglFrustum		    = NULL;
+    bglViewport		    = NULL;
     bglPushMatrix		= NULL;
     bglPopMatrix		= NULL;
     bglLoadIdentity		= NULL;
     bglLoadMatrixf		= NULL;
+    bglMultMatrixf      = NULL;
+    bglRotatef          = NULL;
+    bglScalef           = NULL;
+    bglTranslatef       = NULL;
 
     // Drawing
     bglBegin		= NULL;
@@ -354,11 +360,11 @@ int unloadgldriver(void)
     bglVertex2f		= NULL;
     bglVertex2i		= NULL;
     bglVertex3d		= NULL;
-    bglVertex3fv		= NULL;
+    bglVertex3fv    = NULL;
     bglColor4f		= NULL;
     bglColor4ub		= NULL;
-    bglTexCoord2d		= NULL;
-    bglTexCoord2f		= NULL;
+    bglTexCoord2d	= NULL;
+    bglTexCoord2f	= NULL;
 
     // Lighting
     bglShadeModel		= NULL;
@@ -367,7 +373,7 @@ int unloadgldriver(void)
     bglReadPixels		= NULL;
 
     // Texture mapping
-    bglTexEnvf		= NULL;
+    bglTexEnvf		    = NULL;
     bglGenTextures		= NULL;
     bglDeleteTextures	= NULL;
     bglBindTexture		= NULL;
@@ -385,9 +391,9 @@ int unloadgldriver(void)
     bglFogfv		= NULL;
 
     // Display Lists
-    bglNewList      = NULL;
-    bglEndList      = NULL;
-    bglCallList      = NULL;
+    bglNewList          = NULL;
+    bglEndList          = NULL;
+    bglCallList         = NULL;
 
     // Vertex Arrays
     bglEnableClientState    = NULL;

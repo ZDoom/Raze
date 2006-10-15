@@ -3,15 +3,23 @@
 #include "polymer.h"
 
 // CVARS
-unsigned int    pr_fov = 340; // 60 degrees, appears to be the classic setting.
-char            pr_verbosity = 1; // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
-char            pr_wireframe = 0;
+int             pr_cliplanes = 1;
+int             pr_fov = 426;           // appears to be the classic setting.
+int             pr_frustumculling = 1;
+int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
+int             pr_wireframe = 0;
 
 // DATA
 _prsector       *prsectors[MAXSECTORS];
 _prwall         *prwalls[MAXWALLS];
 
-_cliplane       cliplane;
+// CONTROL
+float           frustum[16]; // left right top bottom
+
+_cliplane       *cliplanes;
+int             cliplanecount, maxcliplanecount;
+
+int             updatesectors = 1;
 
 GLUtesselator*  prtess;
 int             tempverticescount;
@@ -37,6 +45,9 @@ int                 polymer_init(void)
         prwalls[i] = NULL;
         i++;
     }
+
+    cliplanes = NULL;
+    cliplanecount = maxcliplanecount = 0;
 
     prtess = gluNewTess();
     if (prtess == 0)
@@ -93,7 +104,6 @@ void                polymer_loadboard(void)
     {
         polymer_initsector(i);
         polymer_updatesector(i);
-        polymer_buildfloor(i);
         i++;
     }
 
@@ -119,23 +129,10 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
 
-    OSD_Printf("PR : %d\n", dahoriz);
-
     ang = (float)(daang) / (2048.0f / 360.0f);
     horizang = (float)(100 - dahoriz) / (512.0f / 180.0f);
     tiltang = (gtang * 90.0f);
     fov = (pr_fov * (float)xdim / (float)ydim * 1) / 2;
-
-    // FOV cliplane
-    rotatepoint(daposx, daposy, daposx, daposy - 1000, daang, &ref.x, &ref.y);
-    cliplane.clip = equation(daposx, daposy, ref.x, ref.y);
-    rotatepoint(daposx, daposy, daposx, daposy - 1000, (daang + 512 - fov) & 2047, &ref.x, &ref.y);
-    cliplane.left = equation(daposx, daposy, ref.x, ref.y);
-    rotatepoint(daposx, daposy, daposx, daposy - 1000, (daang + 512 + fov) & 2047, &ref.x, &ref.y);
-    cliplane.right = equation(daposx, daposy, ref.x, ref.y);
-    rotatepoint(daposx, daposy, daposx, daposy - 1000, (daang + 512) & 2047, &ref.x, &ref.y);
-    cliplane.ref = ref;
-    cliplane.clipsign = 1;
 
     pos[0] = -daposy;
     pos[1] = daposz;
@@ -144,25 +141,44 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
 
+    bglRotatef(tiltang, 0.0f, 0.0f, -1.0f);
     bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
     bglRotatef(ang, 0.0f, 1.0f, 0.0f);
-    bglRotatef(tiltang, 0.0f, 0.0f, -1.0f);
 
     bglScalef(1.0f, 1.0f / 16.0f, 1.0f);
     bglTranslatef(pos[0], pos[1], pos[2]);
 
+    if (pr_frustumculling)
+        polymer_extractfrustum();
+
+    cliplanecount = 0;
+
+    if (updatesectors)
+    {
+        i = 0;
+        while (i < numsectors)
+        {
+            polymer_updatesector(i);
+            i++;
+        }
+
+        i = 0;
+        while (i < numwalls)
+        {
+            polymer_updatewall(i);
+            i++;
+        }
+        updatesectors = 0;
+    }
+        
     i = 0;
     while (i < numsectors)
     {
-        if (prsectors[i])
-        {
-            if (i == dacursectnum)
-                prsectors[i]->drawingstate = 2;
-            else
-                prsectors[i]->drawingstate = 0;
-        }
+        prsectors[i]->drawingstate = 0;
         i++;
     }
+
+    prsectors[dacursectnum]->drawingstate = 2; // SEED OF LIFE
 
     drawnsectors = 1;
     while (drawnsectors > 0)
@@ -182,11 +198,20 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
                 j = 0;
                 while (j < sec->wallnum)
                 {
-                    if (wallincliplane(sec->wallptr + j, &cliplane))
+                    if (((pr_frustumculling == 0) || polymer_portalinfrustum(sec->wallptr + j)) &&
+                        ((pr_cliplanes == 0) || polymer_wallincliplanes(sec->wallptr + j)))
                     {
                         polymer_drawwall(sec->wallptr + j);
-                        if ((wal->nextsector != -1) && (prsectors[wal->nextsector]->drawingstate == 0))
+                        if ((wal->nextsector != -1) && (prsectors[wal->nextsector]) && (prsectors[wal->nextsector]->drawingstate == 0))
                             prsectors[wal->nextsector]->drawingstate = 1;
+                        if (wal->nextsector == -1 && pr_cliplanes)
+                        {   // add a 2D cliplane for map limits
+                            polymer_addcliplane(equation(wal->x, wal->y, wall[wal->point2].x, wall[wal->point2].y),
+                                                equation(daposx, daposy, wal->x, wal->y),
+                                                equation(daposx, daposy, wall[wal->point2].x, wall[wal->point2].y),
+                                                (daposx + wal->x + wall[wal->point2].x) / 3,
+                                                (daposy + wal->y + wall[wal->point2].y) / 3);
+                        }
                     }
 
                     j++;
@@ -223,7 +248,7 @@ void                polymer_drawsprite(long snum)
 {
 }
 
-// SECTOR MANAGEMENT
+// SECTORS
 int                 polymer_initsector(short sectnum)
 {
     sectortype      *sec;
@@ -240,8 +265,6 @@ int                 polymer_initsector(short sectnum)
         return (0);
     }
 
-    s->invalidate = 0;
-
     s->verts = calloc(sec->wallnum, sizeof(GLdouble) * 3);
     s->floorbuffer = calloc(sec->wallnum, sizeof(GLfloat) * 5);
     s->ceilbuffer = calloc(sec->wallnum, sizeof(GLfloat) * 5);
@@ -253,14 +276,9 @@ int                 polymer_initsector(short sectnum)
    
     s->floorindices = s->ceilindices = NULL;
 
-    prsectors[sectnum] = s;
+    s->controlstate = s->drawingstate = 0;
 
-    /*i = sec->wallptr;
-    while (i < (sec->wallptr + sec->wallnum))
-    {
-        polymer_initwall(i);
-        i++;
-    }*/
+    prsectors[sectnum] = s;
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Initalized sector %i.\n", sectnum);
 
@@ -295,6 +313,8 @@ int                 polymer_updatesector(short sectnum)
         return (-1);
     }
 
+    s->controlstate = 0;
+
     if ((sec->floorstat & 64) || (sec->ceilingstat & 64))
     {
         ang = (getangle(wall[wal->point2].x - wal->x, wall[wal->point2].y - wal->y) + 512) & 2047;
@@ -306,8 +326,16 @@ int                 polymer_updatesector(short sectnum)
     i = 0;
     while (i < sec->wallnum)
     {
-        s->verts[(i*3)+2] = s->floorbuffer[(i*5)+2] = s->ceilbuffer[(i*5)+2] = -wal->x;
-        s->verts[i*3] = s->floorbuffer[i*5] = s->ceilbuffer[i*5] = wal->y;
+        if ((-wal->x != s->verts[(i*3)+2]) || 0)
+        {
+            s->verts[(i*3)+2] = s->floorbuffer[(i*5)+2] = s->ceilbuffer[(i*5)+2] = -wal->x;
+            s->controlstate |= 2;
+        }
+        if ((wal->y != s->verts[i*3]) || 0)
+        {
+            s->verts[i*3] = s->floorbuffer[i*5] = s->ceilbuffer[i*5] = wal->y;
+            s->controlstate |= 2;
+        }
         getzsofslope(sectnum, wal->x, wal->y, &ceilz, &florz);
         s->verts[(i*3)+1] = 0;
         s->floorbuffer[(i*5)+1] = -florz;
@@ -385,6 +413,12 @@ int                 polymer_updatesector(short sectnum)
 
         i++;
         wal = &wall[sec->wallptr + i];
+    }
+
+    if (s->controlstate & 2)
+    {
+        polymer_buildfloor(sectnum);
+        s->controlstate ^= 2;
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated sector %i.\n", sectnum);
@@ -513,20 +547,6 @@ void                polymer_drawsector(short sectnum)
     {
         polymer_initsector(sectnum);
         polymer_updatesector(sectnum);
-        polymer_buildfloor(sectnum);
-    }
-    else if (prsectors[sectnum]->invalidate || 1)
-    {
-        if (pr_verbosity >= 2) OSD_Printf("PR : Sector %i invalidated. Tesselating...\n", sectnum);
-        polymer_updatesector(sectnum);
-        i = 0;
-        while (i < sec->wallnum)
-        {
-            polymer_updatewall(sec->wallptr + i);
-            i++;
-        }
-        polymer_buildfloor(sectnum);
-        prsectors[sectnum]->invalidate = 0;
     }
 
     // floor
@@ -552,7 +572,7 @@ void                polymer_drawsector(short sectnum)
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing sector %i...\n", sectnum);
 }
 
-// WALL MANAGEMENT
+// WALLS
 int                 polymer_initwall(short wallnum)
 {
     _prwall         *w;
@@ -567,7 +587,7 @@ int                 polymer_initwall(short wallnum)
     }
 
     w->invalidate = w->underover = 0;
-    w->wallbuffer = w->overbuffer = NULL;
+    w->wallbuffer = w->overbuffer = w->portal = NULL;
 
     prwalls[wallnum] = w;
 
@@ -752,6 +772,14 @@ void                polymer_updatewall(short wallnum)
         }
     }
 
+    if (w->portal == NULL)
+        w->portal = calloc(4, sizeof(GLfloat) * 3);
+
+    memcpy(w->portal, &s->floorbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    memcpy(&w->portal[3], &s->floorbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    memcpy(&w->portal[6], &s->ceilbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    memcpy(&w->portal[9], &s->ceilbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated wall %i.\n", wallnum);
 }
 
@@ -784,10 +812,79 @@ void                polymer_drawwall(short wallnum)
 }
 
 // HSR
-int                 wallincliplane(short wallnum, _cliplane* cliplane)
+void                polymer_extractfrustum(void)
+{
+    GLfloat         matrix[16];
+    int             i;
+
+    bglMatrixMode(GL_TEXTURE);
+    bglGetFloatv(GL_PROJECTION_MATRIX, matrix);
+    bglLoadMatrixf(matrix);
+    bglGetFloatv(GL_MODELVIEW_MATRIX, matrix);
+    bglMultMatrixf(matrix);
+    bglGetFloatv(GL_TEXTURE_MATRIX, matrix);
+    bglLoadIdentity();
+
+    i = 0;
+    while (i < 4)
+    {
+        frustum[i] = matrix[(4 * i) + 3] + matrix[4 * i];               // left
+        frustum[i + 4] = matrix[(4 * i) + 3] - matrix[4 * i];           // right
+        frustum[i + 8] = matrix[(4 * i) + 3] - matrix[(4 * i) + 1];     // top
+        frustum[i + 12] = matrix[(4 * i) + 3] + matrix[(4 * i) + 1];    // bottom
+        i++;
+    }
+}
+
+int                 polymer_portalinfrustum(short wallnum)
+{
+    int             i, j, k;
+    float           sqdist;
+    _prwall         *w;
+
+    w = prwalls[wallnum];
+
+    i = 0;
+    while (i < 4)
+    {
+        j = k = 0;
+        while (j < 4)
+        {
+            sqdist = frustum[(i * 4) + 0] * w->portal[(j * 3) + 0] +
+                     frustum[(i * 4) + 1] * w->portal[(j * 3) + 1] + 
+                     frustum[(i * 4) + 2] * w->portal[(j * 3) + 2] + 
+                     frustum[(i * 4) + 3];
+            if (sqdist  < 0)
+                k++;
+            j++;
+        }
+        if (k == 4)
+            return (0); // OUT !
+        i++;
+    }
+
+    return (1);
+}
+
+void                polymer_addcliplane(_equation clip, _equation left, _equation right, long refx, long refy)
+{
+    if (cliplanecount == maxcliplanecount)
+        cliplanes = realloc(cliplanes, sizeof(_cliplane) * ++maxcliplanecount);
+
+    cliplanes[cliplanecount].clip = clip;
+    cliplanes[cliplanecount].left = left;
+    cliplanes[cliplanecount].right = right;
+    cliplanes[cliplanecount].ref.x = refx;
+    cliplanes[cliplanecount].ref.y = refy;
+
+    cliplanecount++;
+}
+
+int                 polymer_wallincliplanes(short wallnum)
 {
     walltype        *wal;
     _point2d        p1, p2;
+    int             i, j;
     
     wal = &wall[wallnum];
 
@@ -797,14 +894,25 @@ int                 wallincliplane(short wallnum, _cliplane* cliplane)
     p2.x = wall[wal->point2].x;
     p2.y = wall[wal->point2].y;
 
-    if ((sameside(&cliplane->clip, &cliplane->ref, &p1) != cliplane->clipsign) && (sameside(&cliplane->clip, &cliplane->ref, &p2) != cliplane->clipsign))
-        return (0);
+    i = 0;
+    while (i < cliplanecount)
+    {
+        j = 0;
 
-    /*if ((sameside(&cliplane->left, &cliplane->ref, &p1) == 0) && (sameside(&cliplane->left, &cliplane->ref, &p2) == 0))
-        return (0);
+        if ((sameside(&cliplanes[i].clip, &cliplanes[i].ref, &p1) == 0) && (sameside(&cliplanes[i].clip, &cliplanes[i].ref, &p2) == 0))
+            j++;
 
-    if ((sameside(&cliplane->right, &cliplane->ref, &p1) == 0) && (sameside(&cliplane->right, &cliplane->ref, &p2) == 0))
-        return (0);*/
+        if ((sameside(&cliplanes[i].left, &cliplanes[i].ref, &p1) == 1) && (sameside(&cliplanes[i].left, &cliplanes[i].ref, &p2) == 1))
+            j++;
+
+        if ((sameside(&cliplanes[i].right, &cliplanes[i].ref, &p1) == 1) && (sameside(&cliplanes[i].right, &cliplanes[i].ref, &p2) == 1))
+            j++;
+
+        if (j == 3)
+            return (0);
+
+        i++;
+    }
 
     return (1);
 }

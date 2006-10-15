@@ -23,9 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "baselayer.h"
 #include "duke3d.h"
 #include "crc32.h"
-#if defined(POLYMOST) && defined(USE_OPENGL)
-# include "polymer.h"
-#endif
 #include <ctype.h>
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
@@ -472,9 +469,11 @@ struct cvarmappings {
         { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
         { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_BOOL, 0, 0, 1 },
         // polymer cvars
-        { "pr_fov", "pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_UNSIGNEDINT, 0, 0, 1024},
+        { "pr_cliplanes", "pr_cliplanes: toggles clipping behind map limits (recommended yet may decrease performance in complex maps)", (void*)&pr_cliplanes, CVAR_INT, 0, 0, 1 },
+        { "pr_fov", "pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 0, 1023},
+        { "pr_frustumculling", "pr_frustumculling: toggles frustum culling (recommended)", (void*)&pr_frustumculling, CVAR_INT, 0, 0, 1 },
         { "pr_verbosity", "pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
-        { "pr_wireframe", "pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_BOOL, 0, 0, 1 },
+        { "pr_wireframe", "pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT, 0, 0, 1 },
 #endif
         { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0, 0, 1 }
     };

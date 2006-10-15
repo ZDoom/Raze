@@ -30,6 +30,9 @@ extern "C" {
 #include "compat.h"
 #include "a.h"
 #include "build.h"
+#if defined(POLYMOST) && defined(USE_OPENGL)
+# include "polymer.h"
+#endif
 #include "cache1d.h"
 #include "pragmas.h"
 #include "mmulti.h"

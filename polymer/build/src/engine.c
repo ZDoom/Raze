@@ -8461,13 +8461,13 @@ void dragpoint(short pointhighlight, long dax, long day)
     wall[pointhighlight].x = dax;
     wall[pointhighlight].y = day;
 
-    if (rendmode == 4)
+    if ((rendmode == 4) && 0)
     {
         tempshort = wall[pointhighlight].nextwall;
         if (tempshort >= 0)
         {
-            prsectors[wall[pointhighlight].nextsector]->invalidate = 1;
-            prsectors[wall[tempshort].nextsector]->invalidate = 1;
+            prsectors[wall[pointhighlight].nextsector]->controlstate |= 2;
+            prsectors[wall[tempshort].nextsector]->controlstate |= 2;
         }
     }
 
