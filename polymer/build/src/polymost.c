@@ -65,7 +65,7 @@ Low priority:
 
 **************************************************************************************************/
 
-static long animateoffs(short tilenum, short fakevar);
+long animateoffs(short tilenum, short fakevar);
 long rendmode = 0;
 long usemodels=1, usehightile=1;
 

@@ -202,7 +202,9 @@ EXTERN short prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN short nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
 EXTERN short tilesizx[MAXTILES], tilesizy[MAXTILES];
+EXTERN char picsiz[MAXTILES];
 EXTERN char walock[MAXTILES];
+EXTERN long pow2long[32];
 EXTERN long numtiles, picanm[MAXTILES], waloff[MAXTILES];
 
     //These variables are for auto-mapping with the draw2dscreen function.
@@ -438,7 +440,7 @@ typedef struct  s_equation {
     float       a, b, c;
 }               _equation;
 typedef struct  s_point2d {
-    long        x, y;
+    float       x, y;
 }               _point2d;
 _equation       equation(long x1, long y1, long x2, long y2);
 int             sameside(_equation* eq, _point2d* p1, _point2d* p2);
@@ -470,6 +472,8 @@ void    setrollangle(long rolla);
 //         bit 7: 67% translucence, using clamping
 //       clamping is for sprites, repeating is for walls
 void invalidatetile(short tilenume, long pal, long how);
+
+long animateoffs(short tilenum, short fakevar);
 
 void setpolymost2dview(void);   // sets up GL for 2D drawing
 

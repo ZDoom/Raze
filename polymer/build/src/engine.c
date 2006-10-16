@@ -1251,7 +1251,7 @@ static void prepwall(long z, walltype *wal)
 //
 // animateoffs (internal)
 //
-static long animateoffs(short tilenum, short fakevar)
+long animateoffs(short tilenum, short fakevar)
 {
     long i, k, offs;
 
@@ -5808,7 +5808,7 @@ _equation       equation(long x1, long y1, long x2, long y2)
 
     if ((x2 - x1) != 0)
     {
-        ret.a = (float)(y2 - y1)/(x2 - x1);
+        ret.a = (float)(y2 - y1)/(float)(x2 - x1);
         ret.b = -1;
         ret.c = (y1 - (ret.a * x1));
     }
@@ -7630,6 +7630,11 @@ void loadtile(short tilenume)
     } else Bmemset((char *)waloff[tilenume],0,dasiz);
 }
 
+void checktile(short tilenume)
+{
+    if (!waloff[tilenume])
+        loadtile(tilenume);
+}
 
 //
 // allocatepermanenttile

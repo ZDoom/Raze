@@ -90,7 +90,7 @@ void                polymer_drawwall(short wallnum);
 // HSR
 void                polymer_extractfrustum(void);
 int                 polymer_portalinfrustum(short wallnum);
-void                polymer_addcliplane(_equation clip, _equation left, _equation right, long refx, long refy);
+void                polymer_addcliplane(_equation clip, _equation left, _equation right, float refx, float refy);
 int                 polymer_wallincliplanes(short wallnum);
 
 #endif // !_polymer_h_
