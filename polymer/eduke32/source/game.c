@@ -7135,12 +7135,17 @@ FOUNDCHEAT:
                     return;
 
                 case CHEAT_MONSTERS:
-                    if(actor_tog == 3) actor_tog = 0;
+                {
+                    char *s[] = { "ON", "OFF", "ON (BLOCKING)" };
+
                     actor_tog++;
+                    if(actor_tog == 3) actor_tog = 0;
                     ps[screenpeek].cheat_phase = 0;
+                    Bsprintf(fta_quotes[122],"MONSTERS: %s",s[actor_tog]);
+                    FTA(122,&ps[myconnectindex]);
                     KB_FlushKeyBoardQueue();
                     return;
-
+                }
                 case CHEAT_RESERVED:
                 case CHEAT_RESERVED3:
                     ud.eog = 1;

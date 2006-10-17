@@ -3063,12 +3063,15 @@ void overheadeditor(void)
 
                 for(i=0;i<highlightsectorcnt;i++)
                 {
-                    startwall = sector[highlightsector[i]].wallptr;                                   endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                    long startofloop = startwall;
-                    long endofloop = endwall;
+                    long startofloop;
+                    long endofloop;
                     long numtoswap = -1;
                     long w=0;
                     walltype tempwall;
+
+                    startofloop = startwall = sector[highlightsector[i]].wallptr;
+                    endofloop = endwall = startwall+sector[highlightsector[i]].wallnum-1;
+
                     /*
                                         if (k != 0)
                                         {
@@ -3180,12 +3183,14 @@ void overheadeditor(void)
 
                 for(i=0;i<highlightsectorcnt;i++)
                 {
-                    startwall = sector[highlightsector[i]].wallptr;                                   endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                    long startofloop = startwall;
-                    long endofloop = endwall;
+                    long startofloop;
+                    long endofloop;
                     long numtoswap = -1;
                     long w=0;
                     walltype tempwall;
+
+                    startofloop = startwall = sector[highlightsector[i]].wallptr;
+                    endofloop = endwall = startwall+sector[highlightsector[i]].wallnum-1;
                     /*
                                         if (k != 0)
                                         {
