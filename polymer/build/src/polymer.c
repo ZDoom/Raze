@@ -328,12 +328,12 @@ int                 polymer_updatesector(short sectnum)
     i = 0;
     while (i < sec->wallnum)
     {
-        if ((-wal->x != s->verts[(i*3)+2]) || 0)
+        if ((-wal->x != s->verts[(i*3)+2]))
         {
             s->verts[(i*3)+2] = s->floorbuffer[(i*5)+2] = s->ceilbuffer[(i*5)+2] = -wal->x;
             s->controlstate |= 2;
         }
-        if ((wal->y != s->verts[i*3]) || 0)
+        if ((wal->y != s->verts[i*3]))
         {
             s->verts[i*3] = s->floorbuffer[i*5] = s->ceilbuffer[i*5] = wal->y;
             s->controlstate |= 2;
@@ -611,13 +611,14 @@ int                 polymer_initwall(short wallnum)
 void                polymer_updatewall(short wallnum)
 {
     short           nwallnum, nnwallnum, curpicnum;
+    char            curxpanning, curypanning;
     walltype        *wal;
     sectortype      *sec, *nsec;
     _prwall         *w;
     _prsector       *s, *ns;
     pthtyp*         pth;
-    long            xref[2], yref, xdif, ydif, dist;
-    float           ypancoef;
+    long            xref, yref, xdif, ydif;
+    float           ypancoef, dist;
     int             i;
 
     wal = &wall[wallnum];
@@ -634,15 +635,9 @@ void                polymer_updatewall(short wallnum)
     w->wallcolor[3] = 1.0f;
 
     if (wal->cstat & 8)
-    {
-        xref[0] = wall[wal->point2].x;
-        xref[1] = wall[wal->point2].y;
-    }
+        xref = 1;
     else
-    {
-        xref[0] = wal->x;
-        xref[1] = wal->y;
-    }
+        xref = 0;
 
     if (wal->nextsector == -1)
     {
@@ -685,9 +680,10 @@ void                polymer_updatewall(short wallnum)
         i = 0;
         while (i < 4)
         {
-            xdif = xref[0] + w->wallbuffer[(i * 5) + 2];
-            ydif = xref[1] - w->wallbuffer[(i * 5)];
-            dist = ((xdif * xdif) + (ydif * ydif)) != 0;
+            if ((i == 0) || (i == 3))
+                dist = xref;
+            else
+                dist = (xref == 0);
 
             w->wallbuffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesizx[curpicnum]);
             w->wallbuffer[(i * 5) + 4] = (-(float)(yref + w->wallbuffer[(i * 5) + 1]) / ((tilesizy[curpicnum] * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
@@ -716,9 +712,17 @@ void                polymer_updatewall(short wallnum)
             memcpy(&w->wallbuffer[15], &ns->floorbuffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
 
             if (wal->cstat & 2)
+            {
                 curpicnum = wall[nwallnum].picnum;
+                curxpanning = wall[nwallnum].xpanning;
+                curypanning = wall[nwallnum].ypanning;
+            }
             else
+            {
                 curpicnum = wal->picnum;
+                curxpanning = wal->xpanning;
+                curypanning = wal->ypanning;
+            }
 
             if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,wallnum+16384);
 
@@ -734,17 +738,17 @@ void                polymer_updatewall(short wallnum)
                 w->wallcolor[2] *= (float)hictinting[wal->pal].b / 255.0;
             }
 
-            if (wal->cstat & 4)
-                yref = sec->ceilingz;            
+            if ((!(wal->cstat & 2) && (wal->cstat & 4)) || ((wal->cstat & 2) && (wall[nwallnum].cstat & 4)))
+                yref = sec->ceilingz;             
             else
                 yref = nsec->floorz;
 
-            if (wal->ypanning)
+            if (curypanning)
             {
                 ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
                 if (ypancoef < tilesizy[curpicnum])
                     ypancoef *= 2;
-                ypancoef *= (float)(wal->ypanning) / (256.0f * (float)(tilesizy[curpicnum]));
+                ypancoef *= (float)(curypanning) / (256.0f * (float)(tilesizy[curpicnum]));
             }
             else
                 ypancoef = 0;
@@ -752,11 +756,12 @@ void                polymer_updatewall(short wallnum)
             i = 0;
             while (i < 4)
             {
-                xdif = xref[0] + w->wallbuffer[(i * 5) + 2];
-                ydif = xref[1] - w->wallbuffer[(i * 5)];
-                dist = ((xdif * xdif) + (ydif * ydif)) != 0;
+                if ((i == 0) || (i == 3))
+                    dist = xref;
+                else
+                    dist = (xref == 0);
 
-                w->wallbuffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesizx[curpicnum]);
+                w->wallbuffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + curxpanning) / (float)(tilesizx[curpicnum]);
                 w->wallbuffer[(i * 5) + 4] = (-(float)(yref + w->wallbuffer[(i * 5) + 1]) / ((tilesizy[curpicnum] * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
 
                 if (wal->cstat & 256) w->wallbuffer[(i * 5) + 4] = -w->wallbuffer[(i * 5) + 4];
@@ -819,9 +824,10 @@ void                polymer_updatewall(short wallnum)
             i = 0;
             while (i < 4)
             {
-                xdif = xref[0] + w->overbuffer[(i * 5) + 2];
-                ydif = xref[1] - w->overbuffer[(i * 5)];
-                dist = ((xdif * xdif) + (ydif * ydif)) != 0;
+                if ((i == 0) || (i == 3))
+                    dist = xref;
+                else
+                    dist = (xref == 0);
 
                 w->overbuffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesizx[curpicnum]);
                 w->overbuffer[(i * 5) + 4] = (-(float)(yref + w->overbuffer[(i * 5) + 1]) / ((tilesizy[curpicnum] * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
