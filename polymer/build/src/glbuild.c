@@ -57,6 +57,7 @@ void (APIENTRY * bglBegin)( GLenum mode );
 void (APIENTRY * bglEnd)( void );
 void (APIENTRY * bglVertex2f)( GLfloat x, GLfloat y );
 void (APIENTRY * bglVertex2i)( GLint x, GLint y );
+void (APIENTRY * bglVertex3f)( GLfloat x, GLfloat y, GLfloat z );
 void (APIENTRY * bglVertex3d)( GLdouble x, GLdouble y, GLdouble z );
 void (APIENTRY * bglVertex3fv)( const GLfloat *v );
 void (APIENTRY * bglVertex3dv)( const GLdouble *v );
@@ -234,6 +235,7 @@ int loadgldriver(const char *driver)
     bglEnd			= GETPROC("glEnd");
     bglVertex2f		= GETPROC("glVertex2f");
     bglVertex2i		= GETPROC("glVertex2i");
+    bglVertex3f		= GETPROC("glVertex3f");
     bglVertex3d		= GETPROC("glVertex3d");
     bglVertex3fv		= GETPROC("glVertex3fv");
     bglVertex3dv		= GETPROC("glVertex3dv");
@@ -359,6 +361,7 @@ int unloadgldriver(void)
     bglEnd			= NULL;
     bglVertex2f		= NULL;
     bglVertex2i		= NULL;
+    bglVertex3f		= NULL;
     bglVertex3d		= NULL;
     bglVertex3fv    = NULL;
     bglColor4f		= NULL;

@@ -1,4 +1,24 @@
-// blah
+// here lies the GREAT JUSTICE RENDERER
+// TODO :
+// - recursive drawrooms with cliplane stack (support for full portal engine with occlusion queries)
+// - crossed walls (tier drops stones)
+// - skies
+// - mirrors
+// - fullbright (multitexture OR)
+// - masks and sprites ! (use sortcnt and regular drawmask or recode it ?)
+// - classic shading
+// --------------------- CLASSIC LIMIT ---------------------
+// - mdsprites (tags)
+// - lights (dynamic phong)
+// - dynamic shadowmaps
+// - normalmap palette (unified gpu program, parallax mapping)
+// - shadow volumes
+// - hardware particles
+// - multitextured decals ? (on models too)
+// --------------- FIRST PUBLIC RELEASE LIMIT --------------
+// - horizon mapping (precalculate the horizon maps and store them into the gl cache ?)
+// - post processing ([HDR-]bloom and possibly DOF)
+// - MD5 (hardware skinning ?)
 
 #ifndef _polymer_h_
 # define _polymer_h_
@@ -92,5 +112,9 @@ void                polymer_extractfrustum(void);
 int                 polymer_portalinfrustum(short wallnum);
 void                polymer_addcliplane(_equation clip, _equation left, _equation right, float refx, float refy);
 int                 polymer_wallincliplanes(short wallnum);
+// SKIES
+void                polymer_initskybox(void);
+void                polymer_drawskyquad(int p1, int p2, GLfloat height);
+void                polymer_drawartsky(short tilenum);
 
 #endif // !_polymer_h_

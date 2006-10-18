@@ -73,6 +73,7 @@ extern void (APIENTRY * bglBegin)( GLenum mode );
 extern void (APIENTRY * bglEnd)( void );
 extern void (APIENTRY * bglVertex2f)( GLfloat x, GLfloat y );
 extern void (APIENTRY * bglVertex2i)( GLint x, GLint y );
+extern void (APIENTRY * bglVertex3f)( GLfloat x, GLfloat y, GLfloat z );
 extern void (APIENTRY * bglVertex3d)( GLdouble x, GLdouble y, GLdouble z );
 extern void (APIENTRY * bglVertex3fv)( const GLfloat *v );
 extern void (APIENTRY * bglVertex3dv)( const GLdouble *v );

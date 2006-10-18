@@ -13,6 +13,8 @@ int             pr_wireframe = 0;
 _prsector       *prsectors[MAXSECTORS];
 _prwall         *prwalls[MAXWALLS];
 
+GLfloat         skybox[16];
+
 // CONTROL
 float           frustum[16]; // left right top bottom
 
@@ -58,12 +60,16 @@ int                 polymer_init(void)
 
     polymer_loadboard();
 
+    polymer_initskybox();
+
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete.\n");
     return (1);
 }
 
 void                polymer_glinit(void)
 {
+    float           a;
+
     bglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     bglClearStencil(0);
     bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -74,7 +80,6 @@ void                polymer_glinit(void)
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
-    bglDisable(GL_FOG);
     bglEnable(GL_DEPTH_TEST);
     if (pr_wireframe)
         bglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -83,13 +88,24 @@ void                polymer_glinit(void)
 
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
-    gluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 1.0f, 1000000.0f);
+    gluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.1f, 1000000.0f);
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
 
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    bglDisable(GL_FOG);
+
+    //glFogi(GL_FOG_MODE, GL_EXP);
+    //glFogfv(GL_FOG_COLOR, fogColor);
+    /*bglEnable(GL_FOG);
+
+    a = (1 - ((float)(visibility) / 512.0f)) / 10.0f;
+    bglFogf(GL_FOG_DENSITY, 0.1f - a);
+    bglFogf(GL_FOG_START, 0.0f);
+    bglFogf(GL_FOG_END, 1000000.0f);*/
 
     bglEnable(GL_CULL_FACE);
     bglCullFace(GL_BACK);
@@ -144,6 +160,11 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
     bglRotatef(tiltang, 0.0f, 0.0f, -1.0f);
     bglRotatef(horizang, 1.0f, 0.0f, 0.0f);
     bglRotatef(ang, 0.0f, 1.0f, 0.0f);
+
+    bglDisable(GL_DEPTH_TEST);
+    bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    polymer_drawartsky(80);
+    bglEnable(GL_DEPTH_TEST);
 
     bglScalef(1.0f, 1.0f / 16.0f, 1.0f);
     bglTranslatef(pos[0], pos[1], pos[2]);
@@ -985,4 +1006,72 @@ int                 polymer_wallincliplanes(short wallnum)
     }
 
     return (1);
+}
+
+// SKIES
+void                polymer_initskybox(void)
+{
+    GLfloat         halfsqrt2 = 0.70710678f;
+
+    skybox[0] = -1.0f;          skybox[1] = 0.0f;           // 0
+    skybox[2] = -halfsqrt2;     skybox[3] = halfsqrt2;      // 1
+    skybox[4] = 0.0f;           skybox[5] = 1.0f;           // 2
+    skybox[6] = halfsqrt2;      skybox[7] = halfsqrt2;      // 3
+    skybox[8] = 1.0f;           skybox[9] = 0.0f;           // 4
+    skybox[10] = halfsqrt2;     skybox[11] = -halfsqrt2;    // 5
+    skybox[12] = 0.0f;          skybox[13] = -1.0f;         // 6
+    skybox[14] = -halfsqrt2;    skybox[15] = -halfsqrt2;    // 7
+}
+
+void                polymer_drawskyquad(int p1, int p2, GLfloat height)
+{
+    bglBegin(GL_QUADS);
+    bglTexCoord2f(0.0f, 0.0f);
+    //OSD_Printf("PR: drawing %f %f %f\n", skybox[(p1 * 2) + 1], height, skybox[p1 * 2]);
+    bglVertex3f(skybox[(p1 * 2) + 1], height, skybox[p1 * 2]);
+    bglTexCoord2f(0.0f, 1.0f);
+    //OSD_Printf("PR: drawing %f %f %f\n", skybox[(p1 * 2) + 1], -height, skybox[p1 * 2]);
+    bglVertex3f(skybox[(p1 * 2) + 1], -height, skybox[p1 * 2]);
+    bglTexCoord2f(1.0f, 1.0f);
+    //OSD_Printf("PR: drawing %f %f %f\n", skybox[(p2 * 2) + 1], -height, skybox[p2 * 2]);
+    bglVertex3f(skybox[(p2 * 2) + 1], -height, skybox[p2 * 2]);
+    bglTexCoord2f(1.0f, 0.0f);
+    //OSD_Printf("PR: drawing %f %f %f\n", skybox[(p2 * 2) + 1], height, skybox[p2 * 2]);
+    bglVertex3f(skybox[(p2 * 2) + 1], height, skybox[p2 * 2]);
+    bglEnd();
+}
+
+void                polymer_drawartsky(short tilenum)
+{
+    pthtyp*         pth;
+    GLuint          glpics[5];
+    int             i;
+    GLfloat         height = 2.45f / 2.0f;
+
+    i = 0;
+    while (i < 5)
+    {
+        if (!waloff[tilenum + i])
+            loadtile(tilenum + i);
+        pth = gltexcache(tilenum + i, 0, 0);
+        glpics[i] = pth ? pth->glpic : 0;
+        i++;
+    }
+
+    bglBindTexture(GL_TEXTURE_2D, glpics[1]);
+    polymer_drawskyquad(0, 1, height);
+    bglBindTexture(GL_TEXTURE_2D, glpics[2]);
+    polymer_drawskyquad(1, 2, height);
+    bglBindTexture(GL_TEXTURE_2D, glpics[1]);
+    polymer_drawskyquad(2, 3, height);
+    bglBindTexture(GL_TEXTURE_2D, glpics[3]);
+    polymer_drawskyquad(3, 4, height);
+    bglBindTexture(GL_TEXTURE_2D, glpics[4]);
+    polymer_drawskyquad(4, 5, height);
+    bglBindTexture(GL_TEXTURE_2D, glpics[0]);
+    polymer_drawskyquad(5, 6, height);
+    bglBindTexture(GL_TEXTURE_2D, glpics[2]);
+    polymer_drawskyquad(6, 7, height);
+    bglBindTexture(GL_TEXTURE_2D, glpics[3]);
+    polymer_drawskyquad(7, 0, height);
 }
