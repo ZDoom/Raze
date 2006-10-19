@@ -51,7 +51,7 @@ typedef struct      s_prsector {
     GLfloat*        ceilbuffer;
     // attributes
     GLfloat         floorcolor[4], ceilcolor[4];
-    GLuint          floorglpic, ceilglpic;
+    GLuint          floorglpic, ceilglpic, floorfbglpic, ceilfbglpic;
     // elements
     GLushort*       floorindices;
     GLushort*       ceilindices;
@@ -69,7 +69,7 @@ typedef struct      s_prwall {
     GLfloat*        portal;
     // attributes
     GLfloat         wallcolor[4], overcolor[4];
-    GLfloat         wallglpic, overglpic;
+    GLfloat         wallglpic, overglpic, wallfbglpic, overfbglpic;
 
     char            underover;
     char            invalidate;
@@ -114,6 +114,7 @@ void                polymer_addcliplane(_equation clip, _equation left, _equatio
 int                 polymer_wallincliplanes(short wallnum);
 // SKIES
 void                polymer_initskybox(void);
+void                polymer_getsky(void);
 void                polymer_drawskyquad(int p1, int p2, GLfloat height);
 void                polymer_drawartsky(short tilenum);
 

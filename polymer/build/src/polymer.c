@@ -15,6 +15,8 @@ _prwall         *prwalls[MAXWALLS];
 
 GLfloat         skybox[16];
 
+short           cursky;
+
 // CONTROL
 float           frustum[16]; // left right top bottom
 
@@ -81,6 +83,8 @@ void                polymer_glinit(void)
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
     bglEnable(GL_DEPTH_TEST);
+    bglDepthFunc(GL_LEQUAL);
+
     if (pr_wireframe)
         bglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
@@ -88,7 +92,7 @@ void                polymer_glinit(void)
 
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
-    gluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.1f, 1000000.0f);
+    gluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.001f, 1000000.0f);
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
@@ -98,14 +102,14 @@ void                polymer_glinit(void)
 
     bglDisable(GL_FOG);
 
-    //glFogi(GL_FOG_MODE, GL_EXP);
+    bglFogi(GL_FOG_MODE, GL_EXP);
     //glFogfv(GL_FOG_COLOR, fogColor);
-    /*bglEnable(GL_FOG);
+    bglEnable(GL_FOG);
 
     a = (1 - ((float)(visibility) / 512.0f)) / 10.0f;
     bglFogf(GL_FOG_DENSITY, 0.1f - a);
     bglFogf(GL_FOG_START, 0.0f);
-    bglFogf(GL_FOG_END, 1000000.0f);*/
+    bglFogf(GL_FOG_END, 1000000.0f);
 
     bglEnable(GL_CULL_FACE);
     bglCullFace(GL_BACK);
@@ -130,6 +134,8 @@ void                polymer_loadboard(void)
         polymer_updatewall(i);
         i++;
     }
+
+    polymer_getsky();
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Board loaded.\n");
 }
@@ -163,10 +169,10 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
 
     bglDisable(GL_DEPTH_TEST);
     bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    polymer_drawartsky(80);
+    polymer_drawartsky(cursky);
     bglEnable(GL_DEPTH_TEST);
 
-    bglScalef(1.0f, 1.0f / 16.0f, 1.0f);
+    bglScalef(1.0f / 1000.0f, 1.0f / 16000.0f, 1.0f / 1000.0f);
     bglTranslatef(pos[0], pos[1], pos[2]);
 
     if (pr_frustumculling)
@@ -174,7 +180,7 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
 
     cliplanecount = 0;
 
-    if ((updatesectors) || 1)
+    if (updatesectors || 1)
     {
         i = 0;
         while (i < numsectors)
@@ -190,6 +196,24 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
             i++;
         }
         updatesectors = 0;
+    }
+
+    if (dacursectnum == -1)
+    {
+        i = 0;
+        while (i < numsectors)
+        {
+            polymer_drawsector(i);
+            i++;
+        }
+
+        i = 0;
+        while (i < numwalls)
+        {
+            polymer_drawwall(i);
+            i++;
+        }
+        return;
     }
         
     i = 0;
@@ -321,7 +345,7 @@ int                 polymer_updatesector(short sectnum)
     short           curstat, curpicnum;
     char            curxpanning, curypanning;
     GLfloat*        curbuffer;
-    GLuint*         curglpic;
+    GLuint          *curglpic, *curfbglpic;
     pthtyp*         pth;
 
     s = prsectors[sectnum];
@@ -411,6 +435,7 @@ int                 polymer_updatesector(short sectnum)
         curxpanning = sec->floorpal;
         curpicnum = sec->floorpicnum;
         curglpic = &s->floorglpic;
+        curfbglpic = &s->floorfbglpic;
 
         while (j > 0)
         {
@@ -421,6 +446,7 @@ int                 polymer_updatesector(short sectnum)
                 curxpanning = sec->ceilingpal;
                 curpicnum = sec->ceilingpicnum;
                 curglpic = &s->ceilglpic;
+                curfbglpic = &s->ceilfbglpic;
             }
 
             if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,sectnum);
@@ -440,6 +466,11 @@ int                 polymer_updatesector(short sectnum)
             }
 
             *curglpic = (pth) ? pth->glpic : 0;
+
+            if (pth && (pth->flags & 16))
+                *curfbglpic = pth->ofb->glpic;
+            else
+                *curfbglpic = 0;
 
             j--;
         }
@@ -590,6 +621,13 @@ void                polymer_drawsector(short sectnum)
         bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
         bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
         bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
+
+        if (s->floorfbglpic)
+        {
+            bglBindTexture(GL_TEXTURE_2D, s->floorfbglpic);
+            bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+            bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
+        }
     }
 
     // ceiling
@@ -600,6 +638,13 @@ void                polymer_drawsector(short sectnum)
         bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->ceilbuffer);
         bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->ceilbuffer[3]);
         bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->ceilindices);
+
+        if (s->ceilfbglpic)
+        {
+            bglBindTexture(GL_TEXTURE_2D, s->ceilfbglpic);
+            bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+            bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
+        }
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing sector %i...\n", sectnum);
@@ -677,6 +722,11 @@ void                polymer_updatewall(short wallnum)
         pth = gltexcache(curpicnum, wal->pal, 0);
         w->wallglpic = pth ? pth->glpic : 0;
 
+        if (pth && (pth->flags & 16))
+            w->wallfbglpic = pth->ofb->glpic;
+        else
+            w->wallfbglpic = 0;
+
         if (pth && (pth->flags & 2) && (pth->palnum != wal->pal)) {
             w->wallcolor[0] *= (float)hictinting[wal->pal].r / 255.0;
             w->wallcolor[1] *= (float)hictinting[wal->pal].g / 255.0;
@@ -753,6 +803,11 @@ void                polymer_updatewall(short wallnum)
             pth = gltexcache(curpicnum, wal->pal, 0);
             w->wallglpic = pth ? pth->glpic : 0;
 
+            if (pth && (pth->flags & 16))
+                w->wallfbglpic = pth->ofb->glpic;
+            else
+                w->wallfbglpic = 0;
+
             if (pth && (pth->flags & 2) && (pth->palnum != wal->pal)) {
                 w->wallcolor[0] *= (float)hictinting[wal->pal].r / 255.0;
                 w->wallcolor[1] *= (float)hictinting[wal->pal].g / 255.0;
@@ -818,6 +873,11 @@ void                polymer_updatewall(short wallnum)
 
             pth = gltexcache(curpicnum, wal->pal, 0);
             w->overglpic = pth ? pth->glpic : 0;
+
+            if (pth && (pth->flags & 16))
+                w->overfbglpic = pth->ofb->glpic;
+            else
+                w->overfbglpic = 0;
 
             memcpy(w->overcolor, w->wallcolor, sizeof(GLfloat) * 4);
 
@@ -889,6 +949,13 @@ void                polymer_drawwall(short wallnum)
         bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->wallbuffer);
         bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &w->wallbuffer[3]);
         bglDrawArrays(GL_QUADS, 0, 4);
+
+        if (w->wallfbglpic)
+        {
+            bglBindTexture(GL_TEXTURE_2D, w->wallfbglpic);
+            bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+            bglDrawArrays(GL_QUADS, 0, 4);
+        }
     }
     if (w->underover & 2)
     {
@@ -897,6 +964,13 @@ void                polymer_drawwall(short wallnum)
         bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->overbuffer);
         bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &w->overbuffer[3]);
         bglDrawArrays(GL_QUADS, 0, 4);
+
+        if (w->overfbglpic)
+        {
+            bglBindTexture(GL_TEXTURE_2D, w->overfbglpic);
+            bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+            bglDrawArrays(GL_QUADS, 0, 4);
+        }
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing wall %i...\n", wallnum);
@@ -1021,6 +1095,31 @@ void                polymer_initskybox(void)
     skybox[10] = halfsqrt2;     skybox[11] = -halfsqrt2;    // 5
     skybox[12] = 0.0f;          skybox[13] = -1.0f;         // 6
     skybox[14] = -halfsqrt2;    skybox[15] = -halfsqrt2;    // 7
+
+    /*skybox[0] = -1.0f;          skybox[1] = 0.0f;           // 0
+    skybox[2] = -1.0f;          skybox[3] = 1.0;      // 1
+    skybox[4] = 0.0f;           skybox[5] = 1.0f;           // 2
+    skybox[6] = 1.0f;           skybox[7] = 1.0f;      // 3
+    skybox[8] = 1.0f;           skybox[9] = 0.0f;           // 4
+    skybox[10] = 1.0;           skybox[11] = -1.0;    // 5
+    skybox[12] = 0.0f;          skybox[13] = -1.0f;         // 6
+    skybox[14] = -1.0;          skybox[15] = -1.0;    // 7*/
+}
+
+void                polymer_getsky(void)
+{
+    int             i;
+
+    i = 0;
+    while (i < numsectors)
+    {
+        if (sector[i].ceilingstat & 1)
+        {
+            cursky = sector[i].ceilingpicnum;
+            return;
+        }
+        i++;
+    }
 }
 
 void                polymer_drawskyquad(int p1, int p2, GLfloat height)
@@ -1045,7 +1144,7 @@ void                polymer_drawartsky(short tilenum)
 {
     pthtyp*         pth;
     GLuint          glpics[5];
-    int             i;
+    int             i, j;
     GLfloat         height = 2.45f / 2.0f;
 
     i = 0;
@@ -1058,20 +1157,12 @@ void                polymer_drawartsky(short tilenum)
         i++;
     }
 
-    bglBindTexture(GL_TEXTURE_2D, glpics[1]);
-    polymer_drawskyquad(0, 1, height);
-    bglBindTexture(GL_TEXTURE_2D, glpics[2]);
-    polymer_drawskyquad(1, 2, height);
-    bglBindTexture(GL_TEXTURE_2D, glpics[1]);
-    polymer_drawskyquad(2, 3, height);
-    bglBindTexture(GL_TEXTURE_2D, glpics[3]);
-    polymer_drawskyquad(3, 4, height);
-    bglBindTexture(GL_TEXTURE_2D, glpics[4]);
-    polymer_drawskyquad(4, 5, height);
-    bglBindTexture(GL_TEXTURE_2D, glpics[0]);
-    polymer_drawskyquad(5, 6, height);
-    bglBindTexture(GL_TEXTURE_2D, glpics[2]);
-    polymer_drawskyquad(6, 7, height);
-    bglBindTexture(GL_TEXTURE_2D, glpics[3]);
-    polymer_drawskyquad(7, 0, height);
+    i = 0;
+    j = (1<<pskybits);
+    while (i < j)
+    {
+        bglBindTexture(GL_TEXTURE_2D, glpics[pskyoff[i]]);
+        polymer_drawskyquad(i, (i + 1) & (j - 1), height);
+        i++;
+    }
 }

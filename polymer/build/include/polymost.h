@@ -29,7 +29,6 @@ typedef struct pthtyp_t
 
     unsigned short sizx, sizy;
     float scalex, scaley;
-    struct pthtyp_t *wofb; // without fullbright
     struct pthtyp_t *ofb; // only fullbright
 } pthtyp;
 
