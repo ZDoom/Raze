@@ -1579,7 +1579,8 @@ void menus(void)
             break;
         case 993:   // JBF 20031220
             rotatesprite(160<<16,200<<15,65536L,0,MENUSCREEN,0,0,10+64,0,0,xdim-1,ydim-1);
-            menutext(160,28,0,0,"ABOUT EDUKE32");
+            rotatesprite(c<<16,19<<16,65536L,0,MENUBAR,0,0,10,0,0,xdim-1,ydim-1);
+            menutext(160,24,0,0,"ABOUT EDUKE32");
 
 cheat_for_port_credits:
             if (conversion == 13) l = (-2);
@@ -1595,7 +1596,7 @@ cheat_for_port_credits:
 
             gametext(160,76-l,"ORIGINAL \"POLYMOST\" RENDERER",0,2+8+16);
             gametext(160,76+8-l,"NETWORKING, OTHER CODE",0,2+8+16);
-            p = "Ken Silverman";
+            p = "Ken \"Awesoken\" Silverman";
             minitext(161-(Bstrlen(p)<<1), 77+8+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 76+8+10-l, p, 8, 10+16+128);
 
@@ -1604,14 +1605,12 @@ cheat_for_port_credits:
             minitext(161-(Bstrlen(p)<<1), 104+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 103+10-l, p, 8, 10+16+128);
 
-            gametext(160,122-l,"OTHER",0,2+8+16);
+            gametext(160,122-l,"LICENSE AND OTHER CONTRIBUTORS",0,2+8+16);
             {
                 const char *scroller[] = {
                                              "This program is distributed under the terms of the",
                                              "GNU General Public License version 2 as published by the",
                                              "Free Software Foundation. See GNU.TXT for details.",
-                                             "",
-                                             "EDuke originally by Matthew Saettler",
                                              "",
                                              "Thanks to these people for their input and contributions:",
                                              "",
@@ -1625,7 +1624,10 @@ cheat_for_port_credits:
                                              "Matthew Palmer",
                                              "Peter Green",
                                              "",
+                                             "EDuke originally by Matt Saettler",
+                                             "",
                                              "--x--",
+                                             "",
                                              "",
                                              "",
                                              "",

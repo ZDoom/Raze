@@ -2226,8 +2226,8 @@ void FTA(short q,struct player_struct *p)
 
             p->fta = 100;
 
-            if( p->ftq != q || q == 26 )
-                // || q == 26 || q == 115 || q ==116 || q == 117 || q == 122 )
+            //            if( p->ftq != q || q == 26 )
+            // || q == 26 || q == 115 || q ==116 || q == 117 || q == 122 )
             {
                 p->ftq = q;
                 pub = NUMPAGES;
