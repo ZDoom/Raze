@@ -1672,6 +1672,20 @@ int enterlevel(char g)
     //Bsprintf(g_szBuf,"ENTERLEVEL L=%d V=%d",ud.level_number, ud.volume_number);
     //AddLog(g_szBuf);
     // variables are set by pointer...
+
+    if (VOLUMEALL) Bsprintf(tempbuf,HEAD2);
+    else Bsprintf(tempbuf,HEAD);
+
+    if( boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0 )
+    {
+        Bstrcpy(levname, boardfilename);
+        Bsprintf(apptitle," - %s",levname);
+    }
+    else Bsprintf(apptitle," - %s",level_names[(ud.volume_number*11)+ud.level_number]);
+
+    Bstrcat(tempbuf,apptitle);
+    wm_setapptitle(tempbuf);
+
     OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
     return 0;
 }

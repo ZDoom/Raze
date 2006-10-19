@@ -45,11 +45,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "util_lib.h"
 
-#define VERSION " 1.4.0 beta 2.1"
-
-#define HEAD  "EDuke32"VERSION" (shareware mode)"
-#define HEAD2 "EDuke32"VERSION
-
 #define IDFSIZE 479985668
 #define IDFILENAME "DUKE3D.IDF"
 
@@ -7135,17 +7130,17 @@ FOUNDCHEAT:
                     return;
 
                 case CHEAT_MONSTERS:
-                {
-                    char *s[] = { "ON", "OFF", "ON (BLOCKING)" };
+                    {
+                        char *s[] = { "ON", "OFF", "ON (BLOCKING)" };
 
-                    actor_tog++;
-                    if(actor_tog == 3) actor_tog = 0;
-                    ps[screenpeek].cheat_phase = 0;
-                    Bsprintf(fta_quotes[122],"MONSTERS: %s",s[actor_tog]);
-                    FTA(122,&ps[myconnectindex]);
-                    KB_FlushKeyBoardQueue();
-                    return;
-                }
+                        actor_tog++;
+                        if(actor_tog == 3) actor_tog = 0;
+                        ps[screenpeek].cheat_phase = 0;
+                        Bsprintf(fta_quotes[122],"MONSTERS: %s",s[actor_tog]);
+                        FTA(122,&ps[myconnectindex]);
+                        KB_FlushKeyBoardQueue();
+                        return;
+                    }
                 case CHEAT_RESERVED:
                 case CHEAT_RESERVED3:
                     ud.eog = 1;
@@ -8328,6 +8323,9 @@ void Logo(void)
     flushperms();
     nextpage();
 
+    if (VOLUMEALL) wm_setapptitle(HEAD2);
+    else wm_setapptitle(HEAD);
+
     MUSIC_StopSong();
     FX_StopAllSounds(); // JBF 20031228
     clearsoundlocks();  // JBF 20031228
@@ -8903,6 +8901,8 @@ void backtomenu(void)
     ps[myconnectindex].gm = MODE_MENU;
     cmenu(0);
     KB_FlushKeyboardQueue();
+    if (VOLUMEALL) wm_setapptitle(HEAD2);
+    else wm_setapptitle(HEAD);
 }
 
 int load_script(char *szScript)
@@ -10629,6 +10629,9 @@ void dobonus(char bonusonly)
             320, 350,VICTORY1+7,86,59,
             350, 380,VICTORY1+8,86,59
         };
+
+    if (VOLUMEALL) wm_setapptitle(HEAD2);
+    else wm_setapptitle(HEAD);
 
     if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0]) {
         lastmapname = Bstrrchr(boardfilename,'\\');

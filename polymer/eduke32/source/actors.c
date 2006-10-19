@@ -406,6 +406,8 @@ SKIPWALLCHECK:
 
                     if ( s->picnum == RPG && sj->extra > 0)
                         hittype[j].picnum = RPG;
+                    else if(checkspriteflags(i,SPRITE_FLAG_PROJECTILE) && thisprojectile[i].workslike & PROJECTILE_FLAG_RADIUS_PICNUM && sj->extra > 0)
+                        hittype[j].picnum = s->picnum;
                     else
                     {
                         if( s->picnum == SHRINKSPARK )
@@ -2741,11 +2743,6 @@ void moveweapons(void)
                             goto BOLT;
                         }
                     }
-
-
-                    if(thisprojectile[i].workslike & RPG && sector[s->sectnum].lotag == 2 && s->xrepeat >= 10 && rnd(140))
-                        spawn(i,WATERBUBBLE);
-
 
                     if(thisprojectile[i].workslike & PROJECTILE_FLAG_RPG)
                     {

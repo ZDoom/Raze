@@ -509,7 +509,7 @@ void check_player_color(int *color,int prev_color)
     int i, disallowed[] = { 1, 2, 3, 4, 5, 6, 7, 8, 17, 18, 19, 20, 22 };
 
     for(i=0;i<(signed)(sizeof(disallowed)/sizeof(disallowed[0]));i++) {
-        if(*color == disallowed[i]) {
+        while(*color == disallowed[i]) {
             if(*color > prev_color)
                 (*color)++;
             else (*color)--;
@@ -1406,7 +1406,7 @@ void menus(void)
         if (!VOLUMEALL || !PLUTOPAK) {
             //rotatesprite(c<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64,0,0,xdim-1,ydim-1);
             rotatesprite(c<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-            menutext(c,24,0,0,current_menu == 998 ? "PORT CREDITS" : "CREDITS");
+            menutext(c,24,0,0,current_menu == 998 ? "ABOUT EDUKE32" : "CREDITS");
 
             l = 8;
         } else {
@@ -1579,41 +1579,32 @@ void menus(void)
             break;
         case 993:   // JBF 20031220
             rotatesprite(160<<16,200<<15,65536L,0,MENUSCREEN,0,0,10+64,0,0,xdim-1,ydim-1);
-            menutext(160,28,0,0,"PORT CREDITS");
+            menutext(160,28,0,0,"ABOUT EDUKE32");
 
 cheat_for_port_credits:
             if (conversion == 13) l = (-2);
-            gametext(160,38-l,"EDUKE PORT TO JFDUKE, NEW FEATURES,",0,2+8+16);
-            gametext(160,38+8-l,"FUNCTIONS, AND ENGINE MODIFICATIONS",0,2+8+16);
-            p = "Richard \"TerminX\" Gobeille, EDuke32 team";
-            minitext(160-(Bstrlen(p)<<1), 38+8+10-l, p, 8, 10+16+128);
+            gametext(160,38-l,"GAME PROGRAMMING",0,2+8+16);
+            p = "Richard \"TerminX\" Gobeille";
+            minitext(161-(Bstrlen(p)<<1), 39+10-l, p, 4, 10+16+128);
+            minitext(160-(Bstrlen(p)<<1), 38+10-l, p, 8, 10+16+128);
 
-            gametext(160,70-l,"DUKE3D AND BUILD ENGINE PORTING,",0,2+8+16);
-            gametext(160,70+8-l, "MODIFICATIONS, AND GENERAL GUIDANCE",0,2+8+16);
+            gametext(160,57-l,"\"JFDUKE3D\" AND \"JFBUILD\" CODE",0,2+8+16);
             p = "Jonathon \"JonoF\" Fowler";
-            minitext(160-(Bstrlen(p)<<1), 70+8+10-l, p, 8, 10+16+128);
+            minitext(161-(Bstrlen(p)<<1), 58+10-l, p, 4, 10+16+128);
+            minitext(160-(Bstrlen(p)<<1), 57+10-l, p, 8, 10+16+128);
 
-            gametext(160,102-l,"\"POLYMOST\" OPENGL RENDERER",0,2+8+16);
-            gametext(160,102+8-l,"NETWORKING, OTHER CODE",0,2+8+16);
+            gametext(160,76-l,"ORIGINAL \"POLYMOST\" RENDERER",0,2+8+16);
+            gametext(160,76+8-l,"NETWORKING, OTHER CODE",0,2+8+16);
             p = "Ken Silverman";
-            minitext(160-(Bstrlen(p)<<1), 102+8+10-l, p, 8, 10+16+128);
+            minitext(161-(Bstrlen(p)<<1), 77+8+10-l, p, 4, 10+16+128);
+            minitext(160-(Bstrlen(p)<<1), 76+8+10-l, p, 8, 10+16+128);
 
+            gametext(160,103-l,"RENDERING FEATURES",0,2+8+16);
+            p = "Pierre-Loup Archambeaud Griffais";
+            minitext(161-(Bstrlen(p)<<1), 104+10-l, p, 4, 10+16+128);
+            minitext(160-(Bstrlen(p)<<1), 103+10-l, p, 8, 10+16+128);
 
-            // /*                        for (i=0;i<7;i++) {
-            //                             switch (i) {
-            //                             case 0: p = "This program is distributed under the terms of the"; break;
-            //                             case 1: p = "GNU General Public License version 2 as published by the"; break;
-            //                             case 2: p = "Free Software Foundation. See GNU.TXT for details."; break;
-            //                             case 3: p = NULL; break;
-            //                             case 4: p = "Visit http://www.eduke32.com for the source code,"; break;
-            //                             case 5: p = "latest news, and the current version of this port."; break;
-            //                             case 6: p = "EDuke originally by Matt Saettler."; break;
-            //                             }
-            //                             if (!p) continue;
-            //                             //minitext(160-(Bstrlen(p)<<1)+1, 110+10+1+(i*7)-l, p, 4, 10+16+128);
-            //                             minitext(160-(Bstrlen(p)<<1), 130+10+(i*7)-l, p, /*12*/8, 10+16+128);
-            //         }
-            // */
+            gametext(160,122-l,"OTHER",0,2+8+16);
             {
                 const char *scroller[] = {
                                              "This program is distributed under the terms of the",
@@ -1633,7 +1624,6 @@ cheat_for_port_credits:
                                              "Lachlan McDonald",
                                              "Matthew Palmer",
                                              "Peter Green",
-                                             "Pierre-Loup Archambeaud Griffais",
                                              "",
                                              "--x--",
                                              "",
@@ -1645,18 +1635,14 @@ cheat_for_port_credits:
                 const int numlines = sizeof(scroller)/sizeof(char *);
                 for (m=0,i=(totalclock/104)%numlines; m<6; m++,i++) {
                     if (i==numlines) i=0;
+                    minitext(161-(Bstrlen(scroller[i])<<1), 101+10+10+8+4+(m*7)-l, (char*)scroller[i], 4, 10+16+128);
                     minitext(160-(Bstrlen(scroller[i])<<1), 100+10+10+8+4+(m*7)-l, (char*)scroller[i], 8, 10+16+128);
                 }
             }
 
-            for (i=0;i<2;i++) {
-                switch (i) {
-                case 0: p = "www.eduke32.com"; break;
-                case 1: p = ""; break; // fuck I am lazy
-                }
-                minitext(160-(Bstrlen(p)<<1), 135+10+10+10+10+4+(i*7)-l, p, 8, 10+16+128);
-            }
-            break;
+            p = "Visit www.eduke32.com for news and updates";
+            minitext(161-(Bstrlen(p)<<1), 136+10+10+10+10+4-l, p, 4, 10+16+128);
+            minitext(160-(Bstrlen(p)<<1), 135+10+10+10+10+4-l, p, 8, 10+16+128);
         }
         break;
 

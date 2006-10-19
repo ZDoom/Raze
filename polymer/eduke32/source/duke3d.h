@@ -20,6 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
+#define VERSION " 1.4.0 svn"
+
+#define HEAD  "EDuke32"VERSION" (shareware mode)"
+#define HEAD2 "EDuke32"VERSION
+
 #include "compat.h"
 
 #ifdef __cplusplus
@@ -836,7 +841,8 @@ enum projectileflags {
     PROJECTILE_FLAG_NOAIM               = 4096,
     PROJECTILE_FLAG_RANDDECALSIZE       = 8192,
     PROJECTILE_FLAG_EXPLODEONTIMER      = 16384,
-    PROJECTILE_FLAG_RPG_IMPACT          = 32768
+    PROJECTILE_FLAG_RPG_IMPACT          = 32768,
+    PROJECTILE_FLAG_RADIUS_PICNUM       = 65536
 };
 
 typedef struct {
