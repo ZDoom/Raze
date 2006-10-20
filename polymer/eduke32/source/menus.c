@@ -1612,7 +1612,7 @@ cheat_for_port_credits:
                                              "GNU General Public License version 2 as published by the",
                                              "Free Software Foundation. See GNU.TXT for details.",
                                              "",
-                                             "Thanks to these people for their input and contributions:",
+                                             "Thanks to the following people for their contributions:",
                                              "",
                                              "Adam Fazakerley",
                                              "Ed Coolidge",

@@ -3480,6 +3480,7 @@ void displayrooms(short snum,long smoothratio)
     long tposx,tposy,i;
     short tang;
     long tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
+    extern long rendmode;
 
     p = &ps[snum];
 
@@ -3489,7 +3490,7 @@ void displayrooms(short snum,long smoothratio)
         pub = 0;
     }
 
-    if( ud.overhead_on == 2 || ud.show_help || p->cursectnum == -1)
+    if( ud.overhead_on == 2 || ud.show_help || (p->cursectnum == -1 && rendmode != 4))
         return;
 
     smoothratio = min(max(smoothratio,0),65536);
@@ -3499,7 +3500,8 @@ void displayrooms(short snum,long smoothratio)
     if(ud.pause_on || ps[snum].on_crane > -1) smoothratio = 65536;
 
     sect = p->cursectnum;
-    if(sect < 0 || sect >= MAXSECTORS) return;
+    if(rendmode != 4)
+        if(sect < 0 || sect >= MAXSECTORS) return;
 
     dointerpolations(smoothratio);
 
