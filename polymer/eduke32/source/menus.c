@@ -1601,7 +1601,7 @@ cheat_for_port_credits:
             minitext(160-(Bstrlen(p)<<1), 76+8+10-l, p, 8, 10+16+128);
 
             gametext(160,103-l,"RENDERING FEATURES",0,2+8+16);
-            p = "Pierre-Loup Archambeaud Griffais";
+            p = "Pierre-Loup \"Plagman\" Griffais";
             minitext(161-(Bstrlen(p)<<1), 104+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 103+10-l, p, 8, 10+16+128);
 

@@ -72,4 +72,7 @@ void CONFIG_WriteSetup( void );
 void CONFIG_SetupMouse( void );
 void CONFIG_SetupJoystick( void );
 
+int32 CONFIG_GetMapBestTime(char *mapname);
+int32 CONFIG_SetMapBestTime(char *mapname, int32 tm);
+
 #endif

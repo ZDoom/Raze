@@ -894,6 +894,41 @@ void CONFIG_WriteSetup( void )
 }
 
 
+int32 CONFIG_GetMapBestTime(char *mapname)
+{
+    int32 t = -1;
+    char m[BMAX_PATH], *p;
+
+    strcpy(m, mapname);
+    p = strrchr(m, '/');
+    if (!p) p = strrchr(m, '\\');
+    if (p) strcpy(m, p);
+    for (p=m;*p;p++) *p = tolower(*p);
+
+    if (!setupread) return -1;
+    if (scripthandle < 0) return -1;
+    SCRIPT_GetNumber(scripthandle, "MapTimes", m, &t);
+
+    return t;
+}
+
+int32 CONFIG_SetMapBestTime(char *mapname, int32 tm)
+{
+    char m[BMAX_PATH], *p;
+
+    strcpy(m, mapname);
+    p = strrchr(m, '/');
+    if (!p) p = strrchr(m, '\\');
+    if (p) strcpy(m, p);
+    for (p=m;*p;p++) *p = tolower(*p);
+
+    if (scripthandle < 0) scripthandle = SCRIPT_Init(setupfilename);
+    if (scripthandle < 0) return -1;
+
+    SCRIPT_PutNumber(scripthandle, "MapTimes", mapname, tm, false, false);
+    return 0;
+}
+
 /*
  * vim:ts=4:sw=4:
  */

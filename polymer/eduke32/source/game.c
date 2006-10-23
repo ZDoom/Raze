@@ -10614,6 +10614,8 @@ void dobonus(char bonusonly)
     short bonuscnt;
     int clockpad = 2;
     char *lastmapname;
+    int32 playerbest = -1;
+
     long breathe[] =
         {
             0,  30,VICTORY1+1,176,59,
@@ -10998,6 +11000,15 @@ FRAGBONUS:
     bonuscnt = 0;
     totalclock = 0; tinc = 0;
 
+    playerbest = CONFIG_GetMapBestTime(level_file_names[ud.volume_number*11+ud.last_level-1]);
+
+    if (ps[myconnectindex].player_par < playerbest || playerbest == -1)
+    {
+        CONFIG_SetMapBestTime(level_file_names[ud.volume_number*11+ud.last_level-1], ps[myconnectindex].player_par);
+        if(playerbest != -1)
+            playerbest = ps[myconnectindex].player_par;
+    }
+
     {
         int ii, ij;
 
@@ -11007,10 +11018,15 @@ FRAGBONUS:
         clockpad = max(clockpad,ij);
         for (ii=designertime[ud.volume_number*11+ud.last_level-1]/(26*60), ij=1; ii>9; ii/=10, ij++) ;
         clockpad = max(clockpad,ij);
+        if (playerbest > 0) for (ii=playerbest/(26*60), ij=1; ii>9; ii/=10, ij++) ;
+        clockpad = max(clockpad,ij);
+
     }
 
     while( 1 )
     {
+        int yy = 0, zz;
+
         handleevents();
         AudioUpdate();
 
@@ -11076,13 +11092,16 @@ FRAGBONUS:
 
             if( totalclock > (60*3) )
             {
-                gametext(10,59+9,"Your Time:",0,2+8+16);
-                gametext(10,69+9,"Par time:",0,2+8+16);
-                if (!NAM)
-                    gametext(10,78+9,"3D Realms' Time:",0,2+8+16);
+                yy = zz = 59;
+                gametext(10,yy+9,"Your Time:",0,2+8+16); yy+=10;
+                gametext(10,yy+9,"Par Time:",0,2+8+16); yy+=10;
+                if (!NAM) { gametext(10,yy+9,"3D Realms' Time:",0,2+8+16); yy+=10; }
+                if (playerbest > 0) { gametext(10,yy+9,"Your Best Time:",0,2+8+16); yy += 10; }
+
                 if(bonuscnt == 0)
                     bonuscnt++;
 
+                yy = zz;
                 if( totalclock > (60*4) )
                 {
                     if(bonuscnt == 1)
@@ -11094,31 +11113,42 @@ FRAGBONUS:
                     Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
                              (ps[myconnectindex].player_par/(26*60)),
                              (ps[myconnectindex].player_par/26)%60);
-                    gametext((320>>2)+71,60+9,tempbuf,0,2+8+16);
+                    gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16); yy+=10;
 
                     Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
                              (partime[ud.volume_number*11+ud.last_level-1]/(26*60)),
                              (partime[ud.volume_number*11+ud.last_level-1]/26)%60);
-                    gametext((320>>2)+71,69+9,tempbuf,0,2+8+16);
+                    gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16); yy+=10;
 
                     if (!NAM) {
                         Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
                                  (designertime[ud.volume_number*11+ud.last_level-1]/(26*60)),
                                  (designertime[ud.volume_number*11+ud.last_level-1]/26)%60);
-                        gametext((320>>2)+71,78+9,tempbuf,0,2+8+16);
+                        gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16); yy+=10;
+                    }
+
+                    if (playerbest > 0) {
+                        sprintf(tempbuf,"%0*ld:%02ld",clockpad,
+                                (playerbest/(26*60)),
+                                (playerbest/26)%60);
+                        gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16); yy+=10;
                     }
                 }
             }
+
+            zz = yy += 5;
             if( totalclock > (60*6) )
             {
-                gametext(10,94+9,"Enemies Killed:",0,2+8+16);
-                gametext(10,99+4+9,"Enemies Left:",0,2+8+16);
+                gametext(10,yy+9,"Enemies Killed:",0,2+8+16); yy += 10;
+                gametext(10,yy+9,"Enemies Left:",0,2+8+16); yy += 10;
 
                 if(bonuscnt == 2)
                 {
                     bonuscnt++;
                     sound(FLY_BY);
                 }
+
+                yy = zz;
 
                 if( totalclock > (60*7) )
                 {
@@ -11127,28 +11157,31 @@ FRAGBONUS:
                         bonuscnt++;
                         sound(PIPEBOMB_EXPLODE);
                     }
-                    Bsprintf(tempbuf,"%-3ld",ps[myconnectindex].actors_killed);
-                    gametext((320>>2)+70,93+9,tempbuf,0,2+8+16);
+                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].actors_killed);
+                    gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
                     if(ud.player_skill > 3 )
                     {
-                        Bsprintf(tempbuf,"N/A");
-                        gametext((320>>2)+70,99+4+9,tempbuf,0,2+8+16);
+                        sprintf(tempbuf,"N/A");
+                        gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
                     }
                     else
                     {
                         if( (ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed) < 0 )
-                            Bsprintf(tempbuf,"%-3d",0);
-                        else Bsprintf(tempbuf,"%-3ld",ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed);
-                        gametext((320>>2)+70,99+4+9,tempbuf,0,2+8+16);
+                            sprintf(tempbuf,"%-3d",0);
+                        else sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed);
+                        gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
                     }
                 }
             }
+
+            zz = yy += 5;
             if( totalclock > (60*9) )
             {
-                gametext(10,120+9,"Secrets Found:",0,2+8+16);
-                gametext(10,130+9,"Secrets Missed:",0,2+8+16);
+                gametext(10,yy+9,"Secrets Found:",0,2+8+16); yy += 10;
+                gametext(10,yy+9,"Secrets Missed:",0,2+8+16); yy += 10;
                 if(bonuscnt == 4) bonuscnt++;
 
+                yy = zz;
                 if( totalclock > (60*10) )
                 {
                     if(bonuscnt == 5)
@@ -11156,12 +11189,12 @@ FRAGBONUS:
                         bonuscnt++;
                         sound(PIPEBOMB_EXPLODE);
                     }
-                    Bsprintf(tempbuf,"%-3ld",ps[myconnectindex].secret_rooms);
-                    gametext((320>>2)+70,120+9,tempbuf,0,2+8+16);
+                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].secret_rooms);
+                    gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
                     if( ps[myconnectindex].secret_rooms > 0 )
-                        Bsprintf(tempbuf,"%-3ld%%",(100*ps[myconnectindex].secret_rooms/ps[myconnectindex].max_secret_rooms));
-                    Bsprintf(tempbuf,"%-3ld",ps[myconnectindex].max_secret_rooms-ps[myconnectindex].secret_rooms);
-                    gametext((320>>2)+70,130+9,tempbuf,0,2+8+16);
+                        sprintf(tempbuf,"%-3ld%%",(100*ps[myconnectindex].secret_rooms/ps[myconnectindex].max_secret_rooms));
+                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_secret_rooms-ps[myconnectindex].secret_rooms);
+                    gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
                 }
             }
 
