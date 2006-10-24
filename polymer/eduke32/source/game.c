@@ -11002,11 +11002,11 @@ FRAGBONUS:
 
     playerbest = CONFIG_GetMapBestTime(level_file_names[ud.volume_number*11+ud.last_level-1]);
 
-    if (ps[myconnectindex].player_par < playerbest || playerbest == -1)
+    if (ps[myconnectindex].player_par < playerbest || playerbest < 0)
     {
         CONFIG_SetMapBestTime(level_file_names[ud.volume_number*11+ud.last_level-1], ps[myconnectindex].player_par);
-        if(playerbest != -1)
-            playerbest = ps[myconnectindex].player_par;
+        //        if(playerbest != -1)
+        //            playerbest = ps[myconnectindex].player_par;
     }
 
     {
@@ -11014,10 +11014,14 @@ FRAGBONUS:
 
         for (ii=ps[myconnectindex].player_par/(26*60), ij=1; ii>9; ii/=10, ij++) ;
         clockpad = max(clockpad,ij);
-        for (ii=partime[ud.volume_number*11+ud.last_level-1]/(26*60), ij=1; ii>9; ii/=10, ij++) ;
-        clockpad = max(clockpad,ij);
-        for (ii=designertime[ud.volume_number*11+ud.last_level-1]/(26*60), ij=1; ii>9; ii/=10, ij++) ;
-        clockpad = max(clockpad,ij);
+        if(!(ud.volume_number == 0 && ud.last_level-1 == 7)) {
+            for (ii=partime[ud.volume_number*11+ud.last_level-1]/(26*60), ij=1; ii>9; ii/=10, ij++) ;
+            clockpad = max(clockpad,ij);
+            if(!NAM) {
+                for (ii=designertime[ud.volume_number*11+ud.last_level-1]/(26*60), ij=1; ii>9; ii/=10, ij++) ;
+                clockpad = max(clockpad,ij);
+            }
+        }
         if (playerbest > 0) for (ii=playerbest/(26*60), ij=1; ii>9; ii/=10, ij++) ;
         clockpad = max(clockpad,ij);
 
@@ -11094,9 +11098,11 @@ FRAGBONUS:
             {
                 yy = zz = 59;
                 gametext(10,yy+9,"Your Time:",0,2+8+16); yy+=10;
-                gametext(10,yy+9,"Par Time:",0,2+8+16); yy+=10;
-                if (!NAM) { gametext(10,yy+9,"3D Realms' Time:",0,2+8+16); yy+=10; }
-                if (playerbest > 0) { gametext(10,yy+9,"Your Best Time:",0,2+8+16); yy += 10; }
+                if(!(ud.volume_number == 0 && ud.last_level-1 == 7)) {
+                    gametext(10,yy+9,"Par Time:",0,2+8+16); yy+=10;
+                    if (!NAM) { gametext(10,yy+9,"3D Realms' Time:",0,2+8+16); yy+=10; }
+                }
+                if (playerbest > 0) { gametext(10,yy+9,ps[myconnectindex].player_par<playerbest?"Prev Best Time:":"Your Best Time:",0,2+8+16); yy += 10; }
 
                 if(bonuscnt == 0)
                     bonuscnt++;
@@ -11113,18 +11119,23 @@ FRAGBONUS:
                     Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
                              (ps[myconnectindex].player_par/(26*60)),
                              (ps[myconnectindex].player_par/26)%60);
-                    gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16); yy+=10;
+                    gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
+                    if(ps[myconnectindex].player_par < playerbest)
+                        gametext((320>>2)+71+(clockpad*24),yy+9,"New record!",0,2+8+16);
+                    yy+=10;
 
-                    Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
-                             (partime[ud.volume_number*11+ud.last_level-1]/(26*60)),
-                             (partime[ud.volume_number*11+ud.last_level-1]/26)%60);
-                    gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16); yy+=10;
-
-                    if (!NAM) {
+                    if(!(ud.volume_number == 0 && ud.last_level-1 == 7)) {
                         Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
-                                 (designertime[ud.volume_number*11+ud.last_level-1]/(26*60)),
-                                 (designertime[ud.volume_number*11+ud.last_level-1]/26)%60);
+                                 (partime[ud.volume_number*11+ud.last_level-1]/(26*60)),
+                                 (partime[ud.volume_number*11+ud.last_level-1]/26)%60);
                         gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16); yy+=10;
+
+                        if (!NAM) {
+                            Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
+                                     (designertime[ud.volume_number*11+ud.last_level-1]/(26*60)),
+                                     (designertime[ud.volume_number*11+ud.last_level-1]/26)%60);
+                            gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16); yy+=10;
+                        }
                     }
 
                     if (playerbest > 0) {
