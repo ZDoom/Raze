@@ -3480,7 +3480,9 @@ void displayrooms(short snum,long smoothratio)
     long tposx,tposy,i;
     short tang;
     long tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
+#ifdef POLYMOST
     extern long rendmode;
+#endif
 
     p = &ps[snum];
 
@@ -3490,7 +3492,11 @@ void displayrooms(short snum,long smoothratio)
         pub = 0;
     }
 
+#ifdef POLYMOST
     if( ud.overhead_on == 2 || ud.show_help || (p->cursectnum == -1 && rendmode != 4))
+#else
+    if( ud.overhead_on == 2 || ud.show_help || p->cursectnum == -1)
+#endif
         return;
 
     smoothratio = min(max(smoothratio,0),65536);
@@ -3500,7 +3506,10 @@ void displayrooms(short snum,long smoothratio)
     if(ud.pause_on || ps[snum].on_crane > -1) smoothratio = 65536;
 
     sect = p->cursectnum;
+
+#ifdef POLYMOST
     if(rendmode != 4)
+#endif
         if(sect < 0 || sect >= MAXSECTORS) return;
 
     dointerpolations(smoothratio);
@@ -9000,6 +9009,7 @@ void app_main(int argc,char **argv)
         }
     }
 
+#if defined(POLYMOST) && defined(USE_OPENGL)
     glusetexcache = glusetexcachecompression = -1;
 
     i = CONFIG_ReadSetup();
@@ -9018,6 +9028,7 @@ void app_main(int argc,char **argv)
             useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
     }
+#endif
 
     if (preinitengine()) {
         wm_msgbox("Build Engine Initialisation Error",
@@ -10571,7 +10582,9 @@ char domovethings(void)
     }
 
     //polymer invalidate
+#if defined(POLYMOST) && defined(USE_OPENGL)
     updatesectors = 1;
+#endif
 
     return 0;
 }

@@ -4143,6 +4143,7 @@ int ExtInit(void)
     loadgroupfiles(defsfilename);
     bpp = 8;
 
+#if defined(POLYMOST) && defined(USE_OPENGL)
     glusetexcache = glusetexcachecompression = -1;
 
     if (loadsetup("build.cfg") < 0) initprintf("Configuration file not found, using defaults.\n"), rv = 1;
@@ -4162,6 +4163,7 @@ int ExtInit(void)
             glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
     }
+#endif
 
     Bmemcpy((void *)buildkeys,(void *)keys,NUMBUILDKEYS);   //Trick to make build use setup.dat keys
 

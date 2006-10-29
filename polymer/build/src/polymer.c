@@ -1,5 +1,5 @@
 // blah
-
+#ifdef POLYMOST
 #include "polymer.h"
 
 // CVARS
@@ -1166,3 +1166,4 @@ void                polymer_drawartsky(short tilenum)
         i++;
     }
 }
+#endif
