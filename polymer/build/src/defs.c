@@ -395,12 +395,16 @@ static int defsparser(scriptfile *script)
             break;
         case T_SPRITECOL:
             {
-                int tile,col,type;
+                int tile,col,col2;
 
                 if (scriptfile_getsymbol(script,&tile)) break;
                 if (scriptfile_getnumber(script,&col)) break;
-                if (scriptfile_getnumber(script,&type)) break;
-                if ((unsigned long)tile < MAXTILES) spritecol2d[tile][type] = col;
+                if (scriptfile_getnumber(script,&col2)) break;
+                if ((unsigned long)tile < MAXTILES) 
+                {
+                    spritecol2d[tile][0] = col;
+                    spritecol2d[tile][1] = col2;
+                }
             }
             break;
         case T_2DCOL:
