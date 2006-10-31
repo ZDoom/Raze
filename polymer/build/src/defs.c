@@ -273,7 +273,7 @@ static int defsparser(scriptfile *script)
             // OLD (DEPRECATED) DEFINITION SYNTAX
         case T_DEFINETEXTURE:
             {
-                int tile,pal,fnoo;
+                int tile,pal,fnoo,i;
                 char *fn;
 
                 if (scriptfile_getsymbol(script,&tile)) break;
@@ -283,19 +283,31 @@ static int defsparser(scriptfile *script)
                 if (scriptfile_getnumber(script,&fnoo)) break; //x-size
                 if (scriptfile_getnumber(script,&fnoo)) break; //y-size
                 if (scriptfile_getstring(script,&fn))  break;
+
+                if ((i = kopen4load(fn,0)) < 0) {
+                    initprintf("Error: file '%s' does not exist\n",fn);
+                    break;
+                } else kclose(i);
+
                 hicsetsubsttex(tile,pal,fn,-1.0,0);
             }
             break;
         case T_DEFINESKYBOX:
             {
-                int tile,pal,i;
-                char *fn[6];
+                int tile,pal,i,j;
+                char *fn[6],happy=1;
 
                 if (scriptfile_getsymbol(script,&tile)) break;
                 if (scriptfile_getsymbol(script,&pal)) break;
                 if (scriptfile_getsymbol(script,&i)) break; //future expansion
-                for (i=0;i<6;i++) if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
-                if (i < 6) break;
+                for (i=0;i<6;i++) {
+                    if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
+                    if ((j = kopen4load(fn[i],0)) < 0) {
+                        initprintf("Error: file '%s' does not exist\n",fn[i]);
+                        happy = 0;
+                    } else kclose(j);
+                }
+                if (i < 6 || !happy) break;
                 hicsetskybox(tile,pal,fn);
             }
             break;
@@ -400,7 +412,7 @@ static int defsparser(scriptfile *script)
                 if (scriptfile_getsymbol(script,&tile)) break;
                 if (scriptfile_getnumber(script,&col)) break;
                 if (scriptfile_getnumber(script,&col2)) break;
-                if ((unsigned long)tile < MAXTILES) 
+                if ((unsigned long)tile < MAXTILES)
                 {
                     spritecol2d[tile][0] = col;
                     spritecol2d[tile][1] = col2;
@@ -959,7 +971,7 @@ static int defsparser(scriptfile *script)
             {
                 char *skyboxtokptr = script->ltextptr;
                 char *fn[6] = {0,0,0,0,0,0}, *modelend, happy=1;
-                int i, tile = -1, pal = 0;
+                int i, tile = -1, pal = 0,j;
 
                 if (scriptfile_getbraces(script,&modelend)) break;
                 while (script->textptr < modelend) {
@@ -979,8 +991,11 @@ static int defsparser(scriptfile *script)
                 if (tile < 0) initprintf("Error: missing 'tile number' for skybox definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy=0;
                 for (i=0;i<6;i++) {
                     if (!fn[i]) initprintf("Error: missing '%s filename' for skybox definition near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
+                    if ((j = kopen4load(fn[i],0)) < 0) {
+                        initprintf("Error: file '%s' does not exist\n",fn[i]);
+                        happy = 0;
+                    } else kclose(j);
                 }
-
                 if (!happy) break;
 
                 hicsetskybox(tile,pal,fn);
@@ -1022,7 +1037,7 @@ static int defsparser(scriptfile *script)
                     switch (getatoken(script,texturetokens,sizeof(texturetokens)/sizeof(tokenlist))) {
                     case T_PAL: {
                             char *paltokptr = script->ltextptr, *palend;
-                            int pal=-1;
+                            int pal=-1, i;
                             char *fn = NULL;
                             double alphacut = -1.0;
                             char flags = 0;
@@ -1049,6 +1064,11 @@ static int defsparser(scriptfile *script)
                                            script->filename, scriptfile_getlinum(script,paltokptr));
                                 break;
                             }
+                            if ((i = kopen4load(fn,0)) < 0) {
+                                initprintf("Error: file '%s' does not exist\n",fn);
+                                break;
+                            } else kclose(i);
+
                             hicsetsubsttex(tile,pal,fn,alphacut,flags);
                         } break;
                     default: break;
