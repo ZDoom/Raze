@@ -3861,7 +3861,7 @@ char parsecommand(void)
         // get the ID of the DEF
         transmultvars(tw==CON_CANSEE?8:7);
         transmultvarstype(GAMEVAR_FLAG_READONLY,tw==CON_CANSEE?1:6);
-        transvar();
+        if(tw==CON_HITSCAN) transvar();
         break;
 
     case CON_CANSEESPR:
