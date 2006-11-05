@@ -4627,6 +4627,7 @@ if (dastat&16) { xoff = 0; yoff = 0; }
     setgotpic(picnum);
     bufplc = waloff[picnum];
 
+    if(!palookup[dapalnum]) dapalnum = 0;
     palookupoffs = FP_OFF(palookup[dapalnum]) + (getpalookup(0L,(long)dashade)<<8);
 
     i = divscale32(1L,z);

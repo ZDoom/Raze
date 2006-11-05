@@ -151,7 +151,7 @@ typedef struct BPACK {
     short mdanimcur;
     short angoff;
     short pitch, roll;
-    short xoff, yoff, zoff;
+    long xoff, yoff, zoff;
     unsigned char flags;
     char filler[3];
 } spriteexttype;
