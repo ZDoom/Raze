@@ -4582,6 +4582,7 @@ SKIPJIBS:
             break;
         }
 
+    case CON_GETINCANGLE:
     case CON_GETANGLE:
         {
             long angvar, xvar, yvar;
@@ -4591,7 +4592,9 @@ SKIPJIBS:
             angvar = *insptr++;
             xvar = *insptr++;
             yvar = *insptr++;
-            ang = getangle(GetGameVarID(xvar, g_i, g_p),GetGameVarID(yvar, g_i, g_p));
+            if(tw==CON_GETANGLE)
+                ang = getangle(GetGameVarID(xvar, g_i, g_p),GetGameVarID(yvar, g_i, g_p));
+            else ang = getincangle(GetGameVarID(xvar, g_i, g_p),GetGameVarID(yvar, g_i, g_p));
 
             SetGameVarID(angvar, ang, g_i, g_p);
             break;

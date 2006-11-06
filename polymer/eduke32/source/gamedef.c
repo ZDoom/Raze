@@ -444,6 +444,7 @@ char *keyw[] = {
                    "getcurraddress",		   // 297
                    "jump",					   // 298
                    "qstrlen",				   // 299
+                   "getincangle",              // 300
                    "<null>"
                };
 
@@ -3607,6 +3608,7 @@ char parsecommand(void)
     case CON_GMAXAMMO:
     case CON_DIST:
     case CON_LDIST:
+    case CON_GETINCANGLE:
     case CON_GETANGLE:
     case CON_MULSCALE:
     case CON_SETASPECT:
@@ -3616,6 +3618,7 @@ char parsecommand(void)
         case CON_DIST:
         case CON_LDIST:
         case CON_GETANGLE:
+        case CON_GETINCANGLE:
             transvartype(GAMEVAR_FLAG_READONLY);
             break;
         default:
@@ -3633,6 +3636,7 @@ char parsecommand(void)
         case CON_DIST:
         case CON_LDIST:
         case CON_GETANGLE:
+        case CON_GETINCANGLE:
             transvar();
             break;
         case CON_MULSCALE:

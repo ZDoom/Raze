@@ -1391,7 +1391,7 @@ void dofrontscreens(char *statustext)
         }
 
         SetGameVarID(g_iReturnVarID,LOADSCREEN, -1, -1);
-        OnEvent(EVENT_GETLOADTILE, -1, -1, -1);
+        OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
         j = GetGameVarID(g_iReturnVarID, -1, -1);
         rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
         if(j > MAXTILES-1)
@@ -1432,7 +1432,7 @@ void dofrontscreens(char *statustext)
             setgamepalette(&ps[myconnectindex], palette, 0);    // JBF 20040308
         }
         SetGameVarID(g_iReturnVarID,LOADSCREEN, -1, -1);
-        OnEvent(EVENT_GETLOADTILE, -1, -1, -1);
+        OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
         j = GetGameVarID(g_iReturnVarID, -1, -1);
         rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
         if(j > MAXTILES-1)

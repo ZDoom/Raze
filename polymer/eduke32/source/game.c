@@ -3210,7 +3210,7 @@ void drawbackground(void)
         // when not rendering a game, fullscreen wipe
         #define MENUTILE bpp==8?MENUSCREEN:LOADSCREEN
         SetGameVarID(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
-        OnEvent(EVENT_GETMENUTILE, -1, -1, -1);
+        OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1);
         if (GetGameVar("MENU_TILE", tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?0:1, -1, -1))
         {
             for(y=y1;y<y2;y+=tilesizy[GetGameVarID(g_iReturnVarID, -1, -1)])

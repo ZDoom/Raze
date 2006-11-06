@@ -753,5 +753,6 @@ enum keywords {
     CON_GETCURRADDRESS,		// 297
     CON_JUMP,				// 298
     CON_QSTRLEN,			// 299
+    CON_GETINCANGLE,        // 300
     END
 };
