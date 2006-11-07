@@ -458,22 +458,31 @@ static int defsparser(scriptfile *script)
             break;
         case T_DUMMYTILE:
             {
-                int tile, xsiz, ysiz;
+                int tile, xsiz, ysiz, j;
                 extern char faketile[MAXTILES];
 
                 if (scriptfile_getsymbol(script,&tile)) break;
                 if (scriptfile_getsymbol(script,&xsiz)) break;
                 if (scriptfile_getsymbol(script,&ysiz)) break;
 
-                if(xsiz >= 0) tilesizx[tile] = xsiz;
-                if(ysiz >= 0) tilesizy[tile] = ysiz;
+                if(xsiz > 0 && ysiz > 0)
+                {
+                    tilesizx[tile] = xsiz;
+                    tilesizy[tile] = ysiz;
+                    faketile[tile] = 1;
+                    picanm[tile] = 0;
 
-                faketile[tile] = 1;
+                    j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
+                    picsiz[tile] = ((char)j);
+                    j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
+                    picsiz[tile] += ((char)(j<<4));
+                }
+
                 break;
             }
         case T_DUMMYTILERANGE:
             {
-                int tile1,tile2,xsiz,ysiz,i;
+                int tile1,tile2,xsiz,ysiz,i,j;
                 extern char faketile[MAXTILES];
 
                 if (scriptfile_getnumber(script,&tile1)) break;
@@ -492,9 +501,18 @@ static int defsparser(scriptfile *script)
                     {
                         if ((unsigned long)i < MAXTILES)
                         {
-                            if(xsiz >= 0) tilesizx[i] = xsiz;
-                            if(ysiz >= 0) tilesizy[i] = ysiz;
-                            faketile[i] = 1;
+                            if(xsiz > 0 && ysiz > 0)
+                            {
+                                tilesizx[i] = xsiz;
+                                tilesizy[i] = ysiz;
+                                faketile[i] = 1;
+                                picanm[i] = 0;
+
+                                j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
+                                picsiz[i] = ((char)j);
+                                j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
+                                picsiz[i] += ((char)(j<<4));
+                            }
                         }
                     }
                 }
