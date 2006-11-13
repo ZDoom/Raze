@@ -23,7 +23,7 @@ static long kzipopen(char *filnam)
     char newst[BMAX_PATH+4];
 
     newst[0] = '|';
-    for(i=0;filnam[i] && (i < sizeof(newst)-2);i++) newst[i+1] = filnam[i];
+    for (i=0;filnam[i] && (i < sizeof(newst)-2);i++) newst[i+1] = filnam[i];
     newst[i+1] = 0;
     return(kzopen(newst));
 }
@@ -65,7 +65,7 @@ static long cachesize = 0;
 long cachecount = 0;
 char zerochar = 0;
 long cachestart = 0, cacnum = 0, agecount = 0;
-typedef struct { long *hand, leng; char *lock; } cactype;
+typedef struct { long *hand, leng; char *lock ; } cactype;
 cactype cac[MAXCACHEOBJECTS];
 static long lockrecip[200];
 
@@ -83,7 +83,7 @@ void initcache(long dacachestart, long dacachesize)
 {
     long i;
 
-    for(i=1;i<200;i++) lockrecip[i] = (1<<28)/(200-i);
+    for (i=1;i<200;i++) lockrecip[i] = (1<<28)/(200-i);
 
     cachestart = dacachestart;
     cachesize = dacachesize;
@@ -115,13 +115,13 @@ void allocache(long *newhandle, long newbytes, char *newlockptr)
 
     //Find best place
     bestval = 0x7fffffff; o1 = cachesize;
-    for(z=cacnum-1;z>=0;z--)
+    for (z=cacnum-1;z>=0;z--)
     {
         o1 -= cac[z].leng;
         o2 = o1+newbytes; if (o2 > cachesize) continue;
 
         daval = 0;
-        for(i=o1,zz=z;i<o2;i+=cac[zz++].leng)
+        for (i=o1,zz=z;i<o2;i+=cac[zz++].leng)
         {
             if (*cac[zz].lock == 0) continue;
         if (*cac[zz].lock >= 200) { daval = 0x7fffffff; break; }
@@ -141,7 +141,7 @@ void allocache(long *newhandle, long newbytes, char *newlockptr)
         reportandexit("CACHE SPACE ALL LOCKED UP!");
 
     //Suck things out
-    for(sucklen=-newbytes,suckz=bestz;sucklen<0;sucklen+=cac[suckz++].leng)
+    for (sucklen=-newbytes,suckz=bestz;sucklen<0;sucklen+=cac[suckz++].leng)
         if (*cac[suckz].lock) *cac[suckz].hand = 0;
 
     //Remove all blocks except 1
@@ -167,7 +167,7 @@ void allocache(long *newhandle, long newbytes, char *newlockptr)
 if (*cac[bestz].lock == 0) { cac[bestz].leng += sucklen; return; }
 
     cacnum++; if (cacnum > MAXCACHEOBJECTS) reportandexit("Too many objects in cache! (cacnum > MAXCACHEOBJECTS)");
-    for(z=cacnum-1;z>bestz;z--) cac[z] = cac[z-1];
+    for (z=cacnum-1;z>bestz;z--) cac[z] = cac[z-1];
     cac[bestz].leng = sucklen;
     cac[bestz].lock = &zerochar;
 }
@@ -177,7 +177,7 @@ void suckcache(long *suckptr)
     long i;
 
     //Can't exit early, because invalid pointer might be same even though lock = 0
-    for(i=0;i<cacnum;i++)
+    for (i=0;i<cacnum;i++)
         if ((long)(*cac[i].hand) == (long)suckptr)
         {
             if (*cac[i].lock) *cac[i].hand = 0;
@@ -205,7 +205,7 @@ void agecache(void)
 
     if (agecount >= cacnum) agecount = cacnum-1;
     if (agecount < 0) return;
-    for(cnt=(cacnum>>4);cnt>=0;cnt--)
+    for (cnt=(cacnum>>4);cnt>=0;cnt--)
     {
         ch = (*cac[agecount].lock);
         if (((ch-2)&255) < 198)
@@ -221,7 +221,7 @@ static void reportandexit(char *errormessage)
 
     //setvmode(0x3);
     j = 0;
-    for(i=0;i<cacnum;i++)
+    for (i=0;i<cacnum;i++)
     {
         Bprintf("%ld- ",i);
         if (cac[i].hand) Bprintf("ptr: 0x%lx, ",*cac[i].hand);
@@ -424,7 +424,7 @@ long initgroupfile(char *filename)
 #ifdef WITHKPLIB
     char *zfn;
     searchpath_t *sp = NULL;
-#endif	
+#endif
 
 #ifdef _WIN32
     // on Windows, translate all backslashes (0x5c) to forward slashes (0x2f)
@@ -477,7 +477,7 @@ if (i < 0) { free(zfn); return -1; }
         Bread(groupfil[numgroupfiles],gfilelist[numgroupfiles],gnumfiles[numgroupfiles]<<4);
 
         j = 0;
-        for(i=0;i<gnumfiles[numgroupfiles];i++)
+        for (i=0;i<gnumfiles[numgroupfiles];i++)
         {
             k = B_LITTLE32(*((long *)&gfilelist[numgroupfiles][(i<<4)+12]));
             gfilelist[numgroupfiles][(i<<4)+12] = 0;
@@ -494,7 +494,7 @@ void uninitsinglegroupfile(long grphandle)
 {
     long i, grpnum = -1;
 
-    for(i=numgroupfiles-1;i>=0;i--)
+    for (i=numgroupfiles-1;i>=0;i--)
         if (groupfil[i] != -1 && groupfil[i] == grphandle)
         {
             kfree(gfilelist[i]);
@@ -522,7 +522,7 @@ void uninitsinglegroupfile(long grphandle)
         }
 
     // fix up the open files that need attention
-    for(i=0;i<MAXOPENFILES;i++) {
+    for (i=0;i<MAXOPENFILES;i++) {
         if (filegrp[i] >= 254)         // external file (255) or ZIPped file (254)
             continue;
         else if (filegrp[i] == grpnum)   // close file in group we closed
@@ -536,7 +536,7 @@ void uninitgroupfile(void)
 {
     long i;
 
-    for(i=numgroupfiles-1;i>=0;i--)
+    for (i=numgroupfiles-1;i>=0;i--)
         if (groupfil[i] != -1)
         {
             kfree(gfilelist[i]);
@@ -547,7 +547,7 @@ void uninitgroupfile(void)
     numgroupfiles = 0;
 
     // JBF 20040111: "close" any files open in groups
-    for(i=0;i<MAXOPENFILES;i++) {
+    for (i=0;i<MAXOPENFILES;i++) {
         if (filegrp[i] < 254)   // JBF 20040130: not external or ZIPped
             filehan[i] = -1;
     }
@@ -596,17 +596,17 @@ long kopen4load(char *filename, char searchfirst)
     }
 #endif
 
-    for(k=numgroupfiles-1;k>=0;k--)
+    for (k=numgroupfiles-1;k>=0;k--)
     {
         if (searchfirst == 1) k = 0;
         if (groupfil[k] >= 0)
         {
-            for(i=gnumfiles[k]-1;i>=0;i--)
+            for (i=gnumfiles[k]-1;i>=0;i--)
             {
                 gfileptr = (char *)&gfilelist[k][i<<4];
 
                 bad = 0;
-                for(j=0;j<13;j++)
+                for (j=0;j<13;j++)
                 {
                     if (!filename[j]) break;
                     if (toupperlookup[filename[j]] != toupperlookup[gfileptr[j]])
@@ -688,13 +688,16 @@ long klseek(long handle, long offset, long whence)
 
     if (groupfil[groupnum] != -1)
     {
-        switch(whence)
+        switch (whence)
         {
-        case BSEEK_SET: filepos[handle] = offset; break;
-        case BSEEK_END: i = filehan[handle];
+        case BSEEK_SET:
+            filepos[handle] = offset; break;
+        case BSEEK_END:
+            i = filehan[handle];
             filepos[handle] = (gfileoffs[groupnum][i+1]-gfileoffs[groupnum][i])+offset;
             break;
-        case BSEEK_CUR: filepos[handle] += offset; break;
+        case BSEEK_CUR:
+            filepos[handle] += offset; break;
         }
         return(filepos[handle]);
     }
@@ -902,7 +905,8 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
                     case -1: goto failure;
                         //case 1: initprintf("%s:%s dropped for lower priority\n", d,dirent->name); break;
                         //case 0: initprintf("%s:%s accepted\n", d,dirent->name); break;
-                    default: break;
+                    default:
+                        break;
                     }
                 }
                 Bclosedir(dir);
@@ -970,10 +974,12 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 
             // the entry is in the clear
             switch (klistaddentry(&rec, buf, ftype, CACHE1D_SOURCE_ZIP)) {
-            case -1: goto failure;
+            case -1:
+                goto failure;
                 //case 1: initprintf("<ZIP>:%s dropped for lower priority\n", buf); break;
                 //case 0: initprintf("<ZIP>:%s accepted\n", buf); break;
-            default: break;
+            default:
+                break;
             }
         }
     }
@@ -985,15 +991,17 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
         buf[12] = 0;
         for (i=0;i<MAXGROUPFILES;i++) {
             if (groupfil[i] == -1) continue;
-            for(j=gnumfiles[i]-1;j>=0;j--)
+            for (j=gnumfiles[i]-1;j>=0;j--)
             {
                 Bmemcpy(buf,&gfilelist[i][j<<4],12);
                 if (!Bwildmatch(buf,mask)) continue;
                 switch (klistaddentry(&rec, buf, CACHE1D_FIND_FILE, CACHE1D_SOURCE_GRP)) {
-                case -1: goto failure;
+                case -1:
+                    goto failure;
                     //case 1: initprintf("<GRP>:%s dropped for lower priority\n", workspace); break;
                     //case 0: initprintf("<GRP>:%s accepted\n", workspace); break;
-                default: break;
+                default:
+                    break;
                 }
             }
         }
@@ -1052,7 +1060,7 @@ if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
     copybufbyte(lzwbuf4,ptr,(long)dasizeof);
     k += (long)dasizeof;
 
-    for(i=1;i<count;i++)
+    for (i=1;i<count;i++)
     {
         if (k >= kgoal)
         {
@@ -1060,7 +1068,7 @@ if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
             if (kread(fil,lzwbuf5,(long)leng) != leng) return -1;
             k = 0; kgoal = lzwuncompress(lzwbuf5,(long)leng,lzwbuf4);
         }
-        for(j=0;j<dasizeof;j++) ptr[j+dasizeof] = ((ptr[j]+lzwbuf4[j+k])&255);
+        for (j=0;j<dasizeof;j++) ptr[j+dasizeof] = ((ptr[j]+lzwbuf4[j+k])&255);
         k += dasizeof;
         ptr += dasizeof;
     }
@@ -1091,7 +1099,7 @@ if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
     copybufbyte(lzwbuf4,ptr,(long)dasizeof);
     k += (long)dasizeof;
 
-    for(i=1;i<count;i++)
+    for (i=1;i<count;i++)
     {
         if (k >= kgoal)
         {
@@ -1099,7 +1107,7 @@ if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
             if (Bfread(lzwbuf5,(long)leng,1,fil) != 1) return -1;
             k = 0; kgoal = lzwuncompress(lzwbuf5,(long)leng,lzwbuf4);
         }
-        for(j=0;j<dasizeof;j++) ptr[j+dasizeof] = ((ptr[j]+lzwbuf4[j+k])&255);
+        for (j=0;j<dasizeof;j++) ptr[j+dasizeof] = ((ptr[j]+lzwbuf4[j+k])&255);
         k += dasizeof;
         ptr += dasizeof;
     }
@@ -1132,9 +1140,9 @@ if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
         Bwrite(fil,&swleng,2); Bwrite(fil,lzwbuf5,(long)leng);
     }
 
-    for(i=1;i<count;i++)
+    for (i=1;i<count;i++)
     {
-        for(j=0;j<dasizeof;j++) lzwbuf4[j+k] = ((ptr[j+dasizeof]-ptr[j])&255);
+        for (j=0;j<dasizeof;j++) lzwbuf4[j+k] = ((ptr[j+dasizeof]-ptr[j])&255);
         k += dasizeof;
         if (k > LZWSIZE-dasizeof)
         {
@@ -1176,9 +1184,9 @@ if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
         Bfwrite(&swleng,2,1,fil); Bfwrite(lzwbuf5,(long)leng,1,fil);
     }
 
-    for(i=1;i<count;i++)
+    for (i=1;i<count;i++)
     {
-        for(j=0;j<dasizeof;j++) lzwbuf4[j+k] = ((ptr[j+dasizeof]-ptr[j])&255);
+        for (j=0;j<dasizeof;j++) lzwbuf4[j+k] = ((ptr[j+dasizeof]-ptr[j])&255);
         k += dasizeof;
         if (k > LZWSIZE-dasizeof)
         {
@@ -1201,7 +1209,7 @@ static long lzwcompress(char *lzwinbuf, long uncompleng, char *lzwoutbuf)
     long bytecnt1, bitcnt, numbits, oneupnumbits;
     short *shortptr;
 
-    for(i=255;i>=0;i--) { lzwbuf1[i] = i; lzwbuf3[i] = (i+1)&255; }
+    for (i=255;i>=0;i--) { lzwbuf1[i] = i; lzwbuf3[i] = (i+1)&255; }
     clearbuf(lzwbuf2,256>>1,0xffffffff);
     clearbuf(lzwoutbuf,((uncompleng+15)+3)>>2,0L);
 
@@ -1253,7 +1261,7 @@ static long lzwcompress(char *lzwinbuf, long uncompleng, char *lzwoutbuf)
         return((bitcnt+7)>>3);
     }
     shortptr[1] = (short)0;
-    for(i=0;i<uncompleng;i++) lzwoutbuf[i+4] = lzwinbuf[i];
+    for (i=0;i<uncompleng;i++) lzwoutbuf[i+4] = lzwinbuf[i];
     return(uncompleng+4);
 }
 
@@ -1270,7 +1278,7 @@ static long lzwuncompress(char *lzwinbuf, long compleng, char *lzwoutbuf)
         copybuf(lzwinbuf+4,lzwoutbuf,((compleng-4)+3)>>2);
         return((long)B_LITTLE16(shortptr[0])); //uncompleng
     }
-    for(i=255;i>=0;i--) { lzwbuf2[i] = i; lzwbuf3[i] = i; }
+    for (i=255;i>=0;i--) { lzwbuf2[i] = i; lzwbuf3[i] = i; }
     currstr = 256; bitcnt = (4<<3); outbytecnt = 0;
     numbits = 8; oneupnumbits = (1<<8);
     do
@@ -1283,11 +1291,11 @@ static long lzwuncompress(char *lzwinbuf, long compleng, char *lzwoutbuf)
 
         lzwbuf3[currstr] = dat;
 
-        for(leng=0;dat>=256;leng++,dat=lzwbuf3[dat])
+        for (leng=0;dat>=256;leng++,dat=lzwbuf3[dat])
             lzwbuf1[leng] = lzwbuf2[dat];
 
         lzwoutbuf[outbytecnt++] = dat;
-        for(i=leng-1;i>=0;i--) lzwoutbuf[outbytecnt++] = lzwbuf1[i];
+        for (i=leng-1;i>=0;i--) lzwoutbuf[outbytecnt++] = lzwbuf1[i];
 
         lzwbuf2[currstr-1] = dat; lzwbuf2[currstr] = dat;
         currstr++;

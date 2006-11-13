@@ -11,7 +11,7 @@ as published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -178,7 +178,7 @@ void ExtLoadMap(const char *mapname)
                 {
                     polymost_precache(sector[j].floorpicnum,sector[j].floorpal,0);
                     polymost_precache(sector[j].floorpicnum,sector[j].floorpal,0);
-                }               
+                }    
             }
 
         for(j=0;j<numsprites;j++)
@@ -190,14 +190,14 @@ void ExtLoadMap(const char *mapname)
             }
     */
     // Presize Sprites
-    for(j=0;j<MAXSPRITES;j++)
+    for (j=0;j<MAXSPRITES;j++)
     {
-        if(tilesizx[sprite[j].picnum]==0 || tilesizy[sprite[j].picnum]==0)
+        if (tilesizx[sprite[j].picnum]==0 || tilesizy[sprite[j].picnum]==0)
             sprite[j].picnum=0;
 
-        if(sprite[j].picnum>=20 && sprite[j].picnum<=59)
+        if (sprite[j].picnum>=20 && sprite[j].picnum<=59)
         {
-            if(sprite[j].picnum==26) {
+            if (sprite[j].picnum==26) {
                 sprite[j].xrepeat = 8; sprite[j].yrepeat = 8;
             }
             else
@@ -210,11 +210,11 @@ void ExtLoadMap(const char *mapname)
 
     Bstrcpy(levelname,mapname);
     pskyoff[0]=0;
-    for(i=0;i<8;i++) pskyoff[i]=0;
+    for (i=0;i<8;i++) pskyoff[i]=0;
 
-    for(i=0;i<numsectors;i++)
+    for (i=0;i<numsectors;i++)
     {
-        switch(sector[i].ceilingpicnum)
+        switch (sector[i].ceilingpicnum)
         {
         case MOONSKY1 :
         case BIGORBIT1 : // orbit
@@ -224,7 +224,7 @@ void ExtLoadMap(const char *mapname)
         }
     }
 
-    switch(sky)
+    switch (sky)
     {
     case MOONSKY1 :
         //        earth          mountian   mountain         sun
@@ -256,7 +256,7 @@ void ExtSaveMap(const char *mapname)
 
 const char *ExtGetSectorCaption(short sectnum)
 {
-    if(qsetmode != 200 && (!(onnames==1 || onnames==4 || onnames==7) || (onnames==8)))
+    if (qsetmode != 200 && (!(onnames==1 || onnames==4 || onnames==7) || (onnames==8)))
     {
         tempbuf[0] = 0;
         return(tempbuf);
@@ -268,34 +268,56 @@ const char *ExtGetSectorCaption(short sectnum)
     }
     else
     {
-        switch(sector[sectnum].lotag)
+        switch (sector[sectnum].lotag)
         {
-        case 1  : Bsprintf(lo,"1 WATER (SE 7)"); break;
-        case 2  : Bsprintf(lo,"2 UNDERWATER (SE 7)"); break;
-        case 9  : Bsprintf(lo,"9 STAR TREK DOORS"); break;
-        case 15 : Bsprintf(lo,"15 ELEVATOR TRANSPORT (SE 17)"); break;
-        case 16 : Bsprintf(lo,"16 ELEVATOR PLATFORM DOWN"); break;
-        case 17 : Bsprintf(lo,"17 ELEVATOR PLATFORM UP"); break;
-        case 18 : Bsprintf(lo,"18 ELEVATOR DOWN"); break;
-        case 19 : Bsprintf(lo,"19 ELEVATOR UP"); break;
-        case 20 : Bsprintf(lo,"20 CEILING DOOR"); break;
-        case 21 : Bsprintf(lo,"21 FLOOR DOOR"); break;
-        case 22 : Bsprintf(lo,"22 SPLIT DOOR"); break;
-        case 23 : Bsprintf(lo,"23 SWING DOOR (SE 11)"); break;
-        case 25 : Bsprintf(lo,"25 SLIDE DOOR (SE 15)"); break;
-        case 26 : Bsprintf(lo,"26 SPLIT STAR TREK DOOR"); break;
-        case 27 : Bsprintf(lo,"27 BRIDGE (SE 20)"); break;
-        case 28 : Bsprintf(lo,"28 DROP FLOOR (SE 21)"); break;
-        case 29 : Bsprintf(lo,"29 TEETH DOOR (SE 22)"); break;
-        case 30 : Bsprintf(lo,"30 ROTATE RISE BRIDGE"); break;
-        case 31 : Bsprintf(lo,"31 2 WAY TRAIN (SE=30)"); break;
-        case 32767 : Bsprintf(lo,"32767 SECRET ROOM"); break;
-        case 65535 : Bsprintf(lo,"65535 END OF LEVEL"); break;
-        default : Bsprintf(lo,"%hu",sector[sectnum].lotag); break;
+        case 1  :
+            Bsprintf(lo,"1 WATER (SE 7)"); break;
+        case 2  :
+            Bsprintf(lo,"2 UNDERWATER (SE 7)"); break;
+        case 9  :
+            Bsprintf(lo,"9 STAR TREK DOORS"); break;
+        case 15 :
+            Bsprintf(lo,"15 ELEVATOR TRANSPORT (SE 17)"); break;
+        case 16 :
+            Bsprintf(lo,"16 ELEVATOR PLATFORM DOWN"); break;
+        case 17 :
+            Bsprintf(lo,"17 ELEVATOR PLATFORM UP"); break;
+        case 18 :
+            Bsprintf(lo,"18 ELEVATOR DOWN"); break;
+        case 19 :
+            Bsprintf(lo,"19 ELEVATOR UP"); break;
+        case 20 :
+            Bsprintf(lo,"20 CEILING DOOR"); break;
+        case 21 :
+            Bsprintf(lo,"21 FLOOR DOOR"); break;
+        case 22 :
+            Bsprintf(lo,"22 SPLIT DOOR"); break;
+        case 23 :
+            Bsprintf(lo,"23 SWING DOOR (SE 11)"); break;
+        case 25 :
+            Bsprintf(lo,"25 SLIDE DOOR (SE 15)"); break;
+        case 26 :
+            Bsprintf(lo,"26 SPLIT STAR TREK DOOR"); break;
+        case 27 :
+            Bsprintf(lo,"27 BRIDGE (SE 20)"); break;
+        case 28 :
+            Bsprintf(lo,"28 DROP FLOOR (SE 21)"); break;
+        case 29 :
+            Bsprintf(lo,"29 TEETH DOOR (SE 22)"); break;
+        case 30 :
+            Bsprintf(lo,"30 ROTATE RISE BRIDGE"); break;
+        case 31 :
+            Bsprintf(lo,"31 2 WAY TRAIN (SE=30)"); break;
+        case 32767 :
+            Bsprintf(lo,"32767 SECRET ROOM"); break;
+        case 65535 :
+            Bsprintf(lo,"65535 END OF LEVEL"); break;
+        default :
+            Bsprintf(lo,"%hu",sector[sectnum].lotag); break;
         }
         if (sector[sectnum].lotag > 10000 && sector[sectnum].lotag < 32767)
             Bsprintf(lo,"%d 1 TIME SOUND",sector[sectnum].lotag);
-        if(qsetmode != 200)
+        if (qsetmode != 200)
             Bsprintf(tempbuf,"%hu,%s",sector[sectnum].hitag,lo);
         else Bstrcpy(tempbuf,lo);
     }
@@ -304,7 +326,7 @@ const char *ExtGetSectorCaption(short sectnum)
 
 const char *ExtGetWallCaption(short wallnum)
 {
-    if(!(onnames==2 || onnames==4))
+    if (!(onnames==2 || onnames==4))
     {
         tempbuf[0] = 0;
         return(tempbuf);
@@ -325,49 +347,83 @@ const char *ExtGetWallCaption(short wallnum)
 
 const char *SectorEffectorText(short spritenum)
 {
-    switch(sprite[spritenum].lotag)
+    switch (sprite[spritenum].lotag)
     {
-    case 0: Bsprintf(tempbuf,"SE: ROTATED SECTOR"); break;
-    case 1: Bsprintf(tempbuf,"SE: PIVOT SPRITE FOR SE 0"); break;
-    case 2: Bsprintf(tempbuf,"SE: EARTHQUAKE"); break;
-    case 3: Bsprintf(tempbuf,"SE: RANDOM LIGHTS AFTER SHOT OUT"); break;
-    case 4: Bsprintf(tempbuf,"SE: RANDOM LIGHTS"); break;
-    case 6: Bsprintf(tempbuf,"SE: SUBWAY"); break;
-    case 7: Bsprintf(tempbuf,"SE: TRANSPORT"); break;
-    case 8: Bsprintf(tempbuf,"SE: UP OPEN DOOR LIGHTS"); break;
-    case 9: Bsprintf(tempbuf,"SE: DOWN OPEN DOOR LIGHTS"); break;
-    case 10: Bsprintf(tempbuf,"SE: DOOR AUTO CLOSE (H=DELAY)"); break;
-    case 11: Bsprintf(tempbuf,"SE: ROTATE SECTOR DOOR"); break;
-    case 12: Bsprintf(tempbuf,"SE: LIGHT SWITCH"); break;
-    case 13: Bsprintf(tempbuf,"SE: EXPLOSIVE"); break;
-    case 14: Bsprintf(tempbuf,"SE: SUBWAY CAR"); break;
-    case 15: Bsprintf(tempbuf,"SE: SLIDE DOOR (ST 25)"); break;
-    case 16: Bsprintf(tempbuf,"SE: ROTATE REACTOR SECTOR"); break;
-    case 17: Bsprintf(tempbuf,"SE: ELEVATOR TRANSPORT (ST 15)"); break;
-    case 18: Bsprintf(tempbuf,"SE: INCREMENTAL SECTOR RISE/FALL"); break;
-    case 19: Bsprintf(tempbuf,"SE: CEILING FALL ON EXPLOSION"); break;
-    case 20: Bsprintf(tempbuf,"SE: BRIDGE (ST 27)"); break;
-    case 21: Bsprintf(tempbuf,"SE: DROP FLOOR (ST 28)"); break;
-    case 22: Bsprintf(tempbuf,"SE: TEETH DOOR (ST 29)"); break;
-    case 23: Bsprintf(tempbuf,"SE: 1-WAY SE7 DESTINATION (H=SE 7)"); break;
-    case 24: Bsprintf(tempbuf,"SE: CONVAYER BELT"); break;
-    case 25: Bsprintf(tempbuf,"SE: ENGINE"); break;
-    case 28: Bsprintf(tempbuf,"SE: LIGHTNING (H= TILE#4890)"); break;
-    case 27: Bsprintf(tempbuf,"SE: CAMERA FOR PLAYBACK"); break;
-    case 29: Bsprintf(tempbuf,"SE: FLOAT"); break;
-    case 30: Bsprintf(tempbuf,"SE: 2 WAY TRAIN (ST=31)"); break;
-    case 31: Bsprintf(tempbuf,"SE: FLOOR RISE"); break;
-    case 32: Bsprintf(tempbuf,"SE: CEILING FALL"); break;
-    case 33: Bsprintf(tempbuf,"SE: SPAWN JIB W/QUAKE"); break;
-    case 36: Bsprintf(tempbuf,"SE: SKRINK RAY SHOOTER"); break;
-    default: SpriteName(spritenum,tempbuf); break;
+    case 0:
+        Bsprintf(tempbuf,"SE: ROTATED SECTOR"); break;
+    case 1:
+        Bsprintf(tempbuf,"SE: PIVOT SPRITE FOR SE 0"); break;
+    case 2:
+        Bsprintf(tempbuf,"SE: EARTHQUAKE"); break;
+    case 3:
+        Bsprintf(tempbuf,"SE: RANDOM LIGHTS AFTER SHOT OUT"); break;
+    case 4:
+        Bsprintf(tempbuf,"SE: RANDOM LIGHTS"); break;
+    case 6:
+        Bsprintf(tempbuf,"SE: SUBWAY"); break;
+    case 7:
+        Bsprintf(tempbuf,"SE: TRANSPORT"); break;
+    case 8:
+        Bsprintf(tempbuf,"SE: UP OPEN DOOR LIGHTS"); break;
+    case 9:
+        Bsprintf(tempbuf,"SE: DOWN OPEN DOOR LIGHTS"); break;
+    case 10:
+        Bsprintf(tempbuf,"SE: DOOR AUTO CLOSE (H=DELAY)"); break;
+    case 11:
+        Bsprintf(tempbuf,"SE: ROTATE SECTOR DOOR"); break;
+    case 12:
+        Bsprintf(tempbuf,"SE: LIGHT SWITCH"); break;
+    case 13:
+        Bsprintf(tempbuf,"SE: EXPLOSIVE"); break;
+    case 14:
+        Bsprintf(tempbuf,"SE: SUBWAY CAR"); break;
+    case 15:
+        Bsprintf(tempbuf,"SE: SLIDE DOOR (ST 25)"); break;
+    case 16:
+        Bsprintf(tempbuf,"SE: ROTATE REACTOR SECTOR"); break;
+    case 17:
+        Bsprintf(tempbuf,"SE: ELEVATOR TRANSPORT (ST 15)"); break;
+    case 18:
+        Bsprintf(tempbuf,"SE: INCREMENTAL SECTOR RISE/FALL"); break;
+    case 19:
+        Bsprintf(tempbuf,"SE: CEILING FALL ON EXPLOSION"); break;
+    case 20:
+        Bsprintf(tempbuf,"SE: BRIDGE (ST 27)"); break;
+    case 21:
+        Bsprintf(tempbuf,"SE: DROP FLOOR (ST 28)"); break;
+    case 22:
+        Bsprintf(tempbuf,"SE: TEETH DOOR (ST 29)"); break;
+    case 23:
+        Bsprintf(tempbuf,"SE: 1-WAY SE7 DESTINATION (H=SE 7)"); break;
+    case 24:
+        Bsprintf(tempbuf,"SE: CONVAYER BELT"); break;
+    case 25:
+        Bsprintf(tempbuf,"SE: ENGINE"); break;
+    case 28:
+        Bsprintf(tempbuf,"SE: LIGHTNING (H= TILE#4890)"); break;
+    case 27:
+        Bsprintf(tempbuf,"SE: CAMERA FOR PLAYBACK"); break;
+    case 29:
+        Bsprintf(tempbuf,"SE: FLOAT"); break;
+    case 30:
+        Bsprintf(tempbuf,"SE: 2 WAY TRAIN (ST=31)"); break;
+    case 31:
+        Bsprintf(tempbuf,"SE: FLOOR RISE"); break;
+    case 32:
+        Bsprintf(tempbuf,"SE: CEILING FALL"); break;
+    case 33:
+        Bsprintf(tempbuf,"SE: SPAWN JIB W/QUAKE"); break;
+    case 36:
+        Bsprintf(tempbuf,"SE: SKRINK RAY SHOOTER"); break;
+    default:
+        SpriteName(spritenum,tempbuf); break;
     }
     return (tempbuf);
 }
 
 const char *ExtGetSpriteCaption(short spritenum)
 {
-    if((onnames!=5 && onnames!=6 &&(!(onnames==3 || onnames==4 || onnames==7 || onnames==8))) || (onnames==7 && sprite[spritenum].picnum!=1))
+    if ((onnames!=5 && onnames!=6 &&(!(onnames==3 || onnames==4 || onnames==7 || onnames==8))) || (onnames==7 && sprite[spritenum].picnum!=1))
     {
         tempbuf[0] = 0;
         return(tempbuf);
@@ -375,7 +431,7 @@ const char *ExtGetSpriteCaption(short spritenum)
 
     if (onnames==5)
     {
-        switch(sprite[spritenum].picnum)
+        switch (sprite[spritenum].picnum)
         {
         case FIRSTGUNSPRITE:
         case CHAINGUNSPRITE :
@@ -408,14 +464,14 @@ const char *ExtGetSpriteCaption(short spritenum)
         case BOOTS:
             break;
         default:
-            {
-                tempbuf[0] = 0;
-                return(tempbuf);
-            }
+        {
+            tempbuf[0] = 0;
+            return(tempbuf);
+        }
         }
     }
 
-    if( onnames==6 && sprite[spritenum].picnum != sprite[cursprite].picnum)
+    if ( onnames==6 && sprite[spritenum].picnum != sprite[cursprite].picnum)
     {
         tempbuf[0] = 0;
         return(tempbuf);
@@ -425,14 +481,14 @@ const char *ExtGetSpriteCaption(short spritenum)
     if ((sprite[spritenum].lotag|sprite[spritenum].hitag) == 0)
     {
         SpriteName(spritenum,lo);
-        if(lo[0]!=0)
+        if (lo[0]!=0)
         {
-            if(sprite[spritenum].pal==1) Bsprintf(tempbuf,"%s (MULTIPLAYER)",lo);
+            if (sprite[spritenum].pal==1) Bsprintf(tempbuf,"%s (MULTIPLAYER)",lo);
             else Bsprintf(tempbuf,"%s",lo);
         }
     }
     else
-        if(sprite[spritenum].picnum==SECTOREFFECTOR)
+        if (sprite[spritenum].picnum==SECTOREFFECTOR)
         {
             if (onnames==8)
                 tempbuf[0] = 0;
@@ -480,12 +536,12 @@ void ExtShowSectorData(short sectnum)   //F5
     int totalactors1=0,totalactors2=0,totalactors3=0,totalactors4=0;
     int totalrespawn=0;
 
-    if(qsetmode==200)
+    if (qsetmode==200)
         return;
 
-    for(i=0;i<numsectors;i++)
+    for (i=0;i<numsectors;i++)
     {
-        if(sector[i].lotag==32767) secrets++;
+        if (sector[i].lotag==32767) secrets++;
     }
 
     statnum=0;
@@ -496,7 +552,7 @@ void ExtShowSectorData(short sectnum)   //F5
         i = nexti;
 
         {
-            switch(sprite[i].picnum)
+            switch (sprite[i].picnum)
             {
             case RECON:
             case DRONE:
@@ -529,27 +585,28 @@ void ExtShowSectorData(short sectnum)   //F5
             case TANK:
             case NEWBEAST:
             case BOSS4:
-                if(sprite[i].lotag<=1) totalactors1++;
-                if(sprite[i].lotag<=2) totalactors2++;
-                if(sprite[i].lotag<=3) totalactors3++;
-                if(sprite[i].lotag<=4) totalactors4++;
+                if (sprite[i].lotag<=1) totalactors1++;
+                if (sprite[i].lotag<=2) totalactors2++;
+                if (sprite[i].lotag<=3) totalactors3++;
+                if (sprite[i].lotag<=4) totalactors4++;
                 break;
 
             case RESPAWN:
                 totalrespawn++;
 
-            default: break;
+            default:
+                break;
             }
         }
     }
 
-    for(i=0;i<MAXSPRITES;i++) numsprite[i]=0;
-    for(i=0;i<MAXSPRITES;i++) multisprite[i]=0;
-    for(i=0;i<MAXSPRITES;i++)
+    for (i=0;i<MAXSPRITES;i++) numsprite[i]=0;
+    for (i=0;i<MAXSPRITES;i++) multisprite[i]=0;
+    for (i=0;i<MAXSPRITES;i++)
     {
-        if(sprite[i].statnum==0)
+        if (sprite[i].statnum==0)
         {
-            if(sprite[i].pal!=0) multisprite[sprite[i].picnum]++;
+            if (sprite[i].pal!=0) multisprite[sprite[i].picnum]++;
             else numsprite[sprite[i].picnum]++;
         }
     }
@@ -657,13 +714,13 @@ void ExtShowWallData(short wallnum)       //F6
     int i,nextfreetag=0,total=0;
     char x,y;
 
-    if(qsetmode==200)
+    if (qsetmode==200)
         return;
 
-    for(i=0;i<MAXSPRITES;i++)
+    for (i=0;i<MAXSPRITES;i++)
     {
-        if(sprite[i].statnum==0)
-            switch(sprite[i].picnum)
+        if (sprite[i].statnum==0)
+            switch (sprite[i].picnum)
             {
                 //LOTAG
             case ACTIVATOR:
@@ -688,17 +745,17 @@ void ExtShowWallData(short wallnum)       //F6
             case POWERSWITCH2:
             case PULLSWITCH:
             case ALIENSWITCH:
-                if(sprite[i].lotag>nextfreetag) nextfreetag=1+sprite[i].lotag;
+                if (sprite[i].lotag>nextfreetag) nextfreetag=1+sprite[i].lotag;
                 break;
 
                 //HITAG
             case SEENINE:
             case OOZFILTER:
             case SECTOREFFECTOR:
-                if(sprite[i].lotag==10 || sprite[i].lotag==27 || sprite[i].lotag==28 || sprite[i].lotag==29)
+                if (sprite[i].lotag==10 || sprite[i].lotag==27 || sprite[i].lotag==28 || sprite[i].lotag==29)
                     break;
                 else
-                    if(sprite[i].hitag>nextfreetag) nextfreetag=1+sprite[i].hitag;
+                    if (sprite[i].hitag>nextfreetag) nextfreetag=1+sprite[i].hitag;
                 break;
             default:
                 break;
@@ -708,14 +765,14 @@ void ExtShowWallData(short wallnum)       //F6
     } // end sprite loop
 
     //Count Normal Actors
-    for(i=0;i<MAXSPRITES;i++) numsprite[i]=0;
-    for(i=0;i<MAXSPRITES;i++) multisprite[i]=0;
-    for(i=0;i<MAXSPRITES;i++)
+    for (i=0;i<MAXSPRITES;i++) numsprite[i]=0;
+    for (i=0;i<MAXSPRITES;i++) multisprite[i]=0;
+    for (i=0;i<MAXSPRITES;i++)
     {
-        if(sprite[i].statnum==0)
+        if (sprite[i].statnum==0)
         {
-            if(sprite[i].pal!=0)
-                switch(sprite[i].picnum)
+            if (sprite[i].pal!=0)
+                switch (sprite[i].picnum)
                 {
                 case LIZTROOP :
                 case LIZTROOPRUNNING :
@@ -740,7 +797,7 @@ void ExtShowWallData(short wallnum)       //F6
                     break;
                 }
             else
-                switch(sprite[i].picnum)
+                switch (sprite[i].picnum)
                 {
                 case LIZTROOP :
                 case LIZTROOPRUNNING :
@@ -792,8 +849,8 @@ void ExtShowWallData(short wallnum)       //F6
         }// end if
     }//end for
     total=0;
-    for(i=0;i<MAXSPRITES;i++) if(numsprite[i]!=0) total+=numsprite[i];
-    for(i=0;i<MAXSPRITES;i++) if(multisprite[i]!=0) total+=multisprite[i];
+    for (i=0;i<MAXSPRITES;i++) if (numsprite[i]!=0) total+=numsprite[i];
+    for (i=0;i<MAXSPRITES;i++) if (multisprite[i]!=0) total+=multisprite[i];
 
     clearmidstatbar16();
 
@@ -823,13 +880,13 @@ void ExtShowWallData(short wallnum)       //F6
     PrintStatus("Boss4     =",numsprite[BOSS4],x,y+8,11);
 
     //Count Respawn Actors
-    for(i=0;i<MAXSPRITES;i++) numsprite[i]=0;
-    for(i=0;i<MAXSPRITES;i++) multisprite[i]=0;
-    for(i=0;i<MAXSPRITES;i++)
+    for (i=0;i<MAXSPRITES;i++) numsprite[i]=0;
+    for (i=0;i<MAXSPRITES;i++) multisprite[i]=0;
+    for (i=0;i<MAXSPRITES;i++)
     {
-        if(sprite[i].statnum==0 && sprite[i].picnum==RESPAWN)
+        if (sprite[i].statnum==0 && sprite[i].picnum==RESPAWN)
         {
-            switch(sprite[i].hitag)
+            switch (sprite[i].hitag)
             {
             case LIZTROOP :
             case LIZTROOPRUNNING :
@@ -854,7 +911,7 @@ void ExtShowWallData(short wallnum)       //F6
             case BOSS1SHOOT:
             case BOSS1LOB:
             case BOSSTOP:
-                if(sprite[i].pal!=0) multisprite[BOSS1]++;
+                if (sprite[i].pal!=0) multisprite[BOSS1]++;
                 else numsprite[BOSS1]++; break;
             case COMMANDER:
             case COMMANDERSTAYPUT:
@@ -880,8 +937,8 @@ void ExtShowWallData(short wallnum)       //F6
         }// end if
     }// end for
     total=0;
-    for(i=0;i<MAXSPRITES;i++) if(numsprite[i]!=0) total+=numsprite[i];
-    for(i=0;i<MAXSPRITES;i++) if(multisprite[i]!=0) total+=multisprite[i];
+    for (i=0;i<MAXSPRITES;i++) if (numsprite[i]!=0) total+=numsprite[i];
+    for (i=0;i<MAXSPRITES;i++) if (multisprite[i]!=0) total+=multisprite[i];
 
 
     x=36;y=4;
@@ -912,7 +969,7 @@ void Show2dText(char *name)
     int fp,t;
     char x=0,y=4,xmax=0,xx=0,col=0;
     clearmidstatbar16();
-    if((fp=kopen4load(name,0)) == -1)
+    if ((fp=kopen4load(name,0)) == -1)
     {
         begindrawing();
         printext16(1*4,ydim16+4*8,11,-1,"ERROR: file not found.",0);
@@ -922,21 +979,21 @@ void Show2dText(char *name)
 
     t=65;
     begindrawing();
-    while(t!=EOF && col<5)
+    while (t!=EOF && col<5)
     {
         t = 0;
         if (kread(fp,&t,1)<=0)
             t = EOF;
-        while(t!=EOF && t!='\n' && x<250)
+        while (t!=EOF && t!='\n' && x<250)
         {
             tempbuf[x]=t;
             t = 0; if (kread(fp,&t,1)<=0) t = EOF;
-            x++; if(x>xmax) xmax=x;
+            x++; if (x>xmax) xmax=x;
         }
         tempbuf[x]=0;
         printext16(xx*4,ydim16+(y*6)+2,11,-1,tempbuf,1);
         x=0; y++;
-        if(y>18) {col++; y=6; xx+=xmax; xmax=0;
+        if (y>18) {col++; y=6; xx+=xmax; xmax=0;
         }
     }
     enddrawing();
@@ -950,7 +1007,7 @@ void Show3dText(char *name)
     int fp,t;
     char x=0,y=4,xmax=0,xx=0,col=0;
 
-    if((fp=kopen4load(name,0)) == -1)
+    if ((fp=kopen4load(name,0)) == -1)
     {
         begindrawing();
         printext256(1*4,4*8,whitecol,-1,"ERROR: file not found.",0);
@@ -959,21 +1016,21 @@ void Show3dText(char *name)
     }
     t=65;
     begindrawing();
-    while(t!=EOF && col<5)
+    while (t!=EOF && col<5)
     {
         t = 0;
         if (kread(fp,&t,1)<=0)
             t = EOF;
-        while(t!=EOF && t!='\n' && x<250)
+        while (t!=EOF && t!='\n' && x<250)
         {
             tempbuf[x]=t;
             t = 0; if (kread(fp,&t,1)<=0) t = EOF;
-            x++; if(x>xmax) xmax=x;
+            x++; if (x>xmax) xmax=x;
         }
         tempbuf[x]=0;
         printext256(xx*4,(y*6)+2,whitecol,-1,tempbuf,1);
         x=0; y++;
-        if(y>18) {col++; y=6; xx+=xmax; xmax=0;
+        if (y>18) {col++; y=6; xx+=xmax; xmax=0;
         }
     }
     enddrawing();
@@ -985,7 +1042,7 @@ void ShowHelpText(char *name)
 {
     BFILE *fp;
     char x=0,y=4;
-    if((fp=fopenfrompath("helpdoc.txt","rb")) == NULL)
+    if ((fp=fopenfrompath("helpdoc.txt","rb")) == NULL)
     {
         begindrawing();
         printext256(1*4,4*8,whitecol,-1,"ERROR: file not found.",0);
@@ -1003,7 +1060,7 @@ void ShowHelpText(char *name)
     Bfgets(tempbuf,80,fp);
     Bstrcat(tempbuf,"\n");
     begindrawing();
-    while(!Bfeof(fp) && !(Bstrcmp(tempbuf,"SectorEffector")==0))
+    while (!Bfeof(fp) && !(Bstrcmp(tempbuf,"SectorEffector")==0))
     {
         Bfgets(tempbuf,80,fp);
         Bstrcat(tempbuf,"\n");
@@ -1052,7 +1109,7 @@ static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
     int floor1=0,floor2=0,ok=0,fofmode=0,draw_both=0;
     long offx,offy,offz;
 
-    if(sprite[spnum].ang!=512) return;
+    if (sprite[spnum].ang!=512) return;
 
     // Things are a little different now, as we allow for masked transparent
     // floors and ceilings. So the FOF textures is no longer required
@@ -1073,10 +1130,10 @@ static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
 
     floor1=spnum;
 
-    if(sprite[spnum].lotag==42) fofmode=40;
-    if(sprite[spnum].lotag==43) fofmode=41;
-    if(sprite[spnum].lotag==44) fofmode=40;
-    if(sprite[spnum].lotag==45) fofmode=41;
+    if (sprite[spnum].lotag==42) fofmode=40;
+    if (sprite[spnum].lotag==43) fofmode=41;
+    if (sprite[spnum].lotag==44) fofmode=40;
+    if (sprite[spnum].lotag==45) fofmode=41;
 
     // fofmode=sprite[spnum].lotag-2;
 
@@ -1097,9 +1154,9 @@ static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
 
     // if(ok==0) { Message("no fof",RED); return; }
 
-    for(j=0;j<MAXSPRITES;j++)
+    for (j=0;j<MAXSPRITES;j++)
     {
-        if( sprite[j].picnum==1 && sprite[j].lotag==fofmode && sprite[j].hitag==sprite[floor1].hitag )
+        if ( sprite[j].picnum==1 && sprite[j].lotag==fofmode && sprite[j].hitag==sprite[floor1].hitag )
         {
             floor1=j;
             fofmode=sprite[j].lotag;
@@ -1109,11 +1166,11 @@ static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
     }
     // if(ok==1) { Message("no floor1",RED); return; }
 
-    if(fofmode==40) k=41; else k=40;
+    if (fofmode==40) k=41; else k=40;
 
-    for(j=0;j<MAXSPRITES;j++)
+    for (j=0;j<MAXSPRITES;j++)
     {
-        if( sprite[j].picnum==1 && sprite[j].lotag==k && sprite[j].hitag==sprite[floor1].hitag )
+        if ( sprite[j].picnum==1 && sprite[j].lotag==k && sprite[j].hitag==sprite[floor1].hitag )
         {
             floor2=j; ok++; break;
         }
@@ -1140,11 +1197,11 @@ static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
 
     // if(ok==2) { Message("no floor2",RED); return; }
 
-    for(j=0;j<MAXSPRITES;j++) // raise ceiling or floor
+    for (j=0;j<MAXSPRITES;j++) // raise ceiling or floor
     {
-        if(sprite[j].picnum==1 && sprite[j].lotag==k+2 && sprite[j].hitag==sprite[floor1].hitag )
+        if (sprite[j].picnum==1 && sprite[j].lotag==k+2 && sprite[j].hitag==sprite[floor1].hitag )
         {
-            if(k==40)
+            if (k==40)
             {
                 tempsectorz[sprite[j].sectnum]=sector[sprite[j].sectnum].floorz;
                 sector[sprite[j].sectnum].floorz+=(((z-sector[sprite[j].sectnum].floorz)/32768)+1)*32768;
@@ -1168,13 +1225,13 @@ static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
 
     if (draw_both)
     {
-        for(j=0;j<MAXSPRITES;j++) // restore ceiling or floor for the draw both sectors
+        for (j=0;j<MAXSPRITES;j++) // restore ceiling or floor for the draw both sectors
         {
-            if(sprite[j].picnum==1 &&
+            if (sprite[j].picnum==1 &&
                     sprite[j].lotag==k+2 &&
                     sprite[j].hitag==sprite[floor1].hitag)
             {
-                if(k==40)
+                if (k==40)
                 {
                     sector[sprite[j].sectnum].floorz=tempsectorz[sprite[j].sectnum];
                     sector[sprite[j].sectnum].floorpicnum=tempsectorpicnum[sprite[j].sectnum];
@@ -1200,10 +1257,10 @@ void ExtSE40Code(long x,long y,long z,long a,long h)
     int i;
 
     i = 0;
-    while(i<MAXSPRITES)
+    while (i<MAXSPRITES)
     {
         int t = sprite[i].lotag;
-        switch(t)
+        switch (t)
         {
             //            case 40:
             //            case 41:
@@ -1213,7 +1270,7 @@ void ExtSE40Code(long x,long y,long z,long a,long h)
         case 43:
         case 44:
         case 45:
-            if(cursectnum == sprite[i].sectnum)
+            if (cursectnum == sprite[i].sectnum)
                 ExtSE40Draw(i,x,y,z,a,h);
             break;
         }
@@ -1244,7 +1301,7 @@ void ExtEditSectorData(short sectnum)    //F7
 
 void ExtEditWallData(short wallnum)       //F8
 {
-    if(qsetmode==200)
+    if (qsetmode==200)
         return;
     if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT
     {
@@ -1267,7 +1324,7 @@ void ExtEditWallData(short wallnum)       //F8
 
 void ExtEditSpriteData(short spritenum)   //F8
 {
-    if(qsetmode==200)
+    if (qsetmode==200)
         return;
     if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT
     {
@@ -1303,12 +1360,12 @@ void ReadPaletteTable()
 {
     int i,j,fp;
     char lookup_num;
-    if((fp=kopen4load("lookup.dat",0)) == -1)
+    if ((fp=kopen4load("lookup.dat",0)) == -1)
     {
-        if((fp=kopen4load("lookup.dat",1)) == -1)
+        if ((fp=kopen4load("lookup.dat",1)) == -1)
         {
             initprintf("LOOKUP.DAT not found, creating dummy palette lookups\n");
-            for(i=0;i<256;i++)
+            for (i=0;i<256;i++)
                 tempbuf[i] = ((i+32)&255);  //remap colors for screwy palette sectors
             makepalookup(MAXPALOOKUPS,tempbuf,0,0,0,1);
             return;
@@ -1316,7 +1373,7 @@ void ReadPaletteTable()
     }
     initprintf("Loading palette lookups... ");
     kread(fp,&num_tables,1);
-    for(j=0;j<num_tables;j++)
+    for (j=0;j<num_tables;j++)
     {
         kread(fp,&lookup_num,1);
         kread(fp,tempbuf,256);
@@ -1347,8 +1404,8 @@ void ReadPaletteTable()
 void ReadGamePalette()
 {
     int i,fp;
-    if((fp=kopen4load("palette.dat",0)) == -1)
-        if((fp=kopen4load("palette.dat",1)) == -1)
+    if ((fp=kopen4load("palette.dat",0)) == -1)
+        if ((fp=kopen4load("palette.dat",1)) == -1)
         {
             initprintf("!!! PALETTE.DAT NOT FOUND !!!\n");
             Bstrcpy(tempbuf, "Mapster32"VERSION"");
@@ -1357,7 +1414,7 @@ void ReadGamePalette()
         }
     initprintf("Loading game palette... ");
     kread(fp,GAMEpalette,768);
-    for(i=0;i<768;++i) GAMEpalette[i]=GAMEpalette[i];
+    for (i=0;i<768;++i) GAMEpalette[i]=GAMEpalette[i];
     kclose(fp);
     initprintf("success.\n");
     ReadPaletteTable();
@@ -1391,10 +1448,10 @@ void m32_showmouse(void)
 
     j = (xdimgame > 640);
 
-    if(totalclock > lastupdate)
+    if (totalclock > lastupdate)
     {
         mousecol += mouseadd;
-        if(mousecol >= 30 || mousecol <= 0)
+        if (mousecol >= 30 || mousecol <= 0)
         {
             mouseadd = -mouseadd;
             mousecol += mouseadd;
@@ -1402,7 +1459,7 @@ void m32_showmouse(void)
         lastupdate = totalclock + 3;
     }
 
-    switch(whitecol)
+    switch (whitecol)
     {
     case 1:  // Shadow Warrior
         col = whitecol+mousecol;
@@ -1415,16 +1472,16 @@ void m32_showmouse(void)
         break;
     }
 
-    if(col != whitecol)
+    if (col != whitecol)
     {
-        for(i=(j?3:2);i<=(j?7:3);i++)
+        for (i=(j?3:2);i<=(j?7:3);i++)
         {
             plotpixel(searchx+i,searchy,col);
             plotpixel(searchx-i,searchy,col);
             plotpixel(searchx,searchy-i,col);
             plotpixel(searchx,searchy+i,col);
         }
-        for(i=1;i<=(j?2:1);i++)
+        for (i=1;i<=(j?2:1);i++)
         {
             plotpixel(searchx+i,searchy,whitecol);
             plotpixel(searchx-i,searchy,whitecol);
@@ -1462,7 +1519,7 @@ int AskIfSure(void)
             retval = 0; break;
         }
     }
-    while(keystatus[1])
+    while (keystatus[1])
     {
         keystatus[1] = 0;
         retval = 1;
@@ -1495,21 +1552,21 @@ void Keys3d(void)
 
     }
 
-    if(usedcount && !helpon)
+    if (usedcount && !helpon)
     {
-        if(searchstat!=3)
+        if (searchstat!=3)
         {
             count=0;
-            for(i=0;i<numwalls;i++)
+            for (i=0;i<numwalls;i++)
             {
-                if(wall[i].picnum == temppicnum) count++;
-                if(wall[i].overpicnum == temppicnum) count++;
-                if(sector[i].ceilingpicnum == temppicnum) count++;
-                if(sector[i].floorpicnum == temppicnum) count++;
+                if (wall[i].picnum == temppicnum) count++;
+                if (wall[i].overpicnum == temppicnum) count++;
+                if (sector[i].ceilingpicnum == temppicnum) count++;
+                if (sector[i].floorpicnum == temppicnum) count++;
             }
         }
 
-        if(searchstat==3)
+        if (searchstat==3)
         {
             count=0;
             statnum=0;
@@ -1517,15 +1574,15 @@ void Keys3d(void)
             while (i != -1)
             {
                 nexti = nextspritestat[i];
-                if(sprite[i].picnum == temppicnum) count++;
+                if (sprite[i].picnum == temppicnum) count++;
                 i = nexti;
             }
         }
 
         if (tabgraphic == 1 )
-            rotatesprite((44+tilesizx[temppicnum])<<16,(114)<<16,32768,0,temppicnum,tempshade,temppal,2,0L,0L,xdim-1L,ydim-1L);
+            rotatesprite((44+(tilesizx[temppicnum]>>2))<<16,(114)<<16,32768,0,temppicnum,tempshade,temppal,2,0L,0L,xdim-1L,ydim-1L);
         else if (tabgraphic == 2 )
-            rotatesprite((44+tilesizx[temppicnum])<<16,(114)<<16,16384,0,temppicnum,tempshade,temppal,2,0L,0L,xdim-1L,ydim-1L);
+            rotatesprite((44+(tilesizx[temppicnum]>>2))<<16,(114)<<16,16384,0,temppicnum,tempshade,temppal,2,0L,0L,xdim-1L,ydim-1L);
 
         begindrawing();
         j = xdimgame>640?0:1;
@@ -1563,15 +1620,15 @@ void Keys3d(void)
         {
         case 0:
         case 4:
-            {
-                long dax, day, dist;
-                dax = wall[searchwall].x-wall[wall[searchwall].point2].x;
-                day = wall[searchwall].y-wall[wall[searchwall].point2].y;
-                dist = ksqrt(dax*dax+day*day);
-                Bsprintf(msgbuf,"Wall %d: length:%ld lo:%d hi:%d",searchwall,dist,wall[searchwall].lotag,wall[searchwall].hitag);
-                _message(msgbuf);
-                break;
-            }
+        {
+            long dax, day, dist;
+            dax = wall[searchwall].x-wall[wall[searchwall].point2].x;
+            day = wall[searchwall].y-wall[wall[searchwall].point2].y;
+            dist = ksqrt(dax*dax+day*day);
+            Bsprintf(msgbuf,"Wall %d: length:%ld lo:%d hi:%d",searchwall,dist,wall[searchwall].lotag,wall[searchwall].hitag);
+            _message(msgbuf);
+            break;
+        }
         case 1:
             Bsprintf(msgbuf,"Sector %d ceiling: lo:%s hi:%d",searchsector,ExtGetSectorCaption(searchsector),sector[searchsector].hitag);
             _message(msgbuf);
@@ -1581,16 +1638,16 @@ void Keys3d(void)
             _message(msgbuf);
             break;
         case 3:
-            {
-                if (strlen(names[sprite[searchwall].picnum]) > 0) {
-                    if (sprite[searchwall].picnum==SECTOREFFECTOR)
-                        Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d",searchwall,SectorEffectorText(searchwall),sprite[searchwall].lotag,sprite[searchwall].hitag);
-                    else Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",searchwall,names[sprite[searchwall].picnum],sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
-                }
-                else Bsprintf(msgbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",searchwall,sprite[searchwall].picnum,sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
-                _message(msgbuf);
-                break;
+        {
+            if (strlen(names[sprite[searchwall].picnum]) > 0) {
+                if (sprite[searchwall].picnum==SECTOREFFECTOR)
+                    Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d",searchwall,SectorEffectorText(searchwall),sprite[searchwall].lotag,sprite[searchwall].hitag);
+                else Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",searchwall,names[sprite[searchwall].picnum],sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
             }
+            else Bsprintf(msgbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",searchwall,sprite[searchwall].picnum,sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
+            _message(msgbuf);
+            break;
+        }
         }
     }
 
@@ -1609,14 +1666,17 @@ void Keys3d(void)
         keystatus[KEYSC_F3] = 0;
     }
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x0e]==1) // ' del
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x0e]==1) // ' del
     {
         keystatus[0x0e] = 0;
         switch (searchstat)
         {
-    case 0: case 4: wall[searchwall].cstat = 0; break;
+        case 0:
+        case 4:
+            wall[searchwall].cstat = 0; break;
             //            case 1: case 2: sector[searchsector].cstat = 0; break;
-        case 3: sprite[searchwall].cstat = 0; break;
+        case 3:
+            sprite[searchwall].cstat = 0; break;
         }
     }
 
@@ -1628,14 +1688,14 @@ void Keys3d(void)
 
         keystatus[KEYSC_P] = 0;
 
-        if(highlightsectorcnt == -1)
+        if (highlightsectorcnt == -1)
         {
             message("You didn't select any sectors!");
             return;
         }
 
         pal = (unsigned char)getnumber256("Palette: ",0,MAXPALOOKUPS,0);
-        if(AskIfSure()) return;
+        if (AskIfSure()) return;
 
         for (i = 0; i < highlightsectorcnt; i++)
         {
@@ -1662,14 +1722,14 @@ void Keys3d(void)
 
         keystatus[KEYSC_P] = 0;
 
-        if(highlightsectorcnt == -1)
+        if (highlightsectorcnt == -1)
         {
             message("You didn't select any sectors!");
             return;
         }
 
         pal = (unsigned char)getnumber256("Palette: ",0,MAXPALOOKUPS,0);
-        if(AskIfSure()) return;
+        if (AskIfSure()) return;
 
         for (i = 0; i < highlightsectorcnt; i++)
         {
@@ -1686,7 +1746,7 @@ void Keys3d(void)
             for (k=0;k<highlightsectorcnt;k++)
             {
                 w = headspritesect[highlightsector[k]];
-                while(w >= 0)
+                while (w >= 0)
                 {
                     j = nextspritesect[w];
                     sprite[i].pal = pal;
@@ -1704,13 +1764,13 @@ void Keys3d(void)
 
         keystatus[KEYSC_V] = 0;
 
-        if(highlightsectorcnt == -1)
+        if (highlightsectorcnt == -1)
         {
             message("You didn't select any sectors!");
             return;
         }
         visval = (unsigned char)getnumber256("Visibility of selected sectors: ",sector[searchsector].visibility,255,0);
-        if(AskIfSure()) return;
+        if (AskIfSure()) return;
 
         for (i = 0; i < highlightsectorcnt; i++)
         {
@@ -1857,7 +1917,8 @@ void Keys3d(void)
     {
         switch (searchstat)
         {
-    case 0: case 4:
+        case 0:
+        case 4:
             strcpy(buffer,"Wall extra: ");
             wall[searchwall].extra = getnumber256(buffer,(long)wall[searchwall].extra,65536L,1);
             break;
@@ -1995,7 +2056,8 @@ void Keys3d(void)
         {
             switch (searchstat)
             {
-        case 0: case 4:
+            case 0:
+            case 4:
                 strcpy(buffer,"Wall hitag: ");
                 wall[searchwall].hitag = getnumber256(buffer,(long)wall[searchwall].hitag,65536L,0);
                 break;
@@ -2045,9 +2107,9 @@ void Keys3d(void)
     smooshyalign = keystatus[0x4c];
     repeatpanalign = (keystatus[0x2a]|keystatus[0x36]|(bstatus&2));
 
-    if(bstatus&4)
+    if (bstatus&4)
     {
-        if(bstatus&1)
+        if (bstatus&1)
         {
             searchit = 0;
             if (searchx != osearchx)
@@ -2060,7 +2122,7 @@ void Keys3d(void)
 
                     if ((searchstat == 0) || (searchstat == 4))
                     {
-                        if(!(wall[searchwall].cstat&8)) changedir = -changedir;
+                        if (!(wall[searchwall].cstat&8)) changedir = -changedir;
                         if (repeatpanalign == 0)
                             wall[searchwall].xrepeat = changechar(wall[searchwall].xrepeat,changedir,smooshyalign,1);
                         else
@@ -2098,7 +2160,7 @@ void Keys3d(void)
 
                     if ((searchstat == 0) || (searchstat == 4))
                     {
-                        if(wall[searchwall].cstat&4) changedir = -changedir;
+                        if (wall[searchwall].cstat&4) changedir = -changedir;
                         if (repeatpanalign == 0)
                             wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat,changedir,smooshyalign,1);
                         else
@@ -2143,12 +2205,12 @@ void Keys3d(void)
                         k = 16; else k = 1;
 
                     if (highlightsectorcnt >= 0)
-                        for(i=0;i<highlightsectorcnt;i++)
+                        for (i=0;i<highlightsectorcnt;i++)
                             if (highlightsector[i] == searchsector)
                             {
                                 while (k > 0)
                                 {
-                                    for(i=0;i<highlightsectorcnt;i++)
+                                    for (i=0;i<highlightsectorcnt;i++)
                                     {
                                         sector[highlightsector[i]].visibility++;
                                         if (sector[highlightsector[i]].visibility == 240)
@@ -2173,7 +2235,7 @@ void Keys3d(void)
                 k = 0;
                 if (highlightsectorcnt >= 0)
                 {
-                    for(i=0;i<highlightsectorcnt;i++)
+                    for (i=0;i<highlightsectorcnt;i++)
                         if (highlightsector[i] == searchsector)
                         {
                             k = 1;
@@ -2191,7 +2253,7 @@ void Keys3d(void)
                 }
                 else
                 {
-                    for(i=0;i<highlightsectorcnt;i++)
+                    for (i=0;i<highlightsectorcnt;i++)
                     {
                         dasector = highlightsector[i];
 
@@ -2200,7 +2262,7 @@ void Keys3d(void)
 
                         startwall = sector[dasector].wallptr;   //wall shade
                         endwall = startwall + sector[dasector].wallnum - 1;
-                        for(j=startwall;j<=endwall;j++)
+                        for (j=startwall;j<=endwall;j++)
                             wall[j].shade++;
 
                         j = headspritesect[dasector];           //sprite shade
@@ -2230,12 +2292,12 @@ void Keys3d(void)
                         k = 16; else k = 1;
 
                     if (highlightsectorcnt >= 0)
-                        for(i=0;i<highlightsectorcnt;i++)
+                        for (i=0;i<highlightsectorcnt;i++)
                             if (highlightsector[i] == searchsector)
                             {
                                 while (k > 0)
                                 {
-                                    for(i=0;i<highlightsectorcnt;i++)
+                                    for (i=0;i<highlightsectorcnt;i++)
                                     {
                                         sector[highlightsector[i]].visibility--;
                                         if (sector[highlightsector[i]].visibility == 239)
@@ -2260,7 +2322,7 @@ void Keys3d(void)
                 k = 0;
                 if (highlightsectorcnt >= 0)
                 {
-                    for(i=0;i<highlightsectorcnt;i++)
+                    for (i=0;i<highlightsectorcnt;i++)
                         if (highlightsector[i] == searchsector)
                         {
                             k = 1;
@@ -2278,7 +2340,7 @@ void Keys3d(void)
                 }
                 else
                 {
-                    for(i=0;i<highlightsectorcnt;i++)
+                    for (i=0;i<highlightsectorcnt;i++)
                     {
                         dasector = highlightsector[i];
 
@@ -2287,7 +2349,7 @@ void Keys3d(void)
 
                         startwall = sector[dasector].wallptr;   //wall shade
                         endwall = startwall + sector[dasector].wallnum - 1;
-                        for(j=startwall;j<=endwall;j++)
+                        for (j=startwall;j<=endwall;j++)
                             wall[j].shade--;
 
                         j = headspritesect[dasector];           //sprite shade
@@ -2303,47 +2365,47 @@ void Keys3d(void)
         }
     }
 
-    if((keystatus[KEYSC_DASH]|keystatus[KEYSC_EQUAL]|((bstatus&(16|32)) && !(bstatus&2))) > 0)  // mousewheel, -, and +, cycle picnum
+    if ((keystatus[KEYSC_DASH]|keystatus[KEYSC_EQUAL]|((bstatus&(16|32)) && !(bstatus&2))) > 0) // mousewheel, -, and +, cycle picnum
     {
         j = i = (keystatus[KEYSC_EQUAL]|(bstatus&32))?1:-1;
         switch (searchstat)
         {
         case 0:
-            while(!tilesizx[wall[searchwall].picnum]||!tilesizy[wall[searchwall].picnum]||j) {
-                if(wall[searchwall].picnum+i >= MAXTILES) wall[searchwall].picnum = 0;
-                else if(wall[searchwall].picnum+i < 0) wall[searchwall].picnum = MAXTILES-1;
+            while (!tilesizx[wall[searchwall].picnum]||!tilesizy[wall[searchwall].picnum]||j) {
+                if (wall[searchwall].picnum+i >= MAXTILES) wall[searchwall].picnum = 0;
+                else if (wall[searchwall].picnum+i < 0) wall[searchwall].picnum = MAXTILES-1;
                 else wall[searchwall].picnum += i;
                 j = 0;
             }
             break;
         case 1:
-            while(!tilesizx[sector[searchsector].ceilingpicnum]||!tilesizy[sector[searchsector].ceilingpicnum]||j) {
-                if(sector[searchsector].ceilingpicnum+i >= MAXTILES) sector[searchsector].ceilingpicnum = 0;
-                else if(sector[searchsector].ceilingpicnum+i < 0) sector[searchsector].ceilingpicnum = MAXTILES-1;
+            while (!tilesizx[sector[searchsector].ceilingpicnum]||!tilesizy[sector[searchsector].ceilingpicnum]||j) {
+                if (sector[searchsector].ceilingpicnum+i >= MAXTILES) sector[searchsector].ceilingpicnum = 0;
+                else if (sector[searchsector].ceilingpicnum+i < 0) sector[searchsector].ceilingpicnum = MAXTILES-1;
                 else sector[searchsector].ceilingpicnum += i;
                 j = 0;
             }
             break;
         case 2:
-            while(!tilesizx[sector[searchsector].floorpicnum]||!tilesizy[sector[searchsector].floorpicnum]||j) {
-                if(sector[searchsector].floorpicnum+i >= MAXTILES) sector[searchsector].floorpicnum = 0;
-                else if(sector[searchsector].floorpicnum+i < 0) sector[searchsector].floorpicnum = MAXTILES-1;
+            while (!tilesizx[sector[searchsector].floorpicnum]||!tilesizy[sector[searchsector].floorpicnum]||j) {
+                if (sector[searchsector].floorpicnum+i >= MAXTILES) sector[searchsector].floorpicnum = 0;
+                else if (sector[searchsector].floorpicnum+i < 0) sector[searchsector].floorpicnum = MAXTILES-1;
                 else sector[searchsector].floorpicnum += i;
                 j = 0;
             }
             break;
         case 3:
-            while(!tilesizx[sprite[searchwall].picnum]||!tilesizy[sprite[searchwall].picnum]||j) {
-                if(sprite[searchwall].picnum+i >= MAXTILES) sprite[searchwall].picnum = 0;
-                else if(sprite[searchwall].picnum+i < 0) sprite[searchwall].picnum = MAXTILES-1;
+            while (!tilesizx[sprite[searchwall].picnum]||!tilesizy[sprite[searchwall].picnum]||j) {
+                if (sprite[searchwall].picnum+i >= MAXTILES) sprite[searchwall].picnum = 0;
+                else if (sprite[searchwall].picnum+i < 0) sprite[searchwall].picnum = MAXTILES-1;
                 else sprite[searchwall].picnum += i;
                 j = 0;
             }
             break;
         case 4:
-            while(!tilesizx[wall[searchwall].overpicnum]||!tilesizy[wall[searchwall].overpicnum]||j) {
-                if(wall[searchwall].overpicnum+i >= MAXTILES) wall[searchwall].overpicnum = 0;
-                else if(wall[searchwall].overpicnum+i < 0) wall[searchwall].overpicnum = MAXTILES-1;
+            while (!tilesizx[wall[searchwall].overpicnum]||!tilesizy[wall[searchwall].overpicnum]||j) {
+                if (wall[searchwall].overpicnum+i >= MAXTILES) wall[searchwall].overpicnum = 0;
+                else if (wall[searchwall].overpicnum+i < 0) wall[searchwall].overpicnum = MAXTILES-1;
                 else wall[searchwall].overpicnum += i;
                 j = 0;
             }
@@ -2379,7 +2441,7 @@ void Keys3d(void)
         {
 
             framerateon = !framerateon;
-            if(framerateon) message("Show framerate ON");
+            if (framerateon) message("Show framerate ON");
             else message("Show framerate OFF");
 
         }
@@ -2438,12 +2500,16 @@ void Keys3d(void)
             {
                 i = wall[searchwall].cstat;
                 i = ((i>>3)&1)+((i>>7)&2);    //3-x,8-y
-                switch(i)
+                switch (i)
                 {
-                case 0: i = 1; break;
-                case 1: i = 3; break;
-                case 2: i = 0; break;
-                case 3: i = 2; break;
+                case 0:
+                    i = 1; break;
+                case 1:
+                    i = 3; break;
+                case 2:
+                    i = 0; break;
+                case 3:
+                    i = 2; break;
                 }
                 i = ((i&1)<<3)+((i&2)<<7);
                 wall[searchwall].cstat &= ~0x0108;
@@ -2454,16 +2520,24 @@ void Keys3d(void)
             {
                 i = sector[searchsector].ceilingstat;
                 i = (i&0x4)+((i>>4)&3);
-                switch(i)
+                switch (i)
                 {
-                case 0: i = 6; break;
-                case 6: i = 3; break;
-                case 3: i = 5; break;
-                case 5: i = 1; break;
-                case 1: i = 7; break;
-                case 7: i = 2; break;
-                case 2: i = 4; break;
-                case 4: i = 0; break;
+                case 0:
+                    i = 6; break;
+                case 6:
+                    i = 3; break;
+                case 3:
+                    i = 5; break;
+                case 5:
+                    i = 1; break;
+                case 1:
+                    i = 7; break;
+                case 7:
+                    i = 2; break;
+                case 2:
+                    i = 4; break;
+                case 4:
+                    i = 0; break;
                 }
                 i = (i&0x4)+((i&3)<<4);
                 sector[searchsector].ceilingstat &= ~0x34;
@@ -2474,16 +2548,24 @@ void Keys3d(void)
             {
                 i = sector[searchsector].floorstat;
                 i = (i&0x4)+((i>>4)&3);
-                switch(i)
+                switch (i)
                 {
-                case 0: i = 6; break;
-                case 6: i = 3; break;
-                case 3: i = 5; break;
-                case 5: i = 1; break;
-                case 1: i = 7; break;
-                case 7: i = 2; break;
-                case 2: i = 4; break;
-                case 4: i = 0; break;
+                case 0:
+                    i = 6; break;
+                case 6:
+                    i = 3; break;
+                case 3:
+                    i = 5; break;
+                case 5:
+                    i = 1; break;
+                case 1:
+                    i = 7; break;
+                case 7:
+                    i = 2; break;
+                case 2:
+                    i = 4; break;
+                case 4:
+                    i = 0; break;
                 }
                 i = (i&0x4)+((i&3)<<4);
                 sector[searchsector].floorstat &= ~0x34;
@@ -2501,12 +2583,16 @@ void Keys3d(void)
                 else
                 {
                     i = ((i>>2)&3);
-                    switch(i)
+                    switch (i)
                     {
-                    case 0: i = 1; break;
-                    case 1: i = 3; break;
-                    case 2: i = 0; break;
-                    case 3: i = 2; break;
+                    case 0:
+                        i = 1; break;
+                    case 1:
+                        i = 3; break;
+                    case 2:
+                        i = 0; break;
+                    case 3:
+                        i = 2; break;
                     }
                     i <<= 2;
                     sprite[searchwall].cstat &= ~0xc;
@@ -2529,7 +2615,7 @@ void Keys3d(void)
         k = 0;
         if (highlightsectorcnt >= 0)
         {
-            for(i=0;i<highlightsectorcnt;i++)
+            for (i=0;i<highlightsectorcnt;i++)
                 if (highlightsector[i] == searchsector)
                 {
                     k = 1;
@@ -2558,7 +2644,7 @@ void Keys3d(void)
             }
             else
             {
-                for(j=0;j<highlightsectorcnt;j++)
+                for (j=0;j<highlightsectorcnt;j++)
                 {
                     i = headspritesect[highlightsector[j]];
                     while (i != -1)
@@ -2597,7 +2683,7 @@ void Keys3d(void)
             }
             else
             {
-                for(j=0;j<highlightsectorcnt;j++)
+                for (j=0;j<highlightsectorcnt;j++)
                 {
                     i = headspritesect[highlightsector[j]];
                     while (i != -1)
@@ -2631,7 +2717,7 @@ void Keys3d(void)
             {
                 k = 0;
                 if (highlightcnt >= 0)
-                    for(i=0;i<highlightcnt;i++)
+                    for (i=0;i<highlightcnt;i++)
                         if (highlight[i] == searchwall+16384)
                         {
                             k = 1;
@@ -2647,7 +2733,7 @@ void Keys3d(void)
                 }
                 else
                 {
-                    for(i=0;i<highlightcnt;i++)
+                    for (i=0;i<highlightcnt;i++)
                         if ((highlight[i]&0xc000) == 16384)
                             sprite[highlight[i]&16383].z -= updownunits;
                     sprintf(getmessage,"Sprite (%d) z = %ld",highlight[i]&16383,sprite[highlight[i]&16383].z);
@@ -2665,7 +2751,7 @@ void Keys3d(void)
         k = 0;
         if (highlightsectorcnt >= 0)
         {
-            for(i=0;i<highlightsectorcnt;i++)
+            for (i=0;i<highlightsectorcnt;i++)
                 if (highlightsector[i] == searchsector)
                 {
                     k = 1;
@@ -2694,7 +2780,7 @@ void Keys3d(void)
             }
             else
             {
-                for(j=0;j<highlightsectorcnt;j++)
+                for (j=0;j<highlightsectorcnt;j++)
                 {
                     i = headspritesect[highlightsector[j]];
                     while (i != -1)
@@ -2733,7 +2819,7 @@ void Keys3d(void)
             }
             else
             {
-                for(j=0;j<highlightsectorcnt;j++)
+                for (j=0;j<highlightsectorcnt;j++)
                 {
                     i = headspritesect[highlightsector[j]];
                     while (i != -1)
@@ -2764,7 +2850,7 @@ void Keys3d(void)
             {
                 k = 0;
                 if (highlightcnt >= 0)
-                    for(i=0;i<highlightcnt;i++)
+                    for (i=0;i<highlightcnt;i++)
                         if (highlight[i] == searchwall+16384)
                         {
                             k = 1;
@@ -2780,7 +2866,7 @@ void Keys3d(void)
                 }
                 else
                 {
-                    for(i=0;i<highlightcnt;i++)
+                    for (i=0;i<highlightcnt;i++)
                         if ((highlight[i]&0xc000) == 16384)
                             sprite[highlight[i]&16383].z += updownunits;
                     sprintf(getmessage,"Sprite (%d) z = %ld",highlight[i]&16383,sprite[highlight[i]&16383].z);
@@ -2802,11 +2888,11 @@ void Keys3d(void)
     if (i != clockval[clockcnt])
     {
         rate=(120<<4)/(i-clockval[clockcnt])-1;
-        if(framerateon)
+        if (framerateon)
         {
             Bsprintf(tempbuf,"%ld",rate);
 #ifdef VULGARITY
-            if(rate<MinRate)
+            if (rate<MinRate)
             {
                 Bsprintf(tempbuf,"%ld WARNING : %s",rate,Slow[rate/MinD]);
                 begindrawing(); printext256(0*8,0*8,whitecol,-1,tempbuf,1); enddrawing();
@@ -2824,21 +2910,21 @@ void Keys3d(void)
     clockcnt = ((clockcnt+1)&15);
 
     tempbuf[0] = 0;
-    if((bstatus&4) && (bstatus&2))
+    if ((bstatus&4) && (bstatus&2))
         Bsprintf(tempbuf,"PAN");
-    else if(bstatus&4)
+    else if (bstatus&4)
         Bsprintf(tempbuf,"SHADE/SIZE");
-    else if(bstatus&2)
+    else if (bstatus&2)
         Bsprintf(tempbuf,"Z");
-    else if(bstatus&1)
+    else if (bstatus&1)
         Bsprintf(tempbuf,"LOCK");
-    if(tempbuf[0] != 0)
+    if (tempbuf[0] != 0)
     {
         i = (Bstrlen(tempbuf)<<3)+6;
-        if((searchx+i) < (xdim-1))
+        if ((searchx+i) < (xdim-1))
             i = 0;
         else i = (searchx+i)-(xdim-1);
-        if((searchy+16) < (ydim-1))
+        if ((searchy+16) < (ydim-1))
             j = 0;
         else j = (searchy+16)-(ydim-1);
         //            printext16(searchx+6-i,searchy+6-j,11,-1,tempbuf,0);
@@ -2848,31 +2934,39 @@ void Keys3d(void)
         //        printext256(searchx+4+2,searchy+4+2,0,-1,tempbuf,!(xdimgame > 640));
         //        printext256(searchx+4,searchy+4,whitecol,-1,tempbuf,!(xdimgame > 640));
     }
-    if(helpon==1)
+    if (helpon==1)
     {
-        for(i=0;i<MAXHELP3D;i++)
+        for (i=0;i<MAXHELP3D;i++)
         {
             begindrawing();
             printext256(0*8+2,8+(i*(8+(xdimgame > 640)))+2,0,-1,Help3d[i],!(xdimgame > 640));
             printext256(0*8,8+(i*(8+(xdimgame > 640))),whitecol,-1,Help3d[i],!(xdimgame > 640));
             enddrawing();
-            switch(i)
+            switch (i)
             {
-            case 8: Bsprintf(tempbuf,"%d",autosave); break;
-            case 9: Bsprintf(tempbuf,"%s",SKILLMODE[skill]); break;
-            case 10: Bsprintf(tempbuf,"%d",tabgraphic); break;
-            case 11: Bsprintf(tempbuf,"%d",framerateon); break;
-            case 12: Bsprintf(tempbuf,"%s",SPRDSPMODE[nosprites]); break;
-            case 13: Bsprintf(tempbuf,"%d",shadepreview); break;
-            case 14: Bsprintf(tempbuf,"%d",purpleon); break;
-            default : sprintf(tempbuf," "); break;
+            case 8:
+                Bsprintf(tempbuf,"%d",autosave); break;
+            case 9:
+                Bsprintf(tempbuf,"%s",SKILLMODE[skill]); break;
+            case 10:
+                Bsprintf(tempbuf,"%d",tabgraphic); break;
+            case 11:
+                Bsprintf(tempbuf,"%d",framerateon); break;
+            case 12:
+                Bsprintf(tempbuf,"%s",SPRDSPMODE[nosprites]); break;
+            case 13:
+                Bsprintf(tempbuf,"%d",shadepreview); break;
+            case 14:
+                Bsprintf(tempbuf,"%d",purpleon); break;
+            default :
+                sprintf(tempbuf," "); break;
             }
             begindrawing();
-            if(!strcmp(tempbuf,"0"))
+            if (!strcmp(tempbuf,"0"))
                 Bsprintf(tempbuf,"OFF");
-            else if(!strcmp(tempbuf,"1"))
+            else if (!strcmp(tempbuf,"1"))
                 Bsprintf(tempbuf,"ON");
-            else if(!strcmp(tempbuf,"2"))
+            else if (!strcmp(tempbuf,"2"))
                 Bsprintf(tempbuf,"ON (2)");
 
             printext256((20+((xdimgame > 640) * 20))*8+2,8+(i*8+(xdimgame > 640))+2,0,-1,tempbuf,!(xdimgame > 640));
@@ -2889,9 +2983,9 @@ void Keys3d(void)
                 enddrawing(); 
                 }
     */
-    if(sector[cursectnum].lotag==2)
+    if (sector[cursectnum].lotag==2)
     {
-        if(sector[cursectnum].floorpal==8) SetBOSS1Palette();
+        if (sector[cursectnum].floorpal==8) SetBOSS1Palette();
         else SetWATERPalette();
     }
     else SetGAMEPalette();
@@ -2902,7 +2996,7 @@ void Keys3d(void)
 
 
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x20]==1) // ' d
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x20]==1) // ' d
         /*
             {
                 ShowHelpText("SectorEffector");
@@ -2910,87 +3004,87 @@ void Keys3d(void)
 
     {
         keystatus[0x20] = 0;
-        skill++; if(skill>MAXSKILL-1) skill=0;
+        skill++; if (skill>MAXSKILL-1) skill=0;
         sprintf(tempbuf,"%s",SKILLMODE[skill]);
         //        printext256(1*4,1*8,11,-1,tempbuf,0);
         message(tempbuf);
     }
 
     begindrawing();
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x22]==1) // ' g
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x22]==1) // ' g
     {
         keystatus[0x22] = 0;
         tabgraphic++;
         if (tabgraphic > 2) tabgraphic = 0;
-        if(tabgraphic) message("Graphics ON");
+        if (tabgraphic) message("Graphics ON");
         else message("Graphics OFF");
     }
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x2d]==1) // ' x
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x2d]==1) // ' x
     {
         keystatus[0x2d] = 0;
         shadepreview=!shadepreview;
-        if(shadepreview) message("Sprite shade preview ON");
+        if (shadepreview) message("Sprite shade preview ON");
         else message("Sprite shade preview OFF");
     }
 
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x13]==1) // ' r
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x13]==1) // ' r
     {
         keystatus[0x13] = 0;
         framerateon=!framerateon;
-        if(framerateon) message("Framerate ON");
+        if (framerateon) message("Framerate ON");
         else message("Framerate OFF");
     }
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x11]==1) // ' w
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x11]==1) // ' w
     {
         keystatus[0x11] = 0;
-        nosprites++; if(nosprites>3) nosprites=0;
+        nosprites++; if (nosprites>3) nosprites=0;
         Bsprintf(tempbuf,"%s",SPRDSPMODE[nosprites]);
         //        printext256(1*4,1*8,whitecol,-1,tempbuf,0);
         message(tempbuf);
     }
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x15]==1) // ' y
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x15]==1) // ' y
     {
         keystatus[0x15] = 0;
-        purpleon=!purpleon; if(nosprites>3) nosprites=0;
-        if(purpleon) message("Purple ON");
+        purpleon=!purpleon; if (nosprites>3) nosprites=0;
+        if (purpleon) message("Purple ON");
         else message("Purple OFF");
     }
     enddrawing();
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x2e]==1) // ' C
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x2e]==1) // ' C
     {
         keystatus[0x2e] = 0;
         switch (searchstat)
         {
         case 0:
         case 4:
-            for(i=0;i<MAXWALLS;i++)
+            for (i=0;i<MAXWALLS;i++)
             {
-                if(wall[i].picnum==temppicnum)
+                if (wall[i].picnum==temppicnum)
                     wall[i].shade=tempshade;
             }
             break;
         case 1:
         case 2:
-            for(i=0;i<MAXSECTORS;i++)
+            for (i=0;i<MAXSECTORS;i++)
             {
-                if(searchstat==1)
-                    if(sector[i].ceilingpicnum==temppicnum) {
+                if (searchstat==1)
+                    if (sector[i].ceilingpicnum==temppicnum) {
                         sector[i].ceilingshade=tempshade;
                     }
-                if(searchstat==2)
-                    if(sector[i].floorpicnum==temppicnum) {
+                if (searchstat==2)
+                    if (sector[i].floorpicnum==temppicnum) {
                         sector[i].floorshade=tempshade;
                     }
             }
             break;
         case 3:
-            for(i=0;i<MAXSPRITES;i++)
+            for (i=0;i<MAXSPRITES;i++)
             {
-                if(sprite[i].picnum==temppicnum) {
+                if (sprite[i].picnum==temppicnum) {
                     sprite[i].shade=tempshade;
                 }
             }
@@ -2998,17 +3092,19 @@ void Keys3d(void)
         }
     }
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x14]==1) // ' T
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x14]==1) // ' T
     {
         keystatus[0x14] = 0;
         switch (searchstat)
         {
-    case 0: case 4:
+        case 0:
+        case 4:
             Bstrcpy(tempbuf,"Wall lotag: ");
             wall[searchwall].lotag =
                 getnumber256(tempbuf,wall[searchwall].lotag,65536L,0);
             break;
-    case 1: case 2:
+        case 1:
+        case 2:
             Bstrcpy(tempbuf,"Sector lotag: ");
             sector[searchsector].lotag =
                 getnumber256(tempbuf,sector[searchsector].lotag,65536L,0);
@@ -3021,17 +3117,19 @@ void Keys3d(void)
         }
     }
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x23]==1) // ' H
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x23]==1) // ' H
     {
         keystatus[0x23] = 0;
         switch (searchstat)
         {
-    case 0: case 4:
+        case 0:
+        case 4:
             Bstrcpy(tempbuf,"Wall hitag: ");
             wall[searchwall].hitag =
                 getnumber256(tempbuf,wall[searchwall].hitag,65536L,0);
             break;
-    case 1: case 2:
+        case 1:
+        case 2:
             Bstrcpy(tempbuf,"Sector hitag: ");
             sector[searchsector].hitag =
                 getnumber256(tempbuf,sector[searchsector].hitag,65536L,0);
@@ -3044,22 +3142,24 @@ void Keys3d(void)
         }
     }
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x1f]==1) // ' S
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x1f]==1) // ' S
     {
         keystatus[0x1f] = 0;
         switch (searchstat)
         {
-    case 0: case 4:
+        case 0:
+        case 4:
             Bstrcpy(tempbuf,"Wall shade: ");
             wall[searchwall].shade =
                 getnumber256(tempbuf,wall[searchwall].shade,65536L,1);
             break;
-    case 1: case 2:
+        case 1:
+        case 2:
             Bstrcpy(tempbuf,"Sector shade: ");
-            if(searchstat==1)
+            if (searchstat==1)
                 sector[searchsector].ceilingshade =
                     getnumber256(tempbuf,sector[searchsector].ceilingshade,65536L,1);
-            if(searchstat==2)
+            if (searchstat==2)
                 sector[searchsector].floorshade =
                     getnumber256(tempbuf,sector[searchsector].floorshade,65536L,1);
             break;
@@ -3071,12 +3171,13 @@ void Keys3d(void)
         }
     }
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x2f]==1) // ' V
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x2f]==1) // ' V
     {
         keystatus[0x2f] = 0;
         switch (searchstat)
         {
-    case 1: case 2:
+        case 1:
+        case 2:
             Bstrcpy(tempbuf,"Sector visibility: ");
             sector[searchsector].visibility =
                 getnumber256(tempbuf,sector[searchsector].visibility,65536L,0);
@@ -3084,25 +3185,25 @@ void Keys3d(void)
         }
     }
 
-    if(keystatus[0x3c]>0) // F2
+    if (keystatus[0x3c]>0) // F2
     {
         usedcount=!usedcount;
         keystatus[0x3c] = 0;
     }
-    if(keystatus[0x0f]>0) // TAB : USED
+    if (keystatus[0x0f]>0) // TAB : USED
     {
         //        usedcount=!usedcount;
 
         count=0;
-        for(i=0;i<numwalls;i++)
+        for (i=0;i<numwalls;i++)
         {
-            if(wall[i].picnum == temppicnum) count++;
-            if(wall[i].overpicnum == temppicnum) count++;
+            if (wall[i].picnum == temppicnum) count++;
+            if (wall[i].overpicnum == temppicnum) count++;
         }
-        for(i=0;i<numsectors;i++)   // JBF 20040307: was numwalls, thanks Semicharm
+        for (i=0;i<numsectors;i++)  // JBF 20040307: was numwalls, thanks Semicharm
         {
-            if(sector[i].ceilingpicnum == temppicnum) count++;
-            if(sector[i].floorpicnum == temppicnum) count++;
+            if (sector[i].ceilingpicnum == temppicnum) count++;
+            if (sector[i].floorpicnum == temppicnum) count++;
         }
         statnum = 0;        //status 1
         i = headspritestat[statnum];
@@ -3113,14 +3214,14 @@ void Keys3d(void)
             //your code goes here
             //ex: printf("Sprite %d has a status of 1 (active)\n",i,statnum);
 
-            if(sprite[i].picnum == temppicnum) count++;
+            if (sprite[i].picnum == temppicnum) count++;
             i = nexti;
         }
 
     }
 
 
-    if(keystatus[0x3b]==1) // F1
+    if (keystatus[0x3b]==1) // F1
     {
         helpon=!helpon; keystatus[0x23]=0;
         keystatus[0x3b]=0;
@@ -3133,31 +3234,31 @@ void Keys3d(void)
         case 0:
             strcpy(tempbuf,"Wall picnum: ");
             i = getnumber256(tempbuf,wall[searchwall].picnum,MAXTILES-1,0);
-            if(tilesizx[i] != 0)
+            if (tilesizx[i] != 0)
                 wall[searchwall].picnum = i;
             break;
         case 1:
             strcpy(tempbuf,"Sector ceiling picnum: ");
             i = getnumber256(tempbuf,sector[searchsector].ceilingpicnum,MAXTILES-1,0);
-            if(tilesizx[i] != 0)
+            if (tilesizx[i] != 0)
                 sector[searchsector].ceilingpicnum = i;
             break;
         case 2:
             strcpy(tempbuf,"Sector floor picnum: ");
             i = getnumber256(tempbuf,sector[searchsector].floorpicnum,MAXTILES-1,0);
-            if(tilesizx[i] != 0)
+            if (tilesizx[i] != 0)
                 sector[searchsector].floorpicnum = i;
             break;
         case 3:
             strcpy(tempbuf,"Sprite picnum: ");
             i = getnumber256(tempbuf,sprite[searchwall].picnum,MAXTILES-1,0);
-            if(tilesizx[i] != 0)
+            if (tilesizx[i] != 0)
                 sprite[searchwall].picnum = i;
             break;
         case 4:
             strcpy(tempbuf,"Masked wall picnum: ");
             i = getnumber256(tempbuf,wall[searchwall].overpicnum,MAXTILES-1,0);
-            if(tilesizx[i] != 0)
+            if (tilesizx[i] != 0)
                 wall[searchwall].overpicnum = i;
             break;
         }
@@ -3198,12 +3299,16 @@ void Keys3d(void)
         {
             i = (sector[searchsector].ceilingstat&(128+256));
             sector[searchsector].ceilingstat &= ~(128+256);
-            switch(i)
+            switch (i)
             {
-            case 0: sector[searchsector].ceilingstat |= 128; break;
-            case 128: sector[searchsector].ceilingstat |= 256; break;
-            case 256: sector[searchsector].ceilingstat |= 384; break;
-            case 384: sector[searchsector].ceilingstat |= 0; break;
+            case 0:
+                sector[searchsector].ceilingstat |= 128; break;
+            case 128:
+                sector[searchsector].ceilingstat |= 256; break;
+            case 256:
+                sector[searchsector].ceilingstat |= 384; break;
+            case 384:
+                sector[searchsector].ceilingstat |= 0; break;
             }
             asksave = 1;
         }
@@ -3211,12 +3316,16 @@ void Keys3d(void)
         {
             i = (sector[searchsector].floorstat&(128+256));
             sector[searchsector].floorstat &= ~(128+256);
-            switch(i)
+            switch (i)
             {
-            case 0: sector[searchsector].floorstat |= 128; break;
-            case 128: sector[searchsector].floorstat |= 256; break;
-            case 256: sector[searchsector].floorstat |= 384; break;
-            case 384: sector[searchsector].floorstat |= 0; break;
+            case 0:
+                sector[searchsector].floorstat |= 128; break;
+            case 128:
+                sector[searchsector].floorstat |= 256; break;
+            case 256:
+                sector[searchsector].floorstat |= 384; break;
+            case 384:
+                sector[searchsector].floorstat |= 0; break;
             }
             asksave = 1;
         }
@@ -3225,7 +3334,8 @@ void Keys3d(void)
         {
             switch (searchstat)
             {
-        case 0: case 4:
+            case 0:
+            case 4:
                 strcpy(buffer,"Wall lotag: ");
                 wall[searchwall].lotag = getnumber256(buffer,(long)wall[searchwall].lotag,65536L,0);
                 break;
@@ -3275,18 +3385,23 @@ void Keys3d(void)
         keystatus[KEYSC_T] = 0;
     }
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x1c]==1) // ' ENTER
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x1c]==1) // ' ENTER
     {
         begindrawing();
         message("Pasted graphic only");
         enddrawing();
-        switch(searchstat)
+        switch (searchstat)
         {
-        case 0 : wall[searchwall].picnum = temppicnum; break;
-        case 1 : sector[searchsector].ceilingpicnum = temppicnum; break;
-        case 2 : sector[searchsector].floorpicnum = temppicnum; break;
-        case 3 : sprite[searchwall].picnum = temppicnum; break;
-        case 4 : wall[searchwall].overpicnum = temppicnum; break;
+        case 0 :
+            wall[searchwall].picnum = temppicnum; break;
+        case 1 :
+            sector[searchsector].ceilingpicnum = temppicnum; break;
+        case 2 :
+            sector[searchsector].floorpicnum = temppicnum; break;
+        case 3 :
+            sprite[searchwall].picnum = temppicnum; break;
+        case 4 :
+            wall[searchwall].overpicnum = temppicnum; break;
         }
         keystatus[0x1c]=0;
     }
@@ -3342,7 +3457,7 @@ void Keys2d(void)
     }
 
     begindrawing();
-    for(i=0;i<numsprites;i++) // Game specific 2D sprite stuff goes here.  Drawn on top of everything else.
+    for (i=0;i<numsprites;i++) // Game specific 2D sprite stuff goes here.  Drawn on top of everything else.
     {
         xp1 = mulscale14(sprite[i].x-posx,zoom);
         yp1 = mulscale14(sprite[i].y-posy,zoom);
@@ -3360,12 +3475,12 @@ void Keys2d(void)
     }
     enddrawing();
 
-    if(keystatus[0x3b]==1 || (keystatus[KEYSC_QUOTE]==1 && keystatus[0x29]==1)) //F1 or ' ~
+    if (keystatus[0x3b]==1 || (keystatus[KEYSC_QUOTE]==1 && keystatus[0x29]==1)) //F1 or ' ~
     {
         keystatus[0x3b]=0;
         clearmidstatbar16();
         begindrawing();
-        for(i=0;i<MAXHELP2D;i++)
+        for (i=0;i<MAXHELP2D;i++)
         {
             k = 0;
             j = 0;
@@ -3388,7 +3503,7 @@ void Keys2d(void)
         cursprite=(ppointhighlight&16383);
     }
 
-    if(keystatus[67]==1) // F9 f1=3b
+    if (keystatus[67]==1) // F9 f1=3b
     {
         Show2dText("sthelp.hlp");
     }
@@ -3522,7 +3637,7 @@ void Keys2d(void)
     }
 
 
-    if(keystatus[KEYSC_QUOTE] && keystatus[KEYSC_S]) // ' S
+    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_S]) // ' S
     {
         if (pointhighlight >= 16384)
         {
@@ -3536,7 +3651,7 @@ void Keys2d(void)
         }
     }
 
-    if(keystatus[KEYSC_QUOTE] && keystatus[KEYSC_F]) // ' F
+    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_F]) // ' F
     {
         void FuncMenu(void);
         keystatus[KEYSC_F] = 0;
@@ -3544,21 +3659,21 @@ void Keys2d(void)
         FuncMenu();
     }
 
-    if(keystatus[0x1a]>0) // [     search backward
+    if (keystatus[0x1a]>0) // [     search backward
     {
         keystatus[0x1a]=0;
-        if(wallsprite==0)
+        if (wallsprite==0)
         {
             SearchSectorsBackward();
         }
         else
 
-            if(wallsprite==1)
+            if (wallsprite==1)
             {
-                if(curwallnum>0) curwallnum--;
-                for(i=curwallnum;i>=0;i--)
+                if (curwallnum>0) curwallnum--;
+                for (i=curwallnum;i>=0;i--)
                 {
-                    if(
+                    if (
                         (wall[i].picnum==wall[curwall].picnum)
                         &&((search_lotag==0)||
                            (search_lotag!=0 && search_lotag==wall[i].lotag))
@@ -3579,13 +3694,13 @@ void Keys2d(void)
             }
             else
 
-                if(wallsprite==2)
+                if (wallsprite==2)
                 {
-                    if(cursearchspritenum>0) cursearchspritenum--;
-                    for(i=cursearchspritenum;i>=0;i--)
+                    if (cursearchspritenum>0) cursearchspritenum--;
+                    for (i=cursearchspritenum;i>=0;i--)
                     {
 
-                        if(
+                        if (
                             (sprite[i].picnum==sprite[cursearchsprite].picnum &&
                              sprite[i].statnum==0 )
                             &&((search_lotag==0)||
@@ -3609,21 +3724,21 @@ void Keys2d(void)
     }
 
 
-    if(keystatus[0x1b]>0) // ]     search forward
+    if (keystatus[0x1b]>0) // ]     search forward
     {
         keystatus[0x1b]=0;
-        if(wallsprite==0)
+        if (wallsprite==0)
         {
             SearchSectorsForward();
         }
         else
 
-            if(wallsprite==1)
+            if (wallsprite==1)
             {
-                if(curwallnum<MAXWALLS) curwallnum++;
-                for(i=curwallnum;i<=MAXWALLS;i++)
+                if (curwallnum<MAXWALLS) curwallnum++;
+                for (i=curwallnum;i<=MAXWALLS;i++)
                 {
-                    if(
+                    if (
                         (wall[i].picnum==wall[curwall].picnum)
                         &&((search_lotag==0)||
                            (search_lotag!=0 && search_lotag==wall[i].lotag))
@@ -3644,12 +3759,12 @@ void Keys2d(void)
             }
             else
 
-                if(wallsprite==2)
+                if (wallsprite==2)
                 {
-                    if(cursearchspritenum<MAXSPRITES) cursearchspritenum++;
-                    for(i=cursearchspritenum;i<=MAXSPRITES;i++)
+                    if (cursearchspritenum<MAXSPRITES) cursearchspritenum++;
+                    for (i=cursearchspritenum;i<=MAXSPRITES;i++)
                     {
-                        if(
+                        if (
                             (sprite[i].picnum==sprite[cursearchsprite].picnum &&
                              sprite[i].statnum==0 )
                             &&((search_lotag==0)||
@@ -3676,7 +3791,7 @@ void Keys2d(void)
     {
         grid += ((keystatus[0x2a]|keystatus[0x36]) > 0?-1:1);
         if (grid == -1 || grid == 9) {
-            switch(grid) {
+            switch (grid) {
             case -1:
                 grid = 8;
                 break;
@@ -3685,7 +3800,7 @@ void Keys2d(void)
                 break;
             }
         }
-        if(!grid) sprintf(tempbuf,"Grid off");
+        if (!grid) sprintf(tempbuf,"Grid off");
         else sprintf(tempbuf,"Grid size: %d (%d units)",grid,2048>>grid);
         printmessage16(tempbuf);
         keystatus[0x22] = 0;
@@ -3723,9 +3838,9 @@ void Keys2d(void)
     }
 
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x04]==1) // ' 3
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x04]==1) // ' 3
     {
-        onnames++; if(onnames>8) onnames=0;
+        onnames++; if (onnames>8) onnames=0;
         keystatus[0x04]=0;
         Bsprintf(tempbuf,"Mode %d %s",onnames,SpriteMode[onnames]);
         printmessage16(tempbuf);
@@ -3735,7 +3850,7 @@ void Keys2d(void)
     //   Ver();
 
 #ifdef VULGARITY
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x05]==1) // ' 4
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x05]==1) // ' 4
     {
         keystatus[0x05]=0;
         MinRate=getnumber16("Enter Min Frame Rate : ", MinRate, 65536L,0);
@@ -3792,7 +3907,7 @@ void Keys2d(void)
     }
     */
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x08]==1) // ' 7 : swap hilo
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x08]==1) // ' 7 : swap hilo
     {
         keystatus[0x08]=0;
 
@@ -3814,7 +3929,7 @@ void Keys2d(void)
         }
     }
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x24]==1) // ' J
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x24]==1) // ' J
     {
         posx=getnumber16("X-coordinate:    ",posx,131072L,1);
         posy=getnumber16("Y-coordinate:    ",posy,131072L,1);
@@ -3830,7 +3945,7 @@ void ExtSetupSpecialSpriteCols(void)
     short i;
     for (i=0;i<MAXTILES;i++)
 
-        switch(i) {
+        switch (i) {
         case SECTOREFFECTOR:
         case ACTIVATOR:
         case TOUCHPLATE:
@@ -3964,27 +4079,27 @@ void ExtPreSaveMap(void)
 {
     short i, startwall, j, endwall;
 
-    for(i=0;i<numsectors;i++)
+    for (i=0;i<numsectors;i++)
     {
         startwall = sector[i].wallptr;
-        for(j=startwall;j<numwalls;j++)
+        for (j=startwall;j<numwalls;j++)
             if (wall[j].point2 < startwall) startwall = wall[j].point2;
         sector[i].wallptr = startwall;
     }
-    for(i=numsectors-2;i>=0;i--)
+    for (i=numsectors-2;i>=0;i--)
         sector[i].wallnum = sector[i+1].wallptr-sector[i].wallptr;
     sector[numsectors-1].wallnum = numwalls-sector[numsectors-1].wallptr;
 
-    for(i=0;i<numwalls;i++)
+    for (i=0;i<numwalls;i++)
     {
         wall[i].nextsector = -1;
         wall[i].nextwall = -1;
     }
-    for(i=0;i<numsectors;i++)
+    for (i=0;i<numsectors;i++)
     {
         startwall = sector[i].wallptr;
         endwall = startwall + sector[i].wallnum;
-        for(j=startwall;j<endwall;j++)
+        for (j=startwall;j<endwall;j++)
             checksectorpointer((short)j,(short)i);
     }
     fixspritesectors(); // yes, I realize this gets called a few more times than it needs to be
@@ -4022,7 +4137,8 @@ enum {
     T_LOADGRP = 0,
 };
 
-typedef struct { char *text; int tokenid; } tokenlist;
+typedef struct { char *text; int tokenid; }
+tokenlist;
 
 static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
 {
@@ -4033,7 +4149,7 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
     tok = scriptfile_gettoken(sf);
     if (!tok) return T_EOF;
 
-    for(i=0;i<ntokens;i++) {
+    for (i=0;i<ntokens;i++) {
         if (!Bstrcasecmp(tok, tl[i].text))
             return tl[i].tokenid;
     }
@@ -4059,19 +4175,19 @@ int loadgroupfiles(char *fn)
         cmdtokptr = script->ltextptr;
         switch (tokn) {
         case T_LOADGRP:
+        {
+            char *fn;
+            if (!scriptfile_getstring(script,&fn))
             {
-                char *fn;
-                if (!scriptfile_getstring(script,&fn))
-                {
-                    int j = initgroupfile(fn);
+                int j = initgroupfile(fn);
 
-                    if( j == -1 )
-                        initprintf("Could not find GRP file %s.\n",fn);
-                    else
-                        initprintf("Using GRP file %s.\n",fn);
-                }
+                if ( j == -1 )
+                    initprintf("Could not find GRP file %s.\n",fn);
+                else
+                    initprintf("Using GRP file %s.\n",fn);
             }
-            break;
+        }
+        break;
         case T_EOF:
             return(0);
         default:
@@ -4099,13 +4215,13 @@ int ExtInit(void)
         int asperr;
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-    addsearchpath("/usr/share/games/jfduke3d");
-    addsearchpath("/usr/local/share/games/jfduke3d");
-    addsearchpath("/usr/share/games/eduke32");
-    addsearchpath("/usr/local/share/games/eduke32");
+        addsearchpath("/usr/share/games/jfduke3d");
+        addsearchpath("/usr/local/share/games/jfduke3d");
+        addsearchpath("/usr/share/games/eduke32");
+        addsearchpath("/usr/local/share/games/eduke32");
 #elif defined(__APPLE__)
-    addsearchpath("/Library/Application Support/JFDuke3D");
-    addsearchpath("/Library/Application Support/EDuke32");
+        addsearchpath("/Library/Application Support/JFDuke3D");
+        addsearchpath("/Library/Application Support/EDuke32");
 #endif
         if (getcwd(cwd,BMAX_PATH)) addsearchpath(cwd);
         if ((homedir = Bgethomedir())) {
@@ -4148,7 +4264,7 @@ int ExtInit(void)
 
     if (loadsetup("build.cfg") < 0) initprintf("Configuration file not found, using defaults.\n"), rv = 1;
 
-    if(glusetexcache == -1 || glusetexcachecompression == -1)
+    if (glusetexcache == -1 || glusetexcachecompression == -1)
     {
         int i;
 
@@ -4159,7 +4275,7 @@ int ExtInit(void)
                    "textures and skins, but textures will load dramatically "
                    "faster after the first time they are loaded.");
         if (i) i = 'y';
-        if(i == 'y' || i == 'Y' )
+        if (i == 'y' || i == 'Y' )
             glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
     }
@@ -4207,7 +4323,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
     if (qsetmode == 200)    //In 3D mode
     {
         if (floor_over_floor) ExtSE40Code(posx,posy,posz,ang,horiz);
-        if(purpleon) clearview(255);
+        if (purpleon) clearview(255);
         if (sidemode != 0)
         {
             lockbyte4094 = 1;
@@ -4227,20 +4343,20 @@ void ExtAnalyzeSprites(void)
     char frames=0;
     signed char l;
 
-    for(i=0,tspr=&tsprite[0];i<spritesortcnt;i++,tspr++)
+    for (i=0,tspr=&tsprite[0];i<spritesortcnt;i++,tspr++)
     {
         frames=0;
 
-        if((nosprites==1||nosprites==3)&&tspr->picnum<11) tspr->xrepeat=0;
+        if ((nosprites==1||nosprites==3)&&tspr->picnum<11) tspr->xrepeat=0;
 
-        if(nosprites==1||nosprites==3)
-            switch(tspr->picnum)
+        if (nosprites==1||nosprites==3)
+            switch (tspr->picnum)
             {
             case SEENINE :
                 tspr->xrepeat=0;
             }
 
-        if(shadepreview && !(tspr->cstat & 16))
+        if (shadepreview && !(tspr->cstat & 16))
         {
             if (sector[tspr->sectnum].ceilingstat&1)
                 l = sector[tspr->sectnum].ceilingshade;
@@ -4250,14 +4366,14 @@ void ExtAnalyzeSprites(void)
                 if (sector[tspr->sectnum].floorpal != 0 && sector[tspr->sectnum].floorpal < num_tables)
                     tspr->pal=sector[tspr->sectnum].floorpal;
             }
-            if(l < -127) l = -127;
-            if(l > 126) l =  127;
+            if (l < -127) l = -127;
+            if (l > 126) l =  127;
 
             tspr->shade = l;
 
         }
 
-        switch(tspr->picnum)
+        switch (tspr->picnum)
         {
             // 5-frame walk
         case 1550 :             // Shark
@@ -4272,7 +4388,7 @@ void ExtAnalyzeSprites(void)
         case BOSS1SHOOT :
         case BOSS1LOB :
         case LIZTROOPSHOOT :
-            if(frames==0) frames=2;
+            if (frames==0) frames=2;
 
             // 4-frame walk
         case 1491 :             // duke crawl
@@ -4285,16 +4401,16 @@ void ExtAnalyzeSprites(void)
         case BOSS3 :
         case BOSS4 :
         case NEWBEAST:
-            if(frames==0) frames=4;
+            if (frames==0) frames=4;
         case LIZTROOPJETPACK :
         case DRONE :
         case COMMANDER :
         case TANK :
         case RECON :
-            if(frames==0) frames = 10;
+            if (frames==0) frames = 10;
         case CAMERA1:
         case APLAYER :
-            if(frames==0) frames=1;
+            if (frames==0) frames=1;
         case GREENSLIME :
         case EGG :
         case PIGCOPSTAYPUT :
@@ -4303,23 +4419,23 @@ void ExtAnalyzeSprites(void)
         case LIZMANSPITTING :
         case LIZMANFEEDING :
         case LIZMANJUMP :
-            if(skill!=4)
+            if (skill!=4)
             {
-                if(tspr->lotag>skill+1)
+                if (tspr->lotag>skill+1)
                 {
                     tspr->xrepeat=0; break;
                 }
             }
-            if(nosprites==2||nosprites==3)
+            if (nosprites==2||nosprites==3)
             {
                 tspr->xrepeat=0;
                 //                  tspr->cstat|=32768;
             }
             //                else tspr->cstat&=32767;
 
-            if(frames!=0)
+            if (frames!=0)
             {
-                if(frames==10) frames=0;
+                if (frames==10) frames=0;
                 k = getangle(tspr->x-posx,tspr->y-posy);
                 k = (((tspr->ang+3072+128-k)&2047)>>8)&7;
                 //This guy has only 5 pictures for 8 angles (3 are x-flipped)
@@ -4335,11 +4451,11 @@ void ExtAnalyzeSprites(void)
                 }
             }
 
-            if(frames==2) tspr->picnum+=((((4-(totalclock>>5)))&1)*5);
-            if(frames==4) tspr->picnum+=((((4-(totalclock>>5)))&3)*5);
-            if(frames==5) tspr->picnum+=(((totalclock>>5)%5))*5;
+            if (frames==2) tspr->picnum+=((((4-(totalclock>>5)))&1)*5);
+            if (frames==4) tspr->picnum+=((((4-(totalclock>>5)))&3)*5);
+            if (frames==5) tspr->picnum+=(((totalclock>>5)%5))*5;
 
-            if(tilesizx[tspr->picnum] == 0)
+            if (tilesizx[tspr->picnum] == 0)
                 tspr->picnum -= 5;       //Hack, for actors
 
             break;
@@ -4353,19 +4469,19 @@ void ExtAnalyzeSprites(void)
 void Keys2d3d(void)
 {
     int i, j;
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x1e]==1) // ' a
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x1e]==1) // ' a
     {
         keystatus[0x1e] = 0;
         autosave=!autosave;
-        if(autosave) message("Autosave ON");
+        if (autosave) message("Autosave ON");
         else message("Autosave OFF");
     }
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[KEYSC_N]==1) // ' n
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[KEYSC_N]==1) // ' n
     {
         keystatus[KEYSC_N] = 0;
         noclip=!noclip;
-        if(noclip) message("Clipping disabled");
+        if (noclip) message("Clipping disabled");
         else message("Clipping enabled");
     }
 
@@ -4411,9 +4527,9 @@ void Keys2d3d(void)
         //if (dimensionmode[snum] == 2) charsperline = 80;
         if (qsetmode == 200)
         {
-            for(i=0;i<=getmessageleng;i+=charsperline)
+            for (i=0;i<=getmessageleng;i+=charsperline)
             {
-                for(j=0;j<charsperline;j++)
+                for (j=0;j<charsperline;j++)
                     tempbuf[j] = getmessage[i+j];
                 if (getmessageleng < i+charsperline)
                     tempbuf[(getmessageleng-i)] = 0;
@@ -4457,7 +4573,7 @@ void faketimerhandler(void)
     long hiz, hihit, loz, lohit, oposx, oposy;
     short hitwall, daang;
 
-    counter++; if(counter>=5) counter=0;
+    counter++; if (counter>=5) counter=0;
 
     sampletimer();
     if (totalclock < ototalclock+TICSPERFRAME)
@@ -4520,7 +4636,7 @@ void faketimerhandler(void)
     if (horiz < 100) horiz++;
     if (horiz > 100) horiz--;
 
-    if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x06]==1) // ' 5
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x06]==1) // ' 5
     {
         keystatus[0x06]=0;
         editstatus = 1;
@@ -4530,7 +4646,7 @@ void faketimerhandler(void)
 
 void SetBOSS1Palette()
 {
-    if(acurpalette==3) return;
+    if (acurpalette==3) return;
     acurpalette=3;
     kensetpalette(BOSS1palette);
 }
@@ -4538,14 +4654,14 @@ void SetBOSS1Palette()
 
 void SetSLIMEPalette()
 {
-    if(acurpalette==2) return;
+    if (acurpalette==2) return;
     acurpalette=2;
     kensetpalette(SLIMEpalette);
 }
 
 void SetWATERPalette()
 {
-    if(acurpalette==1) return;
+    if (acurpalette==1) return;
     acurpalette=1;
     kensetpalette(WATERpalette);
 }
@@ -4553,7 +4669,7 @@ void SetWATERPalette()
 
 void SetGAMEPalette()
 {
-    if(acurpalette==0) return;
+    if (acurpalette==0) return;
     acurpalette=0;
     kensetpalette(GAMEpalette);
 }
@@ -4563,7 +4679,7 @@ void kensetpalette(char *vgapal)
     long i;
     char vesapal[1024];
 
-    for(i=0;i<256;i++)
+    for (i=0;i<256;i++)
     {
         vesapal[i*4+0] = vgapal[i*3+2];
         vesapal[i*4+1] = vgapal[i*3+1];
@@ -4576,12 +4692,12 @@ void kensetpalette(char *vgapal)
 void SearchSectorsForward()
 {
     long ii=0;
-    if(cursector_lotag!=0)
+    if (cursector_lotag!=0)
     {
-        if(cursectornum<MAXSECTORS) cursectornum++;
-        for(ii=cursectornum;ii<=MAXSECTORS;ii++)
+        if (cursectornum<MAXSECTORS) cursectornum++;
+        for (ii=cursectornum;ii<=MAXSECTORS;ii++)
         {
-            if(sector[ii].lotag==cursector_lotag)
+            if (sector[ii].lotag==cursector_lotag)
             {
                 posx=wall[sector[ii].wallptr].x;
                 posy=wall[sector[ii].wallptr].y;
@@ -4599,12 +4715,12 @@ void SearchSectorsForward()
 void SearchSectorsBackward()
 {
     long ii=0;
-    if(cursector_lotag!=0)
+    if (cursector_lotag!=0)
     {
-        if(cursectornum>0) cursectornum--;
-        for(ii=cursectornum;ii>=0;ii--)
+        if (cursectornum>0) cursectornum--;
+        for (ii=cursectornum;ii>=0;ii--)
         {
-            if(sector[ii].lotag==cursector_lotag)
+            if (sector[ii].lotag==cursector_lotag)
             {
                 posx=wall[sector[ii].wallptr].x;
                 posy=wall[sector[ii].wallptr].y;
@@ -4633,7 +4749,7 @@ void EditSectorData(short sectnum)
     showsectordata(sectnum);
 
     begindrawing();
-    while(keystatus[1] == 0)
+    while (keystatus[1] == 0)
     {
         if (handleevents()) {
             if (quitevent) quitevent = 0;
@@ -4869,7 +4985,7 @@ void EditWallData(short wallnum)
     clearmidstatbar16();
     showwalldata(wallnum);
     begindrawing();
-    while(keystatus[1] == 0)
+    while (keystatus[1] == 0)
     {
         if (handleevents()) {
             if (quitevent) quitevent = 0;
@@ -5001,7 +5117,7 @@ void EditSpriteData(short spritenum)
     clearmidstatbar16();
     showspritedata(spritenum);
 
-    while(keystatus[1] == 0)
+    while (keystatus[1] == 0)
     {
         begindrawing();
         if (handleevents()) {
@@ -5031,27 +5147,27 @@ void EditSpriteData(short spritenum)
             switch (col)
             {
             case 1:
-                {
-                    printext16(xpos,ypos+row*8,11,0,disptext,0);
-                    col = 0;
-                    xpos = 8;
-                    rowmax = 4;
-                    dispwidth = 23;
-                    disptext[dispwidth] = 0;
-                    if (row > rowmax) row = rowmax;
-                }
-                break;
+            {
+                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                col = 0;
+                xpos = 8;
+                rowmax = 4;
+                dispwidth = 23;
+                disptext[dispwidth] = 0;
+                if (row > rowmax) row = rowmax;
+            }
+            break;
             case 2:
-                {
-                    printext16(xpos,ypos+row*8,11,0,disptext,0);
-                    col = 1;
-                    xpos = 200;
-                    rowmax = 5;
-                    dispwidth = 24;
-                    disptext[dispwidth] = 0;
-                    if (row > rowmax) row = rowmax;
-                }
-                break;
+            {
+                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                col = 1;
+                xpos = 200;
+                rowmax = 5;
+                dispwidth = 24;
+                disptext[dispwidth] = 0;
+                if (row > rowmax) row = rowmax;
+            }
+            break;
             }
             keystatus[0xcb] = 0;
         }
@@ -5060,27 +5176,27 @@ void EditSpriteData(short spritenum)
             switch (col)
             {
             case 0:
-                {
-                    printext16(xpos,ypos+row*8,11,0,disptext,0);
-                    col = 1;
-                    xpos = 200;
-                    rowmax = 5;
-                    dispwidth = 24;
-                    disptext[dispwidth] = 0;
-                    if (row > rowmax) row = rowmax;
-                }
-                break;
+            {
+                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                col = 1;
+                xpos = 200;
+                rowmax = 5;
+                dispwidth = 24;
+                disptext[dispwidth] = 0;
+                if (row > rowmax) row = rowmax;
+            }
+            break;
             case 1:
-                {
-                    printext16(xpos,ypos+row*8,11,0,disptext,0);
-                    col = 2;
-                    xpos = 400;
-                    rowmax = 6;
-                    dispwidth = 26;
-                    disptext[dispwidth] = 0;
-                    if (row > rowmax) row = rowmax;
-                }
-                break;
+            {
+                printext16(xpos,ypos+row*8,11,0,disptext,0);
+                col = 2;
+                xpos = 400;
+                rowmax = 6;
+                dispwidth = 26;
+                disptext[dispwidth] = 0;
+                if (row > rowmax) row = rowmax;
+            }
+            break;
             }
             keystatus[0xcd] = 0;
         }
@@ -5092,234 +5208,234 @@ void EditSpriteData(short spritenum)
         switch (col)
         {
         case 0:
+        {
+            switch (row)
             {
-                switch (row)
+            case 0:
+            {
+                for (i=Bsprintf(disptext,"X-coordinate: %ld",sprite[spritenum].x); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) X-coordinate: ",spritenum);
+                if (editval)
                 {
-                case 0:
-                    {
-                        for (i=Bsprintf(disptext,"X-coordinate: %ld",sprite[spritenum].x); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) X-coordinate: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].x = getnumber16(edittext,sprite[spritenum].x,131072,1);
-                        }
-                    }
-                    break;
-                case 1:
-                    {
-                        for (i=Bsprintf(disptext,"Y-coordinate: %ld",sprite[spritenum].y); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Y-coordinate: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].y = getnumber16(edittext,sprite[spritenum].y,131072,1);
-                        }
-                    }
-                    break;
-                case 2:
-                    {
-                        for (i=Bsprintf(disptext,"Z-coordinate: %ld",sprite[spritenum].z); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Z-coordinate: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].z = getnumber16(edittext,sprite[spritenum].z,8388608,1); //2147483647L,-2147483648L
-                        }
-                    }
-                    break;
-                case 3:
-                    {
-                        for (i=Bsprintf(disptext,"Sectnum: %d",sprite[spritenum].sectnum); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Sectnum: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            i = getnumber16(edittext,sprite[spritenum].sectnum,MAXSECTORS-1,0);
-                            if(i != sprite[spritenum].sectnum)
-                                changespritesect(spritenum,i);
-                        }
-                    }
-                    break;
-                case 4:
-                    {
-                        for (i=Bsprintf(disptext,"Statnum: %d",sprite[spritenum].statnum); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Statnum: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            i = getnumber16(edittext,sprite[spritenum].statnum,MAXSTATUS-1,0);
-                            if(i != sprite[spritenum].statnum)
-                                changespritestat(spritenum,i);
-                        }
-                    }
-                    break;
+                    printmessage16(edittext);
+                    sprite[spritenum].x = getnumber16(edittext,sprite[spritenum].x,131072,1);
                 }
             }
             break;
+            case 1:
+            {
+                for (i=Bsprintf(disptext,"Y-coordinate: %ld",sprite[spritenum].y); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Y-coordinate: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    sprite[spritenum].y = getnumber16(edittext,sprite[spritenum].y,131072,1);
+                }
+            }
+            break;
+            case 2:
+            {
+                for (i=Bsprintf(disptext,"Z-coordinate: %ld",sprite[spritenum].z); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Z-coordinate: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    sprite[spritenum].z = getnumber16(edittext,sprite[spritenum].z,8388608,1); //2147483647L,-2147483648L
+                }
+            }
+            break;
+            case 3:
+            {
+                for (i=Bsprintf(disptext,"Sectnum: %d",sprite[spritenum].sectnum); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Sectnum: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    i = getnumber16(edittext,sprite[spritenum].sectnum,MAXSECTORS-1,0);
+                    if (i != sprite[spritenum].sectnum)
+                        changespritesect(spritenum,i);
+                }
+            }
+            break;
+            case 4:
+            {
+                for (i=Bsprintf(disptext,"Statnum: %d",sprite[spritenum].statnum); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Statnum: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    i = getnumber16(edittext,sprite[spritenum].statnum,MAXSTATUS-1,0);
+                    if (i != sprite[spritenum].statnum)
+                        changespritestat(spritenum,i);
+                }
+            }
+            break;
+            }
+        }
+        break;
         case 1:
+        {
+            switch (row)
             {
-                switch (row)
+            case 0:
+            {
+                for (i=Bsprintf(disptext,"Flags (hex): %x",sprite[spritenum].cstat); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Flags: ",spritenum);
+                if (editval)
                 {
-                case 0:
-                    {
-                        for (i=Bsprintf(disptext,"Flags (hex): %x",sprite[spritenum].cstat); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Flags: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].cstat = (short)getnumber16(edittext,(long)sprite[spritenum].cstat,32768L,0);
-                        }
-                    }
-                    break;
-                case 1:
-                    {
-                        for (i=Bsprintf(disptext,"Shade: %d",sprite[spritenum].shade); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Shade: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].shade = (char)getnumber16(edittext,(long)sprite[spritenum].shade,127,1);
-                        }
-                    }
-                    break;
-                case 2:
-                    {
-                        for (i=Bsprintf(disptext,"Pal: %d",sprite[spritenum].pal); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Pal: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].pal = (char)getnumber16(edittext,(long)sprite[spritenum].pal,MAXPALOOKUPS,0);
-                        }
-                    }
-                    break;
-                case 3:
-                    {
-                        for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
-                        if (editval)
-                        {
-                            Bsprintf(edittext,"Sprite (%d) X Repeat: ",spritenum);
-                            printmessage16(edittext);
-                            sprite[spritenum].xrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].xrepeat,256L,0);
-                            Bsprintf(edittext,"Sprite (%d) Y Repeat: ",spritenum);
-                            printmessage16(edittext);
-                            sprite[spritenum].yrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].yrepeat,256L,0);
-                        }
-                    }
-                    break;
-                case 4:
-                    {
-                        for (i=Bsprintf(disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < dispwidth; i++) disptext[i] = ' ';
-                        if (editval)
-                        {
-                            Bsprintf(edittext,"Sprite (%d) X Offset: ",spritenum);
-                            printmessage16(edittext);
-                            sprite[spritenum].xoffset = (char)getnumber16(edittext,(long)sprite[spritenum].xoffset,128L,1);
-                            Bsprintf(edittext,"Sprite (%d) Y Offset: ",spritenum);
-                            printmessage16(edittext);
-                            sprite[spritenum].yoffset = (char)getnumber16(edittext,(long)sprite[spritenum].yoffset,128L,1);
-                        }
-                    }
-                    break;
-                case 5:
-                    {
-                        for (i=Bsprintf(disptext,"Tile number: %d",sprite[spritenum].picnum); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Tile number: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].picnum = (short)getnumber16(edittext,(long)sprite[spritenum].picnum,MAXTILES,0);
-                        }
-                    }
-                    break;
+                    printmessage16(edittext);
+                    sprite[spritenum].cstat = (short)getnumber16(edittext,(long)sprite[spritenum].cstat,32768L,0);
                 }
             }
             break;
+            case 1:
+            {
+                for (i=Bsprintf(disptext,"Shade: %d",sprite[spritenum].shade); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Shade: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    sprite[spritenum].shade = (char)getnumber16(edittext,(long)sprite[spritenum].shade,127,1);
+                }
+            }
+            break;
+            case 2:
+            {
+                for (i=Bsprintf(disptext,"Pal: %d",sprite[spritenum].pal); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Pal: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    sprite[spritenum].pal = (char)getnumber16(edittext,(long)sprite[spritenum].pal,MAXPALOOKUPS,0);
+                }
+            }
+            break;
+            case 3:
+            {
+                for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
+                {
+                    Bsprintf(edittext,"Sprite (%d) X Repeat: ",spritenum);
+                    printmessage16(edittext);
+                    sprite[spritenum].xrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].xrepeat,256L,0);
+                    Bsprintf(edittext,"Sprite (%d) Y Repeat: ",spritenum);
+                    printmessage16(edittext);
+                    sprite[spritenum].yrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].yrepeat,256L,0);
+                }
+            }
+            break;
+            case 4:
+            {
+                for (i=Bsprintf(disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
+                {
+                    Bsprintf(edittext,"Sprite (%d) X Offset: ",spritenum);
+                    printmessage16(edittext);
+                    sprite[spritenum].xoffset = (char)getnumber16(edittext,(long)sprite[spritenum].xoffset,128L,1);
+                    Bsprintf(edittext,"Sprite (%d) Y Offset: ",spritenum);
+                    printmessage16(edittext);
+                    sprite[spritenum].yoffset = (char)getnumber16(edittext,(long)sprite[spritenum].yoffset,128L,1);
+                }
+            }
+            break;
+            case 5:
+            {
+                for (i=Bsprintf(disptext,"Tile number: %d",sprite[spritenum].picnum); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Tile number: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    sprite[spritenum].picnum = (short)getnumber16(edittext,(long)sprite[spritenum].picnum,MAXTILES,0);
+                }
+            }
+            break;
+            }
+        }
+        break;
         case 2:
+        {
+            switch (row)
             {
-                switch (row)
+            case 0:
+            {
+                for (i=Bsprintf(disptext,"Angle (2048 degrees): %d",sprite[spritenum].ang); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Angle: ",spritenum);
+                if (editval)
                 {
-                case 0:
-                    {
-                        for (i=Bsprintf(disptext,"Angle (2048 degrees): %d",sprite[spritenum].ang); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Angle: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].ang = (short)getnumber16(edittext,(long)sprite[spritenum].ang,2048L,0);
-                        }
-                    }
-                    break;
-                case 1:
-                    {
-                        for (i=Bsprintf(disptext,"X-Velocity: %d",sprite[spritenum].xvel); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) X-Velocity: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].xvel = getnumber16(edittext,(long)sprite[spritenum].xvel,32767,1);
-                        }
-                    }
-                    break;
-                case 2:
-                    {
-                        for (i=Bsprintf(disptext,"Y-Velocity: %d",sprite[spritenum].yvel); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Y-Velocity: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].yvel = getnumber16(edittext,(long)sprite[spritenum].yvel,32767,1);
-                        }
-                    }
-                    break;
-                case 3:
-                    {
-                        for (i=Bsprintf(disptext,"Z-Velocity: %d",sprite[spritenum].zvel); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Z-Velocity: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].zvel = getnumber16(edittext,(long)sprite[spritenum].zvel,32767,1);
-                        }
-                    }
-                    break;
-                case 4:
-                    {
-                        for (i=Bsprintf(disptext,"Owner: %d",sprite[spritenum].owner); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Owner: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].owner = getnumber16(edittext,(long)sprite[spritenum].owner,MAXSPRITES,0);
-                        }
-                    }
-                    break;
-                case 5:
-                    {
-                        for (i=Bsprintf(disptext,"Clipdist: %d",sprite[spritenum].clipdist); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Clipdist: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].clipdist = (char)getnumber16(edittext,(long)sprite[spritenum].clipdist,255,0);
-                        }
-                    }
-                    break;
-                case 6:
-                    {
-                        for (i=Bsprintf(disptext,"Extra: %d",sprite[spritenum].extra); i < dispwidth; i++) disptext[i] = ' ';
-                        Bsprintf(edittext,"Sprite (%d) Extra: ",spritenum);
-                        if (editval)
-                        {
-                            printmessage16(edittext);
-                            sprite[spritenum].extra = getnumber16(edittext,(long)sprite[spritenum].extra,32767,1);
-                        }
-                    }
-                    break;
+                    printmessage16(edittext);
+                    sprite[spritenum].ang = (short)getnumber16(edittext,(long)sprite[spritenum].ang,2048L,0);
                 }
             }
             break;
+            case 1:
+            {
+                for (i=Bsprintf(disptext,"X-Velocity: %d",sprite[spritenum].xvel); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) X-Velocity: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    sprite[spritenum].xvel = getnumber16(edittext,(long)sprite[spritenum].xvel,32767,1);
+                }
+            }
+            break;
+            case 2:
+            {
+                for (i=Bsprintf(disptext,"Y-Velocity: %d",sprite[spritenum].yvel); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Y-Velocity: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    sprite[spritenum].yvel = getnumber16(edittext,(long)sprite[spritenum].yvel,32767,1);
+                }
+            }
+            break;
+            case 3:
+            {
+                for (i=Bsprintf(disptext,"Z-Velocity: %d",sprite[spritenum].zvel); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Z-Velocity: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    sprite[spritenum].zvel = getnumber16(edittext,(long)sprite[spritenum].zvel,32767,1);
+                }
+            }
+            break;
+            case 4:
+            {
+                for (i=Bsprintf(disptext,"Owner: %d",sprite[spritenum].owner); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Owner: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    sprite[spritenum].owner = getnumber16(edittext,(long)sprite[spritenum].owner,MAXSPRITES,0);
+                }
+            }
+            break;
+            case 5:
+            {
+                for (i=Bsprintf(disptext,"Clipdist: %d",sprite[spritenum].clipdist); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Clipdist: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    sprite[spritenum].clipdist = (char)getnumber16(edittext,(long)sprite[spritenum].clipdist,255,0);
+                }
+            }
+            break;
+            case 6:
+            {
+                for (i=Bsprintf(disptext,"Extra: %d",sprite[spritenum].extra); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Sprite (%d) Extra: ",spritenum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    sprite[spritenum].extra = getnumber16(edittext,(long)sprite[spritenum].extra,32767,1);
+                }
+            }
+            break;
+            }
+        }
+        break;
         }
 
         printext16(xpos,ypos+row*8,11,1,disptext,0);
@@ -5411,7 +5527,7 @@ void FuncMenu(void)
 
     FuncMenuOpts();
 
-    while(!editval && keystatus[1] == 0)
+    while (!editval && keystatus[1] == 0)
     {
         begindrawing();
         if (handleevents()) {
@@ -5495,216 +5611,216 @@ void FuncMenu(void)
             switch (row)
             {
             case 0:
+            {
+                for (i=Bsprintf(disptext,"Replace invalid tiles"); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
                 {
-                    for (i=Bsprintf(disptext,"Replace invalid tiles"); i < dispwidth; i++) disptext[i] = ' ';
-                    if (editval)
+                    j = 0;
+                    for (i=0;i<MAXSECTORS;i++)
                     {
-                        j = 0;
-                        for(i=0;i<MAXSECTORS;i++)
-                        {
-                            if(tilesizx[sector[i].ceilingpicnum] <= 0)
-                                sector[i].ceilingpicnum = 0,j++;
-                            if(tilesizx[sector[i].floorpicnum] <= 0)
-                                sector[i].floorpicnum = 0,j++;
-                        }
-                        for(i=0;i<MAXWALLS;i++)
-                        {
-                            if(tilesizx[wall[i].picnum] <= 0)
-                                wall[i].picnum = 0,j++;
-                            if(tilesizx[wall[i].overpicnum] <= 0)
-                                wall[i].overpicnum = 0,j++;
-                        }
-                        for(i=0;i<MAXSPRITES;i++)
-                        {
-                            if(tilesizx[sprite[i].picnum] <= 0)
-                                sprite[i].picnum = 0,j++;
-                        }
-                        Bsprintf(tempbuf,"Replaced %d invalid tiles",j);
-                        printmessage16(tempbuf);
+                        if (tilesizx[sector[i].ceilingpicnum] <= 0)
+                            sector[i].ceilingpicnum = 0,j++;
+                        if (tilesizx[sector[i].floorpicnum] <= 0)
+                            sector[i].floorpicnum = 0,j++;
                     }
+                    for (i=0;i<MAXWALLS;i++)
+                    {
+                        if (tilesizx[wall[i].picnum] <= 0)
+                            wall[i].picnum = 0,j++;
+                        if (tilesizx[wall[i].overpicnum] <= 0)
+                            wall[i].overpicnum = 0,j++;
+                    }
+                    for (i=0;i<MAXSPRITES;i++)
+                    {
+                        if (tilesizx[sprite[i].picnum] <= 0)
+                            sprite[i].picnum = 0,j++;
+                    }
+                    Bsprintf(tempbuf,"Replaced %d invalid tiles",j);
+                    printmessage16(tempbuf);
                 }
-                break;
+            }
+            break;
             case 1:
+            {
+                for (i=Bsprintf(disptext,"Mass sprite delete"); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
                 {
-                    for (i=Bsprintf(disptext,"Mass sprite delete"); i < dispwidth; i++) disptext[i] = ' ';
-                    if (editval)
+                    Bsprintf(tempbuf,"Delete all sprites of picnum: ");
+                    i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
+                    if (i >= 0)
                     {
-                        Bsprintf(tempbuf,"Delete all sprites of picnum: ");
-                        i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
-                        if (i >= 0)
-                        {
-                            for(j=0;j<MAXSPRITES-1;j++)
-                                if(sprite[j].picnum == i)
-                                    deletesprite(j);
-                            printmessage16("Sprites deleted.");
-                        } else printmessage16("Aborted");
-                    }
+                        for (j=0;j<MAXSPRITES-1;j++)
+                            if (sprite[j].picnum == i)
+                                deletesprite(j);
+                        printmessage16("Sprites deleted.");
+                    } else printmessage16("Aborted");
                 }
-                break;
+            }
+            break;
             case 2:
+            {
+                for (i=Bsprintf(disptext,"Global sky shade"); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
                 {
-                    for (i=Bsprintf(disptext,"Global sky shade"); i < dispwidth; i++) disptext[i] = ' ';
-                    if (editval)
-                    {
-                        j=getnumber16("Global sky shade:    ",0,127,1);
+                    j=getnumber16("Global sky shade:    ",0,127,1);
 
-                        for(i=0;i<numsectors;i++)
+                    for (i=0;i<numsectors;i++)
+                    {
+                        if (sector[i].ceilingstat&1)
+                            sector[i].ceilingshade = j;
+                    }
+                    printmessage16("Parallaxed skies adjusted");
+                }
+            }
+            break;
+            case 3:
+            {
+                for (i=Bsprintf(disptext,"Global sky height"); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
+                {
+                    j=getnumber16("Global sky height:    ",0,16777216,1);
+                    if (j != 0)
+                    {
+                        for (i=0;i<numsectors;i++)
                         {
-                            if(sector[i].ceilingstat&1)
-                                sector[i].ceilingshade = j;
+                            if (sector[i].ceilingstat&1)
+                                sector[i].ceilingz = j;
                         }
                         printmessage16("Parallaxed skies adjusted");
-                    }
+                    } else printmessage16("Aborted");
                 }
-                break;
-            case 3:
-                {
-                    for (i=Bsprintf(disptext,"Global sky height"); i < dispwidth; i++) disptext[i] = ' ';
-                    if (editval)
-                    {
-                        j=getnumber16("Global sky height:    ",0,16777216,1);
-                        if(j != 0)
-                        {
-                            for(i=0;i<numsectors;i++)
-                            {
-                                if(sector[i].ceilingstat&1)
-                                    sector[i].ceilingz = j;
-                            }
-                            printmessage16("Parallaxed skies adjusted");
-                        } else printmessage16("Aborted");
-                    }
-                }
-                break;
+            }
+            break;
             case 4:
+            {
+                for (i=Bsprintf(disptext,"Global Z coord shift"); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
                 {
-                    for (i=Bsprintf(disptext,"Global Z coord shift"); i < dispwidth; i++) disptext[i] = ' ';
-                    if (editval)
+                    j=getnumber16("Z offset:    ",0,16777216,1);
+                    if (j!=0)
                     {
-                        j=getnumber16("Z offset:    ",0,16777216,1);
-                        if(j!=0)
+                        for (i=0;i<numsectors;i++)
                         {
-                            for(i=0;i<numsectors;i++)
-                            {
-                                sector[i].ceilingz += j;
-                                sector[i].floorz += j;
-                            }
-                            for(i=0;i<MAXSPRITES;i++)
-                                sprite[i].z += j;
-                            printmessage16("Map adjusted");
-                        } else printmessage16("Aborted");
-                    }
+                            sector[i].ceilingz += j;
+                            sector[i].floorz += j;
+                        }
+                        for (i=0;i<MAXSPRITES;i++)
+                            sprite[i].z += j;
+                        printmessage16("Map adjusted");
+                    } else printmessage16("Aborted");
                 }
-                break;
+            }
+            break;
             case 5:
+            {
+                for (i=Bsprintf(disptext,"Scale map up"); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
                 {
-                    for (i=Bsprintf(disptext,"Scale map up"); i < dispwidth; i++) disptext[i] = ' ';
-                    if (editval)
+                    j=getnumber16("Map size multiplier:    ",1,8,0);
+                    if (j!=1)
                     {
-                        j=getnumber16("Map size multiplier:    ",1,8,0);
-                        if(j!=1)
+                        for (i=0;i<numsectors;i++)
                         {
-                            for(i=0;i<numsectors;i++)
-                            {
-                                sector[i].ceilingz *= j;
-                                sector[i].floorz *= j;
-                            }
-                            for(i=0;i<numwalls;i++)
-                            {
-                                wall[i].x *= j;
-                                wall[i].y *= j;
-                                wall[i].yrepeat = min(wall[i].yrepeat/j,255);
-                            }
-                            for(i=0;i<MAXSPRITES;i++)
-                            {
-                                sprite[i].x *= j;
-                                sprite[i].y *= j;
-                                sprite[i].z *= j;
-                                sprite[i].xrepeat = max(sprite[i].xrepeat*j,1);
-                                sprite[i].yrepeat = max(sprite[i].yrepeat*j,1);
-                            }
-                            printmessage16("Map scaled");
-                        } else printmessage16("Aborted");
-                    }
+                            sector[i].ceilingz *= j;
+                            sector[i].floorz *= j;
+                        }
+                        for (i=0;i<numwalls;i++)
+                        {
+                            wall[i].x *= j;
+                            wall[i].y *= j;
+                            wall[i].yrepeat = min(wall[i].yrepeat/j,255);
+                        }
+                        for (i=0;i<MAXSPRITES;i++)
+                        {
+                            sprite[i].x *= j;
+                            sprite[i].y *= j;
+                            sprite[i].z *= j;
+                            sprite[i].xrepeat = max(sprite[i].xrepeat*j,1);
+                            sprite[i].yrepeat = max(sprite[i].yrepeat*j,1);
+                        }
+                        printmessage16("Map scaled");
+                    } else printmessage16("Aborted");
                 }
-                break;
+            }
+            break;
             case 6:
+            {
+                for (i=Bsprintf(disptext,"Scale map down"); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
                 {
-                    for (i=Bsprintf(disptext,"Scale map down"); i < dispwidth; i++) disptext[i] = ' ';
-                    if (editval)
+                    j=getnumber16("Map size divisor:    ",1,8,0);
+                    if (j!=1)
                     {
-                        j=getnumber16("Map size divisor:    ",1,8,0);
-                        if(j!=1)
+                        for (i=0;i<numsectors;i++)
                         {
-                            for(i=0;i<numsectors;i++)
-                            {
-                                sector[i].ceilingz /= j;
-                                sector[i].floorz /= j;
-                            }
-                            for(i=0;i<numwalls;i++)
-                            {
-                                wall[i].x /= j;
-                                wall[i].y /= j;
-                                wall[i].yrepeat = min(wall[i].yrepeat*j,255);
-                            }
-                            for(i=0;i<MAXSPRITES;i++)
-                            {
-                                sprite[i].x /= j;
-                                sprite[i].y /= j;
-                                sprite[i].z /= j;
-                                sprite[i].xrepeat = max(sprite[i].xrepeat/j,1);
-                                sprite[i].yrepeat = max(sprite[i].yrepeat/j,1);
-                            }
-                            printmessage16("Map scaled");
-                        } else printmessage16("Aborted");
-                    }
+                            sector[i].ceilingz /= j;
+                            sector[i].floorz /= j;
+                        }
+                        for (i=0;i<numwalls;i++)
+                        {
+                            wall[i].x /= j;
+                            wall[i].y /= j;
+                            wall[i].yrepeat = min(wall[i].yrepeat*j,255);
+                        }
+                        for (i=0;i<MAXSPRITES;i++)
+                        {
+                            sprite[i].x /= j;
+                            sprite[i].y /= j;
+                            sprite[i].z /= j;
+                            sprite[i].xrepeat = max(sprite[i].xrepeat/j,1);
+                            sprite[i].yrepeat = max(sprite[i].yrepeat/j,1);
+                        }
+                        printmessage16("Map scaled");
+                    } else printmessage16("Aborted");
                 }
-                break;
+            }
+            break;
             case 7:
+            {
+                for (i=Bsprintf(disptext,"Global shade divide"); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
                 {
-                    for (i=Bsprintf(disptext,"Global shade divide"); i < dispwidth; i++) disptext[i] = ' ';
-                    if (editval)
+                    j=getnumber16("Shade divisor:    ",1,127,1);
+                    if (j!=1)
                     {
-                        j=getnumber16("Shade divisor:    ",1,127,1);
-                        if(j!=1)
+                        for (i=0;i<numsectors;i++)
                         {
-                            for(i=0;i<numsectors;i++)
-                            {
-                                sector[i].ceilingshade /= j;
-                                sector[i].floorshade /= j;
-                            }
-                            for(i=0;i<numwalls;i++)
-                                wall[i].shade /= j;
-                            for(i=0;i<MAXSPRITES;i++)
-                                sprite[i].shade /= j;
-                            printmessage16("Shades adjusted");
-                        } else printmessage16("Aborted");
-                    }
+                            sector[i].ceilingshade /= j;
+                            sector[i].floorshade /= j;
+                        }
+                        for (i=0;i<numwalls;i++)
+                            wall[i].shade /= j;
+                        for (i=0;i<MAXSPRITES;i++)
+                            sprite[i].shade /= j;
+                        printmessage16("Shades adjusted");
+                    } else printmessage16("Aborted");
                 }
-                break;
+            }
+            break;
             }
             break;
         case 1:
             switch (row)
             {
             case 0:
+            {
+                for (i=Bsprintf(disptext,"Global visibility divide"); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
                 {
-                    for (i=Bsprintf(disptext,"Global visibility divide"); i < dispwidth; i++) disptext[i] = ' ';
-                    if (editval)
+                    j=getnumber16("Visibility divisor:    ",1,127,0);
+                    if (j!=1)
                     {
-                        j=getnumber16("Visibility divisor:    ",1,127,0);
-                        if(j!=1)
+                        for (i=0;i<numsectors;i++)
                         {
-                            for(i=0;i<numsectors;i++)
-                            {
-                                if(sector[i].visibility < 240)
-                                    sector[i].visibility /= j;
-                                else sector[i].visibility = 240 + (sector[i].visibility>>4)/j;
-                            }
-                            printmessage16("Visibility adjusted");
-                        } else printmessage16("Aborted");
-                    }
+                            if (sector[i].visibility < 240)
+                                sector[i].visibility /= j;
+                            else sector[i].visibility = 240 + (sector[i].visibility>>4)/j;
+                        }
+                        printmessage16("Visibility adjusted");
+                    } else printmessage16("Aborted");
                 }
-                break;
+            }
+            break;
             }
             break;
         }

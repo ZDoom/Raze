@@ -215,7 +215,7 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
         }
         return;
     }
-        
+
     i = 0;
     while (i < numsectors)
     {
@@ -244,7 +244,7 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
                 while (j < sec->wallnum)
                 {
                     if (((pr_frustumculling == 0) || polymer_portalinfrustum(sec->wallptr + j)) &&
-                        ((pr_cliplanes == 0) || polymer_wallincliplanes(sec->wallptr + j)))
+                            ((pr_cliplanes == 0) || polymer_wallincliplanes(sec->wallptr + j)))
                     {
                         polymer_drawwall(sec->wallptr + j);
                         if ((wal->nextsector != -1) && (prsectors[wal->nextsector]) && (prsectors[wal->nextsector]->drawingstate == 0))
@@ -320,7 +320,7 @@ int                 polymer_initsector(short sectnum)
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize geometry of sector %i : malloc failed.\n", sectnum);
         return (0);
     }
-   
+
     s->floorindices = s->ceilindices = NULL;
 
     s->controlstate = s->drawingstate = 0;
@@ -450,7 +450,7 @@ int                 polymer_updatesector(short sectnum)
             }
 
             if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,sectnum);
-        
+
             if (!waloff[curpicnum])
                 loadtile(curpicnum);
 
@@ -734,7 +734,7 @@ void                polymer_updatewall(short wallnum)
         }
 
         if (wal->cstat & 4)
-            yref = sec->floorz;            
+            yref = sec->floorz;
         else
             yref = sec->ceilingz;
 
@@ -774,8 +774,8 @@ void                polymer_updatewall(short wallnum)
         ns = prsectors[wal->nextsector];
 
         if (((s->floorbuffer[((wallnum - sec->wallptr) * 5) + 1] != ns->floorbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-           (s->floorbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->floorbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
-           (s->floorbuffer[((wallnum - sec->wallptr) * 5) + 1] <= ns->floorbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]))
+                (s->floorbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->floorbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
+                (s->floorbuffer[((wallnum - sec->wallptr) * 5) + 1] <= ns->floorbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]))
         {
             memcpy(w->wallbuffer, &s->floorbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
             memcpy(&w->wallbuffer[5], &s->floorbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
@@ -815,7 +815,7 @@ void                polymer_updatewall(short wallnum)
             }
 
             if ((!(wal->cstat & 2) && (wal->cstat & 4)) || ((wal->cstat & 2) && (wall[nwallnum].cstat & 4)))
-                yref = sec->ceilingz;             
+                yref = sec->ceilingz;
             else
                 yref = nsec->floorz;
 
@@ -850,8 +850,8 @@ void                polymer_updatewall(short wallnum)
         }
 
         if (((s->ceilbuffer[((wallnum - sec->wallptr) * 5) + 1] != ns->ceilbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-           (s->ceilbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->ceilbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
-           (s->ceilbuffer[((wallnum - sec->wallptr) * 5) + 1] >= ns->ceilbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]))
+                (s->ceilbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->ceilbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
+                (s->ceilbuffer[((wallnum - sec->wallptr) * 5) + 1] >= ns->ceilbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]))
         {
             if (w->overbuffer == NULL)
                 w->overbuffer = calloc(4, sizeof(GLfloat) * 5);
@@ -888,7 +888,7 @@ void                polymer_updatewall(short wallnum)
             }
 
             if (wal->cstat & 4)
-                yref = sec->ceilingz;            
+                yref = sec->ceilingz;
             else
                 yref = nsec->ceilingz;
 
@@ -1016,8 +1016,8 @@ int                 polymer_portalinfrustum(short wallnum)
         while (j < 4)
         {
             sqdist = frustum[(i * 4) + 0] * w->portal[(j * 3) + 0] +
-                     frustum[(i * 4) + 1] * w->portal[(j * 3) + 1] + 
-                     frustum[(i * 4) + 2] * w->portal[(j * 3) + 2] + 
+                     frustum[(i * 4) + 1] * w->portal[(j * 3) + 1] +
+                     frustum[(i * 4) + 2] * w->portal[(j * 3) + 2] +
                      frustum[(i * 4) + 3];
             if (sqdist  < 0)
                 k++;
@@ -1050,7 +1050,7 @@ int                 polymer_wallincliplanes(short wallnum)
     walltype        *wal;
     _point2d        p1, p2;
     int             i, j;
-    
+
     wal = &wall[wallnum];
 
     p1.x = wal->x;

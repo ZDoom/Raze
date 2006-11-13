@@ -40,7 +40,7 @@ void hlineasm4(long cnt, long skiploadincs, long paloffs, unsigned long by, unsi
 
     palptr = (char *)&ghlinepal[paloffs];
     if (!skiploadincs) { gbxinc = asm1; gbyinc = asm2; }
-    for(;cnt>=0;cnt--)
+    for (;cnt>=0;cnt--)
     {
         *((char *)p) = palptr[gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))]];
         bx -= gbxinc;
@@ -63,7 +63,7 @@ void slopevlin(long p, long i, long slopaloffs, long cnt, long bx, long by)
 
     bz = asm3; bzinc = (asm1>>3);
     slopalptr = (long *)slopaloffs;
-    for(;cnt>0;cnt--)
+    for (;cnt>0;cnt--)
     {
         i = krecip(bz>>6); bz += bzinc;
         u = bx+globalx3*i;
@@ -81,7 +81,7 @@ void vlineasm1(long vinc, long paloffs, long cnt, unsigned long vplc, long bufpl
 {
     gbuf = (char *)bufplc;
     gpal = (char *)paloffs;
-    for(;cnt>=0;cnt--)
+    for (;cnt>=0;cnt--)
     {
         *((char *)p) = gpal[gbuf[vplc>>glogy]];
         p += bpl;
@@ -96,7 +96,7 @@ void mvlineasm1(long vinc, long paloffs, long cnt, unsigned long vplc, long bufp
 
     gbuf = (char *)bufplc;
     gpal = (char *)paloffs;
-    for(;cnt>=0;cnt--)
+    for (;cnt>=0;cnt--)
     {
         ch = gbuf[vplc>>glogy]; if (ch != 255) *((char *)p) = gpal[ch];
         p += bpl;
@@ -113,7 +113,7 @@ void tvlineasm1(long vinc, long paloffs, long cnt, unsigned long vplc, long bufp
     gpal = (char *)paloffs;
     if (transmode)
     {
-        for(;cnt>=0;cnt--)
+        for (;cnt>=0;cnt--)
         {
             ch = gbuf[vplc>>glogy];
             if (ch != 255) *((char *)p) = gtrans[(*((char *)p))+(gpal[ch]<<8)];
@@ -123,7 +123,7 @@ void tvlineasm1(long vinc, long paloffs, long cnt, unsigned long vplc, long bufp
     }
     else
     {
-        for(;cnt>=0;cnt--)
+        for (;cnt>=0;cnt--)
         {
             ch = gbuf[vplc>>glogy];
             if (ch != 255) *((char *)p) = gtrans[((*((char *)p))<<8)+gpal[ch]];
@@ -141,7 +141,7 @@ void mhline(long bufplc, unsigned long bx, long cntup16, long junk, unsigned lon
 
     gbuf = (char *)bufplc;
     gpal = (char *)asm3;
-    for(cntup16>>=16;cntup16>0;cntup16--)
+    for (cntup16>>=16;cntup16>0;cntup16--)
     {
         ch = gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))];
         if (ch != 255) *((char *)p) = gpal[ch];
@@ -160,7 +160,7 @@ void thline(long bufplc, unsigned long bx, long cntup16, long junk, unsigned lon
     gpal = (char *)asm3;
     if (transmode)
     {
-        for(cntup16>>=16;cntup16>0;cntup16--)
+        for (cntup16>>=16;cntup16>0;cntup16--)
         {
             ch = gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))];
             if (ch != 255) *((char *)p) = gtrans[(*((char *)p))+(gpal[ch]<<8)];
@@ -171,7 +171,7 @@ void thline(long bufplc, unsigned long bx, long cntup16, long junk, unsigned lon
     }
     else
     {
-        for(cntup16>>=16;cntup16>0;cntup16--)
+        for (cntup16>>=16;cntup16>0;cntup16--)
         {
             ch = gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))];
             if (ch != 255) *((char *)p) = gtrans[((*((char *)p))<<8)+gpal[ch]];
@@ -194,7 +194,7 @@ void setupspritevline(long paloffs, long bxinc, long byinc, long ysiz)
 void spritevline(long bx, long by, long cnt, long bufplc, long p)
 {
     gbuf = (char *)bufplc;
-    for(;cnt>1;cnt--)
+    for (;cnt>1;cnt--)
     {
         (*(char *)p) = gpal[gbuf[(bx>>16)*glogy+(by>>16)]];
         bx += gbxinc;
@@ -216,7 +216,7 @@ void mspritevline(long bx, long by, long cnt, long bufplc, long p)
     char ch;
 
     gbuf = (char *)bufplc;
-    for(;cnt>1;cnt--)
+    for (;cnt>1;cnt--)
     {
         ch = gbuf[(bx>>16)*glogy+(by>>16)];
         if (ch != 255) (*(char *)p) = gpal[ch];
@@ -240,7 +240,7 @@ void tspritevline(long bx, long by, long cnt, long bufplc, long p)
     gbuf = (char *)bufplc;
     if (transmode)
     {
-        for(;cnt>1;cnt--)
+        for (;cnt>1;cnt--)
         {
             ch = gbuf[(bx>>16)*glogy+(by>>16)];
             if (ch != 255) *((char *)p) = gtrans[(*((char *)p))+(gpal[ch]<<8)];
@@ -251,7 +251,7 @@ void tspritevline(long bx, long by, long cnt, long bufplc, long p)
     }
     else
     {
-        for(;cnt>1;cnt--)
+        for (;cnt>1;cnt--)
         {
             ch = gbuf[(bx>>16)*glogy+(by>>16)];
             if (ch != 255) *((char *)p) = gtrans[((*((char *)p))<<8)+gpal[ch]];
@@ -271,7 +271,7 @@ void drawslab (long dx, long v, long dy, long vi, long vptr, long p)
 
     while (dy > 0)
     {
-        for(x=0;x<dx;x++) *(char *)(p+x) = gpal[(long)(*(char *)((v>>16)+vptr))];
+        for (x=0;x<dx;x++) *(char *)(p+x) = gpal[(long)(*(char *)((v>>16)+vptr))];
         p += bpl; v += vi; dy--;
     }
 }

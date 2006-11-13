@@ -66,11 +66,11 @@ extern struct sdlappicon sdlappicon;
 void gtkbuild_init(int *argc, char ***argv)
 {
 #ifndef LINKED_GTK
-	gtkenabled = dynamicgtk_init();
-	if (gtkenabled < 0) {
-		gtkenabled = 0;
-		return;
-	}
+    gtkenabled = dynamicgtk_init();
+    if (gtkenabled < 0) {
+        gtkenabled = 0;
+        return;
+    }
 #endif
     gtkenabled = gtk_init_check(argc, argv);
     if (!gtkenabled) return;
@@ -84,10 +84,10 @@ void gtkbuild_init(int *argc, char ***argv)
 
 void gtkbuild_exit(int r)
 {
-	if (gtkenabled) {
-		if (appicon) g_object_unref((gpointer)appicon);
-	}
+    if (gtkenabled) {
+        if (appicon) g_object_unref((gpointer)appicon);
+    }
 #ifndef LINKED_GTK
-	dynamicgtk_uninit();
+    dynamicgtk_uninit();
 #endif
 }

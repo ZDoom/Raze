@@ -51,20 +51,20 @@ void cmenu(short cm)
 {
     current_menu = cm;
 
-    if( (cm >= 1000 && cm <= 1009) )
+    if ( (cm >= 1000 && cm <= 1009) )
         return;
 
-    if( cm == 0 )
+    if ( cm == 0 )
         probey = last_zero;
-    else if(cm == 50)
+    else if (cm == 50)
         probey = last_fifty;
-    else if(cm == 100)
+    else if (cm == 100)
         probey = last_onehundred;
-    else if(cm == 202)
+    else if (cm == 202)
         probey = last_twoohtwo;
-    else if(cm >= 300 && cm < 400)
+    else if (cm >= 300 && cm < 400)
         probey = last_threehundred;
-    else if(cm == 110)
+    else if (cm == 110)
         probey = 1;
     else probey = 0;
     lastprobey = -1;
@@ -86,9 +86,9 @@ void getangplayers(short snum)
 {
     short i,a;
 
-    for(i=connecthead;i>=0;i=connectpoint2[i])
+    for (i=connecthead;i>=0;i=connectpoint2[i])
     {
-        if(i != snum)
+        if (i != snum)
         {
             a = ps[snum].ang+getangle(ps[i].posx-ps[snum].posx,ps[i].posy-ps[snum].posy);
             a = a-1024;
@@ -118,13 +118,13 @@ static int probe_(int type,int x,int y,int i,int n)
         mi += minfo.dz;
     }
 
-    if( x == (320>>1) )
+    if ( x == (320>>1) )
         centre = 320>>2;
     else centre = 0;
 
-    if(!buttonstat)
+    if (!buttonstat)
     {
-        if( KB_KeyPressed( sc_UpArrow ) || KB_KeyPressed( sc_PgUp ) || KB_KeyPressed( sc_kpad_8 ) ||
+        if ( KB_KeyPressed( sc_UpArrow ) || KB_KeyPressed( sc_PgUp ) || KB_KeyPressed( sc_kpad_8 ) ||
                 mi < -8192 )
         {
             mi = 0;
@@ -134,10 +134,10 @@ static int probe_(int type,int x,int y,int i,int n)
             sound(KICK_HIT);
 
             probey--;
-            if(probey < 0) probey = n-1;
+            if (probey < 0) probey = n-1;
             minfo.dz = 0;
         }
-        if( KB_KeyPressed( sc_DownArrow ) || KB_KeyPressed( sc_PgDn ) || KB_KeyPressed( sc_kpad_2 )
+        if ( KB_KeyPressed( sc_DownArrow ) || KB_KeyPressed( sc_PgDn ) || KB_KeyPressed( sc_kpad_2 )
                 || mi > 8192 )
         {
             mi = 0;
@@ -150,10 +150,10 @@ static int probe_(int type,int x,int y,int i,int n)
         }
     }
 
-    if(probey >= n)
+    if (probey >= n)
         probey = 0;
 
-    if(centre)
+    if (centre)
     {
         //        rotatesprite(((320>>1)+(centre)+54)<<16,(y+(probey*i)-4)<<16,65536L,0,SPINNINGNUKEICON+6-((6+(totalclock>>3))%7),sh,0,10,0,0,xdim-1,ydim-1);
         //        rotatesprite(((320>>1)-(centre)-54)<<16,(y+(probey*i)-4)<<16,65536L,0,SPINNINGNUKEICON+((totalclock>>3)%7),sh,0,10,0,0,xdim-1,ydim-1);
@@ -164,16 +164,16 @@ static int probe_(int type,int x,int y,int i,int n)
     else
         rotatesprite((x<<16)-((tilesizx[BIGFNTCURSOR]-4)<<(16-type)),(y+(probey*i)-(4>>type))<<16,65536L>>type,0,SPINNINGNUKEICON+(((totalclock>>3))%7),sh,0,10,0,0,xdim-1,ydim-1);
 
-    if( KB_KeyPressed(sc_Space) || KB_KeyPressed( sc_kpad_Enter ) || KB_KeyPressed( sc_Enter ) || (LMB && !onbar) )
+    if ( KB_KeyPressed(sc_Space) || KB_KeyPressed( sc_kpad_Enter ) || KB_KeyPressed( sc_Enter ) || (LMB && !onbar) )
     {
-        if(current_menu != 110)
+        if (current_menu != 110)
             sound(PISTOL_BODYHIT);
         KB_ClearKeyDown( sc_Enter );
         KB_ClearKeyDown( sc_Space );
         KB_ClearKeyDown( sc_kpad_Enter );
         return(probey);
     }
-    else if( KB_KeyPressed( sc_Escape ) || (RMB) )
+    else if ( KB_KeyPressed( sc_Escape ) || (RMB) )
     {
         onbar = 0;
         KB_ClearKeyDown( sc_Escape );
@@ -182,7 +182,7 @@ static int probe_(int type,int x,int y,int i,int n)
     }
     else
     {
-        if(onbar == 0) return(-probey-2);
+        if (onbar == 0) return(-probey-2);
         if ( KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -128 ) )
             return(probey);
         else if ( KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 128 ) )
@@ -201,24 +201,24 @@ int menutext_(int x,int y,short s,short p,char *t)
 
     i = centre = 0;
 
-    if( x == (320>>1) )
+    if ( x == (320>>1) )
     {
-        while( *(t+i) )
+        while ( *(t+i) )
         {
-            if(*(t+i) == ' ')
+            if (*(t+i) == ' ')
             {
                 centre += 5;
                 i++;
                 continue;
             }
             ac = 0;
-            if(*(t+i) >= '0' && *(t+i) <= '9')
+            if (*(t+i) >= '0' && *(t+i) <= '9')
                 ac = *(t+i) - '0' + BIGALPHANUM-10;
-            else if(*(t+i) >= 'a' && *(t+i) <= 'z')
+            else if (*(t+i) >= 'a' && *(t+i) <= 'z')
                 ac = toupper(*(t+i)) - 'A' + BIGALPHANUM;
-            else if(*(t+i) >= 'A' && *(t+i) <= 'Z')
+            else if (*(t+i) >= 'A' && *(t+i) <= 'Z')
                 ac = *(t+i) - 'A' + BIGALPHANUM;
-            else switch(*(t+i))
+            else switch (*(t+i))
                 {
                 case '-':
                     ac = BIGALPHANUM-11;
@@ -255,20 +255,20 @@ int menutext_(int x,int y,short s,short p,char *t)
         }
     }
 
-    if(centre)
+    if (centre)
         x = (320-centre-10)>>1;
 
-    while(*t)
+    while (*t)
     {
-        if(*t == ' ') {x+=5;t++;continue;}
+        if (*t == ' ') {x+=5;t++;continue;}
         ac = 0;
-        if(*t >= '0' && *t <= '9')
+        if (*t >= '0' && *t <= '9')
             ac = *t - '0' + BIGALPHANUM-10;
-        else if(*t >= 'a' && *t <= 'z')
+        else if (*t >= 'a' && *t <= 'z')
             ac = toupper(*t) - 'A' + BIGALPHANUM;
-        else if(*t >= 'A' && *t <= 'Z')
+        else if (*t >= 'A' && *t <= 'Z')
             ac = *t - 'A' + BIGALPHANUM;
-        else switch(*t)
+        else switch (*t)
             {
             case '-':
                 ac = BIGALPHANUM-11;
@@ -318,54 +318,54 @@ static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short 
     short xloc;
     char rev;
 
-    if(dainc < 0) { dainc = -dainc; rev = 1; }
+    if (dainc < 0) { dainc = -dainc; rev = 1; }
     else rev = 0;
     y-=2;
 
-    if(damodify)
+    if (damodify)
     {
-        if(rev == 0)
+        if (rev == 0)
         {
-            if( *p > 0 && (KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) ) ) // && onbar) )
+            if ( *p > 0 && (KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) ) ) // && onbar) )
             {
                 KB_ClearKeyDown( sc_LeftArrow );
                 KB_ClearKeyDown( sc_kpad_4 );
 
                 *p -= dainc;
-                if(*p < 0)
+                if (*p < 0)
                     *p = 0;
                 sound(KICK_HIT);
             }
-            if( *p < 63 && (KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ) ) )//&& onbar) )
+            if ( *p < 63 && (KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ) ) )//&& onbar) )
             {
                 KB_ClearKeyDown( sc_RightArrow );
                 KB_ClearKeyDown( sc_kpad_6 );
 
                 *p += dainc;
-                if(*p > 63)
+                if (*p > 63)
                     *p = 63;
                 sound(KICK_HIT);
             }
         }
         else
         {
-            if( *p > 0 && (KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ) ) )//&& onbar) )
+            if ( *p > 0 && (KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ) ) )//&& onbar) )
             {
                 KB_ClearKeyDown( sc_RightArrow );
                 KB_ClearKeyDown( sc_kpad_6 );
 
                 *p -= dainc;
-                if(*p < 0)
+                if (*p < 0)
                     *p = 0;
                 sound(KICK_HIT);
             }
-            if( *p < 64 && (KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) ) ) // && onbar) )
+            if ( *p < 64 && (KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) ) ) // && onbar) )
             {
                 KB_ClearKeyDown( sc_LeftArrow );
                 KB_ClearKeyDown( sc_kpad_4 );
 
                 *p += dainc;
-                if(*p > 64)
+                if (*p > 64)
                     *p = 64;
                 sound(KICK_HIT);
             }
@@ -375,7 +375,7 @@ static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short 
     xloc = *p;
 
     rotatesprite( (x<<16)+(22<<(16-type)),(y<<16)-(3<<(16-type)),65536L>>type,0,SLIDEBAR,s,pa,10,0,0,xdim-1,ydim-1);
-    if(rev == 0)
+    if (rev == 0)
         rotatesprite( (x<<16)+((xloc+1)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
     else
         rotatesprite( (x<<16)+((65-xloc)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
@@ -388,53 +388,53 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
 {
     char rev;
 
-    if(dainc < 0) { dainc = -dainc; rev = 1; }
+    if (dainc < 0) { dainc = -dainc; rev = 1; }
     else rev = 0;
 
-    if(damodify)
+    if (damodify)
     {
-        if(rev == 0)
+        if (rev == 0)
         {
-            if( KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) ) // && onbar) )
+            if ( KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) ) // && onbar) )
             {
                 KB_ClearKeyDown( sc_LeftArrow );
                 KB_ClearKeyDown( sc_kpad_4 );
 
                 *p -= dainc;
-                if(*p < min)
+                if (*p < min)
                     *p = max;
                 sound(PISTOL_BODYHIT);
             }
-            if( KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ) )//&& onbar) )
+            if ( KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ) )//&& onbar) )
             {
                 KB_ClearKeyDown( sc_RightArrow );
                 KB_ClearKeyDown( sc_kpad_6 );
 
                 *p += dainc;
-                if(*p > max)
+                if (*p > max)
                     *p = min;
                 sound(PISTOL_BODYHIT);
             }
         }
         else
         {
-            if( KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ))//&& onbar ))
+            if ( KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ))//&& onbar ))
             {
                 KB_ClearKeyDown( sc_RightArrow );
                 KB_ClearKeyDown( sc_kpad_6 );
 
                 *p -= dainc;
-                if(*p < min)
+                if (*p < min)
                     *p = max;
                 sound(PISTOL_BODYHIT);
             }
-            if( KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ))// && onbar) )
+            if ( KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ))// && onbar) )
             {
                 KB_ClearKeyDown( sc_LeftArrow );
                 KB_ClearKeyDown( sc_kpad_4 );
 
                 *p += dainc;
-                if(*p > max)
+                if (*p > max)
                     *p = min;
                 sound(PISTOL_BODYHIT);
             }
@@ -464,7 +464,7 @@ void dispnames(void)
     short x, c = 160;
 
     c += 64;
-    for(x = 0;x <= 108;x += 12)
+    for (x = 0;x <= 108;x += 12)
         rotatesprite((c+91-64)<<16,(x+56)<<16,65536L,0,TEXTBOX,24,0,10,0,0,xdim-1,ydim-1);
 
     rotatesprite(22<<16,97<<16,65536L,0,WINDOWBORDER2,24,0,10,0,0,xdim-1,ydim-1);
@@ -508,9 +508,9 @@ void check_player_color(int *color,int prev_color)
 {
     int i, disallowed[] = { 1, 2, 3, 4, 5, 6, 7, 8, 17, 18, 19, 20, 22 };
 
-    for(i=0;i<(signed)(sizeof(disallowed)/sizeof(disallowed[0]));i++) {
-        while(*color == disallowed[i]) {
-            if(*color > prev_color)
+    for (i=0;i<(signed)(sizeof(disallowed)/sizeof(disallowed[0]));i++) {
+        while (*color == disallowed[i]) {
+            if (*color > prev_color)
                 (*color)++;
             else (*color)--;
             i=0;
@@ -522,9 +522,9 @@ void sendquit(void)
 {
     int i;
 
-    if( gamequit == 0 && ( numplayers > 1 ) )
+    if ( gamequit == 0 && ( numplayers > 1 ) )
     {
-        if(ps[myconnectindex].gm&MODE_GAME)
+        if (ps[myconnectindex].gm&MODE_GAME)
         {
             gamequit = 1;
             quittimer = totalclock+120;
@@ -534,7 +534,7 @@ void sendquit(void)
             tempbuf[0] = 254;
             tempbuf[1] = myconnectindex;
 
-            for(i=connecthead;i >= 0;i=connectpoint2[i])
+            for (i=connecthead;i >= 0;i=connectpoint2[i])
             {
                 if (i != myconnectindex) sendpacket(i,tempbuf,2);
                 if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
@@ -542,10 +542,10 @@ void sendquit(void)
             gameexit(" ");
         }
     }
-    else if( numplayers < 2 )
+    else if ( numplayers < 2 )
         gameexit(" ");
 
-    if( ( totalclock > quittimer ) && ( gamequit == 1) )
+    if ( ( totalclock > quittimer ) && ( gamequit == 1) )
         gameexit("Timed out.");
 }
 
@@ -559,17 +559,17 @@ void menus(void)
     getpackets();
 
     {
-        if(buttonstat != 0 && !onbar)
+        if (buttonstat != 0 && !onbar)
         {
             x = MOUSE_GetButtons()<<3;
-            if( x ) buttonstat = x<<3;
+            if ( x ) buttonstat = x<<3;
             else buttonstat = 0;
         }
         else
             buttonstat = MOUSE_GetButtons();
     }
 
-    if( (ps[myconnectindex].gm&MODE_MENU) == 0 )
+    if ( (ps[myconnectindex].gm&MODE_MENU) == 0 )
     {
         walock[TILE_LOADSHOT] = 1;
         return;
@@ -581,17 +581,17 @@ void menus(void)
     x = 0;
 
     sh = 4-(sintable[(totalclock<<4)&2047]>>11);
-    if(bpp > 8)
+    if (bpp > 8)
     {
         long x,y,y1=0,y2=ydim;
-        for(y=y1;y<y2;y+=tilesizy[BIGHOLE])
-            for(x=0;x<xdim;x+=tilesizx[BIGHOLE])
+        for (y=y1;y<y2;y+=tilesizy[BIGHOLE])
+            for (x=0;x<xdim;x+=tilesizx[BIGHOLE])
                 rotatesprite(x<<16,y<<16,65536L,0,BIGHOLE,80,0,1+8+16,0,0,xdim-1,ydim-1);
     }
-    if(!(current_menu >= 1000 && current_menu <= 2999 && current_menu >= 300 && current_menu <= 369))
+    if (!(current_menu >= 1000 && current_menu <= 2999 && current_menu >= 300 && current_menu <= 369))
         vscrn();
 
-    if(KB_KeyPressed(sc_Q) && current_menu >= 0 && (current_menu > 502 || current_menu < 500) && current_menu != 20003 &&
+    if (KB_KeyPressed(sc_Q) && current_menu >= 0 && (current_menu > 502 || current_menu < 500) && current_menu != 20003 &&
             current_menu != 20005 && current_menu != 210 && current_menu != 603 && current_menu != 10001 && !(current_menu > 359 && current_menu < 370))
     {
         last_menu = current_menu;
@@ -599,16 +599,16 @@ void menus(void)
         cmenu(502);
     }
 
-    switch(current_menu)
+    switch (current_menu)
     {
     case 25000:
         gametext(160,90,"SELECT A SAVE SPOT BEFORE",0,2+8+16);
         gametext(160,90+9,"YOU QUICK RESTORE.",0,2+8+16);
 
         x = probe(186,124,0,0);
-        if(x >= -1)
+        if (x >= -1)
         {
-            if(ud.multimode < 2 && ud.recstat != 2)
+            if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -634,7 +634,7 @@ void menus(void)
         gametext(160,140+8,"VERSION OF DUKE NUKEM 3D.",0,2+8+16);
         gametext(160,149+16,"PRESS ANY KEY...",0,2+8+16);
 
-        if( x >= -1 ) cmenu(100);
+        if ( x >= -1 ) cmenu(100);
         break;
 
     case 20001:
@@ -657,18 +657,20 @@ void menus(void)
     case 20003:
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(160,24,0,0,"PLAYER SETUP");
-        if(probey == 2)
+        if (probey == 2)
         {
-            switch(ud.team) {
-            case 0: x = 3; break;
-            case 1: x = 21; break;
+            switch (ud.team) {
+            case 0:
+                x = 3; break;
+            case 1:
+                x = 21; break;
             }
         } else x = ud.color;
         rotatesprite((280)<<16,(37+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,x,10,0,0,xdim-1,ydim-1);
 
         if (current_menu == 20002) {
             x = probe(40,50,16,7);
-            switch(x) {
+            switch (x) {
             case -1:
                 cmenu(202);
                 probey = 3;
@@ -686,7 +688,7 @@ void menus(void)
 
             case 1:
                 ud.color++;
-                if(ud.color > 23)
+                if (ud.color > 23)
                     ud.color = 0;
                 check_player_color((int *)&ud.color,-1);
                 updatenames();
@@ -717,7 +719,7 @@ void menus(void)
         } else {
             x = strget(200,50-9,buf,30,0);
 
-            while(Bstrlen(strip_color_codes(buf)) > 10)
+            while (Bstrlen(strip_color_codes(buf)) > 10)
             {
                 buf[Bstrlen(buf)-1] = '\0';
                 inputloc--;
@@ -725,7 +727,7 @@ void menus(void)
 
             if (x) {
                 if (x == 1) {
-                    if(buf[0]) {
+                    if (buf[0]) {
                         Bstrcpy(myname,buf);
                     }
                     // send name update
@@ -756,7 +758,7 @@ void menus(void)
             modval(0,3,(int *)&ud.weaponswitch,1,probey==4);
             modval(0,1,(int *)&ud.mouseaiming,1,probey==5);
             check_player_color((int *)&ud.color,ud_color);
-            if(ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch || ud_maim != ud.mouseaiming || ud_team != ud.team)
+            if (ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch || ud_maim != ud.mouseaiming || ud_team != ud.team)
                 updatenames();
         }
         menutext(40,50+16+16,MENUHIGHLIGHT(2),0,"TEAM");
@@ -766,16 +768,21 @@ void menus(void)
         menutext(40,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),0,"MACRO SETUP");
 
         if (current_menu == 20002) {
-            gametext(200,50-9,myname,MENUHIGHLIGHT(0),2+8+16); }
+            gametext(200,50-9,myname,MENUHIGHLIGHT(0),2+8+16);
+        }
         { char *s[] = { "Auto","","","","","","","","","Blue","Dk red","Green","Gray","Dk gray","Dk green","Brown",
                             "Dk blue","","","","","Red","","Yellow","","" };
-            gametext(200,50+16-9,s[ud.color],MENUHIGHLIGHT(1),2+8+16); }
+            gametext(200,50+16-9,s[ud.color],MENUHIGHLIGHT(1),2+8+16);
+        }
         { char *s[] = { "Blue", "Red" };
-            gametext(200,50+16+16-9,s[ud.team],MENUHIGHLIGHT(2),2+8+16); }
+            gametext(200,50+16+16-9,s[ud.team],MENUHIGHLIGHT(2),2+8+16);
+        }
         { char *s[] = { "Off", "Full", "Hitscan" };
-            gametext(200,50+16+16+16-9,s[AutoAim],MENUHIGHLIGHT(3),2+8+16); }
+            gametext(200,50+16+16+16-9,s[AutoAim],MENUHIGHLIGHT(3),2+8+16);
+        }
         { char *s[] = { "Off", "On pickup", "When empty", "Both" };
-            gametext(200,50+16+16+16+16-9,s[ud.weaponswitch],MENUHIGHLIGHT(4),2+8+16); }
+            gametext(200,50+16+16+16+16-9,s[ud.weaponswitch],MENUHIGHLIGHT(4),2+8+16);
+        }
         gametext(200,50+16+16+16+16+16-9,ud.mouseaiming?"Held":"Toggle",MENUHIGHLIGHT(5),2+8+16);
 
         break;
@@ -788,12 +795,12 @@ void menus(void)
         if (current_menu == 20004)
         {
             x = probesm(24,45,8,10);
-            if(x == -1)
+            if (x == -1)
             {
                 cmenu(20002);
                 probey = 6;
             }
-            else if(x >= 0 && x <= 9)
+            else if (x >= 0 && x <= 9)
             {
                 strcpy(buf, ud.ridecule[x]);
                 inputloc = strlen(buf);
@@ -815,9 +822,9 @@ void menus(void)
                 current_menu = 20004;
             }
         }
-        for(i=0;i<10;i++)
+        for (i=0;i<10;i++)
         {
-            if(current_menu == 20005 && i == last_probey) continue;
+            if (current_menu == 20005 && i == last_probey) continue;
             gametextpal(26,40+(i<<3),ud.ridecule[i],MENUHIGHLIGHT(i),0);
         }
 
@@ -875,43 +882,43 @@ void menus(void)
 
         x = probe(c,57-8,16,8);
 
-        switch(x)
+        switch (x)
         {
         case -1:
             cmenu(20010);
             break;
         case 0:
             ud.m_coop++;
-            if(ud.m_coop == 3) ud.m_coop = 0;
+            if (ud.m_coop == 3) ud.m_coop = 0;
             break;
         case 1:
             if (!VOLUMEONE) {
                 ud.m_volume_number++;
-                if(ud.m_volume_number == num_volumes) ud.m_volume_number = 0;
-                if(ud.m_volume_number == 0 && ud.m_level_number > 6)
+                if (ud.m_volume_number == num_volumes) ud.m_volume_number = 0;
+                if (ud.m_volume_number == 0 && ud.m_level_number > 6)
                     ud.m_level_number = 0;
-                if(ud.m_level_number > 10) ud.m_level_number = 0;
+                if (ud.m_level_number > 10) ud.m_level_number = 0;
             }
             break;
         case 2:
             ud.m_level_number++;
             if (!VOLUMEONE) {
-                if(ud.m_volume_number == 0 && ud.m_level_number > 6)
+                if (ud.m_volume_number == 0 && ud.m_level_number > 6)
                     ud.m_level_number = 0;
             } else {
-                if(ud.m_volume_number == 0 && ud.m_level_number > 5)
+                if (ud.m_volume_number == 0 && ud.m_level_number > 5)
                     ud.m_level_number = 0;
             }
-            if(ud.m_level_number > 10) ud.m_level_number = 0;
+            if (ud.m_level_number > 10) ud.m_level_number = 0;
             break;
         case 3:
-            if(ud.m_monsters_off == 1 && ud.m_player_skill > 0)
+            if (ud.m_monsters_off == 1 && ud.m_player_skill > 0)
                 ud.m_monsters_off = 0;
 
-            if(ud.m_monsters_off == 0)
+            if (ud.m_monsters_off == 0)
             {
                 ud.m_player_skill++;
-                if(ud.m_player_skill > 3)
+                if (ud.m_player_skill > 3)
                 {
                     ud.m_player_skill = 0;
                     ud.m_monsters_off = 1;
@@ -922,12 +929,12 @@ void menus(void)
             break;
 
         case 4:
-            if(ud.m_coop == 0)
+            if (ud.m_coop == 0)
                 ud.m_marker = !ud.m_marker;
             break;
 
         case 5:
-            if(ud.m_coop == 1)
+            if (ud.m_coop == 1)
                 ud.m_ffire = !ud.m_ffire;
             break;
 
@@ -951,20 +958,20 @@ void menus(void)
 
         gametext(c+70,57+16+16-7-9,&level_names[11*ud.m_volume_number+ud.m_level_number][0],0,2+8+16);
 
-        if(ud.m_monsters_off == 0 || ud.m_player_skill > 0)
+        if (ud.m_monsters_off == 0 || ud.m_player_skill > 0)
             gametext(c+70,57+16+16+16-7-9,skill_names[ud.m_player_skill],0,2+8+16);
         else gametext(c+70,57+16+16+16-7-9,"NONE",0,2+8+16);
 
-        if(ud.m_coop == 0)
+        if (ud.m_coop == 0)
         {
-            if(ud.m_marker)
+            if (ud.m_marker)
                 gametext(c+70,57+16+16+16+16-7-9,"ON",0,2+8+16);
             else gametext(c+70,57+16+16+16+16-7-9,"OFF",0,2+8+16);
         }
 
-        if(ud.m_coop == 1)
+        if (ud.m_coop == 1)
         {
-            if(ud.m_ffire)
+            if (ud.m_ffire)
                 gametext(c+70,57+16+16+16+16+16-7-9,"ON",0,2+8+16);
             else gametext(c+70,57+16+16+16+16+16-7-9,"OFF",0,2+8+16);
         }
@@ -981,18 +988,18 @@ void menus(void)
 
         menutext(c,57+16+16+16-9,MENUHIGHLIGHT(3),PHX(-5),"MONSTERS");
 
-        if(ud.m_coop == 0)
+        if (ud.m_coop == 0)
             menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),PHX(-6),"MARKERS");
         else
             menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),1,"MARKERS");
 
-        if(ud.m_coop == 1)
+        if (ud.m_coop == 1)
             menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),PHX(-6),"FR. FIRE");
         else menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),1,"FR. FIRE");
 
         if (VOLUMEALL) {
             menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),boardfilename[0] == 0,"USER MAP");
-            if( boardfilename[0] != 0 )
+            if ( boardfilename[0] != 0 )
                 gametext(c+70+44,57+16+16+16+16+16,boardfilename,0,2+8+16);
         } else {
             menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),1,"USER MAP");
@@ -1081,9 +1088,9 @@ void menus(void)
 
         gametext(160,99+9,"(Y/N)",0,2+8+16);
 
-        if( KB_KeyPressed(sc_Escape) || KB_KeyPressed(sc_N) || RMB)
+        if ( KB_KeyPressed(sc_Escape) || KB_KeyPressed(sc_N) || RMB)
         {
-            if(sprite[ps[myconnectindex].i].extra <= 0)
+            if (sprite[ps[myconnectindex].i].extra <= 0)
             {
                 if (enterlevel(MODE_GAME)) backtomenu();
                 return;
@@ -1093,20 +1100,20 @@ void menus(void)
             KB_ClearKeyDown(sc_Escape);
 
             ps[myconnectindex].gm &= ~MODE_MENU;
-            if(ud.multimode < 2 && ud.recstat != 2)
+            if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
             }
         }
 
-        if(  KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
+        if (  KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
         {
             KB_FlushKeyboardQueue();
             KB_ClearKeysDown();
             FX_StopAllSounds();
 
-            if(ud.multimode > 1)
+            if (ud.multimode > 1)
             {
                 loadplayer(-1-lastsavedpos);
                 ps[myconnectindex].gm = MODE_GAME;
@@ -1114,7 +1121,7 @@ void menus(void)
             else
             {
                 c = loadplayer(lastsavedpos);
-                if(c == 0)
+                if (c == 0)
                     ps[myconnectindex].gm = MODE_GAME;
             }
         }
@@ -1131,32 +1138,32 @@ void menus(void)
         menutext(160,24,0,0,"ADULT MODE");
 
         x = probe(60,50+16,16,2);
-    if(x == -1) { cmenu(201); probey = 0; break; }
+    if (x == -1) { cmenu(201); probey = 0; break; }
 
         menutext(c,50+16,MENUHIGHLIGHT(0),PHX(-2),"ADULT MODE");
         menutext(c,50+16+16,MENUHIGHLIGHT(1),PHX(-3),"ENTER PASSWORD");
 
         menutext(c+160+40,50+16,MENUHIGHLIGHT(0),0,ud.lockout?"OFF":"ON");
 
-        if(current_menu == 10001)
+        if (current_menu == 10001)
         {
             gametext(160,50+16+16+16+16-12,"ENTER PASSWORD",0,2+8+16);
             x = strget((320>>1),50+16+16+16+16,buf,19, 998);
 
-            if( x )
+            if ( x )
             {
-                if(ud.pwlockout[0] == 0 || ud.lockout == 0 )
+                if (ud.pwlockout[0] == 0 || ud.lockout == 0 )
                     strcpy(&ud.pwlockout[0],buf);
-                else if( strcmp(buf,&ud.pwlockout[0]) == 0 )
+                else if ( strcmp(buf,&ud.pwlockout[0]) == 0 )
                 {
                     ud.lockout = 0;
                     buf[0] = 0;
 
-                    for(x=0;x<numanimwalls;x++)
-                        if( wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
+                    for (x=0;x<numanimwalls;x++)
+                        if ( wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
                                 wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
                                 wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2 )
-                            if( wall[animwall[x].wallnum].extra >= 0 )
+                            if ( wall[animwall[x].wallnum].extra >= 0 )
                                 wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
 
                 }
@@ -1168,18 +1175,18 @@ void menus(void)
         }
         else
         {
-            if(x == 0)
+            if (x == 0)
             {
-                if( ud.lockout == 1 )
+                if ( ud.lockout == 1 )
                 {
-                    if(ud.pwlockout[0] == 0)
+                    if (ud.pwlockout[0] == 0)
                     {
                         ud.lockout = 0;
-                        for(x=0;x<numanimwalls;x++)
-                            if( wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
+                        for (x=0;x<numanimwalls;x++)
+                            if ( wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
                                     wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
                                     wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2 )
-                                if( wall[animwall[x].wallnum].extra >= 0 )
+                                if ( wall[animwall[x].wallnum].extra >= 0 )
                                     wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
                     }
                     else
@@ -1194,8 +1201,8 @@ void menus(void)
                 {
                     ud.lockout = 1;
 
-                    for(x=0;x<numanimwalls;x++)
-                        switch(dynamictostatic[wall[animwall[x].wallnum].picnum])
+                    for (x=0;x<numanimwalls;x++)
+                        switch (dynamictostatic[wall[animwall[x].wallnum].picnum])
                         {
                         case FEMPIC1__STATIC:
                             wall[animwall[x].wallnum].picnum = BLANKSCREEN;
@@ -1208,7 +1215,7 @@ void menus(void)
                 }
             }
 
-            else if(x == 1)
+            else if (x == 1)
             {
                 current_menu = 10001;
                 inputloc = 0;
@@ -1250,21 +1257,21 @@ void menus(void)
         gametext(160,99,tempbuf,0,2+8+16);
         gametext(160,99+9,"(Y/N)",0,2+8+16);
 
-        if( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
+        if ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
         {
             lastsavedpos = current_menu-1000;
 
             KB_FlushKeyboardQueue();
             KB_ClearKeysDown();
-            if(ud.multimode < 2 && ud.recstat != 2)
+            if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
             }
 
-            if(ud.multimode > 1)
+            if (ud.multimode > 1)
             {
-                if( ps[myconnectindex].gm&MODE_GAME )
+                if ( ps[myconnectindex].gm&MODE_GAME )
                 {
                     loadplayer(-1-lastsavedpos);
                     ps[myconnectindex].gm = MODE_GAME;
@@ -1274,7 +1281,7 @@ void menus(void)
                     tempbuf[0] = 126;
                     tempbuf[1] = lastsavedpos;
                     tempbuf[2] = myconnectindex;
-                    for(x=connecthead;x>=0;x=connectpoint2[x])
+                    for (x=connecthead;x>=0;x=connectpoint2[x])
                     {
                         if (x != myconnectindex) sendpacket(x,tempbuf,3);
                         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
@@ -1289,22 +1296,22 @@ void menus(void)
             else
             {
                 c = loadplayer(lastsavedpos);
-                if(c == 0)
+                if (c == 0)
                     ps[myconnectindex].gm = MODE_GAME;
             }
 
             break;
         }
-        if( KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
+        if ( KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
         {
             KB_ClearKeyDown(sc_N);
             KB_ClearKeyDown(sc_Escape);
             sound(EXITMENUSOUND);
-            if(ps[myconnectindex].gm&MODE_DEMO) cmenu(300);
+            if (ps[myconnectindex].gm&MODE_DEMO) cmenu(300);
             else
             {
                 ps[myconnectindex].gm &= ~MODE_MENU;
-                if(ud.multimode < 2 && ud.recstat != 2)
+                if (ud.multimode < 2 && ud.recstat != 2)
                 {
                     ready2send = 1;
                     totalclock = ototalclock;
@@ -1318,16 +1325,16 @@ void menus(void)
 
     case 1500:
 
-        if( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
+        if ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
         {
             KB_FlushKeyboardQueue();
             cmenu(100);
         }
-        if( KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
+        if ( KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
         {
             KB_ClearKeyDown(sc_N);
             KB_ClearKeyDown(sc_Escape);
-            if(ud.multimode < 2 && ud.recstat != 2)
+            if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -1372,7 +1379,7 @@ void menus(void)
         gametext(160,90,"OVERWRITE previous SAVED game?",0,2+8+16);
         gametext(160,90+9,"(Y/N)",0,2+8+16);
 
-        if( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
+        if ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
         {
             inputloc = strlen(&ud.savegame[current_menu-2000][0]);
 
@@ -1381,7 +1388,7 @@ void menus(void)
             KB_FlushKeyboardQueue();
             break;
         }
-        if( KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
+        if ( KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
         {
             KB_ClearKeyDown(sc_N);
             KB_ClearKeyDown(sc_Escape);
@@ -1413,9 +1420,9 @@ void menus(void)
             l = 3;
         }
 
-        if(KB_KeyPressed(sc_Escape)) { cmenu(0); break; }
+        if (KB_KeyPressed(sc_Escape)) { cmenu(0); break; }
 
-        if( KB_KeyPressed( sc_LeftArrow ) ||
+        if ( KB_KeyPressed( sc_LeftArrow ) ||
                 KB_KeyPressed( sc_kpad_4 ) ||
                 KB_KeyPressed( sc_UpArrow ) ||
                 KB_KeyPressed( sc_PgUp ) ||
@@ -1429,9 +1436,9 @@ void menus(void)
 
             sound(KICK_HIT);
             current_menu--;
-            if(current_menu < 990) current_menu = 990+l;
+            if (current_menu < 990) current_menu = 990+l;
         }
-        else if(
+        else if (
             KB_KeyPressed( sc_PgDn ) ||
             KB_KeyPressed( sc_Enter ) ||
             KB_KeyPressed( sc_Space ) ||
@@ -1453,7 +1460,7 @@ void menus(void)
             KB_ClearKeyDown(sc_Space);
             sound(KICK_HIT);
             current_menu++;
-            if(current_menu > 990+l) current_menu = 990;
+            if (current_menu > 990+l) current_menu = 990;
         }
 
         if (!VOLUMEALL || !PLUTOPAK) {
@@ -1570,7 +1577,7 @@ void menus(void)
         }
 
         // Plutonium pak menus
-        switch(current_menu)
+        switch (current_menu)
         {
         case 990:
         case 991:
@@ -1654,11 +1661,11 @@ cheat_for_port_credits:
         if (PLUTOPAK)   // JBF 20030804
             rotatesprite((c+100)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,(sintable[(totalclock<<4)&2047]>>11),0,2+8,0,0,xdim-1,ydim-1);
         x = probe(c,67,16,6);
-        if(x >= 0)
+        if (x >= 0)
         {
-            if( ud.multimode > 1 && x == 0 && ud.recstat != 2)
+            if ( ud.multimode > 1 && x == 0 && ud.recstat != 2)
             {
-                if( movesperpacket == 4 && myconnectindex != connecthead )
+                if ( movesperpacket == 4 && myconnectindex != connecthead )
                     break;
 
                 last_zero = 0;
@@ -1667,40 +1674,44 @@ cheat_for_port_credits:
             else
             {
                 last_zero = x;
-                switch(x)
+                switch (x)
                 {
                 case 0:
                     cmenu(100);
                     break;
                     //case 1: break;//cmenu(20001);break;   // JBF 20031128: I'm taking over the TEN menu option
-                case 1: cmenu(202);break;   // JBF 20031205: was 200
+                case 1:
+                    cmenu(202);break;   // JBF 20031205: was 200
                 case 2:
-                    if(movesperpacket == 4 && connecthead != myconnectindex)
+                    if (movesperpacket == 4 && connecthead != myconnectindex)
                         break;
                     cmenu(300);
                     break;
-                case 3: KB_FlushKeyboardQueue();cmenu(400);break;
-                case 4: cmenu(990);break;
-                case 5: cmenu(500);break;
+                case 3:
+                    KB_FlushKeyboardQueue();cmenu(400);break;
+                case 4:
+                    cmenu(990);break;
+                case 5:
+                    cmenu(500);break;
                 }
             }
         }
 
-        if(KB_KeyPressed(sc_Q)) cmenu(500);
+        if (KB_KeyPressed(sc_Q)) cmenu(500);
 
-        if(x == -1 && (ps[myconnectindex].gm&MODE_GAME || ud.recstat == 2))
+        if (x == -1 && (ps[myconnectindex].gm&MODE_GAME || ud.recstat == 2))
         {
             ps[myconnectindex].gm &= ~MODE_MENU;
-            if(ud.multimode < 2 && ud.recstat != 2)
+            if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
             }
         }
 
-        if(movesperpacket == 4)
+        if (movesperpacket == 4)
         {
-            if( myconnectindex == connecthead )
+            if ( myconnectindex == connecthead )
                 menutext(c,67,MENUHIGHLIGHT(0),PHX(-2),"NEW GAME");
             else
                 menutext(c,67,MENUHIGHLIGHT(0),1,"NEW GAME");
@@ -1712,7 +1723,7 @@ cheat_for_port_credits:
 
         menutext(c,67+16/*+16*/,MENUHIGHLIGHT(1),PHX(-3),"OPTIONS");
 
-        if(movesperpacket == 4 && connecthead != myconnectindex)
+        if (movesperpacket == 4 && connecthead != myconnectindex)
             menutext(c,67+16+16/*+16*/,MENUHIGHLIGHT(2),1,"LOAD GAME");
         else menutext(c,67+16+16/*+16*/,MENUHIGHLIGHT(2),PHX(-4),"LOAD GAME");
 
@@ -1736,12 +1747,12 @@ cheat_for_port_credits:
         if (PLUTOPAK)   // JBF 20030804
             rotatesprite((c+100)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,(sintable[(totalclock<<4)&2047]>>11),0,2+8,0,0,xdim-1,ydim-1);
         x = probe(c,67,16,7);
-        switch(x)
+        switch (x)
         {
         case 0:
-            if(movesperpacket == 4 && myconnectindex != connecthead)
+            if (movesperpacket == 4 && myconnectindex != connecthead)
                 break;
-            if(ud.multimode < 2 || ud.recstat == 2)
+            if (ud.multimode < 2 || ud.recstat == 2)
                 cmenu(1500);
             else
             {
@@ -1750,9 +1761,9 @@ cheat_for_port_credits:
             }
             break;
         case 1:
-            if(movesperpacket == 4 && connecthead != myconnectindex)
+            if (movesperpacket == 4 && connecthead != myconnectindex)
                 break;
-            if(ud.recstat != 2)
+            if (ud.recstat != 2)
             {
                 last_fifty = 1;
                 cmenu(350);
@@ -1760,7 +1771,7 @@ cheat_for_port_credits:
             }
             break;
         case 2:
-            if(movesperpacket == 4 && connecthead != myconnectindex)
+            if (movesperpacket == 4 && connecthead != myconnectindex)
                 break;
             last_fifty = 2;
             cmenu(300);
@@ -1775,7 +1786,7 @@ cheat_for_port_credits:
             cmenu(400);
             break;
         case 5:
-            if(numplayers < 2)
+            if (numplayers < 2)
             {
                 last_fifty = 5;
                 cmenu(501);
@@ -1787,7 +1798,7 @@ cheat_for_port_credits:
             break;
         case -1:
             ps[myconnectindex].gm &= ~MODE_MENU;
-            if(ud.multimode < 2 && ud.recstat != 2)
+            if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -1795,10 +1806,10 @@ cheat_for_port_credits:
             break;
         }
 
-        if( KB_KeyPressed(sc_Q) )
+        if ( KB_KeyPressed(sc_Q) )
             cmenu(500);
 
-        if(movesperpacket == 4 && connecthead != myconnectindex)
+        if (movesperpacket == 4 && connecthead != myconnectindex)
         {
             menutext(c,67                  ,MENUHIGHLIGHT(0),1,"NEW GAME");
             menutext(c,67+16               ,MENUHIGHLIGHT(1),1,"SAVE GAME");
@@ -1817,7 +1828,7 @@ cheat_for_port_credits:
         } else {
             menutext(c,67+16+16+16+16      ,MENUHIGHLIGHT(4),PHX(-6)," HELP");
         }
-        if(numplayers > 1)
+        if (numplayers > 1)
             menutext(c,67+16+16+16+16+16   ,MENUHIGHLIGHT(5),1,"QUIT TO TITLE");
         else menutext(c,67+16+16+16+16+16   ,MENUHIGHLIGHT(5),PHX(-7),"QUIT TO TITLE");
         menutext(c,67+16+16+16+16+16+16,MENUHIGHLIGHT(6),PHX(-8),"QUIT GAME");
@@ -1827,10 +1838,10 @@ cheat_for_port_credits:
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(160,24,0,0,"SELECT AN EPISODE");
         x = probe(160,VOLUMEONE?60:60-(num_volumes*2),20,VOLUMEONE?3:num_volumes+1);
-        if(x >= 0)
+        if (x >= 0)
         {
             if (VOLUMEONE) {
-                if(x > 0)
+                if (x > 0)
                     cmenu(20000);
                 else
                 {
@@ -1842,7 +1853,7 @@ cheat_for_port_credits:
             }
 
             if (!VOLUMEONE) {
-                if(x == num_volumes /*&& boardfilename[0]*/)
+                if (x == num_volumes /*&& boardfilename[0]*/)
                 {
                     //ud.m_volume_number = 0;
                     //ud.m_level_number = 7;
@@ -1859,9 +1870,9 @@ cheat_for_port_credits:
                 }
             }
         }
-        else if(x == -1)
+        else if (x == -1)
         {
-            if(ps[myconnectindex].gm&MODE_GAME) cmenu(50);
+            if (ps[myconnectindex].gm&MODE_GAME) cmenu(50);
             else cmenu(0);
         }
 
@@ -1902,9 +1913,9 @@ cheat_for_port_credits:
 
         {   // JBF 20040208: seek to first name matching pressed character
             CACHE1D_FIND_REC *seeker = currentlist ? findfiles : finddirs;
-            if((KB_KeyPressed(sc_Home)|KB_KeyPressed(sc_End)) > 0)
+            if ((KB_KeyPressed(sc_Home)|KB_KeyPressed(sc_End)) > 0)
             {
-                while(KB_KeyPressed(sc_End)?seeker->next:seeker->prev)
+                while (KB_KeyPressed(sc_End)?seeker->next:seeker->prev)
                     seeker = KB_KeyPressed(sc_End)?seeker->next:seeker->prev;
                 if (seeker) {
                     if (currentlist) findfileshigh = seeker;
@@ -1912,12 +1923,12 @@ cheat_for_port_credits:
                     sound(KICK_HIT);
                 }
             }
-            else if((KB_KeyPressed(sc_PgUp)|KB_KeyPressed(sc_PgDn)) > 0)
+            else if ((KB_KeyPressed(sc_PgUp)|KB_KeyPressed(sc_PgDn)) > 0)
             {
                 seeker = currentlist?findfileshigh:finddirshigh;
                 i = 6;
-                while(i>0) {
-                    if(KB_KeyPressed(sc_PgDn)?seeker->next:seeker->prev)
+                while (i>0) {
+                    if (KB_KeyPressed(sc_PgDn)?seeker->next:seeker->prev)
                         seeker = KB_KeyPressed(sc_PgDn)?seeker->next:seeker->prev;
                     i--;
                 }
@@ -1951,8 +1962,8 @@ cheat_for_port_credits:
 
         if (finddirshigh) {
             dir = finddirshigh;
-                for(i=0; i<2; i++) if (!dir->prev) break; else dir=dir->prev;
-            for(i=2; i>-2 && dir; i--, dir=dir->next) {
+                for (i=0; i<2; i++) if (!dir->prev) break; else dir=dir->prev;
+            for (i=2; i>-2 && dir; i--, dir=dir->next) {
                 if (dir == finddirshigh) c=0; else c=16;
                 minitextshade(40,1+12+32+8*(3-i),dir->name,c,0,26);
             }
@@ -1962,14 +1973,14 @@ cheat_for_port_credits:
 
         if (findfileshigh) {
             dir = findfileshigh;
-                for(i=0; i<4; i++) if (!dir->prev) break; else dir=dir->prev;
-            for(i=4; i>-4 && dir; i--, dir=dir->next) {
+                for (i=0; i<4; i++) if (!dir->prev) break; else dir=dir->prev;
+            for (i=4; i>-4 && dir; i--, dir=dir->next) {
                 if (dir == findfileshigh) c=0; else c=16;
                 minitextshade(40,(8+32+8*5)+8*(6-i),dir->name,c,2,26);
             }
         }
 
-        if( KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) ||
+        if ( KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) ||
                 KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ) ||
                 KB_KeyPressed( sc_Tab ) )
         {
@@ -2005,17 +2016,17 @@ cheat_for_port_credits:
             }
         }
 
-        if(x == -1) {
+        if (x == -1) {
             clearfilenames();
             boardfilename[0] = 0;
-            if(ud.multimode > 1)
+            if (ud.multimode > 1)
             {
                 sendboardname();
                 cmenu(600);
                 probey = last_probey;
             } else cmenu(100);
         }
-        else if(x >= 0)
+        else if (x >= 0)
         {
             if (currentlist == 0) {
                 if (!finddirshigh) break;
@@ -2029,7 +2040,7 @@ cheat_for_port_credits:
                 strcat(boardfilename, findfileshigh->name);
                 ud.m_volume_number = 0;
                 ud.m_level_number = 7;
-                if(ud.multimode > 1)
+                if (ud.multimode > 1)
                 {
                     sendboardname();
                     cmenu(600);
@@ -2045,20 +2056,24 @@ cheat_for_port_credits:
         rotatesprite(c<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(c,24,0,0,"SELECT SKILL");
         x = probe(c,70,19,4);
-        if(x >= 0)
+        if (x >= 0)
         {
-            switch(x)
+            switch (x)
             {
-            case 0: globalskillsound = JIBBED_ACTOR6;break;
-            case 1: globalskillsound = BONUS_SPEECH1;break;
-            case 2: globalskillsound = DUKE_GETWEAPON2;break;
-            case 3: globalskillsound = JIBBED_ACTOR5;break;
+            case 0:
+                globalskillsound = JIBBED_ACTOR6;break;
+            case 1:
+                globalskillsound = BONUS_SPEECH1;break;
+            case 2:
+                globalskillsound = DUKE_GETWEAPON2;break;
+            case 3:
+                globalskillsound = JIBBED_ACTOR5;break;
             }
 
             sound(globalskillsound);
 
             ud.m_player_skill = x+1;
-            if(x == 3) ud.m_respawn_monsters = 1;
+            if (x == 3) ud.m_respawn_monsters = 1;
             else ud.m_respawn_monsters = 0;
 
             ud.m_monsters_off = ud.monsters_off = 0;
@@ -2068,7 +2083,7 @@ cheat_for_port_credits:
 
             ud.multimode = 1;
 
-            if(ud.m_volume_number == 3)
+            if (ud.m_volume_number == 3)
             {
                 flushperms();
                 setview(0,0,xdim-1,ydim-1);
@@ -2079,7 +2094,7 @@ cheat_for_port_credits:
             newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
             if (enterlevel(MODE_GAME)) backtomenu();
         }
-        else if(x == -1)
+        else if (x == -1)
         {
             cmenu(100);
             KB_FlushKeyboardQueue();
@@ -2145,32 +2160,40 @@ cheat_for_port_credits:
                 }
                 enabled = 1;
                 switch (io) {
-                case 0: if (x==io) glwidescreen = 1-glwidescreen;
+                case 0:
+                    if (x==io) glwidescreen = 1-glwidescreen;
                     modval(0,1,(int *)&glwidescreen,1,probey==io);
                     gametextpal(d,yy, glwidescreen ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 1: if (x==io) usehightile = 1-usehightile;
+                case 1:
+                    if (x==io) usehightile = 1-usehightile;
                     modval(0,1,(int *)&usehightile,1,probey==io);
                     gametextpal(d,yy, usehightile ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 2:  enabled = usehightile;
+                case 2:
+                    enabled = usehightile;
                     if (enabled && x==io) useprecache = !useprecache;
                     if (enabled) modval(0,1,(int *)&useprecache,1,probey==io);
                     gametextpal(d,yy, useprecache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):15, 0); break;
-                case 3:  enabled = usehightile;
+                case 3:
+                    enabled = usehightile;
                     if (enabled && x==io) glusetexcompr = !glusetexcompr;
                     if (enabled) modval(0,1,(int *)&glusetexcompr,1,probey==io);
                     gametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):15, 0); break;
-                case 4:  enabled = (glusetexcompr && usehightile && useprecache);
+                case 4:
+                    enabled = (glusetexcompr && usehightile && useprecache);
                     if (enabled && x==io) glusetexcache = !glusetexcache;
                     if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==io);
                     gametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):15, 0); break;
-                case 5:  enabled = (glusetexcompr && usehightile && useprecache && glusetexcache);
+                case 5:
+                    enabled = (glusetexcompr && usehightile && useprecache && glusetexcache);
                     if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
                     if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==io);
                     gametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):15, 0); break;
-                case 6: if (x==io) usemodels = 1-usemodels;
+                case 6:
+                    if (x==io) usemodels = 1-usemodels;
                     modval(0,1,(int *)&usemodels,1,probey==io);
                     gametextpal(d,yy, usemodels ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                default: break;
+                default:
+                    break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
                 io++;
@@ -2238,11 +2261,14 @@ cheat_for_port_credits:
                 }
                 enabled = 1;
                 switch (io) {
-                case 0:  if (x==io) ud.crosshair = (ud.crosshair==3)?0:ud.crosshair+1;
+                case 0:
+                    if (x==io) ud.crosshair = (ud.crosshair==3)?0:ud.crosshair+1;
                     modval(0,3,(int *)&ud.crosshair,1,probey==io);
                     { char *s[] = { "OFF", "ON [100%]", "ON [50%]", "ON [25%]" };
-                        gametextpal(d,yy,s[ud.crosshair], MENUHIGHLIGHT(io), 0); break; }
-                case 1:  if (x==io) ud.levelstats = 1-ud.levelstats;
+                        gametextpal(d,yy,s[ud.crosshair], MENUHIGHLIGHT(io), 0); break;
+                    }
+                case 1:
+                    if (x==io) ud.levelstats = 1-ud.levelstats;
                     modval(0,1,(int *)&ud.levelstats,1,probey==io);
                     gametextpal(d,yy, ud.levelstats ? "Shown" : "Hidden", MENUHIGHLIGHT(io), 0); break;
                 case 2:
@@ -2250,15 +2276,15 @@ cheat_for_port_credits:
                         int i;
                         i = ud.screen_size;
                         barsm(d+8,yy+7, (short *)&ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),PHX(-5));
-                        if(i < ud.screen_size && i == 8 && ud.statusbarmode == 1 && bpp > 8)
+                        if (i < ud.screen_size && i == 8 && ud.statusbarmode == 1 && bpp > 8)
                         {
                             ud.statusbarmode = 0;
-                            if(ud.statusbarscale != 100)
+                            if (ud.statusbarscale != 100)
                                 ud.screen_size = i;
                         }
-                        else if(i > ud.screen_size && i == 8 && ud.statusbarmode == 0 && bpp > 8)
+                        else if (i > ud.screen_size && i == 8 && ud.statusbarmode == 0 && bpp > 8)
                         {
-                            if(ud.statusbarscale != 100)
+                            if (ud.statusbarscale != 100)
                             {
                                 ud.statusbarmode = 1;
                                 ud.screen_size = i;
@@ -2277,35 +2303,44 @@ cheat_for_port_credits:
                         }
                     }
                     break;
-                case 4:  if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
+                case 4:
+                    if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
                     modval(0,1,(int *)&ud.runkey_mode,1,probey==io);
                     gametextpal(d,yy, ud.runkey_mode ? "Classic" : "Modern", MENUHIGHLIGHT(io), 0); break;
-                case 5: if (x==io) ud.detail = 1-ud.detail;
+                case 5:
+                    if (x==io) ud.detail = 1-ud.detail;
                     modval(0,1,(int *)&ud.detail,1,probey==io);
                     gametextpal(d,yy, ud.detail ? "High" : "Low", MENUHIGHLIGHT(io), 0); break;
-                case 6: if (x==io) ud.shadows = 1-ud.shadows;
+                case 6:
+                    if (x==io) ud.shadows = 1-ud.shadows;
                     modval(0,1,(int *)&ud.shadows,1,probey==io);
                     gametextpal(d,yy, ud.shadows ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 7: if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
+                case 7:
+                    if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
                     modval(0,1,(int *)&ud.screen_tilting,1,probey==io);
                     gametextpal(d,yy, ud.screen_tilting ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;  // original had a 'full' option
-                case 8: if (x==io) ud.showweapons = 1-ud.showweapons;
+                case 8:
+                    if (x==io) ud.showweapons = 1-ud.showweapons;
                     modval(0,1,(int *)&ud.showweapons,1,probey==io);
                     ShowOpponentWeapons = ud.showweapons;
                     gametextpal(d,yy, ShowOpponentWeapons ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 9: if (x==io) ud.democams = 1-ud.democams;
+                case 9:
+                    if (x==io) ud.democams = 1-ud.democams;
                     modval(0,1,(int *)&ud.democams,1,probey==io);
                     gametextpal(d,yy, ud.democams ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 10: if (x==io) {
+                case 10:
+                    if (x==io) {
                         enabled = !((ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1);
-                        if( (ps[myconnectindex].gm&MODE_GAME) ) closedemowrite();
+                        if ( (ps[myconnectindex].gm&MODE_GAME) ) closedemowrite();
                         else ud.m_recstat = !ud.m_recstat;
                     }
-                    if( (ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1 )
+                    if ( (ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1 )
                         enabled = 0;
                     gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Recording":"On"):"Off",enabled?MENUHIGHLIGHT(io):15,enabled?0:1); break;
-                case 11: if (x==io) cmenu(201); break;
-                default: break;
+                case 11:
+                        if (x==io) cmenu(201); break;
+                default:
+                    break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
                 io++;
@@ -2372,29 +2407,41 @@ cheat_for_port_credits:
                 }
                 enabled = 1;
                 switch (io) {
-                case 0: if(!NAM) { if (x==io) cmenu(10000); } else enabled = 0; break;
-            case 1: if (x==io) { ud.drawweapon = (ud.drawweapon == 2) ? 0 : ud.drawweapon+1; }
+                case 0:
+                if (!NAM) { if (x==io) cmenu(10000); }
+                    else enabled = 0; break;
+                case 1:
+                if (x==io) { ud.drawweapon = (ud.drawweapon == 2) ? 0 : ud.drawweapon+1; }
                     modval(0,2,(int *)&ud.drawweapon,1,probey==io);
                     { char *s[] = { "Off", "On", "Icon" };
-                        gametextpal(d,yy, s[ud.drawweapon], MENUHIGHLIGHT(io), 0); break; }
-                case 2: if (x==io) ud.tickrate = 1-ud.tickrate;
+                        gametextpal(d,yy, s[ud.drawweapon], MENUHIGHLIGHT(io), 0); break;
+                    }
+                case 2:
+                    if (x==io) ud.tickrate = 1-ud.tickrate;
                     modval(0,1,(int *)&ud.tickrate,1,probey==io);
                     gametextpal(d,yy, ud.tickrate ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-            case 3: if (x==io) { ud.autovote = (ud.autovote == 2) ? 0 : ud.autovote+1; }
+                case 3:
+                if (x==io) { ud.autovote = (ud.autovote == 2) ? 0 : ud.autovote+1; }
                     modval(0,2,(int *)&ud.autovote,1,probey==io);
                     { char *s[] = { "Off", "Vote No", "Vote Yes" };
-                        gametextpal(d,yy, s[ud.autovote], MENUHIGHLIGHT(io), 0); break; }
-                case 4: if (x==io) ud.automsg = 1-ud.automsg;
+                        gametextpal(d,yy, s[ud.autovote], MENUHIGHLIGHT(io), 0); break;
+                    }
+                case 4:
+                    if (x==io) ud.automsg = 1-ud.automsg;
                     modval(0,1,(int *)&ud.automsg,1,probey==io);
                     gametextpal(d,yy, ud.automsg ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 5: if (x==io) ud.idplayers = 1-ud.idplayers;
+                case 5:
+                    if (x==io) ud.idplayers = 1-ud.idplayers;
                     modval(0,1,(int *)&ud.idplayers,1,probey==io);
                     gametextpal(d,yy, ud.idplayers ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 6: if (x==io) ForceSetup = 1-ForceSetup;
+                case 6:
+                    if (x==io) ForceSetup = 1-ForceSetup;
                     modval(0,1,(int *)&ForceSetup,1,probey==io);
                     gametextpal(d,yy, ForceSetup ? "On" : "Off", MENUHIGHLIGHT(io), 0); break;
-                case 7: if (x==io) cmenu(200); break;
-                default: break;
+                case 7:
+                    if (x==io) cmenu(200); break;
+                default:
+                    break;
                 }
                 gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
                 io++;
@@ -2417,7 +2464,7 @@ cheat_for_port_credits:
 
         switch (x) {
         case -1:
-            if(ps[myconnectindex].gm&MODE_GAME) cmenu(50);else cmenu(0);
+            if (ps[myconnectindex].gm&MODE_GAME) cmenu(50);else cmenu(0);
             break;
 
         case 0:
@@ -2457,7 +2504,7 @@ cheat_for_port_credits:
             }
             break;
         case 3:
-            if(ud.recstat != 1)
+            if (ud.recstat != 1)
                 cmenu(20002);
             break;
         case 4:
@@ -2546,7 +2593,7 @@ cheat_for_port_credits:
                         newvidmode++;
                         if (newvidmode == lastvidmode) break;   // end of cycle
                         if (newvidmode >= validmodecnt) {
-                            if(safevidmode != -1)
+                            if (safevidmode != -1)
                                 break;
                             newvidmode = 0;
                         }
@@ -2670,10 +2717,14 @@ cheat_for_port_credits:
         case 5:
             if (bpp==8) break;
             switch (gltexfiltermode) {
-            case 0: gltexfiltermode = 3; break;
-            case 3: gltexfiltermode = 5; break;
-            case 5: gltexfiltermode = 0; break;
-            default: gltexfiltermode = 3; break;
+            case 0:
+                gltexfiltermode = 3; break;
+            case 3:
+                gltexfiltermode = 5; break;
+            case 5:
+                gltexfiltermode = 0; break;
+            default:
+                gltexfiltermode = 3; break;
             }
             gltexapplyprops();
             break;
@@ -2710,7 +2761,7 @@ cheat_for_port_credits:
         {
             short ss = ud.brightness;
             bar(c+167,50+62+16,&ss,8,x==4,MENUHIGHLIGHT(4),PHX(-6));
-            if(x==4) {
+            if (x==4) {
                 ud.brightness = ss;
                 setbrightness(ud.brightness>>2,&ps[myconnectindex].palette[0],0);
             }
@@ -2719,10 +2770,14 @@ cheat_for_port_credits:
 #if defined(POLYMOST) && defined(USE_OPENGL)
         menutext(c,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,"FILTERING");
         switch (gltexfiltermode) {
-        case 0: strcpy(tempbuf,"NEAREST"); break;
-        case 3: strcpy(tempbuf,"BILINEAR"); break;
-        case 5: strcpy(tempbuf,"TRILINEAR"); break;
-        default: strcpy(tempbuf,"OTHER"); break;
+        case 0:
+            strcpy(tempbuf,"NEAREST"); break;
+        case 3:
+            strcpy(tempbuf,"BILINEAR"); break;
+        case 5:
+            strcpy(tempbuf,"TRILINEAR"); break;
+        default:
+            strcpy(tempbuf,"OTHER"); break;
         }
         menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,tempbuf);
 
@@ -3001,10 +3056,14 @@ cheat_for_port_credits:
         } else if (function == 1) {
             Bstrcpy(tempbuf,"TO DIGITAL ");
             switch (whichkey) {
-            case 0: Bstrcat(tempbuf, "LEFT"); break;
-            case 1: Bstrcat(tempbuf, "RIGHT"); break;
-            case 2: Bstrcat(tempbuf, "UP"); break;
-            case 3: Bstrcat(tempbuf, "DOWN"); break;
+            case 0:
+                Bstrcat(tempbuf, "LEFT"); break;
+            case 1:
+                Bstrcat(tempbuf, "RIGHT"); break;
+            case 2:
+                Bstrcat(tempbuf, "UP"); break;
+            case 3:
+                Bstrcat(tempbuf, "DOWN"); break;
             }
         } else if (function == 2) {
             static char *directions[] = { "UP", "RIGHT", "DOWN", "LEFT" };
@@ -3113,13 +3172,13 @@ cheat_for_port_credits:
         MouseFilter = l<<1;
         menutext(c,46+16+16+16+8,/*(MENUHIGHLIGHT(3))+(MENUHIGHLIGHT(4))+(MENUHIGHLIGHT(5))+(MENUHIGHLIGHT(6))-24*/0,0,"DIGITAL AXES ACTIONS");
 
-        if(MouseFilter == 0)
+        if (MouseFilter == 0)
             Bsprintf(tempbuf," OFF");
-        else if(MouseFilter < 48)
+        else if (MouseFilter < 48)
             Bsprintf(tempbuf," LOW");
-        else if(MouseFilter < 96)
+        else if (MouseFilter < 96)
             Bsprintf(tempbuf," MED");
-        else if(MouseFilter < 128)
+        else if (MouseFilter < 128)
             Bsprintf(tempbuf,"HIGH");
 
         gametext(c+160-16,46+16+16-8,tempbuf,MENUHIGHLIGHT(2),2+8+16);
@@ -3266,14 +3325,18 @@ cheat_for_port_credits:
             onbar = 0;
             switch (probey) {
             case 0:
-            case 4: onbar = 1; x = probe(88,45+(probey==4)*64,0,1+(4<<twothispage)); break;
+            case 4:
+                onbar = 1; x = probe(88,45+(probey==4)*64,0,1+(4<<twothispage)); break;
             case 1:
             case 2:
             case 5:
-            case 6: x = probe(172+(probey==2||probey==6)*72,45+15+(probey==5||probey==6)*64,0,1+(4<<twothispage)); break;
+            case 6:
+                x = probe(172+(probey==2||probey==6)*72,45+15+(probey==5||probey==6)*64,0,1+(4<<twothispage)); break;
             case 3:
-            case 7: x = probe(88,45+15+15+(probey==7)*64,0,1+(4<<twothispage)); break;
-            default: x = probe(60,79+79*twothispage,0,1+(4<<twothispage)); break;
+            case 7:
+                x = probe(88,45+15+15+(probey==7)*64,0,1+(4<<twothispage)); break;
+            default:
+                x = probe(60,79+79*twothispage,0,1+(4<<twothispage)); break;
             }
 
             switch (x) {
@@ -3294,7 +3357,8 @@ cheat_for_port_credits:
             case 4: // bar
                 if (!twothispage && joynumaxes > 2)
                     cmenu(208);
-            case 0: break;
+            case 0:
+                break;
 
             case 1: // digitals
             case 2:
@@ -3322,7 +3386,8 @@ cheat_for_port_credits:
                     mouseyaxismode = -1;
                 }
                 break;
-            default:break;
+            default:
+                break;
             }
 
             Bsprintf(tempbuf,getjoyname(0,thispage*2));
@@ -3477,13 +3542,13 @@ cheat_for_port_credits:
         onbar = ( probey == 2 || probey == 3 );
 
         x = probe(c,50,16,7);
-        switch(x)
+        switch (x)
         {
         case -1:
-            if(ps[myconnectindex].gm&MODE_GAME && current_menu == 701)
+            if (ps[myconnectindex].gm&MODE_GAME && current_menu == 701)
             {
                 ps[myconnectindex].gm &= ~MODE_MENU;
-                if(ud.multimode < 2  && ud.recstat != 2)
+                if (ud.multimode < 2  && ud.recstat != 2)
                 {
                     ready2send = 1;
                     totalclock = ototalclock;
@@ -3497,7 +3562,7 @@ cheat_for_port_credits:
             if (FXDevice >= 0)
             {
                 SoundToggle = 1-SoundToggle;
-                if( SoundToggle == 0 )
+                if ( SoundToggle == 0 )
                 {
                     FX_StopAllSounds();
                     clearsoundlocks();
@@ -3506,13 +3571,13 @@ cheat_for_port_credits:
             }
             break;
         case 1:
-            if(MusicDevice >= 0 && (numplayers < 2 || MusicToggle))
+            if (MusicDevice >= 0 && (numplayers < 2 || MusicToggle))
             {
                 MusicToggle = 1-MusicToggle;
-                if( MusicToggle == 0 ) MUSIC_Pause();
+                if ( MusicToggle == 0 ) MUSIC_Pause();
                 else
                 {
-                    if(ud.recstat != 2 && ps[myconnectindex].gm&MODE_GAME)
+                    if (ud.recstat != 2 && ps[myconnectindex].gm&MODE_GAME)
                         playmusic(&music_fn[0][music_select][0]);
                     else playmusic(&env_music_fn[0][0]);
 
@@ -3523,15 +3588,15 @@ cheat_for_port_credits:
 
             break;
         case 4:
-        if(SoundToggle && (FXDevice >= 0)) { VoiceToggle = (VoiceToggle == 2) ? 0 : VoiceToggle+1; }
+        if (SoundToggle && (FXDevice >= 0)) { VoiceToggle = (VoiceToggle == 2) ? 0 : VoiceToggle+1; }
             onbar = 0;
             break;
         case 5:
-            if(SoundToggle && (FXDevice >= 0)) AmbienceToggle = 1-AmbienceToggle;
+            if (SoundToggle && (FXDevice >= 0)) AmbienceToggle = 1-AmbienceToggle;
             onbar = 0;
             break;
         case 6:
-            if(SoundToggle && (FXDevice >= 0))
+            if (SoundToggle && (FXDevice >= 0))
             {
                 ReverseStereo = 1-ReverseStereo;
                 FX_SetReverseStereo(ReverseStereo);
@@ -3553,9 +3618,9 @@ cheat_for_port_credits:
             l = FXVolume;
             FXVolume >>= 2;
             bar(c+167+40,50+16+16,(short *)&FXVolume,4,(FXDevice>=0)&&x==2,MENUHIGHLIGHT(2),SoundToggle==0||(FXDevice<0));
-            if(l != FXVolume)
+            if (l != FXVolume)
                 FXVolume <<= 2;
-            if(l != FXVolume)
+            if (l != FXVolume)
                 FX_SetVolume( (short) FXVolume );
         }
         menutext(c,50+16,MENUHIGHLIGHT(1),(MusicDevice<0||(numplayers > 1 && !MusicToggle)),"MUSIC");
@@ -3568,7 +3633,7 @@ cheat_for_port_credits:
                 (MusicDevice>=0) && x==3,MENUHIGHLIGHT(3),
                 MusicToggle==0||(MusicDevice<0));
             MusicVolume <<= 2;
-            if(l != MusicVolume)
+            if (l != MusicVolume)
                 MUSIC_SetVolume( (short) MusicVolume );
 
         }
@@ -3578,7 +3643,8 @@ cheat_for_port_credits:
         menutext(c,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(FXDevice<0)||SoundToggle==0,"FLIP STEREO");
 
         { char *s[] = { "OFF", "LOCAL", "ALL" };
-            menutext(c+160+40,50+16+16+16+16,MENUHIGHLIGHT(4),(FXDevice<0)||SoundToggle==0,s[VoiceToggle]); }
+            menutext(c+160+40,50+16+16+16+16,MENUHIGHLIGHT(4),(FXDevice<0)||SoundToggle==0,s[VoiceToggle]);
+        }
 
         menutext(c+160+40,50+16+16+16+16+16,MENUHIGHLIGHT(5),(FXDevice<0)||SoundToggle==0,AmbienceToggle?"ON":"OFF");
 
@@ -3611,10 +3677,10 @@ cheat_for_port_credits:
         rotatesprite(c<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64,0,0,xdim-1,ydim-1);
         rotatesprite(c<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
 
-        if(current_menu == 300) menutext(c,24,0,0,"LOAD GAME");
+        if (current_menu == 300) menutext(c,24,0,0,"LOAD GAME");
         else menutext(c,24,0,0,"SAVE GAME");
 
-        if(current_menu >= 360 && current_menu <= 369 )
+        if (current_menu >= 360 && current_menu <= 369 )
         {
             sprintf(tempbuf,"PLAYERS: %-2ld                      ",ud.multimode);
             gametext(160,156,tempbuf,0,2+8+16);
@@ -3625,11 +3691,11 @@ cheat_for_port_credits:
 
             x = strget((320>>1),184,&ud.savegame[current_menu-360][0],19, 999 );
 
-            if(x == -1)
+            if (x == -1)
             {
                 //        readsavenames();
                 ps[myconnectindex].gm = MODE_GAME;
-                if(ud.multimode < 2  && ud.recstat != 2)
+                if (ud.multimode < 2  && ud.recstat != 2)
                 {
                     ready2send = 1;
                     totalclock = ototalclock;
@@ -3637,22 +3703,22 @@ cheat_for_port_credits:
                 goto DISPLAYNAMES;
             }
 
-            if( x == 1 )
+            if ( x == 1 )
             {
-                if( ud.savegame[current_menu-360][0] == 0 )
+                if ( ud.savegame[current_menu-360][0] == 0 )
                 {
                     KB_FlushKeyboardQueue();
                     cmenu(351);
                 }
                 else
                 {
-                    if(ud.multimode > 1)
+                    if (ud.multimode > 1)
                         saveplayer(-1-(current_menu-360));
                     else saveplayer(current_menu-360);
                     lastsavedpos = current_menu-360;
                     ps[myconnectindex].gm = MODE_GAME;
 
-                    if(ud.multimode < 2  && ud.recstat != 2)
+                    if (ud.multimode < 2  && ud.recstat != 2)
                     {
                         ready2send = 1;
                         totalclock = ototalclock;
@@ -3672,11 +3738,11 @@ cheat_for_port_credits:
 
         x = probe(c+68,54,12,10);
 
-        if(current_menu == 300)
+        if (current_menu == 300)
         {
-            if( ud.savegame[probey][0] )
+            if ( ud.savegame[probey][0] )
             {
-                if( lastprobey != probey )
+                if ( lastprobey != probey )
                 {
                     loadpheader(probey,&savehead);
                     lastprobey = probey;
@@ -3694,9 +3760,9 @@ cheat_for_port_credits:
         }
         else
         {
-            if( ud.savegame[probey][0] )
+            if ( ud.savegame[probey][0] )
             {
-                if(lastprobey != probey)
+                if (lastprobey != probey)
                     loadpheader(probey,&savehead);
                 lastprobey = probey;
                 rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
@@ -3710,12 +3776,12 @@ cheat_for_port_credits:
                 gametext(160,180,boardfilename,0,2+8+16);
         }
 
-        switch( x )
+        switch ( x )
         {
         case -1:
-            if(current_menu == 300)
+            if (current_menu == 300)
             {
-                if( (ps[myconnectindex].gm&MODE_GAME) != MODE_GAME)
+                if ( (ps[myconnectindex].gm&MODE_GAME) != MODE_GAME)
                 {
                     cmenu(0);
                     break;
@@ -3726,7 +3792,7 @@ cheat_for_port_credits:
             else
                 ps[myconnectindex].gm = MODE_GAME;
 
-            if(ud.multimode < 2 && ud.recstat != 2)
+            if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -3743,14 +3809,14 @@ cheat_for_port_credits:
         case 7:
         case 8:
         case 9:
-            if( current_menu == 300)
+            if ( current_menu == 300)
             {
-                if( ud.savegame[x][0] )
+                if ( ud.savegame[x][0] )
                     current_menu = (1000+x);
             }
             else
             {
-                if( ud.savegame[x][0] != 0)
+                if ( ud.savegame[x][0] != 0)
                     current_menu = 2000+x;
                 else
                 {
@@ -3775,7 +3841,7 @@ DISPLAYNAMES:
 
         c = 320>>1;
 
-        if( KB_KeyPressed( sc_LeftArrow ) ||
+        if ( KB_KeyPressed( sc_LeftArrow ) ||
                 KB_KeyPressed( sc_kpad_4 ) ||
                 KB_KeyPressed( sc_UpArrow ) ||
                 KB_KeyPressed( sc_PgUp ) ||
@@ -3789,9 +3855,9 @@ DISPLAYNAMES:
 
             sound(KICK_HIT);
             current_menu--;
-            if(current_menu < 400) current_menu = 403;
+            if (current_menu < 400) current_menu = 403;
         }
-        else if(
+        else if (
             KB_KeyPressed( sc_PgDn ) ||
             KB_KeyPressed( sc_Enter ) ||
             KB_KeyPressed( sc_kpad_Enter ) ||
@@ -3813,12 +3879,12 @@ DISPLAYNAMES:
             KB_ClearKeyDown(sc_Space);
             sound(KICK_HIT);
             current_menu++;
-            if(current_menu > 403) current_menu = 400;
+            if (current_menu > 403) current_menu = 400;
         }
 
-        if( KB_KeyPressed(sc_Escape) )
+        if ( KB_KeyPressed(sc_Escape) )
         {
-            if(ps[myconnectindex].gm&MODE_GAME)
+            if (ps[myconnectindex].gm&MODE_GAME)
                 cmenu(50);
             else cmenu(0);
             return;
@@ -3832,7 +3898,7 @@ VOLUME_ALL_40x:
 
         c = 320>>1;
 
-        if( KB_KeyPressed( sc_LeftArrow ) ||
+        if ( KB_KeyPressed( sc_LeftArrow ) ||
                 KB_KeyPressed( sc_kpad_4 ) ||
                 KB_KeyPressed( sc_UpArrow ) ||
                 KB_KeyPressed( sc_PgUp ) ||
@@ -3846,9 +3912,9 @@ VOLUME_ALL_40x:
 
             sound(KICK_HIT);
             current_menu--;
-            if(current_menu < 400) current_menu = 401;
+            if (current_menu < 400) current_menu = 401;
         }
-        else if(
+        else if (
             KB_KeyPressed( sc_PgDn ) ||
             KB_KeyPressed( sc_Enter ) ||
             KB_KeyPressed( sc_kpad_Enter ) ||
@@ -3870,19 +3936,19 @@ VOLUME_ALL_40x:
             KB_ClearKeyDown(sc_Space);
             sound(KICK_HIT);
             current_menu++;
-            if(current_menu > 401) current_menu = 400;
+            if (current_menu > 401) current_menu = 400;
         }
 
-        if( KB_KeyPressed(sc_Escape) )
+        if ( KB_KeyPressed(sc_Escape) )
         {
-            if(ps[myconnectindex].gm&MODE_GAME)
+            if (ps[myconnectindex].gm&MODE_GAME)
                 cmenu(50);
             else cmenu(0);
             return;
         }
 
         flushperms();
-        switch(current_menu)
+        switch (current_menu)
         {
         case 400:
             rotatesprite(0,0,65536L,0,TEXTSTORY,0,0,10+16+64, 0,0,xdim-1,ydim-1);
@@ -3901,7 +3967,7 @@ VOLUME_ALL_40x:
         gametext(c,90,"Are you sure you want to quit?",0,2+8+16);
         gametext(c,99,"(Y/N)",0,2+8+16);
 
-        if( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
+        if ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
         {
             KB_FlushKeyboardQueue();
 
@@ -3909,23 +3975,23 @@ VOLUME_ALL_40x:
         }
 
         x = probe(186,124,0,0);
-        if(x == -1 || KB_KeyPressed(sc_N) || RMB)
+        if (x == -1 || KB_KeyPressed(sc_N) || RMB)
         {
             KB_ClearKeyDown(sc_N);
             quittimer = 0;
-            if( ps[myconnectindex].gm&MODE_DEMO && ud.recstat == 2 )
+            if ( ps[myconnectindex].gm&MODE_DEMO && ud.recstat == 2 )
                 ps[myconnectindex].gm = MODE_DEMO;
             else
             {
-                if(current_menu == 502)
+                if (current_menu == 502)
                 {
                     cmenu(last_menu);
                     probey = last_probey;
                 }
-                else if(!(ps[myconnectindex].gm & MODE_GAME || ud.recstat == 2))
+                else if (!(ps[myconnectindex].gm & MODE_GAME || ud.recstat == 2))
                     cmenu(0);
                 else ps[myconnectindex].gm &= ~MODE_MENU;
-                if(ud.multimode < 2  && ud.recstat != 2)
+                if (ud.multimode < 2  && ud.recstat != 2)
                 {
                     ready2send = 1;
                     totalclock = ototalclock;
@@ -3939,21 +4005,21 @@ VOLUME_ALL_40x:
         gametext(c,90,"Quit to Title?",0,2+8+16);
         gametext(c,99,"(Y/N)",0,2+8+16);
 
-        if( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
+        if ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
         {
             KB_FlushKeyboardQueue();
             ps[myconnectindex].gm = MODE_DEMO;
-            if(ud.recstat == 1)
+            if (ud.recstat == 1)
                 closedemowrite();
             cmenu(0);
         }
 
         x = probe(186,124,0,0);
 
-        if(x == -1 || KB_KeyPressed(sc_N) || RMB)
+        if (x == -1 || KB_KeyPressed(sc_N) || RMB)
         {
             ps[myconnectindex].gm &= ~MODE_MENU;
-            if(ud.multimode < 2  && ud.recstat != 2)
+            if (ud.multimode < 2  && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
@@ -3971,7 +4037,7 @@ VOLUME_ALL_40x:
         gametext(160,50,tempbuf,0,2+8+16);
         gametext(160,59,"to select level",0,2+8+16);
 
-        if( KB_KeyPressed(sc_Escape) )
+        if ( KB_KeyPressed(sc_Escape) )
         {
             KB_ClearKeyDown(sc_Escape);
             sound(EXITMENUSOUND);
@@ -3980,7 +4046,7 @@ VOLUME_ALL_40x:
         break;
 
     case 602:
-        if(menunamecnt == 0)
+        if (menunamecnt == 0)
         {
             //        getfilenames("SUBD");
             getfilenames(".","*.MAP");
@@ -3994,11 +4060,11 @@ VOLUME_ALL_40x:
 
             x = probe(186,124,0,0);
 
-            if(voting != myconnectindex)
+            if (voting != myconnectindex)
                 ps[myconnectindex].gm &= ~MODE_MENU;
 
             if (x == -1) {
-                if(voting == myconnectindex)
+                if (voting == myconnectindex)
                 {
                     Bmemset(votes,0,sizeof(votes));
                     Bmemset(gotvote,0,sizeof(gotvote));
@@ -4007,9 +4073,9 @@ VOLUME_ALL_40x:
                     tempbuf[1] = 2;
                     tempbuf[2] = myconnectindex;
 
-                    for(c=connecthead;c>=0;c=connectpoint2[c])
+                    for (c=connecthead;c>=0;c=connectpoint2[c])
                     {
-                        if(c != myconnectindex) sendpacket(c,tempbuf,3);
+                        if (c != myconnectindex) sendpacket(c,tempbuf,3);
                         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                     }
                     voting = -1;
@@ -4017,24 +4083,24 @@ VOLUME_ALL_40x:
                 cmenu(0);
             }
 
-            for(i=0;i<MAXPLAYERS;i++)
+            for (i=0;i<MAXPLAYERS;i++)
             {
                 plrvotes += votes[i];
                 j += gotvote[i];
             }
-            if(j == numplayers || !ps[myconnectindex].i || (plrvotes > (numplayers>>1)) || (!networkmode && myconnectindex == connecthead))
+            if (j == numplayers || !ps[myconnectindex].i || (plrvotes > (numplayers>>1)) || (!networkmode && myconnectindex == connecthead))
             {
-                if(plrvotes > (numplayers>>1) || !ps[myconnectindex].i || (!networkmode && myconnectindex == connecthead))
+                if (plrvotes > (numplayers>>1) || !ps[myconnectindex].i || (!networkmode && myconnectindex == connecthead))
                 {
                     tempbuf[0] = 5;
                     tempbuf[1] = ud.m_level_number;
                     tempbuf[2] = ud.m_volume_number;
                     tempbuf[3] = ud.m_player_skill+1;
 
-                    if( ud.m_player_skill == 3 ) ud.m_respawn_monsters = 1;
+                    if ( ud.m_player_skill == 3 ) ud.m_respawn_monsters = 1;
                     else ud.m_respawn_monsters = 0;
 
-                    if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_ITEMRESPAWN)) ud.m_respawn_items = 1;
+                    if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_ITEMRESPAWN)) ud.m_respawn_items = 1;
                     else ud.m_respawn_items = 0;
 
                     ud.m_respawn_inventory = 1;
@@ -4048,19 +4114,19 @@ VOLUME_ALL_40x:
                     tempbuf[10] = ud.m_ffire;
                     tempbuf[11] = ud.m_noexits;
 
-                    for(c=connecthead;c>=0;c=connectpoint2[c])
+                    for (c=connecthead;c>=0;c=connectpoint2[c])
                     {
                         resetweapons(c);
                         resetinventory(c);
 
                     }
-                    for(c=connecthead;c>=0;c=connectpoint2[c])
+                    for (c=connecthead;c>=0;c=connectpoint2[c])
                     {
-                        if(c != myconnectindex) sendpacket(c,tempbuf,12);
+                        if (c != myconnectindex) sendpacket(c,tempbuf,12);
                         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                     }
 
-                    if(voting == myconnectindex)
+                    if (voting == myconnectindex)
                         adduserquote("VOTE SUCCEEDED");
 
                     newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
@@ -4068,7 +4134,7 @@ VOLUME_ALL_40x:
 
                     return;
                 }
-                else if(j == numplayers) {
+                else if (j == numplayers) {
                     Bmemset(votes,0,sizeof(votes));
                     Bmemset(gotvote,0,sizeof(gotvote));
                     voting = -1;
@@ -4078,9 +4144,9 @@ VOLUME_ALL_40x:
                     tempbuf[2] = myconnectindex;
                     tempbuf[3] = 1;
 
-                    for(c=connecthead;c>=0;c=connectpoint2[c])
+                    for (c=connecthead;c>=0;c=connectpoint2[c])
                     {
-                        if(c != myconnectindex) sendpacket(c,tempbuf,4);
+                        if (c != myconnectindex) sendpacket(c,tempbuf,4);
                         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                     }
 
@@ -4095,7 +4161,7 @@ VOLUME_ALL_40x:
         }
     case 600:
         c = (320>>1) - 120;
-        if((ps[myconnectindex].gm&MODE_GAME) != MODE_GAME)
+        if ((ps[myconnectindex].gm&MODE_GAME) != MODE_GAME)
             displayfragbar();
         rotatesprite(160<<16,26<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(160,31,0,0,&ud.user_name[myconnectindex][0]);
@@ -4103,55 +4169,55 @@ VOLUME_ALL_40x:
         x = probe(c,57-8,16,8);
 
         modval(0,num_gametypes-1,(int *)&ud.m_coop,1,probey==0);
-        if(!VOLUMEONE)
+        if (!VOLUMEONE)
             modval(0,num_volumes-1,(int *)&ud.m_volume_number,1,probey==1);
         modval(0,ud.m_volume_number == 0?6+(boardfilename[0]!=0):10,(int *)&ud.m_level_number,1,probey==2);
 
-        if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION))
+        if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION))
             modval(0,1,(int *)&ud.m_marker,1,probey==4);
-        if((gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM)))
+        if ((gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM)))
             modval(0,1,(int *)&ud.m_ffire,1,probey==5);
         else modval(0,1,(int *)&ud.m_noexits,1,probey==5);
 
-        switch(x)
+        switch (x)
         {
         case -1:
             ud.m_recstat = 0;
-            if(ps[myconnectindex].gm&MODE_GAME) cmenu(50);
+            if (ps[myconnectindex].gm&MODE_GAME) cmenu(50);
             else cmenu(0);
             break;
         case 0:
             ud.m_coop++;
-            if(ud.m_coop == num_gametypes) ud.m_coop = 0;
+            if (ud.m_coop == num_gametypes) ud.m_coop = 0;
             break;
         case 1:
             if (!VOLUMEONE) {
                 ud.m_volume_number++;
-                if(ud.m_volume_number == num_volumes) ud.m_volume_number = 0;
-                if(ud.m_volume_number == 0 && ud.m_level_number > 6)
+                if (ud.m_volume_number == num_volumes) ud.m_volume_number = 0;
+                if (ud.m_volume_number == 0 && ud.m_level_number > 6)
                     ud.m_level_number = 0;
-                if(ud.m_level_number > 10) ud.m_level_number = 0;
+                if (ud.m_level_number > 10) ud.m_level_number = 0;
             }
             break;
         case 2:
             ud.m_level_number++;
             if (!VOLUMEONE) {
-                if(ud.m_volume_number == 0 && ud.m_level_number > 6+(boardfilename[0]!=0))
+                if (ud.m_volume_number == 0 && ud.m_level_number > 6+(boardfilename[0]!=0))
                     ud.m_level_number = 0;
             } else {
-                if(ud.m_volume_number == 0 && ud.m_level_number > 5)
+                if (ud.m_volume_number == 0 && ud.m_level_number > 5)
                     ud.m_level_number = 0;
             }
-            if(ud.m_level_number > 10) ud.m_level_number = 0;
+            if (ud.m_level_number > 10) ud.m_level_number = 0;
             break;
         case 3:
-            if(ud.m_monsters_off == 1 && ud.m_player_skill > 0)
+            if (ud.m_monsters_off == 1 && ud.m_player_skill > 0)
                 ud.m_monsters_off = 0;
 
-            if(ud.m_monsters_off == 0)
+            if (ud.m_monsters_off == 0)
             {
                 ud.m_player_skill++;
-                if(ud.m_player_skill > 3)
+                if (ud.m_player_skill > 3)
                 {
                     ud.m_player_skill = 0;
                     ud.m_monsters_off = 1;
@@ -4162,12 +4228,12 @@ VOLUME_ALL_40x:
             break;
 
         case 4:
-            if((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION))
+            if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION))
                 ud.m_marker = !ud.m_marker;
             break;
 
         case 5:
-            if((gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM)))
+            if ((gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM)))
                 ud.m_ffire = !ud.m_ffire;
             else ud.m_noexits = !ud.m_noexits;
             break;
@@ -4180,9 +4246,9 @@ VOLUME_ALL_40x:
             }
             break;
         case 7:
-            if(voting == -1)
+            if (voting == -1)
             {
-                if(ps[myconnectindex].i)
+                if (ps[myconnectindex].i)
                 {
                     Bmemset(votes,0,sizeof(votes));
                     Bmemset(gotvote,0,sizeof(gotvote));
@@ -4195,9 +4261,9 @@ VOLUME_ALL_40x:
                     tempbuf[3] = ud.m_volume_number;
                     tempbuf[4] = ud.m_level_number;
 
-                    for(c=connecthead;c>=0;c=connectpoint2[c])
+                    for (c=connecthead;c>=0;c=connectpoint2[c])
                     {
-                        if(c != myconnectindex) sendpacket(c,tempbuf,5);
+                        if (c != myconnectindex) sendpacket(c,tempbuf,5);
                         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                     }
                 }
@@ -4222,10 +4288,10 @@ VOLUME_ALL_40x:
 
         gametext(c+70,57+16+16+16-7-9,ud.m_monsters_off == 0 || ud.m_player_skill > 0?skill_names[ud.m_player_skill]:"NONE",MENUHIGHLIGHT(3),2+8+16);
 
-        if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION)
+        if (gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION)
             gametext(c+70,57+16+16+16+16-7-9,ud.m_marker?"ON":"OFF",MENUHIGHLIGHT(4),2+8+16);
 
-        if(gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM))
+        if (gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM))
             gametext(c+70,57+16+16+16+16+16-7-9,ud.m_ffire?"ON":"OFF",MENUHIGHLIGHT(5),2+8+16);
         else gametext(c+70,57+16+16+16+16+16-7-9,ud.m_noexits?"OFF":"ON",MENUHIGHLIGHT(5),2+8+16);
 
@@ -4246,18 +4312,18 @@ VOLUME_ALL_40x:
 
         menutext(c,57+16+16+16-9,MENUHIGHLIGHT(3),PHX(-5),"MONSTERS");
 
-        if(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION)
+        if (gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION)
             menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),PHX(-6),"MARKERS");
         else
             menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),1,"MARKERS");
 
-        if(gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM))
+        if (gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM))
             menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),0,"FR. FIRE");
         else menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),0,"MAP EXITS");
 
         if (VOLUMEALL) {
             menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),0,"USER MAP");
-            if( boardfilename[0] != 0 )
+            if ( boardfilename[0] != 0 )
                 gametext(c+70+44,57+16+16+16+16+16,boardfilename,MENUHIGHLIGHT(6),2+8+16);
         } else {
             menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),1,"USER MAP");
@@ -4268,7 +4334,7 @@ VOLUME_ALL_40x:
         break;
     }
 
-    if( (ps[myconnectindex].gm&MODE_MENU) != MODE_MENU)
+    if ( (ps[myconnectindex].gm&MODE_MENU) != MODE_MENU)
     {
         vscrn();
         cameraclock = totalclock;

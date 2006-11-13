@@ -25,11 +25,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void endanimsounds(long fr)
 {
-    switch(ud.volume_number)
+    switch (ud.volume_number)
     {
-    case 0:break;
+    case 0:
+        break;
     case 1:
-        switch(fr)
+        switch (fr)
         {
         case 1:
             sound(WIND_AMBIENCE);
@@ -61,7 +62,7 @@ void endanimsounds(long fr)
         }
         break;
     case 2:
-        switch(fr)
+        switch (fr)
         {
         case 1:
             sound(WIND_REPEAT);
@@ -89,7 +90,7 @@ void endanimsounds(long fr)
 
 void logoanimsounds(long fr)
 {
-    switch(fr)
+    switch (fr)
     {
     case 1:
         sound(FLY_BY);
@@ -102,7 +103,7 @@ void logoanimsounds(long fr)
 
 void intro4animsounds(long fr)
 {
-    switch(fr)
+    switch (fr)
     {
     case 1:
         sound(INTRO4_B);
@@ -119,7 +120,7 @@ void intro4animsounds(long fr)
 
 void first4animsounds(long fr)
 {
-    switch(fr)
+    switch (fr)
     {
     case 1:
         sound(INTRO4_1);
@@ -138,7 +139,7 @@ void first4animsounds(long fr)
 
 void intro42animsounds(long fr)
 {
-    switch(fr)
+    switch (fr)
     {
     case 10:
         sound(INTRO4_6);
@@ -148,7 +149,7 @@ void intro42animsounds(long fr)
 
 void endanimvol41(long fr)
 {
-    switch(fr)
+    switch (fr)
     {
     case 3:
         sound(DUKE_UNDERWATER);
@@ -161,7 +162,7 @@ void endanimvol41(long fr)
 
 void endanimvol42(long fr)
 {
-    switch(fr)
+    switch (fr)
     {
     case 11:
         sound(DUKE_UNDERWATER);
@@ -180,7 +181,7 @@ void endanimvol42(long fr)
 
 void endanimvol43(long fr)
 {
-    switch(fr)
+    switch (fr)
     {
     case 1:
         sound(BOSS4_DEADSPEECH);
@@ -203,17 +204,17 @@ void playanm(char *fn,char t)
 
     //    return;
 
-    if(t != 7 && t != 9 && t != 10 && t != 11)
+    if (t != 7 && t != 9 && t != 10 && t != 11)
         KB_FlushKeyboardQueue();
 
-    if( KB_KeyWaiting() )
+    if ( KB_KeyWaiting() )
     {
         FX_StopAllSounds();
         goto ENDOFANIMLOOP;
     }
 
     handle = kopen4load(fn,0);
-    if(handle == -1) return;
+    if (handle == -1) return;
     length = kfilelength(handle);
 
     walock[TILE_ANIM] = 219+t;
@@ -230,7 +231,7 @@ void playanm(char *fn,char t)
     numframes = ANIM_NumFrames();
 
     palptr = ANIM_GetPalette();
-    for(i=0;i<256;i++)
+    for (i=0;i<256;i++)
     {
         /*
         j = (i<<2); k = j-i;
@@ -251,26 +252,26 @@ void playanm(char *fn,char t)
 
     ototalclock = totalclock + 10;
 
-    for(i=1;i<numframes;i++)
+    for (i=1;i<numframes;i++)
     {
-        while(totalclock < ototalclock)
+        while (totalclock < ototalclock)
         {
             extern char restorepalette;
-            if( KB_KeyWaiting() )
+            if ( KB_KeyWaiting() )
                 goto ENDOFANIMLOOP;
             handleevents(); getpackets();
-            if(restorepalette == 1)
+            if (restorepalette == 1)
                 setgamepalette(&ps[myconnectindex],tempbuf,2);
         }
 
-        if(t == 10) ototalclock += 14;
-        else if(t == 9) ototalclock += 10;
-        else if(t == 7) ototalclock += 18;
-        else if(t == 6) ototalclock += 14;
-        else if(t == 5) ototalclock += 9;
-        else if(ud.volume_number == 3) ototalclock += 10;
-        else if(ud.volume_number == 2) ototalclock += 10;
-        else if(ud.volume_number == 1) ototalclock += 18;
+        if (t == 10) ototalclock += 14;
+        else if (t == 9) ototalclock += 10;
+        else if (t == 7) ototalclock += 18;
+        else if (t == 6) ototalclock += 14;
+        else if (t == 5) ototalclock += 9;
+        else if (ud.volume_number == 3) ototalclock += 10;
+        else if (ud.volume_number == 2) ototalclock += 10;
+        else if (ud.volume_number == 1) ototalclock += 18;
         else                           ototalclock += 10;
 
         waloff[TILE_ANIM] = FP_OFF(ANIM_DrawFrame(i));
@@ -278,14 +279,14 @@ void playanm(char *fn,char t)
         rotatesprite(0<<16,0<<16,65536L,512,TILE_ANIM,0,0,2+4+8+16+64, 0,0,xdim-1,ydim-1);
         nextpage();
 
-        if(t == 8) endanimvol41(i);
-        else if(t == 10) endanimvol42(i);
-        else if(t == 11) endanimvol43(i);
-        else if(t == 9) intro42animsounds(i);
-        else if(t == 7) intro4animsounds(i);
-        else if(t == 6) first4animsounds(i);
-        else if(t == 5) logoanimsounds(i);
-        else if(t < 4) endanimsounds(i);
+        if (t == 8) endanimvol41(i);
+        else if (t == 10) endanimvol42(i);
+        else if (t == 11) endanimvol43(i);
+        else if (t == 9) intro42animsounds(i);
+        else if (t == 7) intro4animsounds(i);
+        else if (t == 6) first4animsounds(i);
+        else if (t == 5) logoanimsounds(i);
+        else if (t < 4) endanimsounds(i);
     }
 
 ENDOFANIMLOOP:

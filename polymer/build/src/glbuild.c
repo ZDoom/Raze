@@ -6,12 +6,12 @@
 
 #if defined USE_OPENGL
 
- #ifdef RENDERTYPESDL
+#ifdef RENDERTYPESDL
 # ifdef __APPLE__
 #  include <SDL/SDL.h>
 # else
- #include "SDL.h"
- #endif
+#include "SDL.h"
+#endif
 #endif
 
 void (APIENTRY * bglClearColor)( GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha );
@@ -160,7 +160,7 @@ int loadgldriver(const char *driver)
 #endif
 
     if (!driver) {
- #ifdef _WIN32
+#ifdef _WIN32
         driver = "OPENGL32.DLL";
 #elif defined __APPLE__
         driver = "/System/Library/Frameworks/OpenGL.framework/OpenGL";

@@ -95,14 +95,22 @@ void initsb(char dadigistat, char damusistat, long dasamplerate, char danumspeak
     }
 
     switch (FSOUND_GetOutput()) {
-    case FSOUND_OUTPUT_NOSOUND: s = "No Sound"; break;
-    case FSOUND_OUTPUT_WINMM: s = "WINMM"; break;
-    case FSOUND_OUTPUT_DSOUND: s = "DirectSound"; break;
-    case FSOUND_OUTPUT_OSS: s = "OSS"; break;
-    case FSOUND_OUTPUT_ESD: s = "ESound"; break;
-    case FSOUND_OUTPUT_ALSA: s = "ALSA"; break;
-    case FSOUND_OUTPUT_ASIO: s = "ASIO"; break;
-    default: s = "Other"; break;
+    case FSOUND_OUTPUT_NOSOUND:
+        s = "No Sound"; break;
+    case FSOUND_OUTPUT_WINMM:
+        s = "WINMM"; break;
+    case FSOUND_OUTPUT_DSOUND:
+        s = "DirectSound"; break;
+    case FSOUND_OUTPUT_OSS:
+        s = "OSS"; break;
+    case FSOUND_OUTPUT_ESD:
+        s = "ESound"; break;
+    case FSOUND_OUTPUT_ALSA:
+        s = "ALSA"; break;
+    case FSOUND_OUTPUT_ASIO:
+        s = "ASIO"; break;
+    default:
+        s = "Other"; break;
     }
     printOSD("Using FMOD \"%s\" output driver\n", s);
 

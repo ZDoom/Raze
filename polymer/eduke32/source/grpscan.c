@@ -9,7 +9,8 @@
 #include "grpscan.h"
 
 struct grpfile grpfiles[numgrpfiles] = {
-                                           { "Duke Nukem 3D",						0xBBC9CE44, 26524524, GAMEDUKE, NULL },
+                                           { "Duke Nukem 3D",						0xBBC9CE44, 26524524, GAMEDUKE, NULL }
+                                           ,
                                            { "Duke Nukem 3D: Atomic Edition",		0xF514A6AC, 44348015, GAMEDUKE, NULL },
                                            { "Duke Nukem 3D: Atomic Edition",		0xFD3DCFF1, 44356548, GAMEDUKE, NULL },
                                            { "Duke Nukem 3D Shareware Version",		0x983AD923, 11035779, GAMEDUKE, NULL },

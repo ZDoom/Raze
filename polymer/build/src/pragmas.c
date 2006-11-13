@@ -184,13 +184,13 @@ void copybufreverse(void *S, void *D, long c)
 void qinterpolatedown16(long bufptr, long num, long val, long add)
 { // gee, I wonder who could have provided this...
     long i, *lptr = (long *)bufptr;
-    for(i=0;i<num;i++) { lptr[i] = (val>>16); val += add; }
+    for (i=0;i<num;i++) { lptr[i] = (val>>16); val += add; }
 }
 
 void qinterpolatedown16short(long bufptr, long num, long val, long add)
 { // ...maybe the same person who provided this too?
     long i; short *sptr = (short *)bufptr;
-    for(i=0;i<num;i++) { sptr[i] = (short)(val>>16); val += add; }
+    for (i=0;i<num;i++) { sptr[i] = (short)(val>>16); val += add; }
 }
 
 void clearbuf(void *d, long c, long a)
@@ -232,13 +232,13 @@ void clearbufbyte(void *D, long c, long a)
 void copybufbyte(void *S, void *D, long c)
 {
     char *p = (char*)S, *q = (char*)D;
-    while((c--) > 0) *(q++) = *(p++);
+    while ((c--) > 0) *(q++) = *(p++);
 }
 
 void copybufreverse(void *S, void *D, long c)
 {
     char *p = (char*)S, *q = (char*)D;
-    while((c--) > 0) *(q++) = *(p--);
+    while ((c--) > 0) *(q++) = *(p--);
 }
 
 #endif

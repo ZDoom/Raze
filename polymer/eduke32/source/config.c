@@ -417,12 +417,12 @@ void CONFIG_SetupMouse( void )
     {
         Bsprintf(str,"MouseButton%ld",i); temp[0] = 0;
         if (!SCRIPT_GetString( scripthandle,"Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
+            if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseButtonClicked%ld",i); temp[0] = 0;
         if (!SCRIPT_GetString( scripthandle,"Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
+            if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
     }
 
@@ -431,17 +431,17 @@ void CONFIG_SetupMouse( void )
     {
         Bsprintf(str,"MouseAnalogAxes%ld",i); temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            if(CONFIG_AnalogNameToNum(temp) != -1 || temp[0] == 0)
+            if (CONFIG_AnalogNameToNum(temp) != -1 || temp[0] == 0)
                 MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
 
         Bsprintf(str,"MouseDigitalAxes%ld_0",i); temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
+            if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseDigitalAxes%ld_1",i); temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
+            if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseAnalogScale%ld",i);
@@ -489,12 +489,12 @@ void CONFIG_SetupJoystick( void )
     {
         Bsprintf(str,"JoystickButton%ld",i); temp[0] = 0;
         if (!SCRIPT_GetString( scripthandle,"Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
+            if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"JoystickButtonClicked%ld",i); temp[0] = 0;
         if (!SCRIPT_GetString( scripthandle,"Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
+            if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
     }
 
@@ -503,17 +503,17 @@ void CONFIG_SetupJoystick( void )
     {
         Bsprintf(str,"JoystickAnalogAxes%ld",i); temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            if(CONFIG_AnalogNameToNum(temp) != -1 || temp[0] == 0)
+            if (CONFIG_AnalogNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
 
         Bsprintf(str,"JoystickDigitalAxes%ld_0",i); temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
+            if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"JoystickDigitalAxes%ld_1",i); temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
-            if(CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
+            if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"JoystickAnalogScale%ld",i);
@@ -559,10 +559,10 @@ void readsavenames(void)
     {
         fn[4] = i+'0';
         if ((fil = Bfopen(fn,"rb")) == NULL ) continue;
-    if(dfread(&j,sizeof(long),1,fil) != 1) { Bfclose(fil); continue; }
-        if(dfread(g_szBuf,j,1,fil) != 1) { Bfclose(fil); continue; }
+    if (dfread(&j,sizeof(long),1,fil) != 1) { Bfclose(fil); continue; }
+        if (dfread(g_szBuf,j,1,fil) != 1) { Bfclose(fil); continue; }
         if (dfread(&dummy,4,1,fil) != 1) { Bfclose(fil); continue; }
-        if(dummy != BYTEVERSION) { Bfclose(fil); continue; }
+        if (dummy != BYTEVERSION) { Bfclose(fil); continue; }
         if (dfread(&dummy,4,1,fil) != 1) { Bfclose(fil); continue; }
         if (dfread(&ud.savegame[i][0],19,1,fil) != 1) { ud.savegame[i][0] = 0; }
         Bfclose(fil);
@@ -597,7 +597,7 @@ int32 CONFIG_ReadSetup( void )
 
     if (scripthandle >= 0)
     {
-        for(dummy = 0;dummy < 10;dummy++)
+        for (dummy = 0;dummy < 10;dummy++)
         {
             commmacro[13] = dummy+'0';
             SCRIPT_GetString( scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
@@ -605,7 +605,7 @@ int32 CONFIG_ReadSetup( void )
 
         SCRIPT_GetString( scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);
 
-        while(Bstrlen(strip_color_codes(tempbuf)) > 10)
+        while (Bstrlen(strip_color_codes(tempbuf)) > 10)
             tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
         Bstrncpy(myname,tempbuf,sizeof(myname)-1);
@@ -665,7 +665,7 @@ int32 CONFIG_ReadSetup( void )
         check_player_color((int *)&ud.color,-1);
         ps[0].palookup = ud.pcolor[0] = ud.color;
         SCRIPT_GetNumber( scripthandle, "Misc", "Team",&ud.team);
-        if(ud.team > 1) ud.team = 0;
+        if (ud.team > 1) ud.team = 0;
         ud.pteam[0] = ud.team;
         SCRIPT_GetNumber( scripthandle, "Misc", "MPMessageDisplayTime",&ud.msgdisptime);
         SCRIPT_GetNumber( scripthandle, "Misc", "StatusBarMode",&ud.statusbarmode);
@@ -677,7 +677,7 @@ int32 CONFIG_ReadSetup( void )
 
         // weapon choices are defaulted in checkcommandline, which may override them
         if (!CommandWeaponChoice)
-            for(i=0;i<10;i++)
+            for (i=0;i<10;i++)
             {
                 Bsprintf(buf,"WeaponChoice%ld",i);
                 dummy = -1;
@@ -813,12 +813,12 @@ void CONFIG_WriteSetup( void )
     SCRIPT_PutNumber( scripthandle, "Sound Setup", "VoiceToggle",VoiceToggle,false,false);
 
     // JBF 20031211
-    for(dummy=0;dummy<NUMGAMEFUNCTIONS;dummy++) {
+    for (dummy=0;dummy<NUMGAMEFUNCTIONS;dummy++) {
         SCRIPT_PutDoubleString( scripthandle, "KeyDefinitions", CONFIG_FunctionNumToName(dummy),
                                 KB_ScanCodeToString(KeyboardKeys[dummy][0]), KB_ScanCodeToString(KeyboardKeys[dummy][1]));
     }
 
-    for(dummy=0;dummy<10;dummy++)
+    for (dummy=0;dummy<10;dummy++)
     {
         Bsprintf(buf,"WeaponChoice%ld",dummy);
         SCRIPT_PutNumber( scripthandle, "Misc",buf,ud.wchoice[myconnectindex][dummy],false,false);
@@ -882,7 +882,7 @@ void CONFIG_WriteSetup( void )
     {
         char commmacro[] = "CommbatMacro# ";
 
-        for(dummy = 0;dummy < 10;dummy++)
+        for (dummy = 0;dummy < 10;dummy++)
         {
             commmacro[13] = dummy+'0';
             SCRIPT_PutString( scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);

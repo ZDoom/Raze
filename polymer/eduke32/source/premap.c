@@ -62,27 +62,27 @@ void cachespritenum(short i)
     char maxc;
     short j;
 
-    if(ud.monsters_off && badguy(&sprite[i])) return;
+    if (ud.monsters_off && badguy(&sprite[i])) return;
 
     maxc = 1;
 
-    if(spritecache[PN][0] == PN)
-        for(j = PN; j <= spritecache[PN][1]; j++)
+    if (spritecache[PN][0] == PN)
+        for (j = PN; j <= spritecache[PN][1]; j++)
             tloadtile(j,1);
 
-    switch(dynamictostatic[PN])
+    switch (dynamictostatic[PN])
     {
     case HYDRENT__STATIC:
         tloadtile(BROKEFIREHYDRENT,1);
-        for(j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
+        for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
         break;
     case TOILET__STATIC:
         tloadtile(TOILETBROKE,1);
-        for(j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
+        for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
         break;
     case STALL__STATIC:
         tloadtile(STALLBROKE,1);
-        for(j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
+        for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
         break;
     case RUBBERCAN__STATIC:
         maxc = 2;
@@ -99,13 +99,13 @@ void cachespritenum(short i)
     case LIZTROOPJETPACK__STATIC:
     case LIZTROOPONTOILET__STATIC:
     case LIZTROOPDUCKING__STATIC:
-        for(j = LIZTROOP; j < (LIZTROOP+72); j++) tloadtile(j,1);
-        for(j=HEADJIB1;j<LEGJIB1+3;j++) tloadtile(j,1);
+        for (j = LIZTROOP; j < (LIZTROOP+72); j++) tloadtile(j,1);
+        for (j=HEADJIB1;j<LEGJIB1+3;j++) tloadtile(j,1);
         maxc = 0;
         break;
     case WOODENHORSE__STATIC:
         maxc = 5;
-        for(j = HORSEONSIDE; j < (HORSEONSIDE+4); j++) tloadtile(j,1);
+        for (j = HORSEONSIDE; j < (HORSEONSIDE+4); j++) tloadtile(j,1);
         break;
     case NEWBEAST__STATIC:
     case NEWBEASTSTAYPUT__STATIC:
@@ -136,15 +136,15 @@ void cachespritenum(short i)
     case LIZMANSPITTING__STATIC:
     case LIZMANFEEDING__STATIC:
     case LIZMANJUMP__STATIC:
-        for(j=LIZMANHEAD1;j<LIZMANLEG1+3;j++) tloadtile(j,1);
+        for (j=LIZMANHEAD1;j<LIZMANLEG1+3;j++) tloadtile(j,1);
         maxc = 80;
         break;
     case APLAYER__STATIC:
         maxc = 0;
-        if(ud.multimode > 1)
+        if (ud.multimode > 1)
         {
             maxc = 5;
-            for(j = 1420;j < 1420+106; j++) tloadtile(j,1);
+            for (j = 1420;j < 1420+106; j++) tloadtile(j,1);
         }
         break;
     case ATOMICHEALTH__STATIC:
@@ -163,61 +163,69 @@ void cachespritenum(short i)
         maxc = 5;
         break;
         // caching of HUD sprites for weapons that may be in the level
-    case CHAINGUNSPRITE__STATIC: for (j=CHAINGUN; j<=CHAINGUN+7; j++) tloadtile(j,1); break;
-    case RPGSPRITE__STATIC: for (j=RPGGUN; j<=RPGGUN+2; j++) tloadtile(j,1); break;
-    case FREEZESPRITE__STATIC: for (j=FREEZE; j<=FREEZE+5; j++) tloadtile(j,1); break;
+    case CHAINGUNSPRITE__STATIC:
+        for (j=CHAINGUN; j<=CHAINGUN+7; j++) tloadtile(j,1); break;
+    case RPGSPRITE__STATIC:
+        for (j=RPGGUN; j<=RPGGUN+2; j++) tloadtile(j,1); break;
+    case FREEZESPRITE__STATIC:
+        for (j=FREEZE; j<=FREEZE+5; j++) tloadtile(j,1); break;
     case GROWSPRITEICON__STATIC:
-    case SHRINKERSPRITE__STATIC: for (j=SHRINKER-2; j<=SHRINKER+5; j++) tloadtile(j,1); break;
+    case SHRINKERSPRITE__STATIC:
+        for (j=SHRINKER-2; j<=SHRINKER+5; j++) tloadtile(j,1); break;
     case HBOMBAMMO__STATIC:
-    case HEAVYHBOMB__STATIC: for (j=HANDREMOTE; j<=HANDREMOTE+5; j++) tloadtile(j,1); break;
-    case TRIPBOMBSPRITE__STATIC: for (j=HANDHOLDINGLASER; j<=HANDHOLDINGLASER+4; j++) tloadtile(j,1); break;
-    case SHOTGUNSPRITE__STATIC: tloadtile(SHOTGUNSHELL,1); for (j=SHOTGUN; j<=SHOTGUN+6; j++) tloadtile(j,1); break;
-    case DEVISTATORSPRITE__STATIC: for (j=DEVISTATOR; j<=DEVISTATOR+1; j++) tloadtile(j,1); break;
+    case HEAVYHBOMB__STATIC:
+        for (j=HANDREMOTE; j<=HANDREMOTE+5; j++) tloadtile(j,1); break;
+    case TRIPBOMBSPRITE__STATIC:
+        for (j=HANDHOLDINGLASER; j<=HANDHOLDINGLASER+4; j++) tloadtile(j,1); break;
+    case SHOTGUNSPRITE__STATIC:
+        tloadtile(SHOTGUNSHELL,1); for (j=SHOTGUN; j<=SHOTGUN+6; j++) tloadtile(j,1); break;
+    case DEVISTATORSPRITE__STATIC:
+        for (j=DEVISTATOR; j<=DEVISTATOR+1; j++) tloadtile(j,1); break;
 
     }
 
-    for(j = PN; j < (PN+maxc); j++) tloadtile(j,1);
+    for (j = PN; j < (PN+maxc); j++) tloadtile(j,1);
 }
 
 void cachegoodsprites(void)
 {
     short i,j;
 
-    for(i=0;i<MAXTILES;i++)
+    for (i=0;i<MAXTILES;i++)
     {
-        if(spriteflags[i] & SPRITE_FLAG_PROJECTILE)
+        if (spriteflags[i] & SPRITE_FLAG_PROJECTILE)
             tloadtile(i,1);
-        if(spritecache[i][0] == i && spritecache[i][2])
-            for(j = i; j <= spritecache[i][1]; j++)
+        if (spritecache[i][0] == i && spritecache[i][2])
+            for (j = i; j <= spritecache[i][1]; j++)
                 tloadtile(j,1);
     }
     tloadtile(BOTTOMSTATUSBAR,1);
-    if( ud.multimode > 1)
+    if ( ud.multimode > 1)
         tloadtile(FRAGBAR,1);
 
     tloadtile(VIEWSCREEN,1);
 
-    for(i=STARTALPHANUM;i<ENDALPHANUM+1;i++) tloadtile(i,1);
-    for(i=BIGALPHANUM; i<BIGALPHANUM+82; i++) tloadtile(i,1);
-    for(i=MINIFONT;i<MINIFONT+63;i++) tloadtile(i,1);
+    for (i=STARTALPHANUM;i<ENDALPHANUM+1;i++) tloadtile(i,1);
+    for (i=BIGALPHANUM; i<BIGALPHANUM+82; i++) tloadtile(i,1);
+    for (i=MINIFONT;i<MINIFONT+63;i++) tloadtile(i,1);
 
-    for(i=FOOTPRINTS;i<FOOTPRINTS+3;i++) tloadtile(i,1);
+    for (i=FOOTPRINTS;i<FOOTPRINTS+3;i++) tloadtile(i,1);
 
-    for( i = BURNING; i < BURNING+14; i++) tloadtile(i,1);
-    for( i = BURNING2; i < BURNING2+14; i++) tloadtile(i,1);
+    for ( i = BURNING; i < BURNING+14; i++) tloadtile(i,1);
+    for ( i = BURNING2; i < BURNING2+14; i++) tloadtile(i,1);
 
-    for( i = CRACKKNUCKLES; i < CRACKKNUCKLES+4; i++) tloadtile(i,1);
+    for ( i = CRACKKNUCKLES; i < CRACKKNUCKLES+4; i++) tloadtile(i,1);
 
-    for( i = FIRSTGUN; i < FIRSTGUN+3 ; i++ ) tloadtile(i,1);
-    for( i = FIRSTGUNRELOAD; i < FIRSTGUNRELOAD+8 ; i++ ) tloadtile(i,1);
+    for ( i = FIRSTGUN; i < FIRSTGUN+3 ; i++ ) tloadtile(i,1);
+    for ( i = FIRSTGUNRELOAD; i < FIRSTGUNRELOAD+8 ; i++ ) tloadtile(i,1);
 
-    for( i = EXPLOSION2; i < EXPLOSION2+21 ; i++ ) tloadtile(i,1);
+    for ( i = EXPLOSION2; i < EXPLOSION2+21 ; i++ ) tloadtile(i,1);
 
     tloadtile(BULLETHOLE,1);
-    for( i = SMALLSMOKE; i < (SMALLSMOKE+4); i++) tloadtile(i,1);
+    for ( i = SMALLSMOKE; i < (SMALLSMOKE+4); i++) tloadtile(i,1);
 
-    for( i = JIBS1; i < (JIBS5+5); i++) tloadtile(i,1);
-    for( i = SCRAP1; i < (SCRAP1+19); i++) tloadtile(i,1);
+    for ( i = JIBS1; i < (JIBS5+5); i++) tloadtile(i,1);
+    for ( i = SCRAP1; i < (SCRAP1+19); i++) tloadtile(i,1);
 
     for (i=RPG; i<RPG+7; i++) tloadtile(i,1);
     for (i=FREEZEBLAST; i<FREEZEBLAST+3; i++) tloadtile(i,1);
@@ -232,22 +240,22 @@ char getsound(unsigned short num)
     short fp;
     long   l;
 
-    if(num >= NUM_SOUNDS || SoundToggle == 0) return 0;
+    if (num >= NUM_SOUNDS || SoundToggle == 0) return 0;
     if (FXDevice < 0) return 0;
 
     if (!sounds[num][0]) return 0;
     fp = kopen4load(sounds[num],loadfromgrouponly);
-    if(fp == -1) return 0;
+    if (fp == -1) return 0;
 
     l = kfilelength( fp );
     soundsiz[num] = l;
 
-    if( (ud.level_number == 0 && ud.volume_number == 0 && (num == 189 || num == 232 || num == 99 || num == 233 || num == 17 ) ) ||
+    if ( (ud.level_number == 0 && ud.volume_number == 0 && (num == 189 || num == 232 || num == 99 || num == 233 || num == 17 ) ) ||
             ( l < 12288 ) )
     {
         Sound[num].lock = 199;
         allocache((long *)&Sound[num].ptr,l,(char *)&Sound[num].lock);
-        if(Sound[num].ptr != NULL)
+        if (Sound[num].ptr != NULL)
             kread( fp, Sound[num].ptr , l);
     }
     kclose( fp );
@@ -261,11 +269,11 @@ void precachenecessarysounds(void)
     if (FXDevice < 0) return;
     j = 0;
 
-    for(i=0;i<NUM_SOUNDS;i++)
-        if(Sound[i].ptr == 0)
+    for (i=0;i<NUM_SOUNDS;i++)
+        if (Sound[i].ptr == 0)
         {
             j++;
-            if( (j&7) == 0 )
+            if ( (j&7) == 0 )
             { handleevents(); getpackets(); }
             getsound(i);
         }
@@ -277,7 +285,7 @@ void cacheit(void)
     long tc;
     unsigned long starttime, endtime;
 
-    if(ud.recstat == 2)
+    if (ud.recstat == 2)
         return;
 
     starttime = getticks();
@@ -286,29 +294,29 @@ void cacheit(void)
 
     cachegoodsprites();
 
-    for(i=0;i<numwalls;i++)
+    for (i=0;i<numwalls;i++)
     {
         tloadtile(wall[i].picnum, 0);
 
-        if(wall[i].overpicnum >= 0) {
+        if (wall[i].overpicnum >= 0) {
             tloadtile(wall[i].overpicnum, 0);
         }
     }
 
-    for(i=0;i<numsectors;i++)
+    for (i=0;i<numsectors;i++)
     {
         tloadtile( sector[i].floorpicnum, 0 );
         tloadtile( sector[i].ceilingpicnum, 0 );
-        if( sector[i].ceilingpicnum == LA)  // JBF 20040509: if( waloff[sector[i].ceilingpicnum] == LA) WTF??!??!?!?
+        if ( sector[i].ceilingpicnum == LA) // JBF 20040509: if( waloff[sector[i].ceilingpicnum] == LA) WTF??!??!?!?
         {
             tloadtile(LA+1, 0);
             tloadtile(LA+2, 0);
         }
 
         j = headspritesect[i];
-        while(j >= 0)
+        while (j >= 0)
         {
-            if(sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat&32768) == 0)
+            if (sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat&32768) == 0)
                 cachespritenum(j);
             j = nextspritesect[j];
         }
@@ -317,12 +325,12 @@ void cacheit(void)
     tc = totalclock;
     j = 0;
 
-    for(i=0;i<MAXTILES;i++) {
+    for (i=0;i<MAXTILES;i++) {
         if (!(i&7) && !gotpic[i>>3]) {
             i+=7;
             continue;
         }
-        if(gotpic[i>>3] & pow2char[i&7]) {
+        if (gotpic[i>>3] & pow2char[i&7]) {
             if (waloff[i] == 0)
                 loadtile((short)i);
 
@@ -341,7 +349,7 @@ void cacheit(void)
             pc++;
         } else continue;
 
-    if((j&7) == 0) { handleevents(); getpackets(); }
+    if ((j&7) == 0) { handleevents(); getpackets(); }
         if (totalclock - tc > TICRATE/4) {
             sprintf(tempbuf,"Loading textures ... %ld%%\n",min(100,100*pc/precachecount));
             dofrontscreens(tempbuf);
@@ -373,10 +381,10 @@ void vscrn(void)
 {
     long i, j, ss, x1, x2, y1, y2;
 
-    if(ud.screen_size < 0) ud.screen_size = 0;
-    else if(ud.screen_size > 63) ud.screen_size = 64;
+    if (ud.screen_size < 0) ud.screen_size = 0;
+    else if (ud.screen_size > 63) ud.screen_size = 64;
 
-    if(ud.screen_size == 0) flushperms();
+    if (ud.screen_size == 0) flushperms();
 
     ss = max(ud.screen_size-8,0);
 
@@ -387,8 +395,8 @@ void vscrn(void)
     if ( ud.screen_size > 0 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_FRAGBAR) && ud.multimode > 1)
     {
         j = 0;
-        for(i=connecthead;i>=0;i=connectpoint2[i])
-            if(i > j) j = i;
+        for (i=connecthead;i>=0;i=connectpoint2[i])
+            if (i > j) j = i;
 
         if (j >= 1) y1 += 8;
         if (j >= 4) y1 += 8;
@@ -415,18 +423,18 @@ void pickrandomspot(short snum)
 
     p = &ps[snum];
 
-    if( ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_FIXEDRESPAWN))
+    if ( ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_FIXEDRESPAWN))
     {
-        if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDMSPAWN)
+        if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDMSPAWN)
         {
-            for(j=0;j<ud.multimode;j++)
+            for (j=0;j<ud.multimode;j++)
             {
-                if(j != snum && ps[j].team == ps[snum].team && sprite[ps[j].i].extra > 0)
+                if (j != snum && ps[j].team == ps[snum].team && sprite[ps[j].i].extra > 0)
                 {
-                    for(k=0;k<numplayersprites;k++)
+                    for (k=0;k<numplayersprites;k++)
                     {
                         dist = FindDistance2D(ps[j].posx-po[k].ox,ps[j].posy-po[k].oy);
-                        if(dist < pdist)
+                        if (dist < pdist)
                             i = k, pdist = dist;
                     }
                     break;
@@ -495,7 +503,7 @@ void resetplayerstats(short snum)
     p->rapid_fire_hold  = 0;
     p->toggle_key_flag  = 0;
     p->access_spritenum = -1;
-    if(ud.multimode > 1 && (gametype_flags[ud.coop] & GAMETYPE_FLAG_ACCESSATSTART))
+    if (ud.multimode > 1 && (gametype_flags[ud.coop] & GAMETYPE_FLAG_ACCESSATSTART))
         p->got_access = 7;
     else p->got_access      = 0;
     p->random_club_frame= 0;
@@ -505,7 +513,7 @@ void resetplayerstats(short snum)
     p->sbs          = 0;
     p->palette = (char *) &palette[0];
 
-    if(p->steroids_amount < 400 )
+    if (p->steroids_amount < 400 )
     {
         p->steroids_amount = 0;
         p->inven_icon = 0;
@@ -532,7 +540,7 @@ void resetplayerstats(short snum)
 
     p->on_crane          = -1;
 
-    if( (aplWeaponWorksLike[p->curr_weapon][snum] == PISTOL_WEAPON) &&
+    if ( (aplWeaponWorksLike[p->curr_weapon][snum] == PISTOL_WEAPON) &&
             (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]) )
         p->kickback_pic  = aplWeaponTotalTime[p->curr_weapon][snum]+1;
     else p->kickback_pic = 0;
@@ -608,7 +616,7 @@ void resetprestat(short snum,char g)
     p = &ps[snum];
 
     spriteqloc = 0;
-    for(i=0;i<spriteqamount;i++) spriteq[i] = -1;
+    for (i=0;i<spriteqamount;i++) spriteq[i] = -1;
 
     p->hbomb_on          = 0;
     p->cheat_phase       = 0;
@@ -647,12 +655,12 @@ void resetprestat(short snum,char g)
     numinterpolations = 0;
     startofdynamicinterpolations = 0;
 
-    if( ( (g&MODE_EOL) != MODE_EOL && numplayers < 2) || (!(gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && numplayers > 1) )
+    if ( ( (g&MODE_EOL) != MODE_EOL && numplayers < 2) || (!(gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && numplayers > 1) )
     {
         resetweapons(snum);
         resetinventory(snum);
     }
-    else if(p->curr_weapon == HANDREMOTE_WEAPON)
+    else if (p->curr_weapon == HANDREMOTE_WEAPON)
     {
         p->ammo_amount[HANDBOMB_WEAPON]++;
         p->curr_weapon = HANDBOMB_WEAPON;
@@ -667,12 +675,12 @@ void setupbackdrop(short sky)
 {
     short i;
 
-    for(i=0;i<MAXPSKYTILES;i++) pskyoff[i]=0;
+    for (i=0;i<MAXPSKYTILES;i++) pskyoff[i]=0;
 
-    if(parallaxyscale != 65536L)
+    if (parallaxyscale != 65536L)
         parallaxyscale = 32768;
 
-    switch(dynamictostatic[sky])
+    switch (dynamictostatic[sky])
     {
     case CLOUDYOCEAN__STATIC:
         parallaxyscale = 65536L;
@@ -707,43 +715,43 @@ void prelevel(char g)
     resetprestat(0,g);
     numclouds = 0;
 
-    for(i=0;i<numsectors;i++)
+    for (i=0;i<numsectors;i++)
     {
         sector[i].extra = 256;
 
-        switch(sector[i].lotag)
+        switch (sector[i].lotag)
         {
         case 20:
         case 22:
-            if( sector[i].floorz > sector[i].ceilingz)
+            if ( sector[i].floorz > sector[i].ceilingz)
                 sector[i].lotag |= 32768;
             continue;
         }
 
-        if(sector[i].ceilingstat&1)
+        if (sector[i].ceilingstat&1)
         {
-            if(waloff[sector[i].ceilingpicnum] == 0)
+            if (waloff[sector[i].ceilingpicnum] == 0)
             {
-                if(sector[i].ceilingpicnum == LA)
-                    for(j=0;j<5;j++)
+                if (sector[i].ceilingpicnum == LA)
+                    for (j=0;j<5;j++)
                         tloadtile(sector[i].ceilingpicnum+j, 0);
             }
             setupbackdrop(sector[i].ceilingpicnum);
 
-            if(sector[i].ceilingpicnum == CLOUDYSKIES && numclouds < 127)
+            if (sector[i].ceilingpicnum == CLOUDYSKIES && numclouds < 127)
                 clouds[numclouds++] = i;
 
-            if(ps[0].one_parallax_sectnum == -1)
+            if (ps[0].one_parallax_sectnum == -1)
                 ps[0].one_parallax_sectnum = i;
         }
 
-        if(sector[i].lotag == 32767) //Found a secret room
+        if (sector[i].lotag == 32767) //Found a secret room
         {
             ps[0].max_secret_rooms++;
             continue;
         }
 
-        if(sector[i].lotag == -1)
+        if (sector[i].lotag == -1)
         {
             ps[0].exitx = wall[sector[i].wallptr].x;
             ps[0].exity = wall[sector[i].wallptr].y;
@@ -752,17 +760,17 @@ void prelevel(char g)
     }
 
     i = headspritestat[0];
-    while(i >= 0)
+    while (i >= 0)
     {
         nexti = nextspritestat[i];
         ResetActorGameVars(i);
         LoadActor(i, -1, -1);
-        if(sprite[i].lotag == -1 && (sprite[i].cstat&16) )
+        if (sprite[i].lotag == -1 && (sprite[i].cstat&16) )
         {
             ps[0].exitx = SX;
             ps[0].exity = SY;
         }
-        else switch(dynamictostatic[PN])
+        else switch (dynamictostatic[PN])
             {
             case GPSPEED__STATIC:
                 sector[SECT].extra = SLT;
@@ -770,7 +778,7 @@ void prelevel(char g)
                 break;
 
             case CYCLER__STATIC:
-                if(numcyclers >= MAXCYCLERS)
+                if (numcyclers >= MAXCYCLERS)
                 {
                     Bsprintf(tempbuf,"\nToo many cycling sectors (%d max).",MAXCYCLERS);
                     gameexit(tempbuf);
@@ -799,29 +807,29 @@ void prelevel(char g)
         i = nexti;
     }
 
-    for(i=0;i < MAXSPRITES;i++)
+    for (i=0;i < MAXSPRITES;i++)
     {
-        if(sprite[i].statnum < MAXSTATUS)
+        if (sprite[i].statnum < MAXSTATUS)
         {
-            if(PN == SECTOREFFECTOR && SLT == 14)
+            if (PN == SECTOREFFECTOR && SLT == 14)
                 continue;
             spawn(-1,i);
         }
     }
 
-    for(i=0;i < MAXSPRITES;i++)
-        if(sprite[i].statnum < MAXSTATUS)
+    for (i=0;i < MAXSPRITES;i++)
+        if (sprite[i].statnum < MAXSTATUS)
         {
-            if( PN == SECTOREFFECTOR && SLT == 14 )
+            if ( PN == SECTOREFFECTOR && SLT == 14 )
                 spawn(-1,i);
         }
 
     lotaglist = 0;
 
     i = headspritestat[0];
-    while(i >= 0)
+    while (i >= 0)
     {
-        switch(dynamictostatic[PN-1])
+        switch (dynamictostatic[PN-1])
         {
         case DIPSWITCH__STATIC:
         case DIPSWITCH2__STATIC:
@@ -836,21 +844,21 @@ void prelevel(char g)
         case POWERSWITCH1__STATIC:
         case LOCKSWITCH1__STATIC:
         case POWERSWITCH2__STATIC:
-            for(j=0;j<lotaglist;j++)
-                if( SLT == lotags[j] )
+            for (j=0;j<lotaglist;j++)
+                if ( SLT == lotags[j] )
                     break;
 
-            if( j == lotaglist )
+            if ( j == lotaglist )
             {
                 lotags[lotaglist] = SLT;
                 lotaglist++;
-                if(lotaglist > 64)
+                if (lotaglist > 64)
                     gameexit("\nToo many switches (64 max).");
 
                 j = headspritestat[3];
-                while(j >= 0)
+                while (j >= 0)
                 {
-                    if(sprite[j].lotag == 12 && sprite[j].hitag == SLT)
+                    if (sprite[j].lotag == 12 && sprite[j].hitag == SLT)
                         hittype[j].temp_data[0] = 1;
                     j = nextspritestat[j];
                 }
@@ -862,16 +870,16 @@ void prelevel(char g)
 
     mirrorcnt = 0;
 
-    for( i = 0; i < numwalls; i++ )
+    for ( i = 0; i < numwalls; i++ )
     {
         walltype *wal;
         wal = &wall[i];
 
-        if(wal->overpicnum == MIRROR && (wal->cstat&32) != 0)
+        if (wal->overpicnum == MIRROR && (wal->cstat&32) != 0)
         {
             j = wal->nextsector;
 
-            if(mirrorcnt > 63)
+            if (mirrorcnt > 63)
                 gameexit("\nToo many mirrors (64 max.)");
             if ( (j >= 0) && sector[j].ceilingpicnum != MIRROR )
             {
@@ -884,7 +892,7 @@ void prelevel(char g)
             }
         }
 
-        if(numanimwalls >= MAXANIMWALLS)
+        if (numanimwalls >= MAXANIMWALLS)
         {
             Bsprintf(tempbuf,"\nToo many 'anim' walls (%d max).",MAXANIMWALLS);
             gameexit(tempbuf);
@@ -896,7 +904,7 @@ void prelevel(char g)
         if ((wal->overpicnum > W_FORCEFIELD)&&(wal->overpicnum <= W_FORCEFIELD+2)) {
             switchpicnum = W_FORCEFIELD;
         }
-        switch(dynamictostatic[switchpicnum])
+        switch (dynamictostatic[switchpicnum])
         {
         case FANSHADOW__STATIC:
         case FANSPRITE__STATIC:
@@ -907,14 +915,14 @@ void prelevel(char g)
 
         case W_FORCEFIELD__STATIC:
             if (wal->overpicnum==W_FORCEFIELD__STATIC)
-                for(j=0;j<3;j++)
+                for (j=0;j<3;j++)
                     tloadtile(W_FORCEFIELD+j, 0);
-            if(wal->shade > 31)
+            if (wal->shade > 31)
                 wal->cstat = 0;
             else wal->cstat |= 85+256;
 
 
-            if(wal->lotag && wal->nextwall >= 0)
+            if (wal->lotag && wal->nextwall >= 0)
                 wall[wal->nextwall].lotag =
                     wal->lotag;
 
@@ -928,10 +936,10 @@ void prelevel(char g)
 
         wal->extra = -1;
 
-        switch(dynamictostatic[wal->picnum])
+        switch (dynamictostatic[wal->picnum])
         {
         case WATERTILE2__STATIC:
-            for(j=0;j<3;j++)
+            for (j=0;j<3;j++)
                 tloadtile(wal->picnum+j, 0);
             break;
 
@@ -950,7 +958,7 @@ void prelevel(char g)
         case SCREENBREAK6__STATIC:
         case SCREENBREAK7__STATIC:
         case SCREENBREAK8__STATIC:
-            for(j=SCREENBREAK6;j<SCREENBREAK9;j++)
+            for (j=SCREENBREAK6;j<SCREENBREAK9;j++)
                 tloadtile(j, 0);
             animwall[numanimwalls].wallnum = i;
             animwall[numanimwalls].tag = -1;
@@ -963,9 +971,9 @@ void prelevel(char g)
 
             wal->extra = wal->picnum;
             animwall[numanimwalls].tag = -1;
-            if(ud.lockout)
+            if (ud.lockout)
             {
-                if(wal->picnum == FEMPIC1)
+                if (wal->picnum == FEMPIC1)
                     wal->picnum = BLANKSCREEN;
                 else wal->picnum = SCREENBREAK6;
             }
@@ -1001,11 +1009,11 @@ void prelevel(char g)
     }
 
     //Invalidate textures in sector behind mirror
-    for(i=0;i<mirrorcnt;i++)
+    for (i=0;i<mirrorcnt;i++)
     {
         startwall = sector[mirrorsector[i]].wallptr;
         endwall = startwall + sector[mirrorsector[i]].wallnum;
-        for(j=startwall;j<endwall;j++)
+        for (j=startwall;j<endwall;j++)
         {
             wall[j].picnum = MIRROR;
             wall[j].overpicnum = MIRROR;
@@ -1018,18 +1026,18 @@ void newgame(char vn,char ln,char sk)
     struct player_struct *p = &ps[0];
     short i;
 
-    if(globalskillsound >= 0 && FXDevice >= 0 && SoundToggle)
-    while(issoundplaying(-1,globalskillsound)) { handleevents(); getpackets(); }
+    if (globalskillsound >= 0 && FXDevice >= 0 && SoundToggle)
+    while (issoundplaying(-1,globalskillsound)) { handleevents(); getpackets(); }
     else { handleevents(); getpackets(); }
     globalskillsound = -1;
 
     waitforeverybody();
     ready2send = 0;
 
-    if( ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && (ud.coop&GAMETYPE_FLAG_SCORESHEET))
+    if ( ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && (ud.coop&GAMETYPE_FLAG_SCORESHEET))
         dobonus(1);
 
-    if( ln == 0 && vn == 3 && ud.multimode < 2 && ud.lockout == 0)
+    if ( ln == 0 && vn == 3 && ud.multimode < 2 && ud.lockout == 0)
     {
         playmusic(&env_music_fn[1][0]);
 
@@ -1072,19 +1080,19 @@ void newgame(char vn,char ln,char sk)
 
         ResetSystemDefaults();
 
-        if(ud.m_coop != 1)
+        if (ud.m_coop != 1)
         {
-            for(i=0;i<MAX_WEAPONS;i++)
+            for (i=0;i<MAX_WEAPONS;i++)
             {
-                if(aplWeaponWorksLike[i][0]==PISTOL_WEAPON)
+                if (aplWeaponWorksLike[i][0]==PISTOL_WEAPON)
                 {
                     p->curr_weapon = i;
                     p->gotweapon[i] = 1;
                     p->ammo_amount[i] = 48;
                 }
-                else if(aplWeaponWorksLike[i][0]==KNEE_WEAPON)
+                else if (aplWeaponWorksLike[i][0]==KNEE_WEAPON)
                     p->gotweapon[i] = 1;
-                else if(aplWeaponWorksLike[i][0]==HANDREMOTE_WEAPON)
+                else if (aplWeaponWorksLike[i][0]==HANDREMOTE_WEAPON)
                     p->gotweapon[i] = 1;
             }
             p->last_weapon = -1;
@@ -1092,12 +1100,12 @@ void newgame(char vn,char ln,char sk)
     }
     display_mirror =        0;
 
-    if(ud.multimode > 1 )
+    if (ud.multimode > 1 )
     {
-        if(numplayers < 2)
+        if (numplayers < 2)
         {
             connecthead = 0;
-            for(i=0;i<MAXPLAYERS;i++) connectpoint2[i] = i+1;
+            for (i=0;i<MAXPLAYERS;i++) connectpoint2[i] = i+1;
             connectpoint2[ud.multimode-1] = -1;
         }
     }
@@ -1119,14 +1127,14 @@ void resetpspritevars(char g)
     EGS(ps[0].cursectnum,ps[0].posx,ps[0].posy,ps[0].posz,
         APLAYER,0,0,0,ps[0].ang,0,0,0,10);
 
-    if(ud.recstat != 2) for(i=0;i<MAXPLAYERS;i++)
+    if (ud.recstat != 2) for (i=0;i<MAXPLAYERS;i++)
         {
             aimmode[i] = ps[i].aim_mode;
             autoaim[i] = ps[i].auto_aim;
             weaponswitch[i] = ps[i].weaponswitch;
-            if(ud.multimode > 1 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
+            if (ud.multimode > 1 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
             {
-                for(j=0;j<MAX_WEAPONS;j++)
+                for (j=0;j<MAX_WEAPONS;j++)
                 {
                     tsbar[i].ammo_amount[j] = ps[i].ammo_amount[j];
                     tsbar[i].gotweapon[j] = ps[i].gotweapon[j];
@@ -1148,17 +1156,17 @@ void resetpspritevars(char g)
 
     resetplayerstats(0);
 
-    for(i=1;i<MAXPLAYERS;i++)
+    for (i=1;i<MAXPLAYERS;i++)
         memcpy(&ps[i],&ps[0],sizeof(ps[0]));
 
-    if(ud.recstat != 2) for(i=0;i<MAXPLAYERS;i++)
+    if (ud.recstat != 2) for (i=0;i<MAXPLAYERS;i++)
         {
             ps[i].aim_mode = aimmode[i];
             ps[i].auto_aim = autoaim[i];
             ps[i].weaponswitch = weaponswitch[i];
-            if(ud.multimode > 1 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
+            if (ud.multimode > 1 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && ud.last_level >= 0)
             {
-                for(j=0;j<MAX_WEAPONS;j++)
+                for (j=0;j<MAX_WEAPONS;j++)
                 {
                     ps[i].ammo_amount[j] = tsbar[i].ammo_amount[j];
                     ps[i].gotweapon[j] = tsbar[i].gotweapon[j];
@@ -1183,15 +1191,15 @@ void resetpspritevars(char g)
     which_palookup = 9;
     j = connecthead;
     i = headspritestat[10];
-    while(i >= 0)
+    while (i >= 0)
     {
         nexti = nextspritestat[i];
         s = &sprite[i];
 
-        if( numplayersprites == MAXPLAYERS)
+        if ( numplayersprites == MAXPLAYERS)
             gameexit("\nToo many player sprites (max 16.)");
 
-        if(numplayersprites == 0)
+        if (numplayersprites == 0)
         {
             firstx = ps[0].posx;
             firsty = ps[0].posy;
@@ -1204,7 +1212,7 @@ void resetpspritevars(char g)
         po[numplayersprites].os = s->sectnum;
 
         numplayersprites++;
-        if(j >= 0)
+        if (j >= 0)
         {
             s->owner = i;
             s->shade = 0;
@@ -1214,7 +1222,7 @@ void resetpspritevars(char g)
             s->xoffset = 0;
             s->clipdist = 64;
 
-            if( (g&MODE_EOL) != MODE_EOL || ps[j].last_extra == 0)
+            if ( (g&MODE_EOL) != MODE_EOL || ps[j].last_extra == 0)
             {
                 ps[j].last_extra = max_player_health;
                 s->extra = max_player_health;
@@ -1224,22 +1232,22 @@ void resetpspritevars(char g)
 
             s->yvel = j;
 
-            if(!ud.pcolor[j] && ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM))
+            if (!ud.pcolor[j] && ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM))
             {
-                if(s->pal == 0)
+                if (s->pal == 0)
                 {
                     int k;
 
-                    for(k=0;k<MAXPLAYERS;k++) {
-                        if(which_palookup == ps[k].palookup) {
+                    for (k=0;k<MAXPLAYERS;k++) {
+                        if (which_palookup == ps[k].palookup) {
                             which_palookup++;
-                            if( which_palookup >= 17 )
+                            if ( which_palookup >= 17 )
                                 which_palookup = 9;
                             k=0;
                         }
                     }
                     ud.pcolor[j] = s->pal = ps[j].palookup = which_palookup++;
-                    if( which_palookup >= 17 )
+                    if ( which_palookup >= 17 )
                         which_palookup = 9;
                 }
                 else ud.pcolor[j] = ps[j].palookup = s->pal;
@@ -1248,12 +1256,14 @@ void resetpspritevars(char g)
             {
                 int k = ud.pcolor[j];
 
-                if(gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
+                if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
                 {
-                    switch(ud.pteam[j])
+                    switch (ud.pteam[j])
                     {
-                    case 0: k = 3; break;
-                    case 1: k = 21; break;
+                    case 0:
+                        k = 3; break;
+                    case 1:
+                        k = 21; break;
                     }
                     ps[j].team = ud.pteam[j];
                 }
@@ -1283,7 +1293,7 @@ void clearfrags(void)
 {
     short i;
 
-    for(i = 0;i<MAXPLAYERS;i++)
+    for (i = 0;i<MAXPLAYERS;i++)
         ps[i].frag = ps[i].fraggedself = 0;
     clearbufbyte(&frags[0][0],(MAXPLAYERS*MAXPLAYERS)<<1,0L);
 }
@@ -1306,12 +1316,12 @@ void genspriteremaps(void)
     char *lookfn = "lookup.dat";
 
     fp = kopen4load(lookfn,0);
-    if(fp != -1)
+    if (fp != -1)
         kread(fp,(char *)&numl,1);
     else
         gameexit("\nERROR: File 'LOOKUP.DAT' not found.");
 
-    for(j=0;j < numl;j++)
+    for (j=0;j < numl;j++)
     {
         kread(fp,(signed char *)&look_pos,1);
         kread(fp,tempbuf,256);
@@ -1349,7 +1359,7 @@ void waitforeverybody()
 
     if (numplayers < 2) return;
     packbuf[0] = 250;
-    for(i=connecthead;i>=0;i=connectpoint2[i])
+    for (i=connecthead;i>=0;i=connectpoint2[i])
     {
         if (i != myconnectindex) sendpacket(i,packbuf,1);
         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
@@ -1365,10 +1375,11 @@ void waitforeverybody()
 
         getpackets();
 
-        for(i=connecthead;i>=0;i=connectpoint2[i])
+        for (i=connecthead;i>=0;i=connectpoint2[i])
         {
             if (playerreadyflag[i] < playerreadyflag[myconnectindex]) break;
         if ((!networkmode) && (myconnectindex != connecthead)) { i = -1; break; } //slaves in M/S mode only wait for master
+
         }
         if (i < 0) return;
     }
@@ -1378,7 +1389,7 @@ void dofrontscreens(char *statustext)
 {
     long i=0,j;
 
-    if(ud.recstat != 2)
+    if (ud.recstat != 2)
     {
         if (!statustext) {
             //ps[myconnectindex].palette = palette;
@@ -1394,12 +1405,12 @@ void dofrontscreens(char *statustext)
         OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
         j = GetGameVarID(g_iReturnVarID, -1, -1);
         rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
-        if(j > MAXTILES-1)
+        if (j > MAXTILES-1)
         {
             nextpage();
             return;
         }
-        if( boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0 )
+        if ( boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0 )
         {
             menutext(160,90,0,0,"ENTERING USER MAP");
             gametextpal(160,90+10,boardfilename,14,2);
@@ -1435,7 +1446,7 @@ void dofrontscreens(char *statustext)
         OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
         j = GetGameVarID(g_iReturnVarID, -1, -1);
         rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
-        if(j > MAXTILES-1)
+        if (j > MAXTILES-1)
         {
             nextpage();
             return;
@@ -1497,7 +1508,7 @@ int enterlevel(char g)
     long l;
     char levname[BMAX_PATH];
 
-    if( (g&MODE_DEMO) != MODE_DEMO ) ud.recstat = ud.m_recstat;
+    if ( (g&MODE_DEMO) != MODE_DEMO ) ud.recstat = ud.m_recstat;
     ud.respawn_monsters = ud.m_respawn_monsters;
     ud.respawn_items    = ud.m_respawn_items;
     ud.respawn_inventory    = ud.m_respawn_inventory;
@@ -1511,13 +1522,13 @@ int enterlevel(char g)
     Bmemset(votes,0,sizeof(votes));
     Bmemset(gotvote,0,sizeof(gotvote));
 
-    if( (g&MODE_DEMO) == 0 && ud.recstat == 2)
+    if ( (g&MODE_DEMO) == 0 && ud.recstat == 2)
         ud.recstat = 0;
 
     if (VOLUMEALL) Bsprintf(tempbuf,HEAD2);
     else Bsprintf(tempbuf,HEAD);
 
-    if( boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0 )
+    if ( boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0 )
     {
         Bstrcpy(levname, boardfilename);
         Bsprintf(apptitle," - %s",levname);
@@ -1539,7 +1550,7 @@ int enterlevel(char g)
 
     if (!VOLUMEONE) {
 
-        if( boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0 )
+        if ( boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0 )
         {
             if ( loadboard( boardfilename,0,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum ) == -1 )
             {
@@ -1603,34 +1614,34 @@ int enterlevel(char g)
     cachedebug = 0;
     automapping = 0;
 
-    if(ud.recstat != 2) MUSIC_StopSong();
+    if (ud.recstat != 2) MUSIC_StopSong();
 
     cacheit();
 
-    if(ud.recstat != 2)
+    if (ud.recstat != 2)
     {
         music_select = (ud.volume_number*11) + ud.level_number;
         playmusic(&music_fn[0][music_select][0]);
     }
 
-    if( (g&MODE_GAME) || (g&MODE_EOL) )
+    if ( (g&MODE_GAME) || (g&MODE_EOL) )
         ps[myconnectindex].gm = MODE_GAME;
-    else if(g&MODE_RESTART)
+    else if (g&MODE_RESTART)
     {
-        if(ud.recstat == 2)
+        if (ud.recstat == 2)
             ps[myconnectindex].gm = MODE_DEMO;
         else ps[myconnectindex].gm = MODE_GAME;
     }
 
-    if( (ud.recstat == 1) && (g&MODE_RESTART) != MODE_RESTART )
+    if ( (ud.recstat == 1) && (g&MODE_RESTART) != MODE_RESTART )
         opendemowrite();
 
     if (VOLUMEONE) {
-        if(ud.level_number == 0 && ud.recstat != 2) FTA(40,&ps[myconnectindex]);
+        if (ud.level_number == 0 && ud.recstat != 2) FTA(40,&ps[myconnectindex]);
     }
 
-    for(i=connecthead;i>=0;i=connectpoint2[i])
-        switch(dynamictostatic[sector[sprite[ps[i].i].sectnum].floorpicnum])
+    for (i=connecthead;i>=0;i=connectpoint2[i])
+        switch (dynamictostatic[sector[sprite[ps[i].i].sectnum].floorpicnum])
         {
         case HURTRAIL__STATIC:
         case FLOORSLIME__STATIC:
@@ -1662,7 +1673,7 @@ int enterlevel(char g)
 
     clearfifo();
 
-    for(i=numinterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
+    for (i=numinterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
 
     restorepalette = 1;
 

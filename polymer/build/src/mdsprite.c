@@ -206,7 +206,7 @@ static void freeallmodels ()
 
     if (models)
     {
-        for(i=0;i<nextmodelid;i++) mdfree(models[i]);
+        for (i=0;i<nextmodelid;i++) mdfree(models[i]);
         free(models); models = NULL;
         nummodelsalloced = 0;
         nextmodelid = 0;
@@ -227,26 +227,26 @@ static void clearskins ()
     mdmodel *m;
     int i, j;
 
-    for(i=0;i<nextmodelid;i++)
+    for (i=0;i<nextmodelid;i++)
     {
         m = models[i];
         if (m->mdnum == 1) {
             voxmodel *v = (voxmodel*)m;
-            for(j=0;j<MAXPALOOKUPS;j++) {
+            for (j=0;j<MAXPALOOKUPS;j++) {
                 if (v->texid[j]) bglDeleteTextures(1,(GLuint*)&v->texid[j]);
                 v->texid[j] = 0;
             }
         } else if (m->mdnum == 2 || m->mdnum == 3) {
             md2model *m2 = (md2model*)m;
             mdskinmap_t *sk;
-            for(j=0;j<m2->numskins*(HICEFFECTMASK+1);j++)
+            for (j=0;j<m2->numskins*(HICEFFECTMASK+1);j++)
             {
                 if (m2->texid[j]) bglDeleteTextures(1,(GLuint*)&m2->texid[j]);
                 m2->texid[j] = 0;
             }
 
-            for(sk=m2->skinmap;sk;sk=sk->next)
-                for(j=0;j<(HICEFFECTMASK+1);j++)
+            for (sk=m2->skinmap;sk;sk=sk->next)
+                for (j=0;j<(HICEFFECTMASK+1);j++)
                 {
                     if (sk->texid[j]) bglDeleteTextures(1,(GLuint*)&sk->texid[j]);
                     sk->texid[j] = 0;
@@ -254,10 +254,10 @@ static void clearskins ()
         }
     }
 
-    for(i=0;i<MAXVOXELS;i++)
+    for (i=0;i<MAXVOXELS;i++)
     {
         voxmodel *v = (voxmodel*)voxmodels[i]; if (!v) continue;
-        for(j=0;j<MAXPALOOKUPS;j++) {
+        for (j=0;j<MAXPALOOKUPS;j++) {
             if (v->texid[j]) bglDeleteTextures(1,(GLuint*)&v->texid[j]);
             v->texid[j] = 0;
         }
@@ -313,26 +313,26 @@ static long framename2index (mdmodel *vm, const char *nam)
 {
     int i = 0;
 
-    switch(vm->mdnum)
+    switch (vm->mdnum)
     {
     case 2:
+    {
+        md2model *m = (md2model *)vm;
+        md2frame_t *fr;
+        for (i=0;i<m->numframes;i++)
         {
-            md2model *m = (md2model *)vm;
-            md2frame_t *fr;
-            for(i=0;i<m->numframes;i++)
-            {
-                fr = (md2frame_t *)&m->frames[i*m->framebytes];
-                if (!Bstrcmp(fr->name, nam)) break;
-            }
+            fr = (md2frame_t *)&m->frames[i*m->framebytes];
+            if (!Bstrcmp(fr->name, nam)) break;
         }
-        break;
+    }
+    break;
     case 3:
-        {
-            md3model *m = (md3model *)vm;
-            for(i=0;i<m->numframes;i++)
-                if (!Bstrcmp(m->head.frames[i].nam,nam)) break;
-        }
-        break;
+    {
+        md3model *m = (md3model *)vm;
+        for (i=0;i<m->numframes;i++)
+            if (!Bstrcmp(m->head.frames[i].nam,nam)) break;
+    }
+    break;
     }
     return(i);
 }
@@ -500,8 +500,8 @@ static int daskinloader (long filh, long *fptr, long *bpl, long *sizx, long *siz
     if (tsizx == 0 || tsizy == 0) { free(picfil); return -1; }
 
     if (!glinfo.texnpot) {
-        for(xsiz=1;xsiz<tsizx;xsiz+=xsiz);
-        for(ysiz=1;ysiz<tsizy;ysiz+=ysiz);
+        for (xsiz=1;xsiz<tsizx;xsiz+=xsiz);
+        for (ysiz=1;ysiz<tsizy;ysiz+=ysiz);
     } else {
         xsiz = tsizx;
         ysiz = tsizy;
@@ -516,11 +516,11 @@ static int daskinloader (long filh, long *fptr, long *bpl, long *sizx, long *siz
     free(picfil);
 
     cptr = &britable[gammabrightness ? 0 : curbrightness][0];
-    for(y=0,j=0;y<tsizy;y++,j+=xsiz)
+    for (y=0,j=0;y<tsizy;y++,j+=xsiz)
     {
         coltype *rpptr = &pic[j], tcol;
 
-        for(x=0;x<tsizx;x++)
+        for (x=0;x<tsizx;x++)
         {
             tcol.b = cptr[rpptr[x].b];
             tcol.g = cptr[rpptr[x].g];
@@ -545,7 +545,7 @@ static int daskinloader (long filh, long *fptr, long *bpl, long *sizx, long *siz
         }
     }
     if (!glinfo.bgra) {
-        for(j=xsiz*ysiz-1;j>=0;j--) {
+        for (j=xsiz*ysiz-1;j>=0;j--) {
             swapchar(&pic[j].r, &pic[j].b);
         }
     }
@@ -769,8 +769,8 @@ static long mdloadskin (md2model *m, int number, int pal, int surf)
             if (m->mdnum == 2)
             {
                 long *lptr;
-                for(lptr=m->glcmds;(i=*lptr++);)
-                    for(i=labs(i);i>0;i--,lptr+=3)
+                for (lptr=m->glcmds;(i=*lptr++);)
+                    for (i=labs(i);i>0;i--,lptr+=3)
                     {
                         ((float *)lptr)[0] *= fx;
                         ((float *)lptr)[1] *= fy;
@@ -784,7 +784,7 @@ static long mdloadskin (md2model *m, int number, int pal, int surf)
                 for (surfi=0;surfi<m3->head.numsurfs;surfi++)
                 {
                     s = &m3->head.surfs[surfi];
-                    for(i=s->numverts-1;i>=0;i--)
+                    for (i=s->numverts-1;i>=0;i--)
                     {
                         s->uv[i].u *= fx;
                         s->uv[i].v *= fy;
@@ -934,7 +934,7 @@ if ((head.id != 0x32504449) || (head.vers != 8)) { free(m); return(0); } //"IDP2
 #endif
 
     strcpy(st,filnam);
-    for(i=strlen(st)-1;i>0;i--)
+    for (i=strlen(st)-1;i>0;i--)
     if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
     if (i<0) i=0;
     st[i] = 0;
@@ -1102,7 +1102,7 @@ int partition(unsigned short *indexes, float *depths, int f, int l) {
 
 void quicksort(unsigned short *indexes, float *depths, int first, int last) {
     int pivIndex = 0;
-    if(first < last) {
+    if (first < last) {
         pivIndex = partition(indexes,depths,first, last);
         quicksort(indexes,depths,first,(pivIndex-1));
         quicksort(indexes,depths,(pivIndex+1),last);
@@ -1169,7 +1169,7 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
     }
 #endif
 
-    for(surfi=0;surfi<m->head.numsurfs;surfi++)
+    for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
         s = &m->head.surfs[surfi];
         klseek(fil,ofsurf,SEEK_SET); kread(fil,s,sizeof(md3surf_t));
@@ -1194,7 +1194,7 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
         s->tris = (md3tri_t *)malloc(leng[0]+leng[1]+leng[2]+leng[3]);
         if (!s->tris)
         {
-            for(surfi--;surfi>=0;surfi--) free(m->head.surfs[surfi].tris);
+            for (surfi--;surfi>=0;surfi--) free(m->head.surfs[surfi].tris);
             if (m->head.tags) free(m->head.tags); free(m->head.frames); free(m); return(0);
         }
         s->shaders = (md3shader_t *)(((long)s->tris   )+leng[0]);
@@ -1234,19 +1234,19 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
 
 #if 0
     strcpy(st,filnam);
-    for(i=0,j=0;st[i];i++) if ((st[i] == '/') || (st[i] == '\\')) j = i+1;
+    for (i=0,j=0;st[i];i++) if ((st[i] == '/') || (st[i] == '\\')) j = i+1;
     st[j] = '*'; st[j+1] = 0;
     kzfindfilestart(st); bsc = -1;
     while (kzfindfile(st))
     {
         if (st[0] == '\\') continue;
 
-        for(i=0,j=0;st[i];i++) if (st[i] == '.') j = i+1;
+        for (i=0,j=0;st[i];i++) if (st[i] == '.') j = i+1;
         if ((!stricmp(&st[j],"JPG")) || (!stricmp(&st[j],"PNG")) || (!stricmp(&st[j],"GIF")) ||
                 (!stricmp(&st[j],"PCX")) || (!stricmp(&st[j],"TGA")) || (!stricmp(&st[j],"BMP")) ||
                 (!stricmp(&st[j],"CEL")))
         {
-            for(i=0;st[i];i++) if (st[i] != filnam[i]) break;
+            for (i=0;st[i];i++) if (st[i] != filnam[i]) break;
         if (i > bsc) { bsc = i; strcpy(bst,st); }
         }
     }
@@ -1315,7 +1315,7 @@ static int md3draw (md3model *m, spritetype *tspr)
 
     // floor aligned
     k1 = tspr->y;
-    if((globalorientation&48)==32)
+    if ((globalorientation&48)==32)
     {
         m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
         m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y;
@@ -1349,7 +1349,7 @@ static int md3draw (md3model *m, spritetype *tspr)
     mat[14] += a0.y*mat[2] + a0.z*mat[6] + a0.x*mat[10];
 
     // floor aligned
-    if((globalorientation&48)==32)
+    if ((globalorientation&48)==32)
     {
         f = mat[4]; mat[4] = mat[8]*16.0; mat[8] = -f*(1.0/16.0);
         f = mat[5]; mat[5] = mat[9]*16.0; mat[9] = -f*(1.0/16.0);
@@ -1421,13 +1421,13 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         k2 = (float)sintable[(spriteext[tspr->owner].roll+512)&2047] / 16384.0;
         k3 = (float)sintable[spriteext[tspr->owner].roll&2047] / 16384.0;
     }
-    for(surfi=0;surfi<m->head.numsurfs;surfi++)
+    for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
         s = &m->head.surfs[surfi];
         v0 = &s->xyzn[m->cframe*s->numverts];
         v1 = &s->xyzn[m->nframe*s->numverts];
 
-        for(i=s->numverts-1;i>=0;i--)
+        for (i=s->numverts-1;i>=0;i--)
         {
             if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll)
             {
@@ -1515,7 +1515,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
                 indexes[i] = i;
             }*/
 
-            for(i=s->numtris-1;i>=0;i--)
+            for (i=s->numtris-1;i>=0;i--)
             {
                 // Matrix multiplication - ugly but clear
                 fp.x = (vertlist[s->tris[i].i[0]].x * mat[0]) + (vertlist[s->tris[i].i[0]].y * mat[4]) + (vertlist[s->tris[i].i[0]].z * mat[8]) + mat[12];
@@ -1567,8 +1567,8 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
             quicksort(indexes, maxdepths, 0, s->numtris - 1);
 
             bglBegin(GL_TRIANGLES);
-            for(i=s->numtris-1;i>=0;i--)
-                for(j=0;j<3;j++)
+            for (i=s->numtris-1;i>=0;i--)
+                for (j=0;j<3;j++)
                 {
                     k = s->tris[indexes[i]].i[j];
                     bglTexCoord2f(s->uv[k].u,s->uv[k].v);
@@ -1582,8 +1582,8 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         else
         {
             bglBegin(GL_TRIANGLES);
-            for(i=s->numtris-1;i>=0;i--)
-                for(j=0;j<3;j++)
+            for (i=s->numtris-1;i>=0;i--)
+                for (j=0;j<3;j++)
                 {
                     k = s->tris[i].i[j];
                     bglTexCoord2f(s->uv[k].u,s->uv[k].v);
@@ -1616,12 +1616,12 @@ static void md3free (md3model *m)
 
     if (!m) return;
 
-    for(anim=m->animations; anim; anim=nanim)
+    for (anim=m->animations; anim; anim=nanim)
     {
         nanim = anim->next;
         free(anim);
     }
-    for(sk=m->skinmap; sk; sk=nsk)
+    for (sk=m->skinmap; sk; sk=nsk)
     {
         nsk = sk->next;
         free(sk->fn);
@@ -1630,7 +1630,7 @@ static void md3free (md3model *m)
 
     if (m->head.surfs)
     {
-        for(surfi=m->head.numsurfs-1;surfi>=0;surfi--)
+        for (surfi=m->head.numsurfs-1;surfi>=0;surfi--)
         {
             s = &m->head.surfs[surfi];
             if (s->tris) free(s->tris);
@@ -1675,7 +1675,7 @@ unsigned gloadtex (long *picbuf, long xsiz, long ysiz, long is8bit, long dapal)
     cptr = (unsigned char*)&britable[gammabrightness ? 0 : curbrightness][0];
     if (!is8bit)
     {
-        for(i=xsiz*ysiz-1;i>=0;i--)
+        for (i=xsiz*ysiz-1;i>=0;i--)
         {
             pic2[i].b = cptr[pic[i].r];
             pic2[i].g = cptr[pic[i].g];
@@ -1686,7 +1686,7 @@ unsigned gloadtex (long *picbuf, long xsiz, long ysiz, long is8bit, long dapal)
     else
     {
         if (palookup[dapal] == 0) dapal = 0;
-        for(i=xsiz*ysiz-1;i>=0;i--)
+        for (i=xsiz*ysiz-1;i>=0;i--)
         {
             pic2[i].b = cptr[palette[(long)palookup[dapal][pic[i].a]*3+2]*4];
             pic2[i].g = cptr[palette[(long)palookup[dapal][pic[i].a]*3+1]*4];
@@ -1707,7 +1707,7 @@ unsigned gloadtex (long *picbuf, long xsiz, long ysiz, long is8bit, long dapal)
 static long getvox (long x, long y, long z)
 {
     z += x*yzsiz + y*zsiz;
-    for(x=vcolhashead[(z*214013)&vcolhashsizm1];x>=0;x=vcol[x].n)
+    for (x=vcolhashead[(z*214013)&vcolhashsizm1];x>=0;x=vcol[x].n)
         if (vcol[x].p == z) return(vcol[x].c);
     return(0x808080);
 }
@@ -1728,7 +1728,7 @@ static void setzrange0 (long *lptr, long z0, long z1)
     long z, ze;
     if (!((z0^z1)&~31)) { lptr[z0>>5] &= ((~(-1<<SHIFTMOD32(z0)))|(-1<<SHIFTMOD32(z1))); return; }
     z = (z0>>5); ze = (z1>>5);
-    lptr[z] &=~(-1<<SHIFTMOD32(z0)); for(z++;z<ze;z++) lptr[z] = 0;
+    lptr[z] &=~(-1<<SHIFTMOD32(z0)); for (z++;z<ze;z++) lptr[z] = 0;
     lptr[z] &= (-1<<SHIFTMOD32(z1));
 }
 
@@ -1738,7 +1738,7 @@ static void setzrange1 (long *lptr, long z0, long z1)
     long z, ze;
     if (!((z0^z1)&~31)) { lptr[z0>>5] |= ((~(-1<<SHIFTMOD32(z1)))&(-1<<SHIFTMOD32(z0))); return; }
     z = (z0>>5); ze = (z1>>5);
-    lptr[z] |= (-1<<SHIFTMOD32(z0)); for(z++;z<ze;z++) lptr[z] = -1;
+    lptr[z] |= (-1<<SHIFTMOD32(z0)); for (z++;z<ze;z++) lptr[z] = -1;
     lptr[z] |=~(-1<<SHIFTMOD32(z1));
 }
 
@@ -1747,19 +1747,19 @@ static long isrectfree (long x0, long y0, long dx, long dy)
 #if 0
     long i, j, x;
     i = y0*gvox->mytexx + x0;
-    for(dy=0;dy;dy--,i+=gvox->mytexx)
-    for(x=0;x<dx;x++) { j = i+x; if (zbit[j>>5]&(1<<SHIFTMOD32(j))) return(0); }
+    for (dy=0;dy;dy--,i+=gvox->mytexx)
+    for (x=0;x<dx;x++) { j = i+x; if (zbit[j>>5]&(1<<SHIFTMOD32(j))) return(0); }
 #else
     long i, c, m, m1, x;
 
     i = y0*mytexo5 + (x0>>5); dx += x0-1; c = (dx>>5) - (x0>>5);
     m = ~pow2m1[x0&31]; m1 = pow2m1[(dx&31)+1];
-    if (!c) { for(m&=m1;dy;dy--,i+=mytexo5) if (zbit[i]&m) return(0); }
+    if (!c) { for (m&=m1;dy;dy--,i+=mytexo5) if (zbit[i]&m) return(0); }
     else
-        {  for(;dy;dy--,i+=mytexo5)
+        {  for (;dy;dy--,i+=mytexo5)
         {
             if (zbit[i]&m) return(0);
-            for(x=1;x<c;x++) if (zbit[i+x]) return(0);
+            for (x=1;x<c;x++) if (zbit[i+x]) return(0);
             if (zbit[i+x]&m1) return(0);
         }
     }
@@ -1772,19 +1772,19 @@ static void setrect (long x0, long y0, long dx, long dy)
 #if 0
     long i, j, y;
     i = y0*gvox->mytexx + x0;
-    for(y=0;y<dy;y++,i+=gvox->mytexx)
-    for(x=0;x<dx;x++) { j = i+x; zbit[j>>5] |= (1<<SHIFTMOD32(j)); }
+    for (y=0;y<dy;y++,i+=gvox->mytexx)
+    for (x=0;x<dx;x++) { j = i+x; zbit[j>>5] |= (1<<SHIFTMOD32(j)); }
 #else
     long i, c, m, m1, x;
 
     i = y0*mytexo5 + (x0>>5); dx += x0-1; c = (dx>>5) - (x0>>5);
     m = ~pow2m1[x0&31]; m1 = pow2m1[(dx&31)+1];
-    if (!c) { for(m&=m1;dy;dy--,i+=mytexo5) zbit[i] |= m; }
+    if (!c) { for (m&=m1;dy;dy--,i+=mytexo5) zbit[i] |= m; }
     else
-        {  for(;dy;dy--,i+=mytexo5)
+        {  for (;dy;dy--,i+=mytexo5)
         {
             zbit[i] |= m;
-            for(x=1;x<c;x++) zbit[i+x] = -1;
+            for (x=1;x<c;x++) zbit[i+x] = -1;
             zbit[i+x] |= m1;
         }
     }
@@ -1815,45 +1815,57 @@ static void addquad (long x0, long y0, long z0, long x1, long y1, long z1, long 
 if (x < y) { z = x; x = y; y = z; i += 3; }
     z = shcnt[y*shcntp+x]++;
     lptr = &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx+(shp[z].x+VOXBORDWIDTH)];
-    switch(face)
+    switch (face)
     {
-    case 0: ny = y1; x2 = x0; x0 = x1; x1 = x2; break;
-    case 1: ny = y0; y0++; y1++; y2++; break;
-    case 2: nz = z1; y0 = y2; y2 = y1; y1 = y0; z0++; z1++; z2++; break;
-    case 3: nz = z0; break;
-    case 4: nx = x1; y2 = y0; y0 = y1; y1 = y2; x0++; x1++; x2++; break;
-    case 5: nx = x0; break;
+    case 0:
+        ny = y1; x2 = x0; x0 = x1; x1 = x2; break;
+    case 1:
+        ny = y0; y0++; y1++; y2++; break;
+    case 2:
+        nz = z1; y0 = y2; y2 = y1; y1 = y0; z0++; z1++; z2++; break;
+    case 3:
+        nz = z0; break;
+    case 4:
+        nx = x1; y2 = y0; y0 = y1; y1 = y2; x0++; x1++; x2++; break;
+    case 5:
+        nx = x0; break;
     }
-    for(yy=0;yy<y;yy++,lptr+=gvox->mytexx)
-        for(xx=0;xx<x;xx++)
+    for (yy=0;yy<y;yy++,lptr+=gvox->mytexx)
+        for (xx=0;xx<x;xx++)
         {
-            switch(face)
+            switch (face)
             {
-            case 0: if (i < 3) { nx = x1+x-1-xx; nz = z1+yy;   } //back
+            case 0:
+            if (i < 3) { nx = x1+x-1-xx; nz = z1+yy;   } //back
                 else { nx = x1+y-1-yy; nz = z1+xx;   } break;
-            case 1: if (i < 3) { nx = x0+xx;     nz = z0+yy;   } //front
+            case 1:
+            if (i < 3) { nx = x0+xx;     nz = z0+yy;   } //front
                 else { nx = x0+yy;     nz = z0+xx;   } break;
-            case 2: if (i < 3) { nx = x1-x+xx;   ny = y1-1-yy; } //bot
+            case 2:
+            if (i < 3) { nx = x1-x+xx;   ny = y1-1-yy; } //bot
                 else { nx = x1-1-yy;   ny = y1-1-xx; } break;
-            case 3: if (i < 3) { nx = x0+xx;     ny = y0+yy;   } //top
+            case 3:
+            if (i < 3) { nx = x0+xx;     ny = y0+yy;   } //top
                 else { nx = x0+yy;     ny = y0+xx;   } break;
-            case 4: if (i < 3) { ny = y1+x-1-xx; nz = z1+yy;   } //right
+            case 4:
+            if (i < 3) { ny = y1+x-1-xx; nz = z1+yy;   } //right
                 else { ny = y1+y-1-yy; nz = z1+xx;   } break;
-            case 5: if (i < 3) { ny = y0+xx;     nz = z0+yy;   } //left
+            case 5:
+            if (i < 3) { ny = y0+xx;     nz = z0+yy;   } //left
                 else { ny = y0+yy;     nz = z0+xx;   } break;
             }
             lptr[xx] = getvox(nx,ny,nz);
         }
 
     //Extend borders horizontally
-    for(yy=VOXBORDWIDTH;yy<y+VOXBORDWIDTH;yy++)
-        for(xx=0;xx<VOXBORDWIDTH;xx++)
+    for (yy=VOXBORDWIDTH;yy<y+VOXBORDWIDTH;yy++)
+        for (xx=0;xx<VOXBORDWIDTH;xx++)
         {
             lptr = &gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x];
             lptr[xx] = lptr[VOXBORDWIDTH]; lptr[xx+x+VOXBORDWIDTH] = lptr[x-1+VOXBORDWIDTH];
         }
     //Extend borders vertically
-    for(yy=0;yy<VOXBORDWIDTH;yy++)
+    for (yy=0;yy<VOXBORDWIDTH;yy++)
     {
         memcpy(&gvox->mytex[(shp[z].y+yy)*gvox->mytexx+shp[z].x],
                &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx+shp[z].x],
@@ -1867,7 +1879,7 @@ if (x < y) { z = x; x = y; y = z; i += 3; }
     qptr->v[0].x = x0; qptr->v[0].y = y0; qptr->v[0].z = z0;
     qptr->v[1].x = x1; qptr->v[1].y = y1; qptr->v[1].z = z1;
     qptr->v[2].x = x2; qptr->v[2].y = y2; qptr->v[2].z = z2;
-    for(j=0;j<3;j++) { qptr->v[j].u = shp[z].x+VOXBORDWIDTH; qptr->v[j].v = shp[z].y+VOXBORDWIDTH; }
+    for (j=0;j<3;j++) { qptr->v[j].u = shp[z].x+VOXBORDWIDTH; qptr->v[j].v = shp[z].y+VOXBORDWIDTH; }
     if (i < 3) qptr->v[1].u += x; else qptr->v[1].v += y;
     qptr->v[2].u += x; qptr->v[2].v += y;
 
@@ -1908,14 +1920,14 @@ if (x < y) { z = x; x = y; y = z; }
     memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
     gmaxx = gmaxy = garea = 0;
 
-    if (pow2m1[32] != -1) { for(i=0;i<32;i++) pow2m1[i] = (1<<i)-1; pow2m1[32] = -1; }
-    for(i=0;i<7;i++) gvox->qfacind[i] = -1;
+    if (pow2m1[32] != -1) { for (i=0;i<32;i++) pow2m1[i] = (1<<i)-1; pow2m1[32] = -1; }
+    for (i=0;i<7;i++) gvox->qfacind[i] = -1;
 
     i = ((max(ysiz,zsiz)+1)<<2);
 bx0 = (long *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
     by0 = (long *)(((long)bx0)+i);
 
-    for(cnt=0;cnt<2;cnt++)
+    for (cnt=0;cnt<2;cnt++)
     {
         if (!cnt) daquad = cntquad;
         else daquad = addquad;
@@ -1923,10 +1935,10 @@ bx0 = (long *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
 
         memset(by0,-1,(max(ysiz,zsiz)+1)<<2); v = 0;
 
-        for(i=-1;i<=1;i+=2)
-            for(y=0;y<ysiz;y++)
-                for(x=0;x<=xsiz;x++)
-                    for(z=0;z<=zsiz;z++)
+        for (i=-1;i<=1;i+=2)
+            for (y=0;y<ysiz;y++)
+                for (x=0;x<=xsiz;x++)
+                    for (z=0;z<=zsiz;z++)
                     {
                         ov = v; v = (isolid(x,y,z) && (!isolid(x,y+i,z)));
                         if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
@@ -1934,10 +1946,10 @@ bx0 = (long *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
                         if (v > ov) oz = z; else if ((v < ov) && (by0[z] != oz)) { bx0[z] = x; by0[z] = oz; }
                     }
 
-        for(i=-1;i<=1;i+=2)
-            for(z=0;z<zsiz;z++)
-                for(x=0;x<=xsiz;x++)
-                    for(y=0;y<=ysiz;y++)
+        for (i=-1;i<=1;i+=2)
+            for (z=0;z<zsiz;z++)
+                for (x=0;x<=xsiz;x++)
+                    for (y=0;y<=ysiz;y++)
                     {
                         ov = v; v = (isolid(x,y,z) && (!isolid(x,y,z-i)));
                         if ((by0[y] >= 0) && ((by0[y] != oz) || (v >= ov)))
@@ -1945,10 +1957,10 @@ bx0 = (long *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
                         if (v > ov) oz = y; else if ((v < ov) && (by0[y] != oz)) { bx0[y] = x; by0[y] = oz; }
                     }
 
-        for(i=-1;i<=1;i+=2)
-            for(x=0;x<xsiz;x++)
-                for(y=0;y<=ysiz;y++)
-                    for(z=0;z<=zsiz;z++)
+        for (i=-1;i<=1;i+=2)
+            for (x=0;x<xsiz;x++)
+                for (y=0;y<=ysiz;y++)
+                    for (z=0;z<=zsiz;z++)
                     {
                         ov = v; v = (isolid(x,y,z) && (!isolid(x-i,y,z)));
                         if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
@@ -1962,18 +1974,19 @@ bx0 = (long *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
             if (!shp) { free(bx0); free(gvox); return(0); }
 
             sc = 0;
-            for(y=gmaxy;y;y--)
-                for(x=gmaxx;x>=y;x--)
+            for (y=gmaxy;y;y--)
+                for (x=gmaxx;x>=y;x--)
                 {
                     i = shcnt[y*shcntp+x]; shcnt[y*shcntp+x] = sc; //shcnt changes from counter to head index
-                    for(;i>0;i--) { shp[sc].x = x; shp[sc].y = y; sc++; }
+                    for (;i>0;i--) { shp[sc].x = x; shp[sc].y = y; sc++; }
                 }
 
-            for(gvox->mytexx=32;gvox->mytexx<(gmaxx+(VOXBORDWIDTH<<1));gvox->mytexx<<=1);
-            for(gvox->mytexy=32;gvox->mytexy<(gmaxy+(VOXBORDWIDTH<<1));gvox->mytexy<<=1);
+            for (gvox->mytexx=32;gvox->mytexx<(gmaxx+(VOXBORDWIDTH<<1));gvox->mytexx<<=1);
+            for (gvox->mytexy=32;gvox->mytexy<(gmaxy+(VOXBORDWIDTH<<1));gvox->mytexy<<=1);
             while (gvox->mytexx*gvox->mytexy*8 < garea*9) //This should be sufficient to fit most skins...
             {
-skindidntfit:;
+skindidntfit:
+                ;
                 if (gvox->mytexx <= gvox->mytexy) gvox->mytexx <<= 1; else gvox->mytexy <<= 1;
             }
             mytexo5 = (gvox->mytexx>>5);
@@ -1983,7 +1996,7 @@ skindidntfit:;
             memset(zbit,0,i);
 
             v = gvox->mytexx*gvox->mytexy;
-            for(z=0;z<sc;z++)
+            for (z=0;z<sc;z++)
             {
                 dx = shp[z].x+(VOXBORDWIDTH<<1); dy = shp[z].y+(VOXBORDWIDTH<<1); i = v;
                 do
@@ -2002,14 +2015,14 @@ skindidntfit:;
 
                         //Re-generate shp[].x/y (box sizes) from shcnt (now head indices) for next pass :/
                         j = 0;
-                        for(y=gmaxy;y;y--)
-                            for(x=gmaxx;x>=y;x--)
+                        for (y=gmaxy;y;y--)
+                            for (x=gmaxx;x>=y;x--)
                             {
                                 i = shcnt[y*shcntp+x];
-                                for(;j<i;j++) { shp[j].x = x0; shp[j].y = y0; }
+                                for (;j<i;j++) { shp[j].x = x0; shp[j].y = y0; }
                                 x0 = x; y0 = y;
                             }
-                        for(;j<sc;j++) { shp[j].x = x0; shp[j].y = y0; }
+                        for (;j<sc;j++) { shp[j].x = x0; shp[j].y = y0; }
 
                         goto skindidntfit;
                     }
@@ -2045,7 +2058,7 @@ static long loadvox (const char *filnam)
     zpiv = ((float)zsiz)*.5;
 
     klseek(fil,-768,SEEK_END);
-    for(i=0;i<256;i++)
+    for (i=0;i<256;i++)
     { kread(fil,c,3); pal[i] = (((long)c[0])<<18)+(((long)c[1])<<10)+(((long)c[2])<<2)+(i<<24); }
     pal[255] = -1;
 
@@ -2060,20 +2073,20 @@ static long loadvox (const char *filnam)
     tbuf = (unsigned char *)malloc(zsiz*sizeof(char)); if (!tbuf) { kclose(fil); return(-1); }
 
     klseek(fil,12,SEEK_SET);
-    for(x=0;x<xsiz;x++)
-        for(y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
+    for (x=0;x<xsiz;x++)
+        for (y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
         {
             kread(fil,tbuf,zsiz);
-            for(z=zsiz-1;z>=0;z--)
+            for (z=zsiz-1;z>=0;z--)
             { if (tbuf[z] != 255) { i = j+z; vbit[i>>5] |= (1<<SHIFTMOD32(i)); } }
         }
 
     klseek(fil,12,SEEK_SET);
-    for(x=0;x<xsiz;x++)
-        for(y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
+    for (x=0;x<xsiz;x++)
+        for (y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
         {
             kread(fil,tbuf,zsiz);
-            for(z=0;z<zsiz;z++)
+            for (z=0;z<zsiz;z++)
             {
                 if (tbuf[z] == 255) continue;
                 if ((!x) || (!y) || (!z) || (x == xsiz-1) || (y == ysiz-1) || (z == zsiz-1))
@@ -2113,14 +2126,14 @@ xyoffs = (unsigned short *)malloc(i); if (!xyoffs) { kclose(fil); return(-1); }
     kread(fil,xyoffs,i); for (i=i/sizeof(short)-1; i>=0; i--) xyoffs[i] = B_LITTLE16(xyoffs[i]);
 
     klseek(fil,-768,SEEK_END);
-    for(i=0;i<256;i++)
+    for (i=0;i<256;i++)
     { kread(fil,c,3); pal[i] = B_LITTLE32((((long)c[0])<<18)+(((long)c[1])<<10)+(((long)c[2])<<2)+(i<<24)); }
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
     vbit = (long *)malloc(i); if (!vbit) { free(xyoffs); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
-    for(vcolhashsizm1=4096;vcolhashsizm1<(mip1leng>>1);vcolhashsizm1<<=1); vcolhashsizm1--; //approx to numvoxs!
+    for (vcolhashsizm1=4096;vcolhashsizm1<(mip1leng>>1);vcolhashsizm1<<=1); vcolhashsizm1--; //approx to numvoxs!
 vcolhashead = (long *)malloc((vcolhashsizm1+1)*sizeof(long)); if (!vcolhashead) { free(xyoffs); kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(long));
 
@@ -2131,8 +2144,8 @@ vcolhashead = (long *)malloc((vcolhashsizm1+1)*sizeof(long)); if (!vcolhashead) 
     kread(fil,tbuf,i); kclose(fil);
 
     cptr = tbuf;
-    for(x=0;x<xsiz;x++) //Set surface voxels to 1 else 0
-        for(y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
+    for (x=0;x<xsiz;x++) //Set surface voxels to 1 else 0
+        for (y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
         {
             i = xyoffs[x*ysizp1+y+1] - xyoffs[x*ysizp1+y]; if (!i) continue;
             z1 = 0;
@@ -2142,7 +2155,7 @@ vcolhashead = (long *)malloc((vcolhashsizm1+1)*sizeof(long)); if (!vcolhashead) 
                 if (!(cptr[-1]&16)) setzrange1(vbit,j+z1,j+z0);
                 i -= k+3; z1 = z0+k;
                 setzrange1(vbit,j+z0,j+z1);
-                for(z=z0;z<z1;z++) putvox(x,y,z,pal[*cptr++]);
+                for (z=z0;z<z1;z++) putvox(x,y,z,pal[*cptr++]);
             }
         }
 
@@ -2176,15 +2189,15 @@ kread(fil,&i,4); if (B_LITTLE32(i) != 0x6c78764b) { kclose(fil); return(-1); } /
 vbit = (long *)malloc(i); if (!vbit) { free(ylen); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
-    for(vcolhashsizm1=4096;vcolhashsizm1<numvoxs;vcolhashsizm1<<=1); vcolhashsizm1--;
+    for (vcolhashsizm1=4096;vcolhashsizm1<numvoxs;vcolhashsizm1<<=1); vcolhashsizm1--;
 vcolhashead = (long *)malloc((vcolhashsizm1+1)*sizeof(long)); if (!vcolhashead) { free(ylen); kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(long));
 
-    for(x=0;x<xsiz;x++)
-        for(y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
+    for (x=0;x<xsiz;x++)
+        for (y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
         {
             z1 = zsiz;
-            for(i=ylen[x*ysiz+y];i>0;i--)
+            for (i=ylen[x*ysiz+y];i>0;i--)
             {
                 kread(fil,c,8); //b,g,r,a,z_lo,z_hi,vis,dir
                 z0 = B_LITTLE16(*(unsigned short *)&c[4]);
@@ -2230,16 +2243,16 @@ if ((i != 0x09072000) || (xsiz != 1024) || (ysiz != 1024)) { kclose(fil); return
     kclose(fil);
 
     v = vbuf;
-    for(y=0;y<ysiz;y++)
-        for(x=0,j=y*zsiz;x<xsiz;x++,j+=yzsiz)
+    for (y=0;y<ysiz;y++)
+        for (x=0,j=y*zsiz;x<xsiz;x++,j+=yzsiz)
         {
             z = 0;
             while (1)
             {
                 setzrange0(vbit,j+z,j+v[1]);
-                for(z=v[1];z<=v[2];z++) putvox(x,y,z,(*(long *)&v[(z-v[1]+1)<<2])&0xffffff);
+                for (z=v[1];z<=v[2];z++) putvox(x,y,z,(*(long *)&v[(z-v[1]+1)<<2])&0xffffff);
                 if (!v[0]) break; z = v[2]-v[1]-v[0]+2; v += v[0]*4;
-                for(z+=v[3];z<v[3];z++) putvox(x,y,z,(*(long *)&v[(z-v[3])<<2])&0xffffff);
+                for (z+=v[3];z<v[3];z++) putvox(x,y,z,(*(long *)&v[(z-v[3])<<2])&0xffffff);
             }
             v += ((((long)v[2])-((long)v[1])+2)<<2);
         }
@@ -2399,7 +2412,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
     if (!m->texid[globalpal]) m->texid[globalpal] = gloadtex(m->mytex,m->mytexx,m->mytexy,m->is8bit,globalpal);
     else bglBindTexture(GL_TEXTURE_2D,m->texid[globalpal]);
     bglBegin(GL_QUADS);
-    for(i=0,fi=0;i<m->qcnt;i++)
+    for (i=0,fi=0;i<m->qcnt;i++)
     {
         if (i == m->qfacind[fi]) { f = clut[fi++]; bglColor4f(pc[0]*f,pc[1]*f,pc[2]*f,pc[3]*f); }
         vptr = &m->quad[i].v[0];
@@ -2408,7 +2421,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         yy = vptr[0].y+vptr[2].y;
         zz = vptr[0].z+vptr[2].z;
 
-        for(j=0;j<4;j++)
+        for (j=0;j<4;j++)
         {
 #if (VOXBORDWIDTH == 0)
             bglTexCoord2f(((float)vptr[j].u)*ru+uhack[vptr[j].u!=vptr[0].u],
@@ -2449,11 +2462,14 @@ mdmodel *mdload (const char *filnam)
 
     fil = kopen4load((char *)filnam,0); if (fil < 0) return(0);
     kread(fil,&i,4); klseek(fil,0,SEEK_SET);
-    switch(B_LITTLE32(i))
+    switch (B_LITTLE32(i))
     {
-    case 0x32504449: vm = (mdmodel*)md2load(fil,filnam); break; //IDP2
-    case 0x33504449: vm = (mdmodel*)md3load(fil); break; //IDP3
-    default: vm = (mdmodel*)0; break;
+    case 0x32504449:
+        vm = (mdmodel*)md2load(fil,filnam); break; //IDP2
+    case 0x33504449:
+        vm = (mdmodel*)md3load(fil); break; //IDP3
+    default:
+        vm = (mdmodel*)0; break;
     }
     kclose(fil);
     return(vm);

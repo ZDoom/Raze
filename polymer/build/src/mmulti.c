@@ -206,7 +206,7 @@ long netread (long *other, char *dabuf, long bufsiz) //0:no packets in buffer
     snatchip = (long)ip.sin_addr.s_addr; snatchport = (long)ip.sin_port;
 
     (*other) = myconnectindex;
-    for(i=0;i<MAXPLAYERS;i++)
+    for (i=0;i<MAXPLAYERS;i++)
         if ((otherip[i] == snatchip) && (otherport[i] == snatchport))
         { (*other) = i; break; }
 
@@ -256,14 +256,14 @@ long isvalidipaddress (char *st)
     long i, bcnt, num;
 
     bcnt = 0; num = 0;
-    for(i=0;st[i];i++)
+    for (i=0;st[i];i++)
     {
         if (st[i] == '.') { bcnt++; num = 0; continue; }
         if (st[i] == ':')
         {
             if (bcnt != 3) return(0);
             num = 0;
-            for(i++;st[i];i++)
+            for (i++;st[i];i++)
             {
                 if ((st[i] >= '0') && (st[i] <= '9'))
                 { num = num*10+st[i]-'0'; if (num >= 65536) return(0); }
@@ -293,9 +293,9 @@ static long crctab16[256];
 static void initcrc16 ()
 {
     long i, j, k, a;
-    for(j=0;j<256;j++)
+    for (j=0;j<256;j++)
     {
-        for(i=7,k=(j<<8),a=0;i>=0;i--,k=((k<<1)&65535))
+        for (i=7,k=(j<<8),a=0;i>=0;i--,k=((k<<1)&65535))
         {
             if ((k^a)&0x8000) a = ((a<<1)&65535)^0x1021;
             else a = ((a<<1)&65535);
@@ -309,7 +309,7 @@ static unsigned short getcrc16 (char *buffer, long bufleng)
     long i, j;
 
     j = 0;
-    for(i=bufleng-1;i>=0;i--) updatecrc16(j,buffer[i]);
+    for (i=bufleng-1;i>=0;i--) updatecrc16(j,buffer[i]);
     return((unsigned short)(j&65535));
 }
 
@@ -332,11 +332,11 @@ static void initmultiplayers_reset(void)
 #endif
 
     lastsendtims[0] = GetTickCount();
-    for(i=1;i<MAXPLAYERS;i++) lastsendtims[i] = lastsendtims[0];
+    for (i=1;i<MAXPLAYERS;i++) lastsendtims[i] = lastsendtims[0];
     numplayers = 1; myconnectindex = 0;
 
     memset(otherip,0,sizeof(otherip));
-    for(i=0;i<MAXPLAYERS;i++) otherport[i] = htons(NETPORT);
+    for (i=0;i<MAXPLAYERS;i++) otherport[i] = htons(NETPORT);
 }
 
 // Multiplayer command line summary. Assume myconnectindex always = 0 for 192.168.1.2
@@ -372,7 +372,7 @@ long initmultiplayersparms(long argc, char **argv)
 
     netinit(portnum);
 
-    for(i=0;i<argc;i++)
+    for (i=0;i<argc;i++)
     {
         //if (((argv[i][0] == '/') || (argv[i][0] == '-')) &&
         //    ((argv[i][1] == 'N') || (argv[i][1] == 'n')) &&
@@ -412,7 +412,7 @@ long initmultiplayersparms(long argc, char **argv)
         if (isvalidipaddress(st))
         {
             if ((danetmode == 1) && (daindex == myconnectindex)) daindex++;
-            for(j=0;st[j];j++) {
+            for (j=0;st[j];j++) {
                 if (st[j] == ':')
                 { otherport[daindex] = htons((unsigned short)atol(&st[j+1])); st[j] = 0; break; }
             }
@@ -425,7 +425,7 @@ long initmultiplayersparms(long argc, char **argv)
             LPHOSTENT lph;
             unsigned short pt = htons(NETPORT);
 
-            for(j=0;st[j];j++)
+            for (j=0;st[j];j++)
                 if (st[j] == ':')
                 { pt = htons((unsigned short)atol(&st[j+1])); st[j] = 0; break; }
             if ((lph = gethostbyname(st)))
@@ -448,7 +448,7 @@ if ((danetmode == 255) && (daindex)) { numplayers = 2; danetmode = 0; } //an IP 
     //   printf("Player %d: %d.%d.%d.%d:%d\n",i,otherip[i]&255,(otherip[i]>>8)&255,(otherip[i]>>16)&255,((unsigned long)otherip[i])>>24,ntohs(otherport[i]));
 
     connecthead = 0;
-    for(i=0;i<numplayers-1;i++) connectpoint2[i] = i+1;
+    for (i=0;i<numplayers-1;i++) connectpoint2[i] = i+1;
     connectpoint2[numplayers-1] = -1;
 
     //    return (((!danetmode) && (numplayers >= 2)) || (numplayers == 2));
@@ -471,7 +471,7 @@ long initmultiplayerscycle(void)
     tims = GetTickCount();
     if (myconnectindex == connecthead) //Player 0 only
     {
-        for(i=numplayers-1;i>0;i--)
+        for (i=numplayers-1;i>0;i--)
             if (!otherip[i]) break;
         if (!i) {
             nfIncCP(); //Addfaz NatFree
@@ -527,7 +527,7 @@ void initmultiplayers (long argc, char **argv, char damultioption, char dacomrat
             {
                 otims = tims;
                 sprintf(tbuf,"\rWait for players (%d/%d): ",myconnectindex,numplayers);
-                for(i=0;i<numplayers;i++)
+                for (i=0;i<numplayers;i++)
                 {
                     if (i == myconnectindex) { strcat(tbuf,"<me> "); continue; }
                     if (!otherip[i]) { strcat(tbuf,"?.?.?.?:? "); continue; }
@@ -570,13 +570,13 @@ void dosendpackets (long other) //Host to send intially, client to send to other
     k = 2;
     *(long *)&pakbuf[k] = icnt0[other]; k += 4;
     memset(&pakbuf[k],0,32);
-    for(i=icnt0[other];i<icnt0[other]+256;i++)
+    for (i=icnt0[other];i<icnt0[other]+256;i++)
         if (ipak[other][i&(FIFSIZ-1)])
             pakbuf[((i-icnt0[other])>>3)+k] |= (1<<((i-icnt0[other])&7));
     k += 32;
 
     while ((ocnt0[other] < ocnt1[other]) && (!opak[other][ocnt0[other]&(FIFSIZ-1)])) ocnt0[other]++;
-    for(i=ocnt0[other];i<ocnt1[other];i++)
+    for (i=ocnt0[other];i<ocnt1[other];i++)
     {
         j = *(short *)&pakmem[opak[other][i&(FIFSIZ-1)]]; if (!j) continue; //packet already acked
         if (k+6+j+4 > (long)sizeof(pakbuf)) break;
@@ -624,7 +624,7 @@ long getpacket (long *retother, char *bufptr)
 
     if (netready)
     {
-        for(i=connecthead;i>=0;i=connectpoint2[i])
+        for (i=connecthead;i>=0;i=connectpoint2[i])
         {
             if (i != myconnectindex) dosendpackets(i);
             if ((!danetmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
@@ -657,7 +657,7 @@ long getpacket (long *retother, char *bufptr)
                 //Master responds to slave with 0xab whenever it receives a 0xaa - even if during game!
                 if ((pakbuf[k] == 0xaa) && (myconnectindex == connecthead))
                 {
-                    for(other=1;other<numplayers;other++)
+                    for (other=1;other<numplayers;other++)
                     {
                         //Only send to others asking for a response
                         if ((otherip[other]) && ((otherip[other] != snatchip) || (otherport[other] != snatchport))) continue;
@@ -699,7 +699,7 @@ long getpacket (long *retother, char *bufptr)
                         numplayers = (long)pakbuf[k+2];
 
                         connecthead = 0;
-                        for(i=0;i<numplayers-1;i++) connectpoint2[i] = i+1;
+                        for (i=0;i<numplayers-1;i++) connectpoint2[i] = i+1;
                         connectpoint2[numplayers-1] = -1;
 
                         otherip[connecthead] = snatchip;
@@ -721,7 +721,7 @@ long getpacket (long *retother, char *bufptr)
             else
             {
                 if (ocnt0[other] < ic0) ocnt0[other] = ic0;
-                for(i=ic0;i<min(ic0+256,ocnt1[other]);i++)
+                for (i=ic0;i<min(ic0+256,ocnt1[other]);i++)
                     if (pakbuf[((i-ic0)>>3)+k]&(1<<((i-ic0)&7)))
                         opak[other][i&(FIFSIZ-1)] = 0;
                 k += 32;
@@ -746,7 +746,7 @@ long getpacket (long *retother, char *bufptr)
 
     //Return next valid packet from any player
     if (!bufptr) return(0);
-    for(i=connecthead;i>=0;i=connectpoint2[i])
+    for (i=connecthead;i>=0;i=connectpoint2[i])
     {
         if (i != myconnectindex)
         {
@@ -786,7 +786,7 @@ const char *getexternaladdress(void)
     char *host = "checkip.dyndns.org";
     char *req = "GET / HTTP/1.0\r\n\r\n";
 
-    if(ipaddr[0])
+    if (ipaddr[0])
         return(ipaddr);
 
 #ifdef _WIN32
@@ -812,18 +812,18 @@ const char *getexternaladdress(void)
     memset(&(dest_addr.sin_zero), '\0', 8);
 
     sockfd = socket(PF_INET, SOCK_STREAM, 0);
-    if(sockfd == SOCKET_ERROR) {
+    if (sockfd == SOCKET_ERROR) {
         initprintf("mmulti: socket() error in getexternaladdress() (%d)\n",errno);
         return(0);
     }
 
-    if(connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR) {
+    if (connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR) {
         initprintf("mmulti: connect() error in getexternaladdress() (%d)\n",errno);
         return(0);
     }
 
     bytes_sent = send(sockfd, req, strlen(req), 0);
-    if(bytes_sent == SOCKET_ERROR) {
+    if (bytes_sent == SOCKET_ERROR) {
         initprintf("mmulti: send() error in getexternaladdress() (%d)\n",errno);
         return(0);
     }
@@ -836,11 +836,11 @@ const char *getexternaladdress(void)
     WSACleanup();
 #endif
 
-    for(i=0;(unsigned)i<strlen(tempbuf);i++)
+    for (i=0;(unsigned)i<strlen(tempbuf);i++)
     {
-        if(isdigit(tempbuf[i]) && (isdigit(tempbuf[i+1]) || (tempbuf[i+1] == '.')) && (isdigit(tempbuf[i+2]) || (tempbuf[i+2] == '.')) && (isdigit(tempbuf[i+3]) || (tempbuf[i+3] == '.')))
+        if (isdigit(tempbuf[i]) && (isdigit(tempbuf[i+1]) || (tempbuf[i+1] == '.')) && (isdigit(tempbuf[i+2]) || (tempbuf[i+2] == '.')) && (isdigit(tempbuf[i+3]) || (tempbuf[i+3] == '.')))
         {
-            while(isdigit(tempbuf[i]) || (tempbuf[i] == '.'))
+            while (isdigit(tempbuf[i]) || (tempbuf[i] == '.'))
             {
                 ipaddr[j] = tempbuf[i];
                 i++, j++;

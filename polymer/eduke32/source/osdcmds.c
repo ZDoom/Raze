@@ -120,7 +120,7 @@ int osdcmd_map(const osdfuncparm_t *parm)
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
     strcpy(filename,parm->parms[0]);
-    if( strchr(filename,'.') == 0)
+    if ( strchr(filename,'.') == 0)
         strcat(filename,".map");
 
     if ((i = kopen4load(filename,0)) < 0) {
@@ -370,9 +370,9 @@ int osdcmd_setvar(const osdfuncparm_t *parm)
     strcpy(varname,parm->parms[0]);
     varval = Batol(parm->parms[1]);
 
-    for(i=0;i<iGameVarCount;i++)
-        if(aGameVars[i].szLabel != NULL)
-            if(Bstrcmp(varname, aGameVars[i].szLabel) == 0)
+    for (i=0;i<iGameVarCount;i++)
+        if (aGameVars[i].szLabel != NULL)
+            if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
                 SetGameVarID(i, varval, ps[myconnectindex].i, myconnectindex);
     return OSDCMD_OK;
 }
@@ -466,7 +466,8 @@ struct cvarmappings {
 
         { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|256, 0, 0, 3 },
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
+        { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 }
+        ,
         { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_BOOL, 0, 0, 1 },
         // polymer cvars
         { "pr_cliplanes", "pr_cliplanes: toggles clipping behind map limits (recommended yet may decrease performance in complex maps)", (void*)&pr_cliplanes, CVAR_INT, 0, 0, 1 },
@@ -494,38 +495,39 @@ int osdcmd_cvar_set(const osdfuncparm_t *parm)
                 case CVAR_INT:
                 case CVAR_UNSIGNEDINT:
                 case CVAR_BOOL:
-                    {
-                        int val;
-                        if (showval) {
-                            OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvar[i].name,*(int*)cvar[i].var,(char*)cvar[i].helpstr);
-                            return OSDCMD_OK;
-                        }
+                {
+                    int val;
+                    if (showval) {
+                        OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvar[i].name,*(int*)cvar[i].var,(char*)cvar[i].helpstr);
+                        return OSDCMD_OK;
+                    }
 
-                        val = atoi(parm->parms[0]);
-                        if (cvar[i].type == CVAR_BOOL) val = val != 0;
+                    val = atoi(parm->parms[0]);
+                    if (cvar[i].type == CVAR_BOOL) val = val != 0;
 
-                        if (val < cvar[i].min || val > cvar[i].max) {
-                            OSD_Printf("%s value out of range\n",cvar[i].name);
-                            return OSDCMD_OK;
-                        }
-                        *(int*)cvar[i].var = val;
-                        OSD_Printf("%s %d",cvar[i].name,val);
-                    } break;
+                    if (val < cvar[i].min || val > cvar[i].max) {
+                        OSD_Printf("%s value out of range\n",cvar[i].name);
+                        return OSDCMD_OK;
+                    }
+                    *(int*)cvar[i].var = val;
+                    OSD_Printf("%s %d",cvar[i].name,val);
+                } break;
                 case CVAR_STRING:
-                    {
-                        if (showval) {
-                            OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvar[i].name,(char*)cvar[i].var,(char*)cvar[i].helpstr);
-                            return OSDCMD_OK;
-                        }
-                        else {
-                            Bstrncpy((char*)cvar[i].var, parm->parms[0], cvar[i].extra-1);
-                            ((char*)cvar[i].var)[cvar[i].extra-1] = 0;
-                            OSD_Printf("%s %s",cvar[i].name,(char*)cvar[i].var);
-                        }
-                    } break;
-                default: break;
+                {
+                    if (showval) {
+                        OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvar[i].name,(char*)cvar[i].var,(char*)cvar[i].helpstr);
+                        return OSDCMD_OK;
+                    }
+                    else {
+                        Bstrncpy((char*)cvar[i].var, parm->parms[0], cvar[i].extra-1);
+                        ((char*)cvar[i].var)[cvar[i].extra-1] = 0;
+                        OSD_Printf("%s %s",cvar[i].name,(char*)cvar[i].var);
+                    }
+                } break;
+                default:
+                    break;
                 }
-            if(cvar[i].type&256)
+            if (cvar[i].type&256)
                 updatenames();
         }
     }
@@ -561,7 +563,7 @@ int osdcmd_give(const osdfuncparm_t *parm)
     int i;
 
     if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME) {
-        if(ps[myconnectindex].dead_flag != 0) {
+        if (ps[myconnectindex].dead_flag != 0) {
             OSD_Printf("give: Cannot give while dead.\n");
             return OSDCMD_OK;
         }
@@ -653,7 +655,7 @@ int osdcmd_mpmap(const osdfuncparm_t *parm)
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
     strcpy(filename,parm->parms[0]);
-    if( strchr(filename,'.') == 0)
+    if ( strchr(filename,'.') == 0)
         strcat(filename,".map");
 
     if ((i = kopen4load(filename,0)) < 0) {
@@ -679,7 +681,7 @@ int osdcmd_name(const osdfuncparm_t *parm)
 
     Bstrcpy(tempbuf,parm->parms[0]);
 
-    while(Bstrlen(strip_color_codes(tempbuf)) > 10)
+    while (Bstrlen(strip_color_codes(tempbuf)) > 10)
         tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
     Bstrncpy(myname,tempbuf,sizeof(myname)-1);

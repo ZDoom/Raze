@@ -35,13 +35,13 @@ int loadpheader(char spot,struct savehead *saveh)
 
     walock[TILE_LOADSHOT] = 255;
 
-    if(kdfread(&bv,sizeof(bv),1,fil) != 1) goto corrupt;
-    if(kdfread(g_szBuf,bv,1,fil) != 1) goto corrupt;
+    if (kdfread(&bv,sizeof(bv),1,fil) != 1) goto corrupt;
+    if (kdfread(g_szBuf,bv,1,fil) != 1) goto corrupt;
     g_szBuf[bv]=0;
     //    AddLog(g_szBuf);
 
     if (kdfread(&bv,4,1,fil) != 1) goto corrupt;
-    if(bv != BYTEVERSION) {
+    if (bv != BYTEVERSION) {
         FTA(114,&ps[myconnectindex]);
         kclose(fil);
         return 1;
@@ -80,7 +80,7 @@ int loadplayer(signed char spot)
     strcpy(fn, "egam0.sav");
     strcpy(mpfn, "egamA_00.sav");
 
-    if(spot < 0)
+    if (spot < 0)
     {
         multiflag = 1;
         multiwhat = 0;
@@ -88,12 +88,12 @@ int loadplayer(signed char spot)
         return -1;
     }
 
-    if( multiflag == 2 && multiwho != myconnectindex )
+    if ( multiflag == 2 && multiwho != myconnectindex )
     {
         fnptr = mpfn;
         mpfn[4] = spot + 'A';
 
-        if(ud.multimode > 9)
+        if (ud.multimode > 9)
         {
             mpfn[6] = (multiwho/10) + '0';
             mpfn[7] = (multiwho%10) + '0';
@@ -110,13 +110,13 @@ int loadplayer(signed char spot)
 
     ready2send = 0;
 
-    if(kdfread(&bv,sizeof(bv),1,fil) != 1) goto corrupt;
-    if(kdfread(g_szBuf,bv,1,fil) != 1) goto corrupt;
+    if (kdfread(&bv,sizeof(bv),1,fil) != 1) goto corrupt;
+    if (kdfread(g_szBuf,bv,1,fil) != 1) goto corrupt;
     g_szBuf[bv]=0;
     //    AddLog(g_szBuf);
 
     if (kdfread(&bv,4,1,fil) != 1) return -1;
-    if(bv != BYTEVERSION)
+    if (bv != BYTEVERSION)
     {
         FTA(114,&ps[myconnectindex]);
         kclose(fil);
@@ -126,7 +126,7 @@ int loadplayer(signed char spot)
     }
 
     if (kdfread(&nump,sizeof(nump),1,fil) != 1) return -1;
-    if(nump != ud.multimode)
+    if (nump != ud.multimode)
     {
         kclose(fil);
         ototalclock = totalclock;
@@ -135,7 +135,7 @@ int loadplayer(signed char spot)
         return 1;
     } else ud.multimode = nump;
 
-    if(numplayers > 1)
+    if (numplayers > 1)
     {
         pub = NUMPAGES;
         pus = NUMPAGES;
@@ -151,7 +151,7 @@ int loadplayer(signed char spot)
     clearsoundlocks();
     MUSIC_StopSong();
 
-    if(numplayers > 1) {
+    if (numplayers > 1) {
         if (kdfread(&buf,19,1,fil) != 1) goto corrupt;
     } else {
         if (kdfread(&ud.savegame[spot][0],19,1,fil) != 1) goto corrupt;
@@ -210,23 +210,23 @@ int loadplayer(signed char spot)
 
     if (kdfread(&scriptptrs[0],1,MAXSCRIPTSIZE,fil) != MAXSCRIPTSIZE) goto corrupt;
     if (kdfread(&script[0],4,MAXSCRIPTSIZE,fil) != MAXSCRIPTSIZE) goto corrupt;
-    for(i=0;i<MAXSCRIPTSIZE;i++)
-        if( scriptptrs[i] )
+    for (i=0;i<MAXSCRIPTSIZE;i++)
+        if ( scriptptrs[i] )
         {
             j = (long)script[i]+(long)&script[0];
             script[i] = j;
         }
 
     if (kdfread(&actorscrptr[0],4,MAXTILES,fil) != MAXTILES) goto corrupt;
-    for(i=0;i<MAXTILES;i++)
-        if(actorscrptr[i])
+    for (i=0;i<MAXTILES;i++)
+        if (actorscrptr[i])
         {
             j = (long)actorscrptr[i]+(long)&script[0];
             actorscrptr[i] = (long *)j;
         }
     if (kdfread(&actorLoadEventScrptr[0],4,MAXTILES,fil) != MAXTILES) goto corrupt;
-    for(i=0;i<MAXTILES;i++)
-        if(actorLoadEventScrptr[i])
+    for (i=0;i<MAXTILES;i++)
+        if (actorLoadEventScrptr[i])
         {
             j = (long)actorLoadEventScrptr[i]+(long)&script[0];
             actorLoadEventScrptr[i] = (long *)j;
@@ -235,12 +235,12 @@ int loadplayer(signed char spot)
     if (kdfread(&scriptptrs[0],1,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
     if (kdfread(&hittype[0],sizeof(struct weaponhit),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
-    for(i=0;i<MAXSPRITES;i++)
+    for (i=0;i<MAXSPRITES;i++)
     {
         j = (long)(&script[0]);
-        if( scriptptrs[i]&1 ) T2 += j;
-        if( scriptptrs[i]&2 ) T5 += j;
-        if( scriptptrs[i]&4 ) T6 += j;
+        if ( scriptptrs[i]&1 ) T2 += j;
+        if ( scriptptrs[i]&2 ) T5 += j;
+        if ( scriptptrs[i]&4 ) T6 += j;
     }
 
     if (kdfread(&lockclock,sizeof(lockclock),1,fil) != 1) goto corrupt;
@@ -250,7 +250,7 @@ int loadplayer(signed char spot)
     if (kdfread(&animatecnt,sizeof(animatecnt),1,fil) != 1) goto corrupt;
     if (kdfread(&animatesect[0],2,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
     if (kdfread(&animateptr[0],4,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
-    for(i = animatecnt-1;i>=0;i--) animateptr[i] = (long *)((long)animateptr[i]+(long)(&sector[0]));
+    for (i = animatecnt-1;i>=0;i--) animateptr[i] = (long *)((long)animateptr[i]+(long)(&sector[0]));
     if (kdfread(&animategoal[0],4,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
     if (kdfread(&animatevel[0],4,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
 
@@ -300,27 +300,27 @@ int loadplayer(signed char spot)
 
     if (kdfread(&i,sizeof(long),1,fil) != 1) goto corrupt;
 
-    while(i != MAXQUOTES)
+    while (i != MAXQUOTES)
     {
-        if(fta_quotes[i] != NULL)
+        if (fta_quotes[i] != NULL)
             Bfree(fta_quotes[i]);
 
         fta_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
 
-        if(kdfread((char *)fta_quotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
-        if(kdfread(&i,sizeof(long),1,fil) != 1) goto corrupt;
+        if (kdfread((char *)fta_quotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
+        if (kdfread(&i,sizeof(long),1,fil) != 1) goto corrupt;
     }
 
     if (kdfread(&redefined_quote_count,sizeof(redefined_quote_count),1,fil) != 1) goto corrupt;
 
-    for(i=0;i<redefined_quote_count;i++)
+    for (i=0;i<redefined_quote_count;i++)
     {
-        if(redefined_quotes[i] != NULL)
+        if (redefined_quotes[i] != NULL)
             Bfree(redefined_quotes[i]);
 
         redefined_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
 
-        if(kdfread((char *)redefined_quotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
+        if (kdfread((char *)redefined_quotes[i],MAXQUOTELEN,1,fil) != 1) goto corrupt;
     }
 
     if (kdfread(&dynamictostatic[0],sizeof(dynamictostatic[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
@@ -329,11 +329,11 @@ int loadplayer(signed char spot)
     ud.m_noexits = ud.noexits;
 
 
-    if(ReadGameVars(fil)) goto corrupt;
+    if (ReadGameVars(fil)) goto corrupt;
 
     kclose(fil);
 
-    if(ps[myconnectindex].over_shoulder_on != 0)
+    if (ps[myconnectindex].over_shoulder_on != 0)
     {
         cameradist = 0;
         cameraclock = 0;
@@ -352,7 +352,7 @@ int loadplayer(signed char spot)
     ps[myconnectindex].gm = MODE_GAME;
     ud.recstat = 0;
 
-    if(ps[myconnectindex].jetpack_on)
+    if (ps[myconnectindex].jetpack_on)
         spritesound(DUKE_JETPACK_IDLE,ps[myconnectindex].i);
 
     restorepalette = 1;
@@ -361,16 +361,16 @@ int loadplayer(signed char spot)
 
     FX_SetReverb(0);
 
-    if(ud.lockout == 0)
+    if (ud.lockout == 0)
     {
-        for(x=0;x<numanimwalls;x++)
-            if( wall[animwall[x].wallnum].extra >= 0 )
+        for (x=0;x<numanimwalls;x++)
+            if ( wall[animwall[x].wallnum].extra >= 0 )
                 wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
     }
     else
     {
-        for(x=0;x<numanimwalls;x++)
-            switch(dynamictostatic[wall[animwall[x].wallnum].picnum])
+        for (x=0;x<numanimwalls;x++)
+            switch (dynamictostatic[wall[animwall[x].wallnum].picnum])
             {
             case FEMPIC1__STATIC:
                 wall[animwall[x].wallnum].picnum = BLANKSCREEN;
@@ -386,9 +386,9 @@ int loadplayer(signed char spot)
     startofdynamicinterpolations = 0;
 
     k = headspritestat[3];
-    while(k >= 0)
+    while (k >= 0)
     {
-        switch(sprite[k].lotag)
+        switch (sprite[k].lotag)
         {
         case 31:
             setinterpolation(&sector[sprite[k].sectnum].floorz);
@@ -420,8 +420,8 @@ int loadplayer(signed char spot)
         k = nextspritestat[k];
     }
 
-    for(i=numinterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
-    for(i = animatecnt-1;i>=0;i--)
+    for (i=numinterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
+    for (i = animatecnt-1;i>=0;i--)
         setinterpolation(animateptr[i]);
 
     show_shareware = 0;
@@ -458,7 +458,7 @@ int saveplayer(signed char spot)
     strcpy(fn, "egam0.sav");
     strcpy(mpfn, "egamA_00.sav");
 
-    if(spot < 0)
+    if (spot < 0)
     {
         multiflag = 1;
         multiwhat = 1;
@@ -468,12 +468,12 @@ int saveplayer(signed char spot)
 
     waitforeverybody();
 
-    if( multiflag == 2 && multiwho != myconnectindex )
+    if ( multiflag == 2 && multiwho != myconnectindex )
     {
         fnptr = mpfn;
         mpfn[4] = spot + 'A';
 
-        if(ud.multimode > 9)
+        if (ud.multimode > 9)
         {
             mpfn[6] = (multiwho/10) + '0';
             mpfn[7] = multiwho + '0';
@@ -545,9 +545,9 @@ int saveplayer(signed char spot)
     dfwrite(&cloudx[0],sizeof(short)<<7,1,fil);
     dfwrite(&cloudy[0],sizeof(short)<<7,1,fil);
 
-    for(i=0;i<MAXSCRIPTSIZE;i++)
+    for (i=0;i<MAXSCRIPTSIZE;i++)
     {
-        if( (long)script[i] >= (long)(&script[0]) && (long)script[i] < (long)(&script[MAXSCRIPTSIZE]) )
+        if ( (long)script[i] >= (long)(&script[0]) && (long)script[i] < (long)(&script[MAXSCRIPTSIZE]) )
         {
             scriptptrs[i] = 1;
             j = (long)script[i] - (long)&script[0];
@@ -559,61 +559,61 @@ int saveplayer(signed char spot)
     dfwrite(&scriptptrs[0],1,MAXSCRIPTSIZE,fil);
     dfwrite(&script[0],4,MAXSCRIPTSIZE,fil);
 
-    for(i=0;i<MAXSCRIPTSIZE;i++)
-        if( scriptptrs[i] )
+    for (i=0;i<MAXSCRIPTSIZE;i++)
+        if ( scriptptrs[i] )
         {
             j = script[i]+(long)&script[0];
             script[i] = j;
         }
 
-    for(i=0;i<MAXTILES;i++)
-        if(actorscrptr[i])
+    for (i=0;i<MAXTILES;i++)
+        if (actorscrptr[i])
         {
             j = (long)actorscrptr[i]-(long)&script[0];
             actorscrptr[i] = (long *)j;
         }
     dfwrite(&actorscrptr[0],4,MAXTILES,fil);
-    for(i=0;i<MAXTILES;i++)
-        if(actorscrptr[i])
+    for (i=0;i<MAXTILES;i++)
+        if (actorscrptr[i])
         {
             j = (long)actorscrptr[i]+(long)&script[0];
             actorscrptr[i] = (long *)j;
         }
 
-    for(i=0;i<MAXTILES;i++)
-        if(actorLoadEventScrptr[i])
+    for (i=0;i<MAXTILES;i++)
+        if (actorLoadEventScrptr[i])
         {
             j = (long)actorLoadEventScrptr[i]-(long)&script[0];
             actorLoadEventScrptr[i] = (long *)j;
         }
     dfwrite(&actorLoadEventScrptr[0],4,MAXTILES,fil);
-    for(i=0;i<MAXTILES;i++)
-        if(actorLoadEventScrptr[i])
+    for (i=0;i<MAXTILES;i++)
+        if (actorLoadEventScrptr[i])
         {
             j = (long)actorLoadEventScrptr[i]+(long)&script[0];
             actorLoadEventScrptr[i] = (long *)j;
         }
 
 
-    for(i=0;i<MAXSPRITES;i++)
+    for (i=0;i<MAXSPRITES;i++)
     {
         scriptptrs[i] = 0;
 
-        if(actorscrptr[PN] == 0) continue;
+        if (actorscrptr[PN] == 0) continue;
 
         j = (long)&script[0];
 
-        if(T2 >= j && T2 < (long)(&script[MAXSCRIPTSIZE]) )
+        if (T2 >= j && T2 < (long)(&script[MAXSCRIPTSIZE]) )
         {
             scriptptrs[i] |= 1;
             T2 -= j;
         }
-        if(T5 >= j && T5 < (long)(&script[MAXSCRIPTSIZE]) )
+        if (T5 >= j && T5 < (long)(&script[MAXSCRIPTSIZE]) )
         {
             scriptptrs[i] |= 2;
             T5 -= j;
         }
-        if(T6 >= j && T6 < (long)(&script[MAXSCRIPTSIZE]) )
+        if (T6 >= j && T6 < (long)(&script[MAXSCRIPTSIZE]) )
         {
             scriptptrs[i] |= 4;
             T6 -= j;
@@ -623,16 +623,16 @@ int saveplayer(signed char spot)
     dfwrite(&scriptptrs[0],1,MAXSPRITES,fil);
     dfwrite(&hittype[0],sizeof(struct weaponhit),MAXSPRITES,fil);
 
-    for(i=0;i<MAXSPRITES;i++)
+    for (i=0;i<MAXSPRITES;i++)
     {
-        if(actorscrptr[PN] == 0) continue;
+        if (actorscrptr[PN] == 0) continue;
         j = (long)&script[0];
 
-        if(scriptptrs[i]&1)
+        if (scriptptrs[i]&1)
             T2 += j;
-        if(scriptptrs[i]&2)
+        if (scriptptrs[i]&2)
             T5 += j;
-        if(scriptptrs[i]&4)
+        if (scriptptrs[i]&4)
             T6 += j;
     }
 
@@ -641,9 +641,9 @@ int saveplayer(signed char spot)
     dfwrite(&pskyoff[0],sizeof(pskyoff[0]),MAXPSKYTILES,fil);
     dfwrite(&animatecnt,sizeof(animatecnt),1,fil);
     dfwrite(&animatesect[0],2,MAXANIMATES,fil);
-    for(i = animatecnt-1;i>=0;i--) animateptr[i] = (long *)((long)animateptr[i]-(long)(&sector[0]));
+    for (i = animatecnt-1;i>=0;i--) animateptr[i] = (long *)((long)animateptr[i]-(long)(&sector[0]));
     dfwrite(&animateptr[0],4,MAXANIMATES,fil);
-    for(i = animatecnt-1;i>=0;i--) animateptr[i] = (long *)((long)animateptr[i]+(long)(&sector[0]));
+    for (i = animatecnt-1;i>=0;i--) animateptr[i] = (long *)((long)animateptr[i]+(long)(&sector[0]));
     dfwrite(&animategoal[0],4,MAXANIMATES,fil);
     dfwrite(&animatevel[0],4,MAXANIMATES,fil);
 
@@ -681,9 +681,9 @@ int saveplayer(signed char spot)
 
     dfwrite(&spritecache[0],sizeof(spritecache[0]),MAXTILES,fil);
 
-    for(i=0;i<MAXQUOTES;i++)
+    for (i=0;i<MAXQUOTES;i++)
     {
-        if(fta_quotes[i] != NULL)
+        if (fta_quotes[i] != NULL)
         {
             dfwrite(&i,sizeof(long),1,fil);
             dfwrite(fta_quotes[i],MAXQUOTELEN, 1, fil);
@@ -692,9 +692,9 @@ int saveplayer(signed char spot)
     dfwrite(&i,sizeof(long),1,fil);
 
     dfwrite(&redefined_quote_count,sizeof(redefined_quote_count),1,fil);
-    for(i=0;i<redefined_quote_count;i++)
+    for (i=0;i<redefined_quote_count;i++)
     {
-        if(redefined_quotes[i] != NULL)
+        if (redefined_quotes[i] != NULL)
             dfwrite(redefined_quotes[i],MAXQUOTELEN, 1, fil);
     }
 
@@ -706,7 +706,7 @@ int saveplayer(signed char spot)
 
     fclose(fil);
 
-    if(ud.multimode < 2)
+    if (ud.multimode < 2)
     {
         strcpy(fta_quotes[122],"GAME SAVED");
         FTA(122,&ps[myconnectindex]);

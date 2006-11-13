@@ -95,9 +95,12 @@ bssize_t Bread(int fd, void *buf, bsize_t count)
 int Blseek(int fildes, int offset, int whence)
 {
     switch (whence) {
-    case BSEEK_SET: whence=SEEK_SET; break;
-    case BSEEK_CUR: whence=SEEK_CUR; break;
-    case BSEEK_END: whence=SEEK_END; break;
+    case BSEEK_SET:
+        whence=SEEK_SET; break;
+    case BSEEK_CUR:
+        whence=SEEK_CUR; break;
+    case BSEEK_END:
+        whence=SEEK_END; break;
     }
     return lseek(fildes,offset,whence);
 }
@@ -686,7 +689,7 @@ long Bwildmatch (const char *i, const char *j)
     {
         if (*j == '*')
         {
-            for(k=i,j++;*k;k++) if (Bwildmatch(k,j)) return(1);
+            for (k=i,j++;*k;k++) if (Bwildmatch(k,j)) return(1);
             continue;
         }
         if (!*i) return(0);

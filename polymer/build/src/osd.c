@@ -110,7 +110,7 @@ static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
     if (white<0) {
         // find the palette index closest to white
         k=0;
-        for(i=0;i<256;i++)
+        for (i=0;i<256;i++)
         {
             j = ((int)curpalette[i].r)+((int)curpalette[i].g)+((int)curpalette[i].b);
             if (j > k) { k = j; white = i; }
@@ -132,7 +132,7 @@ static void _internal_drawosdstr(int x, int y, char *ch, int len, int shade, int
     if (white<0) {
         // find the palette index closest to white
         k=0;
-        for(i=0;i<256;i++)
+        for (i=0;i<256;i++)
         {
             j = ((int)curpalette[i].r)+((int)curpalette[i].g)+((int)curpalette[i].b);
             if (j > k) { k = j; white = i; }
@@ -152,7 +152,7 @@ static void _internal_drawosdcursor(int x, int y, int type, int lastkeypress)
     if (white<0) {
         // find the palette index closest to white
         k=0;
-        for(i=0;i<256;i++)
+        for (i=0;i<256;i++)
         {
             j = ((int)palette[i*3])+((int)palette[i*3+1])+((int)palette[i*3+2]);
             if (j > k) { k = j; white = i; }
@@ -803,9 +803,12 @@ static char *strtoken(char *s, char **ptrptr, int *restart)
                 break;
             } else if (*p == '\\') {
                 switch (*(++p)) {
-                case 'n': *p2 = '\n'; break;
-                case 'r': *p2 = '\r'; break;
-                default: *p2 = *p; break;
+                case 'n':
+                    *p2 = '\n'; break;
+                case 'r':
+                    *p2 = '\r'; break;
+                default:
+                    *p2 = *p; break;
                 }
             } else {
                 *p2 = *p;
@@ -876,8 +879,10 @@ int OSD_Dispatch(const char *cmd)
         ofp.parms    = (const char **)parms;
         ofp.raw      = cmd;
         switch (symb->func(&ofp)) {
-        case OSDCMD_OK: break;
-        case OSDCMD_SHOWHELP: OSD_Printf("%s\n", symb->help); break;
+        case OSDCMD_OK:
+            break;
+        case OSDCMD_SHOWHELP:
+            OSD_Printf("%s\n", symb->help); break;
         }
 
         state = wtp;

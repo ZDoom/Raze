@@ -257,7 +257,8 @@ static _inline long bitrev (long b, long c)
         mov edx, b
         mov ecx, c
         xor eax, eax
-    beg: shr edx, 1
+    beg:
+        shr edx, 1
         adc eax, eax
         sub ecx, 1
         jnz short beg
@@ -349,7 +350,7 @@ static inline unsigned long bswap (unsigned long a)
 static inline long bitrev (long b, long c)
 {
     long i, j;
-    for(i=1,j=0,c=(1<<c);i<c;i+=i) { j += j; if (b&i) j++; }
+    for (i=1,j=0,c=(1<<c);i<c;i+=i) { j += j; if (b&i) j++; }
     return(j);
 }
 
@@ -446,15 +447,15 @@ static void qhufgencode (long *hitab, long *hbmax, long *qhval, unsigned char *q
 
     //r is the bit reverse of i. Ex: if: i = 1011100111, r = 1110011101
     i = r = 0;
-    for(n=1;n<=numbits;n++)
-        for(k=hbmax[n-1];k<hbmax[n];k++)
-            for(j=i+pow2mask[numbits-n];i<=j;i++)
+    for (n=1;n<=numbits;n++)
+        for (k=hbmax[n-1];k<hbmax[n];k++)
+            for (j=i+pow2mask[numbits-n];i<=j;i++)
             {
                 r = bitrev(i,numbits);
                 qhval[r] = hitab[k];
                 qhbit[r] = (char)n;
             }
-    for(j=pow2mask[numbits];i<=j;i++)
+    for (j=pow2mask[numbits];i<=j;i++)
     {
         r = bitrev(i,numbits);
 
@@ -491,11 +492,11 @@ static void hufgencode (long *inbuf, long inum, long *hitab, long *hbmax)
 {
     long i, tbuf[31];
 
-    for(i=30;i;i--) tbuf[i] = 0;
-    for(i=inum-1;i>=0;i--) tbuf[inbuf[i]]++;
+    for (i=30;i;i--) tbuf[i] = 0;
+    for (i=inum-1;i>=0;i--) tbuf[inbuf[i]]++;
     tbuf[0] = hbmax[0] = 0; //Hack to remove symbols of length 0?
-    for(i=0;i<31;i++) hbmax[i+1] = hbmax[i]+tbuf[i];
-    for(i=0;i<inum;i++) if (inbuf[i]) hitab[hbmax[inbuf[i]]++] = i;
+    for (i=0;i<31;i++) hbmax[i+1] = hbmax[i]+tbuf[i];
+    for (i=0;i<inum;i++) if (inbuf[i]) hitab[hbmax[inbuf[i]]++] = i;
 }
 
 static long initpass () //Interlaced images have 7 "passes", non-interlaced have 1
@@ -524,9 +525,12 @@ static long initpass () //Interlaced images have 7 "passes", non-interlaced have
     xsizbpl = ((0x04021301>>(coltype<<2))&15)*ixsiz;
     switch (bitdepth)
     {
-    case 1: xsizbpl = ((xsizbpl+7)>>3); break;
-    case 2: xsizbpl = ((xsizbpl+3)>>2); break;
-    case 4: xsizbpl = ((xsizbpl+1)>>1); break;
+    case 1:
+        xsizbpl = ((xsizbpl+7)>>3); break;
+    case 2:
+        xsizbpl = ((xsizbpl+3)>>2); break;
+    case 4:
+        xsizbpl = ((xsizbpl+1)>>1); break;
     }
 
     memset(olinbuf,0,(xsizbpl+1)*sizeof(olinbuf[0]));
@@ -549,13 +553,16 @@ if (coltype == 4) { xr0 = xr0*2;   xr1 = xr1*2;   }
     else if (coltype == 6) { xr0 = xr0*4-2; xr1 = xr1*4-2; }
     else
     {
-        switch(bitdepth)
+        switch (bitdepth)
         {
-        case 1: xr0 += ((-ixsiz)&7)+7;
+        case 1:
+            xr0 += ((-ixsiz)&7)+7;
             xr1 += ((-ixsiz)&7)+7; break;
-        case 2: xr0 = ((xr0+((-ixsiz)&3)+3)<<1);
+        case 2:
+            xr0 = ((xr0+((-ixsiz)&3)+3)<<1);
             xr1 = ((xr1+((-ixsiz)&3)+3)<<1); break;
-        case 4: xr0 = ((xr0+((-ixsiz)&1)+1)<<2);
+        case 4:
+            xr0 = ((xr0+((-ixsiz)&1)+1)<<2);
             xr1 = ((xr1+((-ixsiz)&1)+1)<<2); break;
         }
     }
@@ -674,17 +681,20 @@ static _inline void rgbhlineasm (long c, long d, long t, long b)
         add edx, offset olinbuf
             cmp dword ptr trnsrgb, 0
             jz short begit2
-    begit: mov eax, dword ptr [ecx+edx]
+    begit:
+            mov eax, dword ptr [ecx+edx]
             or eax, 0xff000000
             cmp eax, dword ptr trnsrgb
             jne short skipit
             and eax, 0xffffff
-    skipit: sub ecx, 3
+    skipit:
+            sub ecx, 3
             mov [edi], eax
             lea edi, [edi+ebx]
             jnz short begit
             jmp short endit
-    begit2: mov eax, dword ptr [ecx+edx]
+    begit2:
+            mov eax, dword ptr [ecx+edx]
             or eax, 0xff000000
             sub ecx, 3
             mov [edi], eax
@@ -705,7 +715,8 @@ static _inline void pal8hlineasm (long c, long d, long t, long b)
         sub ecx, edx
         jle short endit
         add edx, offset olinbuf
-    begit: movzx eax, byte ptr [ecx+edx]
+    begit:
+            movzx eax, byte ptr [ecx+edx]
             mov eax, dword ptr palcol[eax*4]
             sub ecx, 1
             mov [edi], eax
@@ -770,10 +781,10 @@ static inline void rgbhlineasm (long x, long xr1, long p, long ixstp)
     long i;
     if (!trnsrgb)
     {
-        for(;x>xr1;p+=ixstp,x-=3) *(long *)p = (*(long *)&olinbuf[x])|LSWAPIB(0xff000000);
+        for (;x>xr1;p+=ixstp,x-=3) *(long *)p = (*(long *)&olinbuf[x])|LSWAPIB(0xff000000);
         return;
     }
-    for(;x>xr1;p+=ixstp,x-=3)
+    for (;x>xr1;p+=ixstp,x-=3)
     {
         i = (*(long *)&olinbuf[x])|LSWAPIB(0xff000000);
         if (i == trnsrgb) i &= LSWAPIB(0xffffff);
@@ -783,7 +794,7 @@ static inline void rgbhlineasm (long x, long xr1, long p, long ixstp)
 
 static inline void pal8hlineasm (long x, long xr1, long p, long ixstp)
 {
-    for(;x>xr1;p+=ixstp,x--) *(long *)p = palcol[olinbuf[x]];
+    for (;x>xr1;p+=ixstp,x--) *(long *)p = palcol[olinbuf[x]];
 }
 
 #endif
@@ -867,7 +878,7 @@ static void putbuf (const unsigned char *buf, long leng)
                 rgbhlineasm(x,xr1,p,ixstp);
                 break;
             case 4:
-                for(;x>xr1;p+=ixstp,x-=2)
+                for (;x>xr1;p+=ixstp,x-=2)
                 {
 #if (PROCESSALPHAHERE == 1)
                     //Enable this code to process alpha right here!
@@ -882,7 +893,7 @@ static void putbuf (const unsigned char *buf, long leng)
                 }
                 break;
             case 6:
-                for(;x>xr1;p+=ixstp,x-=4)
+                for (;x>xr1;p+=ixstp,x-=4)
                 {
 #if (PROCESSALPHAHERE == 1)
                     //Enable this code to process alpha right here!
@@ -901,12 +912,16 @@ static void putbuf (const unsigned char *buf, long leng)
                 }
                 break;
             default:
-                switch(bitdepth)
+                switch (bitdepth)
                 {
-                case 1: for(;x>xr1;p+=ixstp,x-- ) *(long *)p = palcol[olinbuf[x>>3]>>(x&7)]; break;
-                case 2: for(;x>xr1;p+=ixstp,x-=2) *(long *)p = palcol[olinbuf[x>>3]>>(x&6)]; break;
-                case 4: for(;x>xr1;p+=ixstp,x-=4) *(long *)p = palcol[olinbuf[x>>3]>>(x&4)]; break;
-                case 8: pal8hlineasm(x,xr1,p,ixstp); break; //for(;x>xr1;p+=ixstp,x--) *(long *)p = palcol[olinbuf[x]]; break;
+                case 1:
+                    for (;x>xr1;p+=ixstp,x-- ) *(long *)p = palcol[olinbuf[x>>3]>>(x&7)]; break;
+                case 2:
+                    for (;x>xr1;p+=ixstp,x-=2) *(long *)p = palcol[olinbuf[x>>3]>>(x&6)]; break;
+                case 4:
+                    for (;x>xr1;p+=ixstp,x-=4) *(long *)p = palcol[olinbuf[x>>3]>>(x&4)]; break;
+                case 8:
+                    pal8hlineasm(x,xr1,p,ixstp); break; //for(;x>xr1;p+=ixstp,x--) *(long *)p = palcol[olinbuf[x]]; break;
                 }
                 break;
             }
@@ -934,13 +949,13 @@ static void initpngtables()
     //   2nd parameter: [0]: extra bits, [1]: base number
 
     j = 1; k = 0;
-    for(i=0;i<30;i++)
+    for (i=0;i<30;i++)
     {
         hxbit[i][1] = j; j += (1<<k);
         hxbit[i][0] = k; k += ((i&1) && (i >= 2));
     }
     j = 3; k = 0;
-    for(i=257;i<285;i++)
+    for (i=257;i<285;i++)
     {
         hxbit[i+30-257][1] = j; j += (1<<k);
         hxbit[i+30-257][0] = k; k += ((!(i&3)) && (i >= 264));
@@ -951,7 +966,7 @@ static void initpngtables()
     if (k&(1<<15))
     {
         gotcmov = 4;
-        for(i=0;i<512;i++) abstab10[512+i] = abstab10[512-i] = i;
+        for (i=0;i<512;i++) abstab10[512+i] = abstab10[512-i] = i;
     }
 }
 
@@ -992,27 +1007,29 @@ static long kpngrend (const char *kfilebuf, long kfilength,
             {
                 j = 0xff000000; k = (255 / ((1<<bitdepth)-1))*0x10101;
                 paleng = (1<<bitdepth);
-                for(i=0;i<paleng;i++,j+=k) palcol[i] = LSWAPIB(j);
+                for (i=0;i<paleng;i++,j+=k) palcol[i] = LSWAPIB(j);
             }
         }
         else if (i == LSWAPIB(0x45544c50)) //PLTE (must be before IDAT)
         {
             paleng = leng/3;
-            for(i=paleng-1;i>=0;i--) palcol[i] = LSWAPIB((LSWAPIL(*(long *)&filptr[i*3])>>8)|0xff000000);
+            for (i=paleng-1;i>=0;i--) palcol[i] = LSWAPIB((LSWAPIL(*(long *)&filptr[i*3])>>8)|0xff000000);
         }
         else if (i == LSWAPIB(0x44474b62)) //bKGD (must be after PLTE and before IDAT)
         {
-            switch(coltype)
+            switch (coltype)
             {
-        case 0: case 4:
+            case 0:
+            case 4:
                 bakcol = (((long)filptr[0]<<8)+(long)filptr[1])*255/((1<<bitdepth)-1);
                 bakcol = bakcol*0x10101+0xff000000; break;
-        case 2: case 6:
+            case 2:
+            case 6:
                 if (bitdepth == 8)
                 { bakcol = (((long)filptr[1])<<16)+(((long)filptr[3])<<8)+((long)filptr[5])+0xff000000; }
                 else
                 {
-                    for(i=0,bakcol=0xff000000;i<3;i++)
+                    for (i=0,bakcol=0xff000000;i<3;i++)
                         bakcol += ((((((long)filptr[i<<1])<<8)+((long)filptr[(i<<1)+1]))/257)<<(16-(i<<3)));
                 }
                 break;
@@ -1026,7 +1043,7 @@ static long kpngrend (const char *kfilebuf, long kfilength,
         }
         else if (i == LSWAPIB(0x534e5274)) //tRNS (must be after PLTE and before IDAT)
         {
-            switch(coltype)
+            switch (coltype)
             {
             case 0:
                 if (bitdepth <= 8)
@@ -1039,10 +1056,11 @@ static long kpngrend (const char *kfilebuf, long kfilength,
                 //else {} //WARNING: PNG docs say: MUST compare all 48 bits :(
                 break;
             case 3:
-                for(i=min(leng,paleng)-1;i>=0;i--)
+                for (i=min(leng,paleng)-1;i>=0;i--)
                     palcol[i] &= LSWAPIB((((long)filptr[i])<<24)|0xffffff);
                 break;
-            default:;
+            default:
+                ;
             }
         }
     else if (i == LSWAPIB(0x54414449)) { break; }  //IDAT
@@ -1064,16 +1082,23 @@ static long kpngrend (const char *kfilebuf, long kfilength,
 
     switch (coltype)
     {
-    case 4: xmn[0] = 1; xmn[1] = 0; break;
-    case 2: xmn[0] = 1; xmn[1] = 2; xmn[2] = 0; break;
-    case 6: xmn[0] = 1; xmn[1] = 2; xmn[2] = 3; xmn[3] = 0; break;
-    default: xmn[0] = 0; break;
+    case 4:
+        xmn[0] = 1; xmn[1] = 0; break;
+    case 2:
+        xmn[0] = 1; xmn[1] = 2; xmn[2] = 0; break;
+    case 6:
+        xmn[0] = 1; xmn[1] = 2; xmn[2] = 3; xmn[3] = 0; break;
+    default:
+        xmn[0] = 0; break;
     }
     switch (bitdepth)
     {
-    case 1: for(i=2;i<256;i++) palcol[i] = palcol[i&1]; break;
-    case 2: for(i=4;i<256;i++) palcol[i] = palcol[i&3]; break;
-    case 4: for(i=16;i<256;i++) palcol[i] = palcol[i&15]; break;
+    case 1:
+        for (i=2;i<256;i++) palcol[i] = palcol[i&1]; break;
+    case 2:
+        for (i=4;i<256;i++) palcol[i] = palcol[i&3]; break;
+    case 4:
+        for (i=16;i<256;i++) palcol[i] = palcol[i&15]; break;
     }
 
     //coltype: bitdepth:  format:
@@ -1085,9 +1110,12 @@ static long kpngrend (const char *kfilebuf, long kfilength,
     xsizbpl = ((0x04021301>>(coltype<<2))&15)*xsiz;
     switch (bitdepth)
     {
-    case 1: xsizbpl = ((xsizbpl+7)>>3); break;
-    case 2: xsizbpl = ((xsizbpl+3)>>2); break;
-    case 4: xsizbpl = ((xsizbpl+1)>>1); break;
+    case 1:
+        xsizbpl = ((xsizbpl+7)>>3); break;
+    case 2:
+        xsizbpl = ((xsizbpl+3)>>2); break;
+    case 4:
+        xsizbpl = ((xsizbpl+1)>>1); break;
     }
     //Tests to see if xsiz > allocated space in olinbuf
     //Note: xsizbpl gets re-written inside initpass()
@@ -1106,7 +1134,7 @@ static long kpngrend (const char *kfilebuf, long kfilength,
             //Raw (uncompressed)
             suckbits((-bitpos)&7);  //Synchronize to start of next byte
             i = getbits(16); if ((getbits(16)^i) != 0xffff) return(-1);
-            for(;i;i--)
+            for (;i;i--)
             {
                 if (slidew >= slider)
                 {
@@ -1122,17 +1150,17 @@ static long kpngrend (const char *kfilebuf, long kfilength,
         if (btype == 1) //Fixed Huffman
         {
             hlit = 288; hdist = 32; i = 0;
-            for(;i<144;i++) clen[i] = 8; //Fixed bit sizes (literals)
-            for(;i<256;i++) clen[i] = 9; //Fixed bit sizes (literals)
-            for(;i<280;i++) clen[i] = 7; //Fixed bit sizes (EOI,lengths)
-            for(;i<288;i++) clen[i] = 8; //Fixed bit sizes (lengths)
-            for(;i<320;i++) clen[i] = 5; //Fixed bit sizes (distances)
+            for (;i<144;i++) clen[i] = 8; //Fixed bit sizes (literals)
+            for (;i<256;i++) clen[i] = 9; //Fixed bit sizes (literals)
+            for (;i<280;i++) clen[i] = 7; //Fixed bit sizes (EOI,lengths)
+            for (;i<288;i++) clen[i] = 8; //Fixed bit sizes (lengths)
+            for (;i<320;i++) clen[i] = 5; //Fixed bit sizes (distances)
         }
         else  //Dynamic Huffman
         {
             hlit = getbits(5)+257; hdist = getbits(5)+1; j = getbits(4)+4;
-            for(i=0;i<j;i++) cclen[ccind[i]] = getbits(3);
-            for(;i<19;i++) cclen[ccind[i]] = 0;
+            for (i=0;i<j;i++) cclen[ccind[i]] = getbits(3);
+            for (;i<19;i++) cclen[ccind[i]] = 0;
             hufgencode(cclen,19,ibuf0,nbuf0);
 
             j = 0; k = hlit+hdist;
@@ -1141,11 +1169,11 @@ static long kpngrend (const char *kfilebuf, long kfilength,
                 i = hufgetsym(ibuf0,nbuf0);
                 if (i < 16) { clen[j++] = i; continue; }
                 if (i == 16)
-                { for(i=getbits(2)+3;i;i--) { clen[j] = clen[j-1]; j++; } }
+                { for (i=getbits(2)+3;i;i--) { clen[j] = clen[j-1]; j++; } }
                 else
                 {
                     if (i == 17) i = getbits(3)+3; else i = getbits(7)+11;
-                    for(;i;i--) clen[j++] = 0;
+                    for (;i;i--) clen[j++] = 0;
                 }
             }
         }
@@ -1192,7 +1220,8 @@ static long kpngrend (const char *kfilebuf, long kfilength,
         putbuf(slidebuf,slidew&32767);
     }
 
-kpngrend_goodret:;
+kpngrend_goodret:
+    ;
     if (!(filterest&~(1<<filter1st))) filtype = filter1st;
     else if ((filter1st == 1) && (!(filterest&~(1<<3)))) filtype = 3;
     else filtype = 5;
@@ -1296,27 +1325,27 @@ static void initkpeg ()
     long i, x, y;
 
     x = 0;  //Back & forth diagonal pattern (aligning bytes for best compression)
-    for(i=0;i<16;i+=2)
+    for (i=0;i<16;i+=2)
     {
-        for(y=8-1;y>=0;y--)
+        for (y=8-1;y>=0;y--)
             if ((unsigned)(i-y) < (unsigned)8) unzig[x++] = (y<<3)+i-y;
-        for(y=0;y<8;y++)
+        for (y=0;y<8;y++)
             if ((unsigned)(i+1-y) < (unsigned)8) unzig[x++] = (y<<3)+i+1-y;
     }
-    for(i=64-1;i>=0;i--) zigit[unzig[i]] = i;
-    for(i=64-1;i>=0;i--) dcflagor[i] = (unsigned char)(1<<(unzig[i]>>3));
+    for (i=64-1;i>=0;i--) zigit[unzig[i]] = i;
+    for (i=64-1;i>=0;i--) dcflagor[i] = (unsigned char)(1<<(unzig[i]>>3));
 
-    for(i=0;i<128;i++) colclip[i] = i+128;
-    for(i=128;i<512;i++) colclip[i] = 255;
-    for(i=512;i<896;i++) colclip[i] = 0;
-    for(i=896;i<1024;i++) colclip[i] = i-896;
-    for(i=0;i<1024;i++)
+    for (i=0;i<128;i++) colclip[i] = i+128;
+    for (i=128;i<512;i++) colclip[i] = 255;
+    for (i=512;i<896;i++) colclip[i] = 0;
+    for (i=896;i<1024;i++) colclip[i] = i-896;
+    for (i=0;i<1024;i++)
     {
         colclipup8[i] = (colclip[i]<<8);
         colclipup16[i] = (colclip[i]<<16)+0xff000000; //Hack: set alphas to 255
     }
 #if defined(BIGENDIAN)
-    for(i=0;i<1024;i++)
+    for (i=0;i<1024;i++)
     {
         colclip[i] = bswap(colclip[i]);
         colclipup8[i] = bswap(colclipup8[i]);
@@ -1324,7 +1353,7 @@ static void initkpeg ()
     }
 #endif
 
-    for(i=0;i<2048;i++)
+    for (i=0;i<2048;i++)
     {
         crmul[(i<<1)+0] = (i-1024)*1470104; //1.402*1048576
         crmul[(i<<1)+1] = (i-1024)*-748830; //-0.71414*1048576
@@ -1342,7 +1371,7 @@ static void huffgetval (long index, long curbits, long num, long *daval, long *d
     hmax = &hufmaxatbit[index][0];
     pow2 = pow2long[curbits-1];
     if (num&pow2) v = 1; else v = 0;
-    for(b=1;b<=16;b++)
+    for (b=1;b<=16;b++)
     {
         if (v < hmax[b])
         {
@@ -1358,10 +1387,10 @@ static void huffgetval (long index, long curbits, long num, long *daval, long *d
 
 static void invdct8x8 (long *dc, unsigned char dcflag)
 {
-	#define SQRT2 23726566   //(sqrt(2))<<24
-	#define C182 31000253    //(cos(PI/8)*2)<<24
-	#define C18S22 43840978  //(cos(PI/8)*sqrt(2)*2)<<24
-	#define C38S22 18159528  //(cos(PI*3/8)*sqrt(2)*2)<<24
+#define SQRT2 23726566   //(sqrt(2))<<24
+#define C182 31000253    //(cos(PI/8)*2)<<24
+#define C18S22 43840978  //(cos(PI/8)*sqrt(2)*2)<<24
+#define C38S22 18159528  //(cos(PI*3/8)*sqrt(2)*2)<<24
     long *edc, t0, t1, t2, t3, t4, t5, t6, t7;
 
     edc = dc+64;
@@ -1406,11 +1435,11 @@ static void yrbrend (long x, long y)
     long i, j, ox, oy, xx, yy, xxx, yyy, xxxend, yyyend, yv, cr, cb, p, pp, *odc, *dc, *dc2;
 
     odc = dct[0]; dc2 = dct[10];
-    for(yy=0;yy<(lcompvsamp[0]<<3);yy+=8)
+    for (yy=0;yy<(lcompvsamp[0]<<3);yy+=8)
     {
         oy = y+yy+globyoffs; if ((unsigned)oy >= (unsigned)clipydim) { odc += (lcomphsamp[0]<<6); continue; }
         pp = oy*bytesperline + ((x+globxoffs)<<2) + frameplace;
-        for(xx=0;xx<(lcomphsamp[0]<<3);xx+=8,odc+=64)
+        for (xx=0;xx<(lcomphsamp[0]<<3);xx+=8,odc+=64)
         {
             ox = x+xx+globxoffs; if ((unsigned)ox >= (unsigned)clipxdim) continue;
             p = pp+(xx<<2);
@@ -1420,9 +1449,9 @@ static void yrbrend (long x, long y)
             yyyend = min(clipydim-oy,8);
             if ((lcomphsamp[0] == 1) && (xxxend == 8))
             {
-                for(yyy=0;yyy<yyyend;yyy++)
+                for (yyy=0;yyy<yyyend;yyy++)
                 {
-                    for(xxx=0;xxx<8;xxx++)
+                    for (xxx=0;xxx<8;xxx++)
                     {
                         yv = dc[xxx];
                         cr = (dc2[xxx+64]>>13)&~1;
@@ -1438,9 +1467,9 @@ static void yrbrend (long x, long y)
             }
             else if ((lcomphsamp[0] == 2) && (xxxend == 8))
             {
-                for(yyy=0;yyy<yyyend;yyy++)
+                for (yyy=0;yyy<yyyend;yyy++)
                 {
-                    for(xxx=0;xxx<8;xxx+=2)
+                    for (xxx=0;xxx<8;xxx+=2)
                     {
                         yv = dc[xxx];
                         cr = (dc2[(xxx>>1)+64]>>13)&~1;
@@ -1463,10 +1492,10 @@ static void yrbrend (long x, long y)
             }
             else
             {
-                for(yyy=0;yyy<yyyend;yyy++)
+                for (yyy=0;yyy<yyyend;yyy++)
                 {
                     i = 0; j = 1;
-                    for(xxx=0;xxx<xxxend;xxx++)
+                    for (xxx=0;xxx<xxxend;xxx++)
                     {
                         yv = dc[xxx];
                         j--;
@@ -1510,8 +1539,8 @@ static long kpegrend (const char *kfilebuf, long kfilength,
     else return(-1); //"%s is not a JPEG file\n",filename
 
     restartinterval = 0;
-    for(i=0;i<4;i++) lastdc[i] = 0;
-    for(i=0;i<8;i++) hufcnt[i] = 0;
+    for (i=0;i<4;i++) lastdc[i] = 0;
+    for (i=0;i<8;i++) hufcnt[i] = 0;
 
     coltype = 0; bitdepth = 8; //For PNGOUT
     do
@@ -1524,9 +1553,11 @@ static long kpegrend (const char *kfilebuf, long kfilength,
             kfileptr += 2;
         }
         //printf("fileoffs=%08x, marker=%02x,leng=%d",((long)kfileptr)-((long)kfilebuf)-2,marker,leng);
-        switch(marker)
+        switch (marker)
         {
-case 0xc0: case 0xc1: case 0xc2:
+        case 0xc0:
+        case 0xc1:
+        case 0xc2:
             //processit!
             kfileptr++; //numbits = *kfileptr++;
 
@@ -1544,14 +1575,14 @@ case 0xc0: case 0xc1: case 0xc2:
             gnumcomponents = kfileptr[4];
             kfileptr += 5;
             ghsampmax = gvsampmax = glhsampmax = glvsampmax = 0;
-            for(z=0;z<gnumcomponents;z++)
+            for (z=0;z<gnumcomponents;z++)
             {
                 gcompid[z] = kfileptr[0];
                 gcomphsamp[z] = (kfileptr[1]>>4);
                 gcompvsamp[z] = (kfileptr[1]&15);
                 gcompquantab[z] = kfileptr[2];
-                for(i=0;i<8;i++) if (gcomphsamp[z] == pow2long[i]) { gcomphsampshift[z] = i; break; }
-                for(i=0;i<8;i++) if (gcompvsamp[z] == pow2long[i]) { gcompvsampshift[z] = i; break; }
+                for (i=0;i<8;i++) if (gcomphsamp[z] == pow2long[i]) { gcomphsampshift[z] = i; break; }
+                for (i=0;i<8;i++) if (gcompvsamp[z] == pow2long[i]) { gcompvsampshift[z] = i; break; }
                 if (gcomphsamp[z] > ghsampmax) { ghsampmax = gcomphsamp[z]; glhsampmax = gcomphsampshift[z]; }
                 if (gcompvsamp[z] > gvsampmax) { gvsampmax = gcompvsamp[z]; glvsampmax = gcompvsampshift[z]; }
                 kfileptr += 3;
@@ -1569,14 +1600,14 @@ case 0xc0: case 0xc1: case 0xc2:
 
                 v = 0; hufcnt[index] = 0;
                 hufquickcnt[index] = 0;
-                for(i=1;i<=16;i++)
+                for (i=1;i<=16;i++)
                 {
                     hufmaxatbit[index][i] = v+hufnumatbit[index][i];
                     hufvalatbit[index][i] = hufcnt[index]-v;
                     memcpy((void *)&huftable[index][hufcnt[index]],(void *)kfileptr,(long)hufnumatbit[index][i]);
                     if (i <= 10)
-                        for(c=0;c<hufnumatbit[index][i];c++)
-                            for(j=(1<<(10-i));j>0;j--)
+                        for (c=0;c<hufnumatbit[index][i];c++)
+                            for (j=(1<<(10-i));j>0;j--)
                             {
                                 hufquickval[index][hufquickcnt[index]] = huftable[index][hufcnt[index]+c];
                                 hufquickbits[index][hufquickcnt[index]] = i;
@@ -1596,7 +1627,7 @@ case 0xc0: case 0xc1: case 0xc2:
                 ch = *kfileptr++; leng--;
                 index = (ch&15);
                 prec = (ch>>4);
-                for(z=0;z<64;z++)
+                for (z=0;z<64;z++)
                 {
                     v = (long)(*kfileptr++);
                     if (prec) v = (v<<8)+((long)(*kfileptr++));
@@ -1619,7 +1650,7 @@ case 0xc0: case 0xc1: case 0xc2:
 
         lnumcomponents = (long)(*kfileptr++); if (!lnumcomponents) { if (dctbuf) free(dctbuf); return(-1); }
             if (lnumcomponents > 1) coltype = 2;
-            for(z=0;z<lnumcomponents;z++)
+            for (z=0;z<lnumcomponents;z++)
             {
                 lcompid[z] = kfileptr[0];
                 lcompdc[z] = (kfileptr[1]>>4);
@@ -1636,7 +1667,7 @@ case 0xc0: case 0xc1: case 0xc2:
 
             if ((!passcnt) && ((Ss) || (Se != 63) || (Ah) || (Al)))
             {
-                for(z=zz=0;z<gnumcomponents;z++)
+                for (z=zz=0;z<gnumcomponents;z++)
                 {
                     dctx[z] = ((xdim+(ghsampmax<<3)-1)>>(glhsampmax+3)) << gcomphsampshift[z];
                     dcty[z] = ((ydim+(gvsampmax<<3)-1)>>(glvsampmax+3)) << gcompvsampshift[z];
@@ -1645,12 +1676,12 @@ case 0xc0: case 0xc1: case 0xc2:
                 z = zz*64*sizeof(short);
                 dctbuf = (short *)malloc(z); if (!dctbuf) return(-1);
                 memset(dctbuf,0,z);
-            for(z=zz=0;z<gnumcomponents;z++) { dctptr[z] = &dctbuf[zz*64]; zz += dctx[z]*dcty[z]; }
+            for (z=zz=0;z<gnumcomponents;z++) { dctptr[z] = &dctbuf[zz*64]; zz += dctx[z]*dcty[z]; }
             }
 
             glhstep = glvstep = 0x7fffffff;
-            for(z=0;z<lnumcomponents;z++)
-                for(zz=0;zz<gnumcomponents;zz++)
+            for (z=0;z<lnumcomponents;z++)
+                for (zz=0;zz<gnumcomponents;zz++)
                     if (lcompid[z] == gcompid[zz])
                     {
                         ldctptr[z] = dctptr[zz];
@@ -1684,20 +1715,20 @@ case 0xc0: case 0xc1: case 0xc2:
 
             restartcnt = restartinterval; eobrun = 0; marker = 0xd0;
             num = 0; curbits = 0;
-            for(y=0;y<ydim;y+=glvstep)
-                for(x=0;x<xdim;x+=glhstep)
+            for (y=0;y<ydim;y+=glvstep)
+                for (x=0;x<xdim;x+=glhstep)
                 {
                     if (kfileptr-4-(unsigned char *)kfilebuf >= kfilength) goto kpegrend_break2; //rest of file is missing!
 
                     if (!dctbuf) dc = dct[0];
-                    for(c=0;c<lnumcomponents;c++)
+                    for (c=0;c<lnumcomponents;c++)
                     {
                         hqval = &hufquickval[lcompac[c]+4][0];
                         hqbits = &hufquickbits[lcompac[c]+4][0];
                         hqcnt = hufquickcnt[lcompac[c]+4];
                         if (!dctbuf) quanptr = &quantab[lcompquantab[c]][0];
-                        for(yy=0;yy<(lcompvsamp[c]<<3);yy+=8)
-                            for(xx=0;xx<(lcomphsamp[c]<<3);xx+=8)
+                        for (yy=0;yy<(lcompvsamp[c]<<3);yy+=8)
+                            for (xx=0;xx<(lcomphsamp[c]<<3);xx+=8)
                             {  //NOTE: Might help to split this code into firstime vs. refinement (!Ah vs. Ah!=0)
 
                                 if (dctbuf) dcs = &ldctptr[c][(((y+yy)>>lshy[c])*ldctx[c] + ((x+xx)>>lshx[c]))<<6];
@@ -1740,7 +1771,7 @@ case 0xc0: case 0xc1: case 0xc2:
                                 z = max(Ss,1); dcflag = 1;
                                 if (eobrun <= 0)
                                 {
-                                    for(;z<=Se;z++)
+                                    for (;z<=Se;z++)
                                     {
                                         while (curbits < 24) //Getbits
                                         {
@@ -1812,7 +1843,7 @@ case 0xc0: case 0xc1: case 0xc2:
                                 if ((Ah) && (eobrun > 0))
                                 {
                                     eobrun--;
-                                    for(;z<=Se;z++)
+                                    for (;z<=Se;z++)
                                     {
                                         if (!dcs[z]) continue;
                                         while (curbits < 24) //Getbits
@@ -1826,7 +1857,7 @@ case 0xc0: case 0xc1: case 0xc2:
 
                                 if (!dctbuf)
                                 {
-                                    for(z=64-1;z>=0;z--) dc[z] *= quanptr[z];
+                                    for (z=64-1;z>=0;z--) dc[z] *= quanptr[z];
                                     invdct8x8(dc,dcflag); dc += 64;
                                 }
                             }
@@ -1841,22 +1872,25 @@ case 0xc0: case 0xc1: case 0xc2:
                         if ((kfileptr[-2] != 255) || (kfileptr[-1] != marker)) kfileptr--;
                         marker++; if (marker >= 0xd8) marker = 0xd0;
                         restartcnt = restartinterval;
-                        for(i=0;i<4;i++) lastdc[i] = 0;
+                        for (i=0;i<4;i++) lastdc[i] = 0;
                         eobrun = 0;
                     }
                 }
-kpegrend_break2:;
+kpegrend_break2:
+            ;
             if (!dctbuf) return(0);
             passcnt++; kfileptr -= ((curbits>>3)+1); break;
-        case 0xd9: break;
-        default: kfileptr += leng; break;
+        case 0xd9:
+            break;
+        default:
+            kfileptr += leng; break;
         }
     } while (kfileptr-(unsigned char *)kfilebuf < kfilength);
 
     if (!dctbuf) return(0);
 
     lnumcomponents = gnumcomponents;
-    for(i=0;i<gnumcomponents;i++)
+    for (i=0;i<gnumcomponents;i++)
     {
         lcomphsamp[i] = gcomphsamp[i]; gcomphsamp[i] <<= 3;
         lcompvsamp[i] = gcompvsamp[i]; gcompvsamp[i] <<= 3;
@@ -1866,17 +1900,17 @@ kpegrend_break2:;
     lcomphsampshift0 = gcomphsampshift[0];
     lcompvsampshift0 = gcompvsampshift[0];
     lcomphvsamp0 = (lcomphsamp[0]<<lcompvsampshift0);
-    for(y=0;y<ydim;y+=gcompvsamp[0])
-        for(x=0;x<xdim;x+=gcomphsamp[0])
+    for (y=0;y<ydim;y+=gcompvsamp[0])
+        for (x=0;x<xdim;x+=gcomphsamp[0])
         {
             dc = dct[0];
-            for(c=0;c<gnumcomponents;c++)
-                for(yy=0;yy<gcompvsamp[c];yy+=8)
-                    for(xx=0;xx<gcomphsamp[c];xx+=8,dc+=64)
+            for (c=0;c<gnumcomponents;c++)
+                for (yy=0;yy<gcompvsamp[c];yy+=8)
+                    for (xx=0;xx<gcomphsamp[c];xx+=8,dc+=64)
                     {
                         dcs = &dctptr[c][(((y+yy)>>lshy[c])*dctx[c] + ((x+xx)>>lshx[c]))<<6];
                         quanptr = &quantab[gcompquantab[c]][0];
-                        for(z=0;z<64;z++) dc[z] = ((long)dcs[zigit[z]])*quanptr[z];
+                        for (z=0;z<64;z++) dc[z] = ((long)dcs[zigit[z]])*quanptr[z];
                         invdct8x8(dc,-1);
                     }
             yrbrend(x,y);
@@ -1928,9 +1962,9 @@ if (ptr[-1]&64) { yinc = 8; ilacefirst = 1; }
         cptr = ptr; ptr += paleng*3;
     }
 
-    for(i=0;i<paleng;i++)
+    for (i=0;i<paleng;i++)
         palcol[i] = LSWAPIB((((long)cptr[i*3])<<16) + (((long)cptr[i*3+1])<<8) + ((long)cptr[i*3+2]) + 0xff000000);
-    for(;i<256;i++) palcol[i] = LSWAPIB(0xff000000);
+    for (;i<256;i++) palcol[i] = LSWAPIB(0xff000000);
     if (transcol >= 0) palcol[transcol] &= LSWAPIB(~0xff000000);
 
     //Handle GIF files with different logical&image sizes or non-0 offsets (added 05/15/2004)
@@ -1948,14 +1982,14 @@ if (ptr[-1]&64) { yinc = 8; ilacefirst = 1; }
         xx[3] = min(daglobxoffs+xsiz      ,daxres); yy[3] = min(daglobyoffs+ysiz      ,dayres);
 
         lptr = (long *)(yy[0]*dabytesperline+daframeplace);
-        for(y=yy[0];y<yy[1];y++,lptr=(long *)(((long)lptr)+dabytesperline))
-            for(x=xx[0];x<xx[3];x++) lptr[x] = backcol;
-        for(;y<yy[2];y++,lptr=(long *)(((long)lptr)+dabytesperline))
-        {  for(x=xx[0];x<xx[1];x++) lptr[x] = backcol;
-            for(x=xx[2];x<xx[3];x++) lptr[x] = backcol;
+        for (y=yy[0];y<yy[1];y++,lptr=(long *)(((long)lptr)+dabytesperline))
+            for (x=xx[0];x<xx[3];x++) lptr[x] = backcol;
+        for (;y<yy[2];y++,lptr=(long *)(((long)lptr)+dabytesperline))
+        {  for (x=xx[0];x<xx[1];x++) lptr[x] = backcol;
+            for (x=xx[2];x<xx[3];x++) lptr[x] = backcol;
         }
-        for(;y<yy[3];y++,lptr=(long *)(((long)lptr)+dabytesperline))
-            for(x=xx[0];x<xx[3];x++) lptr[x] = backcol;
+        for (;y<yy[3];y++,lptr=(long *)(((long)lptr)+dabytesperline))
+            for (x=xx[0];x<xx[3];x++) lptr[x] = backcol;
 
         daglobxoffs += xoff; //Offset bitmap image by extra amount
         daglobyoffs += yoff;
@@ -1970,7 +2004,7 @@ if (ptr[-1]&64) { yinc = 8; ilacefirst = 1; }
     { x = daglobxoffs+0x80000000; xend = xspan+0x80000000; }
 
     lzcols = (1<<(*ptr)); startnumbits = (char)((*ptr)+1); ptr++;
-    for(i=lzcols-1;i>=0;i--) { suffix[i] = (char)(prefix[i] = i); }
+    for (i=lzcols-1;i>=0;i--) { suffix[i] = (char)(prefix[i] = i); }
     currstr = lzcols+2; numbits = startnumbits; numbitgoal = (lzcols<<1);
     blocklen = *ptr++;
     memcpy(filbuffer,ptr,blocklen); ptr += blocklen;
@@ -1996,11 +2030,11 @@ if (ptr[-1]&64) { yinc = 8; ilacefirst = 1; }
         { numbits++; numbitgoal <<= 1; }
 
         prefix[currstr] = dat;
-        for(i=0;dat>=lzcols;dat=prefix[dat]) tempstack[i++] = suffix[dat];
+        for (i=0;dat>=lzcols;dat=prefix[dat]) tempstack[i++] = suffix[dat];
         tempstack[i] = (char)prefix[dat];
         suffix[currstr-1] = suffix[currstr] = (char)dat;
 
-        for(;i>=0;i--)
+        for (;i>=0;i--)
         {
             if ((unsigned long)x < (unsigned long)daxres)
                 *(long *)(yoff+(x<<2)) = palcol[(long)tempstack[i]];
@@ -2009,12 +2043,16 @@ if (ptr[-1]&64) { yinc = 8; ilacefirst = 1; }
             {
                 y += yinc;
                 if (y >= yspan)
-                    switch(yinc)
+                    switch (yinc)
                     {
-                    case 8: if (!ilacefirst) { y = daglobyoffs+2; yinc = 4; break; }
+                    case 8:
+                    if (!ilacefirst) { y = daglobyoffs+2; yinc = 4; break; }
                         ilacefirst = 0; y = daglobyoffs+4; yinc = 8; break;
-                    case 4: y = daglobyoffs+1; yinc = 2; break;
-                case 2: case 1: return(0);
+                    case 4:
+                        y = daglobyoffs+1; yinc = 2; break;
+                    case 2:
+                    case 1:
+                        return(0);
                     }
                 if ((unsigned long)y < (unsigned long)dayres)
                 { yoff = y*dabytesperline+daframeplace; x = daglobxoffs; xend = xspan; }
@@ -2049,7 +2087,7 @@ static long kcelrend (const char *buf, long fleng,
     ysiz = (long)SSWAPIB(*(unsigned short *)&buf[4]); if (ysiz <= 0) return(-1);
 
     cptr = &buf[32];
-    for(i=0;i<256;i++)
+    for (i=0;i<256;i++)
     {
         palcol[i] = (((long)cptr[0])<<18) +
                     (((long)cptr[1])<<10) +
@@ -2059,8 +2097,8 @@ static long kcelrend (const char *buf, long fleng,
 
     x0 = daglobyoffs; x1 = xsiz+daglobyoffs;
     y0 = daglobyoffs; y1 = ysiz+daglobyoffs;
-    for(y=y0;y<y1;y++)
-        for(x=x0;x<x1;x++)
+    for (y=y0;y<y1;y++)
+        for (x=x0;x<x1;x++)
         {
             if (((unsigned long)x < (unsigned long)daxres) && ((unsigned long)y < (unsigned long)dayres))
                 *(long *)(y*dabytesperline+x*4+daframeplace) = palcol[cptr[0]];
@@ -2097,12 +2135,16 @@ static long ktgarend (const char *header, long fleng,
         fptr += SSWAPIB(*(unsigned short *)&header[5])*pixbyte;
     } else pixbyte = colbyte;
 
-    switch(pixbyte) //For PNGOUT
+    switch (pixbyte) //For PNGOUT
     {
-    case 1: coltype = 0; bitdepth = 8; palcol[0] = LSWAPIB(0xff000000);
-        for(i=1;i<256;i++) palcol[i] = palcol[i-1]+LSWAPIB(0x10101); break;
-case 2: case 3: coltype = 2; break;
-    case 4: coltype = 6; break;
+    case 1:
+        coltype = 0; bitdepth = 8; palcol[0] = LSWAPIB(0xff000000);
+        for (i=1;i<256;i++) palcol[i] = palcol[i-1]+LSWAPIB(0x10101); break;
+    case 2:
+    case 3:
+        coltype = 2; break;
+    case 4:
+        coltype = 6; break;
     }
 
 if (!(header[17]&16)) { x0 = 0;      x1 = xsiz; xi = 1; }
@@ -2114,8 +2156,8 @@ if (!(header[17]&16)) { x0 = 0;      x1 = xsiz; xi = 1; }
     if (header[2] < 8) rlestat = -2; else rlestat = -1;
 
     p = y0*dabytesperline+daframeplace;
-    for(y=y0;y!=y1;y+=yi,p+=pi)
-        for(x=x0;x!=x1;x+=xi)
+    for (y=y0;y!=y1;y+=yi,p+=pi)
+        for (x=x0;x!=x1;x+=xi)
         {
             if (rlestat < 128)
             {
@@ -2127,14 +2169,18 @@ if (!(header[17]&16)) { x0 = 0;      x1 = xsiz; xi = 1; }
                     nptr = &cptr[i*pixbyte];
                 } else nptr = fptr;
 
-                switch(pixbyte)
+                switch (pixbyte)
                 {
-                case 1: i = palcol[(long)nptr[0]]; break;
-                case 2: i = (long)SSWAPIB(*(unsigned short *)&nptr[0]);
+                case 1:
+                    i = palcol[(long)nptr[0]]; break;
+                case 2:
+                    i = (long)SSWAPIB(*(unsigned short *)&nptr[0]);
                     i = LSWAPIB(((i&0x7c00)<<9) + ((i&0x03e0)<<6) + ((i&0x001f)<<3) + 0xff000000);
                     break;
-                case 3: i = (*(long *)&nptr[0]) | LSWAPIB(0xff000000); break;
-                case 4: i = (*(long *)&nptr[0]); break;
+                case 3:
+                    i = (*(long *)&nptr[0]) | LSWAPIB(0xff000000); break;
+                case 4:
+                    i = (*(long *)&nptr[0]); break;
                 }
                 fptr += colbyte;
             }
@@ -2201,29 +2247,31 @@ static long kbmprend (const char *buf, long fleng,
     {
         if (cdim == 2) { palcol[0] = 0xffffffff; palcol[1] = LSWAPIB(0xff000000); }
         if (headsiz == LSWAPIB(12)) j = 3; else j = 4;
-        for(i=0,cptr=&buf[headsiz+14];cptr<&buf[rastoff];i++,cptr+=j)
+        for (i=0,cptr=&buf[headsiz+14];cptr<&buf[rastoff];i++,cptr+=j)
             palcol[i] = ((*(long *)&cptr[0])|LSWAPIB(0xff000000));
         coltype = 3; bitdepth = cdim; paleng = i; //For PNGOUT
     }
     else if (!(cdim&15))
     {
         coltype = 2;
-        switch(cdim)
+        switch (cdim)
         {
-        case 16: palcol[0] = 10; palcol[1] = 5; palcol[2] = 0; palcol[3] = 5; palcol[4] = 5; palcol[5] = 5; break;
-        case 32: palcol[0] = 16; palcol[1] = 8; palcol[2] = 0; palcol[3] = 8; palcol[4] = 8; palcol[5] = 8; break;
+        case 16:
+            palcol[0] = 10; palcol[1] = 5; palcol[2] = 0; palcol[3] = 5; palcol[4] = 5; palcol[5] = 5; break;
+        case 32:
+            palcol[0] = 16; palcol[1] = 8; palcol[2] = 0; palcol[3] = 8; palcol[4] = 8; palcol[5] = 8; break;
         }
         if (comp == 3) //BI_BITFIELD (RGB masks)
         {
-            for(i=0;i<3;i++)
+            for (i=0;i<3;i++)
             {
                 j = *(long *)&buf[headsiz+(i<<2)+14];
-                for(palcol[i]=0;palcol[i]<32;palcol[i]++)
+                for (palcol[i]=0;palcol[i]<32;palcol[i]++)
                 {
                     if (j&1) break;
                     j = (((unsigned long)j)>>1);
                 }
-                for(palcol[i+3]=0;palcol[i+3]<32;palcol[i+3]++)
+                for (palcol[i+3]=0;palcol[i+3]<32;palcol[i+3]++)
                 {
                     if (!(j&1)) break;
                     j = (((unsigned long)j)>>1);
@@ -2246,24 +2294,30 @@ if (ysiz < 0) { ysiz = -ysiz; } else { cptr = &cptr[(ysiz-1)*cptrinc]; cptrinc =
     if ((x0 >= daxres) || (x1 <= 0) || (y0 >= dayres) || (y1 <= 0)) return(0);
     if (x0 < 0) x0 = 0;
     if (x1 > daxres) x1 = daxres;
-    for(y=y0;y<y1;y++,cptr=&cptr[cptrinc])
+    for (y=y0;y<y1;y++,cptr=&cptr[cptrinc])
     {
         if ((unsigned long)y >= (unsigned long)dayres) continue;
         lptr = (long *)(y*dabytesperline-(daglobyoffs<<2)+daframeplace);
-        switch(cdim)
+        switch (cdim)
         {
-        case  1: for(x=x0;x<x1;x++) lptr[x] = palcol[(long)((cptr[x>>3]>>((x&7)^7))&1)]; break;
-        case  4: for(x=x0;x<x1;x++) lptr[x] = palcol[(long)((cptr[x>>1]>>(((x&1)^1)<<2))&15)]; break;
-        case  8: for(x=x0;x<x1;x++) lptr[x] = palcol[(long)(cptr[x])]; break;
-        case 16: for(x=x0;x<x1;x++)
+        case  1:
+            for (x=x0;x<x1;x++) lptr[x] = palcol[(long)((cptr[x>>3]>>((x&7)^7))&1)]; break;
+        case  4:
+            for (x=x0;x<x1;x++) lptr[x] = palcol[(long)((cptr[x>>1]>>(((x&1)^1)<<2))&15)]; break;
+        case  8:
+            for (x=x0;x<x1;x++) lptr[x] = palcol[(long)(cptr[x])]; break;
+        case 16:
+            for (x=x0;x<x1;x++)
             {
                 i = ((long)(*(short *)&cptr[x<<1]));
                 lptr[x] = (_lrotl(i,palcol[0])&palcol[3]) +
                           (_lrotl(i,palcol[1])&palcol[4]) +
                           (_lrotl(i,palcol[2])&palcol[5]) + LSWAPIB(0xff000000);
             } break;
-        case 24: for(x=x0;x<x1;x++) lptr[x] = ((*(long *)&cptr[x*3])|LSWAPIB(0xff000000)); break;
-        case 32: for(x=x0;x<x1;x++)
+        case 24:
+            for (x=x0;x<x1;x++) lptr[x] = ((*(long *)&cptr[x*3])|LSWAPIB(0xff000000)); break;
+        case 32:
+            for (x=x0;x<x1;x++)
             {
                 i = (*(long *)&cptr[x<<2]);
                 lptr[x] = (_lrotl(i,palcol[0])&palcol[3]) +
@@ -2298,7 +2352,7 @@ static long kpcxrend (const char *buf, long fleng,
     {
         //if (buf[fleng-769] != 12) return(-1); //Some PCX are buggy!
         cptr = (unsigned char *)&buf[fleng-768];
-        for(i=0;i<256;i++)
+        for (i=0;i<256;i++)
         {
             palcol[i] = (((long)cptr[0])<<16) +
                         (((long)cptr[1])<< 8) +
@@ -2315,8 +2369,8 @@ static long kpcxrend (const char *buf, long fleng,
         x0 = max(daglobxoffs,0); x1 = min(xsiz+daglobxoffs,daxres);
         y0 = max(daglobyoffs,0); y1 = min(ysiz+daglobyoffs,dayres);
         i = y0*dabytesperline + daframeplace+3;
-        for(y=y0;y<y1;y++,i+=dabytesperline)
-            for(x=x0;x<x1;x++) *(char *)((x<<2)+i) = 255;
+        for (y=y0;y<y1;y++,i+=dabytesperline)
+            for (x=x0;x<x1;x++) *(char *)((x<<2)+i) = 255;
     }
 
     x = x0 = daglobxoffs; x1 = xsiz+daglobxoffs;
@@ -2331,7 +2385,7 @@ static long kpcxrend (const char *buf, long fleng,
         {
             c = *cptr++; if (c < 192) i = 1; else { i = (c&63); c = *cptr++; }
             j = palcol[(long)c];
-            for(;i;i--)
+            for (;i;i--)
             {
                 if ((unsigned long)y < (unsigned long)dayres)
                     if ((unsigned long)x < (unsigned long)daxres) *(long *)(x+p) = j;
@@ -2344,7 +2398,7 @@ static long kpcxrend (const char *buf, long fleng,
         do
         {
             c = *cptr++; if (c < 192) i = 1; else { i = (c&63); c = *cptr++; }
-            for(;i;i--)
+            for (;i;i--)
             {
                 if ((unsigned long)y < (unsigned long)dayres)
                     if ((unsigned long)x < (unsigned long)daxres) *(char *)(x+p) = c;
@@ -2381,7 +2435,7 @@ static long kddsrend (const char *buf, long leng,
         j = yoff*bpl + (xoff<<2) + frameptr; xx = (xsiz<<2);
     if (xoff < 0) { j -= (xoff<<2); buf -= (xoff<<2); xsiz += xoff; }
         xsiz = (min(xsiz,xdim-xoff)<<2); ysiz = min(ysiz,ydim);
-        for(y=0;y<ysiz;y++,j+=bpl,buf+=xx)
+        for (y=0;y<ysiz;y++,j+=bpl,buf+=xx)
         {
             if ((unsigned long)(y+yoff) >= (unsigned long)ydim) continue;
             memcpy((void *)j,(void *)buf,xsiz);
@@ -2395,13 +2449,13 @@ static long kddsrend (const char *buf, long leng,
 
     if (!(dxt&1))
     {
-        for(z=256-1;z>0;z--) lut[z] = (255<<16)/z;
+        for (z=256-1;z>0;z--) lut[z] = (255<<16)/z;
         lut[0] = (1<<16);
     }
     if (dxt == 1) stride = (xsiz<<1); else stride = (xsiz<<2);
 
-    for(y=0;y<ysiz;y+=4,buf+=stride)
-        for(x=0;x<xsiz;x+=4)
+    for (y=0;y<ysiz;y+=4,buf+=stride)
+        for (x=0;x<xsiz;x+=4)
         {
             if (dxt == 1) uptr = (unsigned char *)(((long)buf)+(x<<1));
             else uptr = (unsigned char *)(((long)buf)+(x<<2)+8);
@@ -2432,12 +2486,12 @@ static long kddsrend (const char *buf, long leng,
                 if (k < 0)
                 {
                     z = a[0]*6 + a[1] + 3;
-                    for(j=2;j<8;j++) { a[j] = ((z*(65536/7))>>16); z += k; }
+                    for (j=2;j<8;j++) { a[j] = ((z*(65536/7))>>16); z += k; }
                 }
                 else
                 {
                     z = a[0]*4 + a[1] + 2;
-                    for(j=2;j<6;j++) { a[j] = ((z*(65536/5))>>16); z += k; }
+                    for (j=2;j<6;j++) { a[j] = ((z*(65536/5))>>16); z += k; }
                     a[6] = 0; a[7] = 255;
                 }
                 al[0] = LSWAPIB(*(long *)&uptr[-6]);
@@ -2445,19 +2499,24 @@ static long kddsrend (const char *buf, long leng,
             }
             wptr = (unsigned char *)((y+yoff)*bpl + ((x+xoff)<<2) + frameptr);
             ai = 0;
-            for(yy=0;yy<4;yy++,wptr+=bpl)
+            for (yy=0;yy<4;yy++,wptr+=bpl)
             {
                 if ((unsigned long)(y+yy+yoff) >= (unsigned long)ydim) { ai += 4; continue; }
-                for(xx=0;xx<4;xx++,ai++)
+                for (xx=0;xx<4;xx++,ai++)
                 {
                     if ((unsigned long)(x+xx+xoff) >= (unsigned long)xdim) continue;
 
                     j = ((v>>(ai<<1))&3);
-                    switch(dxt)
+                    switch (dxt)
                     {
-                    case 1: z = a[j]; break;
-                case 2: case 3: z = (( uptr[(ai>>1)-8] >> ((xx&1)<<2) )&15)*17; break;
-                case 4: case 5: z = a[( al[yy>>1] >> ((ai&7)*3) )&7]; break;
+                    case 1:
+                        z = a[j]; break;
+                    case 2:
+                    case 3:
+                        z = (( uptr[(ai>>1)-8] >> ((xx&1)<<2) )&15)*17; break;
+                    case 4:
+                    case 5:
+                        z = a[( al[yy>>1] >> ((ai&7)*3) )&7]; break;
                     }
                     rr = r[j]; gg = g[j]; bb = b[j];
                     if (!(dxt&1))
@@ -2614,7 +2673,7 @@ static long wildmatch (const char *i, const char *j)
     {
         if (*j == '*')
         {
-            for(k=i,j++;*k;k++) if (wildmatch(k,j)) return(1);
+            for (k=i,j++;*k;k++) if (wildmatch(k,j)) return(1);
             continue;
         }
         if (!*i) return(0);
@@ -2635,7 +2694,7 @@ static long filnamcmp (const char *st0, const char *st1)
     long i;
     char ch0, ch1;
 
-    for(i=0;st0[i];i++)
+    for (i=0;st0[i];i++)
     {
         ch0 = st0[i]; if ((ch0 >= 'a') && (ch0 <= 'z')) ch0 -= 32;
         ch1 = st1[i]; if ((ch1 >= 'a') && (ch1 <= 'z')) ch1 -= 32;
@@ -2686,7 +2745,7 @@ static long kzcalchash (const char *st)
     long i, hashind;
     char ch;
 
-    for(i=0,hashind=0;st[i];i++)
+    for (i=0,hashind=0;st[i];i++)
     {
         ch = st[i];
         if ((ch >= 'a') && (ch <= 'z')) ch -= 32;
@@ -2702,7 +2761,7 @@ static long kzcheckhash (const char *filnam, char **zipnam, long *zipseek)
 
     if (!kzhashbuf) return(0);
     if (filnam[0] == '|') filnam++;
-    for(i=kzhashead[kzcalchash(filnam)];i>=0;i=(*(long *)&kzhashbuf[i]))
+    for (i=kzhashead[kzcalchash(filnam)];i>=0;i=(*(long *)&kzhashbuf[i]))
         if (!filnamcmp(filnam,&kzhashbuf[i+16]))
         {
             (*zipnam) = &kzhashbuf[*(long *)&kzhashbuf[i+8]];
@@ -2754,7 +2813,7 @@ i = strlen(zipnam)+1; if (!kzcheckhashsiz(i)) { fclose(fil); return(-1); }
         if (numfiles < 0) { fclose(fil); return(-1); }
         fseek(fil,-4,SEEK_CUR);
     }
-    for(i=0;i<numfiles;i++)
+    for (i=0;i<numfiles;i++)
     {
         fread(tempbuf,46,1,fil);
         if (*(long *)&tempbuf[0] != LSWAPIB(0x02014b50)) { fclose(fil); return(0); }
@@ -2814,9 +2873,10 @@ long kzopen (const char *filnam)
         kzfs.seek0 = ftell(fil);
         kzfs.leng = LSWAPIB(*(long *)&tempbuf[22]);
         kzfs.pos = 0;
-        switch(kzfs.comptyp) //Compression method
+        switch (kzfs.comptyp) //Compression method
         {
-        case 0: kzfs.i = 0; return((long)kzfs.fil);
+        case 0:
+            kzfs.i = 0; return((long)kzfs.fil);
         case 8:
         if (!pnginited) { pnginited = 1; initpngtables(); }
             kzfs.comptell = 0;
@@ -2826,7 +2886,8 @@ long kzopen (const char *filnam)
             gslidew = 0x7fffffff; //Force reload at beginning
 
             return((long)kzfs.fil);
-        default: fclose(kzfs.fil); kzfs.fil = 0; return(0);
+        default:
+            fclose(kzfs.fil); kzfs.fil = 0; return(0);
         }
     }
     return(0);
@@ -2876,7 +2937,7 @@ long kzfindfile (char *filnam)
 
             //Extract directory from wildcard string for pre-pending
             wildstpathleng = 0;
-            for(i=0;wildst[i];i++)
+            for (i=0;wildst[i];i++)
                 if ((wildst[i] == '/') || (wildst[i] == '\\'))
                     wildstpathleng = i+1;
 
@@ -3050,12 +3111,17 @@ long kzread (void *buffer, long leng)
 
         switch (kzfs.jmpplc)
         {
-        case 0: goto kzreadplc0;
-        case 1: goto kzreadplc1;
-        case 2: goto kzreadplc2;
-        case 3: goto kzreadplc3;
+        case 0:
+            goto kzreadplc0;
+        case 1:
+            goto kzreadplc1;
+        case 2:
+            goto kzreadplc2;
+        case 3:
+            goto kzreadplc3;
         }
-kzreadplc0:;
+kzreadplc0:
+        ;
         do
         {
             bfinal = getbits(1); btype = getbits(2);
@@ -3086,7 +3152,7 @@ kzreadplc0:;
                 //Raw (uncompressed)
                 suckbits((-bitpos)&7);  //Synchronize to start of next byte
                 i = getbits(16); if ((getbits(16)^i) != 0xffff) return(-1);
-                for(;i;i--)
+                for (;i;i--)
                 {
                     if (gslidew >= gslider)
                     {
@@ -3095,7 +3161,8 @@ kzreadplc0:;
                         {
                             kzfs.jmpplc = 1; kzfs.i = i; kzfs.bfinal = bfinal;
                             goto retkzread;
-kzreadplc1:;         i = kzfs.i; bfinal = kzfs.bfinal;
+kzreadplc1:
+                            ;         i = kzfs.i; bfinal = kzfs.bfinal;
                         }
                     }
                     slidebuf[(gslidew++)&32767] = (char)getbits(8);
@@ -3107,17 +3174,17 @@ kzreadplc1:;         i = kzfs.i; bfinal = kzfs.bfinal;
             if (btype == 1) //Fixed Huffman
             {
                 hlit = 288; hdist = 32; i = 0;
-                for(;i<144;i++) clen[i] = 8; //Fixed bit sizes (literals)
-                for(;i<256;i++) clen[i] = 9; //Fixed bit sizes (literals)
-                for(;i<280;i++) clen[i] = 7; //Fixed bit sizes (EOI,lengths)
-                for(;i<288;i++) clen[i] = 8; //Fixed bit sizes (lengths)
-                for(;i<320;i++) clen[i] = 5; //Fixed bit sizes (distances)
+                for (;i<144;i++) clen[i] = 8; //Fixed bit sizes (literals)
+                for (;i<256;i++) clen[i] = 9; //Fixed bit sizes (literals)
+                for (;i<280;i++) clen[i] = 7; //Fixed bit sizes (EOI,lengths)
+                for (;i<288;i++) clen[i] = 8; //Fixed bit sizes (lengths)
+                for (;i<320;i++) clen[i] = 5; //Fixed bit sizes (distances)
             }
             else  //Dynamic Huffman
             {
                 hlit = getbits(5)+257; hdist = getbits(5)+1; j = getbits(4)+4;
-                for(i=0;i<j;i++) cclen[ccind[i]] = getbits(3);
-                for(;i<19;i++) cclen[ccind[i]] = 0;
+                for (i=0;i<j;i++) cclen[ccind[i]] = getbits(3);
+                for (;i<19;i++) cclen[ccind[i]] = 0;
                 hufgencode(cclen,19,ibuf0,nbuf0);
 
                 j = 0; k = hlit+hdist;
@@ -3126,11 +3193,11 @@ kzreadplc1:;         i = kzfs.i; bfinal = kzfs.bfinal;
                     i = hufgetsym(ibuf0,nbuf0);
                     if (i < 16) { clen[j++] = i; continue; }
                     if (i == 16)
-                    { for(i=getbits(2)+3;i;i--) { clen[j] = clen[j-1]; j++; } }
+                    { for (i=getbits(2)+3;i;i--) { clen[j] = clen[j-1]; j++; } }
                     else
                     {
                         if (i == 17) i = getbits(3)+3; else i = getbits(7)+11;
-                        for(;i;i--) clen[j++] = 0;
+                        for (;i;i--) clen[j++] = 0;
                     }
                 }
             }
@@ -3149,7 +3216,8 @@ kzreadplc1:;         i = kzfs.i; bfinal = kzfs.bfinal;
                     if (gslider-16384 >= kzfs.endpos)
                     {
                         kzfs.jmpplc = 2; kzfs.bfinal = bfinal; goto retkzread;
-kzreadplc2:;      bfinal = kzfs.bfinal;
+kzreadplc2:
+                        ;      bfinal = kzfs.bfinal;
                     }
                 }
 
@@ -3166,7 +3234,7 @@ kzreadplc2:;      bfinal = kzfs.bfinal;
                 else j = hufgetsym(ibuf1,nbuf1);
 
                 j = getbits(hxbit[j][0]) + hxbit[j][1];
-                for(;i;i--,gslidew++) slidebuf[gslidew&32767] = slidebuf[(gslidew-j)&32767];
+                for (;i;i--,gslidew++) slidebuf[gslidew&32767] = slidebuf[(gslidew-j)&32767];
             }
         } while (!bfinal);
 
@@ -3178,10 +3246,12 @@ kzreadplc2:;      bfinal = kzfs.bfinal;
             putbuf4zip(&slidebuf[gslider&32767],gslider,gslidew&~32767);
             putbuf4zip(slidebuf,gslidew&~32767,gslidew);
         }
-kzreadplc3:; kzfs.jmpplc = 3;
+kzreadplc3:
+        ; kzfs.jmpplc = 3;
     }
 
-retkzread:;
+retkzread:
+    ;
     i = kzfs.pos;
     kzfs.pos += leng; if (kzfs.pos > kzfs.leng) kzfs.pos = kzfs.leng;
     return(kzfs.pos-i);
@@ -3200,9 +3270,13 @@ long kzseek (long offset, long whence)
     if (!kzfs.fil) return(-1);
     switch (whence)
     {
-    case SEEK_CUR: kzfs.pos += offset; break;
-    case SEEK_END: kzfs.pos = kzfs.leng+offset; break;
-case SEEK_SET: default: kzfs.pos = offset;
+    case SEEK_CUR:
+        kzfs.pos += offset; break;
+    case SEEK_END:
+        kzfs.pos = kzfs.leng+offset; break;
+    case SEEK_SET:
+    default:
+        kzfs.pos = offset;
     }
     if (kzfs.pos < 0) kzfs.pos = 0;
     if (kzfs.pos > kzfs.leng) kzfs.pos = kzfs.leng;

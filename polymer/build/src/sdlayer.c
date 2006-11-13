@@ -663,7 +663,8 @@ void getvalidmodes(void)
 #ifdef USE_OPENGL
                                16,24,32,
 #endif
-                               0 };
+                               0
+                           };
     static int defaultres[][2] = {
                                      {1280,1024},{1280,960},{1152,864},{1024,768},{800,600},{640,480},
                                      {640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
@@ -690,7 +691,7 @@ void getvalidmodes(void)
 		validmodecnt++; \
 		initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed"); \
 	} \
-}	
+}
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
@@ -788,10 +789,10 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
         }
     }
 
- #ifdef ANY_WINDOWED_SIZE
+#ifdef ANY_WINDOWED_SIZE
     if (!forced && (fs&1) == 0 && (nearest < 0 || (validmode[nearest].xdim!=*x || validmode[nearest].ydim!=*y)))
         return 0x7fffffffl;
- #endif
+#endif
 
     if (nearest < 0) {
         // no mode that will match (eg. if no fullscreen modes)
@@ -1071,7 +1072,7 @@ void begindrawing(void)
         setvlinebpl(bytesperline);
 
         j = 0;
-        for(i=0;i<=ydim;i++) ylookup[i] = j, j += bytesperline;
+        for (i=0;i<=ydim;i++) ylookup[i] = j, j += bytesperline;
         modechange=0;
     }
 }
@@ -1301,10 +1302,14 @@ int handleevents(void)
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
             switch (ev.button.button) {
-            case SDL_BUTTON_LEFT: j = 0; break;
-            case SDL_BUTTON_RIGHT: j = 1; break;
-            case SDL_BUTTON_MIDDLE: j = 2; break;
-            default: j = ev.button.button; break;
+            case SDL_BUTTON_LEFT:
+                j = 0; break;
+            case SDL_BUTTON_RIGHT:
+                j = 1; break;
+            case SDL_BUTTON_MIDDLE:
+                j = 2; break;
+            default:
+                j = ev.button.button; break;
             }
             if (j<0) break;
 
@@ -1338,28 +1343,28 @@ int handleevents(void)
             break;
 
         case SDL_JOYHATMOTION: {
-                int hatvals[16] = {
-                                      -1,	// centre
-                                      0, 	// up 1
-                                      9000,	// right 2
-                                      4500,	// up+right 3
-                                      18000,	// down 4
-                                      -1,	// down+up!! 5
-                                      13500,	// down+right 6
-                                      -1,	// down+right+up!! 7
-                                      27000,	// left 8
-                                      27500,	// left+up 9
-                                      -1,	// left+right!! 10
-                                      -1,	// left+right+up!! 11
-                                      22500,	// left+down 12
-                                      -1,	// left+down+up!! 13
-                                      -1,	// left+down+right!! 14
-                                      -1,	// left+down+right+up!! 15
-                                  };
-                if (appactive && ev.jhat.hat < joynumhats)
-                    joyhat[ ev.jhat.hat ] = hatvals[ ev.jhat.value & 15 ];
-                break;
-            }
+            int hatvals[16] = {
+                                  -1,	// centre
+                                  0, 	// up 1
+                                  9000,	// right 2
+                                  4500,	// up+right 3
+                                  18000,	// down 4
+                                  -1,	// down+up!! 5
+                                  13500,	// down+right 6
+                                  -1,	// down+right+up!! 7
+                                  27000,	// left 8
+                                  27500,	// left+up 9
+                                  -1,	// left+right!! 10
+                                  -1,	// left+right+up!! 11
+                                  22500,	// left+down 12
+                                  -1,	// left+down+up!! 13
+                                  -1,	// left+down+right!! 14
+                                  -1,	// left+down+right+up!! 15
+                              };
+            if (appactive && ev.jhat.hat < joynumhats)
+                joyhat[ ev.jhat.hat ] = hatvals[ ev.jhat.value & 15 ];
+            break;
+        }
 
         case SDL_JOYBUTTONDOWN:
         case SDL_JOYBUTTONUP:

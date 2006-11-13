@@ -77,14 +77,14 @@ void GAME_clearbackground(int c, int r)
     xsiz = tilesizx[BGTILE]; tx2 = xdim/xsiz;
     ysiz = tilesizy[BGTILE]; ty2 = daydim/ysiz;
 
-    for(x=0;x<=tx2;x++)
-        for(y=0;y<=ty2;y++)
+    for (x=0;x<=tx2;x++)
+        for (y=0;y<=ty2;y++)
             rotatesprite(x*xsiz<<16,y*ysiz<<16,65536L,0,BGTILE,SHADE,PALETTE,bits,0,0,xdim,daydim);
 
     xsiz = tilesizy[BORDTILE]; tx2 = xdim/xsiz;
     ysiz = tilesizx[BORDTILE];
 
-    for(x=0;x<=tx2;x++)
+    for (x=0;x<=tx2;x++)
         rotatesprite(x*xsiz<<16,(daydim+ysiz+1)<<16,65536L,1536,BORDTILE,SHADE-12,PALETTE,BITS,0,0,xdim,daydim+ysiz+1);
 }
 

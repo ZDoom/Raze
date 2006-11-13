@@ -24,7 +24,7 @@ child = (long *)malloc((ucompleng+256)*sizeof(long)); if (!child) { free(nodev);
     sibry = (long *)malloc((ucompleng+256)*sizeof(long)); if (!sibry) { free(sibly); free(child); free(nodev); return(0); }
 #endif
 
-    for(i=255;i>=0;i--) { nodev[i] = i; child[i] = -1; }
+    for (i=255;i>=0;i--) { nodev[i] = i; child[i] = -1; }
     memset(compbuf,0,ucompleng+15);
 
     cptr = ucompbuf; eptr = &ucompbuf[ucompleng];
@@ -32,7 +32,7 @@ child = (long *)malloc((ucompleng+256)*sizeof(long)); if (!child) { free(nodev);
     numnodes = 256; bitcnt = (4<<3); nbits = 8; oneupnbits = (1<<8); hmask = ((oneupnbits>>1)-1);
     do
     {
-        for(i=cptr[0];i>=0;i=j)
+        for (i=cptr[0];i>=0;i=j)
         {
             cptr++; if (cptr >= eptr) goto lzwcompbreak2b;
         j = child[i]; if (j < 0) { child[i] = numnodes; break; }
@@ -45,12 +45,14 @@ child = (long *)malloc((ucompleng+256)*sizeof(long)); if (!child) { free(nodev);
                 else { if (sibry[j] < 0) { sibry[j] = numnodes; goto lzwcompbreak2a; } j = sibry[j]; }
             }
 #else
-            for(;nodev[j]!=cptr[0];j=sibly[j])
+            for (;nodev[j]!=cptr[0];j=sibly[j])
             if (sibly[j] < 0) { sibly[j] = numnodes; goto lzwcompbreak2a; }
 #endif
         }
-lzwcompbreak2a: nodev[numnodes] = cptr[0];
-lzwcompbreak2b: child[numnodes] = sibly[numnodes] = -1;
+lzwcompbreak2a:
+        nodev[numnodes] = cptr[0];
+lzwcompbreak2b:
+        child[numnodes] = sibly[numnodes] = -1;
 #if USENEW
         sibry[numnodes] = -1;
 #endif
@@ -94,13 +96,13 @@ suffix = (unsigned char *)malloc(totnodes*sizeof(char)); if (!suffix) { free(pre
         prefix[numnodes] = dat;
 
         ucompbuf++;
-        for(leng=0;dat>=256;dat=prefix[dat]) {
+        for (leng=0;dat>=256;dat=prefix[dat]) {
             if ((long)ucompbuf+leng-ucomp > ucompleng) goto bail;
             ucompbuf[leng++] = suffix[dat];
         }
 
         ucptr = &ucompbuf[leng-1];
-    for(i=(leng>>1)-1;i>=0;i--) { ch = ucompbuf[i]; ucompbuf[i] = ucptr[-i]; ucptr[-i] = ch; }
+    for (i=(leng>>1)-1;i>=0;i--) { ch = ucompbuf[i]; ucompbuf[i] = ucptr[-i]; ucptr[-i] = ch; }
         ucompbuf[-1] = dat; ucompbuf += leng;
 
         suffix[numnodes-1] = suffix[numnodes] = dat;
