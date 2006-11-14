@@ -84,7 +84,7 @@ extern char syncstate;
 extern int32 numlumps;
 
 FILE *frecfilep = (FILE *)NULL;
-void pitch_test( void );
+void pitch_test(void);
 
 char restorepalette,screencapt,nomorelogohack;
 int sendmessagecommand = -1;
@@ -244,7 +244,7 @@ int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short 
     short ac,newx,oldx=x;
     char centre, *oldt;
 
-    centre = ( x == (320>>1) );
+    centre = (x == (320>>1));
     newx = 0;
     oldt = t;
 
@@ -264,7 +264,7 @@ int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short 
         if (*t == 32) {newx+=5;t++;continue;}
             else ac = *t - '!' + starttile;
 
-            if ( ac < starttile || ac > (starttile + 93) ) break;
+            if (ac < starttile || ac > (starttile + 93)) break;
 
             if (*t >= '0' && *t <= '9')
                 newx += 8;
@@ -298,7 +298,7 @@ int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short 
         if (*t == 32) {x+=5;t++;continue;}
         else ac = *t - '!' + starttile;
 
-        if ( ac < starttile || ac > (starttile + 93) )
+        if (ac < starttile || ac > (starttile + 93))
             break;
 
         rotatesprite(x<<16,(y<<16)+(small?ScreenHeight<<15:0),65536,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
@@ -435,7 +435,7 @@ void getpackets(void)
     }
 
     // only dispatch commands here when not in a game
-if ( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
+if (!(ps[myconnectindex].gm&MODE_GAME)) { OSD_DispatchQueued(); }
 
     if (qe == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && KB_KeyPressed(sc_Delete))
     {
@@ -478,8 +478,8 @@ if ( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
                             if (numplayers < 2)
                                 sound(GENERIC_AMBIENCE17);
 
-                            if(i == 0 && networkmode == 0 ) */
-            gameexit( "Game aborted from menu; disconnected.");
+                            if(i == 0 && networkmode == 0) */
+            gameexit("Game aborted from menu; disconnected.");
             //            }
 
             break;
@@ -574,7 +574,7 @@ if ( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
             multiwhat = 0;
             multiwho = packbuf[2]; //other: need to send in m/s mode because of possible re-transmit
             multipos = packbuf[1];
-            loadplayer( multipos );
+            loadplayer(multipos);
             multiflag = 0;
             break;
         case 0:  //[0] (receive master sync buffer)
@@ -786,7 +786,7 @@ if ( !(ps[myconnectindex].gm&MODE_GAME) ) { OSD_DispatchQueued(); }
 
             if (numlumps == 0) break;
 
-            if (SoundToggle == 0 || ud.lockout == 1 || FXDevice < 0 )
+            if (SoundToggle == 0 || ud.lockout == 1 || FXDevice < 0)
                 break;
             rtsptr = (char *)RTS_GetSound(packbuf[1]-1);
             if (*rtsptr == 'C')
@@ -1101,7 +1101,7 @@ void faketimerhandler()
             if (playerquitflag[i] && (movefifoend[i] <= movefifosendplc)) return;
 
         osyn = (input *)&inputfifo[(movefifosendplc-1)&(MOVEFIFOSIZ-1)][0];
-        nsyn = (input *)&inputfifo[(movefifosendplc  )&(MOVEFIFOSIZ-1)][0];
+        nsyn = (input *)&inputfifo[(movefifosendplc)&(MOVEFIFOSIZ-1)][0];
 
         //MASTER -> SLAVE packet
         packbuf[0] = 0; j = 1;
@@ -1347,7 +1347,7 @@ inline short badguypic(short pn)
 
     if (checkspriteflagsp(pn,SPRITE_FLAG_BADGUY)) return 1;
 
-    if ( actortype[pn] ) return 1;
+    if (actortype[pn]) return 1;
 
     switch (dynamictostatic[pn])
     {
@@ -1549,7 +1549,7 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
         if (u != -1) patchstatusbar(88,178,88+37,178+6); //original code: (96,178,96+12,178+6);
         weaponnum999(PISTOL_WEAPON,x,y,
                      p->ammo_amount[PISTOL_WEAPON],max_ammo_amount[PISTOL_WEAPON],
-                     12-20*(cw == PISTOL_WEAPON) );
+                     12-20*(cw == PISTOL_WEAPON));
     }
     if (u&8)
     {
@@ -1557,7 +1557,7 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
         weaponnum999(SHOTGUN_WEAPON,x,y+6,
                      p->ammo_amount[SHOTGUN_WEAPON],max_ammo_amount[SHOTGUN_WEAPON],
                      (!p->gotweapon[SHOTGUN_WEAPON]*9)+12-18*
-                     (cw == SHOTGUN_WEAPON) );
+                     (cw == SHOTGUN_WEAPON));
     }
     if (u&16)
     {
@@ -1565,7 +1565,7 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
         weaponnum999(CHAINGUN_WEAPON,x,y+12,
                      p->ammo_amount[CHAINGUN_WEAPON],max_ammo_amount[CHAINGUN_WEAPON],
                      (!p->gotweapon[CHAINGUN_WEAPON]*9)+12-18*
-                     (cw == CHAINGUN_WEAPON) );
+                     (cw == CHAINGUN_WEAPON));
     }
     if (u&32)
     {
@@ -1573,7 +1573,7 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
         weaponnum(RPG_WEAPON,x+39,y,
                   p->ammo_amount[RPG_WEAPON],max_ammo_amount[RPG_WEAPON],
                   (!p->gotweapon[RPG_WEAPON]*9)+12-19*
-                  (cw == RPG_WEAPON) );
+                  (cw == RPG_WEAPON));
     }
     if (u&64)
     {
@@ -1590,18 +1590,18 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
         if (VOLUMEONE) {
             orderweaponnum(SHRINKER_WEAPON,x+39,y+12,
                            (!p->gotweapon[SHRINKER_WEAPON]*9)+12-18*
-                           (cw == SHRINKER_WEAPON) );
+                           (cw == SHRINKER_WEAPON));
         } else {
             if (p->subweapon&(1<<GROW_WEAPON))
                 weaponnum(SHRINKER_WEAPON,x+39,y+12,
                           p->ammo_amount[GROW_WEAPON],max_ammo_amount[GROW_WEAPON],
                           (!p->gotweapon[GROW_WEAPON]*9)+12-18*
-                          (cw == GROW_WEAPON) );
+                          (cw == GROW_WEAPON));
             else
                 weaponnum(SHRINKER_WEAPON,x+39,y+12,
                           p->ammo_amount[SHRINKER_WEAPON],max_ammo_amount[SHRINKER_WEAPON],
                           (!p->gotweapon[SHRINKER_WEAPON]*9)+12-18*
-                          (cw == SHRINKER_WEAPON) );
+                          (cw == SHRINKER_WEAPON));
         }
     }
     if (u&256)
@@ -1611,12 +1611,12 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
         if (VOLUMEONE) {
             orderweaponnum(DEVISTATOR_WEAPON,x+70,y,
                            (!p->gotweapon[DEVISTATOR_WEAPON]*9)+12-18*
-                           (cw == DEVISTATOR_WEAPON) );
+                           (cw == DEVISTATOR_WEAPON));
         } else {
             weaponnum(DEVISTATOR_WEAPON,x+70,y,
                       p->ammo_amount[DEVISTATOR_WEAPON],max_ammo_amount[DEVISTATOR_WEAPON],
                       (!p->gotweapon[DEVISTATOR_WEAPON]*9)+12-18*
-                      (cw == DEVISTATOR_WEAPON) );
+                      (cw == DEVISTATOR_WEAPON));
         }
     }
     if (u&512)
@@ -1625,12 +1625,12 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
         if (VOLUMEONE) {
             orderweaponnum(TRIPBOMB_WEAPON,x+70,y+6,
                            (!p->gotweapon[TRIPBOMB_WEAPON]*9)+12-18*
-                           (cw == TRIPBOMB_WEAPON) );
+                           (cw == TRIPBOMB_WEAPON));
         } else {
             weaponnum(TRIPBOMB_WEAPON,x+70,y+6,
                       p->ammo_amount[TRIPBOMB_WEAPON],max_ammo_amount[TRIPBOMB_WEAPON],
                       (!p->gotweapon[TRIPBOMB_WEAPON]*9)+12-18*
-                      (cw == TRIPBOMB_WEAPON) );
+                      (cw == TRIPBOMB_WEAPON));
         }
     }
 
@@ -1640,12 +1640,12 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
         if (VOLUMEONE) {
             orderweaponnum(-1,x+70,y+12,
                            (!p->gotweapon[FREEZE_WEAPON]*9)+12-18*
-                           (cw == FREEZE_WEAPON) );
+                           (cw == FREEZE_WEAPON));
         } else {
             weaponnum(-1,x+70,y+12,
                       p->ammo_amount[FREEZE_WEAPON],max_ammo_amount[FREEZE_WEAPON],
                       (!p->gotweapon[FREEZE_WEAPON]*9)+12-18*
-                      (cw == FREEZE_WEAPON) );
+                      (cw == FREEZE_WEAPON));
         }
     }
 }
@@ -1729,9 +1729,9 @@ void displayinventory(struct player_struct *p)
     j = xoff = 0;
 
     n = (p->jetpack_amount > 0)<<3; if (n&8) j++;
-    n |= ( p->scuba_amount > 0 )<<5; if (n&32) j++;
+    n |= (p->scuba_amount > 0)<<5; if (n&32) j++;
     n |= (p->steroids_amount > 0)<<1; if (n&2) j++;
-    n |= ( p->holoduke_amount > 0)<<2; if (n&4) j++;
+    n |= (p->holoduke_amount > 0)<<2; if (n&4) j++;
     n |= (p->firstaid_amount > 0); if (n&1) j++;
     n |= (p->heat_amount > 0)<<4; if (n&16) j++;
     n |= (p->boot_amount > 0)<<6; if (n&64) j++;
@@ -1751,11 +1751,11 @@ void displayinventory(struct player_struct *p)
         else xoff += 65;
     }
 
-    while ( j <= 9 )
+    while (j <= 9)
     {
-        if ( n&(1<<j) )
+        if (n&(1<<j))
         {
-            switch ( n&(1<<j) )
+            switch (n&(1<<j))
             {
             case   1:
                 rotatesprite(xoff<<16,y<<16,65536L,0,FIRSTAID_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);break;
@@ -1819,14 +1819,14 @@ void coolgaugetext(short snum)
 
 
     if (ps[snum].gm&MODE_MENU)
-        if ( (current_menu >= 400  && current_menu <= 405) )
+        if ((current_menu >= 400  && current_menu <= 405))
             return;
 
     ss = ud.screen_size; if (ss < 4) return;
 
     if (getrendermode() >= 3) pus = NUMPAGES;	// JBF 20040101: always redraw in GL
 
-    if ( ud.multimode > 1 && (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR))
+    if (ud.multimode > 1 && (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR))
     {
         if (pus)
         { displayfragbar(); }
@@ -1948,7 +1948,7 @@ if (sbar.frag[myconnectindex] != p->frag) { sbar.frag[myconnectindex] = p->frag;
         if (sbar.gotweapon[i] != p->gotweapon[i])
         {
             sbar.gotweapon[i] = p->gotweapon[i];
-            if (i < 9 )
+            if (i < 9)
                 u |= ((2<<i)+1024);
             else u |= 65536L+1024;
         }
@@ -2263,15 +2263,15 @@ void FTA(short q,struct player_struct *p)
 {
     if (fta_quotes[p->ftq] != NULL)
     {
-        if ( ud.fta_on == 1)
+        if (ud.fta_on == 1)
         {
-            if ( p->fta > 0 && q != 115 && q != 116 )
-                if ( p->ftq == 115 || p->ftq == 116 ) return;
+            if (p->fta > 0 && q != 115 && q != 116)
+                if (p->ftq == 115 || p->ftq == 116) return;
 
             p->fta = 100;
 
-            //            if( p->ftq != q || q == 26 )
-            // || q == 26 || q == 115 || q ==116 || q == 117 || q == 122 )
+            //            if(p->ftq != q || q == 26)
+            // || q == 26 || q == 115 || q ==116 || q == 117 || q == 122)
             {
                 p->ftq = q;
                 pub = NUMPAGES;
@@ -2294,13 +2294,13 @@ void showtwoscreens(void)
         KB_FlushKeyboardQueue();
         rotatesprite(0,0,65536L,0,3291,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
         IFISSOFTMODE fadepal(0,0,0, 63,0,-7); else nextpage();
-    while ( !KB_KeyWaiting() ) { handleevents(); getpackets(); }
+    while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
 
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
         rotatesprite(0,0,65536L,0,3290,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
         IFISSOFTMODE fadepal(0,0,0, 63,0,-7); else nextpage();
-    while ( !KB_KeyWaiting() ) { handleevents(); getpackets(); }
+    while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
 
 
     }
@@ -2343,7 +2343,7 @@ else if (ud.recstat == 2) { if (frecfilep) fclose(frecfilep); } // JBF: fixes cr
             setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP);
         }
 
-        if ( *t != 0 && *(t+1) != 'V' && *(t+1) != 'Y')
+        if (*t != 0 && *(t+1) != 'V' && *(t+1) != 'Y')
             showtwoscreens();
     }
 
@@ -2379,7 +2379,7 @@ short strget_(int small,short x,short y,char *t,short dalen,short c)
     {
         if (ch == asc_BackSpace)
         {
-            if ( inputloc > 0 )
+            if (inputloc > 0)
             {
                 inputloc--;
                 *(t+inputloc) = 0;
@@ -2398,7 +2398,7 @@ short strget_(int small,short x,short y,char *t,short dalen,short c)
                 KB_ClearKeyDown(sc_Escape);
                 return (-1);
             }
-            else if ( ch >= 32 && inputloc < dalen && ch < 127)
+            else if (ch >= 32 && inputloc < dalen && ch < 127)
             {
                 ch = Btoupper(ch);
                 if (c != 997 || (ch >= '0' && ch <= '9')) { // JBF 20040508: so we can have numeric only if we want
@@ -2410,8 +2410,8 @@ short strget_(int small,short x,short y,char *t,short dalen,short c)
         }
     }
 
-    if ( c == 999 ) return(0);
-    if ( c == 998 )
+    if (c == 999) return(0);
+    if (c == 998)
     {
         char b[91],ii;
         for (ii=0;ii<inputloc;ii++)
@@ -2461,7 +2461,7 @@ void typemode(void)
 {
     short ch, hitstate, i, j, l;
 
-    if ( ps[myconnectindex].gm&MODE_SENDTOWHOM )
+    if (ps[myconnectindex].gm&MODE_SENDTOWHOM)
     {
         if (sendmessagecommand != -1 || ud.multimode < 3 || movesperpacket == 4)
         {
@@ -2550,13 +2550,13 @@ void typemode(void)
             if (ud.screen_size > 0) j = 200-45; else j = 200-8;
             mpgametext(j,typebuf,0,2+8+16);
 
-            if ( KB_KeyWaiting() )
+            if (KB_KeyWaiting())
             {
                 i = KB_GetCh();
 
                 if (i == 'A' || i == 'a' || i == 13)
                     sendmessagecommand = ud.multimode;
-                else if (i >= '1' || i <= (ud.multimode + '1') )
+                else if (i >= '1' || i <= (ud.multimode + '1'))
                     sendmessagecommand = i - '1';
                 else
                 {
@@ -2607,7 +2607,7 @@ void typemode(void)
 
 void moveclouds(void)
 {
-    if ( totalclock > cloudtotalclock || totalclock < (cloudtotalclock-7))
+    if (totalclock > cloudtotalclock || totalclock < (cloudtotalclock-7))
     {
         short i;
 
@@ -2699,7 +2699,7 @@ void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
             sprx = spr->x;
             spry = spr->y;
 
-            if ( (spr->cstat&257) != 0) switch (spr->cstat&48)
+            if ((spr->cstat&257) != 0) switch (spr->cstat&48)
                 {
                 case 0:
                     break;
@@ -2725,7 +2725,7 @@ void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
                     break;
 
                 case 16:
-                    if ( spr->picnum == LASERLINE )
+                    if (spr->picnum == LASERLINE)
                     {
                         x1 = sprx; y1 = spry;
                         tilenum = spr->picnum;
@@ -2853,7 +2853,7 @@ void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
         x1 = mulscale(ox,xvect,16) - mulscale(oy,yvect,16);
         y1 = mulscale(oy,xvect2,16) + mulscale(ox,yvect2,16);
 
-        if (p == screenpeek || GTFLAGS(GAMETYPE_FLAG_OTHERPLAYERSINMAP) )
+        if (p == screenpeek || GTFLAGS(GAMETYPE_FLAG_OTHERPLAYERSINMAP))
         {
             if (sprite[ps[p].i].xvel > 16 && ps[p].on_ground)
                 i = APLAYERTOP+((totalclock>>4)&3);
@@ -2893,7 +2893,7 @@ void palto(char r,char g,char b,long e)
     if (getrendermode() >= 3) pus = pub = NUMPAGES;	// JBF 20040110: redraw the status bar next time
     if ((e&128) == 0) {
         nextpage();
-        for (tc = totalclock; totalclock < tc + 4; handleevents(), getpackets() );
+        for (tc = totalclock; totalclock < tc + 4; handleevents(), getpackets());
     }
 }
 
@@ -2915,7 +2915,7 @@ void displayrest(long smoothratio)
     }
 
     // this does pain tinting etc from the CON
-    if ( pp->pals_time >= 0 && pp->loogcnt == 0)	// JBF 20040101: pals_time > 0 now >= 0
+    if (pp->pals_time >= 0 && pp->loogcnt == 0)	// JBF 20040101: pals_time > 0 now >= 0
     {
         fader = pp->pals[0];
         fadeg = pp->pals[1];
@@ -2925,7 +2925,7 @@ void displayrest(long smoothratio)
         dotint = 1;
     }
     // reset a normal palette
-    else if ( restorepalette )
+    else if (restorepalette)
     {
         //setbrightness(ud.brightness>>2,&pp->palette[0],0);
         setgamepalette(pp,pp->palette,0);
@@ -2959,7 +2959,7 @@ void displayrest(long smoothratio)
             break;
         }
 
-        if ( KB_KeyPressed(sc_Escape ) )
+        if (KB_KeyPressed(sc_Escape))
         {
             KB_ClearKeyDown(sc_Escape);
             ud.show_help = 0;
@@ -2991,24 +2991,24 @@ void displayrest(long smoothratio)
 
     if (ud.camerasprite == -1)
     {
-        if ( ud.overhead_on != 2 )
+        if (ud.overhead_on != 2)
         {
             if (pp->newowner >= 0)
                 cameratext(pp->newowner);
             else
             {
                 displayweapon(screenpeek);
-                if (pp->over_shoulder_on == 0 )
+                if (pp->over_shoulder_on == 0)
                     displaymasks(screenpeek);
             }
             moveclouds();
         }
 
-        if ( ud.overhead_on > 0 )
+        if (ud.overhead_on > 0)
         {
             smoothratio = min(max(smoothratio,0),65536);
             dointerpolations(smoothratio);
-            if ( ud.scrollmode == 0 )
+            if (ud.scrollmode == 0)
             {
                 if (pp->newowner == -1 && !ud.pause_on)
                 {
@@ -3050,7 +3050,7 @@ void displayrest(long smoothratio)
                 clearview(0L);
                 drawmapview(cposx,cposy,pp->zoom,cang);
             }
-            drawoverheadmap( cposx,cposy,pp->zoom,cang);
+            drawoverheadmap(cposx,cposy,pp->zoom,cang);
 
             restoreinterpolations();
 
@@ -3068,11 +3068,11 @@ void displayrest(long smoothratio)
     coolgaugetext(screenpeek);
     operatefta();
 
-    if ( KB_KeyPressed(sc_Escape) && ud.overhead_on == 0
+    if (KB_KeyPressed(sc_Escape) && ud.overhead_on == 0
             && ud.show_help == 0
             && ps[myconnectindex].newowner == -1)
     {
-        if ( (ps[myconnectindex].gm&MODE_MENU) == MODE_MENU && current_menu < 51)
+        if ((ps[myconnectindex].gm&MODE_MENU) == MODE_MENU && current_menu < 51)
         {
             KB_ClearKeyDown(sc_Escape);
             ps[myconnectindex].gm &= ~MODE_MENU;
@@ -3086,9 +3086,9 @@ void displayrest(long smoothratio)
             walock[TILE_SAVESHOT] = 199;
             vscrn();
         }
-        else if ( (ps[myconnectindex].gm&MODE_MENU) != MODE_MENU &&
-                  ps[myconnectindex].newowner == -1 &&
-                  (ps[myconnectindex].gm&MODE_TYPE) != MODE_TYPE)
+        else if ((ps[myconnectindex].gm&MODE_MENU) != MODE_MENU &&
+                 ps[myconnectindex].newowner == -1 &&
+                 (ps[myconnectindex].gm&MODE_TYPE) != MODE_TYPE)
         {
             KB_ClearKeyDown(sc_Escape);
             FX_StopAllSounds();
@@ -3133,7 +3133,7 @@ void displayrest(long smoothratio)
     else
         menus();
 
-    if ( ud.pause_on==1 && (ps[myconnectindex].gm&MODE_MENU) == 0 )
+    if (ud.pause_on==1 && (ps[myconnectindex].gm&MODE_MENU) == 0)
         menutext(160,100,0,0,"GAME PAUSED");
 
     if (ud.coords)
@@ -3246,7 +3246,7 @@ void drawbackground(void)
     }
 
     y1 = 0; y2 = ydim;
-    if ( (ready2send && ps[myconnectindex].gm == MODE_GAME) || ud.recstat == 2 )
+    if ((ready2send && ps[myconnectindex].gm == MODE_GAME) || ud.recstat == 2)
         //if (ud.recstat == 0 || ud.recstat == 1 || (ud.recstat == 2 && ud.reccnt > 0)) // JBF 20040717
     {
         if (ud.screen_size == 8)
@@ -3305,7 +3305,7 @@ void drawbackground(void)
 
     }
 
-    if (ud.screen_size > 8 && ( ready2send || ud.recstat == 2 ))
+    if (ud.screen_size > 8 && (ready2send || ud.recstat == 2))
     {
         y = 0;
         if (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR)
@@ -3389,7 +3389,7 @@ static void SE40_Draw(int spnum,long x,long y,long z,short a,short h,long smooth
     sprite[j].sectnum==sectnum &&
     sprite[j].picnum==1 &&
     sprite[j].lotag==110
-       ) { DrawFloorOverFloor(j); break;}
+      ) { DrawFloorOverFloor(j); break;}
     }
     */
 
@@ -3397,7 +3397,7 @@ static void SE40_Draw(int spnum,long x,long y,long z,short a,short h,long smooth
 
     for (j=headspritestat[15];j>=0;j=nextspritestat[j])
     {
-        if ( sprite[j].picnum==1 && sprite[j].lotag==fofmode && sprite[j].hitag==sprite[floor1].hitag )
+        if (sprite[j].picnum==1 && sprite[j].lotag==fofmode && sprite[j].hitag==sprite[floor1].hitag)
         {
             floor1=j;
             fofmode=sprite[j].lotag;
@@ -3411,7 +3411,7 @@ static void SE40_Draw(int spnum,long x,long y,long z,short a,short h,long smooth
 
     for (j=headspritestat[15];j>=0;j=nextspritestat[j])
     {
-        if ( sprite[j].picnum==1 && sprite[j].lotag==k && sprite[j].hitag==sprite[floor1].hitag )
+        if (sprite[j].picnum==1 && sprite[j].lotag==k && sprite[j].hitag==sprite[floor1].hitag)
         {
             floor2=j; ok++; break;
         }
@@ -3441,7 +3441,7 @@ static void SE40_Draw(int spnum,long x,long y,long z,short a,short h,long smooth
 
     for (j=headspritestat[15];j>=0;j=nextspritestat[j]) // raise ceiling or floor
     {
-        if (sprite[j].picnum==1 && sprite[j].lotag==k+2 && sprite[j].hitag==sprite[floor1].hitag )
+        if (sprite[j].picnum==1 && sprite[j].lotag==k+2 && sprite[j].hitag==sprite[floor1].hitag)
         {
             if (k==40)
             {
@@ -3543,9 +3543,9 @@ void displayrooms(short snum,long smoothratio)
     }
 
 #ifdef POLYMOST
-    if ( ud.overhead_on == 2 || ud.show_help || (p->cursectnum == -1 && rendmode != 4))
+    if (ud.overhead_on == 2 || ud.show_help || (p->cursectnum == -1 && rendmode != 4))
 #else
-    if ( ud.overhead_on == 2 || ud.show_help || p->cursectnum == -1)
+    if (ud.overhead_on == 2 || ud.show_help || p->cursectnum == -1)
 #endif
         return;
 
@@ -3599,7 +3599,7 @@ void displayrooms(short snum,long smoothratio)
                 allocache((long *)&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
             setviewtotile(TILE_SAVESHOT,200L,320L);
         }
-        else if ( getrendermode() == 0 && ( ( ud.screen_tilting && p->rotscrnang ) || ud.detail==0 ) )
+        else if (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || ud.detail==0))
         {
             if (ud.screen_tilting) tang = p->rotscrnang; else tang = 0;
 
@@ -3638,7 +3638,7 @@ void displayrooms(short snum,long smoothratio)
             p->orotscrnang = p->rotscrnang; // JBF: save it for next time
         }
 
-        if ( (snum == myconnectindex) && (numplayers > 1) )
+        if ((snum == myconnectindex) && (numplayers > 1))
         {
             cposx = omyx+mulscale16((long)(myx-omyx),smoothratio);
             cposy = omyy+mulscale16((long)(myy-omyy),smoothratio);
@@ -3668,7 +3668,7 @@ void displayrooms(short snum,long smoothratio)
             smoothratio = 65536L;
         }
 
-        else if ( p->over_shoulder_on == 0 )
+        else if (p->over_shoulder_on == 0)
             cposz += p->opyoff+mulscale16((long)(p->pyoff-p->opyoff),smoothratio);
         else view(p,&cposx,&cposy,&cposz,&sect,cang,choriz);
 
@@ -3687,8 +3687,8 @@ void displayrooms(short snum,long smoothratio)
             choriz = 100+sprite[p->newowner].shade;
         else if (p->spritebridge == 0)
         {
-            if ( cposz < ( p->truecz + (4<<8) ) ) cposz = cz + (4<<8);
-            else if ( cposz > ( p->truefz - (4<<8) ) ) cposz = fz - (4<<8);
+            if (cposz < (p->truecz + (4<<8))) cposz = cz + (4<<8);
+            else if (cposz > (p->truefz - (4<<8))) cposz = fz - (4<<8);
         }
 
         if (sect >= 0)
@@ -3713,7 +3713,7 @@ void displayrooms(short snum,long smoothratio)
                 if (j < dst) dst = j, i = k;
             }
 
-            if ( wall[mirrorwall[i]].overpicnum == MIRROR )
+            if (wall[mirrorwall[i]].overpicnum == MIRROR)
             {
                 preparemirror(cposx,cposy,cposz,cang,choriz,mirrorwall[i],mirrorsector[i],&tposx,&tposy,&tang);
 
@@ -3743,7 +3743,7 @@ void displayrooms(short snum,long smoothratio)
             screencapt = 0;
             //            walock[TILE_SAVESHOT] = 1;
         }
-        else if ( getrendermode() == 0 && ( ( ud.screen_tilting && p->rotscrnang) || ud.detail==0 ) )
+        else if (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || ud.detail==0))
         {
             if (ud.screen_tilting) tang = p->rotscrnang; else tang = 0;
 
@@ -3777,7 +3777,7 @@ short LocateTheLocator(short n,short sn)
     i = headspritestat[7];
     while (i >= 0)
     {
-        if ( (sn == -1 || sn == SECT) && n == SLT )
+        if ((sn == -1 || sn == SECT) && n == SLT)
             return i;
         i = nextspritestat[i];
     }
@@ -3857,7 +3857,7 @@ short EGS(short whatsect,long s_x,long s_y,long s_z,short s_pn,signed char s_s,s
 
     i = insertsprite(whatsect,s_ss);
 
-    if ( i < 0 )
+    if (i < 0)
     {
         dumpdebugdata();
         OSD_Printf("Failed spawning sprite with tile %ld from sprite %ld (%ld) at x:%ld,y:%ld,z:%ld,sector:%ld\n",s_pn,s_ow,sprite[s_ow].picnum,s_x,s_y,s_z,whatsect);
@@ -3911,7 +3911,7 @@ short EGS(short whatsect,long s_x,long s_y,long s_z,short s_pn,signed char s_s,s
 
     actorspriteflags[i] = 0;
 
-    if ( actorscrptr[s_pn] )
+    if (actorscrptr[s_pn])
     {
         s->extra = *actorscrptr[s_pn];
         T5 = *(actorscrptr[s_pn]+1);
@@ -4000,7 +4000,7 @@ char wallswitchcheck(short i)
     return 0;
 }
 
-short spawn( short j, short pn )
+short spawn(short j, short pn)
 {
     short i, s, startwall, endwall, sect, clostest=0;
     long x, y, d, p;
@@ -4039,15 +4039,15 @@ short spawn( short j, short pn )
 
         actorspriteflags[i] = 0;
 
-        if ( PN != SPEAKER && PN != LETTER && PN != DUCK && PN != TARGET && PN != TRIPBOMB && PN != VIEWSCREEN && PN != VIEWSCREEN2 && (CS&48) )
-            if ( !(PN >= CRACK1 && PN <= CRACK4) )
+        if (PN != SPEAKER && PN != LETTER && PN != DUCK && PN != TARGET && PN != TRIPBOMB && PN != VIEWSCREEN && PN != VIEWSCREEN2 && (CS&48))
+            if (!(PN >= CRACK1 && PN <= CRACK4))
             {
                 if (SS == 127) return i;
-                if ( wallswitchcheck(i) == 1 && (CS&16) )
+                if (wallswitchcheck(i) == 1 && (CS&16))
                 {
-                    if ( PN != ACCESSSWITCH && PN != ACCESSSWITCH2 && sprite[i].pal)
+                    if (PN != ACCESSSWITCH && PN != ACCESSSWITCH2 && sprite[i].pal)
                     {
-                        if ( (ud.multimode < 2) || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_DMSWITCHES)) )
+                        if ((ud.multimode < 2) || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_DMSWITCHES)))
                         {
                             sprite[i].xrepeat = sprite[i].yrepeat = 0;
                             sprite[i].cstat = SLT = SHT = 0;
@@ -4055,12 +4055,12 @@ short spawn( short j, short pn )
                         }
                     }
                     CS |= 257;
-                    if ( sprite[i].pal && PN != ACCESSSWITCH && PN != ACCESSSWITCH2)
+                    if (sprite[i].pal && PN != ACCESSSWITCH && PN != ACCESSSWITCH2)
                         sprite[i].pal = 0;
                     return i;
                 }
 
-                if ( SHT )
+                if (SHT)
                 {
                     changespritestat(i,12);
                     CS |=  257;
@@ -4071,14 +4071,14 @@ short spawn( short j, short pn )
 
         s = PN;
 
-        if ( CS&1 ) CS |= 256;
+        if (CS&1) CS |= 256;
 
-        if ( actorscrptr[s] )
+        if (actorscrptr[s])
         {
             SH = *(actorscrptr[s]);
             T5 = *(actorscrptr[s]+1);
             T2 = *(actorscrptr[s]+2);
-            if ( *(actorscrptr[s]+3) && SHT == 0 )
+            if (*(actorscrptr[s]+3) && SHT == 0)
                 SHT = *(actorscrptr[s]+3);
         }
         else T2 = T5 = 0;
@@ -4103,7 +4103,7 @@ short spawn( short j, short pn )
             if (camerashitable) sp->cstat = 257;
             else sp->cstat = 0;
         }
-        if ( ud.multimode < 2 && sp->pal != 0 )
+        if (ud.multimode < 2 && sp->pal != 0)
         {
             sp->xrepeat = sp->yrepeat = 0;
             changespritestat(i,5);
@@ -4120,9 +4120,9 @@ short spawn( short j, short pn )
     else switch (dynamictostatic[sp->picnum])
         {
         default:
-            if ( actorscrptr[sp->picnum] )
+            if (actorscrptr[sp->picnum])
             {
-                if ( j == -1 && sp->lotag > ud.player_skill )
+                if (j == -1 && sp->lotag > ud.player_skill)
                 {
                     sp->xrepeat=sp->yrepeat=0;
                     changespritestat(i,5);
@@ -4133,9 +4133,9 @@ short spawn( short j, short pn )
                 if (sp->xrepeat == 0 || sp->yrepeat == 0)
                     sp->xrepeat = sp->yrepeat = 1;
 
-                if ( actortype[sp->picnum] & 3)
+                if (actortype[sp->picnum] & 3)
                 {
-                    if ( ud.monsters_off == 1 )
+                    if (ud.monsters_off == 1)
                     {
                         sp->xrepeat=sp->yrepeat=0;
                         changespritestat(i,5);
@@ -4144,7 +4144,7 @@ short spawn( short j, short pn )
 
                     makeitfall(i);
 
-                    if ( actortype[sp->picnum] & 2)
+                    if (actortype[sp->picnum] & 2)
                         hittype[i].actorstayput = sp->sectnum;
 
                     ps[myconnectindex].max_actors_killed++;
@@ -4191,7 +4191,7 @@ short spawn( short j, short pn )
                     sp->z = getceilzofslope(SECT,SX,SY)+(16<<8);
                     sp->cstat |= 8;
                 }
-                else if ( sector[sprite[j].sectnum].lotag == 1)
+                else if (sector[sprite[j].sectnum].lotag == 1)
                     sp->z = getflorzofslope(SECT,SX,SY);
             }
 
@@ -4259,7 +4259,7 @@ short spawn( short j, short pn )
                 {
                     sp->xrepeat = 48;
                     sp->yrepeat = 64;
-                    if (sprite[j].statnum == 10 || badguy(&sprite[j]) )
+                    if (sprite[j].statnum == 10 || badguy(&sprite[j]))
                         sp->z -= (32<<8);
                 }
             }
@@ -4308,7 +4308,7 @@ short spawn( short j, short pn )
             break;
 
         case FORCESPHERE__STATIC:
-            if (j == -1 )
+            if (j == -1)
             {
                 sp->cstat = (short) 32768;
                 changespritestat(i,2);
@@ -4323,7 +4323,7 @@ short spawn( short j, short pn )
         case BLOOD__STATIC:
             sp->xrepeat = sp->yrepeat = 16;
             sp->z -= (26<<8);
-            if ( j >= 0 && sprite[j].pal == 6 )
+            if (j >= 0 && sprite[j].pal == 6)
                 sp->pal = 6;
             changespritestat(i,5);
             break;
@@ -4361,7 +4361,7 @@ short spawn( short j, short pn )
 
         }
 
-        if ( sector[SECT].lotag == 1 )
+        if (sector[SECT].lotag == 1)
         {
             changespritestat(i,5);
             break;
@@ -4369,9 +4369,9 @@ short spawn( short j, short pn )
 
         if (j >= 0 && sp->picnum != PUKE)
         {
-            if ( sprite[j].pal == 1)
+            if (sprite[j].pal == 1)
                 sp->pal = 1;
-            else if ( sprite[j].pal != 6 && sprite[j].picnum != NUKEBARREL && sprite[j].picnum != TIRE )
+            else if (sprite[j].pal != 6 && sprite[j].picnum != NUKEBARREL && sprite[j].picnum != TIRE)
             {
                 if (sprite[j].picnum == FECES)
                     sp->pal = 7; // Brown
@@ -4384,7 +4384,7 @@ short spawn( short j, short pn )
         }
         sp->cstat |= 32;
         case FECES__STATIC:
-            if ( j >= 0)
+            if (j >= 0)
                 sp->xrepeat = sp->yrepeat = 1;
             changespritestat(i,5);
             break;
@@ -4404,7 +4404,7 @@ short spawn( short j, short pn )
             break;
 
         case TRIPBOMB__STATIC:
-            if ( sp->lotag > ud.player_skill )
+            if (sp->lotag > ud.player_skill)
             {
                 sp->xrepeat=sp->yrepeat=0;
                 changespritestat(i,5);
@@ -4667,7 +4667,7 @@ short spawn( short j, short pn )
         case MONEY__STATIC:
         case MAIL__STATIC:
         case PAPER__STATIC:
-            if ( sp->picnum == MONEY || sp->picnum == MAIL || sp->picnum == PAPER )
+            if (sp->picnum == MONEY || sp->picnum == MAIL || sp->picnum == PAPER)
             {
                 hittype[i].temp_data[0] = TRAND&2047;
                 sp->cstat = TRAND&12;
@@ -4687,7 +4687,7 @@ short spawn( short j, short pn )
 
         case SHELL__STATIC: //From the player
         case SHOTGUNSHELL__STATIC:
-            if ( j >= 0 )
+            if (j >= 0)
             {
                 short snum,a;
 
@@ -4732,7 +4732,7 @@ short spawn( short j, short pn )
         case RESPAWN__STATIC:
             sp->extra = 66-13;
         case MUSICANDSFX__STATIC:
-            if ( ud.multimode < 2 && sp->pal == 1)
+            if (ud.multimode < 2 && sp->pal == 1)
             {
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
@@ -4764,12 +4764,12 @@ short spawn( short j, short pn )
                 sp->shade = -127;
                 sp->cstat |= 128;
             }
-            else if (sp->picnum == SHRINKEREXPLOSION )
+            else if (sp->picnum == SHRINKEREXPLOSION)
             {
                 sp->xrepeat = 32;
                 sp->yrepeat = 32;
             }
-            else if ( sp->picnum == SMALLSMOKE )
+            else if (sp->picnum == SMALLSMOKE)
             {
                 // 64 "money"
                 sp->xrepeat = 24;
@@ -4784,7 +4784,7 @@ short spawn( short j, short pn )
             if (j >= 0)
             {
                 x = getflorzofslope(sp->sectnum,sp->x,sp->y);
-                if (sp->z > x-(12<<8) )
+                if (sp->z > x-(12<<8))
                     sp->z = x-(12<<8);
             }
 
@@ -4808,8 +4808,8 @@ short spawn( short j, short pn )
             sp->xrepeat = sp->yrepeat = 0;
             //j = ud.coop;
             //if(j == 2) j = 0;
-            j=(gametype_flags[ud.coop] & GAMETYPE_FLAG_COOPSPAWN ) / GAMETYPE_FLAG_COOPSPAWN ;
-            if ( ud.multimode < 2 || (ud.multimode > 1 && j != sp->lotag) )
+            j=(gametype_flags[ud.coop] & GAMETYPE_FLAG_COOPSPAWN) / GAMETYPE_FLAG_COOPSPAWN ;
+            if (ud.multimode < 2 || (ud.multimode > 1 && j != sp->lotag))
                 changespritestat(i,5);
             else
                 changespritestat(i,10);
@@ -4817,9 +4817,9 @@ short spawn( short j, short pn )
         case WATERBUBBLE__STATIC:
             if (j >= 0 && sprite[j].picnum == APLAYER)
                 sp->z -= (16<<8);
-            if ( sp->picnum == WATERBUBBLE)
+            if (sp->picnum == WATERBUBBLE)
             {
-                if ( j >= 0 )
+                if (j >= 0)
                     sp->ang = sprite[j].ang;
                 sp->xrepeat = sp->yrepeat = 4;
             }
@@ -4843,7 +4843,7 @@ short spawn( short j, short pn )
             s = headspritestat[0];
             while (s >= 0)
             {
-                if ( sprite[s].picnum == CRANEPOLE && SHT == (sprite[s].hitag) )
+                if (sprite[s].picnum == CRANEPOLE && SHT == (sprite[s].hitag))
                 {
                     msy[tempwallptr+2] = s;
 
@@ -5005,7 +5005,7 @@ short spawn( short j, short pn )
                 }
             }
 
-            if ( sp->picnum == BOSS4STAYPUT || sp->picnum == BOSS1 || sp->picnum == BOSS2 || sp->picnum == BOSS1STAYPUT || sp->picnum == BOSS3 || sp->picnum == BOSS4 )
+            if (sp->picnum == BOSS4STAYPUT || sp->picnum == BOSS1 || sp->picnum == BOSS2 || sp->picnum == BOSS1STAYPUT || sp->picnum == BOSS3 || sp->picnum == BOSS4)
             {
                 if (j >= 0 && sprite[j].picnum == RESPAWN)
                     sp->pal = sprite[j].pal;
@@ -5040,7 +5040,7 @@ short spawn( short j, short pn )
 
             if (j >= 0) sp->lotag = 0;
 
-            if ( ( sp->lotag > ud.player_skill ) || ud.monsters_off == 1 )
+            if ((sp->lotag > ud.player_skill) || ud.monsters_off == 1)
             {
                 sp->xrepeat=sp->yrepeat=0;
                 changespritestat(i,5);
@@ -5105,7 +5105,7 @@ short spawn( short j, short pn )
 
             if (j >= 0)
             {
-                if ( sprite[j].picnum == NUKEBARREL )
+                if (sprite[j].picnum == NUKEBARREL)
                     sp->pal = 8;
                 insertspriteq(i);
             }
@@ -5134,7 +5134,7 @@ short spawn( short j, short pn )
 
             if (sp->picnum == RECON)
             {
-                if ( sp->lotag > ud.player_skill )
+                if (sp->lotag > ud.player_skill)
                 {
                     sp->xrepeat = sp->yrepeat = 0;
                     changespritestat(i,5);
@@ -5156,7 +5156,7 @@ short spawn( short j, short pn )
 
             CS |= 257; // Make it hitable
 
-            if ( ud.multimode < 2 && sp->pal != 0)
+            if (ud.multimode < 2 && sp->pal != 0)
             {
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
@@ -5214,7 +5214,7 @@ short spawn( short j, short pn )
                 sp->cstat = 0;
             }
 
-            if ( ( ud.multimode < 2 && sp->pal != 0) || (sp->lotag > ud.player_skill) )
+            if ((ud.multimode < 2 && sp->pal != 0) || (sp->lotag > ud.player_skill))
             {
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
@@ -5308,7 +5308,7 @@ short spawn( short j, short pn )
                 if (sp->lotag != 23)
                 {
                     for (j=0;j<MAXSPRITES;j++)
-                        if (sprite[j].statnum < MAXSTATUS && sprite[j].picnum == SECTOREFFECTOR && ( sprite[j].lotag == 7 || sprite[j].lotag == 23 ) && i != j && sprite[j].hitag == SHT)
+                        if (sprite[j].statnum < MAXSTATUS && sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 7 || sprite[j].lotag == 23) && i != j && sprite[j].hitag == SHT)
                         {
                             OW = j;
                             break;
@@ -5372,7 +5372,7 @@ short spawn( short j, short pn )
                 T1 = sector[sect].ceilingz;
                 T2 = sector[sect].floorz;
 
-                if ( klabs(T1-sp->z) < klabs(T2-sp->z) )
+                if (klabs(T1-sp->z) < klabs(T2-sp->z))
                     sp->owner = 1;
                 else sp->owner = 0;
 
@@ -5386,7 +5386,7 @@ short spawn( short j, short pn )
                 else
                     sector[sect].ceilingz = sector[sect].floorz = sp->z;
 
-                if ( sector[sect].ceilingstat&1 )
+                if (sector[sect].ceilingstat&1)
                 {
                     sector[sect].ceilingstat ^= 1;
                     T4 = 1;
@@ -5408,7 +5408,7 @@ short spawn( short j, short pn )
                         {
                             x = wall[j].nextsector;
                             if (x >= 0)
-                                if ( !(sector[x].ceilingstat&1) )
+                                if (!(sector[x].ceilingstat&1))
                                 {
                                     sector[sect].ceilingpicnum =
                                         sector[x].ceilingpicnum;
@@ -5461,7 +5461,7 @@ short spawn( short j, short pn )
                     y = wall[s].y;
 
                     d = FindDistance2D(sp->x-x,sp->y-y);
-                    if ( d < q )
+                    if (d < q)
                     {
                         q = d;
                         clostest = s;
@@ -5509,7 +5509,7 @@ short spawn( short j, short pn )
                 {
                     if (!(wall[s].hitag&1))
                         wall[s].shade=sp->shade;
-                    if ( (wall[s].cstat&2) && wall[s].nextwall >= 0)
+                    if ((wall[s].cstat&2) && wall[s].nextwall >= 0)
                         wall[wall[s].nextwall].shade = sp->shade;
                 }
                 break;
@@ -5560,7 +5560,7 @@ short spawn( short j, short pn )
                 break;
 
             case 9:
-                if ( sector[sect].lotag &&
+                if (sector[sect].lotag &&
                         labs(sector[sect].ceilingz-sp->z) > 1024)
                     sector[sect].lotag |= 32768; //If its open
             case 8:
@@ -5595,7 +5595,7 @@ short spawn( short j, short pn )
 
                 if (sp->lotag == 0)
                 {
-                    if ( sector[sect].lotag == 30 )
+                    if (sector[sect].lotag == 30)
                     {
                         if (sp->pal) sprite[i].clipdist = 1;
                         else sprite[i].clipdist = 0;
@@ -5605,12 +5605,12 @@ short spawn( short j, short pn )
 
                     for (j = 0;j < MAXSPRITES;j++)
                     {
-                        if ( sprite[j].statnum < MAXSTATUS )
-                            if ( sprite[j].picnum == SECTOREFFECTOR &&
+                        if (sprite[j].statnum < MAXSTATUS)
+                            if (sprite[j].picnum == SECTOREFFECTOR &&
                                     sprite[j].lotag == 1 &&
                                     sprite[j].hitag == sp->hitag)
                             {
-                                if ( sp->ang == 512 )
+                                if (sp->ang == 512)
                                 {
                                     sp->x = sprite[j].x;
                                     sp->y = sprite[j].y;
@@ -5641,7 +5641,7 @@ short spawn( short j, short pn )
                         gameexit(tempbuf);
                     }
                 }
-                if ( sp->lotag == 30 || sp->lotag == 6 || sp->lotag == 14 || sp->lotag == 5 )
+                if (sp->lotag == 30 || sp->lotag == 6 || sp->lotag == 14 || sp->lotag == 5)
                 {
 
                     startwall = sector[sect].wallptr;
@@ -5657,9 +5657,9 @@ short spawn( short j, short pn )
 
                     for (s=startwall;s<endwall;s++)
                     {
-                        if ( wall[ s ].nextsector >= 0 &&
+                        if (wall[ s ].nextsector >= 0 &&
                                 sector[ wall[ s ].nextsector].hitag == 0 &&
-                                sector[ wall[ s ].nextsector].lotag < 3 )
+                                sector[ wall[ s ].nextsector].lotag < 3)
                         {
                             s = wall[s].nextsector;
                             j = 1;
@@ -5683,7 +5683,7 @@ short spawn( short j, short pn )
                 else if (sp->lotag == 16)
                     T4 = sector[sect].ceilingz;
 
-                else if ( sp->lotag == 26 )
+                else if (sp->lotag == 26)
                 {
                     T4 = sp->x;
                     T5 = sp->y;
@@ -5694,7 +5694,7 @@ short spawn( short j, short pn )
 
                     sp->shade = 0;
                 }
-                else if ( sp->lotag == 2)
+                else if (sp->lotag == 2)
                 {
                     T6 = sector[sp->sectnum].floorheinum;
                     sector[sp->sectnum].floorheinum = 0;
@@ -5771,7 +5771,7 @@ short spawn( short j, short pn )
                 sp->extra = 1;
             }
 
-            if ( ud.multimode < 2 && sp->pal != 0)
+            if (ud.multimode < 2 && sp->pal != 0)
             {
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
@@ -5815,7 +5815,7 @@ short spawn( short j, short pn )
                 sp->owner = j;
             else sp->owner = i;
         case EGG__STATIC:
-            if ( ud.monsters_off == 1 && sp->picnum == EGG )
+            if (ud.monsters_off == 1 && sp->picnum == EGG)
             {
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
@@ -5841,7 +5841,7 @@ short spawn( short j, short pn )
 #ifdef _MSC_VER
 // Visual C thought this was a bit too hard to optimise so we'd better
 // tell it not to try... such a pussy it is.
-//#pragma auto_inline( off )
+//#pragma auto_inline(off)
 #pragma optimize("g",off)
 #endif
 void animatesprites(long x,long y,short a,long smoothratio)
@@ -5925,7 +5925,7 @@ void animatesprites(long x,long y,short a,long smoothratio)
                 //case GREENSLIME+7:
                 //    break;
             default:
-                if ( ( (t->cstat&16) ) || ( badguy(t) && t->extra > 0) || t->statnum == 10)
+                if (((t->cstat&16)) || (badguy(t) && t->extra > 0) || t->statnum == 10)
                     continue;
             }
 
@@ -5944,7 +5944,7 @@ void animatesprites(long x,long y,short a,long smoothratio)
     }
 
 
-    for (j=0;j < spritesortcnt; j++ ) //Between drawrooms() and drawmasks()
+    for (j=0;j < spritesortcnt; j++) //Between drawrooms() and drawmasks()
     {                             //is the perfect time to animate sprites
         t = &tsprite[j];
         i = t->owner;
@@ -6040,15 +6040,15 @@ void animatesprites(long x,long y,short a,long smoothratio)
             }
         }
 
-        if ( t->statnum == 99 ) continue;
-        if ( s->statnum != 1 && s->picnum == APLAYER && ps[s->yvel].newowner == -1 && s->owner >= 0 )
+        if (t->statnum == 99) continue;
+        if (s->statnum != 1 && s->picnum == APLAYER && ps[s->yvel].newowner == -1 && s->owner >= 0)
         {
             t->x -= mulscale16(65536-smoothratio,ps[s->yvel].posx-ps[s->yvel].oposx);
             t->y -= mulscale16(65536-smoothratio,ps[s->yvel].posy-ps[s->yvel].oposy);
             t->z = ps[s->yvel].oposz + mulscale16(smoothratio,ps[s->yvel].posz-ps[s->yvel].oposz);
             t->z += (40<<8);
         }
-        else if ( ( s->statnum == 0 && s->picnum != CRANEPOLE) || s->statnum == 10 || s->statnum == 6 || s->statnum == 4 || s->statnum == 5 || s->statnum == 1 )
+        else if ((s->statnum == 0 && s->picnum != CRANEPOLE) || s->statnum == 10 || s->statnum == 6 || s->statnum == 4 || s->statnum == 5 || s->statnum == 1)
         {
             t->x -= mulscale16(65536-smoothratio,s->x-hittype[i].bposx);
             t->y -= mulscale16(65536-smoothratio,s->y-hittype[i].bposy);
@@ -6105,16 +6105,16 @@ void animatesprites(long x,long y,short a,long smoothratio)
                         sprite[s->owner].x-t->x,
                         sprite[s->owner].y-t->y);
 
-                if ( klabs(getincangle(sqa,sqb)) > 512 )
-                    if ( ldist(&sprite[s->owner],t) < ldist(&sprite[ps[screenpeek].i],&sprite[s->owner]) )
+                if (klabs(getincangle(sqa,sqb)) > 512)
+                    if (ldist(&sprite[s->owner],t) < ldist(&sprite[ps[screenpeek].i],&sprite[s->owner]))
                         t->xrepeat = t->yrepeat = 0;
             }
             continue;
         case BURNING__STATIC:
         case BURNING2__STATIC:
-            if ( sprite[s->owner].statnum == 10 )
+            if (sprite[s->owner].statnum == 10)
             {
-                if ( display_mirror == 0 && sprite[s->owner].yvel == screenpeek && ps[sprite[s->owner].yvel].over_shoulder_on == 0 )
+                if (display_mirror == 0 && sprite[s->owner].yvel == screenpeek && ps[sprite[s->owner].yvel].over_shoulder_on == 0)
                     t->xrepeat = 0;
                 else
                 {
@@ -6147,10 +6147,10 @@ void animatesprites(long x,long y,short a,long smoothratio)
             break;
 
         case SHRINKSPARK__STATIC:
-            t->picnum = SHRINKSPARK+( (totalclock>>4)&3 );
+            t->picnum = SHRINKSPARK+((totalclock>>4)&3);
             break;
         case GROWSPARK__STATIC:
-            t->picnum = GROWSPARK+( (totalclock>>4)&3 );
+            t->picnum = GROWSPARK+((totalclock>>4)&3);
             break;
         case RPG__STATIC:
 #if defined(POLYMOST) && defined(USE_OPENGL)
@@ -6178,7 +6178,7 @@ void animatesprites(long x,long y,short a,long smoothratio)
             }
 #endif
             k = getangle(s->x-x,s->y-y);
-            if ( T1 < 4 )
+            if (T1 < 4)
                 k = (((s->ang+3072+128-k)&2047)/170);
             else k = (((s->ang+3072+128-k)&2047)/170);
 
@@ -6189,7 +6189,7 @@ void animatesprites(long x,long y,short a,long smoothratio)
             }
             else t->cstat &= ~4;
 
-            if ( klabs(t3) > 64 ) k += 7;
+            if (klabs(t3) > 64) k += 7;
             t->picnum = RECON+k;
 
             break;
@@ -6200,10 +6200,10 @@ void animatesprites(long x,long y,short a,long smoothratio)
 
             if (t->pal == 1) t->z -= (18<<8);
 
-            if (ps[p].over_shoulder_on > 0 && ps[p].newowner < 0 )
+            if (ps[p].over_shoulder_on > 0 && ps[p].newowner < 0)
             {
                 t->cstat |= 2;
-                if ( screenpeek == myconnectindex && numplayers >= 2 )
+                if (screenpeek == myconnectindex && numplayers >= 2)
                 {
                     t->x = omyx+mulscale16((long)(myx-omyx),smoothratio);
                     t->y = omyy+mulscale16((long)(myy-omyy),smoothratio);
@@ -6213,13 +6213,13 @@ void animatesprites(long x,long y,short a,long smoothratio)
                 }
             }
 
-            if ( ( display_mirror == 1 || screenpeek != p || s->owner == -1 ) && ud.multimode > 1 && ud.showweapons && sprite[ps[p].i].extra > 0 && ps[p].curr_weapon > 0 )
+            if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && ud.showweapons && sprite[ps[p].i].extra > 0 && ps[p].curr_weapon > 0)
             {
                 memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
                 tsprite[spritesortcnt].statnum = 99;
 
-                tsprite[spritesortcnt].yrepeat = ( t->yrepeat>>3 );
+                tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
                 if (t->yrepeat < 4) t->yrepeat = 4;
 
                 tsprite[spritesortcnt].shade = t->shade;
@@ -6244,13 +6244,13 @@ void animatesprites(long x,long y,short a,long smoothratio)
                 spritesortcnt++;
             }
 
-            if ( ( display_mirror == 1 || screenpeek != p || s->owner == -1 ) && ud.multimode > 1 && sync[p].svel == 0 && sync[p].fvel == 0 && !ud.pause_on)
+            if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && sync[p].svel == 0 && sync[p].fvel == 0 && !ud.pause_on)
             {
                 memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
                 tsprite[spritesortcnt].statnum = 99;
 
-                tsprite[spritesortcnt].yrepeat = ( t->yrepeat>>3 );
+                tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
                 if (t->yrepeat < 4) t->yrepeat = 4;
 
                 tsprite[spritesortcnt].cstat = 0;
@@ -6285,7 +6285,7 @@ void animatesprites(long x,long y,short a,long smoothratio)
                 }
 
                 if (sector[t->sectnum].lotag == 2) k += 1795-1405;
-                else if ( (hittype[i].floorz-s->z) > (64<<8) ) k += 60;
+                else if ((hittype[i].floorz-s->z) > (64<<8)) k += 60;
 
                 t->picnum += k;
                 t->pal = ps[p].palookup;
@@ -6293,10 +6293,10 @@ void animatesprites(long x,long y,short a,long smoothratio)
                 goto PALONLY;
             }
 
-            if ( ps[p].on_crane == -1 && (sector[s->sectnum].lotag&0x7ff) != 1 )
+            if (ps[p].on_crane == -1 && (sector[s->sectnum].lotag&0x7ff) != 1)
             {
                 l = s->z-hittype[ps[p].i].floorz+(3<<8);
-                if ( l > 1024 && s->yrepeat > 32 && s->extra > 0 )
+                if (l > 1024 && s->yrepeat > 32 && s->extra > 0)
                     s->yoffset = (signed char)(l/(s->yrepeat<<2));
                 else s->yoffset=0;
             }
@@ -6309,8 +6309,8 @@ void animatesprites(long x,long y,short a,long smoothratio)
             }
 
             if (ud.camerasprite == -1 && ps[p].newowner == -1)
-                if (s->owner >= 0 && display_mirror == 0 && ps[p].over_shoulder_on == 0 )
-                    if ( ud.multimode < 2 || ( ud.multimode > 1 && p == screenpeek ) )
+                if (s->owner >= 0 && display_mirror == 0 && ps[p].over_shoulder_on == 0)
+                    if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
                     {
                         t->owner = -1;
                         t->xrepeat = t->yrepeat = 0;
@@ -6319,12 +6319,12 @@ void animatesprites(long x,long y,short a,long smoothratio)
 
 PALONLY:
 
-            if ( sector[sect].floorpal && sector[sect].floorpal < numl)
+            if (sector[sect].floorpal && sector[sect].floorpal < numl)
                 t->pal = sector[sect].floorpal;
 
             if (s->owner == -1) continue;
 
-            if ( t->z > hittype[i].floorz && t->xrepeat < 32 )
+            if (t->z > hittype[i].floorz && t->xrepeat < 32)
                 t->z = hittype[i].floorz;
 
             break;
@@ -6360,7 +6360,7 @@ PALONLY:
             else t->picnum += T1;
             t->shade -= 6;
 
-            if ( sector[sect].floorpal && sector[sect].floorpal < numl )
+            if (sector[sect].floorpal && sector[sect].floorpal < numl)
                 t->pal = sector[sect].floorpal;
             break;
 
@@ -6371,12 +6371,12 @@ PALONLY:
                 break;
             }
         default:
-            if ( sector[sect].floorpal && sector[sect].floorpal < numl )
+            if (sector[sect].floorpal && sector[sect].floorpal < numl)
                 t->pal = sector[sect].floorpal;
             break;
         }
 
-        if ( actorscrptr[s->picnum] )
+        if (actorscrptr[s->picnum])
         {
             if (t4)
             {
@@ -6388,7 +6388,7 @@ PALONLY:
                 }
                 else
 #endif
-                    switch ( l )
+                    switch (l)
                     {
                     case 2:
                         k = (((s->ang+3072+128-a)&2047)>>8)&1;
@@ -6434,50 +6434,50 @@ PALONLY:
                         break;
                     }
 
-                t->picnum += k + ( *(long *)t4 ) + l * t3;
+                t->picnum += k + (*(long *)t4) + l * t3;
 
-                if (l > 0) while (tilesizx[t->picnum] == 0 && t->picnum > 0 )
+                if (l > 0) while (tilesizx[t->picnum] == 0 && t->picnum > 0)
                         t->picnum -= l;       //Hack, for actors
 
-                if ( hittype[i].dispicnum >= 0)
+                if (hittype[i].dispicnum >= 0)
                     hittype[i].dispicnum = t->picnum;
             }
             else if (display_mirror == 1)
                 t->cstat |= 4;
         }
 
-        if ( ps[screenpeek].heat_amount > 0 && ps[screenpeek].heat_on && (badguy(s) || checkspriteflags(t->owner,SPRITE_FLAG_NVG) || s->picnum == APLAYER || s->statnum == 13))
+        if (ps[screenpeek].heat_amount > 0 && ps[screenpeek].heat_on && (badguy(s) || checkspriteflags(t->owner,SPRITE_FLAG_NVG) || s->picnum == APLAYER || s->statnum == 13))
         {
             t->pal = 6;
             t->shade = 0;
         }
 
-        if ( s->statnum == 13 || badguy(s) || checkspriteflags(t->owner,SPRITE_FLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0) )
+        if (s->statnum == 13 || badguy(s) || checkspriteflags(t->owner,SPRITE_FLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
             if (t->statnum != 99 && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE)
                 if (s->picnum != HOTMEAT)
                 {
-                    if ( hittype[i].dispicnum < 0 )
+                    if (hittype[i].dispicnum < 0)
                     {
                         hittype[i].dispicnum++;
                         continue;
                     }
-                    else if ( ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2))
+                    else if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2))
                     {
                         long daz,xrep,yrep;
 
-                        if ( (sector[sect].lotag&0xff) > 2 || s->statnum == 4 || s->statnum == 5 || s->picnum == DRONE || s->picnum == COMMANDER )
+                        if ((sector[sect].lotag&0xff) > 2 || s->statnum == 4 || s->statnum == 5 || s->picnum == DRONE || s->picnum == COMMANDER)
                             daz = sector[sect].floorz;
                         else
                             daz = hittype[i].floorz;
 
-                        if ( (s->z-daz) < (8<<8) )
-                            if ( ps[screenpeek].posz < daz )
+                        if ((s->z-daz) < (8<<8))
+                            if (ps[screenpeek].posz < daz)
                             {
                                 memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
                                 tsprite[spritesortcnt].statnum = 99;
 
-                                tsprite[spritesortcnt].yrepeat = ( t->yrepeat>>3 );
+                                tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
                                 if (t->yrepeat < 4) t->yrepeat = 4;
 
                                 tsprite[spritesortcnt].shade = 127;
@@ -6520,7 +6520,7 @@ PALONLY:
         case LASERLINE__STATIC:
             if (sector[t->sectnum].lotag == 2) t->pal = 8;
             t->z = sprite[s->owner].z-(3<<8);
-            if (lasermode == 2 && ps[screenpeek].heat_on == 0 )
+            if (lasermode == 2 && ps[screenpeek].heat_on == 0)
                 t->yrepeat = 0;
         case EXPLOSION2__STATIC:
         case EXPLOSION2BOT__STATIC:
@@ -6545,7 +6545,7 @@ PALONLY:
         case FIRE2__STATIC:
         case BURNING__STATIC:
         case BURNING2__STATIC:
-            if ( sprite[s->owner].picnum != TREE1 && sprite[s->owner].picnum != TREE2 )
+            if (sprite[s->owner].picnum != TREE1 && sprite[s->owner].picnum != TREE2)
                 t->z = sector[t->sectnum].floorz;
             t->shade = -127;
             break;
@@ -6600,7 +6600,7 @@ PALONLY:
                             t->owner = -1;
                             break;
                         }
-                if ( (sprite[s->owner].cstat&32768) == 0 )
+                if ((sprite[s->owner].cstat&32768) == 0)
                 {
                     if (!hittype[s->owner].dispicnum)
                         t->picnum = hittype[i].temp_data[1];
@@ -6640,7 +6640,7 @@ PALONLY:
     }
 }
 #ifdef _MSC_VER
-//#pragma auto_inline( )
+//#pragma auto_inline()
 #pragma optimize("",on)
 #endif
 
@@ -6710,7 +6710,7 @@ void CheatGetInventory(void)
 {
     SetGameVarID(g_iReturnVarID, 400, ps[myconnectindex].i, myconnectindex);
     OnEvent(EVENT_CHEATGETSTEROIDS, ps[myconnectindex].i, myconnectindex, -1);
-    if ( GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
     {
         ps[myconnectindex].steroids_amount =
             GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
@@ -6718,7 +6718,7 @@ void CheatGetInventory(void)
 
     SetGameVarID(g_iReturnVarID, 1200, ps[myconnectindex].i, myconnectindex);
     OnEvent(EVENT_CHEATGETHEAT, ps[myconnectindex].i, myconnectindex, -1);
-    if ( GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
     {
         ps[myconnectindex].heat_amount     =
             GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
@@ -6726,7 +6726,7 @@ void CheatGetInventory(void)
 
     SetGameVarID(g_iReturnVarID, 200, ps[myconnectindex].i, myconnectindex);
     OnEvent(EVENT_CHEATGETBOOT, ps[myconnectindex].i, myconnectindex, -1);
-    if ( GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
     {
         ps[myconnectindex].boot_amount          =
             GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
@@ -6734,7 +6734,7 @@ void CheatGetInventory(void)
 
     SetGameVarID(g_iReturnVarID, 100, ps[myconnectindex].i, myconnectindex);
     OnEvent(EVENT_CHEATGETSHIELD, ps[myconnectindex].i, myconnectindex, -1);
-    if ( GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
     {
         ps[myconnectindex].shield_amount =
             GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
@@ -6742,7 +6742,7 @@ void CheatGetInventory(void)
 
     SetGameVarID(g_iReturnVarID, 6400, ps[myconnectindex].i, myconnectindex);
     OnEvent(EVENT_CHEATGETSCUBA, ps[myconnectindex].i, myconnectindex, -1);
-    if ( GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
     {
         ps[myconnectindex].scuba_amount =
             GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
@@ -6750,7 +6750,7 @@ void CheatGetInventory(void)
 
     SetGameVarID(g_iReturnVarID, 2400, ps[myconnectindex].i, myconnectindex);
     OnEvent(EVENT_CHEATGETHOLODUKE, ps[myconnectindex].i, myconnectindex, -1);
-    if ( GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
     {
         ps[myconnectindex].holoduke_amount =
             GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
@@ -6758,7 +6758,7 @@ void CheatGetInventory(void)
 
     SetGameVarID(g_iReturnVarID, 1600, ps[myconnectindex].i, myconnectindex);
     OnEvent(EVENT_CHEATGETJETPACK, ps[myconnectindex].i, myconnectindex, -1);
-    if ( GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
     {
         ps[myconnectindex].jetpack_amount =
             GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
@@ -6766,7 +6766,7 @@ void CheatGetInventory(void)
 
     SetGameVarID(g_iReturnVarID, max_player_health, ps[myconnectindex].i, myconnectindex);
     OnEvent(EVENT_CHEATGETFIRSTAID, ps[myconnectindex].i, myconnectindex, -1);
-    if ( GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
     {
         ps[myconnectindex].firstaid_amount =
             GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
@@ -6787,7 +6787,7 @@ void cheats(void)
         consolecheat = 1;
     }
 
-    if ( (ps[myconnectindex].gm&MODE_TYPE) || (ps[myconnectindex].gm&MODE_MENU))
+    if ((ps[myconnectindex].gm&MODE_TYPE) || (ps[myconnectindex].gm&MODE_MENU))
         return;
 
     if (VOLUMEONE && !z) {
@@ -6799,13 +6799,13 @@ void cheats(void)
     if (consolecheat && numplayers < 2 && ud.recstat == 0)
         goto FOUNDCHEAT;
 
-    if ( ps[myconnectindex].cheat_phase == 1)
+    if (ps[myconnectindex].cheat_phase == 1)
     {
         while (KB_KeyWaiting())
         {
             ch = Btolower(KB_Getch());
 
-            if ( !( (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') ) )
+            if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
             {
                 ps[myconnectindex].cheat_phase = 0;
                 //                             FTA(46,&ps[myconnectindex]);
@@ -6826,9 +6826,9 @@ void cheats(void)
             {
                 for (j = 0;j<cheatbuflen;j++)
                 {
-                    if ( cheatbuf[j] == cheatquotes[k][j] || (cheatquotes[k][j] == '#' && ch >= '0' && ch <= '9') )
+                    if (cheatbuf[j] == cheatquotes[k][j] || (cheatquotes[k][j] == '#' && ch >= '0' && ch <= '9'))
                     {
-                        if ( cheatquotes[k][j+1] == 0 ) goto FOUNDCHEAT;
+                        if (cheatquotes[k][j+1] == 0) goto FOUNDCHEAT;
                         if (j == cheatbuflen-1) return;
                     }
                     else break;
@@ -6849,9 +6849,9 @@ FOUNDCHEAT:
                         j = 0;
                     }
 
-                    for ( weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++ )
+                    for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
                     {
-                        addammo( weapon, &ps[myconnectindex], max_ammo_amount[weapon] );
+                        addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
                         ps[myconnectindex].gotweapon[weapon]  = 1;
                     }
 
@@ -6976,13 +6976,13 @@ FOUNDCHEAT:
                     }
 
                     CheatGetInventory();
-                    for ( weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS;weapon++ )
+                    for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS;weapon++)
                         ps[myconnectindex].gotweapon[weapon]  = 1;
 
-                    for ( weapon = PISTOL_WEAPON;
+                    for (weapon = PISTOL_WEAPON;
                             weapon < (MAX_WEAPONS);
-                            weapon++ )
-                        addammo( weapon, &ps[myconnectindex], max_ammo_amount[weapon] );
+                            weapon++)
+                        addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
                     ps[myconnectindex].got_access =              7;
                     sprite[ps[myconnectindex].i].extra = max_player_health;
                     hittype[ps[myconnectindex].i].extra = 0;
@@ -6997,13 +6997,13 @@ FOUNDCHEAT:
                     } else {
                         j = 0;
                     }
-                    for ( weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++ )
+                    for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
                         ps[myconnectindex].gotweapon[weapon]  = 1;
 
-                    for ( weapon = PISTOL_WEAPON;
+                    for (weapon = PISTOL_WEAPON;
                             weapon < (MAX_WEAPONS-j);
-                            weapon++ )
-                        addammo( weapon, &ps[myconnectindex], max_ammo_amount[weapon] );
+                            weapon++)
+                        addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
                     CheatGetInventory();
                     ps[myconnectindex].got_access =              7;
                     FTA(5,&ps[myconnectindex]);
@@ -7034,7 +7034,7 @@ FOUNDCHEAT:
                             volnume--;
                             levnume--;
 
-                            if ( VOLUMEONE && volnume > 0 )
+                            if (VOLUMEONE && volnume > 0)
                             {
                                 ps[myconnectindex].cheat_phase = 0;
                                 KB_FlushKeyBoardQueue();
@@ -7109,7 +7109,7 @@ FOUNDCHEAT:
                     return;
 
                 case CHEAT_VIEW:
-                    if ( ps[myconnectindex].over_shoulder_on )
+                    if (ps[myconnectindex].over_shoulder_on)
                         ps[myconnectindex].over_shoulder_on = 0;
                     else
                     {
@@ -7136,9 +7136,9 @@ FOUNDCHEAT:
                     {
                         j = sector[i].lotag;
                         if (j == -1 || j == 32767) continue;
-                        if ( (j & 0x7fff) > 2 )
+                        if ((j & 0x7fff) > 2)
                         {
-                            if ( j&(0xffff-16384) )
+                            if (j&(0xffff-16384))
                                 sector[i].lotag &= (0xffff-16384);
                             operatesectors(i,ps[myconnectindex].i);
                         }
@@ -7237,15 +7237,15 @@ FOUNDCHEAT:
     }
     else
     {
-        if ( KB_KeyPressed(cheatkey[0]) )
+        if (KB_KeyPressed(cheatkey[0]))
         {
-            if ( ps[myconnectindex].cheat_phase >= 0 && numplayers < 2 && ud.recstat == 0)
+            if (ps[myconnectindex].cheat_phase >= 0 && numplayers < 2 && ud.recstat == 0)
                 ps[myconnectindex].cheat_phase = -1;
         }
 
-        if ( KB_KeyPressed(cheatkey[1]) )
+        if (KB_KeyPressed(cheatkey[1]))
         {
-            if ( ps[myconnectindex].cheat_phase == -1 )
+            if (ps[myconnectindex].cheat_phase == -1)
             {
                 if (ud.player_skill == 4)
                 {
@@ -7278,7 +7278,7 @@ void nonsharedkeys(void)
     if (ud.recstat == 2)
     {
         ControlInfo noshareinfo;
-        CONTROL_GetInput( &noshareinfo );
+        CONTROL_GetInput(&noshareinfo);
     }
 
     if (gotvote[myconnectindex] == 0 && voting != -1 && voting != myconnectindex)
@@ -7303,18 +7303,18 @@ void nonsharedkeys(void)
         }
     }
 
-    if ( KB_KeyPressed( sc_F12 ) )
+    if (KB_KeyPressed(sc_F12))
     {
-        KB_ClearKeyDown( sc_F12 );
+        KB_ClearKeyDown(sc_F12);
         screencapture("duke0000.tga",0);
         FTA(103,&ps[myconnectindex]);
     }
 
-    if ( !ALT_IS_PRESSED && ud.overhead_on == 0 && (ps[myconnectindex].gm & MODE_TYPE) == 0)
+    if (!ALT_IS_PRESSED && ud.overhead_on == 0 && (ps[myconnectindex].gm & MODE_TYPE) == 0)
     {
-        if ( BUTTON( gamefunc_Enlarge_Screen ) )
+        if (BUTTON(gamefunc_Enlarge_Screen))
         {
-            CONTROL_ClearButton( gamefunc_Enlarge_Screen );
+            CONTROL_ClearButton(gamefunc_Enlarge_Screen);
             if (ud.screen_size > 0)
                 sound(THUD);
             if (ud.screen_size == 8 && ud.statusbarmode == 0 && bpp > 8 && ud.statusbarscale != 100)
@@ -7322,9 +7322,9 @@ void nonsharedkeys(void)
             else ud.screen_size -= 4;
             vscrn();
         }
-        if ( BUTTON( gamefunc_Shrink_Screen ) )
+        if (BUTTON(gamefunc_Shrink_Screen))
         {
-            CONTROL_ClearButton( gamefunc_Shrink_Screen );
+            CONTROL_ClearButton(gamefunc_Shrink_Screen);
             if (ud.screen_size < 64) sound(THUD);
             if (ud.screen_size == 4 && ud.statusbarscale == 100 && ud.statusbarmode == 1)
                 ud.statusbarmode = 0;
@@ -7335,17 +7335,17 @@ void nonsharedkeys(void)
         }
     }
 
-    if ( ps[myconnectindex].cheat_phase == 1 || (ps[myconnectindex].gm&(MODE_MENU|MODE_TYPE))) return;
+    if (ps[myconnectindex].cheat_phase == 1 || (ps[myconnectindex].gm&(MODE_MENU|MODE_TYPE))) return;
 
-    if ( BUTTON(gamefunc_See_Coop_View) && ( GTFLAGS(GAMETYPE_FLAG_COOPVIEW) || ud.recstat == 2) )
+    if (BUTTON(gamefunc_See_Coop_View) && (GTFLAGS(GAMETYPE_FLAG_COOPVIEW) || ud.recstat == 2))
     {
-        CONTROL_ClearButton( gamefunc_See_Coop_View );
+        CONTROL_ClearButton(gamefunc_See_Coop_View);
         screenpeek = connectpoint2[screenpeek];
         if (screenpeek == -1) screenpeek = connecthead;
         restorepalette = 1;
     }
 
-    if ( ud.multimode > 1 && BUTTON(gamefunc_Show_Opponents_Weapon) )
+    if (ud.multimode > 1 && BUTTON(gamefunc_Show_Opponents_Weapon))
     {
         CONTROL_ClearButton(gamefunc_Show_Opponents_Weapon);
         ud.showweapons = 1-ud.showweapons;
@@ -7353,14 +7353,14 @@ void nonsharedkeys(void)
         FTA(82-ud.showweapons,&ps[screenpeek]);
     }
 
-    if ( BUTTON(gamefunc_Toggle_Crosshair) )
+    if (BUTTON(gamefunc_Toggle_Crosshair))
     {
         CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
         ud.crosshair = (ud.crosshair==3)?0:ud.crosshair+1;
         FTA(ud.crosshair?20:21,&ps[screenpeek]);
     }
 
-    if (ud.overhead_on && BUTTON(gamefunc_Map_Follow_Mode) )
+    if (ud.overhead_on && BUTTON(gamefunc_Map_Follow_Mode))
     {
         CONTROL_ClearButton(gamefunc_Map_Follow_Mode);
         ud.scrollmode = 1-ud.scrollmode;
@@ -7373,19 +7373,19 @@ void nonsharedkeys(void)
         FTA(83+ud.scrollmode,&ps[myconnectindex]);
     }
 
-    if ( SHIFTS_IS_PRESSED || ALT_IS_PRESSED )
+    if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED)
     {
         i = 0;
-        if ( KB_KeyPressed( sc_F1) ) { KB_ClearKeyDown(sc_F1);i = 1; }
-        if ( KB_KeyPressed( sc_F2) ) { KB_ClearKeyDown(sc_F2);i = 2; }
-        if ( KB_KeyPressed( sc_F3) ) { KB_ClearKeyDown(sc_F3);i = 3; }
-        if ( KB_KeyPressed( sc_F4) ) { KB_ClearKeyDown(sc_F4);i = 4; }
-        if ( KB_KeyPressed( sc_F5) ) { KB_ClearKeyDown(sc_F5);i = 5; }
-        if ( KB_KeyPressed( sc_F6) ) { KB_ClearKeyDown(sc_F6);i = 6; }
-        if ( KB_KeyPressed( sc_F7) ) { KB_ClearKeyDown(sc_F7);i = 7; }
-        if ( KB_KeyPressed( sc_F8) ) { KB_ClearKeyDown(sc_F8);i = 8; }
-        if ( KB_KeyPressed( sc_F9) ) { KB_ClearKeyDown(sc_F9);i = 9; }
-        if ( KB_KeyPressed( sc_F10) ) {KB_ClearKeyDown(sc_F10);i = 10; }
+        if (KB_KeyPressed(sc_F1)) { KB_ClearKeyDown(sc_F1);i = 1; }
+        if (KB_KeyPressed(sc_F2)) { KB_ClearKeyDown(sc_F2);i = 2; }
+        if (KB_KeyPressed(sc_F3)) { KB_ClearKeyDown(sc_F3);i = 3; }
+        if (KB_KeyPressed(sc_F4)) { KB_ClearKeyDown(sc_F4);i = 4; }
+        if (KB_KeyPressed(sc_F5)) { KB_ClearKeyDown(sc_F5);i = 5; }
+        if (KB_KeyPressed(sc_F6)) { KB_ClearKeyDown(sc_F6);i = 6; }
+        if (KB_KeyPressed(sc_F7)) { KB_ClearKeyDown(sc_F7);i = 7; }
+        if (KB_KeyPressed(sc_F8)) { KB_ClearKeyDown(sc_F8);i = 8; }
+        if (KB_KeyPressed(sc_F9)) { KB_ClearKeyDown(sc_F9);i = 9; }
+        if (KB_KeyPressed(sc_F10)) {KB_ClearKeyDown(sc_F10);i = 10; }
 
         if (i)
         {
@@ -7431,12 +7431,12 @@ void nonsharedkeys(void)
             }
 
             if (ud.lockout == 0)
-                if (SoundToggle && ALT_IS_PRESSED && ( RTS_NumSounds() > 0 ) && rtsplaying == 0 && VoiceToggle )
+                if (SoundToggle && ALT_IS_PRESSED && (RTS_NumSounds() > 0) && rtsplaying == 0 && VoiceToggle)
                 {
-                    rtsptr = (char *)RTS_GetSound (i-1);
+                    rtsptr = (char *)RTS_GetSound(i-1);
                     if (*rtsptr == 'C')
-                        FX_PlayVOC3D( rtsptr,0,0,0,255,-i);
-                    else FX_PlayWAV3D( rtsptr,0,0,0,255,-i);
+                        FX_PlayVOC3D(rtsptr,0,0,0,255,-i);
+                    else FX_PlayWAV3D(rtsptr,0,0,0,255,-i);
 
                     rtsplaying = 7;
 
@@ -7463,16 +7463,16 @@ void nonsharedkeys(void)
     if (!ALT_IS_PRESSED && !SHIFTS_IS_PRESSED)
     {
 
-        if ( ud.multimode > 1 && BUTTON(gamefunc_SendMessage) )
+        if (ud.multimode > 1 && BUTTON(gamefunc_SendMessage))
         {
             KB_FlushKeyboardQueue();
-            CONTROL_ClearButton( gamefunc_SendMessage );
+            CONTROL_ClearButton(gamefunc_SendMessage);
             ps[myconnectindex].gm |= MODE_TYPE;
             typebuf[0] = 0;
             inputloc = 0;
         }
 
-        if ( KB_KeyPressed(sc_F1) || ( ud.show_help && ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) ) ) )
+        if (KB_KeyPressed(sc_F1) || (ud.show_help && (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter))))
         {
             KB_ClearKeyDown(sc_F1);
             KB_ClearKeyDown(sc_Space);
@@ -7480,7 +7480,7 @@ void nonsharedkeys(void)
             KB_ClearKeyDown(sc_Enter);
             ud.show_help ++;
 
-            if ( ud.show_help > 2 )
+            if (ud.show_help > 2)
             {
                 ud.show_help = 0;
                 if (ud.multimode < 2 && ud.recstat != 2) ready2send = 1;
@@ -7499,9 +7499,9 @@ void nonsharedkeys(void)
 
         //        if(ud.multimode < 2)
         {
-            if (ud.recstat != 2 && KB_KeyPressed( sc_F2 ) )
+            if (ud.recstat != 2 && KB_KeyPressed(sc_F2))
             {
-                KB_ClearKeyDown( sc_F2 );
+                KB_ClearKeyDown(sc_F2);
 
                 if (movesperpacket == 4 && connecthead != myconnectindex)
                     return;
@@ -7531,9 +7531,9 @@ FAKE_F2:
                 }
             }
 
-            if (KB_KeyPressed( sc_F3 ))
+            if (KB_KeyPressed(sc_F3))
             {
-                KB_ClearKeyDown( sc_F3 );
+                KB_ClearKeyDown(sc_F3);
 
                 if (movesperpacket == 4 && connecthead != myconnectindex)
                     return;
@@ -7553,9 +7553,9 @@ FAKE_F3:
             }
         }
 
-        if (KB_KeyPressed( sc_F4 ) && FXDevice >= 0 )
+        if (KB_KeyPressed(sc_F4) && FXDevice >= 0)
         {
-            KB_ClearKeyDown( sc_F4 );
+            KB_ClearKeyDown(sc_F4);
             FX_StopAllSounds();
             clearsoundlocks();
 
@@ -7569,9 +7569,9 @@ FAKE_F3:
 
         }
 
-        if ( KB_KeyPressed( sc_F6 ) && (ps[myconnectindex].gm&MODE_GAME))
+        if (KB_KeyPressed(sc_F6) && (ps[myconnectindex].gm&MODE_GAME))
         {
-            KB_ClearKeyDown( sc_F6 );
+            KB_ClearKeyDown(sc_F6);
 
             if (movesperpacket == 4 && connecthead != myconnectindex)
                 return;
@@ -7589,7 +7589,7 @@ FAKE_F3:
             displayrooms(myconnectindex,65536);
             //savetemp("duke3d.tmp",waloff[TILE_SAVESHOT],160*100);
             screencapt = 0;
-            if ( lastsavedpos >= 0 )
+            if (lastsavedpos >= 0)
             {
                 /*                inputloc = Bstrlen(&ud.savegame[lastsavedpos][0]);
                                 current_menu = 360+lastsavedpos;
@@ -7600,10 +7600,10 @@ FAKE_F3:
             }
         }
 
-        if (KB_KeyPressed( sc_F7 ) )
+        if (KB_KeyPressed(sc_F7))
         {
             KB_ClearKeyDown(sc_F7);
-            if ( ps[myconnectindex].over_shoulder_on )
+            if (ps[myconnectindex].over_shoulder_on)
                 ps[myconnectindex].over_shoulder_on = 0;
             else
             {
@@ -7614,17 +7614,17 @@ FAKE_F3:
             FTA(109+ps[myconnectindex].over_shoulder_on,&ps[myconnectindex]);
         }
 
-        if ( KB_KeyPressed( sc_F5 ) && MusicDevice >= 0 )
+        if (KB_KeyPressed(sc_F5) && MusicDevice >= 0)
         {
-            KB_ClearKeyDown( sc_F5 );
+            KB_ClearKeyDown(sc_F5);
             Bstrcpy(fta_quotes[26],&music_fn[0][music_select][0]);
             Bstrcat(fta_quotes[26],".  USE SHIFT-F5 TO CHANGE.");
             FTA(26,&ps[myconnectindex]);
         }
 
-        if (KB_KeyPressed( sc_F8 ))
+        if (KB_KeyPressed(sc_F8))
         {
-            KB_ClearKeyDown( sc_F8 );
+            KB_ClearKeyDown(sc_F8);
             ud.fta_on = !ud.fta_on;
             if (ud.fta_on) FTA(23,&ps[myconnectindex]);
             else
@@ -7635,16 +7635,16 @@ FAKE_F3:
             }
         }
 
-        if (KB_KeyPressed( sc_F9 ) && (ps[myconnectindex].gm&MODE_GAME) )
+        if (KB_KeyPressed(sc_F9) && (ps[myconnectindex].gm&MODE_GAME))
         {
-            KB_ClearKeyDown( sc_F9 );
+            KB_ClearKeyDown(sc_F9);
 
             if (movesperpacket == 4 && myconnectindex != connecthead)
                 return;
 
             if (lastsavedpos == -1) goto FAKE_F3;
 
-            if ( lastsavedpos >= 0 )
+            if (lastsavedpos >= 0)
             {
                 KB_FlushKeyboardQueue();
                 KB_ClearKeysDown();
@@ -7664,9 +7664,9 @@ FAKE_F3:
             }
         }
 
-        if (KB_KeyPressed( sc_F10 ))
+        if (KB_KeyPressed(sc_F10))
         {
-            KB_ClearKeyDown( sc_F10 );
+            KB_ClearKeyDown(sc_F10);
             cmenu(500);
             FX_StopAllSounds();
             clearsoundlocks();
@@ -7678,33 +7678,33 @@ FAKE_F3:
             }
         }
 
-        if ( ud.overhead_on != 0)
+        if (ud.overhead_on != 0)
         {
 
             j = totalclock-nonsharedtimer; nonsharedtimer += j;
-            if ( BUTTON( gamefunc_Enlarge_Screen ) )
+            if (BUTTON(gamefunc_Enlarge_Screen))
                 ps[myconnectindex].zoom += mulscale6(j,max(ps[myconnectindex].zoom,256));
-            if ( BUTTON( gamefunc_Shrink_Screen ) )
+            if (BUTTON(gamefunc_Shrink_Screen))
                 ps[myconnectindex].zoom -= mulscale6(j,max(ps[myconnectindex].zoom,256));
 
-            if ( (ps[myconnectindex].zoom > 2048) )
+            if ((ps[myconnectindex].zoom > 2048))
                 ps[myconnectindex].zoom = 2048;
-            if ( (ps[myconnectindex].zoom < 48) )
+            if ((ps[myconnectindex].zoom < 48))
                 ps[myconnectindex].zoom = 48;
 
         }
     }
 
-    if ( KB_KeyPressed(sc_Escape) && ud.overhead_on && ps[myconnectindex].newowner == -1 )
+    if (KB_KeyPressed(sc_Escape) && ud.overhead_on && ps[myconnectindex].newowner == -1)
     {
-        KB_ClearKeyDown( sc_Escape );
+        KB_ClearKeyDown(sc_Escape);
         ud.last_overhead = ud.overhead_on;
         ud.overhead_on = 0;
         ud.scrollmode = 0;
         vscrn();
     }
 
-    if ( BUTTON(gamefunc_AutoRun) )
+    if (BUTTON(gamefunc_AutoRun))
     {
         CONTROL_ClearButton(gamefunc_AutoRun);
         ud.auto_run = 1-ud.auto_run;
@@ -7712,10 +7712,10 @@ FAKE_F3:
         FTA(85+ud.auto_run,&ps[myconnectindex]);
     }
 
-    if ( BUTTON(gamefunc_Map) )
+    if (BUTTON(gamefunc_Map))
     {
-        CONTROL_ClearButton( gamefunc_Map );
-        if ( ud.last_overhead != ud.overhead_on && ud.last_overhead)
+        CONTROL_ClearButton(gamefunc_Map);
+        if (ud.last_overhead != ud.overhead_on && ud.last_overhead)
         {
             ud.overhead_on = ud.last_overhead;
             ud.last_overhead = 0;
@@ -7723,27 +7723,27 @@ FAKE_F3:
         else
         {
             ud.overhead_on++;
-            if (ud.overhead_on == 3 ) ud.overhead_on = 0;
+            if (ud.overhead_on == 3) ud.overhead_on = 0;
             ud.last_overhead = ud.overhead_on;
         }
         restorepalette = 1;
         vscrn();
     }
 
-    if (KB_KeyPressed( sc_F11 ))
+    if (KB_KeyPressed(sc_F11))
     {
-        KB_ClearKeyDown( sc_F11 );
+        KB_ClearKeyDown(sc_F11);
         if (SHIFTS_IS_PRESSED) ud.brightness-=4;
         else ud.brightness+=4;
 
-        if (ud.brightness > (7<<2) )
+        if (ud.brightness > (7<<2))
             ud.brightness = 0;
         else if (ud.brightness < 0)
             ud.brightness = (7<<2);
 
         setbrightness(ud.brightness>>2,&ps[myconnectindex].palette[0],0);
-        if (ud.brightness < 20) FTA( 29 + (ud.brightness>>2) ,&ps[myconnectindex]);
-        else if (ud.brightness < 40) FTA( 96 + (ud.brightness>>2) - 5,&ps[myconnectindex]);
+        if (ud.brightness < 20) FTA(29 + (ud.brightness>>2) ,&ps[myconnectindex]);
+        else if (ud.brightness < 40) FTA(96 + (ud.brightness>>2) - 5,&ps[myconnectindex]);
     }
 }
 
@@ -7881,7 +7881,7 @@ int loadgroupfiles(char *fn)
             {
                 int j = initgroupfile(fn);
 
-                if ( j == -1 )
+                if (j == -1)
                     initprintf("Could not find GRP file %s.\n",fn);
                 else
                     initprintf("Using GRP file %s.\n",fn);
@@ -8099,7 +8099,7 @@ void checkcommandline(int argc,char **argv)
             if (firstnet > 0) {
                 if (*c == '-' || *c == '/') {
                     c++;
-                    if      (((c[0] == 'n') || (c[0] == 'N')) && (c[1] == '0'))
+                    if (((c[0] == 'n') || (c[0] == 'N')) && (c[1] == '0'))
                     { networkmode = 0; initprintf("Network mode: master/slave\n"); }
                     else if (((c[0] == 'n') || (c[0] == 'N')) && (c[1] == '1'))
                     { networkmode = 1; initprintf("Network mode: peer-to-peer\n"); }
@@ -8129,7 +8129,7 @@ void checkcommandline(int argc,char **argv)
                 case 'C':
 
                     c++;
-                    //if(*c == '1' || *c == '2' || *c == '3' )
+                    //if(*c == '1' || *c == '2' || *c == '3')
                     //    ud.m_coop = *c - '0' - 1;
                     //else ud.m_coop = 0;
 
@@ -8156,7 +8156,7 @@ void checkcommandline(int argc,char **argv)
                 case 'd':
                 case 'D':
                     c++;
-                    if ( strchr(c,'.') == 0)
+                    if (strchr(c,'.') == 0)
                         Bstrcat(c,".dmo");
                     initprintf("Play demo %s.\n",c);
                     Bstrcpy(firstdemofile,c);
@@ -8179,7 +8179,7 @@ void checkcommandline(int argc,char **argv)
                     c++;
                     if (!*c) break;
                     strcpy(tempbuf,c);
-                    if ( strchr(tempbuf,'.') == 0)
+                    if (strchr(tempbuf,'.') == 0)
                         strcat(tempbuf,".grp");
 
                     {
@@ -8235,7 +8235,7 @@ void checkcommandline(int argc,char **argv)
                     break;
                 case 'm':
                 case 'M':
-                    if ( *(c+1) != 'a' && *(c+1) != 'A' )
+                    if (*(c+1) != 'a' && *(c+1) != 'A')
                     {
                         ud.m_monsters_off = 1;
                         ud.m_player_skill = ud.player_skill = 0;
@@ -8272,7 +8272,7 @@ void checkcommandline(int argc,char **argv)
                 case 'q':
                 case 'Q':
                     initprintf("Fake multiplayer mode.\n");
-                    if ( *(++c) == 0) ud.multimode = 1;
+                    if (*(++c) == 0) ud.multimode = 1;
                     else ud.multimode = atol(c)%17;
                     ud.m_coop = ud.coop = 0;
                     ud.m_marker = ud.marker = 1;
@@ -8445,7 +8445,7 @@ void Logo(void)
                 nextpage();
                 fadepal(0,0,0, 63,0,-7);
                 totalclock = 0;
-                while ( totalclock < (120*7) && !KB_KeyWaiting() ) {
+                while (totalclock < (120*7) && !KB_KeyWaiting()) {
                     handleevents();
                     getpackets();
                 }
@@ -8471,7 +8471,7 @@ void Logo(void)
                 rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
                 if (logoflags & LOGO_FLAG_DUKENUKEM)
                 {
-                    if ( totalclock > 120 && totalclock < (120+60) )
+                    if (totalclock > 120 && totalclock < (120+60))
                     {
                         if (soundanm == 0)
                         {
@@ -8480,27 +8480,27 @@ void Logo(void)
                         }
                         rotatesprite(160<<16,104<<16,(totalclock-120)<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
                     }
-                    else if ( totalclock >= (120+60) )
+                    else if (totalclock >= (120+60))
                         rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
                 } else soundanm = 1;
                 if (logoflags & LOGO_FLAG_THREEDEE)
                 {
-                    if ( totalclock > 220 && totalclock < (220+30) )
+                    if (totalclock > 220 && totalclock < (220+30))
                     {
-                        if ( soundanm == 1)
+                        if (soundanm == 1)
                         {
                             soundanm = 2;
                             sound(PIPEBOMB_EXPLODE);
                         }
 
                         rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-                        rotatesprite(160<<16,(129)<<16,(totalclock - 220 )<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+                        rotatesprite(160<<16,(129)<<16,(totalclock - 220)<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
                     }
-                    else if ( totalclock >= (220+30) )
+                    else if (totalclock >= (220+30))
                         rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
                 } else soundanm = 2;
                 if (PLUTOPAK && (logoflags & LOGO_FLAG_PLUTOPAKSPRITE)) {   // JBF 20030804
-                    if ( totalclock >= 280 && totalclock < 395 )
+                    if (totalclock >= 280 && totalclock < 395)
                     {
                         rotatesprite(160<<16,(151)<<16,(410-totalclock)<<12,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
                         if (soundanm == 2)
@@ -8509,7 +8509,7 @@ void Logo(void)
                             sound(FLY_BY);
                         }
                     }
-                    else if ( totalclock >= 395 )
+                    else if (totalclock >= 395)
                     {
                         if (soundanm == 3)
                         {
@@ -8605,7 +8605,7 @@ void freeconmem(void)
 ===================
 */
 
-void Shutdown( void )
+void Shutdown(void)
 {
     SoundShutdown();
     MusicShutdown();
@@ -8642,7 +8642,7 @@ void compilecons(void)
     }
     loadefs(confilename);
 
-    if ( loadfromgrouponly )
+    if (loadfromgrouponly)
     {
         if (userconfiles == 0)
         {
@@ -8657,7 +8657,7 @@ void compilecons(void)
         loadefs(confilename);
     }
 
-    if ((unsigned long)labelcnt > sizeof(sprite)/64 )   // see the arithmetic above for why
+    if ((unsigned long)labelcnt > sizeof(sprite)/64)   // see the arithmetic above for why
         gameexit("Error: too many labels defined!");
     else
     {
@@ -8672,7 +8672,7 @@ void compilecons(void)
             gameexit("Error: out of memory retaining labels\n");
         }
 
-        copybuf(label,     newlabel,     (labelcnt*64)/4);
+        copybuf(label,     newlabel, (labelcnt*64)/4);
         copybuf(labelcode, newlabelcode, (labelcnt*sizeof(long))/4);
 
         label = newlabel;
@@ -8769,7 +8769,7 @@ void Startup(void)
         if (ud.executions >= 50) initprintf("IT IS NOW TIME TO UPGRADE TO THE COMPLETE VERSION!!!\n");
     }
 
-    if (CONTROL_Startup( 1, &GetTime, TICRATE )) {
+    if (CONTROL_Startup(1, &GetTime, TICRATE)) {
         uninitengine();
         exit(1);
     }
@@ -8972,7 +8972,7 @@ void copyprotect(void)
 #endif
     if (VOLUMEONE) return;
 
-    if ( testcd(IDFILENAME, IDFSIZE) )
+    if (testcd(IDFILENAME, IDFSIZE))
     {
         cp = 1;
         return;
@@ -9099,7 +9099,7 @@ void app_main(int argc,char **argv)
                    "textures and skins, but textures will load dramatically "
                    "faster after the first time they are loaded.");
         if (i) i = 'y';
-        if (i == 'y' || i == 'Y' )
+        if (i == 'y' || i == 'Y')
             useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
     }
@@ -9167,7 +9167,7 @@ void app_main(int argc,char **argv)
         while (CommandGrps) {
             s = CommandGrps->next;
             j = initgroupfile(CommandGrps->str);
-            if ( j == -1 ) initprintf("Warning: could not find group file %s.\n",CommandGrps->str);
+            if (j == -1) initprintf("Warning: could not find group file %s.\n",CommandGrps->str);
             else {
                 groupfile = j;
                 initprintf("Using group file %s.\n",CommandGrps->str);
@@ -9197,7 +9197,7 @@ void app_main(int argc,char **argv)
     if (condebug)
         initprintf("CON debugging activated (%d).\n\n",condebug);
 
-    RegisterShutdownFunction( Shutdown );
+    RegisterShutdownFunction(Shutdown);
 
     if (VOLUMEONE) {
         initprintf("Distribution of shareware Duke Nukem 3D is restricted in certain ways.\n");
@@ -9251,7 +9251,7 @@ void app_main(int argc,char **argv)
     RTS_Init(ud.rtsname);
     if (numlumps) initprintf("Using .RTS file: %s\n",ud.rtsname);
 
-    if ( setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP) < 0 )
+    if (setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP) < 0)
     {
         int i = 0;
         int xres[] = {800,640,320};
@@ -9354,7 +9354,7 @@ MAIN_LOOP_RESTART:
         }
         else if(ud.warp_on != 0) vscrn();
     */
-    if ( ud.warp_on == 0 && playback() )
+    if (ud.warp_on == 0 && playback())
     {
         FX_StopAllSounds();
         clearsoundlocks();
@@ -9389,7 +9389,7 @@ MAIN_LOOP_RESTART:
     ud.warp_on = 0;
     KB_KeyDown[sc_Pause] = 0;   // JBF: I hate the pause key
 
-    while ( !(ps[myconnectindex].gm&MODE_END) ) //The whole loop!!!!!!!!!!!!!!!!!!
+    while (!(ps[myconnectindex].gm&MODE_END)) //The whole loop!!!!!!!!!!!!!!!!!!
     {
         if (handleevents()) {   // JBF
             if (quitevent) {
@@ -9402,13 +9402,13 @@ MAIN_LOOP_RESTART:
 
         OSD_DispatchQueued();
 
-        if ( ud.recstat == 2 || ud.multimode > 1 || ( ud.show_help == 0 && (ps[myconnectindex].gm&MODE_MENU) != MODE_MENU ) )
-            if ( ps[myconnectindex].gm&MODE_GAME )
-                if ( moveloop() ) continue;
+        if (ud.recstat == 2 || ud.multimode > 1 || (ud.show_help == 0 && (ps[myconnectindex].gm&MODE_MENU) != MODE_MENU))
+            if (ps[myconnectindex].gm&MODE_GAME)
+                if (moveloop()) continue;
 
-        if ( ps[myconnectindex].gm&MODE_EOL || ps[myconnectindex].gm&MODE_RESTART )
+        if (ps[myconnectindex].gm&MODE_EOL || ps[myconnectindex].gm&MODE_RESTART)
         {
-            if ( ps[myconnectindex].gm&MODE_EOL)
+            if (ps[myconnectindex].gm&MODE_EOL)
             {
                 closedemowrite();
 
@@ -9455,7 +9455,7 @@ MAIN_LOOP_RESTART:
         cheats();
         nonsharedkeys();
 
-        if ( (ud.show_help == 0 && ud.multimode < 2 && !(ps[myconnectindex].gm&MODE_MENU) ) || ud.multimode > 1 || ud.recstat == 2)
+        if ((ud.show_help == 0 && ud.multimode < 2 && !(ps[myconnectindex].gm&MODE_MENU)) || ud.multimode > 1 || ud.recstat == 2)
             i = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
         else
             i = 65536;
@@ -9472,7 +9472,7 @@ MAIN_LOOP_RESTART:
             gametext(160,70,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2+8+16);
         }
 
-        //        if( KB_KeyPressed(sc_F) )
+        //        if(KB_KeyPressed(sc_F))
         //        {
         //            KB_ClearKeyDown(sc_F);
         //            addplayer();
@@ -9486,7 +9486,7 @@ MAIN_LOOP_RESTART:
         checksync();
 
         if (VOLUMEONE) {
-            if (ud.show_help == 0 && show_shareware > 0 && (ps[myconnectindex].gm&MODE_MENU) == 0 )
+            if (ud.show_help == 0 && show_shareware > 0 && (ps[myconnectindex].gm&MODE_MENU) == 0)
                 rotatesprite((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128,0,0,xdim-1,ydim-1);
         }
 
@@ -9527,7 +9527,7 @@ char opendemoread(char which_demo) // 0 = mine
     if (kread(recfilep,&ver,sizeof(char)) != sizeof(char)) goto corrupt;
 
     if (ver != BYTEVERSION /*&& ver != 116 && ver != 117*/) { /* old demo playback */
-        if      (ver == BYTEVERSION_JF)   initprintf("Demo %s is for Regular edition.\n", d);
+        if (ver == BYTEVERSION_JF)   initprintf("Demo %s is for Regular edition.\n", d);
         else if (ver == BYTEVERSION_JF+1) initprintf("Demo %s is for Atomic edition.\n", d);
         else if (ver == BYTEVERSION_JF+2) initprintf("Demo %s is for Shareware version.\n", d);
         else OSD_Printf("Demo %s is of an incompatible version (%d).\n", d, ver);
@@ -9570,7 +9570,7 @@ char opendemoread(char which_demo) // 0 = mine
         if (kread(recfilep,(char *)boardfilename,sizeof(boardfilename)) != sizeof(boardfilename)) goto corrupt;
     } else if (kread(recfilep,(char *)boardfilename,128) != 128) goto corrupt;
 
-    if ( boardfilename[0] != 0 )
+    if (boardfilename[0] != 0)
     {
         ud.m_level_number = 7;
         ud.m_volume_number = 0;
@@ -9700,7 +9700,7 @@ long playback(void)
     long i,j,k,l;
     char foundemo;
 
-    if ( ready2send ) return 0;
+    if (ready2send) return 0;
 
     foundemo = 0;
 
@@ -9755,7 +9755,7 @@ RECHECK:
 
     while (ud.reccnt > 0 || foundemo == 0)
     {
-        if (foundemo) while ( totalclock >= (lockclock+TICSPERFRAME) )
+        if (foundemo) while (totalclock >= (lockclock+TICSPERFRAME))
             {
                 if (demo_version != BYTEVERSION)
                 {
@@ -9821,14 +9821,14 @@ RECHECK:
             displayrooms(screenpeek,j);
             displayrest(j);
 
-            if (ud.multimode > 1 && ps[myconnectindex].gm )
+            if (ud.multimode > 1 && ps[myconnectindex].gm)
                 getpackets();
 
             if (gotvote[myconnectindex] == 0 && voting != -1 && voting != myconnectindex)
                 gametext(160,60,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2+8+16);
         }
 
-        if ( (ps[myconnectindex].gm&MODE_MENU) && (ps[myconnectindex].gm&MODE_EOL) )
+        if ((ps[myconnectindex].gm&MODE_MENU) && (ps[myconnectindex].gm&MODE_EOL))
             goto RECHECK;
 
         if (KB_KeyPressed(sc_Escape) && (ps[myconnectindex].gm&MODE_MENU) == 0 && (ps[myconnectindex].gm&MODE_TYPE) == 0)
@@ -9851,14 +9851,14 @@ RECHECK:
         {
             if (ud.recstat != 2)
                 menus();
-            if ( ud.multimode > 1  && current_menu != 20003 && current_menu != 20005 && current_menu != 210)
+            if (ud.multimode > 1  && current_menu != 20003 && current_menu != 20005 && current_menu != 210)
             {
                 ControlInfo noshareinfo;
-                CONTROL_GetInput( &noshareinfo );
-                if ( BUTTON(gamefunc_SendMessage) )
+                CONTROL_GetInput(&noshareinfo);
+                if (BUTTON(gamefunc_SendMessage))
                 {
                     KB_FlushKeyboardQueue();
-                    CONTROL_ClearButton( gamefunc_SendMessage );
+                    CONTROL_ClearButton(gamefunc_SendMessage);
                     ps[myconnectindex].gm = MODE_TYPE;
                     typebuf[0] = 0;
                     inputloc = 0;
@@ -9875,14 +9875,14 @@ RECHECK:
         }
 
         if (VOLUMEONE) {
-            if ( ud.show_help == 0 && (ps[myconnectindex].gm&MODE_MENU) == 0 )
+            if (ud.show_help == 0 && (ps[myconnectindex].gm&MODE_MENU) == 0)
                 rotatesprite((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128,0,0,xdim-1,ydim-1);
         }
         handleevents();
         getpackets();
         nextpage();
 
-        if ( ps[myconnectindex].gm==MODE_END || ps[myconnectindex].gm==MODE_GAME )
+        if (ps[myconnectindex].gm==MODE_END || ps[myconnectindex].gm==MODE_GAME)
         {
             if (foundemo)
                 kclose(recfilep);
@@ -9924,7 +9924,7 @@ char moveloop()
         for (i=connecthead;i>=0;i=connectpoint2[i])
             if (movefifoplc == movefifoend[i]) break;
         if (i >= 0) break;
-        if ( domovethings() ) return 1;
+        if (domovethings()) return 1;
     }
     return 0;
 }
@@ -9985,7 +9985,7 @@ void fakedomovethings(void)
 
     shrunk = (sprite[p->i].yrepeat < 32);
 
-    if ( ud.clipping == 0 && ( sector[psect].floorpicnum == MIRROR || psect < 0 || psect >= MAXSECTORS) )
+    if (ud.clipping == 0 && (sector[psect].floorpicnum == MIRROR || psect < 0 || psect >= MAXSECTORS))
     {
         myx = omyx;
         myy = omyy;
@@ -10005,10 +10005,10 @@ void fakedomovethings(void)
 
     j = getflorzofslope(psect,myx,myy);
 
-    if ( (lz&49152) == 16384 && psectlotag == 1 && klabs(myz-j) > PHEIGHT+(16<<8) )
+    if ((lz&49152) == 16384 && psectlotag == 1 && klabs(myz-j) > PHEIGHT+(16<<8))
         psectlotag = 0;
 
-    if ( p->aim_mode == 0 && myonground && psectlotag != 2 && (sector[psect].floorstat&2) )
+    if (p->aim_mode == 0 && myonground && psectlotag != 2 && (sector[psect].floorstat&2))
     {
         x = myx+(sintable[(myang+512)&2047]>>5);
         y = myy+(sintable[myang&2047]>>5);
@@ -10044,21 +10044,21 @@ void fakedomovethings(void)
             psectlotag = 0;
             spritebridge = 1;
         }
-        if (badguy(&sprite[j]) && sprite[j].xrepeat > 24 && klabs(sprite[p->i].z-sprite[j].z) < (84<<8) )
+        if (badguy(&sprite[j]) && sprite[j].xrepeat > 24 && klabs(sprite[p->i].z-sprite[j].z) < (84<<8))
         {
-            j = getangle( sprite[j].x-myx,sprite[j].y-myy);
+            j = getangle(sprite[j].x-myx,sprite[j].y-myy);
             myxvel -= sintable[(j+512)&2047]<<4;
             myyvel -= sintable[j&2047]<<4;
         }
     }
 
-    if ( sprite[p->i].extra <= 0 )
+    if (sprite[p->i].extra <= 0)
     {
-        if ( psectlotag == 2 )
+        if (psectlotag == 2)
         {
             if (p->on_warping_sector == 0)
             {
-                if ( klabs(myz-fz) > (PHEIGHT>>1))
+                if (klabs(myz-fz) > (PHEIGHT>>1))
                     myz += 348;
             }
             clipmove(&myx,&myy,&myz,&mycursectnum,0,0,164L,(4L<<8),(4L<<8),CLIPMASK0);
@@ -10081,11 +10081,11 @@ void fakedomovethings(void)
 
     i = 40;
 
-    if ( psectlotag == 2)
+    if (psectlotag == 2)
     {
         myjumpingcounter = 0;
 
-        if ( sb_snum&1 )
+        if (sb_snum&1)
         {
             if (myzvel > 0) myzvel = 0;
             myzvel -= 348;
@@ -10117,10 +10117,10 @@ void fakedomovethings(void)
 
         myz += myzvel;
 
-        if (myz > (fz-(15<<8)) )
+        if (myz > (fz-(15<<8)))
             myz += ((fz-(15<<8))-myz)>>1;
 
-        if (myz < (cz+(4<<8)) )
+        if (myz < (cz+(4<<8)))
         {
             myz = cz+(4<<8);
             myzvel = 0;
@@ -10144,24 +10144,24 @@ void fakedomovethings(void)
         if (sb_snum&(1<<1))                       //Z
             myz += j;
 
-        if (shrunk == 0 && ( psectlotag == 0 || psectlotag == 2 ) ) k = 32;
+        if (shrunk == 0 && (psectlotag == 0 || psectlotag == 2)) k = 32;
         else k = 16;
 
-        if (myz > (fz-(k<<8)) )
+        if (myz > (fz-(k<<8)))
             myz += ((fz-(k<<8))-myz)>>1;
-        if (myz < (cz+(18<<8)) )
+        if (myz < (cz+(18<<8)))
             myz = cz+(18<<8);
     }
-    else if ( psectlotag != 2 )
+    else if (psectlotag != 2)
     {
         if (psectlotag == 1 && p->spritebridge == 0)
         {
             if (shrunk == 0) i = 34;
             else i = 12;
         }
-        if (myz < (fz-(i<<8)) && (floorspace(psect)|ceilingspace(psect)) == 0 ) //falling
+        if (myz < (fz-(i<<8)) && (floorspace(psect)|ceilingspace(psect)) == 0) //falling
         {
-            if ( (sb_snum&3) == 0 && myonground && (sector[psect].floorstat&2) && myz >= (fz-(i<<8)-(16<<8) ) )
+            if ((sb_snum&3) == 0 && myonground && (sector[psect].floorstat&2) && myz >= (fz-(i<<8)-(16<<8)))
                 myz = fz-(i<<8);
             else
             {
@@ -10184,7 +10184,7 @@ void fakedomovethings(void)
                 //Smooth on the ground
 
                 k = ((fz-(i<<8))-myz)>>1;
-                if ( klabs(k) < 256 ) k = 0;
+                if (klabs(k) < 256) k = 0;
                 myz += k; // ((fz-(i<<8))-myz)>>1;
                 myzvel -= 768; // 412;
                 if (myzvel < 0) myzvel = 0;
@@ -10199,31 +10199,31 @@ void fakedomovethings(void)
                 }
             }
 
-            if ( sb_snum&2 )
+            if (sb_snum&2)
                 myz += (2048+768);
 
-            if ( (sb_snum&1) == 0 && myjumpingtoggle == 1)
+            if ((sb_snum&1) == 0 && myjumpingtoggle == 1)
                 myjumpingtoggle = 0;
 
-            else if ( (sb_snum&1) && myjumpingtoggle == 0 )
+            else if ((sb_snum&1) && myjumpingtoggle == 0)
             {
-                if ( myjumpingcounter == 0 )
-                    if ( (fz-cz) > (56<<8) )
+                if (myjumpingcounter == 0)
+                    if ((fz-cz) > (56<<8))
                     {
                         myjumpingcounter = 1;
                         myjumpingtoggle = 1;
                     }
             }
-            if ( myjumpingcounter && (sb_snum&1) == 0 )
+            if (myjumpingcounter && (sb_snum&1) == 0)
                 myjumpingcounter = 0;
         }
 
         if (myjumpingcounter)
         {
-            if ( (sb_snum&1) == 0 && myjumpingtoggle == 1)
+            if ((sb_snum&1) == 0 && myjumpingtoggle == 1)
                 myjumpingtoggle = 0;
 
-            if ( myjumpingcounter < (1024+256) )
+            if (myjumpingcounter < (1024+256))
             {
                 if (psectlotag == 1 && myjumpingcounter > 768)
                 {
@@ -10247,7 +10247,7 @@ void fakedomovethings(void)
 
         myz += myzvel;
 
-        if (myz < (cz+(4<<8)) )
+        if (myz < (cz+(4<<8)))
         {
             myjumpingcounter = 0;
             if (myzvel < 0) myxvel = myyvel = 0;
@@ -10257,20 +10257,20 @@ void fakedomovethings(void)
 
     }
 
-    if ( p->fist_incs ||
+    if (p->fist_incs ||
             p->transporter_hold > 2 ||
             myhardlanding ||
             p->access_incs > 0 ||
             p->knee_incs > 0 ||
             (p->curr_weapon == TRIPBOMB_WEAPON &&
              p->kickback_pic > 1 &&
-             p->kickback_pic < 4 ) )
+             p->kickback_pic < 4))
     {
         doubvel = 0;
         myxvel = 0;
         myyvel = 0;
     }
-    else if ( syn->avel )          //p->ang += syncangvel * constant
+    else if (syn->avel)          //p->ang += syncangvel * constant
     {                         //ENGINE calculates angvel for you
         long tempang;
 
@@ -10282,7 +10282,7 @@ void fakedomovethings(void)
         myang &= 2047;
     }
 
-    if ( myxvel || myyvel || syn->fvel || syn->svel )
+    if (myxvel || myyvel || syn->fvel || syn->svel)
     {
         if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
             doubvel <<= 1;
@@ -10290,7 +10290,7 @@ void fakedomovethings(void)
         myxvel += ((syn->fvel*doubvel)<<6);
         myyvel += ((syn->svel*doubvel)<<6);
 
-        if ( ( p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && myonground ) || ( myonground && (sb_snum&2) ) )
+        if ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && myonground) || (myonground && (sb_snum&2)))
         {
             myxvel = mulscale16(myxvel,p->runspeed-0x2000);
             myyvel = mulscale16(myyvel,p->runspeed-0x2000);
@@ -10309,10 +10309,10 @@ void fakedomovethings(void)
             }
         }
 
-        if ( abs(myxvel) < 2048 && abs(myyvel) < 2048 )
+        if (abs(myxvel) < 2048 && abs(myyvel) < 2048)
             myxvel = myyvel = 0;
 
-        if ( shrunk )
+        if (shrunk)
         {
             myxvel =
                 mulscale16(myxvel,(p->runspeed)-(p->runspeed>>1)+(p->runspeed>>2));
@@ -10327,7 +10327,7 @@ FAKEHORIZONLY:
     clipmove(&myx,&myy,&myz,&mycursectnum,myxvel,myyvel,164L,4L<<8,i,CLIPMASK0);
     pushmove(&myx,&myy,&myz,&mycursectnum,164L,4L<<8,4L<<8,CLIPMASK0);
 
-    if ( p->jetpack_on == 0 && psectlotag != 1 && psectlotag != 2 && shrunk)
+    if (p->jetpack_on == 0 && psectlotag != 1 && psectlotag != 2 && shrunk)
         myz += 30<<8;
 
     if ((sb_snum&(1<<18)) || myhardlanding)
@@ -10367,8 +10367,8 @@ FAKEHORIZONLY:
         myhoriz += syn->horz;
     else
     {
-        if ( myhoriz > 95 && myhoriz < 105) myhoriz = 100;
-        if ( myhorizoff > -5 && myhorizoff < 5) myhorizoff = 0;
+        if (myhoriz > 95 && myhoriz < 105) myhoriz = 100;
+        if (myhorizoff > -5 && myhorizoff < 5) myhorizoff = 0;
     }
 
     if (myhardlanding > 0)
@@ -10408,16 +10408,16 @@ char domovethings(void)
     long p;
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
-        if ( sync[i].bits&(1<<17) )
+        if (sync[i].bits&(1<<17))
         {
             multiflag = 2;
             multiwhat = (sync[i].bits>>18)&1;
-            multipos = (unsigned) (sync[i].bits>>19)&15;
+            multipos = (unsigned)(sync[i].bits>>19)&15;
             multiwho = i;
 
-            if ( multiwhat )
+            if (multiwhat)
             {
-                saveplayer( multipos );
+                saveplayer(multipos);
                 multiflag = 0;
 
                 if (multiwho != myconnectindex)
@@ -10436,7 +10436,7 @@ char domovethings(void)
             {
                 //            waitforeverybody();
 
-                j = loadplayer( multipos );
+                j = loadplayer(multipos);
 
                 multiflag = 0;
 
@@ -10501,7 +10501,7 @@ char domovethings(void)
         }
     }
 
-    if ( show_shareware > 0 )
+    if (show_shareware > 0)
     {
         show_shareware--;
         if (show_shareware == 0)
@@ -10562,8 +10562,8 @@ char domovethings(void)
 
         ps[myconnectindex].ftq = 116, ps[myconnectindex].fta = 180;
 
-        if (j < 0 && networkmode == 0 )
-            gameexit( "The server/master player just quit the game; disconnected.");
+        if (j < 0 && networkmode == 0)
+            gameexit("The server/master player just quit the game; disconnected.");
     }
 
     if ((numplayers >= 2) && ((movefifoplc&7) == 7))
@@ -10577,7 +10577,7 @@ char domovethings(void)
 
     if (ud.recstat == 1) record();
 
-    if ( ud.pause_on == 0 )
+    if (ud.pause_on == 0)
     {
         global_random = TRAND;
         movedummyplayers();//ST 13
@@ -10613,14 +10613,14 @@ char domovethings(void)
 
         cheatkeys(i);
 
-        if ( ud.pause_on == 0 )
+        if (ud.pause_on == 0)
         {
             processinput(i);
             checksectors(i);
         }
     }
 
-    if ( ud.pause_on == 0 )
+    if (ud.pause_on == 0)
     {
 
         movefta();              //ST 2
@@ -10653,7 +10653,7 @@ char domovethings(void)
 
     fakedomovethingscorrect();
 
-    if ( (everyothertime&1) == 0)
+    if ((everyothertime&1) == 0)
     {
         animatewalls();
         movecyclers();
@@ -10678,25 +10678,25 @@ void doorders(void)
     KB_FlushKeyboardQueue();
     rotatesprite(0,0,65536L,0,ORDERING,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
-    while ( !KB_KeyWaiting() ) { handleevents(); getpackets(); }
+    while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
     rotatesprite(0,0,65536L,0,ORDERING+1,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
-    while ( !KB_KeyWaiting() ) { handleevents(); getpackets(); }
+    while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
     rotatesprite(0,0,65536L,0,ORDERING+2,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
-    while ( !KB_KeyWaiting() ) { handleevents(); getpackets(); }
+    while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
     rotatesprite(0,0,65536L,0,ORDERING+3,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
-    while ( !KB_KeyWaiting() ) { handleevents(); getpackets(); }
+    while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
 
 
 }
@@ -10766,21 +10766,21 @@ void dobonus(char bonusonly)
 
                 KB_FlushKeyboardQueue();
                 totalclock = 0; tinc = 0;
-                while ( 1 )
+                while (1)
                 {
                     clearview(0L);
                     rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
 
                     // boss
-                    if ( totalclock > 390 && totalclock < 780 )
-                        for (t=0;t<35;t+=5) if ( bossmove[t+2] && (totalclock%390) > bossmove[t] && (totalclock%390) <= bossmove[t+1] )
+                    if (totalclock > 390 && totalclock < 780)
+                        for (t=0;t<35;t+=5) if (bossmove[t+2] && (totalclock%390) > bossmove[t] && (totalclock%390) <= bossmove[t+1])
                             {
                                 if (t==10 && bonuscnt == 1) { sound(SHOTGUN_FIRE);sound(SQUISHED); bonuscnt++; }
                                 rotatesprite(bossmove[t+3]<<16,bossmove[t+4]<<16,65536L,0,bossmove[t+2],0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
                             }
 
                     // Breathe
-                    if ( totalclock < 450 || totalclock >= 750 )
+                    if (totalclock < 450 || totalclock >= 750)
                     {
                         if (totalclock >= 750)
                         {
@@ -10790,7 +10790,7 @@ void dobonus(char bonusonly)
 
                         }
                         for (t=0;t<20;t+=5)
-                            if ( breathe[t+2] && (totalclock%120) > breathe[t] && (totalclock%120) <= breathe[t+1] )
+                            if (breathe[t+2] && (totalclock%120) > breathe[t] && (totalclock%120) <= breathe[t+1])
                             {
                                 if (t==5 && bonuscnt == 0)
                                 {
@@ -10803,7 +10803,7 @@ void dobonus(char bonusonly)
                     handleevents();
                     getpackets();
                     nextpage();
-                    if ( KB_KeyWaiting() ) break;
+                    if (KB_KeyWaiting()) break;
                 }
             }
 
@@ -10815,7 +10815,7 @@ void dobonus(char bonusonly)
 
             rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
             IFISSOFTMODE fadepal(0,0,0, 63,0,-1); else nextpage();
-        while ( !KB_KeyWaiting() ) { handleevents(); getpackets(); }
+        while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
             fadepal(0,0,0, 0,64,1);
             MUSIC_StopSong();
             FX_StopAllSounds();
@@ -10843,7 +10843,7 @@ void dobonus(char bonusonly)
             setgamepalette(&ps[myconnectindex], palette, 3);	// JBF 20040308
             rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
             IFISSOFTMODE fadepal(0,0,0, 63,0,-1); else nextpage();
-        while ( !KB_KeyWaiting() ) { handleevents(); getpackets(); }
+        while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
             IFISSOFTMODE fadepal(0,0,0, 0,64,1);
 
             break;
@@ -10930,7 +10930,7 @@ void dobonus(char bonusonly)
 
             playanm("RADLOGO.ANM",3);
 
-            if ( ud.lockout == 0 && !KB_KeyWaiting() )
+            if (ud.lockout == 0 && !KB_KeyWaiting())
             {
                 sound(ENDSEQVOL3SND5);
                 while (issoundplaying(-1,ENDSEQVOL3SND5)) { handleevents(); getpackets(); }
@@ -11059,9 +11059,9 @@ FRAGBONUS:
         KB_FlushKeyboardQueue();
     while (KB_KeyWaiting()==0) { handleevents(); getpackets(); }
 
-        if ( KB_KeyPressed( sc_F12 ) )
+        if (KB_KeyPressed(sc_F12))
         {
-            KB_ClearKeyDown( sc_F12 );
+            KB_ClearKeyDown(sc_F12);
             screencapture("duke0000.tga",0);
         }
 
@@ -11125,7 +11125,7 @@ FRAGBONUS:
 
     }
 
-    while ( 1 )
+    while (1)
     {
         int yy = 0, zz;
 
@@ -11136,9 +11136,9 @@ FRAGBONUS:
         {
             rotatesprite(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
 
-            if ( totalclock > (1000000000L) && totalclock < (1000000320L) )
+            if (totalclock > (1000000000L) && totalclock < (1000000320L))
             {
-                switch ( (totalclock>>4)%15 )
+                switch ((totalclock>>4)%15)
                 {
                 case 0:
                     if (bonuscnt == 6)
@@ -11172,10 +11172,10 @@ FRAGBONUS:
                     break;
                 }
             }
-            else if ( totalclock > (10240+120L) ) break;
+            else if (totalclock > (10240+120L)) break;
             else
             {
-                switch ( (totalclock>>5)&3 )
+                switch ((totalclock>>5)&3)
                 {
                 case 1:
                 case 3:
@@ -11192,7 +11192,7 @@ FRAGBONUS:
 
             gametext(160,192,"PRESS ANY KEY TO CONTINUE",16,2+8+16);
 
-            if ( totalclock > (60*3) )
+            if (totalclock > (60*3))
             {
                 yy = zz = 59;
                 gametext(10,yy+9,"Your Time:",0,2+8+16); yy+=10;
@@ -11208,7 +11208,7 @@ FRAGBONUS:
                     bonuscnt++;
 
                 yy = zz;
-                if ( totalclock > (60*4) )
+                if (totalclock > (60*4))
                 {
                     if (bonuscnt == 1)
                     {
@@ -11248,7 +11248,7 @@ FRAGBONUS:
             }
 
             zz = yy += 5;
-            if ( totalclock > (60*6) )
+            if (totalclock > (60*6))
             {
                 gametext(10,yy+9,"Enemies Killed:",0,2+8+16); yy += 10;
                 gametext(10,yy+9,"Enemies Left:",0,2+8+16); yy += 10;
@@ -11261,7 +11261,7 @@ FRAGBONUS:
 
                 yy = zz;
 
-                if ( totalclock > (60*7) )
+                if (totalclock > (60*7))
                 {
                     if (bonuscnt == 3)
                     {
@@ -11270,14 +11270,14 @@ FRAGBONUS:
                     }
                     sprintf(tempbuf,"%-3ld",ps[myconnectindex].actors_killed);
                     gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
-                    if (ud.player_skill > 3 )
+                    if (ud.player_skill > 3)
                     {
                         sprintf(tempbuf,"N/A");
                         gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
                     }
                     else
                     {
-                        if ( (ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed) < 0 )
+                        if ((ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed) < 0)
                             sprintf(tempbuf,"%-3d",0);
                         else sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed);
                         gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
@@ -11286,14 +11286,14 @@ FRAGBONUS:
             }
 
             zz = yy += 5;
-            if ( totalclock > (60*9) )
+            if (totalclock > (60*9))
             {
                 gametext(10,yy+9,"Secrets Found:",0,2+8+16); yy += 10;
                 gametext(10,yy+9,"Secrets Missed:",0,2+8+16); yy += 10;
                 if (bonuscnt == 4) bonuscnt++;
 
                 yy = zz;
-                if ( totalclock > (60*10) )
+                if (totalclock > (60*10))
                 {
                     if (bonuscnt == 5)
                     {
@@ -11302,7 +11302,7 @@ FRAGBONUS:
                     }
                     sprintf(tempbuf,"%-3ld",ps[myconnectindex].secret_rooms);
                     gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
-                    if ( ps[myconnectindex].secret_rooms > 0 )
+                    if (ps[myconnectindex].secret_rooms > 0)
                         sprintf(tempbuf,"%-3ld%%",(100*ps[myconnectindex].secret_rooms/ps[myconnectindex].max_secret_rooms));
                     sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_secret_rooms-ps[myconnectindex].secret_rooms);
                     gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
@@ -11312,21 +11312,21 @@ FRAGBONUS:
             if (totalclock > 10240 && totalclock < 10240+10240)
                 totalclock = 1024;
 
-            if ( ( (MOUSE_GetButtons()&7) || KB_KeyWaiting() ) && totalclock > (60*2) ) // JBF 20030809
+            if (((MOUSE_GetButtons()&7) || KB_KeyWaiting()) && totalclock > (60*2)) // JBF 20030809
             {
                 MOUSE_ClearButton(7);
-                if ( KB_KeyPressed( sc_F12 ) )
+                if (KB_KeyPressed(sc_F12))
                 {
-                    KB_ClearKeyDown( sc_F12 );
+                    KB_ClearKeyDown(sc_F12);
                     screencapture("duke0000.tga",0);
                 }
 
-                if ( totalclock < (60*13) )
+                if (totalclock < (60*13))
                 {
                     KB_FlushKeyboardQueue();
                     totalclock = (60*13);
                 }
-                else if ( totalclock < (1000000000L))
+                else if (totalclock < (1000000000L))
                     totalclock = (1000000000L);
             }
         }
@@ -11365,9 +11365,9 @@ void vglass(long x,long y,short a,short wn,short n)
 
     sect = wall[wn].nextsector;
     if (sect == -1) return;
-    zincs = ( sector[sect].floorz-sector[sect].ceilingz ) / n;
+    zincs = (sector[sect].floorz-sector[sect].ceilingz) / n;
 
-    for (z = sector[sect].ceilingz;z < sector[sect].floorz; z += zincs )
+    for (z = sector[sect].ceilingz;z < sector[sect].floorz; z += zincs)
         EGS(sect,x,y,z-(TRAND&8191),GLASSPIECES+(z&(TRAND%3)),-32,36,36,a+128-(TRAND&255),16+(TRAND&31),0,-1,5);
 }
 
@@ -11411,7 +11411,7 @@ void lotsofglass(short i,short wallnum,short n)
         if (sect >= 0)
         {
             z = sector[sect].floorz-(TRAND&(klabs(sector[sect].ceilingz-sector[sect].floorz)));
-            if ( z < -(32<<8) || z > (32<<8) )
+            if (z < -(32<<8) || z > (32<<8))
                 z = SZ-(32<<8)+(TRAND&((64<<8)-1));
             a = SA-1024;
             EGS(SECT,x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,32+(TRAND&63),-(TRAND&1023),i,5);
@@ -11490,7 +11490,7 @@ void lotsofcolourglass(short i,short wallnum,short n)
 
         updatesector(x1,y1,&sect);
         z = sector[sect].floorz-(TRAND&(klabs(sector[sect].ceilingz-sector[sect].floorz)));
-        if ( z < -(32<<8) || z > (32<<8) )
+        if (z < -(32<<8) || z > (32<<8))
             z = SZ-(32<<8)+(TRAND&((64<<8)-1));
         a = SA-1024;
         k = EGS(SECT,x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,32+(TRAND&63),-(TRAND&2047),i,5);
@@ -11498,7 +11498,7 @@ void lotsofcolourglass(short i,short wallnum,short n)
     }
 }
 
-void SetupGameButtons( void )
+void SetupGameButtons(void)
 {
     CONTROL_DefineFlag(gamefunc_Move_Forward,false);
     CONTROL_DefineFlag(gamefunc_Move_Backward,false);

@@ -42,24 +42,24 @@ long backflag,numenvsnds;
 ===================
 */
 
-void SoundStartup( void )
+void SoundStartup(void)
 {
     int32 status;
 
     // if they chose None lets return
     if (FXDevice < 0) return;
 
-    status = FX_Init( FXDevice, NumVoices, NumChannels, NumBits, MixRate );
-    if ( status == FX_Ok ) {
-        FX_SetVolume( FXVolume );
+    status = FX_Init(FXDevice, NumVoices, NumChannels, NumBits, MixRate);
+    if (status == FX_Ok) {
+        FX_SetVolume(FXVolume);
         if (ReverseStereo == 1) {
             FX_SetReverseStereo(!FX_GetReverseStereo());
         }
-        status = FX_SetCallBack( testcallback );
+        status = FX_SetCallBack(testcallback);
     }
 
-    if ( status != FX_Ok ) {
-        sprintf(tempbuf, "Sound startup error: %s", FX_ErrorString( FX_Error ));
+    if (status != FX_Ok) {
+        sprintf(tempbuf, "Sound startup error: %s", FX_ErrorString(FX_Error));
         gameexit(tempbuf);
     }
 }
@@ -72,7 +72,7 @@ void SoundStartup( void )
 ===================
 */
 
-void SoundShutdown( void )
+void SoundShutdown(void)
 {
     int32 status;
 
@@ -81,8 +81,8 @@ void SoundShutdown( void )
         return;
 
     status = FX_Shutdown();
-    if ( status != FX_Ok ) {
-        sprintf(tempbuf, "Sound shutdown error: %s", FX_ErrorString( FX_Error ));
+    if (status != FX_Ok) {
+        sprintf(tempbuf, "Sound shutdown error: %s", FX_ErrorString(FX_Error));
         gameexit(tempbuf);
     }
 }
@@ -95,7 +95,7 @@ void SoundShutdown( void )
 ===================
 */
 
-void MusicStartup( void )
+void MusicStartup(void)
 {
     int32 status;
 
@@ -103,11 +103,11 @@ void MusicStartup( void )
     if (MusicDevice < 0)
         return;
 
-    status = MUSIC_Init( MusicDevice, 0 );
+    status = MUSIC_Init(MusicDevice, 0);
 
-    if ( status == MUSIC_Ok )
+    if (status == MUSIC_Ok)
     {
-        MUSIC_SetVolume( MusicVolume );
+        MUSIC_SetVolume(MusicVolume);
     }
     else
     {
@@ -133,7 +133,7 @@ void MusicStartup( void )
 ===================
 */
 
-void MusicShutdown( void )
+void MusicShutdown(void)
 {
     int32 status;
 
@@ -142,9 +142,9 @@ void MusicShutdown( void )
         return;
 
     status = MUSIC_Shutdown();
-    if ( status != MUSIC_Ok )
+    if (status != MUSIC_Ok)
     {
-        Error( MUSIC_ErrorString( MUSIC_ErrorCode ));
+        Error(MUSIC_ErrorString(MUSIC_ErrorCode));
     }
 }
 
@@ -153,21 +153,21 @@ void MusicUpdate(void)
     MUSIC_Update();
 }
 
-int USRHOOKS_GetMem(char **ptr, unsigned long size )
+int USRHOOKS_GetMem(char **ptr, unsigned long size)
 {
     *ptr = malloc(size);
 
     if (*ptr == NULL)
         return(USRHOOKS_Error);
 
-    return( USRHOOKS_Ok);
+    return(USRHOOKS_Ok);
 
 }
 
 int USRHOOKS_FreeMem(char *ptr)
 {
     free(ptr);
-    return( USRHOOKS_Ok);
+    return(USRHOOKS_Ok);
 }
 
 char menunum=0;
@@ -210,16 +210,16 @@ void playmusic(char *fn)
 
     if (fp == -1) return;
 
-    l = kfilelength( fp );
+    l = kfilelength(fp);
     if (l >= (signed long)sizeof(MusicPtr))
     {
         kclose(fp);
         return;
     }
 
-    kread( fp, MusicPtr, l);
-    kclose( fp );
-    MUSIC_PlaySong( MusicPtr, MUSIC_LoopSong );
+    kread(fp, MusicPtr, l);
+    kclose(fp);
+    MUSIC_PlaySong(MusicPtr, MUSIC_LoopSong);
 }
 
 char loadsound(unsigned short num)
@@ -238,14 +238,14 @@ char loadsound(unsigned short num)
         return 0;
     }
 
-    l = kfilelength( fp );
+    l = kfilelength(fp);
     soundsiz[num] = l;
 
     Sound[num].lock = 200;
 
     allocache((long *)&Sound[num].ptr,l,(char *)&Sound[num].lock);
-    kread( fp, Sound[num].ptr , l);
-    kclose( fp );
+    kread(fp, Sound[num].ptr , l);
+    kclose(fp);
     return 1;
 }
 
@@ -257,22 +257,22 @@ int xyzsound(short num,short i,long x,long y,long z)
 
     //    if(num != 358) return 0;
 
-    if ( num >= NUM_SOUNDS ||
+    if (num >= NUM_SOUNDS ||
             FXDevice < 0 ||
-            ( (soundm[num]&8) && ud.lockout ) ||
+            ((soundm[num]&8) && ud.lockout) ||
             SoundToggle == 0 ||
             Sound[num].num > 3 ||
             FX_VoiceAvailable(soundpr[num]) == 0 ||
             (ps[myconnectindex].timebeforeexit > 0 && ps[myconnectindex].timebeforeexit <= 26*3) ||
             ps[myconnectindex].gm&MODE_MENU) return -1;
 
-    if ( soundm[num]&128 )
+    if (soundm[num]&128)
     {
         sound(num);
         return 0;
     }
 
-    if ( soundm[num]&4 )
+    if (soundm[num]&4)
     {
         if (VoiceToggle==0)
             return -1;
@@ -280,7 +280,7 @@ int xyzsound(short num,short i,long x,long y,long z)
             return -1;
         for (j=0;j<NUM_SOUNDS;j++)
             for (k=0;k<Sound[j].num;k++)
-                if ( (Sound[j].num > 0) && (soundm[j]&4) )
+                if ((Sound[j].num > 0) && (soundm[j]&4))
                     return -1;
     }
 
@@ -292,7 +292,7 @@ int xyzsound(short num,short i,long x,long y,long z)
 
     sndist = FindDistance3D((cx-x),(cy-y),(cz-z)>>4);
 
-    if ( i >= 0 && (soundm[num]&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9 )
+    if (i >= 0 && (soundm[num]&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
         sndist = divscale14(sndist,(SHT+1));
 
     pitchs = soundps[num];
@@ -301,15 +301,15 @@ int xyzsound(short num,short i,long x,long y,long z)
 
     if (cx)
     {
-        if ( pitchs < pitche )
-            pitch = pitchs + ( rand()%cx );
-        else pitch = pitche + ( rand()%cx );
+        if (pitchs < pitche)
+            pitch = pitchs + (rand()%cx);
+        else pitch = pitche + (rand()%cx);
     }
     else pitch = pitchs;
 
     sndist += soundvo[num];
     if (sndist < 0) sndist = 0;
-    if ( sndist && PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,SX,SY,SZ-(24<<8),SECT) )
+    if (sndist && PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,SX,SY,SZ-(24<<8),SECT))
         sndist += sndist>>5;
 
     switch (num)
@@ -317,7 +317,7 @@ int xyzsound(short num,short i,long x,long y,long z)
     case PIPEBOMB_EXPLODE:
     case LASERTRIP_EXPLODE:
     case RPG_EXPLODE:
-        if (sndist > (6144) )
+        if (sndist > (6144))
             sndist = 6144;
         if (sector[ps[screenpeek].cursectnum].lotag == 2)
             pitch -= 1024;
@@ -325,21 +325,21 @@ int xyzsound(short num,short i,long x,long y,long z)
     default:
         if (sector[ps[screenpeek].cursectnum].lotag == 2 && (soundm[num]&4) == 0)
             pitch = -768;
-        if ( sndist > 31444 && PN != MUSICANDSFX)
+        if (sndist > 31444 && PN != MUSICANDSFX)
             return -1;
         break;
     }
 
     if (ps[screenpeek].sound_pitch) pitch += ps[screenpeek].sound_pitch;
 
-    if ( Sound[num].num > 0 && PN != MUSICANDSFX )
+    if (Sound[num].num > 0 && PN != MUSICANDSFX)
     {
-        if ( SoundOwner[num][0].i == i ) stopsound(num);
-        else if ( Sound[num].num > 1 ) stopsound(num);
-        else if ( badguy(&sprite[i]) && sprite[i].extra <= 0 ) stopsound(num);
+        if (SoundOwner[num][0].i == i) stopsound(num);
+        else if (Sound[num].num > 1) stopsound(num);
+        else if (badguy(&sprite[i]) && sprite[i].extra <= 0) stopsound(num);
     }
 
-    if ( PN == APLAYER && sprite[i].yvel == screenpeek )
+    if (PN == APLAYER && sprite[i].yvel == screenpeek)
     {
         sndang = 0;
         sndist = 0;
@@ -350,7 +350,7 @@ int xyzsound(short num,short i,long x,long y,long z)
         sndang &= 2047;
     }
 
-    if (Sound[num].ptr == 0) { if ( loadsound(num) == 0 ) return 0; }
+    if (Sound[num].ptr == 0) { if (loadsound(num) == 0) return 0; }
     else
     {
         if (Sound[num].lock < 200)
@@ -358,12 +358,12 @@ int xyzsound(short num,short i,long x,long y,long z)
         else Sound[num].lock++;
     }
 
-    if ( soundm[num]&16 ) sndist = 0;
+    if (soundm[num]&16) sndist = 0;
 
-    if (sndist < ((255-LOUDESTVOLUME)<<6) )
+    if (sndist < ((255-LOUDESTVOLUME)<<6))
         sndist = ((255-LOUDESTVOLUME)<<6);
 
-    if ( soundm[num]&1 )
+    if (soundm[num]&1)
     {
         unsigned short start;
 
@@ -372,21 +372,21 @@ int xyzsound(short num,short i,long x,long y,long z)
         start = *(unsigned short *)(Sound[num].ptr + 0x14);
 
         if (*Sound[num].ptr == 'C')
-            voice = FX_PlayLoopedVOC( Sound[num].ptr, start, start + soundsiz[num],
-                                      pitch,sndist>>6,sndist>>6,0,soundpr[num],num);
+            voice = FX_PlayLoopedVOC(Sound[num].ptr, start, start + soundsiz[num],
+                                     pitch,sndist>>6,sndist>>6,0,soundpr[num],num);
         else
-            voice = FX_PlayLoopedWAV( Sound[num].ptr, start, start + soundsiz[num],
-                                      pitch,sndist>>6,sndist>>6,0,soundpr[num],num);
+            voice = FX_PlayLoopedWAV(Sound[num].ptr, start, start + soundsiz[num],
+                                     pitch,sndist>>6,sndist>>6,0,soundpr[num],num);
     }
     else
     {
-        if ( *Sound[num].ptr == 'C')
-            voice = FX_PlayVOC3D( Sound[ num ].ptr,pitch,sndang>>6,sndist>>6, soundpr[num], num );
+        if (*Sound[num].ptr == 'C')
+            voice = FX_PlayVOC3D(Sound[ num ].ptr,pitch,sndang>>6,sndist>>6, soundpr[num], num);
         else
-            voice = FX_PlayWAV3D( Sound[ num ].ptr,pitch,sndang>>6,sndist>>6, soundpr[num], num );
+            voice = FX_PlayWAV3D(Sound[ num ].ptr,pitch,sndang>>6,sndist>>6, soundpr[num], num);
     }
 
-    if ( voice > FX_Ok )
+    if (voice > FX_Ok)
     {
         SoundOwner[num][Sound[num].num].i = i;
         SoundOwner[num][Sound[num].num].voice = voice;
@@ -404,8 +404,8 @@ void sound(short num)
 
     if (FXDevice < 0) return;
     if (SoundToggle==0) return;
-    if (VoiceToggle==0 && (soundm[num]&4) ) return;
-    if ( (soundm[num]&8) && ud.lockout ) return;
+    if (VoiceToggle==0 && (soundm[num]&4)) return;
+    if ((soundm[num]&8) && ud.lockout) return;
     if (FX_VoiceAvailable(soundpr[num]) == 0) return;
 
     pitchs = soundps[num];
@@ -414,13 +414,13 @@ void sound(short num)
 
     if (cx)
     {
-        if ( pitchs < pitche )
-            pitch = pitchs + ( rand()%cx );
-        else pitch = pitche + ( rand()%cx );
+        if (pitchs < pitche)
+            pitch = pitchs + (rand()%cx);
+        else pitch = pitche + (rand()%cx);
     }
     else pitch = pitchs;
 
-if (Sound[num].ptr == 0) { if ( loadsound(num) == 0 ) return; }
+if (Sound[num].ptr == 0) { if (loadsound(num) == 0) return; }
     else
     {
         if (Sound[num].lock < 200)
@@ -428,27 +428,27 @@ if (Sound[num].ptr == 0) { if ( loadsound(num) == 0 ) return; }
         else Sound[num].lock++;
     }
 
-    if ( soundm[num]&1 )
+    if (soundm[num]&1)
     {
         if (*Sound[num].ptr == 'C')
         {
             start = (long)*(unsigned short *)(Sound[num].ptr + 0x14);
-            voice = FX_PlayLoopedVOC( Sound[num].ptr, start, start + soundsiz[num],
-                                      pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,soundpr[num],num);
+            voice = FX_PlayLoopedVOC(Sound[num].ptr, start, start + soundsiz[num],
+                                     pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,soundpr[num],num);
         }
         else
         {
             start = (long)*(unsigned short *)(Sound[num].ptr + 0x14);
-            voice = FX_PlayLoopedWAV( Sound[num].ptr, start, start + soundsiz[num],
-                                      pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,soundpr[num],num);
+            voice = FX_PlayLoopedWAV(Sound[num].ptr, start, start + soundsiz[num],
+                                     pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,soundpr[num],num);
         }
     }
     else
     {
         if (*Sound[num].ptr == 'C')
-            voice = FX_PlayVOC3D( Sound[ num ].ptr, pitch,0,255-LOUDESTVOLUME,soundpr[num], num );
+            voice = FX_PlayVOC3D(Sound[ num ].ptr, pitch,0,255-LOUDESTVOLUME,soundpr[num], num);
         else
-            voice = FX_PlayWAV3D( Sound[ num ].ptr, pitch,0,255-LOUDESTVOLUME,soundpr[num], num );
+            voice = FX_PlayWAV3D(Sound[ num ].ptr, pitch,0,255-LOUDESTVOLUME,soundpr[num], num);
     }
 
     if (voice > FX_Ok) return;
@@ -523,7 +523,7 @@ void pan3dsound(void)
             sy = sprite[i].y;
             sz = sprite[i].z;
 
-            if ( PN == APLAYER && sprite[i].yvel == screenpeek)
+            if (PN == APLAYER && sprite[i].yvel == screenpeek)
             {
                 sndang = 0;
                 sndist = 0;
@@ -533,14 +533,14 @@ void pan3dsound(void)
                 sndang = 2048 + ca - getangle(cx-sx,cy-sy);
                 sndang &= 2047;
                 sndist = FindDistance3D((cx-sx),(cy-sy),(cz-sz)>>4);
-                if ( i >= 0 && (soundm[j]&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9 )
+                if (i >= 0 && (soundm[j]&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
                     sndist = divscale14(sndist,(SHT+1));
             }
 
             sndist += soundvo[j];
             if (sndist < 0) sndist = 0;
 
-            if ( sndist && PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,sx,sy,sz-(24<<8),SECT) )
+            if (sndist && PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,sx,sy,sz-(24<<8),SECT))
                 sndist += sndist>>5;
 
             if (PN == MUSICANDSFX && SLT < 999)
@@ -554,17 +554,17 @@ void pan3dsound(void)
                 if (sndist > (6144)) sndist = (6144);
                 break;
             default:
-                if ( sndist > 31444 && PN != MUSICANDSFX)
+                if (sndist > 31444 && PN != MUSICANDSFX)
                 {
                     stopsound(j);
                     continue;
                 }
             }
 
-            if (Sound[j].ptr == 0 && loadsound(j) == 0 ) continue;
-            if ( soundm[j]&16 ) sndist = 0;
+            if (Sound[j].ptr == 0 && loadsound(j) == 0) continue;
+            if (soundm[j]&16) sndist = 0;
 
-            if (sndist < ((255-LOUDESTVOLUME)<<6) )
+            if (sndist < ((255-LOUDESTVOLUME)<<6))
                 sndist = ((255-LOUDESTVOLUME)<<6);
 
             FX_Pan3D(SoundOwner[j][k].voice,sndang>>6,sndist>>6);
@@ -586,14 +586,14 @@ void testcallback(unsigned long num)
 
     if (tempk > 0)
     {
-        if ( (soundm[num]&16) == 0)
+        if ((soundm[num]&16) == 0)
             for (tempj=0;tempj<tempk;tempj++)
             {
                 tempi = SoundOwner[num][tempj].i;
                 if (sprite[tempi].picnum == MUSICANDSFX && sector[sprite[tempi].sectnum].lotag < 3 && sprite[tempi].lotag < 999)
                 {
                     hittype[tempi].temp_data[0] = 0;
-                    if ( (tempj + 1) < tempk )
+                    if ((tempj + 1) < tempk)
                     {
                         SoundOwner[num][tempj].voice = SoundOwner[num][tempk-1].voice;
                         SoundOwner[num][tempj].i     = SoundOwner[num][tempk-1].i;
@@ -635,5 +635,5 @@ int issoundplaying(short i, int num)
             return 1;
         else return 0;
     }
-    else return (Sound[num].num);
+    else return(Sound[num].num);
 }

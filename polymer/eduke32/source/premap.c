@@ -200,7 +200,7 @@ void cachegoodsprites(void)
                 tloadtile(j,1);
     }
     tloadtile(BOTTOMSTATUSBAR,1);
-    if ( ud.multimode > 1)
+    if (ud.multimode > 1)
         tloadtile(FRAGBAR,1);
 
     tloadtile(VIEWSCREEN,1);
@@ -211,21 +211,21 @@ void cachegoodsprites(void)
 
     for (i=FOOTPRINTS;i<FOOTPRINTS+3;i++) tloadtile(i,1);
 
-    for ( i = BURNING; i < BURNING+14; i++) tloadtile(i,1);
-    for ( i = BURNING2; i < BURNING2+14; i++) tloadtile(i,1);
+    for (i = BURNING; i < BURNING+14; i++) tloadtile(i,1);
+    for (i = BURNING2; i < BURNING2+14; i++) tloadtile(i,1);
 
-    for ( i = CRACKKNUCKLES; i < CRACKKNUCKLES+4; i++) tloadtile(i,1);
+    for (i = CRACKKNUCKLES; i < CRACKKNUCKLES+4; i++) tloadtile(i,1);
 
-    for ( i = FIRSTGUN; i < FIRSTGUN+3 ; i++ ) tloadtile(i,1);
-    for ( i = FIRSTGUNRELOAD; i < FIRSTGUNRELOAD+8 ; i++ ) tloadtile(i,1);
+    for (i = FIRSTGUN; i < FIRSTGUN+3 ; i++) tloadtile(i,1);
+    for (i = FIRSTGUNRELOAD; i < FIRSTGUNRELOAD+8 ; i++) tloadtile(i,1);
 
-    for ( i = EXPLOSION2; i < EXPLOSION2+21 ; i++ ) tloadtile(i,1);
+    for (i = EXPLOSION2; i < EXPLOSION2+21 ; i++) tloadtile(i,1);
 
     tloadtile(BULLETHOLE,1);
-    for ( i = SMALLSMOKE; i < (SMALLSMOKE+4); i++) tloadtile(i,1);
+    for (i = SMALLSMOKE; i < (SMALLSMOKE+4); i++) tloadtile(i,1);
 
-    for ( i = JIBS1; i < (JIBS5+5); i++) tloadtile(i,1);
-    for ( i = SCRAP1; i < (SCRAP1+19); i++) tloadtile(i,1);
+    for (i = JIBS1; i < (JIBS5+5); i++) tloadtile(i,1);
+    for (i = SCRAP1; i < (SCRAP1+19); i++) tloadtile(i,1);
 
     for (i=RPG; i<RPG+7; i++) tloadtile(i,1);
     for (i=FREEZEBLAST; i<FREEZEBLAST+3; i++) tloadtile(i,1);
@@ -247,18 +247,18 @@ char getsound(unsigned short num)
     fp = kopen4load(sounds[num],loadfromgrouponly);
     if (fp == -1) return 0;
 
-    l = kfilelength( fp );
+    l = kfilelength(fp);
     soundsiz[num] = l;
 
-    if ( (ud.level_number == 0 && ud.volume_number == 0 && (num == 189 || num == 232 || num == 99 || num == 233 || num == 17 ) ) ||
-            ( l < 12288 ) )
+    if ((ud.level_number == 0 && ud.volume_number == 0 && (num == 189 || num == 232 || num == 99 || num == 233 || num == 17)) ||
+            (l < 12288))
     {
         Sound[num].lock = 199;
         allocache((long *)&Sound[num].ptr,l,(char *)&Sound[num].lock);
         if (Sound[num].ptr != NULL)
-            kread( fp, Sound[num].ptr , l);
+            kread(fp, Sound[num].ptr , l);
     }
-    kclose( fp );
+    kclose(fp);
     return 1;
 }
 
@@ -273,7 +273,7 @@ void precachenecessarysounds(void)
         if (Sound[i].ptr == 0)
         {
             j++;
-            if ( (j&7) == 0 )
+            if ((j&7) == 0)
             { handleevents(); getpackets(); }
             getsound(i);
         }
@@ -305,9 +305,9 @@ void cacheit(void)
 
     for (i=0;i<numsectors;i++)
     {
-        tloadtile( sector[i].floorpicnum, 0 );
-        tloadtile( sector[i].ceilingpicnum, 0 );
-        if ( sector[i].ceilingpicnum == LA) // JBF 20040509: if( waloff[sector[i].ceilingpicnum] == LA) WTF??!??!?!?
+        tloadtile(sector[i].floorpicnum, 0);
+        tloadtile(sector[i].ceilingpicnum, 0);
+        if (sector[i].ceilingpicnum == LA)  // JBF 20040509: if( waloff[sector[i].ceilingpicnum] == LA) WTF??!??!?!?
         {
             tloadtile(LA+1, 0);
             tloadtile(LA+2, 0);
@@ -392,7 +392,7 @@ void vscrn(void)
     x2 = xdim-x1;
 
     y1 = ss; y2 = 200;
-    if ( ud.screen_size > 0 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_FRAGBAR) && ud.multimode > 1)
+    if (ud.screen_size > 0 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_FRAGBAR) && ud.multimode > 1)
     {
         j = 0;
         for (i=connecthead;i>=0;i=connectpoint2[i])
@@ -423,7 +423,7 @@ void pickrandomspot(short snum)
 
     p = &ps[snum];
 
-    if ( ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_FIXEDRESPAWN))
+    if (ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_FIXEDRESPAWN))
     {
         if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDMSPAWN)
         {
@@ -513,7 +513,7 @@ void resetplayerstats(short snum)
     p->sbs          = 0;
     p->palette = (char *) &palette[0];
 
-    if (p->steroids_amount < 400 )
+    if (p->steroids_amount < 400)
     {
         p->steroids_amount = 0;
         p->inven_icon = 0;
@@ -540,8 +540,8 @@ void resetplayerstats(short snum)
 
     p->on_crane          = -1;
 
-    if ( (aplWeaponWorksLike[p->curr_weapon][snum] == PISTOL_WEAPON) &&
-            (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]) )
+    if ((aplWeaponWorksLike[p->curr_weapon][snum] == PISTOL_WEAPON) &&
+            (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]))
         p->kickback_pic  = aplWeaponTotalTime[p->curr_weapon][snum]+1;
     else p->kickback_pic = 0;
 
@@ -568,9 +568,9 @@ void resetweapons(short snum)
 
     p = &ps[snum];
 
-    for ( weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++ )
+    for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
         p->gotweapon[weapon] = 0;
-    for ( weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++ )
+    for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
         p->ammo_amount[weapon] = 0;
 
     p->weapon_pos = 6;
@@ -655,7 +655,7 @@ void resetprestat(short snum,char g)
     numinterpolations = 0;
     startofdynamicinterpolations = 0;
 
-    if ( ( (g&MODE_EOL) != MODE_EOL && numplayers < 2) || (!(gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && numplayers > 1) )
+    if (((g&MODE_EOL) != MODE_EOL && numplayers < 2) || (!(gametype_flags[ud.coop]&GAMETYPE_FLAG_PRESERVEINVENTORYDEATH) && numplayers > 1))
     {
         resetweapons(snum);
         resetinventory(snum);
@@ -723,7 +723,7 @@ void prelevel(char g)
         {
         case 20:
         case 22:
-            if ( sector[i].floorz > sector[i].ceilingz)
+            if (sector[i].floorz > sector[i].ceilingz)
                 sector[i].lotag |= 32768;
             continue;
         }
@@ -765,7 +765,7 @@ void prelevel(char g)
         nexti = nextspritestat[i];
         ResetActorGameVars(i);
         LoadActor(i, -1, -1);
-        if (sprite[i].lotag == -1 && (sprite[i].cstat&16) )
+        if (sprite[i].lotag == -1 && (sprite[i].cstat&16))
         {
             ps[0].exitx = SX;
             ps[0].exity = SY;
@@ -820,7 +820,7 @@ void prelevel(char g)
     for (i=0;i < MAXSPRITES;i++)
         if (sprite[i].statnum < MAXSTATUS)
         {
-            if ( PN == SECTOREFFECTOR && SLT == 14 )
+            if (PN == SECTOREFFECTOR && SLT == 14)
                 spawn(-1,i);
         }
 
@@ -845,10 +845,10 @@ void prelevel(char g)
         case LOCKSWITCH1__STATIC:
         case POWERSWITCH2__STATIC:
             for (j=0;j<lotaglist;j++)
-                if ( SLT == lotags[j] )
+                if (SLT == lotags[j])
                     break;
 
-            if ( j == lotaglist )
+            if (j == lotaglist)
             {
                 lotags[lotaglist] = SLT;
                 lotaglist++;
@@ -870,7 +870,7 @@ void prelevel(char g)
 
     mirrorcnt = 0;
 
-    for ( i = 0; i < numwalls; i++ )
+    for (i = 0; i < numwalls; i++)
     {
         walltype *wal;
         wal = &wall[i];
@@ -881,7 +881,7 @@ void prelevel(char g)
 
             if (mirrorcnt > 63)
                 gameexit("\nToo many mirrors (64 max.)");
-            if ( (j >= 0) && sector[j].ceilingpicnum != MIRROR )
+            if ((j >= 0) && sector[j].ceilingpicnum != MIRROR)
             {
                 sector[j].ceilingpicnum = MIRROR;
                 sector[j].floorpicnum = MIRROR;
@@ -1034,10 +1034,10 @@ void newgame(char vn,char ln,char sk)
     waitforeverybody();
     ready2send = 0;
 
-    if ( ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && (ud.coop&GAMETYPE_FLAG_SCORESHEET))
+    if (ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && (ud.coop&GAMETYPE_FLAG_SCORESHEET))
         dobonus(1);
 
-    if ( ln == 0 && vn == 3 && ud.multimode < 2 && ud.lockout == 0)
+    if (ln == 0 && vn == 3 && ud.multimode < 2 && ud.lockout == 0)
     {
         playmusic(&env_music_fn[1][0]);
 
@@ -1100,7 +1100,7 @@ void newgame(char vn,char ln,char sk)
     }
     display_mirror =        0;
 
-    if (ud.multimode > 1 )
+    if (ud.multimode > 1)
     {
         if (numplayers < 2)
         {
@@ -1196,7 +1196,7 @@ void resetpspritevars(char g)
         nexti = nextspritestat[i];
         s = &sprite[i];
 
-        if ( numplayersprites == MAXPLAYERS)
+        if (numplayersprites == MAXPLAYERS)
             gameexit("\nToo many player sprites (max 16.)");
 
         if (numplayersprites == 0)
@@ -1222,7 +1222,7 @@ void resetpspritevars(char g)
             s->xoffset = 0;
             s->clipdist = 64;
 
-            if ( (g&MODE_EOL) != MODE_EOL || ps[j].last_extra == 0)
+            if ((g&MODE_EOL) != MODE_EOL || ps[j].last_extra == 0)
             {
                 ps[j].last_extra = max_player_health;
                 s->extra = max_player_health;
@@ -1241,13 +1241,13 @@ void resetpspritevars(char g)
                     for (k=0;k<MAXPLAYERS;k++) {
                         if (which_palookup == ps[k].palookup) {
                             which_palookup++;
-                            if ( which_palookup >= 17 )
+                            if (which_palookup >= 17)
                                 which_palookup = 9;
                             k=0;
                         }
                     }
                     ud.pcolor[j] = s->pal = ps[j].palookup = which_palookup++;
-                    if ( which_palookup >= 17 )
+                    if (which_palookup >= 17)
                         which_palookup = 9;
                 }
                 else ud.pcolor[j] = ps[j].palookup = s->pal;
@@ -1410,7 +1410,7 @@ void dofrontscreens(char *statustext)
             nextpage();
             return;
         }
-        if ( boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0 )
+        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
         {
             menutext(160,90,0,0,"ENTERING USER MAP");
             gametextpal(160,90+10,boardfilename,14,2);
@@ -1508,7 +1508,7 @@ int enterlevel(char g)
     long l;
     char levname[BMAX_PATH];
 
-    if ( (g&MODE_DEMO) != MODE_DEMO ) ud.recstat = ud.m_recstat;
+    if ((g&MODE_DEMO) != MODE_DEMO) ud.recstat = ud.m_recstat;
     ud.respawn_monsters = ud.m_respawn_monsters;
     ud.respawn_items    = ud.m_respawn_items;
     ud.respawn_inventory    = ud.m_respawn_inventory;
@@ -1522,13 +1522,13 @@ int enterlevel(char g)
     Bmemset(votes,0,sizeof(votes));
     Bmemset(gotvote,0,sizeof(gotvote));
 
-    if ( (g&MODE_DEMO) == 0 && ud.recstat == 2)
+    if ((g&MODE_DEMO) == 0 && ud.recstat == 2)
         ud.recstat = 0;
 
     if (VOLUMEALL) Bsprintf(tempbuf,HEAD2);
     else Bsprintf(tempbuf,HEAD);
 
-    if ( boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0 )
+    if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
         Bstrcpy(levname, boardfilename);
         Bsprintf(apptitle," - %s",levname);
@@ -1550,9 +1550,9 @@ int enterlevel(char g)
 
     if (!VOLUMEONE) {
 
-        if ( boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0 )
+        if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
         {
-            if ( loadboard( boardfilename,0,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum ) == -1 )
+            if (loadboard(boardfilename,0,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
             {
                 initprintf("Map %s not found!\n",boardfilename);
                 //gameexit(tempbuf);
@@ -1566,14 +1566,14 @@ int enterlevel(char g)
                 if (!loadmaphack(levname)) initprintf("Loaded map hack file %s\n",levname);
             }
         }
-        else if ( loadboard( level_file_names[ (ud.volume_number*11)+ud.level_number],0,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum ) == -1)
+        else if (loadboard(level_file_names[(ud.volume_number*11)+ud.level_number],0,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
         {
             initprintf("Map %s not found!\n",level_file_names[(ud.volume_number*11)+ud.level_number]);
             //gameexit(tempbuf);
             return 1;
         } else {
             char *p;
-            strcpy(levname, level_file_names[ (ud.volume_number*11)+ud.level_number]);
+            strcpy(levname, level_file_names[(ud.volume_number*11)+ud.level_number]);
             p = Bstrrchr(levname,'.');
             if (!p) strcat(levname,".mhk");
         else { p[1]='m'; p[2]='h'; p[3]='k'; p[4]=0; }
@@ -1582,12 +1582,12 @@ int enterlevel(char g)
 
     } else {
 
-        l = strlen(level_file_names[ (ud.volume_number*11)+ud.level_number]);
-        copybufbyte( level_file_names[ (ud.volume_number*11)+ud.level_number],&levname[0],l);
+        l = strlen(level_file_names[(ud.volume_number*11)+ud.level_number]);
+        copybufbyte(level_file_names[(ud.volume_number*11)+ud.level_number],&levname[0],l);
         levname[l] = 255;
         levname[l+1] = 0;
 
-        if ( loadboard( levname,1,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum ) == -1)
+        if (loadboard(levname,1,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
         {
             initprintf("Map %s not found!\n",level_file_names[(ud.volume_number*11)+ud.level_number]);
             //gameexit(tempbuf);
@@ -1624,7 +1624,7 @@ int enterlevel(char g)
         playmusic(&music_fn[0][music_select][0]);
     }
 
-    if ( (g&MODE_GAME) || (g&MODE_EOL) )
+    if ((g&MODE_GAME) || (g&MODE_EOL))
         ps[myconnectindex].gm = MODE_GAME;
     else if (g&MODE_RESTART)
     {
@@ -1633,7 +1633,7 @@ int enterlevel(char g)
         else ps[myconnectindex].gm = MODE_GAME;
     }
 
-    if ( (ud.recstat == 1) && (g&MODE_RESTART) != MODE_RESTART )
+    if ((ud.recstat == 1) && (g&MODE_RESTART) != MODE_RESTART)
         opendemowrite();
 
     if (VOLUMEONE) {

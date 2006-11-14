@@ -120,7 +120,7 @@ int osdcmd_map(const osdfuncparm_t *parm)
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
     strcpy(filename,parm->parms[0]);
-    if ( strchr(filename,'.') == 0)
+    if (strchr(filename,'.') == 0)
         strcat(filename,".map");
 
     if ((i = kopen4load(filename,0)) < 0) {
@@ -655,7 +655,7 @@ int osdcmd_mpmap(const osdfuncparm_t *parm)
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
     strcpy(filename,parm->parms[0]);
-    if ( strchr(filename,'.') == 0)
+    if (strchr(filename,'.') == 0)
         strcat(filename,".map");
 
     if ((i = kopen4load(filename,0)) < 0) {

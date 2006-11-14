@@ -51,10 +51,10 @@ void cmenu(short cm)
 {
     current_menu = cm;
 
-    if ( (cm >= 1000 && cm <= 1009) )
+    if ((cm >= 1000 && cm <= 1009))
         return;
 
-    if ( cm == 0 )
+    if (cm == 0)
         probey = last_zero;
     else if (cm == 50)
         probey = last_fifty;
@@ -114,36 +114,36 @@ static int probe_(int type,int x,int y,int i,int n)
     s = 1+(CONTROL_GetMouseSensitivity()>>4);
 
     {
-        CONTROL_GetInput( &minfo );
+        CONTROL_GetInput(&minfo);
         mi += minfo.dz;
     }
 
-    if ( x == (320>>1) )
+    if (x == (320>>1))
         centre = 320>>2;
     else centre = 0;
 
     if (!buttonstat)
     {
-        if ( KB_KeyPressed( sc_UpArrow ) || KB_KeyPressed( sc_PgUp ) || KB_KeyPressed( sc_kpad_8 ) ||
-                mi < -8192 )
+        if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_PgUp) || KB_KeyPressed(sc_kpad_8) ||
+                mi < -8192)
         {
             mi = 0;
-            KB_ClearKeyDown( sc_UpArrow );
-            KB_ClearKeyDown( sc_kpad_8 );
-            KB_ClearKeyDown( sc_PgUp );
+            KB_ClearKeyDown(sc_UpArrow);
+            KB_ClearKeyDown(sc_kpad_8);
+            KB_ClearKeyDown(sc_PgUp);
             sound(KICK_HIT);
 
             probey--;
             if (probey < 0) probey = n-1;
             minfo.dz = 0;
         }
-        if ( KB_KeyPressed( sc_DownArrow ) || KB_KeyPressed( sc_PgDn ) || KB_KeyPressed( sc_kpad_2 )
-                || mi > 8192 )
+        if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_PgDn) || KB_KeyPressed(sc_kpad_2)
+                || mi > 8192)
         {
             mi = 0;
-            KB_ClearKeyDown( sc_DownArrow );
-            KB_ClearKeyDown( sc_kpad_2 );
-            KB_ClearKeyDown( sc_PgDn );
+            KB_ClearKeyDown(sc_DownArrow);
+            KB_ClearKeyDown(sc_kpad_2);
+            KB_ClearKeyDown(sc_PgDn);
             sound(KICK_HIT);
             probey++;
             minfo.dz = 0;
@@ -164,28 +164,28 @@ static int probe_(int type,int x,int y,int i,int n)
     else
         rotatesprite((x<<16)-((tilesizx[BIGFNTCURSOR]-4)<<(16-type)),(y+(probey*i)-(4>>type))<<16,65536L>>type,0,SPINNINGNUKEICON+(((totalclock>>3))%7),sh,0,10,0,0,xdim-1,ydim-1);
 
-    if ( KB_KeyPressed(sc_Space) || KB_KeyPressed( sc_kpad_Enter ) || KB_KeyPressed( sc_Enter ) || (LMB && !onbar) )
+    if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Enter) || (LMB && !onbar))
     {
         if (current_menu != 110)
             sound(PISTOL_BODYHIT);
-        KB_ClearKeyDown( sc_Enter );
-        KB_ClearKeyDown( sc_Space );
-        KB_ClearKeyDown( sc_kpad_Enter );
+        KB_ClearKeyDown(sc_Enter);
+        KB_ClearKeyDown(sc_Space);
+        KB_ClearKeyDown(sc_kpad_Enter);
         return(probey);
     }
-    else if ( KB_KeyPressed( sc_Escape ) || (RMB) )
+    else if (KB_KeyPressed(sc_Escape) || (RMB))
     {
         onbar = 0;
-        KB_ClearKeyDown( sc_Escape );
+        KB_ClearKeyDown(sc_Escape);
         sound(EXITMENUSOUND);
         return(-1);
     }
     else
     {
         if (onbar == 0) return(-probey-2);
-        if ( KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -128 ) )
+        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -128))
             return(probey);
-        else if ( KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 128 ) )
+        else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 128))
             return(probey);
         else return(-probey-2);
     }
@@ -201,9 +201,9 @@ int menutext_(int x,int y,short s,short p,char *t)
 
     i = centre = 0;
 
-    if ( x == (320>>1) )
+    if (x == (320>>1))
     {
-        while ( *(t+i) )
+        while (*(t+i))
         {
             if (*(t+i) == ' ')
             {
@@ -326,20 +326,20 @@ static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short 
     {
         if (rev == 0)
         {
-            if ( *p > 0 && (KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) ) ) // && onbar) )
+            if (*p > 0 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256)))         // && onbar) )
             {
-                KB_ClearKeyDown( sc_LeftArrow );
-                KB_ClearKeyDown( sc_kpad_4 );
+                KB_ClearKeyDown(sc_LeftArrow);
+                KB_ClearKeyDown(sc_kpad_4);
 
                 *p -= dainc;
                 if (*p < 0)
                     *p = 0;
                 sound(KICK_HIT);
             }
-            if ( *p < 63 && (KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ) ) )//&& onbar) )
+            if (*p < 63 && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256)))        //&& onbar) )
             {
-                KB_ClearKeyDown( sc_RightArrow );
-                KB_ClearKeyDown( sc_kpad_6 );
+                KB_ClearKeyDown(sc_RightArrow);
+                KB_ClearKeyDown(sc_kpad_6);
 
                 *p += dainc;
                 if (*p > 63)
@@ -349,20 +349,20 @@ static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short 
         }
         else
         {
-            if ( *p > 0 && (KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ) ) )//&& onbar) )
+            if (*p > 0 && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256)))        //&& onbar) )
             {
-                KB_ClearKeyDown( sc_RightArrow );
-                KB_ClearKeyDown( sc_kpad_6 );
+                KB_ClearKeyDown(sc_RightArrow);
+                KB_ClearKeyDown(sc_kpad_6);
 
                 *p -= dainc;
                 if (*p < 0)
                     *p = 0;
                 sound(KICK_HIT);
             }
-            if ( *p < 64 && (KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) ) ) // && onbar) )
+            if (*p < 64 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256)))         // && onbar) )
             {
-                KB_ClearKeyDown( sc_LeftArrow );
-                KB_ClearKeyDown( sc_kpad_4 );
+                KB_ClearKeyDown(sc_LeftArrow);
+                KB_ClearKeyDown(sc_kpad_4);
 
                 *p += dainc;
                 if (*p > 64)
@@ -374,11 +374,11 @@ static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short 
 
     xloc = *p;
 
-    rotatesprite( (x<<16)+(22<<(16-type)),(y<<16)-(3<<(16-type)),65536L>>type,0,SLIDEBAR,s,pa,10,0,0,xdim-1,ydim-1);
+    rotatesprite((x<<16)+(22<<(16-type)),(y<<16)-(3<<(16-type)),65536L>>type,0,SLIDEBAR,s,pa,10,0,0,xdim-1,ydim-1);
     if (rev == 0)
-        rotatesprite( (x<<16)+((xloc+1)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
+        rotatesprite((x<<16)+((xloc+1)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
     else
-        rotatesprite( (x<<16)+((65-xloc)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
+        rotatesprite((x<<16)+((65-xloc)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
 }
 
 void bar(int x,int y,short *p,short dainc,char damodify,short s, short pa) { bar_(0,x,y,p,dainc,damodify,s,pa); }
@@ -395,20 +395,20 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
     {
         if (rev == 0)
         {
-            if ( KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) ) // && onbar) )
+            if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256))        // && onbar) )
             {
-                KB_ClearKeyDown( sc_LeftArrow );
-                KB_ClearKeyDown( sc_kpad_4 );
+                KB_ClearKeyDown(sc_LeftArrow);
+                KB_ClearKeyDown(sc_kpad_4);
 
                 *p -= dainc;
                 if (*p < min)
                     *p = max;
                 sound(PISTOL_BODYHIT);
             }
-            if ( KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ) )//&& onbar) )
+            if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256))       //&& onbar) )
             {
-                KB_ClearKeyDown( sc_RightArrow );
-                KB_ClearKeyDown( sc_kpad_6 );
+                KB_ClearKeyDown(sc_RightArrow);
+                KB_ClearKeyDown(sc_kpad_6);
 
                 *p += dainc;
                 if (*p > max)
@@ -418,20 +418,20 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
         }
         else
         {
-            if ( KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ))//&& onbar ))
+            if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256))      //&& onbar ))
             {
-                KB_ClearKeyDown( sc_RightArrow );
-                KB_ClearKeyDown( sc_kpad_6 );
+                KB_ClearKeyDown(sc_RightArrow);
+                KB_ClearKeyDown(sc_kpad_6);
 
                 *p -= dainc;
                 if (*p < min)
                     *p = max;
                 sound(PISTOL_BODYHIT);
             }
-            if ( KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ))// && onbar) )
+            if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256))      // && onbar) )
             {
-                KB_ClearKeyDown( sc_LeftArrow );
-                KB_ClearKeyDown( sc_kpad_4 );
+                KB_ClearKeyDown(sc_LeftArrow);
+                KB_ClearKeyDown(sc_kpad_4);
 
                 *p += dainc;
                 if (*p > max)
@@ -522,7 +522,7 @@ void sendquit(void)
 {
     int i;
 
-    if ( gamequit == 0 && ( numplayers > 1 ) )
+    if (gamequit == 0 && (numplayers > 1))
     {
         if (ps[myconnectindex].gm&MODE_GAME)
         {
@@ -542,10 +542,10 @@ void sendquit(void)
             gameexit(" ");
         }
     }
-    else if ( numplayers < 2 )
+    else if (numplayers < 2)
         gameexit(" ");
 
-    if ( ( totalclock > quittimer ) && ( gamequit == 1) )
+    if ((totalclock > quittimer) && (gamequit == 1))
         gameexit("Timed out.");
 }
 
@@ -562,14 +562,14 @@ void menus(void)
         if (buttonstat != 0 && !onbar)
         {
             x = MOUSE_GetButtons()<<3;
-            if ( x ) buttonstat = x<<3;
+            if (x) buttonstat = x<<3;
             else buttonstat = 0;
         }
         else
             buttonstat = MOUSE_GetButtons();
     }
 
-    if ( (ps[myconnectindex].gm&MODE_MENU) == 0 )
+    if ((ps[myconnectindex].gm&MODE_MENU) == 0)
     {
         walock[TILE_LOADSHOT] = 1;
         return;
@@ -634,7 +634,7 @@ void menus(void)
         gametext(160,140+8,"VERSION OF DUKE NUKEM 3D.",0,2+8+16);
         gametext(160,149+16,"PRESS ANY KEY...",0,2+8+16);
 
-        if ( x >= -1 ) cmenu(100);
+        if (x >= -1) cmenu(100);
         break;
 
     case 20001:
@@ -999,7 +999,7 @@ void menus(void)
 
         if (VOLUMEALL) {
             menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),boardfilename[0] == 0,"USER MAP");
-            if ( boardfilename[0] != 0 )
+            if (boardfilename[0] != 0)
                 gametext(c+70+44,57+16+16+16+16+16,boardfilename,0,2+8+16);
         } else {
             menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),1,"USER MAP");
@@ -1088,7 +1088,7 @@ void menus(void)
 
         gametext(160,99+9,"(Y/N)",0,2+8+16);
 
-        if ( KB_KeyPressed(sc_Escape) || KB_KeyPressed(sc_N) || RMB)
+        if (KB_KeyPressed(sc_Escape) || KB_KeyPressed(sc_N) || RMB)
         {
             if (sprite[ps[myconnectindex].i].extra <= 0)
             {
@@ -1107,7 +1107,7 @@ void menus(void)
             }
         }
 
-        if (  KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
+        if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
         {
             KB_FlushKeyboardQueue();
             KB_ClearKeysDown();
@@ -1150,20 +1150,20 @@ void menus(void)
             gametext(160,50+16+16+16+16-12,"ENTER PASSWORD",0,2+8+16);
             x = strget((320>>1),50+16+16+16+16,buf,19, 998);
 
-            if ( x )
+            if (x)
             {
-                if (ud.pwlockout[0] == 0 || ud.lockout == 0 )
+                if (ud.pwlockout[0] == 0 || ud.lockout == 0)
                     strcpy(&ud.pwlockout[0],buf);
-                else if ( strcmp(buf,&ud.pwlockout[0]) == 0 )
+                else if (strcmp(buf,&ud.pwlockout[0]) == 0)
                 {
                     ud.lockout = 0;
                     buf[0] = 0;
 
                     for (x=0;x<numanimwalls;x++)
-                        if ( wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
+                        if (wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
                                 wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
-                                wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2 )
-                            if ( wall[animwall[x].wallnum].extra >= 0 )
+                                wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2)
+                            if (wall[animwall[x].wallnum].extra >= 0)
                                 wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
 
                 }
@@ -1177,16 +1177,16 @@ void menus(void)
         {
             if (x == 0)
             {
-                if ( ud.lockout == 1 )
+                if (ud.lockout == 1)
                 {
                     if (ud.pwlockout[0] == 0)
                     {
                         ud.lockout = 0;
                         for (x=0;x<numanimwalls;x++)
-                            if ( wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
+                            if (wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
                                     wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
-                                    wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2 )
-                                if ( wall[animwall[x].wallnum].extra >= 0 )
+                                    wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2)
+                                if (wall[animwall[x].wallnum].extra >= 0)
                                     wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
                     }
                     else
@@ -1257,7 +1257,7 @@ void menus(void)
         gametext(160,99,tempbuf,0,2+8+16);
         gametext(160,99+9,"(Y/N)",0,2+8+16);
 
-        if ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
+        if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
         {
             lastsavedpos = current_menu-1000;
 
@@ -1271,7 +1271,7 @@ void menus(void)
 
             if (ud.multimode > 1)
             {
-                if ( ps[myconnectindex].gm&MODE_GAME )
+                if (ps[myconnectindex].gm&MODE_GAME)
                 {
                     loadplayer(-1-lastsavedpos);
                     ps[myconnectindex].gm = MODE_GAME;
@@ -1302,7 +1302,7 @@ void menus(void)
 
             break;
         }
-        if ( KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
+        if (KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
         {
             KB_ClearKeyDown(sc_N);
             KB_ClearKeyDown(sc_Escape);
@@ -1325,12 +1325,12 @@ void menus(void)
 
     case 1500:
 
-        if ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
+        if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
         {
             KB_FlushKeyboardQueue();
             cmenu(100);
         }
-        if ( KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
+        if (KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
         {
             KB_ClearKeyDown(sc_N);
             KB_ClearKeyDown(sc_Escape);
@@ -1379,7 +1379,7 @@ void menus(void)
         gametext(160,90,"OVERWRITE previous SAVED game?",0,2+8+16);
         gametext(160,90+9,"(Y/N)",0,2+8+16);
 
-        if ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
+        if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
         {
             inputloc = strlen(&ud.savegame[current_menu-2000][0]);
 
@@ -1388,7 +1388,7 @@ void menus(void)
             KB_FlushKeyboardQueue();
             break;
         }
-        if ( KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
+        if (KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
         {
             KB_ClearKeyDown(sc_N);
             KB_ClearKeyDown(sc_Escape);
@@ -1422,11 +1422,11 @@ void menus(void)
 
         if (KB_KeyPressed(sc_Escape)) { cmenu(0); break; }
 
-        if ( KB_KeyPressed( sc_LeftArrow ) ||
-                KB_KeyPressed( sc_kpad_4 ) ||
-                KB_KeyPressed( sc_UpArrow ) ||
-                KB_KeyPressed( sc_PgUp ) ||
-                KB_KeyPressed( sc_kpad_8 ) )
+        if (KB_KeyPressed(sc_LeftArrow) ||
+                KB_KeyPressed(sc_kpad_4) ||
+                KB_KeyPressed(sc_UpArrow) ||
+                KB_KeyPressed(sc_PgUp) ||
+                KB_KeyPressed(sc_kpad_8))
         {
             KB_ClearKeyDown(sc_LeftArrow);
             KB_ClearKeyDown(sc_kpad_4);
@@ -1439,15 +1439,15 @@ void menus(void)
             if (current_menu < 990) current_menu = 990+l;
         }
         else if (
-            KB_KeyPressed( sc_PgDn ) ||
-            KB_KeyPressed( sc_Enter ) ||
-            KB_KeyPressed( sc_Space ) ||
-            KB_KeyPressed( sc_kpad_Enter ) ||
-            KB_KeyPressed( sc_RightArrow ) ||
-            KB_KeyPressed( sc_DownArrow ) ||
-            KB_KeyPressed( sc_kpad_2 ) ||
-            KB_KeyPressed( sc_kpad_9 ) ||
-            KB_KeyPressed( sc_kpad_6 ) )
+            KB_KeyPressed(sc_PgDn) ||
+            KB_KeyPressed(sc_Enter) ||
+            KB_KeyPressed(sc_Space) ||
+            KB_KeyPressed(sc_kpad_Enter) ||
+            KB_KeyPressed(sc_RightArrow) ||
+            KB_KeyPressed(sc_DownArrow) ||
+            KB_KeyPressed(sc_kpad_2) ||
+            KB_KeyPressed(sc_kpad_9) ||
+            KB_KeyPressed(sc_kpad_6))
         {
             KB_ClearKeyDown(sc_PgDn);
             KB_ClearKeyDown(sc_Enter);
@@ -1663,13 +1663,13 @@ cheat_for_port_credits:
         x = probe(c,67,16,6);
         if (x >= 0)
         {
-            if ( ud.multimode > 1 && x == 0 && ud.recstat != 2)
+            if (ud.multimode > 1 && x == 0 && ud.recstat != 2)
             {
-                if ( movesperpacket == 4 && myconnectindex != connecthead )
+                if (movesperpacket == 4 && myconnectindex != connecthead)
                     break;
 
                 last_zero = 0;
-                cmenu( 600 );
+                cmenu(600);
             }
             else
             {
@@ -1711,7 +1711,7 @@ cheat_for_port_credits:
 
         if (movesperpacket == 4)
         {
-            if ( myconnectindex == connecthead )
+            if (myconnectindex == connecthead)
                 menutext(c,67,MENUHIGHLIGHT(0),PHX(-2),"NEW GAME");
             else
                 menutext(c,67,MENUHIGHLIGHT(0),1,"NEW GAME");
@@ -1806,7 +1806,7 @@ cheat_for_port_credits:
             break;
         }
 
-        if ( KB_KeyPressed(sc_Q) )
+        if (KB_KeyPressed(sc_Q))
             cmenu(500);
 
         if (movesperpacket == 4 && connecthead != myconnectindex)
@@ -1980,15 +1980,15 @@ cheat_for_port_credits:
             }
         }
 
-        if ( KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) || ((buttonstat&1) && minfo.dyaw < -256 ) ||
-                KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) || ((buttonstat&1) && minfo.dyaw > 256 ) ||
-                KB_KeyPressed( sc_Tab ) )
+        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256) ||
+                KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256) ||
+                KB_KeyPressed(sc_Tab))
         {
-            KB_ClearKeyDown( sc_LeftArrow );
-            KB_ClearKeyDown( sc_kpad_4 );
-            KB_ClearKeyDown( sc_RightArrow );
-            KB_ClearKeyDown( sc_kpad_6 );
-            KB_ClearKeyDown( sc_Tab );
+            KB_ClearKeyDown(sc_LeftArrow);
+            KB_ClearKeyDown(sc_kpad_4);
+            KB_ClearKeyDown(sc_RightArrow);
+            KB_ClearKeyDown(sc_kpad_6);
+            KB_ClearKeyDown(sc_Tab);
             currentlist = 1-currentlist;
             sound(KICK_HIT);
         }
@@ -2331,10 +2331,10 @@ cheat_for_port_credits:
                 case 10:
                     if (x==io) {
                         enabled = !((ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1);
-                        if ( (ps[myconnectindex].gm&MODE_GAME) ) closedemowrite();
+                        if ((ps[myconnectindex].gm&MODE_GAME)) closedemowrite();
                         else ud.m_recstat = !ud.m_recstat;
                     }
-                    if ( (ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1 )
+                    if ((ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1)
                         enabled = 0;
                     gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Recording":"On"):"Off",enabled?MENUHIGHLIGHT(io):15,enabled?0:1); break;
                 case 11:
@@ -2817,21 +2817,21 @@ cheat_for_port_credits:
         else if (m + 13 >= NUMGAMEFUNCTIONS) m = NUMGAMEFUNCTIONS-13;
 
         if (probey == gamefunc_Show_Console) currentlist = 0;
-        else if (KB_KeyPressed( sc_LeftArrow ) || KB_KeyPressed( sc_kpad_4 ) ||
-                 KB_KeyPressed( sc_RightArrow ) || KB_KeyPressed( sc_kpad_6 ) ||
-                 KB_KeyPressed( sc_Tab )) {
+        else if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) ||
+                 KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) ||
+                 KB_KeyPressed(sc_Tab)) {
             currentlist ^= 1;
-            KB_ClearKeyDown( sc_LeftArrow );
-            KB_ClearKeyDown( sc_RightArrow );
-            KB_ClearKeyDown( sc_kpad_4 );
-            KB_ClearKeyDown( sc_kpad_6 );
-            KB_ClearKeyDown( sc_Tab );
+            KB_ClearKeyDown(sc_LeftArrow);
+            KB_ClearKeyDown(sc_RightArrow);
+            KB_ClearKeyDown(sc_kpad_4);
+            KB_ClearKeyDown(sc_kpad_6);
+            KB_ClearKeyDown(sc_Tab);
             sound(KICK_HIT);
-        } else if (KB_KeyPressed( sc_Delete )) {
+        } else if (KB_KeyPressed(sc_Delete)) {
             KeyboardKeys[probey][currentlist] = 0;
-            CONTROL_MapKey( probey, KeyboardKeys[probey][0], KeyboardKeys[probey][1] );
+            CONTROL_MapKey(probey, KeyboardKeys[probey][0], KeyboardKeys[probey][1]);
             sound(KICK_HIT);
-            KB_ClearKeyDown( sc_Delete );
+            KB_ClearKeyDown(sc_Delete);
         }
 
         for (l=0; l < min(13,NUMGAMEFUNCTIONS); l++) {
@@ -2872,8 +2872,8 @@ cheat_for_port_credits:
             gametext(320>>1,90+9+9+9,"PRESS \"ESCAPE\" TO CANCEL",0,2+8+16);
 
             sc = KB_GetLastScanCode();
-            if ( sc != sc_None ) {
-                if ( sc == sc_Escape ) {
+            if (sc != sc_None) {
+                if (sc == sc_Escape) {
                     sound(EXITMENUSOUND);
                 } else {
                     sound(PISTOL_BODYHIT);
@@ -2882,7 +2882,7 @@ cheat_for_port_credits:
                     if (function == gamefunc_Show_Console)
                         OSD_CaptureKey(KB_GetLastScanCode());
                     else
-                        CONTROL_MapKey( function, KeyboardKeys[function][0], KeyboardKeys[function][1] );
+                        CONTROL_MapKey(function, KeyboardKeys[function][0], KeyboardKeys[function][1]);
                 }
 
                 cmenu(204);
@@ -2970,7 +2970,7 @@ cheat_for_port_credits:
             short sense;
             sense = CONTROL_GetMouseSensitivity()-1;
             barsm(248,128,&sense,2,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
-            CONTROL_SetMouseSensitivity( sense+1 );
+            CONTROL_SetMouseSensitivity(sense+1);
         }
 
         if (!ud.mouseaiming) modval(0,1,(int *)&myaimmode,1,probey == (MAXMOUSEBUTTONS-2)*2+2+1);
@@ -3015,10 +3015,10 @@ cheat_for_port_credits:
             if (function == 0) {
                 if (whichkey < (MAXMOUSEBUTTONS-2)*2) {
                     MouseFunctions[whichkey>>1][whichkey&1] = x;
-                    CONTROL_MapButton( x, whichkey>>1, whichkey&1, controldevice_mouse);
+                    CONTROL_MapButton(x, whichkey>>1, whichkey&1, controldevice_mouse);
                 } else {
                     MouseFunctions[whichkey-(MAXMOUSEBUTTONS-2)][0] = x;
-                    CONTROL_MapButton( x, whichkey-(MAXMOUSEBUTTONS-2), 0, controldevice_mouse);
+                    CONTROL_MapButton(x, whichkey-(MAXMOUSEBUTTONS-2), 0, controldevice_mouse);
                 }
                 cmenu(205);
                 probey = whichkey;
@@ -3030,10 +3030,10 @@ cheat_for_port_credits:
             } else if (function == 2) {
                 if (whichkey < 2*joynumbuttons) {
                     JoystickFunctions[whichkey>>1][whichkey&1] = x;
-                    CONTROL_MapButton( x, whichkey>>1, whichkey&1, controldevice_joystick);
+                    CONTROL_MapButton(x, whichkey>>1, whichkey&1, controldevice_joystick);
                 } else {
                     JoystickFunctions[joynumbuttons + (whichkey-2*joynumbuttons)][0] = x;
-                    CONTROL_MapButton( x, joynumbuttons + (whichkey-2*joynumbuttons), 0, controldevice_joystick);
+                    CONTROL_MapButton(x, joynumbuttons + (whichkey-2*joynumbuttons), 0, controldevice_joystick);
                 }
                 cmenu(207);
                 probey = whichkey;
@@ -3077,8 +3077,8 @@ cheat_for_port_credits:
 
         gametext(320>>1,31+9,tempbuf,0,2+8+16);
 
-        if (KB_KeyPressed( sc_End )) { KB_ClearKeyDown(sc_End); probey = NUMGAMEFUNCTIONS-1; sound(KICK_HIT); }
-        else if (KB_KeyPressed( sc_Home )) { KB_ClearKeyDown(sc_Home); probey = 0; sound(KICK_HIT); }
+        if (KB_KeyPressed(sc_End)) { KB_ClearKeyDown(sc_End); probey = NUMGAMEFUNCTIONS-1; sound(KICK_HIT); }
+        else if (KB_KeyPressed(sc_Home)) { KB_ClearKeyDown(sc_Home); probey = 0; sound(KICK_HIT); }
 
         m = probey - 6;
         if (m < 0) m = 0;
@@ -3149,7 +3149,7 @@ cheat_for_port_credits:
         bar(c+160+40,46,(short *)&l,1,x==0,MENUHIGHLIGHT(0),0);
         l = (l<<13)-262144;
         if (l != MouseAnalogueScale[0]) {
-            CONTROL_SetAnalogAxisScale( 0, l, controldevice_mouse );
+            CONTROL_SetAnalogAxisScale(0, l, controldevice_mouse);
             MouseAnalogueScale[0] = l;
         }
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
@@ -3160,7 +3160,7 @@ cheat_for_port_credits:
         bar(c+160+40,46+16,(short *)&l,1,x==1,MENUHIGHLIGHT(1),0);
         l = (l<<13)-262144;
         if (l != MouseAnalogueScale[1]) {
-            CONTROL_SetAnalogAxisScale( 1, l, controldevice_mouse );
+            CONTROL_SetAnalogAxisScale(1, l, controldevice_mouse);
             MouseAnalogueScale[1] = l;
         }
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
@@ -3349,7 +3349,7 @@ cheat_for_port_credits:
                     if (thispage == ((joynumaxes+1)/2)-1) cmenu(208);
                     else {
                         if (current_menu == 209) cmenu(217);
-                        else cmenu( current_menu+1 );
+                        else cmenu(current_menu+1);
                     }
                 }
                 break;
@@ -3402,7 +3402,7 @@ cheat_for_port_credits:
             bar(140+56,38+8,(short *)&l,1,x==0,0,0);
             l = (l<<13)-262144;
             if (l != JoystickAnalogueScale[thispage*2]) {
-                CONTROL_SetAnalogAxisScale( thispage*2, l, controldevice_joystick );
+                CONTROL_SetAnalogAxisScale(thispage*2, l, controldevice_joystick);
                 JoystickAnalogueScale[thispage*2] = l;
             }
             Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
@@ -3426,10 +3426,10 @@ cheat_for_port_credits:
             minitext(140+12+72,38+15,tempbuf,0,10+16);
 
             gametext(76,38+15+15,"ANALOG",0,2+8+16);
-            if (CONFIG_AnalogNumToName( JoystickAnalogueAxes[thispage*2] )) {
-                p = CONFIG_AnalogNumToName( JoystickAnalogueAxes[thispage*2] );
+            if (CONFIG_AnalogNumToName(JoystickAnalogueAxes[thispage*2])) {
+                p = CONFIG_AnalogNumToName(JoystickAnalogueAxes[thispage*2]);
                 if (p) {
-                    gametext(140+12,38+15+15, strchr(p,'_')+1, 0, 2+8+16 );
+                    gametext(140+12,38+15+15, strchr(p,'_')+1, 0, 2+8+16);
                 }
             }
 
@@ -3439,7 +3439,7 @@ cheat_for_port_credits:
                 bar(140+56,38+8+64,(short *)&l,1,x==4,0,0);
                 l = (l<<13)-262144;
                 if (l != JoystickAnalogueScale[thispage*2+1]) {
-                    CONTROL_SetAnalogAxisScale( thispage*2+1, l, controldevice_joystick );
+                    CONTROL_SetAnalogAxisScale(thispage*2+1, l, controldevice_joystick);
                     JoystickAnalogueScale[thispage*2+1] = l;
                 }
                 Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
@@ -3463,10 +3463,10 @@ cheat_for_port_credits:
                 minitext(140+12+72,38+15+64,tempbuf,0,10+16);
 
                 gametext(76,38+64+15+15,"ANALOG",0,2+8+16);
-                if (CONFIG_AnalogNumToName( JoystickAnalogueAxes[thispage*2+1] )) {
-                    p = CONFIG_AnalogNumToName( JoystickAnalogueAxes[thispage*2+1] );
+                if (CONFIG_AnalogNumToName(JoystickAnalogueAxes[thispage*2+1])) {
+                    p = CONFIG_AnalogNumToName(JoystickAnalogueAxes[thispage*2+1]);
                     if (p) {
-                        gametext(140+12,38+64+15+15, strchr(p,'_')+1, 0, 2+8+16 );
+                        gametext(140+12,38+64+15+15, strchr(p,'_')+1, 0, 2+8+16);
                     }
                 }
             }
@@ -3498,7 +3498,7 @@ cheat_for_port_credits:
                 probey = 2;
                 break;
             } else if (x==2*(last-first) && joynumaxes>4) {
-                cmenu( (current_menu-213) == (joynumaxes/4) ? 213 : (current_menu+1) );
+                cmenu((current_menu-213) == (joynumaxes/4) ? 213 : (current_menu+1));
                 probey = 0;
                 break;
             }
@@ -3539,7 +3539,7 @@ cheat_for_port_credits:
         c = (320>>1)-120;
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,24,0,0,"SOUND SETUP");
-        onbar = ( probey == 2 || probey == 3 );
+        onbar = (probey == 2 || probey == 3);
 
         x = probe(c,50,16,7);
         switch (x)
@@ -3562,7 +3562,7 @@ cheat_for_port_credits:
             if (FXDevice >= 0)
             {
                 SoundToggle = 1-SoundToggle;
-                if ( SoundToggle == 0 )
+                if (SoundToggle == 0)
                 {
                     FX_StopAllSounds();
                     clearsoundlocks();
@@ -3574,7 +3574,7 @@ cheat_for_port_credits:
             if (MusicDevice >= 0 && (numplayers < 2 || MusicToggle))
             {
                 MusicToggle = 1-MusicToggle;
-                if ( MusicToggle == 0 ) MUSIC_Pause();
+                if (MusicToggle == 0) MUSIC_Pause();
                 else
                 {
                     if (ud.recstat != 2 && ps[myconnectindex].gm&MODE_GAME)
@@ -3621,7 +3621,7 @@ cheat_for_port_credits:
             if (l != FXVolume)
                 FXVolume <<= 2;
             if (l != FXVolume)
-                FX_SetVolume( (short) FXVolume );
+                FX_SetVolume((short) FXVolume);
         }
         menutext(c,50+16,MENUHIGHLIGHT(1),(MusicDevice<0||(numplayers > 1 && !MusicToggle)),"MUSIC");
         menutext(c,50+16+16+16,MENUHIGHLIGHT(3),(MusicDevice<0)||MusicToggle==0,"MUSIC VOLUME");
@@ -3634,7 +3634,7 @@ cheat_for_port_credits:
                 MusicToggle==0||(MusicDevice<0));
             MusicVolume <<= 2;
             if (l != MusicVolume)
-                MUSIC_SetVolume( (short) MusicVolume );
+                MUSIC_SetVolume((short) MusicVolume);
 
         }
         menutext(c,50+16+16+16+16,MENUHIGHLIGHT(4),(FXDevice<0)||SoundToggle==0,"DUKE TALK");
@@ -3680,7 +3680,7 @@ cheat_for_port_credits:
         if (current_menu == 300) menutext(c,24,0,0,"LOAD GAME");
         else menutext(c,24,0,0,"SAVE GAME");
 
-        if (current_menu >= 360 && current_menu <= 369 )
+        if (current_menu >= 360 && current_menu <= 369)
         {
             sprintf(tempbuf,"PLAYERS: %-2ld                      ",ud.multimode);
             gametext(160,156,tempbuf,0,2+8+16);
@@ -3689,7 +3689,7 @@ cheat_for_port_credits:
             if (ud.volume_number == 0 && ud.level_number == 7)
                 gametext(160,180,boardfilename,0,2+8+16);
 
-            x = strget((320>>1),184,&ud.savegame[current_menu-360][0],19, 999 );
+            x = strget((320>>1),184,&ud.savegame[current_menu-360][0],19, 999);
 
             if (x == -1)
             {
@@ -3703,9 +3703,9 @@ cheat_for_port_credits:
                 goto DISPLAYNAMES;
             }
 
-            if ( x == 1 )
+            if (x == 1)
             {
-                if ( ud.savegame[current_menu-360][0] == 0 )
+                if (ud.savegame[current_menu-360][0] == 0)
                 {
                     KB_FlushKeyboardQueue();
                     cmenu(351);
@@ -3740,9 +3740,9 @@ cheat_for_port_credits:
 
         if (current_menu == 300)
         {
-            if ( ud.savegame[probey][0] )
+            if (ud.savegame[probey][0])
             {
-                if ( lastprobey != probey )
+                if (lastprobey != probey)
                 {
                     loadpheader(probey,&savehead);
                     lastprobey = probey;
@@ -3760,7 +3760,7 @@ cheat_for_port_credits:
         }
         else
         {
-            if ( ud.savegame[probey][0] )
+            if (ud.savegame[probey][0])
             {
                 if (lastprobey != probey)
                     loadpheader(probey,&savehead);
@@ -3776,12 +3776,12 @@ cheat_for_port_credits:
                 gametext(160,180,boardfilename,0,2+8+16);
         }
 
-        switch ( x )
+        switch (x)
         {
         case -1:
             if (current_menu == 300)
             {
-                if ( (ps[myconnectindex].gm&MODE_GAME) != MODE_GAME)
+                if ((ps[myconnectindex].gm&MODE_GAME) != MODE_GAME)
                 {
                     cmenu(0);
                     break;
@@ -3809,14 +3809,14 @@ cheat_for_port_credits:
         case 7:
         case 8:
         case 9:
-            if ( current_menu == 300)
+            if (current_menu == 300)
             {
-                if ( ud.savegame[x][0] )
+                if (ud.savegame[x][0])
                     current_menu = (1000+x);
             }
             else
             {
-                if ( ud.savegame[x][0] != 0)
+                if (ud.savegame[x][0] != 0)
                     current_menu = 2000+x;
                 else
                 {
@@ -3841,11 +3841,11 @@ DISPLAYNAMES:
 
         c = 320>>1;
 
-        if ( KB_KeyPressed( sc_LeftArrow ) ||
-                KB_KeyPressed( sc_kpad_4 ) ||
-                KB_KeyPressed( sc_UpArrow ) ||
-                KB_KeyPressed( sc_PgUp ) ||
-                KB_KeyPressed( sc_kpad_8 ) )
+        if (KB_KeyPressed(sc_LeftArrow) ||
+                KB_KeyPressed(sc_kpad_4) ||
+                KB_KeyPressed(sc_UpArrow) ||
+                KB_KeyPressed(sc_PgUp) ||
+                KB_KeyPressed(sc_kpad_8))
         {
             KB_ClearKeyDown(sc_LeftArrow);
             KB_ClearKeyDown(sc_kpad_4);
@@ -3858,15 +3858,15 @@ DISPLAYNAMES:
             if (current_menu < 400) current_menu = 403;
         }
         else if (
-            KB_KeyPressed( sc_PgDn ) ||
-            KB_KeyPressed( sc_Enter ) ||
-            KB_KeyPressed( sc_kpad_Enter ) ||
-            KB_KeyPressed( sc_RightArrow ) ||
-            KB_KeyPressed( sc_DownArrow ) ||
-            KB_KeyPressed( sc_kpad_2 ) ||
-            KB_KeyPressed( sc_kpad_9 ) ||
-            KB_KeyPressed( sc_Space ) ||
-            KB_KeyPressed( sc_kpad_6 ) )
+            KB_KeyPressed(sc_PgDn) ||
+            KB_KeyPressed(sc_Enter) ||
+            KB_KeyPressed(sc_kpad_Enter) ||
+            KB_KeyPressed(sc_RightArrow) ||
+            KB_KeyPressed(sc_DownArrow) ||
+            KB_KeyPressed(sc_kpad_2) ||
+            KB_KeyPressed(sc_kpad_9) ||
+            KB_KeyPressed(sc_Space) ||
+            KB_KeyPressed(sc_kpad_6))
         {
             KB_ClearKeyDown(sc_PgDn);
             KB_ClearKeyDown(sc_Enter);
@@ -3882,7 +3882,7 @@ DISPLAYNAMES:
             if (current_menu > 403) current_menu = 400;
         }
 
-        if ( KB_KeyPressed(sc_Escape) )
+        if (KB_KeyPressed(sc_Escape))
         {
             if (ps[myconnectindex].gm&MODE_GAME)
                 cmenu(50);
@@ -3898,11 +3898,11 @@ VOLUME_ALL_40x:
 
         c = 320>>1;
 
-        if ( KB_KeyPressed( sc_LeftArrow ) ||
-                KB_KeyPressed( sc_kpad_4 ) ||
-                KB_KeyPressed( sc_UpArrow ) ||
-                KB_KeyPressed( sc_PgUp ) ||
-                KB_KeyPressed( sc_kpad_8 ) )
+        if (KB_KeyPressed(sc_LeftArrow) ||
+                KB_KeyPressed(sc_kpad_4) ||
+                KB_KeyPressed(sc_UpArrow) ||
+                KB_KeyPressed(sc_PgUp) ||
+                KB_KeyPressed(sc_kpad_8))
         {
             KB_ClearKeyDown(sc_LeftArrow);
             KB_ClearKeyDown(sc_kpad_4);
@@ -3915,15 +3915,15 @@ VOLUME_ALL_40x:
             if (current_menu < 400) current_menu = 401;
         }
         else if (
-            KB_KeyPressed( sc_PgDn ) ||
-            KB_KeyPressed( sc_Enter ) ||
-            KB_KeyPressed( sc_kpad_Enter ) ||
-            KB_KeyPressed( sc_RightArrow ) ||
-            KB_KeyPressed( sc_DownArrow ) ||
-            KB_KeyPressed( sc_kpad_2 ) ||
-            KB_KeyPressed( sc_kpad_9 ) ||
-            KB_KeyPressed( sc_Space ) ||
-            KB_KeyPressed( sc_kpad_6 ) )
+            KB_KeyPressed(sc_PgDn) ||
+            KB_KeyPressed(sc_Enter) ||
+            KB_KeyPressed(sc_kpad_Enter) ||
+            KB_KeyPressed(sc_RightArrow) ||
+            KB_KeyPressed(sc_DownArrow) ||
+            KB_KeyPressed(sc_kpad_2) ||
+            KB_KeyPressed(sc_kpad_9) ||
+            KB_KeyPressed(sc_Space) ||
+            KB_KeyPressed(sc_kpad_6))
         {
             KB_ClearKeyDown(sc_PgDn);
             KB_ClearKeyDown(sc_Enter);
@@ -3939,7 +3939,7 @@ VOLUME_ALL_40x:
             if (current_menu > 401) current_menu = 400;
         }
 
-        if ( KB_KeyPressed(sc_Escape) )
+        if (KB_KeyPressed(sc_Escape))
         {
             if (ps[myconnectindex].gm&MODE_GAME)
                 cmenu(50);
@@ -3967,7 +3967,7 @@ VOLUME_ALL_40x:
         gametext(c,90,"Are you sure you want to quit?",0,2+8+16);
         gametext(c,99,"(Y/N)",0,2+8+16);
 
-        if ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
+        if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
         {
             KB_FlushKeyboardQueue();
 
@@ -3979,7 +3979,7 @@ VOLUME_ALL_40x:
         {
             KB_ClearKeyDown(sc_N);
             quittimer = 0;
-            if ( ps[myconnectindex].gm&MODE_DEMO && ud.recstat == 2 )
+            if (ps[myconnectindex].gm&MODE_DEMO && ud.recstat == 2)
                 ps[myconnectindex].gm = MODE_DEMO;
             else
             {
@@ -4005,7 +4005,7 @@ VOLUME_ALL_40x:
         gametext(c,90,"Quit to Title?",0,2+8+16);
         gametext(c,99,"(Y/N)",0,2+8+16);
 
-        if ( KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB )
+        if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
         {
             KB_FlushKeyboardQueue();
             ps[myconnectindex].gm = MODE_DEMO;
@@ -4037,7 +4037,7 @@ VOLUME_ALL_40x:
         gametext(160,50,tempbuf,0,2+8+16);
         gametext(160,59,"to select level",0,2+8+16);
 
-        if ( KB_KeyPressed(sc_Escape) )
+        if (KB_KeyPressed(sc_Escape))
         {
             KB_ClearKeyDown(sc_Escape);
             sound(EXITMENUSOUND);
@@ -4097,7 +4097,7 @@ VOLUME_ALL_40x:
                     tempbuf[2] = ud.m_volume_number;
                     tempbuf[3] = ud.m_player_skill+1;
 
-                    if ( ud.m_player_skill == 3 ) ud.m_respawn_monsters = 1;
+                    if (ud.m_player_skill == 3) ud.m_respawn_monsters = 1;
                     else ud.m_respawn_monsters = 0;
 
                     if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_ITEMRESPAWN)) ud.m_respawn_items = 1;
@@ -4323,7 +4323,7 @@ VOLUME_ALL_40x:
 
         if (VOLUMEALL) {
             menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),0,"USER MAP");
-            if ( boardfilename[0] != 0 )
+            if (boardfilename[0] != 0)
                 gametext(c+70+44,57+16+16+16+16+16,boardfilename,MENUHIGHLIGHT(6),2+8+16);
         } else {
             menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),1,"USER MAP");
@@ -4334,7 +4334,7 @@ VOLUME_ALL_40x:
         break;
     }
 
-    if ( (ps[myconnectindex].gm&MODE_MENU) != MODE_MENU)
+    if ((ps[myconnectindex].gm&MODE_MENU) != MODE_MENU)
     {
         vscrn();
         cameraclock = totalclock;

@@ -207,7 +207,7 @@ void playanm(char *fn,char t)
     if (t != 7 && t != 9 && t != 10 && t != 11)
         KB_FlushKeyboardQueue();
 
-    if ( KB_KeyWaiting() )
+    if (KB_KeyWaiting())
     {
         FX_StopAllSounds();
         goto ENDOFANIMLOOP;
@@ -227,7 +227,7 @@ void playanm(char *fn,char t)
     kread(handle,animbuf,length);
     kclose(handle);
 
-    ANIM_LoadAnim (animbuf);
+    ANIM_LoadAnim(animbuf);
     numframes = ANIM_NumFrames();
 
     palptr = ANIM_GetPalette();
@@ -257,7 +257,7 @@ void playanm(char *fn,char t)
         while (totalclock < ototalclock)
         {
             extern char restorepalette;
-            if ( KB_KeyWaiting() )
+            if (KB_KeyWaiting())
                 goto ENDOFANIMLOOP;
             handleevents(); getpackets();
             if (restorepalette == 1)
@@ -291,6 +291,6 @@ void playanm(char *fn,char t)
 
 ENDOFANIMLOOP:
 
-    ANIM_FreeAnim ();
+    ANIM_FreeAnim();
     walock[TILE_ANIM] = 1;
 }

@@ -109,7 +109,7 @@ static int32 setupread=0;
 ===================
 */
 
-int32 CONFIG_FunctionNameToNum( char * func )
+int32 CONFIG_FunctionNameToNum(char * func)
 {
     int32 i;
 
@@ -138,7 +138,7 @@ int32 CONFIG_FunctionNameToNum( char * func )
 ===================
 */
 
-char * CONFIG_FunctionNumToName( int32 func )
+char * CONFIG_FunctionNumToName(int32 func)
 {
     if ((unsigned)func >= (unsigned)NUMGAMEFUNCTIONS)
     {
@@ -159,7 +159,7 @@ char * CONFIG_FunctionNumToName( int32 func )
 */
 
 
-int32 CONFIG_AnalogNameToNum( char * func )
+int32 CONFIG_AnalogNameToNum(char * func)
 {
 
     if (!Bstrcasecmp(func,"analog_turning"))
@@ -183,7 +183,7 @@ int32 CONFIG_AnalogNameToNum( char * func )
 }
 
 
-char * CONFIG_AnalogNumToName( int32 func )
+char * CONFIG_AnalogNumToName(int32 func)
 {
     switch (func) {
     case analog_turning:
@@ -208,7 +208,7 @@ char * CONFIG_AnalogNumToName( int32 func )
 ===================
 */
 
-void CONFIG_SetDefaults( void )
+void CONFIG_SetDefaults(void)
 {
     // JBF 20031211
     int32 i,f;
@@ -278,45 +278,45 @@ void CONFIG_SetDefaults( void )
     // JBF 20031211
     memset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
     for (i=0; i < (int32)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3) {
-        f = CONFIG_FunctionNameToNum( keydefaults[i+0] );
+        f = CONFIG_FunctionNameToNum(keydefaults[i+0]);
         if (f == -1) continue;
-        KeyboardKeys[f][0] = KB_StringToScanCode( keydefaults[i+1] );
-        KeyboardKeys[f][1] = KB_StringToScanCode( keydefaults[i+2] );
+        KeyboardKeys[f][0] = KB_StringToScanCode(keydefaults[i+1]);
+        KeyboardKeys[f][1] = KB_StringToScanCode(keydefaults[i+2]);
 
         if (f == gamefunc_Show_Console) OSD_CaptureKey(KeyboardKeys[f][0]);
-        else CONTROL_MapKey( f, KeyboardKeys[f][0], KeyboardKeys[f][1] );
+        else CONTROL_MapKey(f, KeyboardKeys[f][0], KeyboardKeys[f][1]);
     }
 
     memset(MouseFunctions, -1, sizeof(MouseFunctions));
     for (i=0; i<MAXMOUSEBUTTONS; i++) {
-        MouseFunctions[i][0] = CONFIG_FunctionNameToNum( mousedefaults[i] );
-        CONTROL_MapButton( MouseFunctions[i][0], i, 0, controldevice_mouse );
+        MouseFunctions[i][0] = CONFIG_FunctionNameToNum(mousedefaults[i]);
+        CONTROL_MapButton(MouseFunctions[i][0], i, 0, controldevice_mouse);
         if (i>=4) continue;
-        MouseFunctions[i][1] = CONFIG_FunctionNameToNum( mouseclickeddefaults[i] );
-        CONTROL_MapButton( MouseFunctions[i][1], i, 1, controldevice_mouse );
+        MouseFunctions[i][1] = CONFIG_FunctionNameToNum(mouseclickeddefaults[i]);
+        CONTROL_MapButton(MouseFunctions[i][1], i, 1, controldevice_mouse);
     }
 
     memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
     for (i=0; i<MAXMOUSEAXES; i++) {
         MouseAnalogueScale[i] = 65536;
-        CONTROL_SetAnalogAxisScale( i, MouseAnalogueScale[i], controldevice_mouse );
+        CONTROL_SetAnalogAxisScale(i, MouseAnalogueScale[i], controldevice_mouse);
 
-        MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum( mousedigitaldefaults[i*2] );
-        MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum( mousedigitaldefaults[i*2+1] );
-        CONTROL_MapDigitalAxis( i, MouseDigitalFunctions[i][0], 0, controldevice_mouse );
-        CONTROL_MapDigitalAxis( i, MouseDigitalFunctions[i][1], 1, controldevice_mouse );
+        MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(mousedigitaldefaults[i*2]);
+        MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(mousedigitaldefaults[i*2+1]);
+        CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][0], 0, controldevice_mouse);
+        CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][1], 1, controldevice_mouse);
 
-        MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum( mouseanalogdefaults[i] );
-        CONTROL_MapAnalogAxis( i, MouseAnalogueAxes[i], controldevice_mouse);
+        MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(mouseanalogdefaults[i]);
+        CONTROL_MapAnalogAxis(i, MouseAnalogueAxes[i], controldevice_mouse);
     }
     CONTROL_SetMouseSensitivity(DEFAULTMOUSESENSITIVITY);
 
     memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
     for (i=0; i<MAXJOYBUTTONS; i++) {
-        JoystickFunctions[i][0] = CONFIG_FunctionNameToNum( joystickdefaults[i] );
-        JoystickFunctions[i][1] = CONFIG_FunctionNameToNum( joystickclickeddefaults[i] );
-        CONTROL_MapButton( JoystickFunctions[i][0], i, 0, controldevice_joystick );
-        CONTROL_MapButton( JoystickFunctions[i][1], i, 1, controldevice_joystick );
+        JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdefaults[i]);
+        JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(joystickclickeddefaults[i]);
+        CONTROL_MapButton(JoystickFunctions[i][0], i, 0, controldevice_joystick);
+        CONTROL_MapButton(JoystickFunctions[i][1], i, 1, controldevice_joystick);
     }
 
     memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
@@ -324,14 +324,14 @@ void CONFIG_SetDefaults( void )
         JoystickAnalogueScale[i] = 65536;
         JoystickAnalogueDead[i] = 1000;
         JoystickAnalogueSaturate[i] = 9500;
-        CONTROL_SetAnalogAxisScale( i, JoystickAnalogueScale[i], controldevice_joystick );
+        CONTROL_SetAnalogAxisScale(i, JoystickAnalogueScale[i], controldevice_joystick);
 
-        JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum( joystickdigitaldefaults[i*2] );
-        JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum( joystickdigitaldefaults[i*2+1] );
-        CONTROL_MapDigitalAxis( i, JoystickDigitalFunctions[i][0], 0, controldevice_joystick );
-        CONTROL_MapDigitalAxis( i, JoystickDigitalFunctions[i][1], 1, controldevice_joystick );
+        JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdigitaldefaults[i*2]);
+        JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(joystickdigitaldefaults[i*2+1]);
+        CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][0], 0, controldevice_joystick);
+        CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][1], 1, controldevice_joystick);
 
-        JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum( joystickanalogdefaults[i] );
+        JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(joystickanalogdefaults[i]);
         CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
     }
 }
@@ -343,7 +343,7 @@ void CONFIG_SetDefaults( void )
 ===================
 */
 
-void CONFIG_ReadKeys( void )
+void CONFIG_ReadKeys(void)
 {
     int32 i;
     int32 numkeyentries;
@@ -354,11 +354,11 @@ void CONFIG_ReadKeys( void )
 
     if (scripthandle < 0) return;
 
-    numkeyentries = SCRIPT_NumberEntries( scripthandle,"KeyDefinitions" );
+    numkeyentries = SCRIPT_NumberEntries(scripthandle,"KeyDefinitions");
 
     for (i=0;i<numkeyentries;i++)
     {
-        function = CONFIG_FunctionNameToNum(SCRIPT_Entry(scripthandle,"KeyDefinitions", i ));
+        function = CONFIG_FunctionNameToNum(SCRIPT_Entry(scripthandle,"KeyDefinitions", i));
         if (function != -1)
         {
             memset(keyname1,0,sizeof(keyname1));
@@ -367,7 +367,7 @@ void CONFIG_ReadKeys( void )
             (
                 scripthandle,
                 "KeyDefinitions",
-                SCRIPT_Entry( scripthandle, "KeyDefinitions", i ),
+                SCRIPT_Entry(scripthandle, "KeyDefinitions", i),
                 keyname1,
                 keyname2
             );
@@ -375,11 +375,11 @@ void CONFIG_ReadKeys( void )
             key2 = 0xff;
             if (keyname1[0])
             {
-                key1 = (byte) KB_StringToScanCode( keyname1 );
+                key1 = (byte) KB_StringToScanCode(keyname1);
             }
             if (keyname2[0])
             {
-                key2 = (byte) KB_StringToScanCode( keyname2 );
+                key2 = (byte) KB_StringToScanCode(keyname2);
             }
             KeyboardKeys[function][0] = key1;
             KeyboardKeys[function][1] = key2;
@@ -391,7 +391,7 @@ void CONFIG_ReadKeys( void )
         if (i == gamefunc_Show_Console)
             OSD_CaptureKey(KeyboardKeys[i][0]);
         else
-            CONTROL_MapKey( i, KeyboardKeys[i][0], KeyboardKeys[i][1] );
+            CONTROL_MapKey(i, KeyboardKeys[i][0], KeyboardKeys[i][1]);
     }
 }
 
@@ -404,7 +404,7 @@ void CONFIG_ReadKeys( void )
 ===================
 */
 
-void CONFIG_SetupMouse( void )
+void CONFIG_SetupMouse(void)
 {
     int32 i;
     char str[80];
@@ -416,12 +416,12 @@ void CONFIG_SetupMouse( void )
     for (i=0;i<MAXMOUSEBUTTONS;i++)
     {
         Bsprintf(str,"MouseButton%ld",i); temp[0] = 0;
-        if (!SCRIPT_GetString( scripthandle,"Controls", str,temp))
+        if (!SCRIPT_GetString(scripthandle,"Controls", str,temp))
             if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseButtonClicked%ld",i); temp[0] = 0;
-        if (!SCRIPT_GetString( scripthandle,"Controls", str,temp))
+        if (!SCRIPT_GetString(scripthandle,"Controls", str,temp))
             if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
     }
@@ -451,20 +451,20 @@ void CONFIG_SetupMouse( void )
     }
 
     function = DEFAULTMOUSESENSITIVITY;
-    SCRIPT_GetNumber( scripthandle, "Controls","Mouse_Sensitivity",&function);
+    SCRIPT_GetNumber(scripthandle, "Controls","Mouse_Sensitivity",&function);
     CONTROL_SetMouseSensitivity(function);
 
     for (i=0; i<MAXMOUSEBUTTONS; i++)
     {
-        CONTROL_MapButton( MouseFunctions[i][0], i, 0, controldevice_mouse );
-        CONTROL_MapButton( MouseFunctions[i][1], i, 1,  controldevice_mouse );
+        CONTROL_MapButton(MouseFunctions[i][0], i, 0, controldevice_mouse);
+        CONTROL_MapButton(MouseFunctions[i][1], i, 1,  controldevice_mouse);
     }
     for (i=0; i<MAXMOUSEAXES; i++)
     {
-        CONTROL_MapAnalogAxis( i, MouseAnalogueAxes[i], controldevice_mouse);
-        CONTROL_MapDigitalAxis( i, MouseDigitalFunctions[i][0], 0,controldevice_mouse );
-        CONTROL_MapDigitalAxis( i, MouseDigitalFunctions[i][1], 1,controldevice_mouse );
-        CONTROL_SetAnalogAxisScale( i, MouseAnalogueScale[i], controldevice_mouse );
+        CONTROL_MapAnalogAxis(i, MouseAnalogueAxes[i], controldevice_mouse);
+        CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][0], 0,controldevice_mouse);
+        CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][1], 1,controldevice_mouse);
+        CONTROL_SetAnalogAxisScale(i, MouseAnalogueScale[i], controldevice_mouse);
     }
 }
 
@@ -476,7 +476,7 @@ void CONFIG_SetupMouse( void )
 ===================
 */
 
-void CONFIG_SetupJoystick( void )
+void CONFIG_SetupJoystick(void)
 {
     int32 i;
     char str[80];
@@ -488,12 +488,12 @@ void CONFIG_SetupJoystick( void )
     for (i=0;i<MAXJOYBUTTONS;i++)
     {
         Bsprintf(str,"JoystickButton%ld",i); temp[0] = 0;
-        if (!SCRIPT_GetString( scripthandle,"Controls", str,temp))
+        if (!SCRIPT_GetString(scripthandle,"Controls", str,temp))
             if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"JoystickButtonClicked%ld",i); temp[0] = 0;
-        if (!SCRIPT_GetString( scripthandle,"Controls", str,temp))
+        if (!SCRIPT_GetString(scripthandle,"Controls", str,temp))
             if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
     }
@@ -534,15 +534,15 @@ void CONFIG_SetupJoystick( void )
 
     for (i=0;i<MAXJOYBUTTONS;i++)
     {
-        CONTROL_MapButton( JoystickFunctions[i][0], i, 0, controldevice_joystick );
-        CONTROL_MapButton( JoystickFunctions[i][1], i, 1,  controldevice_joystick );
+        CONTROL_MapButton(JoystickFunctions[i][0], i, 0, controldevice_joystick);
+        CONTROL_MapButton(JoystickFunctions[i][1], i, 1,  controldevice_joystick);
     }
     for (i=0;i<MAXJOYAXES;i++)
     {
         CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
-        CONTROL_MapDigitalAxis( i, JoystickDigitalFunctions[i][0], 0, controldevice_joystick );
-        CONTROL_MapDigitalAxis( i, JoystickDigitalFunctions[i][1], 1, controldevice_joystick );
-        CONTROL_SetAnalogAxisScale( i, JoystickAnalogueScale[i], controldevice_joystick );
+        CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][0], 0, controldevice_joystick);
+        CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][1], 1, controldevice_joystick);
+        CONTROL_SetAnalogAxisScale(i, JoystickAnalogueScale[i], controldevice_joystick);
     }
 }
 
@@ -558,7 +558,7 @@ void readsavenames(void)
     for (i=0;i<10;i++)
     {
         fn[4] = i+'0';
-        if ((fil = Bfopen(fn,"rb")) == NULL ) continue;
+        if ((fil = Bfopen(fn,"rb")) == NULL) continue;
     if (dfread(&j,sizeof(long),1,fil) != 1) { Bfclose(fil); continue; }
         if (dfread(g_szBuf,j,1,fil) != 1) { Bfclose(fil); continue; }
         if (dfread(&dummy,4,1,fil) != 1) { Bfclose(fil); continue; }
@@ -579,7 +579,7 @@ void readsavenames(void)
 
 extern void check_player_color(int *color,int prev_color);
 
-int32 CONFIG_ReadSetup( void )
+int32 CONFIG_ReadSetup(void)
 {
     int32 dummy, i;
     char commmacro[] = "CommbatMacro# ";
@@ -591,7 +591,7 @@ int32 CONFIG_ReadSetup( void )
     setupread = 1;
 
     if (SafeFileExists(setupfilename) && scripthandle < 0)  // JBF 20031211
-        scripthandle = SCRIPT_Load( setupfilename );
+        scripthandle = SCRIPT_Load(setupfilename);
 
     if (scripthandle < 0) return -1;
 
@@ -600,10 +600,10 @@ int32 CONFIG_ReadSetup( void )
         for (dummy = 0;dummy < 10;dummy++)
         {
             commmacro[13] = dummy+'0';
-            SCRIPT_GetString( scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
+            SCRIPT_GetString(scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
         }
 
-        SCRIPT_GetString( scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);
+        SCRIPT_GetString(scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);
 
         while (Bstrlen(strip_color_codes(tempbuf)) > 10)
             tempbuf[Bstrlen(tempbuf)-1] = '\0';
@@ -611,69 +611,69 @@ int32 CONFIG_ReadSetup( void )
         Bstrncpy(myname,tempbuf,sizeof(myname)-1);
         myname[sizeof(myname)] = '\0';
 
-        SCRIPT_GetString( scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
+        SCRIPT_GetString(scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "Shadows",&ud.shadows);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "Shadows",&ud.shadows);
 
         if (!NAM) {
-            SCRIPT_GetString( scripthandle, "Screen Setup","Password",&ud.pwlockout[0]);
-            SCRIPT_GetNumber( scripthandle, "Screen Setup", "Out",&ud.lockout);
+            SCRIPT_GetString(scripthandle, "Screen Setup","Password",&ud.pwlockout[0]);
+            SCRIPT_GetNumber(scripthandle, "Screen Setup", "Out",&ud.lockout);
         }
 
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "Detail",&ud.detail);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "Tilt",&ud.screen_tilting);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "Messages",&ud.fta_on);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "ScreenWidth",&ScreenWidth);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "ScreenHeight",&ScreenHeight);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "ScreenMode",&ScreenMode);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "ScreenGamma",&ud.brightness);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "ScreenSize",&ud.screen_size);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "Detail",&ud.detail);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "Tilt",&ud.screen_tilting);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "Messages",&ud.fta_on);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "ScreenWidth",&ScreenWidth);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "ScreenHeight",&ScreenHeight);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "ScreenMode",&ScreenMode);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "ScreenGamma",&ud.brightness);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "ScreenSize",&ud.screen_size);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "ScreenBPP", &ScreenBPP);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "ScreenBPP", &ScreenBPP);
         if (ScreenBPP < 8) ScreenBPP = 32;
 #endif
 
 #ifdef RENDERTYPEWIN
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "MaxRefreshFreq", (int32*)&maxrefreshfreq);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "MaxRefreshFreq", (int32*)&maxrefreshfreq);
 #endif
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLTextureMode", &gltexfiltermode);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLAnisotropy", &glanisotropy);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLProjectionFix", &glprojectionhacks);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseTextureCompr", &glusetexcompr);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLWidescreen", &glwidescreen);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLTextureMode", &gltexfiltermode);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLAnisotropy", &glanisotropy);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLProjectionFix", &glprojectionhacks);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLUseTextureCompr", &glusetexcompr);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLWidescreen", &glwidescreen);
 
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
-        SCRIPT_GetNumber( scripthandle, "Screen Setup", "GLUseTextureCacheCompression", &glusetexcachecompression);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLUseTextureCacheCompression", &glusetexcachecompression);
 
-        dummy = usemodels; SCRIPT_GetNumber( scripthandle, "Screen Setup", "UseModels",&dummy); usemodels = dummy != 0;
-        dummy = usehightile; SCRIPT_GetNumber( scripthandle, "Screen Setup", "UseHightile",&dummy); usehightile = dummy != 0;
+        dummy = usemodels; SCRIPT_GetNumber(scripthandle, "Screen Setup", "UseModels",&dummy); usemodels = dummy != 0;
+        dummy = usehightile; SCRIPT_GetNumber(scripthandle, "Screen Setup", "UseHightile",&dummy); usehightile = dummy != 0;
 #endif
-        SCRIPT_GetNumber( scripthandle, "Misc", "Executions",&ud.executions);
-        SCRIPT_GetNumber( scripthandle, "Setup", "ForceSetup",&ForceSetup);
-        SCRIPT_GetNumber( scripthandle, "Misc", "RunMode",&RunMode);
-        SCRIPT_GetNumber( scripthandle, "Misc", "Crosshairs",&ud.crosshair);
-        SCRIPT_GetNumber( scripthandle, "Misc", "StatusBarScale",&ud.statusbarscale);
-        SCRIPT_GetNumber( scripthandle, "Misc", "ShowLevelStats",&ud.levelstats);
-        SCRIPT_GetNumber( scripthandle, "Misc", "ShowOpponentWeapons",&ShowOpponentWeapons);
+        SCRIPT_GetNumber(scripthandle, "Misc", "Executions",&ud.executions);
+        SCRIPT_GetNumber(scripthandle, "Setup", "ForceSetup",&ForceSetup);
+        SCRIPT_GetNumber(scripthandle, "Misc", "RunMode",&RunMode);
+        SCRIPT_GetNumber(scripthandle, "Misc", "Crosshairs",&ud.crosshair);
+        SCRIPT_GetNumber(scripthandle, "Misc", "StatusBarScale",&ud.statusbarscale);
+        SCRIPT_GetNumber(scripthandle, "Misc", "ShowLevelStats",&ud.levelstats);
+        SCRIPT_GetNumber(scripthandle, "Misc", "ShowOpponentWeapons",&ShowOpponentWeapons);
         ud.showweapons = ShowOpponentWeapons;
-        SCRIPT_GetNumber( scripthandle, "Misc", "ShowViewWeapon",&ud.drawweapon);
-        SCRIPT_GetNumber( scripthandle, "Misc", "DemoCams",&ud.democams);
-        SCRIPT_GetNumber( scripthandle, "Misc", "ShowFPS",&ud.tickrate);
-        SCRIPT_GetNumber( scripthandle, "Misc", "Color",&ud.color);
+        SCRIPT_GetNumber(scripthandle, "Misc", "ShowViewWeapon",&ud.drawweapon);
+        SCRIPT_GetNumber(scripthandle, "Misc", "DemoCams",&ud.democams);
+        SCRIPT_GetNumber(scripthandle, "Misc", "ShowFPS",&ud.tickrate);
+        SCRIPT_GetNumber(scripthandle, "Misc", "Color",&ud.color);
         check_player_color((int *)&ud.color,-1);
         ps[0].palookup = ud.pcolor[0] = ud.color;
-        SCRIPT_GetNumber( scripthandle, "Misc", "Team",&ud.team);
+        SCRIPT_GetNumber(scripthandle, "Misc", "Team",&ud.team);
         if (ud.team > 1) ud.team = 0;
         ud.pteam[0] = ud.team;
-        SCRIPT_GetNumber( scripthandle, "Misc", "MPMessageDisplayTime",&ud.msgdisptime);
-        SCRIPT_GetNumber( scripthandle, "Misc", "StatusBarMode",&ud.statusbarmode);
-        SCRIPT_GetNumber( scripthandle, "Misc", "AutoVote",&ud.autovote);
-        SCRIPT_GetNumber( scripthandle, "Misc", "AutoMsg",&ud.automsg);
-        SCRIPT_GetNumber( scripthandle, "Misc", "IDPlayers",&ud.automsg);
+        SCRIPT_GetNumber(scripthandle, "Misc", "MPMessageDisplayTime",&ud.msgdisptime);
+        SCRIPT_GetNumber(scripthandle, "Misc", "StatusBarMode",&ud.statusbarmode);
+        SCRIPT_GetNumber(scripthandle, "Misc", "AutoVote",&ud.autovote);
+        SCRIPT_GetNumber(scripthandle, "Misc", "AutoMsg",&ud.automsg);
+        SCRIPT_GetNumber(scripthandle, "Misc", "IDPlayers",&ud.automsg);
 
-        dummy = useprecache; SCRIPT_GetNumber( scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
+        dummy = useprecache; SCRIPT_GetNumber(scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
 
         // weapon choices are defaulted in checkcommandline, which may override them
         if (!CommandWeaponChoice)
@@ -681,37 +681,37 @@ int32 CONFIG_ReadSetup( void )
             {
                 Bsprintf(buf,"WeaponChoice%ld",i);
                 dummy = -1;
-                SCRIPT_GetNumber( scripthandle, "Misc", buf, &dummy);
+                SCRIPT_GetNumber(scripthandle, "Misc", buf, &dummy);
                 if (dummy >= 0) ud.wchoice[0][i] = dummy;
             }
 
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "FXDevice",&FXDevice);
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "MusicDevice",&MusicDevice);
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "FXVolume",&FXVolume);
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "MusicVolume",&MusicVolume);
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "SoundToggle",&SoundToggle);
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "MusicToggle",&MusicToggle);
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "VoiceToggle",&VoiceToggle);
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "AmbienceToggle",&AmbienceToggle);
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "NumVoices",&NumVoices);
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "NumChannels",&NumChannels);
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "NumBits",&NumBits);
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "MixRate",&MixRate);
-        SCRIPT_GetNumber( scripthandle, "Sound Setup", "ReverseStereo",&ReverseStereo);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "FXDevice",&FXDevice);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "MusicDevice",&MusicDevice);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "FXVolume",&FXVolume);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "MusicVolume",&MusicVolume);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "SoundToggle",&SoundToggle);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "MusicToggle",&MusicToggle);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "VoiceToggle",&VoiceToggle);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "AmbienceToggle",&AmbienceToggle);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "NumVoices",&NumVoices);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "NumChannels",&NumChannels);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "NumBits",&NumBits);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "MixRate",&MixRate);
+        SCRIPT_GetNumber(scripthandle, "Sound Setup", "ReverseStereo",&ReverseStereo);
 
-        SCRIPT_GetNumber( scripthandle, "Controls","MouseAimingFlipped",&ud.mouseflip); // mouse aiming inverted
-        SCRIPT_GetNumber( scripthandle, "Controls","MouseAiming",&ud.mouseaiming);		// 1=momentary/0=toggle
+        SCRIPT_GetNumber(scripthandle, "Controls","MouseAimingFlipped",&ud.mouseflip);  // mouse aiming inverted
+        SCRIPT_GetNumber(scripthandle, "Controls","MouseAiming",&ud.mouseaiming);		// 1=momentary/0=toggle
         ps[0].aim_mode = ud.mouseaiming;
-        SCRIPT_GetNumber( scripthandle, "Controls","MouseBias",&MouseBias);
-        SCRIPT_GetNumber( scripthandle, "Controls","MouseFilter",&MouseFilter);
-        SCRIPT_GetNumber( scripthandle, "Controls","SmoothInput",&SmoothInput);
-        SCRIPT_GetNumber( scripthandle, "Controls","UseJoystick",&UseJoystick);
-        SCRIPT_GetNumber( scripthandle, "Controls","UseMouse",&UseMouse);
-        SCRIPT_GetNumber( scripthandle, "Controls","AimingFlag",(int32 *)&myaimmode);   // (if toggle mode) gives state
-        SCRIPT_GetNumber( scripthandle, "Controls","RunKeyBehaviour",&ud.runkey_mode);  // JBF 20031125
-        SCRIPT_GetNumber( scripthandle, "Controls","AutoAim",&AutoAim);         // JBF 20031125
+        SCRIPT_GetNumber(scripthandle, "Controls","MouseBias",&MouseBias);
+        SCRIPT_GetNumber(scripthandle, "Controls","MouseFilter",&MouseFilter);
+        SCRIPT_GetNumber(scripthandle, "Controls","SmoothInput",&SmoothInput);
+        SCRIPT_GetNumber(scripthandle, "Controls","UseJoystick",&UseJoystick);
+        SCRIPT_GetNumber(scripthandle, "Controls","UseMouse",&UseMouse);
+        SCRIPT_GetNumber(scripthandle, "Controls","AimingFlag",(int32 *)&myaimmode);    // (if toggle mode) gives state
+        SCRIPT_GetNumber(scripthandle, "Controls","RunKeyBehaviour",&ud.runkey_mode);   // JBF 20031125
+        SCRIPT_GetNumber(scripthandle, "Controls","AutoAim",&AutoAim);          // JBF 20031125
         ps[0].auto_aim = AutoAim;
-        SCRIPT_GetNumber( scripthandle, "Controls","WeaponSwitchMode",&ud.weaponswitch);
+        SCRIPT_GetNumber(scripthandle, "Controls","WeaponSwitchMode",&ud.weaponswitch);
         ps[0].weaponswitch = ud.weaponswitch;
     }
 
@@ -731,7 +731,7 @@ int32 CONFIG_ReadSetup( void )
 ===================
 */
 
-void CONFIG_WriteSetup( void )
+void CONFIG_WriteSetup(void)
 {
     int32 dummy;
 
@@ -740,102 +740,102 @@ void CONFIG_WriteSetup( void )
     if (scripthandle < 0)
         scripthandle = SCRIPT_Init(setupfilename);
 
-    SCRIPT_PutNumber( scripthandle, "Controls","AimingFlag",(long) myaimmode,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","AutoAim",AutoAim,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","MouseAimingFlipped",ud.mouseflip,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","MouseBias",MouseBias,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","MouseFilter",MouseFilter,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","SmoothInput",SmoothInput,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","RunKeyBehaviour",ud.runkey_mode,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","UseJoystick",UseJoystick,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","UseMouse",UseMouse,false,false);
-    SCRIPT_PutNumber( scripthandle, "Controls","WeaponSwitchMode",ud.weaponswitch,false,false);
+    SCRIPT_PutNumber(scripthandle, "Controls","AimingFlag",(long) myaimmode,false,false);
+    SCRIPT_PutNumber(scripthandle, "Controls","AutoAim",AutoAim,false,false);
+    SCRIPT_PutNumber(scripthandle, "Controls","MouseAimingFlipped",ud.mouseflip,false,false);
+    SCRIPT_PutNumber(scripthandle, "Controls","MouseAiming",ud.mouseaiming,false,false);
+    SCRIPT_PutNumber(scripthandle, "Controls","MouseBias",MouseBias,false,false);
+    SCRIPT_PutNumber(scripthandle, "Controls","MouseFilter",MouseFilter,false,false);
+    SCRIPT_PutNumber(scripthandle, "Controls","SmoothInput",SmoothInput,false,false);
+    SCRIPT_PutNumber(scripthandle, "Controls","RunKeyBehaviour",ud.runkey_mode,false,false);
+    SCRIPT_PutNumber(scripthandle, "Controls","UseJoystick",UseJoystick,false,false);
+    SCRIPT_PutNumber(scripthandle, "Controls","UseMouse",UseMouse,false,false);
+    SCRIPT_PutNumber(scripthandle, "Controls","WeaponSwitchMode",ud.weaponswitch,false,false);
 
-    SCRIPT_PutNumber( scripthandle, "Misc", "AutoMsg",ud.automsg,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "AutoVote",ud.autovote,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "Color",ud.color,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "Crosshairs",ud.crosshair,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "DemoCams",ud.democams,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "AutoMsg",ud.automsg,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "AutoVote",ud.autovote,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "Color",ud.color,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "Crosshairs",ud.crosshair,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "DemoCams",ud.democams,false,false);
     ud.executions++;
-    SCRIPT_PutNumber( scripthandle, "Misc", "Executions",ud.executions,false,false);
-    SCRIPT_PutNumber( scripthandle, "Setup", "ForceSetup",ForceSetup,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "IDPlayers",ud.idplayers,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "MPMessageDisplayTime",ud.msgdisptime,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "RunMode",RunMode,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "ShowFPS",ud.tickrate,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "ShowLevelStats",ud.levelstats,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "ShowOpponentWeapons",ShowOpponentWeapons,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "ShowViewWeapon",ud.drawweapon,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "StatusBarMode",ud.statusbarmode,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "StatusBarScale",ud.statusbarscale,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "Team",ud.team,false,false);
-    SCRIPT_PutNumber( scripthandle, "Misc", "UsePrecache",useprecache,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "Executions",ud.executions,false,false);
+    SCRIPT_PutNumber(scripthandle, "Setup", "ForceSetup",ForceSetup,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "IDPlayers",ud.idplayers,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "MPMessageDisplayTime",ud.msgdisptime,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "RunMode",RunMode,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "ShowFPS",ud.tickrate,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "ShowLevelStats",ud.levelstats,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "ShowOpponentWeapons",ShowOpponentWeapons,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "ShowViewWeapon",ud.drawweapon,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "StatusBarMode",ud.statusbarmode,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "StatusBarScale",ud.statusbarscale,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "Team",ud.team,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "UsePrecache",useprecache,false,false);
 
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Detail",ud.detail,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "Detail",ud.detail,false,false);
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLAnisotropy",glanisotropy,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLProjectionFix",glprojectionhacks,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLTextureMode",gltexfiltermode,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseCompressedTextureCache", glusetexcache,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseTextureCacheCompression", glusetexcachecompression,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLUseTextureCompr",glusetexcompr,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "GLWidescreen",glwidescreen,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLAnisotropy",glanisotropy,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLProjectionFix",glprojectionhacks,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLTextureMode",gltexfiltermode,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLUseCompressedTextureCache", glusetexcache,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLUseTextureCacheCompression", glusetexcachecompression,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLUseTextureCompr",glusetexcompr,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLWidescreen",glwidescreen,false,false);
 #endif
 #ifdef RENDERTYPEWIN
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);
 #endif
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Messages",ud.fta_on,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "Messages",ud.fta_on,false,false);
 
     if (!NAM) {
-        SCRIPT_PutNumber( scripthandle, "Screen Setup", "Out",ud.lockout,false,false);
-        SCRIPT_PutString( scripthandle, "Screen Setup", "Password",ud.pwlockout);
+        SCRIPT_PutNumber(scripthandle, "Screen Setup", "Out",ud.lockout,false,false);
+        SCRIPT_PutString(scripthandle, "Screen Setup", "Password",ud.pwlockout);
     }
 
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenBPP",ScreenBPP,false,false); // JBF 20040523
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenGamma",ud.brightness,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenHeight",ScreenHeight,false,false);   // JBF 20031206
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenMode",ScreenMode,false,false);   // JBF 20031206
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenSize",ud.screen_size,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "ScreenWidth",ScreenWidth,false,false); // JBF 20031206
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Shadows",ud.shadows,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "Tilt",ud.screen_tilting,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "ScreenBPP",ScreenBPP,false,false);  // JBF 20040523
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "ScreenGamma",ud.brightness,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "ScreenHeight",ScreenHeight,false,false);    // JBF 20031206
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "ScreenMode",ScreenMode,false,false);    // JBF 20031206
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "ScreenSize",ud.screen_size,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "ScreenWidth",ScreenWidth,false,false);  // JBF 20031206
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "Shadows",ud.shadows,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "Tilt",ud.screen_tilting,false,false);
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "UseHightile",usehightile,false,false);
-    SCRIPT_PutNumber( scripthandle, "Screen Setup", "UseModels",usemodels,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "UseHightile",usehightile,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "UseModels",usemodels,false,false);
 #endif
-    SCRIPT_PutNumber( scripthandle, "Sound Setup", "AmbienceToggle",AmbienceToggle,false,false);
-    SCRIPT_PutNumber( scripthandle, "Sound Setup", "FXVolume",FXVolume,false,false);
-    SCRIPT_PutNumber( scripthandle, "Sound Setup", "MusicToggle",MusicToggle,false,false);
-    SCRIPT_PutNumber( scripthandle, "Sound Setup", "MusicVolume",MusicVolume,false,false);
-    SCRIPT_PutNumber( scripthandle, "Sound Setup", "ReverseStereo",ReverseStereo,false,false);
-    SCRIPT_PutNumber( scripthandle, "Sound Setup", "SoundToggle",SoundToggle,false,false);
-    SCRIPT_PutNumber( scripthandle, "Sound Setup", "VoiceToggle",VoiceToggle,false,false);
+    SCRIPT_PutNumber(scripthandle, "Sound Setup", "AmbienceToggle",AmbienceToggle,false,false);
+    SCRIPT_PutNumber(scripthandle, "Sound Setup", "FXVolume",FXVolume,false,false);
+    SCRIPT_PutNumber(scripthandle, "Sound Setup", "MusicToggle",MusicToggle,false,false);
+    SCRIPT_PutNumber(scripthandle, "Sound Setup", "MusicVolume",MusicVolume,false,false);
+    SCRIPT_PutNumber(scripthandle, "Sound Setup", "ReverseStereo",ReverseStereo,false,false);
+    SCRIPT_PutNumber(scripthandle, "Sound Setup", "SoundToggle",SoundToggle,false,false);
+    SCRIPT_PutNumber(scripthandle, "Sound Setup", "VoiceToggle",VoiceToggle,false,false);
 
     // JBF 20031211
     for (dummy=0;dummy<NUMGAMEFUNCTIONS;dummy++) {
-        SCRIPT_PutDoubleString( scripthandle, "KeyDefinitions", CONFIG_FunctionNumToName(dummy),
-                                KB_ScanCodeToString(KeyboardKeys[dummy][0]), KB_ScanCodeToString(KeyboardKeys[dummy][1]));
+        SCRIPT_PutDoubleString(scripthandle, "KeyDefinitions", CONFIG_FunctionNumToName(dummy),
+                               KB_ScanCodeToString(KeyboardKeys[dummy][0]), KB_ScanCodeToString(KeyboardKeys[dummy][1]));
     }
 
     for (dummy=0;dummy<10;dummy++)
     {
         Bsprintf(buf,"WeaponChoice%ld",dummy);
-        SCRIPT_PutNumber( scripthandle, "Misc",buf,ud.wchoice[myconnectindex][dummy],false,false);
+        SCRIPT_PutNumber(scripthandle, "Misc",buf,ud.wchoice[myconnectindex][dummy],false,false);
     }
 
     for (dummy=0;dummy<MAXMOUSEBUTTONS;dummy++) {
         Bsprintf(buf,"MouseButton%ld",dummy);
-        SCRIPT_PutString( scripthandle,"Controls", buf, CONFIG_FunctionNumToName( MouseFunctions[dummy][0] ));
+        SCRIPT_PutString(scripthandle,"Controls", buf, CONFIG_FunctionNumToName(MouseFunctions[dummy][0]));
 
         if (dummy >= (MAXMOUSEBUTTONS-2)) continue;
 
         Bsprintf(buf,"MouseButtonClicked%ld",dummy);
-        SCRIPT_PutString( scripthandle,"Controls", buf, CONFIG_FunctionNumToName( MouseFunctions[dummy][1] ));
+        SCRIPT_PutString(scripthandle,"Controls", buf, CONFIG_FunctionNumToName(MouseFunctions[dummy][1]));
     }
     for (dummy=0;dummy<MAXMOUSEAXES;dummy++) {
         Bsprintf(buf,"MouseAnalogAxes%ld",dummy);
-        SCRIPT_PutString(scripthandle, "Controls", buf, CONFIG_AnalogNumToName( MouseAnalogueAxes[dummy] ));
+        SCRIPT_PutString(scripthandle, "Controls", buf, CONFIG_AnalogNumToName(MouseAnalogueAxes[dummy]));
 
         Bsprintf(buf,"MouseDigitalAxes%ld_0",dummy);
         SCRIPT_PutString(scripthandle, "Controls", buf, CONFIG_FunctionNumToName(MouseDigitalFunctions[dummy][0]));
@@ -847,18 +847,18 @@ void CONFIG_WriteSetup( void )
         SCRIPT_PutNumber(scripthandle, "Controls", buf, MouseAnalogueScale[dummy], false, false);
     }
     dummy = CONTROL_GetMouseSensitivity();
-    SCRIPT_PutNumber( scripthandle, "Controls","Mouse_Sensitivity",dummy,false,false);
+    SCRIPT_PutNumber(scripthandle, "Controls","Mouse_Sensitivity",dummy,false,false);
 
     for (dummy=0;dummy<MAXJOYBUTTONS;dummy++) {
         Bsprintf(buf,"JoystickButton%ld",dummy);
-        SCRIPT_PutString( scripthandle,"Controls", buf, CONFIG_FunctionNumToName( JoystickFunctions[dummy][0] ));
+        SCRIPT_PutString(scripthandle,"Controls", buf, CONFIG_FunctionNumToName(JoystickFunctions[dummy][0]));
 
         Bsprintf(buf,"JoystickButtonClicked%ld",dummy);
-        SCRIPT_PutString( scripthandle,"Controls", buf, CONFIG_FunctionNumToName( JoystickFunctions[dummy][1] ));
+        SCRIPT_PutString(scripthandle,"Controls", buf, CONFIG_FunctionNumToName(JoystickFunctions[dummy][1]));
     }
     for (dummy=0;dummy<MAXJOYAXES;dummy++) {
         Bsprintf(buf,"JoystickAnalogAxes%ld",dummy);
-        SCRIPT_PutString(scripthandle, "Controls", buf, CONFIG_AnalogNumToName( JoystickAnalogueAxes[dummy] ));
+        SCRIPT_PutString(scripthandle, "Controls", buf, CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]));
 
         Bsprintf(buf,"JoystickDigitalAxes%ld_0",dummy);
         SCRIPT_PutString(scripthandle, "Controls", buf, CONFIG_FunctionNumToName(JoystickDigitalFunctions[dummy][0]));
@@ -876,8 +876,8 @@ void CONFIG_WriteSetup( void )
         SCRIPT_PutNumber(scripthandle, "Controls", buf, JoystickAnalogueSaturate[dummy], false, false);
     }
 
-    SCRIPT_PutString( scripthandle, "Comm Setup","PlayerName",&myname[0]);
-    SCRIPT_PutString( scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
+    SCRIPT_PutString(scripthandle, "Comm Setup","PlayerName",&myname[0]);
+    SCRIPT_PutString(scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
     {
         char commmacro[] = "CommbatMacro# ";
@@ -885,12 +885,12 @@ void CONFIG_WriteSetup( void )
         for (dummy = 0;dummy < 10;dummy++)
         {
             commmacro[13] = dummy+'0';
-            SCRIPT_PutString( scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
+            SCRIPT_PutString(scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
         }
     }
 
-    SCRIPT_Save (scripthandle, setupfilename);
-    SCRIPT_Free (scripthandle);
+    SCRIPT_Save(scripthandle, setupfilename);
+    SCRIPT_Free(scripthandle);
 }
 
 

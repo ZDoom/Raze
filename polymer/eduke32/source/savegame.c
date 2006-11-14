@@ -88,7 +88,7 @@ int loadplayer(signed char spot)
         return -1;
     }
 
-    if ( multiflag == 2 && multiwho != myconnectindex )
+    if (multiflag == 2 && multiwho != myconnectindex)
     {
         fnptr = mpfn;
         mpfn[4] = spot + 'A';
@@ -211,7 +211,7 @@ int loadplayer(signed char spot)
     if (kdfread(&scriptptrs[0],1,MAXSCRIPTSIZE,fil) != MAXSCRIPTSIZE) goto corrupt;
     if (kdfread(&script[0],4,MAXSCRIPTSIZE,fil) != MAXSCRIPTSIZE) goto corrupt;
     for (i=0;i<MAXSCRIPTSIZE;i++)
-        if ( scriptptrs[i] )
+        if (scriptptrs[i])
         {
             j = (long)script[i]+(long)&script[0];
             script[i] = j;
@@ -238,9 +238,9 @@ int loadplayer(signed char spot)
     for (i=0;i<MAXSPRITES;i++)
     {
         j = (long)(&script[0]);
-        if ( scriptptrs[i]&1 ) T2 += j;
-        if ( scriptptrs[i]&2 ) T5 += j;
-        if ( scriptptrs[i]&4 ) T6 += j;
+        if (scriptptrs[i]&1) T2 += j;
+        if (scriptptrs[i]&2) T5 += j;
+        if (scriptptrs[i]&4) T6 += j;
     }
 
     if (kdfread(&lockclock,sizeof(lockclock),1,fil) != 1) goto corrupt;
@@ -364,7 +364,7 @@ int loadplayer(signed char spot)
     if (ud.lockout == 0)
     {
         for (x=0;x<numanimwalls;x++)
-            if ( wall[animwall[x].wallnum].extra >= 0 )
+            if (wall[animwall[x].wallnum].extra >= 0)
                 wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
     }
     else
@@ -468,7 +468,7 @@ int saveplayer(signed char spot)
 
     waitforeverybody();
 
-    if ( multiflag == 2 && multiwho != myconnectindex )
+    if (multiflag == 2 && multiwho != myconnectindex)
     {
         fnptr = mpfn;
         mpfn[4] = spot + 'A';
@@ -547,7 +547,7 @@ int saveplayer(signed char spot)
 
     for (i=0;i<MAXSCRIPTSIZE;i++)
     {
-        if ( (long)script[i] >= (long)(&script[0]) && (long)script[i] < (long)(&script[MAXSCRIPTSIZE]) )
+        if ((long)script[i] >= (long)(&script[0]) && (long)script[i] < (long)(&script[MAXSCRIPTSIZE]))
         {
             scriptptrs[i] = 1;
             j = (long)script[i] - (long)&script[0];
@@ -560,7 +560,7 @@ int saveplayer(signed char spot)
     dfwrite(&script[0],4,MAXSCRIPTSIZE,fil);
 
     for (i=0;i<MAXSCRIPTSIZE;i++)
-        if ( scriptptrs[i] )
+        if (scriptptrs[i])
         {
             j = script[i]+(long)&script[0];
             script[i] = j;
@@ -603,17 +603,17 @@ int saveplayer(signed char spot)
 
         j = (long)&script[0];
 
-        if (T2 >= j && T2 < (long)(&script[MAXSCRIPTSIZE]) )
+        if (T2 >= j && T2 < (long)(&script[MAXSCRIPTSIZE]))
         {
             scriptptrs[i] |= 1;
             T2 -= j;
         }
-        if (T5 >= j && T5 < (long)(&script[MAXSCRIPTSIZE]) )
+        if (T5 >= j && T5 < (long)(&script[MAXSCRIPTSIZE]))
         {
             scriptptrs[i] |= 2;
             T5 -= j;
         }
-        if (T6 >= j && T6 < (long)(&script[MAXSCRIPTSIZE]) )
+        if (T6 >= j && T6 < (long)(&script[MAXSCRIPTSIZE]))
         {
             scriptptrs[i] |= 4;
             T6 -= j;

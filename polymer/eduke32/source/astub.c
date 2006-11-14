@@ -471,7 +471,7 @@ const char *ExtGetSpriteCaption(short spritenum)
         }
     }
 
-    if ( onnames==6 && sprite[spritenum].picnum != sprite[cursprite].picnum)
+    if (onnames==6 && sprite[spritenum].picnum != sprite[cursprite].picnum)
     {
         tempbuf[0] = 0;
         return(tempbuf);
@@ -1156,7 +1156,7 @@ static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
 
     for (j=0;j<MAXSPRITES;j++)
     {
-        if ( sprite[j].picnum==1 && sprite[j].lotag==fofmode && sprite[j].hitag==sprite[floor1].hitag )
+        if (sprite[j].picnum==1 && sprite[j].lotag==fofmode && sprite[j].hitag==sprite[floor1].hitag)
         {
             floor1=j;
             fofmode=sprite[j].lotag;
@@ -1170,7 +1170,7 @@ static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
 
     for (j=0;j<MAXSPRITES;j++)
     {
-        if ( sprite[j].picnum==1 && sprite[j].lotag==k && sprite[j].hitag==sprite[floor1].hitag )
+        if (sprite[j].picnum==1 && sprite[j].lotag==k && sprite[j].hitag==sprite[floor1].hitag)
         {
             floor2=j; ok++; break;
         }
@@ -1199,7 +1199,7 @@ static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
 
     for (j=0;j<MAXSPRITES;j++) // raise ceiling or floor
     {
-        if (sprite[j].picnum==1 && sprite[j].lotag==k+2 && sprite[j].hitag==sprite[floor1].hitag )
+        if (sprite[j].picnum==1 && sprite[j].lotag==k+2 && sprite[j].hitag==sprite[floor1].hitag)
         {
             if (k==40)
             {
@@ -1579,9 +1579,9 @@ void Keys3d(void)
             }
         }
 
-        if (tabgraphic == 1 )
+        if (tabgraphic == 1)
             rotatesprite((44+(tilesizx[temppicnum]>>2))<<16,(114)<<16,32768,0,temppicnum,tempshade,temppal,2,0L,0L,xdim-1L,ydim-1L);
-        else if (tabgraphic == 2 )
+        else if (tabgraphic == 2)
             rotatesprite((44+(tilesizx[temppicnum]>>2))<<16,(114)<<16,16384,0,temppicnum,tempshade,temppal,2,0L,0L,xdim-1L,ydim-1L);
 
         begindrawing();
@@ -3681,8 +3681,8 @@ void Keys2d(void)
                            (search_hitag!=0 && search_hitag==wall[i].hitag))
                     )
                     {
-                        posx=(wall[i].x)-(( (wall[i].x)-(wall[wall[i].point2].x) )/2);
-                        posy=(wall[i].y)-(( (wall[i].y)-(wall[wall[i].point2].y) )/2);
+                        posx=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
+                        posy=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
                         printmessage16("< Wall search: found");
                         //                    curwallnum--;
                         keystatus[0x1a]=0;
@@ -3702,7 +3702,7 @@ void Keys2d(void)
 
                         if (
                             (sprite[i].picnum==sprite[cursearchsprite].picnum &&
-                             sprite[i].statnum==0 )
+                             sprite[i].statnum==0)
                             &&((search_lotag==0)||
                                (search_lotag!=0 && search_lotag==sprite[i].lotag))
                             &&((search_hitag==0)||
@@ -3746,8 +3746,8 @@ void Keys2d(void)
                            (search_hitag!=0 && search_hitag==wall[i].hitag))
                     )
                     {
-                        posx=(wall[i].x)-(( (wall[i].x)-(wall[wall[i].point2].x) )/2);
-                        posy=(wall[i].y)-(( (wall[i].y)-(wall[wall[i].point2].y) )/2);
+                        posx=(wall[i].x)-(((wall[i].x)-(wall[wall[i].point2].x))/2);
+                        posy=(wall[i].y)-(((wall[i].y)-(wall[wall[i].point2].y))/2);
                         printmessage16("> Wall search: found");
                         //                    curwallnum++;
                         keystatus[0x1b]=0;
@@ -3766,7 +3766,7 @@ void Keys2d(void)
                     {
                         if (
                             (sprite[i].picnum==sprite[cursearchsprite].picnum &&
-                             sprite[i].statnum==0 )
+                             sprite[i].statnum==0)
                             &&((search_lotag==0)||
                                (search_lotag!=0 && search_lotag==sprite[i].lotag))
                             &&((search_hitag==0)||
@@ -4181,7 +4181,7 @@ int loadgroupfiles(char *fn)
             {
                 int j = initgroupfile(fn);
 
-                if ( j == -1 )
+                if (j == -1)
                     initprintf("Could not find GRP file %s.\n",fn);
                 else
                     initprintf("Using GRP file %s.\n",fn);
@@ -4275,7 +4275,7 @@ int ExtInit(void)
                    "textures and skins, but textures will load dramatically "
                    "faster after the first time they are loaded.");
         if (i) i = 'y';
-        if (i == 'y' || i == 'Y' )
+        if (i == 'y' || i == 'Y')
             glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
     }
