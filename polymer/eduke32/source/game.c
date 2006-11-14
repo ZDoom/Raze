@@ -3784,6 +3784,71 @@ short LocateTheLocator(short n,short sn)
     return -1;
 }
 
+void dumpdebugdata(void)
+{
+    int i,j,x;
+    FILE * fp=fopen("debug.con","w");
+    for (i=0;i<MAX_WEAPONS;i++)
+    {
+        for (j=0;j<numplayers;j++)
+        {
+            fprintf(fp,"Player %d\n\n",j);
+            fprintf(fp,"WEAPON%d_CLIP %ld\n",i,aplWeaponClip[i][j]);
+            fprintf(fp,"WEAPON%d_RELOAD %ld\n",i,aplWeaponReload[i][j]);
+            fprintf(fp,"WEAPON%d_FIREDELAY %ld\n",i,aplWeaponFireDelay[i][j]);
+            fprintf(fp,"WEAPON%d_TOTALTIME %ld\n",i,aplWeaponTotalTime[i][j]);
+            fprintf(fp,"WEAPON%d_HOLDDELAY %ld\n",i,aplWeaponHoldDelay[i][j]);
+            fprintf(fp,"WEAPON%d_FLAGS %ld\n",i,aplWeaponFlags[i][j]);
+            fprintf(fp,"WEAPON%d_SHOOTS %ld\n",i,aplWeaponShoots[i][j]);
+            fprintf(fp,"WEAPON%d_SPAWNTIME %ld\n",i,aplWeaponSpawnTime[i][j]);
+            fprintf(fp,"WEAPON%d_SPAWN %ld\n",i,aplWeaponSpawn[i][j]);
+            fprintf(fp,"WEAPON%d_SHOTSPERBURST %ld\n",i,aplWeaponShotsPerBurst[i][j]);
+            fprintf(fp,"WEAPON%d_WORKSLIKE %ld\n",i,aplWeaponWorksLike[i][j]);
+            fprintf(fp,"WEAPON%d_INITIALSOUND %ld\n",i,aplWeaponInitialSound[i][j]);
+            fprintf(fp,"WEAPON%d_FIRESOUND %ld\n",i,aplWeaponFireSound[i][j]);
+            fprintf(fp,"WEAPON%d_SOUND2TIME %ld\n",i,aplWeaponSound2Time[i][j]);
+            fprintf(fp,"WEAPON%d_SOUND2SOUND %ld\n",i,aplWeaponSound2Sound[i][j]);
+            fprintf(fp,"WEAPON%d_RELOADSOUND1 %ld\n",i,aplWeaponReloadSound1[i][j]);
+            fprintf(fp,"WEAPON%d_RELOADSOUND2 %ld\n",i,aplWeaponReloadSound2[i][j]);
+        }
+        fprintf(fp,"\n");
+    }
+    for (x=0;x<MAXSTATUS;x++)
+    {
+        j = headspritestat[x];
+        while (j >= 0)
+        {
+            fprintf(fp,"Sprite %d (%ld,%ld,%ld) (picnum: %d)\n",j,sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].picnum);
+            for (i=0;i<iGameVarCount;i++)
+            {
+                if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERACTOR))
+                {
+                    if (aGameVars[i].plValues[j] != aDefaultGameVars[i].lValue)
+                    {
+                        fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
+                        fprintf(fp,"%ld",aGameVars[i].plValues[j]);
+                        fprintf(fp," GAMEVAR_FLAG_PERACTOR");
+                        if (aGameVars[i].dwFlags != GAMEVAR_FLAG_PERACTOR)
+                        {
+                            fprintf(fp," // ");
+                            if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_SYSTEM))
+                            {
+                                fprintf(fp," (system)");
+                            }
+                        }
+                        fprintf(fp,"\n");
+                    }
+                }
+            }
+            fprintf(fp,"\n");
+            j = nextspritestat[j];
+        }
+    }
+    DumpGameVars(fp);
+    fclose(fp);
+    saveboard("debug.map",&ps[myconnectindex].posx,&ps[myconnectindex].posy,&ps[myconnectindex].posz,&ps[myconnectindex].ang,&ps[myconnectindex].cursectnum);
+}
+
 short EGS(short whatsect,long s_x,long s_y,long s_z,short s_pn,signed char s_s,signed char s_xr,signed char s_yr,short s_a,short s_ve,long s_zv,short s_ow,signed char s_ss)
 {
     short i;
@@ -3793,7 +3858,11 @@ short EGS(short whatsect,long s_x,long s_y,long s_z,short s_pn,signed char s_s,s
     i = insertsprite(whatsect,s_ss);
 
     if ( i < 0 )
-        gameexit(" Too many sprites spawned.");
+    {
+        dumpdebugdata();
+        OSD_Printf("Failed spawning sprite with tile %ld from sprite %ld (%ld) at x:%ld,y:%ld,z:%ld,sector:%ld\n",s_pn,s_ow,sprite[s_ow].picnum,s_x,s_y,s_z,whatsect);
+        gameexit("Too many sprites spawned.");
+    }
 
     hittype[i].bposx = s_x;
     hittype[i].bposy = s_y;
@@ -6708,7 +6777,7 @@ char cheatbuf[MAXCHEATLEN],cheatbuflen;
 
 void cheats(void)
 {
-    short ch, i, j, k=0,x,y, weapon;
+    short ch, i, j, k=0, weapon;
     static char z=0;
     char consolecheat = 0;  // JBF 20030914
 
@@ -6811,73 +6880,11 @@ FOUNDCHEAT:
                     KB_FlushKeyBoardQueue();
                     ps[myconnectindex].cheat_phase = 0;
 
-                    {
-                        int i,j;
-                        FILE * fp=fopen("debug.con","w");
-                        for (i=0;i<MAX_WEAPONS;i++)
-                        {
-                            for (j=0;j<numplayers;j++)
-                            {
-                                fprintf(fp,"Player %d\n\n",j);
-                                fprintf(fp,"WEAPON%d_CLIP %ld\n",i,aplWeaponClip[i][j]);
-                                fprintf(fp,"WEAPON%d_RELOAD %ld\n",i,aplWeaponReload[i][j]);
-                                fprintf(fp,"WEAPON%d_FIREDELAY %ld\n",i,aplWeaponFireDelay[i][j]);
-                                fprintf(fp,"WEAPON%d_TOTALTIME %ld\n",i,aplWeaponTotalTime[i][j]);
-                                fprintf(fp,"WEAPON%d_HOLDDELAY %ld\n",i,aplWeaponHoldDelay[i][j]);
-                                fprintf(fp,"WEAPON%d_FLAGS %ld\n",i,aplWeaponFlags[i][j]);
-                                fprintf(fp,"WEAPON%d_SHOOTS %ld\n",i,aplWeaponShoots[i][j]);
-                                fprintf(fp,"WEAPON%d_SPAWNTIME %ld\n",i,aplWeaponSpawnTime[i][j]);
-                                fprintf(fp,"WEAPON%d_SPAWN %ld\n",i,aplWeaponSpawn[i][j]);
-                                fprintf(fp,"WEAPON%d_SHOTSPERBURST %ld\n",i,aplWeaponShotsPerBurst[i][j]);
-                                fprintf(fp,"WEAPON%d_WORKSLIKE %ld\n",i,aplWeaponWorksLike[i][j]);
-                                fprintf(fp,"WEAPON%d_INITIALSOUND %ld\n",i,aplWeaponInitialSound[i][j]);
-                                fprintf(fp,"WEAPON%d_FIRESOUND %ld\n",i,aplWeaponFireSound[i][j]);
-                                fprintf(fp,"WEAPON%d_SOUND2TIME %ld\n",i,aplWeaponSound2Time[i][j]);
-                                fprintf(fp,"WEAPON%d_SOUND2SOUND %ld\n",i,aplWeaponSound2Sound[i][j]);
-                                fprintf(fp,"WEAPON%d_RELOADSOUND1 %ld\n",i,aplWeaponReloadSound1[i][j]);
-                                fprintf(fp,"WEAPON%d_RELOADSOUND2 %ld\n",i,aplWeaponReloadSound2[i][j]);
-                            }
-                            fprintf(fp,"\n");
-                        }
-                        for (x=0;x<MAXSTATUS;x++)
-                        {
-                            j = headspritestat[x];
-                            while (j >= 0)
-                            {
-                                fprintf(fp,"Sprite %d (%ld,%ld,%ld) (picnum: %d)\n",j,sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].picnum);
-                                for (i=0;i<iGameVarCount;i++)
-                                {
-                                    if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERACTOR))
-                                    {
-                                        if (aGameVars[i].plValues[j] != aDefaultGameVars[i].lValue)
-                                        {
-                                            fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
-                                            fprintf(fp,"%ld",aGameVars[i].plValues[j]);
-                                            fprintf(fp," GAMEVAR_FLAG_PERACTOR");
-                                            if (aGameVars[i].dwFlags != GAMEVAR_FLAG_PERACTOR)
-                                            {
-                                                fprintf(fp," // ");
-                                                if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_SYSTEM))
-                                                {
-                                                    fprintf(fp," (system)");
-                                                }
-                                            }
-                                            fprintf(fp,"\n");
-                                        }
-                                    }
-                                }
-                                fprintf(fp,"\n");
-                                j = nextspritestat[j];
-                            }
-                        }
-                        DumpGameVars(fp);
-                        fclose(fp);
-                        saveboard("debug.map",&ps[myconnectindex].posx,&ps[myconnectindex].posy,&ps[myconnectindex].posz,&ps[myconnectindex].ang,&ps[myconnectindex].cursectnum);
-                        Bsprintf(tempbuf,"GAMEVARS DUMPED TO DEBUG.CON");
-                        adduserquote(tempbuf);
-                        Bsprintf(tempbuf,"MAP DUMPED TO DEBUG.MAP");
-                        adduserquote(tempbuf);
-                    }
+                    dumpdebugdata();
+                    Bsprintf(tempbuf,"GAMEVARS DUMPED TO DEBUG.CON");
+                    adduserquote(tempbuf);
+                    Bsprintf(tempbuf,"MAP DUMPED TO DEBUG.MAP");
+                    adduserquote(tempbuf);
                     break;
 
                 case CHEAT_CLIP:
