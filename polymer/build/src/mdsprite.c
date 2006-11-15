@@ -818,11 +818,21 @@ static long mdloadskin (md2model *m, int number, int pal, int surf)
     return(*texidx);
 }
 
+char mdpause;
+
 //Note: even though it says md2model, it works for both md2model&md3model
 static void updateanimation (md2model *m, spritetype *tspr)
 {
     mdanim_t *anim;
     long i, j;
+
+    if (mdpause)
+    {
+//        spriteext[tspr->owner].mdanimtims = mdtims;
+        m->interpol = 0;
+        m->nframe = m->cframe;
+        return;
+    }
 
     m->cframe = m->nframe = tile2model[tspr->picnum].framenum;
 
@@ -841,13 +851,13 @@ if (!anim) { m->interpol = 0; return; }
         return;
     }
 
-    i = (mdtims-spriteext[tspr->owner].mdanimtims)*anim->fpssc*timerticspersec/120;
+    i = (mdtims-spriteext[tspr->owner].mdanimtims)*((anim->fpssc*timerticspersec)/120);
     j = ((anim->endframe+1-anim->startframe)<<16);
     //Just in case you play the game for a VERY long time...
     if (i < 0) { i = 0; spriteext[tspr->owner].mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
-    if ((i >= j+j) && (anim->fpssc)*timerticspersec/120) //Keep mdanimtims close to mdtims to avoid the use of MOD
-        spriteext[tspr->owner].mdanimtims += j/anim->fpssc*timerticspersec/120;
+    if ((i >= j+j) && (anim->fpssc)) //Keep mdanimtims close to mdtims to avoid the use of MOD
+        spriteext[tspr->owner].mdanimtims += j/((anim->fpssc*timerticspersec)/120);
 
     if (anim->flags&MDANIM_ONESHOT)
     { if (i > j-65536) i = j-65536; }
