@@ -35,22 +35,29 @@ static int  precachecount;
 
 static void tloadtile(short tilenume, char type)
 {
-    if ((picanm[tilenume]&63) > 0) {
+    if ((picanm[tilenume]&63) > 0)
+    {
         int i,j;
 
-        if ((picanm[tilenume]&192)==192) {
+        if ((picanm[tilenume]&192)==192)
+        {
             i = tilenume - (picanm[tilenume]&63);
             j = tilenume;
-        } else {
+        }
+        else
+        {
             i = tilenume;
             j = tilenume + (picanm[tilenume]&63);
         }
-        for (;i<=j;i++) {
+        for (;i<=j;i++)
+        {
             if (!(gotpic[i>>3] & pow2char[i&7])) precachecount++;
             gotpic[i>>3] |= pow2char[i&7];
             precachehightile[type][i>>3] |= pow2char[i&7];
         }
-    } else {
+    }
+    else
+    {
         if (!(gotpic[tilenume>>3] & pow2char[tilenume&7])) precachecount++;
         gotpic[tilenume>>3] |= pow2char[tilenume&7];
         precachehightile[type][tilenume>>3] |= pow2char[tilenume&7];
@@ -72,115 +79,124 @@ void cachespritenum(short i)
 
     switch (dynamictostatic[PN])
     {
-    case HYDRENT__STATIC:
-        tloadtile(BROKEFIREHYDRENT,1);
-        for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
-        break;
-    case TOILET__STATIC:
-        tloadtile(TOILETBROKE,1);
-        for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
-        break;
-    case STALL__STATIC:
-        tloadtile(STALLBROKE,1);
-        for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
-        break;
-    case RUBBERCAN__STATIC:
-        maxc = 2;
-        break;
-    case TOILETWATER__STATIC:
-        maxc = 4;
-        break;
-    case FEMPIC1__STATIC:
-        maxc = 44;
-        break;
-    case LIZTROOP__STATIC:
-    case LIZTROOPRUNNING__STATIC:
-    case LIZTROOPSHOOT__STATIC:
-    case LIZTROOPJETPACK__STATIC:
-    case LIZTROOPONTOILET__STATIC:
-    case LIZTROOPDUCKING__STATIC:
-        for (j = LIZTROOP; j < (LIZTROOP+72); j++) tloadtile(j,1);
-        for (j=HEADJIB1;j<LEGJIB1+3;j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case WOODENHORSE__STATIC:
-        maxc = 5;
-        for (j = HORSEONSIDE; j < (HORSEONSIDE+4); j++) tloadtile(j,1);
-        break;
-    case NEWBEAST__STATIC:
-    case NEWBEASTSTAYPUT__STATIC:
-        maxc = 90;
-        break;
-    case BOSS1__STATIC:
-    case BOSS2__STATIC:
-    case BOSS3__STATIC:
-        maxc = 30;
-        break;
-    case OCTABRAIN__STATIC:
-    case OCTABRAINSTAYPUT__STATIC:
-    case COMMANDER__STATIC:
-    case COMMANDERSTAYPUT__STATIC:
-        maxc = 38;
-        break;
-    case RECON__STATIC:
-        maxc = 13;
-        break;
-    case PIGCOP__STATIC:
-    case PIGCOPDIVE__STATIC:
-        maxc = 61;
-        break;
-    case SHARK__STATIC:
-        maxc = 30;
-        break;
-    case LIZMAN__STATIC:
-    case LIZMANSPITTING__STATIC:
-    case LIZMANFEEDING__STATIC:
-    case LIZMANJUMP__STATIC:
-        for (j=LIZMANHEAD1;j<LIZMANLEG1+3;j++) tloadtile(j,1);
-        maxc = 80;
-        break;
-    case APLAYER__STATIC:
-        maxc = 0;
-        if (ud.multimode > 1)
-        {
+        case HYDRENT__STATIC:
+            tloadtile(BROKEFIREHYDRENT,1);
+            for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
+            break;
+        case TOILET__STATIC:
+            tloadtile(TOILETBROKE,1);
+            for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
+            break;
+        case STALL__STATIC:
+            tloadtile(STALLBROKE,1);
+            for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
+            break;
+        case RUBBERCAN__STATIC:
+            maxc = 2;
+            break;
+        case TOILETWATER__STATIC:
+            maxc = 4;
+            break;
+        case FEMPIC1__STATIC:
+            maxc = 44;
+            break;
+        case LIZTROOP__STATIC:
+        case LIZTROOPRUNNING__STATIC:
+        case LIZTROOPSHOOT__STATIC:
+        case LIZTROOPJETPACK__STATIC:
+        case LIZTROOPONTOILET__STATIC:
+        case LIZTROOPDUCKING__STATIC:
+            for (j = LIZTROOP; j < (LIZTROOP+72); j++) tloadtile(j,1);
+            for (j=HEADJIB1;j<LEGJIB1+3;j++) tloadtile(j,1);
+            maxc = 0;
+            break;
+        case WOODENHORSE__STATIC:
             maxc = 5;
-            for (j = 1420;j < 1420+106; j++) tloadtile(j,1);
-        }
-        break;
-    case ATOMICHEALTH__STATIC:
-        maxc = 14;
-        break;
-    case DRONE__STATIC:
-        maxc = 10;
-        break;
-    case EXPLODINGBARREL__STATIC:
-    case SEENINE__STATIC:
-    case OOZFILTER__STATIC:
-        maxc = 3;
-        break;
-    case NUKEBARREL__STATIC:
-    case CAMERA1__STATIC:
-        maxc = 5;
-        break;
-        // caching of HUD sprites for weapons that may be in the level
-    case CHAINGUNSPRITE__STATIC:
-        for (j=CHAINGUN; j<=CHAINGUN+7; j++) tloadtile(j,1); break;
-    case RPGSPRITE__STATIC:
-        for (j=RPGGUN; j<=RPGGUN+2; j++) tloadtile(j,1); break;
-    case FREEZESPRITE__STATIC:
-        for (j=FREEZE; j<=FREEZE+5; j++) tloadtile(j,1); break;
-    case GROWSPRITEICON__STATIC:
-    case SHRINKERSPRITE__STATIC:
-        for (j=SHRINKER-2; j<=SHRINKER+5; j++) tloadtile(j,1); break;
-    case HBOMBAMMO__STATIC:
-    case HEAVYHBOMB__STATIC:
-        for (j=HANDREMOTE; j<=HANDREMOTE+5; j++) tloadtile(j,1); break;
-    case TRIPBOMBSPRITE__STATIC:
-        for (j=HANDHOLDINGLASER; j<=HANDHOLDINGLASER+4; j++) tloadtile(j,1); break;
-    case SHOTGUNSPRITE__STATIC:
-        tloadtile(SHOTGUNSHELL,1); for (j=SHOTGUN; j<=SHOTGUN+6; j++) tloadtile(j,1); break;
-    case DEVISTATORSPRITE__STATIC:
-        for (j=DEVISTATOR; j<=DEVISTATOR+1; j++) tloadtile(j,1); break;
+            for (j = HORSEONSIDE; j < (HORSEONSIDE+4); j++) tloadtile(j,1);
+            break;
+        case NEWBEAST__STATIC:
+        case NEWBEASTSTAYPUT__STATIC:
+            maxc = 90;
+            break;
+        case BOSS1__STATIC:
+        case BOSS2__STATIC:
+        case BOSS3__STATIC:
+            maxc = 30;
+            break;
+        case OCTABRAIN__STATIC:
+        case OCTABRAINSTAYPUT__STATIC:
+        case COMMANDER__STATIC:
+        case COMMANDERSTAYPUT__STATIC:
+            maxc = 38;
+            break;
+        case RECON__STATIC:
+            maxc = 13;
+            break;
+        case PIGCOP__STATIC:
+        case PIGCOPDIVE__STATIC:
+            maxc = 61;
+            break;
+        case SHARK__STATIC:
+            maxc = 30;
+            break;
+        case LIZMAN__STATIC:
+        case LIZMANSPITTING__STATIC:
+        case LIZMANFEEDING__STATIC:
+        case LIZMANJUMP__STATIC:
+            for (j=LIZMANHEAD1;j<LIZMANLEG1+3;j++) tloadtile(j,1);
+            maxc = 80;
+            break;
+        case APLAYER__STATIC:
+            maxc = 0;
+            if (ud.multimode > 1)
+            {
+                maxc = 5;
+                for (j = 1420;j < 1420+106; j++) tloadtile(j,1);
+            }
+            break;
+        case ATOMICHEALTH__STATIC:
+            maxc = 14;
+            break;
+        case DRONE__STATIC:
+            maxc = 10;
+            break;
+        case EXPLODINGBARREL__STATIC:
+        case SEENINE__STATIC:
+        case OOZFILTER__STATIC:
+            maxc = 3;
+            break;
+        case NUKEBARREL__STATIC:
+        case CAMERA1__STATIC:
+            maxc = 5;
+            break;
+            // caching of HUD sprites for weapons that may be in the level
+        case CHAINGUNSPRITE__STATIC:
+            for (j=CHAINGUN; j<=CHAINGUN+7; j++) tloadtile(j,1);
+            break;
+        case RPGSPRITE__STATIC:
+            for (j=RPGGUN; j<=RPGGUN+2; j++) tloadtile(j,1);
+            break;
+        case FREEZESPRITE__STATIC:
+            for (j=FREEZE; j<=FREEZE+5; j++) tloadtile(j,1);
+            break;
+        case GROWSPRITEICON__STATIC:
+        case SHRINKERSPRITE__STATIC:
+            for (j=SHRINKER-2; j<=SHRINKER+5; j++) tloadtile(j,1);
+            break;
+        case HBOMBAMMO__STATIC:
+        case HEAVYHBOMB__STATIC:
+            for (j=HANDREMOTE; j<=HANDREMOTE+5; j++) tloadtile(j,1);
+            break;
+        case TRIPBOMBSPRITE__STATIC:
+            for (j=HANDHOLDINGLASER; j<=HANDHOLDINGLASER+4; j++) tloadtile(j,1);
+            break;
+        case SHOTGUNSPRITE__STATIC:
+            tloadtile(SHOTGUNSHELL,1);
+            for (j=SHOTGUN; j<=SHOTGUN+6; j++) tloadtile(j,1);
+            break;
+        case DEVISTATORSPRITE__STATIC:
+            for (j=DEVISTATOR; j<=DEVISTATOR+1; j++) tloadtile(j,1);
+            break;
 
     }
 
@@ -274,7 +290,10 @@ void precachenecessarysounds(void)
         {
             j++;
             if ((j&7) == 0)
-            { handleevents(); getpackets(); }
+            {
+                handleevents();
+                getpackets();
+            }
             getsound(i);
         }
 }
@@ -298,7 +317,8 @@ void cacheit(void)
     {
         tloadtile(wall[i].picnum, 0);
 
-        if (wall[i].overpicnum >= 0) {
+        if (wall[i].overpicnum >= 0)
+        {
             tloadtile(wall[i].overpicnum, 0);
         }
     }
@@ -325,17 +345,21 @@ void cacheit(void)
     tc = totalclock;
     j = 0;
 
-    for (i=0;i<MAXTILES;i++) {
-        if (!(i&7) && !gotpic[i>>3]) {
+    for (i=0;i<MAXTILES;i++)
+    {
+        if (!(i&7) && !gotpic[i>>3])
+        {
             i+=7;
             continue;
         }
-        if (gotpic[i>>3] & pow2char[i&7]) {
+        if (gotpic[i>>3] & pow2char[i&7])
+        {
             if (waloff[i] == 0)
                 loadtile((short)i);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (useprecache && !KB_KeyPressed(sc_Space)) {
+            if (useprecache && !KB_KeyPressed(sc_Space))
+            {
                 if (precachehightile[0][i>>3] & pow2char[i&7])
                     for (k=0; k<MAXPALOOKUPS; k++)
                         polymost_precache(i,k,0);
@@ -347,10 +371,16 @@ void cacheit(void)
 #endif
             j++;
             pc++;
-        } else continue;
+        }
+        else continue;
 
-    if ((j&7) == 0) { handleevents(); getpackets(); }
-        if (totalclock - tc > TICRATE/4) {
+        if ((j&7) == 0)
+        {
+            handleevents();
+            getpackets();
+        }
+        if (totalclock - tc > TICRATE/4)
+        {
             sprintf(tempbuf,"Loading textures ... %ld%%\n",min(100,100*pc/precachecount));
             dofrontscreens(tempbuf);
             tc = totalclock;
@@ -369,7 +399,9 @@ void xyzmirror(short i,short wn)
     setviewtotile(wn,tilesizy[wn],tilesizx[wn]);
 
     drawrooms(SX,SY,SZ,SA,100+sprite[i].shade,SECT);
-    display_mirror = 1; animatesprites(SX,SY,SA,65536L); display_mirror = 0;
+    display_mirror = 1;
+    animatesprites(SX,SY,SA,65536L);
+    display_mirror = 0;
     drawmasks();
 
     setviewback();
@@ -391,7 +423,8 @@ void vscrn(void)
     x1 = scale(ss,xdim,160);
     x2 = xdim-x1;
 
-    y1 = ss; y2 = 200;
+    y1 = ss;
+    y2 = 200;
     if (ud.screen_size > 0 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_FRAGBAR) && ud.multimode > 1)
     {
         j = 0;
@@ -440,7 +473,8 @@ void pickrandomspot(short snum)
                     break;
                 }
             }
-        } else i = TRAND%numplayersprites;
+        }
+        else i = TRAND%numplayersprites;
     }
     else i = snum;
 
@@ -596,9 +630,12 @@ void resetinventory(short snum)
 
     p->inven_icon       = 0;
     p->boot_amount = 0;
-    p->scuba_on =           0;p->scuba_amount =         0;
-    p->heat_amount        = 0;p->heat_on = 0;
-    p->jetpack_on =         0;p->jetpack_amount =       0;
+    p->scuba_on =           0;
+    p->scuba_amount =         0;
+    p->heat_amount        = 0;
+    p->heat_on = 0;
+    p->jetpack_on =         0;
+    p->jetpack_amount =       0;
     p->shield_amount =      max_armour_amount;
     p->holoduke_on = -1;
     p->holoduke_amount =    0;
@@ -682,20 +719,32 @@ void setupbackdrop(short sky)
 
     switch (dynamictostatic[sky])
     {
-    case CLOUDYOCEAN__STATIC:
-        parallaxyscale = 65536L;
-        break;
-    case MOONSKY1__STATIC :
-        pskyoff[6]=1; pskyoff[1]=2; pskyoff[4]=2; pskyoff[2]=3;
-        break;
-    case BIGORBIT1__STATIC: // orbit
-        pskyoff[5]=1; pskyoff[6]=2; pskyoff[7]=3; pskyoff[2]=4;
-        break;
-    case LA__STATIC:
-        parallaxyscale = 16384+1024;
-        pskyoff[0]=1; pskyoff[1]=2; pskyoff[2]=1; pskyoff[3]=3;
-        pskyoff[4]=4; pskyoff[5]=0; pskyoff[6]=2; pskyoff[7]=3;
-        break;
+        case CLOUDYOCEAN__STATIC:
+            parallaxyscale = 65536L;
+            break;
+        case MOONSKY1__STATIC :
+            pskyoff[6]=1;
+            pskyoff[1]=2;
+            pskyoff[4]=2;
+            pskyoff[2]=3;
+            break;
+        case BIGORBIT1__STATIC: // orbit
+            pskyoff[5]=1;
+            pskyoff[6]=2;
+            pskyoff[7]=3;
+            pskyoff[2]=4;
+            break;
+        case LA__STATIC:
+            parallaxyscale = 16384+1024;
+            pskyoff[0]=1;
+            pskyoff[1]=2;
+            pskyoff[2]=1;
+            pskyoff[3]=3;
+            pskyoff[4]=4;
+            pskyoff[5]=0;
+            pskyoff[6]=2;
+            pskyoff[7]=3;
+            break;
     }
 
     pskybits=3;
@@ -721,11 +770,11 @@ void prelevel(char g)
 
         switch (sector[i].lotag)
         {
-        case 20:
-        case 22:
-            if (sector[i].floorz > sector[i].ceilingz)
-                sector[i].lotag |= 32768;
-            continue;
+            case 20:
+            case 22:
+                if (sector[i].floorz > sector[i].ceilingz)
+                    sector[i].lotag |= 32768;
+                continue;
         }
 
         if (sector[i].ceilingstat&1)
@@ -772,37 +821,37 @@ void prelevel(char g)
         }
         else switch (dynamictostatic[PN])
             {
-            case GPSPEED__STATIC:
-                sector[SECT].extra = SLT;
-                deletesprite(i);
-                break;
+                case GPSPEED__STATIC:
+                    sector[SECT].extra = SLT;
+                    deletesprite(i);
+                    break;
 
-            case CYCLER__STATIC:
-                if (numcyclers >= MAXCYCLERS)
-                {
-                    Bsprintf(tempbuf,"\nToo many cycling sectors (%d max).",MAXCYCLERS);
-                    gameexit(tempbuf);
-                }
-                cyclers[numcyclers][0] = SECT;
-                cyclers[numcyclers][1] = SLT;
-                cyclers[numcyclers][2] = SS;
-                cyclers[numcyclers][3] = sector[SECT].floorshade;
-                cyclers[numcyclers][4] = SHT;
-                cyclers[numcyclers][5] = (SA == 1536);
-                numcyclers++;
-                deletesprite(i);
-                break;
+                case CYCLER__STATIC:
+                    if (numcyclers >= MAXCYCLERS)
+                    {
+                        Bsprintf(tempbuf,"\nToo many cycling sectors (%d max).",MAXCYCLERS);
+                        gameexit(tempbuf);
+                    }
+                    cyclers[numcyclers][0] = SECT;
+                    cyclers[numcyclers][1] = SLT;
+                    cyclers[numcyclers][2] = SS;
+                    cyclers[numcyclers][3] = sector[SECT].floorshade;
+                    cyclers[numcyclers][4] = SHT;
+                    cyclers[numcyclers][5] = (SA == 1536);
+                    numcyclers++;
+                    deletesprite(i);
+                    break;
 
-            case SECTOREFFECTOR__STATIC:
-            case ACTIVATOR__STATIC:
-            case TOUCHPLATE__STATIC:
-            case ACTIVATORLOCKED__STATIC:
-            case MUSICANDSFX__STATIC:
-            case LOCATORS__STATIC:
-            case MASTERSWITCH__STATIC:
-            case RESPAWN__STATIC:
-                sprite[i].cstat = 0;
-                break;
+                case SECTOREFFECTOR__STATIC:
+                case ACTIVATOR__STATIC:
+                case TOUCHPLATE__STATIC:
+                case ACTIVATORLOCKED__STATIC:
+                case MUSICANDSFX__STATIC:
+                case LOCATORS__STATIC:
+                case MASTERSWITCH__STATIC:
+                case RESPAWN__STATIC:
+                    sprite[i].cstat = 0;
+                    break;
             }
         i = nexti;
     }
@@ -831,39 +880,39 @@ void prelevel(char g)
     {
         switch (dynamictostatic[PN-1])
         {
-        case DIPSWITCH__STATIC:
-        case DIPSWITCH2__STATIC:
-        case PULLSWITCH__STATIC:
-        case HANDSWITCH__STATIC:
-        case SLOTDOOR__STATIC:
-        case LIGHTSWITCH__STATIC:
-        case SPACELIGHTSWITCH__STATIC:
-        case SPACEDOORSWITCH__STATIC:
-        case FRANKENSTINESWITCH__STATIC:
-        case LIGHTSWITCH2__STATIC:
-        case POWERSWITCH1__STATIC:
-        case LOCKSWITCH1__STATIC:
-        case POWERSWITCH2__STATIC:
-            for (j=0;j<lotaglist;j++)
-                if (SLT == lotags[j])
-                    break;
+            case DIPSWITCH__STATIC:
+            case DIPSWITCH2__STATIC:
+            case PULLSWITCH__STATIC:
+            case HANDSWITCH__STATIC:
+            case SLOTDOOR__STATIC:
+            case LIGHTSWITCH__STATIC:
+            case SPACELIGHTSWITCH__STATIC:
+            case SPACEDOORSWITCH__STATIC:
+            case FRANKENSTINESWITCH__STATIC:
+            case LIGHTSWITCH2__STATIC:
+            case POWERSWITCH1__STATIC:
+            case LOCKSWITCH1__STATIC:
+            case POWERSWITCH2__STATIC:
+                for (j=0;j<lotaglist;j++)
+                    if (SLT == lotags[j])
+                        break;
 
-            if (j == lotaglist)
-            {
-                lotags[lotaglist] = SLT;
-                lotaglist++;
-                if (lotaglist > 64)
-                    gameexit("\nToo many switches (64 max).");
-
-                j = headspritestat[3];
-                while (j >= 0)
+                if (j == lotaglist)
                 {
-                    if (sprite[j].lotag == 12 && sprite[j].hitag == SLT)
-                        hittype[j].temp_data[0] = 1;
-                    j = nextspritestat[j];
+                    lotags[lotaglist] = SLT;
+                    lotaglist++;
+                    if (lotaglist > 64)
+                        gameexit("\nToo many switches (64 max).");
+
+                    j = headspritestat[3];
+                    while (j >= 0)
+                    {
+                        if (sprite[j].lotag == 12 && sprite[j].hitag == SLT)
+                            hittype[j].temp_data[0] = 1;
+                        j = nextspritestat[j];
+                    }
                 }
-            }
-            break;
+                break;
         }
         i = nextspritestat[i];
     }
@@ -901,110 +950,111 @@ void prelevel(char g)
         animwall[numanimwalls].tag = 0;
         animwall[numanimwalls].wallnum = 0;
         switchpicnum = wal->overpicnum;
-        if ((wal->overpicnum > W_FORCEFIELD)&&(wal->overpicnum <= W_FORCEFIELD+2)) {
+        if ((wal->overpicnum > W_FORCEFIELD)&&(wal->overpicnum <= W_FORCEFIELD+2))
+        {
             switchpicnum = W_FORCEFIELD;
         }
         switch (dynamictostatic[switchpicnum])
         {
-        case FANSHADOW__STATIC:
-        case FANSPRITE__STATIC:
-            wall->cstat |= 65;
-            animwall[numanimwalls].wallnum = i;
-            numanimwalls++;
-            break;
+            case FANSHADOW__STATIC:
+            case FANSPRITE__STATIC:
+                wall->cstat |= 65;
+                animwall[numanimwalls].wallnum = i;
+                numanimwalls++;
+                break;
 
-        case W_FORCEFIELD__STATIC:
-            if (wal->overpicnum==W_FORCEFIELD__STATIC)
-                for (j=0;j<3;j++)
-                    tloadtile(W_FORCEFIELD+j, 0);
-            if (wal->shade > 31)
-                wal->cstat = 0;
-            else wal->cstat |= 85+256;
+            case W_FORCEFIELD__STATIC:
+                if (wal->overpicnum==W_FORCEFIELD__STATIC)
+                    for (j=0;j<3;j++)
+                        tloadtile(W_FORCEFIELD+j, 0);
+                if (wal->shade > 31)
+                    wal->cstat = 0;
+                else wal->cstat |= 85+256;
 
 
-            if (wal->lotag && wal->nextwall >= 0)
-                wall[wal->nextwall].lotag =
-                    wal->lotag;
+                if (wal->lotag && wal->nextwall >= 0)
+                    wall[wal->nextwall].lotag =
+                        wal->lotag;
 
-        case BIGFORCE__STATIC:
+            case BIGFORCE__STATIC:
 
-            animwall[numanimwalls].wallnum = i;
-            numanimwalls++;
+                animwall[numanimwalls].wallnum = i;
+                numanimwalls++;
 
-            continue;
+                continue;
         }
 
         wal->extra = -1;
 
         switch (dynamictostatic[wal->picnum])
         {
-        case WATERTILE2__STATIC:
-            for (j=0;j<3;j++)
-                tloadtile(wal->picnum+j, 0);
-            break;
+            case WATERTILE2__STATIC:
+                for (j=0;j<3;j++)
+                    tloadtile(wal->picnum+j, 0);
+                break;
 
-        case TECHLIGHT2__STATIC:
-        case TECHLIGHT4__STATIC:
-            tloadtile(wal->picnum, 0);
-            break;
-        case W_TECHWALL1__STATIC:
-        case W_TECHWALL2__STATIC:
-        case W_TECHWALL3__STATIC:
-        case W_TECHWALL4__STATIC:
-            animwall[numanimwalls].wallnum = i;
-            //                animwall[numanimwalls].tag = -1;
-            numanimwalls++;
-            break;
-        case SCREENBREAK6__STATIC:
-        case SCREENBREAK7__STATIC:
-        case SCREENBREAK8__STATIC:
-            for (j=SCREENBREAK6;j<SCREENBREAK9;j++)
-                tloadtile(j, 0);
-            animwall[numanimwalls].wallnum = i;
-            animwall[numanimwalls].tag = -1;
-            numanimwalls++;
-            break;
+            case TECHLIGHT2__STATIC:
+            case TECHLIGHT4__STATIC:
+                tloadtile(wal->picnum, 0);
+                break;
+            case W_TECHWALL1__STATIC:
+            case W_TECHWALL2__STATIC:
+            case W_TECHWALL3__STATIC:
+            case W_TECHWALL4__STATIC:
+                animwall[numanimwalls].wallnum = i;
+                //                animwall[numanimwalls].tag = -1;
+                numanimwalls++;
+                break;
+            case SCREENBREAK6__STATIC:
+            case SCREENBREAK7__STATIC:
+            case SCREENBREAK8__STATIC:
+                for (j=SCREENBREAK6;j<SCREENBREAK9;j++)
+                    tloadtile(j, 0);
+                animwall[numanimwalls].wallnum = i;
+                animwall[numanimwalls].tag = -1;
+                numanimwalls++;
+                break;
 
-        case FEMPIC1__STATIC:
-        case FEMPIC2__STATIC:
-        case FEMPIC3__STATIC:
+            case FEMPIC1__STATIC:
+            case FEMPIC2__STATIC:
+            case FEMPIC3__STATIC:
 
-            wal->extra = wal->picnum;
-            animwall[numanimwalls].tag = -1;
-            if (ud.lockout)
-            {
-                if (wal->picnum == FEMPIC1)
-                    wal->picnum = BLANKSCREEN;
-                else wal->picnum = SCREENBREAK6;
-            }
+                wal->extra = wal->picnum;
+                animwall[numanimwalls].tag = -1;
+                if (ud.lockout)
+                {
+                    if (wal->picnum == FEMPIC1)
+                        wal->picnum = BLANKSCREEN;
+                    else wal->picnum = SCREENBREAK6;
+                }
 
-            animwall[numanimwalls].wallnum = i;
-            animwall[numanimwalls].tag = wal->picnum;
-            numanimwalls++;
-            break;
+                animwall[numanimwalls].wallnum = i;
+                animwall[numanimwalls].tag = wal->picnum;
+                numanimwalls++;
+                break;
 
-        case SCREENBREAK1__STATIC:
-        case SCREENBREAK2__STATIC:
-        case SCREENBREAK3__STATIC:
-        case SCREENBREAK4__STATIC:
-        case SCREENBREAK5__STATIC:
+            case SCREENBREAK1__STATIC:
+            case SCREENBREAK2__STATIC:
+            case SCREENBREAK3__STATIC:
+            case SCREENBREAK4__STATIC:
+            case SCREENBREAK5__STATIC:
 
-        case SCREENBREAK9__STATIC:
-        case SCREENBREAK10__STATIC:
-        case SCREENBREAK11__STATIC:
-        case SCREENBREAK12__STATIC:
-        case SCREENBREAK13__STATIC:
-        case SCREENBREAK14__STATIC:
-        case SCREENBREAK15__STATIC:
-        case SCREENBREAK16__STATIC:
-        case SCREENBREAK17__STATIC:
-        case SCREENBREAK18__STATIC:
-        case SCREENBREAK19__STATIC:
+            case SCREENBREAK9__STATIC:
+            case SCREENBREAK10__STATIC:
+            case SCREENBREAK11__STATIC:
+            case SCREENBREAK12__STATIC:
+            case SCREENBREAK13__STATIC:
+            case SCREENBREAK14__STATIC:
+            case SCREENBREAK15__STATIC:
+            case SCREENBREAK16__STATIC:
+            case SCREENBREAK17__STATIC:
+            case SCREENBREAK18__STATIC:
+            case SCREENBREAK19__STATIC:
 
-            animwall[numanimwalls].wallnum = i;
-            animwall[numanimwalls].tag = wal->picnum;
-            numanimwalls++;
-            break;
+                animwall[numanimwalls].wallnum = i;
+                animwall[numanimwalls].tag = wal->picnum;
+                numanimwalls++;
+                break;
         }
     }
 
@@ -1027,8 +1077,16 @@ void newgame(char vn,char ln,char sk)
     short i;
 
     if (globalskillsound >= 0 && FXDevice >= 0 && SoundToggle)
-    while (issoundplaying(-1,globalskillsound)) { handleevents(); getpackets(); }
-    else { handleevents(); getpackets(); }
+        while (issoundplaying(-1,globalskillsound))
+        {
+            handleevents();
+            getpackets();
+        }
+    else
+    {
+        handleevents();
+        getpackets();
+    }
     globalskillsound = -1;
 
     waitforeverybody();
@@ -1238,8 +1296,10 @@ void resetpspritevars(char g)
                 {
                     int k;
 
-                    for (k=0;k<MAXPLAYERS;k++) {
-                        if (which_palookup == ps[k].palookup) {
+                    for (k=0;k<MAXPLAYERS;k++)
+                    {
+                        if (which_palookup == ps[k].palookup)
+                        {
                             which_palookup++;
                             if (which_palookup >= 17)
                                 which_palookup = 9;
@@ -1260,10 +1320,12 @@ void resetpspritevars(char g)
                 {
                     switch (ud.pteam[j])
                     {
-                    case 0:
-                        k = 3; break;
-                    case 1:
-                        k = 21; break;
+                        case 0:
+                            k = 3;
+                            break;
+                        case 1:
+                            k = 21;
+                            break;
                     }
                     ps[j].team = ud.pteam[j];
                 }
@@ -1378,7 +1440,11 @@ void waitforeverybody()
         for (i=connecthead;i>=0;i=connectpoint2[i])
         {
             if (playerreadyflag[i] < playerreadyflag[myconnectindex]) break;
-        if ((!networkmode) && (myconnectindex != connecthead)) { i = -1; break; } //slaves in M/S mode only wait for master
+            if ((!networkmode) && (myconnectindex != connecthead))
+            {
+                i = -1;
+                break;
+            } //slaves in M/S mode only wait for master
 
         }
         if (i < 0) return;
@@ -1391,7 +1457,8 @@ void dofrontscreens(char *statustext)
 
     if (ud.recstat != 2)
     {
-        if (!statustext) {
+        if (!statustext)
+        {
             //ps[myconnectindex].palette = palette;
             setgamepalette(&ps[myconnectindex], palette, 1);    // JBF 20040308
             fadepal(0,0,0, 0,64,7);
@@ -1548,7 +1615,8 @@ int enterlevel(char g)
     vscrn();
     ud.screen_size = i;
 
-    if (!VOLUMEONE) {
+    if (!VOLUMEONE)
+    {
 
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
         {
@@ -1557,12 +1625,20 @@ int enterlevel(char g)
                 initprintf("Map %s not found!\n",boardfilename);
                 //gameexit(tempbuf);
                 return 1;
-            } else {
+            }
+            else
+            {
                 char *p;
                 strcpy(levname, boardfilename);
                 p = Bstrrchr(levname,'.');
                 if (!p) strcat(levname,".mhk");
-            else { p[1]='m'; p[2]='h'; p[3]='k'; p[4]=0; }
+                else
+                {
+                    p[1]='m';
+                    p[2]='h';
+                    p[3]='k';
+                    p[4]=0;
+                }
                 if (!loadmaphack(levname)) initprintf("Loaded map hack file %s\n",levname);
             }
         }
@@ -1571,16 +1647,26 @@ int enterlevel(char g)
             initprintf("Map %s not found!\n",level_file_names[(ud.volume_number*11)+ud.level_number]);
             //gameexit(tempbuf);
             return 1;
-        } else {
+        }
+        else
+        {
             char *p;
             strcpy(levname, level_file_names[(ud.volume_number*11)+ud.level_number]);
             p = Bstrrchr(levname,'.');
             if (!p) strcat(levname,".mhk");
-        else { p[1]='m'; p[2]='h'; p[3]='k'; p[4]=0; }
+            else
+            {
+                p[1]='m';
+                p[2]='h';
+                p[3]='k';
+                p[4]=0;
+            }
             if (!loadmaphack(levname)) initprintf("Loaded map hack file %s\n",levname);
         }
 
-    } else {
+    }
+    else
+    {
 
         l = strlen(level_file_names[(ud.volume_number*11)+ud.level_number]);
         copybufbyte(level_file_names[(ud.volume_number*11)+ud.level_number],&levname[0],l);
@@ -1592,11 +1678,19 @@ int enterlevel(char g)
             initprintf("Map %s not found!\n",level_file_names[(ud.volume_number*11)+ud.level_number]);
             //gameexit(tempbuf);
             return 1;
-        } else {
+        }
+        else
+        {
             char *p;
             p = Bstrrchr(levname,'.');
             if (!p) strcat(levname,".mhk");
-        else { p[1]='m'; p[2]='h'; p[3]='k'; p[4]=0; }
+            else
+            {
+                p[1]='m';
+                p[2]='h';
+                p[3]='k';
+                p[4]=0;
+            }
             if (!loadmaphack(levname)) initprintf("Loaded map hack file %s\n",levname);
         }
     }
@@ -1636,23 +1730,24 @@ int enterlevel(char g)
     if ((ud.recstat == 1) && (g&MODE_RESTART) != MODE_RESTART)
         opendemowrite();
 
-    if (VOLUMEONE) {
+    if (VOLUMEONE)
+    {
         if (ud.level_number == 0 && ud.recstat != 2) FTA(40,&ps[myconnectindex]);
     }
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
         switch (dynamictostatic[sector[sprite[ps[i].i].sectnum].floorpicnum])
         {
-        case HURTRAIL__STATIC:
-        case FLOORSLIME__STATIC:
-        case FLOORPLASMA__STATIC:
-            resetweapons(i);
-            resetinventory(i);
-            ps[i].gotweapon[PISTOL_WEAPON] = 0;
-            ps[i].ammo_amount[PISTOL_WEAPON] = 0;
-            ps[i].curr_weapon = KNEE_WEAPON;
-            ps[i].kickback_pic = 0;
-            break;
+            case HURTRAIL__STATIC:
+            case FLOORSLIME__STATIC:
+            case FLOORPLASMA__STATIC:
+                resetweapons(i);
+                resetinventory(i);
+                ps[i].gotweapon[PISTOL_WEAPON] = 0;
+                ps[i].ammo_amount[PISTOL_WEAPON] = 0;
+                ps[i].curr_weapon = KNEE_WEAPON;
+                ps[i].kickback_pic = 0;
+                break;
         }
 
     //PREMAP.C - replace near the my's at the end of the file

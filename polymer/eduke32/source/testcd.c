@@ -45,7 +45,8 @@ char testcd(char *fn, long testsiz)
     strcat(name,fn);
 
     driveletters = GetLogicalDrives();
-    for (i=2; i<26; i++) {
+    for (i=2; i<26; i++)
+    {
         if (!(driveletters & (1ul<<i))) continue;
         driv[0] = 'A'+i;
         if (GetDriveType(driv) != DRIVE_CDROM) continue;
@@ -56,7 +57,8 @@ char testcd(char *fn, long testsiz)
         dalen = Bfilelength(fil);
         Bclose(fil);
 
-        if (dalen == testsiz) {
+        if (dalen == testsiz)
+        {
             initprintf("Copy Protection: Found CDROM in drive %c:\n", driv[0]);
             return 0;
         }

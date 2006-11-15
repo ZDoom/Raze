@@ -41,7 +41,8 @@ int loadpheader(char spot,struct savehead *saveh)
     //    AddLog(g_szBuf);
 
     if (kdfread(&bv,4,1,fil) != 1) goto corrupt;
-    if (bv != BYTEVERSION) {
+    if (bv != BYTEVERSION)
+    {
         FTA(114,&ps[myconnectindex]);
         kclose(fil);
         return 1;
@@ -56,7 +57,8 @@ int loadpheader(char spot,struct savehead *saveh)
     if (kdfread(saveh->boardfn,BMAX_PATH,1,fil) != 1) goto corrupt;
 
     if (waloff[TILE_LOADSHOT] == 0) allocache(&waloff[TILE_LOADSHOT],320*200,&walock[TILE_LOADSHOT]);
-    tilesizx[TILE_LOADSHOT] = 200; tilesizy[TILE_LOADSHOT] = 320;
+    tilesizx[TILE_LOADSHOT] = 200;
+    tilesizy[TILE_LOADSHOT] = 320;
     if (kdfread((char *)waloff[TILE_LOADSHOT],320,200,fil) != 200) goto corrupt;
     invalidatetile(TILE_LOADSHOT,0,255);
 
@@ -133,7 +135,8 @@ int loadplayer(signed char spot)
         ready2send = 1;
         FTA(124,&ps[myconnectindex]);
         return 1;
-    } else ud.multimode = nump;
+    }
+    else ud.multimode = nump;
 
     if (numplayers > 1)
     {
@@ -151,9 +154,12 @@ int loadplayer(signed char spot)
     clearsoundlocks();
     MUSIC_StopSong();
 
-    if (numplayers > 1) {
+    if (numplayers > 1)
+    {
         if (kdfread(&buf,19,1,fil) != 1) goto corrupt;
-    } else {
+    }
+    else
+    {
         if (kdfread(&ud.savegame[spot][0],19,1,fil) != 1) goto corrupt;
     }
 
@@ -170,7 +176,8 @@ int loadplayer(signed char spot)
     //Fake read because lseek won't work with compression
     walock[TILE_LOADSHOT] = 1;
     if (waloff[TILE_LOADSHOT] == 0) allocache(&waloff[TILE_LOADSHOT],320*200,&walock[TILE_LOADSHOT]);
-    tilesizx[TILE_LOADSHOT] = 200; tilesizy[TILE_LOADSHOT] = 320;
+    tilesizx[TILE_LOADSHOT] = 200;
+    tilesizy[TILE_LOADSHOT] = 320;
     if (kdfread((char *)waloff[TILE_LOADSHOT],320,200,fil) != 200) goto corrupt;
     invalidatetile(TILE_LOADSHOT,0,255);
 
@@ -372,13 +379,13 @@ int loadplayer(signed char spot)
         for (x=0;x<numanimwalls;x++)
             switch (dynamictostatic[wall[animwall[x].wallnum].picnum])
             {
-            case FEMPIC1__STATIC:
-                wall[animwall[x].wallnum].picnum = BLANKSCREEN;
-                break;
-            case FEMPIC2__STATIC:
-            case FEMPIC3__STATIC:
-                wall[animwall[x].wallnum].picnum = SCREENBREAK6;
-                break;
+                case FEMPIC1__STATIC:
+                    wall[animwall[x].wallnum].picnum = BLANKSCREEN;
+                    break;
+                case FEMPIC2__STATIC:
+                case FEMPIC3__STATIC:
+                    wall[animwall[x].wallnum].picnum = SCREENBREAK6;
+                    break;
             }
     }
 
@@ -390,31 +397,31 @@ int loadplayer(signed char spot)
     {
         switch (sprite[k].lotag)
         {
-        case 31:
-            setinterpolation(&sector[sprite[k].sectnum].floorz);
-            break;
-        case 32:
-            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
-            break;
-        case 25:
-            setinterpolation(&sector[sprite[k].sectnum].floorz);
-            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
-            break;
-        case 17:
-            setinterpolation(&sector[sprite[k].sectnum].floorz);
-            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
-            break;
-        case 0:
-        case 5:
-        case 6:
-        case 11:
-        case 14:
-        case 15:
-        case 16:
-        case 26:
-        case 30:
-            setsectinterpolate(k);
-            break;
+            case 31:
+                setinterpolation(&sector[sprite[k].sectnum].floorz);
+                break;
+            case 32:
+                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+                break;
+            case 25:
+                setinterpolation(&sector[sprite[k].sectnum].floorz);
+                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+                break;
+            case 17:
+                setinterpolation(&sector[sprite[k].sectnum].floorz);
+                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+                break;
+            case 0:
+            case 5:
+            case 6:
+            case 11:
+            case 14:
+            case 15:
+            case 16:
+            case 26:
+            case 30:
+                setsectinterpolate(k);
+                break;
         }
 
         k = nextspritestat[k];
@@ -503,7 +510,8 @@ int saveplayer(signed char spot)
     dfwrite(&ud.level_number,sizeof(ud.level_number),1,fil);
     dfwrite(&ud.player_skill,sizeof(ud.player_skill),1,fil);
     dfwrite(&boardfilename[0],BMAX_PATH,1,fil);
-    if (!waloff[TILE_SAVESHOT]) {
+    if (!waloff[TILE_SAVESHOT])
+    {
         walock[TILE_SAVESHOT] = 254;
         allocache((long *)&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
         clearbuf((void*)waloff[TILE_SAVESHOT],(200*320)/4,0);

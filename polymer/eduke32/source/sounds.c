@@ -50,15 +50,18 @@ void SoundStartup(void)
     if (FXDevice < 0) return;
 
     status = FX_Init(FXDevice, NumVoices, NumChannels, NumBits, MixRate);
-    if (status == FX_Ok) {
+    if (status == FX_Ok)
+    {
         FX_SetVolume(FXVolume);
-        if (ReverseStereo == 1) {
+        if (ReverseStereo == 1)
+        {
             FX_SetReverseStereo(!FX_GetReverseStereo());
         }
         status = FX_SetCallBack(testcallback);
     }
 
-    if (status != FX_Ok) {
+    if (status != FX_Ok)
+    {
         sprintf(tempbuf, "Sound startup error: %s", FX_ErrorString(FX_Error));
         gameexit(tempbuf);
     }
@@ -81,7 +84,8 @@ void SoundShutdown(void)
         return;
 
     status = FX_Shutdown();
-    if (status != FX_Ok) {
+    if (status != FX_Ok)
+    {
         sprintf(tempbuf, "Sound shutdown error: %s", FX_ErrorString(FX_Error));
         gameexit(tempbuf);
     }
@@ -314,20 +318,20 @@ int xyzsound(short num,short i,long x,long y,long z)
 
     switch (num)
     {
-    case PIPEBOMB_EXPLODE:
-    case LASERTRIP_EXPLODE:
-    case RPG_EXPLODE:
-        if (sndist > (6144))
-            sndist = 6144;
-        if (sector[ps[screenpeek].cursectnum].lotag == 2)
-            pitch -= 1024;
-        break;
-    default:
-        if (sector[ps[screenpeek].cursectnum].lotag == 2 && (soundm[num]&4) == 0)
-            pitch = -768;
-        if (sndist > 31444 && PN != MUSICANDSFX)
-            return -1;
-        break;
+        case PIPEBOMB_EXPLODE:
+        case LASERTRIP_EXPLODE:
+        case RPG_EXPLODE:
+            if (sndist > (6144))
+                sndist = 6144;
+            if (sector[ps[screenpeek].cursectnum].lotag == 2)
+                pitch -= 1024;
+            break;
+        default:
+            if (sector[ps[screenpeek].cursectnum].lotag == 2 && (soundm[num]&4) == 0)
+                pitch = -768;
+            if (sndist > 31444 && PN != MUSICANDSFX)
+                return -1;
+            break;
     }
 
     if (ps[screenpeek].sound_pitch) pitch += ps[screenpeek].sound_pitch;
@@ -350,7 +354,10 @@ int xyzsound(short num,short i,long x,long y,long z)
         sndang &= 2047;
     }
 
-    if (Sound[num].ptr == 0) { if (loadsound(num) == 0) return 0; }
+    if (Sound[num].ptr == 0)
+    {
+        if (loadsound(num) == 0) return 0;
+    }
     else
     {
         if (Sound[num].lock < 200)
@@ -420,7 +427,10 @@ void sound(short num)
     }
     else pitch = pitchs;
 
-if (Sound[num].ptr == 0) { if (loadsound(num) == 0) return; }
+    if (Sound[num].ptr == 0)
+    {
+        if (loadsound(num) == 0) return;
+    }
     else
     {
         if (Sound[num].lock < 200)
@@ -548,17 +558,17 @@ void pan3dsound(void)
 
             switch (j)
             {
-            case PIPEBOMB_EXPLODE:
-            case LASERTRIP_EXPLODE:
-            case RPG_EXPLODE:
-                if (sndist > (6144)) sndist = (6144);
-                break;
-            default:
-                if (sndist > 31444 && PN != MUSICANDSFX)
-                {
-                    stopsound(j);
-                    continue;
-                }
+                case PIPEBOMB_EXPLODE:
+                case LASERTRIP_EXPLODE:
+                case RPG_EXPLODE:
+                    if (sndist > (6144)) sndist = (6144);
+                    break;
+                default:
+                    if (sndist > 31444 && PN != MUSICANDSFX)
+                    {
+                        stopsound(j);
+                        continue;
+                    }
             }
 
             if (Sound[j].ptr == 0 && loadsound(j) == 0) continue;
@@ -630,7 +640,8 @@ int isspritemakingsound(short i, int num)
 
 int issoundplaying(short i, int num)
 {
-    if (i == -1) {
+    if (i == -1)
+    {
         if (Sound[num].lock == 200)
             return 1;
         else return 0;

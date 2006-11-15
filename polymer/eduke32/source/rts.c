@@ -72,7 +72,8 @@ int32 RTS_AddFile(char *filename)
     //      FIXME: shared opens
 
     handle = kopen4load(filename, 0);
-    if (handle < 0) {
+    if (handle < 0)
+    {
         initprintf("RTS file %s was not found\n",filename);
         return -1;
     }
@@ -82,7 +83,8 @@ int32 RTS_AddFile(char *filename)
     // WAD file
     initprintf("    Adding %s.\n",filename);
     kread(handle, &header, sizeof(header));
-    if (strncmp(header.identification,"IWAD",4)) {
+    if (strncmp(header.identification,"IWAD",4))
+    {
         initprintf("RTS file %s doesn't have IWAD id\n",filename);
         kclose(handle);
         return -1;
@@ -91,7 +93,8 @@ int32 RTS_AddFile(char *filename)
     header.infotableofs = IntelLong(header.infotableofs);
     length = header.numlumps*sizeof(filelump_t);
     fileinfo = fileinfoo = (filelump_t*)malloc(length);
-    if (!fileinfo) {
+    if (!fileinfo)
+    {
         initprintf("RTS file could not allocate header info\n");
         kclose(handle);
         return -1;
@@ -103,7 +106,8 @@ int32 RTS_AddFile(char *filename)
     // Fill in lumpinfo
     //
     lump_p = realloc(lumpinfo, (numlumps + header.numlumps)*sizeof(lumpinfo_t));
-    if (!lump_p) {
+    if (!lump_p)
+    {
         kclose(handle);
         return -1;
     }

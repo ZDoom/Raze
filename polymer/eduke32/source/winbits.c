@@ -72,7 +72,8 @@ void Error(char *error, ...)
 
     Shutdown();
 
-    if (error) {
+    if (error)
+    {
         va_start(va, error);
         vsprintf(buf, error, va);
         va_end(va);

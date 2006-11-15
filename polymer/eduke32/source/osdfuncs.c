@@ -17,8 +17,13 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
 {
     short ac;
 
-    for (x = (x<<3)+x; len>0; len--, ch++, x++) {
-        if (*ch == 32) { x+=5; continue; }
+    for (x = (x<<3)+x; len>0; len--, ch++, x++)
+    {
+        if (*ch == 32)
+        {
+            x+=5;
+            continue;
+        }
         ac = *ch-'!'+STARTALPHANUM;
         if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
 
@@ -70,18 +75,22 @@ void GAME_clearbackground(int c, int r)
     long x, y, xsiz, ysiz, tx2, ty2;
     long daydim, bits;
 
-    if (getrendermode() < 3) bits = BITS; else bits = BITSTL;
+    if (getrendermode() < 3) bits = BITS;
+    else bits = BITSTL;
 
     daydim = r<<3;
 
-    xsiz = tilesizx[BGTILE]; tx2 = xdim/xsiz;
-    ysiz = tilesizy[BGTILE]; ty2 = daydim/ysiz;
+    xsiz = tilesizx[BGTILE];
+    tx2 = xdim/xsiz;
+    ysiz = tilesizy[BGTILE];
+    ty2 = daydim/ysiz;
 
     for (x=0;x<=tx2;x++)
         for (y=0;y<=ty2;y++)
             rotatesprite(x*xsiz<<16,y*ysiz<<16,65536L,0,BGTILE,SHADE,PALETTE,bits,0,0,xdim,daydim);
 
-    xsiz = tilesizy[BORDTILE]; tx2 = xdim/xsiz;
+    xsiz = tilesizy[BORDTILE];
+    tx2 = xdim/xsiz;
     ysiz = tilesizx[BORDTILE];
 
     for (x=0;x<=tx2;x++)

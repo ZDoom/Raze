@@ -27,12 +27,14 @@
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1
 
-static struct {
+static struct
+{
     int fullscreen;
     int xdim3d, ydim3d, bpp3d;
     int forcesetup;
     int usemouse, usejoy;
-} settings;
+}
+settings;
 
 extern int gtkenabled;
 
@@ -64,7 +66,8 @@ static void SetPage(int n)
     gtk_notebook_set_current_page(GTK_NOTEBOOK(lookup_widget(startwin,"tabs")), n);
 
     // each control in the config page vertical layout plus the start button should be made (in)sensitive
-    if (n == TAB_CONFIG) n = TRUE; else n = FALSE;
+    if (n == TAB_CONFIG) n = TRUE;
+    else n = FALSE;
     gtk_widget_set_sensitive(lookup_widget(startwin,"startbutton"), n);
     gtk_container_foreach(GTK_CONTAINER(lookup_widget(startwin,"configvlayout")),
                           (GtkCallback)gtk_widget_set_sensitive, (gpointer)n);
@@ -80,10 +83,16 @@ static void PopulateForm(void)
     char buf[64];
 
     mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, settings.bpp3d, settings.fullscreen, 1);
-    if (mode3d < 0) {
+    if (mode3d < 0)
+    {
         int i, cd[] = { 32, 24, 16, 15, 8, 0 };
-        for (i=0; cd[i];) { if (cd[i] >= settings.bpp3d) i++; else break; }
-        for (; cd[i]; i++) {
+        for (i=0; cd[i];)
+        {
+            if (cd[i] >= settings.bpp3d) i++;
+            else break;
+        }
+        for (; cd[i]; i++)
+        {
             mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, cd[i], settings.fullscreen, 1);
             if (mode3d < 0) continue;
             settings.bpp3d = cd[i];
@@ -98,14 +107,16 @@ static void PopulateForm(void)
     modes3d = GTK_LIST_STORE(gtk_combo_box_get_model(box3d));
     gtk_list_store_clear(modes3d);
 
-    for (i=0; i<validmodecnt; i++) {
+    for (i=0; i<validmodecnt; i++)
+    {
         if (validmode[i].fs != settings.fullscreen) continue;
 
         // all modes get added to the 3D mode list
         Bsprintf(buf, "%ld x %ld %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
         gtk_list_store_append(modes3d, &iter);
         gtk_list_store_set(modes3d, &iter, 0,buf, 1,i, -1);
-        if (i == mode3d) {
+        if (i == mode3d)
+        {
             g_signal_handlers_block_by_func(box3d, on_vmode3dcombo_changed, NULL);
             gtk_combo_box_set_active_iter(box3d, &iter);
             g_signal_handlers_unblock_by_func(box3d, on_vmode3dcombo_changed, NULL);
@@ -143,7 +154,11 @@ static void on_alwaysshowcheck_toggled(GtkToggleButton *togglebutton, gpointer u
 
 static void on_cancelbutton_clicked(GtkButton *button, gpointer user_data)
 {
-    if (mode == TAB_CONFIG) { retval = 0; gtk_main_quit(); }
+    if (mode == TAB_CONFIG)
+    {
+        retval = 0;
+        gtk_main_quit();
+    }
     else quitevent++;
 }
 
@@ -154,8 +169,7 @@ static void on_startbutton_clicked(GtkButton *button, gpointer user_data)
 }
 
 static void on_sounddrvcombo_changed(GtkComboBox *combobox, gpointer user_data)
-{
-}
+{}
 
 static void on_inputmousecheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
@@ -169,7 +183,11 @@ static void on_inputjoycheck_toggled(GtkToggleButton *togglebutton, gpointer use
 
 static gboolean on_startwin_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-    if (mode == TAB_CONFIG) { retval = 0; gtk_main_quit(); }
+    if (mode == TAB_CONFIG)
+    {
+        retval = 0;
+        gtk_main_quit();
+    }
     else quitevent++;
     return TRUE;	// FALSE would let the event go through. we want the game to decide when to close
 }
@@ -503,7 +521,8 @@ int startwin_open(void)
     if (startwin) return 1;
 
     startwin = create_window();
-    if (startwin) {
+    if (startwin)
+    {
         SetPage(TAB_MESSAGES);
         gtk_widget_show(startwin);
         gtk_main_iteration_do(FALSE);
@@ -535,33 +554,35 @@ int startwin_puts(const char *str)
     textbuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
 
     gtk_text_buffer_get_end_iter(textbuffer, &enditer);
-    for (aptr = bptr = str; *aptr != 0;) {
-        switch (*bptr) {
-        case '\b':
-            if (bptr > aptr)
-                gtk_text_buffer_insert(textbuffer, &enditer, (const gchar *)aptr, (gint)(bptr-aptr)-1);
+    for (aptr = bptr = str; *aptr != 0;)
+    {
+        switch (*bptr)
+        {
+            case '\b':
+                if (bptr > aptr)
+                    gtk_text_buffer_insert(textbuffer, &enditer, (const gchar *)aptr, (gint)(bptr-aptr)-1);
 #if GTK_CHECK_VERSION(2,6,0)
-            gtk_text_buffer_backspace(textbuffer, &enditer, FALSE, TRUE);
+                gtk_text_buffer_backspace(textbuffer, &enditer, FALSE, TRUE);
 #else
-            {
-                GtkTextIter iter2 = enditer;
-                gtk_text_iter_backward_cursor_position(&iter2);
-                //FIXME: this seems be deleting one too many chars somewhere!
-                if (!gtk_text_iter_equal(&iter2, &enditer))
-                    gtk_text_buffer_delete_interactive(textbuffer, &iter2, &enditer, TRUE);
-            }
+                {
+                    GtkTextIter iter2 = enditer;
+                    gtk_text_iter_backward_cursor_position(&iter2);
+                    //FIXME: this seems be deleting one too many chars somewhere!
+                    if (!gtk_text_iter_equal(&iter2, &enditer))
+                        gtk_text_buffer_delete_interactive(textbuffer, &iter2, &enditer, TRUE);
+                }
 #endif
-            aptr = ++bptr;
-            break;
-        case 0:
-            if (bptr > aptr)
-                gtk_text_buffer_insert(textbuffer, &enditer, (const gchar *)aptr, (gint)(bptr-aptr));
-            aptr = bptr;
-            break;
-        case '\r':	// FIXME
-        default:
-            bptr++;
-            break;
+                aptr = ++bptr;
+                break;
+            case 0:
+                if (bptr > aptr)
+                    gtk_text_buffer_insert(textbuffer, &enditer, (const gchar *)aptr, (gint)(bptr-aptr));
+                aptr = bptr;
+                break;
+            case '\r':	// FIXME
+            default:
+                bptr++;
+                break;
         }
     }
 
@@ -607,7 +628,8 @@ int startwin_run(void)
     gtk_main();
 
     SetPage(TAB_MESSAGES);
-    if (retval) {
+    if (retval)
+    {
         ScreenMode = settings.fullscreen;
         ScreenWidth = settings.xdim3d;
         ScreenHeight = settings.ydim3d;

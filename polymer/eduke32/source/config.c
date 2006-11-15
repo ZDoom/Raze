@@ -97,7 +97,10 @@ int32 ScreenBPP = 8;
 #endif
 int32 ForceSetup = 1;
 
-static char setupfilename[BMAX_PATH]={SETUPFILENAME};
+static char setupfilename[BMAX_PATH]=
+    {
+        SETUPFILENAME
+    };
 int32 scripthandle = -1;
 static int32 setupread=0;
 
@@ -185,15 +188,16 @@ int32 CONFIG_AnalogNameToNum(char * func)
 
 char * CONFIG_AnalogNumToName(int32 func)
 {
-    switch (func) {
-    case analog_turning:
-        return "analog_turning";
-    case analog_strafing:
-        return "analog_strafing";
-    case analog_moving:
-        return "analog_moving";
-    case analog_lookingupanddown:
-        return "analog_lookingupanddown";
+    switch (func)
+    {
+        case analog_turning:
+            return "analog_turning";
+        case analog_strafing:
+            return "analog_strafing";
+        case analog_moving:
+            return "analog_moving";
+        case analog_lookingupanddown:
+            return "analog_lookingupanddown";
     }
 
     return NULL;
@@ -277,7 +281,8 @@ void CONFIG_SetDefaults(void)
 
     // JBF 20031211
     memset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
-    for (i=0; i < (int32)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3) {
+    for (i=0; i < (int32)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3)
+    {
         f = CONFIG_FunctionNameToNum(keydefaults[i+0]);
         if (f == -1) continue;
         KeyboardKeys[f][0] = KB_StringToScanCode(keydefaults[i+1]);
@@ -288,7 +293,8 @@ void CONFIG_SetDefaults(void)
     }
 
     memset(MouseFunctions, -1, sizeof(MouseFunctions));
-    for (i=0; i<MAXMOUSEBUTTONS; i++) {
+    for (i=0; i<MAXMOUSEBUTTONS; i++)
+    {
         MouseFunctions[i][0] = CONFIG_FunctionNameToNum(mousedefaults[i]);
         CONTROL_MapButton(MouseFunctions[i][0], i, 0, controldevice_mouse);
         if (i>=4) continue;
@@ -297,7 +303,8 @@ void CONFIG_SetDefaults(void)
     }
 
     memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
-    for (i=0; i<MAXMOUSEAXES; i++) {
+    for (i=0; i<MAXMOUSEAXES; i++)
+    {
         MouseAnalogueScale[i] = 65536;
         CONTROL_SetAnalogAxisScale(i, MouseAnalogueScale[i], controldevice_mouse);
 
@@ -312,7 +319,8 @@ void CONFIG_SetDefaults(void)
     CONTROL_SetMouseSensitivity(DEFAULTMOUSESENSITIVITY);
 
     memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
-    for (i=0; i<MAXJOYBUTTONS; i++) {
+    for (i=0; i<MAXJOYBUTTONS; i++)
+    {
         JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdefaults[i]);
         JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(joystickclickeddefaults[i]);
         CONTROL_MapButton(JoystickFunctions[i][0], i, 0, controldevice_joystick);
@@ -320,7 +328,8 @@ void CONFIG_SetDefaults(void)
     }
 
     memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
-    for (i=0; i<MAXJOYAXES; i++) {
+    for (i=0; i<MAXJOYAXES; i++)
+    {
         JoystickAnalogueScale[i] = 65536;
         JoystickAnalogueDead[i] = 1000;
         JoystickAnalogueSaturate[i] = 9500;
@@ -415,12 +424,14 @@ void CONFIG_SetupMouse(void)
 
     for (i=0;i<MAXMOUSEBUTTONS;i++)
     {
-        Bsprintf(str,"MouseButton%ld",i); temp[0] = 0;
+        Bsprintf(str,"MouseButton%ld",i);
+        temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle,"Controls", str,temp))
             if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
-        Bsprintf(str,"MouseButtonClicked%ld",i); temp[0] = 0;
+        Bsprintf(str,"MouseButtonClicked%ld",i);
+        temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle,"Controls", str,temp))
             if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
@@ -429,17 +440,20 @@ void CONFIG_SetupMouse(void)
     // map over the axes
     for (i=0;i<MAXMOUSEAXES;i++)
     {
-        Bsprintf(str,"MouseAnalogAxes%ld",i); temp[0] = 0;
+        Bsprintf(str,"MouseAnalogAxes%ld",i);
+        temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
             if (CONFIG_AnalogNameToNum(temp) != -1 || temp[0] == 0)
                 MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
 
-        Bsprintf(str,"MouseDigitalAxes%ld_0",i); temp[0] = 0;
+        Bsprintf(str,"MouseDigitalAxes%ld_0",i);
+        temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
             if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
-        Bsprintf(str,"MouseDigitalAxes%ld_1",i); temp[0] = 0;
+        Bsprintf(str,"MouseDigitalAxes%ld_1",i);
+        temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
             if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 MouseDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
@@ -487,12 +501,14 @@ void CONFIG_SetupJoystick(void)
 
     for (i=0;i<MAXJOYBUTTONS;i++)
     {
-        Bsprintf(str,"JoystickButton%ld",i); temp[0] = 0;
+        Bsprintf(str,"JoystickButton%ld",i);
+        temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle,"Controls", str,temp))
             if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
-        Bsprintf(str,"JoystickButtonClicked%ld",i); temp[0] = 0;
+        Bsprintf(str,"JoystickButtonClicked%ld",i);
+        temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle,"Controls", str,temp))
             if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
@@ -501,17 +517,20 @@ void CONFIG_SetupJoystick(void)
     // map over the axes
     for (i=0;i<MAXJOYAXES;i++)
     {
-        Bsprintf(str,"JoystickAnalogAxes%ld",i); temp[0] = 0;
+        Bsprintf(str,"JoystickAnalogAxes%ld",i);
+        temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
             if (CONFIG_AnalogNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(temp);
 
-        Bsprintf(str,"JoystickDigitalAxes%ld_0",i); temp[0] = 0;
+        Bsprintf(str,"JoystickDigitalAxes%ld_0",i);
+        temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
             if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
-        Bsprintf(str,"JoystickDigitalAxes%ld_1",i); temp[0] = 0;
+        Bsprintf(str,"JoystickDigitalAxes%ld_1",i);
+        temp[0] = 0;
         if (!SCRIPT_GetString(scripthandle, "Controls", str,temp))
             if (CONFIG_FunctionNameToNum(temp) != -1 || temp[0] == 0)
                 JoystickDigitalFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
@@ -559,12 +578,35 @@ void readsavenames(void)
     {
         fn[4] = i+'0';
         if ((fil = Bfopen(fn,"rb")) == NULL) continue;
-    if (dfread(&j,sizeof(long),1,fil) != 1) { Bfclose(fil); continue; }
-        if (dfread(g_szBuf,j,1,fil) != 1) { Bfclose(fil); continue; }
-        if (dfread(&dummy,4,1,fil) != 1) { Bfclose(fil); continue; }
-        if (dummy != BYTEVERSION) { Bfclose(fil); continue; }
-        if (dfread(&dummy,4,1,fil) != 1) { Bfclose(fil); continue; }
-        if (dfread(&ud.savegame[i][0],19,1,fil) != 1) { ud.savegame[i][0] = 0; }
+        if (dfread(&j,sizeof(long),1,fil) != 1)
+        {
+            Bfclose(fil);
+            continue;
+        }
+        if (dfread(g_szBuf,j,1,fil) != 1)
+        {
+            Bfclose(fil);
+            continue;
+        }
+        if (dfread(&dummy,4,1,fil) != 1)
+        {
+            Bfclose(fil);
+            continue;
+        }
+        if (dummy != BYTEVERSION)
+        {
+            Bfclose(fil);
+            continue;
+        }
+        if (dfread(&dummy,4,1,fil) != 1)
+        {
+            Bfclose(fil);
+            continue;
+        }
+        if (dfread(&ud.savegame[i][0],19,1,fil) != 1)
+        {
+            ud.savegame[i][0] = 0;
+        }
         Bfclose(fil);
     }
 }
@@ -615,7 +657,8 @@ int32 CONFIG_ReadSetup(void)
 
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "Shadows",&ud.shadows);
 
-        if (!NAM) {
+        if (!NAM)
+        {
             SCRIPT_GetString(scripthandle, "Screen Setup","Password",&ud.pwlockout[0]);
             SCRIPT_GetNumber(scripthandle, "Screen Setup", "Out",&ud.lockout);
         }
@@ -647,8 +690,12 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLUseTextureCacheCompression", &glusetexcachecompression);
 
-        dummy = usemodels; SCRIPT_GetNumber(scripthandle, "Screen Setup", "UseModels",&dummy); usemodels = dummy != 0;
-        dummy = usehightile; SCRIPT_GetNumber(scripthandle, "Screen Setup", "UseHightile",&dummy); usehightile = dummy != 0;
+        dummy = usemodels;
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "UseModels",&dummy);
+        usemodels = dummy != 0;
+        dummy = usehightile;
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "UseHightile",&dummy);
+        usehightile = dummy != 0;
 #endif
         SCRIPT_GetNumber(scripthandle, "Misc", "Executions",&ud.executions);
         SCRIPT_GetNumber(scripthandle, "Setup", "ForceSetup",&ForceSetup);
@@ -673,7 +720,9 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(scripthandle, "Misc", "AutoMsg",&ud.automsg);
         SCRIPT_GetNumber(scripthandle, "Misc", "IDPlayers",&ud.automsg);
 
-        dummy = useprecache; SCRIPT_GetNumber(scripthandle, "Misc", "UsePrecache",&dummy); useprecache = dummy != 0;
+        dummy = useprecache;
+        SCRIPT_GetNumber(scripthandle, "Misc", "UsePrecache",&dummy);
+        useprecache = dummy != 0;
 
         // weapon choices are defaulted in checkcommandline, which may override them
         if (!CommandWeaponChoice)
@@ -787,7 +836,8 @@ void CONFIG_WriteSetup(void)
 #endif
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "Messages",ud.fta_on,false,false);
 
-    if (!NAM) {
+    if (!NAM)
+    {
         SCRIPT_PutNumber(scripthandle, "Screen Setup", "Out",ud.lockout,false,false);
         SCRIPT_PutString(scripthandle, "Screen Setup", "Password",ud.pwlockout);
     }
@@ -813,7 +863,8 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Sound Setup", "VoiceToggle",VoiceToggle,false,false);
 
     // JBF 20031211
-    for (dummy=0;dummy<NUMGAMEFUNCTIONS;dummy++) {
+    for (dummy=0;dummy<NUMGAMEFUNCTIONS;dummy++)
+    {
         SCRIPT_PutDoubleString(scripthandle, "KeyDefinitions", CONFIG_FunctionNumToName(dummy),
                                KB_ScanCodeToString(KeyboardKeys[dummy][0]), KB_ScanCodeToString(KeyboardKeys[dummy][1]));
     }
@@ -824,7 +875,8 @@ void CONFIG_WriteSetup(void)
         SCRIPT_PutNumber(scripthandle, "Misc",buf,ud.wchoice[myconnectindex][dummy],false,false);
     }
 
-    for (dummy=0;dummy<MAXMOUSEBUTTONS;dummy++) {
+    for (dummy=0;dummy<MAXMOUSEBUTTONS;dummy++)
+    {
         Bsprintf(buf,"MouseButton%ld",dummy);
         SCRIPT_PutString(scripthandle,"Controls", buf, CONFIG_FunctionNumToName(MouseFunctions[dummy][0]));
 
@@ -833,7 +885,8 @@ void CONFIG_WriteSetup(void)
         Bsprintf(buf,"MouseButtonClicked%ld",dummy);
         SCRIPT_PutString(scripthandle,"Controls", buf, CONFIG_FunctionNumToName(MouseFunctions[dummy][1]));
     }
-    for (dummy=0;dummy<MAXMOUSEAXES;dummy++) {
+    for (dummy=0;dummy<MAXMOUSEAXES;dummy++)
+    {
         Bsprintf(buf,"MouseAnalogAxes%ld",dummy);
         SCRIPT_PutString(scripthandle, "Controls", buf, CONFIG_AnalogNumToName(MouseAnalogueAxes[dummy]));
 
@@ -849,14 +902,16 @@ void CONFIG_WriteSetup(void)
     dummy = CONTROL_GetMouseSensitivity();
     SCRIPT_PutNumber(scripthandle, "Controls","Mouse_Sensitivity",dummy,false,false);
 
-    for (dummy=0;dummy<MAXJOYBUTTONS;dummy++) {
+    for (dummy=0;dummy<MAXJOYBUTTONS;dummy++)
+    {
         Bsprintf(buf,"JoystickButton%ld",dummy);
         SCRIPT_PutString(scripthandle,"Controls", buf, CONFIG_FunctionNumToName(JoystickFunctions[dummy][0]));
 
         Bsprintf(buf,"JoystickButtonClicked%ld",dummy);
         SCRIPT_PutString(scripthandle,"Controls", buf, CONFIG_FunctionNumToName(JoystickFunctions[dummy][1]));
     }
-    for (dummy=0;dummy<MAXJOYAXES;dummy++) {
+    for (dummy=0;dummy<MAXJOYAXES;dummy++)
+    {
         Bsprintf(buf,"JoystickAnalogAxes%ld",dummy);
         SCRIPT_PutString(scripthandle, "Controls", buf, CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]));
 

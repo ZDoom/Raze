@@ -197,12 +197,15 @@ void ExtLoadMap(const char *mapname)
 
         if (sprite[j].picnum>=20 && sprite[j].picnum<=59)
         {
-            if (sprite[j].picnum==26) {
-                sprite[j].xrepeat = 8; sprite[j].yrepeat = 8;
+            if (sprite[j].picnum==26)
+            {
+                sprite[j].xrepeat = 8;
+                sprite[j].yrepeat = 8;
             }
             else
             {
-                sprite[j].xrepeat = 32; sprite[j].yrepeat = 32;
+                sprite[j].xrepeat = 32;
+                sprite[j].yrepeat = 32;
             }
         }
 
@@ -216,31 +219,43 @@ void ExtLoadMap(const char *mapname)
     {
         switch (sector[i].ceilingpicnum)
         {
-        case MOONSKY1 :
-        case BIGORBIT1 : // orbit
-        case LA : // la city
-            sky=sector[i].ceilingpicnum;
-            break;
+            case MOONSKY1 :
+            case BIGORBIT1 : // orbit
+            case LA : // la city
+                sky=sector[i].ceilingpicnum;
+                break;
         }
     }
 
     switch (sky)
     {
-    case MOONSKY1 :
-        //        earth          mountian   mountain         sun
-        pskyoff[6]=1; pskyoff[1]=2; pskyoff[4]=2; pskyoff[2]=3;
-        break;
+        case MOONSKY1 :
+            //        earth          mountian   mountain         sun
+            pskyoff[6]=1;
+            pskyoff[1]=2;
+            pskyoff[4]=2;
+            pskyoff[2]=3;
+            break;
 
-    case BIGORBIT1 : // orbit
-        //       earth1         2           3           moon/sun
-        pskyoff[5]=1; pskyoff[6]=2; pskyoff[7]=3; pskyoff[2]=4;
-        break;
+        case BIGORBIT1 : // orbit
+            //       earth1         2           3           moon/sun
+            pskyoff[5]=1;
+            pskyoff[6]=2;
+            pskyoff[7]=3;
+            pskyoff[2]=4;
+            break;
 
-    case LA : // la city
-        //       earth1         2           3           moon/sun
-        pskyoff[0]=1; pskyoff[1]=2; pskyoff[2]=1; pskyoff[3]=3;
-        pskyoff[4]=4; pskyoff[5]=0; pskyoff[6]=2; pskyoff[7]=3;
-        break;
+        case LA : // la city
+            //       earth1         2           3           moon/sun
+            pskyoff[0]=1;
+            pskyoff[1]=2;
+            pskyoff[2]=1;
+            pskyoff[3]=3;
+            pskyoff[4]=4;
+            pskyoff[5]=0;
+            pskyoff[6]=2;
+            pskyoff[7]=3;
+            break;
     }
 
     pskybits=3;
@@ -270,50 +285,72 @@ const char *ExtGetSectorCaption(short sectnum)
     {
         switch (sector[sectnum].lotag)
         {
-        case 1  :
-            Bsprintf(lo,"1 WATER (SE 7)"); break;
-        case 2  :
-            Bsprintf(lo,"2 UNDERWATER (SE 7)"); break;
-        case 9  :
-            Bsprintf(lo,"9 STAR TREK DOORS"); break;
-        case 15 :
-            Bsprintf(lo,"15 ELEVATOR TRANSPORT (SE 17)"); break;
-        case 16 :
-            Bsprintf(lo,"16 ELEVATOR PLATFORM DOWN"); break;
-        case 17 :
-            Bsprintf(lo,"17 ELEVATOR PLATFORM UP"); break;
-        case 18 :
-            Bsprintf(lo,"18 ELEVATOR DOWN"); break;
-        case 19 :
-            Bsprintf(lo,"19 ELEVATOR UP"); break;
-        case 20 :
-            Bsprintf(lo,"20 CEILING DOOR"); break;
-        case 21 :
-            Bsprintf(lo,"21 FLOOR DOOR"); break;
-        case 22 :
-            Bsprintf(lo,"22 SPLIT DOOR"); break;
-        case 23 :
-            Bsprintf(lo,"23 SWING DOOR (SE 11)"); break;
-        case 25 :
-            Bsprintf(lo,"25 SLIDE DOOR (SE 15)"); break;
-        case 26 :
-            Bsprintf(lo,"26 SPLIT STAR TREK DOOR"); break;
-        case 27 :
-            Bsprintf(lo,"27 BRIDGE (SE 20)"); break;
-        case 28 :
-            Bsprintf(lo,"28 DROP FLOOR (SE 21)"); break;
-        case 29 :
-            Bsprintf(lo,"29 TEETH DOOR (SE 22)"); break;
-        case 30 :
-            Bsprintf(lo,"30 ROTATE RISE BRIDGE"); break;
-        case 31 :
-            Bsprintf(lo,"31 2 WAY TRAIN (SE=30)"); break;
-        case 32767 :
-            Bsprintf(lo,"32767 SECRET ROOM"); break;
-        case 65535 :
-            Bsprintf(lo,"65535 END OF LEVEL"); break;
-        default :
-            Bsprintf(lo,"%hu",sector[sectnum].lotag); break;
+            case 1  :
+                Bsprintf(lo,"1 WATER (SE 7)");
+                break;
+            case 2  :
+                Bsprintf(lo,"2 UNDERWATER (SE 7)");
+                break;
+            case 9  :
+                Bsprintf(lo,"9 STAR TREK DOORS");
+                break;
+            case 15 :
+                Bsprintf(lo,"15 ELEVATOR TRANSPORT (SE 17)");
+                break;
+            case 16 :
+                Bsprintf(lo,"16 ELEVATOR PLATFORM DOWN");
+                break;
+            case 17 :
+                Bsprintf(lo,"17 ELEVATOR PLATFORM UP");
+                break;
+            case 18 :
+                Bsprintf(lo,"18 ELEVATOR DOWN");
+                break;
+            case 19 :
+                Bsprintf(lo,"19 ELEVATOR UP");
+                break;
+            case 20 :
+                Bsprintf(lo,"20 CEILING DOOR");
+                break;
+            case 21 :
+                Bsprintf(lo,"21 FLOOR DOOR");
+                break;
+            case 22 :
+                Bsprintf(lo,"22 SPLIT DOOR");
+                break;
+            case 23 :
+                Bsprintf(lo,"23 SWING DOOR (SE 11)");
+                break;
+            case 25 :
+                Bsprintf(lo,"25 SLIDE DOOR (SE 15)");
+                break;
+            case 26 :
+                Bsprintf(lo,"26 SPLIT STAR TREK DOOR");
+                break;
+            case 27 :
+                Bsprintf(lo,"27 BRIDGE (SE 20)");
+                break;
+            case 28 :
+                Bsprintf(lo,"28 DROP FLOOR (SE 21)");
+                break;
+            case 29 :
+                Bsprintf(lo,"29 TEETH DOOR (SE 22)");
+                break;
+            case 30 :
+                Bsprintf(lo,"30 ROTATE RISE BRIDGE");
+                break;
+            case 31 :
+                Bsprintf(lo,"31 2 WAY TRAIN (SE=30)");
+                break;
+            case 32767 :
+                Bsprintf(lo,"32767 SECRET ROOM");
+                break;
+            case 65535 :
+                Bsprintf(lo,"65535 END OF LEVEL");
+                break;
+            default :
+                Bsprintf(lo,"%hu",sector[sectnum].lotag);
+                break;
         }
         if (sector[sectnum].lotag > 10000 && sector[sectnum].lotag < 32767)
             Bsprintf(lo,"%d 1 TIME SOUND",sector[sectnum].lotag);
@@ -349,74 +386,108 @@ const char *SectorEffectorText(short spritenum)
 {
     switch (sprite[spritenum].lotag)
     {
-    case 0:
-        Bsprintf(tempbuf,"SE: ROTATED SECTOR"); break;
-    case 1:
-        Bsprintf(tempbuf,"SE: PIVOT SPRITE FOR SE 0"); break;
-    case 2:
-        Bsprintf(tempbuf,"SE: EARTHQUAKE"); break;
-    case 3:
-        Bsprintf(tempbuf,"SE: RANDOM LIGHTS AFTER SHOT OUT"); break;
-    case 4:
-        Bsprintf(tempbuf,"SE: RANDOM LIGHTS"); break;
-    case 6:
-        Bsprintf(tempbuf,"SE: SUBWAY"); break;
-    case 7:
-        Bsprintf(tempbuf,"SE: TRANSPORT"); break;
-    case 8:
-        Bsprintf(tempbuf,"SE: UP OPEN DOOR LIGHTS"); break;
-    case 9:
-        Bsprintf(tempbuf,"SE: DOWN OPEN DOOR LIGHTS"); break;
-    case 10:
-        Bsprintf(tempbuf,"SE: DOOR AUTO CLOSE (H=DELAY)"); break;
-    case 11:
-        Bsprintf(tempbuf,"SE: ROTATE SECTOR DOOR"); break;
-    case 12:
-        Bsprintf(tempbuf,"SE: LIGHT SWITCH"); break;
-    case 13:
-        Bsprintf(tempbuf,"SE: EXPLOSIVE"); break;
-    case 14:
-        Bsprintf(tempbuf,"SE: SUBWAY CAR"); break;
-    case 15:
-        Bsprintf(tempbuf,"SE: SLIDE DOOR (ST 25)"); break;
-    case 16:
-        Bsprintf(tempbuf,"SE: ROTATE REACTOR SECTOR"); break;
-    case 17:
-        Bsprintf(tempbuf,"SE: ELEVATOR TRANSPORT (ST 15)"); break;
-    case 18:
-        Bsprintf(tempbuf,"SE: INCREMENTAL SECTOR RISE/FALL"); break;
-    case 19:
-        Bsprintf(tempbuf,"SE: CEILING FALL ON EXPLOSION"); break;
-    case 20:
-        Bsprintf(tempbuf,"SE: BRIDGE (ST 27)"); break;
-    case 21:
-        Bsprintf(tempbuf,"SE: DROP FLOOR (ST 28)"); break;
-    case 22:
-        Bsprintf(tempbuf,"SE: TEETH DOOR (ST 29)"); break;
-    case 23:
-        Bsprintf(tempbuf,"SE: 1-WAY SE7 DESTINATION (H=SE 7)"); break;
-    case 24:
-        Bsprintf(tempbuf,"SE: CONVAYER BELT"); break;
-    case 25:
-        Bsprintf(tempbuf,"SE: ENGINE"); break;
-    case 28:
-        Bsprintf(tempbuf,"SE: LIGHTNING (H= TILE#4890)"); break;
-    case 27:
-        Bsprintf(tempbuf,"SE: CAMERA FOR PLAYBACK"); break;
-    case 29:
-        Bsprintf(tempbuf,"SE: FLOAT"); break;
-    case 30:
-        Bsprintf(tempbuf,"SE: 2 WAY TRAIN (ST=31)"); break;
-    case 31:
-        Bsprintf(tempbuf,"SE: FLOOR RISE"); break;
-    case 32:
-        Bsprintf(tempbuf,"SE: CEILING FALL"); break;
-    case 33:
-        Bsprintf(tempbuf,"SE: SPAWN JIB W/QUAKE"); break;
-    case 36:
-        Bsprintf(tempbuf,"SE: SKRINK RAY SHOOTER"); break;
-    default:
-        SpriteName(spritenum,tempbuf); break;
+        case 0:
+            Bsprintf(tempbuf,"SE: ROTATED SECTOR");
+            break;
+        case 1:
+            Bsprintf(tempbuf,"SE: PIVOT SPRITE FOR SE 0");
+            break;
+        case 2:
+            Bsprintf(tempbuf,"SE: EARTHQUAKE");
+            break;
+        case 3:
+            Bsprintf(tempbuf,"SE: RANDOM LIGHTS AFTER SHOT OUT");
+            break;
+        case 4:
+            Bsprintf(tempbuf,"SE: RANDOM LIGHTS");
+            break;
+        case 6:
+            Bsprintf(tempbuf,"SE: SUBWAY");
+            break;
+        case 7:
+            Bsprintf(tempbuf,"SE: TRANSPORT");
+            break;
+        case 8:
+            Bsprintf(tempbuf,"SE: UP OPEN DOOR LIGHTS");
+            break;
+        case 9:
+            Bsprintf(tempbuf,"SE: DOWN OPEN DOOR LIGHTS");
+            break;
+        case 10:
+            Bsprintf(tempbuf,"SE: DOOR AUTO CLOSE (H=DELAY)");
+            break;
+        case 11:
+            Bsprintf(tempbuf,"SE: ROTATE SECTOR DOOR");
+            break;
+        case 12:
+            Bsprintf(tempbuf,"SE: LIGHT SWITCH");
+            break;
+        case 13:
+            Bsprintf(tempbuf,"SE: EXPLOSIVE");
+            break;
+        case 14:
+            Bsprintf(tempbuf,"SE: SUBWAY CAR");
+            break;
+        case 15:
+            Bsprintf(tempbuf,"SE: SLIDE DOOR (ST 25)");
+            break;
+        case 16:
+            Bsprintf(tempbuf,"SE: ROTATE REACTOR SECTOR");
+            break;
+        case 17:
+            Bsprintf(tempbuf,"SE: ELEVATOR TRANSPORT (ST 15)");
+            break;
+        case 18:
+            Bsprintf(tempbuf,"SE: INCREMENTAL SECTOR RISE/FALL");
+            break;
+        case 19:
+            Bsprintf(tempbuf,"SE: CEILING FALL ON EXPLOSION");
+            break;
+        case 20:
+            Bsprintf(tempbuf,"SE: BRIDGE (ST 27)");
+            break;
+        case 21:
+            Bsprintf(tempbuf,"SE: DROP FLOOR (ST 28)");
+            break;
+        case 22:
+            Bsprintf(tempbuf,"SE: TEETH DOOR (ST 29)");
+            break;
+        case 23:
+            Bsprintf(tempbuf,"SE: 1-WAY SE7 DESTINATION (H=SE 7)");
+            break;
+        case 24:
+            Bsprintf(tempbuf,"SE: CONVAYER BELT");
+            break;
+        case 25:
+            Bsprintf(tempbuf,"SE: ENGINE");
+            break;
+        case 28:
+            Bsprintf(tempbuf,"SE: LIGHTNING (H= TILE#4890)");
+            break;
+        case 27:
+            Bsprintf(tempbuf,"SE: CAMERA FOR PLAYBACK");
+            break;
+        case 29:
+            Bsprintf(tempbuf,"SE: FLOAT");
+            break;
+        case 30:
+            Bsprintf(tempbuf,"SE: 2 WAY TRAIN (ST=31)");
+            break;
+        case 31:
+            Bsprintf(tempbuf,"SE: FLOOR RISE");
+            break;
+        case 32:
+            Bsprintf(tempbuf,"SE: CEILING FALL");
+            break;
+        case 33:
+            Bsprintf(tempbuf,"SE: SPAWN JIB W/QUAKE");
+            break;
+        case 36:
+            Bsprintf(tempbuf,"SE: SKRINK RAY SHOOTER");
+            break;
+        default:
+            SpriteName(spritenum,tempbuf);
+            break;
     }
     return (tempbuf);
 }
@@ -433,41 +504,41 @@ const char *ExtGetSpriteCaption(short spritenum)
     {
         switch (sprite[spritenum].picnum)
         {
-        case FIRSTGUNSPRITE:
-        case CHAINGUNSPRITE :
-        case RPGSPRITE:
-        case FREEZESPRITE:
-        case SHRINKERSPRITE:
-        case HEAVYHBOMB:
-        case TRIPBOMBSPRITE:
-        case SHOTGUNSPRITE:
-        case DEVISTATORSPRITE:
-        case FREEZEAMMO:
-        case AMMO:
-        case BATTERYAMMO:
-        case DEVISTATORAMMO:
-        case RPGAMMO:
-        case GROWAMMO:
-        case CRYSTALAMMO:
-        case HBOMBAMMO:
-        case AMMOLOTS:
-        case SHOTGUNAMMO:
-        case COLA:
-        case SIXPAK:
-        case FIRSTAID:
-        case SHIELD:
-        case STEROIDS:
-        case AIRTANK:
-        case JETPACK:
-        case HEATSENSOR:
-        case ACCESSCARD:
-        case BOOTS:
-            break;
-        default:
-        {
-            tempbuf[0] = 0;
-            return(tempbuf);
-        }
+            case FIRSTGUNSPRITE:
+            case CHAINGUNSPRITE :
+            case RPGSPRITE:
+            case FREEZESPRITE:
+            case SHRINKERSPRITE:
+            case HEAVYHBOMB:
+            case TRIPBOMBSPRITE:
+            case SHOTGUNSPRITE:
+            case DEVISTATORSPRITE:
+            case FREEZEAMMO:
+            case AMMO:
+            case BATTERYAMMO:
+            case DEVISTATORAMMO:
+            case RPGAMMO:
+            case GROWAMMO:
+            case CRYSTALAMMO:
+            case HBOMBAMMO:
+            case AMMOLOTS:
+            case SHOTGUNAMMO:
+            case COLA:
+            case SIXPAK:
+            case FIRSTAID:
+            case SHIELD:
+            case STEROIDS:
+            case AIRTANK:
+            case JETPACK:
+            case HEATSENSOR:
+            case ACCESSCARD:
+            case BOOTS:
+                break;
+            default:
+            {
+                tempbuf[0] = 0;
+                return(tempbuf);
+            }
         }
     }
 
@@ -554,48 +625,48 @@ void ExtShowSectorData(short sectnum)   //F5
         {
             switch (sprite[i].picnum)
             {
-            case RECON:
-            case DRONE:
-            case LIZTROOPONTOILET:
-            case LIZTROOPSTAYPUT:
-            case LIZTROOPSHOOT:
-            case LIZTROOPJETPACK:
-            case LIZTROOPDUCKING:
-            case LIZTROOPRUNNING:
-            case LIZTROOP:
-            case OCTABRAIN:
-            case OCTABRAINSTAYPUT:
-            case COMMANDER:
-            case COMMANDERSTAYPUT:
-            case EGG:
-            case PIGCOP:
-            case PIGCOPSTAYPUT:
-            case PIGCOPDIVE:
-            case LIZMAN:
-            case LIZMANSTAYPUT:
-            case LIZMANSPITTING:
-            case LIZMANFEEDING:
-            case LIZMANJUMP:
-            case ORGANTIC:
-            case BOSS1:
-            case BOSS2:
-            case BOSS3:
-            case GREENSLIME:
-            case ROTATEGUN:
-            case TANK:
-            case NEWBEAST:
-            case BOSS4:
-                if (sprite[i].lotag<=1) totalactors1++;
-                if (sprite[i].lotag<=2) totalactors2++;
-                if (sprite[i].lotag<=3) totalactors3++;
-                if (sprite[i].lotag<=4) totalactors4++;
-                break;
+                case RECON:
+                case DRONE:
+                case LIZTROOPONTOILET:
+                case LIZTROOPSTAYPUT:
+                case LIZTROOPSHOOT:
+                case LIZTROOPJETPACK:
+                case LIZTROOPDUCKING:
+                case LIZTROOPRUNNING:
+                case LIZTROOP:
+                case OCTABRAIN:
+                case OCTABRAINSTAYPUT:
+                case COMMANDER:
+                case COMMANDERSTAYPUT:
+                case EGG:
+                case PIGCOP:
+                case PIGCOPSTAYPUT:
+                case PIGCOPDIVE:
+                case LIZMAN:
+                case LIZMANSTAYPUT:
+                case LIZMANSPITTING:
+                case LIZMANFEEDING:
+                case LIZMANJUMP:
+                case ORGANTIC:
+                case BOSS1:
+                case BOSS2:
+                case BOSS3:
+                case GREENSLIME:
+                case ROTATEGUN:
+                case TANK:
+                case NEWBEAST:
+                case BOSS4:
+                    if (sprite[i].lotag<=1) totalactors1++;
+                    if (sprite[i].lotag<=2) totalactors2++;
+                    if (sprite[i].lotag<=3) totalactors3++;
+                    if (sprite[i].lotag<=4) totalactors4++;
+                    break;
 
-            case RESPAWN:
-                totalrespawn++;
+                case RESPAWN:
+                    totalrespawn++;
 
-            default:
-                break;
+                default:
+                    break;
             }
         }
     }
@@ -615,7 +686,9 @@ void ExtShowSectorData(short sectnum)   //F5
     Bsprintf(tempbuf,"Level %s",levelname);
     printmessage16(tempbuf);
 
-    x=1; x2=14; y=4;
+    x=1;
+    x2=14;
+    y=4;
     begindrawing();
     printext16(x*8,ydim16+y*8,11,-1,"Item Count",0);
     enddrawing();
@@ -630,7 +703,9 @@ void ExtShowSectorData(short sectnum)   //F5
     PrintStatus("Shields  =",numsprite[SHIELD],x,y+6,11);
     PrintStatus("",multisprite[SHIELD],x2,y+6,1);
 
-    x=17; x2=30; y=4;
+    x=17;
+    x2=30;
+    y=4;
     begindrawing();
     printext16(x*8,ydim16+y*8,11,-1,"Inventory",0);
     enddrawing();
@@ -648,7 +723,9 @@ void ExtShowSectorData(short sectnum)   //F5
     PrintStatus("",multisprite[HOLODUKE],x2,y+7,1);
     PrintStatus("Multi D  =",numsprite[APLAYER],x,y+8,11);
 
-    x=33; x2=46; y=4;
+    x=33;
+    x2=46;
+    y=4;
     begindrawing();
     printext16(x*8,ydim16+y*8,11,-1,"Weapon Count",0);
     enddrawing();
@@ -671,7 +748,9 @@ void ExtShowSectorData(short sectnum)   //F5
     PrintStatus("Freezeray=",numsprite[FREEZESPRITE],x,y+10,11);
     PrintStatus("",multisprite[FREEZESPRITE],x2,y+10,1);
 
-    x=49; x2=62; y=4;
+    x=49;
+    x2=62;
+    y=4;
     begindrawing();
     printext16(x*8,ydim16+y*8,11,-1,"Ammo Count",0);
     enddrawing();
@@ -722,43 +801,43 @@ void ExtShowWallData(short wallnum)       //F6
         if (sprite[i].statnum==0)
             switch (sprite[i].picnum)
             {
-                //LOTAG
-            case ACTIVATOR:
-            case ACTIVATORLOCKED:
-            case TOUCHPLATE:
-            case MASTERSWITCH:
-            case RESPAWN:
-            case ACCESSSWITCH:
-            case SLOTDOOR:
-            case LIGHTSWITCH:
-            case SPACEDOORSWITCH:
-            case SPACELIGHTSWITCH:
-            case FRANKENSTINESWITCH:
-            case MULTISWITCH:
-            case DIPSWITCH:
-            case DIPSWITCH2:
-            case TECHSWITCH:
-            case DIPSWITCH3:
-            case ACCESSSWITCH2:
-            case POWERSWITCH1:
-            case LOCKSWITCH1:
-            case POWERSWITCH2:
-            case PULLSWITCH:
-            case ALIENSWITCH:
-                if (sprite[i].lotag>nextfreetag) nextfreetag=1+sprite[i].lotag;
-                break;
-
-                //HITAG
-            case SEENINE:
-            case OOZFILTER:
-            case SECTOREFFECTOR:
-                if (sprite[i].lotag==10 || sprite[i].lotag==27 || sprite[i].lotag==28 || sprite[i].lotag==29)
+                    //LOTAG
+                case ACTIVATOR:
+                case ACTIVATORLOCKED:
+                case TOUCHPLATE:
+                case MASTERSWITCH:
+                case RESPAWN:
+                case ACCESSSWITCH:
+                case SLOTDOOR:
+                case LIGHTSWITCH:
+                case SPACEDOORSWITCH:
+                case SPACELIGHTSWITCH:
+                case FRANKENSTINESWITCH:
+                case MULTISWITCH:
+                case DIPSWITCH:
+                case DIPSWITCH2:
+                case TECHSWITCH:
+                case DIPSWITCH3:
+                case ACCESSSWITCH2:
+                case POWERSWITCH1:
+                case LOCKSWITCH1:
+                case POWERSWITCH2:
+                case PULLSWITCH:
+                case ALIENSWITCH:
+                    if (sprite[i].lotag>nextfreetag) nextfreetag=1+sprite[i].lotag;
                     break;
-                else
-                    if (sprite[i].hitag>nextfreetag) nextfreetag=1+sprite[i].hitag;
-                break;
-            default:
-                break;
+
+                    //HITAG
+                case SEENINE:
+                case OOZFILTER:
+                case SECTOREFFECTOR:
+                    if (sprite[i].lotag==10 || sprite[i].lotag==27 || sprite[i].lotag==28 || sprite[i].lotag==29)
+                        break;
+                    else
+                        if (sprite[i].hitag>nextfreetag) nextfreetag=1+sprite[i].hitag;
+                    break;
+                default:
+                    break;
 
             }
 
@@ -774,76 +853,86 @@ void ExtShowWallData(short wallnum)       //F6
             if (sprite[i].pal!=0)
                 switch (sprite[i].picnum)
                 {
-                case LIZTROOP :
-                case LIZTROOPRUNNING :
-                case LIZTROOPSTAYPUT :
-                case LIZTROOPSHOOT :
-                case LIZTROOPJETPACK :
-                case LIZTROOPONTOILET :
-                case LIZTROOPDUCKING :
-                    numsprite[LIZTROOP]++; break;
-                case BOSS1:
-                case BOSS1STAYPUT:
-                case BOSS1SHOOT:
-                case BOSS1LOB:
-                case BOSSTOP:
-                    multisprite[BOSS1]++; break;
-                case BOSS2:
-                    multisprite[BOSS2]++; break;
-                case BOSS3:
-                    multisprite[BOSS3]++; break;
+                    case LIZTROOP :
+                    case LIZTROOPRUNNING :
+                    case LIZTROOPSTAYPUT :
+                    case LIZTROOPSHOOT :
+                    case LIZTROOPJETPACK :
+                    case LIZTROOPONTOILET :
+                    case LIZTROOPDUCKING :
+                        numsprite[LIZTROOP]++;
+                        break;
+                    case BOSS1:
+                    case BOSS1STAYPUT:
+                    case BOSS1SHOOT:
+                    case BOSS1LOB:
+                    case BOSSTOP:
+                        multisprite[BOSS1]++;
+                        break;
+                    case BOSS2:
+                        multisprite[BOSS2]++;
+                        break;
+                    case BOSS3:
+                        multisprite[BOSS3]++;
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
                 }
             else
                 switch (sprite[i].picnum)
                 {
-                case LIZTROOP :
-                case LIZTROOPRUNNING :
-                case LIZTROOPSTAYPUT :
-                case LIZTROOPSHOOT :
-                case LIZTROOPJETPACK :
-                case LIZTROOPONTOILET :
-                case LIZTROOPDUCKING :
-                    numsprite[LIZTROOP]++; break;
-                case PIGCOP:
-                case PIGCOPSTAYPUT:
-                case PIGCOPDIVE:
-                    numsprite[PIGCOP]++; break;
-                case LIZMAN:
-                case LIZMANSTAYPUT:
-                case LIZMANSPITTING:
-                case LIZMANFEEDING:
-                case LIZMANJUMP:
-                    numsprite[LIZMAN]++; break;
-                case BOSS1:
-                case BOSS1STAYPUT:
-                case BOSS1SHOOT:
-                case BOSS1LOB:
-                case BOSSTOP:
-                    numsprite[BOSS1]++; break;
-                case COMMANDER:
-                case COMMANDERSTAYPUT:
-                    numsprite[COMMANDER]++; break;
-                case OCTABRAIN:
-                case OCTABRAINSTAYPUT:
-                    numsprite[OCTABRAIN]++; break;
-                case RECON:
-                case DRONE:
-                case ROTATEGUN:
-                case EGG:
-                case ORGANTIC:
-                case GREENSLIME:
-                case BOSS2:
-                case BOSS3:
-                case TANK:
-                case NEWBEAST:
-                case BOSS4:
+                    case LIZTROOP :
+                    case LIZTROOPRUNNING :
+                    case LIZTROOPSTAYPUT :
+                    case LIZTROOPSHOOT :
+                    case LIZTROOPJETPACK :
+                    case LIZTROOPONTOILET :
+                    case LIZTROOPDUCKING :
+                        numsprite[LIZTROOP]++;
+                        break;
+                    case PIGCOP:
+                    case PIGCOPSTAYPUT:
+                    case PIGCOPDIVE:
+                        numsprite[PIGCOP]++;
+                        break;
+                    case LIZMAN:
+                    case LIZMANSTAYPUT:
+                    case LIZMANSPITTING:
+                    case LIZMANFEEDING:
+                    case LIZMANJUMP:
+                        numsprite[LIZMAN]++;
+                        break;
+                    case BOSS1:
+                    case BOSS1STAYPUT:
+                    case BOSS1SHOOT:
+                    case BOSS1LOB:
+                    case BOSSTOP:
+                        numsprite[BOSS1]++;
+                        break;
+                    case COMMANDER:
+                    case COMMANDERSTAYPUT:
+                        numsprite[COMMANDER]++;
+                        break;
+                    case OCTABRAIN:
+                    case OCTABRAINSTAYPUT:
+                        numsprite[OCTABRAIN]++;
+                        break;
+                    case RECON:
+                    case DRONE:
+                    case ROTATEGUN:
+                    case EGG:
+                    case ORGANTIC:
+                    case GREENSLIME:
+                    case BOSS2:
+                    case BOSS3:
+                    case TANK:
+                    case NEWBEAST:
+                    case BOSS4:
 
-                    numsprite[sprite[i].picnum]++;
-                default:
-                    break;
+                        numsprite[sprite[i].picnum]++;
+                    default:
+                        break;
 
                 }// end switch
         }// end if
@@ -857,7 +946,8 @@ void ExtShowWallData(short wallnum)       //F6
     Bsprintf(tempbuf,"Level %s next tag %d",levelname,nextfreetag);
     printmessage16(tempbuf);
 
-    x=2;y=4;
+    x=2;
+    y=4;
     PrintStatus("Normal Actors =",total,x,y,11);
 
     PrintStatus(" Liztroop  =",numsprite[LIZTROOP],x,y+1,11);
@@ -888,51 +978,57 @@ void ExtShowWallData(short wallnum)       //F6
         {
             switch (sprite[i].hitag)
             {
-            case LIZTROOP :
-            case LIZTROOPRUNNING :
-            case LIZTROOPSTAYPUT :
-            case LIZTROOPSHOOT :
-            case LIZTROOPJETPACK :
-            case LIZTROOPONTOILET :
-            case LIZTROOPDUCKING :
-                numsprite[LIZTROOP]++; break;
-            case PIGCOP:
-            case PIGCOPSTAYPUT:
-            case PIGCOPDIVE:
-                numsprite[PIGCOP]++; break;
-            case LIZMAN:
-            case LIZMANSTAYPUT:
-            case LIZMANSPITTING:
-            case LIZMANFEEDING:
-            case LIZMANJUMP:
-                numsprite[LIZMAN]++; break;
-            case BOSS1:
-            case BOSS1STAYPUT:
-            case BOSS1SHOOT:
-            case BOSS1LOB:
-            case BOSSTOP:
-                if (sprite[i].pal!=0) multisprite[BOSS1]++;
-                else numsprite[BOSS1]++; break;
-            case COMMANDER:
-            case COMMANDERSTAYPUT:
-                numsprite[COMMANDER]++; break;
-            case OCTABRAIN:
-            case OCTABRAINSTAYPUT:
-                numsprite[OCTABRAIN]++; break;
-            case RECON:
-            case DRONE:
-            case ROTATEGUN:
-            case EGG:
-            case ORGANTIC:
-            case GREENSLIME:
-            case BOSS2:
-            case BOSS3:
-            case TANK:
-            case NEWBEAST:
-            case BOSS4:
-                numsprite[sprite[i].hitag]++;
-            default:
-                break;
+                case LIZTROOP :
+                case LIZTROOPRUNNING :
+                case LIZTROOPSTAYPUT :
+                case LIZTROOPSHOOT :
+                case LIZTROOPJETPACK :
+                case LIZTROOPONTOILET :
+                case LIZTROOPDUCKING :
+                    numsprite[LIZTROOP]++;
+                    break;
+                case PIGCOP:
+                case PIGCOPSTAYPUT:
+                case PIGCOPDIVE:
+                    numsprite[PIGCOP]++;
+                    break;
+                case LIZMAN:
+                case LIZMANSTAYPUT:
+                case LIZMANSPITTING:
+                case LIZMANFEEDING:
+                case LIZMANJUMP:
+                    numsprite[LIZMAN]++;
+                    break;
+                case BOSS1:
+                case BOSS1STAYPUT:
+                case BOSS1SHOOT:
+                case BOSS1LOB:
+                case BOSSTOP:
+                    if (sprite[i].pal!=0) multisprite[BOSS1]++;
+                    else numsprite[BOSS1]++;
+                    break;
+                case COMMANDER:
+                case COMMANDERSTAYPUT:
+                    numsprite[COMMANDER]++;
+                    break;
+                case OCTABRAIN:
+                case OCTABRAINSTAYPUT:
+                    numsprite[OCTABRAIN]++;
+                    break;
+                case RECON:
+                case DRONE:
+                case ROTATEGUN:
+                case EGG:
+                case ORGANTIC:
+                case GREENSLIME:
+                case BOSS2:
+                case BOSS3:
+                case TANK:
+                case NEWBEAST:
+                case BOSS4:
+                    numsprite[sprite[i].hitag]++;
+                default:
+                    break;
             }//end switch
         }// end if
     }// end for
@@ -941,7 +1037,8 @@ void ExtShowWallData(short wallnum)       //F6
     for (i=0;i<MAXSPRITES;i++) if (multisprite[i]!=0) total+=multisprite[i];
 
 
-    x=36;y=4;
+    x=36;
+    y=4;
     PrintStatus("Respawn",total,x,y,11);
 
     PrintStatus(" Liztroop  =",numsprite[LIZTROOP],x,y+1,11);
@@ -987,13 +1084,21 @@ void Show2dText(char *name)
         while (t!=EOF && t!='\n' && x<250)
         {
             tempbuf[x]=t;
-            t = 0; if (kread(fp,&t,1)<=0) t = EOF;
-            x++; if (x>xmax) xmax=x;
+            t = 0;
+            if (kread(fp,&t,1)<=0) t = EOF;
+            x++;
+            if (x>xmax) xmax=x;
         }
         tempbuf[x]=0;
         printext16(xx*4,ydim16+(y*6)+2,11,-1,tempbuf,1);
-        x=0; y++;
-        if (y>18) {col++; y=6; xx+=xmax; xmax=0;
+        x=0;
+        y++;
+        if (y>18)
+        {
+            col++;
+            y=6;
+            xx+=xmax;
+            xmax=0;
         }
     }
     enddrawing();
@@ -1024,13 +1129,21 @@ void Show3dText(char *name)
         while (t!=EOF && t!='\n' && x<250)
         {
             tempbuf[x]=t;
-            t = 0; if (kread(fp,&t,1)<=0) t = EOF;
-            x++; if (x>xmax) xmax=x;
+            t = 0;
+            if (kread(fp,&t,1)<=0) t = EOF;
+            x++;
+            if (x>xmax) xmax=x;
         }
         tempbuf[x]=0;
         printext256(xx*4,(y*6)+2,whitecol,-1,tempbuf,1);
-        x=0; y++;
-        if (y>18) {col++; y=6; xx+=xmax; xmax=0;
+        x=0;
+        y++;
+        if (y>18)
+        {
+            col++;
+            y=6;
+            xx+=xmax;
+            xmax=0;
         }
     }
     enddrawing();
@@ -1166,13 +1279,16 @@ static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
     }
     // if(ok==1) { Message("no floor1",RED); return; }
 
-    if (fofmode==40) k=41; else k=40;
+    if (fofmode==40) k=41;
+    else k=40;
 
     for (j=0;j<MAXSPRITES;j++)
     {
         if (sprite[j].picnum==1 && sprite[j].lotag==k && sprite[j].hitag==sprite[floor1].hitag)
         {
-            floor2=j; ok++; break;
+            floor2=j;
+            ok++;
+            break;
         }
     }
 
@@ -1262,17 +1378,17 @@ void ExtSE40Code(long x,long y,long z,long a,long h)
         int t = sprite[i].lotag;
         switch (t)
         {
-            //            case 40:
-            //            case 41:
-            //                ExtSE40Draw(i,x,y,z,a,h);
-            //                break;
-        case 42:
-        case 43:
-        case 44:
-        case 45:
-            if (cursectnum == sprite[i].sectnum)
-                ExtSE40Draw(i,x,y,z,a,h);
-            break;
+                //            case 40:
+                //            case 41:
+                //                ExtSE40Draw(i,x,y,z,a,h);
+                //                break;
+            case 42:
+            case 43:
+            case 44:
+            case 45:
+                if (cursectnum == sprite[i].sectnum)
+                    ExtSE40Draw(i,x,y,z,a,h);
+                break;
         }
         i++;
     }
@@ -1461,15 +1577,15 @@ void m32_showmouse(void)
 
     switch (whitecol)
     {
-    case 1:  // Shadow Warrior
-        col = whitecol+mousecol;
-        break;
-    case 31: // Duke Nukem 3D
-        col = whitecol-mousecol;
-        break;
-    default:
-        col = whitecol;
-        break;
+        case 1:  // Shadow Warrior
+            col = whitecol+mousecol;
+            break;
+        case 31: // Duke Nukem 3D
+            col = whitecol-mousecol;
+            break;
+        default:
+            col = whitecol;
+            break;
     }
 
     if (col != whitecol)
@@ -1508,15 +1624,19 @@ int AskIfSure(void)
 
     while ((keystatus[1]|keystatus[0x1c]|keystatus[0x39]|keystatus[0x31]) == 0)
     {
-        if (handleevents()) {
-            if (quitevent) {
+        if (handleevents())
+        {
+            if (quitevent)
+            {
                 retval = 0;
                 break;
             }
         }
-        if (keystatus[0x15] != 0) {
+        if (keystatus[0x15] != 0)
+        {
             keystatus[0x15] = 0;
-            retval = 0; break;
+            retval = 0;
+            break;
         }
     }
     while (keystatus[1])
@@ -1545,7 +1665,9 @@ void Keys3d(void)
         rotatesprite(320<<15,200<<15,65536,(horiz-100)<<2,4094,0,0,2+4,0,0,0,0);
         lockbyte4094 = 0;
         searchx = ydim-1-searchx;
-        searchx ^= searchy; searchy ^= searchx; searchx ^= searchy;
+        searchx ^= searchy;
+        searchy ^= searchx;
+        searchx ^= searchy;
 
         //      overwritesprite(160L,170L,1153,0,1+2,0);
         rotatesprite(160<<16,170<<16,65536,(100-horiz+1024)<<3,1153,0,0,2,0,0,0,0);
@@ -1618,36 +1740,37 @@ void Keys3d(void)
         char msgbuf[2048];
         switch (searchstat)
         {
-        case 0:
-        case 4:
-        {
-            long dax, day, dist;
-            dax = wall[searchwall].x-wall[wall[searchwall].point2].x;
-            day = wall[searchwall].y-wall[wall[searchwall].point2].y;
-            dist = ksqrt(dax*dax+day*day);
-            Bsprintf(msgbuf,"Wall %d: length:%ld lo:%d hi:%d",searchwall,dist,wall[searchwall].lotag,wall[searchwall].hitag);
-            _message(msgbuf);
-            break;
-        }
-        case 1:
-            Bsprintf(msgbuf,"Sector %d ceiling: lo:%s hi:%d",searchsector,ExtGetSectorCaption(searchsector),sector[searchsector].hitag);
-            _message(msgbuf);
-            break;
-        case 2:
-            Bsprintf(msgbuf,"Sector %d floor: lo:%s hi:%d",searchsector,ExtGetSectorCaption(searchsector),sector[searchsector].hitag);
-            _message(msgbuf);
-            break;
-        case 3:
-        {
-            if (strlen(names[sprite[searchwall].picnum]) > 0) {
-                if (sprite[searchwall].picnum==SECTOREFFECTOR)
-                    Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d",searchwall,SectorEffectorText(searchwall),sprite[searchwall].lotag,sprite[searchwall].hitag);
-                else Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",searchwall,names[sprite[searchwall].picnum],sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
+            case 0:
+            case 4:
+            {
+                long dax, day, dist;
+                dax = wall[searchwall].x-wall[wall[searchwall].point2].x;
+                day = wall[searchwall].y-wall[wall[searchwall].point2].y;
+                dist = ksqrt(dax*dax+day*day);
+                Bsprintf(msgbuf,"Wall %d: length:%ld lo:%d hi:%d",searchwall,dist,wall[searchwall].lotag,wall[searchwall].hitag);
+                _message(msgbuf);
+                break;
             }
-            else Bsprintf(msgbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",searchwall,sprite[searchwall].picnum,sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
-            _message(msgbuf);
-            break;
-        }
+            case 1:
+                Bsprintf(msgbuf,"Sector %d ceiling: lo:%s hi:%d",searchsector,ExtGetSectorCaption(searchsector),sector[searchsector].hitag);
+                _message(msgbuf);
+                break;
+            case 2:
+                Bsprintf(msgbuf,"Sector %d floor: lo:%s hi:%d",searchsector,ExtGetSectorCaption(searchsector),sector[searchsector].hitag);
+                _message(msgbuf);
+                break;
+            case 3:
+            {
+                if (strlen(names[sprite[searchwall].picnum]) > 0)
+                {
+                    if (sprite[searchwall].picnum==SECTOREFFECTOR)
+                        Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d",searchwall,SectorEffectorText(searchwall),sprite[searchwall].lotag,sprite[searchwall].hitag);
+                    else Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",searchwall,names[sprite[searchwall].picnum],sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
+                }
+                else Bsprintf(msgbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",searchwall,sprite[searchwall].picnum,sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
+                _message(msgbuf);
+                break;
+            }
         }
     }
 
@@ -1671,12 +1794,14 @@ void Keys3d(void)
         keystatus[0x0e] = 0;
         switch (searchstat)
         {
-        case 0:
-        case 4:
-            wall[searchwall].cstat = 0; break;
-            //            case 1: case 2: sector[searchsector].cstat = 0; break;
-        case 3:
-            sprite[searchwall].cstat = 0; break;
+            case 0:
+            case 4:
+                wall[searchwall].cstat = 0;
+                break;
+                //            case 1: case 2: sector[searchsector].cstat = 0; break;
+            case 3:
+                sprite[searchwall].cstat = 0;
+                break;
         }
     }
 
@@ -1859,33 +1984,33 @@ void Keys3d(void)
     {
         switch (searchstat)
         {
-        case 1:
-            strcpy(tempbuf,"Sector ceilingz: ");
-            sector[searchsector].ceilingz = getnumber256(tempbuf,sector[searchsector].ceilingz,8388608,1);
-            if (!(sector[searchsector].ceilingstat&2))
-                sector[searchsector].ceilingheinum = 0;
+            case 1:
+                strcpy(tempbuf,"Sector ceilingz: ");
+                sector[searchsector].ceilingz = getnumber256(tempbuf,sector[searchsector].ceilingz,8388608,1);
+                if (!(sector[searchsector].ceilingstat&2))
+                    sector[searchsector].ceilingheinum = 0;
 
-            strcpy(tempbuf,"Sector ceiling slope: ");
-            sector[searchsector].ceilingheinum = getnumber256(tempbuf,sector[searchsector].ceilingheinum,8388608,1);
-            break;
-        case 2:
-            strcpy(tempbuf,"Sector floorz: ");
-            sector[searchsector].floorz = getnumber256(tempbuf,sector[searchsector].floorz,8388608,1);
-            if (!(sector[searchsector].floorstat&2))
-                sector[searchsector].floorheinum = 0;
-            strcpy(tempbuf,"Sector floor slope: ");
-            sector[searchsector].floorheinum = getnumber256(tempbuf,sector[searchsector].floorheinum,8388608,1);
-            break;
-        case 3:
-            strcpy(tempbuf,"Sprite x: ");
-            sprite[searchwall].x = getnumber256(tempbuf,sprite[searchwall].x,131072,1);
-            strcpy(tempbuf,"Sprite y: ");
-            sprite[searchwall].y = getnumber256(tempbuf,sprite[searchwall].y,131072,1);
-            strcpy(tempbuf,"Sprite z: ");
-            sprite[searchwall].z = getnumber256(tempbuf,sprite[searchwall].z,8388608,1);
-            strcpy(tempbuf,"Sprite angle: ");
-            sprite[searchwall].ang = getnumber256(tempbuf,sprite[searchwall].ang,2048L,0);
-            break;
+                strcpy(tempbuf,"Sector ceiling slope: ");
+                sector[searchsector].ceilingheinum = getnumber256(tempbuf,sector[searchsector].ceilingheinum,8388608,1);
+                break;
+            case 2:
+                strcpy(tempbuf,"Sector floorz: ");
+                sector[searchsector].floorz = getnumber256(tempbuf,sector[searchsector].floorz,8388608,1);
+                if (!(sector[searchsector].floorstat&2))
+                    sector[searchsector].floorheinum = 0;
+                strcpy(tempbuf,"Sector floor slope: ");
+                sector[searchsector].floorheinum = getnumber256(tempbuf,sector[searchsector].floorheinum,8388608,1);
+                break;
+            case 3:
+                strcpy(tempbuf,"Sprite x: ");
+                sprite[searchwall].x = getnumber256(tempbuf,sprite[searchwall].x,131072,1);
+                strcpy(tempbuf,"Sprite y: ");
+                sprite[searchwall].y = getnumber256(tempbuf,sprite[searchwall].y,131072,1);
+                strcpy(tempbuf,"Sprite z: ");
+                sprite[searchwall].z = getnumber256(tempbuf,sprite[searchwall].z,8388608,1);
+                strcpy(tempbuf,"Sprite angle: ");
+                sprite[searchwall].ang = getnumber256(tempbuf,sprite[searchwall].ang,2048L,0);
+                break;
         }
         if (sector[searchsector].ceilingheinum == 0)
             sector[searchsector].ceilingstat &= ~2;
@@ -1917,23 +2042,23 @@ void Keys3d(void)
     {
         switch (searchstat)
         {
-        case 0:
-        case 4:
-            strcpy(buffer,"Wall extra: ");
-            wall[searchwall].extra = getnumber256(buffer,(long)wall[searchwall].extra,65536L,1);
-            break;
-        case 1:
-            strcpy(buffer,"Sector extra: ");
-            sector[searchsector].extra = getnumber256(buffer,(long)sector[searchsector].extra,65536L,1);
-            break;
-        case 2:
-            strcpy(buffer,"Sector extra: ");
-            sector[searchsector].extra = getnumber256(buffer,(long)sector[searchsector].extra,65536L,1);
-            break;
-        case 3:
-            strcpy(buffer,"Sprite extra: ");
-            sprite[searchwall].extra = getnumber256(buffer,(long)sprite[searchwall].extra,65536L,1);
-            break;
+            case 0:
+            case 4:
+                strcpy(buffer,"Wall extra: ");
+                wall[searchwall].extra = getnumber256(buffer,(long)wall[searchwall].extra,65536L,1);
+                break;
+            case 1:
+                strcpy(buffer,"Sector extra: ");
+                sector[searchsector].extra = getnumber256(buffer,(long)sector[searchsector].extra,65536L,1);
+                break;
+            case 2:
+                strcpy(buffer,"Sector extra: ");
+                sector[searchsector].extra = getnumber256(buffer,(long)sector[searchsector].extra,65536L,1);
+                break;
+            case 3:
+                strcpy(buffer,"Sprite extra: ");
+                sprite[searchwall].extra = getnumber256(buffer,(long)sprite[searchwall].extra,65536L,1);
+                break;
         }
         asksave = 1;
         keystatus[KEYSC_M] = 0;
@@ -2056,23 +2181,23 @@ void Keys3d(void)
         {
             switch (searchstat)
             {
-            case 0:
-            case 4:
-                strcpy(buffer,"Wall hitag: ");
-                wall[searchwall].hitag = getnumber256(buffer,(long)wall[searchwall].hitag,65536L,0);
-                break;
-            case 1:
-                strcpy(buffer,"Sector hitag: ");
-                sector[searchsector].hitag = getnumber256(buffer,(long)sector[searchsector].hitag,65536L,0);
-                break;
-            case 2:
-                strcpy(buffer,"Sector hitag: ");
-                sector[searchsector].hitag = getnumber256(buffer,(long)sector[searchsector].hitag,65536L,0);
-                break;
-            case 3:
-                strcpy(buffer,"Sprite hitag: ");
-                sprite[searchwall].hitag = getnumber256(buffer,(long)sprite[searchwall].hitag,65536L,0);
-                break;
+                case 0:
+                case 4:
+                    strcpy(buffer,"Wall hitag: ");
+                    wall[searchwall].hitag = getnumber256(buffer,(long)wall[searchwall].hitag,65536L,0);
+                    break;
+                case 1:
+                    strcpy(buffer,"Sector hitag: ");
+                    sector[searchsector].hitag = getnumber256(buffer,(long)sector[searchsector].hitag,65536L,0);
+                    break;
+                case 2:
+                    strcpy(buffer,"Sector hitag: ");
+                    sector[searchsector].hitag = getnumber256(buffer,(long)sector[searchsector].hitag,65536L,0);
+                    break;
+                case 3:
+                    strcpy(buffer,"Sprite hitag: ");
+                    sprite[searchwall].hitag = getnumber256(buffer,(long)sprite[searchwall].hitag,65536L,0);
+                    break;
             }
         }
 
@@ -2202,7 +2327,8 @@ void Keys3d(void)
                 else
                 {
                     if ((keystatus[0x2a]|keystatus[0x36]) == 0)
-                        k = 16; else k = 1;
+                        k = 16;
+                    else k = 1;
 
                     if (highlightsectorcnt >= 0)
                         for (i=0;i<highlightsectorcnt;i++)
@@ -2289,7 +2415,8 @@ void Keys3d(void)
                 else
                 {
                     if ((keystatus[0x2a]|keystatus[0x36]) == 0)
-                        k = 16; else k = 1;
+                        k = 16;
+                    else k = 1;
 
                     if (highlightsectorcnt >= 0)
                         for (i=0;i<highlightsectorcnt;i++)
@@ -2370,46 +2497,51 @@ void Keys3d(void)
         j = i = (keystatus[KEYSC_EQUAL]|(bstatus&32))?1:-1;
         switch (searchstat)
         {
-        case 0:
-            while (!tilesizx[wall[searchwall].picnum]||!tilesizy[wall[searchwall].picnum]||j) {
-                if (wall[searchwall].picnum+i >= MAXTILES) wall[searchwall].picnum = 0;
-                else if (wall[searchwall].picnum+i < 0) wall[searchwall].picnum = MAXTILES-1;
-                else wall[searchwall].picnum += i;
-                j = 0;
-            }
-            break;
-        case 1:
-            while (!tilesizx[sector[searchsector].ceilingpicnum]||!tilesizy[sector[searchsector].ceilingpicnum]||j) {
-                if (sector[searchsector].ceilingpicnum+i >= MAXTILES) sector[searchsector].ceilingpicnum = 0;
-                else if (sector[searchsector].ceilingpicnum+i < 0) sector[searchsector].ceilingpicnum = MAXTILES-1;
-                else sector[searchsector].ceilingpicnum += i;
-                j = 0;
-            }
-            break;
-        case 2:
-            while (!tilesizx[sector[searchsector].floorpicnum]||!tilesizy[sector[searchsector].floorpicnum]||j) {
-                if (sector[searchsector].floorpicnum+i >= MAXTILES) sector[searchsector].floorpicnum = 0;
-                else if (sector[searchsector].floorpicnum+i < 0) sector[searchsector].floorpicnum = MAXTILES-1;
-                else sector[searchsector].floorpicnum += i;
-                j = 0;
-            }
-            break;
-        case 3:
-            while (!tilesizx[sprite[searchwall].picnum]||!tilesizy[sprite[searchwall].picnum]||j) {
-                if (sprite[searchwall].picnum+i >= MAXTILES) sprite[searchwall].picnum = 0;
-                else if (sprite[searchwall].picnum+i < 0) sprite[searchwall].picnum = MAXTILES-1;
-                else sprite[searchwall].picnum += i;
-                j = 0;
-            }
-            break;
-        case 4:
-            while (!tilesizx[wall[searchwall].overpicnum]||!tilesizy[wall[searchwall].overpicnum]||j) {
-                if (wall[searchwall].overpicnum+i >= MAXTILES) wall[searchwall].overpicnum = 0;
-                else if (wall[searchwall].overpicnum+i < 0) wall[searchwall].overpicnum = MAXTILES-1;
-                else wall[searchwall].overpicnum += i;
-                j = 0;
-            }
-            break;
+            case 0:
+                while (!tilesizx[wall[searchwall].picnum]||!tilesizy[wall[searchwall].picnum]||j)
+                {
+                    if (wall[searchwall].picnum+i >= MAXTILES) wall[searchwall].picnum = 0;
+                    else if (wall[searchwall].picnum+i < 0) wall[searchwall].picnum = MAXTILES-1;
+                    else wall[searchwall].picnum += i;
+                    j = 0;
+                }
+                break;
+            case 1:
+                while (!tilesizx[sector[searchsector].ceilingpicnum]||!tilesizy[sector[searchsector].ceilingpicnum]||j)
+                {
+                    if (sector[searchsector].ceilingpicnum+i >= MAXTILES) sector[searchsector].ceilingpicnum = 0;
+                    else if (sector[searchsector].ceilingpicnum+i < 0) sector[searchsector].ceilingpicnum = MAXTILES-1;
+                    else sector[searchsector].ceilingpicnum += i;
+                    j = 0;
+                }
+                break;
+            case 2:
+                while (!tilesizx[sector[searchsector].floorpicnum]||!tilesizy[sector[searchsector].floorpicnum]||j)
+                {
+                    if (sector[searchsector].floorpicnum+i >= MAXTILES) sector[searchsector].floorpicnum = 0;
+                    else if (sector[searchsector].floorpicnum+i < 0) sector[searchsector].floorpicnum = MAXTILES-1;
+                    else sector[searchsector].floorpicnum += i;
+                    j = 0;
+                }
+                break;
+            case 3:
+                while (!tilesizx[sprite[searchwall].picnum]||!tilesizy[sprite[searchwall].picnum]||j)
+                {
+                    if (sprite[searchwall].picnum+i >= MAXTILES) sprite[searchwall].picnum = 0;
+                    else if (sprite[searchwall].picnum+i < 0) sprite[searchwall].picnum = MAXTILES-1;
+                    else sprite[searchwall].picnum += i;
+                    j = 0;
+                }
+                break;
+            case 4:
+                while (!tilesizx[wall[searchwall].overpicnum]||!tilesizy[wall[searchwall].overpicnum]||j)
+                {
+                    if (wall[searchwall].overpicnum+i >= MAXTILES) wall[searchwall].overpicnum = 0;
+                    else if (wall[searchwall].overpicnum+i < 0) wall[searchwall].overpicnum = MAXTILES-1;
+                    else wall[searchwall].overpicnum += i;
+                    j = 0;
+                }
+                break;
         }
         asksave = 1;
         keystatus[KEYSC_DASH] = keystatus[KEYSC_EQUAL] = 0;
@@ -2502,14 +2634,18 @@ void Keys3d(void)
                 i = ((i>>3)&1)+((i>>7)&2);    //3-x,8-y
                 switch (i)
                 {
-                case 0:
-                    i = 1; break;
-                case 1:
-                    i = 3; break;
-                case 2:
-                    i = 0; break;
-                case 3:
-                    i = 2; break;
+                    case 0:
+                        i = 1;
+                        break;
+                    case 1:
+                        i = 3;
+                        break;
+                    case 2:
+                        i = 0;
+                        break;
+                    case 3:
+                        i = 2;
+                        break;
                 }
                 i = ((i&1)<<3)+((i&2)<<7);
                 wall[searchwall].cstat &= ~0x0108;
@@ -2522,22 +2658,30 @@ void Keys3d(void)
                 i = (i&0x4)+((i>>4)&3);
                 switch (i)
                 {
-                case 0:
-                    i = 6; break;
-                case 6:
-                    i = 3; break;
-                case 3:
-                    i = 5; break;
-                case 5:
-                    i = 1; break;
-                case 1:
-                    i = 7; break;
-                case 7:
-                    i = 2; break;
-                case 2:
-                    i = 4; break;
-                case 4:
-                    i = 0; break;
+                    case 0:
+                        i = 6;
+                        break;
+                    case 6:
+                        i = 3;
+                        break;
+                    case 3:
+                        i = 5;
+                        break;
+                    case 5:
+                        i = 1;
+                        break;
+                    case 1:
+                        i = 7;
+                        break;
+                    case 7:
+                        i = 2;
+                        break;
+                    case 2:
+                        i = 4;
+                        break;
+                    case 4:
+                        i = 0;
+                        break;
                 }
                 i = (i&0x4)+((i&3)<<4);
                 sector[searchsector].ceilingstat &= ~0x34;
@@ -2550,22 +2694,30 @@ void Keys3d(void)
                 i = (i&0x4)+((i>>4)&3);
                 switch (i)
                 {
-                case 0:
-                    i = 6; break;
-                case 6:
-                    i = 3; break;
-                case 3:
-                    i = 5; break;
-                case 5:
-                    i = 1; break;
-                case 1:
-                    i = 7; break;
-                case 7:
-                    i = 2; break;
-                case 2:
-                    i = 4; break;
-                case 4:
-                    i = 0; break;
+                    case 0:
+                        i = 6;
+                        break;
+                    case 6:
+                        i = 3;
+                        break;
+                    case 3:
+                        i = 5;
+                        break;
+                    case 5:
+                        i = 1;
+                        break;
+                    case 1:
+                        i = 7;
+                        break;
+                    case 7:
+                        i = 2;
+                        break;
+                    case 2:
+                        i = 4;
+                        break;
+                    case 4:
+                        i = 0;
+                        break;
                 }
                 i = (i&0x4)+((i&3)<<4);
                 sector[searchsector].floorstat &= ~0x34;
@@ -2585,14 +2737,18 @@ void Keys3d(void)
                     i = ((i>>2)&3);
                     switch (i)
                     {
-                    case 0:
-                        i = 1; break;
-                    case 1:
-                        i = 3; break;
-                    case 2:
-                        i = 0; break;
-                    case 3:
-                        i = 2; break;
+                        case 0:
+                            i = 1;
+                            break;
+                        case 1:
+                            i = 3;
+                            break;
+                        case 2:
+                            i = 0;
+                            break;
+                        case 3:
+                            i = 2;
+                            break;
                     }
                     i <<= 2;
                     sprite[searchwall].cstat &= ~0xc;
@@ -2895,12 +3051,15 @@ void Keys3d(void)
             if (rate<MinRate)
             {
                 Bsprintf(tempbuf,"%ld WARNING : %s",rate,Slow[rate/MinD]);
-                begindrawing(); printext256(0*8,0*8,whitecol,-1,tempbuf,1); enddrawing();
+                begindrawing();
+                printext256(0*8,0*8,whitecol,-1,tempbuf,1);
+                enddrawing();
             }
             else
 #endif
             {
-                Bsprintf(tempbuf,"%ld",rate); begindrawing();
+                Bsprintf(tempbuf,"%ld",rate);
+                begindrawing();
                 printext256(0,0,whitecol,-1,tempbuf,!(xdimgame > 640));
                 enddrawing();
             }
@@ -2944,22 +3103,30 @@ void Keys3d(void)
             enddrawing();
             switch (i)
             {
-            case 8:
-                Bsprintf(tempbuf,"%d",autosave); break;
-            case 9:
-                Bsprintf(tempbuf,"%s",SKILLMODE[skill]); break;
-            case 10:
-                Bsprintf(tempbuf,"%d",tabgraphic); break;
-            case 11:
-                Bsprintf(tempbuf,"%d",framerateon); break;
-            case 12:
-                Bsprintf(tempbuf,"%s",SPRDSPMODE[nosprites]); break;
-            case 13:
-                Bsprintf(tempbuf,"%d",shadepreview); break;
-            case 14:
-                Bsprintf(tempbuf,"%d",purpleon); break;
-            default :
-                sprintf(tempbuf," "); break;
+                case 8:
+                    Bsprintf(tempbuf,"%d",autosave);
+                    break;
+                case 9:
+                    Bsprintf(tempbuf,"%s",SKILLMODE[skill]);
+                    break;
+                case 10:
+                    Bsprintf(tempbuf,"%d",tabgraphic);
+                    break;
+                case 11:
+                    Bsprintf(tempbuf,"%d",framerateon);
+                    break;
+                case 12:
+                    Bsprintf(tempbuf,"%s",SPRDSPMODE[nosprites]);
+                    break;
+                case 13:
+                    Bsprintf(tempbuf,"%d",shadepreview);
+                    break;
+                case 14:
+                    Bsprintf(tempbuf,"%d",purpleon);
+                    break;
+                default :
+                    sprintf(tempbuf," ");
+                    break;
             }
             begindrawing();
             if (!strcmp(tempbuf,"0"))
@@ -3004,7 +3171,8 @@ void Keys3d(void)
 
     {
         keystatus[0x20] = 0;
-        skill++; if (skill>MAXSKILL-1) skill=0;
+        skill++;
+        if (skill>MAXSKILL-1) skill=0;
         sprintf(tempbuf,"%s",SKILLMODE[skill]);
         //        printext256(1*4,1*8,11,-1,tempbuf,0);
         message(tempbuf);
@@ -3040,7 +3208,8 @@ void Keys3d(void)
     if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x11]==1) // ' w
     {
         keystatus[0x11] = 0;
-        nosprites++; if (nosprites>3) nosprites=0;
+        nosprites++;
+        if (nosprites>3) nosprites=0;
         Bsprintf(tempbuf,"%s",SPRDSPMODE[nosprites]);
         //        printext256(1*4,1*8,whitecol,-1,tempbuf,0);
         message(tempbuf);
@@ -3049,7 +3218,8 @@ void Keys3d(void)
     if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x15]==1) // ' y
     {
         keystatus[0x15] = 0;
-        purpleon=!purpleon; if (nosprites>3) nosprites=0;
+        purpleon=!purpleon;
+        if (nosprites>3) nosprites=0;
         if (purpleon) message("Purple ON");
         else message("Purple OFF");
     }
@@ -3059,36 +3229,39 @@ void Keys3d(void)
         keystatus[0x2e] = 0;
         switch (searchstat)
         {
-        case 0:
-        case 4:
-            for (i=0;i<MAXWALLS;i++)
-            {
-                if (wall[i].picnum==temppicnum)
-                    wall[i].shade=tempshade;
-            }
-            break;
-        case 1:
-        case 2:
-            for (i=0;i<MAXSECTORS;i++)
-            {
-                if (searchstat==1)
-                    if (sector[i].ceilingpicnum==temppicnum) {
-                        sector[i].ceilingshade=tempshade;
-                    }
-                if (searchstat==2)
-                    if (sector[i].floorpicnum==temppicnum) {
-                        sector[i].floorshade=tempshade;
-                    }
-            }
-            break;
-        case 3:
-            for (i=0;i<MAXSPRITES;i++)
-            {
-                if (sprite[i].picnum==temppicnum) {
-                    sprite[i].shade=tempshade;
+            case 0:
+            case 4:
+                for (i=0;i<MAXWALLS;i++)
+                {
+                    if (wall[i].picnum==temppicnum)
+                        wall[i].shade=tempshade;
                 }
-            }
-            break;
+                break;
+            case 1:
+            case 2:
+                for (i=0;i<MAXSECTORS;i++)
+                {
+                    if (searchstat==1)
+                        if (sector[i].ceilingpicnum==temppicnum)
+                        {
+                            sector[i].ceilingshade=tempshade;
+                        }
+                    if (searchstat==2)
+                        if (sector[i].floorpicnum==temppicnum)
+                        {
+                            sector[i].floorshade=tempshade;
+                        }
+                }
+                break;
+            case 3:
+                for (i=0;i<MAXSPRITES;i++)
+                {
+                    if (sprite[i].picnum==temppicnum)
+                    {
+                        sprite[i].shade=tempshade;
+                    }
+                }
+                break;
         }
     }
 
@@ -3097,23 +3270,23 @@ void Keys3d(void)
         keystatus[0x14] = 0;
         switch (searchstat)
         {
-        case 0:
-        case 4:
-            Bstrcpy(tempbuf,"Wall lotag: ");
-            wall[searchwall].lotag =
-                getnumber256(tempbuf,wall[searchwall].lotag,65536L,0);
-            break;
-        case 1:
-        case 2:
-            Bstrcpy(tempbuf,"Sector lotag: ");
-            sector[searchsector].lotag =
-                getnumber256(tempbuf,sector[searchsector].lotag,65536L,0);
-            break;
-        case 3:
-            Bstrcpy(tempbuf,"Sprite lotag: ");
-            sprite[searchwall].lotag =
-                getnumber256(tempbuf,sprite[searchwall].lotag,65536L,0);
-            break;
+            case 0:
+            case 4:
+                Bstrcpy(tempbuf,"Wall lotag: ");
+                wall[searchwall].lotag =
+                    getnumber256(tempbuf,wall[searchwall].lotag,65536L,0);
+                break;
+            case 1:
+            case 2:
+                Bstrcpy(tempbuf,"Sector lotag: ");
+                sector[searchsector].lotag =
+                    getnumber256(tempbuf,sector[searchsector].lotag,65536L,0);
+                break;
+            case 3:
+                Bstrcpy(tempbuf,"Sprite lotag: ");
+                sprite[searchwall].lotag =
+                    getnumber256(tempbuf,sprite[searchwall].lotag,65536L,0);
+                break;
         }
     }
 
@@ -3122,23 +3295,23 @@ void Keys3d(void)
         keystatus[0x23] = 0;
         switch (searchstat)
         {
-        case 0:
-        case 4:
-            Bstrcpy(tempbuf,"Wall hitag: ");
-            wall[searchwall].hitag =
-                getnumber256(tempbuf,wall[searchwall].hitag,65536L,0);
-            break;
-        case 1:
-        case 2:
-            Bstrcpy(tempbuf,"Sector hitag: ");
-            sector[searchsector].hitag =
-                getnumber256(tempbuf,sector[searchsector].hitag,65536L,0);
-            break;
-        case 3:
-            Bstrcpy(tempbuf,"Sprite hitag: ");
-            sprite[searchwall].hitag =
-                getnumber256(tempbuf,sprite[searchwall].hitag,65536L,0);
-            break;
+            case 0:
+            case 4:
+                Bstrcpy(tempbuf,"Wall hitag: ");
+                wall[searchwall].hitag =
+                    getnumber256(tempbuf,wall[searchwall].hitag,65536L,0);
+                break;
+            case 1:
+            case 2:
+                Bstrcpy(tempbuf,"Sector hitag: ");
+                sector[searchsector].hitag =
+                    getnumber256(tempbuf,sector[searchsector].hitag,65536L,0);
+                break;
+            case 3:
+                Bstrcpy(tempbuf,"Sprite hitag: ");
+                sprite[searchwall].hitag =
+                    getnumber256(tempbuf,sprite[searchwall].hitag,65536L,0);
+                break;
         }
     }
 
@@ -3147,27 +3320,27 @@ void Keys3d(void)
         keystatus[0x1f] = 0;
         switch (searchstat)
         {
-        case 0:
-        case 4:
-            Bstrcpy(tempbuf,"Wall shade: ");
-            wall[searchwall].shade =
-                getnumber256(tempbuf,wall[searchwall].shade,65536L,1);
-            break;
-        case 1:
-        case 2:
-            Bstrcpy(tempbuf,"Sector shade: ");
-            if (searchstat==1)
-                sector[searchsector].ceilingshade =
-                    getnumber256(tempbuf,sector[searchsector].ceilingshade,65536L,1);
-            if (searchstat==2)
-                sector[searchsector].floorshade =
-                    getnumber256(tempbuf,sector[searchsector].floorshade,65536L,1);
-            break;
-        case 3:
-            Bstrcpy(tempbuf,"Sprite shade: ");
-            sprite[searchwall].shade =
-                getnumber256(tempbuf,sprite[searchwall].shade,65536L,1);
-            break;
+            case 0:
+            case 4:
+                Bstrcpy(tempbuf,"Wall shade: ");
+                wall[searchwall].shade =
+                    getnumber256(tempbuf,wall[searchwall].shade,65536L,1);
+                break;
+            case 1:
+            case 2:
+                Bstrcpy(tempbuf,"Sector shade: ");
+                if (searchstat==1)
+                    sector[searchsector].ceilingshade =
+                        getnumber256(tempbuf,sector[searchsector].ceilingshade,65536L,1);
+                if (searchstat==2)
+                    sector[searchsector].floorshade =
+                        getnumber256(tempbuf,sector[searchsector].floorshade,65536L,1);
+                break;
+            case 3:
+                Bstrcpy(tempbuf,"Sprite shade: ");
+                sprite[searchwall].shade =
+                    getnumber256(tempbuf,sprite[searchwall].shade,65536L,1);
+                break;
         }
     }
 
@@ -3176,12 +3349,12 @@ void Keys3d(void)
         keystatus[0x2f] = 0;
         switch (searchstat)
         {
-        case 1:
-        case 2:
-            Bstrcpy(tempbuf,"Sector visibility: ");
-            sector[searchsector].visibility =
-                getnumber256(tempbuf,sector[searchsector].visibility,65536L,0);
-            break;
+            case 1:
+            case 2:
+                Bstrcpy(tempbuf,"Sector visibility: ");
+                sector[searchsector].visibility =
+                    getnumber256(tempbuf,sector[searchsector].visibility,65536L,0);
+                break;
         }
     }
 
@@ -3223,7 +3396,8 @@ void Keys3d(void)
 
     if (keystatus[0x3b]==1) // F1
     {
-        helpon=!helpon; keystatus[0x23]=0;
+        helpon=!helpon;
+        keystatus[0x23]=0;
         keystatus[0x3b]=0;
     }
 
@@ -3231,36 +3405,36 @@ void Keys3d(void)
     {
         switch (searchstat)
         {
-        case 0:
-            strcpy(tempbuf,"Wall picnum: ");
-            i = getnumber256(tempbuf,wall[searchwall].picnum,MAXTILES-1,0);
-            if (tilesizx[i] != 0)
-                wall[searchwall].picnum = i;
-            break;
-        case 1:
-            strcpy(tempbuf,"Sector ceiling picnum: ");
-            i = getnumber256(tempbuf,sector[searchsector].ceilingpicnum,MAXTILES-1,0);
-            if (tilesizx[i] != 0)
-                sector[searchsector].ceilingpicnum = i;
-            break;
-        case 2:
-            strcpy(tempbuf,"Sector floor picnum: ");
-            i = getnumber256(tempbuf,sector[searchsector].floorpicnum,MAXTILES-1,0);
-            if (tilesizx[i] != 0)
-                sector[searchsector].floorpicnum = i;
-            break;
-        case 3:
-            strcpy(tempbuf,"Sprite picnum: ");
-            i = getnumber256(tempbuf,sprite[searchwall].picnum,MAXTILES-1,0);
-            if (tilesizx[i] != 0)
-                sprite[searchwall].picnum = i;
-            break;
-        case 4:
-            strcpy(tempbuf,"Masked wall picnum: ");
-            i = getnumber256(tempbuf,wall[searchwall].overpicnum,MAXTILES-1,0);
-            if (tilesizx[i] != 0)
-                wall[searchwall].overpicnum = i;
-            break;
+            case 0:
+                strcpy(tempbuf,"Wall picnum: ");
+                i = getnumber256(tempbuf,wall[searchwall].picnum,MAXTILES-1,0);
+                if (tilesizx[i] != 0)
+                    wall[searchwall].picnum = i;
+                break;
+            case 1:
+                strcpy(tempbuf,"Sector ceiling picnum: ");
+                i = getnumber256(tempbuf,sector[searchsector].ceilingpicnum,MAXTILES-1,0);
+                if (tilesizx[i] != 0)
+                    sector[searchsector].ceilingpicnum = i;
+                break;
+            case 2:
+                strcpy(tempbuf,"Sector floor picnum: ");
+                i = getnumber256(tempbuf,sector[searchsector].floorpicnum,MAXTILES-1,0);
+                if (tilesizx[i] != 0)
+                    sector[searchsector].floorpicnum = i;
+                break;
+            case 3:
+                strcpy(tempbuf,"Sprite picnum: ");
+                i = getnumber256(tempbuf,sprite[searchwall].picnum,MAXTILES-1,0);
+                if (tilesizx[i] != 0)
+                    sprite[searchwall].picnum = i;
+                break;
+            case 4:
+                strcpy(tempbuf,"Masked wall picnum: ");
+                i = getnumber256(tempbuf,wall[searchwall].overpicnum,MAXTILES-1,0);
+                if (tilesizx[i] != 0)
+                    wall[searchwall].overpicnum = i;
+                break;
         }
         asksave = 1;
         keystatus[KEYSC_G] = 0;
@@ -3301,14 +3475,18 @@ void Keys3d(void)
             sector[searchsector].ceilingstat &= ~(128+256);
             switch (i)
             {
-            case 0:
-                sector[searchsector].ceilingstat |= 128; break;
-            case 128:
-                sector[searchsector].ceilingstat |= 256; break;
-            case 256:
-                sector[searchsector].ceilingstat |= 384; break;
-            case 384:
-                sector[searchsector].ceilingstat |= 0; break;
+                case 0:
+                    sector[searchsector].ceilingstat |= 128;
+                    break;
+                case 128:
+                    sector[searchsector].ceilingstat |= 256;
+                    break;
+                case 256:
+                    sector[searchsector].ceilingstat |= 384;
+                    break;
+                case 384:
+                    sector[searchsector].ceilingstat |= 0;
+                    break;
             }
             asksave = 1;
         }
@@ -3318,14 +3496,18 @@ void Keys3d(void)
             sector[searchsector].floorstat &= ~(128+256);
             switch (i)
             {
-            case 0:
-                sector[searchsector].floorstat |= 128; break;
-            case 128:
-                sector[searchsector].floorstat |= 256; break;
-            case 256:
-                sector[searchsector].floorstat |= 384; break;
-            case 384:
-                sector[searchsector].floorstat |= 0; break;
+                case 0:
+                    sector[searchsector].floorstat |= 128;
+                    break;
+                case 128:
+                    sector[searchsector].floorstat |= 256;
+                    break;
+                case 256:
+                    sector[searchsector].floorstat |= 384;
+                    break;
+                case 384:
+                    sector[searchsector].floorstat |= 0;
+                    break;
             }
             asksave = 1;
         }
@@ -3334,23 +3516,23 @@ void Keys3d(void)
         {
             switch (searchstat)
             {
-            case 0:
-            case 4:
-                strcpy(buffer,"Wall lotag: ");
-                wall[searchwall].lotag = getnumber256(buffer,(long)wall[searchwall].lotag,65536L,0);
-                break;
-            case 1:
-                strcpy(buffer,"Sector lotag: ");
-                sector[searchsector].lotag = getnumber256(buffer,(long)sector[searchsector].lotag,65536L,0);
-                break;
-            case 2:
-                strcpy(buffer,"Sector lotag: ");
-                sector[searchsector].lotag = getnumber256(buffer,(long)sector[searchsector].lotag,65536L,0);
-                break;
-            case 3:
-                strcpy(buffer,"Sprite lotag: ");
-                sprite[searchwall].lotag = getnumber256(buffer,(long)sprite[searchwall].lotag,65536L,0);
-                break;
+                case 0:
+                case 4:
+                    strcpy(buffer,"Wall lotag: ");
+                    wall[searchwall].lotag = getnumber256(buffer,(long)wall[searchwall].lotag,65536L,0);
+                    break;
+                case 1:
+                    strcpy(buffer,"Sector lotag: ");
+                    sector[searchsector].lotag = getnumber256(buffer,(long)sector[searchsector].lotag,65536L,0);
+                    break;
+                case 2:
+                    strcpy(buffer,"Sector lotag: ");
+                    sector[searchsector].lotag = getnumber256(buffer,(long)sector[searchsector].lotag,65536L,0);
+                    break;
+                case 3:
+                    strcpy(buffer,"Sprite lotag: ");
+                    sprite[searchwall].lotag = getnumber256(buffer,(long)sprite[searchwall].lotag,65536L,0);
+                    break;
             }
         }
         else
@@ -3392,16 +3574,21 @@ void Keys3d(void)
         enddrawing();
         switch (searchstat)
         {
-        case 0 :
-            wall[searchwall].picnum = temppicnum; break;
-        case 1 :
-            sector[searchsector].ceilingpicnum = temppicnum; break;
-        case 2 :
-            sector[searchsector].floorpicnum = temppicnum; break;
-        case 3 :
-            sprite[searchwall].picnum = temppicnum; break;
-        case 4 :
-            wall[searchwall].overpicnum = temppicnum; break;
+            case 0 :
+                wall[searchwall].picnum = temppicnum;
+                break;
+            case 1 :
+                sector[searchsector].ceilingpicnum = temppicnum;
+                break;
+            case 2 :
+                sector[searchsector].floorpicnum = temppicnum;
+                break;
+            case 3 :
+                sprite[searchwall].picnum = temppicnum;
+                break;
+            case 4 :
+                wall[searchwall].overpicnum = temppicnum;
+                break;
         }
         keystatus[0x1c]=0;
     }
@@ -3431,7 +3618,8 @@ void Keys2d(void)
         {
             char tmpbuf[2048];
             i = pointhighlight-16384;
-            if (strlen(names[sprite[i].picnum]) > 0) {
+            if (strlen(names[sprite[i].picnum]) > 0)
+            {
                 if (sprite[i].picnum==SECTOREFFECTOR)
                     Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d",i,SectorEffectorText(i),sprite[i].lotag,sprite[i].hitag);
                 else Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",i,names[sprite[i].picnum],sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
@@ -3790,14 +3978,16 @@ void Keys2d(void)
     if (keystatus[0x22] > 0)  // G (grid on/off)
     {
         grid += ((keystatus[0x2a]|keystatus[0x36]) > 0?-1:1);
-        if (grid == -1 || grid == 9) {
-            switch (grid) {
-            case -1:
-                grid = 8;
-                break;
-            case 9:
-                grid = 0;
-                break;
+        if (grid == -1 || grid == 9)
+        {
+            switch (grid)
+            {
+                case -1:
+                    grid = 8;
+                    break;
+                case 9:
+                    grid = 0;
+                    break;
             }
         }
         if (!grid) sprintf(tempbuf,"Grid off");
@@ -3840,7 +4030,8 @@ void Keys2d(void)
 
     if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x04]==1) // ' 3
     {
-        onnames++; if (onnames>8) onnames=0;
+        onnames++;
+        if (onnames>8) onnames=0;
         keystatus[0x04]=0;
         Bsprintf(tempbuf,"Mode %d %s",onnames,SpriteMode[onnames]);
         printmessage16(tempbuf);
@@ -3945,96 +4136,97 @@ void ExtSetupSpecialSpriteCols(void)
     short i;
     for (i=0;i<MAXTILES;i++)
 
-        switch (i) {
-        case SECTOREFFECTOR:
-        case ACTIVATOR:
-        case TOUCHPLATE:
-        case ACTIVATORLOCKED:
-        case MUSICANDSFX:
-        case LOCATORS:
-        case CYCLER:
-        case MASTERSWITCH:
-        case RESPAWN:
-        case GPSPEED:
-            spritecol2d[i][0] = 15;
-            spritecol2d[i][1] = 15;
-            break;
-        case APLAYER:
-            spritecol2d[i][0] = 2;
-            spritecol2d[i][1] = 2;
-            break;
-        case LIZTROOP :
-        case LIZTROOPRUNNING :
-        case LIZTROOPSTAYPUT :
-        case LIZTROOPSHOOT :
-        case LIZTROOPJETPACK :
-        case LIZTROOPONTOILET :
-        case LIZTROOPDUCKING :
-        case PIGCOP:
-        case PIGCOPSTAYPUT:
-        case PIGCOPDIVE:
-        case LIZMAN:
-        case LIZMANSTAYPUT:
-        case LIZMANSPITTING:
-        case LIZMANFEEDING:
-        case LIZMANJUMP:
-        case BOSS1:
-        case BOSS1STAYPUT:
-        case BOSS1SHOOT:
-        case BOSS1LOB:
-        case BOSSTOP:
-        case COMMANDER:
-        case COMMANDERSTAYPUT:
-        case OCTABRAIN:
-        case OCTABRAINSTAYPUT:
-        case RECON:
-        case DRONE:
-        case ROTATEGUN:
-        case EGG:
-        case ORGANTIC:
-        case GREENSLIME:
-        case BOSS2:
-        case BOSS3:
-        case TANK:
-        case NEWBEAST:
-        case BOSS4:
-            spritecol2d[i][0] = 31;
-            spritecol2d[i][1] = 31;
-            break;
-        case FIRSTGUNSPRITE:
-        case CHAINGUNSPRITE :
-        case RPGSPRITE:
-        case FREEZESPRITE:
-        case SHRINKERSPRITE:
-        case HEAVYHBOMB:
-        case TRIPBOMBSPRITE:
-        case SHOTGUNSPRITE:
-        case DEVISTATORSPRITE:
-        case FREEZEAMMO:
-        case AMMO:
-        case BATTERYAMMO:
-        case DEVISTATORAMMO:
-        case RPGAMMO:
-        case GROWAMMO:
-        case CRYSTALAMMO:
-        case HBOMBAMMO:
-        case AMMOLOTS:
-        case SHOTGUNAMMO:
-        case COLA:
-        case SIXPAK:
-        case FIRSTAID:
-        case SHIELD:
-        case STEROIDS:
-        case AIRTANK:
-        case JETPACK:
-        case HEATSENSOR:
-        case ACCESSCARD:
-        case BOOTS:
-            spritecol2d[i][0] = 24;
-            spritecol2d[i][1] = 24;
-            break;
-        default:
-            break;
+        switch (i)
+        {
+            case SECTOREFFECTOR:
+            case ACTIVATOR:
+            case TOUCHPLATE:
+            case ACTIVATORLOCKED:
+            case MUSICANDSFX:
+            case LOCATORS:
+            case CYCLER:
+            case MASTERSWITCH:
+            case RESPAWN:
+            case GPSPEED:
+                spritecol2d[i][0] = 15;
+                spritecol2d[i][1] = 15;
+                break;
+            case APLAYER:
+                spritecol2d[i][0] = 2;
+                spritecol2d[i][1] = 2;
+                break;
+            case LIZTROOP :
+            case LIZTROOPRUNNING :
+            case LIZTROOPSTAYPUT :
+            case LIZTROOPSHOOT :
+            case LIZTROOPJETPACK :
+            case LIZTROOPONTOILET :
+            case LIZTROOPDUCKING :
+            case PIGCOP:
+            case PIGCOPSTAYPUT:
+            case PIGCOPDIVE:
+            case LIZMAN:
+            case LIZMANSTAYPUT:
+            case LIZMANSPITTING:
+            case LIZMANFEEDING:
+            case LIZMANJUMP:
+            case BOSS1:
+            case BOSS1STAYPUT:
+            case BOSS1SHOOT:
+            case BOSS1LOB:
+            case BOSSTOP:
+            case COMMANDER:
+            case COMMANDERSTAYPUT:
+            case OCTABRAIN:
+            case OCTABRAINSTAYPUT:
+            case RECON:
+            case DRONE:
+            case ROTATEGUN:
+            case EGG:
+            case ORGANTIC:
+            case GREENSLIME:
+            case BOSS2:
+            case BOSS3:
+            case TANK:
+            case NEWBEAST:
+            case BOSS4:
+                spritecol2d[i][0] = 31;
+                spritecol2d[i][1] = 31;
+                break;
+            case FIRSTGUNSPRITE:
+            case CHAINGUNSPRITE :
+            case RPGSPRITE:
+            case FREEZESPRITE:
+            case SHRINKERSPRITE:
+            case HEAVYHBOMB:
+            case TRIPBOMBSPRITE:
+            case SHOTGUNSPRITE:
+            case DEVISTATORSPRITE:
+            case FREEZEAMMO:
+            case AMMO:
+            case BATTERYAMMO:
+            case DEVISTATORAMMO:
+            case RPGAMMO:
+            case GROWAMMO:
+            case CRYSTALAMMO:
+            case HBOMBAMMO:
+            case AMMOLOTS:
+            case SHOTGUNAMMO:
+            case COLA:
+            case SIXPAK:
+            case FIRSTAID:
+            case SHIELD:
+            case STEROIDS:
+            case AIRTANK:
+            case JETPACK:
+            case HEATSENSOR:
+            case ACCESSCARD:
+            case BOOTS:
+                spritecol2d[i][0] = 24;
+                spritecol2d[i][1] = 24;
+                break;
+            default:
+                break;
         }
 }
 
@@ -4107,7 +4299,6 @@ void ExtPreSaveMap(void)
 
 void ExtPreLoadMap(void)
 {
-
 }
 
 int ExtPreInit(int *argc,char ***argv)
@@ -4137,7 +4328,11 @@ enum {
     T_LOADGRP = 0,
 };
 
-typedef struct { char *text; int tokenid; }
+typedef struct
+{
+    char *text;
+    int tokenid;
+}
 tokenlist;
 
 static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
@@ -4149,7 +4344,8 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
     tok = scriptfile_gettoken(sf);
     if (!tok) return T_EOF;
 
-    for (i=0;i<ntokens;i++) {
+    for (i=0;i<ntokens;i++)
+    {
         if (!Bstrcasecmp(tok, tl[i].text))
             return tl[i].tokenid;
     }
@@ -4158,7 +4354,8 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
 
 static tokenlist grptokens[] =
     {
-        { "loadgrp",         T_LOADGRP         },
+        { "loadgrp",         T_LOADGRP
+        },
     };
 
 int loadgroupfiles(char *fn)
@@ -4170,28 +4367,30 @@ int loadgroupfiles(char *fn)
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
 
-    while (1) {
+    while (1)
+    {
         tokn = getatoken(script,grptokens,sizeof(grptokens)/sizeof(tokenlist));
         cmdtokptr = script->ltextptr;
-        switch (tokn) {
-        case T_LOADGRP:
+        switch (tokn)
         {
-            char *fn;
-            if (!scriptfile_getstring(script,&fn))
+            case T_LOADGRP:
             {
-                int j = initgroupfile(fn);
+                char *fn;
+                if (!scriptfile_getstring(script,&fn))
+                {
+                    int j = initgroupfile(fn);
 
-                if (j == -1)
-                    initprintf("Could not find GRP file %s.\n",fn);
-                else
-                    initprintf("Using GRP file %s.\n",fn);
+                    if (j == -1)
+                        initprintf("Could not find GRP file %s.\n",fn);
+                    else
+                        initprintf("Using GRP file %s.\n",fn);
+                }
             }
-        }
-        break;
-        case T_EOF:
-            return(0);
-        default:
             break;
+            case T_EOF:
+                return(0);
+            default:
+                break;
         }
     }
 
@@ -4224,7 +4423,8 @@ int ExtInit(void)
         addsearchpath("/Library/Application Support/EDuke32");
 #endif
         if (getcwd(cwd,BMAX_PATH)) addsearchpath(cwd);
-        if ((homedir = Bgethomedir())) {
+        if ((homedir = Bgethomedir()))
+        {
             Bsnprintf(cwd,sizeof(cwd),"%s/"
 #if defined(_WIN32)
                       "EDuke32 Settings"
@@ -4235,7 +4435,8 @@ int ExtInit(void)
 #endif
                       ,homedir);
             asperr = addsearchpath(cwd);
-            if (asperr == -2) {
+            if (asperr == -2)
+            {
                 if (Bmkdir(cwd,S_IRWXU) == 0) asperr = addsearchpath(cwd);
                 else asperr = -1;
             }
@@ -4246,13 +4447,15 @@ int ExtInit(void)
     }
 
     // JBF 20031220: Because it's annoying renaming GRP files whenever I want to test different game data
-    if (getenv("DUKE3DGRP")) {
+    if (getenv("DUKE3DGRP"))
+    {
         duke3dgrp = getenv("DUKE3DGRP");
         initprintf("Using %s as main GRP file\n", duke3dgrp);
     }
     initgroupfile(duke3dgrp);
 
-    if (getenv("DUKE3DDEF")) {
+    if (getenv("DUKE3DDEF"))
+    {
         defsfilename = getenv("DUKE3DDEF");
         initprintf("Using %s as definitions file\n", defsfilename);
     }
@@ -4283,7 +4486,8 @@ int ExtInit(void)
 
     Bmemcpy((void *)buildkeys,(void *)keys,NUMBUILDKEYS);   //Trick to make build use setup.dat keys
 
-    if (initengine()) {
+    if (initengine())
+    {
         initprintf("There was a problem initialising the engine.\n");
         return -1;
     }
@@ -4330,7 +4534,9 @@ void ExtPreCheckKeys(void) // just before drawrooms
             if (waloff[4094] == 0)
                 allocache(&waloff[4094],320L*200L,&lockbyte4094);
             setviewtotile(4094,320L,200L);
-            searchx ^= searchy; searchy ^= searchx; searchx ^= searchy;
+            searchx ^= searchy;
+            searchy ^= searchx;
+            searchx ^= searchy;
             searchx = ydim-1-searchx;
         }
     }
@@ -4352,8 +4558,8 @@ void ExtAnalyzeSprites(void)
         if (nosprites==1||nosprites==3)
             switch (tspr->picnum)
             {
-            case SEENINE :
-                tspr->xrepeat=0;
+                case SEENINE :
+                    tspr->xrepeat=0;
             }
 
         if (shadepreview && !(tspr->cstat & 16))
@@ -4375,92 +4581,93 @@ void ExtAnalyzeSprites(void)
 
         switch (tspr->picnum)
         {
-            // 5-frame walk
-        case 1550 :             // Shark
-            frames=5;
-            // 2-frame walk
-        case 1445 :             // duke kick
-        case LIZTROOPDUCKING :
-        case 2030 :            // pig shot
-        case OCTABRAIN :
-        case PIGCOPDIVE :
-        case 2190 :            // liz capt shot
-        case BOSS1SHOOT :
-        case BOSS1LOB :
-        case LIZTROOPSHOOT :
-            if (frames==0) frames=2;
+                // 5-frame walk
+            case 1550 :             // Shark
+                frames=5;
+                // 2-frame walk
+            case 1445 :             // duke kick
+            case LIZTROOPDUCKING :
+            case 2030 :            // pig shot
+            case OCTABRAIN :
+            case PIGCOPDIVE :
+            case 2190 :            // liz capt shot
+            case BOSS1SHOOT :
+            case BOSS1LOB :
+            case LIZTROOPSHOOT :
+                if (frames==0) frames=2;
 
-            // 4-frame walk
-        case 1491 :             // duke crawl
-        case LIZTROOP :
-        case LIZTROOPRUNNING :
-        case PIGCOP :
-        case LIZMAN :
-        case BOSS1 :
-        case BOSS2 :
-        case BOSS3 :
-        case BOSS4 :
-        case NEWBEAST:
-            if (frames==0) frames=4;
-        case LIZTROOPJETPACK :
-        case DRONE :
-        case COMMANDER :
-        case TANK :
-        case RECON :
-            if (frames==0) frames = 10;
-        case CAMERA1:
-        case APLAYER :
-            if (frames==0) frames=1;
-        case GREENSLIME :
-        case EGG :
-        case PIGCOPSTAYPUT :
-        case LIZMANSTAYPUT:
-        case LIZTROOPSTAYPUT :
-        case LIZMANSPITTING :
-        case LIZMANFEEDING :
-        case LIZMANJUMP :
-            if (skill!=4)
-            {
-                if (tspr->lotag>skill+1)
+                // 4-frame walk
+            case 1491 :             // duke crawl
+            case LIZTROOP :
+            case LIZTROOPRUNNING :
+            case PIGCOP :
+            case LIZMAN :
+            case BOSS1 :
+            case BOSS2 :
+            case BOSS3 :
+            case BOSS4 :
+            case NEWBEAST:
+                if (frames==0) frames=4;
+            case LIZTROOPJETPACK :
+            case DRONE :
+            case COMMANDER :
+            case TANK :
+            case RECON :
+                if (frames==0) frames = 10;
+            case CAMERA1:
+            case APLAYER :
+                if (frames==0) frames=1;
+            case GREENSLIME :
+            case EGG :
+            case PIGCOPSTAYPUT :
+            case LIZMANSTAYPUT:
+            case LIZTROOPSTAYPUT :
+            case LIZMANSPITTING :
+            case LIZMANFEEDING :
+            case LIZMANJUMP :
+                if (skill!=4)
                 {
-                    tspr->xrepeat=0; break;
+                    if (tspr->lotag>skill+1)
+                    {
+                        tspr->xrepeat=0;
+                        break;
+                    }
                 }
-            }
-            if (nosprites==2||nosprites==3)
-            {
-                tspr->xrepeat=0;
-                //                  tspr->cstat|=32768;
-            }
-            //                else tspr->cstat&=32767;
-
-            if (frames!=0)
-            {
-                if (frames==10) frames=0;
-                k = getangle(tspr->x-posx,tspr->y-posy);
-                k = (((tspr->ang+3072+128-k)&2047)>>8)&7;
-                //This guy has only 5 pictures for 8 angles (3 are x-flipped)
-                if (k <= 4)
+                if (nosprites==2||nosprites==3)
                 {
-                    tspr->picnum += k;
-                    tspr->cstat &= ~4;   //clear x-flipping bit
+                    tspr->xrepeat=0;
+                    //                  tspr->cstat|=32768;
                 }
-                else
+                //                else tspr->cstat&=32767;
+
+                if (frames!=0)
                 {
-                    tspr->picnum += 8-k;
-                    tspr->cstat |= 4;    //set x-flipping bit
+                    if (frames==10) frames=0;
+                    k = getangle(tspr->x-posx,tspr->y-posy);
+                    k = (((tspr->ang+3072+128-k)&2047)>>8)&7;
+                    //This guy has only 5 pictures for 8 angles (3 are x-flipped)
+                    if (k <= 4)
+                    {
+                        tspr->picnum += k;
+                        tspr->cstat &= ~4;   //clear x-flipping bit
+                    }
+                    else
+                    {
+                        tspr->picnum += 8-k;
+                        tspr->cstat |= 4;    //set x-flipping bit
+                    }
                 }
-            }
 
-            if (frames==2) tspr->picnum+=((((4-(totalclock>>5)))&1)*5);
-            if (frames==4) tspr->picnum+=((((4-(totalclock>>5)))&3)*5);
-            if (frames==5) tspr->picnum+=(((totalclock>>5)%5))*5;
+                if (frames==2) tspr->picnum+=((((4-(totalclock>>5)))&1)*5);
+                if (frames==4) tspr->picnum+=((((4-(totalclock>>5)))&3)*5);
+                if (frames==5) tspr->picnum+=(((totalclock>>5)%5))*5;
 
-            if (tilesizx[tspr->picnum] == 0)
-                tspr->picnum -= 5;       //Hack, for actors
+                if (tilesizx[tspr->picnum] == 0)
+                    tspr->picnum -= 5;       //Hack, for actors
 
-            break;
-        default:
-            break;
+                break;
+            default:
+                break;
 
         }
     }
@@ -4573,7 +4780,8 @@ void faketimerhandler(void)
     long hiz, hihit, loz, lohit, oposx, oposy;
     short hitwall, daang;
 
-    counter++; if (counter>=5) counter=0;
+    counter++;
+    if (counter>=5) counter=0;
 
     sampletimer();
     if (totalclock < ototalclock+TICSPERFRAME)
@@ -4584,9 +4792,11 @@ void faketimerhandler(void)
         return;
     ototalclock = totalclock;
 
-    oposx = posx; oposy = posy;
+    oposx = posx;
+    oposy = posy;
     hitwall = clipmove(&posx,&posy,&posz,&cursectnum,xvel,yvel,128L,4L<<8,4L<<8,0);
-    xvel = ((posx-oposx)<<14); yvel = ((posy-oposy)<<14);
+    xvel = ((posx-oposx)<<14);
+    yvel = ((posy-oposy)<<14);
 
     yvel += 80000;
     if ((hitwall&0xc000) == 32768)
@@ -4622,7 +4832,8 @@ void faketimerhandler(void)
 
     getzrange(posx,posy,posz,cursectnum,&hiz,&hihit,&loz,&lohit,128L,0);
 
-    oposx -= posx; oposy -= posy;
+    oposx -= posx;
+    oposy -= posy;
 
     dist = ksqrt(oposx*oposx+oposy*oposy);
     if (ototalclock > timoff+32) dist = 0;
@@ -4751,7 +4962,8 @@ void EditSectorData(short sectnum)
     begindrawing();
     while (keystatus[1] == 0)
     {
-        if (handleevents()) {
+        if (handleevents())
+        {
             if (quitevent) quitevent = 0;
         }
         printmessage16("Edit mode, press <Esc> to exit");
@@ -4811,152 +5023,152 @@ void EditSectorData(short sectnum)
         {
             switch (row)
             {
-            case 0:
-                for (i=Bsprintf(disptext,"Flags (hex): %x",sector[sectnum].ceilingstat); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Ceiling Flags: ",sectnum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sector[sectnum].ceilingstat = (short)getnumber16(edittext,(long)sector[sectnum].ceilingstat,32768L,0);
-                }
-                break;
-            case 1:
-                for (i=Bsprintf(disptext,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    Bsprintf(edittext,"Sector (%d) Ceiling X Pan: ",sectnum);
-                    printmessage16(edittext);
-                    sector[sectnum].ceilingxpanning = (char)getnumber16(edittext,(long)sector[sectnum].ceilingxpanning,256L,0);
-                    Bsprintf(edittext,"Sector (%d) Ceiling Y Pan: ",sectnum);
-                    printmessage16(edittext);
-                    sector[sectnum].ceilingypanning = (char)getnumber16(edittext,(long)sector[sectnum].ceilingypanning,256L,0);
-                }
-                break;
-            case 2:
-                for (i=Bsprintf(disptext,"Shade byte: %d",sector[sectnum].ceilingshade); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Ceiling Shade: ",sectnum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sector[sectnum].ceilingshade = (char)getnumber16(edittext,(long)sector[sectnum].ceilingshade,128L,1);
-                }
-                break;
+                case 0:
+                    for (i=Bsprintf(disptext,"Flags (hex): %x",sector[sectnum].ceilingstat); i < dispwidth; i++) disptext[i] = ' ';
+                    Bsprintf(edittext,"Sector (%d) Ceiling Flags: ",sectnum);
+                    if (editval)
+                    {
+                        printmessage16(edittext);
+                        sector[sectnum].ceilingstat = (short)getnumber16(edittext,(long)sector[sectnum].ceilingstat,32768L,0);
+                    }
+                    break;
+                case 1:
+                    for (i=Bsprintf(disptext,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
+                    {
+                        Bsprintf(edittext,"Sector (%d) Ceiling X Pan: ",sectnum);
+                        printmessage16(edittext);
+                        sector[sectnum].ceilingxpanning = (char)getnumber16(edittext,(long)sector[sectnum].ceilingxpanning,256L,0);
+                        Bsprintf(edittext,"Sector (%d) Ceiling Y Pan: ",sectnum);
+                        printmessage16(edittext);
+                        sector[sectnum].ceilingypanning = (char)getnumber16(edittext,(long)sector[sectnum].ceilingypanning,256L,0);
+                    }
+                    break;
+                case 2:
+                    for (i=Bsprintf(disptext,"Shade byte: %d",sector[sectnum].ceilingshade); i < dispwidth; i++) disptext[i] = ' ';
+                    Bsprintf(edittext,"Sector (%d) Ceiling Shade: ",sectnum);
+                    if (editval)
+                    {
+                        printmessage16(edittext);
+                        sector[sectnum].ceilingshade = (char)getnumber16(edittext,(long)sector[sectnum].ceilingshade,128L,1);
+                    }
+                    break;
 
-            case 3:
-                for (i=Bsprintf(disptext,"Z-coordinate: %ld",sector[sectnum].ceilingz); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Ceiling Z-coordinate: ",sectnum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sector[sectnum].ceilingz = getnumber16(edittext,sector[sectnum].ceilingz,8388608,1); //2147483647L,-2147483648L
-                }
-                break;
+                case 3:
+                    for (i=Bsprintf(disptext,"Z-coordinate: %ld",sector[sectnum].ceilingz); i < dispwidth; i++) disptext[i] = ' ';
+                    Bsprintf(edittext,"Sector (%d) Ceiling Z-coordinate: ",sectnum);
+                    if (editval)
+                    {
+                        printmessage16(edittext);
+                        sector[sectnum].ceilingz = getnumber16(edittext,sector[sectnum].ceilingz,8388608,1); //2147483647L,-2147483648L
+                    }
+                    break;
 
-            case 4:
-                for (i=Bsprintf(disptext,"Tile number: %d",sector[sectnum].ceilingpicnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Ceiling Tile Number: ",sectnum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sector[sectnum].ceilingpicnum = (short)getnumber16(edittext,(long)sector[sectnum].ceilingpicnum,MAXTILES,0);
-                }
-                break;
+                case 4:
+                    for (i=Bsprintf(disptext,"Tile number: %d",sector[sectnum].ceilingpicnum); i < dispwidth; i++) disptext[i] = ' ';
+                    Bsprintf(edittext,"Sector (%d) Ceiling Tile Number: ",sectnum);
+                    if (editval)
+                    {
+                        printmessage16(edittext);
+                        sector[sectnum].ceilingpicnum = (short)getnumber16(edittext,(long)sector[sectnum].ceilingpicnum,MAXTILES,0);
+                    }
+                    break;
 
-            case 5:
-                for (i=Bsprintf(disptext,"Ceiling heinum: %d",sector[sectnum].ceilingheinum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Ceiling Heinum: ",sectnum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sector[sectnum].ceilingheinum = (short)getnumber16(edittext,(long)sector[sectnum].ceilingheinum,32768L,1);
-                }
-                break;
+                case 5:
+                    for (i=Bsprintf(disptext,"Ceiling heinum: %d",sector[sectnum].ceilingheinum); i < dispwidth; i++) disptext[i] = ' ';
+                    Bsprintf(edittext,"Sector (%d) Ceiling Heinum: ",sectnum);
+                    if (editval)
+                    {
+                        printmessage16(edittext);
+                        sector[sectnum].ceilingheinum = (short)getnumber16(edittext,(long)sector[sectnum].ceilingheinum,32768L,1);
+                    }
+                    break;
 
-            case 6:
-                for (i=Bsprintf(disptext,"Palookup number: %d",sector[sectnum].ceilingpal); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Ceiling Palookup Number: ",sectnum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sector[sectnum].ceilingpal = (char)getnumber16(edittext,(long)sector[sectnum].ceilingpal,MAXPALOOKUPS,0);
-                }
-                break;
+                case 6:
+                    for (i=Bsprintf(disptext,"Palookup number: %d",sector[sectnum].ceilingpal); i < dispwidth; i++) disptext[i] = ' ';
+                    Bsprintf(edittext,"Sector (%d) Ceiling Palookup Number: ",sectnum);
+                    if (editval)
+                    {
+                        printmessage16(edittext);
+                        sector[sectnum].ceilingpal = (char)getnumber16(edittext,(long)sector[sectnum].ceilingpal,MAXPALOOKUPS,0);
+                    }
+                    break;
             }
         }
         if (col == 2)
         {
             switch (row)
             {
-            case 0:
-                for (i=Bsprintf(disptext,"Flags (hex): %x",sector[sectnum].floorstat); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Floor Flags: ",sectnum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sector[sectnum].floorstat = (short)getnumber16(edittext,(long)sector[sectnum].floorstat,1024L,0);
-                }
-                break;
+                case 0:
+                    for (i=Bsprintf(disptext,"Flags (hex): %x",sector[sectnum].floorstat); i < dispwidth; i++) disptext[i] = ' ';
+                    Bsprintf(edittext,"Sector (%d) Floor Flags: ",sectnum);
+                    if (editval)
+                    {
+                        printmessage16(edittext);
+                        sector[sectnum].floorstat = (short)getnumber16(edittext,(long)sector[sectnum].floorstat,1024L,0);
+                    }
+                    break;
 
-            case 1:
-                for (i=Bsprintf(disptext,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    Bsprintf(edittext,"Sector (%d) Floor X Pan: ",sectnum);
-                    printmessage16(edittext);
-                    sector[sectnum].floorxpanning = (char)getnumber16(edittext,(long)sector[sectnum].floorxpanning,256L,0);
-                    Bsprintf(edittext,"Sector (%d) Floor Y Pan: ",sectnum);
-                    printmessage16(edittext);
-                    sector[sectnum].floorypanning = (char)getnumber16(edittext,(long)sector[sectnum].floorypanning,256L,0);
-                }
-                break;
+                case 1:
+                    for (i=Bsprintf(disptext,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning); i < dispwidth; i++) disptext[i] = ' ';
+                    if (editval)
+                    {
+                        Bsprintf(edittext,"Sector (%d) Floor X Pan: ",sectnum);
+                        printmessage16(edittext);
+                        sector[sectnum].floorxpanning = (char)getnumber16(edittext,(long)sector[sectnum].floorxpanning,256L,0);
+                        Bsprintf(edittext,"Sector (%d) Floor Y Pan: ",sectnum);
+                        printmessage16(edittext);
+                        sector[sectnum].floorypanning = (char)getnumber16(edittext,(long)sector[sectnum].floorypanning,256L,0);
+                    }
+                    break;
 
-            case 2:
-                for (i=Bsprintf(disptext,"Shade byte: %d",sector[sectnum].floorshade); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Floor Shade: ",sectnum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sector[sectnum].floorshade = (char)getnumber16(edittext,(long)sector[sectnum].floorshade,65536L,1L);
-                }
-                break;
+                case 2:
+                    for (i=Bsprintf(disptext,"Shade byte: %d",sector[sectnum].floorshade); i < dispwidth; i++) disptext[i] = ' ';
+                    Bsprintf(edittext,"Sector (%d) Floor Shade: ",sectnum);
+                    if (editval)
+                    {
+                        printmessage16(edittext);
+                        sector[sectnum].floorshade = (char)getnumber16(edittext,(long)sector[sectnum].floorshade,65536L,1L);
+                    }
+                    break;
 
-            case 3:
-                for (i=Bsprintf(disptext,"Z-coordinate: %ld",sector[sectnum].floorz); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Floor Z-coordinate: ",sectnum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sector[sectnum].floorz = getnumber16(edittext,sector[sectnum].floorz,8388608L,1); //2147483647L,-2147483648L
-                }
-                break;
+                case 3:
+                    for (i=Bsprintf(disptext,"Z-coordinate: %ld",sector[sectnum].floorz); i < dispwidth; i++) disptext[i] = ' ';
+                    Bsprintf(edittext,"Sector (%d) Floor Z-coordinate: ",sectnum);
+                    if (editval)
+                    {
+                        printmessage16(edittext);
+                        sector[sectnum].floorz = getnumber16(edittext,sector[sectnum].floorz,8388608L,1); //2147483647L,-2147483648L
+                    }
+                    break;
 
-            case 4:
-                for (i=Bsprintf(disptext,"Tile number: %d",sector[sectnum].floorpicnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Floor Tile Number: ",sectnum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sector[sectnum].floorpicnum = (short)getnumber16(edittext,(long)sector[sectnum].floorpicnum,MAXTILES,0);
-                }
-                break;
-            case 5:
-                for (i=Bsprintf(disptext,"Floor heinum: %d",sector[sectnum].floorheinum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Flooring Heinum: ",sectnum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sector[sectnum].floorheinum = (short)getnumber16(edittext,(long)sector[sectnum].floorheinum,32768L,1);
-                }
-                break;
-            case 6:
-                for (i=Bsprintf(disptext,"Palookup number: %d",sector[sectnum].floorpal); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Floor Palookup Number: ",sectnum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sector[sectnum].floorpal = (char)getnumber16(edittext,(long)sector[sectnum].floorpal,MAXPALOOKUPS,0);
-                }
-                break;
+                case 4:
+                    for (i=Bsprintf(disptext,"Tile number: %d",sector[sectnum].floorpicnum); i < dispwidth; i++) disptext[i] = ' ';
+                    Bsprintf(edittext,"Sector (%d) Floor Tile Number: ",sectnum);
+                    if (editval)
+                    {
+                        printmessage16(edittext);
+                        sector[sectnum].floorpicnum = (short)getnumber16(edittext,(long)sector[sectnum].floorpicnum,MAXTILES,0);
+                    }
+                    break;
+                case 5:
+                    for (i=Bsprintf(disptext,"Floor heinum: %d",sector[sectnum].floorheinum); i < dispwidth; i++) disptext[i] = ' ';
+                    Bsprintf(edittext,"Sector (%d) Flooring Heinum: ",sectnum);
+                    if (editval)
+                    {
+                        printmessage16(edittext);
+                        sector[sectnum].floorheinum = (short)getnumber16(edittext,(long)sector[sectnum].floorheinum,32768L,1);
+                    }
+                    break;
+                case 6:
+                    for (i=Bsprintf(disptext,"Palookup number: %d",sector[sectnum].floorpal); i < dispwidth; i++) disptext[i] = ' ';
+                    Bsprintf(edittext,"Sector (%d) Floor Palookup Number: ",sectnum);
+                    if (editval)
+                    {
+                        printmessage16(edittext);
+                        sector[sectnum].floorpal = (char)getnumber16(edittext,(long)sector[sectnum].floorpal,MAXPALOOKUPS,0);
+                    }
+                    break;
             }
         }
         printext16(xpos,ypos+row*8,11,1,disptext,0);
@@ -4987,7 +5199,8 @@ void EditWallData(short wallnum)
     begindrawing();
     while (keystatus[1] == 0)
     {
-        if (handleevents()) {
+        if (handleevents())
+        {
             if (quitevent) quitevent = 0;
         }
         printmessage16("Edit mode, press <Esc> to exit");
@@ -5016,76 +5229,76 @@ void EditWallData(short wallnum)
         }
         switch (row)
         {
-        case 0:
-            for (i=Bsprintf(disptext,"Flags (hex): %x",wall[wallnum].cstat); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall (%d) Flags: ",wallnum);
-            if (editval)
-            {
-                printmessage16(edittext);
-                wall[wallnum].cstat = (short)getnumber16(edittext,(long)wall[wallnum].cstat,1024L,0);
-            }
-            break;
-        case 1:
-            for (i=Bsprintf(disptext,"Shade: %d",wall[wallnum].shade); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall (%d) Shade: ",wallnum);
-            if (editval)
-            {
-                printmessage16(edittext);
-                wall[wallnum].shade = (char)getnumber16(edittext,(long)wall[wallnum].shade,127,1);
-            }
-            break;
-        case 2:
-            for (i=Bsprintf(disptext,"Pal: %d",wall[wallnum].pal); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall (%d) Pal: ",wallnum);
-            if (editval)
-            {
-                printmessage16(edittext);
-                wall[wallnum].pal = (char)getnumber16(edittext,(long)wall[wallnum].pal,MAXPALOOKUPS,0);
-            }
-            break;
-        case 3:
-            for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
-            if (editval)
-            {
-                Bsprintf(edittext,"Wall (%d) X Repeat: ",wallnum);
-                printmessage16(edittext);
-                wall[wallnum].xrepeat = (char)getnumber16(edittext,(long)wall[wallnum].xrepeat,256L,0);
-                Bsprintf(edittext,"Wall (%d) Y Repeat: ",wallnum);
-                printmessage16(edittext);
-                wall[wallnum].yrepeat = (char)getnumber16(edittext,(long)wall[wallnum].yrepeat,256L,0);
-            }
-            break;
-        case 4:
-            for (i=Bsprintf(disptext,"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning); i < dispwidth; i++) disptext[i] = ' ';
-            if (editval)
-            {
-                Bsprintf(edittext,"Wall (%d) X Pan: ",wallnum);
-                printmessage16(edittext);
-                wall[wallnum].xpanning = (char)getnumber16(edittext,(long)wall[wallnum].xpanning,256L,0);
-                Bsprintf(edittext,"Wall (%d) Y Pan: ",wallnum);
-                printmessage16(edittext);
-                wall[wallnum].ypanning = (char)getnumber16(edittext,(long)wall[wallnum].ypanning,256L,0);
-            }
-            break;
-        case 5:
-            for (i=Bsprintf(disptext,"Tile number: %d",wall[wallnum].picnum); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall (%d) Tile number: ",wallnum);
-            if (editval)
-            {
-                printmessage16(edittext);
-                wall[wallnum].picnum = (short)getnumber16(edittext,(long)wall[wallnum].picnum,MAXTILES,0);
-            }
-            break;
+            case 0:
+                for (i=Bsprintf(disptext,"Flags (hex): %x",wall[wallnum].cstat); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Wall (%d) Flags: ",wallnum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    wall[wallnum].cstat = (short)getnumber16(edittext,(long)wall[wallnum].cstat,1024L,0);
+                }
+                break;
+            case 1:
+                for (i=Bsprintf(disptext,"Shade: %d",wall[wallnum].shade); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Wall (%d) Shade: ",wallnum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    wall[wallnum].shade = (char)getnumber16(edittext,(long)wall[wallnum].shade,127,1);
+                }
+                break;
+            case 2:
+                for (i=Bsprintf(disptext,"Pal: %d",wall[wallnum].pal); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Wall (%d) Pal: ",wallnum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    wall[wallnum].pal = (char)getnumber16(edittext,(long)wall[wallnum].pal,MAXPALOOKUPS,0);
+                }
+                break;
+            case 3:
+                for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
+                {
+                    Bsprintf(edittext,"Wall (%d) X Repeat: ",wallnum);
+                    printmessage16(edittext);
+                    wall[wallnum].xrepeat = (char)getnumber16(edittext,(long)wall[wallnum].xrepeat,256L,0);
+                    Bsprintf(edittext,"Wall (%d) Y Repeat: ",wallnum);
+                    printmessage16(edittext);
+                    wall[wallnum].yrepeat = (char)getnumber16(edittext,(long)wall[wallnum].yrepeat,256L,0);
+                }
+                break;
+            case 4:
+                for (i=Bsprintf(disptext,"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning); i < dispwidth; i++) disptext[i] = ' ';
+                if (editval)
+                {
+                    Bsprintf(edittext,"Wall (%d) X Pan: ",wallnum);
+                    printmessage16(edittext);
+                    wall[wallnum].xpanning = (char)getnumber16(edittext,(long)wall[wallnum].xpanning,256L,0);
+                    Bsprintf(edittext,"Wall (%d) Y Pan: ",wallnum);
+                    printmessage16(edittext);
+                    wall[wallnum].ypanning = (char)getnumber16(edittext,(long)wall[wallnum].ypanning,256L,0);
+                }
+                break;
+            case 5:
+                for (i=Bsprintf(disptext,"Tile number: %d",wall[wallnum].picnum); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Wall (%d) Tile number: ",wallnum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    wall[wallnum].picnum = (short)getnumber16(edittext,(long)wall[wallnum].picnum,MAXTILES,0);
+                }
+                break;
 
-        case 6:
-            for (i=Bsprintf(disptext,"OverTile number: %d",wall[wallnum].overpicnum); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall (%d) OverTile number: ",wallnum);
-            if (editval)
-            {
-                printmessage16(edittext);
-                wall[wallnum].overpicnum = (short)getnumber16(edittext,(long)wall[wallnum].overpicnum,MAXTILES,0);
-            }
-            break;
+            case 6:
+                for (i=Bsprintf(disptext,"OverTile number: %d",wall[wallnum].overpicnum); i < dispwidth; i++) disptext[i] = ' ';
+                Bsprintf(edittext,"Wall (%d) OverTile number: ",wallnum);
+                if (editval)
+                {
+                    printmessage16(edittext);
+                    wall[wallnum].overpicnum = (short)getnumber16(edittext,(long)wall[wallnum].overpicnum,MAXTILES,0);
+                }
+                break;
         }
         printext16(xpos,ypos+row*8,11,1,disptext,0);
         if (editval)
@@ -5120,7 +5333,8 @@ void EditSpriteData(short spritenum)
     while (keystatus[1] == 0)
     {
         begindrawing();
-        if (handleevents()) {
+        if (handleevents())
+        {
             if (quitevent) quitevent = 0;
         }
         printmessage16("Edit mode, press <Esc> to exit");
@@ -5146,28 +5360,28 @@ void EditSpriteData(short spritenum)
         {
             switch (col)
             {
-            case 1:
-            {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
-                col = 0;
-                xpos = 8;
-                rowmax = 4;
-                dispwidth = 23;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-            break;
-            case 2:
-            {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
-                col = 1;
-                xpos = 200;
-                rowmax = 5;
-                dispwidth = 24;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-            break;
+                case 1:
+                {
+                    printext16(xpos,ypos+row*8,11,0,disptext,0);
+                    col = 0;
+                    xpos = 8;
+                    rowmax = 4;
+                    dispwidth = 23;
+                    disptext[dispwidth] = 0;
+                    if (row > rowmax) row = rowmax;
+                }
+                break;
+                case 2:
+                {
+                    printext16(xpos,ypos+row*8,11,0,disptext,0);
+                    col = 1;
+                    xpos = 200;
+                    rowmax = 5;
+                    dispwidth = 24;
+                    disptext[dispwidth] = 0;
+                    if (row > rowmax) row = rowmax;
+                }
+                break;
             }
             keystatus[0xcb] = 0;
         }
@@ -5175,28 +5389,28 @@ void EditSpriteData(short spritenum)
         {
             switch (col)
             {
-            case 0:
-            {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
-                col = 1;
-                xpos = 200;
-                rowmax = 5;
-                dispwidth = 24;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-            break;
-            case 1:
-            {
-                printext16(xpos,ypos+row*8,11,0,disptext,0);
-                col = 2;
-                xpos = 400;
-                rowmax = 6;
-                dispwidth = 26;
-                disptext[dispwidth] = 0;
-                if (row > rowmax) row = rowmax;
-            }
-            break;
+                case 0:
+                {
+                    printext16(xpos,ypos+row*8,11,0,disptext,0);
+                    col = 1;
+                    xpos = 200;
+                    rowmax = 5;
+                    dispwidth = 24;
+                    disptext[dispwidth] = 0;
+                    if (row > rowmax) row = rowmax;
+                }
+                break;
+                case 1:
+                {
+                    printext16(xpos,ypos+row*8,11,0,disptext,0);
+                    col = 2;
+                    xpos = 400;
+                    rowmax = 6;
+                    dispwidth = 26;
+                    disptext[dispwidth] = 0;
+                    if (row > rowmax) row = rowmax;
+                }
+                break;
             }
             keystatus[0xcd] = 0;
         }
@@ -5207,235 +5421,235 @@ void EditSpriteData(short spritenum)
         }
         switch (col)
         {
-        case 0:
-        {
-            switch (row)
-            {
             case 0:
             {
-                for (i=Bsprintf(disptext,"X-coordinate: %ld",sprite[spritenum].x); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) X-coordinate: ",spritenum);
-                if (editval)
+                switch (row)
                 {
-                    printmessage16(edittext);
-                    sprite[spritenum].x = getnumber16(edittext,sprite[spritenum].x,131072,1);
+                    case 0:
+                    {
+                        for (i=Bsprintf(disptext,"X-coordinate: %ld",sprite[spritenum].x); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) X-coordinate: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].x = getnumber16(edittext,sprite[spritenum].x,131072,1);
+                        }
+                    }
+                    break;
+                    case 1:
+                    {
+                        for (i=Bsprintf(disptext,"Y-coordinate: %ld",sprite[spritenum].y); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Y-coordinate: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].y = getnumber16(edittext,sprite[spritenum].y,131072,1);
+                        }
+                    }
+                    break;
+                    case 2:
+                    {
+                        for (i=Bsprintf(disptext,"Z-coordinate: %ld",sprite[spritenum].z); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Z-coordinate: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].z = getnumber16(edittext,sprite[spritenum].z,8388608,1); //2147483647L,-2147483648L
+                        }
+                    }
+                    break;
+                    case 3:
+                    {
+                        for (i=Bsprintf(disptext,"Sectnum: %d",sprite[spritenum].sectnum); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Sectnum: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            i = getnumber16(edittext,sprite[spritenum].sectnum,MAXSECTORS-1,0);
+                            if (i != sprite[spritenum].sectnum)
+                                changespritesect(spritenum,i);
+                        }
+                    }
+                    break;
+                    case 4:
+                    {
+                        for (i=Bsprintf(disptext,"Statnum: %d",sprite[spritenum].statnum); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Statnum: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            i = getnumber16(edittext,sprite[spritenum].statnum,MAXSTATUS-1,0);
+                            if (i != sprite[spritenum].statnum)
+                                changespritestat(spritenum,i);
+                        }
+                    }
+                    break;
                 }
             }
             break;
             case 1:
             {
-                for (i=Bsprintf(disptext,"Y-coordinate: %ld",sprite[spritenum].y); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Y-coordinate: ",spritenum);
-                if (editval)
+                switch (row)
                 {
-                    printmessage16(edittext);
-                    sprite[spritenum].y = getnumber16(edittext,sprite[spritenum].y,131072,1);
+                    case 0:
+                    {
+                        for (i=Bsprintf(disptext,"Flags (hex): %x",sprite[spritenum].cstat); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Flags: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].cstat = (short)getnumber16(edittext,(long)sprite[spritenum].cstat,32768L,0);
+                        }
+                    }
+                    break;
+                    case 1:
+                    {
+                        for (i=Bsprintf(disptext,"Shade: %d",sprite[spritenum].shade); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Shade: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].shade = (char)getnumber16(edittext,(long)sprite[spritenum].shade,127,1);
+                        }
+                    }
+                    break;
+                    case 2:
+                    {
+                        for (i=Bsprintf(disptext,"Pal: %d",sprite[spritenum].pal); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Pal: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].pal = (char)getnumber16(edittext,(long)sprite[spritenum].pal,MAXPALOOKUPS,0);
+                        }
+                    }
+                    break;
+                    case 3:
+                    {
+                        for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
+                        {
+                            Bsprintf(edittext,"Sprite (%d) X Repeat: ",spritenum);
+                            printmessage16(edittext);
+                            sprite[spritenum].xrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].xrepeat,256L,0);
+                            Bsprintf(edittext,"Sprite (%d) Y Repeat: ",spritenum);
+                            printmessage16(edittext);
+                            sprite[spritenum].yrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].yrepeat,256L,0);
+                        }
+                    }
+                    break;
+                    case 4:
+                    {
+                        for (i=Bsprintf(disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
+                        {
+                            Bsprintf(edittext,"Sprite (%d) X Offset: ",spritenum);
+                            printmessage16(edittext);
+                            sprite[spritenum].xoffset = (char)getnumber16(edittext,(long)sprite[spritenum].xoffset,128L,1);
+                            Bsprintf(edittext,"Sprite (%d) Y Offset: ",spritenum);
+                            printmessage16(edittext);
+                            sprite[spritenum].yoffset = (char)getnumber16(edittext,(long)sprite[spritenum].yoffset,128L,1);
+                        }
+                    }
+                    break;
+                    case 5:
+                    {
+                        for (i=Bsprintf(disptext,"Tile number: %d",sprite[spritenum].picnum); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Tile number: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].picnum = (short)getnumber16(edittext,(long)sprite[spritenum].picnum,MAXTILES,0);
+                        }
+                    }
+                    break;
                 }
             }
             break;
             case 2:
             {
-                for (i=Bsprintf(disptext,"Z-coordinate: %ld",sprite[spritenum].z); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Z-coordinate: ",spritenum);
-                if (editval)
+                switch (row)
                 {
-                    printmessage16(edittext);
-                    sprite[spritenum].z = getnumber16(edittext,sprite[spritenum].z,8388608,1); //2147483647L,-2147483648L
+                    case 0:
+                    {
+                        for (i=Bsprintf(disptext,"Angle (2048 degrees): %d",sprite[spritenum].ang); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Angle: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].ang = (short)getnumber16(edittext,(long)sprite[spritenum].ang,2048L,0);
+                        }
+                    }
+                    break;
+                    case 1:
+                    {
+                        for (i=Bsprintf(disptext,"X-Velocity: %d",sprite[spritenum].xvel); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) X-Velocity: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].xvel = getnumber16(edittext,(long)sprite[spritenum].xvel,32767,1);
+                        }
+                    }
+                    break;
+                    case 2:
+                    {
+                        for (i=Bsprintf(disptext,"Y-Velocity: %d",sprite[spritenum].yvel); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Y-Velocity: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].yvel = getnumber16(edittext,(long)sprite[spritenum].yvel,32767,1);
+                        }
+                    }
+                    break;
+                    case 3:
+                    {
+                        for (i=Bsprintf(disptext,"Z-Velocity: %d",sprite[spritenum].zvel); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Z-Velocity: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].zvel = getnumber16(edittext,(long)sprite[spritenum].zvel,32767,1);
+                        }
+                    }
+                    break;
+                    case 4:
+                    {
+                        for (i=Bsprintf(disptext,"Owner: %d",sprite[spritenum].owner); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Owner: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].owner = getnumber16(edittext,(long)sprite[spritenum].owner,MAXSPRITES,0);
+                        }
+                    }
+                    break;
+                    case 5:
+                    {
+                        for (i=Bsprintf(disptext,"Clipdist: %d",sprite[spritenum].clipdist); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Clipdist: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].clipdist = (char)getnumber16(edittext,(long)sprite[spritenum].clipdist,255,0);
+                        }
+                    }
+                    break;
+                    case 6:
+                    {
+                        for (i=Bsprintf(disptext,"Extra: %d",sprite[spritenum].extra); i < dispwidth; i++) disptext[i] = ' ';
+                        Bsprintf(edittext,"Sprite (%d) Extra: ",spritenum);
+                        if (editval)
+                        {
+                            printmessage16(edittext);
+                            sprite[spritenum].extra = getnumber16(edittext,(long)sprite[spritenum].extra,32767,1);
+                        }
+                    }
+                    break;
                 }
             }
             break;
-            case 3:
-            {
-                for (i=Bsprintf(disptext,"Sectnum: %d",sprite[spritenum].sectnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Sectnum: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    i = getnumber16(edittext,sprite[spritenum].sectnum,MAXSECTORS-1,0);
-                    if (i != sprite[spritenum].sectnum)
-                        changespritesect(spritenum,i);
-                }
-            }
-            break;
-            case 4:
-            {
-                for (i=Bsprintf(disptext,"Statnum: %d",sprite[spritenum].statnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Statnum: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    i = getnumber16(edittext,sprite[spritenum].statnum,MAXSTATUS-1,0);
-                    if (i != sprite[spritenum].statnum)
-                        changespritestat(spritenum,i);
-                }
-            }
-            break;
-            }
-        }
-        break;
-        case 1:
-        {
-            switch (row)
-            {
-            case 0:
-            {
-                for (i=Bsprintf(disptext,"Flags (hex): %x",sprite[spritenum].cstat); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Flags: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].cstat = (short)getnumber16(edittext,(long)sprite[spritenum].cstat,32768L,0);
-                }
-            }
-            break;
-            case 1:
-            {
-                for (i=Bsprintf(disptext,"Shade: %d",sprite[spritenum].shade); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Shade: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].shade = (char)getnumber16(edittext,(long)sprite[spritenum].shade,127,1);
-                }
-            }
-            break;
-            case 2:
-            {
-                for (i=Bsprintf(disptext,"Pal: %d",sprite[spritenum].pal); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Pal: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].pal = (char)getnumber16(edittext,(long)sprite[spritenum].pal,MAXPALOOKUPS,0);
-                }
-            }
-            break;
-            case 3:
-            {
-                for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    Bsprintf(edittext,"Sprite (%d) X Repeat: ",spritenum);
-                    printmessage16(edittext);
-                    sprite[spritenum].xrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].xrepeat,256L,0);
-                    Bsprintf(edittext,"Sprite (%d) Y Repeat: ",spritenum);
-                    printmessage16(edittext);
-                    sprite[spritenum].yrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].yrepeat,256L,0);
-                }
-            }
-            break;
-            case 4:
-            {
-                for (i=Bsprintf(disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    Bsprintf(edittext,"Sprite (%d) X Offset: ",spritenum);
-                    printmessage16(edittext);
-                    sprite[spritenum].xoffset = (char)getnumber16(edittext,(long)sprite[spritenum].xoffset,128L,1);
-                    Bsprintf(edittext,"Sprite (%d) Y Offset: ",spritenum);
-                    printmessage16(edittext);
-                    sprite[spritenum].yoffset = (char)getnumber16(edittext,(long)sprite[spritenum].yoffset,128L,1);
-                }
-            }
-            break;
-            case 5:
-            {
-                for (i=Bsprintf(disptext,"Tile number: %d",sprite[spritenum].picnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Tile number: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].picnum = (short)getnumber16(edittext,(long)sprite[spritenum].picnum,MAXTILES,0);
-                }
-            }
-            break;
-            }
-        }
-        break;
-        case 2:
-        {
-            switch (row)
-            {
-            case 0:
-            {
-                for (i=Bsprintf(disptext,"Angle (2048 degrees): %d",sprite[spritenum].ang); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Angle: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].ang = (short)getnumber16(edittext,(long)sprite[spritenum].ang,2048L,0);
-                }
-            }
-            break;
-            case 1:
-            {
-                for (i=Bsprintf(disptext,"X-Velocity: %d",sprite[spritenum].xvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) X-Velocity: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].xvel = getnumber16(edittext,(long)sprite[spritenum].xvel,32767,1);
-                }
-            }
-            break;
-            case 2:
-            {
-                for (i=Bsprintf(disptext,"Y-Velocity: %d",sprite[spritenum].yvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Y-Velocity: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].yvel = getnumber16(edittext,(long)sprite[spritenum].yvel,32767,1);
-                }
-            }
-            break;
-            case 3:
-            {
-                for (i=Bsprintf(disptext,"Z-Velocity: %d",sprite[spritenum].zvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Z-Velocity: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].zvel = getnumber16(edittext,(long)sprite[spritenum].zvel,32767,1);
-                }
-            }
-            break;
-            case 4:
-            {
-                for (i=Bsprintf(disptext,"Owner: %d",sprite[spritenum].owner); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Owner: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].owner = getnumber16(edittext,(long)sprite[spritenum].owner,MAXSPRITES,0);
-                }
-            }
-            break;
-            case 5:
-            {
-                for (i=Bsprintf(disptext,"Clipdist: %d",sprite[spritenum].clipdist); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Clipdist: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].clipdist = (char)getnumber16(edittext,(long)sprite[spritenum].clipdist,255,0);
-                }
-            }
-            break;
-            case 6:
-            {
-                for (i=Bsprintf(disptext,"Extra: %d",sprite[spritenum].extra); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Extra: ",spritenum);
-                if (editval)
-                {
-                    printmessage16(edittext);
-                    sprite[spritenum].extra = getnumber16(edittext,(long)sprite[spritenum].extra,32767,1);
-                }
-            }
-            break;
-            }
-        }
-        break;
         }
 
         printext16(xpos,ypos+row*8,11,1,disptext,0);
@@ -5530,7 +5744,8 @@ void FuncMenu(void)
     while (!editval && keystatus[1] == 0)
     {
         begindrawing();
-        if (handleevents()) {
+        if (handleevents())
+        {
             if (quitevent) quitevent = 0;
         }
         printmessage16("Select an option, press <Esc> to exit");
@@ -5607,222 +5822,229 @@ void FuncMenu(void)
         }
         switch (col)
         {
-        case 0:
-            switch (row)
-            {
             case 0:
-            {
-                for (i=Bsprintf(disptext,"Replace invalid tiles"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                switch (row)
                 {
-                    j = 0;
-                    for (i=0;i<MAXSECTORS;i++)
+                    case 0:
                     {
-                        if (tilesizx[sector[i].ceilingpicnum] <= 0)
-                            sector[i].ceilingpicnum = 0,j++;
-                        if (tilesizx[sector[i].floorpicnum] <= 0)
-                            sector[i].floorpicnum = 0,j++;
+                        for (i=Bsprintf(disptext,"Replace invalid tiles"); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
+                        {
+                            j = 0;
+                            for (i=0;i<MAXSECTORS;i++)
+                            {
+                                if (tilesizx[sector[i].ceilingpicnum] <= 0)
+                                    sector[i].ceilingpicnum = 0,j++;
+                                if (tilesizx[sector[i].floorpicnum] <= 0)
+                                    sector[i].floorpicnum = 0,j++;
+                            }
+                            for (i=0;i<MAXWALLS;i++)
+                            {
+                                if (tilesizx[wall[i].picnum] <= 0)
+                                    wall[i].picnum = 0,j++;
+                                if (tilesizx[wall[i].overpicnum] <= 0)
+                                    wall[i].overpicnum = 0,j++;
+                            }
+                            for (i=0;i<MAXSPRITES;i++)
+                            {
+                                if (tilesizx[sprite[i].picnum] <= 0)
+                                    sprite[i].picnum = 0,j++;
+                            }
+                            Bsprintf(tempbuf,"Replaced %d invalid tiles",j);
+                            printmessage16(tempbuf);
+                        }
                     }
-                    for (i=0;i<MAXWALLS;i++)
+                    break;
+                    case 1:
                     {
-                        if (tilesizx[wall[i].picnum] <= 0)
-                            wall[i].picnum = 0,j++;
-                        if (tilesizx[wall[i].overpicnum] <= 0)
-                            wall[i].overpicnum = 0,j++;
+                        for (i=Bsprintf(disptext,"Mass sprite delete"); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
+                        {
+                            Bsprintf(tempbuf,"Delete all sprites of picnum: ");
+                            i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
+                            if (i >= 0)
+                            {
+                                for (j=0;j<MAXSPRITES-1;j++)
+                                    if (sprite[j].picnum == i)
+                                        deletesprite(j);
+                                printmessage16("Sprites deleted.");
+                            }
+                            else printmessage16("Aborted");
+                        }
                     }
-                    for (i=0;i<MAXSPRITES;i++)
+                    break;
+                    case 2:
                     {
-                        if (tilesizx[sprite[i].picnum] <= 0)
-                            sprite[i].picnum = 0,j++;
-                    }
-                    Bsprintf(tempbuf,"Replaced %d invalid tiles",j);
-                    printmessage16(tempbuf);
-                }
-            }
-            break;
-            case 1:
-            {
-                for (i=Bsprintf(disptext,"Mass sprite delete"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    Bsprintf(tempbuf,"Delete all sprites of picnum: ");
-                    i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
-                    if (i >= 0)
-                    {
-                        for (j=0;j<MAXSPRITES-1;j++)
-                            if (sprite[j].picnum == i)
-                                deletesprite(j);
-                        printmessage16("Sprites deleted.");
-                    } else printmessage16("Aborted");
-                }
-            }
-            break;
-            case 2:
-            {
-                for (i=Bsprintf(disptext,"Global sky shade"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Global sky shade:    ",0,127,1);
+                        for (i=Bsprintf(disptext,"Global sky shade"); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
+                        {
+                            j=getnumber16("Global sky shade:    ",0,127,1);
 
-                    for (i=0;i<numsectors;i++)
-                    {
-                        if (sector[i].ceilingstat&1)
-                            sector[i].ceilingshade = j;
+                            for (i=0;i<numsectors;i++)
+                            {
+                                if (sector[i].ceilingstat&1)
+                                    sector[i].ceilingshade = j;
+                            }
+                            printmessage16("Parallaxed skies adjusted");
+                        }
                     }
-                    printmessage16("Parallaxed skies adjusted");
-                }
-            }
-            break;
-            case 3:
-            {
-                for (i=Bsprintf(disptext,"Global sky height"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Global sky height:    ",0,16777216,1);
-                    if (j != 0)
+                    break;
+                    case 3:
                     {
-                        for (i=0;i<numsectors;i++)
+                        for (i=Bsprintf(disptext,"Global sky height"); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
                         {
-                            if (sector[i].ceilingstat&1)
-                                sector[i].ceilingz = j;
+                            j=getnumber16("Global sky height:    ",0,16777216,1);
+                            if (j != 0)
+                            {
+                                for (i=0;i<numsectors;i++)
+                                {
+                                    if (sector[i].ceilingstat&1)
+                                        sector[i].ceilingz = j;
+                                }
+                                printmessage16("Parallaxed skies adjusted");
+                            }
+                            else printmessage16("Aborted");
                         }
-                        printmessage16("Parallaxed skies adjusted");
-                    } else printmessage16("Aborted");
-                }
-            }
-            break;
-            case 4:
-            {
-                for (i=Bsprintf(disptext,"Global Z coord shift"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Z offset:    ",0,16777216,1);
-                    if (j!=0)
+                    }
+                    break;
+                    case 4:
                     {
-                        for (i=0;i<numsectors;i++)
+                        for (i=Bsprintf(disptext,"Global Z coord shift"); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
                         {
-                            sector[i].ceilingz += j;
-                            sector[i].floorz += j;
+                            j=getnumber16("Z offset:    ",0,16777216,1);
+                            if (j!=0)
+                            {
+                                for (i=0;i<numsectors;i++)
+                                {
+                                    sector[i].ceilingz += j;
+                                    sector[i].floorz += j;
+                                }
+                                for (i=0;i<MAXSPRITES;i++)
+                                    sprite[i].z += j;
+                                printmessage16("Map adjusted");
+                            }
+                            else printmessage16("Aborted");
                         }
-                        for (i=0;i<MAXSPRITES;i++)
-                            sprite[i].z += j;
-                        printmessage16("Map adjusted");
-                    } else printmessage16("Aborted");
-                }
-            }
-            break;
-            case 5:
-            {
-                for (i=Bsprintf(disptext,"Scale map up"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Map size multiplier:    ",1,8,0);
-                    if (j!=1)
+                    }
+                    break;
+                    case 5:
                     {
-                        for (i=0;i<numsectors;i++)
+                        for (i=Bsprintf(disptext,"Scale map up"); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
                         {
-                            sector[i].ceilingz *= j;
-                            sector[i].floorz *= j;
+                            j=getnumber16("Map size multiplier:    ",1,8,0);
+                            if (j!=1)
+                            {
+                                for (i=0;i<numsectors;i++)
+                                {
+                                    sector[i].ceilingz *= j;
+                                    sector[i].floorz *= j;
+                                }
+                                for (i=0;i<numwalls;i++)
+                                {
+                                    wall[i].x *= j;
+                                    wall[i].y *= j;
+                                    wall[i].yrepeat = min(wall[i].yrepeat/j,255);
+                                }
+                                for (i=0;i<MAXSPRITES;i++)
+                                {
+                                    sprite[i].x *= j;
+                                    sprite[i].y *= j;
+                                    sprite[i].z *= j;
+                                    sprite[i].xrepeat = max(sprite[i].xrepeat*j,1);
+                                    sprite[i].yrepeat = max(sprite[i].yrepeat*j,1);
+                                }
+                                printmessage16("Map scaled");
+                            }
+                            else printmessage16("Aborted");
                         }
-                        for (i=0;i<numwalls;i++)
-                        {
-                            wall[i].x *= j;
-                            wall[i].y *= j;
-                            wall[i].yrepeat = min(wall[i].yrepeat/j,255);
-                        }
-                        for (i=0;i<MAXSPRITES;i++)
-                        {
-                            sprite[i].x *= j;
-                            sprite[i].y *= j;
-                            sprite[i].z *= j;
-                            sprite[i].xrepeat = max(sprite[i].xrepeat*j,1);
-                            sprite[i].yrepeat = max(sprite[i].yrepeat*j,1);
-                        }
-                        printmessage16("Map scaled");
-                    } else printmessage16("Aborted");
-                }
-            }
-            break;
-            case 6:
-            {
-                for (i=Bsprintf(disptext,"Scale map down"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Map size divisor:    ",1,8,0);
-                    if (j!=1)
+                    }
+                    break;
+                    case 6:
                     {
-                        for (i=0;i<numsectors;i++)
+                        for (i=Bsprintf(disptext,"Scale map down"); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
                         {
-                            sector[i].ceilingz /= j;
-                            sector[i].floorz /= j;
+                            j=getnumber16("Map size divisor:    ",1,8,0);
+                            if (j!=1)
+                            {
+                                for (i=0;i<numsectors;i++)
+                                {
+                                    sector[i].ceilingz /= j;
+                                    sector[i].floorz /= j;
+                                }
+                                for (i=0;i<numwalls;i++)
+                                {
+                                    wall[i].x /= j;
+                                    wall[i].y /= j;
+                                    wall[i].yrepeat = min(wall[i].yrepeat*j,255);
+                                }
+                                for (i=0;i<MAXSPRITES;i++)
+                                {
+                                    sprite[i].x /= j;
+                                    sprite[i].y /= j;
+                                    sprite[i].z /= j;
+                                    sprite[i].xrepeat = max(sprite[i].xrepeat/j,1);
+                                    sprite[i].yrepeat = max(sprite[i].yrepeat/j,1);
+                                }
+                                printmessage16("Map scaled");
+                            }
+                            else printmessage16("Aborted");
                         }
-                        for (i=0;i<numwalls;i++)
-                        {
-                            wall[i].x /= j;
-                            wall[i].y /= j;
-                            wall[i].yrepeat = min(wall[i].yrepeat*j,255);
-                        }
-                        for (i=0;i<MAXSPRITES;i++)
-                        {
-                            sprite[i].x /= j;
-                            sprite[i].y /= j;
-                            sprite[i].z /= j;
-                            sprite[i].xrepeat = max(sprite[i].xrepeat/j,1);
-                            sprite[i].yrepeat = max(sprite[i].yrepeat/j,1);
-                        }
-                        printmessage16("Map scaled");
-                    } else printmessage16("Aborted");
-                }
-            }
-            break;
-            case 7:
-            {
-                for (i=Bsprintf(disptext,"Global shade divide"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
-                {
-                    j=getnumber16("Shade divisor:    ",1,127,1);
-                    if (j!=1)
+                    }
+                    break;
+                    case 7:
                     {
-                        for (i=0;i<numsectors;i++)
+                        for (i=Bsprintf(disptext,"Global shade divide"); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
                         {
-                            sector[i].ceilingshade /= j;
-                            sector[i].floorshade /= j;
+                            j=getnumber16("Shade divisor:    ",1,127,1);
+                            if (j!=1)
+                            {
+                                for (i=0;i<numsectors;i++)
+                                {
+                                    sector[i].ceilingshade /= j;
+                                    sector[i].floorshade /= j;
+                                }
+                                for (i=0;i<numwalls;i++)
+                                    wall[i].shade /= j;
+                                for (i=0;i<MAXSPRITES;i++)
+                                    sprite[i].shade /= j;
+                                printmessage16("Shades adjusted");
+                            }
+                            else printmessage16("Aborted");
                         }
-                        for (i=0;i<numwalls;i++)
-                            wall[i].shade /= j;
-                        for (i=0;i<MAXSPRITES;i++)
-                            sprite[i].shade /= j;
-                        printmessage16("Shades adjusted");
-                    } else printmessage16("Aborted");
+                    }
+                    break;
                 }
-            }
-            break;
-            }
-            break;
-        case 1:
-            switch (row)
-            {
-            case 0:
-            {
-                for (i=Bsprintf(disptext,"Global visibility divide"); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                break;
+            case 1:
+                switch (row)
                 {
-                    j=getnumber16("Visibility divisor:    ",1,127,0);
-                    if (j!=1)
+                    case 0:
                     {
-                        for (i=0;i<numsectors;i++)
+                        for (i=Bsprintf(disptext,"Global visibility divide"); i < dispwidth; i++) disptext[i] = ' ';
+                        if (editval)
                         {
-                            if (sector[i].visibility < 240)
-                                sector[i].visibility /= j;
-                            else sector[i].visibility = 240 + (sector[i].visibility>>4)/j;
+                            j=getnumber16("Visibility divisor:    ",1,127,0);
+                            if (j!=1)
+                            {
+                                for (i=0;i<numsectors;i++)
+                                {
+                                    if (sector[i].visibility < 240)
+                                        sector[i].visibility /= j;
+                                    else sector[i].visibility = 240 + (sector[i].visibility>>4)/j;
+                                }
+                                printmessage16("Visibility adjusted");
+                            }
+                            else printmessage16("Aborted");
                         }
-                        printmessage16("Visibility adjusted");
-                    } else printmessage16("Aborted");
+                    }
+                    break;
                 }
-            }
-            break;
-            }
-            break;
+                break;
         }
         printext16(xpos,ypos+row*8,11,1,disptext,0);
         enddrawing();

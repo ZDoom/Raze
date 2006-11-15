@@ -8,26 +8,30 @@
 #include "duke3d.h"
 #include "grpscan.h"
 
-struct grpfile grpfiles[numgrpfiles] = {
-                                           { "Duke Nukem 3D",						0xBBC9CE44, 26524524, GAMEDUKE, NULL }
-                                           ,
-                                           { "Duke Nukem 3D: Atomic Edition",		0xF514A6AC, 44348015, GAMEDUKE, NULL },
-                                           { "Duke Nukem 3D: Atomic Edition",		0xFD3DCFF1, 44356548, GAMEDUKE, NULL },
-                                           { "Duke Nukem 3D Shareware Version",		0x983AD923, 11035779, GAMEDUKE, NULL },
-                                           { "Duke Nukem 3D Mac Shareware Version",	0xC5F71561, 10444391, GAMEDUKE, NULL },
-                                           { "Duke Nukem 3D Mac",     				0x00000000, 0,        GAMEDUKE, NULL },
-                                           { "NAM",                        			0x75C1F07B, 43448927, GAMENAM,  NULL },
-                                       };
+struct grpfile grpfiles[numgrpfiles] =
+    {
+        { "Duke Nukem 3D",						0xBBC9CE44, 26524524, GAMEDUKE, NULL
+        }
+        ,
+        { "Duke Nukem 3D: Atomic Edition",		0xF514A6AC, 44348015, GAMEDUKE, NULL },
+        { "Duke Nukem 3D: Atomic Edition",		0xFD3DCFF1, 44356548, GAMEDUKE, NULL },
+        { "Duke Nukem 3D Shareware Version",		0x983AD923, 11035779, GAMEDUKE, NULL },
+        { "Duke Nukem 3D Mac Shareware Version",	0xC5F71561, 10444391, GAMEDUKE, NULL },
+        { "Duke Nukem 3D Mac",     				0x00000000, 0,        GAMEDUKE, NULL },
+        { "NAM",                        			0x75C1F07B, 43448927, GAMENAM,  NULL },
+    };
 struct grpfile *foundgrps = NULL;
 
 #define GRPCACHEFILE "grpfiles.cache"
-static struct grpcache {
+static struct grpcache
+{
     struct grpcache *next;
     char name[BMAX_PATH+1];
     int size;
     int mtime;
     int crcval;
-} *grpcache = NULL, *usedgrpcache = NULL;
+}
+*grpcache = NULL, *usedgrpcache = NULL;
 
 static int LoadGroupsCache(void)
 {
@@ -41,7 +45,8 @@ static int LoadGroupsCache(void)
     script = scriptfile_fromfile(GRPCACHEFILE);
     if (!script) return -1;
 
-    while (!scriptfile_eof(script)) {
+    while (!scriptfile_eof(script))
+    {
         if (scriptfile_getstring(script, &fname)) break;	// filename
         if (scriptfile_getnumber(script, &fsize)) break;	// filesize
         if (scriptfile_getnumber(script, &fmtime)) break;	// modification time
@@ -65,7 +70,8 @@ static void FreeGroupsCache(void)
 {
     struct grpcache *fg;
 
-    while (grpcache) {
+    while (grpcache)
+    {
         fg = grpcache->next;
         free(grpcache);
         grpcache = fg;
@@ -86,16 +92,24 @@ int ScanGroups(void)
 
     srch = klistpath("/", "*.grp", CACHE1D_FIND_FILE);
 
-    for (sidx = srch; sidx; sidx = sidx->next) {
-        for (fg = grpcache; fg; fg = fg->next) {
+    for (sidx = srch; sidx; sidx = sidx->next)
+    {
+        for (fg = grpcache; fg; fg = fg->next)
+        {
             if (!Bstrcmp(fg->name, sidx->name)) break;
         }
 
-        if (fg) {
+        if (fg)
+        {
             if (findfrompath(sidx->name, &fn)) continue;	// failed to resolve the filename
-        if (Bstat(fn, &st)) { free(fn); continue; }	// failed to stat the file
+            if (Bstat(fn, &st))
+            {
+                free(fn);
+                continue;
+            }	// failed to stat the file
             free(fn);
-            if (fg->size == st.st_size && fg->mtime == st.st_mtime) {
+            if (fg->size == st.st_size && fg->mtime == st.st_mtime)
+            {
                 grp = (struct grpfile *)calloc(1, sizeof(struct grpfile));
                 grp->name = strdup(sidx->name);
                 grp->crcval = fg->crcval;
@@ -125,10 +139,12 @@ int ScanGroups(void)
 
             initprintf(" Checksumming %s...", sidx->name);
             crc32init((unsigned long *)&crcval);
-            do {
+            do
+            {
                 b = read(fh, buf, sizeof(buf));
                 if (b > 0) crc32block((unsigned long *)&crcval, buf, b);
-            } while (b == sizeof(buf));
+            }
+            while (b == sizeof(buf));
             crc32finish((unsigned long *)&crcval);
             close(fh);
             initprintf(" Done\n");
@@ -153,11 +169,14 @@ int ScanGroups(void)
     klistfree(srch);
     FreeGroupsCache();
 
-    if (usedgrpcache) {
+    if (usedgrpcache)
+    {
         FILE *fp;
         fp = fopen(GRPCACHEFILE, "wt");
-        if (fp) {
-            for (fg = usedgrpcache; fg; fg=fgg) {
+        if (fp)
+        {
+            for (fg = usedgrpcache; fg; fg=fgg)
+            {
                 fgg = fg->next;
                 fprintf(fp, "\"%s\" %d %d %d\n", fg->name, fg->size, fg->mtime, fg->crcval);
                 free(fg);
@@ -173,7 +192,8 @@ void FreeGroups(void)
 {
     struct grpfile *fg;
 
-    while (foundgrps) {
+    while (foundgrps)
+    {
         fg = foundgrps->next;
         free((char*)foundgrps->name);
         free(foundgrps);

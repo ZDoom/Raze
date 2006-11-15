@@ -61,10 +61,12 @@ static int32 CommandMusicToggleOff = 0;
 static char *CommandMap = NULL;
 static char *CommandName = NULL,*CommandNet = NULL;
 int32 CommandWeaponChoice = 0;
-static struct strllist {
+static struct strllist
+{
     struct strllist *next;
     char *str;
-} *CommandPaths = NULL, *CommandGrps = NULL;
+}
+*CommandPaths = NULL, *CommandGrps = NULL;
 
 char confilename[BMAX_PATH] = {"EDUKE.CON"}, boardfilename[BMAX_PATH] = {0};
 char waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768];
@@ -123,7 +125,8 @@ long tempwallptr;
 
 long nonsharedtimer;
 
-enum {
+enum
+{
     T_EOF = -2,
     T_ERROR = -1,
     T_INTERFACE = 0,
@@ -132,7 +135,11 @@ enum {
     T_ALLOW
 };
 
-typedef struct { char *text; int tokenid; }
+typedef struct
+{
+    char *text;
+    int tokenid;
+}
 tokenlist;
 
 static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
@@ -144,7 +151,8 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
     tok = scriptfile_gettoken(sf);
     if (!tok) return T_EOF;
 
-    for (i=0;i<ntokens;i++) {
+    for (i=0;i<ntokens;i++)
+    {
         if (!Bstrcasecmp(tok, tl[i].text))
             return tl[i].tokenid;
     }
@@ -179,7 +187,8 @@ void patchstatusbar(long x1, long y1, long x2, long y2)
     long clx1,cly1,clx2,cly2,clofx,clofy;
 
     scl = sbarsc(65536);
-    tx = sbarx(0); ty = sbary(200-tilesizy[BOTTOMSTATUSBAR]);
+    tx = sbarx(0);
+    ty = sbary(200-tilesizy[BOTTOMSTATUSBAR]);
 
     clx1 = scale(scale(x1,xdim,320),ud.statusbarscale,100);
     cly1 = scale(scale(y1,ydim,200),ud.statusbarscale,100);
@@ -193,13 +202,15 @@ void patchstatusbar(long x1, long y1, long x2, long y2)
 
 void setgamepalette(struct player_struct *player, char *pal, int set)
 {
-    if (player != &ps[screenpeek]) {
+    if (player != &ps[screenpeek])
+    {
         // another head
         player->palette = pal;
         return;
     }
 
-    if (getrendermode() < 3) {
+    if (getrendermode() < 3)
+    {
         // 8-bit mode
         player->palette = pal;
         setbrightness(ud.brightness>>2, pal, set);
@@ -207,11 +218,14 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
         return;
     }
 
-    if (pal == palette || pal == waterpal || pal == slimepal) {
+    if (pal == palette || pal == waterpal || pal == slimepal)
+    {
         if (player->palette != palette && player->palette != waterpal && player->palette != slimepal)
             setbrightness(ud.brightness>>2, palette, set);
         else setpalettefade(0,0,0,0);
-    } else {
+    }
+    else
+    {
         setbrightness(ud.brightness>>2, pal, set);
     }
     player->palette = pal;
@@ -261,7 +275,12 @@ int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short 
                 if (isdigit(*t)) t++;
                 continue;
             }
-        if (*t == 32) {newx+=5;t++;continue;}
+            if (*t == 32)
+            {
+                newx+=5;
+                t++;
+                continue;
+            }
             else ac = *t - '!' + starttile;
 
             if (ac < starttile || ac > (starttile + 93)) break;
@@ -288,14 +307,21 @@ int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short 
                 smallbuf[1] = *(t++);
                 smallbuf[2] = '\0';
                 p = atol(smallbuf);
-            } else {
+            }
+            else
+            {
                 smallbuf[0] = *(t++);
                 smallbuf[1] = '\0';
                 p = atol(smallbuf);
             }
             continue;
         }
-        if (*t == 32) {x+=5;t++;continue;}
+        if (*t == 32)
+        {
+            x+=5;
+            t++;
+            continue;
+        }
         else ac = *t - '!' + starttile;
 
         if (ac < starttile || ac > (starttile + 93))
@@ -340,7 +366,12 @@ int minitext_(int x,int y,char *t,char s,char p,short sb)
     while (*t)
     {
         ch = Btoupper(*t);
-        if (ch == 32) {x+=5;t++;continue;}
+        if (ch == 32)
+        {
+            x+=5;
+            t++;
+            continue;
+        }
         else ac = ch - '!' + MINIFONT;
 
         if (cmode) rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,ac,s,p,sb,0,0,xdim-1,ydim-1);
@@ -381,7 +412,8 @@ void allowtimetocorrecterrorswhenquitting(void)
     {
         oldtotalclock = totalclock;
 
-        while (totalclock < oldtotalclock+TICSPERFRAME) {
+        while (totalclock < oldtotalclock+TICSPERFRAME)
+        {
             handleevents();
             getpackets();
         }
@@ -423,7 +455,8 @@ void getpackets(void)
 
     if (ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
-        if (setgamemode(!ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP)) {
+        if (setgamemode(!ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP))
+        {
             OSD_Printf("Failed setting fullscreen video mode.\n");
             if (setgamemode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP))
                 gameexit("Failed to recover from failure to set fullscreen video mode.\n");
@@ -435,7 +468,10 @@ void getpackets(void)
     }
 
     // only dispatch commands here when not in a game
-if (!(ps[myconnectindex].gm&MODE_GAME)) { OSD_DispatchQueued(); }
+    if (!(ps[myconnectindex].gm&MODE_GAME))
+    {
+        OSD_DispatchQueued();
+    }
 
     if (qe == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && KB_KeyPressed(sc_Delete))
     {
@@ -448,415 +484,421 @@ if (!(ps[myconnectindex].gm&MODE_GAME)) { OSD_DispatchQueued(); }
     {
         switch (packbuf[0])
         {
-        case 254:
-            //slaves in M/S mode only send to master
-            if (myconnectindex == connecthead)
-            {
-                //Master re-transmits message to all others
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other)
-                        sendpacket(i,packbuf,packbufleng);
-            }
-            /*
-                        j = packbuf[1];
-                        playerquitflag[j] = 0;
-
-                        j = -1;
-                        for(i=connecthead;i>=0;i=connectpoint2[i])
-                        {
-                            if (playerquitflag[i]) { j = i; continue; }
-
-                            if (i == connecthead) connecthead = connectpoint2[connecthead];
-                            else connectpoint2[j] = connectpoint2[i];
-
-                            numplayers--;
-                            ud.multimode--;
-
-                            Bsprintf(buf,"%s is history!",ud.user_name[i]);
-                            adduserquote(buf);
-
-                            if (numplayers < 2)
-                                sound(GENERIC_AMBIENCE17);
-
-                            if(i == 0 && networkmode == 0) */
-            gameexit("Game aborted from menu; disconnected.");
-            //            }
-
-            break;
-
-        case 9:
-            //slaves in M/S mode only send to master
-            if (myconnectindex == connecthead)
-            {
-                //Master re-transmits message to all others
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other)
-                        sendpacket(i,packbuf,packbufleng);
-            }
-
-            Bstrcpy(boardfilename,packbuf+1);
-            boardfilename[packbufleng-1] = 0;
-            if (boardfilename[0] != 0)
-            {
-                if ((i = kopen4load(boardfilename,0)) < 0) {
-                    Bmemset(boardfilename,0,sizeof(boardfilename));
-                    sendboardname();
-                } else kclose(i);
-            }
-
-            if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
-                ud.m_level_number = 0;
-
-            break;
-
-        case 18: // map vote
-
-            if (myconnectindex == connecthead)
-            {
-                //Master re-transmits message to all others
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other)
-                        sendpacket(i,packbuf,packbufleng);
-            }
-
-            switch (packbuf[1])
-            {
-            case 0:
-                if (voting == myconnectindex && gotvote[packbuf[2]] == 0)
-                {
-                    gotvote[packbuf[2]] = 1;
-                    votes[packbuf[2]] = packbuf[3];
-                    Bsprintf(tempbuf,"GOT VOTE FROM %s",ud.user_name[packbuf[2]]);
-                    adduserquote(tempbuf);
-                }
-                break;
-
-            case 1: // call map vote
-                voting = packbuf[2];
-                vote_episode = packbuf[3];
-                vote_map = packbuf[4];
-                Bsprintf(tempbuf,"%s HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[packbuf[2]],level_names[packbuf[3]*11 + packbuf[4]],packbuf[3]+1,packbuf[4]+1);
-                adduserquote(tempbuf);
-                Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
-                adduserquote(tempbuf);
-                Bmemset(votes,0,sizeof(votes));
-                Bmemset(gotvote,0,sizeof(gotvote));
-                gotvote[voting] = votes[voting] = 1;
-                break;
-
-            case 2: // cancel map vote
-                if (voting == packbuf[2])
-                {
-                    voting = -1;
-                    i = 0;
-                    for (j=0;j<MAXPLAYERS;j++)
-                        i += gotvote[j];
-
-                    if (i != numplayers)
-                        Bsprintf(tempbuf,"%s HAS CANCELED THE VOTE",ud.user_name[packbuf[2]]);
-                    else Bsprintf(tempbuf,"VOTE FAILED");
-                    Bmemset(votes,0,sizeof(votes));
-                    Bmemset(gotvote,0,sizeof(gotvote));
-                    adduserquote(tempbuf);
-                }
-                break;
-            }
-            break;
-
-        case 126:
-            //Slaves in M/S mode only send to master
-            //Master re-transmits message to all others
-            if ((!networkmode) && (myconnectindex == connecthead))
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other) sendpacket(i,packbuf,packbufleng);
-
-            multiflag = 2;
-            multiwhat = 0;
-            multiwho = packbuf[2]; //other: need to send in m/s mode because of possible re-transmit
-            multipos = packbuf[1];
-            loadplayer(multipos);
-            multiflag = 0;
-            break;
-        case 0:  //[0] (receive master sync buffer)
-            j = 1;
-
-            if ((movefifoend[other]&(TIMERUPDATESIZ-1)) == 0)
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                {
-                    if (playerquitflag[i] == 0) continue;
-                    if (i == myconnectindex)
-                        otherminlag = (long)((signed char)packbuf[j]);
-                    j++;
-                }
-
-            osyn = (input *)&inputfifo[(movefifoend[connecthead]-1)&(MOVEFIFOSIZ-1)][0];
-            nsyn = (input *)&inputfifo[(movefifoend[connecthead])&(MOVEFIFOSIZ-1)][0];
-
-            k = j;
-            for (i=connecthead;i>=0;i=connectpoint2[i])
-                j += playerquitflag[i]+playerquitflag[i];
-            for (i=connecthead;i>=0;i=connectpoint2[i])
-            {
-                if (playerquitflag[i] == 0) continue;
-
-                l = packbuf[k++];
-                l += (long)(packbuf[k++]<<8);
-
-                if (i == myconnectindex)
-                { j += ((l&1)<<1)+(l&2)+((l&4)>>2)+((l&8)>>3)+((l&16)>>4)+((l&32)>>5)+((l&64)>>6)+((l&128)>>7)+((l&256)>>8)+((l&512)>>9)+((l&1024)>>10)+((l&2048)>>11); continue; }
-
-                copybufbyte(&osyn[i],&nsyn[i],sizeof(input));
-                if (l&1)   nsyn[i].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
-                if (l&2)   nsyn[i].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
-                if (l&4)   nsyn[i].avel = (signed char)packbuf[j++];
-                if (l&8)   nsyn[i].bits = ((nsyn[i].bits&0xffffff00)|((long)packbuf[j++]));
-                if (l&16)  nsyn[i].bits = ((nsyn[i].bits&0xffff00ff)|((long)packbuf[j++])<<8);
-                if (l&32)  nsyn[i].bits = ((nsyn[i].bits&0xff00ffff)|((long)packbuf[j++])<<16);
-                if (l&64)  nsyn[i].bits = ((nsyn[i].bits&0x00ffffff)|((long)packbuf[j++])<<24);
-                if (l&128) nsyn[i].horz = (signed char)packbuf[j++];
-                if (l&256)  nsyn[i].extbits = ((nsyn[i].extbits&0xffffff00)|((long)packbuf[j++]));
-                if (l&512)  nsyn[i].extbits = ((nsyn[i].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
-                if (l&1024) nsyn[i].extbits = ((nsyn[i].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
-                if (l&2048) nsyn[i].extbits = ((nsyn[i].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
-
-                if (nsyn[i].bits&(1<<26)) playerquitflag[i] = 0;
-                movefifoend[i]++;
-            }
-
-            while (j != packbufleng)
-            {
-                for (i=connecthead;i>=0;i=connectpoint2[i])
-                    if (i != myconnectindex)
-                    {
-                        syncval[i][syncvalhead[i]&(MOVEFIFOSIZ-1)] = packbuf[j];
-                        syncvalhead[i]++;
-                    }
-                j++;
-            }
-
-            for (i=connecthead;i>=0;i=connectpoint2[i])
-                if (i != myconnectindex)
-                    for (j=1;j<movesperpacket;j++)
-                    {
-                        copybufbyte(&nsyn[i],&inputfifo[movefifoend[i]&(MOVEFIFOSIZ-1)][i],sizeof(input));
-                        movefifoend[i]++;
-                    }
-
-            movefifosendplc += movesperpacket;
-
-            break;
-        case 1:  //[1] (receive slave sync buffer)
-            j = 3; k = packbuf[1] + (long)(packbuf[2]<<8);
-
-            osyn = (input *)&inputfifo[(movefifoend[other]-1)&(MOVEFIFOSIZ-1)][0];
-            nsyn = (input *)&inputfifo[(movefifoend[other])&(MOVEFIFOSIZ-1)][0];
-
-            copybufbyte(&osyn[other],&nsyn[other],sizeof(input));
-            if (k&1)   nsyn[other].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
-            if (k&2)   nsyn[other].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
-            if (k&4)   nsyn[other].avel = (signed char)packbuf[j++];
-            if (k&8)   nsyn[other].bits = ((nsyn[other].bits&0xffffff00)|((long)packbuf[j++]));
-            if (k&16)  nsyn[other].bits = ((nsyn[other].bits&0xffff00ff)|((long)packbuf[j++])<<8);
-            if (k&32)  nsyn[other].bits = ((nsyn[other].bits&0xff00ffff)|((long)packbuf[j++])<<16);
-            if (k&64)  nsyn[other].bits = ((nsyn[other].bits&0x00ffffff)|((long)packbuf[j++])<<24);
-            if (k&128) nsyn[other].horz = (signed char)packbuf[j++];
-            if (k&256)  nsyn[other].extbits = ((nsyn[other].extbits&0xffffff00)|((long)packbuf[j++]));
-            if (k&512)  nsyn[other].extbits = ((nsyn[other].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
-            if (k&1024) nsyn[other].extbits = ((nsyn[other].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
-            if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
-            movefifoend[other]++;
-
-            while (j != packbufleng)
-            {
-                syncval[other][syncvalhead[other]&(MOVEFIFOSIZ-1)] = packbuf[j++];
-                syncvalhead[other]++;
-            }
-
-            for (i=1;i<movesperpacket;i++)
-            {
-                copybufbyte(&nsyn[other],&inputfifo[movefifoend[other]&(MOVEFIFOSIZ-1)][other],sizeof(input));
-                movefifoend[other]++;
-            }
-
-            break;
-
-        case 4:
-            //slaves in M/S mode only send to master
-            if ((!networkmode) && (myconnectindex == connecthead))
-            {
-                if (packbuf[1] == 255)
+            case 254:
+                //slaves in M/S mode only send to master
+                if (myconnectindex == connecthead)
                 {
                     //Master re-transmits message to all others
                     for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                         if (i != other)
                             sendpacket(i,packbuf,packbufleng);
                 }
-                else if (((long)packbuf[1]) != myconnectindex)
-                {
-                    //Master re-transmits message not intended for master
-                    sendpacket((long)packbuf[1],packbuf,packbufleng);
-                    break;
-                }
-            }
+                /*
+                            j = packbuf[1];
+                            playerquitflag[j] = 0;
 
-            Bstrcpy(recbuf,packbuf+2);
-            recbuf[packbufleng-2] = 0;
+                            j = -1;
+                            for(i=connecthead;i>=0;i=connectpoint2[i])
+                            {
+                                if (playerquitflag[i]) { j = i; continue; }
 
-            adduserquote(recbuf);
-            sound(EXITMENUSOUND);
+                                if (i == connecthead) connecthead = connectpoint2[connecthead];
+                                else connectpoint2[j] = connectpoint2[i];
 
-            pus = NUMPAGES;
-            pub = NUMPAGES;
+                                numplayers--;
+                                ud.multimode--;
 
-            break;
+                                Bsprintf(buf,"%s is history!",ud.user_name[i]);
+                                adduserquote(buf);
 
-        case 5:
-            //Slaves in M/S mode only send to master
-            //Master re-transmits message to all others
-            if ((!networkmode) && (myconnectindex == connecthead))
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other) sendpacket(i,packbuf,packbufleng);
+                                if (numplayers < 2)
+                                    sound(GENERIC_AMBIENCE17);
 
-            if (vote_map != -1 || vote_episode != -1 || voting != -1)
-                adduserquote("VOTE SUCCEEDED");
+                                if(i == 0 && networkmode == 0) */
+                gameexit("Game aborted from menu; disconnected.");
+                //            }
 
-            ud.m_level_number = ud.level_number = packbuf[1];
-            ud.m_volume_number = ud.volume_number = packbuf[2];
-            ud.m_player_skill = ud.player_skill = packbuf[3];
-            ud.m_monsters_off = ud.monsters_off = packbuf[4];
-            ud.m_respawn_monsters = ud.respawn_monsters = packbuf[5];
-            ud.m_respawn_items = ud.respawn_items = packbuf[6];
-            ud.m_respawn_inventory = ud.respawn_inventory = packbuf[7];
-            ud.m_coop = packbuf[8];
-            ud.m_marker = ud.marker = packbuf[9];
-            ud.m_ffire = ud.ffire = packbuf[10];
-            ud.m_noexits = ud.noexits = packbuf[11];
-
-            for (i=connecthead;i>=0;i=connectpoint2[i])
-            {
-                resetweapons(i);
-                resetinventory(i);
-            }
-
-            newgame(ud.volume_number,ud.level_number,ud.player_skill);
-            ud.coop = ud.m_coop;
-
-            if (enterlevel(MODE_GAME)) backtomenu();
-
-            break;
-        case 6:
-            //slaves in M/S mode only send to master
-            //Master re-transmits message to all others
-            if ((!networkmode) && (myconnectindex == connecthead))
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other) sendpacket(i,packbuf,packbufleng);
-
-            if (packbuf[2] != BYTEVERSION)
-                gameexit("\nYou cannot play Duke with different versions.");
-
-            other = packbuf[1];
-
-            for (i=3;packbuf[i];i++)
-                ud.user_name[other][i-3] = packbuf[i];
-            ud.user_name[other][i-3] = 0;
-            i++;
-
-            j = i; //This used to be Duke packet #9... now concatenated with Duke packet #6
-            for (;i-j<10;i++) ud.wchoice[other][i-j] = packbuf[i];
-
-            ps[other].aim_mode = packbuf[i++];
-            ps[other].auto_aim = packbuf[i++];
-            ps[other].weaponswitch = packbuf[i++];
-            ps[other].palookup = ud.pcolor[other] = packbuf[i++];
-            ud.pteam[other] = packbuf[i++];
-
-            /*            if(ps[other].team != j && sprite[ps[other].i].picnum == APLAYER)
-                        {
-                            hittype[ps[other].i].extra = 1000;
-                            hittype[ps[other].i].picnum = APLAYERTOP;
-                        } */
-
-            break;
-        case 7:
-            //slaves in M/S mode only send to master
-            //Master re-transmits message to all others
-            if ((!networkmode) && (myconnectindex == connecthead))
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other) sendpacket(i,packbuf,packbufleng);
-
-            if (numlumps == 0) break;
-
-            if (SoundToggle == 0 || ud.lockout == 1 || FXDevice < 0)
                 break;
-            rtsptr = (char *)RTS_GetSound(packbuf[1]-1);
-            if (*rtsptr == 'C')
-                FX_PlayVOC3D(rtsptr,0,0,0,255,-packbuf[1]);
-            else
-                FX_PlayWAV3D(rtsptr,0,0,0,255,-packbuf[1]);
-            rtsplaying = 7;
-            break;
 
-        case 16:
-            movefifoend[other] = movefifoplc = movefifosendplc = fakemovefifoplc = 0;
-            syncvalhead[other] = syncvaltottail = 0L;
-        case 17:
-            j = 1;
+            case 9:
+                //slaves in M/S mode only send to master
+                if (myconnectindex == connecthead)
+                {
+                    //Master re-transmits message to all others
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other)
+                            sendpacket(i,packbuf,packbufleng);
+                }
 
-            if ((movefifoend[other]&(TIMERUPDATESIZ-1)) == 0)
-                if (other == connecthead)
+                Bstrcpy(boardfilename,packbuf+1);
+                boardfilename[packbufleng-1] = 0;
+                if (boardfilename[0] != 0)
+                {
+                    if ((i = kopen4load(boardfilename,0)) < 0)
+                    {
+                        Bmemset(boardfilename,0,sizeof(boardfilename));
+                        sendboardname();
+                    }
+                    else kclose(i);
+                }
+
+                if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
+                    ud.m_level_number = 0;
+
+                break;
+
+            case 18: // map vote
+
+                if (myconnectindex == connecthead)
+                {
+                    //Master re-transmits message to all others
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other)
+                            sendpacket(i,packbuf,packbufleng);
+                }
+
+                switch (packbuf[1])
+                {
+                    case 0:
+                        if (voting == myconnectindex && gotvote[packbuf[2]] == 0)
+                        {
+                            gotvote[packbuf[2]] = 1;
+                            votes[packbuf[2]] = packbuf[3];
+                            Bsprintf(tempbuf,"GOT VOTE FROM %s",ud.user_name[packbuf[2]]);
+                            adduserquote(tempbuf);
+                        }
+                        break;
+
+                    case 1: // call map vote
+                        voting = packbuf[2];
+                        vote_episode = packbuf[3];
+                        vote_map = packbuf[4];
+                        Bsprintf(tempbuf,"%s HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[packbuf[2]],level_names[packbuf[3]*11 + packbuf[4]],packbuf[3]+1,packbuf[4]+1);
+                        adduserquote(tempbuf);
+                        Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
+                        adduserquote(tempbuf);
+                        Bmemset(votes,0,sizeof(votes));
+                        Bmemset(gotvote,0,sizeof(gotvote));
+                        gotvote[voting] = votes[voting] = 1;
+                        break;
+
+                    case 2: // cancel map vote
+                        if (voting == packbuf[2])
+                        {
+                            voting = -1;
+                            i = 0;
+                            for (j=0;j<MAXPLAYERS;j++)
+                                i += gotvote[j];
+
+                            if (i != numplayers)
+                                Bsprintf(tempbuf,"%s HAS CANCELED THE VOTE",ud.user_name[packbuf[2]]);
+                            else Bsprintf(tempbuf,"VOTE FAILED");
+                            Bmemset(votes,0,sizeof(votes));
+                            Bmemset(gotvote,0,sizeof(gotvote));
+                            adduserquote(tempbuf);
+                        }
+                        break;
+                }
+                break;
+
+            case 126:
+                //Slaves in M/S mode only send to master
+                //Master re-transmits message to all others
+                if ((!networkmode) && (myconnectindex == connecthead))
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other) sendpacket(i,packbuf,packbufleng);
+
+                multiflag = 2;
+                multiwhat = 0;
+                multiwho = packbuf[2]; //other: need to send in m/s mode because of possible re-transmit
+                multipos = packbuf[1];
+                loadplayer(multipos);
+                multiflag = 0;
+                break;
+            case 0:  //[0] (receive master sync buffer)
+                j = 1;
+
+                if ((movefifoend[other]&(TIMERUPDATESIZ-1)) == 0)
                     for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                     {
+                        if (playerquitflag[i] == 0) continue;
                         if (i == myconnectindex)
                             otherminlag = (long)((signed char)packbuf[j]);
                         j++;
                     }
 
-            osyn = (input *)&inputfifo[(movefifoend[other]-1)&(MOVEFIFOSIZ-1)][0];
-            nsyn = (input *)&inputfifo[(movefifoend[other])&(MOVEFIFOSIZ-1)][0];
+                osyn = (input *)&inputfifo[(movefifoend[connecthead]-1)&(MOVEFIFOSIZ-1)][0];
+                nsyn = (input *)&inputfifo[(movefifoend[connecthead])&(MOVEFIFOSIZ-1)][0];
 
-            copybufbyte(&osyn[other],&nsyn[other],sizeof(input));
-            k = packbuf[j++];
-            k += (long)(packbuf[j++]<<8);
+                k = j;
+                for (i=connecthead;i>=0;i=connectpoint2[i])
+                    j += playerquitflag[i]+playerquitflag[i];
+                for (i=connecthead;i>=0;i=connectpoint2[i])
+                {
+                    if (playerquitflag[i] == 0) continue;
 
-            if (k&1)   nsyn[other].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
-            if (k&2)   nsyn[other].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
-            if (k&4)   nsyn[other].avel = (signed char)packbuf[j++];
-            if (k&8)   nsyn[other].bits = ((nsyn[other].bits&0xffffff00)|((long)packbuf[j++]));
-            if (k&16)  nsyn[other].bits = ((nsyn[other].bits&0xffff00ff)|((long)packbuf[j++])<<8);
-            if (k&32)  nsyn[other].bits = ((nsyn[other].bits&0xff00ffff)|((long)packbuf[j++])<<16);
-            if (k&64)  nsyn[other].bits = ((nsyn[other].bits&0x00ffffff)|((long)packbuf[j++])<<24);
-            if (k&128) nsyn[other].horz = (signed char)packbuf[j++];
-            if (k&256)  nsyn[other].extbits = ((nsyn[other].extbits&0xffffff00)|((long)packbuf[j++]));
-            if (k&512)  nsyn[other].extbits = ((nsyn[other].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
-            if (k&1024) nsyn[other].extbits = ((nsyn[other].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
-            if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
-            movefifoend[other]++;
+                    l = packbuf[k++];
+                    l += (long)(packbuf[k++]<<8);
 
-            for (i=1;i<movesperpacket;i++)
-            {
-                copybufbyte(&nsyn[other],&inputfifo[movefifoend[other]&(MOVEFIFOSIZ-1)][other],sizeof(input));
+                    if (i == myconnectindex)
+                    {
+                        j += ((l&1)<<1)+(l&2)+((l&4)>>2)+((l&8)>>3)+((l&16)>>4)+((l&32)>>5)+((l&64)>>6)+((l&128)>>7)+((l&256)>>8)+((l&512)>>9)+((l&1024)>>10)+((l&2048)>>11);
+                        continue;
+                    }
+
+                    copybufbyte(&osyn[i],&nsyn[i],sizeof(input));
+                    if (l&1)   nsyn[i].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
+                    if (l&2)   nsyn[i].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
+                    if (l&4)   nsyn[i].avel = (signed char)packbuf[j++];
+                    if (l&8)   nsyn[i].bits = ((nsyn[i].bits&0xffffff00)|((long)packbuf[j++]));
+                    if (l&16)  nsyn[i].bits = ((nsyn[i].bits&0xffff00ff)|((long)packbuf[j++])<<8);
+                    if (l&32)  nsyn[i].bits = ((nsyn[i].bits&0xff00ffff)|((long)packbuf[j++])<<16);
+                    if (l&64)  nsyn[i].bits = ((nsyn[i].bits&0x00ffffff)|((long)packbuf[j++])<<24);
+                    if (l&128) nsyn[i].horz = (signed char)packbuf[j++];
+                    if (l&256)  nsyn[i].extbits = ((nsyn[i].extbits&0xffffff00)|((long)packbuf[j++]));
+                    if (l&512)  nsyn[i].extbits = ((nsyn[i].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
+                    if (l&1024) nsyn[i].extbits = ((nsyn[i].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
+                    if (l&2048) nsyn[i].extbits = ((nsyn[i].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
+
+                    if (nsyn[i].bits&(1<<26)) playerquitflag[i] = 0;
+                    movefifoend[i]++;
+                }
+
+                while (j != packbufleng)
+                {
+                    for (i=connecthead;i>=0;i=connectpoint2[i])
+                        if (i != myconnectindex)
+                        {
+                            syncval[i][syncvalhead[i]&(MOVEFIFOSIZ-1)] = packbuf[j];
+                            syncvalhead[i]++;
+                        }
+                    j++;
+                }
+
+                for (i=connecthead;i>=0;i=connectpoint2[i])
+                    if (i != myconnectindex)
+                        for (j=1;j<movesperpacket;j++)
+                        {
+                            copybufbyte(&nsyn[i],&inputfifo[movefifoend[i]&(MOVEFIFOSIZ-1)][i],sizeof(input));
+                            movefifoend[i]++;
+                        }
+
+                movefifosendplc += movesperpacket;
+
+                break;
+            case 1:  //[1] (receive slave sync buffer)
+                j = 3;
+                k = packbuf[1] + (long)(packbuf[2]<<8);
+
+                osyn = (input *)&inputfifo[(movefifoend[other]-1)&(MOVEFIFOSIZ-1)][0];
+                nsyn = (input *)&inputfifo[(movefifoend[other])&(MOVEFIFOSIZ-1)][0];
+
+                copybufbyte(&osyn[other],&nsyn[other],sizeof(input));
+                if (k&1)   nsyn[other].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
+                if (k&2)   nsyn[other].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
+                if (k&4)   nsyn[other].avel = (signed char)packbuf[j++];
+                if (k&8)   nsyn[other].bits = ((nsyn[other].bits&0xffffff00)|((long)packbuf[j++]));
+                if (k&16)  nsyn[other].bits = ((nsyn[other].bits&0xffff00ff)|((long)packbuf[j++])<<8);
+                if (k&32)  nsyn[other].bits = ((nsyn[other].bits&0xff00ffff)|((long)packbuf[j++])<<16);
+                if (k&64)  nsyn[other].bits = ((nsyn[other].bits&0x00ffffff)|((long)packbuf[j++])<<24);
+                if (k&128) nsyn[other].horz = (signed char)packbuf[j++];
+                if (k&256)  nsyn[other].extbits = ((nsyn[other].extbits&0xffffff00)|((long)packbuf[j++]));
+                if (k&512)  nsyn[other].extbits = ((nsyn[other].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
+                if (k&1024) nsyn[other].extbits = ((nsyn[other].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
+                if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
                 movefifoend[other]++;
-            }
 
-            if (j > packbufleng)
-                initprintf("INVALID GAME PACKET!!! (packet %d, %ld too many bytes)\n",packbuf[0],j-packbufleng);
+                while (j != packbufleng)
+                {
+                    syncval[other][syncvalhead[other]&(MOVEFIFOSIZ-1)] = packbuf[j++];
+                    syncvalhead[other]++;
+                }
 
-            while (j != packbufleng)
-            {
-                syncval[other][syncvalhead[other]&(MOVEFIFOSIZ-1)] = packbuf[j++];
-                syncvalhead[other]++;
-            }
+                for (i=1;i<movesperpacket;i++)
+                {
+                    copybufbyte(&nsyn[other],&inputfifo[movefifoend[other]&(MOVEFIFOSIZ-1)][other],sizeof(input));
+                    movefifoend[other]++;
+                }
 
-            break;
-        case 127:
-            break;
+                break;
 
-        case 250:
-            playerreadyflag[other]++;
-            break;
-        case 255:
-            gameexit(" ");
-            break;
+            case 4:
+                //slaves in M/S mode only send to master
+                if ((!networkmode) && (myconnectindex == connecthead))
+                {
+                    if (packbuf[1] == 255)
+                    {
+                        //Master re-transmits message to all others
+                        for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                            if (i != other)
+                                sendpacket(i,packbuf,packbufleng);
+                    }
+                    else if (((long)packbuf[1]) != myconnectindex)
+                    {
+                        //Master re-transmits message not intended for master
+                        sendpacket((long)packbuf[1],packbuf,packbufleng);
+                        break;
+                    }
+                }
+
+                Bstrcpy(recbuf,packbuf+2);
+                recbuf[packbufleng-2] = 0;
+
+                adduserquote(recbuf);
+                sound(EXITMENUSOUND);
+
+                pus = NUMPAGES;
+                pub = NUMPAGES;
+
+                break;
+
+            case 5:
+                //Slaves in M/S mode only send to master
+                //Master re-transmits message to all others
+                if ((!networkmode) && (myconnectindex == connecthead))
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other) sendpacket(i,packbuf,packbufleng);
+
+                if (vote_map != -1 || vote_episode != -1 || voting != -1)
+                    adduserquote("VOTE SUCCEEDED");
+
+                ud.m_level_number = ud.level_number = packbuf[1];
+                ud.m_volume_number = ud.volume_number = packbuf[2];
+                ud.m_player_skill = ud.player_skill = packbuf[3];
+                ud.m_monsters_off = ud.monsters_off = packbuf[4];
+                ud.m_respawn_monsters = ud.respawn_monsters = packbuf[5];
+                ud.m_respawn_items = ud.respawn_items = packbuf[6];
+                ud.m_respawn_inventory = ud.respawn_inventory = packbuf[7];
+                ud.m_coop = packbuf[8];
+                ud.m_marker = ud.marker = packbuf[9];
+                ud.m_ffire = ud.ffire = packbuf[10];
+                ud.m_noexits = ud.noexits = packbuf[11];
+
+                for (i=connecthead;i>=0;i=connectpoint2[i])
+                {
+                    resetweapons(i);
+                    resetinventory(i);
+                }
+
+                newgame(ud.volume_number,ud.level_number,ud.player_skill);
+                ud.coop = ud.m_coop;
+
+                if (enterlevel(MODE_GAME)) backtomenu();
+
+                break;
+            case 6:
+                //slaves in M/S mode only send to master
+                //Master re-transmits message to all others
+                if ((!networkmode) && (myconnectindex == connecthead))
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other) sendpacket(i,packbuf,packbufleng);
+
+                if (packbuf[2] != BYTEVERSION)
+                    gameexit("\nYou cannot play Duke with different versions.");
+
+                other = packbuf[1];
+
+                for (i=3;packbuf[i];i++)
+                    ud.user_name[other][i-3] = packbuf[i];
+                ud.user_name[other][i-3] = 0;
+                i++;
+
+                j = i; //This used to be Duke packet #9... now concatenated with Duke packet #6
+                for (;i-j<10;i++) ud.wchoice[other][i-j] = packbuf[i];
+
+                ps[other].aim_mode = packbuf[i++];
+                ps[other].auto_aim = packbuf[i++];
+                ps[other].weaponswitch = packbuf[i++];
+                ps[other].palookup = ud.pcolor[other] = packbuf[i++];
+                ud.pteam[other] = packbuf[i++];
+
+                /*            if(ps[other].team != j && sprite[ps[other].i].picnum == APLAYER)
+                            {
+                                hittype[ps[other].i].extra = 1000;
+                                hittype[ps[other].i].picnum = APLAYERTOP;
+                            } */
+
+                break;
+            case 7:
+                //slaves in M/S mode only send to master
+                //Master re-transmits message to all others
+                if ((!networkmode) && (myconnectindex == connecthead))
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other) sendpacket(i,packbuf,packbufleng);
+
+                if (numlumps == 0) break;
+
+                if (SoundToggle == 0 || ud.lockout == 1 || FXDevice < 0)
+                    break;
+                rtsptr = (char *)RTS_GetSound(packbuf[1]-1);
+                if (*rtsptr == 'C')
+                    FX_PlayVOC3D(rtsptr,0,0,0,255,-packbuf[1]);
+                else
+                    FX_PlayWAV3D(rtsptr,0,0,0,255,-packbuf[1]);
+                rtsplaying = 7;
+                break;
+
+            case 16:
+                movefifoend[other] = movefifoplc = movefifosendplc = fakemovefifoplc = 0;
+                syncvalhead[other] = syncvaltottail = 0L;
+            case 17:
+                j = 1;
+
+                if ((movefifoend[other]&(TIMERUPDATESIZ-1)) == 0)
+                    if (other == connecthead)
+                        for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        {
+                            if (i == myconnectindex)
+                                otherminlag = (long)((signed char)packbuf[j]);
+                            j++;
+                        }
+
+                osyn = (input *)&inputfifo[(movefifoend[other]-1)&(MOVEFIFOSIZ-1)][0];
+                nsyn = (input *)&inputfifo[(movefifoend[other])&(MOVEFIFOSIZ-1)][0];
+
+                copybufbyte(&osyn[other],&nsyn[other],sizeof(input));
+                k = packbuf[j++];
+                k += (long)(packbuf[j++]<<8);
+
+                if (k&1)   nsyn[other].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
+                if (k&2)   nsyn[other].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
+                if (k&4)   nsyn[other].avel = (signed char)packbuf[j++];
+                if (k&8)   nsyn[other].bits = ((nsyn[other].bits&0xffffff00)|((long)packbuf[j++]));
+                if (k&16)  nsyn[other].bits = ((nsyn[other].bits&0xffff00ff)|((long)packbuf[j++])<<8);
+                if (k&32)  nsyn[other].bits = ((nsyn[other].bits&0xff00ffff)|((long)packbuf[j++])<<16);
+                if (k&64)  nsyn[other].bits = ((nsyn[other].bits&0x00ffffff)|((long)packbuf[j++])<<24);
+                if (k&128) nsyn[other].horz = (signed char)packbuf[j++];
+                if (k&256)  nsyn[other].extbits = ((nsyn[other].extbits&0xffffff00)|((long)packbuf[j++]));
+                if (k&512)  nsyn[other].extbits = ((nsyn[other].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
+                if (k&1024) nsyn[other].extbits = ((nsyn[other].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
+                if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
+                movefifoend[other]++;
+
+                for (i=1;i<movesperpacket;i++)
+                {
+                    copybufbyte(&nsyn[other],&inputfifo[movefifoend[other]&(MOVEFIFOSIZ-1)][other],sizeof(input));
+                    movefifoend[other]++;
+                }
+
+                if (j > packbufleng)
+                    initprintf("INVALID GAME PACKET!!! (packet %d, %ld too many bytes)\n",packbuf[0],j-packbufleng);
+
+                while (j != packbufleng)
+                {
+                    syncval[other][syncvalhead[other]&(MOVEFIFOSIZ-1)] = packbuf[j++];
+                    syncvalhead[other]++;
+                }
+
+                break;
+            case 127:
+                break;
+
+            case 250:
+                playerreadyflag[other]++;
+                break;
+            case 255:
+                gameexit(" ");
+                break;
         }
     }
 }
@@ -880,7 +922,8 @@ void faketimerhandler()
     if ((totalclock < ototalclock+TICSPERFRAME) || (ready2send == 0)) return;
     ototalclock += TICSPERFRAME;
 
-    getpackets(); if (getoutputcirclesize() >= 16) return;
+    getpackets();
+    if (getoutputcirclesize() >= 16) return;
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
         if (i != myconnectindex)
@@ -936,7 +979,8 @@ void faketimerhandler()
 
     if (((movefifoend[myconnectindex]-1)&(TIMERUPDATESIZ-1)) == 0)
     {
-        i = mymaxlag-bufferjitter; mymaxlag = 0;
+        i = mymaxlag-bufferjitter;
+        mymaxlag = 0;
         if (i > 0) bufferjitter += ((3+i)>>2);
         else if (i < 0) bufferjitter -= ((1-i)>>2);
     }
@@ -958,7 +1002,8 @@ void faketimerhandler()
                 else i = 0;
 
                 totalclock -= TICSPERFRAME*i;
-                myminlag[connecthead] -= i; otherminlag += i;
+                myminlag[connecthead] -= i;
+                otherminlag += i;
             }
 
             if (myconnectindex == connecthead)
@@ -1032,13 +1077,17 @@ void faketimerhandler()
             else i = 0;
 
             totalclock -= TICSPERFRAME*i;
-            myminlag[connecthead] -= i; otherminlag += i;
+            myminlag[connecthead] -= i;
+            otherminlag += i;
 
             for (i=connecthead;i>=0;i=connectpoint2[i])
                 myminlag[i] = 0x7fffffff;
         }
 
-        packbuf[0] = 1; packbuf[1] = 0; packbuf[2] = 0; j = 3;
+        packbuf[0] = 1;
+        packbuf[1] = 0;
+        packbuf[2] = 0;
+        j = 3;
 
         osyn = (input *)&inputfifo[(movefifoend[myconnectindex]-2)&(MOVEFIFOSIZ-1)][myconnectindex];
         nsyn = (input *)&inputfifo[(movefifoend[myconnectindex]-1)&(MOVEFIFOSIZ-1)][myconnectindex];
@@ -1104,7 +1153,8 @@ void faketimerhandler()
         nsyn = (input *)&inputfifo[(movefifosendplc)&(MOVEFIFOSIZ-1)][0];
 
         //MASTER -> SLAVE packet
-        packbuf[0] = 0; j = 1;
+        packbuf[0] = 0;
+        j = 1;
 
         //Fix timers and buffer/jitter value
         if ((movefifosendplc&(TIMERUPDATESIZ-1)) == 0)
@@ -1179,7 +1229,11 @@ void faketimerhandler()
 }
 
 extern long cacnum;
-typedef struct { long *hand, leng; char *lock ; }
+typedef struct
+{
+    long *hand, leng;
+    char *lock ;
+}
 cactype;
 extern cactype cac[];
 
@@ -1192,7 +1246,8 @@ void caches(void)
         if ((*cac[i].lock) >= 200)
         {
             Bsprintf(tempbuf,"Locked- %d: Leng:%ld, Lock:%d",i,cac[i].leng,*cac[i].lock);
-            printext256(0L,k,31,-1,tempbuf,1); k += 6;
+            printext256(0L,k,31,-1,tempbuf,1);
+            k += 6;
         }
 
     k += 6;
@@ -1201,7 +1256,8 @@ void caches(void)
         if (lumplockbyte[i] >= 200)
         {
             Bsprintf(tempbuf,"RTS Locked %d:",i);
-            printext256(0L,k,31,-1,tempbuf,1); k += 6;
+            printext256(0L,k,31,-1,tempbuf,1);
+            k += 6;
         }
 
 
@@ -1226,7 +1282,8 @@ void checksync(void)
             syncvaltottail++;
             for (i=connecthead;i>=0;i=connectpoint2[i])
                 if (syncvalhead[i] == syncvaltottail) break;
-        } while (i < 0);
+        }
+        while (i < 0);
     }
     if (connectpoint2[connecthead] < 0) syncstat = 0;
 
@@ -1247,64 +1304,64 @@ void check_fta_sounds(short i)
     if (sprite[i].extra > 0)
         switch (dynamictostatic[PN])
         {
-        case LIZTROOPONTOILET__STATIC:
-        case LIZTROOPJUSTSIT__STATIC:
-        case LIZTROOPSHOOT__STATIC:
-        case LIZTROOPJETPACK__STATIC:
-        case LIZTROOPDUCKING__STATIC:
-        case LIZTROOPRUNNING__STATIC:
-        case LIZTROOP__STATIC:
-            spritesound(PRED_RECOG,i);
-            break;
-        case LIZMAN__STATIC:
-        case LIZMANSPITTING__STATIC:
-        case LIZMANFEEDING__STATIC:
-        case LIZMANJUMP__STATIC:
-            spritesound(CAPT_RECOG,i);
-            break;
-        case PIGCOP__STATIC:
-        case PIGCOPDIVE__STATIC:
-            spritesound(PIG_RECOG,i);
-            break;
-        case RECON__STATIC:
-            spritesound(RECO_RECOG,i);
-            break;
-        case DRONE__STATIC:
-            spritesound(DRON_RECOG,i);
-            break;
-        case COMMANDER__STATIC:
-        case COMMANDERSTAYPUT__STATIC:
-            spritesound(COMM_RECOG,i);
-            break;
-        case ORGANTIC__STATIC:
-            spritesound(TURR_RECOG,i);
-            break;
-        case OCTABRAIN__STATIC:
-        case OCTABRAINSTAYPUT__STATIC:
-            spritesound(OCTA_RECOG,i);
-            break;
-        case BOSS1__STATIC:
-            sound(BOS1_RECOG);
-            break;
-        case BOSS2__STATIC:
-            if (sprite[i].pal == 1)
-                sound(BOS2_RECOG);
-            else sound(WHIPYOURASS);
-            break;
-        case BOSS3__STATIC:
-            if (sprite[i].pal == 1)
-                sound(BOS3_RECOG);
-            else sound(RIPHEADNECK);
-            break;
-        case BOSS4__STATIC:
-        case BOSS4STAYPUT__STATIC:
-            if (sprite[i].pal == 1)
-                sound(BOS4_RECOG);
-            sound(BOSS4_FIRSTSEE);
-            break;
-        case GREENSLIME__STATIC:
-            spritesound(SLIM_RECOG,i);
-            break;
+            case LIZTROOPONTOILET__STATIC:
+            case LIZTROOPJUSTSIT__STATIC:
+            case LIZTROOPSHOOT__STATIC:
+            case LIZTROOPJETPACK__STATIC:
+            case LIZTROOPDUCKING__STATIC:
+            case LIZTROOPRUNNING__STATIC:
+            case LIZTROOP__STATIC:
+                spritesound(PRED_RECOG,i);
+                break;
+            case LIZMAN__STATIC:
+            case LIZMANSPITTING__STATIC:
+            case LIZMANFEEDING__STATIC:
+            case LIZMANJUMP__STATIC:
+                spritesound(CAPT_RECOG,i);
+                break;
+            case PIGCOP__STATIC:
+            case PIGCOPDIVE__STATIC:
+                spritesound(PIG_RECOG,i);
+                break;
+            case RECON__STATIC:
+                spritesound(RECO_RECOG,i);
+                break;
+            case DRONE__STATIC:
+                spritesound(DRON_RECOG,i);
+                break;
+            case COMMANDER__STATIC:
+            case COMMANDERSTAYPUT__STATIC:
+                spritesound(COMM_RECOG,i);
+                break;
+            case ORGANTIC__STATIC:
+                spritesound(TURR_RECOG,i);
+                break;
+            case OCTABRAIN__STATIC:
+            case OCTABRAINSTAYPUT__STATIC:
+                spritesound(OCTA_RECOG,i);
+                break;
+            case BOSS1__STATIC:
+                sound(BOS1_RECOG);
+                break;
+            case BOSS2__STATIC:
+                if (sprite[i].pal == 1)
+                    sound(BOS2_RECOG);
+                else sound(WHIPYOURASS);
+                break;
+            case BOSS3__STATIC:
+                if (sprite[i].pal == 1)
+                    sound(BOS3_RECOG);
+                else sound(RIPHEADNECK);
+                break;
+            case BOSS4__STATIC:
+            case BOSS4STAYPUT__STATIC:
+                if (sprite[i].pal == 1)
+                    sound(BOS4_RECOG);
+                sound(BOSS4_FIRSTSEE);
+                break;
+            case GREENSLIME__STATIC:
+                spritesound(SLIM_RECOG,i);
+                break;
         }
 }
 
@@ -1312,14 +1369,14 @@ inline short inventory(spritetype *s)
 {
     switch (dynamictostatic[s->picnum])
     {
-    case FIRSTAID__STATIC:
-    case STEROIDS__STATIC:
-    case HEATSENSOR__STATIC:
-    case BOOTS__STATIC:
-    case JETPACK__STATIC:
-    case HOLODUKE__STATIC:
-    case AIRTANK__STATIC:
-        return 1;
+        case FIRSTAID__STATIC:
+        case STEROIDS__STATIC:
+        case HEATSENSOR__STATIC:
+        case BOOTS__STATIC:
+        case JETPACK__STATIC:
+        case HOLODUKE__STATIC:
+        case AIRTANK__STATIC:
+            return 1;
     }
     return 0;
 }
@@ -1328,7 +1385,8 @@ inline int checkspriteflags(short sActor, int iType)
 {
     int i;
 
-    i = spriteflags[sprite[sActor].picnum]; i ^= actorspriteflags[sActor];
+    i = spriteflags[sprite[sActor].picnum];
+    i ^= actorspriteflags[sActor];
     if (i & iType) return 1;
     else return 0;
 }
@@ -1351,44 +1409,44 @@ inline short badguypic(short pn)
 
     switch (dynamictostatic[pn])
     {
-    case SHARK__STATIC:
-    case RECON__STATIC:
-    case DRONE__STATIC:
-    case LIZTROOPONTOILET__STATIC:
-    case LIZTROOPJUSTSIT__STATIC:
-    case LIZTROOPSTAYPUT__STATIC:
-    case LIZTROOPSHOOT__STATIC:
-    case LIZTROOPJETPACK__STATIC:
-    case LIZTROOPDUCKING__STATIC:
-    case LIZTROOPRUNNING__STATIC:
-    case LIZTROOP__STATIC:
-    case OCTABRAIN__STATIC:
-    case COMMANDER__STATIC:
-    case COMMANDERSTAYPUT__STATIC:
-    case PIGCOP__STATIC:
-    case EGG__STATIC:
-    case PIGCOPSTAYPUT__STATIC:
-    case PIGCOPDIVE__STATIC:
-    case LIZMAN__STATIC:
-    case LIZMANSPITTING__STATIC:
-    case LIZMANFEEDING__STATIC:
-    case LIZMANJUMP__STATIC:
-    case ORGANTIC__STATIC:
-    case BOSS1__STATIC:
-    case BOSS2__STATIC:
-    case BOSS3__STATIC:
-    case BOSS4__STATIC:
-        //case GREENSLIME:
-        //case GREENSLIME+1:
-        //case GREENSLIME+2:
-        //case GREENSLIME+3:
-        //case GREENSLIME+4:
-        //case GREENSLIME+5:
-        //case GREENSLIME+6:
-        //case GREENSLIME+7:
-    case RAT__STATIC:
-    case ROTATEGUN__STATIC:
-        return 1;
+        case SHARK__STATIC:
+        case RECON__STATIC:
+        case DRONE__STATIC:
+        case LIZTROOPONTOILET__STATIC:
+        case LIZTROOPJUSTSIT__STATIC:
+        case LIZTROOPSTAYPUT__STATIC:
+        case LIZTROOPSHOOT__STATIC:
+        case LIZTROOPJETPACK__STATIC:
+        case LIZTROOPDUCKING__STATIC:
+        case LIZTROOPRUNNING__STATIC:
+        case LIZTROOP__STATIC:
+        case OCTABRAIN__STATIC:
+        case COMMANDER__STATIC:
+        case COMMANDERSTAYPUT__STATIC:
+        case PIGCOP__STATIC:
+        case EGG__STATIC:
+        case PIGCOPSTAYPUT__STATIC:
+        case PIGCOPDIVE__STATIC:
+        case LIZMAN__STATIC:
+        case LIZMANSPITTING__STATIC:
+        case LIZMANFEEDING__STATIC:
+        case LIZMANJUMP__STATIC:
+        case ORGANTIC__STATIC:
+        case BOSS1__STATIC:
+        case BOSS2__STATIC:
+        case BOSS3__STATIC:
+        case BOSS4__STATIC:
+            //case GREENSLIME:
+            //case GREENSLIME+1:
+            //case GREENSLIME+2:
+            //case GREENSLIME+3:
+            //case GREENSLIME+4:
+            //case GREENSLIME+5:
+            //case GREENSLIME+6:
+            //case GREENSLIME+7:
+        case RAT__STATIC:
+        case ROTATEGUN__STATIC:
+            return 1;
     }
     return 0;
 }
@@ -1587,11 +1645,14 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
     {
         if (u != -1) patchstatusbar(127,190,127+29,190+6); //original code: (135,190,135+8,190+6);
 
-        if (VOLUMEONE) {
+        if (VOLUMEONE)
+        {
             orderweaponnum(SHRINKER_WEAPON,x+39,y+12,
                            (!p->gotweapon[SHRINKER_WEAPON]*9)+12-18*
                            (cw == SHRINKER_WEAPON));
-        } else {
+        }
+        else
+        {
             if (p->subweapon&(1<<GROW_WEAPON))
                 weaponnum(SHRINKER_WEAPON,x+39,y+12,
                           p->ammo_amount[GROW_WEAPON],max_ammo_amount[GROW_WEAPON],
@@ -1608,11 +1669,14 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
     {
         if (u != -1) patchstatusbar(158,178,162+29,178+6); //original code: (166,178,166+8,178+6);
 
-        if (VOLUMEONE) {
+        if (VOLUMEONE)
+        {
             orderweaponnum(DEVISTATOR_WEAPON,x+70,y,
                            (!p->gotweapon[DEVISTATOR_WEAPON]*9)+12-18*
                            (cw == DEVISTATOR_WEAPON));
-        } else {
+        }
+        else
+        {
             weaponnum(DEVISTATOR_WEAPON,x+70,y,
                       p->ammo_amount[DEVISTATOR_WEAPON],max_ammo_amount[DEVISTATOR_WEAPON],
                       (!p->gotweapon[DEVISTATOR_WEAPON]*9)+12-18*
@@ -1622,11 +1686,14 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
     if (u&512)
     {
         if (u != -1) patchstatusbar(158,184,162+29,184+6); //original code: (166,184,166+8,184+6);
-        if (VOLUMEONE) {
+        if (VOLUMEONE)
+        {
             orderweaponnum(TRIPBOMB_WEAPON,x+70,y+6,
                            (!p->gotweapon[TRIPBOMB_WEAPON]*9)+12-18*
                            (cw == TRIPBOMB_WEAPON));
-        } else {
+        }
+        else
+        {
             weaponnum(TRIPBOMB_WEAPON,x+70,y+6,
                       p->ammo_amount[TRIPBOMB_WEAPON],max_ammo_amount[TRIPBOMB_WEAPON],
                       (!p->gotweapon[TRIPBOMB_WEAPON]*9)+12-18*
@@ -1637,11 +1704,14 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
     if (u&65536L)
     {
         if (u != -1) patchstatusbar(158,190,162+29,190+6); //original code: (166,190,166+8,190+6);
-        if (VOLUMEONE) {
+        if (VOLUMEONE)
+        {
             orderweaponnum(-1,x+70,y+12,
                            (!p->gotweapon[FREEZE_WEAPON]*9)+12-18*
                            (cw == FREEZE_WEAPON));
-        } else {
+        }
+        else
+        {
             weaponnum(-1,x+70,y+12,
                       p->ammo_amount[FREEZE_WEAPON],max_ammo_amount[FREEZE_WEAPON],
                       (!p->gotweapon[FREEZE_WEAPON]*9)+12-18*
@@ -1728,13 +1798,20 @@ void displayinventory(struct player_struct *p)
 
     j = xoff = 0;
 
-    n = (p->jetpack_amount > 0)<<3; if (n&8) j++;
-    n |= (p->scuba_amount > 0)<<5; if (n&32) j++;
-    n |= (p->steroids_amount > 0)<<1; if (n&2) j++;
-    n |= (p->holoduke_amount > 0)<<2; if (n&4) j++;
-    n |= (p->firstaid_amount > 0); if (n&1) j++;
-    n |= (p->heat_amount > 0)<<4; if (n&16) j++;
-    n |= (p->boot_amount > 0)<<6; if (n&64) j++;
+    n = (p->jetpack_amount > 0)<<3;
+    if (n&8) j++;
+    n |= (p->scuba_amount > 0)<<5;
+    if (n&32) j++;
+    n |= (p->steroids_amount > 0)<<1;
+    if (n&2) j++;
+    n |= (p->holoduke_amount > 0)<<2;
+    if (n&4) j++;
+    n |= (p->firstaid_amount > 0);
+    if (n&1) j++;
+    n |= (p->heat_amount > 0)<<4;
+    if (n&16) j++;
+    n |= (p->boot_amount > 0)<<6;
+    if (n&64) j++;
 
     xoff = 160-(j*11);
 
@@ -1757,20 +1834,27 @@ void displayinventory(struct player_struct *p)
         {
             switch (n&(1<<j))
             {
-            case   1:
-                rotatesprite(xoff<<16,y<<16,65536L,0,FIRSTAID_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);break;
-            case   2:
-                rotatesprite((xoff+1)<<16,y<<16,65536L,0,STEROIDS_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);break;
-            case   4:
-                rotatesprite((xoff+2)<<16,y<<16,65536L,0,HOLODUKE_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);break;
-            case   8:
-                rotatesprite(xoff<<16,y<<16,65536L,0,JETPACK_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);break;
-            case  16:
-                rotatesprite(xoff<<16,y<<16,65536L,0,HEAT_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);break;
-            case  32:
-                rotatesprite(xoff<<16,y<<16,65536L,0,AIRTANK_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);break;
-            case 64:
-                rotatesprite(xoff<<16,(y-1)<<16,65536L,0,BOOT_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);break;
+                case   1:
+                    rotatesprite(xoff<<16,y<<16,65536L,0,FIRSTAID_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                    break;
+                case   2:
+                    rotatesprite((xoff+1)<<16,y<<16,65536L,0,STEROIDS_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                    break;
+                case   4:
+                    rotatesprite((xoff+2)<<16,y<<16,65536L,0,HOLODUKE_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                    break;
+                case   8:
+                    rotatesprite(xoff<<16,y<<16,65536L,0,JETPACK_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                    break;
+                case  16:
+                    rotatesprite(xoff<<16,y<<16,65536L,0,HEAT_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                    break;
+                case  32:
+                    rotatesprite(xoff<<16,y<<16,65536L,0,AIRTANK_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                    break;
+                case 64:
+                    rotatesprite(xoff<<16,(y-1)<<16,65536L,0,BOOT_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                    break;
             }
 
             xoff += 22;
@@ -1822,18 +1906,25 @@ void coolgaugetext(short snum)
         if ((current_menu >= 400  && current_menu <= 405))
             return;
 
-    ss = ud.screen_size; if (ss < 4) return;
+    ss = ud.screen_size;
+    if (ss < 4) return;
 
     if (getrendermode() >= 3) pus = NUMPAGES;	// JBF 20040101: always redraw in GL
 
     if (ud.multimode > 1 && (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR))
     {
         if (pus)
-        { displayfragbar(); }
+        {
+            displayfragbar();
+        }
         else
         {
             for (i=connecthead;i>=0;i=connectpoint2[i])
-            if (ps[i].frag != sbar.frag[i]) { displayfragbar(); break; }
+                if (ps[i].frag != sbar.frag[i])
+                {
+                    displayfragbar();
+                    break;
+                }
 
 
         }
@@ -1854,30 +1945,39 @@ void coolgaugetext(short snum)
 
         rotatesprite(sbarx(37),sbary(200-28),sbarsc(65536L),0,AMMOBOX,0,21,10+16,0,0,xdim-1,ydim-1);
 
-        if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON; else i = p->curr_weapon;
+        if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
+        else i = p->curr_weapon;
         digitalnumber(53,200-17,p->ammo_amount[i],-16,10+16);
 
-        o = 158; permbit = 0;
+        o = 158;
+        permbit = 0;
         if (p->inven_icon)
         {
             switch (p->inven_icon)
             {
-            case 1:
-                i = FIRSTAID_ICON; break;
-            case 2:
-                i = STEROIDS_ICON; break;
-            case 3:
-                i = HOLODUKE_ICON; break;
-            case 4:
-                i = JETPACK_ICON; break;
-            case 5:
-                i = HEAT_ICON; break;
-            case 6:
-                i = AIRTANK_ICON; break;
-            case 7:
-                i = BOOT_ICON; break;
-            default:
-                i = -1;
+                case 1:
+                    i = FIRSTAID_ICON;
+                    break;
+                case 2:
+                    i = STEROIDS_ICON;
+                    break;
+                case 3:
+                    i = HOLODUKE_ICON;
+                    break;
+                case 4:
+                    i = JETPACK_ICON;
+                    break;
+                case 5:
+                    i = HEAT_ICON;
+                    break;
+                case 6:
+                    i = AIRTANK_ICON;
+                    break;
+                case 7:
+                    i = BOOT_ICON;
+                    break;
+                default:
+                    i = -1;
             }
             if (i >= 0) rotatesprite(sbarx(231-o),sbary(200-21),sbarsc(65536L),0,i,0,0,10+16+permbit,0,0,xdim-1,ydim-1);
 
@@ -1886,20 +1986,30 @@ void coolgaugetext(short snum)
             j = 0x80000000;
             switch (p->inven_icon)
             {
-            case 1:
-                i = p->firstaid_amount; break;
-            case 2:
-                i = ((p->steroids_amount+3)>>2); break;
-            case 3:
-                i = ((p->holoduke_amount+15)/24); j = p->holoduke_on; break;
-            case 4:
-                i = ((p->jetpack_amount+15)>>4); j = p->jetpack_on; break;
-            case 5:
-                i = p->heat_amount/12; j = p->heat_on; break;
-            case 6:
-                i = ((p->scuba_amount+63)>>6); break;
-            case 7:
-                i = (p->boot_amount>>1); break;
+                case 1:
+                    i = p->firstaid_amount;
+                    break;
+                case 2:
+                    i = ((p->steroids_amount+3)>>2);
+                    break;
+                case 3:
+                    i = ((p->holoduke_amount+15)/24);
+                    j = p->holoduke_on;
+                    break;
+                case 4:
+                    i = ((p->jetpack_amount+15)>>4);
+                    j = p->jetpack_on;
+                    break;
+                case 5:
+                    i = p->heat_amount/12;
+                    j = p->heat_on;
+                    break;
+                case 6:
+                    i = ((p->scuba_amount+63)>>6);
+                    break;
+                case 7:
+                    i = (p->boot_amount>>1);
+                    break;
             }
             invennum(284-30-o,200-6,(char)i,0,10+permbit);
             if (j > 0) minitext(288-30-o,180,"ON",0,10+16+permbit + 256);
@@ -1911,29 +2021,53 @@ void coolgaugetext(short snum)
 
     //DRAW/UPDATE FULL STATUS BAR:
 
-if (pus) { pus = 0; u = -1; }
+    if (pus)
+    {
+        pus = 0;
+        u = -1;
+    }
     else u = 0;
 
-if (sbar.frag[myconnectindex] != p->frag) { sbar.frag[myconnectindex] = p->frag; u |= 32768; }
-    if (sbar.got_access != p->got_access) { sbar.got_access = p->got_access; u |= 16384; }
+    if (sbar.frag[myconnectindex] != p->frag)
+    {
+        sbar.frag[myconnectindex] = p->frag;
+        u |= 32768;
+    }
+    if (sbar.got_access != p->got_access)
+    {
+        sbar.got_access = p->got_access;
+        u |= 16384;
+    }
 
     {
         long lAmount=GetGameVar("PLR_MORALE",-1, p->i, snum);
         if (lAmount == -1)
         {
-            if (sbar.shield_amount != p->shield_amount) { sbar.shield_amount = p->shield_amount; u |= 2; }
+            if (sbar.shield_amount != p->shield_amount)
+            {
+                sbar.shield_amount = p->shield_amount;
+                u |= 2;
+            }
 
 
         }
         else
         {
-            if (sbar.shield_amount != lAmount) { sbar.shield_amount = lAmount; u |= 2; }
+            if (sbar.shield_amount != lAmount)
+            {
+                sbar.shield_amount = lAmount;
+                u |= 2;
+            }
 
 
         }
     }
 
-    if (sbar.curr_weapon != p->curr_weapon) { sbar.curr_weapon = p->curr_weapon; u |= (4+8+16+32+64+128+256+512+1024+65536L); }
+    if (sbar.curr_weapon != p->curr_weapon)
+    {
+        sbar.curr_weapon = p->curr_weapon;
+        u |= (4+8+16+32+64+128+256+512+1024+65536L);
+    }
 
     for (i=1;i<MAX_WEAPONS;i++)
     {
@@ -1953,17 +2087,61 @@ if (sbar.frag[myconnectindex] != p->frag) { sbar.frag[myconnectindex] = p->frag;
             else u |= 65536L+1024;
         }
     }
-if (sbar.inven_icon != p->inven_icon) { sbar.inven_icon = p->inven_icon; u |= (2048+4096+8192); }
-    if (sbar.holoduke_on != p->holoduke_on) { sbar.holoduke_on = p->holoduke_on; u |= (4096+8192); }
-    if (sbar.jetpack_on != p->jetpack_on) { sbar.jetpack_on = p->jetpack_on; u |= (4096+8192); }
-    if (sbar.heat_on != p->heat_on) { sbar.heat_on = p->heat_on; u |= (4096+8192); }
-    if (sbar.firstaid_amount != p->firstaid_amount) { sbar.firstaid_amount = p->firstaid_amount; u |= 8192; }
-    if (sbar.steroids_amount != p->steroids_amount) { sbar.steroids_amount = p->steroids_amount; u |= 8192; }
-    if (sbar.holoduke_amount != p->holoduke_amount) { sbar.holoduke_amount = p->holoduke_amount; u |= 8192; }
-    if (sbar.jetpack_amount != p->jetpack_amount) { sbar.jetpack_amount = p->jetpack_amount; u |= 8192; }
-    if (sbar.heat_amount != p->heat_amount) { sbar.heat_amount = p->heat_amount; u |= 8192; }
-    if (sbar.scuba_amount != p->scuba_amount) { sbar.scuba_amount = p->scuba_amount; u |= 8192; }
-    if (sbar.boot_amount != p->boot_amount) { sbar.boot_amount = p->boot_amount; u |= 8192; }
+    if (sbar.inven_icon != p->inven_icon)
+    {
+        sbar.inven_icon = p->inven_icon;
+        u |= (2048+4096+8192);
+    }
+    if (sbar.holoduke_on != p->holoduke_on)
+    {
+        sbar.holoduke_on = p->holoduke_on;
+        u |= (4096+8192);
+    }
+    if (sbar.jetpack_on != p->jetpack_on)
+    {
+        sbar.jetpack_on = p->jetpack_on;
+        u |= (4096+8192);
+    }
+    if (sbar.heat_on != p->heat_on)
+    {
+        sbar.heat_on = p->heat_on;
+        u |= (4096+8192);
+    }
+    if (sbar.firstaid_amount != p->firstaid_amount)
+    {
+        sbar.firstaid_amount = p->firstaid_amount;
+        u |= 8192;
+    }
+    if (sbar.steroids_amount != p->steroids_amount)
+    {
+        sbar.steroids_amount = p->steroids_amount;
+        u |= 8192;
+    }
+    if (sbar.holoduke_amount != p->holoduke_amount)
+    {
+        sbar.holoduke_amount = p->holoduke_amount;
+        u |= 8192;
+    }
+    if (sbar.jetpack_amount != p->jetpack_amount)
+    {
+        sbar.jetpack_amount = p->jetpack_amount;
+        u |= 8192;
+    }
+    if (sbar.heat_amount != p->heat_amount)
+    {
+        sbar.heat_amount = p->heat_amount;
+        u |= 8192;
+    }
+    if (sbar.scuba_amount != p->scuba_amount)
+    {
+        sbar.scuba_amount = p->scuba_amount;
+        u |= 8192;
+    }
+    if (sbar.boot_amount != p->boot_amount)
+    {
+        sbar.boot_amount = p->boot_amount;
+        u |= 8192;
+    }
     if (u == 0) return;
 
     //0 - update health
@@ -2033,7 +2211,8 @@ if (sbar.inven_icon != p->inven_icon) { sbar.inven_icon = p->inven_icon; u |= (2
         if (u != -1) patchstatusbar(196,SBY+17,219,SBY+17+11);
         if (p->curr_weapon != KNEE_WEAPON)
         {
-            if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON; else i = p->curr_weapon;
+            if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
+            else i = p->curr_weapon;
             digitalnumber(230-22,SBY+17,p->ammo_amount[i],-16,10+16);
         }
     }
@@ -2042,33 +2221,47 @@ if (sbar.inven_icon != p->inven_icon) { sbar.inven_icon = p->inven_icon; u |= (2
     {
         if (u != -1)
         {
-            if (u&(2048+4096)) { patchstatusbar(231,SBY+13,265,SBY+13+18); }
-            else { patchstatusbar(250,SBY+24,261,SBY+24+6); }
+            if (u&(2048+4096))
+            {
+                patchstatusbar(231,SBY+13,265,SBY+13+18);
+            }
+            else
+            {
+                patchstatusbar(250,SBY+24,261,SBY+24+6);
+            }
 
 
         }
         if (p->inven_icon)
         {
-            o = 0; permbit = 128;
+            o = 0;
+            permbit = 128;
 
             if (u&(2048+4096))
             {
                 switch (p->inven_icon)
                 {
-                case 1:
-                    i = FIRSTAID_ICON; break;
-                case 2:
-                    i = STEROIDS_ICON; break;
-                case 3:
-                    i = HOLODUKE_ICON; break;
-                case 4:
-                    i = JETPACK_ICON; break;
-                case 5:
-                    i = HEAT_ICON; break;
-                case 6:
-                    i = AIRTANK_ICON; break;
-                case 7:
-                    i = BOOT_ICON; break;
+                    case 1:
+                        i = FIRSTAID_ICON;
+                        break;
+                    case 2:
+                        i = STEROIDS_ICON;
+                        break;
+                    case 3:
+                        i = HOLODUKE_ICON;
+                        break;
+                    case 4:
+                        i = JETPACK_ICON;
+                        break;
+                    case 5:
+                        i = HEAT_ICON;
+                        break;
+                    case 6:
+                        i = AIRTANK_ICON;
+                        break;
+                    case 7:
+                        i = BOOT_ICON;
+                        break;
                 }
                 rotatesprite(sbarx(231-o),sbary(SBY+13),sbarsc(65536L),0,i,0,0,10+16+permbit,0,0,xdim-1,ydim-1);
                 minitext(292-30-o,SBY+24,"%",6,10+16+permbit + 256);
@@ -2078,14 +2271,17 @@ if (sbar.inven_icon != p->inven_icon) { sbar.inven_icon = p->inven_icon; u |= (2
             {
                 switch (p->inven_icon)
                 {
-                case 3:
-                    j = p->holoduke_on; break;
-                case 4:
-                    j = p->jetpack_on; break;
-                case 5:
-                    j = p->heat_on; break;
-                default:
-                    j = 0x80000000;
+                    case 3:
+                        j = p->holoduke_on;
+                        break;
+                    case 4:
+                        j = p->jetpack_on;
+                        break;
+                    case 5:
+                        j = p->heat_on;
+                        break;
+                    default:
+                        j = 0x80000000;
                 }
                 if (j > 0) minitext(288-30-o,SBY+14,"ON",0,10+16+permbit + 256);
                 else if ((unsigned long)j != 0x80000000) minitext(284-30-o,SBY+14,"OFF",2,10+16+permbit + 256);
@@ -2094,20 +2290,27 @@ if (sbar.inven_icon != p->inven_icon) { sbar.inven_icon = p->inven_icon; u |= (2
             {
                 switch (p->inven_icon)
                 {
-                case 1:
-                    i = p->firstaid_amount; break;
-                case 2:
-                    i = ((p->steroids_amount+3)>>2); break;
-                case 3:
-                    i = ((p->holoduke_amount+15)/24); break;
-                case 4:
-                    i = ((p->jetpack_amount+15)>>4); break;
-                case 5:
-                    i = p->heat_amount/12; break;
-                case 6:
-                    i = ((p->scuba_amount+63)>>6); break;
-                case 7:
-                    i = (p->boot_amount>>1); break;
+                    case 1:
+                        i = p->firstaid_amount;
+                        break;
+                    case 2:
+                        i = ((p->steroids_amount+3)>>2);
+                        break;
+                    case 3:
+                        i = ((p->holoduke_amount+15)/24);
+                        break;
+                    case 4:
+                        i = ((p->jetpack_amount+15)>>4);
+                        break;
+                    case 5:
+                        i = p->heat_amount/12;
+                        break;
+                    case 6:
+                        i = ((p->scuba_amount+63)>>6);
+                        break;
+                    case 7:
+                        i = (p->boot_amount>>1);
+                        break;
                 }
                 invennum(284-30-o,SBY+28,(char)i,0,10+permbit);
             }
@@ -2187,14 +2390,17 @@ void operatefta(void)
 {
     long i, j, k, l;
 
-    if (ud.screen_size > 0) j = 200-45; else j = 200-8;
+    if (ud.screen_size > 0) j = 200-45;
+    else j = 200-8;
     quotebot = min(quotebot,j);
     quotebotgoal = min(quotebotgoal,j);
     if (ps[myconnectindex].gm&MODE_TYPE) j -= 8;
-    quotebotgoal = j; j = quotebot;
+    quotebotgoal = j;
+    j = quotebot;
     for (i=0;i<MAXUSERQUOTES;i++)
     {
-        k = user_quote_time[i]; if (k <= 0) break;
+        k = user_quote_time[i];
+        if (k <= 0) break;
         l = Bstrlen(user_quote[i]);
         while (l > TEXTWRAPLEN)
         {
@@ -2217,7 +2423,8 @@ void operatefta(void)
 
     if (GTFLAGS(GAMETYPE_FLAG_FRAGBAR) && ud.screen_size > 0 && ud.multimode > 1)
     {
-        j = 0; k = 8;
+        j = 0;
+        k = 8;
         for (i=connecthead;i>=0;i=connectpoint2[i])
             if (i > j) j = i;
 
@@ -2280,12 +2487,14 @@ void FTA(short q,struct player_struct *p)
                     OSD_Printf("%s\n",strip_color_codes(fta_quotes[q]));
             }
         }
-    } else OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,p->ftq);
+    }
+    else OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,p->ftq);
 }
 
 void showtwoscreens(void)
 {
-    if (!VOLUMEALL) {
+    if (!VOLUMEALL)
+    {
         setview(0,0,xdim-1,ydim-1);
         flushperms();
         //ps[myconnectindex].palette = palette;
@@ -2293,14 +2502,24 @@ void showtwoscreens(void)
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
         rotatesprite(0,0,65536L,0,3291,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
-        IFISSOFTMODE fadepal(0,0,0, 63,0,-7); else nextpage();
-    while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
+        IFISSOFTMODE fadepal(0,0,0, 63,0,-7);
+        else nextpage();
+        while (!KB_KeyWaiting())
+        {
+            handleevents();
+            getpackets();
+        }
 
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
         rotatesprite(0,0,65536L,0,3290,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
-        IFISSOFTMODE fadepal(0,0,0, 63,0,-7); else nextpage();
-    while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
+        IFISSOFTMODE fadepal(0,0,0, 63,0,-7);
+        else nextpage();
+        while (!KB_KeyWaiting())
+        {
+            handleevents();
+            getpackets();
+        }
 
 
     }
@@ -2333,7 +2552,10 @@ void gameexit(char *t)
     }
 
     if (ud.recstat == 1) closedemowrite();
-else if (ud.recstat == 2) { if (frecfilep) fclose(frecfilep); } // JBF: fixes crash on demo playback
+    else if (ud.recstat == 2)
+    {
+        if (frecfilep) fclose(frecfilep);
+    } // JBF: fixes crash on demo playback
 
     if (!qe && !cp)
     {
@@ -2356,7 +2578,8 @@ else if (ud.recstat == 2) { if (frecfilep) fclose(frecfilep); } // JBF: fixes cr
         //binscreen();
         //            if(*t == ' ' && *(t+1) == 0) *t = 0;
         //printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-        if (!(t[0] == ' ' && t[1] == 0)) {
+        if (!(t[0] == ' ' && t[1] == 0))
+        {
             wm_msgbox(HEAD2, t);
         }
     }
@@ -2401,7 +2624,8 @@ short strget_(int small,short x,short y,char *t,short dalen,short c)
             else if (ch >= 32 && inputloc < dalen && ch < 127)
             {
                 ch = Btoupper(ch);
-                if (c != 997 || (ch >= '0' && ch <= '9')) { // JBF 20040508: so we can have numeric only if we want
+                if (c != 997 || (ch >= '0' && ch <= '9'))
+                { // JBF 20040508: so we can have numeric only if we want
                     *(t+inputloc) = ch;
                     *(t+inputloc+1) = 0;
                     inputloc++;
@@ -2529,25 +2753,30 @@ void typemode(void)
         else if (sendmessagecommand == -1)
         {
             j = 50;
-            gametext(320>>1,j,"SEND MESSAGE TO...",0,2+8+16); j += 8;
+            gametext(320>>1,j,"SEND MESSAGE TO...",0,2+8+16);
+            j += 8;
             for (i=connecthead;i>=0;i=connectpoint2[i])
             {
                 if (i == myconnectindex)
                 {
                     minitextshade((320>>1)-40+1,j+1,"A/ENTER - ALL",26,0,2+8+16);
-                    minitext((320>>1)-40,j,"A/ENTER - ALL",0,2+8+16); j += 7;
+                    minitext((320>>1)-40,j,"A/ENTER - ALL",0,2+8+16);
+                    j += 7;
                 }
                 else
                 {
                     Bsprintf(buf,"      %d - %s",i+1,ud.user_name[i]);
                     minitextshade((320>>1)-40-6+1,j+1,buf,26,0,2+8+16);
-                    minitext((320>>1)-40-6,j,buf,0,2+8+16); j += 7;
+                    minitext((320>>1)-40-6,j,buf,0,2+8+16);
+                    j += 7;
                 }
             }
             minitextshade((320>>1)-40-4+1,j+1,"    ESC - Abort",26,0,2+8+16);
-            minitext((320>>1)-40-4,j,"    ESC - Abort",0,2+8+16); j += 7;
+            minitext((320>>1)-40-4,j,"    ESC - Abort",0,2+8+16);
+            j += 7;
 
-            if (ud.screen_size > 0) j = 200-45; else j = 200-8;
+            if (ud.screen_size > 0) j = 200-45;
+            else j = 200-8;
             mpgametext(j,typebuf,0,2+8+16);
 
             if (KB_KeyWaiting())
@@ -2586,7 +2815,8 @@ void typemode(void)
     }
     else
     {
-        if (ud.screen_size > 0) j = 200-45; else j = 200-8;
+        if (ud.screen_size > 0) j = 200-45;
+        else j = 200-8;
         hitstate = mpstrget(320>>1,j,typebuf,120,1);
 
         if (hitstate == 1)
@@ -2648,11 +2878,13 @@ void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
         startwall = sector[i].wallptr;
         endwall = sector[i].wallptr + sector[i].wallnum;
 
-        z1 = sector[i].ceilingz; z2 = sector[i].floorz;
+        z1 = sector[i].ceilingz;
+        z2 = sector[i].floorz;
 
         for (j=startwall,wal=&wall[startwall];j<endwall;j++,wal++)
         {
-            k = wal->nextwall; if (k < 0) continue;
+            k = wal->nextwall;
+            if (k < 0) continue;
 
             //if ((show2dwall[j>>3]&(1<<(j&7))) == 0) continue;
             //if ((k > j) && ((show2dwall[k>>3]&(1<<(k&7))) > 0)) continue;
@@ -2668,12 +2900,14 @@ void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
                 col = 24;
             else continue;
 
-            ox = wal->x-cposx; oy = wal->y-cposy;
+            ox = wal->x-cposx;
+            oy = wal->y-cposy;
             x1 = dmulscale16(ox,xvect,-oy,yvect)+(xdim<<11);
             y1 = dmulscale16(oy,xvect2,ox,yvect2)+(ydim<<11);
 
             wal2 = &wall[wal->point2];
-            ox = wal2->x-cposx; oy = wal2->y-cposy;
+            ox = wal2->x-cposx;
+            oy = wal2->y-cposy;
             x2 = dmulscale16(ox,xvect,-oy,yvect)+(xdim<<11);
             y2 = dmulscale16(oy,xvect2,ox,yvect2)+(ydim<<11);
 
@@ -2701,108 +2935,129 @@ void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
 
             if ((spr->cstat&257) != 0) switch (spr->cstat&48)
                 {
-                case 0:
-                    break;
+                    case 0:
+                        break;
 
-                    ox = sprx-cposx; oy = spry-cposy;
-                    x1 = dmulscale16(ox,xvect,-oy,yvect);
-                    y1 = dmulscale16(oy,xvect2,ox,yvect2);
-
-                    ox = (sintable[(spr->ang+512)&2047]>>7);
-                    oy = (sintable[(spr->ang)&2047]>>7);
-                    x2 = dmulscale16(ox,xvect,-oy,yvect);
-                    y2 = dmulscale16(oy,xvect,ox,yvect);
-
-                    x3 = mulscale16(x2,yxaspect);
-                    y3 = mulscale16(y2,yxaspect);
-
-                    drawline256(x1-x2+(xdim<<11),y1-y3+(ydim<<11),
-                                x1+x2+(xdim<<11),y1+y3+(ydim<<11),col);
-                    drawline256(x1-y2+(xdim<<11),y1+x3+(ydim<<11),
-                                x1+x2+(xdim<<11),y1+y3+(ydim<<11),col);
-                    drawline256(x1+y2+(xdim<<11),y1-x3+(ydim<<11),
-                                x1+x2+(xdim<<11),y1+y3+(ydim<<11),col);
-                    break;
-
-                case 16:
-                    if (spr->picnum == LASERLINE)
-                    {
-                        x1 = sprx; y1 = spry;
-                        tilenum = spr->picnum;
-                        xoff = (long)((signed char)((picanm[tilenum]>>8)&255))+((long)spr->xoffset);
-                        if ((spr->cstat&4) > 0) xoff = -xoff;
-                        k = spr->ang; l = spr->xrepeat;
-                        dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
-                        l = tilesizx[tilenum]; k = (l>>1)+xoff;
-                        x1 -= mulscale16(dax,k); x2 = x1+mulscale16(dax,l);
-                        y1 -= mulscale16(day,k); y2 = y1+mulscale16(day,l);
-
-                        ox = x1-cposx; oy = y1-cposy;
+                        ox = sprx-cposx;
+                        oy = spry-cposy;
                         x1 = dmulscale16(ox,xvect,-oy,yvect);
                         y1 = dmulscale16(oy,xvect2,ox,yvect2);
 
-                        ox = x2-cposx; oy = y2-cposy;
+                        ox = (sintable[(spr->ang+512)&2047]>>7);
+                        oy = (sintable[(spr->ang)&2047]>>7);
+                        x2 = dmulscale16(ox,xvect,-oy,yvect);
+                        y2 = dmulscale16(oy,xvect,ox,yvect);
+
+                        x3 = mulscale16(x2,yxaspect);
+                        y3 = mulscale16(y2,yxaspect);
+
+                        drawline256(x1-x2+(xdim<<11),y1-y3+(ydim<<11),
+                                    x1+x2+(xdim<<11),y1+y3+(ydim<<11),col);
+                        drawline256(x1-y2+(xdim<<11),y1+x3+(ydim<<11),
+                                    x1+x2+(xdim<<11),y1+y3+(ydim<<11),col);
+                        drawline256(x1+y2+(xdim<<11),y1-x3+(ydim<<11),
+                                    x1+x2+(xdim<<11),y1+y3+(ydim<<11),col);
+                        break;
+
+                    case 16:
+                        if (spr->picnum == LASERLINE)
+                        {
+                            x1 = sprx;
+                            y1 = spry;
+                            tilenum = spr->picnum;
+                            xoff = (long)((signed char)((picanm[tilenum]>>8)&255))+((long)spr->xoffset);
+                            if ((spr->cstat&4) > 0) xoff = -xoff;
+                            k = spr->ang;
+                            l = spr->xrepeat;
+                            dax = sintable[k&2047]*l;
+                            day = sintable[(k+1536)&2047]*l;
+                            l = tilesizx[tilenum];
+                            k = (l>>1)+xoff;
+                            x1 -= mulscale16(dax,k);
+                            x2 = x1+mulscale16(dax,l);
+                            y1 -= mulscale16(day,k);
+                            y2 = y1+mulscale16(day,l);
+
+                            ox = x1-cposx;
+                            oy = y1-cposy;
+                            x1 = dmulscale16(ox,xvect,-oy,yvect);
+                            y1 = dmulscale16(oy,xvect2,ox,yvect2);
+
+                            ox = x2-cposx;
+                            oy = y2-cposy;
+                            x2 = dmulscale16(ox,xvect,-oy,yvect);
+                            y2 = dmulscale16(oy,xvect2,ox,yvect2);
+
+                            drawline256(x1+(xdim<<11),y1+(ydim<<11),
+                                        x2+(xdim<<11),y2+(ydim<<11),col);
+                        }
+
+                        break;
+
+                    case 32:
+
+                        tilenum = spr->picnum;
+                        xoff = (long)((signed char)((picanm[tilenum]>>8)&255))+((long)spr->xoffset);
+                        yoff = (long)((signed char)((picanm[tilenum]>>16)&255))+((long)spr->yoffset);
+                        if ((spr->cstat&4) > 0) xoff = -xoff;
+                        if ((spr->cstat&8) > 0) yoff = -yoff;
+
+                        k = spr->ang;
+                        cosang = sintable[(k+512)&2047];
+                        sinang = sintable[k];
+                        xspan = tilesizx[tilenum];
+                        xrepeat = spr->xrepeat;
+                        yspan = tilesizy[tilenum];
+                        yrepeat = spr->yrepeat;
+
+                        dax = ((xspan>>1)+xoff)*xrepeat;
+                        day = ((yspan>>1)+yoff)*yrepeat;
+                        x1 = sprx + dmulscale16(sinang,dax,cosang,day);
+                        y1 = spry + dmulscale16(sinang,day,-cosang,dax);
+                        l = xspan*xrepeat;
+                        x2 = x1 - mulscale16(sinang,l);
+                        y2 = y1 + mulscale16(cosang,l);
+                        l = yspan*yrepeat;
+                        k = -mulscale16(cosang,l);
+                        x3 = x2+k;
+                        x4 = x1+k;
+                        k = -mulscale16(sinang,l);
+                        y3 = y2+k;
+                        y4 = y1+k;
+
+                        ox = x1-cposx;
+                        oy = y1-cposy;
+                        x1 = dmulscale16(ox,xvect,-oy,yvect);
+                        y1 = dmulscale16(oy,xvect2,ox,yvect2);
+
+                        ox = x2-cposx;
+                        oy = y2-cposy;
                         x2 = dmulscale16(ox,xvect,-oy,yvect);
                         y2 = dmulscale16(oy,xvect2,ox,yvect2);
 
+                        ox = x3-cposx;
+                        oy = y3-cposy;
+                        x3 = dmulscale16(ox,xvect,-oy,yvect);
+                        y3 = dmulscale16(oy,xvect2,ox,yvect2);
+
+                        ox = x4-cposx;
+                        oy = y4-cposy;
+                        x4 = dmulscale16(ox,xvect,-oy,yvect);
+                        y4 = dmulscale16(oy,xvect2,ox,yvect2);
+
                         drawline256(x1+(xdim<<11),y1+(ydim<<11),
                                     x2+(xdim<<11),y2+(ydim<<11),col);
-                    }
 
-                    break;
+                        drawline256(x2+(xdim<<11),y2+(ydim<<11),
+                                    x3+(xdim<<11),y3+(ydim<<11),col);
 
-                case 32:
+                        drawline256(x3+(xdim<<11),y3+(ydim<<11),
+                                    x4+(xdim<<11),y4+(ydim<<11),col);
 
-                    tilenum = spr->picnum;
-                    xoff = (long)((signed char)((picanm[tilenum]>>8)&255))+((long)spr->xoffset);
-                    yoff = (long)((signed char)((picanm[tilenum]>>16)&255))+((long)spr->yoffset);
-                    if ((spr->cstat&4) > 0) xoff = -xoff;
-                    if ((spr->cstat&8) > 0) yoff = -yoff;
+                        drawline256(x4+(xdim<<11),y4+(ydim<<11),
+                                    x1+(xdim<<11),y1+(ydim<<11),col);
 
-                    k = spr->ang;
-                    cosang = sintable[(k+512)&2047]; sinang = sintable[k];
-                    xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
-                    yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
-
-                    dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
-                    x1 = sprx + dmulscale16(sinang,dax,cosang,day);
-                    y1 = spry + dmulscale16(sinang,day,-cosang,dax);
-                    l = xspan*xrepeat;
-                    x2 = x1 - mulscale16(sinang,l);
-                    y2 = y1 + mulscale16(cosang,l);
-                    l = yspan*yrepeat;
-                    k = -mulscale16(cosang,l); x3 = x2+k; x4 = x1+k;
-                    k = -mulscale16(sinang,l); y3 = y2+k; y4 = y1+k;
-
-                    ox = x1-cposx; oy = y1-cposy;
-                    x1 = dmulscale16(ox,xvect,-oy,yvect);
-                    y1 = dmulscale16(oy,xvect2,ox,yvect2);
-
-                    ox = x2-cposx; oy = y2-cposy;
-                    x2 = dmulscale16(ox,xvect,-oy,yvect);
-                    y2 = dmulscale16(oy,xvect2,ox,yvect2);
-
-                    ox = x3-cposx; oy = y3-cposy;
-                    x3 = dmulscale16(ox,xvect,-oy,yvect);
-                    y3 = dmulscale16(oy,xvect2,ox,yvect2);
-
-                    ox = x4-cposx; oy = y4-cposy;
-                    x4 = dmulscale16(ox,xvect,-oy,yvect);
-                    y4 = dmulscale16(oy,xvect2,ox,yvect2);
-
-                    drawline256(x1+(xdim<<11),y1+(ydim<<11),
-                                x2+(xdim<<11),y2+(ydim<<11),col);
-
-                    drawline256(x2+(xdim<<11),y2+(ydim<<11),
-                                x3+(xdim<<11),y3+(ydim<<11),col);
-
-                    drawline256(x3+(xdim<<11),y3+(ydim<<11),
-                                x4+(xdim<<11),y4+(ydim<<11),col);
-
-                    drawline256(x4+(xdim<<11),y4+(ydim<<11),
-                                x1+(xdim<<11),y1+(ydim<<11),col);
-
-                    break;
+                        break;
                 }
         }
     }
@@ -2826,16 +3081,22 @@ void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
             if (tilesizy[wal->picnum] == 0) continue;
 
             if (j == k)
-            { x1 = x2; y1 = y2; }
+            {
+                x1 = x2;
+                y1 = y2;
+            }
             else
             {
-                ox = wal->x-cposx; oy = wal->y-cposy;
+                ox = wal->x-cposx;
+                oy = wal->y-cposy;
                 x1 = dmulscale16(ox,xvect,-oy,yvect)+(xdim<<11);
                 y1 = dmulscale16(oy,xvect2,ox,yvect2)+(ydim<<11);
             }
 
-            k = wal->point2; wal2 = &wall[k];
-            ox = wal2->x-cposx; oy = wal2->y-cposy;
+            k = wal->point2;
+            wal2 = &wall[k];
+            ox = wal2->x-cposx;
+            oy = wal2->y-cposy;
             x2 = dmulscale16(ox,xvect,-oy,yvect)+(xdim<<11);
             y2 = dmulscale16(oy,xvect2,ox,yvect2)+(ydim<<11);
 
@@ -2847,9 +3108,15 @@ void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
     {
         if (ud.scrollmode && p == screenpeek) continue;
 
-        ox = sprite[ps[p].i].x-cposx; oy = sprite[ps[p].i].y-cposy;
+        ox = sprite[ps[p].i].x-cposx;
+        oy = sprite[ps[p].i].y-cposy;
         daang = (sprite[ps[p].i].ang-cang)&2047;
-    if (p == screenpeek) { ox = 0; oy = 0; daang = 0; }
+        if (p == screenpeek)
+        {
+            ox = 0;
+            oy = 0;
+            daang = 0;
+        }
         x1 = mulscale(ox,xvect,16) - mulscale(oy,yvect,16);
         y1 = mulscale(oy,xvect2,16) + mulscale(ox,yvect2,16);
 
@@ -2891,11 +3158,14 @@ void palto(char r,char g,char b,long e)
     //setbrightness(ud.brightness>>2,temparray);
     setpalettefade(r,g,b,e&127);
     if (getrendermode() >= 3) pus = pub = NUMPAGES;	// JBF 20040110: redraw the status bar next time
-    if ((e&128) == 0) {
+    if ((e&128) == 0)
+    {
         nextpage();
         for (tc = totalclock; totalclock < tc + 4; handleevents(), getpackets());
     }
 }
+
+extern char mdpause;
 
 void displayrest(long smoothratio)
 {
@@ -2909,7 +3179,8 @@ void displayrest(long smoothratio)
     pp = &ps[screenpeek];
 
     // this takes care of fullscreen tint for OpenGL
-    if (getrendermode() >= 3) {
+    if (getrendermode() >= 3)
+    {
         if (pp->palette == waterpal) tintr=0,tintg=0,tintb=63,tintf=8;
         else if (pp->palette == slimepal) tintr=0,tintg=63,tintb=0,tintf=8;
     }
@@ -2932,7 +3203,8 @@ void displayrest(long smoothratio)
         restorepalette = 0;
     }
     // loogies courtesy of being snotted on
-    else if (pp->loogcnt > 0) {
+    else if (pp->loogcnt > 0)
+    {
         //palto(0,64,0,(pp->loogcnt>>1)+128);
         fader = 0;
         fadeg = 64;
@@ -2940,7 +3212,8 @@ void displayrest(long smoothratio)
         fadef = pp->loogcnt>>1;
         dotint = 1;
     }
-    if (fadef > tintf) {
+    if (fadef > tintf)
+    {
         tintr = fader;
         tintg = fadeg;
         tintb = fadeb;
@@ -2951,12 +3224,12 @@ void displayrest(long smoothratio)
     {
         switch (ud.show_help)
         {
-        case 1:
-            rotatesprite(0,0,65536L,0,TEXTSTORY,0,0,10+16+64, 0,0,xdim-1,ydim-1);
-            break;
-        case 2:
-            rotatesprite(0,0,65536L,0,F1HELP,0,0,10+16+64, 0,0,xdim-1,ydim-1);
-            break;
+            case 1:
+                rotatesprite(0,0,65536L,0,TEXTSTORY,0,0,10+16+64, 0,0,xdim-1,ydim-1);
+                break;
+            case 2:
+                rotatesprite(0,0,65536L,0,F1HELP,0,0,10+16+64, 0,0,xdim-1,ydim-1);
+                break;
         }
 
         if (KB_KeyPressed(sc_Escape))
@@ -3139,10 +3412,13 @@ void displayrest(long smoothratio)
     if (ud.coords)
         coords(screenpeek);
 
+    mdpause = ud.pause_on;
+
     tics();
 
     // JBF 20040124: display level stats in screen corner
-    if (ud.levelstats && (ps[myconnectindex].gm&MODE_MENU) == 0) {
+    if (ud.levelstats && (ps[myconnectindex].gm&MODE_MENU) == 0)
+    {
         i = (ud.screen_size <= 4)?0:scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100);
 
         Bsprintf(tempbuf,"Time: %ld:%02ld",
@@ -3188,7 +3464,8 @@ void view(struct player_struct *pp, long *vx, long *vy,long *vz,short *vsectnum,
         return;
     }
 
-    hx = hitx-(*vx); hy = hity-(*vy);
+    hx = hitx-(*vx);
+    hy = hity-(*vy);
     if (klabs(nx)+klabs(ny) > klabs(hx)+klabs(hy))
     {
         *vsectnum = hitsect;
@@ -3232,20 +3509,25 @@ void drawbackground(void)
 
     switch (ud.m_volume_number)
     {
-    default:
-        dapicnum = BIGHOLE;break;
-    case 1:
-        dapicnum = BIGHOLE;break;
-    case 2:
-        dapicnum = BIGHOLE;break;
+        default:
+            dapicnum = BIGHOLE;
+            break;
+        case 1:
+            dapicnum = BIGHOLE;
+            break;
+        case 2:
+            dapicnum = BIGHOLE;
+            break;
     }
 
-    if (tilesizx[dapicnum] == 0 || tilesizy[dapicnum] == 0) {
+    if (tilesizx[dapicnum] == 0 || tilesizy[dapicnum] == 0)
+    {
         pus = pub = NUMPAGES;
         return;
     }
 
-    y1 = 0; y2 = ydim;
+    y1 = 0;
+    y2 = ydim;
     if ((ready2send && ps[myconnectindex].gm == MODE_GAME) || ud.recstat == 2)
         //if (ud.recstat == 0 || ud.recstat == 1 || (ud.recstat == 2 && ud.reccnt > 0)) // JBF 20040717
     {
@@ -3256,7 +3538,8 @@ void drawbackground(void)
             if (ud.multimode > 1) y1 += scale(ydim,8,200);
             if (ud.multimode > 4) y1 += scale(ydim,8,200);
         }
-    } else {
+    } else
+    {
         // when not rendering a game, fullscreen wipe
 #define MENUTILE bpp==8?MENUSCREEN:LOADSCREEN
         SetGameVarID(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
@@ -3272,7 +3555,8 @@ void drawbackground(void)
     }
     y2 = scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200);
 
-    if (ud.screen_size > 8) {
+    if (ud.screen_size > 8)
+    {
         // across top
         for (y=0; y<windowy1; y+=tilesizy[dapicnum])
             for (x=0; x<xdim; x+=tilesizx[dapicnum])
@@ -3281,7 +3565,8 @@ void drawbackground(void)
         // sides
         rx = windowx2-windowx2%tilesizx[dapicnum];
         for (y=windowy1-windowy1%tilesizy[dapicnum]; y<windowy2; y+=tilesizy[dapicnum])
-            for (x=0; x<windowx1 || x+rx<xdim; x+=tilesizx[dapicnum]) {
+            for (x=0; x<windowx1 || x+rx<xdim; x+=tilesizx[dapicnum])
+            {
                 rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,windowy1,windowx1-1,windowy2-1);
                 rotatesprite((x+rx)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,windowx2,windowy1,xdim-1,windowy2-1);
             }
@@ -3293,12 +3578,15 @@ void drawbackground(void)
     }
 
     // draw in the bits to the left and right of the non-fullsize status bar
-    if (ud.statusbarscale < 100) {
+    if (ud.statusbarscale < 100)
+    {
         y1 = y2;
         x2 = (xdim - scale(xdim,ud.statusbarscale,100)) >> 1;
-        x1 = xdim-x2; x1 -= x1%tilesizx[dapicnum];
+        x1 = xdim-x2;
+        x1 -= x1%tilesizx[dapicnum];
         for (y=y1-y1%tilesizy[dapicnum]; y<y2; y+=tilesizy[dapicnum])
-            for (x=0;x<x2 || x1+x<xdim; x+=tilesizx[dapicnum]) {
+            for (x=0;x<x2 || x1+x<xdim; x+=tilesizx[dapicnum])
+            {
                 rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,y1,x2-1,ydim-1);
                 rotatesprite((x+x1)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,xdim-x2,y1,xdim-1,ydim-1);
             }
@@ -3407,13 +3695,16 @@ static void SE40_Draw(int spnum,long x,long y,long z,short a,short h,long smooth
     }
     // if(ok==1) { Message("no floor1",RED); return; }
 
-    if (fofmode==40) k=41; else k=40;
+    if (fofmode==40) k=41;
+    else k=40;
 
     for (j=headspritestat[15];j>=0;j=nextspritestat[j])
     {
         if (sprite[j].picnum==1 && sprite[j].lotag==k && sprite[j].hitag==sprite[floor1].hitag)
         {
-            floor2=j; ok++; break;
+            floor2=j;
+            ok++;
+            break;
         }
     }
 
@@ -3503,17 +3794,17 @@ static void se40code(long x,long y,long z,long a,long h, long smoothratio)
         int t = sprite[i].lotag;
         switch (t)
         {
-            //            case 40:
-            //            case 41:
-            //                SE40_Draw(i,x,y,a,smoothratio);
-            //                break;
-        case 42:
-        case 43:
-        case 44:
-        case 45:
-            if (ps[screenpeek].cursectnum == sprite[i].sectnum)
-                SE40_Draw(i,x,y,z,a,h,smoothratio);
-            break;
+                //            case 40:
+                //            case 41:
+                //                SE40_Draw(i,x,y,a,smoothratio);
+                //                break;
+            case 42:
+            case 43:
+            case 44:
+            case 45:
+                if (ps[screenpeek].cursectnum == sprite[i].sectnum)
+                    SE40_Draw(i,x,y,z,a,h,smoothratio);
+                break;
         }
         i = nextspritestat[i];
     }
@@ -3601,13 +3892,17 @@ void displayrooms(short snum,long smoothratio)
         }
         else if (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || ud.detail==0))
         {
-            if (ud.screen_tilting) tang = p->rotscrnang; else tang = 0;
+            if (ud.screen_tilting) tang = p->rotscrnang;
+            else tang = 0;
 
-            if (xres <= 320 && yres <= 240) {   // JBF 20030807: Increased tilted-screen quality
+            if (xres <= 320 && yres <= 240)
+            {   // JBF 20030807: Increased tilted-screen quality
                 tiltcs = 1;
                 tiltcx = 320;
                 tiltcy = 200;
-            } else {
+            }
+            else
+            {
                 tiltcs = 2;
                 tiltcx = 640;
                 tiltcy = 480;
@@ -3625,15 +3920,20 @@ void displayrooms(short snum,long smoothratio)
                 j = ((tiltcx-(60*tiltcs))>>(1-ud.detail));
                 for (i=((60*tiltcs)>>(1-ud.detail))-1;i>=0;i--)
                 {
-                    startumost[i] = 1; startumost[i+j] = 1;
-                    startdmost[i] = 0; startdmost[i+j] = 0;
+                    startumost[i] = 1;
+                    startumost[i+j] = 1;
+                    startdmost[i] = 0;
+                    startdmost[i+j] = 0;
                 }
             }
 
-            i = (tang&511); if (i > 256) i = 512-i;
+            i = (tang&511);
+            if (i > 256) i = 512-i;
             i = sintable[i+512]*8 + sintable[i]*5L;
             setaspect(i>>1,yxaspect);
-        } else if (getrendermode() > 0 /*&& (p->rotscrnang || p->orotscrnang)*/) {
+        }
+        else if (getrendermode() > 0 /*&& (p->rotscrnang || p->orotscrnang)*/)
+        {
             setrollangle(p->orotscrnang + mulscale16(((p->rotscrnang - p->orotscrnang + 1024)&2047)-1024,smoothratio));
             p->orotscrnang = p->rotscrnang; // JBF: save it for next time
         }
@@ -3705,7 +4005,8 @@ void displayrooms(short snum,long smoothratio)
 #endif
         if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
         {
-            dst = 0x7fffffff; i = 0;
+            dst = 0x7fffffff;
+            i = 0;
             for (k=0;k<mirrorcnt;k++)
             {
                 j = klabs(wall[mirrorwall[k]].x-cposx);
@@ -3745,12 +4046,15 @@ void displayrooms(short snum,long smoothratio)
         }
         else if (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || ud.detail==0))
         {
-            if (ud.screen_tilting) tang = p->rotscrnang; else tang = 0;
+            if (ud.screen_tilting) tang = p->rotscrnang;
+            else tang = 0;
 
-            if (getrendermode() == 0) {
+            if (getrendermode() == 0)
+            {
                 setviewback();
                 picanm[TILE_TILT] &= 0xff0000ff;
-                i = (tang&511); if (i > 256) i = 512-i;
+                i = (tang&511);
+                if (i > 256) i = 512-i;
                 i = sintable[i+512]*8 + sintable[i]*5L;
                 if ((1-ud.detail) == 0) i >>= 1;
                 i>>=(tiltcs-1); // JBF 20030807
@@ -3951,50 +4255,51 @@ char wallswitchcheck(short i)
     // ACCESSSWITCH and ACCESSSWITCH2 are only active in 1 state so deal with them separately
     if ((PN == ACCESSSWITCH) || (PN == ACCESSSWITCH2)) return 1;
     //loop to catch both states of switches
-    for (j=0;j<=1;j++) {
+    for (j=0;j<=1;j++)
+    {
         switch (dynamictostatic[PN-j])
         {
-        case HANDPRINTSWITCH__STATIC:
-            //case HANDPRINTSWITCH+1:
-        case ALIENSWITCH__STATIC:
-            //case ALIENSWITCH+1:
-        case MULTISWITCH__STATIC:
-            //case MULTISWITCH+1:
-            //case MULTISWITCH+2:
-            //case MULTISWITCH+3:
-            //case ACCESSSWITCH:
-            //case ACCESSSWITCH2:
-        case PULLSWITCH__STATIC:
-            //case PULLSWITCH+1:
-        case HANDSWITCH__STATIC:
-            //case HANDSWITCH+1:
-        case SLOTDOOR__STATIC:
-            //case SLOTDOOR+1:
-        case LIGHTSWITCH__STATIC:
-            //case LIGHTSWITCH+1:
-        case SPACELIGHTSWITCH__STATIC:
-            //case SPACELIGHTSWITCH+1:
-        case SPACEDOORSWITCH__STATIC:
-            //case SPACEDOORSWITCH+1:
-        case FRANKENSTINESWITCH__STATIC:
-            //case FRANKENSTINESWITCH+1:
-        case LIGHTSWITCH2__STATIC:
-            //case LIGHTSWITCH2+1:
-        case POWERSWITCH1__STATIC:
-            //case POWERSWITCH1+1:
-        case LOCKSWITCH1__STATIC:
-            //case LOCKSWITCH1+1:
-        case POWERSWITCH2__STATIC:
-            //case POWERSWITCH2+1:
-        case DIPSWITCH__STATIC:
-            //case DIPSWITCH+1:
-        case DIPSWITCH2__STATIC:
-            //case DIPSWITCH2+1:
-        case TECHSWITCH__STATIC:
-            //case TECHSWITCH+1:
-        case DIPSWITCH3__STATIC:
-            //case DIPSWITCH3+1:
-            return 1;
+            case HANDPRINTSWITCH__STATIC:
+                //case HANDPRINTSWITCH+1:
+            case ALIENSWITCH__STATIC:
+                //case ALIENSWITCH+1:
+            case MULTISWITCH__STATIC:
+                //case MULTISWITCH+1:
+                //case MULTISWITCH+2:
+                //case MULTISWITCH+3:
+                //case ACCESSSWITCH:
+                //case ACCESSSWITCH2:
+            case PULLSWITCH__STATIC:
+                //case PULLSWITCH+1:
+            case HANDSWITCH__STATIC:
+                //case HANDSWITCH+1:
+            case SLOTDOOR__STATIC:
+                //case SLOTDOOR+1:
+            case LIGHTSWITCH__STATIC:
+                //case LIGHTSWITCH+1:
+            case SPACELIGHTSWITCH__STATIC:
+                //case SPACELIGHTSWITCH+1:
+            case SPACEDOORSWITCH__STATIC:
+                //case SPACEDOORSWITCH+1:
+            case FRANKENSTINESWITCH__STATIC:
+                //case FRANKENSTINESWITCH+1:
+            case LIGHTSWITCH2__STATIC:
+                //case LIGHTSWITCH2+1:
+            case POWERSWITCH1__STATIC:
+                //case POWERSWITCH1+1:
+            case LOCKSWITCH1__STATIC:
+                //case LOCKSWITCH1+1:
+            case POWERSWITCH2__STATIC:
+                //case POWERSWITCH2+1:
+            case DIPSWITCH__STATIC:
+                //case DIPSWITCH+1:
+            case DIPSWITCH2__STATIC:
+                //case DIPSWITCH2+1:
+            case TECHSWITCH__STATIC:
+                //case TECHSWITCH+1:
+            case DIPSWITCH3__STATIC:
+                //case DIPSWITCH3+1:
+                return 1;
         }
     }
     return 0;
@@ -4097,7 +4402,8 @@ short spawn(short j, short pn)
     }
     else if (((sp->picnum >= CAMERA1)&&(sp->picnum <= CAMERA1+3))||(sp->picnum==CAMERAPOLE)||(sp->picnum==GENERICPOLE))
     {
-        if (sp->picnum != GENERICPOLE) {
+        if (sp->picnum != GENERICPOLE)
+        {
             sp->extra = 1;
 
             if (camerashitable) sp->cstat = 257;
@@ -4109,9 +4415,11 @@ short spawn(short j, short pn)
             changespritestat(i,5);
 
         }
-        else {
+        else
+        {
             sp->pal = 0;
-            if (!(sp->picnum == CAMERAPOLE || sp->picnum == GENERICPOLE)) {
+            if (!(sp->picnum == CAMERAPOLE || sp->picnum == GENERICPOLE))
+            {
                 sp->picnum = CAMERA1;
                 changespritestat(i,1);
             }
@@ -4119,1719 +4427,1755 @@ short spawn(short j, short pn)
     }
     else switch (dynamictostatic[sp->picnum])
         {
-        default:
-            if (actorscrptr[sp->picnum])
-            {
-                if (j == -1 && sp->lotag > ud.player_skill)
+            default:
+                if (actorscrptr[sp->picnum])
                 {
-                    sp->xrepeat=sp->yrepeat=0;
-                    changespritestat(i,5);
-                    break;
-                }
-
-                //  Init the size
-                if (sp->xrepeat == 0 || sp->yrepeat == 0)
-                    sp->xrepeat = sp->yrepeat = 1;
-
-                if (actortype[sp->picnum] & 3)
-                {
-                    if (ud.monsters_off == 1)
+                    if (j == -1 && sp->lotag > ud.player_skill)
                     {
                         sp->xrepeat=sp->yrepeat=0;
                         changespritestat(i,5);
                         break;
                     }
 
-                    makeitfall(i);
+                    //  Init the size
+                    if (sp->xrepeat == 0 || sp->yrepeat == 0)
+                        sp->xrepeat = sp->yrepeat = 1;
 
-                    if (actortype[sp->picnum] & 2)
-                        hittype[i].actorstayput = sp->sectnum;
-
-                    ps[myconnectindex].max_actors_killed++;
-                    sp->clipdist = 80;
-                    if (j >= 0)
+                    if (actortype[sp->picnum] & 3)
                     {
-                        if (sprite[j].picnum == RESPAWN)
-                            hittype[i].tempang = sprite[i].pal = sprite[j].pal;
+                        if (ud.monsters_off == 1)
+                        {
+                            sp->xrepeat=sp->yrepeat=0;
+                            changespritestat(i,5);
+                            break;
+                        }
+
+                        makeitfall(i);
+
+                        if (actortype[sp->picnum] & 2)
+                            hittype[i].actorstayput = sp->sectnum;
+
+                        ps[myconnectindex].max_actors_killed++;
+                        sp->clipdist = 80;
+                        if (j >= 0)
+                        {
+                            if (sprite[j].picnum == RESPAWN)
+                                hittype[i].tempang = sprite[i].pal = sprite[j].pal;
+                            changespritestat(i,1);
+                        }
+                        else changespritestat(i,2);
+                    }
+                    else
+                    {
+                        sp->clipdist = 40;
+                        sp->owner = i;
                         changespritestat(i,1);
                     }
-                    else changespritestat(i,2);
+
+                    hittype[i].timetosleep = 0;
+
+                    if (j >= 0)
+                        sp->ang = sprite[j].ang;
                 }
-                else
-                {
-                    sp->clipdist = 40;
-                    sp->owner = i;
-                    changespritestat(i,1);
-                }
-
-                hittype[i].timetosleep = 0;
-
-                if (j >= 0)
-                    sp->ang = sprite[j].ang;
-            }
-            break;
-        case FOF__STATIC:
-            sp->xrepeat = sp->yrepeat = 0;
-            changespritestat(i,5);
-            break;
-        case WATERSPLASH2__STATIC:
-            if (j >= 0)
-            {
-                setsprite(i,sprite[j].x,sprite[j].y,sprite[j].z);
-                sp->xrepeat = sp->yrepeat = 8+(TRAND&7);
-            }
-            else sp->xrepeat = sp->yrepeat = 16+(TRAND&15);
-
-            sp->shade = -16;
-            sp->cstat |= 128;
-            if (j >= 0)
-            {
-                if (sector[sprite[j].sectnum].lotag == 2)
-                {
-                    sp->z = getceilzofslope(SECT,SX,SY)+(16<<8);
-                    sp->cstat |= 8;
-                }
-                else if (sector[sprite[j].sectnum].lotag == 1)
-                    sp->z = getflorzofslope(SECT,SX,SY);
-            }
-
-            if (sector[sect].floorpicnum == FLOORSLIME ||
-                    sector[sect].ceilingpicnum == FLOORSLIME)
-                sp->pal = 7;
-        case NEON1__STATIC:
-        case NEON2__STATIC:
-        case NEON3__STATIC:
-        case NEON4__STATIC:
-        case NEON5__STATIC:
-        case NEON6__STATIC:
-        case DOMELITE__STATIC:
-            if (sp->picnum != WATERSPLASH2)
-                sp->cstat |= 257;
-        case NUKEBUTTON__STATIC:
-            if (sp->picnum == DOMELITE)
-                sp->cstat |= 257;
-        case JIBS1__STATIC:
-        case JIBS2__STATIC:
-        case JIBS3__STATIC:
-        case JIBS4__STATIC:
-        case JIBS5__STATIC:
-        case JIBS6__STATIC:
-        case HEADJIB1__STATIC:
-        case ARMJIB1__STATIC:
-        case LEGJIB1__STATIC:
-        case LIZMANHEAD1__STATIC:
-        case LIZMANARM1__STATIC:
-        case LIZMANLEG1__STATIC:
-        case DUKETORSO__STATIC:
-        case DUKEGUN__STATIC:
-        case DUKELEG__STATIC:
-            changespritestat(i,5);
-            break;
-        case TONGUE__STATIC:
-            if (j >= 0)
-                sp->ang = sprite[j].ang;
-            sp->z -= 38<<8;
-            sp->zvel = 256-(TRAND&511);
-            sp->xvel = 64-(TRAND&127);
-            changespritestat(i,4);
-            break;
-        case NATURALLIGHTNING__STATIC:
-            sp->cstat &= ~257;
-            sp->cstat |= 32768;
-            break;
-        case TRANSPORTERSTAR__STATIC:
-        case TRANSPORTERBEAM__STATIC:
-            if (j == -1) break;
-            if (sp->picnum == TRANSPORTERBEAM)
-            {
-                sp->xrepeat = 31;
-                sp->yrepeat = 1;
-                sp->z = sector[sprite[j].sectnum].floorz-(40<<8);
-            }
-            else
-            {
-                if (sprite[j].statnum == 4)
-                {
-                    sp->xrepeat = 8;
-                    sp->yrepeat = 8;
-                }
-                else
-                {
-                    sp->xrepeat = 48;
-                    sp->yrepeat = 64;
-                    if (sprite[j].statnum == 10 || badguy(&sprite[j]))
-                        sp->z -= (32<<8);
-                }
-            }
-
-            sp->shade = -127;
-            sp->cstat = 128|2;
-            sp->ang = sprite[j].ang;
-
-            sp->xvel = 128;
-            changespritestat(i,5);
-            ssp(i,CLIPMASK0);
-            setsprite(i,sp->x,sp->y,sp->z);
-            break;
-
-        case FRAMEEFFECT1_13__STATIC:
-            if (PLUTOPAK) break;
-        case FRAMEEFFECT1__STATIC:
-            if (j >= 0)
-            {
-                sp->xrepeat = sprite[j].xrepeat;
-                sp->yrepeat = sprite[j].yrepeat;
-                T2 = sprite[j].picnum;
-            }
-            else sp->xrepeat = sp->yrepeat = 0;
-
-            changespritestat(i,5);
-
-            break;
-
-        case LASERLINE__STATIC:
-            sp->yrepeat = 6;
-            sp->xrepeat = 32;
-
-            if (lasermode == 1)
-                sp->cstat = 16 + 2;
-            else if (lasermode == 0 || lasermode == 2)
-                sp->cstat = 16;
-            else
-            {
-                sp->xrepeat = 0;
-                sp->yrepeat = 0;
-            }
-
-            if (j >= 0) sp->ang = hittype[j].temp_data[5]+512;
-            changespritestat(i,5);
-            break;
-
-        case FORCESPHERE__STATIC:
-            if (j == -1)
-            {
-                sp->cstat = (short) 32768;
-                changespritestat(i,2);
-            }
-            else
-            {
-                sp->xrepeat = sp->yrepeat = 1;
-                changespritestat(i,5);
-            }
-            break;
-
-        case BLOOD__STATIC:
-            sp->xrepeat = sp->yrepeat = 16;
-            sp->z -= (26<<8);
-            if (j >= 0 && sprite[j].pal == 6)
-                sp->pal = 6;
-            changespritestat(i,5);
-            break;
-        case BLOODPOOL__STATIC:
-        case PUKE__STATIC:
-        {
-            short s1;
-            s1 = sp->sectnum;
-
-            updatesector(sp->x+108,sp->y+108,&s1);
-            if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
-            {
-                updatesector(sp->x-108,sp->y-108,&s1);
-                if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
-                {
-                    updatesector(sp->x+108,sp->y-108,&s1);
-                    if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
-                    {
-                        updatesector(sp->x-108,sp->y+108,&s1);
-                        if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
-                        { sp->xrepeat = sp->yrepeat = 0;changespritestat(i,5);break;}
-
-
-                    }
-                    else { sp->xrepeat = sp->yrepeat = 0;changespritestat(i,5);break;}
-
-
-                }
-                else { sp->xrepeat = sp->yrepeat = 0;changespritestat(i,5);break;}
-
-
-            }
-            else { sp->xrepeat = sp->yrepeat = 0;changespritestat(i,5);break;}
-
-
-        }
-
-        if (sector[SECT].lotag == 1)
-        {
-            changespritestat(i,5);
-            break;
-        }
-
-        if (j >= 0 && sp->picnum != PUKE)
-        {
-            if (sprite[j].pal == 1)
-                sp->pal = 1;
-            else if (sprite[j].pal != 6 && sprite[j].picnum != NUKEBARREL && sprite[j].picnum != TIRE)
-            {
-                if (sprite[j].picnum == FECES)
-                    sp->pal = 7; // Brown
-                else sp->pal = 2; // Red
-            }
-            else sp->pal = 0;  // green
-
-            if (sprite[j].picnum == TIRE)
-                sp->shade = 127;
-        }
-        sp->cstat |= 32;
-        case FECES__STATIC:
-            if (j >= 0)
-                sp->xrepeat = sp->yrepeat = 1;
-            changespritestat(i,5);
-            break;
-
-        case BLOODSPLAT1__STATIC:
-        case BLOODSPLAT2__STATIC:
-        case BLOODSPLAT3__STATIC:
-        case BLOODSPLAT4__STATIC:
-            sp->cstat |= 16;
-            sp->xrepeat = 7+(TRAND&7);
-            sp->yrepeat = 7+(TRAND&7);
-            sp->z -= (16<<8);
-            if (j >= 0 && sprite[j].pal == 6)
-                sp->pal = 6;
-            insertspriteq(i);
-            changespritestat(i,5);
-            break;
-
-        case TRIPBOMB__STATIC:
-            if (sp->lotag > ud.player_skill)
-            {
-                sp->xrepeat=sp->yrepeat=0;
-                changespritestat(i,5);
                 break;
-            }
-
-            sp->xrepeat=4;
-            sp->yrepeat=5;
-
-            sp->owner = i;
-            sp->hitag = i;
-
-            sp->xvel = 16;
-            ssp(i,CLIPMASK0);
-            hittype[i].temp_data[0] = 17;
-            hittype[i].temp_data[2] = 0;
-            hittype[i].temp_data[5] = sp->ang;
-
-        case SPACEMARINE__STATIC:
-            if (sp->picnum == SPACEMARINE)
-            {
-                sp->extra = 20;
-                sp->cstat |= 257;
-            }
-            changespritestat(i,2);
-            break;
-
-        case HYDRENT__STATIC:
-        case PANNEL1__STATIC:
-        case PANNEL2__STATIC:
-        case SATELITE__STATIC:
-        case FUELPOD__STATIC:
-        case SOLARPANNEL__STATIC:
-        case ANTENNA__STATIC:
-        case GRATE1__STATIC:
-        case CHAIR1__STATIC:
-        case CHAIR2__STATIC:
-        case CHAIR3__STATIC:
-        case BOTTLE1__STATIC:
-        case BOTTLE2__STATIC:
-        case BOTTLE3__STATIC:
-        case BOTTLE4__STATIC:
-        case BOTTLE5__STATIC:
-        case BOTTLE6__STATIC:
-        case BOTTLE7__STATIC:
-        case BOTTLE8__STATIC:
-        case BOTTLE10__STATIC:
-        case BOTTLE11__STATIC:
-        case BOTTLE12__STATIC:
-        case BOTTLE13__STATIC:
-        case BOTTLE14__STATIC:
-        case BOTTLE15__STATIC:
-        case BOTTLE16__STATIC:
-        case BOTTLE17__STATIC:
-        case BOTTLE18__STATIC:
-        case BOTTLE19__STATIC:
-        case OCEANSPRITE1__STATIC:
-        case OCEANSPRITE2__STATIC:
-        case OCEANSPRITE3__STATIC:
-        case OCEANSPRITE5__STATIC:
-        case MONK__STATIC:
-        case INDY__STATIC:
-        case LUKE__STATIC:
-        case JURYGUY__STATIC:
-        case SCALE__STATIC:
-        case VACUUM__STATIC:
-        case FANSPRITE__STATIC:
-        case CACTUS__STATIC:
-        case CACTUSBROKE__STATIC:
-        case HANGLIGHT__STATIC:
-        case FETUS__STATIC:
-        case FETUSBROKE__STATIC:
-        case CAMERALIGHT__STATIC:
-        case MOVIECAMERA__STATIC:
-        case IVUNIT__STATIC:
-        case POT1__STATIC:
-        case POT2__STATIC:
-        case POT3__STATIC:
-        case TRIPODCAMERA__STATIC:
-        case SUSHIPLATE1__STATIC:
-        case SUSHIPLATE2__STATIC:
-        case SUSHIPLATE3__STATIC:
-        case SUSHIPLATE4__STATIC:
-        case SUSHIPLATE5__STATIC:
-        case WAITTOBESEATED__STATIC:
-        case VASE__STATIC:
-        case PIPE1__STATIC:
-        case PIPE2__STATIC:
-        case PIPE3__STATIC:
-        case PIPE4__STATIC:
-        case PIPE5__STATIC:
-        case PIPE6__STATIC:
-            sp->clipdist = 32;
-            sp->cstat |= 257;
-        case OCEANSPRITE4__STATIC:
-            changespritestat(i,0);
-            break;
-        case FEMMAG1__STATIC:
-        case FEMMAG2__STATIC:
-            sp->cstat &= ~257;
-            changespritestat(i,0);
-            break;
-        case DUKETAG__STATIC:
-        case SIGN1__STATIC:
-        case SIGN2__STATIC:
-            if (ud.multimode < 2 && sp->pal)
-            {
+            case FOF__STATIC:
                 sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
-            }
-            else sp->pal = 0;
-            break;
-        case MASKWALL1__STATIC:
-        case MASKWALL2__STATIC:
-        case MASKWALL3__STATIC:
-        case MASKWALL4__STATIC:
-        case MASKWALL5__STATIC:
-        case MASKWALL6__STATIC:
-        case MASKWALL7__STATIC:
-        case MASKWALL8__STATIC:
-        case MASKWALL9__STATIC:
-        case MASKWALL10__STATIC:
-        case MASKWALL11__STATIC:
-        case MASKWALL12__STATIC:
-        case MASKWALL13__STATIC:
-        case MASKWALL14__STATIC:
-        case MASKWALL15__STATIC:
-            j = sp->cstat&60;
-            sp->cstat = j|1;
-            changespritestat(i,0);
-            break;
-        case FOOTPRINTS__STATIC:
-        case FOOTPRINTS2__STATIC:
-        case FOOTPRINTS3__STATIC:
-        case FOOTPRINTS4__STATIC:
-            if (j >= 0)
+                break;
+            case WATERSPLASH2__STATIC:
+                if (j >= 0)
+                {
+                    setsprite(i,sprite[j].x,sprite[j].y,sprite[j].z);
+                    sp->xrepeat = sp->yrepeat = 8+(TRAND&7);
+                }
+                else sp->xrepeat = sp->yrepeat = 16+(TRAND&15);
+
+                sp->shade = -16;
+                sp->cstat |= 128;
+                if (j >= 0)
+                {
+                    if (sector[sprite[j].sectnum].lotag == 2)
+                    {
+                        sp->z = getceilzofslope(SECT,SX,SY)+(16<<8);
+                        sp->cstat |= 8;
+                    }
+                    else if (sector[sprite[j].sectnum].lotag == 1)
+                        sp->z = getflorzofslope(SECT,SX,SY);
+                }
+
+                if (sector[sect].floorpicnum == FLOORSLIME ||
+                        sector[sect].ceilingpicnum == FLOORSLIME)
+                    sp->pal = 7;
+            case NEON1__STATIC:
+            case NEON2__STATIC:
+            case NEON3__STATIC:
+            case NEON4__STATIC:
+            case NEON5__STATIC:
+            case NEON6__STATIC:
+            case DOMELITE__STATIC:
+                if (sp->picnum != WATERSPLASH2)
+                    sp->cstat |= 257;
+            case NUKEBUTTON__STATIC:
+                if (sp->picnum == DOMELITE)
+                    sp->cstat |= 257;
+            case JIBS1__STATIC:
+            case JIBS2__STATIC:
+            case JIBS3__STATIC:
+            case JIBS4__STATIC:
+            case JIBS5__STATIC:
+            case JIBS6__STATIC:
+            case HEADJIB1__STATIC:
+            case ARMJIB1__STATIC:
+            case LEGJIB1__STATIC:
+            case LIZMANHEAD1__STATIC:
+            case LIZMANARM1__STATIC:
+            case LIZMANLEG1__STATIC:
+            case DUKETORSO__STATIC:
+            case DUKEGUN__STATIC:
+            case DUKELEG__STATIC:
+                changespritestat(i,5);
+                break;
+            case TONGUE__STATIC:
+                if (j >= 0)
+                    sp->ang = sprite[j].ang;
+                sp->z -= 38<<8;
+                sp->zvel = 256-(TRAND&511);
+                sp->xvel = 64-(TRAND&127);
+                changespritestat(i,4);
+                break;
+            case NATURALLIGHTNING__STATIC:
+                sp->cstat &= ~257;
+                sp->cstat |= 32768;
+                break;
+            case TRANSPORTERSTAR__STATIC:
+            case TRANSPORTERBEAM__STATIC:
+                if (j == -1) break;
+                if (sp->picnum == TRANSPORTERBEAM)
+                {
+                    sp->xrepeat = 31;
+                    sp->yrepeat = 1;
+                    sp->z = sector[sprite[j].sectnum].floorz-(40<<8);
+                }
+                else
+                {
+                    if (sprite[j].statnum == 4)
+                    {
+                        sp->xrepeat = 8;
+                        sp->yrepeat = 8;
+                    }
+                    else
+                    {
+                        sp->xrepeat = 48;
+                        sp->yrepeat = 64;
+                        if (sprite[j].statnum == 10 || badguy(&sprite[j]))
+                            sp->z -= (32<<8);
+                    }
+                }
+
+                sp->shade = -127;
+                sp->cstat = 128|2;
+                sp->ang = sprite[j].ang;
+
+                sp->xvel = 128;
+                changespritestat(i,5);
+                ssp(i,CLIPMASK0);
+                setsprite(i,sp->x,sp->y,sp->z);
+                break;
+
+            case FRAMEEFFECT1_13__STATIC:
+                if (PLUTOPAK) break;
+            case FRAMEEFFECT1__STATIC:
+                if (j >= 0)
+                {
+                    sp->xrepeat = sprite[j].xrepeat;
+                    sp->yrepeat = sprite[j].yrepeat;
+                    T2 = sprite[j].picnum;
+                }
+                else sp->xrepeat = sp->yrepeat = 0;
+
+                changespritestat(i,5);
+
+                break;
+
+            case LASERLINE__STATIC:
+                sp->yrepeat = 6;
+                sp->xrepeat = 32;
+
+                if (lasermode == 1)
+                    sp->cstat = 16 + 2;
+                else if (lasermode == 0 || lasermode == 2)
+                    sp->cstat = 16;
+                else
+                {
+                    sp->xrepeat = 0;
+                    sp->yrepeat = 0;
+                }
+
+                if (j >= 0) sp->ang = hittype[j].temp_data[5]+512;
+                changespritestat(i,5);
+                break;
+
+            case FORCESPHERE__STATIC:
+                if (j == -1)
+                {
+                    sp->cstat = (short) 32768;
+                    changespritestat(i,2);
+                }
+                else
+                {
+                    sp->xrepeat = sp->yrepeat = 1;
+                    changespritestat(i,5);
+                }
+                break;
+
+            case BLOOD__STATIC:
+                sp->xrepeat = sp->yrepeat = 16;
+                sp->z -= (26<<8);
+                if (j >= 0 && sprite[j].pal == 6)
+                    sp->pal = 6;
+                changespritestat(i,5);
+                break;
+            case BLOODPOOL__STATIC:
+            case PUKE__STATIC:
             {
                 short s1;
                 s1 = sp->sectnum;
 
-                updatesector(sp->x+84,sp->y+84,&s1);
+                updatesector(sp->x+108,sp->y+108,&s1);
                 if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
                 {
-                    updatesector(sp->x-84,sp->y-84,&s1);
+                    updatesector(sp->x-108,sp->y-108,&s1);
                     if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
                     {
-                        updatesector(sp->x+84,sp->y-84,&s1);
+                        updatesector(sp->x+108,sp->y-108,&s1);
                         if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
                         {
-                            updatesector(sp->x-84,sp->y+84,&s1);
+                            updatesector(sp->x-108,sp->y+108,&s1);
                             if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
-                            { sp->xrepeat = sp->yrepeat = 0;changespritestat(i,5);break;}
+                            {
+                                sp->xrepeat = sp->yrepeat = 0;
+                                changespritestat(i,5);
+                                break;
+                            }
 
 
                         }
-                        else { sp->xrepeat = sp->yrepeat = 0;break;}
+                        else
+                        {
+                            sp->xrepeat = sp->yrepeat = 0;
+                            changespritestat(i,5);
+                            break;
+                        }
 
 
                     }
-                    else { sp->xrepeat = sp->yrepeat = 0;break;}
+                    else
+                    {
+                        sp->xrepeat = sp->yrepeat = 0;
+                        changespritestat(i,5);
+                        break;
+                    }
 
 
-                }
-                else { sp->xrepeat = sp->yrepeat = 0;break;}
-
-                sp->cstat = 32+((ps[sprite[j].yvel].footprintcount&1)<<2);
-                sp->ang = sprite[j].ang;
-            }
-
-            sp->z = sector[sect].floorz;
-            if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
-                sp->xrepeat = sp->yrepeat = 32;
-
-            insertspriteq(i);
-            changespritestat(i,5);
-            break;
-
-        case FEM1__STATIC:
-        case FEM2__STATIC:
-        case FEM3__STATIC:
-        case FEM4__STATIC:
-        case FEM5__STATIC:
-        case FEM6__STATIC:
-        case FEM7__STATIC:
-        case FEM8__STATIC:
-        case FEM9__STATIC:
-        case FEM10__STATIC:
-        case PODFEM1__STATIC:
-        case NAKED1__STATIC:
-        case STATUE__STATIC:
-        case TOUGHGAL__STATIC:
-            sp->yvel = sp->hitag;
-            sp->hitag = -1;
-            if (sp->picnum == PODFEM1) sp->extra <<= 1;
-        case BLOODYPOLE__STATIC:
-
-        case QUEBALL__STATIC:
-        case STRIPEBALL__STATIC:
-
-            if (sp->picnum == QUEBALL || sp->picnum == STRIPEBALL)
-            {
-                sp->cstat = 256;
-                sp->clipdist = 8;
-            }
-            else
-            {
-                sp->cstat |= 257;
-                sp->clipdist = 32;
-            }
-
-            changespritestat(i,2);
-            break;
-
-        case DUKELYINGDEAD__STATIC:
-            if (j >= 0 && sprite[j].picnum == APLAYER)
-            {
-                sp->xrepeat = sprite[j].xrepeat;
-                sp->yrepeat = sprite[j].yrepeat;
-                sp->shade = sprite[j].shade;
-                sp->pal = ps[sprite[j].yvel].palookup;
-            }
-        case DUKECAR__STATIC:
-        case HELECOPT__STATIC:
-            //                if(sp->picnum == HELECOPT || sp->picnum == DUKECAR) sp->xvel = 1024;
-            sp->cstat = 0;
-            sp->extra = 1;
-            sp->xvel = 292;
-            sp->zvel = 360;
-        case RESPAWNMARKERRED__STATIC:
-        case BLIMP__STATIC:
-
-            if (sp->picnum == RESPAWNMARKERRED)
-            {
-                sp->xrepeat = sp->yrepeat = 24;
-                if (j >= 0) sp->z = hittype[j].floorz; // -(1<<4);
-            }
-            else
-            {
-                sp->cstat |= 257;
-                sp->clipdist = 128;
-            }
-        case MIKE__STATIC:
-            if (sp->picnum == MIKE)
-            {
-                sp->yvel = sp->hitag;
-                sp->hitag = 0;
-            }
-        case WEATHERWARN__STATIC:
-            changespritestat(i,1);
-            break;
-
-        case SPOTLITE__STATIC:
-            T1 = sp->x;
-            T2 = sp->y;
-            break;
-        case BULLETHOLE__STATIC:
-            sp->xrepeat = sp->yrepeat = 3;
-            sp->cstat = 16+(krand()&12);
-            insertspriteq(i);
-        case MONEY__STATIC:
-        case MAIL__STATIC:
-        case PAPER__STATIC:
-            if (sp->picnum == MONEY || sp->picnum == MAIL || sp->picnum == PAPER)
-            {
-                hittype[i].temp_data[0] = TRAND&2047;
-                sp->cstat = TRAND&12;
-                sp->xrepeat = sp->yrepeat = 8;
-                sp->ang = TRAND&2047;
-            }
-            changespritestat(i,5);
-            break;
-
-        case VIEWSCREEN__STATIC:
-        case VIEWSCREEN2__STATIC:
-            sp->owner = i;
-            sp->lotag = 1;
-            sp->extra = 1;
-            changespritestat(i,6);
-            break;
-
-        case SHELL__STATIC: //From the player
-        case SHOTGUNSHELL__STATIC:
-            if (j >= 0)
-            {
-                short snum,a;
-
-                if (sprite[j].picnum == APLAYER)
-                {
-                    snum = sprite[j].yvel;
-                    a = ps[snum].ang-(TRAND&63)+8;  //Fine tune
-
-                    T1 = TRAND&1;
-                    if (sp->picnum == SHOTGUNSHELL)
-                        sp->z = (6<<8)+ps[snum].pyoff+ps[snum].posz-((ps[snum].horizoff+ps[snum].horiz-100)<<4);
-                    else sp->z = (3<<8)+ps[snum].pyoff+ps[snum].posz-((ps[snum].horizoff+ps[snum].horiz-100)<<4);
-                    sp->zvel = -(TRAND&255);
                 }
                 else
                 {
-                    a = sp->ang;
-                    sp->z = sprite[j].z-PHEIGHT+(3<<8);
+                    sp->xrepeat = sp->yrepeat = 0;
+                    changespritestat(i,5);
+                    break;
                 }
 
-                sp->x = sprite[j].x+(sintable[(a+512)&2047]>>7);
-                sp->y = sprite[j].y+(sintable[a&2047]>>7);
 
-                sp->shade = -8;
-
-                if (sp->yvel == 1 || NAM)
-                {
-                    sp->ang = a+512;
-                    sp->xvel = 30;
-                }
-                else
-                {
-                    sp->ang = a-512;
-                    sp->xvel = 20;
-                }
-                sp->xrepeat=sp->yrepeat=4;
-
-                changespritestat(i,5);
             }
-            break;
 
-        case RESPAWN__STATIC:
-            sp->extra = 66-13;
-        case MUSICANDSFX__STATIC:
-            if (ud.multimode < 2 && sp->pal == 1)
+            if (sector[SECT].lotag == 1)
             {
-                sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
                 break;
             }
-            sp->cstat = (short)32768;
-            changespritestat(i,11);
-            break;
 
-        case EXPLOSION2__STATIC:
-        case EXPLOSION2BOT__STATIC:
-        case BURNING__STATIC:
-        case BURNING2__STATIC:
-        case SMALLSMOKE__STATIC:
-        case SHRINKEREXPLOSION__STATIC:
-        case COOLEXPLOSION1__STATIC:
-
-            if (j >= 0)
+            if (j >= 0 && sp->picnum != PUKE)
             {
-                sp->ang = sprite[j].ang;
-                sp->shade = -64;
-                sp->cstat = 128|(TRAND&4);
+                if (sprite[j].pal == 1)
+                    sp->pal = 1;
+                else if (sprite[j].pal != 6 && sprite[j].picnum != NUKEBARREL && sprite[j].picnum != TIRE)
+                {
+                    if (sprite[j].picnum == FECES)
+                        sp->pal = 7; // Brown
+                    else sp->pal = 2; // Red
+                }
+                else sp->pal = 0;  // green
+
+                if (sprite[j].picnum == TIRE)
+                    sp->shade = 127;
             }
-
-            if (sp->picnum == EXPLOSION2 || sp->picnum == EXPLOSION2BOT)
-            {
-                sp->xrepeat = 48;
-                sp->yrepeat = 48;
-                sp->shade = -127;
-                sp->cstat |= 128;
-            }
-            else if (sp->picnum == SHRINKEREXPLOSION)
-            {
-                sp->xrepeat = 32;
-                sp->yrepeat = 32;
-            }
-            else if (sp->picnum == SMALLSMOKE)
-            {
-                // 64 "money"
-                sp->xrepeat = 24;
-                sp->yrepeat = 24;
-            }
-            else if (sp->picnum == BURNING || sp->picnum == BURNING2)
-            {
-                sp->xrepeat = 4;
-                sp->yrepeat = 4;
-            }
-
-            if (j >= 0)
-            {
-                x = getflorzofslope(sp->sectnum,sp->x,sp->y);
-                if (sp->z > x-(12<<8))
-                    sp->z = x-(12<<8);
-            }
-
-            changespritestat(i,5);
-
-            break;
-
-        case PLAYERONWATER__STATIC:
-            if (j >= 0)
-            {
-                sp->xrepeat = sprite[j].xrepeat;
-                sp->yrepeat = sprite[j].yrepeat;
-                sp->zvel = 128;
-                if (sector[sp->sectnum].lotag != 2)
-                    sp->cstat |= 32768;
-            }
-            changespritestat(i,13);
-            break;
-
-        case APLAYER__STATIC:
-            sp->xrepeat = sp->yrepeat = 0;
-            //j = ud.coop;
-            //if(j == 2) j = 0;
-            j=(gametype_flags[ud.coop] & GAMETYPE_FLAG_COOPSPAWN) / GAMETYPE_FLAG_COOPSPAWN ;
-            if (ud.multimode < 2 || (ud.multimode > 1 && j != sp->lotag))
-                changespritestat(i,5);
-            else
-                changespritestat(i,10);
-            break;
-        case WATERBUBBLE__STATIC:
-            if (j >= 0 && sprite[j].picnum == APLAYER)
-                sp->z -= (16<<8);
-            if (sp->picnum == WATERBUBBLE)
-            {
+            sp->cstat |= 32;
+            case FECES__STATIC:
                 if (j >= 0)
-                    sp->ang = sprite[j].ang;
-                sp->xrepeat = sp->yrepeat = 4;
-            }
-            else sp->xrepeat = sp->yrepeat = 32;
+                    sp->xrepeat = sp->yrepeat = 1;
+                changespritestat(i,5);
+                break;
 
-            changespritestat(i,5);
-            break;
+            case BLOODSPLAT1__STATIC:
+            case BLOODSPLAT2__STATIC:
+            case BLOODSPLAT3__STATIC:
+            case BLOODSPLAT4__STATIC:
+                sp->cstat |= 16;
+                sp->xrepeat = 7+(TRAND&7);
+                sp->yrepeat = 7+(TRAND&7);
+                sp->z -= (16<<8);
+                if (j >= 0 && sprite[j].pal == 6)
+                    sp->pal = 6;
+                insertspriteq(i);
+                changespritestat(i,5);
+                break;
 
-        case CRANE__STATIC:
-
-            sp->cstat |= 64|257;
-
-            sp->picnum += 2;
-            sp->z = sector[sect].ceilingz+(48<<8);
-            T5 = tempwallptr;
-
-            msx[tempwallptr] = sp->x;
-            msy[tempwallptr] = sp->y;
-            msx[tempwallptr+2] = sp->z;
-
-            s = headspritestat[0];
-            while (s >= 0)
-            {
-                if (sprite[s].picnum == CRANEPOLE && SHT == (sprite[s].hitag))
+            case TRIPBOMB__STATIC:
+                if (sp->lotag > ud.player_skill)
                 {
-                    msy[tempwallptr+2] = s;
-
-                    T2 = sprite[s].sectnum;
-
-                    sprite[s].xrepeat = 48;
-                    sprite[s].yrepeat = 128;
-
-                    msx[tempwallptr+1] = sprite[s].x;
-                    msy[tempwallptr+1] = sprite[s].y;
-
-                    sprite[s].x = sp->x;
-                    sprite[s].y = sp->y;
-                    sprite[s].z = sp->z;
-                    sprite[s].shade = sp->shade;
-
-                    setsprite(s,sprite[s].x,sprite[s].y,sprite[s].z);
+                    sp->xrepeat=sp->yrepeat=0;
+                    changespritestat(i,5);
                     break;
                 }
-                s = nextspritestat[s];
-            }
 
-            tempwallptr += 3;
-            sp->owner = -1;
-            sp->extra = 8;
-            changespritestat(i,6);
-            break;
+                sp->xrepeat=4;
+                sp->yrepeat=5;
 
-        case WATERDRIP__STATIC:
-            if ((j >= 0 && sprite[j].statnum == 10) || sprite[j].statnum == 1)
-            {
-                sp->shade = 32;
-                if (sprite[j].pal != 1)
-                {
-                    sp->pal = 2;
-                    sp->z -= (18<<8);
-                }
-                else sp->z -= (13<<8);
-                sp->ang = getangle(ps[connecthead].posx-sp->x,ps[connecthead].posy-sp->y);
-                sp->xvel = 48-(TRAND&31);
+                sp->owner = i;
+                sp->hitag = i;
+
+                sp->xvel = 16;
                 ssp(i,CLIPMASK0);
-            }
-            else if (j == -1)
-            {
-                sp->z += (4<<8);
-                T1 = sp->z;
-                T2 = TRAND&127;
-            }
-        case TRASH__STATIC:
+                hittype[i].temp_data[0] = 17;
+                hittype[i].temp_data[2] = 0;
+                hittype[i].temp_data[5] = sp->ang;
 
-            if (sp->picnum != WATERDRIP)
-                sp->ang = TRAND&2047;
+            case SPACEMARINE__STATIC:
+                if (sp->picnum == SPACEMARINE)
+                {
+                    sp->extra = 20;
+                    sp->cstat |= 257;
+                }
+                changespritestat(i,2);
+                break;
 
-        case WATERDRIPSPLASH__STATIC:
+            case HYDRENT__STATIC:
+            case PANNEL1__STATIC:
+            case PANNEL2__STATIC:
+            case SATELITE__STATIC:
+            case FUELPOD__STATIC:
+            case SOLARPANNEL__STATIC:
+            case ANTENNA__STATIC:
+            case GRATE1__STATIC:
+            case CHAIR1__STATIC:
+            case CHAIR2__STATIC:
+            case CHAIR3__STATIC:
+            case BOTTLE1__STATIC:
+            case BOTTLE2__STATIC:
+            case BOTTLE3__STATIC:
+            case BOTTLE4__STATIC:
+            case BOTTLE5__STATIC:
+            case BOTTLE6__STATIC:
+            case BOTTLE7__STATIC:
+            case BOTTLE8__STATIC:
+            case BOTTLE10__STATIC:
+            case BOTTLE11__STATIC:
+            case BOTTLE12__STATIC:
+            case BOTTLE13__STATIC:
+            case BOTTLE14__STATIC:
+            case BOTTLE15__STATIC:
+            case BOTTLE16__STATIC:
+            case BOTTLE17__STATIC:
+            case BOTTLE18__STATIC:
+            case BOTTLE19__STATIC:
+            case OCEANSPRITE1__STATIC:
+            case OCEANSPRITE2__STATIC:
+            case OCEANSPRITE3__STATIC:
+            case OCEANSPRITE5__STATIC:
+            case MONK__STATIC:
+            case INDY__STATIC:
+            case LUKE__STATIC:
+            case JURYGUY__STATIC:
+            case SCALE__STATIC:
+            case VACUUM__STATIC:
+            case FANSPRITE__STATIC:
+            case CACTUS__STATIC:
+            case CACTUSBROKE__STATIC:
+            case HANGLIGHT__STATIC:
+            case FETUS__STATIC:
+            case FETUSBROKE__STATIC:
+            case CAMERALIGHT__STATIC:
+            case MOVIECAMERA__STATIC:
+            case IVUNIT__STATIC:
+            case POT1__STATIC:
+            case POT2__STATIC:
+            case POT3__STATIC:
+            case TRIPODCAMERA__STATIC:
+            case SUSHIPLATE1__STATIC:
+            case SUSHIPLATE2__STATIC:
+            case SUSHIPLATE3__STATIC:
+            case SUSHIPLATE4__STATIC:
+            case SUSHIPLATE5__STATIC:
+            case WAITTOBESEATED__STATIC:
+            case VASE__STATIC:
+            case PIPE1__STATIC:
+            case PIPE2__STATIC:
+            case PIPE3__STATIC:
+            case PIPE4__STATIC:
+            case PIPE5__STATIC:
+            case PIPE6__STATIC:
+                sp->clipdist = 32;
+                sp->cstat |= 257;
+            case OCEANSPRITE4__STATIC:
+                changespritestat(i,0);
+                break;
+            case FEMMAG1__STATIC:
+            case FEMMAG2__STATIC:
+                sp->cstat &= ~257;
+                changespritestat(i,0);
+                break;
+            case DUKETAG__STATIC:
+            case SIGN1__STATIC:
+            case SIGN2__STATIC:
+                if (ud.multimode < 2 && sp->pal)
+                {
+                    sp->xrepeat = sp->yrepeat = 0;
+                    changespritestat(i,5);
+                }
+                else sp->pal = 0;
+                break;
+            case MASKWALL1__STATIC:
+            case MASKWALL2__STATIC:
+            case MASKWALL3__STATIC:
+            case MASKWALL4__STATIC:
+            case MASKWALL5__STATIC:
+            case MASKWALL6__STATIC:
+            case MASKWALL7__STATIC:
+            case MASKWALL8__STATIC:
+            case MASKWALL9__STATIC:
+            case MASKWALL10__STATIC:
+            case MASKWALL11__STATIC:
+            case MASKWALL12__STATIC:
+            case MASKWALL13__STATIC:
+            case MASKWALL14__STATIC:
+            case MASKWALL15__STATIC:
+                j = sp->cstat&60;
+                sp->cstat = j|1;
+                changespritestat(i,0);
+                break;
+            case FOOTPRINTS__STATIC:
+            case FOOTPRINTS2__STATIC:
+            case FOOTPRINTS3__STATIC:
+            case FOOTPRINTS4__STATIC:
+                if (j >= 0)
+                {
+                    short s1;
+                    s1 = sp->sectnum;
 
-            sp->xrepeat = 24;
-            sp->yrepeat = 24;
+                    updatesector(sp->x+84,sp->y+84,&s1);
+                    if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+                    {
+                        updatesector(sp->x-84,sp->y-84,&s1);
+                        if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+                        {
+                            updatesector(sp->x+84,sp->y-84,&s1);
+                            if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+                            {
+                                updatesector(sp->x-84,sp->y+84,&s1);
+                                if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
+                                {
+                                    sp->xrepeat = sp->yrepeat = 0;
+                                    changespritestat(i,5);
+                                    break;
+                                }
 
 
-            changespritestat(i,6);
-            break;
+                            }
+                            else
+                            {
+                                sp->xrepeat = sp->yrepeat = 0;
+                                break;
+                            }
 
-        case PLUG__STATIC:
-            sp->lotag = 9999;
-            changespritestat(i,6);
-            break;
-        case TOUCHPLATE__STATIC:
-            T3 = sector[sect].floorz;
-            if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
-                sector[sect].floorz = sp->z;
-            if (sp->pal && ud.multimode > 1)
-            {
-                sp->xrepeat=sp->yrepeat=0;
+
+                        }
+                        else
+                        {
+                            sp->xrepeat = sp->yrepeat = 0;
+                            break;
+                        }
+
+
+                    }
+                    else
+                    {
+                        sp->xrepeat = sp->yrepeat = 0;
+                        break;
+                    }
+
+                    sp->cstat = 32+((ps[sprite[j].yvel].footprintcount&1)<<2);
+                    sp->ang = sprite[j].ang;
+                }
+
+                sp->z = sector[sect].floorz;
+                if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
+                    sp->xrepeat = sp->yrepeat = 32;
+
+                insertspriteq(i);
                 changespritestat(i,5);
                 break;
-            }
-        case WATERBUBBLEMAKER__STATIC:
-            if (sp->hitag && sp->picnum == WATERBUBBLEMAKER) {  // JBF 20030913: Pisses off move(), eg. in bobsp2
-                OSD_Printf("WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
-                           i,sp->x,sp->y);
-                sp->hitag = 0;
-            }
-            sp->cstat |= 32768;
-            changespritestat(i,6);
-            break;
-            //case BOLT1:
-            //case BOLT1+1:
-            //case BOLT1+2:
-            //case BOLT1+3:
-            //case SIDEBOLT1:
-            //case SIDEBOLT1+1:
-            //case SIDEBOLT1+2:
-            //case SIDEBOLT1+3:
-            //    T1 = sp->xrepeat;
-            //    T2 = sp->yrepeat;
-        case MASTERSWITCH__STATIC:
-            if (sp->picnum == MASTERSWITCH)
-                sp->cstat |= 32768;
-            sp->yvel = 0;
-            changespritestat(i,6);
-            break;
-        case TARGET__STATIC:
-        case DUCK__STATIC:
-        case LETTER__STATIC:
-            sp->extra = 1;
-            sp->cstat |= 257;
-            changespritestat(i,1);
-            break;
-        case OCTABRAINSTAYPUT__STATIC:
-        case LIZTROOPSTAYPUT__STATIC:
-        case PIGCOPSTAYPUT__STATIC:
-        case LIZMANSTAYPUT__STATIC:
-        case BOSS1STAYPUT__STATIC:
-        case PIGCOPDIVE__STATIC:
-        case COMMANDERSTAYPUT__STATIC:
-        case BOSS4STAYPUT__STATIC:
-            hittype[i].actorstayput = sp->sectnum;
-        case BOSS1__STATIC:
-        case BOSS2__STATIC:
-        case BOSS3__STATIC:
-        case BOSS4__STATIC:
-        case ROTATEGUN__STATIC:
-        case GREENSLIME__STATIC:
-            if (sp->picnum == GREENSLIME)
-                sp->extra = 1;
-        case DRONE__STATIC:
-        case LIZTROOPONTOILET__STATIC:
-        case LIZTROOPJUSTSIT__STATIC:
-        case LIZTROOPSHOOT__STATIC:
-        case LIZTROOPJETPACK__STATIC:
-        case LIZTROOPDUCKING__STATIC:
-        case LIZTROOPRUNNING__STATIC:
-        case LIZTROOP__STATIC:
-        case OCTABRAIN__STATIC:
-        case COMMANDER__STATIC:
-        case PIGCOP__STATIC:
-        case LIZMAN__STATIC:
-        case LIZMANSPITTING__STATIC:
-        case LIZMANFEEDING__STATIC:
-        case LIZMANJUMP__STATIC:
-        case ORGANTIC__STATIC:
-        case RAT__STATIC:
-        case SHARK__STATIC:
 
-            if (sp->pal == 0)
-            {
-                switch (dynamictostatic[sp->picnum])
-                {
-                case LIZTROOPONTOILET__STATIC:
-                case LIZTROOPSHOOT__STATIC:
-                case LIZTROOPJETPACK__STATIC:
-                case LIZTROOPDUCKING__STATIC:
-                case LIZTROOPRUNNING__STATIC:
-                case LIZTROOPSTAYPUT__STATIC:
-                case LIZTROOPJUSTSIT__STATIC:
-                case LIZTROOP__STATIC:
-                    sp->pal = 22;
-                    break;
-                }
-            }
+            case FEM1__STATIC:
+            case FEM2__STATIC:
+            case FEM3__STATIC:
+            case FEM4__STATIC:
+            case FEM5__STATIC:
+            case FEM6__STATIC:
+            case FEM7__STATIC:
+            case FEM8__STATIC:
+            case FEM9__STATIC:
+            case FEM10__STATIC:
+            case PODFEM1__STATIC:
+            case NAKED1__STATIC:
+            case STATUE__STATIC:
+            case TOUGHGAL__STATIC:
+                sp->yvel = sp->hitag;
+                sp->hitag = -1;
+                if (sp->picnum == PODFEM1) sp->extra <<= 1;
+            case BLOODYPOLE__STATIC:
 
-            if (sp->picnum == BOSS4STAYPUT || sp->picnum == BOSS1 || sp->picnum == BOSS2 || sp->picnum == BOSS1STAYPUT || sp->picnum == BOSS3 || sp->picnum == BOSS4)
-            {
-                if (j >= 0 && sprite[j].picnum == RESPAWN)
-                    sp->pal = sprite[j].pal;
-                if (sp->pal)
-                {
-                    sp->clipdist = 80;
-                    sp->xrepeat = 40;
-                    sp->yrepeat = 40;
-                }
-                else
-                {
-                    sp->xrepeat = 80;
-                    sp->yrepeat = 80;
-                    sp->clipdist = 164;
-                }
-            }
-            else
-            {
-                if (sp->picnum != SHARK)
-                {
-                    sp->xrepeat = 40;
-                    sp->yrepeat = 40;
-                    sp->clipdist = 80;
-                }
-                else
-                {
-                    sp->xrepeat = 60;
-                    sp->yrepeat = 60;
-                    sp->clipdist = 40;
-                }
-            }
+            case QUEBALL__STATIC:
+            case STRIPEBALL__STATIC:
 
-            if (j >= 0) sp->lotag = 0;
-
-            if ((sp->lotag > ud.player_skill) || ud.monsters_off == 1)
-            {
-                sp->xrepeat=sp->yrepeat=0;
-                changespritestat(i,5);
-                break;
-            }
-            else
-            {
-                makeitfall(i);
-
-                if (sp->picnum == RAT)
+                if (sp->picnum == QUEBALL || sp->picnum == STRIPEBALL)
                 {
-                    sp->ang = TRAND&2047;
-                    sp->xrepeat = sp->yrepeat = 48;
-                    sp->cstat = 0;
+                    sp->cstat = 256;
+                    sp->clipdist = 8;
                 }
                 else
                 {
                     sp->cstat |= 257;
-
-                    if (sp->picnum != SHARK)
-                        ps[myconnectindex].max_actors_killed++;
+                    sp->clipdist = 32;
                 }
 
-                if (sp->picnum == ORGANTIC) sp->cstat |= 128;
+                changespritestat(i,2);
+                break;
 
+            case DUKELYINGDEAD__STATIC:
+                if (j >= 0 && sprite[j].picnum == APLAYER)
+                {
+                    sp->xrepeat = sprite[j].xrepeat;
+                    sp->yrepeat = sprite[j].yrepeat;
+                    sp->shade = sprite[j].shade;
+                    sp->pal = ps[sprite[j].yvel].palookup;
+                }
+            case DUKECAR__STATIC:
+            case HELECOPT__STATIC:
+                //                if(sp->picnum == HELECOPT || sp->picnum == DUKECAR) sp->xvel = 1024;
+                sp->cstat = 0;
+                sp->extra = 1;
+                sp->xvel = 292;
+                sp->zvel = 360;
+            case RESPAWNMARKERRED__STATIC:
+            case BLIMP__STATIC:
+
+                if (sp->picnum == RESPAWNMARKERRED)
+                {
+                    sp->xrepeat = sp->yrepeat = 24;
+                    if (j >= 0) sp->z = hittype[j].floorz; // -(1<<4);
+                }
+                else
+                {
+                    sp->cstat |= 257;
+                    sp->clipdist = 128;
+                }
+            case MIKE__STATIC:
+                if (sp->picnum == MIKE)
+                {
+                    sp->yvel = sp->hitag;
+                    sp->hitag = 0;
+                }
+            case WEATHERWARN__STATIC:
+                changespritestat(i,1);
+                break;
+
+            case SPOTLITE__STATIC:
+                T1 = sp->x;
+                T2 = sp->y;
+                break;
+            case BULLETHOLE__STATIC:
+                sp->xrepeat = sp->yrepeat = 3;
+                sp->cstat = 16+(krand()&12);
+                insertspriteq(i);
+            case MONEY__STATIC:
+            case MAIL__STATIC:
+            case PAPER__STATIC:
+                if (sp->picnum == MONEY || sp->picnum == MAIL || sp->picnum == PAPER)
+                {
+                    hittype[i].temp_data[0] = TRAND&2047;
+                    sp->cstat = TRAND&12;
+                    sp->xrepeat = sp->yrepeat = 8;
+                    sp->ang = TRAND&2047;
+                }
+                changespritestat(i,5);
+                break;
+
+            case VIEWSCREEN__STATIC:
+            case VIEWSCREEN2__STATIC:
+                sp->owner = i;
+                sp->lotag = 1;
+                sp->extra = 1;
+                changespritestat(i,6);
+                break;
+
+            case SHELL__STATIC: //From the player
+            case SHOTGUNSHELL__STATIC:
                 if (j >= 0)
                 {
-                    hittype[i].timetosleep = 0;
-                    check_fta_sounds(i);
-                    changespritestat(i,1);
-                }
-                else changespritestat(i,2);
-            }
+                    short snum,a;
 
-            if (sp->picnum == ROTATEGUN)
-                sp->zvel = 0;
+                    if (sprite[j].picnum == APLAYER)
+                    {
+                        snum = sprite[j].yvel;
+                        a = ps[snum].ang-(TRAND&63)+8;  //Fine tune
 
-            break;
+                        T1 = TRAND&1;
+                        if (sp->picnum == SHOTGUNSHELL)
+                            sp->z = (6<<8)+ps[snum].pyoff+ps[snum].posz-((ps[snum].horizoff+ps[snum].horiz-100)<<4);
+                        else sp->z = (3<<8)+ps[snum].pyoff+ps[snum].posz-((ps[snum].horizoff+ps[snum].horiz-100)<<4);
+                        sp->zvel = -(TRAND&255);
+                    }
+                    else
+                    {
+                        a = sp->ang;
+                        sp->z = sprite[j].z-PHEIGHT+(3<<8);
+                    }
 
-        case LOCATORS__STATIC:
-            sp->cstat |= 32768;
-            changespritestat(i,7);
-            break;
+                    sp->x = sprite[j].x+(sintable[(a+512)&2047]>>7);
+                    sp->y = sprite[j].y+(sintable[a&2047]>>7);
 
-        case ACTIVATORLOCKED__STATIC:
-        case ACTIVATOR__STATIC:
-            sp->cstat = (short) 32768;
-            if (sp->picnum == ACTIVATORLOCKED)
-                sector[sp->sectnum].lotag |= 16384;
-            changespritestat(i,8);
-            break;
+                    sp->shade = -8;
 
-        case DOORSHOCK__STATIC:
-            sp->cstat |= 1+256;
-            sp->shade = -12;
-            changespritestat(i,6);
-            break;
+                    if (sp->yvel == 1 || NAM)
+                    {
+                        sp->ang = a+512;
+                        sp->xvel = 30;
+                    }
+                    else
+                    {
+                        sp->ang = a-512;
+                        sp->xvel = 20;
+                    }
+                    sp->xrepeat=sp->yrepeat=4;
 
-        case OOZ__STATIC:
-        case OOZ2__STATIC:
-            sp->shade = -12;
-
-            if (j >= 0)
-            {
-                if (sprite[j].picnum == NUKEBARREL)
-                    sp->pal = 8;
-                insertspriteq(i);
-            }
-
-            changespritestat(i,1);
-
-            getglobalz(i);
-
-            j = (hittype[i].floorz-hittype[i].ceilingz)>>9;
-
-            sp->yrepeat = j;
-            sp->xrepeat = 25-(j>>1);
-            sp->cstat |= (TRAND&4);
-
-            break;
-
-        case HEAVYHBOMB__STATIC:
-            if (j >= 0)
-                sp->owner = j;
-            else sp->owner = i;
-            sp->xrepeat = sp->yrepeat = 9;
-            sp->yvel = 4;
-        case REACTOR2__STATIC:
-        case REACTOR__STATIC:
-        case RECON__STATIC:
-
-            if (sp->picnum == RECON)
-            {
-                if (sp->lotag > ud.player_skill)
-                {
-                    sp->xrepeat = sp->yrepeat = 0;
                     changespritestat(i,5);
-                    return i;
                 }
-                ps[myconnectindex].max_actors_killed++;
-                hittype[i].temp_data[5] = 0;
-                if (ud.monsters_off == 1)
+                break;
+
+            case RESPAWN__STATIC:
+                sp->extra = 66-13;
+            case MUSICANDSFX__STATIC:
+                if (ud.multimode < 2 && sp->pal == 1)
                 {
                     sp->xrepeat = sp->yrepeat = 0;
                     changespritestat(i,5);
                     break;
                 }
-                sp->extra = 130;
-            }
-
-            if (sp->picnum == REACTOR || sp->picnum == REACTOR2)
-                sp->extra = impact_damage;
-
-            CS |= 257; // Make it hitable
-
-            if (ud.multimode < 2 && sp->pal != 0)
-            {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                sp->cstat = (short)32768;
+                changespritestat(i,11);
                 break;
-            }
-            sp->pal = 0;
-            SS = -17;
 
-            changespritestat(i,2);
-            break;
+            case EXPLOSION2__STATIC:
+            case EXPLOSION2BOT__STATIC:
+            case BURNING__STATIC:
+            case BURNING2__STATIC:
+            case SMALLSMOKE__STATIC:
+            case SHRINKEREXPLOSION__STATIC:
+            case COOLEXPLOSION1__STATIC:
 
-        case ATOMICHEALTH__STATIC:
-        case STEROIDS__STATIC:
-        case HEATSENSOR__STATIC:
-        case SHIELD__STATIC:
-        case AIRTANK__STATIC:
-        case TRIPBOMBSPRITE__STATIC:
-        case JETPACK__STATIC:
-        case HOLODUKE__STATIC:
+                if (j >= 0)
+                {
+                    sp->ang = sprite[j].ang;
+                    sp->shade = -64;
+                    sp->cstat = 128|(TRAND&4);
+                }
 
-        case FIRSTGUNSPRITE__STATIC:
-        case CHAINGUNSPRITE__STATIC:
-        case SHOTGUNSPRITE__STATIC:
-        case RPGSPRITE__STATIC:
-        case SHRINKERSPRITE__STATIC:
-        case FREEZESPRITE__STATIC:
-        case DEVISTATORSPRITE__STATIC:
+                if (sp->picnum == EXPLOSION2 || sp->picnum == EXPLOSION2BOT)
+                {
+                    sp->xrepeat = 48;
+                    sp->yrepeat = 48;
+                    sp->shade = -127;
+                    sp->cstat |= 128;
+                }
+                else if (sp->picnum == SHRINKEREXPLOSION)
+                {
+                    sp->xrepeat = 32;
+                    sp->yrepeat = 32;
+                }
+                else if (sp->picnum == SMALLSMOKE)
+                {
+                    // 64 "money"
+                    sp->xrepeat = 24;
+                    sp->yrepeat = 24;
+                }
+                else if (sp->picnum == BURNING || sp->picnum == BURNING2)
+                {
+                    sp->xrepeat = 4;
+                    sp->yrepeat = 4;
+                }
 
-        case SHOTGUNAMMO__STATIC:
-        case FREEZEAMMO__STATIC:
-        case HBOMBAMMO__STATIC:
-        case CRYSTALAMMO__STATIC:
-        case GROWAMMO__STATIC:
-        case BATTERYAMMO__STATIC:
-        case DEVISTATORAMMO__STATIC:
-        case RPGAMMO__STATIC:
-        case BOOTS__STATIC:
-        case AMMO__STATIC:
-        case AMMOLOTS__STATIC:
-        case COLA__STATIC:
-        case FIRSTAID__STATIC:
-        case SIXPAK__STATIC:
+                if (j >= 0)
+                {
+                    x = getflorzofslope(sp->sectnum,sp->x,sp->y);
+                    if (sp->z > x-(12<<8))
+                        sp->z = x-(12<<8);
+                }
 
-            if (j >= 0)
-            {
-                sp->lotag = 0;
-                sp->z -= (32<<8);
-                sp->zvel = -1024;
-                ssp(i,CLIPMASK0);
-                sp->cstat = TRAND&4;
-            }
-            else
-            {
-                sp->owner = i;
-                sp->cstat = 0;
-            }
-
-            if ((ud.multimode < 2 && sp->pal != 0) || (sp->lotag > ud.player_skill))
-            {
-                sp->xrepeat = sp->yrepeat = 0;
                 changespritestat(i,5);
+
                 break;
-            }
 
-            sp->pal = 0;
+            case PLAYERONWATER__STATIC:
+                if (j >= 0)
+                {
+                    sp->xrepeat = sprite[j].xrepeat;
+                    sp->yrepeat = sprite[j].yrepeat;
+                    sp->zvel = 128;
+                    if (sector[sp->sectnum].lotag != 2)
+                        sp->cstat |= 32768;
+                }
+                changespritestat(i,13);
+                break;
 
-        case ACCESSCARD__STATIC:
-
-            if (sp->picnum == ATOMICHEALTH)
-                sp->cstat |= 128;
-
-            if (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_ACCESSCARDSPRITES) && sp->picnum == ACCESSCARD)
-            {
+            case APLAYER__STATIC:
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                //j = ud.coop;
+                //if(j == 2) j = 0;
+                j=(gametype_flags[ud.coop] & GAMETYPE_FLAG_COOPSPAWN) / GAMETYPE_FLAG_COOPSPAWN ;
+                if (ud.multimode < 2 || (ud.multimode > 1 && j != sp->lotag))
+                    changespritestat(i,5);
+                else
+                    changespritestat(i,10);
                 break;
-            }
-            else
-            {
-                if (sp->picnum == AMMO)
-                    sp->xrepeat = sp->yrepeat = 16;
+            case WATERBUBBLE__STATIC:
+                if (j >= 0 && sprite[j].picnum == APLAYER)
+                    sp->z -= (16<<8);
+                if (sp->picnum == WATERBUBBLE)
+                {
+                    if (j >= 0)
+                        sp->ang = sprite[j].ang;
+                    sp->xrepeat = sp->yrepeat = 4;
+                }
                 else sp->xrepeat = sp->yrepeat = 32;
-            }
 
-            sp->shade = -17;
-
-            if (j >= 0) changespritestat(i,1);
-            else
-            {
-                changespritestat(i,2);
-                makeitfall(i);
-            }
-            break;
-
-        case WATERFOUNTAIN__STATIC:
-            SLT = 1;
-
-        case TREE1__STATIC:
-        case TREE2__STATIC:
-        case TIRE__STATIC:
-        case CONE__STATIC:
-        case BOX__STATIC:
-            CS = 257; // Make it hitable
-            sprite[i].extra = 1;
-            changespritestat(i,6);
-            break;
-
-        case FLOORFLAME__STATIC:
-            sp->shade = -127;
-            changespritestat(i,6);
-            break;
-
-        case BOUNCEMINE__STATIC:
-            sp->owner = i;
-            sp->cstat |= 1+256; //Make it hitable
-            sp->xrepeat = sp->yrepeat = 24;
-            sp->shade = -127;
-            sp->extra = impact_damage<<2;
-            changespritestat(i,2);
-            break;
-
-
-
-        case STEAM__STATIC:
-            if (j >= 0)
-            {
-                sp->ang = sprite[j].ang;
-                sp->cstat = 16+128+2;
-                sp->xrepeat=sp->yrepeat=1;
-                sp->xvel = -8;
-                ssp(i,CLIPMASK0);
-            }
-        case CEILINGSTEAM__STATIC:
-            changespritestat(i,6);
-            break;
-
-        case SECTOREFFECTOR__STATIC:
-            sp->yvel = sector[sect].extra;
-            sp->cstat |= 32768;
-            sp->xrepeat = sp->yrepeat = 0;
-
-            switch (sp->lotag)
-            {
-            case 28:
-                T6 = 65;// Delay for lightning
+                changespritestat(i,5);
                 break;
-            case 7: // Transporters!!!!
-            case 23:// XPTR END
-                if (sp->lotag != 23)
+
+            case CRANE__STATIC:
+
+                sp->cstat |= 64|257;
+
+                sp->picnum += 2;
+                sp->z = sector[sect].ceilingz+(48<<8);
+                T5 = tempwallptr;
+
+                msx[tempwallptr] = sp->x;
+                msy[tempwallptr] = sp->y;
+                msx[tempwallptr+2] = sp->z;
+
+                s = headspritestat[0];
+                while (s >= 0)
                 {
-                    for (j=0;j<MAXSPRITES;j++)
-                        if (sprite[j].statnum < MAXSTATUS && sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 7 || sprite[j].lotag == 23) && i != j && sprite[j].hitag == SHT)
-                        {
-                            OW = j;
-                            break;
-                        }
-                }
-                else OW = i;
-
-                T5 = sector[sect].floorz == SZ;
-                sp->cstat = 0;
-                changespritestat(i,9);
-                return i;
-            case 1:
-                sp->owner = -1;
-                T1 = 1;
-                break;
-            case 18:
-
-                if (sp->ang == 512)
-                {
-                    T2 = sector[sect].ceilingz;
-                    if (sp->pal)
-                        sector[sect].ceilingz = sp->z;
-                }
-                else
-                {
-                    T2 = sector[sect].floorz;
-                    if (sp->pal)
-                        sector[sect].floorz = sp->z;
-                }
-
-                sp->hitag <<= 2;
-                break;
-
-            case 19:
-                sp->owner = -1;
-                break;
-            case 25: // Pistons
-                T4 = sector[sect].ceilingz;
-                T5 = 1;
-                sector[sect].ceilingz = sp->z;
-                setinterpolation(&sector[sect].ceilingz);
-                break;
-            case 35:
-                sector[sect].ceilingz = sp->z;
-                break;
-            case 27:
-                if (ud.recstat == 1)
-                {
-                    sp->xrepeat=sp->yrepeat=64;
-                    sp->cstat &= 32767;
-                }
-                break;
-            case 12:
-
-                T2 = sector[sect].floorshade;
-                T3 = sector[sect].ceilingshade;
-                break;
-
-            case 13:
-
-                T1 = sector[sect].ceilingz;
-                T2 = sector[sect].floorz;
-
-                if (klabs(T1-sp->z) < klabs(T2-sp->z))
-                    sp->owner = 1;
-                else sp->owner = 0;
-
-                if (sp->ang == 512)
-                {
-                    if (sp->owner)
-                        sector[sect].ceilingz = sp->z;
-                    else
-                        sector[sect].floorz = sp->z;
-                }
-                else
-                    sector[sect].ceilingz = sector[sect].floorz = sp->z;
-
-                if (sector[sect].ceilingstat&1)
-                {
-                    sector[sect].ceilingstat ^= 1;
-                    T4 = 1;
-
-                    if (!sp->owner && sp->ang==512)
+                    if (sprite[s].picnum == CRANEPOLE && SHT == (sprite[s].hitag))
                     {
-                        sector[sect].ceilingstat ^= 1;
-                        T4 = 0;
+                        msy[tempwallptr+2] = s;
+
+                        T2 = sprite[s].sectnum;
+
+                        sprite[s].xrepeat = 48;
+                        sprite[s].yrepeat = 128;
+
+                        msx[tempwallptr+1] = sprite[s].x;
+                        msy[tempwallptr+1] = sprite[s].y;
+
+                        sprite[s].x = sp->x;
+                        sprite[s].y = sp->y;
+                        sprite[s].z = sp->z;
+                        sprite[s].shade = sp->shade;
+
+                        setsprite(s,sprite[s].x,sprite[s].y,sprite[s].z);
+                        break;
+                    }
+                    s = nextspritestat[s];
+                }
+
+                tempwallptr += 3;
+                sp->owner = -1;
+                sp->extra = 8;
+                changespritestat(i,6);
+                break;
+
+            case WATERDRIP__STATIC:
+                if ((j >= 0 && sprite[j].statnum == 10) || sprite[j].statnum == 1)
+                {
+                    sp->shade = 32;
+                    if (sprite[j].pal != 1)
+                    {
+                        sp->pal = 2;
+                        sp->z -= (18<<8);
+                    }
+                    else sp->z -= (13<<8);
+                    sp->ang = getangle(ps[connecthead].posx-sp->x,ps[connecthead].posy-sp->y);
+                    sp->xvel = 48-(TRAND&31);
+                    ssp(i,CLIPMASK0);
+                }
+                else if (j == -1)
+                {
+                    sp->z += (4<<8);
+                    T1 = sp->z;
+                    T2 = TRAND&127;
+                }
+            case TRASH__STATIC:
+
+                if (sp->picnum != WATERDRIP)
+                    sp->ang = TRAND&2047;
+
+            case WATERDRIPSPLASH__STATIC:
+
+                sp->xrepeat = 24;
+                sp->yrepeat = 24;
+
+
+                changespritestat(i,6);
+                break;
+
+            case PLUG__STATIC:
+                sp->lotag = 9999;
+                changespritestat(i,6);
+                break;
+            case TOUCHPLATE__STATIC:
+                T3 = sector[sect].floorz;
+                if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
+                    sector[sect].floorz = sp->z;
+                if (sp->pal && ud.multimode > 1)
+                {
+                    sp->xrepeat=sp->yrepeat=0;
+                    changespritestat(i,5);
+                    break;
+                }
+            case WATERBUBBLEMAKER__STATIC:
+                if (sp->hitag && sp->picnum == WATERBUBBLEMAKER)
+                {  // JBF 20030913: Pisses off move(), eg. in bobsp2
+                    OSD_Printf("WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
+                               i,sp->x,sp->y);
+                    sp->hitag = 0;
+                }
+                sp->cstat |= 32768;
+                changespritestat(i,6);
+                break;
+                //case BOLT1:
+                //case BOLT1+1:
+                //case BOLT1+2:
+                //case BOLT1+3:
+                //case SIDEBOLT1:
+                //case SIDEBOLT1+1:
+                //case SIDEBOLT1+2:
+                //case SIDEBOLT1+3:
+                //    T1 = sp->xrepeat;
+                //    T2 = sp->yrepeat;
+            case MASTERSWITCH__STATIC:
+                if (sp->picnum == MASTERSWITCH)
+                    sp->cstat |= 32768;
+                sp->yvel = 0;
+                changespritestat(i,6);
+                break;
+            case TARGET__STATIC:
+            case DUCK__STATIC:
+            case LETTER__STATIC:
+                sp->extra = 1;
+                sp->cstat |= 257;
+                changespritestat(i,1);
+                break;
+            case OCTABRAINSTAYPUT__STATIC:
+            case LIZTROOPSTAYPUT__STATIC:
+            case PIGCOPSTAYPUT__STATIC:
+            case LIZMANSTAYPUT__STATIC:
+            case BOSS1STAYPUT__STATIC:
+            case PIGCOPDIVE__STATIC:
+            case COMMANDERSTAYPUT__STATIC:
+            case BOSS4STAYPUT__STATIC:
+                hittype[i].actorstayput = sp->sectnum;
+            case BOSS1__STATIC:
+            case BOSS2__STATIC:
+            case BOSS3__STATIC:
+            case BOSS4__STATIC:
+            case ROTATEGUN__STATIC:
+            case GREENSLIME__STATIC:
+                if (sp->picnum == GREENSLIME)
+                    sp->extra = 1;
+            case DRONE__STATIC:
+            case LIZTROOPONTOILET__STATIC:
+            case LIZTROOPJUSTSIT__STATIC:
+            case LIZTROOPSHOOT__STATIC:
+            case LIZTROOPJETPACK__STATIC:
+            case LIZTROOPDUCKING__STATIC:
+            case LIZTROOPRUNNING__STATIC:
+            case LIZTROOP__STATIC:
+            case OCTABRAIN__STATIC:
+            case COMMANDER__STATIC:
+            case PIGCOP__STATIC:
+            case LIZMAN__STATIC:
+            case LIZMANSPITTING__STATIC:
+            case LIZMANFEEDING__STATIC:
+            case LIZMANJUMP__STATIC:
+            case ORGANTIC__STATIC:
+            case RAT__STATIC:
+            case SHARK__STATIC:
+
+                if (sp->pal == 0)
+                {
+                    switch (dynamictostatic[sp->picnum])
+                    {
+                        case LIZTROOPONTOILET__STATIC:
+                        case LIZTROOPSHOOT__STATIC:
+                        case LIZTROOPJETPACK__STATIC:
+                        case LIZTROOPDUCKING__STATIC:
+                        case LIZTROOPRUNNING__STATIC:
+                        case LIZTROOPSTAYPUT__STATIC:
+                        case LIZTROOPJUSTSIT__STATIC:
+                        case LIZTROOP__STATIC:
+                            sp->pal = 22;
+                            break;
+                    }
+                }
+
+                if (sp->picnum == BOSS4STAYPUT || sp->picnum == BOSS1 || sp->picnum == BOSS2 || sp->picnum == BOSS1STAYPUT || sp->picnum == BOSS3 || sp->picnum == BOSS4)
+                {
+                    if (j >= 0 && sprite[j].picnum == RESPAWN)
+                        sp->pal = sprite[j].pal;
+                    if (sp->pal)
+                    {
+                        sp->clipdist = 80;
+                        sp->xrepeat = 40;
+                        sp->yrepeat = 40;
+                    }
+                    else
+                    {
+                        sp->xrepeat = 80;
+                        sp->yrepeat = 80;
+                        sp->clipdist = 164;
+                    }
+                }
+                else
+                {
+                    if (sp->picnum != SHARK)
+                    {
+                        sp->xrepeat = 40;
+                        sp->yrepeat = 40;
+                        sp->clipdist = 80;
+                    }
+                    else
+                    {
+                        sp->xrepeat = 60;
+                        sp->yrepeat = 60;
+                        sp->clipdist = 40;
+                    }
+                }
+
+                if (j >= 0) sp->lotag = 0;
+
+                if ((sp->lotag > ud.player_skill) || ud.monsters_off == 1)
+                {
+                    sp->xrepeat=sp->yrepeat=0;
+                    changespritestat(i,5);
+                    break;
+                }
+                else
+                {
+                    makeitfall(i);
+
+                    if (sp->picnum == RAT)
+                    {
+                        sp->ang = TRAND&2047;
+                        sp->xrepeat = sp->yrepeat = 48;
+                        sp->cstat = 0;
+                    }
+                    else
+                    {
+                        sp->cstat |= 257;
+
+                        if (sp->picnum != SHARK)
+                            ps[myconnectindex].max_actors_killed++;
                     }
 
-                    sector[sect].ceilingshade =
-                        sector[sect].floorshade;
+                    if (sp->picnum == ORGANTIC) sp->cstat |= 128;
 
-                    if (sp->ang==512)
+                    if (j >= 0)
                     {
+                        hittype[i].timetosleep = 0;
+                        check_fta_sounds(i);
+                        changespritestat(i,1);
+                    }
+                    else changespritestat(i,2);
+                }
+
+                if (sp->picnum == ROTATEGUN)
+                    sp->zvel = 0;
+
+                break;
+
+            case LOCATORS__STATIC:
+                sp->cstat |= 32768;
+                changespritestat(i,7);
+                break;
+
+            case ACTIVATORLOCKED__STATIC:
+            case ACTIVATOR__STATIC:
+                sp->cstat = (short) 32768;
+                if (sp->picnum == ACTIVATORLOCKED)
+                    sector[sp->sectnum].lotag |= 16384;
+                changespritestat(i,8);
+                break;
+
+            case DOORSHOCK__STATIC:
+                sp->cstat |= 1+256;
+                sp->shade = -12;
+                changespritestat(i,6);
+                break;
+
+            case OOZ__STATIC:
+            case OOZ2__STATIC:
+                sp->shade = -12;
+
+                if (j >= 0)
+                {
+                    if (sprite[j].picnum == NUKEBARREL)
+                        sp->pal = 8;
+                    insertspriteq(i);
+                }
+
+                changespritestat(i,1);
+
+                getglobalz(i);
+
+                j = (hittype[i].floorz-hittype[i].ceilingz)>>9;
+
+                sp->yrepeat = j;
+                sp->xrepeat = 25-(j>>1);
+                sp->cstat |= (TRAND&4);
+
+                break;
+
+            case HEAVYHBOMB__STATIC:
+                if (j >= 0)
+                    sp->owner = j;
+                else sp->owner = i;
+                sp->xrepeat = sp->yrepeat = 9;
+                sp->yvel = 4;
+            case REACTOR2__STATIC:
+            case REACTOR__STATIC:
+            case RECON__STATIC:
+
+                if (sp->picnum == RECON)
+                {
+                    if (sp->lotag > ud.player_skill)
+                    {
+                        sp->xrepeat = sp->yrepeat = 0;
+                        changespritestat(i,5);
+                        return i;
+                    }
+                    ps[myconnectindex].max_actors_killed++;
+                    hittype[i].temp_data[5] = 0;
+                    if (ud.monsters_off == 1)
+                    {
+                        sp->xrepeat = sp->yrepeat = 0;
+                        changespritestat(i,5);
+                        break;
+                    }
+                    sp->extra = 130;
+                }
+
+                if (sp->picnum == REACTOR || sp->picnum == REACTOR2)
+                    sp->extra = impact_damage;
+
+                CS |= 257; // Make it hitable
+
+                if (ud.multimode < 2 && sp->pal != 0)
+                {
+                    sp->xrepeat = sp->yrepeat = 0;
+                    changespritestat(i,5);
+                    break;
+                }
+                sp->pal = 0;
+                SS = -17;
+
+                changespritestat(i,2);
+                break;
+
+            case ATOMICHEALTH__STATIC:
+            case STEROIDS__STATIC:
+            case HEATSENSOR__STATIC:
+            case SHIELD__STATIC:
+            case AIRTANK__STATIC:
+            case TRIPBOMBSPRITE__STATIC:
+            case JETPACK__STATIC:
+            case HOLODUKE__STATIC:
+
+            case FIRSTGUNSPRITE__STATIC:
+            case CHAINGUNSPRITE__STATIC:
+            case SHOTGUNSPRITE__STATIC:
+            case RPGSPRITE__STATIC:
+            case SHRINKERSPRITE__STATIC:
+            case FREEZESPRITE__STATIC:
+            case DEVISTATORSPRITE__STATIC:
+
+            case SHOTGUNAMMO__STATIC:
+            case FREEZEAMMO__STATIC:
+            case HBOMBAMMO__STATIC:
+            case CRYSTALAMMO__STATIC:
+            case GROWAMMO__STATIC:
+            case BATTERYAMMO__STATIC:
+            case DEVISTATORAMMO__STATIC:
+            case RPGAMMO__STATIC:
+            case BOOTS__STATIC:
+            case AMMO__STATIC:
+            case AMMOLOTS__STATIC:
+            case COLA__STATIC:
+            case FIRSTAID__STATIC:
+            case SIXPAK__STATIC:
+
+                if (j >= 0)
+                {
+                    sp->lotag = 0;
+                    sp->z -= (32<<8);
+                    sp->zvel = -1024;
+                    ssp(i,CLIPMASK0);
+                    sp->cstat = TRAND&4;
+                }
+                else
+                {
+                    sp->owner = i;
+                    sp->cstat = 0;
+                }
+
+                if ((ud.multimode < 2 && sp->pal != 0) || (sp->lotag > ud.player_skill))
+                {
+                    sp->xrepeat = sp->yrepeat = 0;
+                    changespritestat(i,5);
+                    break;
+                }
+
+                sp->pal = 0;
+
+            case ACCESSCARD__STATIC:
+
+                if (sp->picnum == ATOMICHEALTH)
+                    sp->cstat |= 128;
+
+                if (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_ACCESSCARDSPRITES) && sp->picnum == ACCESSCARD)
+                {
+                    sp->xrepeat = sp->yrepeat = 0;
+                    changespritestat(i,5);
+                    break;
+                }
+                else
+                {
+                    if (sp->picnum == AMMO)
+                        sp->xrepeat = sp->yrepeat = 16;
+                    else sp->xrepeat = sp->yrepeat = 32;
+                }
+
+                sp->shade = -17;
+
+                if (j >= 0) changespritestat(i,1);
+                else
+                {
+                    changespritestat(i,2);
+                    makeitfall(i);
+                }
+                break;
+
+            case WATERFOUNTAIN__STATIC:
+                SLT = 1;
+
+            case TREE1__STATIC:
+            case TREE2__STATIC:
+            case TIRE__STATIC:
+            case CONE__STATIC:
+            case BOX__STATIC:
+                CS = 257; // Make it hitable
+                sprite[i].extra = 1;
+                changespritestat(i,6);
+                break;
+
+            case FLOORFLAME__STATIC:
+                sp->shade = -127;
+                changespritestat(i,6);
+                break;
+
+            case BOUNCEMINE__STATIC:
+                sp->owner = i;
+                sp->cstat |= 1+256; //Make it hitable
+                sp->xrepeat = sp->yrepeat = 24;
+                sp->shade = -127;
+                sp->extra = impact_damage<<2;
+                changespritestat(i,2);
+                break;
+
+
+
+            case STEAM__STATIC:
+                if (j >= 0)
+                {
+                    sp->ang = sprite[j].ang;
+                    sp->cstat = 16+128+2;
+                    sp->xrepeat=sp->yrepeat=1;
+                    sp->xvel = -8;
+                    ssp(i,CLIPMASK0);
+                }
+            case CEILINGSTEAM__STATIC:
+                changespritestat(i,6);
+                break;
+
+            case SECTOREFFECTOR__STATIC:
+                sp->yvel = sector[sect].extra;
+                sp->cstat |= 32768;
+                sp->xrepeat = sp->yrepeat = 0;
+
+                switch (sp->lotag)
+                {
+                    case 28:
+                        T6 = 65;// Delay for lightning
+                        break;
+                    case 7: // Transporters!!!!
+                    case 23:// XPTR END
+                        if (sp->lotag != 23)
+                        {
+                            for (j=0;j<MAXSPRITES;j++)
+                                if (sprite[j].statnum < MAXSTATUS && sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 7 || sprite[j].lotag == 23) && i != j && sprite[j].hitag == SHT)
+                                {
+                                    OW = j;
+                                    break;
+                                }
+                        }
+                        else OW = i;
+
+                        T5 = sector[sect].floorz == SZ;
+                        sp->cstat = 0;
+                        changespritestat(i,9);
+                        return i;
+                    case 1:
+                        sp->owner = -1;
+                        T1 = 1;
+                        break;
+                    case 18:
+
+                        if (sp->ang == 512)
+                        {
+                            T2 = sector[sect].ceilingz;
+                            if (sp->pal)
+                                sector[sect].ceilingz = sp->z;
+                        }
+                        else
+                        {
+                            T2 = sector[sect].floorz;
+                            if (sp->pal)
+                                sector[sect].floorz = sp->z;
+                        }
+
+                        sp->hitag <<= 2;
+                        break;
+
+                    case 19:
+                        sp->owner = -1;
+                        break;
+                    case 25: // Pistons
+                        T4 = sector[sect].ceilingz;
+                        T5 = 1;
+                        sector[sect].ceilingz = sp->z;
+                        setinterpolation(&sector[sect].ceilingz);
+                        break;
+                    case 35:
+                        sector[sect].ceilingz = sp->z;
+                        break;
+                    case 27:
+                        if (ud.recstat == 1)
+                        {
+                            sp->xrepeat=sp->yrepeat=64;
+                            sp->cstat &= 32767;
+                        }
+                        break;
+                    case 12:
+
+                        T2 = sector[sect].floorshade;
+                        T3 = sector[sect].ceilingshade;
+                        break;
+
+                    case 13:
+
+                        T1 = sector[sect].ceilingz;
+                        T2 = sector[sect].floorz;
+
+                        if (klabs(T1-sp->z) < klabs(T2-sp->z))
+                            sp->owner = 1;
+                        else sp->owner = 0;
+
+                        if (sp->ang == 512)
+                        {
+                            if (sp->owner)
+                                sector[sect].ceilingz = sp->z;
+                            else
+                                sector[sect].floorz = sp->z;
+                        }
+                        else
+                            sector[sect].ceilingz = sector[sect].floorz = sp->z;
+
+                        if (sector[sect].ceilingstat&1)
+                        {
+                            sector[sect].ceilingstat ^= 1;
+                            T4 = 1;
+
+                            if (!sp->owner && sp->ang==512)
+                            {
+                                sector[sect].ceilingstat ^= 1;
+                                T4 = 0;
+                            }
+
+                            sector[sect].ceilingshade =
+                                sector[sect].floorshade;
+
+                            if (sp->ang==512)
+                            {
+                                startwall = sector[sect].wallptr;
+                                endwall = startwall+sector[sect].wallnum;
+                                for (j=startwall;j<endwall;j++)
+                                {
+                                    x = wall[j].nextsector;
+                                    if (x >= 0)
+                                        if (!(sector[x].ceilingstat&1))
+                                        {
+                                            sector[sect].ceilingpicnum =
+                                                sector[x].ceilingpicnum;
+                                            sector[sect].ceilingshade =
+                                                sector[x].ceilingshade;
+                                            break; //Leave earily
+                                        }
+                                }
+                            }
+                        }
+
+                        break;
+
+                    case 17:
+
+                        T3 = sector[sect].floorz; //Stopping loc
+
+                        j = nextsectorneighborz(sect,sector[sect].floorz,-1,-1);
+                        T4 = sector[j].ceilingz;
+
+                        j = nextsectorneighborz(sect,sector[sect].ceilingz,1,1);
+                        T5 = sector[j].floorz;
+
+                        if (numplayers < 2)
+                        {
+                            setinterpolation(&sector[sect].floorz);
+                            setinterpolation(&sector[sect].ceilingz);
+                        }
+
+                        break;
+
+                    case 24:
+                        sp->yvel <<= 1;
+                    case 36:
+                        break;
+
+                    case 20:
+                    {
+                        long q;
+
                         startwall = sector[sect].wallptr;
                         endwall = startwall+sector[sect].wallnum;
-                        for (j=startwall;j<endwall;j++)
+
+                        //find the two most clostest wall x's and y's
+                        q = 0x7fffffff;
+
+                        for (s=startwall;s<endwall;s++)
                         {
-                            x = wall[j].nextsector;
-                            if (x >= 0)
-                                if (!(sector[x].ceilingstat&1))
-                                {
-                                    sector[sect].ceilingpicnum =
-                                        sector[x].ceilingpicnum;
-                                    sector[sect].ceilingshade =
-                                        sector[x].ceilingshade;
-                                    break; //Leave earily
-                                }
-                        }
-                    }
-                }
+                            x = wall[s].x;
+                            y = wall[s].y;
 
-                break;
-
-            case 17:
-
-                T3 = sector[sect].floorz; //Stopping loc
-
-                j = nextsectorneighborz(sect,sector[sect].floorz,-1,-1);
-                T4 = sector[j].ceilingz;
-
-                j = nextsectorneighborz(sect,sector[sect].ceilingz,1,1);
-                T5 = sector[j].floorz;
-
-                if (numplayers < 2)
-                {
-                    setinterpolation(&sector[sect].floorz);
-                    setinterpolation(&sector[sect].ceilingz);
-                }
-
-                break;
-
-            case 24:
-                sp->yvel <<= 1;
-            case 36:
-                break;
-
-            case 20:
-            {
-                long q;
-
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
-
-                //find the two most clostest wall x's and y's
-                q = 0x7fffffff;
-
-                for (s=startwall;s<endwall;s++)
-                {
-                    x = wall[s].x;
-                    y = wall[s].y;
-
-                    d = FindDistance2D(sp->x-x,sp->y-y);
-                    if (d < q)
-                    {
-                        q = d;
-                        clostest = s;
-                    }
-                }
-
-                T2 = clostest;
-
-                q = 0x7fffffff;
-
-                for (s=startwall;s<endwall;s++)
-                {
-                    x = wall[s].x;
-                    y = wall[s].y;
-
-                    d = FindDistance2D(sp->x-x,sp->y-y);
-                    if (d < q && s != T2)
-                    {
-                        q = d;
-                        clostest = s;
-                    }
-                }
-
-                T3 = clostest;
-            }
-
-            break;
-
-            case 3:
-
-                T4=sector[sect].floorshade;
-
-                sector[sect].floorshade = sp->shade;
-                sector[sect].ceilingshade = sp->shade;
-
-                sp->owner = sector[sect].ceilingpal<<8;
-                sp->owner |= sector[sect].floorpal;
-
-                //fix all the walls;
-
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
-
-                for (s=startwall;s<endwall;s++)
-                {
-                    if (!(wall[s].hitag&1))
-                        wall[s].shade=sp->shade;
-                    if ((wall[s].cstat&2) && wall[s].nextwall >= 0)
-                        wall[wall[s].nextwall].shade = sp->shade;
-                }
-                break;
-
-            case 31:
-                T2 = sector[sect].floorz;
-                //    T3 = sp->hitag;
-                if (sp->ang != 1536) sector[sect].floorz = sp->z;
-
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
-
-                for (s=startwall;s<endwall;s++)
-                    if (wall[s].hitag == 0) wall[s].hitag = 9999;
-
-                setinterpolation(&sector[sect].floorz);
-
-                break;
-            case 32:
-                T2 = sector[sect].ceilingz;
-                T3 = sp->hitag;
-                if (sp->ang != 1536) sector[sect].ceilingz = sp->z;
-
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
-
-                for (s=startwall;s<endwall;s++)
-                    if (wall[s].hitag == 0) wall[s].hitag = 9999;
-
-                setinterpolation(&sector[sect].ceilingz);
-
-                break;
-
-            case 4: //Flashing lights
-
-                T3 = sector[sect].floorshade;
-
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
-
-                sp->owner = sector[sect].ceilingpal<<8;
-                sp->owner |= sector[sect].floorpal;
-
-                for (s=startwall;s<endwall;s++)
-                    if (wall[s].shade > T4)
-                        T4 = wall[s].shade;
-
-                break;
-
-            case 9:
-                if (sector[sect].lotag &&
-                        labs(sector[sect].ceilingz-sp->z) > 1024)
-                    sector[sect].lotag |= 32768; //If its open
-            case 8:
-                //First, get the ceiling-floor shade
-
-                T1 = sector[sect].floorshade;
-                T2 = sector[sect].ceilingshade;
-
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
-
-                for (s=startwall;s<endwall;s++)
-                    if (wall[s].shade > T3)
-                        T3 = wall[s].shade;
-
-                T4 = 1; //Take Out;
-
-                break;
-
-            case 11://Pivitor rotater
-                if (sp->ang>1024) T4 = 2;
-                else T4 = -2;
-            case 0:
-            case 2://Earthquakemakers
-            case 5://Boss Creature
-            case 6://Subway
-            case 14://Caboos
-            case 15://Subwaytype sliding door
-            case 16://That rotating blocker reactor thing
-            case 26://ESCELATOR
-            case 30://No rotational subways
-
-                if (sp->lotag == 0)
-                {
-                    if (sector[sect].lotag == 30)
-                    {
-                        if (sp->pal) sprite[i].clipdist = 1;
-                        else sprite[i].clipdist = 0;
-                        T4 = sector[sect].floorz;
-                        sector[sect].hitag = i;
-                    }
-
-                    for (j = 0;j < MAXSPRITES;j++)
-                    {
-                        if (sprite[j].statnum < MAXSTATUS)
-                            if (sprite[j].picnum == SECTOREFFECTOR &&
-                                    sprite[j].lotag == 1 &&
-                                    sprite[j].hitag == sp->hitag)
+                            d = FindDistance2D(sp->x-x,sp->y-y);
+                            if (d < q)
                             {
-                                if (sp->ang == 512)
-                                {
-                                    sp->x = sprite[j].x;
-                                    sp->y = sprite[j].y;
-                                }
-                                break;
+                                q = d;
+                                clostest = s;
                             }
-                    }
-                    if (j == MAXSPRITES)
-                    {
-                        Bsprintf(tempbuf,"Found lonely Sector Effector (lotag 0) at (%ld,%ld)\n",sp->x,sp->y);
-                        gameexit(tempbuf);
-                    }
-                    sp->owner = j;
-                }
-
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
-
-                T2 = tempwallptr;
-                for (s=startwall;s<endwall;s++)
-                {
-                    msx[tempwallptr] = wall[s].x-sp->x;
-                    msy[tempwallptr] = wall[s].y-sp->y;
-                    tempwallptr++;
-                    if (tempwallptr > 2047)
-                    {
-                        Bsprintf(tempbuf,"Too many moving sectors at (%ld,%ld).\n",wall[s].x,wall[s].y);
-                        gameexit(tempbuf);
-                    }
-                }
-                if (sp->lotag == 30 || sp->lotag == 6 || sp->lotag == 14 || sp->lotag == 5)
-                {
-
-                    startwall = sector[sect].wallptr;
-                    endwall = startwall+sector[sect].wallnum;
-
-                    if (sector[sect].hitag == -1)
-                        sp->extra = 0;
-                    else sp->extra = 1;
-
-                    sector[sect].hitag = i;
-
-                    j = 0;
-
-                    for (s=startwall;s<endwall;s++)
-                    {
-                        if (wall[ s ].nextsector >= 0 &&
-                                sector[ wall[ s ].nextsector].hitag == 0 &&
-                                sector[ wall[ s ].nextsector].lotag < 3)
-                        {
-                            s = wall[s].nextsector;
-                            j = 1;
-                            break;
                         }
+
+                        T2 = clostest;
+
+                        q = 0x7fffffff;
+
+                        for (s=startwall;s<endwall;s++)
+                        {
+                            x = wall[s].x;
+                            y = wall[s].y;
+
+                            d = FindDistance2D(sp->x-x,sp->y-y);
+                            if (d < q && s != T2)
+                            {
+                                q = d;
+                                clostest = s;
+                            }
+                        }
+
+                        T3 = clostest;
                     }
 
-                    if (j == 0)
-                    {
-                        Bsprintf(tempbuf,"Subway found no zero'd sectors with locators\nat (%ld,%ld).\n",sp->x,sp->y);
-                        gameexit(tempbuf);
-                    }
+                    break;
 
-                    sp->owner = -1;
-                    T1 = s;
+                    case 3:
 
-                    if (sp->lotag != 30)
-                        T4 = sp->hitag;
+                        T4=sector[sect].floorshade;
+
+                        sector[sect].floorshade = sp->shade;
+                        sector[sect].ceilingshade = sp->shade;
+
+                        sp->owner = sector[sect].ceilingpal<<8;
+                        sp->owner |= sector[sect].floorpal;
+
+                        //fix all the walls;
+
+                        startwall = sector[sect].wallptr;
+                        endwall = startwall+sector[sect].wallnum;
+
+                        for (s=startwall;s<endwall;s++)
+                        {
+                            if (!(wall[s].hitag&1))
+                                wall[s].shade=sp->shade;
+                            if ((wall[s].cstat&2) && wall[s].nextwall >= 0)
+                                wall[wall[s].nextwall].shade = sp->shade;
+                        }
+                        break;
+
+                    case 31:
+                        T2 = sector[sect].floorz;
+                        //    T3 = sp->hitag;
+                        if (sp->ang != 1536) sector[sect].floorz = sp->z;
+
+                        startwall = sector[sect].wallptr;
+                        endwall = startwall+sector[sect].wallnum;
+
+                        for (s=startwall;s<endwall;s++)
+                            if (wall[s].hitag == 0) wall[s].hitag = 9999;
+
+                        setinterpolation(&sector[sect].floorz);
+
+                        break;
+                    case 32:
+                        T2 = sector[sect].ceilingz;
+                        T3 = sp->hitag;
+                        if (sp->ang != 1536) sector[sect].ceilingz = sp->z;
+
+                        startwall = sector[sect].wallptr;
+                        endwall = startwall+sector[sect].wallnum;
+
+                        for (s=startwall;s<endwall;s++)
+                            if (wall[s].hitag == 0) wall[s].hitag = 9999;
+
+                        setinterpolation(&sector[sect].ceilingz);
+
+                        break;
+
+                    case 4: //Flashing lights
+
+                        T3 = sector[sect].floorshade;
+
+                        startwall = sector[sect].wallptr;
+                        endwall = startwall+sector[sect].wallnum;
+
+                        sp->owner = sector[sect].ceilingpal<<8;
+                        sp->owner |= sector[sect].floorpal;
+
+                        for (s=startwall;s<endwall;s++)
+                            if (wall[s].shade > T4)
+                                T4 = wall[s].shade;
+
+                        break;
+
+                    case 9:
+                        if (sector[sect].lotag &&
+                                labs(sector[sect].ceilingz-sp->z) > 1024)
+                            sector[sect].lotag |= 32768; //If its open
+                    case 8:
+                        //First, get the ceiling-floor shade
+
+                        T1 = sector[sect].floorshade;
+                        T2 = sector[sect].ceilingshade;
+
+                        startwall = sector[sect].wallptr;
+                        endwall = startwall+sector[sect].wallnum;
+
+                        for (s=startwall;s<endwall;s++)
+                            if (wall[s].shade > T3)
+                                T3 = wall[s].shade;
+
+                        T4 = 1; //Take Out;
+
+                        break;
+
+                    case 11://Pivitor rotater
+                        if (sp->ang>1024) T4 = 2;
+                        else T4 = -2;
+                    case 0:
+                    case 2://Earthquakemakers
+                    case 5://Boss Creature
+                    case 6://Subway
+                    case 14://Caboos
+                    case 15://Subwaytype sliding door
+                    case 16://That rotating blocker reactor thing
+                    case 26://ESCELATOR
+                    case 30://No rotational subways
+
+                        if (sp->lotag == 0)
+                        {
+                            if (sector[sect].lotag == 30)
+                            {
+                                if (sp->pal) sprite[i].clipdist = 1;
+                                else sprite[i].clipdist = 0;
+                                T4 = sector[sect].floorz;
+                                sector[sect].hitag = i;
+                            }
+
+                            for (j = 0;j < MAXSPRITES;j++)
+                            {
+                                if (sprite[j].statnum < MAXSTATUS)
+                                    if (sprite[j].picnum == SECTOREFFECTOR &&
+                                            sprite[j].lotag == 1 &&
+                                            sprite[j].hitag == sp->hitag)
+                                    {
+                                        if (sp->ang == 512)
+                                        {
+                                            sp->x = sprite[j].x;
+                                            sp->y = sprite[j].y;
+                                        }
+                                        break;
+                                    }
+                            }
+                            if (j == MAXSPRITES)
+                            {
+                                Bsprintf(tempbuf,"Found lonely Sector Effector (lotag 0) at (%ld,%ld)\n",sp->x,sp->y);
+                                gameexit(tempbuf);
+                            }
+                            sp->owner = j;
+                        }
+
+                        startwall = sector[sect].wallptr;
+                        endwall = startwall+sector[sect].wallnum;
+
+                        T2 = tempwallptr;
+                        for (s=startwall;s<endwall;s++)
+                        {
+                            msx[tempwallptr] = wall[s].x-sp->x;
+                            msy[tempwallptr] = wall[s].y-sp->y;
+                            tempwallptr++;
+                            if (tempwallptr > 2047)
+                            {
+                                Bsprintf(tempbuf,"Too many moving sectors at (%ld,%ld).\n",wall[s].x,wall[s].y);
+                                gameexit(tempbuf);
+                            }
+                        }
+                        if (sp->lotag == 30 || sp->lotag == 6 || sp->lotag == 14 || sp->lotag == 5)
+                        {
+
+                            startwall = sector[sect].wallptr;
+                            endwall = startwall+sector[sect].wallnum;
+
+                            if (sector[sect].hitag == -1)
+                                sp->extra = 0;
+                            else sp->extra = 1;
+
+                            sector[sect].hitag = i;
+
+                            j = 0;
+
+                            for (s=startwall;s<endwall;s++)
+                            {
+                                if (wall[ s ].nextsector >= 0 &&
+                                        sector[ wall[ s ].nextsector].hitag == 0 &&
+                                        sector[ wall[ s ].nextsector].lotag < 3)
+                                {
+                                    s = wall[s].nextsector;
+                                    j = 1;
+                                    break;
+                                }
+                            }
+
+                            if (j == 0)
+                            {
+                                Bsprintf(tempbuf,"Subway found no zero'd sectors with locators\nat (%ld,%ld).\n",sp->x,sp->y);
+                                gameexit(tempbuf);
+                            }
+
+                            sp->owner = -1;
+                            T1 = s;
+
+                            if (sp->lotag != 30)
+                                T4 = sp->hitag;
+                        }
+
+                        else if (sp->lotag == 16)
+                            T4 = sector[sect].ceilingz;
+
+                        else if (sp->lotag == 26)
+                        {
+                            T4 = sp->x;
+                            T5 = sp->y;
+                            if (sp->shade==sector[sect].floorshade) //UP
+                                sp->zvel = -256;
+                            else
+                                sp->zvel = 256;
+
+                            sp->shade = 0;
+                        }
+                        else if (sp->lotag == 2)
+                        {
+                            T6 = sector[sp->sectnum].floorheinum;
+                            sector[sp->sectnum].floorheinum = 0;
+                        }
                 }
 
-                else if (sp->lotag == 16)
-                    T4 = sector[sect].ceilingz;
-
-                else if (sp->lotag == 26)
+                switch (sp->lotag)
                 {
-                    T4 = sp->x;
-                    T5 = sp->y;
-                    if (sp->shade==sector[sect].floorshade) //UP
-                        sp->zvel = -256;
-                    else
-                        sp->zvel = 256;
-
-                    sp->shade = 0;
+                    case 6:
+                    case 14:
+                        j = callsound(sect,i);
+                        if (j == -1) j = SUBWAY;
+                        hittype[i].lastvx = j;
+                    case 30:
+                        if (numplayers > 1) break;
+                    case 0:
+                    case 1:
+                    case 5:
+                    case 11:
+                    case 15:
+                    case 16:
+                    case 26:
+                        setsectinterpolate(i);
+                        break;
                 }
-                else if (sp->lotag == 2)
+
+                switch (sprite[i].lotag)
                 {
-                    T6 = sector[sp->sectnum].floorheinum;
-                    sector[sp->sectnum].floorheinum = 0;
+                    case 40:
+                    case 41:
+                    case 42:
+                    case 43:
+                    case 44:
+                    case 45:
+                        changespritestat(i,15);
+                        break;
+                    default:
+                        changespritestat(i,3);
+                        break;
                 }
-            }
 
-            switch (sp->lotag)
-            {
-            case 6:
-            case 14:
-                j = callsound(sect,i);
-                if (j == -1) j = SUBWAY;
-                hittype[i].lastvx = j;
-            case 30:
-                if (numplayers > 1) break;
-            case 0:
-            case 1:
-            case 5:
-            case 11:
-            case 15:
-            case 16:
-            case 26:
-                setsectinterpolate(i);
                 break;
-            }
-
-            switch (sprite[i].lotag)
-            {
-            case 40:
-            case 41:
-            case 42:
-            case 43:
-            case 44:
-            case 45:
-                changespritestat(i,15);
-                break;
-            default:
-                changespritestat(i,3);
-                break;
-            }
-
-            break;
 
 
-        case SEENINE__STATIC:
-        case OOZFILTER__STATIC:
+            case SEENINE__STATIC:
+            case OOZFILTER__STATIC:
 
-            sp->shade = -16;
-            if (sp->xrepeat <= 8)
-            {
-                sp->cstat = (short)32768;
-                sp->xrepeat=sp->yrepeat=0;
-            }
-            else sp->cstat = 1+256;
-            sp->extra = impact_damage<<2;
-            sp->owner = i;
-
-            changespritestat(i,6);
-            break;
-
-        case CRACK1__STATIC:
-        case CRACK2__STATIC:
-        case CRACK3__STATIC:
-        case CRACK4__STATIC:
-        case FIREEXT__STATIC:
-            if (sp->picnum == FIREEXT)
-            {
-                sp->cstat = 257;
+                sp->shade = -16;
+                if (sp->xrepeat <= 8)
+                {
+                    sp->cstat = (short)32768;
+                    sp->xrepeat=sp->yrepeat=0;
+                }
+                else sp->cstat = 1+256;
                 sp->extra = impact_damage<<2;
-            }
-            else
-            {
-                sp->cstat |= (sp->cstat & 48) ? 1 : 17;
-                sp->extra = 1;
-            }
+                sp->owner = i;
 
-            if (ud.multimode < 2 && sp->pal != 0)
-            {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i,6);
                 break;
-            }
 
-            sp->pal = 0;
-            sp->owner = i;
-            changespritestat(i,6);
-            sp->xvel = 8;
-            ssp(i,CLIPMASK0);
-            break;
+            case CRACK1__STATIC:
+            case CRACK2__STATIC:
+            case CRACK3__STATIC:
+            case CRACK4__STATIC:
+            case FIREEXT__STATIC:
+                if (sp->picnum == FIREEXT)
+                {
+                    sp->cstat = 257;
+                    sp->extra = impact_damage<<2;
+                }
+                else
+                {
+                    sp->cstat |= (sp->cstat & 48) ? 1 : 17;
+                    sp->extra = 1;
+                }
 
-        case TOILET__STATIC:
-        case STALL__STATIC:
-            sp->lotag = 1;
-            sp->cstat |= 257;
-            sp->clipdist = 8;
-            sp->owner = i;
-            break;
-        case CANWITHSOMETHING__STATIC:
-        case CANWITHSOMETHING2__STATIC:
-        case CANWITHSOMETHING3__STATIC:
-        case CANWITHSOMETHING4__STATIC:
-        case RUBBERCAN__STATIC:
-            sp->extra = 0;
-        case EXPLODINGBARREL__STATIC:
-        case HORSEONSIDE__STATIC:
-        case FIREBARREL__STATIC:
-        case NUKEBARREL__STATIC:
-        case FIREVASE__STATIC:
-        case NUKEBARRELDENTED__STATIC:
-        case NUKEBARRELLEAKED__STATIC:
-        case WOODENHORSE__STATIC:
+                if (ud.multimode < 2 && sp->pal != 0)
+                {
+                    sp->xrepeat = sp->yrepeat = 0;
+                    changespritestat(i,5);
+                    break;
+                }
 
-            if (j >= 0)
-                sp->xrepeat = sp->yrepeat = 32;
-            sp->clipdist = 72;
-            makeitfall(i);
-            if (j >= 0)
-                sp->owner = j;
-            else sp->owner = i;
-        case EGG__STATIC:
-            if (ud.monsters_off == 1 && sp->picnum == EGG)
-            {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
-            }
-            else
-            {
-                if (sp->picnum == EGG)
-                    sp->clipdist = 24;
-                sp->cstat = 257|(TRAND&4);
-                changespritestat(i,2);
-            }
-            break;
-        case TOILETWATER__STATIC:
-            sp->shade = -16;
-            changespritestat(i,6);
-            break;
+                sp->pal = 0;
+                sp->owner = i;
+                changespritestat(i,6);
+                sp->xvel = 8;
+                ssp(i,CLIPMASK0);
+                break;
+
+            case TOILET__STATIC:
+            case STALL__STATIC:
+                sp->lotag = 1;
+                sp->cstat |= 257;
+                sp->clipdist = 8;
+                sp->owner = i;
+                break;
+            case CANWITHSOMETHING__STATIC:
+            case CANWITHSOMETHING2__STATIC:
+            case CANWITHSOMETHING3__STATIC:
+            case CANWITHSOMETHING4__STATIC:
+            case RUBBERCAN__STATIC:
+                sp->extra = 0;
+            case EXPLODINGBARREL__STATIC:
+            case HORSEONSIDE__STATIC:
+            case FIREBARREL__STATIC:
+            case NUKEBARREL__STATIC:
+            case FIREVASE__STATIC:
+            case NUKEBARRELDENTED__STATIC:
+            case NUKEBARRELLEAKED__STATIC:
+            case WOODENHORSE__STATIC:
+
+                if (j >= 0)
+                    sp->xrepeat = sp->yrepeat = 32;
+                sp->clipdist = 72;
+                makeitfall(i);
+                if (j >= 0)
+                    sp->owner = j;
+                else sp->owner = i;
+            case EGG__STATIC:
+                if (ud.monsters_off == 1 && sp->picnum == EGG)
+                {
+                    sp->xrepeat = sp->yrepeat = 0;
+                    changespritestat(i,5);
+                }
+                else
+                {
+                    if (sp->picnum == EGG)
+                        sp->clipdist = 24;
+                    sp->cstat = 257|(TRAND&4);
+                    changespritestat(i,2);
+                }
+                break;
+            case TOILETWATER__STATIC:
+                sp->shade = -16;
+                changespritestat(i,6);
+                break;
         }
 
     OnEvent(EVENT_SPAWN,i, findplayer(&sprite[i],&p), p);
@@ -5857,76 +6201,77 @@ void animatesprites(long x,long y,short a,long smoothratio)
         i = t->owner;
         s = &sprite[t->owner];
         //greenslime can't be handled through the dynamictostatic system due to addition on constant
-        if ((t->picnum >= GREENSLIME)&&(t->picnum <= GREENSLIME+7)) {
-        }
+        if ((t->picnum >= GREENSLIME)&&(t->picnum <= GREENSLIME+7))
+        {}
         else switch (dynamictostatic[t->picnum])
             {
-            case BLOODPOOL__STATIC:
-            case PUKE__STATIC:
-            case FOOTPRINTS__STATIC:
-            case FOOTPRINTS2__STATIC:
-            case FOOTPRINTS3__STATIC:
-            case FOOTPRINTS4__STATIC:
-                if (t->shade == 127) continue;
-                break;
-            case RESPAWNMARKERRED__STATIC:
-            case RESPAWNMARKERYELLOW__STATIC:
-            case RESPAWNMARKERGREEN__STATIC:
-                if (ud.marker == 0)
-                    t->xrepeat = t->yrepeat = 0;
-                continue;
-            case CHAIR3__STATIC:
-#if defined(POLYMOST) && defined(USE_OPENGL)
-                if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0) {
-                    t->cstat &= ~4;
+                case BLOODPOOL__STATIC:
+                case PUKE__STATIC:
+                case FOOTPRINTS__STATIC:
+                case FOOTPRINTS2__STATIC:
+                case FOOTPRINTS3__STATIC:
+                case FOOTPRINTS4__STATIC:
+                    if (t->shade == 127) continue;
                     break;
-                }
+                case RESPAWNMARKERRED__STATIC:
+                case RESPAWNMARKERYELLOW__STATIC:
+                case RESPAWNMARKERGREEN__STATIC:
+                    if (ud.marker == 0)
+                        t->xrepeat = t->yrepeat = 0;
+                    continue;
+                case CHAIR3__STATIC:
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                    if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0)
+                    {
+                        t->cstat &= ~4;
+                        break;
+                    }
 #endif
-                k = (((t->ang+3072+128-a)&2047)>>8)&7;
-                if (k>4)
-                {
-                    k = 8-k;
-                    t->cstat |= 4;
-                }
-                else t->cstat &= ~4;
-                t->picnum = s->picnum+k;
-                break;
-            case BLOODSPLAT1__STATIC:
-            case BLOODSPLAT2__STATIC:
-            case BLOODSPLAT3__STATIC:
-            case BLOODSPLAT4__STATIC:
-                if (ud.lockout) t->xrepeat = t->yrepeat = 0;
-                else if (t->pal == 6)
-                {
-                    t->shade = -127;
+                    k = (((t->ang+3072+128-a)&2047)>>8)&7;
+                    if (k>4)
+                    {
+                        k = 8-k;
+                        t->cstat |= 4;
+                    }
+                    else t->cstat &= ~4;
+                    t->picnum = s->picnum+k;
+                    break;
+                case BLOODSPLAT1__STATIC:
+                case BLOODSPLAT2__STATIC:
+                case BLOODSPLAT3__STATIC:
+                case BLOODSPLAT4__STATIC:
+                    if (ud.lockout) t->xrepeat = t->yrepeat = 0;
+                    else if (t->pal == 6)
+                    {
+                        t->shade = -127;
+                        continue;
+                    }
+                case BULLETHOLE__STATIC:
+                case CRACK1__STATIC:
+                case CRACK2__STATIC:
+                case CRACK3__STATIC:
+                case CRACK4__STATIC:
+                    t->shade = 16;
                     continue;
-                }
-            case BULLETHOLE__STATIC:
-            case CRACK1__STATIC:
-            case CRACK2__STATIC:
-            case CRACK3__STATIC:
-            case CRACK4__STATIC:
-                t->shade = 16;
-                continue;
-            case NEON1__STATIC:
-            case NEON2__STATIC:
-            case NEON3__STATIC:
-            case NEON4__STATIC:
-            case NEON5__STATIC:
-            case NEON6__STATIC:
-                continue;
-                //case GREENSLIME:
-                //case GREENSLIME+1:
-                //case GREENSLIME+2:
-                //case GREENSLIME+3:
-                //case GREENSLIME+4:
-                //case GREENSLIME+5:
-                //case GREENSLIME+6:
-                //case GREENSLIME+7:
-                //    break;
-            default:
-                if (((t->cstat&16)) || (badguy(t) && t->extra > 0) || t->statnum == 10)
+                case NEON1__STATIC:
+                case NEON2__STATIC:
+                case NEON3__STATIC:
+                case NEON4__STATIC:
+                case NEON5__STATIC:
+                case NEON6__STATIC:
                     continue;
+                    //case GREENSLIME:
+                    //case GREENSLIME+1:
+                    //case GREENSLIME+2:
+                    //case GREENSLIME+3:
+                    //case GREENSLIME+4:
+                    //case GREENSLIME+5:
+                    //case GREENSLIME+6:
+                    //case GREENSLIME+7:
+                    //    break;
+                default:
+                    if (((t->cstat&16)) || (badguy(t) && t->extra > 0) || t->statnum == 10)
+                        continue;
             }
 
         if (checkspriteflags(t->owner,SPRITE_FLAG_NOSHADE))
@@ -5952,92 +6297,92 @@ void animatesprites(long x,long y,short a,long smoothratio)
 
         switch (dynamictostatic[s->picnum])
         {
-        case SECTOREFFECTOR__STATIC:
-            if (t->lotag == 27 && ud.recstat == 1)
-            {
-                t->picnum = 11+((totalclock>>3)&1);
-                t->cstat |= 128;
-            }
-            else
-                t->xrepeat = t->yrepeat = 0;
-            break;
-        case NATURALLIGHTNING__STATIC:
-            t->shade = -127;
-            break;
-        case FEM1__STATIC:
-        case FEM2__STATIC:
-        case FEM3__STATIC:
-        case FEM4__STATIC:
-        case FEM5__STATIC:
-        case FEM6__STATIC:
-        case FEM7__STATIC:
-        case FEM8__STATIC:
-        case FEM9__STATIC:
-        case FEM10__STATIC:
-        case MAN__STATIC:
-        case MAN2__STATIC:
-        case WOMAN__STATIC:
-        case NAKED1__STATIC:
-        case PODFEM1__STATIC:
-        case FEMMAG1__STATIC:
-        case FEMMAG2__STATIC:
-        case FEMPIC1__STATIC:
-        case FEMPIC2__STATIC:
-        case FEMPIC3__STATIC:
-        case FEMPIC4__STATIC:
-        case FEMPIC5__STATIC:
-        case FEMPIC6__STATIC:
-        case FEMPIC7__STATIC:
-        case BLOODYPOLE__STATIC:
-        case FEM6PAD__STATIC:
-        case STATUE__STATIC:
-        case STATUEFLASH__STATIC:
-        case OOZ__STATIC:
-        case OOZ2__STATIC:
-        case WALLBLOOD1__STATIC:
-        case WALLBLOOD2__STATIC:
-        case WALLBLOOD3__STATIC:
-        case WALLBLOOD4__STATIC:
-        case WALLBLOOD5__STATIC:
-        case WALLBLOOD7__STATIC:
-        case WALLBLOOD8__STATIC:
-        case SUSHIPLATE1__STATIC:
-        case SUSHIPLATE2__STATIC:
-        case SUSHIPLATE3__STATIC:
-        case SUSHIPLATE4__STATIC:
-        case FETUS__STATIC:
-        case FETUSJIB__STATIC:
-        case FETUSBROKE__STATIC:
-        case HOTMEAT__STATIC:
-        case FOODOBJECT16__STATIC:
-        case DOLPHIN1__STATIC:
-        case DOLPHIN2__STATIC:
-        case TOUGHGAL__STATIC:
-        case TAMPON__STATIC:
-        case XXXSTACY__STATIC:
-            if (ud.lockout)
-            {
-                t->xrepeat = t->yrepeat = 0;
-                continue;
-            }
+            case SECTOREFFECTOR__STATIC:
+                if (t->lotag == 27 && ud.recstat == 1)
+                {
+                    t->picnum = 11+((totalclock>>3)&1);
+                    t->cstat |= 128;
+                }
+                else
+                    t->xrepeat = t->yrepeat = 0;
+                break;
+            case NATURALLIGHTNING__STATIC:
+                t->shade = -127;
+                break;
+            case FEM1__STATIC:
+            case FEM2__STATIC:
+            case FEM3__STATIC:
+            case FEM4__STATIC:
+            case FEM5__STATIC:
+            case FEM6__STATIC:
+            case FEM7__STATIC:
+            case FEM8__STATIC:
+            case FEM9__STATIC:
+            case FEM10__STATIC:
+            case MAN__STATIC:
+            case MAN2__STATIC:
+            case WOMAN__STATIC:
+            case NAKED1__STATIC:
+            case PODFEM1__STATIC:
+            case FEMMAG1__STATIC:
+            case FEMMAG2__STATIC:
+            case FEMPIC1__STATIC:
+            case FEMPIC2__STATIC:
+            case FEMPIC3__STATIC:
+            case FEMPIC4__STATIC:
+            case FEMPIC5__STATIC:
+            case FEMPIC6__STATIC:
+            case FEMPIC7__STATIC:
+            case BLOODYPOLE__STATIC:
+            case FEM6PAD__STATIC:
+            case STATUE__STATIC:
+            case STATUEFLASH__STATIC:
+            case OOZ__STATIC:
+            case OOZ2__STATIC:
+            case WALLBLOOD1__STATIC:
+            case WALLBLOOD2__STATIC:
+            case WALLBLOOD3__STATIC:
+            case WALLBLOOD4__STATIC:
+            case WALLBLOOD5__STATIC:
+            case WALLBLOOD7__STATIC:
+            case WALLBLOOD8__STATIC:
+            case SUSHIPLATE1__STATIC:
+            case SUSHIPLATE2__STATIC:
+            case SUSHIPLATE3__STATIC:
+            case SUSHIPLATE4__STATIC:
+            case FETUS__STATIC:
+            case FETUSJIB__STATIC:
+            case FETUSBROKE__STATIC:
+            case HOTMEAT__STATIC:
+            case FOODOBJECT16__STATIC:
+            case DOLPHIN1__STATIC:
+            case DOLPHIN2__STATIC:
+            case TOUGHGAL__STATIC:
+            case TAMPON__STATIC:
+            case XXXSTACY__STATIC:
+                if (ud.lockout)
+                {
+                    t->xrepeat = t->yrepeat = 0;
+                    continue;
+                }
         }
         switch (s->picnum)
         {
 
-        case 4946:
-        case 4947:
-        case 693:
-        case 2254:
-        case 4560:
-        case 4561:
-        case 4562:
-        case 4498:
-        case 4957:
-            if (ud.lockout)
-            {
-                t->xrepeat = t->yrepeat = 0;
-                continue;
-            }
+            case 4946:
+            case 4947:
+            case 693:
+            case 2254:
+            case 4560:
+            case 4561:
+            case 4562:
+            case 4498:
+            case 4957:
+                if (ud.lockout)
+                {
+                    t->xrepeat = t->yrepeat = 0;
+                    continue;
+                }
         }
 
         if (t->statnum == 99) continue;
@@ -6056,7 +6401,9 @@ void animatesprites(long x,long y,short a,long smoothratio)
         }
 
         sect = s->sectnum;
-        t1 = T2;t3 = T4;t4 = T5;
+        t1 = T2;
+        t3 = T4;
+        t4 = T5;
         switchpic = s->picnum;
         //some special cases because dynamictostatic system can't handle addition to constants
         if ((s->picnum >= SCRAP6)&&(s->picnum<=SCRAP6+7))
@@ -6066,314 +6413,320 @@ void animatesprites(long x,long y,short a,long smoothratio)
 
         switch (dynamictostatic[switchpic])
         {
-        case DUKELYINGDEAD__STATIC:
-            t->z += (24<<8);
-            break;
-        case BLOODPOOL__STATIC:
-        case FOOTPRINTS__STATIC:
-        case FOOTPRINTS2__STATIC:
-        case FOOTPRINTS3__STATIC:
-        case FOOTPRINTS4__STATIC:
-            if (t->pal == 6)
-                t->shade = -127;
-        case PUKE__STATIC:
-        case MONEY__STATIC:
-            //case MONEY+1__STATIC:
-        case MAIL__STATIC:
-            //case MAIL+1__STATIC:
-        case PAPER__STATIC:
-            //case PAPER+1__STATIC:
-            if (ud.lockout && s->pal == 2)
-            {
-                t->xrepeat = t->yrepeat = 0;
+            case DUKELYINGDEAD__STATIC:
+                t->z += (24<<8);
+                break;
+            case BLOODPOOL__STATIC:
+            case FOOTPRINTS__STATIC:
+            case FOOTPRINTS2__STATIC:
+            case FOOTPRINTS3__STATIC:
+            case FOOTPRINTS4__STATIC:
+                if (t->pal == 6)
+                    t->shade = -127;
+            case PUKE__STATIC:
+            case MONEY__STATIC:
+                //case MONEY+1__STATIC:
+            case MAIL__STATIC:
+                //case MAIL+1__STATIC:
+            case PAPER__STATIC:
+                //case PAPER+1__STATIC:
+                if (ud.lockout && s->pal == 2)
+                {
+                    t->xrepeat = t->yrepeat = 0;
+                    continue;
+                }
+                break;
+            case TRIPBOMB__STATIC:
                 continue;
-            }
-            break;
-        case TRIPBOMB__STATIC:
-            continue;
-        case FORCESPHERE__STATIC:
-            if (t->statnum == 5)
-            {
-                short sqa,sqb;
-
-                sqa =
-                    getangle(
-                        sprite[s->owner].x-ps[screenpeek].posx,
-                        sprite[s->owner].y-ps[screenpeek].posy);
-                sqb =
-                    getangle(
-                        sprite[s->owner].x-t->x,
-                        sprite[s->owner].y-t->y);
-
-                if (klabs(getincangle(sqa,sqb)) > 512)
-                    if (ldist(&sprite[s->owner],t) < ldist(&sprite[ps[screenpeek].i],&sprite[s->owner]))
-                        t->xrepeat = t->yrepeat = 0;
-            }
-            continue;
-        case BURNING__STATIC:
-        case BURNING2__STATIC:
-            if (sprite[s->owner].statnum == 10)
-            {
-                if (display_mirror == 0 && sprite[s->owner].yvel == screenpeek && ps[sprite[s->owner].yvel].over_shoulder_on == 0)
-                    t->xrepeat = 0;
-                else
+            case FORCESPHERE__STATIC:
+                if (t->statnum == 5)
                 {
-                    t->ang = getangle(x-t->x,y-t->y);
-                    t->x = sprite[s->owner].x;
-                    t->y = sprite[s->owner].y;
-                    t->x += sintable[(t->ang+512)&2047]>>10;
-                    t->y += sintable[t->ang&2047]>>10;
+                    short sqa,sqb;
+
+                    sqa =
+                        getangle(
+                            sprite[s->owner].x-ps[screenpeek].posx,
+                            sprite[s->owner].y-ps[screenpeek].posy);
+                    sqb =
+                        getangle(
+                            sprite[s->owner].x-t->x,
+                            sprite[s->owner].y-t->y);
+
+                    if (klabs(getincangle(sqa,sqb)) > 512)
+                        if (ldist(&sprite[s->owner],t) < ldist(&sprite[ps[screenpeek].i],&sprite[s->owner]))
+                            t->xrepeat = t->yrepeat = 0;
                 }
-            }
-            break;
-
-        case ATOMICHEALTH__STATIC:
-            t->z -= (4<<8);
-            break;
-        case CRYSTALAMMO__STATIC:
-            t->shade = (sintable[(totalclock<<4)&2047]>>10);
-            continue;
-        case VIEWSCREEN__STATIC:
-        case VIEWSCREEN2__STATIC:
-            if (camsprite >= 0 && hittype[OW].temp_data[0] == 1)
-            {
-                t->picnum = STATIC;
-                t->cstat |= (rand()&12);
-                t->xrepeat += 8;
-                t->yrepeat += 8;
-            } else if (camsprite >= 0 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200) {
-                t->picnum = TILE_VIEWSCR;
-            }
-            break;
-
-        case SHRINKSPARK__STATIC:
-            t->picnum = SHRINKSPARK+((totalclock>>4)&3);
-            break;
-        case GROWSPARK__STATIC:
-            t->picnum = GROWSPARK+((totalclock>>4)&3);
-            break;
-        case RPG__STATIC:
-#if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0) {
-                t->cstat &= ~4;
+                continue;
+            case BURNING__STATIC:
+            case BURNING2__STATIC:
+                if (sprite[s->owner].statnum == 10)
+                {
+                    if (display_mirror == 0 && sprite[s->owner].yvel == screenpeek && ps[sprite[s->owner].yvel].over_shoulder_on == 0)
+                        t->xrepeat = 0;
+                    else
+                    {
+                        t->ang = getangle(x-t->x,y-t->y);
+                        t->x = sprite[s->owner].x;
+                        t->y = sprite[s->owner].y;
+                        t->x += sintable[(t->ang+512)&2047]>>10;
+                        t->y += sintable[t->ang&2047]>>10;
+                    }
+                }
                 break;
-            }
-#endif
-            k = getangle(s->x-x,s->y-y);
-            k = (((s->ang+3072+128-k)&2047)/170);
-            if (k > 6)
-            {
-                k = 12-k;
-                t->cstat |= 4;
-            }
-            else t->cstat &= ~4;
-            t->picnum = RPG+k;
-            break;
 
-        case RECON__STATIC:
-#if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0) {
-                t->cstat &= ~4;
+            case ATOMICHEALTH__STATIC:
+                t->z -= (4<<8);
                 break;
-            }
-#endif
-            k = getangle(s->x-x,s->y-y);
-            if (T1 < 4)
-                k = (((s->ang+3072+128-k)&2047)/170);
-            else k = (((s->ang+3072+128-k)&2047)/170);
-
-            if (k>6)
-            {
-                k = 12-k;
-                t->cstat |= 4;
-            }
-            else t->cstat &= ~4;
-
-            if (klabs(t3) > 64) k += 7;
-            t->picnum = RECON+k;
-
-            break;
-
-        case APLAYER__STATIC:
-
-            p = s->yvel;
-
-            if (t->pal == 1) t->z -= (18<<8);
-
-            if (ps[p].over_shoulder_on > 0 && ps[p].newowner < 0)
-            {
-                t->cstat |= 2;
-                if (screenpeek == myconnectindex && numplayers >= 2)
+            case CRYSTALAMMO__STATIC:
+                t->shade = (sintable[(totalclock<<4)&2047]>>10);
+                continue;
+            case VIEWSCREEN__STATIC:
+            case VIEWSCREEN2__STATIC:
+                if (camsprite >= 0 && hittype[OW].temp_data[0] == 1)
                 {
-                    t->x = omyx+mulscale16((long)(myx-omyx),smoothratio);
-                    t->y = omyy+mulscale16((long)(myy-omyy),smoothratio);
-                    t->z = omyz+mulscale16((long)(myz-omyz),smoothratio)+(40<<8);
-                    t->ang = omyang+mulscale16((long)(((myang+1024-omyang)&2047)-1024),smoothratio);
-                    t->sectnum = mycursectnum;
+                    t->picnum = STATIC;
+                    t->cstat |= (rand()&12);
+                    t->xrepeat += 8;
+                    t->yrepeat += 8;
                 }
-            }
-
-            if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && ud.showweapons && sprite[ps[p].i].extra > 0 && ps[p].curr_weapon > 0)
-            {
-                memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
-
-                tsprite[spritesortcnt].statnum = 99;
-
-                tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
-                if (t->yrepeat < 4) t->yrepeat = 4;
-
-                tsprite[spritesortcnt].shade = t->shade;
-                tsprite[spritesortcnt].cstat = 0;
-
-                tsprite[spritesortcnt].picnum = (ps[p].curr_weapon==GROW_WEAPON?GROWSPRITEICON:weapon_sprites[ps[p].curr_weapon]);
-
-                if (s->owner >= 0)
-                    tsprite[spritesortcnt].z = ps[p].posz-(12<<8);
-                else tsprite[spritesortcnt].z = s->z-(51<<8);
-                if (tsprite[spritesortcnt].picnum == HEAVYHBOMB)
+                else if (camsprite >= 0 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200)
                 {
-                    tsprite[spritesortcnt].xrepeat = 10;
-                    tsprite[spritesortcnt].yrepeat = 10;
+                    t->picnum = TILE_VIEWSCR;
                 }
-                else
-                {
-                    tsprite[spritesortcnt].xrepeat = 16;
-                    tsprite[spritesortcnt].yrepeat = 16;
-                }
-                tsprite[spritesortcnt].pal = 0;
-                spritesortcnt++;
-            }
+                break;
 
-            if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && sync[p].svel == 0 && sync[p].fvel == 0 && !ud.pause_on)
-            {
-                memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
-
-                tsprite[spritesortcnt].statnum = 99;
-
-                tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
-                if (t->yrepeat < 4) t->yrepeat = 4;
-
-                tsprite[spritesortcnt].cstat = 0;
-
-                tsprite[spritesortcnt].picnum = RESPAWNMARKERGREEN;
-
-                if (s->owner >= 0)
-                    tsprite[spritesortcnt].z = ps[p].posz-(20<<8);
-                else tsprite[spritesortcnt].z = s->z-(96<<8);
-                tsprite[spritesortcnt].xrepeat = 32;
-                tsprite[spritesortcnt].yrepeat = 32;
-                tsprite[spritesortcnt].pal = 20;
-                spritesortcnt++;
-            }
-
-            if (s->owner == -1)
-            {
+            case SHRINKSPARK__STATIC:
+                t->picnum = SHRINKSPARK+((totalclock>>4)&3);
+                break;
+            case GROWSPARK__STATIC:
+                t->picnum = GROWSPARK+((totalclock>>4)&3);
+                break;
+            case RPG__STATIC:
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
-                    k = 0;
+                if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0)
+                {
                     t->cstat &= ~4;
-                } else
+                    break;
+                }
 #endif
+                k = getangle(s->x-x,s->y-y);
+                k = (((s->ang+3072+128-k)&2047)/170);
+                if (k > 6)
                 {
-                    k = (((s->ang+3072+128-a)&2047)>>8)&7;
-                    if (k>4)
+                    k = 12-k;
+                    t->cstat |= 4;
+                }
+                else t->cstat &= ~4;
+                t->picnum = RPG+k;
+                break;
+
+            case RECON__STATIC:
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0)
+                {
+                    t->cstat &= ~4;
+                    break;
+                }
+#endif
+                k = getangle(s->x-x,s->y-y);
+                if (T1 < 4)
+                    k = (((s->ang+3072+128-k)&2047)/170);
+                else k = (((s->ang+3072+128-k)&2047)/170);
+
+                if (k>6)
+                {
+                    k = 12-k;
+                    t->cstat |= 4;
+                }
+                else t->cstat &= ~4;
+
+                if (klabs(t3) > 64) k += 7;
+                t->picnum = RECON+k;
+
+                break;
+
+            case APLAYER__STATIC:
+
+                p = s->yvel;
+
+                if (t->pal == 1) t->z -= (18<<8);
+
+                if (ps[p].over_shoulder_on > 0 && ps[p].newowner < 0)
+                {
+                    t->cstat |= 2;
+                    if (screenpeek == myconnectindex && numplayers >= 2)
                     {
-                        k = 8-k;
-                        t->cstat |= 4;
+                        t->x = omyx+mulscale16((long)(myx-omyx),smoothratio);
+                        t->y = omyy+mulscale16((long)(myy-omyy),smoothratio);
+                        t->z = omyz+mulscale16((long)(myz-omyz),smoothratio)+(40<<8);
+                        t->ang = omyang+mulscale16((long)(((myang+1024-omyang)&2047)-1024),smoothratio);
+                        t->sectnum = mycursectnum;
                     }
-                    else t->cstat &= ~4;
                 }
 
-                if (sector[t->sectnum].lotag == 2) k += 1795-1405;
-                else if ((hittype[i].floorz-s->z) > (64<<8)) k += 60;
+                if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && ud.showweapons && sprite[ps[p].i].extra > 0 && ps[p].curr_weapon > 0)
+                {
+                    memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
-                t->picnum += k;
-                t->pal = ps[p].palookup;
+                    tsprite[spritesortcnt].statnum = 99;
 
-                goto PALONLY;
-            }
+                    tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
+                    if (t->yrepeat < 4) t->yrepeat = 4;
 
-            if (ps[p].on_crane == -1 && (sector[s->sectnum].lotag&0x7ff) != 1)
-            {
-                l = s->z-hittype[ps[p].i].floorz+(3<<8);
-                if (l > 1024 && s->yrepeat > 32 && s->extra > 0)
-                    s->yoffset = (signed char)(l/(s->yrepeat<<2));
-                else s->yoffset=0;
-            }
+                    tsprite[spritesortcnt].shade = t->shade;
+                    tsprite[spritesortcnt].cstat = 0;
 
-            if (ps[p].newowner > -1)
-            {
-                t4 = *(actorscrptr[APLAYER]+1);
-                t3 = 0;
-                t1 = *(actorscrptr[APLAYER]+2);
-            }
+                    tsprite[spritesortcnt].picnum = (ps[p].curr_weapon==GROW_WEAPON?GROWSPRITEICON:weapon_sprites[ps[p].curr_weapon]);
 
-            if (ud.camerasprite == -1 && ps[p].newowner == -1)
-                if (s->owner >= 0 && display_mirror == 0 && ps[p].over_shoulder_on == 0)
-                    if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
+                    if (s->owner >= 0)
+                        tsprite[spritesortcnt].z = ps[p].posz-(12<<8);
+                    else tsprite[spritesortcnt].z = s->z-(51<<8);
+                    if (tsprite[spritesortcnt].picnum == HEAVYHBOMB)
                     {
-                        t->owner = -1;
-                        t->xrepeat = t->yrepeat = 0;
-                        continue;
+                        tsprite[spritesortcnt].xrepeat = 10;
+                        tsprite[spritesortcnt].yrepeat = 10;
                     }
+                    else
+                    {
+                        tsprite[spritesortcnt].xrepeat = 16;
+                        tsprite[spritesortcnt].yrepeat = 16;
+                    }
+                    tsprite[spritesortcnt].pal = 0;
+                    spritesortcnt++;
+                }
+
+                if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && sync[p].svel == 0 && sync[p].fvel == 0 && !ud.pause_on)
+                {
+                    memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
+
+                    tsprite[spritesortcnt].statnum = 99;
+
+                    tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
+                    if (t->yrepeat < 4) t->yrepeat = 4;
+
+                    tsprite[spritesortcnt].cstat = 0;
+
+                    tsprite[spritesortcnt].picnum = RESPAWNMARKERGREEN;
+
+                    if (s->owner >= 0)
+                        tsprite[spritesortcnt].z = ps[p].posz-(20<<8);
+                    else tsprite[spritesortcnt].z = s->z-(96<<8);
+                    tsprite[spritesortcnt].xrepeat = 32;
+                    tsprite[spritesortcnt].yrepeat = 32;
+                    tsprite[spritesortcnt].pal = 20;
+                    spritesortcnt++;
+                }
+
+                if (s->owner == -1)
+                {
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                    if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0)
+                    {
+                        k = 0;
+                        t->cstat &= ~4;
+                    }
+                    else
+#endif
+                    {
+                        k = (((s->ang+3072+128-a)&2047)>>8)&7;
+                        if (k>4)
+                        {
+                            k = 8-k;
+                            t->cstat |= 4;
+                        }
+                        else t->cstat &= ~4;
+                    }
+
+                    if (sector[t->sectnum].lotag == 2) k += 1795-1405;
+                    else if ((hittype[i].floorz-s->z) > (64<<8)) k += 60;
+
+                    t->picnum += k;
+                    t->pal = ps[p].palookup;
+
+                    goto PALONLY;
+                }
+
+                if (ps[p].on_crane == -1 && (sector[s->sectnum].lotag&0x7ff) != 1)
+                {
+                    l = s->z-hittype[ps[p].i].floorz+(3<<8);
+                    if (l > 1024 && s->yrepeat > 32 && s->extra > 0)
+                        s->yoffset = (signed char)(l/(s->yrepeat<<2));
+                    else s->yoffset=0;
+                }
+
+                if (ps[p].newowner > -1)
+                {
+                    t4 = *(actorscrptr[APLAYER]+1);
+                    t3 = 0;
+                    t1 = *(actorscrptr[APLAYER]+2);
+                }
+
+                if (ud.camerasprite == -1 && ps[p].newowner == -1)
+                    if (s->owner >= 0 && display_mirror == 0 && ps[p].over_shoulder_on == 0)
+                        if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
+                        {
+                            t->owner = -1;
+                            t->xrepeat = t->yrepeat = 0;
+                            continue;
+                        }
 
 PALONLY:
 
-            if (sector[sect].floorpal && sector[sect].floorpal < numl)
-                t->pal = sector[sect].floorpal;
+                if (sector[sect].floorpal && sector[sect].floorpal < numl)
+                    t->pal = sector[sect].floorpal;
 
-            if (s->owner == -1) continue;
+                if (s->owner == -1) continue;
 
-            if (t->z > hittype[i].floorz && t->xrepeat < 32)
-                t->z = hittype[i].floorz;
+                if (t->z > hittype[i].floorz && t->xrepeat < 32)
+                    t->z = hittype[i].floorz;
 
-            break;
-
-        case JIBS1__STATIC:
-        case JIBS2__STATIC:
-        case JIBS3__STATIC:
-        case JIBS4__STATIC:
-        case JIBS5__STATIC:
-        case JIBS6__STATIC:
-        case HEADJIB1__STATIC:
-        case LEGJIB1__STATIC:
-        case ARMJIB1__STATIC:
-        case LIZMANHEAD1__STATIC:
-        case LIZMANARM1__STATIC:
-        case LIZMANLEG1__STATIC:
-        case DUKELEG__STATIC:
-        case DUKEGUN__STATIC:
-        case DUKETORSO__STATIC:
-            if (ud.lockout)
-            {
-                t->xrepeat = t->yrepeat = 0;
-                continue;
-            }
-            if (t->pal == 6) t->shade = -120;
-        case SCRAP1__STATIC:
-        case SCRAP2__STATIC:
-        case SCRAP3__STATIC:
-        case SCRAP4__STATIC:
-        case SCRAP5__STATIC:
-            if (hittype[i].picnum == BLIMP && t->picnum == SCRAP1 && s->yvel >= 0)
-                t->picnum = s->yvel;
-            else t->picnum += T1;
-            t->shade -= 6;
-
-            if (sector[sect].floorpal && sector[sect].floorpal < numl)
-                t->pal = sector[sect].floorpal;
-            break;
-
-        case WATERBUBBLE__STATIC:
-            if (sector[t->sectnum].floorpicnum == FLOORSLIME)
-            {
-                t->pal = 7;
                 break;
-            }
-        default:
-            if (sector[sect].floorpal && sector[sect].floorpal < numl)
-                t->pal = sector[sect].floorpal;
-            break;
+
+            case JIBS1__STATIC:
+            case JIBS2__STATIC:
+            case JIBS3__STATIC:
+            case JIBS4__STATIC:
+            case JIBS5__STATIC:
+            case JIBS6__STATIC:
+            case HEADJIB1__STATIC:
+            case LEGJIB1__STATIC:
+            case ARMJIB1__STATIC:
+            case LIZMANHEAD1__STATIC:
+            case LIZMANARM1__STATIC:
+            case LIZMANLEG1__STATIC:
+            case DUKELEG__STATIC:
+            case DUKEGUN__STATIC:
+            case DUKETORSO__STATIC:
+                if (ud.lockout)
+                {
+                    t->xrepeat = t->yrepeat = 0;
+                    continue;
+                }
+                if (t->pal == 6) t->shade = -120;
+            case SCRAP1__STATIC:
+            case SCRAP2__STATIC:
+            case SCRAP3__STATIC:
+            case SCRAP4__STATIC:
+            case SCRAP5__STATIC:
+                if (hittype[i].picnum == BLIMP && t->picnum == SCRAP1 && s->yvel >= 0)
+                    t->picnum = s->yvel;
+                else t->picnum += T1;
+                t->shade -= 6;
+
+                if (sector[sect].floorpal && sector[sect].floorpal < numl)
+                    t->pal = sector[sect].floorpal;
+                break;
+
+            case WATERBUBBLE__STATIC:
+                if (sector[t->sectnum].floorpicnum == FLOORSLIME)
+                {
+                    t->pal = 7;
+                    break;
+                }
+            default:
+                if (sector[sect].floorpal && sector[sect].floorpal < numl)
+                    t->pal = sector[sect].floorpal;
+                break;
         }
 
         if (actorscrptr[s->picnum])
@@ -6382,7 +6735,8 @@ PALONLY:
             {
                 l = *(long *)(t4+8);
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
+                if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0)
+                {
                     k = 0;
                     t->cstat &= ~4;
                 }
@@ -6390,48 +6744,48 @@ PALONLY:
 #endif
                     switch (l)
                     {
-                    case 2:
-                        k = (((s->ang+3072+128-a)&2047)>>8)&1;
-                        break;
+                        case 2:
+                            k = (((s->ang+3072+128-a)&2047)>>8)&1;
+                            break;
 
-                    case 3:
-                    case 4:
-                        k = (((s->ang+3072+128-a)&2047)>>7)&7;
-                        if (k > 3)
-                        {
-                            t->cstat |= 4;
-                            k = 7-k;
-                        }
-                        else t->cstat &= ~4;
-                        break;
+                        case 3:
+                        case 4:
+                            k = (((s->ang+3072+128-a)&2047)>>7)&7;
+                            if (k > 3)
+                            {
+                                t->cstat |= 4;
+                                k = 7-k;
+                            }
+                            else t->cstat &= ~4;
+                            break;
 
-                    case 5:
-                        k = getangle(s->x-x,s->y-y);
-                        k = (((s->ang+3072+128-k)&2047)>>8)&7;
-                        if (k>4)
-                        {
-                            k = 8-k;
-                            t->cstat |= 4;
-                        }
-                        else t->cstat &= ~4;
-                        break;
-                    case 7:
-                        k = getangle(s->x-x,s->y-y);
-                        k = (((s->ang+3072+128-k)&2047)/170);
-                        if (k>6)
-                        {
-                            k = 12-k;
-                            t->cstat |= 4;
-                        }
-                        else t->cstat &= ~4;
-                        break;
-                    case 8:
-                        k = (((s->ang+3072+128-a)&2047)>>8)&7;
-                        t->cstat &= ~4;
-                        break;
-                    default:
-                        k = 0;
-                        break;
+                        case 5:
+                            k = getangle(s->x-x,s->y-y);
+                            k = (((s->ang+3072+128-k)&2047)>>8)&7;
+                            if (k>4)
+                            {
+                                k = 8-k;
+                                t->cstat |= 4;
+                            }
+                            else t->cstat &= ~4;
+                            break;
+                        case 7:
+                            k = getangle(s->x-x,s->y-y);
+                            k = (((s->ang+3072+128-k)&2047)/170);
+                            if (k>6)
+                            {
+                                k = 12-k;
+                                t->cstat |= 4;
+                            }
+                            else t->cstat &= ~4;
+                            break;
+                        case 8:
+                            k = (((s->ang+3072+128-a)&2047)>>8)&7;
+                            t->cstat &= ~4;
+                            break;
+                        default:
+                            k = 0;
+                            break;
                     }
 
                 t->picnum += k + (*(long *)t4) + l * t3;
@@ -6517,50 +6871,115 @@ PALONLY:
 
         switch (dynamictostatic[s->picnum])
         {
-        case LASERLINE__STATIC:
-            if (sector[t->sectnum].lotag == 2) t->pal = 8;
-            t->z = sprite[s->owner].z-(3<<8);
-            if (lasermode == 2 && ps[screenpeek].heat_on == 0)
-                t->yrepeat = 0;
-        case EXPLOSION2__STATIC:
-        case EXPLOSION2BOT__STATIC:
-        case FREEZEBLAST__STATIC:
-        case ATOMICHEALTH__STATIC:
-        case FIRELASER__STATIC:
-        case SHRINKSPARK__STATIC:
-        case GROWSPARK__STATIC:
-        case CHAINGUN__STATIC:
-        case SHRINKEREXPLOSION__STATIC:
-        case RPG__STATIC:
-        case FLOORFLAME__STATIC:
-            if (t->picnum == EXPLOSION2)
-            {
-                ps[screenpeek].visibility = -127;
-                lastvisinc = totalclock+32;
-                //restorepalette = 1;   // JBF 20040101: why?
-            }
-            t->shade = -127;
-            break;
-        case FIRE__STATIC:
-        case FIRE2__STATIC:
-        case BURNING__STATIC:
-        case BURNING2__STATIC:
-            if (sprite[s->owner].picnum != TREE1 && sprite[s->owner].picnum != TREE2)
-                t->z = sector[t->sectnum].floorz;
-            t->shade = -127;
-            break;
-        case COOLEXPLOSION1__STATIC:
-            t->shade = -127;
-            t->picnum += (s->shade>>1);
-            break;
-        case PLAYERONWATER__STATIC:
+            case LASERLINE__STATIC:
+                if (sector[t->sectnum].lotag == 2) t->pal = 8;
+                t->z = sprite[s->owner].z-(3<<8);
+                if (lasermode == 2 && ps[screenpeek].heat_on == 0)
+                    t->yrepeat = 0;
+            case EXPLOSION2__STATIC:
+            case EXPLOSION2BOT__STATIC:
+            case FREEZEBLAST__STATIC:
+            case ATOMICHEALTH__STATIC:
+            case FIRELASER__STATIC:
+            case SHRINKSPARK__STATIC:
+            case GROWSPARK__STATIC:
+            case CHAINGUN__STATIC:
+            case SHRINKEREXPLOSION__STATIC:
+            case RPG__STATIC:
+            case FLOORFLAME__STATIC:
+                if (t->picnum == EXPLOSION2)
+                {
+                    ps[screenpeek].visibility = -127;
+                    lastvisinc = totalclock+32;
+                    //restorepalette = 1;   // JBF 20040101: why?
+                }
+                t->shade = -127;
+                break;
+            case FIRE__STATIC:
+            case FIRE2__STATIC:
+            case BURNING__STATIC:
+            case BURNING2__STATIC:
+                if (sprite[s->owner].picnum != TREE1 && sprite[s->owner].picnum != TREE2)
+                    t->z = sector[t->sectnum].floorz;
+                t->shade = -127;
+                break;
+            case COOLEXPLOSION1__STATIC:
+                t->shade = -127;
+                t->picnum += (s->shade>>1);
+                break;
+            case PLAYERONWATER__STATIC:
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
-                k = 0;
-                t->cstat &= ~4;
-            } else
+                if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0)
+                {
+                    k = 0;
+                    t->cstat &= ~4;
+                }
+                else
 #endif
-            {
+                {
+                    k = (((t->ang+3072+128-a)&2047)>>8)&7;
+                    if (k>4)
+                    {
+                        k = 8-k;
+                        t->cstat |= 4;
+                    }
+                    else t->cstat &= ~4;
+                }
+
+                t->picnum = s->picnum+k+((T1<4)*5);
+                t->shade = sprite[s->owner].shade;
+
+                break;
+
+            case WATERSPLASH2__STATIC:
+                t->picnum = WATERSPLASH2+t1;
+                break;
+            case REACTOR2__STATIC:
+                t->picnum = s->picnum + T3;
+                break;
+            case SHELL__STATIC:
+                t->picnum = s->picnum+(T1&1);
+            case SHOTGUNSHELL__STATIC:
+                t->cstat |= 12;
+                if (T1 > 1) t->cstat &= ~4;
+                if (T1 > 2) t->cstat &= ~12;
+                break;
+            case FRAMEEFFECT1_13__STATIC:
+                if (PLUTOPAK) break;
+            case FRAMEEFFECT1__STATIC:
+                if (s->owner >= 0 && sprite[s->owner].statnum < MAXSTATUS)
+                {
+                    if (sprite[s->owner].picnum == APLAYER)
+                        if (ud.camerasprite == -1)
+                            if (screenpeek == sprite[s->owner].yvel && display_mirror == 0)
+                            {
+                                t->owner = -1;
+                                break;
+                            }
+                    if ((sprite[s->owner].cstat&32768) == 0)
+                    {
+                        if (!hittype[s->owner].dispicnum)
+                            t->picnum = hittype[i].temp_data[1];
+                        else t->picnum = hittype[s->owner].dispicnum;
+                        t->pal = sprite[s->owner].pal;
+                        t->shade = sprite[s->owner].shade;
+                        t->ang = sprite[s->owner].ang;
+                        t->cstat = 2|sprite[s->owner].cstat;
+                    }
+                }
+                break;
+
+            case CAMERA1__STATIC:
+            case RAT__STATIC:
+
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0)
+                {
+                    t->cstat &= ~4;
+                    break;
+                }
+#endif
+
                 k = (((t->ang+3072+128-a)&2047)>>8)&7;
                 if (k>4)
                 {
@@ -6568,70 +6987,8 @@ PALONLY:
                     t->cstat |= 4;
                 }
                 else t->cstat &= ~4;
-            }
-
-            t->picnum = s->picnum+k+((T1<4)*5);
-            t->shade = sprite[s->owner].shade;
-
-            break;
-
-        case WATERSPLASH2__STATIC:
-            t->picnum = WATERSPLASH2+t1;
-            break;
-        case REACTOR2__STATIC:
-            t->picnum = s->picnum + T3;
-            break;
-        case SHELL__STATIC:
-            t->picnum = s->picnum+(T1&1);
-        case SHOTGUNSHELL__STATIC:
-            t->cstat |= 12;
-            if (T1 > 1) t->cstat &= ~4;
-            if (T1 > 2) t->cstat &= ~12;
-            break;
-        case FRAMEEFFECT1_13__STATIC:
-            if (PLUTOPAK) break;
-        case FRAMEEFFECT1__STATIC:
-            if (s->owner >= 0 && sprite[s->owner].statnum < MAXSTATUS)
-            {
-                if (sprite[s->owner].picnum == APLAYER)
-                    if (ud.camerasprite == -1)
-                        if (screenpeek == sprite[s->owner].yvel && display_mirror == 0)
-                        {
-                            t->owner = -1;
-                            break;
-                        }
-                if ((sprite[s->owner].cstat&32768) == 0)
-                {
-                    if (!hittype[s->owner].dispicnum)
-                        t->picnum = hittype[i].temp_data[1];
-                    else t->picnum = hittype[s->owner].dispicnum;
-                    t->pal = sprite[s->owner].pal;
-                    t->shade = sprite[s->owner].shade;
-                    t->ang = sprite[s->owner].ang;
-                    t->cstat = 2|sprite[s->owner].cstat;
-                }
-            }
-            break;
-
-        case CAMERA1__STATIC:
-        case RAT__STATIC:
-
-#if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
-                t->cstat &= ~4;
+                t->picnum = s->picnum+k;
                 break;
-            }
-#endif
-
-            k = (((t->ang+3072+128-a)&2047)>>8)&7;
-            if (k>4)
-            {
-                k = 8-k;
-                t->cstat |= 4;
-            }
-            else t->cstat &= ~4;
-            t->picnum = s->picnum+k;
-            break;
         }
 
         hittype[i].dispicnum = t->picnum;
@@ -6644,39 +7001,43 @@ PALONLY:
 #pragma optimize("",on)
 #endif
 
-static char terminx[64] = { "Undead TC still sucks." };
+static char terminx[64] =
+    { "Undead TC still sucks."
+    };
 
-char cheatquotes[][MAXCHEATLEN] = {
-                                      "cornholio",    // 0
-                                      "stuff",        // 1
-                                      "scotty###",    // 2
-                                      "coords",       // 3
-                                      "view",         // 4
-                                      "time",         // 5
-                                      "unlock",       // 6
-                                      "cashman",      // 7
-                                      "items",        // 8
-                                      "rate",         // 9
-                                      "skill#",       // 10
-                                      "beta",         // 11
-                                      "hyper",        // 12
-                                      "monsters",     // 13
-                                      "<RESERVED>",   // 14
-                                      "<RESERVED>",   // 15
-                                      "todd",         // 16
-                                      "showmap",      // 17
-                                      "kroz",         // 18
-                                      "allen",        // 19
-                                      "clip",         // 20
-                                      "weapons",      // 21
-                                      "inventory",    // 22
-                                      "keys",         // 23
-                                      "debug",        // 24
-                                      "<RESERVED>",   // 25
-                                      "sfm",  // 26
-                                  };
+char cheatquotes[][MAXCHEATLEN] =
+    {
+        "cornholio",    // 0
+        "stuff",        // 1
+        "scotty###",    // 2
+        "coords",       // 3
+        "view",         // 4
+        "time",         // 5
+        "unlock",       // 6
+        "cashman",      // 7
+        "items",        // 8
+        "rate",         // 9
+        "skill#",       // 10
+        "beta",         // 11
+        "hyper",        // 12
+        "monsters",     // 13
+        "<RESERVED>",   // 14
+        "<RESERVED>",   // 15
+        "todd",         // 16
+        "showmap",      // 17
+        "kroz",         // 18
+        "allen",        // 19
+        "clip",         // 20
+        "weapons",      // 21
+        "inventory",    // 22
+        "keys",         // 23
+        "debug",        // 24
+        "<RESERVED>",   // 25
+        "sfm",  // 26
+    };
 
-enum cheats {
+enum cheats
+{
     CHEAT_CORNHOLIO,
     CHEAT_STUFF,
     CHEAT_SCOTTY,
@@ -6781,7 +7142,8 @@ void cheats(void)
     static char z=0;
     char consolecheat = 0;  // JBF 20030914
 
-    if (osdcmd_cheatsinfo_stat.cheatnum != -1) {        // JBF 20030914
+    if (osdcmd_cheatsinfo_stat.cheatnum != -1)
+    {        // JBF 20030914
         k = osdcmd_cheatsinfo_stat.cheatnum;
         osdcmd_cheatsinfo_stat.cheatnum = -1;
         consolecheat = 1;
@@ -6790,7 +7152,8 @@ void cheats(void)
     if ((ps[myconnectindex].gm&MODE_TYPE) || (ps[myconnectindex].gm&MODE_MENU))
         return;
 
-    if (VOLUMEONE && !z) {
+    if (VOLUMEONE && !z)
+    {
         Bstrcpy(cheatquotes[2],"scotty##");
         Bstrcpy(cheatquotes[6],"<RESERVED>");
         z=1;
@@ -6842,395 +7205,407 @@ FOUNDCHEAT:
             {
                 switch (k)
                 {
-                case CHEAT_WEAPONS:
-                    if (VOLUMEONE) {
-                        j = 6;
-                    } else {
-                        j = 0;
-                    }
+                    case CHEAT_WEAPONS:
+                        if (VOLUMEONE)
+                        {
+                            j = 6;
+                        }
+                        else
+                        {
+                            j = 0;
+                        }
 
-                    for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
-                    {
-                        addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
-                        ps[myconnectindex].gotweapon[weapon]  = 1;
-                    }
+                        for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
+                        {
+                            addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
+                            ps[myconnectindex].gotweapon[weapon]  = 1;
+                        }
 
-                    KB_FlushKeyBoardQueue();
-                    ps[myconnectindex].cheat_phase = 0;
-                    FTA(119,&ps[myconnectindex]);
-                    return;
+                        KB_FlushKeyBoardQueue();
+                        ps[myconnectindex].cheat_phase = 0;
+                        FTA(119,&ps[myconnectindex]);
+                        return;
 
-                case CHEAT_INVENTORY:
-                    KB_FlushKeyBoardQueue();
-                    ps[myconnectindex].cheat_phase = 0;
-                    CheatGetInventory();
-                    FTA(120,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
-                    return;
+                    case CHEAT_INVENTORY:
+                        KB_FlushKeyBoardQueue();
+                        ps[myconnectindex].cheat_phase = 0;
+                        CheatGetInventory();
+                        FTA(120,&ps[myconnectindex]);
+                        ps[myconnectindex].cheat_phase = 0;
+                        return;
 
-                case CHEAT_KEYS:
-                    ps[myconnectindex].got_access =  7;
-                    KB_FlushKeyBoardQueue();
-                    ps[myconnectindex].cheat_phase = 0;
-                    FTA(121,&ps[myconnectindex]);
-                    return;
+                    case CHEAT_KEYS:
+                        ps[myconnectindex].got_access =  7;
+                        KB_FlushKeyBoardQueue();
+                        ps[myconnectindex].cheat_phase = 0;
+                        FTA(121,&ps[myconnectindex]);
+                        return;
 
-                case CHEAT_DEBUG:
-                    debug_on = 1-debug_on;
-                    KB_FlushKeyBoardQueue();
-                    ps[myconnectindex].cheat_phase = 0;
+                    case CHEAT_DEBUG:
+                        debug_on = 1-debug_on;
+                        KB_FlushKeyBoardQueue();
+                        ps[myconnectindex].cheat_phase = 0;
 
-                    dumpdebugdata();
-                    Bsprintf(tempbuf,"GAMEVARS DUMPED TO DEBUG.CON");
-                    adduserquote(tempbuf);
-                    Bsprintf(tempbuf,"MAP DUMPED TO DEBUG.MAP");
-                    adduserquote(tempbuf);
-                    break;
+                        dumpdebugdata();
+                        Bsprintf(tempbuf,"GAMEVARS DUMPED TO DEBUG.CON");
+                        adduserquote(tempbuf);
+                        Bsprintf(tempbuf,"MAP DUMPED TO DEBUG.MAP");
+                        adduserquote(tempbuf);
+                        break;
 
-                case CHEAT_CLIP:
-                    ud.clipping = 1-ud.clipping;
-                    KB_FlushKeyBoardQueue();
-                    ps[myconnectindex].cheat_phase = 0;
-                    FTA(112+ud.clipping,&ps[myconnectindex]);
-                    return;
+                    case CHEAT_CLIP:
+                        ud.clipping = 1-ud.clipping;
+                        KB_FlushKeyBoardQueue();
+                        ps[myconnectindex].cheat_phase = 0;
+                        FTA(112+ud.clipping,&ps[myconnectindex]);
+                        return;
 
-                case CHEAT_RESERVED2:
-                    ps[myconnectindex].gm = MODE_EOL;
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
+                    case CHEAT_RESERVED2:
+                        ps[myconnectindex].gm = MODE_EOL;
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        return;
 
-                case CHEAT_ALLEN:
-                    FTA(79,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_ClearKeyDown(sc_N);
-                    return;
+                    case CHEAT_ALLEN:
+                        FTA(79,&ps[myconnectindex]);
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_ClearKeyDown(sc_N);
+                        return;
 
-                case CHEAT_CORNHOLIO:
-                case CHEAT_KROZ:
-                    ud.god = 1-ud.god;
+                    case CHEAT_CORNHOLIO:
+                    case CHEAT_KROZ:
+                        ud.god = 1-ud.god;
 
-                    if (ud.god)
-                    {
-                        pus = 1;
-                        pub = 1;
-                        sprite[ps[myconnectindex].i].cstat = 257;
+                        if (ud.god)
+                        {
+                            pus = 1;
+                            pub = 1;
+                            sprite[ps[myconnectindex].i].cstat = 257;
 
-                        hittype[ps[myconnectindex].i].temp_data[0] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[1] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[2] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[3] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[4] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[5] = 0;
+                            hittype[ps[myconnectindex].i].temp_data[0] = 0;
+                            hittype[ps[myconnectindex].i].temp_data[1] = 0;
+                            hittype[ps[myconnectindex].i].temp_data[2] = 0;
+                            hittype[ps[myconnectindex].i].temp_data[3] = 0;
+                            hittype[ps[myconnectindex].i].temp_data[4] = 0;
+                            hittype[ps[myconnectindex].i].temp_data[5] = 0;
 
-                        sprite[ps[myconnectindex].i].hitag = 0;
-                        sprite[ps[myconnectindex].i].lotag = 0;
-                        sprite[ps[myconnectindex].i].pal = ps[myconnectindex].palookup;
+                            sprite[ps[myconnectindex].i].hitag = 0;
+                            sprite[ps[myconnectindex].i].lotag = 0;
+                            sprite[ps[myconnectindex].i].pal = ps[myconnectindex].palookup;
 
-                        FTA(17,&ps[myconnectindex]);
-                    }
-                    else
-                    {
-                        ud.god = 0;
+                            FTA(17,&ps[myconnectindex]);
+                        }
+                        else
+                        {
+                            ud.god = 0;
+                            sprite[ps[myconnectindex].i].extra = max_player_health;
+                            hittype[ps[myconnectindex].i].extra = -1;
+                            ps[myconnectindex].last_extra = max_player_health;
+                            FTA(18,&ps[myconnectindex]);
+                        }
+
                         sprite[ps[myconnectindex].i].extra = max_player_health;
-                        hittype[ps[myconnectindex].i].extra = -1;
-                        ps[myconnectindex].last_extra = max_player_health;
-                        FTA(18,&ps[myconnectindex]);
-                    }
+                        hittype[ps[myconnectindex].i].extra = 0;
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        return;
 
-                    sprite[ps[myconnectindex].i].extra = max_player_health;
-                    hittype[ps[myconnectindex].i].extra = 0;
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
+                    case CHEAT_SCREAMFORME:
+                        ud.god = 1-ud.god;
 
-                case CHEAT_SCREAMFORME:
-                    ud.god = 1-ud.god;
+                        if (ud.god)
+                        {
+                            pus = 1;
+                            pub = 1;
+                            sprite[ps[myconnectindex].i].cstat = 257;
 
-                    if (ud.god)
-                    {
-                        pus = 1;
-                        pub = 1;
-                        sprite[ps[myconnectindex].i].cstat = 257;
+                            hittype[ps[myconnectindex].i].temp_data[0] = 0;
+                            hittype[ps[myconnectindex].i].temp_data[1] = 0;
+                            hittype[ps[myconnectindex].i].temp_data[2] = 0;
+                            hittype[ps[myconnectindex].i].temp_data[3] = 0;
+                            hittype[ps[myconnectindex].i].temp_data[4] = 0;
+                            hittype[ps[myconnectindex].i].temp_data[5] = 0;
 
-                        hittype[ps[myconnectindex].i].temp_data[0] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[1] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[2] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[3] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[4] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[5] = 0;
+                            sprite[ps[myconnectindex].i].hitag = 0;
+                            sprite[ps[myconnectindex].i].lotag = 0;
+                            sprite[ps[myconnectindex].i].pal = ps[myconnectindex].palookup;
+                            Bstrcpy(fta_quotes[122],"Scream for me, Long Beach!");
+                            FTA(122,&ps[myconnectindex]);
+                        }
+                        else
+                        {
+                            ud.god = 0;
+                            sprite[ps[myconnectindex].i].extra = max_player_health;
+                            hittype[ps[myconnectindex].i].extra = -1;
+                            ps[myconnectindex].last_extra = max_player_health;
+                            FTA(18,&ps[myconnectindex]);
+                        }
 
-                        sprite[ps[myconnectindex].i].hitag = 0;
-                        sprite[ps[myconnectindex].i].lotag = 0;
-                        sprite[ps[myconnectindex].i].pal = ps[myconnectindex].palookup;
-                        Bstrcpy(fta_quotes[122],"Scream for me, Long Beach!");
-                        FTA(122,&ps[myconnectindex]);
-                    }
-                    else
-                    {
-                        ud.god = 0;
+                        CheatGetInventory();
+                        for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS;weapon++)
+                            ps[myconnectindex].gotweapon[weapon]  = 1;
+
+                        for (weapon = PISTOL_WEAPON;
+                                weapon < (MAX_WEAPONS);
+                                weapon++)
+                            addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
+                        ps[myconnectindex].got_access =              7;
                         sprite[ps[myconnectindex].i].extra = max_player_health;
-                        hittype[ps[myconnectindex].i].extra = -1;
-                        ps[myconnectindex].last_extra = max_player_health;
-                        FTA(18,&ps[myconnectindex]);
-                    }
+                        hittype[ps[myconnectindex].i].extra = 0;
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        return;
 
-                    CheatGetInventory();
-                    for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS;weapon++)
-                        ps[myconnectindex].gotweapon[weapon]  = 1;
+                    case CHEAT_STUFF:
 
-                    for (weapon = PISTOL_WEAPON;
-                            weapon < (MAX_WEAPONS);
-                            weapon++)
-                        addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
-                    ps[myconnectindex].got_access =              7;
-                    sprite[ps[myconnectindex].i].extra = max_player_health;
-                    hittype[ps[myconnectindex].i].extra = 0;
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
+                        if (VOLUMEONE)
+                        {
+                            j = 6;
+                        }
+                        else
+                        {
+                            j = 0;
+                        }
+                        for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
+                            ps[myconnectindex].gotweapon[weapon]  = 1;
 
-                case CHEAT_STUFF:
-
-                    if (VOLUMEONE) {
-                        j = 6;
-                    } else {
-                        j = 0;
-                    }
-                    for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
-                        ps[myconnectindex].gotweapon[weapon]  = 1;
-
-                    for (weapon = PISTOL_WEAPON;
-                            weapon < (MAX_WEAPONS-j);
-                            weapon++)
-                        addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
-                    CheatGetInventory();
-                    ps[myconnectindex].got_access =              7;
-                    FTA(5,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
+                        for (weapon = PISTOL_WEAPON;
+                                weapon < (MAX_WEAPONS-j);
+                                weapon++)
+                            addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
+                        CheatGetInventory();
+                        ps[myconnectindex].got_access =              7;
+                        FTA(5,&ps[myconnectindex]);
+                        ps[myconnectindex].cheat_phase = 0;
 
 
-                    //                        FTA(21,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    ps[myconnectindex].inven_icon = 1;
-                    return;
+                        //                        FTA(21,&ps[myconnectindex]);
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        ps[myconnectindex].inven_icon = 1;
+                        return;
 
-                case CHEAT_SCOTTY:
-                case CHEAT_SKILL:
-                    if (k == CHEAT_SCOTTY)
-                    {
-                        i = Bstrlen(cheatquotes[k])-3+VOLUMEONE;
-                        if (!consolecheat) {        // JBF 20030914
-                            short volnume,levnume;
-                            if (VOLUMEALL) {
-                                volnume = cheatbuf[i] - '0';
-                                levnume = (cheatbuf[i+1] - '0')*10+(cheatbuf[i+2]-'0');
-                            } else {
-                                volnume =  cheatbuf[i] - '0';
-                                levnume =  cheatbuf[i+1] - '0';
-                            }
+                    case CHEAT_SCOTTY:
+                    case CHEAT_SKILL:
+                        if (k == CHEAT_SCOTTY)
+                        {
+                            i = Bstrlen(cheatquotes[k])-3+VOLUMEONE;
+                            if (!consolecheat)
+                            {        // JBF 20030914
+                                short volnume,levnume;
+                                if (VOLUMEALL)
+                                {
+                                    volnume = cheatbuf[i] - '0';
+                                    levnume = (cheatbuf[i+1] - '0')*10+(cheatbuf[i+2]-'0');
+                                }
+                                else
+                                {
+                                    volnume =  cheatbuf[i] - '0';
+                                    levnume =  cheatbuf[i+1] - '0';
+                                }
 
-                            volnume--;
-                            levnume--;
+                                volnume--;
+                                levnume--;
 
-                            if (VOLUMEONE && volnume > 0)
-                            {
-                                ps[myconnectindex].cheat_phase = 0;
-                                KB_FlushKeyBoardQueue();
-                                return;
-                            }
-                            else if (volnume > num_volumes-1)
-                            {
-                                ps[myconnectindex].cheat_phase = 0;
-                                KB_FlushKeyBoardQueue();
-                                return;
-                            }
-                            else if (volnume == 0)
-                            {
-                                if (levnume > 5)
+                                if (VOLUMEONE && volnume > 0)
                                 {
                                     ps[myconnectindex].cheat_phase = 0;
                                     KB_FlushKeyBoardQueue();
                                     return;
                                 }
+                                else if (volnume > num_volumes-1)
+                                {
+                                    ps[myconnectindex].cheat_phase = 0;
+                                    KB_FlushKeyBoardQueue();
+                                    return;
+                                }
+                                else if (volnume == 0)
+                                {
+                                    if (levnume > 5)
+                                    {
+                                        ps[myconnectindex].cheat_phase = 0;
+                                        KB_FlushKeyBoardQueue();
+                                        return;
+                                    }
+                                }
+                                else
+                                {
+                                    if (levnume >= 11)
+                                    {
+                                        ps[myconnectindex].cheat_phase = 0;
+                                        KB_FlushKeyBoardQueue();
+                                        return;
+                                    }
+                                }
+
+                                ud.m_volume_number = ud.volume_number = volnume;
+                                ud.m_level_number = ud.level_number = levnume;
                             }
                             else
-                            {
-                                if (levnume >= 11)
-                                {
-                                    ps[myconnectindex].cheat_phase = 0;
-                                    KB_FlushKeyBoardQueue();
-                                    return;
-                                }
+                            {    // JBF 20030914
+                                ud.m_volume_number = ud.volume_number = osdcmd_cheatsinfo_stat.volume;
+                                ud.m_level_number = ud.level_number = osdcmd_cheatsinfo_stat.level;
                             }
 
-                            ud.m_volume_number = ud.volume_number = volnume;
-                            ud.m_level_number = ud.level_number = levnume;
-                        } else {    // JBF 20030914
-                            ud.m_volume_number = ud.volume_number = osdcmd_cheatsinfo_stat.volume;
-                            ud.m_level_number = ud.level_number = osdcmd_cheatsinfo_stat.level;
                         }
-
-                    }
-                    else
-                    {
-                        i = Bstrlen(cheatquotes[k])-1;
-                        ud.m_player_skill = ud.player_skill = cheatbuf[i] - '1';
-                    }
-                    if (numplayers > 1 && myconnectindex == connecthead)
-                    {
-                        tempbuf[0] = 5;
-                        tempbuf[1] = ud.m_level_number;
-                        tempbuf[2] = ud.m_volume_number;
-                        tempbuf[3] = ud.m_player_skill;
-                        tempbuf[4] = ud.m_monsters_off;
-                        tempbuf[5] = ud.m_respawn_monsters;
-                        tempbuf[6] = ud.m_respawn_items;
-                        tempbuf[7] = ud.m_respawn_inventory;
-                        tempbuf[8] = ud.m_coop;
-                        tempbuf[9] = ud.m_marker;
-                        tempbuf[10] = ud.m_ffire;
-                        tempbuf[11] = ud.m_noexits;
-
-                        for (i=connecthead;i>=0;i=connectpoint2[i])
-                            sendpacket(i,tempbuf,12);
-                    }
-                    else ps[myconnectindex].gm |= MODE_RESTART;
-
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
-
-                case CHEAT_COORDS:
-                    ps[myconnectindex].cheat_phase = 0;
-                    ud.coords = 1-ud.coords;
-                    KB_FlushKeyBoardQueue();
-                    return;
-
-                case CHEAT_VIEW:
-                    if (ps[myconnectindex].over_shoulder_on)
-                        ps[myconnectindex].over_shoulder_on = 0;
-                    else
-                    {
-                        ps[myconnectindex].over_shoulder_on = 1;
-                        cameradist = 0;
-                        cameraclock = totalclock;
-                    }
-                    FTA(22,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
-
-                case CHEAT_TIME:
-
-                    FTA(21,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
-
-                case CHEAT_UNLOCK:
-                    if (VOLUMEONE) return;
-
-                    for (i=numsectors-1;i>=0;i--) //Unlock
-                    {
-                        j = sector[i].lotag;
-                        if (j == -1 || j == 32767) continue;
-                        if ((j & 0x7fff) > 2)
+                        else
                         {
-                            if (j&(0xffff-16384))
-                                sector[i].lotag &= (0xffff-16384);
-                            operatesectors(i,ps[myconnectindex].i);
+                            i = Bstrlen(cheatquotes[k])-1;
+                            ud.m_player_skill = ud.player_skill = cheatbuf[i] - '1';
                         }
-                    }
-                    operateforcefields(ps[myconnectindex].i,-1);
+                        if (numplayers > 1 && myconnectindex == connecthead)
+                        {
+                            tempbuf[0] = 5;
+                            tempbuf[1] = ud.m_level_number;
+                            tempbuf[2] = ud.m_volume_number;
+                            tempbuf[3] = ud.m_player_skill;
+                            tempbuf[4] = ud.m_monsters_off;
+                            tempbuf[5] = ud.m_respawn_monsters;
+                            tempbuf[6] = ud.m_respawn_items;
+                            tempbuf[7] = ud.m_respawn_inventory;
+                            tempbuf[8] = ud.m_coop;
+                            tempbuf[9] = ud.m_marker;
+                            tempbuf[10] = ud.m_ffire;
+                            tempbuf[11] = ud.m_noexits;
 
-                    FTA(100,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
+                            for (i=connecthead;i>=0;i=connectpoint2[i])
+                                sendpacket(i,tempbuf,12);
+                        }
+                        else ps[myconnectindex].gm |= MODE_RESTART;
 
-                case CHEAT_CASHMAN:
-                    ud.cashman = 1-ud.cashman;
-                    KB_ClearKeyDown(sc_N);
-                    ps[myconnectindex].cheat_phase = 0;
-                    return;
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        return;
 
-                case CHEAT_ITEMS:
-                    CheatGetInventory();
-                    ps[myconnectindex].got_access =              7;
-                    FTA(5,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
+                    case CHEAT_COORDS:
+                        ps[myconnectindex].cheat_phase = 0;
+                        ud.coords = 1-ud.coords;
+                        KB_FlushKeyBoardQueue();
+                        return;
 
-                case CHEAT_SHOWMAP: // SHOW ALL OF THE MAP TOGGLE;
-                    ud.showallmap = 1-ud.showallmap;
-                    if (ud.showallmap)
+                    case CHEAT_VIEW:
+                        if (ps[myconnectindex].over_shoulder_on)
+                            ps[myconnectindex].over_shoulder_on = 0;
+                        else
+                        {
+                            ps[myconnectindex].over_shoulder_on = 1;
+                            cameradist = 0;
+                            cameraclock = totalclock;
+                        }
+                        FTA(22,&ps[myconnectindex]);
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        return;
+
+                    case CHEAT_TIME:
+
+                        FTA(21,&ps[myconnectindex]);
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        return;
+
+                    case CHEAT_UNLOCK:
+                        if (VOLUMEONE) return;
+
+                        for (i=numsectors-1;i>=0;i--) //Unlock
+                        {
+                            j = sector[i].lotag;
+                            if (j == -1 || j == 32767) continue;
+                            if ((j & 0x7fff) > 2)
+                            {
+                                if (j&(0xffff-16384))
+                                    sector[i].lotag &= (0xffff-16384);
+                                operatesectors(i,ps[myconnectindex].i);
+                            }
+                        }
+                        operateforcefields(ps[myconnectindex].i,-1);
+
+                        FTA(100,&ps[myconnectindex]);
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        return;
+
+                    case CHEAT_CASHMAN:
+                        ud.cashman = 1-ud.cashman;
+                        KB_ClearKeyDown(sc_N);
+                        ps[myconnectindex].cheat_phase = 0;
+                        return;
+
+                    case CHEAT_ITEMS:
+                        CheatGetInventory();
+                        ps[myconnectindex].got_access =              7;
+                        FTA(5,&ps[myconnectindex]);
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        return;
+
+                    case CHEAT_SHOWMAP: // SHOW ALL OF THE MAP TOGGLE;
+                        ud.showallmap = 1-ud.showallmap;
+                        if (ud.showallmap)
+                        {
+                            for (i=0;i<(MAXSECTORS>>3);i++)
+                                show2dsector[i] = 255;
+                            for (i=0;i<(MAXWALLS>>3);i++)
+                                show2dwall[i] = 255;
+                            FTA(111,&ps[myconnectindex]);
+                        }
+                        else
+                        {
+                            for (i=0;i<(MAXSECTORS>>3);i++)
+                                show2dsector[i] = 0;
+                            for (i=0;i<(MAXWALLS>>3);i++)
+                                show2dwall[i] = 0;
+                            FTA(1,&ps[myconnectindex]);
+                        }
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        return;
+
+                    case CHEAT_TODD:
+                        FTA(99,&ps[myconnectindex]);
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        return;
+
+                    case CHEAT_RATE:
+                        ud.tickrate = !ud.tickrate;
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        return;
+
+                    case CHEAT_BETA:
+                        FTA(105,&ps[myconnectindex]);
+                        KB_ClearKeyDown(sc_H);
+                        ps[myconnectindex].cheat_phase = 0;
+                        KB_FlushKeyBoardQueue();
+                        return;
+
+                    case CHEAT_HYPER:
+                        ps[myconnectindex].steroids_amount = 399;
+                        ps[myconnectindex].heat_amount = 1200;
+                        ps[myconnectindex].cheat_phase = 0;
+                        FTA(37,&ps[myconnectindex]);
+                        KB_FlushKeyBoardQueue();
+                        return;
+
+                    case CHEAT_MONSTERS:
                     {
-                        for (i=0;i<(MAXSECTORS>>3);i++)
-                            show2dsector[i] = 255;
-                        for (i=0;i<(MAXWALLS>>3);i++)
-                            show2dwall[i] = 255;
-                        FTA(111,&ps[myconnectindex]);
+                        char *s[] = { "ON", "OFF", "ON (BLOCKING)" };
+
+                        actor_tog++;
+                        if (actor_tog == 3) actor_tog = 0;
+                        ps[screenpeek].cheat_phase = 0;
+                        Bsprintf(fta_quotes[122],"MONSTERS: %s",s[actor_tog]);
+                        FTA(122,&ps[myconnectindex]);
+                        KB_FlushKeyBoardQueue();
+                        return;
                     }
-                    else
-                    {
-                        for (i=0;i<(MAXSECTORS>>3);i++)
-                            show2dsector[i] = 0;
-                        for (i=0;i<(MAXWALLS>>3);i++)
-                            show2dwall[i] = 0;
-                        FTA(1,&ps[myconnectindex]);
-                    }
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
-
-                case CHEAT_TODD:
-                    FTA(99,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
-
-                case CHEAT_RATE:
-                    ud.tickrate = !ud.tickrate;
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
-
-                case CHEAT_BETA:
-                    FTA(105,&ps[myconnectindex]);
-                    KB_ClearKeyDown(sc_H);
-                    ps[myconnectindex].cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
-
-                case CHEAT_HYPER:
-                    ps[myconnectindex].steroids_amount = 399;
-                    ps[myconnectindex].heat_amount = 1200;
-                    ps[myconnectindex].cheat_phase = 0;
-                    FTA(37,&ps[myconnectindex]);
-                    KB_FlushKeyBoardQueue();
-                    return;
-
-                case CHEAT_MONSTERS:
-                {
-                    char *s[] = { "ON", "OFF", "ON (BLOCKING)" };
-
-                    actor_tog++;
-                    if (actor_tog == 3) actor_tog = 0;
-                    ps[screenpeek].cheat_phase = 0;
-                    Bsprintf(fta_quotes[122],"MONSTERS: %s",s[actor_tog]);
-                    FTA(122,&ps[myconnectindex]);
-                    KB_FlushKeyBoardQueue();
-                    return;
-                }
-                case CHEAT_RESERVED:
-                case CHEAT_RESERVED3:
-                    ud.eog = 1;
-                    ps[myconnectindex].gm |= MODE_EOL;
-                    KB_FlushKeyBoardQueue();
-                    return;
+                    case CHEAT_RESERVED:
+                    case CHEAT_RESERVED3:
+                        ud.eog = 1;
+                        ps[myconnectindex].gm |= MODE_EOL;
+                        KB_FlushKeyBoardQueue();
+                        return;
                 }
             }
         }
@@ -7376,16 +7751,56 @@ void nonsharedkeys(void)
     if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED)
     {
         i = 0;
-        if (KB_KeyPressed(sc_F1)) { KB_ClearKeyDown(sc_F1);i = 1; }
-        if (KB_KeyPressed(sc_F2)) { KB_ClearKeyDown(sc_F2);i = 2; }
-        if (KB_KeyPressed(sc_F3)) { KB_ClearKeyDown(sc_F3);i = 3; }
-        if (KB_KeyPressed(sc_F4)) { KB_ClearKeyDown(sc_F4);i = 4; }
-        if (KB_KeyPressed(sc_F5)) { KB_ClearKeyDown(sc_F5);i = 5; }
-        if (KB_KeyPressed(sc_F6)) { KB_ClearKeyDown(sc_F6);i = 6; }
-        if (KB_KeyPressed(sc_F7)) { KB_ClearKeyDown(sc_F7);i = 7; }
-        if (KB_KeyPressed(sc_F8)) { KB_ClearKeyDown(sc_F8);i = 8; }
-        if (KB_KeyPressed(sc_F9)) { KB_ClearKeyDown(sc_F9);i = 9; }
-        if (KB_KeyPressed(sc_F10)) {KB_ClearKeyDown(sc_F10);i = 10; }
+        if (KB_KeyPressed(sc_F1))
+        {
+            KB_ClearKeyDown(sc_F1);
+            i = 1;
+        }
+        if (KB_KeyPressed(sc_F2))
+        {
+            KB_ClearKeyDown(sc_F2);
+            i = 2;
+        }
+        if (KB_KeyPressed(sc_F3))
+        {
+            KB_ClearKeyDown(sc_F3);
+            i = 3;
+        }
+        if (KB_KeyPressed(sc_F4))
+        {
+            KB_ClearKeyDown(sc_F4);
+            i = 4;
+        }
+        if (KB_KeyPressed(sc_F5))
+        {
+            KB_ClearKeyDown(sc_F5);
+            i = 5;
+        }
+        if (KB_KeyPressed(sc_F6))
+        {
+            KB_ClearKeyDown(sc_F6);
+            i = 6;
+        }
+        if (KB_KeyPressed(sc_F7))
+        {
+            KB_ClearKeyDown(sc_F7);
+            i = 7;
+        }
+        if (KB_KeyPressed(sc_F8))
+        {
+            KB_ClearKeyDown(sc_F8);
+            i = 8;
+        }
+        if (KB_KeyPressed(sc_F9))
+        {
+            KB_ClearKeyDown(sc_F9);
+            i = 9;
+        }
+        if (KB_KeyPressed(sc_F10))
+        {
+            KB_ClearKeyDown(sc_F10);
+            i = 10;
+        }
 
         if (i)
         {
@@ -7681,7 +8096,8 @@ FAKE_F3:
         if (ud.overhead_on != 0)
         {
 
-            j = totalclock-nonsharedtimer; nonsharedtimer += j;
+            j = totalclock-nonsharedtimer;
+            nonsharedtimer += j;
             if (BUTTON(gamefunc_Enlarge_Screen))
                 ps[myconnectindex].zoom += mulscale6(j,max(ps[myconnectindex].zoom,256));
             if (BUTTON(gamefunc_Shrink_Screen))
@@ -7789,7 +8205,8 @@ char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
 static tokenlist rancidtokens[] =
     {
-        { "interface",       T_INTERFACE       },
+        { "interface",       T_INTERFACE
+        },
         { "mode",            T_MODE            },
         { "allow",           T_ALLOW           },
     };
@@ -7806,42 +8223,44 @@ int load_rancid_net(char *fn)
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
 
-    while (1) {
+    while (1)
+    {
         tokn = getatoken(script,rancidtokens,sizeof(rancidtokens)/sizeof(tokenlist));
         cmdtokptr = script->ltextptr;
-        switch (tokn) {
-        case T_INTERFACE:
+        switch (tokn)
         {
-            char *ip;
+            case T_INTERFACE:
+            {
+                char *ip;
 
-            if (scriptfile_getstring(script,&ip)) break;
-            Bstrcpy(rancid_ip_strings[MAXPLAYERS],ip);
-            Bstrcpy(rancid_ip_strings[rancid_players++],ip);
-            strtok(ip,":");
-            Bsprintf(tempbuf,"%s",strtok(NULL,":"));
-            if (atoi(tempbuf) > 1024)
-                Bsprintf(rancid_local_port_string,"-p %s",tempbuf);
-        }
-        break;
-        case T_MODE:
-        {
-            char *mode;
-
-            if (scriptfile_getstring(script,&mode)) break;
-        }
-        break;
-        case T_ALLOW:
-        {
-            char *ip;
-
-            if (scriptfile_getstring(script,&ip)) break;
-            Bstrcpy(rancid_ip_strings[rancid_players++],ip);
-        }
-        break;
-        case T_EOF:
-            return(0);
-        default:
+                if (scriptfile_getstring(script,&ip)) break;
+                Bstrcpy(rancid_ip_strings[MAXPLAYERS],ip);
+                Bstrcpy(rancid_ip_strings[rancid_players++],ip);
+                strtok(ip,":");
+                Bsprintf(tempbuf,"%s",strtok(NULL,":"));
+                if (atoi(tempbuf) > 1024)
+                    Bsprintf(rancid_local_port_string,"-p %s",tempbuf);
+            }
             break;
+            case T_MODE:
+            {
+                char *mode;
+
+                if (scriptfile_getstring(script,&mode)) break;
+            }
+            break;
+            case T_ALLOW:
+            {
+                char *ip;
+
+                if (scriptfile_getstring(script,&ip)) break;
+                Bstrcpy(rancid_ip_strings[rancid_players++],ip);
+            }
+            break;
+            case T_EOF:
+                return(0);
+            default:
+                break;
         }
     }
 
@@ -7858,7 +8277,8 @@ static int stringsort(const char *p1, const char *p2)
 
 static tokenlist grptokens[] =
     {
-        { "loadgrp",         T_LOADGRP         },
+        { "loadgrp",         T_LOADGRP
+        },
     };
 
 int loadgroupfiles(char *fn)
@@ -7870,28 +8290,30 @@ int loadgroupfiles(char *fn)
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
 
-    while (1) {
+    while (1)
+    {
         tokn = getatoken(script,grptokens,sizeof(grptokens)/sizeof(tokenlist));
         cmdtokptr = script->ltextptr;
-        switch (tokn) {
-        case T_LOADGRP:
+        switch (tokn)
         {
-            char *fn;
-            if (!scriptfile_getstring(script,&fn))
+            case T_LOADGRP:
             {
-                int j = initgroupfile(fn);
+                char *fn;
+                if (!scriptfile_getstring(script,&fn))
+                {
+                    int j = initgroupfile(fn);
 
-                if (j == -1)
-                    initprintf("Could not find GRP file %s.\n",fn);
-                else
-                    initprintf("Using GRP file %s.\n",fn);
+                    if (j == -1)
+                        initprintf("Could not find GRP file %s.\n",fn);
+                    else
+                        initprintf("Using GRP file %s.\n",fn);
+                }
             }
-        }
-        break;
-        case T_EOF:
-            return(0);
-        default:
             break;
+            case T_EOF:
+                return(0);
+            default:
+                break;
         }
     }
 
@@ -7937,27 +8359,32 @@ void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
-                if (!Bstrcasecmp(c+1,"nam")) {
+                if (!Bstrcasecmp(c+1,"nam"))
+                {
                     strcpy(defaultduke3dgrp, "nam.grp");
                     i++;
                     continue;
                 }
-                if (!Bstrcasecmp(c+1,"setup")) {
+                if (!Bstrcasecmp(c+1,"setup"))
+                {
                     CommandSetup = TRUE;
                     i++;
                     continue;
                 }
-                if (!Bstrcasecmp(c+1,"keepaddr")) {
+                if (!Bstrcasecmp(c+1,"keepaddr"))
+                {
                     keepaddr = 1;
                     i++;
                     continue;
                 }
-                if (!Bstrcasecmp(c+1,"stun")) {
+                if (!Bstrcasecmp(c+1,"stun"))
+                {
                     natfree = 1; //Addfaz NatFree
                     i++;
                     continue;
                 }
-                if (!Bstrcasecmp(c+1,"disableautoaim")) {
+                if (!Bstrcasecmp(c+1,"disableautoaim"))
+                {
                     i++;
                     continue;
                 }
@@ -8058,7 +8485,8 @@ void checkcommandline(int argc,char **argv)
                     i++;
                     continue;
                 }
-                if (!Bstrcasecmp(c+1,"net")) {
+                if (!Bstrcasecmp(c+1,"net"))
+                {
                     NoSetup = TRUE;
                     firstnet = i;
                     netparamcount = argc - i - 1;
@@ -8066,29 +8494,35 @@ void checkcommandline(int argc,char **argv)
                     i++;
                     continue;
                 }
-                if (!Bstrcasecmp(c+1,"name")) {
-                    if (argc > i+1) {
+                if (!Bstrcasecmp(c+1,"name"))
+                {
+                    if (argc > i+1)
+                    {
                         CommandName = argv[i+1];
                         i++;
                     }
                     i++;
                     continue;
                 }
-                if (!Bstrcasecmp(c+1,"map")) {
-                    if (argc > i+1) {
+                if (!Bstrcasecmp(c+1,"map"))
+                {
+                    if (argc > i+1)
+                    {
                         CommandMap = argv[i+1];
                         i++;
                     }
                     i++;
                     continue;
                 }
-                if (!Bstrcasecmp(c+1,"condebug")) {
+                if (!Bstrcasecmp(c+1,"condebug"))
+                {
                     condebug = 1;
                     i++;
                     continue;
                 }
 #if !defined(_WIN32)
-                if (!Bstrcasecmp(c+1,"usecwd")) {
+                if (!Bstrcasecmp(c+1,"usecwd"))
+                {
                     usecwd = 1;
                     i++;
                     continue;
@@ -8096,13 +8530,21 @@ void checkcommandline(int argc,char **argv)
 #endif
             }
 
-            if (firstnet > 0) {
-                if (*c == '-' || *c == '/') {
+            if (firstnet > 0)
+            {
+                if (*c == '-' || *c == '/')
+                {
                     c++;
                     if (((c[0] == 'n') || (c[0] == 'N')) && (c[1] == '0'))
-                    { networkmode = 0; initprintf("Network mode: master/slave\n"); }
+                    {
+                        networkmode = 0;
+                        initprintf("Network mode: master/slave\n");
+                    }
                     else if (((c[0] == 'n') || (c[0] == 'N')) && (c[1] == '1'))
-                    { networkmode = 1; initprintf("Network mode: peer-to-peer\n"); }
+                    {
+                        networkmode = 1;
+                        initprintf("Network mode: peer-to-peer\n");
+                    }
 
 
                 }
@@ -8116,274 +8558,282 @@ void checkcommandline(int argc,char **argv)
                 c++;
                 switch (*c)
                 {
-                case '?':
-                    comlinehelp(argv);
-                    exit(0);
-                    break;
-                case 'a':
-                case 'A':
-                    ud.playerai = 1;
-                    initprintf("Other player AI.\n");
-                    break;
-                case 'c':
-                case 'C':
-
-                    c++;
-                    //if(*c == '1' || *c == '2' || *c == '3')
-                    //    ud.m_coop = *c - '0' - 1;
-                    //else ud.m_coop = 0;
-
-                    ud.m_coop = 0;
-                    while ((*c >= '0')&&(*c <= '9')) {
-                        ud.m_coop *= 10;
-                        ud.m_coop += *c - '0';
-                        c++;
-                    }
-                    ud.m_coop--;
-                    //switch(ud.m_coop)
-                    //{
-                    //case 0:
-                    //    initprintf("Dukematch (spawn).\n");
-                    //    break;
-                    //case 1:
-                    //    initprintf("Cooperative play.\n");
-                    //    break;
-                    //case 2:
-                    //    initprintf("Dukematch (no spawn).\n");
-                    //    break;
-                    //}
-                    break;
-                case 'd':
-                case 'D':
-                    c++;
-                    if (strchr(c,'.') == 0)
-                        Bstrcat(c,".dmo");
-                    initprintf("Play demo %s.\n",c);
-                    Bstrcpy(firstdemofile,c);
-                    break;
-                case 'f':
-                case 'F':
-                    c++;
-                    if (*c == '1')
-                        movesperpacket = 1;
-                    if (*c == '2')
-                        movesperpacket = 2;
-                    if (*c == '4')
-                    {
-                        movesperpacket = 4;
-                        setpackettimeout(0x3fffffff,0x3fffffff);
-                    }
-                    break;
-                case 'g':
-                case 'G':
-                    c++;
-                    if (!*c) break;
-                    strcpy(tempbuf,c);
-                    if (strchr(tempbuf,'.') == 0)
-                        strcat(tempbuf,".grp");
-
-                    {
-                        struct strllist *s;
-                        s = (struct strllist *)calloc(1,sizeof(struct strllist));
-                        s->str = strdup(tempbuf);
-                        if (CommandGrps) {
-                            struct strllist *t;
-                            for (t = CommandGrps; t->next; t=t->next) ;
-                            t->next = s;
-                        } else {
-                            CommandGrps = s;
-                        }
-                    }
-                    break;
-                case 'h':
-                case 'H':
-                    c++;
-                    if (*c) {
-                        duke3ddef = c;
-                        initprintf("Using DEF file: %s.\n",duke3ddef);
-                    }
-                    break;
-                case 'i':
-                case 'I':
-                    c++;
-                    if (*c == '0') networkmode = 0;
-                    if (*c == '1') networkmode = 1;
-                    initprintf("Network Mode %d\n",networkmode);
-                    break;
-                case 'j':
-                case 'J':
-                    c++;
-                    if (!*c) break;
-                    {
-                        struct strllist *s;
-                        s = (struct strllist *)calloc(1,sizeof(struct strllist));
-                        s->str = strdup(c);
-                        if (CommandPaths) {
-                            struct strllist *t;
-                            for (t = CommandPaths; t->next; t=t->next) ;
-                            t->next = s;
-                        } else {
-                            CommandPaths = s;
-                        }
-                    }
-                    break;
-                case 'l':
-                case 'L':
-                    ud.warp_on = 1;
-                    c++;
-                    ud.m_level_number = ud.level_number = (atol(c)-1)%11;
-                    break;
-                case 'm':
-                case 'M':
-                    if (*(c+1) != 'a' && *(c+1) != 'A')
-                    {
-                        ud.m_monsters_off = 1;
-                        ud.m_player_skill = ud.player_skill = 0;
-                        initprintf("Monsters off.\n");
-                    }
-                    break;
-                case 'n':
-                case 'N':
-                    c++;
-                    if (*c == 's' || *c == 'S')
-                    {
-                        CommandSoundToggleOff = 2;
-                        initprintf("Sound off.\n");
-                    }
-                    else if (*c == 'm' || *c == 'M')
-                    {
-                        CommandMusicToggleOff = 1;
-                        initprintf("Music off.\n");
-                    }
-                    else if (*c == 'd' || *c == 'D')
-                    {
-                        FILE * fp=fopen("gamevars.txt","w");
-                        InitGameVars();
-                        DumpGameVars(fp);
-                        fclose(fp);
-                        initprintf("Game variables saved to gamevars.txt.\n");
-                    }
-                    else
-                    {
+                    case '?':
                         comlinehelp(argv);
-                        exit(-1);
-                    }
-                    break;
-                case 'q':
-                case 'Q':
-                    initprintf("Fake multiplayer mode.\n");
-                    if (*(++c) == 0) ud.multimode = 1;
-                    else ud.multimode = atol(c)%17;
-                    ud.m_coop = ud.coop = 0;
-                    ud.m_marker = ud.marker = 1;
-                    ud.m_respawn_monsters = ud.respawn_monsters = 1;
-                    ud.m_respawn_items = ud.respawn_items = 1;
-                    ud.m_respawn_inventory = ud.respawn_inventory = 1;
-                    break;
-                case 'r':
-                case 'R':
-                    ud.m_recstat = 1;
-                    initprintf("Demo record mode on.\n");
-                    break;
-                case 's':
-                case 'S':
-                    c++;
-                    ud.m_player_skill = ud.player_skill = (atol(c)%5);
-                    if (ud.m_player_skill == 4)
-                        ud.m_respawn_monsters = ud.respawn_monsters = 1;
-                    break;
-                case 't':
-                case 'T':
-                    c++;
-                    if (*c == '1') ud.m_respawn_monsters = 1;
-                    else if (*c == '2') ud.m_respawn_items = 1;
-                    else if (*c == '3') ud.m_respawn_inventory = 1;
-                    else
-                    {
-                        ud.m_respawn_monsters = 1;
-                        ud.m_respawn_items = 1;
-                        ud.m_respawn_inventory = 1;
-                    }
-                    initprintf("Respawn on.\n");
-                    break;
-                case 'u':
-                case 'U':
-                    CommandWeaponChoice = 1;
-                    c++;
-                    j = 0;
-                    if (*c)
-                    {
-                        initprintf("Using favorite weapon order(s).\n");
-                        while (*c)
-                        {
-                            ud.wchoice[0][j] = *c-'0';
-                            c++;
-                            j++;
-                        }
-                        while (j < 10)
-                        {
-                            if (j == 9)
-                                ud.wchoice[0][9] = 1;
-                            else
-                                ud.wchoice[0][j] = 2;
+                        exit(0);
+                        break;
+                    case 'a':
+                    case 'A':
+                        ud.playerai = 1;
+                        initprintf("Other player AI.\n");
+                        break;
+                    case 'c':
+                    case 'C':
 
-                            j++;
+                        c++;
+                        //if(*c == '1' || *c == '2' || *c == '3')
+                        //    ud.m_coop = *c - '0' - 1;
+                        //else ud.m_coop = 0;
+
+                        ud.m_coop = 0;
+                        while ((*c >= '0')&&(*c <= '9'))
+                        {
+                            ud.m_coop *= 10;
+                            ud.m_coop += *c - '0';
+                            c++;
                         }
-                    }
-                    else
-                    {
-                        initprintf("Using default weapon orders.\n");
-                        ud.wchoice[0][0] = 3;
-                        ud.wchoice[0][1] = 4;
-                        ud.wchoice[0][2] = 5;
-                        ud.wchoice[0][3] = 7;
-                        ud.wchoice[0][4] = 8;
-                        ud.wchoice[0][5] = 6;
-                        ud.wchoice[0][6] = 0;
-                        ud.wchoice[0][7] = 2;
-                        ud.wchoice[0][8] = 9;
-                        ud.wchoice[0][9] = 1;
-                    }
-                    break;
-                case 'v':
-                case 'V':
-                    c++;
-                    ud.warp_on = 1;
-                    ud.m_volume_number = ud.volume_number = atol(c)-1;
-                    break;
-                case 'w':
-                case 'W':
-                    ud.coords = 1;
-                    break;
-                case 'x':
-                case 'X':
-                    c++;
-                    if (*c)
-                    {
-                        Bstrcpy(confilename,c);
-                        userconfiles = 1;
-                        initprintf("Using CON file: %s.\n",confilename);
-                    }
-                    break;
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    ud.warp_on = 2 + (*c) - '0';
-                    break;
-                case 'z':
-                case 'Z':
-                    c++;
-                    condebug = atol(c);
-                    if (!condebug)
-                        condebug = 1;
-                    break;
+                        ud.m_coop--;
+                        //switch(ud.m_coop)
+                        //{
+                        //case 0:
+                        //    initprintf("Dukematch (spawn).\n");
+                        //    break;
+                        //case 1:
+                        //    initprintf("Cooperative play.\n");
+                        //    break;
+                        //case 2:
+                        //    initprintf("Dukematch (no spawn).\n");
+                        //    break;
+                        //}
+                        break;
+                    case 'd':
+                    case 'D':
+                        c++;
+                        if (strchr(c,'.') == 0)
+                            Bstrcat(c,".dmo");
+                        initprintf("Play demo %s.\n",c);
+                        Bstrcpy(firstdemofile,c);
+                        break;
+                    case 'f':
+                    case 'F':
+                        c++;
+                        if (*c == '1')
+                            movesperpacket = 1;
+                        if (*c == '2')
+                            movesperpacket = 2;
+                        if (*c == '4')
+                        {
+                            movesperpacket = 4;
+                            setpackettimeout(0x3fffffff,0x3fffffff);
+                        }
+                        break;
+                    case 'g':
+                    case 'G':
+                        c++;
+                        if (!*c) break;
+                        strcpy(tempbuf,c);
+                        if (strchr(tempbuf,'.') == 0)
+                            strcat(tempbuf,".grp");
+
+                        {
+                            struct strllist *s;
+                            s = (struct strllist *)calloc(1,sizeof(struct strllist));
+                            s->str = strdup(tempbuf);
+                            if (CommandGrps)
+                            {
+                                struct strllist *t;
+                                for (t = CommandGrps; t->next; t=t->next) ;
+                                t->next = s;
+                            }
+                            else
+                            {
+                                CommandGrps = s;
+                            }
+                        }
+                        break;
+                    case 'h':
+                    case 'H':
+                        c++;
+                        if (*c)
+                        {
+                            duke3ddef = c;
+                            initprintf("Using DEF file: %s.\n",duke3ddef);
+                        }
+                        break;
+                    case 'i':
+                    case 'I':
+                        c++;
+                        if (*c == '0') networkmode = 0;
+                        if (*c == '1') networkmode = 1;
+                        initprintf("Network Mode %d\n",networkmode);
+                        break;
+                    case 'j':
+                    case 'J':
+                        c++;
+                        if (!*c) break;
+                        {
+                            struct strllist *s;
+                            s = (struct strllist *)calloc(1,sizeof(struct strllist));
+                            s->str = strdup(c);
+                            if (CommandPaths)
+                            {
+                                struct strllist *t;
+                                for (t = CommandPaths; t->next; t=t->next) ;
+                                t->next = s;
+                            }
+                            else
+                            {
+                                CommandPaths = s;
+                            }
+                        }
+                        break;
+                    case 'l':
+                    case 'L':
+                        ud.warp_on = 1;
+                        c++;
+                        ud.m_level_number = ud.level_number = (atol(c)-1)%11;
+                        break;
+                    case 'm':
+                    case 'M':
+                        if (*(c+1) != 'a' && *(c+1) != 'A')
+                        {
+                            ud.m_monsters_off = 1;
+                            ud.m_player_skill = ud.player_skill = 0;
+                            initprintf("Monsters off.\n");
+                        }
+                        break;
+                    case 'n':
+                    case 'N':
+                        c++;
+                        if (*c == 's' || *c == 'S')
+                        {
+                            CommandSoundToggleOff = 2;
+                            initprintf("Sound off.\n");
+                        }
+                        else if (*c == 'm' || *c == 'M')
+                        {
+                            CommandMusicToggleOff = 1;
+                            initprintf("Music off.\n");
+                        }
+                        else if (*c == 'd' || *c == 'D')
+                        {
+                            FILE * fp=fopen("gamevars.txt","w");
+                            InitGameVars();
+                            DumpGameVars(fp);
+                            fclose(fp);
+                            initprintf("Game variables saved to gamevars.txt.\n");
+                        }
+                        else
+                        {
+                            comlinehelp(argv);
+                            exit(-1);
+                        }
+                        break;
+                    case 'q':
+                    case 'Q':
+                        initprintf("Fake multiplayer mode.\n");
+                        if (*(++c) == 0) ud.multimode = 1;
+                        else ud.multimode = atol(c)%17;
+                        ud.m_coop = ud.coop = 0;
+                        ud.m_marker = ud.marker = 1;
+                        ud.m_respawn_monsters = ud.respawn_monsters = 1;
+                        ud.m_respawn_items = ud.respawn_items = 1;
+                        ud.m_respawn_inventory = ud.respawn_inventory = 1;
+                        break;
+                    case 'r':
+                    case 'R':
+                        ud.m_recstat = 1;
+                        initprintf("Demo record mode on.\n");
+                        break;
+                    case 's':
+                    case 'S':
+                        c++;
+                        ud.m_player_skill = ud.player_skill = (atol(c)%5);
+                        if (ud.m_player_skill == 4)
+                            ud.m_respawn_monsters = ud.respawn_monsters = 1;
+                        break;
+                    case 't':
+                    case 'T':
+                        c++;
+                        if (*c == '1') ud.m_respawn_monsters = 1;
+                        else if (*c == '2') ud.m_respawn_items = 1;
+                        else if (*c == '3') ud.m_respawn_inventory = 1;
+                        else
+                        {
+                            ud.m_respawn_monsters = 1;
+                            ud.m_respawn_items = 1;
+                            ud.m_respawn_inventory = 1;
+                        }
+                        initprintf("Respawn on.\n");
+                        break;
+                    case 'u':
+                    case 'U':
+                        CommandWeaponChoice = 1;
+                        c++;
+                        j = 0;
+                        if (*c)
+                        {
+                            initprintf("Using favorite weapon order(s).\n");
+                            while (*c)
+                            {
+                                ud.wchoice[0][j] = *c-'0';
+                                c++;
+                                j++;
+                            }
+                            while (j < 10)
+                            {
+                                if (j == 9)
+                                    ud.wchoice[0][9] = 1;
+                                else
+                                    ud.wchoice[0][j] = 2;
+
+                                j++;
+                            }
+                        }
+                        else
+                        {
+                            initprintf("Using default weapon orders.\n");
+                            ud.wchoice[0][0] = 3;
+                            ud.wchoice[0][1] = 4;
+                            ud.wchoice[0][2] = 5;
+                            ud.wchoice[0][3] = 7;
+                            ud.wchoice[0][4] = 8;
+                            ud.wchoice[0][5] = 6;
+                            ud.wchoice[0][6] = 0;
+                            ud.wchoice[0][7] = 2;
+                            ud.wchoice[0][8] = 9;
+                            ud.wchoice[0][9] = 1;
+                        }
+                        break;
+                    case 'v':
+                    case 'V':
+                        c++;
+                        ud.warp_on = 1;
+                        ud.m_volume_number = ud.volume_number = atol(c)-1;
+                        break;
+                    case 'w':
+                    case 'W':
+                        ud.coords = 1;
+                        break;
+                    case 'x':
+                    case 'X':
+                        c++;
+                        if (*c)
+                        {
+                            Bstrcpy(confilename,c);
+                            userconfiles = 1;
+                            initprintf("Using CON file: %s.\n",confilename);
+                        }
+                        break;
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        ud.warp_on = 2 + (*c) - '0';
+                        break;
+                    case 'z':
+                    case 'Z':
+                        c++;
+                        condebug = atol(c);
+                        if (!condebug)
+                            condebug = 1;
+                        break;
                 }
             }
             i++;
@@ -8417,7 +8867,8 @@ void Logo(void)
     clearsoundlocks();  // JBF 20031228
     if (ud.multimode < 2 && (logoflags & LOGO_FLAG_ENABLED))
     {
-        if (VOLUMEALL && (logoflags & LOGO_FLAG_PLAYANIM)) {
+        if (VOLUMEALL && (logoflags & LOGO_FLAG_PLAYANIM))
+        {
 
             if (!KB_KeyWaiting() && nomorelogohack == 0)
             {
@@ -8434,7 +8885,8 @@ void Logo(void)
         if (logoflags & LOGO_FLAG_PLAYMUSIC)
             playmusic(&env_music_fn[0][0]);
 
-        if (!NAM) {
+        if (!NAM)
+        {
             fadepal(0,0,0, 0,64,7);
             //ps[myconnectindex].palette = drealms;
             //palto(0,0,0,63);
@@ -8445,7 +8897,8 @@ void Logo(void)
                 nextpage();
                 fadepal(0,0,0, 63,0,-7);
                 totalclock = 0;
-                while (totalclock < (120*7) && !KB_KeyWaiting()) {
+                while (totalclock < (120*7) && !KB_KeyWaiting())
+                {
                     handleevents();
                     getpackets();
                 }
@@ -8482,7 +8935,8 @@ void Logo(void)
                     }
                     else if (totalclock >= (120+60))
                         rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-                } else soundanm = 1;
+                }
+                else soundanm = 1;
                 if (logoflags & LOGO_FLAG_THREEDEE)
                 {
                     if (totalclock > 220 && totalclock < (220+30))
@@ -8498,8 +8952,10 @@ void Logo(void)
                     }
                     else if (totalclock >= (220+30))
                         rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
-                } else soundanm = 2;
-                if (PLUTOPAK && (logoflags & LOGO_FLAG_PLUTOPAKSPRITE)) {   // JBF 20030804
+                }
+                else soundanm = 2;
+                if (PLUTOPAK && (logoflags & LOGO_FLAG_PLUTOPAKSPRITE))
+                {   // JBF 20030804
                     if (totalclock >= 280 && totalclock < 395)
                     {
                         rotatesprite(160<<16,(151)<<16,(410-totalclock)<<12,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
@@ -8688,7 +9144,8 @@ void compilecons(void)
 void sanitizegametype()
 {
     //    initprintf("ud.m_coop=%i before sanitization\n",ud.m_coop);
-    if (ud.m_coop >= num_gametypes || ud.m_coop < 0) {
+    if (ud.m_coop >= num_gametypes || ud.m_coop < 0)
+    {
         ud.m_coop = 0;
     }
     Bsprintf(tempbuf,"%s\n",gametype_names[ud.m_coop]);
@@ -8708,7 +9165,8 @@ void Startup(void)
 
     CONFIG_ReadKeys(); // we re-read the keys after compiling the CONs
 
-    if (initengine()) {
+    if (initengine())
+    {
         wm_msgbox("Build Engine Initialisation Error",
                   "There was a problem initialising the Build engine: %s", engineerrstr);
         freeconmem();
@@ -8735,11 +9193,15 @@ void Startup(void)
         myname[sizeof(myname)] = '\0';
     }
 
-    if (CommandMap) {
-        if (VOLUMEONE) {
+    if (CommandMap)
+    {
+        if (VOLUMEONE)
+        {
             initprintf("The -map option is available in the registered version only!\n");
             boardfilename[0] = 0;
-        } else {
+        }
+        else
+        {
             char *dot, *slash;
 
             Bstrcpy(boardfilename, CommandMap);
@@ -8752,7 +9214,8 @@ void Startup(void)
                 Bstrcat(boardfilename,".map");
 
             i = kopen4load(boardfilename,0);
-            if (i!=-1) {
+            if (i!=-1)
+            {
                 initprintf("Using level: '%s'.\n",boardfilename);
                 kclose(i);
             }
@@ -8764,12 +9227,14 @@ void Startup(void)
         }
     }
 
-    if (VOLUMEONE) {
+    if (VOLUMEONE)
+    {
         initprintf("*** You have run Duke Nukem 3D %ld times. ***\n\n",ud.executions);
         if (ud.executions >= 50) initprintf("IT IS NOW TIME TO UPGRADE TO THE COMPLETE VERSION!!!\n");
     }
 
-    if (CONTROL_Startup(1, &GetTime, TICRATE)) {
+    if (CONTROL_Startup(1, &GetTime, TICRATE))
+    {
         uninitengine();
         exit(1);
     }
@@ -8807,11 +9272,14 @@ void Startup(void)
     }
 
     //initmultiplayers(netparamcount,netparam, 0,0,0);
-    if (initmultiplayersparms(netparamcount,netparam)) {
+    if (initmultiplayersparms(netparamcount,netparam))
+    {
         initprintf("Waiting for players...\n");
-        while (initmultiplayerscycle()) {
+        while (initmultiplayerscycle())
+        {
             handleevents();
-            if (quitevent) {
+            if (quitevent)
+            {
                 Shutdown();
                 return;
             }
@@ -8819,7 +9287,8 @@ void Startup(void)
     }
 
     if (netparam) Bfree(netparam);
-    netparam = NULL; netparamcount = 0;
+    netparam = NULL;
+    netparamcount = 0;
 
     if (numplayers > 1)
         initprintf("Multiplayer initialized.\n");
@@ -9011,7 +9480,8 @@ void app_main(int argc,char **argv)
 {
     int i, j;
 #ifdef RENDERTYPEWIN
-    if (win_checkinstance()) {
+    if (win_checkinstance())
+    {
         if (!wm_ynbox("EDuke32","Another Build game is currently running. "
                       "Do you wish to continue starting this copy?"))
             return;
@@ -9042,7 +9512,8 @@ void app_main(int argc,char **argv)
 
     {
         struct strllist *s;
-        while (CommandPaths) {
+        while (CommandPaths)
+        {
             s = CommandPaths->next;
             addsearchpath(CommandPaths->str);
 
@@ -9063,7 +9534,8 @@ void app_main(int argc,char **argv)
         int asperr;
 
         if (getcwd(cwd,BMAX_PATH)) addsearchpath(cwd);
-        if ((homedir = Bgethomedir())) {
+        if ((homedir = Bgethomedir()))
+        {
             Bsnprintf(cwd,sizeof(cwd),"%s/"
 #if defined(_WIN32)
                       "EDuke32 Settings"
@@ -9074,7 +9546,8 @@ void app_main(int argc,char **argv)
 #endif
                       ,homedir);
             asperr = addsearchpath(cwd);
-            if (asperr == -2) {
+            if (asperr == -2)
+            {
                 if (Bmkdir(cwd,S_IRWXU) == 0) asperr = addsearchpath(cwd);
                 else asperr = -1;
             }
@@ -9105,7 +9578,8 @@ void app_main(int argc,char **argv)
     }
 #endif
 
-    if (preinitengine()) {
+    if (preinitengine())
+    {
         wm_msgbox("Build Engine Initialisation Error",
                   "There was a problem initialising the Build engine: %s", engineerrstr);
         exit(1);
@@ -9117,25 +9591,30 @@ void app_main(int argc,char **argv)
         // if it is not found, choose the first GRP from the list of
         struct grpfile *fg, *first = NULL;
         int i;
-        for (fg = foundgrps; fg; fg=fg->next) {
+        for (fg = foundgrps; fg; fg=fg->next)
+        {
             for (i = 0; i<numgrpfiles; i++) if (fg->crcval == grpfiles[i].crcval) break;
             if (i == numgrpfiles) continue;	// unrecognised grp file
             fg->game = grpfiles[i].game;
             if (!first) first = fg;
-            if (!Bstrcasecmp(fg->name, defaultduke3dgrp)) {
+            if (!Bstrcasecmp(fg->name, defaultduke3dgrp))
+            {
                 gametype = grpfiles[i].game;
                 break;
             }
         }
-        if (!fg && first) {
+        if (!fg && first)
+        {
             Bstrcpy(defaultduke3dgrp, first->name);
             gametype = first->game;
         }
     }
 
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
-    if (i < 0 || (!NoSetup && ForceSetup) || CommandSetup) {
-        if (quitevent || !startwin_run()) {
+    if (i < 0 || (!NoSetup && ForceSetup) || CommandSetup)
+    {
+        if (quitevent || !startwin_run())
+        {
             uninitengine();
             exit(0);
         }
@@ -9144,7 +9623,8 @@ void app_main(int argc,char **argv)
 
     FreeGroups();
 
-    if (NAM) {
+    if (NAM)
+    {
         // overwrite the default GRP and CON so that if the user chooses
         // something different, they get what they asked for
         Bsprintf(defaultduke3dgrp,"nam.grp");
@@ -9157,18 +9637,21 @@ void app_main(int argc,char **argv)
     initgroupfile(duke3dgrp);
 
     i = kopen4load("DUKESW.BIN",1); // JBF 20030810
-    if (i!=-1) {
+    if (i!=-1)
+    {
         shareware = 1;
         kclose(i);
     }
 
     {
         struct strllist *s;
-        while (CommandGrps) {
+        while (CommandGrps)
+        {
             s = CommandGrps->next;
             j = initgroupfile(CommandGrps->str);
             if (j == -1) initprintf("Warning: could not find group file %s.\n",CommandGrps->str);
-            else {
+            else
+            {
                 groupfile = j;
                 initprintf("Using group file %s.\n",CommandGrps->str);
             }
@@ -9199,7 +9682,8 @@ void app_main(int argc,char **argv)
 
     RegisterShutdownFunction(Shutdown);
 
-    if (VOLUMEONE) {
+    if (VOLUMEONE)
+    {
         initprintf("Distribution of shareware Duke Nukem 3D is restricted in certain ways.\n");
         initprintf("Please read LICENSE.DOC for more details.\n");
     }
@@ -9262,12 +9746,14 @@ void app_main(int argc,char **argv)
                    ScreenWidth,ScreenHeight,ScreenBPP,ScreenMode?"fullscreen":"windowed");
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        while (setgamemode(0,xres[i],yres[i],bpp[i]) < 0) {
+        while (setgamemode(0,xres[i],yres[i],bpp[i]) < 0)
+        {
             initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],bpp[i]);
             i++;
         }
 #else
-        while (setgamemode(0,xres[i],yres[i],8) < 0) {
+        while (setgamemode(0,xres[i],yres[i],8) < 0)
+        {
             initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],8);
             i++;
         }
@@ -9298,7 +9784,8 @@ void app_main(int argc,char **argv)
     SoundStartup();
     loadtmb();
 
-    if (VOLUMEONE) {
+    if (VOLUMEONE)
+    {
         if (numplayers > 4 || ud.multimode > 4)
             gameexit(" The full version of Duke Nukem 3D supports 5 or more players.");
     }
@@ -9375,13 +9862,17 @@ MAIN_LOOP_RESTART:
 
         switch (ud.pteam[myconnectindex])
         {
-        case 0:
-            k = 3; break;
-        case 1:
-            k = 21; break;
+            case 0:
+                k = 3;
+                break;
+            case 1:
+                k = 21;
+                break;
         }
         ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = k;
-    } else {
+    }
+    else
+    {
         if (ud.color) ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
         else ps[myconnectindex].palookup = ud.pcolor[myconnectindex];
     }
@@ -9391,8 +9882,10 @@ MAIN_LOOP_RESTART:
 
     while (!(ps[myconnectindex].gm&MODE_END)) //The whole loop!!!!!!!!!!!!!!!!!!
     {
-        if (handleevents()) {   // JBF
-            if (quitevent) {
+        if (handleevents())
+        {   // JBF
+            if (quitevent)
+            {
                 KB_KeyDown[sc_Escape] = 1;
                 quitevent = 0;
             }
@@ -9427,7 +9920,8 @@ MAIN_LOOP_RESTART:
                     ud.eog = 0;
                     if (ud.multimode < 2)
                     {
-                        if (!VOLUMEALL) {
+                        if (!VOLUMEALL)
+                        {
                             doorders();
                         }
                         ps[myconnectindex].gm = MODE_MENU;
@@ -9445,7 +9939,8 @@ MAIN_LOOP_RESTART:
             display_bonus_screen = 1;
             ready2send = 0;
             if (numplayers > 1) ps[myconnectindex].gm = MODE_GAME;
-            if (enterlevel(ps[myconnectindex].gm)) {
+            if (enterlevel(ps[myconnectindex].gm))
+            {
                 backtomenu();
                 goto MAIN_LOOP_RESTART;
             }
@@ -9485,7 +9980,8 @@ MAIN_LOOP_RESTART:
 
         checksync();
 
-        if (VOLUMEONE) {
+        if (VOLUMEONE)
+        {
             if (ud.show_help == 0 && show_shareware > 0 && (ps[myconnectindex].gm&MODE_MENU) == 0)
                 rotatesprite((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128,0,0,xdim-1,ydim-1);
         }
@@ -9526,7 +10022,8 @@ char opendemoread(char which_demo) // 0 = mine
     if (kread(recfilep,&ud.reccnt,sizeof(long)) != sizeof(long)) goto corrupt;
     if (kread(recfilep,&ver,sizeof(char)) != sizeof(char)) goto corrupt;
 
-    if (ver != BYTEVERSION /*&& ver != 116 && ver != 117*/) { /* old demo playback */
+    if (ver != BYTEVERSION /*&& ver != 116 && ver != 117*/)
+    { /* old demo playback */
         if (ver == BYTEVERSION_JF)   initprintf("Demo %s is for Regular edition.\n", d);
         else if (ver == BYTEVERSION_JF+1) initprintf("Demo %s is for Atomic edition.\n", d);
         else if (ver == BYTEVERSION_JF+2) initprintf("Demo %s is for Shareware version.\n", d);
@@ -9535,7 +10032,9 @@ char opendemoread(char which_demo) // 0 = mine
         ud.reccnt=0;
         demo_version = 0;
         return 0;
-    } else {
+    }
+    else
+    {
         demo_version = ver;
         OSD_Printf("Demo %s is of version %d.\n", d, ver);
     }
@@ -9566,9 +10065,11 @@ char opendemoread(char which_demo) // 0 = mine
     OSD_Printf("ud.user_name: %s\n",ud.user_name);
     if (kread(recfilep,(int32 *)&i,sizeof(int32)) != sizeof(int32)) goto corrupt;
 
-    if (ver == BYTEVERSION) {
+    if (ver == BYTEVERSION)
+    {
         if (kread(recfilep,(char *)boardfilename,sizeof(boardfilename)) != sizeof(boardfilename)) goto corrupt;
-    } else if (kread(recfilep,(char *)boardfilename,128) != 128) goto corrupt;
+    }
+    else if (kread(recfilep,(char *)boardfilename,128) != 128) goto corrupt;
 
     if (boardfilename[0] != 0)
     {
@@ -9576,8 +10077,10 @@ char opendemoread(char which_demo) // 0 = mine
         ud.m_volume_number = 0;
     }
 
-    for (i=0;i<ud.multimode;i++) {
-        if (ver == BYTEVERSION) {
+    for (i=0;i<ud.multimode;i++)
+    {
+        if (ver == BYTEVERSION)
+        {
             if (kread(recfilep,(int32 *)&ps[i].aim_mode,sizeof(int32)) != sizeof(int32)) goto corrupt;
             if (kread(recfilep,(int32 *)&ps[i].auto_aim,sizeof(int32)) != sizeof(int32)) goto corrupt;	// JBF 20031126
             if (kread(recfilep,(int32 *)&ps[i].weaponswitch,sizeof(int32)) != sizeof(int32)) goto corrupt;
@@ -9586,7 +10089,9 @@ char opendemoread(char which_demo) // 0 = mine
             if (kread(recfilep,(int32 *)&ud.pteam[i],sizeof(int32)) != sizeof(int32)) goto corrupt;
             ps[i].team = ud.pteam[i];
             if (kread(recfilep,(int32 *)&ud.m_noexits,sizeof(int32)) != sizeof(int32)) goto corrupt;
-        } else {
+        }
+        else
+        {
             if (kread(recfilep,(int32 *)&ps[i].aim_mode,sizeof(char)) != sizeof(char)) goto corrupt;
             OSD_Printf("aim_mode: %d\n",ps[i].aim_mode);
             ps[i].auto_aim = 1;
@@ -9637,7 +10142,8 @@ void opendemowrite(void)
     fwrite((int32 *)&ud.auto_run,sizeof(int32),1,frecfilep);
     fwrite((char *)boardfilename,sizeof(boardfilename),1,frecfilep);
 
-    for (i=0;i<ud.multimode;i++) {
+    for (i=0;i<ud.multimode;i++)
+    {
         fwrite((int32 *)&ps[i].aim_mode,sizeof(int32),1,frecfilep);
         fwrite((int32 *)&ps[i].auto_aim,sizeof(int32),1,frecfilep);		// JBF 20031126
         fwrite(&ps[i].weaponswitch,sizeof(int32),1,frecfilep);
@@ -9686,11 +10192,13 @@ void closedemowrite(void)
 char which_demo = 1;
 char in_menu = 0;
 
-typedef struct {
+typedef struct
+{
     signed char avel, horz;
     short fvel, svel;
     unsigned long bits;
-} oldinput;
+}
+oldinput;
 
 oldinput oldrecsync[RECSYNCBUFSIZ];
 
@@ -9763,7 +10271,8 @@ RECHECK:
                     {
                         i = 0;
                         l = min(ud.reccnt,RECSYNCBUFSIZ);
-                        if (kdfread(oldrecsync,sizeof(oldinput)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode) {
+                        if (kdfread(oldrecsync,sizeof(oldinput)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode)
+                        {
                             OSD_Printf("Demo %d is corrupt.\n", which_demo-1);
                             foundemo = 0;
                             ud.reccnt = 0;
@@ -9790,7 +10299,8 @@ RECHECK:
                     {
                         i = 0;
                         l = min(ud.reccnt,RECSYNCBUFSIZ);
-                        if (kdfread(recsync,sizeof(input)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode) {
+                        if (kdfread(recsync,sizeof(input)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode)
+                        {
                             OSD_Printf("Demo %d is corrupt.\n", which_demo-1);
                             foundemo = 0;
                             ud.reccnt = 0;
@@ -9874,7 +10384,8 @@ RECHECK:
             ud.camera_time = totalclock+(TICRATE*2);
         }
 
-        if (VOLUMEONE) {
+        if (VOLUMEONE)
+        {
             if (ud.show_help == 0 && (ps[myconnectindex].gm&MODE_MENU) == 0)
                 rotatesprite((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128,0,0,xdim-1,ydim-1);
         }
@@ -9942,13 +10453,22 @@ void fakedomovethingscorrect(void)
     if (p->posx == myxbak[i] && p->posy == myybak[i] && p->posz == myzbak[i]
             && p->horiz == myhorizbak[i] && p->ang == myangbak[i]) return;
 
-    myx = p->posx; omyx = p->oposx; myxvel = p->posxv;
-    myy = p->posy; omyy = p->oposy; myyvel = p->posyv;
-    myz = p->posz; omyz = p->oposz; myzvel = p->poszv;
-    myang = p->ang; omyang = p->oang;
+    myx = p->posx;
+    omyx = p->oposx;
+    myxvel = p->posxv;
+    myy = p->posy;
+    omyy = p->oposy;
+    myyvel = p->posyv;
+    myz = p->posz;
+    omyz = p->oposz;
+    myzvel = p->poszv;
+    myang = p->ang;
+    omyang = p->oang;
     mycursectnum = p->cursectnum;
-    myhoriz = p->horiz; omyhoriz = p->ohoriz;
-    myhorizoff = p->horizoff; omyhorizoff = p->ohorizoff;
+    myhoriz = p->horiz;
+    omyhoriz = p->ohoriz;
+    myhorizoff = p->horizoff;
+    omyhorizoff = p->ohorizoff;
     myjumpingcounter = p->jumping_counter;
     myjumpingtoggle = p->jumping_toggle;
     myonground = p->on_ground;
@@ -10322,7 +10842,8 @@ void fakedomovethings(void)
     }
 
 FAKEHORIZONLY:
-    if (psectlotag == 1 || spritebridge == 1) i = (4L<<8); else i = (20L<<8);
+    if (psectlotag == 1 || spritebridge == 1) i = (4L<<8);
+    else i = (20L<<8);
 
     clipmove(&myx,&myy,&myz,&mycursectnum,myxvel,myyvel,164L,4L<<8,i,CLIPMASK0);
     pushmove(&myx,&myy,&myz,&mycursectnum,164L,4L<<8,4L<<8,CLIPMASK0);
@@ -10497,7 +11018,8 @@ char domovethings(void)
                     Bsprintf(fta_quotes[117],"%s",&ud.user_name[sprite[hs].yvel][0]);
                     ps[screenpeek].fta = 12, ps[screenpeek].ftq = 117;
                 }
-            } else if (ps[screenpeek].fta > 2) ps[screenpeek].fta -= 3;
+            }
+            else if (ps[screenpeek].fta > 2) ps[screenpeek].fta -= 3;
         }
     }
 
@@ -10522,7 +11044,11 @@ char domovethings(void)
     j = -1;
     for (i=connecthead;i>=0;i=connectpoint2[i])
     {
-        if ((sync[i].bits&(1<<26)) == 0) { j = i; continue; }
+        if ((sync[i].bits&(1<<26)) == 0)
+        {
+            j = i;
+            continue;
+        }
 
         closedemowrite();
 
@@ -10599,10 +11125,12 @@ char domovethings(void)
             j = 0;
             switch (ps[i].team)
             {
-            case 0:
-                j = 3; break;
-            case 1:
-                j = 21; break;
+                case 0:
+                    j = 3;
+                    break;
+                case 1:
+                    j = 21;
+                    break;
             }
             ps[i].palookup = ud.pcolor[i] = j;
         }
@@ -10678,25 +11206,41 @@ void doorders(void)
     KB_FlushKeyboardQueue();
     rotatesprite(0,0,65536L,0,ORDERING,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
-    while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
+    while (!KB_KeyWaiting())
+    {
+        handleevents();
+        getpackets();
+    }
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
     rotatesprite(0,0,65536L,0,ORDERING+1,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
-    while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
+    while (!KB_KeyWaiting())
+    {
+        handleevents();
+        getpackets();
+    }
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
     rotatesprite(0,0,65536L,0,ORDERING+2,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
-    while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
+    while (!KB_KeyWaiting())
+    {
+        handleevents();
+        getpackets();
+    }
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
     rotatesprite(0,0,65536L,0,ORDERING+3,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
-    while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
+    while (!KB_KeyWaiting())
+    {
+        handleevents();
+        getpackets();
+    }
 
 
 }
@@ -10731,11 +11275,13 @@ void dobonus(char bonusonly)
     if (VOLUMEALL) wm_setapptitle(HEAD2);
     else wm_setapptitle(HEAD);
 
-    if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0]) {
+    if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])
+    {
         lastmapname = Bstrrchr(boardfilename,'\\');
         if (!lastmapname) lastmapname = Bstrrchr(boardfilename,'/');
         if (!lastmapname) lastmapname = boardfilename;
-    } else lastmapname = level_names[(ud.volume_number*11)+ud.last_level-1];
+    }
+    else lastmapname = level_names[(ud.volume_number*11)+ud.last_level-1];
 
     bonuscnt = 0;
 
@@ -10754,216 +11300,272 @@ void dobonus(char bonusonly)
     if (numplayers < 2 && ud.eog && ud.from_bonus == 0)
         switch (ud.volume_number)
         {
-        case 0:
-            if (ud.lockout == 0)
-            {
-                setgamepalette(&ps[myconnectindex], endingpal, 3);	// JBF 20040308
-                clearview(0L);
-                rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                nextpage();
-                //ps[myconnectindex].palette = endingpal;
-                fadepal(0,0,0, 63,0,-1);
-
-                KB_FlushKeyboardQueue();
-                totalclock = 0; tinc = 0;
-                while (1)
+            case 0:
+                if (ud.lockout == 0)
                 {
+                    setgamepalette(&ps[myconnectindex], endingpal, 3);	// JBF 20040308
                     clearview(0L);
                     rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                    nextpage();
+                    //ps[myconnectindex].palette = endingpal;
+                    fadepal(0,0,0, 63,0,-1);
 
-                    // boss
-                    if (totalclock > 390 && totalclock < 780)
-                        for (t=0;t<35;t+=5) if (bossmove[t+2] && (totalclock%390) > bossmove[t] && (totalclock%390) <= bossmove[t+1])
-                            {
-                                if (t==10 && bonuscnt == 1) { sound(SHOTGUN_FIRE);sound(SQUISHED); bonuscnt++; }
-                                rotatesprite(bossmove[t+3]<<16,bossmove[t+4]<<16,65536L,0,bossmove[t+2],0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                            }
-
-                    // Breathe
-                    if (totalclock < 450 || totalclock >= 750)
+                    KB_FlushKeyboardQueue();
+                    totalclock = 0;
+                    tinc = 0;
+                    while (1)
                     {
-                        if (totalclock >= 750)
-                        {
-                            rotatesprite(86<<16,59<<16,65536L,0,VICTORY1+8,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                            if (totalclock >= 750 && bonuscnt == 2) { sound(DUKETALKTOBOSS); bonuscnt++; }
+                        clearview(0L);
+                        rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
 
-
-                        }
-                        for (t=0;t<20;t+=5)
-                            if (breathe[t+2] && (totalclock%120) > breathe[t] && (totalclock%120) <= breathe[t+1])
-                            {
-                                if (t==5 && bonuscnt == 0)
+                        // boss
+                        if (totalclock > 390 && totalclock < 780)
+                            for (t=0;t<35;t+=5) if (bossmove[t+2] && (totalclock%390) > bossmove[t] && (totalclock%390) <= bossmove[t+1])
                                 {
-                                    sound(BOSSTALKTODUKE);
+                                    if (t==10 && bonuscnt == 1)
+                                    {
+                                        sound(SHOTGUN_FIRE);
+                                        sound(SQUISHED);
+                                        bonuscnt++;
+                                    }
+                                    rotatesprite(bossmove[t+3]<<16,bossmove[t+4]<<16,65536L,0,bossmove[t+2],0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                                }
+
+                        // Breathe
+                        if (totalclock < 450 || totalclock >= 750)
+                        {
+                            if (totalclock >= 750)
+                            {
+                                rotatesprite(86<<16,59<<16,65536L,0,VICTORY1+8,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                                if (totalclock >= 750 && bonuscnt == 2)
+                                {
+                                    sound(DUKETALKTOBOSS);
                                     bonuscnt++;
                                 }
-                                rotatesprite(breathe[t+3]<<16,breathe[t+4]<<16,65536L,0,breathe[t+2],0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+
+
                             }
+                            for (t=0;t<20;t+=5)
+                                if (breathe[t+2] && (totalclock%120) > breathe[t] && (totalclock%120) <= breathe[t+1])
+                                {
+                                    if (t==5 && bonuscnt == 0)
+                                    {
+                                        sound(BOSSTALKTODUKE);
+                                        bonuscnt++;
+                                    }
+                                    rotatesprite(breathe[t+3]<<16,breathe[t+4]<<16,65536L,0,breathe[t+2],0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                                }
+                        }
+                        handleevents();
+                        getpackets();
+                        nextpage();
+                        if (KB_KeyWaiting()) break;
                     }
+                }
+
+                fadepal(0,0,0, 0,64,1);
+
+                KB_FlushKeyboardQueue();
+                //ps[myconnectindex].palette = palette;
+                setgamepalette(&ps[myconnectindex], palette, 3);	// JBF 20040308
+
+                rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+                IFISSOFTMODE fadepal(0,0,0, 63,0,-1);
+                else nextpage();
+                while (!KB_KeyWaiting())
+                {
                     handleevents();
                     getpackets();
-                    nextpage();
-                    if (KB_KeyWaiting()) break;
                 }
-            }
-
-            fadepal(0,0,0, 0,64,1);
-
-            KB_FlushKeyboardQueue();
-            //ps[myconnectindex].palette = palette;
-            setgamepalette(&ps[myconnectindex], palette, 3);	// JBF 20040308
-
-            rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
-            IFISSOFTMODE fadepal(0,0,0, 63,0,-1); else nextpage();
-        while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
-            fadepal(0,0,0, 0,64,1);
-            MUSIC_StopSong();
-            FX_StopAllSounds();
-            clearsoundlocks();
-            break;
-        case 1:
-            MUSIC_StopSong();
-            clearview(0L);
-            nextpage();
-
-            if (ud.lockout == 0)
-            {
-                playanm("cineov2.anm",1);
-                KB_FlushKeyBoardQueue();
+                fadepal(0,0,0, 0,64,1);
+                MUSIC_StopSong();
+                FX_StopAllSounds();
+                clearsoundlocks();
+                break;
+            case 1:
+                MUSIC_StopSong();
                 clearview(0L);
                 nextpage();
-            }
 
-            sound(PIPEBOMB_EXPLODE);
+                if (ud.lockout == 0)
+                {
+                    playanm("cineov2.anm",1);
+                    KB_FlushKeyBoardQueue();
+                    clearview(0L);
+                    nextpage();
+                }
 
-            fadepal(0,0,0, 0,64,1);
-            setview(0,0,xdim-1,ydim-1);
-            KB_FlushKeyboardQueue();
-            //ps[myconnectindex].palette = palette;
-            setgamepalette(&ps[myconnectindex], palette, 3);	// JBF 20040308
-            rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
-            IFISSOFTMODE fadepal(0,0,0, 63,0,-1); else nextpage();
-        while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
-            IFISSOFTMODE fadepal(0,0,0, 0,64,1);
+                sound(PIPEBOMB_EXPLODE);
 
-            break;
-
-        case 3:
-
-            setview(0,0,xdim-1,ydim-1);
-
-            MUSIC_StopSong();
-            clearview(0L);
-            nextpage();
-
-            if (ud.lockout == 0)
-            {
+                fadepal(0,0,0, 0,64,1);
+                setview(0,0,xdim-1,ydim-1);
                 KB_FlushKeyboardQueue();
-                playanm("vol4e1.anm",8);
+                //ps[myconnectindex].palette = palette;
+                setgamepalette(&ps[myconnectindex], palette, 3);	// JBF 20040308
+                rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+                IFISSOFTMODE fadepal(0,0,0, 63,0,-1);
+                else nextpage();
+                while (!KB_KeyWaiting())
+                {
+                    handleevents();
+                    getpackets();
+                }
+                IFISSOFTMODE fadepal(0,0,0, 0,64,1);
+
+                break;
+
+            case 3:
+
+                setview(0,0,xdim-1,ydim-1);
+
+                MUSIC_StopSong();
                 clearview(0L);
                 nextpage();
-                playanm("vol4e2.anm",10);
-                clearview(0L);
-                nextpage();
-                playanm("vol4e3.anm",11);
-                clearview(0L);
-                nextpage();
-            }
 
-            FX_StopAllSounds();
-            clearsoundlocks();
-            sound(ENDSEQVOL3SND4);
-            KB_FlushKeyBoardQueue();
-
-            //ps[myconnectindex].palette = palette;
-            setgamepalette(&ps[myconnectindex], palette, 3);	// JBF 20040308
-            IFISSOFTMODE palto(0,0,0,63);
-            clearview(0L);
-            menutext(160,60,0,0,"THANKS TO ALL OUR");
-            menutext(160,60+16,0,0,"FANS FOR GIVING");
-            menutext(160,60+16+16,0,0,"US BIG HEADS.");
-            menutext(160,70+16+16+16,0,0,"LOOK FOR A DUKE NUKEM 3D");
-            menutext(160,70+16+16+16+16,0,0,"SEQUEL SOON.");
-            nextpage();
-
-            fadepal(0,0,0, 63,0,-3);
-            KB_FlushKeyboardQueue();
-            while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
-            fadepal(0,0,0, 0,64,3);
-
-            clearview(0L);
-            nextpage();
-
-            playanm("DUKETEAM.ANM",4);
-
-            KB_FlushKeyBoardQueue();
-            while (!KB_KeyWaiting()) { handleevents(); getpackets(); }
-
-            clearview(0L);
-            nextpage();
-            IFISSOFTMODE palto(0,0,0,63);
-
-            FX_StopAllSounds();
-            clearsoundlocks();
-            KB_FlushKeyBoardQueue();
-
-            break;
-
-        case 2:
-
-            MUSIC_StopSong();
-            clearview(0L);
-            nextpage();
-            if (ud.lockout == 0)
-            {
-                fadepal(0,0,0, 63,0,-1);
-                playanm("cineov3.anm",2);
-                KB_FlushKeyBoardQueue();
-                ototalclock = totalclock+200;
-                while (totalclock < ototalclock) { handleevents(); getpackets(); }
-                clearview(0L);
-                nextpage();
+                if (ud.lockout == 0)
+                {
+                    KB_FlushKeyboardQueue();
+                    playanm("vol4e1.anm",8);
+                    clearview(0L);
+                    nextpage();
+                    playanm("vol4e2.anm",10);
+                    clearview(0L);
+                    nextpage();
+                    playanm("vol4e3.anm",11);
+                    clearview(0L);
+                    nextpage();
+                }
 
                 FX_StopAllSounds();
                 clearsoundlocks();
-            }
+                sound(ENDSEQVOL3SND4);
+                KB_FlushKeyBoardQueue();
 
-            playanm("RADLOGO.ANM",3);
+                //ps[myconnectindex].palette = palette;
+                setgamepalette(&ps[myconnectindex], palette, 3);	// JBF 20040308
+                IFISSOFTMODE palto(0,0,0,63);
+                clearview(0L);
+                menutext(160,60,0,0,"THANKS TO ALL OUR");
+                menutext(160,60+16,0,0,"FANS FOR GIVING");
+                menutext(160,60+16+16,0,0,"US BIG HEADS.");
+                menutext(160,70+16+16+16,0,0,"LOOK FOR A DUKE NUKEM 3D");
+                menutext(160,70+16+16+16+16,0,0,"SEQUEL SOON.");
+                nextpage();
 
-            if (ud.lockout == 0 && !KB_KeyWaiting())
-            {
-                sound(ENDSEQVOL3SND5);
-                while (issoundplaying(-1,ENDSEQVOL3SND5)) { handleevents(); getpackets(); }
-                if (KB_KeyWaiting()) goto ENDANM;
-                sound(ENDSEQVOL3SND6);
-            while (issoundplaying(-1,ENDSEQVOL3SND6)) { handleevents(); getpackets(); }
-                if (KB_KeyWaiting()) goto ENDANM;
-                sound(ENDSEQVOL3SND7);
-            while (issoundplaying(-1,ENDSEQVOL3SND7)) { handleevents(); getpackets(); }
-                if (KB_KeyWaiting()) goto ENDANM;
-                sound(ENDSEQVOL3SND8);
-            while (issoundplaying(-1,ENDSEQVOL3SND8)) { handleevents(); getpackets(); }
-                if (KB_KeyWaiting()) goto ENDANM;
-                sound(ENDSEQVOL3SND9);
-            while (issoundplaying(-1,ENDSEQVOL3SND9)) { handleevents(); getpackets(); }
+                fadepal(0,0,0, 63,0,-3);
+                KB_FlushKeyboardQueue();
+                while (!KB_KeyWaiting())
+                {
+                    handleevents();
+                    getpackets();
+                }
+                fadepal(0,0,0, 0,64,3);
+
+                clearview(0L);
+                nextpage();
+
+                playanm("DUKETEAM.ANM",4);
+
+                KB_FlushKeyBoardQueue();
+                while (!KB_KeyWaiting())
+                {
+                    handleevents();
+                    getpackets();
+                }
+
+                clearview(0L);
+                nextpage();
+                IFISSOFTMODE palto(0,0,0,63);
+
+                FX_StopAllSounds();
+                clearsoundlocks();
+                KB_FlushKeyBoardQueue();
+
+                break;
+
+            case 2:
+
+                MUSIC_StopSong();
+                clearview(0L);
+                nextpage();
+                if (ud.lockout == 0)
+                {
+                    fadepal(0,0,0, 63,0,-1);
+                    playanm("cineov3.anm",2);
+                    KB_FlushKeyBoardQueue();
+                    ototalclock = totalclock+200;
+                    while (totalclock < ototalclock)
+                    {
+                        handleevents();
+                        getpackets();
+                    }
+                    clearview(0L);
+                    nextpage();
+
+                    FX_StopAllSounds();
+                    clearsoundlocks();
+                }
+
+                playanm("RADLOGO.ANM",3);
+
+                if (ud.lockout == 0 && !KB_KeyWaiting())
+                {
+                    sound(ENDSEQVOL3SND5);
+                    while (issoundplaying(-1,ENDSEQVOL3SND5))
+                    {
+                        handleevents();
+                        getpackets();
+                    }
+                    if (KB_KeyWaiting()) goto ENDANM;
+                    sound(ENDSEQVOL3SND6);
+                    while (issoundplaying(-1,ENDSEQVOL3SND6))
+                    {
+                        handleevents();
+                        getpackets();
+                    }
+                    if (KB_KeyWaiting()) goto ENDANM;
+                    sound(ENDSEQVOL3SND7);
+                    while (issoundplaying(-1,ENDSEQVOL3SND7))
+                    {
+                        handleevents();
+                        getpackets();
+                    }
+                    if (KB_KeyWaiting()) goto ENDANM;
+                    sound(ENDSEQVOL3SND8);
+                    while (issoundplaying(-1,ENDSEQVOL3SND8))
+                    {
+                        handleevents();
+                        getpackets();
+                    }
+                    if (KB_KeyWaiting()) goto ENDANM;
+                    sound(ENDSEQVOL3SND9);
+                    while (issoundplaying(-1,ENDSEQVOL3SND9))
+                    {
+                        handleevents();
+                        getpackets();
+                    }
 
 
-            }
+                }
 
-            KB_FlushKeyBoardQueue();
-            totalclock = 0;
-            while (!KB_KeyWaiting() && totalclock < 120) { handleevents(); getpackets(); }
+                KB_FlushKeyBoardQueue();
+                totalclock = 0;
+                while (!KB_KeyWaiting() && totalclock < 120)
+                {
+                    handleevents();
+                    getpackets();
+                }
 
 ENDANM:
 
-            FX_StopAllSounds();
-            clearsoundlocks();
+                FX_StopAllSounds();
+                clearsoundlocks();
 
-            KB_FlushKeyBoardQueue();
+                KB_FlushKeyBoardQueue();
 
-            clearview(0L);
+                clearview(0L);
 
-            break;
+                break;
         }
 
 FRAGBONUS:
@@ -10972,7 +11574,8 @@ FRAGBONUS:
     setgamepalette(&ps[myconnectindex], palette, 3);	// JBF 20040308
     IFISSOFTMODE palto(0,0,0,63);   // JBF 20031228
     KB_FlushKeyboardQueue();
-    totalclock = 0; tinc = 0;
+    totalclock = 0;
+    tinc = 0;
     bonuscnt = 0;
 
     MUSIC_StopSong();
@@ -11057,7 +11660,11 @@ FRAGBONUS:
         fadepal(0,0,0, 63,0,-7);
 
         KB_FlushKeyboardQueue();
-    while (KB_KeyWaiting()==0) { handleevents(); getpackets(); }
+        while (KB_KeyWaiting()==0)
+        {
+            handleevents();
+            getpackets();
+        }
 
         if (KB_KeyPressed(sc_F12))
         {
@@ -11074,12 +11681,12 @@ FRAGBONUS:
 
     switch (ud.volume_number)
     {
-    case 1:
-        gfx_offset = 5;
-        break;
-    default:
-        gfx_offset = 0;
-        break;
+        case 1:
+            gfx_offset = 5;
+            break;
+        default:
+            gfx_offset = 0;
+            break;
     }
 
     rotatesprite(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
@@ -11096,7 +11703,8 @@ FRAGBONUS:
     KB_FlushKeyboardQueue();
     fadepal(0,0,0, 63,0,-1);
     bonuscnt = 0;
-    totalclock = 0; tinc = 0;
+    totalclock = 0;
+    tinc = 0;
 
     playerbest = CONFIG_GetMapBestTime(level_file_names[ud.volume_number*11+ud.last_level-1]);
 
@@ -11112,10 +11720,12 @@ FRAGBONUS:
 
         for (ii=ps[myconnectindex].player_par/(26*60), ij=1; ii>9; ii/=10, ij++) ;
         clockpad = max(clockpad,ij);
-        if (!(ud.volume_number == 0 && ud.last_level-1 == 7)) {
+        if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
+        {
             for (ii=partime[ud.volume_number*11+ud.last_level-1]/(26*60), ij=1; ii>9; ii/=10, ij++) ;
             clockpad = max(clockpad,ij);
-            if (!NAM) {
+            if (!NAM)
+            {
                 for (ii=designertime[ud.volume_number*11+ud.last_level-1]/(26*60), ij=1; ii>9; ii/=10, ij++) ;
                 clockpad = max(clockpad,ij);
             }
@@ -11140,36 +11750,36 @@ FRAGBONUS:
             {
                 switch ((totalclock>>4)%15)
                 {
-                case 0:
-                    if (bonuscnt == 6)
-                    {
-                        bonuscnt++;
-                        sound(SHOTGUN_COCK);
-                        switch (rand()&3)
+                    case 0:
+                        if (bonuscnt == 6)
                         {
-                        case 0:
-                            sound(BONUS_SPEECH1);
-                            break;
-                        case 1:
-                            sound(BONUS_SPEECH2);
-                            break;
-                        case 2:
-                            sound(BONUS_SPEECH3);
-                            break;
-                        case 3:
-                            sound(BONUS_SPEECH4);
-                            break;
+                            bonuscnt++;
+                            sound(SHOTGUN_COCK);
+                            switch (rand()&3)
+                            {
+                                case 0:
+                                    sound(BONUS_SPEECH1);
+                                    break;
+                                case 1:
+                                    sound(BONUS_SPEECH2);
+                                    break;
+                                case 2:
+                                    sound(BONUS_SPEECH3);
+                                    break;
+                                case 3:
+                                    sound(BONUS_SPEECH4);
+                                    break;
+                            }
                         }
-                    }
-                case 1:
-                case 4:
-                case 5:
-                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+3+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                    break;
-                case 2:
-                case 3:
-                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+4+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                    break;
+                    case 1:
+                    case 4:
+                    case 5:
+                        rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+3+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                        break;
+                    case 2:
+                    case 3:
+                        rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+4+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                        break;
                 }
             }
             else if (totalclock > (10240+120L)) break;
@@ -11177,13 +11787,13 @@ FRAGBONUS:
             {
                 switch ((totalclock>>5)&3)
                 {
-                case 1:
-                case 3:
-                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+1+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                    break;
-                case 2:
-                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+2+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                    break;
+                    case 1:
+                    case 3:
+                        rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+1+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                        break;
+                    case 2:
+                        rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+2+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                        break;
                 }
             }
 
@@ -11195,14 +11805,25 @@ FRAGBONUS:
             if (totalclock > (60*3))
             {
                 yy = zz = 59;
-                gametext(10,yy+9,"Your Time:",0,2+8+16); yy+=10;
-                if (!(ud.volume_number == 0 && ud.last_level-1 == 7)) {
-                    gametext(10,yy+9,"Par Time:",0,2+8+16); yy+=10;
-                    if (!NAM) { gametext(10,yy+9,"3D Realms' Time:",0,2+8+16); yy+=10; }
+                gametext(10,yy+9,"Your Time:",0,2+8+16);
+                yy+=10;
+                if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
+                {
+                    gametext(10,yy+9,"Par Time:",0,2+8+16);
+                    yy+=10;
+                    if (!NAM)
+                    {
+                        gametext(10,yy+9,"3D Realms' Time:",0,2+8+16);
+                        yy+=10;
+                    }
 
 
                 }
-                if (playerbest > 0) { gametext(10,yy+9,ps[myconnectindex].player_par<playerbest?"Prev Best Time:":"Your Best Time:",0,2+8+16); yy += 10; }
+                if (playerbest > 0)
+                {
+                    gametext(10,yy+9,ps[myconnectindex].player_par<playerbest?"Prev Best Time:":"Your Best Time:",0,2+8+16);
+                    yy += 10;
+                }
 
                 if (bonuscnt == 0)
                     bonuscnt++;
@@ -11224,25 +11845,31 @@ FRAGBONUS:
                         gametext((320>>2)+71+(clockpad*24),yy+9,"New record!",0,2+8+16);
                     yy+=10;
 
-                    if (!(ud.volume_number == 0 && ud.last_level-1 == 7)) {
+                    if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
+                    {
                         Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
                                  (partime[ud.volume_number*11+ud.last_level-1]/(26*60)),
                                  (partime[ud.volume_number*11+ud.last_level-1]/26)%60);
-                        gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16); yy+=10;
+                        gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
+                        yy+=10;
 
-                        if (!NAM) {
+                        if (!NAM)
+                        {
                             Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
                                      (designertime[ud.volume_number*11+ud.last_level-1]/(26*60)),
                                      (designertime[ud.volume_number*11+ud.last_level-1]/26)%60);
-                            gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16); yy+=10;
+                            gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
+                            yy+=10;
                         }
                     }
 
-                    if (playerbest > 0) {
+                    if (playerbest > 0)
+                    {
                         sprintf(tempbuf,"%0*ld:%02ld",clockpad,
                                 (playerbest/(26*60)),
                                 (playerbest/26)%60);
-                        gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16); yy+=10;
+                        gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
+                        yy+=10;
                     }
                 }
             }
@@ -11250,8 +11877,10 @@ FRAGBONUS:
             zz = yy += 5;
             if (totalclock > (60*6))
             {
-                gametext(10,yy+9,"Enemies Killed:",0,2+8+16); yy += 10;
-                gametext(10,yy+9,"Enemies Left:",0,2+8+16); yy += 10;
+                gametext(10,yy+9,"Enemies Killed:",0,2+8+16);
+                yy += 10;
+                gametext(10,yy+9,"Enemies Left:",0,2+8+16);
+                yy += 10;
 
                 if (bonuscnt == 2)
                 {
@@ -11269,18 +11898,21 @@ FRAGBONUS:
                         sound(PIPEBOMB_EXPLODE);
                     }
                     sprintf(tempbuf,"%-3ld",ps[myconnectindex].actors_killed);
-                    gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
+                    gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
+                    yy += 10;
                     if (ud.player_skill > 3)
                     {
                         sprintf(tempbuf,"N/A");
-                        gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
+                        gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
+                        yy += 10;
                     }
                     else
                     {
                         if ((ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed) < 0)
                             sprintf(tempbuf,"%-3d",0);
                         else sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed);
-                        gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
+                        gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
+                        yy += 10;
                     }
                 }
             }
@@ -11288,8 +11920,10 @@ FRAGBONUS:
             zz = yy += 5;
             if (totalclock > (60*9))
             {
-                gametext(10,yy+9,"Secrets Found:",0,2+8+16); yy += 10;
-                gametext(10,yy+9,"Secrets Missed:",0,2+8+16); yy += 10;
+                gametext(10,yy+9,"Secrets Found:",0,2+8+16);
+                yy += 10;
+                gametext(10,yy+9,"Secrets Missed:",0,2+8+16);
+                yy += 10;
                 if (bonuscnt == 4) bonuscnt++;
 
                 yy = zz;
@@ -11301,11 +11935,13 @@ FRAGBONUS:
                         sound(PIPEBOMB_EXPLODE);
                     }
                     sprintf(tempbuf,"%-3ld",ps[myconnectindex].secret_rooms);
-                    gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
+                    gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
+                    yy += 10;
                     if (ps[myconnectindex].secret_rooms > 0)
                         sprintf(tempbuf,"%-3ld%%",(100*ps[myconnectindex].secret_rooms/ps[myconnectindex].max_secret_rooms));
                     sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_secret_rooms-ps[myconnectindex].secret_rooms);
-                    gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16); yy += 10;
+                    gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
+                    yy += 10;
                 }
             }
 

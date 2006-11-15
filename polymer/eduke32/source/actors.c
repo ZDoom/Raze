@@ -61,11 +61,13 @@ void dointerpolations(long smoothratio)       //Stick at beginning of drawscreen
 {
     long i, j, odelta, ndelta;
 
-    ndelta = 0; j = 0;
+    ndelta = 0;
+    j = 0;
     for (i=numinterpolations-1;i>=0;i--)
     {
         bakipos[i] = *curipos[i];
-        odelta = ndelta; ndelta = (*curipos[i])-oldipos[i];
+        odelta = ndelta;
+        ndelta = (*curipos[i])-oldipos[i];
         if (odelta != ndelta) j = mulscale16(ndelta,smoothratio);
         *curipos[i] = oldipos[i]+j;
     }
@@ -115,31 +117,37 @@ void addweaponnoswitch(struct player_struct *p, short weapon)
     }
     switch (p->curr_weapon)
     {
-    case KNEE_WEAPON:
-    case TRIPBOMB_WEAPON:
-    case HANDREMOTE_WEAPON:
-    case HANDBOMB_WEAPON:
-        break;
-    case SHOTGUN_WEAPON:
-        stopspritesound(SHOTGUN_COCK,p->i);break;
-    case PISTOL_WEAPON:
-        stopspritesound(INSERT_CLIP,p->i);break;
-    default:
-        stopspritesound(SELECT_WEAPON,p->i);break;
+        case KNEE_WEAPON:
+        case TRIPBOMB_WEAPON:
+        case HANDREMOTE_WEAPON:
+        case HANDBOMB_WEAPON:
+            break;
+        case SHOTGUN_WEAPON:
+            stopspritesound(SHOTGUN_COCK,p->i);
+            break;
+        case PISTOL_WEAPON:
+            stopspritesound(INSERT_CLIP,p->i);
+            break;
+        default:
+            stopspritesound(SELECT_WEAPON,p->i);
+            break;
     }
     switch (weapon)
     {
-    case KNEE_WEAPON:
-    case TRIPBOMB_WEAPON:
-    case HANDREMOTE_WEAPON:
-    case HANDBOMB_WEAPON:
-        break;
-    case SHOTGUN_WEAPON:
-        spritesound(SHOTGUN_COCK,p->i);break;
-    case PISTOL_WEAPON:
-        spritesound(INSERT_CLIP,p->i);break;
-    default:
-        spritesound(SELECT_WEAPON,p->i);break;
+        case KNEE_WEAPON:
+        case TRIPBOMB_WEAPON:
+        case HANDREMOTE_WEAPON:
+        case HANDBOMB_WEAPON:
+            break;
+        case SHOTGUN_WEAPON:
+            spritesound(SHOTGUN_COCK,p->i);
+            break;
+        case PISTOL_WEAPON:
+            spritesound(INSERT_CLIP,p->i);
+            break;
+        default:
+            spritesound(SELECT_WEAPON,p->i);
+            break;
     }
 }
 
@@ -329,7 +337,8 @@ void hitradius(short i, long  r, long  hp1, long  hp2, long  hp3, long  hp4)
     {
         tempshort[0] = s->sectnum;
         dasect = s->sectnum;
-        sectcnt = 0; sectend = 1;
+        sectcnt = 0;
+        sectend = 1;
 
         do
         {
@@ -823,32 +832,32 @@ void movefta(void)
 
                     if (j) switch (dynamictostatic[s->picnum])
                         {
-                        case RUBBERCAN__STATIC:
-                        case EXPLODINGBARREL__STATIC:
-                        case WOODENHORSE__STATIC:
-                        case HORSEONSIDE__STATIC:
-                        case CANWITHSOMETHING__STATIC:
-                        case CANWITHSOMETHING2__STATIC:
-                        case CANWITHSOMETHING3__STATIC:
-                        case CANWITHSOMETHING4__STATIC:
-                        case FIREBARREL__STATIC:
-                        case FIREVASE__STATIC:
-                        case NUKEBARREL__STATIC:
-                        case NUKEBARRELDENTED__STATIC:
-                        case NUKEBARRELLEAKED__STATIC:
-                        case TRIPBOMB__STATIC:
-                            if (sector[s->sectnum].ceilingstat&1 && checkspriteflags(j,SPRITE_FLAG_NOSHADE) == 0)
-                                s->shade = sector[s->sectnum].ceilingshade;
-                            else s->shade = sector[s->sectnum].floorshade;
+                            case RUBBERCAN__STATIC:
+                            case EXPLODINGBARREL__STATIC:
+                            case WOODENHORSE__STATIC:
+                            case HORSEONSIDE__STATIC:
+                            case CANWITHSOMETHING__STATIC:
+                            case CANWITHSOMETHING2__STATIC:
+                            case CANWITHSOMETHING3__STATIC:
+                            case CANWITHSOMETHING4__STATIC:
+                            case FIREBARREL__STATIC:
+                            case FIREVASE__STATIC:
+                            case NUKEBARREL__STATIC:
+                            case NUKEBARRELDENTED__STATIC:
+                            case NUKEBARRELLEAKED__STATIC:
+                            case TRIPBOMB__STATIC:
+                                if (sector[s->sectnum].ceilingstat&1 && checkspriteflags(j,SPRITE_FLAG_NOSHADE) == 0)
+                                    s->shade = sector[s->sectnum].ceilingshade;
+                                else s->shade = sector[s->sectnum].floorshade;
 
-                            hittype[i].timetosleep = 0;
-                            changespritestat(i,6);
-                            break;
-                        default:
-                            hittype[i].timetosleep = 0;
-                            check_fta_sounds(i);
-                            changespritestat(i,1);
-                            break;
+                                hittype[i].timetosleep = 0;
+                                changespritestat(i,6);
+                                break;
+                            default:
+                                hittype[i].timetosleep = 0;
+                                check_fta_sounds(i);
+                                changespritestat(i,1);
+                                break;
                         }
                     else hittype[i].timetosleep = 0;
                 }
@@ -943,24 +952,24 @@ short ifhitbyweapon(short sn)
 
                 switch (dynamictostatic[hittype[sn].picnum])
                 {
-                case RADIUSEXPLOSION__STATIC:
-                case RPG__STATIC:
-                case HYDRENT__STATIC:
-                case HEAVYHBOMB__STATIC:
-                case SEENINE__STATIC:
-                case OOZFILTER__STATIC:
-                case EXPLODINGBARREL__STATIC:
-                    ps[p].posxv +=
-                        hittype[sn].extra*(sintable[(hittype[sn].ang+512)&2047])<<2;
-                    ps[p].posyv +=
-                        hittype[sn].extra*(sintable[hittype[sn].ang&2047])<<2;
-                    break;
-                default:
-                    ps[p].posxv +=
-                        hittype[sn].extra*(sintable[(hittype[sn].ang+512)&2047])<<1;
-                    ps[p].posyv +=
-                        hittype[sn].extra*(sintable[hittype[sn].ang&2047])<<1;
-                    break;
+                    case RADIUSEXPLOSION__STATIC:
+                    case RPG__STATIC:
+                    case HYDRENT__STATIC:
+                    case HEAVYHBOMB__STATIC:
+                    case SEENINE__STATIC:
+                    case OOZFILTER__STATIC:
+                    case EXPLODINGBARREL__STATIC:
+                        ps[p].posxv +=
+                            hittype[sn].extra*(sintable[(hittype[sn].ang+512)&2047])<<2;
+                        ps[p].posyv +=
+                            hittype[sn].extra*(sintable[hittype[sn].ang&2047])<<2;
+                        break;
+                    default:
+                        ps[p].posxv +=
+                            hittype[sn].extra*(sintable[(hittype[sn].ang+512)&2047])<<1;
+                        ps[p].posyv +=
+                            hittype[sn].extra*(sintable[hittype[sn].ang&2047])<<1;
+                        break;
                 }
             }
             else
@@ -1216,85 +1225,85 @@ void movefx(void)
 
         switch (dynamictostatic[s->picnum])
         {
-        case RESPAWN__STATIC:
-            if (sprite[i].extra == 66)
-            {
-                j = spawn(i,SHT);
-                //                    sprite[j].pal = sprite[i].pal;
-                KILLIT(i);
-            }
-            else if (sprite[i].extra > (66-13))
-                sprite[i].extra++;
-            break;
-
-        case MUSICANDSFX__STATIC:
-
-            ht = s->hitag;
-
-            if (T2 != SoundToggle)
-            {
-                T2 = SoundToggle;
-                T1 = 0;
-            }
-
-            if (s->lotag >= 1000 && s->lotag < 2000)
-            {
-                x = ldist(&sprite[ps[screenpeek].i],s);
-                if (x < ht && T1 == 0)
+            case RESPAWN__STATIC:
+                if (sprite[i].extra == 66)
                 {
-                    FX_SetReverb(s->lotag - 1000);
-                    T1 = 1;
+                    j = spawn(i,SHT);
+                    //                    sprite[j].pal = sprite[i].pal;
+                    KILLIT(i);
                 }
-                if (x >= ht && T1 == 1)
+                else if (sprite[i].extra > (66-13))
+                    sprite[i].extra++;
+                break;
+
+            case MUSICANDSFX__STATIC:
+
+                ht = s->hitag;
+
+                if (T2 != SoundToggle)
                 {
-                    FX_SetReverb(0);
-                    FX_SetReverbDelay(0);
+                    T2 = SoundToggle;
                     T1 = 0;
                 }
-            }
-            else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 && AmbienceToggle && sector[SECT].floorz != sector[SECT].ceilingz)
-            {
-                if ((soundm[s->lotag]&2))
+
+                if (s->lotag >= 1000 && s->lotag < 2000)
                 {
-                    x = dist(&sprite[ps[screenpeek].i],s);
-                    if (x < ht && T1 == 0 && FX_VoiceAvailable(soundpr[s->lotag]-1))
+                    x = ldist(&sprite[ps[screenpeek].i],s);
+                    if (x < ht && T1 == 0)
                     {
-                        if (numenvsnds == NumVoices)
-                        {
-                            j = headspritestat[11];
-                            while (j >= 0)
-                            {
-                                if (PN == MUSICANDSFX && j != i && sprite[j].lotag < 999 && hittype[j].temp_data[0] == 1 && dist(&sprite[j],&sprite[ps[screenpeek].i]) > x)
-                                {
-                                    stopenvsound(sprite[j].lotag,j);
-                                    break;
-                                }
-                                j = nextspritestat[j];
-                            }
-                            if (j == -1) goto BOLT;
-                        }
-                        spritesound(s->lotag,i);
+                        FX_SetReverb(s->lotag - 1000);
                         T1 = 1;
                     }
                     if (x >= ht && T1 == 1)
                     {
+                        FX_SetReverb(0);
+                        FX_SetReverbDelay(0);
                         T1 = 0;
-                        stopenvsound(s->lotag,i);
                     }
                 }
-                if ((soundm[s->lotag]&16))
+                else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 && AmbienceToggle && sector[SECT].floorz != sector[SECT].ceilingz)
                 {
-                    if (T5 > 0) T5--;
-                    else for (p=connecthead;p>=0;p=connectpoint2[p])
-                            if (p == myconnectindex && ps[p].cursectnum == s->sectnum)
+                    if ((soundm[s->lotag]&2))
+                    {
+                        x = dist(&sprite[ps[screenpeek].i],s);
+                        if (x < ht && T1 == 0 && FX_VoiceAvailable(soundpr[s->lotag]-1))
+                        {
+                            if (numenvsnds == NumVoices)
                             {
-                                j = s->lotag+((unsigned)global_random%(s->hitag+1));
-                                sound(j);
-                                T5 =  26*40 + (global_random%(26*40));
+                                j = headspritestat[11];
+                                while (j >= 0)
+                                {
+                                    if (PN == MUSICANDSFX && j != i && sprite[j].lotag < 999 && hittype[j].temp_data[0] == 1 && dist(&sprite[j],&sprite[ps[screenpeek].i]) > x)
+                                    {
+                                        stopenvsound(sprite[j].lotag,j);
+                                        break;
+                                    }
+                                    j = nextspritestat[j];
+                                }
+                                if (j == -1) goto BOLT;
                             }
+                            spritesound(s->lotag,i);
+                            T1 = 1;
+                        }
+                        if (x >= ht && T1 == 1)
+                        {
+                            T1 = 0;
+                            stopenvsound(s->lotag,i);
+                        }
+                    }
+                    if ((soundm[s->lotag]&16))
+                    {
+                        if (T5 > 0) T5--;
+                        else for (p=connecthead;p>=0;p=connectpoint2[p])
+                                if (p == myconnectindex && ps[p].cursectnum == s->sectnum)
+                                {
+                                    j = s->lotag+((unsigned)global_random%(s->hitag+1));
+                                    sound(j);
+                                    T5 =  26*40 + (global_random%(26*40));
+                                }
+                    }
                 }
-            }
-            break;
+                break;
         }
 BOLT:
         i = nexti;
@@ -1436,14 +1445,14 @@ void movestandables(void)
                     nextj = nextspritesect[j];
                     switch (sprite[j].statnum)
                     {
-                    case 1:
-                    case 2:
-                    case 6:
-                    case 10:
-                        s->ang = getangle(msx[t[4]+1]-s->x,msy[t[4]+1]-s->y);
-                        setsprite(j,msx[t[4]+1],msy[t[4]+1],sprite[j].z);
-                        t[0]++;
-                        goto BOLT;
+                        case 1:
+                        case 2:
+                        case 6:
+                        case 10:
+                            s->ang = getangle(msx[t[4]+1]-s->x,msy[t[4]+1]-s->y);
+                            setsprite(j,msx[t[4]+1],msy[t[4]+1],sprite[j].z);
+                            t[0]++;
+                            goto BOLT;
                     }
                     j = nextj;
                 }
@@ -1512,10 +1521,10 @@ void movestandables(void)
                         {
                             switch (sprite[j].statnum)
                             {
-                            case 1:
-                            case 6:
-                                s->owner = j;
-                                break;
+                                case 1:
+                                case 6:
+                                    s->owner = j;
+                                    break;
                             }
                             j = nextspritesect[j];
                         }
@@ -1654,7 +1663,10 @@ void movestandables(void)
                 s->xrepeat = j;
 
                 j = s->yrepeat-(TRAND&7);
-                if (j < 4) { KILLIT(i); }
+                if (j < 4)
+                {
+                    KILLIT(i);
+                }
                 s->yrepeat = j;
             }
             if (s->picnum == BOX)
@@ -1717,7 +1729,9 @@ void movestandables(void)
                 x = s->extra;
                 s->extra = 1;
                 l = s->ang;
-                IFHIT { hittype[i].temp_data[6] = 3; T3 = 16; }
+                IFHIT { hittype[i].temp_data[6] = 3;
+                        T3 = 16;
+                      }
                 s->extra = x;
                 s->ang = l;
             }
@@ -1733,7 +1747,8 @@ void movestandables(void)
                 l = s->ang;
                 s->ang = T6;
 
-                T4 = s->x;T5 = s->y;
+                T4 = s->x;
+                T5 = s->y;
                 s->x += sintable[(T6+512)&2047]>>9;
                 s->y += sintable[(T6)&2047]>>9;
                 s->z -= (3<<8);
@@ -1771,7 +1786,8 @@ void movestandables(void)
                     }
                 }
                 T1++;
-                s->x = T4;s->y = T5;
+                s->x = T4;
+                s->y = T5;
                 s->z += (3<<8);
                 setsprite(i,s->x,s->y,s->z);
                 T4 = 0;
@@ -1789,7 +1805,8 @@ void movestandables(void)
                 T2++;
 
 
-                T4 = s->x;T5 = s->y;
+                T4 = s->x;
+                T5 = s->y;
                 s->x += sintable[(T6+512)&2047]>>9;
                 s->y += sintable[(T6)&2047]>>9;
                 s->z -= (3<<8);
@@ -1797,7 +1814,8 @@ void movestandables(void)
 
                 x = hitasprite(i,&m);
 
-                s->x = T4;s->y = T5;
+                s->x = T4;
+                s->y = T5;
                 s->z += (3<<8);
                 setsprite(i,s->x,s->y,s->z);
 
@@ -2007,26 +2025,26 @@ DETONATE:
                         {
                             switch (sprite[j].lotag)
                             {
-                            case 2:
-                            case 21:
-                            case 31:
-                            case 32:
-                            case 36:
-                                hittype[j].temp_data[0] = 1;
-                                break;
-                            case 3:
-                                hittype[j].temp_data[4] = 1;
-                                break;
+                                case 2:
+                                case 21:
+                                case 31:
+                                case 32:
+                                case 36:
+                                    hittype[j].temp_data[0] = 1;
+                                    break;
+                                case 3:
+                                    hittype[j].temp_data[4] = 1;
+                                    break;
                             }
                         }
                         else if (sprite[j].statnum == 6)
                         {
                             switch (dynamictostatic[sprite[j].picnum])
                             {
-                            case SEENINE__STATIC:
-                            case OOZFILTER__STATIC:
-                                sprite[j].shade = -31;
-                                break;
+                                case SEENINE__STATIC:
+                                case OOZFILTER__STATIC:
+                                    sprite[j].shade = -31;
+                                    break;
                             }
                         }
                         j = nextspritesect[j];
@@ -2037,296 +2055,298 @@ DETONATE:
             goto BOLT;
         }
         switchpicnum = s->picnum;
-        if ((s->picnum > SIDEBOLT1) && (s->picnum <= SIDEBOLT1+3)) {
+        if ((s->picnum > SIDEBOLT1) && (s->picnum <= SIDEBOLT1+3))
+        {
             switchpicnum = SIDEBOLT1;
         }
-        if ((s->picnum > BOLT1) && (s->picnum <= BOLT1+3)) {
+        if ((s->picnum > BOLT1) && (s->picnum <= BOLT1+3))
+        {
             switchpicnum = BOLT1;
         }
 
         switch (dynamictostatic[switchpicnum])
         {
-        case VIEWSCREEN__STATIC:
-        case VIEWSCREEN2__STATIC:
+            case VIEWSCREEN__STATIC:
+            case VIEWSCREEN2__STATIC:
 
-            if (s->xrepeat == 0) KILLIT(i);
+                if (s->xrepeat == 0) KILLIT(i);
 
-            p = findplayer(s, &x);
+                p = findplayer(s, &x);
 
-            if (x < 2048)
-            {
-                if (SP == 1)
-                    camsprite = i;
-            }
-            else if (camsprite != -1 && T1 == 1)
-            {
-                camsprite = -1;
-                T1 = 0;
-                //loadtile(s->picnum);
-                //invalidatetile(s->picnum,-1,255);
-                walock[TILE_VIEWSCR] = 199;
-            }
-
-            goto BOLT;
-
-        case TRASH__STATIC:
-
-            if (s->xvel == 0) s->xvel = 1;
-            IFMOVING
-            {
-                makeitfall(i);
-                if (TRAND&1) s->zvel -= 256;
-                if (klabs(s->xvel) < 48)
-                    s->xvel += (TRAND&3);
+                if (x < 2048)
+                {
+                    if (SP == 1)
+                        camsprite = i;
                 }
-                else KILLIT(i);
-            break;
+                else if (camsprite != -1 && T1 == 1)
+                {
+                    camsprite = -1;
+                    T1 = 0;
+                    //loadtile(s->picnum);
+                    //invalidatetile(s->picnum,-1,255);
+                    walock[TILE_VIEWSCR] = 199;
+                }
 
-        case SIDEBOLT1__STATIC:
-            //        case SIDEBOLT1+1:
-            //        case SIDEBOLT1+2:
-            //        case SIDEBOLT1+3:
-            p = findplayer(s, &x);
-            if (x > 20480) goto BOLT;
+                goto BOLT;
+
+            case TRASH__STATIC:
+
+                if (s->xvel == 0) s->xvel = 1;
+                IFMOVING
+                {
+                    makeitfall(i);
+                    if (TRAND&1) s->zvel -= 256;
+                    if (klabs(s->xvel) < 48)
+                        s->xvel += (TRAND&3);
+                    }
+                    else KILLIT(i);
+                break;
+
+            case SIDEBOLT1__STATIC:
+                //        case SIDEBOLT1+1:
+                //        case SIDEBOLT1+2:
+                //        case SIDEBOLT1+3:
+                p = findplayer(s, &x);
+                if (x > 20480) goto BOLT;
 
 CLEAR_THE_BOLT2:
-            if (t[2])
-            {
-                t[2]--;
+                if (t[2])
+                {
+                    t[2]--;
+                    goto BOLT;
+                }
+                if ((s->xrepeat|s->yrepeat) == 0)
+                {
+                    s->xrepeat=t[0];
+                    s->yrepeat=t[1];
+                }
+                if ((TRAND&8) == 0)
+                {
+                    t[0]=s->xrepeat;
+                    t[1]=s->yrepeat;
+                    t[2] = global_random&4;
+                    s->xrepeat=s->yrepeat=0;
+                    goto CLEAR_THE_BOLT2;
+                }
+                s->picnum++;
+
+                if (l&1) s->cstat ^= 2;
+
+                if ((TRAND&1) && sector[sect].floorpicnum == HURTRAIL)
+                    spritesound(SHORT_CIRCUIT,i);
+
+                if (s->picnum == SIDEBOLT1+4) s->picnum = SIDEBOLT1;
+
                 goto BOLT;
-            }
-            if ((s->xrepeat|s->yrepeat) == 0)
-            {
-                s->xrepeat=t[0];
-                s->yrepeat=t[1];
-            }
-            if ((TRAND&8) == 0)
-            {
-                t[0]=s->xrepeat;
-                t[1]=s->yrepeat;
-                t[2] = global_random&4;
-                s->xrepeat=s->yrepeat=0;
-                goto CLEAR_THE_BOLT2;
-            }
-            s->picnum++;
 
-            if (l&1) s->cstat ^= 2;
+            case BOLT1__STATIC:
+                //        case BOLT1+1:
+                //        case BOLT1+2:
+                //        case BOLT1+3:
+                p = findplayer(s, &x);
+                if (x > 20480) goto BOLT;
 
-            if ((TRAND&1) && sector[sect].floorpicnum == HURTRAIL)
-                spritesound(SHORT_CIRCUIT,i);
-
-            if (s->picnum == SIDEBOLT1+4) s->picnum = SIDEBOLT1;
-
-            goto BOLT;
-
-        case BOLT1__STATIC:
-            //        case BOLT1+1:
-            //        case BOLT1+2:
-            //        case BOLT1+3:
-            p = findplayer(s, &x);
-            if (x > 20480) goto BOLT;
-
-            if (t[3] == 0)
-                t[3]=sector[sect].floorshade;
+                if (t[3] == 0)
+                    t[3]=sector[sect].floorshade;
 
 CLEAR_THE_BOLT:
-            if (t[2])
-            {
-                t[2]--;
-                sector[sect].floorshade = 20;
-                sector[sect].ceilingshade = 20;
-                goto BOLT;
-            }
-            if ((s->xrepeat|s->yrepeat) == 0)
-            {
-                s->xrepeat=t[0];
-                s->yrepeat=t[1];
-            }
-            else if ((TRAND&8) == 0)
-            {
-                t[0]=s->xrepeat;
-                t[1]=s->yrepeat;
-                t[2] = global_random&4;
-                s->xrepeat=s->yrepeat=0;
-                goto CLEAR_THE_BOLT;
-            }
-            s->picnum++;
-
-            l = global_random&7;
-            s->xrepeat=l+8;
-
-            if (l&1) s->cstat ^= 2;
-
-            if (s->picnum == (BOLT1+1) && (TRAND&7) == 0 && sector[sect].floorpicnum == HURTRAIL)
-                spritesound(SHORT_CIRCUIT,i);
-
-            if (s->picnum==BOLT1+4) s->picnum=BOLT1;
-
-            if (s->picnum&1)
-            {
-                sector[sect].floorshade = 0;
-                sector[sect].ceilingshade = 0;
-            }
-            else
-            {
-                sector[sect].floorshade = 20;
-                sector[sect].ceilingshade = 20;
-            }
-            goto BOLT;
-
-        case WATERDRIP__STATIC:
-
-            if (t[1])
-            {
-                t[1]--;
-                if (t[1] == 0)
-                    s->cstat &= 32767;
-            }
-            else
-            {
-                makeitfall(i);
-                ssp(i,CLIPMASK0);
-                if (s->xvel > 0) s->xvel -= 2;
-
-                if (s->zvel == 0)
+                if (t[2])
                 {
-                    s->cstat |= 32768;
-
-                    if (s->pal != 2 && s->hitag == 0)
-                        spritesound(SOMETHING_DRIPPING,i);
-
-                    if (sprite[s->owner].picnum != WATERDRIP)
-                    {
-                        KILLIT(i);
-                    }
-                    else
-                    {
-                        hittype[i].bposz = s->z = t[0];
-                        t[1] = 48+(TRAND&31);
-                    }
+                    t[2]--;
+                    sector[sect].floorshade = 20;
+                    sector[sect].ceilingshade = 20;
+                    goto BOLT;
                 }
-            }
-
-
-            goto BOLT;
-
-        case DOORSHOCK__STATIC:
-            j = klabs(sector[sect].ceilingz-sector[sect].floorz)>>9;
-            s->yrepeat = j+4;
-            s->xrepeat = 16;
-            s->z = sector[sect].floorz;
-            goto BOLT;
-
-        case TOUCHPLATE__STATIC:
-            if (t[1] == 1 && s->hitag >= 0)  //Move the sector floor
-            {
-                x = sector[sect].floorz;
-
-                if (t[3] == 1)
+                if ((s->xrepeat|s->yrepeat) == 0)
                 {
-                    if (x >= t[2])
-                    {
-                        sector[sect].floorz = x;
-                        t[1] = 0;
-                    }
-                    else
-                    {
-                        sector[sect].floorz += sector[sect].extra;
-                        p = checkcursectnums(sect);
-                        if (p >= 0) ps[p].posz += sector[sect].extra;
-                    }
+                    s->xrepeat=t[0];
+                    s->yrepeat=t[1];
+                }
+                else if ((TRAND&8) == 0)
+                {
+                    t[0]=s->xrepeat;
+                    t[1]=s->yrepeat;
+                    t[2] = global_random&4;
+                    s->xrepeat=s->yrepeat=0;
+                    goto CLEAR_THE_BOLT;
+                }
+                s->picnum++;
+
+                l = global_random&7;
+                s->xrepeat=l+8;
+
+                if (l&1) s->cstat ^= 2;
+
+                if (s->picnum == (BOLT1+1) && (TRAND&7) == 0 && sector[sect].floorpicnum == HURTRAIL)
+                    spritesound(SHORT_CIRCUIT,i);
+
+                if (s->picnum==BOLT1+4) s->picnum=BOLT1;
+
+                if (s->picnum&1)
+                {
+                    sector[sect].floorshade = 0;
+                    sector[sect].ceilingshade = 0;
                 }
                 else
                 {
-                    if (x <= s->z)
+                    sector[sect].floorshade = 20;
+                    sector[sect].ceilingshade = 20;
+                }
+                goto BOLT;
+
+            case WATERDRIP__STATIC:
+
+                if (t[1])
+                {
+                    t[1]--;
+                    if (t[1] == 0)
+                        s->cstat &= 32767;
+                }
+                else
+                {
+                    makeitfall(i);
+                    ssp(i,CLIPMASK0);
+                    if (s->xvel > 0) s->xvel -= 2;
+
+                    if (s->zvel == 0)
                     {
-                        sector[sect].floorz = s->z;
-                        t[1] = 0;
+                        s->cstat |= 32768;
+
+                        if (s->pal != 2 && s->hitag == 0)
+                            spritesound(SOMETHING_DRIPPING,i);
+
+                        if (sprite[s->owner].picnum != WATERDRIP)
+                        {
+                            KILLIT(i);
+                        }
+                        else
+                        {
+                            hittype[i].bposz = s->z = t[0];
+                            t[1] = 48+(TRAND&31);
+                        }
+                    }
+                }
+
+
+                goto BOLT;
+
+            case DOORSHOCK__STATIC:
+                j = klabs(sector[sect].ceilingz-sector[sect].floorz)>>9;
+                s->yrepeat = j+4;
+                s->xrepeat = 16;
+                s->z = sector[sect].floorz;
+                goto BOLT;
+
+            case TOUCHPLATE__STATIC:
+                if (t[1] == 1 && s->hitag >= 0)  //Move the sector floor
+                {
+                    x = sector[sect].floorz;
+
+                    if (t[3] == 1)
+                    {
+                        if (x >= t[2])
+                        {
+                            sector[sect].floorz = x;
+                            t[1] = 0;
+                        }
+                        else
+                        {
+                            sector[sect].floorz += sector[sect].extra;
+                            p = checkcursectnums(sect);
+                            if (p >= 0) ps[p].posz += sector[sect].extra;
+                        }
                     }
                     else
                     {
-                        sector[sect].floorz -= sector[sect].extra;
-                        p = checkcursectnums(sect);
-                        if (p >= 0)
-                            ps[p].posz -= sector[sect].extra;
+                        if (x <= s->z)
+                        {
+                            sector[sect].floorz = s->z;
+                            t[1] = 0;
+                        }
+                        else
+                        {
+                            sector[sect].floorz -= sector[sect].extra;
+                            p = checkcursectnums(sect);
+                            if (p >= 0)
+                                ps[p].posz -= sector[sect].extra;
+                        }
+                    }
+                    goto BOLT;
+                }
+
+                if (t[5] == 1) goto BOLT;
+
+                p = checkcursectnums(sect);
+                if (p >= 0 && (ps[p].on_ground || s->ang == 512))
+                {
+                    if (t[0] == 0 && !check_activator_motion(s->lotag))
+                    {
+                        t[0] = 1;
+                        t[1] = 1;
+                        t[3] = !t[3];
+                        operatemasterswitches(s->lotag);
+                        operateactivators(s->lotag,p);
+                        if (s->hitag > 0)
+                        {
+                            s->hitag--;
+                            if (s->hitag == 0) t[5] = 1;
+                        }
+                    }
+                }
+                else t[0] = 0;
+
+                if (t[1] == 1)
+                {
+                    j = headspritestat[6];
+                    while (j >= 0)
+                    {
+                        if (j != i && sprite[j].picnum == TOUCHPLATE && sprite[j].lotag == s->lotag)
+                        {
+                            hittype[j].temp_data[1] = 1;
+                            hittype[j].temp_data[3] = t[3];
+                        }
+                        j = nextspritestat[j];
                     }
                 }
                 goto BOLT;
-            }
 
-            if (t[5] == 1) goto BOLT;
-
-            p = checkcursectnums(sect);
-            if (p >= 0 && (ps[p].on_ground || s->ang == 512))
-            {
-                if (t[0] == 0 && !check_activator_motion(s->lotag))
+            case CANWITHSOMETHING__STATIC:
+            case CANWITHSOMETHING2__STATIC:
+            case CANWITHSOMETHING3__STATIC:
+            case CANWITHSOMETHING4__STATIC:
+                makeitfall(i);
+                IFHIT
                 {
-                    t[0] = 1;
-                    t[1] = 1;
-                    t[3] = !t[3];
-                    operatemasterswitches(s->lotag);
-                    operateactivators(s->lotag,p);
-                    if (s->hitag > 0)
-                    {
-                        s->hitag--;
-                        if (s->hitag == 0) t[5] = 1;
+                    spritesound(VENT_BUST,i);
+                    for (j=0;j<10;j++)
+                    RANDOMSCRAP;
+
+                    if (s->lotag) spawn(i,s->lotag);
+
+                        KILLIT(i);
                     }
-                }
-            }
-            else t[0] = 0;
+                    goto BOLT;
 
-            if (t[1] == 1)
-            {
-                j = headspritestat[6];
-                while (j >= 0)
-                {
-                    if (j != i && sprite[j].picnum == TOUCHPLATE && sprite[j].lotag == s->lotag)
-                    {
-                        hittype[j].temp_data[1] = 1;
-                        hittype[j].temp_data[3] = t[3];
-                    }
-                    j = nextspritestat[j];
-                }
-            }
-            goto BOLT;
-
-        case CANWITHSOMETHING__STATIC:
-        case CANWITHSOMETHING2__STATIC:
-        case CANWITHSOMETHING3__STATIC:
-        case CANWITHSOMETHING4__STATIC:
-            makeitfall(i);
-            IFHIT
-            {
-                spritesound(VENT_BUST,i);
-                for (j=0;j<10;j++)
-                RANDOMSCRAP;
-
-                if (s->lotag) spawn(i,s->lotag);
-
-                    KILLIT(i);
-                }
-                goto BOLT;
-
-    case EXPLODINGBARREL__STATIC:
-    case WOODENHORSE__STATIC:
-    case HORSEONSIDE__STATIC:
-    case FLOORFLAME__STATIC:
-    case FIREBARREL__STATIC:
-    case FIREVASE__STATIC:
-    case NUKEBARREL__STATIC:
-    case NUKEBARRELDENTED__STATIC:
-    case NUKEBARRELLEAKED__STATIC:
-    case TOILETWATER__STATIC:
-    case RUBBERCAN__STATIC:
-    case STEAM__STATIC:
-    case CEILINGSTEAM__STATIC:
-        p = findplayer(s, &x);
-            execute(i,p,x);
-            goto BOLT;
-        case WATERBUBBLEMAKER__STATIC:
+        case EXPLODINGBARREL__STATIC:
+        case WOODENHORSE__STATIC:
+        case HORSEONSIDE__STATIC:
+        case FLOORFLAME__STATIC:
+        case FIREBARREL__STATIC:
+        case FIREVASE__STATIC:
+        case NUKEBARREL__STATIC:
+        case NUKEBARRELDENTED__STATIC:
+        case NUKEBARRELLEAKED__STATIC:
+        case TOILETWATER__STATIC:
+        case RUBBERCAN__STATIC:
+        case STEAM__STATIC:
+        case CEILINGSTEAM__STATIC:
             p = findplayer(s, &x);
-            execute(i,p,x);
-            goto BOLT;
+                execute(i,p,x);
+                goto BOLT;
+            case WATERBUBBLEMAKER__STATIC:
+                p = findplayer(s, &x);
+                execute(i,p,x);
+                goto BOLT;
         }
 
 BOLT:
@@ -2346,7 +2366,8 @@ void bounce(short i)
 
     hitsect = s->sectnum;
 
-    k = sector[hitsect].wallptr; l = wall[k].point2;
+    k = sector[hitsect].wallptr;
+    l = wall[k].point2;
     daang = getangle(wall[l].x-wall[k].x,wall[l].y-wall[k].y);
 
     if (s->z < (hittype[i].floorz+hittype[i].ceilingz)>>1)
@@ -2444,7 +2465,9 @@ void moveweapons(void)
 
                 if (thisprojectile[i].drop) s->zvel=s->zvel-thisprojectile[i].drop;
 
-                dax = s->x; day = s->y; daz = s->z;
+                dax = s->x;
+                day = s->y;
+                daz = s->z;
 
                 if (thisprojectile[i].workslike & PROJECTILE_FLAG_TIMED && thisprojectile[i].range > 0)
                 {
@@ -2529,7 +2552,10 @@ void moveweapons(void)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                         j = 49152|s->yvel;
 
-            if (s->sectnum < 0) { KILLIT(i); }
+                if (s->sectnum < 0)
+                {
+                    KILLIT(i);
+                }
 
                 if ((j&49152) != 49152)
                     if (!(thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS))
@@ -2828,325 +2854,337 @@ void moveweapons(void)
             // here
             switch (dynamictostatic[s->picnum])
             {
-            case RADIUSEXPLOSION__STATIC:
-            case KNEE__STATIC:
-                KILLIT(i);
-            case TONGUE__STATIC:
-                T1 = sintable[(T2)&2047]>>9;
-                T2 += 32;
-                if (T2 > 2047) KILLIT(i);
+                case RADIUSEXPLOSION__STATIC:
+                case KNEE__STATIC:
+                    KILLIT(i);
+                case TONGUE__STATIC:
+                    T1 = sintable[(T2)&2047]>>9;
+                    T2 += 32;
+                    if (T2 > 2047) KILLIT(i);
 
-                if (sprite[s->owner].statnum == MAXSTATUS)
-                    if (badguy(&sprite[s->owner]) == 0)
-                        KILLIT(i);
+                    if (sprite[s->owner].statnum == MAXSTATUS)
+                        if (badguy(&sprite[s->owner]) == 0)
+                            KILLIT(i);
 
-                s->ang = sprite[s->owner].ang;
-                s->x = sprite[s->owner].x;
-                s->y = sprite[s->owner].y;
-                if (sprite[s->owner].picnum == APLAYER)
-                    s->z = sprite[s->owner].z-(34<<8);
-                for (k=0;k<T1;k++)
-                {
+                    s->ang = sprite[s->owner].ang;
+                    s->x = sprite[s->owner].x;
+                    s->y = sprite[s->owner].y;
+                    if (sprite[s->owner].picnum == APLAYER)
+                        s->z = sprite[s->owner].z-(34<<8);
+                    for (k=0;k<T1;k++)
+                    {
+                        q = EGS(s->sectnum,
+                                s->x+((k*sintable[(s->ang+512)&2047])>>9),
+                                s->y+((k*sintable[s->ang&2047])>>9),
+                                s->z+((k*ksgn(s->zvel))*klabs(s->zvel/12)),TONGUE,-40+(k<<1),
+                                8,8,0,0,0,i,5);
+                        sprite[q].cstat = 128;
+                        sprite[q].pal = 8;
+                    }
                     q = EGS(s->sectnum,
                             s->x+((k*sintable[(s->ang+512)&2047])>>9),
                             s->y+((k*sintable[s->ang&2047])>>9),
-                            s->z+((k*ksgn(s->zvel))*klabs(s->zvel/12)),TONGUE,-40+(k<<1),
-                            8,8,0,0,0,i,5);
+                            s->z+((k*ksgn(s->zvel))*klabs(s->zvel/12)),INNERJAW,-40,
+                            32,32,0,0,0,i,5);
                     sprite[q].cstat = 128;
-                    sprite[q].pal = 8;
-                }
-                q = EGS(s->sectnum,
-                        s->x+((k*sintable[(s->ang+512)&2047])>>9),
-                        s->y+((k*sintable[s->ang&2047])>>9),
-                        s->z+((k*ksgn(s->zvel))*klabs(s->zvel/12)),INNERJAW,-40,
-                        32,32,0,0,0,i,5);
-                sprite[q].cstat = 128;
-                if (T2 > 512 && T2 < (1024))
-                    sprite[q].picnum = INNERJAW+1;
+                    if (T2 > 512 && T2 < (1024))
+                        sprite[q].picnum = INNERJAW+1;
 
-                goto BOLT;
+                    goto BOLT;
 
-            case FREEZEBLAST__STATIC:
-                if (s->yvel < 1 || s->extra < 2 || (s->xvel|s->zvel) == 0)
-                {
-                    j = spawn(i,TRANSPORTERSTAR);
-                    sprite[j].pal = 1;
-                    sprite[j].xrepeat = 32;
-                    sprite[j].yrepeat = 32;
-                    KILLIT(i);
-                }
-            case SHRINKSPARK__STATIC:
-            case RPG__STATIC:
-            case FIRELASER__STATIC:
-            case SPIT__STATIC:
-            case COOLEXPLOSION1__STATIC:
-
-                if (s->picnum == COOLEXPLOSION1)
-                    if (!issoundplaying(i,WIERDSHOT_FLY))
-                        spritesound(WIERDSHOT_FLY,i);
-
-                p = -1;
-
-                if (s->picnum == RPG && sector[s->sectnum].lotag == 2)
-                {
-                    k = s->xvel>>1;
-                    ll = s->zvel>>1;
-                }
-                else
-                {
-                    k = s->xvel;
-                    ll = s->zvel;
-                }
-
-                dax = s->x; day = s->y; daz = s->z;
-
-                getglobalz(i);
-                qq = CLIPMASK1;
-
-                switch (dynamictostatic[s->picnum])
-                {
-                case RPG__STATIC:
-                    if (hittype[i].picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
+                case FREEZEBLAST__STATIC:
+                    if (s->yvel < 1 || s->extra < 2 || (s->xvel|s->zvel) == 0)
                     {
-                        j = spawn(i,SMALLSMOKE);
-                        sprite[j].z += (1<<8);
+                        j = spawn(i,TRANSPORTERSTAR);
+                        sprite[j].pal = 1;
+                        sprite[j].xrepeat = 32;
+                        sprite[j].yrepeat = 32;
+                        KILLIT(i);
                     }
-                    break;
-                }
+                case SHRINKSPARK__STATIC:
+                case RPG__STATIC:
+                case FIRELASER__STATIC:
+                case SPIT__STATIC:
+                case COOLEXPLOSION1__STATIC:
 
-                j = movesprite(i,
-                               (k*(sintable[(s->ang+512)&2047]))>>14,
-                               (k*(sintable[s->ang&2047]))>>14,ll,qq);
+                    if (s->picnum == COOLEXPLOSION1)
+                        if (!issoundplaying(i,WIERDSHOT_FLY))
+                            spritesound(WIERDSHOT_FLY,i);
 
-                if (s->picnum == RPG && s->yvel >= 0)
-                    if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
-                        j = 49152|s->yvel;
+                    p = -1;
 
-            if (s->sectnum < 0) { KILLIT(i); }
-
-                if ((j&49152) != 49152)
-                    if (s->picnum != FREEZEBLAST)
+                    if (s->picnum == RPG && sector[s->sectnum].lotag == 2)
                     {
-                        if (s->z < hittype[i].ceilingz)
+                        k = s->xvel>>1;
+                        ll = s->zvel>>1;
+                    }
+                    else
+                    {
+                        k = s->xvel;
+                        ll = s->zvel;
+                    }
+
+                    dax = s->x;
+                    day = s->y;
+                    daz = s->z;
+
+                    getglobalz(i);
+                    qq = CLIPMASK1;
+
+                    switch (dynamictostatic[s->picnum])
+                    {
+                        case RPG__STATIC:
+                            if (hittype[i].picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
+                            {
+                                j = spawn(i,SMALLSMOKE);
+                                sprite[j].z += (1<<8);
+                            }
+                            break;
+                    }
+
+                    j = movesprite(i,
+                                   (k*(sintable[(s->ang+512)&2047]))>>14,
+                                   (k*(sintable[s->ang&2047]))>>14,ll,qq);
+
+                    if (s->picnum == RPG && s->yvel >= 0)
+                        if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
+                            j = 49152|s->yvel;
+
+                    if (s->sectnum < 0)
+                    {
+                        KILLIT(i);
+                    }
+
+                    if ((j&49152) != 49152)
+                        if (s->picnum != FREEZEBLAST)
                         {
-                            j = 16384|(s->sectnum);
-                            s->zvel = -1;
-                        }
-                        else
-                            if ((s->z > hittype[i].floorz && sector[s->sectnum].lotag != 1) ||
-                                    (s->z > hittype[i].floorz+(16<<8) && sector[s->sectnum].lotag == 1))
+                            if (s->z < hittype[i].ceilingz)
                             {
                                 j = 16384|(s->sectnum);
-                                if (sector[s->sectnum].lotag != 1)
-                                    s->zvel = 1;
+                                s->zvel = -1;
                             }
-                    }
-
-                if (s->picnum == FIRELASER)
-                {
-                    for (k=-3;k<2;k++)
-                    {
-                        x = EGS(s->sectnum,
-                                s->x+((k*sintable[(s->ang+512)&2047])>>9),
-                                s->y+((k*sintable[s->ang&2047])>>9),
-                                s->z+((k*ksgn(s->zvel))*klabs(s->zvel/24)),FIRELASER,-40+(k<<2),
-                                s->xrepeat,s->yrepeat,0,0,0,s->owner,5);
-
-                        sprite[x].cstat = 128;
-                        sprite[x].pal = s->pal;
-                    }
-                }
-                else if (s->picnum == SPIT) if (s->zvel < 6144)
-                        s->zvel += gc-112;
-
-                if (j != 0)
-                {
-                    if (s->picnum == COOLEXPLOSION1)
-                    {
-                        if ((j&49152) == 49152 && sprite[j&(MAXSPRITES-1)].picnum != APLAYER)
-                            goto BOLT;
-                        s->xvel = 0;
-                        s->zvel = 0;
-                    }
-
-                    if ((j&49152) == 49152)
-                    {
-                        j &= (MAXSPRITES-1);
-
-                        if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
-                            if (badguy(&sprite[j]) || sprite[j].picnum == APLAYER)
-                            {
-                                j = spawn(i,TRANSPORTERSTAR);
-                                sprite[j].pal = 1;
-                                sprite[j].xrepeat = 32;
-                                sprite[j].yrepeat = 32;
-
-                                KILLIT(i);
-                            }
-
-                        checkhitsprite(j,i);
-
-                        if (sprite[j].picnum == APLAYER)
-                        {
-                            p = sprite[j].yvel;
-                            spritesound(PISTOL_BODYHIT,j);
-
-                            if (s->picnum == SPIT)
-                            {
-                                ps[p].horiz += 32;
-                                ps[p].return_to_center = 8;
-
-                                if (ps[p].loogcnt == 0)
+                            else
+                                if ((s->z > hittype[i].floorz && sector[s->sectnum].lotag != 1) ||
+                                        (s->z > hittype[i].floorz+(16<<8) && sector[s->sectnum].lotag == 1))
                                 {
-                                    if (!isspritemakingsound(ps[p].i, DUKE_LONGTERM_PAIN))
-                                        spritesound(DUKE_LONGTERM_PAIN,ps[p].i);
+                                    j = 16384|(s->sectnum);
+                                    if (sector[s->sectnum].lotag != 1)
+                                        s->zvel = 1;
+                                }
+                        }
 
-                                    j = 3+(TRAND&3);
-                                    ps[p].numloogs = j;
-                                    ps[p].loogcnt = 24*4;
-                                    for (x=0;x < j;x++)
+                    if (s->picnum == FIRELASER)
+                    {
+                        for (k=-3;k<2;k++)
+                        {
+                            x = EGS(s->sectnum,
+                                    s->x+((k*sintable[(s->ang+512)&2047])>>9),
+                                    s->y+((k*sintable[s->ang&2047])>>9),
+                                    s->z+((k*ksgn(s->zvel))*klabs(s->zvel/24)),FIRELASER,-40+(k<<2),
+                                    s->xrepeat,s->yrepeat,0,0,0,s->owner,5);
+
+                            sprite[x].cstat = 128;
+                            sprite[x].pal = s->pal;
+                        }
+                    }
+                    else if (s->picnum == SPIT) if (s->zvel < 6144)
+                            s->zvel += gc-112;
+
+                    if (j != 0)
+                    {
+                        if (s->picnum == COOLEXPLOSION1)
+                        {
+                            if ((j&49152) == 49152 && sprite[j&(MAXSPRITES-1)].picnum != APLAYER)
+                                goto BOLT;
+                            s->xvel = 0;
+                            s->zvel = 0;
+                        }
+
+                        if ((j&49152) == 49152)
+                        {
+                            j &= (MAXSPRITES-1);
+
+                            if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
+                                if (badguy(&sprite[j]) || sprite[j].picnum == APLAYER)
+                                {
+                                    j = spawn(i,TRANSPORTERSTAR);
+                                    sprite[j].pal = 1;
+                                    sprite[j].xrepeat = 32;
+                                    sprite[j].yrepeat = 32;
+
+                                    KILLIT(i);
+                                }
+
+                            checkhitsprite(j,i);
+
+                            if (sprite[j].picnum == APLAYER)
+                            {
+                                p = sprite[j].yvel;
+                                spritesound(PISTOL_BODYHIT,j);
+
+                                if (s->picnum == SPIT)
+                                {
+                                    ps[p].horiz += 32;
+                                    ps[p].return_to_center = 8;
+
+                                    if (ps[p].loogcnt == 0)
                                     {
-                                        ps[p].loogiex[x] = TRAND%xdim;
-                                        ps[p].loogiey[x] = TRAND%ydim;
+                                        if (!isspritemakingsound(ps[p].i, DUKE_LONGTERM_PAIN))
+                                            spritesound(DUKE_LONGTERM_PAIN,ps[p].i);
+
+                                        j = 3+(TRAND&3);
+                                        ps[p].numloogs = j;
+                                        ps[p].loogcnt = 24*4;
+                                        for (x=0;x < j;x++)
+                                        {
+                                            ps[p].loogiex[x] = TRAND%xdim;
+                                            ps[p].loogiey[x] = TRAND%ydim;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    else if ((j&49152) == 32768)
-                    {
-                        j &= (MAXWALLS-1);
-
-                        if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT && (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
+                        else if ((j&49152) == 32768)
                         {
-                            k = getangle(
-                                    wall[wall[j].point2].x-wall[j].x,
-                                    wall[wall[j].point2].y-wall[j].y);
-                            s->ang = ((k<<1) - s->ang)&2047;
-                            s->owner = i;
-                            spawn(i,TRANSPORTERSTAR);
-                            goto BOLT;
-                        }
-                        else
-                        {
-                            setsprite(i,dax,day,daz);
-                            checkhitwall(i,j,s->x,s->y,s->z,s->picnum);
+                            j &= (MAXWALLS-1);
 
-                            if (s->picnum == FREEZEBLAST)
+                            if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT && (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
                             {
-                                if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
-                                {
-                                    s->extra >>= 1;
-                                    s->yvel--;
-                                }
-
                                 k = getangle(
                                         wall[wall[j].point2].x-wall[j].x,
                                         wall[wall[j].point2].y-wall[j].y);
                                 s->ang = ((k<<1) - s->ang)&2047;
+                                s->owner = i;
+                                spawn(i,TRANSPORTERSTAR);
                                 goto BOLT;
-                            }
-                        }
-                    }
-                    else if ((j&49152) == 16384)
-                    {
-                        setsprite(i,dax,day,daz);
-
-                        if (s->zvel < 0)
-                        {
-                            if (sector[s->sectnum].ceilingstat&1)
-                                if (sector[s->sectnum].ceilingpal == 0)
-                                    KILLIT(i);
-
-                            checkhitceiling(s->sectnum);
-                        }
-
-                        if (s->picnum == FREEZEBLAST)
-                        {
-                            bounce(i);
-                            ssp(i,qq);
-                            s->extra >>= 1;
-                            if (s->xrepeat > 8)
-                                s->xrepeat -= 2;
-                            if (s->yrepeat > 8)
-                                s->yrepeat -= 2;
-                            s->yvel--;
-                            goto BOLT;
-                        }
-                    }
-
-                    if (s->picnum != SPIT)
-                    {
-                        if (s->picnum == RPG)
-                        {
-                            k = spawn(i,EXPLOSION2);
-                            sprite[k].x = dax;
-                            sprite[k].y = day;
-                            sprite[k].z = daz;
-
-                            if (s->xrepeat < 10)
-                            {
-                                sprite[k].xrepeat = 6;
-                                sprite[k].yrepeat = 6;
-                            }
-                            else if ((j&49152) == 16384)
-                            {
-                                if (s->zvel > 0)
-                                    spawn(i,EXPLOSION2BOT);
-                            else { sprite[k].cstat |= 8; sprite[k].z += (48<<8); }
-
-                            }
-                        }
-                        else if (s->picnum == SHRINKSPARK)
-                        {
-                            spawn(i,SHRINKEREXPLOSION);
-                            spritesound(SHRINKER_HIT,i);
-                            hitradius(i,shrinkerblastradius,0,0,0,0);
-                        }
-                        else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER)
-                        {
-                            k = spawn(i,EXPLOSION2);
-                            sprite[k].xrepeat = sprite[k].yrepeat = s->xrepeat>>1;
-                            if ((j&49152) == 16384)
-                            {
-                                if (s->zvel < 0)
-                                { sprite[k].cstat |= 8; sprite[k].z += (72<<8); }
-
-                            }
-                        }
-                        if (s->picnum == RPG)
-                        {
-                            spritesound(RPG_EXPLODE,i);
-
-                            if (s->xrepeat >= 10)
-                            {
-                                x = s->extra;
-                                hitradius(i,rpgblastradius, x>>2,x>>1,x-(x>>2),x);
                             }
                             else
                             {
-                                x = s->extra+(global_random&3);
-                                hitradius(i,(rpgblastradius>>1),x>>2,x>>1,x-(x>>2),x);
+                                setsprite(i,dax,day,daz);
+                                checkhitwall(i,j,s->x,s->y,s->z,s->picnum);
+
+                                if (s->picnum == FREEZEBLAST)
+                                {
+                                    if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
+                                    {
+                                        s->extra >>= 1;
+                                        s->yvel--;
+                                    }
+
+                                    k = getangle(
+                                            wall[wall[j].point2].x-wall[j].x,
+                                            wall[wall[j].point2].y-wall[j].y);
+                                    s->ang = ((k<<1) - s->ang)&2047;
+                                    goto BOLT;
+                                }
                             }
                         }
+                        else if ((j&49152) == 16384)
+                        {
+                            setsprite(i,dax,day,daz);
+
+                            if (s->zvel < 0)
+                            {
+                                if (sector[s->sectnum].ceilingstat&1)
+                                    if (sector[s->sectnum].ceilingpal == 0)
+                                        KILLIT(i);
+
+                                checkhitceiling(s->sectnum);
+                            }
+
+                            if (s->picnum == FREEZEBLAST)
+                            {
+                                bounce(i);
+                                ssp(i,qq);
+                                s->extra >>= 1;
+                                if (s->xrepeat > 8)
+                                    s->xrepeat -= 2;
+                                if (s->yrepeat > 8)
+                                    s->yrepeat -= 2;
+                                s->yvel--;
+                                goto BOLT;
+                            }
+                        }
+
+                        if (s->picnum != SPIT)
+                        {
+                            if (s->picnum == RPG)
+                            {
+                                k = spawn(i,EXPLOSION2);
+                                sprite[k].x = dax;
+                                sprite[k].y = day;
+                                sprite[k].z = daz;
+
+                                if (s->xrepeat < 10)
+                                {
+                                    sprite[k].xrepeat = 6;
+                                    sprite[k].yrepeat = 6;
+                                }
+                                else if ((j&49152) == 16384)
+                                {
+                                    if (s->zvel > 0)
+                                        spawn(i,EXPLOSION2BOT);
+                                    else
+                                    {
+                                        sprite[k].cstat |= 8;
+                                        sprite[k].z += (48<<8);
+                                    }
+
+                                }
+                            }
+                            else if (s->picnum == SHRINKSPARK)
+                            {
+                                spawn(i,SHRINKEREXPLOSION);
+                                spritesound(SHRINKER_HIT,i);
+                                hitradius(i,shrinkerblastradius,0,0,0,0);
+                            }
+                            else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER)
+                            {
+                                k = spawn(i,EXPLOSION2);
+                                sprite[k].xrepeat = sprite[k].yrepeat = s->xrepeat>>1;
+                                if ((j&49152) == 16384)
+                                {
+                                    if (s->zvel < 0)
+                                    {
+                                        sprite[k].cstat |= 8;
+                                        sprite[k].z += (72<<8);
+                                    }
+
+                                }
+                            }
+                            if (s->picnum == RPG)
+                            {
+                                spritesound(RPG_EXPLODE,i);
+
+                                if (s->xrepeat >= 10)
+                                {
+                                    x = s->extra;
+                                    hitradius(i,rpgblastradius, x>>2,x>>1,x-(x>>2),x);
+                                }
+                                else
+                                {
+                                    x = s->extra+(global_random&3);
+                                    hitradius(i,(rpgblastradius>>1),x>>2,x>>1,x-(x>>2),x);
+                                }
+                            }
+                        }
+                        if (s->picnum != COOLEXPLOSION1) KILLIT(i);
                     }
-                    if (s->picnum != COOLEXPLOSION1) KILLIT(i);
-                }
-                if (s->picnum == COOLEXPLOSION1)
-                {
-                    s->shade++;
-                    if (s->shade >= 40) KILLIT(i);
-                }
-                else if (s->picnum == RPG && sector[s->sectnum].lotag == 2 && s->xrepeat >= 10 && rnd(140))
-                    spawn(i,WATERBUBBLE);
+                    if (s->picnum == COOLEXPLOSION1)
+                    {
+                        s->shade++;
+                        if (s->shade >= 40) KILLIT(i);
+                    }
+                    else if (s->picnum == RPG && sector[s->sectnum].lotag == 2 && s->xrepeat >= 10 && rnd(140))
+                        spawn(i,WATERBUBBLE);
 
-                goto BOLT;
+                    goto BOLT;
 
 
-            case SHOTSPARK1__STATIC:
-                p = findplayer(s,&x);
-                execute(i,p,x);
-                goto BOLT;
+                case SHOTSPARK1__STATIC:
+                    p = findplayer(s,&x);
+                    execute(i,p,x);
+                    goto BOLT;
             }
         }
 BOLT:
@@ -3186,299 +3224,300 @@ void movetransports(void)
 
             switch (sprite[j].statnum)
             {
-            case 10:    // Player
+                case 10:    // Player
 
-                if (sprite[j].owner != -1)
-                {
-                    p = sprite[j].yvel;
-
-                    ps[p].on_warping_sector = 1;
-
-                    if (ps[p].transporter_hold == 0 && ps[p].jumping_counter == 0)
+                    if (sprite[j].owner != -1)
                     {
-                        if (ps[p].on_ground && sectlotag == 0 && onfloorz && ps[p].jetpack_on == 0)
-                        {
-                            if (sprite[i].pal == 0)
-                            {
-                                spawn(i,TRANSPORTERBEAM);
-                                spritesound(TELEPORTER,i);
-                            }
+                        p = sprite[j].yvel;
 
-                            for (k=connecthead;k>=0;k=connectpoint2[k])
-                                if (ps[k].cursectnum == sprite[OW].sectnum)
+                        ps[p].on_warping_sector = 1;
+
+                        if (ps[p].transporter_hold == 0 && ps[p].jumping_counter == 0)
+                        {
+                            if (ps[p].on_ground && sectlotag == 0 && onfloorz && ps[p].jetpack_on == 0)
+                            {
+                                if (sprite[i].pal == 0)
                                 {
-                                    ps[k].frag_ps = p;
-                                    sprite[ps[k].i].extra = 0;
+                                    spawn(i,TRANSPORTERBEAM);
+                                    spritesound(TELEPORTER,i);
                                 }
 
-                            ps[p].ang = sprite[OW].ang;
+                                for (k=connecthead;k>=0;k=connectpoint2[k])
+                                    if (ps[k].cursectnum == sprite[OW].sectnum)
+                                    {
+                                        ps[k].frag_ps = p;
+                                        sprite[ps[k].i].extra = 0;
+                                    }
 
-                            if (sprite[OW].owner != OW)
-                            {
-                                T1 = 13;
-                                hittype[OW].temp_data[0] = 13;
-                                ps[p].transporter_hold = 13;
+                                ps[p].ang = sprite[OW].ang;
+
+                                if (sprite[OW].owner != OW)
+                                {
+                                    T1 = 13;
+                                    hittype[OW].temp_data[0] = 13;
+                                    ps[p].transporter_hold = 13;
+                                }
+
+                                ps[p].bobposx = ps[p].oposx = ps[p].posx = sprite[OW].x;
+                                ps[p].bobposy = ps[p].oposy = ps[p].posy = sprite[OW].y;
+                                ps[p].oposz = ps[p].posz = sprite[OW].z-PHEIGHT;
+
+                                changespritesect(j,sprite[OW].sectnum);
+                                ps[p].cursectnum = sprite[j].sectnum;
+
+                                if (sprite[i].pal == 0)
+                                {
+                                    k = spawn(OW,TRANSPORTERBEAM);
+                                    spritesound(TELEPORTER,k);
+                                }
+
+                                break;
                             }
-
-                            ps[p].bobposx = ps[p].oposx = ps[p].posx = sprite[OW].x;
-                            ps[p].bobposy = ps[p].oposy = ps[p].posy = sprite[OW].y;
-                            ps[p].oposz = ps[p].posz = sprite[OW].z-PHEIGHT;
-
-                            changespritesect(j,sprite[OW].sectnum);
-                            ps[p].cursectnum = sprite[j].sectnum;
-
-                            if (sprite[i].pal == 0)
-                            {
-                                k = spawn(OW,TRANSPORTERBEAM);
-                                spritesound(TELEPORTER,k);
-                            }
-
-                            break;
                         }
-                    }
-                    else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
+                        else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
 
-                    if (onfloorz == 0 && klabs(SZ-ps[p].posz) < 6144)
-                        if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (sync[p].bits&1)) ||
-                                (ps[p].jetpack_on && (sync[p].bits&2)))
+                        if (onfloorz == 0 && klabs(SZ-ps[p].posz) < 6144)
+                            if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (sync[p].bits&1)) ||
+                                    (ps[p].jetpack_on && (sync[p].bits&2)))
+                            {
+                                ps[p].oposx = ps[p].posx += sprite[OW].x-SX;
+                                ps[p].oposy = ps[p].posy += sprite[OW].y-SY;
+
+                                if (ps[p].jetpack_on && ((sync[p].bits&1) || ps[p].jetpack_on < 11))
+                                    ps[p].posz = sprite[OW].z-6144;
+                                else ps[p].posz = sprite[OW].z+6144;
+                                ps[p].oposz = ps[p].posz;
+
+                                hittype[ps[p].i].bposx = ps[p].posx;
+                                hittype[ps[p].i].bposy = ps[p].posy;
+                                hittype[ps[p].i].bposz = ps[p].posz;
+
+                                changespritesect(j,sprite[OW].sectnum);
+                                ps[p].cursectnum = sprite[OW].sectnum;
+
+                                break;
+                            }
+
+                        k = 0;
+
+                        if (onfloorz && sectlotag == 1 && ps[p].on_ground && ps[p].posz > (sector[sect].floorz-1080) && ((sync[p].bits&2) || ps[p].poszv > 2048))
+                            //                        if( onfloorz && sectlotag == 1 && ps[p].posz > (sector[sect].floorz-(6<<8)) )
+                        {
+                            k = 1;
+                            if (screenpeek == p)
+                            {
+                                FX_StopAllSounds();
+                                clearsoundlocks();
+                            }
+                            if (sprite[ps[p].i].extra > 0)
+                                spritesound(DUKE_UNDERWATER,j);
+                            ps[p].oposz = ps[p].posz =
+                                              sector[sprite[OW].sectnum].ceilingz;
+
+                            ps[p].posxv = 4096-(TRAND&8192);
+                            ps[p].posyv = 4096-(TRAND&8192);
+                            //          ps[p].poszv += 1080;
+                        }
+
+                        if (onfloorz && sectlotag == 2 && ps[p].posz < (sector[sect].ceilingz+1080) && ps[p].poszv == 0)
+                        {
+                            k = 1;
+                            //                            if( sprite[j].extra <= 0) break;
+                            if (screenpeek == p)
+                            {
+                                FX_StopAllSounds();
+                                clearsoundlocks();
+                            }
+                            spritesound(DUKE_GASP,j);
+
+                            ps[p].oposz = ps[p].posz =
+                                              sector[sprite[OW].sectnum].floorz;
+
+                            ps[p].jumping_toggle = 1;
+                            ps[p].jumping_counter = 0;
+                            //                        ps[p].poszv += 1024;
+                        }
+
+                        if (k == 1)
                         {
                             ps[p].oposx = ps[p].posx += sprite[OW].x-SX;
                             ps[p].oposy = ps[p].posy += sprite[OW].y-SY;
 
-                            if (ps[p].jetpack_on && ((sync[p].bits&1) || ps[p].jetpack_on < 11))
-                                ps[p].posz = sprite[OW].z-6144;
-                            else ps[p].posz = sprite[OW].z+6144;
-                            ps[p].oposz = ps[p].posz;
-
-                            hittype[ps[p].i].bposx = ps[p].posx;
-                            hittype[ps[p].i].bposy = ps[p].posy;
-                            hittype[ps[p].i].bposz = ps[p].posz;
-
-                            changespritesect(j,sprite[OW].sectnum);
+                            if (sprite[OW].owner != OW)
+                                ps[p].transporter_hold = -2;
                             ps[p].cursectnum = sprite[OW].sectnum;
 
-                            break;
+                            changespritesect(j,sprite[OW].sectnum);
+                            setsprite(ps[p].i,ps[p].posx,ps[p].posy,ps[p].posz+PHEIGHT);
+
+                            setpal(&ps[p]);
+
+                            if ((TRAND&255) < 32)
+                                spawn(j,WATERSPLASH2);
+
+                            if (sectlotag == 1)
+                                for (l = 0;l < 9;l++)
+                                {
+                                    q = spawn(ps[p].i,WATERBUBBLE);
+                                    sprite[q].z += TRAND&16383;
+                                }
                         }
-
-                    k = 0;
-
-                    if (onfloorz && sectlotag == 1 && ps[p].on_ground && ps[p].posz > (sector[sect].floorz-1080) && ((sync[p].bits&2) || ps[p].poszv > 2048))
-                        //                        if( onfloorz && sectlotag == 1 && ps[p].posz > (sector[sect].floorz-(6<<8)) )
-                    {
-                        k = 1;
-                        if (screenpeek == p)
-                        {
-                            FX_StopAllSounds();
-                            clearsoundlocks();
-                        }
-                        if (sprite[ps[p].i].extra > 0)
-                            spritesound(DUKE_UNDERWATER,j);
-                        ps[p].oposz = ps[p].posz =
-                                          sector[sprite[OW].sectnum].ceilingz;
-
-                        ps[p].posxv = 4096-(TRAND&8192);
-                        ps[p].posyv = 4096-(TRAND&8192);
-                        //          ps[p].poszv += 1080;
                     }
+                    break;
 
-                    if (onfloorz && sectlotag == 2 && ps[p].posz < (sector[sect].ceilingz+1080) && ps[p].poszv == 0)
+                case 1:
+                    if ((sprite[j].picnum == SHARK)
+                            || (sprite[j].picnum == COMMANDER)
+                            || (sprite[j].picnum == OCTABRAIN)
+                            || ((sprite[j].picnum >= GREENSLIME) && (sprite[j].picnum >= GREENSLIME+7))
+                       )
                     {
-                        k = 1;
-                        //                            if( sprite[j].extra <= 0) break;
-                        if (screenpeek == p)
-                        {
-                            FX_StopAllSounds();
-                            clearsoundlocks();
-                        }
-                        spritesound(DUKE_GASP,j);
-
-                        ps[p].oposz = ps[p].posz =
-                                          sector[sprite[OW].sectnum].floorz;
-
-                        ps[p].jumping_toggle = 1;
-                        ps[p].jumping_counter = 0;
-                        //                        ps[p].poszv += 1024;
-                    }
-
-                    if (k == 1)
-                    {
-                        ps[p].oposx = ps[p].posx += sprite[OW].x-SX;
-                        ps[p].oposy = ps[p].posy += sprite[OW].y-SY;
-
-                        if (sprite[OW].owner != OW)
-                            ps[p].transporter_hold = -2;
-                        ps[p].cursectnum = sprite[OW].sectnum;
-
-                        changespritesect(j,sprite[OW].sectnum);
-                        setsprite(ps[p].i,ps[p].posx,ps[p].posy,ps[p].posz+PHEIGHT);
-
-                        setpal(&ps[p]);
-
-                        if ((TRAND&255) < 32)
-                            spawn(j,WATERSPLASH2);
-
-                        if (sectlotag == 1)
-                            for (l = 0;l < 9;l++)
-                            {
-                                q = spawn(ps[p].i,WATERBUBBLE);
-                                sprite[q].z += TRAND&16383;
-                            }
-                    }
-                }
-                break;
-
-            case 1:
-                if ((sprite[j].picnum == SHARK)
-                        || (sprite[j].picnum == COMMANDER)
-                        || (sprite[j].picnum == OCTABRAIN)
-                        || ((sprite[j].picnum >= GREENSLIME) && (sprite[j].picnum >= GREENSLIME+7))
-                   ) {
-                    if (sprite[j].extra > 0)
-                        goto JBOLT;
-                }
-            case 4:
-            case 5:
-            case 12:
-            case 13:
-
-                ll = klabs(sprite[j].zvel);
-
-                {
-                    warpspriteto = 0;
-                    if (ll && sectlotag == 2 && sprite[j].z < (sector[sect].ceilingz+ll))
-                        warpspriteto = 1;
-
-                    if (ll && sectlotag == 1 && sprite[j].z > (sector[sect].floorz-ll))
-                        warpspriteto = 1;
-
-                    if (sectlotag == 0 && (onfloorz || klabs(sprite[j].z-SZ) < 4096))
-                    {
-                        if (sprite[OW].owner != OW && onfloorz && T1 > 0 && sprite[j].statnum != 5)
-                        {
-                            T1++;
-                            goto BOLT;
-                        }
-                        warpspriteto = 1;
-                    }
-
-                    if (warpspriteto && checkspriteflags(j,SPRITE_FLAG_DECAL)) goto JBOLT;
-
-                    if (warpspriteto) switch (dynamictostatic[sprite[j].picnum])
-                        {
-                        case TRANSPORTERSTAR__STATIC:
-                        case TRANSPORTERBEAM__STATIC:
-                        case TRIPBOMB__STATIC:
-                        case BULLETHOLE__STATIC:
-                        case WATERSPLASH2__STATIC:
-                        case BURNING__STATIC:
-                        case BURNING2__STATIC:
-                        case FIRE__STATIC:
-                        case FIRE2__STATIC:
-                        case TOILETWATER__STATIC:
-                        case LASERLINE__STATIC:
+                        if (sprite[j].extra > 0)
                             goto JBOLT;
-                        case PLAYERONWATER__STATIC:
-                            if (sectlotag == 2)
+                    }
+                case 4:
+                case 5:
+                case 12:
+                case 13:
+
+                    ll = klabs(sprite[j].zvel);
+
+                    {
+                        warpspriteto = 0;
+                        if (ll && sectlotag == 2 && sprite[j].z < (sector[sect].ceilingz+ll))
+                            warpspriteto = 1;
+
+                        if (ll && sectlotag == 1 && sprite[j].z > (sector[sect].floorz-ll))
+                            warpspriteto = 1;
+
+                        if (sectlotag == 0 && (onfloorz || klabs(sprite[j].z-SZ) < 4096))
+                        {
+                            if (sprite[OW].owner != OW && onfloorz && T1 > 0 && sprite[j].statnum != 5)
                             {
-                                sprite[j].cstat &= 32767;
-                                break;
+                                T1++;
+                                goto BOLT;
                             }
-                        default:
-                            if (sprite[j].statnum == 5 && !(sectlotag == 1 || sectlotag == 2))
-                                break;
-
-                        case WATERBUBBLE__STATIC:
-                            //                                if( rnd(192) && sprite[j].picnum == WATERBUBBLE)
-                            //                                 break;
-
-                            if (sectlotag > 0)
-                            {
-                                k = spawn(j,WATERSPLASH2);
-                                if (sectlotag == 1 && sprite[j].statnum == 4)
-                                {
-                                    sprite[k].xvel = sprite[j].xvel>>1;
-                                    sprite[k].ang = sprite[j].ang;
-                                    ssp(k,CLIPMASK0);
-                                }
-                            }
-
-                            switch (sectlotag)
-                            {
-                            case 0:
-                                if (onfloorz)
-                                {
-                                    if (sprite[j].statnum == 4 || (checkcursectnums(sect) == -1 && checkcursectnums(sprite[OW].sectnum)  == -1))
-                                    {
-                                        sprite[j].x += (sprite[OW].x-SX);
-                                        sprite[j].y += (sprite[OW].y-SY);
-                                        sprite[j].z -= SZ - sector[sprite[OW].sectnum].floorz;
-                                        sprite[j].ang = sprite[OW].ang;
-
-                                        hittype[j].bposx = sprite[j].x;
-                                        hittype[j].bposy = sprite[j].y;
-                                        hittype[j].bposz = sprite[j].z;
-
-                                        if (sprite[i].pal == 0)
-                                        {
-                                            k = spawn(i,TRANSPORTERBEAM);
-                                            spritesound(TELEPORTER,k);
-
-                                            k = spawn(OW,TRANSPORTERBEAM);
-                                            spritesound(TELEPORTER,k);
-                                        }
-
-                                        if (sprite[OW].owner != OW)
-                                        {
-                                            T1 = 13;
-                                            hittype[OW].temp_data[0] = 13;
-                                        }
-
-                                        changespritesect(j,sprite[OW].sectnum);
-                                    }
-                                }
-                                else
-                                {
-                                    sprite[j].x += (sprite[OW].x-SX);
-                                    sprite[j].y += (sprite[OW].y-SY);
-                                    sprite[j].z = sprite[OW].z+4096;
-
-                                    hittype[j].bposx = sprite[j].x;
-                                    hittype[j].bposy = sprite[j].y;
-                                    hittype[j].bposz = sprite[j].z;
-
-                                    changespritesect(j,sprite[OW].sectnum);
-                                }
-                                break;
-                            case 1:
-                                sprite[j].x += (sprite[OW].x-SX);
-                                sprite[j].y += (sprite[OW].y-SY);
-                                sprite[j].z = sector[sprite[OW].sectnum].ceilingz+ll;
-
-                                hittype[j].bposx = sprite[j].x;
-                                hittype[j].bposy = sprite[j].y;
-                                hittype[j].bposz = sprite[j].z;
-
-                                changespritesect(j,sprite[OW].sectnum);
-
-                                break;
-                            case 2:
-                                sprite[j].x += (sprite[OW].x-SX);
-                                sprite[j].y += (sprite[OW].y-SY);
-                                sprite[j].z = sector[sprite[OW].sectnum].floorz-ll;
-
-                                hittype[j].bposx = sprite[j].x;
-                                hittype[j].bposy = sprite[j].y;
-                                hittype[j].bposz = sprite[j].z;
-
-                                changespritesect(j,sprite[OW].sectnum);
-
-                                break;
-                            }
-
-                            break;
+                            warpspriteto = 1;
                         }
-                }
-                break;
+
+                        if (warpspriteto && checkspriteflags(j,SPRITE_FLAG_DECAL)) goto JBOLT;
+
+                        if (warpspriteto) switch (dynamictostatic[sprite[j].picnum])
+                            {
+                                case TRANSPORTERSTAR__STATIC:
+                                case TRANSPORTERBEAM__STATIC:
+                                case TRIPBOMB__STATIC:
+                                case BULLETHOLE__STATIC:
+                                case WATERSPLASH2__STATIC:
+                                case BURNING__STATIC:
+                                case BURNING2__STATIC:
+                                case FIRE__STATIC:
+                                case FIRE2__STATIC:
+                                case TOILETWATER__STATIC:
+                                case LASERLINE__STATIC:
+                                    goto JBOLT;
+                                case PLAYERONWATER__STATIC:
+                                    if (sectlotag == 2)
+                                    {
+                                        sprite[j].cstat &= 32767;
+                                        break;
+                                    }
+                                default:
+                                    if (sprite[j].statnum == 5 && !(sectlotag == 1 || sectlotag == 2))
+                                        break;
+
+                                case WATERBUBBLE__STATIC:
+                                    //                                if( rnd(192) && sprite[j].picnum == WATERBUBBLE)
+                                    //                                 break;
+
+                                    if (sectlotag > 0)
+                                    {
+                                        k = spawn(j,WATERSPLASH2);
+                                        if (sectlotag == 1 && sprite[j].statnum == 4)
+                                        {
+                                            sprite[k].xvel = sprite[j].xvel>>1;
+                                            sprite[k].ang = sprite[j].ang;
+                                            ssp(k,CLIPMASK0);
+                                        }
+                                    }
+
+                                    switch (sectlotag)
+                                    {
+                                        case 0:
+                                            if (onfloorz)
+                                            {
+                                                if (sprite[j].statnum == 4 || (checkcursectnums(sect) == -1 && checkcursectnums(sprite[OW].sectnum)  == -1))
+                                                {
+                                                    sprite[j].x += (sprite[OW].x-SX);
+                                                    sprite[j].y += (sprite[OW].y-SY);
+                                                    sprite[j].z -= SZ - sector[sprite[OW].sectnum].floorz;
+                                                    sprite[j].ang = sprite[OW].ang;
+
+                                                    hittype[j].bposx = sprite[j].x;
+                                                    hittype[j].bposy = sprite[j].y;
+                                                    hittype[j].bposz = sprite[j].z;
+
+                                                    if (sprite[i].pal == 0)
+                                                    {
+                                                        k = spawn(i,TRANSPORTERBEAM);
+                                                        spritesound(TELEPORTER,k);
+
+                                                        k = spawn(OW,TRANSPORTERBEAM);
+                                                        spritesound(TELEPORTER,k);
+                                                    }
+
+                                                    if (sprite[OW].owner != OW)
+                                                    {
+                                                        T1 = 13;
+                                                        hittype[OW].temp_data[0] = 13;
+                                                    }
+
+                                                    changespritesect(j,sprite[OW].sectnum);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                sprite[j].x += (sprite[OW].x-SX);
+                                                sprite[j].y += (sprite[OW].y-SY);
+                                                sprite[j].z = sprite[OW].z+4096;
+
+                                                hittype[j].bposx = sprite[j].x;
+                                                hittype[j].bposy = sprite[j].y;
+                                                hittype[j].bposz = sprite[j].z;
+
+                                                changespritesect(j,sprite[OW].sectnum);
+                                            }
+                                            break;
+                                        case 1:
+                                            sprite[j].x += (sprite[OW].x-SX);
+                                            sprite[j].y += (sprite[OW].y-SY);
+                                            sprite[j].z = sector[sprite[OW].sectnum].ceilingz+ll;
+
+                                            hittype[j].bposx = sprite[j].x;
+                                            hittype[j].bposy = sprite[j].y;
+                                            hittype[j].bposz = sprite[j].z;
+
+                                            changespritesect(j,sprite[OW].sectnum);
+
+                                            break;
+                                        case 2:
+                                            sprite[j].x += (sprite[OW].x-SX);
+                                            sprite[j].y += (sprite[OW].y-SY);
+                                            sprite[j].z = sector[sprite[OW].sectnum].floorz-ll;
+
+                                            hittype[j].bposx = sprite[j].x;
+                                            hittype[j].bposy = sprite[j].y;
+                                            hittype[j].bposz = sprite[j].z;
+
+                                            changespritesect(j,sprite[OW].sectnum);
+
+                                            break;
+                                    }
+
+                                    break;
+                            }
+                    }
+                    break;
 
             }
 JBOLT:
@@ -3515,862 +3554,922 @@ void moveactors(void)
         hittype[i].bposy = s->y;
         hittype[i].bposz = s->z;
         switchpicnum=s->picnum;
-        if ((s->picnum > GREENSLIME)&&(s->picnum <= GREENSLIME+7)) {
+        if ((s->picnum > GREENSLIME)&&(s->picnum <= GREENSLIME+7))
+        {
             switchpicnum = GREENSLIME;
         }
         switch (dynamictostatic[switchpicnum])
         {
-        case DUCK__STATIC:
-        case TARGET__STATIC:
-            if (s->cstat&32)
-            {
-                t[0]++;
-                if (t[0] > 60)
+            case DUCK__STATIC:
+            case TARGET__STATIC:
+                if (s->cstat&32)
                 {
-                    t[0] = 0;
-                    s->cstat = 128+257+16;
-                    s->extra = 1;
-                }
-            }
-            else
-            {
-                j = ifhitbyweapon(i);
-                if (j >= 0)
-                {
-                    s->cstat = 32+128;
-                    k = 1;
-
-                    j = headspritestat[1];
-                    while (j >= 0)
+                    t[0]++;
+                    if (t[0] > 60)
                     {
-                        if (sprite[j].lotag == s->lotag &&
-                                sprite[j].picnum == s->picnum)
-                        {
-                            if ((sprite[j].hitag && !(sprite[j].cstat&32)) ||
-                                    (!sprite[j].hitag && (sprite[j].cstat&32))
-                               )
-                            {
-                                k = 0;
-                                break;
-                            }
-                        }
-
-                        j = nextspritestat[j];
+                        t[0] = 0;
+                        s->cstat = 128+257+16;
+                        s->extra = 1;
                     }
-
-                    if (k == 1)
-                    {
-                        operateactivators(s->lotag,-1);
-                        operateforcefields(i,s->lotag);
-                        operatemasterswitches(s->lotag);
-                    }
-                }
-            }
-            goto BOLT;
-
-        case RESPAWNMARKERRED__STATIC:
-        case RESPAWNMARKERYELLOW__STATIC:
-        case RESPAWNMARKERGREEN__STATIC:
-            T1++;
-            if (T1 > respawnitemtime)
-            {
-                KILLIT(i);
-            }
-            if (T1 >= (respawnitemtime>>1) && T1 < ((respawnitemtime>>1)+(respawnitemtime>>2)))
-                PN = RESPAWNMARKERYELLOW;
-            else if (T1 > ((respawnitemtime>>1)+(respawnitemtime>>2)))
-                PN = RESPAWNMARKERGREEN;
-            makeitfall(i);
-            break;
-
-        case HELECOPT__STATIC:
-        case DUKECAR__STATIC:
-
-            s->z += s->zvel;
-            t[0]++;
-
-            if (t[0] == 4) spritesound(WAR_AMBIENCE2,i);
-
-            if (t[0] > (26*8))
-            {
-                sound(RPG_EXPLODE);
-                for (j=0;j<32;j++) RANDOMSCRAP;
-                earthquaketime = 16;
-                KILLIT(i);
-            }
-            else if ((t[0]&3) == 0)
-                spawn(i,EXPLOSION2);
-            ssp(i,CLIPMASK0);
-            break;
-        case RAT__STATIC:
-            makeitfall(i);
-            IFMOVING
-            {
-                if ((TRAND&255) < 3) spritesound(RATTY,i);
-                s->ang += (TRAND&31)-15+(sintable[(t[0]<<8)&2047]>>11);
-            }
-            else
-            {
-                T1++;
-                if (T1 > 1) { KILLIT(i); }
-                    else s->ang = (TRAND&2047);
-                }
-            if (s->xvel < 128)
-                s->xvel+=2;
-            s->ang += (TRAND&3)-6;
-            break;
-        case QUEBALL__STATIC:
-        case STRIPEBALL__STATIC:
-            if (s->xvel)
-            {
-                j = headspritestat[0];
-                while (j >= 0)
-                {
-                    nextj = nextspritestat[j];
-                    if (sprite[j].picnum == POCKET && ldist(&sprite[j],s) < 52) KILLIT(i);
-                    j = nextj;
-                }
-
-                j = clipmove(&s->x,&s->y,&s->z,&s->sectnum,
-                             (((s->xvel*(sintable[(s->ang+512)&2047]))>>14)*TICSPERFRAME)<<11,
-                             (((s->xvel*(sintable[s->ang&2047]))>>14)*TICSPERFRAME)<<11,
-                             24L,(4<<8),(4<<8),CLIPMASK1);
-
-                if (j&49152)
-                {
-                    if ((j&49152) == 32768)
-                    {
-                        j &= (MAXWALLS-1);
-                        k = getangle(
-                                wall[wall[j].point2].x-wall[j].x,
-                                wall[wall[j].point2].y-wall[j].y);
-                        s->ang = ((k<<1) - s->ang)&2047;
-                    }
-                    else if ((j&49152) == 49152)
-                    {
-                        j &= (MAXSPRITES-1);
-                        checkhitsprite(i,j);
-                    }
-                }
-                s->xvel --;
-                if (s->xvel < 0) s->xvel = 0;
-                if (s->picnum == STRIPEBALL)
-                {
-                    s->cstat = 257;
-                    s->cstat |= 4&s->xvel;
-                    s->cstat |= 8&s->xvel;
-                }
-            }
-            else
-            {
-                p = findplayer(s,&x);
-
-                if (x < 1596)
-                {
-
-                    //                        if(s->pal == 12)
-                    {
-                        j = getincangle(ps[p].ang,getangle(s->x-ps[p].posx,s->y-ps[p].posy));
-                        if (j > -64 && j < 64 && (sync[p].bits&(1<<29)))
-                            if (ps[p].toggle_key_flag == 1)
-                            {
-                                a = headspritestat[1];
-                                while (a >= 0)
-                                {
-                                    if (sprite[a].picnum == QUEBALL || sprite[a].picnum == STRIPEBALL)
-                                    {
-                                        j = getincangle(ps[p].ang,getangle(sprite[a].x-ps[p].posx,sprite[a].y-ps[p].posy));
-                                        if (j > -64 && j < 64)
-                                        {
-                                            findplayer(&sprite[a],&l);
-                                            if (x > l) break;
-                                        }
-                                    }
-                                    a = nextspritestat[a];
-                                }
-                                if (a == -1)
-                                {
-                                    if (s->pal == 12)
-                                        s->xvel = 164;
-                                    else s->xvel = 140;
-                                    s->ang = ps[p].ang;
-                                    ps[p].toggle_key_flag = 2;
-                                }
-                            }
-                    }
-                }
-                if (x < 512 && s->sectnum == ps[p].cursectnum)
-                {
-                    s->ang = getangle(s->x-ps[p].posx,s->y-ps[p].posy);
-                    s->xvel = 48;
-                }
-            }
-
-            break;
-        case FORCESPHERE__STATIC:
-
-            if (s->yvel == 0)
-            {
-                s->yvel = 1;
-
-                for (l=512;l<(2048-512);l+= 128)
-                    for (j=0;j<2048;j += 128)
-                    {
-                        k = spawn(i,FORCESPHERE);
-                        sprite[k].cstat = 257+128;
-                        sprite[k].clipdist = 64;
-                        sprite[k].ang = j;
-                        sprite[k].zvel = sintable[l&2047]>>5;
-                        sprite[k].xvel = sintable[(l+512)&2047]>>9;
-                        sprite[k].owner = i;
-                    }
-            }
-
-            if (t[3] > 0)
-            {
-                if (s->zvel < 6144)
-                    s->zvel += 192;
-                s->z += s->zvel;
-                if (s->z > sector[sect].floorz)
-                    s->z = sector[sect].floorz;
-                t[3]--;
-                if (t[3] == 0)
-                    KILLIT(i);
-            }
-            else if (t[2] > 10)
-            {
-                j = headspritestat[5];
-                while (j >= 0)
-                {
-                    if (sprite[j].owner == i && sprite[j].picnum == FORCESPHERE)
-                        hittype[j].temp_data[1] = 1+(TRAND&63);
-                    j = nextspritestat[j];
-                }
-                t[3] = 64;
-            }
-
-            goto BOLT;
-
-        case RECON__STATIC:
-
-            getglobalz(i);
-
-            if (sector[s->sectnum].ceilingstat&1)
-                s->shade += (sector[s->sectnum].ceilingshade-s->shade)>>1;
-            else s->shade += (sector[s->sectnum].floorshade-s->shade)>>1;
-
-            if (s->z < sector[sect].ceilingz+(32<<8))
-                s->z = sector[sect].ceilingz+(32<<8);
-
-            if (ud.multimode < 2)
-            {
-                if (actor_tog == 1)
-                {
-                    s->cstat = (short)32768;
-                    goto BOLT;
-                }
-                else if (actor_tog == 2) s->cstat = 257;
-            }
-            IFHIT
-            {
-                if (s->extra < 0 && t[0] != -1)
-            {
-                t[0] = -1;
-                    s->extra = 0;
-                }
-                spritesound(RECO_PAIN,i);
-                RANDOMSCRAP;
-            }
-
-            if (t[0] == -1)
-            {
-                s->z += 1024;
-                t[2]++;
-                if ((t[2]&3) == 0) spawn(i,EXPLOSION2);
-                getglobalz(i);
-                s->ang += 96;
-                s->xvel = 128;
-                j = ssp(i,CLIPMASK0);
-                if (j != 1 || s->z > hittype[i].floorz)
-                {
-                    for (l=0;l<16;l++)
-                        RANDOMSCRAP;
-                    spritesound(LASERTRIP_EXPLODE,i);
-                    spawn(i,PIGCOP);
-                    ps[myconnectindex].actors_killed++;
-                    KILLIT(i);
-                }
-                goto BOLT;
-            }
-            else
-            {
-                if (s->z > hittype[i].floorz-(48<<8))
-                    s->z = hittype[i].floorz-(48<<8);
-            }
-
-            p = findplayer(s,&x);
-            j = s->owner;
-
-            // 3 = findplayerz, 4 = shoot
-
-            if (t[0] >= 4)
-            {
-                t[2]++;
-                if ((t[2]&15) == 0)
-                {
-                    a = s->ang;
-                    s->ang = hittype[i].tempang;
-                    spritesound(RECO_ATTACK,i);
-                    shoot(i,FIRELASER);
-                    s->ang = a;
-                }
-                if (t[2] > (26*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, ps[p].posx,ps[p].posy,ps[p].posz,ps[p].cursectnum))
-                {
-                    t[0] = 0;
-                    t[2] = 0;
-                }
-                else hittype[i].tempang +=
-                        getincangle(hittype[i].tempang,getangle(ps[p].posx-s->x,ps[p].posy-s->y))/3;
-            }
-            else if (t[0] == 2 || t[0] == 3)
-            {
-                t[3] = 0;
-                if (s->xvel > 0) s->xvel -= 16;
-                else s->xvel = 0;
-
-                if (t[0] == 2)
-                {
-                    l = ps[p].posz-s->z;
-                    if (klabs(l) < (48<<8)) t[0] = 3;
-                    else s->z += ksgn(ps[p].posz-s->z)<<10;
                 }
                 else
                 {
-                    t[2]++;
-                    if (t[2] > (26*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, ps[p].posx,ps[p].posy,ps[p].posz,ps[p].cursectnum))
+                    j = ifhitbyweapon(i);
+                    if (j >= 0)
                     {
-                        t[0] = 1;
-                        t[2] = 0;
-                    }
-                    else if ((t[2]&15) == 0)
-                    {
-                        spritesound(RECO_ATTACK,i);
-                        shoot(i,FIRELASER);
-                    }
-                }
-                s->ang += getincangle(s->ang,getangle(ps[p].posx-s->x,ps[p].posy-s->y))>>2;
-            }
+                        s->cstat = 32+128;
+                        k = 1;
 
-            if (t[0] != 2 && t[0] != 3)
-            {
-                l = ldist(&sprite[j],s);
-                if (l <= 1524)
-                {
-                    a = s->ang;
-                    s->xvel >>= 1;
-                }
-                else a = getangle(sprite[j].x-s->x,sprite[j].y-s->y);
-
-                if (t[0] == 1 || t[0] == 4) // Found a locator and going with it
-                {
-                    l = dist(&sprite[j],s);
-
-                    if (l <= 1524) { if (t[0] == 1) t[0] = 0; else t[0] = 5; }
-                    else
-                    {
-                        // Control speed here
-                        if (l > 1524) { if (s->xvel < 256) s->xvel += 32; }
-                        else
+                        j = headspritestat[1];
+                        while (j >= 0)
                         {
-                            if (s->xvel > 0) s->xvel -= 16;
-                            else s->xvel = 0;
+                            if (sprite[j].lotag == s->lotag &&
+                                    sprite[j].picnum == s->picnum)
+                            {
+                                if ((sprite[j].hitag && !(sprite[j].cstat&32)) ||
+                                        (!sprite[j].hitag && (sprite[j].cstat&32))
+                                   )
+                                {
+                                    k = 0;
+                                    break;
+                                }
+                            }
+
+                            j = nextspritestat[j];
+                        }
+
+                        if (k == 1)
+                        {
+                            operateactivators(s->lotag,-1);
+                            operateforcefields(i,s->lotag);
+                            operatemasterswitches(s->lotag);
                         }
                     }
-
-                    if (t[0] < 2) t[2]++;
-
-                    if (x < 6144 && t[0] < 2 && t[2] > (26*4))
-                    {
-                        t[0] = 2+(TRAND&2);
-                        t[2] = 0;
-                        hittype[i].tempang = s->ang;
-                    }
                 }
+                goto BOLT;
 
-                if (t[0] == 0 || t[0] == 5)
+            case RESPAWNMARKERRED__STATIC:
+            case RESPAWNMARKERYELLOW__STATIC:
+            case RESPAWNMARKERGREEN__STATIC:
+                T1++;
+                if (T1 > respawnitemtime)
                 {
-                    if (t[0] == 0)
-                        t[0] = 1;
-                    else t[0] = 4;
-                    j = s->owner = LocateTheLocator(s->hitag,-1);
-                    if (j == -1)
-                    {
-                        s->hitag = j = hittype[i].temp_data[5];
-                        s->owner = LocateTheLocator(j,-1);
-                        j = s->owner;
-                        if (j == -1) KILLIT(i);
-                    }
-                    else s->hitag++;
+                    KILLIT(i);
                 }
-
-                t[3] = getincangle(s->ang,a);
-                s->ang += t[3]>>3;
-
-                if (s->z < sprite[j].z)
-                    s->z += 1024;
-                else s->z -= 1024;
-            }
-
-            if (!isspritemakingsound(i,RECO_ROAM))
-                spritesound(RECO_ROAM,i);
-
-            ssp(i,CLIPMASK0);
-
-            goto BOLT;
-
-        case OOZ__STATIC:
-        case OOZ2__STATIC:
-
-            getglobalz(i);
-
-            j = (hittype[i].floorz-hittype[i].ceilingz)>>9;
-            if (j > 255) j = 255;
-
-            x = 25-(j>>1);
-            if (x < 8) x = 8;
-            else if (x > 48) x = 48;
-
-            s->yrepeat = j;
-            s->xrepeat = x;
-            s->z = hittype[i].floorz;
-
-            goto BOLT;
-
-        case GREENSLIME__STATIC:
-            //        case GREENSLIME+1:
-            //        case GREENSLIME+2:
-            //        case GREENSLIME+3:
-            //        case GREENSLIME+4:
-            //        case GREENSLIME+5:
-            //        case GREENSLIME+6:
-            //        case GREENSLIME+7:
-
-            // #ifndef VOLUMEONE
-            if (ud.multimode < 2)
-            {
-                if (actor_tog == 1)
-                {
-                    s->cstat = (short)32768;
-                    goto BOLT;
-                }
-                else if (actor_tog == 2) s->cstat = 257;
-            }
-            // #endif
-
-            t[1]+=128;
-
-            if (sector[sect].floorstat&1)
-                KILLIT(i);
-
-            p = findplayer(s,&x);
-
-            if (x > 20480)
-            {
-                hittype[i].timetosleep++;
-                if (hittype[i].timetosleep > SLEEPTIME)
-                {
-                    hittype[i].timetosleep = 0;
-                    changespritestat(i,2);
-                    goto BOLT;
-                }
-            }
-
-            if (t[0] == -5) // FROZEN
-            {
-                t[3]++;
-                if (t[3] > 280)
-                {
-                    s->pal = 0;
-                    t[0] = 0;
-                    goto BOLT;
-                }
+                if (T1 >= (respawnitemtime>>1) && T1 < ((respawnitemtime>>1)+(respawnitemtime>>2)))
+                    PN = RESPAWNMARKERYELLOW;
+                else if (T1 > ((respawnitemtime>>1)+(respawnitemtime>>2)))
+                    PN = RESPAWNMARKERGREEN;
                 makeitfall(i);
-                s->cstat = 257;
-                s->picnum = GREENSLIME+2;
-                s->extra = 1;
-                s->pal = 1;
+                break;
+
+            case HELECOPT__STATIC:
+            case DUKECAR__STATIC:
+
+                s->z += s->zvel;
+                t[0]++;
+
+                if (t[0] == 4) spritesound(WAR_AMBIENCE2,i);
+
+                if (t[0] > (26*8))
+                {
+                    sound(RPG_EXPLODE);
+                    for (j=0;j<32;j++) RANDOMSCRAP;
+                    earthquaketime = 16;
+                    KILLIT(i);
+                }
+                else if ((t[0]&3) == 0)
+                    spawn(i,EXPLOSION2);
+                ssp(i,CLIPMASK0);
+                break;
+            case RAT__STATIC:
+                makeitfall(i);
+                IFMOVING
+                {
+                    if ((TRAND&255) < 3) spritesound(RATTY,i);
+                    s->ang += (TRAND&31)-15+(sintable[(t[0]<<8)&2047]>>11);
+                }
+                else
+                {
+                    T1++;
+                    if (T1 > 1)
+                        {
+                            KILLIT(i);
+                        }
+                        else s->ang = (TRAND&2047);
+                    }
+                if (s->xvel < 128)
+                    s->xvel+=2;
+                s->ang += (TRAND&3)-6;
+                break;
+            case QUEBALL__STATIC:
+            case STRIPEBALL__STATIC:
+                if (s->xvel)
+                {
+                    j = headspritestat[0];
+                    while (j >= 0)
+                    {
+                        nextj = nextspritestat[j];
+                        if (sprite[j].picnum == POCKET && ldist(&sprite[j],s) < 52) KILLIT(i);
+                        j = nextj;
+                    }
+
+                    j = clipmove(&s->x,&s->y,&s->z,&s->sectnum,
+                                 (((s->xvel*(sintable[(s->ang+512)&2047]))>>14)*TICSPERFRAME)<<11,
+                                 (((s->xvel*(sintable[s->ang&2047]))>>14)*TICSPERFRAME)<<11,
+                                 24L,(4<<8),(4<<8),CLIPMASK1);
+
+                    if (j&49152)
+                    {
+                        if ((j&49152) == 32768)
+                        {
+                            j &= (MAXWALLS-1);
+                            k = getangle(
+                                    wall[wall[j].point2].x-wall[j].x,
+                                    wall[wall[j].point2].y-wall[j].y);
+                            s->ang = ((k<<1) - s->ang)&2047;
+                        }
+                        else if ((j&49152) == 49152)
+                        {
+                            j &= (MAXSPRITES-1);
+                            checkhitsprite(i,j);
+                        }
+                    }
+                    s->xvel --;
+                    if (s->xvel < 0) s->xvel = 0;
+                    if (s->picnum == STRIPEBALL)
+                    {
+                        s->cstat = 257;
+                        s->cstat |= 4&s->xvel;
+                        s->cstat |= 8&s->xvel;
+                    }
+                }
+                else
+                {
+                    p = findplayer(s,&x);
+
+                    if (x < 1596)
+                    {
+
+                        //                        if(s->pal == 12)
+                        {
+                            j = getincangle(ps[p].ang,getangle(s->x-ps[p].posx,s->y-ps[p].posy));
+                            if (j > -64 && j < 64 && (sync[p].bits&(1<<29)))
+                                if (ps[p].toggle_key_flag == 1)
+                                {
+                                    a = headspritestat[1];
+                                    while (a >= 0)
+                                    {
+                                        if (sprite[a].picnum == QUEBALL || sprite[a].picnum == STRIPEBALL)
+                                        {
+                                            j = getincangle(ps[p].ang,getangle(sprite[a].x-ps[p].posx,sprite[a].y-ps[p].posy));
+                                            if (j > -64 && j < 64)
+                                            {
+                                                findplayer(&sprite[a],&l);
+                                                if (x > l) break;
+                                            }
+                                        }
+                                        a = nextspritestat[a];
+                                    }
+                                    if (a == -1)
+                                    {
+                                        if (s->pal == 12)
+                                            s->xvel = 164;
+                                        else s->xvel = 140;
+                                        s->ang = ps[p].ang;
+                                        ps[p].toggle_key_flag = 2;
+                                    }
+                                }
+                        }
+                    }
+                    if (x < 512 && s->sectnum == ps[p].cursectnum)
+                    {
+                        s->ang = getangle(s->x-ps[p].posx,s->y-ps[p].posy);
+                        s->xvel = 48;
+                    }
+                }
+
+                break;
+            case FORCESPHERE__STATIC:
+
+                if (s->yvel == 0)
+                {
+                    s->yvel = 1;
+
+                    for (l=512;l<(2048-512);l+= 128)
+                        for (j=0;j<2048;j += 128)
+                        {
+                            k = spawn(i,FORCESPHERE);
+                            sprite[k].cstat = 257+128;
+                            sprite[k].clipdist = 64;
+                            sprite[k].ang = j;
+                            sprite[k].zvel = sintable[l&2047]>>5;
+                            sprite[k].xvel = sintable[(l+512)&2047]>>9;
+                            sprite[k].owner = i;
+                        }
+                }
+
+                if (t[3] > 0)
+                {
+                    if (s->zvel < 6144)
+                        s->zvel += 192;
+                    s->z += s->zvel;
+                    if (s->z > sector[sect].floorz)
+                        s->z = sector[sect].floorz;
+                    t[3]--;
+                    if (t[3] == 0)
+                        KILLIT(i);
+                }
+                else if (t[2] > 10)
+                {
+                    j = headspritestat[5];
+                    while (j >= 0)
+                    {
+                        if (sprite[j].owner == i && sprite[j].picnum == FORCESPHERE)
+                            hittype[j].temp_data[1] = 1+(TRAND&63);
+                        j = nextspritestat[j];
+                    }
+                    t[3] = 64;
+                }
+
+                goto BOLT;
+
+            case RECON__STATIC:
+
+                getglobalz(i);
+
+                if (sector[s->sectnum].ceilingstat&1)
+                    s->shade += (sector[s->sectnum].ceilingshade-s->shade)>>1;
+                else s->shade += (sector[s->sectnum].floorshade-s->shade)>>1;
+
+                if (s->z < sector[sect].ceilingz+(32<<8))
+                    s->z = sector[sect].ceilingz+(32<<8);
+
+                if (ud.multimode < 2)
+                {
+                    if (actor_tog == 1)
+                    {
+                        s->cstat = (short)32768;
+                        goto BOLT;
+                    }
+                    else if (actor_tog == 2) s->cstat = 257;
+                }
                 IFHIT
                 {
-                    if (j == FREEZEBLAST) goto BOLT;
-                    for (j=16; j >= 0 ;j--)
-                    {
-                        k = EGS(SECT,SX,SY,SZ,GLASSPIECES+(j%3),-32,36,36,TRAND&2047,32+(TRAND&63),1024-(TRAND&1023),i,5);
-                            sprite[k].pal = 1;
-                        }
-                    spritesound(GLASS_BREAKING,i);
-                    KILLIT(i);
-                }
-                else if (x < 1024 && ps[p].quick_kick == 0)
+                    if (s->extra < 0 && t[0] != -1)
                 {
-                    j = getincangle(ps[p].ang,getangle(SX-ps[p].posx,SY-ps[p].posy));
-                    if (j > -128 && j < 128)
-                        ps[p].quick_kick = 14;
-                }
-
-                goto BOLT;
+                    t[0] = -1;
+                        s->extra = 0;
+                    }
+                    spritesound(RECO_PAIN,i);
+                    RANDOMSCRAP;
             }
 
-            if (x < 1596)
-                s->cstat = 0;
-            else s->cstat = 257;
-
-            if (t[0] == -4) //On the player
-            {
-                if (sprite[ps[p].i].extra < 1)
+                if (t[0] == -1)
                 {
-                    t[0] = 0;
-                    goto BOLT;
-                }
-
-                setsprite(i,s->x,s->y,s->z);
-
-                s->ang = ps[p].ang;
-
-                if (((sync[p].bits&4) || (ps[p].quick_kick > 0)) && sprite[ps[p].i].extra > 0)
-                    if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))
+                    s->z += 1024;
+                    t[2]++;
+                    if ((t[2]&3) == 0) spawn(i,EXPLOSION2);
+                    getglobalz(i);
+                    s->ang += 96;
+                    s->xvel = 128;
+                    j = ssp(i,CLIPMASK0);
+                    if (j != 1 || s->z > hittype[i].floorz)
                     {
-                        for (x=0;x<8;x++)
-                        {
-                            j = EGS(sect,s->x,s->y,s->z-(8<<8),SCRAP3+(TRAND&3),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(s->zvel>>2),i,5);
-                            sprite[j].pal = 6;
-                        }
-
-                        spritesound(SLIM_DYING,i);
-                        spritesound(SQUISHED,i);
-                        if ((TRAND&255) < 32)
-                        {
-                            j = spawn(i,BLOODPOOL);
-                            sprite[j].pal = 0;
-                        }
-                        ps[p].actors_killed ++;
-                        t[0] = -3;
-                        if (ps[p].somethingonplayer == i)
-                            ps[p].somethingonplayer = -1;
+                        for (l=0;l<16;l++)
+                            RANDOMSCRAP;
+                        spritesound(LASERTRIP_EXPLODE,i);
+                        spawn(i,PIGCOP);
+                        ps[myconnectindex].actors_killed++;
                         KILLIT(i);
                     }
-
-                s->z = ps[p].posz+ps[p].pyoff-t[2]+(8<<8);
-
-                s->z += (100-ps[p].horiz)<<4;
-
-                if (t[2] > 512)
-                    t[2] -= 128;
-
-                if (t[2] < 348)
-                    t[2] += 128;
-
-                if (ps[p].newowner >= 0)
-                {
-                    ps[p].newowner = -1;
-                    ps[p].posx = ps[p].oposx;
-                    ps[p].posy = ps[p].oposy;
-                    ps[p].posz = ps[p].oposz;
-                    ps[p].ang = ps[p].oang;
-
-                    updatesector(ps[p].posx,ps[p].posy,&ps[p].cursectnum);
-                    setpal(&ps[p]);
-
-                    j = headspritestat[1];
-                    while (j >= 0)
-                    {
-                        if (sprite[j].picnum==CAMERA1) sprite[j].yvel = 0;
-                        j = nextspritestat[j];
-                    }
-                }
-
-                if (t[3]>0)
-                {
-                    short frames[] = {5,5,6,6,7,7,6,5};
-
-                    s->picnum = GREENSLIME+frames[t[3]];
-
-                    if (t[3] == 5)
-                    {
-                        sprite[ps[p].i].extra += -(5+(TRAND&3));
-                        spritesound(SLIM_ATTACK,i);
-                    }
-
-                    if (t[3] < 7) t[3]++;
-                    else t[3] = 0;
-
+                    goto BOLT;
                 }
                 else
                 {
-                    s->picnum = GREENSLIME+5;
-                    if (rnd(32))
-                        t[3] = 1;
+                    if (s->z > hittype[i].floorz-(48<<8))
+                        s->z = hittype[i].floorz-(48<<8);
                 }
 
-                s->xrepeat = 20+(sintable[t[1]&2047]>>13);
-                s->yrepeat = 15+(sintable[t[1]&2047]>>13);
+                p = findplayer(s,&x);
+                j = s->owner;
 
-                s->x = ps[p].posx + (sintable[(ps[p].ang+512)&2047]>>7);
-                s->y = ps[p].posy + (sintable[ps[p].ang&2047]>>7);
+                // 3 = findplayerz, 4 = shoot
+
+                if (t[0] >= 4)
+                {
+                    t[2]++;
+                    if ((t[2]&15) == 0)
+                    {
+                        a = s->ang;
+                        s->ang = hittype[i].tempang;
+                        spritesound(RECO_ATTACK,i);
+                        shoot(i,FIRELASER);
+                        s->ang = a;
+                    }
+                    if (t[2] > (26*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, ps[p].posx,ps[p].posy,ps[p].posz,ps[p].cursectnum))
+                    {
+                        t[0] = 0;
+                        t[2] = 0;
+                    }
+                    else hittype[i].tempang +=
+                            getincangle(hittype[i].tempang,getangle(ps[p].posx-s->x,ps[p].posy-s->y))/3;
+                }
+                else if (t[0] == 2 || t[0] == 3)
+                {
+                    t[3] = 0;
+                    if (s->xvel > 0) s->xvel -= 16;
+                    else s->xvel = 0;
+
+                    if (t[0] == 2)
+                    {
+                        l = ps[p].posz-s->z;
+                        if (klabs(l) < (48<<8)) t[0] = 3;
+                        else s->z += ksgn(ps[p].posz-s->z)<<10;
+                    }
+                    else
+                    {
+                        t[2]++;
+                        if (t[2] > (26*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, ps[p].posx,ps[p].posy,ps[p].posz,ps[p].cursectnum))
+                        {
+                            t[0] = 1;
+                            t[2] = 0;
+                        }
+                        else if ((t[2]&15) == 0)
+                        {
+                            spritesound(RECO_ATTACK,i);
+                            shoot(i,FIRELASER);
+                        }
+                    }
+                    s->ang += getincangle(s->ang,getangle(ps[p].posx-s->x,ps[p].posy-s->y))>>2;
+                }
+
+                if (t[0] != 2 && t[0] != 3)
+                {
+                    l = ldist(&sprite[j],s);
+                    if (l <= 1524)
+                    {
+                        a = s->ang;
+                        s->xvel >>= 1;
+                    }
+                    else a = getangle(sprite[j].x-s->x,sprite[j].y-s->y);
+
+                    if (t[0] == 1 || t[0] == 4) // Found a locator and going with it
+                    {
+                        l = dist(&sprite[j],s);
+
+                        if (l <= 1524)
+                        {
+                            if (t[0] == 1) t[0] = 0;
+                            else t[0] = 5;
+                        }
+                        else
+                        {
+                            // Control speed here
+                            if (l > 1524)
+                            {
+                                if (s->xvel < 256) s->xvel += 32;
+                            }
+                            else
+                            {
+                                if (s->xvel > 0) s->xvel -= 16;
+                                else s->xvel = 0;
+                            }
+                        }
+
+                        if (t[0] < 2) t[2]++;
+
+                        if (x < 6144 && t[0] < 2 && t[2] > (26*4))
+                        {
+                            t[0] = 2+(TRAND&2);
+                            t[2] = 0;
+                            hittype[i].tempang = s->ang;
+                        }
+                    }
+
+                    if (t[0] == 0 || t[0] == 5)
+                    {
+                        if (t[0] == 0)
+                            t[0] = 1;
+                        else t[0] = 4;
+                        j = s->owner = LocateTheLocator(s->hitag,-1);
+                        if (j == -1)
+                        {
+                            s->hitag = j = hittype[i].temp_data[5];
+                            s->owner = LocateTheLocator(j,-1);
+                            j = s->owner;
+                            if (j == -1) KILLIT(i);
+                        }
+                        else s->hitag++;
+                    }
+
+                    t[3] = getincangle(s->ang,a);
+                    s->ang += t[3]>>3;
+
+                    if (s->z < sprite[j].z)
+                        s->z += 1024;
+                    else s->z -= 1024;
+                }
+
+                if (!isspritemakingsound(i,RECO_ROAM))
+                    spritesound(RECO_ROAM,i);
+
+                ssp(i,CLIPMASK0);
 
                 goto BOLT;
-            }
 
-            else if (s->xvel < 64 && x < 768)
-            {
-                if (ps[p].somethingonplayer == -1)
+            case OOZ__STATIC:
+            case OOZ2__STATIC:
+
+                getglobalz(i);
+
+                j = (hittype[i].floorz-hittype[i].ceilingz)>>9;
+                if (j > 255) j = 255;
+
+                x = 25-(j>>1);
+                if (x < 8) x = 8;
+                else if (x > 48) x = 48;
+
+                s->yrepeat = j;
+                s->xrepeat = x;
+                s->z = hittype[i].floorz;
+
+                goto BOLT;
+
+            case GREENSLIME__STATIC:
+                //        case GREENSLIME+1:
+                //        case GREENSLIME+2:
+                //        case GREENSLIME+3:
+                //        case GREENSLIME+4:
+                //        case GREENSLIME+5:
+                //        case GREENSLIME+6:
+                //        case GREENSLIME+7:
+
+                // #ifndef VOLUMEONE
+                if (ud.multimode < 2)
                 {
-                    ps[p].somethingonplayer = i;
-                    if (t[0] == 3 || t[0] == 2) //Falling downward
-                        t[2] = (12<<8);
-                    else t[2] = -(13<<8); //Climbing up duke
-                    t[0] = -4;
+                    if (actor_tog == 1)
+                    {
+                        s->cstat = (short)32768;
+                        goto BOLT;
+                    }
+                    else if (actor_tog == 2) s->cstat = 257;
                 }
-            }
+                // #endif
 
-            IFHIT
-            {
-                spritesound(SLIM_DYING,i);
+                t[1]+=128;
 
-                ps[p].actors_killed ++;
-                if (ps[p].somethingonplayer == i)
-                ps[p].somethingonplayer = -1;
+                if (sector[sect].floorstat&1)
+                    KILLIT(i);
 
-                if (j == FREEZEBLAST)
+                p = findplayer(s,&x);
+
+                if (x > 20480)
                 {
-                    spritesound(SOMETHINGFROZE,i); t[0] = -5 ; t[3] = 0 ;
+                    hittype[i].timetosleep++;
+                    if (hittype[i].timetosleep > SLEEPTIME)
+                    {
+                        hittype[i].timetosleep = 0;
+                        changespritestat(i,2);
+                        goto BOLT;
+                    }
+                }
+
+                if (t[0] == -5) // FROZEN
+                {
+                    t[3]++;
+                    if (t[3] > 280)
+                    {
+                        s->pal = 0;
+                        t[0] = 0;
+                        goto BOLT;
+                    }
+                    makeitfall(i);
+                    s->cstat = 257;
+                    s->picnum = GREENSLIME+2;
+                    s->extra = 1;
+                    s->pal = 1;
+                    IFHIT
+                    {
+                        if (j == FREEZEBLAST) goto BOLT;
+                        for (j=16; j >= 0 ;j--)
+                        {
+                            k = EGS(SECT,SX,SY,SZ,GLASSPIECES+(j%3),-32,36,36,TRAND&2047,32+(TRAND&63),1024-(TRAND&1023),i,5);
+                                sprite[k].pal = 1;
+                            }
+                        spritesound(GLASS_BREAKING,i);
+                        KILLIT(i);
+                    }
+                    else if (x < 1024 && ps[p].quick_kick == 0)
+                    {
+                        j = getincangle(ps[p].ang,getangle(SX-ps[p].posx,SY-ps[p].posy));
+                        if (j > -128 && j < 128)
+                            ps[p].quick_kick = 14;
+                    }
+
+                    goto BOLT;
+                }
+
+                if (x < 1596)
+                    s->cstat = 0;
+                else s->cstat = 257;
+
+                if (t[0] == -4) //On the player
+                {
+                    if (sprite[ps[p].i].extra < 1)
+                    {
+                        t[0] = 0;
                         goto BOLT;
                     }
 
-                if ((TRAND&255) < 32)
-            {
-                j = spawn(i,BLOODPOOL);
-                    sprite[j].pal = 0;
-                }
+                    setsprite(i,s->x,s->y,s->z);
 
-                for (x=0;x<8;x++)
-            {
-                j = EGS(sect,s->x,s->y,s->z-(8<<8),SCRAP3+(TRAND&3),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(s->zvel>>2),i,5);
-                    sprite[j].pal = 6;
-                }
-                t[0] = -3;
-                KILLIT(i);
-            }
-            // All weap
-            if (t[0] == -1) //Shrinking down
-            {
-                makeitfall(i);
+                    s->ang = ps[p].ang;
 
-                s->cstat &= 65535-8;
-                s->picnum = GREENSLIME+4;
+                    if (((sync[p].bits&4) || (ps[p].quick_kick > 0)) && sprite[ps[p].i].extra > 0)
+                        if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))
+                        {
+                            for (x=0;x<8;x++)
+                            {
+                                j = EGS(sect,s->x,s->y,s->z-(8<<8),SCRAP3+(TRAND&3),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(s->zvel>>2),i,5);
+                                sprite[j].pal = 6;
+                            }
 
-                //                    if(s->yrepeat > 62)
-                //                      guts(s,JIBS6,5,myconnectindex);
+                            spritesound(SLIM_DYING,i);
+                            spritesound(SQUISHED,i);
+                            if ((TRAND&255) < 32)
+                            {
+                                j = spawn(i,BLOODPOOL);
+                                sprite[j].pal = 0;
+                            }
+                            ps[p].actors_killed ++;
+                            t[0] = -3;
+                            if (ps[p].somethingonplayer == i)
+                                ps[p].somethingonplayer = -1;
+                            KILLIT(i);
+                        }
 
-                if (s->xrepeat > 32) s->xrepeat -= TRAND&7;
-                if (s->yrepeat > 16) s->yrepeat -= TRAND&7;
-                else
-                {
-                    s->xrepeat = 40;
-                    s->yrepeat = 16;
-                    t[5] = -1;
-                    t[0] = 0;
-                }
+                    s->z = ps[p].posz+ps[p].pyoff-t[2]+(8<<8);
 
-                goto BOLT;
-            }
-            else if (t[0] != -2) getglobalz(i);
+                    s->z += (100-ps[p].horiz)<<4;
 
-            if (t[0] == -2) //On top of somebody
-            {
-                makeitfall(i);
-                sprite[t[5]].xvel = 0;
+                    if (t[2] > 512)
+                        t[2] -= 128;
 
-                l = sprite[t[5]].ang;
+                    if (t[2] < 348)
+                        t[2] += 128;
 
-                s->z = sprite[t[5]].z;
-                s->x = sprite[t[5]].x+(sintable[(l+512)&2047]>>11);
-                s->y = sprite[t[5]].y+(sintable[l&2047]>>11);
+                    if (ps[p].newowner >= 0)
+                    {
+                        ps[p].newowner = -1;
+                        ps[p].posx = ps[p].oposx;
+                        ps[p].posy = ps[p].oposy;
+                        ps[p].posz = ps[p].oposz;
+                        ps[p].ang = ps[p].oang;
 
-                s->picnum =  GREENSLIME+2+(global_random&1);
+                        updatesector(ps[p].posx,ps[p].posy,&ps[p].cursectnum);
+                        setpal(&ps[p]);
 
-                if (s->yrepeat < 64) s->yrepeat+=2;
-                else
-                {
-                    if (s->xrepeat < 32) s->xrepeat += 4;
+                        j = headspritestat[1];
+                        while (j >= 0)
+                        {
+                            if (sprite[j].picnum==CAMERA1) sprite[j].yvel = 0;
+                            j = nextspritestat[j];
+                        }
+                    }
+
+                    if (t[3]>0)
+                    {
+                        short frames[] = {5,5,6,6,7,7,6,5};
+
+                        s->picnum = GREENSLIME+frames[t[3]];
+
+                        if (t[3] == 5)
+                        {
+                            sprite[ps[p].i].extra += -(5+(TRAND&3));
+                            spritesound(SLIM_ATTACK,i);
+                        }
+
+                        if (t[3] < 7) t[3]++;
+                        else t[3] = 0;
+
+                    }
                     else
                     {
-                        t[0] = -1;
-                        x = ldist(s,&sprite[t[5]]);
-                        if (x < 768) {
-                            sprite[t[5]].xrepeat = 0;
+                        s->picnum = GREENSLIME+5;
+                        if (rnd(32))
+                            t[3] = 1;
+                    }
 
-                            // JBF 20041129: a slimer eating another enemy really ought
-                            // to decrease the maximum kill count by one.
-                            if (sprite[t[5]].extra > 0) ps[myconnectindex].max_actors_killed--;
-                        }
+                    s->xrepeat = 20+(sintable[t[1]&2047]>>13);
+                    s->yrepeat = 15+(sintable[t[1]&2047]>>13);
+
+                    s->x = ps[p].posx + (sintable[(ps[p].ang+512)&2047]>>7);
+                    s->y = ps[p].posy + (sintable[ps[p].ang&2047]>>7);
+
+                    goto BOLT;
+                }
+
+                else if (s->xvel < 64 && x < 768)
+                {
+                    if (ps[p].somethingonplayer == -1)
+                    {
+                        ps[p].somethingonplayer = i;
+                        if (t[0] == 3 || t[0] == 2) //Falling downward
+                            t[2] = (12<<8);
+                        else t[2] = -(13<<8); //Climbing up duke
+                        t[0] = -4;
                     }
                 }
 
-                goto BOLT;
-            }
-
-            //Check randomly to see of there is an actor near
-            if (rnd(32))
-            {
-                j = headspritesect[sect];
-                while (j>=0)
+                IFHIT
                 {
-                    switch (dynamictostatic[sprite[j].picnum])
+                    spritesound(SLIM_DYING,i);
+
+                    ps[p].actors_killed ++;
+                    if (ps[p].somethingonplayer == i)
+                    ps[p].somethingonplayer = -1;
+
+                    if (j == FREEZEBLAST)
                     {
-                    case LIZTROOP__STATIC:
-                    case LIZMAN__STATIC:
-                    case PIGCOP__STATIC:
-                    case NEWBEAST__STATIC:
-                        if (ldist(s,&sprite[j]) < 768 && (klabs(s->z-sprite[j].z)<8192))   //Gulp them
+                        spritesound(SOMETHINGFROZE,i);
+                            t[0] = -5 ;
+                            t[3] = 0 ;
+                            goto BOLT;
+                        }
+
+                    if ((TRAND&255) < 32)
+                {
+                    j = spawn(i,BLOODPOOL);
+                        sprite[j].pal = 0;
+                    }
+
+                    for (x=0;x<8;x++)
+                {
+                    j = EGS(sect,s->x,s->y,s->z-(8<<8),SCRAP3+(TRAND&3),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(s->zvel>>2),i,5);
+                        sprite[j].pal = 6;
+                    }
+                    t[0] = -3;
+                    KILLIT(i);
+            }
+                // All weap
+                if (t[0] == -1) //Shrinking down
+                {
+                    makeitfall(i);
+
+                    s->cstat &= 65535-8;
+                    s->picnum = GREENSLIME+4;
+
+                    //                    if(s->yrepeat > 62)
+                    //                      guts(s,JIBS6,5,myconnectindex);
+
+                    if (s->xrepeat > 32) s->xrepeat -= TRAND&7;
+                    if (s->yrepeat > 16) s->yrepeat -= TRAND&7;
+                    else
+                    {
+                        s->xrepeat = 40;
+                        s->yrepeat = 16;
+                        t[5] = -1;
+                        t[0] = 0;
+                    }
+
+                    goto BOLT;
+                }
+                else if (t[0] != -2) getglobalz(i);
+
+                if (t[0] == -2) //On top of somebody
+                {
+                    makeitfall(i);
+                    sprite[t[5]].xvel = 0;
+
+                    l = sprite[t[5]].ang;
+
+                    s->z = sprite[t[5]].z;
+                    s->x = sprite[t[5]].x+(sintable[(l+512)&2047]>>11);
+                    s->y = sprite[t[5]].y+(sintable[l&2047]>>11);
+
+                    s->picnum =  GREENSLIME+2+(global_random&1);
+
+                    if (s->yrepeat < 64) s->yrepeat+=2;
+                    else
+                    {
+                        if (s->xrepeat < 32) s->xrepeat += 4;
+                        else
                         {
-                            t[5] = j;
-                            t[0] = -2;
-                            t[1] = 0;
+                            t[0] = -1;
+                            x = ldist(s,&sprite[t[5]]);
+                            if (x < 768)
+                            {
+                                sprite[t[5]].xrepeat = 0;
+
+                                // JBF 20041129: a slimer eating another enemy really ought
+                                // to decrease the maximum kill count by one.
+                                if (sprite[t[5]].extra > 0) ps[myconnectindex].max_actors_killed--;
+                            }
+                        }
+                    }
+
+                    goto BOLT;
+                }
+
+                //Check randomly to see of there is an actor near
+                if (rnd(32))
+                {
+                    j = headspritesect[sect];
+                    while (j>=0)
+                    {
+                        switch (dynamictostatic[sprite[j].picnum])
+                        {
+                            case LIZTROOP__STATIC:
+                            case LIZMAN__STATIC:
+                            case PIGCOP__STATIC:
+                            case NEWBEAST__STATIC:
+                                if (ldist(s,&sprite[j]) < 768 && (klabs(s->z-sprite[j].z)<8192))   //Gulp them
+                                {
+                                    t[5] = j;
+                                    t[0] = -2;
+                                    t[1] = 0;
+                                    goto BOLT;
+                                }
+                        }
+
+                        j = nextspritesect[j];
+                    }
+                }
+
+                //Moving on the ground or ceiling
+
+                if (t[0] == 0 || t[0] == 2)
+                {
+                    s->picnum = GREENSLIME;
+
+                    if ((TRAND&511) == 0)
+                        spritesound(SLIM_ROAM,i);
+
+                    if (t[0]==2)
+                    {
+                        s->zvel = 0;
+                        s->cstat &= (65535-8);
+
+                        if ((sector[sect].ceilingstat&1) || (hittype[i].ceilingz+6144) < s->z)
+                        {
+                            s->z += 2048;
+                            t[0] = 3;
                             goto BOLT;
                         }
                     }
-
-                    j = nextspritesect[j];
-                }
-            }
-
-            //Moving on the ground or ceiling
-
-            if (t[0] == 0 || t[0] == 2)
-            {
-                s->picnum = GREENSLIME;
-
-                if ((TRAND&511) == 0)
-                    spritesound(SLIM_ROAM,i);
-
-                if (t[0]==2)
-                {
-                    s->zvel = 0;
-                    s->cstat &= (65535-8);
-
-                    if ((sector[sect].ceilingstat&1) || (hittype[i].ceilingz+6144) < s->z)
+                    else
                     {
-                        s->z += 2048;
-                        t[0] = 3;
+                        s->cstat |= 8;
+                        makeitfall(i);
+                    }
+
+                    if (everyothertime&1) ssp(i,CLIPMASK0);
+
+                    if (s->xvel > 96)
+                    {
+                        s->xvel -= 2;
                         goto BOLT;
                     }
-                }
-                else
-                {
-                    s->cstat |= 8;
-                    makeitfall(i);
-                }
+                    else
+                    {
+                        if (s->xvel < 32) s->xvel += 4;
+                        s->xvel = 64 - (sintable[(t[1]+512)&2047]>>9);
 
-                if (everyothertime&1) ssp(i,CLIPMASK0);
+                        s->ang += getincangle(s->ang,
+                                              getangle(ps[p].posx-s->x,ps[p].posy-s->y))>>3;
+                        // TJR
+                    }
 
-                if (s->xvel > 96)
-                {
-                    s->xvel -= 2;
-                    goto BOLT;
-                }
-                else
-                {
-                    if (s->xvel < 32) s->xvel += 4;
-                    s->xvel = 64 - (sintable[(t[1]+512)&2047]>>9);
+                    s->xrepeat = 36 + (sintable[(t[1]+512)&2047]>>11);
+                    s->yrepeat = 16 + (sintable[t[1]&2047]>>13);
 
-                    s->ang += getincangle(s->ang,
-                                          getangle(ps[p].posx-s->x,ps[p].posy-s->y))>>3;
-                    // TJR
-                }
+                    if (rnd(4) && (sector[sect].ceilingstat&1) == 0 &&
+                            klabs(hittype[i].floorz-hittype[i].ceilingz)
+                            < (192<<8))
+                    {
+                        s->zvel = 0;
+                        t[0]++;
+                    }
 
-                s->xrepeat = 36 + (sintable[(t[1]+512)&2047]>>11);
-                s->yrepeat = 16 + (sintable[t[1]&2047]>>13);
-
-                if (rnd(4) && (sector[sect].ceilingstat&1) == 0 &&
-                        klabs(hittype[i].floorz-hittype[i].ceilingz)
-                        < (192<<8))
-                {
-                    s->zvel = 0;
-                    t[0]++;
                 }
 
-            }
-
-            if (t[0]==1)
-            {
-                s->picnum = GREENSLIME;
-                if (s->yrepeat < 40) s->yrepeat+=8;
-                if (s->xrepeat > 8) s->xrepeat-=4;
-                if (s->zvel > -(2048+1024))
-                    s->zvel -= 348;
-                s->z += s->zvel;
-                if (s->z < hittype[i].ceilingz+4096)
+                if (t[0]==1)
                 {
-                    s->z = hittype[i].ceilingz+4096;
-                    s->xvel = 0;
-                    t[0] = 2;
-                }
-            }
-
-            if (t[0]==3)
-            {
-                s->picnum = GREENSLIME+1;
-
-                makeitfall(i);
-
-                if (s->z > hittype[i].floorz-(8<<8))
-                {
-                    s->yrepeat-=4;
-                    s->xrepeat+=2;
-                }
-                else
-                {
-                    if (s->yrepeat < (40-4)) s->yrepeat+=8;
+                    s->picnum = GREENSLIME;
+                    if (s->yrepeat < 40) s->yrepeat+=8;
                     if (s->xrepeat > 8) s->xrepeat-=4;
+                    if (s->zvel > -(2048+1024))
+                        s->zvel -= 348;
+                    s->z += s->zvel;
+                    if (s->z < hittype[i].ceilingz+4096)
+                    {
+                        s->z = hittype[i].ceilingz+4096;
+                        s->xvel = 0;
+                        t[0] = 2;
+                    }
                 }
 
-                if (s->z > hittype[i].floorz-2048)
+                if (t[0]==3)
                 {
-                    s->z = hittype[i].floorz-2048;
-                    t[0] = 0;
-                    s->xvel = 0;
-                }
-            }
-            goto BOLT;
+                    s->picnum = GREENSLIME+1;
 
-        case BOUNCEMINE__STATIC:
-        case MORTER__STATIC:
-            j = spawn(i,(PLUTOPAK?FRAMEEFFECT1:FRAMEEFFECT1_13));
-            hittype[j].temp_data[0] = 3;
+                    makeitfall(i);
 
-        case HEAVYHBOMB__STATIC:
+                    if (s->z > hittype[i].floorz-(8<<8))
+                    {
+                        s->yrepeat-=4;
+                        s->xrepeat+=2;
+                    }
+                    else
+                    {
+                        if (s->yrepeat < (40-4)) s->yrepeat+=8;
+                        if (s->xrepeat > 8) s->xrepeat-=4;
+                    }
 
-            if ((s->cstat&32768))
-            {
-                t[2]--;
-                if (t[2] <= 0)
-                {
-                    spritesound(TELEPORTER,i);
-                    spawn(i,TRANSPORTERSTAR);
-                    s->cstat = 257;
+                    if (s->z > hittype[i].floorz-2048)
+                    {
+                        s->z = hittype[i].floorz-2048;
+                        t[0] = 0;
+                        s->xvel = 0;
+                    }
                 }
                 goto BOLT;
-            }
 
-            p = findplayer(s,&x);
+            case BOUNCEMINE__STATIC:
+            case MORTER__STATIC:
+                j = spawn(i,(PLUTOPAK?FRAMEEFFECT1:FRAMEEFFECT1_13));
+                hittype[j].temp_data[0] = 3;
 
-            if (x < 1220) s->cstat &= ~257;
-            else s->cstat |= 257;
+            case HEAVYHBOMB__STATIC:
 
-            if (t[3] == 0)
-            {
-                j = ifhitbyweapon(i);
-                if (j >= 0)
+                if ((s->cstat&32768))
+                {
+                    t[2]--;
+                    if (t[2] <= 0)
+                    {
+                        spritesound(TELEPORTER,i);
+                        spawn(i,TRANSPORTERSTAR);
+                        s->cstat = 257;
+                    }
+                    goto BOLT;
+                }
+
+                p = findplayer(s,&x);
+
+                if (x < 1220) s->cstat &= ~257;
+                else s->cstat |= 257;
+
+                if (t[3] == 0)
+                {
+                    j = ifhitbyweapon(i);
+                    if (j >= 0)
+                    {
+                        t[3] = 1;
+                        t[4] = 0;
+                        l = 0;
+                        s->xvel = 0;
+                        goto DETONATEB;
+                    }
+                }
+
+                if (s->picnum != BOUNCEMINE)
+                {
+                    makeitfall(i);
+
+                    if (sector[sect].lotag != 1 && s->z >= hittype[i].floorz-(FOURSLEIGHT) && s->yvel < 3)
+                    {
+                        if (s->yvel > 0 || (s->yvel == 0 && hittype[i].floorz == sector[sect].floorz))
+                            spritesound(PIPEBOMB_BOUNCE,i);
+                        s->zvel = -((4-s->yvel)<<8);
+                        if (sector[s->sectnum].lotag== 2)
+                            s->zvel >>= 2;
+                        s->yvel++;
+                    }
+                    if (s->z < hittype[i].ceilingz)   // && sector[sect].lotag != 2 )
+                    {
+                        s->z = hittype[i].ceilingz+(3<<8);
+                        s->zvel = 0;
+                    }
+                }
+
+                j = movesprite(i,
+                               (s->xvel*(sintable[(s->ang+512)&2047]))>>14,
+                               (s->xvel*(sintable[s->ang&2047]))>>14,
+                               s->zvel,CLIPMASK0);
+
+                if (sector[SECT].lotag == 1 && s->zvel == 0)
+                {
+                    s->z += (32<<8);
+                    if (t[5] == 0)
+                    {
+                        t[5] = 1;
+                        spawn(i,WATERSPLASH2);
+                    }
+                }
+                else t[5] = 0;
+
+                if (t[3] == 0 && (s->picnum == BOUNCEMINE || s->picnum == MORTER) && (j || x < 844))
                 {
                     t[3] = 1;
                     t[4] = 0;
@@ -4378,203 +4477,111 @@ void moveactors(void)
                     s->xvel = 0;
                     goto DETONATEB;
                 }
-            }
 
-            if (s->picnum != BOUNCEMINE)
-            {
-                makeitfall(i);
+                if (sprite[s->owner].picnum == APLAYER)
+                    l = sprite[s->owner].yvel;
+                else l = -1;
 
-                if (sector[sect].lotag != 1 && s->z >= hittype[i].floorz-(FOURSLEIGHT) && s->yvel < 3)
+                if (s->xvel > 0)
                 {
-                    if (s->yvel > 0 || (s->yvel == 0 && hittype[i].floorz == sector[sect].floorz))
-                        spritesound(PIPEBOMB_BOUNCE,i);
-                    s->zvel = -((4-s->yvel)<<8);
-                    if (sector[s->sectnum].lotag== 2)
-                        s->zvel >>= 2;
-                    s->yvel++;
+                    s->xvel -= 5;
+                    if (sector[sect].lotag == 2)
+                        s->xvel -= 10;
+
+                    if (s->xvel < 0)
+                        s->xvel = 0;
+                    if (s->xvel&8) s->cstat ^= 4;
                 }
-                if (s->z < hittype[i].ceilingz)   // && sector[sect].lotag != 2 )
+
+                if ((j&49152) == 32768)
                 {
-                    s->z = hittype[i].ceilingz+(3<<8);
-                    s->zvel = 0;
+                    j &= (MAXWALLS-1);
+
+                    checkhitwall(i,j,s->x,s->y,s->z,s->picnum);
+
+                    k = getangle(
+                            wall[wall[j].point2].x-wall[j].x,
+                            wall[wall[j].point2].y-wall[j].y);
+
+                    s->ang = ((k<<1) - s->ang)&2047;
+                    s->xvel >>= 1;
                 }
-            }
 
-            j = movesprite(i,
-                           (s->xvel*(sintable[(s->ang+512)&2047]))>>14,
-                           (s->xvel*(sintable[s->ang&2047]))>>14,
-                           s->zvel,CLIPMASK0);
-
-            if (sector[SECT].lotag == 1 && s->zvel == 0)
-            {
-                s->z += (32<<8);
-                if (t[5] == 0)
-                {
-                    t[5] = 1;
-                    spawn(i,WATERSPLASH2);
-                }
-            }
-            else t[5] = 0;
-
-            if (t[3] == 0 && (s->picnum == BOUNCEMINE || s->picnum == MORTER) && (j || x < 844))
-            {
-                t[3] = 1;
-                t[4] = 0;
-                l = 0;
-                s->xvel = 0;
-                goto DETONATEB;
-            }
-
-            if (sprite[s->owner].picnum == APLAYER)
-                l = sprite[s->owner].yvel;
-            else l = -1;
-
-            if (s->xvel > 0)
-            {
-                s->xvel -= 5;
-                if (sector[sect].lotag == 2)
-                    s->xvel -= 10;
-
-                if (s->xvel < 0)
-                    s->xvel = 0;
-                if (s->xvel&8) s->cstat ^= 4;
-            }
-
-            if ((j&49152) == 32768)
-            {
-                j &= (MAXWALLS-1);
-
-                checkhitwall(i,j,s->x,s->y,s->z,s->picnum);
-
-                k = getangle(
-                        wall[wall[j].point2].x-wall[j].x,
-                        wall[wall[j].point2].y-wall[j].y);
-
-                s->ang = ((k<<1) - s->ang)&2047;
-                s->xvel >>= 1;
-            }
-
-            //      long lPipeBombControl=GetGameVar("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, -1);
+                //      long lPipeBombControl=GetGameVar("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, -1);
 
 DETONATEB:
 
-            //  if(lPipeBombControl & PIPEBOMB_TIMER)
-            //       {
+                //  if(lPipeBombControl & PIPEBOMB_TIMER)
+                //       {
 
-            if (s->picnum == HEAVYHBOMB && hittype[i].temp_data[6] == 1)
-            {
-                /*                if(s->extra >= 1)
-                                {
-                                    s->extra--;
-                                }
-
-                                if(s->extra <= 0)
-                                    s->lotag=911;
-                */
-
-                if (hittype[i].temp_data[7] >= 1)
+                if (s->picnum == HEAVYHBOMB && hittype[i].temp_data[6] == 1)
                 {
-                    hittype[i].temp_data[7]--;
+                    /*                if(s->extra >= 1)
+                                    {
+                                        s->extra--;
+                                    }
+
+                                    if(s->extra <= 0)
+                                        s->lotag=911;
+                    */
+
+                    if (hittype[i].temp_data[7] >= 1)
+                    {
+                        hittype[i].temp_data[7]--;
+                    }
+
+                    if (hittype[i].temp_data[7] <= 0)
+                    {
+                        hittype[i].temp_data[6] = 3;
+                        //                    s->extra = *actorscrptr[s->picnum];
+                    }
                 }
+                //      }
 
-                if (hittype[i].temp_data[7] <= 0)
-                {
+                if ((l >= 0 && ps[l].hbomb_on == 0 && hittype[i].temp_data[6] == 2) || t[3] == 1)
                     hittype[i].temp_data[6] = 3;
-                    //                    s->extra = *actorscrptr[s->picnum];
-                }
-            }
-            //      }
 
-            if ((l >= 0 && ps[l].hbomb_on == 0 && hittype[i].temp_data[6] == 2) || t[3] == 1)
-                hittype[i].temp_data[6] = 3;
+                if (hittype[i].temp_data[6] == 3)
 
-            if (hittype[i].temp_data[6] == 3)
-
-            {
-                t[4]++;
-
-                if (t[4] == 2)
                 {
-                    x = s->extra;
-                    m = 0;
-                    switch (dynamictostatic[s->picnum])
+                    t[4]++;
+
+                    if (t[4] == 2)
                     {
-                    case HEAVYHBOMB__STATIC:
-                        m = pipebombblastradius;break;
-                    case MORTER__STATIC:
-                        m = morterblastradius;break;
-                    case BOUNCEMINE__STATIC:
-                        m = bouncemineblastradius;break;
+                        x = s->extra;
+                        m = 0;
+                        switch (dynamictostatic[s->picnum])
+                        {
+                            case HEAVYHBOMB__STATIC:
+                                m = pipebombblastradius;
+                                break;
+                            case MORTER__STATIC:
+                                m = morterblastradius;
+                                break;
+                            case BOUNCEMINE__STATIC:
+                                m = bouncemineblastradius;
+                                break;
+                        }
+
+                        hitradius(i, m,x>>2,x>>1,x-(x>>2),x);
+                        spawn(i,EXPLOSION2);
+                        if (s->zvel == 0)
+                            spawn(i,EXPLOSION2BOT);
+                        spritesound(PIPEBOMB_EXPLODE,i);
+                        for (x=0;x<8;x++)
+                            RANDOMSCRAP;
                     }
 
-                    hitradius(i, m,x>>2,x>>1,x-(x>>2),x);
-                    spawn(i,EXPLOSION2);
-                    if (s->zvel == 0)
-                        spawn(i,EXPLOSION2BOT);
-                    spritesound(PIPEBOMB_EXPLODE,i);
-                    for (x=0;x<8;x++)
-                        RANDOMSCRAP;
-                }
-
-                if (s->yrepeat)
-                {
-                    s->yrepeat = 0;
-                    goto BOLT;
-                }
-
-                if (t[4] > 20)
-                {
-                    if (s->owner != i || ud.respawn_items == 0)
+                    if (s->yrepeat)
                     {
-                        KILLIT(i);
-                    }
-                    else
-                    {
-                        t[2] = respawnitemtime;
-                        spawn(i,RESPAWNMARKERRED);
-                        s->cstat = (short) 32768;
-                        s->yrepeat = 9;
+                        s->yrepeat = 0;
                         goto BOLT;
                     }
-                }
-            }
-            else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
-                if (cansee(s->x,s->y,s->z-(8<<8),s->sectnum,ps[p].posx,ps[p].posy,ps[p].posz,ps[p].cursectnum))
-                    if (ps[p].ammo_amount[HANDBOMB_WEAPON] < max_ammo_amount[HANDBOMB_WEAPON])
+
+                    if (t[4] > 20)
                     {
-                        if ((gametype_flags[ud.coop] & GAMETYPE_FLAG_WEAPSTAY) && s->owner == i)
-                        {
-                            for (j=0;j<ps[p].weapreccnt;j++)
-                                if (ps[p].weaprecs[j] == s->picnum)
-                                    goto BOLT;
-
-                            if (ps[p].weapreccnt < 255)
-                                ps[p].weaprecs[ps[p].weapreccnt++] = s->picnum;
-                        }
-
-                        addammo(HANDBOMB_WEAPON,&ps[p],1);
-                        spritesound(DUKE_GET,ps[p].i);
-
-                        if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || s->owner == ps[p].i)
-                        {
-                            /* addweapon(&ps[p],HANDBOMB_WEAPON); */
-                            if (!(ps[p].weaponswitch & 1) && *aplWeaponWorksLike[ps[p].curr_weapon] != HANDREMOTE_WEAPON)
-                                addweaponnoswitch(&ps[p],HANDBOMB_WEAPON);
-                            else addweapon(&ps[p],HANDBOMB_WEAPON);
-                        }
-
-                        if (sprite[s->owner].picnum != APLAYER)
-                        {
-                            ps[p].pals[0] = 0;
-                            ps[p].pals[1] = 32;
-                            ps[p].pals[2] = 0;
-                            ps[p].pals_time = 32;
-                        }
-
                         if (s->owner != i || ud.respawn_items == 0)
                         {
-                            if (s->owner == i && (gametype_flags[ud.coop] & GAMETYPE_FLAG_WEAPSTAY))
-                                goto BOLT;
                             KILLIT(i);
                         }
                         else
@@ -4582,193 +4589,242 @@ DETONATEB:
                             t[2] = respawnitemtime;
                             spawn(i,RESPAWNMARKERRED);
                             s->cstat = (short) 32768;
+                            s->yrepeat = 9;
+                            goto BOLT;
                         }
                     }
-
-            if (t[0] < 8) t[0]++;
-            goto BOLT;
-
-        case REACTORBURNT__STATIC:
-        case REACTOR2BURNT__STATIC:
-            goto BOLT;
-
-        case REACTOR__STATIC:
-        case REACTOR2__STATIC:
-
-            if (t[4] == 1)
-            {
-                j = headspritesect[sect];
-                while (j >= 0)
-                {
-                    switch (dynamictostatic[sprite[j].picnum])
-                    {
-                    case SECTOREFFECTOR__STATIC:
-                        if (sprite[j].lotag == 1)
+                }
+                else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
+                    if (cansee(s->x,s->y,s->z-(8<<8),s->sectnum,ps[p].posx,ps[p].posy,ps[p].posz,ps[p].cursectnum))
+                        if (ps[p].ammo_amount[HANDBOMB_WEAPON] < max_ammo_amount[HANDBOMB_WEAPON])
                         {
-                            sprite[j].lotag = (short) 65535;
-                            sprite[j].hitag = (short) 65535;
+                            if ((gametype_flags[ud.coop] & GAMETYPE_FLAG_WEAPSTAY) && s->owner == i)
+                            {
+                                for (j=0;j<ps[p].weapreccnt;j++)
+                                    if (ps[p].weaprecs[j] == s->picnum)
+                                        goto BOLT;
+
+                                if (ps[p].weapreccnt < 255)
+                                    ps[p].weaprecs[ps[p].weapreccnt++] = s->picnum;
+                            }
+
+                            addammo(HANDBOMB_WEAPON,&ps[p],1);
+                            spritesound(DUKE_GET,ps[p].i);
+
+                            if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || s->owner == ps[p].i)
+                            {
+                                /* addweapon(&ps[p],HANDBOMB_WEAPON); */
+                                if (!(ps[p].weaponswitch & 1) && *aplWeaponWorksLike[ps[p].curr_weapon] != HANDREMOTE_WEAPON)
+                                    addweaponnoswitch(&ps[p],HANDBOMB_WEAPON);
+                                else addweapon(&ps[p],HANDBOMB_WEAPON);
+                            }
+
+                            if (sprite[s->owner].picnum != APLAYER)
+                            {
+                                ps[p].pals[0] = 0;
+                                ps[p].pals[1] = 32;
+                                ps[p].pals[2] = 0;
+                                ps[p].pals_time = 32;
+                            }
+
+                            if (s->owner != i || ud.respawn_items == 0)
+                            {
+                                if (s->owner == i && (gametype_flags[ud.coop] & GAMETYPE_FLAG_WEAPSTAY))
+                                    goto BOLT;
+                                KILLIT(i);
+                            }
+                            else
+                            {
+                                t[2] = respawnitemtime;
+                                spawn(i,RESPAWNMARKERRED);
+                                s->cstat = (short) 32768;
+                            }
                         }
-                        break;
-                    case REACTOR__STATIC:
-                        sprite[j].picnum = REACTORBURNT;
-                        break;
-                    case REACTOR2__STATIC:
-                        sprite[j].picnum = REACTOR2BURNT;
-                        break;
-                    case REACTORSPARK__STATIC:
-                    case REACTOR2SPARK__STATIC:
-                        sprite[j].cstat = (short) 32768;
-                        break;
-                    }
-                    j = nextspritesect[j];
-                }
+
+                if (t[0] < 8) t[0]++;
                 goto BOLT;
-            }
 
-            if (t[1] >= 20)
-            {
-                t[4] = 1;
+            case REACTORBURNT__STATIC:
+            case REACTOR2BURNT__STATIC:
                 goto BOLT;
-            }
 
-            p = findplayer(s,&x);
+            case REACTOR__STATIC:
+            case REACTOR2__STATIC:
 
-            t[2]++;
-            if (t[2] == 4) t[2]=0;
-
-            if (x < 4096)
-            {
-                if ((TRAND&255) < 16)
+                if (t[4] == 1)
                 {
-                    if (!isspritemakingsound(ps[p].i, DUKE_LONGTERM_PAIN))
-                        spritesound(DUKE_LONGTERM_PAIN,ps[p].i);
-
-                    spritesound(SHORT_CIRCUIT,i);
-
-                    sprite[ps[p].i].extra --;
-                    ps[p].pals_time = 32;
-                    ps[p].pals[0] = 32;
-                    ps[p].pals[1] = 0;
-                    ps[p].pals[2] = 0;
-                }
-                t[0] += 128;
-                if (t[3] == 0)
-                    t[3] = 1;
-            }
-            else t[3] = 0;
-
-            if (t[1])
-            {
-                t[1]++;
-
-                t[4] = s->z;
-                s->z = sector[sect].floorz-(TRAND%(sector[sect].floorz-sector[sect].ceilingz));
-
-                switch (t[1])
-                {
-                case 3:
-                    //Turn on all of those flashing sectoreffector.
-                    hitradius(i, 4096,
-                              impact_damage<<2,
-                              impact_damage<<2,
-                              impact_damage<<2,
-                              impact_damage<<2);
-                    /*
-                                                j = headspritestat[3];
-                                                while(j>=0)
-                                                {
-                                                    if( sprite[j].lotag  == 3 )
-                                                        hittype[j].temp_data[4]=1;
-                                                    else if(sprite[j].lotag == 12)
-                                                    {
-                                                        hittype[j].temp_data[4] = 1;
-                                                        sprite[j].lotag = 3;
-                                                        sprite[j].owner = 0;
-                                                        hittype[j].temp_data[0] = s->shade;
-                                                    }
-                                                    j = nextspritestat[j];
-                                                }
-                    */
-                    j = headspritestat[6];
-                    while (j >= 0)
-                    {
-                        if (sprite[j].picnum == MASTERSWITCH)
-                            if (sprite[j].hitag == s->hitag)
-                                if (sprite[j].yvel == 0)
-                                    sprite[j].yvel = 1;
-                        j = nextspritestat[j];
-                    }
-                    break;
-
-                case 4:
-                case 7:
-                case 10:
-                case 15:
                     j = headspritesect[sect];
                     while (j >= 0)
                     {
-                        l = nextspritesect[j];
-
-                        if (j != i)
+                        switch (dynamictostatic[sprite[j].picnum])
                         {
-                            deletesprite(j);
-                            break;
+                            case SECTOREFFECTOR__STATIC:
+                                if (sprite[j].lotag == 1)
+                                {
+                                    sprite[j].lotag = (short) 65535;
+                                    sprite[j].hitag = (short) 65535;
+                                }
+                                break;
+                            case REACTOR__STATIC:
+                                sprite[j].picnum = REACTORBURNT;
+                                break;
+                            case REACTOR2__STATIC:
+                                sprite[j].picnum = REACTOR2BURNT;
+                                break;
+                            case REACTORSPARK__STATIC:
+                            case REACTOR2SPARK__STATIC:
+                                sprite[j].cstat = (short) 32768;
+                                break;
                         }
-                        j = l;
+                        j = nextspritesect[j];
                     }
-                    break;
+                    goto BOLT;
                 }
-                for (x=0;x<16;x++)
-                    RANDOMSCRAP;
 
-                s->z = t[4];
-                t[4] = 0;
-
-            }
-            else
-            {
-                IFHIT
+                if (t[1] >= 20)
                 {
-                    for (x=0;x<32;x++)
-                    RANDOMSCRAP;
-                    if (s->extra < 0)
-                        t[1] = 1;
-                    }
+                    t[4] = 1;
+                    goto BOLT;
                 }
-        goto BOLT;
 
-    case CAMERA1__STATIC:
+                p = findplayer(s,&x);
 
-        if (t[0] == 0)
-            {
-                t[1]+=8;
-                if (camerashitable)
+                t[2]++;
+                if (t[2] == 4) t[2]=0;
+
+                if (x < 4096)
+                {
+                    if ((TRAND&255) < 16)
+                    {
+                        if (!isspritemakingsound(ps[p].i, DUKE_LONGTERM_PAIN))
+                            spritesound(DUKE_LONGTERM_PAIN,ps[p].i);
+
+                        spritesound(SHORT_CIRCUIT,i);
+
+                        sprite[ps[p].i].extra --;
+                        ps[p].pals_time = 32;
+                        ps[p].pals[0] = 32;
+                        ps[p].pals[1] = 0;
+                        ps[p].pals[2] = 0;
+                    }
+                    t[0] += 128;
+                    if (t[3] == 0)
+                        t[3] = 1;
+                }
+                else t[3] = 0;
+
+                if (t[1])
+                {
+                    t[1]++;
+
+                    t[4] = s->z;
+                    s->z = sector[sect].floorz-(TRAND%(sector[sect].floorz-sector[sect].ceilingz));
+
+                    switch (t[1])
+                    {
+                        case 3:
+                            //Turn on all of those flashing sectoreffector.
+                            hitradius(i, 4096,
+                                      impact_damage<<2,
+                                      impact_damage<<2,
+                                      impact_damage<<2,
+                                      impact_damage<<2);
+                            /*
+                                                        j = headspritestat[3];
+                                                        while(j>=0)
+                                                        {
+                                                            if( sprite[j].lotag  == 3 )
+                                                                hittype[j].temp_data[4]=1;
+                                                            else if(sprite[j].lotag == 12)
+                                                            {
+                                                                hittype[j].temp_data[4] = 1;
+                                                                sprite[j].lotag = 3;
+                                                                sprite[j].owner = 0;
+                                                                hittype[j].temp_data[0] = s->shade;
+                                                            }
+                                                            j = nextspritestat[j];
+                                                        }
+                            */
+                            j = headspritestat[6];
+                            while (j >= 0)
+                            {
+                                if (sprite[j].picnum == MASTERSWITCH)
+                                    if (sprite[j].hitag == s->hitag)
+                                        if (sprite[j].yvel == 0)
+                                            sprite[j].yvel = 1;
+                                j = nextspritestat[j];
+                            }
+                            break;
+
+                        case 4:
+                        case 7:
+                        case 10:
+                        case 15:
+                            j = headspritesect[sect];
+                            while (j >= 0)
+                            {
+                                l = nextspritesect[j];
+
+                                if (j != i)
+                                {
+                                    deletesprite(j);
+                                    break;
+                                }
+                                j = l;
+                            }
+                            break;
+                    }
+                    for (x=0;x<16;x++)
+                        RANDOMSCRAP;
+
+                    s->z = t[4];
+                    t[4] = 0;
+
+                }
+                else
                 {
                     IFHIT
                     {
-                        t[0] = 1; // static
-                        s->cstat = (short)32768;
-                        for (x=0;x<5;x++) RANDOMSCRAP;
-                        goto BOLT;
+                        for (x=0;x<32;x++)
+                        RANDOMSCRAP;
+                        if (s->extra < 0)
+                            t[1] = 1;
+                        }
                     }
-                }
-
-            if (s->hitag > 0)
-                {
-                    if (t[1]<s->hitag)
-                        s->ang+=8;
-                    else if (t[1]<(s->hitag*3))
-                        s->ang-=8;
-                    else if (t[1] < (s->hitag<<2))
-                        s->ang+=8;
-                    else
-                    {
-                        t[1]=8;
-                        s->ang+=16;
-                    }
-                }
-            }
             goto BOLT;
+
+        case CAMERA1__STATIC:
+
+            if (t[0] == 0)
+                {
+                    t[1]+=8;
+                    if (camerashitable)
+                    {
+                        IFHIT
+                        {
+                            t[0] = 1; // static
+                            s->cstat = (short)32768;
+                            for (x=0;x<5;x++) RANDOMSCRAP;
+                            goto BOLT;
+                        }
+                    }
+
+                if (s->hitag > 0)
+                    {
+                        if (t[1]<s->hitag)
+                            s->ang+=8;
+                        else if (t[1]<(s->hitag*3))
+                            s->ang-=8;
+                        else if (t[1] < (s->hitag<<2))
+                            s->ang+=8;
+                        else
+                        {
+                            t[1]=8;
+                            s->ang+=16;
+                        }
+                    }
+                }
+                goto BOLT;
         }
 
 
@@ -4817,469 +4873,490 @@ void moveexplosions(void)  // STATNUM 5
         hittype[i].bposy = s->y;
         hittype[i].bposz = s->z;
         switchpicnum = s->picnum;
-        if ((s->picnum > NUKEBUTTON)&&(s->picnum <= NUKEBUTTON+3)) {
+        if ((s->picnum > NUKEBUTTON)&&(s->picnum <= NUKEBUTTON+3))
+        {
             switchpicnum = NUKEBUTTON;
         }
-        if ((s->picnum > GLASSPIECES)&&(s->picnum <= GLASSPIECES+2)) {
+        if ((s->picnum > GLASSPIECES)&&(s->picnum <= GLASSPIECES+2))
+        {
             switchpicnum = GLASSPIECES;
         }
-        if (s->picnum ==INNERJAW+1) {
+        if (s->picnum ==INNERJAW+1)
+        {
             switchpicnum--;
         }
         if ((s->picnum == MONEY+1) || (s->picnum == MAIL+1) || (s->picnum == PAPER+1))
             hittype[i].floorz = s->z = getflorzofslope(s->sectnum,s->x,s->y);
         else switch (dynamictostatic[switchpicnum])
             {
-            case NEON1__STATIC:
-            case NEON2__STATIC:
-            case NEON3__STATIC:
-            case NEON4__STATIC:
-            case NEON5__STATIC:
-            case NEON6__STATIC:
+                case NEON1__STATIC:
+                case NEON2__STATIC:
+                case NEON3__STATIC:
+                case NEON4__STATIC:
+                case NEON5__STATIC:
+                case NEON6__STATIC:
 
-                if ((global_random/(s->lotag+1)&31) > 4) s->shade = -127;
-                else s->shade = 127;
-                goto BOLT;
+                    if ((global_random/(s->lotag+1)&31) > 4) s->shade = -127;
+                    else s->shade = 127;
+                    goto BOLT;
 
-            case BLOODSPLAT1__STATIC:
-            case BLOODSPLAT2__STATIC:
-            case BLOODSPLAT3__STATIC:
-            case BLOODSPLAT4__STATIC:
+                case BLOODSPLAT1__STATIC:
+                case BLOODSPLAT2__STATIC:
+                case BLOODSPLAT3__STATIC:
+                case BLOODSPLAT4__STATIC:
 
-                if (t[0] == 7*26) goto BOLT;
-                s->z += 16+(TRAND&15);
-                t[0]++;
-                if ((t[0]%9) == 0) s->yrepeat++;
-                goto BOLT;
-
-            case NUKEBUTTON__STATIC:
-                //        case NUKEBUTTON+1:
-                //        case NUKEBUTTON+2:
-                //        case NUKEBUTTON+3:
-
-                if (t[0])
-                {
+                    if (t[0] == 7*26) goto BOLT;
+                    s->z += 16+(TRAND&15);
                     t[0]++;
-                    if (t[0] == 8) s->picnum = NUKEBUTTON+1;
-                    else if (t[0] == 16)
-                    {
-                        s->picnum = NUKEBUTTON+2;
-                        ps[sprite[s->owner].yvel].fist_incs = 1;
-                    }
-                    if (ps[sprite[s->owner].yvel].fist_incs == 26)
-                        s->picnum = NUKEBUTTON+3;
-                }
-                goto BOLT;
+                    if ((t[0]%9) == 0) s->yrepeat++;
+                    goto BOLT;
 
-            case FORCESPHERE__STATIC:
+                case NUKEBUTTON__STATIC:
+                    //        case NUKEBUTTON+1:
+                    //        case NUKEBUTTON+2:
+                    //        case NUKEBUTTON+3:
 
-                l = s->xrepeat;
-                if (t[1] > 0)
-                {
-                    t[1]--;
-                    if (t[1] == 0)
-                    {
-                        KILLIT(i);
-                    }
-                }
-                if (hittype[s->owner].temp_data[1] == 0)
-                {
-                    if (t[0] < 64)
+                    if (t[0])
                     {
                         t[0]++;
-                        l += 3;
+                        if (t[0] == 8) s->picnum = NUKEBUTTON+1;
+                        else if (t[0] == 16)
+                        {
+                            s->picnum = NUKEBUTTON+2;
+                            ps[sprite[s->owner].yvel].fist_incs = 1;
+                        }
+                        if (ps[sprite[s->owner].yvel].fist_incs == 26)
+                            s->picnum = NUKEBUTTON+3;
                     }
-                }
-                else
-                    if (t[0] > 64)
+                    goto BOLT;
+
+                case FORCESPHERE__STATIC:
+
+                    l = s->xrepeat;
+                    if (t[1] > 0)
                     {
-                        t[0]--;
-                        l -= 3;
+                        t[1]--;
+                        if (t[1] == 0)
+                        {
+                            KILLIT(i);
+                        }
                     }
-
-                s->x = sprite[s->owner].x;
-                s->y = sprite[s->owner].y;
-                s->z = sprite[s->owner].z;
-                s->ang += hittype[s->owner].temp_data[0];
-
-                if (l > 64) l = 64;
-                else if (l < 1) l = 1;
-
-                s->xrepeat = l;
-                s->yrepeat = l;
-                s->shade = (l>>1)-48;
-
-                for (j=t[0];j > 0;j--)
-                    ssp(i,CLIPMASK0);
-                goto BOLT;
-            case WATERSPLASH2__STATIC:
-
-                t[0]++;
-                if (t[0] == 1)
-                {
-                    if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
-                        KILLIT(i);
-                    /*                    else
-                                        {
-                                            l = getflorzofslope(sect,s->x,s->y)-s->z;
-                                            if( l > (16<<8) ) KILLIT(i);
-                                        }
-                                        else */ if (!issoundplaying(i,ITEM_SPLASH))
-                        spritesound(ITEM_SPLASH,i);
-                }
-                if (t[0] == 3)
-                {
-                    t[0] = 0;
-                    t[1]++;
-                }
-                if (t[1] == 5)
-                    deletesprite(i);
-                goto BOLT;
-            case FRAMEEFFECT1_13__STATIC:
-                if (PLUTOPAK) goto BOLT;	// JBF: ideally this should never happen...
-            case FRAMEEFFECT1__STATIC:
-
-                if (s->owner >= 0)
-                {
-                    t[0]++;
-
-                    if (t[0] > 7)
+                    if (hittype[s->owner].temp_data[1] == 0)
                     {
-                        KILLIT(i);
-                    }
-                    else if (t[0] > 4)
-                        s->cstat |= 512+2;
-                    else if (t[0] > 2)
-                        s->cstat |= 2;
-                    s->xoffset = sprite[s->owner].xoffset;
-                    s->yoffset = sprite[s->owner].yoffset;
-                }
-                goto BOLT;
-            case INNERJAW__STATIC:
-                //        case INNERJAW+1:
-
-                p = findplayer(s,&x);
-                if (x < 512)
-                {
-                    ps[p].pals_time = 32;
-                    ps[p].pals[0] = 32;
-                    ps[p].pals[1] = 0;
-                    ps[p].pals[2] = 0;
-                    sprite[ps[p].i].extra -= 4;
-                }
-
-            case FIRELASER__STATIC:
-                if (s->extra != 999)
-                    s->extra = 999;
-                else KILLIT(i);
-                break;
-            case TONGUE__STATIC:
-                KILLIT(i);
-
-            case MONEY__STATIC:
-            case MAIL__STATIC:
-            case PAPER__STATIC:
-
-                s->xvel = (TRAND&7)+(sintable[T1&2047]>>9);
-                T1 += (TRAND&63);
-                if ((T1&2047) > 512 && (T1&2047) < 1596)
-                {
-                    if (sector[sect].lotag == 2)
-                    {
-                        if (s->zvel < 64)
-                            s->zvel += (gc>>5)+(TRAND&7);
+                        if (t[0] < 64)
+                        {
+                            t[0]++;
+                            l += 3;
+                        }
                     }
                     else
-                        if (s->zvel < 144)
-                            s->zvel += (gc>>5)+(TRAND&7);
-                }
+                        if (t[0] > 64)
+                        {
+                            t[0]--;
+                            l -= 3;
+                        }
 
-                ssp(i,CLIPMASK0);
+                    s->x = sprite[s->owner].x;
+                    s->y = sprite[s->owner].y;
+                    s->z = sprite[s->owner].z;
+                    s->ang += hittype[s->owner].temp_data[0];
 
-                if ((TRAND&3) == 0)
-                    setsprite(i,s->x,s->y,s->z);
+                    if (l > 64) l = 64;
+                    else if (l < 1) l = 1;
 
-                if (s->sectnum == -1) KILLIT(i);
-                l = getflorzofslope(s->sectnum,s->x,s->y);
+                    s->xrepeat = l;
+                    s->yrepeat = l;
+                    s->shade = (l>>1)-48;
 
-                if (s->z > l)
-                {
-                    s->z = l;
+                    for (j=t[0];j > 0;j--)
+                        ssp(i,CLIPMASK0);
+                    goto BOLT;
+                case WATERSPLASH2__STATIC:
 
-                    insertspriteq(i);
-                    PN ++;
-
-                    j = headspritestat[5];
-                    while (j >= 0)
+                    t[0]++;
+                    if (t[0] == 1)
                     {
-                        if (sprite[j].picnum == BLOODPOOL)
-                            if (ldist(s,&sprite[j]) < 348)
-                            {
-                                s->pal = 2;
-                                break;
-                            }
-                        j = nextspritestat[j];
+                        if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
+                            KILLIT(i);
+                        /*                    else
+                                            {
+                                                l = getflorzofslope(sect,s->x,s->y)-s->z;
+                                                if( l > (16<<8) ) KILLIT(i);
+                                            }
+                                            else */
+                        if (!issoundplaying(i,ITEM_SPLASH))
+                            spritesound(ITEM_SPLASH,i);
                     }
-                }
-
-                break;
-
-            case JIBS1__STATIC:
-            case JIBS2__STATIC:
-            case JIBS3__STATIC:
-            case JIBS4__STATIC:
-            case JIBS5__STATIC:
-            case JIBS6__STATIC:
-            case HEADJIB1__STATIC:
-            case ARMJIB1__STATIC:
-            case LEGJIB1__STATIC:
-            case LIZMANHEAD1__STATIC:
-            case LIZMANARM1__STATIC:
-            case LIZMANLEG1__STATIC:
-            case DUKETORSO__STATIC:
-            case DUKEGUN__STATIC:
-            case DUKELEG__STATIC:
-
-                if (s->xvel > 0) s->xvel--;
-                else s->xvel = 0;
-
-                if (t[5] < 30*10)
-                    t[5]++;
-            else { KILLIT(i); }
-
-
-                if (s->zvel > 1024 && s->zvel < 1280)
-                {
-                    setsprite(i,s->x,s->y,s->z);
-                    sect = s->sectnum;
-                }
-
-                l = getflorzofslope(sect,s->x,s->y);
-                x = getceilzofslope(sect,s->x,s->y);
-                if (x == l || sect < 0 || sect >= MAXSECTORS) KILLIT(i);
-
-                if (s->z < l-(2<<8))
-                {
-                    if (t[1] < 2) t[1]++;
-                    else if (sector[sect].lotag != 2)
+                    if (t[0] == 3)
                     {
-                        t[1] = 0;
-                        if (s->picnum == DUKELEG || s->picnum == DUKETORSO || s->picnum == DUKEGUN)
+                        t[0] = 0;
+                        t[1]++;
+                    }
+                    if (t[1] == 5)
+                        deletesprite(i);
+                    goto BOLT;
+                case FRAMEEFFECT1_13__STATIC:
+                    if (PLUTOPAK) goto BOLT;	// JBF: ideally this should never happen...
+                case FRAMEEFFECT1__STATIC:
+
+                    if (s->owner >= 0)
+                    {
+                        t[0]++;
+
+                        if (t[0] > 7)
                         {
-                            if (t[0] > 6) t[0] = 0;
-                            else t[0]++;
+                            KILLIT(i);
                         }
-                        else
-                        {
-                            if (t[0] > 2)
-                                t[0] = 0;
-                            else t[0]++;
-                        }
+                        else if (t[0] > 4)
+                            s->cstat |= 512+2;
+                        else if (t[0] > 2)
+                            s->cstat |= 2;
+                        s->xoffset = sprite[s->owner].xoffset;
+                        s->yoffset = sprite[s->owner].yoffset;
+                    }
+                    goto BOLT;
+                case INNERJAW__STATIC:
+                    //        case INNERJAW+1:
+
+                    p = findplayer(s,&x);
+                    if (x < 512)
+                    {
+                        ps[p].pals_time = 32;
+                        ps[p].pals[0] = 32;
+                        ps[p].pals[1] = 0;
+                        ps[p].pals[2] = 0;
+                        sprite[ps[p].i].extra -= 4;
                     }
 
-                    if (s->zvel < 6144)
+                case FIRELASER__STATIC:
+                    if (s->extra != 999)
+                        s->extra = 999;
+                    else KILLIT(i);
+                    break;
+                case TONGUE__STATIC:
+                    KILLIT(i);
+
+                case MONEY__STATIC:
+                case MAIL__STATIC:
+                case PAPER__STATIC:
+
+                    s->xvel = (TRAND&7)+(sintable[T1&2047]>>9);
+                    T1 += (TRAND&63);
+                    if ((T1&2047) > 512 && (T1&2047) < 1596)
                     {
                         if (sector[sect].lotag == 2)
                         {
-                            if (s->zvel < 1024)
-                                s->zvel += 48;
-                            else s->zvel = 1024;
+                            if (s->zvel < 64)
+                                s->zvel += (gc>>5)+(TRAND&7);
                         }
-                        else s->zvel += gc-50;
+                        else
+                            if (s->zvel < 144)
+                                s->zvel += (gc>>5)+(TRAND&7);
                     }
 
-                    s->x += (s->xvel*sintable[(s->ang+512)&2047])>>14;
-                    s->y += (s->xvel*sintable[s->ang&2047])>>14;
-                    s->z += s->zvel;
+                    ssp(i,CLIPMASK0);
 
-                }
-                else
-                {
-                    if (t[2] == 0)
-                    {
-                        if (s->sectnum == -1) { KILLIT(i); }
-                        if ((sector[s->sectnum].floorstat&2)) { KILLIT(i); }
-                        t[2]++;
-                    }
+                    if ((TRAND&3) == 0)
+                        setsprite(i,s->x,s->y,s->z);
+
+                    if (s->sectnum == -1) KILLIT(i);
                     l = getflorzofslope(s->sectnum,s->x,s->y);
 
-                    s->z = l-(2<<8);
-                    s->xvel = 0;
-
-                    if (s->picnum == JIBS6)
+                    if (s->z > l)
                     {
-                        t[1]++;
-                        if ((t[1]&3) == 0 && t[0] < 7)
-                            t[0]++;
-                        if (t[1] > 20) KILLIT(i);
-                    }
-                else { s->picnum = JIBS6; t[0] = 0; t[1] = 0; }
+                        s->z = l;
 
-                }
-                goto BOLT;
+                        insertspriteq(i);
+                        PN ++;
 
-            case BLOODPOOL__STATIC:
-            case PUKE__STATIC:
-
-                if (t[0] == 0)
-                {
-                    t[0] = 1;
-                    if (sector[sect].floorstat&2) { KILLIT(i); }
-                    else insertspriteq(i);
-                }
-
-                makeitfall(i);
-
-                p = findplayer(s,&x);
-
-                s->z = hittype[i].floorz-(FOURSLEIGHT);
-
-                if (t[2] < 32)
-                {
-                    t[2]++;
-                    if (hittype[i].picnum == TIRE)
-                    {
-                        if (s->xrepeat < 64 && s->yrepeat < 64)
+                        j = headspritestat[5];
+                        while (j >= 0)
                         {
-                            s->xrepeat += TRAND&3;
-                            s->yrepeat += TRAND&3;
+                            if (sprite[j].picnum == BLOODPOOL)
+                                if (ldist(s,&sprite[j]) < 348)
+                                {
+                                    s->pal = 2;
+                                    break;
+                                }
+                            j = nextspritestat[j];
                         }
+                    }
+
+                    break;
+
+                case JIBS1__STATIC:
+                case JIBS2__STATIC:
+                case JIBS3__STATIC:
+                case JIBS4__STATIC:
+                case JIBS5__STATIC:
+                case JIBS6__STATIC:
+                case HEADJIB1__STATIC:
+                case ARMJIB1__STATIC:
+                case LEGJIB1__STATIC:
+                case LIZMANHEAD1__STATIC:
+                case LIZMANARM1__STATIC:
+                case LIZMANLEG1__STATIC:
+                case DUKETORSO__STATIC:
+                case DUKEGUN__STATIC:
+                case DUKELEG__STATIC:
+
+                    if (s->xvel > 0) s->xvel--;
+                    else s->xvel = 0;
+
+                    if (t[5] < 30*10)
+                        t[5]++;
+                    else
+                    {
+                        KILLIT(i);
+                    }
+
+
+                    if (s->zvel > 1024 && s->zvel < 1280)
+                    {
+                        setsprite(i,s->x,s->y,s->z);
+                        sect = s->sectnum;
+                    }
+
+                    l = getflorzofslope(sect,s->x,s->y);
+                    x = getceilzofslope(sect,s->x,s->y);
+                    if (x == l || sect < 0 || sect >= MAXSECTORS) KILLIT(i);
+
+                    if (s->z < l-(2<<8))
+                    {
+                        if (t[1] < 2) t[1]++;
+                        else if (sector[sect].lotag != 2)
+                        {
+                            t[1] = 0;
+                            if (s->picnum == DUKELEG || s->picnum == DUKETORSO || s->picnum == DUKEGUN)
+                            {
+                                if (t[0] > 6) t[0] = 0;
+                                else t[0]++;
+                            }
+                            else
+                            {
+                                if (t[0] > 2)
+                                    t[0] = 0;
+                                else t[0]++;
+                            }
+                        }
+
+                        if (s->zvel < 6144)
+                        {
+                            if (sector[sect].lotag == 2)
+                            {
+                                if (s->zvel < 1024)
+                                    s->zvel += 48;
+                                else s->zvel = 1024;
+                            }
+                            else s->zvel += gc-50;
+                        }
+
+                        s->x += (s->xvel*sintable[(s->ang+512)&2047])>>14;
+                        s->y += (s->xvel*sintable[s->ang&2047])>>14;
+                        s->z += s->zvel;
+
                     }
                     else
                     {
-                        if (s->xrepeat < 32 && s->yrepeat < 32)
+                        if (t[2] == 0)
                         {
-                            s->xrepeat += TRAND&3;
-                            s->yrepeat += TRAND&3;
+                            if (s->sectnum == -1)
+                            {
+                                KILLIT(i);
+                            }
+                            if ((sector[s->sectnum].floorstat&2))
+                            {
+                                KILLIT(i);
+                            }
+                            t[2]++;
                         }
-                    }
-                }
+                        l = getflorzofslope(s->sectnum,s->x,s->y);
 
-                if (x < 844 && s->xrepeat > 6 && s->yrepeat > 6)
-                {
-                    if (s->pal == 0 && (TRAND&255) < 16 && s->picnum != PUKE)
-                    {
-                        if (ps[p].boot_amount > 0)
-                            ps[p].boot_amount--;
+                        s->z = l-(2<<8);
+                        s->xvel = 0;
+
+                        if (s->picnum == JIBS6)
+                        {
+                            t[1]++;
+                            if ((t[1]&3) == 0 && t[0] < 7)
+                                t[0]++;
+                            if (t[1] > 20) KILLIT(i);
+                        }
                         else
                         {
-                            if (!isspritemakingsound(ps[p].i,DUKE_LONGTERM_PAIN))
-                                spritesound(DUKE_LONGTERM_PAIN,ps[p].i);
-                            sprite[ps[p].i].extra --;
-                            ps[p].pals_time = 32;
-                            ps[p].pals[0] = 16;
-                            ps[p].pals[1] = 0;
-                            ps[p].pals[2] = 0;
+                            s->picnum = JIBS6;
+                            t[0] = 0;
+                            t[1] = 0;
+                        }
+
+                    }
+                    goto BOLT;
+
+                case BLOODPOOL__STATIC:
+                case PUKE__STATIC:
+
+                    if (t[0] == 0)
+                    {
+                        t[0] = 1;
+                        if (sector[sect].floorstat&2)
+                        {
+                            KILLIT(i);
+                        }
+                        else insertspriteq(i);
+                    }
+
+                    makeitfall(i);
+
+                    p = findplayer(s,&x);
+
+                    s->z = hittype[i].floorz-(FOURSLEIGHT);
+
+                    if (t[2] < 32)
+                    {
+                        t[2]++;
+                        if (hittype[i].picnum == TIRE)
+                        {
+                            if (s->xrepeat < 64 && s->yrepeat < 64)
+                            {
+                                s->xrepeat += TRAND&3;
+                                s->yrepeat += TRAND&3;
+                            }
+                        }
+                        else
+                        {
+                            if (s->xrepeat < 32 && s->yrepeat < 32)
+                            {
+                                s->xrepeat += TRAND&3;
+                                s->yrepeat += TRAND&3;
+                            }
                         }
                     }
 
-                    if (t[1] == 1) goto BOLT;
-                    t[1] = 1;
-
-                    if (hittype[i].picnum == TIRE)
-                        ps[p].footprintcount = 10;
-                    else ps[p].footprintcount = 3;
-
-                    ps[p].footprintpal = s->pal;
-                    ps[p].footprintshade = s->shade;
-
-                    if (t[2] == 32)
+                    if (x < 844 && s->xrepeat > 6 && s->yrepeat > 6)
                     {
-                        s->xrepeat -= 6;
-                        s->yrepeat -= 6;
+                        if (s->pal == 0 && (TRAND&255) < 16 && s->picnum != PUKE)
+                        {
+                            if (ps[p].boot_amount > 0)
+                                ps[p].boot_amount--;
+                            else
+                            {
+                                if (!isspritemakingsound(ps[p].i,DUKE_LONGTERM_PAIN))
+                                    spritesound(DUKE_LONGTERM_PAIN,ps[p].i);
+                                sprite[ps[p].i].extra --;
+                                ps[p].pals_time = 32;
+                                ps[p].pals[0] = 16;
+                                ps[p].pals[1] = 0;
+                                ps[p].pals[2] = 0;
+                            }
+                        }
+
+                        if (t[1] == 1) goto BOLT;
+                        t[1] = 1;
+
+                        if (hittype[i].picnum == TIRE)
+                            ps[p].footprintcount = 10;
+                        else ps[p].footprintcount = 3;
+
+                        ps[p].footprintpal = s->pal;
+                        ps[p].footprintshade = s->shade;
+
+                        if (t[2] == 32)
+                        {
+                            s->xrepeat -= 6;
+                            s->yrepeat -= 6;
+                        }
                     }
-                }
-                else t[1] = 0;
-                goto BOLT;
+                    else t[1] = 0;
+                    goto BOLT;
 
-            case BURNING__STATIC:
-            case BURNING2__STATIC:
-            case FECES__STATIC:
-            case WATERBUBBLE__STATIC:
-            case SMALLSMOKE__STATIC:
-            case EXPLOSION2__STATIC:
-            case SHRINKEREXPLOSION__STATIC:
-            case EXPLOSION2BOT__STATIC:
-            case BLOOD__STATIC:
-            case LASERSITE__STATIC:
-            case FORCERIPPLE__STATIC:
-            case TRANSPORTERSTAR__STATIC:
-            case TRANSPORTERBEAM__STATIC:
-                p = findplayer(s,&x);
-                execute(i,p,x);
-                goto BOLT;
+                case BURNING__STATIC:
+                case BURNING2__STATIC:
+                case FECES__STATIC:
+                case WATERBUBBLE__STATIC:
+                case SMALLSMOKE__STATIC:
+                case EXPLOSION2__STATIC:
+                case SHRINKEREXPLOSION__STATIC:
+                case EXPLOSION2BOT__STATIC:
+                case BLOOD__STATIC:
+                case LASERSITE__STATIC:
+                case FORCERIPPLE__STATIC:
+                case TRANSPORTERSTAR__STATIC:
+                case TRANSPORTERBEAM__STATIC:
+                    p = findplayer(s,&x);
+                    execute(i,p,x);
+                    goto BOLT;
 
-            case SHELL__STATIC:
-            case SHOTGUNSHELL__STATIC:
+                case SHELL__STATIC:
+                case SHOTGUNSHELL__STATIC:
 
-                ssp(i,CLIPMASK0);
+                    ssp(i,CLIPMASK0);
 
-                if (sect < 0 || (sector[sect].floorz + 256) < s->z) KILLIT(i);
+                    if (sect < 0 || (sector[sect].floorz + 256) < s->z) KILLIT(i);
 
-                if (sector[sect].lotag == 2)
-                {
-                    t[1]++;
-                    if (t[1] > 8)
-                    {
-                        t[1] = 0;
-                        t[0]++;
-                        t[0] &= 3;
-                    }
-                    if (s->zvel < 128) s->zvel += (gc/13); // 8
-                    else s->zvel -= 64;
-                    if (s->xvel > 0)
-                        s->xvel -= 4;
-                    else s->xvel = 0;
-                }
-                else
-                {
-                    t[1]++;
-                    if (t[1] > 3)
-                    {
-                        t[1] = 0;
-                        t[0]++;
-                        t[0] &= 3;
-                    }
-                    if (s->zvel < 512) s->zvel += (gc/3); // 52;
-                    if (s->xvel > 0)
-                        s->xvel --;
-                    //                else KILLIT(i);
-                }
-
-                goto BOLT;
-
-            case GLASSPIECES__STATIC:
-                //        case GLASSPIECES+1:
-                //        case GLASSPIECES+2:
-
-                makeitfall(i);
-
-                if (s->zvel > 4096) s->zvel = 4096;
-                if (sect < 0) KILLIT(i);
-
-                if (s->z == hittype[i].floorz-(FOURSLEIGHT) && t[0] < 3)
-                {
-                    s->zvel = -((3-t[0])<<8)-(TRAND&511);
                     if (sector[sect].lotag == 2)
-                        s->zvel >>= 1;
-                    s->xrepeat >>= 1;
-                    s->yrepeat >>= 1;
-                    if (rnd(96))
-                        setsprite(i,s->x,s->y,s->z);
-                    t[0]++;//Number of bounces
-                }
-                else if (t[0] == 3) KILLIT(i);
+                    {
+                        t[1]++;
+                        if (t[1] > 8)
+                        {
+                            t[1] = 0;
+                            t[0]++;
+                            t[0] &= 3;
+                        }
+                        if (s->zvel < 128) s->zvel += (gc/13); // 8
+                        else s->zvel -= 64;
+                        if (s->xvel > 0)
+                            s->xvel -= 4;
+                        else s->xvel = 0;
+                    }
+                    else
+                    {
+                        t[1]++;
+                        if (t[1] > 3)
+                        {
+                            t[1] = 0;
+                            t[0]++;
+                            t[0] &= 3;
+                        }
+                        if (s->zvel < 512) s->zvel += (gc/3); // 52;
+                        if (s->xvel > 0)
+                            s->xvel --;
+                        //                else KILLIT(i);
+                    }
 
-                if (s->xvel > 0)
-                {
-                    s->xvel -= 2;
-                    s->cstat = ((s->xvel&3)<<2);
-                }
-                else s->xvel = 0;
+                    goto BOLT;
 
-                ssp(i,CLIPMASK0);
+                case GLASSPIECES__STATIC:
+                    //        case GLASSPIECES+1:
+                    //        case GLASSPIECES+2:
 
-                goto BOLT;
+                    makeitfall(i);
+
+                    if (s->zvel > 4096) s->zvel = 4096;
+                    if (sect < 0) KILLIT(i);
+
+                    if (s->z == hittype[i].floorz-(FOURSLEIGHT) && t[0] < 3)
+                    {
+                        s->zvel = -((3-t[0])<<8)-(TRAND&511);
+                        if (sector[sect].lotag == 2)
+                            s->zvel >>= 1;
+                        s->xrepeat >>= 1;
+                        s->yrepeat >>= 1;
+                        if (rnd(96))
+                            setsprite(i,s->x,s->y,s->z);
+                        t[0]++;//Number of bounces
+                    }
+                    else if (t[0] == 3) KILLIT(i);
+
+                    if (s->xvel > 0)
+                    {
+                        s->xvel -= 2;
+                        s->cstat = ((s->xvel&3)<<2);
+                    }
+                    else s->xvel = 0;
+
+                    ssp(i,CLIPMASK0);
+
+                    goto BOLT;
             }
 
         IFWITHIN(SCRAP6,SCRAP5+3)
@@ -5362,1003 +5439,725 @@ void moveeffectors(void)   //STATNUM 3
 
         switch (st)
         {
-        case 0:
-        {
-            long zchange = 0;
-
-            zchange = 0;
-
-            j = s->owner;
-
-            if (sprite[j].lotag == (short) 65535)
-                KILLIT(i);
-
-            q = sc->extra>>3;
-            l = 0;
-
-            if (sc->lotag == 30)
+            case 0:
             {
-                q >>= 2;
+                long zchange = 0;
 
-                if (sprite[i].extra == 1)
+                zchange = 0;
+
+                j = s->owner;
+
+                if (sprite[j].lotag == (short) 65535)
+                    KILLIT(i);
+
+                q = sc->extra>>3;
+                l = 0;
+
+                if (sc->lotag == 30)
                 {
-                    if (hittype[i].tempang < 256)
+                    q >>= 2;
+
+                    if (sprite[i].extra == 1)
                     {
-                        hittype[i].tempang += 4;
-                        if (hittype[i].tempang >= 256)
-                            callsound(s->sectnum,i);
-                        if (s->clipdist) l = 1;
-                        else l = -1;
-                    }
-                    else hittype[i].tempang = 256;
-
-                    if (sc->floorz > s->z)   //z's are touching
-                    {
-                        sc->floorz -= 512;
-                        zchange = -512;
-                        if (sc->floorz < s->z)
-                            sc->floorz = s->z;
-                    }
-
-                    else if (sc->floorz < s->z)   //z's are touching
-                    {
-                        sc->floorz += 512;
-                        zchange = 512;
-                        if (sc->floorz > s->z)
-                            sc->floorz = s->z;
-                    }
-                }
-                else if (sprite[i].extra == 3)
-                {
-                    if (hittype[i].tempang > 0)
-                    {
-                        hittype[i].tempang -= 4;
-                        if (hittype[i].tempang <= 0)
-                            callsound(s->sectnum,i);
-                        if (s->clipdist) l = -1;
-                        else l = 1;
-                    }
-                    else hittype[i].tempang = 0;
-
-                    if (sc->floorz > T4)   //z's are touching
-                    {
-                        sc->floorz -= 512;
-                        zchange = -512;
-                        if (sc->floorz < T4)
-                            sc->floorz = T4;
-                    }
-
-                    else if (sc->floorz < T4)   //z's are touching
-                    {
-                        sc->floorz += 512;
-                        zchange = 512;
-                        if (sc->floorz > T4)
-                            sc->floorz = T4;
-                    }
-                }
-
-                s->ang += (l*q);
-                t[2] += (l*q);
-            }
-            else
-            {
-                if (hittype[j].temp_data[0] == 0) break;
-                if (hittype[j].temp_data[0] == 2) KILLIT(i);
-
-                if (sprite[j].ang > 1024)
-                    l = -1;
-                else l = 1;
-                if (t[3] == 0)
-                    t[3] = ldist(s,&sprite[j]);
-                s->xvel = t[3];
-                s->x = sprite[j].x;
-                s->y = sprite[j].y;
-                s->ang += (l*q);
-                t[2] += (l*q);
-            }
-
-            if (l && (sc->floorstat&64))
-            {
-                for (p=connecthead;p>=0;p=connectpoint2[p])
-                {
-                    if (ps[p].cursectnum == s->sectnum && ps[p].on_ground == 1)
-                    {
-
-                        ps[p].ang += (l*q);
-                        ps[p].ang &= 2047;
-
-                        ps[p].posz += zchange;
-
-                        rotatepoint(sprite[j].x,sprite[j].y,
-                                    ps[p].posx,ps[p].posy,(q*l),
-                                    &m,&x);
-
-                        ps[p].bobposx += m-ps[p].posx;
-                        ps[p].bobposy += x-ps[p].posy;
-
-                        ps[p].posx = m;
-                        ps[p].posy = x;
-
-                        if (sprite[ps[p].i].extra <= 0)
+                        if (hittype[i].tempang < 256)
                         {
-                            sprite[ps[p].i].x = m;
-                            sprite[ps[p].i].y = x;
+                            hittype[i].tempang += 4;
+                            if (hittype[i].tempang >= 256)
+                                callsound(s->sectnum,i);
+                            if (s->clipdist) l = 1;
+                            else l = -1;
+                        }
+                        else hittype[i].tempang = 256;
+
+                        if (sc->floorz > s->z)   //z's are touching
+                        {
+                            sc->floorz -= 512;
+                            zchange = -512;
+                            if (sc->floorz < s->z)
+                                sc->floorz = s->z;
+                        }
+
+                        else if (sc->floorz < s->z)   //z's are touching
+                        {
+                            sc->floorz += 512;
+                            zchange = 512;
+                            if (sc->floorz > s->z)
+                                sc->floorz = s->z;
                         }
                     }
+                    else if (sprite[i].extra == 3)
+                    {
+                        if (hittype[i].tempang > 0)
+                        {
+                            hittype[i].tempang -= 4;
+                            if (hittype[i].tempang <= 0)
+                                callsound(s->sectnum,i);
+                            if (s->clipdist) l = -1;
+                            else l = 1;
+                        }
+                        else hittype[i].tempang = 0;
+
+                        if (sc->floorz > T4)   //z's are touching
+                        {
+                            sc->floorz -= 512;
+                            zchange = -512;
+                            if (sc->floorz < T4)
+                                sc->floorz = T4;
+                        }
+
+                        else if (sc->floorz < T4)   //z's are touching
+                        {
+                            sc->floorz += 512;
+                            zchange = 512;
+                            if (sc->floorz > T4)
+                                sc->floorz = T4;
+                        }
+                    }
+
+                    s->ang += (l*q);
+                    t[2] += (l*q);
+                }
+                else
+                {
+                    if (hittype[j].temp_data[0] == 0) break;
+                    if (hittype[j].temp_data[0] == 2) KILLIT(i);
+
+                    if (sprite[j].ang > 1024)
+                        l = -1;
+                    else l = 1;
+                    if (t[3] == 0)
+                        t[3] = ldist(s,&sprite[j]);
+                    s->xvel = t[3];
+                    s->x = sprite[j].x;
+                    s->y = sprite[j].y;
+                    s->ang += (l*q);
+                    t[2] += (l*q);
                 }
 
-                p = headspritesect[s->sectnum];
-                while (p >= 0)
+                if (l && (sc->floorstat&64))
                 {
-                    if (sprite[p].statnum != 3 && sprite[p].statnum != 4)
-                        if (sprite[p].picnum != LASERLINE)
+                    for (p=connecthead;p>=0;p=connectpoint2[p])
+                    {
+                        if (ps[p].cursectnum == s->sectnum && ps[p].on_ground == 1)
                         {
-                            if (sprite[p].picnum == APLAYER && sprite[p].owner >= 0)
-                            {
-                                p = nextspritesect[p];
-                                continue;
-                            }
 
-                            sprite[p].ang += (l*q);
-                            sprite[p].ang &= 2047;
+                            ps[p].ang += (l*q);
+                            ps[p].ang &= 2047;
 
-                            sprite[p].z += zchange;
+                            ps[p].posz += zchange;
 
                             rotatepoint(sprite[j].x,sprite[j].y,
-                                        sprite[p].x,sprite[p].y,(q*l),
-                                        &sprite[p].x,&sprite[p].y);
+                                        ps[p].posx,ps[p].posy,(q*l),
+                                        &m,&x);
 
+                            ps[p].bobposx += m-ps[p].posx;
+                            ps[p].bobposy += x-ps[p].posy;
+
+                            ps[p].posx = m;
+                            ps[p].posy = x;
+
+                            if (sprite[ps[p].i].extra <= 0)
+                            {
+                                sprite[ps[p].i].x = m;
+                                sprite[ps[p].i].y = x;
+                            }
                         }
-                    p = nextspritesect[p];
+                    }
+
+                    p = headspritesect[s->sectnum];
+                    while (p >= 0)
+                    {
+                        if (sprite[p].statnum != 3 && sprite[p].statnum != 4)
+                            if (sprite[p].picnum != LASERLINE)
+                            {
+                                if (sprite[p].picnum == APLAYER && sprite[p].owner >= 0)
+                                {
+                                    p = nextspritesect[p];
+                                    continue;
+                                }
+
+                                sprite[p].ang += (l*q);
+                                sprite[p].ang &= 2047;
+
+                                sprite[p].z += zchange;
+
+                                rotatepoint(sprite[j].x,sprite[j].y,
+                                            sprite[p].x,sprite[p].y,(q*l),
+                                            &sprite[p].x,&sprite[p].y);
+
+                            }
+                        p = nextspritesect[p];
+                    }
+
                 }
 
+                ms(i);
             }
 
-            ms(i);
-        }
+            break;
+            case 1: //Nothing for now used as the pivot
+                if (s->owner == -1) //Init
+                {
+                    s->owner = i;
 
-        break;
-        case 1: //Nothing for now used as the pivot
-            if (s->owner == -1) //Init
-            {
-                s->owner = i;
+                    j = headspritestat[3];
+                    while (j >= 0)
+                    {
+                        if (sprite[j].lotag == 19 && sprite[j].hitag == sh)
+                        {
+                            t[0] = 0;
+                            break;
+                        }
+                        j = nextspritestat[j];
+                    }
+                }
+
+                break;
+            case 6:
+                k = sc->extra;
+
+                if (t[4] > 0)
+                {
+                    t[4]--;
+                    if (t[4] >= (k-(k>>3)))
+                        s->xvel -= (k>>5);
+                    if (t[4] > ((k>>1)-1) && t[4] < (k-(k>>3)))
+                        s->xvel = 0;
+                    if (t[4] < (k>>1))
+                        s->xvel += (k>>5);
+                    if (t[4] < ((k>>1)-(k>>3)))
+                    {
+                        t[4] = 0;
+                        s->xvel = k;
+                    }
+                }
+                else s->xvel = k;
 
                 j = headspritestat[3];
                 while (j >= 0)
                 {
-                    if (sprite[j].lotag == 19 && sprite[j].hitag == sh)
+                    if ((sprite[j].lotag == 14) && (sh == sprite[j].hitag) && (hittype[j].temp_data[0] == t[0]))
                     {
-                        t[0] = 0;
-                        break;
+                        sprite[j].xvel = s->xvel;
+                        //                        if( t[4] == 1 )
+                        {
+                            if (hittype[j].temp_data[5] == 0)
+                                hittype[j].temp_data[5] = dist(&sprite[j],s);
+                            x = ksgn(dist(&sprite[j],s)-hittype[j].temp_data[5]);
+                            if (sprite[j].extra)
+                                x = -x;
+                            s->xvel += x;
+                        }
+                        hittype[j].temp_data[4] = t[4];
                     }
                     j = nextspritestat[j];
                 }
-            }
-
-            break;
-        case 6:
-            k = sc->extra;
-
-            if (t[4] > 0)
-            {
-                t[4]--;
-                if (t[4] >= (k-(k>>3)))
-                    s->xvel -= (k>>5);
-                if (t[4] > ((k>>1)-1) && t[4] < (k-(k>>3)))
-                    s->xvel = 0;
-                if (t[4] < (k>>1))
-                    s->xvel += (k>>5);
-                if (t[4] < ((k>>1)-(k>>3)))
-                {
-                    t[4] = 0;
-                    s->xvel = k;
-                }
-            }
-            else s->xvel = k;
-
-            j = headspritestat[3];
-            while (j >= 0)
-            {
-                if ((sprite[j].lotag == 14) && (sh == sprite[j].hitag) && (hittype[j].temp_data[0] == t[0]))
-                {
-                    sprite[j].xvel = s->xvel;
-                    //                        if( t[4] == 1 )
-                    {
-                        if (hittype[j].temp_data[5] == 0)
-                            hittype[j].temp_data[5] = dist(&sprite[j],s);
-                        x = ksgn(dist(&sprite[j],s)-hittype[j].temp_data[5]);
-                        if (sprite[j].extra)
-                            x = -x;
-                        s->xvel += x;
-                    }
-                    hittype[j].temp_data[4] = t[4];
-                }
-                j = nextspritestat[j];
-            }
-            x = 0;
+                x = 0;
 
 
-        case 14:
-            if (s->owner==-1)
-                s->owner = LocateTheLocator((short)t[3],(short)t[0]);
-
-            if (s->owner == -1)
-            {
-                Bsprintf(tempbuf,"Could not find any locators for SE# 6 and 14 with a hitag of %ld.\n",t[3]);
-                gameexit(tempbuf);
-            }
-
-            j = ldist(&sprite[s->owner],s);
-
-            if (j < 1024L)
-            {
-                if (st==6)
-                    if (sprite[s->owner].hitag&1)
-                        t[4]=sc->extra; //Slow it down
-                t[3]++;
-                s->owner = LocateTheLocator(t[3],t[0]);
+            case 14:
                 if (s->owner==-1)
+                    s->owner = LocateTheLocator((short)t[3],(short)t[0]);
+
+                if (s->owner == -1)
                 {
-                    t[3]=0;
-                    s->owner = LocateTheLocator(0,t[0]);
+                    Bsprintf(tempbuf,"Could not find any locators for SE# 6 and 14 with a hitag of %ld.\n",t[3]);
+                    gameexit(tempbuf);
                 }
-            }
 
-            if (s->xvel)
-            {
-                x = getangle(sprite[s->owner].x-s->x,sprite[s->owner].y-s->y);
-                q = getincangle(s->ang,x)>>3;
+                j = ldist(&sprite[s->owner],s);
 
-                t[2] += q;
-                s->ang += q;
-
-                if (s->xvel == sc->extra)
+                if (j < 1024L)
                 {
-                    if ((sc->floorstat&1) == 0 && (sc->ceilingstat&1) == 0)
+                    if (st==6)
+                        if (sprite[s->owner].hitag&1)
+                            t[4]=sc->extra; //Slow it down
+                    t[3]++;
+                    s->owner = LocateTheLocator(t[3],t[0]);
+                    if (s->owner==-1)
                     {
-                        if (!issoundplaying(i,hittype[i].lastvx))
-                            spritesound(hittype[i].lastvx,i);
+                        t[3]=0;
+                        s->owner = LocateTheLocator(0,t[0]);
                     }
-                    else if (ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat&1) && rnd(8))
+                }
+
+                if (s->xvel)
+                {
+                    x = getangle(sprite[s->owner].x-s->x,sprite[s->owner].y-s->y);
+                    q = getincangle(s->ang,x)>>3;
+
+                    t[2] += q;
+                    s->ang += q;
+
+                    if (s->xvel == sc->extra)
                     {
-                        p = findplayer(s,&x);
-                        if (x < 20480)
+                        if ((sc->floorstat&1) == 0 && (sc->ceilingstat&1) == 0)
                         {
-                            j = s->ang;
-                            s->ang = getangle(s->x-ps[p].posx,s->y-ps[p].posy);
-                            shoot(i,RPG);
-                            s->ang = j;
+                            if (!issoundplaying(i,hittype[i].lastvx))
+                                spritesound(hittype[i].lastvx,i);
+                        }
+                        else if (ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat&1) && rnd(8))
+                        {
+                            p = findplayer(s,&x);
+                            if (x < 20480)
+                            {
+                                j = s->ang;
+                                s->ang = getangle(s->x-ps[p].posx,s->y-ps[p].posy);
+                                shoot(i,RPG);
+                                s->ang = j;
+                            }
                         }
                     }
-                }
 
-                if (s->xvel <= 64 && (sc->floorstat&1) == 0 && (sc->ceilingstat&1) == 0)
-                    stopspritesound(hittype[i].lastvx,i);
+                    if (s->xvel <= 64 && (sc->floorstat&1) == 0 && (sc->ceilingstat&1) == 0)
+                        stopspritesound(hittype[i].lastvx,i);
 
-                if ((sc->floorz-sc->ceilingz) < (108<<8))
-                {
-                    if (ud.clipping == 0 && s->xvel >= 192)
-                        for (p=connecthead;p>=0;p=connectpoint2[p])
-                            if (sprite[ps[p].i].extra > 0)
-                            {
-                                k = ps[p].cursectnum;
-                                updatesector(ps[p].posx,ps[p].posy,&k);
-                                if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
+                    if ((sc->floorz-sc->ceilingz) < (108<<8))
+                    {
+                        if (ud.clipping == 0 && s->xvel >= 192)
+                            for (p=connecthead;p>=0;p=connectpoint2[p])
+                                if (sprite[ps[p].i].extra > 0)
                                 {
-                                    ps[p].posx = s->x;
-                                    ps[p].posy = s->y;
-                                    ps[p].cursectnum = s->sectnum;
+                                    k = ps[p].cursectnum;
+                                    updatesector(ps[p].posx,ps[p].posy,&k);
+                                    if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
+                                    {
+                                        ps[p].posx = s->x;
+                                        ps[p].posy = s->y;
+                                        ps[p].cursectnum = s->sectnum;
 
-                                    setsprite(ps[p].i,s->x,s->y,s->z);
-                                    quickkill(&ps[p]);
+                                        setsprite(ps[p].i,s->x,s->y,s->z);
+                                        quickkill(&ps[p]);
+                                    }
+                                }
+                    }
+
+                    m = (s->xvel*sintable[(s->ang+512)&2047])>>14;
+                    x = (s->xvel*sintable[s->ang&2047])>>14;
+
+                    for (p = connecthead;p >= 0;p=connectpoint2[p])
+                        if (sector[ps[p].cursectnum].lotag != 2)
+                        {
+                            if (po[p].os == s->sectnum)
+                            {
+                                po[p].ox += m;
+                                po[p].oy += x;
+                            }
+
+                            if (s->sectnum == sprite[ps[p].i].sectnum)
+                            {
+                                rotatepoint(s->x,s->y,ps[p].posx,ps[p].posy,q,&ps[p].posx,&ps[p].posy);
+
+                                ps[p].posx += m;
+                                ps[p].posy += x;
+
+                                ps[p].bobposx += m;
+                                ps[p].bobposy += x;
+
+                                ps[p].ang += q;
+
+                                if (numplayers > 1)
+                                {
+                                    ps[p].oposx = ps[p].posx;
+                                    ps[p].oposy = ps[p].posy;
+                                }
+                                if (sprite[ps[p].i].extra <= 0)
+                                {
+                                    sprite[ps[p].i].x = ps[p].posx;
+                                    sprite[ps[p].i].y = ps[p].posy;
                                 }
                             }
+                        }
+                    j = headspritesect[s->sectnum];
+                    while (j >= 0)
+                    {
+                        if (sprite[j].statnum != 10 && sector[sprite[j].sectnum].lotag != 2 && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+                        {
+                            rotatepoint(s->x,s->y,
+                                        sprite[j].x,sprite[j].y,q,
+                                        &sprite[j].x,&sprite[j].y);
+
+                            sprite[j].x+= m;
+                            sprite[j].y+= x;
+
+                            sprite[j].ang+=q;
+
+                            if (numplayers > 1)
+                            {
+                                hittype[j].bposx = sprite[j].x;
+                                hittype[j].bposy = sprite[j].y;
+                            }
+                        }
+                        j = nextspritesect[j];
+                    }
+
+                    ms(i);
+                    setsprite(i,s->x,s->y,s->z);
+
+                    if ((sc->floorz-sc->ceilingz) < (108<<8))
+                    {
+                        if (ud.clipping == 0 && s->xvel >= 192)
+                            for (p=connecthead;p>=0;p=connectpoint2[p])
+                                if (sprite[ps[p].i].extra > 0)
+                                {
+                                    k = ps[p].cursectnum;
+                                    updatesector(ps[p].posx,ps[p].posy,&k);
+                                    if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
+                                    {
+                                        ps[p].oposx = ps[p].posx = s->x;
+                                        ps[p].oposy = ps[p].posy = s->y;
+                                        ps[p].cursectnum = s->sectnum;
+
+                                        setsprite(ps[p].i,s->x,s->y,s->z);
+                                        quickkill(&ps[p]);
+                                    }
+                                }
+
+                        j = headspritesect[sprite[OW].sectnum];
+                        while (j >= 0)
+                        {
+                            l = nextspritesect[j];
+                            if (sprite[j].statnum == 1 && badguy(&sprite[j]) && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+                            {
+                                k = sprite[j].sectnum;
+                                updatesector(sprite[j].x,sprite[j].y,&k);
+                                if (sprite[j].extra >= 0 && k == s->sectnum)
+                                {
+                                    gutsdir(&sprite[j],JIBS6,72,myconnectindex);
+                                    spritesound(SQUISHED,i);
+                                    deletesprite(j);
+                                }
+                            }
+                            j = l;
+                        }
+                    }
                 }
 
-                m = (s->xvel*sintable[(s->ang+512)&2047])>>14;
-                x = (s->xvel*sintable[s->ang&2047])>>14;
+                break;
 
-                for (p = connecthead;p >= 0;p=connectpoint2[p])
-                    if (sector[ps[p].cursectnum].lotag != 2)
+            case 30:
+                if (s->owner == -1)
+                {
+                    t[3] = !t[3];
+                    s->owner = LocateTheLocator(t[3],t[0]);
+                }
+                else
+                {
+
+                    if (t[4] == 1) // Starting to go
                     {
-                        if (po[p].os == s->sectnum)
+                        if (ldist(&sprite[s->owner],s) < (2048-128))
+                            t[4] = 2;
+                        else
                         {
-                            po[p].ox += m;
-                            po[p].oy += x;
+                            if (s->xvel == 0)
+                                operateactivators(s->hitag+(!t[3]),-1);
+                            if (s->xvel < 256)
+                                s->xvel += 16;
                         }
+                    }
+                    if (t[4] == 2)
+                    {
+                        l = FindDistance2D(sprite[s->owner].x-s->x,sprite[s->owner].y-s->y);
 
-                        if (s->sectnum == sprite[ps[p].i].sectnum)
+                        if (l <= 128)
+                            s->xvel = 0;
+
+                        if (s->xvel > 0)
+                            s->xvel -= 16;
+                        else
                         {
-                            rotatepoint(s->x,s->y,ps[p].posx,ps[p].posy,q,&ps[p].posx,&ps[p].posy);
+                            s->xvel = 0;
+                            operateactivators(s->hitag+(short)t[3],-1);
+                            s->owner = -1;
+                            s->ang += 1024;
+                            t[4] = 0;
+                            operateforcefields(i,s->hitag);
 
-                            ps[p].posx += m;
+                            j = headspritesect[s->sectnum];
+                            while (j >= 0)
+                            {
+                                if (sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+                                {
+                                    hittype[j].bposx = sprite[j].x;
+                                    hittype[j].bposy = sprite[j].y;
+                                }
+                                j = nextspritesect[j];
+                            }
+
+                        }
+                    }
+                }
+
+                if (s->xvel)
+                {
+                    l = (s->xvel*sintable[(s->ang+512)&2047])>>14;
+                    x = (s->xvel*sintable[s->ang&2047])>>14;
+
+                    if ((sc->floorz-sc->ceilingz) < (108<<8))
+                        if (ud.clipping == 0)
+                            for (p=connecthead;p>=0;p=connectpoint2[p])
+                                if (sprite[ps[p].i].extra > 0)
+                                {
+                                    k = ps[p].cursectnum;
+                                    updatesector(ps[p].posx,ps[p].posy,&k);
+                                    if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
+                                    {
+                                        ps[p].posx = s->x;
+                                        ps[p].posy = s->y;
+                                        ps[p].cursectnum = s->sectnum;
+
+                                        setsprite(ps[p].i,s->x,s->y,s->z);
+                                        quickkill(&ps[p]);
+                                    }
+                                }
+
+                    for (p = connecthead;p >= 0;p = connectpoint2[p])
+                    {
+                        if (sprite[ps[p].i].sectnum == s->sectnum)
+                        {
+                            ps[p].posx += l;
                             ps[p].posy += x;
-
-                            ps[p].bobposx += m;
-                            ps[p].bobposy += x;
-
-                            ps[p].ang += q;
 
                             if (numplayers > 1)
                             {
                                 ps[p].oposx = ps[p].posx;
                                 ps[p].oposy = ps[p].posy;
                             }
-                            if (sprite[ps[p].i].extra <= 0)
-                            {
-                                sprite[ps[p].i].x = ps[p].posx;
-                                sprite[ps[p].i].y = ps[p].posy;
-                            }
+
+                            ps[p].bobposx += l;
+                            ps[p].bobposy += x;
                         }
-                    }
-                j = headspritesect[s->sectnum];
-                while (j >= 0)
-                {
-                    if (sprite[j].statnum != 10 && sector[sprite[j].sectnum].lotag != 2 && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
-                    {
-                        rotatepoint(s->x,s->y,
-                                    sprite[j].x,sprite[j].y,q,
-                                    &sprite[j].x,&sprite[j].y);
 
-                        sprite[j].x+= m;
-                        sprite[j].y+= x;
-
-                        sprite[j].ang+=q;
-
-                        if (numplayers > 1)
+                        if (po[p].os == s->sectnum)
                         {
-                            hittype[j].bposx = sprite[j].x;
-                            hittype[j].bposy = sprite[j].y;
+                            po[p].ox += l;
+                            po[p].oy += x;
                         }
                     }
-                    j = nextspritesect[j];
-                }
 
-                ms(i);
-                setsprite(i,s->x,s->y,s->z);
-
-                if ((sc->floorz-sc->ceilingz) < (108<<8))
-                {
-                    if (ud.clipping == 0 && s->xvel >= 192)
-                        for (p=connecthead;p>=0;p=connectpoint2[p])
-                            if (sprite[ps[p].i].extra > 0)
-                            {
-                                k = ps[p].cursectnum;
-                                updatesector(ps[p].posx,ps[p].posy,&k);
-                                if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
-                                {
-                                    ps[p].oposx = ps[p].posx = s->x;
-                                    ps[p].oposy = ps[p].posy = s->y;
-                                    ps[p].cursectnum = s->sectnum;
-
-                                    setsprite(ps[p].i,s->x,s->y,s->z);
-                                    quickkill(&ps[p]);
-                                }
-                            }
-
-                    j = headspritesect[sprite[OW].sectnum];
+                    j = headspritesect[s->sectnum];
                     while (j >= 0)
                     {
-                        l = nextspritesect[j];
-                        if (sprite[j].statnum == 1 && badguy(&sprite[j]) && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+                        if (sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
                         {
-                            k = sprite[j].sectnum;
-                            updatesector(sprite[j].x,sprite[j].y,&k);
-                            if (sprite[j].extra >= 0 && k == s->sectnum)
-                            {
-                                gutsdir(&sprite[j],JIBS6,72,myconnectindex);
-                                spritesound(SQUISHED,i);
-                                deletesprite(j);
-                            }
-                        }
-                        j = l;
-                    }
-                }
-            }
-
-            break;
-
-        case 30:
-            if (s->owner == -1)
-            {
-                t[3] = !t[3];
-                s->owner = LocateTheLocator(t[3],t[0]);
-            }
-            else
-            {
-
-                if (t[4] == 1) // Starting to go
-                {
-                    if (ldist(&sprite[s->owner],s) < (2048-128))
-                        t[4] = 2;
-                    else
-                    {
-                        if (s->xvel == 0)
-                            operateactivators(s->hitag+(!t[3]),-1);
-                        if (s->xvel < 256)
-                            s->xvel += 16;
-                    }
-                }
-                if (t[4] == 2)
-                {
-                    l = FindDistance2D(sprite[s->owner].x-s->x,sprite[s->owner].y-s->y);
-
-                    if (l <= 128)
-                        s->xvel = 0;
-
-                    if (s->xvel > 0)
-                        s->xvel -= 16;
-                    else
-                    {
-                        s->xvel = 0;
-                        operateactivators(s->hitag+(short)t[3],-1);
-                        s->owner = -1;
-                        s->ang += 1024;
-                        t[4] = 0;
-                        operateforcefields(i,s->hitag);
-
-                        j = headspritesect[s->sectnum];
-                        while (j >= 0)
-                        {
-                            if (sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+                            if (numplayers < 2)
                             {
                                 hittype[j].bposx = sprite[j].x;
                                 hittype[j].bposy = sprite[j].y;
                             }
-                            j = nextspritesect[j];
-                        }
 
-                    }
-                }
-            }
+                            sprite[j].x += l;
+                            sprite[j].y += x;
 
-            if (s->xvel)
-            {
-                l = (s->xvel*sintable[(s->ang+512)&2047])>>14;
-                x = (s->xvel*sintable[s->ang&2047])>>14;
-
-                if ((sc->floorz-sc->ceilingz) < (108<<8))
-                    if (ud.clipping == 0)
-                        for (p=connecthead;p>=0;p=connectpoint2[p])
-                            if (sprite[ps[p].i].extra > 0)
+                            if (numplayers > 1)
                             {
-                                k = ps[p].cursectnum;
-                                updatesector(ps[p].posx,ps[p].posy,&k);
-                                if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
-                                {
-                                    ps[p].posx = s->x;
-                                    ps[p].posy = s->y;
-                                    ps[p].cursectnum = s->sectnum;
-
-                                    setsprite(ps[p].i,s->x,s->y,s->z);
-                                    quickkill(&ps[p]);
-                                }
-                            }
-
-                for (p = connecthead;p >= 0;p = connectpoint2[p])
-                {
-                    if (sprite[ps[p].i].sectnum == s->sectnum)
-                    {
-                        ps[p].posx += l;
-                        ps[p].posy += x;
-
-                        if (numplayers > 1)
-                        {
-                            ps[p].oposx = ps[p].posx;
-                            ps[p].oposy = ps[p].posy;
-                        }
-
-                        ps[p].bobposx += l;
-                        ps[p].bobposy += x;
-                    }
-
-                    if (po[p].os == s->sectnum)
-                    {
-                        po[p].ox += l;
-                        po[p].oy += x;
-                    }
-                }
-
-                j = headspritesect[s->sectnum];
-                while (j >= 0)
-                {
-                    if (sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
-                    {
-                        if (numplayers < 2)
-                        {
-                            hittype[j].bposx = sprite[j].x;
-                            hittype[j].bposy = sprite[j].y;
-                        }
-
-                        sprite[j].x += l;
-                        sprite[j].y += x;
-
-                        if (numplayers > 1)
-                        {
-                            hittype[j].bposx = sprite[j].x;
-                            hittype[j].bposy = sprite[j].y;
-                        }
-                    }
-                    j = nextspritesect[j];
-                }
-
-                ms(i);
-                setsprite(i,s->x,s->y,s->z);
-
-                if ((sc->floorz-sc->ceilingz) < (108<<8))
-                {
-                    if (ud.clipping == 0)
-                        for (p=connecthead;p>=0;p=connectpoint2[p])
-                            if (sprite[ps[p].i].extra > 0)
-                            {
-                                k = ps[p].cursectnum;
-                                updatesector(ps[p].posx,ps[p].posy,&k);
-                                if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
-                                {
-                                    ps[p].posx = s->x;
-                                    ps[p].posy = s->y;
-
-                                    ps[p].oposx = ps[p].posx;
-                                    ps[p].oposy = ps[p].posy;
-
-                                    ps[p].cursectnum = s->sectnum;
-
-                                    setsprite(ps[p].i,s->x,s->y,s->z);
-                                    quickkill(&ps[p]);
-                                }
-                            }
-
-                    j = headspritesect[sprite[OW].sectnum];
-                    while (j >= 0)
-                    {
-                        l = nextspritesect[j];
-                        if (sprite[j].statnum == 1 && badguy(&sprite[j]) && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
-                        {
-                            //                    if(sprite[j].sectnum != s->sectnum)
-                            {
-                                k = sprite[j].sectnum;
-                                updatesector(sprite[j].x,sprite[j].y,&k);
-                                if (sprite[j].extra >= 0 && k == s->sectnum)
-                                {
-                                    gutsdir(&sprite[j],JIBS6,24,myconnectindex);
-                                    spritesound(SQUISHED,j);
-                                    deletesprite(j);
-                                }
-                            }
-
-                        }
-                        j = l;
-                    }
-                }
-            }
-
-            break;
-
-
-        case 2://Quakes
-            if (t[4] > 0 && t[0] == 0)
-            {
-                if (t[4] < sh)
-                    t[4]++;
-                else t[0] = 1;
-            }
-
-            if (t[0] > 0)
-            {
-                t[0]++;
-
-                s->xvel = 3;
-
-                if (t[0] > 96)
-                {
-                    t[0] = -1; //Stop the quake
-                    t[4] = -1;
-                    KILLIT(i);
-                }
-                else
-                {
-                    if ((t[0]&31) ==  8)
-                    {
-                        earthquaketime = 48;
-                        spritesound(EARTHQUAKE,ps[screenpeek].i);
-                    }
-
-                    if (klabs(sc->floorheinum-t[5]) < 8)
-                        sc->floorheinum = t[5];
-                    else sc->floorheinum += (ksgn(t[5]-sc->floorheinum)<<4);
-                }
-
-                m = (s->xvel*sintable[(s->ang+512)&2047])>>14;
-                x = (s->xvel*sintable[s->ang&2047])>>14;
-
-
-                for (p=connecthead;p>=0;p=connectpoint2[p])
-                    if (ps[p].cursectnum == s->sectnum && ps[p].on_ground)
-                    {
-                        ps[p].posx += m;
-                        ps[p].posy += x;
-
-                        ps[p].bobposx += m;
-                        ps[p].bobposy += x;
-                    }
-
-                j = headspritesect[s->sectnum];
-                while (j >= 0)
-                {
-                    nextj = nextspritesect[j];
-
-                    if (sprite[j].picnum != SECTOREFFECTOR)
-                    {
-                        sprite[j].x+=m;
-                        sprite[j].y+=x;
-                        setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
-                    }
-                    j = nextj;
-                }
-                ms(i);
-                setsprite(i,s->x,s->y,s->z);
-            }
-            break;
-
-            //Flashing sector lights after reactor EXPLOSION2
-
-        case 3:
-
-            if (t[4] == 0) break;
-            p = findplayer(s,&x);
-
-            //    if(t[5] > 0) { t[5]--; break; }
-
-            if ((global_random/(sh+1)&31) < 4 && !t[2])
-            {
-                //       t[5] = 4+(global_random&7);
-                sc->ceilingpal = s->owner>>8;
-                sc->floorpal = s->owner&0xff;
-                t[0] = s->shade + (global_random&15);
-            }
-            else
-            {
-                //       t[5] = 4+(global_random&3);
-                sc->ceilingpal = s->pal;
-                sc->floorpal = s->pal;
-                t[0] = t[3];
-            }
-
-            sc->ceilingshade = t[0];
-            sc->floorshade = t[0];
-
-            wal = &wall[sc->wallptr];
-
-            for (x=sc->wallnum;x > 0;x--,wal++)
-            {
-                if (wal->hitag != 1)
-                {
-                    wal->shade = t[0];
-                    if ((wal->cstat&2) && wal->nextwall >= 0)
-                    {
-                        wall[wal->nextwall].shade = wal->shade;
-                    }
-                }
-            }
-
-            break;
-
-        case 4:
-
-            if ((global_random/(sh+1)&31) < 4)
-            {
-                t[1] = s->shade + (global_random&15);//Got really bright
-                t[0] = s->shade + (global_random&15);
-                sc->ceilingpal = s->owner>>8;
-                sc->floorpal = s->owner&0xff;
-                j = 1;
-            }
-            else
-            {
-                t[1] = t[2];
-                t[0] = t[3];
-
-                sc->ceilingpal = s->pal;
-                sc->floorpal = s->pal;
-
-                j = 0;
-            }
-
-            sc->floorshade = t[1];
-            sc->ceilingshade = t[1];
-
-            wal = &wall[sc->wallptr];
-
-            for (x=sc->wallnum;x > 0; x--,wal++)
-            {
-                if (j) wal->pal = (s->owner&0xff);
-                else wal->pal = s->pal;
-
-                if (wal->hitag != 1)
-                {
-                    wal->shade = t[0];
-                    if ((wal->cstat&2) && wal->nextwall >= 0)
-                        wall[wal->nextwall].shade = wal->shade;
-                }
-            }
-
-            j = headspritesect[SECT];
-            while (j >= 0)
-            {
-                if (sprite[j].cstat&16 && checkspriteflags(j,SPRITE_FLAG_NOSHADE) == 0)
-                {
-                    if (sc->ceilingstat&1)
-                        sprite[j].shade = sc->ceilingshade;
-                    else sprite[j].shade = sc->floorshade;
-                }
-
-                j = nextspritesect[j];
-            }
-
-            if (t[4]) KILLIT(i);
-
-            break;
-
-            //BOSS
-        case 5:
-            p = findplayer(s,&x);
-            if (x < 8192)
-            {
-                j = s->ang;
-                s->ang = getangle(s->x-ps[p].posx,s->y-ps[p].posy);
-                shoot(i,FIRELASER);
-                s->ang = j;
-            }
-
-            if (s->owner==-1) //Start search
-            {
-                t[4]=0;
-                l = 0x7fffffff;
-                while (1) //Find the shortest dist
-                {
-                    s->owner = LocateTheLocator((short)t[4],-1); //t[0] hold sectnum
-
-                    if (s->owner==-1) break;
-
-                    m = ldist(&sprite[ps[p].i],&sprite[s->owner]);
-
-                    if (l > m)
-                    {
-                        q = s->owner;
-                        l = m;
-                    }
-
-                    t[4]++;
-                }
-
-                s->owner = q;
-                s->zvel = ksgn(sprite[q].z-s->z)<<4;
-            }
-
-            if (ldist(&sprite[s->owner],s) < 1024)
-            {
-                short ta;
-                ta = s->ang;
-                s->ang = getangle(ps[p].posx-s->x,ps[p].posy-s->y);
-                s->ang = ta;
-                s->owner = -1;
-                goto BOLT;
-
-            }
-            else s->xvel=256;
-
-            x = getangle(sprite[s->owner].x-s->x,sprite[s->owner].y-s->y);
-            q = getincangle(s->ang,x)>>3;
-            s->ang += q;
-
-            if (rnd(32))
-            {
-                t[2]+=q;
-                sc->ceilingshade = 127;
-            }
-            else
-            {
-                t[2] +=
-                    getincangle(t[2]+512,getangle(ps[p].posx-s->x,ps[p].posy-s->y))>>2;
-                sc->ceilingshade = 0;
-            }
-            IFHIT
-            {
-                t[3]++;
-                if (t[3] == 5)
-            {
-                s->zvel += 1024;
-                FTA(7,&ps[myconnectindex]);
-                }
-            }
-
-            s->z += s->zvel;
-            sc->ceilingz += s->zvel;
-            sector[t[0]].ceilingz += s->zvel;
-            ms(i);
-            setsprite(i,s->x,s->y,s->z);
-            break;
-
-
-        case 8:
-        case 9:
-
-            // work only if its moving
-
-            j = -1;
-
-            if (hittype[i].temp_data[4])
-            {
-                hittype[i].temp_data[4]++;
-                if (hittype[i].temp_data[4] > 8) KILLIT(i);
-                j = 1;
-            }
-            else j = getanimationgoal(&sc->ceilingz);
-
-            if (j >= 0)
-            {
-                short sn;
-
-                if ((sc->lotag&0x8000) || hittype[i].temp_data[4])
-                    x = -t[3];
-                else
-                    x = t[3];
-
-                if (st == 9) x = -x;
-
-                j = headspritestat[3];
-                while (j >= 0)
-                {
-                    if (((sprite[j].lotag) == st) && (sprite[j].hitag) == sh)
-                    {
-                        sn = sprite[j].sectnum;
-                        m = sprite[j].shade;
-
-                        wal = &wall[sector[sn].wallptr];
-
-                        for (l=sector[sn].wallnum;l>0;l--,wal++)
-                        {
-                            if (wal->hitag != 1)
-                            {
-                                wal->shade+=x;
-
-                                if (wal->shade < m)
-                                    wal->shade = m;
-                                else if (wal->shade > hittype[j].temp_data[2])
-                                    wal->shade = hittype[j].temp_data[2];
-
-                                if (wal->nextwall >= 0)
-                                    if (wall[wal->nextwall].hitag != 1)
-                                        wall[wal->nextwall].shade = wal->shade;
+                                hittype[j].bposx = sprite[j].x;
+                                hittype[j].bposy = sprite[j].y;
                             }
                         }
-
-                        sector[sn].floorshade   += x;
-                        sector[sn].ceilingshade += x;
-
-                        if (sector[sn].floorshade < m)
-                            sector[sn].floorshade = m;
-                        else if (sector[sn].floorshade > hittype[j].temp_data[0])
-                            sector[sn].floorshade = hittype[j].temp_data[0];
-
-                        if (sector[sn].ceilingshade < m)
-                            sector[sn].ceilingshade = m;
-                        else if (sector[sn].ceilingshade > hittype[j].temp_data[1])
-                            sector[sn].ceilingshade = hittype[j].temp_data[1];
-
-                    }
-                    j = nextspritestat[j];
-                }
-            }
-            break;
-        case 10:
-
-            if ((sc->lotag&0xff) == 27 || (sc->floorz > sc->ceilingz && (sc->lotag&0xff) != 23) || sc->lotag == (short) 32791)
-            {
-                j = 1;
-
-                if ((sc->lotag&0xff) != 27)
-                    for (p=connecthead;p>=0;p=connectpoint2[p])
-                        if (sc->lotag != 30 && sc->lotag != 31 && sc->lotag != 0)
-                            if (s->sectnum == sprite[ps[p].i].sectnum)
-                                j = 0;
-
-                if (j == 1)
-                {
-                    if (t[0] > sh)
-                        switch (sector[s->sectnum].lotag)
-                        {
-                        case 20:
-                        case 21:
-                        case 22:
-                        case 26:
-                            if (getanimationgoal(&sector[s->sectnum].ceilingz) >= 0)
-                                break;
-                        default:
-                            activatebysector(s->sectnum,i);
-                            t[0] = 0;
-                            break;
-                        }
-                    else t[0]++;
-                }
-            }
-            else t[0]=0;
-            break;
-        case 11: //Swingdoor
-
-            if (t[5] > 0)
-            {
-                t[5]--;
-                break;
-            }
-
-            if (t[4])
-            {
-                short startwall,endwall;
-
-                startwall = sc->wallptr;
-                endwall = startwall+sc->wallnum;
-
-                for (j=startwall;j<endwall;j++)
-                {
-                    k = headspritestat[1];
-                    while (k >= 0)
-                    {
-                        if (sprite[k].extra > 0 && badguy(&sprite[k]) && clipinsidebox(sprite[k].x,sprite[k].y,j,256L) == 1)
-                            goto BOLT;
-                        k = nextspritestat[k];
+                        j = nextspritesect[j];
                     }
 
-                    k = headspritestat[10];
-                    while (k >= 0)
-                    {
-                        if (sprite[k].owner >= 0 && clipinsidebox(sprite[k].x,sprite[k].y,j,144L) == 1)
-                        {
-                            t[5] = 8; // Delay
-                            k = (SP>>3)*t[3];
-                            t[2]-=k;
-                            t[4]-=k;
-                            ms(i);
-                            setsprite(i,s->x,s->y,s->z);
-                            goto BOLT;
-                        }
-                        k = nextspritestat[k];
-                    }
-                }
-
-                k = (SP>>3)*t[3];
-                t[2]+=k;
-                t[4]+=k;
-                ms(i);
-                setsprite(i,s->x,s->y,s->z);
-
-                if (t[4] <= -511 || t[4] >= 512)
-                {
-                    t[4] = 0;
-                    t[2] &= 0xffffff00;
                     ms(i);
                     setsprite(i,s->x,s->y,s->z);
-                    break;
-                }
-            }
-            break;
-        case 12:
-            if (t[0] == 3 || t[3] == 1)   //Lights going off
-            {
-                sc->floorpal = 0;
-                sc->ceilingpal = 0;
 
-                wal = &wall[sc->wallptr];
-                for (j = sc->wallnum;j > 0; j--, wal++)
-                    if (wal->hitag != 1)
+                    if ((sc->floorz-sc->ceilingz) < (108<<8))
                     {
-                        wal->shade = t[1];
-                        wal->pal = 0;
+                        if (ud.clipping == 0)
+                            for (p=connecthead;p>=0;p=connectpoint2[p])
+                                if (sprite[ps[p].i].extra > 0)
+                                {
+                                    k = ps[p].cursectnum;
+                                    updatesector(ps[p].posx,ps[p].posy,&k);
+                                    if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
+                                    {
+                                        ps[p].posx = s->x;
+                                        ps[p].posy = s->y;
+
+                                        ps[p].oposx = ps[p].posx;
+                                        ps[p].oposy = ps[p].posy;
+
+                                        ps[p].cursectnum = s->sectnum;
+
+                                        setsprite(ps[p].i,s->x,s->y,s->z);
+                                        quickkill(&ps[p]);
+                                    }
+                                }
+
+                        j = headspritesect[sprite[OW].sectnum];
+                        while (j >= 0)
+                        {
+                            l = nextspritesect[j];
+                            if (sprite[j].statnum == 1 && badguy(&sprite[j]) && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+                            {
+                                //                    if(sprite[j].sectnum != s->sectnum)
+                                {
+                                    k = sprite[j].sectnum;
+                                    updatesector(sprite[j].x,sprite[j].y,&k);
+                                    if (sprite[j].extra >= 0 && k == s->sectnum)
+                                    {
+                                        gutsdir(&sprite[j],JIBS6,24,myconnectindex);
+                                        spritesound(SQUISHED,j);
+                                        deletesprite(j);
+                                    }
+                                }
+
+                            }
+                            j = l;
+                        }
+                    }
+                }
+
+                break;
+
+
+            case 2://Quakes
+                if (t[4] > 0 && t[0] == 0)
+                {
+                    if (t[4] < sh)
+                        t[4]++;
+                    else t[0] = 1;
+                }
+
+                if (t[0] > 0)
+                {
+                    t[0]++;
+
+                    s->xvel = 3;
+
+                    if (t[0] > 96)
+                    {
+                        t[0] = -1; //Stop the quake
+                        t[4] = -1;
+                        KILLIT(i);
+                    }
+                    else
+                    {
+                        if ((t[0]&31) ==  8)
+                        {
+                            earthquaketime = 48;
+                            spritesound(EARTHQUAKE,ps[screenpeek].i);
+                        }
+
+                        if (klabs(sc->floorheinum-t[5]) < 8)
+                            sc->floorheinum = t[5];
+                        else sc->floorheinum += (ksgn(t[5]-sc->floorheinum)<<4);
                     }
 
+                    m = (s->xvel*sintable[(s->ang+512)&2047])>>14;
+                    x = (s->xvel*sintable[s->ang&2047])>>14;
+
+
+                    for (p=connecthead;p>=0;p=connectpoint2[p])
+                        if (ps[p].cursectnum == s->sectnum && ps[p].on_ground)
+                        {
+                            ps[p].posx += m;
+                            ps[p].posy += x;
+
+                            ps[p].bobposx += m;
+                            ps[p].bobposy += x;
+                        }
+
+                    j = headspritesect[s->sectnum];
+                    while (j >= 0)
+                    {
+                        nextj = nextspritesect[j];
+
+                        if (sprite[j].picnum != SECTOREFFECTOR)
+                        {
+                            sprite[j].x+=m;
+                            sprite[j].y+=x;
+                            setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+                        }
+                        j = nextj;
+                    }
+                    ms(i);
+                    setsprite(i,s->x,s->y,s->z);
+                }
+                break;
+
+                //Flashing sector lights after reactor EXPLOSION2
+
+            case 3:
+
+                if (t[4] == 0) break;
+                p = findplayer(s,&x);
+
+                //    if(t[5] > 0) { t[5]--; break; }
+
+                if ((global_random/(sh+1)&31) < 4 && !t[2])
+                {
+                    //       t[5] = 4+(global_random&7);
+                    sc->ceilingpal = s->owner>>8;
+                    sc->floorpal = s->owner&0xff;
+                    t[0] = s->shade + (global_random&15);
+                }
+                else
+                {
+                    //       t[5] = 4+(global_random&3);
+                    sc->ceilingpal = s->pal;
+                    sc->floorpal = s->pal;
+                    t[0] = t[3];
+                }
+
+                sc->ceilingshade = t[0];
+                sc->floorshade = t[0];
+
+                wal = &wall[sc->wallptr];
+
+                for (x=sc->wallnum;x > 0;x--,wal++)
+                {
+                    if (wal->hitag != 1)
+                    {
+                        wal->shade = t[0];
+                        if ((wal->cstat&2) && wal->nextwall >= 0)
+                        {
+                            wall[wal->nextwall].shade = wal->shade;
+                        }
+                    }
+                }
+
+                break;
+
+            case 4:
+
+                if ((global_random/(sh+1)&31) < 4)
+                {
+                    t[1] = s->shade + (global_random&15);//Got really bright
+                    t[0] = s->shade + (global_random&15);
+                    sc->ceilingpal = s->owner>>8;
+                    sc->floorpal = s->owner&0xff;
+                    j = 1;
+                }
+                else
+                {
+                    t[1] = t[2];
+                    t[0] = t[3];
+
+                    sc->ceilingpal = s->pal;
+                    sc->floorpal = s->pal;
+
+                    j = 0;
+                }
+
                 sc->floorshade = t[1];
-                sc->ceilingshade = t[2];
-                t[0]=0;
+                sc->ceilingshade = t[1];
+
+                wal = &wall[sc->wallptr];
+
+                for (x=sc->wallnum;x > 0; x--,wal++)
+                {
+                    if (j) wal->pal = (s->owner&0xff);
+                    else wal->pal = s->pal;
+
+                    if (wal->hitag != 1)
+                    {
+                        wal->shade = t[0];
+                        if ((wal->cstat&2) && wal->nextwall >= 0)
+                            wall[wal->nextwall].shade = wal->shade;
+                    }
+                }
 
                 j = headspritesect[SECT];
                 while (j >= 0)
@@ -6369,930 +6168,1273 @@ void moveeffectors(void)   //STATNUM 3
                             sprite[j].shade = sc->ceilingshade;
                         else sprite[j].shade = sc->floorshade;
                     }
-                    j = nextspritesect[j];
 
+                    j = nextspritesect[j];
                 }
 
-                if (t[3] == 1) KILLIT(i);
-            }
-            if (t[0] == 1)   //Lights flickering on
-            {
-                if (sc->floorshade > s->shade)
-                {
-                    sc->floorpal = s->pal;
-                    sc->ceilingpal = s->pal;
+                if (t[4]) KILLIT(i);
 
-                    sc->floorshade -= 2;
-                    sc->ceilingshade -= 2;
+                break;
+
+                //BOSS
+            case 5:
+                p = findplayer(s,&x);
+                if (x < 8192)
+                {
+                    j = s->ang;
+                    s->ang = getangle(s->x-ps[p].posx,s->y-ps[p].posy);
+                    shoot(i,FIRELASER);
+                    s->ang = j;
+                }
+
+                if (s->owner==-1) //Start search
+                {
+                    t[4]=0;
+                    l = 0x7fffffff;
+                    while (1) //Find the shortest dist
+                    {
+                        s->owner = LocateTheLocator((short)t[4],-1); //t[0] hold sectnum
+
+                        if (s->owner==-1) break;
+
+                        m = ldist(&sprite[ps[p].i],&sprite[s->owner]);
+
+                        if (l > m)
+                        {
+                            q = s->owner;
+                            l = m;
+                        }
+
+                        t[4]++;
+                    }
+
+                    s->owner = q;
+                    s->zvel = ksgn(sprite[q].z-s->z)<<4;
+                }
+
+                if (ldist(&sprite[s->owner],s) < 1024)
+                {
+                    short ta;
+                    ta = s->ang;
+                    s->ang = getangle(ps[p].posx-s->x,ps[p].posy-s->y);
+                    s->ang = ta;
+                    s->owner = -1;
+                    goto BOLT;
+
+                }
+                else s->xvel=256;
+
+                x = getangle(sprite[s->owner].x-s->x,sprite[s->owner].y-s->y);
+                q = getincangle(s->ang,x)>>3;
+                s->ang += q;
+
+                if (rnd(32))
+                {
+                    t[2]+=q;
+                    sc->ceilingshade = 127;
+                }
+                else
+                {
+                    t[2] +=
+                        getincangle(t[2]+512,getangle(ps[p].posx-s->x,ps[p].posy-s->y))>>2;
+                    sc->ceilingshade = 0;
+                }
+                IFHIT
+                {
+                    t[3]++;
+                    if (t[3] == 5)
+                {
+                    s->zvel += 1024;
+                    FTA(7,&ps[myconnectindex]);
+                    }
+            }
+
+                s->z += s->zvel;
+                sc->ceilingz += s->zvel;
+                sector[t[0]].ceilingz += s->zvel;
+                ms(i);
+                setsprite(i,s->x,s->y,s->z);
+                break;
+
+
+            case 8:
+            case 9:
+
+                // work only if its moving
+
+                j = -1;
+
+                if (hittype[i].temp_data[4])
+                {
+                    hittype[i].temp_data[4]++;
+                    if (hittype[i].temp_data[4] > 8) KILLIT(i);
+                    j = 1;
+                }
+                else j = getanimationgoal(&sc->ceilingz);
+
+                if (j >= 0)
+                {
+                    short sn;
+
+                    if ((sc->lotag&0x8000) || hittype[i].temp_data[4])
+                        x = -t[3];
+                    else
+                        x = t[3];
+
+                    if (st == 9) x = -x;
+
+                    j = headspritestat[3];
+                    while (j >= 0)
+                    {
+                        if (((sprite[j].lotag) == st) && (sprite[j].hitag) == sh)
+                        {
+                            sn = sprite[j].sectnum;
+                            m = sprite[j].shade;
+
+                            wal = &wall[sector[sn].wallptr];
+
+                            for (l=sector[sn].wallnum;l>0;l--,wal++)
+                            {
+                                if (wal->hitag != 1)
+                                {
+                                    wal->shade+=x;
+
+                                    if (wal->shade < m)
+                                        wal->shade = m;
+                                    else if (wal->shade > hittype[j].temp_data[2])
+                                        wal->shade = hittype[j].temp_data[2];
+
+                                    if (wal->nextwall >= 0)
+                                        if (wall[wal->nextwall].hitag != 1)
+                                            wall[wal->nextwall].shade = wal->shade;
+                                }
+                            }
+
+                            sector[sn].floorshade   += x;
+                            sector[sn].ceilingshade += x;
+
+                            if (sector[sn].floorshade < m)
+                                sector[sn].floorshade = m;
+                            else if (sector[sn].floorshade > hittype[j].temp_data[0])
+                                sector[sn].floorshade = hittype[j].temp_data[0];
+
+                            if (sector[sn].ceilingshade < m)
+                                sector[sn].ceilingshade = m;
+                            else if (sector[sn].ceilingshade > hittype[j].temp_data[1])
+                                sector[sn].ceilingshade = hittype[j].temp_data[1];
+
+                        }
+                        j = nextspritestat[j];
+                    }
+                }
+                break;
+            case 10:
+
+                if ((sc->lotag&0xff) == 27 || (sc->floorz > sc->ceilingz && (sc->lotag&0xff) != 23) || sc->lotag == (short) 32791)
+                {
+                    j = 1;
+
+                    if ((sc->lotag&0xff) != 27)
+                        for (p=connecthead;p>=0;p=connectpoint2[p])
+                            if (sc->lotag != 30 && sc->lotag != 31 && sc->lotag != 0)
+                                if (s->sectnum == sprite[ps[p].i].sectnum)
+                                    j = 0;
+
+                    if (j == 1)
+                    {
+                        if (t[0] > sh)
+                            switch (sector[s->sectnum].lotag)
+                            {
+                                case 20:
+                                case 21:
+                                case 22:
+                                case 26:
+                                    if (getanimationgoal(&sector[s->sectnum].ceilingz) >= 0)
+                                        break;
+                                default:
+                                    activatebysector(s->sectnum,i);
+                                    t[0] = 0;
+                                    break;
+                            }
+                        else t[0]++;
+                    }
+                }
+                else t[0]=0;
+                break;
+            case 11: //Swingdoor
+
+                if (t[5] > 0)
+                {
+                    t[5]--;
+                    break;
+                }
+
+                if (t[4])
+                {
+                    short startwall,endwall;
+
+                    startwall = sc->wallptr;
+                    endwall = startwall+sc->wallnum;
+
+                    for (j=startwall;j<endwall;j++)
+                    {
+                        k = headspritestat[1];
+                        while (k >= 0)
+                        {
+                            if (sprite[k].extra > 0 && badguy(&sprite[k]) && clipinsidebox(sprite[k].x,sprite[k].y,j,256L) == 1)
+                                goto BOLT;
+                            k = nextspritestat[k];
+                        }
+
+                        k = headspritestat[10];
+                        while (k >= 0)
+                        {
+                            if (sprite[k].owner >= 0 && clipinsidebox(sprite[k].x,sprite[k].y,j,144L) == 1)
+                            {
+                                t[5] = 8; // Delay
+                                k = (SP>>3)*t[3];
+                                t[2]-=k;
+                                t[4]-=k;
+                                ms(i);
+                                setsprite(i,s->x,s->y,s->z);
+                                goto BOLT;
+                            }
+                            k = nextspritestat[k];
+                        }
+                    }
+
+                    k = (SP>>3)*t[3];
+                    t[2]+=k;
+                    t[4]+=k;
+                    ms(i);
+                    setsprite(i,s->x,s->y,s->z);
+
+                    if (t[4] <= -511 || t[4] >= 512)
+                    {
+                        t[4] = 0;
+                        t[2] &= 0xffffff00;
+                        ms(i);
+                        setsprite(i,s->x,s->y,s->z);
+                        break;
+                    }
+                }
+                break;
+            case 12:
+                if (t[0] == 3 || t[3] == 1)   //Lights going off
+                {
+                    sc->floorpal = 0;
+                    sc->ceilingpal = 0;
 
                     wal = &wall[sc->wallptr];
-                    for (j=sc->wallnum;j>0;j--,wal++)
+                    for (j = sc->wallnum;j > 0; j--, wal++)
                         if (wal->hitag != 1)
                         {
-                            wal->pal = s->pal;
-                            wal->shade -= 2;
+                            wal->shade = t[1];
+                            wal->pal = 0;
                         }
-                }
-                else t[0] = 2;
 
-                j = headspritesect[SECT];
-                while (j >= 0)
-                {
-                    if (sprite[j].cstat&16)
+                    sc->floorshade = t[1];
+                    sc->ceilingshade = t[2];
+                    t[0]=0;
+
+                    j = headspritesect[SECT];
+                    while (j >= 0)
                     {
-                        if (sc->ceilingstat&1 && checkspriteflags(j,SPRITE_FLAG_NOSHADE) == 0)
-                            sprite[j].shade = sc->ceilingshade;
-                        else sprite[j].shade = sc->floorshade;
+                        if (sprite[j].cstat&16 && checkspriteflags(j,SPRITE_FLAG_NOSHADE) == 0)
+                        {
+                            if (sc->ceilingstat&1)
+                                sprite[j].shade = sc->ceilingshade;
+                            else sprite[j].shade = sc->floorshade;
+                        }
+                        j = nextspritesect[j];
+
                     }
-                    j = nextspritesect[j];
+
+                    if (t[3] == 1) KILLIT(i);
                 }
-            }
-            break;
-
-
-        case 13:
-            if (t[2])
-            {
-                j = (SP<<5)|1;
-
-                if (s->ang == 512)
+                if (t[0] == 1)   //Lights flickering on
                 {
-                    if (s->owner)
+                    if (sc->floorshade > s->shade)
                     {
-                        if (klabs(t[0]-sc->ceilingz) >= j)
-                            sc->ceilingz += ksgn(t[0]-sc->ceilingz)*j;
-                        else sc->ceilingz = t[0];
+                        sc->floorpal = s->pal;
+                        sc->ceilingpal = s->pal;
+
+                        sc->floorshade -= 2;
+                        sc->ceilingshade -= 2;
+
+                        wal = &wall[sc->wallptr];
+                        for (j=sc->wallnum;j>0;j--,wal++)
+                            if (wal->hitag != 1)
+                            {
+                                wal->pal = s->pal;
+                                wal->shade -= 2;
+                            }
+                    }
+                    else t[0] = 2;
+
+                    j = headspritesect[SECT];
+                    while (j >= 0)
+                    {
+                        if (sprite[j].cstat&16)
+                        {
+                            if (sc->ceilingstat&1 && checkspriteflags(j,SPRITE_FLAG_NOSHADE) == 0)
+                                sprite[j].shade = sc->ceilingshade;
+                            else sprite[j].shade = sc->floorshade;
+                        }
+                        j = nextspritesect[j];
+                    }
+                }
+                break;
+
+
+            case 13:
+                if (t[2])
+                {
+                    j = (SP<<5)|1;
+
+                    if (s->ang == 512)
+                    {
+                        if (s->owner)
+                        {
+                            if (klabs(t[0]-sc->ceilingz) >= j)
+                                sc->ceilingz += ksgn(t[0]-sc->ceilingz)*j;
+                            else sc->ceilingz = t[0];
+                        }
+                        else
+                        {
+                            if (klabs(t[1]-sc->floorz) >= j)
+                                sc->floorz += ksgn(t[1]-sc->floorz)*j;
+                            else sc->floorz = t[1];
+                        }
                     }
                     else
                     {
                         if (klabs(t[1]-sc->floorz) >= j)
                             sc->floorz += ksgn(t[1]-sc->floorz)*j;
                         else sc->floorz = t[1];
+                        if (klabs(t[0]-sc->ceilingz) >= j)
+                            sc->ceilingz += ksgn(t[0]-sc->ceilingz)*j;
+                        sc->ceilingz = t[0];
                     }
-                }
-                else
-                {
-                    if (klabs(t[1]-sc->floorz) >= j)
-                        sc->floorz += ksgn(t[1]-sc->floorz)*j;
-                    else sc->floorz = t[1];
-                    if (klabs(t[0]-sc->ceilingz) >= j)
-                        sc->ceilingz += ksgn(t[0]-sc->ceilingz)*j;
-                    sc->ceilingz = t[0];
-                }
 
-                if (t[3] == 1)
-                {
-                    //Change the shades
-
-                    t[3]++;
-                    sc->ceilingstat ^= 1;
-
-                    if (s->ang == 512)
+                    if (t[3] == 1)
                     {
-                        wal = &wall[sc->wallptr];
-                        for (j=sc->wallnum;j>0;j--,wal++)
-                            wal->shade = s->shade;
+                        //Change the shades
 
-                        sc->floorshade = s->shade;
+                        t[3]++;
+                        sc->ceilingstat ^= 1;
 
-                        if (ps[0].one_parallax_sectnum >= 0)
+                        if (s->ang == 512)
                         {
-                            sc->ceilingpicnum =
-                                sector[ps[0].one_parallax_sectnum].ceilingpicnum;
-                            sc->ceilingshade  =
-                                sector[ps[0].one_parallax_sectnum].ceilingshade;
+                            wal = &wall[sc->wallptr];
+                            for (j=sc->wallnum;j>0;j--,wal++)
+                                wal->shade = s->shade;
+
+                            sc->floorshade = s->shade;
+
+                            if (ps[0].one_parallax_sectnum >= 0)
+                            {
+                                sc->ceilingpicnum =
+                                    sector[ps[0].one_parallax_sectnum].ceilingpicnum;
+                                sc->ceilingshade  =
+                                    sector[ps[0].one_parallax_sectnum].ceilingshade;
+                            }
                         }
                     }
+                    t[2]++;
+                    if (t[2] > 256)
+                        KILLIT(i);
                 }
-                t[2]++;
-                if (t[2] > 256)
-                    KILLIT(i);
-            }
 
 
-            if (t[2] == 4 && s->ang != 512)
-                for (x=0;x<7;x++) RANDOMSCRAP;
-            break;
+                if (t[2] == 4 && s->ang != 512)
+                    for (x=0;x<7;x++) RANDOMSCRAP;
+                break;
 
 
-        case 15:
+            case 15:
 
-            if (t[4])
-            {
-                s->xvel = 16;
-
-                if (t[4] == 1) //Opening
+                if (t[4])
                 {
-                    if (t[3] >= (SP>>3))
+                    s->xvel = 16;
+
+                    if (t[4] == 1) //Opening
                     {
-                        t[4] = 0; //Turn off the sliders
-                        callsound(s->sectnum,i);
-                        break;
+                        if (t[3] >= (SP>>3))
+                        {
+                            t[4] = 0; //Turn off the sliders
+                            callsound(s->sectnum,i);
+                            break;
+                        }
+                        t[3]++;
                     }
-                    t[3]++;
+                    else if (t[4] == 2)
+                    {
+                        if (t[3]<1)
+                        {
+                            t[4] = 0;
+                            callsound(s->sectnum,i);
+                            break;
+                        }
+                        t[3]--;
+                    }
+
+                    ms(i);
+                    setsprite(i,s->x,s->y,s->z);
                 }
-                else if (t[4] == 2)
+                break;
+
+            case 16: //Reactor
+
+                t[2]+=32;
+                if (sc->floorz<sc->ceilingz) s->shade=0;
+
+                else if (sc->ceilingz < t[3])
                 {
-                    if (t[3]<1)
+
+                    //The following code check to see if
+                    //there is any other sprites in the sector.
+                    //If there isn't, then kill this sectoreffector
+                    //itself.....
+
+                    j = headspritesect[s->sectnum];
+                    while (j >= 0)
                     {
-                        t[4] = 0;
-                        callsound(s->sectnum,i);
-                        break;
+                        if (sprite[j].picnum == REACTOR || sprite[j].picnum == REACTOR2)
+                            break;
+                        j = nextspritesect[j];
                     }
-                    t[3]--;
+                    if (j == -1)
+                    {
+                        KILLIT(i);
+                    }
+                    else s->shade=1;
                 }
+
+                if (s->shade) sc->ceilingz+=1024;
+                else sc->ceilingz-=512;
 
                 ms(i);
                 setsprite(i,s->x,s->y,s->z);
-            }
-            break;
 
-        case 16: //Reactor
+                break;
 
-            t[2]+=32;
-            if (sc->floorz<sc->ceilingz) s->shade=0;
+            case 17:
 
-            else if (sc->ceilingz < t[3])
-            {
+                q = t[0]*(SP<<2);
 
-                //The following code check to see if
-                //there is any other sprites in the sector.
-                //If there isn't, then kill this sectoreffector
-                //itself.....
+                sc->ceilingz += q;
+                sc->floorz += q;
 
                 j = headspritesect[s->sectnum];
                 while (j >= 0)
                 {
-                    if (sprite[j].picnum == REACTOR || sprite[j].picnum == REACTOR2)
-                        break;
+                    if (sprite[j].statnum == 10 && sprite[j].owner >= 0)
+                    {
+                        p = sprite[j].yvel;
+                        if (numplayers < 2)
+                            ps[p].oposz = ps[p].posz;
+                        ps[p].posz += q;
+                        ps[p].truefz += q;
+                        ps[p].truecz += q;
+                        if (numplayers > 1)
+                            ps[p].oposz = ps[p].posz;
+                    }
+                    if (sprite[j].statnum != 3)
+                    {
+                        hittype[j].bposz = sprite[j].z;
+                        sprite[j].z += q;
+                    }
+
+                    hittype[j].floorz = sc->floorz;
+                    hittype[j].ceilingz = sc->ceilingz;
+
                     j = nextspritesect[j];
                 }
-            if (j == -1) { KILLIT(i); }
-                else s->shade=1;
-            }
 
-            if (s->shade) sc->ceilingz+=1024;
-            else sc->ceilingz-=512;
-
-            ms(i);
-            setsprite(i,s->x,s->y,s->z);
-
-            break;
-
-        case 17:
-
-            q = t[0]*(SP<<2);
-
-            sc->ceilingz += q;
-            sc->floorz += q;
-
-            j = headspritesect[s->sectnum];
-            while (j >= 0)
-            {
-                if (sprite[j].statnum == 10 && sprite[j].owner >= 0)
-                {
-                    p = sprite[j].yvel;
-                    if (numplayers < 2)
-                        ps[p].oposz = ps[p].posz;
-                    ps[p].posz += q;
-                    ps[p].truefz += q;
-                    ps[p].truecz += q;
-                    if (numplayers > 1)
-                        ps[p].oposz = ps[p].posz;
-                }
-                if (sprite[j].statnum != 3)
-                {
-                    hittype[j].bposz = sprite[j].z;
-                    sprite[j].z += q;
-                }
-
-                hittype[j].floorz = sc->floorz;
-                hittype[j].ceilingz = sc->ceilingz;
-
-                j = nextspritesect[j];
-            }
-
-            if (t[0])                if (t[0])   //If in motion
-                {
-                    if (klabs(sc->floorz-t[2]) <= SP)
+                if (t[0])                if (t[0])   //If in motion
                     {
-                        activatewarpelevators(i,0);
+                        if (klabs(sc->floorz-t[2]) <= SP)
+                        {
+                            activatewarpelevators(i,0);
+                            break;
+                        }
+
+                        if (t[0]==-1)
+                        {
+                            if (sc->floorz > t[3])
+                                break;
+                        }
+                        else if (sc->ceilingz < t[4]) break;
+
+                        if (t[1] == 0) break;
+                        t[1] = 0;
+
+                        j = headspritestat[3];
+                        while (j >= 0)
+                        {
+                            if (i != j && (sprite[j].lotag) == 17)
+                                if ((sc->hitag-t[0]) ==
+                                        (sector[sprite[j].sectnum].hitag)
+                                        && sh == (sprite[j].hitag))
+                                    break;
+                            j = nextspritestat[j];
+                        }
+
+                        if (j == -1) break;
+
+                        k = headspritesect[s->sectnum];
+                        while (k >= 0)
+                        {
+                            nextk = nextspritesect[k];
+
+                            if (sprite[k].statnum == 10 && sprite[k].owner >= 0)
+                            {
+                                p = sprite[k].yvel;
+
+                                ps[p].posx += sprite[j].x-s->x;
+                                ps[p].posy += sprite[j].y-s->y;
+                                ps[p].posz = sector[sprite[j].sectnum].floorz-(sc->floorz-ps[p].posz);
+
+                                hittype[k].floorz = sector[sprite[j].sectnum].floorz;
+                                hittype[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
+
+                                ps[p].bobposx = ps[p].oposx = ps[p].posx;
+                                ps[p].bobposy = ps[p].oposy = ps[p].posy;
+                                ps[p].oposz = ps[p].posz;
+
+                                ps[p].truefz = hittype[k].floorz;
+                                ps[p].truecz = hittype[k].ceilingz;
+                                ps[p].bobcounter = 0;
+
+                                changespritesect(k,sprite[j].sectnum);
+                                ps[p].cursectnum = sprite[j].sectnum;
+                            }
+                            else if (sprite[k].statnum != 3)
+                            {
+                                sprite[k].x +=
+                                    sprite[j].x-s->x;
+                                sprite[k].y +=
+                                    sprite[j].y-s->y;
+                                sprite[k].z = sector[sprite[j].sectnum].floorz-
+                                              (sc->floorz-sprite[k].z);
+
+                                hittype[k].bposx = sprite[k].x;
+                                hittype[k].bposy = sprite[k].y;
+                                hittype[k].bposz = sprite[k].z;
+
+                                changespritesect(k,sprite[j].sectnum);
+                                setsprite(k,sprite[k].x,sprite[k].y,sprite[k].z);
+
+                                hittype[k].floorz = sector[sprite[j].sectnum].floorz;
+                                hittype[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
+
+                            }
+                            k = nextk;
+                        }
+                    }
+                break;
+
+            case 18:
+                if (t[0])
+                {
+                    if (s->pal)
+                    {
+                        if (s->ang == 512)
+                        {
+                            sc->ceilingz -= sc->extra;
+                            if (sc->ceilingz <= t[1])
+                            {
+                                sc->ceilingz = t[1];
+                                KILLIT(i);
+                            }
+                        }
+                        else
+                        {
+                            sc->floorz += sc->extra;
+                            j = headspritesect[s->sectnum];
+                            while (j >= 0)
+                            {
+                                if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
+                                    if (ps[sprite[j].yvel].on_ground == 1)
+                                        ps[sprite[j].yvel].posz += sc->extra;
+                                if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                                {
+                                    hittype[j].bposz = sprite[j].z += sc->extra;
+                                    hittype[j].floorz = sc->floorz;
+                                }
+                                j = nextspritesect[j];
+                            }
+                            if (sc->floorz >= t[1])
+                            {
+                                sc->floorz = t[1];
+                                KILLIT(i);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (s->ang == 512)
+                        {
+                            sc->ceilingz += sc->extra;
+                            if (sc->ceilingz >= s->z)
+                            {
+                                sc->ceilingz = s->z;
+                                KILLIT(i);
+                            }
+                        }
+                        else
+                        {
+                            sc->floorz -= sc->extra;
+                            j = headspritesect[s->sectnum];
+                            while (j >= 0)
+                            {
+                                if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
+                                    if (ps[sprite[j].yvel].on_ground == 1)
+                                        ps[sprite[j].yvel].posz -= sc->extra;
+                                if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                                {
+                                    hittype[j].bposz = sprite[j].z -= sc->extra;
+                                    hittype[j].floorz = sc->floorz;
+                                }
+                                j = nextspritesect[j];
+                            }
+                            if (sc->floorz <= s->z)
+                            {
+                                sc->floorz = s->z;
+                                KILLIT(i);
+                            }
+                        }
+                    }
+
+                    t[2]++;
+                    if (t[2] >= s->hitag)
+                    {
+                        t[2] = 0;
+                        t[0] = 0;
+                    }
+                }
+                break;
+
+            case 19: //Battlestar galactia shields
+
+                if (t[0])
+                {
+                    if (t[0] == 1)
+                    {
+                        t[0]++;
+                        x = sc->wallptr;
+                        q = x+sc->wallnum;
+                        for (j=x;j<q;j++)
+                            if (wall[j].overpicnum == BIGFORCE)
+                            {
+                                wall[j].cstat &= (128+32+8+4+2);
+                                wall[j].overpicnum = 0;
+                                if (wall[j].nextwall >= 0)
+                                {
+                                    wall[wall[j].nextwall].overpicnum = 0;
+                                    wall[wall[j].nextwall].cstat &= (128+32+8+4+2);
+                                }
+                            }
+                    }
+
+                    if (sc->ceilingz < sc->floorz)
+                        sc->ceilingz += SP;
+                    else
+                    {
+                        sc->ceilingz = sc->floorz;
+
+                        j = headspritestat[3];
+                        while (j >= 0)
+                        {
+                            if (sprite[j].lotag == 0 && sprite[j].hitag==sh)
+                            {
+                                q = sprite[sprite[j].owner].sectnum;
+                                sector[sprite[j].sectnum].floorpal = sector[sprite[j].sectnum].ceilingpal =
+                                                                         sector[q].floorpal;
+                                sector[sprite[j].sectnum].floorshade = sector[sprite[j].sectnum].ceilingshade =
+                                                                           sector[q].floorshade;
+
+                                hittype[sprite[j].owner].temp_data[0] = 2;
+                            }
+                            j = nextspritestat[j];
+                        }
+                        KILLIT(i);
+                    }
+                }
+                else //Not hit yet
+                {
+                    IFHITSECT
+                    {
+                        FTA(8,&ps[myconnectindex]);
+
+                        l = headspritestat[3];
+                        while (l >= 0)
+                    {
+                        x = sprite[l].lotag&0x7fff;
+                            switch (x)
+                            {
+                                case 0:
+                                    if (sprite[l].hitag == sh)
+                                    {
+                                        q = sprite[l].sectnum;
+                                        sector[q].floorshade =
+                                            sector[q].ceilingshade =
+                                                sprite[sprite[l].owner].shade;
+                                        sector[q].floorpal =
+                                            sector[q].ceilingpal =
+                                                sprite[sprite[l].owner].pal;
+                                    }
+                                    break;
+
+                                case 1:
+                                case 12:
+                                    //                                case 18:
+                                case 19:
+
+                                    if (sh == sprite[l].hitag)
+                                        if (hittype[l].temp_data[0] == 0)
+                                        {
+                                            hittype[l].temp_data[0] = 1; //Shut them all on
+                                            sprite[l].owner = i;
+                                        }
+
+                                    break;
+                            }
+                            l = nextspritestat[l];
+                        }
+                    }
+                }
+
+                break;
+
+            case 20: //Extend-o-bridge
+
+                if (t[0] == 0) break;
+                if (t[0] == 1) s->xvel = 8;
+                else s->xvel = -8;
+
+                if (s->xvel)   //Moving
+                {
+                    x = (s->xvel*sintable[(s->ang+512)&2047])>>14;
+                    l = (s->xvel*sintable[s->ang&2047])>>14;
+
+                    t[3] += s->xvel;
+
+                    s->x += x;
+                    s->y += l;
+
+                    if (t[3] <= 0 || (t[3]>>6) >= (SP>>6))
+                    {
+                        s->x -= x;
+                        s->y -= l;
+                        t[0] = 0;
+                        callsound(s->sectnum,i);
                         break;
                     }
 
-                    if (t[0]==-1)
-                    {
-                        if (sc->floorz > t[3])
-                            break;
-                    }
-                    else if (sc->ceilingz < t[4]) break;
-
-                    if (t[1] == 0) break;
-                    t[1] = 0;
-
-                    j = headspritestat[3];
+                    j = headspritesect[s->sectnum];
                     while (j >= 0)
                     {
-                        if (i != j && (sprite[j].lotag) == 17)
-                            if ((sc->hitag-t[0]) ==
-                                    (sector[sprite[j].sectnum].hitag)
-                                    && sh == (sprite[j].hitag))
-                                break;
-                        j = nextspritestat[j];
+                        nextj = nextspritesect[j];
+
+                        if (sprite[j].statnum != 3 && sprite[j].zvel == 0)
+                        {
+                            sprite[j].x += x;
+                            sprite[j].y += l;
+                            setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+                            if (sector[sprite[j].sectnum].floorstat&2)
+                                if (sprite[j].statnum == 2)
+                                    makeitfall(j);
+                        }
+                        j = nextj;
                     }
 
-                    if (j == -1) break;
+                    dragpoint((short)t[1],wall[t[1]].x+x,wall[t[1]].y+l);
+                    dragpoint((short)t[2],wall[t[2]].x+x,wall[t[2]].y+l);
 
-                    k = headspritesect[s->sectnum];
-                    while (k >= 0)
-                    {
-                        nextk = nextspritesect[k];
-
-                        if (sprite[k].statnum == 10 && sprite[k].owner >= 0)
+                    for (p=connecthead;p>=0;p=connectpoint2[p])
+                        if (ps[p].cursectnum == s->sectnum && ps[p].on_ground)
                         {
-                            p = sprite[k].yvel;
+                            ps[p].posx += x;
+                            ps[p].posy += l;
 
-                            ps[p].posx += sprite[j].x-s->x;
-                            ps[p].posy += sprite[j].y-s->y;
-                            ps[p].posz = sector[sprite[j].sectnum].floorz-(sc->floorz-ps[p].posz);
+                            ps[p].oposx = ps[p].posx;
+                            ps[p].oposy = ps[p].posy;
 
-                            hittype[k].floorz = sector[sprite[j].sectnum].floorz;
-                            hittype[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
-
-                            ps[p].bobposx = ps[p].oposx = ps[p].posx;
-                            ps[p].bobposy = ps[p].oposy = ps[p].posy;
-                            ps[p].oposz = ps[p].posz;
-
-                            ps[p].truefz = hittype[k].floorz;
-                            ps[p].truecz = hittype[k].ceilingz;
-                            ps[p].bobcounter = 0;
-
-                            changespritesect(k,sprite[j].sectnum);
-                            ps[p].cursectnum = sprite[j].sectnum;
+                            setsprite(ps[p].i,ps[p].posx,ps[p].posy,ps[p].posz+PHEIGHT);
                         }
-                        else if (sprite[k].statnum != 3)
-                        {
-                            sprite[k].x +=
-                                sprite[j].x-s->x;
-                            sprite[k].y +=
-                                sprite[j].y-s->y;
-                            sprite[k].z = sector[sprite[j].sectnum].floorz-
-                                          (sc->floorz-sprite[k].z);
 
-                            hittype[k].bposx = sprite[k].x;
-                            hittype[k].bposy = sprite[k].y;
-                            hittype[k].bposz = sprite[k].z;
+                    sc->floorxpanning-=x>>3;
+                    sc->floorypanning-=l>>3;
 
-                            changespritesect(k,sprite[j].sectnum);
-                            setsprite(k,sprite[k].x,sprite[k].y,sprite[k].z);
-
-                            hittype[k].floorz = sector[sprite[j].sectnum].floorz;
-                            hittype[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
-
-                        }
-                        k = nextk;
-                    }
+                    sc->ceilingxpanning-=x>>3;
+                    sc->ceilingypanning-=l>>3;
                 }
-            break;
 
-        case 18:
-            if (t[0])
-            {
-                if (s->pal)
-                {
-                    if (s->ang == 512)
-                    {
-                        sc->ceilingz -= sc->extra;
-                        if (sc->ceilingz <= t[1])
-                        {
-                            sc->ceilingz = t[1];
-                            KILLIT(i);
-                        }
-                    }
-                    else
-                    {
-                        sc->floorz += sc->extra;
-                        j = headspritesect[s->sectnum];
-                        while (j >= 0)
-                        {
-                            if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-                                if (ps[sprite[j].yvel].on_ground == 1)
-                                    ps[sprite[j].yvel].posz += sc->extra;
-                            if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
-                            {
-                                hittype[j].bposz = sprite[j].z += sc->extra;
-                                hittype[j].floorz = sc->floorz;
-                            }
-                            j = nextspritesect[j];
-                        }
-                        if (sc->floorz >= t[1])
-                        {
-                            sc->floorz = t[1];
-                            KILLIT(i);
-                        }
-                    }
-                }
+                break;
+
+            case 21: // Cascading effect
+
+                if (t[0] == 0) break;
+
+                if (s->ang == 1536)
+                    l = (long) &sc->ceilingz;
                 else
-                {
-                    if (s->ang == 512)
-                    {
-                        sc->ceilingz += sc->extra;
-                        if (sc->ceilingz >= s->z)
-                        {
-                            sc->ceilingz = s->z;
-                            KILLIT(i);
-                        }
-                    }
-                    else
-                    {
-                        sc->floorz -= sc->extra;
-                        j = headspritesect[s->sectnum];
-                        while (j >= 0)
-                        {
-                            if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-                                if (ps[sprite[j].yvel].on_ground == 1)
-                                    ps[sprite[j].yvel].posz -= sc->extra;
-                            if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
-                            {
-                                hittype[j].bposz = sprite[j].z -= sc->extra;
-                                hittype[j].floorz = sc->floorz;
-                            }
-                            j = nextspritesect[j];
-                        }
-                        if (sc->floorz <= s->z)
-                        {
-                            sc->floorz = s->z;
-                            KILLIT(i);
-                        }
-                    }
-                }
+                    l = (long) &sc->floorz;
 
-                t[2]++;
-                if (t[2] >= s->hitag)
+                if (t[0] == 1)   //Decide if the s->sectnum should go up or down
                 {
-                    t[2] = 0;
-                    t[0] = 0;
-                }
-            }
-            break;
-
-        case 19: //Battlestar galactia shields
-
-            if (t[0])
-            {
-                if (t[0] == 1)
-                {
+                    s->zvel = ksgn(s->z-*(long *)l) * (SP<<4);
                     t[0]++;
-                    x = sc->wallptr;
-                    q = x+sc->wallnum;
-                    for (j=x;j<q;j++)
-                        if (wall[j].overpicnum == BIGFORCE)
-                        {
-                            wall[j].cstat &= (128+32+8+4+2);
-                            wall[j].overpicnum = 0;
-                            if (wall[j].nextwall >= 0)
-                            {
-                                wall[wall[j].nextwall].overpicnum = 0;
-                                wall[wall[j].nextwall].cstat &= (128+32+8+4+2);
-                            }
-                        }
                 }
 
-                if (sc->ceilingz < sc->floorz)
-                    sc->ceilingz += SP;
-                else
+                if (sc->extra == 0)
                 {
-                    sc->ceilingz = sc->floorz;
+                    *(long *)l += s->zvel;
 
-                    j = headspritestat[3];
-                    while (j >= 0)
+                    if (klabs(*(long *)l-s->z) < 1024)
                     {
-                        if (sprite[j].lotag == 0 && sprite[j].hitag==sh)
-                        {
-                            q = sprite[sprite[j].owner].sectnum;
-                            sector[sprite[j].sectnum].floorpal = sector[sprite[j].sectnum].ceilingpal =
-                                                                     sector[q].floorpal;
-                            sector[sprite[j].sectnum].floorshade = sector[sprite[j].sectnum].ceilingshade =
-                                                                       sector[q].floorshade;
-
-                            hittype[sprite[j].owner].temp_data[0] = 2;
-                        }
-                        j = nextspritestat[j];
-                    }
-                    KILLIT(i);
-                }
-            }
-            else //Not hit yet
-            {
-                IFHITSECT
-                {
-                    FTA(8,&ps[myconnectindex]);
-
-                    l = headspritestat[3];
-                    while (l >= 0)
-                {
-                    x = sprite[l].lotag&0x7fff;
-                        switch (x)
-                        {
-                        case 0:
-                            if (sprite[l].hitag == sh)
-                            {
-                                q = sprite[l].sectnum;
-                                sector[q].floorshade =
-                                    sector[q].ceilingshade =
-                                        sprite[sprite[l].owner].shade;
-                                sector[q].floorpal =
-                                    sector[q].ceilingpal =
-                                        sprite[sprite[l].owner].pal;
-                            }
-                            break;
-
-                        case 1:
-                        case 12:
-                            //                                case 18:
-                        case 19:
-
-                            if (sh == sprite[l].hitag)
-                                if (hittype[l].temp_data[0] == 0)
-                                {
-                                    hittype[l].temp_data[0] = 1; //Shut them all on
-                                    sprite[l].owner = i;
-                                }
-
-                            break;
-                        }
-                        l = nextspritestat[l];
+                        *(long *)l = s->z;
+                        KILLIT(i); //All done
                     }
                 }
-            }
+                else sc->extra--;
+                break;
 
-            break;
+            case 22:
 
-        case 20: //Extend-o-bridge
-
-            if (t[0] == 0) break;
-            if (t[0] == 1) s->xvel = 8;
-            else s->xvel = -8;
-
-            if (s->xvel)   //Moving
-            {
-                x = (s->xvel*sintable[(s->ang+512)&2047])>>14;
-                l = (s->xvel*sintable[s->ang&2047])>>14;
-
-                t[3] += s->xvel;
-
-                s->x += x;
-                s->y += l;
-
-                if (t[3] <= 0 || (t[3]>>6) >= (SP>>6))
+                if (t[1])
                 {
-                    s->x -= x;
-                    s->y -= l;
-                    t[0] = 0;
-                    callsound(s->sectnum,i);
-                    break;
+                    if (getanimationgoal(&sector[t[0]].ceilingz) >= 0)
+                        sc->ceilingz += sc->extra*9;
+                    else t[1] = 0;
                 }
+                break;
+
+            case 24:
+            case 34:
+
+                if (t[4]) break;
+
+                x = (SP*sintable[(s->ang+512)&2047])>>18;
+                l = (SP*sintable[s->ang&2047])>>18;
+
+                k = 0;
 
                 j = headspritesect[s->sectnum];
                 while (j >= 0)
                 {
                     nextj = nextspritesect[j];
+                    if (sprite[j].zvel >= 0)
+                        switch (sprite[j].statnum)
+                        {
+                            case 5:
+                                switch (dynamictostatic[sprite[j].picnum])
+                                {
+                                    case BLOODPOOL__STATIC:
+                                    case PUKE__STATIC:
+                                    case FOOTPRINTS__STATIC:
+                                    case FOOTPRINTS2__STATIC:
+                                    case FOOTPRINTS3__STATIC:
+                                    case FOOTPRINTS4__STATIC:
+                                    case BULLETHOLE__STATIC:
+                                    case BLOODSPLAT1__STATIC:
+                                    case BLOODSPLAT2__STATIC:
+                                    case BLOODSPLAT3__STATIC:
+                                    case BLOODSPLAT4__STATIC:
+                                        sprite[j].xrepeat = sprite[j].yrepeat = 0;
+                                        j = nextj;
+                                        continue;
+                                    case LASERLINE__STATIC:
+                                        j = nextj;
+                                        continue;
+                                }
+                            case 6:
+                                if (sprite[j].picnum == TRIPBOMB) break;
+                            case 1:
+                            case 0:
+                                if (
+                                    sprite[j].picnum == BOLT1 ||
+                                    sprite[j].picnum == BOLT1+1 ||
+                                    sprite[j].picnum == BOLT1+2 ||
+                                    sprite[j].picnum == BOLT1+3 ||
+                                    sprite[j].picnum == SIDEBOLT1 ||
+                                    sprite[j].picnum == SIDEBOLT1+1 ||
+                                    sprite[j].picnum == SIDEBOLT1+2 ||
+                                    sprite[j].picnum == SIDEBOLT1+3 ||
+                                    wallswitchcheck(j)
+                                )
+                                    break;
 
-                    if (sprite[j].statnum != 3 && sprite[j].zvel == 0)
+                                if (!(sprite[j].picnum >= CRANE && sprite[j].picnum <= (CRANE+3)))
+                                {
+                                    if (sprite[j].z > (hittype[j].floorz-(16<<8)))
+                                    {
+                                        hittype[j].bposx = sprite[j].x;
+                                        hittype[j].bposy = sprite[j].y;
+
+                                        sprite[j].x += x>>2;
+                                        sprite[j].y += l>>2;
+
+                                        setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
+
+                                        if (sector[sprite[j].sectnum].floorstat&2)
+                                            if (sprite[j].statnum == 2)
+                                                makeitfall(j);
+                                    }
+                                }
+                                break;
+                        }
+                    j = nextj;
+                }
+
+                p = myconnectindex;
+                if (ps[p].cursectnum == s->sectnum && ps[p].on_ground)
+                    if (klabs(ps[p].posz-ps[p].truefz) < PHEIGHT+(9<<8))
                     {
-                        sprite[j].x += x;
-                        sprite[j].y += l;
+                        fricxv += x<<3;
+                        fricyv += l<<3;
+                    }
+
+                sc->floorxpanning += SP>>7;
+
+                break;
+
+            case 35:
+                if (sc->ceilingz > s->z)
+                    for (j = 0;j < 8;j++)
+                    {
+                        s->ang += TRAND&511;
+                        k = spawn(i,SMALLSMOKE);
+                        sprite[k].xvel = 96+(TRAND&127);
+                        ssp(k,CLIPMASK0);
+                        setsprite(k,sprite[k].x,sprite[k].y,sprite[k].z);
+                        if (rnd(16))
+                            spawn(i,EXPLOSION2);
+                    }
+
+                switch (t[0])
+                {
+                    case 0:
+                        sc->ceilingz += s->yvel;
+                        if (sc->ceilingz > sc->floorz)
+                            sc->floorz = sc->ceilingz;
+                        if (sc->ceilingz > s->z+(32<<8))
+                            t[0]++;
+                        break;
+                    case 1:
+                        sc->ceilingz-=(s->yvel<<2);
+                        if (sc->ceilingz < t[4])
+                        {
+                            sc->ceilingz = t[4];
+                            t[0] = 0;
+                        }
+                        break;
+                }
+                break;
+
+            case 25: //PISTONS
+
+                if (t[4] == 0) break;
+
+                if (sc->floorz <= sc->ceilingz)
+                    s->shade = 0;
+                else if (sc->ceilingz <= t[3])
+                    s->shade = 1;
+
+                if (s->shade)
+                {
+                    sc->ceilingz += SP<<4;
+                    if (sc->ceilingz > sc->floorz)
+                        sc->ceilingz = sc->floorz;
+                }
+                else
+                {
+                    sc->ceilingz   -= SP<<4;
+                    if (sc->ceilingz < t[3])
+                        sc->ceilingz = t[3];
+                }
+
+                break;
+
+            case 26:
+
+                s->xvel = 32;
+                l = (s->xvel*sintable[(s->ang+512)&2047])>>14;
+                x = (s->xvel*sintable[s->ang&2047])>>14;
+
+                s->shade++;
+                if (s->shade > 7)
+                {
+                    s->x = t[3];
+                    s->y = t[4];
+                    sc->floorz -= ((s->zvel*s->shade)-s->zvel);
+                    s->shade = 0;
+                }
+                else
+                    sc->floorz += s->zvel;
+
+                j = headspritesect[s->sectnum];
+                while (j >= 0)
+                {
+                    nextj = nextspritesect[j];
+                    if (sprite[j].statnum != 3 && sprite[j].statnum != 10)
+                    {
+                        hittype[j].bposx = sprite[j].x;
+                        hittype[j].bposy = sprite[j].y;
+
+                        sprite[j].x += l;
+                        sprite[j].y += x;
+
+                        sprite[j].z += s->zvel;
                         setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
-                        if (sector[sprite[j].sectnum].floorstat&2)
-                            if (sprite[j].statnum == 2)
-                                makeitfall(j);
                     }
                     j = nextj;
                 }
 
-                dragpoint((short)t[1],wall[t[1]].x+x,wall[t[1]].y+l);
-                dragpoint((short)t[2],wall[t[2]].x+x,wall[t[2]].y+l);
+                p = myconnectindex;
+                if (sprite[ps[p].i].sectnum == s->sectnum && ps[p].on_ground)
+                {
+                    fricxv += l<<5;
+                    fricyv += x<<5;
+                }
 
-                for (p=connecthead;p>=0;p=connectpoint2[p])
-                    if (ps[p].cursectnum == s->sectnum && ps[p].on_ground)
+                for (p = connecthead;p >= 0;p = connectpoint2[p])
+                    if (sprite[ps[p].i].sectnum == s->sectnum && ps[p].on_ground)
+                        ps[p].posz += s->zvel;
+
+                ms(i);
+                setsprite(i,s->x,s->y,s->z);
+
+                break;
+
+
+            case 27:
+
+                if (ud.recstat == 0 || !ud.democams) break;
+
+                hittype[i].tempang = s->ang;
+
+                p = findplayer(s,&x);
+                if (sprite[ps[p].i].extra > 0 && myconnectindex == screenpeek)
+                {
+                    if (t[0] < 0)
                     {
-                        ps[p].posx += x;
-                        ps[p].posy += l;
+                        ud.camerasprite = i;
+                        t[0]++;
+                    }
+                    else if (ud.recstat == 2 && ps[p].newowner == -1)
+                    {
+                        if (cansee(s->x,s->y,s->z,SECT,ps[p].posx,ps[p].posy,ps[p].posz,ps[p].cursectnum))
+                        {
+                            if (x < (long)((unsigned)sh))
+                            {
+                                ud.camerasprite = i;
+                                t[0] = 999;
+                                s->ang += getincangle(s->ang,getangle(ps[p].posx-s->x,ps[p].posy-s->y))>>3;
+                                SP = 100+((s->z-ps[p].posz)/257);
 
-                        ps[p].oposx = ps[p].posx;
-                        ps[p].oposy = ps[p].posy;
+                            }
+                            else if (t[0] == 999)
+                            {
+                                if (ud.camerasprite == i)
+                                    t[0] = 0;
+                                else t[0] = -10;
+                                ud.camerasprite = i;
 
-                        setsprite(ps[p].i,ps[p].posx,ps[p].posy,ps[p].posz+PHEIGHT);
+                            }
+                        }
+                        else
+                        {
+                            s->ang = getangle(ps[p].posx-s->x,ps[p].posy-s->y);
+
+                            if (t[0] == 999)
+                            {
+                                if (ud.camerasprite == i)
+                                    t[0] = 0;
+                                else t[0] = -20;
+                                ud.camerasprite = i;
+                            }
+                        }
+                    }
+                }
+                break;
+            case 28:
+                if (t[5] > 0)
+                {
+                    t[5]--;
+                    break;
+                }
+
+                if (T1 == 0)
+                {
+                    p = findplayer(s,&x);
+                    if (x > 15500)
+                        break;
+                    T1 = 1;
+                    T2 = 64 + (TRAND&511);
+                    T3 = 0;
+                }
+                else
+                {
+                    T3++;
+                    if (T3 > T2)
+                    {
+                        T1 = 0;
+                        ps[screenpeek].visibility = ud.const_visibility;
+                        break;
+                    }
+                    else if (T3 == (T2>>1))
+                        spritesound(THUNDER,i);
+                    else if (T3 == (T2>>3))
+                        spritesound(LIGHTNING_SLAP,i);
+                    else if (T3 == (T2>>2))
+                    {
+                        j = headspritestat[0];
+                        while (j >= 0)
+                        {
+                            if (sprite[j].picnum == NATURALLIGHTNING && sprite[j].hitag == s->hitag)
+                                sprite[j].cstat |= 32768;
+                            j = nextspritestat[j];
+                        }
+                    }
+                    else if (T3 > (T2>>3) && T3 < (T2>>2))
+                    {
+                        if (cansee(s->x,s->y,s->z,s->sectnum,ps[screenpeek].posx,ps[screenpeek].posy,ps[screenpeek].posz,ps[screenpeek].cursectnum))
+                            j = 1;
+                        else j = 0;
+
+                        if (rnd(192) && (T3&1))
+                        {
+                            if (j)
+                                ps[screenpeek].visibility = 0;
+                        }
+                        else if (j)
+                            ps[screenpeek].visibility = ud.const_visibility;
+
+                        j = headspritestat[0];
+                        while (j >= 0)
+                        {
+                            if (sprite[j].picnum == NATURALLIGHTNING && sprite[j].hitag == s->hitag)
+                            {
+                                if (rnd(32) && (T3&1))
+                                {
+                                    sprite[j].cstat &= 32767;
+                                    spawn(j,SMALLSMOKE);
+
+                                    p = findplayer(s,&x);
+                                    x = ldist(&sprite[ps[p].i], &sprite[j]);
+                                    if (x < 768)
+                                    {
+                                        if (!isspritemakingsound(ps[p].i,DUKE_LONGTERM_PAIN))
+                                            spritesound(DUKE_LONGTERM_PAIN,ps[p].i);
+                                        spritesound(SHORT_CIRCUIT,ps[p].i);
+                                        sprite[ps[p].i].extra -= 8+(TRAND&7);
+                                        ps[p].pals_time = 32;
+                                        ps[p].pals[0] = 16;
+                                        ps[p].pals[1] = 0;
+                                        ps[p].pals[2] = 0;
+                                    }
+                                    break;
+                                }
+                                else sprite[j].cstat |= 32768;
+                            }
+
+                            j = nextspritestat[j];
+                        }
+                    }
+                }
+                break;
+            case 29:
+                s->hitag += 64;
+                l = mulscale12((long)s->yvel,sintable[s->hitag&2047]);
+                sc->floorz = s->z + l;
+                break;
+            case 31: // True Drop Floor
+                if (t[0] == 1)
+                {
+                    // Choose dir
+
+                    if (t[3] > 0)
+                    {
+                        t[3]--;
+                        break;
                     }
 
-                sc->floorxpanning-=x>>3;
-                sc->floorypanning-=l>>3;
-
-                sc->ceilingxpanning-=x>>3;
-                sc->ceilingypanning-=l>>3;
-            }
-
-            break;
-
-        case 21: // Cascading effect
-
-            if (t[0] == 0) break;
-
-            if (s->ang == 1536)
-                l = (long) &sc->ceilingz;
-            else
-                l = (long) &sc->floorz;
-
-            if (t[0] == 1)   //Decide if the s->sectnum should go up or down
-            {
-                s->zvel = ksgn(s->z-*(long *)l) * (SP<<4);
-                t[0]++;
-            }
-
-            if (sc->extra == 0)
-            {
-                *(long *)l += s->zvel;
-
-                if (klabs(*(long *)l-s->z) < 1024)
-                {
-                    *(long *)l = s->z;
-                    KILLIT(i); //All done
-                }
-            }
-            else sc->extra--;
-            break;
-
-        case 22:
-
-            if (t[1])
-            {
-                if (getanimationgoal(&sector[t[0]].ceilingz) >= 0)
-                    sc->ceilingz += sc->extra*9;
-                else t[1] = 0;
-            }
-            break;
-
-        case 24:
-        case 34:
-
-            if (t[4]) break;
-
-            x = (SP*sintable[(s->ang+512)&2047])>>18;
-            l = (SP*sintable[s->ang&2047])>>18;
-
-            k = 0;
-
-            j = headspritesect[s->sectnum];
-            while (j >= 0)
-            {
-                nextj = nextspritesect[j];
-                if (sprite[j].zvel >= 0)
-                    switch (sprite[j].statnum)
+                    if (t[2] == 1) // Retract
                     {
-                    case 5:
-                        switch (dynamictostatic[sprite[j].picnum])
+                        if (SA != 1536)
                         {
-                        case BLOODPOOL__STATIC:
-                        case PUKE__STATIC:
-                        case FOOTPRINTS__STATIC:
-                        case FOOTPRINTS2__STATIC:
-                        case FOOTPRINTS3__STATIC:
-                        case FOOTPRINTS4__STATIC:
-                        case BULLETHOLE__STATIC:
-                        case BLOODSPLAT1__STATIC:
-                        case BLOODSPLAT2__STATIC:
-                        case BLOODSPLAT3__STATIC:
-                        case BLOODSPLAT4__STATIC:
-                            sprite[j].xrepeat = sprite[j].yrepeat = 0;
-                            j = nextj;
-                            continue;
-                        case LASERLINE__STATIC:
-                            j = nextj;
-                            continue;
-                        }
-                    case 6:
-                        if (sprite[j].picnum == TRIPBOMB) break;
-                    case 1:
-                    case 0:
-                        if (
-                            sprite[j].picnum == BOLT1 ||
-                            sprite[j].picnum == BOLT1+1 ||
-                            sprite[j].picnum == BOLT1+2 ||
-                            sprite[j].picnum == BOLT1+3 ||
-                            sprite[j].picnum == SIDEBOLT1 ||
-                            sprite[j].picnum == SIDEBOLT1+1 ||
-                            sprite[j].picnum == SIDEBOLT1+2 ||
-                            sprite[j].picnum == SIDEBOLT1+3 ||
-                            wallswitchcheck(j)
-                        )
-                            break;
-
-                        if (!(sprite[j].picnum >= CRANE && sprite[j].picnum <= (CRANE+3)))
-                        {
-                            if (sprite[j].z > (hittype[j].floorz-(16<<8)))
+                            if (klabs(sc->floorz - s->z) < SP)
                             {
-                                hittype[j].bposx = sprite[j].x;
-                                hittype[j].bposy = sprite[j].y;
+                                sc->floorz = s->z;
+                                t[2] = 0;
+                                t[0] = 0;
+                                t[3] = s->hitag;
+                                callsound(s->sectnum,i);
+                            }
+                            else
+                            {
+                                l = ksgn(s->z-sc->floorz)*SP;
+                                sc->floorz += l;
 
-                                sprite[j].x += x>>2;
-                                sprite[j].y += l>>2;
+                                j = headspritesect[s->sectnum];
+                                while (j >= 0)
+                                {
+                                    if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
+                                        if (ps[sprite[j].yvel].on_ground == 1)
+                                            ps[sprite[j].yvel].posz += l;
+                                    if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                                    {
+                                        hittype[j].bposz = sprite[j].z += l;
+                                        hittype[j].floorz = sc->floorz;
+                                    }
+                                    j = nextspritesect[j];
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (klabs(sc->floorz - t[1]) < SP)
+                            {
+                                sc->floorz = t[1];
+                                callsound(s->sectnum,i);
+                                t[2] = 0;
+                                t[0] = 0;
+                                t[3] = s->hitag;
+                            }
+                            else
+                            {
+                                l = ksgn(t[1]-sc->floorz)*SP;
+                                sc->floorz += l;
 
-                                setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
-
-                                if (sector[sprite[j].sectnum].floorstat&2)
-                                    if (sprite[j].statnum == 2)
-                                        makeitfall(j);
+                                j = headspritesect[s->sectnum];
+                                while (j >= 0)
+                                {
+                                    if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
+                                        if (ps[sprite[j].yvel].on_ground == 1)
+                                            ps[sprite[j].yvel].posz += l;
+                                    if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                                    {
+                                        hittype[j].bposz = sprite[j].z += l;
+                                        hittype[j].floorz = sc->floorz;
+                                    }
+                                    j = nextspritesect[j];
+                                }
                             }
                         }
                         break;
                     }
-                j = nextj;
-            }
 
-            p = myconnectindex;
-            if (ps[p].cursectnum == s->sectnum && ps[p].on_ground)
-                if (klabs(ps[p].posz-ps[p].truefz) < PHEIGHT+(9<<8))
-                {
-                    fricxv += x<<3;
-                    fricyv += l<<3;
-                }
-
-            sc->floorxpanning += SP>>7;
-
-            break;
-
-        case 35:
-            if (sc->ceilingz > s->z)
-                for (j = 0;j < 8;j++)
-                {
-                    s->ang += TRAND&511;
-                    k = spawn(i,SMALLSMOKE);
-                    sprite[k].xvel = 96+(TRAND&127);
-                    ssp(k,CLIPMASK0);
-                    setsprite(k,sprite[k].x,sprite[k].y,sprite[k].z);
-                    if (rnd(16))
-                        spawn(i,EXPLOSION2);
-                }
-
-            switch (t[0])
-            {
-            case 0:
-                sc->ceilingz += s->yvel;
-                if (sc->ceilingz > sc->floorz)
-                    sc->floorz = sc->ceilingz;
-                if (sc->ceilingz > s->z+(32<<8))
-                    t[0]++;
-                break;
-            case 1:
-                sc->ceilingz-=(s->yvel<<2);
-                if (sc->ceilingz < t[4])
-                {
-                    sc->ceilingz = t[4];
-                    t[0] = 0;
-                }
-                break;
-            }
-            break;
-
-        case 25: //PISTONS
-
-            if (t[4] == 0) break;
-
-            if (sc->floorz <= sc->ceilingz)
-                s->shade = 0;
-            else if (sc->ceilingz <= t[3])
-                s->shade = 1;
-
-            if (s->shade)
-            {
-                sc->ceilingz += SP<<4;
-                if (sc->ceilingz > sc->floorz)
-                    sc->ceilingz = sc->floorz;
-            }
-            else
-            {
-                sc->ceilingz   -= SP<<4;
-                if (sc->ceilingz < t[3])
-                    sc->ceilingz = t[3];
-            }
-
-            break;
-
-        case 26:
-
-            s->xvel = 32;
-            l = (s->xvel*sintable[(s->ang+512)&2047])>>14;
-            x = (s->xvel*sintable[s->ang&2047])>>14;
-
-            s->shade++;
-            if (s->shade > 7)
-            {
-                s->x = t[3];
-                s->y = t[4];
-                sc->floorz -= ((s->zvel*s->shade)-s->zvel);
-                s->shade = 0;
-            }
-            else
-                sc->floorz += s->zvel;
-
-            j = headspritesect[s->sectnum];
-            while (j >= 0)
-            {
-                nextj = nextspritesect[j];
-                if (sprite[j].statnum != 3 && sprite[j].statnum != 10)
-                {
-                    hittype[j].bposx = sprite[j].x;
-                    hittype[j].bposy = sprite[j].y;
-
-                    sprite[j].x += l;
-                    sprite[j].y += x;
-
-                    sprite[j].z += s->zvel;
-                    setsprite(j,sprite[j].x,sprite[j].y,sprite[j].z);
-                }
-                j = nextj;
-            }
-
-            p = myconnectindex;
-            if (sprite[ps[p].i].sectnum == s->sectnum && ps[p].on_ground)
-            {
-                fricxv += l<<5;
-                fricyv += x<<5;
-            }
-
-            for (p = connecthead;p >= 0;p = connectpoint2[p])
-                if (sprite[ps[p].i].sectnum == s->sectnum && ps[p].on_ground)
-                    ps[p].posz += s->zvel;
-
-            ms(i);
-            setsprite(i,s->x,s->y,s->z);
-
-            break;
-
-
-        case 27:
-
-            if (ud.recstat == 0 || !ud.democams) break;
-
-            hittype[i].tempang = s->ang;
-
-            p = findplayer(s,&x);
-            if (sprite[ps[p].i].extra > 0 && myconnectindex == screenpeek)
-            {
-                if (t[0] < 0)
-                {
-                    ud.camerasprite = i;
-                    t[0]++;
-                }
-                else if (ud.recstat == 2 && ps[p].newowner == -1)
-                {
-                    if (cansee(s->x,s->y,s->z,SECT,ps[p].posx,ps[p].posy,ps[p].posz,ps[p].cursectnum))
+                    if ((s->ang&2047) == 1536)
                     {
-                        if (x < (long)((unsigned)sh))
+                        if (klabs(s->z-sc->floorz) < SP)
                         {
-                            ud.camerasprite = i;
-                            t[0] = 999;
-                            s->ang += getincangle(s->ang,getangle(ps[p].posx-s->x,ps[p].posy-s->y))>>3;
-                            SP = 100+((s->z-ps[p].posz)/257);
-
-                        }
-                        else if (t[0] == 999)
-                        {
-                            if (ud.camerasprite == i)
-                                t[0] = 0;
-                            else t[0] = -10;
-                            ud.camerasprite = i;
-
-                        }
-                    }
-                    else
-                    {
-                        s->ang = getangle(ps[p].posx-s->x,ps[p].posy-s->y);
-
-                        if (t[0] == 999)
-                        {
-                            if (ud.camerasprite == i)
-                                t[0] = 0;
-                            else t[0] = -20;
-                            ud.camerasprite = i;
-                        }
-                    }
-                }
-            }
-            break;
-        case 28:
-            if (t[5] > 0)
-            {
-                t[5]--;
-                break;
-            }
-
-            if (T1 == 0)
-            {
-                p = findplayer(s,&x);
-                if (x > 15500)
-                    break;
-                T1 = 1;
-                T2 = 64 + (TRAND&511);
-                T3 = 0;
-            }
-            else
-            {
-                T3++;
-                if (T3 > T2)
-                {
-                    T1 = 0;
-                    ps[screenpeek].visibility = ud.const_visibility;
-                    break;
-                }
-                else if (T3 == (T2>>1))
-                    spritesound(THUNDER,i);
-                else if (T3 == (T2>>3))
-                    spritesound(LIGHTNING_SLAP,i);
-                else if (T3 == (T2>>2))
-                {
-                    j = headspritestat[0];
-                    while (j >= 0)
-                    {
-                        if (sprite[j].picnum == NATURALLIGHTNING && sprite[j].hitag == s->hitag)
-                            sprite[j].cstat |= 32768;
-                        j = nextspritestat[j];
-                    }
-                }
-                else if (T3 > (T2>>3) && T3 < (T2>>2))
-                {
-                    if (cansee(s->x,s->y,s->z,s->sectnum,ps[screenpeek].posx,ps[screenpeek].posy,ps[screenpeek].posz,ps[screenpeek].cursectnum))
-                        j = 1;
-                    else j = 0;
-
-                    if (rnd(192) && (T3&1))
-                    {
-                        if (j)
-                            ps[screenpeek].visibility = 0;
-                    }
-                    else if (j)
-                        ps[screenpeek].visibility = ud.const_visibility;
-
-                    j = headspritestat[0];
-                    while (j >= 0)
-                    {
-                        if (sprite[j].picnum == NATURALLIGHTNING && sprite[j].hitag == s->hitag)
-                        {
-                            if (rnd(32) && (T3&1))
-                            {
-                                sprite[j].cstat &= 32767;
-                                spawn(j,SMALLSMOKE);
-
-                                p = findplayer(s,&x);
-                                x = ldist(&sprite[ps[p].i], &sprite[j]);
-                                if (x < 768)
-                                {
-                                    if (!isspritemakingsound(ps[p].i,DUKE_LONGTERM_PAIN))
-                                        spritesound(DUKE_LONGTERM_PAIN,ps[p].i);
-                                    spritesound(SHORT_CIRCUIT,ps[p].i);
-                                    sprite[ps[p].i].extra -= 8+(TRAND&7);
-                                    ps[p].pals_time = 32;
-                                    ps[p].pals[0] = 16;
-                                    ps[p].pals[1] = 0;
-                                    ps[p].pals[2] = 0;
-                                }
-                                break;
-                            }
-                            else sprite[j].cstat |= 32768;
-                        }
-
-                        j = nextspritestat[j];
-                    }
-                }
-            }
-            break;
-        case 29:
-            s->hitag += 64;
-            l = mulscale12((long)s->yvel,sintable[s->hitag&2047]);
-            sc->floorz = s->z + l;
-            break;
-        case 31: // True Drop Floor
-            if (t[0] == 1)
-            {
-                // Choose dir
-
-                if (t[3] > 0)
-                {
-                    t[3]--;
-                    break;
-                }
-
-                if (t[2] == 1) // Retract
-                {
-                    if (SA != 1536)
-                    {
-                        if (klabs(sc->floorz - s->z) < SP)
-                        {
-                            sc->floorz = s->z;
-                            t[2] = 0;
-                            t[0] = 0;
-                            t[3] = s->hitag;
                             callsound(s->sectnum,i);
+                            t[0] = 0;
+                            t[2] = 1;
+                            t[3] = s->hitag;
                         }
                         else
                         {
@@ -7316,238 +7458,182 @@ void moveeffectors(void)   //STATNUM 3
                     }
                     else
                     {
-                        if (klabs(sc->floorz - t[1]) < SP)
+                        if (klabs(sc->floorz-t[1]) < SP)
                         {
-                            sc->floorz = t[1];
-                            callsound(s->sectnum,i);
-                            t[2] = 0;
                             t[0] = 0;
+                            callsound(s->sectnum,i);
+                            t[2] = 1;
                             t[3] = s->hitag;
                         }
                         else
                         {
-                            l = ksgn(t[1]-sc->floorz)*SP;
-                            sc->floorz += l;
+                            l = ksgn(s->z-t[1])*SP;
+                            sc->floorz -= l;
 
                             j = headspritesect[s->sectnum];
                             while (j >= 0)
                             {
                                 if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
                                     if (ps[sprite[j].yvel].on_ground == 1)
-                                        ps[sprite[j].yvel].posz += l;
+                                        ps[sprite[j].yvel].posz -= l;
                                 if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
                                 {
-                                    hittype[j].bposz = sprite[j].z += l;
+                                    hittype[j].bposz = sprite[j].z -= l;
                                     hittype[j].floorz = sc->floorz;
                                 }
                                 j = nextspritesect[j];
                             }
                         }
                     }
-                    break;
                 }
+                break;
 
-                if ((s->ang&2047) == 1536)
+            case 32: // True Drop Ceiling
+                if (t[0] == 1)
                 {
-                    if (klabs(s->z-sc->floorz) < SP)
-                    {
-                        callsound(s->sectnum,i);
-                        t[0] = 0;
-                        t[2] = 1;
-                        t[3] = s->hitag;
-                    }
-                    else
-                    {
-                        l = ksgn(s->z-sc->floorz)*SP;
-                        sc->floorz += l;
+                    // Choose dir
 
-                        j = headspritesect[s->sectnum];
-                        while (j >= 0)
+                    if (t[2] == 1) // Retract
+                    {
+                        if (SA != 1536)
                         {
-                            if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-                                if (ps[sprite[j].yvel].on_ground == 1)
-                                    ps[sprite[j].yvel].posz += l;
-                            if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                            if (klabs(sc->ceilingz - s->z) <
+                                    (SP<<1))
                             {
-                                hittype[j].bposz = sprite[j].z += l;
-                                hittype[j].floorz = sc->floorz;
+                                sc->ceilingz = s->z;
+                                callsound(s->sectnum,i);
+                                t[2] = 0;
+                                t[0] = 0;
                             }
-                            j = nextspritesect[j];
+                            else sc->ceilingz +=
+                                    ksgn(s->z-sc->ceilingz)*SP;
                         }
-                    }
-                }
-                else
-                {
-                    if (klabs(sc->floorz-t[1]) < SP)
-                    {
-                        t[0] = 0;
-                        callsound(s->sectnum,i);
-                        t[2] = 1;
-                        t[3] = s->hitag;
-                    }
-                    else
-                    {
-                        l = ksgn(s->z-t[1])*SP;
-                        sc->floorz -= l;
-
-                        j = headspritesect[s->sectnum];
-                        while (j >= 0)
+                        else
                         {
-                            if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-                                if (ps[sprite[j].yvel].on_ground == 1)
-                                    ps[sprite[j].yvel].posz -= l;
-                            if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+                            if (klabs(sc->ceilingz - t[1]) <
+                                    (SP<<1))
                             {
-                                hittype[j].bposz = sprite[j].z -= l;
-                                hittype[j].floorz = sc->floorz;
+                                sc->ceilingz = t[1];
+                                callsound(s->sectnum,i);
+                                t[2] = 0;
+                                t[0] = 0;
                             }
-                            j = nextspritesect[j];
+                            else sc->ceilingz +=
+                                    ksgn(t[1]-sc->ceilingz)*SP;
                         }
+                        break;
                     }
-                }
-            }
-            break;
 
-        case 32: // True Drop Ceiling
-            if (t[0] == 1)
-            {
-                // Choose dir
-
-                if (t[2] == 1) // Retract
-                {
-                    if (SA != 1536)
+                    if ((s->ang&2047) == 1536)
                     {
-                        if (klabs(sc->ceilingz - s->z) <
+                        if (klabs(sc->ceilingz-s->z) <
                                 (SP<<1))
                         {
-                            sc->ceilingz = s->z;
-                            callsound(s->sectnum,i);
-                            t[2] = 0;
                             t[0] = 0;
+                            t[2] = !t[2];
+                            callsound(s->sectnum,i);
+                            sc->ceilingz = s->z;
                         }
                         else sc->ceilingz +=
                                 ksgn(s->z-sc->ceilingz)*SP;
                     }
                     else
                     {
-                        if (klabs(sc->ceilingz - t[1]) <
-                                (SP<<1))
+                        if (klabs(sc->ceilingz-t[1]) < (SP<<1))
                         {
-                            sc->ceilingz = t[1];
-                            callsound(s->sectnum,i);
-                            t[2] = 0;
                             t[0] = 0;
+                            t[2] = !t[2];
+                            callsound(s->sectnum,i);
                         }
-                        else sc->ceilingz +=
-                                ksgn(t[1]-sc->ceilingz)*SP;
+                        else sc->ceilingz -= ksgn(s->z-t[1])*SP;
                     }
-                    break;
                 }
+                break;
 
-                if ((s->ang&2047) == 1536)
+            case 33:
+                if (earthquaketime > 0 && (TRAND&7) == 0)
+                    RANDOMSCRAP;
+                break;
+            case 36:
+
+                if (t[0])
                 {
-                    if (klabs(sc->ceilingz-s->z) <
-                            (SP<<1))
-                    {
+                    if (t[0] == 1)
+                        shoot(i,sc->extra);
+                    else if (t[0] == 26*5)
                         t[0] = 0;
-                        t[2] = !t[2];
-                        callsound(s->sectnum,i);
-                        sc->ceilingz = s->z;
-                    }
-                    else sc->ceilingz +=
-                            ksgn(s->z-sc->ceilingz)*SP;
+                    t[0]++;
                 }
+                break;
+
+            case 128: //SE to control glass breakage
+
+                wal = &wall[t[2]];
+
+                if (wal->cstat|32)
+                {
+                    wal->cstat &= (255-32);
+                    wal->cstat |= 16;
+                    if (wal->nextwall >= 0)
+                    {
+                        wall[wal->nextwall].cstat &= (255-32);
+                        wall[wal->nextwall].cstat |= 16;
+                    }
+                }
+                else break;
+
+                wal->overpicnum++;
+                if (wal->nextwall >= 0)
+                    wall[wal->nextwall].overpicnum++;
+
+                if (t[0] < t[1]) t[0]++;
                 else
                 {
-                    if (klabs(sc->ceilingz-t[1]) < (SP<<1))
-                    {
-                        t[0] = 0;
-                        t[2] = !t[2];
-                        callsound(s->sectnum,i);
-                    }
-                    else sc->ceilingz -= ksgn(s->z-t[1])*SP;
+                    wal->cstat &= (128+32+8+4+2);
+                    if (wal->nextwall >= 0)
+                        wall[wal->nextwall].cstat &= (128+32+8+4+2);
+                    KILLIT(i);
                 }
-            }
-            break;
+                break;
 
-        case 33:
-            if (earthquaketime > 0 && (TRAND&7) == 0)
-                RANDOMSCRAP;
-            break;
-        case 36:
-
-            if (t[0])
-            {
-                if (t[0] == 1)
-                    shoot(i,sc->extra);
-                else if (t[0] == 26*5)
-                    t[0] = 0;
-                t[0]++;
-            }
-            break;
-
-        case 128: //SE to control glass breakage
-
-            wal = &wall[t[2]];
-
-            if (wal->cstat|32)
-            {
-                wal->cstat &= (255-32);
-                wal->cstat |= 16;
-                if (wal->nextwall >= 0)
+            case 130:
+                if (t[0] > 80)
                 {
-                    wall[wal->nextwall].cstat &= (255-32);
-                    wall[wal->nextwall].cstat |= 16;
+                    KILLIT(i);
                 }
-            }
-            else break;
+                else t[0]++;
 
-            wal->overpicnum++;
-            if (wal->nextwall >= 0)
-                wall[wal->nextwall].overpicnum++;
+                x = sc->floorz-sc->ceilingz;
 
-            if (t[0] < t[1]) t[0]++;
-            else
-            {
-                wal->cstat &= (128+32+8+4+2);
-                if (wal->nextwall >= 0)
-                    wall[wal->nextwall].cstat &= (128+32+8+4+2);
-                KILLIT(i);
-            }
-            break;
+                if (rnd(64))
+                {
+                    k = spawn(i,EXPLOSION2);
+                    sprite[k].xrepeat = sprite[k].yrepeat = 2+(TRAND&7);
+                    sprite[k].z = sc->floorz-(TRAND%x);
+                    sprite[k].ang += 256-(TRAND%511);
+                    sprite[k].xvel = TRAND&127;
+                    ssp(k,CLIPMASK0);
+                }
+                break;
+            case 131:
+                if (t[0] > 40)
+                {
+                    KILLIT(i);
+                }
+                else t[0]++;
 
-        case 130:
-        if (t[0] > 80) { KILLIT(i); }
-            else t[0]++;
+                x = sc->floorz-sc->ceilingz;
 
-            x = sc->floorz-sc->ceilingz;
-
-            if (rnd(64))
-            {
-                k = spawn(i,EXPLOSION2);
-                sprite[k].xrepeat = sprite[k].yrepeat = 2+(TRAND&7);
-                sprite[k].z = sc->floorz-(TRAND%x);
-                sprite[k].ang += 256-(TRAND%511);
-                sprite[k].xvel = TRAND&127;
-                ssp(k,CLIPMASK0);
-            }
-            break;
-        case 131:
-        if (t[0] > 40) { KILLIT(i); }
-            else t[0]++;
-
-            x = sc->floorz-sc->ceilingz;
-
-            if (rnd(32))
-            {
-                k = spawn(i,EXPLOSION2);
-                sprite[k].xrepeat = sprite[k].yrepeat = 2+(TRAND&3);
-                sprite[k].z = sc->floorz-(TRAND%x);
-                sprite[k].ang += 256-(TRAND%511);
-                sprite[k].xvel = TRAND&127;
-                ssp(k,CLIPMASK0);
-            }
-            break;
+                if (rnd(32))
+                {
+                    k = spawn(i,EXPLOSION2);
+                    sprite[k].xrepeat = sprite[k].yrepeat = 2+(TRAND&3);
+                    sprite[k].z = sc->floorz-(TRAND%x);
+                    sprite[k].ang += 256-(TRAND%511);
+                    sprite[k].xvel = TRAND&127;
+                    ssp(k,CLIPMASK0);
+                }
+                break;
         }
 BOLT:
         i = nexti;
