@@ -29,7 +29,7 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #include "SDL.h"
 #include "SDL_mixer.h"
 
-extern volatile int MV_MixPage;
+extern int MV_MixPage;
 
 static int DSL_ErrorCode = DSL_Ok;
 

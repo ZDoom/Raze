@@ -35,7 +35,12 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
+#ifdef _WIN32
 #include "dsoundout.h"
+#else
+#include "util.h"
+#include "dsl.h"
+#endif
 #include "usrhooks.h"
 #include "linklist.h"
 #include "pitch.h"
@@ -108,7 +113,7 @@ static VoiceNode *MV_Voices = NULL;
 static VoiceNode VoiceList;
 static VoiceNode VoicePool;
 
-static int MV_MixPage      = 0;
+int MV_MixPage      = 0;
 static int MV_VoiceHandle  = MV_MinVoiceHandle;
 
 static void(*MV_CallBackFunc)(unsigned long) = NULL;
@@ -139,10 +144,7 @@ int MV_ErrorCode = MV_Ok;
    number.  A -1 returns a pointer the current error.
 ---------------------------------------------------------------------*/
 
-char *MV_ErrorString
-(
-    int ErrorNumber
-)
+char *MV_ErrorString(    int ErrorNumber)
 
 {
     char *ErrorString;
@@ -178,9 +180,11 @@ char *MV_ErrorString
         ErrorString = "No voice with matching handle found.";
         break;
 
+#if defined(_WIN32)
     case MV_BlasterError :
         ErrorString = DSOUND_ErrorString(DSOUND_ErrorCode);
         break;
+#endif
 
     case MV_DPMI_Error :
         ErrorString = "DPMI Error in Multivoc.";
@@ -256,11 +260,8 @@ static unsigned MV_GetBufferSize(unsigned samplerate)
    Mixes the sound into the buffer.
 ---------------------------------------------------------------------*/
 
-static void MV_Mix
-(
-    VoiceNode *voice,
-    int        buffer
-)
+static void MV_Mix(    VoiceNode *voice,
+    int        buffer)
 
 {
     char          *start;
@@ -349,10 +350,7 @@ static void MV_Mix
    Adds a voice to the play list.
 ---------------------------------------------------------------------*/
 
-void MV_PlayVoice
-(
-    VoiceNode *voice
-)
+void MV_PlayVoice(    VoiceNode *voice)
 
 {
     unsigned flags;
@@ -370,10 +368,7 @@ void MV_PlayVoice
    Removes the voice from the play list and adds it to the free list.
 ---------------------------------------------------------------------*/
 
-void MV_StopVoice
-(
-    VoiceNode *voice
-)
+void MV_StopVoice(    VoiceNode *voice)
 
 {
     unsigned  flags;
@@ -396,17 +391,16 @@ void MV_StopVoice
 
 // static int backcolor = 1;
 
-int MV_ServiceVoc
-(
-    int buffer
-)
+int MV_ServiceVoc(    int buffer)
 
 {
     VoiceNode *voice;
     VoiceNode *next;
 
     // Get the currently playing buffer
+#if defined(_WIN32)
     MV_MixPage   = buffer;
+#endif
 
     // Toggle which buffer we'll mix next
     MV_MixPage++;
@@ -519,10 +513,7 @@ int MV_ServiceVoc
    Interperate the information of a VOC format sound file.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextVOCBlock
-(
-    VoiceNode *voice
-)
+playbackstatus MV_GetNextVOCBlock(    VoiceNode *voice)
 
 {
     unsigned char *ptr;
@@ -794,10 +785,7 @@ playbackstatus MV_GetNextVOCBlock
    Controls playback of demand fed data.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextDemandFeedBlock
-(
-    VoiceNode *voice
-)
+playbackstatus MV_GetNextDemandFeedBlock(    VoiceNode *voice)
 
 {
     if (voice->BlockLength > 0)
@@ -836,10 +824,7 @@ playbackstatus MV_GetNextDemandFeedBlock
    Controls playback of demand fed data.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextRawBlock
-(
-    VoiceNode *voice
-)
+playbackstatus MV_GetNextRawBlock(    VoiceNode *voice)
 
 {
     if (voice->BlockLength <= 0)
@@ -877,10 +862,7 @@ playbackstatus MV_GetNextRawBlock
    Controls playback of demand fed data.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextWAVBlock
-(
-    VoiceNode *voice
-)
+playbackstatus MV_GetNextWAVBlock(    VoiceNode *voice)
 
 {
     if (voice->BlockLength <= 0)
@@ -918,10 +900,7 @@ playbackstatus MV_GetNextWAVBlock
    Starts recording of the waiting buffer.
 ---------------------------------------------------------------------*/
 
-static void MV_ServiceRecord
-(
-    void
-)
+static void MV_ServiceRecord(    void)
 
 {
     if (MV_RecordFunc)
@@ -945,10 +924,7 @@ static void MV_ServiceRecord
    Locates the voice with the specified handle.
 ---------------------------------------------------------------------*/
 
-VoiceNode *MV_GetVoice
-(
-    int handle
-)
+VoiceNode *MV_GetVoice(    int handle)
 
 {
     VoiceNode *voice;
@@ -983,10 +959,7 @@ VoiceNode *MV_GetVoice
    playing.
 ---------------------------------------------------------------------*/
 
-int MV_VoicePlaying
-(
-    int handle
-)
+int MV_VoicePlaying(    int handle)
 
 {
     VoiceNode *voice;
@@ -1014,10 +987,7 @@ int MV_VoicePlaying
    Stops output of all currently active voices.
 ---------------------------------------------------------------------*/
 
-int MV_KillAllVoices
-(
-    void
-)
+int MV_KillAllVoices(    void)
 
 {
     if (!MV_Installed)
@@ -1042,10 +1012,7 @@ int MV_KillAllVoices
    Stops output of the voice associated with the specified handle.
 ---------------------------------------------------------------------*/
 
-int MV_Kill
-(
-    int handle
-)
+int MV_Kill(    int handle)
 
 {
     VoiceNode *voice;
@@ -1089,10 +1056,7 @@ int MV_Kill
    Determines the number of currently active voices.
 ---------------------------------------------------------------------*/
 
-int MV_VoicesPlaying
-(
-    void
-)
+int MV_VoicesPlaying(    void)
 
 {
     VoiceNode   *voice;
@@ -1124,10 +1088,7 @@ int MV_VoicesPlaying
    Retrieve an inactive or lower priority voice for output.
 ---------------------------------------------------------------------*/
 
-VoiceNode *MV_AllocVoice
-(
-    int priority
-)
+VoiceNode *MV_AllocVoice(    int priority)
 
 {
     VoiceNode   *voice;
@@ -1196,10 +1157,7 @@ VoiceNode *MV_AllocVoice
    Checks if a voice can be play at the specified priority.
 ---------------------------------------------------------------------*/
 
-int MV_VoiceAvailable
-(
-    int priority
-)
+int MV_VoiceAvailable(    int priority)
 
 {
     VoiceNode   *voice;
@@ -1241,12 +1199,9 @@ int MV_VoiceAvailable
    Sets the pitch for the specified voice.
 ---------------------------------------------------------------------*/
 
-void MV_SetVoicePitch
-(
-    VoiceNode *voice,
+void MV_SetVoicePitch(    VoiceNode *voice,
     unsigned long rate,
-    int pitchoffset
-)
+    int pitchoffset)
 
 {
     voice->SamplingRate = rate;
@@ -1265,11 +1220,8 @@ void MV_SetVoicePitch
    Sets the pitch for the voice associated with the specified handle.
 ---------------------------------------------------------------------*/
 
-int MV_SetPitch
-(
-    int handle,
-    int pitchoffset
-)
+int MV_SetPitch(    int handle,
+    int pitchoffset)
 
 {
     VoiceNode *voice;
@@ -1299,11 +1251,8 @@ int MV_SetPitch
    Sets the frequency for the voice associated with the specified handle.
 ---------------------------------------------------------------------*/
 
-int MV_SetFrequency
-(
-    int handle,
-    int frequency
-)
+int MV_SetFrequency(    int handle,
+    int frequency)
 
 {
     VoiceNode *voice;
@@ -1334,10 +1283,7 @@ int MV_SetFrequency
    volume.
 ---------------------------------------------------------------------*/
 
-static short *MV_GetVolumeTable
-(
-    int vol
-)
+static short *MV_GetVolumeTable(    int vol)
 
 {
     int volume;
@@ -1357,10 +1303,7 @@ static short *MV_GetVolumeTable
    Selects which method should be used to mix the voice.
 ---------------------------------------------------------------------*/
 
-static void MV_SetVoiceMixMode
-(
-    VoiceNode *voice
-)
+static void MV_SetVoiceMixMode(    VoiceNode *voice)
 
 {
     unsigned flags;
@@ -1483,13 +1426,10 @@ static void MV_SetVoiceMixMode
    with the specified handle.
 ---------------------------------------------------------------------*/
 
-void MV_SetVoiceVolume
-(
-    VoiceNode *voice,
+void MV_SetVoiceVolume(    VoiceNode *voice,
     int vol,
     int left,
-    int right
-)
+    int right)
 
 {
     if (MV_Channels == 1)
@@ -1521,10 +1461,7 @@ void MV_SetVoiceVolume
    without stoping the sound.
 ---------------------------------------------------------------------*/
 
-int MV_EndLooping
-(
-    int handle
-)
+int MV_EndLooping(    int handle)
 
 {
     VoiceNode *voice;
@@ -1563,13 +1500,10 @@ int MV_EndLooping
    with the specified handle.
 ---------------------------------------------------------------------*/
 
-int MV_SetPan
-(
-    int handle,
+int MV_SetPan(    int handle,
     int vol,
     int left,
-    int right
-)
+    int right)
 
 {
     VoiceNode *voice;
@@ -1600,12 +1534,9 @@ int MV_SetPan
    with the specified handle.
 ---------------------------------------------------------------------*/
 
-int MV_Pan3D
-(
-    int handle,
+int MV_Pan3D(    int handle,
     int angle,
-    int distance
-)
+    int distance)
 
 {
     int left;
@@ -1641,10 +1572,7 @@ int MV_Pan3D
    Sets the level of reverb to add to mix.
 ---------------------------------------------------------------------*/
 
-void MV_SetReverb
-(
-    int reverb
-)
+void MV_SetReverb(    int reverb)
 
 {
     MV_ReverbLevel = MIX_VOLUME(reverb);
@@ -1658,10 +1586,7 @@ void MV_SetReverb
    Sets the level of reverb to add to mix.
 ---------------------------------------------------------------------*/
 
-void MV_SetFastReverb
-(
-    int reverb
-)
+void MV_SetFastReverb(    int reverb)
 
 {
     MV_ReverbLevel = max(0, min(16, reverb));
@@ -1675,10 +1600,7 @@ void MV_SetFastReverb
    Returns the maximum delay time for reverb.
 ---------------------------------------------------------------------*/
 
-int MV_GetMaxReverbDelay
-(
-    void
-)
+int MV_GetMaxReverbDelay(    void)
 
 {
     int maxdelay;
@@ -1695,10 +1617,7 @@ int MV_GetMaxReverbDelay
    Returns the current delay time for reverb.
 ---------------------------------------------------------------------*/
 
-int MV_GetReverbDelay
-(
-    void
-)
+int MV_GetReverbDelay(    void)
 
 {
     return MV_ReverbDelay / MV_SampleSize;
@@ -1711,10 +1630,7 @@ int MV_GetReverbDelay
    Sets the delay level of reverb to add to mix.
 ---------------------------------------------------------------------*/
 
-void MV_SetReverbDelay
-(
-    int delay
-)
+void MV_SetReverbDelay(    int delay)
 
 {
     int maxdelay;
@@ -1731,11 +1647,8 @@ void MV_SetReverbDelay
    Prepares Multivoc to play stereo of mono digitized sounds.
 ---------------------------------------------------------------------*/
 
-int MV_SetMixMode
-(
-    int numchannels,
-    int samplebits
-)
+int MV_SetMixMode(    int numchannels,
+    int samplebits)
 
 {
     int mode;
@@ -1756,7 +1669,11 @@ int MV_SetMixMode
         mode |= SIXTEEN_BIT;
     }
 
+#if defined(_WIN32)
     MV_MixMode = DSOUND_SetMixMode(mode);
+#else
+    MV_MixMode = mode;
+#endif
 
     MV_Channels = 1;
     if (MV_MixMode & STEREO)
@@ -1800,10 +1717,7 @@ int MV_SetMixMode
    Starts the sound playback engine.
 ---------------------------------------------------------------------*/
 
-int MV_StartPlayback
-(
-    void
-)
+int MV_StartPlayback(    void)
 
 {
     int status;
@@ -1821,6 +1735,7 @@ int MV_StartPlayback
 
     MV_MixFunction = MV_Mix;
 
+#if defined(_WIN32)
     MV_MixRate = MV_RequestedMixRate;
 
     // Start playback
@@ -1830,7 +1745,19 @@ int MV_StartPlayback
         MV_SetErrorCode(MV_BlasterError);
         return(MV_Error);
     }
+#else
+    status = DSL_BeginBufferedPlayback(MV_MixBuffer[ 0 ],
+                                       TotalBufferSize, MV_NumberOfBuffers,
+                                       MV_RequestedMixRate, MV_MixMode, MV_ServiceVoc);
 
+    if (status != DSL_Ok)
+    {
+        MV_SetErrorCode(MV_BlasterError);
+        return(MV_Error);
+    }
+
+    MV_MixRate = DSL_GetPlaybackRate();
+#endif
     return(MV_Ok);
 }
 
@@ -1841,10 +1768,7 @@ int MV_StartPlayback
    Stops the sound playback engine.
 ---------------------------------------------------------------------*/
 
-void MV_StopPlayback
-(
-    void
-)
+void MV_StopPlayback(    void)
 
 {
     VoiceNode   *voice;
@@ -1852,7 +1776,11 @@ void MV_StopPlayback
     unsigned    flags;
 
     // Stop sound playback
+#if defined(_WIN32)
     DSOUND_StopPlayback();
+#else
+    DSL_StopPlayback();
+#endif
 
     // Make sure all callbacks are done.
     flags = DisableInterrupts();
@@ -1880,11 +1808,8 @@ void MV_StopPlayback
    Starts the sound recording engine.
 ---------------------------------------------------------------------*/
 
-int MV_StartRecording
-(
-    int MixRate,
-    void(*function)(char *ptr, int length)
-)
+int MV_StartRecording(    int MixRate,
+    void(*function)(char *ptr, int length))
 
 {
     int status;
@@ -1944,10 +1869,7 @@ int MV_StartRecording
    Stops the sound record engine.
 ---------------------------------------------------------------------*/
 
-void MV_StopRecord
-(
-    void
-)
+void MV_StopRecord(    void)
 
 {
     // Stop sound playback
@@ -1970,17 +1892,14 @@ void MV_StopRecord
    Plays a digitized sound from a user controlled buffering system.
 ---------------------------------------------------------------------*/
 
-int MV_StartDemandFeedPlayback
-(
-    void(*function)(char **ptr, unsigned long *length),
+int MV_StartDemandFeedPlayback(    void(*function)(char **ptr, unsigned long *length),
     int rate,
     int pitchoffset,
     int vol,
     int left,
     int right,
     int priority,
-    unsigned long callbackval
-)
+    unsigned long callbackval)
 
 {
     VoiceNode *voice;
@@ -2032,9 +1951,7 @@ int MV_StartDemandFeedPlayback
    priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayRaw
-(
-    char *ptr,
+int MV_PlayRaw(    char *ptr,
     unsigned long length,
     unsigned rate,
     int   pitchoffset,
@@ -2042,8 +1959,7 @@ int MV_PlayRaw
     int   left,
     int   right,
     int   priority,
-    unsigned long callbackval
-)
+    unsigned long callbackval)
 
 {
     int status;
@@ -2062,9 +1978,7 @@ int MV_PlayRaw
    priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayLoopedRaw
-(
-    char *ptr,
+int MV_PlayLoopedRaw(    char *ptr,
     long  length,
     char *loopstart,
     char *loopend,
@@ -2074,8 +1988,7 @@ int MV_PlayLoopedRaw
     int   left,
     int   right,
     int   priority,
-    unsigned long callbackval
-)
+    unsigned long callbackval)
 
 {
     VoiceNode *voice;
@@ -2125,16 +2038,13 @@ int MV_PlayLoopedRaw
    priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayWAV
-(
-    char *ptr,
+int MV_PlayWAV(    char *ptr,
     int   pitchoffset,
     int   vol,
     int   left,
     int   right,
     int   priority,
-    unsigned long callbackval
-)
+    unsigned long callbackval)
 
 {
     int status;
@@ -2153,15 +2063,12 @@ int MV_PlayWAV
    from listener.
 ---------------------------------------------------------------------*/
 
-int MV_PlayWAV3D
-(
-    char *ptr,
+int MV_PlayWAV3D(    char *ptr,
     int  pitchoffset,
     int  angle,
     int  distance,
     int  priority,
-    unsigned long callbackval
-)
+    unsigned long callbackval)
 
 {
     int left;
@@ -2205,9 +2112,7 @@ int MV_PlayWAV3D
    priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayLoopedWAV
-(
-    char *ptr,
+int MV_PlayLoopedWAV(    char *ptr,
     long  loopstart,
     long  loopend,
     int   pitchoffset,
@@ -2215,8 +2120,7 @@ int MV_PlayLoopedWAV
     int   left,
     int   right,
     int   priority,
-    unsigned long callbackval
-)
+    unsigned long callbackval)
 
 {
     riff_header   *riff;
@@ -2336,15 +2240,12 @@ int MV_PlayLoopedWAV
    from listener.
 ---------------------------------------------------------------------*/
 
-int MV_PlayVOC3D
-(
-    char *ptr,
+int MV_PlayVOC3D(    char *ptr,
     int  pitchoffset,
     int  angle,
     int  distance,
     int  priority,
-    unsigned long callbackval
-)
+    unsigned long callbackval)
 
 {
     int left;
@@ -2388,16 +2289,13 @@ int MV_PlayVOC3D
    priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayVOC
-(
-    char *ptr,
+int MV_PlayVOC(    char *ptr,
     int   pitchoffset,
     int   vol,
     int   left,
     int   right,
     int   priority,
-    unsigned long callbackval
-)
+    unsigned long callbackval)
 
 {
     int status;
@@ -2416,9 +2314,7 @@ int MV_PlayVOC
    priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayLoopedVOC
-(
-    char *ptr,
+int MV_PlayLoopedVOC(    char *ptr,
     long  loopstart,
     long  loopend,
     int   pitchoffset,
@@ -2426,8 +2322,7 @@ int MV_PlayLoopedVOC
     int   left,
     int   right,
     int   priority,
-    unsigned long callbackval
-)
+    unsigned long callbackval)
 
 {
     VoiceNode   *voice;
@@ -2493,12 +2388,9 @@ int MV_PlayLoopedVOC
    level.
 ---------------------------------------------------------------------*/
 
-void MV_CreateVolumeTable
-(
-    int index,
+void MV_CreateVolumeTable(    int index,
     int volume,
-    int MaxVolume
-)
+    int MaxVolume)
 
 {
     int val;
@@ -2536,10 +2428,7 @@ void MV_CreateVolumeTable
    level.
 ---------------------------------------------------------------------*/
 
-void MV_CalcVolume
-(
-    int MaxVolume
-)
+void MV_CalcVolume(    int MaxVolume)
 
 {
     int volume;
@@ -2570,10 +2459,7 @@ void MV_CalcVolume
    a sound located at a specific angle and distance from the listener.
 ---------------------------------------------------------------------*/
 
-void MV_CalcPanTable
-(
-    void
-)
+void MV_CalcPanTable(    void)
 
 {
     int   level;
@@ -2612,10 +2498,7 @@ void MV_CalcPanTable
    Sets the volume of digitized sound playback.
 ---------------------------------------------------------------------*/
 
-void MV_SetVolume
-(
-    int volume
-)
+void MV_SetVolume(    int volume)
 
 {
     volume = max(0, volume);
@@ -2634,10 +2517,7 @@ void MV_SetVolume
    Returns the volume of digitized sound playback.
 ---------------------------------------------------------------------*/
 
-int MV_GetVolume
-(
-    void
-)
+int MV_GetVolume(    void)
 
 {
     return(MV_TotalVolume);
@@ -2650,10 +2530,7 @@ int MV_GetVolume
    Set the function to call when a voice stops.
 ---------------------------------------------------------------------*/
 
-void MV_SetCallBack
-(
-    void(*function)(unsigned long)
-)
+void MV_SetCallBack(    void(*function)(unsigned long))
 
 {
     MV_CallBackFunc = function;
@@ -2666,10 +2543,7 @@ void MV_SetCallBack
    Set the orientation of the left and right channels.
 ---------------------------------------------------------------------*/
 
-void MV_SetReverseStereo
-(
-    int setting
-)
+void MV_SetReverseStereo(    int setting)
 
 {
     MV_SwapLeftRight = setting;
@@ -2682,10 +2556,7 @@ void MV_SetReverseStereo
    Returns the orientation of the left and right channels.
 ---------------------------------------------------------------------*/
 
-int MV_GetReverseStereo
-(
-    void
-)
+int MV_GetReverseStereo(    void)
 
 {
     return(MV_SwapLeftRight);
@@ -2698,10 +2569,7 @@ int MV_GetReverseStereo
    Checks if playback has started.
 ---------------------------------------------------------------------*/
 
-int MV_TestPlayback
-(
-    void
-)
+int MV_TestPlayback(    void)
 
 {
     unsigned flags;
@@ -2773,14 +2641,11 @@ int MV_TestPlayback
    Multivoc.
 ---------------------------------------------------------------------*/
 
-int MV_Init
-(
-    int soundcard,
+int MV_Init(    int soundcard,
     int MixRate,
     int Voices,
     int numchannels,
-    int samplebits
-)
+    int samplebits)
 
 {
     char *ptr;
@@ -2843,13 +2708,20 @@ int MV_Init
     MV_SetReverseStereo(FALSE);
 
     // Initialize the sound card
+#if defined(_WIN32)
     status = DSOUND_Init(soundcard, MixRate, numchannels, samplebits,
                          TotalBufferSize);
     if (status != DSOUND_Ok)
     {
         MV_SetErrorCode(MV_BlasterError);
     }
-
+#else
+    status = DSL_Init();
+    if (status != DSL_Ok)
+    {
+        MV_SetErrorCode(MV_BlasterError);
+    }
+#endif
     if (MV_ErrorCode != MV_Ok)
     {
         status = MV_ErrorCode;
@@ -2909,10 +2781,7 @@ int MV_Init
    Restore any resources allocated by Multivoc back to the system.
 ---------------------------------------------------------------------*/
 
-int MV_Shutdown
-(
-    void
-)
+int MV_Shutdown(    void)
 
 {
     int      buffer;
@@ -2941,7 +2810,11 @@ int MV_Shutdown
     MV_StopPlayback();
 
     // Shutdown the sound card
+#if defined(_WIN32)
     DSOUND_Shutdown();
+#else
+    DSL_Shutdown();
+#endif
 
     RestoreInterrupts(flags);
 
