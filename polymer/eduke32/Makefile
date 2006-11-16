@@ -72,7 +72,7 @@ AUDIOLIB_FX_SDL=$(OBJ)/mv_mix.$o \
 	  $(OBJ)/ll_man.$o \
 	  $(OBJ)/fx_man.$o \
       $(OBJ)/dsl.$o \
-      $(OBJ)/unixpitch.$o \
+      $(OBJ)/pitch.$o \
       $(OBJ)/multivoc.$o
 
 AUDIOLIB_MUSIC_SDL=$(OBJ)/sdlmusic.$o \
