@@ -29,7 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SDL.h"
 #include <stdio.h>
 #include <string.h>
-#include "osd.h"
 
 #include "sdlayer.h"
 
@@ -115,9 +114,9 @@ int SDLSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, i
         SDLSOUND_Shutdown();
     }
 
-    printOSD("Initializing SDL sound...\n");
+    initprintf("Initializing SDL sound...\n");
 
-    printOSD("  - Requested sound format\n"
+    initprintf("  - Requested sound format\n"
              "      Channels:    %d\n"
              "      Sample rate: %dHz\n"
              "      Sample size: %d bits\n",
@@ -146,7 +145,7 @@ int SDLSOUND_Shutdown(void)
 {
     int i;
 
-    if (SDLSOUND_Installed) printOSD("Uninitializing SDL sound...\n");
+    if (SDLSOUND_Installed) initprintf("Uninitializing SDL sound...\n");
 
     SDLSOUND_Installed = FALSE;
 
@@ -231,11 +230,11 @@ int DSOUND_StopPlayback(void)
     {
         SetEvent(isrfinish);
 
-        printOSD("DirectSound: Waiting for sound thread to exit\n");
+        initprintf("DirectSound: Waiting for sound thread to exit\n");
         if (WaitForSingleObject(isrthread, 300) == WAIT_OBJECT_0)
-            printOSD("DirectSound: Sound thread has exited\n");
+            initprintf("DirectSound: Sound thread has exited\n");
         else
-            printOSD("DirectSound: Sound thread failed to exit!\n");
+            initprintf("DirectSound: Sound thread failed to exit!\n");
         /*
         while (1) {
         	if (!GetExitCodeThread(isrthread, &exitcode)) {

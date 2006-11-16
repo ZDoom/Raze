@@ -33,7 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <string.h>
 #include "dsound.h"
-#include "osd.h"
 
 #include "winlayer.h"
 
@@ -181,7 +180,7 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
         DSOUND_Shutdown();
     }
 
-    printOSD("Initializing DirectSound...\n");
+    initprintf("Initializing DirectSound...\n");
 
     if (!_DSOUND_CriticalSectionAlloced)
     {
@@ -191,7 +190,7 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
         _DSOUND_CriticalSectionAlloced = TRUE;
     }
 
-    printOSD("  - Loading DSOUND.DLL\n");
+    initprintf("  - Loading DSOUND.DLL\n");
     hDSoundDLL = LoadLibrary("DSOUND.DLL");
     if (!hDSoundDLL)
     {
@@ -208,7 +207,7 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
         return DSOUND_Error;
     }
 
-    printOSD("  - Creating DirectSound object\n");
+    initprintf("  - Creating DirectSound object\n");
     hr = aDirectSoundCreate(NULL, &lpDS, NULL);
     if (hr != DS_OK)
     {
@@ -225,7 +224,7 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
         return DSOUND_Error;
     }
 
-    printOSD("  - Creating primary buffer\n");
+    initprintf("  - Creating primary buffer\n");
     ZeroMemory(&dsbuf, sizeof(dsbuf));
     dsbuf.dwSize = sizeof(DSBUFFERDESC);
     dsbuf.dwFlags = DSBCAPS_PRIMARYBUFFER;
@@ -237,7 +236,7 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
         return DSOUND_Error;
     }
 
-    printOSD("  - Setting primary buffer format\n"
+    initprintf("  - Setting primary buffer format\n"
              "      Channels:    %d\n"
              "      Sample rate: %dHz\n"
              "      Sample size: %d bits\n",
@@ -257,7 +256,7 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
         return DSOUND_Error;
     }
 
-    printOSD("  - Creating secondary buffer\n");
+    initprintf("  - Creating secondary buffer\n");
     ZeroMemory(&dsbuf, sizeof(dsbuf));
     dsbuf.dwSize = sizeof(DSBUFFERDESC);
     dsbuf.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_LOCSOFTWARE;
@@ -323,7 +322,7 @@ int DSOUND_Shutdown(void)
 {
     int i;
 
-    if (DSOUND_Installed) printOSD("Uninitializing DirectSound...\n");
+    if (DSOUND_Installed) initprintf("Uninitializing DirectSound...\n");
 
     DSOUND_Installed = FALSE;
 
@@ -347,7 +346,7 @@ int DSOUND_Shutdown(void)
 
     if (lpDSBSecondary)
     {
-        printOSD("  - Releasing secondary buffer\n");
+        initprintf("  - Releasing secondary buffer\n");
         IDirectSoundBuffer_Stop(lpDSBSecondary);
         IDirectSoundBuffer_Release(lpDSBSecondary);
         lpDSBSecondary = NULL;
@@ -355,21 +354,21 @@ int DSOUND_Shutdown(void)
 
     if (lpDSBPrimary)
     {
-        printOSD("  - Releasing primary buffer\n");
+        initprintf("  - Releasing primary buffer\n");
         IDirectSoundBuffer_Release(lpDSBPrimary);
         lpDSBPrimary = NULL;
     }
 
     if (lpDS)
     {
-        printOSD("  - Releasing DirectSound object\n");
+        initprintf("  - Releasing DirectSound object\n");
         IDirectSound_Release(lpDS);
         lpDS = NULL;
     }
 
     if (hDSoundDLL)
     {
-        printOSD("  - Unloading DSOUND.DLL\n");
+        initprintf("  - Unloading DSOUND.DLL\n");
         FreeLibrary(hDSoundDLL);
         hDSoundDLL = NULL;
     }
@@ -581,11 +580,11 @@ int DSOUND_StopPlayback(void)
     {
         SetEvent(isrfinish);
 
-        printOSD("DirectSound: Waiting for sound thread to exit\n");
+        initprintf("DirectSound: Waiting for sound thread to exit\n");
         if (WaitForSingleObject(isrthread, 300) == WAIT_OBJECT_0)
-            printOSD("DirectSound: Sound thread has exited\n");
+            initprintf("DirectSound: Sound thread has exited\n");
         else
-            printOSD("DirectSound: Sound thread failed to exit!\n");
+            initprintf("DirectSound: Sound thread failed to exit!\n");
         /*
         while (1) {
         	if (!GetExitCodeThread(isrthread, &exitcode)) {

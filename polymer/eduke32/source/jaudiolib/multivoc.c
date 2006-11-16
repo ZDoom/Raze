@@ -41,7 +41,6 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #include "pitch.h"
 #include "multivoc.h"
 #include "_multivc.h"
-#include "osd.h"
 
 #ifdef __MINGW32__
 #define min(a,b) (((a)<(b))?(a):(b))
@@ -2794,7 +2793,7 @@ int MV_Init
         MV_Shutdown();
     }
 
-    printOSD("Initializing MultiVoc...\n");
+    initprintf("Initializing MultiVoc...\n");
 
     MV_SetErrorCode(MV_Ok);
 
@@ -2812,7 +2811,7 @@ int MV_Init
     // Set number of voices before calculating volume table
     MV_MaxVoices = Voices;
 
-    printOSD("  - Maximum voices: %d\n", MV_MaxVoices);
+    initprintf("  - Maximum voices: %d\n", MV_MaxVoices);
 
     LL_Reset(&VoiceList, next, prev);
     LL_Reset(&VoicePool, next, prev);
@@ -2825,7 +2824,7 @@ int MV_Init
     // Set the sampling rate
     MV_RequestedMixRate = MixRate;
 
-    printOSD("  - Using %d byte mixing buffers\n", MixBufferSize);
+    initprintf("  - Using %d byte mixing buffers\n", MixBufferSize);
 
     // Allocate mix buffer within 1st megabyte
     ptr = (char *)malloc(TotalBufferSize + 4);	// FIXME: temporarily fixes bounds error somewhere...
@@ -2924,7 +2923,7 @@ int MV_Shutdown
         return(MV_Ok);
     }
 
-    printOSD("Uninitializing MultiVoc...\n");
+    initprintf("Uninitializing MultiVoc...\n");
 
     flags = DisableInterrupts();
 

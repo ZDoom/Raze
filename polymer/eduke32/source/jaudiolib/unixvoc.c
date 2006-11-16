@@ -2541,6 +2541,8 @@ int MV_Init(int soundcard,
         MV_Shutdown();
     }
 
+    initprintf("Initializing MultiVoc...\n");
+
     MV_SetErrorCode(MV_Ok);
 
     MV_TotalMemory = Voices * sizeof(VoiceNode) + sizeof(HARSH_CLIP_TABLE_8);
@@ -2557,6 +2559,8 @@ int MV_Init(int soundcard,
     // Set number of voices before calculating volume table
     MV_MaxVoices = Voices;
 
+    initprintf("  - Maximum voices: %d\n", MV_MaxVoices);
+
     LL_Reset((VoiceNode *)&VoiceList, next, prev);
     LL_Reset((VoiceNode *)&VoicePool, next, prev);
 
@@ -2564,6 +2568,8 @@ int MV_Init(int soundcard,
     {
         LL_Add((VoiceNode *)&VoicePool, &MV_Voices[ index ], next, prev);
     }
+
+    initprintf("  - Using %d byte mixing buffers\n", MixBufferSize);
 
     // Allocate mix buffer within 1st megabyte
     status = DPMI_GetDOSMemory((void **)&ptr, &MV_BufferDescriptor,
@@ -2668,6 +2674,8 @@ int MV_Shutdown(void)
     {
         return(MV_Ok);
     }
+
+    initprintf("Uninitializing MultiVoc...\n");
 
     flags = DisableInterrupts();
 
