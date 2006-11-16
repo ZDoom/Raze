@@ -38,7 +38,12 @@ enum DSL_ERRORS
    DSL_MixerInitFailure
    };
 
+extern int DSL_ErrorCode;
 char *DSL_ErrorString( int ErrorNumber );
+
+int DisableInterrupts(void);	// simulated using critical sections
+int RestoreInterrupts(int);
+
 int   DSL_Init( void );
 void  DSL_StopPlayback( void );
 unsigned DSL_GetPlaybackRate( void );

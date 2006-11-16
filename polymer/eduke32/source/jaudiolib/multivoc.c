@@ -180,11 +180,14 @@ char *MV_ErrorString(    int ErrorNumber)
         ErrorString = "No voice with matching handle found.";
         break;
 
-#if defined(_WIN32)
     case MV_BlasterError :
+#if defined(_WIN32)
         ErrorString = DSOUND_ErrorString(DSOUND_ErrorCode);
-        break;
+#else
+        ErrorString = DSL_ErrorString(DSL_ErrorCode);
 #endif
+        break;
+
 
     case MV_DPMI_Error :
         ErrorString = "DPMI Error in Multivoc.";

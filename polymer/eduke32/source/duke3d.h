@@ -50,11 +50,13 @@ extern int conversion, shareware, gametype;
 
 #define GAMEDUKE 0
 #define GAMENAM 1
+#define GAMEWW2 3
 
 #define VOLUMEALL (shareware==0)
 #define PLUTOPAK (conversion==14)
 #define VOLUMEONE (shareware==1)
-#define NAM (gametype==1)
+#define NAM (gametype&1)
+#define WW2GI (gametype&2)
 
 #define MAXSLEEPDIST  16384
 #define SLEEPTIME 24*64

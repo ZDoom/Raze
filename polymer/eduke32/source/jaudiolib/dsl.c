@@ -31,7 +31,7 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 
 extern int MV_MixPage;
 
-static int DSL_ErrorCode = DSL_Ok;
+int DSL_ErrorCode = DSL_Ok;
 
 static int mixer_initialized;
 
@@ -257,10 +257,10 @@ unsigned DSL_GetPlaybackRate(void)
     return _SampleRate;
 }
 
-unsigned long DisableInterrupts(void)
+int DisableInterrupts(void)
 {
     return 0;
 }
 
-void RestoreInterrupts(unsigned long flags)
+int RestoreInterrupts(int flags)
 {}

@@ -8362,6 +8362,14 @@ void checkcommandline(int argc,char **argv)
                 if (!Bstrcasecmp(c+1,"nam"))
                 {
                     strcpy(defaultduke3dgrp, "nam.grp");
+                    strcpy(confilename, "nam.con");
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"ww2gi"))
+                {
+                    strcpy(defaultduke3dgrp, "ww2gi.grp");
+                    strcpy(confilename, "ww2gi.con");
                     i++;
                     continue;
                 }
@@ -9014,7 +9022,7 @@ void Logo(void)
 
 void loadtmb(void)
 {
-    char tmb[8000];
+    unsigned char tmb[8000];
     long fil, l;
 
     fil = kopen4load("d3dtimbr.tmb",0);
@@ -9623,7 +9631,16 @@ void app_main(int argc,char **argv)
 
     FreeGroups();
 
-    if (NAM)
+    if (WW2GI)
+    {
+        // overwrite the default GRP and CON so that if the user chooses
+        // something different, they get what they asked for
+        Bsprintf(defaultduke3dgrp,"ww2gi.grp");
+        Bsprintf(confilename, "ww2gi.con");
+        Bsprintf(gametype_names[0],"GRUNTMATCH (SPAWN)");
+        Bsprintf(gametype_names[2],"GRUNTMATCH (NO SPAWN)");
+    }
+    else if (NAM)
     {
         // overwrite the default GRP and CON so that if the user chooses
         // something different, they get what they asked for
