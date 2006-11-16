@@ -909,120 +909,120 @@ void DefineProjectile(long lVar1, long lLabelID, long lVar2)
 {
     switch (lLabelID)
     {
-        case PROJ_WORKSLIKE:
-            projectile[lVar1].workslike=lVar2;
-            break;
+    case PROJ_WORKSLIKE:
+        projectile[lVar1].workslike=lVar2;
+        break;
 
-        case PROJ_SPAWNS:
-            projectile[lVar1].spawns=lVar2;
-            break;
+    case PROJ_SPAWNS:
+        projectile[lVar1].spawns=lVar2;
+        break;
 
-        case PROJ_SXREPEAT:
-            projectile[lVar1].sxrepeat=lVar2;
-            break;
+    case PROJ_SXREPEAT:
+        projectile[lVar1].sxrepeat=lVar2;
+        break;
 
-        case PROJ_SYREPEAT:
-            projectile[lVar1].syrepeat=lVar2;
-            break;
+    case PROJ_SYREPEAT:
+        projectile[lVar1].syrepeat=lVar2;
+        break;
 
-        case PROJ_SOUND:
-            projectile[lVar1].sound=lVar2;
-            break;
+    case PROJ_SOUND:
+        projectile[lVar1].sound=lVar2;
+        break;
 
-        case PROJ_ISOUND:
-            projectile[lVar1].isound=lVar2;
-            break;
+    case PROJ_ISOUND:
+        projectile[lVar1].isound=lVar2;
+        break;
 
-        case PROJ_VEL:
-            projectile[lVar1].vel=lVar2;
-            break;
+    case PROJ_VEL:
+        projectile[lVar1].vel=lVar2;
+        break;
 
-        case PROJ_EXTRA:
-            projectile[lVar1].extra=lVar2;
-            break;
+    case PROJ_EXTRA:
+        projectile[lVar1].extra=lVar2;
+        break;
 
-        case PROJ_DECAL:
-            projectile[lVar1].decal=lVar2;
-            break;
+    case PROJ_DECAL:
+        projectile[lVar1].decal=lVar2;
+        break;
 
-        case PROJ_TRAIL:
-            projectile[lVar1].trail=lVar2;
-            break;
+    case PROJ_TRAIL:
+        projectile[lVar1].trail=lVar2;
+        break;
 
-        case PROJ_TXREPEAT:
-            projectile[lVar1].txrepeat=lVar2;
-            break;
+    case PROJ_TXREPEAT:
+        projectile[lVar1].txrepeat=lVar2;
+        break;
 
-        case PROJ_TYREPEAT:
-            projectile[lVar1].tyrepeat=lVar2;
-            break;
+    case PROJ_TYREPEAT:
+        projectile[lVar1].tyrepeat=lVar2;
+        break;
 
-        case PROJ_TOFFSET:
-            projectile[lVar1].toffset=lVar2;
-            break;
+    case PROJ_TOFFSET:
+        projectile[lVar1].toffset=lVar2;
+        break;
 
-        case PROJ_TNUM:
-            projectile[lVar1].tnum=lVar2;
-            break;
+    case PROJ_TNUM:
+        projectile[lVar1].tnum=lVar2;
+        break;
 
-        case PROJ_DROP:
-            projectile[lVar1].drop=lVar2;
-            break;
+    case PROJ_DROP:
+        projectile[lVar1].drop=lVar2;
+        break;
 
-        case PROJ_CSTAT:
-            projectile[lVar1].cstat=lVar2;
-            break;
+    case PROJ_CSTAT:
+        projectile[lVar1].cstat=lVar2;
+        break;
 
-        case PROJ_CLIPDIST:
-            projectile[lVar1].clipdist=lVar2;
-            break;
+    case PROJ_CLIPDIST:
+        projectile[lVar1].clipdist=lVar2;
+        break;
 
-        case PROJ_SHADE:
-            projectile[lVar1].shade=lVar2;
-            break;
+    case PROJ_SHADE:
+        projectile[lVar1].shade=lVar2;
+        break;
 
-        case PROJ_XREPEAT:
-            projectile[lVar1].xrepeat=lVar2;
-            break;
+    case PROJ_XREPEAT:
+        projectile[lVar1].xrepeat=lVar2;
+        break;
 
-        case PROJ_YREPEAT:
-            projectile[lVar1].yrepeat=lVar2;
-            break;
+    case PROJ_YREPEAT:
+        projectile[lVar1].yrepeat=lVar2;
+        break;
 
-        case PROJ_PAL:
-            projectile[lVar1].pal=lVar2;
-            break;
+    case PROJ_PAL:
+        projectile[lVar1].pal=lVar2;
+        break;
 
-        case PROJ_EXTRA_RAND:
-            projectile[lVar1].extra_rand=lVar2;
-            break;
+    case PROJ_EXTRA_RAND:
+        projectile[lVar1].extra_rand=lVar2;
+        break;
 
-        case PROJ_HITRADIUS:
-            projectile[lVar1].hitradius=lVar2;
-            break;
+    case PROJ_HITRADIUS:
+        projectile[lVar1].hitradius=lVar2;
+        break;
 
-        case PROJ_VEL_MULT:
-            projectile[lVar1].velmult=lVar2;
-            break;
+    case PROJ_VEL_MULT:
+        projectile[lVar1].velmult=lVar2;
+        break;
 
-        case PROJ_OFFSET:
-            projectile[lVar1].offset=lVar2;
-            break;
+    case PROJ_OFFSET:
+        projectile[lVar1].offset=lVar2;
+        break;
 
-        case PROJ_BOUNCES:
-            projectile[lVar1].bounces=lVar2;
-            break;
+    case PROJ_BOUNCES:
+        projectile[lVar1].bounces=lVar2;
+        break;
 
-        case PROJ_BSOUND:
-            projectile[lVar1].bsound=lVar2;
-            break;
+    case PROJ_BSOUND:
+        projectile[lVar1].bsound=lVar2;
+        break;
 
-        case PROJ_RANGE:
-            projectile[lVar1].range=lVar2;
-            break;
+    case PROJ_RANGE:
+        projectile[lVar1].range=lVar2;
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     //  defaultprojectile[lVar1] = projectile[lVar1];
@@ -1037,27 +1037,27 @@ char CheckEventSync(int iEventID)
     {
         switch (iEventID)
         {
-            case EVENT_CHEATGETSTEROIDS:
-            case EVENT_CHEATGETHEAT:
-            case EVENT_CHEATGETBOOT:
-            case EVENT_CHEATGETSHIELD:
-            case EVENT_CHEATGETSCUBA:
-            case EVENT_CHEATGETHOLODUKE:
-            case EVENT_CHEATGETJETPACK:
-            case EVENT_CHEATGETFIRSTAID:
-            case EVENT_DISPLAYWEAPON:
-            case EVENT_DRAWWEAPON:
-            case EVENT_DISPLAYCROSSHAIR:
-            case EVENT_DISPLAYREST:
-            case EVENT_ENTERLEVEL:
-            case EVENT_FAKEDOMOVETHINGS:
-            case EVENT_GETLOADTILE:
-            case EVENT_GETMENUTILE:
-            case EVENT_INIT:
-            case EVENT_LOGO:
-                return 0;
-            default:
-                return 1;
+        case EVENT_CHEATGETSTEROIDS:
+        case EVENT_CHEATGETHEAT:
+        case EVENT_CHEATGETBOOT:
+        case EVENT_CHEATGETSHIELD:
+        case EVENT_CHEATGETSCUBA:
+        case EVENT_CHEATGETHOLODUKE:
+        case EVENT_CHEATGETJETPACK:
+        case EVENT_CHEATGETFIRSTAID:
+        case EVENT_DISPLAYWEAPON:
+        case EVENT_DRAWWEAPON:
+        case EVENT_DISPLAYCROSSHAIR:
+        case EVENT_DISPLAYREST:
+        case EVENT_ENTERLEVEL:
+        case EVENT_FAKEDOMOVETHINGS:
+        case EVENT_GETLOADTILE:
+        case EVENT_GETMENUTILE:
+        case EVENT_INIT:
+        case EVENT_LOGO:
+            return 0;
+        default:
+            return 1;
         }
     }
     return 1;
@@ -1997,238 +1997,319 @@ char parsecommand(void)
 
     switch (tw)
     {
-        default:
-        case -1:
-            return 0; //End
-        case CON_STATE:
-            if (parsing_actor == 0 && parsing_state == 0)
-            {
-                getlabel();
-                scriptptr--;
-                labelcode[labelcnt] = (long) scriptptr;
-                labeltype[labelcnt] = LABEL_STATE;
-
-                parsing_state = 1;
-                Bsprintf(parsing_item_name,"%s",label+(labelcnt<<6));
-                labelcnt++;
-                return 0;
-            }
-
-            getlabel();
-
-            for (i=0;i<NUMKEYWORDS;i++)
-                if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
-                {
-                    error++;
-                    ReportError(ERROR_ISAKEYWORD);
-                    return 0;
-                }
-            for (j=0;j<labelcnt;j++)
-            {
-                if (Bstrcmp(label+(j<<6),label+(labelcnt<<6)) == 0)
-                {
-                    if (labeltype[j] & LABEL_STATE)
-                    {
-                        if (!(error || warning) && condebug > 1)
-                            initprintf("%s:%ld: debug: accepted state label `%s'.\n",compilefile,line_number,label+(j<<6));
-                        *scriptptr = labelcode[j];
-                        break;
-                    }
-                    else
-                    {
-                        char *gl;
-                        gl = translatelabeltype(labeltype[j]);
-                        ReportError(-1);
-                        initprintf("%s:%ld: warning: expected a state, found a %s.\n",compilefile,line_number,gl);
-                        Bfree(gl);
-                        *(scriptptr-1) = CON_NULLOP; // get rid of the state, leaving a nullop to satisfy if conditions
-                        return 0;  // valid label name, but wrong type
-                    }
-                }
-            }
-            if (j==labelcnt)
-            {
-                ReportError(-1);
-                initprintf("%s:%ld: error: state `%s' not found.\n",compilefile,line_number,label+(labelcnt<<6));
-                error++;
-            }
-            scriptptr++;
-            return 0;
-
-        case CON_ENDS:
-            if (parsing_state == 0)
-            {
-                ReportError(-1);
-                initprintf("%s:%ld: error: found `ends' without open `state'.\n",compilefile,line_number);
-                error++;
-            }
-            //            else
-            {
-                if (num_braces > 0)
-                {
-                    ReportError(ERROR_OPENBRACKET);
-                    error++;
-                }
-                if (num_braces < 0)
-                {
-                    ReportError(ERROR_CLOSEBRACKET);
-                    error++;
-                }
-                if (checking_switch > 0)
-                {
-                    ReportError(ERROR_NOENDSWITCH);
-                    error++;
-
-                    checking_switch = 0; // can't be checking anymore...
-                }
-
-                parsing_state = 0;
-                Bsprintf(parsing_item_name,"(none)");
-            }
-            return 0;
-
-        case CON_SETTHISPROJECTILE:
-        case CON_SETPROJECTILE:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_GETTHISPROJECTILE:
-        case CON_GETPROJECTILE:
+    default:
+    case -1:
+        return 0; //End
+    case CON_STATE:
+        if (parsing_actor == 0 && parsing_state == 0)
         {
-            long lLabelID;
-
-            // syntax getwall[<var>].x <VAR>
-            // gets the value of wall[<var>].xxx into <VAR>
-
-            // now get name of .xxx
-            while ((*textptr != '['))
-            {
-                textptr++;
-            }
-            if (*textptr == '[')
-                textptr++;
-
-            // get the ID of the DEF
-            if (tw == CON_SETTHISPROJECTILE)
-                labelsonly = 1;
-            transvar();
-            labelsonly = 0;
-            // now get name of .xxx
-            while (*textptr != '.')
-            {
-                if (*textptr == 0xa)
-                    break;
-                if (!*textptr)
-                    break;
-
-                textptr++;
-            }
-            if (*textptr!='.')
-            {
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
-                return 0;
-            }
-            textptr++;
-            /// now pointing at 'xxx'
             getlabel();
-            //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
+            scriptptr--;
+            labelcode[labelcnt] = (long) scriptptr;
+            labeltype[labelcnt] = LABEL_STATE;
 
-            lLabelID=getlabeloffset(projectilelabels,label+(labelcnt<<6));
-            //printf("LabelID is %ld\n",lLabelID);
-            if (lLabelID == -1)
-            {
-                error++;
-                ReportError(ERROR_SYMBOLNOTRECOGNIZED);
-                return 0;
-            }
-
-            *scriptptr++=projectilelabels[lLabelID].lId;
-
-            //printf("member's flags are: %02Xh\n",playerlabels[lLabelID].flags);
-
-            // now at target VAR...
-
-            // get the ID of the DEF
-            switch (tw)
-            {
-                case CON_SETPROJECTILE:
-                case CON_SETTHISPROJECTILE:
-                    transvar();
-                    break;
-                default:
-                    transvartype(GAMEVAR_FLAG_READONLY);
-                    break;
-            }
-            break;
+            parsing_state = 1;
+            Bsprintf(parsing_item_name,"%s",label+(labelcnt<<6));
+            labelcnt++;
+            return 0;
         }
 
-        case CON_GAMEVAR:
-            // syntax: gamevar <var1> <initial value> <flags>
-            // defines var1 and sets initial value.
-            // flags are used to define usage
-            // (see top of this files for flags)
-            //printf("Got gamedef. Getting Label. '%.20s'\n",textptr);
+        getlabel();
 
-            if (isdigit(*textptr) || (*textptr == '-'))
+        for (i=0;i<NUMKEYWORDS;i++)
+            if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
             {
-                getlabel();
                 error++;
-                ReportError(ERROR_SYNTAXERROR);
-                transnum(LABEL_DEFINE);
-                transnum(LABEL_DEFINE);
-                scriptptr -= 3; // we complete the process anyways just to skip past the fucked up section
+                ReportError(ERROR_ISAKEYWORD);
+                return 0;
+            }
+        for (j=0;j<labelcnt;j++)
+        {
+            if (Bstrcmp(label+(j<<6),label+(labelcnt<<6)) == 0)
+            {
+                if (labeltype[j] & LABEL_STATE)
+                {
+                    if (!(error || warning) && condebug > 1)
+                        initprintf("%s:%ld: debug: accepted state label `%s'.\n",compilefile,line_number,label+(j<<6));
+                    *scriptptr = labelcode[j];
+                    break;
+                }
+                else
+                {
+                    char *gl;
+                    gl = translatelabeltype(labeltype[j]);
+                    ReportError(-1);
+                    initprintf("%s:%ld: warning: expected a state, found a %s.\n",compilefile,line_number,gl);
+                    Bfree(gl);
+                    *(scriptptr-1) = CON_NULLOP; // get rid of the state, leaving a nullop to satisfy if conditions
+                    return 0;  // valid label name, but wrong type
+                }
+            }
+        }
+        if (j==labelcnt)
+        {
+            ReportError(-1);
+            initprintf("%s:%ld: error: state `%s' not found.\n",compilefile,line_number,label+(labelcnt<<6));
+            error++;
+        }
+        scriptptr++;
+        return 0;
+
+    case CON_ENDS:
+        if (parsing_state == 0)
+        {
+            ReportError(-1);
+            initprintf("%s:%ld: error: found `ends' without open `state'.\n",compilefile,line_number);
+            error++;
+        }
+        //            else
+        {
+            if (num_braces > 0)
+            {
+                ReportError(ERROR_OPENBRACKET);
+                error++;
+            }
+            if (num_braces < 0)
+            {
+                ReportError(ERROR_CLOSEBRACKET);
+                error++;
+            }
+            if (checking_switch > 0)
+            {
+                ReportError(ERROR_NOENDSWITCH);
+                error++;
+
+                checking_switch = 0; // can't be checking anymore...
+            }
+
+            parsing_state = 0;
+            Bsprintf(parsing_item_name,"(none)");
+        }
+        return 0;
+
+    case CON_SETTHISPROJECTILE:
+    case CON_SETPROJECTILE:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_GETTHISPROJECTILE:
+    case CON_GETPROJECTILE:
+    {
+        long lLabelID;
+
+        // syntax getwall[<var>].x <VAR>
+        // gets the value of wall[<var>].xxx into <VAR>
+
+        // now get name of .xxx
+        while ((*textptr != '['))
+        {
+            textptr++;
+        }
+        if (*textptr == '[')
+            textptr++;
+
+        // get the ID of the DEF
+        if (tw == CON_SETTHISPROJECTILE)
+            labelsonly = 1;
+        transvar();
+        labelsonly = 0;
+        // now get name of .xxx
+        while (*textptr != '.')
+        {
+            if (*textptr == 0xa)
+                break;
+            if (!*textptr)
+                break;
+
+            textptr++;
+        }
+        if (*textptr!='.')
+        {
+            error++;
+            ReportError(ERROR_SYNTAXERROR);
+            return 0;
+        }
+        textptr++;
+        /// now pointing at 'xxx'
+        getlabel();
+        //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
+
+        lLabelID=getlabeloffset(projectilelabels,label+(labelcnt<<6));
+        //printf("LabelID is %ld\n",lLabelID);
+        if (lLabelID == -1)
+        {
+            error++;
+            ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+            return 0;
+        }
+
+        *scriptptr++=projectilelabels[lLabelID].lId;
+
+        //printf("member's flags are: %02Xh\n",playerlabels[lLabelID].flags);
+
+        // now at target VAR...
+
+        // get the ID of the DEF
+        switch (tw)
+        {
+        case CON_SETPROJECTILE:
+        case CON_SETTHISPROJECTILE:
+            transvar();
+            break;
+        default:
+            transvartype(GAMEVAR_FLAG_READONLY);
+            break;
+        }
+        break;
+    }
+
+    case CON_GAMEVAR:
+        // syntax: gamevar <var1> <initial value> <flags>
+        // defines var1 and sets initial value.
+        // flags are used to define usage
+        // (see top of this files for flags)
+        //printf("Got gamedef. Getting Label. '%.20s'\n",textptr);
+
+        if (isdigit(*textptr) || (*textptr == '-'))
+        {
+            getlabel();
+            error++;
+            ReportError(ERROR_SYNTAXERROR);
+            transnum(LABEL_DEFINE);
+            transnum(LABEL_DEFINE);
+            scriptptr -= 3; // we complete the process anyways just to skip past the fucked up section
+            return 0;
+        }
+
+        getlabel();
+        //printf("Got Label '%.20s'\n",textptr);
+        // Check to see it's already defined
+
+        for (i=0;i<NUMKEYWORDS;i++)
+            if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
+            {
+                error++;
+                ReportError(ERROR_ISAKEYWORD);
+                return 0;
+            }
+#if 0
+        for (i=0;i<iGameVarCount;i++)
+        {
+            if (aGameVars[i].szLabel != NULL)
+            {
+                if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
+                {
+                    warning++;
+                    initprintf("  * WARNING.(L%ld) duplicate Game definition `%s' ignored.\n",line_number,label+(labelcnt<<6));
+                    break;
+                }
+            }
+        }
+#endif
+
+        //printf("Translating number  '%.20s'\n",textptr);
+        transnum(LABEL_DEFINE); // get initial value
+        //printf("Done Translating number.  '%.20s'\n",textptr);
+
+        transnum(LABEL_DEFINE); // get flags
+        //Bsprintf(g_szBuf,"Adding GameVar='%s', val=%l, flags=%lX",label+(labelcnt<<6),
+        //      *(scriptptr-2), *(scriptptr-1));
+        //AddLog(g_szBuf);
+
+        AddGameVar(label+(labelcnt<<6),*(scriptptr-2),
+                   (*(scriptptr-1))
+                   // can't define default or secret
+                   & (~(GAMEVAR_FLAG_DEFAULT | GAMEVAR_FLAG_SECRET))
+                  );
+        //AddLog("Added gamevar");
+        scriptptr -= 3; // no need to save in script...
+        return 0;
+
+    case CON_DEFINE:
+    {
+        //printf("Got definition. Getting Label. '%.20s'\n",textptr);
+        getlabel();
+        //printf("Got label. '%.20s'\n",textptr);
+        // Check to see it's already defined
+
+        for (i=0;i<NUMKEYWORDS;i++)
+            if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
+            {
+                error++;
+                ReportError(ERROR_ISAKEYWORD);
                 return 0;
             }
 
-            getlabel();
-            //printf("Got Label '%.20s'\n",textptr);
-            // Check to see it's already defined
-
-            for (i=0;i<NUMKEYWORDS;i++)
-                if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
-                {
-                    error++;
-                    ReportError(ERROR_ISAKEYWORD);
-                    return 0;
-                }
-#if 0
-            for (i=0;i<iGameVarCount;i++)
-            {
-                if (aGameVars[i].szLabel != NULL)
-                {
-                    if (Bstrcmp(label+(labelcnt<<6),aGameVars[i].szLabel) == 0)
-                    {
-                        warning++;
-                        initprintf("  * WARNING.(L%ld) duplicate Game definition `%s' ignored.\n",line_number,label+(labelcnt<<6));
-                        break;
-                    }
-                }
-            }
-#endif
-
-            //printf("Translating number  '%.20s'\n",textptr);
-            transnum(LABEL_DEFINE); // get initial value
-            //printf("Done Translating number.  '%.20s'\n",textptr);
-
-            transnum(LABEL_DEFINE); // get flags
-            //Bsprintf(g_szBuf,"Adding GameVar='%s', val=%l, flags=%lX",label+(labelcnt<<6),
-            //      *(scriptptr-2), *(scriptptr-1));
-            //AddLog(g_szBuf);
-
-            AddGameVar(label+(labelcnt<<6),*(scriptptr-2),
-                       (*(scriptptr-1))
-                       // can't define default or secret
-                       & (~(GAMEVAR_FLAG_DEFAULT | GAMEVAR_FLAG_SECRET))
-                      );
-            //AddLog("Added gamevar");
-            scriptptr -= 3; // no need to save in script...
-            return 0;
-
-        case CON_DEFINE:
+        for (i=0;i<labelcnt;i++)
         {
-            //printf("Got definition. Getting Label. '%.20s'\n",textptr);
+            if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 && (labeltype[i] & LABEL_DEFINE))
+            {
+                if (i >= defaultlabelcnt)
+                {
+                    warning++;
+                    ReportError(WARNING_DUPLICATEDEFINITION);
+                }
+                break;
+            }
+        }
+        //printf("Translating. '%.20s'\n",textptr);
+        transnum(LABEL_DEFINE);
+        //printf("Translated. '%.20s'\n",textptr);
+        if (i == labelcnt)
+        {
+            //              printf("Defining Definition '%s' to be '%d'\n",label+(labelcnt<<6),*(scriptptr-1));
+            labeltype[labelcnt] = LABEL_DEFINE;
+            labelcode[labelcnt++] = *(scriptptr-1);
+            if (*(scriptptr-1) >= 0 && *(scriptptr-1) < MAXTILES && dynamicremap)
+                processnames(label+(i<<6),*(scriptptr-1));
+        }
+        scriptptr -= 2;
+        return 0;
+    }
+
+    case CON_PALFROM:
+        for (j=0;j<4;j++)
+        {
+            if (keyword() == -1)
+                transnum(LABEL_DEFINE);
+            else break;
+        }
+
+        while (j<4)
+        {
+            *scriptptr = 0;
+            scriptptr++;
+            j++;
+        }
+        return 0;
+
+    case CON_MOVE:
+        if (parsing_actor || parsing_state)
+        {
+            if (!CheckEventSync(current_event))
+                ReportError(WARNING_EVENTSYNC);
+
+            if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
+            {
+                ReportError(-1);
+                *(scriptptr-1) = 0;
+                initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
+            }
+
+            j = 0;
+            while (keyword() == -1)
+            {
+                transnum(LABEL_DEFINE);
+                scriptptr--;
+                j |= *scriptptr;
+            }
+            *scriptptr = j;
+
+            scriptptr++;
+        }
+        else
+        {
+            scriptptr--;
             getlabel();
-            //printf("Got label. '%.20s'\n",textptr);
             // Check to see it's already defined
 
             for (i=0;i<NUMKEYWORDS;i++)
@@ -2240,1131 +2321,179 @@ char parsecommand(void)
                 }
 
             for (i=0;i<labelcnt;i++)
-            {
-                if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 && (labeltype[i] & LABEL_DEFINE))
+                if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 && (labeltype[i] & LABEL_MOVE))
                 {
-                    if (i >= defaultlabelcnt)
-                    {
-                        warning++;
-                        ReportError(WARNING_DUPLICATEDEFINITION);
-                    }
+                    warning++;
+                    initprintf("%s:%ld: warning: duplicate move `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
                     break;
                 }
-            }
-            //printf("Translating. '%.20s'\n",textptr);
-            transnum(LABEL_DEFINE);
-            //printf("Translated. '%.20s'\n",textptr);
             if (i == labelcnt)
             {
-                //              printf("Defining Definition '%s' to be '%d'\n",label+(labelcnt<<6),*(scriptptr-1));
-                labeltype[labelcnt] = LABEL_DEFINE;
-                labelcode[labelcnt++] = *(scriptptr-1);
-                if (*(scriptptr-1) >= 0 && *(scriptptr-1) < MAXTILES && dynamicremap)
-                    processnames(label+(i<<6),*(scriptptr-1));
+                labeltype[labelcnt] = LABEL_MOVE;
+                labelcode[labelcnt++] = (long) scriptptr;
             }
-            scriptptr -= 2;
-            return 0;
-        }
-
-        case CON_PALFROM:
-            for (j=0;j<4;j++)
+            for (j=0;j<2;j++)
             {
-                if (keyword() == -1)
-                    transnum(LABEL_DEFINE);
-                else break;
+                if (keyword() >= 0) break;
+                transnum(LABEL_DEFINE);
             }
-
-            while (j<4)
+            for (k=j;k<2;k++)
             {
                 *scriptptr = 0;
                 scriptptr++;
-                j++;
-            }
-            return 0;
-
-        case CON_MOVE:
-            if (parsing_actor || parsing_state)
-            {
-                if (!CheckEventSync(current_event))
-                    ReportError(WARNING_EVENTSYNC);
-
-                if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
-                {
-                    ReportError(-1);
-                    *(scriptptr-1) = 0;
-                    initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
-                }
-
-                j = 0;
-                while (keyword() == -1)
-                {
-                    transnum(LABEL_DEFINE);
-                    scriptptr--;
-                    j |= *scriptptr;
-                }
-                *scriptptr = j;
-
-                scriptptr++;
-            }
-            else
-            {
-                scriptptr--;
-                getlabel();
-                // Check to see it's already defined
-
-                for (i=0;i<NUMKEYWORDS;i++)
-                    if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
-                    {
-                        error++;
-                        ReportError(ERROR_ISAKEYWORD);
-                        return 0;
-                    }
-
-                for (i=0;i<labelcnt;i++)
-                    if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 && (labeltype[i] & LABEL_MOVE))
-                    {
-                        warning++;
-                        initprintf("%s:%ld: warning: duplicate move `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
-                        break;
-                    }
-                if (i == labelcnt)
-                {
-                    labeltype[labelcnt] = LABEL_MOVE;
-                    labelcode[labelcnt++] = (long) scriptptr;
-                }
-                for (j=0;j<2;j++)
-                {
-                    if (keyword() >= 0) break;
-                    transnum(LABEL_DEFINE);
-                }
-                for (k=j;k<2;k++)
-                {
-                    *scriptptr = 0;
-                    scriptptr++;
-                }
-            }
-            return 0;
-
-        case CON_MUSIC:
-        {
-            // NOTE: this doesn't get stored in the PCode...
-
-            // music 1 stalker.mid dethtoll.mid streets.mid watrwld1.mid snake1.mid
-            //    thecall.mid ahgeez.mid dethtoll.mid streets.mid watrwld1.mid snake1.mid
-            scriptptr--;
-            transnum(LABEL_DEFINE); // Volume Number (0/4)
-            scriptptr--;
-
-            k = *scriptptr-1;
-
-            if (k >= 0) // if it's background music
-            {
-                i = 0;
-                // get the file name...
-                while (keyword() == -1)
-                {
-                    while (isaltok(*textptr) == 0)
-                    {
-                        if (*textptr == 0x0a) line_number++;
-                        textptr++;
-                        if (*textptr == 0) break;
-                    }
-                    j = 0;
-                    while (isaltok(*(textptr+j)))
-                    {
-                        music_fn[k][i][j] = textptr[j];
-                        j++;
-                    }
-                    music_fn[k][i][j] = '\0';
-                    textptr += j;
-                    if (i > 9) break;
-                    i++;
-                }
-            }
-            else
-            {
-                i = 0;
-                while (keyword() == -1)
-                {
-                    while (isaltok(*textptr) == 0)
-                    {
-                        if (*textptr == 0x0a) line_number++;
-                        textptr++;
-                        if (*textptr == 0) break;
-                    }
-                    j = 0;
-                    while (isaltok(*(textptr+j)))
-                    {
-                        env_music_fn[i][j] = textptr[j];
-                        j++;
-                    }
-                    env_music_fn[i][j] = '\0';
-
-                    textptr += j;
-                    if (i > 9) break;
-                    i++;
-                }
             }
         }
         return 0;
 
-        case CON_INCLUDE:
-            scriptptr--;
-            while (isaltok(*textptr) == 0)
-            {
-                if (*textptr == 0x0a) line_number++;
-                textptr++;
-                if (*textptr == 0) break;
-            }
-            j = 0;
-            while (isaltok(*textptr))
-            {
-                tempbuf[j] = *(textptr++);
-                j++;
-            }
-            tempbuf[j] = '\0';
+    case CON_MUSIC:
+    {
+        // NOTE: this doesn't get stored in the PCode...
 
-            {
-                short temp_line_number;
-                char  temp_ifelse_check;
-                char *origtptr, *mptr;
-                char parentcompilefile[255];
-                int fp;
+        // music 1 stalker.mid dethtoll.mid streets.mid watrwld1.mid snake1.mid
+        //    thecall.mid ahgeez.mid dethtoll.mid streets.mid watrwld1.mid snake1.mid
+        scriptptr--;
+        transnum(LABEL_DEFINE); // Volume Number (0/4)
+        scriptptr--;
 
-                fp = kopen4load(tempbuf,loadfromgrouponly);
-                if (fp < 0)
+        k = *scriptptr-1;
+
+        if (k >= 0) // if it's background music
+        {
+            i = 0;
+            // get the file name...
+            while (keyword() == -1)
+            {
+                while (isaltok(*textptr) == 0)
                 {
-                    error++;
-                    initprintf("%s:%ld: error: could not find file `%s'.\n",compilefile,line_number,tempbuf);
-                    return 0;
-                }
-
-                j = kfilelength(fp);
-
-                mptr = (char *)Bmalloc(j+1);
-                if (!mptr)
-                {
-                    kclose(fp);
-                    error++;
-                    initprintf("%s:%ld: error: could not allocate %ld bytes to include `%s'.\n",
-                               line_number,compilefile,j,tempbuf);
-                    return 0;
-                }
-
-                initprintf("Including: %s (%ld bytes)\n",tempbuf, j);
-                kread(fp, mptr, j);
-                kclose(fp);
-                mptr[j] = 0;
-
-                if (*textptr == '"') // skip past the closing quote if it's there so we don't screw up the next line
+                    if (*textptr == 0x0a) line_number++;
                     textptr++;
-                origtptr = textptr;
-
-                Bstrcpy(parentcompilefile, compilefile);
-                Bstrcpy(compilefile, tempbuf);
-                temp_line_number = line_number;
-                line_number = 1;
-                temp_ifelse_check = checking_ifelse;
-                checking_ifelse = 0;
-
-                textptr = mptr;
-                do done = parsecommand();
-                while (!done);
-
-                Bstrcpy(compilefile, parentcompilefile);
-                total_lines += line_number;
-                line_number = temp_line_number;
-                checking_ifelse = temp_ifelse_check;
-
-                textptr = origtptr;
-
-                Bfree(mptr);
-            }
-            return 0;
-
-        case CON_AI:
-            if (parsing_actor || parsing_state)
-            {
-                if (!CheckEventSync(current_event))
-                    ReportError(WARNING_EVENTSYNC);
-                transnum(LABEL_AI);
-            }
-            else
-            {
-                scriptptr--;
-                getlabel();
-
-                for (i=0;i<NUMKEYWORDS;i++)
-                    if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
-                    {
-                        error++;
-                        ReportError(ERROR_ISAKEYWORD);
-                        return 0;
-                    }
-
-                for (i=0;i<labelcnt;i++)
-                    if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 && (labeltype[i] & LABEL_AI))
-                    {
-                        warning++;
-                        initprintf("%s:%ld: warning: duplicate ai `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
-                        break;
-                    }
-
-                if (i == labelcnt)
-                {
-                    labeltype[labelcnt] = LABEL_AI;
-                    labelcode[labelcnt++] = (long) scriptptr;
+                    if (*textptr == 0) break;
                 }
-
-                for (j=0;j<3;j++)
-                {
-                    if (keyword() >= 0) break;
-                    if (j == 1)
-                        transnum(LABEL_ACTION);
-                    else if (j == 2)
-                    {
-                        if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
-                        {
-                            ReportError(-1);
-                            *(scriptptr-1) = 0;
-                            initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
-                        }
-                        k = 0;
-                        while (keyword() == -1)
-                        {
-                            transnum(LABEL_DEFINE);
-                            scriptptr--;
-                            k |= *scriptptr;
-                        }
-                        *scriptptr = k;
-                        scriptptr++;
-                        return 0;
-                    }
-                }
-                for (k=j;k<3;k++)
-                {
-                    *scriptptr = 0;
-                    scriptptr++;
-                }
-            }
-            return 0;
-
-        case CON_ACTION:
-            if (parsing_actor || parsing_state)
-            {
-                if (!CheckEventSync(current_event))
-                    ReportError(WARNING_EVENTSYNC);
-                transnum(LABEL_ACTION);
-            }
-            else
-            {
-                scriptptr--;
-                getlabel();
-                // Check to see it's already defined
-
-                for (i=0;i<NUMKEYWORDS;i++)
-                    if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
-                    {
-                        error++;
-                        ReportError(ERROR_ISAKEYWORD);
-                        return 0;
-                    }
-                for (i=0;i<labelcnt;i++)
-                    if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 && (labeltype[i] & LABEL_ACTION))
-                    {
-                        warning++;
-                        initprintf("%s:%ld: warning: duplicate action `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
-                        break;
-                    }
-
-                if (i == labelcnt)
-                {
-                    labeltype[labelcnt] = LABEL_ACTION;
-                    labelcode[labelcnt] = (long) scriptptr;
-                    labelcnt++;
-                }
-
-                for (j=0;j<5;j++)
-                {
-                    if (keyword() >= 0) break;
-                    transnum(LABEL_DEFINE);
-                }
-                for (k=j;k<5;k++)
-                {
-                    *scriptptr = 0;
-                    scriptptr++;
-                }
-            }
-            return 0;
-
-        case CON_ACTOR:
-            if (parsing_state || parsing_actor)
-            {
-                ReportError(ERROR_FOUNDWITHIN);
-                error++;
-            }
-
-            num_braces = 0;
-            scriptptr--;
-            parsing_actor = scriptptr;
-
-            skipcomments();
-            j = 0;
-            while (isaltok(*(textptr+j)))
-            {
-                parsing_item_name[j] = textptr[j];
-                j++;
-            }
-            parsing_item_name[j] = 0;
-            transnum(LABEL_DEFINE);
-            //         Bsprintf(parsing_item_name,"%s",label+(labelcnt<<6));
-            scriptptr--;
-            actorscrptr[*scriptptr] = parsing_actor;
-
-            for (j=0;j<4;j++)
-            {
-                *(parsing_actor+j) = 0;
-                if (j == 3)
-                {
-                    j = 0;
-                    while (keyword() == -1)
-                    {
-                        transnum(LABEL_DEFINE);
-                        scriptptr--;
-                        j |= *scriptptr;
-                    }
-                    *scriptptr = j;
-                    scriptptr++;
-                    break;
-                }
-                else
-                {
-                    if (keyword() >= 0)
-                    {
-                        for (i=4-j; i; i--) *(scriptptr++) = 0;
-                        break;
-                    }
-                    switch (j)
-                    {
-                        case 0:
-                            transnum(LABEL_DEFINE);
-                            break;
-                        case 1:
-                            transnum(LABEL_ACTION);
-                            break;
-                        case 2:
-                            if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
-                            {
-                                ReportError(-1);
-                                *(scriptptr-1) = 0;
-                                initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
-                            }
-                            break;
-                    }
-                    *(parsing_actor+j) = *(scriptptr-1);
-                }
-            }
-            checking_ifelse = 0;
-            return 0;
-
-        case CON_ONEVENT:
-            if (parsing_state || parsing_actor)
-            {
-                ReportError(ERROR_FOUNDWITHIN);
-                error++;
-            }
-
-            num_braces = 0;
-            scriptptr--;
-            parsing_event = scriptptr;
-            parsing_actor = scriptptr;
-
-            skipcomments();
-            j = 0;
-            while (isaltok(*(textptr+j)))
-            {
-                parsing_item_name[j] = textptr[j];
-                j++;
-            }
-            parsing_item_name[j] = 0;
-            labelsonly = 1;
-            transnum(LABEL_DEFINE);
-            labelsonly = 0;
-            scriptptr--;
-            j= *scriptptr;  // type of event
-            current_event = j;
-            //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, parsing_event);
-            //AddLog(g_szBuf);
-            if (j > MAXGAMEEVENTS-1 || j < 0)
-            {
-                initprintf("%s:%ld: error: invalid event ID.\n",compilefile,line_number);
-                error++;
-                return 0;
-            }
-
-            if (apScriptGameEvent[j])
-            {
-                tempscrptr = parsing_event;
-                parsing_event = parsing_actor = 0;
-                ReportError(-1);
-                parsing_event = parsing_actor = tempscrptr;
-                initprintf("%s:%ld: warning: duplicate event `%s'.\n",compilefile,line_number,parsing_item_name);
-            }
-            else apScriptGameEvent[j]=parsing_event;
-
-            checking_ifelse = 0;
-
-            return 0;
-
-        case CON_EVENTLOADACTOR:
-            if (parsing_state || parsing_actor)
-            {
-                ReportError(ERROR_FOUNDWITHIN);
-                error++;
-            }
-
-            num_braces = 0;
-            scriptptr--;
-            parsing_actor = scriptptr;
-
-            skipcomments();
-            j = 0;
-            while (isaltok(*(textptr+j)))
-            {
-                parsing_item_name[j] = textptr[j];
-                j++;
-            }
-            parsing_item_name[j] = 0;
-            transnum(LABEL_DEFINE);
-            scriptptr--;
-            actorLoadEventScrptr[*scriptptr] = parsing_actor;
-
-            checking_ifelse = 0;
-            return 0;
-
-        case CON_USERACTOR:
-            if (parsing_state || parsing_actor)
-            {
-                ReportError(ERROR_FOUNDWITHIN);
-                error++;
-            }
-
-            num_braces = 0;
-            scriptptr--;
-            parsing_actor = scriptptr;
-
-            transnum(LABEL_DEFINE);
-            scriptptr--;
-
-            skipcomments();
-            j = 0;
-            while (isaltok(*(textptr+j)))
-            {
-                parsing_item_name[j] = textptr[j];
-                j++;
-            }
-            parsing_item_name[j] = 0;
-
-            j = *scriptptr;
-
-            if (j > 2)
-            {
-                ReportError(-1);
-                initprintf("%s:%ld: warning: invalid useractor type.\n",compilefile,line_number);
                 j = 0;
+                while (isaltok(*(textptr+j)))
+                {
+                    music_fn[k][i][j] = textptr[j];
+                    j++;
+                }
+                music_fn[k][i][j] = '\0';
+                textptr += j;
+                if (i > 9) break;
+                i++;
             }
-
-            transnum(LABEL_DEFINE);
-            scriptptr--;
-            actorscrptr[*scriptptr] = parsing_actor;
-            actortype[*scriptptr] = j;
-
-            for (j=0;j<4;j++)
+        }
+        else
+        {
+            i = 0;
+            while (keyword() == -1)
             {
-                *(parsing_actor+j) = 0;
-                if (j == 3)
+                while (isaltok(*textptr) == 0)
                 {
-                    j = 0;
-                    while (keyword() == -1)
-                    {
-                        transnum(LABEL_DEFINE);
-                        scriptptr--;
-                        j |= *scriptptr;
-                    }
-                    *scriptptr = j;
-                    scriptptr++;
-                    break;
+                    if (*textptr == 0x0a) line_number++;
+                    textptr++;
+                    if (*textptr == 0) break;
                 }
-                else
+                j = 0;
+                while (isaltok(*(textptr+j)))
                 {
-                    if (keyword() >= 0)
-                    {
-                        for (i=4-j; i; i--) *(scriptptr++) = 0;
-                        break;
-                    }
-                    switch (j)
-                    {
-                        case 0:
-                            transnum(LABEL_DEFINE);
-                            break;
-                        case 1:
-                            transnum(LABEL_ACTION);
-                            break;
-                        case 2:
-                            if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
-                            {
-                                ReportError(-1);
-                                *(scriptptr-1) = 0;
-                                initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
-                            }
-                            break;
-                    }
-                    *(parsing_actor+j) = *(scriptptr-1);
+                    env_music_fn[i][j] = textptr[j];
+                    j++;
                 }
+                env_music_fn[i][j] = '\0';
+
+                textptr += j;
+                if (i > 9) break;
+                i++;
             }
+        }
+    }
+    return 0;
+
+    case CON_INCLUDE:
+        scriptptr--;
+        while (isaltok(*textptr) == 0)
+        {
+            if (*textptr == 0x0a) line_number++;
+            textptr++;
+            if (*textptr == 0) break;
+        }
+        j = 0;
+        while (isaltok(*textptr))
+        {
+            tempbuf[j] = *(textptr++);
+            j++;
+        }
+        tempbuf[j] = '\0';
+
+        {
+            short temp_line_number;
+            char  temp_ifelse_check;
+            char *origtptr, *mptr;
+            char parentcompilefile[255];
+            int fp;
+
+            fp = kopen4load(tempbuf,loadfromgrouponly);
+            if (fp < 0)
+            {
+                error++;
+                initprintf("%s:%ld: error: could not find file `%s'.\n",compilefile,line_number,tempbuf);
+                return 0;
+            }
+
+            j = kfilelength(fp);
+
+            mptr = (char *)Bmalloc(j+1);
+            if (!mptr)
+            {
+                kclose(fp);
+                error++;
+                initprintf("%s:%ld: error: could not allocate %ld bytes to include `%s'.\n",
+                           line_number,compilefile,j,tempbuf);
+                return 0;
+            }
+
+            initprintf("Including: %s (%ld bytes)\n",tempbuf, j);
+            kread(fp, mptr, j);
+            kclose(fp);
+            mptr[j] = 0;
+
+            if (*textptr == '"') // skip past the closing quote if it's there so we don't screw up the next line
+                textptr++;
+            origtptr = textptr;
+
+            Bstrcpy(parentcompilefile, compilefile);
+            Bstrcpy(compilefile, tempbuf);
+            temp_line_number = line_number;
+            line_number = 1;
+            temp_ifelse_check = checking_ifelse;
             checking_ifelse = 0;
-            return 0;
 
-        case CON_INSERTSPRITEQ:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-            return 0;
+            textptr = mptr;
+            do done = parsecommand();
+            while (!done);
 
-        case CON_QSPRINTF:
-            transnum(LABEL_DEFINE);
-            transnum(LABEL_DEFINE);
-            for (j = 0;j < 4;j++)
-            {
-                if (keyword() == -1)
-                    transvar();
-                else break;
-            }
+            Bstrcpy(compilefile, parentcompilefile);
+            total_lines += line_number;
+            line_number = temp_line_number;
+            checking_ifelse = temp_ifelse_check;
 
-            while (j < 4)
-            {
-                *scriptptr = 0;
-                scriptptr++;
-                j++;
-            }
-            return 0;
+            textptr = origtptr;
 
-        case CON_ESPAWN:
-        case CON_ESHOOT:
-        case CON_QSPAWN:
-        case CON_EQSPAWN:
-        case CON_STRENGTH:
-        case CON_SHOOT:
-        case CON_ADDPHEALTH:
-        case CON_SPAWN:
-        case CON_CSTAT:
-        case CON_COUNT:
-        case CON_ENDOFGAME:
-        case CON_SPRITEPAL:
-        case CON_CACTOR:
-        case CON_MONEY:
-        case CON_ADDKILLS:
-        case CON_DEBUG:
-        case CON_ADDSTRENGTH:
-        case CON_CSTATOR:
-        case CON_MAIL:
-        case CON_PAPER:
-        case CON_SLEEPTIME:
-        case CON_CLIPDIST:
-        case CON_LOTSOFGLASS:
-        case CON_SAVE:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_ANGOFF:
-        case CON_USERQUOTE:
-        case CON_QUOTE:
-        case CON_SOUND:
-        case CON_GLOBALSOUND:
-        case CON_SOUNDONCE:
-        case CON_STOPSOUND:
-            transnum(LABEL_DEFINE);
-            if (tw == CON_CSTAT)
-            {
-                if (*(scriptptr-1) == 32767)
-                {
-                    ReportError(-1);
-                    initprintf("%s:%ld: warning: tried to set cstat 32767, using 32768 instead.\n",compilefile,line_number);
-                    *(scriptptr-1) = 32768;
-                }
-                else if ((*(scriptptr-1) & 32) && (*(scriptptr-1) & 16))
-                {
-                    i = *(scriptptr-1);
-                    *(scriptptr-1) ^= 48;
-                    ReportError(-1);
-                    initprintf("%s:%ld: warning: tried to set cstat %ld, using %ld instead.\n",compilefile,line_number,i,*(scriptptr-1));
-                }
-            }
-            return 0;
+            Bfree(mptr);
+        }
+        return 0;
 
-        case CON_HITRADIUS:
-            transnum(LABEL_DEFINE);
-            transnum(LABEL_DEFINE);
-            transnum(LABEL_DEFINE);
-        case CON_ADDAMMO:
-        case CON_ADDWEAPON:
-        case CON_SIZETO:
-        case CON_SIZEAT:
-        case CON_DEBRIS:
-        case CON_ADDINVENTORY:
-        case CON_GUTS:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-            transnum(LABEL_DEFINE);
-            transnum(LABEL_DEFINE);
-            break;
-
-        case CON_ELSE:
-            if (checking_ifelse)
-            {
-                checking_ifelse--;
-                tempscrptr = scriptptr;
-                scriptptr++; //Leave a spot for the fail location
-                parsecommand();
-                *tempscrptr = (long) scriptptr;
-            }
-            else
-            {
-                scriptptr--;
-                error++;
-                ReportError(-1);
-                initprintf("%s:%ld: error: found `else' with no `if'.\n",compilefile,line_number);
-            }
-            return 0;
-
-        case CON_SETSECTOR:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_GETSECTOR:
+    case CON_AI:
+        if (parsing_actor || parsing_state)
         {
-            long lLabelID;
-
-            // syntax getsector[<var>].x <VAR>
-            // gets the value of sector[<var>].xxx into <VAR>
-
-            // now get name of .xxx
-            while ((*textptr != '['))
-            {
-                textptr++;
-            }
-            if (*textptr == '[')
-                textptr++;
-
-            // get the ID of the DEF
-            labelsonly = 1;
-            transvar();
-            labelsonly = 0;
-            // now get name of .xxx
-            while (*textptr != '.')
-            {
-                if (*textptr == 0xa)
-                    break;
-                if (!*textptr)
-                    break;
-
-                textptr++;
-            }
-            if (*textptr!='.')
-            {
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
-                return 0;
-            }
-            textptr++;
-            /// now pointing at 'xxx'
+            if (!CheckEventSync(current_event))
+                ReportError(WARNING_EVENTSYNC);
+            transnum(LABEL_AI);
+        }
+        else
+        {
+            scriptptr--;
             getlabel();
-            //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
 
-            lLabelID=getlabelid(sectorlabels,label+(labelcnt<<6));
-
-            if (lLabelID == -1)
-            {
-                error++;
-                ReportError(ERROR_SYMBOLNOTRECOGNIZED);
-                return 0;
-            }
-            *scriptptr++=lLabelID;
-
-            // now at target VAR...
-
-            // get the ID of the DEF
-            if (tw==CON_GETSECTOR)
-                transvartype(GAMEVAR_FLAG_READONLY);
-            else
-                transvar();
-            break;
-        }
-
-        case CON_FINDNEARACTOR:
-        case CON_FINDNEARACTOR3D:
-        case CON_FINDNEARSPRITE:
-        case CON_FINDNEARSPRITE3D:
-        case CON_FINDNEARACTORZ:
-        case CON_FINDNEARSPRITEZ:
-        {
-            // syntax findnearactor <type> <maxdist> <getvar>
-            // gets the sprite ID of the nearest actor within max dist
-            // that is of <type> into <getvar>
-            // -1 for none found
-
-            transnum(LABEL_DEFINE); // get <type>
-            transnum(LABEL_DEFINE); // get maxdist
-
-            switch (tw)
-            {
-                case CON_FINDNEARACTORZ:
-                case CON_FINDNEARSPRITEZ:
-                    transnum(LABEL_DEFINE);
-                default:
-                    break;
-            }
-
-            // target var
-            // get the ID of the DEF
-            transvartype(GAMEVAR_FLAG_READONLY);
-            break;
-        }
-
-        case CON_FINDNEARACTORVAR:
-        case CON_FINDNEARACTOR3DVAR:
-        case CON_FINDNEARSPRITEVAR:
-        case CON_FINDNEARSPRITE3DVAR:
-        case CON_FINDNEARACTORZVAR:
-        case CON_FINDNEARSPRITEZVAR:
-        {
-            transnum(LABEL_DEFINE); // get <type>
-
-            // get the ID of the DEF
-            transvar();
-            switch (tw)
-            {
-                case CON_FINDNEARACTORZVAR:
-                case CON_FINDNEARSPRITEZVAR:
-                    transvar();
-                default:
-                    break;
-            }
-            // target var
-            // get the ID of the DEF
-            transvartype(GAMEVAR_FLAG_READONLY);
-            break;
-        }
-
-        case CON_SQRT:
-        {
-            // syntax sqrt <invar> <outvar>
-            // gets the sqrt of invar into outvar
-
-            // get the ID of the DEF
-            transvar();
-            // target var
-            // get the ID of the DEF
-            transvartype(GAMEVAR_FLAG_READONLY);
-            break;
-        }
-
-        case CON_SETWALL:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_GETWALL:
-        {
-            long lLabelID;
-
-            // syntax getwall[<var>].x <VAR>
-            // gets the value of wall[<var>].xxx into <VAR>
-
-            // now get name of .xxx
-            while ((*textptr != '['))
-            {
-                textptr++;
-            }
-            if (*textptr == '[')
-                textptr++;
-
-            // get the ID of the DEF
-            labelsonly = 1;
-            transvar();
-            labelsonly = 0;
-            // now get name of .xxx
-            while (*textptr != '.')
-            {
-                if (*textptr == 0xa)
-                    break;
-                if (!*textptr)
-                    break;
-
-                textptr++;
-            }
-            if (*textptr!='.')
-            {
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
-                return 0;
-            }
-            textptr++;
-            /// now pointing at 'xxx'
-            getlabel();
-            //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
-
-            lLabelID=getlabelid(walllabels,label+(labelcnt<<6));
-
-            if (lLabelID == -1)
-            {
-                error++;
-                ReportError(ERROR_SYMBOLNOTRECOGNIZED);
-                return 0;
-            }
-            *scriptptr++=lLabelID;
-
-            // now at target VAR...
-
-            // get the ID of the DEF
-            if (tw == CON_GETWALL)
-                transvartype(GAMEVAR_FLAG_READONLY);
-            else
-                transvar();
-            break;
-        }
-
-        case CON_SETPLAYER:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_GETPLAYER:
-        {
-            long lLabelID;
-
-            // syntax getwall[<var>].x <VAR>
-            // gets the value of wall[<var>].xxx into <VAR>
-
-            // now get name of .xxx
-            while ((*textptr != '['))
-            {
-                textptr++;
-            }
-            if (*textptr == '[')
-                textptr++;
-
-            // get the ID of the DEF
-            labelsonly = 1;
-            transvar();
-            labelsonly = 0;
-            // now get name of .xxx
-            while (*textptr != '.')
-            {
-                if (*textptr == 0xa)
-                    break;
-                if (!*textptr)
-                    break;
-
-                textptr++;
-            }
-            if (*textptr!='.')
-            {
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
-                return 0;
-            }
-            textptr++;
-            /// now pointing at 'xxx'
-            getlabel();
-            //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
-
-            lLabelID=getlabeloffset(playerlabels,label+(labelcnt<<6));
-            //printf("LabelID is %ld\n",lLabelID);
-            if (lLabelID == -1)
-            {
-                error++;
-                ReportError(ERROR_SYMBOLNOTRECOGNIZED);
-                return 0;
-            }
-
-            *scriptptr++=playerlabels[lLabelID].lId;
-
-            //printf("member's flags are: %02Xh\n",playerlabels[lLabelID].flags);
-            if (playerlabels[lLabelID].flags & LABEL_HASPARM2)
-            {
-                //printf("Member has PARM2\n");
-                // get parm2
-                // get the ID of the DEF
-                transvar();
-            }
-            else
-            {
-                //printf("Member does not have Parm2\n");
-            }
-
-            // now at target VAR...
-
-            // get the ID of the DEF
-            if (tw==CON_GETPLAYER)
-                transvartype(GAMEVAR_FLAG_READONLY);
-            else
-                transvar();
-            break;
-        }
-
-        case CON_SETINPUT:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_GETINPUT:
-        {
-            long lLabelID;
-
-            // syntax getwall[<var>].x <VAR>
-            // gets the value of wall[<var>].xxx into <VAR>
-
-            // now get name of .xxx
-            while ((*textptr != '['))
-            {
-                textptr++;
-            }
-            if (*textptr == '[')
-                textptr++;
-
-            // get the ID of the DEF
-            labelsonly = 1;
-            transvar();
-            labelsonly = 0;
-            // now get name of .xxx
-            while (*textptr != '.')
-            {
-                if (*textptr == 0xa)
-                    break;
-                if (!*textptr)
-                    break;
-
-                textptr++;
-            }
-            if (*textptr!='.')
-            {
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
-                return 0;
-            }
-            textptr++;
-            /// now pointing at 'xxx'
-            getlabel();
-            //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
-
-            lLabelID=getlabeloffset(inputlabels,label+(labelcnt<<6));
-            //printf("LabelID is %ld\n",lLabelID);
-            if (lLabelID == -1)
-            {
-                error++;
-                ReportError(ERROR_SYMBOLNOTRECOGNIZED);
-                return 0;
-            }
-
-            *scriptptr++=inputlabels[lLabelID].lId;
-
-            // now at target VAR...
-
-            // get the ID of the DEF
-            if (tw==CON_GETINPUT)
-                transvartype(GAMEVAR_FLAG_READONLY);
-            else
-                transvar();
-            break;
-        }
-
-        case CON_SETUSERDEF:
-        case CON_GETUSERDEF:
-        {
-            long lLabelID;
-
-            // syntax [gs]etuserdef.x <VAR>
-            // gets the value of ud.xxx into <VAR>
-
-            // now get name of .xxx
-            while (*textptr != '.')
-            {
-                if (*textptr == 0xa)
-                    break;
-                if (!*textptr)
-                    break;
-
-                textptr++;
-            }
-            if (*textptr!='.')
-            {
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
-                return 0;
-            }
-            textptr++;
-            /// now pointing at 'xxx'
-            getlabel();
-            //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
-
-            lLabelID=getlabelid(userdefslabels,label+(labelcnt<<6));
-
-            if (lLabelID == -1)
-            {
-                error++;
-                ReportError(ERROR_SYMBOLNOTRECOGNIZED);
-                return 0;
-            }
-            *scriptptr++=lLabelID;
-
-            // now at target VAR...
-
-            // get the ID of the DEF
-            if (tw==CON_GETUSERDEF)
-                transvartype(GAMEVAR_FLAG_READONLY);
-            else
-                transvar();
-            break;
-        }
-
-        case CON_SETACTORVAR:
-        case CON_SETPLAYERVAR:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_GETACTORVAR:
-        case CON_GETPLAYERVAR:
-        {
-            // syntax [gs]etactorvar[<var>].<varx> <VAR>
-            // gets the value of the per-actor variable varx into VAR
-
-            // now get name of <var>
-            while ((*textptr != '['))
-            {
-                textptr++;
-            }
-            if (*textptr == '[')
-                textptr++;
-
-            // get the ID of the DEF
-            labelsonly = 1;
-            transvar();
-            labelsonly = 0;
-            // now get name of .<varx>
-            while (*textptr != '.')
-            {
-                if (*textptr == 0xa)
-                    break;
-                if (!*textptr)
-                    break;
-
-                textptr++;
-            }
-            if (*textptr!='.')
-            {
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
-                return 0;
-            }
-            textptr++;
-            /// now pointing at 'xxx'
-
-            // get the ID of the DEF
-            getlabel();
-            //printf("found label of '%s'\n",   label+(labelcnt<<6));
-
-            // Check to see if it's a keyword
             for (i=0;i<NUMKEYWORDS;i++)
                 if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
                 {
@@ -3373,890 +2502,157 @@ char parsecommand(void)
                     return 0;
                 }
 
-            i=GetDefID(label+(labelcnt<<6));
-            //printf("Label '%s' ID is %d\n",label+(labelcnt<<6), i);
-            if (i<0)
-            {   // not a defined DEF
-                error++;
-                ReportError(ERROR_NOTAGAMEVAR);
-                return 0;
-            }
-            if (aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
-            {
-                error++;
-                ReportError(ERROR_VARREADONLY);
-                return 0;
-
-            }
-
-            switch (tw)
-            {
-                case CON_SETACTORVAR:
+            for (i=0;i<labelcnt;i++)
+                if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 && (labeltype[i] & LABEL_AI))
                 {
-                    if (!(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR))
-                    {
-                        error++;
-                        ReportError(-1);
-                        initprintf("%s:%ld: error: variable `%s' is not per-actor.\n",compilefile,line_number,label+(labelcnt<<6));
-                        return 0;
-
-                    }
+                    warning++;
+                    initprintf("%s:%ld: warning: duplicate ai `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
                     break;
                 }
-                case CON_SETPLAYERVAR:
-                {
-                    if (!(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER))
-                    {
-                        error++;
-                        ReportError(-1);
-                        initprintf("%s:%ld: error: variable `%s' is not per-player.\n",compilefile,line_number,label+(labelcnt<<6));
-                        return 0;
 
+            if (i == labelcnt)
+            {
+                labeltype[labelcnt] = LABEL_AI;
+                labelcode[labelcnt++] = (long) scriptptr;
+            }
+
+            for (j=0;j<3;j++)
+            {
+                if (keyword() >= 0) break;
+                if (j == 1)
+                    transnum(LABEL_ACTION);
+                else if (j == 2)
+                {
+                    if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
+                    {
+                        ReportError(-1);
+                        *(scriptptr-1) = 0;
+                        initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
                     }
-                    break;
+                    k = 0;
+                    while (keyword() == -1)
+                    {
+                        transnum(LABEL_DEFINE);
+                        scriptptr--;
+                        k |= *scriptptr;
+                    }
+                    *scriptptr = k;
+                    scriptptr++;
+                    return 0;
                 }
             }
-
-            *scriptptr++=i; // the ID of the DEF (offset into array...)
-
-            switch (tw)
+            for (k=j;k<3;k++)
             {
-                case CON_GETACTORVAR:
-                case CON_GETPLAYERVAR:
-                    transvartype(GAMEVAR_FLAG_READONLY);
-                    break;
-                default:
-                    transvar();
-                    break;
+                *scriptptr = 0;
+                scriptptr++;
             }
-            break;
         }
+        return 0;
 
-        case CON_SETACTOR:
+    case CON_ACTION:
+        if (parsing_actor || parsing_state)
+        {
             if (!CheckEventSync(current_event))
                 ReportError(WARNING_EVENTSYNC);
-        case CON_GETACTOR:
+            transnum(LABEL_ACTION);
+        }
+        else
         {
-            long lLabelID;
-
-            // syntax getwall[<var>].x <VAR>
-            // gets the value of wall[<var>].xxx into <VAR>
-
-            // now get name of .xxx
-            while ((*textptr != '['))
-            {
-                textptr++;
-            }
-            if (*textptr == '[')
-                textptr++;
-
-            // get the ID of the DEF
-            labelsonly = 1;
-            transvar();
-            labelsonly = 0;
-            // now get name of .xxx
-            while (*textptr != '.')
-            {
-                if (*textptr == 0xa)
-                    break;
-                if (!*textptr)
-                    break;
-
-                textptr++;
-            }
-            if (*textptr!='.')
-            {
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
-                return 0;
-            }
-            textptr++;
-            /// now pointing at 'xxx'
+            scriptptr--;
             getlabel();
-            //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
+            // Check to see it's already defined
 
-            lLabelID=getlabeloffset(actorlabels,label+(labelcnt<<6));
-            //printf("LabelID is %ld\n",lLabelID);
-            if (lLabelID == -1)
-            {
-                error++;
-                ReportError(ERROR_SYMBOLNOTRECOGNIZED);
-                return 0;
-            }
-
-            *scriptptr++=actorlabels[lLabelID].lId;
-
-            //printf("member's flags are: %02Xh\n",actorlabels[lLabelID].flags);
-            if (actorlabels[lLabelID].flags & LABEL_HASPARM2)
-            {
-                //printf("Member has PARM2\n");
-                // get parm2
-                // get the ID of the DEF
-                transvar();
-            }
-            else
-            {
-                //printf("Member does not have Parm2\n");
-            }
-
-            // now at target VAR...
-
-            // get the ID of the DEF
-            if (tw == CON_GETACTOR)
-                transvartype(GAMEVAR_FLAG_READONLY);
-            else
-                transvar();
-            break;
-        }
-
-        case CON_GETCURRADDRESS:
-            transvartype(GAMEVAR_FLAG_READONLY);
-            return 0;
-
-        case CON_ESHOOTVAR:
-        case CON_ESPAWNVAR:
-        case CON_QSPAWNVAR:
-        case CON_EQSPAWNVAR:
-        case CON_OPERATERESPAWNS:
-        case CON_OPERATEMASTERSWITCHES:
-        case CON_CHECKACTIVATORMOTION:
-        case CON_TIME:
-        case CON_INITTIMER:
-        case CON_LOCKPLAYER:
-        case CON_SHOOTVAR:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_JUMP:
-        case CON_SOUNDVAR:
-        case CON_GLOBALSOUNDVAR:
-        case CON_STOPSOUNDVAR:
-        case CON_SOUNDONCEVAR:
-        case CON_ANGOFFVAR:
-        case CON_CHECKAVAILWEAPON:
-        case CON_CHECKAVAILINVEN:
-        case CON_GUNIQHUDID:
-        case CON_SAVEGAMEVAR:
-        case CON_READGAMEVAR:
-            transvar();
-            return 0;
-
-        case CON_ENHANCED:
-        {
-            // don't store in pCode...
-            scriptptr--;
-            //printf("We are enhanced, baby...\n");
-            transnum(LABEL_DEFINE);
-            scriptptr--;
-            if (*scriptptr > BYTEVERSION_JF)
-            {
-                warning++;
-                initprintf("%s:%ld: warning: need build %ld, found build %ld\n",compilefile,line_number,k,BYTEVERSION_JF);
-            }
-            break;
-        }
-
-        case CON_DYNAMICREMAP:
-        {
-            scriptptr--;
-            initprintf("Dynamic tile remapping enabled.\n");
-            dynamicremap = 1;
-            break;
-        }
-
-        case CON_RANDVAR:
-        case CON_ZSHOOT:
-        case CON_EZSHOOT:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_SETVAR:
-        case CON_ADDVAR:
-        case CON_SUBVAR:
-        case CON_DISPLAYRANDVAR:
-        case CON_MULVAR:
-        case CON_DIVVAR:
-        case CON_MODVAR:
-        case CON_ANDVAR:
-        case CON_ORVAR:
-        case CON_XORVAR:
-        case CON_SHIFTVARL:
-        case CON_SHIFTVARR:
-
-            // syntax: [rand|add|set]var    <var1> <const1>
-            // sets var1 to const1
-            // adds const1 to var1 (const1 can be negative...)
-            //printf("Found [add|set]var at line= %ld\n",line_number);
-
-            // get the ID of the DEF
-            if (tw != CON_ZSHOOT && tw != CON_EZSHOOT)
-                transvartype(GAMEVAR_FLAG_READONLY);
-            else transvar();
-
-            transnum(LABEL_DEFINE); // the number to check against...
-            return 0;
-        case CON_RANDVARVAR:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_SETVARVAR:
-        case CON_ADDVARVAR:
-        case CON_SUBVARVAR:
-        case CON_MULVARVAR:
-        case CON_DIVVARVAR:
-        case CON_MODVARVAR:
-        case CON_ANDVARVAR:
-        case CON_ORVARVAR:
-        case CON_XORVARVAR:
-        case CON_DISPLAYRANDVARVAR:
-        case CON_SIN:
-        case CON_COS:
-            transvartype(GAMEVAR_FLAG_READONLY);
-            transvar();
-            return 0;
-
-        case CON_SMAXAMMO:
-        case CON_ADDWEAPONVAR:
-        case CON_ACTIVATEBYSECTOR:
-        case CON_OPERATESECTORS:
-        case CON_OPERATEACTIVATORS:
-        case CON_SSP:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_GMAXAMMO:
-        case CON_DIST:
-        case CON_LDIST:
-        case CON_GETINCANGLE:
-        case CON_GETANGLE:
-        case CON_MULSCALE:
-        case CON_SETASPECT:
-            // get the ID of the DEF
-            switch (tw)
-            {
-                case CON_DIST:
-                case CON_LDIST:
-                case CON_GETANGLE:
-                case CON_GETINCANGLE:
-                    transvartype(GAMEVAR_FLAG_READONLY);
-                    break;
-                default:
-                    transvar();
-                    break;
-            }
-
-            // get the ID of the DEF
-            if (tw == CON_GMAXAMMO)
-                transvartype(GAMEVAR_FLAG_READONLY);
-            else transvar();
-
-            switch (tw)
-            {
-                case CON_DIST:
-                case CON_LDIST:
-                case CON_GETANGLE:
-                case CON_GETINCANGLE:
-                    transvar();
-                    break;
-                case CON_MULSCALE:
-                    transmultvars(2);
-                    break;
-            }
-            return 0;
-
-        case CON_FLASH:
-            return 0;
-
-        case CON_DRAGPOINT:
-            transmultvars(3);
-            return 0;
-
-        case CON_GETFLORZOFSLOPE:
-        case CON_GETCEILZOFSLOPE:
-            transmultvars(3);
-            transvartype(GAMEVAR_FLAG_READONLY);
-            return 0;
-
-        case CON_DEFINEPROJECTILE:
-        {
-            short y;
-            signed long z;
-
-            if (parsing_state || parsing_actor)
-            {
-                ReportError(ERROR_FOUNDWITHIN);
-                error++;
-            }
-
-            scriptptr--;
-
-            transnum(LABEL_DEFINE);
-            j = *(scriptptr-1);
-
-            if (j > MAXTILES-1)
-            {
-                ReportError(ERROR_EXCEEDSMAXTILES);
-                error++;
-            }
-
-            transnum(LABEL_DEFINE);
-            y = *(scriptptr-1);
-            transnum(LABEL_DEFINE);
-            z = *(scriptptr-1);
-
-            DefineProjectile(j,y,z);
-            spriteflags[j] |= SPRITE_FLAG_PROJECTILE;
-            return 0;
-        }
-
-        case CON_SPRITEFLAGS:
-        {
-            if (parsing_actor == 0 && parsing_state == 0)
-            {
-                scriptptr--;
-
-                transnum(LABEL_DEFINE);
-                scriptptr--;
-                j = *scriptptr;
-
-                if (j > MAXTILES-1)
+            for (i=0;i<NUMKEYWORDS;i++)
+                if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
                 {
-                    ReportError(ERROR_EXCEEDSMAXTILES);
                     error++;
+                    ReportError(ERROR_ISAKEYWORD);
+                    return 0;
+                }
+            for (i=0;i<labelcnt;i++)
+                if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 && (labeltype[i] & LABEL_ACTION))
+                {
+                    warning++;
+                    initprintf("%s:%ld: warning: duplicate action `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
+                    break;
                 }
 
+            if (i == labelcnt)
+            {
+                labeltype[labelcnt] = LABEL_ACTION;
+                labelcode[labelcnt] = (long) scriptptr;
+                labelcnt++;
+            }
+
+            for (j=0;j<5;j++)
+            {
+                if (keyword() >= 0) break;
                 transnum(LABEL_DEFINE);
-                scriptptr--;
-                spriteflags[j] = *scriptptr;
-
-                return 0;
             }
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-            transvar();
-            return 0;
+            for (k=j;k<5;k++)
+            {
+                *scriptptr = 0;
+                scriptptr++;
+            }
         }
+        return 0;
 
-        case CON_SPRITESHADOW:
-        case CON_SPRITENVG:
-        case CON_SPRITENOSHADE:
-        case CON_PRECACHE:
+    case CON_ACTOR:
+        if (parsing_state || parsing_actor)
         {
-            if (parsing_state || parsing_actor)
-            {
-                ReportError(ERROR_FOUNDWITHIN);
-                error++;
-            }
-
-            scriptptr--;
-
-            transnum(LABEL_DEFINE);
-            scriptptr--;
-            j = *scriptptr;
-
-            if (j > MAXTILES-1)
-            {
-                ReportError(ERROR_EXCEEDSMAXTILES);
-                error++;
-            }
-
-            switch (tw)
-            {
-                case CON_SPRITESHADOW:
-                    spriteflags[*scriptptr] |= SPRITE_FLAG_SHADOW;
-                    break;
-                case CON_SPRITENVG:
-                    spriteflags[*scriptptr] |= SPRITE_FLAG_NVG;
-                    break;
-                case CON_SPRITENOSHADE:
-                    spriteflags[*scriptptr] |= SPRITE_FLAG_NOSHADE;
-                    break;
-                case CON_PRECACHE:
-                    spritecache[*scriptptr][0] = j;
-                    transnum(LABEL_DEFINE);
-                    scriptptr--;
-                    i = *scriptptr;
-                    if (i > MAXTILES-1)
-                    {
-                        ReportError(ERROR_EXCEEDSMAXTILES);
-                        error++;
-                    }
-                    spritecache[j][1] = i;
-                    transnum(LABEL_DEFINE);
-                    scriptptr--;
-                    i = *scriptptr;
-                    spritecache[j][2] = i;
-                    break;
-            }
-            return 0;
+            ReportError(ERROR_FOUNDWITHIN);
+            error++;
         }
 
-        case CON_IFVARVARG:
-        case CON_IFVARVARL:
-        case CON_IFVARVARE:
-        case CON_IFVARVARN:
-        case CON_IFVARVARAND:
-        case CON_WHILEVARVARN:
-            transmultvars(2);
-            tempscrptr = scriptptr;
-            scriptptr++; // Leave a spot for the fail location
+        num_braces = 0;
+        scriptptr--;
+        parsing_actor = scriptptr;
 
-            j = keyword();
-            parsecommand();
+        skipcomments();
+        j = 0;
+        while (isaltok(*(textptr+j)))
+        {
+            parsing_item_name[j] = textptr[j];
+            j++;
+        }
+        parsing_item_name[j] = 0;
+        transnum(LABEL_DEFINE);
+        //         Bsprintf(parsing_item_name,"%s",label+(labelcnt<<6));
+        scriptptr--;
+        actorscrptr[*scriptptr] = parsing_actor;
 
-            *tempscrptr = (long) scriptptr;
-
-            if (tw != CON_WHILEVARVARN) checking_ifelse++;
-            return 0;
-
-        case CON_SPGETLOTAG:
-        case CON_SPGETHITAG:
-        case CON_SECTGETLOTAG:
-        case CON_SECTGETHITAG:
-        case CON_GETTEXTUREFLOOR:
-        case CON_GETTEXTURECEILING:
-            // no paramaters...
-            return 0;
-
-        case CON_STARTTRACK:
-            // one parameter (track#)
-            transnum(LABEL_DEFINE);
-            return 0;
-
-        case CON_IFVARL:
-        case CON_IFVARG:
-        case CON_IFVARE:
-        case CON_IFVARN:
-        case CON_IFVARAND:
-        case CON_WHILEVARN:
-
-            // get the ID of the DEF
-            transvar();
-            transnum(LABEL_DEFINE); // the number to check against...
-
-            tempscrptr = scriptptr;
-            scriptptr++; //Leave a spot for the fail location
-
-            j = keyword();
-            parsecommand();
-
-            *tempscrptr = (long) scriptptr;
-
-            if (tw != CON_WHILEVARN) checking_ifelse++;
-            return 0;
-
-        case CON_ADDLOGVAR:
-
-            // syntax: addlogvar <var>
-
-            // prints the line number in the log file.
-            *scriptptr=line_number;
-            scriptptr++;
-
-            // get the ID of the DEF
-            transvar();
-            return 0;
-
-        case CON_ROTATESPRITE:
-            if (parsing_event == 0 && parsing_state == 0)
+        for (j=0;j<4;j++)
+        {
+            *(parsing_actor+j) = 0;
+            if (j == 3)
             {
-                ReportError(ERROR_EVENTONLY);
-                error++;
-            }
-
-            // syntax:
-            // long x, long y, long z, short a, short tilenum, signed char shade, char orientation, x1, y1, x2, y2
-            // myospal adds char pal
-
-            // get the ID of the DEFs
-
-            transmultvars(12);
-            break;
-
-        case CON_GETZRANGE:
-            transmultvars(4);
-            transmultvarstype(GAMEVAR_FLAG_READONLY,4);
-            transmultvars(2);
-            break;
-
-        case CON_HITSCAN:
-        case CON_CANSEE:
-            // get the ID of the DEF
-            transmultvars(tw==CON_CANSEE?8:7);
-            transmultvarstype(GAMEVAR_FLAG_READONLY,tw==CON_CANSEE?1:6);
-            if (tw==CON_HITSCAN) transvar();
-            break;
-
-        case CON_CANSEESPR:
-            transmultvars(2);
-            transvartype(GAMEVAR_FLAG_READONLY);
-            break;
-
-        case CON_ROTATEPOINT:
-        case CON_NEARTAG:
-            transmultvars(5);
-            transmultvarstype(GAMEVAR_FLAG_READONLY,2);
-            if (tw == CON_NEARTAG)
-            {
-                transmultvarstype(GAMEVAR_FLAG_READONLY,2);
-                transmultvars(2);
-            }
-            break;
-
-        case CON_MOVESPRITE:
-        case CON_SETSPRITE:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-            transmultvars(4);
-            if (tw == CON_MOVESPRITE)
-            {
-                transvar();
-                transvartype(GAMEVAR_FLAG_READONLY);
-            }
-            break;
-
-        case CON_MINITEXT:
-        case CON_GAMETEXT:
-        case CON_DIGITALNUMBER:
-            if (parsing_event == 0 && parsing_state == 0)
-            {
-                ReportError(ERROR_EVENTONLY);
-                error++;
-            }
-
-            switch (tw)
-            {
-                case CON_GAMETEXT:
-                case CON_DIGITALNUMBER:
-                    transmultvars(6);
-                default:
-                    transmultvars(5);
-                    break;
-            }
-            break;
-
-        case CON_UPDATESECTOR:
-        case CON_UPDATESECTORZ:
-            transmultvars(2);
-            if (tw==CON_UPDATESECTORZ)
-                transvar();
-            transvartype(GAMEVAR_FLAG_READONLY);
-            break;
-
-        case CON_MYOS:
-        case CON_MYOSPAL:
-        case CON_MYOSX:
-        case CON_MYOSPALX:
-            if (parsing_event == 0 && parsing_state == 0)
-            {
-                ReportError(ERROR_EVENTONLY);
-                error++;
-            }
-
-            // syntax:
-            // long x, long y, short tilenum, signed char shade, char orientation
-            // myospal adds char pal
-
-            transmultvars(5);
-            if (tw==CON_MYOSPAL || tw==CON_MYOSPALX)
-            {
-                // Parse: pal
-
-                // get the ID of the DEF
-                transvar();
-            }
-            break;
-
-        case CON_FINDPLAYER:
-        case CON_FINDOTHERPLAYER:
-        case CON_DISPLAYRAND:
-
-            // syntax: displayrand <var>
-            // gets rand (not game rand) into <var>
-
-            // Get The ID of the DEF
-            transvartype(GAMEVAR_FLAG_READONLY);
-            break;
-
-        case CON_SWITCH:
-            //AddLog("Got Switch statement");
-            if (checking_switch)
-            {
-                //    Bsprintf(g_szBuf,"ERROR::%s %d: Checking_switch=",__FILE__,__LINE__, checking_switch);
-                //    AddLog(g_szBuf);
-            }
-            checking_switch++; // allow nesting (if other things work)
-            // Get The ID of the DEF
-            transvar();
-
-            tempscrptr= scriptptr;
-            *scriptptr++=0; // leave spot for end location (for after processing)
-            *scriptptr++=0; // count of case statements
-            casescriptptr=scriptptr;        // the first case's pointer.
-
-            *scriptptr++=0; // leave spot for 'default' location (null if none)
-
-            j = keyword();
-            temptextptr=textptr;
-            // probably does not allow nesting...
-
-            //AddLog("Counting Case Statements...");
-
-            j=CountCaseStatements();
-            //Bsprintf(g_szBuf,"Done Counting Case Statements: found %d.", j);
-            //AddLog(g_szBuf);
-            if (checking_switch>1)
-            {
-                //    Bsprintf(g_szBuf,"ERROR::%s %d: Checking_switch=",__FILE__,__LINE__, checking_switch);
-                //    AddLog(g_szBuf);
-            }
-            if (j<0)
-            {
-                return 1;
-            }
-            if (tempscrptr)
-            {
-                tempscrptr[1]=(long)j;  // save count of cases
-            }
-            else
-            {
-                //Bsprintf(g_szBuf,"ERROR::%s %d",__FILE__,__LINE__);
-                //AddLog(g_szBuf);
-            }
-
-            while (j--)
-            {
-                // leave room for statements
-                *scriptptr++=0; // value check
-                *scriptptr++=0; // code offset
-            }
-
-            //Bsprintf(g_szBuf,"SWITCH1: '%.22s'",textptr);
-            //AddLog(g_szBuf);
-
-            casecount=0;
-
-            while (parsecommand() == 0)
-            {
-                //Bsprintf(g_szBuf,"SWITCH2: '%.22s'",textptr);
-                //AddLog(g_szBuf);
-            }
-            //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr);
-            //AddLog(g_szBuf);
-            // done processing switch.  clean up.
-            if (checking_switch!=1)
-            {
-                //    Bsprintf(g_szBuf,"ERROR::%s %d: Checking_switch=%d",__FILE__,__LINE__, checking_switch);
-                //    AddLog(g_szBuf);
-            }
-            casecount=0;
-            if (tempscrptr)
-            {
-                tempscrptr[0]= (long)scriptptr - (long)&script[0];    // save 'end' location
-            }
-            else
-            {
-                //Bsprintf(g_szBuf,"ERROR::%s %d",__FILE__,__LINE__);
-                //AddLog(g_szBuf);
-            }
-            casescriptptr=NULL;
-            // decremented in endswitch.  Don't decrement here...
-            //                    checking_switch--; // allow nesting (maybe if other things work)
-            tempscrptr=NULL;
-            if (checking_switch)
-            {
-                //Bsprintf(g_szBuf,"ERROR::%s %d: Checking_switch=%d",__FILE__,__LINE__, checking_switch);
-                //AddLog(g_szBuf);
-            }
-            //AddLog("End of Switch statement");
-            break;
-
-        case CON_CASE:
-            //AddLog("Found Case");
-repeatcase:
-            scriptptr--; // don't save in code
-            if (checking_switch<1)
-            {
-                error++;
-                ReportError(-1);
-                initprintf("%s:%ld: error: found `case' statement when not in switch\n",compilefile,line_number);
-                return 1;
-            }
-            casecount++;
-            //Bsprintf(g_szBuf,"case1: %.12s",textptr);
-            //AddLog(g_szBuf);
-            transnum(LABEL_DEFINE);
-            if (*textptr == ':')
-                textptr++;
-            //Bsprintf(g_szBuf,"case2: %.12s",textptr);
-            //AddLog(g_szBuf);
-
-            j=*(--scriptptr);      // get value
-            //Bsprintf(g_szBuf,"case: Value of case %ld is %ld",(long)casecount,(long)j);
-            //AddLog(g_szBuf);
-            if (casescriptptr)
-            {
-                //AddLog("Adding value to script");
-                casescriptptr[casecount++]=j;   // save value
-                casescriptptr[casecount]=(long)((long*)scriptptr-&script[0]);   // save offset
-            }
-            //      j = keyword();
-            //Bsprintf(g_szBuf,"case3: %.12s",textptr);
-            //AddLog(g_szBuf);
-
-            j = keyword();
-            if (j == CON_CASE)
-            {
-                //AddLog("Found Repeat Case");
-                transword();    // eat 'case'
-                goto repeatcase;
-            }
-            //Bsprintf(g_szBuf,"case4: '%.12s'",textptr);
-            //AddLog(g_szBuf);
-            while (parsecommand() == 0)
-            {
-                //Bsprintf(g_szBuf,"case5 '%.25s'",textptr);
-                //AddLog(g_szBuf);
-                j = keyword();
-                if (j == CON_CASE)
+                j = 0;
+                while (keyword() == -1)
                 {
-                    //AddLog("Found Repeat Case");
-                    transword();    // eat 'case'
-                    goto repeatcase;
+                    transnum(LABEL_DEFINE);
+                    scriptptr--;
+                    j |= *scriptptr;
                 }
-            }
-            //AddLog("End Case");
-            return 0;
-            //      break;
-        case CON_DEFAULT:
-            scriptptr--;    // don't save
-            if (checking_switch<1)
-            {
-                error++;
-                ReportError(-1);
-                initprintf("%s:%ld: error: found `default' statement when not in switch\n",compilefile,line_number);
-                return 1;
-            }
-            if (casescriptptr && casescriptptr[0]!=0)
-            {
-                // duplicate default statement
-                error++;
-                ReportError(-1);
-                initprintf("%s:%ld: error: multiple `default' statements found in switch\n",compilefile,line_number);
-            }
-            if (casescriptptr)
-            {
-                casescriptptr[0]=(long)(scriptptr-&script[0]);   // save offset
-            }
-            //Bsprintf(g_szBuf,"default: '%.22s'",textptr);
-            //AddLog(g_szBuf);
-            while (parsecommand() == 0)
-            {
-                //Bsprintf(g_szBuf,"defaultParse: '%.22s'",textptr);
-                //AddLog(g_szBuf);
-                ;
-            }
-            break;
-
-        case CON_ENDSWITCH:
-            //AddLog("End Switch");
-            checking_switch--;
-            if (checking_switch < 0)
-            {
-                error++;
-                ReportError(-1);
-                initprintf("%s:%ld: error: found `endswitch' without matching `switch'\n",compilefile,line_number);
-            }
-            if (casescriptptr)
-            {
-                int i;
-
-                //Bsprintf(g_szBuf,"Default Offset is %ld\n Total of %ld cases",casescriptptr[0],(long)casecount/2);
-                //AddLog(g_szBuf);
-                for (i=1;i<=casecount;i++)
-                {
-                    if (i & 1)
-                    {
-                        //Bsprintf(g_szBuf,"Case Value %d is %ld",i/2+1,casescriptptr[i]);
-                        //AddLog(g_szBuf);
-                    }
-                    else
-                    {
-                        //Bsprintf(g_szBuf,"Offset %d is %ld",i/2+1,casescriptptr[i]);
-                        //AddLog(g_szBuf);
-                    }
-                }
+                *scriptptr = j;
+                scriptptr++;
+                break;
             }
             else
             {
-                //AddLog("Not saving case value: just counting");
-            }
-            return 1;      // end of block
-            break;
-
-        case CON_CHANGESPRITESTAT:
-        case CON_CHANGESPRITESECT:
-        case CON_ZSHOOTVAR:
-        case CON_EZSHOOTVAR:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_GETPNAME:
-        case CON_STARTLEVEL:
-        case CON_QSTRCAT:
-        case CON_QSTRCPY:
-        case CON_QSTRLEN:
-            transmultvars(2);
-            return 0;
-        case CON_SETACTORANGLE:
-        case CON_SETPLAYERANGLE:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_GETANGLETOTARGET:
-        case CON_GETACTORANGLE:
-        case CON_GETPLAYERANGLE:
-            // Syntax:   <command> <var>
-
-            // get the ID of the DEF
-            transvar();
-            return 0;
-
-        case CON_ADDLOG:
-            // syntax: addlog
-
-            // prints the line number in the log file.
-            *scriptptr=line_number;
-            scriptptr++;
-            return 0;
-
-        case CON_IFPINVENTORY:
-        case CON_IFRND:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_IFPDISTL:
-        case CON_IFPDISTG:
-        case CON_IFWASWEAPON:
-        case CON_IFACTIONCOUNT:
-        case CON_IFCOUNT:
-        case CON_IFACTOR:
-        case CON_IFSTRENGTH:
-        case CON_IFSPAWNEDBY:
-        case CON_IFGAPZL:
-        case CON_IFFLOORDISTL:
-        case CON_IFCEILINGDISTL:
-            //        case 74:
-        case CON_IFPHEALTHL:
-        case CON_IFSPRITEPAL:
-        case CON_IFGOTWEAPONCE:
-        case CON_IFANGDIFFL:
-        case CON_IFSOUND:
-        case CON_IFAI:
-        case CON_IFACTION:
-        case CON_IFMOVE:
-            switch (tw)
-            {
-                case CON_IFAI:
-                    transnum(LABEL_AI);
+                if (keyword() >= 0)
+                {
+                    for (i=4-j; i; i--) *(scriptptr++) = 0;
                     break;
-                case CON_IFACTION:
+                }
+                switch (j)
+                {
+                case 0:
+                    transnum(LABEL_DEFINE);
+                    break;
+                case 1:
                     transnum(LABEL_ACTION);
                     break;
-                case CON_IFMOVE:
+                case 2:
                     if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
                     {
                         ReportError(-1);
@@ -4264,637 +2660,2241 @@ repeatcase:
                         initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
                     }
                     break;
-                case CON_IFPINVENTORY:
-                    transnum(LABEL_DEFINE);
-                    transnum(LABEL_DEFINE);
-                    break;
-                default:
-                    transnum(LABEL_DEFINE);
-                    break;
+                }
+                *(parsing_actor+j) = *(scriptptr-1);
             }
+        }
+        checking_ifelse = 0;
+        return 0;
 
-        case CON_IFONWATER:
-        case CON_IFINWATER:
-        case CON_IFACTORNOTSTAYPUT:
-        case CON_IFCANSEE:
-        case CON_IFHITWEAPON:
-        case CON_IFSQUISHED:
-        case CON_IFDEAD:
-        case CON_IFCANSHOOTTARGET:
-        case CON_IFP:
-        case CON_IFHITSPACE:
-        case CON_IFOUTSIDE:
-        case CON_IFMULTIPLAYER:
-        case CON_IFINSPACE:
-        case CON_IFBULLETNEAR:
-        case CON_IFRESPAWN:
-        case CON_IFINOUTERSPACE:
-        case CON_IFNOTMOVING:
-        case CON_IFAWAYFROMWALL:
-        case CON_IFCANSEETARGET:
-        case CON_IFNOSOUNDS:
-            if (tw == CON_IFP)
+    case CON_ONEVENT:
+        if (parsing_state || parsing_actor)
+        {
+            ReportError(ERROR_FOUNDWITHIN);
+            error++;
+        }
+
+        num_braces = 0;
+        scriptptr--;
+        parsing_event = scriptptr;
+        parsing_actor = scriptptr;
+
+        skipcomments();
+        j = 0;
+        while (isaltok(*(textptr+j)))
+        {
+            parsing_item_name[j] = textptr[j];
+            j++;
+        }
+        parsing_item_name[j] = 0;
+        labelsonly = 1;
+        transnum(LABEL_DEFINE);
+        labelsonly = 0;
+        scriptptr--;
+        j= *scriptptr;  // type of event
+        current_event = j;
+        //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, parsing_event);
+        //AddLog(g_szBuf);
+        if (j > MAXGAMEEVENTS-1 || j < 0)
+        {
+            initprintf("%s:%ld: error: invalid event ID.\n",compilefile,line_number);
+            error++;
+            return 0;
+        }
+
+        if (apScriptGameEvent[j])
+        {
+            tempscrptr = parsing_event;
+            parsing_event = parsing_actor = 0;
+            ReportError(-1);
+            parsing_event = parsing_actor = tempscrptr;
+            initprintf("%s:%ld: warning: duplicate event `%s'.\n",compilefile,line_number,parsing_item_name);
+        }
+        else apScriptGameEvent[j]=parsing_event;
+
+        checking_ifelse = 0;
+
+        return 0;
+
+    case CON_EVENTLOADACTOR:
+        if (parsing_state || parsing_actor)
+        {
+            ReportError(ERROR_FOUNDWITHIN);
+            error++;
+        }
+
+        num_braces = 0;
+        scriptptr--;
+        parsing_actor = scriptptr;
+
+        skipcomments();
+        j = 0;
+        while (isaltok(*(textptr+j)))
+        {
+            parsing_item_name[j] = textptr[j];
+            j++;
+        }
+        parsing_item_name[j] = 0;
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+        actorLoadEventScrptr[*scriptptr] = parsing_actor;
+
+        checking_ifelse = 0;
+        return 0;
+
+    case CON_USERACTOR:
+        if (parsing_state || parsing_actor)
+        {
+            ReportError(ERROR_FOUNDWITHIN);
+            error++;
+        }
+
+        num_braces = 0;
+        scriptptr--;
+        parsing_actor = scriptptr;
+
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+
+        skipcomments();
+        j = 0;
+        while (isaltok(*(textptr+j)))
+        {
+            parsing_item_name[j] = textptr[j];
+            j++;
+        }
+        parsing_item_name[j] = 0;
+
+        j = *scriptptr;
+
+        if (j > 2)
+        {
+            ReportError(-1);
+            initprintf("%s:%ld: warning: invalid useractor type.\n",compilefile,line_number);
+            j = 0;
+        }
+
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+        actorscrptr[*scriptptr] = parsing_actor;
+        actortype[*scriptptr] = j;
+
+        for (j=0;j<4;j++)
+        {
+            *(parsing_actor+j) = 0;
+            if (j == 3)
             {
                 j = 0;
-                do
+                while (keyword() == -1)
                 {
                     transnum(LABEL_DEFINE);
                     scriptptr--;
                     j |= *scriptptr;
                 }
-                while (keyword() == -1);
                 *scriptptr = j;
                 scriptptr++;
-            }
-
-            tempscrptr = scriptptr;
-            scriptptr++; //Leave a spot for the fail location
-
-            j = keyword();
-            parsecommand();
-
-            *tempscrptr = (long) scriptptr;
-
-            checking_ifelse++;
-            return 0;
-
-        case CON_LEFTBRACE:
-            if (!(parsing_state || parsing_actor || parsing_event))
-            {
-                error++;
-                ReportError(ERROR_SYNTAXERROR);
-            }
-            num_braces++;
-            do
-                done = parsecommand();
-            while (done == 0);
-            return 0;
-
-        case CON_RIGHTBRACE:
-            num_braces--;
-            if (num_braces < 0)
-            {
-                if (checking_switch)
-                {
-                    ReportError(ERROR_NOENDSWITCH);
-                }
-
-                ReportError(-1);
-                initprintf("%s:%ld: error: found more `}' than `{'.\n",compilefile,line_number);
-                error++;
-            }
-            return 1;
-
-        case CON_BETANAME:
-            scriptptr--;
-            j = 0;
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-                textptr++;
-            return 0;
-
-        case CON_DEFINEVOLUMENAME:
-            scriptptr--;
-            transnum(LABEL_DEFINE);
-            scriptptr--;
-            j = *scriptptr;
-            while (*textptr == ' ' || *textptr == '\t') textptr++;
-
-            if (j < 0 || j > MAXVOLUMES-1)
-            {
-                initprintf("%s:%ld: error: volume number exceeds maximum volume count.\n",compilefile,line_number);
-                error++;
-                while (*textptr != 0x0a && *textptr != 0) textptr++;
                 break;
             }
-
-            i = 0;
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                volume_names[j][i] = toupper(*textptr);
-                textptr++,i++;
-                if (i >= (signed)sizeof(volume_names[j])-1)
-                {
-                    initprintf("%s:%ld: error: volume name exceeds limit of %ld characters.\n",compilefile,line_number,sizeof(volume_names[j])-1);
-                    error++;
-                    while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
-                    break;
-                }
-            }
-            num_volumes = j+1;
-            volume_names[j][i] = '\0';
-            return 0;
-
-        case CON_DEFINEGAMEFUNCNAME:
-            scriptptr--;
-            transnum(LABEL_DEFINE);
-            scriptptr--;
-            j = *scriptptr;
-            while (*textptr == ' ' || *textptr == '\t') textptr++;
-
-            if (j < 0 || j > NUMGAMEFUNCTIONS-1)
-            {
-                initprintf("%s:%ld: error: function number exceeds number of game functions.\n",compilefile,line_number);
-                error++;
-                while (*textptr != 0x0a && *textptr != 0) textptr++;
-                break;
-            }
-
-            i = 0;
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                gamefunctions[j][i] = *textptr;
-                keydefaults[j*3][i] = *textptr;
-                textptr++,i++;
-                if (i >= MAXGAMEFUNCLEN-1)
-                {
-                    initprintf("%s:%ld: error: function name exceeds limit of %ld characters.\n",compilefile,line_number,MAXGAMEFUNCLEN);
-                    error++;
-                    while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
-                    break;
-                }
-            }
-            gamefunctions[j][i] = '\0';
-            keydefaults[j*3][i] = '\0';
-            return 0;
-
-        case CON_DEFINESKILLNAME:
-            scriptptr--;
-            transnum(LABEL_DEFINE);
-            scriptptr--;
-            j = *scriptptr;
-            while (*textptr == ' ' || *textptr == '\t') textptr++;
-
-            if (j < 0 || j > 4)
-            {
-                initprintf("%s:%ld: error: skill number exceeds maximum skill count.\n",compilefile,line_number);
-                error++;
-                while (*textptr != 0x0a && *textptr != 0) textptr++;
-                break;
-            }
-
-            i = 0;
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                skill_names[j][i] = toupper(*textptr);
-                textptr++,i++;
-                if (i >= (signed)sizeof(skill_names[j])-1)
-                {
-                    initprintf("%s:%ld: error: skill name exceeds limit of %ld characters.\n",compilefile,line_number,sizeof(skill_names[j])-1);
-                    error++;
-                    while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
-                    break;
-                }
-            }
-            skill_names[j][i] = '\0';
-            return 0;
-
-        case CON_DEFINEGAMETYPE:
-            scriptptr--; //remove opcode from compiled code
-            transnum(LABEL_DEFINE); //translate number
-            scriptptr--; //remove it from compiled code
-            j = *scriptptr; //put it into j
-
-            transnum(LABEL_DEFINE); //translate number
-            scriptptr--; //remove it from compiled code
-            gametype_flags[j] = *scriptptr; //put it into the flags
-
-            while (*textptr == ' ' || *textptr == '\t') textptr++;
-
-            if (j < 0 || j > MAXGAMETYPES-1)
-            {
-                initprintf("%s:%ld: error: gametype number exceeds maximum gametype count.\n",compilefile,line_number);
-                error++;
-                while (*textptr != 0x0a && *textptr != 0) textptr++;
-                break;
-            }
-            num_gametypes = j+1;
-
-            i = 0;
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                gametype_names[j][i] = toupper(*textptr);
-                textptr++,i++;
-                if (i >= (signed)sizeof(gametype_names[j])-1)
-                {
-                    initprintf("%s:%ld: error: gametype name exceeds limit of %ld characters.\n",compilefile,line_number,sizeof(gametype_names[j])-1);
-                    error++;
-                    while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
-                    break;
-                }
-            }
-            gametype_names[j][i] = '\0';
-            return 0;
-
-        case CON_DEFINELEVELNAME:
-            scriptptr--;
-            transnum(LABEL_DEFINE);
-            scriptptr--;
-            j = *scriptptr;
-            transnum(LABEL_DEFINE);
-            scriptptr--;
-            k = *scriptptr;
-            while (*textptr == ' ' || *textptr == '\t') textptr++;
-
-            if (j < 0 || j > MAXVOLUMES-1)
-            {
-                initprintf("%s:%ld: error: volume number exceeds maximum volume count.\n",compilefile,line_number);
-                error++;
-                while (*textptr != 0x0a && *textptr != 0) textptr++;
-                break;
-            }
-            if (k < 0 || k > 10)
-            {
-                initprintf("%s:%ld: error: level number exceeds maximum number of levels per episode.\n",
-                           line_number,compilefile);
-                error++;
-                while (*textptr != 0x0a && *textptr != 0) textptr++;
-                break;
-            }
-
-            i = 0;
-            while (*textptr != ' ' && *textptr != '\t' && *textptr != 0x0a)
-            {
-                level_file_names[j*11+k][i] = *textptr;
-                textptr++,i++;
-                if (i >= BMAX_PATH)
-                {
-                    initprintf("%s:%ld: error: level file name exceeds limit of %d characters.\n",compilefile,line_number,BMAX_PATH);
-                    error++;
-                    while (*textptr != ' ' && *textptr != '\t') textptr++;
-                    break;
-                }
-            }
-            level_names[j*11+k][i] = '\0';
-
-            while (*textptr == ' ' || *textptr == '\t') textptr++;
-
-            partime[j*11+k] =
-                (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*26*60)+
-                (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*26);
-
-            textptr += 5;
-            while (*textptr == ' '  || *textptr == '\t') textptr++;
-
-            designertime[j*11+k] =
-                (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*26*60)+
-                (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*26);
-
-            textptr += 5;
-            while (*textptr == ' '  || *textptr == '\t') textptr++;
-
-            i = 0;
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                level_names[j*11+k][i] = toupper(*textptr);
-                textptr++,i++;
-                if (i >= (signed)sizeof(level_names[j*11+k])-1)
-                {
-                    initprintf("%s:%ld: error: level name exceeds limit of %ld characters.\n",compilefile,line_number,sizeof(level_names[j*11+k])-1);
-                    error++;
-                    while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
-                    break;
-                }
-            }
-            level_names[j*11+k][i] = '\0';
-            return 0;
-
-        case CON_DEFINEQUOTE:
-        case CON_REDEFINEQUOTE:
-            if (tw == CON_DEFINEQUOTE)
-                scriptptr--;
-
-            transnum(LABEL_DEFINE);
-
-            k = *(scriptptr-1);
-
-            if (k >= MAXQUOTES)
-            {
-                initprintf("%s:%ld: error: quote number exceeds limit of %ld.\n",compilefile,line_number,MAXQUOTES);
-                error++;
-            }
-
-            if (fta_quotes[k] == NULL)
-                fta_quotes[k] = Bcalloc(MAXQUOTELEN,sizeof(char));
-            if (!fta_quotes[k])
-            {
-                fta_quotes[k] = NULL;
-                Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
-                gameexit(tempbuf);
-            }
-
-            if (tw == CON_DEFINEQUOTE)
-                scriptptr--;
-
-            i = 0;
-
-            while (*textptr == ' ' || *textptr == '\t')
-                textptr++;
-
-            if (tw == CON_REDEFINEQUOTE)
-            {
-                if (redefined_quotes[redefined_quote_count] == NULL)
-                    redefined_quotes[redefined_quote_count] = Bcalloc(MAXQUOTELEN,sizeof(char));
-                if (!redefined_quotes[redefined_quote_count])
-                {
-                    redefined_quotes[redefined_quote_count] = NULL;
-                    Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
-                    gameexit(tempbuf);
-                }
-            }
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                if (*textptr == '%' && *(textptr+1) == 's')
-                {
-                    initprintf("%s:%ld: error: quote text contains string identifier.\n",compilefile,line_number);
-                    error++;
-                    while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
-                    break;
-                }
-                if (tw == CON_DEFINEQUOTE)
-                    *(fta_quotes[k]+i) = *textptr;
-                else
-                    *(redefined_quotes[redefined_quote_count]+i) = *textptr;
-                textptr++,i++;
-                if (i >= MAXQUOTELEN-1)
-                {
-                    initprintf("%s:%ld: error: quote text exceeds limit of %ld characters.\n",compilefile,line_number,MAXQUOTELEN-1);
-                    error++;
-                    while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
-                    break;
-                }
-            }
-            if (tw == CON_DEFINEQUOTE)
-                *(fta_quotes[k]+i) = '\0';
             else
             {
-                *(redefined_quotes[redefined_quote_count]+i) = '\0';
-                *scriptptr++=redefined_quote_count;
-                redefined_quote_count++;
+                if (keyword() >= 0)
+                {
+                    for (i=4-j; i; i--) *(scriptptr++) = 0;
+                    break;
+                }
+                switch (j)
+                {
+                case 0:
+                    transnum(LABEL_DEFINE);
+                    break;
+                case 1:
+                    transnum(LABEL_ACTION);
+                    break;
+                case 2:
+                    if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
+                    {
+                        ReportError(-1);
+                        *(scriptptr-1) = 0;
+                        initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
+                    }
+                    break;
+                }
+                *(parsing_actor+j) = *(scriptptr-1);
             }
-            return 0;
+        }
+        checking_ifelse = 0;
+        return 0;
 
-        case CON_CHEATKEYS:
-            scriptptr--;
-            transnum(LABEL_DEFINE);
-            cheatkey[0] = *(scriptptr-1);
-            transnum(LABEL_DEFINE);
-            cheatkey[1] = *(scriptptr-1);
-            return 0;
+    case CON_INSERTSPRITEQ:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+        return 0;
 
-        case CON_DEFINECHEAT:
-            scriptptr--;
-            transnum(LABEL_DEFINE);
-            k = *(scriptptr-1);
+    case CON_QSPRINTF:
+        transnum(LABEL_DEFINE);
+        transnum(LABEL_DEFINE);
+        for (j = 0;j < 4;j++)
+        {
+            if (keyword() == -1)
+                transvar();
+            else break;
+        }
 
-            if (k > 25)
+        while (j < 4)
+        {
+            *scriptptr = 0;
+            scriptptr++;
+            j++;
+        }
+        return 0;
+
+    case CON_ESPAWN:
+    case CON_ESHOOT:
+    case CON_QSPAWN:
+    case CON_EQSPAWN:
+    case CON_STRENGTH:
+    case CON_SHOOT:
+    case CON_ADDPHEALTH:
+    case CON_SPAWN:
+    case CON_CSTAT:
+    case CON_COUNT:
+    case CON_ENDOFGAME:
+    case CON_SPRITEPAL:
+    case CON_CACTOR:
+    case CON_MONEY:
+    case CON_ADDKILLS:
+    case CON_DEBUG:
+    case CON_ADDSTRENGTH:
+    case CON_CSTATOR:
+    case CON_MAIL:
+    case CON_PAPER:
+    case CON_SLEEPTIME:
+    case CON_CLIPDIST:
+    case CON_LOTSOFGLASS:
+    case CON_SAVE:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_ANGOFF:
+    case CON_USERQUOTE:
+    case CON_QUOTE:
+    case CON_SOUND:
+    case CON_GLOBALSOUND:
+    case CON_SOUNDONCE:
+    case CON_STOPSOUND:
+        transnum(LABEL_DEFINE);
+        if (tw == CON_CSTAT)
+        {
+            if (*(scriptptr-1) == 32767)
             {
-                initprintf("%s:%ld: error: cheat redefinition attempts to redefine nonexistant cheat.\n",compilefile,line_number);
+                ReportError(-1);
+                initprintf("%s:%ld: warning: tried to set cstat 32767, using 32768 instead.\n",compilefile,line_number);
+                *(scriptptr-1) = 32768;
+            }
+            else if ((*(scriptptr-1) & 32) && (*(scriptptr-1) & 16))
+            {
+                i = *(scriptptr-1);
+                *(scriptptr-1) ^= 48;
+                ReportError(-1);
+                initprintf("%s:%ld: warning: tried to set cstat %ld, using %ld instead.\n",compilefile,line_number,i,*(scriptptr-1));
+            }
+        }
+        return 0;
+
+    case CON_HITRADIUS:
+        transnum(LABEL_DEFINE);
+        transnum(LABEL_DEFINE);
+        transnum(LABEL_DEFINE);
+    case CON_ADDAMMO:
+    case CON_ADDWEAPON:
+    case CON_SIZETO:
+    case CON_SIZEAT:
+    case CON_DEBRIS:
+    case CON_ADDINVENTORY:
+    case CON_GUTS:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+        transnum(LABEL_DEFINE);
+        transnum(LABEL_DEFINE);
+        break;
+
+    case CON_ELSE:
+        if (checking_ifelse)
+        {
+            checking_ifelse--;
+            tempscrptr = scriptptr;
+            scriptptr++; //Leave a spot for the fail location
+            parsecommand();
+            *tempscrptr = (long) scriptptr;
+        }
+        else
+        {
+            scriptptr--;
+            error++;
+            ReportError(-1);
+            initprintf("%s:%ld: error: found `else' with no `if'.\n",compilefile,line_number);
+        }
+        return 0;
+
+    case CON_SETSECTOR:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_GETSECTOR:
+    {
+        long lLabelID;
+
+        // syntax getsector[<var>].x <VAR>
+        // gets the value of sector[<var>].xxx into <VAR>
+
+        // now get name of .xxx
+        while ((*textptr != '['))
+        {
+            textptr++;
+        }
+        if (*textptr == '[')
+            textptr++;
+
+        // get the ID of the DEF
+        labelsonly = 1;
+        transvar();
+        labelsonly = 0;
+        // now get name of .xxx
+        while (*textptr != '.')
+        {
+            if (*textptr == 0xa)
+                break;
+            if (!*textptr)
+                break;
+
+            textptr++;
+        }
+        if (*textptr!='.')
+        {
+            error++;
+            ReportError(ERROR_SYNTAXERROR);
+            return 0;
+        }
+        textptr++;
+        /// now pointing at 'xxx'
+        getlabel();
+        //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
+
+        lLabelID=getlabelid(sectorlabels,label+(labelcnt<<6));
+
+        if (lLabelID == -1)
+        {
+            error++;
+            ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+            return 0;
+        }
+        *scriptptr++=lLabelID;
+
+        // now at target VAR...
+
+        // get the ID of the DEF
+        if (tw==CON_GETSECTOR)
+            transvartype(GAMEVAR_FLAG_READONLY);
+        else
+            transvar();
+        break;
+    }
+
+    case CON_FINDNEARACTOR:
+    case CON_FINDNEARACTOR3D:
+    case CON_FINDNEARSPRITE:
+    case CON_FINDNEARSPRITE3D:
+    case CON_FINDNEARACTORZ:
+    case CON_FINDNEARSPRITEZ:
+    {
+        // syntax findnearactor <type> <maxdist> <getvar>
+        // gets the sprite ID of the nearest actor within max dist
+        // that is of <type> into <getvar>
+        // -1 for none found
+
+        transnum(LABEL_DEFINE); // get <type>
+        transnum(LABEL_DEFINE); // get maxdist
+
+        switch (tw)
+        {
+        case CON_FINDNEARACTORZ:
+        case CON_FINDNEARSPRITEZ:
+            transnum(LABEL_DEFINE);
+        default:
+            break;
+        }
+
+        // target var
+        // get the ID of the DEF
+        transvartype(GAMEVAR_FLAG_READONLY);
+        break;
+    }
+
+    case CON_FINDNEARACTORVAR:
+    case CON_FINDNEARACTOR3DVAR:
+    case CON_FINDNEARSPRITEVAR:
+    case CON_FINDNEARSPRITE3DVAR:
+    case CON_FINDNEARACTORZVAR:
+    case CON_FINDNEARSPRITEZVAR:
+    {
+        transnum(LABEL_DEFINE); // get <type>
+
+        // get the ID of the DEF
+        transvar();
+        switch (tw)
+        {
+        case CON_FINDNEARACTORZVAR:
+        case CON_FINDNEARSPRITEZVAR:
+            transvar();
+        default:
+            break;
+        }
+        // target var
+        // get the ID of the DEF
+        transvartype(GAMEVAR_FLAG_READONLY);
+        break;
+    }
+
+    case CON_SQRT:
+    {
+        // syntax sqrt <invar> <outvar>
+        // gets the sqrt of invar into outvar
+
+        // get the ID of the DEF
+        transvar();
+        // target var
+        // get the ID of the DEF
+        transvartype(GAMEVAR_FLAG_READONLY);
+        break;
+    }
+
+    case CON_SETWALL:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_GETWALL:
+    {
+        long lLabelID;
+
+        // syntax getwall[<var>].x <VAR>
+        // gets the value of wall[<var>].xxx into <VAR>
+
+        // now get name of .xxx
+        while ((*textptr != '['))
+        {
+            textptr++;
+        }
+        if (*textptr == '[')
+            textptr++;
+
+        // get the ID of the DEF
+        labelsonly = 1;
+        transvar();
+        labelsonly = 0;
+        // now get name of .xxx
+        while (*textptr != '.')
+        {
+            if (*textptr == 0xa)
+                break;
+            if (!*textptr)
+                break;
+
+            textptr++;
+        }
+        if (*textptr!='.')
+        {
+            error++;
+            ReportError(ERROR_SYNTAXERROR);
+            return 0;
+        }
+        textptr++;
+        /// now pointing at 'xxx'
+        getlabel();
+        //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
+
+        lLabelID=getlabelid(walllabels,label+(labelcnt<<6));
+
+        if (lLabelID == -1)
+        {
+            error++;
+            ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+            return 0;
+        }
+        *scriptptr++=lLabelID;
+
+        // now at target VAR...
+
+        // get the ID of the DEF
+        if (tw == CON_GETWALL)
+            transvartype(GAMEVAR_FLAG_READONLY);
+        else
+            transvar();
+        break;
+    }
+
+    case CON_SETPLAYER:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_GETPLAYER:
+    {
+        long lLabelID;
+
+        // syntax getwall[<var>].x <VAR>
+        // gets the value of wall[<var>].xxx into <VAR>
+
+        // now get name of .xxx
+        while ((*textptr != '['))
+        {
+            textptr++;
+        }
+        if (*textptr == '[')
+            textptr++;
+
+        // get the ID of the DEF
+        labelsonly = 1;
+        transvar();
+        labelsonly = 0;
+        // now get name of .xxx
+        while (*textptr != '.')
+        {
+            if (*textptr == 0xa)
+                break;
+            if (!*textptr)
+                break;
+
+            textptr++;
+        }
+        if (*textptr!='.')
+        {
+            error++;
+            ReportError(ERROR_SYNTAXERROR);
+            return 0;
+        }
+        textptr++;
+        /// now pointing at 'xxx'
+        getlabel();
+        //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
+
+        lLabelID=getlabeloffset(playerlabels,label+(labelcnt<<6));
+        //printf("LabelID is %ld\n",lLabelID);
+        if (lLabelID == -1)
+        {
+            error++;
+            ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+            return 0;
+        }
+
+        *scriptptr++=playerlabels[lLabelID].lId;
+
+        //printf("member's flags are: %02Xh\n",playerlabels[lLabelID].flags);
+        if (playerlabels[lLabelID].flags & LABEL_HASPARM2)
+        {
+            //printf("Member has PARM2\n");
+            // get parm2
+            // get the ID of the DEF
+            transvar();
+        }
+        else
+        {
+            //printf("Member does not have Parm2\n");
+        }
+
+        // now at target VAR...
+
+        // get the ID of the DEF
+        if (tw==CON_GETPLAYER)
+            transvartype(GAMEVAR_FLAG_READONLY);
+        else
+            transvar();
+        break;
+    }
+
+    case CON_SETINPUT:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_GETINPUT:
+    {
+        long lLabelID;
+
+        // syntax getwall[<var>].x <VAR>
+        // gets the value of wall[<var>].xxx into <VAR>
+
+        // now get name of .xxx
+        while ((*textptr != '['))
+        {
+            textptr++;
+        }
+        if (*textptr == '[')
+            textptr++;
+
+        // get the ID of the DEF
+        labelsonly = 1;
+        transvar();
+        labelsonly = 0;
+        // now get name of .xxx
+        while (*textptr != '.')
+        {
+            if (*textptr == 0xa)
+                break;
+            if (!*textptr)
+                break;
+
+            textptr++;
+        }
+        if (*textptr!='.')
+        {
+            error++;
+            ReportError(ERROR_SYNTAXERROR);
+            return 0;
+        }
+        textptr++;
+        /// now pointing at 'xxx'
+        getlabel();
+        //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
+
+        lLabelID=getlabeloffset(inputlabels,label+(labelcnt<<6));
+        //printf("LabelID is %ld\n",lLabelID);
+        if (lLabelID == -1)
+        {
+            error++;
+            ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+            return 0;
+        }
+
+        *scriptptr++=inputlabels[lLabelID].lId;
+
+        // now at target VAR...
+
+        // get the ID of the DEF
+        if (tw==CON_GETINPUT)
+            transvartype(GAMEVAR_FLAG_READONLY);
+        else
+            transvar();
+        break;
+    }
+
+    case CON_SETUSERDEF:
+    case CON_GETUSERDEF:
+    {
+        long lLabelID;
+
+        // syntax [gs]etuserdef.x <VAR>
+        // gets the value of ud.xxx into <VAR>
+
+        // now get name of .xxx
+        while (*textptr != '.')
+        {
+            if (*textptr == 0xa)
+                break;
+            if (!*textptr)
+                break;
+
+            textptr++;
+        }
+        if (*textptr!='.')
+        {
+            error++;
+            ReportError(ERROR_SYNTAXERROR);
+            return 0;
+        }
+        textptr++;
+        /// now pointing at 'xxx'
+        getlabel();
+        //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
+
+        lLabelID=getlabelid(userdefslabels,label+(labelcnt<<6));
+
+        if (lLabelID == -1)
+        {
+            error++;
+            ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+            return 0;
+        }
+        *scriptptr++=lLabelID;
+
+        // now at target VAR...
+
+        // get the ID of the DEF
+        if (tw==CON_GETUSERDEF)
+            transvartype(GAMEVAR_FLAG_READONLY);
+        else
+            transvar();
+        break;
+    }
+
+    case CON_SETACTORVAR:
+    case CON_SETPLAYERVAR:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_GETACTORVAR:
+    case CON_GETPLAYERVAR:
+    {
+        // syntax [gs]etactorvar[<var>].<varx> <VAR>
+        // gets the value of the per-actor variable varx into VAR
+
+        // now get name of <var>
+        while ((*textptr != '['))
+        {
+            textptr++;
+        }
+        if (*textptr == '[')
+            textptr++;
+
+        // get the ID of the DEF
+        labelsonly = 1;
+        transvar();
+        labelsonly = 0;
+        // now get name of .<varx>
+        while (*textptr != '.')
+        {
+            if (*textptr == 0xa)
+                break;
+            if (!*textptr)
+                break;
+
+            textptr++;
+        }
+        if (*textptr!='.')
+        {
+            error++;
+            ReportError(ERROR_SYNTAXERROR);
+            return 0;
+        }
+        textptr++;
+        /// now pointing at 'xxx'
+
+        // get the ID of the DEF
+        getlabel();
+        //printf("found label of '%s'\n",   label+(labelcnt<<6));
+
+        // Check to see if it's a keyword
+        for (i=0;i<NUMKEYWORDS;i++)
+            if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
+            {
+                error++;
+                ReportError(ERROR_ISAKEYWORD);
+                return 0;
+            }
+
+        i=GetDefID(label+(labelcnt<<6));
+        //printf("Label '%s' ID is %d\n",label+(labelcnt<<6), i);
+        if (i<0)
+        {   // not a defined DEF
+            error++;
+            ReportError(ERROR_NOTAGAMEVAR);
+            return 0;
+        }
+        if (aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+        {
+            error++;
+            ReportError(ERROR_VARREADONLY);
+            return 0;
+
+        }
+
+        switch (tw)
+        {
+        case CON_SETACTORVAR:
+        {
+            if (!(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR))
+            {
+                error++;
+                ReportError(-1);
+                initprintf("%s:%ld: error: variable `%s' is not per-actor.\n",compilefile,line_number,label+(labelcnt<<6));
+                return 0;
+
+            }
+            break;
+        }
+        case CON_SETPLAYERVAR:
+        {
+            if (!(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER))
+            {
+                error++;
+                ReportError(-1);
+                initprintf("%s:%ld: error: variable `%s' is not per-player.\n",compilefile,line_number,label+(labelcnt<<6));
+                return 0;
+
+            }
+            break;
+        }
+        }
+
+        *scriptptr++=i; // the ID of the DEF (offset into array...)
+
+        switch (tw)
+        {
+        case CON_GETACTORVAR:
+        case CON_GETPLAYERVAR:
+            transvartype(GAMEVAR_FLAG_READONLY);
+            break;
+        default:
+            transvar();
+            break;
+        }
+        break;
+    }
+
+    case CON_SETACTOR:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_GETACTOR:
+    {
+        long lLabelID;
+
+        // syntax getwall[<var>].x <VAR>
+        // gets the value of wall[<var>].xxx into <VAR>
+
+        // now get name of .xxx
+        while ((*textptr != '['))
+        {
+            textptr++;
+        }
+        if (*textptr == '[')
+            textptr++;
+
+        // get the ID of the DEF
+        labelsonly = 1;
+        transvar();
+        labelsonly = 0;
+        // now get name of .xxx
+        while (*textptr != '.')
+        {
+            if (*textptr == 0xa)
+                break;
+            if (!*textptr)
+                break;
+
+            textptr++;
+        }
+        if (*textptr!='.')
+        {
+            error++;
+            ReportError(ERROR_SYNTAXERROR);
+            return 0;
+        }
+        textptr++;
+        /// now pointing at 'xxx'
+        getlabel();
+        //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
+
+        lLabelID=getlabeloffset(actorlabels,label+(labelcnt<<6));
+        //printf("LabelID is %ld\n",lLabelID);
+        if (lLabelID == -1)
+        {
+            error++;
+            ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+            return 0;
+        }
+
+        *scriptptr++=actorlabels[lLabelID].lId;
+
+        //printf("member's flags are: %02Xh\n",actorlabels[lLabelID].flags);
+        if (actorlabels[lLabelID].flags & LABEL_HASPARM2)
+        {
+            //printf("Member has PARM2\n");
+            // get parm2
+            // get the ID of the DEF
+            transvar();
+        }
+        else
+        {
+            //printf("Member does not have Parm2\n");
+        }
+
+        // now at target VAR...
+
+        // get the ID of the DEF
+        if (tw == CON_GETACTOR)
+            transvartype(GAMEVAR_FLAG_READONLY);
+        else
+            transvar();
+        break;
+    }
+
+    case CON_GETCURRADDRESS:
+        transvartype(GAMEVAR_FLAG_READONLY);
+        return 0;
+
+    case CON_ESHOOTVAR:
+    case CON_ESPAWNVAR:
+    case CON_QSPAWNVAR:
+    case CON_EQSPAWNVAR:
+    case CON_OPERATERESPAWNS:
+    case CON_OPERATEMASTERSWITCHES:
+    case CON_CHECKACTIVATORMOTION:
+    case CON_TIME:
+    case CON_INITTIMER:
+    case CON_LOCKPLAYER:
+    case CON_SHOOTVAR:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_JUMP:
+    case CON_SOUNDVAR:
+    case CON_GLOBALSOUNDVAR:
+    case CON_STOPSOUNDVAR:
+    case CON_SOUNDONCEVAR:
+    case CON_ANGOFFVAR:
+    case CON_CHECKAVAILWEAPON:
+    case CON_CHECKAVAILINVEN:
+    case CON_GUNIQHUDID:
+    case CON_SAVEGAMEVAR:
+    case CON_READGAMEVAR:
+        transvar();
+        return 0;
+
+    case CON_ENHANCED:
+    {
+        // don't store in pCode...
+        scriptptr--;
+        //printf("We are enhanced, baby...\n");
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+        if (*scriptptr > BYTEVERSION_JF)
+        {
+            warning++;
+            initprintf("%s:%ld: warning: need build %ld, found build %ld\n",compilefile,line_number,k,BYTEVERSION_JF);
+        }
+        break;
+    }
+
+    case CON_DYNAMICREMAP:
+    {
+        scriptptr--;
+        initprintf("Dynamic tile remapping enabled.\n");
+        dynamicremap = 1;
+        break;
+    }
+
+    case CON_RANDVAR:
+    case CON_ZSHOOT:
+    case CON_EZSHOOT:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_SETVAR:
+    case CON_ADDVAR:
+    case CON_SUBVAR:
+    case CON_DISPLAYRANDVAR:
+    case CON_MULVAR:
+    case CON_DIVVAR:
+    case CON_MODVAR:
+    case CON_ANDVAR:
+    case CON_ORVAR:
+    case CON_XORVAR:
+    case CON_SHIFTVARL:
+    case CON_SHIFTVARR:
+
+        // syntax: [rand|add|set]var    <var1> <const1>
+        // sets var1 to const1
+        // adds const1 to var1 (const1 can be negative...)
+        //printf("Found [add|set]var at line= %ld\n",line_number);
+
+        // get the ID of the DEF
+        if (tw != CON_ZSHOOT && tw != CON_EZSHOOT)
+            transvartype(GAMEVAR_FLAG_READONLY);
+        else transvar();
+
+        transnum(LABEL_DEFINE); // the number to check against...
+        return 0;
+    case CON_RANDVARVAR:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_SETVARVAR:
+    case CON_ADDVARVAR:
+    case CON_SUBVARVAR:
+    case CON_MULVARVAR:
+    case CON_DIVVARVAR:
+    case CON_MODVARVAR:
+    case CON_ANDVARVAR:
+    case CON_ORVARVAR:
+    case CON_XORVARVAR:
+    case CON_DISPLAYRANDVARVAR:
+    case CON_SIN:
+    case CON_COS:
+        transvartype(GAMEVAR_FLAG_READONLY);
+        transvar();
+        return 0;
+
+    case CON_SMAXAMMO:
+    case CON_ADDWEAPONVAR:
+    case CON_ACTIVATEBYSECTOR:
+    case CON_OPERATESECTORS:
+    case CON_OPERATEACTIVATORS:
+    case CON_SSP:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_GMAXAMMO:
+    case CON_DIST:
+    case CON_LDIST:
+    case CON_GETINCANGLE:
+    case CON_GETANGLE:
+    case CON_MULSCALE:
+    case CON_SETASPECT:
+        // get the ID of the DEF
+        switch (tw)
+        {
+        case CON_DIST:
+        case CON_LDIST:
+        case CON_GETANGLE:
+        case CON_GETINCANGLE:
+            transvartype(GAMEVAR_FLAG_READONLY);
+            break;
+        default:
+            transvar();
+            break;
+        }
+
+        // get the ID of the DEF
+        if (tw == CON_GMAXAMMO)
+            transvartype(GAMEVAR_FLAG_READONLY);
+        else transvar();
+
+        switch (tw)
+        {
+        case CON_DIST:
+        case CON_LDIST:
+        case CON_GETANGLE:
+        case CON_GETINCANGLE:
+            transvar();
+            break;
+        case CON_MULSCALE:
+            transmultvars(2);
+            break;
+        }
+        return 0;
+
+    case CON_FLASH:
+        return 0;
+
+    case CON_DRAGPOINT:
+        transmultvars(3);
+        return 0;
+
+    case CON_GETFLORZOFSLOPE:
+    case CON_GETCEILZOFSLOPE:
+        transmultvars(3);
+        transvartype(GAMEVAR_FLAG_READONLY);
+        return 0;
+
+    case CON_DEFINEPROJECTILE:
+    {
+        short y;
+        signed long z;
+
+        if (parsing_state || parsing_actor)
+        {
+            ReportError(ERROR_FOUNDWITHIN);
+            error++;
+        }
+
+        scriptptr--;
+
+        transnum(LABEL_DEFINE);
+        j = *(scriptptr-1);
+
+        if (j > MAXTILES-1)
+        {
+            ReportError(ERROR_EXCEEDSMAXTILES);
+            error++;
+        }
+
+        transnum(LABEL_DEFINE);
+        y = *(scriptptr-1);
+        transnum(LABEL_DEFINE);
+        z = *(scriptptr-1);
+
+        DefineProjectile(j,y,z);
+        spriteflags[j] |= SPRITE_FLAG_PROJECTILE;
+        return 0;
+    }
+
+    case CON_SPRITEFLAGS:
+    {
+        if (parsing_actor == 0 && parsing_state == 0)
+        {
+            scriptptr--;
+
+            transnum(LABEL_DEFINE);
+            scriptptr--;
+            j = *scriptptr;
+
+            if (j > MAXTILES-1)
+            {
+                ReportError(ERROR_EXCEEDSMAXTILES);
+                error++;
+            }
+
+            transnum(LABEL_DEFINE);
+            scriptptr--;
+            spriteflags[j] = *scriptptr;
+
+            return 0;
+        }
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+        transvar();
+        return 0;
+    }
+
+    case CON_SPRITESHADOW:
+    case CON_SPRITENVG:
+    case CON_SPRITENOSHADE:
+    case CON_PRECACHE:
+    {
+        if (parsing_state || parsing_actor)
+        {
+            ReportError(ERROR_FOUNDWITHIN);
+            error++;
+        }
+
+        scriptptr--;
+
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+        j = *scriptptr;
+
+        if (j > MAXTILES-1)
+        {
+            ReportError(ERROR_EXCEEDSMAXTILES);
+            error++;
+        }
+
+        switch (tw)
+        {
+        case CON_SPRITESHADOW:
+            spriteflags[*scriptptr] |= SPRITE_FLAG_SHADOW;
+            break;
+        case CON_SPRITENVG:
+            spriteflags[*scriptptr] |= SPRITE_FLAG_NVG;
+            break;
+        case CON_SPRITENOSHADE:
+            spriteflags[*scriptptr] |= SPRITE_FLAG_NOSHADE;
+            break;
+        case CON_PRECACHE:
+            spritecache[*scriptptr][0] = j;
+            transnum(LABEL_DEFINE);
+            scriptptr--;
+            i = *scriptptr;
+            if (i > MAXTILES-1)
+            {
+                ReportError(ERROR_EXCEEDSMAXTILES);
+                error++;
+            }
+            spritecache[j][1] = i;
+            transnum(LABEL_DEFINE);
+            scriptptr--;
+            i = *scriptptr;
+            spritecache[j][2] = i;
+            break;
+        }
+        return 0;
+    }
+
+    case CON_IFVARVARG:
+    case CON_IFVARVARL:
+    case CON_IFVARVARE:
+    case CON_IFVARVARN:
+    case CON_IFVARVARAND:
+    case CON_WHILEVARVARN:
+        transmultvars(2);
+        tempscrptr = scriptptr;
+        scriptptr++; // Leave a spot for the fail location
+
+        j = keyword();
+        parsecommand();
+
+        *tempscrptr = (long) scriptptr;
+
+        if (tw != CON_WHILEVARVARN) checking_ifelse++;
+        return 0;
+
+    case CON_SPGETLOTAG:
+    case CON_SPGETHITAG:
+    case CON_SECTGETLOTAG:
+    case CON_SECTGETHITAG:
+    case CON_GETTEXTUREFLOOR:
+    case CON_GETTEXTURECEILING:
+        // no paramaters...
+        return 0;
+
+    case CON_STARTTRACK:
+        // one parameter (track#)
+        transnum(LABEL_DEFINE);
+        return 0;
+
+    case CON_IFVARL:
+    case CON_IFVARG:
+    case CON_IFVARE:
+    case CON_IFVARN:
+    case CON_IFVARAND:
+    case CON_WHILEVARN:
+
+        // get the ID of the DEF
+        transvar();
+        transnum(LABEL_DEFINE); // the number to check against...
+
+        tempscrptr = scriptptr;
+        scriptptr++; //Leave a spot for the fail location
+
+        j = keyword();
+        parsecommand();
+
+        *tempscrptr = (long) scriptptr;
+
+        if (tw != CON_WHILEVARN) checking_ifelse++;
+        return 0;
+
+    case CON_ADDLOGVAR:
+
+        // syntax: addlogvar <var>
+
+        // prints the line number in the log file.
+        *scriptptr=line_number;
+        scriptptr++;
+
+        // get the ID of the DEF
+        transvar();
+        return 0;
+
+    case CON_ROTATESPRITE:
+        if (parsing_event == 0 && parsing_state == 0)
+        {
+            ReportError(ERROR_EVENTONLY);
+            error++;
+        }
+
+        // syntax:
+        // long x, long y, long z, short a, short tilenum, signed char shade, char orientation, x1, y1, x2, y2
+        // myospal adds char pal
+
+        // get the ID of the DEFs
+
+        transmultvars(12);
+        break;
+
+    case CON_GETZRANGE:
+        transmultvars(4);
+        transmultvarstype(GAMEVAR_FLAG_READONLY,4);
+        transmultvars(2);
+        break;
+
+    case CON_HITSCAN:
+    case CON_CANSEE:
+        // get the ID of the DEF
+        transmultvars(tw==CON_CANSEE?8:7);
+        transmultvarstype(GAMEVAR_FLAG_READONLY,tw==CON_CANSEE?1:6);
+        if (tw==CON_HITSCAN) transvar();
+        break;
+
+    case CON_CANSEESPR:
+        transmultvars(2);
+        transvartype(GAMEVAR_FLAG_READONLY);
+        break;
+
+    case CON_ROTATEPOINT:
+    case CON_NEARTAG:
+        transmultvars(5);
+        transmultvarstype(GAMEVAR_FLAG_READONLY,2);
+        if (tw == CON_NEARTAG)
+        {
+            transmultvarstype(GAMEVAR_FLAG_READONLY,2);
+            transmultvars(2);
+        }
+        break;
+
+    case CON_MOVESPRITE:
+    case CON_SETSPRITE:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+        transmultvars(4);
+        if (tw == CON_MOVESPRITE)
+        {
+            transvar();
+            transvartype(GAMEVAR_FLAG_READONLY);
+        }
+        break;
+
+    case CON_MINITEXT:
+    case CON_GAMETEXT:
+    case CON_DIGITALNUMBER:
+        if (parsing_event == 0 && parsing_state == 0)
+        {
+            ReportError(ERROR_EVENTONLY);
+            error++;
+        }
+
+        switch (tw)
+        {
+        case CON_GAMETEXT:
+        case CON_DIGITALNUMBER:
+            transmultvars(6);
+        default:
+            transmultvars(5);
+            break;
+        }
+        break;
+
+    case CON_UPDATESECTOR:
+    case CON_UPDATESECTORZ:
+        transmultvars(2);
+        if (tw==CON_UPDATESECTORZ)
+            transvar();
+        transvartype(GAMEVAR_FLAG_READONLY);
+        break;
+
+    case CON_MYOS:
+    case CON_MYOSPAL:
+    case CON_MYOSX:
+    case CON_MYOSPALX:
+        if (parsing_event == 0 && parsing_state == 0)
+        {
+            ReportError(ERROR_EVENTONLY);
+            error++;
+        }
+
+        // syntax:
+        // long x, long y, short tilenum, signed char shade, char orientation
+        // myospal adds char pal
+
+        transmultvars(5);
+        if (tw==CON_MYOSPAL || tw==CON_MYOSPALX)
+        {
+            // Parse: pal
+
+            // get the ID of the DEF
+            transvar();
+        }
+        break;
+
+    case CON_FINDPLAYER:
+    case CON_FINDOTHERPLAYER:
+    case CON_DISPLAYRAND:
+
+        // syntax: displayrand <var>
+        // gets rand (not game rand) into <var>
+
+        // Get The ID of the DEF
+        transvartype(GAMEVAR_FLAG_READONLY);
+        break;
+
+    case CON_SWITCH:
+        //AddLog("Got Switch statement");
+        if (checking_switch)
+        {
+            //    Bsprintf(g_szBuf,"ERROR::%s %d: Checking_switch=",__FILE__,__LINE__, checking_switch);
+            //    AddLog(g_szBuf);
+        }
+        checking_switch++; // allow nesting (if other things work)
+        // Get The ID of the DEF
+        transvar();
+
+        tempscrptr= scriptptr;
+        *scriptptr++=0; // leave spot for end location (for after processing)
+        *scriptptr++=0; // count of case statements
+        casescriptptr=scriptptr;        // the first case's pointer.
+
+        *scriptptr++=0; // leave spot for 'default' location (null if none)
+
+        j = keyword();
+        temptextptr=textptr;
+        // probably does not allow nesting...
+
+        //AddLog("Counting Case Statements...");
+
+        j=CountCaseStatements();
+        //Bsprintf(g_szBuf,"Done Counting Case Statements: found %d.", j);
+        //AddLog(g_szBuf);
+        if (checking_switch>1)
+        {
+            //    Bsprintf(g_szBuf,"ERROR::%s %d: Checking_switch=",__FILE__,__LINE__, checking_switch);
+            //    AddLog(g_szBuf);
+        }
+        if (j<0)
+        {
+            return 1;
+        }
+        if (tempscrptr)
+        {
+            tempscrptr[1]=(long)j;  // save count of cases
+        }
+        else
+        {
+            //Bsprintf(g_szBuf,"ERROR::%s %d",__FILE__,__LINE__);
+            //AddLog(g_szBuf);
+        }
+
+        while (j--)
+        {
+            // leave room for statements
+            *scriptptr++=0; // value check
+            *scriptptr++=0; // code offset
+        }
+
+        //Bsprintf(g_szBuf,"SWITCH1: '%.22s'",textptr);
+        //AddLog(g_szBuf);
+
+        casecount=0;
+
+        while (parsecommand() == 0)
+        {
+            //Bsprintf(g_szBuf,"SWITCH2: '%.22s'",textptr);
+            //AddLog(g_szBuf);
+        }
+        //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr);
+        //AddLog(g_szBuf);
+        // done processing switch.  clean up.
+        if (checking_switch!=1)
+        {
+            //    Bsprintf(g_szBuf,"ERROR::%s %d: Checking_switch=%d",__FILE__,__LINE__, checking_switch);
+            //    AddLog(g_szBuf);
+        }
+        casecount=0;
+        if (tempscrptr)
+        {
+            tempscrptr[0]= (long)scriptptr - (long)&script[0];    // save 'end' location
+        }
+        else
+        {
+            //Bsprintf(g_szBuf,"ERROR::%s %d",__FILE__,__LINE__);
+            //AddLog(g_szBuf);
+        }
+        casescriptptr=NULL;
+        // decremented in endswitch.  Don't decrement here...
+        //                    checking_switch--; // allow nesting (maybe if other things work)
+        tempscrptr=NULL;
+        if (checking_switch)
+        {
+            //Bsprintf(g_szBuf,"ERROR::%s %d: Checking_switch=%d",__FILE__,__LINE__, checking_switch);
+            //AddLog(g_szBuf);
+        }
+        //AddLog("End of Switch statement");
+        break;
+
+    case CON_CASE:
+        //AddLog("Found Case");
+repeatcase:
+        scriptptr--; // don't save in code
+        if (checking_switch<1)
+        {
+            error++;
+            ReportError(-1);
+            initprintf("%s:%ld: error: found `case' statement when not in switch\n",compilefile,line_number);
+            return 1;
+        }
+        casecount++;
+        //Bsprintf(g_szBuf,"case1: %.12s",textptr);
+        //AddLog(g_szBuf);
+        transnum(LABEL_DEFINE);
+        if (*textptr == ':')
+            textptr++;
+        //Bsprintf(g_szBuf,"case2: %.12s",textptr);
+        //AddLog(g_szBuf);
+
+        j=*(--scriptptr);      // get value
+        //Bsprintf(g_szBuf,"case: Value of case %ld is %ld",(long)casecount,(long)j);
+        //AddLog(g_szBuf);
+        if (casescriptptr)
+        {
+            //AddLog("Adding value to script");
+            casescriptptr[casecount++]=j;   // save value
+            casescriptptr[casecount]=(long)((long*)scriptptr-&script[0]);   // save offset
+        }
+        //      j = keyword();
+        //Bsprintf(g_szBuf,"case3: %.12s",textptr);
+        //AddLog(g_szBuf);
+
+        j = keyword();
+        if (j == CON_CASE)
+        {
+            //AddLog("Found Repeat Case");
+            transword();    // eat 'case'
+            goto repeatcase;
+        }
+        //Bsprintf(g_szBuf,"case4: '%.12s'",textptr);
+        //AddLog(g_szBuf);
+        while (parsecommand() == 0)
+        {
+            //Bsprintf(g_szBuf,"case5 '%.25s'",textptr);
+            //AddLog(g_szBuf);
+            j = keyword();
+            if (j == CON_CASE)
+            {
+                //AddLog("Found Repeat Case");
+                transword();    // eat 'case'
+                goto repeatcase;
+            }
+        }
+        //AddLog("End Case");
+        return 0;
+        //      break;
+    case CON_DEFAULT:
+        scriptptr--;    // don't save
+        if (checking_switch<1)
+        {
+            error++;
+            ReportError(-1);
+            initprintf("%s:%ld: error: found `default' statement when not in switch\n",compilefile,line_number);
+            return 1;
+        }
+        if (casescriptptr && casescriptptr[0]!=0)
+        {
+            // duplicate default statement
+            error++;
+            ReportError(-1);
+            initprintf("%s:%ld: error: multiple `default' statements found in switch\n",compilefile,line_number);
+        }
+        if (casescriptptr)
+        {
+            casescriptptr[0]=(long)(scriptptr-&script[0]);   // save offset
+        }
+        //Bsprintf(g_szBuf,"default: '%.22s'",textptr);
+        //AddLog(g_szBuf);
+        while (parsecommand() == 0)
+        {
+            //Bsprintf(g_szBuf,"defaultParse: '%.22s'",textptr);
+            //AddLog(g_szBuf);
+            ;
+        }
+        break;
+
+    case CON_ENDSWITCH:
+        //AddLog("End Switch");
+        checking_switch--;
+        if (checking_switch < 0)
+        {
+            error++;
+            ReportError(-1);
+            initprintf("%s:%ld: error: found `endswitch' without matching `switch'\n",compilefile,line_number);
+        }
+        if (casescriptptr)
+        {
+            int i;
+
+            //Bsprintf(g_szBuf,"Default Offset is %ld\n Total of %ld cases",casescriptptr[0],(long)casecount/2);
+            //AddLog(g_szBuf);
+            for (i=1;i<=casecount;i++)
+            {
+                if (i & 1)
+                {
+                    //Bsprintf(g_szBuf,"Case Value %d is %ld",i/2+1,casescriptptr[i]);
+                    //AddLog(g_szBuf);
+                }
+                else
+                {
+                    //Bsprintf(g_szBuf,"Offset %d is %ld",i/2+1,casescriptptr[i]);
+                    //AddLog(g_szBuf);
+                }
+            }
+        }
+        else
+        {
+            //AddLog("Not saving case value: just counting");
+        }
+        return 1;      // end of block
+        break;
+
+    case CON_CHANGESPRITESTAT:
+    case CON_CHANGESPRITESECT:
+    case CON_ZSHOOTVAR:
+    case CON_EZSHOOTVAR:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_GETPNAME:
+    case CON_STARTLEVEL:
+    case CON_QSTRCAT:
+    case CON_QSTRCPY:
+    case CON_QSTRLEN:
+        transmultvars(2);
+        return 0;
+    case CON_SETACTORANGLE:
+    case CON_SETPLAYERANGLE:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_GETANGLETOTARGET:
+    case CON_GETACTORANGLE:
+    case CON_GETPLAYERANGLE:
+        // Syntax:   <command> <var>
+
+        // get the ID of the DEF
+        transvar();
+        return 0;
+
+    case CON_ADDLOG:
+        // syntax: addlog
+
+        // prints the line number in the log file.
+        *scriptptr=line_number;
+        scriptptr++;
+        return 0;
+
+    case CON_IFPINVENTORY:
+    case CON_IFRND:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_IFPDISTL:
+    case CON_IFPDISTG:
+    case CON_IFWASWEAPON:
+    case CON_IFACTIONCOUNT:
+    case CON_IFCOUNT:
+    case CON_IFACTOR:
+    case CON_IFSTRENGTH:
+    case CON_IFSPAWNEDBY:
+    case CON_IFGAPZL:
+    case CON_IFFLOORDISTL:
+    case CON_IFCEILINGDISTL:
+        //        case 74:
+    case CON_IFPHEALTHL:
+    case CON_IFSPRITEPAL:
+    case CON_IFGOTWEAPONCE:
+    case CON_IFANGDIFFL:
+    case CON_IFSOUND:
+    case CON_IFAI:
+    case CON_IFACTION:
+    case CON_IFMOVE:
+        switch (tw)
+        {
+        case CON_IFAI:
+            transnum(LABEL_AI);
+            break;
+        case CON_IFACTION:
+            transnum(LABEL_ACTION);
+            break;
+        case CON_IFMOVE:
+            if ((transnum(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1))
+            {
+                ReportError(-1);
+                *(scriptptr-1) = 0;
+                initprintf("%s:%ld: warning: expected a move, found a constant.\n",compilefile,line_number);
+            }
+            break;
+        case CON_IFPINVENTORY:
+            transnum(LABEL_DEFINE);
+            transnum(LABEL_DEFINE);
+            break;
+        default:
+            transnum(LABEL_DEFINE);
+            break;
+        }
+
+    case CON_IFONWATER:
+    case CON_IFINWATER:
+    case CON_IFACTORNOTSTAYPUT:
+    case CON_IFCANSEE:
+    case CON_IFHITWEAPON:
+    case CON_IFSQUISHED:
+    case CON_IFDEAD:
+    case CON_IFCANSHOOTTARGET:
+    case CON_IFP:
+    case CON_IFHITSPACE:
+    case CON_IFOUTSIDE:
+    case CON_IFMULTIPLAYER:
+    case CON_IFINSPACE:
+    case CON_IFBULLETNEAR:
+    case CON_IFRESPAWN:
+    case CON_IFINOUTERSPACE:
+    case CON_IFNOTMOVING:
+    case CON_IFAWAYFROMWALL:
+    case CON_IFCANSEETARGET:
+    case CON_IFNOSOUNDS:
+        if (tw == CON_IFP)
+        {
+            j = 0;
+            do
+            {
+                transnum(LABEL_DEFINE);
+                scriptptr--;
+                j |= *scriptptr;
+            }
+            while (keyword() == -1);
+            *scriptptr = j;
+            scriptptr++;
+        }
+
+        tempscrptr = scriptptr;
+        scriptptr++; //Leave a spot for the fail location
+
+        j = keyword();
+        parsecommand();
+
+        *tempscrptr = (long) scriptptr;
+
+        checking_ifelse++;
+        return 0;
+
+    case CON_LEFTBRACE:
+        if (!(parsing_state || parsing_actor || parsing_event))
+        {
+            error++;
+            ReportError(ERROR_SYNTAXERROR);
+        }
+        num_braces++;
+        do
+            done = parsecommand();
+        while (done == 0);
+        return 0;
+
+    case CON_RIGHTBRACE:
+        num_braces--;
+        if (num_braces < 0)
+        {
+            if (checking_switch)
+            {
+                ReportError(ERROR_NOENDSWITCH);
+            }
+
+            ReportError(-1);
+            initprintf("%s:%ld: error: found more `}' than `{'.\n",compilefile,line_number);
+            error++;
+        }
+        return 1;
+
+    case CON_BETANAME:
+        scriptptr--;
+        j = 0;
+        while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+            textptr++;
+        return 0;
+
+    case CON_DEFINEVOLUMENAME:
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+        j = *scriptptr;
+        while (*textptr == ' ' || *textptr == '\t') textptr++;
+
+        if (j < 0 || j > MAXVOLUMES-1)
+        {
+            initprintf("%s:%ld: error: volume number exceeds maximum volume count.\n",compilefile,line_number);
+            error++;
+            while (*textptr != 0x0a && *textptr != 0) textptr++;
+            break;
+        }
+
+        i = 0;
+
+        while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+        {
+            volume_names[j][i] = toupper(*textptr);
+            textptr++,i++;
+            if (i >= (signed)sizeof(volume_names[j])-1)
+            {
+                initprintf("%s:%ld: error: volume name exceeds limit of %ld characters.\n",compilefile,line_number,sizeof(volume_names[j])-1);
                 error++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
             }
-            scriptptr--;
-            i = 0;
-            while (*textptr == ' ' || *textptr == '\t')
-                textptr++;
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ')
-            {
-                cheatquotes[k][i] = *textptr;
-                textptr++,i++;
-                if (i >= (signed)sizeof(cheatquotes[k])-1)
-                {
-                    initprintf("%s:%ld: error: cheat exceeds limit of %ld characters.\n",compilefile,line_number,MAXCHEATLEN,sizeof(cheatquotes[k])-1);
-                    error++;
-                    while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ') textptr++;
-                    break;
-                }
-            }
-            cheatquotes[k][i] = '\0';
-            return 0;
+        }
+        num_volumes = j+1;
+        volume_names[j][i] = '\0';
+        return 0;
 
-        case CON_DEFINESOUND:
-            scriptptr--;
-            transnum(LABEL_DEFINE);
-            k = *(scriptptr-1);
-            if (k >= NUM_SOUNDS)
-            {
-                initprintf("%s:%ld: error: exceeded sound limit of %ld.\n",compilefile,line_number,NUM_SOUNDS);
-                error++;
-            }
-            scriptptr--;
-            i = 0;
-            skipcomments();
+    case CON_DEFINEGAMEFUNCNAME:
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+        j = *scriptptr;
+        while (*textptr == ' ' || *textptr == '\t') textptr++;
 
-            while (*textptr != ' ' || *textptr == '\t')
-            {
-                sounds[k][i] = *textptr;
-                textptr++,i++;
-                if (i >= BMAX_PATH)
-                {
-                    initprintf("%s:%ld: error: sound filename exceeds limit of %d characters.\n",compilefile,line_number,BMAX_PATH);
-                    error++;
-                    skipcomments();
-                    break;
-                }
-            }
-            sounds[k][i] = '\0';
-
-            transnum(LABEL_DEFINE);
-            soundps[k] = *(scriptptr-1);
-            scriptptr--;
-            transnum(LABEL_DEFINE);
-            soundpe[k] = *(scriptptr-1);
-            scriptptr--;
-            transnum(LABEL_DEFINE);
-            soundpr[k] = *(scriptptr-1);
-            scriptptr--;
-            transnum(LABEL_DEFINE);
-            soundm[k] = *(scriptptr-1);
-            scriptptr--;
-            transnum(LABEL_DEFINE);
-            soundvo[k] = *(scriptptr-1);
-            scriptptr--;
-            return 0;
-
-        case CON_ENDEVENT:
-
-            if (parsing_event == 0)
-            {
-                ReportError(-1);
-                initprintf("%s:%ld: error: found `endevent' without open `onevent'.\n",compilefile,line_number);
-                error++;
-            }
-            if (num_braces > 0)
-            {
-                ReportError(ERROR_OPENBRACKET);
-                error++;
-            }
-            if (num_braces < 0)
-            {
-                ReportError(ERROR_CLOSEBRACKET);
-                error++;
-            }
-            parsing_event = 0;
-            parsing_actor = 0;
-            current_event = -1;
-            Bsprintf(parsing_item_name,"(none)");
-            return 0;
-
-        case CON_ENDA:
-            if (parsing_actor == 0)
-            {
-                ReportError(-1);
-                initprintf("%s:%ld: error: found `enda' without open `actor'.\n",compilefile,line_number);
-                error++;
-            }
-            if (num_braces > 0)
-            {
-                ReportError(ERROR_OPENBRACKET);
-                error++;
-            }
-            if (num_braces < 0)
-            {
-                ReportError(ERROR_CLOSEBRACKET);
-                error++;
-            }
-            parsing_actor = 0;
-            Bsprintf(parsing_item_name,"(none)");
-            return 0;
-
-        case CON_BREAK:
-            if (checking_switch)
-            {
-                //Bsprintf(g_szBuf,"  * (L%ld) case Break statement.\n",line_number);
-                //AddLog(g_szBuf);
-                return 1;
-            }
-            return 0;
-
-        case CON_FALL:
-        case CON_TIP:
-            //        case 21:
-        case CON_KILLIT:
-        case CON_RESETACTIONCOUNT:
-        case CON_PSTOMP:
-        case CON_RESETPLAYER:
-        case CON_RESETCOUNT:
-        case CON_WACKPLAYER:
-        case CON_OPERATE:
-        case CON_RESPAWNHITAG:
-        case CON_GETLASTPAL:
-        case CON_PKICK:
-        case CON_MIKESND:
-        case CON_TOSSWEAPON:
-            if (!CheckEventSync(current_event))
-                ReportError(WARNING_EVENTSYNC);
-        case CON_NULLOP:
-        case CON_STOPALLSOUNDS:
-            return 0;
-        case CON_GAMESTARTUP:
+        if (j < 0 || j > NUMGAMEFUNCTIONS-1)
         {
-            long params[30];
+            initprintf("%s:%ld: error: function number exceeds number of game functions.\n",compilefile,line_number);
+            error++;
+            while (*textptr != 0x0a && *textptr != 0) textptr++;
+            break;
+        }
 
-            scriptptr--;
-            for (j = 0; j < 30; j++)
+        i = 0;
+
+        while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+        {
+            gamefunctions[j][i] = *textptr;
+            keydefaults[j*3][i] = *textptr;
+            textptr++,i++;
+            if (i >= MAXGAMEFUNCLEN-1)
             {
-                transnum(LABEL_DEFINE);
-                scriptptr--;
-                params[j] = *scriptptr;
-
-                if (j != 25) continue;
-
-                if (keyword() != -1)
-                {
-                    initprintf("Duke Nukem 3D v1.3D style CON files detected.\n");
-                    break;
-                }
-                else
-                {
-                    conversion = 14;
-                    initprintf("Duke Nukem 3D v1.4+ style CON files detected.\n");
-                }
-
-            }
-
-            /*
-            v1.3d                   v1.5
-            DEFAULTVISIBILITY       DEFAULTVISIBILITY
-            GENERICIMPACTDAMAGE     GENERICIMPACTDAMAGE
-            MAXPLAYERHEALTH         MAXPLAYERHEALTH
-            STARTARMORHEALTH        STARTARMORHEALTH
-            RESPAWNACTORTIME        RESPAWNACTORTIME
-            RESPAWNITEMTIME         RESPAWNITEMTIME
-            RUNNINGSPEED            RUNNINGSPEED
-            RPGBLASTRADIUS          GRAVITATIONALCONSTANT
-            PIPEBOMBRADIUS          RPGBLASTRADIUS
-            SHRINKERBLASTRADIUS     PIPEBOMBRADIUS
-            TRIPBOMBBLASTRADIUS     SHRINKERBLASTRADIUS
-            MORTERBLASTRADIUS       TRIPBOMBBLASTRADIUS
-            BOUNCEMINEBLASTRADIUS   MORTERBLASTRADIUS
-            SEENINEBLASTRADIUS      BOUNCEMINEBLASTRADIUS
-            MAXPISTOLAMMO           SEENINEBLASTRADIUS
-            MAXSHOTGUNAMMO          MAXPISTOLAMMO
-            MAXCHAINGUNAMMO         MAXSHOTGUNAMMO
-            MAXRPGAMMO              MAXCHAINGUNAMMO
-            MAXHANDBOMBAMMO         MAXRPGAMMO
-            MAXSHRINKERAMMO         MAXHANDBOMBAMMO
-            MAXDEVISTATORAMMO       MAXSHRINKERAMMO
-            MAXTRIPBOMBAMMO         MAXDEVISTATORAMMO
-            MAXFREEZEAMMO           MAXTRIPBOMBAMMO
-            CAMERASDESTRUCTABLE     MAXFREEZEAMMO
-            NUMFREEZEBOUNCES        MAXGROWAMMO
-            FREEZERHURTOWNER        CAMERASDESTRUCTABLE
-                                    NUMFREEZEBOUNCES
-                                    FREEZERHURTOWNER
-                                    QSIZE
-                                    TRIPBOMBLASERMODE
-            */
-
-            j = 0;
-            ud.const_visibility = params[j++];
-            impact_damage = params[j++];
-            max_player_health = params[j++];
-            max_armour_amount = params[j++];
-            respawnactortime = params[j++];
-            respawnitemtime = params[j++];
-            dukefriction = params[j++];
-            if (conversion == 14) gc = params[j++];
-            rpgblastradius = params[j++];
-            pipebombblastradius = params[j++];
-            shrinkerblastradius = params[j++];
-            tripbombblastradius = params[j++];
-            morterblastradius = params[j++];
-            bouncemineblastradius = params[j++];
-            seenineblastradius = params[j++];
-            max_ammo_amount[PISTOL_WEAPON] = params[j++];
-            max_ammo_amount[SHOTGUN_WEAPON] = params[j++];
-            max_ammo_amount[CHAINGUN_WEAPON] = params[j++];
-            max_ammo_amount[RPG_WEAPON] = params[j++];
-            max_ammo_amount[HANDBOMB_WEAPON] = params[j++];
-            max_ammo_amount[SHRINKER_WEAPON] = params[j++];
-            max_ammo_amount[DEVISTATOR_WEAPON] = params[j++];
-            max_ammo_amount[TRIPBOMB_WEAPON] = params[j++];
-            max_ammo_amount[FREEZE_WEAPON] = params[j++];
-            if (conversion == 14) max_ammo_amount[GROW_WEAPON] = params[j++];
-            camerashitable = params[j++];
-            numfreezebounces = params[j++];
-            freezerhurtowner = params[j++];
-            if (conversion == 14)
-            {
-                spriteqamount = params[j++];
-                if (spriteqamount > 1024) spriteqamount = 1024;
-                else if (spriteqamount < 0) spriteqamount = 0;
-
-                lasermode = params[j++];
+                initprintf("%s:%ld: error: function name exceeds limit of %ld characters.\n",compilefile,line_number,MAXGAMEFUNCLEN);
+                error++;
+                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                break;
             }
         }
+        gamefunctions[j][i] = '\0';
+        keydefaults[j*3][i] = '\0';
         return 0;
+
+    case CON_DEFINESKILLNAME:
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+        j = *scriptptr;
+        while (*textptr == ' ' || *textptr == '\t') textptr++;
+
+        if (j < 0 || j > 4)
+        {
+            initprintf("%s:%ld: error: skill number exceeds maximum skill count.\n",compilefile,line_number);
+            error++;
+            while (*textptr != 0x0a && *textptr != 0) textptr++;
+            break;
+        }
+
+        i = 0;
+
+        while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+        {
+            skill_names[j][i] = toupper(*textptr);
+            textptr++,i++;
+            if (i >= (signed)sizeof(skill_names[j])-1)
+            {
+                initprintf("%s:%ld: error: skill name exceeds limit of %ld characters.\n",compilefile,line_number,sizeof(skill_names[j])-1);
+                error++;
+                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                break;
+            }
+        }
+        skill_names[j][i] = '\0';
+        return 0;
+
+    case CON_DEFINEGAMETYPE:
+        scriptptr--; //remove opcode from compiled code
+        transnum(LABEL_DEFINE); //translate number
+        scriptptr--; //remove it from compiled code
+        j = *scriptptr; //put it into j
+
+        transnum(LABEL_DEFINE); //translate number
+        scriptptr--; //remove it from compiled code
+        gametype_flags[j] = *scriptptr; //put it into the flags
+
+        while (*textptr == ' ' || *textptr == '\t') textptr++;
+
+        if (j < 0 || j > MAXGAMETYPES-1)
+        {
+            initprintf("%s:%ld: error: gametype number exceeds maximum gametype count.\n",compilefile,line_number);
+            error++;
+            while (*textptr != 0x0a && *textptr != 0) textptr++;
+            break;
+        }
+        num_gametypes = j+1;
+
+        i = 0;
+
+        while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+        {
+            gametype_names[j][i] = toupper(*textptr);
+            textptr++,i++;
+            if (i >= (signed)sizeof(gametype_names[j])-1)
+            {
+                initprintf("%s:%ld: error: gametype name exceeds limit of %ld characters.\n",compilefile,line_number,sizeof(gametype_names[j])-1);
+                error++;
+                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                break;
+            }
+        }
+        gametype_names[j][i] = '\0';
+        return 0;
+
+    case CON_DEFINELEVELNAME:
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+        j = *scriptptr;
+        transnum(LABEL_DEFINE);
+        scriptptr--;
+        k = *scriptptr;
+        while (*textptr == ' ' || *textptr == '\t') textptr++;
+
+        if (j < 0 || j > MAXVOLUMES-1)
+        {
+            initprintf("%s:%ld: error: volume number exceeds maximum volume count.\n",compilefile,line_number);
+            error++;
+            while (*textptr != 0x0a && *textptr != 0) textptr++;
+            break;
+        }
+        if (k < 0 || k > 10)
+        {
+            initprintf("%s:%ld: error: level number exceeds maximum number of levels per episode.\n",
+                       line_number,compilefile);
+            error++;
+            while (*textptr != 0x0a && *textptr != 0) textptr++;
+            break;
+        }
+
+        i = 0;
+        while (*textptr != ' ' && *textptr != '\t' && *textptr != 0x0a)
+        {
+            level_file_names[j*11+k][i] = *textptr;
+            textptr++,i++;
+            if (i >= BMAX_PATH)
+            {
+                initprintf("%s:%ld: error: level file name exceeds limit of %d characters.\n",compilefile,line_number,BMAX_PATH);
+                error++;
+                while (*textptr != ' ' && *textptr != '\t') textptr++;
+                break;
+            }
+        }
+        level_names[j*11+k][i] = '\0';
+
+        while (*textptr == ' ' || *textptr == '\t') textptr++;
+
+        partime[j*11+k] =
+            (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*26*60)+
+            (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*26);
+
+        textptr += 5;
+        while (*textptr == ' '  || *textptr == '\t') textptr++;
+
+        designertime[j*11+k] =
+            (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*26*60)+
+            (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*26);
+
+        textptr += 5;
+        while (*textptr == ' '  || *textptr == '\t') textptr++;
+
+        i = 0;
+
+        while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+        {
+            level_names[j*11+k][i] = toupper(*textptr);
+            textptr++,i++;
+            if (i >= (signed)sizeof(level_names[j*11+k])-1)
+            {
+                initprintf("%s:%ld: error: level name exceeds limit of %ld characters.\n",compilefile,line_number,sizeof(level_names[j*11+k])-1);
+                error++;
+                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                break;
+            }
+        }
+        level_names[j*11+k][i] = '\0';
+        return 0;
+
+    case CON_DEFINEQUOTE:
+    case CON_REDEFINEQUOTE:
+        if (tw == CON_DEFINEQUOTE)
+            scriptptr--;
+
+        transnum(LABEL_DEFINE);
+
+        k = *(scriptptr-1);
+
+        if (k >= MAXQUOTES)
+        {
+            initprintf("%s:%ld: error: quote number exceeds limit of %ld.\n",compilefile,line_number,MAXQUOTES);
+            error++;
+        }
+
+        if (fta_quotes[k] == NULL)
+            fta_quotes[k] = Bcalloc(MAXQUOTELEN,sizeof(char));
+        if (!fta_quotes[k])
+        {
+            fta_quotes[k] = NULL;
+            Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
+            gameexit(tempbuf);
+        }
+
+        if (tw == CON_DEFINEQUOTE)
+            scriptptr--;
+
+        i = 0;
+
+        while (*textptr == ' ' || *textptr == '\t')
+            textptr++;
+
+        if (tw == CON_REDEFINEQUOTE)
+        {
+            if (redefined_quotes[redefined_quote_count] == NULL)
+                redefined_quotes[redefined_quote_count] = Bcalloc(MAXQUOTELEN,sizeof(char));
+            if (!redefined_quotes[redefined_quote_count])
+            {
+                redefined_quotes[redefined_quote_count] = NULL;
+                Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
+                gameexit(tempbuf);
+            }
+        }
+
+        while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+        {
+            if (*textptr == '%' && *(textptr+1) == 's')
+            {
+                initprintf("%s:%ld: error: quote text contains string identifier.\n",compilefile,line_number);
+                error++;
+                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                break;
+            }
+            if (tw == CON_DEFINEQUOTE)
+                *(fta_quotes[k]+i) = *textptr;
+            else
+                *(redefined_quotes[redefined_quote_count]+i) = *textptr;
+            textptr++,i++;
+            if (i >= MAXQUOTELEN-1)
+            {
+                initprintf("%s:%ld: error: quote text exceeds limit of %ld characters.\n",compilefile,line_number,MAXQUOTELEN-1);
+                error++;
+                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                break;
+            }
+        }
+        if (tw == CON_DEFINEQUOTE)
+            *(fta_quotes[k]+i) = '\0';
+        else
+        {
+            *(redefined_quotes[redefined_quote_count]+i) = '\0';
+            *scriptptr++=redefined_quote_count;
+            redefined_quote_count++;
+        }
+        return 0;
+
+    case CON_CHEATKEYS:
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        cheatkey[0] = *(scriptptr-1);
+        transnum(LABEL_DEFINE);
+        cheatkey[1] = *(scriptptr-1);
+        return 0;
+
+    case CON_DEFINECHEAT:
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        k = *(scriptptr-1);
+
+        if (k > 25)
+        {
+            initprintf("%s:%ld: error: cheat redefinition attempts to redefine nonexistant cheat.\n",compilefile,line_number);
+            error++;
+            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+            break;
+        }
+        scriptptr--;
+        i = 0;
+        while (*textptr == ' ' || *textptr == '\t')
+            textptr++;
+        while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ')
+        {
+            cheatquotes[k][i] = *textptr;
+            textptr++,i++;
+            if (i >= (signed)sizeof(cheatquotes[k])-1)
+            {
+                initprintf("%s:%ld: error: cheat exceeds limit of %ld characters.\n",compilefile,line_number,MAXCHEATLEN,sizeof(cheatquotes[k])-1);
+                error++;
+                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ') textptr++;
+                break;
+            }
+        }
+        cheatquotes[k][i] = '\0';
+        return 0;
+
+    case CON_DEFINESOUND:
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        k = *(scriptptr-1);
+        if (k >= NUM_SOUNDS)
+        {
+            initprintf("%s:%ld: error: exceeded sound limit of %ld.\n",compilefile,line_number,NUM_SOUNDS);
+            error++;
+        }
+        scriptptr--;
+        i = 0;
+        skipcomments();
+
+        while (*textptr != ' ' || *textptr == '\t')
+        {
+            sounds[k][i] = *textptr;
+            textptr++,i++;
+            if (i >= BMAX_PATH)
+            {
+                initprintf("%s:%ld: error: sound filename exceeds limit of %d characters.\n",compilefile,line_number,BMAX_PATH);
+                error++;
+                skipcomments();
+                break;
+            }
+        }
+        sounds[k][i] = '\0';
+
+        transnum(LABEL_DEFINE);
+        soundps[k] = *(scriptptr-1);
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        soundpe[k] = *(scriptptr-1);
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        soundpr[k] = *(scriptptr-1);
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        soundm[k] = *(scriptptr-1);
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        soundvo[k] = *(scriptptr-1);
+        scriptptr--;
+        return 0;
+
+    case CON_ENDEVENT:
+
+        if (parsing_event == 0)
+        {
+            ReportError(-1);
+            initprintf("%s:%ld: error: found `endevent' without open `onevent'.\n",compilefile,line_number);
+            error++;
+        }
+        if (num_braces > 0)
+        {
+            ReportError(ERROR_OPENBRACKET);
+            error++;
+        }
+        if (num_braces < 0)
+        {
+            ReportError(ERROR_CLOSEBRACKET);
+            error++;
+        }
+        parsing_event = 0;
+        parsing_actor = 0;
+        current_event = -1;
+        Bsprintf(parsing_item_name,"(none)");
+        return 0;
+
+    case CON_ENDA:
+        if (parsing_actor == 0)
+        {
+            ReportError(-1);
+            initprintf("%s:%ld: error: found `enda' without open `actor'.\n",compilefile,line_number);
+            error++;
+        }
+        if (num_braces > 0)
+        {
+            ReportError(ERROR_OPENBRACKET);
+            error++;
+        }
+        if (num_braces < 0)
+        {
+            ReportError(ERROR_CLOSEBRACKET);
+            error++;
+        }
+        parsing_actor = 0;
+        Bsprintf(parsing_item_name,"(none)");
+        return 0;
+
+    case CON_BREAK:
+        if (checking_switch)
+        {
+            //Bsprintf(g_szBuf,"  * (L%ld) case Break statement.\n",line_number);
+            //AddLog(g_szBuf);
+            return 1;
+        }
+        return 0;
+
+    case CON_FALL:
+    case CON_TIP:
+        //        case 21:
+    case CON_KILLIT:
+    case CON_RESETACTIONCOUNT:
+    case CON_PSTOMP:
+    case CON_RESETPLAYER:
+    case CON_RESETCOUNT:
+    case CON_WACKPLAYER:
+    case CON_OPERATE:
+    case CON_RESPAWNHITAG:
+    case CON_GETLASTPAL:
+    case CON_PKICK:
+    case CON_MIKESND:
+    case CON_TOSSWEAPON:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+    case CON_NULLOP:
+    case CON_STOPALLSOUNDS:
+        return 0;
+    case CON_GAMESTARTUP:
+    {
+        long params[30];
+
+        scriptptr--;
+        for (j = 0; j < 30; j++)
+        {
+            transnum(LABEL_DEFINE);
+            scriptptr--;
+            params[j] = *scriptptr;
+
+            if (j != 25) continue;
+
+            if (keyword() != -1)
+            {
+                initprintf("Duke Nukem 3D v1.3D style CON files detected.\n");
+                break;
+            }
+            else
+            {
+                conversion = 14;
+                initprintf("Duke Nukem 3D v1.4+ style CON files detected.\n");
+            }
+
+        }
+
+        /*
+        v1.3d                   v1.5
+        DEFAULTVISIBILITY       DEFAULTVISIBILITY
+        GENERICIMPACTDAMAGE     GENERICIMPACTDAMAGE
+        MAXPLAYERHEALTH         MAXPLAYERHEALTH
+        STARTARMORHEALTH        STARTARMORHEALTH
+        RESPAWNACTORTIME        RESPAWNACTORTIME
+        RESPAWNITEMTIME         RESPAWNITEMTIME
+        RUNNINGSPEED            RUNNINGSPEED
+        RPGBLASTRADIUS          GRAVITATIONALCONSTANT
+        PIPEBOMBRADIUS          RPGBLASTRADIUS
+        SHRINKERBLASTRADIUS     PIPEBOMBRADIUS
+        TRIPBOMBBLASTRADIUS     SHRINKERBLASTRADIUS
+        MORTERBLASTRADIUS       TRIPBOMBBLASTRADIUS
+        BOUNCEMINEBLASTRADIUS   MORTERBLASTRADIUS
+        SEENINEBLASTRADIUS      BOUNCEMINEBLASTRADIUS
+        MAXPISTOLAMMO           SEENINEBLASTRADIUS
+        MAXSHOTGUNAMMO          MAXPISTOLAMMO
+        MAXCHAINGUNAMMO         MAXSHOTGUNAMMO
+        MAXRPGAMMO              MAXCHAINGUNAMMO
+        MAXHANDBOMBAMMO         MAXRPGAMMO
+        MAXSHRINKERAMMO         MAXHANDBOMBAMMO
+        MAXDEVISTATORAMMO       MAXSHRINKERAMMO
+        MAXTRIPBOMBAMMO         MAXDEVISTATORAMMO
+        MAXFREEZEAMMO           MAXTRIPBOMBAMMO
+        CAMERASDESTRUCTABLE     MAXFREEZEAMMO
+        NUMFREEZEBOUNCES        MAXGROWAMMO
+        FREEZERHURTOWNER        CAMERASDESTRUCTABLE
+                                NUMFREEZEBOUNCES
+                                FREEZERHURTOWNER
+                                QSIZE
+                                TRIPBOMBLASERMODE
+        */
+
+        j = 0;
+        ud.const_visibility = params[j++];
+        impact_damage = params[j++];
+        max_player_health = params[j++];
+        max_armour_amount = params[j++];
+        respawnactortime = params[j++];
+        respawnitemtime = params[j++];
+        dukefriction = params[j++];
+        if (conversion == 14) gc = params[j++];
+        rpgblastradius = params[j++];
+        pipebombblastradius = params[j++];
+        shrinkerblastradius = params[j++];
+        tripbombblastradius = params[j++];
+        morterblastradius = params[j++];
+        bouncemineblastradius = params[j++];
+        seenineblastradius = params[j++];
+        max_ammo_amount[PISTOL_WEAPON] = params[j++];
+        max_ammo_amount[SHOTGUN_WEAPON] = params[j++];
+        max_ammo_amount[CHAINGUN_WEAPON] = params[j++];
+        max_ammo_amount[RPG_WEAPON] = params[j++];
+        max_ammo_amount[HANDBOMB_WEAPON] = params[j++];
+        max_ammo_amount[SHRINKER_WEAPON] = params[j++];
+        max_ammo_amount[DEVISTATOR_WEAPON] = params[j++];
+        max_ammo_amount[TRIPBOMB_WEAPON] = params[j++];
+        max_ammo_amount[FREEZE_WEAPON] = params[j++];
+        if (conversion == 14) max_ammo_amount[GROW_WEAPON] = params[j++];
+        camerashitable = params[j++];
+        numfreezebounces = params[j++];
+        freezerhurtowner = params[j++];
+        if (conversion == 14)
+        {
+            spriteqamount = params[j++];
+            if (spriteqamount > 1024) spriteqamount = 1024;
+            else if (spriteqamount < 0) spriteqamount = 0;
+
+            lasermode = params[j++];
+        }
+    }
+    return 0;
     }
     return 0;
 }
@@ -6017,59 +6017,59 @@ void ReportError(int iError)
     }
     switch (iError)
     {
-        case ERROR_CLOSEBRACKET:
-            initprintf("%s:%ld: error: found more `}' than `{' before `%s'.\n",compilefile,line_number,tempbuf);
-            break;
-        case ERROR_EVENTONLY:
-            initprintf("%s:%ld: error: command `%s' only valid during events.\n",compilefile,line_number,tempbuf);
-            break;
-        case ERROR_EXCEEDSMAXTILES:
-            initprintf("%s:%ld: error: `%s' value exceeds MAXTILES.  Maximum is %d.\n",compilefile,line_number,tempbuf,MAXTILES-1);
-            break;
-        case ERROR_EXPECTEDKEYWORD:
-            initprintf("%s:%ld: error: expected a keyword but found `%s'.\n",compilefile,line_number,tempbuf);
-            break;
-        case ERROR_FOUNDWITHIN:
-            initprintf("%s:%ld: error: found `%s' within %s.\n",compilefile,line_number,tempbuf,parsing_event?"an event":parsing_actor?"an actor":"a state");
-            break;
-        case ERROR_ISAKEYWORD:
-            initprintf("%s:%ld: error: symbol `%s' is a keyword.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case ERROR_NOENDSWITCH:
-            initprintf("%s:%ld: error: did not find `endswitch' before `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case ERROR_NOTAGAMEDEF:
-            initprintf("%s:%ld: error: symbol `%s' is not a game definition.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case ERROR_NOTAGAMEVAR:
-            initprintf("%s:%ld: error: symbol `%s' is not a game variable.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case ERROR_OPENBRACKET:
-            initprintf("%s:%ld: error: found more `{' than `}' before `%s'.\n",compilefile,line_number,tempbuf);
-            break;
-        case ERROR_PARAMUNDEFINED:
-            initprintf("%s:%ld: error: parameter `%s' is undefined.\n",compilefile,line_number,tempbuf);
-            break;
-        case ERROR_SYMBOLNOTRECOGNIZED:
-            initprintf("%s:%ld: error: symbol `%s' is not recognized.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case ERROR_SYNTAXERROR:
-            initprintf("%s:%ld: error: syntax error.\n",compilefile,line_number);
-            break;
-        case ERROR_VARREADONLY:
-            initprintf("%s:%ld: error: variable `%s' is read-only.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case ERROR_VARTYPEMISMATCH:
-            initprintf("%s:%ld: error: variable `%s' is of the wrong type.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case WARNING_DUPLICATEDEFINITION:
-            initprintf("%s:%ld: warning: duplicate game definition `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
-            break;
-        case WARNING_EVENTSYNC:
-            initprintf("%s:%ld: warning: found `%s' within a local event.\n",compilefile,line_number,tempbuf);
-            break;
-        case WARNING_LABELSONLY:
-            initprintf("%s:%ld: warning: expected a label, found a constant.\n",compilefile,line_number);
-            break;
+    case ERROR_CLOSEBRACKET:
+        initprintf("%s:%ld: error: found more `}' than `{' before `%s'.\n",compilefile,line_number,tempbuf);
+        break;
+    case ERROR_EVENTONLY:
+        initprintf("%s:%ld: error: command `%s' only valid during events.\n",compilefile,line_number,tempbuf);
+        break;
+    case ERROR_EXCEEDSMAXTILES:
+        initprintf("%s:%ld: error: `%s' value exceeds MAXTILES.  Maximum is %d.\n",compilefile,line_number,tempbuf,MAXTILES-1);
+        break;
+    case ERROR_EXPECTEDKEYWORD:
+        initprintf("%s:%ld: error: expected a keyword but found `%s'.\n",compilefile,line_number,tempbuf);
+        break;
+    case ERROR_FOUNDWITHIN:
+        initprintf("%s:%ld: error: found `%s' within %s.\n",compilefile,line_number,tempbuf,parsing_event?"an event":parsing_actor?"an actor":"a state");
+        break;
+    case ERROR_ISAKEYWORD:
+        initprintf("%s:%ld: error: symbol `%s' is a keyword.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_NOENDSWITCH:
+        initprintf("%s:%ld: error: did not find `endswitch' before `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_NOTAGAMEDEF:
+        initprintf("%s:%ld: error: symbol `%s' is not a game definition.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_NOTAGAMEVAR:
+        initprintf("%s:%ld: error: symbol `%s' is not a game variable.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_OPENBRACKET:
+        initprintf("%s:%ld: error: found more `{' than `}' before `%s'.\n",compilefile,line_number,tempbuf);
+        break;
+    case ERROR_PARAMUNDEFINED:
+        initprintf("%s:%ld: error: parameter `%s' is undefined.\n",compilefile,line_number,tempbuf);
+        break;
+    case ERROR_SYMBOLNOTRECOGNIZED:
+        initprintf("%s:%ld: error: symbol `%s' is not recognized.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_SYNTAXERROR:
+        initprintf("%s:%ld: error: syntax error.\n",compilefile,line_number);
+        break;
+    case ERROR_VARREADONLY:
+        initprintf("%s:%ld: error: variable `%s' is read-only.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_VARTYPEMISMATCH:
+        initprintf("%s:%ld: error: variable `%s' is of the wrong type.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case WARNING_DUPLICATEDEFINITION:
+        initprintf("%s:%ld: warning: duplicate game definition `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case WARNING_EVENTSYNC:
+        initprintf("%s:%ld: warning: found `%s' within a local event.\n",compilefile,line_number,tempbuf);
+        break;
+    case WARNING_LABELSONLY:
+        initprintf("%s:%ld: warning: expected a label, found a constant.\n",compilefile,line_number);
+        break;
     }
 }

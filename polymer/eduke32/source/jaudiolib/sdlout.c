@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #error The SDL output module for AudioLib only works with the SDL interface.
 #endif
 
-static int (*_SDLSOUND_CallBack)(int) = NULL;
+static int(*_SDLSOUND_CallBack)(int) = NULL;
 static int _SDLSOUND_BufferLength = 0;
 static int _SDLSOUND_NumBuffers   = 0;
 static char *_SDLSOUND_MixBuffer  = NULL;
@@ -62,9 +62,9 @@ static void isr(void *userdata, unsigned char *stream, int len);
  */
 int DisableInterrupts(void)
 {
-	SDL_LockAudio();
+    SDL_LockAudio();
 
-	return 0;
+    return 0;
 }
 
 
@@ -74,10 +74,10 @@ int DisableInterrupts(void)
  */
 int RestoreInterrupts(int a)
 {
-	SDL_UnlockAudio();
+    SDL_UnlockAudio();
 
-	return 0;
-	a=a;
+    return 0;
+    a=a;
 }
 
 
@@ -87,17 +87,18 @@ int RestoreInterrupts(int a)
  */
 char *SDLSOUND_ErrorString(int errorcode)
 {
-	switch (errorcode) {
-		case SDLSOUND_Warning:
-		case SDLSOUND_Error:
-			return SDLSOUND_ErrorString(SDLSOUND_ErrorCode);
+    switch (errorcode)
+    {
+    case SDLSOUND_Warning:
+    case SDLSOUND_Error:
+        return SDLSOUND_ErrorString(SDLSOUND_ErrorCode);
 
-		case SDLSOUND_Ok:
-			return "SDL Sound ok.";
+    case SDLSOUND_Ok:
+        return "SDL Sound ok.";
 
-		default:
-			return "Unknown SDL sound error code.";
-	}
+    default:
+        return "Unknown SDL sound error code.";
+    }
 }
 
 
@@ -107,32 +108,33 @@ char *SDLSOUND_ErrorString(int errorcode)
  */
 int SDLSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int buffersize)
 {
-	SDL_AudioSpec spec,got;
-	
-	if (SDLSOUND_Installed) {
-		SDLSOUND_Shutdown();
-	}
+    SDL_AudioSpec spec,got;
 
-	printOSD("Initializing SDL sound...\n");
+    if (SDLSOUND_Installed)
+    {
+        SDLSOUND_Shutdown();
+    }
 
-	printOSD("  - Requested sound format\n"
-	         "      Channels:    %d\n"
-		 "      Sample rate: %dHz\n"
-		 "      Sample size: %d bits\n",
-		 numchannels, mixrate, samplebits);
+    printOSD("Initializing SDL sound...\n");
 
-	spec.freq = mixrate;
-	spec.format = (samplebits == 8 ? AUDIO_U8 : AUDIO_S16LSB);
-	spec.channels = (numchannels == 1 ? 1:2);
-	spec.samples = (buffersize >> (spec.channels-1)) >> (samplebits==16);
-	spec.callback = isr;
-	spec.userdata = NULL;
+    printOSD("  - Requested sound format\n"
+             "      Channels:    %d\n"
+             "      Sample rate: %dHz\n"
+             "      Sample size: %d bits\n",
+             numchannels, mixrate, samplebits);
+
+    spec.freq = mixrate;
+    spec.format = (samplebits == 8 ? AUDIO_U8 : AUDIO_S16LSB);
+    spec.channels = (numchannels == 1 ? 1:2);
+    spec.samples = (buffersize >> (spec.channels-1)) >> (samplebits==16);
+    spec.callback = isr;
+    spec.userdata = NULL;
 
 
-	SDLSOUND_Installed = TRUE;
-	
-	SDLSOUND_SetErrorCode(SDLSOUND_Ok);
-	return SDLSOUND_Ok;
+    SDLSOUND_Installed = TRUE;
+
+    SDLSOUND_SetErrorCode(SDLSOUND_Ok);
+    return SDLSOUND_Ok;
 }
 
 
@@ -142,17 +144,17 @@ int SDLSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, i
  */
 int SDLSOUND_Shutdown(void)
 {
-	int i;
+    int i;
 
-	if (SDLSOUND_Installed) printOSD("Uninitializing SDL sound...\n");
+    if (SDLSOUND_Installed) printOSD("Uninitializing SDL sound...\n");
 
-	SDLSOUND_Installed = FALSE;
+    SDLSOUND_Installed = FALSE;
 
-	SDLSOUND_StopPlayback();
+    SDLSOUND_StopPlayback();
 
-	
-	SDLSOUND_SetErrorCode(SDLSOUND_Ok);
-	return SDLSOUND_Ok;
+
+    SDLSOUND_SetErrorCode(SDLSOUND_Ok);
+    return SDLSOUND_Ok;
 }
 
 
@@ -162,37 +164,40 @@ int SDLSOUND_Shutdown(void)
  */
 int SDLSOUND_SetMixMode(int mode)
 {
-	return mode;
+    return mode;
 }
 
 
 static void isr(void *userdata, unsigned char *stream, int len)
 {
-	// otherwise we just service the interrupt
-	if (_DSOUND_CallBack) {
+    // otherwise we just service the interrupt
+    if (_DSOUND_CallBack)
+    {
 
-		p = _DSOUND_CallBack(rv-WAIT_OBJECT_0-1);
+        p = _DSOUND_CallBack(rv-WAIT_OBJECT_0-1);
 
-		hr = IDirectSoundBuffer_Lock(lpDSBSecondary, p*_DSOUND_BufferLength, _DSOUND_BufferLength,
-					&lockptr, &lockbytes, &lockptr2, &lockbytes2, 0);
-			if (hr == DSERR_BUFFERLOST) {
-				hr = IDirectSoundBuffer_Restore(lpDSBSecondary);
-			}
-			if (hr == DS_OK) {
-				/*
-#define copybuf(S,D,c) \
-	({ void *__S=(S), *__D=(D); long __c=(c); \
-	   __asm__ __volatile__ ("rep; movsl" \
-		: "+S" (__S), "+D" (__D), "+c" (__c) : : "memory", "cc"); \
-	 0; })
-*/
-				//copybuf(_DSOUND_MixBuffer + p * _DSOUND_BufferLength, lockptr, _DSOUND_BufferLength >> 2);
-				memcpy(lockptr, _DSOUND_MixBuffer + p * _DSOUND_BufferLength, _DSOUND_BufferLength);
-				IDirectSoundBuffer_Unlock(lpDSBSecondary, lockptr, lockbytes, lockptr2, lockbytes2);
-			}
+        hr = IDirectSoundBuffer_Lock(lpDSBSecondary, p*_DSOUND_BufferLength, _DSOUND_BufferLength,
+                                     &lockptr, &lockbytes, &lockptr2, &lockbytes2, 0);
+        if (hr == DSERR_BUFFERLOST)
+        {
+            hr = IDirectSoundBuffer_Restore(lpDSBSecondary);
+        }
+        if (hr == DS_OK)
+        {
+            /*
+            #define copybuf(S,D,c) \
+            ({ void *__S=(S), *__D=(D); long __c=(c); \
+            __asm__ __volatile__ ("rep; movsl" \
+            : "+S" (__S), "+D" (__D), "+c" (__c) : : "memory", "cc"); \
+            0; })
+            */
+            //copybuf(_DSOUND_MixBuffer + p * _DSOUND_BufferLength, lockptr, _DSOUND_BufferLength >> 2);
+            memcpy(lockptr, _DSOUND_MixBuffer + p * _DSOUND_BufferLength, _DSOUND_BufferLength);
+            IDirectSoundBuffer_Unlock(lpDSBSecondary, lockptr, lockbytes, lockptr2, lockbytes2);
+        }
 
-		}
-	}
+    }
+}
 }
 
 
@@ -200,15 +205,15 @@ static void isr(void *userdata, unsigned char *stream, int len)
  * SDLSOUND_BeginBufferedPlayback
  * Unpause SDL sound playback.
  */
-int DSOUND_BeginBufferedPlayback(char *BufferStart, int (*CallBackFunc)(int), int buffersize, int numdivisions)
+int DSOUND_BeginBufferedPlayback(char *BufferStart, int(*CallBackFunc)(int), int buffersize, int numdivisions)
 {
-	_SDLSOUND_CallBack = CallBackFunc;
-	_SDLSOUND_MixBuffer = BufferStart;
+    _SDLSOUND_CallBack = CallBackFunc;
+    _SDLSOUND_MixBuffer = BufferStart;
 
-	_SDLSOUND_BufferLength = buffersize/numdivisions;
-	_SDLSOUND_NumBuffers   = numdivisions;
+    _SDLSOUND_BufferLength = buffersize/numdivisions;
+    _SDLSOUND_NumBuffers   = numdivisions;
 
-	return SDLSOUND_Ok;
+    return SDLSOUND_Ok;
 }
 
 
@@ -219,48 +224,53 @@ int DSOUND_BeginBufferedPlayback(char *BufferStart, int (*CallBackFunc)(int), in
 int DSOUND_StopPlayback(void)
 {
 //	DWORD exitcode;
-	BOOL t;
-	int i;
-	
-	if (isrthread) {
-		SetEvent(isrfinish);
+    BOOL t;
+    int i;
 
-		printOSD("DirectSound: Waiting for sound thread to exit\n");
-		if (WaitForSingleObject(isrthread, 300) == WAIT_OBJECT_0)
-			printOSD("DirectSound: Sound thread has exited\n");
-		else
-			printOSD("DirectSound: Sound thread failed to exit!\n");
-		/*
-		while (1) {
-			if (!GetExitCodeThread(isrthread, &exitcode)) {
-				DSOUND_SetErrorCode(DSOUND_FailedGetExitCode);
-				return DSOUND_Warning;
-			}
-			if (exitcode != STILL_ACTIVE) break;
-		}*/
+    if (isrthread)
+    {
+        SetEvent(isrfinish);
 
-		CloseHandle(isrthread);
-		isrthread = NULL;
-	}
+        printOSD("DirectSound: Waiting for sound thread to exit\n");
+        if (WaitForSingleObject(isrthread, 300) == WAIT_OBJECT_0)
+            printOSD("DirectSound: Sound thread has exited\n");
+        else
+            printOSD("DirectSound: Sound thread failed to exit!\n");
+        /*
+        while (1) {
+        	if (!GetExitCodeThread(isrthread, &exitcode)) {
+        		DSOUND_SetErrorCode(DSOUND_FailedGetExitCode);
+        		return DSOUND_Warning;
+        	}
+        	if (exitcode != STILL_ACTIVE) break;
+        }*/
 
-	if (isrfinish) {
-		CloseHandle(isrfinish);
-		isrfinish = NULL;
-	}
+        CloseHandle(isrthread);
+        isrthread = NULL;
+    }
 
-	if (lpDSBSecondary) {
-		IDirectSoundBuffer_Stop(lpDSBSecondary);
-	}
-	
-	if (hPosNotify) {
-		for (i=0; i<_DSOUND_NumBuffers; i++) {
-			if (hPosNotify[i]) CloseHandle(hPosNotify[i]);
-		}
-		free(hPosNotify);
-		hPosNotify = NULL;
-	}
+    if (isrfinish)
+    {
+        CloseHandle(isrfinish);
+        isrfinish = NULL;
+    }
 
-	return DSOUND_Ok;
+    if (lpDSBSecondary)
+    {
+        IDirectSoundBuffer_Stop(lpDSBSecondary);
+    }
+
+    if (hPosNotify)
+    {
+        for (i=0; i<_DSOUND_NumBuffers; i++)
+        {
+            if (hPosNotify[i]) CloseHandle(hPosNotify[i]);
+        }
+        free(hPosNotify);
+        hPosNotify = NULL;
+    }
+
+    return DSOUND_Ok;
 }
 
 

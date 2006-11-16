@@ -190,14 +190,14 @@ char * CONFIG_AnalogNumToName(int32 func)
 {
     switch (func)
     {
-        case analog_turning:
-            return "analog_turning";
-        case analog_strafing:
-            return "analog_strafing";
-        case analog_moving:
-            return "analog_moving";
-        case analog_lookingupanddown:
-            return "analog_lookingupanddown";
+    case analog_turning:
+        return "analog_turning";
+    case analog_strafing:
+        return "analog_strafing";
+    case analog_moving:
+        return "analog_moving";
+    case analog_lookingupanddown:
+        return "analog_lookingupanddown";
     }
 
     return NULL;

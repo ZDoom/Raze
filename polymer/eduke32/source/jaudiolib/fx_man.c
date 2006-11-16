@@ -55,54 +55,54 @@ int FX_Installed = FALSE;
 ---------------------------------------------------------------------*/
 
 char *FX_ErrorString
-   (
-   int ErrorNumber
-   )
+(
+    int ErrorNumber
+)
 
-   {
-   char *ErrorString;
+{
+    char *ErrorString;
 
-   switch( ErrorNumber )
-      {
-      case FX_Warning :
-      case FX_Error :
-         ErrorString = FX_ErrorString( FX_ErrorCode );
-         break;
+    switch (ErrorNumber)
+    {
+    case FX_Warning :
+    case FX_Error :
+        ErrorString = FX_ErrorString(FX_ErrorCode);
+        break;
 
-      case FX_Ok :
-         ErrorString = "Fx ok.";
-         break;
+    case FX_Ok :
+        ErrorString = "Fx ok.";
+        break;
 
-      case FX_ASSVersion :
-         ErrorString = "Apogee Sound System Version 0  "
-            "Programmed by Jim Dose\n"
-            "(c) Copyright 1995 James R. Dose.  All Rights Reserved.\n";
-         break;
+    case FX_ASSVersion :
+        ErrorString = "Apogee Sound System Version 0  "
+                      "Programmed by Jim Dose\n"
+                      "(c) Copyright 1995 James R. Dose.  All Rights Reserved.\n";
+        break;
 
-      case FX_BlasterError :
-      case FX_SoundCardError :
-               ErrorString = "Sound device error.";
-         break;
+    case FX_BlasterError :
+    case FX_SoundCardError :
+        ErrorString = "Sound device error.";
+        break;
 
-      case FX_InvalidCard :
-         ErrorString = "Invalid Sound Fx device.";
-         break;
+    case FX_InvalidCard :
+        ErrorString = "Invalid Sound Fx device.";
+        break;
 
-      case FX_MultiVocError :
-         ErrorString = MV_ErrorString( MV_Error );
-         break;
+    case FX_MultiVocError :
+        ErrorString = MV_ErrorString(MV_Error);
+        break;
 
-      case FX_DPMI_Error :
-         ErrorString = "DPMI Error in FX_MAN.";
-         break;
+    case FX_DPMI_Error :
+        ErrorString = "DPMI Error in FX_MAN.";
+        break;
 
-      default :
-         ErrorString = "Unknown Fx error code.";
-         break;
-      }
+    default :
+        ErrorString = "Unknown Fx error code.";
+        break;
+    }
 
-   return( ErrorString );
-   }
+    return(ErrorString);
+}
 
 
 #if 0
@@ -113,41 +113,41 @@ char *FX_ErrorString
 ---------------------------------------------------------------------*/
 
 int FX_SetupCard
-   (
-   int SoundCard,
-   fx_device *device
-   )
+(
+    int SoundCard,
+    fx_device *device
+)
 
-   {
-   int status;
-   int DeviceStatus;
+{
+    int status;
+    int DeviceStatus;
 
-   FX_SoundDevice = SoundCard;
+    FX_SoundDevice = SoundCard;
 
-   status = FX_Ok;
-   FX_SetErrorCode( FX_Ok );
+    status = FX_Ok;
+    FX_SetErrorCode(FX_Ok);
 
-   switch( SoundCard )
-      {
-      case SoundBlaster :
-         DeviceStatus = BLASTER_Init();
-         if ( DeviceStatus != BLASTER_Ok )
-            {
-            FX_SetErrorCode( FX_SoundCardError );
+    switch (SoundCard)
+    {
+    case SoundBlaster :
+        DeviceStatus = BLASTER_Init();
+        if (DeviceStatus != BLASTER_Ok)
+        {
+            FX_SetErrorCode(FX_SoundCardError);
             status = FX_Error;
             break;
-            }
+        }
 
-         device->MaxVoices = 32;
-         BLASTER_GetCardInfo( &device->MaxSampleBits, &device->MaxChannels );
-         break;
+        device->MaxVoices = 32;
+        BLASTER_GetCardInfo(&device->MaxSampleBits, &device->MaxChannels);
+        break;
 
-      default :
-         FX_SetErrorCode( FX_InvalidCard );
-         status = FX_Error;
-      }
-   return( status );
-   }
+    default :
+        FX_SetErrorCode(FX_InvalidCard);
+        status = FX_Error;
+    }
+    return(status);
+}
 #endif
 
 
@@ -159,33 +159,33 @@ int FX_SetupCard
 ---------------------------------------------------------------------*/
 
 int FX_GetBlasterSettings
-   (
-   fx_blaster_config *blaster
-   )
+(
+    fx_blaster_config *blaster
+)
 
-   {
-   int status;
-   BLASTER_CONFIG Blaster;
+{
+    int status;
+    BLASTER_CONFIG Blaster;
 
-   FX_SetErrorCode( FX_Ok );
+    FX_SetErrorCode(FX_Ok);
 
-   status = BLASTER_GetEnv( &Blaster );
-   if ( status != BLASTER_Ok )
-      {
-      FX_SetErrorCode( FX_BlasterError );
-      return( FX_Error );
-      }
+    status = BLASTER_GetEnv(&Blaster);
+    if (status != BLASTER_Ok)
+    {
+        FX_SetErrorCode(FX_BlasterError);
+        return(FX_Error);
+    }
 
-   blaster->Type      = Blaster.Type;
-   blaster->Address   = Blaster.Address;
-   blaster->Interrupt = Blaster.Interrupt;
-   blaster->Dma8      = Blaster.Dma8;
-   blaster->Dma16     = Blaster.Dma16;
-   blaster->Midi      = Blaster.Midi;
-   blaster->Emu       = Blaster.Emu;
+    blaster->Type      = Blaster.Type;
+    blaster->Address   = Blaster.Address;
+    blaster->Interrupt = Blaster.Interrupt;
+    blaster->Dma8      = Blaster.Dma8;
+    blaster->Dma16     = Blaster.Dma16;
+    blaster->Midi      = Blaster.Midi;
+    blaster->Emu       = Blaster.Emu;
 
-   return( FX_Ok );
-   }
+    return(FX_Ok);
+}
 #endif
 
 
@@ -197,43 +197,43 @@ int FX_GetBlasterSettings
 ---------------------------------------------------------------------*/
 
 int FX_SetupSoundBlaster
-   (
-   fx_blaster_config blaster,
-   int *MaxVoices,
-   int *MaxSampleBits,
-   int *MaxChannels
-   )
+(
+    fx_blaster_config blaster,
+    int *MaxVoices,
+    int *MaxSampleBits,
+    int *MaxChannels
+)
 
-   {
-   int DeviceStatus;
-   BLASTER_CONFIG Blaster;
+{
+    int DeviceStatus;
+    BLASTER_CONFIG Blaster;
 
-   FX_SetErrorCode( FX_Ok );
+    FX_SetErrorCode(FX_Ok);
 
-   FX_SoundDevice = SoundBlaster;
+    FX_SoundDevice = SoundBlaster;
 
-   Blaster.Type      = blaster.Type;
-   Blaster.Address   = blaster.Address;
-   Blaster.Interrupt = blaster.Interrupt;
-   Blaster.Dma8      = blaster.Dma8;
-   Blaster.Dma16     = blaster.Dma16;
-   Blaster.Midi      = blaster.Midi;
-   Blaster.Emu       = blaster.Emu;
+    Blaster.Type      = blaster.Type;
+    Blaster.Address   = blaster.Address;
+    Blaster.Interrupt = blaster.Interrupt;
+    Blaster.Dma8      = blaster.Dma8;
+    Blaster.Dma16     = blaster.Dma16;
+    Blaster.Midi      = blaster.Midi;
+    Blaster.Emu       = blaster.Emu;
 
-   BLASTER_SetCardSettings( Blaster );
+    BLASTER_SetCardSettings(Blaster);
 
-   DeviceStatus = BLASTER_Init();
-   if ( DeviceStatus != BLASTER_Ok )
-      {
-      FX_SetErrorCode( FX_SoundCardError );
-      return( FX_Error );
-      }
+    DeviceStatus = BLASTER_Init();
+    if (DeviceStatus != BLASTER_Ok)
+    {
+        FX_SetErrorCode(FX_SoundCardError);
+        return(FX_Error);
+    }
 
-   *MaxVoices = 8;
-   BLASTER_GetCardInfo( MaxSampleBits, MaxChannels );
+    *MaxVoices = 8;
+    BLASTER_GetCardInfo(MaxSampleBits, MaxChannels);
 
-   return( FX_Ok );
-   }
+    return(FX_Ok);
+}
 #endif
 
 
@@ -244,43 +244,43 @@ int FX_SetupSoundBlaster
 ---------------------------------------------------------------------*/
 
 int FX_Init
-   (
-   int SoundCard,
-   int numvoices,
-   int numchannels,
-   int samplebits,
-   unsigned mixrate
-   )
+(
+    int SoundCard,
+    int numvoices,
+    int numchannels,
+    int samplebits,
+    unsigned mixrate
+)
 
-   {
-   int status;
-   int devicestatus;
+{
+    int status;
+    int devicestatus;
 
-   if ( FX_Installed )
-      {
-      FX_Shutdown();
-      }
+    if (FX_Installed)
+    {
+        FX_Shutdown();
+    }
 
-   FX_MixRate = mixrate;
+    FX_MixRate = mixrate;
 
-   status = FX_Ok;
-   FX_SoundDevice = SoundCard;
-   
-   devicestatus = MV_Init( SoundCard, FX_MixRate, numvoices,
-      numchannels, samplebits );
-   if ( devicestatus != MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      status = FX_Error;
-      }
+    status = FX_Ok;
+    FX_SoundDevice = SoundCard;
 
-   if ( status == FX_Ok )
-      {
-      FX_Installed = TRUE;
-      }
+    devicestatus = MV_Init(SoundCard, FX_MixRate, numvoices,
+                           numchannels, samplebits);
+    if (devicestatus != MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        status = FX_Error;
+    }
 
-   return( status );
-   }
+    if (status == FX_Ok)
+    {
+        FX_Installed = TRUE;
+    }
+
+    return(status);
+}
 
 
 /*---------------------------------------------------------------------
@@ -290,29 +290,29 @@ int FX_Init
 ---------------------------------------------------------------------*/
 
 int FX_Shutdown
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   int status;
+{
+    int status;
 
-   if ( !FX_Installed )
-      {
-      return( FX_Ok );
-      }
+    if (!FX_Installed)
+    {
+        return(FX_Ok);
+    }
 
-   status = MV_Shutdown();
-   if ( status != MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      status = FX_Error;
-      }
+    status = MV_Shutdown();
+    if (status != MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        status = FX_Error;
+    }
 
-   FX_Installed = FALSE;
+    FX_Installed = FALSE;
 
-   return( status );
-   }
+    return(status);
+}
 
 
 /*---------------------------------------------------------------------
@@ -322,15 +322,15 @@ int FX_Shutdown
 ---------------------------------------------------------------------*/
 
 int FX_SetCallBack
-   (
-   void ( *function )( unsigned long )
-   )
+(
+    void(*function)(unsigned long)
+)
 
-   {
-   MV_SetCallBack( function );
+{
+    MV_SetCallBack(function);
 
-   return( FX_Ok );
-   }
+    return(FX_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -340,13 +340,13 @@ int FX_SetCallBack
 ---------------------------------------------------------------------*/
 
 void FX_SetVolume
-   (
-   int volume
-   )
+(
+    int volume
+)
 
-   {
-   MV_SetVolume( volume );
-   }
+{
+    MV_SetVolume(volume);
+}
 
 
 /*---------------------------------------------------------------------
@@ -356,13 +356,13 @@ void FX_SetVolume
 ---------------------------------------------------------------------*/
 
 int FX_GetVolume
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return MV_GetVolume();
-   }
+{
+    return MV_GetVolume();
+}
 
 
 /*---------------------------------------------------------------------
@@ -372,13 +372,13 @@ int FX_GetVolume
 ---------------------------------------------------------------------*/
 
 void FX_SetReverseStereo
-   (
-   int setting
-   )
+(
+    int setting
+)
 
-   {
-   MV_SetReverseStereo( setting );
-   }
+{
+    MV_SetReverseStereo(setting);
+}
 
 
 /*---------------------------------------------------------------------
@@ -388,13 +388,13 @@ void FX_SetReverseStereo
 ---------------------------------------------------------------------*/
 
 int FX_GetReverseStereo
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return MV_GetReverseStereo();
-   }
+{
+    return MV_GetReverseStereo();
+}
 
 
 /*---------------------------------------------------------------------
@@ -404,13 +404,13 @@ int FX_GetReverseStereo
 ---------------------------------------------------------------------*/
 
 void FX_SetReverb
-   (
-   int reverb
-   )
+(
+    int reverb
+)
 
-   {
-   MV_SetReverb( reverb );
-   }
+{
+    MV_SetReverb(reverb);
+}
 
 
 /*---------------------------------------------------------------------
@@ -420,13 +420,13 @@ void FX_SetReverb
 ---------------------------------------------------------------------*/
 
 void FX_SetFastReverb
-   (
-   int reverb
-   )
+(
+    int reverb
+)
 
-   {
-   MV_SetFastReverb( reverb );
-   }
+{
+    MV_SetFastReverb(reverb);
+}
 
 
 /*---------------------------------------------------------------------
@@ -436,13 +436,13 @@ void FX_SetFastReverb
 ---------------------------------------------------------------------*/
 
 int FX_GetMaxReverbDelay
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return MV_GetMaxReverbDelay();
-   }
+{
+    return MV_GetMaxReverbDelay();
+}
 
 
 /*---------------------------------------------------------------------
@@ -452,13 +452,13 @@ int FX_GetMaxReverbDelay
 ---------------------------------------------------------------------*/
 
 int FX_GetReverbDelay
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return MV_GetReverbDelay();
-   }
+{
+    return MV_GetReverbDelay();
+}
 
 
 /*---------------------------------------------------------------------
@@ -468,13 +468,13 @@ int FX_GetReverbDelay
 ---------------------------------------------------------------------*/
 
 void FX_SetReverbDelay
-   (
-   int delay
-   )
+(
+    int delay
+)
 
-   {
-   MV_SetReverbDelay( delay );
-   }
+{
+    MV_SetReverbDelay(delay);
+}
 
 
 /*---------------------------------------------------------------------
@@ -484,13 +484,13 @@ void FX_SetReverbDelay
 ---------------------------------------------------------------------*/
 
 int FX_VoiceAvailable
-   (
-   int priority
-   )
+(
+    int priority
+)
 
-   {
-   return MV_VoiceAvailable( priority );
-   }
+{
+    return MV_VoiceAvailable(priority);
+}
 
 /*---------------------------------------------------------------------
    Function: FX_EndLooping
@@ -500,22 +500,22 @@ int FX_VoiceAvailable
 ---------------------------------------------------------------------*/
 
 int FX_EndLooping
-   (
-   int handle
-   )
+(
+    int handle
+)
 
-   {
-   int status;
+{
+    int status;
 
-   status = MV_EndLooping( handle );
-   if ( status == MV_Error )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      status = FX_Warning;
-      }
+    status = MV_EndLooping(handle);
+    if (status == MV_Error)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        status = FX_Warning;
+    }
 
-   return( status );
-   }
+    return(status);
+}
 
 /*---------------------------------------------------------------------
    Function: FX_SetPan
@@ -525,25 +525,25 @@ int FX_EndLooping
 ---------------------------------------------------------------------*/
 
 int FX_SetPan
-   (
-   int handle,
-   int vol,
-   int left,
-   int right
-   )
+(
+    int handle,
+    int vol,
+    int left,
+    int right
+)
 
-   {
-   int status;
+{
+    int status;
 
-   status = MV_SetPan( handle, vol, left, right );
-   if ( status == MV_Error )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      status = FX_Warning;
-      }
+    status = MV_SetPan(handle, vol, left, right);
+    if (status == MV_Error)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        status = FX_Warning;
+    }
 
-   return( status );
-   }
+    return(status);
+}
 
 
 /*---------------------------------------------------------------------
@@ -553,23 +553,23 @@ int FX_SetPan
 ---------------------------------------------------------------------*/
 
 int FX_SetPitch
-   (
-   int handle,
-   int pitchoffset
-   )
+(
+    int handle,
+    int pitchoffset
+)
 
-   {
-   int status;
+{
+    int status;
 
-   status = MV_SetPitch( handle, pitchoffset );
-   if ( status == MV_Error )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      status = FX_Warning;
-      }
+    status = MV_SetPitch(handle, pitchoffset);
+    if (status == MV_Error)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        status = FX_Warning;
+    }
 
-   return( status );
-   }
+    return(status);
+}
 
 
 /*---------------------------------------------------------------------
@@ -579,23 +579,23 @@ int FX_SetPitch
 ---------------------------------------------------------------------*/
 
 int FX_SetFrequency
-   (
-   int handle,
-   int frequency
-   )
+(
+    int handle,
+    int frequency
+)
 
-   {
-   int status;
+{
+    int status;
 
-   status = MV_SetFrequency( handle, frequency );
-   if ( status == MV_Error )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      status = FX_Warning;
-      }
+    status = MV_SetFrequency(handle, frequency);
+    if (status == MV_Error)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        status = FX_Warning;
+    }
 
-   return( status );
-   }
+    return(status);
+}
 
 
 /*---------------------------------------------------------------------
@@ -605,29 +605,29 @@ int FX_SetFrequency
 ---------------------------------------------------------------------*/
 
 int FX_PlayVOC
-   (
-   char *ptr,
-   int pitchoffset,
-   int vol,
-   int left,
-   int right,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    char *ptr,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   int handle;
+{
+    int handle;
 
-   handle = MV_PlayVOC( ptr, pitchoffset, vol, left, right,
-      priority, callbackval );
-   if ( handle < MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      handle = FX_Warning;
-      }
+    handle = MV_PlayVOC(ptr, pitchoffset, vol, left, right,
+                        priority, callbackval);
+    if (handle < MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
 
-   return( handle );
-   }
+    return(handle);
+}
 
 
 /*---------------------------------------------------------------------
@@ -637,31 +637,31 @@ int FX_PlayVOC
 ---------------------------------------------------------------------*/
 
 int FX_PlayLoopedVOC
-   (
-   char *ptr,
-   long loopstart,
-   long loopend,
-   int pitchoffset,
-   int vol,
-   int left,
-   int right,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    char *ptr,
+    long loopstart,
+    long loopend,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   int handle;
+{
+    int handle;
 
-   handle = MV_PlayLoopedVOC( ptr, loopstart, loopend, pitchoffset,
-      vol, left, right, priority, callbackval );
-   if ( handle < MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      handle = FX_Warning;
-      }
+    handle = MV_PlayLoopedVOC(ptr, loopstart, loopend, pitchoffset,
+                              vol, left, right, priority, callbackval);
+    if (handle < MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
 
-   return( handle );
-   }
+    return(handle);
+}
 
 
 /*---------------------------------------------------------------------
@@ -671,29 +671,29 @@ int FX_PlayLoopedVOC
 ---------------------------------------------------------------------*/
 
 int FX_PlayWAV
-   (
-   char *ptr,
-   int pitchoffset,
-   int vol,
-   int left,
-   int right,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    char *ptr,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   int handle;
+{
+    int handle;
 
-   handle = MV_PlayWAV( ptr, pitchoffset, vol, left, right,
-      priority, callbackval );
-   if ( handle < MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      handle = FX_Warning;
-      }
+    handle = MV_PlayWAV(ptr, pitchoffset, vol, left, right,
+                        priority, callbackval);
+    if (handle < MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
 
-   return( handle );
-   }
+    return(handle);
+}
 
 
 /*---------------------------------------------------------------------
@@ -703,31 +703,31 @@ int FX_PlayWAV
 ---------------------------------------------------------------------*/
 
 int FX_PlayLoopedWAV
-   (
-   char *ptr,
-   long loopstart,
-   long loopend,
-   int pitchoffset,
-   int vol,
-   int left,
-   int right,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    char *ptr,
+    long loopstart,
+    long loopend,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   int handle;
+{
+    int handle;
 
-   handle = MV_PlayLoopedWAV( ptr, loopstart, loopend,
-      pitchoffset, vol, left, right, priority, callbackval );
-   if ( handle < MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      handle = FX_Warning;
-      }
+    handle = MV_PlayLoopedWAV(ptr, loopstart, loopend,
+                              pitchoffset, vol, left, right, priority, callbackval);
+    if (handle < MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
 
-   return( handle );
-   }
+    return(handle);
+}
 
 
 /*---------------------------------------------------------------------
@@ -738,28 +738,28 @@ int FX_PlayLoopedWAV
 ---------------------------------------------------------------------*/
 
 int FX_PlayVOC3D
-   (
-   char *ptr,
-   int pitchoffset,
-   int angle,
-   int distance,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    char *ptr,
+    int pitchoffset,
+    int angle,
+    int distance,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   int handle;
+{
+    int handle;
 
-   handle = MV_PlayVOC3D( ptr, pitchoffset, angle, distance,
-      priority, callbackval );
-   if ( handle < MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      handle = FX_Warning;
-      }
+    handle = MV_PlayVOC3D(ptr, pitchoffset, angle, distance,
+                          priority, callbackval);
+    if (handle < MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
 
-   return( handle );
-   }
+    return(handle);
+}
 
 
 /*---------------------------------------------------------------------
@@ -770,28 +770,28 @@ int FX_PlayVOC3D
 ---------------------------------------------------------------------*/
 
 int FX_PlayWAV3D
-   (
-   char *ptr,
-   int pitchoffset,
-   int angle,
-   int distance,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    char *ptr,
+    int pitchoffset,
+    int angle,
+    int distance,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   int handle;
+{
+    int handle;
 
-   handle = MV_PlayWAV3D( ptr, pitchoffset, angle, distance,
-      priority, callbackval );
-   if ( handle < MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      handle = FX_Warning;
-      }
+    handle = MV_PlayWAV3D(ptr, pitchoffset, angle, distance,
+                          priority, callbackval);
+    if (handle < MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
 
-   return( handle );
-   }
+    return(handle);
+}
 
 
 /*---------------------------------------------------------------------
@@ -801,31 +801,31 @@ int FX_PlayWAV3D
 ---------------------------------------------------------------------*/
 
 int FX_PlayRaw
-   (
-   char *ptr,
-   unsigned long length,
-   unsigned rate,
-   int pitchoffset,
-   int vol,
-   int left,
-   int right,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    char *ptr,
+    unsigned long length,
+    unsigned rate,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   int handle;
+{
+    int handle;
 
-   handle = MV_PlayRaw( ptr, length, rate, pitchoffset,
-      vol, left, right, priority, callbackval );
-   if ( handle < MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      handle = FX_Warning;
-      }
+    handle = MV_PlayRaw(ptr, length, rate, pitchoffset,
+                        vol, left, right, priority, callbackval);
+    if (handle < MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
 
-   return( handle );
-   }
+    return(handle);
+}
 
 
 /*---------------------------------------------------------------------
@@ -835,33 +835,33 @@ int FX_PlayRaw
 ---------------------------------------------------------------------*/
 
 int FX_PlayLoopedRaw
-   (
-   char *ptr,
-   unsigned long length,
-   char *loopstart,
-   char *loopend,
-   unsigned rate,
-   int pitchoffset,
-   int vol,
-   int left,
-   int right,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    char *ptr,
+    unsigned long length,
+    char *loopstart,
+    char *loopend,
+    unsigned rate,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   int handle;
+{
+    int handle;
 
-   handle = MV_PlayLoopedRaw( ptr, length, loopstart, loopend,
-      rate, pitchoffset, vol, left, right, priority, callbackval );
-   if ( handle < MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      handle = FX_Warning;
-      }
+    handle = MV_PlayLoopedRaw(ptr, length, loopstart, loopend,
+                              rate, pitchoffset, vol, left, right, priority, callbackval);
+    if (handle < MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
 
-   return( handle );
-   }
+    return(handle);
+}
 
 
 /*---------------------------------------------------------------------
@@ -872,24 +872,24 @@ int FX_PlayLoopedRaw
 ---------------------------------------------------------------------*/
 
 int FX_Pan3D
-   (
-   int handle,
-   int angle,
-   int distance
-   )
+(
+    int handle,
+    int angle,
+    int distance
+)
 
-   {
-   int status;
+{
+    int status;
 
-   status = MV_Pan3D( handle, angle, distance );
-   if ( status != MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      status = FX_Warning;
-      }
+    status = MV_Pan3D(handle, angle, distance);
+    if (status != MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        status = FX_Warning;
+    }
 
-   return( status );
-   }
+    return(status);
+}
 
 
 /*---------------------------------------------------------------------
@@ -899,13 +899,13 @@ int FX_Pan3D
 ---------------------------------------------------------------------*/
 
 int FX_SoundActive
-   (
-   int handle
-   )
+(
+    int handle
+)
 
-   {
-   return( MV_VoicePlaying( handle ) );
-   }
+{
+    return(MV_VoicePlaying(handle));
+}
 
 
 /*---------------------------------------------------------------------
@@ -915,13 +915,13 @@ int FX_SoundActive
 ---------------------------------------------------------------------*/
 
 int FX_SoundsPlaying
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return( MV_VoicesPlaying() );
-   }
+{
+    return(MV_VoicesPlaying());
+}
 
 
 /*---------------------------------------------------------------------
@@ -931,22 +931,22 @@ int FX_SoundsPlaying
 ---------------------------------------------------------------------*/
 
 int FX_StopSound
-   (
-   int handle
-   )
+(
+    int handle
+)
 
-   {
-   int status;
+{
+    int status;
 
-   status = MV_Kill( handle );
-   if ( status != MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      return( FX_Warning );
-      }
+    status = MV_Kill(handle);
+    if (status != MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        return(FX_Warning);
+    }
 
-   return( FX_Ok );
-   }
+    return(FX_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -956,22 +956,22 @@ int FX_StopSound
 ---------------------------------------------------------------------*/
 
 int FX_StopAllSounds
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   int status;
+{
+    int status;
 
-   status = MV_KillAllVoices();
-   if ( status != MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      return( FX_Warning );
-      }
+    status = MV_KillAllVoices();
+    if (status != MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        return(FX_Warning);
+    }
 
-   return( FX_Ok );
-   }
+    return(FX_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -981,30 +981,30 @@ int FX_StopAllSounds
 ---------------------------------------------------------------------*/
 
 int FX_StartDemandFeedPlayback
-   (
-   void ( *function )( char **ptr, unsigned long *length ),
-   int rate,
-   int pitchoffset,
-   int vol,
-   int left,
-   int right,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    void(*function)(char **ptr, unsigned long *length),
+    int rate,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   int handle;
+{
+    int handle;
 
-   handle = MV_StartDemandFeedPlayback( function, rate,
-      pitchoffset, vol, left, right, priority, callbackval );
-   if ( handle < MV_Ok )
-      {
-      FX_SetErrorCode( FX_MultiVocError );
-      handle = FX_Warning;
-      }
+    handle = MV_StartDemandFeedPlayback(function, rate,
+                                        pitchoffset, vol, left, right, priority, callbackval);
+    if (handle < MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
 
-   return( handle );
-   }
+    return(handle);
+}
 
 #if 0
 /*---------------------------------------------------------------------
@@ -1014,37 +1014,37 @@ int FX_StartDemandFeedPlayback
 ---------------------------------------------------------------------*/
 
 int FX_StartRecording
-   (
-   int MixRate,
-   void ( *function )( char *ptr, int length )
-   )
+(
+    int MixRate,
+    void(*function)(char *ptr, int length)
+)
 
-   {
-   int status;
+{
+    int status;
 
-   switch( FX_SoundDevice )
-      {
-      case SoundBlaster :
-         status = MV_StartRecording( MixRate, function );
-         if ( status != MV_Ok )
-            {
-            FX_SetErrorCode( FX_MultiVocError );
+    switch (FX_SoundDevice)
+    {
+    case SoundBlaster :
+        status = MV_StartRecording(MixRate, function);
+        if (status != MV_Ok)
+        {
+            FX_SetErrorCode(FX_MultiVocError);
             status = FX_Warning;
-            }
-         else
-            {
+        }
+        else
+        {
             status = FX_Ok;
-            }
-         break;
+        }
+        break;
 
-      default :
-         FX_SetErrorCode( FX_InvalidCard );
-         status = FX_Warning;
-         break;
-      }
+    default :
+        FX_SetErrorCode(FX_InvalidCard);
+        status = FX_Warning;
+        break;
+    }
 
-   return( status );
-   }
+    return(status);
+}
 #endif
 
 #if 0
@@ -1055,19 +1055,19 @@ int FX_StartRecording
 ---------------------------------------------------------------------*/
 
 void FX_StopRecord
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   // Stop sound playback
-   switch( FX_SoundDevice )
-      {
-      case SoundBlaster :
-         MV_StopRecord();
-         break;
-      }
-   }
+{
+    // Stop sound playback
+    switch (FX_SoundDevice)
+    {
+    case SoundBlaster :
+        MV_StopRecord();
+        break;
+    }
+}
 #endif
 
 extern void MUSIC_Update(void);

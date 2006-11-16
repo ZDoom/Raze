@@ -41,60 +41,60 @@ int MUSIC_ErrorCode = MUSIC_Ok;
 ---------------------------------------------------------------------*/
 
 char *MUSIC_ErrorString
-   (
-   int ErrorNumber
-   )
+(
+    int ErrorNumber
+)
 
-   {
-   char *ErrorString;
+{
+    char *ErrorString;
 
-   switch( ErrorNumber )
-      {
-      case MUSIC_Warning :
-      case MUSIC_Error :
-         ErrorString = MUSIC_ErrorString( MUSIC_ErrorCode );
-         break;
+    switch (ErrorNumber)
+    {
+    case MUSIC_Warning :
+    case MUSIC_Error :
+        ErrorString = MUSIC_ErrorString(MUSIC_ErrorCode);
+        break;
 
-      case MUSIC_Ok :
-         ErrorString = "Music ok.";
-         break;
+    case MUSIC_Ok :
+        ErrorString = "Music ok.";
+        break;
 
-      case MUSIC_ASSVersion :
-         ErrorString = "Apogee Sound System Version   "
-            "Programmed by Jim Dose\n"
-            "(c) Copyright 1996 James R. Dose.  All Rights Reserved.\n";
-         break;
+    case MUSIC_ASSVersion :
+        ErrorString = "Apogee Sound System Version   "
+                      "Programmed by Jim Dose\n"
+                      "(c) Copyright 1996 James R. Dose.  All Rights Reserved.\n";
+        break;
 
-      case MUSIC_SoundCardError :
-         break;
+    case MUSIC_SoundCardError :
+        break;
 
-      case MUSIC_MPU401Error :
-         ErrorString = "Could not detect MPU-401.";
-         break;
+    case MUSIC_MPU401Error :
+        ErrorString = "Could not detect MPU-401.";
+        break;
 
-      case MUSIC_InvalidCard :
-         ErrorString = "Invalid Music device.";
-         break;
+    case MUSIC_InvalidCard :
+        ErrorString = "Invalid Music device.";
+        break;
 
-      case MUSIC_MidiError :
-         ErrorString = "Error playing MIDI file.";
-         break;
+    case MUSIC_MidiError :
+        ErrorString = "Error playing MIDI file.";
+        break;
 
-      case MUSIC_TaskManError :
-         ErrorString = "TaskMan error.";
-         break;
+    case MUSIC_TaskManError :
+        ErrorString = "TaskMan error.";
+        break;
 
-      case MUSIC_DPMI_Error :
-         ErrorString = "DPMI Error in MUSIC.";
-         break;
+    case MUSIC_DPMI_Error :
+        ErrorString = "DPMI Error in MUSIC.";
+        break;
 
-      default :
-         ErrorString = "Unknown Music error code.";
-         break;
-      }
+    default :
+        ErrorString = "Unknown Music error code.";
+        break;
+    }
 
-   return( ErrorString );
-   }
+    return(ErrorString);
+}
 
 
 /*---------------------------------------------------------------------
@@ -104,19 +104,19 @@ char *MUSIC_ErrorString
 ---------------------------------------------------------------------*/
 
 int MUSIC_Init
-   (
-   int SoundCard,
-   int Address
-   )
+(
+    int SoundCard,
+    int Address
+)
 
-   {
-   int i;
-   int status;
+{
+    int i;
+    int status;
 
-   status = MUSIC_Ok;
+    status = MUSIC_Ok;
 
-   return( status );
-   }
+    return(status);
+}
 
 
 /*---------------------------------------------------------------------
@@ -126,18 +126,18 @@ int MUSIC_Init
 ---------------------------------------------------------------------*/
 
 int MUSIC_Shutdown
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   int status;
+{
+    int status;
 
-   status = MUSIC_Ok;
+    status = MUSIC_Ok;
 
 
-   return( status );
-   }
+    return(status);
+}
 
 
 /*---------------------------------------------------------------------
@@ -147,12 +147,11 @@ int MUSIC_Shutdown
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetMaxFMMidiChannel
-   (
-   int channel
-   )
+(
+    int channel
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -162,12 +161,11 @@ void MUSIC_SetMaxFMMidiChannel
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetVolume
-   (
-   int volume
-   )
+(
+    int volume
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -177,13 +175,12 @@ void MUSIC_SetVolume
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetMidiChannelVolume
-   (
-   int channel,
-   int volume
-   )
+(
+    int channel,
+    int volume
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -193,12 +190,11 @@ void MUSIC_SetMidiChannelVolume
 ---------------------------------------------------------------------*/
 
 void MUSIC_ResetMidiChannelVolumes
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -208,13 +204,13 @@ void MUSIC_ResetMidiChannelVolumes
 ---------------------------------------------------------------------*/
 
 int MUSIC_GetVolume
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-      return( 0 );
-   }
+{
+    return(0);
+}
 
 
 /*---------------------------------------------------------------------
@@ -225,12 +221,11 @@ int MUSIC_GetVolume
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetLoopFlag
-   (
-   int loopflag
-   )
+(
+    int loopflag
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -240,13 +235,13 @@ void MUSIC_SetLoopFlag
 ---------------------------------------------------------------------*/
 
 int MUSIC_SongPlaying
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return( 0 );
-   }
+{
+    return(0);
+}
 
 
 /*---------------------------------------------------------------------
@@ -256,12 +251,11 @@ int MUSIC_SongPlaying
 ---------------------------------------------------------------------*/
 
 void MUSIC_Continue
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -271,12 +265,11 @@ void MUSIC_Continue
 ---------------------------------------------------------------------*/
 
 void MUSIC_Pause
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -286,13 +279,13 @@ void MUSIC_Pause
 ---------------------------------------------------------------------*/
 
 int MUSIC_StopSong
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return( MUSIC_Ok );
-   }
+{
+    return(MUSIC_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -302,14 +295,14 @@ int MUSIC_StopSong
 ---------------------------------------------------------------------*/
 
 int MUSIC_PlaySong
-   (
-   unsigned char *song,
-   int loopflag
-   )
+(
+    unsigned char *song,
+    int loopflag
+)
 
-   {
-   return( MUSIC_Ok );
-   }
+{
+    return(MUSIC_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -319,12 +312,11 @@ int MUSIC_PlaySong
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetContext
-   (
-   int context
-   )
+(
+    int context
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -334,12 +326,11 @@ void MUSIC_SetContext
 ---------------------------------------------------------------------*/
 
 int MUSIC_GetContext
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -349,12 +340,11 @@ int MUSIC_GetContext
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetSongTick
-   (
-   unsigned long PositionInTicks
-   )
+(
+    unsigned long PositionInTicks
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -364,12 +354,11 @@ void MUSIC_SetSongTick
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetSongTime
-   (
-   unsigned long milliseconds
-   )
+(
+    unsigned long milliseconds
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -379,14 +368,13 @@ void MUSIC_SetSongTime
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetSongPosition
-   (
-   int measure,
-   int beat,
-   int tick
-   )
+(
+    int measure,
+    int beat,
+    int tick
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -396,12 +384,11 @@ void MUSIC_SetSongPosition
 ---------------------------------------------------------------------*/
 
 void MUSIC_GetSongPosition
-   (
-   songposition *pos
-   )
+(
+    songposition *pos
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -411,12 +398,11 @@ void MUSIC_GetSongPosition
 ---------------------------------------------------------------------*/
 
 void MUSIC_GetSongLength
-   (
-   songposition *pos
-   )
+(
+    songposition *pos
+)
 
-   {
-   }
+{}
 
 
 
@@ -431,14 +417,14 @@ void MUSIC_GetSongLength
 ---------------------------------------------------------------------*/
 
 int MUSIC_FadeVolume
-   (
-   int tovolume,
-   int milliseconds
-   )
+(
+    int tovolume,
+    int milliseconds
+)
 
-   {
-    return( MUSIC_Ok );
-   }
+{
+    return(MUSIC_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -448,13 +434,13 @@ int MUSIC_FadeVolume
 ---------------------------------------------------------------------*/
 
 int MUSIC_FadeActive
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return( 0 );
-   }
+{
+    return(0);
+}
 
 
 /*---------------------------------------------------------------------
@@ -464,12 +450,11 @@ int MUSIC_FadeActive
 ---------------------------------------------------------------------*/
 
 void MUSIC_StopFade
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -480,13 +465,12 @@ void MUSIC_StopFade
 ---------------------------------------------------------------------*/
 
 void MUSIC_RerouteMidiChannel
-   (
-   int channel,
-   int ( *function )( int event, int c1, int c2 )
-   )
+(
+    int channel,
+    int(*function)(int event, int c1, int c2)
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -496,15 +480,13 @@ void MUSIC_RerouteMidiChannel
 ---------------------------------------------------------------------*/
 
 void MUSIC_RegisterTimbreBank
-   (
-   unsigned char *timbres
-   )
+(
+    unsigned char *timbres
+)
 
-   {
-   }
+{}
 
 
 void MUSIC_Update(void)
-{
-}
+{}
 

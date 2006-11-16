@@ -66,9 +66,21 @@ JMACTOBJ=$(OBJ)/util_lib.$o \
 	$(OBJ)/mathutil.$o \
 	$(OBJ)/scriplib.$o
 
-AUDIOLIB_FX_STUB=$(OBJ)/audiolib_fxstub.$o
-AUDIOLIB_MUSIC_STUB=$(OBJ)/audiolib_musicstub.$o
+AUDIOLIB_FX_SDL=$(OBJ)/mv_mix.$o \
+	  $(OBJ)/mv_mix16.$o \
+	  $(OBJ)/mvreverb.$o \
+	  $(OBJ)/ll_man.$o \
+	  $(OBJ)/fx_man.$o \
+      $(OBJ)/dsl.$o \
+      $(OBJ)/nodpmi.$o \
+      $(OBJ)/unixpitch.$o \
+      $(OBJ)/unixvoc.$o
+
+AUDIOLIB_MUSIC_SDL=$(OBJ)/sdlmusic.$o \
+	  $(OBJ)/unixglob.$o
+
 AUDIOLIB_JFAUD=$(OBJ)/jfaud_sounds.$o
+
 AUDIOLIB_FX=$(OBJ)/mv_mix.$o \
 	  $(OBJ)/mv_mix16.$o \
 	  $(OBJ)/mvreverb.$o \
@@ -99,7 +111,7 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/testcd.$o \
 	$(OBJ)/osdfuncs.$o \
 	$(OBJ)/osdcmds.$o \
-    $(OBJ)/grpscan.$o \
+	$(OBJ)/grpscan.$o \
 	$(JMACTOBJ)
 
 EDITOROBJS=$(OBJ)/astub.$o
@@ -113,11 +125,12 @@ endif
 
 ifeq ($(RENDERTYPE),SDL)
  	OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell sdl-config --cflags))
+	LIBS+= -lSDL_mixer
 
 	ifneq (0,$(JFAUD))
 		AUDIOLIBOBJ=$(AUDIOLIB_JFAUD)
 	else
-		AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_STUB) $(AUDIOLIB_FX_STUB) $(OBJ)/sounds.$o
+		AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_SDL) $(AUDIOLIB_FX_SDL) $(OBJ)/sounds.$o
 	endif
 
 	ifeq (1,$(HAVE_GTK2))

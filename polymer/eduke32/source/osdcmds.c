@@ -257,21 +257,21 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
 
     switch (parm->numparms)
     {
-        case 1: // bpp switch
-            newbpp = Batol(parm->parms[0]);
-            break;
-        case 2: // res switch
-            newwidth = Batol(parm->parms[0]);
-            newheight = Batol(parm->parms[1]);
-            break;
-        case 3: // res & bpp switch
-        case 4:
-            newwidth = Batol(parm->parms[0]);
-            newheight = Batol(parm->parms[1]);
-            newbpp = Batol(parm->parms[2]);
-            if (parm->numparms == 4)
-                newfs = (Batol(parm->parms[3]) != 0);
-            break;
+    case 1: // bpp switch
+        newbpp = Batol(parm->parms[0]);
+        break;
+    case 2: // res switch
+        newwidth = Batol(parm->parms[0]);
+        newheight = Batol(parm->parms[1]);
+        break;
+    case 3: // res & bpp switch
+    case 4:
+        newwidth = Batol(parm->parms[0]);
+        newheight = Batol(parm->parms[1]);
+        newbpp = Batol(parm->parms[2]);
+        if (parm->numparms == 4)
+            newfs = (Batol(parm->parms[3]) != 0);
+        break;
     }
 
     if (setgamemode(newfs,newwidth,newheight,newbpp))
@@ -334,58 +334,58 @@ static int osdcmd_spawn(const osdfuncparm_t *parm)
 
     switch (parm->numparms)
     {
-        case 7: // x,y,z
-            x = Batol(parm->parms[4]);
-            y = Batol(parm->parms[5]);
-            z = Batol(parm->parms[6]);
-            set |= 8;
-        case 4: // ang
-            ang = Batol(parm->parms[3]) & 2047;
-            set |= 4;
-        case 3: // cstat
-            cstat = (unsigned short)Batol(parm->parms[2]);
-            set |= 2;
-        case 2: // pal
-            pal = (unsigned char)Batol(parm->parms[1]);
-            set |= 1;
-        case 1: // tile number
-            if (isdigit(parm->parms[0][0]))
+    case 7: // x,y,z
+        x = Batol(parm->parms[4]);
+        y = Batol(parm->parms[5]);
+        z = Batol(parm->parms[6]);
+        set |= 8;
+    case 4: // ang
+        ang = Batol(parm->parms[3]) & 2047;
+        set |= 4;
+    case 3: // cstat
+        cstat = (unsigned short)Batol(parm->parms[2]);
+        set |= 2;
+    case 2: // pal
+        pal = (unsigned char)Batol(parm->parms[1]);
+        set |= 1;
+    case 1: // tile number
+        if (isdigit(parm->parms[0][0]))
+        {
+            picnum = (unsigned short)Batol(parm->parms[0]);
+        }
+        else
+        {
+            int i,j;
+            for (j=0; j<2; j++)
             {
-                picnum = (unsigned short)Batol(parm->parms[0]);
-            }
-            else
-            {
-                int i,j;
-                for (j=0; j<2; j++)
+                for (i=0; i<labelcnt; i++)
                 {
-                    for (i=0; i<labelcnt; i++)
+                    if (
+                        (j == 0 && !Bstrcmp(label+(i<<6),     parm->parms[0])) ||
+                        (j == 1 && !Bstrcasecmp(label+(i<<6), parm->parms[0]))
+                    )
                     {
-                        if (
-                            (j == 0 && !Bstrcmp(label+(i<<6),     parm->parms[0])) ||
-                            (j == 1 && !Bstrcasecmp(label+(i<<6), parm->parms[0]))
-                        )
-                        {
-                            picnum = (unsigned short)labelcode[i];
-                            break;
-                        }
+                        picnum = (unsigned short)labelcode[i];
+                        break;
                     }
-                    if (i<labelcnt) break;
                 }
-                if (i==labelcnt)
-                {
-                    OSD_Printf("spawn: Invalid tile label given\n");
-                    return OSDCMD_OK;
-                }
+                if (i<labelcnt) break;
             }
-
-            if (picnum >= MAXTILES)
+            if (i==labelcnt)
             {
-                OSD_Printf("spawn: Invalid tile number\n");
+                OSD_Printf("spawn: Invalid tile label given\n");
                 return OSDCMD_OK;
             }
-            break;
-        default:
-            return OSDCMD_SHOWHELP;
+        }
+
+        if (picnum >= MAXTILES)
+        {
+            OSD_Printf("spawn: Invalid tile number\n");
+            return OSDCMD_OK;
+        }
+        break;
+    default:
+        return OSDCMD_SHOWHELP;
     }
 
     idx = spawn(ps[myconnectindex].i, (short)picnum);
@@ -552,46 +552,46 @@ int osdcmd_cvar_set(const osdfuncparm_t *parm)
             else
                 switch (cvar[i].type&0x7f)
                 {
-                    case CVAR_INT:
-                    case CVAR_UNSIGNEDINT:
-                    case CVAR_BOOL:
+                case CVAR_INT:
+                case CVAR_UNSIGNEDINT:
+                case CVAR_BOOL:
+                {
+                    int val;
+                    if (showval)
                     {
-                        int val;
-                        if (showval)
-                        {
-                            OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvar[i].name,*(int*)cvar[i].var,(char*)cvar[i].helpstr);
-                            return OSDCMD_OK;
-                        }
-
-                        val = atoi(parm->parms[0]);
-                        if (cvar[i].type == CVAR_BOOL) val = val != 0;
-
-                        if (val < cvar[i].min || val > cvar[i].max)
-                        {
-                            OSD_Printf("%s value out of range\n",cvar[i].name);
-                            return OSDCMD_OK;
-                        }
-                        *(int*)cvar[i].var = val;
-                        OSD_Printf("%s %d",cvar[i].name,val);
+                        OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvar[i].name,*(int*)cvar[i].var,(char*)cvar[i].helpstr);
+                        return OSDCMD_OK;
                     }
-                    break;
-                    case CVAR_STRING:
+
+                    val = atoi(parm->parms[0]);
+                    if (cvar[i].type == CVAR_BOOL) val = val != 0;
+
+                    if (val < cvar[i].min || val > cvar[i].max)
                     {
-                        if (showval)
-                        {
-                            OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvar[i].name,(char*)cvar[i].var,(char*)cvar[i].helpstr);
-                            return OSDCMD_OK;
-                        }
-                        else
-                        {
-                            Bstrncpy((char*)cvar[i].var, parm->parms[0], cvar[i].extra-1);
-                            ((char*)cvar[i].var)[cvar[i].extra-1] = 0;
-                            OSD_Printf("%s %s",cvar[i].name,(char*)cvar[i].var);
-                        }
+                        OSD_Printf("%s value out of range\n",cvar[i].name);
+                        return OSDCMD_OK;
                     }
+                    *(int*)cvar[i].var = val;
+                    OSD_Printf("%s %d",cvar[i].name,val);
+                }
+                break;
+                case CVAR_STRING:
+                {
+                    if (showval)
+                    {
+                        OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvar[i].name,(char*)cvar[i].var,(char*)cvar[i].helpstr);
+                        return OSDCMD_OK;
+                    }
+                    else
+                    {
+                        Bstrncpy((char*)cvar[i].var, parm->parms[0], cvar[i].extra-1);
+                        ((char*)cvar[i].var)[cvar[i].extra-1] = 0;
+                        OSD_Printf("%s %s",cvar[i].name,(char*)cvar[i].var);
+                    }
+                }
+                break;
+                default:
                     break;
-                    default:
-                        break;
                 }
             if (cvar[i].type&256)
                 updatenames();

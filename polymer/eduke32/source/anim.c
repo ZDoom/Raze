@@ -27,64 +27,64 @@ void endanimsounds(long fr)
 {
     switch (ud.volume_number)
     {
-        case 0:
-            break;
+    case 0:
+        break;
+    case 1:
+        switch (fr)
+        {
         case 1:
-            switch (fr)
-            {
-                case 1:
-                    sound(WIND_AMBIENCE);
-                    break;
-                case 26:
-                    sound(ENDSEQVOL2SND1);
-                    break;
-                case 36:
-                    sound(ENDSEQVOL2SND2);
-                    break;
-                case 54:
-                    sound(THUD);
-                    break;
-                case 62:
-                    sound(ENDSEQVOL2SND3);
-                    break;
-                case 75:
-                    sound(ENDSEQVOL2SND4);
-                    break;
-                case 81:
-                    sound(ENDSEQVOL2SND5);
-                    break;
-                case 115:
-                    sound(ENDSEQVOL2SND6);
-                    break;
-                case 124:
-                    sound(ENDSEQVOL2SND7);
-                    break;
-            }
+            sound(WIND_AMBIENCE);
             break;
-        case 2:
-            switch (fr)
-            {
-                case 1:
-                    sound(WIND_REPEAT);
-                    break;
-                case 98:
-                    sound(DUKE_GRUNT);
-                    break;
-                case 82+20:
-                    sound(THUD);
-                    sound(SQUISHED);
-                    break;
-                case 104+20:
-                    sound(ENDSEQVOL3SND3);
-                    break;
-                case 114+20:
-                    sound(ENDSEQVOL3SND2);
-                    break;
-                case 158:
-                    sound(PIPEBOMB_EXPLODE);
-                    break;
-            }
+        case 26:
+            sound(ENDSEQVOL2SND1);
             break;
+        case 36:
+            sound(ENDSEQVOL2SND2);
+            break;
+        case 54:
+            sound(THUD);
+            break;
+        case 62:
+            sound(ENDSEQVOL2SND3);
+            break;
+        case 75:
+            sound(ENDSEQVOL2SND4);
+            break;
+        case 81:
+            sound(ENDSEQVOL2SND5);
+            break;
+        case 115:
+            sound(ENDSEQVOL2SND6);
+            break;
+        case 124:
+            sound(ENDSEQVOL2SND7);
+            break;
+        }
+        break;
+    case 2:
+        switch (fr)
+        {
+        case 1:
+            sound(WIND_REPEAT);
+            break;
+        case 98:
+            sound(DUKE_GRUNT);
+            break;
+        case 82+20:
+            sound(THUD);
+            sound(SQUISHED);
+            break;
+        case 104+20:
+            sound(ENDSEQVOL3SND3);
+            break;
+        case 114+20:
+            sound(ENDSEQVOL3SND2);
+            break;
+        case 158:
+            sound(PIPEBOMB_EXPLODE);
+            break;
+        }
+        break;
     }
 }
 
@@ -92,12 +92,12 @@ void logoanimsounds(long fr)
 {
     switch (fr)
     {
-        case 1:
-            sound(FLY_BY);
-            break;
-        case 19:
-            sound(PIPEBOMB_EXPLODE);
-            break;
+    case 1:
+        sound(FLY_BY);
+        break;
+    case 19:
+        sound(PIPEBOMB_EXPLODE);
+        break;
     }
 }
 
@@ -105,16 +105,16 @@ void intro4animsounds(long fr)
 {
     switch (fr)
     {
-        case 1:
-            sound(INTRO4_B);
-            break;
-        case 12:
-        case 34:
-            sound(SHORT_CIRCUIT);
-            break;
-        case 18:
-            sound(INTRO4_5);
-            break;
+    case 1:
+        sound(INTRO4_B);
+        break;
+    case 12:
+    case 34:
+        sound(SHORT_CIRCUIT);
+        break;
+    case 18:
+        sound(INTRO4_5);
+        break;
     }
 }
 
@@ -122,18 +122,18 @@ void first4animsounds(long fr)
 {
     switch (fr)
     {
-        case 1:
-            sound(INTRO4_1);
-            break;
-        case 12:
-            sound(INTRO4_2);
-            break;
-        case 7:
-            sound(INTRO4_3);
-            break;
-        case 26:
-            sound(INTRO4_4);
-            break;
+    case 1:
+        sound(INTRO4_1);
+        break;
+    case 12:
+        sound(INTRO4_2);
+        break;
+    case 7:
+        sound(INTRO4_3);
+        break;
+    case 26:
+        sound(INTRO4_4);
+        break;
     }
 }
 
@@ -141,9 +141,9 @@ void intro42animsounds(long fr)
 {
     switch (fr)
     {
-        case 10:
-            sound(INTRO4_6);
-            break;
+    case 10:
+        sound(INTRO4_6);
+        break;
     }
 }
 
@@ -151,12 +151,12 @@ void endanimvol41(long fr)
 {
     switch (fr)
     {
-        case 3:
-            sound(DUKE_UNDERWATER);
-            break;
-        case 35:
-            sound(VOL4ENDSND1);
-            break;
+    case 3:
+        sound(DUKE_UNDERWATER);
+        break;
+    case 35:
+        sound(VOL4ENDSND1);
+        break;
     }
 }
 
@@ -164,18 +164,18 @@ void endanimvol42(long fr)
 {
     switch (fr)
     {
-        case 11:
-            sound(DUKE_UNDERWATER);
-            break;
-        case 20:
-            sound(VOL4ENDSND1);
-            break;
-        case 39:
-            sound(VOL4ENDSND2);
-            break;
-        case 50:
-            FX_StopAllSounds();
-            break;
+    case 11:
+        sound(DUKE_UNDERWATER);
+        break;
+    case 20:
+        sound(VOL4ENDSND1);
+        break;
+    case 39:
+        sound(VOL4ENDSND2);
+        break;
+    case 50:
+        FX_StopAllSounds();
+        break;
     }
 }
 
@@ -183,16 +183,16 @@ void endanimvol43(long fr)
 {
     switch (fr)
     {
-        case 1:
-            sound(BOSS4_DEADSPEECH);
-            break;
-        case 40:
-            sound(VOL4ENDSND1);
-            sound(DUKE_UNDERWATER);
-            break;
-        case 50:
-            sound(BIGBANG);
-            break;
+    case 1:
+        sound(BOSS4_DEADSPEECH);
+        break;
+    case 40:
+        sound(VOL4ENDSND1);
+        sound(DUKE_UNDERWATER);
+        break;
+    case 50:
+        sound(BIGBANG);
+        break;
     }
 }
 

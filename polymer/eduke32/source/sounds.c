@@ -204,6 +204,7 @@ void intomenusounds(void)
 
 void playmusic(char *fn)
 {
+#if defined(_WIN32)
     short      fp;
     long        l;
 
@@ -224,6 +225,15 @@ void playmusic(char *fn)
     kread(fp, MusicPtr, l);
     kclose(fp);
     MUSIC_PlaySong(MusicPtr, MUSIC_LoopSong);
+#else
+    void PlayMusic(char *_filename);
+    if(MusicToggle == 0) return;
+    if(MusicDevice < 0) return;
+
+     // FIXME: I need this to get the music volume initialized (not sure why) -- Jim Bentler
+    MUSIC_SetVolume( MusicVolume );
+    PlayMusic(fn);
+#endif
 }
 
 char loadsound(unsigned short num)
@@ -318,20 +328,20 @@ int xyzsound(short num,short i,long x,long y,long z)
 
     switch (num)
     {
-        case PIPEBOMB_EXPLODE:
-        case LASERTRIP_EXPLODE:
-        case RPG_EXPLODE:
-            if (sndist > (6144))
-                sndist = 6144;
-            if (sector[ps[screenpeek].cursectnum].lotag == 2)
-                pitch -= 1024;
-            break;
-        default:
-            if (sector[ps[screenpeek].cursectnum].lotag == 2 && (soundm[num]&4) == 0)
-                pitch = -768;
-            if (sndist > 31444 && PN != MUSICANDSFX)
-                return -1;
-            break;
+    case PIPEBOMB_EXPLODE:
+    case LASERTRIP_EXPLODE:
+    case RPG_EXPLODE:
+        if (sndist > (6144))
+            sndist = 6144;
+        if (sector[ps[screenpeek].cursectnum].lotag == 2)
+            pitch -= 1024;
+        break;
+    default:
+        if (sector[ps[screenpeek].cursectnum].lotag == 2 && (soundm[num]&4) == 0)
+            pitch = -768;
+        if (sndist > 31444 && PN != MUSICANDSFX)
+            return -1;
+        break;
     }
 
     if (ps[screenpeek].sound_pitch) pitch += ps[screenpeek].sound_pitch;
@@ -558,17 +568,17 @@ void pan3dsound(void)
 
             switch (j)
             {
-                case PIPEBOMB_EXPLODE:
-                case LASERTRIP_EXPLODE:
-                case RPG_EXPLODE:
-                    if (sndist > (6144)) sndist = (6144);
-                    break;
-                default:
-                    if (sndist > 31444 && PN != MUSICANDSFX)
-                    {
-                        stopsound(j);
-                        continue;
-                    }
+            case PIPEBOMB_EXPLODE:
+            case LASERTRIP_EXPLODE:
+            case RPG_EXPLODE:
+                if (sndist > (6144)) sndist = (6144);
+                break;
+            default:
+                if (sndist > 31444 && PN != MUSICANDSFX)
+                {
+                    stopsound(j);
+                    continue;
+                }
             }
 
             if (Sound[j].ptr == 0 && loadsound(j) == 0) continue;

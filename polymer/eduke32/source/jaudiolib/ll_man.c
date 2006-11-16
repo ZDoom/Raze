@@ -44,60 +44,60 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 
 
 void LL_AddNode
-   (
-   char *item,
-   char **head,
-   char **tail,
-   int next,
-   int prev
-   )
+(
+    char *item,
+    char **head,
+    char **tail,
+    int next,
+    int prev
+)
 
-   {
-   OFFSET( item, prev ) = NULL;
-   OFFSET( item, next ) = *head;
+{
+    OFFSET(item, prev) = NULL;
+    OFFSET(item, next) = *head;
 
-   if ( *head )
-      {
-      OFFSET( *head, prev ) = item;
-      }
-   else
-      {
-      *tail = item;
-      }
+    if (*head)
+    {
+        OFFSET(*head, prev) = item;
+    }
+    else
+    {
+        *tail = item;
+    }
 
-   *head = item;
-   }
+    *head = item;
+}
 
 void LL_RemoveNode
-   (
-   char *item,
-   char **head,
-   char **tail,
-   int next,
-   int prev
-   )
+(
+    char *item,
+    char **head,
+    char **tail,
+    int next,
+    int prev
+)
 
-   {
-   if ( OFFSET( item, prev ) == NULL )
-      {
-      *head = OFFSET( item, next );
-      }
-   else
-      {
-      OFFSET( OFFSET( item, prev ), next ) = OFFSET( item, next );
-      }
+{
+    if (OFFSET(item, prev) == NULL)
+    {
+        *head = OFFSET(item, next);
+    }
+    else
+    {
+        OFFSET(OFFSET(item, prev), next) = OFFSET(item, next);
+    }
 
-   if ( OFFSET( item, next ) == NULL )
-      {
-      *tail = OFFSET( item, prev );
-      }
-   else
-      {
-      OFFSET( OFFSET( item, next ), prev ) = OFFSET( item, prev );
-      }
+    if (OFFSET(item, next) == NULL)
+    {
+        *tail = OFFSET(item, prev);
+    }
+    else
+    {
+        OFFSET(OFFSET(item, next), prev) = OFFSET(item, prev);
+    }
 
-   OFFSET( item, next ) = NULL;
-   OFFSET( item, prev ) = NULL;
-   }
+    OFFSET(item, next) = NULL;
+    OFFSET(item, prev) = NULL;
+}
 
 

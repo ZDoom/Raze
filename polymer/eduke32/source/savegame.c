@@ -379,13 +379,13 @@ int loadplayer(signed char spot)
         for (x=0;x<numanimwalls;x++)
             switch (dynamictostatic[wall[animwall[x].wallnum].picnum])
             {
-                case FEMPIC1__STATIC:
-                    wall[animwall[x].wallnum].picnum = BLANKSCREEN;
-                    break;
-                case FEMPIC2__STATIC:
-                case FEMPIC3__STATIC:
-                    wall[animwall[x].wallnum].picnum = SCREENBREAK6;
-                    break;
+            case FEMPIC1__STATIC:
+                wall[animwall[x].wallnum].picnum = BLANKSCREEN;
+                break;
+            case FEMPIC2__STATIC:
+            case FEMPIC3__STATIC:
+                wall[animwall[x].wallnum].picnum = SCREENBREAK6;
+                break;
             }
     }
 
@@ -397,31 +397,31 @@ int loadplayer(signed char spot)
     {
         switch (sprite[k].lotag)
         {
-            case 31:
-                setinterpolation(&sector[sprite[k].sectnum].floorz);
-                break;
-            case 32:
-                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
-                break;
-            case 25:
-                setinterpolation(&sector[sprite[k].sectnum].floorz);
-                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
-                break;
-            case 17:
-                setinterpolation(&sector[sprite[k].sectnum].floorz);
-                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
-                break;
-            case 0:
-            case 5:
-            case 6:
-            case 11:
-            case 14:
-            case 15:
-            case 16:
-            case 26:
-            case 30:
-                setsectinterpolate(k);
-                break;
+        case 31:
+            setinterpolation(&sector[sprite[k].sectnum].floorz);
+            break;
+        case 32:
+            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+            break;
+        case 25:
+            setinterpolation(&sector[sprite[k].sectnum].floorz);
+            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+            break;
+        case 17:
+            setinterpolation(&sector[sprite[k].sectnum].floorz);
+            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+            break;
+        case 0:
+        case 5:
+        case 6:
+        case 11:
+        case 14:
+        case 15:
+        case 16:
+        case 26:
+        case 30:
+            setsectinterpolate(k);
+            break;
         }
 
         k = nextspritestat[k];

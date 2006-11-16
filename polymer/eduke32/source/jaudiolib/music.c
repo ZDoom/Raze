@@ -54,7 +54,7 @@ static unsigned  MUSIC_CurrentFadeVolume;
 static unsigned  MUSIC_LastFadeVolume;
 static int       MUSIC_EndingFadeVolume;
 
-int MUSIC_InitMidi( int card, midifuncs *Funcs, int Address );
+int MUSIC_InitMidi(int card, midifuncs *Funcs, int Address);
 
 #define MUSIC_SetErrorCode( status ) \
    MUSIC_ErrorCode = ( status );
@@ -67,58 +67,58 @@ int MUSIC_InitMidi( int card, midifuncs *Funcs, int Address );
 ---------------------------------------------------------------------*/
 
 char *MUSIC_ErrorString
-   (
-   int ErrorNumber
-   )
+(
+    int ErrorNumber
+)
 
-   {
-   char *ErrorString;
+{
+    char *ErrorString;
 
-   switch( ErrorNumber )
-      {
-      case MUSIC_Warning :
-      case MUSIC_Error :
-         ErrorString = MUSIC_ErrorString( MUSIC_ErrorCode );
-         break;
+    switch (ErrorNumber)
+    {
+    case MUSIC_Warning :
+    case MUSIC_Error :
+        ErrorString = MUSIC_ErrorString(MUSIC_ErrorCode);
+        break;
 
-      case MUSIC_Ok :
-         ErrorString = "Music ok.";
-         break;
+    case MUSIC_Ok :
+        ErrorString = "Music ok.";
+        break;
 
-      case MUSIC_ASSVersion :
-         ErrorString = "Apogee Sound System Version WinMM  "
-            "Programmed by Jim Dose, Ported by Jonathon Fowler\n"
-            "(c) Copyright 1996 James R. Dose.  All Rights Reserved.\n";
-         break;
+    case MUSIC_ASSVersion :
+        ErrorString = "Apogee Sound System Version WinMM  "
+                      "Programmed by Jim Dose, Ported by Jonathon Fowler\n"
+                      "(c) Copyright 1996 James R. Dose.  All Rights Reserved.\n";
+        break;
 
-      case MUSIC_SoundCardError :
-      case MUSIC_MPU401Error :
-         ErrorString = "Could not detect MPU-401.";
-         break;
+    case MUSIC_SoundCardError :
+    case MUSIC_MPU401Error :
+        ErrorString = "Could not detect MPU-401.";
+        break;
 
-      case MUSIC_InvalidCard :
-         ErrorString = "Invalid Music device.";
-         break;
+    case MUSIC_InvalidCard :
+        ErrorString = "Invalid Music device.";
+        break;
 
-      case MUSIC_MidiError :
-         ErrorString = "Error playing MIDI file.";
-         break;
+    case MUSIC_MidiError :
+        ErrorString = "Error playing MIDI file.";
+        break;
 
-      case MUSIC_TaskManError :
-         ErrorString = "TaskMan error.";
-         break;
+    case MUSIC_TaskManError :
+        ErrorString = "TaskMan error.";
+        break;
 
-      case MUSIC_DPMI_Error :
-         ErrorString = "DPMI Error in MUSIC.";
-         break;
+    case MUSIC_DPMI_Error :
+        ErrorString = "DPMI Error in MUSIC.";
+        break;
 
-      default :
-         ErrorString = "Unknown Music error code.";
-         break;
-      }
+    default :
+        ErrorString = "Unknown Music error code.";
+        break;
+    }
 
-   return( ErrorString );
-   }
+    return(ErrorString);
+}
 
 
 /*---------------------------------------------------------------------
@@ -128,26 +128,26 @@ char *MUSIC_ErrorString
 ---------------------------------------------------------------------*/
 
 int MUSIC_Init
-   (
-   int SoundCard,
-   int Address
-   )
+(
+    int SoundCard,
+    int Address
+)
 
-   {
-   int i;
-   int status;
+{
+    int i;
+    int status;
 
-   for( i = 0; i < 128; i++ )
-      {
-      MIDI_PatchMap[ i ] = i;
-      }
+    for (i = 0; i < 128; i++)
+    {
+        MIDI_PatchMap[ i ] = i;
+    }
 
-   MUSIC_SoundDevice = SoundCard;
+    MUSIC_SoundDevice = SoundCard;
 
-   status = MUSIC_InitMidi( SoundCard, &MUSIC_MidiFunctions, Address );
+    status = MUSIC_InitMidi(SoundCard, &MUSIC_MidiFunctions, Address);
 
-   return( status );
-   }
+    return(status);
+}
 
 
 /*---------------------------------------------------------------------
@@ -157,21 +157,21 @@ int MUSIC_Init
 ---------------------------------------------------------------------*/
 
 int MUSIC_Shutdown
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   int status;
+{
+    int status;
 
-   status = MUSIC_Ok;
+    status = MUSIC_Ok;
 
-   MIDI_StopSong();
+    MIDI_StopSong();
 
-   //MPU_Reset();
+    //MPU_Reset();
 
-   return( status );
-   }
+    return(status);
+}
 
 
 /*---------------------------------------------------------------------
@@ -181,19 +181,19 @@ int MUSIC_Shutdown
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetVolume
-   (
-   int volume
-   )
+(
+    int volume
+)
 
-   {
-   volume = max( 0, volume );
-   volume = min( volume, 255 );
+{
+    volume = max(0, volume);
+    volume = min(volume, 255);
 
-   if ( MUSIC_SoundDevice != -1 )
-      {
-      MIDI_SetVolume( volume );
-      }
-   }
+    if (MUSIC_SoundDevice != -1)
+    {
+        MIDI_SetVolume(volume);
+    }
+}
 
 
 /*---------------------------------------------------------------------
@@ -203,14 +203,14 @@ void MUSIC_SetVolume
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetMidiChannelVolume
-   (
-   int channel,
-   int volume
-   )
+(
+    int channel,
+    int volume
+)
 
-   {
-   MIDI_SetUserChannelVolume( channel, volume );
-   }
+{
+    MIDI_SetUserChannelVolume(channel, volume);
+}
 
 
 /*---------------------------------------------------------------------
@@ -220,13 +220,13 @@ void MUSIC_SetMidiChannelVolume
 ---------------------------------------------------------------------*/
 
 void MUSIC_ResetMidiChannelVolumes
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   MIDI_ResetUserChannelVolume();
-   }
+{
+    MIDI_ResetUserChannelVolume();
+}
 
 
 /*---------------------------------------------------------------------
@@ -236,17 +236,17 @@ void MUSIC_ResetMidiChannelVolumes
 ---------------------------------------------------------------------*/
 
 int MUSIC_GetVolume
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   if ( MUSIC_SoundDevice == -1 )
-      {
-      return( 0 );
-      }
-   return( MIDI_GetVolume() );
-   }
+{
+    if (MUSIC_SoundDevice == -1)
+    {
+        return(0);
+    }
+    return(MIDI_GetVolume());
+}
 
 
 /*---------------------------------------------------------------------
@@ -257,13 +257,13 @@ int MUSIC_GetVolume
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetLoopFlag
-   (
-   int loopflag
-   )
+(
+    int loopflag
+)
 
-   {
-   MIDI_SetLoopFlag( loopflag );
-   }
+{
+    MIDI_SetLoopFlag(loopflag);
+}
 
 
 /*---------------------------------------------------------------------
@@ -273,13 +273,13 @@ void MUSIC_SetLoopFlag
 ---------------------------------------------------------------------*/
 
 int MUSIC_SongPlaying
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return( MIDI_SongPlaying() );
-   }
+{
+    return(MIDI_SongPlaying());
+}
 
 
 /*---------------------------------------------------------------------
@@ -289,13 +289,13 @@ int MUSIC_SongPlaying
 ---------------------------------------------------------------------*/
 
 void MUSIC_Continue
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   MIDI_ContinueSong();
-   }
+{
+    MIDI_ContinueSong();
+}
 
 
 /*---------------------------------------------------------------------
@@ -305,13 +305,13 @@ void MUSIC_Continue
 ---------------------------------------------------------------------*/
 
 void MUSIC_Pause
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   MIDI_PauseSong();
-   }
+{
+    MIDI_PauseSong();
+}
 
 
 /*---------------------------------------------------------------------
@@ -321,16 +321,16 @@ void MUSIC_Pause
 ---------------------------------------------------------------------*/
 
 int MUSIC_StopSong
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   MUSIC_StopFade();
-   MIDI_StopSong();
-   MUSIC_SetErrorCode( MUSIC_Ok );
-   return( MUSIC_Ok );
-   }
+{
+    MUSIC_StopFade();
+    MIDI_StopSong();
+    MUSIC_SetErrorCode(MUSIC_Ok);
+    return(MUSIC_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -340,25 +340,25 @@ int MUSIC_StopSong
 ---------------------------------------------------------------------*/
 
 int MUSIC_PlaySong
-   (
-   unsigned char *song,
-   int loopflag
-   )
+(
+    unsigned char *song,
+    int loopflag
+)
 
-   {
-   int status;
+{
+    int status;
 
-   MUSIC_StopSong();
+    MUSIC_StopSong();
 
-   status = MIDI_PlaySong( song, loopflag );
-   if ( status != MIDI_Ok )
-      {
-      MUSIC_SetErrorCode( MUSIC_MidiError );
-      return( MUSIC_Warning );
-      }
+    status = MIDI_PlaySong(song, loopflag);
+    if (status != MIDI_Ok)
+    {
+        MUSIC_SetErrorCode(MUSIC_MidiError);
+        return(MUSIC_Warning);
+    }
 
-   return( MUSIC_Ok );
-   }
+    return(MUSIC_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -368,13 +368,13 @@ int MUSIC_PlaySong
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetContext
-   (
-   int context
-   )
+(
+    int context
+)
 
-   {
-   MIDI_SetContext( context );
-   }
+{
+    MIDI_SetContext(context);
+}
 
 
 /*---------------------------------------------------------------------
@@ -384,13 +384,13 @@ void MUSIC_SetContext
 ---------------------------------------------------------------------*/
 
 int MUSIC_GetContext
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return MIDI_GetContext();
-   }
+{
+    return MIDI_GetContext();
+}
 
 
 /*---------------------------------------------------------------------
@@ -400,13 +400,13 @@ int MUSIC_GetContext
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetSongTick
-   (
-   unsigned long PositionInTicks
-   )
+(
+    unsigned long PositionInTicks
+)
 
-   {
-   MIDI_SetSongTick( PositionInTicks );
-   }
+{
+    MIDI_SetSongTick(PositionInTicks);
+}
 
 
 /*---------------------------------------------------------------------
@@ -416,13 +416,13 @@ void MUSIC_SetSongTick
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetSongTime
-   (
-   unsigned long milliseconds
-   )
+(
+    unsigned long milliseconds
+)
 
-   {
-   MIDI_SetSongTime( milliseconds );
-   }
+{
+    MIDI_SetSongTime(milliseconds);
+}
 
 
 /*---------------------------------------------------------------------
@@ -432,15 +432,15 @@ void MUSIC_SetSongTime
 ---------------------------------------------------------------------*/
 
 void MUSIC_SetSongPosition
-   (
-   int measure,
-   int beat,
-   int tick
-   )
+(
+    int measure,
+    int beat,
+    int tick
+)
 
-   {
-   MIDI_SetSongPosition( measure, beat, tick );
-   }
+{
+    MIDI_SetSongPosition(measure, beat, tick);
+}
 
 
 /*---------------------------------------------------------------------
@@ -450,13 +450,13 @@ void MUSIC_SetSongPosition
 ---------------------------------------------------------------------*/
 
 void MUSIC_GetSongPosition
-   (
-   songposition *pos
-   )
+(
+    songposition *pos
+)
 
-   {
-   MIDI_GetSongPosition( pos );
-   }
+{
+    MIDI_GetSongPosition(pos);
+}
 
 
 /*---------------------------------------------------------------------
@@ -466,41 +466,41 @@ void MUSIC_GetSongPosition
 ---------------------------------------------------------------------*/
 
 void MUSIC_GetSongLength
-   (
-   songposition *pos
-   )
+(
+    songposition *pos
+)
 
-   {
-   MIDI_GetSongLength( pos );
-   }
+{
+    MIDI_GetSongLength(pos);
+}
 
 
 int MUSIC_InitMidi
-   (
-   int        card,
-   midifuncs *Funcs,
-   int        Address
-   )
+(
+    int        card,
+    midifuncs *Funcs,
+    int        Address
+)
 
-   {
-   int status;
+{
+    int status;
 
-   Funcs->NoteOff           = MPU_NoteOff;
-   Funcs->NoteOn            = MPU_NoteOn;
-   Funcs->PolyAftertouch    = MPU_PolyAftertouch;
-   Funcs->ControlChange     = MPU_ControlChange;
-   Funcs->ProgramChange     = MPU_ProgramChange;
-   Funcs->ChannelAftertouch = MPU_ChannelAftertouch;
-   Funcs->PitchBend         = MPU_PitchBend;
-   Funcs->ReleasePatches    = NULL;
-   Funcs->LoadPatch         = NULL;
-   Funcs->SetVolume         = NULL /*MPU_SetVolume*/;
-   Funcs->GetVolume         = NULL /*MPU_GetVolume*/;
+    Funcs->NoteOff           = MPU_NoteOff;
+    Funcs->NoteOn            = MPU_NoteOn;
+    Funcs->PolyAftertouch    = MPU_PolyAftertouch;
+    Funcs->ControlChange     = MPU_ControlChange;
+    Funcs->ProgramChange     = MPU_ProgramChange;
+    Funcs->ChannelAftertouch = MPU_ChannelAftertouch;
+    Funcs->PitchBend         = MPU_PitchBend;
+    Funcs->ReleasePatches    = NULL;
+    Funcs->LoadPatch         = NULL;
+    Funcs->SetVolume         = NULL /*MPU_SetVolume*/;
+    Funcs->GetVolume         = NULL /*MPU_GetVolume*/;
 
-   MIDI_SetMidiFuncs( Funcs );
+    MIDI_SetMidiFuncs(Funcs);
 
-   return( MIDI_Ok );
-   }
+    return(MIDI_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -511,16 +511,16 @@ int MUSIC_InitMidi
 ---------------------------------------------------------------------*/
 
 int MUSIC_FadeVolume
-   (
-   int tovolume,
-   int milliseconds
-   )
+(
+    int tovolume,
+    int milliseconds
+)
 
-   {
-   int fromvolume;
+{
+    int fromvolume;
 
-   MIDI_SetVolume( tovolume );
-   return( MUSIC_Ok );
+    MIDI_SetVolume(tovolume);
+    return(MUSIC_Ok);
 }
 
 
@@ -531,13 +531,13 @@ int MUSIC_FadeVolume
 ---------------------------------------------------------------------*/
 
 int MUSIC_FadeActive
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return( 0 );
-   }
+{
+    return(0);
+}
 
 
 /*---------------------------------------------------------------------
@@ -547,12 +547,11 @@ int MUSIC_FadeActive
 ---------------------------------------------------------------------*/
 
 void MUSIC_StopFade
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -563,14 +562,14 @@ void MUSIC_StopFade
 ---------------------------------------------------------------------*/
 
 void MUSIC_RerouteMidiChannel
-   (
-   int channel,
-   int ( *function )( int event, int c1, int c2 )
-   )
+(
+    int channel,
+    int(*function)(int event, int c1, int c2)
+)
 
-   {
-   MIDI_RerouteMidiChannel( channel, function );
-   }
+{
+    MIDI_RerouteMidiChannel(channel, function);
+}
 
 
 /*---------------------------------------------------------------------
@@ -580,16 +579,15 @@ void MUSIC_RerouteMidiChannel
 ---------------------------------------------------------------------*/
 
 void MUSIC_RegisterTimbreBank
-   (
-   unsigned char *timbres
-   )
+(
+    unsigned char *timbres
+)
 
-   {
-   }
+{}
 
 
 void MUSIC_Update(void)
 {
-	MIDI_UpdateMusic();
+    MIDI_UpdateMusic();
 }
 

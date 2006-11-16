@@ -45,37 +45,37 @@ int FX_ErrorCode = FX_Ok;
 ---------------------------------------------------------------------*/
 
 char *FX_ErrorString
-   (
-   int ErrorNumber
-   )
+(
+    int ErrorNumber
+)
 
-   {
-   char *ErrorString;
+{
+    char *ErrorString;
 
-   switch( ErrorNumber )
-      {
-      case FX_Warning :
-      case FX_Error :
-         ErrorString = FX_ErrorString( FX_ErrorCode );
-         break;
+    switch (ErrorNumber)
+    {
+    case FX_Warning :
+    case FX_Error :
+        ErrorString = FX_ErrorString(FX_ErrorCode);
+        break;
 
-      case FX_Ok :
-         ErrorString = "Fx ok.";
-         break;
+    case FX_Ok :
+        ErrorString = "Fx ok.";
+        break;
 
-      case FX_ASSVersion :
-         ErrorString = "Apogee Sound System Version 0  "
-            "Programmed by Jim Dose\n"
-            "(c) Copyright 1995 James R. Dose.  All Rights Reserved.\n";
-         break;
+    case FX_ASSVersion :
+        ErrorString = "Apogee Sound System Version 0  "
+                      "Programmed by Jim Dose\n"
+                      "(c) Copyright 1995 James R. Dose.  All Rights Reserved.\n";
+        break;
 
-      default :
-         ErrorString = "Unknown Fx error code.";
-         break;
-      }
+    default :
+        ErrorString = "Unknown Fx error code.";
+        break;
+    }
 
-   return( ErrorString );
-   }
+    return(ErrorString);
+}
 
 
 /*---------------------------------------------------------------------
@@ -85,17 +85,17 @@ char *FX_ErrorString
 ---------------------------------------------------------------------*/
 
 int FX_Init
-   (
-   int SoundCard,
-   int numvoices,
-   int numchannels,
-   int samplebits,
-   unsigned mixrate
-   )
+(
+    int SoundCard,
+    int numvoices,
+    int numchannels,
+    int samplebits,
+    unsigned mixrate
+)
 
-   {
-   return( FX_Ok );
-   }
+{
+    return(FX_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -105,13 +105,13 @@ int FX_Init
 ---------------------------------------------------------------------*/
 
 int FX_Shutdown
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return( FX_Ok );
-   }
+{
+    return(FX_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -121,13 +121,13 @@ int FX_Shutdown
 ---------------------------------------------------------------------*/
 
 int FX_SetCallBack
-   (
-   void ( *function )( unsigned long )
-   )
+(
+    void(*function)(unsigned long)
+)
 
-   {
-   return( FX_Ok );
-   }
+{
+    return(FX_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -137,12 +137,11 @@ int FX_SetCallBack
 ---------------------------------------------------------------------*/
 
 void FX_SetVolume
-   (
-   int volume
-   )
+(
+    int volume
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -152,12 +151,11 @@ void FX_SetVolume
 ---------------------------------------------------------------------*/
 
 void FX_SetReverseStereo
-   (
-   int setting
-   )
+(
+    int setting
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -167,13 +165,13 @@ void FX_SetReverseStereo
 ---------------------------------------------------------------------*/
 
 int FX_GetReverseStereo
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return 0;
-   }
+{
+    return 0;
+}
 
 
 /*---------------------------------------------------------------------
@@ -183,12 +181,11 @@ int FX_GetReverseStereo
 ---------------------------------------------------------------------*/
 
 void FX_SetReverb
-   (
-   int reverb
-   )
+(
+    int reverb
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -198,12 +195,11 @@ void FX_SetReverb
 ---------------------------------------------------------------------*/
 
 void FX_SetReverbDelay
-   (
-   int delay
-   )
+(
+    int delay
+)
 
-   {
-   }
+{}
 
 
 /*---------------------------------------------------------------------
@@ -213,13 +209,13 @@ void FX_SetReverbDelay
 ---------------------------------------------------------------------*/
 
 int FX_VoiceAvailable
-   (
-   int priority
-   )
+(
+    int priority
+)
 
-   {
-	   return 0;
-   }
+{
+    return 0;
+}
 
 
 /*---------------------------------------------------------------------
@@ -229,21 +225,21 @@ int FX_VoiceAvailable
 ---------------------------------------------------------------------*/
 
 int FX_PlayLoopedVOC
-   (
-   char *ptr,
-   long loopstart,
-   long loopend,
-   int pitchoffset,
-   int vol,
-   int left,
-   int right,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    char *ptr,
+    long loopstart,
+    long loopend,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   return( 0 );
-   }
+{
+    return(0);
+}
 
 
 /*---------------------------------------------------------------------
@@ -253,21 +249,21 @@ int FX_PlayLoopedVOC
 ---------------------------------------------------------------------*/
 
 int FX_PlayLoopedWAV
-   (
-   char *ptr,
-   long loopstart,
-   long loopend,
-   int pitchoffset,
-   int vol,
-   int left,
-   int right,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    char *ptr,
+    long loopstart,
+    long loopend,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   return( 0 );
-   }
+{
+    return(0);
+}
 
 
 /*---------------------------------------------------------------------
@@ -278,18 +274,18 @@ int FX_PlayLoopedWAV
 ---------------------------------------------------------------------*/
 
 int FX_PlayVOC3D
-   (
-   char *ptr,
-   int pitchoffset,
-   int angle,
-   int distance,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    char *ptr,
+    int pitchoffset,
+    int angle,
+    int distance,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   return( 0 );
-   }
+{
+    return(0);
+}
 
 
 /*---------------------------------------------------------------------
@@ -300,18 +296,18 @@ int FX_PlayVOC3D
 ---------------------------------------------------------------------*/
 
 int FX_PlayWAV3D
-   (
-   char *ptr,
-   int pitchoffset,
-   int angle,
-   int distance,
-   int priority,
-   unsigned long callbackval
-   )
+(
+    char *ptr,
+    int pitchoffset,
+    int angle,
+    int distance,
+    int priority,
+    unsigned long callbackval
+)
 
-   {
-   return( 0 );
-   }
+{
+    return(0);
+}
 
 
 /*---------------------------------------------------------------------
@@ -322,15 +318,15 @@ int FX_PlayWAV3D
 ---------------------------------------------------------------------*/
 
 int FX_Pan3D
-   (
-   int handle,
-   int angle,
-   int distance
-   )
+(
+    int handle,
+    int angle,
+    int distance
+)
 
-   {
-   return( 0 );
-   }
+{
+    return(0);
+}
 
 
 /*---------------------------------------------------------------------
@@ -340,13 +336,13 @@ int FX_Pan3D
 ---------------------------------------------------------------------*/
 
 int FX_StopSound
-   (
-   int handle
-   )
+(
+    int handle
+)
 
-   {
-   return( FX_Ok );
-   }
+{
+    return(FX_Ok);
+}
 
 
 /*---------------------------------------------------------------------
@@ -356,13 +352,13 @@ int FX_StopSound
 ---------------------------------------------------------------------*/
 
 int FX_StopAllSounds
-   (
-   void
-   )
+(
+    void
+)
 
-   {
-   return( FX_Ok );
-   }
+{
+    return(FX_Ok);
+}
 
 
 void AudioUpdate(void) { }

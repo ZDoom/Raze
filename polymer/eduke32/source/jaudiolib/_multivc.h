@@ -67,8 +67,11 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #define SILENCE_8BIT      0x80808080
 //#define SILENCE_16BIT_PAS 0
 
-//#define MixBufferSize     256
+#ifdef WINDOWS
 #define MixBufferSize     (MV_GetBufferSize(MV_RequestedMixRate))
+#else
+#define MixBufferSize     256
+#endif
 
 #define NumberOfBuffers   16
 #define TotalBufferSize   ( MixBufferSize * NumberOfBuffers )
@@ -269,9 +272,13 @@ parm [ edi ] [ eax ] [ ecx ] modify exact [ ecx edi ];
 
 #define CDEC _cdecl
 
-#else
+#elif defined(WINDOWS)
 
 #define CDEC __cdecl
+
+#else
+
+#define CDEC
 
 #endif
 

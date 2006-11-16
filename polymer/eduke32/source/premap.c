@@ -79,124 +79,124 @@ void cachespritenum(short i)
 
     switch (dynamictostatic[PN])
     {
-        case HYDRENT__STATIC:
-            tloadtile(BROKEFIREHYDRENT,1);
-            for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
-            break;
-        case TOILET__STATIC:
-            tloadtile(TOILETBROKE,1);
-            for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
-            break;
-        case STALL__STATIC:
-            tloadtile(STALLBROKE,1);
-            for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
-            break;
-        case RUBBERCAN__STATIC:
-            maxc = 2;
-            break;
-        case TOILETWATER__STATIC:
-            maxc = 4;
-            break;
-        case FEMPIC1__STATIC:
-            maxc = 44;
-            break;
-        case LIZTROOP__STATIC:
-        case LIZTROOPRUNNING__STATIC:
-        case LIZTROOPSHOOT__STATIC:
-        case LIZTROOPJETPACK__STATIC:
-        case LIZTROOPONTOILET__STATIC:
-        case LIZTROOPDUCKING__STATIC:
-            for (j = LIZTROOP; j < (LIZTROOP+72); j++) tloadtile(j,1);
-            for (j=HEADJIB1;j<LEGJIB1+3;j++) tloadtile(j,1);
-            maxc = 0;
-            break;
-        case WOODENHORSE__STATIC:
+    case HYDRENT__STATIC:
+        tloadtile(BROKEFIREHYDRENT,1);
+        for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
+        break;
+    case TOILET__STATIC:
+        tloadtile(TOILETBROKE,1);
+        for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
+        break;
+    case STALL__STATIC:
+        tloadtile(STALLBROKE,1);
+        for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
+        break;
+    case RUBBERCAN__STATIC:
+        maxc = 2;
+        break;
+    case TOILETWATER__STATIC:
+        maxc = 4;
+        break;
+    case FEMPIC1__STATIC:
+        maxc = 44;
+        break;
+    case LIZTROOP__STATIC:
+    case LIZTROOPRUNNING__STATIC:
+    case LIZTROOPSHOOT__STATIC:
+    case LIZTROOPJETPACK__STATIC:
+    case LIZTROOPONTOILET__STATIC:
+    case LIZTROOPDUCKING__STATIC:
+        for (j = LIZTROOP; j < (LIZTROOP+72); j++) tloadtile(j,1);
+        for (j=HEADJIB1;j<LEGJIB1+3;j++) tloadtile(j,1);
+        maxc = 0;
+        break;
+    case WOODENHORSE__STATIC:
+        maxc = 5;
+        for (j = HORSEONSIDE; j < (HORSEONSIDE+4); j++) tloadtile(j,1);
+        break;
+    case NEWBEAST__STATIC:
+    case NEWBEASTSTAYPUT__STATIC:
+        maxc = 90;
+        break;
+    case BOSS1__STATIC:
+    case BOSS2__STATIC:
+    case BOSS3__STATIC:
+        maxc = 30;
+        break;
+    case OCTABRAIN__STATIC:
+    case OCTABRAINSTAYPUT__STATIC:
+    case COMMANDER__STATIC:
+    case COMMANDERSTAYPUT__STATIC:
+        maxc = 38;
+        break;
+    case RECON__STATIC:
+        maxc = 13;
+        break;
+    case PIGCOP__STATIC:
+    case PIGCOPDIVE__STATIC:
+        maxc = 61;
+        break;
+    case SHARK__STATIC:
+        maxc = 30;
+        break;
+    case LIZMAN__STATIC:
+    case LIZMANSPITTING__STATIC:
+    case LIZMANFEEDING__STATIC:
+    case LIZMANJUMP__STATIC:
+        for (j=LIZMANHEAD1;j<LIZMANLEG1+3;j++) tloadtile(j,1);
+        maxc = 80;
+        break;
+    case APLAYER__STATIC:
+        maxc = 0;
+        if (ud.multimode > 1)
+        {
             maxc = 5;
-            for (j = HORSEONSIDE; j < (HORSEONSIDE+4); j++) tloadtile(j,1);
-            break;
-        case NEWBEAST__STATIC:
-        case NEWBEASTSTAYPUT__STATIC:
-            maxc = 90;
-            break;
-        case BOSS1__STATIC:
-        case BOSS2__STATIC:
-        case BOSS3__STATIC:
-            maxc = 30;
-            break;
-        case OCTABRAIN__STATIC:
-        case OCTABRAINSTAYPUT__STATIC:
-        case COMMANDER__STATIC:
-        case COMMANDERSTAYPUT__STATIC:
-            maxc = 38;
-            break;
-        case RECON__STATIC:
-            maxc = 13;
-            break;
-        case PIGCOP__STATIC:
-        case PIGCOPDIVE__STATIC:
-            maxc = 61;
-            break;
-        case SHARK__STATIC:
-            maxc = 30;
-            break;
-        case LIZMAN__STATIC:
-        case LIZMANSPITTING__STATIC:
-        case LIZMANFEEDING__STATIC:
-        case LIZMANJUMP__STATIC:
-            for (j=LIZMANHEAD1;j<LIZMANLEG1+3;j++) tloadtile(j,1);
-            maxc = 80;
-            break;
-        case APLAYER__STATIC:
-            maxc = 0;
-            if (ud.multimode > 1)
-            {
-                maxc = 5;
-                for (j = 1420;j < 1420+106; j++) tloadtile(j,1);
-            }
-            break;
-        case ATOMICHEALTH__STATIC:
-            maxc = 14;
-            break;
-        case DRONE__STATIC:
-            maxc = 10;
-            break;
-        case EXPLODINGBARREL__STATIC:
-        case SEENINE__STATIC:
-        case OOZFILTER__STATIC:
-            maxc = 3;
-            break;
-        case NUKEBARREL__STATIC:
-        case CAMERA1__STATIC:
-            maxc = 5;
-            break;
-            // caching of HUD sprites for weapons that may be in the level
-        case CHAINGUNSPRITE__STATIC:
-            for (j=CHAINGUN; j<=CHAINGUN+7; j++) tloadtile(j,1);
-            break;
-        case RPGSPRITE__STATIC:
-            for (j=RPGGUN; j<=RPGGUN+2; j++) tloadtile(j,1);
-            break;
-        case FREEZESPRITE__STATIC:
-            for (j=FREEZE; j<=FREEZE+5; j++) tloadtile(j,1);
-            break;
-        case GROWSPRITEICON__STATIC:
-        case SHRINKERSPRITE__STATIC:
-            for (j=SHRINKER-2; j<=SHRINKER+5; j++) tloadtile(j,1);
-            break;
-        case HBOMBAMMO__STATIC:
-        case HEAVYHBOMB__STATIC:
-            for (j=HANDREMOTE; j<=HANDREMOTE+5; j++) tloadtile(j,1);
-            break;
-        case TRIPBOMBSPRITE__STATIC:
-            for (j=HANDHOLDINGLASER; j<=HANDHOLDINGLASER+4; j++) tloadtile(j,1);
-            break;
-        case SHOTGUNSPRITE__STATIC:
-            tloadtile(SHOTGUNSHELL,1);
-            for (j=SHOTGUN; j<=SHOTGUN+6; j++) tloadtile(j,1);
-            break;
-        case DEVISTATORSPRITE__STATIC:
-            for (j=DEVISTATOR; j<=DEVISTATOR+1; j++) tloadtile(j,1);
-            break;
+            for (j = 1420;j < 1420+106; j++) tloadtile(j,1);
+        }
+        break;
+    case ATOMICHEALTH__STATIC:
+        maxc = 14;
+        break;
+    case DRONE__STATIC:
+        maxc = 10;
+        break;
+    case EXPLODINGBARREL__STATIC:
+    case SEENINE__STATIC:
+    case OOZFILTER__STATIC:
+        maxc = 3;
+        break;
+    case NUKEBARREL__STATIC:
+    case CAMERA1__STATIC:
+        maxc = 5;
+        break;
+        // caching of HUD sprites for weapons that may be in the level
+    case CHAINGUNSPRITE__STATIC:
+        for (j=CHAINGUN; j<=CHAINGUN+7; j++) tloadtile(j,1);
+        break;
+    case RPGSPRITE__STATIC:
+        for (j=RPGGUN; j<=RPGGUN+2; j++) tloadtile(j,1);
+        break;
+    case FREEZESPRITE__STATIC:
+        for (j=FREEZE; j<=FREEZE+5; j++) tloadtile(j,1);
+        break;
+    case GROWSPRITEICON__STATIC:
+    case SHRINKERSPRITE__STATIC:
+        for (j=SHRINKER-2; j<=SHRINKER+5; j++) tloadtile(j,1);
+        break;
+    case HBOMBAMMO__STATIC:
+    case HEAVYHBOMB__STATIC:
+        for (j=HANDREMOTE; j<=HANDREMOTE+5; j++) tloadtile(j,1);
+        break;
+    case TRIPBOMBSPRITE__STATIC:
+        for (j=HANDHOLDINGLASER; j<=HANDHOLDINGLASER+4; j++) tloadtile(j,1);
+        break;
+    case SHOTGUNSPRITE__STATIC:
+        tloadtile(SHOTGUNSHELL,1);
+        for (j=SHOTGUN; j<=SHOTGUN+6; j++) tloadtile(j,1);
+        break;
+    case DEVISTATORSPRITE__STATIC:
+        for (j=DEVISTATOR; j<=DEVISTATOR+1; j++) tloadtile(j,1);
+        break;
 
     }
 
@@ -719,32 +719,32 @@ void setupbackdrop(short sky)
 
     switch (dynamictostatic[sky])
     {
-        case CLOUDYOCEAN__STATIC:
-            parallaxyscale = 65536L;
-            break;
-        case MOONSKY1__STATIC :
-            pskyoff[6]=1;
-            pskyoff[1]=2;
-            pskyoff[4]=2;
-            pskyoff[2]=3;
-            break;
-        case BIGORBIT1__STATIC: // orbit
-            pskyoff[5]=1;
-            pskyoff[6]=2;
-            pskyoff[7]=3;
-            pskyoff[2]=4;
-            break;
-        case LA__STATIC:
-            parallaxyscale = 16384+1024;
-            pskyoff[0]=1;
-            pskyoff[1]=2;
-            pskyoff[2]=1;
-            pskyoff[3]=3;
-            pskyoff[4]=4;
-            pskyoff[5]=0;
-            pskyoff[6]=2;
-            pskyoff[7]=3;
-            break;
+    case CLOUDYOCEAN__STATIC:
+        parallaxyscale = 65536L;
+        break;
+    case MOONSKY1__STATIC :
+        pskyoff[6]=1;
+        pskyoff[1]=2;
+        pskyoff[4]=2;
+        pskyoff[2]=3;
+        break;
+    case BIGORBIT1__STATIC: // orbit
+        pskyoff[5]=1;
+        pskyoff[6]=2;
+        pskyoff[7]=3;
+        pskyoff[2]=4;
+        break;
+    case LA__STATIC:
+        parallaxyscale = 16384+1024;
+        pskyoff[0]=1;
+        pskyoff[1]=2;
+        pskyoff[2]=1;
+        pskyoff[3]=3;
+        pskyoff[4]=4;
+        pskyoff[5]=0;
+        pskyoff[6]=2;
+        pskyoff[7]=3;
+        break;
     }
 
     pskybits=3;
@@ -770,11 +770,11 @@ void prelevel(char g)
 
         switch (sector[i].lotag)
         {
-            case 20:
-            case 22:
-                if (sector[i].floorz > sector[i].ceilingz)
-                    sector[i].lotag |= 32768;
-                continue;
+        case 20:
+        case 22:
+            if (sector[i].floorz > sector[i].ceilingz)
+                sector[i].lotag |= 32768;
+            continue;
         }
 
         if (sector[i].ceilingstat&1)
@@ -821,37 +821,37 @@ void prelevel(char g)
         }
         else switch (dynamictostatic[PN])
             {
-                case GPSPEED__STATIC:
-                    sector[SECT].extra = SLT;
-                    deletesprite(i);
-                    break;
+            case GPSPEED__STATIC:
+                sector[SECT].extra = SLT;
+                deletesprite(i);
+                break;
 
-                case CYCLER__STATIC:
-                    if (numcyclers >= MAXCYCLERS)
-                    {
-                        Bsprintf(tempbuf,"\nToo many cycling sectors (%d max).",MAXCYCLERS);
-                        gameexit(tempbuf);
-                    }
-                    cyclers[numcyclers][0] = SECT;
-                    cyclers[numcyclers][1] = SLT;
-                    cyclers[numcyclers][2] = SS;
-                    cyclers[numcyclers][3] = sector[SECT].floorshade;
-                    cyclers[numcyclers][4] = SHT;
-                    cyclers[numcyclers][5] = (SA == 1536);
-                    numcyclers++;
-                    deletesprite(i);
-                    break;
+            case CYCLER__STATIC:
+                if (numcyclers >= MAXCYCLERS)
+                {
+                    Bsprintf(tempbuf,"\nToo many cycling sectors (%d max).",MAXCYCLERS);
+                    gameexit(tempbuf);
+                }
+                cyclers[numcyclers][0] = SECT;
+                cyclers[numcyclers][1] = SLT;
+                cyclers[numcyclers][2] = SS;
+                cyclers[numcyclers][3] = sector[SECT].floorshade;
+                cyclers[numcyclers][4] = SHT;
+                cyclers[numcyclers][5] = (SA == 1536);
+                numcyclers++;
+                deletesprite(i);
+                break;
 
-                case SECTOREFFECTOR__STATIC:
-                case ACTIVATOR__STATIC:
-                case TOUCHPLATE__STATIC:
-                case ACTIVATORLOCKED__STATIC:
-                case MUSICANDSFX__STATIC:
-                case LOCATORS__STATIC:
-                case MASTERSWITCH__STATIC:
-                case RESPAWN__STATIC:
-                    sprite[i].cstat = 0;
-                    break;
+            case SECTOREFFECTOR__STATIC:
+            case ACTIVATOR__STATIC:
+            case TOUCHPLATE__STATIC:
+            case ACTIVATORLOCKED__STATIC:
+            case MUSICANDSFX__STATIC:
+            case LOCATORS__STATIC:
+            case MASTERSWITCH__STATIC:
+            case RESPAWN__STATIC:
+                sprite[i].cstat = 0;
+                break;
             }
         i = nexti;
     }
@@ -880,39 +880,39 @@ void prelevel(char g)
     {
         switch (dynamictostatic[PN-1])
         {
-            case DIPSWITCH__STATIC:
-            case DIPSWITCH2__STATIC:
-            case PULLSWITCH__STATIC:
-            case HANDSWITCH__STATIC:
-            case SLOTDOOR__STATIC:
-            case LIGHTSWITCH__STATIC:
-            case SPACELIGHTSWITCH__STATIC:
-            case SPACEDOORSWITCH__STATIC:
-            case FRANKENSTINESWITCH__STATIC:
-            case LIGHTSWITCH2__STATIC:
-            case POWERSWITCH1__STATIC:
-            case LOCKSWITCH1__STATIC:
-            case POWERSWITCH2__STATIC:
-                for (j=0;j<lotaglist;j++)
-                    if (SLT == lotags[j])
-                        break;
+        case DIPSWITCH__STATIC:
+        case DIPSWITCH2__STATIC:
+        case PULLSWITCH__STATIC:
+        case HANDSWITCH__STATIC:
+        case SLOTDOOR__STATIC:
+        case LIGHTSWITCH__STATIC:
+        case SPACELIGHTSWITCH__STATIC:
+        case SPACEDOORSWITCH__STATIC:
+        case FRANKENSTINESWITCH__STATIC:
+        case LIGHTSWITCH2__STATIC:
+        case POWERSWITCH1__STATIC:
+        case LOCKSWITCH1__STATIC:
+        case POWERSWITCH2__STATIC:
+            for (j=0;j<lotaglist;j++)
+                if (SLT == lotags[j])
+                    break;
 
-                if (j == lotaglist)
+            if (j == lotaglist)
+            {
+                lotags[lotaglist] = SLT;
+                lotaglist++;
+                if (lotaglist > 64)
+                    gameexit("\nToo many switches (64 max).");
+
+                j = headspritestat[3];
+                while (j >= 0)
                 {
-                    lotags[lotaglist] = SLT;
-                    lotaglist++;
-                    if (lotaglist > 64)
-                        gameexit("\nToo many switches (64 max).");
-
-                    j = headspritestat[3];
-                    while (j >= 0)
-                    {
-                        if (sprite[j].lotag == 12 && sprite[j].hitag == SLT)
-                            hittype[j].temp_data[0] = 1;
-                        j = nextspritestat[j];
-                    }
+                    if (sprite[j].lotag == 12 && sprite[j].hitag == SLT)
+                        hittype[j].temp_data[0] = 1;
+                    j = nextspritestat[j];
                 }
-                break;
+            }
+            break;
         }
         i = nextspritestat[i];
     }
@@ -956,105 +956,105 @@ void prelevel(char g)
         }
         switch (dynamictostatic[switchpicnum])
         {
-            case FANSHADOW__STATIC:
-            case FANSPRITE__STATIC:
-                wall->cstat |= 65;
-                animwall[numanimwalls].wallnum = i;
-                numanimwalls++;
-                break;
+        case FANSHADOW__STATIC:
+        case FANSPRITE__STATIC:
+            wall->cstat |= 65;
+            animwall[numanimwalls].wallnum = i;
+            numanimwalls++;
+            break;
 
-            case W_FORCEFIELD__STATIC:
-                if (wal->overpicnum==W_FORCEFIELD__STATIC)
-                    for (j=0;j<3;j++)
-                        tloadtile(W_FORCEFIELD+j, 0);
-                if (wal->shade > 31)
-                    wal->cstat = 0;
-                else wal->cstat |= 85+256;
+        case W_FORCEFIELD__STATIC:
+            if (wal->overpicnum==W_FORCEFIELD__STATIC)
+                for (j=0;j<3;j++)
+                    tloadtile(W_FORCEFIELD+j, 0);
+            if (wal->shade > 31)
+                wal->cstat = 0;
+            else wal->cstat |= 85+256;
 
 
-                if (wal->lotag && wal->nextwall >= 0)
-                    wall[wal->nextwall].lotag =
-                        wal->lotag;
+            if (wal->lotag && wal->nextwall >= 0)
+                wall[wal->nextwall].lotag =
+                    wal->lotag;
 
-            case BIGFORCE__STATIC:
+        case BIGFORCE__STATIC:
 
-                animwall[numanimwalls].wallnum = i;
-                numanimwalls++;
+            animwall[numanimwalls].wallnum = i;
+            numanimwalls++;
 
-                continue;
+            continue;
         }
 
         wal->extra = -1;
 
         switch (dynamictostatic[wal->picnum])
         {
-            case WATERTILE2__STATIC:
-                for (j=0;j<3;j++)
-                    tloadtile(wal->picnum+j, 0);
-                break;
+        case WATERTILE2__STATIC:
+            for (j=0;j<3;j++)
+                tloadtile(wal->picnum+j, 0);
+            break;
 
-            case TECHLIGHT2__STATIC:
-            case TECHLIGHT4__STATIC:
-                tloadtile(wal->picnum, 0);
-                break;
-            case W_TECHWALL1__STATIC:
-            case W_TECHWALL2__STATIC:
-            case W_TECHWALL3__STATIC:
-            case W_TECHWALL4__STATIC:
-                animwall[numanimwalls].wallnum = i;
-                //                animwall[numanimwalls].tag = -1;
-                numanimwalls++;
-                break;
-            case SCREENBREAK6__STATIC:
-            case SCREENBREAK7__STATIC:
-            case SCREENBREAK8__STATIC:
-                for (j=SCREENBREAK6;j<SCREENBREAK9;j++)
-                    tloadtile(j, 0);
-                animwall[numanimwalls].wallnum = i;
-                animwall[numanimwalls].tag = -1;
-                numanimwalls++;
-                break;
+        case TECHLIGHT2__STATIC:
+        case TECHLIGHT4__STATIC:
+            tloadtile(wal->picnum, 0);
+            break;
+        case W_TECHWALL1__STATIC:
+        case W_TECHWALL2__STATIC:
+        case W_TECHWALL3__STATIC:
+        case W_TECHWALL4__STATIC:
+            animwall[numanimwalls].wallnum = i;
+            //                animwall[numanimwalls].tag = -1;
+            numanimwalls++;
+            break;
+        case SCREENBREAK6__STATIC:
+        case SCREENBREAK7__STATIC:
+        case SCREENBREAK8__STATIC:
+            for (j=SCREENBREAK6;j<SCREENBREAK9;j++)
+                tloadtile(j, 0);
+            animwall[numanimwalls].wallnum = i;
+            animwall[numanimwalls].tag = -1;
+            numanimwalls++;
+            break;
 
-            case FEMPIC1__STATIC:
-            case FEMPIC2__STATIC:
-            case FEMPIC3__STATIC:
+        case FEMPIC1__STATIC:
+        case FEMPIC2__STATIC:
+        case FEMPIC3__STATIC:
 
-                wal->extra = wal->picnum;
-                animwall[numanimwalls].tag = -1;
-                if (ud.lockout)
-                {
-                    if (wal->picnum == FEMPIC1)
-                        wal->picnum = BLANKSCREEN;
-                    else wal->picnum = SCREENBREAK6;
-                }
+            wal->extra = wal->picnum;
+            animwall[numanimwalls].tag = -1;
+            if (ud.lockout)
+            {
+                if (wal->picnum == FEMPIC1)
+                    wal->picnum = BLANKSCREEN;
+                else wal->picnum = SCREENBREAK6;
+            }
 
-                animwall[numanimwalls].wallnum = i;
-                animwall[numanimwalls].tag = wal->picnum;
-                numanimwalls++;
-                break;
+            animwall[numanimwalls].wallnum = i;
+            animwall[numanimwalls].tag = wal->picnum;
+            numanimwalls++;
+            break;
 
-            case SCREENBREAK1__STATIC:
-            case SCREENBREAK2__STATIC:
-            case SCREENBREAK3__STATIC:
-            case SCREENBREAK4__STATIC:
-            case SCREENBREAK5__STATIC:
+        case SCREENBREAK1__STATIC:
+        case SCREENBREAK2__STATIC:
+        case SCREENBREAK3__STATIC:
+        case SCREENBREAK4__STATIC:
+        case SCREENBREAK5__STATIC:
 
-            case SCREENBREAK9__STATIC:
-            case SCREENBREAK10__STATIC:
-            case SCREENBREAK11__STATIC:
-            case SCREENBREAK12__STATIC:
-            case SCREENBREAK13__STATIC:
-            case SCREENBREAK14__STATIC:
-            case SCREENBREAK15__STATIC:
-            case SCREENBREAK16__STATIC:
-            case SCREENBREAK17__STATIC:
-            case SCREENBREAK18__STATIC:
-            case SCREENBREAK19__STATIC:
+        case SCREENBREAK9__STATIC:
+        case SCREENBREAK10__STATIC:
+        case SCREENBREAK11__STATIC:
+        case SCREENBREAK12__STATIC:
+        case SCREENBREAK13__STATIC:
+        case SCREENBREAK14__STATIC:
+        case SCREENBREAK15__STATIC:
+        case SCREENBREAK16__STATIC:
+        case SCREENBREAK17__STATIC:
+        case SCREENBREAK18__STATIC:
+        case SCREENBREAK19__STATIC:
 
-                animwall[numanimwalls].wallnum = i;
-                animwall[numanimwalls].tag = wal->picnum;
-                numanimwalls++;
-                break;
+            animwall[numanimwalls].wallnum = i;
+            animwall[numanimwalls].tag = wal->picnum;
+            numanimwalls++;
+            break;
         }
     }
 
@@ -1320,12 +1320,12 @@ void resetpspritevars(char g)
                 {
                     switch (ud.pteam[j])
                     {
-                        case 0:
-                            k = 3;
-                            break;
-                        case 1:
-                            k = 21;
-                            break;
+                    case 0:
+                        k = 3;
+                        break;
+                    case 1:
+                        k = 21;
+                        break;
                     }
                     ps[j].team = ud.pteam[j];
                 }
@@ -1738,16 +1738,16 @@ int enterlevel(char g)
     for (i=connecthead;i>=0;i=connectpoint2[i])
         switch (dynamictostatic[sector[sprite[ps[i].i].sectnum].floorpicnum])
         {
-            case HURTRAIL__STATIC:
-            case FLOORSLIME__STATIC:
-            case FLOORPLASMA__STATIC:
-                resetweapons(i);
-                resetinventory(i);
-                ps[i].gotweapon[PISTOL_WEAPON] = 0;
-                ps[i].ammo_amount[PISTOL_WEAPON] = 0;
-                ps[i].curr_weapon = KNEE_WEAPON;
-                ps[i].kickback_pic = 0;
-                break;
+        case HURTRAIL__STATIC:
+        case FLOORSLIME__STATIC:
+        case FLOORPLASMA__STATIC:
+            resetweapons(i);
+            resetinventory(i);
+            ps[i].gotweapon[PISTOL_WEAPON] = 0;
+            ps[i].ammo_amount[PISTOL_WEAPON] = 0;
+            ps[i].curr_weapon = KNEE_WEAPON;
+            ps[i].kickback_pic = 0;
+            break;
         }
 
     //PREMAP.C - replace near the my's at the end of the file
