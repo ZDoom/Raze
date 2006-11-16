@@ -470,16 +470,16 @@ void grabmouse(char a)
 {
     if (appactive && moustat) {
         if (a != mouseacquired) {
-#ifndef DEBUGGINGAIDS
+// #ifndef DEBUGGINGAIDS
             SDL_GrabMode g;
 
             g = SDL_WM_GrabInput( a ? SDL_GRAB_ON : SDL_GRAB_OFF );
             mouseacquired = (g == SDL_GRAB_ON);
 
             SDL_ShowCursor(mouseacquired ? SDL_DISABLE : SDL_ENABLE);
-#else
-            mouseacquired = a;
-#endif
+// #else
+//            mouseacquired = a;
+// #endif
         }
     } else {
         mouseacquired = a;

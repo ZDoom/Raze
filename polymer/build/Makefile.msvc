@@ -4,7 +4,6 @@
 !endif
 
 SRC=src
-GAME=game
 !ifndef OBJ
 OBJ=obj.msc
 !endif
@@ -43,7 +42,6 @@ AS=ml
 RC=rc
 LINK=link /opt:nowin98 /opt:ref /nologo
 CFLAGS=$(CFLAGS) /nologo /MD /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(DXROOT)\include /I$(FMODROOT)\inc
-GAMECFLAGS=/I$(GAME)
 LIBS=fmodvc.lib #opengl32.lib
 ASFLAGS=/nologo /coff
 EXESUFFIX=.exe
@@ -71,18 +69,6 @@ EDITOROBJS=$(OBJ)\build.$o \
 	$(OBJ)\startwin.editor.$o \
 	$(OBJ)\config.$o
 
-GAMEEXEOBJS=$(OBJ)\config.$o \
-	$(OBJ)\game.$o \
-	$(OBJ)\gameres.$(res) \
-	$(OBJ)\startwin.game.$o \
-	$(OBJ)\sound.$o \
-	$(OBJ)\$(ENGINELIB)
-
-EDITOREXEOBJS=$(OBJ)\bstub.$o \
-	$(OBJ)\buildres.$(res) \
-	$(OBJ)\$(EDITORLIB) \
-	$(OBJ)\$(ENGINELIB)
-	
 RENDERTYPE=WIN
 LIBS=$(LIBS) user32.lib gdi32.lib shell32.lib dxguid.lib wsock32.lib comctl32.lib
 CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1
@@ -100,7 +86,7 @@ CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 {$(SRC)\misc}.rc{$(OBJ)}.$(res):
-	$(RC) /i$(INC)\ /i$(GAME)\ /fo$@ /r $<
+	$(RC) /i$(INC)\ /fo$@ /r $<
 
 {$(SRC)}.c{$(OBJ)}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
@@ -108,16 +94,10 @@ CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1
 {$(SRC)}.cpp{$(OBJ)}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
-{$(GAME)}.c{$(OBJ)}.$o:
-	$(CC) /c $(CFLAGS) $(GAMECFLAGS) /Fo$@ $<
-
-{$(GAME)}.cpp{$(OBJ)}.$o:
-	$(CC) /c $(CFLAGS) $(GAMECFLAGS) /Fo$@ $<
-
 # TARGETS
 UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2map$(EXESUFFIX) wad2map$(EXESUFFIX)
  
-all: game$(EXESUFFIX) build$(EXESUFFIX) ;
+all: ;
 utils: $(UTILS) ;
 
 enginelib: $(OBJ)\$(ENGINELIB) ;
@@ -127,13 +107,6 @@ $(OBJ)\$(ENGINELIB): $(ENGINEOBJS)
 editorlib: $(OBJ)\$(EDITORLIB) ;
 $(OBJ)\$(EDITORLIB): $(EDITOROBJS)
 	lib /out:$@ /nologo $**
-
-
-game$(EXESUFFIX): $(GAMEEXEOBJS)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(FMODROOT)\lib $(flags_link) /MAP $** $(LIBS) msvcrt.lib
-	
-build$(EXESUFFIX): $(EDITOREXEOBJS)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(FMODROOT)\lib $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 
 # the tools
 kextract$(EXESUFFIX): $(OBJ)\kextract.$o $(OBJ)\compat.$o
@@ -156,7 +129,7 @@ wad2art$(EXESUFFIX): $(OBJ)\wad2art.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o
 
 # PHONIES	
 clean:
-	-del $(ENGINEOBJS) $(EDITOROBJS) $(GAMEEXEOBJS) $(EDITOREXEOBJS)
+	-del $(ENGINEOBJS) $(EDITOROBJS)
 veryclean: clean
-	-del $(OBJ)\$(ENGINELIB) $(OBJ)\$(EDITORLIB) game$(EXESUFFIX) build$(EXESUFFIX) $(UTILS)
+	-del $(OBJ)\$(ENGINELIB) $(OBJ)\$(EDITORLIB) $(UTILS)
 
