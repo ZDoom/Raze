@@ -8234,7 +8234,7 @@ int load_rancid_net(char *fn)
             char *ip;
 
             if (scriptfile_getstring(script,&ip)) break;
-            Bstrcpy(rancid_ip_strings[MAXPLAYERS],ip);
+            Bstrcpy(rancid_ip_strings[MAXPLAYERS-1],ip);
             Bstrcpy(rancid_ip_strings[rancid_players++],ip);
             strtok(ip,":");
             Bsprintf(tempbuf,"%s",strtok(NULL,":"));
@@ -8416,7 +8416,7 @@ void checkcommandline(int argc,char **argv)
                             {
                                 for (j=0;j<rancid_players;j++)
                                 {
-                                    if (Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) != 0)
+                                    if (Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS-1]) != 0)
                                     {
                                         Bstrncpy(tempbuf,rancid_ip_strings[j], 8);
                                         Bstrcpy(tmp,strtok(tempbuf,"."));
@@ -8455,7 +8455,7 @@ void checkcommandline(int argc,char **argv)
                                     }
                                 }
 
-                                Bstrcpy(tempbuf,rancid_ip_strings[MAXPLAYERS]);
+                                Bstrcpy(tempbuf,rancid_ip_strings[MAXPLAYERS-1]);
                                 Bstrcpy(tmp,strtok(tempbuf,"."));
                                 if (j == rancid_players && ((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0) || (Bstrcmp(tmp,"169") == 0) || (Bstrcmp(tmp,"10") == 0)))
                                 {
@@ -8464,9 +8464,9 @@ void checkcommandline(int argc,char **argv)
                                     {
                                         for (j=0;j<rancid_players;j++)
                                         {
-                                            if (Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
+                                            if (Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS-1]) == 0)
                                             {
-                                                Bstrcpy(rancid_ip_strings[MAXPLAYERS],tempbuf);
+                                                Bstrcpy(rancid_ip_strings[MAXPLAYERS-1],tempbuf);
                                                 Bstrcpy(rancid_ip_strings[j],tempbuf);
                                             }
                                         }
@@ -8482,7 +8482,7 @@ void checkcommandline(int argc,char **argv)
 
                             for (j=0;j<rancid_players;j++)
                             {
-                                if (Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS]) == 0)
+                                if (Bstrcmp(rancid_ip_strings[j],rancid_ip_strings[MAXPLAYERS-1]) == 0)
                                     Bsprintf(rancid_ip_strings[j],"/n1");
                                 netparam[j] = (char *)&rancid_ip_strings[j];
                             }
@@ -9273,9 +9273,9 @@ void Startup(void)
 
     for (i=0;i<MAXPLAYERS;i++) playerreadyflag[i] = 0;
 
-    if (Bstrlen(rancid_ip_strings[MAXPLAYERS]))
+    if (Bstrlen(rancid_ip_strings[MAXPLAYERS-1]))
     {
-        initprintf("rmnet: Using %s as sort IP\n",rancid_ip_strings[MAXPLAYERS]);
+        initprintf("rmnet: Using %s as sort IP\n",rancid_ip_strings[MAXPLAYERS-1]);
         initprintf("rmnet: %d players\n",rancid_players);
     }
 

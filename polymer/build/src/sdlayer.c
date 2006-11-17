@@ -1417,24 +1417,8 @@ int handleevents(void)
         case SDL_MOUSEMOTION:
             if (appactive)
             {
-                static int relx = 0;
-                static int rely = 0;
-
-                if (SDL_PeepEvents(NULL, 1, SDL_PEEKEVENT, SDL_MOUSEMOTIONMASK))
-                {
-                    /* ignore the current event, a newer one is waiting */
-                    relx += ev.motion.xrel;
-                    rely += ev.motion.yrel;
-                }
-                else
-                {
-                    ev.motion.xrel += relx;
-                    ev.motion.yrel += rely;
                     mousex += ev.motion.xrel;
                     mousey += ev.motion.yrel;
-                    relx = 0;
-                    rely = 0;
-                }
             }
             break;
 
