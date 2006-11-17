@@ -259,8 +259,12 @@ unsigned DSL_GetPlaybackRate(void)
 
 int DisableInterrupts(void)
 {
-    return 0;
+    SDL_LockAudio();
+    return(0);
 }
-
+ 
 int RestoreInterrupts(int flags)
-{}
+{
+    SDL_UnlockAudio();
+    return(0);
+}

@@ -76,9 +76,9 @@ char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
 long joyaxespresent=0;
 
 
-void (*keypresscallback)(long,long) = 0;
-void (*mousepresscallback)(long,long) = 0;
-void (*joypresscallback)(long,long) = 0;
+void(*keypresscallback)(long,long) = 0;
+void(*mousepresscallback)(long,long) = 0;
+void(*joypresscallback)(long,long) = 0;
 
 static unsigned char keytranslation[SDLK_LAST];
 static int buildkeytranslationtable(void);
@@ -133,7 +133,8 @@ int wm_ynbox(char *name, char *fmt, ...)
 
 void wm_setapptitle(char *name)
 {
-    if (name) {
+    if (name)
+    {
         Bstrncpy(apptitle, name, sizeof(apptitle)-1);
         apptitle[ sizeof(apptitle)-1 ] = 0;
     }
@@ -202,7 +203,8 @@ int initsystem(void)
 #ifdef NOSDLPARACHUTE
                  | SDL_INIT_NOPARACHUTE
 #endif
-                )) {
+                ))
+    {
         initprintf("Initialisation failed! (%s)\n", SDL_GetError());
         return -1;
     }
@@ -213,7 +215,8 @@ int initsystem(void)
     lockcount = 0;
 
 #ifdef USE_OPENGL
-    if (loadgldriver(getenv("BUILD_GLDRV"))) {
+    if (loadgldriver(getenv("BUILD_GLDRV")))
+    {
         initprintf("Failed loading OpenGL driver. GL modes will be unavailable.\n");
         nogl = 1;
     }
@@ -224,7 +227,8 @@ int initsystem(void)
         SDL_Surface *icon;
         //icon = loadtarga("icon.tga");
         icon = loadappicon();
-        if (icon) {
+        if (icon)
+        {
             SDL_WM_SetIcon(icon, 0);
             SDL_FreeSurface(icon);
         }
@@ -341,17 +345,20 @@ int initinput(void)
     SDL_EnableUNICODE(1);	// let's hope this doesn't hit us too hard
 
     memset(keynames,0,sizeof(keynames));
-    for (i=0; i<SDLK_LAST; i++) {
+    for (i=0; i<SDLK_LAST; i++)
+    {
         if (!keytranslation[i]) continue;
         strncpy((char *)keynames[ keytranslation[i] ], SDL_GetKeyName(i), sizeof(keynames[i])-1);
     }
 
-    if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
+    if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK))
+    {
         i = SDL_NumJoysticks();
         initprintf("%d joystick(s) found\n",i);
         for (j=0;j<i;j++) initprintf("  %d. %s\n", j+1, SDL_JoystickName(j));
         joydev = SDL_JoystickOpen(0);
-        if (joydev) {
+        if (joydev)
+        {
             SDL_JoystickEventState(SDL_ENABLE);
             inputdevices |= 4;
 
@@ -376,7 +383,8 @@ void uninitinput(void)
 {
     uninitmouse();
 
-    if (joydev) {
+    if (joydev)
+    {
         SDL_JoystickClose(joydev);
         joydev = NULL;
     }
@@ -392,7 +400,8 @@ const unsigned char *getjoyname(int what, int num)
 {
     static char tmp[64];
 
-    switch (what) {
+    switch (what)
+    {
     case 0:	// axis
         if ((unsigned)num > (unsigned)joynumaxes) return NULL;
         sprintf(tmp,"Axis %d",num);
@@ -439,9 +448,9 @@ void bflushchars(void)
 //
 // set{key|mouse|joy}presscallback() -- sets a callback which gets notified when keys are pressed
 //
-void setkeypresscallback(void (*callback)(long, long)) { keypresscallback = callback; }
-void setmousepresscallback(void (*callback)(long, long)) { mousepresscallback = callback; }
-void setjoypresscallback(void (*callback)(long, long)) { joypresscallback = callback; }
+void setkeypresscallback(void(*callback)(long, long)) { keypresscallback = callback; }
+void setmousepresscallback(void(*callback)(long, long)) { mousepresscallback = callback; }
+void setjoypresscallback(void(*callback)(long, long)) { joypresscallback = callback; }
 
 //
 // initmouse() -- init mouse input
@@ -468,12 +477,14 @@ void uninitmouse(void)
 //
 void grabmouse(char a)
 {
-    if (appactive && moustat) {
-        if (a != mouseacquired) {
+    if (appactive && moustat)
+    {
+        if (a != mouseacquired)
+        {
 // #ifndef DEBUGGINGAIDS
             SDL_GrabMode g;
 
-            g = SDL_WM_GrabInput( a ? SDL_GRAB_ON : SDL_GRAB_OFF );
+            g = SDL_WM_GrabInput(a ? SDL_GRAB_ON : SDL_GRAB_OFF);
             mouseacquired = (g == SDL_GRAB_ON);
 
             SDL_ShowCursor(mouseacquired ? SDL_DISABLE : SDL_ENABLE);
@@ -481,7 +492,9 @@ void grabmouse(char a)
 //            mouseacquired = a;
 // #endif
         }
-    } else {
+    }
+    else
+    {
         mouseacquired = a;
     }
     mousex = mousey = 0;
@@ -512,8 +525,7 @@ void readmousebstatus(long *b)
 // setjoydeadzone() -- sets the dead and saturation zones for the joystick
 //
 void setjoydeadzone(int axis, unsigned short dead, unsigned short satur)
-{
-}
+{}
 
 
 //
@@ -529,8 +541,7 @@ void getjoydeadzone(int axis, unsigned short *dead, unsigned short *satur)
 // releaseallbuttons()
 //
 void releaseallbuttons(void)
-{
-}
+{}
 
 
 //
@@ -547,7 +558,7 @@ void releaseallbuttons(void)
 static Uint32 timerfreq=0;
 static Uint32 timerlastsample=0;
 Uint32 timerticspersec=0;
-static void (*usertimercallback)(void) = NULL;
+static void(*usertimercallback)(void) = NULL;
 
 //
 // inittimer() -- initialise timer
@@ -589,7 +600,8 @@ void sampletimer(void)
 
     i = SDL_GetTicks();
     n = (long)(i * timerticspersec / timerfreq) - timerlastsample;
-    if (n>0) {
+    if (n>0)
+    {
         totalclock += n;
         timerlastsample += n;
     }
@@ -618,9 +630,9 @@ int gettimerfreq(void)
 //
 // installusertimercallback() -- set up a callback function to be called when the timer is fired
 //
-void (*installusertimercallback(void (*callback)(void)))(void)
+void(*installusertimercallback(void(*callback)(void)))(void)
 {
-    void (*oldtimercallback)(void);
+    void(*oldtimercallback)(void);
 
     oldtimercallback = usertimercallback;
     usertimercallback = callback;
@@ -658,17 +670,20 @@ static int sortmodes(const struct validmode_t *a, const struct validmode_t *b)
 static char modeschecked=0;
 void getvalidmodes(void)
 {
-    static int cdepths[] = {
-                               8,
+    static int cdepths[] =
+        {
+            8,
 #ifdef USE_OPENGL
-                               16,24,32,
+            16,24,32,
 #endif
-                               0
-                           };
-    static int defaultres[][2] = {
-                                     {1280,1024},{1280,960},{1152,864},{1024,768},{800,600},{640,480},
-                                     {640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
-                                 };
+            0
+        };
+    static int defaultres[][2] =
+        {
+            {1280,1024}
+            ,{1280,960},{1152,864},{1024,768},{800,600},{640,480},
+            {640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
+        };
     SDL_Rect **modes;
     SDL_PixelFormat pf = { NULL, 8, 1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0 };
     int i, j, maxx=0, maxy=0;
@@ -696,7 +711,8 @@ void getvalidmodes(void)
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
     // do fullscreen modes first
-    for (j=0; cdepths[j]; j++) {
+    for (j=0; cdepths[j]; j++)
+    {
 #ifdef USE_OPENGL
         if (nogl && cdepths[j] > 8) continue;
 #endif
@@ -704,21 +720,27 @@ void getvalidmodes(void)
         pf.BytesPerPixel = cdepths[j] >> 3;
 
         modes = SDL_ListModes(&pf, SURFACE_FLAGS | SDL_FULLSCREEN);
-        if (modes == (SDL_Rect **)0) {
+        if (modes == (SDL_Rect **)0)
+        {
             if (cdepths[j] > 8) cdepths[j] = -1;
             continue;
         }
 
-        if (modes == (SDL_Rect **)-1) {
+        if (modes == (SDL_Rect **)-1)
+        {
             for (i=0; defaultres[i][0]; i++)
                 ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],1)
-            } else {
-            for (i=0; modes[i]; i++) {
+            }
+        else
+        {
+            for (i=0; modes[i]; i++)
+            {
                 if ((modes[i]->w > MAXXDIM) || (modes[i]->h > MAXYDIM)) continue;
 
                 ADDMODE(modes[i]->w, modes[i]->h, cdepths[j], 1)
 
-                if ((modes[i]->w > maxx) && (modes[i]->h > maxy)) {
+                if ((modes[i]->w > maxx) && (modes[i]->h > maxy))
+                {
                     maxx = modes[i]->w;
                     maxy = modes[i]->h;
                 }
@@ -726,13 +748,15 @@ void getvalidmodes(void)
         }
     }
 
-    if (maxx == 0 && maxy == 0) {
+    if (maxx == 0 && maxy == 0)
+    {
         initprintf("No fullscreen modes available!\n");
         maxx = MAXXDIM; maxy = MAXYDIM;
     }
 
     // add windowed modes next
-    for (j=0; cdepths[j]; j++) {
+    for (j=0; cdepths[j]; j++)
+    {
 #ifdef USE_OPENGL
         if (nogl && cdepths[j] > 8) continue;
 #endif
@@ -774,16 +798,19 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
     if (*y > MAXYDIM) *y = MAXYDIM;
     *x &= 0xfffffff8l;
 
-    for (i=0; i<validmodecnt; i++) {
+    for (i=0; i<validmodecnt; i++)
+    {
         if (validmode[i].bpp != c) continue;
         if (validmode[i].fs != fs) continue;
         dx = klabs(validmode[i].xdim - *x);
         dy = klabs(validmode[i].ydim - *y);
-        if (!(dx | dy)) { 	// perfect match
+        if (!(dx | dy))
+        { 	// perfect match
             nearest = i;
             break;
         }
-        if ((dx <= odx) && (dy <= ody)) {
+        if ((dx <= odx) && (dy <= ody))
+        {
             nearest = i;
             odx = dx; ody = dy;
         }
@@ -794,7 +821,8 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
         return 0x7fffffffl;
 #endif
 
-    if (nearest < 0) {
+    if (nearest < 0)
+    {
         // no mode that will match (eg. if no fullscreen modes)
         return -1;
     }
@@ -815,7 +843,8 @@ int setvideomode(int x, int y, int c, int fs)
     static int warnonce = 0;
 
     if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) &&
-            !videomodereset) {
+            !videomodereset)
+    {
         OSD_ResizeDisplay(xres,yres);
         return 0;
     }
@@ -824,7 +853,8 @@ int setvideomode(int x, int y, int c, int fs)
 
     startwin_close();
 
-    if (mouseacquired) {
+    if (mouseacquired)
+    {
         regrab = 1;
         grabmouse(0);
     }
@@ -836,55 +866,64 @@ int setvideomode(int x, int y, int c, int fs)
 #endif
 
     // restore gamma before we change video modes if it was changed
-    if (sdl_surface && gammabrightness) {
+    if (sdl_surface && gammabrightness)
+    {
         SDL_SetGammaRamp(sysgamma[0], sysgamma[1], sysgamma[2]);
         gammabrightness = 0;	// redetect on next mode switch
     }
 
 #if defined(USE_OPENGL)
-    if (c > 8) {
+    if (c > 8)
+    {
         int i, j, multisamplecheck = (glmultisample > 0);
-        struct {
+        struct
+        {
             SDL_GLattr attr;
             int value;
-        } attributes[] = {
+        }
+        attributes[] = {
 #if 0
-                             { SDL_GL_RED_SIZE, 8 },
-                             { SDL_GL_GREEN_SIZE, 8 },
-                             { SDL_GL_BLUE_SIZE, 8 },
-                             { SDL_GL_ALPHA_SIZE, 8 },
-                             { SDL_GL_BUFFER_SIZE, c },
-                             { SDL_GL_STENCIL_SIZE, 0 },
-                             { SDL_GL_ACCUM_RED_SIZE, 0 },
-                             { SDL_GL_ACCUM_GREEN_SIZE, 0 },
-                             { SDL_GL_ACCUM_BLUE_SIZE, 0 },
-                             { SDL_GL_ACCUM_ALPHA_SIZE, 0 },
-                             { SDL_GL_DEPTH_SIZE, 24 },
+                           { SDL_GL_RED_SIZE, 8 },
+                           { SDL_GL_GREEN_SIZE, 8 },
+                           { SDL_GL_BLUE_SIZE, 8 },
+                           { SDL_GL_ALPHA_SIZE, 8 },
+                           { SDL_GL_BUFFER_SIZE, c },
+                           { SDL_GL_STENCIL_SIZE, 0 },
+                           { SDL_GL_ACCUM_RED_SIZE, 0 },
+                           { SDL_GL_ACCUM_GREEN_SIZE, 0 },
+                           { SDL_GL_ACCUM_BLUE_SIZE, 0 },
+                           { SDL_GL_ACCUM_ALPHA_SIZE, 0 },
+                           { SDL_GL_DEPTH_SIZE, 24 },
 #endif
-                             { SDL_GL_DOUBLEBUFFER, 1 },
-                             { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
-                             { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
-                         };
+                           { SDL_GL_DOUBLEBUFFER, 1 },
+                           { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
+                           { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
+                       };
 
         if (nogl) return -1;
 
         initprintf("Setting video mode %dx%d (%d-bpp %s)\n",
                    x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
-        do {
-            for (i=0; i < (int)(sizeof(attributes)/sizeof(attributes[0])); i++) {
+        do
+        {
+            for (i=0; i < (int)(sizeof(attributes)/sizeof(attributes[0])); i++)
+            {
                 j = attributes[i].value;
                 if (!multisamplecheck &&
                         (attributes[i].attr == SDL_GL_MULTISAMPLEBUFFERS ||
                          attributes[i].attr == SDL_GL_MULTISAMPLESAMPLES)
-                   ) {
+                   )
+                {
                     j = 0;
                 }
                 SDL_GL_SetAttribute(attributes[i].attr, j);
             }
 
             sdl_surface = SDL_SetVideoMode(x, y, c, SDL_OPENGL | ((fs&1)?SDL_FULLSCREEN:0));
-            if (!sdl_surface) {
-                if (multisamplecheck) {
+            if (!sdl_surface)
+            {
+                if (multisamplecheck)
+                {
                     initprintf("Multisample mode not possible. Retrying without multisampling.\n");
                     glmultisample = 0;
                     continue;
@@ -892,14 +931,17 @@ int setvideomode(int x, int y, int c, int fs)
                 initprintf("Unable to set video mode!\n");
                 return -1;
             }
-        } while (multisamplecheck--);
-    } else
+        }
+        while (multisamplecheck--);
+    }
+    else
 #endif
     {
         initprintf("Setting video mode %dx%d (%d-bpp %s)\n",
                    x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
         sdl_surface = SDL_SetVideoMode(x, y, c, SURFACE_FLAGS | ((fs&1)?SDL_FULLSCREEN:0));
-        if (!sdl_surface) {
+        if (!sdl_surface)
+        {
             initprintf("Unable to set video mode!\n");
             return -1;
         }
@@ -936,7 +978,8 @@ int setvideomode(int x, int y, int c, int fs)
     }
 
 #ifdef USE_OPENGL
-    if (c > 8) {
+    if (c > 8)
+    {
         char *p,*p2,*p3;
         int i;
 
@@ -961,32 +1004,48 @@ int setvideomode(int x, int y, int c, int fs)
         // process the extensions string and flag stuff we recognize
         p = Bstrdup(glinfo.extensions);
         p3 = p;
-        while ((p2 = Bstrtoken(p3==p?p:NULL, " ", (char**)&p3, 1)) != NULL) {
-            if (!Bstrcmp(p2, "GL_EXT_texture_filter_anisotropic")) {
+        while ((p2 = Bstrtoken(p3==p?p:NULL, " ", (char**)&p3, 1)) != NULL)
+        {
+            if (!Bstrcmp(p2, "GL_EXT_texture_filter_anisotropic"))
+            {
                 // supports anisotropy. get the maximum anisotropy level
                 bglGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
-            } else if (!Bstrcmp(p2, "GL_EXT_texture_edge_clamp") ||
-                       !Bstrcmp(p2, "GL_SGIS_texture_edge_clamp")) {
+            }
+            else if (!Bstrcmp(p2, "GL_EXT_texture_edge_clamp") ||
+                     !Bstrcmp(p2, "GL_SGIS_texture_edge_clamp"))
+            {
                 // supports GL_CLAMP_TO_EDGE or GL_CLAMP_TO_EDGE_SGIS
                 glinfo.clamptoedge = 1;
-            } else if (!Bstrcmp(p2, "GL_EXT_bgra")) {
+            }
+            else if (!Bstrcmp(p2, "GL_EXT_bgra"))
+            {
                 // support bgra textures
                 glinfo.bgra = 1;
-            } else if (!Bstrcmp(p2, "GL_ARB_texture_compression")) {
+            }
+            else if (!Bstrcmp(p2, "GL_ARB_texture_compression"))
+            {
                 // support texture compression
                 glinfo.texcompr = 1;
-            } else if (!Bstrcmp(p2, "GL_ARB_texture_non_power_of_two")) {
+            }
+            else if (!Bstrcmp(p2, "GL_ARB_texture_non_power_of_two"))
+            {
                 // support non-power-of-two texture sizes
                 glinfo.texnpot = 1;
-            } else if (!Bstrcmp(p2, "WGL_3DFX_gamma_control")) {
+            }
+            else if (!Bstrcmp(p2, "WGL_3DFX_gamma_control"))
+            {
                 // 3dfx cards have issues with fog
                 nofog = 1;
                 if (!(warnonce&1)) initprintf("3dfx card detected: OpenGL fog disabled\n");
                 warnonce |= 1;
-            } else if (!Bstrcmp(p2, "GL_ARB_multisample")) {
+            }
+            else if (!Bstrcmp(p2, "GL_ARB_multisample"))
+            {
                 // supports multisampling
                 glinfo.multisample = 1;
-            } else if (!Bstrcmp(p2, "GL_NV_multisample_filter_hint")) {
+            }
+            else if (!Bstrcmp(p2, "GL_NV_multisample_filter_hint"))
+            {
                 // supports nvidia's multisample hint extension
                 glinfo.nvmultisamplehint = 1;
             }
@@ -1009,7 +1068,8 @@ int setvideomode(int x, int y, int c, int fs)
     OSD_ResizeDisplay(xres,yres);
 
     // save the current system gamma to determine if gamma is available
-    if (!gammabrightness) {
+    if (!gammabrightness)
+    {
         float f = 1.0 + ((float)curbrightness / 10.0);
         if (SDL_GetGammaRamp(sysgamma[0], sysgamma[1], sysgamma[2]) >= 0)
             gammabrightness = 1;
@@ -1048,7 +1108,8 @@ void begindrawing(void)
 {
     long i,j;
 
-    if (bpp > 8) {
+    if (bpp > 8)
+    {
         if (offscreenrendering) return;
         frameplace = 0;
         bytesperline = 0;
@@ -1066,7 +1127,8 @@ void begindrawing(void)
     if (SDL_MUSTLOCK(sdl_surface)) SDL_LockSurface(sdl_surface);
     frameplace = (long)sdl_surface->pixels;
 
-    if (sdl_surface->pitch != bytesperline || modechange) {
+    if (sdl_surface->pitch != bytesperline || modechange)
+    {
         bytesperline = sdl_surface->pitch;
         imageSize = bytesperline*yres;
         setvlinebpl(bytesperline);
@@ -1083,7 +1145,8 @@ void begindrawing(void)
 //
 void enddrawing(void)
 {
-    if (bpp > 8) {
+    if (bpp > 8)
+    {
         if (!offscreenrendering) frameplace = 0;
         return;
     }
@@ -1108,8 +1171,10 @@ void showframe(int w)
     long i,j;
 
 #ifdef USE_OPENGL
-    if (bpp > 8) {
-        if (palfadedelta) {
+    if (bpp > 8)
+    {
+        if (palfadedelta)
+        {
             bglMatrixMode(GL_PROJECTION);
             bglPushMatrix();
             bglLoadIdentity();
@@ -1144,7 +1209,8 @@ void showframe(int w)
 
     if (offscreenrendering) return;
 
-    if (lockcount) {
+    if (lockcount)
+    {
         printf("Frame still locked %ld times when showframe() called.\n", lockcount);
         while (lockcount) enddrawing();
     }
@@ -1165,7 +1231,8 @@ int setpalette(int start, int num, char *dapal)
 
     copybuf(curpalettefaded, pal, 256);
 
-    for (i=start, n=num; n>0; i++, n--) {
+    for (i=start, n=num; n>0; i++, n--)
+    {
         /*
         pal[i].b = dapal[0] << 2;
         pal[i].g = dapal[1] << 2;
@@ -1253,15 +1320,18 @@ int handleevents(void)
 		} \
 }
 
-    while (SDL_PollEvent(&ev)) {
-        switch (ev.type) {
+    while (SDL_PollEvent(&ev))
+    {
+        switch (ev.type)
+        {
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.sym];
 
             if (ev.key.keysym.unicode != 0 && ev.key.type == SDL_KEYDOWN &&
                     (ev.key.keysym.unicode & 0xff80) == 0 &&
-                    ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc) {
+                    ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
+            {
                 keyasciififo[keyasciififoend] = ev.key.keysym.unicode & 0x7f;
                 keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
             }
@@ -1270,13 +1340,17 @@ int handleevents(void)
             if (OSD_HandleKey(code, (ev.key.type == SDL_KEYDOWN)) == 0)
                 break;
 
-            if (ev.key.type == SDL_KEYDOWN) {
-                if (!keystatus[code]) {
+            if (ev.key.type == SDL_KEYDOWN)
+            {
+                if (!keystatus[code])
+                {
                     SetKey(code, 1);
                     if (keypresscallback)
                         keypresscallback(code, 1);
                 }
-            } else {
+            }
+            else
+            {
                 SetKey(code, 0);
                 if (keypresscallback)
                     keypresscallback(code, 0);
@@ -1284,13 +1358,18 @@ int handleevents(void)
             break;
 
         case SDL_ACTIVEEVENT:
-            if (ev.active.state & SDL_APPINPUTFOCUS) {
+            if (ev.active.state & SDL_APPINPUTFOCUS)
+            {
                 appactive = ev.active.gain;
-                if (mouseacquired && moustat) {
-                    if (appactive) {
+                if (mouseacquired && moustat)
+                {
+                    if (appactive)
+                    {
                         SDL_WM_GrabInput(SDL_GRAB_ON);
                         SDL_ShowCursor(SDL_DISABLE);
-                    } else {
+                    }
+                    else
+                    {
                         SDL_WM_GrabInput(SDL_GRAB_OFF);
                         SDL_ShowCursor(SDL_ENABLE);
                     }
@@ -1301,7 +1380,8 @@ int handleevents(void)
 
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
-            switch (ev.button.button) {
+            switch (ev.button.button)
+            {
             case SDL_BUTTON_LEFT:
                 j = 0; break;
             case SDL_BUTTON_RIGHT:
@@ -1313,16 +1393,20 @@ int handleevents(void)
             }
             if (j<0) break;
 
-            if (ev.button.state == SDL_PRESSED) {
-                if (ev.button.button == SDL_BUTTON_WHEELUP) {
+            if (ev.button.state == SDL_PRESSED)
+            {
+                if (ev.button.button == SDL_BUTTON_WHEELUP)
+                {
                     mwheelup = totalclock;
                 }
-                if (ev.button.button == SDL_BUTTON_WHEELDOWN) {
+                if (ev.button.button == SDL_BUTTON_WHEELDOWN)
+                {
                     mwheeldown = totalclock;
                 }
                 mouseb |= (1<<j);
             }
-            else {
+            else
+            {
                 if (j < 4) mouseb &= ~(1<<j);
             }
 
@@ -1331,9 +1415,26 @@ int handleevents(void)
             break;
 
         case SDL_MOUSEMOTION:
-            if (appactive) {
-                mousex += ev.motion.xrel;
-                mousey += ev.motion.yrel;
+            if (appactive)
+            {
+                static int relx = 0;
+                static int rely = 0;
+
+                if (SDL_PeepEvents(NULL, 1, SDL_PEEKEVENT, SDL_MOUSEMOTIONMASK))
+                {
+                    /* ignore the current event, a newer one is waiting */
+                    relx += ev.motion.xrel;
+                    rely += ev.motion.yrel;
+                }
+                else
+                {
+                    ev.motion.xrel += relx;
+                    ev.motion.yrel += rely;
+                    mousex += ev.motion.xrel;
+                    mousey += ev.motion.yrel;
+                    relx = 0;
+                    rely = 0;
+                }
             }
             break;
 
@@ -1342,7 +1443,8 @@ int handleevents(void)
                 joyaxis[ ev.jaxis.axis ] = ev.jaxis.value * 10000 / 32767;
             break;
 
-        case SDL_JOYHATMOTION: {
+        case SDL_JOYHATMOTION:
+        {
             int hatvals[16] = {
                                   -1,	// centre
                                   0, 	// up 1
@@ -1368,7 +1470,8 @@ int handleevents(void)
 
         case SDL_JOYBUTTONDOWN:
         case SDL_JOYBUTTONUP:
-            if (appactive && ev.jbutton.button < joynumbuttons) {
+            if (appactive && ev.jbutton.button < joynumbuttons)
+            {
                 if (ev.jbutton.state == SDL_PRESSED)
                     joyb |= 1 << ev.jbutton.button;
                 else
@@ -1389,12 +1492,15 @@ int handleevents(void)
 
     sampletimer();
 
-    if (moustat) {
-        if ((mwheelup) && (mwheelup <= (totalclock - MWHEELTICKS))) {
+    if (moustat)
+    {
+        if ((mwheelup) && (mwheelup <= (totalclock - MWHEELTICKS)))
+        {
             mouseb &= ~16;
             mwheelup = 0;
         }
-        if ((mwheeldown) && (mwheeldown <= (totalclock - MWHEELTICKS))) {
+        if ((mwheeldown) && (mwheeldown <= (totalclock - MWHEELTICKS)))
+        {
             mouseb &= ~32;
             mwheeldown = 0;
         }

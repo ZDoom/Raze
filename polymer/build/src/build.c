@@ -312,6 +312,10 @@ int app_main(int argc, char **argv)
     }
 #endif
 
+    if (initinput()) return -1;
+    // if (option[3] != 0) moustat =
+    initmouse();
+
     if (grps && grpstoadd > 0) {
         for (i=0;i<grpstoadd;i++) {
             initprintf("Adding %s\n",grps[i]);

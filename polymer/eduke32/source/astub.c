@@ -4459,7 +4459,7 @@ int ExtInit(void)
         initprintf("Using %s as definitions file\n", defsfilename);
     }
     loadgroupfiles(defsfilename);
-    bpp = 8;
+    bpp = 32;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     glusetexcache = glusetexcachecompression = -1;
@@ -4490,9 +4490,7 @@ int ExtInit(void)
         initprintf("There was a problem initialising the engine.\n");
         return -1;
     }
-    if (initinput()) return -1;
-    // if (option[3] != 0) moustat =
-    initmouse();
+
     kensplayerheight = 40; //32
     zmode = 2;
     zlock = kensplayerheight<<8;
