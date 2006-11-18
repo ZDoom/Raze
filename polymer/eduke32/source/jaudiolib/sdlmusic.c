@@ -71,16 +71,8 @@ int MUSIC_ErrorCode = MUSIC_Ok;
 
 static char warningMessage[80];
 static char errorMessage[80];
-static int fx_initialized = 0;
-static int numChannels = MIX_CHANNELS;
-static void(*callback)(unsigned long);
-static int reverseStereo = 0;
-static int reverbDelay = 256;
-static int reverbLevel = 0;
-static int fastReverb = 0;
 static FILE *debug_file = NULL;
 static int initialized_debugging = 0;
-static int mixerIsStereo = 1;
 
 // This gets called all over the place for information and debugging messages.
 //  If the user set the DUKESND_DEBUG environment variable, the messages
@@ -126,6 +118,7 @@ static void init_debugging(void)
     initialized_debugging = 1;
 } // init_debugging
 
+#if 0
 static void setWarningMessage(const char *msg)
 {
     strncpy(warningMessage, msg, sizeof(warningMessage));
@@ -133,7 +126,7 @@ static void setWarningMessage(const char *msg)
     warningMessage[sizeof(warningMessage) - 1] = '\0';
     musdebug("Warning message set to [%s].", warningMessage);
 } // setErrorMessage
-
+#endif
 
 static void setErrorMessage(const char *msg)
 {
@@ -278,7 +271,7 @@ void MUSIC_Continue(void)
     if (Mix_PausedMusic())
         Mix_ResumeMusic();
     else if (music_songdata)
-        MUSIC_PlaySong(music_songdata, MUSIC_PlayOnce);
+        MUSIC_PlaySong((unsigned char *)music_songdata, MUSIC_PlayOnce);
 } // MUSIC_Continue
 
 
@@ -315,7 +308,7 @@ int MUSIC_PlaySong(unsigned char *song, int loopflag)
 
     MUSIC_StopSong();
 
-    music_songdata = song;
+    music_songdata = (char *)song;
 
     // !!! FIXME: This could be a problem...SDL/SDL_mixer wants a RWops, which
     // !!! FIXME:  is an i/o abstraction. Since we already have the MIDI data
@@ -335,8 +328,6 @@ int MUSIC_PlaySong(unsigned char *song, int loopflag)
 } // MUSIC_PlaySong
 
 
-extern char ApogeePath[256] = "/tmp/";
-
 // Duke3D-specific.  --ryan.
 void PlayMusic(char *_filename)
 {
@@ -344,7 +335,7 @@ void PlayMusic(char *_filename)
     //strcpy(filename, _filename);
     //FixFilePath(filename);
 
-    char filename[MAX_PATH];
+    char filename[BMAX_PATH];
     long handle;
     long size;
     void *song;
@@ -381,7 +372,7 @@ void PlayMusic(char *_filename)
     } // if
 
     // save the file somewhere, so SDL_mixer can load it
-    GetUnixPathFromEnvironment(filename, MAX_PATH, "tmpsong.mid");
+    GetUnixPathFromEnvironment(filename, BMAX_PATH, "tmpsong.mid");
     handle = SafeOpenWrite(filename, filetype_binary);
 
     SafeWrite(handle, song, size);

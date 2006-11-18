@@ -66,15 +66,17 @@ JMACTOBJ=$(OBJ)/util_lib.$o \
 	$(OBJ)/mathutil.$o \
 	$(OBJ)/scriplib.$o
 
+AUDIOLIB_FX_STUB=$(OBJ)/audiolib_fxstub.$o
+AUDIOLIB_MUSIC_STUB=$(OBJ)/audiolib_musicstub.$o
+
 AUDIOLIB_FX_SDL=$(OBJ)/mv_mix.$o \
 	  $(OBJ)/mv_mix16.$o \
 	  $(OBJ)/mvreverb.$o \
 	  $(OBJ)/ll_man.$o \
 	  $(OBJ)/fx_man.$o \
-      $(OBJ)/dsl.$o \
-      $(OBJ)/pitch.$o \
-      $(OBJ)/multivoc.$o
-
+	  $(OBJ)/dsl.$o \
+	  $(OBJ)/pitch.$o \
+	  $(OBJ)/multivoc.$o
 AUDIOLIB_MUSIC_SDL=$(OBJ)/sdlmusic.$o \
 	  $(OBJ)/unixglob.$o
 
@@ -123,13 +125,17 @@ ifeq ($(PLATFORM),WINDOWS)
 endif
 
 ifeq ($(RENDERTYPE),SDL)
- 	OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell sdl-config --cflags))
-	LIBS+= -lSDL_mixer
+	 OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell sdl-config --cflags))
 
 	ifneq (0,$(JFAUD))
 		AUDIOLIBOBJ=$(AUDIOLIB_JFAUD)
 	else
-		AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_SDL) $(AUDIOLIB_FX_SDL) $(OBJ)/sounds.$o
+		ifneq ($(PLATFORM),WINDOWS)
+			AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_SDL) $(AUDIOLIB_FX_SDL) $(OBJ)/sounds.$o
+			LIBS+= -lSDL_mixer
+		else
+			AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_STUB) $(AUDIOLIB_FX_STUB) $(OBJ)/sounds.$o
+		endif
 	endif
 
 	ifeq (1,$(HAVE_GTK2))

@@ -7001,9 +7001,7 @@ PALONLY:
 #pragma optimize("",on)
 #endif
 
-static char terminx[64] =
-    { "Undead TC still sucks."
-    };
+static char terminx[64] = { "Undead TC still sucks." };
 
 char cheatquotes[][MAXCHEATLEN] =
     {
