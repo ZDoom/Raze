@@ -24,7 +24,7 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #include <string.h>
 
 #include "dsl.h"
-#include "util.h"
+#include "compat.h"
 
 #include "SDL.h"
 #include "SDL_mixer.h"
