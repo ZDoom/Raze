@@ -223,7 +223,7 @@ int osdcmd_fileinfo(const osdfuncparm_t *parm)
     do
     {
         j = kread(i,buf,256);
-        crc32block(&crc,buf,j);
+        crc32block(&crc,(unsigned char *)buf,j);
     }
     while (j == 256);
     crc32finish(&crc);

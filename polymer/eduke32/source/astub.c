@@ -285,67 +285,67 @@ const char *ExtGetSectorCaption(short sectnum)
     {
         switch (sector[sectnum].lotag)
         {
-        case 1  :
+        case 1:
             Bsprintf(lo,"1 WATER (SE 7)");
             break;
-        case 2  :
+        case 2:
             Bsprintf(lo,"2 UNDERWATER (SE 7)");
             break;
-        case 9  :
+        case 9:
             Bsprintf(lo,"9 STAR TREK DOORS");
             break;
-        case 15 :
+        case 15:
             Bsprintf(lo,"15 ELEVATOR TRANSPORT (SE 17)");
             break;
-        case 16 :
+        case 16:
             Bsprintf(lo,"16 ELEVATOR PLATFORM DOWN");
             break;
-        case 17 :
+        case 17:
             Bsprintf(lo,"17 ELEVATOR PLATFORM UP");
             break;
-        case 18 :
+        case 18:
             Bsprintf(lo,"18 ELEVATOR DOWN");
             break;
-        case 19 :
+        case 19:
             Bsprintf(lo,"19 ELEVATOR UP");
             break;
-        case 20 :
+        case 20:
             Bsprintf(lo,"20 CEILING DOOR");
             break;
-        case 21 :
+        case 21:
             Bsprintf(lo,"21 FLOOR DOOR");
             break;
-        case 22 :
+        case 22:
             Bsprintf(lo,"22 SPLIT DOOR");
             break;
-        case 23 :
+        case 23:
             Bsprintf(lo,"23 SWING DOOR (SE 11)");
             break;
-        case 25 :
+        case 25:
             Bsprintf(lo,"25 SLIDE DOOR (SE 15)");
             break;
-        case 26 :
+        case 26:
             Bsprintf(lo,"26 SPLIT STAR TREK DOOR");
             break;
-        case 27 :
+        case 27:
             Bsprintf(lo,"27 BRIDGE (SE 20)");
             break;
-        case 28 :
+        case 28:
             Bsprintf(lo,"28 DROP FLOOR (SE 21)");
             break;
-        case 29 :
+        case 29:
             Bsprintf(lo,"29 TEETH DOOR (SE 22)");
             break;
-        case 30 :
+        case 30:
             Bsprintf(lo,"30 ROTATE RISE BRIDGE");
             break;
-        case 31 :
+        case 31:
             Bsprintf(lo,"31 2 WAY TRAIN (SE=30)");
             break;
-        case 32767 :
+        case 32767:
             Bsprintf(lo,"32767 SECRET ROOM");
             break;
-        case 65535 :
+        case -1:
             Bsprintf(lo,"65535 END OF LEVEL");
             break;
         default :

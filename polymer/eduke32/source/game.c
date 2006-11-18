@@ -8205,8 +8205,7 @@ char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
 static tokenlist rancidtokens[] =
     {
-        { "interface",       T_INTERFACE
-        },
+        { "interface",       T_INTERFACE       },
         { "mode",            T_MODE            },
         { "allow",           T_ALLOW           },
     };
@@ -8277,8 +8276,7 @@ static int stringsort(const char *p1, const char *p2)
 
 static tokenlist grptokens[] =
     {
-        { "loadgrp",         T_LOADGRP
-        },
+        { "loadgrp",         T_LOADGRP },
     };
 
 int loadgroupfiles(char *fn)

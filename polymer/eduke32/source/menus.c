@@ -3122,13 +3122,13 @@ cheat_for_port_credits:
             minitextshade(70,34+l*8,tempbuf,(m+l == probey)?0:16,1,10+16);
 
             //strcpy(tempbuf, KB_ScanCodeToString(KeyboardKeys[m+l][0]));
-            strcpy(tempbuf, getkeyname(KeyboardKeys[m+l][0]));
+            strcpy(tempbuf, (char *)getkeyname(KeyboardKeys[m+l][0]));
             if (!tempbuf[0]) strcpy(tempbuf, "  -");
             minitextshade(70+100,34+l*8,tempbuf,
                           (m+l == probey && !currentlist?0:16),2,10+16);
 
             //strcpy(tempbuf, KB_ScanCodeToString(KeyboardKeys[m+l][1]));
-            strcpy(tempbuf, getkeyname(KeyboardKeys[m+l][1]));
+            strcpy(tempbuf, (char *)getkeyname(KeyboardKeys[m+l][1]));
             if (!tempbuf[0]) strcpy(tempbuf, "  -");
             minitextshade(70+120+34,34+l*8,tempbuf,
                           (m+l == probey && currentlist?0:16),2,10+16);
@@ -3771,11 +3771,11 @@ cheat_for_port_credits:
                 break;
             }
 
-            Bsprintf(tempbuf,getjoyname(0,thispage*2));
+            Bsprintf(tempbuf,(char *)getjoyname(0,thispage*2));
             menutext(42,32,0,0,tempbuf);
             if (twothispage)
             {
-                Bsprintf(tempbuf,getjoyname(0,thispage*2+1));
+                Bsprintf(tempbuf,(char *)getjoyname(0,thispage*2+1));
                 menutext(42,32+64,0,0,tempbuf);
             }
             gametext(76,38,"SCALE",0,2+8+16);
@@ -3899,7 +3899,7 @@ cheat_for_port_credits:
             for (m=first;m<last;m++)
             {
                 unsigned short odx,dx,ody,dy;
-                Bsprintf(tempbuf,getjoyname(0,m));
+                Bsprintf(tempbuf,(char *)getjoyname(0,m));
                 menutext(32,48+30*(m-first),0,0,tempbuf);
 
                 gametext(128,48+30*(m-first)-8,"DEAD",0,2+8+16);
@@ -3908,8 +3908,8 @@ cheat_for_port_credits:
                 dx = odx = min(64,64l*JoystickAnalogueDead[m]/10000l);
                 dy = ody = min(64,64l*JoystickAnalogueSaturate[m]/10000l);
 
-                bar(217,48+30*(m-first),&dx,4,x==((m-first)*2),0,0);
-                bar(217,48+30*(m-first)+15,&dy,4,x==((m-first)*2+1),0,0);
+                bar(217,48+30*(m-first),(short *)&dx,4,x==((m-first)*2),0,0);
+                bar(217,48+30*(m-first)+15,(short *)&dy,4,x==((m-first)*2+1),0,0);
 
                 Bsprintf(tempbuf,"%3d%%",100*dx/64);
                 gametext(217-49,48+30*(m-first)-8,tempbuf,0,2+8+16);

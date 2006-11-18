@@ -142,7 +142,7 @@ int ScanGroups(void)
             do
             {
                 b = read(fh, buf, sizeof(buf));
-                if (b > 0) crc32block((unsigned long *)&crcval, buf, b);
+                if (b > 0) crc32block((unsigned long *)&crcval, (unsigned char *)buf, b);
             }
             while (b == sizeof(buf));
             crc32finish((unsigned long *)&crcval);

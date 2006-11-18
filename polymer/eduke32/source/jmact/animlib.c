@@ -229,7 +229,7 @@ void renderframe (uint16 framenumber, uint16 *pagepointer)
       ppointer+=4;
       }
 
-   CPlayRunSkipDump (ppointer, anim->imagebuffer);
+   CPlayRunSkipDump ((char *)ppointer, (char *)anim->imagebuffer);
    }
 
 
@@ -264,7 +264,7 @@ void ANIM_LoadAnim (char * buffer)
 	   Anim_Started = true;
    }
 
-   anim->buffer = buffer;
+   anim->buffer = (unsigned char *)buffer;
    anim->curlpnum = 0xffff;
    anim->currentframe = -1;
    size = sizeof(lpfileheader);

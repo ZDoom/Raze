@@ -38,9 +38,10 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #ifdef _WIN32
 #include "dsoundout.h"
 #else
-#include "util.h"
+#include "compat.h"
 #include "dsl.h"
 #endif
+#include "baselayer.h"
 #include "usrhooks.h"
 #include "linklist.h"
 #include "pitch.h"
@@ -464,11 +465,11 @@ int MV_ServiceVoc(    int buffer)
             {
                 if (MV_ReverbTable != NULL)
                 {
-                    MV_8BitReverb(source, dest, MV_ReverbTable, count);
+                    MV_8BitReverb((signed char *)source, (signed char *)dest, MV_ReverbTable, count);
                 }
                 else
                 {
-                    MV_8BitReverbFast(source, dest, count, MV_ReverbLevel);
+                    MV_8BitReverbFast((signed char *)source, (signed char *)dest, count, MV_ReverbLevel);
                 }
             }
 
@@ -522,9 +523,9 @@ playbackstatus MV_GetNextVOCBlock(    VoiceNode *voice)
     unsigned char *ptr;
     int            blocktype;
     int            lastblocktype;
-    unsigned long  blocklength;
-    unsigned long  samplespeed;
-    unsigned int   tc;
+    unsigned long  blocklength = 0;
+    unsigned long  samplespeed = 0;
+    unsigned int   tc = 0;
     int            packtype;
     int            voicemode;
     int            done;
@@ -585,8 +586,7 @@ playbackstatus MV_GetNextVOCBlock(    VoiceNode *voice)
         {
         case 0 :
             // End of data
-            if ((voice->LoopStart == NULL) ||
-                    (voice->LoopStart >= (ptr - 4)))
+            if ((voice->LoopStart == NULL) || ((unsigned long *)voice->LoopStart >= (unsigned long *)(ptr - 4)))
             {
                 voice->Playing = FALSE;
                 done = TRUE;
@@ -658,7 +658,7 @@ playbackstatus MV_GetNextVOCBlock(    VoiceNode *voice)
             if (voice->LoopEnd == NULL)
             {
                 voice->LoopCount = *(unsigned short *)ptr;
-                voice->LoopStart = ptr + blocklength;
+                voice->LoopStart = (char *)(ptr + blocklength);
             }
             ptr += blocklength;
             break;
@@ -674,7 +674,7 @@ playbackstatus MV_GetNextVOCBlock(    VoiceNode *voice)
             {
                 if ((voice->LoopCount > 0) && (voice->LoopStart != NULL))
                 {
-                    ptr = voice->LoopStart;
+                    ptr = (unsigned char *)voice->LoopStart;
                     if (voice->LoopCount < 0xffff)
                     {
                         voice->LoopCount--;
@@ -737,8 +737,8 @@ playbackstatus MV_GetNextVOCBlock(    VoiceNode *voice)
 
     if (voice->Playing)
     {
-        voice->NextBlock    = ptr + blocklength;
-        voice->sound        = ptr;
+        voice->NextBlock    = (char *)(ptr + blocklength);
+        voice->sound        = (char *)ptr;
 
         voice->SamplingRate = samplespeed;
         voice->RateScale    = (voice->SamplingRate * voice->PitchScale) / MV_MixRate;
@@ -902,7 +902,7 @@ playbackstatus MV_GetNextWAVBlock(    VoiceNode *voice)
 
    Starts recording of the waiting buffer.
 ---------------------------------------------------------------------*/
-
+#if 0
 static void MV_ServiceRecord(    void)
 
 {
@@ -919,7 +919,7 @@ static void MV_ServiceRecord(    void)
         MV_MixPage = 0;
     }
 }
-
+#endif
 
 /*---------------------------------------------------------------------
    Function: MV_GetVoice
@@ -1639,7 +1639,7 @@ void MV_SetReverbDelay(    int delay)
     int maxdelay;
 
     maxdelay = MV_GetMaxReverbDelay();
-    MV_ReverbDelay = max(MixBufferSize, min(delay, maxdelay));
+    MV_ReverbDelay = max((signed)MixBufferSize, min(delay, maxdelay));
     MV_ReverbDelay *= MV_SampleSize;
 }
 
@@ -1751,7 +1751,7 @@ int MV_StartPlayback(    void)
 #else
     status = DSL_BeginBufferedPlayback(MV_MixBuffer[ 0 ],
                                        TotalBufferSize, MV_NumberOfBuffers,
-                                       MV_RequestedMixRate, MV_MixMode, MV_ServiceVoc);
+                                       MV_RequestedMixRate, MV_MixMode, (void *)MV_ServiceVoc);
 
     if (status != DSL_Ok)
     {
@@ -2173,7 +2173,7 @@ int MV_PlayLoopedWAV(    char *ptr,
         return(MV_Error);
     }
 
-    if (strncmp(data->DATA, "data", 4) != 0)
+    if (strncmp((char *)data->DATA, "data", 4) != 0)
     {
         MV_SetErrorCode(MV_InvalidWAVFile);
         return(MV_Error);
@@ -2202,7 +2202,7 @@ int MV_PlayLoopedWAV(    char *ptr,
         length     /= 2;
     }
 
-    loopend    = min(loopend, data->size);
+    loopend    = min(loopend, (signed)data->size);
     absloopend = min(absloopend, length);
 
     voice->Playing     = TRUE;
@@ -2221,7 +2221,7 @@ int MV_PlayLoopedWAV(    char *ptr,
     voice->LoopEnd     = voice->NextBlock + loopend;
     voice->LoopSize    = absloopend - absloopstart;
 
-    if ((loopstart >= data->size) || (loopstart < 0))
+    if ((loopstart >= (signed)data->size) || (loopstart < 0))
     {
         voice->LoopStart = NULL;
         voice->LoopEnd   = NULL;

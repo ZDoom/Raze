@@ -57,7 +57,7 @@ $(OBJ)/pitch.$o: $(SRC)/jaudiolib/pitch.c $(SRC)/jaudiolib/pitch.h
 $(OBJ)/multivoc.$o: $(SRC)/jaudiolib/multivoc.c $(SRC)/jaudiolib/usrhooks.h $(SRC)/jaudiolib/linklist.h $(SRC)/jaudiolib/pitch.h $(SRC)/jaudiolib/multivoc.h $(SRC)/jaudiolib/_multivc.h
 $(OBJ)/fx_man.$o: $(SRC)/jaudiolib/fx_man.c $(SRC)/jaudiolib/multivoc.h $(SRC)/jaudiolib/ll_man.h $(SRC)/jaudiolib/fx_man.h
 $(OBJ)/dsoundout.$o: $(SRC)/jaudiolib/dsoundout.c $(SRC)/jaudiolib/dsoundout.h
-$(OBJ)/dsl.$o: $(SRC)/jaudiolib/dsl.c $(SRC)/jaudiolib/util.h
+$(OBJ)/dsl.$o: $(SRC)/jaudiolib/dsl.c $(EINC)/compat.h
 
 $(OBJ)/midi.$o: $(SRC)/jaudiolib/midi.c $(SRC)/jaudiolib/standard.h $(SRC)/jaudiolib/usrhooks.h $(SRC)/jaudiolib/music.h $(SRC)/jaudiolib/_midi.h $(SRC)/jaudiolib/midi.h
 $(OBJ)/mpu401.$o: $(SRC)/jaudiolib/mpu401.c $(SRC)/jaudiolib/mpu401.h
