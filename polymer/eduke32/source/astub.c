@@ -1894,7 +1894,7 @@ void Keys3d(void)
             message("You didn't select any sectors!");
             return;
         }
-        visval = (unsigned char)getnumber256("Visibility of selected sectors: ",sector[searchsector].visibility,255,0);
+        visval = (unsigned char)getnumber256("Visibility of selected sectors: ",sector[searchsector].visibility,256L,0);
         if (AskIfSure()) return;
 
         for (i = 0; i < highlightsectorcnt; i++)
@@ -1991,7 +1991,7 @@ void Keys3d(void)
                 sector[searchsector].ceilingheinum = 0;
 
             strcpy(tempbuf,"Sector ceiling slope: ");
-            sector[searchsector].ceilingheinum = getnumber256(tempbuf,sector[searchsector].ceilingheinum,8388608,1);
+            sector[searchsector].ceilingheinum = getnumber256(tempbuf,sector[searchsector].ceilingheinum,65536,1);
             break;
         case 2:
             strcpy(tempbuf,"Sector floorz: ");
@@ -1999,7 +1999,7 @@ void Keys3d(void)
             if (!(sector[searchsector].floorstat&2))
                 sector[searchsector].floorheinum = 0;
             strcpy(tempbuf,"Sector floor slope: ");
-            sector[searchsector].floorheinum = getnumber256(tempbuf,sector[searchsector].floorheinum,8388608,1);
+            sector[searchsector].floorheinum = getnumber256(tempbuf,sector[searchsector].floorheinum,65536,1);
             break;
         case 3:
             strcpy(tempbuf,"Sprite x: ");
@@ -3324,22 +3324,22 @@ void Keys3d(void)
         case 4:
             Bstrcpy(tempbuf,"Wall shade: ");
             wall[searchwall].shade =
-                getnumber256(tempbuf,wall[searchwall].shade,65536L,1);
+                getnumber256(tempbuf,wall[searchwall].shade,128L,1);
             break;
         case 1:
         case 2:
             Bstrcpy(tempbuf,"Sector shade: ");
             if (searchstat==1)
                 sector[searchsector].ceilingshade =
-                    getnumber256(tempbuf,sector[searchsector].ceilingshade,65536L,1);
+                    getnumber256(tempbuf,sector[searchsector].ceilingshade,128L,1);
             if (searchstat==2)
                 sector[searchsector].floorshade =
-                    getnumber256(tempbuf,sector[searchsector].floorshade,65536L,1);
+                    getnumber256(tempbuf,sector[searchsector].floorshade,128L,1);
             break;
         case 3:
             Bstrcpy(tempbuf,"Sprite shade: ");
             sprite[searchwall].shade =
-                getnumber256(tempbuf,sprite[searchwall].shade,65536L,1);
+                getnumber256(tempbuf,sprite[searchwall].shade,128L,1);
             break;
         }
     }
@@ -3353,7 +3353,7 @@ void Keys3d(void)
         case 2:
             Bstrcpy(tempbuf,"Sector visibility: ");
             sector[searchsector].visibility =
-                getnumber256(tempbuf,sector[searchsector].visibility,65536L,0);
+                getnumber256(tempbuf,sector[searchsector].visibility,256L,0);
             break;
         }
     }
@@ -4044,7 +4044,7 @@ void Keys2d(void)
     if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x05]==1) // ' 4
     {
         keystatus[0x05]=0;
-        MinRate=getnumber16("Enter Min Frame Rate : ", MinRate, 65536L,0);
+        MinRate=getnumber16("Enter Min Frame Rate : ", MinRate, 128L,0);
         printmessage16("");
         /*
             if(MinRate==40)
@@ -5026,7 +5026,7 @@ void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].ceilingstat = (short)getnumber16(edittext,(long)sector[sectnum].ceilingstat,32768L,0);
+                    sector[sectnum].ceilingstat = (short)getnumber16(edittext,(long)sector[sectnum].ceilingstat,65536L,0);
                 }
                 break;
             case 1:
@@ -5077,7 +5077,7 @@ void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].ceilingheinum = (short)getnumber16(edittext,(long)sector[sectnum].ceilingheinum,32768L,1);
+                    sector[sectnum].ceilingheinum = (short)getnumber16(edittext,(long)sector[sectnum].ceilingheinum,65536L,1);
                 }
                 break;
 
@@ -5102,7 +5102,7 @@ void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorstat = (short)getnumber16(edittext,(long)sector[sectnum].floorstat,1024L,0);
+                    sector[sectnum].floorstat = (short)getnumber16(edittext,(long)sector[sectnum].floorstat,65536L,0);
                 }
                 break;
 
@@ -5125,7 +5125,7 @@ void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorshade = (char)getnumber16(edittext,(long)sector[sectnum].floorshade,65536L,1L);
+                    sector[sectnum].floorshade = (char)getnumber16(edittext,(long)sector[sectnum].floorshade,128L,1L);
                 }
                 break;
 
@@ -5154,7 +5154,7 @@ void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorheinum = (short)getnumber16(edittext,(long)sector[sectnum].floorheinum,32768L,1);
+                    sector[sectnum].floorheinum = (short)getnumber16(edittext,(long)sector[sectnum].floorheinum,65536L,1);
                 }
                 break;
             case 6:
@@ -5232,7 +5232,7 @@ void EditWallData(short wallnum)
             if (editval)
             {
                 printmessage16(edittext);
-                wall[wallnum].cstat = (short)getnumber16(edittext,(long)wall[wallnum].cstat,1024L,0);
+                wall[wallnum].cstat = (short)getnumber16(edittext,(long)wall[wallnum].cstat,65536L,0);
             }
             break;
         case 1:
@@ -5241,7 +5241,7 @@ void EditWallData(short wallnum)
             if (editval)
             {
                 printmessage16(edittext);
-                wall[wallnum].shade = (char)getnumber16(edittext,(long)wall[wallnum].shade,127,1);
+                wall[wallnum].shade = (char)getnumber16(edittext,(long)wall[wallnum].shade,128,1);
             }
             break;
         case 2:
@@ -5495,7 +5495,7 @@ void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].cstat = (short)getnumber16(edittext,(long)sprite[spritenum].cstat,32768L,0);
+                    sprite[spritenum].cstat = (short)getnumber16(edittext,(long)sprite[spritenum].cstat,65536L,0);
                 }
             }
             break;
@@ -5506,7 +5506,7 @@ void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].shade = (char)getnumber16(edittext,(long)sprite[spritenum].shade,127,1);
+                    sprite[spritenum].shade = (char)getnumber16(edittext,(long)sprite[spritenum].shade,128,1);
                 }
             }
             break;
@@ -5585,7 +5585,7 @@ void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].xvel = getnumber16(edittext,(long)sprite[spritenum].xvel,32767,1);
+                    sprite[spritenum].xvel = getnumber16(edittext,(long)sprite[spritenum].xvel,65536,1);
                 }
             }
             break;
@@ -5596,7 +5596,7 @@ void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].yvel = getnumber16(edittext,(long)sprite[spritenum].yvel,32767,1);
+                    sprite[spritenum].yvel = getnumber16(edittext,(long)sprite[spritenum].yvel,65536,1);
                 }
             }
             break;
@@ -5607,7 +5607,7 @@ void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].zvel = getnumber16(edittext,(long)sprite[spritenum].zvel,32767,1);
+                    sprite[spritenum].zvel = getnumber16(edittext,(long)sprite[spritenum].zvel,65536,1);
                 }
             }
             break;
@@ -5629,7 +5629,7 @@ void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].clipdist = (char)getnumber16(edittext,(long)sprite[spritenum].clipdist,255,0);
+                    sprite[spritenum].clipdist = (char)getnumber16(edittext,(long)sprite[spritenum].clipdist,256,0);
                 }
             }
             break;
@@ -5640,7 +5640,7 @@ void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].extra = getnumber16(edittext,(long)sprite[spritenum].extra,32767,1);
+                    sprite[spritenum].extra = getnumber16(edittext,(long)sprite[spritenum].extra,65536,1);
                 }
             }
             break;
@@ -5875,7 +5875,7 @@ void FuncMenu(void)
                 for (i=Bsprintf(disptext,"Global sky shade"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    j=getnumber16("Global sky shade:    ",0,127,1);
+                    j=getnumber16("Global sky shade:    ",0,128,1);
 
                     for (i=0;i<numsectors;i++)
                     {
@@ -5997,7 +5997,7 @@ void FuncMenu(void)
                 for (i=Bsprintf(disptext,"Global shade divide"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    j=getnumber16("Shade divisor:    ",1,127,1);
+                    j=getnumber16("Shade divisor:    ",1,128,1);
                     if (j!=1)
                     {
                         for (i=0;i<numsectors;i++)
@@ -6025,7 +6025,7 @@ void FuncMenu(void)
                 for (i=Bsprintf(disptext,"Global visibility divide"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    j=getnumber16("Visibility divisor:    ",1,127,0);
+                    j=getnumber16("Visibility divisor:    ",1,128,0);
                     if (j!=1)
                     {
                         for (i=0;i<numsectors;i++)
