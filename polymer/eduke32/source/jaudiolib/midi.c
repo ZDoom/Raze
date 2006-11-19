@@ -41,8 +41,6 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-static __int64 nexttick, tickdelta;
-
 extern int MUSIC_SoundDevice;
 
 static const int _MIDI_CommandLengths[ NUM_MIDI_CHANNELS ] =
@@ -543,8 +541,8 @@ static int _MIDI_ServiceRoutine(void)
     track *Track;
     int   tracknum;
     int   status;
-    int   c1;
-    int   c2;
+    int   c1 = 0;
+    int   c2 = 0;
     int   TimeSet = FALSE;
 
     if (_MIDI_SongActive)
@@ -924,8 +922,6 @@ int MIDI_Reset
 
 {
     int channel;
-    long time;
-    unsigned flags;
 
     MIDI_AllNotesOff();
 
@@ -1209,7 +1205,6 @@ int MIDI_PlaySong
     track *CurrentTrack;
     unsigned char *ptr;
     int    status;
-    DWORD i;
 
     if (_MIDI_SongLoaded)
     {
@@ -1377,8 +1372,8 @@ static int _MIDI_ProcessNextTick
     track *Track;
     int   tracknum;
     int   status;
-    int   c1;
-    int   c2;
+    int   c1 = 0;
+    int   c2 = 0;
     int   TimeSet = FALSE;
 
     Track = _MIDI_TrackPtr;

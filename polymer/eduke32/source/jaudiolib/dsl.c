@@ -159,7 +159,6 @@ int   DSL_BeginBufferedPlayback(char *BufferStart,
                                 int MixMode, void(*CallBackFunc)(void))
 {
     Uint16 format;
-    Uint8 *tmp;
     int channels;
     int chunksize;
 

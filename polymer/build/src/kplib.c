@@ -2991,7 +2991,7 @@ long kzfindfile (char *filnam)
             if (findata.attrib&16) strcat(&filnam[i],"\\");
 #elif defined(_WIN32)
             if (!FindNextFile(hfind,&findata))
-            { FindClose(hfind); if (!kzhashbuf) return(0); srchstat = kzlastfnam; break; }
+            { FindClose(hfind); hfind = INVALID_HANDLE_VALUE; if (!kzhashbuf) return(0); /* srchstat = kzlastfnam; */ break; }
             if (findata.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) continue;
             i = wildstpathleng;
             if (findata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)

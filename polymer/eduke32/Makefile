@@ -202,7 +202,7 @@ include Makefile.deps
 
 .PHONY: enginelib editorlib
 enginelib editorlib:
-	-mkdir $(EOBJ)
+	-mkdir -p $(EOBJ)
 	$(MAKE) -C $(EROOT)/ "OBJ=$(CURDIR)/$(EOBJ)" \
 		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) \
 		USE_OPENGL=$(USE_OPENGL) \

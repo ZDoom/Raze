@@ -327,7 +327,7 @@ int app_main(int argc, char **argv)
     inittimer(TIMERINTSPERSECOND);
     installusertimercallback(keytimerstuff);
 
-    loadpics("tiles000.art",1048576);
+    loadpics("tiles000.art",1048576*16);
     loadnames();
 
     Bstrcpy(kensig,"Based on BUILD by Ken Silverman");
