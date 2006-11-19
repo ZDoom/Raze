@@ -370,6 +370,7 @@ int app_main(int argc, char **argv)
         numsectors = 0;
         numwalls = 0;
         cursectnum = -1;
+        setbrightness(0,palette,0);
         overheadeditor();
         keystatus[buildkeys[14]] = 0;
     }
@@ -2387,6 +2388,7 @@ void editinput(void)
     }
     if (keystatus[buildkeys[14]] > 0)  // Enter
     {
+        setbrightness(0,palette,0);
         overheadeditor();
         keystatus[buildkeys[14]] = 0;
     }
@@ -5889,6 +5891,8 @@ CANCEL:
         printf("%ld * %ld not supported in this graphics mode\n",xdim,ydim);
         exit(0);
     }
+
+    setbrightness(brightness,palette,0);
 
     posz = oposz;
     searchx = scale(searchx,xdimgame,xdim2d);
