@@ -5542,7 +5542,7 @@ int initengine(void)
 #if !defined _WIN32 && defined DEBUGGINGAIDS
     struct sigaction sigact, oldact;
     memset(&sigact, 0, sizeof(sigact));
-    sigact.sa_sigaction = sighandler;
+    sigact.sa_sigaction = (void *)sighandler;
     sigact.sa_flags = SA_SIGINFO;
     sigaction(SIGFPE, &sigact, &oldact);
 #endif

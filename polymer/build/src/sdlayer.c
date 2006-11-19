@@ -481,16 +481,16 @@ void grabmouse(char a)
     {
         if (a != mouseacquired)
         {
-// #ifndef DEBUGGINGAIDS
+#ifndef DEBUGGINGAIDS
             SDL_GrabMode g;
 
             g = SDL_WM_GrabInput(a ? SDL_GRAB_ON : SDL_GRAB_OFF);
             mouseacquired = (g == SDL_GRAB_ON);
 
             SDL_ShowCursor(mouseacquired ? SDL_DISABLE : SDL_ENABLE);
-// #else
-//            mouseacquired = a;
-// #endif
+#else
+            mouseacquired = a;
+#endif
         }
     }
     else
@@ -1361,6 +1361,7 @@ int handleevents(void)
             if (ev.active.state & SDL_APPINPUTFOCUS)
             {
                 appactive = ev.active.gain;
+#ifndef DEBUGGINGAIDS
                 if (mouseacquired && moustat)
                 {
                     if (appactive)
@@ -1374,6 +1375,7 @@ int handleevents(void)
                         SDL_ShowCursor(SDL_ENABLE);
                     }
                 }
+#endif
                 rv=-1;
             }
             break;
@@ -1478,12 +1480,12 @@ int handleevents(void)
 
     if (moustat)
     {
-        if ((mwheelup) && (mwheelup <= (totalclock - MWHEELTICKS)))
+        if ((mwheelup) && (mwheelup <= (unsigned)(totalclock - MWHEELTICKS)))
         {
             mouseb &= ~16;
             mwheelup = 0;
         }
-        if ((mwheeldown) && (mwheeldown <= (totalclock - MWHEELTICKS)))
+        if ((mwheeldown) && (mwheeldown <= (unsigned)(totalclock - MWHEELTICKS)))
         {
             mouseb &= ~32;
             mwheeldown = 0;

@@ -198,7 +198,7 @@ long netread (long *other, char *dabuf, long bufsiz) //0:no packets in buffer
     long i;
 
     i = sizeof(ip);
-    if (recvfrom(mysock,dabuf,bufsiz,0,(struct sockaddr *)&ip,(int *)&i) == -1) return(0);
+    if (recvfrom(mysock,dabuf,bufsiz,0,(struct sockaddr *)&ip,(unsigned int *)&i) == -1) return(0);
 #if (SIMMIS > 0)
     if ((rand()&255) < SIMMIS) return(0);
 #endif

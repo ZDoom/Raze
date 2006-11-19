@@ -971,7 +971,7 @@ void writexcache(char *fn, long len, long dameth, char effect, texcacheheader *h
     char *pic = NULL, *packbuf = NULL;
     void *midbuf = NULL;
     unsigned long alloclen=0, level, miplen;
-    unsigned long padx, pady;
+    unsigned long padx=0, pady=0;
     GLuint gi;
     long j, k;
 
@@ -1006,7 +1006,7 @@ void writexcache(char *fn, long len, long dameth, char effect, texcacheheader *h
     }
 
     gi = GL_FALSE;
-    bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &gi);
+    bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, (GLint *)&gi);
     if (gi != GL_TRUE) return;
 
     md4once((unsigned char *)fn, strlen(fn), mdsum);
@@ -1032,25 +1032,25 @@ void writexcache(char *fn, long len, long dameth, char effect, texcacheheader *h
 
     bglGetError();
     for (level = 0; level==0 || (padx > 1 || pady > 1); level++) {
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_ARB, &gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_ARB, (GLint *)&gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
         if (gi != GL_TRUE) goto failure;   // an uncompressed mipmap
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, (GLint *)&gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
         pict.format = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_WIDTH, &gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_WIDTH, (GLint *)&gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
         padx = gi; pict.xdim = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_HEIGHT, &gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_HEIGHT, (GLint *)&gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
         pady = gi; pict.ydim = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_BORDER, &gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_BORDER, (GLint *)&gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
         pict.border = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_DEPTH, &gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_DEPTH, (GLint *)&gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
         pict.depth = B_LITTLE32(gi);
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &gi);
+        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, (GLint *)&gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
         miplen = (long)gi; pict.size = B_LITTLE32(gi);
 
@@ -1492,6 +1492,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             pc[0] = pc[1] = pc[2] = f;
             switch (method&3)
             {
+            default:
             case 0:
                 pc[3] = 1.0; break;
             case 1:

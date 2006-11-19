@@ -663,7 +663,7 @@ failure:
 //Note: even though it says md2model, it works for both md2model&md3model
 static long mdloadskin (md2model *m, int number, int pal, int surf)
 {
-    long i,j, fptr=0, bpl, xsiz, ysiz, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
+    long i,j, fptr=0, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
     char *skinfile, hasalpha, fn[BMAX_PATH+65];
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
