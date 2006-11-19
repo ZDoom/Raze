@@ -1178,7 +1178,7 @@ static void GetKeyNames(void)
         if (FAILED(res)) continue;
 
         CharToOem(key.tszName, tbuf);
-        strncpy(keynames[i], tbuf, sizeof(keynames[i])-1);
+        strncpy((char *)keynames[i], tbuf, sizeof(keynames[i])-1);
     }
 }
 
@@ -1193,15 +1193,15 @@ const unsigned char *getjoyname(int what, int num)
     switch (what) {
     case 0:	// axis
         if ((unsigned)num > (unsigned)joynumaxes) return NULL;
-        return axisdefs[num].name;
+        return (unsigned char *)axisdefs[num].name;
 
     case 1: // button
         if ((unsigned)num > (unsigned)joynumbuttons) return NULL;
-        return buttondefs[num].name;
+        return (unsigned char *)buttondefs[num].name;
 
     case 2: // hat
         if ((unsigned)num > (unsigned)joynumhats) return NULL;
-        return hatdefs[num].name;
+        return (unsigned char *)hatdefs[num].name;
 
     default:
         return NULL;
@@ -2847,36 +2847,36 @@ static int SetupOpenGL(int width, int height, int bitspp)
         GLubyte *p,*p2,*p3;
         int i;
 
-        glinfo.vendor     = bglGetString(GL_VENDOR);
-        glinfo.renderer   = bglGetString(GL_RENDERER);
-        glinfo.version    = bglGetString(GL_VERSION);
-        glinfo.extensions = bglGetString(GL_EXTENSIONS);
+        glinfo.vendor     = (char *)bglGetString(GL_VENDOR);
+        glinfo.renderer   = (char *)bglGetString(GL_RENDERER);
+        glinfo.version    = (char *)bglGetString(GL_VERSION);
+        glinfo.extensions = (char *)bglGetString(GL_EXTENSIONS);
 
         glinfo.maxanisotropy = 1.0;
         glinfo.bgra = 0;
         glinfo.texcompr = 0;
 
         // process the extensions string and flag stuff we recognize
-        p = Bstrdup(glinfo.extensions);
+        p = (unsigned char *)Bstrdup(glinfo.extensions);
         p3 = p;
-        while ((p2 = Bstrtoken(p3==p?p:NULL, " ", (char**)&p3, 1)) != NULL) {
-            if (!Bstrcmp(p2, "GL_EXT_texture_filter_anisotropic")) {
+        while ((p2 = (unsigned char *)Bstrtoken(p3==p?(char *)p:NULL, " ", (char**)&p3, 1)) != NULL) {
+            if (!Bstrcmp((char *)p2, "GL_EXT_texture_filter_anisotropic")) {
                 // supports anisotropy. get the maximum anisotropy level
                 bglGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
-            } else if (!Bstrcmp(p2, "GL_EXT_texture_edge_clamp") ||
-                       !Bstrcmp(p2, "GL_SGIS_texture_edge_clamp")) {
+            } else if (!Bstrcmp((char *)p2, "GL_EXT_texture_edge_clamp") ||
+                       !Bstrcmp((char *)p2, "GL_SGIS_texture_edge_clamp")) {
                 // supports GL_CLAMP_TO_EDGE or GL_CLAMP_TO_EDGE_SGIS
                 glinfo.clamptoedge = 1;
-            } else if (!Bstrcmp(p2, "GL_EXT_bgra")) {
+            } else if (!Bstrcmp((char *)p2, "GL_EXT_bgra")) {
                 // support bgra textures
                 glinfo.bgra = 1;
-            } else if (!Bstrcmp(p2, "GL_ARB_texture_compression")) {
+            } else if (!Bstrcmp((char *)p2, "GL_ARB_texture_compression")) {
                 // support texture compression
                 glinfo.texcompr = 1;
-            } else if (!Bstrcmp(p2, "GL_ARB_texture_non_power_of_two")) {
+            } else if (!Bstrcmp((char *)p2, "GL_ARB_texture_non_power_of_two")) {
                 // support non-power-of-two texture sizes
                 glinfo.texnpot = 1;
-            } else if (!Bstrcmp(p2, "WGL_3DFX_gamma_control")) {
+            } else if (!Bstrcmp((char *)p2, "WGL_3DFX_gamma_control")) {
                 // 3dfx cards have issues with fog
                 nofog = 1;
                 if (!(warnonce&1)) initprintf("3dfx card detected: OpenGL fog disabled\n");

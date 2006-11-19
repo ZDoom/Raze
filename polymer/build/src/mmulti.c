@@ -5,7 +5,8 @@
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
-#include <winsock.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #else
 #include <unistd.h>
 #include <netinet/in.h>
@@ -198,7 +199,8 @@ long netread (long *other, char *dabuf, long bufsiz) //0:no packets in buffer
     long i;
 
     i = sizeof(ip);
-    if (recvfrom(mysock,dabuf,bufsiz,0,(struct sockaddr *)&ip,(unsigned int *)&i) == -1) return(0);
+
+    if (recvfrom(mysock,dabuf,bufsiz,0,(struct sockaddr *)&ip,(socklen_t *)&i) == -1) return(0);
 #if (SIMMIS > 0)
     if ((rand()&255) < SIMMIS) return(0);
 #endif
