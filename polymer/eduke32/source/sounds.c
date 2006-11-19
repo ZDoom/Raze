@@ -174,7 +174,7 @@ int USRHOOKS_FreeMem(char *ptr)
     return(USRHOOKS_Ok);
 }
 
-char menunum=0;
+unsigned char menunum=0;
 
 void intomenusounds(void)
 {

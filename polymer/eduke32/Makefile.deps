@@ -22,7 +22,7 @@ $(OBJ)/winbits.$o: $(SRC)/winbits.c
 $(OBJ)/osdfuncs.$o: $(SRC)/names.h $(EINC)/build.h
 $(OBJ)/osdcmds.$o: $(SRC)/osdcmds.c $(INC)/osdcmds.h $(EINC)/osd.h $(duke3d_h)
 
-$(OBJ)/astub.$o: $(SRC)/astub.c $(EINC)/build.h $(EINC)/pragmas.h $(EINC)/compat.h $(EINC)/editor.h
+$(OBJ)/astub.$o: $(SRC)/astub.c $(SRC)/mapster32.h $(EINC)/build.h $(EINC)/pragmas.h $(EINC)/compat.h $(EINC)/editor.h
 
 $(OBJ)/game_icon.$o: $(RSRC)/game_icon.c
 $(OBJ)/build_icon.$o: $(RSRC)/build_icon.c

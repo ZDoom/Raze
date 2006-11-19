@@ -3975,7 +3975,7 @@ cheat_for_port_credits:
                 else
                 {
                     if (ud.recstat != 2 && ps[myconnectindex].gm&MODE_GAME)
-                        playmusic(&music_fn[0][music_select][0]);
+                        playmusic(&music_fn[0][(unsigned char)music_select][0]);
                     else playmusic(&env_music_fn[0][0]);
 
                     MUSIC_Continue();

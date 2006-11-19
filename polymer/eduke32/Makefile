@@ -33,8 +33,8 @@ endif
 
 CC=gcc
 CXX=g++
-# -Werror-implicit-function-declaration
-OURCFLAGS=$(debug) -W -Wall -Wimplicit -Wno-char-subscripts -Wunused \
+
+OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration -Wno-unused \
 	-fno-pic -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -DNOCOPYPROTECT \
 	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib -I../jfaud/inc
 OURCXXFLAGS=-fno-exceptions -fno-rtti

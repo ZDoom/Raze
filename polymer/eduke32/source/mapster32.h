@@ -42,7 +42,7 @@ extern long searchx, searchy, osearchx, osearchy;      //search input
 extern short searchsector, searchwall, searchstat;     //search output
 
 extern short temppicnum, tempcstat, templotag, temphitag, tempextra;
-extern char tempshade, temppal, tempvis, tempxrepeat, tempyrepeat, somethingintab;
+extern unsigned char tempshade, temppal, tempvis, tempxrepeat, tempyrepeat, somethingintab;
 
 static long ototalclock = 0, clockval[16], clockcnt = 0;
 
@@ -50,7 +50,7 @@ static long ototalclock = 0, clockval[16], clockcnt = 0;
 #define NUMKEYS 19
 
 char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
-char keys[NUMBUILDKEYS] =
+unsigned char keys[NUMBUILDKEYS] =
     {
         0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
         0x1e,0x2c,0xd1,0xc9,0x47,0x49,
@@ -74,27 +74,23 @@ char autospritehelp=0,autosecthelp=0;
 short MinRate=24, MinD=3;
 long xoldtimerhandler, lastmessagetime;
 
-static char tempbuf[1024]; //1024
-static int numsprite[MAXSPRITES];
-static int multisprite[MAXSPRITES];
-static char lo[32];
+char tempbuf[1024]; //1024
+int numsprite[MAXSPRITES];
+int multisprite[MAXSPRITES];
+char lo[32];
 char levelname[255];
-static short curwall=0,curwallnum=0;
-static short cursearchsprite=0,cursearchspritenum=0,cursector_lotag=0,cursectornum=0;
-static short search_lotag=0,search_hitag=0;
-static char wallsprite=0;
-static char helpon=0;
+short curwall=0,curwallnum=0;
+short cursearchsprite=0,cursearchspritenum=0,cursector_lotag=0,cursectornum=0;
+short search_lotag=0,search_hitag=0;
+char wallsprite=0;
+char helpon=0;
 //static char onwater=0;
-static char onnames=4;
-static char usedcount=1;
-static short cursprite;
-long mousxplc,mousyplc;
-long ppointhighlight;
-static int counter=0;
-char nosprites=0,purpleon=0,skill=4;
-char framerateon=1,tabgraphic=2,shadepreview=0,autosave=1;
-
-static char sidemode=0;
+unsigned char onnames=4, usedcount=1;
+short cursprite;
+long mousxplc, mousyplc, ppointhighlight;
+int counter=0;
+unsigned char nosprites=0,purpleon=0,skill=4;
+unsigned char framerateon=1,tabgraphic=2,shadepreview=0,autosave=1,sidemode=0;
 extern long vel, svel, hvel, angvel;
 long xvel, yvel, timoff;
 

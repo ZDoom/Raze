@@ -6524,7 +6524,7 @@ good:
     {
         insptr++;
         music_select=*insptr++;
-        playmusic(&music_fn[ud.volume_number][music_select][0]);
+        playmusic(&music_fn[ud.volume_number][(unsigned char)music_select][0]);
         break;
     }
 

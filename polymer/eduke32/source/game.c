@@ -560,11 +560,11 @@ void getpackets(void)
             switch (packbuf[1])
             {
             case 0:
-                if (voting == myconnectindex && gotvote[packbuf[2]] == 0)
+                if (voting == myconnectindex && gotvote[(unsigned char)packbuf[2]] == 0)
                 {
-                    gotvote[packbuf[2]] = 1;
-                    votes[packbuf[2]] = packbuf[3];
-                    Bsprintf(tempbuf,"GOT VOTE FROM %s",ud.user_name[packbuf[2]]);
+                    gotvote[(unsigned char)packbuf[2]] = 1;
+                    votes[(unsigned char)packbuf[2]] = packbuf[3];
+                    Bsprintf(tempbuf,"GOT VOTE FROM %s",ud.user_name[(unsigned char)packbuf[2]]);
                     adduserquote(tempbuf);
                 }
                 break;
@@ -573,7 +573,7 @@ void getpackets(void)
                 voting = packbuf[2];
                 vote_episode = packbuf[3];
                 vote_map = packbuf[4];
-                Bsprintf(tempbuf,"%s HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[packbuf[2]],level_names[packbuf[3]*11 + packbuf[4]],packbuf[3]+1,packbuf[4]+1);
+                Bsprintf(tempbuf,"%s HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[(unsigned char)packbuf[2]],level_names[(unsigned char)(packbuf[3]*11 + packbuf[4])],packbuf[3]+1,packbuf[4]+1);
                 adduserquote(tempbuf);
                 Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
                 adduserquote(tempbuf);
@@ -591,7 +591,7 @@ void getpackets(void)
                         i += gotvote[j];
 
                     if (i != numplayers)
-                        Bsprintf(tempbuf,"%s HAS CANCELED THE VOTE",ud.user_name[packbuf[2]]);
+                        Bsprintf(tempbuf,"%s HAS CANCELED THE VOTE",ud.user_name[(unsigned char)packbuf[2]]);
                     else Bsprintf(tempbuf,"VOTE FAILED");
                     Bmemset(votes,0,sizeof(votes));
                     Bmemset(gotvote,0,sizeof(gotvote));
@@ -2639,8 +2639,8 @@ short strget_(int small,short x,short y,char *t,short dalen,short c)
     {
         char b[91],ii;
         for (ii=0;ii<inputloc;ii++)
-            b[ii] = '*';
-        b[ii] = 0;
+            b[(unsigned char)ii] = '*';
+        b[(unsigned char)ii] = 0;
         if (ps[myconnectindex].gm&MODE_TYPE)
             x = mpgametext(y,b,c,2+8+16);
         else x = gametext(x,y,b,c,2+8+16);
@@ -7132,7 +7132,7 @@ void CheatGetInventory(void)
     }
 }
 
-char cheatbuf[MAXCHEATLEN],cheatbuflen;
+signed char cheatbuf[MAXCHEATLEN],cheatbuflen;
 
 void cheats(void)
 {
@@ -7594,7 +7594,7 @@ FOUNDCHEAT:
                     actor_tog++;
                     if (actor_tog == 3) actor_tog = 0;
                     ps[screenpeek].cheat_phase = 0;
-                    Bsprintf(fta_quotes[122],"MONSTERS: %s",s[actor_tog]);
+                    Bsprintf(fta_quotes[122],"MONSTERS: %s",s[(unsigned char)actor_tog]);
                     FTA(122,&ps[myconnectindex]);
                     KB_FlushKeyBoardQueue();
                     return;
@@ -7611,13 +7611,13 @@ FOUNDCHEAT:
     }
     else
     {
-        if (KB_KeyPressed(cheatkey[0]))
+        if (KB_KeyPressed((unsigned char)cheatkey[0]))
         {
             if (ps[myconnectindex].cheat_phase >= 0 && numplayers < 2 && ud.recstat == 0)
                 ps[myconnectindex].cheat_phase = -1;
         }
 
-        if (KB_KeyPressed(cheatkey[1]))
+        if (KB_KeyPressed((unsigned char)cheatkey[1]))
         {
             if (ps[myconnectindex].cheat_phase == -1)
             {
@@ -7637,8 +7637,8 @@ FOUNDCHEAT:
             else if (ps[myconnectindex].cheat_phase != 0)
             {
                 ps[myconnectindex].cheat_phase = 0;
-                KB_ClearKeyDown(cheatkey[0]);
-                KB_ClearKeyDown(cheatkey[1]);
+                KB_ClearKeyDown((unsigned char)cheatkey[0]);
+                KB_ClearKeyDown((unsigned char)cheatkey[1]);
             }
         }
     }
@@ -7809,13 +7809,13 @@ void nonsharedkeys(void)
                 {
                     i = (VOLUMEALL?num_volumes*11:6);
                     music_select++;
-                    while (!music_fn[0][music_select][0] && music_select < i)
+                    while (!music_fn[0][(unsigned char)music_select][0] && music_select < i)
                         music_select++;
                     if (music_select == i)
                         music_select = 0;
-                    Bsprintf(fta_quotes[26],"PLAYING %s",&music_fn[0][music_select][0]);
+                    Bsprintf(fta_quotes[26],"PLAYING %s",&music_fn[0][(unsigned char)music_select][0]);
                     FTA(26,&ps[myconnectindex]);
-                    playmusic(&music_fn[0][music_select][0]);
+                    playmusic(&music_fn[0][(unsigned char)music_select][0]);
                     return;
                 }
 
@@ -8031,7 +8031,7 @@ FAKE_F3:
         if (KB_KeyPressed(sc_F5) && MusicDevice >= 0)
         {
             KB_ClearKeyDown(sc_F5);
-            Bstrcpy(fta_quotes[26],&music_fn[0][music_select][0]);
+            Bstrcpy(fta_quotes[26],&music_fn[0][(unsigned char)music_select][0]);
             Bstrcat(fta_quotes[26],".  USE SHIFT-F5 TO CHANGE.");
             FTA(26,&ps[myconnectindex]);
         }

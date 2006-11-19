@@ -1064,7 +1064,7 @@ void ExtShowWallData(short wallnum)       //F6
 void Show2dText(char *name)
 {
     int fp,t;
-    char x=0,y=4,xmax=0,xx=0,col=0;
+    unsigned char x=0,y=4,xmax=0,xx=0,col=0;
     clearmidstatbar16();
     if ((fp=kopen4load(name,0)) == -1)
     {
@@ -1110,7 +1110,7 @@ void Show2dText(char *name)
 void Show3dText(char *name)
 {
     int fp,t;
-    char x=0,y=4,xmax=0,xx=0,col=0;
+    unsigned char x=0,y=4,xmax=0,xx=0,col=0;
 
     if ((fp=kopen4load(name,0)) == -1)
     {
@@ -4948,10 +4948,10 @@ void EditSectorData(short sectnum)
 {
     char disptext[80];
     char edittext[80];
-    char col=1, row=0, rowmax = 6, dispwidth = 24;
+    unsigned char col=1, row=0, rowmax = 6, dispwidth = 24, editval = 0;
     long xpos = 200, ypos = ydim-STATUS2DSIZ+48;
     int i = -1;
-    char editval = 0;
+
     disptext[dispwidth] = 0;
     clearmidstatbar16();
     showsectordata(sectnum);
@@ -5186,10 +5186,10 @@ void EditWallData(short wallnum)
 {
     char disptext[80];
     char edittext[80];
-    char row=0, dispwidth = 24;
+    unsigned char row=0, dispwidth = 24, editval = 0;
     long xpos = 200, ypos = ydim-STATUS2DSIZ+48;
     int i = -1;
-    char editval = 0;
+
     disptext[dispwidth] = 0;
     clearmidstatbar16();
     showwalldata(wallnum);
@@ -5319,10 +5319,10 @@ void EditSpriteData(short spritenum)
 {
     char disptext[80];
     char edittext[80];
-    char col=0, row=0, rowmax=4, dispwidth = 24;
+    unsigned char col=0, row=0, rowmax=4, dispwidth = 24, editval = 0;
     long xpos = 8, ypos = ydim-STATUS2DSIZ+48;
     int i = -1;
-    char editval = 0;
+
     disptext[dispwidth] = 0;
     clearmidstatbar16();
     showspritedata(spritenum);
@@ -5729,10 +5729,10 @@ void FuncMenuOpts(void)
 void FuncMenu(void)
 {
     char disptext[80];
-    char col=0, row=0, rowmax=7, dispwidth = 24;
+    unsigned char col=0, row=0, rowmax=7, dispwidth = 24, editval = 0;
     long xpos = 8, ypos = ydim-STATUS2DSIZ+48;
     int i = -1, j;
-    char editval = 0;
+
     disptext[dispwidth] = 0;
     clearmidstatbar16();
 

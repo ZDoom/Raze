@@ -17,10 +17,10 @@ extern long zmode, kensplayerheight;
 extern short defaultspritecstat;
 
 extern short temppicnum, tempcstat, templotag, temphitag, tempextra;
-extern char tempshade, temppal, tempxrepeat, tempyrepeat;
-extern char somethingintab;
+extern unsigned char tempshade, temppal, tempxrepeat, tempyrepeat;
+extern unsigned char somethingintab;
 
-extern char buildkeys[NUMBUILDKEYS];
+extern unsigned char buildkeys[NUMBUILDKEYS];
 
 extern long ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
 

@@ -384,7 +384,7 @@ SKIPWALLCHECK:
 
     for (x = 0;x<7;x++)
     {
-        j = headspritestat[statlist[x]];
+        j = headspritestat[(unsigned char)statlist[x]];
         while (j >= 0)
         {
             nextj = nextspritestat[j];

@@ -56,7 +56,7 @@ void _printmessage16(char name[82]);
 
 long vel, svel, angvel;
 
-char buildkeys[NUMBUILDKEYS] =
+unsigned char buildkeys[NUMBUILDKEYS] =
     {
         0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
         0x1e,0x2c,0xd1,0xc9,0x33,0x34,
@@ -118,8 +118,8 @@ extern char textfont[128][8];
 static char pskysearch[MAXSECTORS];
 
 short temppicnum, tempcstat, templotag, temphitag, tempextra;
-char tempshade, temppal, tempvis, tempxrepeat, tempyrepeat;
-char somethingintab = 255;
+unsigned char tempshade, temppal, tempvis, tempxrepeat, tempyrepeat;
+unsigned char somethingintab = 255;
 
 char mlook = 0;
 

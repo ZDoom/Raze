@@ -53,14 +53,14 @@ static void tloadtile(short tilenume, char type)
         {
             if (!(gotpic[i>>3] & pow2char[i&7])) precachecount++;
             gotpic[i>>3] |= pow2char[i&7];
-            precachehightile[type][i>>3] |= pow2char[i&7];
+            precachehightile[(unsigned char)type][i>>3] |= pow2char[i&7];
         }
     }
     else
     {
         if (!(gotpic[tilenume>>3] & pow2char[tilenume&7])) precachecount++;
         gotpic[tilenume>>3] |= pow2char[tilenume&7];
-        precachehightile[type][tilenume>>3] |= pow2char[tilenume&7];
+        precachehightile[(unsigned char)type][tilenume>>3] |= pow2char[tilenume&7];
     }
 }
 
@@ -1263,11 +1263,11 @@ void resetpspritevars(char g)
             firsty = ps[0].posy;
         }
 
-        po[numplayersprites].ox = s->x;
-        po[numplayersprites].oy = s->y;
-        po[numplayersprites].oz = s->z;
-        po[numplayersprites].oa = s->ang;
-        po[numplayersprites].os = s->sectnum;
+        po[(unsigned char)numplayersprites].ox = s->x;
+        po[(unsigned char)numplayersprites].oy = s->y;
+        po[(unsigned char)numplayersprites].oz = s->z;
+        po[(unsigned char)numplayersprites].oa = s->ang;
+        po[(unsigned char)numplayersprites].os = s->sectnum;
 
         numplayersprites++;
         if (j >= 0)
@@ -1715,7 +1715,7 @@ int enterlevel(char g)
     if (ud.recstat != 2)
     {
         music_select = (ud.volume_number*11) + ud.level_number;
-        playmusic(&music_fn[0][music_select][0]);
+        playmusic(&music_fn[0][(unsigned char)music_select][0]);
     }
 
     if ((g&MODE_GAME) || (g&MODE_EOL))
