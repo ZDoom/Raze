@@ -17,6 +17,7 @@
 #define _WIN32_IE 0x0400
 #include <windows.h>
 #include <shlobj.h>
+#include <direct.h>
 #endif
 
 #include <stdio.h>

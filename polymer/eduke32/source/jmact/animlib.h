@@ -38,7 +38,9 @@ extern "C" {
 #endif
 
 #ifdef __GNUC__
-# define PACKED __attribute__ ((packed))
+# ifndef PACKED
+#  define PACKED __attribute__ ((packed))
+# endif
 #else
 # define PACKED
 # ifdef _MSC_VER

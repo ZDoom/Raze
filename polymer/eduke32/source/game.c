@@ -7352,6 +7352,7 @@ FOUNDCHEAT:
                     hittype[ps[myconnectindex].i].extra = 0;
                     ps[myconnectindex].cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
+                    Bstrcpy(terminx,terminx);
                     return;
 
                 case CHEAT_STUFF:
@@ -8161,7 +8162,7 @@ FAKE_F3:
     }
 }
 
-void comlinehelp(char **argv)
+void comlinehelp(void)
 {
     char *s = "Command line help.\n"
               "?, -?\t\tThis help message\n"
@@ -8563,7 +8564,7 @@ void checkcommandline(int argc,char **argv)
                 switch (*c)
                 {
                 case '?':
-                    comlinehelp(argv);
+                    comlinehelp();
                     exit(0);
                     break;
                 case 'a':
@@ -8719,7 +8720,7 @@ void checkcommandline(int argc,char **argv)
                     }
                     else
                     {
-                        comlinehelp(argv);
+                        comlinehelp();
                         exit(-1);
                     }
                     break;

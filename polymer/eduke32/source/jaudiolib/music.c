@@ -48,12 +48,6 @@ int MUSIC_ErrorCode = MUSIC_Ok;
 
 static midifuncs MUSIC_MidiFunctions;
 
-static int       MUSIC_FadeLength;
-static int       MUSIC_FadeRate;
-static unsigned  MUSIC_CurrentFadeVolume;
-static unsigned  MUSIC_LastFadeVolume;
-static int       MUSIC_EndingFadeVolume;
-
 int MUSIC_InitMidi(int card, midifuncs *Funcs, int Address);
 
 #define MUSIC_SetErrorCode( status ) \
@@ -483,8 +477,6 @@ int MUSIC_InitMidi
 )
 
 {
-    int status;
-
     Funcs->NoteOff           = MPU_NoteOff;
     Funcs->NoteOn            = MPU_NoteOn;
     Funcs->PolyAftertouch    = MPU_PolyAftertouch;
@@ -517,8 +509,6 @@ int MUSIC_FadeVolume
 )
 
 {
-    int fromvolume;
-
     MIDI_SetVolume(tovolume);
     return(MUSIC_Ok);
 }

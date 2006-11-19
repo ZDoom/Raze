@@ -314,7 +314,7 @@ __asm__ __volatile__ ("bswap %0" : "+r" (a) : : "cc" );
 
 static inline long bitrev (long b, long c)
 {
-    long a;
+    long a = 0;
     __asm__ __volatile__ (
         "xorl %%eax, %%eax\n\t0:\n\tshrl $1, %%ebx\n\tadcl %%eax, %%eax\n\tsubl $1, %%ecx\n\tjnz 0b"
     : "+a" (a), "+b" (b), "+c" (c) : : "cc");
@@ -1523,11 +1523,11 @@ static long kpegrend (const char *kfilebuf, long kfilength,
                       long daframeplace, long dabytesperline, long daxres, long dayres,
                       long daglobxoffs, long daglobyoffs)
 {
-    long i, j, p, v, leng, xdim, ydim, index, prec, restartcnt, restartinterval;
-    long x, y, z, xx, yy, zz, *dc, *dc2, num, curbits, c, daval, dabits, *hqval, *hqbits, hqcnt, *quanptr;
-    long passcnt = 0, ghsampmax, gvsampmax, glhsampmax, glvsampmax, glhstep, glvstep;
+    long i, j, p, v, leng, xdim = 0, ydim = 0, index, prec, restartcnt, restartinterval;
+    long x, y, z, xx, yy, zz, *dc = 0, *dc2, num, curbits, c, daval, dabits, *hqval, *hqbits, hqcnt, *quanptr = 0;
+    long passcnt = 0, ghsampmax = 0, gvsampmax = 0, glhsampmax = 0, glvsampmax = 0, glhstep, glvstep;
     long eobrun, Ss, Se, Ah, Al, Alut[2], dctx[12], dcty[12], ldctx[12], ldcty[12], lshx[4], lshy[4];
-    short *dctbuf = 0, *dctptr[12], *ldctptr[12], *dcs;
+    short *dctbuf = 0, *dctptr[12], *ldctptr[12], *dcs = 0;
     unsigned char ch, marker, dcflag;
     const unsigned char *kfileptr;
 
@@ -1932,7 +1932,7 @@ static long kgifrend (const char *kfilebuf, long kfilelength,
     long i, x, y, xsiz, ysiz, yinc, xend, xspan, yspan, currstr, numbitgoal;
     long lzcols, dat, blocklen, bitcnt, xoff, yoff, transcol, backcol, *lptr;
     char numbits, startnumbits, chunkind, ilacefirst;
-    const unsigned char *ptr, *cptr;
+    const unsigned char *ptr, *cptr = 0;
 
     coltype = 3; bitdepth = 8; //For PNGOUT
 
@@ -2114,8 +2114,8 @@ static long ktgarend (const char *header, long fleng,
                       long daframeplace, long dabytesperline, long daxres, long dayres,
                       long daglobxoffs, long daglobyoffs)
 {
-    long i, p, x, y, pi, xi, yi, x0, x1, y0, y1, xsiz, ysiz, rlestat, colbyte, pixbyte;
-    const unsigned char *fptr, *cptr, *nptr;
+    long i = 0, p, x, y, pi, xi, yi, x0, x1, y0, y1, xsiz, ysiz, rlestat, colbyte, pixbyte;
+    const unsigned char *fptr = 0, *cptr = 0, *nptr = 0;
 
     //Ugly and unreliable identification for .TGA!
     if ((fleng < 20) || (header[1]&0xfe)) return(-1);
@@ -2417,7 +2417,7 @@ static long kpcxrend (const char *buf, long fleng,
 static long kddsrend (const char *buf, long leng,
                       long frameptr, long bpl, long xdim, long ydim, long xoff, long yoff)
 {
-    long x, y, z, xx, yy, xsiz, ysiz, dxt, al[2], ai, j, k, v, c0, c1, stride;
+    long x = 0, y = 0, z = 0, xx, yy, xsiz, ysiz, dxt, al[2], ai, j, k, v, c0, c1, stride;
     unsigned long lut[256], r[4], g[4], b[4], a[8], rr, gg, bb;
     unsigned char *uptr, *wptr;
 
@@ -2425,11 +2425,11 @@ static long kddsrend (const char *buf, long leng,
     ysiz = LSWAPIB(*(long *)&buf[12]);
     if ((*(long *)&buf[80])&LSWAPIB(64)) //Uncompressed supports only A8R8G8B8 for now
     {
-        if ((*(long *)&buf[88]) != LSWAPIB(32)) return(-1);
-        if ((*(long *)&buf[92]) != LSWAPIB(0x00ff0000)) return(-1);
-        if ((*(long *)&buf[96]) != LSWAPIB(0x0000ff00)) return(-1);
-        if ((*(long *)&buf[100]) != LSWAPIB(0x000000ff)) return(-1);
-        if ((*(long *)&buf[104]) != LSWAPIB(0xff000000)) return(-1);
+        if ((*(long *)&buf[88]) != (signed)LSWAPIB(32)) return(-1);
+        if ((*(long *)&buf[92]) != (signed)LSWAPIB(0x00ff0000)) return(-1);
+        if ((*(long *)&buf[96]) != (signed)LSWAPIB(0x0000ff00)) return(-1);
+        if ((*(long *)&buf[100]) != (signed)LSWAPIB(0x000000ff)) return(-1);
+        if ((*(long *)&buf[104]) != (signed)LSWAPIB(0xff000000)) return(-1);
         buf += 128;
 
         j = yoff*bpl + (xoff<<2) + frameptr; xx = (xsiz<<2);

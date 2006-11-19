@@ -224,7 +224,7 @@ void playmusic(char *fn)
 
     kread(fp, MusicPtr, l);
     kclose(fp);
-    MUSIC_PlaySong(MusicPtr, MUSIC_LoopSong);
+    MUSIC_PlaySong((unsigned char *)MusicPtr, MUSIC_LoopSong);
 #else
     void PlayMusic(char *_filename);
     if(MusicToggle == 0) return;
