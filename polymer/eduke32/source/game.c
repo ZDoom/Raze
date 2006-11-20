@@ -3165,8 +3165,6 @@ void palto(char r,char g,char b,long e)
     }
 }
 
-extern char mdpause;
-
 void displayrest(long smoothratio)
 {
     long a, i, j;
@@ -3412,7 +3410,12 @@ void displayrest(long smoothratio)
     if (ud.coords)
         coords(screenpeek);
 
-    mdpause = ud.pause_on;
+    #if defined(POLYMOST) && defined(USE_OPENGL)
+    {
+        extern char mdpause;
+        mdpause = ud.pause_on;
+    }
+    #endif
 
     tics();
 

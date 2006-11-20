@@ -330,7 +330,7 @@ int MUSIC_GetContext
     void
 )
 
-{}
+{ return 0; }
 
 
 /*---------------------------------------------------------------------
@@ -490,3 +490,5 @@ void MUSIC_RegisterTimbreBank
 void MUSIC_Update(void)
 {}
 
+void PlayMusic(char *_filename)
+{}

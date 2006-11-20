@@ -12,6 +12,7 @@ NOASM = 0
 # Debugging options
 RELEASE?=1
 JFAUD?=0
+NOSOUND?=0
 
 # build locations
 
@@ -154,6 +155,10 @@ ifeq ($(RENDERTYPE),WIN)
 	else
 		AUDIOLIBOBJ=$(AUDIOLIB_MUSIC) $(AUDIOLIB_FX) $(OBJ)/sounds.$o
 	endif
+endif
+
+ifeq ($(NOSOUND),1)
+    AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_STUB) $(AUDIOLIB_FX_STUB) $(OBJ)/sounds.$o
 endif
 
 GAMEOBJS+= $(AUDIOLIBOBJ)

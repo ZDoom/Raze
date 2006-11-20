@@ -227,6 +227,7 @@ void playmusic(char *fn)
     MUSIC_PlaySong((unsigned char *)MusicPtr, MUSIC_LoopSong);
 #else
     void PlayMusic(char *_filename);
+
     if(MusicToggle == 0) return;
     if(MusicDevice < 0) return;
 
