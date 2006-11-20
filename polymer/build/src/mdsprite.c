@@ -1065,10 +1065,12 @@ m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris
         sk->skinnum = 0;
         sk->surfnum = 0;
 
-        sk->fn = (char *)malloc(strlen(m->basepath)+strlen(m->skinfn)+1);
-        strcpy(sk->fn, m->basepath);
-        strcat(sk->fn, m->skinfn);
-
+        if(m->numskins > 0)
+        {        
+            sk->fn = (char *)malloc(strlen(m->basepath)+strlen(m->skinfn)+1);
+            strcpy(sk->fn, m->basepath);
+            strcat(sk->fn, m->skinfn);
+        }
         m3->skinmap = sk;
     }
 
@@ -1695,7 +1697,7 @@ unsigned gloadtex (long *picbuf, long xsiz, long ysiz, long is8bit, long dapal)
     }
     else
     {
-        if (palookup[dapal] == 0) dapal = 0;
+        if (palookup[dapal] == NULL) dapal = 0;
         for (i=xsiz*ysiz-1;i>=0;i--)
         {
             pic2[i].b = cptr[palette[(long)palookup[dapal][pic[i].a]*3+2]*4];

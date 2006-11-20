@@ -1369,7 +1369,8 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
     setgotpic(globalpicnum);
     tsizx = tilesizx[globalpicnum];
     tsizy = tilesizy[globalpicnum];
-    if (!palookup[globalpal]) globalpal = 0;
+    if (palookup[globalpal] == NULL)
+        globalpal = 0;
     if (!waloff[globalpicnum])
     {
         loadtile(globalpicnum);
@@ -5067,7 +5068,7 @@ void polymost_precache(long dapicnum, long dapalnum, long datype)
 
     if (rendmode < 3) return;
 
-    if (!palookup[dapalnum]) return;//dapalnum = 0;
+    if (palookup[dapalnum] == NULL) return;//dapalnum = 0;
 
     //OSD_Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;

@@ -870,6 +870,9 @@ static void maskwallscan(long x1, long x2, short *uwal, short *dwal, long *swal,
     ynice = (pow2long[picsiz[globalpicnum]>>4] == tsizy);
     if (ynice) tsizy = (picsiz[globalpicnum]>>4);
 
+    if (palookup[globalpal] == NULL)
+        globalpal = 0;
+
     fpalookup = FP_OFF(palookup[globalpal]);
 
     setupmvlineasm(globalshiftval);
@@ -2644,7 +2647,7 @@ static void drawalls(long bunch)
                     globvis = globalvisibility;
                     if (sec->visibility != 0) globvis = mulscale4(globvis,(long)((unsigned char)(sec->visibility+16)));
                     globalpal = (long)wal->pal;
-                    if (palookup[globalpal] == 0) globalpal = 0;    // JBF: fixes crash
+                    if (palookup[globalpal] == NULL) globalpal = 0;    // JBF: fixes crash
                     globalyscale = (wal->yrepeat<<(globalshiftval-19));
                     if ((globalorientation&4) == 0)
                         globalzd = (((globalposz-nextsec->ceilingz)*globalyscale)<<8);
@@ -2745,7 +2748,7 @@ static void drawalls(long bunch)
                         globalshade = (long)wal->shade;
                         globalpal = (long)wal->pal;
                     }
-                    if (palookup[globalpal] == 0) globalpal = 0;    // JBF: fixes crash
+                    if (palookup[globalpal] == NULL) globalpal = 0;    // JBF: fixes crash
                     globvis = globalvisibility;
                     if (sec->visibility != 0) globvis = mulscale4(globvis,(long)((unsigned char)(sec->visibility+16)));
                     globalshiftval = (picsiz[globalpicnum]>>4);
@@ -2837,7 +2840,7 @@ static void drawalls(long bunch)
             globvis = globalvisibility;
             if (sec->visibility != 0) globvis = mulscale4(globvis,(long)((unsigned char)(sec->visibility+16)));
             globalpal = (long)wal->pal;
-            if (palookup[globalpal] == 0) globalpal = 0;    // JBF: fixes crash
+            if (palookup[globalpal] == NULL) globalpal = 0;    // JBF: fixes crash
             globalshiftval = (picsiz[globalpicnum]>>4);
             if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
             globalshiftval = 32-globalshiftval;
@@ -3188,7 +3191,7 @@ static void drawsprite(long snum)
 
     sectnum = tspr->sectnum; sec = &sector[sectnum];
     globalpal = tspr->pal;
-    if (palookup[globalpal] == 0) globalpal = 0;    // JBF: fixes null-pointer crash
+    if (palookup[globalpal] == NULL) globalpal = 0;    // JBF: fixes null-pointer crash
     globalshade = tspr->shade;
     if (cstat&2)
     {
@@ -4651,7 +4654,7 @@ if (dastat&16) { xoff = 0; yoff = 0; }
     setgotpic(picnum);
     bufplc = waloff[picnum];
 
-    if (!palookup[dapalnum]) dapalnum = 0;
+    if (palookup[dapalnum] == NULL) dapalnum = 0;
     palookupoffs = FP_OFF(palookup[dapalnum]) + (getpalookup(0L,(long)dashade)<<8);
 
     i = divscale32(1L,z);
