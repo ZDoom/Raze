@@ -1386,7 +1386,7 @@ static int md3draw (md3model *m, spritetype *tspr)
 
     bglEnable(GL_TEXTURE_2D);
 
-    pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max(globalshade+m->shadeoff,0),numpalookups)))/((float)numpalookups);
+    pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max((globalshade * 1.300)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
     pc[0] *= (float)hictinting[globalpal].r / 255.0;
     pc[1] *= (float)hictinting[globalpal].g / 255.0;
     pc[2] *= (float)hictinting[globalpal].b / 255.0;
@@ -2391,7 +2391,7 @@ if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; 
 
     bglEnable(GL_TEXTURE_2D);
 
-    pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max(globalshade+m->shadeoff,0),numpalookups)))/((float)numpalookups);
+    pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max((globalshade * 1.300)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
     pc[0] *= (float)hictinting[globalpal].r / 255.0;
     pc[1] *= (float)hictinting[globalpal].g / 255.0;
     pc[2] *= (float)hictinting[globalpal].b / 255.0;

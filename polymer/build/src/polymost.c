@@ -69,20 +69,6 @@ long animateoffs(short tilenum, short fakevar);
 long rendmode = 0;
 long usemodels=1, usehightile=1;
 
-// float shadetable[] = { 0.165, 0.198, 0.231, 0.264, 0.297, 0.330, 0.363, 0.396, 0.429, 0.462, 0.495, 0.528, 0.561, 0.594, 0.627, 0.660, 0.693, 0.726, 0.759, 0.792, 0.825, 0.858, 0.891, 0.924, 0.957, 1.023, 1.056, 1.089, 1.122, 1.155, 1.188, 1.221 };
-
-// float shadetable[] = { 0.175, 0.200, 0.225, 0.250, 0.275, 0.300, 0.325, 0.350, 0.375, 0.400, 0.425, 0.450, 0.475, 0.500, 0.525, 0.550, 0.575, 0.600, 0.625, 0.650, 0.675, 0.700, 0.725, 0.750, 0.775, 0.800, 0.825, 0.850, 0.875, 0.900, 0.925, 0.950 };
-
-float shadetable[] = { 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.025, 1.075, 1.125, 1.175, 1.225, 1.275, 1.325, 1.375, 1.425, 1.475, 1.525, 1.575, 1.625, 1.675, 1.725, 1.775, 1.825 };
-
-// float shadetable[] = { 0.275, 0.341, 0.407, 0.473, 0.539, 0.605, 0.671, 0.737, 0.803, 0.869, 0.935, 1.001, 1.067, 1.133, 1.199, 1.265, 1.331, 1.397, 1.463, 1.529, 1.595, 1.661, 1.727, 1.793, 1.859, 1.925, 1.991, 2.057, 2.123, 2.189, 2.255, 2.321 };
-
-float glnegshadeoffset = 0.075;
-float glnegshadescale = 8.300;
-float glshadescale = 1.900;
-
-float glsprshadescale = 1.700;
-
 #include <math.h> //<-important!
 typedef struct { float x, cy[2], fy[2]; long n, p, tag, ctag, ftag; } vsptyp;
 #define VSPMAX 4096 //<- careful!
@@ -95,7 +81,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
-#define FOGSCALE 0.0000800
+#define FOGSCALE 0.0000600
 #define PI 3.14159265358979323
 
 static double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
@@ -147,6 +133,35 @@ long fullbrightloadingpass = 0;
 long fullbrightdrawingpass = 0;
 long shadeforfullbrightpass;
 
+// float shadetable[] = { 0.165, 0.198, 0.231, 0.264, 0.297, 0.330, 0.363, 0.396, 0.429, 0.462, 0.495, 0.528, 0.561, 0.594, 0.627, 0.660, 0.693, 0.726, 0.759, 0.792, 0.825, 0.858, 0.891, 0.924, 0.957, 1.023, 1.056, 1.089, 1.122, 1.155, 1.188, 1.221 };
+
+// float shadetable[] = { 0.175, 0.200, 0.225, 0.250, 0.275, 0.300, 0.325, 0.350, 0.375, 0.400, 0.425, 0.450, 0.475, 0.500, 0.525, 0.550, 0.575, 0.600, 0.625, 0.650, 0.675, 0.700, 0.725, 0.750, 0.775, 0.800, 0.825, 0.850, 0.875, 0.900, 0.925, 0.950 };
+
+// float shadetable[] = { 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.025, 1.075, 1.125, 1.175, 1.225, 1.275, 1.325, 1.375, 1.425, 1.475, 1.525, 1.575, 1.625, 1.675, 1.725, 1.775, 1.825 };
+
+// float shadetable[] = { 0.275, 0.341, 0.407, 0.473, 0.539, 0.605, 0.671, 0.737, 0.803, 0.869, 0.935, 1.001, 1.067, 1.133, 1.199, 1.265, 1.331, 1.397, 1.463, 1.529, 1.595, 1.661, 1.727, 1.793, 1.859, 1.925, 1.991, 2.057, 2.123, 2.189, 2.255, 2.321 };
+
+/*
+float glnegshadeoffset = 0.075;
+float glnegshadescale = 8.300;
+float glshadescale = 1.900;
+
+float glsprshadescale = 1.700;
+*/
+
+float fogcalc(signed char shade, char vis)
+{
+    float result;
+
+//    return(gvisibility/(shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(vis<240?vis+16:vis-239))));
+
+    result = ((float)(vis<240?vis+16:vis-239))+(shade>0?shade:(shade*2));
+
+    if(result < 0.000) result = 0.000;
+//    if(result > 1.000) result = 1.000;
+
+    return(gvisibility * result);
+}
 #endif
 
 #if defined(USE_MSC_PRAGMAS)
@@ -578,7 +593,7 @@ void polymost_glinit()
 {
     GLfloat col[4];
 
-    bglFogi(GL_FOG_MODE,GL_EXP); //GL_EXP(default),GL_EXP2,GL_LINEAR
+    bglFogi(GL_FOG_MODE,GL_EXP2); //GL_EXP(default),GL_EXP2,GL_LINEAR
     //bglHint(GL_FOG_HINT,GL_NICEST);
     bglFogf(GL_FOG_DENSITY,1.0); //must be > 0, default is 1
     bglFogf(GL_FOG_START,0.0); //default is 0
@@ -1489,7 +1504,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 
         {
             float pc[4];
-            f = ((float)(numpalookups-min(max(globalshade,0),numpalookups)))/((float)numpalookups);
+            f = ((float)(numpalookups-min(max(globalshade*1.300,0),numpalookups)))/((float)numpalookups);
             pc[0] = pc[1] = pc[2] = f;
             switch (method&3)
             {
@@ -2487,11 +2502,7 @@ static void polymost_drawalls (long bunch)
             if (globalposz >= getflorzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
 #ifdef USE_OPENGL
             if (!nofog)
-            {
-                int i = klabs(sec->floorshade);
-                if (i > 30) i = 30;
-                bglFogf(GL_FOG_DENSITY,gvisibility/(sec->floorshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(sec->floorshade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
-            }
+                bglFogf(GL_FOG_DENSITY,fogcalc(sec->floorshade,sec->visibility));
 #endif
             pow2xsplit = 0; domost(x0,fy0,x1,fy1); //flor
             domostpolymethod = 0;
@@ -2510,11 +2521,7 @@ static void polymost_drawalls (long bunch)
                                 } */
 
                 if (!nofog)
-                {
-                    int i = klabs(sec->floorshade);
-                    if (i > 30) i = 30;
-                    bglFogf(GL_FOG_DENSITY,0.005*gvisibility/(sec->floorshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
-                }
+                    bglFogf(GL_FOG_DENSITY,fogcalc(sec->floorshade,sec->visibility) * 0.005);
 
                 //Use clamping for tiled sky textures
                 for (i=(1<<pskybits)-1;i>0;i--)
@@ -2855,11 +2862,7 @@ static void polymost_drawalls (long bunch)
             if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
 #ifdef USE_OPENGL
             if (!nofog)
-            {
-                int i = klabs(sec->ceilingshade);
-                if (i > 30) i = 30;
-                bglFogf(GL_FOG_DENSITY,gvisibility/(sec->ceilingshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(sec->ceilingshade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
-            }
+                bglFogf(GL_FOG_DENSITY,fogcalc(sec->ceilingshade,sec->visibility));
 #endif
             pow2xsplit = 0; domost(x1,cy1,x0,cy0); //ceil
             domostpolymethod = 0;
@@ -2877,12 +2880,7 @@ static void polymost_drawalls (long bunch)
                                 }
                 */
                 if (!nofog)
-                {
-                    int i = klabs(sec->ceilingshade);
-                    if (i > 30) i = 30;
-                    bglFogf(GL_FOG_DENSITY,0.005*gvisibility/(sec->ceilingshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
-                }
-
+                    bglFogf(GL_FOG_DENSITY,fogcalc(sec->ceilingshade,sec->visibility) * 0.005);
                 //Use clamping for tiled sky textures
                 for (i=(1<<pskybits)-1;i>0;i--)
                     if (pskyoff[i] != pskyoff[i-1])
@@ -3194,11 +3192,7 @@ static void polymost_drawalls (long bunch)
                 if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 #ifdef USE_OPENGL
                 if (!nofog)
-                {
-                    int i = klabs(wal->shade);
-                    if (i > 30) i = 30;
-                    bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(wal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
-                }
+                    bglFogf(GL_FOG_DENSITY,fogcalc(wal->shade,sec->visibility));
 #endif
                 pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
             if (wal->cstat&8) { gux = ogux; guy = oguy; guo = oguo; }
@@ -3236,11 +3230,7 @@ static void polymost_drawalls (long bunch)
                 if (nwal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 #ifdef USE_OPENGL
                 if (!nofog)
-                {
-                    int i = klabs(nwal->shade);
-                    if (i > 30) i = 30;
-                    bglFogf(GL_FOG_DENSITY,gvisibility/(nwal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(nwal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
-                }
+                    bglFogf(GL_FOG_DENSITY,fogcalc(nwal->shade,sec->visibility));
 #endif
                 pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
             if (wal->cstat&(2+8)) { guo = oguo; gux = ogux; guy = oguy; }
@@ -3274,11 +3264,7 @@ static void polymost_drawalls (long bunch)
             if (wal->cstat&256) { gvx = -gvx; gvy = -gvy; gvo = -gvo; } //yflip
 #ifdef USE_OPENGL
             if (!nofog)
-            {
-                int i = klabs(wal->shade);
-                if (i > 30) i = 30;
-                bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(wal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
-            }
+                bglFogf(GL_FOG_DENSITY,fogcalc(wal->shade,sec->visibility));
 #endif
             pow2xsplit = 1; domost(x0,-10000,x1,-10000);
         }
@@ -3733,11 +3719,7 @@ if (yp1 < SCISDIST) { t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0;
             bglFogfv(GL_FOG_COLOR,col);
 
             if (!nofog)
-            {
-                int i = klabs(wal->shade);
-                if (i > 30) i = 30;
-                bglFogf(GL_FOG_DENSITY,gvisibility/(wal->shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(wal->shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
-            }
+                bglFogf(GL_FOG_DENSITY,fogcalc(wal->shade,sec->visibility));
         }
     }
 #endif
@@ -3845,12 +3827,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         col[3] = 0;
         bglFogfv(GL_FOG_COLOR,col); //default is 0,0,0,0
 
-        if (!nofog)
-        {
-            int i = klabs(globalshade);
-            if (i > 30) i = 30;
-            bglFogf(GL_FOG_DENSITY,gvisibility/(globalshade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(globalshade<0?1:shadetable[i]*glsprshadescale)*((float)((unsigned char)(sector[tspr->sectnum].visibility<240?sector[tspr->sectnum].visibility+16:sector[tspr->sectnum].visibility-239))));
-        }
+        bglFogf(GL_FOG_DENSITY,fogcalc(globalshade,sector[tspr->sectnum].visibility));
     }
 
     while (rendmode >= 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
@@ -4260,7 +4237,7 @@ void polymost_dorotatesprite (long sx, long sy, long z, short a, short picnum,
             if (!nofog)
             {
                 i = klabs(tspr.shade);
-                bglFogf(GL_FOG_DENSITY,gvisibility/(tspr.shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(tspr.shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(sector[tspr.sectnum].visibility<240?sector[tspr.sectnum].visibility+16:sector[tspr.sectnum].visibility-239))));
+                bglFogf(GL_FOG_DENSITY,fogcalc(tspr.shade,sector[tspr.sectnum].visibility);
             }
             mddraw(&tspr);
 #else
@@ -4629,7 +4606,7 @@ void polymost_fillpolygon (long npoints)
     pth = gltexcache(globalpicnum,globalpal,0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
-    f = ((float)(numpalookups-min(max(globalshade,0),numpalookups)))/((float)numpalookups);
+    f = ((float)(numpalookups-min(max(globalshade*1.300,0),numpalookups)))/((float)numpalookups);
     switch ((globalorientation>>7)&3) {
     case 0:
     case 1:
@@ -4956,7 +4933,7 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else glnvmultisamplehint = (val != 0);
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "r_shadescale")) {
+/*    else if (!Bstrcasecmp(parm->name, "r_shadescale")) {
         if (showval) { OSD_Printf("r_shadescale is %g\n", glshadescale); }
         else {
             float val;
@@ -4999,7 +4976,7 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
             glnegshadeoffset = val;
         }
         return OSDCMD_OK;
-    }
+    } */
 #endif
     return OSDCMD_SHOWHELP;
 }

@@ -62,7 +62,7 @@ enum {
     T_FOGPAL,
     T_LOADGRP,
     T_DUMMYTILE,T_DUMMYTILERANGE,
-    T_NEGSHADEOFFSET, T_NEGSHADESCALE, T_SHADESCALE, T_SPRSHADESCALE
+/*    T_NEGSHADEOFFSET, T_NEGSHADESCALE, T_SHADESCALE, T_SPRSHADESCALE */
 };
 
 typedef struct { char *text; int tokenid; } tokenlist;
@@ -108,10 +108,10 @@ static tokenlist basetokens[] =
         { "loadgrp",     	 T_LOADGRP	 		},
         { "dummytile",     	 T_DUMMYTILE		},
         { "dummytilerange",  T_DUMMYTILERANGE   },
-        { "glnegshadeoffset",T_NEGSHADEOFFSET   },
+/*        { "glnegshadeoffset",T_NEGSHADEOFFSET   },
         { "glnegshadescale", T_NEGSHADESCALE    },
         { "glshadescale",    T_SHADESCALE       },
-        { "glsprshadescale", T_SPRSHADESCALE    },
+        { "glsprshadescale", T_SPRSHADESCALE    }, */
     };
 
 static tokenlist modeltokens[] = {
@@ -323,7 +323,7 @@ static int defsparser(scriptfile *script)
             hicsetpalettetint(pal,r,g,b,f);
         }
         break;
-        case T_NEGSHADEOFFSET:
+/*        case T_NEGSHADEOFFSET:
         {
             double val;
             extern float glnegshadeoffset;
@@ -366,7 +366,7 @@ static int defsparser(scriptfile *script)
             glsprshadescale = val;
 #endif
         }
-        break;
+        break; */
         case T_ALPHAHACK:
         {
             int tile;

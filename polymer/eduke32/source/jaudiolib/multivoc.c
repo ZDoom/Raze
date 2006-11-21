@@ -52,11 +52,11 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #define SIXTEEN_BIT 2
 
 #define MONO_8BIT    0
-#define STEREO_8BIT  ( STEREO )
-#define MONO_16BIT   ( SIXTEEN_BIT )
-#define STEREO_16BIT ( STEREO | SIXTEEN_BIT )
+#define STEREO_8BIT  (STEREO)
+#define MONO_16BIT   (SIXTEEN_BIT)
+#define STEREO_16BIT (STEREO | SIXTEEN_BIT)
 
-#define IS_QUIET( ptr )  ( ( void * )( ptr ) == ( void * )&MV_VolumeTable[ 0 ] )
+#define IS_QUIET(ptr)  ((void *)(ptr) == (void *)&MV_VolumeTable[ 0 ])
 
 static int MV_ReverbLevel;
 static int MV_ReverbDelay;
@@ -122,8 +122,8 @@ unsigned long MV_MixPosition;
 
 int MV_ErrorCode = MV_Ok;
 
-#define MV_SetErrorCode( status ) \
-   MV_ErrorCode   = ( status );
+#define MV_SetErrorCode(status) \
+   MV_ErrorCode   = (status);
 
 
 /*---------------------------------------------------------------------
@@ -358,7 +358,7 @@ void MV_PlayVoice(VoiceNode *voice)
 
 void MV_StopVoice(VoiceNode *voice)
 {
-    unsigned  flags;
+    unsigned int flags;
 
     flags = DisableInterrupts();
 
@@ -401,7 +401,7 @@ int MV_ServiceVoc(int buffer)
         //Commented out so that the buffer is always cleared.
         //This is so the guys at Echo Speech can mix into the
         //buffer even when no sounds are playing.
-        //if ( !MV_BufferEmpty[ MV_MixPage ] )
+        //if (!MV_BufferEmpty[ MV_MixPage ])
         {
             ClearBuffer_DW(MV_MixBuffer[ MV_MixPage ], MV_Silence, MV_BufferSize >> 2);
             MV_BufferEmpty[ MV_MixPage ] = TRUE;
@@ -465,7 +465,7 @@ int MV_ServiceVoc(int buffer)
     // Play any waiting voices
     for (voice = VoiceList.next; voice != &VoiceList; voice = next)
     {
-//      if ( ( voice < &MV_Voices[ 0 ] ) || ( voice > &MV_Voices[ 8 ] ) )
+//      if ((voice < &MV_Voices[ 0 ]) || (voice > &MV_Voices[ 8 ]))
 //         {
 //         SetBorderColor(backcolor++);
 //         break;
@@ -1065,7 +1065,7 @@ VoiceNode *MV_AllocVoice(int priority)
     VoiceNode   *node;
     unsigned    flags;
 
-//return( NULL );
+//return(NULL);
     if (MV_Recording)
     {
         return(NULL);
