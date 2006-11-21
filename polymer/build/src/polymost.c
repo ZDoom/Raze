@@ -155,7 +155,7 @@ float fogcalc(signed char shade, char vis)
 
 //    return(gvisibility/(shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(vis<240?vis+16:vis-239))));
 
-    result = ((float)(vis<240?vis+16:vis-239))+(shade>0?shade:(shade*2));
+    result = ((float)(vis<240?vis+16:0))+(shade>0?shade:(shade*2))/(vis>239?klabs(vis-256):1);
 
     if(result < 0.000) result = 0.000;
 //    if(result > 1.000) result = 1.000;
