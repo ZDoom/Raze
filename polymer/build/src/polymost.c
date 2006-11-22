@@ -133,34 +133,15 @@ long fullbrightloadingpass = 0;
 long fullbrightdrawingpass = 0;
 long shadeforfullbrightpass;
 
-// float shadetable[] = { 0.165, 0.198, 0.231, 0.264, 0.297, 0.330, 0.363, 0.396, 0.429, 0.462, 0.495, 0.528, 0.561, 0.594, 0.627, 0.660, 0.693, 0.726, 0.759, 0.792, 0.825, 0.858, 0.891, 0.924, 0.957, 1.023, 1.056, 1.089, 1.122, 1.155, 1.188, 1.221 };
-
-// float shadetable[] = { 0.175, 0.200, 0.225, 0.250, 0.275, 0.300, 0.325, 0.350, 0.375, 0.400, 0.425, 0.450, 0.475, 0.500, 0.525, 0.550, 0.575, 0.600, 0.625, 0.650, 0.675, 0.700, 0.725, 0.750, 0.775, 0.800, 0.825, 0.850, 0.875, 0.900, 0.925, 0.950 };
-
-// float shadetable[] = { 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.025, 1.075, 1.125, 1.175, 1.225, 1.275, 1.325, 1.375, 1.425, 1.475, 1.525, 1.575, 1.625, 1.675, 1.725, 1.775, 1.825 };
-
-// float shadetable[] = { 0.275, 0.341, 0.407, 0.473, 0.539, 0.605, 0.671, 0.737, 0.803, 0.869, 0.935, 1.001, 1.067, 1.133, 1.199, 1.265, 1.331, 1.397, 1.463, 1.529, 1.595, 1.661, 1.727, 1.793, 1.859, 1.925, 1.991, 2.057, 2.123, 2.189, 2.255, 2.321 };
-
-/*
-float glnegshadeoffset = 0.075;
-float glnegshadescale = 8.300;
-float glshadescale = 1.900;
-
-float glsprshadescale = 1.700;
-*/
-
-float fogcalc(signed char shade, char vis)
+float fogcalc (signed char shade, char vis)
 {
     float result;
 
-//    return(gvisibility/(shade<0?(shadetable[i]-glnegshadeoffset)*glnegshadescale:1)*(shade<0?1:shadetable[i]*glshadescale)*((float)((unsigned char)(vis<240?vis+16:vis-239))));
+    if (vis < 240) result = (float)(vis+16+(shade<0?shade/2.f:shade));
+    else result = (float)((vis-240+(shade<0?shade/2.f:shade))/(klabs(vis-256)));
 
-    result = (float)((vis<240?vis+16:vis-240)+shade/(vis>239?(klabs(vis-256)):1));
-
-    if(result < 0.000) result = 0.000;
-//    if(result > 1.000) result = 1.000;
-
-    return(gvisibility * result);
+    if (result < 0.000) return (0);
+    return (gvisibility * result);
 }
 #endif
 
@@ -594,7 +575,7 @@ void polymost_glinit()
     GLfloat col[4];
 
     bglFogi(GL_FOG_MODE,GL_EXP2); //GL_EXP(default),GL_EXP2,GL_LINEAR
-    //bglHint(GL_FOG_HINT,GL_NICEST);
+    bglHint(GL_FOG_HINT,GL_NICEST);
     bglFogf(GL_FOG_DENSITY,1.0); //must be > 0, default is 1
     bglFogf(GL_FOG_START,0.0); //default is 0
     bglFogf(GL_FOG_END,1.0); //default is 1
@@ -4933,50 +4914,6 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else glnvmultisamplehint = (val != 0);
         return OSDCMD_OK;
     }
-/*    else if (!Bstrcasecmp(parm->name, "r_shadescale")) {
-        if (showval) { OSD_Printf("r_shadescale is %g\n", glshadescale); }
-        else {
-            float val;
-            char value[256];
-            Bstrcpy(value,parm->parms[0]);
-            val = atof(value);
-            glshadescale = val;
-        }
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_sprshadescale")) {
-        if (showval) { OSD_Printf("r_sprshadescale is %g\n", glsprshadescale); }
-        else {
-            float val;
-            char value[256];
-            Bstrcpy(value,parm->parms[0]);
-            val = atof(value);
-            glsprshadescale = val;
-        }
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_negshadescale")) {
-        if (showval) { OSD_Printf("r_negshadescale is %g\n", glnegshadescale); }
-        else {
-            float val;
-            char value[256];
-            Bstrcpy(value,parm->parms[0]);
-            val = atof(value);
-            glnegshadescale = val;
-        }
-        return OSDCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->name, "r_negshadeoffset")) {
-        if (showval) { OSD_Printf("r_negshadeoffset is %g\n", glnegshadeoffset); }
-        else {
-            float val;
-            char value[256];
-            Bstrcpy(value,parm->parms[0]);
-            val = atof(value);
-            glnegshadeoffset = val;
-        }
-        return OSDCMD_OK;
-    } */
 #endif
     return OSDCMD_SHOWHELP;
 }

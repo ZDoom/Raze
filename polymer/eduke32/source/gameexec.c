@@ -4677,19 +4677,20 @@ SKIPJIBS:
 
         insptr++;
 
-        lIn=*insptr++;
-        lIn=GetGameVarID(lIn, g_i, g_p);
+        lIn=GetGameVarID(*insptr++, g_i, g_p);
         if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
             lReturn = spawn(g_i, lIn);
         switch (tw)
         {
         case CON_EQSPAWNVAR:
-            insertspriteq(lReturn);
+            if (lReturn != -1)
+                insertspriteq(lReturn);
         case CON_ESPAWNVAR:
             SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
             break;
         case CON_QSPAWNVAR:
-            insertspriteq(lReturn);
+            if (lReturn != -1)
+                insertspriteq(lReturn);
             break;
         }
         break;
@@ -4704,15 +4705,19 @@ SKIPJIBS:
         insptr++;
         if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
             lReturn = spawn(g_i,*insptr++);
+        else insptr++;
+
         switch (tw)
         {
         case CON_EQSPAWN:
-            insertspriteq(lReturn);
+            if (lReturn != -1)
+                insertspriteq(lReturn);
         case CON_ESPAWN:
             SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
             break;
         case CON_QSPAWN:
-            insertspriteq(lReturn);
+            if (lReturn != -1)
+                insertspriteq(lReturn);
             break;
         }
         break;
@@ -4737,6 +4742,8 @@ SKIPJIBS:
             if (tw == CON_EZSHOOT || tw == CON_ESHOOT)
                 SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
         }
+        else insptr++;
+
         hittype[g_i].temp_data[9]=0;
         break;
     }

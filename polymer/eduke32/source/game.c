@@ -3180,7 +3180,7 @@ void displayrest(long smoothratio)
     if (getrendermode() >= 3)
     {
         if (pp->palette == waterpal) tintr=0,tintg=0,tintb=63,tintf=8;
-        else if (pp->palette == slimepal) tintr=0,tintg=63,tintb=0,tintf=8;
+        else if (pp->palette == slimepal) tintr=20,tintg=63,tintb=20,tintf=8;
     }
 
     // this does pain tinting etc from the CON
