@@ -97,10 +97,6 @@ int32 ScreenBPP = 8;
 #endif
 int32 ForceSetup = 1;
 
-static char setupfilename[BMAX_PATH]=
-    {
-        SETUPFILENAME
-    };
 int32 scripthandle = -1;
 static int32 setupread=0;
 
@@ -634,6 +630,8 @@ int32 CONFIG_ReadSetup(void)
 
     if (SafeFileExists(setupfilename) && scripthandle < 0)  // JBF 20031211
         scripthandle = SCRIPT_Load(setupfilename);
+
+    initprintf("Using config file %s.\n",setupfilename);
 
     if (scripthandle < 0) return -1;
 

@@ -6910,7 +6910,7 @@ good:
     }
 
     default:
-        OSD_Printf("fatal error: default processing: %ld, %ld\ncurrent actor: %d (%d)\n",*insptr,*(insptr-1),g_i,g_sp->picnum);
+        OSD_Printf("fatal error: default processing: prev inst: %ld, curr inst: %ld, next inst: %ld\ncurrent actor: %d (%d)\n",*(insptr-1),*insptr,*(insptr+1),g_i,g_sp->picnum);
         gameexit("An error has occurred in the EDuke32 CON executor.\n\nPlease mail all of your CON files along with the file eduke32.log\nto terminx@gmail.com.\n\nThank you.");
         break;
     }

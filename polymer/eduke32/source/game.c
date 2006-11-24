@@ -8304,9 +8304,9 @@ int loadgroupfiles(char *fn)
                 int j = initgroupfile(fn);
 
                 if (j == -1)
-                    initprintf("Could not find GRP file %s.\n",fn);
+                    initprintf("Warning: could not find group file %s.\n",fn);
                 else
-                    initprintf("Using GRP file %s.\n",fn);
+                    initprintf("Using group file %s.\n",fn);
             }
         }
         break;
@@ -8359,6 +8359,16 @@ void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
+                if (!Bstrcasecmp(c+1,"cfg"))
+                {
+                    if (argc > i+1)
+                    {
+                        Bstrcpy(setupfilename,argv[i+1]);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"nam"))
                 {
                     strcpy(defaultduke3dgrp, "nam.grp");
@@ -9660,6 +9670,8 @@ void app_main(int argc,char **argv)
         kclose(i);
     }
 
+    loadgroupfiles(duke3ddef);
+
     {
         struct strllist *s;
         while (CommandGrps)
@@ -9678,8 +9690,6 @@ void app_main(int argc,char **argv)
             CommandGrps = s;
         }
     }
-
-    loadgroupfiles(duke3ddef);
 
     copyprotect();
     if (cp) return;

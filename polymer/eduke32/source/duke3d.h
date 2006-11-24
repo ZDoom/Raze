@@ -880,6 +880,8 @@ extern short weapon_sprites[MAX_WEAPONS];
 
 extern int redefined_quote_count;
 
+extern char setupfilename[BMAX_PATH];
+
 #ifdef __cplusplus
 }
 #endif
