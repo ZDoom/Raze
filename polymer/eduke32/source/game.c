@@ -9603,6 +9603,8 @@ void app_main(int argc,char **argv)
         exit(1);
     }
 
+    initprintf("Using config file %s.\n",setupfilename);
+
     ScanGroups();
     {	// try and identify the 'defaultduke3dgrp' in the set of GRPs.
         // if it is found, set up the environment accordingly for the game it represents.

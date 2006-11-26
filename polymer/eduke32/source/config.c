@@ -631,8 +631,6 @@ int32 CONFIG_ReadSetup(void)
     if (SafeFileExists(setupfilename) && scripthandle < 0)  // JBF 20031211
         scripthandle = SCRIPT_Load(setupfilename);
 
-    initprintf("Using config file %s.\n",setupfilename);
-
     if (scripthandle < 0) return -1;
 
     if (scripthandle >= 0)

@@ -81,7 +81,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
-#define FOGSCALE 0.0000600
+#define FOGSCALE 0.0000640
 #define PI 3.14159265358979323
 
 static double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
@@ -133,12 +133,14 @@ long fullbrightloadingpass = 0;
 long fullbrightdrawingpass = 0;
 long shadeforfullbrightpass;
 
+#define SHADESCALE 1.250
+
 float fogcalc (signed char shade, char vis)
 {
     float result;
-
-    if (vis < 240) result = (float)(vis+16+(shade<0?shade/2.f:shade));
-    else result = (float)((vis-240+(shade<0?shade/2.f:shade))/(klabs(vis-256)));
+//    if(vis < 16) vis = 16;
+    if (vis < 240) result = (float)(vis+16+(shade<0?(-(shade)*(shade))/8.f:((shade)*(shade))/8.f));
+    else result = (float)((vis-240+(shade<0?(-(shade)*(shade))/8.f:((shade)*(shade))/8.f))/(klabs(vis-256)));
 
     if (result < 0.000) return (0);
     return (gvisibility * result);
@@ -1485,7 +1487,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 
         {
             float pc[4];
-            f = ((float)(numpalookups-min(max(globalshade*1.300,0),numpalookups)))/((float)numpalookups);
+            f = ((float)(numpalookups-min(max(globalshade * SHADESCALE,0),numpalookups)))/((float)numpalookups);
             pc[0] = pc[1] = pc[2] = f;
             switch (method&3)
             {
@@ -4587,7 +4589,7 @@ void polymost_fillpolygon (long npoints)
     pth = gltexcache(globalpicnum,globalpal,0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
-    f = ((float)(numpalookups-min(max(globalshade*1.300,0),numpalookups)))/((float)numpalookups);
+    f = ((float)(numpalookups-min(max(globalshade * SHADESCALE,0),numpalookups)))/((float)numpalookups);
     switch ((globalorientation>>7)&3) {
     case 0:
     case 1:
