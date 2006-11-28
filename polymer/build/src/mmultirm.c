@@ -1112,7 +1112,7 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
             {
 
                 ////addfaz NAT addition *START*////
-                if (!natfree)
+                if (natfree)
                 {
                     if (tmpmax[i] != 1)
                     {

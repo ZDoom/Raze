@@ -17,8 +17,8 @@ $(OBJ)/lzf_d.$o: $(SRC)/lzf_d.c $(SRC)/lzfP.h
 $(OBJ)/lzwnew.$o: $(SRC)/lzwnew.c
 $(OBJ)/md4.$o: $(SRC)/md4.c $(INC)/md4.h $(INC)/compat.h
 $(OBJ)/mmulti_null.$o: $(SRC)/mmulti_null.c $(INC)/mmulti.h
-$(OBJ)/mmulti.$o: $(SRC)/mmulti.c
-$(OBJ)/mmultirm.$o: $(SRC)/mmultirm.c
+$(OBJ)/mmulti.$o: $(SRC)/mmulti.c $(INC)/mmulti.h
+$(OBJ)/mmultirm.$o: $(SRC)/mmultirm.c $(INC)/mmulti.h
 $(OBJ)/osd.$o: $(SRC)/osd.c $(INC)/build.h $(INC)/osd.h $(INC)/compat.h $(INC)/baselayer.h
 $(OBJ)/pragmas.$o: $(SRC)/pragmas.c $(INC)/compat.h
 $(OBJ)/scriptfile.$o: $(SRC)/scriptfile.c $(INC)/scriptfile.h $(INC)/cache1d.h $(INC)/compat.h

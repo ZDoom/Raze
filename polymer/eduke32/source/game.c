@@ -121,8 +121,6 @@ char user_quote[MAXUSERQUOTES][178];
 #define MAXCACHE1DSIZE (32*1048576)
 #endif
 
-#define RMNET 1
-
 long tempwallptr;
 
 long nonsharedtimer;
@@ -8206,6 +8204,7 @@ void comlinehelp(void)
     wm_msgbox(apptitle,s);
 }
 
+#ifndef TESTNET
 signed int rancid_players = 0;
 char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
@@ -8279,6 +8278,7 @@ static int stringsort(const char *p1, const char *p2)
 {
     return Bstrcmp(&p1[0],&p2[0]);
 }
+#endif
 
 static tokenlist grptokens[] =
     {
@@ -8416,12 +8416,12 @@ void checkcommandline(int argc,char **argv)
                     {
                         NoSetup = TRUE;
                         networkmode = 1;
-#ifndef RMNET
+#ifndef TESTNET
                         CommandNet = argv[i+1];
 #endif
                         i++;
                     }
-#ifndef RMNET
+#ifndef TESTNET
                     if (CommandNet)
                     {
                         if (load_rancid_net(CommandNet) != -1)
@@ -9293,7 +9293,7 @@ void Startup(long argc, char **argv)
     for (i=0;i<MAXPLAYERS;i++)
         playerreadyflag[i] = 0;
 
-#ifndef RMNET
+#ifndef TESTNET
     if (Bstrlen(rancid_ip_strings[MAXPLAYERS-1]))
     {
         initprintf("rmnet: Using %s as sort IP\n",rancid_ip_strings[MAXPLAYERS-1]);
@@ -9743,7 +9743,7 @@ void app_main(int argc,char **argv)
 
     //     initprintf("numplayers=%i\n",numplayers);
 
-#ifdef RMNET
+#ifdef TESTNET
     if (natfree)
         waitforeverybody();
 #endif

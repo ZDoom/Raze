@@ -13,6 +13,7 @@ NOASM = 0
 RELEASE?=1
 JFAUD?=0
 NOSOUND?=0
+TESTNET?=0
 
 # build locations
 
@@ -210,7 +211,7 @@ enginelib editorlib:
 	-mkdir -p $(EOBJ)
 	$(MAKE) -C $(EROOT)/ "OBJ=$(CURDIR)/$(EOBJ)" \
 		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) \
-		USE_OPENGL=$(USE_OPENGL) \
+		USE_OPENGL=$(USE_OPENGL) TESTNET=$(TESTNET) \
 		NOASM=$(NOASM) RELEASE=$(RELEASE) $@
 	
 $(EOBJ)/$(ENGINELIB): enginelib

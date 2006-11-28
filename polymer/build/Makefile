@@ -17,6 +17,7 @@ SUPERBUILD ?= 1
 POLYMOST ?= 1		
 USE_OPENGL ?= 1
 NOASM ?= 0
+TESTNET ?= 0
 
 SETSPRITEZ ?= 0
 
@@ -84,7 +85,6 @@ ENGINEOBJS+= \
 	$(OBJ)/lzf_c.$o \
 	$(OBJ)/lzf_d.$o \
 	$(OBJ)/md4.$o \
-	$(OBJ)/mmultirm.$o \
 	$(OBJ)/osd.$o \
 	$(OBJ)/pragmas.$o \
 	$(OBJ)/scriptfile.$o \
@@ -92,6 +92,12 @@ ENGINEOBJS+= \
 
 EDITOROBJS=$(OBJ)/build.$o \
 	$(OBJ)/config.$o
+
+ifeq ($(TESTNET),1)
+	ENGINEOBJS+= $(OBJ)/mmultirm.$o
+else
+	ENGINEOBJS+= $(OBJ)/mmulti.$o
+endif
 
 # detect the platform
 ifeq ($(PLATFORM),LINUX)
