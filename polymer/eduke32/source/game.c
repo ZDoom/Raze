@@ -121,6 +121,8 @@ char user_quote[MAXUSERQUOTES][178];
 #define MAXCACHE1DSIZE (32*1048576)
 #endif
 
+#define RMNET 1
+
 long tempwallptr;
 
 long nonsharedtimer;
@@ -482,6 +484,7 @@ void getpackets(void)
     if (numplayers < 2) return;
     while ((packbufleng = getpacket(&other,packbuf)) > 0)
     {
+		initprintf("RECEIVED PACKET: type: %d : len %d\n", packbuf[0], packbufleng);
         switch (packbuf[0])
         {
         case 254:
@@ -895,6 +898,7 @@ void getpackets(void)
 
         case 250:
             playerreadyflag[other]++;
+			initprintf("Player %ld is ready...\n", other);
             break;
         case 255:
             gameexit(" ");
@@ -8411,9 +8415,12 @@ void checkcommandline(int argc,char **argv)
                     NoSetup = TRUE;
                     if (argc > i+1)
                     {
+#ifndef RMNET
                         CommandNet = argv[i+1];
+#endif
                         i++;
                     }
+#ifndef RMNET
                     if (CommandNet)
                     {
                         if (load_rancid_net(CommandNet) != -1)
@@ -8500,6 +8507,7 @@ void checkcommandline(int argc,char **argv)
                                 netparam[j] = (char *)&rancid_local_port_string;
                         }
                     }
+#endif
                     i++;
                     continue;
                 }
@@ -9175,7 +9183,7 @@ void sanitizegametype()
 
 extern int startwin_run(void);
 
-void Startup(void)
+void Startup(long argc, char **argv)
 {
     int i;
 
@@ -9281,8 +9289,10 @@ void Startup(void)
 
     tilesizx[MIRROR] = tilesizy[MIRROR] = 0;
 
-    for (i=0;i<MAXPLAYERS;i++) playerreadyflag[i] = 0;
+    for (i=0;i<MAXPLAYERS;i++)
+        playerreadyflag[i] = 0;
 
+#ifndef RMNET
     if (Bstrlen(rancid_ip_strings[MAXPLAYERS-1]))
     {
         initprintf("rmnet: Using %s as sort IP\n",rancid_ip_strings[MAXPLAYERS-1]);
@@ -9307,6 +9317,9 @@ void Startup(void)
     if (netparam) Bfree(netparam);
     netparam = NULL;
     netparamcount = 0;
+#else
+    initmultiplayers(argc,argv,0,0,0);
+#endif
 
     if (numplayers > 1)
         initprintf("Multiplayer initialized.\n");
@@ -9316,8 +9329,6 @@ void Startup(void)
 
     if (networkmode == 255)
         networkmode = 1;
-
-    getnames();
 }
 
 void sendscore(char *s)
@@ -9393,7 +9404,6 @@ void getnames(void)
         syncnames();
         sendboardname();
         getpackets();
-
         waitforeverybody();
     }
 
@@ -9717,22 +9727,25 @@ void app_main(int argc,char **argv)
         initprintf("Please read LICENSE.DOC for more details.\n");
     }
 
-    Startup(); // a bunch of stuff including compiling cons
+    Startup(argc,argv); // a bunch of stuff including compiling cons
 
+    i = 1;
+    for (j=numplayers;j<ud.multimode;j++)
     {
-        i = 1;
-        for (j=numplayers;j<ud.multimode;j++)
-        {
-            Bsprintf(ud.user_name[j],"PLAYER %d",j+1);
-            ps[j].team = ud.pteam[j] = i;
-            i = 1-i;
-        }
+        Bsprintf(ud.user_name[j],"PLAYER %d",j+1);
+        ps[j].team = ud.pteam[j] = i;
+        i = 1-i;
     }
 
     if (quitevent) return;
     if (!loaddefinitionsfile(duke3ddef)) initprintf("Definitions file loaded.\n");
 
     //     initprintf("numplayers=%i\n",numplayers);
+
+#ifdef RMNET
+    if (natfree)
+        waitforeverybody();
+#endif
 
     if (numplayers > 1)
     {

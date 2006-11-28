@@ -224,7 +224,7 @@ extern void printstr(short x,short y,char string[],char attribute);
 extern void Logo(void);
 extern void loadtmb(void);
 extern void compilecons(void);
-extern void Startup(void);
+extern void Startup(long argc, char **argv);
 extern void getnames(void);
 extern int main(int argc,char **argv);
 extern char opendemoread(char which_demo);

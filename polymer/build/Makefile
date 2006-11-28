@@ -84,7 +84,7 @@ ENGINEOBJS+= \
 	$(OBJ)/lzf_c.$o \
 	$(OBJ)/lzf_d.$o \
 	$(OBJ)/md4.$o \
-	$(OBJ)/mmulti.$o \
+	$(OBJ)/mmultirm.$o \
 	$(OBJ)/osd.$o \
 	$(OBJ)/pragmas.$o \
 	$(OBJ)/scriptfile.$o \
