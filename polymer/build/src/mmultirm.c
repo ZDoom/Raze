@@ -1,24 +1,22 @@
-/*
- * "Build Engine & Tools" Copyright (c) 1993-1997 Ken Silverman
- * Ken Silverman's official web site: "http://www.advsys.net/ken"
- * See the included license file "BUILDLIC.TXT" for license info.
- * This file has been modified from Ken Silverman's original release
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
-#include <assert.h>
+// #include <assert.h>
+
+#include "compat.h"
+#include "cache1d.h"
+#include "pragmas.h"
+#include "baselayer.h"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#define SOCKET int
 #define EWOULDBLOCK WSAEWOULDBLOCK
 #define ECONNREFUSED WSAECONNRESET
-#define socklen_t size_t
 #define netstrerror() win32netstrerror()
 #define neterrno() WSAGetLastError()
 #else
@@ -41,13 +39,7 @@
 #define ioctlsocket ioctl
 #define netstrerror() strerror(errno)
 #define neterrno() errno
-#define LPHOSTENT struct hostent *
 #endif
-
-#include "compat.h"
-#include "cache1d.h"
-#include "pragmas.h"
-#include "baselayer.h"
 
 //STL
 //#include <vector>
@@ -59,8 +51,6 @@
 #define SHOWSENDPACKETS 1
 #define SHOWGETPACKETS 1
 #define PRINTERRORS 1
-
-#define updatecrc16(crc,dat) crc = (((crc<<8)&65535)^crctable[((((unsigned short)crc)>>8)&65535)^dat])
 
 #define SOCKET_SHUTDOWN_BOTH 2
 
@@ -91,7 +81,6 @@ static char errorresendnum[MAXPLAYERS];
 static char lasterrorgotnum[MAXPLAYERS];
 #endif
 
-long crctable[256];
 int tmpmax[8]; //addfaz variable addition (you could probs think of something better)
 int itmp = 0; //addfaz router fix STUN
 
@@ -177,41 +166,35 @@ void deinit_network_transport(gcomtype *gcom);
 void callcommit(void);
 void dosendpackets(long other);
 
-
-void initcrc(void)
+static long crctab16[256];
+static void initcrc16 ()
 {
     long i, j, k, a;
-
-    for (j=0;j<256;j++)      /* Calculate CRC table */
+    for (j=0;j<256;j++)
     {
-        k = (j<<8); a = 0;
-        for (i=7;i>=0;i--)
+        for (i=7,k=(j<<8),a=0;i>=0;i--,k=((k<<1)&65535))
         {
-            if (((k^a)&0x8000) > 0)
-                a = ((a<<1)&65535) ^ 0x1021;   /* 0x1021 = genpoly */
-            else
-                a = ((a<<1)&65535);
-            k = ((k<<1)&65535);
+            if ((k^a)&0x8000) a = ((a<<1)&65535)^0x1021;
+            else a = ((a<<1)&65535);
         }
-        crctable[j] = (a&65535);
+        crctab16[j] = (a&65535);
     }
 }
-
-
-long getcrc(char *buffer, short bufleng)
+#define updatecrc16(crc,dat) crc = (((crc<<8)&65535)^crctab16[((((unsigned short)crc)>>8)&65535)^dat])
+static unsigned short getcrc16 (char *buffer, long bufleng)
 {
     long i, j;
 
     j = 0;
     for (i=bufleng-1;i>=0;i--) updatecrc16(j,buffer[i]);
-    return(j&65535);
+    return((unsigned short)(j&65535));
 }
 
 void initmultiplayers(long argc, char **argv, char damultioption, char dacomrateoption, char dapriority)
 {
     long i;
 
-    initcrc();
+    initcrc16();
     for (i=0;i<MAXPLAYERS;i++)
     {
         incnt[i] = 0L;
@@ -232,7 +215,6 @@ void initmultiplayers(long argc, char **argv, char damultioption, char dacomrate
             if (Bstrcasecmp(arg + 1, "rmnet") == 0)
                 break;
         }
-        initprintf("lol?\n");
     }
 
     if ((i == 0) || (i+1 == argc))
@@ -315,7 +297,7 @@ void dosendpackets(long other)
 
     }
 
-    dacrc = getcrc(gcom->buffer,(short)k);
+    dacrc = getcrc16(gcom->buffer,(short)k);
     gcom->buffer[k++] = (dacrc&255);
     gcom->buffer[k++] = (dacrc>>8);
 
@@ -367,7 +349,6 @@ void sendpacket(long other, char *bufptr, long messleng)
     outcntend[other]++;
 
     lastsendtime[other] = totalclock;
-    initprintf("totalclock: %ld\n",totalclock);
     dosendpackets(other);
 }
 
@@ -431,7 +412,6 @@ short getpacket(short *other, char *bufptr)
             {
 #if (PRINTERRORS)
                 initprintf(" TimeOut!");
-                initprintf("totalclock: %ld\n",totalclock);
 #endif
                 errorgotnum[i] = errorfixnum[i]+1;
 
@@ -472,7 +452,7 @@ short getpacket(short *other, char *bufptr)
 
     dacrc = ((unsigned short)gcom->buffer[messleng-2]);
     dacrc += (((unsigned short)gcom->buffer[messleng-1])<<8);
-    if (dacrc != getcrc(gcom->buffer,(short)(messleng-2)))        /* CRC check */
+    if (dacrc != getcrc16(gcom->buffer,(short)(messleng-2)))        /* CRC check */
     {
 #if (PRINTERRORS)
         initprintf("\n%ld CRC",gcom->buffer[0]);
@@ -701,7 +681,7 @@ static int get_udp_packet(int *ip, short *_port, void *pkt, size_t pktsize)
 
     /* FIXME: Will this ever receive a partial packet? */
     int rc = recvfrom(udpsocket, pkt, pktsize, 0,
-                      (struct sockaddr *) &addr, (int *)&fromlen);
+                      (struct sockaddr *) &addr, (socklen_t *)&fromlen);
 
     if (rc == -1)
         err = neterrno();
@@ -822,7 +802,7 @@ static char *read_whole_file(const char *cfgfile)
     if (cfgfile == NULL)
         return(NULL);
 
-    handle = kopen4load(cfgfile, 0);
+    handle = kopen4load((char *)cfgfile, 0);
     if (handle == -1)
     {
         initprintf("ERROR: Failed to open config file [%s].\n", cfgfile);
@@ -876,7 +856,11 @@ static char *get_token(char **ptr)
 
 static int set_socket_blockmode(int onOrOff)
 {
+#ifdef _WIN32
     unsigned long flags;
+#else
+    signed long flags;
+#endif
     int rc = 0;
 
     /* set socket to be (non-)blocking. */
@@ -1091,9 +1075,9 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
         }
 
 #ifdef _WIN32
-        Sleep(1);
+        Sleep(10);
 #else
-        usleep(1);
+        usleep(10);
 #endif
         process_udp_send_queue();
 
@@ -1267,7 +1251,7 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
 
         initprintf("%s:%i is player #%i.\n", static_ipstring(ip),allowed_addresses[i].port,i);
     }
-    assert(gcom->myconnectindex);
+//    assert(gcom->myconnectindex);
 
     initprintf("Everyone ready! We are player #%i\n", gcom->myconnectindex);
 
@@ -1462,7 +1446,7 @@ static int parse_udp_config(const char *cfgfile, gcomtype *gcom)
             return(connect_to_everyone(gcom, ip, bcast));
 
         initprintf("wtf?!");  /* Should be handled by a udpmode above... */
-        assert(0);
+//        assert(0);
     }
 
     return(0);
@@ -1636,89 +1620,3 @@ void callcommit(void)
         break;
     }
 }
-
-#if 0
-char tempbuf[512],ipaddr[32];
-
-const char *getexternaladdress(void)
-{
-    int sockfd, bytes_sent, i=0, j=0;
-    struct sockaddr_in dest_addr;
-    struct hostent *h;
-    char *host = "checkip.dyndns.org";
-    char *req = "GET / HTTP/1.0\r\n\r\n";
-
-    if (ipaddr[0])
-        return(ipaddr);
-
-#ifdef _WIN32
-    {
-        WSADATA ws;
-
-        if (WSAStartup(0x101,&ws) == SOCKET_ERROR)
-        {
-            initprintf("mmulti: Winsock error in getexternaladdress() (%d)\n",errno);
-            return(0);
-        }
-    }
-#endif
-
-    if ((h=gethostbyname(host)) == NULL)
-    {
-        initprintf("mmulti: gethostbyname() error in getexternaladdress() (%d)\n",h_errno);
-        return(0);
-    }
-
-    dest_addr.sin_addr.s_addr = ((struct in_addr *)(h->h_addr))->s_addr;
-    dest_addr.sin_family = AF_INET;
-    dest_addr.sin_port = htons(8245);
-
-    Bmemset(&(dest_addr.sin_zero), '\0', 8);
-
-    sockfd = socket(PF_INET, SOCK_STREAM, 0);
-    if (sockfd == SOCKET_ERROR)
-    {
-        initprintf("mmulti: socket() error in getexternaladdress() (%d)\n",errno);
-        return(0);
-    }
-
-    if (connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR)
-    {
-        initprintf("mmulti: connect() error in getexternaladdress() (%d)\n",errno);
-        return(0);
-    }
-
-    bytes_sent = send(sockfd, req, strlen(req), 0);
-    if (bytes_sent == SOCKET_ERROR)
-    {
-        initprintf("mmulti: send() error in getexternaladdress() (%d)\n",errno);
-        return(0);
-    }
-
-    //    initprintf("sent %d bytes\n",bytes_sent);
-    recv(sockfd, (char *)&tempbuf, sizeof(tempbuf), 0);
-    closesocket(sockfd);
-
-#ifdef _WIN32
-    WSACleanup();
-#endif
-
-    for (i=0;(unsigned)i<strlen(tempbuf);i++)
-    {
-        if (isdigit(tempbuf[i]) && (isdigit(tempbuf[i+1]) || (tempbuf[i+1] == '.')) && (isdigit(tempbuf[i+2]) || (tempbuf[i+2] == '.')) && (isdigit(tempbuf[i+3]) || (tempbuf[i+3] == '.')))
-        {
-            while (isdigit(tempbuf[i]) || (tempbuf[i] == '.'))
-            {
-                ipaddr[j] = tempbuf[i];
-                i++, j++;
-            }
-            ipaddr[j] = '\0';
-            break;
-        }
-    }
-    return(ipaddr);
-}
-#endif
-
-/* end of mmulti.c ... */
-

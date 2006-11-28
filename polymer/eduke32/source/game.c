@@ -8412,9 +8412,10 @@ void checkcommandline(int argc,char **argv)
                 }
                 if (!Bstrcasecmp(c+1,"rmnet"))
                 {
-                    NoSetup = TRUE;
                     if (argc > i+1)
                     {
+                        NoSetup = TRUE;
+                        networkmode = 1;
 #ifndef RMNET
                         CommandNet = argv[i+1];
 #endif

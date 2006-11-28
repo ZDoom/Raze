@@ -1423,6 +1423,7 @@ void waitforeverybody()
     packbuf[0] = 250;
     for (i=connecthead;i>=0;i=connectpoint2[i])
     {
+        initprintf("sending 250\n");
         if (i != myconnectindex) sendpacket(i,packbuf,1);
         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
     }
@@ -1430,6 +1431,12 @@ void waitforeverybody()
 
     while (1)
     {
+#ifdef _WIN32
+        Sleep(10);
+#else
+        usleep(10);
+#endif
+        sampletimer();
         handleevents();
         AudioUpdate();
 
