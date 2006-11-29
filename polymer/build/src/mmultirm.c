@@ -14,7 +14,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#define SOCKET int
+#define SOCKET signed int
 #define EWOULDBLOCK WSAEWOULDBLOCK
 #define ECONNREFUSED WSAECONNRESET
 #define netstrerror() win32netstrerror()
@@ -31,7 +31,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#define SOCKET int
+#define SOCKET signed int
 #define INVALID_HANDLE_VALUE (-1)
 #define INVALID_SOCKET (-1)
 #define SOCKET_ERROR (-1)
@@ -59,9 +59,9 @@
 #define IPSEG3(ip) ((((unsigned int) ip) & 0x0000FF00) >>  8)
 #define IPSEG4(ip) ((((unsigned int) ip) & 0x000000FF)      )
 
-#define BUILD_DEFAULT_UDP_PORT 1635  /* eh...why not? */
+#define BUILD_DEFAULT_UDP_PORT 23513
 #define CLIENT_POLL_DELAY 3000  /* ms between pings at peer-to-peer startup. */
-#define HEADER_PEER_GREETING 245
+#define HEADER_PEER_GREETING 246 /* increment this by one so Duke3d_w32 doesn't accept EDuke32 players and vice-versa */
 
 static SOCKET udpsocket = -1;
 static short udpport = BUILD_DEFAULT_UDP_PORT;
@@ -240,6 +240,7 @@ void initmultiplayers(long argc, char **argv, char damultioption, char dacomrate
     for (i=0;i<numplayers-1;i++) connectpoint2[i] = i+1;
     connectpoint2[numplayers-1] = -1;
 
+    sampletimer();
     for (i=0;i<numplayers;i++) lastsendtime[i] = totalclock;
 }
 
@@ -348,6 +349,7 @@ void sendpacket(long other, char *bufptr, long messleng)
     }
     outcntend[other]++;
 
+    sampletimer();
     lastsendtime[other] = totalclock;
     dosendpackets(other);
 }
@@ -407,6 +409,7 @@ short getpacket(short *other, char *bufptr)
     for (i=connecthead;i>=0;i=connectpoint2[i])
         if (i != myconnectindex)
         {
+            sampletimer();
             if (totalclock < lastsendtime[i]) lastsendtime[i] = totalclock;
             if (totalclock > lastsendtime[i]+timeoutcount)
             {
@@ -480,11 +483,14 @@ short getpacket(short *other, char *bufptr)
             initprintf("\n%ld CNT",gcom->buffer[0]);
 #endif
         }
-#if (PRINTERRORS)
         else
         {
             if (!(gcom->buffer[1]&128))           /* single else double packet */
+            {
+#if (PRINTERRORS)
                 initprintf("\n%ld cnt",gcom->buffer[0]);
+#endif
+            }
             else
             {
                 if (((gcom->buffer[0]+1)&255) == (incnt[*other]&255))
@@ -499,11 +505,12 @@ short getpacket(short *other, char *bufptr)
                     incnt[*other]++;
                     return(lastpacketleng);
                 }
+#if (PRINTERRORS)
                 else
                     initprintf("\n%ld-%ld cnt ",gcom->buffer[0],(gcom->buffer[0]+1)&255);
+#endif
             }
         }
-#endif
         return(0);
     }
 
@@ -964,7 +971,7 @@ typedef struct
     unsigned char dummy1;   /* so these don't confuse game after load. */
     unsigned char dummy2;   /* so these don't confuse game after load. */
     unsigned char dummy3;   /* so these don't confuse game after load. */
-    unsigned char header;   /* always HEADER_PEER_GREETING (245). */
+    unsigned char header;   /* always HEADER_PEER_GREETING (246). */
     unsigned short id;
 }
 PacketPeerGreeting;
@@ -1075,9 +1082,9 @@ static int connect_to_everyone(gcomtype *gcom, int myip, int bcast)
         }
 
 #ifdef _WIN32
-        Sleep(10);
+        Sleep(1);
 #else
-        usleep(10);
+        usleep(1);
 #endif
         process_udp_send_queue();
 
@@ -1318,16 +1325,16 @@ static int initialize_sockets(void)
 #ifdef _WIN32
     int rc;
     WSADATA data;
-    initprintf("initializing WinSock...\n");
+    initprintf("initializing Winsock...\n");
     rc = WSAStartup(0x0101, &data);
     if (rc != 0)
     {
-        initprintf("WinSock failed to initialize! [err==%d].\n", rc);
+        initprintf("Winsock failed to initialize! [err==%d].\n", rc);
         return(0);
     }
     else
     {
-        initprintf("WinSock initialized.\n");
+        initprintf("Winsock initialized.\n");
         initprintf("  - Caller uses version %d.%d, highest supported is %d.%d.\n",
                    data.wVersion >> 8, data.wVersion & 0xFF,
                    data.wHighVersion >> 8, data.wHighVersion & 0xFF);

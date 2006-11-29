@@ -51,10 +51,10 @@ static long GetTickCount(void)
 #endif
 
 #define MAXPLAYERS 16
-#define MAXPAKSIZ 256 //576
+#define MAXPAKSIZ 576
 
 
-#define PAKRATE 26   //Packet rate/sec limit ... necessary?
+#define PAKRATE 250  //Packet rate/sec limit ... necessary?
 #define SIMMIS 0     //Release:0  Test:100 Packets per 256 missed.
 #define SIMLAG 0     //Release:0  Test: 10 Packets to delay receipt
 static long simlagcnt[MAXPLAYERS];
@@ -128,6 +128,35 @@ void netuninit ()
 #endif
 }
 
+static int set_socket_blockmode(SOCKET socket, int onOrOff)
+{
+#ifdef _WIN32
+    unsigned long flags;
+#else
+    signed long flags;
+#endif
+    int rc = 0;
+
+    /* set socket to be (non-)blocking. */
+
+#ifdef _WIN32
+    flags = (onOrOff) ? 0 : 1;
+    rc = (ioctlsocket(socket, FIONBIO, &flags) == 0);
+#else
+    flags = fcntl(socket, F_GETFL, 0);
+    if (flags != -1)
+    {
+        if (onOrOff)
+            flags &= ~O_NONBLOCK;
+        else
+            flags |= O_NONBLOCK;
+        rc = (fcntl(socket, F_SETFL, flags) == 0);
+    }
+#endif
+
+    return(rc);
+}
+
 long netinit (long portnum)
 {
     LPHOSTENT lpHostEnt;
@@ -145,7 +174,8 @@ long netinit (long portnum)
 #ifdef __BEOS__
     i = 1; if (setsockopt(mysock,SOL_SOCKET,SO_NONBLOCK,&i,sizeof(i)) < 0) return(0);
 #else
-    i = 1; if (ioctlsocket(mysock,FIONBIO,(unsigned long *)&i) == SOCKET_ERROR) return(0);
+//    i = 1; if (ioctlsocket(mysock,FIONBIO,(unsigned long *)&i) == SOCKET_ERROR) return(0);
+    if (!set_socket_blockmode(mysock,0)) return(0);
 #endif
 
     ip.sin_family = AF_INET;
@@ -566,7 +596,7 @@ void dosendpackets (long other) //Host to send intially, client to send to other
 
     tims = GetTickCount();
     if (tims < lastsendtims[other]) lastsendtims[other] = tims;
-    if (tims < lastsendtims[other]+1000/PAKRATE) return;
+//    if (tims < lastsendtims[other]+1000/PAKRATE) return;
     lastsendtims[other] = tims;
 
     k = 2;

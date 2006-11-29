@@ -4677,6 +4677,9 @@ VOLUME_ALL_40x:
                         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                     }
                 }
+                if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && !(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_TDM))
+                    ud.m_noexits = 0;
+
                 cmenu(603);
             }
             break;

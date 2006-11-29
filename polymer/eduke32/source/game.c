@@ -482,7 +482,9 @@ void getpackets(void)
     if (numplayers < 2) return;
     while ((packbufleng = getpacket(&other,packbuf)) > 0)
     {
+#ifdef TESTNET
 		initprintf("RECEIVED PACKET: type: %d : len %d\n", packbuf[0], packbufleng);
+#endif
         switch (packbuf[0])
         {
         case 254:
@@ -895,8 +897,9 @@ void getpackets(void)
             break;
 
         case 250:
+            if (playerreadyflag[other] == 0)
+    			initprintf("Player %ld is ready\n", other);
             playerreadyflag[other]++;
-			initprintf("Player %ld is ready...\n", other);
             break;
         case 255:
             gameexit(" ");

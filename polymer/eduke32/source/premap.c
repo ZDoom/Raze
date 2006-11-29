@@ -1423,7 +1423,6 @@ void waitforeverybody()
     packbuf[0] = 250;
     for (i=connecthead;i>=0;i=connectpoint2[i])
     {
-        initprintf("sending 250\n");
         if (i != myconnectindex) sendpacket(i,packbuf,1);
         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
     }
