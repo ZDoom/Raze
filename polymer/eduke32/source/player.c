@@ -2752,7 +2752,7 @@ void getinput(short snum)
     momx = momy = 0;
     p = &ps[snum];
 
-    if ((p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)))
+    if ((p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)) || p->player_par < 10)
     {
         CONTROL_GetInput(&info);
         memset(&lastinfo, 0, sizeof(lastinfo));

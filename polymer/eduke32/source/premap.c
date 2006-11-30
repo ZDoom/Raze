@@ -1588,6 +1588,7 @@ int enterlevel(char g)
     KB_ClearKeysDown();
     handleevents();
     getpackets();
+    waitforeverybody();
     ready2send = 0; 
   
     if ((g&MODE_DEMO) != MODE_DEMO) ud.recstat = ud.m_recstat;
@@ -1632,7 +1633,6 @@ int enterlevel(char g)
 
     if (!VOLUMEONE)
     {
-
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
         {
             if (loadboard(boardfilename,0,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
