@@ -2762,6 +2762,7 @@ void getinput(short snum)
         loc.horz = horiz = 0;
         loc.bits = (((long)gamequit)<<26);
         loc.extbits = (ud.pteam[snum] != ps[snum].team)<<6;
+        loc.extbits |= (1<<7);
         return;
     }
 

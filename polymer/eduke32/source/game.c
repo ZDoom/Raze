@@ -6615,7 +6615,7 @@ void animatesprites(long x,long y,short a,long smoothratio)
                 spritesortcnt++;
             }
 
-            if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && sync[p].svel == 0 && sync[p].fvel == 0 && !ud.pause_on)
+            if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && sync[p].extbits & (1<<7) && !ud.pause_on)
             {
                 memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
