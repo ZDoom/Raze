@@ -1581,6 +1581,10 @@ int enterlevel(char g)
     long l;
     char levname[BMAX_PATH];
 
+    ready2send = 1; // HACK
+    for (i=0;i<numplayers;i++) getpackets();
+    ready2send = 0; 
+  
     if ((g&MODE_DEMO) != MODE_DEMO) ud.recstat = ud.m_recstat;
     ud.respawn_monsters = ud.m_respawn_monsters;
     ud.respawn_items    = ud.m_respawn_items;

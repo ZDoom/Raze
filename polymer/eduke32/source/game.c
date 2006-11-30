@@ -576,7 +576,7 @@ void getpackets(void)
                 voting = packbuf[2];
                 vote_episode = packbuf[3];
                 vote_map = packbuf[4];
-                Bsprintf(tempbuf,"%s HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[(unsigned char)packbuf[2]],level_names[(unsigned char)(packbuf[3]*11 + packbuf[4])],packbuf[3]+1,packbuf[4]+1);
+                Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[(unsigned char)packbuf[2]],level_names[(unsigned char)(packbuf[3]*11 + packbuf[4])],packbuf[3]+1,packbuf[4]+1);
                 adduserquote(tempbuf);
                 Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
                 adduserquote(tempbuf);
@@ -594,7 +594,7 @@ void getpackets(void)
                         i += gotvote[j];
 
                     if (i != numplayers)
-                        Bsprintf(tempbuf,"%s HAS CANCELED THE VOTE",ud.user_name[(unsigned char)packbuf[2]]);
+                        Bsprintf(tempbuf,"%s^00 HAS CANCELED THE VOTE",ud.user_name[(unsigned char)packbuf[2]]);
                     else Bsprintf(tempbuf,"VOTE FAILED");
                     Bmemset(votes,0,sizeof(votes));
                     Bmemset(gotvote,0,sizeof(gotvote));
@@ -884,9 +884,9 @@ void getpackets(void)
             }
 
             if (j > packbufleng)
-                initprintf("INVALID GAME PACKET!!! (packet %d, %ld too many bytes)\n",packbuf[0],j-packbufleng);
+                initprintf("INVALID GAME PACKET!!! (packet %d, %ld too many bytes (%ld %ld))\n",packbuf[0],j-packbufleng,packbufleng,k);
 
-            while (j != packbufleng)
+            while (j < packbufleng)
             {
                 syncval[other][syncvalhead[other]&(MOVEFIFOSIZ-1)] = packbuf[j++];
                 syncvalhead[other]++;
@@ -10006,7 +10006,7 @@ MAIN_LOOP_RESTART:
 
         if (gotvote[myconnectindex] == 0 && voting != -1 && voting != myconnectindex)
         {
-            Bsprintf(tempbuf,"%s HAS CALLED A VOTE FOR MAP",ud.user_name[voting]);
+            Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE FOR MAP",ud.user_name[voting]);
             gametext(160,40,tempbuf,0,2+8+16);
             Bsprintf(tempbuf,"%s (E%dL%d)",level_names[vote_episode*11 + vote_map],vote_episode+1,vote_map+1);
             gametext(160,48,tempbuf,0,2+8+16);
@@ -10989,7 +10989,7 @@ char domovethings(void)
 
                 if (multiwho != myconnectindex)
                 {
-                    Bsprintf(fta_quotes[122],"%s SAVED A MULTIPLAYER GAME",&ud.user_name[multiwho][0]);
+                    Bsprintf(fta_quotes[122],"%s^00 SAVED A MULTIPLAYER GAME",&ud.user_name[multiwho][0]);
                     FTA(122,&ps[myconnectindex]);
                 }
                 else
@@ -11011,7 +11011,7 @@ char domovethings(void)
                 {
                     if (multiwho != myconnectindex)
                     {
-                        Bsprintf(fta_quotes[122],"%s LOADED A MULTIPLAYER GAME",&ud.user_name[multiwho][0]);
+                        Bsprintf(fta_quotes[122],"%s^00 LOADED A MULTIPLAYER GAME",&ud.user_name[multiwho][0]);
                         FTA(122,&ps[myconnectindex]);
                     }
                     else
@@ -11121,7 +11121,7 @@ char domovethings(void)
         quickkill(&ps[i]);
         deletesprite(ps[i].i);
 
-        Bsprintf(buf,"%s is history!",ud.user_name[i]);
+        Bsprintf(buf,"%s^00 is history!",ud.user_name[i]);
         adduserquote(buf);
         Bstrcpy(fta_quotes[116],buf);
 
