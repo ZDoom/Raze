@@ -2736,7 +2736,7 @@ static ControlInfo lastinfo =
         0,0,0,0,0,0
     };
 
-static int jump_input = 0;
+char jump_input = 0;
 
 void getinput(short snum)
 {

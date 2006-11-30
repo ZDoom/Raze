@@ -1530,6 +1530,8 @@ void dofrontscreens(char *statustext)
     }
 }
 
+extern char jump_input;
+
 void clearfifo(void)
 {
     syncvaltail = 0L;
@@ -1537,6 +1539,7 @@ void clearfifo(void)
     syncstat = 0;
     bufferjitter = 1;
     mymaxlag = otherminlag = 0;
+    jump_input = 0;
 
     movefifoplc = movefifosendplc = fakemovefifoplc = 0;
     avgfvel = avgsvel = avgavel = avghorz = avgbits = avgextbits = 0;
@@ -1582,7 +1585,9 @@ int enterlevel(char g)
     char levname[BMAX_PATH];
 
     ready2send = 1; // HACK
-    for (i=0;i<numplayers;i++) getpackets();
+    KB_ClearKeysDown();
+    handleevents();
+    getpackets();
     ready2send = 0; 
   
     if ((g&MODE_DEMO) != MODE_DEMO) ud.recstat = ud.m_recstat;
