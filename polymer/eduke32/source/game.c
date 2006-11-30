@@ -810,9 +810,6 @@ void getpackets(void)
             ud.user_name[other][i-3] = 0;
             i++;
 
-            j = i; //This used to be Duke packet #9... now concatenated with Duke packet #6
-            for (;i-j<10;i++) ud.wchoice[other][i-j] = packbuf[i];
-
             ps[other].aim_mode = packbuf[i++];
             ps[other].auto_aim = packbuf[i++];
             ps[other].weaponswitch = packbuf[i++];
@@ -824,6 +821,21 @@ void getpackets(void)
                             hittype[ps[other].i].extra = 1000;
                             hittype[ps[other].i].picnum = APLAYERTOP;
                         } */
+
+            break;
+        case 10:
+            //slaves in M/S mode only send to master
+            //Master re-transmits message to all others
+            if ((!networkmode) && (myconnectindex == connecthead))
+                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                    if (i != other) sendpacket(i,packbuf,packbufleng);
+
+            other = packbuf[1];
+
+            i = 2;
+
+            j = i; //This used to be Duke packet #9... now concatenated with Duke packet #6
+            for (;i-j<10;i++) ud.wchoice[other][i-j] = packbuf[i];
 
             break;
         case 7:
@@ -9355,7 +9367,28 @@ void sendscore(char *s)
         genericmultifunction(-1,s,strlen(s)+1,5);
 }
 
-void syncnames(void)
+void sendwchoice(void)
+{
+    int i,l;
+
+    buf[0] = 10;
+    buf[1] = myconnectindex;
+    l = 2;
+
+    for (i=0;i<10;i++)
+    {
+        ud.wchoice[myconnectindex][i] = ud.wchoice[0][i];
+        buf[l++] = (char)ud.wchoice[0][i];
+    }
+
+    for (i=connecthead;i>=0;i=connectpoint2[i])
+    {
+        if (i != myconnectindex) sendpacket(i,&buf[0],l);
+        if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+    }
+}
+
+void sendplayerupdate(void)
 {
     int i,l;
 
@@ -9367,12 +9400,6 @@ void syncnames(void)
     //null terminated player name to send
     for (i=0;myname[i];i++) buf[l++] = Btoupper(myname[i]);
     buf[l++] = 0;
-
-    for (i=0;i<10;i++)
-    {
-        ud.wchoice[myconnectindex][i] = ud.wchoice[0][i];
-        buf[l++] = (char)ud.wchoice[0][i];
-    }
 
     buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
     buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
@@ -9419,7 +9446,8 @@ void getnames(void)
 
     if (numplayers > 1)
     {
-        syncnames();
+        sendplayerupdate();
+        sendwchoice();
         sendboardname();
         getpackets();
         waitforeverybody();
@@ -9429,7 +9457,7 @@ void getnames(void)
         gameexit("Please put the Duke Nukem 3D Atomic Edition CD in the CD-ROM drive.");
 }
 
-void updatenames(void)
+void updateplayer(void)
 {
     int l;
 
@@ -9441,7 +9469,7 @@ void updatenames(void)
 
     if (ud.multimode > 1)
     {
-        syncnames();
+        sendplayerupdate();
         if (sprite[ps[myconnectindex].i].picnum == APLAYER && sprite[ps[myconnectindex].i].pal != 1)
             sprite[ps[myconnectindex].i].pal = ud.pcolor[myconnectindex];
     }

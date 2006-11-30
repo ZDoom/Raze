@@ -725,26 +725,26 @@ void menus(void)
                 if (ud.color > 23)
                     ud.color = 0;
                 check_player_color((int *)&ud.color,-1);
-                updatenames();
+                updateplayer();
                 break;
 
             case 2:
                 ud.team = 1-ud.team;
-                updatenames();
+                updateplayer();
                 break;
 
             case 3:
                 AutoAim = (AutoAim == 2) ? 0 : AutoAim+1;
-                updatenames();
+                updateplayer();
                 break;
 
             case 4:
                 ud.weaponswitch = (ud.weaponswitch == 3) ? 0 : ud.weaponswitch+1;
-                updatenames();
+                updateplayer();
                 break;
             case 5:
                 ud.mouseaiming = !ud.mouseaiming;
-                updatenames();
+                updateplayer();
                 break;
             case 6:
                 cmenu(20004);
@@ -776,7 +776,7 @@ void menus(void)
                 KB_FlushKeyboardQueue();
 
                 current_menu = 20002;
-                updatenames();
+                updateplayer();
             }
         }
 
@@ -798,7 +798,7 @@ void menus(void)
             modval(0,1,(int *)&ud.mouseaiming,1,probey==5);
             check_player_color((int *)&ud.color,ud_color);
             if (ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch || ud_maim != ud.mouseaiming || ud_team != ud.team)
-                updatenames();
+                updateplayer();
         }
         menutext(40,50+16+16,MENUHIGHLIGHT(2),0,"TEAM");
         menutext(40,50+16+16+16,MENUHIGHLIGHT(3),0,"AUTO AIM");

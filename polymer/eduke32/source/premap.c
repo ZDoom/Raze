@@ -1584,7 +1584,7 @@ int enterlevel(char g)
     long l;
     char levname[BMAX_PATH];
 
-    ready2send = 1; // HACK
+    ready2send = 1; // HACK: fetch any leftover p2p sync packets
     KB_ClearKeysDown();
     handleevents();
     getpackets();

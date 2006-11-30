@@ -594,7 +594,7 @@ int osdcmd_cvar_set(const osdfuncparm_t *parm)
                     break;
                 }
             if (cvar[i].type&256)
-                updatenames();
+                updateplayer();
         }
     }
     OSD_Printf("\n");
@@ -784,7 +784,7 @@ int osdcmd_name(const osdfuncparm_t *parm)
 
     OSD_Printf("name %s\n",myname);
 
-    updatenames();
+    updateplayer();
 
     return OSDCMD_OK;
 }
