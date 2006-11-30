@@ -1673,7 +1673,7 @@ void checkhitwall(short spr,short dawallnum,long x,long y,long z,short atwith)
                     //case W_FORCEFIELD+2:
                     wal->extra = 1; // tell the forces to animate
                 case BIGFORCE__STATIC:
-                    updatesector(x,y,&sn);
+                    updatesectorz(x,y,z,&sn);
                     if (sn < 0) return;
 
                     if (atwith == -1)
@@ -1706,7 +1706,7 @@ void checkhitwall(short spr,short dawallnum,long x,long y,long z,short atwith)
                     return;
 
                 case GLASS__STATIC:
-                    updatesector(x,y,&sn);
+                    updatesectorz(x,y,z,&sn);
                     if (sn < 0) return;
                     wal->overpicnum=GLASS2;
                     lotsofglass(spr,dawallnum,10);
@@ -1722,7 +1722,7 @@ void checkhitwall(short spr,short dawallnum,long x,long y,long z,short atwith)
                     spritesound(GLASS_BREAKING,i);
                     return;
                 case STAINGLASS1__STATIC:
-                    updatesector(x,y,&sn);
+                    updatesectorz(x,y,z,&sn);
                     if (sn < 0) return;
                     lotsofcolourglass(spr,dawallnum,80);
                     wal->cstat = 0;
@@ -2472,7 +2472,7 @@ void checkhitsprite(short i,short sn)
                     ps[p].posz = ps[p].oposz;
                     ps[p].ang = ps[p].oang;
 
-                    updatesector(ps[p].posx,ps[p].posy,&ps[p].cursectnum);
+                    updatesectorz(ps[p].posx,ps[p].posy,ps[p].posz,&ps[p].cursectnum);
                     setpal(&ps[p]);
 
                     j = headspritestat[1];
@@ -3458,7 +3458,7 @@ CLEARCAMERAS:
                 p->ang = p->oang;
                 p->newowner = -1;
 
-                updatesector(p->posx,p->posy,&p->cursectnum);
+                updatesectorz(p->posx,p->posy,p->posz,&p->cursectnum);
                 setpal(p);
 
 

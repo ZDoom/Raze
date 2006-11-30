@@ -480,7 +480,7 @@ SKIPWALLCHECK:
                                 ps[p].posy = ps[p].oposy;
                                 ps[p].posz = ps[p].oposz;
                                 ps[p].ang = ps[p].oang;
-                                updatesector(ps[p].posx,ps[p].posy,&ps[p].cursectnum);
+                                updatesectorz(ps[p].posx,ps[p].posy,ps[p].posz,&ps[p].cursectnum);
                                 setpal(&ps[p]);
 
                                 k = headspritestat[1];
@@ -809,7 +809,7 @@ void movefta(void)
                     {
                         px = ps[p].oposx+64-(TRAND&127);
                         py = ps[p].oposy+64-(TRAND&127);
-                        updatesector(px,py,&psect);
+                        updatesectorz(px,py,ps[p].oposz,&psect);
                         if (psect == -1)
                         {
                             i = nexti;
@@ -817,7 +817,7 @@ void movefta(void)
                         }
                         sx = s->x+64-(TRAND&127);
                         sy = s->y+64-(TRAND&127);
-                        updatesector(px,py,&ssect);
+                        updatesectorz(px,py,ps[p].oposz,&ssect);
                         if (ssect == -1)
                         {
                             i = nexti;
@@ -4127,7 +4127,7 @@ void moveactors(void)
                     ps[p].posz = ps[p].oposz;
                     ps[p].ang = ps[p].oang;
 
-                    updatesector(ps[p].posx,ps[p].posy,&ps[p].cursectnum);
+                    updatesectorz(ps[p].posx,ps[p].posy,ps[p].posz,&ps[p].cursectnum);
                     setpal(&ps[p]);
 
                     j = headspritestat[1];
@@ -5719,7 +5719,7 @@ void moveeffectors(void)   //STATNUM 3
                             if (sprite[ps[p].i].extra > 0)
                             {
                                 k = ps[p].cursectnum;
-                                updatesector(ps[p].posx,ps[p].posy,&k);
+                                updatesectorz(ps[p].posx,ps[p].posy,ps[p].posz,&k);
                                 if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
                                 {
                                     ps[p].posx = s->x;
@@ -5801,7 +5801,7 @@ void moveeffectors(void)   //STATNUM 3
                             if (sprite[ps[p].i].extra > 0)
                             {
                                 k = ps[p].cursectnum;
-                                updatesector(ps[p].posx,ps[p].posy,&k);
+                                updatesectorz(ps[p].posx,ps[p].posy,ps[p].posz,&k);
                                 if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
                                 {
                                     ps[p].oposx = ps[p].posx = s->x;
@@ -5820,7 +5820,7 @@ void moveeffectors(void)   //STATNUM 3
                         if (sprite[j].statnum == 1 && badguy(&sprite[j]) && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
                         {
                             k = sprite[j].sectnum;
-                            updatesector(sprite[j].x,sprite[j].y,&k);
+                            updatesectorz(sprite[j].x,sprite[j].y,sprite[j].z,&k);
                             if (sprite[j].extra >= 0 && k == s->sectnum)
                             {
                                 gutsdir(&sprite[j],JIBS6,72,myconnectindex);
@@ -5900,7 +5900,7 @@ void moveeffectors(void)   //STATNUM 3
                             if (sprite[ps[p].i].extra > 0)
                             {
                                 k = ps[p].cursectnum;
-                                updatesector(ps[p].posx,ps[p].posy,&k);
+                                updatesectorz(ps[p].posx,ps[p].posy,ps[p].posz,&k);
                                 if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
                                 {
                                     ps[p].posx = s->x;
@@ -5969,7 +5969,7 @@ void moveeffectors(void)   //STATNUM 3
                             if (sprite[ps[p].i].extra > 0)
                             {
                                 k = ps[p].cursectnum;
-                                updatesector(ps[p].posx,ps[p].posy,&k);
+                                updatesectorz(ps[p].posx,ps[p].posy,ps[p].posz,&k);
                                 if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
                                 {
                                     ps[p].posx = s->x;
@@ -5994,7 +5994,7 @@ void moveeffectors(void)   //STATNUM 3
                             //                    if(sprite[j].sectnum != s->sectnum)
                             {
                                 k = sprite[j].sectnum;
-                                updatesector(sprite[j].x,sprite[j].y,&k);
+                                updatesectorz(sprite[j].x,sprite[j].y,sprite[j].z,&k);
                                 if (sprite[j].extra >= 0 && k == s->sectnum)
                                 {
                                     gutsdir(&sprite[j],JIBS6,24,myconnectindex);
