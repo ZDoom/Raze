@@ -614,7 +614,7 @@ void readsavenames(void)
 =
 ===================
 */
-
+extern char *duke3dgrp;
 extern void check_player_color(int *color,int prev_color);
 
 int32 CONFIG_ReadSetup(void)
@@ -650,6 +650,8 @@ int32 CONFIG_ReadSetup(void)
         myname[sizeof(myname)] = '\0';
 
         SCRIPT_GetString(scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
+
+        SCRIPT_GetString(scripthandle, "Misc","SelectedGRP",&duke3dgrp[0]);
 
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "Shadows",&ud.shadows);
 
@@ -929,7 +931,7 @@ void CONFIG_WriteSetup(void)
 
     SCRIPT_PutString(scripthandle, "Comm Setup","PlayerName",&myname[0]);
     SCRIPT_PutString(scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
-
+    SCRIPT_PutString(scripthandle, "Misc","SelectedGRP",&duke3dgrp[0]);
     {
         char commmacro[] = "CommbatMacro# ";
 

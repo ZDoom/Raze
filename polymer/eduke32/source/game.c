@@ -8387,6 +8387,7 @@ void setup_rancid_net(char *fn)
         }
         qsort((char *)rancid_ip_strings, rancid_players, sizeof(rancid_ip_strings[0]), (int(*)(const void*,const void*))stringsort);
 
+        networkmode = 1;
         netparamcount = rancid_players;
         if (rancid_local_port_string[0] == '-')
             netparamcount++;
