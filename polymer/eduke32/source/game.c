@@ -8314,6 +8314,16 @@ void setup_rancid_net(char *fn)
     {
         char tmp[32];
 
+        if (!Bstrlen(rancid_ip_strings[MAXPLAYERS-1])||!Bstrlen(rancid_ip_strings[1]))
+        {
+            if (!Bstrlen(rancid_ip_strings[MAXPLAYERS-1]))
+                initprintf("rmnet: Interface not defined\n");
+            if (!Bstrlen(rancid_ip_strings[1]))
+                initprintf("rmnet: No peers configured\n");
+            gameexit("Malformed network configuration file!");
+            return;
+        }
+
         if (keepaddr == 0)
         {
             for (i=0;i<rancid_players;i++)
