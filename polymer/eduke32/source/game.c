@@ -487,7 +487,7 @@ void getpackets(void)
     {
         lastpackettime = totalclock;
 #ifdef TESTNET
-		initprintf("RECEIVED PACKET: type: %d : len %d\n", packbuf[0], packbufleng);
+        initprintf("RECEIVED PACKET: type: %d : len %d\n", packbuf[0], packbufleng);
 #endif
         switch (packbuf[0])
         {
@@ -914,7 +914,7 @@ void getpackets(void)
 
         case 250:
             if (playerreadyflag[other] == 0)
-    			initprintf("Player %ld is ready\n", other);
+                initprintf("Player %ld is ready\n", other);
             playerreadyflag[other]++;
             break;
         case 255:
@@ -3439,12 +3439,12 @@ void displayrest(long smoothratio)
     if (ud.coords)
         coords(screenpeek);
 
-    #if defined(POLYMOST) && defined(USE_OPENGL)
+#if defined(POLYMOST) && defined(USE_OPENGL)
     {
         extern char mdpause;
         mdpause = ud.pause_on;
     }
-    #endif
+#endif
 
     tics();
 

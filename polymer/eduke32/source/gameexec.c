@@ -3840,6 +3840,7 @@ char parse(void)
                 ps[g_p].weaprecs[ps[g_p].weapreccnt++] = g_sp->picnum;
                 parseifelse(g_sp->owner == g_i);
             }
+            else parseifelse(0);
         }
         else parseifelse(0);
         break;

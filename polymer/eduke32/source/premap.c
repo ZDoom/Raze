@@ -1589,8 +1589,8 @@ int enterlevel(char g)
     handleevents();
     getpackets();
     waitforeverybody();
-    ready2send = 0; 
-  
+    ready2send = 0;
+
     if ((g&MODE_DEMO) != MODE_DEMO) ud.recstat = ud.m_recstat;
     ud.respawn_monsters = ud.m_respawn_monsters;
     ud.respawn_items    = ud.m_respawn_items;
