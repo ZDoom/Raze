@@ -3352,7 +3352,7 @@ void processinput(short snum)
         x = p->posx+(sintable[(p->ang+512)&2047]>>5);
         y = p->posy+(sintable[p->ang&2047]>>5);
         tempsect = psect;
-        updatesectorz(x,y,p->posz,&tempsect);
+        updatesector(x,y,&tempsect);
         if (tempsect >= 0)
         {
             k = getflorzofslope(psect,x,y);
@@ -3698,7 +3698,7 @@ void processinput(short snum)
         p->horiz = 100;
         p->horizoff = 0;
 
-        updatesectorz(p->posx,p->posy,p->posz,&p->cursectnum);
+        updatesector(p->posx,p->posy,&p->cursectnum);
 
         pushmove(&p->posx,&p->posy,&p->posz,&p->cursectnum,128L,(4L<<8),(20L<<8),CLIPMASK0);
 
@@ -4434,7 +4434,7 @@ HORIZONLY:
         j = 0;
         p->posx += p->posxv>>14;
         p->posy += p->posyv>>14;
-        updatesectorz(p->posx,p->posy,p->posz,&p->cursectnum);
+        updatesector(p->posx,p->posy,&p->cursectnum);
         changespritesect(pi,p->cursectnum);
     }
     else

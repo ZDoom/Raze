@@ -4130,7 +4130,7 @@ SKIPJIBS:
             ps[g_p].posy = ps[g_p].oposy;
             ps[g_p].posz = ps[g_p].oposz;
             ps[g_p].ang = ps[g_p].oang;
-            updatesectorz(ps[g_p].posx,ps[g_p].posy,ps[g_p].posz,&ps[g_p].cursectnum);
+            updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
             setpal(&ps[g_p]);
 
             j = headspritestat[1];
@@ -5246,7 +5246,7 @@ SKIPJIBS:
             g_sp->x = hittype[g_i].bposx = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
             g_sp->y = hittype[g_i].bposy = ps[g_p].bobposy = ps[g_p].oposy =ps[g_p].posy;
             g_sp->z = hittype[g_i].bposy = ps[g_p].oposz =ps[g_p].posz;
-            updatesectorz(ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+PHEIGHT,&ps[g_p].cursectnum);
+            updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
             setsprite(ps[g_p].i,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+PHEIGHT);
             g_sp->cstat = 257;
 

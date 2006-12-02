@@ -1341,7 +1341,7 @@ void resetpspritevars(char g)
             hittype[i].bposz = ps[j].oposz = ps[j].posz =        s->z;
             ps[j].oang  = ps[j].ang  =        s->ang;
 
-            updatesectorz(s->x,s->y,s->z+PHEIGHT,&ps[j].cursectnum);
+            updatesector(s->x,s->y,&ps[j].cursectnum);
 
             j = connectpoint2[j];
 

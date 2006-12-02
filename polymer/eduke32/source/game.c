@@ -4673,16 +4673,16 @@ short spawn(short j, short pn)
             short s1;
             s1 = sp->sectnum;
 
-            updatesectorz(sp->x+108,sp->y+108,sp->z,&s1);
+            updatesector(sp->x+108,sp->y+108,&s1);
             if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
             {
-                updatesectorz(sp->x-108,sp->y-108,sp->z,&s1);
+                updatesector(sp->x-108,sp->y-108,&s1);
                 if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
                 {
-                    updatesectorz(sp->x+108,sp->y-108,sp->z,&s1);
+                    updatesector(sp->x+108,sp->y-108,&s1);
                     if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
                     {
-                        updatesectorz(sp->x-108,sp->y+108,sp->z,&s1);
+                        updatesector(sp->x-108,sp->y+108,&s1);
                         if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
                         {
                             sp->xrepeat = sp->yrepeat = 0;
@@ -4904,16 +4904,16 @@ short spawn(short j, short pn)
                 short s1;
                 s1 = sp->sectnum;
 
-                updatesectorz(sp->x+84,sp->y+84,sp->z,&s1);
+                updatesector(sp->x+84,sp->y+84,&s1);
                 if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
                 {
-                    updatesectorz(sp->x-84,sp->y-84,sp->z,&s1);
+                    updatesector(sp->x-84,sp->y-84,&s1);
                     if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
                     {
-                        updatesectorz(sp->x+84,sp->y-84,sp->z,&s1);
+                        updatesector(sp->x+84,sp->y-84,&s1);
                         if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
                         {
-                            updatesectorz(sp->x-84,sp->y+84,sp->z,&s1);
+                            updatesector(sp->x-84,sp->y+84,&s1);
                             if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
                             {
                                 sp->xrepeat = sp->yrepeat = 0;
@@ -10632,7 +10632,7 @@ void fakedomovethings(void)
         x = myx+(sintable[(myang+512)&2047]>>5);
         y = myy+(sintable[myang&2047]>>5);
         tempsect = psect;
-        updatesectorz(x,y,myz,&tempsect);
+        updatesector(x,y,&tempsect);
         if (tempsect >= 0)
         {
             k = getflorzofslope(psect,x,y);
@@ -10683,7 +10683,7 @@ void fakedomovethings(void)
             clipmove(&myx,&myy,&myz,&mycursectnum,0,0,164L,(4L<<8),(4L<<8),CLIPMASK0);
         }
 
-        updatesectorz(myx,myy,myz,&mycursectnum);
+        updatesector(myx,myy,&mycursectnum);
         pushmove(&myx,&myy,&myz,&mycursectnum,128L,(4L<<8),(20L<<8),CLIPMASK0);
 
         myhoriz = 100;
