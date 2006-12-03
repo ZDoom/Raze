@@ -142,8 +142,13 @@ float fogcalc (signed char shade, char vis)
     if (vis < 240) result = (float)(vis+16+(shade<0?(-(shade)*(shade))/8.f:((shade)*(shade))/8.f));
     else result = (float)((vis-240+(shade<0?(-(shade)*(shade))/8.f:((shade)*(shade))/8.f))/(klabs(vis-256)));
 
-    if (result < 0.000) return (0);
-    return (gvisibility * result);
+    result *= gvisibility;
+
+//    initprintf("result: %.f\n",result);
+
+    if (result < 0.010) return (0.010);
+    else if (result > 10.000) return (10.000);
+    else return (result);
 }
 #endif
 
@@ -579,8 +584,8 @@ void polymost_glinit()
     bglFogi(GL_FOG_MODE,GL_EXP2); //GL_EXP(default),GL_EXP2,GL_LINEAR
     bglHint(GL_FOG_HINT,GL_NICEST);
     bglFogf(GL_FOG_DENSITY,1.0); //must be > 0, default is 1
-    bglFogf(GL_FOG_START,0.0); //default is 0
-    bglFogf(GL_FOG_END,1.0); //default is 1
+/*    bglFogf(GL_FOG_START,0.0); //default is 0
+    bglFogf(GL_FOG_END,1.0); //default is 1 */
     col[0] = 0; col[1] = 0; col[2] = 0; col[3] = 0; //range:0 to 1
     bglFogfv(GL_FOG_COLOR,col); //default is 0,0,0,0
 
@@ -2314,7 +2319,7 @@ static void polymost_drawalls (long bunch)
 
     sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];
 
-#ifdef USE_OPENGL
+#if 0 // USE_OPENGL
     if (!nofog) {
         if (rendmode >= 3) {
             float col[4];
@@ -2323,7 +2328,7 @@ static void polymost_drawalls (long bunch)
             col[2] = (float)palookupfog[sec->floorpal].b / 63.f;
             col[3] = 0;
             bglFogfv(GL_FOG_COLOR,col);
-            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
+            bglFogf(GL_FOG_DENSITY,fogcalc(sec->floorshade,sec->visibility));
 
             //            bglFogf(GL_FOG_DENSITY,gvisibility*((float)((unsigned char)(sec->visibility<240?sec->visibility+16:sec->visibility-239))));
         }
@@ -4376,7 +4381,9 @@ if (dastat&16) { xoff = 0; yoff = 0; }
         if ((d < y2) != (d < 0)) { py[n] = fy; px[n] = (px2[zz]-px2[z])*d/y2 + px2[z]; n++; }
             z = zz;
         } while (z);
+        if (!nofog) bglDisable(GL_FOG);
         pow2xsplit = 0; drawpoly(px,py,n,method);
+        if (!nofog) bglEnable(GL_FOG);
     }
 
 #ifdef USE_OPENGL

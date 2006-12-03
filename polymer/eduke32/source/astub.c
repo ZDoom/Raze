@@ -1614,7 +1614,7 @@ void m32_showmouse(void)
 
 int AskIfSure(void)
 {
-    int retval=0;
+    int retval=1;
 
     begindrawing(); //{{{
     printext256(0,0,whitecol,0,"Are you sure you want to proceed?",0);
@@ -1628,7 +1628,7 @@ int AskIfSure(void)
         {
             if (quitevent)
             {
-                retval = 0;
+                retval = 1;
                 break;
             }
         }
