@@ -1491,7 +1491,8 @@ void dofrontscreens(char *statustext)
         else
         {
             menutext(160,90,0,0,"ENTERING");
-            menutext(160,90+16+8,0,0,level_names[(ud.volume_number*MAXLEVELS) + ud.level_number]);
+            if (level_names[(ud.volume_number*MAXLEVELS) + ud.level_number] != NULL)
+                menutext(160,90+16+8,0,0,level_names[(ud.volume_number*MAXLEVELS) + ud.level_number]);
         }
 
         if (statustext) gametext(160,180,statustext,0,2+8+16);
@@ -1611,13 +1612,6 @@ int enterlevel(char g)
     if (VOLUMEALL) Bsprintf(tempbuf,HEAD2);
     else Bsprintf(tempbuf,HEAD);
 
-    if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
-    {
-        Bstrcpy(levname, boardfilename);
-        Bsprintf(apptitle," - %s",levname);
-    }
-    else Bsprintf(apptitle," - %s",level_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
-
     Bstrcat(tempbuf,apptitle);
     wm_setapptitle(tempbuf);
 
@@ -1625,11 +1619,24 @@ int enterlevel(char g)
     clearsoundlocks();
     FX_SetReverb(0);
 
+    if (level_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL || level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL)
+    {
+        initprintf("Map E%ldL%ld not defined!\n",ud.volume_number+1,ud.level_number+1);
+        return 1;
+    }
+
     i = ud.screen_size;
     ud.screen_size = 0;
     dofrontscreens(NULL);
     vscrn();
     ud.screen_size = i;
+
+    if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
+    {
+        Bstrcpy(levname, boardfilename);
+        Bsprintf(apptitle," - %s",levname);
+    }
+    else Bsprintf(apptitle," - %s",level_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
 
     if (!VOLUMEONE)
     {
