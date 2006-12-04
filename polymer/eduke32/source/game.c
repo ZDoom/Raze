@@ -486,7 +486,7 @@ void getpackets(void)
     while ((packbufleng = getpacket(&other,packbuf)) > 0)
     {
         lastpackettime = totalclock;
-#ifdef TESTNET
+#if 0
         initprintf("RECEIVED PACKET: type: %d : len %d\n", packbuf[0], packbufleng);
 #endif
         switch (packbuf[0])
@@ -8231,7 +8231,6 @@ void comlinehelp(void)
     wm_msgbox(apptitle,s);
 }
 
-#ifndef TESTNET
 signed int rancid_players = 0;
 char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
@@ -8403,7 +8402,6 @@ void setup_rancid_net(char *fn)
             netparam[i] = (char *)&rancid_local_port_string;
     }
 }
-#endif
 
 int loadgroupfiles(char *fn)
 {
@@ -8539,9 +8537,7 @@ void checkcommandline(int argc,char **argv)
                     {
                         NoSetup = TRUE;
                         networkmode = 1;
-#ifndef TESTNET
                         netcfg = argv[i+1];
-#endif
                         i++;
                     }
                     i++;
@@ -9328,7 +9324,6 @@ void Startup(long argc, char **argv)
     for (i=0;i<MAXPLAYERS;i++)
         playerreadyflag[i] = 0;
 
-#ifndef TESTNET
     if (netcfg)
     {
         setup_rancid_net(netcfg);
@@ -9358,9 +9353,6 @@ void Startup(long argc, char **argv)
     if (netparam) Bfree(netparam);
     netparam = NULL;
     netparamcount = 0;
-#else
-    initmultiplayers(argc,argv,0,0,0);
-#endif
 
     if (numplayers > 1)
         initprintf("Multiplayer initialized.\n");
@@ -9798,11 +9790,6 @@ void app_main(int argc,char **argv)
     if (!loaddefinitionsfile(duke3ddef)) initprintf("Definitions file loaded.\n");
 
     //     initprintf("numplayers=%i\n",numplayers);
-
-#ifdef TESTNET
-    if (natfree)
-        waitforeverybody();
-#endif
 
     if (numplayers > 1)
     {

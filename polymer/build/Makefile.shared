@@ -152,6 +152,3 @@ endif
 ifneq (0,$(SETSPRITEZ))
   BUILDCFLAGS+= -DSETSPRITEZ
 endif
-ifneq (0,$(TESTNET))
-  BUILDCFLAGS+= -DTESTNET
-endif
