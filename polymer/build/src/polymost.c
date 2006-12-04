@@ -84,6 +84,8 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define FOGSCALE 0.0000640
 #define PI 3.14159265358979323
 
+float shadescale = 1.250;
+
 static double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
 static double gcosang, gsinang, gcosang2, gsinang2;
 static double gchang, gshang, gctang, gstang, gvisibility;
@@ -132,8 +134,6 @@ extern char nofog;
 long fullbrightloadingpass = 0;
 long fullbrightdrawingpass = 0;
 long shadeforfullbrightpass;
-
-#define SHADESCALE 1.250
 
 float fogcalc (signed char shade, char vis)
 {
@@ -1492,7 +1492,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 
         {
             float pc[4];
-            f = ((float)(numpalookups-min(max(globalshade * SHADESCALE,0),numpalookups)))/((float)numpalookups);
+            f = ((float)(numpalookups-min(max(globalshade * shadescale,0),numpalookups)))/((float)numpalookups);
             pc[0] = pc[1] = pc[2] = f;
             switch (method&3)
             {
@@ -4596,7 +4596,7 @@ void polymost_fillpolygon (long npoints)
     pth = gltexcache(globalpicnum,globalpal,0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
-    f = ((float)(numpalookups-min(max(globalshade * SHADESCALE,0),numpalookups)))/((float)numpalookups);
+    f = ((float)(numpalookups-min(max(globalshade * shadescale,0),numpalookups)))/((float)numpalookups);
     switch ((globalorientation>>7)&3) {
     case 0:
     case 1:
@@ -4923,6 +4923,15 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else glnvmultisamplehint = (val != 0);
         return OSDCMD_OK;
     }
+    else if (!Bstrcasecmp(parm->name, "r_shadescale")) {
+        if (showval) { OSD_Printf("r_shadescale is %d\n", shadescale); }
+        else 
+        {
+            float fval = atof(parm->parms[0]);
+            shadescale = fval;
+        }
+        return OSDCMD_OK;
+    }
 #endif
     return OSDCMD_SHOWHELP;
 }
@@ -4970,10 +4979,7 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("glusetexcachecompression","usetexcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars);
     OSD_RegisterFunction("glmultisample","glmultisample: sets the number of samples used for antialiasing (0 = off)",osdcmd_polymostvars);
     OSD_RegisterFunction("glnvmultisamplehint","glnvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_shadescale","r_shadescale: multiplier for lighting on shade >= 0 surfaces",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_sprshadescale","r_sprshadescale: multiplier for sprite lighting",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_negshadescale","r_negshadescale: multiplier for lighting on shade < 0 surfaces",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_negshadeoffset","r_negshadeoffset: offset for lighting on shade < 0 surfaces",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_shadescale","r_shadescale: multiplier for lighting",osdcmd_polymostvars);
 #endif
     OSD_RegisterFunction("usemodels","usemodels: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
     OSD_RegisterFunction("usehightile","usehightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);

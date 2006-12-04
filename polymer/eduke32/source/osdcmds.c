@@ -133,6 +133,12 @@ int osdcmd_map(const osdfuncparm_t *parm)
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
+    if (numplayers > 1)
+    {
+        OSD_Printf("Command not allowed in multiplayer\n");
+        return OSDCMD_OK;
+    }
+
     strcpy(filename,parm->parms[0]);
     if (strchr(filename,'.') == 0)
         strcat(filename,".map");
@@ -411,7 +417,7 @@ int osdcmd_setvar(const osdfuncparm_t *parm)
 
     if (parm->numparms != 2) return OSDCMD_SHOWHELP;
 
-    if (ud.multimode != 1)
+    if (numplayers > 1)
     {
         OSD_Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
@@ -543,7 +549,7 @@ int osdcmd_cvar_set(const osdfuncparm_t *parm)
     {
         if (!Bstrcasecmp(parm->name, cvar[i].name))
         {
-            if ((cvar[i].type & 0x80) && ud.multimode != 1)
+            if ((cvar[i].type & 0x80) && numplayers > 1)
             {
                 // sound the alarm
                 OSD_Printf("Cvar \"%s\" locked in multiplayer.\n",cvar[i].name);
