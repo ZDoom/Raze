@@ -4508,8 +4508,7 @@ repeatcase:
         }
         if (k < 0 || k > 10)
         {
-            initprintf("%s:%ld: error: level number exceeds maximum number of levels per episode.\n",
-                       line_number,compilefile);
+            initprintf("%s:%ld: error: level number exceeds maximum number of levels per episode.\n",compilefile,line_number);
             error++;
             while (*textptr != 0x0a && *textptr != 0) textptr++;
             break;

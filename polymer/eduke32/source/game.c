@@ -8235,19 +8235,19 @@ void comlinehelp(void)
 signed int rancid_players = 0;
 char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
-static tokenlist rancidtokens[] =
-    {
-        { "interface",       T_INTERFACE       },
-        { "mode",            T_MODE            },
-        { "allow",           T_ALLOW           },
-    };
-
 extern const char *getexternaladdress(void);
 
 int load_rancid_net(char *fn)
 {
     int tokn;
     char *cmdtokptr;
+
+    tokenlist rancidtokens[] =
+        {
+            { "interface",       T_INTERFACE       },
+            { "mode",            T_MODE            },
+            { "allow",           T_ALLOW           },
+        };
 
     scriptfile *script;
 
@@ -8405,16 +8405,16 @@ void setup_rancid_net(char *fn)
 }
 #endif
 
-static tokenlist grptokens[] =
-    {
-        { "loadgrp",         T_LOADGRP },
-    };
-
 int loadgroupfiles(char *fn)
 {
     int tokn;
     char *cmdtokptr;
     scriptfile *script;
+
+    tokenlist grptokens[] =
+        {
+            { "loadgrp",         T_LOADGRP },
+        };
 
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
@@ -9918,7 +9918,31 @@ void app_main(int argc,char **argv)
 MAIN_LOOP_RESTART:
 
     if (ud.warp_on == 0)
-        Logo();
+    {
+        if (ud.multimode > 1 && boardfilename[0] != 0)
+        {
+            ud.level_number = ud.m_level_number = 7;
+            ud.volume_number = ud.m_volume_number;
+            ud.player_skill = ud.m_player_skill;
+
+            if (ud.m_player_skill == 4)
+                ud.m_respawn_monsters = 1;
+            else ud.m_respawn_monsters = 0;
+
+            waitforeverybody();
+
+            for (i=connecthead;i>=0;i=connectpoint2[i])
+            {
+                resetweapons(i);
+                resetinventory(i);
+            }
+
+            newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
+
+            if (enterlevel(MODE_GAME)) backtomenu();
+        }
+        else Logo();
+    }
     else if (ud.warp_on == 1)
     {
         newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
@@ -9926,20 +9950,7 @@ MAIN_LOOP_RESTART:
         if (enterlevel(MODE_GAME)) backtomenu();
     }
     else vscrn();
-    /*
-        if(ud.warp_on == 0)
-            Logo();
 
-    MAIN_LOOP_RESTART:
-
-        if(ud.warp_on == 1)
-        {
-            newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
-
-            if (enterlevel(MODE_GAME)) backtomenu();
-        }
-        else if(ud.warp_on != 0) vscrn();
-    */
     if (ud.warp_on == 0 && playback())
     {
         FX_StopAllSounds();
