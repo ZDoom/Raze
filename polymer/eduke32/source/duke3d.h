@@ -77,6 +77,7 @@ extern int conversion, shareware, gametype;
 #define FOURSLEIGHT (1<<8)
 
 #define MAXVOLUMES 7
+#define MAXLEVELS 32
 
 #include "types.h"
 #include "file_lib.h"
@@ -473,8 +474,8 @@ extern long *actorLoadEventScrptr[MAXTILES];
 extern char actortype[MAXTILES];
 extern char *music_pointer;
 
-extern char music_fn[MAXVOLUMES+1][11][13],music_select;
-extern char env_music_fn[MAXVOLUMES+1][13];
+extern char *music_fn[MAXVOLUMES+1][MAXLEVELS],music_select;
+extern char env_music_fn[MAXVOLUMES+1][BMAX_PATH];
 extern short camsprite;
 
 // extern char gotz;
@@ -527,14 +528,14 @@ extern char screencapt;
 extern short soundps[NUM_SOUNDS],soundpe[NUM_SOUNDS],soundvo[NUM_SOUNDS];
 extern char soundpr[NUM_SOUNDS],soundm[NUM_SOUNDS];
 extern long soundsiz[NUM_SOUNDS];
-extern char level_names[MAXVOLUMES*11][33];
-extern long partime[MAXVOLUMES*11],designertime[MAXVOLUMES*11];
+extern char *level_names[MAXVOLUMES*MAXLEVELS];
+extern long partime[MAXVOLUMES*MAXLEVELS],designertime[MAXVOLUMES*MAXLEVELS];
 extern char volume_names[MAXVOLUMES][33];
 extern char skill_names[5][33];
 
 extern int framerate;
 
-#define MAXGAMETYPES 32
+#define MAXGAMETYPES 16
 extern char gametype_names[MAXGAMETYPES][33];
 extern int gametype_flags[MAXGAMETYPES];
 extern char num_gametypes;
@@ -562,7 +563,7 @@ enum gametypeflags {
 
 #define GTFLAGS(x) (gametype_flags[ud.coop] & x)
 
-extern char level_file_names[MAXVOLUMES*11][BMAX_PATH];
+extern char *level_file_names[MAXVOLUMES*MAXLEVELS];
 extern char num_volumes;
 
 extern int32 SoundToggle,MusicToggle;

@@ -53,8 +53,8 @@ short mirrorwall[64], mirrorsector[64], mirrorcnt;
 
 int current_menu;
 
-char level_names[MAXVOLUMES*11][33],level_file_names[MAXVOLUMES*11][BMAX_PATH];
-long partime[MAXVOLUMES*11],designertime[MAXVOLUMES*11];
+char *level_names[MAXVOLUMES*MAXLEVELS],*level_file_names[MAXVOLUMES*MAXLEVELS];
+long partime[MAXVOLUMES*MAXLEVELS],designertime[MAXVOLUMES*MAXLEVELS];
 char volume_names[MAXVOLUMES][33] = { "L.A. MELTDOWN", "LUNAR APOCALYPSE", "SHRAPNEL CITY" };
 char skill_names[5][33] = { "PIECE OF CAKE", "LET'S ROCK", "COME GET SOME", "DAMN I'M GOOD" };
 
@@ -120,8 +120,8 @@ long script[MAXSCRIPTSIZE+16];
 
 char display_mirror,typebuflen,typebuf[141];
 
-char music_fn[MAXVOLUMES+1][11][13],music_select;
-char env_music_fn[MAXVOLUMES+1][13];
+char *music_fn[MAXVOLUMES+1][MAXLEVELS],music_select;
+char env_music_fn[MAXVOLUMES+1][BMAX_PATH];
 char rtsplaying;
 
 

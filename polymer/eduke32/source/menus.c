@@ -909,7 +909,7 @@ void menus(void)
         gametext(90+60,60,gametype_names[ud.m_coop],0,26);
 
         minitext(90+60,60+8,      volume_names[ud.m_volume_number],0,26);
-        minitext(90+60,60+8+8,    level_names[11*ud.m_volume_number+ud.m_level_number],0,26);
+        minitext(90+60,60+8+8,    level_names[MAXLEVELS*ud.m_volume_number+ud.m_level_number],0,26);
         if (ud.m_monsters_off == 0 || ud.m_player_skill > 0)
             minitext(90+60,60+8+8+8,  skill_names[ud.m_player_skill],0,26);
         else minitext(90+60,60+8+8+8,  "NONE",0,28);
@@ -1012,7 +1012,7 @@ void menus(void)
 
         gametext(c+70,57+16-7-9,volume_names[ud.m_volume_number],0,2+8+16);
 
-        gametext(c+70,57+16+16-7-9,&level_names[11*ud.m_volume_number+ud.m_level_number][0],0,2+8+16);
+        gametext(c+70,57+16+16-7-9,&level_names[MAXLEVELS*ud.m_volume_number+ud.m_level_number][0],0,2+8+16);
 
         if (ud.m_monsters_off == 0 || ud.m_player_skill > 0)
             gametext(c+70,57+16+16+16-7-9,skill_names[ud.m_player_skill],0,2+8+16);
@@ -4700,7 +4700,7 @@ VOLUME_ALL_40x:
             gametext(c+70,57+16-7-9,volume_names[ud.m_volume_number],MENUHIGHLIGHT(1),2+8+16);
         }
 
-        gametext(c+70,57+16+16-7-9,&level_names[11*ud.m_volume_number+ud.m_level_number][0],MENUHIGHLIGHT(2),2+8+16);
+        gametext(c+70,57+16+16-7-9,&level_names[MAXLEVELS*ud.m_volume_number+ud.m_level_number][0],MENUHIGHLIGHT(2),2+8+16);
 
         gametext(c+70,57+16+16+16-7-9,ud.m_monsters_off == 0 || ud.m_player_skill > 0?skill_names[ud.m_player_skill]:"NONE",MENUHIGHLIGHT(3),2+8+16);
 

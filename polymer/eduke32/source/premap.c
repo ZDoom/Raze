@@ -1491,7 +1491,7 @@ void dofrontscreens(char *statustext)
         else
         {
             menutext(160,90,0,0,"ENTERING");
-            menutext(160,90+16+8,0,0,level_names[(ud.volume_number*11) + ud.level_number]);
+            menutext(160,90+16+8,0,0,level_names[(ud.volume_number*MAXLEVELS) + ud.level_number]);
         }
 
         if (statustext) gametext(160,180,statustext,0,2+8+16);
@@ -1616,7 +1616,7 @@ int enterlevel(char g)
         Bstrcpy(levname, boardfilename);
         Bsprintf(apptitle," - %s",levname);
     }
-    else Bsprintf(apptitle," - %s",level_names[(ud.volume_number*11)+ud.level_number]);
+    else Bsprintf(apptitle," - %s",level_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
 
     Bstrcat(tempbuf,apptitle);
     wm_setapptitle(tempbuf);
@@ -1657,16 +1657,16 @@ int enterlevel(char g)
                 if (!loadmaphack(levname)) initprintf("Loaded map hack file %s\n",levname);
             }
         }
-        else if (loadboard(level_file_names[(ud.volume_number*11)+ud.level_number],0,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
+        else if (loadboard(level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number],0,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
         {
-            initprintf("Map %s not found!\n",level_file_names[(ud.volume_number*11)+ud.level_number]);
+            initprintf("Map %s not found!\n",level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
             //gameexit(tempbuf);
             return 1;
         }
         else
         {
             char *p;
-            strcpy(levname, level_file_names[(ud.volume_number*11)+ud.level_number]);
+            strcpy(levname, level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
             p = Bstrrchr(levname,'.');
             if (!p) strcat(levname,".mhk");
             else
@@ -1683,14 +1683,14 @@ int enterlevel(char g)
     else
     {
 
-        l = strlen(level_file_names[(ud.volume_number*11)+ud.level_number]);
-        copybufbyte(level_file_names[(ud.volume_number*11)+ud.level_number],&levname[0],l);
+        l = strlen(level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
+        copybufbyte(level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number],&levname[0],l);
         levname[l] = 255;
         levname[l+1] = 0;
 
         if (loadboard(levname,1,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
         {
-            initprintf("Map %s not found!\n",level_file_names[(ud.volume_number*11)+ud.level_number]);
+            initprintf("Map %s not found!\n",level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
             //gameexit(tempbuf);
             return 1;
         }
@@ -1729,7 +1729,7 @@ int enterlevel(char g)
 
     if (ud.recstat != 2)
     {
-        music_select = (ud.volume_number*11) + ud.level_number;
+        music_select = (ud.volume_number*MAXLEVELS) + ud.level_number;
         playmusic(&music_fn[0][(unsigned char)music_select][0]);
     }
 

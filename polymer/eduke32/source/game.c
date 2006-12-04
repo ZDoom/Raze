@@ -580,7 +580,7 @@ void getpackets(void)
                 voting = packbuf[2];
                 vote_episode = packbuf[3];
                 vote_map = packbuf[4];
-                Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[(unsigned char)packbuf[2]],level_names[(unsigned char)(packbuf[3]*11 + packbuf[4])],packbuf[3]+1,packbuf[4]+1);
+                Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[(unsigned char)packbuf[2]],level_names[(unsigned char)(packbuf[3]*MAXLEVELS + packbuf[4])],packbuf[3]+1,packbuf[4]+1);
                 adduserquote(tempbuf);
                 Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
                 adduserquote(tempbuf);
@@ -3360,7 +3360,7 @@ void displayrest(long smoothratio)
                 else a = 182;
 
                 minitext(1,a+6,volume_names[ud.volume_number],0,2+8+16);
-                minitext(1,a+12,level_names[ud.volume_number*11 + ud.level_number],0,2+8+16);
+                minitext(1,a+12,level_names[ud.volume_number*MAXLEVELS + ud.level_number],0,2+8+16);
             }
         }
     }
@@ -7839,9 +7839,9 @@ void nonsharedkeys(void)
             {
                 if (i == 5 && ps[myconnectindex].fta > 0 && ps[myconnectindex].ftq == 26)
                 {
-                    i = (VOLUMEALL?num_volumes*11:6);
+                    i = (VOLUMEALL?num_volumes*MAXLEVELS:6);
                     music_select++;
-                    while (!music_fn[0][(unsigned char)music_select][0] && music_select < i)
+                    while ((music_fn[0][(unsigned char)music_select] == NULL) && music_select < i)
                         music_select++;
                     if (music_select == i)
                         music_select = 0;
@@ -8739,7 +8739,7 @@ void checkcommandline(int argc,char **argv)
                 case 'L':
                     ud.warp_on = 1;
                     c++;
-                    ud.m_level_number = ud.level_number = (atol(c)-1)%11;
+                    ud.m_level_number = ud.level_number = (atol(c)-1)%MAXLEVELS;
                     break;
                 case 'm':
                 case 'M':
@@ -9086,6 +9086,16 @@ void loadtmb(void)
 void freeconmem(void)
 {
     int i;
+
+    for (i=0;i<MAXLEVELS*MAXVOLUMES;i++)
+    {
+        if (level_names[i] != NULL)
+            Bfree(level_names[i]);
+        if (level_file_names[i] != NULL)
+            Bfree(level_file_names[i]);
+        if (music_fn[0][i] != NULL)
+            Bfree(music_fn[0][i]);
+    }
 
     for (i=0;i<MAXQUOTES;i++)
     {
@@ -10059,7 +10069,7 @@ MAIN_LOOP_RESTART:
         {
             Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE FOR MAP",ud.user_name[voting]);
             gametext(160,40,tempbuf,0,2+8+16);
-            Bsprintf(tempbuf,"%s (E%dL%d)",level_names[vote_episode*11 + vote_map],vote_episode+1,vote_map+1);
+            Bsprintf(tempbuf,"%s (E%dL%d)",level_names[vote_episode*MAXLEVELS + vote_map],vote_episode+1,vote_map+1);
             gametext(160,48,tempbuf,0,2+8+16);
             gametext(160,70,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2+8+16);
         }
@@ -11378,7 +11388,7 @@ void dobonus(char bonusonly)
         if (!lastmapname) lastmapname = Bstrrchr(boardfilename,'/');
         if (!lastmapname) lastmapname = boardfilename;
     }
-    else lastmapname = level_names[(ud.volume_number*11)+ud.last_level-1];
+    else lastmapname = level_names[(ud.volume_number*MAXLEVELS)+ud.last_level-1];
 
     bonuscnt = 0;
 
@@ -11689,7 +11699,7 @@ FRAGBONUS:
         if (PLUTOPAK)   // JBF 20030804
             rotatesprite((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8,0,0,xdim-1,ydim-1);
         gametext(160,58+2,"MULTIPLAYER TOTALS",0,2+8+16);
-        gametext(160,58+10,level_names[(ud.volume_number*11)+ud.last_level-1],0,2+8+16);
+        gametext(160,58+10,level_names[(ud.volume_number*MAXLEVELS)+ud.last_level-1],0,2+8+16);
 
         gametext(160,165,"PRESS ANY KEY TO CONTINUE",0,2+8+16);
 
@@ -11803,11 +11813,11 @@ FRAGBONUS:
     totalclock = 0;
     tinc = 0;
 
-    playerbest = CONFIG_GetMapBestTime(level_file_names[ud.volume_number*11+ud.last_level-1]);
+    playerbest = CONFIG_GetMapBestTime(level_file_names[ud.volume_number*MAXLEVELS+ud.last_level-1]);
 
     if (ps[myconnectindex].player_par < playerbest || playerbest < 0)
     {
-        CONFIG_SetMapBestTime(level_file_names[ud.volume_number*11+ud.last_level-1], ps[myconnectindex].player_par);
+        CONFIG_SetMapBestTime(level_file_names[ud.volume_number*MAXLEVELS+ud.last_level-1], ps[myconnectindex].player_par);
         //        if(playerbest != -1)
         //            playerbest = ps[myconnectindex].player_par;
     }
@@ -11819,11 +11829,11 @@ FRAGBONUS:
         clockpad = max(clockpad,ij);
         if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
         {
-            for (ii=partime[ud.volume_number*11+ud.last_level-1]/(26*60), ij=1; ii>9; ii/=10, ij++) ;
+            for (ii=partime[ud.volume_number*MAXLEVELS+ud.last_level-1]/(26*60), ij=1; ii>9; ii/=10, ij++) ;
             clockpad = max(clockpad,ij);
             if (!NAM)
             {
-                for (ii=designertime[ud.volume_number*11+ud.last_level-1]/(26*60), ij=1; ii>9; ii/=10, ij++) ;
+                for (ii=designertime[ud.volume_number*MAXLEVELS+ud.last_level-1]/(26*60), ij=1; ii>9; ii/=10, ij++) ;
                 clockpad = max(clockpad,ij);
             }
         }
@@ -11945,16 +11955,16 @@ FRAGBONUS:
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
                     {
                         Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
-                                 (partime[ud.volume_number*11+ud.last_level-1]/(26*60)),
-                                 (partime[ud.volume_number*11+ud.last_level-1]/26)%60);
+                                 (partime[ud.volume_number*MAXLEVELS+ud.last_level-1]/(26*60)),
+                                 (partime[ud.volume_number*MAXLEVELS+ud.last_level-1]/26)%60);
                         gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                         yy+=10;
 
                         if (!NAM)
                         {
                             Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
-                                     (designertime[ud.volume_number*11+ud.last_level-1]/(26*60)),
-                                     (designertime[ud.volume_number*11+ud.last_level-1]/26)%60);
+                                     (designertime[ud.volume_number*MAXLEVELS+ud.last_level-1]/(26*60)),
+                                     (designertime[ud.volume_number*MAXLEVELS+ud.last_level-1]/26)%60);
                             gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                             yy+=10;
                         }

@@ -2370,6 +2370,8 @@ char parsecommand(void)
                     if (*textptr == 0) break;
                 }
                 j = 0;
+                if (music_fn[k][i] == NULL)
+                    music_fn[k][i] = Bcalloc(BMAX_PATH,sizeof(char));
                 while (isaltok(*(textptr+j)))
                 {
                     music_fn[k][i][j] = textptr[j];
@@ -2377,7 +2379,7 @@ char parsecommand(void)
                 }
                 music_fn[k][i][j] = '\0';
                 textptr += j;
-                if (i > 9) break;
+                if (i > MAXLEVELS-1) break;
                 i++;
             }
         }
@@ -2393,6 +2395,7 @@ char parsecommand(void)
                     if (*textptr == 0) break;
                 }
                 j = 0;
+
                 while (isaltok(*(textptr+j)))
                 {
                     env_music_fn[i][j] = textptr[j];
@@ -2401,7 +2404,7 @@ char parsecommand(void)
                 env_music_fn[i][j] = '\0';
 
                 textptr += j;
-                if (i > 9) break;
+                if (i > MAXVOLUMES-1) break;
                 i++;
             }
         }
@@ -4506,7 +4509,7 @@ repeatcase:
             while (*textptr != 0x0a && *textptr != 0) textptr++;
             break;
         }
-        if (k < 0 || k > 10)
+        if (k < 0 || k > MAXLEVELS-1)
         {
             initprintf("%s:%ld: error: level number exceeds maximum number of levels per episode.\n",compilefile,line_number);
             error++;
@@ -4515,9 +4518,13 @@ repeatcase:
         }
 
         i = 0;
+
+        if (level_file_names[j*MAXLEVELS+k] == NULL)
+            level_file_names[j*MAXLEVELS+k] = Bcalloc(BMAX_PATH,sizeof(char));
+
         while (*textptr != ' ' && *textptr != '\t' && *textptr != 0x0a)
         {
-            level_file_names[j*11+k][i] = *textptr;
+            level_file_names[j*MAXLEVELS+k][i] = *textptr;
             textptr++,i++;
             if (i >= BMAX_PATH)
             {
@@ -4527,18 +4534,18 @@ repeatcase:
                 break;
             }
         }
-        level_names[j*11+k][i] = '\0';
+        level_file_names[j*MAXLEVELS+k][i] = '\0';
 
         while (*textptr == ' ' || *textptr == '\t') textptr++;
 
-        partime[j*11+k] =
+        partime[j*MAXLEVELS+k] =
             (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*26*60)+
             (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*26);
 
         textptr += 5;
         while (*textptr == ' '  || *textptr == '\t') textptr++;
 
-        designertime[j*11+k] =
+        designertime[j*MAXLEVELS+k] =
             (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*26*60)+
             (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*26);
 
@@ -4547,19 +4554,22 @@ repeatcase:
 
         i = 0;
 
+        if (level_names[j*MAXLEVELS+k] == NULL)
+            level_names[j*MAXLEVELS+k] = Bcalloc(32,sizeof(char));
+
         while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
         {
-            level_names[j*11+k][i] = toupper(*textptr);
+            level_names[j*MAXLEVELS+k][i] = toupper(*textptr);
             textptr++,i++;
-            if (i >= (signed)sizeof(level_names[j*11+k])-1)
+            if (i >= 32)
             {
-                initprintf("%s:%ld: error: level name exceeds limit of %ld characters.\n",compilefile,line_number,sizeof(level_names[j*11+k])-1);
+                initprintf("%s:%ld: error: level name exceeds limit of %ld characters.\n",compilefile,line_number,sizeof(level_names[j*MAXLEVELS+k])-1);
                 error++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
             }
         }
-        level_names[j*11+k][i] = '\0';
+        level_names[j*MAXLEVELS+k][i] = '\0';
         return 0;
 
     case CON_DEFINEQUOTE:
