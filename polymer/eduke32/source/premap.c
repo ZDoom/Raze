@@ -1609,20 +1609,27 @@ int enterlevel(char g)
     if ((g&MODE_DEMO) == 0 && ud.recstat == 2)
         ud.recstat = 0;
 
-    if (VOLUMEALL) Bsprintf(tempbuf,HEAD2);
-    else Bsprintf(tempbuf,HEAD);
-
-    Bstrcat(tempbuf,apptitle);
-    wm_setapptitle(tempbuf);
-
     FX_StopAllSounds();
     clearsoundlocks();
     FX_SetReverb(0);
 
     if (level_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL || level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL)
     {
-        initprintf("Map E%ldL%ld not defined!\n",ud.volume_number+1,ud.level_number+1);
-        return 1;
+        if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
+        {
+            if (level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL)
+                level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number] = Bcalloc(BMAX_PATH,sizeof(char));
+            if (level_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL)
+            {
+                level_names[(ud.volume_number*MAXLEVELS)+ud.level_number] = Bcalloc(8,sizeof(char));
+                Bsprintf(level_names[(ud.volume_number*MAXLEVELS)+ud.level_number],"USER MAP");
+            }
+        }
+        else
+        {
+            initprintf("Map E%ldL%ld not defined!\n",ud.volume_number+1,ud.level_number+1);
+            return 1;
+        }
     }
 
     i = ud.screen_size;
@@ -1637,6 +1644,12 @@ int enterlevel(char g)
         Bsprintf(apptitle," - %s",levname);
     }
     else Bsprintf(apptitle," - %s",level_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
+
+    if (VOLUMEALL) Bsprintf(tempbuf,HEAD2);
+    else Bsprintf(tempbuf,HEAD);
+
+    Bstrcat(tempbuf,apptitle);
+    wm_setapptitle(tempbuf);
 
     if (!VOLUMEONE)
     {

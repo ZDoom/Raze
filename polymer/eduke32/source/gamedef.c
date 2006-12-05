@@ -2370,14 +2370,18 @@ char parsecommand(void)
                     if (*textptr == 0) break;
                 }
                 j = 0;
-                if (music_fn[k][i] == NULL)
-                    music_fn[k][i] = Bcalloc(BMAX_PATH,sizeof(char));
                 while (isaltok(*(textptr+j)))
                 {
-                    music_fn[k][i][j] = textptr[j];
+                    tempbuf[j] = textptr[j];
                     j++;
                 }
-                music_fn[k][i][j] = '\0';
+                tempbuf[j] = '\0';
+
+                if (music_fn[k][i] == NULL)
+                    music_fn[k][i] = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
+
+                Bstrcpy(music_fn[k][i],tempbuf);
+
                 textptr += j;
                 if (i > MAXLEVELS-1) break;
                 i++;
@@ -4519,12 +4523,9 @@ repeatcase:
 
         i = 0;
 
-        if (level_file_names[j*MAXLEVELS+k] == NULL)
-            level_file_names[j*MAXLEVELS+k] = Bcalloc(BMAX_PATH,sizeof(char));
-
         while (*textptr != ' ' && *textptr != '\t' && *textptr != 0x0a)
         {
-            level_file_names[j*MAXLEVELS+k][i] = *textptr;
+            tempbuf[i] = *textptr;
             textptr++,i++;
             if (i >= BMAX_PATH)
             {
@@ -4534,7 +4535,14 @@ repeatcase:
                 break;
             }
         }
-        level_file_names[j*MAXLEVELS+k][i] = '\0';
+        tempbuf[i] = '\0';
+
+        if (level_file_names[j*MAXLEVELS+k] == NULL)
+            level_file_names[j*MAXLEVELS+k] = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
+
+/*         initprintf("level file name string len: %ld\n",Bstrlen(tempbuf)); */
+
+        Bstrcpy(level_file_names[j*MAXLEVELS+k],tempbuf);
 
         while (*textptr == ' ' || *textptr == '\t') textptr++;
 
@@ -4554,22 +4562,28 @@ repeatcase:
 
         i = 0;
 
-        if (level_names[j*MAXLEVELS+k] == NULL)
-            level_names[j*MAXLEVELS+k] = Bcalloc(32,sizeof(char));
-
         while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
         {
-            level_names[j*MAXLEVELS+k][i] = toupper(*textptr);
+            tempbuf[i] = Btoupper(*textptr);
             textptr++,i++;
             if (i >= 32)
             {
-                initprintf("%s:%ld: error: level name exceeds limit of %ld characters.\n",compilefile,line_number,sizeof(level_names[j*MAXLEVELS+k])-1);
+                initprintf("%s:%ld: error: level name exceeds limit of %ld characters.\n",compilefile,line_number,32);
                 error++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
                 break;
             }
         }
-        level_names[j*MAXLEVELS+k][i] = '\0';
+
+        tempbuf[i] = '\0';
+
+        if (level_names[j*MAXLEVELS+k] == NULL)
+            level_names[j*MAXLEVELS+k] = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
+
+/*         initprintf("level name string len: %ld\n",Bstrlen(tempbuf)); */
+
+        Bstrcpy(level_names[j*MAXLEVELS+k],tempbuf);
+
         return 0;
 
     case CON_DEFINEQUOTE:
