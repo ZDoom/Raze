@@ -1390,6 +1390,13 @@ static int md3draw (md3model *m, spritetype *tspr)
     pc[0] *= (float)hictinting[globalpal].r / 255.0;
     pc[1] *= (float)hictinting[globalpal].g / 255.0;
     pc[2] *= (float)hictinting[globalpal].b / 255.0;
+    if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
+    {
+        pc[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
+        pc[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
+        pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
+    }
+
 if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } else pc[3] = 1.0;
     if (m->usesalpha) //Sprites with alpha in texture
     {
@@ -2477,7 +2484,7 @@ mdmodel *mdload (const char *filnam)
     switch (B_LITTLE32(i))
     {
     case 0x32504449:
-        initprintf("Warning: model '%s' is version IDP2; wanted version IDP3\n",filnam);
+//        initprintf("Warning: model '%s' is version IDP2; wanted version IDP3\n",filnam);
         vm = (mdmodel*)md2load(fil,filnam); break; //IDP2
     case 0x33504449:
         vm = (mdmodel*)md3load(fil); break; //IDP3

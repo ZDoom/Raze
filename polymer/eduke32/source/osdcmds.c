@@ -701,10 +701,14 @@ void onvideomodechange(int newmode)
     {
         if (ps[screenpeek].palette == palette ||
                 ps[screenpeek].palette == waterpal ||
+                ps[screenpeek].palette == titlepal ||
+                ps[screenpeek].palette == animpal ||
+                ps[screenpeek].palette == endingpal ||
+                ps[screenpeek].palette == drealms ||
                 ps[screenpeek].palette == slimepal)
-            pal = palette;
-        else
             pal = ps[screenpeek].palette;
+        else
+            pal = palette;
     }
     else
     {

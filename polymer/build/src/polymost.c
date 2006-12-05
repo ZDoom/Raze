@@ -1508,12 +1508,23 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             }
             // tinting happens only to hightile textures, and only if the texture we're
             // rendering isn't for the same palette as what we asked for
-            if (pth && (pth->flags & 2) && (pth->palnum != globalpal)) {
-                // apply tinting for replaced textures
-                pc[0] *= (float)hictinting[globalpal].r / 255.0;
-                pc[1] *= (float)hictinting[globalpal].g / 255.0;
-                pc[2] *= (float)hictinting[globalpal].b / 255.0;
+            if (pth && (pth->flags & 2))
+            {
+                if (pth->palnum != globalpal)
+                {
+                    // apply tinting for replaced textures
+                    pc[0] *= (float)hictinting[globalpal].r / 255.0;
+                    pc[1] *= (float)hictinting[globalpal].g / 255.0;
+                    pc[2] *= (float)hictinting[globalpal].b / 255.0;
+                }
+                if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
+                {
+                    pc[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
+                    pc[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
+                    pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
+                }
             }
+
             bglColor4f(pc[0],pc[1],pc[2],pc[3]);
         }
 

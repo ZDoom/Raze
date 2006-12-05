@@ -572,7 +572,7 @@ extern char restorepalette;
 
 extern short buttonstat;
 extern long cachecount;
-extern char boardfilename[BMAX_PATH],waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768];
+extern char boardfilename[BMAX_PATH],waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];
 extern char cachedebug,earthquaketime;
 extern char networkmode;
 extern char lumplockbyte[11];

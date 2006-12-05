@@ -201,6 +201,7 @@ void playanm(char *fn,char t)
     char *animbuf;
     unsigned char *palptr;
     long i, j, length=0, numframes=0;
+
     int32 handle=-1;
 
     //    return;
@@ -242,14 +243,14 @@ void playanm(char *fn,char t)
         tempbuf[j+3] = 0;
         */
         j = i*3;
-        tempbuf[j+0] = (palptr[j+0]>>2);
-        tempbuf[j+1] = (palptr[j+1]>>2);
-        tempbuf[j+2] = (palptr[j+2]>>2);
+        animpal[j+0] = (palptr[j+0]>>2);
+        animpal[j+1] = (palptr[j+1]>>2);
+        animpal[j+2] = (palptr[j+2]>>2);
     }
 
     //setpalette(0L,256L,tempbuf);
     //setbrightness(ud.brightness>>2,tempbuf,2);
-    setgamepalette(&ps[myconnectindex],tempbuf,2);
+    setgamepalette(&ps[myconnectindex],animpal,2);
 
     ototalclock = totalclock + 10;
 
@@ -263,7 +264,7 @@ void playanm(char *fn,char t)
             handleevents();
             getpackets();
             if (restorepalette == 1)
-                setgamepalette(&ps[myconnectindex],tempbuf,2);
+                setgamepalette(&ps[myconnectindex],animpal,2);
         }
 
         if (t == 10) ototalclock += 14;

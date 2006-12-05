@@ -70,7 +70,7 @@ static struct strllist
 *CommandPaths = NULL, *CommandGrps = NULL;
 
 char confilename[BMAX_PATH] = {"EDUKE.CON"}, boardfilename[BMAX_PATH] = {0};
-char waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768];
+char waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768], animpal[768];
 char firstdemofile[80] = { '\0' };
 int display_bonus_screen = 1, userconfiles = 0;
 
@@ -210,6 +210,7 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
         return;
     }
 
+#if 0
     if (getrendermode() < 3)
     {
         // 8-bit mode
@@ -227,8 +228,16 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
     }
     else
     {
+        if (pal != titlepal && pal != drealms && pal != endingpal && pal != animpal)
+            pal = palette;
         setbrightness(ud.brightness>>2, pal, set);
     }
+#else
+    if (!(pal == palette || pal == waterpal || pal == slimepal || pal == drealms || pal == titlepal || pal == endingpal || pal == animpal))
+        pal = palette;
+
+    setbrightness(ud.brightness>>2, pal, set);
+#endif
     player->palette = pal;
 }
 
@@ -3205,13 +3214,20 @@ void displayrest(long smoothratio)
 
     pp = &ps[screenpeek];
 
+#if defined(USE_OPENGL) && defined(POLYMOST)
     // this takes care of fullscreen tint for OpenGL
     if (getrendermode() >= 3)
     {
+#if 0
         if (pp->palette == waterpal) tintr=0,tintg=0,tintb=63,tintf=8;
         else if (pp->palette == slimepal) tintr=20,tintg=63,tintb=20,tintf=8;
+#else
+        if (pp->palette == waterpal) { hictinting[MAXPALOOKUPS-1].r = 192; hictinting[MAXPALOOKUPS-1].g = 192; hictinting[MAXPALOOKUPS-1].b = 255; }
+        else if (pp->palette == slimepal) { hictinting[MAXPALOOKUPS-1].r = 208; hictinting[MAXPALOOKUPS-1].g = 255; hictinting[MAXPALOOKUPS-1].b = 224; }
+        else  { hictinting[MAXPALOOKUPS-1].r = 255; hictinting[MAXPALOOKUPS-1].g = 255; hictinting[MAXPALOOKUPS-1].b = 255; }
+#endif
     }
-
+#endif
     // this does pain tinting etc from the CON
     if (pp->pals_time >= 0 && pp->loogcnt == 0)	// JBF 20040101: pals_time > 0 now >= 0
     {
@@ -8959,6 +8975,11 @@ void Logo(void)
                 {
                     handleevents();
                     getpackets();
+                    if (restorepalette)
+                    {
+                        setgamepalette(&ps[myconnectindex],ps[myconnectindex].palette,0);
+                        restorepalette = 0;
+                    }
                 }
             }
             KB_ClearKeysDown(); // JBF
@@ -9036,6 +9057,11 @@ void Logo(void)
                 OnEvent(EVENT_LOGO, -1, screenpeek, -1);
                 handleevents();
                 getpackets();
+                if (restorepalette)
+                {
+                    setgamepalette(&ps[myconnectindex],ps[myconnectindex].palette,0);
+                    restorepalette = 0;
+                }
                 nextpage();
             }
         }
