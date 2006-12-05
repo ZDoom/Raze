@@ -2379,6 +2379,8 @@ char parsecommand(void)
 
                 if (music_fn[k][i] == NULL)
                     music_fn[k][i] = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
+                else if ((Bstrlen(tempbuf)+1) > sizeof(music_fn[k][i]))
+                    music_fn[k][i] = Brealloc(music_fn[k][i],(Bstrlen(tempbuf)+1));
 
                 Bstrcpy(music_fn[k][i],tempbuf);
 
@@ -4539,8 +4541,10 @@ repeatcase:
 
         if (level_file_names[j*MAXLEVELS+k] == NULL)
             level_file_names[j*MAXLEVELS+k] = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
+        else if ((Bstrlen(tempbuf)+1) > sizeof(level_file_names[j*MAXLEVELS+k]))
+            level_file_names[j*MAXLEVELS+k] = Brealloc(level_file_names[j*MAXLEVELS+k],(Bstrlen(tempbuf)+1));
 
-/*         initprintf("level file name string len: %ld\n",Bstrlen(tempbuf)); */
+        /*         initprintf("level file name string len: %ld\n",Bstrlen(tempbuf)); */
 
         Bstrcpy(level_file_names[j*MAXLEVELS+k],tempbuf);
 
@@ -4579,8 +4583,10 @@ repeatcase:
 
         if (level_names[j*MAXLEVELS+k] == NULL)
             level_names[j*MAXLEVELS+k] = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
+        else if ((Bstrlen(tempbuf)+1) > sizeof(level_names[j*MAXLEVELS+k]))
+            level_names[j*MAXLEVELS+k] = Brealloc(level_names[j*MAXLEVELS+k],(Bstrlen(tempbuf)+1));
 
-/*         initprintf("level name string len: %ld\n",Bstrlen(tempbuf)); */
+        /*         initprintf("level name string len: %ld\n",Bstrlen(tempbuf)); */
 
         Bstrcpy(level_names[j*MAXLEVELS+k],tempbuf);
 
