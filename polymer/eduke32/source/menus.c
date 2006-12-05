@@ -882,6 +882,7 @@ void menus(void)
 
         break;
 
+#if 0
     case 20010:
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(160,24,0,0,"HOST NETWORK GAME");
@@ -1152,7 +1153,7 @@ void menus(void)
         // PORT
         // CONNECT
         break;
-
+#endif
     case 15001:
     case 15000:
 
@@ -1982,8 +1983,6 @@ cheat_for_port_credits:
             if (ps[myconnectindex].gm&MODE_GAME) cmenu(50);
             else cmenu(0);
         }
-
-
 
         c = 80;
         if (VOLUMEONE)
@@ -4576,13 +4575,33 @@ VOLUME_ALL_40x:
         modval(0,num_gametypes-1,(int *)&ud.m_coop,1,probey==0);
         if (!VOLUMEONE)
             modval(0,num_volumes-1,(int *)&ud.m_volume_number,1,probey==1);
-        modval(0,ud.m_volume_number == 0?6+(boardfilename[0]!=0):10,(int *)&ud.m_level_number,1,probey==2);
+
+        i = ud.m_level_number;
+
+        modval(0,ud.m_volume_number == 0?6+(boardfilename[0]!=0):MAXLEVELS-1,(int *)&ud.m_level_number,1,probey==2);
 
         if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_MARKEROPTION))
             modval(0,1,(int *)&ud.m_marker,1,probey==4);
         if ((gametype_flags[ud.m_coop] & (GAMETYPE_FLAG_PLAYERSFRIENDLY|GAMETYPE_FLAG_TDM)))
             modval(0,1,(int *)&ud.m_ffire,1,probey==5);
         else modval(0,1,(int *)&ud.m_noexits,1,probey==5);
+
+        if (probey == 1)
+            if (ud.m_volume_number == 0 && ud.m_level_number > 6+(boardfilename[0]!=0))
+                ud.m_level_number = 0;
+
+        while (level_names[(ud.m_volume_number*MAXLEVELS)+ud.m_level_number] == NULL)
+        {
+            if (ud.m_level_number < i || i == 0)
+                ud.m_level_number--;
+            else ud.m_level_number++;
+
+            if (ud.m_level_number > MAXLEVELS-1 || ud.m_level_number < 0)
+            {
+                ud.m_level_number = 0;
+                break;
+            }
+        }
 
         switch (x)
         {
@@ -4600,9 +4619,9 @@ VOLUME_ALL_40x:
             {
                 ud.m_volume_number++;
                 if (ud.m_volume_number == num_volumes) ud.m_volume_number = 0;
-                if (ud.m_volume_number == 0 && ud.m_level_number > 6)
+                if (ud.m_volume_number == 0 && ud.m_level_number > 6+(boardfilename[0]!=0))
                     ud.m_level_number = 0;
-                if (ud.m_level_number > 10) ud.m_level_number = 0;
+                if (ud.m_level_number > MAXLEVELS-1) ud.m_level_number = 0;
             }
             break;
         case 2:
@@ -4617,7 +4636,7 @@ VOLUME_ALL_40x:
                 if (ud.m_volume_number == 0 && ud.m_level_number > 5)
                     ud.m_level_number = 0;
             }
-            if (ud.m_level_number > 10) ud.m_level_number = 0;
+            if (ud.m_level_number > MAXLEVELS-1) ud.m_level_number = 0;
             break;
         case 3:
             if (ud.m_monsters_off == 1 && ud.m_player_skill > 0)

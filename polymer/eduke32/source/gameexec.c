@@ -4388,7 +4388,7 @@ SKIPJIBS:
         volnume=GetGameVarID(*insptr++,g_i,g_p);
         levnume=GetGameVarID(*insptr++,g_i,g_p);
 
-        if (volnume > num_volumes || volnume < 0)
+        if (volnume > MAXVOLUMES-1 || volnume < 0)
         {
             /*
             if(g_cmddebug&CMDDEBUG_COMPILE)
@@ -4400,7 +4400,7 @@ SKIPJIBS:
             break;
         }
 
-        if (levnume >= 11 || levnume <0)
+        if (levnume > MAXLEVELS-1 || levnume <0)
         {
             /*
             if(g_cmddebug&CMDDEBUG_COMPILE)

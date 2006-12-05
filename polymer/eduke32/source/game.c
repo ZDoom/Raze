@@ -7427,7 +7427,7 @@ FOUNDCHEAT:
                             if (VOLUMEALL)
                             {
                                 volnume = cheatbuf[i] - '0';
-                                levnume = (cheatbuf[i+1] - '0')*10+(cheatbuf[i+2]-'0');
+                                levnume = (cheatbuf[i+1] - '0')*(MAXLEVELS-1)+(cheatbuf[i+2]-'0');
                             }
                             else
                             {
@@ -7461,7 +7461,7 @@ FOUNDCHEAT:
                             }
                             else
                             {
-                                if (levnume >= 11)
+                                if (levnume >= MAXLEVELS)
                                 {
                                     ps[myconnectindex].cheat_phase = 0;
                                     KB_FlushKeyBoardQueue();
