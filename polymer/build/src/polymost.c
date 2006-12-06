@@ -1670,7 +1670,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
         {
             fullbrightdrawingpass = 2;
             shadeforfullbrightpass = globalshade; // save the current shade
-            globalshade = -30; // fullbright
+            globalshade = -128; // fullbright
             bglDisable(GL_FOG); // no fog
             drawpoly(dpx, dpy, n_, method_); // draw them afterwards, then. :)
             bglEnable(GL_FOG);

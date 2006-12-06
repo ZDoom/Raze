@@ -1289,8 +1289,6 @@ void caches(void)
             printext256(0L,k,31,-1,tempbuf,1);
             k += 6;
         }
-
-
 }
 
 void checksync(void)
@@ -1931,7 +1929,6 @@ void coolgaugetext(short snum)
 
     if (p->invdisptime > 0) displayinventory(p);
 
-
     if (ps[snum].gm&MODE_MENU)
         if ((current_menu >= 400  && current_menu <= 405))
             return;
@@ -1955,7 +1952,6 @@ void coolgaugetext(short snum)
                     displayfragbar();
                     break;
                 }
-
 
         }
         for (i=connecthead;i>=0;i=connectpoint2[i])
@@ -2079,7 +2075,6 @@ void coolgaugetext(short snum)
                 u |= 2;
             }
 
-
         }
         else
         {
@@ -2088,7 +2083,6 @@ void coolgaugetext(short snum)
                 sbar.shield_amount = lAmount;
                 u |= 2;
             }
-
 
         }
     }
@@ -2235,7 +2229,6 @@ void coolgaugetext(short snum)
             digitalnumber(64,SBY+17,lAmount,-16,10+16);
     }
 
-
     if (u&1024)
     {
         if (u != -1) patchstatusbar(196,SBY+17,219,SBY+17+11);
@@ -2259,7 +2252,6 @@ void coolgaugetext(short snum)
             {
                 patchstatusbar(250,SBY+24,261,SBY+24+6);
             }
-
 
         }
         if (p->inven_icon)
@@ -2558,8 +2550,6 @@ void showtwoscreens(void)
             handleevents();
             getpackets();
         }
-
-
     }
 }
 /*
@@ -3222,9 +3212,32 @@ void displayrest(long smoothratio)
         if (pp->palette == waterpal) tintr=0,tintg=0,tintb=63,tintf=8;
         else if (pp->palette == slimepal) tintr=20,tintg=63,tintb=20,tintf=8;
 #else
-        if (pp->palette == waterpal) { hictinting[MAXPALOOKUPS-1].r = 192; hictinting[MAXPALOOKUPS-1].g = 192; hictinting[MAXPALOOKUPS-1].b = 255; }
-        else if (pp->palette == slimepal) { hictinting[MAXPALOOKUPS-1].r = 208; hictinting[MAXPALOOKUPS-1].g = 255; hictinting[MAXPALOOKUPS-1].b = 224; }
-        else  { hictinting[MAXPALOOKUPS-1].r = 255; hictinting[MAXPALOOKUPS-1].g = 255; hictinting[MAXPALOOKUPS-1].b = 255; }
+        if (pp->palette == waterpal)
+        {
+            if (hictinting[MAXPALOOKUPS-2].r == 255 && hictinting[MAXPALOOKUPS-2].g == 255 && hictinting[MAXPALOOKUPS-2].b == 255)
+            {
+                hictinting[MAXPALOOKUPS-1].r = 192;
+                hictinting[MAXPALOOKUPS-1].g = 192;
+                hictinting[MAXPALOOKUPS-1].b = 255;
+            }
+            else Bmemcpy(&hictinting[MAXPALOOKUPS-1],&hictinting[MAXPALOOKUPS-2],sizeof(hictinting[0]));
+        }
+        else if (pp->palette == slimepal)
+        {
+            if (hictinting[MAXPALOOKUPS-3].r == 255 && hictinting[MAXPALOOKUPS-3].g == 255 && hictinting[MAXPALOOKUPS-3].b == 255)
+            {
+                hictinting[MAXPALOOKUPS-1].r = 208;
+                hictinting[MAXPALOOKUPS-1].g = 255;
+                hictinting[MAXPALOOKUPS-1].b = 192;
+            }
+            else Bmemcpy(&hictinting[MAXPALOOKUPS-1],&hictinting[MAXPALOOKUPS-3],sizeof(hictinting[0]));
+        }
+        else
+        {
+            hictinting[MAXPALOOKUPS-1].r = 255;
+            hictinting[MAXPALOOKUPS-1].g = 255;
+            hictinting[MAXPALOOKUPS-1].b = 255;
+        }
 #endif
     }
 #endif
@@ -3638,7 +3651,6 @@ void drawbackground(void)
                 rotatesprite(x<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,0,y1,x2-1,ydim-1);
                 rotatesprite((x+x1)<<16,y<<16,65536L,0,dapicnum,8,0,8+16+64+128,xdim-x2,y1,xdim-1,ydim-1);
             }
-
     }
 
     if (ud.screen_size > 8 && (ready2send || ud.recstat == 2))
@@ -3774,7 +3786,6 @@ static void SE40_Draw(int spnum,long x,long y,long z,short a,short h,long smooth
         offz -= sector[sprite[floor1].sectnum].floorz;
     else
         offz -= sector[sprite[floor1].sectnum].ceilingz;
-
 
     // if(ok==2) { Message("no floor2",RED); return; }
 
@@ -4706,7 +4717,6 @@ short spawn(short j, short pn)
                             break;
                         }
 
-
                     }
                     else
                     {
@@ -4714,7 +4724,6 @@ short spawn(short j, short pn)
                         changespritestat(i,5);
                         break;
                     }
-
 
                 }
                 else
@@ -4724,7 +4733,6 @@ short spawn(short j, short pn)
                     break;
                 }
 
-
             }
             else
             {
@@ -4732,7 +4740,6 @@ short spawn(short j, short pn)
                 changespritestat(i,5);
                 break;
             }
-
 
         }
 
@@ -4937,7 +4944,6 @@ short spawn(short j, short pn)
                                 break;
                             }
 
-
                         }
                         else
                         {
@@ -4945,14 +4951,12 @@ short spawn(short j, short pn)
                             break;
                         }
 
-
                     }
                     else
                     {
                         sp->xrepeat = sp->yrepeat = 0;
                         break;
                     }
-
 
                 }
                 else
@@ -5292,7 +5296,6 @@ short spawn(short j, short pn)
 
             sp->xrepeat = 24;
             sp->yrepeat = 24;
-
 
             changespritestat(i,6);
             break;
@@ -5669,8 +5672,6 @@ short spawn(short j, short pn)
             sp->extra = impact_damage<<2;
             changespritestat(i,2);
             break;
-
-
 
         case STEAM__STATIC:
             if (j >= 0)
@@ -6130,7 +6131,6 @@ short spawn(short j, short pn)
 
             break;
 
-
         case SEENINE__STATIC:
         case OOZFILTER__STATIC:
 
@@ -6335,7 +6335,6 @@ void animatesprites(long x,long y,short a,long smoothratio)
         }
         t->shade = l;
     }
-
 
     for (j=0;j < spritesortcnt; j++) //Between drawrooms() and drawmasks()
     {                             //is the perfect time to animate sprites
@@ -7424,7 +7423,6 @@ FOUNDCHEAT:
                     ps[myconnectindex].got_access =              7;
                     FTA(5,&ps[myconnectindex]);
                     ps[myconnectindex].cheat_phase = 0;
-
 
                     //                        FTA(21,&ps[myconnectindex]);
                     ps[myconnectindex].cheat_phase = 0;
@@ -8620,7 +8618,6 @@ void checkcommandline(int argc,char **argv)
                         initprintf("Network mode: peer-to-peer\n");
                     }
 
-
                 }
                 netparam[i-firstnet-1] = argv[i];
                 i++;
@@ -9793,7 +9790,6 @@ void app_main(int argc,char **argv)
 
     if (netparamcount > 0) _buildargc = (argc -= netparamcount+1);  // crop off the net parameters
 
-
     // gotta set the proper title after we compile the CONs if this is the full version
 
     if (VOLUMEALL) wm_setapptitle(HEAD2);
@@ -10611,7 +10607,6 @@ void fakedomovethingscorrect(void)
     fakemovefifoplc = movefifoplc;
     while (fakemovefifoplc < movefifoend[myconnectindex])
         fakedomovethings();
-
 }
 
 void fakedomovethings(void)
@@ -10907,7 +10902,6 @@ void fakedomovethings(void)
             myzvel = 128;
             myz = cz+(4<<8);
         }
-
     }
 
     if (p->fist_incs ||
@@ -11268,7 +11262,6 @@ char domovethings(void)
             ps[i].palookup = ud.pcolor[i] = j;
         }
 
-
         if (sprite[ps[i].i].pal != 1)
             sprite[ps[i].i].pal = ud.pcolor[i];
 
@@ -11374,8 +11367,6 @@ void doorders(void)
         handleevents();
         getpackets();
     }
-
-
 }
 
 void dobonus(char bonusonly)
@@ -11475,7 +11466,6 @@ void dobonus(char bonusonly)
                                 sound(DUKETALKTOBOSS);
                                 bonuscnt++;
                             }
-
 
                         }
                         for (t=0;t<20;t+=5)
@@ -11678,7 +11668,6 @@ void dobonus(char bonusonly)
                     getpackets();
                 }
 
-
             }
 
             KB_FlushKeyBoardQueue();
@@ -11728,7 +11717,6 @@ FRAGBONUS:
         gametext(160,58+10,level_names[(ud.volume_number*MAXLEVELS)+ud.last_level-1],0,2+8+16);
 
         gametext(160,165,"PRESS ANY KEY TO CONTINUE",0,2+8+16);
-
 
         t = 0;
         minitext(23,80,"   NAME                                           KILLS",8,2+8+16+128);
@@ -11865,7 +11853,6 @@ FRAGBONUS:
         }
         if (playerbest > 0) for (ii=playerbest/(26*60), ij=1; ii>9; ii/=10, ij++) ;
         clockpad = max(clockpad,ij);
-
     }
 
     while (1)
@@ -11949,7 +11936,6 @@ FRAGBONUS:
                         gametext(10,yy+9,"3D Realms' Time:",0,2+8+16);
                         yy+=10;
                     }
-
 
                 }
                 if (playerbest > 0)
@@ -12227,7 +12213,6 @@ void ceilingglass(short i,short sectnum,short n)
         }
     }
 }
-
 
 void lotsofcolourglass(short i,short wallnum,short n)
 {
