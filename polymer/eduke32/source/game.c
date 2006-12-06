@@ -7853,15 +7853,18 @@ void nonsharedkeys(void)
             {
                 if (i == 5 && ps[myconnectindex].fta > 0 && ps[myconnectindex].ftq == 26)
                 {
-                    i = (VOLUMEALL?num_volumes*MAXLEVELS:6);
+                    i = (VOLUMEALL?MAXVOLUMES*MAXLEVELS:6);
                     music_select++;
                     while ((music_fn[0][(unsigned char)music_select] == NULL) && music_select < i)
                         music_select++;
                     if (music_select == i)
                         music_select = 0;
-                    Bsprintf(fta_quotes[26],"PLAYING %s",&music_fn[0][(unsigned char)music_select][0]);
-                    FTA(26,&ps[myconnectindex]);
-                    playmusic(&music_fn[0][(unsigned char)music_select][0]);
+                    if (music_fn[0][(unsigned char)music_select] != NULL)
+                    {
+                        Bsprintf(fta_quotes[26],"PLAYING %s",&music_fn[0][(unsigned char)music_select][0]);
+                        FTA(26,&ps[myconnectindex]);
+                        playmusic(&music_fn[0][(unsigned char)music_select][0]);
+                    }
                     return;
                 }
 
@@ -8077,7 +8080,9 @@ FAKE_F3:
         if (KB_KeyPressed(sc_F5) && MusicDevice >= 0)
         {
             KB_ClearKeyDown(sc_F5);
-            Bstrcpy(fta_quotes[26],&music_fn[0][(unsigned char)music_select][0]);
+            if (music_fn[0][(unsigned char)music_select] != NULL)
+                Bstrcpy(fta_quotes[26],&music_fn[0][(unsigned char)music_select][0]);
+            else fta_quotes[26][0] = '\0';
             Bstrcat(fta_quotes[26],".  USE SHIFT-F5 TO CHANGE.");
             FTA(26,&ps[myconnectindex]);
         }

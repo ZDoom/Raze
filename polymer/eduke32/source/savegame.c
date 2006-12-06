@@ -354,7 +354,8 @@ int loadplayer(signed char spot)
     cacheit();
 
     music_select = (ud.volume_number*MAXLEVELS) + ud.level_number;
-    playmusic(&music_fn[0][(unsigned char)music_select][0]);
+    if (music_fn[0][(unsigned char)music_select] != NULL)
+        playmusic(&music_fn[0][(unsigned char)music_select][0]);
 
     ps[myconnectindex].gm = MODE_GAME;
     ud.recstat = 0;

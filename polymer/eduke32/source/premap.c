@@ -1750,7 +1750,8 @@ int enterlevel(char g)
     if (ud.recstat != 2)
     {
         music_select = (ud.volume_number*MAXLEVELS) + ud.level_number;
-        playmusic(&music_fn[0][(unsigned char)music_select][0]);
+        if (music_fn[0][(unsigned char)music_select] != NULL)
+            playmusic(&music_fn[0][(unsigned char)music_select][0]);
     }
 
     if ((g&MODE_GAME) || (g&MODE_EOL))

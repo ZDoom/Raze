@@ -4400,7 +4400,7 @@ SKIPJIBS:
             break;
         }
 
-        if (levnume > MAXLEVELS-1 || levnume <0)
+        if (levnume > MAXLEVELS-1 || levnume < 0)
         {
             /*
             if(g_cmddebug&CMDDEBUG_COMPILE)
@@ -6532,7 +6532,8 @@ good:
     {
         insptr++;
         music_select=*insptr++;
-        playmusic(&music_fn[ud.volume_number][(unsigned char)music_select][0]);
+        if (music_fn[ud.volume_number][(unsigned char)music_select] != NULL)
+            playmusic(&music_fn[ud.volume_number][(unsigned char)music_select][0]);
         break;
     }
 

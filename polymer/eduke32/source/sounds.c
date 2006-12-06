@@ -208,6 +208,8 @@ void playmusic(char *fn)
     short      fp;
     long        l;
 
+    if (fn == NULL) return;
+
     if (MusicToggle == 0) return;
     if (MusicDevice < 0) return;
 
@@ -227,6 +229,8 @@ void playmusic(char *fn)
     MUSIC_PlaySong((unsigned char *)MusicPtr, MUSIC_LoopSong);
 #else
     void PlayMusic(char *_filename);
+
+    if (fn == NULL) return;
 
     if(MusicToggle == 0) return;
     if(MusicDevice < 0) return;
