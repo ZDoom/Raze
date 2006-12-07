@@ -7208,6 +7208,8 @@ long loadmaphack(char *filename)
                 { "nomd2anim", 3 },
                 { "nomd3anim", 3 },
                 { "nomdanim", 3 },
+                { "pitch", 4 },
+                { "roll", 5 },
                 { NULL, -1 }
             };
 
@@ -7271,6 +7273,34 @@ long loadmaphack(char *filename)
             }
             spriteext[whichsprite].flags |= SPREXT_NOMDANIM;
             break;
+        case 4:     // pitch <xx>
+        {
+            int pitch;
+            if (scriptfile_getnumber(script, &pitch)) break;
+
+            if (whichsprite < 0) {
+                // no sprite directive preceeding
+                initprintf("Ignoring pitch directive because of absent/invalid sprite number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+            spriteext[whichsprite].pitch = (short)pitch;
+        }
+        case 5:     // roll <xx>
+        {
+            int roll;
+            if (scriptfile_getnumber(script, &roll)) break;
+
+            if (whichsprite < 0) {
+                // no sprite directive preceeding
+                initprintf("Ignoring roll directive because of absent/invalid sprite number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+            spriteext[whichsprite].roll = (short)roll;
+        }
+        break;
+
         default:
             // unrecognised token
             break;
