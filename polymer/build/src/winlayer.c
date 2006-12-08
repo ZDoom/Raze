@@ -114,7 +114,7 @@ char videomodereset = 0;
 
 // input and events
 char inputdevices=0;
-char quitevent=0, appactive=1;
+char quitevent=0, appactive=1, realfs=0;
 long mousex=0, mousey=0, mouseb=0;
 static unsigned long mousewheel[2] = { 0,0 };
 #define MouseWheelFakePressTime (25)	// getticks() is a 1000Hz timer, and the button press is faked for 100ms
@@ -3504,12 +3504,32 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         break;
 
     case WM_ACTIVATEAPP:
+    {
         appactive = wParam;
+#if defined(POLYMOST) && defined(USE_OPENGL)
+        if (hGLWindow)
+        {
+            if (!appactive && fullscreen)
+            {
+                realfs = fullscreen;
+                setvideomode(xdim,ydim,bpp,!fullscreen);
+                ShowWindow(hWindow, SW_MINIMIZE);
+            }
+            else if (appactive && realfs)
+            {    
+                ShowWindow(hWindow, SW_SHOWNORMAL);
+                SetForegroundWindow(hWindow);
+                SetFocus(hWindow);
+                setvideomode(xdim,ydim,bpp,realfs);
+                realfs = 0;
+            }
+        }
+#endif
         if (backgroundidle)
             SetPriorityClass( GetCurrentProcess(),
                               appactive ? NORMAL_PRIORITY_CLASS : IDLE_PRIORITY_CLASS );
         break;
-
+    }
     case WM_ACTIVATE:
         if (desktopbpp <= 8) {
             if (appactive) {

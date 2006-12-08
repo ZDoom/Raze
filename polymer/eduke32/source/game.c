@@ -9603,6 +9603,10 @@ void app_main(int argc,char **argv)
     }
 #endif
 
+#ifdef RENDERTYPEWIN
+    backgroundidle = 0;
+#endif
+
     OSD_SetLogFile("eduke32.log");
 
     wm_setapptitle(HEAD2);

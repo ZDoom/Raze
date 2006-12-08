@@ -235,13 +235,6 @@ void playanm(char *fn,char t)
     palptr = ANIM_GetPalette();
     for (i=0;i<256;i++)
     {
-        /*
-        j = (i<<2); k = j-i;
-        tempbuf[j+0] = (palptr[k+2]>>2);
-        tempbuf[j+1] = (palptr[k+1]>>2);
-        tempbuf[j+2] = (palptr[k+0]>>2);
-        tempbuf[j+3] = 0;
-        */
         j = i*3;
         animpal[j+0] = (palptr[j+0]>>2);
         animpal[j+1] = (palptr[j+1]>>2);
@@ -264,7 +257,10 @@ void playanm(char *fn,char t)
             handleevents();
             getpackets();
             if (restorepalette == 1)
+            {
                 setgamepalette(&ps[myconnectindex],animpal,2);
+                restorepalette = 0;
+            }
         }
 
         if (t == 10) ototalclock += 14;
