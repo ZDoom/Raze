@@ -163,7 +163,6 @@ int osdcmd_map(const osdfuncparm_t *parm)
     {
         // out-of-game behave like a menu command
         osdcmd_cheatsinfo_stat.cheatnum = -1;
-
         ud.m_volume_number = 0;
         ud.m_level_number = 7;
 
@@ -811,9 +810,7 @@ int registerosdcommands(void)
     }
 
     if (VOLUMEONE)
-    {
         OSD_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
-    }
     else
     {
         OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);

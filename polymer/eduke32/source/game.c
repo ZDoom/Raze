@@ -2510,11 +2510,13 @@ void FTA(short q,struct player_struct *p)
             //            if(p->ftq != q || q == 26)
             // || q == 26 || q == 115 || q ==116 || q == 117 || q == 122)
             {
+                if (p->ftq != q)
+                    if (p == &ps[screenpeek])
+                        OSD_Printf("%s\n",strip_color_codes(fta_quotes[q]));
+
                 p->ftq = q;
                 pub = NUMPAGES;
                 pus = NUMPAGES;
-                if (p == &ps[screenpeek])
-                    OSD_Printf("%s\n",strip_color_codes(fta_quotes[q]));
             }
         }
     }
@@ -3457,13 +3459,14 @@ void displayrest(long smoothratio)
         }
     }
 #endif
+
+    if (ud.pause_on==1 && (ps[myconnectindex].gm&MODE_MENU) == 0)
+        menutext(160,100,0,0,"GAME PAUSED");
+
     if (ps[myconnectindex].gm&MODE_TYPE)
         typemode();
     else
         menus();
-
-    if (ud.pause_on==1 && (ps[myconnectindex].gm&MODE_MENU) == 0)
-        menutext(160,100,0,0,"GAME PAUSED");
 
     if (ud.coords)
         coords(screenpeek);
@@ -9591,6 +9594,21 @@ int load_script(char *szScript)
     return 1;
 }
 
+void get_level_from_filename(char *fn, char *volume, char *level)
+{
+    for ((*volume)=0;(*volume)<MAXVOLUMES;(*volume)++)
+    {
+        for ((*level)=0;(*level)<MAXLEVELS;(*level)++)
+        {
+            if (level_file_names[((*volume)*MAXLEVELS)+(*level)] != NULL)
+                if (!Bstrcasecmp(fn, level_file_names[((*volume)*MAXLEVELS)+(*level)]))
+                    break;
+        }
+        if ((*level) != MAXLEVELS)
+            break;
+    }
+}
+
 void app_main(int argc,char **argv)
 {
     int i, j;
@@ -9824,6 +9842,7 @@ void app_main(int argc,char **argv)
     {
         Bsprintf(ud.user_name[j],"PLAYER %d",j+1);
         ps[j].team = ud.pteam[j] = i;
+        ps[j].weaponswitch = 3;
         i = 1-i;
     }
 
@@ -9949,10 +9968,9 @@ MAIN_LOOP_RESTART:
     {
         if (ud.multimode > 1 && boardfilename[0] != 0)
         {
-            ud.level_number = ud.m_level_number = 7;
-            ud.volume_number = ud.m_volume_number;
-            ud.player_skill = ud.m_player_skill;
-
+            ud.m_level_number = 7;
+            ud.m_volume_number = 0;
+        
             if (ud.m_player_skill == 4)
                 ud.m_respawn_monsters = 1;
             else ud.m_respawn_monsters = 0;

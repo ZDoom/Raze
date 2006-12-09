@@ -358,4 +358,6 @@ extern void sendquit(void);
 extern void adduserquote(char *daquote);
 extern char *strip_color_codes(char *t);
 
+extern void get_level_from_filename(char *fn, char *volume, char *level);
+
 #endif // __funct_h__

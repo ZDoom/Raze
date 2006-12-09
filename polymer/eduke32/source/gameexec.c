@@ -4022,6 +4022,9 @@ SKIPJIBS:
                     }
                 else g_sp->zvel = 0;
             }
+
+            if (g_sp->z > (hittype[g_i].floorz-FOURSLEIGHT))
+                g_sp->z = (hittype[g_i].floorz - FOURSLEIGHT);
         }
 
         break;

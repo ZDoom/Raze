@@ -1613,6 +1613,20 @@ int enterlevel(char g)
     clearsoundlocks();
     FX_SetReverb(0);
 
+    if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
+    {
+        char volume, level;
+        
+        get_level_from_filename(boardfilename,&volume,&level);
+        
+        if (level != MAXLEVELS)
+        {
+            ud.level_number = ud.m_level_number = level;
+            ud.volume_number = ud.m_volume_number = volume;
+            boardfilename[0] = 0;
+        }
+    }
+
     if (level_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL || level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL)
     {
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
@@ -1829,5 +1843,6 @@ int enterlevel(char g)
     // variables are set by pointer...
 
     OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
+    initprintf("E%ldL%ld: %s\n",ud.volume_number+1,ud.level_number+1,level_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
     return 0;
 }
