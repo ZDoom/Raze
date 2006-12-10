@@ -64,7 +64,7 @@ static void tloadtile(short tilenume, char type)
     }
 }
 
-void cachespritenum(short i)
+static void cachespritenum(short i)
 {
     char maxc;
     short j;
@@ -203,7 +203,7 @@ void cachespritenum(short i)
     for (j = PN; j < (PN+maxc); j++) tloadtile(j,1);
 }
 
-void cachegoodsprites(void)
+static void cachegoodsprites(void)
 {
     short i,j;
 
@@ -278,7 +278,7 @@ char getsound(unsigned short num)
     return 1;
 }
 
-void precachenecessarysounds(void)
+static void precachenecessarysounds(void)
 {
     short i, j;
 
@@ -485,7 +485,7 @@ void pickrandomspot(short snum)
     p->cursectnum = po[i].os;
 }
 
-void resetplayerstats(short snum)
+static void resetplayerstats(short snum)
 {
     struct player_struct *p;
 
@@ -645,7 +645,7 @@ void resetinventory(short snum)
     OnEvent(EVENT_RESETINVENTORY, p->i, snum, -1);
 }
 
-void resetprestat(short snum,char g)
+static void resetprestat(short snum,char g)
 {
     struct player_struct *p;
     short i;
@@ -708,7 +708,7 @@ void resetprestat(short snum,char g)
 
 }
 
-void setupbackdrop(short sky)
+static void setupbackdrop(short sky)
 {
     short i;
 
@@ -750,7 +750,7 @@ void setupbackdrop(short sky)
     pskybits=3;
 }
 
-void prelevel(char g)
+static void prelevel(char g)
 {
     short i, nexti, j, startwall, endwall, lotaglist;
     short lotags[65];
@@ -1174,7 +1174,7 @@ void newgame(char vn,char ln,char sk)
     }
 }
 
-void resetpspritevars(char g)
+static void resetpspritevars(char g)
 {
     short i, j, nexti,circ;
     long firstx,firsty;
@@ -1351,7 +1351,7 @@ void resetpspritevars(char g)
     }
 }
 
-void clearfrags(void)
+static void clearfrags(void)
 {
     short i;
 
@@ -1369,50 +1369,6 @@ void resettimevars(void)
     ototalclock = 0L;
     lockclock = 0L;
     ready2send = 1;
-}
-
-void genspriteremaps(void)
-{
-    long j,fp;
-    signed char look_pos;
-    char *lookfn = "lookup.dat";
-
-    fp = kopen4load(lookfn,0);
-    if (fp != -1)
-        kread(fp,(char *)&numl,1);
-    else
-        gameexit("\nERROR: File 'LOOKUP.DAT' not found.");
-
-    for (j=0;j < numl;j++)
-    {
-        kread(fp,(signed char *)&look_pos,1);
-        kread(fp,tempbuf,256);
-        makepalookup((long)look_pos,tempbuf,0,0,0,1);
-    }
-
-    for (j = 0; j < 256; j++)
-        tempbuf[j] = j;
-    numl++;
-    makepalookup(numl, tempbuf, 15, 15, 15, 1);
-    numl++;
-    makepalookup(numl, tempbuf, 15, 0, 0, 1);
-    numl++;
-    makepalookup(numl, tempbuf, 0, 15, 0, 1);
-    numl++;
-    makepalookup(numl, tempbuf, 0, 0, 15, 1);
-
-    numl -= 3;
-    kread(fp,&waterpal[0],768);
-    kread(fp,&slimepal[0],768);
-    kread(fp,&titlepal[0],768);
-    kread(fp,&drealms[0],768);
-    kread(fp,&endingpal[0],768);
-
-    palette[765] = palette[766] = palette[767] = 0;
-    slimepal[765] = slimepal[766] = slimepal[767] = 0;
-    waterpal[765] = waterpal[766] = waterpal[767] = 0;
-
-    kclose(fp);
 }
 
 void waitforeverybody()

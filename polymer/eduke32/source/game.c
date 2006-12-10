@@ -126,6 +126,14 @@ long tempwallptr;
 
 long nonsharedtimer;
 
+static void cameratext(short i);
+static char moveloop(void);
+static void doorders(void);
+static void fakedomovethings(void);
+static void fakedomovethingscorrect(void);
+static char domovethings(void);
+static long playback(void);
+
 enum
 {
     T_EOF = -2,
@@ -182,7 +190,7 @@ static inline long sbarsc(long sc)
     return scale(sc,ud.statusbarscale,100);
 }
 
-void patchstatusbar(long x1, long y1, long x2, long y2)
+static void patchstatusbar(long x1, long y1, long x2, long y2)
 {
     long scl, tx, ty;
     long clx1,cly1,clx2,cly2,clofx,clofy;
@@ -365,7 +373,7 @@ inline int mpgametext(int y,char *t,char s,short dabits)
     else return(gametext_(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
 }
 
-int minitext_(int x,int y,char *t,char s,char p,short sb)
+static int minitext_(int x,int y,char *t,char s,char p,short sb)
 {
     short ac;
     char ch,cmode;
@@ -403,16 +411,18 @@ inline int minitext(int x,int y,char *t,char p,short sb)
     return (minitext_(x,y,(char *)strip_color_codes(t),0,p,sb));
 }
 
-void gamenumber(long x,long y,long n,char s)
+#if 0
+static void gamenumber(long x,long y,long n,char s)
 {
     char b[10];
     //ltoa(n,b,10);
     Bsnprintf(b,10,"%ld",n);
     gametext(x,y,b,s,2+8+16);
 }
+#endif
 
 char recbuf[180];
-void allowtimetocorrecterrorswhenquitting(void)
+static void allowtimetocorrecterrorswhenquitting(void)
 {
     long i, j, oldtotalclock;
 
@@ -935,7 +945,7 @@ void getpackets(void)
 
 extern void computergetinput(long snum, input *syn);
 
-void faketimerhandler()
+void faketimerhandler(void)
 {
     long i, j, k;
     //    short who;
@@ -1267,7 +1277,7 @@ typedef struct
 cactype;
 extern cactype cac[];
 
-void caches(void)
+static void caches(void)
 {
     short i,k;
 
@@ -1291,7 +1301,7 @@ void caches(void)
         }
 }
 
-void checksync(void)
+static void checksync(void)
 {
     long i;
 
@@ -1532,7 +1542,7 @@ void myospalx(long x, long y, short tilenum, signed char shade, char orientation
     rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
-void invennum(long x,long y,char num1,char ha,char sbits)
+static void invennum(long x,long y,char num1,char ha,char sbits)
 {
     char dabuf[80] = {0};
     Bsprintf(dabuf,"%d",num1);
@@ -1551,7 +1561,7 @@ void invennum(long x,long y,char num1,char ha,char sbits)
         rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
 }
 
-void orderweaponnum(short ind,long x,long y,char ha)
+static void orderweaponnum(short ind,long x,long y,char ha)
 {
     rotatesprite(sbarx(x-7),sbary(y),sbarsc(65536L),0,THREEBYFIVE+ind+1,ha-10,7,10,0,0,xdim-1,ydim-1);
     rotatesprite(sbarx(x-3),sbary(y),sbarsc(65536L),0,THREEBYFIVE+10,ha,0,10,0,0,xdim-1,ydim-1);
@@ -1559,7 +1569,7 @@ void orderweaponnum(short ind,long x,long y,char ha)
     minitextshade(x+1,y-4,"ORDER",26,6,2+8+16);
 }
 
-void weaponnum(short ind,long x,long y,long num1, long num2,char ha)
+static void weaponnum(short ind,long x,long y,long num1, long num2,char ha)
 {
     char dabuf[80] = {0};
 
@@ -1587,7 +1597,7 @@ void weaponnum(short ind,long x,long y,long num1, long num2,char ha)
     else rotatesprite(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
 }
 
-void weaponnum999(char ind,long x,long y,long num1, long num2,char ha)
+static void weaponnum999(char ind,long x,long y,long num1, long num2,char ha)
 {
     char dabuf[80] = {0};
 
@@ -1624,7 +1634,7 @@ void weaponnum999(char ind,long x,long y,long num1, long num2,char ha)
     else rotatesprite(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
 }
 
-void weapon_amounts(struct player_struct *p,long x,long y,long u)
+static void weapon_amounts(struct player_struct *p,long x,long y,long u)
 {
     int cw;
 
@@ -1748,7 +1758,7 @@ void weapon_amounts(struct player_struct *p,long x,long y,long u)
     }
 }
 
-void digitalnumber(long x,long y,long n,char s,char cs)
+static void digitalnumber(long x,long y,long n,char s,char cs)
 {
 
     short i, j, k, p, c;
@@ -1820,7 +1830,7 @@ void scratchmarks(long x,long y,long n,char s,char p)
     if(ni) overwritesprite(x,y,SCRATCH+ni-1,s,p,0);
 }
   */
-void displayinventory(struct player_struct *p)
+static void displayinventory(struct player_struct *p)
 {
     short n, j, xoff, y;
 
@@ -1919,7 +1929,7 @@ void displayfragbar(void)
 
 #define SBY (200-tilesizy[BOTTOMSTATUSBAR])
 
-void coolgaugetext(short snum)
+static void coolgaugetext(short snum)
 {
     struct player_struct *p;
     long i, j, o, ss, u;
@@ -2343,7 +2353,7 @@ void coolgaugetext(short snum)
 #define AVERAGEFRAMES 16
 static long frameval[AVERAGEFRAMES], framecnt = 0;
 
-void tics(void)
+static void tics(void)
 {
     long i,j;
     char b[10];
@@ -2379,7 +2389,7 @@ void tics(void)
     framecnt = ((framecnt+1)&(AVERAGEFRAMES-1));
 }
 
-void coords(short snum)
+static void coords(short snum)
 {
     short y = 8;
 
@@ -2416,7 +2426,7 @@ void coords(short snum)
     printext256(250L,y+99L+7,31,-1,tempbuf,0);
 }
 
-void operatefta(void)
+static void operatefta(void)
 {
     long i, j, k, l;
 
@@ -2523,7 +2533,7 @@ void FTA(short q,struct player_struct *p)
     else OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,p->ftq);
 }
 
-void showtwoscreens(void)
+static void showtwoscreens(void)
 {
     if (!VOLUMEALL)
     {
@@ -2711,7 +2721,7 @@ inline short mpstrget(short x,short y,char *t,short dalen,short c)
     else return(strget(x,y,t,dalen,c));
 }
 
-void typemode(void)
+static void typemode(void)
 {
     short ch, hitstate, i, j, l;
 
@@ -2865,7 +2875,7 @@ void typemode(void)
     }
 }
 
-void moveclouds(void)
+static void moveclouds(void)
 {
     if (totalclock > cloudtotalclock || totalclock < (cloudtotalclock-7))
     {
@@ -2884,7 +2894,7 @@ void moveclouds(void)
     }
 }
 
-void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
+static void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
 {
     long i, j, k, l, x1, y1, x2=0, y2=0, x3, y3, x4, y4, ox, oy, xoff, yoff;
     long dax, day, cosang, sinang, xspan, yspan, sprx, spry;
@@ -3504,7 +3514,7 @@ void displayrest(long smoothratio)
     if (tintf > 0 || dotint) palto(tintr,tintg,tintb,tintf|128);
 }
 
-void view(struct player_struct *pp, long *vx, long *vy,long *vz,short *vsectnum, short ang, short horiz)
+static void view(struct player_struct *pp, long *vx, long *vy,long *vz,short *vsectnum, short ang, short horiz)
 {
     spritetype *sp;
     long i, nx, ny, nz, hx, hy, hitx, hity, hitz;
@@ -4150,7 +4160,7 @@ short LocateTheLocator(short n,short sn)
     return -1;
 }
 
-void dumpdebugdata(void)
+static void dumpdebugdata(void)
 {
     int i,j,x;
     FILE * fp=fopen("debug.con","w");
@@ -9254,7 +9264,52 @@ void sanitizegametype()
     //     initprintf("ud.m_coop=%i after sanitisation\n",ud.m_coop);
 }
 
+void genspriteremaps(void)
+{
+    long j,fp;
+    signed char look_pos;
+    char *lookfn = "lookup.dat";
+
+    fp = kopen4load(lookfn,0);
+    if (fp != -1)
+        kread(fp,(char *)&numl,1);
+    else
+        gameexit("\nERROR: File 'LOOKUP.DAT' not found.");
+
+    for (j=0;j < numl;j++)
+    {
+        kread(fp,(signed char *)&look_pos,1);
+        kread(fp,tempbuf,256);
+        makepalookup((long)look_pos,tempbuf,0,0,0,1);
+    }
+
+    for (j = 0; j < 256; j++)
+        tempbuf[j] = j;
+    numl++;
+    makepalookup(numl, tempbuf, 15, 15, 15, 1);
+    numl++;
+    makepalookup(numl, tempbuf, 15, 0, 0, 1);
+    numl++;
+    makepalookup(numl, tempbuf, 0, 15, 0, 1);
+    numl++;
+    makepalookup(numl, tempbuf, 0, 0, 15, 1);
+
+    numl -= 3;
+    kread(fp,&waterpal[0],768);
+    kread(fp,&slimepal[0],768);
+    kread(fp,&titlepal[0],768);
+    kread(fp,&drealms[0],768);
+    kread(fp,&endingpal[0],768);
+
+    palette[765] = palette[766] = palette[767] = 0;
+    slimepal[765] = slimepal[766] = slimepal[767] = 0;
+    waterpal[765] = waterpal[766] = waterpal[767] = 0;
+
+    kclose(fp);
+}
+
 extern int startwin_run(void);
+static void SetupGameButtons(void);
 
 void Startup(long argc, char **argv)
 {
@@ -9547,7 +9602,8 @@ void writestring(long a1,long a2,long a3,short a4,long vx,long vy,long vz)
 char testcd(char *fn, long testsiz);
 
 // JBF: various hacks here
-void copyprotect(void)
+#if 0
+static void copyprotect(void)
 {
     //    FILE *fp;
     //    char idfile[256];
@@ -9565,6 +9621,7 @@ void copyprotect(void)
         return;
     }
 }
+#endif
 
 void backtomenu(void)
 {
@@ -9812,8 +9869,10 @@ void app_main(int argc,char **argv)
         }
     }
 
+#if 0
     copyprotect();
     if (cp) return;
+#endif
 
     if (netparamcount > 0) _buildargc = (argc -= netparamcount+1);  // crop off the net parameters
 
@@ -10153,7 +10212,7 @@ MAIN_LOOP_RESTART:
 
 char demo_version;
 
-char opendemoread(char which_demo) // 0 = mine
+static char opendemoread(char which_demo) // 0 = mine
 {
     char d[13];
     char ver;
@@ -10312,7 +10371,7 @@ void opendemowrite(void)
     ud.reccnt = 0;
 }
 
-void record(void)
+static void record(void)
 {
     short i;
 
@@ -10359,7 +10418,7 @@ oldinput;
 oldinput oldrecsync[RECSYNCBUFSIZ];
 
 // extern long syncs[];
-long playback(void)
+static long playback(void)
 {
     long i,j,k,l;
     char foundemo;
@@ -10576,7 +10635,7 @@ RECHECK:
     return 1;
 }
 
-char moveloop()
+static char moveloop()
 {
     long i;
 
@@ -10596,7 +10655,7 @@ char moveloop()
     return 0;
 }
 
-void fakedomovethingscorrect(void)
+static void fakedomovethingscorrect(void)
 {
     long i;
     struct player_struct *p;
@@ -10636,7 +10695,7 @@ void fakedomovethingscorrect(void)
         fakedomovethings();
 }
 
-void fakedomovethings(void)
+static void fakedomovethings(void)
 {
     input *syn;
     struct player_struct *p;
@@ -11075,12 +11134,10 @@ ENDFAKEPROCESSINPUT:
     sprite[p->i].cstat = backcstat;
 }
 
-char domovethings(void)
+static char domovethings(void)
 {
-    short i, j, k;
+    int i, j;
     char ch;
-
-    long p;
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
         if (sync[i].bits&(1<<17))
@@ -11302,35 +11359,7 @@ char domovethings(void)
     }
 
     if (ud.pause_on == 0)
-    {
-
-        movefta();              //ST 2
-        moveweapons();          //ST 5 (must be last)
-        movetransports();       //ST 9
-
-        moveplayers();          //ST 10
-        movefallers();          //ST 12
-        moveexplosions();       //ST 4
-
-        moveactors();           //ST 1
-        moveeffectors();        //ST 3
-
-        movestandables();       //ST 6
-
-        for (k=0;k<MAXSTATUS;k++)
-        {
-            i = headspritestat[k];
-            while (i >= 0)
-            {
-                j = nextspritestat[i];
-                OnEvent(EVENT_GAME,i, findplayer(&sprite[i],&p), p);
-                i = j;
-            }
-        }
-
-        doanimations();
-        movefx();               //ST 11
-    }
+        moveobjects();
 
     fakedomovethingscorrect();
 
@@ -11349,7 +11378,7 @@ char domovethings(void)
     return 0;
 }
 
-void doorders(void)
+static void doorders(void)
 {
     setview(0,0,xdim-1,ydim-1);
 
@@ -12117,7 +12146,7 @@ FRAGBONUS:
     }
 }
 
-void cameratext(short i)
+static void cameratext(short i)
 {
     char flipbits;
     long x , y;
@@ -12140,6 +12169,7 @@ void cameratext(short i)
     }
 }
 
+#if 0
 void vglass(long x,long y,short a,short wn,short n)
 {
     long z, zincs;
@@ -12152,6 +12182,7 @@ void vglass(long x,long y,short a,short wn,short n)
     for (z = sector[sect].ceilingz;z < sector[sect].floorz; z += zincs)
         EGS(sect,x,y,z-(TRAND&8191),GLASSPIECES+(z&(TRAND%3)),-32,36,36,a+128-(TRAND&255),16+(TRAND&31),0,-1,5);
 }
+#endif
 
 void lotsofglass(short i,short wallnum,short n)
 {
@@ -12279,7 +12310,7 @@ void lotsofcolourglass(short i,short wallnum,short n)
     }
 }
 
-void SetupGameButtons(void)
+static void SetupGameButtons(void)
 {
     CONTROL_DefineFlag(gamefunc_Move_Forward,false);
     CONTROL_DefineFlag(gamefunc_Move_Backward,false);
@@ -12348,6 +12379,7 @@ long GetTime(void)
     return totalclock;
 }
 
+#if 0
 /*
 ===================
 =
@@ -12412,4 +12444,4 @@ void CenterRudder(void)
 {
     initprintf("Center the rudder control and press a button\n");
 }
-
+#endif

@@ -280,45 +280,6 @@ void checkavailweapon(struct player_struct *p)
     else p->weapon_pos   = -1;
 }
 
-long ifsquished(short i, short p)
-{
-    sectortype *sc;
-    char squishme;
-    long floorceildist;
-
-    if (PN == APLAYER && ud.clipping)
-        return 0;
-
-    sc = &sector[SECT];
-    floorceildist = sc->floorz - sc->ceilingz;
-
-    if (sc->lotag != 23)
-    {
-        if (sprite[i].pal == 1)
-            squishme = floorceildist < (32<<8) && (sc->lotag&32768) == 0;
-        else
-            squishme = floorceildist < (12<<8); // && (sc->lotag&32768) == 0;
-    }
-    else squishme = 0;
-
-    if (squishme)
-    {
-        FTA(10,&ps[p]);
-
-        if (badguy(&sprite[i])) sprite[i].xvel = 0;
-
-        if (sprite[i].pal == 1)
-        {
-            hittype[i].picnum = SHOTSPARK1;
-            hittype[i].extra = 1;
-            return 0;
-        }
-
-        return 1;
-    }
-    return 0;
-}
-
 void hitradius(short i, long  r, long  hp1, long  hp2, long  hp3, long  hp4)
 {
     spritetype *s,*sj;
@@ -751,7 +712,7 @@ void clearsectinterpolate(short i)
     }
 }
 
-void ms(short i)
+static void ms(short i)
 {
     //T1,T2 and T3 are used for all the sector moving stuff!!!
 
@@ -782,7 +743,7 @@ void ms(short i)
     }
 }
 
-void movefta(void)
+static void movefta(void)
 {
     long x, px, py, sx, sy;
     short i, j, p, psect, ssect, nexti;
@@ -1074,7 +1035,7 @@ BOLT:
 }
 
 short otherp;
-void moveplayers(void) //Players
+static void moveplayers(void) //Players
 {
     short i , nexti;
     long otherx;
@@ -1210,7 +1171,7 @@ BOLT:
     }
 }
 
-void movefx(void)
+static void movefx(void)
 {
     short i, j, nexti, p;
     long x, ht;
@@ -1310,7 +1271,7 @@ BOLT:
     }
 }
 
-void movefallers(void)
+static void movefallers(void)
 {
     short i, nexti, sect, j;
     spritetype *s;
@@ -1408,7 +1369,7 @@ BOLT:
     }
 }
 
-void movestandables(void)
+static void movestandables(void)
 {
     short i, j, k, m, nexti, nextj, p=0, sect;
     long l=0, x, *t;
@@ -2354,7 +2315,7 @@ BOLT:
     }
 }
 
-void bounce(short i)
+static void bounce(short i)
 {
     long k, l, daang, dax, day, daz, xvect, yvect, zvect;
     short hitsect;
@@ -2394,7 +2355,7 @@ void bounce(short i)
     s->ang = getangle(xvect,yvect);
 }
 
-void moveweapons(void)
+static void moveweapons(void)
 {
     short i, j=0, k, f, nexti, p, q;
     long dax,day,daz, x, ll;
@@ -3192,7 +3153,7 @@ BOLT:
     }
 }
 
-void movetransports(void)
+static void movetransports(void)
 {
     char warpspriteto;
     short i, j, k, l, p, sect, sectlotag, nexti, nextj;
@@ -3528,7 +3489,7 @@ BOLT:
     }
 }
 
-void moveactors(void)
+static void moveactors(void)
 {
     long x, m, l, *t;
     short a, i, j, nexti, nextj, sect, p;
@@ -4851,7 +4812,7 @@ BOLT:
 
 }
 
-void moveexplosions(void)  // STATNUM 5
+static void moveexplosions(void)  // STATNUM 5
 {
     short i, j, nexti, sect, p;
     long l, x, *t;
@@ -5415,7 +5376,7 @@ BOLT:
     }
 }
 
-void moveeffectors(void)   //STATNUM 3
+static void moveeffectors(void)   //STATNUM 3
 {
     long q=0, l, m, x, st, j, *t;
     short i, k, nexti, nextk, p, sh, nextj;
@@ -7649,5 +7610,37 @@ BOLT:
         wal = &wall[sc->wallptr+2];
         alignflorslope(s->sectnum,wal->x,wal->y,sector[wal->nextsector].floorz);
     }
+}
+
+void moveobjects(void)
+{
+    int k;
+
+    movefta();              //ST 2
+    moveweapons();          //ST 5 (must be last)
+    movetransports();       //ST 9
+
+    moveplayers();          //ST 10
+    movefallers();          //ST 12
+    moveexplosions();       //ST 4
+
+    moveactors();           //ST 1
+    moveeffectors();        //ST 3
+
+    movestandables();       //ST 6
+
+    for (k=0;k<MAXSTATUS;k++)
+    {
+        int i = headspritestat[k];
+        while (i >= 0)
+        {
+            int p, j = nextspritestat[i];
+            OnEvent(EVENT_GAME,i, findplayer(&sprite[i],(long *)&p), p);
+            i = j;
+        }
+    }
+
+    doanimations();
+    movefx();               //ST 11
 }
 

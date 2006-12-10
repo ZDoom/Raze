@@ -34,7 +34,7 @@ static spritetype *g_sp;
 
 extern int32 scripthandle;
 
-void DoUserDef(char bSet, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer)
+static void DoUserDef(char bSet, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer)
 {
     long lValue;
 
@@ -809,7 +809,7 @@ void DoUserDef(char bSet, const long *lLabelID, const long *lVar2, const long *s
     return;
 }
 
-void DoThisProjectile(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer)
+static void DoThisProjectile(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer)
 {
     long lValue,proj;
 
@@ -1028,7 +1028,7 @@ void DoThisProjectile(char bSet, const long *lVar1, const long *lLabelID, const 
     return;
 }
 
-void DoPlayer(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer, const long *lParm2)
+static void DoPlayer(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer, const long *lParm2)
 {
     int iPlayer;
     long lValue;
@@ -2056,7 +2056,7 @@ void DoPlayer(char bSet, const long *lVar1, const long *lLabelID, const long *lV
     return;
 }
 
-void DoInput(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer)
+static void DoInput(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer)
 {
     int iPlayer;
     long lValue;
@@ -2123,7 +2123,7 @@ void DoInput(char bSet, const long *lVar1, const long *lLabelID, const long *lVa
     return;
 }
 
-void DoWall(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer)
+static void DoWall(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer)
 {
     int iWall;
     long lValue;
@@ -2261,7 +2261,7 @@ void DoWall(char bSet, const long *lVar1, const long *lLabelID, const long *lVar
     return;
 }
 
-void DoSector(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer)
+static void DoSector(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer)
 {
     int iSector;
     long lValue;
@@ -2439,7 +2439,7 @@ void DoSector(char bSet, const long *lVar1, const long *lLabelID, const long *lV
     return;
 }
 
-void DoActor(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer, const long *lParm2)
+static void DoActor(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer, const long *lParm2)
 {
     int iActor;
     long lValue;
@@ -2794,7 +2794,7 @@ void DoActor(char bSet, const long *lVar1, const long *lLabelID, const long *lVa
     return;
 }
 
-void DoProjectile(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer)
+static void DoProjectile(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *sActor, const long *sPlayer)
 {
     long lValue,proj;
 
@@ -3010,6 +3010,8 @@ void DoProjectile(char bSet, const long *lVar1, const long *lLabelID, const long
     return;
 }
 
+static char parse(void);
+
 void OnEvent(int iEventID, short sActor,short sPlayer,long lDist)
 {
     short og_i,og_p;
@@ -3081,7 +3083,46 @@ void OnEvent(int iEventID, short sActor,short sPlayer,long lDist)
     //AddLog("End of Execution");
 }
 
-char dodge(spritetype *s)
+static long ifsquished(short i, short p)
+{
+    sectortype *sc;
+    char squishme;
+    long floorceildist;
+
+    if (PN == APLAYER && ud.clipping)
+        return 0;
+
+    sc = &sector[SECT];
+    floorceildist = sc->floorz - sc->ceilingz;
+
+    if (sc->lotag != 23)
+    {
+        if (sprite[i].pal == 1)
+            squishme = floorceildist < (32<<8) && (sc->lotag&32768) == 0;
+        else
+            squishme = floorceildist < (12<<8); // && (sc->lotag&32768) == 0;
+    }
+    else squishme = 0;
+
+    if (squishme)
+    {
+        FTA(10,&ps[p]);
+
+        if (badguy(&sprite[i])) sprite[i].xvel = 0;
+
+        if (sprite[i].pal == 1)
+        {
+            hittype[i].picnum = SHOTSPARK1;
+            hittype[i].extra = 1;
+            return 0;
+        }
+
+        return 1;
+    }
+    return 0;
+}
+
+static char dodge(spritetype *s)
 {
     short i;
     long bx,by,mx,my,bxvect,byvect,mxvect,myvect,d;
@@ -3281,7 +3322,7 @@ short getincangle(short a,short na)
     }
 }
 
-void alterang(short a)
+static void alterang(short a)
 {
     short aang, angdif, goalang,j;
     long ticselapsed, *moveptr;
@@ -3351,7 +3392,7 @@ void alterang(short a)
     }
 }
 
-void move()
+static void move(void)
 {
     long l, *moveptr;
     short a, goalang, angdif;
@@ -3547,9 +3588,7 @@ void move()
     }
 }
 
-char parse(void);
-
-void parseifelse(long condition)
+static void parseifelse(long condition)
 {
     if (condition)
     {
@@ -3572,7 +3611,7 @@ void parseifelse(long condition)
 
 // long *it = 0x00589a04;
 
-char parse(void)
+static char parse(void)
 {
     long j, l, s, tw;
 
