@@ -53,14 +53,7 @@ void setpal(struct player_struct *p)
     restorepalette = 1;
 }
 
-void fadepal(int r, int g, int b, int start, int end, int step)
-{
-    if (getrendermode() >= 3) return;
-    if (step > 0) for (; start < end; start += step) palto(r,g,b,start);
-    else for (; start >= end; start += step) palto(r,g,b,start);
-}
-
-void incur_damage(struct player_struct *p)
+static void incur_damage(struct player_struct *p)
 {
     long damage = 0L, shield_damage = 0L;
 
@@ -112,19 +105,7 @@ void quickkill(struct player_struct *p)
     return;
 }
 
-void forceplayerangle(struct player_struct *p)
-{
-    short n;
-
-    n = 128-(TRAND&255);
-
-    p->horiz += 64;
-    p->return_to_center = 9;
-    p->look_ang = n>>1;
-    p->rotscrnang = n>>1;
-}
-
-void tracers(long x1,long y1,long z1,long x2,long y2,long z2,long n)
+static void tracers(long x1,long y1,long z1,long x2,long y2,long z2,long n)
 {
     long i, xv, yv, zv;
     short sect = -1;
@@ -208,56 +189,7 @@ long hits(short i)
     return (FindDistance2D(sx-SX,sy-SY));
 }
 
-long hitasprite(short i,short *hitsp)
-{
-    long sx,sy,sz,zoff;
-    short sect,hw;
-
-    if (badguy(&sprite[i]))
-        zoff = (42<<8);
-    else if (PN == APLAYER) zoff = (39<<8);
-    else zoff = 0;
-
-    hitscan(SX,SY,SZ-zoff,SECT,
-            sintable[(SA+512)&2047],
-            sintable[SA&2047],
-            0,&sect,&hw,hitsp,&sx,&sy,&sz,CLIPMASK1);
-
-    if (hw >= 0 && (wall[hw].cstat&16) && badguy(&sprite[i]))
-        return((1<<30));
-
-    return (FindDistance2D(sx-SX,sy-SY));
-}
-
-/*
-long hitaspriteandwall(short i,short *hitsp,short *hitw,short *x, short *y)
-{
-    long sz;
-    short sect;
-
-    hitscan(SX,SY,SZ,SECT,
-        sintable[(SA+512)&2047],
-        sintable[SA&2047],
-        0,&sect,hitw,hitsp,x,y,&sz,CLIPMASK1);
-
-    return ( FindDistance2D(*x-SX,*y-SY) );
-}
-*/
-
-long hitawall(struct player_struct *p,short *hitw)
-{
-    long sx,sy,sz;
-    short sect,hs;
-
-    hitscan(p->posx,p->posy,p->posz,p->cursectnum,
-            sintable[(p->ang+512)&2047],
-            sintable[p->ang&2047],
-            0,&sect,hitw,&hs,&sx,&sy,&sz,CLIPMASK0);
-
-    return (FindDistance2D(sx-p->posx,sy-p->posy));
-}
-
-short aim(spritetype *s,short aang,short atwith)
+static short aim(spritetype *s,short aang,short atwith)
 {
     char gotshrinker,gotfreezer;
     short i, j, a, k, cans;
@@ -331,12 +263,8 @@ short aim(spritetype *s,short aang,short atwith)
                                 if (sprite[i].xrepeat < 20) continue;
                                 continue;
                             }
-                            else if ((PN >= GREENSLIME)&&(PN <= GREENSLIME+7))
-                            {}
-                            else
-                            {
+                            else if (!(PN >= GREENSLIME && PN <= GREENSLIME+7))
                                 continue;
-                            }
                         }
                         if (gotfreezer && sprite[i].pal == 1) continue;
                     }
@@ -1866,7 +1794,7 @@ SKIPBULLETHOLE:
     return -1;
 }
 
-void displayloogie(short snum)
+static void displayloogie(short snum)
 {
     long i, a, x, y, z;
 
@@ -3055,7 +2983,7 @@ void getinput(short snum)
     loc.horz = horiz;
 }
 
-char doincrements(struct player_struct *p)
+static char doincrements(struct player_struct *p)
 {
     short snum;
 

@@ -94,22 +94,23 @@ unsigned char framerateon=1,tabgraphic=2,shadepreview=0,autosave=1,sidemode=0;
 extern long vel, svel, hvel, angvel;
 long xvel, yvel, timoff;
 
-void SearchSectorsForward();
-void SearchSectorsBackward();
-void SpriteName(short spritenum, char *lo2);
-int ActorMem(long i);
-void PrintStatus(char *string,int num,char x,char y,char color);
-void SetBOSS1Palette();
-void SetSLIMEPalette();
-void SetWATERPalette();
-void SetGAMEPalette();
-void kensetpalette(char *vgapal);
+static void SearchSectorsForward();
+static void SearchSectorsBackward();
+static inline void SpriteName(short spritenum, char *lo2);
+static int ActorMem(long i);
+static void PrintStatus(char *string,int num,char x,char y,char color);
+static void SetBOSS1Palette();
+static void SetSLIMEPalette();
+static void SetWATERPalette();
+static void SetGAMEPalette();
+static void kensetpalette(char *vgapal);
 
 extern short grid;
 
-extern void EditSpriteData(short spritenum);
-extern void EditWallData(short wallnum);
-extern void EditSectorData(short sectnum);
+static void EditSpriteData(short spritenum);
+static void EditWallData(short wallnum);
+static void EditSectorData(short sectnum);
+static void FuncMenu(void);
 
 char GAMEpalette[768];
 char WATERpalette[768];

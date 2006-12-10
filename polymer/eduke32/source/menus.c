@@ -71,6 +71,7 @@ void cmenu(short cm)
     lastprobey = -1;
 }
 
+#if 0
 void savetemp(char *fn,long daptr,long dasiz)
 {
     FILE *fp;
@@ -82,24 +83,7 @@ void savetemp(char *fn,long daptr,long dasiz)
 
     fclose(fp);
 }
-
-void getangplayers(short snum)
-{
-    short i,a;
-
-    for (i=connecthead;i>=0;i=connectpoint2[i])
-    {
-        if (i != snum)
-        {
-            a = ps[snum].ang+getangle(ps[i].posx-ps[snum].posx,ps[i].posy-ps[snum].posy);
-            a = a-1024;
-            rotatesprite(
-                (320<<15) + (((sintable[(a+512)&2047])>>7)<<15),
-                (320<<15) - (((sintable[a&2047])>>8)<<15),
-                klabs(sintable[((a>>1)+768)&2047]<<2),0,APLAYER,0,ps[i].palookup,0,0,0,xdim-1,ydim-1);
-        }
-    }
-}
+#endif
 
 #define LMB (buttonstat&1)
 #define RMB (buttonstat&2)
@@ -191,16 +175,17 @@ static int probe_(int type,int x,int y,int i,int n)
         else return(-probey-2);
     }
 }
-int probe(int x,int y,int i,int n)
+static inline int probe(int x,int y,int i,int n)
 {
     return probe_(0,x,y,i,n);
 }
-int probesm(int x,int y,int i,int n)
+
+static inline int probesm(int x,int y,int i,int n)
 {
     return probe_(1,x,y,i,n);
 }
 
-int menutext_(int x,int y,short s,short p,char *t)
+static int menutext_(int x,int y,short s,short p,char *t)
 {
     short i, ac, centre;
 
@@ -397,11 +382,11 @@ static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short 
         rotatesprite((x<<16)+((65-xloc)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
 }
 
-void bar(int x,int y,short *p,short dainc,char damodify,short s, short pa)
+static inline void bar(int x,int y,short *p,short dainc,char damodify,short s, short pa)
 {
     bar_(0,x,y,p,dainc,damodify,s,pa);
 }
-void barsm(int x,int y,short *p,short dainc,char damodify,short s, short pa)
+static inline void barsm(int x,int y,short *p,short dainc,char damodify,short s, short pa)
 {
     bar_(1,x,y,p,dainc,damodify,s,pa);
 }
@@ -485,7 +470,7 @@ static struct savehead savehead;
 //static char brdfn[BMAX_PATH];
 short lastsavedpos = -1;
 
-void dispnames(void)
+static void dispnames(void)
 {
     short x, c = 160;
 

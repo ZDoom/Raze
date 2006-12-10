@@ -157,23 +157,6 @@ void MusicUpdate(void)
     MUSIC_Update();
 }
 
-int USRHOOKS_GetMem(char **ptr, unsigned long size)
-{
-    *ptr = malloc(size);
-
-    if (*ptr == NULL)
-        return(USRHOOKS_Error);
-
-    return(USRHOOKS_Ok);
-
-}
-
-int USRHOOKS_FreeMem(char *ptr)
-{
-    free(ptr);
-    return(USRHOOKS_Ok);
-}
-
 unsigned char menunum=0;
 
 void intomenusounds(void)

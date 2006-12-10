@@ -251,7 +251,7 @@ static void cachegoodsprites(void)
     for (i=MORTER; i<MORTER+4; i++) tloadtile(i,4);
 }
 
-char getsound(unsigned short num)
+static char getsound(unsigned short num)
 {
     short fp;
     long   l;
@@ -296,6 +296,80 @@ static void precachenecessarysounds(void)
             }
             getsound(i);
         }
+}
+
+static void dofrontscreens(char *statustext)
+{
+    long i=0,j;
+
+    if (ud.recstat != 2)
+    {
+        if (!statustext)
+        {
+            //ps[myconnectindex].palette = palette;
+            setgamepalette(&ps[myconnectindex], palette, 1);    // JBF 20040308
+            fadepal(0,0,0, 0,64,7);
+            i = ud.screen_size;
+            ud.screen_size = 0;
+            vscrn();
+            clearview(0L);
+        }
+
+        SetGameVarID(g_iReturnVarID,LOADSCREEN, -1, -1);
+        OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
+        j = GetGameVarID(g_iReturnVarID, -1, -1);
+        rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
+        if (j > MAXTILES-1)
+        {
+            nextpage();
+            return;
+        }
+        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
+        {
+            menutext(160,90,0,0,"ENTERING USER MAP");
+            gametextpal(160,90+10,boardfilename,14,2);
+        }
+        else
+        {
+            menutext(160,90,0,0,"ENTERING");
+            if (level_names[(ud.volume_number*MAXLEVELS) + ud.level_number] != NULL)
+                menutext(160,90+16+8,0,0,level_names[(ud.volume_number*MAXLEVELS) + ud.level_number]);
+        }
+
+        if (statustext) gametext(160,180,statustext,0,2+8+16);
+
+        nextpage();
+
+        if (!statustext)
+        {
+            fadepal(0,0,0, 63,0,-7);
+
+            KB_FlushKeyboardQueue();
+            ud.screen_size = i;
+        }
+    }
+    else
+    {
+        if (!statustext)
+        {
+            clearview(0L);
+            //ps[myconnectindex].palette = palette;
+            //palto(0,0,0,0);
+            setgamepalette(&ps[myconnectindex], palette, 0);    // JBF 20040308
+        }
+        SetGameVarID(g_iReturnVarID,LOADSCREEN, -1, -1);
+        OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
+        j = GetGameVarID(g_iReturnVarID, -1, -1);
+        rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
+        if (j > MAXTILES-1)
+        {
+            nextpage();
+            return;
+        }
+        menutext(160,105,0,0,"LOADING...");
+        if (statustext) gametext(160,180,statustext,0,2+8+16);
+        nextpage();
+    }
 }
 
 void cacheit(void)
@@ -1413,80 +1487,6 @@ void waitforeverybody()
     }
 }
 
-void dofrontscreens(char *statustext)
-{
-    long i=0,j;
-
-    if (ud.recstat != 2)
-    {
-        if (!statustext)
-        {
-            //ps[myconnectindex].palette = palette;
-            setgamepalette(&ps[myconnectindex], palette, 1);    // JBF 20040308
-            fadepal(0,0,0, 0,64,7);
-            i = ud.screen_size;
-            ud.screen_size = 0;
-            vscrn();
-            clearview(0L);
-        }
-
-        SetGameVarID(g_iReturnVarID,LOADSCREEN, -1, -1);
-        OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
-        j = GetGameVarID(g_iReturnVarID, -1, -1);
-        rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
-        if (j > MAXTILES-1)
-        {
-            nextpage();
-            return;
-        }
-        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
-        {
-            menutext(160,90,0,0,"ENTERING USER MAP");
-            gametextpal(160,90+10,boardfilename,14,2);
-        }
-        else
-        {
-            menutext(160,90,0,0,"ENTERING");
-            if (level_names[(ud.volume_number*MAXLEVELS) + ud.level_number] != NULL)
-                menutext(160,90+16+8,0,0,level_names[(ud.volume_number*MAXLEVELS) + ud.level_number]);
-        }
-
-        if (statustext) gametext(160,180,statustext,0,2+8+16);
-
-        nextpage();
-
-        if (!statustext)
-        {
-            fadepal(0,0,0, 63,0,-7);
-
-            KB_FlushKeyboardQueue();
-            ud.screen_size = i;
-        }
-    }
-    else
-    {
-        if (!statustext)
-        {
-            clearview(0L);
-            //ps[myconnectindex].palette = palette;
-            //palto(0,0,0,0);
-            setgamepalette(&ps[myconnectindex], palette, 0);    // JBF 20040308
-        }
-        SetGameVarID(g_iReturnVarID,LOADSCREEN, -1, -1);
-        OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
-        j = GetGameVarID(g_iReturnVarID, -1, -1);
-        rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
-        if (j > MAXTILES-1)
-        {
-            nextpage();
-            return;
-        }
-        menutext(160,105,0,0,"LOADING...");
-        if (statustext) gametext(160,180,statustext,0,2+8+16);
-        nextpage();
-    }
-}
-
 extern char jump_input;
 
 void clearfifo(void)
@@ -1535,6 +1535,21 @@ extern void adduserquote(char *daquote);
 
 extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting, vote_map, vote_episode;
 
+static void get_level_from_filename(char *fn, int *volume, int *level)
+{
+    for ((*volume)=0;(*volume)<MAXVOLUMES;(*volume)++)
+    {
+        for ((*level)=0;(*level)<MAXLEVELS;(*level)++)
+        {
+            if (level_file_names[((*volume)*MAXLEVELS)+(*level)] != NULL)
+                if (!Bstrcasecmp(fn, level_file_names[((*volume)*MAXLEVELS)+(*level)]))
+                    break;
+        }
+        if ((*level) != MAXLEVELS)
+            break;
+    }
+}
+
 int enterlevel(char g)
 {
     short i;
@@ -1572,9 +1587,9 @@ int enterlevel(char g)
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
         int volume, level;
-        
+
         get_level_from_filename(boardfilename,&volume,&level);
-        
+
         if (level != MAXLEVELS)
         {
             ud.level_number = ud.m_level_number = level;

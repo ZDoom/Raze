@@ -510,137 +510,6 @@ void getpackets(void)
 #endif
         switch (packbuf[0])
         {
-        case 254:
-            //slaves in M/S mode only send to master
-            if (myconnectindex == connecthead)
-            {
-                //Master re-transmits message to all others
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other)
-                        sendpacket(i,packbuf,packbufleng);
-            }
-            /*
-                        j = packbuf[1];
-                        playerquitflag[j] = 0;
-
-                        j = -1;
-                        for(i=connecthead;i>=0;i=connectpoint2[i])
-                        {
-                            if (playerquitflag[i]) { j = i; continue; }
-
-                            if (i == connecthead) connecthead = connectpoint2[connecthead];
-                            else connectpoint2[j] = connectpoint2[i];
-
-                            numplayers--;
-                            ud.multimode--;
-
-                            Bsprintf(buf,"%s is history!",ud.user_name[i]);
-                            adduserquote(buf);
-
-                            if (numplayers < 2)
-                                sound(GENERIC_AMBIENCE17);
-
-                            if(i == 0 && networkmode == 0) */
-            gameexit("Game aborted from menu; disconnected.");
-            //            }
-
-            break;
-
-        case 9:
-            //slaves in M/S mode only send to master
-            if (myconnectindex == connecthead)
-            {
-                //Master re-transmits message to all others
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other)
-                        sendpacket(i,packbuf,packbufleng);
-            }
-
-            Bstrcpy(boardfilename,packbuf+1);
-            boardfilename[packbufleng-1] = 0;
-            if (boardfilename[0] != 0)
-            {
-                if ((i = kopen4load(boardfilename,0)) < 0)
-                {
-                    Bmemset(boardfilename,0,sizeof(boardfilename));
-                    sendboardname();
-                }
-                else kclose(i);
-            }
-
-            if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
-                ud.m_level_number = 0;
-
-            break;
-
-        case 18: // map vote
-
-            if (myconnectindex == connecthead)
-            {
-                //Master re-transmits message to all others
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other)
-                        sendpacket(i,packbuf,packbufleng);
-            }
-
-            switch (packbuf[1])
-            {
-            case 0:
-                if (voting == myconnectindex && gotvote[(unsigned char)packbuf[2]] == 0)
-                {
-                    gotvote[(unsigned char)packbuf[2]] = 1;
-                    votes[(unsigned char)packbuf[2]] = packbuf[3];
-                    Bsprintf(tempbuf,"GOT VOTE FROM %s",ud.user_name[(unsigned char)packbuf[2]]);
-                    adduserquote(tempbuf);
-                }
-                break;
-
-            case 1: // call map vote
-                voting = packbuf[2];
-                vote_episode = packbuf[3];
-                vote_map = packbuf[4];
-                Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[(unsigned char)packbuf[2]],level_names[(unsigned char)(packbuf[3]*MAXLEVELS + packbuf[4])],packbuf[3]+1,packbuf[4]+1);
-                adduserquote(tempbuf);
-                Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
-                adduserquote(tempbuf);
-                Bmemset(votes,0,sizeof(votes));
-                Bmemset(gotvote,0,sizeof(gotvote));
-                gotvote[voting] = votes[voting] = 1;
-                break;
-
-            case 2: // cancel map vote
-                if (voting == packbuf[2])
-                {
-                    voting = -1;
-                    i = 0;
-                    for (j=0;j<MAXPLAYERS;j++)
-                        i += gotvote[j];
-
-                    if (i != numplayers)
-                        Bsprintf(tempbuf,"%s^00 HAS CANCELED THE VOTE",ud.user_name[(unsigned char)packbuf[2]]);
-                    else Bsprintf(tempbuf,"VOTE FAILED");
-                    Bmemset(votes,0,sizeof(votes));
-                    Bmemset(gotvote,0,sizeof(gotvote));
-                    adduserquote(tempbuf);
-                }
-                break;
-            }
-            break;
-
-        case 126:
-            //Slaves in M/S mode only send to master
-            //Master re-transmits message to all others
-            if ((!networkmode) && (myconnectindex == connecthead))
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other) sendpacket(i,packbuf,packbufleng);
-
-            multiflag = 2;
-            multiwhat = 0;
-            multiwho = packbuf[2]; //other: need to send in m/s mode because of possible re-transmit
-            multipos = packbuf[1];
-            loadplayer(multipos);
-            multiflag = 0;
-            break;
         case 0:  //[0] (receive master sync buffer)
             j = 1;
 
@@ -748,134 +617,6 @@ void getpackets(void)
 
             break;
 
-        case 4:
-            //slaves in M/S mode only send to master
-            if ((!networkmode) && (myconnectindex == connecthead))
-            {
-                if (packbuf[1] == 255)
-                {
-                    //Master re-transmits message to all others
-                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                        if (i != other)
-                            sendpacket(i,packbuf,packbufleng);
-                }
-                else if (((long)packbuf[1]) != myconnectindex)
-                {
-                    //Master re-transmits message not intended for master
-                    sendpacket((long)packbuf[1],packbuf,packbufleng);
-                    break;
-                }
-            }
-
-            Bstrcpy(recbuf,packbuf+2);
-            recbuf[packbufleng-2] = 0;
-
-            adduserquote(recbuf);
-            sound(EXITMENUSOUND);
-
-            pus = NUMPAGES;
-            pub = NUMPAGES;
-
-            break;
-
-        case 5:
-            //Slaves in M/S mode only send to master
-            //Master re-transmits message to all others
-            if ((!networkmode) && (myconnectindex == connecthead))
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other) sendpacket(i,packbuf,packbufleng);
-
-            if (vote_map != -1 || vote_episode != -1 || voting != -1)
-                adduserquote("VOTE SUCCEEDED");
-
-            ud.m_level_number = ud.level_number = packbuf[1];
-            ud.m_volume_number = ud.volume_number = packbuf[2];
-            ud.m_player_skill = ud.player_skill = packbuf[3];
-            ud.m_monsters_off = ud.monsters_off = packbuf[4];
-            ud.m_respawn_monsters = ud.respawn_monsters = packbuf[5];
-            ud.m_respawn_items = ud.respawn_items = packbuf[6];
-            ud.m_respawn_inventory = ud.respawn_inventory = packbuf[7];
-            ud.m_coop = packbuf[8];
-            ud.m_marker = ud.marker = packbuf[9];
-            ud.m_ffire = ud.ffire = packbuf[10];
-            ud.m_noexits = ud.noexits = packbuf[11];
-
-            for (i=connecthead;i>=0;i=connectpoint2[i])
-            {
-                resetweapons(i);
-                resetinventory(i);
-            }
-
-            newgame(ud.volume_number,ud.level_number,ud.player_skill);
-            ud.coop = ud.m_coop;
-
-            if (enterlevel(MODE_GAME)) backtomenu();
-
-            break;
-        case 6:
-            //slaves in M/S mode only send to master
-            //Master re-transmits message to all others
-            if ((!networkmode) && (myconnectindex == connecthead))
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other) sendpacket(i,packbuf,packbufleng);
-
-            if (packbuf[2] != BYTEVERSION)
-                gameexit("\nYou cannot play Duke with different versions.");
-
-            other = packbuf[1];
-
-            for (i=3;packbuf[i];i++)
-                ud.user_name[other][i-3] = packbuf[i];
-            ud.user_name[other][i-3] = 0;
-            i++;
-
-            ps[other].aim_mode = packbuf[i++];
-            ps[other].auto_aim = packbuf[i++];
-            ps[other].weaponswitch = packbuf[i++];
-            ps[other].palookup = ud.pcolor[other] = packbuf[i++];
-            ud.pteam[other] = packbuf[i++];
-
-            /*            if(ps[other].team != j && sprite[ps[other].i].picnum == APLAYER)
-                        {
-                            hittype[ps[other].i].extra = 1000;
-                            hittype[ps[other].i].picnum = APLAYERTOP;
-                        } */
-
-            break;
-        case 10:
-            //slaves in M/S mode only send to master
-            //Master re-transmits message to all others
-            if ((!networkmode) && (myconnectindex == connecthead))
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other) sendpacket(i,packbuf,packbufleng);
-
-            other = packbuf[1];
-
-            i = 2;
-
-            j = i; //This used to be Duke packet #9... now concatenated with Duke packet #6
-            for (;i-j<10;i++) ud.wchoice[other][i-j] = packbuf[i];
-
-            break;
-        case 7:
-            //slaves in M/S mode only send to master
-            //Master re-transmits message to all others
-            if ((!networkmode) && (myconnectindex == connecthead))
-                for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    if (i != other) sendpacket(i,packbuf,packbufleng);
-
-            if (numlumps == 0) break;
-
-            if (SoundToggle == 0 || ud.lockout == 1 || FXDevice < 0)
-                break;
-            rtsptr = (char *)RTS_GetSound(packbuf[1]-1);
-            if (*rtsptr == 'C')
-                FX_PlayVOC3D(rtsptr,0,0,0,255,-packbuf[1]);
-            else
-                FX_PlayWAV3D(rtsptr,0,0,0,255,-packbuf[1]);
-            rtsplaying = 7;
-            break;
-
         case 16:
             movefifoend[other] = movefifoplc = movefifosendplc = fakemovefifoplc = 0;
             syncvalhead[other] = syncvaltottail = 0L;
@@ -938,6 +679,270 @@ void getpackets(void)
             break;
         case 255:
             gameexit(" ");
+            break;
+        default:
+            switch (packbuf[0])
+            {
+            case 4:
+                //slaves in M/S mode only send to master
+                if ((!networkmode) && (myconnectindex == connecthead))
+                {
+                    if (packbuf[1] == 255)
+                    {
+                        //Master re-transmits message to all others
+                        for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                            if (i != other)
+                                sendpacket(i,packbuf,packbufleng);
+                    }
+                    else if (((long)packbuf[1]) != myconnectindex)
+                    {
+                        //Master re-transmits message not intended for master
+                        sendpacket((long)packbuf[1],packbuf,packbufleng);
+                        break;
+                    }
+                }
+
+                Bstrcpy(recbuf,packbuf+2);
+                recbuf[packbufleng-2] = 0;
+
+                adduserquote(recbuf);
+                sound(EXITMENUSOUND);
+
+                pus = NUMPAGES;
+                pub = NUMPAGES;
+
+                break;
+
+            case 5:
+                //Slaves in M/S mode only send to master
+                //Master re-transmits message to all others
+                if ((!networkmode) && (myconnectindex == connecthead))
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other) sendpacket(i,packbuf,packbufleng);
+
+                if (vote_map != -1 || vote_episode != -1 || voting != -1)
+                    adduserquote("VOTE SUCCEEDED");
+
+                ud.m_level_number = ud.level_number = packbuf[1];
+                ud.m_volume_number = ud.volume_number = packbuf[2];
+                ud.m_player_skill = ud.player_skill = packbuf[3];
+                ud.m_monsters_off = ud.monsters_off = packbuf[4];
+                ud.m_respawn_monsters = ud.respawn_monsters = packbuf[5];
+                ud.m_respawn_items = ud.respawn_items = packbuf[6];
+                ud.m_respawn_inventory = ud.respawn_inventory = packbuf[7];
+                ud.m_coop = packbuf[8];
+                ud.m_marker = ud.marker = packbuf[9];
+                ud.m_ffire = ud.ffire = packbuf[10];
+                ud.m_noexits = ud.noexits = packbuf[11];
+
+                for (i=connecthead;i>=0;i=connectpoint2[i])
+                {
+                    resetweapons(i);
+                    resetinventory(i);
+                }
+
+                newgame(ud.volume_number,ud.level_number,ud.player_skill);
+                ud.coop = ud.m_coop;
+
+                if (enterlevel(MODE_GAME)) backtomenu();
+
+                break;
+            case 6:
+                //slaves in M/S mode only send to master
+                //Master re-transmits message to all others
+                if ((!networkmode) && (myconnectindex == connecthead))
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other) sendpacket(i,packbuf,packbufleng);
+
+                if (packbuf[2] != BYTEVERSION)
+                    gameexit("\nYou cannot play Duke with different versions.");
+
+                other = packbuf[1];
+
+                for (i=3;packbuf[i];i++)
+                    ud.user_name[other][i-3] = packbuf[i];
+                ud.user_name[other][i-3] = 0;
+                i++;
+
+                ps[other].aim_mode = packbuf[i++];
+                ps[other].auto_aim = packbuf[i++];
+                ps[other].weaponswitch = packbuf[i++];
+                ps[other].palookup = ud.pcolor[other] = packbuf[i++];
+                ud.pteam[other] = packbuf[i++];
+
+                /*            if(ps[other].team != j && sprite[ps[other].i].picnum == APLAYER)
+                            {
+                                hittype[ps[other].i].extra = 1000;
+                                hittype[ps[other].i].picnum = APLAYERTOP;
+                            } */
+
+                break;
+            case 10:
+                //slaves in M/S mode only send to master
+                //Master re-transmits message to all others
+                if ((!networkmode) && (myconnectindex == connecthead))
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other) sendpacket(i,packbuf,packbufleng);
+
+                other = packbuf[1];
+
+                i = 2;
+
+                j = i; //This used to be Duke packet #9... now concatenated with Duke packet #6
+                for (;i-j<10;i++) ud.wchoice[other][i-j] = packbuf[i];
+
+                break;
+            case 7:
+                //slaves in M/S mode only send to master
+                //Master re-transmits message to all others
+                if ((!networkmode) && (myconnectindex == connecthead))
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other) sendpacket(i,packbuf,packbufleng);
+
+                if (numlumps == 0) break;
+
+                if (SoundToggle == 0 || ud.lockout == 1 || FXDevice < 0)
+                    break;
+                rtsptr = (char *)RTS_GetSound(packbuf[1]-1);
+                if (*rtsptr == 'C')
+                    FX_PlayVOC3D(rtsptr,0,0,0,255,-packbuf[1]);
+                else
+                    FX_PlayWAV3D(rtsptr,0,0,0,255,-packbuf[1]);
+                rtsplaying = 7;
+                break;
+
+            case 254:
+                //slaves in M/S mode only send to master
+                if (myconnectindex == connecthead)
+                {
+                    //Master re-transmits message to all others
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other)
+                            sendpacket(i,packbuf,packbufleng);
+                }
+                /*
+                            j = packbuf[1];
+                            playerquitflag[j] = 0;
+
+                            j = -1;
+                            for(i=connecthead;i>=0;i=connectpoint2[i])
+                            {
+                                if (playerquitflag[i]) { j = i; continue; }
+
+                                if (i == connecthead) connecthead = connectpoint2[connecthead];
+                                else connectpoint2[j] = connectpoint2[i];
+
+                                numplayers--;
+                                ud.multimode--;
+
+                                Bsprintf(buf,"%s is history!",ud.user_name[i]);
+                                adduserquote(buf);
+
+                                if (numplayers < 2)
+                                    sound(GENERIC_AMBIENCE17);
+
+                                if(i == 0 && networkmode == 0) */
+                gameexit("Game aborted from menu; disconnected.");
+                //            }
+
+                break;
+
+            case 9:
+                //slaves in M/S mode only send to master
+                if (myconnectindex == connecthead)
+                {
+                    //Master re-transmits message to all others
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other)
+                            sendpacket(i,packbuf,packbufleng);
+                }
+
+                Bstrcpy(boardfilename,packbuf+1);
+                boardfilename[packbufleng-1] = 0;
+                if (boardfilename[0] != 0)
+                {
+                    if ((i = kopen4load(boardfilename,0)) < 0)
+                    {
+                        Bmemset(boardfilename,0,sizeof(boardfilename));
+                        sendboardname();
+                    }
+                    else kclose(i);
+                }
+
+                if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
+                    ud.m_level_number = 0;
+
+                break;
+
+            case 18: // map vote
+
+                if (myconnectindex == connecthead)
+                {
+                    //Master re-transmits message to all others
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other)
+                            sendpacket(i,packbuf,packbufleng);
+                }
+
+                switch (packbuf[1])
+                {
+                case 0:
+                    if (voting == myconnectindex && gotvote[(unsigned char)packbuf[2]] == 0)
+                    {
+                        gotvote[(unsigned char)packbuf[2]] = 1;
+                        votes[(unsigned char)packbuf[2]] = packbuf[3];
+                        Bsprintf(tempbuf,"GOT VOTE FROM %s",ud.user_name[(unsigned char)packbuf[2]]);
+                        adduserquote(tempbuf);
+                    }
+                    break;
+
+                case 1: // call map vote
+                    voting = packbuf[2];
+                    vote_episode = packbuf[3];
+                    vote_map = packbuf[4];
+                    Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[(unsigned char)packbuf[2]],level_names[(unsigned char)(packbuf[3]*MAXLEVELS + packbuf[4])],packbuf[3]+1,packbuf[4]+1);
+                    adduserquote(tempbuf);
+                    Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
+                    adduserquote(tempbuf);
+                    Bmemset(votes,0,sizeof(votes));
+                    Bmemset(gotvote,0,sizeof(gotvote));
+                    gotvote[voting] = votes[voting] = 1;
+                    break;
+
+                case 2: // cancel map vote
+                    if (voting == packbuf[2])
+                    {
+                        voting = -1;
+                        i = 0;
+                        for (j=0;j<MAXPLAYERS;j++)
+                            i += gotvote[j];
+
+                        if (i != numplayers)
+                            Bsprintf(tempbuf,"%s^00 HAS CANCELED THE VOTE",ud.user_name[(unsigned char)packbuf[2]]);
+                        else Bsprintf(tempbuf,"VOTE FAILED");
+                        Bmemset(votes,0,sizeof(votes));
+                        Bmemset(gotvote,0,sizeof(gotvote));
+                        adduserquote(tempbuf);
+                    }
+                    break;
+                }
+                break;
+
+            case 126:
+                //Slaves in M/S mode only send to master
+                //Master re-transmits message to all others
+                if ((!networkmode) && (myconnectindex == connecthead))
+                    for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
+                        if (i != other) sendpacket(i,packbuf,packbufleng);
+
+                multiflag = 2;
+                multiwhat = 0;
+                multiwho = packbuf[2]; //other: need to send in m/s mode because of possible re-transmit
+                multipos = packbuf[1];
+                loadplayer(multipos);
+                multiflag = 0;
+                break;
+            }
             break;
         }
     }
@@ -1813,23 +1818,6 @@ void txdigitalnumber(short starttile, long x,long y,long n,char s,char pal,char 
     }
 }
 
-/*
-
-void scratchmarks(long x,long y,long n,char s,char p)
-{
-    long i, ni;
-
-    ni = n/5;
-    for(i=ni;i >= 0;i--)
-    {
-        overwritesprite(x-2,y,SCRATCH+4,s,0,0);
-        x += tilesizx[SCRATCH+4]-1;
-    }
-
-    ni = n%5;
-    if(ni) overwritesprite(x,y,SCRATCH+ni-1,s,p,0);
-}
-  */
 static void displayinventory(struct player_struct *p)
 {
     short n, j, xoff, y;
@@ -2533,6 +2521,13 @@ void FTA(short q,struct player_struct *p)
     else OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,p->ftq);
 }
 
+void fadepal(int r, int g, int b, int start, int end, int step)
+{
+    if (getrendermode() >= 3) return;
+    if (step > 0) for (; start < end; start += step) palto(r,g,b,start);
+    else for (; start >= end; start += step) palto(r,g,b,start);
+}
+
 static void showtwoscreens(void)
 {
     if (!VOLUMEALL)
@@ -2564,20 +2559,6 @@ static void showtwoscreens(void)
         }
     }
 }
-/*
-void binscreen(void)
-{
-    long fil;
-#ifdef VOLUMEONE
-    fil = kopen4load("dukesw.bin",1);
-#else
-    fil = kopen4load("duke3d.bin",1);
-#endif
-    if(fil == -1) return;
-    kread(fil,(char *)0xb8000,4000);
-    kclose(fil);
-}
-*/
 
 extern long qsetmode;
 
@@ -4144,20 +4125,6 @@ void displayrooms(short snum,long smoothratio)
             p->visibility += (ud.const_visibility-p->visibility)>>2;
     }
     else p->visibility = ud.const_visibility;
-}
-
-short LocateTheLocator(short n,short sn)
-{
-    short i;
-
-    i = headspritestat[7];
-    while (i >= 0)
-    {
-        if ((sn == -1 || sn == SECT) && n == SLT)
-            return i;
-        i = nextspritestat[i];
-    }
-    return -1;
 }
 
 static void dumpdebugdata(void)
@@ -7194,7 +7161,7 @@ void CheatGetInventory(void)
 
 signed char cheatbuf[MAXCHEATLEN],cheatbuflen;
 
-void cheats(void)
+static void cheats(void)
 {
     short ch, i, j, k=0, weapon;
     static char z=0;
@@ -7703,7 +7670,7 @@ FOUNDCHEAT:
     }
 }
 
-void nonsharedkeys(void)
+static void nonsharedkeys(void)
 {
     short i,ch;
     long j;
@@ -8226,7 +8193,7 @@ FAKE_F3:
     }
 }
 
-void comlinehelp(void)
+static void comlinehelp(void)
 {
     char *s = "Command line help.\n"
               "?, -?\t\tThis help message\n"
@@ -8482,7 +8449,7 @@ int loadgroupfiles(char *fn)
     return 0;
 }
 
-void checkcommandline(int argc,char **argv)
+static void checkcommandline(int argc,char **argv)
 {
     short i, j;
     char *c;
@@ -9250,7 +9217,7 @@ void compilecons(void)
     OnEvent(EVENT_INIT, -1, -1, -1);
 }
 
-void sanitizegametype()
+static void sanitizegametype()
 {
     //    initprintf("ud.m_coop=%i before sanitization\n",ud.m_coop);
     if (ud.m_coop >= num_gametypes || ud.m_coop < 0)
@@ -9264,7 +9231,7 @@ void sanitizegametype()
     //     initprintf("ud.m_coop=%i after sanitisation\n",ud.m_coop);
 }
 
-void genspriteremaps(void)
+static void genspriteremaps(void)
 {
     long j,fp;
     signed char look_pos;
@@ -9287,14 +9254,10 @@ void genspriteremaps(void)
         tempbuf[j] = j;
     numl++;
     makepalookup(numl, tempbuf, 15, 15, 15, 1);
-    numl++;
-    makepalookup(numl, tempbuf, 15, 0, 0, 1);
-    numl++;
-    makepalookup(numl, tempbuf, 0, 15, 0, 1);
-    numl++;
-    makepalookup(numl, tempbuf, 0, 0, 15, 1);
+    makepalookup(numl + 1, tempbuf, 15, 0, 0, 1);
+    makepalookup(numl + 2, tempbuf, 0, 15, 0, 1);
+    makepalookup(numl + 3, tempbuf, 0, 0, 15, 1);
 
-    numl -= 3;
     kread(fp,&waterpal[0],768);
     kread(fp,&slimepal[0],768);
     kread(fp,&titlepal[0],768);
@@ -9311,7 +9274,7 @@ void genspriteremaps(void)
 extern int startwin_run(void);
 static void SetupGameButtons(void);
 
-void Startup(long argc, char **argv)
+static void Startup(long argc, char **argv)
 {
     int i;
 
@@ -9536,7 +9499,7 @@ void sendboardname(void)
     }
 }
 
-void getnames(void)
+static void getnames(void)
 {
     int l;
 
@@ -9588,6 +9551,7 @@ void updateplayer(void)
     }
 }
 
+#if 0
 void writestring(long a1,long a2,long a3,short a4,long vx,long vy,long vz)
 {
 
@@ -9598,11 +9562,12 @@ void writestring(long a1,long a2,long a3,short a4,long vx,long vy,long vz)
     fprintf(fp,"%ld %ld %ld %d %ld %ld %ld\n",a1,a2,a3,a4,vx,vy,vz);
     fclose(fp);
 }
+#endif
 
+#if 0
 char testcd(char *fn, long testsiz);
 
 // JBF: various hacks here
-#if 0
 static void copyprotect(void)
 {
     //    FILE *fp;
@@ -9649,21 +9614,6 @@ int load_script(char *szScript)
         return 0;
     }
     return 1;
-}
-
-void get_level_from_filename(char *fn, int *volume, int *level)
-{
-    for ((*volume)=0;(*volume)<MAXVOLUMES;(*volume)++)
-    {
-        for ((*level)=0;(*level)<MAXLEVELS;(*level)++)
-        {
-            if (level_file_names[((*volume)*MAXLEVELS)+(*level)] != NULL)
-                if (!Bstrcasecmp(fn, level_file_names[((*volume)*MAXLEVELS)+(*level)]))
-                    break;
-        }
-        if ((*level) != MAXLEVELS)
-            break;
-    }
 }
 
 void app_main(int argc,char **argv)
@@ -10029,7 +9979,7 @@ MAIN_LOOP_RESTART:
         {
             ud.m_level_number = 7;
             ud.m_volume_number = 0;
-        
+
             if (ud.m_player_skill == 4)
                 ud.m_respawn_monsters = 1;
             else ud.m_respawn_monsters = 0;

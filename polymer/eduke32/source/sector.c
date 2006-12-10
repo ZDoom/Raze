@@ -3180,6 +3180,41 @@ CHECKINV1:
     }
 }
 
+long hitasprite(short i,short *hitsp)
+{
+    long sx,sy,sz,zoff;
+    short sect,hw;
+
+    if (badguy(&sprite[i]))
+        zoff = (42<<8);
+    else if (PN == APLAYER) zoff = (39<<8);
+    else zoff = 0;
+
+    hitscan(SX,SY,SZ-zoff,SECT,
+            sintable[(SA+512)&2047],
+            sintable[SA&2047],
+            0,&sect,&hw,hitsp,&sx,&sy,&sz,CLIPMASK1);
+
+    if (hw >= 0 && (wall[hw].cstat&16) && badguy(&sprite[i]))
+        return((1<<30));
+
+    return (FindDistance2D(sx-SX,sy-SY));
+}
+
+static long hitawall(struct player_struct *p,short *hitw)
+{
+    long sx,sy,sz;
+    short sect,hs;
+
+    hitscan(p->posx,p->posy,p->posz,p->cursectnum,
+            sintable[(p->ang+512)&2047],
+            sintable[p->ang&2047],
+            0,&sect,hitw,&hs,&sx,&sy,&sz,CLIPMASK0);
+
+    return (FindDistance2D(sx-p->posx,sy-p->posy));
+}
+
+
 void checksectors(short snum)
 {
     long i = -1,oldz;

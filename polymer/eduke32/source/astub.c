@@ -149,7 +149,7 @@ char *Help3d[]= {
                     " END = PGUP/PGDN MODIFIER (512 UNITS)",
                 };
 
-long GetTime(void)
+static inline long GetTime(void)
 {
     return totalclock;
 }
@@ -1061,7 +1061,7 @@ void ExtShowWallData(short wallnum)       //F6
     PrintStatus("Boss4     =",numsprite[BOSS4],x,y+8,11);
 }// end ExtShowWallData
 
-void Show2dText(char *name)
+static void Show2dText(char *name)
 {
     int fp,t;
     unsigned char x=0,y=4,xmax=0,xx=0,col=0;
@@ -1107,7 +1107,7 @@ void Show2dText(char *name)
 
 }// end Show2dText
 
-void Show3dText(char *name)
+static void Show3dText(char *name)
 {
     int fp,t;
     unsigned char x=0,y=4,xmax=0,xx=0,col=0;
@@ -1151,7 +1151,7 @@ void Show3dText(char *name)
     kclose(fp);
 }// end Show3dText
 
-void ShowHelpText(char *name)
+static void ShowHelpText(char *name)
 {
     BFILE *fp;
     char x=0,y=4;
@@ -1207,7 +1207,7 @@ void ExtShowSpriteData(short spritenum)   //F6
 
 int fofsizex = -1;
 int fofsizey = -1;
-void ResetFOFSize()
+static void ResetFOFSize()
 {
     if (fofsizex != -1) tilesizx[FOF] = fofsizex;
     if (fofsizey != -1) tilesizy[FOF] = fofsizey;
@@ -1368,7 +1368,7 @@ static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
 
 } // end SE40
 
-void ExtSE40Code(long x,long y,long z,long a,long h)
+static void SE40Code(long x,long y,long z,long a,long h)
 {
     int i;
 
@@ -1459,7 +1459,7 @@ void ExtEditSpriteData(short spritenum)   //F8
     else EditSpriteData(spritenum);
 }
 
-void PrintStatus(char *string,int num,char x,char y,char color)
+static void PrintStatus(char *string,int num,char x,char y,char color)
 {
     Bsprintf(tempbuf,"%s %d",string,num);
     begindrawing();
@@ -1467,12 +1467,12 @@ void PrintStatus(char *string,int num,char x,char y,char color)
     enddrawing();
 }
 
-void SpriteName(short spritenum, char *lo2)
+static inline void SpriteName(short spritenum, char *lo2)
 {
     Bsprintf(lo2,names[sprite[spritenum].picnum]);
 }// end SpriteName
 
-void ReadPaletteTable()
+static void ReadPaletteTable()
 {
     int i,j,fp;
     char lookup_num;
@@ -1499,14 +1499,9 @@ void ReadPaletteTable()
         tempbuf[j] = j;
     num_tables++;
     makepalookup(num_tables, tempbuf, 15, 15, 15, 1);
-    num_tables++;
-    makepalookup(num_tables, tempbuf, 15, 0, 0, 1);
-    num_tables++;
-    makepalookup(num_tables, tempbuf, 0, 15, 0, 1);
-    num_tables++;
-    makepalookup(num_tables, tempbuf, 0, 0, 15, 1);
-
-    num_tables -= 3;
+    makepalookup(num_tables + 1, tempbuf, 15, 0, 0, 1);
+    makepalookup(num_tables + 2, tempbuf, 0, 15, 0, 1);
+    makepalookup(num_tables + 3, tempbuf, 0, 0, 15, 1);
 
     kread(fp,WATERpalette,768);
     kread(fp,SLIMEpalette,768);
@@ -1517,7 +1512,7 @@ void ReadPaletteTable()
     initprintf("success.\n");
 }// end ReadPaletteTable
 
-void ReadGamePalette()
+static void ReadGamePalette()
 {
     int i,fp;
     if ((fp=kopen4load("palette.dat",0)) == -1)
@@ -1536,14 +1531,14 @@ void ReadGamePalette()
     ReadPaletteTable();
 }
 
-void _message(char message[162])
+static inline void _message(char message[162])
 {
     Bsprintf(getmessage,message);
     getmessageleng = strlen(getmessage);
     getmessagetimeoff = totalclock+120*5;
 }
 
-void message(char message[162])
+static void message(char message[162])
 {
     char tmpbuf[2048];
 
@@ -1558,7 +1553,7 @@ static char lockbyte4094;
 
 long lastupdate, mousecol, mouseadd = 1, bstatus;
 
-void m32_showmouse(void)
+static void m32_showmouse(void)
 {
     int i, j, col;
 
@@ -1612,7 +1607,7 @@ void m32_showmouse(void)
     }
 }
 
-int AskIfSure(void)
+static int AskIfSure(void)
 {
     int retval=1;
 
@@ -1648,7 +1643,7 @@ int AskIfSure(void)
     return(retval);
 }
 
-void Keys3d(void)
+static void Keys3d(void)
 {
     long i,count,rate,nexti;
     long j, k, templong, changedir, hiz, loz;
@@ -3597,7 +3592,7 @@ void Keys3d(void)
 
 }// end 3d
 
-void Keys2d(void)
+static void Keys2d(void)
 {
     short temp=0;
     int i=0, j,k;
@@ -3841,9 +3836,7 @@ void Keys2d(void)
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_F]) // ' F
     {
-        void FuncMenu(void);
         keystatus[KEYSC_F] = 0;
-
         FuncMenu();
     }
 
@@ -4230,7 +4223,7 @@ void ExtSetupSpecialSpriteCols(void)
         }
 }
 
-void InitCustomColors(void)
+static void InitCustomColors(void)
 {
     /* blue */
     /*    vgapal16[9*4+0] = 63;
@@ -4523,7 +4516,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 {
     if (qsetmode == 200)    //In 3D mode
     {
-        if (floor_over_floor) ExtSE40Code(posx,posy,posz,ang,horiz);
+        if (floor_over_floor) SE40Code(posx,posy,posz,ang,horiz);
         if (purpleon) clearview(255);
         if (sidemode != 0)
         {
@@ -4670,7 +4663,7 @@ void ExtAnalyzeSprites(void)
     }
 }
 
-void Keys2d3d(void)
+static void Keys2d3d(void)
 {
     int i, j;
     if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x1e]==1) // ' a
@@ -4852,7 +4845,7 @@ void faketimerhandler(void)
     }
 }
 
-void SetBOSS1Palette()
+static void SetBOSS1Palette()
 {
     if (acurpalette==3) return;
     acurpalette=3;
@@ -4860,14 +4853,14 @@ void SetBOSS1Palette()
 }
 
 
-void SetSLIMEPalette()
+static void SetSLIMEPalette()
 {
     if (acurpalette==2) return;
     acurpalette=2;
     kensetpalette(SLIMEpalette);
 }
 
-void SetWATERPalette()
+static void SetWATERPalette()
 {
     if (acurpalette==1) return;
     acurpalette=1;
@@ -4875,14 +4868,14 @@ void SetWATERPalette()
 }
 
 
-void SetGAMEPalette()
+static void SetGAMEPalette()
 {
     if (acurpalette==0) return;
     acurpalette=0;
     kensetpalette(GAMEpalette);
 }
 
-void kensetpalette(char *vgapal)
+static void kensetpalette(char *vgapal)
 {
     long i;
     char vesapal[1024];
@@ -4897,7 +4890,7 @@ void kensetpalette(char *vgapal)
     setpalette(0L,256L,vesapal);
 }
 
-void SearchSectorsForward()
+static void SearchSectorsForward()
 {
     long ii=0;
     if (cursector_lotag!=0)
@@ -4920,7 +4913,7 @@ void SearchSectorsForward()
     printmessage16("> Sector search: none found");
 }
 
-void SearchSectorsBackward()
+static void SearchSectorsBackward()
 {
     long ii=0;
     if (cursector_lotag!=0)
@@ -4944,7 +4937,7 @@ void SearchSectorsBackward()
 }
 
 // Build edit originally by Ed Coolidge <semicharm@earthlink.net>
-void EditSectorData(short sectnum)
+static void EditSectorData(short sectnum)
 {
     char disptext[80];
     char edittext[80];
@@ -5182,7 +5175,7 @@ void EditSectorData(short sectnum)
     keystatus[1] = 0;
 }
 
-void EditWallData(short wallnum)
+static void EditWallData(short wallnum)
 {
     char disptext[80];
     char edittext[80];
@@ -5315,7 +5308,7 @@ void EditWallData(short wallnum)
     keystatus[1] = 0;
 }
 
-void EditSpriteData(short spritenum)
+static void EditSpriteData(short spritenum)
 {
     char disptext[80];
     char edittext[80];
@@ -5667,7 +5660,7 @@ void EditSpriteData(short spritenum)
 
 // Build edit
 
-void FuncMenuOpts(void)
+static void FuncMenuOpts(void)
 {
     char snotbuf[80];
 
@@ -5726,7 +5719,7 @@ void FuncMenuOpts(void)
         printext16(400,ydim-STATUS2DSIZ+96,11,-1,snotbuf,0); */
 }
 
-void FuncMenu(void)
+static void FuncMenu(void)
 {
     char disptext[80];
     unsigned char col=0, row=0, rowmax=7, dispwidth = 24, editval = 0;

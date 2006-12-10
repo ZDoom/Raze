@@ -2474,6 +2474,22 @@ int MV_TestPlayback(void)
 }
 #endif
 
+int USRHOOKS_GetMem(void **ptr, unsigned long size)
+{
+    *ptr = malloc(size);
+
+    if (*ptr == NULL)
+        return(USRHOOKS_Error);
+
+    return(USRHOOKS_Ok);
+
+}
+
+int USRHOOKS_FreeMem(void *ptr)
+{
+    free(ptr);
+    return(USRHOOKS_Ok);
+}
 
 /*---------------------------------------------------------------------
    Function: MV_Init

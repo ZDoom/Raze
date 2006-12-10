@@ -22,6 +22,52 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 
+void readsavenames(void)
+{
+    long dummy,j;
+    short i;
+    char fn[13];
+    BFILE *fil;
+
+    Bstrcpy(fn,"egam_.sav");
+
+    for (i=0;i<10;i++)
+    {
+        fn[4] = i+'0';
+        if ((fil = Bfopen(fn,"rb")) == NULL) continue;
+        if (dfread(&j,sizeof(long),1,fil) != 1)
+        {
+            Bfclose(fil);
+            continue;
+        }
+        if (dfread(g_szBuf,j,1,fil) != 1)
+        {
+            Bfclose(fil);
+            continue;
+        }
+        if (dfread(&dummy,4,1,fil) != 1)
+        {
+            Bfclose(fil);
+            continue;
+        }
+        if (dummy != BYTEVERSION)
+        {
+            Bfclose(fil);
+            continue;
+        }
+        if (dfread(&dummy,4,1,fil) != 1)
+        {
+            Bfclose(fil);
+            continue;
+        }
+        if (dfread(&ud.savegame[i][0],19,1,fil) != 1)
+        {
+            ud.savegame[i][0] = 0;
+        }
+        Bfclose(fil);
+    }
+}
+
 int loadpheader(char spot,struct savehead *saveh)
 {
     char fn[13];

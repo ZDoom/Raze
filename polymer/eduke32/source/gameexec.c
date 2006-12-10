@@ -3122,6 +3122,18 @@ static long ifsquished(short i, short p)
     return 0;
 }
 
+static void forceplayerangle(struct player_struct *p)
+{
+    short n;
+
+    n = 128-(TRAND&255);
+
+    p->horiz += 64;
+    p->return_to_center = 9;
+    p->look_ang = n>>1;
+    p->rotscrnang = n>>1;
+}
+
 static char dodge(spritetype *s)
 {
     short i;

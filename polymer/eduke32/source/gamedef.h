@@ -50,10 +50,10 @@ extern long g_kb;
 extern long g_looking_angSR1;
 extern int display_bonus_screen;
 extern long lastvisinc;
-
 extern void adduserquote(char *daquote);
-
 extern char cheatquotes[][MAXCHEATLEN];
+extern char compilefile[BMAX_PATH];
+extern short total_lines,line_number;
 
 typedef struct _labels {
     char *name;
@@ -61,6 +61,28 @@ typedef struct _labels {
     int flags;
     int maxParm2;
 } LABELS;
+
+enum errors
+{
+    ERROR_CLOSEBRACKET,
+    ERROR_EVENTONLY,
+    ERROR_EXCEEDSMAXTILES,
+    ERROR_EXPECTEDKEYWORD,
+    ERROR_FOUNDWITHIN,
+    ERROR_ISAKEYWORD,
+    ERROR_NOENDSWITCH,
+    ERROR_NOTAGAMEDEF,
+    ERROR_NOTAGAMEVAR,
+    ERROR_OPENBRACKET,
+    ERROR_PARAMUNDEFINED,
+    ERROR_SYMBOLNOTRECOGNIZED,
+    ERROR_SYNTAXERROR,
+    ERROR_VARREADONLY,
+    ERROR_VARTYPEMISMATCH,
+    WARNING_DUPLICATEDEFINITION,
+    WARNING_EVENTSYNC,
+    WARNING_LABELSONLY,
+};
 
 enum playerlabels {
     PLAYER_ZOOM,
