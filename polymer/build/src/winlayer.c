@@ -3512,7 +3512,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
             if (!appactive && fullscreen)
             {
                 realfs = fullscreen;
-                setvideomode(xdim,ydim,bpp,!fullscreen);
+                setgamemode(!fullscreen,xdim,ydim,bpp);
                 ShowWindow(hWindow, SW_MINIMIZE);
             }
             else if (appactive && realfs)
@@ -3520,7 +3520,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
                 ShowWindow(hWindow, SW_SHOWNORMAL);
                 SetForegroundWindow(hWindow);
                 SetFocus(hWindow);
-                setvideomode(xdim,ydim,bpp,realfs);
+                setgamemode(realfs,xdim,ydim,bpp);
                 realfs = 0;
             }
         }
