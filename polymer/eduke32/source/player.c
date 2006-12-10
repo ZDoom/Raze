@@ -1885,16 +1885,16 @@ void displayloogie(short snum)
     }
 }
 
-char animatefist(short gs,short snum)
+static int animatefist(const short *gs,const short *snum)
 {
     short looking_arc,fisti,fistpal;
     long fistzoom, fistz;
 
-    fisti = ps[snum].fist_incs;
+    fisti = ps[*snum].fist_incs;
     if (fisti > 32) fisti = 32;
     if (fisti <= 0) return 0;
 
-    looking_arc = klabs(ps[snum].look_ang)/9;
+    looking_arc = klabs(ps[*snum].look_ang)/9;
 
     fistzoom = 65536L - (sintable[(512+(fisti<<6))&2047]<<2);
     if (fistzoom > 90612L)
@@ -1903,61 +1903,61 @@ char animatefist(short gs,short snum)
         fistzoom = 40290;
     fistz = 194 + (sintable[((6+fisti)<<7)&2047]>>9);
 
-    if (sprite[ps[snum].i].pal == 1)
+    if (sprite[ps[*snum].i].pal == 1)
         fistpal = 1;
     else
-        fistpal = sector[ps[snum].cursectnum].floorpal;
+        fistpal = sector[ps[*snum].cursectnum].floorpal;
 
     rotatesprite(
-        (-fisti+222+(sync[snum].avel>>4))<<16,
+        (-fisti+222+(sync[*snum].avel>>4))<<16,
         (looking_arc+fistz)<<16,
-        fistzoom,0,FIST,gs,fistpal,2,0,0,xdim-1,ydim-1);
+        fistzoom,0,FIST,*gs,fistpal,2,0,0,xdim-1,ydim-1);
 
     return 1;
 }
 
-char animateknee(short gs,short snum)
+static int animateknee(const short *gs,const short *snum)
 {
     short knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
     short looking_arc, pal;
 
-    if (ps[snum].knee_incs > 11 || ps[snum].knee_incs == 0 || sprite[ps[snum].i].extra <= 0) return 0;
+    if (ps[*snum].knee_incs > 11 || ps[*snum].knee_incs == 0 || sprite[ps[*snum].i].extra <= 0) return 0;
 
-    looking_arc = knee_y[ps[snum].knee_incs] + klabs(ps[snum].look_ang)/9;
+    looking_arc = knee_y[ps[*snum].knee_incs] + klabs(ps[*snum].look_ang)/9;
 
-    looking_arc -= (ps[snum].hard_landing<<3);
+    looking_arc -= (ps[*snum].hard_landing<<3);
 
-    if (sprite[ps[snum].i].pal == 1)
+    if (sprite[ps[*snum].i].pal == 1)
         pal = 1;
     else
     {
-        pal = sector[ps[snum].cursectnum].floorpal;
+        pal = sector[ps[*snum].cursectnum].floorpal;
         if (pal == 0)
-            pal = ps[snum].palookup;
+            pal = ps[*snum].palookup;
     }
 
-    myospal(105+(sync[snum].avel>>4)-(ps[snum].look_ang>>1)+(knee_y[ps[snum].knee_incs]>>2),looking_arc+280-((ps[snum].horiz-ps[snum].horizoff)>>4),KNEE,gs,4,pal);
+    myospal(105+(sync[*snum].avel>>4)-(ps[*snum].look_ang>>1)+(knee_y[ps[*snum].knee_incs]>>2),looking_arc+280-((ps[*snum].horiz-ps[*snum].horizoff)>>4),KNEE,*gs,4,pal);
 
     return 1;
 }
 
-char animateknuckles(short gs,short snum)
+static int animateknuckles(const short *gs,const short *snum)
 {
     short knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
     short looking_arc, pal;
 
-    if (ps[snum].knuckle_incs == 0 || sprite[ps[snum].i].extra <= 0) return 0;
+    if (ps[*snum].knuckle_incs == 0 || sprite[ps[*snum].i].extra <= 0) return 0;
 
-    looking_arc = klabs(ps[snum].look_ang)/9;
+    looking_arc = klabs(ps[*snum].look_ang)/9;
 
-    looking_arc -= (ps[snum].hard_landing<<3);
+    looking_arc -= (ps[*snum].hard_landing<<3);
 
-    if (sprite[ps[snum].i].pal == 1)
+    if (sprite[ps[*snum].i].pal == 1)
         pal = 1;
     else
-        pal = sector[ps[snum].cursectnum].floorpal;
+        pal = sector[ps[*snum].cursectnum].floorpal;
 
-    myospal(160+(sync[snum].avel>>4)-(ps[snum].look_ang>>1),looking_arc+180-((ps[snum].horiz-ps[snum].horizoff)>>4),CRACKKNUCKLES+knuckle_frames[ps[snum].knuckle_incs>>1],gs,4,pal);
+    myospal(160+(sync[*snum].avel>>4)-(ps[*snum].look_ang>>1),looking_arc+180-((ps[*snum].horiz-ps[*snum].horizoff)>>4),CRACKKNUCKLES+knuckle_frames[ps[*snum].knuckle_incs>>1],*gs,4,pal);
 
     return 1;
 }
@@ -2059,53 +2059,53 @@ void displaymasks(short snum)
     }
 }
 
-char animatetip(short gs,short snum)
+static int animatetip(const short *gs,const short *snum)
 {
     short p,looking_arc;
     short tip_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
 
-    if (ps[snum].tipincs == 0) return 0;
+    if (ps[*snum].tipincs == 0) return 0;
 
-    looking_arc = klabs(ps[snum].look_ang)/9;
-    looking_arc -= (ps[snum].hard_landing<<3);
+    looking_arc = klabs(ps[*snum].look_ang)/9;
+    looking_arc -= (ps[*snum].hard_landing<<3);
 
-    if (sprite[ps[snum].i].pal == 1)
+    if (sprite[ps[*snum].i].pal == 1)
         p = 1;
     else
-        p = sector[ps[snum].cursectnum].floorpal;
+        p = sector[ps[*snum].cursectnum].floorpal;
 
     /*    if(ps[snum].access_spritenum >= 0)
             p = sprite[ps[snum].access_spritenum].pal;
         else
             p = wall[ps[snum].access_wallnum].pal;
       */
-    myospal(170+(sync[snum].avel>>4)-(ps[snum].look_ang>>1),
-            (tip_y[ps[snum].tipincs]>>1)+looking_arc+240-((ps[snum].horiz-ps[snum].horizoff)>>4),TIP+((26-ps[snum].tipincs)>>4),gs,0,p);
+    myospal(170+(sync[*snum].avel>>4)-(ps[*snum].look_ang>>1),
+            (tip_y[ps[*snum].tipincs]>>1)+looking_arc+240-((ps[*snum].horiz-ps[*snum].horizoff)>>4),TIP+((26-ps[*snum].tipincs)>>4),*gs,0,p);
 
     return 1;
 }
 
-char animateaccess(short gs,short snum)
+static int animateaccess(const short *gs,const short *snum)
 {
     short access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
     short looking_arc;
     char p;
 
-    if (ps[snum].access_incs == 0 || sprite[ps[snum].i].extra <= 0) return 0;
+    if (ps[*snum].access_incs == 0 || sprite[ps[*snum].i].extra <= 0) return 0;
 
-    looking_arc = access_y[ps[snum].access_incs] + klabs(ps[snum].look_ang)/9;
-    looking_arc -= (ps[snum].hard_landing<<3);
+    looking_arc = access_y[ps[*snum].access_incs] + klabs(ps[*snum].look_ang)/9;
+    looking_arc -= (ps[*snum].hard_landing<<3);
 
-    if (ps[snum].access_spritenum >= 0)
-        p = sprite[ps[snum].access_spritenum].pal;
+    if (ps[*snum].access_spritenum >= 0)
+        p = sprite[ps[*snum].access_spritenum].pal;
     else p = 0;
     //    else
-    //        p = wall[ps[snum].access_wallnum].pal;
+    //        p = wall[ps[*snum].access_wallnum].pal;
 
-    if ((ps[snum].access_incs-3) > 0 && (ps[snum].access_incs-3)>>3)
-        myospal(170+(sync[snum].avel>>4)-(ps[snum].look_ang>>1)+(access_y[ps[snum].access_incs]>>2),looking_arc+266-((ps[snum].horiz-ps[snum].horizoff)>>4),HANDHOLDINGLASER+(ps[snum].access_incs>>3),gs,0,p);
+    if ((ps[*snum].access_incs-3) > 0 && (ps[*snum].access_incs-3)>>3)
+        myospal(170+(sync[*snum].avel>>4)-(ps[*snum].look_ang>>1)+(access_y[ps[*snum].access_incs]>>2),looking_arc+266-((ps[*snum].horiz-ps[*snum].horizoff)>>4),HANDHOLDINGLASER+(ps[*snum].access_incs>>3),*gs,0,p);
     else
-        myospal(170+(sync[snum].avel>>4)-(ps[snum].look_ang>>1)+(access_y[ps[snum].access_incs]>>2),looking_arc+266-((ps[snum].horiz-ps[snum].horizoff)>>4),HANDHOLDINGACCESS,gs,4,p);
+        myospal(170+(sync[*snum].avel>>4)-(ps[*snum].look_ang>>1)+(access_y[ps[*snum].access_incs]>>2),looking_arc+266-((ps[*snum].horiz-ps[*snum].horizoff)>>4),HANDHOLDINGACCESS,*gs,4,p);
 
     return 1;
 }
@@ -2146,9 +2146,9 @@ void displayweapon(short snum)
     long gun_pos, looking_arc, cw;
     long weapon_xoffset, i, j;
     char o,pal;
-    signed char gs;
     struct player_struct *p;
     short *kb;
+    short gs;
 
     p = &ps[snum];
     kb = &p->kickback_pic;
@@ -2160,10 +2160,10 @@ void displayweapon(short snum)
     gs = sprite[p->i].shade;
     if (gs > 24) gs = 24;
 
-    if (p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0) || animatefist(gs,snum) || animateknuckles(gs,snum) || animatetip(gs,snum) || animateaccess(gs,snum))
+    if (p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0) || animatefist(&gs,&snum) || animateknuckles(&gs,&snum) || animatetip(&gs,&snum) || animateaccess(&gs,&snum))
         return;
 
-    animateknee(gs,snum);
+    animateknee(&gs,&snum);
 
     gun_pos = 80-(p->weapon_pos*p->weapon_pos);
 

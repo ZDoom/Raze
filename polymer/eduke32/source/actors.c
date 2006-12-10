@@ -7617,12 +7617,12 @@ void moveobjects(void)
     int k;
 
     movefta();              //ST 2
-    moveweapons();          //ST 5 (must be last)
+    moveweapons();          //ST 4
     movetransports();       //ST 9
 
     moveplayers();          //ST 10
     movefallers();          //ST 12
-    moveexplosions();       //ST 4
+    moveexplosions();       //ST 5
 
     moveactors();           //ST 1
     moveeffectors();        //ST 3
