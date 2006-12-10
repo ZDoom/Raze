@@ -181,4 +181,4 @@ proj_struct projectile[MAXTILES], thisprojectile[MAXSPRITES], defaultprojectile[
 char cheatkey[2] = { sc_D, sc_N };
 char setupfilename[BMAX_PATH]= "duke3d.cfg";
 
-void get_level_from_filename(char *fn, char *volume, char *level);
+void get_level_from_filename(char *fn, int *volume, int *level);

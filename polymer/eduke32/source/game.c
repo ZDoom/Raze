@@ -9594,7 +9594,7 @@ int load_script(char *szScript)
     return 1;
 }
 
-void get_level_from_filename(char *fn, char *volume, char *level)
+void get_level_from_filename(char *fn, int *volume, int *level)
 {
     for ((*volume)=0;(*volume)<MAXVOLUMES;(*volume)++)
     {

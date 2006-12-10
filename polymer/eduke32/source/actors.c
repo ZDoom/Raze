@@ -1108,7 +1108,7 @@ void moveplayers(void) //Players
                     otherx = 0;
                 }
 
-                execute(i,s->yvel,otherx);
+                execute(&i,&s->yvel,&otherx);
 
                 if (ud.multimode > 1)
                     if (sprite[ps[otherp].i].extra > 0)
@@ -2341,11 +2341,11 @@ CLEAR_THE_BOLT:
     case STEAM__STATIC:
     case CEILINGSTEAM__STATIC:
         p = findplayer(s, &x);
-            execute(i,p,x);
+            execute(&i,&p,&x);
             goto BOLT;
         case WATERBUBBLEMAKER__STATIC:
             p = findplayer(s, &x);
-            execute(i,p,x);
+            execute(&i,&p,&x);
             goto BOLT;
         }
 
@@ -2812,7 +2812,7 @@ void moveweapons(void)
                     if (thisprojectile[i].workslike & PROJECTILE_FLAG_HITSCAN)
                     {
                         p = findplayer(s,&x);
-                        execute(i,p,x);
+                        execute(&i,&p,&x);
                         goto BOLT;
                     }
 
@@ -3183,7 +3183,7 @@ void moveweapons(void)
 
             case SHOTSPARK1__STATIC:
                 p = findplayer(s,&x);
-                execute(i,p,x);
+                execute(&i,&p,&x);
                 goto BOLT;
             }
         }
@@ -4842,7 +4842,7 @@ DETONATEB:
 
         p = findplayer(s,&x);
 
-        execute(i,p,x);
+        execute(&i,&p,&x);
 
 BOLT:
 
@@ -5283,7 +5283,7 @@ void moveexplosions(void)  // STATNUM 5
             case TRANSPORTERSTAR__STATIC:
             case TRANSPORTERBEAM__STATIC:
                 p = findplayer(s,&x);
-                execute(i,p,x);
+                execute(&i,&p,&x);
                 goto BOLT;
 
             case SHELL__STATIC:

@@ -813,7 +813,7 @@ void prelevel(char g)
     {
         nexti = nextspritestat[i];
         ResetActorGameVars(i);
-        LoadActor(i, -1, -1);
+        LoadActor(i);
         if (sprite[i].lotag == -1 && (sprite[i].cstat&16))
         {
             ps[0].exitx = SX;
@@ -1615,7 +1615,7 @@ int enterlevel(char g)
 
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
-        char volume, level;
+        int volume, level;
         
         get_level_from_filename(boardfilename,&volume,&level);
         

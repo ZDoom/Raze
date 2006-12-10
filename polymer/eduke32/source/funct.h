@@ -170,7 +170,7 @@ extern void alterang(short a);
 extern void move(void);
 extern void parseifelse(long condition);
 extern char parse(void);
-extern void execute(short sActor,short sPlayer,long lDist);
+extern void execute(const short *sActor,const short *sPlayer,const long *lDist);
 extern void overwritesprite(long thex,long they,short tilenum,signed char shade,char stat,char dapalnum);
 extern void timerhandler(void);
 extern int gametext(int x,int y,char *t,char s,short dabits);
@@ -328,7 +328,7 @@ extern void sanitizegametype();
 extern void setupdynamictostatic();
 extern void processnames(char *szLabel, long lValue);
 
-extern void LoadActor(short sActor, short sPlayer, long lDist);
+extern void LoadActor(long sActor);
 
 extern long GetGameVar(char *szGameLabel, long lDefault, short sActor, short sPlayer);
 extern void DumpGameVars(FILE *fp);
@@ -358,6 +358,6 @@ extern void sendquit(void);
 extern void adduserquote(char *daquote);
 extern char *strip_color_codes(char *t);
 
-extern void get_level_from_filename(char *fn, char *volume, char *level);
+extern void get_level_from_filename(char *fn, int *volume, int *level);
 
 #endif // __funct_h__
