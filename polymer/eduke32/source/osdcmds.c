@@ -785,7 +785,7 @@ int osdcmd_name(const osdfuncparm_t *parm)
 
     Bstrcpy(tempbuf,parm->parms[0]);
 
-    while (Bstrlen(strip_color_codes(tempbuf)) > 10)
+    while (Bstrlen(stripcolorcodes(tempbuf)) > 10)
         tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
     Bstrncpy(myname,tempbuf,sizeof(myname)-1);

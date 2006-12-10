@@ -94,15 +94,11 @@ extern "C" {
 
 // Number of JOY axes
 
-#define MAXJOYAXES 6
+#define MAXJOYAXES 8
 
 // Number of GamePad axes
 
 #define MAXGAMEPADAXES 2
-
-// Number of axes
-
-#define MAXAXES 6
 
 // NORMAL axis scale
 

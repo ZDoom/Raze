@@ -1425,12 +1425,12 @@ static void resetpspritevars(char g)
     }
 }
 
-static void clearfrags(void)
+static inline void clearfrags(void)
 {
-    short i;
+    short i = 0;
 
-    for (i = 0;i<MAXPLAYERS;i++)
-        ps[i].frag = ps[i].fraggedself = 0;
+    while (i<MAXPLAYERS)
+        ps[i].frag = ps[i].fraggedself = 0, i++;
     clearbufbyte(&frags[0][0],(MAXPLAYERS*MAXPLAYERS)<<1,0L);
 }
 
@@ -1535,7 +1535,7 @@ extern void adduserquote(char *daquote);
 
 extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting, vote_map, vote_episode;
 
-static void get_level_from_filename(char *fn, int *volume, int *level)
+static void getlevelfromfilename(char *fn, char *volume, char *level)
 {
     for ((*volume)=0;(*volume)<MAXVOLUMES;(*volume)++)
     {
@@ -1586,9 +1586,9 @@ int enterlevel(char g)
 
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
-        int volume, level;
+        char volume, level;
 
-        get_level_from_filename(boardfilename,&volume,&level);
+        getlevelfromfilename(boardfilename,&volume,&level);
 
         if (level != MAXLEVELS)
         {

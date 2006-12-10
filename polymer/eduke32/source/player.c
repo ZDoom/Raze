@@ -3564,7 +3564,7 @@ void processinput(short snum)
                         Bsprintf(tempbuf,fta_quotes[PPDEATHSTRINGS+i+(mulscale(krand(), 3, 16)*10)],name1,name2);
                         if (ScreenWidth >= 800)
                             adduserquote(tempbuf);
-                        else OSD_Printf("%s\n",strip_color_codes(tempbuf));
+                        else OSD_Printf("%s\n",stripcolorcodes(tempbuf));
                     }
                 }
                 else
@@ -3583,7 +3583,7 @@ void processinput(short snum)
 
                     if (ScreenWidth >= 800)
                         adduserquote(tempbuf);
-                    else OSD_Printf("%s\n",strip_color_codes(tempbuf));
+                    else OSD_Printf("%s\n",stripcolorcodes(tempbuf));
                 }
 
                 if (myconnectindex == connecthead)

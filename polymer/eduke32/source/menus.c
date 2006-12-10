@@ -307,7 +307,7 @@ static int menutext_(int x,int y,short s,short p,char *t)
 
 int menutext(int x,int y,short s,short p,char *t)
 {
-    return(menutext_(x,y,s,p,strip_color_codes(t)));
+    return(menutext_(x,y,s,p,stripcolorcodes(t)));
 }
 
 static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short s, short pa)
@@ -740,7 +740,7 @@ void menus(void)
         {
             x = strget(200,50-9,buf,30,0);
 
-            while (Bstrlen(strip_color_codes(buf)) > 10)
+            while (Bstrlen(stripcolorcodes(buf)) > 10)
             {
                 buf[Bstrlen(buf)-1] = '\0';
                 inputloc--;

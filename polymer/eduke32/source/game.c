@@ -251,7 +251,7 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
 
 #define TEXTWRAPLEN (scale(35,ScreenWidth,320))
 
-char *strip_color_codes(char *t)
+char *stripcolorcodes(char *t)
 {
     int i = 0;
 
@@ -403,12 +403,12 @@ static int minitext_(int x,int y,char *t,char s,char p,short sb)
 
 inline int minitextshade(int x,int y,char *t,char s,char p,short sb)
 {
-    return (minitext_(x,y,(char *)strip_color_codes(t),s,p,sb));
+    return (minitext_(x,y,(char *)stripcolorcodes(t),s,p,sb));
 }
 
 inline int minitext(int x,int y,char *t,char p,short sb)
 {
-    return (minitext_(x,y,(char *)strip_color_codes(t),0,p,sb));
+    return (minitext_(x,y,(char *)stripcolorcodes(t),0,p,sb));
 }
 
 #if 0
@@ -458,7 +458,7 @@ void adduserquote(char *daquote)
         user_quote_time[i] = user_quote_time[i-1];
     }
     Bstrcpy(user_quote[0],daquote);
-    OSD_Printf("%s\n",strip_color_codes(daquote));
+    OSD_Printf("%s\n",stripcolorcodes(daquote));
 
     user_quote_time[0] = ud.msgdisptime;
     pub = NUMPAGES;
@@ -2510,7 +2510,7 @@ void FTA(short q,struct player_struct *p)
             {
                 if (p->ftq != q)
                     if (p == &ps[screenpeek])
-                        OSD_Printf("%s\n",strip_color_codes(fta_quotes[q]));
+                        OSD_Printf("%s\n",stripcolorcodes(fta_quotes[q]));
 
                 p->ftq = q;
                 pub = NUMPAGES;
@@ -9095,7 +9095,7 @@ static void freeconmem(void)
 {
     int i;
 
-    for (i=MAXLEVELS*MAXVOLUMES;i>0;i--)
+    for (i=(MAXLEVELS*MAXVOLUMES)-1;i>=0;i--)
     {
         if (level_names[i] != NULL)
             Bfree(level_names[i]);
@@ -9105,7 +9105,7 @@ static void freeconmem(void)
             Bfree(music_fn[0][i]);
     }
 
-    for (i=MAXQUOTES;i>0;i--)
+    for (i=MAXQUOTES-1;i>=0;i--)
     {
         if (fta_quotes[i] != NULL)
             Bfree(fta_quotes[i]);
@@ -9113,7 +9113,7 @@ static void freeconmem(void)
             Bfree(redefined_quotes[i]);
     }
 
-    for (i=iGameVarCount;i>0;i--)
+    for (i=iGameVarCount-1;i>=0;i--)
     {
         if (aGameVars[i].szLabel != NULL)
             Bfree(aGameVars[i].szLabel);
@@ -9303,7 +9303,7 @@ static void Startup(long argc, char **argv)
         //        myname[10] = '\0';
         Bstrcpy(tempbuf,CommandName);
 
-        while (Bstrlen(strip_color_codes(tempbuf)) > 10)
+        while (Bstrlen(stripcolorcodes(tempbuf)) > 10)
             tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
         Bstrncpy(myname,tempbuf,sizeof(myname)-1);

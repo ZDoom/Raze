@@ -241,6 +241,6 @@ extern void sendboardname(void);
 extern void sendquit(void);
 
 extern void adduserquote(char *daquote);
-extern char *strip_color_codes(char *t);
+extern char *stripcolorcodes(char *t);
 
 #endif // __funct_h__
