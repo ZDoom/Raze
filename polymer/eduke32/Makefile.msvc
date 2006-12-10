@@ -71,6 +71,7 @@ AUDIOLIBOBJ=$(AUDIOLIB_JFAUD)
 	$(OBJ)\anim.$o \
 	$(OBJ)\gamedef.$o \
 	$(OBJ)\gameexec.$o \
+	$(OBJ)\gamevars.$o \
 	$(OBJ)\global.$o \
 	$(OBJ)\menus.$o \
 	$(OBJ)\namesdyn.$o \

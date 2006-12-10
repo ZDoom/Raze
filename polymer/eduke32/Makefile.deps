@@ -6,6 +6,7 @@ $(OBJ)/actors.$o: $(SRC)/actors.c $(duke3d_h)
 $(OBJ)/anim.$o: $(SRC)/anim.c $(duke3d_h) $(SRC)/jmact/animlib.h
 $(OBJ)/gamedef.$o: $(SRC)/gamedef.c $(duke3d_h) $(gamedef_h)
 $(OBJ)/gameexec.$o: $(SRC)/gameexec.c $(duke3d_h) $(gamedef_h)
+$(OBJ)/gamevars.$o: $(SRC)/gamevars.c $(duke3d_h) $(gamedef_h)
 $(OBJ)/global.$o: $(SRC)/global.c $(duke3d_h)
 $(OBJ)/menus.$o: $(SRC)/menus.c $(duke3d_h) $(SRC)/jmact/mouse.h
 $(OBJ)/namesdyn.$o: $(SRC)/namesdyn.c $(duke3d_h)

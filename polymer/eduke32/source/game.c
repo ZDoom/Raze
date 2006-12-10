@@ -8897,7 +8897,7 @@ static void checkcommandline(int argc,char **argv)
     }
 }
 
-void Logo(void)
+static void Logo(void)
 {
     short soundanm;
     long logoflags=GetGameVar("LOGO_FLAGS",255, -1, -1);
@@ -9078,7 +9078,7 @@ void Logo(void)
     clearview(0L);
 }
 
-void loadtmb(void)
+static void loadtmb(void)
 {
     unsigned char tmb[8000];
     long fil, l;
@@ -9091,11 +9091,11 @@ void loadtmb(void)
     kclose(fil);
 }
 
-void freeconmem(void)
+static void freeconmem(void)
 {
     int i;
 
-    for (i=0;i<MAXLEVELS*MAXVOLUMES;i++)
+    for (i=MAXLEVELS*MAXVOLUMES;i>0;i--)
     {
         if (level_names[i] != NULL)
             Bfree(level_names[i]);
@@ -9105,7 +9105,7 @@ void freeconmem(void)
             Bfree(music_fn[0][i]);
     }
 
-    for (i=0;i<MAXQUOTES;i++)
+    for (i=MAXQUOTES;i>0;i--)
     {
         if (fta_quotes[i] != NULL)
             Bfree(fta_quotes[i]);
@@ -9113,7 +9113,7 @@ void freeconmem(void)
             Bfree(redefined_quotes[i]);
     }
 
-    for (i=0;i<iGameVarCount;i++)
+    for (i=iGameVarCount;i>0;i--)
     {
         if (aGameVars[i].szLabel != NULL)
             Bfree(aGameVars[i].szLabel);
@@ -9157,7 +9157,7 @@ void Shutdown(void)
 ===================
 */
 
-void compilecons(void)
+static void compilecons(void)
 {
     int i;
     label     = (char *)&sprite[0]; // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816

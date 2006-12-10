@@ -148,10 +148,6 @@ extern short EGS(short whatsect,long s_x,long s_y,long s_z,short s_pn,signed cha
 extern char wallswitchcheck(short i);
 extern short spawn(short j,short pn);
 extern void animatesprites(long x,long y,short a,long smoothratio);
-extern void printstr(short x,short y,char string[],char attribute);
-extern void Logo(void);
-extern void loadtmb(void);
-extern void compilecons(void);
 extern int main(int argc,char **argv);
 extern void opendemowrite(void);
 extern void closedemowrite(void);
