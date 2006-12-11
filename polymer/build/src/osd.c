@@ -51,6 +51,7 @@ static int  osdcols=60;			// width of onscreen display in text columns
 static int  osdmaxrows=20;		// maximum number of lines which can fit on the screen
 static int  osdmaxlines=TEXTSIZE/60;	// maximum lines which can fit in the buffer
 static char osdvisible=0;		// onscreen display visible?
+static char osdinput=0;         // capture input?
 static int  osdhead=0; 			// topmost visible line number
 static BFILE *osdlog=NULL;		// log filehandle
 static char osdinited=0;		// text buffer initialised?
@@ -199,6 +200,8 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
             osdrows = atoi(parm->parms[0]);
             if (osdrows < 1) osdrows = 1;
             else if (osdrows > osdmaxrows) osdrows = osdmaxrows;
+            if (osdrowscur < osdrows) osdscroll = 1;
+            else if (osdrowscur > osdrows) osdscroll = -1;
             return OSDCMD_OK;
         }
     }
@@ -368,10 +371,11 @@ int OSD_HandleKey(int sc, int press)
             else if (osdrowscur == osdrows)
                 osdscroll = -1;
             osdrowscur += osdscroll;                
+            OSD_CaptureInput(osdscroll == 1);
             bflushchars();
         }
         return 0;//sc;
-    } else if (!osdvisible) {
+    } else if (!osdinput) {
         return sc;
     }
 
@@ -670,17 +674,26 @@ void OSD_ResizeDisplay(int w, int h)
 
 
 //
+// OSD_CaptureInput()
+//
+void OSD_CaptureInput(int cap)
+{
+    osdinput = (cap != 0);
+    osdeditcontrol = 0;
+    osdeditshift = 0;
+
+    grabmouse(osdinput == 0);
+    onshowosd(osdinput);
+    if (osdinput) releaseallbuttons();
+}
+
+//
 // OSD_ShowDisplay() -- Shows or hides the onscreen display
 //
 void OSD_ShowDisplay(int onf)
 {
     osdvisible = (onf != 0);
-    osdeditcontrol = 0;
-    osdeditshift = 0;
-
-    grabmouse(osdvisible == 0);
-    onshowosd(osdvisible);
-    if (osdvisible) releaseallbuttons();
+    OSD_CaptureInput(osdvisible);
 }
 
 

@@ -51,6 +51,9 @@ int  OSD_HandleKey(int sc, int press);
 // handles the readjustment when screen resolution changes
 void OSD_ResizeDisplay(int w,int h);
 
+// captures and frees osd input
+void OSD_CaptureInput(int cap);
+
 // shows or hides the onscreen display
 void OSD_ShowDisplay(int onf);
 
