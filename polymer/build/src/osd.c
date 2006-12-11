@@ -45,6 +45,8 @@ static char osdtext[TEXTSIZE];
 static int  osdpos=0;			// position next character will be written at
 static int  osdlines=1;			// # lines of text in the buffer
 static int  osdrows=20;			// # lines of the buffer that are visible
+static int  osdrowscur=0;
+static int  osdscroll=0;
 static int  osdcols=60;			// width of onscreen display in text columns
 static int  osdmaxrows=20;		// maximum number of lines which can fit on the screen
 static int  osdmaxlines=TEXTSIZE/60;	// maximum lines which can fit in the buffer
@@ -52,7 +54,7 @@ static char osdvisible=0;		// onscreen display visible?
 static int  osdhead=0; 			// topmost visible line number
 static BFILE *osdlog=NULL;		// log filehandle
 static char osdinited=0;		// text buffer initialised?
-static int  osdkey=0x45;		// numlock shows the osd
+static int  osdkey=0x29;		// tilde shows the osd
 static int  keytime=0;
 
 // command prompt editing
@@ -360,7 +362,12 @@ int OSD_HandleKey(int sc, int press)
 
     if (sc == osdkey) {
         if (press) {
-            OSD_ShowDisplay(osdvisible ^ 1);
+            osdscroll = -osdscroll;
+            if (osdrowscur == 0)
+                osdscroll = 1;
+            else if (osdrowscur == osdrows)
+                osdscroll = -1;
+            osdrowscur += osdscroll;                
             bflushchars();
         }
         return 0;//sc;
@@ -402,7 +409,22 @@ int OSD_HandleKey(int sc, int press)
                 osdedittmp[j] = 0;
 
                 if (j > 0)
+                {
                     tabc = findsymbol(osdedittmp, NULL);
+                    
+                    if (tabc)
+                    {
+                        symbol_t *i=tabc;
+
+                        OSD_Printf("Matching symbols:\n");
+                        while (i)
+                        {
+                            OSD_Printf("     %s\n", i->name);
+                            lastmatch = i;
+                            i=findsymbol(osdedittmp, lastmatch->next);                               
+                        }
+                    }
+                }
             } else {
                 tabc = findsymbol(osdedittmp, lastmatch->next);
                 if (!tabc && lastmatch)
@@ -670,30 +692,45 @@ void OSD_Draw(void)
     unsigned topoffs;
     int row, lines, x, len;
 
-    if (!osdvisible || !osdinited) return;
+    if (!osdinited) return;
+
+    if (osdrowscur == 1)
+        OSD_ShowDisplay(osdvisible ^ 1);
+
+    if (osdrowscur == osdrows)
+        osdscroll = 0;
+    else
+    {
+        if ((osdrowscur < osdrows && osdscroll == 1) || osdrowscur < 0)
+            osdrowscur++;
+        else if ((osdrowscur > 0 && osdscroll == -1) || osdrowscur > osdrows)
+            osdrowscur--;   
+    } 
+    
+    if (!osdvisible || !osdrowscur) return;
 
     topoffs = osdhead * osdcols;
-    row = osdrows-1;
-    lines = min( osdlines-osdhead, osdrows );
+    row = osdrowscur-1;
+    lines = min( osdlines-osdhead, osdrowscur );
 
     begindrawing();
 
-    clearbackground(osdcols,osdrows+1);
+    clearbackground(osdcols,osdrowscur+1);
 
     for (; lines>0; lines--, row--) {
         drawosdstr(0,row,osdtext+topoffs,osdcols,osdtextshade,osdtextpal);
         topoffs+=osdcols;
     }
 
-    drawosdchar(2,osdrows,'>',osdpromptshade,osdpromptpal);
-    if (osdeditcaps) drawosdchar(0,osdrows,'C',osdpromptshade,osdpromptpal);
-    if (osdeditshift) drawosdchar(1,osdrows,'H',osdpromptshade,osdpromptpal);
+    drawosdchar(2,osdrowscur,'>',osdpromptshade,osdpromptpal);
+    if (osdeditcaps) drawosdchar(0,osdrowscur,'C',osdpromptshade,osdpromptpal);
+    if (osdeditshift) drawosdchar(1,osdrowscur,'H',osdpromptshade,osdpromptpal);
 
     len = min(osdcols-1-3, osdeditlen-osdeditwinstart);
     for (x=0; x<len; x++)
-        drawosdchar(3+x,osdrows,osdeditbuf[osdeditwinstart+x],osdeditshade,osdeditpal);
+        drawosdchar(3+x,osdrowscur,osdeditbuf[osdeditwinstart+x],osdeditshade,osdeditpal);
 
-    drawosdcursor(3+osdeditcursor-osdeditwinstart,osdrows,osdovertype,keytime);
+    drawosdcursor(3+osdeditcursor-osdeditwinstart,osdrowscur,osdovertype,keytime);
 
     enddrawing();
 }
