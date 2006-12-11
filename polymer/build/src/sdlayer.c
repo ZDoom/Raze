@@ -1499,6 +1499,10 @@ int handleevents(void)
     return rv;
 }
 
+void idle(void)
+{
+    usleep(1);
+}
 
 static int buildkeytranslationtable(void)
 {

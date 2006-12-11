@@ -1626,7 +1626,7 @@ static int AskIfSure(void)
                 retval = 1;
                 break;
             }
-        }
+        } else idle();
         if (keystatus[0x15] != 0)
         {
             keystatus[0x15] = 0;
@@ -4956,7 +4956,7 @@ static void EditSectorData(short sectnum)
         if (handleevents())
         {
             if (quitevent) quitevent = 0;
-        }
+        } else idle();
         printmessage16("Edit mode, press <Esc> to exit");
         if (keystatus[0xd0] > 0)
         {
@@ -5193,7 +5193,7 @@ static void EditWallData(short wallnum)
         if (handleevents())
         {
             if (quitevent) quitevent = 0;
-        }
+        } else idle();
         printmessage16("Edit mode, press <Esc> to exit");
         if (keystatus[0xd0] > 0)
         {
@@ -5327,7 +5327,7 @@ static void EditSpriteData(short spritenum)
         if (handleevents())
         {
             if (quitevent) quitevent = 0;
-        }
+        } else idle();
         printmessage16("Edit mode, press <Esc> to exit");
         if (keystatus[0xd0] > 0)
         {
@@ -5738,7 +5738,7 @@ static void FuncMenu(void)
         if (handleevents())
         {
             if (quitevent) quitevent = 0;
-        }
+        } else idle();
         printmessage16("Select an option, press <Esc> to exit");
         if (keystatus[0xd0] > 0)
         {

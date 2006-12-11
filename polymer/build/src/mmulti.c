@@ -492,12 +492,8 @@ long initmultiplayerscycle(void)
     long i, k;
     extern long totalclock;
 
-#ifdef _WIN32
-    Sleep(1);
-#else
-    usleep(1);
-#endif
-
+    idle();
+    
     getpacket(&i,0);
 
     tims = GetTickCount();

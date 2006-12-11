@@ -528,9 +528,10 @@ int handleevents(void)
     return rv;
 }
 
-
-
-
+void idle(void)
+{
+    Sleep(1);
+}
 
 
 
