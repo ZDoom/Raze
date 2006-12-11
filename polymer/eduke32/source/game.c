@@ -9890,6 +9890,30 @@ void app_main(int argc,char **argv)
     RTS_Init(ud.rtsname);
     if (numlumps) initprintf("Using .RTS file: %s\n",ud.rtsname);
 
+    initprintf("Initializing OSD...\n");
+
+    OSD_SetFunctions(
+#ifdef _WIN32
+        GAME_drawosdchar,
+        GAME_drawosdstr,
+        GAME_drawosdcursor,
+        GAME_getcolumnwidth,
+        GAME_getrowheight,
+#else
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+#endif
+        GAME_clearbackground,
+        (int(*)(void))GetTime,
+        GAME_onshowosd
+    );
+    OSD_SetParameters(0,2, 0,0, 4,0);
+    OSD_SetVersionString(HEAD2);
+    registerosdcommands();
+
     if (setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP) < 0)
     {
         int i = 0;
@@ -9917,23 +9941,6 @@ void app_main(int argc,char **argv)
         ScreenHeight = yres[i];
         ScreenBPP = bpp[i];
     }
-
-    initprintf("Initializing OSD...\n");
-
-    OSD_SetFunctions(
-        GAME_drawosdchar,
-        GAME_drawosdstr,
-        GAME_drawosdcursor,
-        GAME_getcolumnwidth,
-        GAME_getrowheight,
-        GAME_clearbackground,
-        (int(*)(void))GetTime,
-        GAME_onshowosd
-    );
-    OSD_SetParameters(0,2, 0,0, 4,0);
-    OSD_SetVersionString(HEAD2);
-    OSD_ResizeDisplay(ScreenWidth,ScreenHeight);
-    registerosdcommands();
 
     initprintf("Checking music inits...\n");
     MusicStartup();

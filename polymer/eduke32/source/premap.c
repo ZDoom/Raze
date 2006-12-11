@@ -488,7 +488,7 @@ void vscrn(void)
     long i, j, ss, x1, x2, y1, y2;
 
     if (ud.screen_size < 0) ud.screen_size = 0;
-    else if (ud.screen_size > 63) ud.screen_size = 64;
+    else if (ud.screen_size > 64) ud.screen_size = 64;
 
     if (ud.screen_size == 0) flushperms();
 

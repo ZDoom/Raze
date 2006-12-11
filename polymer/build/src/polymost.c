@@ -580,6 +580,7 @@ void polymost_glinit()
 {
     GLfloat col[4];
 
+#if 0
     if (!Bstrcmp(glinfo.vendor, "ATI Technologies Inc."))
     {
         initprintf("polymost_glinit(): ATI detected, GL_FOG_HINT = GL_DONT_CARE\n");
@@ -589,6 +590,10 @@ void polymost_glinit()
     {
         bglHint(GL_FOG_HINT,GL_NICEST);
     }
+#else
+    bglHint(GL_FOG_HINT,GL_DONT_CARE);
+#endif
+    
     bglFogi(GL_FOG_MODE,GL_EXP2);
     bglFogf(GL_FOG_DENSITY,1.0); //must be > 0, default is 1
 /*    bglFogf(GL_FOG_START,0.0); //default is 0

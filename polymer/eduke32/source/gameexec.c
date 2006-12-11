@@ -353,7 +353,13 @@ static void DoUserDef(char bSet, const long *lLabelID, const long *lVar2)
 
     case USERDEFS_SCREEN_SIZE:
         if (bSet)
-            ud.screen_size = lValue;
+        {
+            if (ud.screen_size != lValue)
+            {
+                ud.screen_size = lValue;
+                vscrn();
+            }
+        }
         else
             SetGameVarID(*lVar2, ud.screen_size, g_i, g_p);
         break;

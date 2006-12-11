@@ -47,7 +47,7 @@ static int  osdversionstringlen;
 static int  osdpos=0;			// position next character will be written at
 static int  osdlines=1;			// # lines of text in the buffer
 static int  osdrows=20;			// # lines of the buffer that are visible
-static int  osdrowscur=0;
+static int  osdrowscur=-1;
 static int  osdscroll=0;
 static int  osdcols=60;			// width of onscreen display in text columns
 static int  osdmaxrows=20;		// maximum number of lines which can fit on the screen
@@ -367,13 +367,12 @@ int OSD_HandleKey(int sc, int press)
     if (sc == osdkey) {
         if (press) {
             osdscroll = -osdscroll;
-            if (osdrowscur == 0)
+            if (osdrowscur == -1)
                 osdscroll = 1;
             else if (osdrowscur == osdrows)
                 osdscroll = -1;
             osdrowscur += osdscroll;                
             OSD_CaptureInput(osdscroll == 1);
-            bflushchars();
         }
         return 0;//sc;
     } else if (!osdinput) {
@@ -417,7 +416,7 @@ int OSD_HandleKey(int sc, int press)
                 {
                     tabc = findsymbol(osdedittmp, NULL);
                     
-                    if (tabc)
+                    if (tabc && findsymbol(osdedittmp, tabc->next))
                     {
                         symbol_t *i=tabc;
 
@@ -516,7 +515,10 @@ int OSD_HandleKey(int sc, int press)
 
     if (sc == 15) {		// tab
     } else if (sc == 1) {		// escape
-        OSD_ShowDisplay(0);
+//        OSD_ShowDisplay(0);
+            osdscroll = -1;
+            osdrowscur += osdscroll;                
+            OSD_CaptureInput(0);
     } else if (sc == 201) {	// page up
         if (osdhead < osdlines-1)
             osdhead++;
@@ -686,6 +688,7 @@ void OSD_CaptureInput(int cap)
     grabmouse(osdinput == 0);
     onshowosd(osdinput);
     if (osdinput) releaseallbuttons();
+    bflushchars();
 }
 
 //
@@ -708,16 +711,16 @@ void OSD_Draw(void)
 
     if (!osdinited) return;
 
-    if (osdrowscur == 1)
+    if (osdrowscur == 0)
         OSD_ShowDisplay(osdvisible ^ 1);
 
     if (osdrowscur == osdrows)
         osdscroll = 0;
     else
     {
-        if ((osdrowscur < osdrows && osdscroll == 1) || osdrowscur < 0)
+        if ((osdrowscur < osdrows && osdscroll == 1) || osdrowscur < -1)
             osdrowscur++;
-        else if ((osdrowscur > 0 && osdscroll == -1) || osdrowscur > osdrows)
+        else if ((osdrowscur > -1 && osdscroll == -1) || osdrowscur > osdrows)
             osdrowscur--;   
     } 
     
@@ -732,7 +735,7 @@ void OSD_Draw(void)
     clearbackground(osdcols,osdrowscur+1);
     
     if (osdversionstring[0])
-        drawosdstr(osdcols-osdversionstringlen,osdrowscur,osdversionstring,osdcols,0,2);
+        drawosdstr(osdcols-osdversionstringlen,osdrowscur,osdversionstring,osdversionstringlen,0,2);
        
     for (; lines>0; lines--, row--) {
         drawosdstr(0,row,osdtext+topoffs,osdcols,osdtextshade,osdtextpal);
