@@ -4,5 +4,4 @@ void GAME_drawosdcursor(int x, int y, int type, int lastkeypress);
 int GAME_getcolumnwidth(int w);
 int GAME_getrowheight(int w);
 void GAME_clearbackground(int c, int r);
-void GAME_onshowosd(int shown);
-
+void GAME_onshowosd(int shown);

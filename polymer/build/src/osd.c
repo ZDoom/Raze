@@ -42,6 +42,8 @@ static void _internal_onshowosd(int);
 
 // history display
 static char osdtext[TEXTSIZE];
+static char osdversionstring[32];
+static int  osdversionstringlen;
 static int  osdpos=0;			// position next character will be written at
 static int  osdlines=1;			// # lines of text in the buffer
 static int  osdrows=20;			// # lines of the buffer that are visible
@@ -101,7 +103,6 @@ static int (*getrowheight)(int) = _internal_getrowheight;
 static void (*clearbackground)(int,int) = _internal_clearbackground;
 static int (*gettime)(void) = _internal_gettime;
 static void (*onshowosd)(int) = _internal_onshowosd;
-
 
 static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
@@ -729,7 +730,10 @@ void OSD_Draw(void)
     begindrawing();
 
     clearbackground(osdcols,osdrowscur+1);
-
+    
+    if (osdversionstring[0])
+        drawosdstr(osdcols-osdversionstringlen,osdrowscur,osdversionstring,osdcols,0,2);
+       
     for (; lines>0; lines--, row--) {
         drawosdstr(0,row,osdtext+topoffs,osdcols,osdtextshade,osdtextpal);
         topoffs+=osdcols;
@@ -744,7 +748,7 @@ void OSD_Draw(void)
         drawosdchar(3+x,osdrowscur,osdeditbuf[osdeditwinstart+x],osdeditshade,osdeditpal);
 
     drawosdcursor(3+osdeditcursor-osdeditwinstart,osdrowscur,osdovertype,keytime);
-
+    
     enddrawing();
 }
 
@@ -1003,6 +1007,16 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
     return 0;
 }
 
+//
+// OSD_SetVersionString()
+//
+void OSD_SetVersionString(const char *version)
+{
+    if (!osdinited) OSD_Init();
+
+    strcpy(osdversionstring,version);
+    osdversionstringlen = strlen(osdversionstring);
+}
 
 //
 // addnewsymbol() -- Allocates space for a new symbol and attaches it

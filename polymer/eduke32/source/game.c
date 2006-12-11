@@ -9931,6 +9931,8 @@ void app_main(int argc,char **argv)
         GAME_onshowosd
     );
     OSD_SetParameters(0,2, 0,0, 4,0);
+    OSD_SetVersionString(HEAD2);
+    OSD_ResizeDisplay(ScreenWidth,ScreenHeight);
     registerosdcommands();
 
     initprintf("Checking music inits...\n");

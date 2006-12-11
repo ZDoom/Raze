@@ -4298,6 +4298,7 @@ int ExtPreInit(int *argc,char ***argv)
     wm_setapptitle("Mapster32"VERSION);
 
     OSD_SetLogFile("mapster32.log");
+    OSD_SetVersionString("Mapster32"VERSION);
     initprintf("Mapster32"VERSION" ("__DATE__" "__TIME__")\n");
     initprintf("Copyright (c) 2006 EDuke32 team\n\n");
     return 0;
