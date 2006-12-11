@@ -397,7 +397,7 @@ CANCEL:
                 keystatus[1] = 1;
                 quitevent = 0;
             }
-        } else idle();
+        }
         
         OSD_DispatchQueued();
 
@@ -6416,7 +6416,7 @@ long getnumber256(char namestart[80], long num, long maxnumber, char sign)
     {
         if (handleevents()) {
             if (quitevent) quitevent = 0;
-        } else idle();
+        }
 
         drawrooms(posx,posy,posz,ang,horiz,cursectnum);
 #ifdef SUPERBUILD
