@@ -11061,7 +11061,7 @@ void printext256(long xpos, long ypos, short col, short backcol, char *name, cha
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (!polymost_printext256(xpos,ypos,col,backcol,name,fontsize)) return;
 
-    if (rendmode >= 3) {
+    if (rendmode >= 3 && qsetmode == 200) {
         long xx, yy;
         int lc=-1;
         palette_t p,b;
