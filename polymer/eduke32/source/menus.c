@@ -87,6 +87,8 @@ void savetemp(char *fn,long daptr,long dasiz)
 
 #define LMB (buttonstat&1)
 #define RMB (buttonstat&2)
+#define WHEELDN (buttonstat&16)
+#define WHEELUP (buttonstat&32)
 
 ControlInfo minfo;
 
@@ -107,10 +109,9 @@ static int probe_(int type,int x,int y,int i,int n)
         centre = 320>>2;
     else centre = 0;
 
-    if (!buttonstat)
+    if (!buttonstat || WHEELUP || WHEELDN)
     {
-        if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_PgUp) || KB_KeyPressed(sc_kpad_8) ||
-                mi < -8192)
+        if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_PgUp) || KB_KeyPressed(sc_kpad_8) || mi < -8192 || WHEELUP)
         {
             mi = 0;
             KB_ClearKeyDown(sc_UpArrow);
@@ -122,8 +123,7 @@ static int probe_(int type,int x,int y,int i,int n)
             if (probey < 0) probey = n-1;
             minfo.dz = 0;
         }
-        if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_PgDn) || KB_KeyPressed(sc_kpad_2)
-                || mi > 8192)
+        if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_PgDn) || KB_KeyPressed(sc_kpad_2) || mi > 8192 || WHEELDN)
         {
             mi = 0;
             KB_ClearKeyDown(sc_DownArrow);
