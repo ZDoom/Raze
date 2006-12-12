@@ -1868,12 +1868,15 @@ static char parsecommand(void)
                     if (*textptr == 0) break;
                 }
                 j = 0;
+                tempbuf[j] = '/';
                 while (isaltok(*(textptr+j)))
                 {
-                    tempbuf[j] = textptr[j];
+                    tempbuf[j+1] = textptr[j];
                     j++;
                 }
-                tempbuf[j] = '\0';
+                tempbuf[j+1] = '\0';
+
+                Bcorrectfilename(tempbuf,0);
 
                 if (music_fn[k][i] == NULL)
                     music_fn[k][i] = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
@@ -4023,9 +4026,11 @@ repeatcase:
 
         i = 0;
 
+        tempbuf[i] = '/';
+
         while (*textptr != ' ' && *textptr != '\t' && *textptr != 0x0a)
         {
-            tempbuf[i] = *textptr;
+            tempbuf[i+1] = *textptr;
             textptr++,i++;
             if (i >= BMAX_PATH)
             {
@@ -4035,7 +4040,9 @@ repeatcase:
                 break;
             }
         }
-        tempbuf[i] = '\0';
+        tempbuf[i+1] = '\0';
+
+        Bcorrectfilename(tempbuf,0);
 
         if (level_file_names[j*MAXLEVELS+k] == NULL)
             level_file_names[j*MAXLEVELS+k] = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));

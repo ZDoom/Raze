@@ -138,8 +138,8 @@ int osdcmd_map(const osdfuncparm_t *parm)
         OSD_Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
-
-    strcpy(filename,parm->parms[0]);
+    filename[0] = '/';
+    strcat(filename,parm->parms[0]);
     if (strchr(filename,'.') == 0)
         strcat(filename,".map");
 
@@ -151,6 +151,8 @@ int osdcmd_map(const osdfuncparm_t *parm)
     kclose(i);
 
     strcpy(boardfilename, filename);
+
+    Bcorrectfilename(boardfilename,0);
 
     if (ps[myconnectindex].gm & MODE_GAME)
     {
@@ -769,6 +771,8 @@ int osdcmd_mpmap(const osdfuncparm_t *parm)
     kclose(i);
 
     strcpy(boardfilename, filename);
+
+    Bcorrectfilename(boardfilename,0);
 
     sendboardname();
 

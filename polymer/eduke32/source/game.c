@@ -859,6 +859,7 @@ void getpackets(void)
 
                 Bstrcpy(boardfilename,packbuf+1);
                 boardfilename[packbufleng-1] = 0;
+                Bcorrectfilename(boardfilename,0);
                 if (boardfilename[0] != 0)
                 {
                     if ((i = kopen4load(boardfilename,0)) < 0)
@@ -9326,7 +9327,8 @@ static void Startup(long argc, char **argv)
         {
             char *dot, *slash;
 
-            Bstrcpy(boardfilename, CommandMap);
+            boardfilename[0] = '/';
+            Bstrcat(boardfilename, CommandMap);
 
             dot = Bstrrchr(boardfilename,'.');
             slash = Bstrrchr(boardfilename,'/');
@@ -9334,6 +9336,8 @@ static void Startup(long argc, char **argv)
 
             if ((!slash && !dot) || (slash && dot < slash))
                 Bstrcat(boardfilename,".map");
+
+            Bcorrectfilename(boardfilename,0);
 
             i = kopen4load(boardfilename,0);
             if (i!=-1)
@@ -9491,6 +9495,8 @@ void sendboardname(void)
 
         tempbuf[0] = 9;
         tempbuf[1] = 0;
+
+        Bcorrectfilename(boardfilename,0);
 
         j = Bstrlen(boardfilename);
         boardfilename[j] = 0;

@@ -2002,10 +2002,8 @@ cheat_for_port_credits:
         break;
 
     case 101:
-//       everything seems to work fine without this...
-
-//        if (boardfilename[0] == 0) strcpy(boardfilename, "./");
-//        Bcorrectfilename(boardfilename,1);
+        if (boardfilename[0] == 0) strcpy(boardfilename, "./");
+        Bcorrectfilename(boardfilename,1);
         getfilenames(boardfilename,"*.map");
         cmenu(102);
         KB_FlushKeyboardQueue();

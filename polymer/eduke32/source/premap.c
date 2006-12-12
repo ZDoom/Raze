@@ -1535,7 +1535,7 @@ extern void adduserquote(char *daquote);
 
 extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting, vote_map, vote_episode;
 
-static void getlevelfromfilename(char *fn, char *volume, char *level)
+static void getlevelfromfilename(const char *fn, char *volume, char *level)
 {
     for ((*volume)=0;(*volume)<MAXVOLUMES;(*volume)++)
     {
@@ -1587,6 +1587,8 @@ int enterlevel(char g)
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
         char volume, level;
+
+        Bcorrectfilename(boardfilename,0);
 
         getlevelfromfilename(boardfilename,&volume,&level);
 
