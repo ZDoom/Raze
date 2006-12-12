@@ -101,28 +101,7 @@ int osdcmd_changelevel(const osdfuncparm_t *parm)
     if (numplayers > 1)
     {
         if (myconnectindex == connecthead && networkmode == 0)
-        {
-            int i;
-        
-            tempbuf[0] = 5;
-            tempbuf[1] = ud.m_level_number = level;
-            tempbuf[2] = ud.m_volume_number = volume;
-            tempbuf[3] = ud.m_player_skill;
-            tempbuf[4] = ud.m_monsters_off;
-            tempbuf[5] = ud.m_respawn_monsters;
-            tempbuf[6] = ud.m_respawn_items;
-            tempbuf[7] = ud.m_respawn_inventory;
-            tempbuf[8] = ud.m_coop;
-            tempbuf[9] = ud.m_marker;
-            tempbuf[10] = ud.m_ffire;
-            tempbuf[11] = ud.m_noexits;
-
-            for (i=connecthead;i>=0;i=connectpoint2[i])
-            {
-                if (i != myconnectindex) sendpacket(i,tempbuf,12);
-                if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-            }
-        }
+            mpchangemap(volume,level);
         else if (voting == -1)
         {
             ud.m_volume_number = volume;
@@ -221,25 +200,7 @@ int osdcmd_map(const osdfuncparm_t *parm)
         if (myconnectindex == connecthead && networkmode == 0)
         {
             sendboardname();
-            
-            tempbuf[0] = 5;
-            tempbuf[1] = ud.m_level_number = 7;
-            tempbuf[2] = ud.m_volume_number = 0;
-            tempbuf[3] = ud.m_player_skill;
-            tempbuf[4] = ud.m_monsters_off;
-            tempbuf[5] = ud.m_respawn_monsters;
-            tempbuf[6] = ud.m_respawn_items;
-            tempbuf[7] = ud.m_respawn_inventory;
-            tempbuf[8] = ud.m_coop;
-            tempbuf[9] = ud.m_marker;
-            tempbuf[10] = ud.m_ffire;
-            tempbuf[11] = ud.m_noexits;
-
-            for (i=connecthead;i>=0;i=connectpoint2[i])
-            {
-                if (i != myconnectindex) sendpacket(i,tempbuf,12);
-                if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-            }
+            mpchangemap(0,7);            
         }
         else if (voting == -1)
         {

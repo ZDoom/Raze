@@ -7482,23 +7482,7 @@ FOUNDCHEAT:
                         ud.m_player_skill = ud.player_skill = cheatbuf[i] - '1';
                     }
                     if (numplayers > 1 && myconnectindex == connecthead)
-                    {
-                        tempbuf[0] = 5;
-                        tempbuf[1] = ud.m_level_number;
-                        tempbuf[2] = ud.m_volume_number;
-                        tempbuf[3] = ud.m_player_skill;
-                        tempbuf[4] = ud.m_monsters_off;
-                        tempbuf[5] = ud.m_respawn_monsters;
-                        tempbuf[6] = ud.m_respawn_items;
-                        tempbuf[7] = ud.m_respawn_inventory;
-                        tempbuf[8] = ud.m_coop;
-                        tempbuf[9] = ud.m_marker;
-                        tempbuf[10] = ud.m_ffire;
-                        tempbuf[11] = ud.m_noexits;
-
-                        for (i=connecthead;i>=0;i=connectpoint2[i])
-                            sendpacket(i,tempbuf,12);
-                    }
+                        mpchangemap(ud.m_volume_number,ud.m_level_number);
                     else ps[myconnectindex].gm |= MODE_RESTART;
 
                     ps[myconnectindex].cheat_phase = 0;
@@ -9508,6 +9492,30 @@ void sendboardname(void)
             if (ch != myconnectindex) sendpacket(ch,packbuf,j+1);
             if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
         }
+    }
+}
+
+void mpchangemap(char volume, char level)
+{
+    int i;
+
+    tempbuf[0] = 5;
+    tempbuf[1] = ud.m_level_number = level;
+    tempbuf[2] = ud.m_volume_number = volume;
+    tempbuf[3] = ud.m_player_skill+1;
+    tempbuf[4] = ud.m_monsters_off;
+    tempbuf[5] = ud.m_respawn_monsters;
+    tempbuf[6] = ud.m_respawn_items;
+    tempbuf[7] = ud.m_respawn_inventory;
+    tempbuf[8] = ud.m_coop;
+    tempbuf[9] = ud.m_marker;
+    tempbuf[10] = ud.m_ffire;
+    tempbuf[11] = ud.m_noexits;
+
+    for (i=connecthead;i>=0;i=connectpoint2[i])
+    {
+        if (i != myconnectindex) sendpacket(i,tempbuf,12);
+        if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
     }
 }
 

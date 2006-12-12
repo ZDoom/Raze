@@ -242,5 +242,6 @@ extern void sendquit(void);
 
 extern void adduserquote(char *daquote);
 extern char *stripcolorcodes(char *t);
+extern void mpchangemap(char volume, char level);
 
 #endif // __funct_h__

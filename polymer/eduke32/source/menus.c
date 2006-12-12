@@ -4498,11 +4498,6 @@ VOLUME_ALL_40x:
             {
                 if (plrvotes > (numplayers>>1) || !ps[myconnectindex].i || (!networkmode && myconnectindex == connecthead))
                 {
-                    tempbuf[0] = 5;
-                    tempbuf[1] = ud.m_level_number;
-                    tempbuf[2] = ud.m_volume_number;
-                    tempbuf[3] = ud.m_player_skill+1;
-
                     if (ud.m_player_skill == 3) ud.m_respawn_monsters = 1;
                     else ud.m_respawn_monsters = 0;
 
@@ -4511,27 +4506,15 @@ VOLUME_ALL_40x:
 
                     ud.m_respawn_inventory = 1;
 
-                    tempbuf[4] = ud.m_monsters_off;
-                    tempbuf[5] = ud.m_respawn_monsters;
-                    tempbuf[6] = ud.m_respawn_items;
-                    tempbuf[7] = ud.m_respawn_inventory;
-                    tempbuf[8] = ud.m_coop;
-                    tempbuf[9] = ud.m_marker;
-                    tempbuf[10] = ud.m_ffire;
-                    tempbuf[11] = ud.m_noexits;
-
                     for (c=connecthead;c>=0;c=connectpoint2[c])
                     {
                         resetweapons(c);
                         resetinventory(c);
 
                     }
-                    for (c=connecthead;c>=0;c=connectpoint2[c])
-                    {
-                        if (c != myconnectindex) sendpacket(c,tempbuf,12);
-                        if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                    }
-
+                
+                    mpchangemap(ud.m_volume_number,ud.m_level_number);
+                    
                     if (voting == myconnectindex)
                         adduserquote("VOTE SUCCEEDED");
 

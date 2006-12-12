@@ -4475,26 +4475,7 @@ SKIPJIBS:
         ud.m_volume_number = ud.volume_number = volnume;
         ud.m_level_number = ud.level_number = levnume;
         if (numplayers > 1 && myconnectindex == connecthead)
-        {
-            tempbuf[0] = 5;
-            tempbuf[1] = ud.m_level_number;
-            tempbuf[2] = ud.m_volume_number;
-            tempbuf[3] = ud.m_player_skill;
-            tempbuf[4] = ud.m_monsters_off;
-            tempbuf[5] = ud.m_respawn_monsters;
-            tempbuf[6] = ud.m_respawn_items;
-            tempbuf[7] = ud.m_respawn_inventory;
-            tempbuf[8] = ud.m_coop;
-            tempbuf[9] = ud.m_marker;
-            tempbuf[10] = ud.m_ffire;
-            tempbuf[11] = ud.m_noexits;
-
-            for (i=connecthead;i>=0;i=connectpoint2[i])
-            {
-                if (i != myconnectindex) sendpacket(i,tempbuf,12);
-                if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-            }
-        }
+            mpchangemap(volnume,levnume);
         else
         {
             ps[myconnectindex].gm |= MODE_EOL;
