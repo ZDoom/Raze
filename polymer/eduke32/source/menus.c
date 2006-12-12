@@ -87,7 +87,7 @@ void savetemp(char *fn,long daptr,long dasiz)
 
 #define LMB (buttonstat&1)
 #define RMB (buttonstat&2)
-#define WHEELDN (buttonstat&16)
+#define WHEELDOWN (buttonstat&16)
 #define WHEELUP (buttonstat&32)
 
 ControlInfo minfo;
@@ -114,7 +114,7 @@ static int probe_(int type,int x,int y,int i,int n)
     {
         if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_PgUp) || KB_KeyPressed(sc_kpad_8) || mi < -8192 || WHEELUP)
         {
-            mi = 0;
+            mi = mii = 0;
             KB_ClearKeyDown(sc_UpArrow);
             KB_ClearKeyDown(sc_kpad_8);
             KB_ClearKeyDown(sc_PgUp);
@@ -125,9 +125,9 @@ static int probe_(int type,int x,int y,int i,int n)
             if (probey < 0) probey = n-1;
             minfo.dz = 0;
         }
-        if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_PgDn) || KB_KeyPressed(sc_kpad_2) || mi > 8192 || WHEELDN)
+        if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_PgDn) || KB_KeyPressed(sc_kpad_2) || mi > 8192 || WHEELDOWN)
         {
-            mi = 0;
+            mi = mii = 0;
             KB_ClearKeyDown(sc_DownArrow);
             KB_ClearKeyDown(sc_kpad_2);
             KB_ClearKeyDown(sc_PgDn);
@@ -173,9 +173,9 @@ static int probe_(int type,int x,int y,int i,int n)
     else
     {
         if (onbar == 0) return(-probey-2);
-        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELDN || mii < -384)))
+        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELDOWN || mii < -256)))
             return(probey);
-        else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELUP || mii > 384)))
+        else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELUP || mii > 256)))
             return(probey);
         else return(-probey-2);
     }
@@ -332,7 +332,7 @@ static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short 
     {
         if (rev == 0)
         {
-            if (*p > 0 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELDN || mii < -384))))         // && onbar) )
+            if (*p > 0 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELDOWN || mii < -256))))         // && onbar) )
             {
                 KB_ClearKeyDown(sc_LeftArrow);
                 KB_ClearKeyDown(sc_kpad_4);
@@ -343,7 +343,7 @@ static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short 
                     *p = 0;
                 sound(KICK_HIT);
             }
-            if (*p < 63 && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELUP || mii > 384))))        //&& onbar) )
+            if (*p < 63 && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELUP || mii > 256))))        //&& onbar) )
             {
                 KB_ClearKeyDown(sc_RightArrow);
                 KB_ClearKeyDown(sc_kpad_6);
@@ -625,7 +625,7 @@ void menus(void)
         gametext(160,90,"SELECT A SAVE SPOT BEFORE",0,2+8+16);
         gametext(160,90+9,"YOU QUICK RESTORE.",0,2+8+16);
 
-        x = probe(186,124,0,0);
+        x = probe(186,124,0,1);
         if (x >= -1)
         {
             if (ud.multimode < 2 && ud.recstat != 2)
@@ -638,7 +638,7 @@ void menus(void)
         break;
 
     case 20000:
-        x = probe(326,190,0,0);
+        x = probe(326,190,0,1);
         gametext(160,50-8,"YOU ARE PLAYING THE SHAREWARE",0,2+8+16);
         gametext(160,59-8,"VERSION OF DUKE NUKEM 3D.  WHILE",0,2+8+16);
         gametext(160,68-8,"THIS VERSION IS REALLY COOL, YOU",0,2+8+16);
@@ -1499,7 +1499,9 @@ void menus(void)
             l = 3;
         }
 
-        if (KB_KeyPressed(sc_Escape) || MOUSE_GetButtons()&RIGHT_MOUSE)
+        x = probe(0,0,0,1);
+        
+        if (x == -1)
         {
             cmenu(0);
             break;
@@ -1509,7 +1511,8 @@ void menus(void)
                 KB_KeyPressed(sc_kpad_4) ||
                 KB_KeyPressed(sc_UpArrow) ||
                 KB_KeyPressed(sc_PgUp) ||
-                KB_KeyPressed(sc_kpad_8))
+                KB_KeyPressed(sc_kpad_8) ||
+                WHEELUP)
         {
             KB_ClearKeyDown(sc_LeftArrow);
             KB_ClearKeyDown(sc_kpad_4);
@@ -1531,7 +1534,7 @@ void menus(void)
             KB_KeyPressed(sc_kpad_2) ||
             KB_KeyPressed(sc_kpad_9) ||
             KB_KeyPressed(sc_kpad_6) ||
-            MOUSE_GetButtons()&LEFT_MOUSE)
+            LMB || WHEELDOWN)
         {
             KB_ClearKeyDown(sc_PgDn);
             KB_ClearKeyDown(sc_Enter);
@@ -1542,7 +1545,6 @@ void menus(void)
             KB_ClearKeyDown(sc_kpad_2);
             KB_ClearKeyDown(sc_DownArrow);
             KB_ClearKeyDown(sc_Space);
-            MOUSE_ClearButton(LEFT_MOUSE);
             sound(KICK_HIT);
             current_menu++;
             if (current_menu > 990+l) current_menu = 990;
@@ -3150,9 +3152,9 @@ cheat_for_port_credits:
             gametext(320>>1,90+9+9+9,"PRESS \"ESCAPE\" TO CANCEL",0,2+8+16);
 
             sc = KB_GetLastScanCode();
-            if (sc != sc_None || MOUSE_GetButtons()&RIGHT_MOUSE)
+            if (sc != sc_None || RMB)
             {
-                if (sc == sc_Escape || MOUSE_GetButtons()&RIGHT_MOUSE)
+                if (sc == sc_Escape || RMB)
                 {
                     sound(EXITMENUSOUND);
                 }
@@ -3173,7 +3175,6 @@ cheat_for_port_credits:
                 probey = function;
 
                 KB_ClearKeyDown(sc);
-                MOUSE_ClearButton(RIGHT_MOUSE);
             }
 
             break;
@@ -4305,14 +4306,14 @@ VOLUME_ALL_40x:
                 KB_KeyPressed(sc_kpad_4) ||
                 KB_KeyPressed(sc_UpArrow) ||
                 KB_KeyPressed(sc_PgUp) ||
-                KB_KeyPressed(sc_kpad_8))
+                KB_KeyPressed(sc_kpad_8) ||
+                WHEELDOWN)
         {
             KB_ClearKeyDown(sc_LeftArrow);
             KB_ClearKeyDown(sc_kpad_4);
             KB_ClearKeyDown(sc_UpArrow);
             KB_ClearKeyDown(sc_PgUp);
             KB_ClearKeyDown(sc_kpad_8);
-
             sound(KICK_HIT);
             current_menu--;
             if (current_menu < 400) current_menu = 401;
@@ -4327,7 +4328,7 @@ VOLUME_ALL_40x:
             KB_KeyPressed(sc_kpad_9) ||
             KB_KeyPressed(sc_Space) ||
             KB_KeyPressed(sc_kpad_6) ||
-            MOUSE_GetButtons()&LEFT_MOUSE)
+            LMB || WHEELUP)
         {
             KB_ClearKeyDown(sc_PgDn);
             KB_ClearKeyDown(sc_Enter);
@@ -4338,13 +4339,14 @@ VOLUME_ALL_40x:
             KB_ClearKeyDown(sc_kpad_2);
             KB_ClearKeyDown(sc_DownArrow);
             KB_ClearKeyDown(sc_Space);
-            MOUSE_ClearButton(LEFT_MOUSE);
             sound(KICK_HIT);
             current_menu++;
             if (current_menu > 401) current_menu = 400;
         }
 
-        if (KB_KeyPressed(sc_Escape) || MOUSE_GetButtons()&RIGHT_MOUSE)
+        x = probe(0,0,0,1);
+
+        if (x == -1)
         {
             if (ps[myconnectindex].gm&MODE_GAME)
                 cmenu(50);
@@ -4379,7 +4381,7 @@ VOLUME_ALL_40x:
             sendquit();
         }
 
-        x = probe(186,124,0,0);
+        x = probe(186,124,0,1);
         if (x == -1 || KB_KeyPressed(sc_N) || RMB)
         {
             KB_ClearKeyDown(sc_N);
