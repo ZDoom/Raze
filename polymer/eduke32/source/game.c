@@ -2619,7 +2619,7 @@ short strget_(int small,short x,short y,char *t,short dalen,short c)
     short ch;
     int i;
 
-    while ((ch = KB_Getch()) != 0)
+    while ((ch = KB_Getch()) != 0 || (ps[myconnectindex].gm&MODE_MENU && MOUSE_GetButtons()&RIGHT_MOUSE))
     {
         if (ch == asc_BackSpace)
         {
@@ -2637,9 +2637,10 @@ short strget_(int small,short x,short y,char *t,short dalen,short c)
                 KB_ClearKeyDown(sc_kpad_Enter);
                 return (1);
             }
-            else if (ch == asc_Escape)
+            else if (ch == asc_Escape || (ps[myconnectindex].gm&MODE_MENU && MOUSE_GetButtons()&RIGHT_MOUSE))
             {
                 KB_ClearKeyDown(sc_Escape);
+                MOUSE_ClearButton(RIGHT_MOUSE);
                 return (-1);
             }
             else if (ch >= 32 && inputloc < dalen && ch < 127)

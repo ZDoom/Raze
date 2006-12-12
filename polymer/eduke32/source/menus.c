@@ -92,7 +92,7 @@ void savetemp(char *fn,long daptr,long dasiz)
 
 ControlInfo minfo;
 
-long mi;
+short mi, mii;
 
 static int probe_(int type,int x,int y,int i,int n)
 {
@@ -103,13 +103,14 @@ static int probe_(int type,int x,int y,int i,int n)
     {
         CONTROL_GetInput(&minfo);
         mi += minfo.dz;
+        mii += minfo.dyaw;
     }
 
     if (x == (320>>1))
         centre = 320>>2;
     else centre = 0;
 
-    if (!buttonstat || WHEELUP || WHEELDN)
+    if (!buttonstat || buttonstat == 16 || buttonstat == 32)
     {
         if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_PgUp) || KB_KeyPressed(sc_kpad_8) || mi < -8192 || WHEELUP)
         {
@@ -117,6 +118,7 @@ static int probe_(int type,int x,int y,int i,int n)
             KB_ClearKeyDown(sc_UpArrow);
             KB_ClearKeyDown(sc_kpad_8);
             KB_ClearKeyDown(sc_PgUp);
+            MOUSE_ClearButton(WHEELUP_MOUSE);
             sound(KICK_HIT);
 
             probey--;
@@ -129,6 +131,7 @@ static int probe_(int type,int x,int y,int i,int n)
             KB_ClearKeyDown(sc_DownArrow);
             KB_ClearKeyDown(sc_kpad_2);
             KB_ClearKeyDown(sc_PgDn);
+            MOUSE_ClearButton(WHEELDOWN_MOUSE);
             sound(KICK_HIT);
             probey++;
             minfo.dz = 0;
@@ -156,6 +159,7 @@ static int probe_(int type,int x,int y,int i,int n)
         KB_ClearKeyDown(sc_Enter);
         KB_ClearKeyDown(sc_Space);
         KB_ClearKeyDown(sc_kpad_Enter);
+        MOUSE_ClearButton(LEFT_MOUSE);
         return(probey);
     }
     else if (KB_KeyPressed(sc_Escape) || (RMB))
@@ -163,14 +167,15 @@ static int probe_(int type,int x,int y,int i,int n)
         onbar = 0;
         KB_ClearKeyDown(sc_Escape);
         sound(EXITMENUSOUND);
+        MOUSE_ClearButton(RIGHT_MOUSE);        
         return(-1);
     }
     else
     {
         if (onbar == 0) return(-probey-2);
-        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -128))
+        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELDN || mii < -384)))
             return(probey);
-        else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 128))
+        else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELUP || mii > 384)))
             return(probey);
         else return(-probey-2);
     }
@@ -327,21 +332,23 @@ static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short 
     {
         if (rev == 0)
         {
-            if (*p > 0 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256)))         // && onbar) )
+            if (*p > 0 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELDN || mii < -384))))         // && onbar) )
             {
                 KB_ClearKeyDown(sc_LeftArrow);
                 KB_ClearKeyDown(sc_kpad_4);
-
+                MOUSE_ClearButton(WHEELDOWN_MOUSE);
+                mii = 0;
                 *p -= dainc;
                 if (*p < 0)
                     *p = 0;
                 sound(KICK_HIT);
             }
-            if (*p < 63 && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256)))        //&& onbar) )
+            if (*p < 63 && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELUP || mii > 384))))        //&& onbar) )
             {
                 KB_ClearKeyDown(sc_RightArrow);
                 KB_ClearKeyDown(sc_kpad_6);
-
+                MOUSE_ClearButton(WHEELUP_MOUSE);
+                mii = 0;                
                 *p += dainc;
                 if (*p > 63)
                     *p = 63;
@@ -1368,13 +1375,15 @@ void menus(void)
 
             break;
         }
+
+        probe(186,124+9,0,0);        
+        
         if (KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
         {
             KB_ClearKeyDown(sc_N);
             KB_ClearKeyDown(sc_Escape);
             sound(EXITMENUSOUND);
-            if (ps[myconnectindex].gm&MODE_DEMO) cmenu(300);
-            else
+            if (ps[myconnectindex].gm&MODE_GAME)
             {
                 ps[myconnectindex].gm &= ~MODE_MENU;
                 if (ud.multimode < 2 && ud.recstat != 2)
@@ -1382,10 +1391,11 @@ void menus(void)
                     ready2send = 1;
                     totalclock = ototalclock;
                 }
+            } else {
+                cmenu(300);
+                probey = last_threehundred;
             }
         }
-
-        probe(186,124+9,0,0);
 
         break;
 
@@ -3140,9 +3150,9 @@ cheat_for_port_credits:
             gametext(320>>1,90+9+9+9,"PRESS \"ESCAPE\" TO CANCEL",0,2+8+16);
 
             sc = KB_GetLastScanCode();
-            if (sc != sc_None)
+            if (sc != sc_None || MOUSE_GetButtons()&RIGHT_MOUSE)
             {
-                if (sc == sc_Escape)
+                if (sc == sc_Escape || MOUSE_GetButtons()&RIGHT_MOUSE)
                 {
                     sound(EXITMENUSOUND);
                 }
@@ -3163,6 +3173,7 @@ cheat_for_port_credits:
                 probey = function;
 
                 KB_ClearKeyDown(sc);
+                MOUSE_ClearButton(RIGHT_MOUSE);
             }
 
             break;
@@ -4315,7 +4326,8 @@ VOLUME_ALL_40x:
             KB_KeyPressed(sc_kpad_2) ||
             KB_KeyPressed(sc_kpad_9) ||
             KB_KeyPressed(sc_Space) ||
-            KB_KeyPressed(sc_kpad_6))
+            KB_KeyPressed(sc_kpad_6) ||
+            MOUSE_GetButtons()&LEFT_MOUSE)
         {
             KB_ClearKeyDown(sc_PgDn);
             KB_ClearKeyDown(sc_Enter);
@@ -4326,12 +4338,13 @@ VOLUME_ALL_40x:
             KB_ClearKeyDown(sc_kpad_2);
             KB_ClearKeyDown(sc_DownArrow);
             KB_ClearKeyDown(sc_Space);
+            MOUSE_ClearButton(LEFT_MOUSE);
             sound(KICK_HIT);
             current_menu++;
             if (current_menu > 401) current_menu = 400;
         }
 
-        if (KB_KeyPressed(sc_Escape))
+        if (KB_KeyPressed(sc_Escape) || MOUSE_GetButtons()&RIGHT_MOUSE)
         {
             if (ps[myconnectindex].gm&MODE_GAME)
                 cmenu(50);
