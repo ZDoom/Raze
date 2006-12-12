@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "crc32.h"
 #include <ctype.h>
 
+extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 
 int osdcmd_quit(const osdfuncparm_t *parm)
@@ -97,6 +98,65 @@ int osdcmd_changelevel(const osdfuncparm_t *parm)
         }
     }
 
+    if (numplayers > 1)
+    {
+        if (myconnectindex == connecthead && networkmode == 0)
+        {
+            int i;
+        
+            tempbuf[0] = 5;
+            tempbuf[1] = ud.m_level_number = level;
+            tempbuf[2] = ud.m_volume_number = volume;
+            tempbuf[3] = ud.m_player_skill;
+            tempbuf[4] = ud.m_monsters_off;
+            tempbuf[5] = ud.m_respawn_monsters;
+            tempbuf[6] = ud.m_respawn_items;
+            tempbuf[7] = ud.m_respawn_inventory;
+            tempbuf[8] = ud.m_coop;
+            tempbuf[9] = ud.m_marker;
+            tempbuf[10] = ud.m_ffire;
+            tempbuf[11] = ud.m_noexits;
+
+            for (i=connecthead;i>=0;i=connectpoint2[i])
+            {
+                if (i != myconnectindex) sendpacket(i,tempbuf,12);
+                if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+            }
+        }
+        else if (voting == -1)
+        {
+            ud.m_volume_number = volume;
+            ud.m_level_number = level;
+        
+            if (ps[myconnectindex].i)
+            {
+                int i;
+            
+                Bmemset(votes,0,sizeof(votes));
+                Bmemset(gotvote,0,sizeof(gotvote));
+                votes[myconnectindex] = gotvote[myconnectindex] = 1;
+                voting = myconnectindex;
+
+                tempbuf[0] = 18;
+                tempbuf[1] = 1;
+                tempbuf[2] = myconnectindex;
+                tempbuf[3] = ud.m_volume_number;
+                tempbuf[4] = ud.m_level_number;
+
+                for (i=connecthead;i>=0;i=connectpoint2[i])
+                {
+                    if (i != myconnectindex) sendpacket(i,tempbuf,5);
+                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                }
+            }
+            if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && !(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_TDM))
+                ud.m_noexits = 0;
+
+            ps[myconnectindex].gm |= MODE_MENU;
+            cmenu(603);
+        }
+        return OSDCMD_OK;
+    }
     if (ps[myconnectindex].gm & MODE_GAME)
     {
         // in-game behave like a cheat
@@ -133,13 +193,15 @@ int osdcmd_map(const osdfuncparm_t *parm)
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
+#if 0
     if (numplayers > 1)
     {
         OSD_Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
-    filename[0] = '/';
-    strcat(filename,parm->parms[0]);
+#endif
+
+    strcpy(filename,parm->parms[0]);
     if (strchr(filename,'.') == 0)
         strcat(filename,".map");
 
@@ -150,9 +212,72 @@ int osdcmd_map(const osdfuncparm_t *parm)
     }
     kclose(i);
 
-    strcpy(boardfilename, filename);
+    boardfilename[0] = '/';
+    boardfilename[1] = 0;
+    strcat(boardfilename, filename);
 
-    Bcorrectfilename(boardfilename,0);
+    if (numplayers > 1)
+    {
+        if (myconnectindex == connecthead && networkmode == 0)
+        {
+            sendboardname();
+            
+            tempbuf[0] = 5;
+            tempbuf[1] = ud.m_level_number = 7;
+            tempbuf[2] = ud.m_volume_number = 0;
+            tempbuf[3] = ud.m_player_skill;
+            tempbuf[4] = ud.m_monsters_off;
+            tempbuf[5] = ud.m_respawn_monsters;
+            tempbuf[6] = ud.m_respawn_items;
+            tempbuf[7] = ud.m_respawn_inventory;
+            tempbuf[8] = ud.m_coop;
+            tempbuf[9] = ud.m_marker;
+            tempbuf[10] = ud.m_ffire;
+            tempbuf[11] = ud.m_noexits;
+
+            for (i=connecthead;i>=0;i=connectpoint2[i])
+            {
+                if (i != myconnectindex) sendpacket(i,tempbuf,12);
+                if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+            }
+        }
+        else if (voting == -1)
+        {
+            sendboardname();
+            
+            ud.m_volume_number = 0;
+            ud.m_level_number = 7;
+            
+            if (ps[myconnectindex].i)
+            {
+                int i;
+            
+                Bmemset(votes,0,sizeof(votes));
+                Bmemset(gotvote,0,sizeof(gotvote));
+                votes[myconnectindex] = gotvote[myconnectindex] = 1;
+                voting = myconnectindex;
+
+                tempbuf[0] = 18;
+                tempbuf[1] = 1;
+                tempbuf[2] = myconnectindex;
+                tempbuf[3] = ud.m_volume_number;
+                tempbuf[4] = ud.m_level_number;
+
+                for (i=connecthead;i>=0;i=connectpoint2[i])
+                {
+                    if (i != myconnectindex) sendpacket(i,tempbuf,5);
+                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                }
+            }
+            if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && !(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_TDM))
+                ud.m_noexits = 0;
+
+            ps[myconnectindex].gm |= MODE_MENU;
+            cmenu(603);
+        }
+        return OSDCMD_OK;
+    }
+
 
     if (ps[myconnectindex].gm & MODE_GAME)
     {
@@ -752,33 +877,6 @@ int osdcmd_usemousejoy(const osdfuncparm_t *parm)
     return OSDCMD_SHOWHELP;
 }
 
-int osdcmd_mpmap(const osdfuncparm_t *parm)
-{
-    int i;
-    char filename[256];
-
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-    strcpy(filename,parm->parms[0]);
-    if (strchr(filename,'.') == 0)
-        strcat(filename,".map");
-
-    if ((i = kopen4load(filename,0)) < 0)
-    {
-        OSD_Printf("map: file \"%s\" not found.\n", filename);
-        return OSDCMD_OK;
-    }
-    kclose(i);
-
-    strcpy(boardfilename, filename);
-
-    Bcorrectfilename(boardfilename,0);
-
-    sendboardname();
-
-    return OSDCMD_OK;
-}
-
 int osdcmd_name(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1)
@@ -819,7 +917,6 @@ int registerosdcommands(void)
     {
         OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
-        OSD_RegisterFunction("mpmap","mpmap <mapfile>: sets user map name in multiplayer", osdcmd_mpmap);
     }
 
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);

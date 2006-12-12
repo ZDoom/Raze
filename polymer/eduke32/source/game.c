@@ -9328,6 +9328,7 @@ static void Startup(long argc, char **argv)
             char *dot, *slash;
 
             boardfilename[0] = '/';
+            boardfilename[1] = 0;
             Bstrcat(boardfilename, CommandMap);
 
             dot = Bstrrchr(boardfilename,'.');
@@ -9493,18 +9494,18 @@ void sendboardname(void)
         int j;
         int ch;
 
-        tempbuf[0] = 9;
-        tempbuf[1] = 0;
+        packbuf[0] = 9;
+        packbuf[1] = 0;
 
         Bcorrectfilename(boardfilename,0);
 
         j = Bstrlen(boardfilename);
         boardfilename[j] = 0;
-        Bstrcat(tempbuf+1,boardfilename);
+        Bstrcat(packbuf+1,boardfilename);
 
         for (ch=connecthead;ch >= 0;ch=connectpoint2[ch])
         {
-            if (ch != myconnectindex) sendpacket(ch,tempbuf,j+1);
+            if (ch != myconnectindex) sendpacket(ch,packbuf,j+1);
             if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
         }
     }
