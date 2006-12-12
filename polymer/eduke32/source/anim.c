@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 #include "animlib.h"
+#include "mouse.h"
 
 void endanimsounds(long fr)
 {
@@ -251,8 +252,7 @@ void playanm(char *fn,char t)
     {
         while (totalclock < ototalclock)
         {
-            extern char restorepalette;
-            if (KB_KeyWaiting())
+            if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE)
                 goto ENDOFANIMLOOP;
             handleevents();
             getpackets();
@@ -261,6 +261,7 @@ void playanm(char *fn,char t)
                 setgamepalette(&ps[myconnectindex],animpal,2);
                 restorepalette = 0;
             }
+            idle();
         }
 
         if (t == 10) ototalclock += 14;
@@ -290,6 +291,7 @@ void playanm(char *fn,char t)
 
 ENDOFANIMLOOP:
 
+    MOUSE_ClearButton(LEFT_MOUSE);
     ANIM_FreeAnim();
     walock[TILE_ANIM] = 1;
 }

@@ -3281,9 +3281,10 @@ void displayrest(long smoothratio)
             break;
         }
 
-        if (KB_KeyPressed(sc_Escape))
+        if (KB_KeyPressed(sc_Escape) || MOUSE_GetButtons()&RIGHT_MOUSE)
         {
             KB_ClearKeyDown(sc_Escape);
+            MOUSE_ClearButton(RIGHT_MOUSE);
             ud.show_help = 0;
             if (ud.multimode < 2 && ud.recstat != 2)
             {
@@ -7915,12 +7916,13 @@ static void nonsharedkeys(void)
             inputloc = 0;
         }
 
-        if (KB_KeyPressed(sc_F1) || (ud.show_help && (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter))))
+        if (KB_KeyPressed(sc_F1) || (ud.show_help && (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || MOUSE_GetButtons()&LEFT_MOUSE)))
         {
             KB_ClearKeyDown(sc_F1);
             KB_ClearKeyDown(sc_Space);
             KB_ClearKeyDown(sc_kpad_Enter);
             KB_ClearKeyDown(sc_Enter);
+            MOUSE_ClearButton(LEFT_MOUSE);
             ud.show_help ++;
 
             if (ud.show_help > 2)
@@ -8953,7 +8955,7 @@ static void Logo(void)
                 nextpage();
                 fadepal(0,0,0, 63,0,-7);
                 totalclock = 0;
-                while (totalclock < (120*7) && !KB_KeyWaiting())
+                while (totalclock < (120*7) && !KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE)
                 {
                     handleevents();
                     getpackets();
@@ -8965,6 +8967,7 @@ static void Logo(void)
                 }
             }
             KB_ClearKeysDown(); // JBF
+            MOUSE_ClearButton(LEFT_MOUSE);
         }
 
         fadepal(0,0,0, 0,64,7);
@@ -8980,7 +8983,7 @@ static void Logo(void)
             fadepal(0,0,0, 63,0,-7);
             totalclock = 0;
 
-            while (totalclock < (860+120) && !KB_KeyWaiting())
+            while (totalclock < (860+120) && !KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE)
             {
                 rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
                 if (logoflags & LOGO_FLAG_DUKENUKEM)
@@ -9048,6 +9051,7 @@ static void Logo(void)
             }
         }
         KB_ClearKeysDown(); // JBF
+        MOUSE_ClearButton(LEFT_MOUSE);
     }
 
     if (ud.multimode > 1)
@@ -11510,7 +11514,7 @@ void dobonus(char bonusonly)
             rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
             IFISSOFTMODE fadepal(0,0,0, 63,0,-1);
             else nextpage();
-            while (!KB_KeyWaiting())
+            while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE)
             {
                 handleevents();
                 getpackets();
@@ -11543,7 +11547,7 @@ void dobonus(char bonusonly)
             rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
             IFISSOFTMODE fadepal(0,0,0, 63,0,-1);
             else nextpage();
-            while (!KB_KeyWaiting())
+            while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE)
             {
                 handleevents();
                 getpackets();
@@ -11592,7 +11596,7 @@ void dobonus(char bonusonly)
 
             fadepal(0,0,0, 63,0,-3);
             KB_FlushKeyboardQueue();
-            while (!KB_KeyWaiting())
+            while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE)
             {
                 handleevents();
                 getpackets();
@@ -11601,11 +11605,12 @@ void dobonus(char bonusonly)
 
             clearview(0L);
             nextpage();
+            MOUSE_ClearButton(LEFT_MOUSE);
 
             playanm("DUKETEAM.ANM",4);
 
             KB_FlushKeyBoardQueue();
-            while (!KB_KeyWaiting())
+            while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE)
             {
                 handleevents();
                 getpackets();
@@ -11618,6 +11623,7 @@ void dobonus(char bonusonly)
             FX_StopAllSounds();
             clearsoundlocks();
             KB_FlushKeyBoardQueue();
+            MOUSE_ClearButton(LEFT_MOUSE);
 
             break;
 
@@ -11646,7 +11652,7 @@ void dobonus(char bonusonly)
 
             playanm("RADLOGO.ANM",3);
 
-            if (ud.lockout == 0 && !KB_KeyWaiting())
+            if (ud.lockout == 0 && !KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE)
             {
                 sound(ENDSEQVOL3SND5);
                 while (issoundplaying(-1,ENDSEQVOL3SND5))
@@ -11654,28 +11660,28 @@ void dobonus(char bonusonly)
                     handleevents();
                     getpackets();
                 }
-                if (KB_KeyWaiting()) goto ENDANM;
+                if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE) goto ENDANM;
                 sound(ENDSEQVOL3SND6);
                 while (issoundplaying(-1,ENDSEQVOL3SND6))
                 {
                     handleevents();
                     getpackets();
                 }
-                if (KB_KeyWaiting()) goto ENDANM;
+                if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE) goto ENDANM;
                 sound(ENDSEQVOL3SND7);
                 while (issoundplaying(-1,ENDSEQVOL3SND7))
                 {
                     handleevents();
                     getpackets();
                 }
-                if (KB_KeyWaiting()) goto ENDANM;
+                if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE) goto ENDANM;
                 sound(ENDSEQVOL3SND8);
                 while (issoundplaying(-1,ENDSEQVOL3SND8))
                 {
                     handleevents();
                     getpackets();
                 }
-                if (KB_KeyWaiting()) goto ENDANM;
+                if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE) goto ENDANM;
                 sound(ENDSEQVOL3SND9);
                 while (issoundplaying(-1,ENDSEQVOL3SND9))
                 {
@@ -11684,17 +11690,17 @@ void dobonus(char bonusonly)
                 }
 
             }
-
+            MOUSE_ClearButton(LEFT_MOUSE);
             KB_FlushKeyBoardQueue();
             totalclock = 0;
-            while (!KB_KeyWaiting() && totalclock < 120)
+            while (!KB_KeyWaiting() && totalclock < 120 && !MOUSE_GetButtons()&LEFT_MOUSE)
             {
                 handleevents();
                 getpackets();
             }
 
 ENDANM:
-
+            MOUSE_ClearButton(LEFT_MOUSE);
             FX_StopAllSounds();
             clearsoundlocks();
 

@@ -1489,7 +1489,7 @@ void menus(void)
             l = 3;
         }
 
-        if (KB_KeyPressed(sc_Escape))
+        if (KB_KeyPressed(sc_Escape) || MOUSE_GetButtons()&RIGHT_MOUSE)
         {
             cmenu(0);
             break;
@@ -1520,7 +1520,8 @@ void menus(void)
             KB_KeyPressed(sc_DownArrow) ||
             KB_KeyPressed(sc_kpad_2) ||
             KB_KeyPressed(sc_kpad_9) ||
-            KB_KeyPressed(sc_kpad_6))
+            KB_KeyPressed(sc_kpad_6) ||
+            MOUSE_GetButtons()&LEFT_MOUSE)
         {
             KB_ClearKeyDown(sc_PgDn);
             KB_ClearKeyDown(sc_Enter);
@@ -1531,6 +1532,7 @@ void menus(void)
             KB_ClearKeyDown(sc_kpad_2);
             KB_ClearKeyDown(sc_DownArrow);
             KB_ClearKeyDown(sc_Space);
+            MOUSE_ClearButton(LEFT_MOUSE);
             sound(KICK_HIT);
             current_menu++;
             if (current_menu > 990+l) current_menu = 990;
