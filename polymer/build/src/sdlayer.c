@@ -1499,7 +1499,7 @@ int handleevents(void)
     return rv;
 }
 
-void idle(void)
+inline void idle(void)
 {
     usleep(1);
 }

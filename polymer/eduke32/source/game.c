@@ -3250,7 +3250,7 @@ void displayrest(long smoothratio)
     else if (restorepalette)
     {
         //setbrightness(ud.brightness>>2,&pp->palette[0],0);
-        setgamepalette(pp,pp->palette,0);
+        setgamepalette(pp,pp->palette,2);
         restorepalette = 0;
     }
     // loogies courtesy of being snotted on
@@ -8936,7 +8936,7 @@ static void Logo(void)
             //palto(0,0,0,63);
             if (logoflags & LOGO_FLAG_3DRSCREEN)
             {
-                setgamepalette(&ps[myconnectindex], drealms, 3);    // JBF 20040308
+                setgamepalette(&ps[myconnectindex], drealms, 11);    // JBF 20040308
                 rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
                 nextpage();
                 fadepal(0,0,0, 63,0,-7);
@@ -8962,7 +8962,7 @@ static void Logo(void)
         if (logoflags & LOGO_FLAG_TITLESCREEN)
         {
             //ps[myconnectindex].palette = titlepal;
-            setgamepalette(&ps[myconnectindex], titlepal, 3);   // JBF 20040308
+            setgamepalette(&ps[myconnectindex], titlepal, 11);   // JBF 20040308
             flushperms();
             rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
             KB_FlushKeyboardQueue();
@@ -9042,7 +9042,7 @@ static void Logo(void)
 
     if (ud.multimode > 1)
     {
-        setgamepalette(&ps[myconnectindex], titlepal, 3);
+        setgamepalette(&ps[myconnectindex], titlepal, 11);
         rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
         rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
@@ -11462,7 +11462,7 @@ void dobonus(char bonusonly)
         case 0:
             if (ud.lockout == 0)
             {
-                setgamepalette(&ps[myconnectindex], endingpal, 3);	// JBF 20040308
+                setgamepalette(&ps[myconnectindex], endingpal, 11);	// JBF 20040308
                 clearview(0L);
                 rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
                 nextpage();
@@ -11525,7 +11525,7 @@ void dobonus(char bonusonly)
 
             KB_FlushKeyboardQueue();
             //ps[myconnectindex].palette = palette;
-            setgamepalette(&ps[myconnectindex], palette, 3);	// JBF 20040308
+            setgamepalette(&ps[myconnectindex], palette, 11);	// JBF 20040308
 
             rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
             IFISSOFTMODE fadepal(0,0,0, 63,0,-1);
@@ -11559,7 +11559,7 @@ void dobonus(char bonusonly)
             setview(0,0,xdim-1,ydim-1);
             KB_FlushKeyboardQueue();
             //ps[myconnectindex].palette = palette;
-            setgamepalette(&ps[myconnectindex], palette, 3);	// JBF 20040308
+            setgamepalette(&ps[myconnectindex], palette, 11);	// JBF 20040308
             rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
             IFISSOFTMODE fadepal(0,0,0, 63,0,-1);
             else nextpage();
@@ -11600,7 +11600,7 @@ void dobonus(char bonusonly)
             KB_FlushKeyBoardQueue();
 
             //ps[myconnectindex].palette = palette;
-            setgamepalette(&ps[myconnectindex], palette, 3);	// JBF 20040308
+            setgamepalette(&ps[myconnectindex], palette, 11);	// JBF 20040308
             IFISSOFTMODE palto(0,0,0,63);
             clearview(0L);
             menutext(160,60,0,0,"THANKS TO ALL OUR");
@@ -11730,7 +11730,7 @@ ENDANM:
 FRAGBONUS:
 
     //ps[myconnectindex].palette = palette;
-    setgamepalette(&ps[myconnectindex], palette, 3);	// JBF 20040308
+    setgamepalette(&ps[myconnectindex], palette, 11);	// JBF 20040308
     IFISSOFTMODE palto(0,0,0,63);   // JBF 20031228
     KB_FlushKeyboardQueue();
     totalclock = 0;

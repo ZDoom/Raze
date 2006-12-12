@@ -466,6 +466,25 @@ void gltexinvalidateall ()
 #endif
 }
 
+void gltexinvalidate8 ()
+{
+    long j;
+    pthtyp *pth;
+
+    for (j=GLTEXCACHEADSIZ-1;j>=0;j--)
+        for (pth=gltexcachead[j];pth;pth=pth->next)
+        {
+            if (pth->hicr == NULL)
+            {
+                pth->flags |= 128;
+                if (pth->flags & 16)
+                    pth->ofb->flags |= 128;
+            }
+        }
+#ifdef DEBUGGINGAIDS
+    OSD_Printf("gltexinvalidate8()\n");
+#endif
+}
 
 void gltexapplyprops (void)
 {
@@ -580,7 +599,7 @@ void polymost_glinit()
 {
     GLfloat col[4];
 
-#if 0
+#if 1
     if (!Bstrcmp(glinfo.vendor, "ATI Technologies Inc."))
     {
         initprintf("polymost_glinit(): ATI detected, GL_FOG_HINT = GL_DONT_CARE\n");

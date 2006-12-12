@@ -244,7 +244,7 @@ void playanm(char *fn,char t)
 
     //setpalette(0L,256L,tempbuf);
     //setbrightness(ud.brightness>>2,tempbuf,2);
-    setgamepalette(&ps[myconnectindex],animpal,2);
+    setgamepalette(&ps[myconnectindex],animpal,10);
 
     ototalclock = totalclock + 10;
 
@@ -258,7 +258,7 @@ void playanm(char *fn,char t)
             getpackets();
             if (restorepalette == 1)
             {
-                setgamepalette(&ps[myconnectindex],animpal,2);
+                setgamepalette(&ps[myconnectindex],animpal,0);
                 restorepalette = 0;
             }
             idle();

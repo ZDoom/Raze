@@ -9642,7 +9642,8 @@ void setbrightness(char dabrightness, char *dapal, char noapply)
         // changed and we couldn't set it using hardware gamma
         if (!(noapply&2) && (newpalettesum != lastpalettesum))
             gltexinvalidateall();
-
+        if (!(noapply&8) && (newpalettesum != lastpalettesum))
+            gltexinvalidate8();
         lastpalettesum = newpalettesum;
     }
 #endif
