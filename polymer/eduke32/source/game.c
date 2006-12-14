@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define TIMERUPDATESIZ 32
 
-#define BUILDDATE 20061213
+#define BUILDDATE 20061212
 
 long cameradist = 0, cameraclock = 0;
 char playerswhenstarted;
@@ -9410,49 +9410,8 @@ static void Startup(long argc, char **argv)
     netparam = NULL;
     netparamcount = 0;
 
-    initprintf("%ld\n",time(NULL));
-
     if (numplayers > 1)
         initprintf("Multiplayer initialized.\n");
-#ifdef _WIN32
-    else if (checkforupdates == 1)
-    {
-        i = time(NULL);
-        
-        if (i > lastupdatecheck+86400)
-        {
-#include <shellapi.h>
-            extern int getversionfromwebsite(char *buffer);
-            
-            if (getversionfromwebsite(tempbuf))
-            {
-                lastupdatecheck = i;
-
-                if (atol(tempbuf) > BUILDDATE)
-                {
-                    if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
-                                    "Would you like to download it now?"))
-                    {
-                		SHELLEXECUTEINFOA sinfo;
-                        char *p = "http://www.eduke32.com/";
-                        
-                		Bmemset(&sinfo, 0, sizeof(sinfo));
-                		sinfo.cbSize = sizeof(sinfo);
-                		sinfo.fMask = SEE_MASK_CLASSNAME;
-                		sinfo.lpVerb = "open";
-                		sinfo.lpFile = p;
-                		sinfo.nShow = SW_SHOWNORMAL;
-                		sinfo.lpClass = "http";
-
-                		if(!ShellExecuteExA(&sinfo))
-                		    initprintf("Error launching browser!\n");
-                        gameexit(" ");
-                    }
-                }
-            }
-        }
-    }
-#endif
 
     screenpeek = myconnectindex;
     ps[myconnectindex].palette = (char *) &palette[0];
@@ -9801,6 +9760,47 @@ void app_main(int argc,char **argv)
                    "download it.");
         if (i) checkforupdates = 1;
         else checkforupdates = 0;
+    }
+    
+    if (checkforupdates == 1)
+    {
+        i = time(NULL);
+        
+        if (i > lastupdatecheck+86400)
+        {
+#include <shellapi.h>
+            extern int getversionfromwebsite(char *buffer);
+            
+            if (getversionfromwebsite(tempbuf))
+            {
+                lastupdatecheck = i;
+
+                if (atol(tempbuf) > BUILDDATE)
+                {
+                    if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
+                                    "Would you like to download it now?"))
+                    {
+                		SHELLEXECUTEINFOA sinfo;
+                        char *p = "http://www.eduke32.com/";
+                        
+                		Bmemset(&sinfo, 0, sizeof(sinfo));
+                		sinfo.cbSize = sizeof(sinfo);
+                		sinfo.fMask = SEE_MASK_CLASSNAME;
+                		sinfo.lpVerb = "open";
+                		sinfo.lpFile = p;
+                		sinfo.nShow = SW_SHOWNORMAL;
+                		sinfo.lpClass = "http";
+
+                		if(!ShellExecuteExA(&sinfo))
+                		    initprintf("Error launching browser!\n");
+                        CONFIG_SetupMouse();
+                        CONFIG_SetupJoystick();
+               		    CONFIG_WriteSetup();
+                        gameexit(" ");
+                    }
+                }
+            }
+        }
     }
 #endif
 

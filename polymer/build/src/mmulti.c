@@ -893,7 +893,7 @@ int getversionfromwebsite(char *buffer) // FIXME: this probably belongs in game 
     struct hostent *h;
     char *host = "eduke32.sourceforge.net";
     char *req = "GET http://eduke32.sourceforge.net/VERSION HTTP/1.0\r\n\r\n";
-    char tempbuf[2048],ver[16];
+    char tempbuf[2048],otherbuf[16],ver[16];
 
 #ifdef _WIN32
     if (wsainitialized == 0)
@@ -901,7 +901,7 @@ int getversionfromwebsite(char *buffer) // FIXME: this probably belongs in game 
         WSADATA ws;
 
         if (WSAStartup(0x101,&ws) == SOCKET_ERROR)  {
-            initprintf("mmulti: Winsock error in getexternaladdress() (%d)\n",errno);
+            initprintf("update: Winsock error in getversionfromwebsite() (%d)\n",errno);
             return(0);
         }
         wsainitialized = 1;
@@ -909,7 +909,7 @@ int getversionfromwebsite(char *buffer) // FIXME: this probably belongs in game 
 #endif
 
     if ((h=gethostbyname(host)) == NULL) {
-        initprintf("mmulti: gethostbyname() error in getexternaladdress() (%d)\n",h_errno);
+        initprintf("update: gethostbyname() error in getversionfromwebsite() (%d)\n",h_errno);
         return(0);
     }
 
@@ -923,18 +923,18 @@ int getversionfromwebsite(char *buffer) // FIXME: this probably belongs in game 
     mysock = socket(PF_INET, SOCK_STREAM, 0);
     
     if (mysock == INVALID_SOCKET) {
-        initprintf("mmulti: socket() error in getexternaladdress() (%d)\n",errno);
+        initprintf("update: socket() error in getversionfromwebsite() (%d)\n",errno);
         return(0);
     }
 
     if (connect(mysock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR) {
-        initprintf("mmulti: connect() error in getexternaladdress() (%d)\n",errno);
+        initprintf("update: connect() error in getversionfromwebsite() (%d)\n",errno);
         return(0);
     }
 
     bytes_sent = send(mysock, req, strlen(req), 0);
     if (bytes_sent == SOCKET_ERROR) {
-        initprintf("mmulti: send() error in getexternaladdress() (%d)\n",errno);
+        initprintf("update: send() error in getversionfromwebsite() (%d)\n",errno);
         return(0);
     }
 
@@ -942,20 +942,31 @@ int getversionfromwebsite(char *buffer) // FIXME: this probably belongs in game 
     recv(mysock, (char *)&tempbuf, sizeof(tempbuf), 0);
     closesocket(mysock);
     
-    for (i=0;(unsigned)i<strlen(tempbuf);i++) // HACK: all of this needs to die a fiery death; we just skip to the content
-    {                                         // instead of actually parsing any of the http headers
-        if (i > 4)
-        if (tempbuf[i-1] == '\n' && tempbuf[i-2] == '\r' && tempbuf[i-3] == '\n' && tempbuf[i-4] == '\r')
-        {
-            while (j < 9)
+    memcpy(&otherbuf,&tempbuf,sizeof(otherbuf));
+    
+    strtok(otherbuf," ");
+    if (atol(strtok(NULL," ")) == 200)
+    {       
+        for (i=0;(unsigned)i<strlen(tempbuf);i++) // HACK: all of this needs to die a fiery death; we just skip to the content
+        {                                         // instead of actually parsing any of the http headers
+            if (i > 4)
+            if (tempbuf[i-1] == '\n' && tempbuf[i-2] == '\r' && tempbuf[i-3] == '\n' && tempbuf[i-4] == '\r')
             {
-                ver[j] = tempbuf[i];
-                i++, j++;
+                while (j < 9)
+                {
+                    ver[j] = tempbuf[i];
+                    i++, j++;
+                }
+                ver[j] = '\0';            
+                break;
             }
-            ver[j] = '\0';            
-            break;
+        }
+        
+        if (j)
+        {
+            strcpy(buffer,ver);
+            return(1);
         }
     }
-    strcpy(buffer,ver);
-    return(1);
+    return(0);
 }
