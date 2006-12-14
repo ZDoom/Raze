@@ -1617,7 +1617,7 @@ void activatebysector(short sect,short j)
         operatesectors(sect,j);
 }
 
-void breakwall(short newpn,short spr,short dawallnum)
+static void breakwall(short newpn,short spr,short dawallnum)
 {
     wall[dawallnum].picnum = newpn;
     spritesound(VENT_BUST,spr);
@@ -2524,7 +2524,7 @@ void allignwarpelevators(void)
     }
 }
 
-void cheatkeys(short snum)
+void sharedkeys(short snum)
 {
     short i, k;
     char dainv;

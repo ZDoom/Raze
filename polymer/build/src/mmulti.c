@@ -79,6 +79,10 @@ static SOCKET mysock;
 static long myip, myport = NETPORT, otherip[MAXPLAYERS], otherport[MAXPLAYERS];
 static long snatchip = 0, snatchport = 0, danetmode = 255, netready = 0;
 
+#ifdef _WIN32
+int wsainitialized = 0;
+#endif
+
 /*Addfaz NatFree Start*/
 int natfree; //NatFree mode flag
 int nfCurrentPlayer = 0; //Current NatFree player counter. Will only talk with one player at a time
@@ -124,7 +128,8 @@ void netuninit ()
 {
     if (mysock != (SOCKET)INVALID_HANDLE_VALUE) closesocket(mysock);
 #ifdef _WIN32
-    WSACleanup();
+    if (wsainitialized)
+        WSACleanup();
 #endif
 }
 
@@ -165,9 +170,13 @@ long netinit (long portnum)
     long i;
 
 #ifdef _WIN32
-    WSADATA ws;
+    if (wsainitialized == 0)
+    {
+        WSADATA ws;
 
-    if (WSAStartup(0x101,&ws) == SOCKET_ERROR) return(0);
+        if (WSAStartup(0x101,&ws) == SOCKET_ERROR) return(0);
+        wsainitialized = 1;
+    }
 #endif
 
     mysock = socket(AF_INET,SOCK_DGRAM,0); if (mysock == INVALID_SOCKET) return(0);
@@ -804,20 +813,17 @@ long getpacket (long *retother, char *bufptr)
     return(0);
 }
 
-char tempbuf[512],ipaddr[32];
-
-const char *getexternaladdress(void)
+int getexternaladdress(char *buffer)
 {
-    int sockfd, bytes_sent, i=0, j=0;
+    int bytes_sent, i=0, j=0;
     struct sockaddr_in dest_addr;
     struct hostent *h;
     char *host = "checkip.dyndns.org";
     char *req = "GET / HTTP/1.0\r\n\r\n";
-
-    if (ipaddr[0])
-        return(ipaddr);
+    char tempbuf[512], ipaddr[32];
 
 #ifdef _WIN32
+    if (wsainitialized == 0)
     {
         WSADATA ws;
 
@@ -825,6 +831,7 @@ const char *getexternaladdress(void)
             initprintf("mmulti: Winsock error in getexternaladdress() (%d)\n",errno);
             return(0);
         }
+        wsainitialized = 1;
     }
 #endif
 
@@ -839,30 +846,28 @@ const char *getexternaladdress(void)
 
     memset(&(dest_addr.sin_zero), '\0', 8);
 
-    sockfd = socket(PF_INET, SOCK_STREAM, 0);
-    if (sockfd == SOCKET_ERROR) {
+
+    mysock = socket(PF_INET, SOCK_STREAM, 0);
+    
+    if (mysock == INVALID_SOCKET) {
         initprintf("mmulti: socket() error in getexternaladdress() (%d)\n",errno);
         return(0);
     }
 
-    if (connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR) {
+    if (connect(mysock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR) {
         initprintf("mmulti: connect() error in getexternaladdress() (%d)\n",errno);
         return(0);
     }
 
-    bytes_sent = send(sockfd, req, strlen(req), 0);
+    bytes_sent = send(mysock, req, strlen(req), 0);
     if (bytes_sent == SOCKET_ERROR) {
         initprintf("mmulti: send() error in getexternaladdress() (%d)\n",errno);
         return(0);
     }
 
     //    initprintf("sent %d bytes\n",bytes_sent);
-    recv(sockfd, (char *)&tempbuf, sizeof(tempbuf), 0);
-    closesocket(sockfd);
-
-#ifdef _WIN32
-    WSACleanup();
-#endif
+    recv(mysock, (char *)&tempbuf, sizeof(tempbuf), 0);
+    closesocket(mysock);
 
     for (i=0;(unsigned)i<strlen(tempbuf);i++)
     {
@@ -877,5 +882,80 @@ const char *getexternaladdress(void)
             break;
         }
     }
-    return(ipaddr);
+    memcpy(buffer,&ipaddr,j);
+    return(1);
+}
+
+int getversionfromwebsite(char *buffer) // FIXME: this probably belongs in game land
+{
+    int bytes_sent, i=0, j=0;
+    struct sockaddr_in dest_addr;
+    struct hostent *h;
+    char *host = "eduke32.sourceforge.net";
+    char *req = "GET http://eduke32.sourceforge.net/VERSION HTTP/1.0\r\n\r\n";
+    char tempbuf[2048],ver[16];
+
+#ifdef _WIN32
+    if (wsainitialized == 0)
+    {
+        WSADATA ws;
+
+        if (WSAStartup(0x101,&ws) == SOCKET_ERROR)  {
+            initprintf("mmulti: Winsock error in getexternaladdress() (%d)\n",errno);
+            return(0);
+        }
+        wsainitialized = 1;
+    }
+#endif
+
+    if ((h=gethostbyname(host)) == NULL) {
+        initprintf("mmulti: gethostbyname() error in getexternaladdress() (%d)\n",h_errno);
+        return(0);
+    }
+
+    dest_addr.sin_addr.s_addr = ((struct in_addr *)(h->h_addr))->s_addr;
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(80);
+
+    memset(&(dest_addr.sin_zero), '\0', 8);
+
+
+    mysock = socket(PF_INET, SOCK_STREAM, 0);
+    
+    if (mysock == INVALID_SOCKET) {
+        initprintf("mmulti: socket() error in getexternaladdress() (%d)\n",errno);
+        return(0);
+    }
+
+    if (connect(mysock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR) {
+        initprintf("mmulti: connect() error in getexternaladdress() (%d)\n",errno);
+        return(0);
+    }
+
+    bytes_sent = send(mysock, req, strlen(req), 0);
+    if (bytes_sent == SOCKET_ERROR) {
+        initprintf("mmulti: send() error in getexternaladdress() (%d)\n",errno);
+        return(0);
+    }
+
+    //    initprintf("sent %d bytes\n",bytes_sent);
+    recv(mysock, (char *)&tempbuf, sizeof(tempbuf), 0);
+    closesocket(mysock);
+    
+    for (i=0;(unsigned)i<strlen(tempbuf);i++) // HACK: all of this needs to die a fiery death; we just skip to the content
+    {                                         // instead of actually parsing any of the http headers
+        if (i > 4)
+        if (tempbuf[i-1] == '\n' && tempbuf[i-2] == '\r' && tempbuf[i-3] == '\n' && tempbuf[i-4] == '\r')
+        {
+            while (j < 9)
+            {
+                ver[j] = tempbuf[i];
+                i++, j++;
+            }
+            ver[j] = '\0';            
+            break;
+        }
+    }
+    strcpy(buffer,ver);
+    return(1);
 }

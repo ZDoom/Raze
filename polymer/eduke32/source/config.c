@@ -100,6 +100,8 @@ int32 ForceSetup = 1;
 int32 scripthandle = -1;
 static int32 setupread=0;
 
+int32 checkforupdates = 0, lastupdatecheck = 0;
+
 /*
 ===================
 =
@@ -714,6 +716,11 @@ int32 CONFIG_ReadSetup(void)
         ps[0].auto_aim = AutoAim;
         SCRIPT_GetNumber(scripthandle, "Controls","WeaponSwitchMode",&ud.weaponswitch);
         ps[0].weaponswitch = ud.weaponswitch;
+        
+#ifdef _WIN32        
+        SCRIPT_GetNumber(scripthandle, "Updates", "CheckForUpdates", &checkforupdates);
+        SCRIPT_GetNumber(scripthandle, "Updates", "LastUpdateCheck", &lastupdatecheck);
+#endif
     }
 
     CONFIG_ReadKeys();
@@ -813,6 +820,11 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Sound Setup", "ReverseStereo",ReverseStereo,false,false);
     SCRIPT_PutNumber(scripthandle, "Sound Setup", "SoundToggle",SoundToggle,false,false);
     SCRIPT_PutNumber(scripthandle, "Sound Setup", "VoiceToggle",VoiceToggle,false,false);
+
+#ifdef _WIN32
+    SCRIPT_PutNumber(scripthandle, "Updates", "CheckForUpdates", checkforupdates, false, false);
+    SCRIPT_PutNumber(scripthandle, "Updates", "LastUpdateCheck", lastupdatecheck, false, false);
+#endif
 
     // JBF 20031211
     for (dummy=0;dummy<NUMGAMEFUNCTIONS;dummy++)

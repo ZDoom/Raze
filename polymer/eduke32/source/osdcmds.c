@@ -28,13 +28,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 
-int osdcmd_quit(const osdfuncparm_t *parm)
+static inline int osdcmd_quit(const osdfuncparm_t *parm)
 {
     sendquit();
     return OSDCMD_OK;
 }
 
-int osdcmd_echo(const osdfuncparm_t *parm)
+static int osdcmd_echo(const osdfuncparm_t *parm)
 {
     int i;
     for (i = 0; i < parm->numparms; i++)
@@ -47,7 +47,7 @@ int osdcmd_echo(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_changelevel(const osdfuncparm_t *parm)
+static int osdcmd_changelevel(const osdfuncparm_t *parm)
 {
     int volume=0,level;
     char *p;
@@ -165,7 +165,7 @@ int osdcmd_changelevel(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_map(const osdfuncparm_t *parm)
+static int osdcmd_map(const osdfuncparm_t *parm)
 {
     int i;
     char filename[256];
@@ -268,7 +268,7 @@ int osdcmd_map(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_god(const osdfuncparm_t *parm)
+static int osdcmd_god(const osdfuncparm_t *parm)
 {
     if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME)
     {
@@ -282,7 +282,7 @@ int osdcmd_god(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_noclip(const osdfuncparm_t *parm)
+static int osdcmd_noclip(const osdfuncparm_t *parm)
 {
     if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME)
     {
@@ -296,7 +296,7 @@ int osdcmd_noclip(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_fileinfo(const osdfuncparm_t *parm)
+static int osdcmd_fileinfo(const osdfuncparm_t *parm)
 {
     unsigned long crc, length;
     int i,j;
@@ -497,7 +497,7 @@ static int osdcmd_spawn(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_setvar(const osdfuncparm_t *parm)
+static int osdcmd_setvar(const osdfuncparm_t *parm)
 {
     int i, varval;
     char varname[256];
@@ -520,7 +520,7 @@ int osdcmd_setvar(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_addpath(const osdfuncparm_t *parm)
+static int osdcmd_addpath(const osdfuncparm_t *parm)
 {
     char pathname[BMAX_PATH];
 
@@ -531,7 +531,7 @@ int osdcmd_addpath(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_initgroupfile(const osdfuncparm_t *parm)
+static int osdcmd_initgroupfile(const osdfuncparm_t *parm)
 {
     char file[BMAX_PATH];
 
@@ -542,7 +542,7 @@ int osdcmd_initgroupfile(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_cmenu(const osdfuncparm_t *parm)
+static int osdcmd_cmenu(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
     if (numplayers > 1)
@@ -558,7 +558,7 @@ int osdcmd_cmenu(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_exec(const osdfuncparm_t *parm)
+static int osdcmd_exec(const osdfuncparm_t *parm)
 {
     char fn[BMAX_PATH];
     extern int load_script(char *szStartupScript);
@@ -627,7 +627,7 @@ cvar[] =
         { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0, 0, 1 }
     };
 
-int osdcmd_cvar_set(const osdfuncparm_t *parm)
+static int osdcmd_cvar_set(const osdfuncparm_t *parm)
 {
     int showval = (parm->numparms == 0);
     unsigned int i;
@@ -694,7 +694,7 @@ int osdcmd_cvar_set(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_sensitivity(const osdfuncparm_t *parm)
+static int osdcmd_sensitivity(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1)
     {
@@ -706,7 +706,7 @@ int osdcmd_sensitivity(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_gamma(const osdfuncparm_t *parm)
+static int osdcmd_gamma(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1)
     {
@@ -719,7 +719,7 @@ int osdcmd_gamma(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_give(const osdfuncparm_t *parm)
+static int osdcmd_give(const osdfuncparm_t *parm)
 {
     int i;
 
@@ -806,7 +806,7 @@ void onvideomodechange(int newmode)
     restorepalette = 1;
 }
 
-int osdcmd_usemousejoy(const osdfuncparm_t *parm)
+static int osdcmd_usemousejoy(const osdfuncparm_t *parm)
 {
     int showval = (parm->numparms < 1);
     if (!Bstrcasecmp(parm->name, "usemouse"))
@@ -838,7 +838,7 @@ int osdcmd_usemousejoy(const osdfuncparm_t *parm)
     return OSDCMD_SHOWHELP;
 }
 
-int osdcmd_name(const osdfuncparm_t *parm)
+static int osdcmd_name(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1)
     {

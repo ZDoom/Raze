@@ -66,6 +66,10 @@ extern int32 JoystickAnalogueScale[MAXJOYAXES];
 extern int32 JoystickAnalogueDead[MAXJOYAXES];
 extern int32 JoystickAnalogueSaturate[MAXJOYAXES];
 
+#ifdef _WIN32
+extern int32 checkforupdates, lastupdatecheck;
+#endif
+
 int32 CONFIG_ReadSetup( void );
 void CONFIG_GetSetupFilename( void );
 void CONFIG_WriteSetup( void );

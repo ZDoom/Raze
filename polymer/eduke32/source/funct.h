@@ -74,7 +74,7 @@ extern void checkplayerhurt(struct player_struct *p,short j);
 extern char checkhitceiling(short sn);
 extern void checkhitsprite(short i,short sn);
 extern void allignwarpelevators(void);
-extern void cheatkeys(short snum);
+extern void sharedkeys(short snum);
 extern void checksectors(short snum);
 extern int32 RTS_AddFile(char *filename);
 extern void RTS_Init(char *filename);

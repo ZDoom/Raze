@@ -50,6 +50,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define TIMERUPDATESIZ 32
 
+#define BUILDDATE 20061213
+
 long cameradist = 0, cameraclock = 0;
 char playerswhenstarted;
 char qe,cp,usecwd = 0;
@@ -2568,10 +2570,9 @@ void gameexit(char *t)
     if (*t != 0) ps[myconnectindex].palette = (char *) &palette[0];
 
     if (numplayers > 1)
-    {
         allowtimetocorrecterrorswhenquitting();
-        uninitmultiplayers();
-    }
+
+    uninitmultiplayers();
 
     if (ud.recstat == 1) closedemowrite();
     else if (ud.recstat == 2)
@@ -8221,7 +8222,7 @@ static void comlinehelp(void)
 signed int rancid_players = 0;
 char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
-extern const char *getexternaladdress(void);
+extern int getexternaladdress(char *buffer);
 
 int load_rancid_net(char *fn)
 {
@@ -8357,15 +8358,17 @@ void setup_rancid_net(char *fn)
             Bstrcpy(tmp,strtok(tempbuf,"."));
             if (i == rancid_players && ((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0) || (Bstrcmp(tmp,"169") == 0) || (Bstrcmp(tmp,"10") == 0)))
             {
-                Bsprintf(tempbuf, getexternaladdress());
-                if (tempbuf[0])
+                if (getexternaladdress(tempbuf))
                 {
-                    for (i=0;i<rancid_players;i++)
+                    if (tempbuf[0])
                     {
-                        if (Bstrcmp(rancid_ip_strings[i],rancid_ip_strings[MAXPLAYERS-1]) == 0)
+                        for (i=0;i<rancid_players;i++)
                         {
-                            Bstrcpy(rancid_ip_strings[MAXPLAYERS-1],tempbuf);
-                            Bstrcpy(rancid_ip_strings[i],tempbuf);
+                            if (Bstrcmp(rancid_ip_strings[i],rancid_ip_strings[MAXPLAYERS-1]) == 0)
+                            {
+                                Bstrcpy(rancid_ip_strings[MAXPLAYERS-1],tempbuf);
+                                Bstrcpy(rancid_ip_strings[i],tempbuf);
+                            }
                         }
                     }
                 }
@@ -9407,8 +9410,49 @@ static void Startup(long argc, char **argv)
     netparam = NULL;
     netparamcount = 0;
 
+    initprintf("%ld\n",time(NULL));
+
     if (numplayers > 1)
         initprintf("Multiplayer initialized.\n");
+#ifdef _WIN32
+    else if (checkforupdates == 1)
+    {
+        i = time(NULL);
+        
+        if (i > lastupdatecheck+86400)
+        {
+#include <shellapi.h>
+            extern int getversionfromwebsite(char *buffer);
+            
+            if (getversionfromwebsite(tempbuf))
+            {
+                lastupdatecheck = i;
+
+                if (atol(tempbuf) > BUILDDATE)
+                {
+                    if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
+                                    "Would you like to download it now?"))
+                    {
+                		SHELLEXECUTEINFOA sinfo;
+                        char *p = "http://www.eduke32.com/";
+                        
+                		Bmemset(&sinfo, 0, sizeof(sinfo));
+                		sinfo.cbSize = sizeof(sinfo);
+                		sinfo.fMask = SEE_MASK_CLASSNAME;
+                		sinfo.lpVerb = "open";
+                		sinfo.lpFile = p;
+                		sinfo.nShow = SW_SHOWNORMAL;
+                		sinfo.lpClass = "http";
+
+                		if(!ShellExecuteExA(&sinfo))
+                		    initprintf("Error launching browser!\n");
+                        gameexit(" ");
+                    }
+                }
+            }
+        }
+    }
+#endif
 
     screenpeek = myconnectindex;
     ps[myconnectindex].palette = (char *) &palette[0];
@@ -9723,10 +9767,16 @@ void app_main(int argc,char **argv)
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     glusetexcache = glusetexcachecompression = -1;
+#endif
+
+#ifdef _WIN32
+    checkforupdates = -1;
+#endif
 
     i = CONFIG_ReadSetup();
     if (getenv("DUKE3DGRP")) duke3dgrp = getenv("DUKE3DGRP");
 
+#if defined(POLYMOST) && defined(USE_OPENGL)
     if (glusetexcache == -1 || glusetexcachecompression == -1)
     {
         i=wm_ynbox("Texture caching",
@@ -9735,10 +9785,22 @@ void app_main(int argc,char **argv)
                    "space if you have a great deal of high resolution "
                    "textures and skins, but textures will load dramatically "
                    "faster after the first time they are loaded.");
-        if (i) i = 'y';
-        if (i == 'y' || i == 'Y')
-            useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
+        if (i) useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
+    }
+#endif
+
+#ifdef _WIN32
+    if (checkforupdates == -1)
+    {
+        i=wm_ynbox("Automatic update notification",
+                   "Would you like EDuke32 to automatically check for updates? "
+                   "This feature will contact the EDuke32 site at game startup "
+                   "once every 24 hours in order to determine if a new "
+                   "version is available.  If so, you will be prompted to "
+                   "download it.");
+        if (i) checkforupdates = 1;
+        else checkforupdates = 0;
     }
 #endif
 
@@ -11328,7 +11390,7 @@ static char domovethings(void)
         if (sprite[ps[i].i].pal != 1)
             sprite[ps[i].i].pal = ud.pcolor[i];
 
-        cheatkeys(i);
+        sharedkeys(i);
 
         if (ud.pause_on == 0)
         {
