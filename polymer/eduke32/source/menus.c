@@ -2546,8 +2546,12 @@ cheat_for_port_credits:
                                "Display other player IDs",
                                "-",
                                "Show startup window",
+#ifdef _WIN32                               
+                               "Release notification",
+#else                               
                                "-",
                                "-",
+#endif
                                "-",
                                "-",
                                "-",
@@ -2643,7 +2647,16 @@ cheat_for_port_credits:
                     modval(0,1,(int *)&ForceSetup,1,probey==io);
                     gametextpal(d,yy, ForceSetup ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
+#ifdef _WIN32                               
                 case 7:
+                    if (x==io) checkforupdates = 1-checkforupdates;
+                    modval(0,1,(int *)&checkforupdates,1,probey==io);
+                    gametextpal(d,yy, checkforupdates ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    break;
+                case 8:
+#else
+                case 7:
+#endif                                
                     if (x==io) cmenu(200);
                     break;
                 default:

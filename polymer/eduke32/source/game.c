@@ -45,12 +45,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "util_lib.h"
 
+#ifdef _WIN32
+#include <shellapi.h>
+extern int getversionfromwebsite(char *buffer);
+#define BUILDDATE 20061214
+#define UPDATEINTERVAL 86400 // 24h
+#endif
+
 #define IDFSIZE 479985668
 #define IDFILENAME "DUKE3D.IDF"
 
 #define TIMERUPDATESIZ 32
-
-#define BUILDDATE 20061212
 
 long cameradist = 0, cameraclock = 0;
 char playerswhenstarted;
@@ -1411,7 +1416,7 @@ void check_fta_sounds(short i)
         }
 }
 
-inline short inventory(spritetype *s)
+short inventory(spritetype *s)
 {
     switch (dynamictostatic[s->picnum])
     {
@@ -1427,23 +1432,23 @@ inline short inventory(spritetype *s)
     return 0;
 }
 
-inline int checkspriteflags(short sActor, int iType)
+int checkspriteflags(short sActor, int iType)
 {
     int i;
 
     i = spriteflags[sprite[sActor].picnum];
     i ^= actorspriteflags[sActor];
     if (i & iType) return 1;
-    else return 0;
+    return 0;
 }
 
 inline int checkspriteflagsp(short sPicnum, int iType)
 {
     if (spriteflags[sPicnum] & iType) return 1;
-    else return 0;
+    return 0;
 }
 
-inline short badguypic(short pn)
+short badguypic(short pn)
 {
     //this case can't be handled by the dynamictostatic system because it adds
     //stuff to the value from names.h so handling separately
@@ -9476,7 +9481,7 @@ void sendplayerupdate(void)
 
 void sendboardname(void)
 {
-    if (ud.multimode > 1)
+    if (numplayers > 1)
     {
         int j;
         int ch;
@@ -9502,22 +9507,22 @@ void mpchangemap(char volume, char level)
 {
     int i;
 
-    tempbuf[0] = 5;
-    tempbuf[1] = ud.m_level_number = level;
-    tempbuf[2] = ud.m_volume_number = volume;
-    tempbuf[3] = ud.m_player_skill+1;
-    tempbuf[4] = ud.m_monsters_off;
-    tempbuf[5] = ud.m_respawn_monsters;
-    tempbuf[6] = ud.m_respawn_items;
-    tempbuf[7] = ud.m_respawn_inventory;
-    tempbuf[8] = ud.m_coop;
-    tempbuf[9] = ud.m_marker;
-    tempbuf[10] = ud.m_ffire;
-    tempbuf[11] = ud.m_noexits;
+    packbuf[0] = 5;
+    packbuf[1] = ud.m_level_number = level;
+    packbuf[2] = ud.m_volume_number = volume;
+    packbuf[3] = ud.m_player_skill+1;
+    packbuf[4] = ud.m_monsters_off;
+    packbuf[5] = ud.m_respawn_monsters;
+    packbuf[6] = ud.m_respawn_items;
+    packbuf[7] = ud.m_respawn_inventory;
+    packbuf[8] = ud.m_coop;
+    packbuf[9] = ud.m_marker;
+    packbuf[10] = ud.m_ffire;
+    packbuf[11] = ud.m_noexits;
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
     {
-        if (i != myconnectindex) sendpacket(i,tempbuf,12);
+        if (i != myconnectindex) sendpacket(i,packbuf,12);
         if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
     }
 }
@@ -9552,7 +9557,7 @@ void updateplayer(void)
     for (l=0;(unsigned)l<sizeof(myname)-1;l++)
         ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
 
-    if (ud.multimode > 1)
+    if (numplayers > 1)
     {
         sendplayerupdate();
         if (sprite[ps[myconnectindex].i].picnum == APLAYER && sprite[ps[myconnectindex].i].pal != 1)
@@ -9738,7 +9743,7 @@ void app_main(int argc,char **argv)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (glusetexcache == -1 || glusetexcachecompression == -1)
     {
-        i=wm_ynbox("Texture caching",
+        i=wm_ynbox("Texture Caching",
                    "Would you like to enable the on-disk texture cache? "
                    "This feature may use up to 200 megabytes of disk "
                    "space if you have a great deal of high resolution "
@@ -9752,36 +9757,28 @@ void app_main(int argc,char **argv)
 #ifdef _WIN32
     if (checkforupdates == -1)
     {
-        i=wm_ynbox("Automatic update notification",
-                   "Would you like EDuke32 to automatically check for updates? "
-                   "This feature will contact the EDuke32 site at game startup "
-                   "once every 24 hours in order to determine if a new "
-                   "version is available.  If so, you will be prompted to "
-                   "download it.");
+        i=wm_ynbox("Automatic Release Notification",
+                   "Would you like EDuke32 to automatically check for new releases "
+                   "at startup?");
+        checkforupdates = 0;                   
         if (i) checkforupdates = 1;
-        else checkforupdates = 0;
     }
     
     if (checkforupdates == 1)
     {
-        i = time(NULL);
-        
-        if (i > lastupdatecheck+86400)
+        if (time(NULL) - lastupdatecheck > UPDATEINTERVAL)
         {
-#include <shellapi.h>
-            extern int getversionfromwebsite(char *buffer);
-            
             if (getversionfromwebsite(tempbuf))
             {
-                lastupdatecheck = i;
+                lastupdatecheck = time(NULL);
 
                 if (atol(tempbuf) > BUILDDATE)
                 {
                     if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
-                                    "Would you like to download it now?"))
+                                    "Browse to http://www.eduke32.com now?"))
                     {
                 		SHELLEXECUTEINFOA sinfo;
-                        char *p = "http://www.eduke32.com/";
+                        char *p = "http://www.eduke32.com";
                         
                 		Bmemset(&sinfo, 0, sizeof(sinfo));
                 		sinfo.cbSize = sizeof(sinfo);

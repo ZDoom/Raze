@@ -4464,7 +4464,7 @@ int ExtInit(void)
     {
         int i;
 #if 1
-        i=wm_ynbox("Texture caching",
+        i=wm_ynbox("Texture Caching",
                    "Would you like to enable the on-disk texture cache? "
                    "This feature may use up to 200 megabytes of disk "
                    "space if you have a great deal of high resolution "
@@ -4760,11 +4760,9 @@ void ExtCheckKeys(void)
         Keys3d();
         m32_showmouse();
         if (sidemode != 1) editinput();
+        return;
     }
-    else
-    {
-        Keys2d();
-    }
+    Keys2d();
 }
 
 void faketimerhandler(void)
@@ -4777,11 +4775,7 @@ void faketimerhandler(void)
     if (counter>=5) counter=0;
 
     sampletimer();
-    if (totalclock < ototalclock+TICSPERFRAME)
-        return;
-    if (qsetmode != 200)
-        return;
-    if (sidemode != 1)
+    if (totalclock < ototalclock+TICSPERFRAME || qsetmode != 200 || sidemode != 1)
         return;
     ototalclock = totalclock;
 

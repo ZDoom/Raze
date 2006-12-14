@@ -647,7 +647,7 @@ void editinput(void)
 
         if (goalz != posz)
         {
-            if (posz < goalz) hvel += 32;
+            if (posz < goalz) hvel += 64;
             if (posz > goalz) hvel = ((goalz-posz)>>3);
 
             posz += hvel;
@@ -7251,20 +7251,20 @@ void keytimerstuff(void)
     }
     else
     {
-        if (keystatus[buildkeys[2]] > 0) svel = min(svel+8,127);
-        if (keystatus[buildkeys[3]] > 0) svel = max(svel-8,-128);
+        if (keystatus[buildkeys[2]] > 0) svel = min(svel+16,255); // svel and vel aren't even chars...
+        if (keystatus[buildkeys[3]] > 0) svel = max(svel-16,-256);
     }
-    if (keystatus[buildkeys[0]] > 0) vel = min(vel+8,127);
-    if (keystatus[buildkeys[1]] > 0) vel = max(vel-8,-128);
+    if (keystatus[buildkeys[0]] > 0) vel = min(vel+16,255);
+    if (keystatus[buildkeys[1]] > 0) vel = max(vel-16,-256);
     /*  if (keystatus[buildkeys[12]] > 0) svel = min(svel+8,127);
         if (keystatus[buildkeys[13]] > 0) svel = max(svel-8,-128); */
 
     if (angvel < 0) angvel = min(angvel+12,0);
     if (angvel > 0) angvel = max(angvel-12,0);
-    if (svel < 0) svel = min(svel+2,0);
-    if (svel > 0) svel = max(svel-2,0);
-    if (vel < 0) vel = min(vel+2,0);
-    if (vel > 0) vel = max(vel-2,0);
+    if (svel < 0) svel = min(svel+6,0);
+    if (svel > 0) svel = max(svel-6,0);
+    if (vel < 0) vel = min(vel+6,0);
+    if (vel > 0) vel = max(vel-6,0);
     /*    if(mlook)
             posz -= (horiz-101)*(vel/40); */
 }
