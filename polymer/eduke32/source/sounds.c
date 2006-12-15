@@ -642,7 +642,7 @@ int issoundplaying(short i, int num)
     {
         if (Sound[num].lock == 200)
             return 1;
-        else return 0;
+        return 0;
     }
-    else return(Sound[num].num);
+    return(Sound[num].num);
 }

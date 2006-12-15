@@ -886,6 +886,7 @@ int getexternaladdress(char *buffer)
     return(1);
 }
 
+#ifdef _WIN32
 int getversionfromwebsite(char *buffer) // FIXME: this probably belongs in game land
 {
     int bytes_sent, i=0, j=0;
@@ -950,16 +951,16 @@ int getversionfromwebsite(char *buffer) // FIXME: this probably belongs in game 
         for (i=0;(unsigned)i<strlen(tempbuf);i++) // HACK: all of this needs to die a fiery death; we just skip to the content
         {                                         // instead of actually parsing any of the http headers
             if (i > 4)
-            if (tempbuf[i-1] == '\n' && tempbuf[i-2] == '\r' && tempbuf[i-3] == '\n' && tempbuf[i-4] == '\r')
-            {
-                while (j < 9)
+                if (tempbuf[i-1] == '\n' && tempbuf[i-2] == '\r' && tempbuf[i-3] == '\n' && tempbuf[i-4] == '\r')
                 {
-                    ver[j] = tempbuf[i];
-                    i++, j++;
+                    while (j < 9)
+                    {
+                        ver[j] = tempbuf[i];
+                        i++, j++;
+                    }
+                    ver[j] = '\0';            
+                    break;
                 }
-                ver[j] = '\0';            
-                break;
-            }
         }
         
         if (j)
@@ -970,3 +971,4 @@ int getversionfromwebsite(char *buffer) // FIXME: this probably belongs in game 
     }
     return(0);
 }
+#endif

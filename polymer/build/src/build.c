@@ -5945,8 +5945,7 @@ long getlinehighlight(long xplc, long yplc)
             closest = wall[closest].nextwall;
     }
     if ((pointhighlight&0xc000) == 16384) return (-1);
-    else return(closest);
-
+    return(closest);
 }
 
 long getpointhighlight(long xplc, long yplc)

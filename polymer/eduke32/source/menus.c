@@ -177,7 +177,7 @@ static int probe_(int type,int x,int y,int i,int n)
             return(probey);
         else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELUP || mii > 256)))
             return(probey);
-        else return(-probey-2);
+        return(-probey-2);
     }
 }
 static inline int probe(int x,int y,int i,int n)
@@ -2649,8 +2649,11 @@ cheat_for_port_credits:
                     break;
 #ifdef _WIN32                               
                 case 7:
+                    i = checkforupdates;
                     if (x==io) checkforupdates = 1-checkforupdates;
                     modval(0,1,(int *)&checkforupdates,1,probey==io);
+                    if (checkforupdates != i)
+                        lastupdatecheck = 0;
                     gametextpal(d,yy, checkforupdates ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
                 case 8:

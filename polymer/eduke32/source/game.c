@@ -377,7 +377,7 @@ inline int mpgametext(int y,char *t,char s,short dabits)
 {
     if (xdim >= 640 && ydim >= 480)
         return(gametext_(1,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
-    else return(gametext_(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+    return(gametext_(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
 }
 
 static int minitext_(int x,int y,char *t,char s,char p,short sb)
@@ -1436,8 +1436,7 @@ int checkspriteflags(short sActor, int iType)
 {
     int i;
 
-    i = spriteflags[sprite[sActor].picnum];
-    i ^= actorspriteflags[sActor];
+    i = (spriteflags[sprite[sActor].picnum]^actorspriteflags[sActor]);
     if (i & iType) return 1;
     return 0;
 }
@@ -2707,7 +2706,7 @@ inline short mpstrget(short x,short y,char *t,short dalen,short c)
 {
     if (xdim >= 640 && ydim >= 480)
         return(strgetsm(x,y,t,dalen,c));
-    else return(strget(x,y,t,dalen,c));
+    return(strget(x,y,t,dalen,c));
 }
 
 static void typemode(void)
@@ -3253,14 +3252,14 @@ void displayrest(long smoothratio)
         dotint = 1;
     }
     // reset a normal palette
-    else if (restorepalette)
+    /* else */ if (restorepalette)
     {
         //setbrightness(ud.brightness>>2,&pp->palette[0],0);
         setgamepalette(pp,pp->palette,2);
         restorepalette = 0;
     }
     // loogies courtesy of being snotted on
-    else if (pp->loogcnt > 0)
+    /* else */ if (pp->loogcnt > 0)
     {
         //palto(0,64,0,(pp->loogcnt>>1)+128);
         fader = 0;
@@ -9797,6 +9796,7 @@ void app_main(int argc,char **argv)
                     }
                 }
             }
+            else initprintf("update: failed to check for updates\n");
         }
     }
 #endif

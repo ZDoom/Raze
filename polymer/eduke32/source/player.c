@@ -5093,71 +5093,69 @@ int getspritescore(long snum, long dapicnum)
 
     case FREEZEAMMO__STATIC:
         if (ps[snum].ammo_amount[FREEZE_WEAPON] < max_ammo_amount[FREEZE_WEAPON]) return(10);
-        else return(0);
+        return(0);
     case AMMO__STATIC:
         if (ps[snum].ammo_amount[PISTOL_WEAPON] < max_ammo_amount[PISTOL_WEAPON]) return(10);
-        else return(0);
+        return(0);
     case BATTERYAMMO__STATIC:
         if (ps[snum].ammo_amount[CHAINGUN_WEAPON] < max_ammo_amount[CHAINGUN_WEAPON]) return(20);
-        else return(0);
+        return(0);
     case DEVISTATORAMMO__STATIC:
         if (ps[snum].ammo_amount[DEVISTATOR_WEAPON] < max_ammo_amount[DEVISTATOR_WEAPON]) return(25);
-        else return(0);
+        return(0);
     case RPGAMMO__STATIC:
         if (ps[snum].ammo_amount[RPG_WEAPON] < max_ammo_amount[RPG_WEAPON]) return(50);
-        else return(0);
+        return(0);
     case CRYSTALAMMO__STATIC:
         if (ps[snum].ammo_amount[SHRINKER_WEAPON] < max_ammo_amount[SHRINKER_WEAPON]) return(10);
-        else return(0);
+        return(0);
     case HBOMBAMMO__STATIC:
         if (ps[snum].ammo_amount[HANDBOMB_WEAPON] < max_ammo_amount[HANDBOMB_WEAPON]) return(30);
-        else return(0);
+        return(0);
     case SHOTGUNAMMO__STATIC:
         if (ps[snum].ammo_amount[SHOTGUN_WEAPON] < max_ammo_amount[SHOTGUN_WEAPON]) return(25);
-        else return(0);
+        return(0);
 
     case COLA__STATIC:
         if (sprite[ps[snum].i].extra < 100) return(10);
-        else return(0);
+        return(0);
     case SIXPAK__STATIC:
         if (sprite[ps[snum].i].extra < 100) return(30);
-        else return(0);
+        return(0);
     case FIRSTAID__STATIC:
         if (ps[snum].firstaid_amount < 100) return(100);
-        else return(0);
+        return(0);
     case SHIELD__STATIC:
         if (ps[snum].shield_amount < 100) return(50);
-        else return(0);
+        return(0);
     case STEROIDS__STATIC:
         if (ps[snum].steroids_amount < 400) return(30);
-        else return(0);
+        return(0);
     case AIRTANK__STATIC:
         if (ps[snum].scuba_amount < 6400) return(30);
-        else return(0);
+        return(0);
     case JETPACK__STATIC:
         if (ps[snum].jetpack_amount < 1600) return(100);
-        else return(0);
+        return(0);
     case HEATSENSOR__STATIC:
         if (ps[snum].heat_amount < 1200) return(5);
-        else return(0);
+        return(0);
     case ACCESSCARD__STATIC:
         return(1);
     case BOOTS__STATIC:
         if (ps[snum].boot_amount < 200) return(15);
-        else return(0);
+        return(0);
     case ATOMICHEALTH__STATIC:
         if (sprite[ps[snum].i].extra < max_player_health<<1) return(50);
-        else return(0);
+        return(0);
     case HOLODUKE__STATIC:
         if (ps[snum].holoduke_amount < 2400) return(5);
-        else return(0);
+        return(0);
 
-    case SECTOREFFECTOR__STATIC:
-        return(1);
     case TOUCHPLATE__STATIC:
-        return(1);
+        return(5);
     case MUSICANDSFX__STATIC:
-        return(1);
+        return(10);
     }
     return(0);
 }
@@ -5180,7 +5178,7 @@ static long fdmatrix[12][12] =
     };
 
 static long goalx[MAXPLAYERS], goaly[MAXPLAYERS], goalz[MAXPLAYERS];
-static long goalsect[MAXPLAYERS], goalwall[MAXPLAYERS], goalsprite[MAXPLAYERS];
+static long goalsect[MAXPLAYERS], goalwall[MAXPLAYERS], goalsprite[MAXPLAYERS], goalspritescore[MAXPLAYERS];
 static long goalplayer[MAXPLAYERS], clipmovecount[MAXPLAYERS];
 short searchsect[MAXSECTORS], searchparent[MAXSECTORS];
 char dashow2dsector[(MAXSECTORS+7)>>3];
@@ -5522,6 +5520,8 @@ void computergetinput(long snum, input *syn)
     {
         if (goalsprite[snum] < 0)
         {
+            int bestsprite = -1, spritescore = 0;
+            
             for (k=0;k<4;k++)
             {
                 i = (rand()%numsectors);
@@ -5531,14 +5531,23 @@ void computergetinput(long snum, input *syn)
                     if (getspritescore(snum,sprite[j].picnum) <= 0) continue;
                     if (cansee(x1,y1,z1-(32<<8),damysect,sprite[j].x,sprite[j].y,sprite[j].z-(4<<8),i))
                     {
-                        goalx[snum] = sprite[j].x;
-                        goaly[snum] = sprite[j].y;
-                        goalz[snum] = sprite[j].z;
-                        goalsprite[snum] = j;
-                        break;
+                        if (getspritescore(snum,sprite[j].picnum) > spritescore)
+                        {
+                            spritescore = getspritescore(snum,sprite[j].picnum);
+                            bestsprite = j;
+                        }   
+//                        break;
                     }
-
                 }
+            }
+            if (bestsprite != -1 && (!cansee(x1,y1,z1-(32<<8),damysect,sprite[goalsprite[snum]].x,sprite[goalsprite[snum]].y,sprite[goalsprite[snum]].z-(4<<8),i) ||
+            spritescore > goalspritescore[snum]))
+            {
+                goalx[snum] = sprite[bestsprite].x;
+                goaly[snum] = sprite[bestsprite].y;
+                goalz[snum] = sprite[bestsprite].z;
+                goalsprite[snum] = bestsprite;
+                goalspritescore[snum] = spritescore;
             }
         }
         x2 = goalx[snum];
@@ -5550,8 +5559,11 @@ void computergetinput(long snum, input *syn)
         syn->svel += (y2-y1)*2047/dist;
         syn->avel = min(max((((daang+1024-damyang)&2047)-1024)>>3,-127),127);
     }
-    else
-        goalsprite[snum] = -1;
+    else if (goalsprite[snum] != -1)
+    {
+        if (!cansee(x1,y1,z1-(32<<8),damysect,sprite[goalsprite[snum]].x,sprite[goalsprite[snum]].y,sprite[goalsprite[snum]].z-(4<<8),i))    
+            goalsprite[snum] = -1;
+    }        
 
     x3 = p->posx;
     y3 = p->posy;
@@ -5602,7 +5614,11 @@ void computergetinput(long snum, input *syn)
             clipmovecount[snum] = 0;
         }
 
-        goalsprite[snum] = -1;
+        if (goalsprite[snum] != -1)
+        {
+            if (!cansee(x1,y1,z1-(32<<8),damysect,sprite[goalsprite[snum]].x,sprite[goalsprite[snum]].y,sprite[goalsprite[snum]].z-(4<<8),i))    
+                goalsprite[snum] = -1;
+        }
     }
     else
         clipmovecount[snum] = 0;
