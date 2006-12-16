@@ -1653,6 +1653,12 @@ static void md3free (md3model *m)
         {
             s = &m->head.surfs[surfi];
             if (s->tris) free(s->tris);
+            if (m->head.flags == 1337)
+            {
+                if (s->shaders) free(s->shaders);
+                if (s->uv) free(s->uv);
+                if (s->xyzn) free(s->xyzn);
+            }
         }
         free(m->head.surfs);
     }
