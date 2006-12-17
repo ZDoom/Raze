@@ -277,6 +277,9 @@ int addsearchpath(const char *p)
 
     searchpathhead = srch;
     if (srch->pathlen > maxsearchpathlen) maxsearchpathlen = srch->pathlen;
+    
+    Bcorrectfilename(srch->path,0);
+    
     initprintf("addsearchpath(): Added %s\n", srch->path);
 
     return 0;

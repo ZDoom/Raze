@@ -7429,7 +7429,7 @@ FOUNDCHEAT:
                             if (VOLUMEALL)
                             {
                                 volnume = cheatbuf[i] - '0';
-                                levnume = (cheatbuf[i+1] - '0')*(MAXLEVELS-1)+(cheatbuf[i+2]-'0');
+                                levnume = (cheatbuf[i+1] - '0')*10+(cheatbuf[i+2]-'0');
                             }
                             else
                             {
@@ -9646,6 +9646,7 @@ int load_script(char *szScript)
 void app_main(int argc,char **argv)
 {
     int i, j;
+    char cwd[BMAX_PATH];
 #ifdef RENDERTYPEWIN
     if (win_checkinstance())
     {
@@ -9681,6 +9682,9 @@ void app_main(int argc,char **argv)
 
     checkcommandline(argc,argv);
 
+    if (getcwd(cwd,BMAX_PATH)) addsearchpath(cwd);
+
+    if (CommandPaths)
     {
         struct strllist *s;
         while (CommandPaths)
@@ -9700,11 +9704,9 @@ void app_main(int argc,char **argv)
     if (usecwd == 0)
 #endif
     {
-        char cwd[BMAX_PATH];
         char *homedir;
         int asperr;
 
-        if (getcwd(cwd,BMAX_PATH)) addsearchpath(cwd);
         if ((homedir = Bgethomedir()))
         {
             Bsnprintf(cwd,sizeof(cwd),"%s/"
@@ -9774,10 +9776,10 @@ void app_main(int argc,char **argv)
                 if (atol(tempbuf) > BUILDDATE)
                 {
                     if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
-                                    "Browse to http://www.eduke32.com now?"))
+                                    "Browse to http://eduke32.sourceforge.net now?"))
                     {
                 		SHELLEXECUTEINFOA sinfo;
-                        char *p = "http://www.eduke32.com";
+                        char *p = "http://eduke32.sourceforge.net";
                         
                 		Bmemset(&sinfo, 0, sizeof(sinfo));
                 		sinfo.cbSize = sizeof(sinfo);
@@ -9788,7 +9790,7 @@ void app_main(int argc,char **argv)
                 		sinfo.lpClass = "http";
 
                 		if(!ShellExecuteExA(&sinfo))
-                		    initprintf("Error launching browser!\n");
+                		    initprintf("update: error launching browser!\n");
                         CONFIG_SetupMouse();
                         CONFIG_SetupJoystick();
                		    CONFIG_WriteSetup();
