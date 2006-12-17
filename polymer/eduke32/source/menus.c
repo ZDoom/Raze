@@ -173,9 +173,9 @@ static int probe_(int type,int x,int y,int i,int n)
     else
     {
         if (onbar == 0) return(-probey-2);
-        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELDOWN || mii < -256)))
+        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELUP || mii < -256)))
             return(probey);
-        else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELUP || mii > 256)))
+        else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELDOWN || mii > 256)))
             return(probey);
         return(-probey-2);
     }
@@ -332,22 +332,22 @@ static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short 
     {
         if (rev == 0)
         {
-            if (*p > 0 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELDOWN || mii < -256))))         // && onbar) )
+            if (*p > 0 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELUP || mii < -256))))         // && onbar) )
             {
                 KB_ClearKeyDown(sc_LeftArrow);
                 KB_ClearKeyDown(sc_kpad_4);
-                MOUSE_ClearButton(WHEELDOWN_MOUSE);
+                MOUSE_ClearButton(WHEELUP_MOUSE);
                 mii = 0;
                 *p -= dainc;
                 if (*p < 0)
                     *p = 0;
                 sound(KICK_HIT);
             }
-            if (*p < 63 && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELUP || mii > 256))))        //&& onbar) )
+            if (*p < 63 && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELDOWN || mii > 256))))        //&& onbar) )
             {
                 KB_ClearKeyDown(sc_RightArrow);
                 KB_ClearKeyDown(sc_kpad_6);
-                MOUSE_ClearButton(WHEELUP_MOUSE);
+                MOUSE_ClearButton(WHEELDOWN_MOUSE);
                 mii = 0;                
                 *p += dainc;
                 if (*p > 63)
