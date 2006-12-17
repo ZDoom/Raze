@@ -2874,15 +2874,13 @@ static void moveweapons(void)
 
                 p = -1;
 
+                k = s->xvel;
+                ll = s->zvel;
+
                 if (s->picnum == RPG && sector[s->sectnum].lotag == 2)
                 {
-                    k = s->xvel>>1;
-                    ll = s->zvel>>1;
-                }
-                else
-                {
-                    k = s->xvel;
-                    ll = s->zvel;
+                    k >>= 1;
+                    ll >>= 1;
                 }
 
                 dax = s->x;
@@ -2903,18 +2901,14 @@ static void moveweapons(void)
                     break;
                 }
 
-                j = movesprite(i,
-                               (k*(sintable[(s->ang+512)&2047]))>>14,
-                               (k*(sintable[s->ang&2047]))>>14,ll,qq);
+                j = movesprite(i,(k*(sintable[(s->ang+512)&2047]))>>14,(k*(sintable[s->ang&2047]))>>14,ll,qq);
 
                 if (s->picnum == RPG && s->yvel >= 0)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                         j = 49152|s->yvel;
 
                 if (s->sectnum < 0)
-                {
                     KILLIT(i);
-                }
 
                 if ((j&49152) != 49152)
                     if (s->picnum != FREEZEBLAST)
@@ -3092,6 +3086,18 @@ static void moveweapons(void)
                                 }
 
                             }
+                            spritesound(RPG_EXPLODE,i);
+
+                            if (s->xrepeat >= 10)
+                            {
+                                x = s->extra;
+                                hitradius(i,rpgblastradius, x>>2,x>>1,x-(x>>2),x);
+                            }
+                            else
+                            {
+                                x = s->extra+(global_random&3);
+                                hitradius(i,(rpgblastradius>>1),x>>2,x>>1,x-(x>>2),x);
+                            }
                         }
                         else if (s->picnum == SHRINKSPARK)
                         {
@@ -3113,21 +3119,6 @@ static void moveweapons(void)
 
                             }
                         }
-                        if (s->picnum == RPG)
-                        {
-                            spritesound(RPG_EXPLODE,i);
-
-                            if (s->xrepeat >= 10)
-                            {
-                                x = s->extra;
-                                hitradius(i,rpgblastradius, x>>2,x>>1,x-(x>>2),x);
-                            }
-                            else
-                            {
-                                x = s->extra+(global_random&3);
-                                hitradius(i,(rpgblastradius>>1),x>>2,x>>1,x-(x>>2),x);
-                            }
-                        }
                     }
                     if (s->picnum != COOLEXPLOSION1) KILLIT(i);
                 }
@@ -3140,7 +3131,6 @@ static void moveweapons(void)
                     spawn(i,WATERBUBBLE);
 
                 goto BOLT;
-
 
             case SHOTSPARK1__STATIC:
                 p = findplayer(s,&x);
@@ -3327,11 +3317,8 @@ static void movetransports(void)
                 break;
 
             case 1:
-                if ((sprite[j].picnum == SHARK)
-                        || (sprite[j].picnum == COMMANDER)
-                        || (sprite[j].picnum == OCTABRAIN)
-                        || ((sprite[j].picnum >= GREENSLIME) && (sprite[j].picnum >= GREENSLIME+7))
-                   )
+                if ((sprite[j].picnum == SHARK) || (sprite[j].picnum == COMMANDER) || (sprite[j].picnum == OCTABRAIN)
+                        || ((sprite[j].picnum >= GREENSLIME) && (sprite[j].picnum >= GREENSLIME+7)))
                 {
                     if (sprite[j].extra > 0)
                         goto JBOLT;
@@ -4811,7 +4798,12 @@ DETONATEB:
                 s->cstat = (short)32768;
                 goto BOLT;
             }
-            else if (actor_tog == 2) s->cstat = 257;
+            else if (actor_tog == 2)
+            {
+                s->cstat = 0;
+                if (s->extra)
+                    s->cstat = 257;
+            }
         }
         // #endif
 

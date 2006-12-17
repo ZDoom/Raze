@@ -35,7 +35,14 @@ static int  precachecount;
 
 static void tloadtile(short tilenume, char type)
 {
-    if ((picanm[tilenume]&63) > 0)
+    if ((picanm[tilenume]&63) < 1)
+    {
+        if (!(gotpic[tilenume>>3] & pow2char[tilenume&7])) precachecount++;
+        gotpic[tilenume>>3] |= pow2char[tilenume&7];
+        precachehightile[(unsigned char)type][tilenume>>3] |= pow2char[tilenume&7];
+        return;
+    }
+
     {
         int i,j;
 
@@ -55,12 +62,6 @@ static void tloadtile(short tilenume, char type)
             gotpic[i>>3] |= pow2char[i&7];
             precachehightile[(unsigned char)type][i>>3] |= pow2char[i&7];
         }
-    }
-    else
-    {
-        if (!(gotpic[tilenume>>3] & pow2char[tilenume&7])) precachecount++;
-        gotpic[tilenume>>3] |= pow2char[tilenume&7];
-        precachehightile[(unsigned char)type][tilenume>>3] |= pow2char[tilenume&7];
     }
 }
 
@@ -488,8 +489,7 @@ void vscrn(void)
     long i, j, ss, x1, x2, y1, y2;
 
     if (ud.screen_size < 0) ud.screen_size = 0;
-    else if (ud.screen_size > 64) ud.screen_size = 64;
-
+    if (ud.screen_size > 64) ud.screen_size = 64;
     if (ud.screen_size == 0) flushperms();
 
     ss = max(ud.screen_size-8,0);
@@ -511,7 +511,8 @@ void vscrn(void)
         if (j >= 12) y1 += 8;
     }
 
-    if (ud.screen_size >= 8 && !(ud.screen_size == 8 && ud.statusbarmode && bpp > 8)) y2 -= (ss+scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100));
+    if (ud.screen_size >= 8 && !(ud.screen_size == 8 && ud.statusbarmode && bpp > 8))
+        y2 -= (ss+scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100));
 
     y1 = scale(y1,ydim,200);
     y2 = scale(y2,ydim,200);
@@ -530,8 +531,10 @@ void pickrandomspot(short snum)
 
     p = &ps[snum];
 
+    i = snum;
     if (ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_FIXEDRESPAWN))
     {
+        i = TRAND%numplayersprites;
         if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDMSPAWN)
         {
             for (j=0;j<ud.multimode;j++)
@@ -548,9 +551,7 @@ void pickrandomspot(short snum)
                 }
             }
         }
-        else i = TRAND%numplayersprites;
     }
-    else i = snum;
 
     p->bobposx = p->oposx = p->posx = po[i].ox;
     p->bobposy = p->oposy = p->posy = po[i].oy;
@@ -1150,17 +1151,18 @@ void newgame(char vn,char ln,char sk)
     struct player_struct *p = &ps[0];
     short i;
 
+    handleevents();
+    getpackets();
+
     if (globalskillsound >= 0 && FXDevice >= 0 && SoundToggle)
+    {
         while (issoundplaying(-1,globalskillsound))
         {
             handleevents();
             getpackets();
         }
-    else
-    {
-        handleevents();
-        getpackets();
     }
+    
     globalskillsound = -1;
 
     waitforeverybody();
@@ -1204,32 +1206,31 @@ void newgame(char vn,char ln,char sk)
     p->zoom            = 768;
     p->gm              = 0;
 
+    //AddLog("Newgame");
+    ResetGameVars();
+
+    InitGameVarPointers();
+
+    ResetSystemDefaults();
+
+    if (ud.m_coop != 1)
     {
-        //AddLog("Newgame");
-        ResetGameVars();
-
-        InitGameVarPointers();
-
-        ResetSystemDefaults();
-
-        if (ud.m_coop != 1)
+        for (i=0;i<MAX_WEAPONS;i++)
         {
-            for (i=0;i<MAX_WEAPONS;i++)
+            if (aplWeaponWorksLike[i][0]==PISTOL_WEAPON)
             {
-                if (aplWeaponWorksLike[i][0]==PISTOL_WEAPON)
-                {
-                    p->curr_weapon = i;
-                    p->gotweapon[i] = 1;
-                    p->ammo_amount[i] = 48;
-                }
-                else if (aplWeaponWorksLike[i][0]==KNEE_WEAPON)
-                    p->gotweapon[i] = 1;
-                else if (aplWeaponWorksLike[i][0]==HANDREMOTE_WEAPON)
-                    p->gotweapon[i] = 1;
+                p->curr_weapon = i;
+                p->gotweapon[i] = 1;
+                p->ammo_amount[i] = 48;
             }
-            p->last_weapon = -1;
+            else if (aplWeaponWorksLike[i][0]==KNEE_WEAPON)
+                p->gotweapon[i] = 1;
+            else if (aplWeaponWorksLike[i][0]==HANDREMOTE_WEAPON)
+                p->gotweapon[i] = 1;
         }
+        p->last_weapon = -1;
     }
+        
     display_mirror =        0;
 
     if (ud.multimode > 1)
@@ -1648,7 +1649,7 @@ int enterlevel(char g)
                 //gameexit(tempbuf);
                 return 1;
             }
-            else
+
             {
                 char *p;
                 strcpy(levname, boardfilename);

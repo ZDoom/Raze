@@ -175,7 +175,7 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
     return T_ERROR;
 }
 
-void setstatusbarscale(long sc)
+inline void setstatusbarscale(long sc)
 {
     ud.statusbarscale = min(100,max(10,sc));
     vscrn();
@@ -1447,7 +1447,7 @@ inline int checkspriteflagsp(short sPicnum, int iType)
     return 0;
 }
 
-short badguypic(short pn)
+int badguypic(short pn)
 {
     //this case can't be handled by the dynamictostatic system because it adds
     //stuff to the value from names.h so handling separately
@@ -1501,7 +1501,7 @@ short badguypic(short pn)
     return 0;
 }
 
-inline short badguy(spritetype *s)
+inline int badguy(spritetype *s)
 {
     return(badguypic(s->picnum));
 }
@@ -2070,6 +2070,12 @@ static void coolgaugetext(short snum)
         u |= 16384;
     }
 
+    if (sbar.last_extra != p->last_extra)
+    {
+        sbar.last_extra = p->last_extra;
+        u |= 1;
+    }
+
     {
         long lAmount=GetGameVar("PLR_MORALE",-1, p->i, snum);
         if (lAmount == -1)
@@ -2620,7 +2626,7 @@ void gameexit(char *t)
 
 char inputloc = 0;
 
-short strget_(int small,short x,short y,char *t,short dalen,short c)
+static int strget_(int small,short x,short y,char *t,short dalen,short c)
 {
     short ch;
     int i;
@@ -2692,17 +2698,17 @@ short strget_(int small,short x,short y,char *t,short dalen,short c)
     return (0);
 }
 
-inline short strget(short x,short y,char *t,short dalen,short c)
+inline int strget(short x,short y,char *t,short dalen,short c)
 {
     return(strget_(0,x,y,t,dalen,c));
 }
 
-inline short strgetsm(short x,short y,char *t,short dalen,short c)
+inline int strgetsm(short x,short y,char *t,short dalen,short c)
 {
     return(strget_(1,x,y,t,dalen,c));
 }
 
-inline short mpstrget(short x,short y,char *t,short dalen,short c)
+inline int mpstrget(short x,short y,char *t,short dalen,short c)
 {
     if (xdim >= 640 && ydim >= 480)
         return(strgetsm(x,y,t,dalen,c));
@@ -7239,14 +7245,11 @@ FOUNDCHEAT:
                 switch (k)
                 {
                 case CHEAT_WEAPONS:
+                
+                    j = 0;
+                    
                     if (VOLUMEONE)
-                    {
                         j = 6;
-                    }
-                    else
-                    {
-                        j = 0;
-                    }
 
                     for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
                     {
@@ -7364,25 +7367,24 @@ FOUNDCHEAT:
                         sprite[ps[myconnectindex].i].pal = ps[myconnectindex].palookup;
                         Bstrcpy(fta_quotes[122],"Scream for me, Long Beach!");
                         FTA(122,&ps[myconnectindex]);
+                        CheatGetInventory();
+                        for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS;weapon++)
+                            ps[myconnectindex].gotweapon[weapon]  = 1;
+
+                        for (weapon = PISTOL_WEAPON;
+                                weapon < (MAX_WEAPONS);
+                                weapon++)
+                            addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
+                        ps[myconnectindex].got_access = 7;
                     }
                     else
                     {
-                        ud.god = 0;
                         sprite[ps[myconnectindex].i].extra = max_player_health;
                         hittype[ps[myconnectindex].i].extra = -1;
                         ps[myconnectindex].last_extra = max_player_health;
                         FTA(18,&ps[myconnectindex]);
                     }
 
-                    CheatGetInventory();
-                    for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS;weapon++)
-                        ps[myconnectindex].gotweapon[weapon]  = 1;
-
-                    for (weapon = PISTOL_WEAPON;
-                            weapon < (MAX_WEAPONS);
-                            weapon++)
-                        addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
-                    ps[myconnectindex].got_access =              7;
                     sprite[ps[myconnectindex].i].extra = max_player_health;
                     hittype[ps[myconnectindex].i].extra = 0;
                     ps[myconnectindex].cheat_phase = 0;
@@ -7392,14 +7394,11 @@ FOUNDCHEAT:
 
                 case CHEAT_STUFF:
 
+                    j = 0;
+                    
                     if (VOLUMEONE)
-                    {
                         j = 6;
-                    }
-                    else
-                    {
-                        j = 0;
-                    }
+                        
                     for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
                         ps[myconnectindex].gotweapon[weapon]  = 1;
 
@@ -7440,26 +7439,12 @@ FOUNDCHEAT:
                             volnume--;
                             levnume--;
 
-                            if (VOLUMEONE && volnume > 0)
+                            if ((VOLUMEONE && volnume > 0) || volnume > num_volumes-1 ||
+                            levnume >= MAXLEVELS || level_file_names[volnume*MAXLEVELS+levnume] == NULL)
                             {
                                 ps[myconnectindex].cheat_phase = 0;
                                 KB_FlushKeyBoardQueue();
                                 return;
-                            }
-                            else if (volnume > num_volumes-1)
-                            {
-                                ps[myconnectindex].cheat_phase = 0;
-                                KB_FlushKeyBoardQueue();
-                                return;
-                            }
-                            else
-                            {
-                                if (levnume >= MAXLEVELS || level_file_names[volnume*MAXLEVELS+levnume] == NULL)
-                                {
-                                    ps[myconnectindex].cheat_phase = 0;
-                                    KB_FlushKeyBoardQueue();
-                                    return;
-                                }
                             }
 
                             ud.m_volume_number = ud.volume_number = volnume;
@@ -7470,7 +7455,6 @@ FOUNDCHEAT:
                             ud.m_volume_number = ud.volume_number = osdcmd_cheatsinfo_stat.volume;
                             ud.m_level_number = ud.level_number = osdcmd_cheatsinfo_stat.level;
                         }
-
                     }
                     else
                     {
@@ -7598,7 +7582,7 @@ FOUNDCHEAT:
 
                 case CHEAT_MONSTERS:
                 {
-                    char *s[] = { "ON", "OFF", "ON (BLOCKING)" };
+                    char *s[] = { "ON", "OFF", "ON" };
 
                     actor_tog++;
                     if (actor_tog == 3) actor_tog = 0;

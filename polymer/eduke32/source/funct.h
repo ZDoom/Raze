@@ -124,22 +124,22 @@ extern void loadefs(char *fn);
 extern short furthestangle(short sActor,short angs);
 extern void execute(const short *sActor,const short *sPlayer,const long *lDist);
 extern void overwritesprite(long thex,long they,short tilenum,signed char shade,char stat,char dapalnum);
-extern int gametext(int x,int y,char *t,char s,short dabits);
-extern int gametextpal(int x,int y,char *t,char s,char p);
-extern int minitext(int x,int y,char *t,char p,short sb);
+extern inline int gametext(int x,int y,char *t,char s,short dabits);
+extern inline int gametextpal(int x,int y,char *t,char s,char p);
+extern inline int minitext(int x,int y,char *t,char p,short sb);
 extern void gamenumber(long x,long y,long n,char s);
 extern void Shutdown(void);
 extern void getpackets(void);
 extern void check_fta_sounds(short i);
 extern inline short inventory(spritetype *s);
-extern short badguy(spritetype *s);
-extern short badguypic(short pn);
+extern int badguy(spritetype *s);
+extern inline int badguypic(short pn);
 extern void myos(long x,long y,short tilenum,signed char shade,char orientation);
 extern void myospal(long x,long y,short tilenum,signed char shade,char orientation,char p);
 extern void displayfragbar(void);
 extern void FTA(short q,struct player_struct *p);
 extern void gameexit(char *t);
-extern short strget(short x,short y,char *t,short dalen,short c);
+extern inline int strget(short x,short y,char *t,short dalen,short c);
 extern void displayrest(long smoothratio);
 extern void updatesectorz(long x,long y,long z,short *sectnum);
 extern void drawbackground(void);
@@ -196,13 +196,13 @@ extern void movecyclers(void);
 extern void movedummyplayers(void);
 
 // game.c
-extern void setstatusbarscale(long sc);
+extern inline void setstatusbarscale(long sc);
 
 extern void setgamepalette(struct player_struct *player, char *pal, int set);
 extern void fadepal(int r, int g, int b, int start, int end, int step);
 
-extern int minitextshade(int x,int y,char *t,char s,char p,short sb);
-extern int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2);
+extern inline int minitextshade(int x,int y,char *t,char s,char p,short sb);
+extern inline int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2);
 extern void txdigitalnumber(short starttile, long x,long y,long n,char s,char pal,char cs,long x1, long y1, long x2, long y2);
 extern void myosx(long x,long y,short tilenum,signed char shade,char orientation);
 extern void myospalx(long x,long y,short tilenum,signed char shade,char orientation,char p);

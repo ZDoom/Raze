@@ -2717,7 +2717,8 @@ cheat_for_port_credits:
                     if (validmode[day].bpp == 8)
                     {
                         vidsets[dax++] = 8|((validmode[day].fs&1)<<16);
-                        vidsets[dax++] = 0x20000|8|((validmode[day].fs&1)<<16);
+//                        8-bit Polymost can diaf
+//                        vidsets[dax++] = 0x20000|8|((validmode[day].fs&1)<<16);
                     }
                     else
                         vidsets[dax++] = 0x20000|validmode[day].bpp|((validmode[day].fs&1)<<16);
