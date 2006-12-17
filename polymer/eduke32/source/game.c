@@ -7452,18 +7452,9 @@ FOUNDCHEAT:
                                 KB_FlushKeyBoardQueue();
                                 return;
                             }
-                            else if (volnume == 0)
-                            {
-                                if (levnume > 5)
-                                {
-                                    ps[myconnectindex].cheat_phase = 0;
-                                    KB_FlushKeyBoardQueue();
-                                    return;
-                                }
-                            }
                             else
                             {
-                                if (levnume >= MAXLEVELS)
+                                if (levnume >= MAXLEVELS || level_file_names[volnume*MAXLEVELS+levnume] == NULL)
                                 {
                                     ps[myconnectindex].cheat_phase = 0;
                                     KB_FlushKeyBoardQueue();
