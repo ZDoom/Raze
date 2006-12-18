@@ -122,7 +122,7 @@ extern void getglobalz(short sActor);
 extern void makeitfall(short sActor);
 extern void loadefs(char *fn);
 extern short furthestangle(short sActor,short angs);
-extern void execute(const short *sActor,const short *sPlayer,const long *lDist);
+extern void execute(int iActor,int iPlayer,long lDist);
 extern void overwritesprite(long thex,long they,short tilenum,signed char shade,char stat,char dapalnum);
 extern inline int gametext(int x,int y,char *t,char s,short dabits);
 extern inline int gametextpal(int x,int y,char *t,char s,char p);

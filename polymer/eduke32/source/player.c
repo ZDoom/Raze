@@ -5517,7 +5517,7 @@ void computergetinput(long snum, input *syn)
         if (goalsprite[snum] < 0 || !cansee(x1,y1,z1-(32<<8),damysect,sprite[goalsprite[snum]].x,sprite[goalsprite[snum]].y,sprite[goalsprite[snum]].z-(4<<8),i))
         {
             int bestsprite = -1, spritescore = 0;
-            
+
             for (k=0;k<16;k++)
             {
                 i = (rand()%numsectors);
@@ -5531,7 +5531,7 @@ void computergetinput(long snum, input *syn)
                         {
                             spritescore = getspritescore(snum,sprite[j].picnum);
                             bestsprite = j;
-                        }   
+                        }
 //                        break;
                     }
                 }
@@ -5561,7 +5561,7 @@ void computergetinput(long snum, input *syn)
             goalspritescore[snum] = 0;
             goalsprite[snum] = -1;
         }
-    }        
+    }
 
     x3 = p->posx;
     y3 = p->posy;

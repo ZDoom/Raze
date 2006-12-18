@@ -34,74 +34,74 @@ static spritetype *g_sp;
 
 extern int32 scripthandle;
 
-static void DoUserDef(char bSet, const long *lLabelID, const long *lVar2)
+static void DoUserDef(int iSet, const long *lLabelID, const long *lVar2)
 {
     long lValue;
 
-    lValue=GetGameVarID(*lVar2, g_i, g_p);
-
     if (g_p != myconnectindex) return;
+
+    lValue=GetGameVarID(*lVar2, g_i, g_p);
 
     switch (*lLabelID)
     {
     case USERDEFS_GOD:
-        if (bSet)
+        if (iSet)
             ud.god = lValue;
         else
             SetGameVarID(*lVar2, ud.god, g_i, g_p);
         break;
 
     case USERDEFS_WARP_ON:
-        if (bSet)
+        if (iSet)
             ud.warp_on = lValue;
         else
             SetGameVarID(*lVar2, ud.warp_on, g_i, g_p);
         break;
 
     case USERDEFS_CASHMAN:
-        if (bSet)
+        if (iSet)
             ud.cashman = lValue;
         else
             SetGameVarID(*lVar2, ud.cashman, g_i, g_p);
         break;
 
     case USERDEFS_EOG:
-        if (bSet)
+        if (iSet)
             ud.eog = lValue;
         else
             SetGameVarID(*lVar2, ud.eog, g_i, g_p);
         break;
 
     case USERDEFS_SHOWALLMAP:
-        if (bSet)
+        if (iSet)
             ud.showallmap = lValue;
         else
             SetGameVarID(*lVar2, ud.showallmap, g_i, g_p);
         break;
 
     case USERDEFS_SHOW_HELP:
-        if (bSet)
+        if (iSet)
             ud.show_help = lValue;
         else
             SetGameVarID(*lVar2, ud.show_help, g_i, g_p);
         break;
 
     case USERDEFS_SCROLLMODE:
-        if (bSet)
+        if (iSet)
             ud.scrollmode = lValue;
         else
             SetGameVarID(*lVar2, ud.scrollmode, g_i, g_p);
         break;
 
     case USERDEFS_CLIPPING:
-        if (bSet)
+        if (iSet)
             ud.clipping = lValue;
         else
             SetGameVarID(*lVar2, ud.clipping, g_i, g_p);
         break;
 
         //  case USERDEFS_USER_NAME:
-        //      if(bSet)
+        //      if(iSet)
         //      {
         //          ud.user_name[MAXPLAYERS][32] = lValue;
         //      }
@@ -112,7 +112,7 @@ static void DoUserDef(char bSet, const long *lLabelID, const long *lVar2)
         //      break;
 
         //  case USERDEFS_RIDECULE:
-        //      if(bSet)
+        //      if(iSet)
         //      {
         //          ud.ridecule = lValue;
         //      }
@@ -123,7 +123,7 @@ static void DoUserDef(char bSet, const long *lLabelID, const long *lVar2)
         //      break;
 
         //  case USERDEFS_SAVEGAME:
-        //      if(bSet)
+        //      if(iSet)
         //      {
         //          ud.savegame = lValue;
         //      }
@@ -134,7 +134,7 @@ static void DoUserDef(char bSet, const long *lLabelID, const long *lVar2)
         //      break;
 
         //  case USERDEFS_PWLOCKOUT:
-        //      if(bSet)
+        //      if(iSet)
         //      {
         //          ud.pwlockout = lValue;
         //      }
@@ -145,7 +145,7 @@ static void DoUserDef(char bSet, const long *lLabelID, const long *lVar2)
         //      break;
 
         //  case USERDEFS_RTSNAME:
-        //      if(bSet)
+        //      if(iSet)
         //      {
         //          ud.rtsname = lValue;
         //      }
@@ -156,203 +156,203 @@ static void DoUserDef(char bSet, const long *lLabelID, const long *lVar2)
         //      break;
 
     case USERDEFS_OVERHEAD_ON:
-        if (bSet)
+        if (iSet)
             ud.overhead_on = lValue;
         else
             SetGameVarID(*lVar2, ud.overhead_on, g_i, g_p);
         break;
 
     case USERDEFS_LAST_OVERHEAD:
-        if (bSet)
+        if (iSet)
             ud.last_overhead = lValue;
         else
             SetGameVarID(*lVar2, ud.last_overhead, g_i, g_p);
         break;
 
     case USERDEFS_SHOWWEAPONS:
-        if (bSet)
+        if (iSet)
             ud.showweapons = lValue;
         else
             SetGameVarID(*lVar2, ud.showweapons, g_i, g_p);
         break;
 
     case USERDEFS_PAUSE_ON:
-        if (bSet)
+        if (iSet)
             ud.pause_on = lValue;
         else
             SetGameVarID(*lVar2, ud.pause_on, g_i, g_p);
         break;
 
     case USERDEFS_FROM_BONUS:
-        if (bSet)
+        if (iSet)
             ud.from_bonus = lValue;
         else
             SetGameVarID(*lVar2, ud.from_bonus, g_i, g_p);
         break;
 
     case USERDEFS_CAMERASPRITE:
-        if (bSet)
+        if (iSet)
             ud.camerasprite = lValue;
         else
             SetGameVarID(*lVar2, ud.camerasprite, g_i, g_p);
         break;
 
     case USERDEFS_LAST_CAMSPRITE:
-        if (bSet)
+        if (iSet)
             ud.last_camsprite = lValue;
         else
             SetGameVarID(*lVar2, ud.last_camsprite, g_i, g_p);
         break;
 
     case USERDEFS_LAST_LEVEL:
-        if (bSet)
+        if (iSet)
             ud.last_level = lValue;
         else
             SetGameVarID(*lVar2, ud.last_level, g_i, g_p);
         break;
 
     case USERDEFS_SECRETLEVEL:
-        if (bSet)
+        if (iSet)
             ud.secretlevel = lValue;
         else
             SetGameVarID(*lVar2, ud.secretlevel, g_i, g_p);
         break;
 
     case USERDEFS_CONST_VISIBILITY:
-        if (bSet)
+        if (iSet)
             ud.const_visibility = lValue;
         else
             SetGameVarID(*lVar2, ud.const_visibility, g_i, g_p);
         break;
 
     case USERDEFS_UW_FRAMERATE:
-        if (bSet)
+        if (iSet)
             ud.uw_framerate = lValue;
         else
             SetGameVarID(*lVar2, ud.uw_framerate, g_i, g_p);
         break;
 
     case USERDEFS_CAMERA_TIME:
-        if (bSet)
+        if (iSet)
             ud.camera_time = lValue;
         else
             SetGameVarID(*lVar2, ud.camera_time, g_i, g_p);
         break;
 
     case USERDEFS_FOLFVEL:
-        if (bSet)
+        if (iSet)
             ud.folfvel = lValue;
         else
             SetGameVarID(*lVar2, ud.folfvel, g_i, g_p);
         break;
 
     case USERDEFS_FOLAVEL:
-        if (bSet)
+        if (iSet)
             ud.folavel = lValue;
         else
             SetGameVarID(*lVar2, ud.folavel, g_i, g_p);
         break;
 
     case USERDEFS_FOLX:
-        if (bSet)
+        if (iSet)
             ud.folx = lValue;
         else
             SetGameVarID(*lVar2, ud.folx, g_i, g_p);
         break;
 
     case USERDEFS_FOLY:
-        if (bSet)
+        if (iSet)
             ud.foly = lValue;
         else
             SetGameVarID(*lVar2, ud.foly, g_i, g_p);
         break;
 
     case USERDEFS_FOLA:
-        if (bSet)
+        if (iSet)
             ud.fola = lValue;
         else
             SetGameVarID(*lVar2, ud.fola, g_i, g_p);
         break;
 
     case USERDEFS_RECCNT:
-        if (bSet)
+        if (iSet)
             ud.reccnt = lValue;
         else
             SetGameVarID(*lVar2, ud.reccnt, g_i, g_p);
         break;
 
     case USERDEFS_ENTERED_NAME:
-        if (bSet)
+        if (iSet)
             ud.entered_name = lValue;
         else
             SetGameVarID(*lVar2, ud.entered_name, g_i, g_p);
         break;
 
     case USERDEFS_SCREEN_TILTING:
-        if (bSet)
+        if (iSet)
             ud.screen_tilting = lValue;
         else
             SetGameVarID(*lVar2, ud.screen_tilting, g_i, g_p);
         break;
 
     case USERDEFS_SHADOWS:
-        if (bSet)
+        if (iSet)
             ud.shadows = lValue;
         else
             SetGameVarID(*lVar2, ud.shadows, g_i, g_p);
         break;
 
     case USERDEFS_FTA_ON:
-        if (bSet)
+        if (iSet)
             ud.fta_on = lValue;
         else
             SetGameVarID(*lVar2, ud.fta_on, g_i, g_p);
         break;
 
     case USERDEFS_EXECUTIONS:
-        if (bSet)
+        if (iSet)
             ud.executions = lValue;
         else
             SetGameVarID(*lVar2, ud.executions, g_i, g_p);
         break;
 
     case USERDEFS_AUTO_RUN:
-        if (bSet)
+        if (iSet)
             ud.auto_run = lValue;
         else
             SetGameVarID(*lVar2, ud.auto_run, g_i, g_p);
         break;
 
     case USERDEFS_COORDS:
-        if (bSet)
+        if (iSet)
             ud.coords = lValue;
         else
             SetGameVarID(*lVar2, ud.coords, g_i, g_p);
         break;
 
     case USERDEFS_TICKRATE:
-        if (bSet)
+        if (iSet)
             ud.tickrate = lValue;
         else
             SetGameVarID(*lVar2, ud.tickrate, g_i, g_p);
         break;
 
     case USERDEFS_M_COOP:
-        if (bSet)
+        if (iSet)
             ud.m_coop = lValue;
         else
             SetGameVarID(*lVar2, ud.m_coop, g_i, g_p);
         break;
 
     case USERDEFS_COOP:
-        if (bSet)
+        if (iSet)
             ud.coop = lValue;
         else
             SetGameVarID(*lVar2, ud.coop, g_i, g_p);
         break;
 
     case USERDEFS_SCREEN_SIZE:
-        if (bSet)
+        if (iSet)
         {
             if (ud.screen_size != lValue)
             {
@@ -365,21 +365,21 @@ static void DoUserDef(char bSet, const long *lLabelID, const long *lVar2)
         break;
 
     case USERDEFS_LOCKOUT:
-        if (bSet)
+        if (iSet)
             ud.lockout = lValue;
         else
             SetGameVarID(*lVar2, ud.lockout, g_i, g_p);
         break;
 
     case USERDEFS_CROSSHAIR:
-        if (bSet)
+        if (iSet)
             ud.crosshair = lValue;
         else
             SetGameVarID(*lVar2, ud.crosshair, g_i, g_p);
         break;
 
         //  case USERDEFS_WCHOICE:
-        //      if(bSet)
+        //      if(iSet)
         //      {
         //          ud.wchoice = lValue;
         //      }
@@ -390,420 +390,420 @@ static void DoUserDef(char bSet, const long *lLabelID, const long *lVar2)
         //      break;
 
     case USERDEFS_PLAYERAI:
-        if (bSet)
+        if (iSet)
             ud.playerai = lValue;
         else
             SetGameVarID(*lVar2, ud.playerai, g_i, g_p);
         break;
 
     case USERDEFS_RESPAWN_MONSTERS:
-        if (bSet)
+        if (iSet)
             ud.respawn_monsters = lValue;
         else
             SetGameVarID(*lVar2, ud.respawn_monsters, g_i, g_p);
         break;
 
     case USERDEFS_RESPAWN_ITEMS:
-        if (bSet)
+        if (iSet)
             ud.respawn_items = lValue;
         else
             SetGameVarID(*lVar2, ud.respawn_items, g_i, g_p);
         break;
 
     case USERDEFS_RESPAWN_INVENTORY:
-        if (bSet)
+        if (iSet)
             ud.respawn_inventory = lValue;
         else
             SetGameVarID(*lVar2, ud.respawn_inventory, g_i, g_p);
         break;
 
     case USERDEFS_RECSTAT:
-        if (bSet)
+        if (iSet)
             ud.recstat = lValue;
         else
             SetGameVarID(*lVar2, ud.recstat, g_i, g_p);
         break;
 
     case USERDEFS_MONSTERS_OFF:
-        if (bSet)
+        if (iSet)
             ud.monsters_off = lValue;
         else
             SetGameVarID(*lVar2, ud.monsters_off, g_i, g_p);
         break;
 
     case USERDEFS_BRIGHTNESS:
-        if (bSet)
+        if (iSet)
             ud.brightness = lValue;
         else
             SetGameVarID(*lVar2, ud.brightness, g_i, g_p);
         break;
 
     case USERDEFS_M_RESPAWN_ITEMS:
-        if (bSet)
+        if (iSet)
             ud.m_respawn_items = lValue;
         else
             SetGameVarID(*lVar2, ud.m_respawn_items, g_i, g_p);
         break;
 
     case USERDEFS_M_RESPAWN_MONSTERS:
-        if (bSet)
+        if (iSet)
             ud.m_respawn_monsters = lValue;
         else
             SetGameVarID(*lVar2, ud.m_respawn_monsters, g_i, g_p);
         break;
 
     case USERDEFS_M_RESPAWN_INVENTORY:
-        if (bSet)
+        if (iSet)
             ud.m_respawn_inventory = lValue;
         else
             SetGameVarID(*lVar2, ud.m_respawn_inventory, g_i, g_p);
         break;
 
     case USERDEFS_M_RECSTAT:
-        if (bSet)
+        if (iSet)
             ud.m_recstat = lValue;
         else
             SetGameVarID(*lVar2, ud.m_recstat, g_i, g_p);
         break;
 
     case USERDEFS_M_MONSTERS_OFF:
-        if (bSet)
+        if (iSet)
             ud.m_monsters_off = lValue;
         else
             SetGameVarID(*lVar2, ud.m_monsters_off, g_i, g_p);
         break;
 
     case USERDEFS_DETAIL:
-        if (bSet)
+        if (iSet)
             ud.detail = lValue;
         else
             SetGameVarID(*lVar2, ud.detail, g_i, g_p);
         break;
 
     case USERDEFS_M_FFIRE:
-        if (bSet)
+        if (iSet)
             ud.m_ffire = lValue;
         else
             SetGameVarID(*lVar2, ud.m_ffire, g_i, g_p);
         break;
 
     case USERDEFS_FFIRE:
-        if (bSet)
+        if (iSet)
             ud.ffire = lValue;
         else
             SetGameVarID(*lVar2, ud.ffire, g_i, g_p);
         break;
 
     case USERDEFS_M_PLAYER_SKILL:
-        if (bSet)
+        if (iSet)
             ud.m_player_skill = lValue;
         else
             SetGameVarID(*lVar2, ud.m_player_skill, g_i, g_p);
         break;
 
     case USERDEFS_M_LEVEL_NUMBER:
-        if (bSet)
+        if (iSet)
             ud.m_level_number = lValue;
         else
             SetGameVarID(*lVar2, ud.m_level_number, g_i, g_p);
         break;
 
     case USERDEFS_M_VOLUME_NUMBER:
-        if (bSet)
+        if (iSet)
             ud.m_volume_number = lValue;
         else
             SetGameVarID(*lVar2, ud.m_volume_number, g_i, g_p);
         break;
 
     case USERDEFS_MULTIMODE:
-        if (bSet)
+        if (iSet)
             ud.multimode = lValue;
         else
             SetGameVarID(*lVar2, ud.multimode, g_i, g_p);
         break;
 
     case USERDEFS_PLAYER_SKILL:
-        if (bSet)
+        if (iSet)
             ud.player_skill = lValue;
         else
             SetGameVarID(*lVar2, ud.player_skill, g_i, g_p);
         break;
 
     case USERDEFS_LEVEL_NUMBER:
-        if (bSet)
+        if (iSet)
             ud.level_number = lValue;
         else
             SetGameVarID(*lVar2, ud.level_number, g_i, g_p);
         break;
 
     case USERDEFS_VOLUME_NUMBER:
-        if (bSet)
+        if (iSet)
             ud.volume_number = lValue;
         else
             SetGameVarID(*lVar2, ud.volume_number, g_i, g_p);
         break;
 
     case USERDEFS_M_MARKER:
-        if (bSet)
+        if (iSet)
             ud.m_marker = lValue;
         else
             SetGameVarID(*lVar2, ud.m_marker, g_i, g_p);
         break;
 
     case USERDEFS_MARKER:
-        if (bSet)
+        if (iSet)
             ud.marker = lValue;
         else
             SetGameVarID(*lVar2, ud.marker, g_i, g_p);
         break;
 
     case USERDEFS_MOUSEFLIP:
-        if (bSet)
+        if (iSet)
             ud.mouseflip = lValue;
         else
             SetGameVarID(*lVar2, ud.mouseflip, g_i, g_p);
         break;
 
     case USERDEFS_STATUSBARSCALE:
-        if (bSet)
+        if (iSet)
             ud.statusbarscale = lValue;
         else
             SetGameVarID(*lVar2, ud.statusbarscale, g_i, g_p);
         break;
 
     case USERDEFS_DRAWWEAPON:
-        if (bSet)
+        if (iSet)
             ud.drawweapon = lValue;
         else
             SetGameVarID(*lVar2, ud.drawweapon, g_i, g_p);
         break;
 
     case USERDEFS_MOUSEAIMING:
-        if (bSet)
+        if (iSet)
             ud.mouseaiming = lValue;
         else
             SetGameVarID(*lVar2, ud.mouseaiming, g_i, g_p);
         break;
 
     case USERDEFS_WEAPONSWITCH:
-        if (bSet)
+        if (iSet)
             ud.weaponswitch = lValue;
         else
             SetGameVarID(*lVar2, ud.weaponswitch, g_i, g_p);
         break;
 
     case USERDEFS_DEMOCAMS:
-        if (bSet)
+        if (iSet)
             ud.democams = lValue;
         else
             SetGameVarID(*lVar2, ud.democams, g_i, g_p);
         break;
 
     case USERDEFS_COLOR:
-        if (bSet)
+        if (iSet)
             ud.color = lValue;
         else
             SetGameVarID(*lVar2, ud.color, g_i, g_p);
         break;
 
     case USERDEFS_MSGDISPTIME:
-        if (bSet)
+        if (iSet)
             ud.msgdisptime = lValue;
         else
             SetGameVarID(*lVar2, ud.msgdisptime, g_i, g_p);
         break;
 
     case USERDEFS_STATUSBARMODE:
-        if (bSet)
+        if (iSet)
             ud.statusbarmode = lValue;
         else
             SetGameVarID(*lVar2, ud.statusbarmode, g_i, g_p);
         break;
 
     case USERDEFS_M_NOEXITS:
-        if (bSet)
+        if (iSet)
             ud.m_noexits = lValue;
         else
             SetGameVarID(*lVar2, ud.m_noexits, g_i, g_p);
         break;
 
     case USERDEFS_NOEXITS:
-        if (bSet)
+        if (iSet)
             ud.noexits = lValue;
         else
             SetGameVarID(*lVar2, ud.noexits, g_i, g_p);
         break;
 
     case USERDEFS_AUTOVOTE:
-        if (bSet)
+        if (iSet)
             ud.autovote = lValue;
         else
             SetGameVarID(*lVar2, ud.autovote, g_i, g_p);
         break;
 
     case USERDEFS_AUTOMSG:
-        if (bSet)
+        if (iSet)
             ud.automsg = lValue;
         else
             SetGameVarID(*lVar2, ud.automsg, g_i, g_p);
         break;
 
     case USERDEFS_IDPLAYERS:
-        if (bSet)
+        if (iSet)
             ud.idplayers = lValue;
         else
             SetGameVarID(*lVar2, ud.idplayers, g_i, g_p);
         break;
 
     case USERDEFS_TEAM:
-        if (bSet)
+        if (iSet)
             ud.team = lValue;
         else
             SetGameVarID(*lVar2, ud.team, g_i, g_p);
         break;
 
     case USERDEFS_MYX:
-        if (bSet)
+        if (iSet)
             myx = lValue;
         else
             SetGameVarID(*lVar2, myx, g_i, g_p);
         break;
 
     case USERDEFS_OMYX:
-        if (bSet)
+        if (iSet)
             omyx = lValue;
         else
             SetGameVarID(*lVar2, omyx, g_i, g_p);
         break;
 
     case USERDEFS_MYXVEL:
-        if (bSet)
+        if (iSet)
             myxvel = lValue;
         else
             SetGameVarID(*lVar2, myxvel, g_i, g_p);
         break;
 
     case USERDEFS_MYY:
-        if (bSet)
+        if (iSet)
             myy = lValue;
         else
             SetGameVarID(*lVar2, myy, g_i, g_p);
         break;
 
     case USERDEFS_OMYY:
-        if (bSet)
+        if (iSet)
             omyy = lValue;
         else
             SetGameVarID(*lVar2, omyy, g_i, g_p);
         break;
 
     case USERDEFS_MYYVEL:
-        if (bSet)
+        if (iSet)
             myyvel = lValue;
         else
             SetGameVarID(*lVar2, myyvel, g_i, g_p);
         break;
 
     case USERDEFS_MYZ:
-        if (bSet)
+        if (iSet)
             myx = lValue;
         else
             SetGameVarID(*lVar2, myx, g_i, g_p);
         break;
 
     case USERDEFS_OMYZ:
-        if (bSet)
+        if (iSet)
             omyz = lValue;
         else
             SetGameVarID(*lVar2, omyz, g_i, g_p);
         break;
 
     case USERDEFS_MYZVEL:
-        if (bSet)
+        if (iSet)
             myzvel = lValue;
         else
             SetGameVarID(*lVar2, myzvel, g_i, g_p);
         break;
 
     case USERDEFS_MYHORIZ:
-        if (bSet)
+        if (iSet)
             myhoriz = lValue;
         else
             SetGameVarID(*lVar2, myhoriz, g_i, g_p);
         break;
 
     case USERDEFS_OMYHORIZ:
-        if (bSet)
+        if (iSet)
             omyhoriz = lValue;
         else
             SetGameVarID(*lVar2, omyhoriz, g_i, g_p);
         break;
 
     case USERDEFS_MYHORIZOFF:
-        if (bSet)
+        if (iSet)
             myhorizoff = lValue;
         else
             SetGameVarID(*lVar2, myhorizoff, g_i, g_p);
         break;
 
     case USERDEFS_OMYHORIZOFF:
-        if (bSet)
+        if (iSet)
             omyhorizoff = lValue;
         else
             SetGameVarID(*lVar2, omyhorizoff, g_i, g_p);
         break;
 
     case USERDEFS_MYANG:
-        if (bSet)
+        if (iSet)
             myang = lValue;
         else
             SetGameVarID(*lVar2, myang, g_i, g_p);
         break;
 
     case USERDEFS_OMYANG:
-        if (bSet)
+        if (iSet)
             omyang = lValue;
         else
             SetGameVarID(*lVar2, omyang, g_i, g_p);
         break;
 
     case USERDEFS_MYCURSECTNUM:
-        if (bSet)
+        if (iSet)
             mycursectnum = lValue;
         else
             SetGameVarID(*lVar2, mycursectnum, g_i, g_p);
         break;
 
     case USERDEFS_MYJUMPINGCOUNTER:
-        if (bSet)
+        if (iSet)
             myjumpingcounter = lValue;
         else
             SetGameVarID(*lVar2, myjumpingcounter, g_i, g_p);
         break;
 
     case USERDEFS_MYJUMPINGTOGGLE:
-        if (bSet)
+        if (iSet)
             myjumpingtoggle = lValue;
         else
             SetGameVarID(*lVar2, myjumpingtoggle, g_i, g_p);
         break;
 
     case USERDEFS_MYONGROUND:
-        if (bSet)
+        if (iSet)
             myonground = lValue;
         else
             SetGameVarID(*lVar2, myonground, g_i, g_p);
         break;
 
     case USERDEFS_MYHARDLANDING:
-        if (bSet)
+        if (iSet)
             myhardlanding = lValue;
         else
             SetGameVarID(*lVar2, myhardlanding, g_i, g_p);
         break;
 
     case USERDEFS_MYRETURNTOCENTER:
-        if (bSet)
+        if (iSet)
             myreturntocenter = lValue;
         else
             SetGameVarID(*lVar2, myreturntocenter, g_i, g_p);
@@ -815,214 +815,211 @@ static void DoUserDef(char bSet, const long *lLabelID, const long *lVar2)
     return;
 }
 
-static void DoThisProjectile(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2)
+static void DoThisProjectile(int iSet, const long *lVar1, const long *lLabelID, const long *lVar2)
 {
-    long lValue,proj;
+    long lValue,proj=g_i;
 
-    if (*lVar1 == g_iThisActorID)
-        // if they've asked for 'this', then use 'this'...
-        proj=g_i;
-    else
+    if (*lVar1 != g_iThisActorID)
         proj=GetGameVarID(*lVar1, g_i, g_p);
-
-    lValue=GetGameVarID(*lVar2, g_i, g_p);
 
     if (proj < 0 || proj >= MAXSPRITES)
         return;
 
+    lValue=GetGameVarID(*lVar2, g_i, g_p);
+
     switch (*lLabelID)
     {
     case PROJ_WORKSLIKE:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].workslike=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].workslike, g_i, g_p);
         break;
 
     case PROJ_SPAWNS:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].spawns=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].spawns, g_i, g_p);
         break;
 
     case PROJ_SXREPEAT:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].sxrepeat=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].sxrepeat, g_i, g_p);
         break;
 
     case PROJ_SYREPEAT:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].syrepeat=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].syrepeat, g_i, g_p);
         break;
 
     case PROJ_SOUND:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].sound=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].sound, g_i, g_p);
         break;
 
     case PROJ_ISOUND:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].isound=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].isound, g_i, g_p);
         break;
 
     case PROJ_VEL:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].vel=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].vel, g_i, g_p);
         break;
 
     case PROJ_EXTRA:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].extra=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].extra, g_i, g_p);
         break;
 
     case PROJ_DECAL:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].decal=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].decal, g_i, g_p);
         break;
 
     case PROJ_TRAIL:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].trail=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].trail, g_i, g_p);
         break;
 
     case PROJ_TXREPEAT:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].txrepeat=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].txrepeat, g_i, g_p);
         break;
 
     case PROJ_TYREPEAT:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].tyrepeat=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].tyrepeat, g_i, g_p);
         break;
 
     case PROJ_TOFFSET:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].toffset=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].toffset, g_i, g_p);
         break;
 
     case PROJ_TNUM:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].tnum=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].tnum, g_i, g_p);
         break;
 
     case PROJ_DROP:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].drop=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].drop, g_i, g_p);
         break;
 
     case PROJ_CSTAT:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].cstat=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].cstat, g_i, g_p);
         break;
 
     case PROJ_CLIPDIST:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].clipdist=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].clipdist, g_i, g_p);
         break;
 
     case PROJ_SHADE:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].shade=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].shade, g_i, g_p);
         break;
 
     case PROJ_XREPEAT:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].xrepeat=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].xrepeat, g_i, g_p);
         break;
 
     case PROJ_YREPEAT:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].yrepeat=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].yrepeat, g_i, g_p);
         break;
 
     case PROJ_PAL:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].pal=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].pal, g_i, g_p);
         break;
 
     case PROJ_EXTRA_RAND:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].extra_rand=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].extra_rand, g_i, g_p);
         break;
 
     case PROJ_HITRADIUS:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].hitradius=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].hitradius, g_i, g_p);
         break;
 
     case PROJ_VEL_MULT:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].velmult=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].velmult, g_i, g_p);
         break;
 
     case PROJ_OFFSET:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].offset=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].offset, g_i, g_p);
         break;
 
     case PROJ_BOUNCES:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].bounces=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].bounces, g_i, g_p);
         break;
 
     case PROJ_BSOUND:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].bsound=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].bsound, g_i, g_p);
         break;
 
     case PROJ_RANGE:
-        if (bSet)
+        if (iSet)
             thisprojectile[proj].range=lValue;
         else
             SetGameVarID(*lVar2, thisprojectile[proj].range, g_i, g_p);
@@ -1034,41 +1031,38 @@ static void DoThisProjectile(char bSet, const long *lVar1, const long *lLabelID,
     return;
 }
 
-static void DoPlayer(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *lParm2)
+static void DoPlayer(int iSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *lParm2)
 {
-    int iPlayer;
     long lValue;
     long lTemp;
+    int iPlayer=g_p;
 
-    lValue=GetGameVarID(*lVar2, g_i, g_p);
-
-    if (*lVar1 == g_iThisActorID)
-        // if they've asked for 'this', then use 'this player'...
-        iPlayer=g_p;
-    else
+    if (*lVar1 != g_iThisActorID)
         iPlayer=GetGameVarID(*lVar1, g_i, g_p);
 
     if (iPlayer<0 || iPlayer >= MAXPLAYERS)
         return;
 
+    lValue=GetGameVarID(*lVar2, g_i, g_p);
+
     switch (*lLabelID)
     {
     case PLAYER_ZOOM:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].zoom=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].zoom, g_i, g_p);
         break;
 
     case PLAYER_EXITX:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].exitx=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].exitx, g_i, g_p);
         break;
 
     case PLAYER_EXITY:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].exity=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].exity, g_i, g_p);
@@ -1076,7 +1070,7 @@ static void DoPlayer(char bSet, const long *lVar1, const long *lLabelID, const l
 
     case PLAYER_LOOGIEX:
         lTemp=*lParm2;
-        if (bSet)
+        if (iSet)
             ps[iPlayer].loogiex[lTemp]=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].loogiex[lTemp], g_i, g_p);
@@ -1084,266 +1078,266 @@ static void DoPlayer(char bSet, const long *lVar1, const long *lLabelID, const l
 
     case PLAYER_LOOGIEY:
         lTemp=*lParm2;
-        if (bSet)
+        if (iSet)
             ps[iPlayer].loogiey[lTemp]=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].loogiey[lTemp], g_i, g_p);
         break;
 
     case PLAYER_NUMLOOGS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].numloogs=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].numloogs, g_i, g_p);
         break;
 
     case PLAYER_LOOGCNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].loogcnt=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].loogcnt, g_i, g_p);
         break;
 
     case PLAYER_POSX:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].posx=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].posx, g_i, g_p);
         break;
 
     case PLAYER_POSY:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].posy=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].posy, g_i, g_p);
         break;
 
     case PLAYER_POSZ:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].posz=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].posz, g_i, g_p);
         break;
 
     case PLAYER_HORIZ:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].horiz=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].horiz, g_i, g_p);
         break;
 
     case PLAYER_OHORIZ:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].ohoriz=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].ohoriz, g_i, g_p);
         break;
 
     case PLAYER_OHORIZOFF:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].ohorizoff=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].ohorizoff, g_i, g_p);
         break;
 
     case PLAYER_INVDISPTIME:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].invdisptime=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].invdisptime, g_i, g_p);
         break;
 
     case PLAYER_BOBPOSX:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].bobposx=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].bobposx, g_i, g_p);
         break;
 
     case PLAYER_BOBPOSY:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].bobposy=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].bobposy, g_i, g_p);
         break;
 
     case PLAYER_OPOSX:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].oposx=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].oposx, g_i, g_p);
         break;
 
     case PLAYER_OPOSY:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].oposy=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].oposy, g_i, g_p);
         break;
 
     case PLAYER_OPOSZ:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].oposz=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].oposz, g_i, g_p);
         break;
 
     case PLAYER_PYOFF:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].pyoff=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].pyoff, g_i, g_p);
         break;
 
     case PLAYER_OPYOFF:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].opyoff=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].opyoff, g_i, g_p);
         break;
 
     case PLAYER_POSXV:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].posxv=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].posxv, g_i, g_p);
         break;
 
     case PLAYER_POSYV:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].posyv=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].posyv, g_i, g_p);
         break;
 
     case PLAYER_POSZV:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].poszv=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].poszv, g_i, g_p);
         break;
 
     case PLAYER_LAST_PISSED_TIME:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].last_pissed_time=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].last_pissed_time, g_i, g_p);
         break;
 
     case PLAYER_TRUEFZ:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].truefz=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].truefz, g_i, g_p);
         break;
 
     case PLAYER_TRUECZ:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].truecz=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].truecz, g_i, g_p);
         break;
 
     case PLAYER_PLAYER_PAR:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].player_par=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].player_par, g_i, g_p);
         break;
 
     case PLAYER_VISIBILITY:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].visibility=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].visibility, g_i, g_p);
         break;
 
     case PLAYER_BOBCOUNTER:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].bobcounter=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].bobcounter, g_i, g_p);
         break;
 
     case PLAYER_WEAPON_SWAY:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].weapon_sway=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].weapon_sway, g_i, g_p);
         break;
 
     case PLAYER_PALS_TIME:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].pals_time=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].pals_time, g_i, g_p);
         break;
 
     case PLAYER_RANDOMFLAMEX:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].randomflamex=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].randomflamex, g_i, g_p);
         break;
 
     case PLAYER_CRACK_TIME:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].crack_time=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].crack_time, g_i, g_p);
         break;
 
     case PLAYER_AIM_MODE:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].aim_mode=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].aim_mode, g_i, g_p);
         break;
 
     case PLAYER_ANG:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].ang=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].ang, g_i, g_p);
         break;
 
     case PLAYER_OANG:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].oang=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].oang, g_i, g_p);
         break;
 
     case PLAYER_ANGVEL:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].angvel=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].angvel, g_i, g_p);
         break;
 
     case PLAYER_CURSECTNUM:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].cursectnum=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].cursectnum, g_i, g_p);
         break;
 
     case PLAYER_LOOK_ANG:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].look_ang=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].look_ang, g_i, g_p);
         break;
 
     case PLAYER_LAST_EXTRA:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].last_extra=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].last_extra, g_i, g_p);
         break;
 
     case PLAYER_SUBWEAPON:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].subweapon=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].subweapon, g_i, g_p);
@@ -1351,546 +1345,552 @@ static void DoPlayer(char bSet, const long *lVar1, const long *lLabelID, const l
 
     case PLAYER_AMMO_AMOUNT:
         lTemp=*lParm2;
-        if (bSet)
+        if (iSet)
             ps[iPlayer].ammo_amount[lTemp]=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].ammo_amount[lTemp], g_i, g_p);
         break;
 
     case PLAYER_WACKEDBYACTOR:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].wackedbyactor=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].wackedbyactor, g_i, g_p);
         break;
 
     case PLAYER_FRAG:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].frag=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].frag, g_i, g_p);
         break;
 
     case PLAYER_FRAGGEDSELF:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].fraggedself=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].fraggedself, g_i, g_p);
         break;
 
     case PLAYER_CURR_WEAPON:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].curr_weapon=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].curr_weapon, g_i, g_p);
         break;
 
     case PLAYER_LAST_WEAPON:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].last_weapon=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].last_weapon, g_i, g_p);
         break;
 
     case PLAYER_TIPINCS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].tipincs=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].tipincs, g_i, g_p);
         break;
 
     case PLAYER_HORIZOFF:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].horizoff=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].horizoff, g_i, g_p);
         break;
 
     case PLAYER_WANTWEAPONFIRE:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].wantweaponfire=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].wantweaponfire, g_i, g_p);
         break;
 
     case PLAYER_HOLODUKE_AMOUNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].holoduke_amount=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].holoduke_amount, g_i, g_p);
         break;
 
     case PLAYER_NEWOWNER:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].newowner=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].newowner, g_i, g_p);
         break;
 
     case PLAYER_HURT_DELAY:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].hurt_delay=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].hurt_delay, g_i, g_p);
         break;
 
     case PLAYER_HBOMB_HOLD_DELAY:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].hbomb_hold_delay=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].hbomb_hold_delay, g_i, g_p);
         break;
 
     case PLAYER_JUMPING_COUNTER:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].jumping_counter=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].jumping_counter, g_i, g_p);
         break;
 
     case PLAYER_AIRLEFT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].airleft=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].airleft, g_i, g_p);
         break;
 
     case PLAYER_KNEE_INCS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].knee_incs=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].knee_incs, g_i, g_p);
         break;
 
     case PLAYER_ACCESS_INCS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].access_incs=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].access_incs, g_i, g_p);
         break;
 
     case PLAYER_FTA:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].fta=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].fta, g_i, g_p);
         break;
 
     case PLAYER_FTQ:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].ftq=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].ftq, g_i, g_p);
         break;
 
     case PLAYER_ACCESS_WALLNUM:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].access_wallnum=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].access_wallnum, g_i, g_p);
         break;
 
     case PLAYER_ACCESS_SPRITENUM:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].access_spritenum=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].access_spritenum, g_i, g_p);
         break;
 
     case PLAYER_KICKBACK_PIC:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].kickback_pic=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].kickback_pic, g_i, g_p);
         break;
 
     case PLAYER_GOT_ACCESS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].got_access=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].got_access, g_i, g_p);
         break;
 
     case PLAYER_WEAPON_ANG:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].weapon_ang=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].weapon_ang, g_i, g_p);
         break;
 
     case PLAYER_FIRSTAID_AMOUNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].firstaid_amount=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].firstaid_amount, g_i, g_p);
         break;
 
     case PLAYER_SOMETHINGONPLAYER:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].somethingonplayer=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].somethingonplayer, g_i, g_p);
         break;
 
     case PLAYER_ON_CRANE:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].on_crane=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].on_crane, g_i, g_p);
         break;
 
     case PLAYER_I:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].i=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].i, g_i, g_p);
         break;
 
     case PLAYER_ONE_PARALLAX_SECTNUM:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].one_parallax_sectnum=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].one_parallax_sectnum, g_i, g_p);
         break;
 
     case PLAYER_OVER_SHOULDER_ON:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].over_shoulder_on=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].over_shoulder_on, g_i, g_p);
         break;
 
     case PLAYER_RANDOM_CLUB_FRAME:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].random_club_frame=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].random_club_frame, g_i, g_p);
         break;
 
     case PLAYER_FIST_INCS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].fist_incs=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].fist_incs, g_i, g_p);
         break;
 
     case PLAYER_ONE_EIGHTY_COUNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].one_eighty_count=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].one_eighty_count, g_i, g_p);
         break;
 
     case PLAYER_CHEAT_PHASE:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].cheat_phase=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].cheat_phase, g_i, g_p);
         break;
 
     case PLAYER_DUMMYPLAYERSPRITE:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].dummyplayersprite=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].dummyplayersprite, g_i, g_p);
         break;
 
     case PLAYER_EXTRA_EXTRA8:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].extra_extra8=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].extra_extra8, g_i, g_p);
         break;
 
     case PLAYER_QUICK_KICK:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].quick_kick=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].quick_kick, g_i, g_p);
         break;
 
     case PLAYER_HEAT_AMOUNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].heat_amount=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].heat_amount, g_i, g_p);
         break;
 
     case PLAYER_ACTORSQU:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].actorsqu=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].actorsqu, g_i, g_p);
         break;
 
     case PLAYER_TIMEBEFOREEXIT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].timebeforeexit=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].timebeforeexit, g_i, g_p);
         break;
 
     case PLAYER_CUSTOMEXITSOUND:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].customexitsound=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].customexitsound, g_i, g_p);
         break;
 
     case PLAYER_WEAPRECS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].weaprecs[16]=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].weaprecs[16], g_i, g_p);
         break;
 
     case PLAYER_WEAPRECCNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].weapreccnt=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].weapreccnt, g_i, g_p);
         break;
 
     case PLAYER_INTERFACE_TOGGLE_FLAG:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].interface_toggle_flag=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].interface_toggle_flag, g_i, g_p);
         break;
 
     case PLAYER_ROTSCRNANG:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].rotscrnang=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].rotscrnang, g_i, g_p);
         break;
 
     case PLAYER_DEAD_FLAG:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].dead_flag=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].dead_flag, g_i, g_p);
         break;
 
     case PLAYER_SHOW_EMPTY_WEAPON:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].show_empty_weapon=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].show_empty_weapon, g_i, g_p);
         break;
 
     case PLAYER_SCUBA_AMOUNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].scuba_amount=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].scuba_amount, g_i, g_p);
         break;
 
     case PLAYER_JETPACK_AMOUNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].jetpack_amount=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].jetpack_amount, g_i, g_p);
         break;
 
     case PLAYER_STEROIDS_AMOUNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].steroids_amount=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].steroids_amount, g_i, g_p);
         break;
 
     case PLAYER_SHIELD_AMOUNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].shield_amount=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].shield_amount, g_i, g_p);
         break;
 
     case PLAYER_HOLODUKE_ON:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].holoduke_on=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].holoduke_on, g_i, g_p);
         break;
 
     case PLAYER_PYCOUNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].pycount=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].pycount, g_i, g_p);
         break;
 
     case PLAYER_WEAPON_POS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].weapon_pos=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].weapon_pos, g_i, g_p);
         break;
 
     case PLAYER_FRAG_PS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].frag_ps=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].frag_ps, g_i, g_p);
         break;
 
     case PLAYER_TRANSPORTER_HOLD:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].transporter_hold=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].transporter_hold, g_i, g_p);
         break;
 
     case PLAYER_LAST_FULL_WEAPON:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].last_full_weapon=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].last_full_weapon, g_i, g_p);
         break;
 
     case PLAYER_FOOTPRINTSHADE:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].footprintshade=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].footprintshade, g_i, g_p);
         break;
 
     case PLAYER_BOOT_AMOUNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].boot_amount=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].boot_amount, g_i, g_p);
         break;
 
     case PLAYER_SCREAM_VOICE:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].scream_voice=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].scream_voice, g_i, g_p);
         break;
 
     case PLAYER_GM:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].gm=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].gm, g_i, g_p);
         break;
 
     case PLAYER_ON_WARPING_SECTOR:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].on_warping_sector=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].on_warping_sector, g_i, g_p);
         break;
 
     case PLAYER_FOOTPRINTCOUNT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].footprintcount=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].footprintcount, g_i, g_p);
         break;
 
     case PLAYER_HBOMB_ON:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].hbomb_on=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].hbomb_on, g_i, g_p);
         break;
 
     case PLAYER_JUMPING_TOGGLE:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].jumping_toggle=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].jumping_toggle, g_i, g_p);
         break;
 
     case PLAYER_RAPID_FIRE_HOLD:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].rapid_fire_hold=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].rapid_fire_hold, g_i, g_p);
         break;
 
     case PLAYER_ON_GROUND:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].on_ground=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].on_ground, g_i, g_p);
         break;
 
     case PLAYER_NAME:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].name[32]=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].name[32], g_i, g_p);
         break;
 
     case PLAYER_INVEN_ICON:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].inven_icon=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].inven_icon, g_i, g_p);
         break;
 
     case PLAYER_BUTTONPALETTE:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].buttonpalette=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].buttonpalette, g_i, g_p);
         break;
 
     case PLAYER_JETPACK_ON:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].jetpack_on=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].jetpack_on, g_i, g_p);
         break;
 
     case PLAYER_SPRITEBRIDGE:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].spritebridge=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].spritebridge, g_i, g_p);
         break;
 
     case PLAYER_LASTRANDOMSPOT:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].lastrandomspot=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].lastrandomspot, g_i, g_p);
         break;
 
     case PLAYER_SCUBA_ON:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].scuba_on=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].scuba_on, g_i, g_p);
         break;
 
     case PLAYER_FOOTPRINTPAL:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].footprintpal=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].footprintpal, g_i, g_p);
         break;
 
     case PLAYER_HEAT_ON:
-        if (bSet)
-            ps[iPlayer].heat_on=lValue;
+        if (iSet)
+        {
+            if (ps[iPlayer].heat_on != lValue)
+            {
+                ps[iPlayer].heat_on=lValue;
+                setpal(&ps[iPlayer]);
+            }
+        }
         else
             SetGameVarID(*lVar2, ps[iPlayer].heat_on, g_i, g_p);
         break;
 
     case PLAYER_HOLSTER_WEAPON:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].holster_weapon=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].holster_weapon, g_i, g_p);
         break;
 
     case PLAYER_FALLING_COUNTER:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].falling_counter=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].falling_counter, g_i, g_p);
@@ -1898,21 +1898,21 @@ static void DoPlayer(char bSet, const long *lVar1, const long *lLabelID, const l
 
     case PLAYER_GOTWEAPON:
         lTemp=*lParm2;
-        if (bSet)
+        if (iSet)
             ps[iPlayer].gotweapon[lTemp]=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].gotweapon[lTemp], g_i, g_p);
         break;
 
     case PLAYER_REFRESH_INVENTORY:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].refresh_inventory=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].refresh_inventory, g_i, g_p);
         break;
 
         //      case PLAYER_PALETTE:
-        //          if(bSet)
+        //          if(iSet)
         //          {
         //              ps[iPlayer].palette=lValue;
         //          }
@@ -1923,49 +1923,49 @@ static void DoPlayer(char bSet, const long *lVar1, const long *lLabelID, const l
         //          break;
 
     case PLAYER_TOGGLE_KEY_FLAG:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].toggle_key_flag=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].toggle_key_flag, g_i, g_p);
         break;
 
     case PLAYER_KNUCKLE_INCS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].knuckle_incs=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].knuckle_incs, g_i, g_p);
         break;
 
     case PLAYER_WALKING_SND_TOGGLE:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].walking_snd_toggle=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].walking_snd_toggle, g_i, g_p);
         break;
 
     case PLAYER_PALOOKUP:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].palookup=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].palookup, g_i, g_p);
         break;
 
     case PLAYER_HARD_LANDING:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].hard_landing=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].hard_landing, g_i, g_p);
         break;
 
     case PLAYER_MAX_SECRET_ROOMS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].max_secret_rooms=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].max_secret_rooms, g_i, g_p);
         break;
 
     case PLAYER_SECRET_ROOMS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].secret_rooms=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].secret_rooms, g_i, g_p);
@@ -1973,84 +1973,84 @@ static void DoPlayer(char bSet, const long *lVar1, const long *lLabelID, const l
 
     case PLAYER_PALS:
         lTemp=*lParm2;
-        if (bSet)
+        if (iSet)
             ps[iPlayer].pals[lTemp]=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].pals[lTemp], g_i, g_p);
         break;
 
     case PLAYER_MAX_ACTORS_KILLED:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].max_actors_killed=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].max_actors_killed, g_i, g_p);
         break;
 
     case PLAYER_ACTORS_KILLED:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].actors_killed=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].actors_killed, g_i, g_p);
         break;
 
     case PLAYER_RETURN_TO_CENTER:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].return_to_center=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].return_to_center, g_i, g_p);
         break;
 
     case PLAYER_RUNSPEED:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].runspeed=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].runspeed, g_i, g_p);
         break;
 
     case PLAYER_SBS:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].sbs=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].sbs, g_i, g_p);
         break;
 
     case PLAYER_RELOADING:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].reloading=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].reloading, g_i, g_p);
         break;
 
     case PLAYER_AUTO_AIM:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].auto_aim=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].auto_aim, g_i, g_p);
         break;
 
     case PLAYER_MOVEMENT_LOCK:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].movement_lock=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].movement_lock, g_i, g_p);
         break;
 
     case PLAYER_SOUND_PITCH:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].sound_pitch=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].sound_pitch, g_i, g_p);
         break;
 
     case PLAYER_WEAPONSWITCH:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].weaponswitch=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].weaponswitch, g_i, g_p);
         break;
 
     case PLAYER_TEAM:
-        if (bSet)
+        if (iSet)
             ps[iPlayer].team=lValue;
         else
             SetGameVarID(*lVar2, ps[iPlayer].team, g_i, g_p);
@@ -2062,63 +2062,58 @@ static void DoPlayer(char bSet, const long *lVar1, const long *lLabelID, const l
     return;
 }
 
-static void DoInput(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2)
+static void DoInput(int iSet, const long *lVar1, const long *lLabelID, const long *lVar2)
 {
-    int iPlayer;
     long lValue;
+    int iPlayer=g_p;
 
-    lValue=GetGameVarID(*lVar2, g_i, g_p);
-
-    if (*lVar1 == g_iThisActorID)
-    {
-        // if they've asked for 'this', then use 'this player'...
-        iPlayer=g_p;
-    }
-    else
+    if (*lVar1 != g_iThisActorID)
         iPlayer=GetGameVarID(*lVar1, g_i, g_p);
 
     if (iPlayer<0 || iPlayer >= MAXPLAYERS)
         return;
 
+    lValue=GetGameVarID(*lVar2, g_i, g_p);
+
     switch (*lLabelID)
     {
     case INPUT_AVEL:
-        if (bSet)
+        if (iSet)
             sync[iPlayer].avel=lValue;
         else
             SetGameVarID(*lVar2, sync[iPlayer].avel, g_i, g_p);
         break;
 
     case INPUT_HORZ:
-        if (bSet)
+        if (iSet)
             sync[iPlayer].horz=lValue;
         else
             SetGameVarID(*lVar2, sync[iPlayer].horz, g_i, g_p);
         break;
 
     case INPUT_FVEL:
-        if (bSet)
+        if (iSet)
             sync[iPlayer].fvel=lValue;
         else
             SetGameVarID(*lVar2, sync[iPlayer].fvel, g_i, g_p);
         break;
 
     case INPUT_SVEL:
-        if (bSet)
+        if (iSet)
             sync[iPlayer].svel=lValue;
         else
             SetGameVarID(*lVar2, sync[iPlayer].svel, g_i, g_p);
         break;
 
     case INPUT_BITS:
-        if (bSet)
+        if (iSet)
             sync[iPlayer].bits=lValue;
         else
             SetGameVarID(*lVar2, sync[iPlayer].bits, g_i, g_p);
         break;
 
     case INPUT_EXTBITS:
-        if (bSet)
+        if (iSet)
             sync[iPlayer].extbits=lValue;
         else
             SetGameVarID(*lVar2, sync[iPlayer].extbits, g_i, g_p);
@@ -2129,134 +2124,132 @@ static void DoInput(char bSet, const long *lVar1, const long *lLabelID, const lo
     return;
 }
 
-static void DoWall(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2)
+static void DoWall(int iSet, const long *lVar1, const long *lLabelID, const long *lVar2)
 {
-    int iWall;
     long lValue;
-
-    lValue=GetGameVarID(*lVar2, g_i, g_p);
-
-    iWall=GetGameVarID(*lVar1, g_i, g_p);
+    int iWall = GetGameVarID(*lVar1, g_i, g_p);
 
     if (iWall<0 || iWall >= MAXWALLS)
         return;
 
+    lValue=GetGameVarID(*lVar2, g_i, g_p);
+
     switch (*lLabelID)
     {
     case WALL_X:
-        if (bSet)
+        if (iSet)
             wall[iWall].x=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].x, g_i, g_p);
         break;
 
     case WALL_Y:
-        if (bSet)
+        if (iSet)
             wall[iWall].y=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].y, g_i, g_p);
         break;
 
     case WALL_POINT2:
-        if (bSet)
+        if (iSet)
             wall[iWall].point2=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].point2, g_i, g_p);
         break;
 
     case WALL_NEXTWALL:
-        if (bSet)
+        if (iSet)
             wall[iWall].nextwall=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].nextwall, g_i, g_p);
         break;
 
     case WALL_NEXTSECTOR:
-        if (bSet)
+        if (iSet)
             wall[iWall].nextsector=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].nextsector, g_i, g_p);
         break;
 
     case WALL_CSTAT:
-        if (bSet)
+        if (iSet)
             wall[iWall].cstat=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].cstat, g_i, g_p);
         break;
 
     case WALL_PICNUM:
-        if (bSet)
+        if (iSet)
             wall[iWall].picnum=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].picnum, g_i, g_p);
         break;
 
     case WALL_OVERPICNUM:
-        if (bSet)
+        if (iSet)
             wall[iWall].overpicnum=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].overpicnum, g_i, g_p);
         break;
 
     case WALL_SHADE:
-        if (bSet)
+        if (iSet)
             wall[iWall].shade=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].shade, g_i, g_p);
         break;
 
     case WALL_PAL:
-        if (bSet)
+        if (iSet)
             wall[iWall].pal=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].pal, g_i, g_p);
         break;
 
     case WALL_XREPEAT:
-        if (bSet)
+        if (iSet)
             wall[iWall].xrepeat=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].xrepeat, g_i, g_p);
         break;
 
     case WALL_YREPEAT:
-        if (bSet)
+        if (iSet)
             wall[iWall].yrepeat=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].yrepeat, g_i, g_p);
         break;
 
     case WALL_XPANNING:
-        if (bSet)
+        if (iSet)
             wall[iWall].xpanning=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].xpanning, g_i, g_p);
         break;
 
     case WALL_YPANNING:
-        if (bSet)
+        if (iSet)
             wall[iWall].ypanning=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].ypanning, g_i, g_p);
         break;
 
     case WALL_LOTAG:
-        if (bSet)
+        if (iSet)
             wall[iWall].lotag=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].lotag, g_i, g_p);
         break;
 
     case WALL_HITAG:
-        if (bSet)
+        if (iSet)
             wall[iWall].hitag=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].hitag, g_i, g_p);
         break;
 
     case WALL_EXTRA:
-        if (bSet)
+        if (iSet)
             wall[iWall].extra=lValue;
         else
             SetGameVarID(*lVar2, wall[iWall].extra, g_i, g_p);
@@ -2267,15 +2260,12 @@ static void DoWall(char bSet, const long *lVar1, const long *lLabelID, const lon
     return;
 }
 
-static void DoSector(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2)
+static void DoSector(int iSet, const long *lVar1, const long *lLabelID, const long *lVar2)
 {
-    int iSector;
     long lValue;
+    int iSector=sprite[g_i].sectnum;
 
-    if (*lVar1 == g_iThisActorID)
-        // if they've asked for 'this', then use 'this'...
-        iSector=sprite[g_i].sectnum;
-    else
+    if (*lVar1 != g_iThisActorID)
         iSector=GetGameVarID(*lVar1, g_i, g_p);
 
     if (iSector<0 || iSector >= MAXSECTORS)
@@ -2286,154 +2276,154 @@ static void DoSector(char bSet, const long *lVar1, const long *lLabelID, const l
     switch (*lLabelID)
     {
     case SECTOR_WALLPTR:
-        if (bSet)
+        if (iSet)
             sector[iSector].wallptr=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].wallptr,g_i,g_p);
         break;
 
     case SECTOR_WALLNUM:
-        if (bSet)
+        if (iSet)
             sector[iSector].wallnum=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].wallnum,g_i,g_p);
         break;
 
     case SECTOR_CEILINGZ:
-        if (bSet)
+        if (iSet)
             sector[iSector].ceilingz=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].ceilingz,g_i,g_p);
         break;
 
     case SECTOR_FLOORZ:
-        if (bSet)
+        if (iSet)
             sector[iSector].floorz=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].floorz,g_i,g_p);
         break;
 
     case SECTOR_CEILINGSTAT:
-        if (bSet)
+        if (iSet)
             sector[iSector].ceilingstat=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].ceilingstat,g_i,g_p);
         break;
 
     case SECTOR_FLOORSTAT:
-        if (bSet)
+        if (iSet)
             sector[iSector].floorstat=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].floorstat,g_i,g_p);
         break;
 
     case SECTOR_CEILINGPICNUM:
-        if (bSet)
+        if (iSet)
             sector[iSector].ceilingpicnum=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].ceilingpicnum,g_i,g_p);
         break;
 
     case SECTOR_CEILINGSLOPE:
-        if (bSet)
+        if (iSet)
             sector[iSector].ceilingheinum=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].ceilingheinum,g_i,g_p);
         break;
 
     case SECTOR_CEILINGSHADE:
-        if (bSet)
+        if (iSet)
             sector[iSector].ceilingshade=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].ceilingshade,g_i,g_p);
         break;
 
     case SECTOR_CEILINGPAL:
-        if (bSet)
+        if (iSet)
             sector[iSector].ceilingpal=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].ceilingpal,g_i,g_p);
         break;
 
     case SECTOR_CEILINGXPANNING:
-        if (bSet)
+        if (iSet)
             sector[iSector].ceilingxpanning=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].ceilingypanning,g_i,g_p);
         break;
 
     case SECTOR_FLOORPICNUM:
-        if (bSet)
+        if (iSet)
             sector[iSector].floorpicnum=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].floorpicnum,g_i,g_p);
         break;
 
     case SECTOR_FLOORSLOPE:
-        if (bSet)
+        if (iSet)
             sector[iSector].floorheinum=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].floorheinum,g_i,g_p);
         break;
 
     case SECTOR_FLOORSHADE:
-        if (bSet)
+        if (iSet)
             sector[iSector].floorshade=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].floorshade,g_i,g_p);
         break;
 
     case SECTOR_FLOORPAL:
-        if (bSet)
+        if (iSet)
             sector[iSector].floorpal=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].floorpal,g_i,g_p);
         break;
 
     case SECTOR_FLOORXPANNING:
-        if (bSet)
+        if (iSet)
             sector[iSector].floorxpanning=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].floorxpanning,g_i,g_p);
         break;
 
     case SECTOR_FLOORYPANNING:
-        if (bSet)
+        if (iSet)
             sector[iSector].floorypanning=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].floorypanning,g_i,g_p);
         break;
 
     case SECTOR_VISIBILITY:
-        if (bSet)
+        if (iSet)
             sector[iSector].visibility=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].visibility,g_i,g_p);
         break;
 
     case SECTOR_ALIGNTO:
-        if (bSet)
+        if (iSet)
             sector[iSector].filler=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].filler,g_i,g_p);
         break;
 
     case SECTOR_LOTAG:
-        if (bSet)
+        if (iSet)
             sector[iSector].lotag=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].lotag,g_i,g_p);
         break;
 
     case SECTOR_HITAG:
-        if (bSet)
+        if (iSet)
             sector[iSector].hitag=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].hitag,g_i,g_p);
         break;
 
     case SECTOR_EXTRA:
-        if (bSet)
+        if (iSet)
             sector[iSector].extra=lValue;
         else
             SetGameVarID(*lVar2, sector[iSector].extra,g_i,g_p);
@@ -2445,300 +2435,297 @@ static void DoSector(char bSet, const long *lVar1, const long *lLabelID, const l
     return;
 }
 
-static void DoActor(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *lParm2)
+static void DoActor(int iSet, const long *lVar1, const long *lLabelID, const long *lVar2, const long *lParm2)
 {
-    int iActor;
     long lValue;
     long lTemp;
+    int iActor=g_i;
 
-    lValue=GetGameVarID(*lVar2, g_i, g_p);
-
-    if (*lVar1 == g_iThisActorID)
-        // if they've asked for 'this', then use 'this'...
-        iActor=g_i;
-    else
+    if (*lVar1 != g_iThisActorID)
         iActor=GetGameVarID(*lVar1, g_i, g_p);
 
     if (iActor < 0 || iActor >= MAXSPRITES)
         return;
 
+    lValue=GetGameVarID(*lVar2, g_i, g_p);
+
     switch (*lLabelID)
     {
     case ACTOR_X:
-        if (bSet)
+        if (iSet)
             sprite[iActor].x=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].x,g_i,g_p);
         break;
 
     case ACTOR_Y:
-        if (bSet)
+        if (iSet)
             sprite[iActor].y=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].y,g_i,g_p);
         break;
 
     case ACTOR_Z:
-        if (bSet)
+        if (iSet)
             sprite[iActor].z=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].z,g_i,g_p);
         break;
 
     case ACTOR_CSTAT:
-        if (bSet)
+        if (iSet)
             sprite[iActor].cstat=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].cstat,g_i,g_p);
         break;
 
     case ACTOR_PICNUM:
-        if (bSet)
+        if (iSet)
             sprite[iActor].picnum=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].picnum,g_i,g_p);
         break;
 
     case ACTOR_SHADE:
-        if (bSet)
+        if (iSet)
             sprite[iActor].shade=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].shade,g_i,g_p);
         break;
 
     case ACTOR_PAL:
-        if (bSet)
+        if (iSet)
             sprite[iActor].pal=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].pal,g_i,g_p);
         break;
 
     case ACTOR_CLIPDIST:
-        if (bSet)
+        if (iSet)
             sprite[iActor].clipdist=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].clipdist,g_i,g_p);
         break;
 
     case ACTOR_DETAIL:
-        if (bSet)
+        if (iSet)
             sprite[iActor].filler=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].filler,g_i,g_p);
         break;
 
     case ACTOR_XREPEAT:
-        if (bSet)
+        if (iSet)
             sprite[iActor].xrepeat=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].xrepeat,g_i,g_p);
         break;
 
     case ACTOR_YREPEAT:
-        if (bSet)
+        if (iSet)
             sprite[iActor].yrepeat=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].yrepeat,g_i,g_p);
         break;
 
     case ACTOR_XOFFSET:
-        if (bSet)
+        if (iSet)
             sprite[iActor].xoffset=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].xoffset,g_i,g_p);
         break;
 
     case ACTOR_YOFFSET:
-        if (bSet)
+        if (iSet)
             sprite[iActor].yoffset=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].yoffset,g_i,g_p);
         break;
 
     case ACTOR_SECTNUM:
-        if (bSet)
+        if (iSet)
             changespritesect(iActor,lValue);
         else
             SetGameVarID(*lVar2, sprite[iActor].sectnum,g_i,g_p);
         break;
 
     case ACTOR_STATNUM:
-        if (bSet)
+        if (iSet)
             changespritestat(iActor,lValue);
         else
             SetGameVarID(*lVar2, sprite[iActor].statnum,g_i,g_p);
         break;
 
     case ACTOR_ANG:
-        if (bSet)
+        if (iSet)
             sprite[iActor].ang=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].ang,g_i,g_p);
         break;
 
     case ACTOR_OWNER:
-        if (bSet)
+        if (iSet)
             sprite[iActor].owner=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].owner,g_i,g_p);
         break;
 
     case ACTOR_XVEL:
-        if (bSet)
+        if (iSet)
             sprite[iActor].xvel=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].xvel,g_i,g_p);
         break;
 
     case ACTOR_YVEL:
-        if (bSet)
+        if (iSet)
             sprite[iActor].yvel=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].yvel,g_i,g_p);
         break;
 
     case ACTOR_ZVEL:
-        if (bSet)
+        if (iSet)
             sprite[iActor].zvel=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].zvel,g_i,g_p);
         break;
 
     case ACTOR_LOTAG:
-        if (bSet)
+        if (iSet)
             sprite[iActor].lotag=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].lotag,g_i,g_p);
         break;
 
     case ACTOR_HITAG:
-        if (bSet)
+        if (iSet)
             sprite[iActor].hitag=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].hitag,g_i,g_p);
         break;
 
     case ACTOR_EXTRA:
-        if (bSet)
+        if (iSet)
             sprite[iActor].extra=lValue;
         else
             SetGameVarID(*lVar2, sprite[iActor].extra,g_i,g_p);
         break;
 
     case ACTOR_HTCGG:
-        if (bSet)
+        if (iSet)
             hittype[iActor].cgg=lValue;
         else
             SetGameVarID(*lVar2, hittype[iActor].cgg, g_i, g_p);
         break;
 
     case ACTOR_HTPICNUM :
-        if (bSet)
+        if (iSet)
             hittype[iActor].picnum=lValue;
         else
             SetGameVarID(*lVar2, hittype[iActor].picnum, g_i, g_p);
         break;
 
     case ACTOR_HTANG:
-        if (bSet)
+        if (iSet)
             hittype[iActor].ang=lValue;
         else
             SetGameVarID(*lVar2, hittype[iActor].ang, g_i, g_p);
         break;
 
     case ACTOR_HTEXTRA:
-        if (bSet)
+        if (iSet)
             hittype[iActor].extra=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].extra, g_i, g_p);
         break;
 
     case ACTOR_HTOWNER:
-        if (bSet)
+        if (iSet)
             hittype[iActor].owner=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].owner, g_i, g_p);
         break;
 
     case ACTOR_HTMOVFLAG:
-        if (bSet)
+        if (iSet)
             hittype[iActor].movflag=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].movflag, g_i, g_p);
         break;
 
     case ACTOR_HTTEMPANG:
-        if (bSet)
+        if (iSet)
             hittype[iActor].tempang=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].tempang, g_i, g_p);
         break;
 
     case ACTOR_HTACTORSTAYPUT:
-        if (bSet)
+        if (iSet)
             hittype[iActor].actorstayput=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].actorstayput, g_i, g_p);
         break;
 
     case ACTOR_HTDISPICNUM:
-        if (bSet)
+        if (iSet)
             hittype[iActor].dispicnum=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].dispicnum, g_i, g_p);
         break;
 
     case ACTOR_HTTIMETOSLEEP:
-        if (bSet)
+        if (iSet)
             hittype[iActor].timetosleep=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].timetosleep, g_i, g_p);
         break;
 
     case ACTOR_HTFLOORZ:
-        if (bSet)
+        if (iSet)
             hittype[iActor].floorz=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].floorz, g_i, g_p);
         break;
 
     case ACTOR_HTCEILINGZ:
-        if (bSet)
+        if (iSet)
             hittype[iActor].ceilingz=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].ceilingz, g_i, g_p);
         break;
 
     case ACTOR_HTLASTVX:
-        if (bSet)
+        if (iSet)
             hittype[iActor].lastvx=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].lastvx, g_i, g_p);
         break;
 
     case ACTOR_HTLASTVY:
-        if (bSet)
+        if (iSet)
             hittype[iActor].lastvy=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].lastvy, g_i, g_p);
         break;
 
     case ACTOR_HTBPOSX:
-        if (bSet)
+        if (iSet)
             hittype[iActor].bposx=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].bposx, g_i, g_p);
         break;
 
     case ACTOR_HTBPOSY:
-        if (bSet)
+        if (iSet)
             hittype[iActor].bposy=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].bposy, g_i, g_p);
         break;
 
     case ACTOR_HTBPOSZ:
-        if (bSet)
+        if (iSet)
             hittype[iActor].bposz=lValue;
         else
             SetGameVarID(*lVar2,hittype[iActor].bposz, g_i, g_p);
@@ -2746,49 +2733,49 @@ static void DoActor(char bSet, const long *lVar1, const long *lLabelID, const lo
 
     case ACTOR_HTG_T:
         lTemp=*lParm2;
-        if (bSet)
+        if (iSet)
             hittype[iActor].temp_data[lTemp]=lValue;
         else
             SetGameVarID(*lVar2, hittype[iActor].temp_data[lTemp], g_i, g_p);
         break;
 
     case ACTOR_ANGOFF:
-        if (bSet)
+        if (iSet)
             spriteext[iActor].angoff=lValue;
         else
             SetGameVarID(*lVar2,spriteext[iActor].angoff, g_i, g_p);
         break;
 
     case ACTOR_PITCH:
-        if (bSet)
+        if (iSet)
             spriteext[iActor].pitch=lValue;
         else
             SetGameVarID(*lVar2,spriteext[iActor].pitch, g_i, g_p);
         break;
 
     case ACTOR_ROLL:
-        if (bSet)
+        if (iSet)
             spriteext[iActor].roll=lValue;
         else
             SetGameVarID(*lVar2,spriteext[iActor].roll, g_i, g_p);
         break;
 
     case ACTOR_MDXOFF:
-        if (bSet)
+        if (iSet)
             spriteext[iActor].xoff=lValue;
         else
             SetGameVarID(*lVar2,spriteext[iActor].xoff, g_i, g_p);
         break;
 
     case ACTOR_MDYOFF:
-        if (bSet)
+        if (iSet)
             spriteext[iActor].yoff=lValue;
         else
             SetGameVarID(*lVar2,spriteext[iActor].yoff, g_i, g_p);
         break;
 
     case ACTOR_MDZOFF:
-        if (bSet)
+        if (iSet)
             spriteext[iActor].zoff=lValue;
         else
             SetGameVarID(*lVar2,spriteext[iActor].zoff, g_i, g_p);
@@ -2800,12 +2787,9 @@ static void DoActor(char bSet, const long *lVar1, const long *lLabelID, const lo
     return;
 }
 
-static void DoProjectile(char bSet, const long *lVar1, const long *lLabelID, const long *lVar2)
+static void DoProjectile(int iSet, const long *lVar1, const long *lLabelID, const long *lVar2)
 {
-    long lValue,proj;
-
-    //     proj=GetGameVarID(lVar1, g_i, g_p);
-    proj=*lVar1;
+    long lValue,proj=*lVar1;
 
     if (proj < 0 || proj >= MAXTILES)
         return;
@@ -2815,196 +2799,196 @@ static void DoProjectile(char bSet, const long *lVar1, const long *lLabelID, con
     switch (*lLabelID)
     {
     case PROJ_WORKSLIKE:
-        if (bSet)
+        if (iSet)
             projectile[proj].workslike=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].workslike, g_i, g_p);
         break;
 
     case PROJ_SPAWNS:
-        if (bSet)
+        if (iSet)
             projectile[proj].spawns=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].spawns, g_i, g_p);
         break;
 
     case PROJ_SXREPEAT:
-        if (bSet)
+        if (iSet)
             projectile[proj].sxrepeat=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].sxrepeat, g_i, g_p);
         break;
 
     case PROJ_SYREPEAT:
-        if (bSet)
+        if (iSet)
             projectile[proj].syrepeat=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].syrepeat, g_i, g_p);
         break;
 
     case PROJ_SOUND:
-        if (bSet)
+        if (iSet)
             projectile[proj].sound=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].sound, g_i, g_p);
         break;
 
     case PROJ_ISOUND:
-        if (bSet)
+        if (iSet)
             projectile[proj].isound=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].isound, g_i, g_p);
         break;
 
     case PROJ_VEL:
-        if (bSet)
+        if (iSet)
             projectile[proj].vel=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].vel, g_i, g_p);
         break;
 
     case PROJ_EXTRA:
-        if (bSet)
+        if (iSet)
             projectile[proj].extra=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].extra, g_i, g_p);
         break;
 
     case PROJ_DECAL:
-        if (bSet)
+        if (iSet)
             projectile[proj].decal=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].decal, g_i, g_p);
         break;
 
     case PROJ_TRAIL:
-        if (bSet)
+        if (iSet)
             projectile[proj].trail=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].trail, g_i, g_p);
         break;
 
     case PROJ_TXREPEAT:
-        if (bSet)
+        if (iSet)
             projectile[proj].txrepeat=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].txrepeat, g_i, g_p);
         break;
 
     case PROJ_TYREPEAT:
-        if (bSet)
+        if (iSet)
             projectile[proj].tyrepeat=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].tyrepeat, g_i, g_p);
         break;
 
     case PROJ_TOFFSET:
-        if (bSet)
+        if (iSet)
             projectile[proj].toffset=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].toffset, g_i, g_p);
         break;
 
     case PROJ_TNUM:
-        if (bSet)
+        if (iSet)
             projectile[proj].tnum=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].tnum, g_i, g_p);
         break;
 
     case PROJ_DROP:
-        if (bSet)
+        if (iSet)
             projectile[proj].drop=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].drop, g_i, g_p);
         break;
 
     case PROJ_CSTAT:
-        if (bSet)
+        if (iSet)
             projectile[proj].cstat=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].cstat, g_i, g_p);
         break;
 
     case PROJ_CLIPDIST:
-        if (bSet)
+        if (iSet)
             projectile[proj].clipdist=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].clipdist, g_i, g_p);
         break;
 
     case PROJ_SHADE:
-        if (bSet)
+        if (iSet)
             projectile[proj].shade=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].shade, g_i, g_p);
         break;
 
     case PROJ_XREPEAT:
-        if (bSet)
+        if (iSet)
             projectile[proj].xrepeat=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].xrepeat, g_i, g_p);
         break;
 
     case PROJ_YREPEAT:
-        if (bSet)
+        if (iSet)
             projectile[proj].yrepeat=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].yrepeat, g_i, g_p);
         break;
 
     case PROJ_PAL:
-        if (bSet)
+        if (iSet)
             projectile[proj].pal=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].pal, g_i, g_p);
         break;
 
     case PROJ_EXTRA_RAND:
-        if (bSet)
+        if (iSet)
             projectile[proj].extra_rand=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].extra_rand, g_i, g_p);
         break;
 
     case PROJ_HITRADIUS:
-        if (bSet)
+        if (iSet)
             projectile[proj].hitradius=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].hitradius, g_i, g_p);
         break;
 
     case PROJ_VEL_MULT:
-        if (bSet)
+        if (iSet)
             projectile[proj].velmult=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].velmult, g_i, g_p);
         break;
 
     case PROJ_OFFSET:
-        if (bSet)
+        if (iSet)
             projectile[proj].offset=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].offset, g_i, g_p);
         break;
 
     case PROJ_BOUNCES:
-        if (bSet)
+        if (iSet)
             projectile[proj].bounces=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].bounces, g_i, g_p);
         break;
 
     case PROJ_BSOUND:
-        if (bSet)
+        if (iSet)
             projectile[proj].bsound=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].bsound, g_i, g_p);
         break;
 
     case PROJ_RANGE:
-        if (bSet)
+        if (iSet)
             projectile[proj].range=lValue;
         else
             SetGameVarID(*lVar2, projectile[proj].range, g_i, g_p);
@@ -3016,7 +3000,7 @@ static void DoProjectile(char bSet, const long *lVar1, const long *lLabelID, con
     return;
 }
 
-static char parse(void);
+static int parse(void);
 
 void OnEvent(int iEventID, short sActor,short sPlayer,long lDist)
 {
@@ -3027,7 +3011,7 @@ void OnEvent(int iEventID, short sActor,short sPlayer,long lDist)
     char okillit_flag;
     long *oinsptr;
 
-    char done;
+    int done;
 
     if (iEventID >= MAXGAMEEVENTS)
     {
@@ -3103,10 +3087,10 @@ static long ifsquished(short i, short p)
 
     if (sc->lotag != 23)
     {
+        squishme = floorceildist < (12<<8); // && (sc->lotag&32768) == 0;
+
         if (sprite[i].pal == 1)
             squishme = floorceildist < (32<<8) && (sc->lotag&32768) == 0;
-        else
-            squishme = floorceildist < (12<<8); // && (sc->lotag&32768) == 0;
     }
     else squishme = 0;
 
@@ -3245,9 +3229,10 @@ void getglobalz(short sActor)
 
     if (s->statnum == 10 || s->statnum == 6 || s->statnum == 2 || s->statnum == 1 || s->statnum == 4)
     {
+        zr = 127L;
+
         if (s->statnum == 4)
             zr = 4L;
-        else zr = 127L;
 
         getzrange(s->x,s->y,s->z-(FOURSLEIGHT),s->sectnum,&hittype[sActor].ceilingz,&hz,&hittype[sActor].floorz,&lz,zr,CLIPMASK0);
 
@@ -3329,15 +3314,13 @@ short getincangle(short a,short na)
 
     if (klabs(a-na) < 1024)
         return (na-a);
-    else
-    {
-        if (na > 1024) na -= 2048;
-        if (a > 1024) a -= 2048;
 
-        na -= 2048;
-        a -= 2048;
-        return (na-a);
-    }
+    if (na > 1024) na -= 2048;
+    if (a > 1024) a -= 2048;
+
+    na -= 2048;
+    a -= 2048;
+    return (na-a);
 }
 
 static void alterang(short a)
@@ -3629,7 +3612,7 @@ static void parseifelse(long condition)
 
 // long *it = 0x00589a04;
 
-static char parse(void)
+static int parse(void)
 {
     long j, l, s, tw;
 
@@ -3686,17 +3669,12 @@ static char parse(void)
 
         if (g_x > 1024)
         {
-            short temphit, sclip, angdif;
+            short temphit, sclip = 768, angdif = 16;
 
             if (badguy(g_sp) && g_sp->xrepeat > 56)
             {
                 sclip = 3084;
                 angdif = 48;
-            }
-            else
-            {
-                sclip = 768;
-                angdif = 16;
             }
 
             j = hitasprite(g_i,&temphit);
@@ -4489,118 +4467,98 @@ SKIPJIBS:
     case CON_MYOSPALX:
     case CON_MYOS:
     case CON_MYOSPAL:
-    {
-        long x,y;
-        short tilenum;
-        signed char shade;
-        char orientation;
-        char pal;
-
         insptr++;
-        x=GetGameVarID(*insptr++,g_i,g_p);
-        y=GetGameVarID(*insptr++,g_i,g_p);
-        tilenum=GetGameVarID(*insptr++,g_i,g_p);
-        shade=GetGameVarID(*insptr++,g_i,g_p);
-        orientation=GetGameVarID(*insptr++,g_i,g_p);
-
-        switch (tw)
         {
-        case CON_MYOS:
-            myos(x,y,tilenum,shade,orientation);
-            break;
-        case CON_MYOSPAL:
-            pal=GetGameVarID(*insptr++,g_i,g_p);
-            myospal(x,y,tilenum,shade,orientation,pal);
-            break;
-        case CON_MYOSX:
-            myosx(x,y,tilenum,shade,orientation);
-            break;
-        case CON_MYOSPALX:
-            pal=GetGameVarID(*insptr++,g_i,g_p);
-            myospalx(x,y,tilenum,shade,orientation,pal);
+            int x=GetGameVarID(*insptr++,g_i,g_p), y=GetGameVarID(*insptr++,g_i,g_p), tilenum=GetGameVarID(*insptr++,g_i,g_p);
+            int shade=GetGameVarID(*insptr++,g_i,g_p), orientation=GetGameVarID(*insptr++,g_i,g_p);
+
+            switch (tw)
+            {
+            case CON_MYOS:
+                myos(x,y,tilenum,shade,orientation);
+                break;
+            case CON_MYOSPAL:
+            {
+                int pal=GetGameVarID(*insptr++,g_i,g_p);
+                myospal(x,y,tilenum,shade,orientation,pal);
+                break;
+            }
+            case CON_MYOSX:
+                myosx(x,y,tilenum,shade,orientation);
+                break;
+            case CON_MYOSPALX:
+            {
+                int pal=GetGameVarID(*insptr++,g_i,g_p);
+                myospalx(x,y,tilenum,shade,orientation,pal);
+                break;
+            }
+            }
             break;
         }
-        break;
-    }
 
     case CON_SWITCH:
-    {
-        long lVarID;
-        long lValue;
-        long *lpDefault;
-        long *lpCases;
-        long lCases;
-        long lEnd;
-        long lCheckCase;
-        char bMatched;
-        long *lTempInsPtr;
-
-        // command format:
-        // variable ID to check
-        // script offset to 'end'
-        // count of case statements
-        // script offset to default case (null if none)
-        // For each case: value, ptr to code
-        //AddLog("Processing Switch...");
         insptr++; // p-code
-        lVarID=*insptr++;
-        lValue=GetGameVarID(lVarID, g_i, g_p);
-        lEnd=*insptr++;
-        lCases=*insptr++;
-        lpDefault=insptr++;
-        lpCases=insptr;
-        insptr+=lCases*2;
-        bMatched=0;
-        lTempInsPtr=insptr;
-        //Bsprintf(g_szBuf,"lEnd= %ld *lpDefault=%ld",lEnd,*lpDefault);
-        //AddLog(g_szBuf);
-
-        //Bsprintf(g_szBuf,"Checking %ld cases for %ld",lCases, lValue);
-        //AddLog(g_szBuf);
-        for (lCheckCase=0; lCheckCase<lCases && !bMatched; lCheckCase++)
         {
-            //Bsprintf(g_szBuf,"Checking #%ld Value= %ld",lCheckCase, lpCases[lCheckCase*2]);
+            // command format:
+            // variable ID to check
+            // script offset to 'end'
+            // count of case statements
+            // script offset to default case (null if none)
+            // For each case: value, ptr to code
+            //AddLog("Processing Switch...");
+            long lVarID=*insptr++, lValue=GetGameVarID(lVarID, g_i, g_p), lEnd=*insptr++, lCases=*insptr++;
+            long *lpDefault=insptr++, *lpCases=insptr, bMatched=0, *lTempInsPtr, lCheckCase;
+            insptr+=lCases*2;
+            lTempInsPtr=insptr;
+            //Bsprintf(g_szBuf,"lEnd= %ld *lpDefault=%ld",lEnd,*lpDefault);
             //AddLog(g_szBuf);
 
-            if (lpCases[lCheckCase*2] == lValue)
+            //Bsprintf(g_szBuf,"Checking %ld cases for %ld",lCases, lValue);
+            //AddLog(g_szBuf);
+            for (lCheckCase=0; lCheckCase<lCases && !bMatched; lCheckCase++)
             {
-                //AddLog("Found Case Match");
-                //Bsprintf(g_szBuf,"insptr=%ld. lCheckCase=%ld, offset=%ld, &script[0]=%ld",
-                //            (long)insptr,(long)lCheckCase,lpCases[lCheckCase*2+1],(long)&script[0]);
+                //Bsprintf(g_szBuf,"Checking #%ld Value= %ld",lCheckCase, lpCases[lCheckCase*2]);
                 //AddLog(g_szBuf);
-                // fake a 2-d Array
-                insptr=(long*)(lpCases[lCheckCase*2+1] + &script[0]);
-                //Bsprintf(g_szBuf,"insptr=%ld. ",     (long)insptr);
-                //AddLog(g_szBuf);
-                while (1)
-                {
-                    if (parse())
-                        break;
-                }
-                //AddLog("Done Executing Case");
-                bMatched=1;
-            }
-        }
-        if (!bMatched)
-        {
-            if (*lpDefault)
-            {
-                //AddLog("No Matching Case: Using Default");
-                insptr=(long*)(*lpDefault + &script[0]);
-                while (1) if (parse()) break;
-            }
-            else
-            {
-                //AddLog("No Matching Case: No Default to use");
-            }
-        }
-        insptr=(long*)(lEnd + (long)&script[0]);
-        //Bsprintf(g_szBuf,"insptr=%ld. ",     (long)insptr);
-        //AddLog(g_szBuf);
-        //AddLog("Done Processing Switch");
 
-        break;
-    }
+                if (lpCases[lCheckCase*2] == lValue)
+                {
+                    //AddLog("Found Case Match");
+                    //Bsprintf(g_szBuf,"insptr=%ld. lCheckCase=%ld, offset=%ld, &script[0]=%ld",
+                    //            (long)insptr,(long)lCheckCase,lpCases[lCheckCase*2+1],(long)&script[0]);
+                    //AddLog(g_szBuf);
+                    // fake a 2-d Array
+                    insptr=(long*)(lpCases[lCheckCase*2+1] + &script[0]);
+                    //Bsprintf(g_szBuf,"insptr=%ld. ",     (long)insptr);
+                    //AddLog(g_szBuf);
+                    while (1)
+                    {
+                        if (parse())
+                            break;
+                    }
+                    //AddLog("Done Executing Case");
+                    bMatched=1;
+                }
+            }
+            if (!bMatched)
+            {
+                if (*lpDefault)
+                {
+                    //AddLog("No Matching Case: Using Default");
+                    insptr=(long*)(*lpDefault + &script[0]);
+                    while (1) if (parse()) break;
+                }
+                else
+                {
+                    //AddLog("No Matching Case: No Default to use");
+                }
+            }
+            insptr=(long*)(lEnd + (long)&script[0]);
+            //Bsprintf(g_szBuf,"insptr=%ld. ",     (long)insptr);
+            //AddLog(g_szBuf);
+            //AddLog("Done Processing Switch");
+
+            break;
+        }
 
     case CON_ENDSWITCH:
     case CON_ENDEVENT:
@@ -4609,87 +4567,63 @@ SKIPJIBS:
         break;
 
     case CON_DISPLAYRAND:
-    {
-        int i;
         insptr++;
-
-        i=*insptr++;  // ID of def
-        SetGameVarID(i, rand(), g_i, g_p);
+        SetGameVarID(*insptr++, rand(), g_i, g_p);
         break;
-    }
 
     case CON_DRAGPOINT:
-    {
-        short wallnum;
-        long newx, newy;
-
         insptr++;
-        wallnum = GetGameVarID(*insptr++, g_i, g_p);
-        newx = GetGameVarID(*insptr++, g_i, g_p);
-        newy = GetGameVarID(*insptr++, g_i, g_p);
-
-        dragpoint(wallnum,newx,newy);
-        break;
-    }
-
-    case CON_DIST:
-    case CON_LDIST:
-    {
-        long distvar, xvar, yvar, distx=0;
-
-        insptr++;
-        distvar = *insptr++;
-        xvar = *insptr++;
-        yvar = *insptr++;
-
-        switch (tw)
         {
-        case CON_DIST:
-            distx = dist(&sprite[GetGameVarID(xvar, g_i, g_p)],&sprite[GetGameVarID(yvar, g_i, g_p)]);
-            break;
-        case CON_LDIST:
-            distx = ldist(&sprite[GetGameVarID(xvar, g_i, g_p)],&sprite[GetGameVarID(yvar, g_i, g_p)]);
+            int wallnum = GetGameVarID(*insptr++, g_i, g_p), newx = GetGameVarID(*insptr++, g_i, g_p), newy = GetGameVarID(*insptr++, g_i, g_p);
+
+            dragpoint(wallnum,newx,newy);
             break;
         }
 
-        SetGameVarID(distvar, distx, g_i, g_p);
-        break;
-    }
+    case CON_DIST:
+    case CON_LDIST:
+        insptr++;
+        {
+            int distvar = *insptr++, xvar = *insptr++, yvar = *insptr++, distx=0;
+
+            switch (tw)
+            {
+            case CON_DIST:
+                distx = dist(&sprite[GetGameVarID(xvar, g_i, g_p)],&sprite[GetGameVarID(yvar, g_i, g_p)]);
+                break;
+            case CON_LDIST:
+                distx = ldist(&sprite[GetGameVarID(xvar, g_i, g_p)],&sprite[GetGameVarID(yvar, g_i, g_p)]);
+                break;
+            }
+
+            SetGameVarID(distvar, distx, g_i, g_p);
+            break;
+        }
 
     case CON_GETINCANGLE:
     case CON_GETANGLE:
-    {
-        long angvar, xvar, yvar;
-        short ang;
-
         insptr++;
-        angvar = *insptr++;
-        xvar = *insptr++;
-        yvar = *insptr++;
-        if (tw==CON_GETANGLE)
-            ang = getangle(GetGameVarID(xvar, g_i, g_p),GetGameVarID(yvar, g_i, g_p));
-        else ang = getincangle(GetGameVarID(xvar, g_i, g_p),GetGameVarID(yvar, g_i, g_p));
+        {
+            int angvar = *insptr++, xvar = *insptr++, yvar = *insptr++;
 
-        SetGameVarID(angvar, ang, g_i, g_p);
-        break;
-    }
+            if (tw==CON_GETANGLE)
+            {
+                SetGameVarID(angvar, getangle(GetGameVarID(xvar, g_i, g_p),GetGameVarID(yvar, g_i, g_p)), g_i, g_p);
+                break;
+            }
+            SetGameVarID(angvar, getincangle(GetGameVarID(xvar, g_i, g_p),GetGameVarID(yvar, g_i, g_p)), g_i, g_p);
+            break;
+        }
 
     case CON_MULSCALE:
-    {
-        long var1, var2, var3, var4;
-        long what;
-
         insptr++;
-        var1 = *insptr++;
-        var2 = GetGameVarID(*insptr++, g_i, g_p);
-        var3 = GetGameVarID(*insptr++, g_i, g_p);
-        var4 = GetGameVarID(*insptr++, g_i, g_p);
+        {
+            int var1 = *insptr++, var2 = GetGameVarID(*insptr++, g_i, g_p);
+            int var3 = GetGameVarID(*insptr++, g_i, g_p), var4 = GetGameVarID(*insptr++, g_i, g_p);
 
-        what = mulscale(var2, var3, var4);
-
-        SetGameVarID(var1, what, g_i, g_p);
-        break;
-    }
+            SetGameVarID(var1, mulscale(var2, var3, var4), g_i, g_p);
+            break;
+        }
 
     case CON_INITTIMER:
     {
@@ -4847,14 +4781,13 @@ SKIPJIBS:
     }
 
     case CON_GUNIQHUDID:
-    {
-        int i;
         insptr++;
-        i=GetGameVarID(*insptr++, g_i, g_p);
-        if (i < MAXUNIQHUDID-1)
-            guniqhudid = i;
-        break;
-    }
+        {
+            int i=GetGameVarID(*insptr++, g_i, g_p);
+            if (i < MAXUNIQHUDID-1)
+                guniqhudid = i;
+            break;
+        }
 
     case CON_SAVEGAMEVAR:
     case CON_READGAMEVAR:
@@ -4877,67 +4810,55 @@ SKIPJIBS:
     }
 
     case CON_ROTATESPRITE:
-    {
-        long x,y,z;
-        short tilenum;
-        short a;
-        signed char shade;
-        char orientation;
-        char pal;
-        long x1, y1, x2, y2;
         insptr++;
-        x=GetGameVarID(*insptr++,g_i,g_p);
-        y=GetGameVarID(*insptr++,g_i,g_p);
-        z=GetGameVarID(*insptr++,g_i,g_p);
-        a=GetGameVarID(*insptr++,g_i,g_p);
-        tilenum=GetGameVarID(*insptr++,g_i,g_p);
-        shade=GetGameVarID(*insptr++,g_i,g_p);
-        pal=GetGameVarID(*insptr++,g_i,g_p);
-        orientation=GetGameVarID(*insptr++,g_i,g_p);
-        x1=GetGameVarID(*insptr++,g_i,g_p);
-        y1=GetGameVarID(*insptr++,g_i,g_p);
-        x2=GetGameVarID(*insptr++,g_i,g_p);
-        y2=GetGameVarID(*insptr++,g_i,g_p);
+        {
+            int x=GetGameVarID(*insptr++,g_i,g_p),   y=GetGameVarID(*insptr++,g_i,g_p),           z=GetGameVarID(*insptr++,g_i,g_p);
+            int a=GetGameVarID(*insptr++,g_i,g_p),   tilenum=GetGameVarID(*insptr++,g_i,g_p),     shade=GetGameVarID(*insptr++,g_i,g_p);
+            int pal=GetGameVarID(*insptr++,g_i,g_p), orientation=GetGameVarID(*insptr++,g_i,g_p);
+            int x1=GetGameVarID(*insptr++,g_i,g_p),  y1=GetGameVarID(*insptr++,g_i,g_p);
+            int x2=GetGameVarID(*insptr++,g_i,g_p),  y2=GetGameVarID(*insptr++,g_i,g_p);
 
-        rotatesprite(x<<16,y<<16,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
-        break;
-    }
+            rotatesprite(x<<16,y<<16,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
+            break;
+        }
 
     case CON_MINITEXT:
     case CON_GAMETEXT:
     case CON_DIGITALNUMBER:
-    {
-        long x,y;
-        short tilenum=0;
-        signed char shade;
-        char orientation=0;
-        char pal;
-        long x1=0, y1=0, x2=0, y2=0;
-        long q;
         insptr++;
-
-        if (tw == CON_GAMETEXT || tw == CON_DIGITALNUMBER)
-            tilenum=GetGameVarID(*insptr++,g_i,g_p);
-        x=GetGameVarID(*insptr++,g_i,g_p);
-        y=GetGameVarID(*insptr++,g_i,g_p);
-        q=GetGameVarID(*insptr++,g_i,g_p);
-        shade=GetGameVarID(*insptr++,g_i,g_p);
-        pal=GetGameVarID(*insptr++,g_i,g_p);
-        if (tw == CON_GAMETEXT || tw == CON_DIGITALNUMBER)
         {
-            orientation=GetGameVarID(*insptr++,g_i,g_p);
-            x1=GetGameVarID(*insptr++,g_i,g_p);
-            y1=GetGameVarID(*insptr++,g_i,g_p);
-            x2=GetGameVarID(*insptr++,g_i,g_p);
-            y2=GetGameVarID(*insptr++,g_i,g_p);
+            int tilenum = (tw == CON_GAMETEXT || tw == CON_DIGITALNUMBER)?GetGameVarID(*insptr++,g_i,g_p):0;
+            int x=GetGameVarID(*insptr++,g_i,g_p), y=GetGameVarID(*insptr++,g_i,g_p), q=GetGameVarID(*insptr++,g_i,g_p);
+            int shade=GetGameVarID(*insptr++,g_i,g_p), pal=GetGameVarID(*insptr++,g_i,g_p);
+
+            if (tw == CON_GAMETEXT || tw == CON_DIGITALNUMBER)
+            {
+                int orientation=GetGameVarID(*insptr++,g_i,g_p);
+                int x1=GetGameVarID(*insptr++,g_i,g_p), y1=GetGameVarID(*insptr++,g_i,g_p);
+                int x2=GetGameVarID(*insptr++,g_i,g_p), y2=GetGameVarID(*insptr++,g_i,g_p);
+
+                if (tw == CON_GAMETEXT)
+                {
+                    if (fta_quotes[q] == NULL)
+                    {
+                        OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,q);
+                        break;
+                    }
+                    gametext_(0,tilenum,x>>1,y,fta_quotes[q],shade,pal,orientation,x1,y1,x2,y2);
+                    break;
+                }
+                txdigitalnumber(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2);
+                break;
+            }
+
+            if (fta_quotes[q] == NULL)
+            {
+                OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,q);
+                break;
+            }
+            minitextshade(x,y,fta_quotes[q],shade,pal,26);
+            break;
         }
-        if (tw == CON_MINITEXT && fta_quotes[q] != NULL) minitextshade(x,y,fta_quotes[q],shade,pal,26);
-        else if (tw == CON_GAMETEXT && fta_quotes[q] != NULL) gametext_(0,tilenum,x>>1,y,fta_quotes[q],shade,pal,orientation,x1,y1,x2,y2);
-        else if (tw == CON_DIGITALNUMBER) txdigitalnumber(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2);
-        if ((tw == CON_MINITEXT || tw == CON_GAMETEXT) && fta_quotes[q] == NULL)
-            OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,q);
-        break;
-    }
 
     case CON_ANGOFF:
         insptr++;
@@ -4945,208 +4866,145 @@ SKIPJIBS:
         break;
 
     case CON_GETZRANGE:
-    {
-        long x, y, z, ceilz, ceilhit, florz, florhit, walldist, clipmask;
-        long ceilzvar, ceilhitvar, florzvar, florhitvar;
-        short sectnum;
-
         insptr++;
-        x=GetGameVarID(*insptr++,g_i,g_p);
-        y=GetGameVarID(*insptr++,g_i,g_p);
-        z=GetGameVarID(*insptr++,g_i,g_p);
-        sectnum=GetGameVarID(*insptr++,g_i,g_p);
-        ceilzvar=*insptr++;
-        ceilhitvar=*insptr++;
-        florzvar=*insptr++;
-        florhitvar=*insptr++;
-        walldist=GetGameVarID(*insptr++,g_i,g_p);
-        clipmask=GetGameVarID(*insptr++,g_i,g_p);
+        {
+            int x=GetGameVarID(*insptr++,g_i,g_p), y=GetGameVarID(*insptr++,g_i,g_p), z=GetGameVarID(*insptr++,g_i,g_p);
+            int sectnum=GetGameVarID(*insptr++,g_i,g_p);
+            int ceilzvar=*insptr++, ceilhitvar=*insptr++, florzvar=*insptr++, florhitvar=*insptr++;
+            int walldist=GetGameVarID(*insptr++,g_i,g_p), clipmask=GetGameVarID(*insptr++,g_i,g_p);
+            long ceilz, ceilhit, florz, florhit;
 
-        getzrange(x, y, z, sectnum, &ceilz, &ceilhit, &florz, &florhit, walldist, clipmask);
-        SetGameVarID(ceilzvar, ceilz, g_i, g_p);
-        SetGameVarID(ceilhitvar, ceilhit, g_i, g_p);
-        SetGameVarID(florzvar, florz, g_i, g_p);
-        SetGameVarID(florhitvar, florhit, g_i, g_p);
-        break;
-    }
+            getzrange(x, y, z, sectnum, &ceilz, &ceilhit, &florz, &florhit, walldist, clipmask);
+            SetGameVarID(ceilzvar, ceilz, g_i, g_p);
+            SetGameVarID(ceilhitvar, ceilhit, g_i, g_p);
+            SetGameVarID(florzvar, florz, g_i, g_p);
+            SetGameVarID(florhitvar, florhit, g_i, g_p);
+            break;
+        }
 
     case CON_HITSCAN:
-    {
-        long xs, ys, zs, vx, vy, vz, hitx, hity, hitz;
-        short sectnum, hitsect, hitwall, hitsprite;
-        unsigned long cliptype;
-
-        long hitxvar, hityvar, hitzvar;
-        short hitsectvar, hitwallvar, hitspritevar;
-
         insptr++;
-        xs=GetGameVarID(*insptr++,g_i,g_p);
-        ys=GetGameVarID(*insptr++,g_i,g_p);
-        zs=GetGameVarID(*insptr++,g_i,g_p);
-        sectnum=GetGameVarID(*insptr++,g_i,g_p);
-        vx=GetGameVarID(*insptr++,g_i,g_p);
-        vy=GetGameVarID(*insptr++,g_i,g_p);
-        vz=GetGameVarID(*insptr++,g_i,g_p);
-        hitsectvar=*insptr++;
-        hitwallvar=*insptr++;
-        hitspritevar=*insptr++;
-        hitxvar=*insptr++;
-        hityvar=*insptr++;
-        hitzvar=*insptr++;
-        cliptype=GetGameVarID(*insptr++,g_i,g_p);
-        hitscan(xs, ys, zs, sectnum, vx, vy, vz, &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, cliptype);
-        SetGameVarID(hitsectvar, hitsect, g_i, g_p);
-        SetGameVarID(hitwallvar, hitwall, g_i, g_p);
-        SetGameVarID(hitspritevar, hitsprite, g_i, g_p);
-        SetGameVarID(hitxvar, hitx, g_i, g_p);
-        SetGameVarID(hityvar, hity, g_i, g_p);
-        SetGameVarID(hitzvar, hitz, g_i, g_p);
-        break;
-    }
+        {
+            int xs=GetGameVarID(*insptr++,g_i,g_p), ys=GetGameVarID(*insptr++,g_i,g_p), zs=GetGameVarID(*insptr++,g_i,g_p);
+            int sectnum=GetGameVarID(*insptr++,g_i,g_p);
+            int vx=GetGameVarID(*insptr++,g_i,g_p), vy=GetGameVarID(*insptr++,g_i,g_p), vz=GetGameVarID(*insptr++,g_i,g_p);
+            int hitsectvar=*insptr++, hitwallvar=*insptr++, hitspritevar=*insptr++;
+            int hitxvar=*insptr++, hityvar=*insptr++, hitzvar=*insptr++, cliptype=GetGameVarID(*insptr++,g_i,g_p);
+            short hitsect, hitwall, hitsprite;
+            long hitx, hity, hitz;
+
+            hitscan(xs, ys, zs, sectnum, vx, vy, vz, &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, cliptype);
+            SetGameVarID(hitsectvar, hitsect, g_i, g_p);
+            SetGameVarID(hitwallvar, hitwall, g_i, g_p);
+            SetGameVarID(hitspritevar, hitsprite, g_i, g_p);
+            SetGameVarID(hitxvar, hitx, g_i, g_p);
+            SetGameVarID(hityvar, hity, g_i, g_p);
+            SetGameVarID(hitzvar, hitz, g_i, g_p);
+            break;
+        }
 
     case CON_CANSEE:
-    {
-        long x1, y1, z1, sect1, x2, y2, z2, sect2, r, rvar;
-
         insptr++;
-        x1=GetGameVarID(*insptr++,g_i,g_p);
-        y1=GetGameVarID(*insptr++,g_i,g_p);
-        z1=GetGameVarID(*insptr++,g_i,g_p);
-        sect1=GetGameVarID(*insptr++,g_i,g_p);
-        x2=GetGameVarID(*insptr++,g_i,g_p);
-        y2=GetGameVarID(*insptr++,g_i,g_p);
-        z2=GetGameVarID(*insptr++,g_i,g_p);
-        sect2=GetGameVarID(*insptr++,g_i,g_p);
-        rvar=*insptr++;
-        r = cansee(x1,y1,z1,sect1,x2,y2,z2,sect2);
-        SetGameVarID(rvar, r, g_i, g_p);
-        break;
-    }
+        {
+            int x1=GetGameVarID(*insptr++,g_i,g_p), y1=GetGameVarID(*insptr++,g_i,g_p), z1=GetGameVarID(*insptr++,g_i,g_p);
+            int sect1=GetGameVarID(*insptr++,g_i,g_p);
+            int x2=GetGameVarID(*insptr++,g_i,g_p), y2=GetGameVarID(*insptr++,g_i,g_p), z2=GetGameVarID(*insptr++,g_i,g_p);
+            int sect2=GetGameVarID(*insptr++,g_i,g_p), rvar=*insptr++;
+
+            SetGameVarID(rvar, cansee(x1,y1,z1,sect1,x2,y2,z2,sect2), g_i, g_p);
+            break;
+        }
 
     case CON_ROTATEPOINT:
-    {
-        long xpivot, ypivot, x, y, x2, y2, x2var, y2var;
-        short daang;
-
         insptr++;
-        xpivot=GetGameVarID(*insptr++,g_i,g_p);
-        ypivot=GetGameVarID(*insptr++,g_i,g_p);
-        x=GetGameVarID(*insptr++,g_i,g_p);
-        y=GetGameVarID(*insptr++,g_i,g_p);
-        daang=GetGameVarID(*insptr++,g_i,g_p);
-        x2var=*insptr++;
-        y2var=*insptr++;
-        rotatepoint(xpivot,ypivot,x,y,daang,&x2,&y2);
-        SetGameVarID(x2var, x2, g_i, g_p);
-        SetGameVarID(y2var, y2, g_i, g_p);
-        break;
-    }
+        {
+            int xpivot=GetGameVarID(*insptr++,g_i,g_p), ypivot=GetGameVarID(*insptr++,g_i,g_p);
+            int x=GetGameVarID(*insptr++,g_i,g_p), y=GetGameVarID(*insptr++,g_i,g_p), daang=GetGameVarID(*insptr++,g_i,g_p);
+            int x2var=*insptr++, y2var=*insptr++;
+            long x2, y2;
+
+            rotatepoint(xpivot,ypivot,x,y,daang,&x2,&y2);
+            SetGameVarID(x2var, x2, g_i, g_p);
+            SetGameVarID(y2var, y2, g_i, g_p);
+            break;
+        }
 
     case CON_NEARTAG:
-    {
-        //             neartag(long x, long y, long z, short sectnum, short ang,  //Starting position & angle
-        //                     short *neartagsector,   //Returns near sector if sector[].tag != 0
-        //                     short *neartagwall,     //Returns near wall if wall[].tag != 0
-        //                     short *neartagsprite,   //Returns near sprite if sprite[].tag != 0
-        //                     long *neartaghitdist,   //Returns actual distance to object (scale: 1024=largest grid size)
-        //                     long neartagrange,      //Choose maximum distance to scan (scale: 1024=largest grid size)
-        //                     char tagsearch)         //1-lotag only, 2-hitag only, 3-lotag&hitag
-
-        long x, y, z, neartaghitdist, neartagrange;
-        short sectnum, ang, neartagsector, neartagwall, neartagsprite;
-        long neartagsectorvar, neartagwallvar, neartagspritevar, neartaghitdistvar;
-        char tagsearch;
-
         insptr++;
-        x=GetGameVarID(*insptr++,g_i,g_p);
-        y=GetGameVarID(*insptr++,g_i,g_p);
-        z=GetGameVarID(*insptr++,g_i,g_p);
-        sectnum=GetGameVarID(*insptr++,g_i,g_p);
-        ang=GetGameVarID(*insptr++,g_i,g_p);
-        neartagsectorvar=*insptr++;
-        neartagwallvar=*insptr++;
-        neartagspritevar=*insptr++;
-        neartaghitdistvar=*insptr++;
-        neartagrange=GetGameVarID(*insptr++,g_i,g_p);
-        tagsearch=GetGameVarID(*insptr++,g_i,g_p);
-        neartag(x, y, z, sectnum, ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, neartagrange, tagsearch);
-        SetGameVarID(neartagsectorvar, neartagsector, g_i, g_p);
-        SetGameVarID(neartagwallvar, neartagwall, g_i, g_p);
-        SetGameVarID(neartagspritevar, neartagsprite, g_i, g_p);
-        SetGameVarID(neartaghitdistvar, neartaghitdist, g_i, g_p);
-        break;
-    }
+        {
+            //             neartag(long x, long y, long z, short sectnum, short ang,  //Starting position & angle
+            //                     short *neartagsector,   //Returns near sector if sector[].tag != 0
+            //                     short *neartagwall,     //Returns near wall if wall[].tag != 0
+            //                     short *neartagsprite,   //Returns near sprite if sprite[].tag != 0
+            //                     long *neartaghitdist,   //Returns actual distance to object (scale: 1024=largest grid size)
+            //                     long neartagrange,      //Choose maximum distance to scan (scale: 1024=largest grid size)
+            //                     char tagsearch)         //1-lotag only, 2-hitag only, 3-lotag&hitag
+
+            int x=GetGameVarID(*insptr++,g_i,g_p), y=GetGameVarID(*insptr++,g_i,g_p), z=GetGameVarID(*insptr++,g_i,g_p);
+            int sectnum=GetGameVarID(*insptr++,g_i,g_p), ang=GetGameVarID(*insptr++,g_i,g_p);
+            int neartagsectorvar=*insptr++, neartagwallvar=*insptr++, neartagspritevar=*insptr++, neartaghitdistvar=*insptr++;
+            int neartagrange=GetGameVarID(*insptr++,g_i,g_p), tagsearch=GetGameVarID(*insptr++,g_i,g_p);
+
+            neartag(x, y, z, sectnum, ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, neartagrange, tagsearch);
+
+            SetGameVarID(neartagsectorvar, neartagsector, g_i, g_p);
+            SetGameVarID(neartagwallvar, neartagwall, g_i, g_p);
+            SetGameVarID(neartagspritevar, neartagsprite, g_i, g_p);
+            SetGameVarID(neartaghitdistvar, neartaghitdist, g_i, g_p);
+            break;
+        }
 
     case CON_MOVESPRITE:
     case CON_SETSPRITE:
-    {
-        short spritenum;
-        long x, y, z;
-        unsigned long cliptype, returnvar;
         insptr++;
-        spritenum = GetGameVarID(*insptr++,g_i,g_p);
-        x = GetGameVarID(*insptr++,g_i,g_p);
-        y = GetGameVarID(*insptr++,g_i,g_p);
-        z = GetGameVarID(*insptr++,g_i,g_p);
-        switch (tw)
         {
-        case CON_MOVESPRITE:
-            cliptype = GetGameVarID(*insptr++,g_i,g_p);
-            returnvar = *insptr++;
-            SetGameVarID(returnvar, movesprite(spritenum, x, y, z, cliptype), g_i, g_p);
-            break;
-        case CON_SETSPRITE:
-            setsprite(spritenum, x, y, z);
-            break;
+            int spritenum = GetGameVarID(*insptr++,g_i,g_p);
+            int x = GetGameVarID(*insptr++,g_i,g_p), y = GetGameVarID(*insptr++,g_i,g_p), z = GetGameVarID(*insptr++,g_i,g_p);
+
+            if (tw == CON_SETSPRITE)
+            {
+                setsprite(spritenum, x, y, z);
+                break;
+            }
+
+            {
+                int cliptype = GetGameVarID(*insptr++,g_i,g_p);
+
+                SetGameVarID(*insptr++, movesprite(spritenum, x, y, z, cliptype), g_i, g_p);
+                break;
+            }
         }
-        break;
-    }
 
     case CON_GETFLORZOFSLOPE:
     case CON_GETCEILZOFSLOPE:
-    {
-        short sectnum;
-        long x, y;
-        unsigned long returnvar;
         insptr++;
-        sectnum = GetGameVarID(*insptr++,g_i,g_p);
-        x = GetGameVarID(*insptr++,g_i,g_p);
-        y = GetGameVarID(*insptr++,g_i,g_p);
-        returnvar = *insptr++;
-        switch (tw)
         {
-        case CON_GETFLORZOFSLOPE:
-            SetGameVarID(returnvar, getflorzofslope(sectnum,x,y), g_i, g_p);
-            break;
-        case CON_GETCEILZOFSLOPE:
-            SetGameVarID(returnvar, getceilzofslope(sectnum,x,y), g_i, g_p);
+            int sectnum = GetGameVarID(*insptr++,g_i,g_p), x = GetGameVarID(*insptr++,g_i,g_p), y = GetGameVarID(*insptr++,g_i,g_p);
+
+            if (tw == CON_GETFLORZOFSLOPE)
+            {
+                SetGameVarID(*insptr++, getflorzofslope(sectnum,x,y), g_i, g_p);
+                break;
+            }
+            SetGameVarID(*insptr++, getceilzofslope(sectnum,x,y), g_i, g_p);
             break;
         }
-        break;
-    }
 
     case CON_UPDATESECTOR:
     case CON_UPDATESECTORZ:
-    {
-        long x,y,z=0;
-        int var;
-        short w;
-
-        w=sprite[g_i].sectnum;
-
         insptr++;
+        {
+            int x=GetGameVarID(*insptr++,g_i,g_p), y=GetGameVarID(*insptr++,g_i,g_p);
+            int z=(tw==CON_UPDATESECTORZ)?GetGameVarID(*insptr++,g_i,g_p):0;
+            int var=*insptr++;
+            short w=sprite[g_i].sectnum;
 
-        x=GetGameVarID(*insptr++,g_i,g_p);
-        y=GetGameVarID(*insptr++,g_i,g_p);
-        if (tw==CON_UPDATESECTORZ) z=GetGameVarID(*insptr++,g_i,g_p);
-        var=*insptr++;
+            if (tw==CON_UPDATESECTOR) updatesector(x,y,&w);
+            else if (tw==CON_UPDATESECTORZ) updatesectorz(x,y,z,&w);
 
-        if (tw==CON_UPDATESECTOR) updatesector(x,y,&w);
-        else if (tw==CON_UPDATESECTORZ) updatesectorz(x,y,z,&w);
-
-        SetGameVarID(var, w, g_i, g_p);
-        break;
-    }
+            SetGameVarID(var, w, g_i, g_p);
+            break;
+        }
 
     case CON_SPAWN:
         insptr++;
@@ -5615,35 +5473,27 @@ SKIPJIBS:
         break;
 
     case CON_QSPRINTF:
+    insptr++;    
     {
-        long var1, var2, var3, var4, sq, dq;
-        insptr++;
-        dq = *insptr++;
-        sq = *insptr++;
+        int dq = *insptr++, sq = *insptr++;
         if (fta_quotes[sq] != NULL && fta_quotes[dq] != NULL)
         {
-            Bstrcpy(tempbuf,fta_quotes[sq]);
-            var1 = GetGameVarID(*insptr++, g_i, g_p);
-            var2 = GetGameVarID(*insptr++, g_i, g_p);
-            var3 = GetGameVarID(*insptr++, g_i, g_p);
-            var4 = GetGameVarID(*insptr++, g_i, g_p);
+            int var1 = GetGameVarID(*insptr++, g_i, g_p), var2 = GetGameVarID(*insptr++, g_i, g_p);
+            int var3 = GetGameVarID(*insptr++, g_i, g_p), var4 = GetGameVarID(*insptr++, g_i, g_p);
+            Bstrcpy(tempbuf,fta_quotes[sq]);            
             Bsprintf(fta_quotes[dq],tempbuf,var1,var2,var3,var4);
+            break;
         }
-        else
-        {
-            if (fta_quotes[sq] == NULL) OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,sq);
-            if (fta_quotes[dq] == NULL) OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,dq);
-            insptr += 5;
-        }
+        if (fta_quotes[sq] == NULL) OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,sq);
+        if (fta_quotes[dq] == NULL) OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,dq);
+        insptr += 5;
         break;
     }
 
     case CON_ADDLOG:
     {
-        long l;
         insptr++;
-        l=*insptr++;  // var
-        Bsprintf(g_szBuf,"CONLOG: L=%ld",l);
+        Bsprintf(g_szBuf,"CONLOG: L=%ld",*insptr++);
         AddLog(g_szBuf);
         break;
     }
@@ -6999,13 +6849,13 @@ void LoadActor(long sActor)
     }
 }
 
-void execute(const short *sActor,const short *sPlayer,const long *lDist)
+void execute(int iActor,int iPlayer,long lDist)
 {
     char done;
 
-    g_i = *sActor;    // Sprite ID
-    g_p = *sPlayer;   // Player ID
-    g_x = *lDist;     // ??
+    g_i = iActor;    // Sprite ID
+    g_p = iPlayer;   // Player ID
+    g_x = lDist;     // ??
     g_sp = &sprite[g_i];    // Pointer to sprite structure
     g_t = &hittype[g_i].temp_data[0];   // Sprite's 'extra' data
 

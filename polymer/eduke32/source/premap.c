@@ -1162,7 +1162,7 @@ void newgame(char vn,char ln,char sk)
             getpackets();
         }
     }
-    
+
     globalskillsound = -1;
 
     waitforeverybody();
@@ -1230,7 +1230,7 @@ void newgame(char vn,char ln,char sk)
         }
         p->last_weapon = -1;
     }
-        
+
     display_mirror =        0;
 
     if (ud.multimode > 1)
@@ -1538,15 +1538,15 @@ extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting, vote_map, vote_episod
 
 static void getlevelfromfilename(const char *fn, char *volume, char *level)
 {
-    for ((*volume)=0;(*volume)<MAXVOLUMES;(*volume)++)
+    for (*volume=0;*volume<MAXVOLUMES;(*volume)++)
     {
-        for ((*level)=0;(*level)<MAXLEVELS;(*level)++)
+        for (*level=0;*level<MAXLEVELS;(*level)++)
         {
-            if (level_file_names[((*volume)*MAXLEVELS)+(*level)] != NULL)
-                if (!Bstrcasecmp(fn, level_file_names[((*volume)*MAXLEVELS)+(*level)]))
+            if (level_file_names[(*volume*MAXLEVELS)+*level] != NULL)
+                if (!Bstrcasecmp(fn, level_file_names[(*volume*MAXLEVELS)+*level]))
                     break;
         }
-        if ((*level) != MAXLEVELS)
+        if (*level != MAXLEVELS)
             break;
     }
 }

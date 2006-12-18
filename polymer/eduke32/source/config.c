@@ -716,8 +716,8 @@ int32 CONFIG_ReadSetup(void)
         ps[0].auto_aim = AutoAim;
         SCRIPT_GetNumber(scripthandle, "Controls","WeaponSwitchMode",&ud.weaponswitch);
         ps[0].weaponswitch = ud.weaponswitch;
-        
-#ifdef _WIN32        
+
+#ifdef _WIN32
         SCRIPT_GetNumber(scripthandle, "Updates", "CheckForUpdates", &checkforupdates);
         SCRIPT_GetNumber(scripthandle, "Updates", "LastUpdateCheck", &lastupdatecheck);
 #endif

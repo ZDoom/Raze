@@ -1539,7 +1539,7 @@ void myosx(long x, long y, short tilenum, signed char shade, char orientation)
 void myospalx(long x, long y, short tilenum, signed char shade, char orientation, char p)
 {
     int a = 0;
-    
+
     if (orientation&4)
         a = 1024;
 
@@ -1689,32 +1689,32 @@ static void weapon_amounts(struct player_struct *p,long x,long y,long u)
 
         if (p->subweapon&(1<<GROW_WEAPON))
             weaponnum(SHRINKER_WEAPON,x+39,y+12,
-                        p->ammo_amount[GROW_WEAPON],max_ammo_amount[GROW_WEAPON],
-                        (!p->gotweapon[GROW_WEAPON]*9)+12-18*
-                        (cw == GROW_WEAPON));
+                      p->ammo_amount[GROW_WEAPON],max_ammo_amount[GROW_WEAPON],
+                      (!p->gotweapon[GROW_WEAPON]*9)+12-18*
+                      (cw == GROW_WEAPON));
         else
             weaponnum(SHRINKER_WEAPON,x+39,y+12,
-                        p->ammo_amount[SHRINKER_WEAPON],max_ammo_amount[SHRINKER_WEAPON],
-                        (!p->gotweapon[SHRINKER_WEAPON]*9)+12-18*
-                        (cw == SHRINKER_WEAPON));
+                      p->ammo_amount[SHRINKER_WEAPON],max_ammo_amount[SHRINKER_WEAPON],
+                      (!p->gotweapon[SHRINKER_WEAPON]*9)+12-18*
+                      (cw == SHRINKER_WEAPON));
     }
     if (u&256)
     {
         if (u != -1) patchstatusbar(158,178,162+29,178+6); //original code: (166,178,166+8,178+6);
 
         weaponnum(DEVISTATOR_WEAPON,x+70,y,
-                    p->ammo_amount[DEVISTATOR_WEAPON],max_ammo_amount[DEVISTATOR_WEAPON],
-                    (!p->gotweapon[DEVISTATOR_WEAPON]*9)+12-18*
-                    (cw == DEVISTATOR_WEAPON));
+                  p->ammo_amount[DEVISTATOR_WEAPON],max_ammo_amount[DEVISTATOR_WEAPON],
+                  (!p->gotweapon[DEVISTATOR_WEAPON]*9)+12-18*
+                  (cw == DEVISTATOR_WEAPON));
     }
     if (u&512)
     {
         if (u != -1) patchstatusbar(158,184,162+29,184+6); //original code: (166,184,166+8,184+6);
-        
+
         weaponnum(TRIPBOMB_WEAPON,x+70,y+6,
-                    p->ammo_amount[TRIPBOMB_WEAPON],max_ammo_amount[TRIPBOMB_WEAPON],
-                    (!p->gotweapon[TRIPBOMB_WEAPON]*9)+12-18*
-                    (cw == TRIPBOMB_WEAPON));
+                  p->ammo_amount[TRIPBOMB_WEAPON],max_ammo_amount[TRIPBOMB_WEAPON],
+                  (!p->gotweapon[TRIPBOMB_WEAPON]*9)+12-18*
+                  (cw == TRIPBOMB_WEAPON));
     }
 
     if (u&65536L)
@@ -1722,9 +1722,9 @@ static void weapon_amounts(struct player_struct *p,long x,long y,long u)
         if (u != -1) patchstatusbar(158,190,162+29,190+6); //original code: (166,190,166+8,190+6);
 
         weaponnum(-1,x+70,y+12,
-                    p->ammo_amount[FREEZE_WEAPON],max_ammo_amount[FREEZE_WEAPON],
-                    (!p->gotweapon[FREEZE_WEAPON]*9)+12-18*
-                    (cw == FREEZE_WEAPON));
+                  p->ammo_amount[FREEZE_WEAPON],max_ammo_amount[FREEZE_WEAPON],
+                  (!p->gotweapon[FREEZE_WEAPON]*9)+12-18*
+                  (cw == FREEZE_WEAPON));
     }
 }
 
@@ -7203,9 +7203,9 @@ FOUNDCHEAT:
                 switch (k)
                 {
                 case CHEAT_WEAPONS:
-                
+
                     j = 0;
-                    
+
                     if (VOLUMEONE)
                         j = 6;
 
@@ -7353,10 +7353,10 @@ FOUNDCHEAT:
                 case CHEAT_STUFF:
 
                     j = 0;
-                    
+
                     if (VOLUMEONE)
                         j = 6;
-                        
+
                     for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
                         ps[myconnectindex].gotweapon[weapon]  = 1;
 
@@ -7398,7 +7398,7 @@ FOUNDCHEAT:
                             levnume--;
 
                             if ((VOLUMEONE && volnume > 0) || volnume > num_volumes-1 ||
-                            levnume >= MAXLEVELS || level_file_names[volnume*MAXLEVELS+levnume] == NULL)
+                                    levnume >= MAXLEVELS || level_file_names[volnume*MAXLEVELS+levnume] == NULL)
                             {
                                 ps[myconnectindex].cheat_phase = 0;
                                 KB_FlushKeyBoardQueue();
@@ -9694,10 +9694,10 @@ void app_main(int argc,char **argv)
         i=wm_ynbox("Automatic Release Notification",
                    "Would you like EDuke32 to automatically check for new releases "
                    "at startup?");
-        checkforupdates = 0;                   
+        checkforupdates = 0;
         if (i) checkforupdates = 1;
     }
-    
+
     if (checkforupdates == 1)
     {
         if (time(NULL) - lastupdatecheck > UPDATEINTERVAL)
@@ -9709,24 +9709,24 @@ void app_main(int argc,char **argv)
                 if (atol(tempbuf) > BUILDDATE)
                 {
                     if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
-                                    "Browse to http://eduke32.sourceforge.net now?"))
+                                 "Browse to http://eduke32.sourceforge.net now?"))
                     {
-                		SHELLEXECUTEINFOA sinfo;
+                        SHELLEXECUTEINFOA sinfo;
                         char *p = "http://eduke32.sourceforge.net";
-                        
-                		Bmemset(&sinfo, 0, sizeof(sinfo));
-                		sinfo.cbSize = sizeof(sinfo);
-                		sinfo.fMask = SEE_MASK_CLASSNAME;
-                		sinfo.lpVerb = "open";
-                		sinfo.lpFile = p;
-                		sinfo.nShow = SW_SHOWNORMAL;
-                		sinfo.lpClass = "http";
 
-                		if(!ShellExecuteExA(&sinfo))
-                		    initprintf("update: error launching browser!\n");
+                        Bmemset(&sinfo, 0, sizeof(sinfo));
+                        sinfo.cbSize = sizeof(sinfo);
+                        sinfo.fMask = SEE_MASK_CLASSNAME;
+                        sinfo.lpVerb = "open";
+                        sinfo.lpFile = p;
+                        sinfo.nShow = SW_SHOWNORMAL;
+                        sinfo.lpClass = "http";
+
+                        if (!ShellExecuteExA(&sinfo))
+                            initprintf("update: error launching browser!\n");
                         CONFIG_SetupMouse();
                         CONFIG_SetupJoystick();
-               		    CONFIG_WriteSetup();
+                        CONFIG_WriteSetup();
                         gameexit(" ");
                     }
                 }

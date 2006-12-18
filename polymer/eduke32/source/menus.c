@@ -167,7 +167,7 @@ static int probe_(int type,int x,int y,int i,int n)
         onbar = 0;
         KB_ClearKeyDown(sc_Escape);
         sound(EXITMENUSOUND);
-        MOUSE_ClearButton(RIGHT_MOUSE);        
+        MOUSE_ClearButton(RIGHT_MOUSE);
         return(-1);
     }
     else
@@ -348,7 +348,7 @@ static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short 
                 KB_ClearKeyDown(sc_RightArrow);
                 KB_ClearKeyDown(sc_kpad_6);
                 MOUSE_ClearButton(WHEELDOWN_MOUSE);
-                mii = 0;                
+                mii = 0;
                 *p += dainc;
                 if (*p > 63)
                     *p = 63;
@@ -494,7 +494,7 @@ static void dispnames(void)
         minitext(c,48+(12*x),ud.savegame[x],2,10+16);
 }
 
-void clearfilenames(void)
+static void clearfilenames(void)
 {
     klistfree(finddirs);
     klistfree(findfiles);
@@ -1376,8 +1376,8 @@ void menus(void)
             break;
         }
 
-        probe(186,124+9,0,0);        
-        
+        probe(186,124+9,0,0);
+
         if (KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
         {
             KB_ClearKeyDown(sc_N);
@@ -1391,7 +1391,9 @@ void menus(void)
                     ready2send = 1;
                     totalclock = ototalclock;
                 }
-            } else {
+            }
+            else
+            {
                 cmenu(300);
                 probey = last_threehundred;
             }
@@ -1500,7 +1502,7 @@ void menus(void)
         }
 
         x = probe(0,0,0,1);
-        
+
         if (x == -1)
         {
             cmenu(0);
@@ -2546,9 +2548,9 @@ cheat_for_port_credits:
                                "Display other player IDs",
                                "-",
                                "Show startup window",
-#ifdef _WIN32                               
+#ifdef _WIN32
                                "Release notification",
-#else                               
+#else
                                "-",
                                "-",
 #endif
@@ -2647,7 +2649,7 @@ cheat_for_port_credits:
                     modval(0,1,(int *)&ForceSetup,1,probey==io);
                     gametextpal(d,yy, ForceSetup ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-#ifdef _WIN32                               
+#ifdef _WIN32
                 case 7:
                     i = checkforupdates;
                     if (x==io) checkforupdates = 1-checkforupdates;
@@ -2659,7 +2661,7 @@ cheat_for_port_credits:
                 case 8:
 #else
                 case 7:
-#endif                                
+#endif
                     if (x==io) cmenu(200);
                     break;
                 default:
@@ -4529,9 +4531,9 @@ VOLUME_ALL_40x:
                         resetinventory(c);
 
                     }
-                
+
                     mpchangemap(ud.m_volume_number,ud.m_level_number);
-                    
+
                     if (voting == myconnectindex)
                         adduserquote("VOTE SUCCEEDED");
 
