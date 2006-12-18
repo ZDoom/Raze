@@ -1609,7 +1609,7 @@ int enterlevel(char g)
                 level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number] = Bcalloc(BMAX_PATH,sizeof(char));
             if (level_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL)
             {
-                level_names[(ud.volume_number*MAXLEVELS)+ud.level_number] = Bcalloc(8,sizeof(char));
+                level_names[(ud.volume_number*MAXLEVELS)+ud.level_number] = Bcalloc(9,sizeof(char));
                 Bsprintf(level_names[(ud.volume_number*MAXLEVELS)+ud.level_number],"USER MAP");
             }
         }
