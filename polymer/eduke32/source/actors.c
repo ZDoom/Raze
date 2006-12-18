@@ -2385,20 +2385,6 @@ static void moveweapons(void)
             if (thisprojectile[i].workslike & PROJECTILE_FLAG_KNEE)
                 KILLIT(i);
 
-            if (thisprojectile[i].trail > -1)
-            {
-                for (f=0;f<=thisprojectile[i].tnum;f++)
-                {
-                    j = spawn(i,thisprojectile[i].trail);
-                    if (thisprojectile[i].toffset != 0)
-                        sprite[j].z += (thisprojectile[i].toffset<<8);
-                    if (thisprojectile[i].txrepeat >= 0)
-                        sprite[j].xrepeat=thisprojectile[i].txrepeat;
-                    if (thisprojectile[i].tyrepeat >= 0)
-                        sprite[j].yrepeat=thisprojectile[i].tyrepeat;
-                }
-            }
-
             if (thisprojectile[i].workslike & PROJECTILE_FLAG_RPG)
             {
                 //  if (thisprojectile[i].workslike & COOLEXPLOSION1)
@@ -2413,22 +2399,57 @@ static void moveweapons(void)
                     if (s->shade >= 40) KILLIT(i);
                 }
 
+                if (thisprojectile[i].drop)
+                    s->zvel -= thisprojectile[i].drop;
+
+                if (thisprojectile[i].workslike & PROJECTILE_FLAG_SPIT)
+                    if (s->zvel < 6144)
+                        s->zvel += gc-112;
+
+                k = s->xvel;
+                ll = s->zvel;
+
                 if (sector[s->sectnum].lotag == 2)
                 {
                     k = s->xvel>>1;
                     ll = s->zvel>>1;
                 }
-                else
-                {
-                    k = s->xvel;
-                    ll = s->zvel;
-                }
-
-                if (thisprojectile[i].drop) s->zvel=s->zvel-thisprojectile[i].drop;
 
                 dax = s->x;
                 day = s->y;
                 daz = s->z;
+
+                getglobalz(i);
+                qq = CLIPMASK1;
+
+                if (thisprojectile[i].trail > -1)
+                {
+                    for (f=0;f<=thisprojectile[i].tnum;f++)
+                    {
+                        j = spawn(i,thisprojectile[i].trail);
+                        if (thisprojectile[i].toffset != 0)
+                            sprite[j].z += (thisprojectile[i].toffset<<8);
+                        if (thisprojectile[i].txrepeat >= 0)
+                            sprite[j].xrepeat=thisprojectile[i].txrepeat;
+                        if (thisprojectile[i].tyrepeat >= 0)
+                            sprite[j].yrepeat=thisprojectile[i].tyrepeat;
+                    }
+                }
+
+                for (f=1;f<=thisprojectile[i].velmult;f++)
+                    j = movesprite(i,
+                                   (k*(sintable[(s->ang+512)&2047]))>>14,
+                                   (k*(sintable[s->ang&2047]))>>14,ll,qq);
+
+
+                if (!(thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS) && s->yvel >= 0)
+                    if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
+                        j = 49152|s->yvel;
+
+                if (s->sectnum < 0)
+                {
+                    KILLIT(i);
+                }
 
                 if (thisprojectile[i].workslike & PROJECTILE_FLAG_TIMED && thisprojectile[i].range > 0)
                 {
@@ -2499,25 +2520,6 @@ static void moveweapons(void)
 
                 }
 
-
-                getglobalz(i);
-                qq = CLIPMASK1;
-
-                for (f=1;f<=thisprojectile[i].velmult;f++)
-                    j = movesprite(i,
-                                   (k*(sintable[(s->ang+512)&2047]))>>14,
-                                   (k*(sintable[s->ang&2047]))>>14,ll,qq);
-
-
-                if (!(thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS) && s->yvel >= 0)
-                    if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
-                        j = 49152|s->yvel;
-
-                if (s->sectnum < 0)
-                {
-                    KILLIT(i);
-                }
-
                 if ((j&49152) != 49152)
                     if (!(thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS))
                     {
@@ -2553,9 +2555,6 @@ static void moveweapons(void)
                                     }
                                 }
                                 else */
-                if (thisprojectile[i].workslike & PROJECTILE_FLAG_SPIT)
-                    if (s->zvel < 6144)
-                        s->zvel += gc-112;
 
                 if (thisprojectile[i].workslike & PROJECTILE_FLAG_WATERBUBBLES && sector[s->sectnum].lotag == 2 && rnd(140))
                     spawn(i,WATERBUBBLE);
@@ -2879,8 +2878,8 @@ static void moveweapons(void)
 
                 if (s->picnum == RPG && sector[s->sectnum].lotag == 2)
                 {
-                    k >>= 1;
-                    ll >>= 1;
+                    k = s->xvel>>1;
+                    ll = s->zvel>>1;
                 }
 
                 dax = s->x;

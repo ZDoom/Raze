@@ -310,7 +310,7 @@ static int menutext_(int x,int y,short s,short p,char *t)
     return (x);
 }
 
-int menutext(int x,int y,short s,short p,char *t)
+inline int menutext(int x,int y,short s,short p,char *t)
 {
     return(menutext_(x,y,s,p,stripcolorcodes(t)));
 }

@@ -381,7 +381,6 @@ short shoot(short i,short atwith)
 
             if (projectile[atwith].workslike & PROJECTILE_FLAG_BLOOD)
             {
-
                 if (projectile[atwith].range == 0)
                     projectile[atwith].range = 1024;
 
