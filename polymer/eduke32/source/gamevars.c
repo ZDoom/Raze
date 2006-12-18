@@ -413,26 +413,26 @@ static int GetGameID(char *szGameLabel)
 
 long GetGameVarID(int id, short sActor, short sPlayer)
 {
-    int m=0;
+    int inv=0;
+    
+    if (id == g_iThisActorID)
+        return sActor;
+    
     if (id<0 || id >= iGameVarCount)
     {
         if (id==MAXGAMEVARS)
             return(*insptr++);
-        else if (id&(MAXGAMEVARS<<1))
-        {
-            m=1;
-            id ^= (MAXGAMEVARS<<1);
-        }
-        else
+            
+        if (!id&(MAXGAMEVARS<<1))
         {
             AddLog("GetGameVarID: Invalid Game ID");
             return -1;
         }
+        
+        inv=1;
+        id ^= (MAXGAMEVARS<<1);
     }
-    if (id == g_iThisActorID)
-    {
-        return sActor;
-    }
+    
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER)
     {
         // for the current player
@@ -440,39 +440,35 @@ long GetGameVarID(int id, short sActor, short sPlayer)
         {
             //Bsprintf(g_szBuf,"GetGameVarID(%d, %d, %d) returns %ld\n",id,sActor,sPlayer, aGameVars[id].plValues[sPlayer]);
             //AddLog(g_szBuf);
-            if (m) return (-aGameVars[id].plValues[sPlayer]);
+            if (inv) return (-aGameVars[id].plValues[sPlayer]);
             return (aGameVars[id].plValues[sPlayer]);
         }
-        else
-        {
-            if (m) return (-aGameVars[id].lValue);
-            return (aGameVars[id].lValue);
-        }
+        
+        if (inv) return (-aGameVars[id].lValue);
+        return (aGameVars[id].lValue);
     }
-    else if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR)
+    
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR)
     {
         // for the current actor
         if (sActor >= 0 && sActor <=MAXSPRITES)
         {
-            if (m) return (-aGameVars[id].plValues[sActor]);
+            if (inv) return (-aGameVars[id].plValues[sActor]);
             return (aGameVars[id].plValues[sActor]);
         }
-        else
-        {
-            if (m) return (-aGameVars[id].lValue);
-            return (aGameVars[id].lValue);
-        }
-    }
-    else if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG)
-    {
-        if (m) return -(*((long*)aGameVars[id].lValue));
-        return(*((long*)aGameVars[id].lValue));
-    }
-    else
-    {
-        if (m) return (-aGameVars[id].lValue);
+        
+        if (inv) return (-aGameVars[id].lValue);
         return (aGameVars[id].lValue);
     }
+    
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG)
+    {
+        if (inv) return -(*((long*)aGameVars[id].lValue));
+        return(*((long*)aGameVars[id].lValue));
+    }
+    
+    if (inv) return (-aGameVars[id].lValue);
+    return (aGameVars[id].lValue);
 }
 
 void SetGameVarID(int id, long lValue, short sActor, short sPlayer)
@@ -488,27 +484,30 @@ void SetGameVarID(int id, long lValue, short sActor, short sPlayer)
     {
         // for the current player
         aGameVars[id].plValues[sPlayer]=lValue;
+        return;
     }
-    else if ((aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR) && (sActor != -1))
+    
+    if ((aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR) && (sActor != -1))
     {
         // for the current actor
         aGameVars[id].plValues[sActor]=lValue;
+        return;
     }
-    else if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG)
+    
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG)
     {
         // set the value at pointer
         *((long*)aGameVars[id].lValue)=lValue;
+        return;
     }
-    else
-    {
-        aGameVars[id].lValue=lValue;
-    }
+
+    aGameVars[id].lValue=lValue;
 }
 
 long GetGameVar(char *szGameLabel, long lDefault, short sActor, short sPlayer)
 {
-    int i;
-    for (i=0;i<iGameVarCount;i++)
+    int i=0;
+    for (;i<iGameVarCount;i++)
     {
         if (aGameVars[i].szLabel != NULL)
         {

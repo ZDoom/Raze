@@ -3616,12 +3616,6 @@ static int parse(void)
 {
     long j, l, s, tw;
 
-    if (!(error || warning) && condebug)
-    {
-        //        Bsprintf(g_szBuf,"  * DEBUG! Executing: %s",keyw[*insptr]);
-        //        AddLog(g_szBuf);
-    }
-
     if (killit_flag) return 1;
 
     //    if(*it == 1668249134L) gameexit("\nERR");
@@ -3633,14 +3627,15 @@ static int parse(void)
     switch (tw)
     {
     case CON_REDEFINEQUOTE:
+    insptr++;
     {
-        int q, i;
-        insptr++;
-        q = *insptr++;
-        i = *insptr++;
+        int q = *insptr++, i = *insptr++;
         if (fta_quotes[q] == NULL || redefined_quotes[i] == NULL)
+        {
             OSD_Printf("%s %d null quote %d %d\n",__FILE__,__LINE__,q,i);
-        else Bstrcpy(fta_quotes[q],redefined_quotes[i]);
+            break;
+        }
+        Bstrcpy(fta_quotes[q],redefined_quotes[i]);
         break;
     }
 
@@ -4222,9 +4217,7 @@ SKIPJIBS:
 
     case CON_STATE:
     {
-        long *tempscrptr;
-
-        tempscrptr = insptr+2;
+        long *tempscrptr=insptr+2;
 
         insptr = (long *) *(insptr+1);
         while (1) if (parse()) break;
@@ -4273,12 +4266,9 @@ SKIPJIBS:
     case CON_OPERATEACTIVATORS:
     case CON_SETASPECT:
     case CON_SSP:
+    insptr++;    
     {
-        long var1, var2;
-
-        insptr++;
-
-        var1 = GetGameVarID(*insptr++,g_i,g_p);
+        int var1 = GetGameVarID(*insptr++,g_i,g_p), var2;
         if (tw == CON_OPERATEACTIVATORS && *insptr == g_iThisActorID)
         {
             var2 = g_p;
@@ -4308,16 +4298,11 @@ SKIPJIBS:
     }
 
     case CON_CANSEESPR:
+    insptr++;    
     {
-        long lVar1, lVar2, lVar3;
+        int lVar1 = GetGameVarID(*insptr++,g_i,g_p), lVar2 = GetGameVarID(*insptr++,g_i,g_p);
 
-        insptr++;
-
-        lVar1 = GetGameVarID(*insptr++,g_i,g_p);
-        lVar2 = GetGameVarID(*insptr++,g_i,g_p);
-        lVar3 = *insptr++;
-
-        SetGameVarID(lVar3, cansee(sprite[lVar1].x,sprite[lVar1].y,sprite[lVar1].z,sprite[lVar1].sectnum,
+        SetGameVarID(*insptr++, cansee(sprite[lVar1].x,sprite[lVar1].y,sprite[lVar1].z,sprite[lVar1].sectnum,
                                    sprite[lVar2].x,sprite[lVar2].y,sprite[lVar2].z,sprite[lVar2].sectnum), g_i, g_p);
         break;
     }
@@ -4325,11 +4310,9 @@ SKIPJIBS:
     case CON_OPERATERESPAWNS:
     case CON_OPERATEMASTERSWITCHES:
     case CON_CHECKACTIVATORMOTION:
+    insptr++;    
     {
-        long var1;
-
-        insptr++;
-        var1 = GetGameVarID(*insptr++,g_i,g_p);
+        int var1 = GetGameVarID(*insptr++,g_i,g_p);
 
         switch (tw)
         {
@@ -4352,14 +4335,16 @@ SKIPJIBS:
         break;
 
     case CON_QSTRLEN:
+    insptr++;    
     {
-        int i,j;
-        insptr++;
-        i=*insptr++;
+        int i=*insptr++;
         j=GetGameVarID(*insptr++, g_i, g_p);
-        if (fta_quotes[j] != NULL)
-            SetGameVarID(i,Bstrlen(fta_quotes[j]),g_i,g_p);
-        else SetGameVarID(i,-1,g_i,g_p);
+        if (fta_quotes[j] == NULL)
+        {
+            SetGameVarID(i,-1,g_i,g_p);
+            break;
+        }
+        SetGameVarID(i,Bstrlen(fta_quotes[j]),g_i,g_p);        
         break;
     }
 
@@ -4368,11 +4353,9 @@ SKIPJIBS:
     case CON_QSTRCPY:
     case CON_CHANGESPRITESTAT:
     case CON_CHANGESPRITESECT:
+    insptr++;
     {
-        int i,j;
-        insptr++;
-
-        i = GetGameVarID(*insptr++, g_i, g_p);
+        int i = GetGameVarID(*insptr++, g_i, g_p), j;
         if (tw == CON_GETPNAME && *insptr == g_iThisActorID)
         {
             j = g_p;
@@ -4412,39 +4395,16 @@ SKIPJIBS:
     }
 
     case CON_STARTLEVEL:
+    insptr++; // skip command
     {
         // from 'level' cheat in game.c (about line 6250)
-        long volnume;
-        long levnume;
-        int i;
-
-        insptr++; // skip command
-        volnume=GetGameVarID(*insptr++,g_i,g_p);
-        levnume=GetGameVarID(*insptr++,g_i,g_p);
+        int volnume=GetGameVarID(*insptr++,g_i,g_p), levnume=GetGameVarID(*insptr++,g_i,g_p);
 
         if (volnume > MAXVOLUMES-1 || volnume < 0)
-        {
-            /*
-            if(g_cmddebug&CMDDEBUG_COMPILE)
-            {
-            Bsprintf(g_szBuf,"startlevel: Invalid Volume number: %ld.  Command ignored.",volnume);
-            AddLog(g_szBuf);
-            }
-            */
             break;
-        }
 
         if (levnume > MAXLEVELS-1 || levnume < 0)
-        {
-            /*
-            if(g_cmddebug&CMDDEBUG_COMPILE)
-            {
-            Bsprintf(g_szBuf,"startlevel: Invalid Level number: %ld.  Command ignored.",levnume);
-            AddLog(g_szBuf);
-            }
-            */
             break;
-        }
 
         ud.m_volume_number = ud.volume_number = volnume;
         ud.m_level_number = ud.level_number = levnume;
@@ -4622,10 +4582,9 @@ SKIPJIBS:
         }
 
     case CON_INITTIMER:
+    insptr++;    
     {
-        short i;
-        insptr++;
-        i = GetGameVarID(*insptr++, g_i, g_p);
+        int i = GetGameVarID(*insptr++, g_i, g_p);
         if (timer != i)
         {
             uninittimer();
@@ -4644,12 +4603,10 @@ SKIPJIBS:
     case CON_ESPAWNVAR:
     case CON_EQSPAWNVAR:
     case CON_QSPAWNVAR:
+    insptr++;
     {
-        long lIn, lReturn=-1;
+        int lIn=GetGameVarID(*insptr++, g_i, g_p), lReturn=-1;
 
-        insptr++;
-
-        lIn=GetGameVarID(*insptr++, g_i, g_p);
         if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
             lReturn = spawn(g_i, lIn);
         switch (tw)
@@ -4699,9 +4656,8 @@ SKIPJIBS:
     case CON_EZSHOOT:
     case CON_ZSHOOT:
     {
-        long lReturn=-1;
-
         insptr++;
+        
         if (tw == CON_ZSHOOT || tw == CON_EZSHOOT)
         {
             hittype[g_i].temp_data[9] = GetGameVarID(*insptr++, g_i, g_p);
@@ -4710,9 +4666,9 @@ SKIPJIBS:
         }
         if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
         {
-            lReturn = shoot(g_i,*insptr++);
             if (tw == CON_EZSHOOT || tw == CON_ESHOOT)
-                SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
+                SetGameVarID(g_iReturnVarID, shoot(g_i,*insptr++), g_i, g_p);
+            else shoot(g_i,*insptr++);
         }
         else insptr++;
 
@@ -4750,11 +4706,9 @@ SKIPJIBS:
     case CON_STOPSOUNDVAR:
     case CON_SOUNDONCEVAR:
     case CON_GLOBALSOUNDVAR:
+    insptr++;    
     {
-        int sound;
-
-        insptr++;
-        sound=GetGameVarID(*insptr++, g_i, g_p);
+        int sound=GetGameVarID(*insptr++, g_i, g_p);
 
         switch (tw)
         {
@@ -4779,9 +4733,9 @@ SKIPJIBS:
     case CON_GUNIQHUDID:
         insptr++;
         {
-            int i=GetGameVarID(*insptr++, g_i, g_p);
-            if (i < MAXUNIQHUDID-1)
-                guniqhudid = i;
+            j=GetGameVarID(*insptr++, g_i, g_p);
+            if (j < MAXUNIQHUDID-1)
+                guniqhudid = j;
             break;
         }
 
@@ -5495,13 +5449,12 @@ SKIPJIBS:
     }
 
     case CON_ADDLOGVAR:
+    insptr++;    
     {
-        long l,m=1,lVarID;
+        int m=1;
         char szBuf[256];
-        insptr++;
-        l=*insptr++;  // l=Line number, *instpr=varID
-
-        lVarID = *insptr;
+        long l=*insptr++, lVarID = *insptr;
+        
         if ((lVarID >= iGameVarCount) || lVarID < 0)
         {
             if (*insptr==MAXGAMEVARS) // addlogvar for a constant?  Har.
@@ -5732,6 +5685,7 @@ good:
 
     case CON_FINDPLAYER:
     case CON_FINDOTHERPLAYER:
+    insptr++;    
     {
         // syntax findnearactorvar <type> <maxdistvar> <getvar>
         // gets the sprite ID of the nearest actor within max dist
@@ -5739,10 +5693,7 @@ good:
         // -1 for none found
         // <type> <maxdistvarid> <varid>
         short j=0;
-        long var1, d;
-
-        insptr++;
-        var1 = *insptr++;
+        long var1 = *insptr++, d;
 
         if (tw == CON_FINDPLAYER) j=findplayer(&sprite[g_i],&d);
         else if (tw == CON_FINDOTHERPLAYER) j=findotherplayer(g_i,&d);
@@ -5890,18 +5841,10 @@ good:
     }
 
     case CON_GETANGLETOTARGET:
-    {
-        int i;
-        short ang;
-
-        insptr++;
-        i=*insptr++;
-
+        insptr++;    
         // hittype[g_i].lastvx and lastvy are last known location of target.
-        ang=getangle(hittype[g_i].lastvx-g_sp->x,hittype[g_i].lastvy-g_sp->y);
-        SetGameVarID(i, ang, g_i, g_p);
+        SetGameVarID(*insptr++, getangle(hittype[g_i].lastvx-g_sp->x,hittype[g_i].lastvy-g_sp->y), g_i, g_p);
         break;
-    }
 
     case CON_ANGOFFVAR:
         insptr++;
@@ -5915,22 +5858,19 @@ good:
 
     case CON_CHECKAVAILWEAPON:
     case CON_CHECKAVAILINVEN:
-    {
-        int i = g_p;
-
-        insptr++;
+        insptr++;    
+        j = g_p;
 
         if (*insptr != g_iThisActorID)
-            i=GetGameVarID(*insptr++, g_i, g_p);
+            j=GetGameVarID(*insptr++, g_i, g_p);
             
-        if (i < MAXPLAYERS)
+        if (j < MAXPLAYERS)
         {
             if (tw == CON_CHECKAVAILWEAPON)
-                checkavailweapon(&ps[i]);
-            else checkavailinven(&ps[i]);
+                checkavailweapon(&ps[j]);
+            else checkavailinven(&ps[j]);
         }
         break;
-    }
 
     case CON_GETPLAYERANGLE:
         insptr++;
@@ -5955,378 +5895,269 @@ good:
         break;
 
     case CON_SETVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        SetGameVarID(i, *insptr++, g_i, g_p);
+        insptr++;
+        SetGameVarID(*insptr, *(insptr+1), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_SETVARVAR:
-    insptr++;    
-    {
-        int i=*insptr++;
-        SetGameVarID(i, GetGameVarID(*insptr++, g_i, g_p), g_i, g_p);
+        insptr++;    
+        SetGameVarID(*insptr, GetGameVarID(*(insptr+1), g_i, g_p), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_RANDVAR:
-    insptr++;    
-    {
-        int i=*insptr++;
-        SetGameVarID(i, mulscale(krand(), *(insptr++)+1, 16), g_i, g_p);
+        insptr++;    
+        SetGameVarID(*insptr, mulscale(krand(), *(insptr+1)+1, 16), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_DISPLAYRANDVAR:
-    insptr++;    
-    {
-        int i=*insptr++;
-        SetGameVarID(i, mulscale(rand(), *(insptr++)+1, 15), g_i, g_p);
+        insptr++;    
+        SetGameVarID(*insptr, mulscale(rand(), *(insptr+1)+1, 15), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_MULVAR:
-    insptr++;    
-    {
-        int i=*insptr++;
-        SetGameVarID(i, GetGameVarID(i, g_i, g_p) * *insptr++, g_i, g_p);
+        insptr++;    
+        SetGameVarID(*insptr, GetGameVarID(*insptr, g_i, g_p) * *(insptr+1), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_DIVVAR:
-    insptr++;    
-    {
-        int i=*insptr++;
-        if ((*insptr) == 0)
+        insptr++;
+        if (*(insptr+1) == 0)
             gameexit("CON_DIVVAR: Divide by zero.");
-        SetGameVarID(i, GetGameVarID(i, g_i, g_p) / *insptr++, g_i, g_p);
+        SetGameVarID(*insptr, GetGameVarID(*insptr, g_i, g_p) / *(insptr+1), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_MODVAR:
-    insptr++;    
-    {
-        int i=*insptr++;
-        if (*insptr == 0)
+        insptr++;
+        if (*(insptr+1) == 0)
             gameexit("CON_MODVAR: Mod by zero.");
-        SetGameVarID(i,GetGameVarID(i, g_i, g_p)%*insptr++, g_i, g_p);
+        SetGameVarID(*insptr,GetGameVarID(*insptr, g_i, g_p)%*(insptr+1), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_ANDVAR:
-    insptr++;    
-    {
-        int i=*insptr++;
-        SetGameVarID(i,GetGameVarID(i, g_i, g_p) & *insptr++, g_i, g_p);
+        insptr++;
+        SetGameVarID(*insptr,GetGameVarID(*insptr, g_i, g_p) & *(insptr+1), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_ORVAR:
-    insptr++;    
-    {
-        int i=*insptr++;
-        SetGameVarID(i,GetGameVarID(i, g_i, g_p) | *insptr++, g_i, g_p);
+        insptr++;
+        SetGameVarID(*insptr,GetGameVarID(*insptr, g_i, g_p) | *(insptr+1), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_XORVAR:
-    insptr++;    
-    {
-        int i=*insptr++;
-        SetGameVarID(i,GetGameVarID(i, g_i, g_p) ^ *insptr++, g_i, g_p);
+        insptr++;    
+        SetGameVarID(*insptr,GetGameVarID(*insptr, g_i, g_p) ^ *(insptr+1), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_RANDVARVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        SetGameVarID(i,mulscale(krand(), GetGameVarID(*insptr++, g_i, g_p)+1, 16), g_i, g_p);
+        insptr++;
+        j=*insptr++;
+        SetGameVarID(j,mulscale(krand(), GetGameVarID(*insptr++, g_i, g_p)+1, 16), g_i, g_p);
         break;
-    }
 
     case CON_DISPLAYRANDVARVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        SetGameVarID(i,mulscale(rand(), GetGameVarID(*insptr++, g_i, g_p)+1, 15), g_i, g_p);
+        insptr++;
+        j=*insptr++;
+        SetGameVarID(j,mulscale(rand(), GetGameVarID(*insptr++, g_i, g_p)+1, 15), g_i, g_p);
         break;
-    }
 
     case CON_GMAXAMMO:
-    insptr++;
-    {
-        int i=GetGameVarID(*insptr++, g_i, g_p);
-        SetGameVarID(*insptr++, max_ammo_amount[i], g_i, g_p);
+        insptr++;
+        j=GetGameVarID(*insptr++, g_i, g_p);
+        SetGameVarID(*insptr++, max_ammo_amount[j], g_i, g_p);
         break;
-    }
 
     case CON_SMAXAMMO:
-    insptr++;
-    {
-        int i=GetGameVarID(*insptr++, g_i, g_p);
-        max_ammo_amount[i]=GetGameVarID(*insptr++, g_i, g_p);
+        insptr++;
+        j=GetGameVarID(*insptr++, g_i, g_p);
+        max_ammo_amount[j]=GetGameVarID(*insptr++, g_i, g_p);
         break;
-    }
 
     case CON_MULVARVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        int l1=GetGameVarID(i, g_i, g_p), l2=GetGameVarID(*insptr++, g_i, g_p);
-        
-        SetGameVarID(i, l1*l2, g_i, g_p);
+        insptr++;
+        j=*insptr++;    
+        SetGameVarID(j, GetGameVarID(j, g_i, g_p)*GetGameVarID(*insptr++, g_i, g_p), g_i, g_p);
         break;
-    }
 
     case CON_DIVVARVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        int l1=GetGameVarID(i, g_i, g_p), l2=GetGameVarID(*insptr++, g_i, g_p);
-        
-        if (l2==0)
-            gameexit("CON_DIVVARVAR: Divide by zero.");
+        insptr++;
+        j=*insptr++;
+        {
+            int l2=GetGameVarID(*insptr++, g_i, g_p);
             
-        SetGameVarID(i, l1/l2 , g_i, g_p);
-        break;
-    }
+            if (l2==0)
+                gameexit("CON_DIVVARVAR: Divide by zero.");
+                
+            SetGameVarID(j, GetGameVarID(j, g_i, g_p)/l2 , g_i, g_p);
+            break;
+        }
 
     case CON_MODVARVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        int l1=GetGameVarID(i, g_i, g_p), l2=GetGameVarID(*insptr++, g_i, g_p);
-        
-        if (l2==0)
-            gameexit("CON_MODVARVAR: Mod by zero.");
+        insptr++;
+        j=*insptr++;        
+        {
+            int l2=GetGameVarID(*insptr++, g_i, g_p);
             
-        SetGameVarID(i, l1 % l2, g_i, g_p);
-        break;
-    }
+            if (l2==0)
+                gameexit("CON_MODVARVAR: Mod by zero.");
+                
+            SetGameVarID(j, GetGameVarID(j, g_i, g_p) % l2, g_i, g_p);
+            break;
+        }
 
     case CON_ANDVARVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        int l1=GetGameVarID(i, g_i, g_p), l2=GetGameVarID(*insptr++, g_i, g_p);
-        
-        SetGameVarID(i, l1 & l2 , g_i, g_p);
+        insptr++;
+        j=*insptr++;    
+        SetGameVarID(j, GetGameVarID(j, g_i, g_p) & GetGameVarID(*insptr++, g_i, g_p), g_i, g_p);
         break;
-    }
 
     case CON_XORVARVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        int l1=GetGameVarID(i, g_i, g_p), l2=GetGameVarID(*insptr++, g_i, g_p);
-        
-        SetGameVarID(i, l1 ^ l2 , g_i, g_p);
+        insptr++;
+        j=*insptr++;
+        SetGameVarID(j, GetGameVarID(j, g_i, g_p) ^ GetGameVarID(*insptr++, g_i, g_p) , g_i, g_p);
         break;
-    }
 
     case CON_ORVARVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        int l1=GetGameVarID(i, g_i, g_p), l2=GetGameVarID(*insptr++, g_i, g_p);
-        
-        SetGameVarID(i, l1 | l2 , g_i, g_p);
+        insptr++;
+        j=*insptr++;
+        SetGameVarID(j, GetGameVarID(j, g_i, g_p) | GetGameVarID(*insptr++, g_i, g_p) , g_i, g_p);
         break;
-    }
 
     case CON_SUBVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        SetGameVarID(i, GetGameVarID(i, g_i, g_p) - *insptr++, g_i, g_p);
+        insptr++;
+        SetGameVarID(*insptr, GetGameVarID(*insptr, g_i, g_p) - *(insptr+1), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_SUBVARVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        SetGameVarID(i, GetGameVarID(i, g_i, g_p) - GetGameVarID(*insptr++, g_i, g_p), g_i, g_p);
+        insptr++;
+        j=*insptr++;
+        SetGameVarID(j, GetGameVarID(j, g_i, g_p) - GetGameVarID(*insptr++, g_i, g_p), g_i, g_p);
         break;
-    }
 
     case CON_ADDVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        SetGameVarID(i, GetGameVarID(i, g_i, g_p) + *insptr++, g_i, g_p);
+        insptr++;
+        SetGameVarID(*insptr, GetGameVarID(*insptr, g_i, g_p) + *(insptr+1), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_SHIFTVARL:
-    insptr++;
-    {
-        int i=*insptr++;
-        SetGameVarID(i, GetGameVarID(i, g_i, g_p) << *insptr++, g_i, g_p);
+        insptr++;
+        SetGameVarID(*insptr, GetGameVarID(*insptr, g_i, g_p) << *(insptr+1), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_SHIFTVARR:
-    insptr++;
-    {
-        int i=*insptr++;
-        SetGameVarID(i, GetGameVarID(i, g_i, g_p) >> *insptr++, g_i, g_p);
+        insptr++;
+        SetGameVarID(*insptr, GetGameVarID(*insptr, g_i, g_p) >> *(insptr+1), g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_SIN:
-    insptr++;
-    {
-        int i=*insptr++;
-        SetGameVarID(i, sintable[GetGameVarID(*insptr++, g_i, g_p)&2047], g_i, g_p);
+        insptr++;
+        SetGameVarID(*insptr, sintable[GetGameVarID(*(insptr+1), g_i, g_p)&2047], g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_COS:
-    insptr++;
-    {
-        int i=*insptr++;
-        SetGameVarID(i, sintable[(GetGameVarID(*insptr++, g_i, g_p)+512)&2047], g_i, g_p);
+        insptr++;
+        SetGameVarID(*insptr, sintable[(GetGameVarID(*(insptr+1), g_i, g_p)+512)&2047], g_i, g_p);
+        insptr += 2;
         break;
-    }
 
     case CON_ADDVARVAR:
-    insptr++;
-    {
-        int i=*insptr++;
-        SetGameVarID(i, GetGameVarID(i, g_i, g_p) + GetGameVarID(*insptr++, g_i, g_p), g_i, g_p);
+        insptr++;
+        j=*insptr++;
+        SetGameVarID(j, GetGameVarID(j, g_i, g_p) + GetGameVarID(*insptr++, g_i, g_p), g_i, g_p);
         break;
-    }
 
     case CON_SPGETLOTAG:
-    {
         insptr++;
         SetGameVarID(g_iLoTagID, g_sp->lotag, g_i, g_p);
         break;
-    }
 
     case CON_SPGETHITAG:
-    {
         insptr++;
         SetGameVarID(g_iHiTagID, g_sp->hitag, g_i, g_p);
         break;
-    }
 
     case CON_SECTGETLOTAG:
-    {
         insptr++;
         SetGameVarID(g_iLoTagID, sector[g_sp->sectnum].lotag, g_i, g_p);
         break;
-    }
 
     case CON_SECTGETHITAG:
-    {
         insptr++;
         SetGameVarID(g_iHiTagID, sector[g_sp->sectnum].hitag, g_i, g_p);
         break;
-    }
 
     case CON_GETTEXTUREFLOOR:
-    {
         insptr++;
         SetGameVarID(g_iTextureID, sector[g_sp->sectnum].floorpicnum, g_i, g_p);
         break;
-    }
 
     case CON_STARTTRACK:
-    {
         insptr++;
         music_select=*insptr++;
         if (music_fn[ud.volume_number][(unsigned char)music_select] != NULL)
             playmusic(&music_fn[ud.volume_number][(unsigned char)music_select][0]);
         break;
-    }
 
     case CON_GETTEXTURECEILING:
-    {
         insptr++;
         SetGameVarID(g_iTextureID, sector[g_sp->sectnum].ceilingpicnum, g_i, g_p);
         break;
-    }
 
     case CON_IFVARVARAND:
-    insptr++;
-    {
-        int i=*insptr++;
-        j=0;
-        if (GetGameVarID(i, g_i, g_p) & GetGameVarID(*(insptr), g_i, g_p))
-            j=1;
-        parseifelse(j);
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) & GetGameVarID(*(insptr), g_i, g_p));
         break;
-    }
 
     case CON_IFVARVARN:
-    insptr++;
-    {
-        int i=*insptr++;
-        j=0;
-        if (GetGameVarID(i, g_i, g_p) != GetGameVarID(*(insptr), g_i, g_p))
-            j=1;
-        parseifelse(j);
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) != GetGameVarID(*(insptr), g_i, g_p));
         break;
-    }
 
     case CON_IFVARVARE:
-    insptr++;
-    {
-        int i=*insptr++;
-        j=0;
-        if (GetGameVarID(i, g_i, g_p) == GetGameVarID(*(insptr), g_i, g_p))
-            j=1;
-        parseifelse(j);
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) == GetGameVarID(*(insptr), g_i, g_p));
         break;
-    }
 
     case CON_IFVARVARG:
-    insptr++;
-    {
-        int i=*insptr++;
-        j=0;
-        if (GetGameVarID(i, g_i, g_p) > GetGameVarID(*(insptr), g_i, g_p))
-            j=1;
-        parseifelse(j);
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) > GetGameVarID(*(insptr), g_i, g_p));
         break;
-    }
 
     case CON_IFVARVARL:
-    insptr++;
-    {
-        int i=*insptr++;
-        j=0;
-        if (GetGameVarID(i, g_i, g_p) < GetGameVarID(*(insptr), g_i, g_p))
-            j=1;
-        parseifelse(j);
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) < GetGameVarID(*(insptr), g_i, g_p));
         break;
-    }
 
     case CON_IFVARE:
-    insptr++;
-    {
-        int i=*insptr++;
-        j=0;
-        if (GetGameVarID(i, g_i, g_p) == *insptr)
-            j=1;
-        parseifelse(j);
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) == *insptr);
         break;
-    }
 
     case CON_IFVARN:
-    insptr++;
-    {
-        int i=*insptr++;
-        j=0;
-        if (GetGameVarID(i, g_i, g_p) != *insptr)
-            j=1;
-        parseifelse(j);
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) != *insptr);
         break;
-    }
 
     case CON_WHILEVARN:
     {
@@ -6368,37 +6199,22 @@ good:
     }
 
     case CON_IFVARAND:
-    insptr++;
-    {
-        int i=*insptr++;
-        j=0;
-        if (GetGameVarID(i, g_i, g_p) & *insptr)
-            j=1;
-        parseifelse(j);
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) & *insptr);
         break;
-    }
 
     case CON_IFVARG:
-    insptr++;
-    {
-        int i=*insptr++;
-        j=0;
-        if (GetGameVarID(i, g_i, g_p) > *insptr)
-            j=1;
-        parseifelse(j);
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) > *insptr);
         break;
-    }
 
     case CON_IFVARL:
-    insptr++;
-    {
-        int i=*insptr++;
-        j=0;
-        if (GetGameVarID(i, g_i, g_p) < *insptr)
-            j=1;
-        parseifelse(j);
+        insptr++;
+        j=*insptr++;
+        parseifelse(GetGameVarID(j, g_i, g_p) < *insptr);
         break;
-    }
 
     case CON_IFPHEALTHL:
         insptr++;
@@ -6462,13 +6278,12 @@ good:
         if (ps[g_p].knee_incs == 0 && sprite[ps[g_p].i].xrepeat >= 40)
             if (cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+(16<<8),sprite[ps[g_p].i].sectnum))
             {
-                int i=0;
-                for (;i<MAXPLAYERS;i++)
+                for (j=0;j<MAXPLAYERS;j++)
                 {
-                    if (ps[i].actorsqu == g_i)
+                    if (ps[j].actorsqu == g_i)
                         break;
                 }
-                if (i == MAXPLAYERS)
+                if (j == MAXPLAYERS)
                 {
                     ps[g_p].knee_incs = 1;
                     if (ps[g_p].weapon_pos == 0)
@@ -6578,29 +6393,21 @@ good:
         break;
 
     case CON_SPRITEFLAGS:
-    {
         insptr++;
         actorspriteflags[g_i] = GetGameVarID(*insptr++, g_i, g_p);
         break;
-    }
 
     case CON_GETCURRADDRESS:
-    {
-        int i;
         insptr++;
-
-        i=*insptr++;
-        SetGameVarID(i, (long)insptr, g_i, g_p);
+        j=*insptr++;
+        SetGameVarID(j, (long)insptr, g_i, g_p);
         break;
-    }
 
     case CON_JUMP:
-    insptr++;
-    {
-        int ptr = GetGameVarID(*insptr++, g_i, g_p);
-        insptr = (long *)ptr;
+        insptr++;
+        j = GetGameVarID(*insptr++, g_i, g_p);
+        insptr = (long *)j;
         break;
-    }
 
     default:
         OSD_Printf("fatal error: default processing: prev inst: %ld, curr inst: %ld, next inst: %ld\ncurrent actor: %d (%d)\n",*(insptr-1),*insptr,*(insptr+1),g_i,g_sp->picnum);
