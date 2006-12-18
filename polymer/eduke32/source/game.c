@@ -1508,48 +1508,40 @@ inline int badguy(spritetype *s)
 
 void myos(long x, long y, short tilenum, signed char shade, char orientation)
 {
-    char p;
-    short a;
+    int p = sector[ps[screenpeek].cursectnum].floorpal, a = 0;
 
     if (orientation&4)
         a = 1024;
-    else a = 0;
 
-    p = sector[ps[screenpeek].cursectnum].floorpal;
     rotatesprite(x<<16,y<<16,65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
 void myospal(long x, long y, short tilenum, signed char shade, char orientation, char p)
 {
-    short a;
+    int a = 0;
 
     if (orientation&4)
         a = 1024;
-    else a = 0;
 
     rotatesprite(x<<16,y<<16,65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
 void myosx(long x, long y, short tilenum, signed char shade, char orientation)
 {
-    char p;
-    short a;
+    int p = sector[ps[screenpeek].cursectnum].floorpal, a = 0;
 
     if (orientation&4)
         a = 1024;
-    else a = 0;
 
-    p = sector[ps[screenpeek].cursectnum].floorpal;
     rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
 void myospalx(long x, long y, short tilenum, signed char shade, char orientation, char p)
 {
-    short a;
-
+    int a = 0;
+    
     if (orientation&4)
         a = 1024;
-    else a = 0;
 
     rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
@@ -1563,22 +1555,15 @@ static void invennum(long x,long y,char num1,char ha,char sbits)
         rotatesprite(sbarx(x-4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
+        return;
     }
-    else if (num1 > 9)
+    if (num1 > 9)
     {
         rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
+        return;
     }
-    else
-        rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
-}
-
-static void orderweaponnum(short ind,long x,long y,char ha)
-{
-    rotatesprite(sbarx(x-7),sbary(y),sbarsc(65536L),0,THREEBYFIVE+ind+1,ha-10,7,10,0,0,xdim-1,ydim-1);
-    rotatesprite(sbarx(x-3),sbary(y),sbarsc(65536L),0,THREEBYFIVE+10,ha,0,10,0,0,xdim-1,ydim-1);
-
-    minitextshade(x+1,y-4,"ORDER",26,6,2+8+16);
+    rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
 }
 
 static void weaponnum(short ind,long x,long y,long num1, long num2,char ha)
@@ -1587,6 +1572,13 @@ static void weaponnum(short ind,long x,long y,long num1, long num2,char ha)
 
     rotatesprite(sbarx(x-7),sbary(y),sbarsc(65536L),0,THREEBYFIVE+ind+1,ha-10,7,10,0,0,xdim-1,ydim-1);
     rotatesprite(sbarx(x-3),sbary(y),sbarsc(65536L),0,THREEBYFIVE+10,ha,0,10,0,0,xdim-1,ydim-1);
+
+    if (VOLUMEONE && (ind > HANDBOMB_WEAPON || ind < 0))
+    {
+        minitextshade(x+1,y-4,"ORDER",20,11,2+8+16);
+        return;
+    }
+
     rotatesprite(sbarx(x+9),sbary(y),sbarsc(65536L),0,THREEBYFIVE+11,ha,0,10,0,0,xdim-1,ydim-1);
 
     if (num1 > 99) num1 = 99;
@@ -1605,8 +1597,9 @@ static void weaponnum(short ind,long x,long y,long num1, long num2,char ha)
     {
         rotatesprite(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(x+17),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+        return;
     }
-    else rotatesprite(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+    rotatesprite(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
 }
 
 static void weaponnum999(char ind,long x,long y,long num1, long num2,char ha)
@@ -1642,15 +1635,14 @@ static void weaponnum999(char ind,long x,long y,long num1, long num2,char ha)
     {
         rotatesprite(sbarx(x+17),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(x+21),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+        return;
     }
-    else rotatesprite(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+    rotatesprite(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
 }
 
 static void weapon_amounts(struct player_struct *p,long x,long y,long u)
 {
-    int cw;
-
-    cw = p->curr_weapon;
+    int cw = p->curr_weapon;
 
     if (u&4)
     {
@@ -1695,78 +1687,44 @@ static void weapon_amounts(struct player_struct *p,long x,long y,long u)
     {
         if (u != -1) patchstatusbar(127,190,127+29,190+6); //original code: (135,190,135+8,190+6);
 
-        if (VOLUMEONE)
-        {
-            orderweaponnum(SHRINKER_WEAPON,x+39,y+12,
-                           (!p->gotweapon[SHRINKER_WEAPON]*9)+12-18*
-                           (cw == SHRINKER_WEAPON));
-        }
+        if (p->subweapon&(1<<GROW_WEAPON))
+            weaponnum(SHRINKER_WEAPON,x+39,y+12,
+                        p->ammo_amount[GROW_WEAPON],max_ammo_amount[GROW_WEAPON],
+                        (!p->gotweapon[GROW_WEAPON]*9)+12-18*
+                        (cw == GROW_WEAPON));
         else
-        {
-            if (p->subweapon&(1<<GROW_WEAPON))
-                weaponnum(SHRINKER_WEAPON,x+39,y+12,
-                          p->ammo_amount[GROW_WEAPON],max_ammo_amount[GROW_WEAPON],
-                          (!p->gotweapon[GROW_WEAPON]*9)+12-18*
-                          (cw == GROW_WEAPON));
-            else
-                weaponnum(SHRINKER_WEAPON,x+39,y+12,
-                          p->ammo_amount[SHRINKER_WEAPON],max_ammo_amount[SHRINKER_WEAPON],
-                          (!p->gotweapon[SHRINKER_WEAPON]*9)+12-18*
-                          (cw == SHRINKER_WEAPON));
-        }
+            weaponnum(SHRINKER_WEAPON,x+39,y+12,
+                        p->ammo_amount[SHRINKER_WEAPON],max_ammo_amount[SHRINKER_WEAPON],
+                        (!p->gotweapon[SHRINKER_WEAPON]*9)+12-18*
+                        (cw == SHRINKER_WEAPON));
     }
     if (u&256)
     {
         if (u != -1) patchstatusbar(158,178,162+29,178+6); //original code: (166,178,166+8,178+6);
 
-        if (VOLUMEONE)
-        {
-            orderweaponnum(DEVISTATOR_WEAPON,x+70,y,
-                           (!p->gotweapon[DEVISTATOR_WEAPON]*9)+12-18*
-                           (cw == DEVISTATOR_WEAPON));
-        }
-        else
-        {
-            weaponnum(DEVISTATOR_WEAPON,x+70,y,
-                      p->ammo_amount[DEVISTATOR_WEAPON],max_ammo_amount[DEVISTATOR_WEAPON],
-                      (!p->gotweapon[DEVISTATOR_WEAPON]*9)+12-18*
-                      (cw == DEVISTATOR_WEAPON));
-        }
+        weaponnum(DEVISTATOR_WEAPON,x+70,y,
+                    p->ammo_amount[DEVISTATOR_WEAPON],max_ammo_amount[DEVISTATOR_WEAPON],
+                    (!p->gotweapon[DEVISTATOR_WEAPON]*9)+12-18*
+                    (cw == DEVISTATOR_WEAPON));
     }
     if (u&512)
     {
         if (u != -1) patchstatusbar(158,184,162+29,184+6); //original code: (166,184,166+8,184+6);
-        if (VOLUMEONE)
-        {
-            orderweaponnum(TRIPBOMB_WEAPON,x+70,y+6,
-                           (!p->gotweapon[TRIPBOMB_WEAPON]*9)+12-18*
-                           (cw == TRIPBOMB_WEAPON));
-        }
-        else
-        {
-            weaponnum(TRIPBOMB_WEAPON,x+70,y+6,
-                      p->ammo_amount[TRIPBOMB_WEAPON],max_ammo_amount[TRIPBOMB_WEAPON],
-                      (!p->gotweapon[TRIPBOMB_WEAPON]*9)+12-18*
-                      (cw == TRIPBOMB_WEAPON));
-        }
+        
+        weaponnum(TRIPBOMB_WEAPON,x+70,y+6,
+                    p->ammo_amount[TRIPBOMB_WEAPON],max_ammo_amount[TRIPBOMB_WEAPON],
+                    (!p->gotweapon[TRIPBOMB_WEAPON]*9)+12-18*
+                    (cw == TRIPBOMB_WEAPON));
     }
 
     if (u&65536L)
     {
         if (u != -1) patchstatusbar(158,190,162+29,190+6); //original code: (166,190,166+8,190+6);
-        if (VOLUMEONE)
-        {
-            orderweaponnum(-1,x+70,y+12,
-                           (!p->gotweapon[FREEZE_WEAPON]*9)+12-18*
-                           (cw == FREEZE_WEAPON));
-        }
-        else
-        {
-            weaponnum(-1,x+70,y+12,
-                      p->ammo_amount[FREEZE_WEAPON],max_ammo_amount[FREEZE_WEAPON],
-                      (!p->gotweapon[FREEZE_WEAPON]*9)+12-18*
-                      (cw == FREEZE_WEAPON));
-        }
+
+        weaponnum(-1,x+70,y+12,
+                    p->ammo_amount[FREEZE_WEAPON],max_ammo_amount[FREEZE_WEAPON],
+                    (!p->gotweapon[FREEZE_WEAPON]*9)+12-18*
+                    (cw == FREEZE_WEAPON));
     }
 }
 
