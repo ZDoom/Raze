@@ -3612,6 +3612,8 @@ static void parseifelse(long condition)
 
 // long *it = 0x00589a04;
 
+long instruction = 0;
+
 static int parse(void)
 {
     long j, l, s, tw;
@@ -3623,6 +3625,8 @@ static int parse(void)
     //      AddLog(g_szBuf);
 
     tw = *insptr;
+
+    instruction = tw;
 
     switch (tw)
     {
@@ -3975,16 +3979,12 @@ static int parse(void)
         g_sp->yoffset = 0;
         //            if(!gotz)
         {
-            long c;
+            j = gc;
 
-            if (floorspace(g_sp->sectnum))
-                c = 0;
-            else
-            {
-                if (ceilingspace(g_sp->sectnum) || sector[g_sp->sectnum].lotag == 2)
-                    c = gc/6;
-                else c = gc;
-            }
+            if (ceilingspace(g_sp->sectnum) || sector[g_sp->sectnum].lotag == 2)
+                j = gc/6;
+            else if (floorspace(g_sp->sectnum))
+                j = 0;
 
             if (hittype[g_i].cgg <= 0 || (sector[g_sp->sectnum].floorstat&2))
             {
@@ -3995,7 +3995,7 @@ static int parse(void)
 
             if (g_sp->z < (hittype[g_i].floorz-FOURSLEIGHT))
             {
-                g_sp->zvel += c;
+                g_sp->zvel += j;
                 g_sp->z+=g_sp->zvel;
 
                 if (g_sp->zvel > 6144) g_sp->zvel = 6144;
@@ -4006,19 +4006,17 @@ static int parse(void)
 
                 if (badguy(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
                 {
-
                     if (g_sp->zvel > 3084 && g_sp->extra <= 1)
                     {
                         if (g_sp->pal != 1 && g_sp->picnum != DRONE)
                         {
-                            if (g_sp->picnum == APLAYER && g_sp->extra > 0)
-                                goto SKIPJIBS;
-                            guts(g_sp,JIBS6,15,g_p);
-                            spritesound(SQUISHED,g_i);
-                            spawn(g_i,BLOODPOOL);
+                            if (!(g_sp->picnum == APLAYER && g_sp->extra > 0))
+                            {
+                                guts(g_sp,JIBS6,15,g_p);
+                                spritesound(SQUISHED,g_i);
+                                spawn(g_i,BLOODPOOL);
+                            }
                         }
-
-SKIPJIBS:
 
                         hittype[g_i].picnum = SHOTSPARK1;
                         hittype[g_i].extra = 1;
@@ -4026,7 +4024,6 @@ SKIPJIBS:
                     }
                     else if (g_sp->zvel > 2048 && sector[g_sp->sectnum].lotag != 1)
                     {
-
                         j = g_sp->sectnum;
                         pushmove(&g_sp->x,&g_sp->y,&g_sp->z,(short*)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
                         if (j != g_sp->sectnum && j >= 0 && j < MAXSECTORS)
@@ -4582,44 +4579,40 @@ SKIPJIBS:
         }
 
     case CON_INITTIMER:
-    insptr++;    
-    {
-        int i = GetGameVarID(*insptr++, g_i, g_p);
-        if (timer != i)
+        insptr++;    
+        j = GetGameVarID(*insptr++, g_i, g_p);
+        if (timer != j)
         {
             uninittimer();
-            inittimer(i);
-            timer = i;
+            inittimer(j);
+            timer = j;
         }
         break;
-    }
 
     case CON_TIME:
-    {
         insptr += 2;
         break;
-    }
 
     case CON_ESPAWNVAR:
     case CON_EQSPAWNVAR:
     case CON_QSPAWNVAR:
     insptr++;
     {
-        int lIn=GetGameVarID(*insptr++, g_i, g_p), lReturn=-1;
-
+        int lIn=GetGameVarID(*insptr++, g_i, g_p);
+        j = -1;
         if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-            lReturn = spawn(g_i, lIn);
+            j = spawn(g_i, lIn);
         switch (tw)
         {
         case CON_EQSPAWNVAR:
-            if (lReturn != -1)
-                insertspriteq(lReturn);
+            if (j != -1)
+                insertspriteq(j);
         case CON_ESPAWNVAR:
-            SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
+            SetGameVarID(g_iReturnVarID, j, g_i, g_p);
             break;
         case CON_QSPAWNVAR:
-            if (lReturn != -1)
-                insertspriteq(lReturn);
+            if (j != -1)
+                insertspriteq(j);
             break;
         }
         break;
@@ -4628,34 +4621,32 @@ SKIPJIBS:
     case CON_ESPAWN:
     case CON_EQSPAWN:
     case CON_QSPAWN:
-    {
-        long lReturn=-1;
-
         insptr++;
+        
+        j=-1;
+       
         if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-            lReturn = spawn(g_i,*insptr++);
+            j = spawn(g_i,*insptr++);
         else insptr++;
 
         switch (tw)
         {
         case CON_EQSPAWN:
-            if (lReturn != -1)
-                insertspriteq(lReturn);
+            if (j != -1)
+                insertspriteq(j);
         case CON_ESPAWN:
-            SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
+            SetGameVarID(g_iReturnVarID, j, g_i, g_p);
             break;
         case CON_QSPAWN:
-            if (lReturn != -1)
-                insertspriteq(lReturn);
+            if (j != -1)
+                insertspriteq(j);
             break;
         }
         break;
-    }
 
     case CON_ESHOOT:
     case CON_EZSHOOT:
     case CON_ZSHOOT:
-    {
         insptr++;
         
         if (tw == CON_ZSHOOT || tw == CON_EZSHOOT)
@@ -4674,7 +4665,6 @@ SKIPJIBS:
 
         hittype[g_i].temp_data[9]=0;
         break;
-    }
 
     case CON_SHOOTVAR:
     case CON_ESHOOTVAR:
@@ -4706,29 +4696,27 @@ SKIPJIBS:
     case CON_STOPSOUNDVAR:
     case CON_SOUNDONCEVAR:
     case CON_GLOBALSOUNDVAR:
-    insptr++;    
-    {
-        int sound=GetGameVarID(*insptr++, g_i, g_p);
+        insptr++;    
+        j=GetGameVarID(*insptr++, g_i, g_p);
 
         switch (tw)
         {
         case CON_SOUNDONCEVAR:
-            if (!isspritemakingsound(g_i,sound))
-                spritesound((short)sound,g_i);
+            if (!isspritemakingsound(g_i,j))
+                spritesound((short)j,g_i);
             break;
         case CON_GLOBALSOUNDVAR:
-            spritesound((short)sound,ps[screenpeek].i);
+            spritesound((short)j,ps[screenpeek].i);
             break;
         case CON_STOPSOUNDVAR:
-            if (isspritemakingsound(g_i,sound))
-                stopspritesound((short)sound,g_i);
+            if (isspritemakingsound(g_i,j))
+                stopspritesound((short)j,g_i);
             break;
         case CON_SOUNDVAR:
-            spritesound((short)sound,g_i);
+            spritesound((short)j,g_i);
             break;
         }
         break;
-    }
 
     case CON_GUNIQHUDID:
         insptr++;
@@ -5037,23 +5025,22 @@ SKIPJIBS:
         break;
 
     case CON_SAVE:
+    insptr++;    
     {
-        int i;
         time_t curtime;
 
-        insptr++;
-        i = *insptr++;
-        if (movesperpacket == 4 && connecthead != myconnectindex)
+        lastsavedpos = *insptr++;
+
+        if ((movesperpacket == 4 && connecthead != myconnectindex) || lastsavedpos > 9)
             break;
 
-        lastsavedpos = i;
         curtime = time(NULL);
         Bstrcpy(tempbuf,asctime(localtime(&curtime)));
         clearbuf(ud.savegame[lastsavedpos],sizeof(ud.savegame[lastsavedpos]),0);
         Bsprintf(ud.savegame[lastsavedpos],"Auto");
-        for (i=0;i<13;i++)
-            Bmemcpy(&ud.savegame[lastsavedpos][i+4],&tempbuf[i+3],sizeof(tempbuf[i+3]));
-        ud.savegame[lastsavedpos][i+4] = '\0';
+        for (j=0;j<13;j++)
+            Bmemcpy(&ud.savegame[lastsavedpos][j+4],&tempbuf[j+3],sizeof(tempbuf[j+3]));
+        ud.savegame[lastsavedpos][j+4] = '\0';
         OSD_Printf("Saving to slot %d\n",lastsavedpos);
 
         KB_FlushKeyboardQueue();
@@ -5463,15 +5450,16 @@ SKIPJIBS:
             {
                 m = -1;
                 lVarID ^= (MAXGAMEVARS<<1);
-                goto good;
             }
-            // invalid varID
-            insptr++;
-            Bsprintf(g_szBuf,"CONLOGVAR: L=%ld INVALID VARIABLE",l);
-            AddLog(g_szBuf);
-            break;  // out of switch
+            else
+            {
+                // invalid varID
+                insptr++;
+                Bsprintf(g_szBuf,"CONLOGVAR: L=%ld INVALID VARIABLE",l);
+                AddLog(g_szBuf);
+                break;  // out of switch
+            }
         }
-good:
         Bsprintf(szBuf,"CONLOGVAR: L=%ld %s ",l, aGameVars[lVarID].szLabel);
         strcpy(g_szBuf,szBuf);
 
@@ -5900,12 +5888,6 @@ good:
         insptr += 2;
         break;
 
-    case CON_SETVARVAR:
-        insptr++;    
-        SetGameVarID(*insptr, GetGameVarID(*(insptr+1), g_i, g_p), g_i, g_p);
-        insptr += 2;
-        break;
-
     case CON_RANDVAR:
         insptr++;    
         SetGameVarID(*insptr, mulscale(krand(), *(insptr+1)+1, 16), g_i, g_p);
@@ -5956,6 +5938,12 @@ good:
         insptr++;    
         SetGameVarID(*insptr,GetGameVarID(*insptr, g_i, g_p) ^ *(insptr+1), g_i, g_p);
         insptr += 2;
+        break;
+
+    case CON_SETVARVAR:
+        insptr++;
+        j=*insptr++;    
+        SetGameVarID(j, GetGameVarID(*insptr++, g_i, g_p), g_i, g_p);
         break;
 
     case CON_RANDVARVAR:

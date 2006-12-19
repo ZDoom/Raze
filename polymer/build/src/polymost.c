@@ -81,7 +81,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
-#define FOGSCALE 0.0000680
+#define FOGSCALE 0.0000640
 #define PI 3.14159265358979323
 
 float shadescale = 1.050;

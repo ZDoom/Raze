@@ -2586,12 +2586,9 @@ static void moveweapons(void)
 
                         if (thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFSPRITES)
                         {
-                            if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
-                                s->yvel--;
+                            s->yvel--;
 
-                            k = getangle(
-                                    wall[wall[j].point2].x-wall[j].x,
-                                    wall[wall[j].point2].y-wall[j].y);
+                            k = getangle(sprite[j].x-s->x,sprite[j].y-s->y)+(sprite[j].cstat&16?0:512);
                             s->ang = ((k<<1) - s->ang)&2047;
 
                             if (thisprojectile[i].bsound > -1)

@@ -423,7 +423,7 @@ long GetGameVarID(int id, short sActor, short sPlayer)
         if (id==MAXGAMEVARS)
             return(*insptr++);
             
-        if (!id&(MAXGAMEVARS<<1))
+        if (!(id&(MAXGAMEVARS<<1)))
         {
             AddLog("GetGameVarID: Invalid Game ID");
             return -1;
