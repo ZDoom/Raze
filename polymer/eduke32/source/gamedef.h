@@ -53,8 +53,8 @@ extern long lastvisinc;
 extern void adduserquote(char *daquote);
 extern char cheatquotes[][MAXCHEATLEN];
 extern char compilefile[BMAX_PATH];
-extern short total_lines,line_number;
-
+extern int total_lines,line_number;
+extern int error,warning;
 typedef struct _labels {
     char *name;
     long lId;

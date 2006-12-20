@@ -322,7 +322,8 @@ long tag;
 
 extern struct animwalltype animwall[MAXANIMWALLS];
 
-extern short numanimwalls,probey,lastprobey;
+extern short numanimwalls;
+extern int probey,lastprobey;
 
 extern char typebuflen,typebuf[141];
 extern char MusicPtr[72000*2];
@@ -468,7 +469,7 @@ extern char sounds[NUM_SOUNDS][BMAX_PATH];
 // JBF 20040531: adding 16 extra to the script so we have some leeway
 // to (hopefully) safely abort when hitting the limit
 extern long script[MAXSCRIPTSIZE+16],*scriptptr,*insptr,*labelcode,labelcnt,defaultlabelcnt,*labeltype;
-extern char *label,*textptr,error,warning,killit_flag;
+extern char *label;
 extern long *actorscrptr[MAXTILES],*parsing_actor;
 extern long *actorLoadEventScrptr[MAXTILES];
 extern char actortype[MAXTILES];
@@ -567,10 +568,10 @@ extern char *level_file_names[MAXVOLUMES*MAXLEVELS];
 extern char num_volumes;
 
 extern int32 SoundToggle,MusicToggle;
-extern short last_threehundred,lastsavedpos;
+extern int last_threehundred,lastsavedpos;
 extern char restorepalette;
 
-extern short buttonstat;
+extern int buttonstat;
 extern long cachecount;
 extern char boardfilename[BMAX_PATH],waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];
 extern char cachedebug,earthquaketime;

@@ -28,10 +28,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern char inputloc;
 extern int recfilep;
 //extern char vgacompatible;
-short probey=0,lastprobey=0,globalskillsound=-1,last_probey=0;
-int last_menu;
-short sh,onbar,buttonstat,deletespot;
-short last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehundred = 0;
+short globalskillsound=-1;
+int probey=0,lastprobey=0,last_probey=0,last_menu,sh,onbar,buttonstat,deletespot;
+int last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehundred = 0;
 
 static char menunamecnt;
 
@@ -48,7 +47,7 @@ static char *mousebuttonnames[] = { "Left", "Right", "Middle", "Thumb", "Wheel D
 
 extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting;
 
-void cmenu(short cm)
+void cmenu(int cm)
 {
     current_menu = cm;
 
@@ -475,11 +474,11 @@ extern int loadpheader(char spot,struct savehead *saveh);
 static struct savehead savehead;
 //static int32 volnum,levnum,plrskl,numplr;
 //static char brdfn[BMAX_PATH];
-short lastsavedpos = -1;
+int lastsavedpos = -1;
 
 static void dispnames(void)
 {
-    short x, c = 160;
+    int x, c = 160;
 
     c += 64;
     for (x = 0;x <= 108;x += 12)
@@ -572,7 +571,7 @@ void sendquit(void)
 void menus(void)
 {
     CACHE1D_FIND_REC *dir;
-    short c,x,i;
+    int c,x,i;
     long l,m;
     char *p = NULL;
 

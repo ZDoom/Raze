@@ -28,9 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "osd.h"
 
-static short g_i,g_p;
+static int g_i,g_p;
 static long g_x,*g_t;
 static spritetype *g_sp;
+int killit_flag;
 
 extern int32 scripthandle;
 
@@ -3002,16 +3003,11 @@ static void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 
 static int parse(void);
 
-void OnEvent(int iEventID, short sActor,short sPlayer,long lDist)
+void OnEvent(int iEventID, int iActor, int iPlayer, long lDist)
 {
-    short og_i,og_p;
-    long og_x;
-    long *og_t;
+    int og_i, og_p, okillit_flag;
+    long og_x, *og_t, *oinsptr;
     spritetype *og_sp;
-    char okillit_flag;
-    long *oinsptr;
-
-    int done;
 
     if (iEventID >= MAXGAMEEVENTS)
     {
@@ -3035,8 +3031,8 @@ void OnEvent(int iEventID, short sActor,short sPlayer,long lDist)
     okillit_flag=killit_flag;
     oinsptr=insptr;
 
-    g_i = sActor;    // current sprite ID
-    g_p = sPlayer;    // current player ID
+    g_i = iActor;    // current sprite ID
+    g_p = iPlayer;    // current player ID
     g_x = lDist;    // ?
     g_sp = &sprite[g_i];
     g_t = &hittype[g_i].temp_data[0];
@@ -3046,9 +3042,8 @@ void OnEvent(int iEventID, short sActor,short sPlayer,long lDist)
     //AddLog(g_szBuf);
 
     killit_flag = 0;
-    do
-        done = parse();
-    while (done == 0);
+
+    while (1) if (parse()) break;
 
     if (killit_flag == 1)
     {
@@ -3114,9 +3109,7 @@ static long ifsquished(short i, short p)
 
 static void forceplayerangle(struct player_struct *p)
 {
-    short n;
-
-    n = 128-(TRAND&255);
+    int n = 128-(TRAND&255);
 
     p->horiz += 64;
     p->return_to_center = 9;
@@ -3126,13 +3119,10 @@ static void forceplayerangle(struct player_struct *p)
 
 static char dodge(spritetype *s)
 {
-    short i;
-    long bx,by,mx,my,bxvect,byvect,mxvect,myvect,d;
-
-    mx = s->x;
-    my = s->y;
-    mxvect = sintable[(s->ang+512)&2047];
-    myvect = sintable[s->ang&2047];
+    long bx,by,bxvect,byvect,d,i;
+    long mx = s->x, my = s->y;
+    long mxvect = sintable[(s->ang+512)&2047];
+    long myvect = sintable[s->ang&2047];
 
     for (i=headspritestat[4];i>=0;i=nextspritestat[i]) //weapons list
     {
@@ -3158,14 +3148,13 @@ static char dodge(spritetype *s)
     return 0;
 }
 
-short furthestangle(short sActor,short angs)
+int furthestangle(int iActor,int angs)
 {
-    short j, hitsect,hitwall,hitspr,furthest_angle=0, angincs;
-    long hx, hy, hz, d, greatestd;
-    spritetype *s = &sprite[sActor];
-
-    greatestd = -(1<<30);
-    angincs = 2048/angs;
+    short hitsect,hitwall,hitspr,furthest_angle=0;
+    long hx, hy, hz, d;
+    spritetype *s = &sprite[iActor];
+    long greatestd = -(1<<30);
+    int angincs = 2048/angs,j;
 
     if (s->picnum != APLAYER)
         if ((g_t[0]&63) > 2) return(s->ang + 1024);
@@ -3188,11 +3177,12 @@ short furthestangle(short sActor,short angs)
     return (furthest_angle&2047);
 }
 
-short furthestcanseepoint(short sActor,spritetype *ts,long *dax,long *day)
+int furthestcanseepoint(int iActor,spritetype *ts,long *dax,long *day)
 {
-    short j, hitsect,hitwall,hitspr, angincs;
+    short hitsect,hitwall,hitspr, angincs;
     long hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
-    spritetype *s = &sprite[sActor];
+    int j;
+    spritetype *s = &sprite[iActor];
 
     if ((g_t[0]&63)) return -1;
 
@@ -3221,11 +3211,11 @@ short furthestcanseepoint(short sActor,spritetype *ts,long *dax,long *day)
     return -1;
 }
 
-void getglobalz(short sActor)
+void getglobalz(int iActor)
 {
     long hz,lz,zr;
 
-    spritetype *s = &sprite[sActor];
+    spritetype *s = &sprite[iActor];
 
     if (s->statnum == 10 || s->statnum == 6 || s->statnum == 2 || s->statnum == 1 || s->statnum == 4)
     {
@@ -3234,7 +3224,7 @@ void getglobalz(short sActor)
         if (s->statnum == 4)
             zr = 4L;
 
-        getzrange(s->x,s->y,s->z-(FOURSLEIGHT),s->sectnum,&hittype[sActor].ceilingz,&hz,&hittype[sActor].floorz,&lz,zr,CLIPMASK0);
+        getzrange(s->x,s->y,s->z-(FOURSLEIGHT),s->sectnum,&hittype[iActor].ceilingz,&hz,&hittype[iActor].floorz,&lz,zr,CLIPMASK0);
 
         if ((lz&49152) == 49152 && (sprite[lz&(MAXSPRITES-1)].cstat&48) == 0)
         {
@@ -3243,35 +3233,35 @@ void getglobalz(short sActor)
             {
                 if (s->statnum != 4)
                 {
-                    hittype[sActor].dispicnum = -4; // No shadows on actors
+                    hittype[iActor].dispicnum = -4; // No shadows on actors
                     s->xvel = -256;
-                    ssp(sActor,CLIPMASK0);
+                    ssp(iActor,CLIPMASK0);
                 }
             }
             else if (sprite[lz].picnum == APLAYER && badguy(s))
             {
-                hittype[sActor].dispicnum = -4; // No shadows on actors
+                hittype[iActor].dispicnum = -4; // No shadows on actors
                 s->xvel = -256;
-                ssp(sActor,CLIPMASK0);
+                ssp(iActor,CLIPMASK0);
             }
             else if (s->statnum == 4 && sprite[lz].picnum == APLAYER)
                 if (s->owner == lz)
                 {
-                    hittype[sActor].ceilingz = sector[s->sectnum].ceilingz;
-                    hittype[sActor].floorz   = sector[s->sectnum].floorz;
+                    hittype[iActor].ceilingz = sector[s->sectnum].ceilingz;
+                    hittype[iActor].floorz   = sector[s->sectnum].floorz;
                 }
         }
     }
     else
     {
-        hittype[sActor].ceilingz = sector[s->sectnum].ceilingz;
-        hittype[sActor].floorz   = sector[s->sectnum].floorz;
+        hittype[iActor].ceilingz = sector[s->sectnum].ceilingz;
+        hittype[iActor].floorz   = sector[s->sectnum].floorz;
     }
 }
 
-void makeitfall(short sActor)
+void makeitfall(int iActor)
 {
-    spritetype *s = &sprite[sActor];
+    spritetype *s = &sprite[iActor];
     long hz,lz,c;
 
     if (floorspace(s->sectnum))
@@ -3284,14 +3274,14 @@ void makeitfall(short sActor)
     }
 
     if ((s->statnum == 1 || s->statnum == 10 || s->statnum == 2 || s->statnum == 6))
-        getzrange(s->x,s->y,s->z-(FOURSLEIGHT),s->sectnum,&hittype[sActor].ceilingz,&hz,&hittype[sActor].floorz,&lz,127L,CLIPMASK0);
+        getzrange(s->x,s->y,s->z-(FOURSLEIGHT),s->sectnum,&hittype[iActor].ceilingz,&hz,&hittype[iActor].floorz,&lz,127L,CLIPMASK0);
     else
     {
-        hittype[sActor].ceilingz = sector[s->sectnum].ceilingz;
-        hittype[sActor].floorz   = sector[s->sectnum].floorz;
+        hittype[iActor].ceilingz = sector[s->sectnum].ceilingz;
+        hittype[iActor].floorz   = sector[s->sectnum].floorz;
     }
 
-    if (s->z < hittype[sActor].floorz-(FOURSLEIGHT))
+    if (s->z < hittype[iActor].floorz-(FOURSLEIGHT))
     {
         if (sector[s->sectnum].lotag == 2 && s->zvel > 3122)
             s->zvel = 3144;
@@ -3300,14 +3290,14 @@ void makeitfall(short sActor)
         else s->zvel = 6144;
         s->z += s->zvel;
     }
-    if (s->z >= hittype[sActor].floorz-(FOURSLEIGHT))
+    if (s->z >= hittype[iActor].floorz-(FOURSLEIGHT))
     {
-        s->z = hittype[sActor].floorz - FOURSLEIGHT;
+        s->z = hittype[iActor].floorz - FOURSLEIGHT;
         s->zvel = 0;
     }
 }
 
-short getincangle(short a,short na)
+int getincangle(int a,int na)
 {
     a &= 2047;
     na &= 2047;
@@ -3323,10 +3313,11 @@ short getincangle(short a,short na)
     return (na-a);
 }
 
-static void alterang(short a)
+static void alterang(int a)
 {
-    short aang, angdif, goalang,j;
+    short aang, angdif, goalang;
     long ticselapsed, *moveptr;
+    int j;
 
     moveptr = (long *)g_t[1];
 
@@ -6405,12 +6396,10 @@ static int parse(void)
     return 0;
 }
 
-void LoadActor(long sActor)
+void LoadActor(long iActor)
 {
-    char done;
-
-    g_i = sActor;    // Sprite ID
-    g_p = -1; // sPlayer;    // Player ID
+    g_i = iActor;    // Sprite ID
+    g_p = -1; // iPlayer;    // Player ID
     g_x = -1; // lDist;    // ??
     g_sp = &sprite[g_i];    // Pointer to sprite structure
     g_t = &hittype[g_i].temp_data[0];   // Sprite's 'extra' data
@@ -6428,9 +6417,8 @@ void LoadActor(long sActor)
         deletesprite(g_i);
         return;
     }
-    do
-        done = parse();
-    while (done == 0);
+    
+    while (1) if (parse()) break;
 
     if (killit_flag == 1)
     {
@@ -6446,8 +6434,6 @@ void LoadActor(long sActor)
 
 void execute(int iActor,int iPlayer,long lDist)
 {
-    char done;
-
     g_i = iActor;    // Sprite ID
     g_p = iPlayer;   // Player ID
     g_x = lDist;     // ??
@@ -6483,9 +6469,7 @@ void execute(int iActor,int iPlayer,long lDist)
             g_t[3] = 0;
     }
 
-    do
-        done = parse();
-    while (done == 0);
+    while (1) if (parse()) break;
 
     if (killit_flag == 1)
     {

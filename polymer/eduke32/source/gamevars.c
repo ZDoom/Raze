@@ -382,15 +382,15 @@ char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
     }
 }
 
-void ResetActorGameVars(short sActor)
+void ResetActorGameVars(int iActor)
 {
     int i;
-    //    OSD_Printf("resetting vars for actor %d\n",sActor);
+    //    OSD_Printf("resetting vars for actor %d\n",iActor);
     for (i=0;i<MAXGAMEVARS;i++)
         if ((aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR) && !(aGameVars[i].dwFlags & GAMEVAR_FLAG_NODEFAULT))
         {
-            //            OSD_Printf("reset %s (%d) to %s (%d)\n",aGameVars[i].szLabel,aGameVars[i].plValues[sActor],aDefaultGameVars[i].szLabel,aDefaultGameVars[i].lValue);
-            aGameVars[i].plValues[sActor]=aDefaultGameVars[i].lValue;
+            //            OSD_Printf("reset %s (%d) to %s (%d)\n",aGameVars[i].szLabel,aGameVars[i].plValues[iActor],aDefaultGameVars[i].szLabel,aDefaultGameVars[i].lValue);
+            aGameVars[i].plValues[iActor]=aDefaultGameVars[i].lValue;
         }
 }
 
@@ -411,12 +411,12 @@ static int GetGameID(char *szGameLabel)
     return -1;
 }
 
-long GetGameVarID(int id, short sActor, short sPlayer)
+long GetGameVarID(int id, int iActor, int iPlayer)
 {
     int inv=0;
     
     if (id == g_iThisActorID)
-        return sActor;
+        return iActor;
     
     if (id<0 || id >= iGameVarCount)
     {
@@ -436,12 +436,12 @@ long GetGameVarID(int id, short sActor, short sPlayer)
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER)
     {
         // for the current player
-        if (sPlayer >=0 && sPlayer < MAXPLAYERS)
+        if (iPlayer >=0 && iPlayer < MAXPLAYERS)
         {
-            //Bsprintf(g_szBuf,"GetGameVarID(%d, %d, %d) returns %ld\n",id,sActor,sPlayer, aGameVars[id].plValues[sPlayer]);
+            //Bsprintf(g_szBuf,"GetGameVarID(%d, %d, %d) returns %ld\n",id,iActor,iPlayer, aGameVars[id].plValues[iPlayer]);
             //AddLog(g_szBuf);
-            if (inv) return (-aGameVars[id].plValues[sPlayer]);
-            return (aGameVars[id].plValues[sPlayer]);
+            if (inv) return (-aGameVars[id].plValues[iPlayer]);
+            return (aGameVars[id].plValues[iPlayer]);
         }
         
         if (inv) return (-aGameVars[id].lValue);
@@ -451,10 +451,10 @@ long GetGameVarID(int id, short sActor, short sPlayer)
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR)
     {
         // for the current actor
-        if (sActor >= 0 && sActor <=MAXSPRITES)
+        if (iActor >= 0 && iActor <=MAXSPRITES)
         {
-            if (inv) return (-aGameVars[id].plValues[sActor]);
-            return (aGameVars[id].plValues[sActor]);
+            if (inv) return (-aGameVars[id].plValues[iActor]);
+            return (aGameVars[id].plValues[iActor]);
         }
         
         if (inv) return (-aGameVars[id].lValue);
@@ -471,26 +471,26 @@ long GetGameVarID(int id, short sActor, short sPlayer)
     return (aGameVars[id].lValue);
 }
 
-void SetGameVarID(int id, long lValue, short sActor, short sPlayer)
+void SetGameVarID(int id, long lValue, int iActor, int iPlayer)
 {
     if (id<0 || id >= iGameVarCount)
     {
         AddLog("Invalid Game ID");
         return;
     }
-    //Bsprintf(g_szBuf,"SGVI: %d ('%s') to %ld for %d %d",id,aGameVars[id].szLabel,lValue,sActor,sPlayer);
+    //Bsprintf(g_szBuf,"SGVI: %d ('%s') to %ld for %d %d",id,aGameVars[id].szLabel,lValue,iActor,iPlayer);
     //AddLog(g_szBuf);
-    if ((aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER) && (sPlayer != -1))
+    if ((aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER) && (iPlayer != -1))
     {
         // for the current player
-        aGameVars[id].plValues[sPlayer]=lValue;
+        aGameVars[id].plValues[iPlayer]=lValue;
         return;
     }
     
-    if ((aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR) && (sActor != -1))
+    if ((aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR) && (iActor != -1))
     {
         // for the current actor
-        aGameVars[id].plValues[sActor]=lValue;
+        aGameVars[id].plValues[iActor]=lValue;
         return;
     }
     
@@ -504,7 +504,7 @@ void SetGameVarID(int id, long lValue, short sActor, short sPlayer)
     aGameVars[id].lValue=lValue;
 }
 
-long GetGameVar(char *szGameLabel, long lDefault, short sActor, short sPlayer)
+long GetGameVar(char *szGameLabel, long lDefault, int iActor, int iPlayer)
 {
     int i=0;
     for (;i<iGameVarCount;i++)
@@ -513,7 +513,7 @@ long GetGameVar(char *szGameLabel, long lDefault, short sActor, short sPlayer)
         {
             if (Bstrcmp(szGameLabel, aGameVars[i].szLabel) == 0)
             {
-                return GetGameVarID(i, sActor, sPlayer);
+                return GetGameVarID(i, iActor, iPlayer);
             }
         }
     }

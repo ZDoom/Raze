@@ -153,8 +153,7 @@ void addweaponnoswitch(struct player_struct *p, short weapon)
 
 void addweapon(struct player_struct *p,short weapon)
 {
-    short snum;
-    snum = sprite[p->i].yvel;
+    int snum = sprite[p->i].yvel;
 
     addweaponnoswitch(p,weapon);
 
@@ -549,7 +548,7 @@ int movesprite(short spritenum, long xchange, long ychange, long zchange, unsign
     return(retval);
 }
 
-short ssp(short i,unsigned long cliptype) //The set sprite function
+int ssp(int i,unsigned long cliptype) //The set sprite function
 {
     spritetype *s;
     long movetype;
@@ -834,11 +833,9 @@ static void movefta(void)
     }
 }
 
-short ifhitsectors(short sectnum)
+int ifhitsectors(int sectnum)
 {
-    short i;
-
-    i = headspritestat[5];
+    int i = headspritestat[5];
     while (i >= 0)
     {
         if (PN == EXPLOSION2 && sectnum == SECT)
@@ -848,9 +845,9 @@ short ifhitsectors(short sectnum)
     return -1;
 }
 
-short ifhitbyweapon(short sn)
+int ifhitbyweapon(int sn)
 {
-    short j,p;
+    int j,p;
     spritetype *npc;
 
     if (hittype[sn].extra >= 0)

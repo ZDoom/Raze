@@ -113,7 +113,7 @@ long vel, svel, angvel, horiz, ototalclock, respawnactortime=768, respawnitemtim
 
 long *scriptptr,*insptr,*labelcode,labelcnt,defaultlabelcnt,*labeltype;
 long *actorscrptr[MAXTILES],*parsing_actor;
-char *label,*textptr,error,warning,killit_flag;
+char *label;
 char *music_pointer;
 char actortype[MAXTILES];
 long script[MAXSCRIPTSIZE+16];

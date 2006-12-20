@@ -523,15 +523,14 @@ void vscrn(void)
     pus = NUMPAGES;
 }
 
-void pickrandomspot(short snum)
+void pickrandomspot(int snum)
 {
     struct player_struct *p;
-    short i=0,j,k;
+    int i=snum,j,k;
     unsigned long dist,pdist = -1;
 
     p = &ps[snum];
 
-    i = snum;
     if (ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_FIXEDRESPAWN))
     {
         i = TRAND%numplayersprites;
@@ -560,7 +559,7 @@ void pickrandomspot(short snum)
     p->cursectnum = po[i].os;
 }
 
-static void resetplayerstats(short snum)
+static void resetplayerstats(int snum)
 {
     struct player_struct *p;
 
@@ -670,9 +669,9 @@ static void resetplayerstats(short snum)
     OnEvent(EVENT_RESETPLAYER, p->i, snum, -1);
 }
 
-void resetweapons(short snum)
+void resetweapons(int snum)
 {
-    short  weapon;
+    int weapon;
     struct player_struct *p;
 
     p = &ps[snum];
@@ -697,7 +696,7 @@ void resetweapons(short snum)
     OnEvent(EVENT_RESETWEAPONS, p->i, snum, -1);
 }
 
-void resetinventory(short snum)
+void resetinventory(int snum)
 {
     struct player_struct *p;
 
@@ -720,10 +719,10 @@ void resetinventory(short snum)
     OnEvent(EVENT_RESETINVENTORY, p->i, snum, -1);
 }
 
-static void resetprestat(short snum,char g)
+static void resetprestat(int snum,int g)
 {
     struct player_struct *p;
-    short i;
+    int i;
 
     p = &ps[snum];
 

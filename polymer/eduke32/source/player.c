@@ -299,7 +299,7 @@ static short aim(spritetype *s,short aang,short atwith)
     return j;
 }
 
-short shoot(short i,short atwith)
+int shoot(int i,int atwith)
 {
     short sect, hitsect, hitspr, hitwall, l, sa, p, j, k=-1, wh, scount;
     long sx, sy, sz, vel, zvel, hitx, hity, hitz, x, oldzvel, dal;
@@ -1793,7 +1793,7 @@ SKIPBULLETHOLE:
     return -1;
 }
 
-static void displayloogie(short snum)
+static void displayloogie(int snum)
 {
     long i, a, x, y, z;
 
@@ -1812,16 +1812,16 @@ static void displayloogie(short snum)
     }
 }
 
-static int animatefist(const short *gs,const short *snum)
+static int animatefist(int gs,int snum)
 {
-    short looking_arc,fisti,fistpal;
+    int looking_arc,fisti,fistpal;
     long fistzoom, fistz;
 
-    fisti = ps[*snum].fist_incs;
+    fisti = ps[snum].fist_incs;
     if (fisti > 32) fisti = 32;
     if (fisti <= 0) return 0;
 
-    looking_arc = klabs(ps[*snum].look_ang)/9;
+    looking_arc = klabs(ps[snum].look_ang)/9;
 
     fistzoom = 65536L - (sintable[(512+(fisti<<6))&2047]<<2);
     if (fistzoom > 90612L)
@@ -1830,61 +1830,61 @@ static int animatefist(const short *gs,const short *snum)
         fistzoom = 40290;
     fistz = 194 + (sintable[((6+fisti)<<7)&2047]>>9);
 
-    if (sprite[ps[*snum].i].pal == 1)
+    if (sprite[ps[snum].i].pal == 1)
         fistpal = 1;
     else
-        fistpal = sector[ps[*snum].cursectnum].floorpal;
+        fistpal = sector[ps[snum].cursectnum].floorpal;
 
     rotatesprite(
-        (-fisti+222+(sync[*snum].avel>>4))<<16,
+        (-fisti+222+(sync[snum].avel>>4))<<16,
         (looking_arc+fistz)<<16,
-        fistzoom,0,FIST,*gs,fistpal,2,0,0,xdim-1,ydim-1);
+        fistzoom,0,FIST,gs,fistpal,2,0,0,xdim-1,ydim-1);
 
     return 1;
 }
 
-static int animateknee(const short *gs,const short *snum)
+static int animateknee(int gs,int snum)
 {
     short knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
-    short looking_arc, pal;
+    int looking_arc, pal;
 
-    if (ps[*snum].knee_incs > 11 || ps[*snum].knee_incs == 0 || sprite[ps[*snum].i].extra <= 0) return 0;
+    if (ps[snum].knee_incs > 11 || ps[snum].knee_incs == 0 || sprite[ps[snum].i].extra <= 0) return 0;
 
-    looking_arc = knee_y[ps[*snum].knee_incs] + klabs(ps[*snum].look_ang)/9;
+    looking_arc = knee_y[ps[snum].knee_incs] + klabs(ps[snum].look_ang)/9;
 
-    looking_arc -= (ps[*snum].hard_landing<<3);
+    looking_arc -= (ps[snum].hard_landing<<3);
 
-    if (sprite[ps[*snum].i].pal == 1)
+    if (sprite[ps[snum].i].pal == 1)
         pal = 1;
     else
     {
-        pal = sector[ps[*snum].cursectnum].floorpal;
+        pal = sector[ps[snum].cursectnum].floorpal;
         if (pal == 0)
-            pal = ps[*snum].palookup;
+            pal = ps[snum].palookup;
     }
 
-    myospal(105+(sync[*snum].avel>>4)-(ps[*snum].look_ang>>1)+(knee_y[ps[*snum].knee_incs]>>2),looking_arc+280-((ps[*snum].horiz-ps[*snum].horizoff)>>4),KNEE,*gs,4,pal);
+    myospal(105+(sync[snum].avel>>4)-(ps[snum].look_ang>>1)+(knee_y[ps[snum].knee_incs]>>2),looking_arc+280-((ps[snum].horiz-ps[snum].horizoff)>>4),KNEE,gs,4,pal);
 
     return 1;
 }
 
-static int animateknuckles(const short *gs,const short *snum)
+static int animateknuckles(int gs,int snum)
 {
     short knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
-    short looking_arc, pal;
+    int looking_arc, pal;
 
-    if (ps[*snum].knuckle_incs == 0 || sprite[ps[*snum].i].extra <= 0) return 0;
+    if (ps[snum].knuckle_incs == 0 || sprite[ps[snum].i].extra <= 0) return 0;
 
-    looking_arc = klabs(ps[*snum].look_ang)/9;
+    looking_arc = klabs(ps[snum].look_ang)/9;
 
-    looking_arc -= (ps[*snum].hard_landing<<3);
+    looking_arc -= (ps[snum].hard_landing<<3);
 
-    if (sprite[ps[*snum].i].pal == 1)
+    if (sprite[ps[snum].i].pal == 1)
         pal = 1;
     else
-        pal = sector[ps[*snum].cursectnum].floorpal;
+        pal = sector[ps[snum].cursectnum].floorpal;
 
-    myospal(160+(sync[*snum].avel>>4)-(ps[*snum].look_ang>>1),looking_arc+180-((ps[*snum].horiz-ps[*snum].horizoff)>>4),CRACKKNUCKLES+knuckle_frames[ps[*snum].knuckle_incs>>1],*gs,4,pal);
+    myospal(160+(sync[snum].avel>>4)-(ps[snum].look_ang>>1),looking_arc+180-((ps[snum].horiz-ps[snum].horizoff)>>4),CRACKKNUCKLES+knuckle_frames[ps[snum].knuckle_incs>>1],gs,4,pal);
 
     return 1;
 }
@@ -1893,9 +1893,7 @@ long lastvisinc;
 
 void DoFire(struct player_struct *p)
 {
-    int i;
-
-    short snum = sprite[p->i].yvel;
+    int i, snum = sprite[p->i].yvel;
 
     SetGameVarID(g_iReturnVarID,0,p->i,snum);
     OnEvent(EVENT_DOFIRE, p->i, snum, -1);
@@ -1948,9 +1946,7 @@ void DoFire(struct player_struct *p)
 
 void DoSpawn(struct player_struct *p)
 {
-    int j;
-
-    short snum = sprite[p->i].yvel;
+    int j, snum = sprite[p->i].yvel;
 
     if (!aplWeaponSpawn[p->curr_weapon][snum])
         return;
@@ -1970,9 +1966,9 @@ void DoSpawn(struct player_struct *p)
 
 }
 
-void displaymasks(short snum)
+void displaymasks(int snum)
 {
-    short p;
+    int p;
 
     if (sprite[ps[snum].i].pal == 1)
         p = 1;
@@ -1986,53 +1982,53 @@ void displaymasks(short snum)
     }
 }
 
-static int animatetip(const short *gs,const short *snum)
+static int animatetip(int gs,int snum)
 {
-    short p,looking_arc;
+    int p,looking_arc;
     short tip_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
 
-    if (ps[*snum].tipincs == 0) return 0;
+    if (ps[snum].tipincs == 0) return 0;
 
-    looking_arc = klabs(ps[*snum].look_ang)/9;
-    looking_arc -= (ps[*snum].hard_landing<<3);
+    looking_arc = klabs(ps[snum].look_ang)/9;
+    looking_arc -= (ps[snum].hard_landing<<3);
 
-    if (sprite[ps[*snum].i].pal == 1)
+    if (sprite[ps[snum].i].pal == 1)
         p = 1;
     else
-        p = sector[ps[*snum].cursectnum].floorpal;
+        p = sector[ps[snum].cursectnum].floorpal;
 
     /*    if(ps[snum].access_spritenum >= 0)
             p = sprite[ps[snum].access_spritenum].pal;
         else
             p = wall[ps[snum].access_wallnum].pal;
       */
-    myospal(170+(sync[*snum].avel>>4)-(ps[*snum].look_ang>>1),
-            (tip_y[ps[*snum].tipincs]>>1)+looking_arc+240-((ps[*snum].horiz-ps[*snum].horizoff)>>4),TIP+((26-ps[*snum].tipincs)>>4),*gs,0,p);
+    myospal(170+(sync[snum].avel>>4)-(ps[snum].look_ang>>1),
+            (tip_y[ps[snum].tipincs]>>1)+looking_arc+240-((ps[snum].horiz-ps[snum].horizoff)>>4),TIP+((26-ps[snum].tipincs)>>4),gs,0,p);
 
     return 1;
 }
 
-static int animateaccess(const short *gs,const short *snum)
+static int animateaccess(int gs,int snum)
 {
     short access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
-    short looking_arc;
-    char p;
+    int looking_arc;
+    int p;
 
-    if (ps[*snum].access_incs == 0 || sprite[ps[*snum].i].extra <= 0) return 0;
+    if (ps[snum].access_incs == 0 || sprite[ps[snum].i].extra <= 0) return 0;
 
-    looking_arc = access_y[ps[*snum].access_incs] + klabs(ps[*snum].look_ang)/9;
-    looking_arc -= (ps[*snum].hard_landing<<3);
+    looking_arc = access_y[ps[snum].access_incs] + klabs(ps[snum].look_ang)/9;
+    looking_arc -= (ps[snum].hard_landing<<3);
 
-    if (ps[*snum].access_spritenum >= 0)
-        p = sprite[ps[*snum].access_spritenum].pal;
+    if (ps[snum].access_spritenum >= 0)
+        p = sprite[ps[snum].access_spritenum].pal;
     else p = 0;
     //    else
-    //        p = wall[ps[*snum].access_wallnum].pal;
+    //        p = wall[ps[snum].access_wallnum].pal;
 
-    if ((ps[*snum].access_incs-3) > 0 && (ps[*snum].access_incs-3)>>3)
-        myospal(170+(sync[*snum].avel>>4)-(ps[*snum].look_ang>>1)+(access_y[ps[*snum].access_incs]>>2),looking_arc+266-((ps[*snum].horiz-ps[*snum].horizoff)>>4),HANDHOLDINGLASER+(ps[*snum].access_incs>>3),*gs,0,p);
+    if ((ps[snum].access_incs-3) > 0 && (ps[snum].access_incs-3)>>3)
+        myospal(170+(sync[snum].avel>>4)-(ps[snum].look_ang>>1)+(access_y[ps[snum].access_incs]>>2),looking_arc+266-((ps[snum].horiz-ps[snum].horizoff)>>4),HANDHOLDINGLASER+(ps[snum].access_incs>>3),gs,0,p);
     else
-        myospal(170+(sync[*snum].avel>>4)-(ps[*snum].look_ang>>1)+(access_y[ps[*snum].access_incs]>>2),looking_arc+266-((ps[*snum].horiz-ps[*snum].horizoff)>>4),HANDHOLDINGACCESS,*gs,4,p);
+        myospal(170+(sync[snum].avel>>4)-(ps[snum].look_ang>>1)+(access_y[ps[snum].access_incs]>>2),looking_arc+266-((ps[snum].horiz-ps[snum].horizoff)>>4),HANDHOLDINGACCESS,gs,4,p);
 
     return 1;
 }
@@ -2068,14 +2064,14 @@ short fistsign;
 
 char last_quick_kick[MAXPLAYERS];
 
-void displayweapon(short snum)
+void displayweapon(int snum)
 {
     long gun_pos, looking_arc, cw;
     long weapon_xoffset, i, j;
-    char o,pal;
+    int o,pal;
     struct player_struct *p;
     short *kb;
-    short gs;
+    int gs;
 
     p = &ps[snum];
     kb = &p->kickback_pic;
@@ -2087,10 +2083,10 @@ void displayweapon(short snum)
     gs = sprite[p->i].shade;
     if (gs > 24) gs = 24;
 
-    if (p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0) || animatefist(&gs,&snum) || animateknuckles(&gs,&snum) || animatetip(&gs,&snum) || animateaccess(&gs,&snum))
+    if (p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0) || animatefist(gs,snum) || animateknuckles(gs,snum) || animatetip(gs,snum) || animateaccess(gs,snum))
         return;
 
-    animateknee(&gs,&snum);
+    animateknee(gs,snum);
 
     gun_pos = 80-(p->weapon_pos*p->weapon_pos);
 
@@ -2665,9 +2661,9 @@ static ControlInfo lastinfo =
 
 char jump_input = 0;
 
-void getinput(short snum)
+void getinput(int snum)
 {
-    short j, daang;
+    int j, daang;
     ControlInfo info;
     int32 tics;
     boolean running;
@@ -2984,9 +2980,8 @@ void getinput(short snum)
 
 static char doincrements(struct player_struct *p)
 {
-    short snum;
-
-    snum = sprite[p->i].yvel;
+    int snum = sprite[p->i].yvel;
+    
     //    j = sync[snum].avel;
     //    p->weapon_ang = -(j/5);
 
@@ -3190,8 +3185,7 @@ short weapon_sprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATIC, SHOT
 
 void checkweapons(struct player_struct *p)
 {
-    short cw;
-    short snum = sprite[p->i].yvel;
+    int cw, snum = sprite[p->i].yvel;
 
     cw = aplWeaponWorksLike[p->curr_weapon][snum];
 
@@ -3211,14 +3205,16 @@ void checkweapons(struct player_struct *p)
     }
 }
 
-void processinput(short snum)
+void processinput(int snum)
 {
     long j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y;
-    char shrunk;
+    int shrunk;
     unsigned long sb_snum;
-    short psect, psectlotag,*kb, tempsect, pi;
-    struct player_struct *p;
-    spritetype *s;
+    int psect, psectlotag;
+    short *kb, tempsect;
+    struct player_struct *p = &ps[snum];
+    int pi = p->i;
+    spritetype *s = &sprite[pi];
 
     p = &ps[snum];
     pi = p->i;

@@ -1882,11 +1882,11 @@ void displayfragbar(void)
 
 #define SBY (200-tilesizy[BOTTOMSTATUSBAR])
 
-static void coolgaugetext(short snum)
+static void coolgaugetext(int snum)
 {
     struct player_struct *p;
     long i, j, o, ss, u;
-    char permbit;
+    int permbit;
 
     p = &ps[snum];
 
@@ -2348,9 +2348,9 @@ static void tics(void)
     framecnt = ((framecnt+1)&(AVERAGEFRAMES-1));
 }
 
-static void coords(short snum)
+static void coords(int snum)
 {
-    short y = 8;
+    int y = 8;
 
     if ((gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR))
     {
@@ -3838,12 +3838,12 @@ static void se40code(long x,long y,long z,long a,long h, long smoothratio)
 
 static long oyrepeat=-1;
 
-void displayrooms(short snum,long smoothratio)
+void displayrooms(int snum,long smoothratio)
 {
     long cposx,cposy,cposz,dst,j,fz,cz;
+    long tposx,tposy,i;    
     short sect, cang, k, choriz;
     struct player_struct *p;
-    long tposx,tposy,i;
     short tang;
     long tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
 #ifdef POLYMOST
@@ -4164,9 +4164,9 @@ static void dumpdebugdata(void)
     saveboard("debug.map",&ps[myconnectindex].posx,&ps[myconnectindex].posy,&ps[myconnectindex].posz,&ps[myconnectindex].ang,&ps[myconnectindex].cursectnum);
 }
 
-short EGS(short whatsect,long s_x,long s_y,long s_z,short s_pn,signed char s_s,signed char s_xr,signed char s_yr,short s_a,short s_ve,long s_zv,short s_ow,signed char s_ss)
+int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_yr,int s_a,int s_ve,long s_zv,int s_ow,int s_ss)
 {
-    short i;
+    int i;
     long p;
     spritetype *s;
 
@@ -4316,9 +4316,9 @@ char wallswitchcheck(short i)
     return 0;
 }
 
-short spawn(short j, short pn)
+int spawn(int j, int pn)
 {
-    short i, s, startwall, endwall, sect, clostest=0;
+    int i, s, startwall, endwall, sect, clostest=0;
     long x, y, d, p;
     spritetype *sp;
 
@@ -5036,7 +5036,7 @@ short spawn(short j, short pn)
         case SHOTGUNSHELL__STATIC:
             if (j >= 0)
             {
-                short snum,a;
+                int snum,a;
 
                 if (sprite[j].picnum == APLAYER)
                 {

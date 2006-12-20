@@ -26,9 +26,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // PRIMITIVE
 
 char haltsoundhack;
-short callsound(short sn,short whatsprite)
+int callsound(int sn,int whatsprite)
 {
-    short i;
+    int i;
     if (haltsoundhack)
     {
         haltsoundhack = 0;
@@ -72,9 +72,9 @@ short callsound(short sn,short whatsprite)
     return -1;
 }
 
-short check_activator_motion(short lotag)
+int check_activator_motion(int lotag)
 {
-    short i, j;
+    int i, j;
     spritetype *s;
 
     i = headspritestat[8];
@@ -116,7 +116,7 @@ short check_activator_motion(short lotag)
     return(0);
 }
 
-char isadoorwall(short dapic)
+int isadoorwall(int dapic)
 {
     switch (dynamictostatic[dapic])
     {
@@ -147,7 +147,7 @@ char isadoorwall(short dapic)
     return 0;
 }
 
-char isanunderoperator(short lotag)
+int isanunderoperator(int lotag)
 {
     switch (lotag&0xff)
     {
@@ -163,7 +163,7 @@ char isanunderoperator(short lotag)
     return 0;
 }
 
-char isanearoperator(short lotag)
+int isanearoperator(int lotag)
 {
     switch (lotag&0xff)
     {
@@ -185,9 +185,9 @@ char isanearoperator(short lotag)
     return 0;
 }
 
-short checkcursectnums(short sect)
+int checkcursectnums(int sect)
 {
-    short i;
+    int i;
     for (i=connecthead;i>=0;i=connectpoint2[i])
         if (sprite[ps[i].i].sectnum == sect) return i;
     return -1;
@@ -210,9 +210,9 @@ long dist(spritetype *s1,spritetype *s2)
     return(FindDistance3D(vx,vy,vz>>4));
 }
 
-short findplayer(spritetype *s,long *d)
+int findplayer(spritetype *s,long *d)
 {
-    short j, closest_player;
+    int j, closest_player;
     long x, closest;
 
     if (ud.multimode < 2)
@@ -238,9 +238,9 @@ short findplayer(spritetype *s,long *d)
     return closest_player;
 }
 
-short findotherplayer(short p,long *d)
+int findotherplayer(int p,long *d)
 {
-    short j, closest_player;
+    int j, closest_player;
     long x, closest;
 
     closest = 0x7fffffff;
@@ -982,11 +982,10 @@ REDODOOR:
     }
 }
 
-void operaterespawns(short low)
+void operaterespawns(int low)
 {
-    short i, j, nexti;
+    int j, nexti, i = headspritestat[11];
 
-    i = headspritestat[11];
     while (i >= 0)
     {
         nexti = nextspritestat[i];
@@ -1003,9 +1002,10 @@ void operaterespawns(short low)
     }
 }
 
-void operateactivators(short low,short snum)
+void operateactivators(int low,int snum)
 {
-    short i, j, k, *p;
+    int i, j, k;
+    short *p;
     walltype *wal;
 
     for (i=numcyclers-1;i>=0;i--)
@@ -1096,11 +1096,9 @@ void operateactivators(short low,short snum)
     operaterespawns(low);
 }
 
-void operatemasterswitches(short low)
+void operatemasterswitches(int low)
 {
-    short i;
-
-    i = headspritestat[6];
+    int i = headspritestat[6];
     while (i >= 0)
     {
         if (PN == MASTERSWITCH && SLT == low && SP == 0)
@@ -1109,9 +1107,9 @@ void operatemasterswitches(short low)
     }
 }
 
-void operateforcefields(short s, short low)
+void operateforcefields(short s, int low)
 {
-    short i, p;
+    int i, p;
 
     for (p=numanimwalls;p>=0;p--)
     {
@@ -1138,10 +1136,10 @@ void operateforcefields(short s, short low)
     }
 }
 
-char checkhitswitch(short snum,long w,char switchtype)
+char checkhitswitch(int snum,long w,int switchtype)
 {
     char switchpal;
-    short i, x, lotag,hitag,picnum,correctdips,numdips;
+    int i, x, lotag,hitag,picnum,correctdips,numdips;
     long sx,sy;
     int switchpicnum;
 
@@ -1597,11 +1595,9 @@ char checkhitswitch(short snum,long w,char switchtype)
 
 void activatebysector(short sect,short j)
 {
-    short i,didit;
+    int i = headspritesect[sect];
+    int didit = 0;
 
-    didit = 0;
-
-    i = headspritesect[sect];
     while (i >= 0)
     {
         if (PN == ACTIVATOR)
@@ -2524,9 +2520,9 @@ void allignwarpelevators(void)
     }
 }
 
-void sharedkeys(short snum)
+void sharedkeys(int snum)
 {
-    short i, k;
+    int i, k;
     char dainv;
     unsigned long sb_snum, j;
     struct player_struct *p;
@@ -3215,7 +3211,7 @@ static long hitawall(struct player_struct *p,short *hitw)
 }
 
 
-void checksectors(short snum)
+void checksectors(int snum)
 {
     long i = -1,oldz;
     struct player_struct *p;

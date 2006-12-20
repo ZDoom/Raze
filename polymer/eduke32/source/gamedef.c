@@ -30,16 +30,16 @@ int conversion = 13;
 char compilefile[BMAX_PATH] = "(none)";  // file we're currently compiling
 static char parsing_item_name[MAXVARLABEL] = "(none)", previous_item_name[MAXVARLABEL] = "NULL";
 
-short total_lines,line_number;
-static short checking_ifelse,parsing_state;
+int total_lines,line_number;
+static int checking_ifelse,parsing_state;
 char g_szBuf[1024];
 
 long *casescriptptr=NULL;      // the pointer to the start of the case table in a switch statement
 // first entry is 'default' code.
-int casecount = 0;
-signed short checking_switch = 0, current_event = -1;
-char labelsonly = 0, nokeywordcheck = 0, dynamicremap = 0;
-static short num_braces = 0;    // init to some sensible defaults
+static int casecount = 0;
+static int checking_switch = 0, current_event = -1;
+static int labelsonly = 0, nokeywordcheck = 0, dynamicremap = 0;
+static int num_braces = 0;    // init to some sensible defaults
 
 int redefined_quote_count = 0;
 
@@ -83,6 +83,9 @@ int iGameVarCount=0;
 MATTGAMEVAR aDefaultGameVars[MAXGAMEVARS];  // the 'original' values
 
 extern long qsetmode;
+
+char *textptr;
+int error,warning;
 
 enum labeltypes
 {
