@@ -1291,12 +1291,16 @@ static int md3draw (md3model *m, spritetype *tspr)
 
     if (m->head.flags == 1337)
     { // md2
-        m0.x = m->scale * g * m->muladdframes[m->cframe*2].x; m1.x = m->scale * f * m->muladdframes[m->nframe*2].x;
+        /*m0.x = m->scale * g * m->muladdframes[m->cframe*2].x; m1.x = m->scale * f * m->muladdframes[m->nframe*2].x;
         m0.y = m->scale * g * m->muladdframes[m->cframe*2].y; m1.y = m->scale * f * m->muladdframes[m->nframe*2].y;
         m0.z = m->scale * g * m->muladdframes[m->cframe*2].z; m1.z = m->scale * f * m->muladdframes[m->nframe*2].z;
         a0.x = m->muladdframes[m->cframe*2+1].x * m->scale; a0.x = (m->muladdframes[m->nframe*2+1].x * m->scale - a0.x)*f+a0.x;
         a0.y = m->muladdframes[m->cframe*2+1].y * m->scale; a0.y = (m->muladdframes[m->nframe*2+1].y * m->scale - a0.y)*f+a0.y;
-        a0.z = m->muladdframes[m->cframe*2+1].z * m->scale; a0.z = (m->muladdframes[m->nframe*2+1].z * m->scale - a0.z)*f+a0.z + m->zadd*m->scale;
+        a0.z = m->muladdframes[m->cframe*2+1].z * m->scale; a0.z = (m->muladdframes[m->nframe*2+1].z * m->scale - a0.z)*f+a0.z + m->zadd*m->scale;*/
+        m0.x = m->scale * g; m1.x = m->scale *f;
+        m0.y = m->scale * g; m1.y = m->scale *f;
+        m0.z = m->scale * g; m1.z = m->scale *f;
+        a0.x = a0.y = 0; a0.z = m->zadd*m->scale;
     }
     else
     {
@@ -1421,7 +1425,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
     //------------
 
     // PLAG: Cleaner model rotation code
-    if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll)
+    if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll || m->head.flags == 1337)
     {
         if (spriteext[tspr->owner].xoff)
             a0.x = (int)(spriteext[tspr->owner].xoff / (2048 * (m0.x+m1.x)));
@@ -1448,17 +1452,17 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
 
         for (i=s->numverts-1;i>=0;i--)
         {
-            if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll)
+            if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll || m->head.flags == 1337)
             {
-                fp.z = v0[i].x + a0.x;
-                fp.x = v0[i].y + a0.y;
-                fp.y = v0[i].z + a0.z;
+                fp.z = ((m->head.flags == 1337) ? (v0[i].x * m->muladdframes[m->cframe*2].x) + m->muladdframes[m->cframe*2+1].x : v0[i].x) + a0.x;
+                fp.x = ((m->head.flags == 1337) ? (v0[i].y * m->muladdframes[m->cframe*2].y) + m->muladdframes[m->cframe*2+1].y : v0[i].y) + a0.y;
+                fp.y = ((m->head.flags == 1337) ? (v0[i].z * m->muladdframes[m->cframe*2].z) + m->muladdframes[m->cframe*2+1].z : v0[i].z) + a0.z;
                 fp1.x = fp.x*k2 +       fp.y*k3;
                 fp1.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
                 fp1.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
-                fp.z = v1[i].x + a0.x;
-                fp.x = v1[i].y + a0.y;
-                fp.y = v1[i].z + a0.z;
+                fp.z = ((m->head.flags == 1337) ? (v1[i].x * m->muladdframes[m->nframe*2].x) + m->muladdframes[m->nframe*2+1].x : v1[i].x) + a0.x;
+                fp.x = ((m->head.flags == 1337) ? (v1[i].y * m->muladdframes[m->nframe*2].y) + m->muladdframes[m->nframe*2+1].y : v1[i].y) + a0.y;
+                fp.y = ((m->head.flags == 1337) ? (v1[i].z * m->muladdframes[m->nframe*2].z) + m->muladdframes[m->nframe*2+1].z : v1[i].z) + a0.z;
                 fp2.x = fp.x*k2 +       fp.y*k3;
                 fp2.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
                 fp2.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
