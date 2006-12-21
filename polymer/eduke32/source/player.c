@@ -2068,15 +2068,10 @@ void displayweapon(int snum)
 {
     long gun_pos, looking_arc, cw;
     long weapon_xoffset, i, j;
-    int o,pal;
-    struct player_struct *p;
-    short *kb;
+    int o = 0,pal;
+    struct player_struct *p = &ps[snum];
+    short *kb = &p->kickback_pic;
     int gs;
-
-    p = &ps[snum];
-    kb = &p->kickback_pic;
-
-    o = 0;
 
     looking_arc = klabs(p->look_ang)/9;
 
@@ -2669,11 +2664,8 @@ void getinput(int snum)
     boolean running;
     int32 turnamount;
     int32 keymove;
-    int32 momx,momy;
-    struct player_struct *p;
-
-    momx = momy = 0;
-    p = &ps[snum];
+    int32 momx = 0,momy = 0;
+    struct player_struct *p = &ps[snum];
 
     if ((p->gm&MODE_MENU) || (p->gm&MODE_TYPE) || (ud.pause_on && !KB_KeyPressed(sc_Pause)) || (numplayers > 1 && totalclock < 10)) // HACK: kill getinput() for the first 10 tics of a new map in multi
     {
@@ -3215,10 +3207,6 @@ void processinput(int snum)
     struct player_struct *p = &ps[snum];
     int pi = p->i;
     spritetype *s = &sprite[pi];
-
-    p = &ps[snum];
-    pi = p->i;
-    s = &sprite[pi];
 
     kb = &p->kickback_pic;
 
@@ -5180,10 +5168,9 @@ void computergetinput(long snum, input *syn)
     long dist, daang, zang, fightdist, damyang, damysect;
     long startsect, endsect, splc, send, startwall, endwall;
     short dasect, dawall, daspr;
-    struct player_struct *p;
+    struct player_struct *p = &ps[snum];
     walltype *wal;
 
-    p = &ps[snum];
     syn->fvel = 0;
     syn->svel = 0;
     syn->avel = 0;

@@ -48,7 +48,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef _WIN32
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20061214
+#define BUILDDATE 20061220
 #define UPDATEINTERVAL 86400 // 24h
 #endif
 
@@ -1432,22 +1432,22 @@ short inventory(spritetype *s)
     return 0;
 }
 
-int checkspriteflags(short sActor, int iType)
+int checkspriteflags(int iActor, int iType)
 {
     int i;
 
-    i = (spriteflags[sprite[sActor].picnum]^actorspriteflags[sActor]);
+    i = (spriteflags[sprite[iActor].picnum]^actorspriteflags[iActor]);
     if (i & iType) return 1;
     return 0;
 }
 
-inline int checkspriteflagsp(short sPicnum, int iType)
+inline int checkspriteflagsp(int iPicnum, int iType)
 {
-    if (spriteflags[sPicnum] & iType) return 1;
+    if (spriteflags[iPicnum] & iType) return 1;
     return 0;
 }
 
-int badguypic(short pn)
+int badguypic(int pn)
 {
     //this case can't be handled by the dynamictostatic system because it adds
     //stuff to the value from names.h so handling separately
@@ -1506,7 +1506,7 @@ inline int badguy(spritetype *s)
     return(badguypic(s->picnum));
 }
 
-void myos(long x, long y, short tilenum, signed char shade, char orientation)
+void myos(long x, long y, int tilenum, int shade, int orientation)
 {
     int p = sector[ps[screenpeek].cursectnum].floorpal, a = 0;
 
@@ -1516,7 +1516,7 @@ void myos(long x, long y, short tilenum, signed char shade, char orientation)
     rotatesprite(x<<16,y<<16,65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
-void myospal(long x, long y, short tilenum, signed char shade, char orientation, char p)
+void myospal(long x, long y, int tilenum, int shade, int orientation, int p)
 {
     int a = 0;
 
@@ -1526,7 +1526,7 @@ void myospal(long x, long y, short tilenum, signed char shade, char orientation,
     rotatesprite(x<<16,y<<16,65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
-void myosx(long x, long y, short tilenum, signed char shade, char orientation)
+void myosx(long x, long y, int tilenum, int shade, int orientation)
 {
     int p = sector[ps[screenpeek].cursectnum].floorpal, a = 0;
 
@@ -1536,7 +1536,7 @@ void myosx(long x, long y, short tilenum, signed char shade, char orientation)
     rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
-void myospalx(long x, long y, short tilenum, signed char shade, char orientation, char p)
+void myospalx(long x, long y, int tilenum, int shade, int orientation, int p)
 {
     int a = 0;
 
@@ -1884,11 +1884,9 @@ void displayfragbar(void)
 
 static void coolgaugetext(int snum)
 {
-    struct player_struct *p;
+    struct player_struct *p = &ps[snum];
     long i, j, o, ss, u;
     int permbit;
-
-    p = &ps[snum];
 
     if (p->invdisptime > 0) displayinventory(p);
 
@@ -3843,14 +3841,12 @@ void displayrooms(int snum,long smoothratio)
     long cposx,cposy,cposz,dst,j,fz,cz;
     long tposx,tposy,i;    
     short sect, cang, k, choriz;
-    struct player_struct *p;
+    struct player_struct *p = &ps[snum];
     short tang;
     long tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
 #ifdef POLYMOST
     extern long rendmode;
 #endif
-
-    p = &ps[snum];
 
     if (pub > 0 || getrendermode() >= 3) // JBF 20040101: redraw background always
     {
@@ -3884,9 +3880,7 @@ void displayrooms(int snum,long smoothratio)
 
     if (ud.camerasprite >= 0)
     {
-        spritetype *s;
-
-        s = &sprite[ud.camerasprite];
+        spritetype *s = &sprite[ud.camerasprite];
 
         if (s->yvel < 0) s->yvel = -100;
         else if (s->yvel > 199) s->yvel = 300;
@@ -4166,11 +4160,9 @@ static void dumpdebugdata(void)
 
 int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_yr,int s_a,int s_ve,long s_zv,int s_ow,int s_ss)
 {
-    int i;
+    int i = insertsprite(whatsect,s_ss);
     long p;
     spritetype *s;
-
-    i = insertsprite(whatsect,s_ss);
 
     if (i < 0)
     {

@@ -525,11 +525,9 @@ void vscrn(void)
 
 void pickrandomspot(int snum)
 {
-    struct player_struct *p;
+    struct player_struct *p = &ps[snum];
     int i=snum,j,k;
     unsigned long dist,pdist = -1;
-
-    p = &ps[snum];
 
     if (ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_FIXEDRESPAWN))
     {
@@ -561,9 +559,7 @@ void pickrandomspot(int snum)
 
 static void resetplayerstats(int snum)
 {
-    struct player_struct *p;
-
-    p = &ps[snum];
+    struct player_struct *p = &ps[snum];
 
     ud.show_help        = 0;
     ud.showallmap       = 0;
@@ -672,9 +668,7 @@ static void resetplayerstats(int snum)
 void resetweapons(int snum)
 {
     int weapon;
-    struct player_struct *p;
-
-    p = &ps[snum];
+    struct player_struct *p = &ps[snum];
 
     for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
         p->gotweapon[weapon] = 0;
@@ -698,9 +692,7 @@ void resetweapons(int snum)
 
 void resetinventory(int snum)
 {
-    struct player_struct *p;
-
-    p = &ps[snum];
+    struct player_struct *p = &ps[snum];
 
     p->inven_icon       = 0;
     p->boot_amount = 0;
@@ -721,10 +713,8 @@ void resetinventory(int snum)
 
 static void resetprestat(int snum,int g)
 {
-    struct player_struct *p;
+    struct player_struct *p = &ps[snum];
     int i;
-
-    p = &ps[snum];
 
     spriteqloc = 0;
     for (i=0;i<spriteqamount;i++) spriteq[i] = -1;

@@ -749,8 +749,6 @@ extern MATTGAMEVAR aDefaultGameVars[MAXGAMEVARS];
 extern int iGameVarCount;
 
 extern int spriteflags[MAXTILES], actorspriteflags[MAXSPRITES];
-extern inline int checkspriteflags(short sActor, int iType);
-extern inline int checkspriteflagsp(short sPicnum, int iType);
 
 enum spriteflags {
     SPRITE_FLAG_SHADOW       = 1,

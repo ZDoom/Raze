@@ -2494,9 +2494,8 @@ void checkhitsprite(short i,short sn)
 
 void allignwarpelevators(void)
 {
-    short i, j;
+    int j, i = headspritestat[3];
 
-    i = headspritestat[3];
     while (i >= 0)
     {
         if (SLT == 17 && SS > 16)
@@ -2522,13 +2521,9 @@ void allignwarpelevators(void)
 
 void sharedkeys(int snum)
 {
-    int i, k;
-    char dainv;
-    unsigned long sb_snum, j;
-    struct player_struct *p;
-
-    sb_snum = sync[snum].bits;
-    p = &ps[snum];
+    int i, k, dainv;
+    unsigned long sb_snum = sync[snum].bits, j;
+    struct player_struct *p = &ps[snum];
 
     if (p->cheat_phase == 1) return;
 
@@ -3214,10 +3209,8 @@ static long hitawall(struct player_struct *p,short *hitw)
 void checksectors(int snum)
 {
     long i = -1,oldz;
-    struct player_struct *p;
+    struct player_struct *p = &ps[snum];
     short j,hitscanwall;
-
-    p = &ps[snum];
 
     switch (sector[p->cursectnum].lotag)
     {

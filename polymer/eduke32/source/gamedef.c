@@ -1879,8 +1879,6 @@ static char parsecommand(void)
                 }
                 tempbuf[j+1] = '\0';
 
-                Bcorrectfilename(tempbuf,0);
-
                 if (music_fn[k][i] == NULL)
                     music_fn[k][i] = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
                 else if ((Bstrlen(tempbuf)+1) > sizeof(music_fn[k][i]))

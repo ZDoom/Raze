@@ -133,9 +133,9 @@ extern void getpackets(void);
 extern void check_fta_sounds(short i);
 extern inline short inventory(spritetype *s);
 extern inline int badguy(spritetype *s);
-extern int badguypic(short pn);
-extern void myos(long x,long y,short tilenum,signed char shade,char orientation);
-extern void myospal(long x,long y,short tilenum,signed char shade,char orientation,char p);
+extern int badguypic(int pn);
+extern void myos(long x,long y,int tilenum,int shade,int orientation);
+extern void myospal(long x,long y,int tilenum,int shade,int orientation,int p);
 extern void displayfragbar(void);
 extern void FTA(short q,struct player_struct *p);
 extern void gameexit(char *t);
@@ -204,8 +204,8 @@ extern void fadepal(int r, int g, int b, int start, int end, int step);
 extern inline int minitextshade(int x,int y,char *t,char s,char p,short sb);
 extern inline int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2);
 extern void txdigitalnumber(short starttile, long x,long y,long n,char s,char pal,char cs,long x1, long y1, long x2, long y2);
-extern void myosx(long x,long y,short tilenum,signed char shade,char orientation);
-extern void myospalx(long x,long y,short tilenum,signed char shade,char orientation,char p);
+extern void myosx(long x,long y,int tilenum,int shade,int orientation);
+extern void myospalx(long x,long y,int tilenum,int shade,int orientation,int p);
 extern void ResetGameVars(void);
 extern void ResetActorGameVars(int iActor);
 
@@ -243,5 +243,8 @@ extern void sendquit(void);
 extern void adduserquote(char *daquote);
 extern char *stripcolorcodes(char *t);
 extern void mpchangemap(char volume, char level);
+
+extern inline int checkspriteflags(int iActor, int iType);
+extern inline int checkspriteflagsp(int iPicnum, int iType);
 
 #endif // __funct_h__

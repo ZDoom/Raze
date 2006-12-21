@@ -824,7 +824,10 @@ static void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
         proj=GetGameVarID(lVar1, g_i, g_p);
 
     if (proj < 0 || proj >= MAXSPRITES)
+    {
+        OSD_Printf("DoThisProjectile(): invalid projectile (%d)\n",proj);
         return;
+    }
 
     lValue=GetGameVarID(lVar2, g_i, g_p);
 
@@ -2446,7 +2449,10 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         iActor=GetGameVarID(lVar1, g_i, g_p);
 
     if (iActor < 0 || iActor >= MAXSPRITES)
+    {
+        OSD_Printf("DoActor(): invalid sprite (%d)\n",iActor);
         return;
+    }
 
     lValue=GetGameVarID(lVar2, g_i, g_p);
 
@@ -2790,10 +2796,13 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
 static void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    long lValue,proj=lVar1;
+    long lValue;
 
-    if (proj < 0 || proj >= MAXTILES)
+    if (lVar1 < 0 || lVar1 >= MAXTILES)
+    {
+        OSD_Printf("DoProjectile(): invalid tile (%d)\n",lVar1);
         return;
+    }
 
     lValue=GetGameVarID(lVar2, g_i, g_p);
 
@@ -2801,198 +2810,198 @@ static void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     {
     case PROJ_WORKSLIKE:
         if (iSet)
-            projectile[proj].workslike=lValue;
+            projectile[lVar1].workslike=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].workslike, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].workslike, g_i, g_p);
         break;
 
     case PROJ_SPAWNS:
         if (iSet)
-            projectile[proj].spawns=lValue;
+            projectile[lVar1].spawns=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].spawns, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].spawns, g_i, g_p);
         break;
 
     case PROJ_SXREPEAT:
         if (iSet)
-            projectile[proj].sxrepeat=lValue;
+            projectile[lVar1].sxrepeat=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].sxrepeat, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].sxrepeat, g_i, g_p);
         break;
 
     case PROJ_SYREPEAT:
         if (iSet)
-            projectile[proj].syrepeat=lValue;
+            projectile[lVar1].syrepeat=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].syrepeat, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].syrepeat, g_i, g_p);
         break;
 
     case PROJ_SOUND:
         if (iSet)
-            projectile[proj].sound=lValue;
+            projectile[lVar1].sound=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].sound, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].sound, g_i, g_p);
         break;
 
     case PROJ_ISOUND:
         if (iSet)
-            projectile[proj].isound=lValue;
+            projectile[lVar1].isound=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].isound, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].isound, g_i, g_p);
         break;
 
     case PROJ_VEL:
         if (iSet)
-            projectile[proj].vel=lValue;
+            projectile[lVar1].vel=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].vel, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].vel, g_i, g_p);
         break;
 
     case PROJ_EXTRA:
         if (iSet)
-            projectile[proj].extra=lValue;
+            projectile[lVar1].extra=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].extra, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].extra, g_i, g_p);
         break;
 
     case PROJ_DECAL:
         if (iSet)
-            projectile[proj].decal=lValue;
+            projectile[lVar1].decal=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].decal, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].decal, g_i, g_p);
         break;
 
     case PROJ_TRAIL:
         if (iSet)
-            projectile[proj].trail=lValue;
+            projectile[lVar1].trail=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].trail, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].trail, g_i, g_p);
         break;
 
     case PROJ_TXREPEAT:
         if (iSet)
-            projectile[proj].txrepeat=lValue;
+            projectile[lVar1].txrepeat=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].txrepeat, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].txrepeat, g_i, g_p);
         break;
 
     case PROJ_TYREPEAT:
         if (iSet)
-            projectile[proj].tyrepeat=lValue;
+            projectile[lVar1].tyrepeat=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].tyrepeat, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].tyrepeat, g_i, g_p);
         break;
 
     case PROJ_TOFFSET:
         if (iSet)
-            projectile[proj].toffset=lValue;
+            projectile[lVar1].toffset=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].toffset, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].toffset, g_i, g_p);
         break;
 
     case PROJ_TNUM:
         if (iSet)
-            projectile[proj].tnum=lValue;
+            projectile[lVar1].tnum=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].tnum, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].tnum, g_i, g_p);
         break;
 
     case PROJ_DROP:
         if (iSet)
-            projectile[proj].drop=lValue;
+            projectile[lVar1].drop=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].drop, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].drop, g_i, g_p);
         break;
 
     case PROJ_CSTAT:
         if (iSet)
-            projectile[proj].cstat=lValue;
+            projectile[lVar1].cstat=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].cstat, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].cstat, g_i, g_p);
         break;
 
     case PROJ_CLIPDIST:
         if (iSet)
-            projectile[proj].clipdist=lValue;
+            projectile[lVar1].clipdist=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].clipdist, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].clipdist, g_i, g_p);
         break;
 
     case PROJ_SHADE:
         if (iSet)
-            projectile[proj].shade=lValue;
+            projectile[lVar1].shade=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].shade, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].shade, g_i, g_p);
         break;
 
     case PROJ_XREPEAT:
         if (iSet)
-            projectile[proj].xrepeat=lValue;
+            projectile[lVar1].xrepeat=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].xrepeat, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].xrepeat, g_i, g_p);
         break;
 
     case PROJ_YREPEAT:
         if (iSet)
-            projectile[proj].yrepeat=lValue;
+            projectile[lVar1].yrepeat=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].yrepeat, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].yrepeat, g_i, g_p);
         break;
 
     case PROJ_PAL:
         if (iSet)
-            projectile[proj].pal=lValue;
+            projectile[lVar1].pal=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].pal, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].pal, g_i, g_p);
         break;
 
     case PROJ_EXTRA_RAND:
         if (iSet)
-            projectile[proj].extra_rand=lValue;
+            projectile[lVar1].extra_rand=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].extra_rand, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].extra_rand, g_i, g_p);
         break;
 
     case PROJ_HITRADIUS:
         if (iSet)
-            projectile[proj].hitradius=lValue;
+            projectile[lVar1].hitradius=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].hitradius, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].hitradius, g_i, g_p);
         break;
 
     case PROJ_VEL_MULT:
         if (iSet)
-            projectile[proj].velmult=lValue;
+            projectile[lVar1].velmult=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].velmult, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].velmult, g_i, g_p);
         break;
 
     case PROJ_OFFSET:
         if (iSet)
-            projectile[proj].offset=lValue;
+            projectile[lVar1].offset=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].offset, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].offset, g_i, g_p);
         break;
 
     case PROJ_BOUNCES:
         if (iSet)
-            projectile[proj].bounces=lValue;
+            projectile[lVar1].bounces=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].bounces, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].bounces, g_i, g_p);
         break;
 
     case PROJ_BSOUND:
         if (iSet)
-            projectile[proj].bsound=lValue;
+            projectile[lVar1].bsound=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].bsound, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].bsound, g_i, g_p);
         break;
 
     case PROJ_RANGE:
         if (iSet)
-            projectile[proj].range=lValue;
+            projectile[lVar1].range=lValue;
         else
-            SetGameVarID(lVar2, projectile[proj].range, g_i, g_p);
+            SetGameVarID(lVar2, projectile[lVar1].range, g_i, g_p);
         break;
 
     default:
@@ -3005,16 +3014,6 @@ static int parse(void);
 
 void OnEvent(int iEventID, int iActor, int iPlayer, long lDist)
 {
-    int og_i, og_p, okillit_flag;
-    long og_x, *og_t, *oinsptr;
-    spritetype *og_sp;
-
-    if (iEventID >= MAXGAMEEVENTS)
-    {
-        AddLog("Invalid Event ID");
-        return;
-    }
-
     if (apScriptGameEvent[iEventID] == 0)
     {
         //Bsprintf(g_szBuf,"No event found for %d",iEventID);
@@ -3022,63 +3021,63 @@ void OnEvent(int iEventID, int iActor, int iPlayer, long lDist)
         return;
     }
 
-    // save current values...
-    og_i=g_i;
-    og_p=g_p;
-    og_x=g_x;
-    og_sp=g_sp;
-    og_t=g_t;
-    okillit_flag=killit_flag;
-    oinsptr=insptr;
-
-    g_i = iActor;    // current sprite ID
-    g_p = iPlayer;    // current player ID
-    g_x = lDist;    // ?
-    g_sp = &sprite[g_i];
-    g_t = &hittype[g_i].temp_data[0];
-
-    insptr = (apScriptGameEvent[iEventID]);
-    //Bsprintf(g_szBuf,"Executing event for %d at %lX",iEventID, insptr);
-    //AddLog(g_szBuf);
-
-    killit_flag = 0;
-
-    while (1) if (parse()) break;
-
-    if (killit_flag == 1)
+    if (iEventID >= MAXGAMEEVENTS)
     {
-        // if player was set to squish, first stop that...
-        if (g_p >= 0)
-        {
-            if (ps[g_p].actorsqu == g_i)
-                ps[g_p].actorsqu = -1;
-        }
-        deletesprite(g_i);
+        AddLog("Invalid Event ID");
+        return;
     }
 
-    // restore old values...
-    g_i=og_i;
-    g_p=og_p;
-    g_x=og_x;
-    g_sp=og_sp;
-    g_t=og_t;
-    killit_flag=okillit_flag;
-    insptr=oinsptr;
+    {
+        int og_i=g_i, og_p=g_p, okillit_flag=killit_flag;
+        long og_x=g_x, *og_t=g_t, *oinsptr=insptr;
+        spritetype *og_sp=g_sp;
+   
+        g_i = iActor;    // current sprite ID
+        g_p = iPlayer;    // current player ID
+        g_x = lDist;    // ?
+        g_sp = &sprite[g_i];
+        g_t = &hittype[g_i].temp_data[0];
 
-    //AddLog("End of Execution");
+        insptr = (apScriptGameEvent[iEventID]);
+        //Bsprintf(g_szBuf,"Executing event for %d at %lX",iEventID, insptr);
+        //AddLog(g_szBuf);
+
+        killit_flag = 0;
+
+        while (1) if (parse()) break;
+
+        if (killit_flag == 1)
+        {
+            // if player was set to squish, first stop that...
+            if (g_p >= 0)
+            {
+                if (ps[g_p].actorsqu == g_i)
+                    ps[g_p].actorsqu = -1;
+            }
+            deletesprite(g_i);
+        }
+
+        // restore old values...
+        g_i=og_i;
+        g_p=og_p;
+        g_x=og_x;
+        g_sp=og_sp;
+        g_t=og_t;
+        killit_flag=okillit_flag;
+        insptr=oinsptr;
+
+        //AddLog("End of Execution");
+    }
 }
 
-static long ifsquished(short i, short p)
+static long ifsquished(int i, int p)
 {
-    sectortype *sc;
-    char squishme;
-    long floorceildist;
+    sectortype *sc = &sector[SECT];
+    int squishme;
+    long floorceildist = sc->floorz - sc->ceilingz;
 
     if (PN == APLAYER && ud.clipping)
         return 0;
-
-    sc = &sector[SECT];
-    floorceildist = sc->floorz - sc->ceilingz;
 
     if (sc->lotag != 23)
     {
@@ -3789,12 +3788,10 @@ static int parse(void)
         break;
 
     case CON_IFDEAD:
-    {
         j = g_sp->extra;
         if (g_sp->picnum == APLAYER)
             j--;
         parseifelse(j < 0);
-    }
     break;
 
     case CON_AI:
@@ -4389,10 +4386,16 @@ static int parse(void)
         int volnume=GetGameVarID(*insptr++,g_i,g_p), levnume=GetGameVarID(*insptr++,g_i,g_p);
 
         if (volnume > MAXVOLUMES-1 || volnume < 0)
+        {
+            OSD_Printf("parse():CON_STARTLEVEL: invalid volume (%d)\n",volnume);
             break;
+        }
 
         if (levnume > MAXLEVELS-1 || levnume < 0)
+        {
+            OSD_Printf("parse():CON_STARTLEVEL: invalid level (%d)\n",levnume);        
             break;
+        }
 
         ud.m_volume_number = ud.volume_number = volnume;
         ud.m_level_number = ud.level_number = levnume;
