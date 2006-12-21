@@ -1,4 +1,4 @@
-# EDuke32 Makefile for Watcom Make
+# EDuke32 Makefile for Microsoft NMake
 
 SRC=source
 OBJ=obj
@@ -13,16 +13,18 @@ EDITORLIB=build.lib
 
 !ifdef DEBUG
 # debugging options
-flags_cl=/G6 /Ot /Z7
+flags_cl= /Ot /Zi
 flags_link=/DEBUG
 !else
 # release options
-flags_cl=/G6Fy /Ox #/Ob1gity
+flags_cl=/O2 /Ox #/Ob1gity
 flags_link=/RELEASE
 !endif
 
 
-DXROOT=c:\sdks\msc\dx7
+DXROOT=c:\sdks\dx6
+MSSDKROOT="C:\Program Files\Microsoft Visual Studio 8\VC
+PLATFORMSDK="C:\Program Files\Microsoft Visual Studio 8\VC\PlatformSDK
 
 ENGINEOPTS=/DSUPERBUILD /DPOLYMOST /DUSE_OPENGL
 
@@ -30,13 +32,13 @@ CC=cl
 AS=ml
 LINK=link /opt:nowin98 /nologo /opt:ref
 CFLAGS= /MD /J /nologo $(flags_cl)  \
-	/I$(INC) /I$(EINC)\ /I$(SRC)\jmact /I$(SRC)\jaudiolib /I..\jfaud\inc \
- 	/DNOCOPYPROTECT $(ENGINEOPTS) \
+	/I$(INC) /I$(EINC)\ /I$(SRC)\jmact /I$(SRC)\jaudiolib /I..\jfaud\inc /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
+ 	/DNOCOPYPROTECT  /D "_CRT_SECURE_NO_DEPRECATE" -W0 $(ENGINEOPTS) \
  	/I$(DXROOT)\include /DRENDERTYPEWIN=1
 LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib wsock32.lib comctl32.lib \
-     ..\jfaud\jfaud.lib /NODEFAULTLIB:libFLAC.lib \
-     #opengl32.lib
- ASFLAGS=/nologo /coff
+        /NODEFAULTLIB:libFLAC.lib glu32.lib
+
+ASFLAGS=/nologo /coff
 ASFLAGS=/nologo /coff
 EXESUFFIX=.exe
 
@@ -63,10 +65,10 @@ AUDIOLIB_FX=$(OBJ)\mv_mix.$o \
 AUDIOLIB_MUSIC=$(OBJ)\midi.$o \
  	  $(OBJ)\mpu401.$o \
  	  $(OBJ)\music.$o
-#AUDIOLIBOBJ=$(AUDIOLIB_MUSIC) $(AUDIOLIB_FX) $(OBJ)\sounds.$o
-AUDIOLIBOBJ=$(AUDIOLIB_JFAUD)
+AUDIOLIBOBJ=$(AUDIOLIB_MUSIC) $(AUDIOLIB_FX) $(OBJ)\sounds.$o
+#AUDIOLIBOBJ=$(AUDIOLIB_JFAUD)
  
- GAMEOBJS=$(OBJ)\game.$o \
+GAMEOBJS=$(OBJ)\game.$o \
 	$(OBJ)\actors.$o \
 	$(OBJ)\anim.$o \
 	$(OBJ)\gamedef.$o \
@@ -121,25 +123,28 @@ EDITOROBJS=$(OBJ)\astub.$o \
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 {$(SRC)\misc}.rc{$(OBJ)\}.res:
-	$(RC) /i$(EINC)\ /i$(SRC)\ /fo$@ /r $<
+	$(RC) /i$(EINC)\ /i$(SRC)\ /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" /fo$@ /r $<
 
 
 # TARGETS
-all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) ;
+all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX);
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib $(flags_link) /MAP $** $(LIBS) msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 	
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib $(flags_link) /MAP $** $(LIBS) msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
+
+duke3d_w32$(EXESUFFIX): $(OBJ)/wrapper.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 
 !include Makefile.deps
 
 enginelib editorlib: AlwaysBuild
-	-mkdir $(EOBJ)\
+	-mkdir $(EOBJ)
 	echo OBJ=$(MAKEDIR)\$(EOBJ)\ > $(EOBJ)\overrides.mak
 	echo CFLAGS=$(ENGINEOPTS) >> $(EOBJ)\overrides.mak
-	cd $(EROOT)\
+	cd $(EROOT)
 	nmake /f Makefile.msvc "OVERRIDES=$(MAKEDIR)\$(EOBJ)\overrides.mak" $@
 	cd $(MAKEDIR)
 
@@ -149,7 +154,8 @@ $(EOBJ)\$(ENGINELIB): enginelib ;
 
 # PHONIES	
 clean:
-	-del $(OBJ)\* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
+	-del /Q $(OBJ)\* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX) \
+            *.pdb *.map *.manifest
 	
 veryclean: clean
-	-del $(EOBJ)\*
+	-del /Q $(EOBJ)\*

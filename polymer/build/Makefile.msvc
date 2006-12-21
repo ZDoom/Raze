@@ -19,8 +19,9 @@ asm=masm
 ENGINELIB=engine.lib
 EDITORLIB=build.lib
 
-DXROOT=c:\sdks\directx\dx7
-FMODROOT=c:\sdks\fmodapi374win\api
+DXROOT=c:\sdks\dx6
+MSSDKROOT="C:\Program Files\Microsoft Visual Studio 8\VC
+PLATFORMSDK="C:\Program Files\Microsoft Visual Studio 8\VC\PlatformSDK
 
 # /D these to enable certain features of the port's compile process
 # NOASM     When defined, uses C instead of assembly code
@@ -28,12 +29,12 @@ TARGETOPTS=#/DNOASM
 
 !ifdef DEBUG
 # debugging options
-flags_cl=/G6 /Ot /Z7
+flags_cl=/Ot /Zi
 flags_link=/DEBUG
 !else
 # release options
-#flags_cl=/G6Fy /Ox
-flags_cl=/G6 /O2
+#flags_cl=/Ox
+flags_cl= /O2 /Ox
 flags_link=/RELEASE
 !endif
 
@@ -41,8 +42,7 @@ CC=cl
 AS=ml
 RC=rc
 LINK=link /opt:nowin98 /opt:ref /nologo
-CFLAGS=$(CFLAGS) /nologo /MD /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(DXROOT)\include /I$(FMODROOT)\inc
-LIBS=fmodvc.lib #opengl32.lib
+CFLAGS=$(CFLAGS) /nologo /MD /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(DXROOT)\include /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include"
 ASFLAGS=/nologo /coff
 EXESUFFIX=.exe
 
@@ -63,7 +63,8 @@ ENGINEOBJS=$(OBJ)\a.$o \
 	$(OBJ)\osd.$o \
 	$(OBJ)\pragmas.$o \
 	$(OBJ)\scriptfile.$o \
-	$(OBJ)\winlayer.$o
+	$(OBJ)\winlayer.$o \
+        $(OBJ)\polymer.$o
 
 EDITOROBJS=$(OBJ)\build.$o \
 	$(OBJ)\startwin.editor.$o \
@@ -71,7 +72,7 @@ EDITOROBJS=$(OBJ)\build.$o \
 
 RENDERTYPE=WIN
 LIBS=$(LIBS) user32.lib gdi32.lib shell32.lib dxguid.lib wsock32.lib comctl32.lib
-CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1
+CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1 /D "_CRT_SECURE_NO_DEPRECATE" /W0
 
 # RULES
 .SUFFIXES: .masm
@@ -95,9 +96,9 @@ CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 # TARGETS
-UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2map$(EXESUFFIX) wad2map$(EXESUFFIX)
+UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX)
  
-all: ;
+all: $(OBJ)/$(ENGINELIB) $(OBJ)/$(EDITORLIB);
 utils: $(UTILS) ;
 
 enginelib: $(OBJ)\$(ENGINELIB) ;
@@ -110,26 +111,26 @@ $(OBJ)\$(EDITORLIB): $(EDITOROBJS)
 
 # the tools
 kextract$(EXESUFFIX): $(OBJ)\kextract.$o $(OBJ)\compat.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 
 kgroup$(EXESUFFIX): $(OBJ)\kgroup.$o $(OBJ)\compat.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 
 transpal$(EXESUFFIX): $(OBJ)\transpal.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 
 wad2map$(EXESUFFIX): $(OBJ)\wad2map.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 
 wad2art$(EXESUFFIX): $(OBJ)\wad2art.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** msvcrt.lib
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
 
 # DEPENDENCIES
 !include Makefile.deps
 
 # PHONIES	
 clean:
-	-del $(ENGINEOBJS) $(EDITOROBJS)
+	-del $(ENGINEOBJS) $(EDITOROBJS) $(OBJ)\kextract.$o $(OBJ)\kgroup.$o $(OBJ)\transpal.$o $(OBJ)\wad2map.$o $(OBJ)\wad2art.$o
 veryclean: clean
-	-del $(OBJ)\$(ENGINELIB) $(OBJ)\$(EDITORLIB) $(UTILS)
+	-del /Q $(OBJ)\$(ENGINELIB) $(OBJ)\$(EDITORLIB) $(UTILS) *.map *.manifest *.pdb
 

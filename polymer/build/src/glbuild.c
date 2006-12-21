@@ -1,3 +1,4 @@
+#include "compat.h"
 #include "glbuild.h"
 #include "baselayer.h"
 #include <stdlib.h>

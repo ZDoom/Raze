@@ -42,6 +42,7 @@ static long GetTickCount(void)
 #endif
 
 #ifdef KSFORBUILD
+# include "compat.h"
 # include "baselayer.h"
 # define printf initprintf
 #endif

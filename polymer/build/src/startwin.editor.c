@@ -2,10 +2,10 @@
 #error Only for Windows
 #endif
 
+#include "compat.h"
 #include "build.h"
 #include "editor.h"
 #include "winlayer.h"
-#include "compat.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

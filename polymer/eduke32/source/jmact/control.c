@@ -6,6 +6,7 @@
  *
  */
 
+#include "compat.h"
 #include "types.h"
 #include "keyboard.h"
 #include "mouse.h"
@@ -14,7 +15,6 @@
 #include "util_lib.h"
 
 #include "baselayer.h"
-#include "compat.h"
 #include "pragmas.h"
 
 

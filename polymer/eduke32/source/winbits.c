@@ -26,6 +26,7 @@ Windows-specific hooks for JonoF's Duke3D port.
 #ifdef RENDERTYPEWIN
 
 #define WIN32_LEAN_AND_MEAN
+#include "compat.h"
 #include <windows.h>
 #include <stdarg.h>
 #include <stdlib.h>

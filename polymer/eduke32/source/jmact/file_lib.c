@@ -37,10 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include <fcntl.h>
 #include <errno.h>
+#include "compat.h"
 #include "types.h"
 #include "file_lib.h"
 #include "util_lib.h"
-#include "compat.h"
 #include "cache1d.h"
 
 #ifndef O_BINARY

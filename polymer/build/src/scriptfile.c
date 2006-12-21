@@ -5,6 +5,7 @@
  * See the included license file "BUILDLIC.TXT" for license info.
  */
 
+#include "compat.h"
 #include "scriptfile.h"
 #include "baselayer.h"
 #include "compat.h"

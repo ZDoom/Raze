@@ -69,7 +69,7 @@ void initprintf(const char *, ...);
 void debugprintf(const char *,...);
 
 int handleevents(void);
-inline void idle(void);
+extern inline void idle(void);
 
 typedef void (*KeyPressCallback)(long,long);
 typedef void (*MousePressCallback)(long,long);
