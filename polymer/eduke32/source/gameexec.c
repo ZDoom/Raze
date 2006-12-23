@@ -2450,7 +2450,7 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
     if (iActor < 0 || iActor >= MAXSPRITES)
     {
-        OSD_Printf("DoActor(): invalid sprite (%d)\n",iActor);
+        OSD_Printf("DoActor(): invalid target sprite (%d) %d %d\n",iActor,g_i,g_sp->picnum);
         return;
     }
 
@@ -3014,16 +3014,16 @@ static int parse(void);
 
 void OnEvent(int iEventID, int iActor, int iPlayer, long lDist)
 {
+    if (iEventID >= MAXGAMEEVENTS)
+    {
+        AddLog("Invalid Event ID");
+        return;
+    }
+
     if (apScriptGameEvent[iEventID] == 0)
     {
         //Bsprintf(g_szBuf,"No event found for %d",iEventID);
         //AddLog(g_szBuf);
-        return;
-    }
-
-    if (iEventID >= MAXGAMEEVENTS)
-    {
-        AddLog("Invalid Event ID");
         return;
     }
 
@@ -3070,21 +3070,20 @@ void OnEvent(int iEventID, int iActor, int iPlayer, long lDist)
     }
 }
 
-static long ifsquished(int i, int p)
+static int ifsquished(int i, int p)
 {
     sectortype *sc = &sector[SECT];
     int squishme;
-    long floorceildist = sc->floorz - sc->ceilingz;
 
     if (PN == APLAYER && ud.clipping)
         return 0;
 
     if (sc->lotag != 23)
     {
-        squishme = floorceildist < (12<<8); // && (sc->lotag&32768) == 0;
+        squishme = (sc->floorz - sc->ceilingz < (12<<8)); // && (sc->lotag&32768) == 0;
 
         if (sprite[i].pal == 1)
-            squishme = floorceildist < (32<<8) && (sc->lotag&32768) == 0;
+            squishme = (sc->floorz - sc->ceilingz < (32<<8) && (sc->lotag&32768) == 0);
     }
     else squishme = 0;
 
@@ -3212,13 +3211,11 @@ int furthestcanseepoint(int iActor,spritetype *ts,long *dax,long *day)
 
 void getglobalz(int iActor)
 {
-    long hz,lz,zr;
-
     spritetype *s = &sprite[iActor];
 
     if (s->statnum == 10 || s->statnum == 6 || s->statnum == 2 || s->statnum == 1 || s->statnum == 4)
     {
-        zr = 127L;
+        long hz,lz,zr = 127L;
 
         if (s->statnum == 4)
             zr = 4L;
@@ -3261,7 +3258,7 @@ void getglobalz(int iActor)
 void makeitfall(int iActor)
 {
     spritetype *s = &sprite[iActor];
-    long hz,lz,c;
+    long hz,lz,c = gc;
 
     if (floorspace(s->sectnum))
         c = 0;
@@ -3269,7 +3266,6 @@ void makeitfall(int iActor)
     {
         if (ceilingspace(s->sectnum) || sector[s->sectnum].lotag == 2)
             c = gc/6;
-        else c = gc;
     }
 
     if ((s->statnum == 1 || s->statnum == 10 || s->statnum == 2 || s->statnum == 6))
@@ -3314,23 +3310,15 @@ int getincangle(int a,int na)
 
 static void alterang(int a)
 {
-    short aang, angdif, goalang;
-    long ticselapsed, *moveptr;
-    int j;
-
-    moveptr = (long *)g_t[1];
-
-    ticselapsed = (g_t[0])&31;
-
-    aang = g_sp->ang;
+    int aang = g_sp->ang, angdif, goalang;
+    long ticselapsed = (g_t[0])&31, *moveptr = (long *)g_t[1];
+    int j = ps[g_p].holoduke_on;
 
     g_sp->xvel += (*moveptr-g_sp->xvel)/5;
     if (g_sp->zvel < 648) g_sp->zvel += ((*(moveptr+1)<<4)-g_sp->zvel)/5;
 
     if (a&seekplayer)
     {
-        j = ps[g_p].holoduke_on;
-
         // NOTE: looks like 'owner' is set to target sprite ID...
 
         if (j >= 0 && cansee(sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].sectnum,g_sp->x,g_sp->y,g_sp->z,g_sp->sectnum))
@@ -3386,10 +3374,8 @@ static void alterang(int a)
 static void move(void)
 {
     long l, *moveptr;
-    short a, goalang, angdif;
+    int a = g_sp->hitag, goalang, angdif;
     long daxvel;
-
-    a = g_sp->hitag;
 
     if (a == -1) a = 0;
 
@@ -3617,7 +3603,7 @@ static int parse(void)
     tw = *insptr;
 
     instruction = tw;
-
+//    initprintf("instruction %ld\n",tw);
     switch (tw)
     {
     case CON_REDEFINEQUOTE:
@@ -4971,11 +4957,9 @@ static int parse(void)
         break;
 
     case CON_DEBRIS:
+    insptr++;
     {
-        short dnum;
-
-        insptr++;
-        dnum = *insptr++;
+        int dnum = *insptr++;
 
         if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
             for (j=(*insptr)-1;j>=0;j--)
@@ -5674,7 +5658,6 @@ static int parse(void)
         // that is of <type> into <getvar>
         // -1 for none found
         // <type> <maxdistvarid> <varid>
-        short j=0;
         long var1 = *insptr++, d;
 
         if (tw == CON_FINDPLAYER) j=findplayer(&sprite[g_i],&d);
@@ -5844,8 +5827,10 @@ static int parse(void)
         j = g_p;
 
         if (*insptr != g_iThisActorID)
-            j=GetGameVarID(*insptr++, g_i, g_p);
+            j=GetGameVarID(*insptr, g_i, g_p);
             
+        insptr++;
+        
         if (j < MAXPLAYERS)
         {
             if (tw == CON_CHECKAVAILWEAPON)
@@ -6302,24 +6287,25 @@ static int parse(void)
 
     case CON_QUOTE:
         insptr++;
-        if (fta_quotes[*insptr] != NULL)
-            FTA(*insptr++,&ps[g_p]);
-        else
+        
+        if (fta_quotes[*insptr] == NULL)
         {
             OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,*insptr);
             insptr++;
+            break;
         }
+        FTA(*insptr++,&ps[g_p]);
         break;
 
     case CON_USERQUOTE:
         insptr++;
-        if (fta_quotes[*insptr] != NULL)
-            adduserquote(fta_quotes[*insptr++]);
-        else
+        if (fta_quotes[*insptr] == NULL)
         {
             OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,*insptr);
             insptr++;
+            break;
         }
+        adduserquote(fta_quotes[*insptr++]);        
         break;
 
     case CON_IFINOUTERSPACE:

@@ -98,7 +98,7 @@ enum labeltypes
     LABEL_MOVE   = 32,
 };
 
-static char *labeltypenames[] =
+static const char *labeltypenames[] =
     {
         "define",
         "state",
@@ -108,7 +108,7 @@ static char *labeltypenames[] =
         "move"
     };
 
-static char *translatelabeltype(long type)
+static const char *translatelabeltype(long type)
 {
     int i;
     char x[64];
@@ -125,7 +125,7 @@ static char *translatelabeltype(long type)
 
 #define NUMKEYWORDS (signed int)(sizeof(keyw)/sizeof(keyw[0]))
 
-char *keyw[] = {
+static const char *keyw[] = {
                    "definelevelname",          // 0  defines level name
                    "actor",                    // 1  defines an actor
                    "addammo",                  // 2  adds ammo to a weapon
@@ -838,6 +838,7 @@ LABELS inputlabels[]= {
 static void skipcomments(void)
 {
     char c;
+    
     while ((c = *textptr))
     {
         if (c == ' ' || c == '\t' || c == '\r')
@@ -1041,7 +1042,7 @@ char CheckEventSync(int iEventID)
     return 1;
 }
 
-void AddLog(char *psz)
+void AddLog(const char *psz)
 {
     Bstrcpy(tempbuf,psz);
     if (tempbuf[Bstrlen(psz)] != '\n')
@@ -1050,7 +1051,7 @@ void AddLog(char *psz)
     else initprintf(tempbuf);
 }
 
-static long GetDefID(char *szGameLabel)
+static long GetDefID(const char *szGameLabel)
 {
     int i;
     for (i=0;i<iGameVarCount;i++)
@@ -1066,7 +1067,7 @@ static long GetDefID(char *szGameLabel)
     return -1;
 }
 
-static char ispecial(char c)
+static int ispecial(char c)
 {
     if (c == 0x0a)
     {
@@ -1085,7 +1086,7 @@ static inline int isaltok(char c)
     return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
 }
 
-static long getlabelid(LABELS *pLabel, char *psz)
+static long getlabelid(LABELS *pLabel, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the ID for the label, or -1
@@ -1104,7 +1105,7 @@ static long getlabelid(LABELS *pLabel, char *psz)
     return l;
 }
 
-static long getlabeloffset(LABELS *pLabel, char *psz)
+static long getlabeloffset(LABELS *pLabel, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the offset in the array for the label, or -1
@@ -1293,13 +1294,10 @@ static void transvartype(int type)
             textptr++;
             return;
         }
-        else
-        {
-            error++;
-            ReportError(ERROR_NOTAGAMEVAR);
-            textptr++;
-            return;
-        }
+        error++;
+        ReportError(ERROR_NOTAGAMEVAR);
+        textptr++;
+        return;
     }
     if (type == GAMEVAR_FLAG_READONLY && aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
     {
@@ -1329,14 +1327,14 @@ static inline void transvar(void)
     transvartype(0);
 }
 
-static inline void transmultvarstype(int type, char num)
+static inline void transmultvarstype(int type, int num)
 {
-    char i;
+    int i;
     for (i=0;i<num;i++)
         transvartype(type);
 }
 
-static inline void transmultvars(char num)
+static inline void transmultvars(int num)
 {
     transmultvarstype(0,num);
 }
@@ -1382,7 +1380,7 @@ static long transnum(long type)
             {
                 if (!(error || warning) && condebug > 1)
                 {
-                    gl = translatelabeltype(labeltype[i]);
+                    gl = (char *)translatelabeltype(labeltype[i]);
                     initprintf("%s:%ld: debug: accepted %s label `%s'.\n",compilefile,line_number,gl,label+(i<<6));
                     Bfree(gl);
                 }
@@ -1392,8 +1390,8 @@ static long transnum(long type)
             }
             *(scriptptr++) = 0;
             textptr += l;
-            el = translatelabeltype(type);
-            gl = translatelabeltype(labeltype[i]);
+            el = (char *)translatelabeltype(type);
+            gl = (char *)translatelabeltype(labeltype[i]);
             ReportError(-1);
             initprintf("%s:%ld: warning: expected a %s, found a %s.\n",compilefile,line_number,el,gl);
             Bfree(el);
@@ -1425,22 +1423,17 @@ static long transnum(long type)
     return 0;   // literal value
 }
 
-static char parsecommand(void);
+static int parsecommand(void);
 
 static long CountCaseStatements()
 {
     long lCount;
-    char *temptextptr;
-    long *savescript;
-    long *savecase;
-    short temp_line_number;
-
-    temp_line_number=line_number;
+    char *temptextptr = textptr;
+    long *savescript = scriptptr;
+    long *savecase = casescriptptr;
+    int temp_line_number = line_number;
 
     casecount=0;
-    temptextptr=textptr;
-    savescript=scriptptr;
-    savecase=casescriptptr;
     casescriptptr=NULL;
     //Bsprintf(g_szBuf,"CSS: %.12s",textptr);
     //AddLog(g_szBuf);
@@ -1464,12 +1457,10 @@ static long CountCaseStatements()
     return lCount;
 }
 
-static char parsecommand(void)
+static int parsecommand(void)
 {
-    long i, j=0, k=0, *tempscrptr;
-    char done, *temptextptr;
-
-    long tw;
+    long i, j=0, k=0, *tempscrptr, done, tw;
+    char *temptextptr;
 
     if (((unsigned)(scriptptr-script) > MAXSCRIPTSIZE) && error == 0)
     {
@@ -1538,7 +1529,7 @@ static char parsecommand(void)
                 else
                 {
                     char *gl;
-                    gl = translatelabeltype(labeltype[j]);
+                    gl = (char *)translatelabeltype(labeltype[j]);
                     ReportError(-1);
                     initprintf("%s:%ld: warning: expected a state, found a %s.\n",compilefile,line_number,gl);
                     Bfree(gl);
@@ -1936,8 +1927,8 @@ static char parsecommand(void)
         tempbuf[j] = '\0';
 
         {
-            short temp_line_number;
-            char  temp_ifelse_check;
+            int temp_line_number;
+            int  temp_ifelse_check;
             char *origtptr, *mptr;
             char parentcompilefile[255];
             int fp;
@@ -3186,7 +3177,7 @@ static char parsecommand(void)
 
     case CON_DEFINEPROJECTILE:
     {
-        short y;
+        int y;
         signed long z;
 
         if (parsing_state || parsing_actor)
@@ -4455,7 +4446,7 @@ static void passone(void)
 }
 
 #define NUM_DEFAULT_CONS    4
-static char *defaultcons[NUM_DEFAULT_CONS] =
+static const char *defaultcons[NUM_DEFAULT_CONS] =
     {
         "EDUKE.CON",
         "GAME.CON",
@@ -4470,10 +4461,10 @@ void copydefaultcons(void)
 
     for (i=0;i<NUM_DEFAULT_CONS;i++)
     {
-        fpi = kopen4load(defaultcons[i] , 1);
+        fpi = kopen4load((char *)defaultcons[i] , 1);
         if (fpi < 0) continue;
 
-        fpo = fopenfrompath(defaultcons[i],"wb");
+        fpo = fopenfrompath((char *)defaultcons[i],"wb");
 
         if (fpo == NULL)
         {
@@ -4493,7 +4484,7 @@ void copydefaultcons(void)
 
 /* Anything added with AddDefinition cannot be overwritten in the CONs */
 
-static void AddDefinition(char *lLabel,long lValue,long lType)
+static void AddDefinition(const char *lLabel,long lValue,long lType)
 {
     Bstrcpy(label+(labelcnt<<6),lLabel);
     labeltype[labelcnt] = lType;
@@ -4647,7 +4638,7 @@ static void InitProjectiles(void)
     Bmemcpy(&defaultprojectile, &projectile, sizeof(projectile));
 }
 
-void loadefs(char *filenam)
+void loadefs(const char *filenam)
 {
     char *mptr;
     int i;
@@ -4675,7 +4666,7 @@ void loadefs(char *filenam)
         }
     }
     */
-    fp = kopen4load(filenam,loadfromgrouponly);
+    fp = kopen4load((char *)filenam,loadfromgrouponly);
     if (fp == -1) // JBF: was 0
     {
         if (loadfromgrouponly == 1)

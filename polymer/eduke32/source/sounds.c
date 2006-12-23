@@ -185,7 +185,7 @@ void intomenusounds(void)
     menunum %= 17;
 }
 
-void playmusic(char *fn)
+void playmusic(const char *fn)
 {
 #if defined(_WIN32)
     short      fp;
@@ -196,7 +196,7 @@ void playmusic(char *fn)
     if (MusicToggle == 0) return;
     if (MusicDevice < 0) return;
 
-    fp = kopen4load(fn,0);
+    fp = kopen4load((char *)fn,0);
 
     if (fp == -1) return;
 
@@ -224,7 +224,7 @@ void playmusic(char *fn)
 #endif
 }
 
-char loadsound(unsigned short num)
+int loadsound(unsigned short num)
 {
     long   fp, l;
 

@@ -58,7 +58,7 @@ char lumplockbyte[11];
 ====================
 */
 
-int32 RTS_AddFile(char *filename)
+int32 RTS_AddFile(const char *filename)
 {
     wadinfo_t  header;
     lumpinfo_t *lump_p;
@@ -140,7 +140,7 @@ int32 RTS_AddFile(char *filename)
 ====================
 */
 
-void RTS_Init(char *filename)
+void RTS_Init(const char *filename)
 {
     int32 length;
     //
@@ -203,7 +203,7 @@ int32 RTS_SoundLength(int32 lump)
 ====================
 */
 
-char * RTS_GetSoundName(int32 i)
+const char * RTS_GetSoundName(int32 i)
 {
     i++;
     if (i>=numlumps)

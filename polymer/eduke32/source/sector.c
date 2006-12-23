@@ -491,15 +491,10 @@ void animatewalls(void)
     }
 }
 
-char activatewarpelevators(short s,short d) //Parm = sectoreffectornum
+int activatewarpelevators(short s,short d) //Parm = sectoreffectornum
 {
-    short i, sn;
+    int i = headspritestat[3], sn = sprite[s].sectnum;
 
-    sn = sprite[s].sectnum;
-
-    // See if the sector exists
-
-    i = headspritestat[3];
     while (i >= 0)
     {
         if (SLT == 17)
@@ -540,12 +535,8 @@ char activatewarpelevators(short s,short d) //Parm = sectoreffectornum
 void operatesectors(short sn,short ii)
 {
     long j=0, l, q, startwall, endwall;
-    short i;
-    char sect_error;
-    sectortype *sptr;
-
-    sect_error = 0;
-    sptr = &sector[sn];
+    int i;
+    sectortype *sptr = &sector[sn];
 
     switch (sptr->lotag&(0xffff-49152))
     {
@@ -1136,12 +1127,11 @@ void operateforcefields(short s, int low)
     }
 }
 
-char checkhitswitch(int snum,long w,int switchtype)
+int checkhitswitch(int snum,long w,int switchtype)
 {
-    char switchpal;
+    int switchpal, switchpicnum;
     int i, x, lotag,hitag,picnum,correctdips,numdips;
     long sx,sy;
-    int switchpicnum;
 
     if (w < 0) return 0;
     correctdips = 1;
@@ -1947,9 +1937,9 @@ void checkplayerhurt(struct player_struct *p,short j)
     }
 }
 
-char checkhitceiling(short sn)
+int checkhitceiling(short sn)
 {
-    short i, j;
+    int i, j;
 
     switch (dynamictostatic[sector[sn].ceilingpicnum])
     {

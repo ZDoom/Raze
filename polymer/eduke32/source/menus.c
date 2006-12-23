@@ -309,9 +309,9 @@ static int menutext_(int x,int y,short s,short p,char *t)
     return (x);
 }
 
-inline int menutext(int x,int y,short s,short p,char *t)
+inline int menutext(int x,int y,short s,short p,const char *t)
 {
-    return(menutext_(x,y,s,p,stripcolorcodes(t)));
+    return(menutext_(x,y,s,p,(char *)stripcolorcodes(t)));
 }
 
 static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short s, short pa)
@@ -501,7 +501,7 @@ static void clearfilenames(void)
     numfiles = numdirs = 0;
 }
 
-int getfilenames(char *path, char kind[])
+int getfilenames(const char *path, char kind[])
 {
     CACHE1D_FIND_REC *r;
 

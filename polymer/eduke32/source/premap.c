@@ -1521,8 +1521,6 @@ void resetmys(void)
     myreturntocenter = ps[myconnectindex].return_to_center;
 }
 
-extern void adduserquote(char *daquote);
-
 extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting, vote_map, vote_episode;
 
 static void getlevelfromfilename(const char *fn, char *volume, char *level)

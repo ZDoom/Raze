@@ -44,7 +44,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 ====================
 */
 
-void RTS_Init (char *filename);
+void RTS_Init (const char *filename);
 /*
 ====================
 =
@@ -73,7 +73,7 @@ int32 RTS_SoundLength (int32 lump);
 ====================
 */
 
-char * RTS_GetSoundName (int32 i);
+const char * RTS_GetSoundName (int32 i);
 /*
 ====================
 =

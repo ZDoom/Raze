@@ -271,10 +271,9 @@ void ResetGameVars(void)
     }
 }
 
-char AddGameVar(char *pszLabel, long lValue, unsigned long dwFlags)
+int AddGameVar(const char *pszLabel, long lValue, unsigned long dwFlags)
 {
-    int i;
-    int j;
+    int i, j;
 
     //Bsprintf(g_szBuf,"AddGameVar(%s, %d, %X)",pszLabel, lValue, dwFlags);
     //AddLog(g_szBuf);
@@ -394,7 +393,7 @@ void ResetActorGameVars(int iActor)
         }
 }
 
-static int GetGameID(char *szGameLabel)
+static int GetGameID(const char *szGameLabel)
 {
     int i;
 
@@ -463,7 +462,7 @@ long GetGameVarID(int id, int iActor, int iPlayer)
     
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG)
     {
-        if (inv) return -(*((long*)aGameVars[id].lValue));
+        if (inv) return (-(*((long*)aGameVars[id].lValue)));
         return(*((long*)aGameVars[id].lValue));
     }
     
@@ -504,7 +503,7 @@ void SetGameVarID(int id, long lValue, int iActor, int iPlayer)
     aGameVars[id].lValue=lValue;
 }
 
-long GetGameVar(char *szGameLabel, long lDefault, int iActor, int iPlayer)
+long GetGameVar(const char *szGameLabel, long lDefault, int iActor, int iPlayer)
 {
     int i=0;
     for (;i<iGameVarCount;i++)
@@ -520,7 +519,7 @@ long GetGameVar(char *szGameLabel, long lDefault, int iActor, int iPlayer)
     return lDefault;
 }
 
-static long *GetGameValuePtr(char *szGameLabel)
+static long *GetGameValuePtr(const char *szGameLabel)
 {
     int i;
     for (i=0;i<iGameVarCount;i++)

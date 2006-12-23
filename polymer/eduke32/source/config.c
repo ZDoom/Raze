@@ -142,13 +142,8 @@ int32 CONFIG_FunctionNameToNum(char * func)
 char * CONFIG_FunctionNumToName(int32 func)
 {
     if ((unsigned)func >= (unsigned)NUMGAMEFUNCTIONS)
-    {
         return NULL;
-    }
-    else
-    {
-        return gamefunctions[func];
-    }
+    return gamefunctions[func];
 }
 
 /*

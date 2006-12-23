@@ -50,7 +50,6 @@ extern long g_kb;
 extern long g_looking_angSR1;
 extern int display_bonus_screen;
 extern long lastvisinc;
-extern void adduserquote(char *daquote);
 extern char cheatquotes[][MAXCHEATLEN];
 extern char compilefile[BMAX_PATH];
 extern int total_lines,line_number;

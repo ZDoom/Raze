@@ -197,7 +197,7 @@ void endanimvol43(long fr)
     }
 }
 
-void playanm(char *fn,char t)
+void playanm(const char *fn,char t)
 {
     char *animbuf;
     unsigned char *palptr;
@@ -216,7 +216,7 @@ void playanm(char *fn,char t)
         goto ENDOFANIMLOOP;
     }
 
-    handle = kopen4load(fn,0);
+    handle = kopen4load((char *)fn,0);
     if (handle == -1) return;
     length = kfilelength(handle);
 

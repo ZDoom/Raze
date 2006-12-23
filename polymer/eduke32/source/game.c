@@ -134,11 +134,11 @@ long tempwallptr;
 long nonsharedtimer;
 
 static void cameratext(short i);
-static char moveloop(void);
+static int moveloop(void);
 static void doorders(void);
 static void fakedomovethings(void);
 static void fakedomovethingscorrect(void);
-static char domovethings(void);
+static int domovethings(void);
 static long playback(void);
 
 enum
@@ -258,7 +258,7 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
 
 #define TEXTWRAPLEN (scale(35,ScreenWidth,320))
 
-char *stripcolorcodes(char *t)
+const char *stripcolorcodes(const char *t)
 {
     int i = 0;
 
@@ -278,14 +278,14 @@ char *stripcolorcodes(char *t)
     return(colstrip);
 }
 
-int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2)
+int gametext_(int small, int starttile, int x,int y,const char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2)
 {
     short ac,newx,oldx=x;
     char centre, *oldt;
 
     centre = (x == (320>>1));
     newx = 0;
-    oldt = t;
+    oldt = (char *)t;
 
     if (t == NULL)
         return -1;
@@ -356,31 +356,31 @@ int gametext_(int small, int starttile, int x,int y,char *t,char s,char p,short 
         if ((*t >= '0' && *t <= '9'))
             x += 8;
         else x += tilesizx[ac];//(tilesizx[ac]>>small);
-        if (t-oldt >= (signed)TEXTWRAPLEN-!small) oldt = t, x = oldx, y+=8;
+        if (t-oldt >= (signed)TEXTWRAPLEN-!small) oldt = (char *)t, x = oldx, y+=8;
         t++;
     }
 
     return (x);
 }
 
-inline int gametext(int x,int y,char *t,char s,short dabits)
+inline int gametext(int x,int y,const char *t,char s,short dabits)
 {
     return(gametext_(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
 }
 
-inline int gametextpal(int x,int y,char *t,char s,char p)
+inline int gametextpal(int x,int y,const char *t,char s,char p)
 {
     return(gametext_(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1));
 }
 
-inline int mpgametext(int y,char *t,char s,short dabits)
+inline int mpgametext(int y,const char *t,char s,short dabits)
 {
     if (xdim >= 640 && ydim >= 480)
         return(gametext_(1,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
     return(gametext_(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
 }
 
-static int minitext_(int x,int y,char *t,char s,char p,short sb)
+static int minitext_(int x,int y,const char *t,char s,char p,short sb)
 {
     short ac;
     char ch,cmode;
@@ -408,12 +408,12 @@ static int minitext_(int x,int y,char *t,char s,char p,short sb)
     return (x);
 }
 
-inline int minitextshade(int x,int y,char *t,char s,char p,short sb)
+inline int minitextshade(int x,int y,const char *t,char s,char p,short sb)
 {
     return (minitext_(x,y,(char *)stripcolorcodes(t),s,p,sb));
 }
 
-inline int minitext(int x,int y,char *t,char p,short sb)
+inline int minitext(int x,int y,const char *t,char p,short sb)
 {
     return (minitext_(x,y,(char *)stripcolorcodes(t),0,p,sb));
 }
@@ -455,7 +455,7 @@ static void allowtimetocorrecterrorswhenquitting(void)
     }
 }
 
-void adduserquote(char *daquote)
+void adduserquote(const char *daquote)
 {
     long i;
 
@@ -2329,7 +2329,7 @@ static void tics(void)
                 if (ud.multimode > 4)
                     k += 8;
             }
-            Bsprintf(b,"%ld",j>0?j:0);
+            Bsprintf(b,"%ld",max(j,0));
             minitext(320-strlen(b)*4,k+1,b,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
 
             if (numplayers > 1)
@@ -2396,8 +2396,8 @@ static void operatefta(void)
     j = quotebot;
     for (i=0;i<MAXUSERQUOTES;i++)
     {
+        if (user_quote_time[i] <= 0) break;    
         k = user_quote_time[i];
-        if (k <= 0) break;
         l = Bstrlen(user_quote[i]);
         while (l > TEXTWRAPLEN)
         {
@@ -2418,6 +2418,13 @@ static void operatefta(void)
 
     if (ps[screenpeek].fta <= 1) return;
 
+    if (fta_quotes[ps[screenpeek].ftq] == NULL)
+    {
+        OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,ps[screenpeek].ftq);
+        return;
+    }
+
+    k = 0;
     if (GTFLAGS(GAMETYPE_FLAG_FRAGBAR) && ud.screen_size > 0 && ud.multimode > 1)
     {
         j = 0;
@@ -2429,11 +2436,10 @@ static void operatefta(void)
         else if (j > 8 && j <= 12) k += 16;
         else if (j > 12) k += 24;
     }
-    else k = 0;
 
     if (ps[screenpeek].ftq == 115 || ps[screenpeek].ftq == 116 || ps[screenpeek].ftq == 117)
     {
-        k = quotebot-8;
+        k = quotebot-8-4;
         /*        for(i=0;i<MAXUSERQUOTES;i++)
                 {
                     if (user_quote_time[i] <= 0) break;
@@ -2444,14 +2450,8 @@ static void operatefta(void)
                         l -= TEXTWRAPLEN;
                         k -= 8;
                     }
-                } */
-        k -= 4;
-    }
-
-    if (fta_quotes[ps[screenpeek].ftq] == NULL)
-    {
-        OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,ps[screenpeek].ftq);
-        return;
+                }
+                k -= 4; */
     }
 
     j = ps[screenpeek].fta;
@@ -2465,29 +2465,31 @@ static void operatefta(void)
 
 void FTA(short q,struct player_struct *p)
 {
-    if (fta_quotes[p->ftq] != NULL)
+    if (fta_quotes[p->ftq] == NULL)
     {
-        if (ud.fta_on == 1)
-        {
-            if (p->fta > 0 && q != 115 && q != 116)
-                if (p->ftq == 115 || p->ftq == 116) return;
-
-            p->fta = 100;
-
-            //            if(p->ftq != q || q == 26)
-            // || q == 26 || q == 115 || q ==116 || q == 117 || q == 122)
-            {
-                if (p->ftq != q)
-                    if (p == &ps[screenpeek])
-                        OSD_Printf("%s\n",stripcolorcodes(fta_quotes[q]));
-
-                p->ftq = q;
-                pub = NUMPAGES;
-                pus = NUMPAGES;
-            }
-        }
+        OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,p->ftq);
+        return;
     }
-    else OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,p->ftq);
+
+    if (ud.fta_on == 0)
+        return;
+        
+    if (p->fta > 0 && q != 115 && q != 116)
+        if (p->ftq == 115 || p->ftq == 116) return;
+
+    p->fta = 100;
+
+    //            if(p->ftq != q || q == 26)
+    // || q == 26 || q == 115 || q ==116 || q == 117 || q == 122)
+    {
+        if (p->ftq != q)
+            if (p == &ps[screenpeek])
+                OSD_Printf("%s\n",stripcolorcodes(fta_quotes[q]));
+
+        p->ftq = q;
+        pub = NUMPAGES;
+        pus = NUMPAGES;
+    }
 }
 
 void fadepal(int r, int g, int b, int start, int end, int step)
@@ -2531,7 +2533,7 @@ static void showtwoscreens(void)
 
 extern long qsetmode;
 
-void gameexit(char *t)
+void gameexit(const char *t)
 {
     if (*t != 0) ps[myconnectindex].palette = (char *) &palette[0];
 
@@ -2569,7 +2571,7 @@ void gameexit(char *t)
         //printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         if (!(t[0] == ' ' && t[1] == 0))
         {
-            wm_msgbox(HEAD2, t);
+            wm_msgbox(HEAD2, (char *)t);
         }
     }
 
@@ -3160,11 +3162,9 @@ void displayrest(long smoothratio)
     long a, i, j;
     char fader=0,fadeg=0,fadeb=0,fadef=0,tintr=0,tintg=0,tintb=0,tintf=0,dotint=0;
 
-    struct player_struct *pp;
+    struct player_struct *pp = &ps[screenpeek];
     walltype *wal;
     long cposx,cposy,cang;
-
-    pp = &ps[screenpeek];
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
     // this takes care of fullscreen tint for OpenGL
@@ -3467,17 +3467,14 @@ void displayrest(long smoothratio)
 
 static void view(struct player_struct *pp, long *vx, long *vy,long *vz,short *vsectnum, short ang, short horiz)
 {
-    spritetype *sp;
-    long i, nx, ny, nz, hx, hy, hitx, hity, hitz;
-    short bakcstat, hitsect, hitwall, hitsprite, daang;
+    spritetype *sp = &sprite[pp->i];
+    long i, hx, hy, hitx, hity, hitz;
+    long nx = (sintable[(ang+1536)&2047]>>4);
+    long ny = (sintable[(ang+1024)&2047]>>4);
+    long nz = (horiz-100)*128;
+    short hitsect, hitwall, hitsprite, daang;
+    short bakcstat = sp->cstat;
 
-    nx = (sintable[(ang+1536)&2047]>>4);
-    ny = (sintable[(ang+1024)&2047]>>4);
-    nz = (horiz-100)*128;
-
-    sp = &sprite[pp->i];
-
-    bakcstat = sp->cstat;
     sp->cstat &= (short)~0x101;
 
     updatesectorz(*vx,*vy,*vz,vsectnum);
@@ -4162,7 +4159,7 @@ int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_
 {
     int i = insertsprite(whatsect,s_ss);
     long p;
-    spritetype *s;
+    spritetype *s = &sprite[i];
 
     if (i < 0)
     {
@@ -4174,8 +4171,6 @@ int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_
     hittype[i].bposx = s_x;
     hittype[i].bposy = s_y;
     hittype[i].bposz = s_z;
-
-    s = &sprite[i];
 
     s->x = s_x;
     s->y = s_y;
@@ -4250,7 +4245,7 @@ int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_
     return(i);
 }
 
-char wallswitchcheck(short i)
+int wallswitchcheck(short i)
 {
     int j;
     //MULTISWITCH has 4 states so deal with it separately
@@ -7128,7 +7123,7 @@ signed char cheatbuf[MAXCHEATLEN],cheatbuflen;
 static void cheats(void)
 {
     short ch, i, j, k=0, weapon;
-    static char z=0;
+    static int z=0;
     char consolecheat = 0;  // JBF 20030914
 
     if (osdcmd_cheatsinfo_stat.cheatnum != -1)
@@ -8097,17 +8092,17 @@ FAKE_F3:
     if (KB_KeyPressed(sc_F11))
     {
         KB_ClearKeyDown(sc_F11);
-        if (SHIFTS_IS_PRESSED) ud.brightness-=4;
-        else ud.brightness+=4;
+        if (SHIFTS_IS_PRESSED) ud.brightness-=8;
+        else ud.brightness+=8;
 
-        if (ud.brightness > (7<<2))
+        if (ud.brightness > (7<<3))
             ud.brightness = 0;
         else if (ud.brightness < 0)
-            ud.brightness = (7<<2);
+            ud.brightness = (7<<3);
 
         setbrightness(ud.brightness>>2,&ps[myconnectindex].palette[0],0);
-        if (ud.brightness < 20) FTA(29 + (ud.brightness>>2) ,&ps[myconnectindex]);
-        else if (ud.brightness < 40) FTA(96 + (ud.brightness>>2) - 5,&ps[myconnectindex]);
+        if (ud.brightness < 40) FTA(29 + (ud.brightness>>3) ,&ps[myconnectindex]);
+        else if (ud.brightness < 80) FTA(96 + (ud.brightness>>3) - 5,&ps[myconnectindex]);
     }
 }
 
@@ -9349,10 +9344,10 @@ static void Startup(long argc, char **argv)
         networkmode = 1;
 }
 
-void sendscore(char *s)
+void sendscore(const char *s)
 {
     if (numplayers > 1)
-        genericmultifunction(-1,s,strlen(s)+1,5);
+        genericmultifunction(-1,(char *)s,strlen(s)+1,5);
 }
 
 void sendwchoice(void)
@@ -10177,7 +10172,7 @@ MAIN_LOOP_RESTART:
 
 char demo_version;
 
-static char opendemoread(char which_demo) // 0 = mine
+static int opendemoread(char which_demo) // 0 = mine
 {
     char d[13];
     char ver;
@@ -10600,7 +10595,7 @@ RECHECK:
     return 1;
 }
 
-static char moveloop()
+static int moveloop()
 {
     long i;
 
@@ -11099,7 +11094,7 @@ ENDFAKEPROCESSINPUT:
     sprite[p->i].cstat = backcstat;
 }
 
-static char domovethings(void)
+static int domovethings(void)
 {
     int i, j;
     char ch;
