@@ -4427,20 +4427,19 @@ repeatcase:
 
 static void passone(void)
 {
-#ifdef DEBUG
-    int i;
-#endif
-
     while (parsecommand() == 0);
 
     if ((error+warning) > 63)
         initprintf("fatal error: too many warnings or errors: Aborted\n");
 
 #ifdef DEBUG
-    initprintf("Game Definitions\n");
-    for (i=0;i<iGameVarCount;i++)
     {
-        initprintf("%20s\t%d\n",apszGameVarLabel[i],lGameVarValue[i]);
+        int i=0;
+        initprintf("Game Definitions\n");
+        for (;i<iGameVarCount;i++)
+        {
+            initprintf("%20s\t%d\n",apszGameVarLabel[i],lGameVarValue[i]);
+        }
     }
 #endif
 }

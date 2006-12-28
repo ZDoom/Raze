@@ -501,7 +501,7 @@ static void clearfilenames(void)
     numfiles = numdirs = 0;
 }
 
-int getfilenames(const char *path, char kind[])
+static int getfilenames(const char *path, char kind[])
 {
     CACHE1D_FIND_REC *r;
 
@@ -539,8 +539,6 @@ void check_player_color(int *color,int prev_color)
 
 void sendquit(void)
 {
-    int i;
-
     if (gamequit == 0 && (numplayers > 1))
     {
         if (ps[myconnectindex].gm&MODE_GAME)
@@ -550,6 +548,8 @@ void sendquit(void)
         }
         else
         {
+            int i;
+        
             tempbuf[0] = 254;
             tempbuf[1] = myconnectindex;
 
@@ -600,6 +600,7 @@ void menus(void)
     x = 0;
 
     sh = 4-(sintable[(totalclock<<4)&2047]>>11);
+    
     if (bpp > 8)
     {
         long x,y,y1=0,y2=ydim;
@@ -607,17 +608,44 @@ void menus(void)
             for (x=0;x<xdim;x+=tilesizx[BIGHOLE])
                 rotatesprite(x<<16,y<<16,65536L,0,BIGHOLE,80,0,1+8+16,0,0,xdim-1,ydim-1);
     }
+    
     if (!(current_menu >= 1000 && current_menu <= 2999 && current_menu >= 300 && current_menu <= 369))
         vscrn();
 
-    if (KB_KeyPressed(sc_Q) && current_menu >= 0 && (current_menu > 502 || current_menu < 500) && current_menu != 20003 &&
-            current_menu != 20005 && current_menu != 210 && current_menu != 603 && current_menu != 10001 && !(current_menu > 359 && current_menu < 370))
+    if (KB_KeyPressed(sc_Q))
     {
-        last_menu = current_menu;
-        last_probey = probey;
-        cmenu(502);
+        switch (current_menu)
+        {
+        case 210:
+        case 360:
+        case 361:
+        case 362:
+        case 363:
+        case 364:
+        case 365:
+        case 366:
+        case 367:
+        case 368:
+        case 369:
+        case 500:
+        case 501:
+        case 502:
+        case 603:
+        case 10001:    
+        case 20003:
+        case 20005:
+            break;
+        default:
+            if (current_menu >= 0)
+            {
+                last_menu = current_menu;
+                last_probey = probey;
+                cmenu(502);
+            }
+            break;
+        }
     }
-
+    
     switch (current_menu)
     {
     case 25000:
@@ -795,7 +823,7 @@ void menus(void)
         menutext(40,50+16+16+16,MENUHIGHLIGHT(3),0,"AUTO AIM");
         menutext(40,50+16+16+16+16,MENUHIGHLIGHT(4),0,"WEAPON SWITCH");
         menutext(40,50+16+16+16+16+16,MENUHIGHLIGHT(5),0,"AIMING TYPE");
-        menutext(40,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),0,"MACRO SETUP");
+        menutext(40,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),0,"TAUNT MACRO SETUP");
 
         if (current_menu == 20002)
         {
@@ -825,7 +853,7 @@ void menus(void)
     case 20004:
     case 20005:
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(160,24,0,0,"MACRO SETUP");
+        menutext(160,24,0,0,"TAUNT MACRO SETUP");
 
         if (current_menu == 20004)
         {

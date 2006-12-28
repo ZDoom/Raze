@@ -113,7 +113,6 @@ extern void savetemp(const char *fn,long daptr,long dasiz);
 extern int loadplayer(signed char spot);
 extern int saveplayer(signed char spot);
 extern inline int menutext(int x,int y,short s,short p,const char *t);
-extern int getfilenames(const char *path, char kind[]);
 extern void menus(void);
 extern void palto(char r,char g,char b,long e);
 extern void playanm(const char *fn,char);
