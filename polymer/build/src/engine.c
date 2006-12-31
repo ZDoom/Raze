@@ -6278,7 +6278,7 @@ else
     free(indexes);
     free(depths);*/
 
-    /*pos.x = globalposx;
+    pos.x = globalposx;
     pos.y = globalposy;
 
     //OSD_Printf("EIN OBSERVER POSITION : x=%i y=%i\n", pos.x, pos.y);
@@ -6333,10 +6333,10 @@ else
         spritesortcnt--;
         if (tspriteptr[spritesortcnt] != NULL)
             drawsprite(spritesortcnt);
-    }*/
+    }
 
-    while (spritesortcnt > 0) drawsprite(--spritesortcnt);
-    while (maskwallcnt > 0) drawmaskwall(--maskwallcnt);
+    //while (spritesortcnt > 0) drawsprite(--spritesortcnt);
+    //while (maskwallcnt > 0) drawmaskwall(--maskwallcnt);
 } /* goodalpha */
 
     indrawroomsandmasks = 0;
