@@ -3153,7 +3153,7 @@ static void drawsprite(long snum)
     if (rendmode == 3) {
         polymost_drawsprite(snum);
 #ifdef USE_OPENGL
-        bglDepthMask(1);
+        //bglDepthMask(1);
 #endif
         return;
     }
@@ -5951,6 +5951,21 @@ int         sameside(_equation* eq, _point2d* p1, _point2d* p2)
     return (0);
 }
 
+void    drawpeel(int peel)
+{
+    bglBindTexture(GL_TEXTURE_RECTANGLE_NV, peels[peel]);
+    bglBegin(GL_QUADS);
+    bglTexCoord2f(0.0f, 0.0f);
+    bglVertex2f(-1.0f, -1.0f);
+    bglTexCoord2f(xdim, 0.0f);
+    bglVertex2f(1.0f, -1.0f);
+    bglTexCoord2f(xdim, ydim);
+    bglVertex2f(1.0f, 1.0f);
+    bglTexCoord2f(0.0f, ydim);
+    bglVertex2f(-1.0f, 1.0f);
+    bglEnd();
+}
+
 //
 // drawmasks
 //
@@ -5987,6 +6002,8 @@ killsprite:
         spritesy[i] = yp;
     }
 
+if (!usegoodalpha)
+{
     gap = 1; while (gap < spritesortcnt) gap = (gap<<1)+1;
     for (gap>>=1;gap>0;gap>>=1)     //Sort sprite list
         for (i=0;i<spritesortcnt-gap;i++)
@@ -6040,7 +6057,13 @@ killsprite:
         }
         i = j;
     }
+}
 
+    if (usegoodalpha)
+    {
+        bglNewList(1, GL_COMPILE);
+        peelcompiling = 1;
+    }
     begindrawing(); //{{{
 
     /*for(i=spritesortcnt-1;i>=0;i--)
@@ -6061,7 +6084,8 @@ killsprite:
     }*/
 
 
-#if 0
+if (!usegoodalpha)
+{
     {   // Removing previous sorting code
 #ifdef POLYMOST
         //Hack to make it draw all opaque quads first. This should reduce the chances of
@@ -6147,7 +6171,9 @@ killsprite:
         while (spritesortcnt > 0) drawsprite(--spritesortcnt);
         while (maskwallcnt > 0) drawmaskwall(--maskwallcnt);
     }
-#else
+}
+else
+{
     // PLAG : The heart of good transparency -> sorted rendering on all layers.
     // that's why this code interleaves the drawing of all possible transparent entities
     // bubblesort is used, shouldn't cause any problems cpu-wise since the lists are small
@@ -6252,7 +6278,7 @@ killsprite:
     free(indexes);
     free(depths);*/
 
-    pos.x = globalposx;
+    /*pos.x = globalposx;
     pos.y = globalposy;
 
     //OSD_Printf("EIN OBSERVER POSITION : x=%i y=%i\n", pos.x, pos.y);
@@ -6307,13 +6333,103 @@ killsprite:
         spritesortcnt--;
         if (tspriteptr[spritesortcnt] != NULL)
             drawsprite(spritesortcnt);
-    }
-#endif /* goodalpha */
+    }*/
+
+    while (spritesortcnt > 0) drawsprite(--spritesortcnt);
+    while (maskwallcnt > 0) drawmaskwall(--maskwallcnt);
+} /* goodalpha */
 
     indrawroomsandmasks = 0;
     enddrawing();   //}}}
-}
+    if (usegoodalpha)
+    {
+        bglEndList();
+        peelcompiling = 0;
 
+        bglDisable(GL_BLEND);
+        bglEnable(GL_ALPHA_TEST);
+        bglAlphaFunc(GL_GREATER, 0.0f);
+
+        i = 0;
+        while (i < numpeels)
+        {
+            if (i > 0)
+            {
+                bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                bglEnable(GL_FRAGMENT_PROGRAM_ARB);
+
+                bglActiveTextureARB(GL_TEXTURE1_ARB);
+                bglEnable(GL_TEXTURE_RECTANGLE_NV);
+                bglBindTexture(GL_TEXTURE_RECTANGLE_NV, ztexture);
+                bglActiveTextureARB(GL_TEXTURE0_ARB);
+            }
+        
+            bglCallList(1);
+
+            if (i > 0)
+            {
+                bglActiveTextureARB(GL_TEXTURE1_ARB);
+                bglDisable(GL_TEXTURE_RECTANGLE_NV);
+                bglActiveTextureARB(GL_TEXTURE0_ARB);
+
+                bglDisable(GL_FRAGMENT_PROGRAM_ARB);
+            }
+
+            // save output to a peel
+            bglBindTexture(GL_TEXTURE_RECTANGLE_NV, peels[i]);
+            bglCopyTexSubImage2D(GL_TEXTURE_RECTANGLE_NV, 0, 0, 0, 0, 0, xdim, ydim);
+
+            if (i < (numpeels - 1))
+            {
+                // save depth buffer
+                bglBindTexture(GL_TEXTURE_RECTANGLE_NV, ztexture);
+                bglCopyTexSubImage2D(GL_TEXTURE_RECTANGLE_NV, 0, 0, 0, 0, 0, xdim, ydim);
+            }
+
+            i++;
+        }
+
+        bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        bglEnable(GL_BLEND);
+        bglDisable(GL_ALPHA_TEST);
+        bglDisable(GL_DEPTH_TEST);
+
+        bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+        // identity for screen aligned quads
+        bglMatrixMode(GL_PROJECTION);
+        bglPushMatrix();
+        bglLoadIdentity();
+        bglMatrixMode(GL_MODELVIEW);
+        bglPushMatrix();
+        bglLoadIdentity();
+
+        bglEnable(GL_TEXTURE_RECTANGLE_NV);
+
+        if (curpeel == -1)
+        {
+            i = numpeels - 1;
+            while (i >= 0)
+                drawpeel(i--);
+        }
+        else
+            drawpeel(curpeel);
+
+        bglDisable(GL_TEXTURE_RECTANGLE_NV);
+        bglEnable(GL_TEXTURE_2D);
+
+        // restore the polymost projection
+        bglMatrixMode(GL_PROJECTION);
+        bglPopMatrix();
+        bglMatrixMode(GL_MODELVIEW);
+        bglPopMatrix();
+
+        bglEnable(GL_DEPTH_TEST);
+
+        bglDeleteLists(1, 1);
+    }
+}
 
 //
 // drawmapview

@@ -94,6 +94,8 @@ extern void (APIENTRY * bglGenTextures)( GLsizei n, GLuint *textures );	// 1.1
 extern void (APIENTRY * bglDeleteTextures)( GLsizei n, const GLuint *textures);	// 1.1
 extern void (APIENTRY * bglBindTexture)( GLenum target, GLuint texture );	// 1.1
 extern void (APIENTRY * bglTexImage2D)( GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
+extern void (APIENTRY * bglCopyTexImage2D)( GLenum	target, GLint level, GLenum	internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border );
+extern void (APIENTRY * bglCopyTexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 extern void (APIENTRY * bglTexSubImage2D)( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels );	// 1.1
 extern void (APIENTRY * bglTexParameterf)( GLenum target, GLenum pname, GLfloat param );
 extern void (APIENTRY * bglTexParameteri)( GLenum target, GLenum pname, GLint param );
@@ -111,6 +113,7 @@ extern void (APIENTRY * bglFogfv)( GLenum pname, const GLfloat *params );
 extern void (APIENTRY * bglNewList)(GLuint list, GLenum mode);
 extern void (APIENTRY * bglEndList)(void);
 extern void (APIENTRY * bglCallList)(GLuint list);
+extern void (APIENTRY * bglDeleteLists)(GLuint list, GLsizei range);
 
 // Vertex Arrays
 extern void (APIENTRY * bglEnableClientState)(GLenum cap);
@@ -124,6 +127,14 @@ extern void (APIENTRY * bglDrawElements)(GLenum mode, GLsizei count, GLenum type
 extern void (APIENTRY * bglClearStencil)(GLint s);
 extern void (APIENTRY * bglStencilOp)(GLenum fail, GLenum zfail, GLenum zpass);
 extern void (APIENTRY * bglStencilFunc)(GLenum func, GLint ref, GLuint mask);
+
+// GPU Programs
+extern void (APIENTRY * bglGenProgramsARB)(GLsizei, GLuint *);
+extern void (APIENTRY * bglBindProgramARB)(GLenum, GLuint);
+extern void (APIENTRY * bglProgramStringARB)(GLenum, GLenum, GLsizei, const GLvoid *);
+
+// Multitexturing
+extern void (APIENTRY * bglActiveTextureARB)(GLenum texture);
 
 #ifdef RENDERTYPEWIN
 // Windows

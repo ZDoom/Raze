@@ -1489,7 +1489,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         bglBindTexture(GL_TEXTURE_2D, i);
 
         //PLAG: delayed polygon-level sorted rendering
-        if (m->usesalpha && !(tspr->cstat & 1024))
+        if (m->usesalpha && !(tspr->cstat & 1024) && !usegoodalpha)
         {
             indexes = malloc(sizeof(unsigned short) * s->numtris);
             maxdepths = malloc(sizeof(float) * s->numtris);

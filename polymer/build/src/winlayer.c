@@ -2764,7 +2764,7 @@ static int SetupOpenGL(int width, int height, int bitspp)
                                     PFD_TYPE_RGBA,                 //Request An RGBA Format
                                     0,                        //Select Our Color Depth
                                     0,0,0,0,0,0,                   //Color Bits Ignored
-                                    0,                             //No Alpha Buffer
+                                    8,                             //No Alpha Buffer
                                     0,                             //Shift Bit Ignored
                                     0,                             //No Accumulation Buffer
                                     0,0,0,0,                       //Accumulation Bits Ignored

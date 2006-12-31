@@ -127,6 +127,10 @@ static long lastglpolygonmode = 0; //FUK
 long glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
 long glwidescreen = 0;
 long glprojectionhacks = 1;
+long usegoodalpha = 0;
+long peelcompiling = 0;
+long numpeels = 10;
+long curpeel = -1;
 static GLuint polymosttext = 0;
 extern char nofog;
 
@@ -594,11 +598,28 @@ void polymost_glreset ()
     glox1 = -1;
 }
 
+GLuint ztexture;
+GLuint *peels;
+GLuint peelprogram;
+
 // one-time initialisation of OpenGL for polymost
 void polymost_glinit()
 {
     GLfloat col[4];
+    int     i;
+	char    peelprogramstring[] = 
+                "!!ARBfp1.0\n"
+                "TEMP texsample;\n"
+                "TEMP depthresult;\n"
+                "TEMP tempresult;\n"
+                "TEX texsample, fragment.texcoord[0], texture[0], 2D;\n" 
+                "TEX depthresult, fragment.position, texture[1], RECT;\n" 
+                "MUL tempresult, fragment.color, texsample;\n"
+                "MUL tempresult.a, tempresult.a, depthresult.a;\n"
+                "MOV result.color, tempresult;\n"
+                "END\n";
 
+    bglGetIntegerv(GL_ALPHA_BITS, &i);
 #if 1
     if (!Bstrcmp(glinfo.vendor, "ATI Technologies Inc."))
     {
@@ -629,6 +650,43 @@ void polymost_glinit()
         if (glinfo.nvmultisamplehint)
             bglHint(GL_MULTISAMPLE_FILTER_HINT_NV, glnvmultisamplehint ? GL_NICEST:GL_FASTEST);
         bglEnable(GL_MULTISAMPLE_ARB);
+    }
+
+    //depth peeling init
+    if (usegoodalpha)
+    {
+        // create the secondary Z-buffer
+        bglGenTextures(1, &ztexture);
+        bglBindTexture(GL_TEXTURE_RECTANGLE_NV, ztexture);
+        bglCopyTexImage2D(GL_TEXTURE_RECTANGLE_NV, 0, GL_DEPTH_COMPONENT, 0, 0, xdim, ydim, 0);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_COMPARE_FUNC_ARB, GL_GREATER);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_DEPTH_TEXTURE_MODE_ARB, GL_ALPHA);
+
+        // create the various peeling layers
+        peels = malloc(numpeels * sizeof(GLuint));
+        bglGenTextures(numpeels, peels);
+        i = 0;
+        while (i < numpeels)
+        {
+            bglBindTexture(GL_TEXTURE_RECTANGLE_NV, peels[i]);
+            bglCopyTexImage2D(GL_TEXTURE_RECTANGLE_NV, 0, GL_RGBA8, 0, 0, xdim, ydim, 0);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_WRAP_S, GL_CLAMP);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+            i++;
+        }
+
+        // create the peeling fragment program
+        bglGenProgramsARB(1, &peelprogram);
+        bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram);
+        bglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(peelprogramstring), peelprogramstring);
     }
 }
 
@@ -1499,14 +1557,16 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 
         if ((!(method&3)) && (!fullbrightdrawingpass)) {
             bglDisable(GL_BLEND);
-            bglDisable(GL_ALPHA_TEST);
+            if (!peelcompiling)
+                bglDisable(GL_ALPHA_TEST);
         } else {
             float al = 0.0; // PLAG : default alphacut was 0.32 before goodalpha
             if (pth && pth->hicr && pth->hicr->alphacut >= 0.0) al = pth->hicr->alphacut;
             if (alphahackarray[globalpicnum])
                 al=alphahackarray[globalpicnum];
             if (!waloff[globalpicnum]) al = 0.0;	// invalid textures ignore the alpha cutoff settings
-            bglEnable(GL_BLEND);
+            if (!peelcompiling)
+                bglEnable(GL_BLEND);
             bglEnable(GL_ALPHA_TEST);
             bglAlphaFunc(GL_GREATER,al);
         }
@@ -3899,9 +3959,9 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         }
         break;
     }
-    if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && ((tspr->cstat&48) != 0))
-        if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && ((tspr->cstat&48) != 0))
-            bglDepthMask(0);
+    //if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && ((tspr->cstat&48) != 0))
+    //    if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && ((tspr->cstat&48) != 0))
+    //        bglDepthMask(0);
 #endif
 
     switch ((globalorientation>>4)&3)
@@ -4961,7 +5021,18 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->name, "usegoodalpha")) {
-        OSD_Printf("usegoodalpha is obsolete\n");
+        if (showval) { OSD_Printf("usegoodalpha is %d\n", usegoodalpha); }
+        else usegoodalpha = (val != 0);
+        return OSDCMD_OK;
+    }
+    else if (!Bstrcasecmp(parm->name, "numpeels")) {
+        if (showval) { OSD_Printf("numpeels is %d\n", numpeels); }
+        else numpeels = val;
+        return OSDCMD_OK;
+    }
+    else if (!Bstrcasecmp(parm->name, "curpeel")) {
+        if (showval) { OSD_Printf("curpeel is %d\n", curpeel); }
+        else curpeel = val;
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->name, "glpolygonmode")) {
@@ -5040,6 +5111,8 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("gltexturemaxsize","gltexturemaxsize: changes the maximum OpenGL texture size limit",osdcmd_polymostvars);
     OSD_RegisterFunction("gltexturemiplevel","gltexturemiplevel: changes the highest OpenGL mipmap level used",osdcmd_polymostvars);
     OSD_RegisterFunction("usegoodalpha","usegoodalpha: [OBSOLETE] enable/disable better looking OpenGL alpha hack",osdcmd_polymostvars);
+    OSD_RegisterFunction("numpeels","numpeels",osdcmd_polymostvars);
+    OSD_RegisterFunction("curpeel","curpeel: [OBSOLETE] enable/disable better looking OpenGL alpha hack",osdcmd_polymostvars);
     OSD_RegisterFunction("glpolygonmode","glpolygonmode: debugging feature",osdcmd_polymostvars); //FUK
     OSD_RegisterFunction("glusetexcache","glusetexcache: enable/disable OpenGL compressed texture cache",osdcmd_polymostvars);
     OSD_RegisterFunction("glusetexcachecompression","usetexcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars);
