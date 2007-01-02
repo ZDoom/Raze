@@ -124,9 +124,9 @@ char user_quote[MAXUSERQUOTES][178];
 // char typebuflen,typebuf[41];
 
 #ifdef JFAUD
-#define MAXCACHE1DSIZE (16*1048576)
+int MAXCACHE1DSIZE = (16*1048576);
 #else
-#define MAXCACHE1DSIZE (32*1048576)
+int MAXCACHE1DSIZE = (32*1048576);
 #endif
 
 long tempwallptr;
@@ -148,6 +148,7 @@ enum
     T_INTERFACE = 0,
     T_LOADGRP = 0,
     T_MODE = 1,
+    T_CACHESIZE = 1,
     T_ALLOW
 };
 
@@ -8125,7 +8126,7 @@ static void comlinehelp(void)
               "-i#\t\tNetwork mode (1/0) (multiplayer only) (default == 1)\n"
               "-f#\t\tSend fewer packets (1, 2, 4) (multiplayer only)\n"
               "-gFILE\t\tUse multiple group files (must be last on command line)\n"
-              "-jDIRECTORY\t\tAdd a directory to the file path stack\n"
+              "-jDIRECTORY\tAdd a directory to the file path stack\n"
               "-hFILE\t\tUse FILE instead of DUKE3D.DEF\n"
               "-xFILE\t\tUse specified CON file (default EDUKE.CON/GAME.CON)\n"
               "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
@@ -8326,6 +8327,7 @@ int loadgroupfiles(char *fn)
     tokenlist grptokens[] =
         {
             { "loadgrp",         T_LOADGRP },
+            { "cachesize",       T_CACHESIZE },
         };
 
     script = scriptfile_fromfile(fn);
@@ -8349,6 +8351,13 @@ int loadgroupfiles(char *fn)
                 else
                     initprintf("Using group file %s.\n",fn);
             }
+        }
+        case T_CACHESIZE:
+        {
+            int j;
+            if (scriptfile_getnumber(script,&j)) break;
+            
+            if (j > 0) MAXCACHE1DSIZE = j<<10;
         }
         break;
         case T_EOF:
