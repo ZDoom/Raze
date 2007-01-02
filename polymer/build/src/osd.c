@@ -59,6 +59,7 @@ static BFILE *osdlog=NULL;		// log filehandle
 static char osdinited=0;		// text buffer initialised?
 static int  osdkey=0x29;		// tilde shows the osd
 static int  keytime=0;
+static long osdscrtime = 0;
 
 // command prompt editing
 #define EDITLENGTH 512
@@ -373,6 +374,7 @@ int OSD_HandleKey(int sc, int press)
                 osdscroll = -1;
             osdrowscur += osdscroll;                
             OSD_CaptureInput(osdscroll == 1);
+            osdscrtime = getticks();
         }
         return 0;//sc;
     } else if (!osdinput) {
@@ -519,6 +521,7 @@ int OSD_HandleKey(int sc, int press)
             osdscroll = -1;
             osdrowscur += osdscroll;                
             OSD_CaptureInput(0);
+            osdscrtime = getticks();
     } else if (sc == 201) {	// page up
         if (osdhead < osdlines-1)
             osdhead++;
@@ -704,6 +707,7 @@ void OSD_ShowDisplay(int onf)
 //
 // OSD_Draw() -- Draw the onscreen display
 //
+
 void OSD_Draw(void)
 {
     unsigned topoffs;
@@ -718,11 +722,22 @@ void OSD_Draw(void)
         osdscroll = 0;
     else
     {
+/*
+        int i = getticks();
+    
+        if (!osdscrtime) osdscrtime = i;
+*/    
         if ((osdrowscur < osdrows && osdscroll == 1) || osdrowscur < -1)
-            osdrowscur++;
-        else if ((osdrowscur > -1 && osdscroll == -1) || osdrowscur > osdrows)
-            osdrowscur--;   
-    } 
+            osdrowscur += 1;//(i-osdscrtime)>>3;
+        if ((osdrowscur > -1 && osdscroll == -1) || osdrowscur > osdrows)
+            osdrowscur -= 1;//(i-osdscrtime)>>3;
+/*
+        if (osdrowscur > osdrows) osdrowscur = osdrows;
+        if (osdrowscur < -1) osdrowscur = -1;
+        OSD_Printf("%ld\n",(i-osdscrtime)>>3);
+        osdscrtime = i;
+*/
+    }
     
     if (!osdvisible || !osdrowscur) return;
 

@@ -62,6 +62,7 @@ enum {
     T_FOGPAL,
     T_LOADGRP,
     T_DUMMYTILE,T_DUMMYTILERANGE,
+    T_CACHESIZE
 };
 
 typedef struct { char *text; int tokenid; } tokenlist;
@@ -107,6 +108,7 @@ static tokenlist basetokens[] =
         { "loadgrp",     	 T_LOADGRP	 		},
         { "dummytile",     	 T_DUMMYTILE		},
         { "dummytilerange",  T_DUMMYTILERANGE   },
+        { "cachesize",       T_CACHESIZE        },
     };
 
 static tokenlist modeltokens[] = {
@@ -405,6 +407,13 @@ static int defsparser(scriptfile *script)
         {
             char *bs;
             scriptfile_getstring(script,&bs);
+        }
+        break;
+        case T_CACHESIZE:
+        {
+            int j;
+            
+            if (scriptfile_getnumber(script,&j)) break;
         }
         break;
         case T_DUMMYTILE:
