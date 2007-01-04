@@ -2567,6 +2567,7 @@ cheat_for_port_credits:
             char *opts[] = {
                                "Parental lock",
                                "-",
+                               "Game messages",
                                "HUD weapon",
                                "FPS counter",
                                "-",
@@ -2581,8 +2582,6 @@ cheat_for_port_credits:
                                "-",
                                "-",
 #endif
-                               "-",
-                               "-",
                                "-",
                                "-",
                                "-",
@@ -2636,6 +2635,12 @@ cheat_for_port_credits:
                     break;
                 case 1:
                     if (x==io)
+                        ud.fta_on = 1-ud.fta_on;
+                    modval(0,1,(int *)&ud.fta_on,1,probey==io);
+                    gametextpal(d,yy, ud.fta_on ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    break;
+                case 2:
+                    if (x==io)
                     {
                         ud.drawweapon = (ud.drawweapon == 2) ? 0 : ud.drawweapon+1;
                     }
@@ -2645,12 +2650,12 @@ cheat_for_port_credits:
                         gametextpal(d,yy, s[ud.drawweapon], MENUHIGHLIGHT(io), 0);
                         break;
                     }
-                case 2:
+                case 3:
                     if (x==io) ud.tickrate = 1-ud.tickrate;
                     modval(0,1,(int *)&ud.tickrate,1,probey==io);
                     gametextpal(d,yy, ud.tickrate ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 3:
+                case 4:
                     if (x==io)
                     {
                         ud.autovote = (ud.autovote == 2) ? 0 : ud.autovote+1;
@@ -2661,23 +2666,23 @@ cheat_for_port_credits:
                         gametextpal(d,yy, s[ud.autovote], MENUHIGHLIGHT(io), 0);
                         break;
                     }
-                case 4:
+                case 5:
                     if (x==io) ud.automsg = 1-ud.automsg;
                     modval(0,1,(int *)&ud.automsg,1,probey==io);
                     gametextpal(d,yy, ud.automsg ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 5:
+                case 6:
                     if (x==io) ud.idplayers = 1-ud.idplayers;
                     modval(0,1,(int *)&ud.idplayers,1,probey==io);
                     gametextpal(d,yy, ud.idplayers ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 6:
+                case 7:
                     if (x==io) ForceSetup = 1-ForceSetup;
                     modval(0,1,(int *)&ForceSetup,1,probey==io);
                     gametextpal(d,yy, ForceSetup ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
 #ifdef _WIN32
-                case 7:
+                case 8:
                     i = checkforupdates;
                     if (x==io) checkforupdates = 1-checkforupdates;
                     modval(0,1,(int *)&checkforupdates,1,probey==io);
@@ -2685,9 +2690,9 @@ cheat_for_port_credits:
                         lastupdatecheck = 0;
                     gametextpal(d,yy, checkforupdates ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 8:
+                case 9:
 #else
-                case 7:
+                case 8:
 #endif
                     if (x==io) cmenu(200);
                     break;
@@ -3021,7 +3026,7 @@ cheat_for_port_credits:
 #if defined(POLYMOST) && defined(USE_OPENGL)
         case 5:
             if (bpp==8) break;
-            switch (gltexfiltermode)
+/*            switch (gltexfiltermode)
             {
             case 0:
                 gltexfiltermode = 3;
@@ -3035,7 +3040,10 @@ cheat_for_port_credits:
             default:
                 gltexfiltermode = 3;
                 break;
-            }
+            }*/
+            gltexfiltermode++;
+            if (gltexfiltermode > 5)
+                gltexfiltermode = 0;
             gltexapplyprops();
             break;
 
@@ -3085,8 +3093,17 @@ cheat_for_port_credits:
         case 0:
             strcpy(tempbuf,"NEAREST");
             break;
+        case 1:
+            strcpy(tempbuf,"LINEAR");
+            break;
+        case 2:
+            strcpy(tempbuf,"NEAREST_MM_N");
+            break;
         case 3:
             strcpy(tempbuf,"BILINEAR");
+            break;
+        case 4:
+            strcpy(tempbuf,"NEAREST_MM_L");
             break;
         case 5:
             strcpy(tempbuf,"TRILINEAR");
@@ -3095,7 +3112,9 @@ cheat_for_port_credits:
             strcpy(tempbuf,"OTHER");
             break;
         }
-        menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,tempbuf);
+//        menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,tempbuf);
+        gametext(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
+
 
         menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"ANISOTROPY");
         if (glanisotropy == 1) strcpy(tempbuf,"NONE");

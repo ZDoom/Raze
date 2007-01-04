@@ -220,7 +220,7 @@ void playmusic(const char *fn)
 
      // FIXME: I need this to get the music volume initialized (not sure why) -- Jim Bentler
     MUSIC_SetVolume( MusicVolume );
-    PlayMusic(fn);
+    PlayMusic((char *)fn);
 #endif
 }
 

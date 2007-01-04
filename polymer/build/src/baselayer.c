@@ -130,15 +130,14 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
     int showval = (parm->numparms < 1);
 
     if (!Bstrcasecmp(parm->name, "screencaptureformat")) {
-        const char *fmts[2][2] = { {"TGA", "PCX"}, {"0", "1"} };
+        const char *fmts[] = {"TGA", "PCX"};
         if (showval) { OSD_Printf("captureformat is %s\n", fmts[captureformat]); }
         else {
-            int i,j;
+            int j;
             for (j=0; j<2; j++)
-                for (i=0; i<2; i++)
-                    if (!Bstrcasecmp(parm->parms[0], fmts[j][i])) break;
+                    if (!Bstrcasecmp(parm->parms[0], fmts[j])) break;
             if (j == 2) return OSDCMD_SHOWHELP;
-            captureformat = i;
+            captureformat = j;
         }
         return OSDCMD_OK;
     }
@@ -165,7 +164,7 @@ int baselayer_init(void)
                          "   2 - Polygonal textured software\n"
 #ifdef USE_OPENGL
                          "   3 - Polygonal OpenGL\n"
-                         "   4 - great justice renderer\n"
+//                         "   4 - great justice renderer\n"
 #endif
                          ,
                          osdfunc_setrendermode);

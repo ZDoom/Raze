@@ -236,7 +236,12 @@ static int _internal_osdfunc_help(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-
+static int _internal_osdfunc_clear(const osdfuncparm_t *parm)
+{
+    Bmemset(osdtext,0,sizeof(osdtext));
+    osdlines = 1;
+    return OSDCMD_OK;
+}
 
 ////////////////////////////
 
@@ -273,6 +278,7 @@ void OSD_Init(void)
     OSD_RegisterFunction("listsymbols","listsymbols: lists all the recognized symbols",_internal_osdfunc_listsymbols);
     OSD_RegisterFunction("help","help: displays help on the named symbol",_internal_osdfunc_help);
     OSD_RegisterFunction("osdrows","osdrows: sets the number of visible lines of the OSD",_internal_osdfunc_vars);
+    OSD_RegisterFunction("clear","clear: clears the console text buffer",_internal_osdfunc_clear);
 
     atexit(OSD_Cleanup);
 }
@@ -454,6 +460,8 @@ int OSD_HandleKey(int sc, int press)
             }
         } else if (ch == 11) {	// control k, delete all to end of line
         } else if (ch == 12) {	// control l, clear screen
+            Bmemset(osdtext,0,sizeof(osdtext));
+            osdlines = 1;
         } else if (ch == 13) {	// control m, enter
             if (osdeditlen>0) {
                 osdeditbuf[osdeditlen] = 0;
