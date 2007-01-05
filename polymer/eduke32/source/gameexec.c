@@ -5033,6 +5033,12 @@ static int parse(void)
         break;
     }
 
+    case CON_QUAKE:
+        insptr++;
+        earthquaketime = (char)GetGameVarID(*insptr++,g_i,g_p);
+        spritesound(EARTHQUAKE,ps[screenpeek].i);
+        break;
+
     case CON_IFMOVE:
         insptr++;
         parseifelse(g_t[1] == *insptr);

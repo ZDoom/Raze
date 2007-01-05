@@ -521,11 +521,9 @@ extern short mirrorwall[64], mirrorsector[64], mirrorcnt;
 
 #define NUMKEYS 19
 
-extern long frameplace, chainplace, chainnumpages;
-
 #include "funct.h"
 
-extern char screencapt;
+extern int screencapt;
 extern short soundps[NUM_SOUNDS],soundpe[NUM_SOUNDS],soundvo[NUM_SOUNDS];
 extern char soundpr[NUM_SOUNDS],soundm[NUM_SOUNDS];
 extern long soundsiz[NUM_SOUNDS];
@@ -569,7 +567,7 @@ extern char num_volumes;
 
 extern int32 SoundToggle,MusicToggle;
 extern int last_threehundred,lastsavedpos;
-extern char restorepalette;
+extern int restorepalette;
 
 extern int buttonstat;
 extern long cachecount;

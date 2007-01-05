@@ -775,5 +775,6 @@ enum keywords {
     CON_JUMP,				// 298
     CON_QSTRLEN,			// 299
     CON_GETINCANGLE,        // 300
+    CON_QUAKE,              // 301
     END
 };

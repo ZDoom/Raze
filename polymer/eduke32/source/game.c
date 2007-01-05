@@ -94,10 +94,10 @@ extern char syncstate;
 extern int32 numlumps;
 
 FILE *frecfilep = (FILE *)NULL;
-void pitch_test(void);
 
-char restorepalette,screencapt,nomorelogohack;
-int sendmessagecommand = -1;
+int restorepalette,screencapt;
+static int nomorelogohack;
+static int sendmessagecommand = -1;
 
 char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 char *duke3dgrp = defaultduke3dgrp;
@@ -105,33 +105,26 @@ static char *duke3ddef = "duke3d.def";
 
 extern long lastvisinc;
 
-// JBF 20031221: These ought to disappear when things mature
-extern int showmultidiags;
-extern int netmode, nethostplayers;
-extern char netjoinhost[64];
-int startupnetworkgame(void);
-int processnetworkrequests(void);
-
-char colstrip[1024];
+static char colstrip[1024];
 
 int shareware = 0;
 int gametype = 0;
 
 #define MAXUSERQUOTES 4
-long quotebot, quotebotgoal;
-short user_quote_time[MAXUSERQUOTES];
-char user_quote[MAXUSERQUOTES][178];
+static long quotebot, quotebotgoal;
+static int user_quote_time[MAXUSERQUOTES];
+static char user_quote[MAXUSERQUOTES][178];
 // char typebuflen,typebuf[41];
 
 #ifdef JFAUD
-int MAXCACHE1DSIZE = (16*1048576);
+static int MAXCACHE1DSIZE = (16*1048576);
 #else
-int MAXCACHE1DSIZE = (32*1048576);
+static int MAXCACHE1DSIZE = (32*1048576);
 #endif
 
 long tempwallptr;
 
-long nonsharedtimer;
+static long nonsharedtimer;
 
 static void cameratext(short i);
 static int moveloop(void);
@@ -7585,7 +7578,7 @@ FOUNDCHEAT:
 
 static void nonsharedkeys(void)
 {
-    short i,ch;
+    int i,ch;
     long j;
 
     if (ud.recstat == 2)
@@ -8093,8 +8086,8 @@ FAKE_F3:
     if (KB_KeyPressed(sc_F11))
     {
         KB_ClearKeyDown(sc_F11);
-        if (SHIFTS_IS_PRESSED) ud.brightness-=8;
-        else ud.brightness+=8;
+        ud.brightness+=8;
+        if (SHIFTS_IS_PRESSED) ud.brightness-=16;
 
         if (ud.brightness > (7<<3))
             ud.brightness = 0;

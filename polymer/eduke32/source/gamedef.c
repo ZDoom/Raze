@@ -427,6 +427,7 @@ static const char *keyw[] = {
                    "jump",					   // 298
                    "qstrlen",				   // 299
                    "getincangle",              // 300
+                   "quake",                    // 301
                    "<null>"
                };
 
@@ -2374,6 +2375,7 @@ static int parsecommand(void)
     case CON_CLIPDIST:
     case CON_LOTSOFGLASS:
     case CON_SAVE:
+    case CON_QUAKE:
         if (!CheckEventSync(current_event))
             ReportError(WARNING_EVENTSYNC);
     case CON_ANGOFF:
@@ -2388,9 +2390,9 @@ static int parsecommand(void)
         {
             if (*(scriptptr-1) == 32767)
             {
+                *(scriptptr-1) = 32768;            
                 ReportError(-1);
                 initprintf("%s:%ld: warning: tried to set cstat 32767, using 32768 instead.\n",compilefile,line_number);
-                *(scriptptr-1) = 32768;
             }
             else if ((*(scriptptr-1) & 32) && (*(scriptptr-1) & 16))
             {
