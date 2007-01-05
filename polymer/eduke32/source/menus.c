@@ -822,7 +822,7 @@ void menus(void)
         menutext(40,50+16+16,MENUHIGHLIGHT(2),0,"TEAM");
         menutext(40,50+16+16+16,MENUHIGHLIGHT(3),0,"AUTO AIM");
         menutext(40,50+16+16+16+16,MENUHIGHLIGHT(4),0,"WEAPON SWITCH");
-        menutext(40,50+16+16+16+16+16,MENUHIGHLIGHT(5),0,"AIMING TYPE");
+        menutext(40,50+16+16+16+16+16,MENUHIGHLIGHT(5),0,"MOUSE AIM TYPE");
         menutext(40,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),0,"TAUNT MACRO SETUP");
 
         if (current_menu == 20002)
@@ -846,7 +846,7 @@ void menus(void)
             char *s[] = { "Off", "On pickup", "When empty", "Both" };
             gametext(200,50+16+16+16+16-9,s[ud.weaponswitch],MENUHIGHLIGHT(4),2+8+16);
         }
-        gametext(200,50+16+16+16+16+16-9,ud.mouseaiming?"Held":"Toggle",MENUHIGHLIGHT(5),2+8+16);
+        gametext(200,50+16+16+16+16+16-9,ud.mouseaiming?"Hold button":"Toggle on/off",MENUHIGHLIGHT(5),2+8+16);
 
         break;
 
@@ -3339,6 +3339,12 @@ cheat_for_port_credits:
         }
 
         if (!ud.mouseaiming) modval(0,1,(int *)&myaimmode,1,probey == (MAXMOUSEBUTTONS-2)*2+2+1);
+        else if (probey == (MAXMOUSEBUTTONS-2)*2+2+1)
+        {
+            gametext(160,144+9+9,"SET MOUSE AIM TYPE TO TOGGLE ON/OFF",0,2+8+16);
+            gametext(160,144+9+9+9,"IN THE PLAYER SETUP MENU",0,2+8+16);
+        }
+
         modval(0,1,(int *)&ud.mouseflip,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2);
 
         gametextpal(240,122+9, myaimmode && !ud.mouseaiming ? "On" : "Off", !ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):15, 0);
@@ -3559,6 +3565,16 @@ cheat_for_port_credits:
             cmenu(211);
             probey = MouseDigitalFunctions[whichkey>>1][whichkey&1];
             if (probey < 0) probey = NUMGAMEFUNCTIONS-1;
+            break;
+        }
+
+        switch (probey)
+        {
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+            gametext(160,144+9+9,"DIGITAL AXES ARE NOT FOR MOUSE LOOK",0,2+8+16);
             break;
         }
 
