@@ -127,10 +127,6 @@ static long lastglpolygonmode = 0; //FUK
 long glpolygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
 long glwidescreen = 0;
 long glprojectionhacks = 1;
-long usegoodalpha = 0;
-long peelcompiling = 0;
-long numpeels = 10;
-long curpeel = -1;
 static GLuint polymosttext = 0;
 extern char nofog;
 
@@ -138,6 +134,20 @@ extern char nofog;
 long fullbrightloadingpass = 0;
 long fullbrightdrawingpass = 0;
 long shadeforfullbrightpass;
+
+// Depth peeling control
+long r_depthpeeling = 0;    // cvar toggling general depth peeling usage
+long r_peelscount = 5;      // cvar controlling the number of peeling layers
+long r_curpeel = -1;        // cvar controlling the display of independant peeling layers
+float curpolygonoffset;     // internal polygon offset stack for drawing flat sprites to avoid depth fighting
+long peelcompiling = 0;     // internal control var to disable blending when compiling the peeling display list
+long newpeelscount = 0;     // temporary var for peels count changing during the game
+
+// Depth peeling data
+GLuint ztexture[2];        // secondary Z-buffer identifier
+GLuint *peels;          // peels identifiers
+GLuint *peelfbos;       // peels FBOs identifiers
+GLuint peelprogram;     // ARBfp peeling fragment program
 
 float fogresult;
 
@@ -596,11 +606,20 @@ void polymost_glreset ()
 
     memset(gltexcachead,0,sizeof(gltexcachead));
     glox1 = -1;
-}
 
-GLuint ztexture;
-GLuint *peels;
-GLuint peelprogram;
+    // Depth peeling cleanup
+    if (peels)
+    {
+        bglDeleteProgramsARB(1, &peelprogram);
+        bglDeleteFramebuffersEXT(r_peelscount, peelfbos);
+        bglDeleteTextures(r_peelscount, peels);
+        bglDeleteTextures(2, ztexture);
+        free(peels);
+        free(peelfbos);
+
+        peels = NULL;
+    }
+}
 
 // one-time initialisation of OpenGL for polymost
 void polymost_glinit()
@@ -609,11 +628,13 @@ void polymost_glinit()
     int     i;
 	char    peelprogramstring[] = 
                 "!!ARBfp1.0\n"
+                "OPTION ARB_fog_exp2;\n"
+                "OPTION ARB_fragment_program_shadow;\n"
                 "TEMP texsample;\n"
                 "TEMP depthresult;\n"
                 "TEMP tempresult;\n"
                 "TEX texsample, fragment.texcoord[0], texture[0], 2D;\n" 
-                "TEX depthresult, fragment.position, texture[1], RECT;\n" 
+                "TEX depthresult, fragment.position, texture[1], SHADOWRECT;\n" 
                 "MUL tempresult, fragment.color, texsample;\n"
                 "MUL tempresult.a, tempresult.a, depthresult.a;\n"
                 "MOV result.color, tempresult;\n"
@@ -652,33 +673,67 @@ void polymost_glinit()
         bglEnable(GL_MULTISAMPLE_ARB);
     }
 
-    //depth peeling init
-    if (usegoodalpha)
+    if (!glinfo.arbfp || !glinfo.depthtex || !glinfo.shadow || !glinfo.fbos || !glinfo.rect)
     {
-        // create the secondary Z-buffer
-        bglGenTextures(1, &ztexture);
-        bglBindTexture(GL_TEXTURE_RECTANGLE_NV, ztexture);
-        bglCopyTexImage2D(GL_TEXTURE_RECTANGLE_NV, 0, GL_DEPTH_COMPONENT, 0, 0, xdim, ydim, 0);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_COMPARE_FUNC_ARB, GL_GREATER);
-        bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_DEPTH_TEXTURE_MODE_ARB, GL_ALPHA);
+        OSD_Printf("Your OpenGL implementation doesn't support depth peeling. Forcing it off...\n", i);
+        r_depthpeeling = 0;
+    }
 
-        // create the various peeling layers
-        peels = malloc(numpeels * sizeof(GLuint));
-        bglGenTextures(numpeels, peels);
-        i = 0;
-        while (i < numpeels)
+    //depth peeling initialization
+    if (r_depthpeeling)
+    {
+        if (newpeelscount)
         {
-            bglBindTexture(GL_TEXTURE_RECTANGLE_NV, peels[i]);
-            bglCopyTexImage2D(GL_TEXTURE_RECTANGLE_NV, 0, GL_RGBA8, 0, 0, xdim, ydim, 0);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_WRAP_S, GL_CLAMP);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_WRAP_T, GL_CLAMP);
+            r_peelscount = newpeelscount;
+            newpeelscount = 0;
+        }
+        // create the secondary Z-buffer
+        bglGenTextures(2, ztexture);
+
+        i = 0;
+        while (i < 2)
+        {
+            bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[i]);
+            bglCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_DEPTH_COMPONENT, 0, 0, xdim, ydim, 0);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_FUNC_ARB, GL_GREATER);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_DEPTH_TEXTURE_MODE_ARB, GL_ALPHA);
+
+            i++;
+        }
+
+        // create the various peeling layers as well as the FBOs to render to them
+        peels = malloc(r_peelscount * sizeof(GLuint));
+        bglGenTextures(r_peelscount, peels);
+
+        peelfbos = malloc(r_peelscount * sizeof(GLuint));
+        bglGenFramebuffersEXT(r_peelscount, peelfbos);
+
+        i = 0;
+        while (i < r_peelscount)
+        {
+            bglBindTexture(GL_TEXTURE_RECTANGLE, peels[i]);
+            bglCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, 0, 0, xdim, ydim, 0);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
+            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+            bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, peelfbos[i]);
+            bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_RECTANGLE, peels[i], 0);
+            if (i < (r_peelscount - 1))
+                bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_RECTANGLE, ztexture[i % 2], 0);
+
+            if (bglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
+            {
+                OSD_Printf("FBO #%d initialization failed.\n", i);
+            }
+
+            bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
             i++;
         }
@@ -1556,7 +1611,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
         }
 
         if ((!(method&3)) && (!fullbrightdrawingpass)) {
-            bglDisable(GL_BLEND);
+            //bglDisable(GL_BLEND);
             if (!peelcompiling)
                 bglDisable(GL_ALPHA_TEST);
         } else {
@@ -1753,11 +1808,12 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
         {
             fullbrightdrawingpass = 2;
             shadeforfullbrightpass = globalshade; // save the current shade
+            bglFogf(GL_FOG_DENSITY,0.0f); // no fog
             globalshade = -128; // fullbright
-            bglDisable(GL_FOG); // no fog
             drawpoly(dpx, dpy, n_, method_); // draw them afterwards, then. :)
-            bglEnable(GL_FOG);
             globalshade = shadeforfullbrightpass;
+            fogcalc(&globalshade, &globalvisibility);
+            bglFogf(GL_FOG_DENSITY, fogresult);
             fullbrightdrawingpass = 0;
         }
         return;
@@ -3510,6 +3566,12 @@ void polymost_drawrooms ()
 #ifdef USE_OPENGL
     if (rendmode >= 3)
     {
+        if (r_depthpeeling)
+        {
+            bglNewList(1, GL_COMPILE);
+            peelcompiling = 1;
+        }
+
         resizeglcheck();
 
         //bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -3723,7 +3785,7 @@ void polymost_drawrooms ()
 #ifdef USE_OPENGL
     if (rendmode >= 3)
     {
-        bglDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 
         //bglPolygonOffset(0,0);
         bglDepthRange(0.0,0.99999); //<- this is more widely supported than glPolygonOffset
@@ -3959,9 +4021,13 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
         }
         break;
     }
-    //if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && ((tspr->cstat&48) != 0))
-    //    if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && ((tspr->cstat&48) != 0))
-    //        bglDepthMask(0);
+    if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))) && (peelcompiling))
+        {
+            curpolygonoffset += 0.01f;
+            bglEnable(GL_POLYGON_OFFSET_FILL);
+            bglPolygonOffset(-curpolygonoffset, -curpolygonoffset);
+            //bglDepthMask(0);
+        }
 #endif
 
     switch ((globalorientation>>4)&3)
@@ -5020,19 +5086,31 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else gltexmiplevel = val;
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "usegoodalpha")) {
-        if (showval) { OSD_Printf("usegoodalpha is %d\n", usegoodalpha); }
-        else usegoodalpha = (val != 0);
+    else if (!Bstrcasecmp(parm->name, "r_depthpeeling")) {
+        if (showval) { OSD_Printf("r_depthpeeling is %d\n", r_depthpeeling); }
+        else {
+            r_depthpeeling = (val != 0);
+            resetvideomode();
+            if (setgamemode(fullscreen,xdim,ydim,bpp))
+                OSD_Printf("restartvid: Reset failed...\n");
+        }
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "numpeels")) {
-        if (showval) { OSD_Printf("numpeels is %d\n", numpeels); }
-        else numpeels = val;
+    else if (!Bstrcasecmp(parm->name, "r_peelscount")) {
+        if (showval) { OSD_Printf("r_peelscount is %d\n", r_peelscount); }
+        else if (val < 1) { OSD_Printf("Value out of range.\n"); }
+        else {
+            newpeelscount = val;
+            resetvideomode();
+            if (setgamemode(fullscreen,xdim,ydim,bpp))
+                OSD_Printf("restartvid: Reset failed...\n");
+        }
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "curpeel")) {
-        if (showval) { OSD_Printf("curpeel is %d\n", curpeel); }
-        else curpeel = val;
+    else if (!Bstrcasecmp(parm->name, "r_curpeel")) {
+        if (showval) { OSD_Printf("r_curpeel is %d\n", r_curpeel); }
+        else if ((val < -1) || (val >= r_peelscount)) { OSD_Printf("Value out of range.\n"); }
+        else r_curpeel = val;
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->name, "glpolygonmode")) {
@@ -5110,15 +5188,15 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("gltextureanisotropy", "gltextureanisotropy: changes the OpenGL texture anisotropy setting", gltextureanisotropy);
     OSD_RegisterFunction("gltexturemaxsize","gltexturemaxsize: changes the maximum OpenGL texture size limit",osdcmd_polymostvars);
     OSD_RegisterFunction("gltexturemiplevel","gltexturemiplevel: changes the highest OpenGL mipmap level used",osdcmd_polymostvars);
-    OSD_RegisterFunction("usegoodalpha","usegoodalpha: [OBSOLETE] enable/disable better looking OpenGL alpha hack",osdcmd_polymostvars);
-    OSD_RegisterFunction("numpeels","numpeels",osdcmd_polymostvars);
-    OSD_RegisterFunction("curpeel","curpeel: [OBSOLETE] enable/disable better looking OpenGL alpha hack",osdcmd_polymostvars);
     OSD_RegisterFunction("glpolygonmode","glpolygonmode: debugging feature",osdcmd_polymostvars); //FUK
     OSD_RegisterFunction("glusetexcache","glusetexcache: enable/disable OpenGL compressed texture cache",osdcmd_polymostvars);
     OSD_RegisterFunction("glusetexcachecompression","usetexcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars);
     OSD_RegisterFunction("glmultisample","glmultisample: sets the number of samples used for antialiasing (0 = off)",osdcmd_polymostvars);
     OSD_RegisterFunction("glnvmultisamplehint","glnvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars);
     OSD_RegisterFunction("r_shadescale","r_shadescale: multiplier for lighting",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_peelscount","r_peelscount: sets the number of depth layers for depth peeling",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
 #endif
     OSD_RegisterFunction("usemodels","usemodels: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
     OSD_RegisterFunction("usehightile","usehightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);

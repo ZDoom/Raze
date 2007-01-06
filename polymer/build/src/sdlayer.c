@@ -1049,6 +1049,27 @@ int setvideomode(int x, int y, int c, int fs)
                 // supports nvidia's multisample hint extension
                 glinfo.nvmultisamplehint = 1;
             }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_fragment_program"))
+            {
+                glinfo.arbfp = 1;
+            }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_depth_texture"))
+            {
+                glinfo.depthtex = 1;
+            }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_shadow"))
+            {
+                glinfo.shadow = 1;
+            }
+            else if (!Bstrcmp((char *)p2, "GL_EXT_framebuffer_object"))
+            {
+                glinfo.fbos = 1;
+            }
+            else if (!Bstrcmp((char *)p2, "GL_NV_texture_rectangle") ||
+                     !Bstrcmp((char *)p2, "GL_EXT_texture_rectangle"))
+            {
+                glinfo.rect = 1;
+            }
         }
         Bfree(p);
     }

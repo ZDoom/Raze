@@ -1411,13 +1411,14 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         float al = 0.0;
         if (alphahackarray[globalpicnum] != 0)
             al=alphahackarray[globalpicnum];
-        bglEnable(GL_BLEND);
+        if (!peelcompiling)
+            bglEnable(GL_BLEND);
         bglEnable(GL_ALPHA_TEST);
         bglAlphaFunc(GL_GREATER,al);
     }
     else
     {
-        if (tspr->cstat&2) bglEnable(GL_BLEND); else bglDisable(GL_BLEND);
+        if (tspr->cstat&2 && (!peelcompiling)) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     }
     bglColor4f(pc[0],pc[1],pc[2],pc[3]);
     //if (m->head.flags == 1337)
@@ -1489,7 +1490,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         bglBindTexture(GL_TEXTURE_2D, i);
 
         //PLAG: delayed polygon-level sorted rendering
-        if (m->usesalpha && !(tspr->cstat & 1024) && !usegoodalpha)
+        if (m->usesalpha && !(tspr->cstat & 1024) && !r_depthpeeling)
         {
             indexes = malloc(sizeof(unsigned short) * s->numtris);
             maxdepths = malloc(sizeof(float) * s->numtris);
@@ -1622,7 +1623,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
     bglPopAttrib();
     if (tspr->cstat&1024)
     {
-        bglDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
         bglDepthRange(0.0,0.99999);
     }
     bglLoadIdentity();
@@ -2413,7 +2414,7 @@ if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; 
     pc[1] *= (float)hictinting[globalpal].g / 255.0;
     pc[2] *= (float)hictinting[globalpal].b / 255.0;
 if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } else pc[3] = 1.0;
-    if (tspr->cstat&2) bglEnable(GL_BLEND); else bglDisable(GL_BLEND);
+    if (tspr->cstat&2 && (!peelcompiling)) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     //------------
 
     //transform to Build coords
@@ -2471,7 +2472,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
     bglPopAttrib();
     if (tspr->cstat&1024)
     {
-        bglDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
         bglDepthRange(0.0,0.99999);
     }
     bglLoadIdentity();

@@ -3130,7 +3130,6 @@ if (!davoxptr && i > 0) { davoxptr = (char *)voxoff[daindex][0]; i = 0; }
 }
 #endif
 
-
 //
 // drawsprite (internal)
 //
@@ -5740,7 +5739,9 @@ void drawrooms(long daposx, long daposy, long daposz,
     }
 
     //============================================================================= //POLYMOST BEGINS
-    polymost_drawrooms(); if (rendmode) { return; }
+    polymost_drawrooms();
+    if (rendmode) 
+        return;
 #endif
     //============================================================================= //POLYMOST ENDS
 
@@ -5951,9 +5952,10 @@ int         sameside(_equation* eq, _point2d* p1, _point2d* p2)
     return (0);
 }
 
+#ifdef USE_OPENGL
 void    drawpeel(int peel)
 {
-    bglBindTexture(GL_TEXTURE_RECTANGLE_NV, peels[peel]);
+    bglBindTexture(GL_TEXTURE_RECTANGLE, peels[peel]);
     bglBegin(GL_QUADS);
     bglTexCoord2f(0.0f, 0.0f);
     bglVertex2f(-1.0f, -1.0f);
@@ -5965,6 +5967,7 @@ void    drawpeel(int peel)
     bglVertex2f(-1.0f, 1.0f);
     bglEnd();
 }
+#endif
 
 //
 // drawmasks
@@ -6002,8 +6005,11 @@ killsprite:
         spritesy[i] = yp;
     }
 
-if (!usegoodalpha)
+#ifdef USE_OPENGL
+if ((!r_depthpeeling) || (rendmode < 3))
+#endif
 {
+
     gap = 1; while (gap < spritesortcnt) gap = (gap<<1)+1;
     for (gap>>=1;gap>0;gap>>=1)     //Sort sprite list
         for (i=0;i<spritesortcnt-gap;i++)
@@ -6059,11 +6065,6 @@ if (!usegoodalpha)
     }
 }
 
-    if (usegoodalpha)
-    {
-        bglNewList(1, GL_COMPILE);
-        peelcompiling = 1;
-    }
     begindrawing(); //{{{
 
     /*for(i=spritesortcnt-1;i>=0;i--)
@@ -6083,205 +6084,12 @@ if (!usegoodalpha)
         drawline256(xs+65536,ys-65536,xs-65536,ys+65536,31);
     }*/
 
-
-if (!usegoodalpha)
-{
-    {   // Removing previous sorting code
-#ifdef POLYMOST
-        //Hack to make it draw all opaque quads first. This should reduce the chances of
-        //bad sorting causing transparent quads knocking out opaque quads behind it.
-        //
-        //Need to store alpha flag with all textures before this works right!
-        if (rendmode == 3)
-        {
-            for (i=spritesortcnt-1;i>=0;i--)
-                if ((!(tspriteptr[i]->cstat&2))
 #ifdef USE_OPENGL
-                        && (!gltexmayhavealpha(tspriteptr[i]->picnum,tspriteptr[i]->pal))
+if ((!r_depthpeeling) || (rendmode < 3))
 #endif
-                   )
-                { drawsprite(i); tspriteptr[i] = 0; } //draw only if it is fully opaque
-            for (i=j=0;i<spritesortcnt;i++)
-            {
-                if (!tspriteptr[i]) continue;
-                tspriteptr[j] = tspriteptr[i];
-                spritesx[j] = spritesx[i];
-                spritesy[j] = spritesy[i]; j++;
-            }
-            spritesortcnt = j;
-
-            for (i=maskwallcnt-1;i>=0;i--)
-            {
-                k = thewall[maskwall[i]];
-                if ((!(wall[k].cstat&128))
-#ifdef USE_OPENGL
-                        && (!gltexmayhavealpha(wall[k].overpicnum,wall[k].pal))
-#endif
-                   )
-                { drawmaskwall(i); maskwall[i] = -1; } //draw only if it is fully opaque
-            }
-            for (i=j=0;i<maskwallcnt;i++)
-            {
-                if (maskwall[i] < 0) continue;
-                maskwall[j++] = maskwall[i];
-            }
-            maskwallcnt = j;
-        }
-#endif
-
-        while ((spritesortcnt > 0) && (maskwallcnt > 0))  //While BOTH > 0
-        {
-            j = maskwall[maskwallcnt-1];
-            if (spritewallfront(tspriteptr[spritesortcnt-1],(long)thewall[j]) == 0)
-                drawsprite(--spritesortcnt);
-            else
-            {
-                //Check to see if any sprites behind the masked wall...
-                k = -1;
-                gap = 0;
-                for (i=spritesortcnt-2;i>=0;i--)
-                    if ((xb1[j] <= (spritesx[i]>>8)) && ((spritesx[i]>>8) <= xb2[j]))
-                        if (spritewallfront(tspriteptr[i],(long)thewall[j]) == 0)
-                        {
-                            drawsprite(i);
-                            tspriteptr[i]->owner = -1;
-                            k = i;
-                            gap++;
-                        }
-                if (k >= 0)       //remove holes in sprite list
-                {
-                    for (i=k;i<spritesortcnt;i++)
-                        if (tspriteptr[i]->owner >= 0)
-                        {
-                            if (i > k)
-                            {
-                                tspriteptr[k] = tspriteptr[i];
-                                spritesx[k] = spritesx[i];
-                                spritesy[k] = spritesy[i];
-                            }
-                            k++;
-                        }
-                    spritesortcnt -= gap;
-                }
-
-                //finally safe to draw the masked wall
-                drawmaskwall(--maskwallcnt);
-            }
-        }
-        while (spritesortcnt > 0) drawsprite(--spritesortcnt);
-        while (maskwallcnt > 0) drawmaskwall(--maskwallcnt);
-    }
-}
-else
 {
-    // PLAG : The heart of good transparency -> sorted rendering on all layers.
-    // that's why this code interleaves the drawing of all possible transparent entities
-    // bubblesort is used, shouldn't cause any problems cpu-wise since the lists are small
-
-    // SPRITES PREPROCESSING
-    /*l = spritesortcnt;
-    indexes = malloc(l * sizeof(long));
-    depths = malloc(l * sizeof(long));
-
-    // first pass to set base indexes and depths
-    i = l;
-    while (i > 0)
-    {
-    i--;
-    indexes[i] = --spritesortcnt;
-    depths[i] = (tspriteptr[spritesortcnt]->x - globalposx) * (tspriteptr[spritesortcnt]->x - globalposx) +
-    (tspriteptr[spritesortcnt]->y - globalposy) * (tspriteptr[spritesortcnt]->y - globalposy);
-    }
-
-    // second pass (and possibly more) to z-sort
-    j = 0;
-    while (j == 0)
-    {
-    j = 1;
-    for(i=l-1;i>0;i--)
-    {
-    if (depths[i] < depths[i-1])
-    {
-    swaplong(&indexes[i-1], &indexes[i]);
-    swaplong(&depths[i-1], &depths[i]);
-    j = 0;
-    }
-    }
-    }*/
-
-    // MASKS PREPROCESSING
-    //k = maskwallcnt;
-
-    // first pass to set wall equations and init the tree
-    /*i = k;
-    while (i > 0)
-    {
-    i--;
-
-    // leaf index
-    maskleaves[i].index = --maskwallcnt;
-
-    // leaf boundaries
-    maskleaves[i].p1.x = wall[thewall[maskwall[maskleaves[i].index]]].x - globalposx;
-    maskleaves[i].p1.y = wall[thewall[maskwall[maskleaves[i].index]]].y - globalposy;
-    maskleaves[i].p2.x = wall[wall[thewall[maskwall[maskleaves[i].index]]].point2].x - globalposx;
-    maskleaves[i].p2.y = wall[wall[thewall[maskwall[maskleaves[i].index]]].point2].y - globalposy;
-
-    // leaf equations
-    maskleaves[i].maskeq = equation(maskleaves[i].p1.x, maskleaves[i].p1.y, maskleaves[i].p2.x, maskleaves[i].p2.y);
-    maskleaves[i].p1eq = equation(0, 0, maskleaves[i].p1.x, maskleaves[i].p1.y);
-    maskleaves[i].p2eq = equation(0, 0, maskleaves[i].p2.x, maskleaves[i].p2.y);
-
-    // drawing flag
-    maskleaves[i].drawing = 0;
-
-    //OSD_Printf("Processed mask - %i\n", i);
-    }
-
-    // second pass to connect the leaves together
-    i = k;
-    while (i > 0)
-    {
-    i--;
-
-    m = 0;
-    j = k;
-    while (j > 0)
-    {
-    j--;
-
-    if ((i != j) && (wallobstructswall(&maskleaves[i], &maskleaves[j])))
-    maskleaves[i].branch[m++] = &maskleaves[j];
-    }
-    maskleaves[i].branch[m] = NULL;
-    //OSD_Printf("Processed parents for mask %i\n", i);
-    }*/
-
-    // DRAWING
-    // in this code all sprites are drawn, and masks are inserted when needed
-    /*i = l - 1;
-    while (i >= 0)
-    {
-    //OSD_Printf("sprite - %i\n", depths[i]);
-    drawsprite(indexes[i]);
-    i--;
-    }
-
-    // this codes draws the remaining (if any) masked walls, meaning those that are directly before the player
-    while (k > 0)
-    {
-    k--;
-    //OSD_Printf("Beginning drawing process for mask %i\n", k);
-    //drawmaskleaf(&maskleaves[k]);
-    drawmaskwall(k);
-    }
-    free(indexes);
-    free(depths);*/
-
     pos.x = globalposx;
     pos.y = globalposy;
-
-    //OSD_Printf("EIN OBSERVER POSITION : x=%i y=%i\n", pos.x, pos.y);
 
     while (maskwallcnt)
     {
@@ -6292,20 +6100,12 @@ else
         dot2.x = wall[wall[thewall[maskwall[maskwallcnt]]].point2].x;
         dot2.y = wall[wall[thewall[maskwall[maskwallcnt]]].point2].y;
 
-        //OSD_Printf("EIN WALL : x1=%i y1=%i x2=%i y2=%i\n", dot.x, dot.y, dot2.x, dot2.y);
-
         maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
         p1eq = equation(pos.x, pos.y, dot.x, dot.y);
         p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
 
-        //OSD_Printf("EIN WALL EQUATION : a=%f b=%f c=%f\n", maskeq.a, maskeq.b, maskeq.c);
-        //OSD_Printf("EIN WALL POINT1 TO POSITION EQUATION : a=%f b=%f c=%f\n", p1eq.a, p1eq.b, p1eq.c);
-        //OSD_Printf("EIN WALL POINT2 TO POSITION EQUATION : a=%f b=%f c=%f\n", p2eq.a, p2eq.b, p2eq.c);
-
         middle.x = (dot.x + dot2.x) / 2;
         middle.y = (dot.y + dot2.y) / 2;
-
-        //OSD_Printf("EIN WALL MIDDLE POINT POSITION : x=%i y=%i\n", middle.x, middle.y);
 
         i = spritesortcnt;
         while (i)
@@ -6315,8 +6115,6 @@ else
             {
                 spr.x = tspriteptr[i]->x;
                 spr.y = tspriteptr[i]->y;
-
-                //OSD_Printf("EIN SPRITE POSITION : x=%i y=%i\n", spr.x, spr.y);
 
                 if ((sameside(&maskeq, &spr, &pos) == 0) && sameside(&p1eq, &middle, &spr) && sameside(&p2eq, &middle, &spr))
                 {
@@ -6335,13 +6133,23 @@ else
             drawsprite(spritesortcnt);
     }
 
-    //while (spritesortcnt > 0) drawsprite(--spritesortcnt);
-    //while (maskwallcnt > 0) drawmaskwall(--maskwallcnt);
-} /* goodalpha */
+} /* depthpeeling */
+#ifdef USE_OPENGL
+else
+{
+    curpolygonoffset = 0;
+    while (spritesortcnt > 0)
+    {
+        bglDisable(GL_POLYGON_OFFSET_FILL);
+        drawsprite(--spritesortcnt);
+    }
+    bglDisable(GL_POLYGON_OFFSET_FILL);
+    while (maskwallcnt > 0) drawmaskwall(--maskwallcnt);
+}
+#endif
 
-    indrawroomsandmasks = 0;
-    enddrawing();   //}}}
-    if (usegoodalpha)
+#ifdef USE_OPENGL
+    if ((r_depthpeeling) && (rendmode >= 3))
     {
         bglEndList();
         peelcompiling = 0;
@@ -6351,40 +6159,30 @@ else
         bglAlphaFunc(GL_GREATER, 0.0f);
 
         i = 0;
-        while (i < numpeels)
+        while (i < r_peelscount)
         {
             if (i > 0)
             {
-                bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 bglEnable(GL_FRAGMENT_PROGRAM_ARB);
-
                 bglActiveTextureARB(GL_TEXTURE1_ARB);
-                bglEnable(GL_TEXTURE_RECTANGLE_NV);
-                bglBindTexture(GL_TEXTURE_RECTANGLE_NV, ztexture);
+                bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[(i - 1) % 2]);
                 bglActiveTextureARB(GL_TEXTURE0_ARB);
             }
-        
+            if (i == (r_peelscount - 1))
+                bglEnable(GL_BLEND);
+
+            bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, peelfbos[i]);
+            bglPushAttrib(GL_VIEWPORT_BIT);
+            bglViewport(0, 0, xdim, ydim);
+
+            bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             bglCallList(1);
 
+            bglPopAttrib();
+            bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
             if (i > 0)
-            {
-                bglActiveTextureARB(GL_TEXTURE1_ARB);
-                bglDisable(GL_TEXTURE_RECTANGLE_NV);
-                bglActiveTextureARB(GL_TEXTURE0_ARB);
-
                 bglDisable(GL_FRAGMENT_PROGRAM_ARB);
-            }
-
-            // save output to a peel
-            bglBindTexture(GL_TEXTURE_RECTANGLE_NV, peels[i]);
-            bglCopyTexSubImage2D(GL_TEXTURE_RECTANGLE_NV, 0, 0, 0, 0, 0, xdim, ydim);
-
-            if (i < (numpeels - 1))
-            {
-                // save depth buffer
-                bglBindTexture(GL_TEXTURE_RECTANGLE_NV, ztexture);
-                bglCopyTexSubImage2D(GL_TEXTURE_RECTANGLE_NV, 0, 0, 0, 0, 0, xdim, ydim);
-            }
 
             i++;
         }
@@ -6392,7 +6190,6 @@ else
         bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         bglEnable(GL_BLEND);
-        bglDisable(GL_ALPHA_TEST);
         bglDisable(GL_DEPTH_TEST);
 
         bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -6405,18 +6202,18 @@ else
         bglPushMatrix();
         bglLoadIdentity();
 
-        bglEnable(GL_TEXTURE_RECTANGLE_NV);
+        bglEnable(GL_TEXTURE_RECTANGLE);
 
-        if (curpeel == -1)
+        if (r_curpeel == -1)
         {
-            i = numpeels - 1;
+            i = r_peelscount - 1;
             while (i >= 0)
                 drawpeel(i--);
         }
         else
-            drawpeel(curpeel);
+            drawpeel(r_curpeel);
 
-        bglDisable(GL_TEXTURE_RECTANGLE_NV);
+        bglDisable(GL_TEXTURE_RECTANGLE);
         bglEnable(GL_TEXTURE_2D);
 
         // restore the polymost projection
@@ -6429,6 +6226,10 @@ else
 
         bglDeleteLists(1, 1);
     }
+#endif
+
+    indrawroomsandmasks = 0;
+    enddrawing();   //}}}
 }
 
 //
@@ -7603,8 +7404,8 @@ if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (rendmode == 3)
     {
-        polymost_glinit();
         polymost_glreset();
+        polymost_glinit();
     }
     if (rendmode == 4)
         polymer_glinit();

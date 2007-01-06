@@ -117,9 +117,17 @@ void (APIENTRY * bglStencilFunc)(GLenum func, GLint ref, GLuint mask);
 void (APIENTRY * bglGenProgramsARB)(GLsizei, GLuint *);
 void (APIENTRY * bglBindProgramARB)(GLenum, GLuint);
 void (APIENTRY * bglProgramStringARB)(GLenum, GLenum, GLsizei, const GLvoid *);
+void (APIENTRY * bglDeleteProgramsARB)(GLsizei n, const GLuint *programs);
 
 // Multitexturing
 void (APIENTRY * bglActiveTextureARB)(GLenum texture);
+
+// Frame Buffer Objects
+void (APIENTRY * bglGenFramebuffersEXT)(GLsizei n, GLuint *framebuffers);
+void (APIENTRY * bglBindFramebufferEXT)(GLenum target, GLuint framebuffer);
+void (APIENTRY * bglFramebufferTexture2DEXT)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+GLenum (APIENTRY * bglCheckFramebufferStatusEXT)(GLenum target);
+void (APIENTRY * bglDeleteFramebuffersEXT)(GLsizei n, const GLuint *framebuffers);
 
 #ifdef RENDERTYPEWIN
 // Windows
@@ -243,18 +251,18 @@ int loadgldriver(const char *driver)
     bglTranslatef          = GETPROC("glTranslatef");
 
     // Drawing
-    bglBegin		= GETPROC("glBegin");
-    bglEnd			= GETPROC("glEnd");
-    bglVertex2f		= GETPROC("glVertex2f");
-    bglVertex2i		= GETPROC("glVertex2i");
-    bglVertex3f		= GETPROC("glVertex3f");
-    bglVertex3d		= GETPROC("glVertex3d");
-    bglVertex3fv		= GETPROC("glVertex3fv");
-    bglVertex3dv		= GETPROC("glVertex3dv");
-    bglColor4f		= GETPROC("glColor4f");
-    bglColor4ub		= GETPROC("glColor4ub");
-    bglTexCoord2d		= GETPROC("glTexCoord2d");
-    bglTexCoord2f		= GETPROC("glTexCoord2f");
+    bglBegin		=       GETPROC("glBegin");
+    bglEnd			=       GETPROC("glEnd");
+    bglVertex2f		=       GETPROC("glVertex2f");
+    bglVertex2i		=       GETPROC("glVertex2i");
+    bglVertex3f		=       GETPROC("glVertex3f");
+    bglVertex3d		=       GETPROC("glVertex3d");
+    bglVertex3fv		=   GETPROC("glVertex3fv");
+    bglVertex3dv		=   GETPROC("glVertex3dv");
+    bglColor4f		=       GETPROC("glColor4f");
+    bglColor4ub		=       GETPROC("glColor4ub");
+    bglTexCoord2d		=   GETPROC("glTexCoord2d");
+    bglTexCoord2f		=   GETPROC("glTexCoord2f");
 
     // Lighting
     bglShadeModel		= GETPROC("glShadeModel");
@@ -263,7 +271,7 @@ int loadgldriver(const char *driver)
     bglReadPixels		= GETPROC("glReadPixels");
 
     // Texture mapping
-    bglTexEnvf		= GETPROC("glTexEnvf");
+    bglTexEnvf		=       GETPROC("glTexEnvf");
     bglGenTextures		= GETPROC("glGenTextures");
     bglDeleteTextures	= GETPROC("glDeleteTextures");
     bglBindTexture		= GETPROC("glBindTexture");
@@ -282,10 +290,10 @@ int loadgldriver(const char *driver)
     bglFogfv		= GETPROC("glFogfv");
 
     // Display Lists
-    bglNewList      = GETPROC("glNewList");
-    bglEndList      = GETPROC("glEndList");
-    bglCallList      = GETPROC("glCallList");
-    bglDeleteLists      = GETPROC("glDeleteLists");
+    bglNewList      =       GETPROC("glNewList");
+    bglEndList      =       GETPROC("glEndList");
+    bglCallList      =      GETPROC("glCallList");
+    bglDeleteLists      =   GETPROC("glDeleteLists");
 
     // Vertex Arrays
     bglEnableClientState    = GETPROC("glEnableClientState");
@@ -320,9 +328,17 @@ int loadglextensions(void)
     bglGenProgramsARB   = GETPROCEXTSOFT("glGenProgramsARB");
     bglBindProgramARB   = GETPROCEXTSOFT("glBindProgramARB");
     bglProgramStringARB = GETPROCEXTSOFT("glProgramStringARB");
+    bglDeleteProgramsARB= GETPROCEXTSOFT("glDeleteProgramsARB");
 
     // Multitexturing
     bglActiveTextureARB = GETPROCEXTSOFT("glActiveTextureARB");
+
+    // Frame Buffer Objects
+    bglGenFramebuffersEXT =         GETPROCEXTSOFT("glGenFramebuffersEXT");
+    bglBindFramebufferEXT =         GETPROCEXTSOFT("glBindFramebufferEXT");
+    bglFramebufferTexture2DEXT =    GETPROCEXTSOFT("glFramebufferTexture2DEXT");
+    bglCheckFramebufferStatusEXT =  GETPROCEXTSOFT("glCheckFramebufferStatusEXT");
+    bglDeleteFramebuffersEXT =      GETPROCEXTSOFT("glDeleteFramebuffersEXT");
 
     return err;
 }
@@ -440,9 +456,17 @@ int unloadgldriver(void)
     bglGenProgramsARB   = NULL;
     bglBindProgramARB   = NULL;
     bglProgramStringARB = NULL;
+    bglDeleteProgramsARB= NULL;
 
     // Multitexturing
     bglActiveTextureARB = NULL;
+
+    // Frame Buffer Objects
+    bglGenFramebuffersEXT = NULL;
+    bglBindFramebufferEXT = NULL;
+    bglFramebufferTexture2DEXT = NULL;
+    bglCheckFramebufferStatusEXT = NULL;
+    bglDeleteFramebuffersEXT = NULL;
 
 #ifdef RENDERTYPEWIN
     bwglCreateContext	= NULL;

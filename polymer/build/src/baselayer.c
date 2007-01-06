@@ -21,6 +21,11 @@ struct glinfo glinfo = {
                            0,		// non-power-of-two textures
                            0,		// multisampling
                            0,		// nvidia multisampling hint
+                           0,       // ARBfp
+                           0,       // depth textures
+                           0,       // shadow comparison
+                           0,       // Frame Buffer Objects
+                           0,       // rectangle textures
                        };
 #endif
 
@@ -89,6 +94,11 @@ static int osdcmd_glinfo(const osdfuncparm_t *parm)
                " Clamp-to-edge:           %s\n"
                " Multisampling:           %s\n"
                " Nvidia multisample hint: %s\n"
+               " ARBfp fragment programs: %s\n"
+               " Depth textures:          %s\n"
+               " Shadow textures:         %s\n"
+               " Frame Buffer Objects:    %s\n"
+               " Rectangle textures:      %s\n"
                " Extensions:\n",
                glinfo.version,
                glinfo.vendor,
@@ -99,7 +109,12 @@ static int osdcmd_glinfo(const osdfuncparm_t *parm)
                glinfo.texcompr ? "supported": "not supported",
                glinfo.clamptoedge ? "supported": "not supported",
                glinfo.multisample ? "supported": "not supported",
-               glinfo.nvmultisamplehint ? "supported": "not supported"
+               glinfo.nvmultisamplehint ? "supported": "not supported",
+               glinfo.arbfp ? "supported": "not supported",
+               glinfo.depthtex ? "supported": "not supported",
+               glinfo.shadow ? "supported": "not supported",
+               glinfo.fbos ? "supported": "not supported",
+               glinfo.rect ? "supported": "not supported"
               );
 
     s = Bstrdup(glinfo.extensions);

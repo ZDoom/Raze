@@ -490,6 +490,8 @@ extern long glusetexcache, glusetexcachecompression;
 extern long glmultisample, glnvmultisamplehint;
 extern long glwidescreen, glprojectionhacks;
 void gltexapplyprops (void);
+
+extern long r_depthpeeling, r_peelscount;
 #endif
 
 void hicinit(void);

@@ -30,6 +30,14 @@
 # define APIENTRY
 #endif
 
+// those defines are somehow missing from glext.h
+#define GL_FRAMEBUFFER_EXT                      0x8D40
+#define GL_COLOR_ATTACHMENT0_EXT                0x8CE0
+#define GL_DEPTH_ATTACHMENT_EXT                 0x8D00
+#define GL_FRAMEBUFFER_COMPLETE_EXT             0x8CD5
+
+#define GL_TEXTURE_RECTANGLE                    0x84F5
+
 extern void (APIENTRY * bglClearColor)( GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha );
 extern void (APIENTRY * bglClear)( GLbitfield mask );
 extern void (APIENTRY * bglColorMask)( GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha );
@@ -132,9 +140,17 @@ extern void (APIENTRY * bglStencilFunc)(GLenum func, GLint ref, GLuint mask);
 extern void (APIENTRY * bglGenProgramsARB)(GLsizei, GLuint *);
 extern void (APIENTRY * bglBindProgramARB)(GLenum, GLuint);
 extern void (APIENTRY * bglProgramStringARB)(GLenum, GLenum, GLsizei, const GLvoid *);
+extern void (APIENTRY * bglDeleteProgramsARB)(GLsizei n, const GLuint *programs);
 
 // Multitexturing
 extern void (APIENTRY * bglActiveTextureARB)(GLenum texture);
+
+// Frame Buffer Objects
+extern void (APIENTRY * bglGenFramebuffersEXT)(GLsizei n, GLuint *framebuffers);
+extern void (APIENTRY * bglBindFramebufferEXT)(GLenum target, GLuint framebuffer);
+extern void (APIENTRY * bglFramebufferTexture2DEXT)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+extern GLenum (APIENTRY * bglCheckFramebufferStatusEXT)(GLenum target);
+extern void (APIENTRY * bglDeleteFramebuffersEXT)(GLsizei n, const GLuint *framebuffers);
 
 #ifdef RENDERTYPEWIN
 // Windows

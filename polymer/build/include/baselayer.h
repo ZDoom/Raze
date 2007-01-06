@@ -41,6 +41,11 @@ struct glinfo {
 	char texnpot;
 	char multisample;
 	char nvmultisamplehint;
+    char arbfp;
+    char depthtex;
+    char shadow;
+    char fbos;
+    char rect;
 };
 extern struct glinfo glinfo;
 #endif

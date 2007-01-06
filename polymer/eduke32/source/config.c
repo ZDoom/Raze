@@ -639,6 +639,9 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLUseCompressedTextureCache", &glusetexcache);
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLUseTextureCacheCompression", &glusetexcachecompression);
 
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLDepthPeeling", &r_depthpeeling);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLPeelsCount", &r_peelscount);
+
         dummy = usemodels;
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "UseModels",&dummy);
         usemodels = dummy != 0;
@@ -784,6 +787,8 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLUseTextureCacheCompression", glusetexcachecompression,false,false);
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLUseTextureCompr",glusetexcompr,false,false);
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLWidescreen",glwidescreen,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLDepthPeeling",r_depthpeeling,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLPeelsCount",r_peelscount,false,false);
 #endif
 #ifdef RENDERTYPEWIN
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);
