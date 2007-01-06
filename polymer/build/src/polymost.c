@@ -149,7 +149,7 @@ GLuint *peels;          // peels identifiers
 GLuint *peelfbos;       // peels FBOs identifiers
 GLuint peelprogram;     // ARBfp peeling fragment program
 
-float fogresult;
+float fogresult, ofogresult;
 
 void fogcalc (const signed char *shade, const char *vis)
 {
@@ -1810,9 +1810,10 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             shadeforfullbrightpass = globalshade; // save the current shade
             bglFogf(GL_FOG_DENSITY,0.0f); // no fog
             globalshade = -128; // fullbright
+            ofogresult = fogresult;
             drawpoly(dpx, dpy, n_, method_); // draw them afterwards, then. :)
+            fogresult = ofogresult;
             globalshade = shadeforfullbrightpass;
-            fogcalc(&globalshade, &globalvisibility);
             bglFogf(GL_FOG_DENSITY, fogresult);
             fullbrightdrawingpass = 0;
         }

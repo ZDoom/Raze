@@ -730,21 +730,32 @@ void OSD_Draw(void)
         osdscroll = 0;
     else
     {
-/*
-        int i = getticks();
+
+        int i = getticks(), j;
     
-        if (!osdscrtime) osdscrtime = i;
-*/    
         if ((osdrowscur < osdrows && osdscroll == 1) || osdrowscur < -1)
-            osdrowscur += 1;//(i-osdscrtime)>>3;
+        {
+            j = (i-osdscrtime);
+            while (j > -1)
+            {
+                osdrowscur++;
+                j -= 10;
+                if (osdrowscur > osdrows-1)
+                    break;
+            }
+        }
         if ((osdrowscur > -1 && osdscroll == -1) || osdrowscur > osdrows)
-            osdrowscur -= 1;//(i-osdscrtime)>>3;
-/*
-        if (osdrowscur > osdrows) osdrowscur = osdrows;
-        if (osdrowscur < -1) osdrowscur = -1;
-        OSD_Printf("%ld\n",(i-osdscrtime)>>3);
-        osdscrtime = i;
-*/
+        {
+            j = (i-osdscrtime);
+            while (j > -1)
+            {
+                osdrowscur--;
+                j -= 10;
+                if (osdrowscur < 1)
+                    break;
+            }
+        }
+        osdscrtime = getticks();
     }
     
     if (!osdvisible || !osdrowscur) return;
