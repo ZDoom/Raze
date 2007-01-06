@@ -6088,6 +6088,8 @@ if ((!r_depthpeeling) || (rendmode < 3))
 if ((!r_depthpeeling) || (rendmode < 3))
 #endif
 {
+    curpolygonoffset = 0;
+
     pos.x = globalposx;
     pos.y = globalposy;
 
@@ -6118,6 +6120,7 @@ if ((!r_depthpeeling) || (rendmode < 3))
 
                 if ((sameside(&maskeq, &spr, &pos) == 0) && sameside(&p1eq, &middle, &spr) && sameside(&p2eq, &middle, &spr))
                 {
+                    bglDisable(GL_POLYGON_OFFSET_FILL);
                     drawsprite(i);
                     tspriteptr[i] = NULL;
                 }
@@ -6130,8 +6133,12 @@ if ((!r_depthpeeling) || (rendmode < 3))
     {
         spritesortcnt--;
         if (tspriteptr[spritesortcnt] != NULL)
+        {
+            bglDisable(GL_POLYGON_OFFSET_FILL);
             drawsprite(spritesortcnt);
+        }
     }
+    bglDisable(GL_POLYGON_OFFSET_FILL);
 
 } /* depthpeeling */
 #ifdef USE_OPENGL
