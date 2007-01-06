@@ -3342,7 +3342,7 @@ cheat_for_port_credits:
         else if (probey == (MAXMOUSEBUTTONS-2)*2+2+1)
         {
             gametext(160,144+9+9,"SET MOUSE AIM TYPE TO TOGGLE ON/OFF",0,2+8+16);
-            gametext(160,144+9+9+9,"IN THE PLAYER SETUP MENU",0,2+8+16);
+            gametext(160,144+9+9+9,"IN THE PLAYER SETUP MENU TO ENABLE",0,2+8+16);
         }
 
         modval(0,1,(int *)&ud.mouseflip,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2);

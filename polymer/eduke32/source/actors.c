@@ -7613,7 +7613,7 @@ BOLT:
 
 void moveobjects(void)
 {
-    int k;
+    int k = 0;
 
     movefta();              //ST 2
     moveweapons();          //ST 4
@@ -7628,7 +7628,7 @@ void moveobjects(void)
 
     movestandables();       //ST 6
 
-    for (k=0;k<MAXSTATUS;k++)
+    for (;k<MAXSTATUS;k++)
     {
         int i = headspritestat[k];
         while (i >= 0)
