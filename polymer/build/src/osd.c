@@ -730,12 +730,11 @@ void OSD_Draw(void)
         osdscroll = 0;
     else
     {
-
-        int i = getticks(), j;
+        int j;
     
         if ((osdrowscur < osdrows && osdscroll == 1) || osdrowscur < -1)
         {
-            j = (i-osdscrtime);
+            j = (getticks()-osdscrtime);
             while (j > -1)
             {
                 osdrowscur++;
@@ -746,7 +745,7 @@ void OSD_Draw(void)
         }
         if ((osdrowscur > -1 && osdscroll == -1) || osdrowscur > osdrows)
         {
-            j = (i-osdscrtime);
+            j = (getticks()-osdscrtime);
             while (j > -1)
             {
                 osdrowscur--;
