@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-#define VERSION " 1.4.0 svn"
+#define VERSION " 1.4.0 beta 3"
 
 #define HEAD  "EDuke32"VERSION" (shareware mode)"
 #define HEAD2 "EDuke32"VERSION

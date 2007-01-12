@@ -433,7 +433,8 @@ CANCEL:
                         quitflag = 1;
                         break;
                     }
-                } else idle();
+                }
+                idle();
 
                 if (keystatus[0x15] != 0) {
                     keystatus[0x15] = 0;
@@ -458,7 +459,7 @@ CANCEL:
         while ((keystatus[1]|keystatus[0x1c]|keystatus[0x39]|keystatus[0x31]|keystatus[0x2e]) == 0)
         {
             if (handleevents()) { if (quitevent) break;	} // like saying no
-            else idle();
+            idle();
             
             if (keystatus[0x15] != 0) {
                 keystatus[0x15] = 0;
@@ -2501,7 +2502,8 @@ long gettile(long tilenum)
 
         if (handleevents()) {
             if (quitevent) quitevent = 0;
-        } else idle();
+        }
+        idle();
 
         synctics = totalclock-lockclock;
         lockclock += synctics;
@@ -2571,7 +2573,8 @@ long gettile(long tilenum)
             {
                 if (handleevents()) {
                     if (quitevent) quitevent = 0;
-                } else idle();
+                }
+                idle();
 
                 ch = bgetchar();
 
@@ -2822,8 +2825,9 @@ void overheadeditor(void)
                 keystatus[1] = 1;
                 quitevent = 0;
             }
-        } else idle();
+        }
         
+        idle();
         OSD_DispatchQueued();
 
         oldmousebstatus = bstatus;
@@ -5460,7 +5464,8 @@ CANCEL:
                     if (quitevent) {
                         quitevent = 0;
                     }
-                } else idle();
+                }
+                idle();
 
                 ch = bgetchar();
 
@@ -5482,7 +5487,8 @@ CANCEL:
                             if (quitevent) {
                                 quitevent = 0;
                             }
-                        } else idle();
+                        }
+                        idle();
 
                         ch = bgetchar();
 
@@ -5707,7 +5713,8 @@ CANCEL:
 
                         if (handleevents()) {
                             if (quitevent) quitevent = 0;
-                        } else idle();
+                        }
+                        idle();
 
                         ch = bgetchar();
 
@@ -5799,7 +5806,8 @@ CANCEL:
                     {
                         if (handleevents()) {
                             if (quitevent) quitevent = 0;
-                        } else idle();
+                        }
+                        idle();
 
                         ch = bgetchar();
 
@@ -5813,7 +5821,8 @@ CANCEL:
                             {
                                 if (handleevents()) {
                                     if (quitevent) break;	// like saying no
-                                } else idle();
+                                }
+                                idle();
 
                                 ch = bgetchar();
 
@@ -6370,7 +6379,8 @@ long getnumber16(char namestart[80], long num, long maxnumber, char sign)
     {
         if (handleevents()) {
             if (quitevent) quitevent = 0;
-        } else idle();
+        }
+        idle();
 
         ch = bgetchar();
 
@@ -6571,7 +6581,8 @@ long menuselect(void)
                     keystatus[1] = 1;
                     quitevent = 0;
                 }
-            } else idle();
+            }
+            idle();
             ch = bgetchar();
             {   // JBF 20040208: seek to first name matching pressed character
                 CACHE1D_FIND_REC *seeker = currentlist ? findfiles : finddirs;

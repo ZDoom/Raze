@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "EDuke32"
-!define PRODUCT_VERSION "1.4.0"
+!define PRODUCT_VERSION "1.4.0 beta 3"
 !define PRODUCT_PUBLISHER "EDuke32 Team"
 !define PRODUCT_WEB_SITE "http://www.eduke32.com"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}"
