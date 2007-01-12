@@ -946,12 +946,12 @@ void decode_layer3(mpadec_t mpadec, uint8_t *buffer)
       III_hybrid(mpa, grinfo, mpa->hybrid_in[ch], mpa->hybrid_out[ch], ch);
     }
     if (single < 0) {
-      for (ss = 0; ss < SSLIMIT; ss++, (uint8_t *)buffer += mpa->synth_size) {
+      for (ss = 0; ss < SSLIMIT; ss++, buffer += mpa->synth_size) {
         mpa->synth_func(mpa, mpa->hybrid_out[0][ss], 0, buffer);
         mpa->synth_func(mpa, mpa->hybrid_out[1][ss], 1, buffer);
       }
     } else {
-      for (ss = 0; ss < SSLIMIT; ss++, (uint8_t *)buffer += mpa->synth_size) {
+      for (ss = 0; ss < SSLIMIT; ss++, buffer += mpa->synth_size) {
         mpa->synth_func(mpa, mpa->hybrid_out[0][ss], 0, buffer);
       }
     }

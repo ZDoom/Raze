@@ -197,16 +197,16 @@ void decode_layer2(mpadec_t mpadec, uint8_t *buffer)
       for (k = 0; k < SBLIMIT; k++) fraction[0][j][k] = 0.5*(fraction[0][j][k] + fraction[1][j][k]);
     }
     if (single < 0) {
-      for (j = 0; j < 3; j++, (uint8_t *)buffer += mpa->synth_size) {
+      for (j = 0; j < 3; j++, buffer += mpa->synth_size) {
         mpa->synth_func(mpa, fraction[0][j], 0, buffer);
         mpa->synth_func(mpa, fraction[1][j], 1, buffer);
       }
     } else if (!single) {
-      for (j = 0; j < 3; j++, (uint8_t *)buffer += mpa->synth_size) {
+      for (j = 0; j < 3; j++, buffer += mpa->synth_size) {
         mpa->synth_func(mpa, fraction[0][j], 0, buffer);
       }
     } else {
-      for (j = 0; j < 3; j++, (uint8_t *)buffer += mpa->synth_size) {
+      for (j = 0; j < 3; j++, buffer += mpa->synth_size) {
         mpa->synth_func(mpa, fraction[single - 1][j], 0, buffer);
       }
     }

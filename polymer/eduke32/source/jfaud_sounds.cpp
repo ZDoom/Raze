@@ -302,7 +302,7 @@ void intomenusounds(void)
 	menunum %= sizeof(menusnds)/sizeof(menusnds[0]);
 }
 
-void playmusic(char *fn)
+void playmusic(const char *fn)
 {
 	char dafn[BMAX_PATH], *dotpos;
 	int i;

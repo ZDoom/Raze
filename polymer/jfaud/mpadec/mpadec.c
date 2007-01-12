@@ -265,7 +265,7 @@ static int first_frame(mpadec_t mpadec)
 
   if (mpa->frame.channels > 1) i = ((mpa->config.mode == MPADEC_CONFIG_STEREO) || (mpa->config.mode == MPADEC_CONFIG_AUTO)) ? 3 : 2;
   else i = (mpa->config.mode == MPADEC_CONFIG_STEREO) ? 1 : 0;
-  (void *)mpa->synth_func = synth_table[mpa->config.quality][mpa->config.endian][mpa->config.format][i];
+  mpa->synth_func = synth_table[mpa->config.quality][mpa->config.endian][mpa->config.format][i];
   mpa->sample_size = mpa->frame.decoded_channels;
   switch (mpa->config.format) {
     case MPADEC_CONFIG_24BIT: mpa->sample_size *= 3; scale = 0x800000; break;
@@ -460,7 +460,7 @@ int MPADECAPI mpadec_configure(mpadec_t mpadec, mpadec_config_t *cfg)
       decode_header(mpa, mpa->header);
       if (mpa->frame.channels < 2) i = (mpa->config.mode == MPADEC_CONFIG_STEREO) ? 1 : 0;
       else i = ((mpa->config.mode == MPADEC_CONFIG_STEREO) || (mpa->config.mode == MPADEC_CONFIG_AUTO)) ? 3 : 2;
-      (void *)mpa->synth_func = synth_table[mpa->config.quality][mpa->config.endian][mpa->config.format][i];
+      mpa->synth_func = synth_table[mpa->config.quality][mpa->config.endian][mpa->config.format][i];
       mpa->sample_size = mpa->frame.decoded_channels;
       switch (mpa->config.format) {
         case MPADEC_CONFIG_24BIT: mpa->sample_size *= 3; break;
