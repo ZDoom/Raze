@@ -1,0 +1,15 @@
+CFLAGS=/I.. /I..\include /MD /Ox
+
+OBJS=layer1.obj layer2.obj layer3.obj synth.obj tables.obj mpadec.obj mp3dec.obj
+
+mpadec.lib: $(OBJS)
+	lib /nologo /out:$@ $**
+
+mpadec.dll: $(OBJS)
+	link /nologo /dll /def:mpadec.def /OUT:$@ /IMPLIB:mpadecimp.lib /SUBSYSTEM:WINDOWS /RELEASE $** msvcrt.lib
+
+.c.obj: ; cl /c /nologo $(CFLAGS) /Fo$@ $<
+
+clean:
+	-del $(OBJS) mpadec.lib mpadec.dll mpadecimp.lib mpadecimp.exp
+

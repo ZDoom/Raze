@@ -327,7 +327,7 @@ void playmusic(char *fn)
 	}
 }
 
-char loadsound(unsigned short num) { return 1; }
+int loadsound(unsigned short num) { return 1; }
 
 int isspritemakingsound(short i, int num)	// if num<0, check if making any sound at all
 {

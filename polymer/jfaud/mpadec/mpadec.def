@@ -1,0 +1,26 @@
+LIBRARY mpadec
+DESCRIPTION "http://mpadec.sourceforge.net/"
+EXPORTS
+	mpadec_init
+	mpadec_uninit
+	mpadec_reset
+	mpadec_configure
+	mpadec_get_info
+	mpadec_decode
+	mpadec_error
+	mpadec2_init
+	mpadec2_uninit
+	mpadec2_reset
+	mpadec2_configure
+	mpadec2_get_info
+	mpadec2_decode
+	mp3dec_init
+	mp3dec_init_file
+	mp3dec_uninit
+	mp3dec_reset
+	mp3dec_configure
+	mp3dec_get_info
+	mp3dec_decode
+	mp3dec_seek
+	mp3dec_error
+

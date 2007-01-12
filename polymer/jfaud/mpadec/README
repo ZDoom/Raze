@@ -1,0 +1,13 @@
+
+  mpadec - MPEG audio decoder
+  Copyright (C) 2002-2004 Dmitriy Startsev (dstartsev@rambler.ru)
+  Based on mpglib from mpg123 package by Michael Hipp (http://www.mpg123.de)
+
+  Mpadec is a high-quality portable MPEG audio decoder library.
+  It supports MPEG-1, MPEG-2 Layer I, Layer II and Layer III audio streams,
+  including free-format streams.
+
+  It is still under development:)
+
+  To compile it you will have to manually edit config.h and makefile.
+

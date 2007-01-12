@@ -8211,7 +8211,7 @@ static int stringsort(const char *p1, const char *p2)
     return Bstrcmp(&p1[0],&p2[0]);
 }
 
-void setup_rancid_net(char *fn)
+static void setup_rancid_net(char *fn)
 {
     int i;
 
@@ -8311,7 +8311,7 @@ void setup_rancid_net(char *fn)
     }
 }
 
-int loadgroupfiles(char *fn)
+static int loadgroupfiles(char *fn)
 {
     int tokn;
     char *cmdtokptr;
@@ -9352,7 +9352,7 @@ void sendscore(const char *s)
         genericmultifunction(-1,(char *)s,strlen(s)+1,5);
 }
 
-void sendwchoice(void)
+static void sendwchoice(void)
 {
     int i,l;
 
@@ -9373,7 +9373,7 @@ void sendwchoice(void)
     }
 }
 
-void sendplayerupdate(void)
+static void sendplayerupdate(void)
 {
     int i,l;
 
@@ -10172,9 +10172,9 @@ MAIN_LOOP_RESTART:
     gameexit(" ");
 }
 
-char demo_version;
+static int demo_version;
 
-static int opendemoread(char which_demo) // 0 = mine
+static int opendemoread(int which_demo) // 0 = mine
 {
     char d[13];
     char ver;
@@ -10366,9 +10366,10 @@ void closedemowrite(void)
     }
 }
 
-char which_demo = 1;
-char in_menu = 0;
+static int which_demo = 1;
+static int in_menu = 0;
 
+#if 0
 typedef struct
 {
     signed char avel, horz;
@@ -10377,7 +10378,8 @@ typedef struct
 }
 oldinput;
 
-oldinput oldrecsync[RECSYNCBUFSIZ];
+static oldinput oldrecsync[RECSYNCBUFSIZ];
+#endif
 
 // extern long syncs[];
 static long playback(void)
@@ -10442,7 +10444,8 @@ RECHECK:
     {
         if (foundemo) while (totalclock >= (lockclock+TICSPERFRAME))
             {
-                if (demo_version != BYTEVERSION)
+#if 0            
+                if (demo_version == 116 || demo_version == 117)
                 {
                     if ((i == 0) || (i >= RECSYNCBUFSIZ))
                     {
@@ -10471,6 +10474,7 @@ RECHECK:
                     }
                 }
                 else
+#endif                
                 {
                     if ((i == 0) || (i >= RECSYNCBUFSIZ))
                     {
@@ -10599,7 +10603,7 @@ RECHECK:
 
 static int moveloop()
 {
-    long i;
+    int i;
 
     if (numplayers > 1)
         while (fakemovefifoplc < movefifoend[myconnectindex]) fakedomovethings();
@@ -11389,14 +11393,14 @@ static void doorders(void)
 
 void dobonus(char bonusonly)
 {
-    short t, tinc,gfx_offset;
-    long i, y,xfragtotal,yfragtotal;
-    short bonuscnt;
+    int t, tinc,gfx_offset;
+    int i, y,xfragtotal,yfragtotal;
+    int bonuscnt;
     int clockpad = 2;
     char *lastmapname;
     int32 playerbest = -1;
 
-    long breathe[] =
+    int breathe[] =
         {
             0,  30,VICTORY1+1,176,59,
             30,  60,VICTORY1+2,176,59,
@@ -11404,7 +11408,7 @@ void dobonus(char bonusonly)
             90, 120,0         ,176,59
         };
 
-    long bossmove[] =
+    int bossmove[] =
         {
             0, 120,VICTORY1+3,86,59,
             220, 260,VICTORY1+4,86,59,
@@ -11742,14 +11746,14 @@ FRAGBONUS:
         minitext(23,80,"   NAME                                           KILLS",8,2+8+16+128);
         for (i=0;i<playerswhenstarted;i++)
         {
-            Bsprintf(tempbuf,"%-4ld",i+1);
+            Bsprintf(tempbuf,"%-4d",i+1);
             minitext(92+(i*23),80,tempbuf,3,2+8+16+128);
         }
 
         for (i=0;i<playerswhenstarted;i++)
         {
             xfragtotal = 0;
-            Bsprintf(tempbuf,"%ld",i+1);
+            Bsprintf(tempbuf,"%d",i+1);
 
             minitext(30,90+t,tempbuf,0,2+8+16+128);
             minitext(38,90+t,ud.user_name[i],ps[i].palookup,2+8+16+128);
@@ -11771,12 +11775,12 @@ FRAGBONUS:
 
                 if (myconnectindex == connecthead)
                 {
-                    Bsprintf(tempbuf,"stats %ld killed %ld %d\n",i+1,y+1,frags[i][y]);
+                    Bsprintf(tempbuf,"stats %d killed %d %d\n",i+1,y+1,frags[i][y]);
                     sendscore(tempbuf);
                 }
             }
 
-            Bsprintf(tempbuf,"%-4ld",xfragtotal);
+            Bsprintf(tempbuf,"%-4d",xfragtotal);
             minitext(101+(8*23),90+t,tempbuf,2,2+8+16+128);
 
             t += 7;
@@ -11791,7 +11795,7 @@ FRAGBONUS:
                     yfragtotal += ps[i].fraggedself;
                 yfragtotal += frags[i][y];
             }
-            Bsprintf(tempbuf,"%-4ld",yfragtotal);
+            Bsprintf(tempbuf,"%-4d",yfragtotal);
             minitext(92+(y*23),96+(8*7),tempbuf,2,2+8+16+128);
         }
 

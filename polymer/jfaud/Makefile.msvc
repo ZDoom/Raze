@@ -1,0 +1,166 @@
+# OpenAL
+# http://www.openal.org/
+USEAL=1 
+LINKAL=0
+ALCFLAGS=
+ALLIBS=openal32.lib
+ALDL=openal32.dll
+
+# DirectX SDK Location (Win32)
+# http://www.microsoft.com/downloads/details.aspx?FamilyID=edb98ffa-a59c-4c23-9b92-ba304f188314&DisplayLang=en
+DIRECTXCFLAGS=
+DIRECTXLIBS=dxguid.lib
+
+# OggVorbis
+# http://www.vorbis.com/
+USEVORBIS=1
+LINKVORBIS=0
+VORBISCFLAGS=
+VORBISLIBS=vorbisfile.lib vorbis.lib ogg.lib
+VORBISDL=vorbisfile.dll
+
+# FLAC
+# http://flac.sf.net/
+USEFLAC=1
+LINKFLAC=0
+FLACCFLAGS=
+FLACLIBS=libflac.lib
+FLACDL=libflac.dll
+
+# MPEG Audio via mpadec
+# http://mpadec.sf.net/
+USEMPADEC=1
+LINKMPADEC=0
+MPADECCFLAGS=/Impadec
+MPADECLIBS=mpadec\mpadec.lib
+MPADECDL=mpadec.dll
+
+# libSDL 1.2 or better (used just for the test app on Win32)
+# http://www.libsdl.org/
+SDLCFLAGS=/IC:\sdks\SDL-msvc\include
+SDLLIBS=/LIBPATH:C:\sdks\SDL-msvc\lib SDL.lib
+
+# Directories for library SDKs on Windows
+# I keep my third-party libraries each in a directory on their own.
+SDKDIRECTX=c:\sdks\directx\dx7
+SDKOPENAL=c:\sdks\OpenAL
+SDKVORBIS=c:\sdks\oggvorbis-win32sdk-1.0.1
+SDKFLAC=c:\sdks\flac
+
+obj=obj
+src=src
+inc=inc
+o=obj
+libfile=jfaud.lib
+
+exe=.exe
+platformcflags=/I$(SDKDIRECTX)\include $(DIRECTXCFLAGS)
+platformobjs=$(obj)\cda_win32.$o $(obj)\midisynth_win32.$o $(obj)\waveout_dsound.$o
+platformlibs=winmm.lib /LIBPATH:$(SDKDIRECTX)\lib $(DIRECTXLIBS) $(SDLLIBS)
+
+ALCFLAGS=/I$(SDKOPENAL)\Include $(ALCFLAGS) /DALDL=\"$(ALDL)\"
+ALLIBS=/LIBPATH:$(SDKOPENAL)\libs $(ALLIBS)
+
+VORBISCFLAGS=/I$(SDKVORBIS)\include $(VORBISCFLAGS) /DVORBISDL=\"$(VORBISDL)\"
+VORBISLIBS=/LIBPATH:$(SDKVORBIS)\lib $(VORBISLIBS)
+
+FLACCFLAGS=/I$(SDKFLAC)\include $(FLACCFLAGS) /DFLACDL=\"$(FLACDL)\"
+FLACLIBS=/LIBPATH:$(SDKFLAC)\bin $(FLACLIBS)
+
+MPADECCFLAGS=$(MPADECCFLAGS) /DMPADECDL=\"$(MPADECDL)\"
+
+CFLAGS=/G6Fy /Ox /MD /DDEBUG /nologo /I$(inc) $(platformcflags)
+LIBS=$(platformlibs)
+dependencies=
+
+CFLAGS=$(CFLAGS) /DUSEAL=$(USEAL)
+!if $(USEAL)
+CFLAGS=$(CFLAGS) /DLINKAL=$(LINKAL)
+!if $(LINKAL)
+LIBS=$(LIBS) $(ALLIBS)
+!endif
+!endif
+
+CFLAGS=$(CFLAGS) /DUSEVORBIS=$(USEVORBIS)
+!if $(USEVORBIS)
+CFLAGS=$(CFLAGS) /DLINKVORBIS=$(LINKVORBIS)
+!if $(LINKVORBIS)
+LIBS=$(LIBS) $(VORBISLIBS)
+!endif
+!endif
+
+CFLAGS=$(CFLAGS) /DUSEFLAC=$(USEFLAC)
+!if $(USEFLAC)
+CFLAGS=$(CFLAGS) /DLINKFLAC=$(LINKFLAC)
+!if $(LINKFLAC)
+LIBS=$(LIBS) $(FLACLIBS)
+!else
+LIBS=$(LIBS) /NODEFAULTLIB:libFLAC.lib
+!endif
+!endif
+
+CFLAGS=$(CFLAGS) /DUSEMPADEC=$(USEMPADEC)
+!if $(USEMPADEC)
+CFLAGS=$(CFLAGS) /DLINKMPADEC=$(LINKMPADEC)
+!if $(LINKMPADEC)
+LIBS=$(LIBS) $(MPADECLIBS)
+dependencies=$(dependencies) $(MPADECLIBS)
+!endif
+!endif
+
+CXXFLAGS=$(CFLAGS)
+
+libraryobjs=$(obj)\jfaud.$o $(obj)\soundcache.$o \
+	    $(obj)\mixer.$o $(obj)\nullmixer.$o $(obj)\almixer.$o $(obj)\softwaremixer.$o \
+	    $(obj)\file.$o $(obj)\stdfile.$o \
+	    $(obj)\pcmbuffer.$o $(obj)\midibuffer.$o \
+	    $(obj)\soundfile.$o $(obj)\waveformfile.$o $(obj)\midifile.$o \
+            $(obj)\waveformfile_raw.$o $(obj)\waveformfile_riffwave.$o $(obj)\waveformfile_aiff.$o \
+            $(obj)\waveformfile_voc.$o $(obj)\waveformfile_au.$o $(obj)\waveformfile_oggvorbis.$o \
+            $(obj)\waveformfile_flac.$o $(obj)\waveformfile_mpeg.$o \
+	    $(obj)\midifile_smf.$o $(obj)\midiseq.$o $(obj)\midisynth.$o\
+            $(obj)\cda_null.$o $(obj)\waveout.$o $(obj)\dynlib.$o $(obj)\crc32.$o $(platformobjs)
+testprogobjs=$(obj)\jfaudtest.$o $(libfile)
+
+# module-specific CFLAGS declaration variables
+almixer_cpp_CFLAGS=$(ALCFLAGS)
+jfaud_cpp_CFLAGS=$(ALCFLAGS)
+waveformfile_oggvorbis_cpp_CFLAGS=$(VORBISCFLAGS)
+waveformfile_flac_cpp_CFLAGS=$(FLACCFLAGS)
+waveformfile_mpeg_cpp_CFLAGS=$(MPADECCFLAGS)
+waveformfile_cpp_CFLAGS=$(VORBISCFLAGS) $(FLACCFLAGS) $(MPADECCFLAGS)
+
+
+all: $(libfile)
+test: jfaudtest$(exe)
+
+jfaudtest$(exe): $(testprogobjs) $(dependencies)
+	link /opt:nowin98 /opt:ref /nologo /OUT:$@ /SUBSYSTEM:WINDOWS $(testprogobjs) $(SDLLIBS) $(LIBS) msvcrt.lib user32.lib sdlmain.lib
+
+$(libfile): $(libraryobjs)
+	lib /nologo /out:$@ $**
+
+!include Makefile.deps
+
+$(obj)\jfaudtest.$o: $(src)\jfaudtest.cpp $(inc)\jfaud.hpp $(inc)\file.hpp $(inc)\mixer.hpp $(inc)\waveformfile.hpp $(inc)\soundfile.hpp $(inc)\pcmbuffer.hpp $(inc)\buffer.hpp $(inc)\cda.hpp $(inc)\sysdefs.h
+	cl /c $(CXXFLAGS) $(SDLCFLAGS) /Fo$@ $(src)\jfaudtest.cpp
+
+{$(src)}.cpp{$(obj)}.$o: ; cl /c $(CXXFLAGS) /Fo$@ $<
+$(obj)\almixer.$o:                ; cl /c $(CXXFLAGS) $(almixer_cpp_CFLAGS)                /Fo$@ $(src)\almixer.cpp
+$(obj)\jfaud.$o:                  ; cl /c $(CXXFLAGS) $(jfaud_cpp_CFLAGS)                  /Fo$@ $(src)\jfaud.cpp
+$(obj)\waveformfile_oggvorbis.$o: ; cl /c $(CXXFLAGS) $(waveformfile_oggvorbis_cpp_CFLAGS) /Fo$@ $(src)\waveformfile_oggvorbis.cpp
+$(obj)\waveformfile_flac.$o:      ; cl /c $(CXXFLAGS) $(waveformfile_flac_cpp_CFLAGS)      /Fo$@ $(src)\waveformfile_flac.cpp
+$(obj)\waveformfile_mpeg.$o:      ; cl /c $(CXXFLAGS) $(waveformfile_mpeg_cpp_CFLAGS)      /Fo$@ $(src)\waveformfile_mpeg.cpp
+$(obj)\waveformfile.$o:           ; cl /c $(CXXFLAGS) $(waveformfile_cpp_CFLAGS)           /Fo$@ $(src)\waveformfile.cpp
+
+# housekeeping
+clean:
+	-del $(libraryobjs) jfaudtest$(exe) $(obj)\jfaudtest.$o
+	-cd mpadec && $(MAKE) /nologo /f Makefile.msvc clean
+veryclean: clean
+	-del $(libfile)
+
+# for building libmpadec
+$(MPADECLIBS): libmpadec
+libmpadec:
+	cd mpadec && $(MAKE) /nologo /f Makefile.msvc mpadec.lib mpadec.dll
