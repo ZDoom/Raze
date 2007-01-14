@@ -21,7 +21,7 @@ VORBISDL=vorbisfile.dll
 
 # FLAC
 # http://flac.sf.net/
-USEFLAC=1
+USEFLAC=0
 LINKFLAC=0
 FLACCFLAGS=
 FLACLIBS=libflac.lib
@@ -30,7 +30,7 @@ FLACDL=libflac.dll
 # MPEG Audio via mpadec
 # http://mpadec.sf.net/
 USEMPADEC=1
-LINKMPADEC=0
+LINKMPADEC=1
 MPADECCFLAGS=/Impadec
 MPADECLIBS=mpadec\mpadec.lib
 MPADECDL=mpadec.dll
@@ -42,9 +42,9 @@ SDLLIBS=/LIBPATH:C:\sdks\SDL-msvc\lib SDL.lib
 
 # Directories for library SDKs on Windows
 # I keep my third-party libraries each in a directory on their own.
-SDKDIRECTX=c:\sdks\directx\dx7
+SDKDIRECTX=c:\sdks\dx6
 SDKOPENAL=c:\sdks\OpenAL
-SDKVORBIS=c:\sdks\oggvorbis-win32sdk-1.0.1
+SDKVORBIS=c:\sdks\oggvorbis
 SDKFLAC=c:\sdks\flac
 
 obj=obj
@@ -69,7 +69,7 @@ FLACLIBS=/LIBPATH:$(SDKFLAC)\bin $(FLACLIBS)
 
 MPADECCFLAGS=$(MPADECCFLAGS) /DMPADECDL=\"$(MPADECDL)\"
 
-CFLAGS=/G6Fy /Ox /MD /DDEBUG /nologo /I$(inc) $(platformcflags)
+CFLAGS=/O2 /Ox /MD /DDEBUG /nologo /D "_CRT_SECURE_NO_DEPRECATE" -W0 /I$(inc) $(platformcflags)
 LIBS=$(platformlibs)
 dependencies=
 

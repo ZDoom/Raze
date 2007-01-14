@@ -311,7 +311,7 @@ void playmusic(const char *fn)
 	if (!MusicToggle) return;
 	if (!jfaud) return;
 
-	dotpos = Bstrrchr(fn,'.');
+	dotpos = Bstrrchr((char *)fn,'.');
 	if (dotpos && Bstrcasecmp(dotpos,".mid")) {
 		// has extension but isn't midi
 		jfaud->PlayMusic(fn, NULL);

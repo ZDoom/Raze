@@ -56,6 +56,8 @@ extern void (APIENTRY * bglPopAttrib)( void );
 extern GLenum (APIENTRY * bglGetError)( void );
 extern const GLubyte* (APIENTRY * bglGetString)( GLenum name );
 extern void (APIENTRY * bglHint)( GLenum target, GLenum mode );
+extern void (APIENTRY * bglDrawBuffer)(GLenum mode);
+extern void (APIENTRY * bglReadBuffer)(GLenum mode);
 
 // Depth
 extern void (APIENTRY * bglDepthFunc)( GLenum func );

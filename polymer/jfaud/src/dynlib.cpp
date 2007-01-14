@@ -17,7 +17,7 @@
 #endif
 
 #ifndef SCREWED_UP_CPP
-using namespace std;
+//using namespace std;
 #endif
 
 DynamicLibrary::DynamicLibrary(const char *name)

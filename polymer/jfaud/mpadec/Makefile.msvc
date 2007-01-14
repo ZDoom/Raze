@@ -1,4 +1,4 @@
-CFLAGS=/I.. /I..\include /MD /Ox
+CFLAGS=/I.. /I..\include /MD /Ox /D "_CRT_SECURE_NO_DEPRECATE" -W0
 
 OBJS=layer1.obj layer2.obj layer3.obj synth.obj tables.obj mpadec.obj mp3dec.obj
 

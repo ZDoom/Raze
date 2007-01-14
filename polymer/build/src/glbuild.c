@@ -33,6 +33,8 @@ void (APIENTRY * bglPopAttrib)( void );
 GLenum (APIENTRY * bglGetError)( void );
 const GLubyte* (APIENTRY * bglGetString)( GLenum name );
 void (APIENTRY * bglHint)( GLenum target, GLenum mode );
+void (APIENTRY * bglDrawBuffer)(GLenum mode);
+void (APIENTRY * bglReadBuffer)(GLenum mode);
 
 // Depth
 void (APIENTRY * bglDepthFunc)( GLenum func );
@@ -213,23 +215,25 @@ int loadgldriver(const char *driver)
 #endif
 
     bglClearColor		= GETPROC("glClearColor");
-    bglClear		= GETPROC("glClear");
+    bglClear		    = GETPROC("glClear");
     bglColorMask		= GETPROC("glColorMask");
     bglAlphaFunc		= GETPROC("glAlphaFunc");
     bglBlendFunc		= GETPROC("glBlendFunc");
-    bglCullFace		= GETPROC("glCullFace");
+    bglCullFace		    = GETPROC("glCullFace");
     bglFrontFace		= GETPROC("glFrontFace");
     bglPolygonOffset	= GETPROC("glPolygonOffset");
     bglPolygonMode		= GETPROC("glPolygonMode");
-    bglEnable		= GETPROC("glEnable");
-    bglDisable		= GETPROC("glDisable");
+    bglEnable		    = GETPROC("glEnable");
+    bglDisable		    = GETPROC("glDisable");
     bglGetFloatv		= GETPROC("glGetFloatv");
     bglGetIntegerv		= GETPROC("glGetIntegerv");
     bglPushAttrib		= GETPROC("glPushAttrib");
     bglPopAttrib		= GETPROC("glPopAttrib");
-    bglGetError		= GETPROC("glGetError");
+    bglGetError		    = GETPROC("glGetError");
     bglGetString		= GETPROC("glGetString");
-    bglHint			= GETPROC("glHint");
+    bglHint			    = GETPROC("glHint");
+    bglDrawBuffer       = GETPROC("glDrawBuffer");
+    bglReadBuffer       = GETPROC("glDrawBuffer");
 
     // Depth
     bglDepthFunc		= GETPROC("glDepthFunc");
@@ -375,6 +379,8 @@ int unloadgldriver(void)
     bglGetError		    = NULL;
     bglGetString		= NULL;
     bglHint			    = NULL;
+    bglDrawBuffer       = NULL;
+    bglReadBuffer       = NULL;
 
     // Depth
     bglDepthFunc		= NULL;

@@ -144,10 +144,10 @@ long peelcompiling = 0;     // internal control var to disable blending when com
 long newpeelscount = 0;     // temporary var for peels count changing during the game
 
 // Depth peeling data
-GLuint ztexture[2];        // secondary Z-buffer identifier
-GLuint *peels;          // peels identifiers
-GLuint *peelfbos;       // peels FBOs identifiers
-GLuint peelprogram;     // ARBfp peeling fragment program
+GLuint ztexture[3];         // secondary Z-buffers identifier
+GLuint *peels;              // peels identifiers
+GLuint *peelfbos;           // peels FBOs identifiers
+GLuint peelprogram[2];      // ARBfp peeling fragment program
 
 float fogresult, ofogresult;
 
@@ -610,10 +610,10 @@ void polymost_glreset ()
     // Depth peeling cleanup
     if (peels)
     {
-        bglDeleteProgramsARB(1, &peelprogram);
-        bglDeleteFramebuffersEXT(r_peelscount, peelfbos);
-        bglDeleteTextures(r_peelscount, peels);
-        bglDeleteTextures(2, ztexture);
+        bglDeleteProgramsARB(2, peelprogram);
+        bglDeleteFramebuffersEXT(r_peelscount + 1, peelfbos);
+        bglDeleteTextures(r_peelscount + 1, peels);
+        bglDeleteTextures(3, ztexture);
         free(peels);
         free(peelfbos);
 
@@ -626,21 +626,34 @@ void polymost_glinit()
 {
     GLfloat col[4];
     int     i;
-	char    peelprogramstring[] = 
+	char    notpeeledprogramstring[] = 
                 "!!ARBfp1.0\n"
                 "OPTION ARB_fog_exp2;\n"
                 "OPTION ARB_fragment_program_shadow;\n"
                 "TEMP texsample;\n"
                 "TEMP depthresult;\n"
-                "TEMP tempresult;\n"
+                "TEX depthresult, fragment.position, texture[1], SHADOWRECT;\n"
+                "ADD depthresult.a, depthresult.a, -0.5;\n"
+                "KIL depthresult.a;\n"
                 "TEX texsample, fragment.texcoord[0], texture[0], 2D;\n" 
-                "TEX depthresult, fragment.position, texture[1], SHADOWRECT;\n" 
-                "MUL tempresult, fragment.color, texsample;\n"
-                "MUL tempresult.a, tempresult.a, depthresult.a;\n"
-                "MOV result.color, tempresult;\n"
+                "MUL result.color, fragment.color, texsample;\n"
+                "END\n";
+	char    peeledprogramstring[] = 
+                "!!ARBfp1.0\n"
+                "OPTION ARB_fog_exp2;\n"
+                "OPTION ARB_fragment_program_shadow;\n"
+                "TEMP texsample;\n"
+                "TEMP depthresult;\n"
+                "TEX depthresult, fragment.position, texture[2], SHADOWRECT;\n"
+                "ADD depthresult.a, depthresult.a, -0.5;\n"
+                "KIL depthresult.a;\n"
+                "TEX depthresult, fragment.position, texture[1], SHADOWRECT;\n"
+                "ADD depthresult.a, depthresult.a, -0.5;\n"
+                "KIL depthresult.a;\n"
+                "TEX texsample, fragment.texcoord[0], texture[0], 2D;\n" 
+                "MUL result.color, fragment.color, texsample;\n"
                 "END\n";
 
-    bglGetIntegerv(GL_ALPHA_BITS, &i);
 #if 1
     if (!Bstrcmp(glinfo.vendor, "ATI Technologies Inc."))
     {
@@ -687,11 +700,11 @@ void polymost_glinit()
             r_peelscount = newpeelscount;
             newpeelscount = 0;
         }
-        // create the secondary Z-buffer
-        bglGenTextures(2, ztexture);
+        // create the secondary Z-buffers and the Z-backbuffer
+        bglGenTextures(3, ztexture);
 
         i = 0;
-        while (i < 2)
+        while (i < 3)
         {
             bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[i]);
             bglCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_DEPTH_COMPONENT, 0, 0, xdim, ydim, 0);
@@ -700,21 +713,24 @@ void polymost_glinit()
             bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP);
             bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP);
             bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_FUNC_ARB, GL_GREATER);
+            if (i < 2)
+                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_FUNC_ARB, GL_GREATER);
+            else
+                bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LESS);
             bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_DEPTH_TEXTURE_MODE_ARB, GL_ALPHA);
 
             i++;
         }
 
         // create the various peeling layers as well as the FBOs to render to them
-        peels = malloc(r_peelscount * sizeof(GLuint));
-        bglGenTextures(r_peelscount, peels);
+        peels = malloc((r_peelscount + 1) * sizeof(GLuint));
+        bglGenTextures(r_peelscount + 1, peels);
 
-        peelfbos = malloc(r_peelscount * sizeof(GLuint));
-        bglGenFramebuffersEXT(r_peelscount, peelfbos);
+        peelfbos = malloc((r_peelscount + 1) * sizeof(GLuint));
+        bglGenFramebuffersEXT(r_peelscount + 1, peelfbos);
 
         i = 0;
-        while (i < r_peelscount)
+        while (i <= r_peelscount)
         {
             bglBindTexture(GL_TEXTURE_RECTANGLE, peels[i]);
             bglCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, 0, 0, xdim, ydim, 0);
@@ -725,7 +741,9 @@ void polymost_glinit()
 
             bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, peelfbos[i]);
             bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_RECTANGLE, peels[i], 0);
-            if (i < (r_peelscount - 1))
+            if (i == r_peelscount) // bakcbuffer
+                bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_RECTANGLE, ztexture[2], 0);
+            else if (i < (r_peelscount - 1))
                 bglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_RECTANGLE, ztexture[i % 2], 0);
 
             if (bglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
@@ -738,10 +756,12 @@ void polymost_glinit()
             i++;
         }
 
-        // create the peeling fragment program
-        bglGenProgramsARB(1, &peelprogram);
-        bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram);
-        bglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(peelprogramstring), peelprogramstring);
+        // create the peeling fragment programs
+        bglGenProgramsARB(2, peelprogram);
+        bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[0]);
+        bglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(notpeeledprogramstring), notpeeledprogramstring);
+        bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[1]);
+        bglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(peeledprogramstring), peeledprogramstring);
     }
 }
 
@@ -3567,12 +3587,6 @@ void polymost_drawrooms ()
 #ifdef USE_OPENGL
     if (rendmode >= 3)
     {
-        if (r_depthpeeling)
-        {
-            bglNewList(1, GL_COMPILE);
-            peelcompiling = 1;
-        }
-
         resizeglcheck();
 
         //bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -3604,6 +3618,13 @@ void polymost_drawrooms ()
                 globalposx -= singlobalang/1024;
                 globalposy += cosglobalang/1024;
             }
+        }
+        if (r_depthpeeling)
+        {
+            bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, peelfbos[r_peelscount]);
+            bglPushAttrib(GL_VIEWPORT_BIT);
+            bglViewport(0, 0, xdim, ydim);
+            //bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
         }
     }
 #endif
@@ -3786,7 +3807,7 @@ void polymost_drawrooms ()
 #ifdef USE_OPENGL
     if (rendmode >= 3)
     {
-        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+        bglDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 
         //bglPolygonOffset(0,0);
         bglDepthRange(0.0,0.99999); //<- this is more widely supported than glPolygonOffset
@@ -3817,6 +3838,16 @@ void polymost_drawmaskwall (long damaskwallcnt)
     globalshade = (long)wal->shade;
     globalpal = (long)((unsigned char)wal->pal);
     globalorientation = (long)wal->cstat;
+
+#ifdef USE_OPENGL
+    if (r_depthpeeling)
+    {
+        if ((((wal->cstat&128) || (gltexmayhavealpha(globalpicnum,globalpal)))) && !peelcompiling)
+            return; // discard translucent sprite if drawing the backbuffer when doing depth peeling
+        if (!(((wal->cstat&128) || (gltexmayhavealpha(globalpicnum,globalpal)))) && peelcompiling)
+            return; // discard opaque sprite when composing the depth peels
+    }
+#endif
 
     sx0 = (float)(wal->x-globalposx); sx1 = (float)(wal2->x-globalposx);
     sy0 = (float)(wal->y-globalposy); sy1 = (float)(wal2->y-globalposy);
@@ -3995,7 +4026,15 @@ void polymost_drawsprite (long snum)
     method = 1+4;
 if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
 
+
 #ifdef USE_OPENGL
+    if (r_depthpeeling)
+    {
+        if ((((tspr->cstat&2) || (gltexmayhavealpha(globalpicnum,tspr->pal)))) && !peelcompiling)
+            return; // discard translucent sprite if drawing the backbuffer when doing depth peeling
+        if (!(((tspr->cstat&2) || (gltexmayhavealpha(globalpicnum,tspr->pal)))) && peelcompiling)
+            return; // discard opaque sprite when composing the depth peels
+    }
     if (!nofog && rendmode >= 3) {
         float col[4];
         col[0] = (float)palookupfog[sector[tspr->sectnum].floorpal].r / 63.f;
@@ -4027,7 +4066,6 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
             curpolygonoffset += 0.01f;
             bglEnable(GL_POLYGON_OFFSET_FILL);
             bglPolygonOffset(-curpolygonoffset, -curpolygonoffset);
-            //bglDepthMask(0);
         }
 #endif
 

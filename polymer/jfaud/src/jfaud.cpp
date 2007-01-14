@@ -115,7 +115,7 @@ bool JFAud::InitWave(const char *name, int numvoices, int frequency)
 	if (wavemixer) return false;
 	if (numvoices < 1) numvoices = 1;
 
-	if (name) devid = strchr(name, ':');
+	if (name) devid = strchr((char *)name, ':');
 	if (devid) devid++;
 
 	if (!name) drv = 0;

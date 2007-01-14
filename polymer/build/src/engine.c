@@ -3151,9 +3151,9 @@ static void drawsprite(long snum)
 #ifdef POLYMOST
     if (rendmode == 3) {
         polymost_drawsprite(snum);
-#ifdef USE_OPENGL
-        //bglDepthMask(1);
-#endif
+# ifdef USE_OPENGL
+        bglDisable(GL_POLYGON_OFFSET_FILL);
+# endif
         return;
     }
     if (rendmode == 4) { polymer_drawsprite(snum); return; }
@@ -6120,7 +6120,6 @@ if ((!r_depthpeeling) || (rendmode < 3))
 
                 if ((sameside(&maskeq, &spr, &pos) == 0) && sameside(&p1eq, &middle, &spr) && sameside(&p2eq, &middle, &spr))
                 {
-                    bglDisable(GL_POLYGON_OFFSET_FILL);
                     drawsprite(i);
                     tspriteptr[i] = NULL;
                 }
@@ -6133,48 +6132,66 @@ if ((!r_depthpeeling) || (rendmode < 3))
     {
         spritesortcnt--;
         if (tspriteptr[spritesortcnt] != NULL)
-        {
-            bglDisable(GL_POLYGON_OFFSET_FILL);
             drawsprite(spritesortcnt);
-        }
     }
-    bglDisable(GL_POLYGON_OFFSET_FILL);
 
 } /* depthpeeling */
 #ifdef USE_OPENGL
 else
 {
     curpolygonoffset = 0;
-    while (spritesortcnt > 0)
-    {
-        bglDisable(GL_POLYGON_OFFSET_FILL);
-        drawsprite(--spritesortcnt);
-    }
-    bglDisable(GL_POLYGON_OFFSET_FILL);
-    while (maskwallcnt > 0) drawmaskwall(--maskwallcnt);
+    j = spritesortcnt;
+    k = maskwallcnt;
+
+    while (j > 0) drawsprite(--j);
+    while (k > 0) drawmaskwall(--k);
 }
 #endif
 
 #ifdef USE_OPENGL
     if ((r_depthpeeling) && (rendmode >= 3))
     {
-        bglEndList();
+        bglPopAttrib();
+        bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+        bglNewList(1, GL_COMPILE);
+
+        peelcompiling = 1;
+        curpolygonoffset = 0;
+
+        while (spritesortcnt > 0) drawsprite(--spritesortcnt);
+        while (maskwallcnt > 0) drawmaskwall(--maskwallcnt);
+
         peelcompiling = 0;
+
+        bglEndList();
 
         bglDisable(GL_BLEND);
         bglEnable(GL_ALPHA_TEST);
         bglAlphaFunc(GL_GREATER, 0.0f);
+        bglEnable(GL_FRAGMENT_PROGRAM_ARB);
 
         i = 0;
         while (i < r_peelscount)
         {
+
             if (i > 0)
             {
-                bglEnable(GL_FRAGMENT_PROGRAM_ARB);
+                bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[1]);
                 bglActiveTextureARB(GL_TEXTURE1_ARB);
                 bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[(i - 1) % 2]);
+                bglActiveTextureARB(GL_TEXTURE2_ARB);
+                bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[2]);
                 bglActiveTextureARB(GL_TEXTURE0_ARB);
             }
+            else
+            {
+                bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[0]);
+                bglActiveTextureARB(GL_TEXTURE1_ARB);
+                bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[2]);
+                bglActiveTextureARB(GL_TEXTURE0_ARB);
+            }
+
             if (i == (r_peelscount - 1))
                 bglEnable(GL_BLEND);
 
@@ -6188,14 +6205,10 @@ else
             bglPopAttrib();
             bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
-            if (i > 0)
-                bglDisable(GL_FRAGMENT_PROGRAM_ARB);
-
             i++;
         }
 
-        bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        bglDisable(GL_FRAGMENT_PROGRAM_ARB);
         bglEnable(GL_BLEND);
         bglDisable(GL_DEPTH_TEST);
 
@@ -6210,6 +6223,9 @@ else
         bglLoadIdentity();
 
         bglEnable(GL_TEXTURE_RECTANGLE);
+
+        // backbuffer
+        drawpeel(r_peelscount);
 
         if (r_curpeel == -1)
         {
