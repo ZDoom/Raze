@@ -51,7 +51,7 @@ char *startwin_labeltext = "Starting Mapster32...";
 char *Help2d[]= {
                     " 'A = Autosave toggle",
                     " 'J = Jump to location",
-                    " 'L = Sprite/wall location",
+                    " 'L = Adjust sprite/wall coords",
                     " 'S = Sprite size",
                     " '3 = Caption mode",
 #ifdef VULGARITY
@@ -137,7 +137,7 @@ char *Help3d[]= {
                     " ' S = CHANGE SHADE",
                     " ' M = CHANGE EXTRA",
                     " ' V = CHANGE VISIBILITY",
-                    " ' L = CHANGE LOCATION",
+                    " ' L = CHANGE OBJECT COORDINATES",
                     " ' C = CHANGE GLOBAL SHADE",
                     "",
                     " ' ENTER = PASTE GRAPHIC ONLY",
@@ -4473,7 +4473,7 @@ int ExtInit(void)
                    "faster after the first time they are loaded.");
 #else
         i = 1;
-#endif                           
+#endif
         if (i)
             glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
@@ -5677,9 +5677,9 @@ static void FuncMenuOpts(void)
     printext16(8,ydim-STATUS2DSIZ+72,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Global Z coord shift");
     printext16(8,ydim-STATUS2DSIZ+80,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Scale map up");
+    Bsprintf(snotbuf,"Scale map section up");
     printext16(8,ydim-STATUS2DSIZ+88,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Scale map down");
+    Bsprintf(snotbuf,"Scale map section down");
     printext16(8,ydim-STATUS2DSIZ+96,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Global shade divide");
     printext16(8,ydim-STATUS2DSIZ+104,11,-1,snotbuf,0);
@@ -5923,30 +5923,41 @@ static void FuncMenu(void)
             break;
             case 5:
             {
-                for (i=Bsprintf(disptext,"Scale map up"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"Scale map section up"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Map size multiplier:    ",1,8,0);
                     if (j!=1)
                     {
-                        for (i=0;i<numsectors;i++)
+                        int k, l, w, currsector, start_wall, end_wall;
+                        for (i = 0; i < highlightsectorcnt; i++)
                         {
-                            sector[i].ceilingz *= j;
-                            sector[i].floorz *= j;
-                        }
-                        for (i=0;i<numwalls;i++)
-                        {
-                            wall[i].x *= j;
-                            wall[i].y *= j;
-                            wall[i].yrepeat = min(wall[i].yrepeat/j,255);
-                        }
-                        for (i=0;i<MAXSPRITES;i++)
-                        {
-                            sprite[i].x *= j;
-                            sprite[i].y *= j;
-                            sprite[i].z *= j;
-                            sprite[i].xrepeat = max(sprite[i].xrepeat*j,1);
-                            sprite[i].yrepeat = max(sprite[i].yrepeat*j,1);
+                            currsector = highlightsector[i];
+                            sector[currsector].ceilingz *= j;
+                            sector[currsector].floorz *= j;
+                            // Do all the walls in the sector
+                            start_wall = sector[currsector].wallptr;
+                            end_wall = start_wall + sector[currsector].wallnum;
+                            for (w = start_wall; w < end_wall; w++)
+                            {
+                                wall[w].x *= j;
+                                wall[w].y *= j;
+                                wall[w].yrepeat = min(wall[w].yrepeat/j,255);
+                            }
+                            for (k=0;k<highlightsectorcnt;k++)
+                            {
+                                w = headspritesect[highlightsector[k]];
+                                while (w >= 0)
+                                {
+                                    l = nextspritesect[w];
+                                    sprite[w].x *= j;
+                                    sprite[w].y *= j;
+                                    sprite[w].z *= j;
+                                    sprite[w].xrepeat = max(sprite[w].xrepeat*j,1);
+                                    sprite[w].yrepeat = max(sprite[w].yrepeat*j,1);
+                                    w = l;
+                                }
+                            }
                         }
                         printmessage16("Map scaled");
                     }
@@ -5956,30 +5967,41 @@ static void FuncMenu(void)
             break;
             case 6:
             {
-                for (i=Bsprintf(disptext,"Scale map down"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"Scale map section down"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Map size divisor:    ",1,8,0);
                     if (j!=1)
                     {
-                        for (i=0;i<numsectors;i++)
+                        int k, l, w, currsector, start_wall, end_wall;
+                        for (i = 0; i < highlightsectorcnt; i++)
                         {
-                            sector[i].ceilingz /= j;
-                            sector[i].floorz /= j;
-                        }
-                        for (i=0;i<numwalls;i++)
-                        {
-                            wall[i].x /= j;
-                            wall[i].y /= j;
-                            wall[i].yrepeat = min(wall[i].yrepeat*j,255);
-                        }
-                        for (i=0;i<MAXSPRITES;i++)
-                        {
-                            sprite[i].x /= j;
-                            sprite[i].y /= j;
-                            sprite[i].z /= j;
-                            sprite[i].xrepeat = max(sprite[i].xrepeat/j,1);
-                            sprite[i].yrepeat = max(sprite[i].yrepeat/j,1);
+                            currsector = highlightsector[i];
+                            sector[currsector].ceilingz /= j;
+                            sector[currsector].floorz /= j;
+                            // Do all the walls in the sector
+                            start_wall = sector[currsector].wallptr;
+                            end_wall = start_wall + sector[currsector].wallnum;
+                            for (w = start_wall; w < end_wall; w++)
+                            {
+                                wall[w].x /= j;
+                                wall[w].y /= j;
+                                wall[w].yrepeat = min(wall[w].yrepeat*j,255);
+                            }
+                            for (k=0;k<highlightsectorcnt;k++)
+                            {
+                                w = headspritesect[highlightsector[k]];
+                                while (w >= 0)
+                                {
+                                    l = nextspritesect[w];
+                                    sprite[w].x /= j;
+                                    sprite[w].y /= j;
+                                    sprite[w].z /= j;
+                                    sprite[w].xrepeat = max(sprite[w].xrepeat/j,1);
+                                    sprite[w].yrepeat = max(sprite[w].yrepeat/j,1);
+                                    w = l;
+                                }
+                            }
                         }
                         printmessage16("Map scaled");
                     }
