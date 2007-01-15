@@ -1070,6 +1070,14 @@ int setvideomode(int x, int y, int c, int fs)
             {
                 glinfo.rect = 1;
             }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_multitexture"))
+            {
+                glinfo.multitex = 1;
+            }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_texture_env_combine"))
+            {
+                glinfo.envcombine = 1;
+            }
         }
         Bfree(p);
     }

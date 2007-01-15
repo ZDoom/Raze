@@ -26,6 +26,8 @@ struct glinfo glinfo = {
                            0,       // shadow comparison
                            0,       // Frame Buffer Objects
                            0,       // rectangle textures
+                           0,       // multitexturing
+                           0,       // env_combine
                        };
 #endif
 

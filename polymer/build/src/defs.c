@@ -42,6 +42,7 @@ enum {
     T_FPS,
     T_FLAGS,
     T_PAL,
+    T_DETAIL,
     T_HUD,
     T_XADD,
     T_YADD,
@@ -184,11 +185,12 @@ static tokenlist tinttokens[] = {
                                 };
 
 static tokenlist texturetokens[] = {
-                                       { "pal",   T_PAL  },
+                                       { "pal",     T_PAL  },
+                                       { "detail",  T_DETAIL },
                                    };
 static tokenlist texturetokens_pal[] = {
                                            { "file",      T_FILE },{ "name", T_FILE },
-                                           { "alphacut",  T_ALPHACUT },
+                                           { "alphacut",  T_ALPHACUT }, { "detailscale",  T_ALPHACUT }, { "scale",  T_ALPHACUT },
                                            { "nocompress",T_NOCOMPRESS },
                                        };
 
@@ -1106,7 +1108,7 @@ static int defsparser(scriptfile *script)
                     }
 
                     if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
-                    if ((unsigned)pal > (unsigned)MAXPALOOKUPS) {
+                    if ((unsigned)pal > ((unsigned)MAXPALOOKUPS - RESERVEDPALS)) {
                         initprintf("Error: missing or invalid 'palette number' for texture definition near "
                                    "line %s:%d\n", script->filename, scriptfile_getlinum(script,paltokptr));
                         break;
@@ -1122,6 +1124,40 @@ static int defsparser(scriptfile *script)
                     } else kclose(i);
 
                     hicsetsubsttex(tile,pal,fn,alphacut,flags);
+                } break;
+                case T_DETAIL: {
+                    char *detailtokptr = script->ltextptr, *detailend;
+                    int i;
+                    char *fn = NULL;
+                    double detailscale = 1.0;
+                    char flags = 0;
+
+                    if (scriptfile_getbraces(script,&detailend)) break;
+                    while (script->textptr < detailend) {
+                        switch (getatoken(script,texturetokens_pal,sizeof(texturetokens_pal)/sizeof(tokenlist))) {
+                        case T_FILE:
+                            scriptfile_getstring(script,&fn); break;
+                        case T_ALPHACUT:
+                            scriptfile_getdouble(script,&detailscale); break;
+                        case T_NOCOMPRESS:
+                            flags |= 1; break;
+                        default:
+                            break;
+                        }
+                    }
+
+                    if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
+                    if (!fn) {
+                        initprintf("Error: missing 'file name' for texture definition near line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,detailtokptr));
+                        break;
+                    }
+                    if ((i = kopen4load(fn,0)) < 0) {
+                        initprintf("Error: file '%s' does not exist\n",fn);
+                        break;
+                    } else kclose(i);
+
+                    hicsetsubsttex(tile,DETAILPAL,fn,detailscale,flags);
                 } break;
                 default:
                     break;

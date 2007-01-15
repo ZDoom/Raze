@@ -149,6 +149,9 @@ GLuint *peels;              // peels identifiers
 GLuint *peelfbos;           // peels FBOs identifiers
 GLuint peelprogram[2];      // ARBfp peeling fragment program
 
+// Bleh
+long r_detailmapping = 0;
+
 float fogresult, ofogresult;
 
 void fogcalc (const signed char *shade, const char *vis)
@@ -686,9 +689,15 @@ void polymost_glinit()
         bglEnable(GL_MULTISAMPLE_ARB);
     }
 
-    if (!glinfo.arbfp || !glinfo.depthtex || !glinfo.shadow || !glinfo.fbos || !glinfo.rect)
+    if (r_depthpeeling && (!glinfo.arbfp || !glinfo.depthtex || !glinfo.shadow || !glinfo.fbos || !glinfo.rect || !glinfo.multitex))
     {
-        OSD_Printf("Your OpenGL implementation doesn't support depth peeling.  Disabling...\n");
+        OSD_Printf("Your OpenGL implementation doesn't support depth peeling. Disabling...\n");
+        r_depthpeeling = 0;
+    }
+
+    if (r_detailmapping && (!glinfo.multitex))
+    {
+        OSD_Printf("Your OpenGL implementation doesn't support detail mapping. Disabling...\n");
         r_depthpeeling = 0;
     }
 
@@ -1513,7 +1522,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
     long xx, yy, xi, d0, u0, v0, d1, u1, v1, xmodnice = 0, ymulnice = 0, dorot;
     char dacol = 0, *walptr, *palptr = NULL, *vidp, *vide;
 #ifdef USE_OPENGL
-    pthtyp *pth;
+    pthtyp *pth, *detailpth;
 #endif
     // backup of the n for possible redrawing of fullbright
     long n_ = n, method_ = method;
@@ -1612,6 +1621,46 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             }
 
         bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
+
+        detailpth = NULL;
+        if (r_detailmapping && !r_depthpeeling && indrawroomsandmasks && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL, 0))
+            detailpth = gltexcache(globalpicnum,DETAILPAL,method&(~3));
+
+        if (detailpth && (detailpth->hicr->palnum == DETAILPAL))
+        {
+            bglActiveTextureARB(GL_TEXTURE1_ARB);
+
+            bglEnable(GL_TEXTURE_2D);
+            bglBindTexture(GL_TEXTURE_2D, detailpth ? detailpth->glpic : 0);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR);
+  
+            bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_PREVIOUS_ARB);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2.0f);
+
+            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+
+
+            f = detailpth ? (1.0f / detailpth->hicr->alphacut) : 1.0;
+
+            bglMatrixMode(GL_TEXTURE);
+            bglLoadIdentity();
+            bglScalef(f, f, 1.0f);
+            bglMatrixMode(GL_MODELVIEW);
+        }
+        else
+            detailpth = NULL;
 
         if (pth && (pth->flags & 2))
         {
@@ -1807,7 +1856,14 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
                     dp = ox*ngdx + oy*ngdy + ngdo;
                     up = ox*ngux + oy*nguy + nguo;
                     vp = ox*ngvx + oy*ngvy + ngvo;
-                    r = 1.0/dp; bglTexCoord2d((up*r-du0+uoffs)*ox2,vp*r*oy2);
+                    r = 1.0/dp;
+                    if (detailpth)
+                    {
+                        bglMultiTexCoord2dARB(GL_TEXTURE0_ARB, (up*r-du0+uoffs)*ox2,vp*r*oy2);
+                        bglMultiTexCoord2dARB(GL_TEXTURE1_ARB, (up*r-du0+uoffs)*ox2,vp*r*oy2);
+                    }
+                    else
+                        bglTexCoord2d((up*r-du0+uoffs)*ox2,vp*r*oy2);
                     bglVertex3d((ox-ghalfx)*r*grhalfxdown10x,(ghoriz-oy)*r*grhalfxdown10,r*(1.0/1024.0));
                 }
                 bglEnd();
@@ -1819,7 +1875,13 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             bglBegin(GL_TRIANGLE_FAN);
             for (i=0;i<n;i++)
             {
-                r = 1.0/dd[i]; bglTexCoord2d(uu[i]*r*ox2,vv[i]*r*oy2);
+                r = 1.0/dd[i];
+                if (detailpth)
+                {
+                    bglMultiTexCoord2dARB(GL_TEXTURE0_ARB, uu[i]*r*ox2,vv[i]*r*oy2);
+                    bglMultiTexCoord2dARB(GL_TEXTURE1_ARB, uu[i]*r*ox2,vv[i]*r*oy2);
+                }
+                bglTexCoord2d(uu[i]*r*ox2,vv[i]*r*oy2);
                 bglVertex3d((px[i]-ghalfx)*r*grhalfxdown10x,(ghoriz-py[i])*r*grhalfxdown10,r*(1.0/1024.0));
             }
             bglEnd();
@@ -1836,6 +1898,11 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             globalshade = shadeforfullbrightpass;
             bglFogf(GL_FOG_DENSITY, fogresult);
             fullbrightdrawingpass = 0;
+        }
+        if (detailpth)
+        {
+            bglDisable(GL_TEXTURE_2D);
+            bglActiveTextureARB(GL_TEXTURE0_ARB);
         }
         return;
     }
@@ -5158,6 +5225,19 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else r_curpeel = val;
         return OSDCMD_OK;
     }
+    else if (!Bstrcasecmp(parm->name, "r_detailmapping")) {
+        if (showval) { OSD_Printf("r_detailmapping is %d\n", r_detailmapping); }
+        else {
+            if (!glinfo.multitex)
+            {
+                OSD_Printf("Your OpenGL implementation doesn't support detail mapping.\n");
+                r_depthpeeling = 0;
+                return OSDCMD_OK;
+            }
+            r_detailmapping = (val != 0);
+        }
+        return OSDCMD_OK;
+    }
     else if (!Bstrcasecmp(parm->name, "glpolygonmode")) {
         if (showval) { OSD_Printf("glpolygonmode is %d\n", glpolygonmode); }
         else glpolygonmode = val;
@@ -5242,6 +5322,7 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
     OSD_RegisterFunction("r_peelscount","r_peelscount: sets the number of depth layers for depth peeling",osdcmd_polymostvars);
     OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_detailmapping","r_detailmapping: shut your fucking face uncle fucker",osdcmd_polymostvars);
 #endif
     OSD_RegisterFunction("usemodels","usemodels: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
     OSD_RegisterFunction("usehightile","usehightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);

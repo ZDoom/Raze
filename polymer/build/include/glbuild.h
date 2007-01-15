@@ -146,6 +146,8 @@ extern void (APIENTRY * bglDeleteProgramsARB)(GLsizei n, const GLuint *programs)
 
 // Multitexturing
 extern void (APIENTRY * bglActiveTextureARB)(GLenum texture);
+extern void (APIENTRY * bglMultiTexCoord2dARB)(GLenum target, GLdouble s, GLdouble t );
+extern void (APIENTRY * bglMultiTexCoord2fARB)(GLenum target, GLfloat s, GLfloat t );
 
 // Frame Buffer Objects
 extern void (APIENTRY * bglGenFramebuffersEXT)(GLsizei n, GLuint *framebuffers);
