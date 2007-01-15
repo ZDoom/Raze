@@ -149,8 +149,8 @@ GLuint *peels;              // peels identifiers
 GLuint *peelfbos;           // peels FBOs identifiers
 GLuint peelprogram[2];      // ARBfp peeling fragment program
 
-// Bleh
-long r_detailmapping = 0;
+// Detail mapping cvar
+long r_detailmapping = 1;
 
 float fogresult, ofogresult;
 
@@ -698,7 +698,7 @@ void polymost_glinit()
     if (r_detailmapping && (!glinfo.multitex))
     {
         OSD_Printf("Your OpenGL implementation doesn't support detail mapping. Disabling...\n");
-        r_depthpeeling = 0;
+        r_detailmapping = 0;
     }
 
     //depth peeling initialization
@@ -5231,7 +5231,7 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
             if (!glinfo.multitex)
             {
                 OSD_Printf("Your OpenGL implementation doesn't support detail mapping.\n");
-                r_depthpeeling = 0;
+                r_detailmapping = 0;
                 return OSDCMD_OK;
             }
             r_detailmapping = (val != 0);
@@ -5322,7 +5322,7 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
     OSD_RegisterFunction("r_peelscount","r_peelscount: sets the number of depth layers for depth peeling",osdcmd_polymostvars);
     OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_detailmapping","r_detailmapping: shut your fucking face uncle fucker",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail-mapping",osdcmd_polymostvars);
 #endif
     OSD_RegisterFunction("usemodels","usemodels: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
     OSD_RegisterFunction("usehightile","usehightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);
