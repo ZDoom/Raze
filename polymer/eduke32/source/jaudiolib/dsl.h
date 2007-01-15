@@ -26,7 +26,6 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #define MONO_8BIT    0
 #define STEREO      1
 #define SIXTEEN_BIT 2
-#define STEREO_16BIT ( STEREO | SIXTEEN_BIT )
 
 enum DSL_ERRORS
    {

@@ -688,7 +688,7 @@ void polymost_glinit()
 
     if (!glinfo.arbfp || !glinfo.depthtex || !glinfo.shadow || !glinfo.fbos || !glinfo.rect)
     {
-        OSD_Printf("Your OpenGL implementation doesn't support depth peeling. Forcing it off...\n", i);
+        OSD_Printf("Your OpenGL implementation doesn't support depth peeling.  Disabling...\n");
         r_depthpeeling = 0;
     }
 
@@ -5128,6 +5128,12 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
     else if (!Bstrcasecmp(parm->name, "r_depthpeeling")) {
         if (showval) { OSD_Printf("r_depthpeeling is %d\n", r_depthpeeling); }
         else {
+            if (!glinfo.arbfp || !glinfo.depthtex || !glinfo.shadow || !glinfo.fbos || !glinfo.rect)
+            {
+                OSD_Printf("r_depthpeeling: Your OpenGL implementation doesn't support depth peeling.\n");
+                r_depthpeeling = 0;
+                return OSDCMD_OK;
+            }
             r_depthpeeling = (val != 0);
             resetvideomode();
             if (setgamemode(fullscreen,xdim,ydim,bpp))

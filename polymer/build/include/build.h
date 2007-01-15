@@ -33,7 +33,7 @@ extern "C" {
 #define MAXYDIM 1200
 #define MAXPALOOKUPS 256
 #define MAXPSKYTILES 256
-#define MAXSPRITESONSCREEN 2048
+#define MAXSPRITESONSCREEN 4096
 #define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
 
 #define CLIPMASK0 (((1L)<<16)+1L)
