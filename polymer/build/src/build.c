@@ -370,9 +370,6 @@ int app_main(int argc, char **argv)
         numsectors = 0;
         numwalls = 0;
         cursectnum = -1;
-        setbrightness(0,palette,0);
-        overheadeditor();
-        keystatus[buildkeys[14]] = 0;
     }
     else
     {
@@ -388,6 +385,15 @@ int app_main(int argc, char **argv)
     startsectnum = cursectnum; // TX 20050225: moved to loadboard
 
     totalclock = 0;
+    
+    updatesector(posx,posy,&cursectnum);
+    
+    if (cursectnum == -1)
+    {
+        setbrightness(0,palette,0);
+        overheadeditor();
+        keystatus[buildkeys[14]] = 0;
+    }
 CANCEL:
     quitflag = 0;
     while (quitflag == 0)
