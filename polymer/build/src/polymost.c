@@ -1623,8 +1623,9 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
         bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
         detailpth = NULL;
-        if (r_detailmapping && !r_depthpeeling && indrawroomsandmasks && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL, 0))
-            detailpth = gltexcache(globalpicnum,DETAILPAL,method&(~3));
+        if (r_detailmapping && usehightile && !r_depthpeeling && indrawroomsandmasks && !drawingskybox &&
+            hicfindsubst(globalpicnum, DETAILPAL, 0))
+            detailpth = gltexcache(globalpicnum, DETAILPAL,method&(~3));
 
         if (detailpth && (detailpth->hicr->palnum == DETAILPAL))
         {
@@ -1886,6 +1887,11 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             }
             bglEnd();
         }
+        if (detailpth)
+        {
+            bglDisable(GL_TEXTURE_2D);
+            bglActiveTextureARB(GL_TEXTURE0_ARB);
+        }
         if (fullbrightdrawingpass == 1) // tile has fullbright colors ?
         {
             fullbrightdrawingpass = 2;
@@ -1898,11 +1904,6 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             globalshade = shadeforfullbrightpass;
             bglFogf(GL_FOG_DENSITY, fogresult);
             fullbrightdrawingpass = 0;
-        }
-        if (detailpth)
-        {
-            bglDisable(GL_TEXTURE_2D);
-            bglActiveTextureARB(GL_TEXTURE0_ARB);
         }
         return;
     }
