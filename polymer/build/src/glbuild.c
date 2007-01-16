@@ -133,6 +133,19 @@ void (APIENTRY * bglFramebufferTexture2DEXT)(GLenum target, GLenum attachment, G
 GLenum (APIENTRY * bglCheckFramebufferStatusEXT)(GLenum target);
 void (APIENTRY * bglDeleteFramebuffersEXT)(GLsizei n, const GLuint *framebuffers);
 
+// GLU
+void (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
+void (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);
+void (APIENTRY * bgluTessCallback) (GLUtesselator* tess, GLenum which, _GLUfuncptr CallBackFunc);
+void (APIENTRY * bgluTessEndContour) (GLUtesselator* tess);
+void (APIENTRY * bgluTessEndPolygon) (GLUtesselator* tess);
+void (APIENTRY * bgluTessNormal) (GLUtesselator* tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ);
+void (APIENTRY * bgluTessProperty) (GLUtesselator* tess, GLenum which, GLdouble data);
+void (APIENTRY * bgluTessVertex) (GLUtesselator* tess, GLdouble *location, GLvoid* data);
+GLUtesselator* (APIENTRY * bgluNewTess) (void);
+void (APIENTRY * bgluPerspective) (GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+const GLubyte * (APIENTRY * bgluErrorString) (GLenum error);
+
 #ifdef RENDERTYPEWIN
 // Windows
 HGLRC (WINAPI * bwglCreateContext)(HDC);
@@ -146,11 +159,14 @@ int (WINAPI * bwglDescribePixelFormat)(HDC,int,UINT,LPPIXELFORMATDESCRIPTOR);
 int (WINAPI * bwglGetPixelFormat)(HDC);
 BOOL (WINAPI * bwglSetPixelFormat)(HDC,int,const PIXELFORMATDESCRIPTOR*);
 
-static HANDLE hGLDLL;
+static HANDLE hGLDLL, hGLUDLL;
+#else
+#include <dlfcn.h>
+
+static void *gluhandle = NULL;
 #endif
 
-
-char *gldriver = NULL;
+char *gldriver = NULL, *glulibrary = NULL;
 
 static void * getproc_(const char *s, int *err, int fatal, int extension)
 {
@@ -496,5 +512,99 @@ int unloadgldriver(void)
     return 0;
 }
 
+static void * glugetproc_(const char *s, int *err, int fatal)
+{
+    void *t;
+#if defined _WIN32
+    t = (void*)GetProcAddress(hGLUDLL,s);
+#else
+    t = (void*)dlsym(gluhandle,s);
+#endif
+    if (!t && fatal) {
+        initprintf("Failed to find %s in %s\n", s, glulibrary);
+        *err = 1;
+    }
+    return t;
+}
+#define GLUGETPROC(s)        glugetproc_(s,&err,1)
+#define GLUGETPROCSOFT(s)    glugetproc_(s,&err,0)
+
+int loadglulibrary(const char *driver)
+{
+    void *t;
+    int err=0;
+
+#ifdef RENDERTYPEWIN
+    if (hGLUDLL) return 0;
+#endif
+
+    if (!driver) {
+#ifdef _WIN32
+        driver = "GLU32.DLL";
+#elif defined __APPLE__
+        driver = "/System/Library/Frameworks/OpenGL.framework/OpenGL"; // FIXME: like I know anything about Apple.  Hah.
+#else
+        driver = "libGLU.so";
+#endif
+    }
+
+    initprintf("Loading %s\n",driver);
+
+#if defined _WIN32
+    hGLUDLL = LoadLibrary(driver);
+    if (!hGLUDLL) return -1;
+#else
+    gluhandle = dlopen(driver, RTLD_NOW|RTLD_GLOBAL);
+    if (!gluhandle) return 0;
+#endif
+    glulibrary = strdup(driver);
+
+    bgluTessBeginContour = GLUGETPROC("gluTessBeginContour");
+    bgluTessBeginPolygon = GLUGETPROC("gluTessBeginPolygon");
+    bgluTessCallback     = GLUGETPROC("gluTessCallback");
+    bgluTessEndContour = GLUGETPROC("gluTessEndContour");
+    bgluTessEndPolygon = GLUGETPROC("gluTessEndPolygon");
+    bgluTessNormal = GLUGETPROC("gluTessNormal");
+    bgluTessProperty = GLUGETPROC("gluTessProperty");
+    bgluTessVertex = GLUGETPROC("gluTessVertex");
+    bgluNewTess = GLUGETPROC("gluNewTess");
+    bgluPerspective = GLUGETPROC("gluPerspective");
+    bgluErrorString = GLUGETPROC("gluErrorString");
+
+    if (err) unloadglulibrary();
+    return err;
+}
+
+int unloadglulibrary(void)
+{
+#ifdef RENDERTYPEWIN
+    if (!hGLUDLL) return 0;
+#endif
+
+    free(glulibrary);
+    glulibrary = NULL;
+
+#ifdef RENDERTYPEWIN
+    FreeLibrary(hGLUDLL);
+    hGLUDLL = NULL;
+#else
+    if (gluhandle) dlclose(gluhandle);
+    gluhandle = NULL;
+#endif
+
+    bgluTessBeginContour = NULL;
+    bgluTessBeginPolygon = NULL;
+    bgluTessCallback     = NULL;
+    bgluTessEndContour = NULL;
+    bgluTessEndPolygon = NULL;
+    bgluTessNormal = NULL;
+    bgluTessProperty = NULL;
+    bgluTessVertex = NULL;
+    bgluNewTess = NULL;
+    bgluPerspective = NULL;
+    bgluErrorString = NULL;
+   
+    return 0;
+}
 #endif
 

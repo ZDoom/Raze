@@ -793,7 +793,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLDepthPeeling",r_depthpeeling,false,false);
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLPeelsCount",r_peelscount,false,false);
 
-    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLDetailMapping", &r_detailmapping,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLDetailMapping", r_detailmapping,false,false);
 #endif
 #ifdef RENDERTYPEWIN
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);

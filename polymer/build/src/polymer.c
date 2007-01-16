@@ -53,7 +53,7 @@ int                 polymer_init(void)
     cliplanes = NULL;
     cliplanecount = maxcliplanecount = 0;
 
-    prtess = gluNewTess();
+    prtess = bgluNewTess();
     if (prtess == 0)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Tesselator initialization failed.\n");
@@ -92,7 +92,7 @@ void                polymer_glinit(void)
 
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
-    gluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.001f, 1000000.0f);
+    bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.001f, 1000000.0f);
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
@@ -508,7 +508,7 @@ void PR_CALLBACK    polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloa
 
 void PR_CALLBACK    polymer_tesserror(GLenum error)
 {   // This callback is called by the tesselator whenever it raises an error.
-    if (pr_verbosity >= 1) OSD_Printf("PR : Tesselation error number %i reported : %s.\n", error, gluErrorString(errno));
+    if (pr_verbosity >= 1) OSD_Printf("PR : Tesselation error number %i reported : %s.\n", error, bgluErrorString(errno));
 }
 
 
@@ -556,29 +556,29 @@ int                 polymer_buildfloor(short sectnum)
 
     s->curindice = 0;
 
-    gluTessCallback(prtess, GLU_TESS_VERTEX_DATA, polymer_tessvertex);
-    gluTessCallback(prtess, GLU_TESS_EDGE_FLAG, polymer_tessedgeflag);
-    //gluTessCallback(prtess, GLU_TESS_COMBINE, polymer_tesscombine);
-    gluTessCallback(prtess, GLU_TESS_ERROR, polymer_tesserror);
+    bgluTessCallback(prtess, GLU_TESS_VERTEX_DATA, polymer_tessvertex);
+    bgluTessCallback(prtess, GLU_TESS_EDGE_FLAG, polymer_tessedgeflag);
+    //bgluTessCallback(prtess, GLU_TESS_COMBINE, polymer_tesscombine);
+    bgluTessCallback(prtess, GLU_TESS_ERROR, polymer_tesserror);
 
-    gluTessProperty(prtess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_POSITIVE);
+    bgluTessProperty(prtess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_POSITIVE);
 
-    gluTessBeginPolygon(prtess, s);
-    gluTessBeginContour(prtess);
+    bgluTessBeginPolygon(prtess, s);
+    bgluTessBeginContour(prtess);
 
     i = 0;
     while (i < sec->wallnum)
     {
-        gluTessVertex(prtess, s->verts + (3 * i), (void *)i);
+        bgluTessVertex(prtess, s->verts + (3 * i), (void *)i);
         if ((i != (sec->wallnum - 1)) && ((sec->wallptr + i) > wall[sec->wallptr + i].point2))
         {
-            gluTessEndContour(prtess);
-            gluTessBeginContour(prtess);
+            bgluTessEndContour(prtess);
+            bgluTessBeginContour(prtess);
         }
         i++;
     }
-    gluTessEndContour(prtess);
-    gluTessEndPolygon(prtess);
+    bgluTessEndContour(prtess);
+    bgluTessEndPolygon(prtess);
 
     i = 0;
     while (i < s->indicescount)

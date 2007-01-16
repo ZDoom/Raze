@@ -156,6 +156,19 @@ extern void (APIENTRY * bglFramebufferTexture2DEXT)(GLenum target, GLenum attach
 extern GLenum (APIENTRY * bglCheckFramebufferStatusEXT)(GLenum target);
 extern void (APIENTRY * bglDeleteFramebuffersEXT)(GLsizei n, const GLuint *framebuffers);
 
+// GLU
+extern void (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
+extern void (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);
+extern void (APIENTRY * bgluTessCallback) (GLUtesselator* tess, GLenum which, _GLUfuncptr CallBackFunc);
+extern void (APIENTRY * bgluTessEndContour) (GLUtesselator* tess);
+extern void (APIENTRY * bgluTessEndPolygon) (GLUtesselator* tess);
+extern void (APIENTRY * bgluTessNormal) (GLUtesselator* tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ);
+extern void (APIENTRY * bgluTessProperty) (GLUtesselator* tess, GLenum which, GLdouble data);
+extern void (APIENTRY * bgluTessVertex) (GLUtesselator* tess, GLdouble *location, GLvoid* data);
+extern GLUtesselator* (APIENTRY * bgluNewTess) (void);
+extern void (APIENTRY * bgluPerspective) (GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+extern const GLubyte * (APIENTRY * bgluErrorString) (GLenum error);
+
 #ifdef RENDERTYPEWIN
 // Windows
 extern HGLRC (WINAPI * bwglCreateContext)(HDC);
@@ -177,4 +190,5 @@ extern char *gldriver;
 int loadgldriver(const char *driver);
 int loadglextensions(void);
 int unloadgldriver(void);
-
+int loadglulibrary(const char *driver);
+int unloadglulibrary(void);

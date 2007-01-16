@@ -2825,7 +2825,7 @@ static void moveclouds(void)
 {
     if (totalclock > cloudtotalclock || totalclock < (cloudtotalclock-7))
     {
-        short i;
+        int i;
 
         cloudtotalclock = totalclock+6;
 
@@ -3554,7 +3554,8 @@ void drawbackground(void)
             if (ud.multimode > 1) y1 += scale(ydim,8,200);
             if (ud.multimode > 4) y1 += scale(ydim,8,200);
         }
-    } else
+    }
+    else
     {
         // when not rendering a game, fullscreen wipe
 #define MENUTILE bpp==8?MENUSCREEN:LOADSCREEN
