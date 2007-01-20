@@ -41,7 +41,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #include "keyboard.h"
 #include "scriptfile.h"
 
-#define VERSION " 1.1.0"
+#define VERSION " 1.1.0 svn"
 
 short floor_over_floor;
 
@@ -3606,6 +3606,10 @@ static void Keys2d(void)
        {if(keystatus[i]==1) {Bsprintf(tempbuf,"key %ld",i); printmessage16(tempbuf);
     }}
     */
+    
+    Bsprintf(tempbuf, "Mapster32"VERSION"");
+    printext16(9L,ydim-STATUS2DSIZ+9L,4,-1,tempbuf,0);
+    printext16(8L,ydim-STATUS2DSIZ+8L,12,-1,tempbuf,0);
 
     if ((totalclock > getmessagetimeoff) && (totalclock > (lastpm16time + 120*3)))
     {

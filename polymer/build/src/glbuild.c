@@ -331,6 +331,7 @@ int loadgldriver(const char *driver)
     bglStencilFunc  = GETPROC("glStencilFunc");
 
     loadglextensions();
+    loadglulibrary(getenv("BUILD_GLULIB"));
 
     if (err) unloadgldriver();
     return err;
@@ -369,6 +370,8 @@ int loadglextensions(void)
 
 int unloadgldriver(void)
 {
+    unloadglulibrary();
+    
 #ifdef RENDERTYPEWIN
     if (!hGLDLL) return 0;
 #endif

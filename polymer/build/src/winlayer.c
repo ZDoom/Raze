@@ -430,9 +430,6 @@ int initsystem(void)
         initprintf("Failed loading OpenGL driver. GL modes will be unavailable.\n");
         nogl = 1;
     }
-    else if (loadglulibrary(getenv("BUILD_GLULIB"))) {
-        initprintf("Failed loading GLU library.\n");
-    }
 #endif
 
     // try and start DirectDraw
@@ -460,7 +457,6 @@ void uninitsystem(void)
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
     unloadgldriver();
-    unloadglulibrary();
 #endif
 }
 

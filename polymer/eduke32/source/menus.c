@@ -2292,10 +2292,9 @@ cheat_for_port_credits:
                                "GL texture compression",
                                "Cache textures on disk",
                                "Compress disk cache",
+                               "Detail texture support",
                                "-",
                                "Models",
-                               "-",
-                               "-",
                                "-",
                                "-",
                                "-",
@@ -2375,6 +2374,12 @@ cheat_for_port_credits:
                     gametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):15, 0);
                     break;
                 case 6:
+                    enabled = usehightile;
+                    if (enabled && x==io) r_detailmapping = !r_detailmapping;
+                    if (enabled) modval(0,1,(int *)&r_detailmapping,1,probey==io);
+                    gametextpal(d,yy, r_detailmapping && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):15, 0);
+                    break;
+                case 7:
                     if (x==io) usemodels = 1-usemodels;
                     modval(0,1,(int *)&usemodels,1,probey==io);
                     gametextpal(d,yy, usemodels ? "On" : "Off", MENUHIGHLIGHT(io), 0);
@@ -3113,7 +3118,7 @@ cheat_for_port_credits:
             break;
         }
 //        menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,tempbuf);
-        gametext(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
+        gametext(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),2+8+16);
 
 
         menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"ANISOTROPY");

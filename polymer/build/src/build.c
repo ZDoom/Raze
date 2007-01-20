@@ -2773,9 +2773,6 @@ void overheadeditor(void)
     drawline16(192,ydim-STATUS2DSIZ,192,ydim-STATUS2DSIZ+24,1);
     if (totalclock < 120*5) printext16(8L,ydim-STATUS2DSIZ+32L,9,-1,kensig,0);
 
-    Bsprintf(tempbuf,"Mapster32");
-    printext16(9L,ydim-STATUS2DSIZ+9L,4,-1,tempbuf,0);
-    printext16(8L,ydim-STATUS2DSIZ+8L,12,-1,tempbuf,0);
     //  printmessage16("Version: "VERSION);
     if (totalclock < 30) printmessage16("Press F1 for help");
     drawline16(0,ydim-1-20,xdim-1,ydim-1-20,1);
