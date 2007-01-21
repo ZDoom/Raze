@@ -26,6 +26,7 @@ extern long ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
 
 
 extern int ExtInit(void);
+extern int ExtPreInit(int argc,char **argv);
 extern void ExtUnInit(void);
 extern void ExtPreCheckKeys(void);
 #ifdef SUPERBUILD
@@ -45,7 +46,8 @@ extern void ExtShowSpriteData(short spritenum);
 extern void ExtEditSectorData(short sectnum);
 extern void ExtEditWallData(short wallnum);
 extern void ExtEditSpriteData(short spritenum);
-
+extern char ExtCustomSpriteColor(short picnum);
+extern void ExtSetupSpecialSpriteCols(void);
 
 int loadsetup(const char *fn);	// from config.c
 int writesetup(const char *fn);	// from config.c

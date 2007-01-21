@@ -45,7 +45,18 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 
 short floor_over_floor;
 
-char *startwin_labeltext = "Starting Mapster32...";
+static char *startwin_labeltext = "Starting Mapster32...";
+static char setupfilename[BMAX_PATH]= "build.cfg";
+static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
+static char *duke3dgrp = defaultduke3dgrp;
+static int usecwd = 0;
+
+static struct strllist
+{
+    struct strllist *next;
+    char *str;
+}
+*CommandPaths = NULL;
 
 #define MAXHELP2D (signed int)(sizeof(Help2d)/sizeof(Help2d[0]))
 char *Help2d[]= {
@@ -3606,7 +3617,7 @@ static void Keys2d(void)
        {if(keystatus[i]==1) {Bsprintf(tempbuf,"key %ld",i); printmessage16(tempbuf);
     }}
     */
-    
+
     Bsprintf(tempbuf, "Mapster32"VERSION"");
     printext16(9L,ydim-STATUS2DSIZ+9L,4,-1,tempbuf,0);
     printext16(8L,ydim-STATUS2DSIZ+8L,12,-1,tempbuf,0);
@@ -4298,7 +4309,92 @@ void ExtPreSaveMap(void)
 void ExtPreLoadMap(void)
 {}
 
-int ExtPreInit(int *argc,char ***argv)
+static void checkcommandline(int argc,char **argv)
+{
+    int i = 1;
+    char *c;
+
+    if (argc > 1)
+    {
+        while (i < argc)
+        {
+            c = argv[i];
+            if (((*c == '/') || (*c == '-')))
+            {
+                if (!Bstrcasecmp(c+1,"cfg"))
+                {
+                    if (argc > i+1)
+                    {
+                        Bstrcpy(setupfilename,argv[i+1]);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"nam"))
+                {
+                    strcpy(duke3dgrp, "nam.grp");
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"ww2gi"))
+                {
+                    strcpy(duke3dgrp, "ww2gi.grp");
+                    i++;
+                    continue;
+                }
+#if !defined(_WIN32)
+                if (!Bstrcasecmp(c+1,"usecwd"))
+                {
+                    usecwd = 1;
+                    i++;
+                    continue;
+                }
+#endif
+            }
+
+            if ((*c == '/') || (*c == '-'))
+            {
+                c++;
+                switch (*c)
+                {
+                case 'h':
+                case 'H':
+                    c++;
+                    if (*c)
+                    {
+                        defsfilename = c;
+                        initprintf("Using DEF file: %s.\n",defsfilename);
+                    }
+                    break;
+                case 'j':
+                case 'J':
+                    c++;
+                    if (!*c) break;
+                    {
+                        struct strllist *s;
+                        s = (struct strllist *)calloc(1,sizeof(struct strllist));
+                        s->str = strdup(c);
+                        if (CommandPaths)
+                        {
+                            struct strllist *t;
+                            for (t = CommandPaths; t->next; t=t->next) ;
+                            t->next = s;
+                        }
+                        else
+                        {
+                            CommandPaths = s;
+                        }
+                    }
+                    break;
+                }
+            }
+            i++;
+        }
+    }
+}
+
+int ExtPreInit(int argc,char **argv)
 {
     wm_setapptitle("Mapster32"VERSION);
 
@@ -4306,6 +4402,9 @@ int ExtPreInit(int *argc,char ***argv)
     OSD_SetVersionString("Mapster32"VERSION);
     initprintf("Mapster32"VERSION" ("__DATE__" "__TIME__")\n");
     initprintf("Copyright (c) 2006 EDuke32 team\n\n");
+
+    checkcommandline(argc,argv);
+
     return 0;
 }
 
@@ -4401,10 +4500,28 @@ int loadgroupfiles(char *fn)
 int ExtInit(void)
 {
     long rv = 0;
-    char *duke3dgrp = "duke3d.grp";
+    char cwd[BMAX_PATH];
+
+    if (getcwd(cwd,BMAX_PATH)) addsearchpath(cwd);
+
+    if (CommandPaths)
+    {
+        struct strllist *s;
+        while (CommandPaths)
+        {
+            s = CommandPaths->next;
+            addsearchpath(CommandPaths->str);
+
+            free(CommandPaths->str);
+            free(CommandPaths);
+            CommandPaths = s;
+        }
+    }
 
 #if defined(_WIN32)
     if (!access("user_profiles_enabled", F_OK))
+#else
+    if (usecwd == 0)
 #endif
     {
         char cwd[BMAX_PATH];
@@ -4458,12 +4575,14 @@ int ExtInit(void)
         initprintf("Using %s as definitions file\n", defsfilename);
     }
     loadgroupfiles(defsfilename);
+
     bpp = 32;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     glusetexcache = glusetexcachecompression = -1;
 
-    if (loadsetup("build.cfg") < 0) initprintf("Configuration file not found, using defaults.\n"), rv = 1;
+    initprintf("Using config file %s.\n",setupfilename);
+    if (loadsetup(setupfilename) < 0) initprintf("Configuration file not found, using defaults.\n"), rv = 1;
 
     if (glusetexcache == -1 || glusetexcachecompression == -1)
     {
@@ -4517,7 +4636,7 @@ void ExtUnInit(void)
 {
     // setvmode(0x03);
     uninitgroupfile();
-    writesetup("build.cfg");
+    writesetup(setupfilename);
 }
 
 void ExtPreCheckKeys(void) // just before drawrooms

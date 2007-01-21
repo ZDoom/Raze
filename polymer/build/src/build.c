@@ -27,7 +27,7 @@ static long crctable[256];
 static char kensig[24];
 
 extern int ExtInit(void);
-extern int ExtPreInit(int *argc,char ***argv);
+extern int ExtPreInit(int argc,char **argv);
 extern void ExtUnInit(void);
 extern void ExtPreCheckKeys(void);
 #ifdef SUPERBUILD
@@ -257,7 +257,7 @@ int app_main(int argc, char **argv)
 
     wm_setapptitle("Mapster32");
 
-    if ((i = ExtPreInit(&argc,&argv)) < 0) return -1;
+    if ((i = ExtPreInit(argc,argv)) < 0) return -1;
 
 #ifdef RENDERTYPEWIN
     backgroundidle = 1;
