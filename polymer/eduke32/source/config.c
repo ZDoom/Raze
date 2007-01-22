@@ -579,8 +579,10 @@ int32 CONFIG_ReadSetup(void)
 
     setupread = 1;
 
+    pathsearchmode = 1;
     if (SafeFileExists(setupfilename) && scripthandle < 0)  // JBF 20031211
         scripthandle = SCRIPT_Load(setupfilename);
+    pathsearchmode = 0;
 
     if (scripthandle < 0) return -1;
 
