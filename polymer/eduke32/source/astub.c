@@ -69,8 +69,9 @@ char *Help2d[]= {
                     " '4 = MIN FRAMERATE",
 #endif
                     " '7 = Swap tags",
-                    " X  = Flip sector x",
-                    " Y  = Flip sector y",
+                    " 'F = Special functions",
+                    " X  = Horiz. flip selected sects",
+                    " Y  = Vert. flip selected sects",
                     " F5 = Item count",
                     " F6 = Actor count/SE help",
                     " F7 = Edit sector",
@@ -4326,6 +4327,22 @@ static void comlinehelp(void)
     wm_msgbox("Mapster32 Command Line Help",s);
 }
 
+static void addgamepath(const char *buffer)
+{
+    struct strllist *s;
+    s = (struct strllist *)calloc(1,sizeof(struct strllist));
+    s->str = strdup(buffer);
+
+    if (CommandPaths)
+    {
+        struct strllist *t;
+        for (t = CommandPaths; t->next; t=t->next) ;
+        t->next = s;
+        return;
+    }
+    CommandPaths = s;
+}
+
 static void checkcommandline(int argc,char **argv)
 {
     int i = 1;
@@ -4338,6 +4355,16 @@ static void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')))
             {
+                if (!Bstrcasecmp(c+1,"game_dir"))
+                {
+                    if (argc > i+1)
+                    {
+                        addgamepath(argv[i+1]);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"cfg"))
                 {
                     if (argc > i+1)
@@ -4392,21 +4419,7 @@ static void checkcommandline(int argc,char **argv)
                 case 'J':
                     c++;
                     if (!*c) break;
-                    {
-                        struct strllist *s;
-                        s = (struct strllist *)calloc(1,sizeof(struct strllist));
-                        s->str = strdup(c);
-                        if (CommandPaths)
-                        {
-                            struct strllist *t;
-                            for (t = CommandPaths; t->next; t=t->next) ;
-                            t->next = s;
-                        }
-                        else
-                        {
-                            CommandPaths = s;
-                        }
-                    }
+                    addgamepath(c);
                     break;
                 }
             }
@@ -5813,7 +5826,7 @@ static void FuncMenuOpts(void)
     printext16(8,ydim-STATUS2DSIZ+32,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Replace invalid tiles");
     printext16(8,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Mass sprite delete");
+    Bsprintf(snotbuf,"Delete all spr of tile #");
     printext16(8,ydim-STATUS2DSIZ+56,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Global sky shade");
     printext16(8,ydim-STATUS2DSIZ+64,11,-1,snotbuf,0);
@@ -5821,9 +5834,9 @@ static void FuncMenuOpts(void)
     printext16(8,ydim-STATUS2DSIZ+72,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Global Z coord shift");
     printext16(8,ydim-STATUS2DSIZ+80,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Scale map section up");
+    Bsprintf(snotbuf,"Up-size selected sectors");
     printext16(8,ydim-STATUS2DSIZ+88,11,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Scale map section down");
+    Bsprintf(snotbuf,"Down-size selected sects");
     printext16(8,ydim-STATUS2DSIZ+96,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Global shade divide");
     printext16(8,ydim-STATUS2DSIZ+104,11,-1,snotbuf,0);
@@ -5993,17 +6006,19 @@ static void FuncMenu(void)
             break;
             case 1:
             {
-                for (i=Bsprintf(disptext,"Mass sprite delete"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"Delete all spr of tile #"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    Bsprintf(tempbuf,"Delete all sprites of picnum: ");
+                    Bsprintf(tempbuf,"Delete all sprites of tile #: ");
                     i = getnumber16(tempbuf,-1,MAXSPRITES-1,1);
                     if (i >= 0)
                     {
+                        int k = 0;
                         for (j=0;j<MAXSPRITES-1;j++)
                             if (sprite[j].picnum == i)
-                                deletesprite(j);
-                        printmessage16("Sprites deleted.");
+                                deletesprite(j), k++;
+                        Bsprintf(tempbuf,"%d sprite\(s\) deleted",k);
+                        printmessage16(tempbuf);
                     }
                     else printmessage16("Aborted");
                 }
@@ -6067,10 +6082,10 @@ static void FuncMenu(void)
             break;
             case 5:
             {
-                for (i=Bsprintf(disptext,"Scale map section up"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"Up-size selected sectors"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    j=getnumber16("Map size multiplier:    ",1,8,0);
+                    j=getnumber16("Size multiplier:    ",1,8,0);
                     if (j!=1)
                     {
                         int k, l, w, currsector, start_wall, end_wall;
@@ -6111,10 +6126,10 @@ static void FuncMenu(void)
             break;
             case 6:
             {
-                for (i=Bsprintf(disptext,"Scale map section down"); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"Down-size selected sects"); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    j=getnumber16("Map size divisor:    ",1,8,0);
+                    j=getnumber16("Size divisor:    ",1,8,0);
                     if (j!=1)
                     {
                         int k, l, w, currsector, start_wall, end_wall;
