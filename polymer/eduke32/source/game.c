@@ -8103,39 +8103,40 @@ FAKE_F3:
 
 static void comlinehelp(void)
 {
-    char *s = "Syntax: eduke32 [options]\n\n"
-              "-?\t\tThis help message\n"
-              "-l##\t\tLevel (1-11)\n"
-              "-v#\t\tVolume (1-4)\n"
-              "-s#\t\tSkill (1-4)\n"
-              "-r\t\tRecord demo\n"
+    char *s = "Usage: eduke32 [OPTIONS]\n"
+              "Example: eduke32 -q4 -a -m -tx -map nukeland.map\n\n"
+              "-NUM\t\tLoad and run a game from slot NUM (0-9)\n"
+              "-a\t\tUse fake player AI (fake multiplayer only)\n"
+              "-cNUM\t\tUse MP mode NUM, 1 = DukeMatch(spawn), 2 = Coop, 3 = Dukematch(no spawn)\n"
               "-dFILE\t\tStart to play demo FILE\n"
-              "-m\t\tNo monsters\n"
-              "-ns\t\tNo sound\n"
-              "-nm\t\tNo music\n"
-              "-t#\t\tRespawn, 1 = Monsters, 2 = Items, 3 = Inventory, x = All\n"
-              "-c#\t\tMP mode, 1 = DukeMatch(spawn), 2 = Coop, 3 = Dukematch(no spawn)\n"
-              "-q#\t\tFake multiplayer (2-8 players)\n"
-              "-a\t\tUse player AI (fake multiplayer only)\n"
-              "-i#\t\tNetwork mode (1/0) (multiplayer only) (default == 1)\n"
-              "-f#\t\tSend fewer packets (1, 2, 4) (multiplayer only)\n"
-              "-gFILE\t\tUse multiple group files (must be last on command line)\n"
-              "-jDIRECTORY\tAdd a directory to the file path stack\n"
-              "-hFILE\t\tUse FILE instead of DUKE3D.DEF\n"
-              "-xFILE\t\tUse specified CON file (default EDUKE.CON/GAME.CON)\n"
-              "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
-              "-#\t\tLoad and run a game (slot 0-9)\n"
-              "-map FILE\tUse a map FILE\n"
-              "-name NAME\tFoward NAME\n"
-              "-net\t\tNet mode game\n"
+/*              "-fNUM\t\tSend fewer packets in multiplayer (1, 2, 4) (deprecated)\n" */
+              "-gFILE, -grp FILE\t\tUse extra group file FILE\n"
+              "-hFILE\t\tUse definitions file FILE\n"
+              "-iNUM\t\tUse networking mode NUM (1/0) (multiplayer only) (default == 1)\n"
+              "-jDIR\n-game_dir DIR\t\tAdds DIR to the file path stack\n"
+              "-lNUM\t\tWarp to level NUM (1-11), see -v\n"
+              "-m\t\tDisable monsters\n"
+              "-map FILE\tUse user map FILE\n"
+              "-name NAME\tUse NAME as multiplayer name\n"
+              "-nD\t\tDump default gamevars to gamevars.txt\n"
+              "-net\t\tNetwork play; see documentation\n"
+              "-nm\t\tDisable music\n"
+              "-ns\t\tDisable sound\n"
+              "-qNUM\t\tUse NUM players for fake multiplayer (2-8)\n"
+              "-r\t\tRecord demo\n"
+              "-sNUM\t\tUse skill level NUM (1-4)\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
               "-setup\t\tDisplays the configuration dialog\n"
 #endif
-              "-nD\t\tDump game definitions to gamevars.txt\n"
+              "-tNUM\t\tUse respawn mode NUM, 1 = Monsters, 2 = Items, 3 = Inventory, x = All\n"
+              "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
 #if !defined(_WIN32)
               "-usecwd\t\tRead game data and configuration file from working directory\n"
 #endif
-              "-condebug, -z#\tLine-by-line CON compilation debugging"
+              "-vNUM\t\tWarp to volume NUM (1-4), see -l\n"
+              "-xFILE\t\tLoad CON script FILE (default EDUKE.CON/GAME.CON)\n"
+              "-zNUM, -condebug\tLine-by-line CON compilation debugging, NUM is verbosity\n"
+              "\n-?, -help, --help\tDisplay this help message and exit"
               ;
     wm_msgbox("EDuke32 Command Line Help",s);
 }
@@ -8438,7 +8439,13 @@ static void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
-                if (!Bstrcasecmp(c+1,"grp"))
+                if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
+                {
+                    comlinehelp();
+                    exit(0);
+                }
+            
+                if (!Bstrcasecmp(c+1,"grp") || !Bstrcasecmp(c+1,"g"))
                 {
                     if (argc > i+1)
                     {
@@ -8589,10 +8596,6 @@ static void checkcommandline(int argc,char **argv)
                 c++;
                 switch (*c)
                 {
-                case '?':
-                    comlinehelp();
-                    exit(0);
-                    break;
                 case 'a':
                 case 'A':
                     ud.playerai = 1;

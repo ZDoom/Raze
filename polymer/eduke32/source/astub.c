@@ -4312,17 +4312,17 @@ void ExtPreLoadMap(void)
 
 static void comlinehelp(void)
 {
-    char *s = "Syntax: mapster32 [options]\n\n"
-              "-?\t\tThis help message\n"
-              "-gFILE\t\tUse multiple group files\n"
-              "-jDIRECTORY\tAdd a directory to the file path stack\n"
-              "-hFILE\t\tUse FILE instead of DUKE3D.DEF\n"
+    char *s = "Usage: mapster32 [OPTIONS] [FILE]\n\n"
+              "-gFILE, -grp FILE\t\tUse extra group file FILE\n"
+              "-hFILE\t\tUse definitions file FILE\n"
+              "-jDIR, -game_dir DIR\n\t\tAdds DIR to the file path stack\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
               "-setup\t\tDisplays the configuration dialog\n"
 #endif              
 #if !defined(_WIN32)
               "-usecwd\t\tRead game data and configuration file from working directory\n"
 #endif
+              "\n-?, -help, --help\tDisplay this help message and exit"
               ;
     wm_msgbox("Mapster32 Command Line Help",s);
 }
@@ -4343,6 +4343,8 @@ static void addgamepath(const char *buffer)
     CommandPaths = s;
 }
 
+extern void buildaddgroup(const char *buffer);
+
 static void checkcommandline(int argc,char **argv)
 {
     int i = 1;
@@ -4355,6 +4357,12 @@ static void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')))
             {
+                if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
+                {
+                    comlinehelp();
+                    exit(0);
+                }
+            
                 if (!Bstrcasecmp(c+1,"game_dir"))
                 {
                     if (argc > i+1)
@@ -4402,10 +4410,6 @@ static void checkcommandline(int argc,char **argv)
                 c++;
                 switch (*c)
                 {
-                case '?':
-                    comlinehelp();
-                    exit(0);
-                    break;
                 case 'h':
                 case 'H':
                     c++;
@@ -4420,6 +4424,12 @@ static void checkcommandline(int argc,char **argv)
                     c++;
                     if (!*c) break;
                     addgamepath(c);
+                    break;
+                case 'g':
+                case 'G':
+                    c++;
+                    if (!*c) break;
+                    buildaddgroup(c);
                     break;
                 }
             }
@@ -6017,7 +6027,7 @@ static void FuncMenu(void)
                         for (j=0;j<MAXSPRITES-1;j++)
                             if (sprite[j].picnum == i)
                                 deletesprite(j), k++;
-                        Bsprintf(tempbuf,"%d sprite\(s\) deleted",k);
+                        Bsprintf(tempbuf,"%d sprite(s) deleted",k);
                         printmessage16(tempbuf);
                     }
                     else printmessage16("Aborted");

@@ -604,7 +604,11 @@ int32 CONFIG_ReadSetup(void)
 
         SCRIPT_GetString(scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
-        SCRIPT_GetString(scripthandle, "Misc","SelectedGRP",&duke3dgrp[0]);
+        {
+            extern char defaultduke3dgrp[BMAX_PATH];
+            if (!Bstrcmp(defaultduke3dgrp,"duke3d.grp"))
+                SCRIPT_GetString(scripthandle, "Misc","SelectedGRP",&duke3dgrp[0]);
+        }        
 
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "Shadows",&ud.shadows);
 
