@@ -2960,8 +2960,8 @@ void getinput(int snum)
     momx += fricxv;
     momy += fricyv;
 
-    if (momx == 0) momx = 1; // HACK; the game seems to "forget" about the rest of the data if we aren't moving
-    if (momy == 0) momy = 1;
+//    if (momx == 0) momx = 1; // HACK; the game seems to "forget" about the rest of the data if we aren't moving
+//    if (momy == 0) momy = 1;
 
     loc.fvel = momx;
     loc.svel = momy;

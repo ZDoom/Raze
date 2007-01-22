@@ -2390,7 +2390,7 @@ static void operatefta(void)
     j = quotebot;
     for (i=0;i<MAXUSERQUOTES;i++)
     {
-        if (user_quote_time[i] <= 0) break;    
+        if (user_quote_time[i] <= 0) break;
         k = user_quote_time[i];
         l = Bstrlen(user_quote[i]);
         while (l > TEXTWRAPLEN)
@@ -2467,7 +2467,7 @@ void FTA(short q,struct player_struct *p)
 
     if (ud.fta_on == 0)
         return;
-        
+
     if (p->fta > 0 && q != 115 && q != 116)
         if (p->ftq == 115 || p->ftq == 116) return;
 
@@ -3831,7 +3831,7 @@ static long oyrepeat=-1;
 void displayrooms(int snum,long smoothratio)
 {
     long cposx,cposy,cposz,dst,j,fz,cz;
-    long tposx,tposy,i;    
+    long tposx,tposy,i;
     short sect, cang, k, choriz;
     struct player_struct *p = &ps[snum];
     short tang;
@@ -8103,8 +8103,8 @@ FAKE_F3:
 
 static void comlinehelp(void)
 {
-    char *s = "Command line help.\n"
-              "?, -?\t\tThis help message\n"
+    char *s = "Syntax: eduke32 [options]\n\n"
+              "-?\t\tThis help message\n"
               "-l##\t\tLevel (1-11)\n"
               "-v#\t\tVolume (1-4)\n"
               "-s#\t\tSkill (1-4)\n"
@@ -8128,14 +8128,16 @@ static void comlinehelp(void)
               "-map FILE\tUse a map FILE\n"
               "-name NAME\tFoward NAME\n"
               "-net\t\tNet mode game\n"
+#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
               "-setup\t\tDisplays the configuration dialog\n"
+#endif
               "-nD\t\tDump game definitions to gamevars.txt\n"
 #if !defined(_WIN32)
               "-usecwd\t\tRead game data and configuration file from working directory\n"
 #endif
               "-condebug, -z#\tLine-by-line CON compilation debugging"
               ;
-    wm_msgbox(apptitle,s);
+    wm_msgbox("EDuke32 Command Line Help",s);
 }
 
 signed int rancid_players = 0;
@@ -8350,7 +8352,7 @@ static int loadgroupfiles(char *fn)
         {
             int j;
             if (scriptfile_getnumber(script,&j)) break;
-            
+
             if (j > 0) MAXCACHE1DSIZE = j<<10;
         }
         break;
@@ -8366,6 +8368,41 @@ static int loadgroupfiles(char *fn)
 
     return 0;
 }
+
+static void addgroup(const char *buffer)
+{
+    struct strllist *s;
+    s = (struct strllist *)calloc(1,sizeof(struct strllist));
+    s->str = Bstrdup(buffer);
+    if (Bstrchr(s->str,'.') == 0)
+        Bstrcat(s->str,".grp");
+
+    if (CommandGrps)
+    {
+        struct strllist *t;
+        for (t = CommandGrps; t->next; t=t->next) ;
+        t->next = s;
+        return;
+    }
+    CommandGrps = s;
+}
+
+static void addgamepath(const char *buffer)
+{
+    struct strllist *s;
+    s = (struct strllist *)calloc(1,sizeof(struct strllist));
+    s->str = strdup(buffer);
+
+    if (CommandPaths)
+    {
+        struct strllist *t;
+        for (t = CommandPaths; t->next; t=t->next) ;
+        t->next = s;
+        return;
+    }
+    CommandPaths = s;
+}
+
 
 static void checkcommandline(int argc,char **argv)
 {
@@ -8401,6 +8438,26 @@ static void checkcommandline(int argc,char **argv)
             c = argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
+                if (!Bstrcasecmp(c+1,"grp"))
+                {
+                    if (argc > i+1)
+                    {
+                        addgroup(argv[i+1]);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"game_dir"))
+                {
+                    if (argc > i+1)
+                    {
+                        addgamepath(argv[i+1]);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"cfg"))
                 {
                     if (argc > i+1)
@@ -8595,25 +8652,7 @@ static void checkcommandline(int argc,char **argv)
                 case 'G':
                     c++;
                     if (!*c) break;
-                    strcpy(tempbuf,c);
-                    if (strchr(tempbuf,'.') == 0)
-                        strcat(tempbuf,".grp");
-
-                    {
-                        struct strllist *s;
-                        s = (struct strllist *)calloc(1,sizeof(struct strllist));
-                        s->str = strdup(tempbuf);
-                        if (CommandGrps)
-                        {
-                            struct strllist *t;
-                            for (t = CommandGrps; t->next; t=t->next) ;
-                            t->next = s;
-                        }
-                        else
-                        {
-                            CommandGrps = s;
-                        }
-                    }
+                    addgroup(c);
                     break;
                 case 'h':
                 case 'H':
@@ -8635,21 +8674,7 @@ static void checkcommandline(int argc,char **argv)
                 case 'J':
                     c++;
                     if (!*c) break;
-                    {
-                        struct strllist *s;
-                        s = (struct strllist *)calloc(1,sizeof(struct strllist));
-                        s->str = strdup(c);
-                        if (CommandPaths)
-                        {
-                            struct strllist *t;
-                            for (t = CommandPaths; t->next; t=t->next) ;
-                            t->next = s;
-                        }
-                        else
-                        {
-                            CommandPaths = s;
-                        }
-                    }
+                    addgamepath(c);
                     break;
                 case 'l':
                 case 'L':
@@ -10445,7 +10470,7 @@ RECHECK:
     {
         if (foundemo) while (totalclock >= (lockclock+TICSPERFRAME))
             {
-#if 0            
+#if 0
                 if (demo_version == 116 || demo_version == 117)
                 {
                     if ((i == 0) || (i >= RECSYNCBUFSIZ))
@@ -10475,7 +10500,7 @@ RECHECK:
                     }
                 }
                 else
-#endif                
+#endif
                 {
                     if ((i == 0) || (i >= RECSYNCBUFSIZ))
                     {

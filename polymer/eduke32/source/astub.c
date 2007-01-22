@@ -4309,6 +4309,23 @@ void ExtPreSaveMap(void)
 void ExtPreLoadMap(void)
 {}
 
+static void comlinehelp(void)
+{
+    char *s = "Syntax: mapster32 [options]\n\n"
+              "-?\t\tThis help message\n"
+              "-gFILE\t\tUse multiple group files\n"
+              "-jDIRECTORY\tAdd a directory to the file path stack\n"
+              "-hFILE\t\tUse FILE instead of DUKE3D.DEF\n"
+#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
+              "-setup\t\tDisplays the configuration dialog\n"
+#endif              
+#if !defined(_WIN32)
+              "-usecwd\t\tRead game data and configuration file from working directory\n"
+#endif
+              ;
+    wm_msgbox("Mapster32 Command Line Help",s);
+}
+
 static void checkcommandline(int argc,char **argv)
 {
     int i = 1;
@@ -4358,6 +4375,10 @@ static void checkcommandline(int argc,char **argv)
                 c++;
                 switch (*c)
                 {
+                case '?':
+                    comlinehelp();
+                    exit(0);
+                    break;
                 case 'h':
                 case 'H':
                     c++;
