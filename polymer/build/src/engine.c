@@ -7138,18 +7138,30 @@ if (numsprites > MAXSPRITES) { kclose(fil); return(-1); }
 #include "scriptfile.h"
 long loadmaphack(char *filename)
 {
+    enum
+    {
+        T_EOF = -2,
+        T_ERROR = -1,
+        T_SPRITE = 0,
+        T_ANGOFF,
+        T_NOMODEL,
+        T_NOANIM,
+        T_PITCH,
+        T_ROLL
+    };
+
     static struct { char *text; int tokenid; } legaltokens[] = {
-                { "sprite", 0 },
-                { "angleoff", 1 },
-                { "angoff", 1 },
-                { "notmd2", 2 },
-                { "notmd3", 2 },
-                { "notmd", 2 },
-                { "nomd2anim", 3 },
-                { "nomd3anim", 3 },
-                { "nomdanim", 3 },
-                { "pitch", 4 },
-                { "roll", 5 },
+                { "sprite", T_SPRITE },
+                { "angleoff", T_ANGOFF },
+                { "angoff", T_ANGOFF },
+                { "notmd2", T_NOMODEL },
+                { "notmd3", T_NOMODEL },
+                { "notmd", T_NOMODEL },
+                { "nomd2anim", T_NOANIM },
+                { "nomd3anim", T_NOANIM },
+                { "nomdanim", T_NOANIM },
+                { "pitch", T_PITCH },
+                { "roll", T_ROLL },
                 { NULL, -1 }
             };
 
@@ -7169,7 +7181,7 @@ long loadmaphack(char *filename)
         for (i=0;legaltokens[i].text;i++) if (!Bstrcasecmp(tok,legaltokens[i].text)) break;
         cmdtokptr = script->ltextptr;
         switch (legaltokens[i].tokenid) {
-        case 0:     // sprite <xx>
+        case T_SPRITE:     // sprite <xx>
             if (scriptfile_getnumber(script, &whichsprite)) break;
 
             if ((unsigned)whichsprite >= (unsigned)MAXSPRITES) {
@@ -7181,7 +7193,7 @@ long loadmaphack(char *filename)
             }
 
             break;
-        case 1:     // angoff <xx>
+        case T_ANGOFF:     // angoff <xx>
         {
             int ang;
             if (scriptfile_getnumber(script, &ang)) break;
@@ -7195,7 +7207,7 @@ long loadmaphack(char *filename)
             spriteext[whichsprite].angoff = (short)ang;
         }
         break;
-        case 2:      // notmd
+        case T_NOMODEL:      // notmd
             if (whichsprite < 0) {
                 // no sprite directive preceeding
                 initprintf("Ignoring not-MD2/MD3 directive because of absent/invalid sprite number on line %s:%d\n",
@@ -7204,7 +7216,7 @@ long loadmaphack(char *filename)
             }
             spriteext[whichsprite].flags |= SPREXT_NOTMD;
             break;
-        case 3:      // nomdanim
+        case T_NOANIM:      // nomdanim
             if (whichsprite < 0) {
                 // no sprite directive preceeding
                 initprintf("Ignoring no-MD2/MD3-anim directive because of absent/invalid sprite number on line %s:%d\n",
@@ -7213,7 +7225,7 @@ long loadmaphack(char *filename)
             }
             spriteext[whichsprite].flags |= SPREXT_NOMDANIM;
             break;
-        case 4:     // pitch <xx>
+        case T_PITCH:     // pitch <xx>
         {
             int pitch;
             if (scriptfile_getnumber(script, &pitch)) break;
@@ -7226,7 +7238,7 @@ long loadmaphack(char *filename)
             }
             spriteext[whichsprite].pitch = (short)pitch;
         }
-        case 5:     // roll <xx>
+        case T_ROLL:     // roll <xx>
         {
             int roll;
             if (scriptfile_getnumber(script, &roll)) break;

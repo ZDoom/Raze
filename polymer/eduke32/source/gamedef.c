@@ -2375,7 +2375,6 @@ static int parsecommand(void)
     case CON_CLIPDIST:
     case CON_LOTSOFGLASS:
     case CON_SAVE:
-    case CON_QUAKE:
         if (!CheckEventSync(current_event))
             ReportError(WARNING_EVENTSYNC);
     case CON_ANGOFF:
@@ -3028,6 +3027,7 @@ static int parsecommand(void)
     case CON_INITTIMER:
     case CON_LOCKPLAYER:
     case CON_SHOOTVAR:
+    case CON_QUAKE:    
         if (!CheckEventSync(current_event))
             ReportError(WARNING_EVENTSYNC);
     case CON_JUMP:

@@ -1477,7 +1477,7 @@ void waitforeverybody()
     }
 }
 
-extern char jump_input;
+extern int jump_input;
 
 void clearfifo(void)
 {

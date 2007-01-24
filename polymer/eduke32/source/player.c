@@ -134,7 +134,7 @@ static void tracers(long x1,long y1,long z1,long x2,long y2,long z2,long n)
     }
 }
 
-void hitscantrail(long x1, long y1, long z1, long x2, long y2, long z2, short ang, short atwith)
+static void hitscantrail(long x1, long y1, long z1, long x2, long y2, long z2, int ang, int atwith)
 {
     long xv, yv, zv, n, j, i;
     short sect = -1;
@@ -189,11 +189,11 @@ long hits(short i)
     return (FindDistance2D(sx-SX,sy-SY));
 }
 
-static short aim(spritetype *s,short aang,short atwith)
+static int aim(spritetype *s,int aang,int atwith)
 {
-    char gotshrinker,gotfreezer;
-    short i, j, a, k, cans;
-    short aimstats[] = {10,13,1,2};
+    int gotshrinker,gotfreezer;
+    int i, j, a, k, cans;
+    int aimstats[] = {10,13,1,2};
     long dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
     long xv, yv;
 
@@ -226,8 +226,8 @@ static short aim(spritetype *s,short aang,short atwith)
 
     j = -1;
 
-    gotshrinker = s->picnum == APLAYER && *aplWeaponWorksLike[ps[s->yvel].curr_weapon] == SHRINKER_WEAPON;
-    gotfreezer = s->picnum == APLAYER && *aplWeaponWorksLike[ps[s->yvel].curr_weapon] == FREEZE_WEAPON;
+    gotshrinker = (s->picnum == APLAYER && *aplWeaponWorksLike[ps[s->yvel].curr_weapon] == SHRINKER_WEAPON);
+    gotfreezer = (s->picnum == APLAYER && *aplWeaponWorksLike[ps[s->yvel].curr_weapon] == FREEZE_WEAPON);
 
     smax = 0x7fffffff;
 
@@ -301,14 +301,11 @@ static short aim(spritetype *s,short aang,short atwith)
 
 int shoot(int i,int atwith)
 {
-    short sect, hitsect, hitspr, hitwall, l, sa, p, j, k=-1, wh, scount;
-    long sx, sy, sz, vel, zvel, hitx, hity, hitz, x, oldzvel, dal;
+    short hitsect, hitspr, hitwall, l, sa, p, j, k=-1, wh, scount;
+    long sx, sy, sz, vel, zvel = 0, hitx, hity, hitz, x, oldzvel, dal;
     unsigned char sizx,sizy;
-    spritetype *s;
-
-    s = &sprite[i];
-    sect = s->sectnum;
-    zvel = 0;
+    spritetype *s = &sprite[i];
+    short sect = s->sectnum;
 
     if (s->picnum == APLAYER)
     {
@@ -2033,7 +2030,7 @@ static int animateaccess(int gs,int snum)
     return 1;
 }
 
-void myospalw(long x, long y, short tilenum, signed char shade, char orientation, char p)
+static void myospalw(long x, long y, int tilenum, int shade, int orientation, int p)
 {
     if (!ud.drawweapon)
         return;
@@ -2060,9 +2057,7 @@ void myospalw(long x, long y, short tilenum, signed char shade, char orientation
     }
 }
 
-short fistsign;
-
-char last_quick_kick[MAXPLAYERS];
+static int fistsign, last_quick_kick[MAXPLAYERS];
 
 void displayweapon(int snum)
 {
@@ -2647,14 +2642,9 @@ void displayweapon(int snum)
 #define MAXHORIZ     127
 
 long myaimmode = 0, myaimstat = 0, omyaimstat = 0;
-
 int32 mouseyaxismode = -1;
-static ControlInfo lastinfo =
-    {
-        0,0,0,0,0,0
-    };
-
-char jump_input = 0;
+static ControlInfo lastinfo = { 0,0,0,0,0,0 };
+int jump_input = 0;
 
 void getinput(int snum)
 {
@@ -2960,9 +2950,6 @@ void getinput(int snum)
     momx += fricxv;
     momy += fricyv;
 
-//    if (momx == 0) momx = 1; // HACK; the game seems to "forget" about the rest of the data if we aren't moving
-//    if (momy == 0) momy = 1;
-
     loc.fvel = momx;
     loc.svel = momy;
 
@@ -2970,7 +2957,7 @@ void getinput(int snum)
     loc.horz = horiz;
 }
 
-static char doincrements(struct player_struct *p)
+static int doincrements(struct player_struct *p)
 {
     int snum = sprite[p->i].yvel;
     
@@ -4231,6 +4218,24 @@ void processinput(int snum)
         }
     }
 
+    if (sync[snum].extbits&(1))
+        OnEvent(EVENT_MOVEFORWARD,pi,snum, -1);
+
+    if (sync[snum].extbits&(1<<1))
+        OnEvent(EVENT_MOVEBACKWARD,pi,snum, -1);
+
+    if (sync[snum].extbits&(1<<2))
+        OnEvent(EVENT_STRAFELEFT,pi,snum, -1);
+
+    if (sync[snum].extbits&(1<<3))
+        OnEvent(EVENT_STRAFERIGHT,pi,snum, -1);
+
+    if (sync[snum].extbits&(1<<4) || sync[snum].avel < 0)
+        OnEvent(EVENT_TURNLEFT,pi,snum, -1);
+
+    if (sync[snum].extbits&(1<<5) || sync[snum].avel > 0)
+        OnEvent(EVENT_TURNRIGHT,pi,snum, -1);
+
     if (p->posxv || p->posyv || sync[snum].fvel || sync[snum].svel)
     {
         p->crack_time = 777;
@@ -4271,32 +4276,6 @@ void processinput(int snum)
 
         if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
             doubvel <<= 1;
-
-        /*
-            loc.extbits = BUTTON(gamefunc_Move_Forward);
-            loc.extbits |= BUTTON(gamefunc_Move_Backward)<<1;
-            loc.extbits |= BUTTON(gamefunc_Strafe_Left)<<2;
-            loc.extbits |= BUTTON(gamefunc_Strafe_Right)<<3;
-            loc.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
-            loc.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
-        */
-        if (sync[snum].extbits&(1))
-            OnEvent(EVENT_MOVEFORWARD,pi,snum, -1);
-
-        if (sync[snum].extbits&(1<<1))
-            OnEvent(EVENT_MOVEBACKWARD,pi,snum, -1);
-
-        if (sync[snum].extbits&(1<<2))
-            OnEvent(EVENT_STRAFELEFT,pi,snum, -1);
-
-        if (sync[snum].extbits&(1<<3))
-            OnEvent(EVENT_STRAFERIGHT,pi,snum, -1);
-
-        if (sync[snum].extbits&(1<<4) || sync[snum].avel < 0)
-            OnEvent(EVENT_TURNLEFT,pi,snum, -1);
-
-        if (sync[snum].extbits&(1<<5) || sync[snum].avel > 0)
-            OnEvent(EVENT_TURNRIGHT,pi,snum, -1);
 
         p->posxv += ((sync[snum].fvel*doubvel)<<6);
         p->posyv += ((sync[snum].svel*doubvel)<<6);

@@ -8110,16 +8110,17 @@ static void comlinehelp(void)
               "-cNUM\t\tUse MP mode NUM, 1 = DukeMatch(spawn), 2 = Coop, 3 = Dukematch(no spawn)\n"
               "-dFILE\t\tStart to play demo FILE\n"
 /*              "-fNUM\t\tSend fewer packets in multiplayer (1, 2, 4) (deprecated)\n" */
-              "-gFILE, -grp FILE\t\tUse extra group file FILE\n"
+              "-game_dir DIR\tSee -j\n"
+              "-gFILE, -grp FILE\tUse extra group file FILE\n"
               "-hFILE\t\tUse definitions file FILE\n"
               "-iNUM\t\tUse networking mode NUM (1/0) (multiplayer only) (default == 1)\n"
-              "-jDIR\n-game_dir DIR\t\tAdds DIR to the file path stack\n"
+              "-jDIR\t\tAdds DIR to the file path stack\n"
               "-lNUM\t\tWarp to level NUM (1-11), see -v\n"
               "-m\t\tDisable monsters\n"
               "-map FILE\tUse user map FILE\n"
               "-name NAME\tUse NAME as multiplayer name\n"
               "-nD\t\tDump default gamevars to gamevars.txt\n"
-              "-net\t\tNetwork play; see documentation\n"
+              "-net PARAMETERS\tNetwork play; see documentation for PARAMETERS\n"
               "-nm\t\tDisable music\n"
               "-ns\t\tDisable sound\n"
               "-qNUM\t\tUse NUM players for fake multiplayer (2-8)\n"
@@ -8138,7 +8139,7 @@ static void comlinehelp(void)
               "-zNUM, -condebug\tLine-by-line CON compilation debugging, NUM is verbosity\n"
               "\n-?, -help, --help\tDisplay this help message and exit"
               ;
-    wm_msgbox("EDuke32 Command Line Help",s);
+    wm_msgbox(HEAD2,s);
 }
 
 signed int rancid_players = 0;
@@ -9578,13 +9579,14 @@ void backtomenu(void)
     else wm_setapptitle(HEAD);
 }
 
-int load_script(char *szScript)
+int load_script(const char *szScript)
 {
     FILE* fp = fopenfrompath(szScript, "r");
 
     if (fp != NULL)
     {
         char line[255];
+        
         OSD_Printf("Executing \"%s\"\n", szScript);
         while (fgets(line ,sizeof(line)-1, fp) != NULL)
             OSD_Dispatch(strtok(line,"\r\n"));
@@ -9696,11 +9698,10 @@ void app_main(int argc,char **argv)
     if (glusetexcache == -1 || glusetexcachecompression == -1)
     {
         i=wm_ynbox("Texture Caching",
-                   "Would you like to enable the on-disk texture cache? "
-                   "This feature may use up to 200 megabytes of disk "
-                   "space if you have a great deal of high resolution "
-                   "textures and skins, but textures will load dramatically "
-                   "faster after the first time they are loaded.");
+                   "Would you like to enable the on-disk texture cache? This feature may use around 140 megabytes of disk "
+                   "space if you have a great deal of high resolution textures and skins, but textures will load dramatically "
+                   "faster after the first time they are loaded.\n\n"
+                   "You will generally want to say 'yes' here, especially if using the HRP.");
         if (i) useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
     }
@@ -10005,8 +10006,7 @@ void app_main(int argc,char **argv)
         menutext(160,105,0,0,"LOADING SAVED GAME...");
         nextpage();
 
-        j = loadplayer(ud.warp_on-2);
-        if (j)
+        if (loadplayer(ud.warp_on-2))
             ud.warp_on = 0;
     }
 
@@ -10064,18 +10064,18 @@ MAIN_LOOP_RESTART:
 
     if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
     {
-        int k = 0;
+        j = 0;
 
         switch (ud.pteam[myconnectindex])
         {
         case 0:
-            k = 3;
+            j = 3;
             break;
         case 1:
-            k = 21;
+            j = 21;
             break;
         }
-        ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = k;
+        ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = j;
     }
     else
     {

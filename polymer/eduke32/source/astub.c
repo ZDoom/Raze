@@ -4313,7 +4313,7 @@ void ExtPreLoadMap(void)
 static void comlinehelp(void)
 {
     char *s = "Usage: mapster32 [OPTIONS] [FILE]\n\n"
-              "-gFILE, -grp FILE\t\tUse extra group file FILE\n"
+              "-gFILE, -grp FILE\tUse extra group file FILE\n"
               "-hFILE\t\tUse definitions file FILE\n"
               "-jDIR, -game_dir DIR\n\t\tAdds DIR to the file path stack\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
@@ -4324,7 +4324,7 @@ static void comlinehelp(void)
 #endif
               "\n-?, -help, --help\tDisplay this help message and exit"
               ;
-    wm_msgbox("Mapster32 Command Line Help",s);
+    wm_msgbox("Mapster32"VERSION,s);
 }
 
 static void addgamepath(const char *buffer)
@@ -4633,11 +4633,10 @@ int ExtInit(void)
         int i;
 #if 1
         i=wm_ynbox("Texture Caching",
-                   "Would you like to enable the on-disk texture cache? "
-                   "This feature may use up to 200 megabytes of disk "
-                   "space if you have a great deal of high resolution "
-                   "textures and skins, but textures will load dramatically "
-                   "faster after the first time they are loaded.");
+                   "Would you like to enable the on-disk texture cache? This feature may use around 140 megabytes of disk "
+                   "space if you have a great deal of high resolution textures and skins, but textures will load dramatically "
+                   "faster after the first time they are loaded.\n\n"
+                   "You will generally want to say 'yes' here, especially if using the HRP.");
 #else
         i = 1;
 #endif
