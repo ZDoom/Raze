@@ -56,6 +56,7 @@ static long GetTickCount(void)
 
 
 #define PAKRATE 250  //Packet rate/sec limit ... necessary?
+int packetrate = PAKRATE;
 #define SIMMIS 0     //Release:0  Test:100 Packets per 256 missed.
 #define SIMLAG 0     //Release:0  Test: 10 Packets to delay receipt
 static long simlagcnt[MAXPLAYERS];
@@ -602,7 +603,7 @@ void dosendpackets (long other) //Host to send intially, client to send to other
 
     tims = GetTickCount();
     if (tims < lastsendtims[other]) lastsendtims[other] = tims;
-    if (tims < lastsendtims[other]+1000/PAKRATE) return;
+    if (tims < lastsendtims[other]+1000/packetrate) return;
     lastsendtims[other] = tims;
 
     k = 2;

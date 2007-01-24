@@ -332,6 +332,29 @@ static int osdcmd_fileinfo(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int osdcmd_rate(const osdfuncparm_t *parm)
+{
+    extern int packetrate;
+    int i;
+    
+    if (parm->numparms == 0)
+    {
+        OSD_Printf("\"rate\" is \"%d\"\n", packetrate);
+        return OSDCMD_SHOWHELP;
+    }
+    else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    i = Batol(parm->parms[0]);
+
+    if (i >= 40 && i <= 1000)
+    {
+        packetrate = i;
+        OSD_Printf("rate %d\n", packetrate);
+    }
+    else OSD_Printf("rate: value out of range\n");
+    return OSDCMD_OK;
+}
+
 static int osdcmd_restartvid(const osdfuncparm_t *parm)
 {
     resetvideomode();
@@ -903,7 +926,8 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
 
-    OSD_RegisterFunction("restartvid","restartvid: reinitialised the video mode",osdcmd_restartvid);
+    OSD_RegisterFunction("rate","rate: changes the multiplayer packet send rate",osdcmd_rate);
+    OSD_RegisterFunction("restartvid","restartvid: reinitialises the video mode",osdcmd_restartvid);
 
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
