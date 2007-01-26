@@ -719,11 +719,12 @@ void menus(void)
                                "Mouse aim",
                                "-",
                                "-",
-                               "Switch weap on pickup",
-                               "Switch weap when empty",
+                               "Switch weapon on pickup",
+                               "Switch weapon when empty",
                                "-",
                                "-",                               
-                               "Taunt macro setup",
+                               "-",
+                               "Taunt macro setup...",
                                NULL
                            };
 
@@ -732,7 +733,7 @@ void menus(void)
             if (probey == 2)
                 x = getteampal(ud.team);
             
-            rotatesprite((260)<<16,(26+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,x,10,0,0,xdim-1,ydim-1);
+            rotatesprite((260)<<16,(24+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,x,10,0,0,xdim-1,ydim-1);
 
             for (ii=io=0; opts[ii]; ii++)
             {
@@ -864,7 +865,7 @@ void menus(void)
             }
             else
             {
-                x = strget(d,37,buf,30,0);
+                x = strget(d-50,37,buf,30,0);
 
                 while (Bstrlen(stripcolorcodes(buf)) > 10)
                 {
@@ -920,7 +921,7 @@ void menus(void)
 
                     case 2:
                         {
-                            char *s[] = { "Red", "Blue", "Green", "Gray" };
+                            char *s[] = { "Blue", "Red", "Green", "Gray" };
                             gametext(d-50,yy,s[ud.team],MENUHIGHLIGHT(io),2+8+16);
                         }
                         break;
@@ -937,17 +938,17 @@ void menus(void)
                         break;
 
                     case 5:
-                        gametext(d+60,yy,ud.weaponswitch&1?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
+                        gametext(d+70,yy,ud.weaponswitch&1?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
                         break;
                         
                     case 6:
-                        gametext(d+60,yy,ud.weaponswitch&2?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
+                        gametext(d+70,yy,ud.weaponswitch&2?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
                         break;
 
                     default:
                         break;
                     }
-                    gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
+                    gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 10);
                     io++;
                     yy += 8;
                 }
@@ -2492,7 +2493,7 @@ cheat_for_port_credits:
                 default:
                     break;
                 }
-                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
+                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 10);
                 io++;
                 yy += 8;
             }
@@ -2658,7 +2659,7 @@ cheat_for_port_credits:
                 default:
                     break;
                 }
-                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
+                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 10);
                 io++;
                 yy += 8;
             }
@@ -2675,7 +2676,7 @@ cheat_for_port_credits:
         {
             int io, ii, yy, d=c+160+40, enabled;
             char *opts[] = {
-                               "Parental lock",
+                               "Parental lock...",
                                "-",
                                "Game messages",
                                "HUD weapon",
@@ -2809,7 +2810,7 @@ cheat_for_port_credits:
                 default:
                     break;
                 }
-                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
+                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 10);
                 io++;
                 yy += 8;
             }
@@ -3223,14 +3224,14 @@ cheat_for_port_credits:
             break;
         }
 //        menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,tempbuf);
-        gametext(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),2+8+16);
+        gametextpal(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),bpp==8);
 
 
         menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"ANISOTROPY");
         if (glanisotropy == 1) strcpy(tempbuf,"NONE");
         else sprintf(tempbuf,"%ld-tap",glanisotropy);
         menutext(c+154,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,tempbuf);
-        menutext(c,50+62+16+16+16+16,MENUHIGHLIGHT(7),bpp==8,"ADVANCED SETTINGS");
+        menutext(c,50+62+16+16+16+16,MENUHIGHLIGHT(7),bpp==8,"ADVANCED...");
 
 #endif
         break;
@@ -3436,10 +3437,10 @@ cheat_for_port_credits:
             }
         }
 
-        gametextpal(40,122,"SENSITIVITY",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),2);
-        gametextpal(40,122+9,"MOUSE AIMING TOGGLE",!ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):15,2);
-        gametextpal(40,122+9+9,"INVERT MOUSE AIM",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2),2);
-        gametextpal(40,122+9+9+9,"ADVANCED...",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1),2);
+        gametextpal(40,122,"SENSITIVITY",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),10);
+        gametextpal(40,122+9,"MOUSE AIMING TOGGLE",!ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):15,10);
+        gametextpal(40,122+9+9,"INVERT MOUSE AIM",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2),10);
+        gametextpal(40,122+9+9+9,"ADVANCED...",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1),10);
 
         {
             short sense;

@@ -107,11 +107,11 @@ static int osdcmd_changelevel(const osdfuncparm_t *parm)
         {
             ud.m_volume_number = volume;
             ud.m_level_number = level;
-        
+
             if (ps[myconnectindex].i)
             {
                 int i;
-            
+
                 Bmemset(votes,0,sizeof(votes));
                 Bmemset(gotvote,0,sizeof(gotvote));
                 votes[myconnectindex] = gotvote[myconnectindex] = 1;
@@ -201,19 +201,19 @@ static int osdcmd_map(const osdfuncparm_t *parm)
         if (myconnectindex == connecthead && networkmode == 0)
         {
             sendboardname();
-            mpchangemap(0,7);            
+            mpchangemap(0,7);
         }
         else if (voting == -1)
         {
             sendboardname();
-            
+
             ud.m_volume_number = 0;
             ud.m_level_number = 7;
-            
+
             if (ps[myconnectindex].i)
             {
                 int i;
-            
+
                 Bmemset(votes,0,sizeof(votes));
                 Bmemset(gotvote,0,sizeof(gotvote));
                 votes[myconnectindex] = gotvote[myconnectindex] = 1;
@@ -240,31 +240,19 @@ static int osdcmd_map(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
+    osdcmd_cheatsinfo_stat.cheatnum = -1;
+    ud.m_volume_number = 0;
+    ud.m_level_number = 7;
 
-    if (ps[myconnectindex].gm & MODE_GAME)
-    {
-        // in-game behave like a cheat
-        osdcmd_cheatsinfo_stat.cheatnum = 2;
-        osdcmd_cheatsinfo_stat.volume = 0;
-        osdcmd_cheatsinfo_stat.level = 7;
-    }
-    else
-    {
-        // out-of-game behave like a menu command
-        osdcmd_cheatsinfo_stat.cheatnum = -1;
-        ud.m_volume_number = 0;
-        ud.m_level_number = 7;
+    ud.m_monsters_off = ud.monsters_off = 0;
 
-        ud.m_monsters_off = ud.monsters_off = 0;
+    ud.m_respawn_items = 0;
+    ud.m_respawn_inventory = 0;
 
-        ud.m_respawn_items = 0;
-        ud.m_respawn_inventory = 0;
+    ud.multimode = 1;
 
-        ud.multimode = 1;
-
-        newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
-        if (enterlevel(MODE_GAME)) backtomenu();
-    }
+    newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill);
+    if (enterlevel(MODE_GAME)) backtomenu();
 
     return OSDCMD_OK;
 }
@@ -336,7 +324,7 @@ static int osdcmd_rate(const osdfuncparm_t *parm)
 {
     extern int packetrate;
     int i;
-    
+
     if (parm->numparms == 0)
     {
         OSD_Printf("\"rate\" is \"%d\"\n", packetrate);
@@ -352,6 +340,22 @@ static int osdcmd_rate(const osdfuncparm_t *parm)
         OSD_Printf("rate %d\n", packetrate);
     }
     else OSD_Printf("rate: value out of range\n");
+    return OSDCMD_OK;
+}
+
+static int osdcmd_restartsound(const osdfuncparm_t *parm)
+{
+    SoundShutdown();
+    MusicShutdown();
+
+    initprintf("Checking music inits...\n");
+    MusicStartup();
+    initprintf("Checking sound inits...\n");
+    SoundStartup();
+
+    FX_StopAllSounds();
+    clearsoundlocks();
+
     return OSDCMD_OK;
 }
 
@@ -630,7 +634,7 @@ cvar[] =
 
         { "cl_messagetime", "cl_messagetime: length of time to display multiplayer chat messages\n", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
 
-        { "cl_mousebias", "cl_mousebias: hacky thing to make the mouse suck\n", (void*)&MouseBias, CVAR_INT, 0, 0, 32 },
+        { "cl_mousebias", "cl_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time\n", (void*)&MouseBias, CVAR_INT, 0, 0, 32 },
         { "cl_mousefilter", "cl_mousefilter: amount of mouse movement to filter out\n", (void*)&MouseFilter, CVAR_INT, 0, 0, 512 },
 
         { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
@@ -648,9 +652,19 @@ cvar[] =
         { "pr_verbosity", "pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
         { "pr_wireframe", "pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT, 0, 0, 1 },
 #endif
-        { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0, 0, 1 }
-    };
+        { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0, 0, 1 },
 
+        { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
+        { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&VoiceToggle, CVAR_INT, 0, 0, 2 },
+        { "snd_fxvolume", "snd_fxvolume: volume of sound effects", (void*)&FXVolume, CVAR_INT, 0, 0, 255 },
+        { "snd_mixrate", "snd_mixrate: sound mixing rate", (void*)&MixRate, CVAR_INT, 0, 0, 48000 },
+        { "snd_musvolume", "snd_musvolume: volume of midi music", (void*)&MusicVolume, CVAR_INT, 0, 0, 255 },
+        { "snd_numbits", "snd_numbits: sound bits", (void*)&NumBits, CVAR_INT, 0, 8, 16 },
+        { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&NumChannels, CVAR_INT, 0, 0, 2 },
+        { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&NumVoices, CVAR_INT, 0, 0, 32 },
+        { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ReverseStereo, CVAR_BOOL, 0, 0, 16 },
+    };
+    
 static int osdcmd_cvar_set(const osdfuncparm_t *parm)
 {
     int showval = (parm->numparms == 0);
@@ -927,6 +941,7 @@ int registerosdcommands(void)
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
 
     OSD_RegisterFunction("rate","rate: sets the multiplayer packet send rate, in packets/sec",osdcmd_rate);
+    OSD_RegisterFunction("restartsound","restartsound: reinitialises the sound system",osdcmd_restartsound);
     OSD_RegisterFunction("restartvid","restartvid: reinitialises the video mode",osdcmd_restartvid);
 
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);

@@ -1243,9 +1243,9 @@ int getteampal(int team)
     switch (team)
     {
     case 0:
-        return 10;
-    case 1:
         return 3;
+    case 1:
+        return 10;
     case 2:
         return 11;
     case 3:

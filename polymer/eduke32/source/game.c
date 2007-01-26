@@ -490,6 +490,13 @@ void getpackets(void)
         vscrn();
     }
 
+    if (KB_KeyPressed(sc_F12))
+    {
+        KB_ClearKeyDown(sc_F12);
+        screencapture("duke0000.tga",0);
+        FTA(103,&ps[myconnectindex]);
+    }
+
     // only dispatch commands here when not in a game
     if (!(ps[myconnectindex].gm&MODE_GAME))
     {
@@ -7610,13 +7617,6 @@ static void nonsharedkeys(void)
         }
     }
 
-    if (KB_KeyPressed(sc_F12))
-    {
-        KB_ClearKeyDown(sc_F12);
-        screencapture("duke0000.tga",0);
-        FTA(103,&ps[myconnectindex]);
-    }
-
     if (!ALT_IS_PRESSED && ud.overhead_on == 0 && (ps[myconnectindex].gm & MODE_TYPE) == 0)
     {
         if (BUTTON(gamefunc_Enlarge_Screen))
@@ -11817,12 +11817,6 @@ FRAGBONUS:
             getpackets();
         }
 
-        if (KB_KeyPressed(sc_F12))
-        {
-            KB_ClearKeyDown(sc_F12);
-            screencapture("duke0000.tga",0);
-        }
-
         if (bonusonly || ud.multimode > 1) return;
 
         fadepal(0,0,0, 0,64,7);
@@ -12100,12 +12094,6 @@ FRAGBONUS:
             if (((MOUSE_GetButtons()&7) || KB_KeyWaiting()) && totalclock > (60*2)) // JBF 20030809
             {
                 MOUSE_ClearButton(7);
-                if (KB_KeyPressed(sc_F12))
-                {
-                    KB_ClearKeyDown(sc_F12);
-                    screencapture("duke0000.tga",0);
-                }
-
                 if (totalclock < (60*13))
                 {
                     KB_FlushKeyboardQueue();
