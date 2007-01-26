@@ -30,6 +30,12 @@
 # define APIENTRY
 #endif
 
+# ifdef _WIN32
+#  define PR_CALLBACK __stdcall
+# else
+#  define PR_CALLBACK
+# endif
+
 // those defines are somehow missing from glext.h
 #define GL_FRAMEBUFFER_EXT                      0x8D40
 #define GL_COLOR_ATTACHMENT0_EXT                0x8CE0
@@ -159,7 +165,7 @@ extern void (APIENTRY * bglDeleteFramebuffersEXT)(GLsizei n, const GLuint *frame
 // GLU
 extern void (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
 extern void (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);
-extern void (APIENTRY * bgluTessCallback) (GLUtesselator* tess, GLenum which, _GLUfuncptr CallBackFunc);
+extern void (APIENTRY * bgluTessCallback) (GLUtesselator* tess, GLenum which, void (PR_CALLBACK CallBackFunc)());
 extern void (APIENTRY * bgluTessEndContour) (GLUtesselator* tess);
 extern void (APIENTRY * bgluTessEndPolygon) (GLUtesselator* tess);
 extern void (APIENTRY * bgluTessNormal) (GLUtesselator* tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ);

@@ -23,12 +23,6 @@
 #ifndef _polymer_h_
 # define _polymer_h_
 
-# ifdef _WIN32
-#  define PR_CALLBACK __stdcall
-# else
-#  define PR_CALLBACK
-# endif
-
 # include "compat.h"
 # include "build.h"
 # include "glbuild.h"

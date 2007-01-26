@@ -136,7 +136,7 @@ void (APIENTRY * bglDeleteFramebuffersEXT)(GLsizei n, const GLuint *framebuffers
 // GLU
 void (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
 void (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);
-void (APIENTRY * bgluTessCallback) (GLUtesselator* tess, GLenum which, _GLUfuncptr CallBackFunc);
+void (APIENTRY * bgluTessCallback) (GLUtesselator* tess, GLenum which, void (PR_CALLBACK CallBackFunc)());
 void (APIENTRY * bgluTessEndContour) (GLUtesselator* tess);
 void (APIENTRY * bgluTessEndPolygon) (GLUtesselator* tess);
 void (APIENTRY * bgluTessNormal) (GLUtesselator* tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ);

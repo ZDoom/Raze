@@ -3658,6 +3658,7 @@ void polymost_drawrooms ()
         resizeglcheck();
 
         //bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        bglDisable(GL_BLEND);
         bglEnable(GL_TEXTURE_2D);
         //bglTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE); //default anyway
         bglEnable(GL_DEPTH_TEST);
