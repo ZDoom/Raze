@@ -1681,7 +1681,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
         }
 
         if ((!(method&3)) && (!fullbrightdrawingpass)) {
-            //bglDisable(GL_BLEND);
+            bglDisable(GL_BLEND);
             if (!peelcompiling)
                 bglDisable(GL_ALPHA_TEST);
         } else {

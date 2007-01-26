@@ -651,6 +651,7 @@ unsigned char bgetchar(void)
     if (keyasciififoplc == keyasciififoend) return 0;
     c = keyasciififo[keyasciififoplc];
     keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
+    //OSD_Printf("bgetchar %d, %d-%d\n",c,keyasciififoplc,keyasciififoend);
     return c;
 }
 
@@ -3624,9 +3625,10 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
     case WM_CHAR:
         if (((keyasciififoend+1)&(KEYFIFOSIZ-1)) == keyasciififoplc) return 0;
+        if ((keyasciififoend - keyasciififoplc) > 0) return 0;
         keyasciififo[keyasciififoend] = (unsigned char)wParam;
         keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
-        //OSD_Printf("Char %d, %d-%d\n",wParam,keyasciififoplc,keyasciififoend);
+        //OSD_Printf("WM_CHAR %d, %d-%d\n",wParam,keyasciififoplc,keyasciififoend);
         return 0;
 
     case WM_HOTKEY:
