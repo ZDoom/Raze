@@ -926,7 +926,7 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
 
-    OSD_RegisterFunction("rate","rate: changes the multiplayer packet send rate",osdcmd_rate);
+    OSD_RegisterFunction("rate","rate: sets the multiplayer packet send rate, in packets/sec",osdcmd_rate);
     OSD_RegisterFunction("restartvid","restartvid: reinitialises the video mode",osdcmd_restartvid);
 
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);

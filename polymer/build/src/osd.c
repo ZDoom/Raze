@@ -424,16 +424,16 @@ int OSD_HandleKey(int sc, int press)
                 {
                     tabc = findsymbol(osdedittmp, NULL);
                     
-                    if (tabc && findsymbol(osdedittmp, tabc->next))
+                    if (tabc->next && findsymbol(osdedittmp, tabc->next))
                     {
-                        symbol_t *i=tabc;
+                        symbol_t *symb=tabc;
 
                         OSD_Printf("Matching symbols:\n");
-                        while (i)
+                        while (symb && symb != lastmatch)
                         {
-                            OSD_Printf("     %s\n", i->name);
-                            lastmatch = i;
-                            i=findsymbol(osdedittmp, lastmatch->next);                               
+                            OSD_Printf("     %s\n", symb->name);
+                            lastmatch = symb;
+                            symb=findsymbol(osdedittmp, lastmatch->next);                               
                         }
                     }
                 }

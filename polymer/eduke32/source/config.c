@@ -678,8 +678,9 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(scripthandle, "Misc", "Color",&ud.color);
         check_player_color((int *)&ud.color,-1);
         ps[0].palookup = ud.pcolor[0] = ud.color;
-        SCRIPT_GetNumber(scripthandle, "Misc", "Team",&ud.team);
-        if (ud.team > 1) ud.team = 0;
+        SCRIPT_GetNumber(scripthandle, "Misc", "Team",&dummy);
+        ud.team = 0;
+        if (dummy < 4 && dummy > -1) ud.team = dummy;
         ud.pteam[0] = ud.team;
         SCRIPT_GetNumber(scripthandle, "Misc", "MPMessageDisplayTime",&ud.msgdisptime);
         SCRIPT_GetNumber(scripthandle, "Misc", "StatusBarMode",&ud.statusbarmode);

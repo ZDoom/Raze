@@ -48,7 +48,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef _WIN32
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20061220
+#define BUILDDATE 20070125
 #define UPDATEINTERVAL 86400 // 24h
 #endif
 
@@ -8238,7 +8238,7 @@ static void setup_rancid_net(char *fn)
         {
             for (i=0;i<rancid_players;i++)
             {
-                if (Bstrcmp(rancid_ip_strings[i],rancid_ip_strings[MAXPLAYERS-1]) != 0)
+                if (Bstrcmp(rancid_ip_strings[i],rancid_ip_strings[MAXPLAYERS-1]))
                 {
                     Bstrncpy(tempbuf,rancid_ip_strings[i], 8);
                     Bstrcpy(tmp,strtok(tempbuf,"."));
@@ -9600,6 +9600,8 @@ void app_main(int argc,char **argv)
 {
     int i, j;
     char cwd[BMAX_PATH];
+    extern char datetimestring[];
+    
 #ifdef RENDERTYPEWIN
     if (win_checkinstance())
     {
@@ -9617,7 +9619,7 @@ void app_main(int argc,char **argv)
 
     wm_setapptitle(HEAD2);
 
-    initprintf("%s%s\n",apptitle," ("__DATE__" "__TIME__")");
+    initprintf("%s (%s)\n",apptitle,datetimestring);
     initprintf("Copyright (c) 1996, 2003 3D Realms Entertainment\n");
     initprintf("Copyright (c) 2006 EDuke32 team\n");
 
@@ -10063,20 +10065,7 @@ MAIN_LOOP_RESTART:
     ud.pteam[myconnectindex] = ud.team;
 
     if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
-    {
-        j = 0;
-
-        switch (ud.pteam[myconnectindex])
-        {
-        case 0:
-            j = 3;
-            break;
-        case 1:
-            j = 21;
-            break;
-        }
-        ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = j;
-    }
+        ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = getteampal(ud.pteam[myconnectindex]);
     else
     {
         if (ud.color) ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
@@ -11327,19 +11316,7 @@ static int domovethings(void)
             }
         }
         if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
-        {
-            j = 0;
-            switch (ps[i].team)
-            {
-            case 0:
-                j = 3;
-                break;
-            case 1:
-                j = 21;
-                break;
-            }
-            ps[i].palookup = ud.pcolor[i] = j;
-        }
+            ps[i].palookup = ud.pcolor[i] = getteampal(ps[i].team);
 
         if (sprite[ps[i].i].pal != 1)
             sprite[ps[i].i].pal = ud.pcolor[i];

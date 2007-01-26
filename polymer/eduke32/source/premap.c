@@ -1238,6 +1238,22 @@ void newgame(char vn,char ln,char sk)
     }
 }
 
+int getteampal(int team)
+{
+    switch (team)
+    {
+    case 0:
+        return 10;
+    case 1:
+        return 3;
+    case 2:
+        return 11;
+    case 3:
+        return 12;
+    }
+    return 0;
+}
+
 static void resetpspritevars(char g)
 {
     short i, j, nexti,circ;
@@ -1382,15 +1398,7 @@ static void resetpspritevars(char g)
 
                 if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
                 {
-                    switch (ud.pteam[j])
-                    {
-                    case 0:
-                        k = 3;
-                        break;
-                    case 1:
-                        k = 21;
-                        break;
-                    }
+                    k = getteampal(ud.pteam[j]);
                     ps[j].team = ud.pteam[j];
                 }
                 s->pal = ps[j].palookup = k;

@@ -549,7 +549,7 @@ void sendquit(void)
         else
         {
             int i;
-        
+
             tempbuf[0] = 254;
             tempbuf[1] = myconnectindex;
 
@@ -600,7 +600,7 @@ void menus(void)
     x = 0;
 
     sh = 4-(sintable[(totalclock<<4)&2047]>>11);
-    
+
     if (bpp > 8)
     {
         long x,y,y1=0,y2=ydim;
@@ -608,7 +608,7 @@ void menus(void)
             for (x=0;x<xdim;x+=tilesizx[BIGHOLE])
                 rotatesprite(x<<16,y<<16,65536L,0,BIGHOLE,80,0,1+8+16,0,0,xdim-1,ydim-1);
     }
-    
+
     if (!(current_menu >= 1000 && current_menu <= 2999 && current_menu >= 300 && current_menu <= 369))
         vscrn();
 
@@ -631,7 +631,7 @@ void menus(void)
         case 501:
         case 502:
         case 603:
-        case 10001:    
+        case 10001:
         case 20003:
         case 20005:
             break;
@@ -645,7 +645,7 @@ void menus(void)
             break;
         }
     }
-    
+
     switch (current_menu)
     {
     case 25000:
@@ -704,152 +704,257 @@ void menus(void)
     case 20003:
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(160,24,0,0,"PLAYER SETUP");
-        if (probey == 2)
+        c = (320>>1)-120;
         {
-            switch (ud.team)
+            int io, ii, yy = 37, d=c+140, enabled;
+            char *opts[] = {
+                               "Name",
+                               "-",                               
+                               "Color",
+                               "-",                               
+                               "Team",
+                               "-",
+                               "-",
+                               "Auto aim",                               
+                               "Mouse aim",
+                               "-",
+                               "-",
+                               "Switch weap on pickup",
+                               "Switch weap when empty",
+                               "-",
+                               "-",                               
+                               "Taunt macro setup",
+                               NULL
+                           };
+
+            x = ud.color;
+
+            if (probey == 2)
+                x = getteampal(ud.team);
+            
+            rotatesprite((260)<<16,(26+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,x,10,0,0,xdim-1,ydim-1);
+
+            for (ii=io=0; opts[ii]; ii++)
             {
-            case 0:
-                x = 3;
-                break;
-            case 1:
-                x = 21;
-                break;
-            }
-        }
-        else x = ud.color;
-        rotatesprite((280)<<16,(37+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,x,10,0,0,xdim-1,ydim-1);
-
-        if (current_menu == 20002)
-        {
-            x = probe(40,50,16,7);
-            switch (x)
-            {
-            case -1:
-                cmenu(202);
-                probey = 3;
-                break;
-
-            case 0:
-                strcpy(buf, myname);
-                inputloc = strlen(buf);
-                current_menu = 20003;
-
-                KB_ClearKeyDown(sc_Enter);
-                KB_ClearKeyDown(sc_kpad_Enter);
-                KB_FlushKeyboardQueue();
-                break;
-
-            case 1:
-                ud.color++;
-                if (ud.color > 23)
-                    ud.color = 0;
-                check_player_color((int *)&ud.color,-1);
-                updateplayer();
-                break;
-
-            case 2:
-                ud.team = 1-ud.team;
-                updateplayer();
-                break;
-
-            case 3:
-                AutoAim = (AutoAim == 2) ? 0 : AutoAim+1;
-                updateplayer();
-                break;
-
-            case 4:
-                ud.weaponswitch = (ud.weaponswitch == 3) ? 0 : ud.weaponswitch+1;
-                updateplayer();
-                break;
-            case 5:
-                ud.mouseaiming = !ud.mouseaiming;
-                updateplayer();
-                break;
-            case 6:
-                cmenu(20004);
-                break;
-            }
-        }
-        else
-        {
-            x = strget(200,50-9,buf,30,0);
-
-            while (Bstrlen(stripcolorcodes(buf)) > 10)
-            {
-                buf[Bstrlen(buf)-1] = '\0';
-                inputloc--;
-            }
-
-            if (x)
-            {
-                if (x == 1)
+                if (opts[ii][0] == '-' && !opts[ii][1])
                 {
-                    if (buf[0])
-                    {
-                        Bstrcpy(myname,buf);
-                    }
-                    // send name update
+                    if (io <= probey) yy += 4;
+                    continue;
                 }
-                KB_ClearKeyDown(sc_Enter);
-                KB_ClearKeyDown(sc_kpad_Enter);
-                KB_FlushKeyboardQueue();
-
-                current_menu = 20002;
-                updateplayer();
+                if (io < probey) yy += 8;
+                io++;
             }
-        }
 
-        menutext(40,50,MENUHIGHLIGHT(0),0,"NAME");
-        menutext(40,50+16,MENUHIGHLIGHT(1),0,"COLOR");
+            
+            if (current_menu == 20002)
+            {
+                x = probesm(c,yy+5,0,io);
 
-        {
-            int ud_color = -1, aaim = -1, ud_weaponswitch = -1, ud_maim = -1, ud_team = -1;
+                if (x == -1)
+                {
+                    cmenu(202);
+                    probey = 3;
+                    break;
+                }
 
-            ud_color = ud.color;
-            aaim = AutoAim;
-            ud_weaponswitch = ud.weaponswitch;
-            ud_maim = ud.mouseaiming;
-            ud_team = ud.team;
-            modval(0,23,(int *)&ud.color,1,probey==1);
-            modval(0,1,(int *)&ud.team,1,probey==2);
-            modval(0,2,(int *)&AutoAim,1,probey==3);
-            modval(0,3,(int *)&ud.weaponswitch,1,probey==4);
-            modval(0,1,(int *)&ud.mouseaiming,1,probey==5);
-            check_player_color((int *)&ud.color,ud_color);
-            if (ud_color != ud.color || aaim != AutoAim || ud_weaponswitch != ud.weaponswitch || ud_maim != ud.mouseaiming || ud_team != ud.team)
-                updateplayer();
-        }
-        menutext(40,50+16+16,MENUHIGHLIGHT(2),0,"TEAM");
-        menutext(40,50+16+16+16,MENUHIGHLIGHT(3),0,"AUTO AIM");
-        menutext(40,50+16+16+16+16,MENUHIGHLIGHT(4),0,"WEAPON SWITCH");
-        menutext(40,50+16+16+16+16+16,MENUHIGHLIGHT(5),0,"MOUSE AIM TYPE");
-        menutext(40,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),0,"TAUNT MACRO SETUP");
+                for (ii=io=0; opts[ii]; ii++)
+                {
+                    if (opts[ii][0] == '-' && !opts[ii][1])
+                        continue;
+                    enabled = 1;
+                    switch (io)
+                    {
+                    case 0:
+                        if (x == io)
+                        {
+                            strcpy(buf, myname);
+                            inputloc = strlen(buf);
+                            current_menu = 20003;
 
-        if (current_menu == 20002)
-        {
-            gametext(200,50-9,myname,MENUHIGHLIGHT(0),2+8+16);
-        }
-        {
-            char *s[] = { "Auto","","","","","","","","","Blue","Dk red","Green","Gray","Dk gray","Dk green","Brown",
-                          "Dk blue","","","","","Red","","Yellow","","" };
-            gametext(200,50+16-9,s[ud.color],MENUHIGHLIGHT(1),2+8+16);
-        }
-        {
-            char *s[] = { "Blue", "Red" };
-            gametext(200,50+16+16-9,s[ud.team],MENUHIGHLIGHT(2),2+8+16);
-        }
-        {
-            char *s[] = { "Off", "Full", "Hitscan" };
-            gametext(200,50+16+16+16-9,s[AutoAim],MENUHIGHLIGHT(3),2+8+16);
-        }
-        {
-            char *s[] = { "Off", "On pickup", "When empty", "Both" };
-            gametext(200,50+16+16+16+16-9,s[ud.weaponswitch],MENUHIGHLIGHT(4),2+8+16);
-        }
-        gametext(200,50+16+16+16+16+16-9,ud.mouseaiming?"Hold button":"Toggle on/off",MENUHIGHLIGHT(5),2+8+16);
+                            KB_ClearKeyDown(sc_Enter);
+                            KB_ClearKeyDown(sc_kpad_Enter);
+                            KB_FlushKeyboardQueue();
+                        }
+                        break;
 
-        break;
+                    case 1:
+                        i = ud.color;                    
+                        if (x == io)
+                        {
+                            ud.color++;
+                            if (ud.color > 23)
+                                ud.color = 0;
+                            check_player_color((int *)&ud.color,-1);                                
+                        }
+                        modval(0,23,(int *)&ud.color,1,probey==1);
+                        check_player_color((int *)&ud.color,i);                            
+                        if (ud.color != i)
+                            updateplayer();                            
+                        break;
 
+                    case 2:
+                        i = ud.team;
+                        if (x == io)
+                        {
+                            ud.team++;
+                            if (ud.team == 4)
+                                ud.team = 0;
+                        }        
+                        modval(0,3,(int *)&ud.team,1,probey==2);
+                        if (ud.team != i)
+                            updateplayer();
+                        break;
+
+                    case 3:
+                        i = AutoAim;
+                        if (x == io)
+                            AutoAim = (AutoAim == 2) ? 0 : AutoAim+1;
+                        modval(0,2,(int *)&AutoAim,1,probey==3);
+                        if (AutoAim != i)
+                            updateplayer();
+                        break;
+
+                    case 4:
+                        i = ud.mouseaiming;
+                        if (x == io)
+                            ud.mouseaiming = !ud.mouseaiming;
+                        modval(0,1,(int *)&ud.mouseaiming,1,probey==4);
+                        if (ud.mouseaiming != i)
+                            updateplayer();
+                        break;
+                        
+                    case 5:
+                        i = 0;
+                        if (ud.weaponswitch & 1)
+                            i = 1;
+                        if (x == io)
+                            i = 1-i;
+                        modval(0,1,(int *)&i,1,probey==5);
+                        if ((ud.weaponswitch & 1 && !i) || (!(ud.weaponswitch & 1) && i))
+                        {
+                            ud.weaponswitch ^= 1;
+                            updateplayer();
+                        }
+                        break;
+                    case 6:
+                        i = 0;
+                        if (ud.weaponswitch & 2)
+                            i = 1;
+                        if (x == io)
+                            i = 1-i;
+                        modval(0,1,(int *)&i,1,probey==6);
+                        if ((ud.weaponswitch & 2 && !i) || (!(ud.weaponswitch & 2) && i))
+                        {
+                            ud.weaponswitch ^= 2;
+                            updateplayer();
+                        }    
+                        break;
+                    case 7:
+                        if (x == io)
+                        {
+                            cmenu(20004);
+                        }
+                        break;
+
+                    default:
+                        break;
+                    }
+                    io++;
+                }
+            }
+            else
+            {
+                x = strget(d,37,buf,30,0);
+
+                while (Bstrlen(stripcolorcodes(buf)) > 10)
+                {
+                    buf[Bstrlen(buf)-1] = '\0';
+                    inputloc--;
+                }
+
+                if (x)
+                {
+                    if (x == 1)
+                    {
+                        if (buf[0] && Bstrcmp(myname,buf))
+                        {
+                            Bstrcpy(myname,buf);
+                            updateplayer();
+                        }
+                        // send name update
+                    }
+                    KB_ClearKeyDown(sc_Enter);
+                    KB_ClearKeyDown(sc_kpad_Enter);
+                    KB_FlushKeyboardQueue();
+
+                    current_menu = 20002;
+                }
+            }
+
+            yy = 37;
+            {
+                for (ii=io=0; opts[ii]; ii++)
+                {
+                    if (opts[ii][0] == '-' && !opts[ii][1])
+                    {
+                        yy += 4;
+                        continue;
+                    }
+                    enabled = 1;
+                    switch (io)
+                    {
+                    case 0:
+                        if (current_menu == 20002)
+                        {
+                            gametext(d-50,yy,myname,MENUHIGHLIGHT(io),2+8+16);
+                        }
+                        break;
+
+                    case 1:
+                        {
+                            char *s[] = { "Auto","","","","","","","","","Blue","Red","Green","Gray","Dark gray","Dark green","Brown",
+                                          "Dark blue","","","","","Bright red","","Yellow","","" };
+                            gametext(d-50,yy,s[ud.color],MENUHIGHLIGHT(io),2+8+16);
+                        }
+                        break;
+
+                    case 2:
+                        {
+                            char *s[] = { "Red", "Blue", "Green", "Gray" };
+                            gametext(d-50,yy,s[ud.team],MENUHIGHLIGHT(io),2+8+16);
+                        }
+                        break;
+
+                    case 3:
+                        {
+                            char *s[] = { "Off", "All weapons", "Hitscan only" };
+                            gametext(d-50,yy,s[AutoAim],MENUHIGHLIGHT(io),2+8+16);
+                        }
+                        break;
+
+                    case 4:
+                        gametext(d-50,yy,ud.mouseaiming?"Hold button":"Toggle on/off",MENUHIGHLIGHT(io),2+8+16);
+                        break;
+
+                    case 5:
+                        gametext(d+60,yy,ud.weaponswitch&1?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
+                        break;
+                        
+                    case 6:
+                        gametext(d+60,yy,ud.weaponswitch&2?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
+                        break;
+
+                    default:
+                        break;
+                    }
+                    gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 2);
+                    io++;
+                    yy += 8;
+                }
+            }
+
+            break;
+        }
     case 20004:
     case 20005:
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
@@ -861,7 +966,7 @@ void menus(void)
             if (x == -1)
             {
                 cmenu(20002);
-                probey = 6;
+                probey = 7;
             }
             else if (x >= 0 && x <= 9)
             {
@@ -897,7 +1002,7 @@ void menus(void)
 
         gametext(160,144,"UP/DOWN = SELECT MACRO",0,2+8+16);
         gametext(160,144+9,"ENTER = MODIFY",0,2+8+16);
-        gametext(160,144+9+9,"ACTIVATE IN GAME WITH SHIFT-F#",0,2+8+16);
+        gametext(160,144+9+9,"ACTIVATE IN-GAME WITH SHIFT-F#",0,2+8+16);
 
         break;
 
@@ -3031,21 +3136,21 @@ cheat_for_port_credits:
 #if defined(POLYMOST) && defined(USE_OPENGL)
         case 5:
             if (bpp==8) break;
-/*            switch (gltexfiltermode)
-            {
-            case 0:
-                gltexfiltermode = 3;
-                break;
-            case 3:
-                gltexfiltermode = 5;
-                break;
-            case 5:
-                gltexfiltermode = 0;
-                break;
-            default:
-                gltexfiltermode = 3;
-                break;
-            }*/
+            /*            switch (gltexfiltermode)
+                        {
+                        case 0:
+                            gltexfiltermode = 3;
+                            break;
+                        case 3:
+                            gltexfiltermode = 5;
+                            break;
+                        case 5:
+                            gltexfiltermode = 0;
+                            break;
+                        default:
+                            gltexfiltermode = 3;
+                            break;
+                        }*/
             gltexfiltermode++;
             if (gltexfiltermode > 5)
                 gltexfiltermode = 0;

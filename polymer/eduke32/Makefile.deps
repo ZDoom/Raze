@@ -1,13 +1,13 @@
 duke3d_h=$(EINC)/build.h $(EINC)/polymer.h $(EINC)/pragmas.h $(EINC)/compat.h $(EINC)/cache1d.h $(EINC)/baselayer.h $(SRC)/jmact/types.h $(SRC)/jmact/file_lib.h $(SRC)/jmact/util_lib.h $(SRC)/jmact/keyboard.h $(SRC)/jmact/control.h $(INC)/develop.h $(INC)/gamedefs.h $(INC)/function.h $(INC)/config.h $(INC)/sounds.h $(INC)/rts.h $(INC)/_rts.h $(INC)/soundefs.h $(SRC)/jaudiolib/fx_man.h $(SRC)/jaudiolib/music.h $(INC)/namesdyn.h $(INC)/funct.h $(INC)/duke3d.h $(EINC)/mmulti.h
 gamedef_h=$(SRC)/gamedef.h
 
-$(OBJ)/game.$o: $(SRC)/*.c $(SRC)/jmact/scriplib.h $(duke3d_h) $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h
+$(OBJ)/game.$o: $(SRC)/game.c $(SRC)/jmact/scriplib.h $(duke3d_h) $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h
 $(OBJ)/actors.$o: $(SRC)/actors.c $(duke3d_h)
 $(OBJ)/anim.$o: $(SRC)/anim.c $(duke3d_h) $(SRC)/jmact/animlib.h
 $(OBJ)/gamedef.$o: $(SRC)/gamedef.c $(duke3d_h) $(gamedef_h)
 $(OBJ)/gameexec.$o: $(SRC)/gameexec.c $(duke3d_h) $(gamedef_h)
 $(OBJ)/gamevars.$o: $(SRC)/gamevars.c $(duke3d_h) $(gamedef_h)
-$(OBJ)/global.$o: $(SRC)/global.c $(duke3d_h)
+$(OBJ)/global.$o: $(SRC)/*.c $(SRC)/global.c $(duke3d_h)
 $(OBJ)/menus.$o: $(SRC)/menus.c $(duke3d_h) $(SRC)/jmact/mouse.h
 $(OBJ)/namesdyn.$o: $(SRC)/namesdyn.c $(duke3d_h)
 $(OBJ)/player.$o: $(SRC)/player.c $(duke3d_h)

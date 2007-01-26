@@ -246,4 +246,6 @@ extern void mpchangemap(char volume, char level);
 extern inline int checkspriteflags(int iActor, int iType);
 extern inline int checkspriteflagsp(int iPicnum, int iType);
 
+extern int getteampal(int team);
+
 #endif // __funct_h__
