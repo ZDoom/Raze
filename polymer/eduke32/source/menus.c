@@ -724,7 +724,7 @@ void menus(void)
                                "-",
                                "-",                               
                                "-",
-                               "Taunt macro setup...",
+                               "Multiplayer macros",
                                NULL
                            };
 
@@ -959,7 +959,7 @@ void menus(void)
     case 20004:
     case 20005:
         rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(160,24,0,0,"TAUNT MACRO SETUP");
+        menutext(160,24,0,0,"MULTIPLAYER MACROS");
 
         if (current_menu == 20004)
         {
@@ -2676,7 +2676,7 @@ cheat_for_port_credits:
         {
             int io, ii, yy, d=c+160+40, enabled;
             char *opts[] = {
-                               "Parental lock...",
+                               "Parental lock",
                                "-",
                                "Game messages",
                                "HUD weapon",
@@ -3226,13 +3226,11 @@ cheat_for_port_credits:
 //        menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,tempbuf);
         gametextpal(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),bpp==8);
 
-
         menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"ANISOTROPY");
         if (glanisotropy == 1) strcpy(tempbuf,"NONE");
         else sprintf(tempbuf,"%ld-tap",glanisotropy);
         menutext(c+154,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,tempbuf);
-        menutext(c,50+62+16+16+16+16,MENUHIGHLIGHT(7),bpp==8,"ADVANCED...");
-
+        menutext(c,50+62+16+16+16+16,MENUHIGHLIGHT(7),bpp==8,"ADVANCED VIDEO");
 #endif
         break;
 
