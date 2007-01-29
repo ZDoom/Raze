@@ -37,7 +37,7 @@ extern "C" {
 #define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
 
 #define RESERVEDPALS 1
-#define DETAILPAL MAXPALOOKUPS - 1
+#define DETAILPAL (MAXPALOOKUPS-1)
 
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)
