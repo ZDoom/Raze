@@ -202,8 +202,7 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
             osdrows = atoi(parm->parms[0]);
             if (osdrows < 1) osdrows = 1;
             else if (osdrows > osdmaxrows) osdrows = osdmaxrows;
-            if (osdrowscur < osdrows) osdscroll = 1;
-            else if (osdrowscur > osdrows) osdscroll = -1;
+            osdrowscur = osdrows;
             return OSDCMD_OK;
         }
     }

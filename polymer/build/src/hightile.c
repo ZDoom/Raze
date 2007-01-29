@@ -46,7 +46,7 @@ static hicreplctyp * hicfindsubst(long picnum, long palnum, long skybox)
             }
         }
 
-        if (!palnum) break;
+        if (!palnum || palnum == DETAILPAL) break;
         palnum = 0;
     } while (1);
 

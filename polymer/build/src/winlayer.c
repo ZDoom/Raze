@@ -2587,7 +2587,7 @@ static int SetupDirectDraw(int width, int height)
 
     // attach a palette to the primary surface
     initprintf("  - Creating palette\n");
-    result = IDirectDraw_CreatePalette(lpDD, DDPCAPS_8BIT | DDPCAPS_ALLOW256 | DDPCAPS_INITIALIZE, (PALETTEENTRY*)curpalette, &lpDDPalette, NULL);
+    result = IDirectDraw_CreatePalette(lpDD, DDPCAPS_8BIT | DDPCAPS_ALLOW256, (PALETTEENTRY*)curpalette, &lpDDPalette, NULL);
     if (result != DD_OK) {
         ShowDDrawErrorBox("Failure creating palette", result);
         UninitDirectDraw();

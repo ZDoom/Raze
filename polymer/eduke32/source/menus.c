@@ -723,7 +723,6 @@ void menus(void)
                                "Switch weapon when empty",
                                "-",
                                "-",                               
-                               "-",
                                "Multiplayer macros",
                                NULL
                            };
@@ -3729,7 +3728,7 @@ cheat_for_port_credits:
         gametext(c+160-16,46+16+16-8,tempbuf,MENUHIGHLIGHT(2),2+8+16);
 
 
-        gametext(c+10,90+16,"UP:",MENUHIGHLIGHT(3),2+8+16);
+        gametextpal(c+10,90+16,"UP:",MENUHIGHLIGHT(3),10);
         if (MouseDigitalFunctions[1][0] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
@@ -3738,7 +3737,7 @@ cheat_for_port_credits:
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,91+16,tempbuf,MENUHIGHLIGHT(3),0,10+16);
 
-        gametext(c+10,90+16+10,"DOWN:",MENUHIGHLIGHT(4),2+8+16);
+        gametextpal(c+10,90+16+10,"DOWN:",MENUHIGHLIGHT(4),10);
         if (MouseDigitalFunctions[1][1] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
@@ -3747,7 +3746,7 @@ cheat_for_port_credits:
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,91+16+10,tempbuf,MENUHIGHLIGHT(4),0,10+16);
 
-        gametext(c+10,90+16+10+10,"LEFT:",MENUHIGHLIGHT(5),2+8+16);
+        gametextpal(c+10,90+16+10+10,"LEFT:",MENUHIGHLIGHT(5),10);
         if (MouseDigitalFunctions[0][0] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
@@ -3756,7 +3755,7 @@ cheat_for_port_credits:
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,91+16+10+10,tempbuf,MENUHIGHLIGHT(5),0,10+16);
 
-        gametext(c+10,90+16+10+10+10,"RIGHT:",MENUHIGHLIGHT(6),2+8+16);
+        gametextpal(c+10,90+16+10+10+10,"RIGHT:",MENUHIGHLIGHT(6),10);
         if (MouseDigitalFunctions[0][1] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
