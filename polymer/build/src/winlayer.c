@@ -1399,14 +1399,14 @@ static void ProcessInputDevices(void)
                         mousey += (short)didod[i].dwData; break;
                     case DIMOFS_Z:
                         if ((int)didod[i].dwData > 0) {		// wheel up
-                            if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);
-                            mousewheel[1] = t;
-                            mouseb |= 32; if (mousepresscallback) mousepresscallback(6, 1);
+                            if (mousewheel[0] > 0 && mousepresscallback) mousepresscallback(5,0);
+                            mousewheel[0] = t;
+                            mouseb |= 16; if (mousepresscallback) mousepresscallback(5, 1);
                         }
                         else if ((int)didod[i].dwData < 0) {	// wheel down
                             if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);
-                            mousewheel[0] = t;
-                            mouseb |= 16; if (mousepresscallback) mousepresscallback(5, 1);
+                            mousewheel[1] = t;
+                            mouseb |= 32; if (mousepresscallback) mousepresscallback(6, 1);
                         }
                         break;
                     }

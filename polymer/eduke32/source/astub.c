@@ -2322,10 +2322,10 @@ static void Keys3d(void)
             else
                 repeatcounty = 0;
         }
-        if (bstatus&16)  // -
+        if (bstatus&32)  // -
         {
-            mouseb &= ~16;
-            bstatus &= ~16;
+            mouseb &= ~32;
+            bstatus &= ~32;
             if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT
             {
                 if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL
@@ -2410,10 +2410,10 @@ static void Keys3d(void)
                 asksave = 1;
             }
         }
-        if (bstatus&32)  // +
+        if (bstatus&16)  // +
         {
-            mouseb &= ~32;
-            bstatus &= ~32;
+            mouseb &= ~16;
+            bstatus &= ~16;
             if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT
             {
                 if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL
@@ -2502,7 +2502,7 @@ static void Keys3d(void)
 
     if ((keystatus[KEYSC_DASH]|keystatus[KEYSC_EQUAL]|((bstatus&(16|32)) && !(bstatus&2))) > 0) // mousewheel, -, and +, cycle picnum
     {
-        j = i = (keystatus[KEYSC_EQUAL]|(bstatus&32))?1:-1;
+        j = i = (keystatus[KEYSC_EQUAL]|(bstatus&16))?1:-1;
         switch (searchstat)
         {
         case 0:
@@ -2774,7 +2774,7 @@ static void Keys3d(void)
     else
         updownunits = 1024;
 
-    if ((keystatus[0xc9] > 0) || ((bstatus&2) && (bstatus&32))) // PGUP
+    if ((keystatus[0xc9] > 0) || ((bstatus&2) && (bstatus&16))) // PGUP
     {
         k = 0;
         if (highlightsectorcnt >= 0)
@@ -2910,7 +2910,7 @@ static void Keys3d(void)
         keystatus[0xc9] = 0;
         mouseb &= ~32;
     }
-    if ((keystatus[0xd1] > 0) || ((bstatus&2) && (bstatus&16))) // PGDN
+    if ((keystatus[0xd1] > 0) || ((bstatus&2) && (bstatus&32))) // PGDN
     {
         k = 0;
         if (highlightsectorcnt >= 0)

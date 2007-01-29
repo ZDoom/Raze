@@ -43,7 +43,7 @@ static int changesmade, newvidmode, curvidmode, newfullscreen;
 static int vidsets[16] = { -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };
 static int curvidset, newvidset = 0;
 
-static char *mousebuttonnames[] = { "Left", "Right", "Middle", "Thumb", "Wheel Down", "Wheel Up" };
+static char *mousebuttonnames[] = { "Left", "Right", "Middle", "Thumb", "Wheel Up", "Wheel Down" };
 
 extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting;
 
@@ -86,8 +86,8 @@ void savetemp(char *fn,long daptr,long dasiz)
 
 #define LMB (buttonstat&1)
 #define RMB (buttonstat&2)
-#define WHEELDOWN (buttonstat&16)
-#define WHEELUP (buttonstat&32)
+#define WHEELUP (buttonstat&16)
+#define WHEELDOWN (buttonstat&32)
 
 ControlInfo minfo;
 

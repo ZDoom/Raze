@@ -35,8 +35,8 @@ extern "C" {
 #define RIGHT_MOUSE  2
 #define MIDDLE_MOUSE 4
 #define THUMB_MOUSE  8
-#define WHEELDOWN_MOUSE 16
-#define WHEELUP_MOUSE	32
+#define WHEELUP_MOUSE 16
+#define WHEELDOWN_MOUSE	32
 #define LEFT_MOUSE_PRESSED( button ) ( ( ( button ) & LEFT_MOUSE ) != 0 )
 #define RIGHT_MOUSE_PRESSED( button ) ( ( ( button ) & RIGHT_MOUSE ) != 0 )
 #define MIDDLE_MOUSE_PRESSED( button ) ( ( ( button ) & MIDDLE_MOUSE ) != 0 )
