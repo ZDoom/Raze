@@ -1576,7 +1576,7 @@ static void weaponnum(short ind,long x,long y,long num1, long num2,char ha)
 
     if (VOLUMEONE && (ind > HANDBOMB_WEAPON || ind < 0))
     {
-        minitextshade(x+1,y-4,"ORDER",20,11,2+8+16);
+        minitextshade(x+1,y-4,"ORDER",20,11,2+8+16+256);
         return;
     }
 
@@ -8340,6 +8340,8 @@ static int loadgroupfiles(char *fn)
         case T_LOADGRP:
         {
             char *fn;
+            
+            pathsearchmode = 1;
             if (!scriptfile_getstring(script,&fn))
             {
                 int j = initgroupfile(fn);
@@ -8349,6 +8351,7 @@ static int loadgroupfiles(char *fn)
                 else
                     initprintf("Using group file %s.\n",fn);
             }
+            pathsearchmode = 0;
         }
         break;
         case T_CACHESIZE:
@@ -9701,8 +9704,8 @@ void app_main(int argc,char **argv)
     if (glusetexcache == -1 || glusetexcachecompression == -1)
     {
         i=wm_ynbox("Texture Caching",
-                   "Would you like to enable the on-disk texture cache? This feature may use around 140 megabytes of disk "
-                   "space if you have a great deal of high resolution textures and skins, but textures will load dramatically "
+                   "Would you like to enable the on-disk texture cache? This feature will use an undetermined amount of space "
+                   "on your hard disk to store textures in your video card's native format, enabling them to load dramatically "
                    "faster after the first time they are loaded.\n\n"
                    "You will generally want to say 'yes' here, especially if using the HRP.");
         if (i) useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
@@ -9826,18 +9829,12 @@ void app_main(int argc,char **argv)
 
     initprintf("Main GRP file: %s.\n", duke3dgrp);
     initgroupfile(duke3dgrp);
-
-    i = kopen4load("DUKESW.BIN",1); // JBF 20030810
-    if (i!=-1)
-    {
-        shareware = 1;
-        kclose(i);
-    }
-
     loadgroupfiles(duke3ddef);
 
     {
         struct strllist *s;
+        
+        pathsearchmode = 1;
         while (CommandGrps)
         {
             s = CommandGrps->next;
@@ -9853,6 +9850,14 @@ void app_main(int argc,char **argv)
             free(CommandGrps);
             CommandGrps = s;
         }
+        pathsearchmode = 0;
+    }
+
+    i = kopen4load("DUKESW.BIN",1); // JBF 20030810
+    if (i!=-1)
+    {
+        shareware = 1;
+        kclose(i);
     }
 
 #if 0

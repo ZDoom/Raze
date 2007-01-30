@@ -4644,8 +4644,8 @@ int ExtInit(void)
         int i;
 #if 1
         i=wm_ynbox("Texture Caching",
-                   "Would you like to enable the on-disk texture cache? This feature may use around 140 megabytes of disk "
-                   "space if you have a great deal of high resolution textures and skins, but textures will load dramatically "
+                   "Would you like to enable the on-disk texture cache? This feature will use an undetermined amount of space "
+                   "on your hard disk to store textures in your video card's native format, enabling them to load dramatically "
                    "faster after the first time they are loaded.\n\n"
                    "You will generally want to say 'yes' here, especially if using the HRP.");
 #else

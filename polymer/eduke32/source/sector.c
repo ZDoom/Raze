@@ -25,7 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // PRIMITIVE
 
-char haltsoundhack;
+static int haltsoundhack;
+
 int callsound(int sn,int whatsprite)
 {
     int i;
@@ -376,7 +377,7 @@ int setanimation(short animsect,long *animptr, long thegoal, long thevel)
 
 void animatecamsprite(void)
 {
-    short i;
+    int i;
 
     if (camsprite <= 0) return;
 
