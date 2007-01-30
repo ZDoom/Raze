@@ -478,7 +478,7 @@ CANCEL:
             
             if (keystatus[0x15] != 0) {
                 keystatus[0x15] = 0;
-
+                fixspritesectors();
                 updatesector(startposx,startposy,&startsectnum);
                 ExtPreSaveMap();
                 saveboard(boardfilename,&startposx,&startposy,&startposz,&startang,&startsectnum);

@@ -8350,6 +8350,7 @@ static int loadgroupfiles(char *fn)
                     initprintf("Using group file %s.\n",fn);
             }
         }
+        break;
         case T_CACHESIZE:
         {
             int j;

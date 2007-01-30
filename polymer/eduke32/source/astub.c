@@ -46,10 +46,11 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 short floor_over_floor;
 
 static char *startwin_labeltext = "Starting Mapster32...";
-static char setupfilename[BMAX_PATH]= "build.cfg";
+static char setupfilename[BMAX_PATH]= "mapster32.cfg";
 static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 static char *duke3dgrp = defaultduke3dgrp;
 static int usecwd = 0;
+static int fixmapbeforesaving = 1;
 
 static struct strllist
 {
@@ -4279,32 +4280,34 @@ static void InitCustomColors(void)
 
 void ExtPreSaveMap(void)
 {
-    short i, startwall, j, endwall;
+    if (fixmapbeforesaving)
+    {
+        short i, startwall, j, endwall;
 
-    for (i=0;i<numsectors;i++)
-    {
-        startwall = sector[i].wallptr;
-        for (j=startwall;j<numwalls;j++)
-            if (wall[j].point2 < startwall) startwall = wall[j].point2;
-        sector[i].wallptr = startwall;
-    }
-    for (i=numsectors-2;i>=0;i--)
-        sector[i].wallnum = sector[i+1].wallptr-sector[i].wallptr;
-    sector[numsectors-1].wallnum = numwalls-sector[numsectors-1].wallptr;
+        for (i=0;i<numsectors;i++)
+        {
+            startwall = sector[i].wallptr;
+            for (j=startwall;j<numwalls;j++)
+                if (wall[j].point2 < startwall) startwall = wall[j].point2;
+            sector[i].wallptr = startwall;
+        }
+        for (i=numsectors-2;i>=0;i--)
+            sector[i].wallnum = sector[i+1].wallptr-sector[i].wallptr;
+        sector[numsectors-1].wallnum = numwalls-sector[numsectors-1].wallptr;
 
-    for (i=0;i<numwalls;i++)
-    {
-        wall[i].nextsector = -1;
-        wall[i].nextwall = -1;
+        for (i=0;i<numwalls;i++)
+        {
+            wall[i].nextsector = -1;
+            wall[i].nextwall = -1;
+        }
+        for (i=0;i<numsectors;i++)
+        {
+            startwall = sector[i].wallptr;
+            endwall = startwall + sector[i].wallnum;
+            for (j=startwall;j<endwall;j++)
+                checksectorpointer((short)j,(short)i);
+        }
     }
-    for (i=0;i<numsectors;i++)
-    {
-        startwall = sector[i].wallptr;
-        endwall = startwall + sector[i].wallnum;
-        for (j=startwall;j<endwall;j++)
-            checksectorpointer((short)j,(short)i);
-    }
-    fixspritesectors(); // yes, I realize this gets called a few more times than it needs to be
 }
 
 void ExtPreLoadMap(void)
@@ -4316,6 +4319,7 @@ static void comlinehelp(void)
               "-gFILE, -grp FILE\tUse extra group file FILE\n"
               "-hFILE\t\tUse definitions file FILE\n"
               "-jDIR, -game_dir DIR\n\t\tAdds DIR to the file path stack\n"
+              "-nocheck\t\tDisables map pointer checking when saving\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
               "-setup\t\tDisplays the configuration dialog\n"
 #endif              
@@ -4392,6 +4396,13 @@ static void checkcommandline(int argc,char **argv)
                 if (!Bstrcasecmp(c+1,"ww2gi"))
                 {
                     strcpy(duke3dgrp, "ww2gi.grp");
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"nocheck"))
+                {
+                    initprintf("Map pointer checking disabled\n");
+                    fixmapbeforesaving = 0;
                     i++;
                     continue;
                 }
