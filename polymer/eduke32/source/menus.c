@@ -29,8 +29,9 @@ extern char inputloc;
 extern int recfilep;
 //extern char vgacompatible;
 short globalskillsound=-1;
-int probey=0,lastprobey=0,last_probey=0,last_menu,sh,onbar,buttonstat,deletespot;
-int last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehundred = 0;
+int probey=0;
+static int lastsavehead=0,last_menu_pos=0,last_menu,sh,onbar,buttonstat,deletespot;
+static int last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehundred = 0;
 
 static char menunamecnt;
 
@@ -67,7 +68,7 @@ void cmenu(int cm)
     else if (cm == 110)
         probey = 1;
     else probey = 0;
-    lastprobey = -1;
+    lastsavehead = -1;
 }
 
 #if 0
@@ -459,7 +460,9 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
     }
 }
 
-#define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<4)&2047]>>12):6
+#define UNSELMENUSHADE 10
+#define DISABLEDMENUSHADE 20
+#define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<4)&2047]>>12):UNSELMENUSHADE
 // #define MENUHIGHLIGHT(x) probey==x?-(sintable[(totalclock<<4)&2047]>>12):probey-x>=0?(probey-x)<<2:-((probey-x)<<2)
 
 #define SHX(X) 0
@@ -639,7 +642,7 @@ void menus(void)
             if (current_menu >= 0)
             {
                 last_menu = current_menu;
-                last_probey = probey;
+                last_menu_pos = probey;
                 cmenu(502);
             }
             break;
@@ -709,20 +712,20 @@ void menus(void)
             int io, ii, yy = 37, d=c+140, enabled;
             char *opts[] = {
                                "Name",
-                               "-",                               
+                               "-",
                                "Color",
-                               "-",                               
+                               "-",
                                "Team",
                                "-",
                                "-",
-                               "Auto aim",                               
+                               "Auto aim",
                                "Mouse aim",
                                "-",
                                "-",
                                "Switch weapon on pickup",
                                "Switch weapon when empty",
                                "-",
-                               "-",                               
+                               "-",
                                "Multiplayer macros",
                                NULL
                            };
@@ -731,7 +734,7 @@ void menus(void)
 
             if (probey == 2)
                 x = getteampal(ud.team);
-            
+
             rotatesprite((260)<<16,(24+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,x,10,0,0,xdim-1,ydim-1);
 
             for (ii=io=0; opts[ii]; ii++)
@@ -745,7 +748,7 @@ void menus(void)
                 io++;
             }
 
-            
+
             if (current_menu == 20002)
             {
                 x = probesm(c,yy+5,0,io);
@@ -778,18 +781,18 @@ void menus(void)
                         break;
 
                     case 1:
-                        i = ud.color;                    
+                        i = ud.color;
                         if (x == io)
                         {
                             ud.color++;
                             if (ud.color > 23)
                                 ud.color = 0;
-                            check_player_color((int *)&ud.color,-1);                                
+                            check_player_color((int *)&ud.color,-1);
                         }
                         modval(0,23,(int *)&ud.color,1,probey==1);
-                        check_player_color((int *)&ud.color,i);                            
+                        check_player_color((int *)&ud.color,i);
                         if (ud.color != i)
-                            updateplayer();                            
+                            updateplayer();
                         break;
 
                     case 2:
@@ -799,7 +802,7 @@ void menus(void)
                             ud.team++;
                             if (ud.team == 4)
                                 ud.team = 0;
-                        }        
+                        }
                         modval(0,3,(int *)&ud.team,1,probey==2);
                         if (ud.team != i)
                             updateplayer();
@@ -822,7 +825,7 @@ void menus(void)
                         if (ud.mouseaiming != i)
                             updateplayer();
                         break;
-                        
+
                     case 5:
                         i = 0;
                         if (ud.weaponswitch & 1)
@@ -847,7 +850,7 @@ void menus(void)
                         {
                             ud.weaponswitch ^= 2;
                             updateplayer();
-                        }    
+                        }
                         break;
                     case 7:
                         if (x == io)
@@ -939,7 +942,7 @@ void menus(void)
                     case 5:
                         gametext(d+70,yy,ud.weaponswitch&1?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
                         break;
-                        
+
                     case 6:
                         gametext(d+70,yy,ud.weaponswitch&2?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
                         break;
@@ -947,7 +950,7 @@ void menus(void)
                     default:
                         break;
                     }
-                    gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 10);
+                    gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 10);
                     io++;
                     yy += 8;
                 }
@@ -972,7 +975,7 @@ void menus(void)
             {
                 strcpy(buf, ud.ridecule[x]);
                 inputloc = strlen(buf);
-                last_probey = probey;
+                last_menu_pos = probey;
                 current_menu = 20005;
                 KB_ClearKeyDown(sc_Enter);
                 KB_ClearKeyDown(sc_kpad_Enter);
@@ -986,7 +989,7 @@ void menus(void)
             {
                 if (x == 1)
                 {
-                    Bstrcpy(ud.ridecule[last_probey],buf);
+                    Bstrcpy(ud.ridecule[last_menu_pos],buf);
                 }
                 KB_ClearKeyDown(sc_Enter);
                 KB_ClearKeyDown(sc_kpad_Enter);
@@ -996,13 +999,11 @@ void menus(void)
         }
         for (i=0;i<10;i++)
         {
-            if (current_menu == 20005 && i == last_probey) continue;
+            if (current_menu == 20005 && i == last_menu_pos) continue;
             gametextpal(26,40+(i<<3),ud.ridecule[i],MENUHIGHLIGHT(i),0);
         }
 
-        gametext(160,144,"UP/DOWN = SELECT MACRO",0,2+8+16);
-        gametext(160,144+9,"ENTER = MODIFY",0,2+8+16);
-        gametext(160,144+9+9,"ACTIVATE IN-GAME WITH SHIFT-F#",0,2+8+16);
+        gametext(160,144,"ACTIVATE IN-GAME WITH SHIFT-F#",0,2+8+16);
 
         break;
 
@@ -1633,14 +1634,6 @@ void menus(void)
             l = 3;
         }
 
-        x = probe(0,0,0,1);
-
-        if (x == -1)
-        {
-            cmenu(0);
-            break;
-        }
-
         if (KB_KeyPressed(sc_LeftArrow) ||
                 KB_KeyPressed(sc_kpad_4) ||
                 KB_KeyPressed(sc_UpArrow) ||
@@ -1682,6 +1675,14 @@ void menus(void)
             sound(KICK_HIT);
             current_menu++;
             if (current_menu > 990+l) current_menu = 990;
+        }
+
+        x = probe(0,0,0,1);
+
+        if (x == -1)
+        {
+            cmenu(0);
+            break;
         }
 
         if (!VOLUMEALL || !PLUTOPAK)
@@ -2289,7 +2290,7 @@ cheat_for_port_credits:
             {
                 sendboardname();
                 cmenu(600);
-                probey = last_probey;
+                probey = last_menu_pos;
             }
             else cmenu(100);
         }
@@ -2314,7 +2315,7 @@ cheat_for_port_credits:
                 {
                     sendboardname();
                     cmenu(600);
-                    probey = last_probey;
+                    probey = last_menu_pos;
                 }
                 else cmenu(110);
             }
@@ -2458,31 +2459,31 @@ cheat_for_port_credits:
                     enabled = usehightile;
                     if (enabled && x==io) useprecache = !useprecache;
                     if (enabled) modval(0,1,(int *)&useprecache,1,probey==io);
-                    gametextpal(d,yy, useprecache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):15, 0);
+                    gametextpal(d,yy, useprecache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 3:
                     enabled = usehightile;
                     if (enabled && x==io) glusetexcompr = !glusetexcompr;
                     if (enabled) modval(0,1,(int *)&glusetexcompr,1,probey==io);
-                    gametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):15, 0);
+                    gametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 4:
                     enabled = (glusetexcompr && usehightile && useprecache);
                     if (enabled && x==io) glusetexcache = !glusetexcache;
                     if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==io);
-                    gametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):15, 0);
+                    gametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 5:
                     enabled = (glusetexcompr && usehightile && useprecache && glusetexcache);
                     if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
                     if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==io);
-                    gametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):15, 0);
+                    gametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 6:
                     enabled = usehightile;
                     if (enabled && x==io) r_detailmapping = !r_detailmapping;
                     if (enabled) modval(0,1,(int *)&r_detailmapping,1,probey==io);
-                    gametextpal(d,yy, r_detailmapping && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):15, 0);
+                    gametextpal(d,yy, r_detailmapping && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 7:
                     if (x==io) usemodels = 1-usemodels;
@@ -2492,7 +2493,7 @@ cheat_for_port_credits:
                 default:
                     break;
                 }
-                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 10);
+                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 10);
                 io++;
                 yy += 8;
             }
@@ -2650,7 +2651,7 @@ cheat_for_port_credits:
                     }
                     if ((ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1)
                         enabled = 0;
-                    gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Recording":"On"):"Off",enabled?MENUHIGHLIGHT(io):15,enabled?0:1);
+                    gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Running":"On"):"Off",enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE,enabled?0:1);
                     break;
                 case 11:
                         if (x==io) cmenu(201);
@@ -2658,7 +2659,7 @@ cheat_for_port_credits:
                 default:
                     break;
                 }
-                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 10);
+                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 10);
                 io++;
                 yy += 8;
             }
@@ -2809,7 +2810,7 @@ cheat_for_port_credits:
                 default:
                     break;
                 }
-                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):15, 10);
+                gametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 10);
                 io++;
                 yy += 8;
             }
@@ -3435,9 +3436,9 @@ cheat_for_port_credits:
         }
 
         gametextpal(40,122,"SENSITIVITY",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),10);
-        gametextpal(40,122+9,"MOUSE AIMING TOGGLE",!ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):15,10);
+        gametextpal(40,122+9,"MOUSE AIMING TOGGLE",!ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):DISABLEDMENUSHADE,10);
         gametextpal(40,122+9+9,"INVERT MOUSE AIM",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2),10);
-        gametextpal(40,122+9+9+9,"ADVANCED...",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1),10);
+        gametextpal(40,122+9+9+9,"ADVANCED",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1),10);
 
         {
             short sense;
@@ -3455,7 +3456,7 @@ cheat_for_port_credits:
 
         modval(0,1,(int *)&ud.mouseflip,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2);
 
-        gametextpal(240,122+9, myaimmode && !ud.mouseaiming ? "On" : "Off", !ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):15, 0);
+        gametextpal(240,122+9, myaimmode && !ud.mouseaiming ? "On" : "Off", !ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):DISABLEDMENUSHADE, 0);
         gametextpal(240,122+9+9, !ud.mouseflip ? "On" : "Off", MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2), 0);
 
         if (probey < (MAXMOUSEBUTTONS-2)*2+2)
@@ -4333,10 +4334,10 @@ cheat_for_port_credits:
         {
             if (ud.savegame[probey][0])
             {
-                if (lastprobey != probey)
+                if (lastsavehead != probey)
                 {
                     loadpheader(probey,&savehead);
-                    lastprobey = probey;
+                    lastsavehead = probey;
                 }
 
                 rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
@@ -4353,9 +4354,9 @@ cheat_for_port_credits:
         {
             if (ud.savegame[probey][0])
             {
-                if (lastprobey != probey)
+                if (lastsavehead != probey)
                     loadpheader(probey,&savehead);
-                lastprobey = probey;
+                lastsavehead = probey;
                 rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
             }
             else menutext(69,70,0,0,"EMPTY");
@@ -4580,7 +4581,7 @@ VOLUME_ALL_40x:
                 if (current_menu == 502)
                 {
                     cmenu(last_menu);
-                    probey = last_probey;
+                    probey = last_menu_pos;
                 }
                 else if (!(ps[myconnectindex].gm & MODE_GAME || ud.recstat == 2))
                     cmenu(0);
@@ -4847,7 +4848,7 @@ VOLUME_ALL_40x:
             if (VOLUMEALL)
             {
                 currentlist = 1;
-                last_probey = probey;
+                last_menu_pos = probey;
                 cmenu(101);
             }
             break;

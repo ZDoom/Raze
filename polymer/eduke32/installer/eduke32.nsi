@@ -77,14 +77,15 @@ Section "!Game" SEC_GAME
   File "..\buildlic.txt"
   File "..\ChangeLog.html"
   File "..\ChangeLog"
-  File "..\setup.exe"
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Setup.lnk" "$INSTDIR\setup.exe"
 SectionEnd
 
 Section "Level editor" SEC_EDITOR
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File "..\mapster32.exe"
+  File "..\STHELP.HLP"
+  File "..\SEHELP.HLP"
+  File "..\names.h"
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Mapster32.lnk" "$INSTDIR\mapster32.exe"
 SectionEnd
@@ -147,7 +148,6 @@ Section Uninstall
   Delete "$INSTDIR\duke3d.def.sample"
   Delete "$INSTDIR\enhance.con.sample"
   Delete "$INSTDIR\mapster32.exe"
-  Delete "$INSTDIR\setup.exe"
   Delete "$INSTDIR\ChangeLog.html"
   Delete "$INSTDIR\ChangeLog"
   Delete "$INSTDIR\GNU.TXT"
@@ -158,6 +158,10 @@ Section Uninstall
   
 ;  Delete "$INSTDIR\duke3d.grp"
 ;  Delete "$INSTDIR\duke3d.cfg"
+
+  Delete "$INSTDIR\STHELP.HLP"
+  Delete "$INSTDIR\SEHELP.HLP"
+  Delete "$INSTDIR\names.h"
 
   Delete "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk"
   Delete "$SMPROGRAMS\$ICONS_GROUP\EDuke32 Website.lnk"

@@ -2960,7 +2960,7 @@ void getinput(int snum)
 static int doincrements(struct player_struct *p)
 {
     int snum = sprite[p->i].yvel;
-    
+
     //    j = sync[snum].avel;
     //    p->weapon_ang = -(j/5);
 
@@ -4110,9 +4110,7 @@ void processinput(int snum)
     }
     else if (sync[snum].avel)            //p->ang += syncangvel * constant
     {                         //ENGINE calculates angvel for you
-        long tempang;
-
-        tempang = sync[snum].avel<<1;
+        long tempang = sync[snum].avel<<1;
 
         if (psectlotag == 2) p->angvel =(tempang-(tempang>>3))*ksgn(doubvel);
         else p->angvel = tempang*ksgn(doubvel);

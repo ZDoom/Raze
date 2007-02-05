@@ -4322,7 +4322,7 @@ static void comlinehelp(void)
               "-nocheck\t\tDisables map pointer checking when saving\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
               "-setup\t\tDisplays the configuration dialog\n"
-#endif              
+#endif
 #if !defined(_WIN32)
               "-usecwd\t\tRead game data and configuration file from working directory\n"
 #endif
@@ -4366,7 +4366,7 @@ static void checkcommandline(int argc,char **argv)
                     comlinehelp();
                     exit(0);
                 }
-            
+
                 if (!Bstrcasecmp(c+1,"game_dir"))
                 {
                     if (argc > i+1)
@@ -6123,19 +6123,15 @@ static void FuncMenu(void)
                                 wall[w].y *= j;
                                 wall[w].yrepeat = min(wall[w].yrepeat/j,255);
                             }
-                            for (k=0;k<highlightsectorcnt;k++)
+                            w = headspritesect[highlightsector[i]];
+                            while (w >= 0)
                             {
-                                w = headspritesect[highlightsector[k]];
-                                while (w >= 0)
-                                {
-                                    l = nextspritesect[w];
-                                    sprite[w].x *= j;
-                                    sprite[w].y *= j;
-                                    sprite[w].z *= j;
-                                    sprite[w].xrepeat = max(sprite[w].xrepeat*j,1);
-                                    sprite[w].yrepeat = max(sprite[w].yrepeat*j,1);
-                                    w = l;
-                                }
+                                sprite[w].x *= j;
+                                sprite[w].y *= j;
+                                sprite[w].z *= j;
+                                sprite[w].xrepeat = min(max(sprite[w].xrepeat*j,1),255);
+                                sprite[w].yrepeat = min(max(sprite[w].yrepeat*j,1),255);
+                                w = nextspritesect[w];
                             }
                         }
                         printmessage16("Map scaled");
@@ -6167,19 +6163,15 @@ static void FuncMenu(void)
                                 wall[w].y /= j;
                                 wall[w].yrepeat = min(wall[w].yrepeat*j,255);
                             }
-                            for (k=0;k<highlightsectorcnt;k++)
+                            w = headspritesect[highlightsector[i]];
+                            while (w >= 0)
                             {
-                                w = headspritesect[highlightsector[k]];
-                                while (w >= 0)
-                                {
-                                    l = nextspritesect[w];
-                                    sprite[w].x /= j;
-                                    sprite[w].y /= j;
-                                    sprite[w].z /= j;
-                                    sprite[w].xrepeat = max(sprite[w].xrepeat/j,1);
-                                    sprite[w].yrepeat = max(sprite[w].yrepeat/j,1);
-                                    w = l;
-                                }
+                                sprite[w].x /= j;
+                                sprite[w].y /= j;
+                                sprite[w].z /= j;
+                                sprite[w].xrepeat = min(max(sprite[w].xrepeat/j,1),255);
+                                sprite[w].yrepeat = min(max(sprite[w].yrepeat/j,1),255);
+                                w = nextspritesect[w];
                             }
                         }
                         printmessage16("Map scaled");

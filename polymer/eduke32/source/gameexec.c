@@ -5773,18 +5773,24 @@ static int parse(void)
     case CON_GETPLAYERVAR:
     insptr++;    
     {
-        // syntax [gs]etactorvar[<var>].<varx> <VAR>
-        // gets the value of the per-actor variable varx into VAR
-        // <var> <varx> <VAR>
-        int lSprite=GetGameVarID(*insptr++, g_i, g_p), lVar1=*insptr++, lVar2=*insptr++;
-   
-        if (tw == CON_SETPLAYERVAR)    
+        int iPlayer;
+        
+        if (*insptr != g_iThisActorID)
+            iPlayer=GetGameVarID(*insptr, g_i, g_p);
+        else iPlayer = g_p;
+        
+        insptr++;
         {
-            SetGameVarID(lVar1, GetGameVarID(lVar2, g_i, g_p), g_i, lSprite);
+            int lVar1=*insptr++, lVar2=*insptr++;
+       
+            if (tw == CON_SETPLAYERVAR)    
+            {
+                SetGameVarID(lVar1, GetGameVarID(lVar2, g_i, g_p), g_i, iPlayer);
+                break;
+            }
+            SetGameVarID(lVar2, GetGameVarID(lVar1, g_i, iPlayer), g_i, g_p);
             break;
         }
-        SetGameVarID(lVar2, GetGameVarID(lVar1, g_i, lSprite), g_i, g_p);
-        break;
     }
 
     case CON_SETACTOR:

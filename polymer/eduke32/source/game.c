@@ -8109,7 +8109,7 @@ static void comlinehelp(void)
               "-a\t\tUse fake player AI (fake multiplayer only)\n"
               "-cNUM\t\tUse MP mode NUM, 1 = DukeMatch(spawn), 2 = Coop, 3 = Dukematch(no spawn)\n"
               "-dFILE\t\tStart to play demo FILE\n"
-/*              "-fNUM\t\tSend fewer packets in multiplayer (1, 2, 4) (deprecated)\n" */
+              /*              "-fNUM\t\tSend fewer packets in multiplayer (1, 2, 4) (deprecated)\n" */
               "-game_dir DIR\tSee -j\n"
               "-gFILE, -grp FILE\tUse extra group file FILE\n"
               "-hFILE\t\tUse definitions file FILE\n"
@@ -8120,11 +8120,12 @@ static void comlinehelp(void)
               "-map FILE\tUse user map FILE\n"
               "-name NAME\tUse NAME as multiplayer name\n"
               "-nD\t\tDump default gamevars to gamevars.txt\n"
-              "-net PARAMETERS\tNetwork play; see documentation for PARAMETERS\n"
+              "-net PARAMETERS\tEnable network play (see documentation for PARAMETERS)\n"
               "-nm\t\tDisable music\n"
               "-ns\t\tDisable sound\n"
               "-qNUM\t\tUse NUM players for fake multiplayer (2-8)\n"
               "-r\t\tRecord demo\n"
+              "-rmnet FILE\tUse FILE for network play configuration (see documentation)\n"
               "-sNUM\t\tUse skill level NUM (1-4)\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
               "-setup\t\tDisplays the configuration dialog\n"
@@ -8142,12 +8143,12 @@ static void comlinehelp(void)
     wm_msgbox(HEAD2,s);
 }
 
-signed int rancid_players = 0;
-char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
+static signed int rancid_players = 0;
+static char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
 extern int getexternaladdress(char *buffer);
 
-int load_rancid_net(char *fn)
+static int load_rancid_net(char *fn)
 {
     int tokn;
     char *cmdtokptr;
@@ -8211,7 +8212,7 @@ int load_rancid_net(char *fn)
     return 0;
 }
 
-static int stringsort(const char *p1, const char *p2)
+static inline int stringsort(const char *p1, const char *p2)
 {
     return Bstrcmp(&p1[0],&p2[0]);
 }
@@ -8340,7 +8341,7 @@ static int loadgroupfiles(char *fn)
         case T_LOADGRP:
         {
             char *fn;
-            
+
             pathsearchmode = 1;
             if (!scriptfile_getstring(script,&fn))
             {
@@ -8449,7 +8450,7 @@ static void checkcommandline(int argc,char **argv)
                     comlinehelp();
                     exit(0);
                 }
-            
+
                 if (!Bstrcasecmp(c+1,"grp") || !Bstrcasecmp(c+1,"g"))
                 {
                     if (argc > i+1)
@@ -8509,11 +8510,6 @@ static void checkcommandline(int argc,char **argv)
                 if (!Bstrcasecmp(c+1,"stun"))
                 {
                     natfree = 1; //Addfaz NatFree
-                    i++;
-                    continue;
-                }
-                if (!Bstrcasecmp(c+1,"disableautoaim"))
-                {
                     i++;
                     continue;
                 }
@@ -9590,7 +9586,7 @@ int load_script(const char *szScript)
     if (fp != NULL)
     {
         char line[255];
-        
+
         OSD_Printf("Executing \"%s\"\n", szScript);
         while (fgets(line ,sizeof(line)-1, fp) != NULL)
             OSD_Dispatch(strtok(line,"\r\n"));
@@ -9605,7 +9601,7 @@ void app_main(int argc,char **argv)
     int i, j;
     char cwd[BMAX_PATH];
     extern char datetimestring[];
-    
+
 #ifdef RENDERTYPEWIN
     if (win_checkinstance())
     {
@@ -9833,7 +9829,7 @@ void app_main(int argc,char **argv)
 
     {
         struct strllist *s;
-        
+
         pathsearchmode = 1;
         while (CommandGrps)
         {

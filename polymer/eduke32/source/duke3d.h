@@ -323,7 +323,7 @@ long tag;
 extern struct animwalltype animwall[MAXANIMWALLS];
 
 extern short numanimwalls;
-extern int probey,lastprobey;
+extern int probey;
 
 extern char typebuflen,typebuf[141];
 extern char MusicPtr[72000*2];
@@ -566,10 +566,9 @@ extern char *level_file_names[MAXVOLUMES*MAXLEVELS];
 extern char num_volumes;
 
 extern int32 SoundToggle,MusicToggle;
-extern int last_threehundred,lastsavedpos;
+extern int lastsavedpos;
 extern int restorepalette;
 
-extern int buttonstat;
 extern long cachecount;
 extern char boardfilename[BMAX_PATH],waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];
 extern char cachedebug,earthquaketime;

@@ -4392,7 +4392,7 @@ static void moveactors(void)
             {
                 makeitfall(i);
 
-                if (sector[sect].lotag != 1 && s->z >= hittype[i].floorz-(FOURSLEIGHT) && s->yvel < 3)
+                if ((sector[sect].lotag != 1 || hittype[i].floorz != sector[sect].floorz) && s->z >= hittype[i].floorz-(FOURSLEIGHT) && s->yvel < 3)
                 {
                     if (s->yvel > 0 || (s->yvel == 0 && hittype[i].floorz == sector[sect].floorz))
                         spritesound(PIPEBOMB_BOUNCE,i);
@@ -4413,7 +4413,7 @@ static void moveactors(void)
                            (s->xvel*(sintable[s->ang&2047]))>>14,
                            s->zvel,CLIPMASK0);
 
-            if (sector[SECT].lotag == 1 && s->zvel == 0)
+            if (sector[SECT].lotag == 1 && s->zvel == 0 && hittype[i].floorz == sector[sect].floorz)
             {
                 s->z += (32<<8);
                 if (t[5] == 0)
