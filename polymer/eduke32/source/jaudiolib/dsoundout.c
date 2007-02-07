@@ -398,7 +398,7 @@ static DWORD WINAPI isr(LPVOID parm)
 {
     HANDLE *handles;
     HRESULT hr;
-    DWORD rv;
+    int rv;
 #ifdef DEBUGAUDIO
     int h;
 #endif

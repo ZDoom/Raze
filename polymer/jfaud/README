@@ -1,9 +1,0 @@
-Note: JFAud makes the following assumptions about the datatypes your compiler defines.
-	sizeof(char)      = 1
-	sizeof(short)     = 2
-	sizeof(int)       = 4
-	sizeof(long)      = 4 (on 32bit), 8 (on 64bit)
-	sizeof(long long) = 8
-	sizeof(long)      = sizeof(void *)
-
-As long as this is true, JFAud is compatible with 32 and 64bit use.

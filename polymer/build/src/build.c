@@ -103,7 +103,7 @@ extern long searchx, searchy;                          //search input
 extern short searchsector, searchwall, searchstat;     //search output
 long osearchx, osearchy;                               //old search input
 
-extern long pointhighlight, linehighlight, highlightcnt;
+extern short pointhighlight, linehighlight, highlightcnt;
 short grid = 3, gridlock = 1, showtags = 1;
 long zoom = 768, gettilezoom = 1;
 long lastpm16time;
