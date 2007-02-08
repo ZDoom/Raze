@@ -1,11 +1,11 @@
 //-------------------------------------------------------------------------
 /*
 Copyright (C) 1996, 2003 - 3D Realms Entertainment
-Copyright (C) 2005 - Richard Gobeille (Mapster32 functionality)
+Copyright (C) 2004, 2007 - EDuke32 developers
 
-This file is part of Mapster32
+This file is part of EDuke32
 
-Mapster32 is free software; you can redistribute it and/or
+EDuke32 is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
 as published by the Free Software Foundation.
 
@@ -18,10 +18,6 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-Original Source: 1996 - Todd Replogle
-Prepared for public release: 05/24/2003 - Charlie Wiederhold, 3D Realms
-Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 */
 //-------------------------------------------------------------------------
 

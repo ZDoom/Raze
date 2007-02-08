@@ -1,6 +1,8 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2005 - EDuke32 team
+Copyright (C) 1996, 2003 - 3D Realms Entertainment
+Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
+Copyright (C) 2004, 2007 - EDuke32 developers
 
 This file is part of EDuke32
 
@@ -6552,57 +6554,60 @@ void animatesprites(long x,long y,short a,long smoothratio)
                 }
             }
 
-            if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && ud.showweapons && sprite[ps[p].i].extra > 0 && ps[p].curr_weapon > 0)
+            if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1)
             {
-                memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
-
-                tsprite[spritesortcnt].statnum = 99;
-
-                tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
-                if (t->yrepeat < 4) t->yrepeat = 4;
-
-                tsprite[spritesortcnt].shade = t->shade;
-                tsprite[spritesortcnt].cstat = 0;
-
-                tsprite[spritesortcnt].picnum = (ps[p].curr_weapon==GROW_WEAPON?GROWSPRITEICON:weapon_sprites[ps[p].curr_weapon]);
-
-                if (s->owner >= 0)
-                    tsprite[spritesortcnt].z = ps[p].posz-(12<<8);
-                else tsprite[spritesortcnt].z = s->z-(51<<8);
-                if (tsprite[spritesortcnt].picnum == HEAVYHBOMB)
+                if (ud.showweapons && sprite[ps[p].i].extra > 0 && ps[p].curr_weapon > 0)
                 {
-                    tsprite[spritesortcnt].xrepeat = 10;
-                    tsprite[spritesortcnt].yrepeat = 10;
+                    memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
+
+                    tsprite[spritesortcnt].statnum = 99;
+
+                    tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
+                    if (t->yrepeat < 4) t->yrepeat = 4;
+
+                    tsprite[spritesortcnt].shade = t->shade;
+                    tsprite[spritesortcnt].cstat = 0;
+
+                    tsprite[spritesortcnt].picnum = (ps[p].curr_weapon==GROW_WEAPON?GROWSPRITEICON:weapon_sprites[ps[p].curr_weapon]);
+
+                    if (s->owner >= 0)
+                        tsprite[spritesortcnt].z = ps[p].posz-(12<<8);
+                    else tsprite[spritesortcnt].z = s->z-(51<<8);
+                    if (tsprite[spritesortcnt].picnum == HEAVYHBOMB)
+                    {
+                        tsprite[spritesortcnt].xrepeat = 10;
+                        tsprite[spritesortcnt].yrepeat = 10;
+                    }
+                    else
+                    {
+                        tsprite[spritesortcnt].xrepeat = 16;
+                        tsprite[spritesortcnt].yrepeat = 16;
+                    }
+                    tsprite[spritesortcnt].pal = 0;
+                    spritesortcnt++;
                 }
-                else
+
+                if (sync[p].extbits & (1<<7) && !ud.pause_on)
                 {
-                    tsprite[spritesortcnt].xrepeat = 16;
-                    tsprite[spritesortcnt].yrepeat = 16;
+                    memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
+
+                    tsprite[spritesortcnt].statnum = 99;
+
+                    tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
+                    if (t->yrepeat < 4) t->yrepeat = 4;
+
+                    tsprite[spritesortcnt].cstat = 0;
+
+                    tsprite[spritesortcnt].picnum = RESPAWNMARKERGREEN;
+
+                    if (s->owner >= 0)
+                        tsprite[spritesortcnt].z = ps[p].posz-(20<<8);
+                    else tsprite[spritesortcnt].z = s->z-(96<<8);
+                    tsprite[spritesortcnt].xrepeat = 32;
+                    tsprite[spritesortcnt].yrepeat = 32;
+                    tsprite[spritesortcnt].pal = 20;
+                    spritesortcnt++;
                 }
-                tsprite[spritesortcnt].pal = 0;
-                spritesortcnt++;
-            }
-
-            if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && sync[p].extbits & (1<<7) && !ud.pause_on)
-            {
-                memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
-
-                tsprite[spritesortcnt].statnum = 99;
-
-                tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
-                if (t->yrepeat < 4) t->yrepeat = 4;
-
-                tsprite[spritesortcnt].cstat = 0;
-
-                tsprite[spritesortcnt].picnum = RESPAWNMARKERGREEN;
-
-                if (s->owner >= 0)
-                    tsprite[spritesortcnt].z = ps[p].posz-(20<<8);
-                else tsprite[spritesortcnt].z = s->z-(96<<8);
-                tsprite[spritesortcnt].xrepeat = 32;
-                tsprite[spritesortcnt].yrepeat = 32;
-                tsprite[spritesortcnt].pal = 20;
-                spritesortcnt++;
             }
 
             if (s->owner == -1)

@@ -1,6 +1,8 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2005 - EDuke32 team
+Copyright (C) 1996, 2003 - 3D Realms Entertainment
+Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
+Copyright (C) 2004, 2007 - EDuke32 developers
 
 This file is part of EDuke32
 
@@ -90,9 +92,9 @@ void savetemp(char *fn,long daptr,long dasiz)
 #define WHEELUP (buttonstat&16)
 #define WHEELDOWN (buttonstat&32)
 
-ControlInfo minfo;
+static ControlInfo minfo;
 
-short mi, mii;
+static short mi, mii;
 
 static int probe_(int type,int x,int y,int i,int n)
 {
@@ -102,7 +104,7 @@ static int probe_(int type,int x,int y,int i,int n)
 
     {
         CONTROL_GetInput(&minfo);
-        mi += minfo.dz;
+        mi += (minfo.dpitch+minfo.dz);
         mii += minfo.dyaw;
     }
 
@@ -123,7 +125,6 @@ static int probe_(int type,int x,int y,int i,int n)
 
             probey--;
             if (probey < 0) probey = n-1;
-            minfo.dz = 0;
         }
         if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_PgDn) || KB_KeyPressed(sc_kpad_2) || mi > 8192 || WHEELDOWN)
         {
@@ -134,7 +135,6 @@ static int probe_(int type,int x,int y,int i,int n)
             MOUSE_ClearButton(WHEELDOWN_MOUSE);
             sound(KICK_HIT);
             probey++;
-            minfo.dz = 0;
         }
     }
 

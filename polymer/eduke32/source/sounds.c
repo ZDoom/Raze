@@ -1,6 +1,8 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2005 - EDuke32 team
+Copyright (C) 1996, 2003 - 3D Realms Entertainment
+Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
+Copyright (C) 2004, 2007 - EDuke32 developers
 
 This file is part of EDuke32
 

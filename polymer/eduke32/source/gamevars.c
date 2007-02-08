@@ -1,6 +1,8 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2005 - EDuke32 team
+Copyright (C) 1996, 2003 - 3D Realms Entertainment
+Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
+Copyright (C) 2004, 2007 - EDuke32 developers
 
 This file is part of EDuke32
 
@@ -22,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 #include "gamedef.h"
+
+extern int g_i,g_p;
 
 static void FreeGameVars(void)
 {
@@ -139,7 +143,7 @@ int ReadGameVars(long fil)
     if (kdfread(&l,sizeof(l),1,fil) != 1) goto corrupt;
     if (kdfread(g_szBuf,l,1,fil) != 1) goto corrupt;
     g_szBuf[l]=0;
-    AddLog(g_szBuf);
+    OSD_Printf("%s\n",g_szBuf);
 
 #if 0
     {
@@ -413,25 +417,25 @@ static int GetGameID(const char *szGameLabel)
 long GetGameVarID(int id, int iActor, int iPlayer)
 {
     int inv=0;
-    
+
     if (id == g_iThisActorID)
         return iActor;
-    
+
     if (id<0 || id >= iGameVarCount)
     {
         if (id==MAXGAMEVARS)
             return(*insptr++);
-            
+
         if (!(id&(MAXGAMEVARS<<1)))
         {
-            AddLog("GetGameVarID: Invalid Game ID");
+            OSD_Printf("GetGameVarID(): invalid gamevar ID (%d)\n",id);
             return -1;
         }
-        
+
         inv=1;
         id ^= (MAXGAMEVARS<<1);
     }
-    
+
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER)
     {
         // for the current player
@@ -439,34 +443,34 @@ long GetGameVarID(int id, int iActor, int iPlayer)
         {
             //Bsprintf(g_szBuf,"GetGameVarID(%d, %d, %d) returns %ld\n",id,iActor,iPlayer, aGameVars[id].plValues[iPlayer]);
             //AddLog(g_szBuf);
-            if (inv) return (-aGameVars[id].plValues[iPlayer]);
+            if (inv) return(-aGameVars[id].plValues[iPlayer]);
             return (aGameVars[id].plValues[iPlayer]);
         }
-        
-        if (inv) return (-aGameVars[id].lValue);
+
+        if (inv) return(-aGameVars[id].lValue);
         return (aGameVars[id].lValue);
     }
-    
+
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR)
     {
         // for the current actor
         if (iActor >= 0 && iActor <=MAXSPRITES)
         {
-            if (inv) return (-aGameVars[id].plValues[iActor]);
+            if (inv) return(-aGameVars[id].plValues[iActor]);
             return (aGameVars[id].plValues[iActor]);
         }
-        
-        if (inv) return (-aGameVars[id].lValue);
+
+        if (inv) return(-aGameVars[id].lValue);
         return (aGameVars[id].lValue);
     }
-    
+
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG)
     {
-        if (inv) return (-(*((long*)aGameVars[id].lValue)));
+        if (inv) return(-(*((long*)aGameVars[id].lValue)));
         return(*((long*)aGameVars[id].lValue));
     }
-    
-    if (inv) return (-aGameVars[id].lValue);
+
+    if (inv) return(-aGameVars[id].lValue);
     return (aGameVars[id].lValue);
 }
 
@@ -474,25 +478,35 @@ void SetGameVarID(int id, long lValue, int iActor, int iPlayer)
 {
     if (id<0 || id >= iGameVarCount)
     {
-        AddLog("Invalid Game ID");
+        OSD_Printf("SetGameVarID(): tried to set invalid gamevar ID (%d) from sprite %d (%d), player %d\n",id,g_i,sprite[g_i].picnum,g_p);
         return;
     }
     //Bsprintf(g_szBuf,"SGVI: %d ('%s') to %ld for %d %d",id,aGameVars[id].szLabel,lValue,iActor,iPlayer);
     //AddLog(g_szBuf);
-    if ((aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER) && (iPlayer != -1))
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER)
     {
+        if (iPlayer < 0 || iPlayer > MAXPLAYERS-1)
+        {
+            OSD_Printf("SetGameVarID(): invalid player (%d) for per-player gamevar %s from sprite %d (%d), player %d\n",iPlayer,aGameVars[id].szLabel,g_i,sprite[g_i].picnum,g_p);
+            return;
+        }
         // for the current player
         aGameVars[id].plValues[iPlayer]=lValue;
         return;
     }
-    
-    if ((aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR) && (iActor != -1))
+
+    if ((aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR))
     {
+        if (iActor < 0 || iActor > MAXSPRITES-1)
+        {
+            OSD_Printf("SetGameVarID(): invalid sprite (%d) for per-actor gamevar %s from sprite %d (%d), player %d\n",iActor,aGameVars[id].szLabel,g_i,sprite[g_i].picnum,g_p);
+            return;
+        }
         // for the current actor
         aGameVars[id].plValues[iActor]=lValue;
         return;
     }
-    
+
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG)
     {
         // set the value at pointer
@@ -532,7 +546,7 @@ static long *GetGameValuePtr(const char *szGameLabel)
                 {
                     if (!aGameVars[i].plValues)
                     {
-                        AddLog("INTERNAL ERROR: NULL array !!!");
+                        OSD_Printf("GetGameValuePtr(): INTERNAL ERROR: NULL array !!!\n");
                     }
                     return aGameVars[i].plValues;
                 }
@@ -609,7 +623,7 @@ void ResetSystemDefaults(void)
     //  for(i=0;i<MAXTILES;i++)
     //      projectile[i] = defaultprojectile[i];
 
-    Bmemcpy(&projectile,&defaultprojectile,sizeof(defaultprojectile));
+    Bmemcpy(&projectile,&defaultprojectile,sizeof(projectile));
 
     //AddLog("EOF:ResetWeaponDefaults");
 }
