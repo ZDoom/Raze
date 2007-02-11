@@ -3217,14 +3217,14 @@ void displayrest(long smoothratio)
         dotint = 1;
     }
     // reset a normal palette
-    /* else */ if (restorepalette)
+    else if (restorepalette)
     {
         //setbrightness(ud.brightness>>2,&pp->palette[0],0);
         setgamepalette(pp,pp->palette,2);
         restorepalette = 0;
     }
     // loogies courtesy of being snotted on
-    /* else */ if (pp->loogcnt > 0)
+    else if (pp->loogcnt > 0)
     {
         //palto(0,64,0,(pp->loogcnt>>1)+128);
         fader = 0;
@@ -8183,10 +8183,17 @@ static int load_rancid_net(char *fn)
             if (scriptfile_getstring(script,&ip)) break;
             Bstrcpy(rancid_ip_strings[MAXPLAYERS-1],ip);
             Bstrcpy(rancid_ip_strings[rancid_players++],ip);
-            strtok(ip,":");
-            Bsprintf(tempbuf,"%s",strtok(NULL,":"));
-            if (atoi(tempbuf) > 1024)
-                Bsprintf(rancid_local_port_string,"-p %s",tempbuf);
+            if (strtok(ip,":"))
+            {
+                char *p = strtok(NULL,":");
+                
+                if (p != NULL)
+                {
+                    Bsprintf(tempbuf,"%s",p);
+                    if (atoi(tempbuf) > 1024)
+                        Bsprintf(rancid_local_port_string,"-p %s",tempbuf);
+                }
+            }
         }
         break;
         case T_MODE:
