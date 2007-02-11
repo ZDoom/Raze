@@ -10267,11 +10267,7 @@ static int opendemoread(int which_demo) // 0 = mine
     OSD_Printf("ud.user_name: %s\n",ud.user_name);
     if (kread(recfilep,(int32 *)&i,sizeof(int32)) != sizeof(int32)) goto corrupt;
 
-    if (ver == BYTEVERSION)
-    {
-        if (kread(recfilep,(char *)boardfilename,sizeof(boardfilename)) != sizeof(boardfilename)) goto corrupt;
-    }
-    else if (kread(recfilep,(char *)boardfilename,128) != 128) goto corrupt;
+    if (kread(recfilep,(char *)boardfilename,sizeof(boardfilename)) != sizeof(boardfilename)) goto corrupt;
 
     if (boardfilename[0] != 0)
     {
@@ -10279,28 +10275,17 @@ static int opendemoread(int which_demo) // 0 = mine
         ud.m_volume_number = 0;
     }
 
+    if (kread(recfilep,(int32 *)&ud.m_noexits,sizeof(int32)) != sizeof(int32)) goto corrupt;
+
     for (i=0;i<ud.multimode;i++)
     {
-        if (ver == BYTEVERSION)
-        {
-            if (kread(recfilep,(int32 *)&ps[i].aim_mode,sizeof(int32)) != sizeof(int32)) goto corrupt;
-            if (kread(recfilep,(int32 *)&ps[i].auto_aim,sizeof(int32)) != sizeof(int32)) goto corrupt;	// JBF 20031126
-            if (kread(recfilep,(int32 *)&ps[i].weaponswitch,sizeof(int32)) != sizeof(int32)) goto corrupt;
-            if (kread(recfilep,(int32 *)&ud.pcolor[i],sizeof(int32)) != sizeof(int32)) goto corrupt;
-            ps[i].palookup = ud.pcolor[i];
-            if (kread(recfilep,(int32 *)&ud.pteam[i],sizeof(int32)) != sizeof(int32)) goto corrupt;
-            ps[i].team = ud.pteam[i];
-            if (kread(recfilep,(int32 *)&ud.m_noexits,sizeof(int32)) != sizeof(int32)) goto corrupt;
-        }
-        else
-        {
-            if (kread(recfilep,(int32 *)&ps[i].aim_mode,sizeof(char)) != sizeof(char)) goto corrupt;
-            OSD_Printf("aim_mode: %d\n",ps[i].aim_mode);
-            ps[i].auto_aim = 1;
-            ps[i].weaponswitch = 3;
-            ps[i].team = 0;
-            ud.m_noexits = 0;
-        }
+        if (kread(recfilep,(int32 *)&ps[i].aim_mode,sizeof(int32)) != sizeof(int32)) goto corrupt;
+        if (kread(recfilep,(int32 *)&ps[i].auto_aim,sizeof(int32)) != sizeof(int32)) goto corrupt;	// JBF 20031126
+        if (kread(recfilep,(int32 *)&ps[i].weaponswitch,sizeof(int32)) != sizeof(int32)) goto corrupt;
+        if (kread(recfilep,(int32 *)&ud.pcolor[i],sizeof(int32)) != sizeof(int32)) goto corrupt;
+        ps[i].palookup = ud.pcolor[i];
+        if (kread(recfilep,(int32 *)&ud.pteam[i],sizeof(int32)) != sizeof(int32)) goto corrupt;
+        ps[i].team = ud.pteam[i];
     }
 
     ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
@@ -10343,6 +10328,7 @@ void opendemowrite(void)
     fwrite((char *)&ud.user_name[0][0],sizeof(ud.user_name),1,frecfilep);
     fwrite((int32 *)&ud.auto_run,sizeof(int32),1,frecfilep);
     fwrite((char *)boardfilename,sizeof(boardfilename),1,frecfilep);
+    fwrite((int32 *)&ud.m_noexits,sizeof(int32),1,frecfilep);
 
     for (i=0;i<ud.multimode;i++)
     {
@@ -10351,7 +10337,6 @@ void opendemowrite(void)
         fwrite(&ps[i].weaponswitch,sizeof(int32),1,frecfilep);
         fwrite(&ud.pcolor[i],sizeof(int32),1,frecfilep);
         fwrite(&ud.pteam[i],sizeof(int32),1,frecfilep);
-        fwrite((int32 *)&ud.m_noexits,sizeof(int32),1,frecfilep);
     }
 
     totalreccnt = 0;
@@ -10393,18 +10378,6 @@ void closedemowrite(void)
 
 static int which_demo = 1;
 static int in_menu = 0;
-
-#if 0
-typedef struct
-{
-    signed char avel, horz;
-    short fvel, svel;
-    unsigned long bits;
-}
-oldinput;
-
-static oldinput oldrecsync[RECSYNCBUFSIZ];
-#endif
 
 // extern long syncs[];
 static long playback(void)
@@ -10467,62 +10440,30 @@ RECHECK:
 
     while (ud.reccnt > 0 || foundemo == 0)
     {
-        if (foundemo) while (totalclock >= (lockclock+TICSPERFRAME))
+        if (foundemo)
+            while (totalclock >= (lockclock+TICSPERFRAME))
             {
-#if 0
-                if (demo_version == 116 || demo_version == 117)
+                if ((i == 0) || (i >= RECSYNCBUFSIZ))
                 {
-                    if ((i == 0) || (i >= RECSYNCBUFSIZ))
+                    i = 0;
+                    l = min(ud.reccnt,RECSYNCBUFSIZ);
+                    if (kdfread(recsync,sizeof(input)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode)
                     {
-                        i = 0;
-                        l = min(ud.reccnt,RECSYNCBUFSIZ);
-                        if (kdfread(oldrecsync,sizeof(oldinput)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode)
-                        {
-                            OSD_Printf("Demo %d is corrupt.\n", which_demo-1);
-                            foundemo = 0;
-                            ud.reccnt = 0;
-                            kclose(recfilep);
-                            ps[myconnectindex].gm |= MODE_MENU;
-                            goto RECHECK;
-                        }
-                        OSD_Printf("ud.reccnt: %d\n",ud.reccnt);
-                    }
-
-                    for (j=connecthead;j>=0;j=connectpoint2[j])
-                    {
-                        OSD_Printf("ud.reccnt: %d, a:%d, h:%d, s:%d, f:%d, b:%d\n",ud.reccnt,oldrecsync[i].avel,oldrecsync[i].horz,oldrecsync[i].svel,oldrecsync[i].fvel,oldrecsync[i].bits);
-                        clearbufbyte(&inputfifo[movefifoend[j]&(MOVEFIFOSIZ-1)][j],sizeof(input),0L);
-                        copybufbyte(&oldrecsync[i],&inputfifo[movefifoend[j]&(MOVEFIFOSIZ-1)][j],sizeof(oldinput));
-                        movefifoend[j]++;
-                        i++;
-                        ud.reccnt--;
+                        OSD_Printf("Demo %d is corrupt.\n", which_demo-1);
+                        foundemo = 0;
+                        ud.reccnt = 0;
+                        kclose(recfilep);
+                        ps[myconnectindex].gm |= MODE_MENU;
+                        goto RECHECK;
                     }
                 }
-                else
-#endif
-                {
-                    if ((i == 0) || (i >= RECSYNCBUFSIZ))
-                    {
-                        i = 0;
-                        l = min(ud.reccnt,RECSYNCBUFSIZ);
-                        if (kdfread(recsync,sizeof(input)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode)
-                        {
-                            OSD_Printf("Demo %d is corrupt.\n", which_demo-1);
-                            foundemo = 0;
-                            ud.reccnt = 0;
-                            kclose(recfilep);
-                            ps[myconnectindex].gm |= MODE_MENU;
-                            goto RECHECK;
-                        }
-                    }
 
-                    for (j=connecthead;j>=0;j=connectpoint2[j])
-                    {
-                        copybufbyte(&recsync[i],&inputfifo[movefifoend[j]&(MOVEFIFOSIZ-1)][j],sizeof(input));
-                        movefifoend[j]++;
-                        i++;
-                        ud.reccnt--;
-                    }
+                for (j=connecthead;j>=0;j=connectpoint2[j])
+                {
+                    copybufbyte(&recsync[i],&inputfifo[movefifoend[j]&(MOVEFIFOSIZ-1)][j],sizeof(input));
+                    movefifoend[j]++;
+                    i++;
+                    ud.reccnt--;
                 }
                 domovethings();
             }

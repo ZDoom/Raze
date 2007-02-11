@@ -4648,7 +4648,7 @@ static int parse(void)
     case CON_EZSHOOTVAR:
     case CON_ZSHOOTVAR:
     {
-        long lIn, lReturn=-1;
+        long lReturn=-1;
 
         insptr++;
 
@@ -4658,10 +4658,10 @@ static int parse(void)
             if (hittype[g_i].temp_data[9] == 0)
                 hittype[g_i].temp_data[9] = 1;
         }
-        lIn=GetGameVarID(*insptr++, g_i, g_p);
+        j=GetGameVarID(*insptr++, g_i, g_p);
         if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
         {
-            lReturn = shoot(g_i, lIn);
+            lReturn = shoot(g_i, j);
             if (tw == CON_ESHOOTVAR || tw == CON_EZSHOOTVAR)
                 SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
         }
@@ -4740,11 +4740,14 @@ static int parse(void)
 
             if (x1 > x2) swaplong(&x1,&x2);
             if (y1 > y2) swaplong(&y1,&y2);
-
+         
+            if (x1 < 0 || y1 < 0 || x2 > xdim-1 || y2 > ydim-1 || x2-x1 < 1 || y2-y1 < 1)
+                break;
+                        
 #if defined(USE_OPENGL) && defined(POLYMOST)
             j = glprojectionhacks;
             glprojectionhacks = 0;
-#endif            
+#endif
             setview(x1,y1,x2,y2);
             drawrooms(x,y,z,a,horiz,sect);
             display_mirror = 1; animatesprites(x,y,a,65536L); display_mirror = 0;

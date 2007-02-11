@@ -1550,8 +1550,7 @@ static void getlevelfromfilename(const char *fn, char *volume, char *level)
 
 int enterlevel(char g)
 {
-    short i;
-    long l;
+    int i;
     char levname[BMAX_PATH];
 
     ready2send = 1; // HACK: fetch any leftover p2p sync packets
@@ -1688,10 +1687,10 @@ int enterlevel(char g)
     else
     {
 
-        l = strlen(level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
-        copybufbyte(level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number],&levname[0],l);
-        levname[l] = 255;
-        levname[l+1] = 0;
+        i = strlen(level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
+        copybufbyte(level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number],&levname[0],i);
+        levname[i] = 255;
+        levname[i+1] = 0;
 
         if (loadboard(levname,1,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
         {

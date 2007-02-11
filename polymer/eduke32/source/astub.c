@@ -1542,7 +1542,7 @@ static void ReadGamePalette()
 
 static inline void _message(char message[162])
 {
-    Bsprintf(getmessage,message);
+    Bstrcpy(getmessage,message);
     getmessageleng = strlen(getmessage);
     getmessagetimeoff = totalclock+120*5;
 }
@@ -4912,8 +4912,8 @@ static void Keys2d3d(void)
                 begindrawing();
                 if (tempbuf[charsperline] != 0)
                 {
-                    printext256((xdimgame>>6)+2,((i/charsperline)<<3)+(ydimgame-(ydimgame>>5))-(((getmessageleng-1)/charsperline)<<3)+2,0,-1,tempbuf,xdimgame>640?0:1);
-                    printext256((xdimgame>>6),((i/charsperline)<<3)+(ydimgame-(ydimgame>>5))-(((getmessageleng-1)/charsperline)<<3),whitecol,-1,tempbuf,xdimgame>640?0:1);
+                    printext256((xdimgame>>6)+2,((i/charsperline)<<3)+(ydimgame-(ydimgame>>3))-(((getmessageleng-1)/charsperline)<<3)+2,0,-1,tempbuf,xdimgame>640?0:1);
+                    printext256((xdimgame>>6),((i/charsperline)<<3)+(ydimgame-(ydimgame>>3))-(((getmessageleng-1)/charsperline)<<3),whitecol,-1,tempbuf,xdimgame>640?0:1);
                 }
                 enddrawing();
             }

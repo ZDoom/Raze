@@ -579,19 +579,31 @@ int shoot(int i,int atwith)
 
                 angRange=32;
                 zRange=256;
-                SetGameVarID(g_iAngRangeVarID,32, i,p);
-                SetGameVarID(g_iZRangeVarID,256,i,p);
+                SetGameVarID(g_iAngRangeVarID,angRange, i,p);
+                SetGameVarID(g_iZRangeVarID,zRange,i,p);
                 OnEvent(EVENT_GETSHOTRANGE, i,p, -1);
                 angRange=GetGameVarID(g_iAngRangeVarID,i,p);
                 zRange=GetGameVarID(g_iZRangeVarID,i,p);
 
-                sa += (angRange/2)-(TRAND&(angRange-1));
-                if (j == -1)
+                if (projectile[atwith].workslike & PROJECTILE_FLAG_ACCURATE_AUTOAIM)
                 {
-                    // no target
-                    zvel = (100-ps[p].horiz-ps[p].horizoff)<<5;
+                    if (j == -1)
+                    {
+                        sa += (angRange/2)-(TRAND&(angRange-1));
+                        zvel = (100-ps[p].horiz-ps[p].horizoff)<<5;
+                        zvel += (zRange/2)-(TRAND&(zRange-1));
+                    }
                 }
-                zvel += (zRange/2)-(TRAND&(zRange-1));
+                else
+                {
+                    sa += (angRange/2)-(TRAND&(angRange-1));
+                    if (j == -1)
+                    {
+                        // no target
+                        zvel = (100-ps[p].horiz-ps[p].horizoff)<<5;
+                    }
+                    zvel += (zRange/2)-(TRAND&(zRange-1));
+                }
                 sz -= (2<<8);
             }
             else
@@ -1121,19 +1133,35 @@ DOSKIPBULLETHOLE:
 
                 angRange=32;
                 zRange=256;
-                SetGameVarID(g_iAngRangeVarID,32, i,p);
-                SetGameVarID(g_iZRangeVarID,256,i,p);
+
+                SetGameVarID(g_iAngRangeVarID,angRange, i,p);
+                SetGameVarID(g_iZRangeVarID,zRange,i,p);
+
                 OnEvent(EVENT_GETSHOTRANGE, i,p, -1);
+
                 angRange=GetGameVarID(g_iAngRangeVarID,i,p);
                 zRange=GetGameVarID(g_iZRangeVarID,i,p);
 
-                sa += (angRange/2)-(TRAND&(angRange-1));
-                if (j == -1)
+                if (atwith == SHOTSPARK1__STATIC && !WW2GI && !NAM)
                 {
-                    // no target
-                    zvel = (100-ps[p].horiz-ps[p].horizoff)<<5;
+                    if (j == -1)
+                    {
+                        sa += (angRange/2)-(TRAND&(angRange-1));
+                        zvel = (100-ps[p].horiz-ps[p].horizoff)<<5;
+                        zvel += (zRange/2)-(TRAND&(zRange-1));
+                    }
                 }
-                zvel += (zRange/2)-(TRAND&(zRange-1));
+                else
+                {
+                    sa += (angRange/2)-(TRAND&(angRange-1));
+                    if (j == -1)
+                    {
+                        // no target
+                        zvel = (100-ps[p].horiz-ps[p].horizoff)<<5;
+                    }
+                    zvel += (zRange/2)-(TRAND&(zRange-1));
+                }
+
                 sz -= (2<<8);
             }
             else
