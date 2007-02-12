@@ -812,6 +812,7 @@ LABELS userdefslabels[]=
         { "automsg", USERDEFS_AUTOMSG, 0, 0 },
         { "idplayers", USERDEFS_IDPLAYERS, 0, 0 },
         { "team", USERDEFS_TEAM, 0, 0 },
+#if 0        
         { "myx", USERDEFS_MYX, 0, 0 },
         { "omyx", USERDEFS_OMYX, 0, 0 },
         { "myxvel", USERDEFS_MYXVEL, 0, 0 },
@@ -833,6 +834,13 @@ LABELS userdefslabels[]=
         { "myonground", USERDEFS_MYONGROUND, 0, 0 },
         { "myhardlanding", USERDEFS_MYHARDLANDING, 0, 0 },
         { "myreturntocenter", USERDEFS_MYRETURNTOCENTER, 0, 0 },
+#endif
+        { "camerax", USERDEFS_CAMERAX, 0, 0 },
+        { "cameray", USERDEFS_CAMERAY, 0, 0 },
+        { "cameraz", USERDEFS_CAMERAZ, 0, 0 },
+        { "cameraang", USERDEFS_CAMERAANG, 0, 0 },
+        { "camerasect", USERDEFS_CAMERASECT, 0, 0 },
+        { "camerahoriz", USERDEFS_CAMERAHORIZ, 0, 0 },
         { "", -1, 0, 0  }     // END OF LIST
     };
 
@@ -1036,10 +1044,11 @@ char CheckEventSync(int iEventID)
         case EVENT_CHEATGETHOLODUKE:
         case EVENT_CHEATGETJETPACK:
         case EVENT_CHEATGETFIRSTAID:
-        case EVENT_DISPLAYWEAPON:
-        case EVENT_DRAWWEAPON:
         case EVENT_DISPLAYCROSSHAIR:
         case EVENT_DISPLAYREST:
+        case EVENT_DISPLAYROOMS:
+        case EVENT_DISPLAYWEAPON:        
+        case EVENT_DRAWWEAPON:        
         case EVENT_ENTERLEVEL:
         case EVENT_FAKEDOMOVETHINGS:
         case EVENT_GETLOADTILE:
@@ -4537,6 +4546,7 @@ static void AddDefaultDefinitions(void)
     AddDefinition("EVENT_CROUCH",EVENT_CROUCH,LABEL_DEFINE);
     AddDefinition("EVENT_DISPLAYCROSSHAIR",EVENT_DISPLAYCROSSHAIR,LABEL_DEFINE);
     AddDefinition("EVENT_DISPLAYREST",EVENT_DISPLAYREST,LABEL_DEFINE);
+    AddDefinition("EVENT_DISPLAYROOMS",EVENT_DISPLAYROOMS,LABEL_DEFINE);
     AddDefinition("EVENT_DISPLAYWEAPON",EVENT_DISPLAYWEAPON,LABEL_DEFINE);
     AddDefinition("EVENT_DOFIRE",EVENT_DOFIRE,LABEL_DEFINE);
     AddDefinition("EVENT_DRAWWEAPON",EVENT_DRAWWEAPON,LABEL_DEFINE);

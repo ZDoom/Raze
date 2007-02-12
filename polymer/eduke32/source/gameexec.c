@@ -37,6 +37,9 @@ static int killit_flag;
 
 extern int32 scripthandle;
 
+extern long camerax,cameray,cameraz;
+extern short cameraang, camerasect, camerahoriz;
+
 static void DoUserDef(int iSet, int lLabelID, int lVar2)
 {
     long lValue;
@@ -665,6 +668,7 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
             SetGameVarID(lVar2, ud.team, g_i, g_p);
         break;
 
+#if 0
     case USERDEFS_MYX:
         if (iSet)
             myx = lValue;
@@ -810,6 +814,49 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
             myreturntocenter = lValue;
         else
             SetGameVarID(lVar2, myreturntocenter, g_i, g_p);
+        break;
+#endif
+
+    case USERDEFS_CAMERAX:
+        if (iSet)
+            camerax = lValue;
+        else
+            SetGameVarID(lVar2, camerax, g_i, g_p);
+        break;
+
+    case USERDEFS_CAMERAY:
+        if (iSet)
+            cameray = lValue;
+        else
+            SetGameVarID(lVar2, cameray, g_i, g_p);
+        break;
+
+    case USERDEFS_CAMERAZ:
+        if (iSet)
+            cameraz = lValue;
+        else
+            SetGameVarID(lVar2, cameraz, g_i, g_p);
+        break;
+
+    case USERDEFS_CAMERAANG:
+        if (iSet)
+            cameraang = lValue;
+        else
+            SetGameVarID(lVar2, cameraang, g_i, g_p);
+        break;
+
+    case USERDEFS_CAMERASECT:
+        if (iSet)
+            camerasect = lValue;
+        else
+            SetGameVarID(lVar2, camerasect, g_i, g_p);
+        break;
+
+    case USERDEFS_CAMERAHORIZ:
+        if (iSet)
+            camerahoriz = lValue;
+        else
+            SetGameVarID(lVar2, camerahoriz, g_i, g_p);
         break;
 
     default:

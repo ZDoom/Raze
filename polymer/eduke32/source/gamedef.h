@@ -316,6 +316,7 @@ enum userdefslabels {
     USERDEFS_IDPLAYERS,
     USERDEFS_TEAM,
     // this stuff isn't really userdef stuff, but getuserdef/setuserdef is already set up for what I want to do
+#if 0    
     USERDEFS_MYX,
     USERDEFS_OMYX,
     USERDEFS_MYXVEL,
@@ -336,7 +337,14 @@ enum userdefslabels {
     USERDEFS_MYJUMPINGTOGGLE,
     USERDEFS_MYONGROUND,
     USERDEFS_MYHARDLANDING,
-    USERDEFS_MYRETURNTOCENTER
+    USERDEFS_MYRETURNTOCENTER,
+#endif
+    USERDEFS_CAMERAX,
+    USERDEFS_CAMERAY,
+    USERDEFS_CAMERAZ,
+    USERDEFS_CAMERAANG,
+    USERDEFS_CAMERASECT,
+    USERDEFS_CAMERAHORIZ,
 };
 
 enum sectorlabels {

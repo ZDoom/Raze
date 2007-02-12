@@ -3837,11 +3837,14 @@ static void se40code(long x,long y,long z,long a,long h, long smoothratio)
 
 static long oyrepeat=-1;
 
+long camerax,cameray,cameraz;
+short cameraang, camerasect, camerahoriz;
+
 void displayrooms(int snum,long smoothratio)
 {
-    long cposx,cposy,cposz,dst,j,fz,cz;
+    long dst,j,fz,cz;
     long tposx,tposy,i;
-    short sect, cang, k, choriz;
+    short k;
     struct player_struct *p = &ps[snum];
     short tang;
     long tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
@@ -3868,12 +3871,12 @@ void displayrooms(int snum,long smoothratio)
 
     if (ud.pause_on || ps[snum].on_crane > -1) smoothratio = 65536;
 
-    sect = p->cursectnum;
+    camerasect = p->cursectnum;
 
 #ifdef POLYMOST
     if (rendmode != 4)
 #endif
-        if (sect < 0 || sect >= MAXSECTORS) return;
+        if (camerasect < 0 || camerasect >= MAXSECTORS) return;
 
     dointerpolations(smoothratio);
 
@@ -3886,12 +3889,12 @@ void displayrooms(int snum,long smoothratio)
         if (s->yvel < 0) s->yvel = -100;
         else if (s->yvel > 199) s->yvel = 300;
 
-        cang = hittype[ud.camerasprite].tempang+mulscale16((long)(((s->ang+1024-hittype[ud.camerasprite].tempang)&2047)-1024),smoothratio);
+        cameraang = hittype[ud.camerasprite].tempang+mulscale16((long)(((s->ang+1024-hittype[ud.camerasprite].tempang)&2047)-1024),smoothratio);
 #ifdef SE40
-        se40code(s->x,s->y,s->z,cang,s->yvel,smoothratio);
+        se40code(s->x,s->y,s->z,cameraang,s->yvel,smoothratio);
 #endif
-        drawrooms(s->x,s->y,s->z-(4<<8),cang,s->yvel,s->sectnum);
-        animatesprites(s->x,s->y,cang,smoothratio);
+        drawrooms(s->x,s->y,s->z-(4<<8),cameraang,s->yvel,s->sectnum);
+        animatesprites(s->x,s->y,cameraang,smoothratio);
         drawmasks();
     }
     else
@@ -3960,68 +3963,71 @@ void displayrooms(int snum,long smoothratio)
 
         if ((snum == myconnectindex) && (numplayers > 1))
         {
-            cposx = omyx+mulscale16((long)(myx-omyx),smoothratio);
-            cposy = omyy+mulscale16((long)(myy-omyy),smoothratio);
-            cposz = omyz+mulscale16((long)(myz-omyz),smoothratio);
-            cang = omyang+mulscale16((long)(((myang+1024-omyang)&2047)-1024),smoothratio);
-            choriz = omyhoriz+omyhorizoff+mulscale16((long)(myhoriz+myhorizoff-omyhoriz-omyhorizoff),smoothratio);
-            sect = mycursectnum;
+            camerax = omyx+mulscale16((long)(myx-omyx),smoothratio);
+            cameray = omyy+mulscale16((long)(myy-omyy),smoothratio);
+            cameraz = omyz+mulscale16((long)(myz-omyz),smoothratio);
+            cameraang = omyang+mulscale16((long)(((myang+1024-omyang)&2047)-1024),smoothratio);
+            camerahoriz = omyhoriz+omyhorizoff+mulscale16((long)(myhoriz+myhorizoff-omyhoriz-omyhorizoff),smoothratio);
+            camerasect = mycursectnum;
         }
         else
         {
-            cposx = p->oposx+mulscale16((long)(p->posx-p->oposx),smoothratio);
-            cposy = p->oposy+mulscale16((long)(p->posy-p->oposy),smoothratio);
-            cposz = p->oposz+mulscale16((long)(p->posz-p->oposz),smoothratio);
-            cang = p->oang+mulscale16((long)(((p->ang+1024-p->oang)&2047)-1024),smoothratio);
-            choriz = p->ohoriz+p->ohorizoff+mulscale16((long)(p->horiz+p->horizoff-p->ohoriz-p->ohorizoff),smoothratio);
+            camerax = p->oposx+mulscale16((long)(p->posx-p->oposx),smoothratio);
+            cameray = p->oposy+mulscale16((long)(p->posy-p->oposy),smoothratio);
+            cameraz = p->oposz+mulscale16((long)(p->posz-p->oposz),smoothratio);
+            cameraang = p->oang+mulscale16((long)(((p->ang+1024-p->oang)&2047)-1024),smoothratio);
+            camerahoriz = p->ohoriz+p->ohorizoff+mulscale16((long)(p->horiz+p->horizoff-p->ohoriz-p->ohorizoff),smoothratio);
         }
-        cang += p->look_ang;
+        cameraang += p->look_ang;
 
         if (p->newowner >= 0)
         {
-            cang = p->ang+p->look_ang;
-            choriz = p->horiz+p->horizoff;
-            cposx = p->posx;
-            cposy = p->posy;
-            cposz = p->posz;
-            sect = sprite[p->newowner].sectnum;
+            cameraang = p->ang+p->look_ang;
+            camerahoriz = p->horiz+p->horizoff;
+            camerax = p->posx;
+            cameray = p->posy;
+            cameraz = p->posz;
+            camerasect = sprite[p->newowner].sectnum;
             smoothratio = 65536L;
         }
 
         else if (p->over_shoulder_on == 0)
-            cposz += p->opyoff+mulscale16((long)(p->pyoff-p->opyoff),smoothratio);
-        else view(p,&cposx,&cposy,&cposz,&sect,cang,choriz);
+            cameraz += p->opyoff+mulscale16((long)(p->pyoff-p->opyoff),smoothratio);
+        else view(p,&camerax,&cameray,&cameraz,&camerasect,cameraang,camerahoriz);
 
         cz = hittype[p->i].ceilingz;
         fz = hittype[p->i].floorz;
 
         if (earthquaketime > 0 && p->on_ground == 1)
         {
-            cposz += 256-(((earthquaketime)&1)<<9);
-            cang += (2-((earthquaketime)&2))<<2;
+            cameraz += 256-(((earthquaketime)&1)<<9);
+            cameraang += (2-((earthquaketime)&2))<<2;
         }
 
-        if (sprite[p->i].pal == 1) cposz -= (18<<8);
+        if (sprite[p->i].pal == 1) cameraz -= (18<<8);
 
         if (p->newowner >= 0)
-            choriz = 100+sprite[p->newowner].shade;
+            camerahoriz = 100+sprite[p->newowner].shade;
         else if (p->spritebridge == 0)
         {
-            if (cposz < (p->truecz + (4<<8))) cposz = cz + (4<<8);
-            else if (cposz > (p->truefz - (4<<8))) cposz = fz - (4<<8);
+            if (cameraz < (p->truecz + (4<<8))) cameraz = cz + (4<<8);
+            else if (cameraz > (p->truefz - (4<<8))) cameraz = fz - (4<<8);
         }
 
-        if (sect >= 0)
+        if (camerasect >= 0)
         {
-            getzsofslope(sect,cposx,cposy,&cz,&fz);
-            if (cposz < cz+(4<<8)) cposz = cz+(4<<8);
-            if (cposz > fz-(4<<8)) cposz = fz-(4<<8);
+            getzsofslope(camerasect,camerax,cameray,&cz,&fz);
+            if (cameraz < cz+(4<<8)) cameraz = cz+(4<<8);
+            if (cameraz > fz-(4<<8)) cameraz = fz-(4<<8);
         }
 
-        if (choriz > 299) choriz = 299;
-        else if (choriz < -99) choriz = -99;
+        if (camerahoriz > 299) camerahoriz = 299;
+        else if (camerahoriz < -99) camerahoriz = -99;
+        
+        OnEvent(EVENT_DISPLAYROOMS, ps[screenpeek].i, screenpeek, -1);        
+        
 #ifdef SE40
-        se40code(cposx,cposy,cposz,cang,choriz,smoothratio);
+        se40code(camerax,cameray,cameraz,cameraang,camerahoriz,smoothratio);
 #endif
         if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
         {
@@ -4029,19 +4035,19 @@ void displayrooms(int snum,long smoothratio)
             i = 0;
             for (k=0;k<mirrorcnt;k++)
             {
-                j = klabs(wall[mirrorwall[k]].x-cposx);
-                j += klabs(wall[mirrorwall[k]].y-cposy);
+                j = klabs(wall[mirrorwall[k]].x-camerax);
+                j += klabs(wall[mirrorwall[k]].y-cameray);
                 if (j < dst) dst = j, i = k;
             }
 
             if (wall[mirrorwall[i]].overpicnum == MIRROR)
             {
-                preparemirror(cposx,cposy,cposz,cang,choriz,mirrorwall[i],mirrorsector[i],&tposx,&tposy,&tang);
+                preparemirror(camerax,cameray,cameraz,cameraang,camerahoriz,mirrorwall[i],mirrorsector[i],&tposx,&tposy,&tang);
 
                 j = visibility;
                 visibility = (j>>1) + (j>>2);
 
-                drawrooms(tposx,tposy,cposz,tang,choriz,mirrorsector[i]+MAXSECTORS);
+                drawrooms(tposx,tposy,cameraz,tang,camerahoriz,mirrorsector[i]+MAXSECTORS);
 
                 display_mirror = 1;
                 animatesprites(tposx,tposy,tang,smoothratio);
@@ -4054,8 +4060,8 @@ void displayrooms(int snum,long smoothratio)
             gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
         }
 
-        drawrooms(cposx,cposy,cposz,cang,choriz,sect);
-        animatesprites(cposx,cposy,cang,smoothratio);
+        drawrooms(camerax,cameray,cameraz,cameraang,camerahoriz,camerasect);
+        animatesprites(camerax,cameray,cameraang,smoothratio);
         drawmasks();
 
         if (screencapt == 1)
@@ -8189,9 +8195,8 @@ static int load_rancid_net(char *fn)
                 
                 if (p != NULL)
                 {
-                    Bsprintf(tempbuf,"%s",p);
-                    if (atoi(tempbuf) > 1024)
-                        Bsprintf(rancid_local_port_string,"-p %s",tempbuf);
+                    if (atoi(p) > 1024)
+                        Bsprintf(rancid_local_port_string,"-p %s",p);
                 }
             }
         }
@@ -10390,11 +10395,9 @@ static int in_menu = 0;
 static long playback(void)
 {
     long i,j,k,l;
-    char foundemo;
+    int foundemo = 0;
 
     if (ready2send) return 0;
-
-    foundemo = 0;
 
 RECHECK:
 
@@ -10405,7 +10408,7 @@ RECHECK:
 
     flushperms();
 
-    if (numplayers < 2) foundemo = opendemoread(which_demo);
+    if (ud.multimode < 2) foundemo = opendemoread(which_demo);
 
     if (foundemo == 0)
     {
