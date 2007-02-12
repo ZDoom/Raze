@@ -74,6 +74,8 @@ static char errorMessage[80];
 static FILE *debug_file = NULL;
 static int initialized_debugging = 0;
 
+static char *midifn = NULL;
+
 // This gets called all over the place for information and debugging messages.
 //  If the user set the DUKESND_DEBUG environment variable, the messages
 //  go to the file that is specified in that variable. Otherwise, they
@@ -104,7 +106,7 @@ static void init_debugging(void)
     envr = getenv(DUKESND_DEBUG);
     if (envr != NULL)
     {
-        if (strcmp(envr, "-") == 0)
+        if (Bstrcmp(envr, "-") == 0)
             debug_file = stdout;
         else
             debug_file = fopen(envr, "w");
@@ -130,7 +132,7 @@ static void setWarningMessage(const char *msg)
 
 static void setErrorMessage(const char *msg)
 {
-    strncpy(errorMessage, msg, sizeof(errorMessage));
+    Bstrncpy(errorMessage, msg, sizeof(errorMessage));
     // strncpy() doesn't add the null char if there isn't room...
     errorMessage[sizeof(errorMessage) - 1] = '\0';
     musdebug("Error message set to [%s].", errorMessage);
@@ -217,6 +219,15 @@ int MUSIC_Shutdown(void)
     music_context = 0;
     music_initialized = 0;
     music_loopflag = MUSIC_PlayOnce;
+    
+    if (midifn != NULL)
+    {
+        initprintf("Removing temporary file '%s'\n",midifn);
+        unlink(midifn);
+        Bfree(midifn);
+        midifn = NULL;
+    }
+    
     return(MUSIC_Ok);
 } // MUSIC_Shutdown
 
@@ -298,6 +309,7 @@ int MUSIC_StopSong(void)
 
     music_songdata = NULL;
     music_musicchunk = NULL;
+    
     return(MUSIC_Ok);
 } // MUSIC_StopSong
 
@@ -367,26 +379,39 @@ void PlayMusic(char *_filename)
     kclose(handle);
     if (rc != size)
     {
-        free(song);
+        Bfree(song);
         return;
     } // if
 
     // save the file somewhere, so SDL_mixer can load it
-    GetUnixPathFromEnvironment(filename, BMAX_PATH, "tmpsong.mid");
-    handle = SafeOpenWrite(filename, filetype_binary);
-
-    SafeWrite(handle, song, size);
-    close(handle);
-    free(song);
-
-    //music_songdata = song;
-
-    music_musicchunk = Mix_LoadMUS(filename);
-    if (music_musicchunk != NULL)
     {
-        // !!! FIXME: I set the music to loop. Hope that's okay. --ryan.
-        Mix_PlayMusic(music_musicchunk, -1);
-    } // if
+        char *user = getenv("USERNAME");
+        
+        if (user) Bsprintf(tempbuf,"duke3d-%s.mid.%d",user,getpid());
+        else Bsprintf(tempbuf,"duke3d.mid.%d",getpid());
+
+        GetUnixPathFromEnvironment(filename, BMAX_PATH, tempbuf);
+        
+        handle = SafeOpenWrite(filename, filetype_binary);
+    
+        if (handle == -1)
+            return;
+
+        midifn = Bstrdup(filename);
+
+        SafeWrite(handle, song, size);
+        close(handle);
+        Bfree(song);
+
+        //music_songdata = song;
+
+        music_musicchunk = Mix_LoadMUS(filename);
+        if (music_musicchunk != NULL)
+        {
+            // !!! FIXME: I set the music to loop. Hope that's okay. --ryan.
+            Mix_PlayMusic(music_musicchunk, -1);
+        } // if
+    }
 }
 
 
