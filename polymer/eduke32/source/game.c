@@ -3837,9 +3837,6 @@ static void se40code(long x,long y,long z,long a,long h, long smoothratio)
 
 static long oyrepeat=-1;
 
-long camerax,cameray,cameraz;
-short cameraang, camerasect, camerahoriz;
-
 void displayrooms(int snum,long smoothratio)
 {
     long dst,j,fz,cz;
@@ -3871,12 +3868,12 @@ void displayrooms(int snum,long smoothratio)
 
     if (ud.pause_on || ps[snum].on_crane > -1) smoothratio = 65536;
 
-    camerasect = p->cursectnum;
+    ud.camerasect = p->cursectnum;
 
 #ifdef POLYMOST
     if (rendmode != 4)
 #endif
-        if (camerasect < 0 || camerasect >= MAXSECTORS) return;
+        if (ud.camerasect < 0 || ud.camerasect >= MAXSECTORS) return;
 
     dointerpolations(smoothratio);
 
@@ -3889,12 +3886,12 @@ void displayrooms(int snum,long smoothratio)
         if (s->yvel < 0) s->yvel = -100;
         else if (s->yvel > 199) s->yvel = 300;
 
-        cameraang = hittype[ud.camerasprite].tempang+mulscale16((long)(((s->ang+1024-hittype[ud.camerasprite].tempang)&2047)-1024),smoothratio);
+        ud.cameraang = hittype[ud.camerasprite].tempang+mulscale16((long)(((s->ang+1024-hittype[ud.camerasprite].tempang)&2047)-1024),smoothratio);
 #ifdef SE40
-        se40code(s->x,s->y,s->z,cameraang,s->yvel,smoothratio);
+        se40code(s->x,s->y,s->z,ud.cameraang,s->yvel,smoothratio);
 #endif
-        drawrooms(s->x,s->y,s->z-(4<<8),cameraang,s->yvel,s->sectnum);
-        animatesprites(s->x,s->y,cameraang,smoothratio);
+        drawrooms(s->x,s->y,s->z-(4<<8),ud.cameraang,s->yvel,s->sectnum);
+        animatesprites(s->x,s->y,ud.cameraang,smoothratio);
         drawmasks();
     }
     else
@@ -3963,71 +3960,71 @@ void displayrooms(int snum,long smoothratio)
 
         if ((snum == myconnectindex) && (numplayers > 1))
         {
-            camerax = omyx+mulscale16((long)(myx-omyx),smoothratio);
-            cameray = omyy+mulscale16((long)(myy-omyy),smoothratio);
-            cameraz = omyz+mulscale16((long)(myz-omyz),smoothratio);
-            cameraang = omyang+mulscale16((long)(((myang+1024-omyang)&2047)-1024),smoothratio);
-            camerahoriz = omyhoriz+omyhorizoff+mulscale16((long)(myhoriz+myhorizoff-omyhoriz-omyhorizoff),smoothratio);
-            camerasect = mycursectnum;
+            ud.camerax = omyx+mulscale16((long)(myx-omyx),smoothratio);
+            ud.cameray = omyy+mulscale16((long)(myy-omyy),smoothratio);
+            ud.cameraz = omyz+mulscale16((long)(myz-omyz),smoothratio);
+            ud.cameraang = omyang+mulscale16((long)(((myang+1024-omyang)&2047)-1024),smoothratio);
+            ud.camerahoriz = omyhoriz+omyhorizoff+mulscale16((long)(myhoriz+myhorizoff-omyhoriz-omyhorizoff),smoothratio);
+            ud.camerasect = mycursectnum;
         }
         else
         {
-            camerax = p->oposx+mulscale16((long)(p->posx-p->oposx),smoothratio);
-            cameray = p->oposy+mulscale16((long)(p->posy-p->oposy),smoothratio);
-            cameraz = p->oposz+mulscale16((long)(p->posz-p->oposz),smoothratio);
-            cameraang = p->oang+mulscale16((long)(((p->ang+1024-p->oang)&2047)-1024),smoothratio);
-            camerahoriz = p->ohoriz+p->ohorizoff+mulscale16((long)(p->horiz+p->horizoff-p->ohoriz-p->ohorizoff),smoothratio);
+            ud.camerax = p->oposx+mulscale16((long)(p->posx-p->oposx),smoothratio);
+            ud.cameray = p->oposy+mulscale16((long)(p->posy-p->oposy),smoothratio);
+            ud.cameraz = p->oposz+mulscale16((long)(p->posz-p->oposz),smoothratio);
+            ud.cameraang = p->oang+mulscale16((long)(((p->ang+1024-p->oang)&2047)-1024),smoothratio);
+            ud.camerahoriz = p->ohoriz+p->ohorizoff+mulscale16((long)(p->horiz+p->horizoff-p->ohoriz-p->ohorizoff),smoothratio);
         }
-        cameraang += p->look_ang;
+        ud.cameraang += p->look_ang;
 
         if (p->newowner >= 0)
         {
-            cameraang = p->ang+p->look_ang;
-            camerahoriz = p->horiz+p->horizoff;
-            camerax = p->posx;
-            cameray = p->posy;
-            cameraz = p->posz;
-            camerasect = sprite[p->newowner].sectnum;
+            ud.cameraang = p->ang+p->look_ang;
+            ud.camerahoriz = p->horiz+p->horizoff;
+            ud.camerax = p->posx;
+            ud.cameray = p->posy;
+            ud.cameraz = p->posz;
+            ud.camerasect = sprite[p->newowner].sectnum;
             smoothratio = 65536L;
         }
 
         else if (p->over_shoulder_on == 0)
-            cameraz += p->opyoff+mulscale16((long)(p->pyoff-p->opyoff),smoothratio);
-        else view(p,&camerax,&cameray,&cameraz,&camerasect,cameraang,camerahoriz);
+            ud.cameraz += p->opyoff+mulscale16((long)(p->pyoff-p->opyoff),smoothratio);
+        else view(p,&ud.camerax,&ud.cameray,&ud.cameraz,&ud.camerasect,ud.cameraang,ud.camerahoriz);
 
         cz = hittype[p->i].ceilingz;
         fz = hittype[p->i].floorz;
 
         if (earthquaketime > 0 && p->on_ground == 1)
         {
-            cameraz += 256-(((earthquaketime)&1)<<9);
-            cameraang += (2-((earthquaketime)&2))<<2;
+            ud.cameraz += 256-(((earthquaketime)&1)<<9);
+            ud.cameraang += (2-((earthquaketime)&2))<<2;
         }
 
-        if (sprite[p->i].pal == 1) cameraz -= (18<<8);
+        if (sprite[p->i].pal == 1) ud.cameraz -= (18<<8);
 
         if (p->newowner >= 0)
-            camerahoriz = 100+sprite[p->newowner].shade;
+            ud.camerahoriz = 100+sprite[p->newowner].shade;
         else if (p->spritebridge == 0)
         {
-            if (cameraz < (p->truecz + (4<<8))) cameraz = cz + (4<<8);
-            else if (cameraz > (p->truefz - (4<<8))) cameraz = fz - (4<<8);
+            if (ud.cameraz < (p->truecz + (4<<8))) ud.cameraz = cz + (4<<8);
+            else if (ud.cameraz > (p->truefz - (4<<8))) ud.cameraz = fz - (4<<8);
         }
 
-        if (camerasect >= 0)
+        if (ud.camerasect >= 0)
         {
-            getzsofslope(camerasect,camerax,cameray,&cz,&fz);
-            if (cameraz < cz+(4<<8)) cameraz = cz+(4<<8);
-            if (cameraz > fz-(4<<8)) cameraz = fz-(4<<8);
+            getzsofslope(ud.camerasect,ud.camerax,ud.cameray,&cz,&fz);
+            if (ud.cameraz < cz+(4<<8)) ud.cameraz = cz+(4<<8);
+            if (ud.cameraz > fz-(4<<8)) ud.cameraz = fz-(4<<8);
         }
 
-        if (camerahoriz > 299) camerahoriz = 299;
-        else if (camerahoriz < -99) camerahoriz = -99;
+        if (ud.camerahoriz > 299) ud.camerahoriz = 299;
+        else if (ud.camerahoriz < -99) ud.camerahoriz = -99;
         
         OnEvent(EVENT_DISPLAYROOMS, ps[screenpeek].i, screenpeek, -1);        
         
 #ifdef SE40
-        se40code(camerax,cameray,cameraz,cameraang,camerahoriz,smoothratio);
+        se40code(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,smoothratio);
 #endif
         if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
         {
@@ -4035,19 +4032,19 @@ void displayrooms(int snum,long smoothratio)
             i = 0;
             for (k=0;k<mirrorcnt;k++)
             {
-                j = klabs(wall[mirrorwall[k]].x-camerax);
-                j += klabs(wall[mirrorwall[k]].y-cameray);
+                j = klabs(wall[mirrorwall[k]].x-ud.camerax);
+                j += klabs(wall[mirrorwall[k]].y-ud.cameray);
                 if (j < dst) dst = j, i = k;
             }
 
             if (wall[mirrorwall[i]].overpicnum == MIRROR)
             {
-                preparemirror(camerax,cameray,cameraz,cameraang,camerahoriz,mirrorwall[i],mirrorsector[i],&tposx,&tposy,&tang);
+                preparemirror(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,mirrorwall[i],mirrorsector[i],&tposx,&tposy,&tang);
 
                 j = visibility;
                 visibility = (j>>1) + (j>>2);
 
-                drawrooms(tposx,tposy,cameraz,tang,camerahoriz,mirrorsector[i]+MAXSECTORS);
+                drawrooms(tposx,tposy,ud.cameraz,tang,ud.camerahoriz,mirrorsector[i]+MAXSECTORS);
 
                 display_mirror = 1;
                 animatesprites(tposx,tposy,tang,smoothratio);
@@ -4060,8 +4057,8 @@ void displayrooms(int snum,long smoothratio)
             gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
         }
 
-        drawrooms(camerax,cameray,cameraz,cameraang,camerahoriz,camerasect);
-        animatesprites(camerax,cameray,cameraang,smoothratio);
+        drawrooms(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,ud.camerasect);
+        animatesprites(ud.camerax,ud.cameray,ud.cameraang,smoothratio);
         drawmasks();
 
         if (screencapt == 1)

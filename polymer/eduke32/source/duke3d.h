@@ -352,6 +352,9 @@ struct user_defs {
     short camerasprite,last_camsprite;
     short last_level,secretlevel;
 
+    short cameraang, camerasect, camerahoriz;
+    long camerax,cameray,cameraz;
+
     long const_visibility,uw_framerate;
     long camera_time,folfvel,folavel,folx,foly,fola;
     long reccnt;
