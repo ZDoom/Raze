@@ -152,12 +152,12 @@ GLuint peelprogram[2];      // ARBfp peeling fragment program
 // Detail mapping cvar
 long r_detailmapping = 1;
 
-float fogresult, ofogresult;
+float fogresult, ofogresult, fogcol[4];
 
-void fogcalc (const signed char *shade, const char *vis)
+void fogcalc (signed char shade, char vis, char pal)
 {
-    if (*vis < 240) fogresult = (float)(*vis+16+(*shade<0?(-(*shade)*(*shade))/8.f:((*shade)*(*shade))/8.f));
-    else fogresult = (float)((*vis-240+(*shade<0?(-(*shade)*(*shade))/8.f:((*shade)*(*shade))/8.f))/(klabs(*vis-256)));
+    if (vis < 240) fogresult = (float)(vis+16+(shade<0?(-(shade)*(shade))/8.f:((shade)*(shade))/8.f));
+    else fogresult = (float)((vis-240+(shade<0?(-(shade)*(shade))/8.f:((shade)*(shade))/8.f))/(klabs(vis-256)));
 
     fogresult *= gvisibility;
 
@@ -165,6 +165,11 @@ void fogcalc (const signed char *shade, const char *vis)
 
     if (fogresult < 0.010) fogresult = 0.010;
     else if (fogresult > 10.000) fogresult = 10.000;
+    
+    fogcol[0] = (float)palookupfog[pal].r / 63.f;
+    fogcol[1] = (float)palookupfog[pal].g / 63.f;
+    fogcol[2] = (float)palookupfog[pal].b / 63.f;
+    fogcol[3] = 0;
 }
 #endif
 
@@ -671,7 +676,7 @@ void polymost_glinit()
     bglHint(GL_FOG_HINT,GL_DONT_CARE);
 #endif
     
-    bglFogi(GL_FOG_MODE,GL_EXP2);
+    bglFogi(GL_FOG_MODE,GL_EXP);
     bglFogf(GL_FOG_DENSITY,1.0); //must be > 0, default is 1
 /*    bglFogf(GL_FOG_START,0.0); //default is 0
     bglFogf(GL_FOG_END,1.0); //default is 1 */
@@ -2738,8 +2743,9 @@ static void polymost_drawalls (long bunch)
 #ifdef USE_OPENGL
             if (!nofog)
             {
-                fogcalc(&sec->floorshade,&sec->visibility);
+                fogcalc(sec->floorshade,sec->visibility,sec->floorpal);
                 bglFogf(GL_FOG_DENSITY,fogresult);
+                bglFogfv(GL_FOG_COLOR,fogcol);                
             }
 #endif
             pow2xsplit = 0; domost(x0,fy0,x1,fy1); //flor
@@ -2760,8 +2766,9 @@ static void polymost_drawalls (long bunch)
 
                 if (!nofog)
                 {
-                    fogcalc(&sec->floorshade,&sec->visibility);
+                    fogcalc(sec->floorshade,sec->visibility,sec->floorpal);
                     bglFogf(GL_FOG_DENSITY,fogresult * 0.005);
+                    bglFogfv(GL_FOG_COLOR,fogcol);                    
                 }
 
                 //Use clamping for tiled sky textures
@@ -3104,8 +3111,9 @@ static void polymost_drawalls (long bunch)
 #ifdef USE_OPENGL
             if (!nofog)
             {
-                fogcalc(&sec->ceilingshade,&sec->visibility);
+                fogcalc(sec->ceilingshade,sec->visibility,sec->floorpal);
                 bglFogf(GL_FOG_DENSITY,fogresult);
+                bglFogfv(GL_FOG_COLOR,fogcol);                
             }
 #endif
             pow2xsplit = 0; domost(x1,cy1,x0,cy0); //ceil
@@ -3125,8 +3133,9 @@ static void polymost_drawalls (long bunch)
                 */
                 if (!nofog)
                 {
-                    fogcalc(&sec->ceilingshade,&sec->visibility);
+                    fogcalc(sec->ceilingshade,sec->visibility,sec->floorpal);
                     bglFogf(GL_FOG_DENSITY,fogresult * 0.005);
+                    bglFogfv(GL_FOG_COLOR,fogcol);                    
                 }
                 //Use clamping for tiled sky textures
                 for (i=(1<<pskybits)-1;i>0;i--)
@@ -3440,8 +3449,9 @@ static void polymost_drawalls (long bunch)
 #ifdef USE_OPENGL
                 if (!nofog)
                 {
-                    fogcalc(&wal->shade,&sec->visibility);
+                    fogcalc(wal->shade,sec->visibility,sec->floorpal);
                     bglFogf(GL_FOG_DENSITY,fogresult);
+                    bglFogfv(GL_FOG_COLOR,fogcol);
                 }
 #endif
                 pow2xsplit = 1; domost(x1,ocy1,x0,ocy0);
@@ -3481,8 +3491,9 @@ static void polymost_drawalls (long bunch)
 #ifdef USE_OPENGL
                 if (!nofog)
                 {
-                    fogcalc(&nwal->shade,&sec->visibility);
+                    fogcalc(nwal->shade,sec->visibility,sec->floorpal);
                     bglFogf(GL_FOG_DENSITY,fogresult);
+                    bglFogfv(GL_FOG_COLOR,fogcol);
                 }
 #endif
                 pow2xsplit = 1; domost(x0,ofy0,x1,ofy1);
@@ -3518,8 +3529,9 @@ static void polymost_drawalls (long bunch)
 #ifdef USE_OPENGL
             if (!nofog)
             {
-                fogcalc(&wal->shade,&sec->visibility);
+                fogcalc(wal->shade,sec->visibility,sec->floorpal);
                 bglFogf(GL_FOG_DENSITY,fogresult);
+                bglFogfv(GL_FOG_COLOR,fogcol);
             }
 #endif
             pow2xsplit = 1; domost(x0,-10000,x1,-10000);
@@ -3985,18 +3997,9 @@ if (yp1 < SCISDIST) { t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0;
 #ifdef USE_OPENGL
     if (!nofog) {
         if (rendmode >= 3) {
-            float col[4];
-            col[0] = (float)palookupfog[sec->floorpal].r / 63.f;
-            col[1] = (float)palookupfog[sec->floorpal].g / 63.f;
-            col[2] = (float)palookupfog[sec->floorpal].b / 63.f;
-            col[3] = 0;
-            bglFogfv(GL_FOG_COLOR,col);
-
-            if (!nofog)
-            {
-                fogcalc(&wal->shade,&sec->visibility);
-                bglFogf(GL_FOG_DENSITY,fogresult);
-            }
+            fogcalc(wal->shade,sec->visibility,sec->floorpal);
+            bglFogf(GL_FOG_DENSITY,fogresult);
+            bglFogfv(GL_FOG_COLOR,fogcol);            
         }
     }
 #endif
@@ -4105,14 +4108,9 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
             return; // discard opaque sprite when composing the depth peels
     }
     if (!nofog && rendmode >= 3) {
-        float col[4];
-        col[0] = (float)palookupfog[sector[tspr->sectnum].floorpal].r / 63.f;
-        col[1] = (float)palookupfog[sector[tspr->sectnum].floorpal].g / 63.f;
-        col[2] = (float)palookupfog[sector[tspr->sectnum].floorpal].b / 63.f;
-        col[3] = 0;
-        bglFogfv(GL_FOG_COLOR,col); //default is 0,0,0,0
-        fogcalc((signed char *)&globalshade,&sector[tspr->sectnum].visibility);
+        fogcalc(globalshade,sector[tspr->sectnum].visibility,sector[tspr->sectnum].floorpal);
         bglFogf(GL_FOG_DENSITY,fogresult);
+        bglFogfv(GL_FOG_COLOR,fogcol);        
     }
 
     while (rendmode >= 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD)) {
