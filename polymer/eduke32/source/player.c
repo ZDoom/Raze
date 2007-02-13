@@ -589,6 +589,7 @@ int shoot(int i,int atwith)
                 {
                     if (!ps[p].auto_aim)
                     {
+                        zvel = (100-ps[p].horiz-ps[p].horizoff)<<5;
                         if (hittype[i].temp_data[9]) zvel = hittype[i].temp_data[9];
                         hitscan(sx,sy,sz,sect,sintable[(sa+512)&2047],sintable[sa&2047],
                                 zvel<<6,&hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
@@ -1158,6 +1159,7 @@ DOSKIPBULLETHOLE:
                 {
                     if (!ps[p].auto_aim)
                     {
+                        zvel = (100-ps[p].horiz-ps[p].horizoff)<<5;
                         if (hittype[i].temp_data[9]) zvel = hittype[i].temp_data[9];
                         hitscan(sx,sy,sz,sect,sintable[(sa+512)&2047],sintable[sa&2047],
                                 zvel<<6,&hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
