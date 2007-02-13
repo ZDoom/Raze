@@ -1893,8 +1893,6 @@ static void coolgaugetext(int snum)
     long i, j, o, ss, u;
     int permbit;
 
-    if (p->invdisptime > 0) displayinventory(p);
-
     if (ps[snum].gm&MODE_MENU)
         if ((current_menu >= 400  && current_menu <= 405))
             return;
@@ -3362,7 +3360,13 @@ void displayrest(long smoothratio)
         }
     }
 
-    coolgaugetext(screenpeek);
+    if (pp->invdisptime > 0) displayinventory(pp);
+
+    SetGameVarID(g_iReturnVarID,0,ps[screenpeek].i,screenpeek);
+    OnEvent(EVENT_DISPLAYSBAR, ps[screenpeek].i, screenpeek, -1);
+    if (GetGameVarID(g_iReturnVarID,ps[screenpeek].i,screenpeek) == 0)
+        coolgaugetext(screenpeek);
+        
     operatefta();
 
     if (KB_KeyPressed(sc_Escape) && ud.overhead_on == 0
@@ -3954,7 +3958,7 @@ void displayrooms(int snum,long smoothratio)
             i = sintable[i+512]*8 + sintable[i]*5L;
             setaspect(i>>1,yxaspect);
         }
-        else if (getrendermode() > 0 /*&& (p->rotscrnang || p->orotscrnang)*/)
+        else if (getrendermode() > 0 && ud.screen_tilting /*&& (p->rotscrnang || p->orotscrnang)*/)
         {
             setrollangle(p->orotscrnang + mulscale16(((p->rotscrnang - p->orotscrnang + 1024)&2047)-1024,smoothratio));
             p->orotscrnang = p->rotscrnang; // JBF: save it for next time
@@ -10193,7 +10197,7 @@ MAIN_LOOP_RESTART:
         else
             i = 65536;
 
-        if (ud.statusbarmode == 1 && ud.statusbarscale == 100)
+        if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || bpp == 8))
         {
             ud.statusbarmode = 0;
             vscrn();

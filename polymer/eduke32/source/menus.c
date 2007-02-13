@@ -2519,13 +2519,14 @@ cheat_for_port_credits:
                                "-",
                                "Run key style",
                                "-",
-                               "Detail",
                                "Shadows",
                                "Screen tilting",
                                "-",
                                "Show opponent weapon",
                                "Demo playback cameras",
                                "Record demo",
+                               "-",
+                               "-",
                                "-",
                                "-",
                                "-",
@@ -2617,32 +2618,27 @@ cheat_for_port_credits:
                     gametextpal(d,yy, ud.runkey_mode ? "Classic" : "Modern", MENUHIGHLIGHT(io), 0);
                     break;
                 case 5:
-                    if (x==io) ud.detail = 1-ud.detail;
-                    modval(0,1,(int *)&ud.detail,1,probey==io);
-                    gametextpal(d,yy, ud.detail ? "High" : "Low", MENUHIGHLIGHT(io), 0);
-                    break;
-                case 6:
                     if (x==io) ud.shadows = 1-ud.shadows;
                     modval(0,1,(int *)&ud.shadows,1,probey==io);
                     gametextpal(d,yy, ud.shadows ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 7:
+                case 6:
                     if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
                     modval(0,1,(int *)&ud.screen_tilting,1,probey==io);
                     gametextpal(d,yy, ud.screen_tilting ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;  // original had a 'full' option
-                case 8:
+                case 7:
                     if (x==io) ud.showweapons = 1-ud.showweapons;
                     modval(0,1,(int *)&ud.showweapons,1,probey==io);
                     ShowOpponentWeapons = ud.showweapons;
                     gametextpal(d,yy, ShowOpponentWeapons ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 9:
+                case 8:
                     if (x==io) ud.democams = 1-ud.democams;
                     modval(0,1,(int *)&ud.democams,1,probey==io);
                     gametextpal(d,yy, ud.democams ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 10:
+                case 9:
                     if (x==io)
                     {
                         enabled = !((ps[myconnectindex].gm&MODE_GAME) && ud.m_recstat != 1);
@@ -2653,7 +2649,7 @@ cheat_for_port_credits:
                         enabled = 0;
                     gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Running":"On"):"Off",enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE,enabled?0:1);
                     break;
-                case 11:
+                case 10:
                         if (x==io) cmenu(201);
                     break;
                 default:
@@ -2722,7 +2718,7 @@ cheat_for_port_credits:
             if (x == -1)
             {
                 cmenu(200);
-                probey = 11;
+                probey = 10;
                 break;
             }
 
@@ -2806,6 +2802,7 @@ cheat_for_port_credits:
                 case 8:
 #endif
                     if (x==io) cmenu(200);
+                    probey = 10;
                     break;
                 default:
                     break;
@@ -2906,9 +2903,9 @@ cheat_for_port_credits:
         c = (320>>1)-120;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        x = 8;
+        x = (bpp>8?8:6);
 #else
-        x = 5;
+        x = 6;
 #endif
         onbar = (probey == 4);
         if (probey == 0 || probey == 1 || probey == 2)
@@ -3133,10 +3130,14 @@ cheat_for_port_credits:
 
         case 4:
             break;
-
-#if defined(POLYMOST) && defined(USE_OPENGL)
+            
         case 5:
-            if (bpp==8) break;
+            if (bpp==8)
+            {
+                ud.detail = 1-ud.detail;
+                break;
+            }  
+#if defined(POLYMOST) && defined(USE_OPENGL)              
             /*            switch (gltexfiltermode)
                         {
                         case 0:
@@ -3157,7 +3158,6 @@ cheat_for_port_credits:
                 gltexfiltermode = 0;
             gltexapplyprops();
             break;
-
         case 6:
             if (bpp==8) break;
             glanisotropy *= 2;
@@ -3197,40 +3197,50 @@ cheat_for_port_credits:
             }
         }
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
-        menutext(c,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,"FILTERING");
-        switch (gltexfiltermode)
+        if (bpp == 8)
         {
-        case 0:
-            strcpy(tempbuf,"NEAREST");
-            break;
-        case 1:
-            strcpy(tempbuf,"LINEAR");
-            break;
-        case 2:
-            strcpy(tempbuf,"NEAREST_MM_N");
-            break;
-        case 3:
-            strcpy(tempbuf,"BILINEAR");
-            break;
-        case 4:
-            strcpy(tempbuf,"NEAREST_MM_L");
-            break;
-        case 5:
-            strcpy(tempbuf,"TRILINEAR");
-            break;
-        default:
-            strcpy(tempbuf,"OTHER");
-            break;
+            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"DETAIL");
+            menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"HIGH":"LOW");            
+            modval(0,1,(int *)&ud.detail,1,probey==5);
         }
-//        menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,tempbuf);
-        gametextpal(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),bpp==8);
 
-        menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"ANISOTROPY");
-        if (glanisotropy == 1) strcpy(tempbuf,"NONE");
-        else sprintf(tempbuf,"%ld-tap",glanisotropy);
-        menutext(c+154,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,tempbuf);
-        menutext(c,50+62+16+16+16+16,MENUHIGHLIGHT(7),bpp==8,"ADVANCED VIDEO");
+#if defined(POLYMOST) && defined(USE_OPENGL)
+        if (bpp > 8)
+        {
+            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,"FILTERING");
+            switch (gltexfiltermode)
+            {
+            case 0:
+                strcpy(tempbuf,"NEAREST");
+                break;
+            case 1:
+                strcpy(tempbuf,"LINEAR");
+                break;
+            case 2:
+                strcpy(tempbuf,"NEAR_MM_NEAR");
+                break;
+            case 3:
+                strcpy(tempbuf,"BILINEAR");
+                break;
+            case 4:
+                strcpy(tempbuf,"NEAR_MM_LIN");
+                break;
+            case 5:
+                strcpy(tempbuf,"TRILINEAR");
+                break;
+            default:
+                strcpy(tempbuf,"OTHER");
+                break;
+            }
+    //        menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,tempbuf);
+            gametextpal(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),bpp==8);
+
+            menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"ANISOTROPY");
+            if (glanisotropy == 1) strcpy(tempbuf,"NONE");
+            else sprintf(tempbuf,"%ld-tap",glanisotropy);
+            menutext(c+154,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,tempbuf);
+            menutext(c,50+62+16+16+16+16,MENUHIGHLIGHT(7),bpp==8,"ADVANCED VIDEO");
+        }
 #endif
         break;
 
