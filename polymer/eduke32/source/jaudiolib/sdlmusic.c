@@ -219,7 +219,7 @@ int MUSIC_Shutdown(void)
     music_context = 0;
     music_initialized = 0;
     music_loopflag = MUSIC_PlayOnce;
-    
+
     if (midifn != NULL)
     {
         initprintf("Removing temporary file '%s'\n",midifn);
@@ -227,7 +227,7 @@ int MUSIC_Shutdown(void)
         Bfree(midifn);
         midifn = NULL;
     }
-    
+
     return(MUSIC_Ok);
 } // MUSIC_Shutdown
 
@@ -309,7 +309,7 @@ int MUSIC_StopSong(void)
 
     music_songdata = NULL;
     music_musicchunk = NULL;
-    
+
     return(MUSIC_Ok);
 } // MUSIC_StopSong
 
@@ -386,14 +386,14 @@ void PlayMusic(char *_filename)
     // save the file somewhere, so SDL_mixer can load it
     {
         char *user = getenv("USERNAME");
-        
+
         if (user) Bsprintf(tempbuf,"duke3d-%s.mid.%d",user,getpid());
         else Bsprintf(tempbuf,"duke3d.mid.%d",getpid());
 
         GetUnixPathFromEnvironment(filename, BMAX_PATH, tempbuf);
-        
+
         handle = SafeOpenWrite(filename, filetype_binary);
-    
+
         if (handle == -1)
             return;
 

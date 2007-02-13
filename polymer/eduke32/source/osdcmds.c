@@ -360,6 +360,16 @@ static int osdcmd_restartsound(const osdfuncparm_t *parm)
     FX_StopAllSounds();
     clearsoundlocks();
 
+    if (MusicToggle == 1)
+    {
+        if (ud.recstat != 2 && ps[myconnectindex].gm&MODE_GAME)
+        {
+            if (music_fn[0][(unsigned char)music_select] != NULL)
+                playmusic(&music_fn[0][(unsigned char)music_select][0]);
+        }
+        else playmusic(&env_music_fn[0][0]);
+    }
+
     return OSDCMD_OK;
 }
 
@@ -425,21 +435,6 @@ static int osdcmd_setstatusbarscale(const osdfuncparm_t *parm)
 
     setstatusbarscale(Batol(parm->parms[0]));
     OSD_Printf("cl_statusbarscale %d\n", ud.statusbarscale);
-    return OSDCMD_OK;
-}
-
-static int osdcmd_setstatusbarmode(const osdfuncparm_t *parm)
-{
-    if (parm->numparms == 0)
-    {
-        OSD_Printf("\"cl_statusbarmode\" is \"%d\"\n", ud.statusbarmode);
-        return OSDCMD_SHOWHELP;
-    }
-    else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-    ud.statusbarmode = Batol(parm->parms[0]);
-    vscrn();
-    OSD_Printf("cl_statusbarmode %d\n", ud.statusbarmode);
     return OSDCMD_OK;
 }
 
@@ -924,7 +919,6 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
 
-    OSD_RegisterFunction("cl_statusbarmode","cl_statusbarmode: enable/disable status bar drawing hack", osdcmd_setstatusbarmode);
     OSD_RegisterFunction("cl_statusbarscale","cl_statusbarscale: changes the status bar scale", osdcmd_setstatusbarscale);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
 

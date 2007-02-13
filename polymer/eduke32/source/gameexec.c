@@ -4784,10 +4784,10 @@ static int parse(void)
 
             if (x1 > x2) swaplong(&x1,&x2);
             if (y1 > y2) swaplong(&y1,&y2);
-         
+
             if (x1 < 0 || y1 < 0 || x2 > xdim-1 || y2 > ydim-1 || x2-x1 < 1 || y2-y1 < 1)
                 break;
-                        
+
 #if defined(USE_OPENGL) && defined(POLYMOST)
             j = glprojectionhacks;
             glprojectionhacks = 0;
@@ -4799,7 +4799,7 @@ static int parse(void)
             vscrn();
 #if defined(USE_OPENGL) && defined(POLYMOST)
             glprojectionhacks = j;
-#endif                        
+#endif
             break;
         }
 

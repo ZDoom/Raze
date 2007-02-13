@@ -812,7 +812,7 @@ LABELS userdefslabels[]=
         { "automsg", USERDEFS_AUTOMSG, 0, 0 },
         { "idplayers", USERDEFS_IDPLAYERS, 0, 0 },
         { "team", USERDEFS_TEAM, 0, 0 },
-#if 0        
+#if 0
         { "myx", USERDEFS_MYX, 0, 0 },
         { "omyx", USERDEFS_OMYX, 0, 0 },
         { "myxvel", USERDEFS_MYXVEL, 0, 0 },
@@ -1047,8 +1047,8 @@ char CheckEventSync(int iEventID)
         case EVENT_DISPLAYCROSSHAIR:
         case EVENT_DISPLAYREST:
         case EVENT_DISPLAYROOMS:
-        case EVENT_DISPLAYWEAPON:        
-        case EVENT_DRAWWEAPON:        
+        case EVENT_DISPLAYWEAPON:
+        case EVENT_DRAWWEAPON:
         case EVENT_ENTERLEVEL:
         case EVENT_FAKEDOMOVETHINGS:
         case EVENT_GETLOADTILE:

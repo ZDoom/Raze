@@ -179,7 +179,7 @@ inline void setstatusbarscale(long sc)
 
 static inline long sbarx(long x)
 {
-    if (ud.screen_size == 4) return scale(x<<16,ud.statusbarscale,100);
+    if (ud.screen_size == 4 || ud.statusbarmode == 1) return scale(x<<16,ud.statusbarscale,100);
     return (((320l<<16) - scale(320l<<16,ud.statusbarscale,100)) >> 1) + scale(x<<16,ud.statusbarscale,100);
 }
 
@@ -209,7 +209,9 @@ static void patchstatusbar(long x1, long y1, long x2, long y2)
     clofx = (xdim - scale(xdim,ud.statusbarscale,100)) >> 1;
     clofy = (ydim - scale(ydim,ud.statusbarscale,100));
 
-    rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1+clofx,cly1+clofy,clx2+clofx-1,cly2+clofy-1);
+    if (ud.statusbarmode == 0)
+        rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1+clofx,cly1+clofy,clx2+clofx-1,cly2+clofy-1);
+    else rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1,cly1,clx2+clofx-1,cly2+clofy-1);
 }
 
 void setgamepalette(struct player_struct *player, char *pal, int set)
@@ -4020,9 +4022,9 @@ void displayrooms(int snum,long smoothratio)
 
         if (ud.camerahoriz > 299) ud.camerahoriz = 299;
         else if (ud.camerahoriz < -99) ud.camerahoriz = -99;
-        
-        OnEvent(EVENT_DISPLAYROOMS, ps[screenpeek].i, screenpeek, -1);        
-        
+
+        OnEvent(EVENT_DISPLAYROOMS, ps[screenpeek].i, screenpeek, -1);
+
 #ifdef SE40
         se40code(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,smoothratio);
 #endif
@@ -7630,22 +7632,47 @@ static void nonsharedkeys(void)
         if (BUTTON(gamefunc_Enlarge_Screen))
         {
             CONTROL_ClearButton(gamefunc_Enlarge_Screen);
-            if (ud.screen_size > 0)
-                sound(THUD);
-            if (ud.screen_size == 8 && ud.statusbarmode == 0 && bpp > 8 && ud.statusbarscale != 100)
-                ud.statusbarmode = 1;
-            else ud.screen_size -= 4;
+            if (!SHIFTS_IS_PRESSED)
+            {
+                if (ud.screen_size > 0)
+                    sound(THUD);
+                if (ud.screen_size == 8 && ud.statusbarmode == 0 && bpp > 8)
+                    ud.statusbarmode = 1;
+                else ud.screen_size -= 4;
+
+                if (ud.statusbarscale == 100 && ud.statusbarmode == 1)
+                {
+                    ud.statusbarmode = 0;
+                    ud.screen_size -= 4;
+                }
+            }
+            else
+            {
+                ud.statusbarscale += 8;
+                setstatusbarscale(ud.statusbarscale);
+            }
             vscrn();
         }
+
         if (BUTTON(gamefunc_Shrink_Screen))
         {
             CONTROL_ClearButton(gamefunc_Shrink_Screen);
-            if (ud.screen_size < 64) sound(THUD);
-            if (ud.screen_size == 4 && ud.statusbarscale == 100 && ud.statusbarmode == 1)
-                ud.statusbarmode = 0;
-            if (ud.screen_size == 8 && ud.statusbarmode == 1 && bpp > 8)
-                ud.statusbarmode = 0;
-            else ud.screen_size += 4;
+            if (!SHIFTS_IS_PRESSED)
+            {
+                if (ud.screen_size < 64) sound(THUD);
+                if (ud.screen_size == 8 && ud.statusbarmode == 1 && bpp > 8)
+                    ud.statusbarmode = 0;
+                else ud.screen_size += 4;
+            }
+            else
+            {
+                ud.statusbarscale -= 8;
+                if (ud.statusbarscale < 37)
+                    ud.statusbarscale = 37;
+                setstatusbarscale(ud.statusbarscale);
+                if (ud.screen_size == 8)
+                    ud.statusbarmode = 1;
+            }
             vscrn();
         }
     }
@@ -8189,7 +8216,7 @@ static int load_rancid_net(char *fn)
             if (strtok(ip,":"))
             {
                 char *p = strtok(NULL,":");
-                
+
                 if (p != NULL)
                 {
                     if (atoi(p) > 1024)
@@ -10165,6 +10192,12 @@ MAIN_LOOP_RESTART:
             i = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
         else
             i = 65536;
+
+        if (ud.statusbarmode == 1 && ud.statusbarscale == 100)
+        {
+            ud.statusbarmode = 0;
+            vscrn();
+        }
 
         displayrooms(screenpeek,i);
         displayrest(i);
