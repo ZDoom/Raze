@@ -7652,7 +7652,7 @@ static void nonsharedkeys(void)
             }
             else
             {
-                ud.statusbarscale += 8;
+                ud.statusbarscale += 4;
                 setstatusbarscale(ud.statusbarscale);
             }
             vscrn();
@@ -7670,7 +7670,7 @@ static void nonsharedkeys(void)
             }
             else
             {
-                ud.statusbarscale -= 8;
+                ud.statusbarscale -= 4;
                 if (ud.statusbarscale < 37)
                     ud.statusbarscale = 37;
                 setstatusbarscale(ud.statusbarscale);
@@ -8391,9 +8391,9 @@ static int loadgroupfiles(char *fn)
                 int j = initgroupfile(fn);
 
                 if (j == -1)
-                    initprintf("Warning: could not find group file %s.\n",fn);
+                    initprintf("Could not find group file '%s'.\n",fn);
                 else
-                    initprintf("Using group file %s.\n",fn);
+                    initprintf("Using group file '%s'.\n",fn);
             }
             pathsearchmode = 0;
         }
@@ -9807,7 +9807,7 @@ void app_main(int argc,char **argv)
         exit(1);
     }
 
-    initprintf("Using config file %s.\n",setupfilename);
+    initprintf("Using config file '%s'.\n",setupfilename);
 
     ScanGroups();
     {	// try and identify the 'defaultduke3dgrp' in the set of GRPs.
@@ -9878,11 +9878,11 @@ void app_main(int argc,char **argv)
         {
             s = CommandGrps->next;
             j = initgroupfile(CommandGrps->str);
-            if (j == -1) initprintf("Warning: could not find group file %s.\n",CommandGrps->str);
+            if (j == -1) initprintf("Could not find group file '%s'.\n",CommandGrps->str);
             else
             {
                 groupfile = j;
-                initprintf("Using group file %s.\n",CommandGrps->str);
+                initprintf("Using group file '%s'.\n",CommandGrps->str);
             }
 
             free(CommandGrps->str);
@@ -9932,6 +9932,7 @@ void app_main(int argc,char **argv)
         Bsprintf(ud.user_name[j],"PLAYER %d",j+1);
         ps[j].team = ud.pteam[j] = i;
         ps[j].weaponswitch = 3;
+        ps[j].auto_aim = 0;
         i = 1-i;
     }
 
@@ -9968,7 +9969,7 @@ void app_main(int argc,char **argv)
     ud.last_level = -1;
 
     RTS_Init(ud.rtsname);
-    if (numlumps) initprintf("Using .RTS file: %s\n",ud.rtsname);
+    if (numlumps) initprintf("Using .RTS file '%s'\n",ud.rtsname);
 
     initprintf("Initializing OSD...\n");
 
@@ -10979,9 +10980,7 @@ static void fakedomovethings(void)
     }
     else if (syn->avel)          //p->ang += syncangvel * constant
     {                         //ENGINE calculates angvel for you
-        long tempang;
-
-        tempang = syn->avel<<1;
+        long tempang = syn->avel<<1;
 
         if (psectlotag == 2)
             myang += (tempang-(tempang>>3))*ksgn(doubvel);

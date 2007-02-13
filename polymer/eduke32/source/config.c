@@ -207,6 +207,23 @@ char * CONFIG_AnalogNumToName(int32 func)
 ===================
 */
 
+void CONFIG_SetDefaultKeys(void)
+{
+    int32 i,f;
+
+    memset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
+    for (i=0; i < (int32)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3)
+    {
+        f = CONFIG_FunctionNameToNum(keydefaults[i+0]);
+        if (f == -1) continue;
+        KeyboardKeys[f][0] = KB_StringToScanCode(keydefaults[i+1]);
+        KeyboardKeys[f][1] = KB_StringToScanCode(keydefaults[i+2]);
+
+        if (f == gamefunc_Show_Console) OSD_CaptureKey(KeyboardKeys[f][0]);
+        else CONTROL_MapKey(f, KeyboardKeys[f][0], KeyboardKeys[f][1]);
+    }
+}
+
 void CONFIG_SetDefaults(void)
 {
     // JBF 20031211
@@ -275,17 +292,6 @@ void CONFIG_SetDefaults(void)
     Bstrcpy(ud.ridecule[9], "AARRRGHHHHH!!!");
 
     // JBF 20031211
-    memset(KeyboardKeys, 0xff, sizeof(KeyboardKeys));
-    for (i=0; i < (int32)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3)
-    {
-        f = CONFIG_FunctionNameToNum(keydefaults[i+0]);
-        if (f == -1) continue;
-        KeyboardKeys[f][0] = KB_StringToScanCode(keydefaults[i+1]);
-        KeyboardKeys[f][1] = KB_StringToScanCode(keydefaults[i+2]);
-
-        if (f == gamefunc_Show_Console) OSD_CaptureKey(KeyboardKeys[f][0]);
-        else CONTROL_MapKey(f, KeyboardKeys[f][0], KeyboardKeys[f][1]);
-    }
 
     memset(MouseFunctions, -1, sizeof(MouseFunctions));
     for (i=0; i<MAXMOUSEBUTTONS; i++)
@@ -617,7 +623,7 @@ int32 CONFIG_ReadSetup(void)
             extern char defaultduke3dgrp[BMAX_PATH];
             if (!Bstrcmp(defaultduke3dgrp,"duke3d.grp"))
                 SCRIPT_GetString(scripthandle, "Misc","SelectedGRP",&duke3dgrp[0]);
-        }        
+        }
 
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "Shadows",&ud.shadows);
 
@@ -918,13 +924,13 @@ void CONFIG_WriteSetup(void)
 
     SCRIPT_PutString(scripthandle, "Comm Setup","PlayerName",&myname[0]);
     SCRIPT_PutString(scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
-    
+
     {
         extern int packetrate;
         SCRIPT_PutNumber(scripthandle, "Comm Setup", "Rate", packetrate, false, false);
     }
-    
-    
+
+
     SCRIPT_PutString(scripthandle, "Misc","SelectedGRP",&duke3dgrp[0]);
     {
         char commmacro[] = "CommbatMacro# ";

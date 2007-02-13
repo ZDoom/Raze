@@ -665,7 +665,7 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
             SetGameVarID(lVar2, ud.team, g_i, g_p);
         break;
 
-#if 0
+#if 1
     case USERDEFS_MYX:
         if (iSet)
             myx = lValue;
@@ -4785,7 +4785,7 @@ static int parse(void)
             if (x1 > x2) swaplong(&x1,&x2);
             if (y1 > y2) swaplong(&y1,&y2);
 
-            if (x1 < 0 || y1 < 0 || x2 > xdim-1 || y2 > ydim-1 || x2-x1 < 1 || y2-y1 < 1)
+            if (x1 < 0 || y1 < 0 || x2 > xdim-1 || y2 > ydim-1 || x2-x1 < 2 || y2-y1 < 2)
                 break;
 
 #if defined(USE_OPENGL) && defined(POLYMOST)

@@ -3130,14 +3130,14 @@ cheat_for_port_credits:
 
         case 4:
             break;
-            
+
         case 5:
             if (bpp==8)
             {
                 ud.detail = 1-ud.detail;
                 break;
-            }  
-#if defined(POLYMOST) && defined(USE_OPENGL)              
+            }
+#if defined(POLYMOST) && defined(USE_OPENGL)
             /*            switch (gltexfiltermode)
                         {
                         case 0:
@@ -3200,7 +3200,7 @@ cheat_for_port_credits:
         if (bpp == 8)
         {
             menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"DETAIL");
-            menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"HIGH":"LOW");            
+            menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"HIGH":"LOW");
             modval(0,1,(int *)&ud.detail,1,probey==5);
         }
 
@@ -3232,7 +3232,7 @@ cheat_for_port_credits:
                 strcpy(tempbuf,"OTHER");
                 break;
             }
-    //        menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,tempbuf);
+            //        menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,tempbuf);
             gametextpal(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),bpp==8);
 
             menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"ANISOTROPY");
@@ -3251,12 +3251,18 @@ cheat_for_port_credits:
         c = (320>>1)-120;
 
         onbar = 0;
-        x = probe(0,0,0,NUMGAMEFUNCTIONS);
+
+        x = probesm((probey == NUMGAMEFUNCTIONS)?60:0,(probey == NUMGAMEFUNCTIONS)?149:0,0,NUMGAMEFUNCTIONS+1);
 
         if (x==-1)
         {
             cmenu(202);
             probey = 4;
+        }
+        else if (x == NUMGAMEFUNCTIONS)
+        {
+            CONFIG_SetDefaultKeys();
+            break;
         }
         else if (x>=0)
         {
@@ -3316,9 +3322,10 @@ cheat_for_port_credits:
                           (m+l == probey && currentlist?0:16),2,10+16);
         }
 
-        gametext(160,144,"UP/DOWN = SELECT ACTION",0,2+8+16);
-        gametext(160,144+9,"LEFT/RIGHT = SELECT LIST",0,2+8+16);
-        gametext(160,144+9+9,"ENTER = MODIFY   DELETE = CLEAR",0,2+8+16);
+        gametextpal(160,144,"RESET KEYS TO DEFAULTS",MENUHIGHLIGHT(NUMGAMEFUNCTIONS),10);
+        gametext(160,144+9+3,"UP/DOWN = SELECT ACTION",0,2+8+16);
+        gametext(160,144+9+9+3,"LEFT/RIGHT = SELECT LIST",0,2+8+16);
+        gametext(160,144+9+9+9+3,"ENTER = MODIFY   DELETE = CLEAR",0,2+8+16);
 
         break;
 

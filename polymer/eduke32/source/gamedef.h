@@ -316,7 +316,7 @@ enum userdefslabels {
     USERDEFS_IDPLAYERS,
     USERDEFS_TEAM,
     // this stuff isn't really userdef stuff, but getuserdef/setuserdef is already set up for what I want to do
-#if 0    
+#if 1
     USERDEFS_MYX,
     USERDEFS_OMYX,
     USERDEFS_MYXVEL,

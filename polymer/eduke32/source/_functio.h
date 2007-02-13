@@ -217,8 +217,8 @@ static char * mousedefaults[] =
    "MedKit",
    "Jetpack",
    "",
-   "Next_Weapon",
-   "Previous_Weapon"
+   "Previous_Weapon",
+   "Next_Weapon"
    };
 
 
