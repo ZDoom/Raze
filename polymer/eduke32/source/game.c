@@ -3366,7 +3366,7 @@ void displayrest(long smoothratio)
     OnEvent(EVENT_DISPLAYSBAR, ps[screenpeek].i, screenpeek, -1);
     if (GetGameVarID(g_iReturnVarID,ps[screenpeek].i,screenpeek) == 0)
         coolgaugetext(screenpeek);
-        
+
     operatefta();
 
     if (KB_KeyPressed(sc_Escape) && ud.overhead_on == 0
@@ -7674,8 +7674,6 @@ static void nonsharedkeys(void)
                 if (ud.statusbarscale < 37)
                     ud.statusbarscale = 37;
                 setstatusbarscale(ud.statusbarscale);
-                if (ud.screen_size == 8)
-                    ud.statusbarmode = 1;
             }
             vscrn();
         }

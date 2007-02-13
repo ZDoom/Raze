@@ -587,6 +587,18 @@ int shoot(int i,int atwith)
 
                 if (projectile[atwith].workslike & PROJECTILE_FLAG_ACCURATE_AUTOAIM)
                 {
+                    if (!ps[p].auto_aim)
+                    {
+                        if (hittype[i].temp_data[9]) zvel = hittype[i].temp_data[9];
+                        hitscan(sx,sy,sz,sect,sintable[(sa+512)&2047],sintable[sa&2047],
+                                zvel<<6,&hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
+                        if (hitspr != -1)
+                        {
+                            if (sprite[hitspr].statnum == 1 || sprite[hitspr].statnum == 2 || sprite[hitspr].statnum == 10 || sprite[hitspr].statnum == 13)
+                                j = 1;
+                        }
+                    }
+
                     if (j == -1)
                     {
                         sa += (angRange/2)-(TRAND&(angRange-1));
@@ -1144,6 +1156,18 @@ DOSKIPBULLETHOLE:
 
                 if (atwith == SHOTSPARK1__STATIC && !WW2GI && !NAM)
                 {
+                    if (!ps[p].auto_aim)
+                    {
+                        if (hittype[i].temp_data[9]) zvel = hittype[i].temp_data[9];
+                        hitscan(sx,sy,sz,sect,sintable[(sa+512)&2047],sintable[sa&2047],
+                                zvel<<6,&hitsect,&hitwall,&hitspr,&hitx,&hity,&hitz,CLIPMASK1);
+                        if (hitspr != -1)
+                        {
+                            if (sprite[hitspr].statnum == 1 || sprite[hitspr].statnum == 2 || sprite[hitspr].statnum == 10 || sprite[hitspr].statnum == 13)
+                                j = 1;
+                        }
+                    }
+
                     if (j == -1)
                     {
                         sa += (angRange/2)-(TRAND&(angRange-1));
