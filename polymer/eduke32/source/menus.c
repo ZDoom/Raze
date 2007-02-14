@@ -3252,7 +3252,11 @@ cheat_for_port_credits:
 
         onbar = 0;
 
-        x = probesm((probey == NUMGAMEFUNCTIONS)?60:0,(probey == NUMGAMEFUNCTIONS)?149:0,0,NUMGAMEFUNCTIONS+1);
+        if (probey == NUMGAMEFUNCTIONS)
+            x = probesm(60,145,0,NUMGAMEFUNCTIONS+2);
+        else if (probey == NUMGAMEFUNCTIONS+1)
+            x = probesm(60,152,0,NUMGAMEFUNCTIONS+2);
+        else x = probesm(0,0,0,NUMGAMEFUNCTIONS+2);
 
         if (x==-1)
         {
@@ -3261,7 +3265,12 @@ cheat_for_port_credits:
         }
         else if (x == NUMGAMEFUNCTIONS)
         {
-            CONFIG_SetDefaultKeys();
+            CONFIG_SetDefaultKeys(0);
+            break;
+        }
+        else if (x == NUMGAMEFUNCTIONS+1)
+        {
+            CONFIG_SetDefaultKeys(1);
             break;
         }
         else if (x>=0)
@@ -3322,7 +3331,8 @@ cheat_for_port_credits:
                           (m+l == probey && currentlist?0:16),2,10+16);
         }
 
-        gametextpal(160,144,"RESET KEYS TO DEFAULTS",MENUHIGHLIGHT(NUMGAMEFUNCTIONS),10);
+        gametextpal(160,140,  "RESET KEYS TO DEFAULTS",MENUHIGHLIGHT(NUMGAMEFUNCTIONS),10);
+        gametextpal(160,140+7,"SET CLASSIC KEY LAYOUT",MENUHIGHLIGHT(NUMGAMEFUNCTIONS+1),10);
         gametext(160,144+9+3,"UP/DOWN = SELECT ACTION",0,2+8+16);
         gametext(160,144+9+9+3,"LEFT/RIGHT = SELECT LIST",0,2+8+16);
         gametext(160,144+9+9+9+3,"ENTER = MODIFY   DELETE = CLEAR",0,2+8+16);
