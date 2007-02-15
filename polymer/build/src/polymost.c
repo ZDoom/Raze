@@ -152,6 +152,9 @@ GLuint peelprogram[2];      // ARBfp peeling fragment program
 // Detail mapping cvar
 long r_detailmapping = 1;
 
+// Glow mapping cvar
+long r_glowmapping = 1;
+
 float fogresult, ofogresult, fogcol[4];
 
 void fogcalc (signed char shade, char vis, char pal)
@@ -700,10 +703,16 @@ void polymost_glinit()
         r_depthpeeling = 0;
     }
 
-    if (r_detailmapping && (!glinfo.multitex))
+    if (r_detailmapping && (!glinfo.multitex || !glinfo.envcombine))
     {
         OSD_Printf("Your OpenGL implementation doesn't support detail mapping. Disabling...\n");
         r_detailmapping = 0;
+    }
+
+    if (r_glowmapping && (!glinfo.multitex || !glinfo.envcombine))
+    {
+        OSD_Printf("Your OpenGL implementation doesn't support glow mapping. Disabling...\n");
+        r_glowmapping = 0;
     }
 
     //depth peeling initialization
@@ -1527,7 +1536,8 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
     long xx, yy, xi, d0, u0, v0, d1, u1, v1, xmodnice = 0, ymulnice = 0, dorot;
     char dacol = 0, *walptr, *palptr = NULL, *vidp, *vide;
 #ifdef USE_OPENGL
-    pthtyp *pth, *detailpth;
+    pthtyp *pth, *detailpth, *glowpth;
+    int texunits = GL_TEXTURE0_ARB;
 #endif
     // backup of the n for possible redrawing of fullbright
     long n_ = n, method_ = method;
@@ -1630,11 +1640,11 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
         detailpth = NULL;
         if (r_detailmapping && usehightile && !r_depthpeeling && indrawroomsandmasks && !drawingskybox &&
             hicfindsubst(globalpicnum, DETAILPAL, 0))
-            detailpth = gltexcache(globalpicnum, DETAILPAL,method&(~3));
+            detailpth = gltexcache(globalpicnum, DETAILPAL, method&(~3));
 
         if (detailpth && (detailpth->hicr->palnum == DETAILPAL))
         {
-            bglActiveTextureARB(GL_TEXTURE1_ARB);
+            bglActiveTextureARB(++texunits);
 
             bglEnable(GL_TEXTURE_2D);
             bglBindTexture(GL_TEXTURE_2D, detailpth ? detailpth->glpic : 0);
@@ -1667,6 +1677,40 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
         }
         else
             detailpth = NULL;
+
+        glowpth = NULL;
+        if (r_glowmapping && usehightile && !r_depthpeeling && indrawroomsandmasks && !drawingskybox &&
+            hicfindsubst(globalpicnum, GLOWPAL, 0))
+            glowpth = gltexcache(globalpicnum, GLOWPAL, method&(~3));
+
+        if (glowpth && (glowpth->hicr->palnum == GLOWPAL))
+        {
+            bglActiveTextureARB(++texunits);
+
+            bglEnable(GL_TEXTURE_2D);
+            bglBindTexture(GL_TEXTURE_2D, glowpth ? glowpth->glpic : 0);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_INTERPOLATE_ARB);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_TEXTURE);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB, GL_ONE_MINUS_SRC_ALPHA);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_PREVIOUS_ARB);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
+
+            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+        }
+        else
+            glowpth = NULL;
 
         if (pth && (pth->flags & 2))
         {
@@ -1863,10 +1907,11 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
                     up = ox*ngux + oy*nguy + nguo;
                     vp = ox*ngvx + oy*ngvy + ngvo;
                     r = 1.0/dp;
-                    if (detailpth)
+                    if (texunits > GL_TEXTURE0_ARB)
                     {
-                        bglMultiTexCoord2dARB(GL_TEXTURE0_ARB, (up*r-du0+uoffs)*ox2,vp*r*oy2);
-                        bglMultiTexCoord2dARB(GL_TEXTURE1_ARB, (up*r-du0+uoffs)*ox2,vp*r*oy2);
+                        j = GL_TEXTURE0_ARB;
+                        while (j <= texunits)
+                            bglMultiTexCoord2dARB(j++, (up*r-du0+uoffs)*ox2,vp*r*oy2);
                     }
                     else
                         bglTexCoord2d((up*r-du0+uoffs)*ox2,vp*r*oy2);
@@ -1882,21 +1927,31 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             for (i=0;i<n;i++)
             {
                 r = 1.0/dd[i];
-                if (detailpth)
+                if (texunits > GL_TEXTURE0_ARB)
                 {
-                    bglMultiTexCoord2dARB(GL_TEXTURE0_ARB, uu[i]*r*ox2,vv[i]*r*oy2);
-                    bglMultiTexCoord2dARB(GL_TEXTURE1_ARB, uu[i]*r*ox2,vv[i]*r*oy2);
+                    j = GL_TEXTURE0_ARB;
+                    while (j <= texunits)
+                        bglMultiTexCoord2dARB(j++, uu[i]*r*ox2,vv[i]*r*oy2);
                 }
-                bglTexCoord2d(uu[i]*r*ox2,vv[i]*r*oy2);
+                else
+                    bglTexCoord2d(uu[i]*r*ox2,vv[i]*r*oy2);
                 bglVertex3d((px[i]-ghalfx)*r*grhalfxdown10x,(ghoriz-py[i])*r*grhalfxdown10,r*(1.0/1024.0));
             }
             bglEnd();
         }
-        if (detailpth)
+
+        if (texunits > GL_TEXTURE0_ARB)
         {
-            bglDisable(GL_TEXTURE_2D);
-            bglActiveTextureARB(GL_TEXTURE0_ARB);
+            while (texunits > GL_TEXTURE0_ARB)
+            {
+                bglMatrixMode(GL_TEXTURE);
+                bglLoadIdentity();
+                bglMatrixMode(GL_MODELVIEW);
+                bglDisable(GL_TEXTURE_2D);
+                bglActiveTextureARB(--texunits);
+            }
         }
+
         if (fullbrightdrawingpass == 1) // tile has fullbright colors ?
         {
             fullbrightdrawingpass = 2;
@@ -5228,13 +5283,26 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
     else if (!Bstrcasecmp(parm->name, "r_detailmapping")) {
         if (showval) { OSD_Printf("r_detailmapping is %d\n", r_detailmapping); }
         else {
-            if (!glinfo.multitex)
+            if (!glinfo.multitex || !glinfo.envcombine)
             {
                 OSD_Printf("Your OpenGL implementation doesn't support detail mapping.\n");
                 r_detailmapping = 0;
                 return OSDCMD_OK;
             }
             r_detailmapping = (val != 0);
+        }
+        return OSDCMD_OK;
+    }
+    else if (!Bstrcasecmp(parm->name, "r_glowmapping")) {
+        if (showval) { OSD_Printf("r_glowmapping is %d\n", r_glowmapping); }
+        else {
+            if (!glinfo.multitex || !glinfo.envcombine)
+            {
+                OSD_Printf("Your OpenGL implementation doesn't support glow mapping.\n");
+                r_glowmapping = 0;
+                return OSDCMD_OK;
+            }
+            r_glowmapping = (val != 0);
         }
         return OSDCMD_OK;
     }
@@ -5322,7 +5390,8 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
     OSD_RegisterFunction("r_peelscount","r_peelscount: sets the number of depth layers for depth peeling",osdcmd_polymostvars);
     OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail-mapping",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_glowmapping","r_glowmapping: enable/disable glow mapping",osdcmd_polymostvars);
 #endif
     OSD_RegisterFunction("usemodels","usemodels: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
     OSD_RegisterFunction("usehightile","usehightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);
@@ -5359,7 +5428,7 @@ void polymost_precache(long dapicnum, long dapalnum, long datype)
             j = ((md3model *)models[mid])->head.numsurfs;
 
         for (i=0;i<=j;i++)
-            mdloadskin((md2model*)models[mid], 0, dapalnum, i);
+            mdloadskin((md2model*)models[mid], 0, dapalnum, i, 0);
     }
 #endif
 }

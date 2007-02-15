@@ -36,8 +36,9 @@ extern "C" {
 #define MAXSPRITESONSCREEN 4096
 #define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
 
-#define RESERVEDPALS 1
-#define DETAILPAL (MAXPALOOKUPS-1)
+#define RESERVEDPALS 2 // don't forget to increment this when adding reserved pals
+#define DETAILPAL   (MAXPALOOKUPS - 1)
+#define GLOWPAL     (MAXPALOOKUPS - 2)
 
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)
@@ -496,6 +497,7 @@ void gltexapplyprops (void);
 
 extern long r_depthpeeling, r_peelscount;
 extern long r_detailmapping;
+extern long r_glowmapping;
 #endif
 
 void hicinit(void);

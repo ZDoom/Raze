@@ -43,6 +43,7 @@ enum {
     T_FLAGS,
     T_PAL,
     T_DETAIL,
+    T_GLOW,
     T_HUD,
     T_XADD,
     T_YADD,
@@ -119,6 +120,7 @@ static tokenlist modeltokens[] = {
                                      { "frame",  T_FRAME  },
                                      { "anim",   T_ANIM   },
                                      { "skin",   T_SKIN   },
+                                     { "glow",   T_GLOW   },
                                      { "hud",    T_HUD    },
                                  };
 
@@ -187,10 +189,11 @@ static tokenlist tinttokens[] = {
 static tokenlist texturetokens[] = {
                                        { "pal",     T_PAL  },
                                        { "detail",  T_DETAIL },
+                                       { "glow",    T_GLOW },
                                    };
 static tokenlist texturetokens_pal[] = {
                                            { "file",      T_FILE },{ "name", T_FILE },
-                                           { "alphacut",  T_ALPHACUT }, { "detailscale",  T_ALPHACUT }, { "scale",  T_ALPHACUT },
+                                           { "alphacut",  T_ALPHACUT }, { "detailscale",  T_ALPHACUT }, { "scale",  T_ALPHACUT }, { "intensity",  T_ALPHACUT },
                                            { "nocompress",T_NOCOMPRESS },
                                        };
 
@@ -869,6 +872,51 @@ static int defsparser(scriptfile *script)
                     }
 #endif
                 } break;
+                case T_GLOW:
+                {
+                    char *glowtokptr = script->ltextptr;
+                    char *glowend, *glowfn = 0;
+                    int surfnum = 0;
+
+                    if (scriptfile_getbraces(script,&glowend)) break;
+                    while (script->textptr < glowend) {
+                        switch (getatoken(script,modelskintokens,sizeof(modelskintokens)/sizeof(tokenlist))) {
+                        case T_FILE:
+                            scriptfile_getstring(script,&glowfn); break; //skin filename
+                        case T_SURF:
+                            scriptfile_getnumber(script,&surfnum); break;
+                        }
+                    }
+
+                    if (!glowfn) {
+                        initprintf("Error: missing 'skin filename' for skin definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,glowtokptr));
+                        break;
+                    }
+
+                    if (seenframe) { modelskin = ++lastmodelskin; }
+                    seenframe = 0;
+
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                    switch (md_defineskin(lastmodelid, glowfn, GLOWPAL, max(0,modelskin), surfnum)) {
+                    case 0:
+                        break;
+                    case -1:
+                        break; // invalid model id!?
+                    case -2:
+                        initprintf("Invalid skin filename on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,glowtokptr));
+                        break;
+                    case -3:
+                        initprintf("Invalid palette number on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,glowtokptr));
+                        break;
+                    case -4:
+                        initprintf("Out of memory on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,glowtokptr));
+                        break;
+                    }
+#endif
+                } break;
                 case T_HUD:
                 {
                     char *hudtokptr = script->ltextptr;
@@ -1158,6 +1206,40 @@ static int defsparser(scriptfile *script)
                     } else kclose(i);
 
                     hicsetsubsttex(tile,DETAILPAL,fn,detailscale,flags);
+                } break;
+                case T_GLOW: {
+                    char *glowtokptr = script->ltextptr, *glowend;
+                    int i;
+                    char *fn = NULL;
+                    double glowintensity = 1.0;
+                    char flags = 0;
+
+                    if (scriptfile_getbraces(script,&glowend)) break;
+                    while (script->textptr < glowend) {
+                        switch (getatoken(script,texturetokens_pal,sizeof(texturetokens_pal)/sizeof(tokenlist))) {
+                        case T_FILE:
+                            scriptfile_getstring(script,&fn); break;
+                        case T_ALPHACUT:
+                            scriptfile_getdouble(script,&glowintensity); break;
+                        case T_NOCOMPRESS:
+                            flags |= 1; break;
+                        default:
+                            break;
+                        }
+                    }
+
+                    if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
+                    if (!fn) {
+                        initprintf("Error: missing 'file name' for texture definition near line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,glowtokptr));
+                        break;
+                    }
+                    if ((i = kopen4load(fn,0)) < 0) {
+                        initprintf("Error: file '%s' does not exist\n",fn);
+                        break;
+                    } else kclose(i);
+
+                    hicsetsubsttex(tile,GLOWPAL,fn,glowintensity,flags);
                 } break;
                 default:
                     break;

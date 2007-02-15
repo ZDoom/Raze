@@ -57,7 +57,6 @@ Global
 		{CD149A75-4507-404D-856C-E9DBC2E0B286}.HRP SD Release|Win32.ActiveCfg = Release|Win32
 		{CD149A75-4507-404D-856C-E9DBC2E0B286}.HRP SD Release|Win32.Build.0 = Release|Win32
 		{CD149A75-4507-404D-856C-E9DBC2E0B286}.HRP SD|Win32.ActiveCfg = Release|Win32
-		{CD149A75-4507-404D-856C-E9DBC2E0B286}.HRP SD|Win32.Build.0 = Release|Win32
 		{862365FE-811C-46B8-BB1E-B7189DA8D858}.Classic JFAud|Win32.ActiveCfg = Release|Win32
 		{862365FE-811C-46B8-BB1E-B7189DA8D858}.Classic JFAud|Win32.Build.0 = Release|Win32
 		{862365FE-811C-46B8-BB1E-B7189DA8D858}.Classic Release JFAud|Win32.ActiveCfg = Release|Win32
@@ -73,7 +72,6 @@ Global
 		{862365FE-811C-46B8-BB1E-B7189DA8D858}.HRP SD Release|Win32.ActiveCfg = Release|Win32
 		{862365FE-811C-46B8-BB1E-B7189DA8D858}.HRP SD Release|Win32.Build.0 = Release|Win32
 		{862365FE-811C-46B8-BB1E-B7189DA8D858}.HRP SD|Win32.ActiveCfg = Release|Win32
-		{862365FE-811C-46B8-BB1E-B7189DA8D858}.HRP SD|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

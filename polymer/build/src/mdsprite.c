@@ -661,7 +661,7 @@ failure:
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
 
 //Note: even though it says md2model, it works for both md2model&md3model
-static long mdloadskin (md2model *m, int number, int pal, int surf)
+static long mdloadskin (md2model *m, int number, int pal, int surf, int exact)
 {
     long i,j, fptr=0, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
     char *skinfile, hasalpha, fn[BMAX_PATH+65];
@@ -696,6 +696,8 @@ static long mdloadskin (md2model *m, int number, int pal, int surf)
     }
     if (!sk)
     {
+        if (exact)
+            return (0);
         if (skzero)
         {
             skinfile = skzero->fn;
@@ -1272,13 +1274,14 @@ static int md3draw (md3model *m, spritetype *tspr)
 {
     point3d fp, fp1, fp2, m0, m1, a0, a1;
     md3xyzn_t *v0, *v1;
-    long i, j, k, surfi, *lptr;
+    long i, j, k, l, surfi, *lptr;
     float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], pc[4], mult;
     md3surf_t *s;
     //PLAG : sorting stuff
     unsigned short      *indexes;
     float               *maxdepths;
     unsigned short      tempus;
+    int                 texunits = GL_TEXTURE0_ARB;
 
 
     //    if ((tspr->cstat&48) == 32) return 0;
@@ -1485,9 +1488,80 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; bglLoadMatrixf(mat);
         // PLAG: End
 
-        i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,globalpal,surfi); if (!i) continue;
+        i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,globalpal,surfi,0); if (!i) continue;
         //i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
+
+        /*if (r_detailmapping && !r_depthpeeling && indrawroomsandmasks)
+            i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,DETAILPAL,surfi,1);
+        else
+            i = 0;
+
+        if (i)
+        {
+            bglActiveTextureARB(++texunits);
+
+            bglEnable(GL_TEXTURE_2D);
+            bglBindTexture(GL_TEXTURE_2D, i);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR);
+  
+            bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_PREVIOUS_ARB);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2.0f);
+
+            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+
+
+            f = 0.5f;
+
+            bglMatrixMode(GL_TEXTURE);
+            bglLoadIdentity();
+            bglScalef(f, f, 1.0f);
+            bglMatrixMode(GL_MODELVIEW);
+        }*/
+
+        if (r_glowmapping && !r_depthpeeling && indrawroomsandmasks)
+            i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,GLOWPAL,surfi,1);
+        else
+            i = 0;
+
+        if (i)
+        {
+            bglActiveTextureARB(++texunits);
+
+            bglEnable(GL_TEXTURE_2D);
+            bglBindTexture(GL_TEXTURE_2D, i);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_INTERPOLATE_ARB);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_TEXTURE);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB, GL_ONE_MINUS_SRC_ALPHA);
+
+            bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_PREVIOUS_ARB);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
+
+            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+        }
 
         //PLAG: delayed polygon-level sorted rendering
         if (m->usesalpha && !(tspr->cstat & 1024) && !r_depthpeeling)
@@ -1595,7 +1669,14 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
                 for (j=0;j<3;j++)
                 {
                     k = s->tris[indexes[i]].i[j];
-                    bglTexCoord2f(s->uv[k].u,s->uv[k].v);
+                    if (texunits > GL_TEXTURE0_ARB)
+                    {
+                        l = GL_TEXTURE0_ARB;
+                        while (l <= texunits)
+                            bglMultiTexCoord2fARB(l++, s->uv[k].u,s->uv[k].v);
+                    }
+                    else
+                        bglTexCoord2f(s->uv[k].u,s->uv[k].v);
                     bglVertex3fv((float *)&vertlist[k]);
                 }
             bglEnd();
@@ -1610,10 +1691,29 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
                 for (j=0;j<3;j++)
                 {
                     k = s->tris[i].i[j];
-                    bglTexCoord2f(s->uv[k].u,s->uv[k].v);
+                    if (texunits > GL_TEXTURE0_ARB)
+                    {
+                        l = GL_TEXTURE0_ARB;
+                        while (l <= texunits)
+                            bglMultiTexCoord2fARB(l++, s->uv[k].u,s->uv[k].v);
+                    }
+                    else
+                        bglTexCoord2f(s->uv[k].u,s->uv[k].v);
                     bglVertex3fv((float *)&vertlist[k]);
                 }
             bglEnd();
+        }
+
+        if (texunits > GL_TEXTURE0_ARB)
+        {
+            while (texunits > GL_TEXTURE0_ARB)
+            {
+                bglMatrixMode(GL_TEXTURE);
+                bglLoadIdentity();
+                bglMatrixMode(GL_MODELVIEW);
+                bglDisable(GL_TEXTURE_2D);
+                bglActiveTextureARB(--texunits);
+            }
         }
     }
     //------------

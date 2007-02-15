@@ -680,6 +680,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLPeelsCount", &r_peelscount);
 
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLDetailMapping", &r_detailmapping);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLGlowMapping", &r_glowmapping);
 
         dummy = usemodels;
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "UseModels",&dummy);
@@ -832,6 +833,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLPeelsCount",r_peelscount,false,false);
 
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLDetailMapping", r_detailmapping,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLGlowMapping", r_glowmapping,false,false);
 #endif
 #ifdef RENDERTYPEWIN
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);
