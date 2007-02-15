@@ -4277,8 +4277,28 @@ void overheadeditor(void)
             posy = mousyplc;
         }
 
-        if (((keystatus[buildkeys[8]] > 0) || (bstatus&16)) && (zoom < 16384)) zoom += synctics*(zoom>>4);
-        if (((keystatus[buildkeys[9]] > 0) || (bstatus&32)) && (zoom > 24)) zoom -= synctics*(zoom>>4);
+        if (((keystatus[buildkeys[8]] > 0) || (bstatus&16)) && (zoom < 16384))
+        {
+            zoom += synctics*(zoom>>4);
+            if (bstatus&16 && (keystatus[0x38] || keystatus[0xb8]))
+            {
+                searchx = halfxdim16;
+                searchy = midydim16;
+                posx = mousxplc;
+                posy = mousyplc;
+            }            
+        }    
+        if (((keystatus[buildkeys[9]] > 0) || (bstatus&32)) && (zoom > 24))
+        {
+            zoom -= synctics*(zoom>>4);
+            if (bstatus&32 && (keystatus[0x38] || keystatus[0xb8]))
+            {
+                searchx = halfxdim16;
+                searchy = midydim16;
+                posx = mousxplc;
+                posy = mousyplc;
+            }
+        }
         if (zoom < 24) zoom = 24;
         if (zoom > 16384) zoom = 16384;
 

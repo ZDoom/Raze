@@ -84,7 +84,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define FOGSCALE 0.0000640
 #define PI 3.14159265358979323
 
-float shadescale = 1.050;
+static float shadescale = 1.050;
 
 static double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
 static double gcosang, gsinang, gcosang2, gsinang2;
@@ -131,23 +131,23 @@ static GLuint polymosttext = 0;
 extern char nofog;
 
 // Those THREE globals control the drawing of fullbright tiles
-long fullbrightloadingpass = 0;
-long fullbrightdrawingpass = 0;
-long shadeforfullbrightpass;
+static long fullbrightloadingpass = 0;
+static long fullbrightdrawingpass = 0;
+static long shadeforfullbrightpass;
 
 // Depth peeling control
 long r_depthpeeling = 0;    // cvar toggling general depth peeling usage
 long r_peelscount = 5;      // cvar controlling the number of peeling layers
 long r_curpeel = -1;        // cvar controlling the display of independant peeling layers
-float curpolygonoffset;     // internal polygon offset stack for drawing flat sprites to avoid depth fighting
-long peelcompiling = 0;     // internal control var to disable blending when compiling the peeling display list
-long newpeelscount = 0;     // temporary var for peels count changing during the game
+static float curpolygonoffset;     // internal polygon offset stack for drawing flat sprites to avoid depth fighting
+static long peelcompiling = 0;     // internal control var to disable blending when compiling the peeling display list
+static long newpeelscount = 0;     // temporary var for peels count changing during the game
 
 // Depth peeling data
-GLuint ztexture[3];         // secondary Z-buffers identifier
-GLuint *peels;              // peels identifiers
-GLuint *peelfbos;           // peels FBOs identifiers
-GLuint peelprogram[2];      // ARBfp peeling fragment program
+static GLuint ztexture[3];         // secondary Z-buffers identifier
+static GLuint *peels;              // peels identifiers
+static GLuint *peelfbos;           // peels FBOs identifiers
+static GLuint peelprogram[2];      // ARBfp peeling fragment program
 
 // Detail mapping cvar
 long r_detailmapping = 1;
@@ -155,16 +155,12 @@ long r_detailmapping = 1;
 // Glow mapping cvar
 long r_glowmapping = 1;
 
-float fogresult, ofogresult, fogcol[4];
+static float fogresult, ofogresult, fogcol[4];
 
-void fogcalc (signed char shade, char vis, char pal)
+static void fogcalc (signed char shade, char vis, char pal)
 {
-    if (vis < 240) fogresult = (float)(vis+16+(shade<0?(-(shade)*(shade))/8.f:((shade)*(shade))/8.f));
-    else fogresult = (float)((vis-240+(shade<0?(-(shade)*(shade))/8.f:((shade)*(shade))/8.f))/(klabs(vis-256)));
-
-    fogresult *= gvisibility;
-
-//    initprintf("result: %.f\n",result);
+    if (vis < 240) fogresult = (float)gvisibility*(vis+16+(shade<0?(-(shade)*(shade))/8.f:((shade)*(shade))/8.f));
+    else fogresult = (float)gvisibility*((vis-240+(shade<0?(-(shade)*(shade))/8.f:((shade)*(shade))/8.f))/(klabs(vis-256)));
 
     if (fogresult < 0.010) fogresult = 0.010;
     else if (fogresult > 10.000) fogresult = 10.000;

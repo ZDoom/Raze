@@ -3399,7 +3399,8 @@ void processinput(int snum)
                         ud.level_number = ud.from_bonus;
                     else ud.level_number++;
 
-                    if (ud.level_number > 10) ud.level_number = 0;
+                    if (ud.level_number > MAXLEVELS-1)
+                        ud.level_number = 0;
                     ud.m_level_number = ud.level_number;
 
                 }

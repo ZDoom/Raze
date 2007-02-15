@@ -2398,11 +2398,10 @@ cheat_for_port_credits:
                                "GL texture compression",
                                "Cache textures on disk",
                                "Compress disk cache",
-                               "Detail texture support",
+                               "Detail mapping",
+                               "Glow mapping",
                                "-",
                                "Models",
-                               "-",
-                               "-",
                                "-",
                                "-",
                                "-",
@@ -2486,6 +2485,12 @@ cheat_for_port_credits:
                     gametextpal(d,yy, r_detailmapping && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 7:
+                    enabled = usehightile;
+                    if (enabled && x==io) r_glowmapping = !r_glowmapping;
+                    if (enabled) modval(0,1,(int *)&r_glowmapping,1,probey==io);
+                    gametextpal(d,yy, r_glowmapping && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    break;
+                case 8:
                     if (x==io) usemodels = 1-usemodels;
                     modval(0,1,(int *)&usemodels,1,probey==io);
                     gametextpal(d,yy, usemodels ? "On" : "Off", MENUHIGHLIGHT(io), 0);
@@ -2802,7 +2807,6 @@ cheat_for_port_credits:
                 case 8:
 #endif
                     if (x==io) cmenu(200);
-                    probey = 10;
                     break;
                 default:
                     break;
