@@ -1205,7 +1205,7 @@ static int defsparser(scriptfile *script)
                         break;
                     } else kclose(i);
 
-                    hicsetsubsttex(tile,DETAILPAL,fn,detailscale,flags);
+                    hicsetsubsttex(tile,DETAILPAL,fn,(1.0f / detailscale),flags);
                 } break;
                 case T_GLOW: {
                     char *glowtokptr = script->ltextptr, *glowend;

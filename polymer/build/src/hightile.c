@@ -46,7 +46,7 @@ static hicreplctyp * hicfindsubst(long picnum, long palnum, long skybox)
             }
         }
 
-        if (!palnum || palnum == DETAILPAL) break;
+        if (!palnum || palnum >= (MAXPALOOKUPS - RESERVEDPALS)) break;
         palnum = 0;
     } while (1);
 
@@ -145,7 +145,10 @@ int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut, char f
         return -1;
     }
     hrn->ignore = 0;
-    hrn->alphacut = min(alphacut,1.0);
+    if (palnum < (MAXPALOOKUPS - RESERVEDPALS))
+        hrn->alphacut = min(alphacut,1.0);
+    else
+        hrn->alphacut = alphacut;
     hrn->flags = flags;
     if (hr == NULL) {
         hrn->next = hicreplc[picnum];

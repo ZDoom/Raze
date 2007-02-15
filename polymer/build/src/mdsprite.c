@@ -661,7 +661,7 @@ failure:
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
 
 //Note: even though it says md2model, it works for both md2model&md3model
-static long mdloadskin (md2model *m, int number, int pal, int surf, int exact)
+static long mdloadskin (md2model *m, int number, int pal, int surf)
 {
     long i,j, fptr=0, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
     char *skinfile, hasalpha, fn[BMAX_PATH+65];
@@ -696,7 +696,7 @@ static long mdloadskin (md2model *m, int number, int pal, int surf, int exact)
     }
     if (!sk)
     {
-        if (exact)
+        if (pal >= (MAXPALOOKUPS - RESERVEDPALS))
             return (0);
         if (skzero)
         {
@@ -717,6 +717,17 @@ static long mdloadskin (md2model *m, int number, int pal, int surf, int exact)
     if (!skinfile[0]) return 0;
 
     if (*texidx) return *texidx;
+
+    // possibly fetch an already loaded multitexture :_)
+    if (pal >= (MAXPALOOKUPS - RESERVEDPALS))
+        for (i=0;i<nextmodelid;i++)
+            for (skzero = ((md2model *)models[i])->skinmap; skzero; skzero = skzero->next)
+                if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[hictinting[pal].f])
+                {
+                    sk->texid[hictinting[pal].f] = skzero->texid[hictinting[pal].f];
+                    return sk->texid[hictinting[pal].f];
+                }
+
     *texidx = 0;
 
     if ((filh = kopen4load(fn, 0)) < 0) {
@@ -1488,12 +1499,12 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; bglLoadMatrixf(mat);
         // PLAG: End
 
-        i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,globalpal,surfi,0); if (!i) continue;
+        i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,globalpal,surfi); if (!i) continue;
         //i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
         /*if (r_detailmapping && !r_depthpeeling && indrawroomsandmasks)
-            i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,DETAILPAL,surfi,1);
+            i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,DETAILPAL,surfi);
         else
             i = 0;
 
@@ -1532,7 +1543,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         }*/
 
         if (r_glowmapping && !r_depthpeeling && indrawroomsandmasks)
-            i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,GLOWPAL,surfi,1);
+            i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,GLOWPAL,surfi);
         else
             i = 0;
 

@@ -357,7 +357,7 @@ pthtyp * gltexcache (long dapicnum, long dapalnum, long dameth)
 {
     long i, j;
     hicreplctyp *si;
-    pthtyp *pth;
+    pthtyp *pth, *pth2;
 
     j = (dapicnum&(GLTEXCACHEADSIZ-1));
 
@@ -396,8 +396,24 @@ pthtyp * gltexcache (long dapicnum, long dapalnum, long dameth)
         }
     }
 
+
     pth = (pthtyp *)calloc(1,sizeof(pthtyp));
     if (!pth) return NULL;
+
+    // possibly fetch an already loaded multitexture :_)
+    if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS))
+        for (i = (GLTEXCACHEADSIZ - 1); i >= 0; i--)
+            for (pth2=gltexcachead[i]; pth2; pth2=pth2->next) {
+                if ((pth2->hicr) && (pth2->hicr->filename) && (Bstrcasecmp(pth2->hicr->filename, si->filename) == 0))
+                {
+                    memcpy(pth, pth2, sizeof(pthtyp));
+                    pth->picnum = dapicnum;
+                    pth->hicr = si;
+                    pth->next = gltexcachead[j];
+                    gltexcachead[j] = pth;
+                    return(pth);
+                }
+            }
 
     if (gloadtile_hi(dapicnum,drawingskybox,si,dameth,pth,1, (si->palnum>0) ? 0 : hictinting[dapalnum].f)) {
         free(pth);
@@ -1664,7 +1680,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
 
-            f = detailpth ? (1.0f / detailpth->hicr->alphacut) : 1.0;
+            f = detailpth ? detailpth->hicr->alphacut : 1.0;
 
             bglMatrixMode(GL_TEXTURE);
             bglLoadIdentity();
@@ -5424,7 +5440,7 @@ void polymost_precache(long dapicnum, long dapalnum, long datype)
             j = ((md3model *)models[mid])->head.numsurfs;
 
         for (i=0;i<=j;i++)
-            mdloadskin((md2model*)models[mid], 0, dapalnum, i, 0);
+            mdloadskin((md2model*)models[mid], 0, dapalnum, i);
     }
 #endif
 }
