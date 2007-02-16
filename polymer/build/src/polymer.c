@@ -102,7 +102,7 @@ void                polymer_glinit(void)
 
     bglDisable(GL_FOG);
 
-    bglFogi(GL_FOG_MODE, GL_EXP);
+    bglFogi(GL_FOG_MODE, GL_EXP2);
     //glFogfv(GL_FOG_COLOR, fogColor);
     bglEnable(GL_FOG);
 

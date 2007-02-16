@@ -1148,7 +1148,7 @@ static int defsparser(scriptfile *script)
                 } break;
                 case T_DETAIL: case T_GLOW: {
                     char *detailtokptr = script->ltextptr, *detailend;
-                    int pal, i;
+                    int pal = 0, i;
                     char *fn = NULL;
                     double param = 1.0;
                     char flags = 0;

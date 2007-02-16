@@ -691,7 +691,7 @@ void polymost_glinit()
     bglHint(GL_FOG_HINT,GL_DONT_CARE);
 #endif
     
-    bglFogi(GL_FOG_MODE,GL_EXP);
+    bglFogi(GL_FOG_MODE,GL_EXP2);
     bglFogf(GL_FOG_DENSITY,1.0); //must be > 0, default is 1
 /*    bglFogf(GL_FOG_START,0.0); //default is 0
     bglFogf(GL_FOG_END,1.0); //default is 1 */
@@ -1650,7 +1650,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
         bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
         detailpth = NULL;
-        if (r_detailmapping && usehightile && !r_depthpeeling && indrawroomsandmasks && !drawingskybox &&
+        if (r_detailmapping && usehightile && !r_depthpeeling && !drawingskybox &&
             hicfindsubst(globalpicnum, DETAILPAL, 0))
             detailpth = gltexcache(globalpicnum, DETAILPAL, method&(~3));
 
@@ -1691,7 +1691,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             detailpth = NULL;
 
         glowpth = NULL;
-        if (r_glowmapping && usehightile && !r_depthpeeling && indrawroomsandmasks && !drawingskybox &&
+        if (r_glowmapping && usehightile && !r_depthpeeling && !drawingskybox &&
             hicfindsubst(globalpicnum, GLOWPAL, 0))
             glowpth = gltexcache(globalpicnum, GLOWPAL, method&(~3));
 

@@ -1506,7 +1506,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         //i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
-        if (r_detailmapping && !r_depthpeeling && indrawroomsandmasks&& !(tspr->cstat&1024))
+        if (r_detailmapping && !r_depthpeeling && !(tspr->cstat&1024))
             i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,DETAILPAL,surfi);
         else
             i = 0;
@@ -1546,7 +1546,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
             bglMatrixMode(GL_MODELVIEW);
         }
 
-        if (r_glowmapping && !r_depthpeeling && indrawroomsandmasks && !(tspr->cstat&1024))
+        if (r_glowmapping && !r_depthpeeling && !(tspr->cstat&1024))
             i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,GLOWPAL,surfi);
         else
             i = 0;
