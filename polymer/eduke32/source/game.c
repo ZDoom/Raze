@@ -179,7 +179,7 @@ inline void setstatusbarscale(long sc)
 
 static inline long sbarx(long x)
 {
-    if (ud.screen_size == 4 || ud.statusbarmode == 1) return scale(x<<16,ud.statusbarscale,100);
+    if (ud.screen_size == 4 /*|| ud.statusbarmode == 1*/) return scale(x<<16,ud.statusbarscale,100);
     return (((320l<<16) - scale(320l<<16,ud.statusbarscale,100)) >> 1) + scale(x<<16,ud.statusbarscale,100);
 }
 
@@ -209,9 +209,9 @@ static void patchstatusbar(long x1, long y1, long x2, long y2)
     clofx = (xdim - scale(xdim,ud.statusbarscale,100)) >> 1;
     clofy = (ydim - scale(ydim,ud.statusbarscale,100));
 
-    if (ud.statusbarmode == 0)
+//    if (ud.statusbarmode == 0)
         rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1+clofx,cly1+clofy,clx2+clofx-1,cly2+clofy-1);
-    else rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1,cly1,clx2+clofx-1,cly2+clofy-1);
+//    else rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1,cly1,clx2+clofx-1,cly2+clofy-1);
 }
 
 void setgamepalette(struct player_struct *player, char *pal, int set)
@@ -3567,7 +3567,7 @@ void drawbackground(void)
     if (ps[myconnectindex].gm & MODE_GAME || ud.recstat == 2)
         //if (ud.recstat == 0 || ud.recstat == 1 || (ud.recstat == 2 && ud.reccnt > 0)) // JBF 20040717
     {
-        if (ud.screen_size == 8)
+        if (ud.screen_size == 8 && ud.statusbarmode == 0)
             y1 = scale(ydim,200-scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100),200);
         else if (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR)
         {
@@ -3615,7 +3615,7 @@ void drawbackground(void)
     }
 
     // draw in the bits to the left and right of the non-fullsize status bar
-    if (ud.statusbarscale < 100)
+    if (ud.statusbarscale < 100 && ud.screen_size >= 8 && ud.statusbarmode == 0)
     {
         y1 = y2;
         x2 = (xdim - scale(xdim,ud.statusbarscale,100)) >> 1;

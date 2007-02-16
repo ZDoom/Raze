@@ -727,17 +727,19 @@ enum events {
 enum gamevarflags {
     MAXGAMEVARS             = 2048,
     MAXVARLABEL             = 26,
-    GAMEVAR_FLAG_NORMAL     = 0,    // normal
-    GAMEVAR_FLAG_PERPLAYER  = 1,    // per-player variable
-    GAMEVAR_FLAG_PERACTOR   = 2,    // per-actor variable
+    GAMEVAR_FLAG_NORMAL     = 0,     // normal
+    GAMEVAR_FLAG_PERPLAYER  = 1,     // per-player variable
+    GAMEVAR_FLAG_PERACTOR   = 2,     // per-actor variable
     GAMEVAR_FLAG_USER_MASK  = 3,
-    GAMEVAR_FLAG_DEFAULT    = 256,  // allow override
-    GAMEVAR_FLAG_SECRET     = 512,  // don't dump...
-    GAMEVAR_FLAG_NODEFAULT  = 1024, // don't reset on actor spawn
-    GAMEVAR_FLAG_SYSTEM     = 2048, // cannot change mode flags...(only default value)
-    GAMEVAR_FLAG_READONLY   = 4096, // values are read-only (no setvar allowed)
-    GAMEVAR_FLAG_PLONG      = 8192, // plValue is a pointer to a long
-    GAMEVAR_FLAG_SYNCCHECK  = 16384 // check event sync when translating
+    GAMEVAR_FLAG_DEFAULT    = 256,   // allow override
+    GAMEVAR_FLAG_SECRET     = 512,   // don't dump...
+    GAMEVAR_FLAG_NODEFAULT  = 1024,  // don't reset on actor spawn
+    GAMEVAR_FLAG_SYSTEM     = 2048,  // cannot change mode flags...(only default value)
+    GAMEVAR_FLAG_READONLY   = 4096,  // values are read-only (no setvar allowed)
+    GAMEVAR_FLAG_PLONG      = 8192,  // plValue is a pointer to a long
+    GAMEVAR_FLAG_SYNCCHECK  = 16384, // check event sync when translating
+    GAMEVAR_FLAG_PSHORT     = 32768, // plValue is a pointer to a short
+    GAMEVAR_FLAG_PCHAR      = 65536  // plValue is a pointer to a char
 };
 
 typedef struct {

@@ -862,6 +862,10 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Sound Setup", "FXVolume",FXVolume,false,false);
     SCRIPT_PutNumber(scripthandle, "Sound Setup", "MusicToggle",MusicToggle,false,false);
     SCRIPT_PutNumber(scripthandle, "Sound Setup", "MusicVolume",MusicVolume,false,false);
+    SCRIPT_PutNumber(scripthandle, "Sound Setup", "NumVoices",NumVoices,false,false);
+    SCRIPT_PutNumber(scripthandle, "Sound Setup", "NumChannels",NumChannels,false,false);
+    SCRIPT_PutNumber(scripthandle, "Sound Setup", "NumBits",NumBits,false,false);
+    SCRIPT_PutNumber(scripthandle, "Sound Setup", "MixRate",MixRate,false,false);
     SCRIPT_PutNumber(scripthandle, "Sound Setup", "ReverseStereo",ReverseStereo,false,false);
     SCRIPT_PutNumber(scripthandle, "Sound Setup", "SoundToggle",SoundToggle,false,false);
     SCRIPT_PutNumber(scripthandle, "Sound Setup", "VoiceToggle",VoiceToggle,false,false);

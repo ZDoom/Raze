@@ -236,6 +236,10 @@ void DumpGameVars(FILE *fp)
 
             if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PLONG))
                 fprintf(fp,"%ld",*((long*)aGameVars[i].lValue));
+            else if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PSHORT))
+                fprintf(fp,"%d",*((short*)aGameVars[i].lValue));
+            else if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PCHAR))
+                fprintf(fp,"%d",*((char*)aGameVars[i].lValue));
             else
                 fprintf(fp,"%ld",aGameVars[i].lValue);
             if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERPLAYER))
@@ -247,7 +251,7 @@ void DumpGameVars(FILE *fp)
             fprintf(fp," // ");
             if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_SYSTEM))
                 fprintf(fp," (system)");
-            if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PLONG))
+            if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PLONG|GAMEVAR_FLAG_PSHORT|GAMEVAR_FLAG_PCHAR))
                 fprintf(fp," (pointer)");
             if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_READONLY))
                 fprintf(fp," (read only)");
@@ -295,7 +299,7 @@ int AddGameVar(const char *pszLabel, long lValue, unsigned long dwFlags)
             if (Bstrcmp(pszLabel,aGameVars[i].szLabel) == 0)
             {
                 // found it...
-                if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PLONG)
+                if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PLONG|GAMEVAR_FLAG_PSHORT|GAMEVAR_FLAG_PCHAR))
                 {
                     //                 warning++;
                     //                 initprintf("%s:%ld: warning: Internal gamevar '%s' cannot be redefined.\n",compilefile,line_number,label+(labelcnt<<6));
@@ -470,6 +474,18 @@ long GetGameVarID(int id, int iActor, int iPlayer)
         return(*((long*)aGameVars[id].lValue));
     }
 
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PSHORT)
+    {
+        if (inv) return(-(*((short*)aGameVars[id].lValue)));
+        return(*((short*)aGameVars[id].lValue));
+    }
+
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PCHAR)
+    {
+        if (inv) return(-(*((char*)aGameVars[id].lValue)));
+        return(*((char*)aGameVars[id].lValue));
+    }
+
     if (inv) return(-aGameVars[id].lValue);
     return (aGameVars[id].lValue);
 }
@@ -513,6 +529,21 @@ void SetGameVarID(int id, long lValue, int iActor, int iPlayer)
         *((long*)aGameVars[id].lValue)=lValue;
         return;
     }
+
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PSHORT)
+    {
+        // set the value at pointer
+        *((short*)aGameVars[id].lValue)=(short)lValue;
+        return;
+    }
+
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PCHAR)
+    {
+        // set the value at pointer
+        *((char*)aGameVars[id].lValue)=(char)lValue;
+        return;
+    }
+
 
     aGameVars[id].lValue=lValue;
 }
@@ -1123,6 +1154,35 @@ static void AddSystemVars()
     AddGameVar("framerate",(long)&framerate, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("CLIPMASK0", CLIPMASK0, GAMEVAR_FLAG_SYSTEM|GAMEVAR_FLAG_READONLY);
     AddGameVar("CLIPMASK1", CLIPMASK1, GAMEVAR_FLAG_SYSTEM|GAMEVAR_FLAG_READONLY);
+
+    AddGameVar("camerax",(long)&ud.camerax, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("cameray",(long)&ud.cameray, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("cameraz",(long)&ud.cameraz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("cameraang",(long)&ud.cameraang, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("camerahoriz",(long)&ud.camerahoriz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("camerasect",(long)&ud.camerasect, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+
+    AddGameVar("myx",(long)&myx, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myy",(long)&myy, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myz",(long)&myz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("omyx",(long)&omyx, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("omyy",(long)&omyy, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("omyz",(long)&omyz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myxvel",(long)&myxvel, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myyvel",(long)&myyvel, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myzvel",(long)&myzvel, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myhoriz",(long)&myhoriz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myhorizoff",(long)&myhorizoff, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("omyhoriz",(long)&omyhoriz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("omyhorizoff",(long)&omyhorizoff, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);            
+    AddGameVar("myang",(long)&myang, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("omyang",(long)&omyang, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("mycursectnum",(long)&mycursectnum, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myjumpingcounter",(long)&myjumpingcounter, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myjumpingtoggle",(long)&myjumpingtoggle, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myonground",(long)&myonground, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myhardlanding",(long)&myhardlanding, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myreturntocenter",(long)&myreturntocenter, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);            
 }
 
 void InitGameVars(void)
