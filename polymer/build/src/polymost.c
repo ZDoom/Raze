@@ -1959,6 +1959,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
                 bglMatrixMode(GL_TEXTURE);
                 bglLoadIdentity();
                 bglMatrixMode(GL_MODELVIEW);
+                bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
                 bglDisable(GL_TEXTURE_2D);
                 bglActiveTextureARB(--texunits);
             }
@@ -5421,7 +5422,7 @@ void polymost_precache(long dapicnum, long dapalnum, long datype)
 
     if (rendmode < 3) return;
 
-    if (palookup[dapalnum] == NULL) return;//dapalnum = 0;
+    if ((palookup[dapalnum] == NULL) && (dapalnum < (MAXPALOOKUPS - RESERVEDPALS))) return;//dapalnum = 0;
 
     //OSD_Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;

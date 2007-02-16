@@ -44,6 +44,7 @@ enum {
     T_PAL,
     T_DETAIL,
     T_GLOW,
+    T_PARAM,
     T_HUD,
     T_XADD,
     T_YADD,
@@ -121,6 +122,7 @@ static tokenlist modeltokens[] = {
                                      { "anim",   T_ANIM   },
                                      { "skin",   T_SKIN   },
                                      { "glow",   T_GLOW   },
+                                     { "detail", T_DETAIL },
                                      { "hud",    T_HUD    },
                                  };
 
@@ -140,10 +142,13 @@ static tokenlist modelanimtokens[] = {
                                      };
 
 static tokenlist modelskintokens[] = {
-                                         { "pal",    T_PAL    },
-                                         { "file",   T_FILE   },
-                                         { "surf",   T_SURF   },
-                                         { "surface",T_SURF   },
+                                         { "pal",           T_PAL    },
+                                         { "file",          T_FILE   },
+                                         { "surf",          T_SURF   },
+                                         { "surface",       T_SURF   },
+                                         { "intensity",     T_PARAM  },
+                                         { "scale",         T_PARAM  },
+                                         { "detailscale",   T_PARAM  },
                                      };
 
 static tokenlist modelhudtokens[] = {
@@ -609,7 +614,7 @@ static int defsparser(scriptfile *script)
             seenframe = 0;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0)) {
+            switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0, 0.0f)) {
             case 0:
                 break;
             case -1:
@@ -709,7 +714,8 @@ static int defsparser(scriptfile *script)
 #endif
             if (scriptfile_getbraces(script,&modelend)) break;
             while (script->textptr < modelend) {
-                switch (getatoken(script,modeltokens,sizeof(modeltokens)/sizeof(tokenlist))) {
+                int token = getatoken(script,modeltokens,sizeof(modeltokens)/sizeof(tokenlist));
+                switch (token) {
                     //case T_ERROR: initprintf("Error on line %s:%d in model tokens\n", script->filename,script->linenum); break;
                 case T_SCALE:
                     scriptfile_getdouble(script,&scale); break;
@@ -825,17 +831,20 @@ static int defsparser(scriptfile *script)
                     }
 #endif
                 } break;
-                case T_SKIN:
+                case T_SKIN: case T_DETAIL: case T_GLOW:
                 {
                     char *skintokptr = script->ltextptr;
                     char *skinend, *skinfn = 0;
                     int palnum = 0, surfnum = 0;
+                    double param = 1.0;
 
                     if (scriptfile_getbraces(script,&skinend)) break;
                     while (script->textptr < skinend) {
                         switch (getatoken(script,modelskintokens,sizeof(modelskintokens)/sizeof(tokenlist))) {
                         case T_PAL:
                             scriptfile_getsymbol(script,&palnum); break;
+                        case T_PARAM:
+                            scriptfile_getdouble(script,&param); break;
                         case T_FILE:
                             scriptfile_getstring(script,&skinfn); break; //skin filename
                         case T_SURF:
@@ -851,8 +860,16 @@ static int defsparser(scriptfile *script)
                     if (seenframe) { modelskin = ++lastmodelskin; }
                     seenframe = 0;
 
+                    if (token == T_DETAIL)
+                    {
+                        palnum = DETAILPAL;
+                        param = 1.0f / param;
+                    }
+                    else if (token == T_GLOW)
+                        palnum = GLOWPAL;
+
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                    switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum)) {
+                    switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param)) {
                     case 0:
                         break;
                     case -1:
@@ -868,51 +885,6 @@ static int defsparser(scriptfile *script)
                     case -4:
                         initprintf("Out of memory on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,skintokptr));
-                        break;
-                    }
-#endif
-                } break;
-                case T_GLOW:
-                {
-                    char *glowtokptr = script->ltextptr;
-                    char *glowend, *glowfn = 0;
-                    int surfnum = 0;
-
-                    if (scriptfile_getbraces(script,&glowend)) break;
-                    while (script->textptr < glowend) {
-                        switch (getatoken(script,modelskintokens,sizeof(modelskintokens)/sizeof(tokenlist))) {
-                        case T_FILE:
-                            scriptfile_getstring(script,&glowfn); break; //skin filename
-                        case T_SURF:
-                            scriptfile_getnumber(script,&surfnum); break;
-                        }
-                    }
-
-                    if (!glowfn) {
-                        initprintf("Error: missing 'skin filename' for skin definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,glowtokptr));
-                        break;
-                    }
-
-                    if (seenframe) { modelskin = ++lastmodelskin; }
-                    seenframe = 0;
-
-#if defined(POLYMOST) && defined(USE_OPENGL)
-                    switch (md_defineskin(lastmodelid, glowfn, GLOWPAL, max(0,modelskin), surfnum)) {
-                    case 0:
-                        break;
-                    case -1:
-                        break; // invalid model id!?
-                    case -2:
-                        initprintf("Invalid skin filename on line %s:%d\n",
-                                   script->filename, scriptfile_getlinum(script,glowtokptr));
-                        break;
-                    case -3:
-                        initprintf("Invalid palette number on line %s:%d\n",
-                                   script->filename, scriptfile_getlinum(script,glowtokptr));
-                        break;
-                    case -4:
-                        initprintf("Out of memory on line %s:%d\n",
-                                   script->filename, scriptfile_getlinum(script,glowtokptr));
                         break;
                     }
 #endif
@@ -1127,12 +1099,13 @@ static int defsparser(scriptfile *script)
         case T_TEXTURE:
         {
             char *texturetokptr = script->ltextptr, *textureend;
-            int tile=-1;
+            int tile=-1, token;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
             while (script->textptr < textureend) {
-                switch (getatoken(script,texturetokens,sizeof(texturetokens)/sizeof(tokenlist))) {
+                token = getatoken(script,texturetokens,sizeof(texturetokens)/sizeof(tokenlist));
+                switch (token) {
                 case T_PAL: {
                     char *paltokptr = script->ltextptr, *palend;
                     int pal=-1, i;
@@ -1156,7 +1129,7 @@ static int defsparser(scriptfile *script)
                     }
 
                     if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
-                    if ((unsigned)pal > ((unsigned)MAXPALOOKUPS - RESERVEDPALS)) {
+                    if ((unsigned)pal >= ((unsigned)MAXPALOOKUPS - RESERVEDPALS)) {
                         initprintf("Error: missing or invalid 'palette number' for texture definition near "
                                    "line %s:%d\n", script->filename, scriptfile_getlinum(script,paltokptr));
                         break;
@@ -1173,11 +1146,11 @@ static int defsparser(scriptfile *script)
 
                     hicsetsubsttex(tile,pal,fn,alphacut,flags);
                 } break;
-                case T_DETAIL: {
+                case T_DETAIL: case T_GLOW: {
                     char *detailtokptr = script->ltextptr, *detailend;
-                    int i;
+                    int pal, i;
                     char *fn = NULL;
-                    double detailscale = 1.0;
+                    double param = 1.0;
                     char flags = 0;
 
                     if (scriptfile_getbraces(script,&detailend)) break;
@@ -1186,7 +1159,7 @@ static int defsparser(scriptfile *script)
                         case T_FILE:
                             scriptfile_getstring(script,&fn); break;
                         case T_ALPHACUT:
-                            scriptfile_getdouble(script,&detailscale); break;
+                            scriptfile_getdouble(script,&param); break;
                         case T_NOCOMPRESS:
                             flags |= 1; break;
                         default:
@@ -1205,41 +1178,15 @@ static int defsparser(scriptfile *script)
                         break;
                     } else kclose(i);
 
-                    hicsetsubsttex(tile,DETAILPAL,fn,(1.0f / detailscale),flags);
-                } break;
-                case T_GLOW: {
-                    char *glowtokptr = script->ltextptr, *glowend;
-                    int i;
-                    char *fn = NULL;
-                    double glowintensity = 1.0;
-                    char flags = 0;
-
-                    if (scriptfile_getbraces(script,&glowend)) break;
-                    while (script->textptr < glowend) {
-                        switch (getatoken(script,texturetokens_pal,sizeof(texturetokens_pal)/sizeof(tokenlist))) {
-                        case T_FILE:
-                            scriptfile_getstring(script,&fn); break;
-                        case T_ALPHACUT:
-                            scriptfile_getdouble(script,&glowintensity); break;
-                        case T_NOCOMPRESS:
-                            flags |= 1; break;
-                        default:
-                            break;
-                        }
+                    if (token == T_DETAIL)
+                    {
+                        pal = DETAILPAL;
+                        param = 1.0f / param;
                     }
+                    else if (token == T_GLOW)
+                        pal = GLOWPAL;
 
-                    if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
-                    if (!fn) {
-                        initprintf("Error: missing 'file name' for texture definition near line %s:%d\n",
-                                   script->filename, scriptfile_getlinum(script,glowtokptr));
-                        break;
-                    }
-                    if ((i = kopen4load(fn,0)) < 0) {
-                        initprintf("Error: file '%s' does not exist\n",fn);
-                        break;
-                    } else kclose(i);
-
-                    hicsetsubsttex(tile,GLOWPAL,fn,glowintensity,flags);
+                    hicsetsubsttex(tile,pal,fn,param,flags);
                 } break;
                 default:
                     break;

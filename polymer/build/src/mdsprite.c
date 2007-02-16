@@ -30,6 +30,7 @@ typedef struct _mdskinmap_t
     char *fn;   // Skin filename
     GLuint texid[HICEFFECTMASK+1];   // OpenGL texture numbers for effect variations
     struct _mdskinmap_t *next;
+    float param;
 } mdskinmap_t;
 
 
@@ -403,7 +404,7 @@ int md_defineanimation (int modelid, const char *framestart, const char *frameen
     return(0);
 }
 
-int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int surfnum)
+int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int surfnum, float param)
 {
     mdskinmap_t *sk, *skl;
     md2model *m;
@@ -432,6 +433,7 @@ int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int
     sk->palette = (unsigned char)palnum;
     sk->skinnum = skinnum;
     sk->surfnum = surfnum;
+    sk->param = param;
     sk->fn = (char *)malloc(strlen(skinfn)+1);
     if (!sk->fn) return(-4);
     strcpy(sk->fn, skinfn);
@@ -1288,11 +1290,12 @@ static int md3draw (md3model *m, spritetype *tspr)
     long i, j, k, l, surfi, *lptr;
     float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], pc[4], mult;
     md3surf_t *s;
+    int                 texunits = GL_TEXTURE0_ARB;
+    mdskinmap_t *sk;
     //PLAG : sorting stuff
     unsigned short      *indexes;
     float               *maxdepths;
     unsigned short      tempus;
-    int                 texunits = GL_TEXTURE0_ARB;
 
 
     //    if ((tspr->cstat&48) == 32) return 0;
@@ -1503,7 +1506,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         //i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
-        /*if (r_detailmapping && !r_depthpeeling && indrawroomsandmasks)
+        if (r_detailmapping && !r_depthpeeling && indrawroomsandmasks&& !(tspr->cstat&1024))
             i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,DETAILPAL,surfi);
         else
             i = 0;
@@ -1533,16 +1536,17 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
-
-            f = 0.5f;
+            for (sk = m->skinmap; sk; sk = sk->next)
+                if ((int)sk->palette == DETAILPAL && sk->skinnum == tile2model[tspr->picnum].skinnum && sk->surfnum == surfi)
+                    f = sk->param;
 
             bglMatrixMode(GL_TEXTURE);
             bglLoadIdentity();
             bglScalef(f, f, 1.0f);
             bglMatrixMode(GL_MODELVIEW);
-        }*/
+        }
 
-        if (r_glowmapping && !r_depthpeeling && indrawroomsandmasks)
+        if (r_glowmapping && !r_depthpeeling && indrawroomsandmasks && !(tspr->cstat&1024))
             i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,GLOWPAL,surfi);
         else
             i = 0;
@@ -1722,6 +1726,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
                 bglMatrixMode(GL_TEXTURE);
                 bglLoadIdentity();
                 bglMatrixMode(GL_MODELVIEW);
+                bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
                 bglDisable(GL_TEXTURE_2D);
                 bglActiveTextureARB(--texunits);
             }

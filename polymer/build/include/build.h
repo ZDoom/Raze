@@ -513,7 +513,7 @@ int md_setmisc(int modelid, float scale, int shadeoff, float zadd);
 int md_tilehasmodel(int tilenume);
 int md_defineframe(int modelid, const char *framename, int tilenume, int skinnum);
 int md_defineanimation(int modelid, const char *framestart, const char *frameend, int fps, int flags);
-int md_defineskin(int modelid, const char *skinfn, int palnum, int skinnum, int surfnum);
+int md_defineskin(int modelid, const char *skinfn, int palnum, int skinnum, int surfnum, float param);
 int md_definehud (int modelid, int tilex, double xadd, double yadd, double zadd, double angadd, int flags);
 int md_undefinetile(int tile);
 int md_undefinemodel(int modelid);
