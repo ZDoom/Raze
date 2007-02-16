@@ -551,7 +551,7 @@ void editinput(void)
         ld = ldiv((long)(mousy), (1<<16)); mousy = ld.quot; mouseysurp = ld.rem;
     }
 
-    if (mlook == 1)
+    if (mlook)
     {
         ang += (mousx>>1)*msens;
         horiz -= (mousy>>2)*msens;
@@ -564,8 +564,11 @@ void editinput(void)
             horiz = 299;
         if (horiz < -99)
             horiz = -99;
-        searchx = xdim>>1;
-        searchy = ydim>>1;
+        if (mlook == 1)
+        {
+            searchx = xdim>>1;
+            searchy = ydim>>1;
+        }    
         osearchx = searchx-mousx;
         osearchy = searchy-mousy;
     }

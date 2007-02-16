@@ -2384,7 +2384,7 @@ cheat_for_port_credits:
     case 230:
 #if defined(POLYMOST) && defined(USE_OPENGL)
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,24,0,0,"ADVANCED VIDEO");
+        menutext(320>>1,24,0,0,"VIDEO SETUP");
 
         c = (320>>1)-120;
 
@@ -2392,6 +2392,8 @@ cheat_for_port_credits:
             int io, ii, yy, d=c+160+40, enabled;
             char *opts[] = {
                                "Widescreen",
+                               "-",
+                               "Anisotropic filtering",
                                "-",
                                "Hightile textures",
                                "Precache textures",
@@ -2402,9 +2404,6 @@ cheat_for_port_credits:
                                "Glow mapping",
                                "-",
                                "Models",
-                               "-",
-                               "-",
-                               "-",
                                "-",
                                "-",
                                "-",
@@ -2429,7 +2428,7 @@ cheat_for_port_credits:
             if (x == -1)
             {
                 cmenu(203);
-                probey = 7;
+                probey = 6;
                 break;
             }
 
@@ -2450,47 +2449,59 @@ cheat_for_port_credits:
                     gametextpal(d,yy, glwidescreen ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
                 case 1:
+                    if (x==io)
+                    {
+                        glanisotropy *= 2;
+                        if (glanisotropy > glinfo.maxanisotropy) glanisotropy = 1;
+                        gltexapplyprops();
+                    }
+                    if (glanisotropy == 1) strcpy(tempbuf,"NONE");
+                    else sprintf(tempbuf,"%ldx",glanisotropy);
+                    gametextpal(d,yy, tempbuf, MENUHIGHLIGHT(io), 0);                    
+                    break;
+                    
+                case 2:
                     if (x==io) usehightile = 1-usehightile;
                     modval(0,1,(int *)&usehightile,1,probey==io);
                     gametextpal(d,yy, usehightile ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 2:
+                case 3:
                     enabled = usehightile;
                     if (enabled && x==io) useprecache = !useprecache;
                     if (enabled) modval(0,1,(int *)&useprecache,1,probey==io);
                     gametextpal(d,yy, useprecache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
-                case 3:
+                case 4:
                     enabled = usehightile;
                     if (enabled && x==io) glusetexcompr = !glusetexcompr;
                     if (enabled) modval(0,1,(int *)&glusetexcompr,1,probey==io);
                     gametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
-                case 4:
+                case 5:
                     enabled = (glusetexcompr && usehightile && useprecache);
                     if (enabled && x==io) glusetexcache = !glusetexcache;
                     if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==io);
                     gametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
-                case 5:
+                case 6:
                     enabled = (glusetexcompr && usehightile && useprecache && glusetexcache);
                     if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
                     if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==io);
                     gametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
-                case 6:
+                case 7:
                     enabled = usehightile;
                     if (enabled && x==io) r_detailmapping = !r_detailmapping;
                     if (enabled) modval(0,1,(int *)&r_detailmapping,1,probey==io);
                     gametextpal(d,yy, r_detailmapping && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
-                case 7:
+                case 8:
                     enabled = usehightile;
                     if (enabled && x==io) r_glowmapping = !r_glowmapping;
                     if (enabled) modval(0,1,(int *)&r_glowmapping,1,probey==io);
                     gametextpal(d,yy, r_glowmapping && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
-                case 8:
+                case 9:
                     if (x==io) usemodels = 1-usemodels;
                     modval(0,1,(int *)&usemodels,1,probey==io);
                     gametextpal(d,yy, usemodels ? "On" : "Off", MENUHIGHLIGHT(io), 0);
@@ -2907,7 +2918,7 @@ cheat_for_port_credits:
         c = (320>>1)-120;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        x = (bpp>8?8:6);
+        x = (6+(bpp>8));
 #else
         x = 6;
 #endif
@@ -3164,12 +3175,6 @@ cheat_for_port_credits:
             break;
         case 6:
             if (bpp==8) break;
-            glanisotropy *= 2;
-            if (glanisotropy > glinfo.maxanisotropy) glanisotropy = 1;
-            gltexapplyprops();
-            break;
-        case 7:
-            if (bpp==8) break;
             cmenu(230);
             break;
 #endif
@@ -3207,11 +3212,10 @@ cheat_for_port_credits:
             menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"HIGH":"LOW");
             modval(0,1,(int *)&ud.detail,1,probey==5);
         }
-
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        if (bpp > 8)
+        else
         {
-            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,"FILTERING");
+            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,"TEX FILTERING");
             switch (gltexfiltermode)
             {
             case 0:
@@ -3236,14 +3240,8 @@ cheat_for_port_credits:
                 strcpy(tempbuf,"OTHER");
                 break;
             }
-            //        menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,tempbuf);
             gametextpal(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),bpp==8);
-
-            menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"ANISOTROPY");
-            if (glanisotropy == 1) strcpy(tempbuf,"NONE");
-            else sprintf(tempbuf,"%ld-tap",glanisotropy);
-            menutext(c+154,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,tempbuf);
-            menutext(c,50+62+16+16+16+16,MENUHIGHLIGHT(7),bpp==8,"ADVANCED VIDEO");
+            menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"MORE SETTINGS");
         }
 #endif
         break;

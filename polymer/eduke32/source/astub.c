@@ -2237,87 +2237,14 @@ static void Keys3d(void)
     smooshyalign = keystatus[0x4c];
     repeatpanalign = (keystatus[0x2a]|keystatus[0x36]|(bstatus&2));
 
+    if (mlook == 2)
+        mlook = 0;
+
     if (bstatus&4)
     {
         if (bstatus&1)
         {
-            searchit = 0;
-            if (searchx != osearchx)
-            {
-                if ((repeatcountx == 0) || (repeatcountx > 16))
-                {
-                    changedir = 0;
-                    if (osearchx > searchx) changedir = -1;
-                    if (searchx > osearchx) changedir = 1;
-
-                    if ((searchstat == 0) || (searchstat == 4))
-                    {
-                        if (!(wall[searchwall].cstat&8)) changedir = -changedir;
-                        if (repeatpanalign == 0)
-                            wall[searchwall].xrepeat = changechar(wall[searchwall].xrepeat,changedir,smooshyalign,1);
-                        else
-                            wall[searchwall].xpanning = changechar(wall[searchwall].xpanning,changedir,smooshyalign,0);
-                    }
-                    if ((searchstat == 1) || (searchstat == 2))
-                    {
-                        if (searchstat == 1)
-                            sector[searchsector].ceilingxpanning = changechar(sector[searchsector].ceilingxpanning,changedir,smooshyalign,0);
-                        else
-                            sector[searchsector].floorxpanning = changechar(sector[searchsector].floorxpanning,changedir,smooshyalign,0);
-                    }
-                    if (searchstat == 3)
-                    {
-                        sprite[searchwall].xrepeat = changechar(sprite[searchwall].xrepeat,changedir,smooshyalign,1);
-                        if (sprite[searchwall].xrepeat < 4)
-                            sprite[searchwall].xrepeat = 4;
-                    }
-                    asksave = 1;
-                    repeatcountx = max(1,repeatcountx);
-                }
-                repeatcountx += (synctics>>1);
-                searchx = osearchx;
-            }
-            else
-                repeatcountx = 0;
-
-            if (searchy != osearchy)
-            {
-                if ((repeatcounty == 0) || (repeatcounty > 16))
-                {
-                    changedir = 0;
-                    if (osearchy < searchy) changedir = -1;
-                    if (searchy < osearchy) changedir = 1;
-
-                    if ((searchstat == 0) || (searchstat == 4))
-                    {
-                        if (wall[searchwall].cstat&4) changedir = -changedir;
-                        if (repeatpanalign == 0)
-                            wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat,changedir,smooshyalign,1);
-                        else
-                            wall[searchwall].ypanning = changechar(wall[searchwall].ypanning,changedir,smooshyalign,0);
-                    }
-                    if ((searchstat == 1) || (searchstat == 2))
-                    {
-                        if (searchstat == 1)
-                            sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning,changedir,smooshyalign,0);
-                        else
-                            sector[searchsector].floorypanning = changechar(sector[searchsector].floorypanning,changedir,smooshyalign,0);
-                    }
-                    if (searchstat == 3)
-                    {
-                        sprite[searchwall].yrepeat = changechar(sprite[searchwall].yrepeat,changedir,smooshyalign,1);
-                        if (sprite[searchwall].yrepeat < 4)
-                            sprite[searchwall].yrepeat = 4;
-                    }
-                    asksave = 1;
-                    repeatcounty = max(1,repeatcounty);
-                }
-                searchy = osearchy;
-                repeatcounty += (synctics>>1);
-                //}
-            }
-            else
-                repeatcounty = 0;
+            mlook = 2;
         }
         if (bstatus&32)  // -
         {
@@ -2905,7 +2832,7 @@ static void Keys3d(void)
         }
         asksave = 1;
         keystatus[0xc9] = 0;
-        mouseb &= ~32;
+        mouseb &= ~16;
     }
     if ((keystatus[0xd1] > 0) || ((bstatus&2) && (bstatus&32))) // PGDN
     {
@@ -3038,7 +2965,7 @@ static void Keys3d(void)
         }
         asksave = 1;
         keystatus[0xd1] = 0;
-        mouseb &= ~16;
+        mouseb &= ~32;
     }
 
     /* end Mapster32 */
@@ -3077,7 +3004,10 @@ static void Keys3d(void)
     if ((bstatus&4) && (bstatus&2))
         Bsprintf(tempbuf,"PAN");
     else if (bstatus&4)
-        Bsprintf(tempbuf,"SHADE/SIZE");
+    {
+        if (bstatus&1) Bsprintf(tempbuf,"VIEW");
+        else Bsprintf(tempbuf,"SHADE");
+    }
     else if (bstatus&2)
         Bsprintf(tempbuf,"Z");
     else if (bstatus&1)

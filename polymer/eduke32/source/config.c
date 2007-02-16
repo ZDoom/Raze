@@ -217,10 +217,10 @@ void CONFIG_SetDefaultKeys(int type)
     {
         for (i=0; i < (int32)(sizeof(oldkeydefaults)/sizeof(oldkeydefaults[0])); i+=3)
         {
-            f = CONFIG_FunctionNameToNum(oldkeydefaults[i+0]);
+            f = CONFIG_FunctionNameToNum((char *)oldkeydefaults[i+0]);
             if (f == -1) continue;
-            KeyboardKeys[f][0] = KB_StringToScanCode(oldkeydefaults[i+1]);
-            KeyboardKeys[f][1] = KB_StringToScanCode(oldkeydefaults[i+2]);
+            KeyboardKeys[f][0] = KB_StringToScanCode((char *)oldkeydefaults[i+1]);
+            KeyboardKeys[f][1] = KB_StringToScanCode((char *)oldkeydefaults[i+2]);
 
             if (f == gamefunc_Show_Console) OSD_CaptureKey(KeyboardKeys[f][0]);
             else CONTROL_MapKey(f, KeyboardKeys[f][0], KeyboardKeys[f][1]);

@@ -56,6 +56,7 @@ int GAME_getrowheight(int w)
 
 void GAME_onshowosd(int shown)
 {
+    vscrn();
     if (numplayers == 1)
         if ((shown && !ud.pause_on) || (!shown && ud.pause_on))
             KB_KeyDown[sc_Pause] = 1;

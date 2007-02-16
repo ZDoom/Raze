@@ -92,7 +92,7 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    "Show_Console"
    };
 
-char defaultgamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
+const char defaultgamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    {
    "Move_Forward",
    "Move_Backward",
@@ -210,7 +210,7 @@ char keydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN] =
    "Show_Console", "`", ""
    };
 
-static char oldkeydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN] =
+const char oldkeydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN] =
    {
    "Move_Forward", "Up", "Kpad8",
    "Move_Backward", "Down", "Kpad2",

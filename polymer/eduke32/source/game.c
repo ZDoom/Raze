@@ -1891,7 +1891,7 @@ static void coolgaugetext(int snum)
 {
     struct player_struct *p = &ps[snum];
     long i, j, o, ss, u;
-    int permbit;
+    int permbit = 0;
 
     if (ps[snum].gm&MODE_MENU)
         if ((current_menu >= 400  && current_menu <= 405))
@@ -2227,7 +2227,7 @@ static void coolgaugetext(int snum)
         if (p->inven_icon)
         {
             o = 0;
-            permbit = 128;
+//            permbit = 128;
 
             if (u&(2048+4096))
             {
@@ -2333,7 +2333,12 @@ static void tics(void)
                     k += 8;
             }
             Bsprintf(b,"%ld",max(j,0));
-            minitext(320-strlen(b)*4,k+1,b,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
+//            minitext(scale(windowx1,320,xdim)+1,scale(windowy1,200,ydim)+1,b,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
+
+
+            ii = scale(k,ydim,200)+windowy1;
+            printext256(windowx1+2,ii+2,0,-1,b,!(xdim > 640));
+            printext256(windowx1+1,ii+1,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?248:31,-1,b,!(xdim > 640));
 
             if (numplayers > 1)
                 if ((totalclock - lastpackettime) > 1)
@@ -3559,7 +3564,7 @@ void drawbackground(void)
 
     y1 = 0;
     y2 = ydim;
-    if ((ready2send && ps[myconnectindex].gm == MODE_GAME) || ud.recstat == 2)
+    if (ps[myconnectindex].gm & MODE_GAME || ud.recstat == 2)
         //if (ud.recstat == 0 || ud.recstat == 1 || (ud.recstat == 2 && ud.reccnt > 0)) // JBF 20040717
     {
         if (ud.screen_size == 8)
@@ -3624,7 +3629,7 @@ void drawbackground(void)
             }
     }
 
-    if (ud.screen_size > 8 && (ready2send || ud.recstat == 2))
+    if (ud.screen_size > 8)
     {
         y = 0;
         if (gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR)
@@ -8185,7 +8190,7 @@ static char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
 extern int getexternaladdress(char *buffer);
 
-static int load_rancid_net(char *fn)
+static int load_rancid_net(const char *fn)
 {
     int tokn;
     char *cmdtokptr;
@@ -8199,7 +8204,7 @@ static int load_rancid_net(char *fn)
 
     scriptfile *script;
 
-    script = scriptfile_fromfile(fn);
+    script = scriptfile_fromfile((char *)fn);
     if (!script) return -1;
 
     while (1)
@@ -8260,7 +8265,7 @@ static inline int stringsort(const char *p1, const char *p2)
     return Bstrcmp(&p1[0],&p2[0]);
 }
 
-static void setup_rancid_net(char *fn)
+static void setup_rancid_net(const char *fn)
 {
     int i;
 
@@ -8360,7 +8365,7 @@ static void setup_rancid_net(char *fn)
     }
 }
 
-static int loadgroupfiles(char *fn)
+static int loadgroupfiles(const char *fn)
 {
     int tokn;
     char *cmdtokptr;
@@ -8372,7 +8377,7 @@ static int loadgroupfiles(char *fn)
             { "cachesize",       T_CACHESIZE },
         };
 
-    script = scriptfile_fromfile(fn);
+    script = scriptfile_fromfile((char *)fn);
     if (!script) return -1;
 
     while (1)
