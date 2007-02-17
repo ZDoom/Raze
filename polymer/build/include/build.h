@@ -504,7 +504,7 @@ void hicinit(void);
 // effect bitset: 1 = greyscale, 2 = invert
 void hicsetpalettetint(long palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect);
 // flags bitset: 1 = don't compress
-int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut, char flags);
+int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut, float xscale, float yscale, char flags);
 int hicsetskybox(long picnum, long palnum, char *faces[6]);
 int hicclearsubst(long picnum, long palnum);
 

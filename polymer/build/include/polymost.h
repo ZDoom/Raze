@@ -12,7 +12,7 @@ typedef struct hicreplc_t {
     struct hicreplc_t *next;
     char palnum, ignore, flags, filler;
     char *filename;
-    float alphacut;
+    float alphacut, xscale, yscale;
     struct hicskybox_t *skybox;
 } hicreplctyp;
 

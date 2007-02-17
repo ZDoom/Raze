@@ -115,7 +115,7 @@ void hicsetpalettetint(long palnum, unsigned char r, unsigned char g, unsigned c
 // hicsetsubsttex(picnum,pal,filen,alphacut)
 //   Specifies a replacement graphic file for an ART tile.
 //
-int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut, char flags)
+int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut, float xscale, float yscale, char flags)
 {
     hicreplctyp *hr, *hrn;
 
@@ -145,10 +145,9 @@ int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut, char f
         return -1;
     }
     hrn->ignore = 0;
-    if (palnum < (MAXPALOOKUPS - RESERVEDPALS))
-        hrn->alphacut = min(alphacut,1.0);
-    else
-        hrn->alphacut = alphacut;
+    hrn->alphacut = min(alphacut,1.0);
+    hrn->xscale = xscale;
+    hrn->yscale = yscale;
     hrn->flags = flags;
     if (hr == NULL) {
         hrn->next = hicreplc[picnum];

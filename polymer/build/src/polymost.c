@@ -1649,6 +1649,16 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 
         bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
+        // texture scale by parkar request
+        if (pth && pth->hicr && ((pth->hicr->xscale != 1.0f) || (pth->hicr->yscale != 1.0f)))
+        {
+            bglMatrixMode(GL_TEXTURE);
+            bglLoadIdentity();
+            bglScalef(pth->hicr->xscale, pth->hicr->yscale, 1.0f);
+            bglMatrixMode(GL_MODELVIEW);
+        }
+
+        // detail texture
         detailpth = NULL;
         if (r_detailmapping && usehightile && !r_depthpeeling && !drawingskybox &&
             hicfindsubst(globalpicnum, DETAILPAL, 0))
@@ -1680,7 +1690,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
 
-            f = detailpth ? detailpth->hicr->alphacut : 1.0;
+            f = detailpth ? detailpth->hicr->xscale : 1.0;
 
             bglMatrixMode(GL_TEXTURE);
             bglLoadIdentity();
@@ -1690,6 +1700,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
         else
             detailpth = NULL;
 
+        // glow texture
         glowpth = NULL;
         if (r_glowmapping && usehightile && !r_depthpeeling && !drawingskybox &&
             hicfindsubst(globalpicnum, GLOWPAL, 0))
@@ -1952,17 +1963,17 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             bglEnd();
         }
 
-        if (texunits > GL_TEXTURE0_ARB)
+        while (texunits >= GL_TEXTURE0_ARB)
         {
-            while (texunits > GL_TEXTURE0_ARB)
+            bglMatrixMode(GL_TEXTURE);
+            bglLoadIdentity();
+            bglMatrixMode(GL_MODELVIEW);
+            if (texunits > GL_TEXTURE0_ARB)
             {
-                bglMatrixMode(GL_TEXTURE);
-                bglLoadIdentity();
-                bglMatrixMode(GL_MODELVIEW);
                 bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
                 bglDisable(GL_TEXTURE_2D);
-                bglActiveTextureARB(--texunits);
             }
+            bglActiveTextureARB(--texunits);
         }
 
         if (fullbrightdrawingpass == 1) // tile has fullbright colors ?

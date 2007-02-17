@@ -58,7 +58,7 @@ enum {
     T_SKYBOX,
     T_FRONT,T_RIGHT,T_BACK,T_LEFT,T_TOP,T_BOTTOM,
     T_TINT,T_RED,T_GREEN,T_BLUE,
-    T_TEXTURE,T_ALPHACUT,T_NOCOMPRESS,
+    T_TEXTURE,T_ALPHACUT,T_XSCALE,T_YSCALE,T_NOCOMPRESS,
     T_UNDEFMODEL,T_UNDEFMODELRANGE,T_UNDEFMODELOF,T_UNDEFTEXTURE,T_UNDEFTEXTURERANGE,
     T_ALPHAHACK,T_ALPHAHACKRANGE,
     T_SPRITECOL,T_2DCOL,
@@ -197,9 +197,11 @@ static tokenlist texturetokens[] = {
                                        { "glow",    T_GLOW },
                                    };
 static tokenlist texturetokens_pal[] = {
-                                           { "file",      T_FILE },{ "name", T_FILE },
-                                           { "alphacut",  T_ALPHACUT }, { "detailscale",  T_ALPHACUT }, { "scale",  T_ALPHACUT }, { "intensity",  T_ALPHACUT },
-                                           { "nocompress",T_NOCOMPRESS },
+                                           { "file",            T_FILE },{ "name", T_FILE },
+                                           { "alphacut",        T_ALPHACUT },
+                                           { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
+                                           { "yscale",          T_YSCALE },
+                                           { "nocompress",      T_NOCOMPRESS },
                                        };
 
 static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
@@ -296,7 +298,7 @@ static int defsparser(scriptfile *script)
                 break;
             } else kclose(i);
 
-            hicsetsubsttex(tile,pal,fn,-1.0,0);
+            hicsetsubsttex(tile,pal,fn,-1.0,1.0,1.0,0);
         }
         break;
         case T_DEFINESKYBOX:
@@ -1110,7 +1112,7 @@ static int defsparser(scriptfile *script)
                     char *paltokptr = script->ltextptr, *palend;
                     int pal=-1, i;
                     char *fn = NULL;
-                    double alphacut = -1.0;
+                    double alphacut = -1.0, xscale = 1.0, yscale = 1.0;
                     char flags = 0;
 
                     if (scriptfile_getsymbol(script,&pal)) break;
@@ -1121,6 +1123,10 @@ static int defsparser(scriptfile *script)
                             scriptfile_getstring(script,&fn); break;
                         case T_ALPHACUT:
                             scriptfile_getdouble(script,&alphacut); break;
+                        case T_XSCALE:
+                            scriptfile_getdouble(script,&xscale); break;
+                        case T_YSCALE:
+                            scriptfile_getdouble(script,&yscale); break;
                         case T_NOCOMPRESS:
                             flags |= 1; break;
                         default:
@@ -1144,7 +1150,10 @@ static int defsparser(scriptfile *script)
                         break;
                     } else kclose(i);
 
-                    hicsetsubsttex(tile,pal,fn,alphacut,flags);
+                    xscale = 1.0f / xscale;
+                    yscale = 1.0f / yscale;
+
+                    hicsetsubsttex(tile,pal,fn,alphacut,xscale,yscale,flags);
                 } break;
                 case T_DETAIL: case T_GLOW: {
                     char *detailtokptr = script->ltextptr, *detailend;
@@ -1158,7 +1167,7 @@ static int defsparser(scriptfile *script)
                         switch (getatoken(script,texturetokens_pal,sizeof(texturetokens_pal)/sizeof(tokenlist))) {
                         case T_FILE:
                             scriptfile_getstring(script,&fn); break;
-                        case T_ALPHACUT:
+                        case T_XSCALE:
                             scriptfile_getdouble(script,&param); break;
                         case T_NOCOMPRESS:
                             flags |= 1; break;
@@ -1186,7 +1195,7 @@ static int defsparser(scriptfile *script)
                     else if (token == T_GLOW)
                         pal = GLOWPAL;
 
-                    hicsetsubsttex(tile,pal,fn,param,flags);
+                    hicsetsubsttex(tile,pal,fn,-1.0,param,1.0,flags);
                 } break;
                 default:
                     break;
