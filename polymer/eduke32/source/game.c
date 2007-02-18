@@ -140,11 +140,12 @@ enum
 {
     T_EOF = -2,
     T_ERROR = -1,
+    T_INCLUDE = 0,
     T_INTERFACE = 0,
-    T_LOADGRP = 0,
+    T_LOADGRP = 1,
     T_MODE = 1,
-    T_CACHESIZE = 1,
-    T_ALLOW
+    T_CACHESIZE = 2,
+    T_ALLOW = 2
 };
 
 typedef struct
@@ -8373,6 +8374,8 @@ static int loadgroupfiles(const char *fn)
 
     tokenlist grptokens[] =
         {
+            { "include",         T_INCLUDE          },
+            { "#include",        T_INCLUDE          },
             { "loadgrp",         T_LOADGRP },
             { "cachesize",       T_CACHESIZE },
         };
@@ -8411,6 +8414,23 @@ static int loadgroupfiles(const char *fn)
             if (j > 0) MAXCACHE1DSIZE = j<<10;
         }
         break;
+        case T_INCLUDE:
+        {
+            char *fn;
+            if (!scriptfile_getstring(script,&fn)) {
+                scriptfile *included;
+
+                included = scriptfile_fromfile(fn);
+                if (!included) {
+                    initprintf("Warning: Failed including %s on line %s:%d\n",
+                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                } else {
+                    loadgroupfiles((const char *)included);
+                    scriptfile_close(included);
+                }
+            }
+            break;
+        }
         case T_EOF:
             return(0);
         default:

@@ -289,6 +289,7 @@ int AddGameVar(const char *pszLabel, long lValue, unsigned long dwFlags)
     if (Bstrlen(pszLabel) > (MAXVARLABEL-1))
     {
         error++;
+        ReportError(-1);
         initprintf("%s:%ld: error: variable name `%s' exceeds limit of %d characters.\n",compilefile,line_number,pszLabel, MAXVARLABEL);
         return 0;
     }
@@ -1171,6 +1172,7 @@ static void AddSystemVars()
     AddGameVar("myxvel",(long)&myxvel, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("myyvel",(long)&myyvel, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("myzvel",(long)&myzvel, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    
     AddGameVar("myhoriz",(long)&myhoriz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("myhorizoff",(long)&myhorizoff, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("omyhoriz",(long)&omyhoriz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
@@ -1179,6 +1181,7 @@ static void AddSystemVars()
     AddGameVar("omyang",(long)&omyang, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("mycursectnum",(long)&mycursectnum, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("myjumpingcounter",(long)&myjumpingcounter, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+    
     AddGameVar("myjumpingtoggle",(long)&myjumpingtoggle, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("myonground",(long)&myonground, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("myhardlanding",(long)&myhardlanding, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);

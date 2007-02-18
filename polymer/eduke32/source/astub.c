@@ -4403,7 +4403,8 @@ int osdcmd_quit(const osdfuncparm_t *parm)
 enum {
     T_EOF = -2,
     T_ERROR = -1,
-    T_LOADGRP = 0,
+    T_INCLUDE = 0,
+    T_LOADGRP = 1,
 };
 
 typedef struct
@@ -4432,8 +4433,8 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
 
 static tokenlist grptokens[] =
     {
-        { "loadgrp",         T_LOADGRP
-        },
+        { "include",         T_INCLUDE },    
+        { "loadgrp",         T_LOADGRP },
     };
 
 int loadgroupfiles(char *fn)
@@ -4463,6 +4464,23 @@ int loadgroupfiles(char *fn)
                 else
                     initprintf("Using GRP file %s.\n",fn);
             }
+        }
+        case T_INCLUDE:
+        {
+            char *fn;
+            if (!scriptfile_getstring(script,&fn)) {
+                scriptfile *included;
+
+                included = scriptfile_fromfile(fn);
+                if (!included) {
+                    initprintf("Warning: Failed including %s on line %s:%d\n",
+                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                } else {
+                    loadgroupfiles((const char *)included);
+                    scriptfile_close(included);
+                }
+            }
+            break;
         }
         break;
         case T_EOF:
@@ -4737,31 +4755,33 @@ void ExtAnalyzeSprites(void)
             }
             //                else tspr->cstat&=32767;
 
-            if (frames!=0)
+            if (!usemodels || md_tilehasmodel(tspr->picnum) < 0)
             {
-                if (frames==10) frames=0;
-                k = getangle(tspr->x-posx,tspr->y-posy);
-                k = (((tspr->ang+3072+128-k)&2047)>>8)&7;
-                //This guy has only 5 pictures for 8 angles (3 are x-flipped)
-                if (k <= 4)
+                if (frames!=0)
                 {
-                    tspr->picnum += k;
-                    tspr->cstat &= ~4;   //clear x-flipping bit
+                    if (frames==10) frames=0;
+                    k = getangle(tspr->x-posx,tspr->y-posy);
+                    k = (((tspr->ang+3072+128-k)&2047)>>8)&7;
+                    //This guy has only 5 pictures for 8 angles (3 are x-flipped)
+                    if (k <= 4)
+                    {
+                        tspr->picnum += k;
+                        tspr->cstat &= ~4;   //clear x-flipping bit
+                    }
+                    else
+                    {
+                        tspr->picnum += 8-k;
+                        tspr->cstat |= 4;    //set x-flipping bit
+                    }
                 }
-                else
-                {
-                    tspr->picnum += 8-k;
-                    tspr->cstat |= 4;    //set x-flipping bit
-                }
+
+                if (frames==2) tspr->picnum+=((((4-(totalclock>>5)))&1)*5);
+                if (frames==4) tspr->picnum+=((((4-(totalclock>>5)))&3)*5);
+                if (frames==5) tspr->picnum+=(((totalclock>>5)%5))*5;
+
+                if (tilesizx[tspr->picnum] == 0)
+                    tspr->picnum -= 5;       //Hack, for actors
             }
-
-            if (frames==2) tspr->picnum+=((((4-(totalclock>>5)))&1)*5);
-            if (frames==4) tspr->picnum+=((((4-(totalclock>>5)))&3)*5);
-            if (frames==5) tspr->picnum+=(((totalclock>>5)%5))*5;
-
-            if (tilesizx[tspr->picnum] == 0)
-                tspr->picnum -= 5;       //Hack, for actors
-
             break;
         default:
             break;
