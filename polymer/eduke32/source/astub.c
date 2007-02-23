@@ -62,9 +62,6 @@ char *Help2d[]= {
                     " 'L = Adjust sprite/wall coords",
                     " 'S = Sprite size",
                     " '3 = Caption mode",
-#ifdef VULGARITY
-                    " '4 = MIN FRAMERATE",
-#endif
                     " '7 = Swap tags",
                     " 'F = Special functions",
                     " X  = Horiz. flip selected sects",
@@ -109,19 +106,6 @@ char *SPRDSPMODE[MAXNOSPRITES]= {
                                     "Sprite display: NO ACTORS",
                                     "Sprite display: NO EFFECTORS OR ACTORS"
                                 };
-
-#ifdef VULGARITY
-char *Slow[8]= {
-                   "SALES = 0,000,000  ***********************",
-                   "100% OF NOTHING IS !! ********************",
-                   "RENDER IN PROGRESS ***********************",
-                   "YOUR MOTHER IS A WHORE *******************",
-                   "YOU SUCK DONKEY **************************",
-                   "FUCKIN PISS ANT **************************",
-                   "PISS ANT *********************************",
-                   "SLOW *************************************"
-               };
-#endif
 
 #define MAXHELP3D (signed int)(sizeof(Help3d)/sizeof(Help3d[0]))
 char *Help3d[]= {
@@ -2978,23 +2962,18 @@ static void Keys3d(void)
         rate=(120<<4)/(i-clockval[clockcnt])-1;
         if (framerateon)
         {
+            int p = 8;
+            
             Bsprintf(tempbuf,"%ld",rate);
-#ifdef VULGARITY
-            if (rate<MinRate)
-            {
-                Bsprintf(tempbuf,"%ld WARNING : %s",rate,Slow[rate/MinD]);
-                begindrawing();
-                printext256(0*8,0*8,whitecol,-1,tempbuf,1);
-                enddrawing();
-            }
-            else
-#endif
-            {
-                Bsprintf(tempbuf,"%ld",rate);
-                begindrawing();
-                printext256(0,0,whitecol,-1,tempbuf,!(xdimgame > 640));
-                enddrawing();
-            }
+            if (rate > 9) p += 8;
+            if (rate > 99) p += 8;
+            if (rate > 999) p += 8;
+            if (xdimgame <= 640) p >>= 1;
+
+            begindrawing();
+            printext256(xdimgame-p-1,2,0,-1,tempbuf,!(xdimgame > 640));            
+            printext256(xdimgame-p-2,1,rate < 40?248:whitecol,-1,tempbuf,!(xdimgame > 640));
+            enddrawing();
         }
     }
     clockval[clockcnt] = i;
@@ -3977,25 +3956,6 @@ static void Keys2d(void)
     }
     //   Ver();
 
-#ifdef VULGARITY
-    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x05]==1) // ' 4
-    {
-        keystatus[0x05]=0;
-        MinRate=getnumber16("Enter Min Frame Rate : ", MinRate, 128L,0);
-        printmessage16("");
-        /*
-            if(MinRate==40)
-            {MinRate=24; MinD=3;
-        }
-            else
-            {MinRate=40; MinD=5;
-        }
-        */
-        MinRate &= ~7;
-        MinD = MinRate/8;
-    }
-#endif
-
     /*
      if(keystatus[KEYSC_QUOTE]==1 && keystatus[0x06]==1) // ' 5
      {
@@ -4476,7 +4436,7 @@ int loadgroupfiles(char *fn)
                     initprintf("Warning: Failed including %s on line %s:%d\n",
                                fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
                 } else {
-                    loadgroupfiles((const char *)included);
+                    loadgroupfiles((char *)included);
                     scriptfile_close(included);
                 }
             }

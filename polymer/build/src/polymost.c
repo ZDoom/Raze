@@ -1650,7 +1650,7 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
         bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
         // texture scale by parkar request
-        if (pth && pth->hicr && ((pth->hicr->xscale != 1.0f) || (pth->hicr->yscale != 1.0f)))
+        if (pth && pth->hicr && ((pth->hicr->xscale != 1.0f) || (pth->hicr->yscale != 1.0f)) && !drawingskybox)
         {
             bglMatrixMode(GL_TEXTURE);
             bglLoadIdentity();

@@ -362,7 +362,7 @@ struct user_defs {
     int32 runkey_mode,statusbarscale,mouseaiming,weaponswitch,drawweapon;   // JBF 20031125
     int32 democams,color,pcolor[MAXPLAYERS],msgdisptime,statusbarmode;
     int32 m_noexits,noexits,autovote,automsg,idplayers;
-	int32 team, pteam[MAXPLAYERS];
+	int32 team, pteam[MAXPLAYERS], viewbob, weaponsway;
 
     int32 entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
     int32 coords,tickrate,levelstats,m_coop,coop,screen_size,lockout,crosshair;

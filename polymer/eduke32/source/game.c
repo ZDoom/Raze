@@ -2325,7 +2325,7 @@ static void tics(void)
         j=(timer*AVERAGEFRAMES)/(i-frameval[framecnt]);
         if (ud.tickrate && !(ps[myconnectindex].gm&MODE_MENU))
         {
-            int ii, k = 0;
+            int ii, k = 0, p = 8;
 
             if (ud.screen_size != 0 && GTFLAGS(GAMETYPE_FLAG_FRAGBAR) && ud.multimode > 1)
             {
@@ -2336,10 +2336,15 @@ static void tics(void)
             Bsprintf(b,"%ld",max(j,0));
 //            minitext(scale(windowx1,320,xdim)+1,scale(windowy1,200,ydim)+1,b,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
 
-
             ii = scale(k,ydim,200)+windowy1;
-            printext256(windowx1+2,ii+2,0,-1,b,!(xdim > 640));
-            printext256(windowx1+1,ii+1,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?248:31,-1,b,!(xdim > 640));
+            
+            if (j > 9) p += 8;
+            if (j > 99) p += 8;
+            if (j > 999) p += 8;
+            if (xdim <= 640) p >>= 1;
+
+            printext256(windowx2-p+1,ii+2,0,-1,b,!(xdim > 640));            
+            printext256(windowx2-p,ii+1,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?248:31,-1,b,!(xdim > 640));
 
             if (numplayers > 1)
                 if ((totalclock - lastpackettime) > 1)
@@ -4001,7 +4006,10 @@ void displayrooms(int snum,long smoothratio)
         }
 
         else if (p->over_shoulder_on == 0)
-            ud.cameraz += p->opyoff+mulscale16((long)(p->pyoff-p->opyoff),smoothratio);
+        {
+            if (ud.viewbob)
+                ud.cameraz += p->opyoff+mulscale16((long)(p->pyoff-p->opyoff),smoothratio);
+        }    
         else view(p,&ud.camerax,&ud.cameray,&ud.cameraz,&ud.camerasect,ud.cameraang,ud.camerahoriz);
 
         cz = hittype[p->i].ceilingz;

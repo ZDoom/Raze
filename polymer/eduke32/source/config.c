@@ -288,6 +288,8 @@ void CONFIG_SetDefaults(void)
     ud.statusbarmode = 0;
     ud.statusbarscale = 100;
     ud.team = 0;
+    ud.viewbob = 1;
+    ud.weaponsway = 1;
     ud.weaponswitch = 3;	// new+empty
     UseJoystick = 0;
     UseMouse = 1;
@@ -308,6 +310,8 @@ void CONFIG_SetDefaults(void)
     Bstrcpy(ud.ridecule[9], "AARRRGHHHHH!!!");
 
     // JBF 20031211
+
+    CONFIG_SetDefaultKeys(0);    
 
     memset(MouseFunctions, -1, sizeof(MouseFunctions));
     for (i=0; i<MAXMOUSEBUTTONS; i++)
@@ -712,6 +716,8 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(scripthandle, "Misc", "AutoVote",&ud.autovote);
         SCRIPT_GetNumber(scripthandle, "Misc", "AutoMsg",&ud.automsg);
         SCRIPT_GetNumber(scripthandle, "Misc", "IDPlayers",&ud.automsg);
+        SCRIPT_GetNumber(scripthandle, "Misc", "ViewBobbing",&ud.viewbob);
+        SCRIPT_GetNumber(scripthandle, "Misc", "WeaponSway",&ud.weaponsway);
 
         dummy = useprecache;
         SCRIPT_GetNumber(scripthandle, "Misc", "UsePrecache",&dummy);
@@ -818,6 +824,8 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Misc", "StatusBarScale",ud.statusbarscale,false,false);
     SCRIPT_PutNumber(scripthandle, "Misc", "Team",ud.team,false,false);
     SCRIPT_PutNumber(scripthandle, "Misc", "UsePrecache",useprecache,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "ViewBobbing",ud.viewbob,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "WeaponSway",ud.weaponsway,false,false);
 
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "Detail",ud.detail,false,false);
 #if defined(POLYMOST) && defined(USE_OPENGL)
