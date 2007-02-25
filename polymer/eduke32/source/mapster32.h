@@ -154,5 +154,5 @@ extern double msens;
 void ContextHelp(short spritenum);
 void ResetKeys();
 
-extern void clearfilenames(void), fixspritesectors(void);
+extern void fixspritesectors(void);
  #define KEY_PRESSED(sc) KB_KeyPressed((sc))

@@ -665,6 +665,20 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
             SetGameVarID(lVar2, ud.team, g_i, g_p);
         break;
 
+    case USERDEFS_VIEWBOB:
+        if (iSet)
+            ud.viewbob = lValue;
+        else
+            SetGameVarID(lVar2, ud.viewbob, g_i, g_p);
+        break;
+
+    case USERDEFS_WEAPONSWAY:
+        if (iSet)
+            ud.weaponsway = lValue;
+        else
+            SetGameVarID(lVar2, ud.weaponsway, g_i, g_p);
+        break;
+
     default:
         break;
     }

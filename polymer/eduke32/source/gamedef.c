@@ -812,6 +812,8 @@ LABELS userdefslabels[]=
         { "automsg", USERDEFS_AUTOMSG, 0, 0 },
         { "idplayers", USERDEFS_IDPLAYERS, 0, 0 },
         { "team", USERDEFS_TEAM, 0, 0 },
+        { "viewbob", USERDEFS_VIEWBOB, 0, 0 },
+        { "weaponsway", USERDEFS_WEAPONSWAY, 0, 0 },
         { "", -1, 0, 0  }     // END OF LIST
     };
 

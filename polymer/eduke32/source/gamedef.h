@@ -314,7 +314,9 @@ enum userdefslabels {
     USERDEFS_AUTOVOTE,
     USERDEFS_AUTOMSG,
     USERDEFS_IDPLAYERS,
-    USERDEFS_TEAM
+    USERDEFS_TEAM,
+    USERDEFS_VIEWBOB,
+    USERDEFS_WEAPONSWAY
 };
 
 enum sectorlabels {

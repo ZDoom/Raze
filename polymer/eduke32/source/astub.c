@@ -147,6 +147,36 @@ static inline long GetTime(void)
     return totalclock;
 }
 
+static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
+static int numdirs=0, numfiles=0;
+static int currentlist=0;
+
+static void clearfilenames(void)
+{
+    klistfree(finddirs);
+    klistfree(findfiles);
+    finddirs = findfiles = NULL;
+    numfiles = numdirs = 0;
+}
+
+static int getfilenames(const char *path, char kind[])
+{
+    CACHE1D_FIND_REC *r;
+
+    clearfilenames();
+    finddirs = klistpath(path,"*",CACHE1D_FIND_DIR);
+    findfiles = klistpath(path,kind,CACHE1D_FIND_FILE);
+    for (r = finddirs; r; r=r->next) numdirs++;
+    for (r = findfiles; r; r=r->next) numfiles++;
+
+    finddirshigh = finddirs;
+    findfileshigh = findfiles;
+    currentlist = 0;
+    if (findfileshigh) currentlist = 1;
+
+    return(0);
+}
+
 void ExtLoadMap(const char *mapname)
 {
     long i;
@@ -4527,6 +4557,23 @@ int ExtInit(void)
         initprintf("Using %s as main GRP file\n", duke3dgrp);
     }
     initgroupfile(duke3dgrp);
+
+    Bsprintf(tempbuf,"autoload/%s",duke3dgrp);
+    getfilenames(tempbuf,"*.grp");
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    Bsprintf(tempbuf,"autoload/%s",duke3dgrp);
+    getfilenames(tempbuf,"*.zip");
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    Bsprintf(tempbuf,"autoload/%s",duke3dgrp);
+    getfilenames(tempbuf,"*.pk3");
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    
+    getfilenames("autoload","*.grp");
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    getfilenames("autoload","*.zip");
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    getfilenames("autoload","*.pk3");
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
 
     if (getenv("DUKE3DDEF"))
     {
