@@ -2457,9 +2457,9 @@ cheat_for_port_credits:
                     }
                     if (glanisotropy == 1) strcpy(tempbuf,"NONE");
                     else sprintf(tempbuf,"%ldx",glanisotropy);
-                    gametextpal(d,yy, tempbuf, MENUHIGHLIGHT(io), 0);                    
+                    gametextpal(d,yy, tempbuf, MENUHIGHLIGHT(io), 0);
                     break;
-                    
+
                 case 2:
                     if (x==io) usehightile = 1-usehightile;
                     modval(0,1,(int *)&usehightile,1,probey==io);

@@ -2510,7 +2510,7 @@ static void parascan(long dax1, long dax2, long sectnum, char dastat, long bunch
                 x++;
             }
             if (j <= x)
-                wallscan(j,x,topptr,botptr,swplc,lplc);
+                wallscan(j,x-1,topptr,botptr,swplc,lplc);
         }
         globalpicnum = l;
     }

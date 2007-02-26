@@ -2137,7 +2137,7 @@ void displayweapon(int snum)
     gun_pos = 80-(p->weapon_pos*p->weapon_pos);
 
     weapon_xoffset = (160)-90;
-    
+
     if (ud.weaponsway)
     {
         weapon_xoffset -= (sintable[((p->weapon_sway>>1)+512)&2047]/(1024+512));
@@ -2145,7 +2145,8 @@ void displayweapon(int snum)
         if (sprite[p->i].xrepeat < 32)
             gun_pos -= klabs(sintable[(p->weapon_sway<<2)&2047]>>9);
         else gun_pos -= klabs(sintable[(p->weapon_sway>>1)&2047]>>10);
-    } else gun_pos -= 16;
+    }
+    else gun_pos -= 16;
 
     weapon_xoffset -= 58 + p->weapon_ang;
     gun_pos -= (p->hard_landing<<3);

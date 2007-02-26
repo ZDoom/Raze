@@ -1574,13 +1574,11 @@ static void message(char message[162])
 
 static char lockbyte4094;
 
-long lastupdate, mousecol, mouseadd = 1, bstatus;
+static long lastupdate, mousecol, mouseadd = 1, bstatus;
 
 static void m32_showmouse(void)
 {
-    int i, j, col;
-
-    j = (xdimgame > 640);
+    int i, col;
 
     if (totalclock > lastupdate)
     {
@@ -1608,26 +1606,37 @@ static void m32_showmouse(void)
 
     if (col != whitecol)
     {
-        for (i=(j?3:2);i<=(j?7:3);i++)
+        for (i=((xdim > 640)?3:2);i<=((xdim > 640)?7:3);i++)
         {
             plotpixel(searchx+i,searchy,col);
             plotpixel(searchx-i,searchy,col);
             plotpixel(searchx,searchy-i,col);
             plotpixel(searchx,searchy+i,col);
         }
-        for (i=1;i<=(j?2:1);i++)
+        for (i=1;i<=((xdim > 640)?2:1);i++)
         {
             plotpixel(searchx+i,searchy,whitecol);
             plotpixel(searchx-i,searchy,whitecol);
             plotpixel(searchx,searchy-i,whitecol);
             plotpixel(searchx,searchy+i,whitecol);
         }
-        i=(j?8:4);
+        i=((xdim > 640)?8:4);
         plotpixel(searchx+i,searchy,0);
         plotpixel(searchx-i,searchy,0);
         plotpixel(searchx,searchy-i,0);
         plotpixel(searchx,searchy+i,0);
     }
+    
+    if (xdim > 640)
+    {
+        for (i=1;i<=4;i++)
+        {
+            plotpixel(searchx+i,searchy,whitecol);
+            plotpixel(searchx-i,searchy,whitecol);
+            plotpixel(searchx,searchy-i,whitecol);
+            plotpixel(searchx,searchy+i,whitecol);
+        }
+    }    
 }
 
 static int AskIfSure(void)
@@ -2993,7 +3002,7 @@ static void Keys3d(void)
         if (framerateon)
         {
             int p = 8;
-            
+
             Bsprintf(tempbuf,"%ld",rate);
             if (rate > 9) p += 8;
             if (rate > 99) p += 8;
@@ -3001,7 +3010,7 @@ static void Keys3d(void)
             if (xdimgame <= 640) p >>= 1;
 
             begindrawing();
-            printext256(xdimgame-p-1,2,0,-1,tempbuf,!(xdimgame > 640));            
+            printext256(xdimgame-p-1,2,0,-1,tempbuf,!(xdimgame > 640));
             printext256(xdimgame-p-2,1,rate < 40?248:whitecol,-1,tempbuf,!(xdimgame > 640));
             enddrawing();
         }
@@ -4423,7 +4432,7 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
 
 static tokenlist grptokens[] =
     {
-        { "include",         T_INCLUDE },    
+        { "include",         T_INCLUDE },
         { "loadgrp",         T_LOADGRP },
     };
 
@@ -4458,14 +4467,18 @@ int loadgroupfiles(char *fn)
         case T_INCLUDE:
         {
             char *fn;
-            if (!scriptfile_getstring(script,&fn)) {
+            if (!scriptfile_getstring(script,&fn))
+            {
                 scriptfile *included;
 
                 included = scriptfile_fromfile(fn);
-                if (!included) {
+                if (!included)
+                {
                     initprintf("Warning: Failed including %s on line %s:%d\n",
                                fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                } else {
+                }
+                else
+                {
                     loadgroupfiles((char *)included);
                     scriptfile_close(included);
                 }
@@ -4491,6 +4504,16 @@ int ExtInit(void)
     long rv = 0;
     char cwd[BMAX_PATH];
 
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+    addsearchpath("/usr/share/games/jfduke3d");
+    addsearchpath("/usr/local/share/games/jfduke3d");
+    addsearchpath("/usr/share/games/eduke32");
+    addsearchpath("/usr/local/share/games/eduke32");
+#elif defined(__APPLE__)
+    addsearchpath("/Library/Application Support/JFDuke3D");
+    addsearchpath("/Library/Application Support/EDuke32");
+#endif
+
     if (getcwd(cwd,BMAX_PATH)) addsearchpath(cwd);
 
     if (CommandPaths)
@@ -4510,23 +4533,13 @@ int ExtInit(void)
 #if defined(_WIN32)
     if (!access("user_profiles_enabled", F_OK))
 #else
-    if (usecwd == 0)
+    if (usecwd == 0 && access("user_profiles_disabled", F_OK))
 #endif
     {
         char cwd[BMAX_PATH];
         char *homedir;
         int asperr;
 
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-        addsearchpath("/usr/share/games/jfduke3d");
-        addsearchpath("/usr/local/share/games/jfduke3d");
-        addsearchpath("/usr/share/games/eduke32");
-        addsearchpath("/usr/local/share/games/eduke32");
-#elif defined(__APPLE__)
-        addsearchpath("/Library/Application Support/JFDuke3D");
-        addsearchpath("/Library/Application Support/EDuke32");
-#endif
-        if (getcwd(cwd,BMAX_PATH)) addsearchpath(cwd);
         if ((homedir = Bgethomedir()))
         {
             Bsnprintf(cwd,sizeof(cwd),"%s/"
@@ -4560,20 +4573,20 @@ int ExtInit(void)
 
     Bsprintf(tempbuf,"autoload/%s",duke3dgrp);
     getfilenames(tempbuf,"*.grp");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
     Bsprintf(tempbuf,"autoload/%s",duke3dgrp);
     getfilenames(tempbuf,"*.zip");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
     Bsprintf(tempbuf,"autoload/%s",duke3dgrp);
     getfilenames(tempbuf,"*.pk3");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
-    
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+
     getfilenames("autoload","*.grp");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
     getfilenames("autoload","*.zip");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
     getfilenames("autoload","*.pk3");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
 
     if (getenv("DUKE3DDEF"))
     {
@@ -4587,7 +4600,7 @@ int ExtInit(void)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     glusetexcache = glusetexcachecompression = -1;
 
-    initprintf("Using config file %s.\n",setupfilename);
+    initprintf("Using config file '%s'.\n",setupfilename);
     if (loadsetup(setupfilename) < 0) initprintf("Configuration file not found, using defaults.\n"), rv = 1;
 
     if (glusetexcache == -1 || glusetexcachecompression == -1)
@@ -4889,8 +4902,11 @@ void ExtCheckKeys(void)
     if (qsetmode == 200)    //In 3D mode
     {
         Keys3d();
-        m32_showmouse();
-        if (sidemode != 1) editinput();
+        if (sidemode != 1)
+        {
+            editinput();
+            m32_showmouse();
+        }
         return;
     }
     Keys2d();

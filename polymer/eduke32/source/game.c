@@ -211,7 +211,7 @@ static void patchstatusbar(long x1, long y1, long x2, long y2)
     clofy = (ydim - scale(ydim,ud.statusbarscale,100));
 
 //    if (ud.statusbarmode == 0)
-        rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1+clofx,cly1+clofy,clx2+clofx-1,cly2+clofy-1);
+    rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1+clofx,cly1+clofy,clx2+clofx-1,cly2+clofy-1);
 //    else rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1,cly1,clx2+clofx-1,cly2+clofy-1);
 }
 
@@ -2337,13 +2337,13 @@ static void tics(void)
 //            minitext(scale(windowx1,320,xdim)+1,scale(windowy1,200,ydim)+1,b,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
 
             ii = scale(k,ydim,200)+windowy1;
-            
+
             if (j > 9) p += 8;
             if (j > 99) p += 8;
             if (j > 999) p += 8;
             if (xdim <= 640) p >>= 1;
 
-            printext256(windowx2-p+1,ii+2,0,-1,b,!(xdim > 640));            
+            printext256(windowx2-p+1,ii+2,0,-1,b,!(xdim > 640));
             printext256(windowx2-p,ii+1,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?248:31,-1,b,!(xdim > 640));
 
             if (numplayers > 1)
@@ -4009,7 +4009,7 @@ void displayrooms(int snum,long smoothratio)
         {
             if (ud.viewbob)
                 ud.cameraz += p->opyoff+mulscale16((long)(p->pyoff-p->opyoff),smoothratio);
-        }    
+        }
         else view(p,&ud.camerax,&ud.cameray,&ud.cameraz,&ud.camerasect,ud.cameraang,ud.camerahoriz);
 
         cz = hittype[p->i].ceilingz;
@@ -8159,6 +8159,7 @@ static void comlinehelp(void)
               "-NUM\t\tLoad and run a game from slot NUM (0-9)\n"
               "-a\t\tUse fake player AI (fake multiplayer only)\n"
               "-cNUM\t\tUse MP mode NUM, 1 = DukeMatch(spawn), 2 = Coop, 3 = Dukematch(no spawn)\n"
+              "-cfg FILE\tUse configuration file FILE\n"
               "-dFILE\t\tStart to play demo FILE\n"
               /*              "-fNUM\t\tSend fewer packets in multiplayer (1, 2, 4) (deprecated)\n" */
               "-game_dir DIR\tSee -j\n"
@@ -8425,14 +8426,18 @@ static int loadgroupfiles(const char *fn)
         case T_INCLUDE:
         {
             char *fn;
-            if (!scriptfile_getstring(script,&fn)) {
+            if (!scriptfile_getstring(script,&fn))
+            {
                 scriptfile *included;
 
                 included = scriptfile_fromfile(fn);
-                if (!included) {
+                if (!included)
+                {
                     initprintf("Warning: Failed including %s on line %s:%d\n",
                                fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                } else {
+                }
+                else
+                {
                     loadgroupfiles((const char *)included);
                     scriptfile_close(included);
                 }
@@ -9762,7 +9767,7 @@ void app_main(int argc,char **argv)
 #if defined(_WIN32)
     if (!access("user_profiles_enabled", F_OK))
 #else
-    if (usecwd == 0)
+    if (usecwd == 0 && access("user_profiles_disabled", F_OK))
 #endif
     {
         char *homedir;
@@ -9936,21 +9941,21 @@ void app_main(int argc,char **argv)
 
     Bsprintf(tempbuf,"autoload/%s",duke3dgrp);
     getfilenames(tempbuf,"*.grp");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
     Bsprintf(tempbuf,"autoload/%s",duke3dgrp);
     getfilenames(tempbuf,"*.zip");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
     Bsprintf(tempbuf,"autoload/%s",duke3dgrp);
     getfilenames(tempbuf,"*.pk3");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
-    
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+
     getfilenames("autoload","*.grp");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
     getfilenames("autoload","*.zip");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
     getfilenames("autoload","*.pk3");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; } 
-    
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+
     loadgroupfiles(duke3ddef);
 
     {
