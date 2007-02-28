@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void readsavenames(void)
 {
     long dummy,j;
-    short i;
+    int i;
     char fn[13];
     BFILE *fil;
 
@@ -120,9 +120,9 @@ corrupt:
     return 1;
 }
 
-int loadplayer(signed char spot)
+int loadplayer(int spot)
 {
-    short k;
+    int k;
     char fn[13];
     char mpfn[13];
     char *fnptr, scriptptrs[MAXSCRIPTSIZE];
@@ -504,7 +504,7 @@ corrupt:
     return -1;
 }
 
-int saveplayer(signed char spot)
+int saveplayer(int spot)
 {
     long i, j;
     char fn[13];

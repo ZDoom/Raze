@@ -470,7 +470,7 @@ void cacheit(void)
     OSD_Printf("Cache time: %dms\n", endtime-starttime);
 }
 
-void xyzmirror(short i,short wn)
+void xyzmirror(int i,int wn)
 {
     //if (waloff[wn] == 0) loadtile(wn);
     setviewtotile(wn,tilesizy[wn],tilesizx[wn]);
@@ -1137,10 +1137,10 @@ static void prelevel(char g)
     }
 }
 
-void newgame(char vn,char ln,char sk)
+void newgame(int vn,int ln,int sk)
 {
     struct player_struct *p = &ps[0];
-    short i;
+    int i;
 
     handleevents();
     getpackets();
@@ -1548,7 +1548,7 @@ static void getlevelfromfilename(const char *fn, char *volume, char *level)
     }
 }
 
-int enterlevel(char g)
+int enterlevel(int g)
 {
     int i;
     char levname[BMAX_PATH];

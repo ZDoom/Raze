@@ -226,7 +226,7 @@ void playmusic(const char *fn)
 #endif
 }
 
-int loadsound(unsigned short num)
+int loadsound(unsigned int num)
 {
     long   fp, l;
 
@@ -253,10 +253,10 @@ int loadsound(unsigned short num)
     return 1;
 }
 
-int xyzsound(short num,short i,long x,long y,long z)
+int xyzsound(int num,int i,long x,long y,long z)
 {
     long sndist, cx, cy, cz, j,k;
-    short pitche,pitchs,cs;
+    int pitche,pitchs,cs;
     int voice, sndang, ca, pitch;
 
     //    if(num != 358) return 0;
@@ -403,9 +403,9 @@ int xyzsound(short num,short i,long x,long y,long z)
     return (voice);
 }
 
-void sound(short num)
+void sound(int num)
 {
-    short pitch,pitche,pitchs,cx;
+    int pitch,pitche,pitchs,cx;
     int voice;
     long start;
 
@@ -465,18 +465,18 @@ void sound(short num)
     Sound[num].lock--;
 }
 
-int spritesound(unsigned short num, short i)
+int spritesound(unsigned int num, int i)
 {
     if (num >= NUM_SOUNDS) return -1;
     return xyzsound(num,i,SX,SY,SZ);
 }
 
-void stopspritesound(short num, short i)
+void stopspritesound(int num, int i)
 {
     stopsound(num);
 }
 
-void stopsound(short num)
+void stopsound(int num)
 {
     if (Sound[num].num > 0)
     {
@@ -485,9 +485,9 @@ void stopsound(short num)
     }
 }
 
-void stopenvsound(short num,short i)
+void stopenvsound(int num,int i)
 {
-    short j, k;
+    int j, k;
 
     if (Sound[num].num > 0)
     {
@@ -504,7 +504,7 @@ void stopenvsound(short num,short i)
 void pan3dsound(void)
 {
     long sndist, sx, sy, sz, cx, cy, cz;
-    short sndang,ca,j,k,i,cs;
+    int sndang,ca,j,k,i,cs;
 
     numenvsnds = 0;
 
@@ -583,7 +583,7 @@ void pan3dsound(void)
 
 void testcallback(unsigned long num)
 {
-    short tempi,tempj,tempk;
+    int tempi,tempj,tempk;
 
     if ((long)num < 0)
     {
@@ -632,13 +632,13 @@ void clearsoundlocks(void)
             lumplockbyte[i] = 199;
 }
 
-int isspritemakingsound(short i, int num)
+int isspritemakingsound(int i, int num)
 {
     if (num < 0) num=0;	// FIXME
     return (Sound[num].num > 0);
 }
 
-int issoundplaying(short i, int num)
+int issoundplaying(int i, int num)
 {
     if (i == -1)
     {

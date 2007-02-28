@@ -347,7 +347,7 @@ int getanimationgoal(long *animptr)
     return(j);
 }
 
-int setanimation(short animsect,long *animptr, long thegoal, long thevel)
+int setanimation(int animsect,long *animptr, long thegoal, long thevel)
 {
     long i, j;
 
@@ -494,7 +494,7 @@ void animatewalls(void)
     }
 }
 
-int activatewarpelevators(short s,short d) //Parm = sectoreffectornum
+int activatewarpelevators(int s,int d) //Parm = sectoreffectornum
 {
     int i = headspritestat[3], sn = sprite[s].sectnum;
 
@@ -535,7 +535,7 @@ int activatewarpelevators(short s,short d) //Parm = sectoreffectornum
     return 0;
 }
 
-void operatesectors(short sn,short ii)
+void operatesectors(int sn,int ii)
 {
     long j=0, l, q, startwall, endwall;
     int i;
@@ -1101,7 +1101,7 @@ void operatemasterswitches(int low)
     }
 }
 
-void operateforcefields(short s, int low)
+void operateforcefields(int s, int low)
 {
     int i, p;
 
@@ -1586,7 +1586,7 @@ int checkhitswitch(int snum,long w,int switchtype)
 
 }
 
-void activatebysector(short sect,short j)
+void activatebysector(int sect,int j)
 {
     int i = headspritesect[sect];
     int didit = 0;
@@ -1606,7 +1606,7 @@ void activatebysector(short sect,short j)
         operatesectors(sect,j);
 }
 
-static void breakwall(short newpn,short spr,short dawallnum)
+static void breakwall(int newpn,int spr,int dawallnum)
 {
     wall[dawallnum].picnum = newpn;
     spritesound(VENT_BUST,spr);
@@ -1614,9 +1614,10 @@ static void breakwall(short newpn,short spr,short dawallnum)
     lotsofglass(spr,dawallnum,10);
 }
 
-void checkhitwall(short spr,short dawallnum,long x,long y,long z,short atwith)
+void checkhitwall(int spr,int dawallnum,long x,long y,long z,int atwith)
 {
-    short j, i, sn = -1, darkestwall;
+    short sn = -1;
+    int j, i, darkestwall;
     walltype *wal;
 
     wal = &wall[dawallnum];
@@ -1869,7 +1870,7 @@ void checkhitwall(short spr,short dawallnum,long x,long y,long z,short atwith)
     }
 }
 
-void checkplayerhurt(struct player_struct *p,short j)
+void checkplayerhurt(struct player_struct *p,int j)
 {
     if ((j&49152) == 49152)
     {
@@ -1940,7 +1941,7 @@ void checkplayerhurt(struct player_struct *p,short j)
     }
 }
 
-int checkhitceiling(short sn)
+int checkhitceiling(int sn)
 {
     int i, j;
 
@@ -2013,9 +2014,10 @@ int checkhitceiling(short sn)
     return 0;
 }
 
-void checkhitsprite(short i,short sn)
+void checkhitsprite(int i,int sn)
 {
-    short j, k, p, rpg=0;
+    short j;
+    int k, p, rpg=0;
     spritetype *s;
     int switchpicnum;
 
@@ -3164,7 +3166,7 @@ CHECKINV1:
     }
 }
 
-long hitasprite(short i,short *hitsp)
+long hitasprite(int i,short *hitsp)
 {
     long sx,sy,sz,zoff;
     short sect,hw;

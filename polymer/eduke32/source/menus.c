@@ -310,12 +310,12 @@ static int menutext_(int x,int y,short s,short p,char *t)
     return (x);
 }
 
-inline int menutext(int x,int y,short s,short p,const char *t)
+inline int menutext(int x,int y,int s,int p,const char *t)
 {
     return(menutext_(x,y,s,p,(char *)stripcolorcodes(t)));
 }
 
-static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short s, short pa)
+static void bar_(int type, int x,int y,short *p,int dainc,int damodify,int s, int pa)
 {
     short xloc;
     char rev;
@@ -389,16 +389,16 @@ static void bar_(int type, int x,int y,short *p,short dainc,char damodify,short 
         rotatesprite((x<<16)+((65-xloc)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
 }
 
-static inline void bar(int x,int y,short *p,short dainc,char damodify,short s, short pa)
+static inline void bar(int x,int y,short *p,int dainc,int damodify,int s, int pa)
 {
     bar_(0,x,y,p,dainc,damodify,s,pa);
 }
-static inline void barsm(int x,int y,short *p,short dainc,char damodify,short s, short pa)
+static inline void barsm(int x,int y,short *p,int dainc,int damodify,int s, int pa)
 {
     bar_(1,x,y,p,dainc,damodify,s,pa);
 }
 
-static void modval(int min, int max,int *p,short dainc,char damodify)
+static void modval(int min, int max,int *p,int dainc,int damodify)
 {
     char rev;
 
@@ -420,7 +420,11 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
 
                 *p -= dainc;
                 if (*p < min)
-                    *p = max;
+                {
+                    *p = max;                
+                    if (damodify == 2)
+                        *p = min;
+                }        
                 sound(PISTOL_BODYHIT);
             }
             if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256))       //&& onbar) )
@@ -430,7 +434,11 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
 
                 *p += dainc;
                 if (*p > max)
-                    *p = min;
+                {
+                    *p = min;                
+                    if (damodify == 2)
+                        *p = max;
+                }        
                 sound(PISTOL_BODYHIT);
             }
         }
@@ -443,7 +451,11 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
 
                 *p -= dainc;
                 if (*p < min)
-                    *p = max;
+                {
+                    *p = max;                
+                    if (damodify == 2)
+                        *p = min;
+                }        
                 sound(PISTOL_BODYHIT);
             }
             if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256))      // && onbar) )
@@ -453,7 +465,11 @@ static void modval(int min, int max,int *p,short dainc,char damodify)
 
                 *p += dainc;
                 if (*p > max)
-                    *p = min;
+                {
+                    *p = min;                
+                    if (damodify == 2)
+                        *p = max;
+                }        
                 sound(PISTOL_BODYHIT);
             }
         }
@@ -726,6 +742,9 @@ void menus(void)
                                "Switch weapon when empty",
                                "-",
                                "-",
+                               "Network packets/sec",
+                               "-",
+                               "-",
                                "Multiplayer macros",
                                NULL
                            };
@@ -854,6 +873,11 @@ void menus(void)
                         break;
                     case 7:
                         if (x == io)
+                            packetrate = min(max(((packetrate/50)*50)+50,50),1000);
+                        modval(50,1000,(int *)&packetrate,10,probey==7?2:0);
+                        break;
+                    case 8:
+                        if (x == io)
                         {
                             cmenu(20004);
                         }
@@ -946,7 +970,10 @@ void menus(void)
                     case 6:
                         gametext(d+70,yy,ud.weaponswitch&2?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
                         break;
-
+                    case 7:
+                        Bsprintf(tempbuf,"%d",packetrate);
+                        gametext(d+70,yy,tempbuf,MENUHIGHLIGHT(io),2+8+16);
+                        break;
                     default:
                         break;
                     }
@@ -969,7 +996,7 @@ void menus(void)
             if (x == -1)
             {
                 cmenu(20002);
-                probey = 7;
+                probey = 8;
             }
             else if (x >= 0 && x <= 9)
             {

@@ -81,7 +81,7 @@ void restoreinterpolations()  //Stick at end of drawscreen
     for (i=numinterpolations-1;i>=0;i--) *curipos[i] = bakipos[i];
 }
 
-long ceilingspace(short sectnum)
+long ceilingspace(int sectnum)
 {
     if ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0)
     {
@@ -91,7 +91,7 @@ long ceilingspace(short sectnum)
     return 0;
 }
 
-long floorspace(short sectnum)
+long floorspace(int sectnum)
 {
     if ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0)
     {
@@ -100,7 +100,7 @@ long floorspace(short sectnum)
     return 0;
 }
 
-void addammo(short weapon,struct player_struct *p,short amount)
+void addammo(int weapon,struct player_struct *p,int amount)
 {
     p->ammo_amount[weapon] += amount;
 
@@ -108,7 +108,7 @@ void addammo(short weapon,struct player_struct *p,short amount)
         p->ammo_amount[weapon] = max_ammo_amount[weapon];
 }
 
-void addweaponnoswitch(struct player_struct *p, short weapon)
+void addweaponnoswitch(struct player_struct *p, int weapon)
 {
     if (p->gotweapon[weapon] == 0)
     {
@@ -152,7 +152,7 @@ void addweaponnoswitch(struct player_struct *p, short weapon)
     }
 }
 
-void addweapon(struct player_struct *p,short weapon)
+void addweapon(struct player_struct *p,int weapon)
 {
     int snum = sprite[p->i].yvel;
 
@@ -280,13 +280,14 @@ void checkavailweapon(struct player_struct *p)
     else p->weapon_pos   = -1;
 }
 
-void hitradius(short i, long  r, long  hp1, long  hp2, long  hp3, long  hp4)
+void hitradius(int i, long  r, long  hp1, long  hp2, long  hp3, long  hp4)
 {
     spritetype *s,*sj;
     walltype *wal;
     long d, q, x1, y1;
     long sectcnt, sectend, dasect, startwall, endwall, nextsect;
-    short j,k,p,x,nextj,sect=-1;
+    int j,k,p,x,nextj;
+    short sect=-1;
     char statlist[] = {0,1,6,10,12,2,5};
     short *tempshort = (short *)tempbuf;
 
@@ -463,7 +464,7 @@ BOLT:
     }
 }
 
-int movesprite(short spritenum, long xchange, long ychange, long zchange, unsigned long cliptype)
+int movesprite(int spritenum, long xchange, long ychange, long zchange, unsigned long cliptype)
 {
     long daz,h, oldx, oldy;
     short retval, dasectnum, cd;
@@ -564,7 +565,7 @@ int ssp(int i,unsigned long cliptype) //The set sprite function
     return (movetype==0);
 }
 
-void insertspriteq(short i)
+void insertspriteq(int i)
 {
     if (spriteqamount > 0)
     {
@@ -577,7 +578,7 @@ void insertspriteq(short i)
     else deletesprite(i);
 }
 
-void lotsofmoney(spritetype *s, short n)
+void lotsofmoney(spritetype *s, int n)
 {
     short i ,j;
     for (i=n;i>0;i--)
@@ -587,7 +588,7 @@ void lotsofmoney(spritetype *s, short n)
     }
 }
 
-void lotsofmail(spritetype *s, short n)
+void lotsofmail(spritetype *s, int n)
 {
     short i ,j;
     for (i=n;i>0;i--)
@@ -597,7 +598,7 @@ void lotsofmail(spritetype *s, short n)
     }
 }
 
-void lotsofpaper(spritetype *s, short n)
+void lotsofpaper(spritetype *s, int n)
 {
     short i ,j;
     for (i=n;i>0;i--)
@@ -607,7 +608,7 @@ void lotsofpaper(spritetype *s, short n)
     }
 }
 
-void guts(spritetype *s,short gtype, short n, short p)
+void guts(spritetype *s,int gtype, int n, int p)
 {
     long gutz,floorz;
     short i,a,j;
@@ -645,7 +646,7 @@ void guts(spritetype *s,short gtype, short n, short p)
     }
 }
 
-void gutsdir(spritetype *s,short gtype, short n, short p)
+void gutsdir(spritetype *s,int gtype, int n, int p)
 {
     long gutz,floorz;
     short i,a,j;
@@ -671,7 +672,7 @@ void gutsdir(spritetype *s,short gtype, short n, short p)
     }
 }
 
-void setsectinterpolate(short i)
+void setsectinterpolate(int i)
 {
     long j, k, startwall,endwall;
 
@@ -694,7 +695,7 @@ void setsectinterpolate(short i)
     }
 }
 
-void clearsectinterpolate(short i)
+void clearsectinterpolate(int i)
 {
     short j,startwall,endwall;
 
@@ -712,7 +713,7 @@ void clearsectinterpolate(short i)
     }
 }
 
-static void ms(short i)
+static void ms(int i)
 {
     //T1,T2 and T3 are used for all the sector moving stuff!!!
 

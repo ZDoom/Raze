@@ -174,7 +174,7 @@ static void hitscantrail(long x1, long y1, long z1, long x2, long y2, long z2, i
     }
 }
 
-long hits(short i)
+long hits(int i)
 {
     long sx,sy,sz;
     short sect,hw,hs;

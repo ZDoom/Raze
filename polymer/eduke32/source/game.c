@@ -78,7 +78,7 @@ static struct strllist
 }
 *CommandPaths = NULL, *CommandGrps = NULL;
 
-char confilename[BMAX_PATH] = {"EDUKE.CON"}, boardfilename[BMAX_PATH] = {0};
+char boardfilename[BMAX_PATH] = {0};
 char waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768], animpal[768];
 char firstdemofile[80] = { '\0' };
 int display_bonus_screen = 1, userconfiles = 0;
@@ -102,7 +102,9 @@ static int nomorelogohack;
 static int sendmessagecommand = -1;
 
 char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
+char defaultconfilename[BMAX_PATH] = {"EDUKE.CON"};
 char *duke3dgrp = defaultduke3dgrp;
+char *confilename = defaultconfilename;
 static char *duke3ddef = "duke3d.def";
 
 extern long lastvisinc;
@@ -277,9 +279,9 @@ const char *stripcolorcodes(const char *t)
     return(colstrip);
 }
 
-int gametext_(int small, int starttile, int x,int y,const char *t,char s,char p,short orientation,long x1, long y1, long x2, long y2)
+int gametext_(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,long x1, long y1, long x2, long y2)
 {
-    short ac,newx,oldx=x;
+    int ac,newx,oldx=x;
     char centre, *oldt;
 
     centre = (x == (320>>1));
@@ -362,26 +364,26 @@ int gametext_(int small, int starttile, int x,int y,const char *t,char s,char p,
     return (x);
 }
 
-inline int gametext(int x,int y,const char *t,char s,short dabits)
+inline int gametext(int x,int y,const char *t,int s,int dabits)
 {
     return(gametext_(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
 }
 
-inline int gametextpal(int x,int y,const char *t,char s,char p)
+inline int gametextpal(int x,int y,const char *t,int s,int p)
 {
     return(gametext_(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1));
 }
 
-inline int mpgametext(int y,const char *t,char s,short dabits)
+inline int mpgametext(int y,const char *t,int s,int dabits)
 {
     if (xdim >= 640 && ydim >= 480)
         return(gametext_(1,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
     return(gametext_(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
 }
 
-static int minitext_(int x,int y,const char *t,char s,char p,short sb)
+static int minitext_(int x,int y,const char *t,int s,int p,int sb)
 {
-    short ac;
+    int ac;
     char ch,cmode;
 
     cmode = (sb&256)!=0;
@@ -407,12 +409,12 @@ static int minitext_(int x,int y,const char *t,char s,char p,short sb)
     return (x);
 }
 
-inline int minitextshade(int x,int y,const char *t,char s,char p,short sb)
+inline int minitextshade(int x,int y,const char *t,int s,int p,int sb)
 {
     return (minitext_(x,y,(char *)stripcolorcodes(t),s,p,sb));
 }
 
-inline int minitext(int x,int y,const char *t,char p,short sb)
+inline int minitext(int x,int y,const char *t,int p,int sb)
 {
     return (minitext_(x,y,(char *)stripcolorcodes(t),0,p,sb));
 }
@@ -1356,7 +1358,7 @@ static void checksync(void)
     }
 }
 
-void check_fta_sounds(short i)
+void check_fta_sounds(int i)
 {
     if (sprite[i].extra > 0)
         switch (dynamictostatic[PN])
@@ -1422,7 +1424,7 @@ void check_fta_sounds(short i)
         }
 }
 
-short inventory(spritetype *s)
+int inventory(spritetype *s)
 {
     switch (dynamictostatic[s->picnum])
     {
@@ -1761,9 +1763,9 @@ static void digitalnumber(long x,long y,long n,char s,char cs)
     }
 }
 
-void txdigitalnumber(short starttile, long x,long y,long n,char s,char pal,char cs,long x1, long y1, long x2, long y2)
+void txdigitalnumber(int starttile, long x,long y,long n,int s,int pal,int cs,long x1, long y1, long x2, long y2)
 {
-    short i, j, k, p, c;
+    int i, j, k, p, c;
     char b[10];
 
     //ltoa(n,b,10);
@@ -2477,7 +2479,7 @@ static void operatefta(void)
             gametext(320>>1,k,fta_quotes[ps[screenpeek].ftq],0,2+8+16+1+32);
 }
 
-void FTA(short q,struct player_struct *p)
+void FTA(int q,struct player_struct *p)
 {
     if (fta_quotes[p->ftq] == NULL)
     {
@@ -2598,7 +2600,7 @@ void gameexit(const char *t)
 
 char inputloc = 0;
 
-static int strget_(int small,short x,short y,char *t,short dalen,short c)
+static int strget_(int small,int x,int y,char *t,int dalen,int c)
 {
     short ch;
     int i;
@@ -2670,17 +2672,17 @@ static int strget_(int small,short x,short y,char *t,short dalen,short c)
     return (0);
 }
 
-inline int strget(short x,short y,char *t,short dalen,short c)
+inline int strget(int x,int y,char *t,int dalen,int c)
 {
     return(strget_(0,x,y,t,dalen,c));
 }
 
-inline int strgetsm(short x,short y,char *t,short dalen,short c)
+inline int strgetsm(int x,int y,char *t,int dalen,int c)
 {
     return(strget_(1,x,y,t,dalen,c));
 }
 
-inline int mpstrget(short x,short y,char *t,short dalen,short c)
+inline int mpstrget(int x,int y,char *t,int dalen,int c)
 {
     if (xdim >= 640 && ydim >= 480)
         return(strgetsm(x,y,t,dalen,c));
@@ -3146,7 +3148,7 @@ static void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
     }
 }
 
-void palto(char r,char g,char b,long e)
+void palto(int r,int g,int b,long e)
 {
     long tc;
     /*
@@ -3485,7 +3487,7 @@ void displayrest(long smoothratio)
     if (tintf > 0 || dotint) palto(tintr,tintg,tintb,tintf|128);
 }
 
-static void view(struct player_struct *pp, long *vx, long *vy,long *vz,short *vsectnum, short ang, short horiz)
+static void view(struct player_struct *pp, long *vx, long *vy,long *vz,short *vsectnum, int ang, int horiz)
 {
     spritetype *sp = &sprite[pp->i];
     long i, hx, hy, hitx, hity, hitz;
@@ -3681,7 +3683,7 @@ void drawbackground(void)
 // If standing in sector with SE43 or SE45
 // then draw viewing to SE40 and lower all =hi SE42 floors.
 
-static void SE40_Draw(int spnum,long x,long y,long z,short a,short h,long smoothratio)
+static void SE40_Draw(int spnum,long x,long y,long z,int a,int h,long smoothratio)
 {
     static long tempsectorz[MAXSECTORS];
     static long tempsectorpicnum[MAXSECTORS];
@@ -4272,7 +4274,7 @@ int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_
     return(i);
 }
 
-int wallswitchcheck(short i)
+int wallswitchcheck(int i)
 {
     int j;
     //MULTISWITCH has 4 states so deal with it separately
@@ -6202,9 +6204,9 @@ int spawn(int j, int pn)
 //#pragma auto_inline(off)
 #pragma optimize("g",off)
 #endif
-void animatesprites(long x,long y,short a,long smoothratio)
+void animatesprites(long x,long y,int a,long smoothratio)
 {
-    short i, j, k, p, sect;
+    int i, j, k, p, sect;
     long l, t1,t3,t4;
     spritetype *s,*t;
     int switchpic;
@@ -7582,7 +7584,10 @@ FOUNDCHEAT:
         if (KB_KeyPressed((unsigned char)cheatkey[0]))
         {
             if (ps[myconnectindex].cheat_phase >= 0 && numplayers < 2 && ud.recstat == 0)
+            {
+                KB_ClearKeyDown((unsigned char)cheatkey[0]);
                 ps[myconnectindex].cheat_phase = -1;
+            }    
         }
 
         if (KB_KeyPressed((unsigned char)cheatkey[1]))
@@ -8565,14 +8570,16 @@ static void checkcommandline(int argc,char **argv)
                 if (!Bstrcasecmp(c+1,"nam"))
                 {
                     strcpy(defaultduke3dgrp, "nam.grp");
-                    strcpy(confilename, "nam.con");
+                    strcpy(defaultconfilename, "nam.con");
+                    gametype = 1;
                     i++;
                     continue;
                 }
                 if (!Bstrcasecmp(c+1,"ww2gi"))
                 {
                     strcpy(defaultduke3dgrp, "ww2gi.grp");
-                    strcpy(confilename, "ww2gi.con");
+                    strcpy(defaultconfilename, "ww2gi.con");
+                    gametype = 3;
                     i++;
                     continue;
                 }
@@ -8894,9 +8901,9 @@ static void checkcommandline(int argc,char **argv)
                     c++;
                     if (*c)
                     {
-                        Bstrcpy(confilename,c);
+                        confilename = c;
                         userconfiles = 1;
-                        initprintf("Using CON file: %s.\n",confilename);
+                        initprintf("Using CON file '%s'.\n",confilename);
                     }
                     break;
                 case '0':
@@ -9535,7 +9542,7 @@ void sendboardname(void)
     }
 }
 
-void mpchangemap(char volume, char level)
+void mpchangemap(int volume, int level)
 {
     int i;
 
@@ -9902,7 +9909,7 @@ void app_main(int argc,char **argv)
         }
     }
 
-#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
+#if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2))
     if (i < 0 || (!NoSetup && ForceSetup) || CommandSetup)
     {
         if (quitevent || !startwin_run())
@@ -9920,7 +9927,7 @@ void app_main(int argc,char **argv)
         // overwrite the default GRP and CON so that if the user chooses
         // something different, they get what they asked for
         Bsprintf(defaultduke3dgrp,"ww2gi.grp");
-        Bsprintf(confilename, "ww2gi.con");
+        Bsprintf(defaultconfilename, "ww2gi.con");
         Bsprintf(gametype_names[0],"GRUNTMATCH (SPAWN)");
         Bsprintf(gametype_names[2],"GRUNTMATCH (NO SPAWN)");
     }
@@ -9929,7 +9936,7 @@ void app_main(int argc,char **argv)
         // overwrite the default GRP and CON so that if the user chooses
         // something different, they get what they asked for
         Bsprintf(defaultduke3dgrp,"nam.grp");
-        Bsprintf(confilename, "nam.con");
+        Bsprintf(defaultconfilename, "nam.con");
         Bsprintf(gametype_names[0],"GRUNTMATCH (SPAWN)");
         Bsprintf(gametype_names[2],"GRUNTMATCH (NO SPAWN)");
     }
@@ -11474,7 +11481,7 @@ static void doorders(void)
     }
 }
 
-void dobonus(char bonusonly)
+void dobonus(int bonusonly)
 {
     int t, tinc,gfx_offset;
     int i, y,xfragtotal,yfragtotal;
@@ -12223,11 +12230,12 @@ void vglass(long x,long y,short a,short wn,short n)
 }
 #endif
 
-void lotsofglass(short i,short wallnum,short n)
+void lotsofglass(int i,int wallnum,int n)
 {
     long j, xv, yv, z, x1, y1;
-    short sect, a;
-
+    short sect;
+    int a;
+    
     sect = -1;
 
     if (wallnum < 0)
@@ -12271,7 +12279,7 @@ void lotsofglass(short i,short wallnum,short n)
     }
 }
 
-void spriteglass(short i,short n)
+void spriteglass(int i,int n)
 {
     long j, k, a, z;
 
@@ -12284,10 +12292,10 @@ void spriteglass(short i,short n)
     }
 }
 
-void ceilingglass(short i,short sectnum,short n)
+void ceilingglass(int i,int sectnum,int n)
 {
     long j, xv, yv, z, x1, y1;
-    short a,s, startwall,endwall;
+    int a,s, startwall,endwall;
 
     startwall = sector[sectnum].wallptr;
     endwall = startwall+sector[sectnum].wallnum;
@@ -12311,10 +12319,11 @@ void ceilingglass(short i,short sectnum,short n)
     }
 }
 
-void lotsofcolourglass(short i,short wallnum,short n)
+void lotsofcolourglass(int i,int wallnum,int n)
 {
     long j, xv, yv, z, x1, y1;
-    short sect = -1, a, k;
+    short sect = -1;
+    int a, k;
 
     if (wallnum < 0)
     {

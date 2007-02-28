@@ -573,6 +573,7 @@ extern char num_volumes;
 extern int32 SoundToggle,MusicToggle;
 extern int lastsavedpos;
 extern int restorepalette;
+extern int packetrate;
 
 extern long cachecount;
 extern char boardfilename[BMAX_PATH],waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];

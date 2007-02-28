@@ -632,12 +632,8 @@ int32 CONFIG_ReadSetup(void)
 
         SCRIPT_GetString(scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
-        {
-            extern int packetrate;
-            SCRIPT_GetNumber(scripthandle, "Comm Setup", "Rate",(int32 *)&packetrate);
-            if (packetrate < 40) packetrate = 40;
-            if (packetrate > 1000) packetrate = 1000;
-        }
+        SCRIPT_GetNumber(scripthandle, "Comm Setup", "Rate",(int32 *)&packetrate);
+        packetrate = min(max(packetrate,50),1000);
 
         {
             extern char defaultduke3dgrp[BMAX_PATH];
@@ -955,10 +951,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutString(scripthandle, "Comm Setup","PlayerName",&myname[0]);
     SCRIPT_PutString(scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
-    {
-        extern int packetrate;
-        SCRIPT_PutNumber(scripthandle, "Comm Setup", "Rate", packetrate, false, false);
-    }
+    SCRIPT_PutNumber(scripthandle, "Comm Setup", "Rate", packetrate, false, false);
 
 
     SCRIPT_PutString(scripthandle, "Misc","SelectedGRP",&duke3dgrp[0]);

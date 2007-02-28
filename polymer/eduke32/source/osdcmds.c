@@ -326,7 +326,6 @@ static int osdcmd_fileinfo(const osdfuncparm_t *parm)
 
 static int osdcmd_rate(const osdfuncparm_t *parm)
 {
-    extern int packetrate;
     int i;
 
     if (parm->numparms == 0)

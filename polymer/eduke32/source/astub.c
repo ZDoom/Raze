@@ -4388,7 +4388,7 @@ int ExtPreInit(int argc,char **argv)
     return 0;
 }
 
-int osdcmd_quit(const osdfuncparm_t *parm)
+static int osdcmd_quit(const osdfuncparm_t *parm)
 {
     clearfilenames();
     ExtUnInit();
@@ -4396,6 +4396,29 @@ int osdcmd_quit(const osdfuncparm_t *parm)
 
     exit(0);
 
+    return OSDCMD_OK;
+}
+
+static int osdcmd_editorgridextent(const osdfuncparm_t *parm)
+{
+    int i;
+    extern int editorgridextent;
+
+    if (parm->numparms == 0)
+    {
+        OSD_Printf("\"editorgridextent\" is \"%ld\"\n", editorgridextent);
+        return OSDCMD_SHOWHELP;
+    }
+    else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    i = Batol(parm->parms[0]);
+
+    if (i >= 65536 && i <= 524288)
+    {
+        editorgridextent = i;
+        OSD_Printf("editorgridextent %ld\n", editorgridextent);
+    }
+    else OSD_Printf("editorgridextent: value out of range\n");
     return OSDCMD_OK;
 }
 
@@ -4646,6 +4669,7 @@ int ExtInit(void)
     autosavetimer = totalclock+120*180;
 
     OSD_RegisterFunction("quit","you tried to get help on quit?",osdcmd_quit);
+    OSD_RegisterFunction("editorgridextent","editorgridextent: sets the size of the 2D mode editing grid",osdcmd_editorgridextent);    
 
     return rv;
 }
