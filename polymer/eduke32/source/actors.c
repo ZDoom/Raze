@@ -580,7 +580,7 @@ void insertspriteq(int i)
 
 void lotsofmoney(spritetype *s, int n)
 {
-    short i ,j;
+    int i ,j;
     for (i=n;i>0;i--)
     {
         j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),MONEY,-32,8,8,TRAND&2047,0,0,0,5);
@@ -590,7 +590,7 @@ void lotsofmoney(spritetype *s, int n)
 
 void lotsofmail(spritetype *s, int n)
 {
-    short i ,j;
+    int i ,j;
     for (i=n;i>0;i--)
     {
         j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),MAIL,-32,8,8,TRAND&2047,0,0,0,5);
@@ -600,7 +600,7 @@ void lotsofmail(spritetype *s, int n)
 
 void lotsofpaper(spritetype *s, int n)
 {
-    short i ,j;
+    int i ,j;
     for (i=n;i>0;i--)
     {
         j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),PAPER,-32,8,8,TRAND&2047,0,0,0,5);
@@ -611,9 +611,7 @@ void lotsofpaper(spritetype *s, int n)
 void guts(spritetype *s,int gtype, int n, int p)
 {
     long gutz,floorz;
-    short i,a,j;
-    char sx,sy;
-    signed char pal;
+    int i,a,j,sx,sy,pal;
 
     if (badguy(s) && s->xrepeat < 16)
         sx = sy = 8;
@@ -649,8 +647,7 @@ void guts(spritetype *s,int gtype, int n, int p)
 void gutsdir(spritetype *s,int gtype, int n, int p)
 {
     long gutz,floorz;
-    short i,a,j;
-    char sx,sy;
+    int i,a,j,sx,sy;
 
     if (badguy(s) && s->xrepeat < 16)
         sx = sy = 8;
@@ -674,12 +671,9 @@ void gutsdir(spritetype *s,int gtype, int n, int p)
 
 void setsectinterpolate(int i)
 {
-    long j, k, startwall,endwall;
+    int k, j = sector[SECT].wallptr,endwall = j+sector[SECT].wallnum;
 
-    startwall = sector[SECT].wallptr;
-    endwall = startwall+sector[SECT].wallnum;
-
-    for (j=startwall;j<endwall;j++)
+    for (;j<endwall;j++)
     {
         setinterpolation(&wall[j].x);
         setinterpolation(&wall[j].y);
@@ -697,11 +691,9 @@ void setsectinterpolate(int i)
 
 void clearsectinterpolate(int i)
 {
-    short j,startwall,endwall;
-
-    startwall = sector[SECT].wallptr;
-    endwall = startwall+sector[SECT].wallnum;
-    for (j=startwall;j<endwall;j++)
+    int j = sector[SECT].wallptr,endwall = j+sector[SECT].wallnum;
+    
+    for (;j<endwall;j++)
     {
         stopinterpolation(&wall[j].x);
         stopinterpolation(&wall[j].y);
@@ -717,40 +709,33 @@ static void ms(int i)
 {
     //T1,T2 and T3 are used for all the sector moving stuff!!!
 
-    short startwall,endwall,x;
-    long tx,ty,j,k;
-    spritetype *s;
-
-    s = &sprite[i];
+    long tx,ty;
+    spritetype *s = &sprite[i];
+    long j = T2, k = T3;
 
     s->x += (s->xvel*(sintable[(s->ang+512)&2047]))>>14;
     s->y += (s->xvel*(sintable[s->ang&2047]))>>14;
 
-    j = T2;
-    k = T3;
-
-    startwall = sector[s->sectnum].wallptr;
-    endwall = startwall+sector[s->sectnum].wallnum;
-    for (x=startwall;x<endwall;x++)
     {
-        rotatepoint(
-            0,0,
-            msx[j],msy[j],
-            k&2047,&tx,&ty);
+        int x = sector[s->sectnum].wallptr, endwall = x+sector[s->sectnum].wallnum;
+        
+        for (;x<endwall;x++)
+        {
+            rotatepoint(0,0,msx[j],msy[j],k&2047,&tx,&ty);
+            dragpoint(x,s->x+tx,s->y+ty);
 
-        dragpoint(x,s->x+tx,s->y+ty);
-
-        j++;
+            j++;
+        }
     }
 }
 
 static void movefta(void)
 {
     long x, px, py, sx, sy;
-    short i, j, p, psect, ssect, nexti;
+    int i = headspritestat[2], j, p, nexti;
+    short psect, ssect;
     spritetype *s;
 
-    i = headspritestat[2];
     while (i >= 0)
     {
         nexti = nextspritestat[i];
@@ -954,9 +939,9 @@ int ifhitbyweapon(int sn)
 
 void movecyclers(void)
 {
-    short q, j, x, t, s, *c;
+    int q, j, x, t, s, cshade;
+    short *c;
     walltype *wal;
-    char cshade;
 
     for (q=numcyclers-1;q>=0;q--)
     {
@@ -991,9 +976,8 @@ void movecyclers(void)
 
 void movedummyplayers(void)
 {
-    short i, p, nexti;
+    int i = headspritestat[13], p, nexti;
 
-    i = headspritestat[13];
     while (i >= 0)
     {
         nexti = nextspritestat[i];
@@ -1033,15 +1017,15 @@ BOLT:
     }
 }
 
-short otherp;
+int otherp;
+
 static void moveplayers(void) //Players
 {
-    short i , nexti;
+    int i = headspritestat[10], nexti;
     long otherx;
     spritetype *s;
     struct player_struct *p;
 
-    i = headspritestat[10];
     while (i >= 0)
     {
         nexti = nextspritestat[i];
@@ -1172,11 +1156,10 @@ BOLT:
 
 static void movefx(void)
 {
-    short i, j, nexti, p;
+    int i = headspritestat[11], j, nexti, p;
     long x, ht;
     spritetype *s;
 
-    i = headspritestat[11];
     while (i >= 0)
     {
         s = &sprite[i];
@@ -1272,11 +1255,10 @@ BOLT:
 
 static void movefallers(void)
 {
-    short i, nexti, sect, j;
+    int i = headspritestat[12], nexti, sect, j;
     spritetype *s;
     long x;
 
-    i = headspritestat[12];
     while (i >= 0)
     {
         nexti = nextspritestat[i];
@@ -1370,12 +1352,11 @@ BOLT:
 
 static void movestandables(void)
 {
-    short i, j, k, m, nexti, nextj, p=0, sect;
+    int i = headspritestat[6], j, k, nexti, nextj, p=0, sect, switchpicnum;
     long l=0, x, *t;
     spritetype *s;
-    int switchpicnum;
+    short m;
 
-    i = headspritestat[6];
     while (i >= 0)
     {
         nexti = nextspritestat[i];
@@ -2314,20 +2295,18 @@ BOLT:
     }
 }
 
-static void bounce(short i)
+static void bounce(int i)
 {
-    long k, l, daang, dax, day, daz, xvect, yvect, zvect;
-    short hitsect;
+    long daang, dax, day, daz, xvect, yvect, zvect;
     spritetype *s = &sprite[i];
-
+    int hitsect = s->sectnum;
+    long k = sector[hitsect].wallptr;
+    long l = wall[k].point2;
+    
     xvect = mulscale10(s->xvel,sintable[(s->ang+512)&2047]);
     yvect = mulscale10(s->xvel,sintable[s->ang&2047]);
     zvect = s->zvel;
 
-    hitsect = s->sectnum;
-
-    k = sector[hitsect].wallptr;
-    l = wall[k].point2;
     daang = getangle(wall[l].x-wall[k].x,wall[l].y-wall[k].y);
 
     if (s->z < (hittype[i].floorz+hittype[i].ceilingz)>>1)
@@ -2356,12 +2335,11 @@ static void bounce(short i)
 
 static void moveweapons(void)
 {
-    short i, j=0, k, f, nexti, p, q;
+    int i = headspritestat[4], j=0, k, f, nexti, p, q;
     long dax,day,daz, x, ll;
     unsigned long qq;
     spritetype *s;
 
-    i = headspritestat[4];
     while (i >= 0)
     {
         nexti = nextspritestat[i];
@@ -3140,11 +3118,9 @@ BOLT:
 
 static void movetransports(void)
 {
-    char warpspriteto;
-    short i, j, k, l, p, sect, sectlotag, nexti, nextj;
+    int warpspriteto;
+    int i = headspritestat[9], j, k, l, p, sect, sectlotag, nexti, nextj;
     long ll,onfloorz,q;
-
-    i = headspritestat[9]; //Transporters
 
     while (i >= 0)
     {
@@ -3471,11 +3447,10 @@ BOLT:
     }
 }
 
-static short LocateTheLocator(short n,short sn)
+static short LocateTheLocator(int n,int sn)
 {
-    short i;
-
-    i = headspritestat[7];
+    int i = headspritestat[7];
+    
     while (i >= 0)
     {
         if ((sn == -1 || sn == SECT) && n == SLT)
@@ -3488,12 +3463,10 @@ static short LocateTheLocator(short n,short sn)
 static void moveactors(void)
 {
     long x, m, l, *t;
-    short a, i, j, nexti, nextj, sect, p;
+    int a, j, nexti, nextj, sect, p, switchpicnum, k;
     spritetype *s;
-    unsigned short k;
-    int switchpicnum;
-
-    i = headspritestat[1];
+    int i = headspritestat[1];
+    
     while (i >= 0)
     {
         nexti = nextspritestat[i];
@@ -5380,14 +5353,14 @@ BOLT:
 static void moveeffectors(void)   //STATNUM 3
 {
     long q=0, l, m, x, st, j, *t;
-    short i, k, nexti, nextk, p, sh, nextj;
+    int i = headspritestat[3], nexti, nextk, p, sh, nextj;
+    short k;
     spritetype *s;
     sectortype *sc;
     walltype *wal;
 
     fricxv = fricyv = 0;
 
-    i = headspritestat[3];
     while (i >= 0)
     {
         nexti = nextspritestat[i];
@@ -5508,9 +5481,7 @@ static void moveeffectors(void)   //STATNUM 3
 
                         ps[p].posz += zchange;
 
-                        rotatepoint(sprite[j].x,sprite[j].y,
-                                    ps[p].posx,ps[p].posy,(q*l),
-                                    &m,&x);
+                        rotatepoint(sprite[j].x,sprite[j].y,ps[p].posx,ps[p].posy,(q*l),&m,&x);
 
                         ps[p].bobposx += m-ps[p].posx;
                         ps[p].bobposy += x-ps[p].posy;
@@ -5543,10 +5514,7 @@ static void moveeffectors(void)   //STATNUM 3
 
                             sprite[p].z += zchange;
 
-                            rotatepoint(sprite[j].x,sprite[j].y,
-                                        sprite[p].x,sprite[p].y,(q*l),
-                                        &sprite[p].x,&sprite[p].y);
-
+                            rotatepoint(sprite[j].x,sprite[j].y,sprite[p].x,sprite[p].y,(q*l),&sprite[p].x,&sprite[p].y);
                         }
                     p = nextspritesect[p];
                 }
@@ -5735,9 +5703,7 @@ static void moveeffectors(void)   //STATNUM 3
                 {
                     if (sprite[j].statnum != 10 && sector[sprite[j].sectnum].lotag != 2 && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
                     {
-                        rotatepoint(s->x,s->y,
-                                    sprite[j].x,sprite[j].y,q,
-                                    &sprite[j].x,&sprite[j].y);
+                        rotatepoint(s->x,s->y,sprite[j].x,sprite[j].y,q,&sprite[j].x,&sprite[j].y);
 
                         sprite[j].x+= m;
                         sprite[j].y+= x;
@@ -6333,12 +6299,9 @@ static void moveeffectors(void)   //STATNUM 3
 
             if (t[4])
             {
-                short startwall,endwall;
-
-                startwall = sc->wallptr;
-                endwall = startwall+sc->wallnum;
-
-                for (j=startwall;j<endwall;j++)
+                int endwall = sc->wallptr+sc->wallnum;
+                
+                for (j=sc->wallptr;j<endwall;j++)
                 {
                     k = headspritestat[1];
                     while (k >= 0)
