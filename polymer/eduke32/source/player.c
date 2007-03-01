@@ -103,7 +103,7 @@ void quickkill(struct player_struct *p)
 
     sprite[p->i].extra = 0;
     sprite[p->i].cstat |= 32768;
-    if (ud.god == 0) guts(&sprite[p->i],JIBS6,8,myconnectindex);
+    if (ud.god == 0) guts(p->i,JIBS6,8,myconnectindex);
     return;
 }
 
@@ -4578,7 +4578,7 @@ HORIZONLY:
                 p->weapon_pos = -p->weapon_pos;
             if (p->actorsqu >= 0 && dist(&sprite[pi],&sprite[p->actorsqu]) < 1400 && sprite[p->actorsqu].statnum != MAXSTATUS)
             {
-                guts(&sprite[p->actorsqu],JIBS6,7,myconnectindex);
+                guts(p->actorsqu,JIBS6,7,myconnectindex);
                 spawn(p->actorsqu,BLOODPOOL);
                 spritesound(SQUISHED,p->actorsqu);
                 switch (dynamictostatic[sprite[p->actorsqu].picnum])

@@ -4283,6 +4283,7 @@ void overheadeditor(void)
         if (((keystatus[buildkeys[8]] > 0) || (bstatus&16)) && (zoom < 16384))
         {
             zoom += synctics*(zoom>>4);
+            if (zoom < 24) zoom += 2;
             if (bstatus&16 && (keystatus[0x38] || keystatus[0xb8]))
             {
                 searchx = halfxdim16;
@@ -4291,7 +4292,7 @@ void overheadeditor(void)
                 posy = mousyplc;
             }            
         }    
-        if (((keystatus[buildkeys[9]] > 0) || (bstatus&32)) && (zoom > 24))
+        if (((keystatus[buildkeys[9]] > 0) || (bstatus&32)) && (zoom > 8))
         {
             zoom -= synctics*(zoom>>4);
             if (bstatus&32 && (keystatus[0x38] || keystatus[0xb8]))
@@ -4302,7 +4303,7 @@ void overheadeditor(void)
                 posy = mousyplc;
             }
         }
-        if (zoom < 24) zoom = 24;
+        if (zoom < 8) zoom = 8;
         if (zoom > 16384) zoom = 16384;
 
         if (keystatus[0x22] > 0)  // G (grid on/off)

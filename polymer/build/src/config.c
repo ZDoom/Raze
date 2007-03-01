@@ -59,6 +59,7 @@ extern long fullscreen;
 extern char option[8];
 extern char keys[NUMBUILDKEYS];
 extern double msens;
+extern long editorgridextent;
 
 /*
  * SETUP.DAT
@@ -125,6 +126,7 @@ if (readconfig(fp, "fullscreen", val, VL) > 0) { if (Batoi(val) != 0) fullscreen
 if (readconfig(fp, "music", val, VL) > 0) { if (Batoi(val) != 0) option[2] = 1; else option[2] = 0; }
 if (readconfig(fp, "mouse", val, VL) > 0) { if (Batoi(val) != 0) option[3] = 1; else option[3] = 0; }
     if (readconfig(fp, "bpp", val, VL) > 0) bppgame = Batoi(val);
+    if (readconfig(fp, "editorgridextent", val, VL) > 0) editorgridextent = max(min(524288,Batoi(val)),65536);
 if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i); }
     if (readconfig(fp, "brightness", val, VL) > 0) brightness = min(max(Batoi(val),0),15);
 
@@ -144,6 +146,9 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
     if (readconfig(fp, "gltexfiltermode", val, VL) > 0) {
         gltexfiltermode = Batoi(val);
     }
+    if (readconfig(fp, "glanisotropy", val, VL) > 0) {
+        glanisotropy = Batoi(val);
+    }
 #endif
 
     option[0] = 1;	// vesa all the way...
@@ -151,6 +156,7 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
     option[4] = 0;	// no multiplayer
     option[5] = 0;
 
+#if 0
     if (readconfig(fp, "keyforward", val, VL) > 0) keys[0] = Bstrtol(val, NULL, 16);
     if (readconfig(fp, "keybackward", val, VL) > 0) keys[1] = Bstrtol(val, NULL, 16);
     if (readconfig(fp, "keyturnleft", val, VL) > 0) keys[2] = Bstrtol(val, NULL, 16);
@@ -170,6 +176,8 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
     if (readconfig(fp, "key2dzoomin", val, VL) > 0) keys[16] = Bstrtol(val, NULL, 16);
     if (readconfig(fp, "key2dzoomout", val, VL) > 0) keys[17] = Bstrtol(val, NULL, 16);
     if (readconfig(fp, "keychat", val, VL) > 0) keys[18] = Bstrtol(val, NULL, 16);
+#endif
+    
 if (readconfig(fp, "keyconsole", val, VL) > 0) { keys[19] = Bstrtol(val, NULL, 16); OSD_CaptureKey(keys[19]); }
 
     if (readconfig(fp, "mousesensitivity", val, VL) > 0) msens = Bstrtod(val, NULL);
@@ -205,13 +213,18 @@ int writesetup(const char *fn)
              "; 3D-mode colour depth\n"
              "bpp = %ld\n"
              "\n"
+             "; Grid limits\n"
+             "editorgridextent = %ld\n"
+             "\n"
 #if defined(POLYMOST) && defined(USE_OPENGL)
              "; OpenGL mode options\n"
              "glusetexcache = %ld\n"
              "glusetexcachecompression = %ld\n"
              "gltexfiltermode = %ld\n"
+             "glanisotropy = %ld\n"
              "\n"
 #endif
+
 #ifdef RENDERTYPEWIN
              "; Maximum OpenGL mode refresh rate (Windows only, in Hertz)\n"
              "maxrefreshfreq = %d\n"
@@ -222,6 +235,7 @@ int writesetup(const char *fn)
              ";   15 - highest\n"
              "brightness = %d\n"
              "\n"
+#if 0             
              "; Sound sample frequency\n"
              ";   0 - 6 KHz\n"
              ";   1 - 8 KHz\n"
@@ -237,6 +251,7 @@ int writesetup(const char *fn)
              ";   1 - On\n"
              "music = %d\n"
              "\n"
+#endif             
              "; Enable mouse\n"
              ";   0 - No\n"
              ";   1 - Yes\n"
@@ -245,6 +260,7 @@ int writesetup(const char *fn)
              "; Mouse sensitivity\n"
              "mousesensitivity = %g\n"
              "\n"
+#if 0             
              "; Key Settings\n"
              ";  Here's a map of all the keyboard scan codes: NOTE: values are listed in hex!\n"
              "; +---------------------------------------------------------------------------------------------+\n"
@@ -286,22 +302,31 @@ int writesetup(const char *fn)
              "key2dzoomin = %X\n"
              "key2dzoomout = %X\n"
              "keychat = %X\n"
+#endif
+             "; Console key scancode, in hex\n"
              "keyconsole = %X\n"
              "\n",
 
              forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame,
+             editorgridextent,
 #if defined(POLYMOST) && defined(USE_OPENGL)
-             glusetexcache, glusetexcachecompression, gltexfiltermode,
+             glusetexcache, glusetexcachecompression, gltexfiltermode, glanisotropy,
 #endif
 #ifdef RENDERTYPEWIN
              maxrefreshfreq,
 #endif
-             brightness, option[7]>>4, option[2],
+             brightness, 
+#if 0
+             option[7]>>4, option[2],
+#endif             
              option[3], msens,
+#if 0             
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
              keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],
              keys[12], keys[13], keys[14], keys[15], keys[16], keys[17],
-             keys[18], keys[19]
+             keys[18],
+#endif             
+             keys[19]
             );
 
     Bfclose(fp);

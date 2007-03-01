@@ -421,10 +421,10 @@ static void modval(int min, int max,int *p,int dainc,int damodify)
                 *p -= dainc;
                 if (*p < min)
                 {
-                    *p = max;                
+                    *p = max;
                     if (damodify == 2)
                         *p = min;
-                }        
+                }
                 sound(PISTOL_BODYHIT);
             }
             if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256))       //&& onbar) )
@@ -435,10 +435,10 @@ static void modval(int min, int max,int *p,int dainc,int damodify)
                 *p += dainc;
                 if (*p > max)
                 {
-                    *p = min;                
+                    *p = min;
                     if (damodify == 2)
                         *p = max;
-                }        
+                }
                 sound(PISTOL_BODYHIT);
             }
         }
@@ -452,10 +452,10 @@ static void modval(int min, int max,int *p,int dainc,int damodify)
                 *p -= dainc;
                 if (*p < min)
                 {
-                    *p = max;                
+                    *p = max;
                     if (damodify == 2)
                         *p = min;
-                }        
+                }
                 sound(PISTOL_BODYHIT);
             }
             if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256))      // && onbar) )
@@ -466,10 +466,10 @@ static void modval(int min, int max,int *p,int dainc,int damodify)
                 *p += dainc;
                 if (*p > max)
                 {
-                    *p = min;                
+                    *p = min;
                     if (damodify == 2)
                         *p = max;
-                }        
+                }
                 sound(PISTOL_BODYHIT);
             }
         }

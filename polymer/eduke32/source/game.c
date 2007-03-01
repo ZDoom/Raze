@@ -7587,7 +7587,7 @@ FOUNDCHEAT:
             {
                 KB_ClearKeyDown((unsigned char)cheatkey[0]);
                 ps[myconnectindex].cheat_phase = -1;
-            }    
+            }
         }
 
         if (KB_KeyPressed((unsigned char)cheatkey[1]))
@@ -12235,7 +12235,7 @@ void lotsofglass(int i,int wallnum,int n)
     long j, xv, yv, z, x1, y1;
     short sect;
     int a;
-    
+
     sect = -1;
 
     if (wallnum < 0)

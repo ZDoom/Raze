@@ -1809,7 +1809,7 @@ void checkhitwall(int spr,int dawallnum,long x,long y,long z,int atwith)
 
     case ATM__STATIC:
         wal->picnum = ATMBROKE;
-        lotsofmoney(&sprite[spr],1+(TRAND&7));
+        lotsofmoney(spr,1+(TRAND&7));
         spritesound(GLASS_HEAVYBREAK,spr);
         break;
 
@@ -2194,7 +2194,7 @@ void checkhitsprite(int i,int sn)
     case STATUEFLASH__STATIC:
     case STATUE__STATIC:
         if (PN == BOTTLE10)
-            lotsofmoney(&sprite[i],4+(TRAND&3));
+            lotsofmoney(i,4+(TRAND&3));
         else if (PN == STATUE || PN == STATUEFLASH)
         {
             lotsofcolourglass(i,-1,40);
@@ -2357,12 +2357,12 @@ void checkhitsprite(int i,int sn)
         shoot(i,BLOODSPLAT3);
         SA = TRAND&2047;
         shoot(i,BLOODSPLAT4);
-        guts(&sprite[i],JIBS1,1,myconnectindex);
-        guts(&sprite[i],JIBS2,2,myconnectindex);
-        guts(&sprite[i],JIBS3,3,myconnectindex);
-        guts(&sprite[i],JIBS4,4,myconnectindex);
-        guts(&sprite[i],JIBS5,1,myconnectindex);
-        guts(&sprite[i],JIBS3,6,myconnectindex);
+        guts(i,JIBS1,1,myconnectindex);
+        guts(i,JIBS2,2,myconnectindex);
+        guts(i,JIBS3,3,myconnectindex);
+        guts(i,JIBS4,4,myconnectindex);
+        guts(i,JIBS5,1,myconnectindex);
+        guts(i,JIBS3,6,myconnectindex);
         sound(SQUISHED);
         deletesprite(i);
         break;
@@ -3262,7 +3262,7 @@ void checksectors(int snum)
     }
 
     if (ud.cashman && sync[snum].bits&(1<<29))
-        lotsofmoney(&sprite[p->i],2);
+        lotsofmoney(p->i,2);
 
     if (p->newowner >= 0)
     {

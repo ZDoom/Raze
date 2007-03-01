@@ -39,7 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define VERSION " 1.1.0 svn"
 
-short floor_over_floor;
+static int floor_over_floor;
 
 static char *startwin_labeltext = "Starting Mapster32...";
 static char setupfilename[BMAX_PATH]= "mapster32.cfg";
@@ -4069,7 +4069,7 @@ static void Keys2d(void)
 
 void ExtSetupSpecialSpriteCols(void)
 {
-    short i;
+    int i;
     for (i=0;i<MAXTILES;i++)
 
         switch (i)
@@ -4207,7 +4207,7 @@ void ExtPreSaveMap(void)
 {
     if (fixmapbeforesaving)
     {
-        short i, startwall, j, endwall;
+        int i, startwall, j, endwall;
 
         for (i=0;i<numsectors;i++)
         {
@@ -4705,8 +4705,7 @@ void ExtAnalyzeSprites(void)
 {
     long i, k;
     spritetype *tspr;
-    char frames=0;
-    signed char l;
+    int frames=0, l;
 
     for (i=0,tspr=&tsprite[0];i<spritesortcnt;i++,tspr++)
     {
@@ -5109,9 +5108,8 @@ static void EditSectorData(short sectnum)
 {
     char disptext[80];
     char edittext[80];
-    unsigned char col=1, row=0, rowmax = 6, dispwidth = 24, editval = 0;
+    int col=1, row=0, rowmax = 6, dispwidth = 24, editval = 0, i = -1;
     long xpos = 200, ypos = ydim-STATUS2DSIZ+48;
-    int i = -1;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -5348,9 +5346,8 @@ static void EditWallData(short wallnum)
 {
     char disptext[80];
     char edittext[80];
-    unsigned char row=0, dispwidth = 24, editval = 0;
+    int row=0, dispwidth = 24, editval = 0, i = -1;
     long xpos = 200, ypos = ydim-STATUS2DSIZ+48;
-    int i = -1;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -5482,9 +5479,8 @@ static void EditSpriteData(short spritenum)
 {
     char disptext[80];
     char edittext[80];
-    unsigned char col=0, row=0, rowmax=4, dispwidth = 24, editval = 0;
+    int col=0, row=0, rowmax=4, dispwidth = 24, editval = 0, i = -1;
     long xpos = 8, ypos = ydim-STATUS2DSIZ+48;
-    int i = -1;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -5893,9 +5889,8 @@ static void FuncMenuOpts(void)
 static void FuncMenu(void)
 {
     char disptext[80];
-    unsigned char col=0, row=0, rowmax=7, dispwidth = 24, editval = 0;
+    int col=0, row=0, rowmax=7, dispwidth = 24, editval = 0, i = -1, j;
     long xpos = 8, ypos = ydim-STATUS2DSIZ+48;
-    int i = -1, j;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();

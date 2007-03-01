@@ -217,11 +217,11 @@ void playmusic(const char *fn)
 
     if (fn == NULL) return;
 
-    if(MusicToggle == 0) return;
-    if(MusicDevice < 0) return;
+    if (MusicToggle == 0) return;
+    if (MusicDevice < 0) return;
 
-     // FIXME: I need this to get the music volume initialized (not sure why) -- Jim Bentler
-    MUSIC_SetVolume( MusicVolume );
+    // FIXME: I need this to get the music volume initialized (not sure why) -- Jim Bentler
+    MUSIC_SetVolume(MusicVolume);
     PlayMusic((char *)fn);
 #endif
 }

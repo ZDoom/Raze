@@ -578,40 +578,47 @@ void insertspriteq(int i)
     else deletesprite(i);
 }
 
-void lotsofmoney(spritetype *s, int n)
+void lotsofmoney(int sp, int n)
 {
     int i ,j;
+    spritetype *s = &sprite[sp];
+        
     for (i=n;i>0;i--)
     {
-        j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),MONEY,-32,8,8,TRAND&2047,0,0,0,5);
+        j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),MONEY,-32,8,8,TRAND&2047,0,0,sp,5);
         sprite[j].cstat = TRAND&12;
     }
 }
 
-void lotsofmail(spritetype *s, int n)
+void lotsofmail(int sp, int n)
 {
     int i ,j;
+    spritetype *s = &sprite[sp];
+        
     for (i=n;i>0;i--)
     {
-        j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),MAIL,-32,8,8,TRAND&2047,0,0,0,5);
+        j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),MAIL,-32,8,8,TRAND&2047,0,0,sp,5);
         sprite[j].cstat = TRAND&12;
     }
 }
 
-void lotsofpaper(spritetype *s, int n)
+void lotsofpaper(int sp, int n)
 {
     int i ,j;
+    spritetype *s = &sprite[sp];
+        
     for (i=n;i>0;i--)
     {
-        j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),PAPER,-32,8,8,TRAND&2047,0,0,0,5);
+        j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),PAPER,-32,8,8,TRAND&2047,0,0,sp,5);
         sprite[j].cstat = TRAND&12;
     }
 }
 
-void guts(spritetype *s,int gtype, int n, int p)
+void guts(int sp, int gtype, int n, int p)
 {
     long gutz,floorz;
     int i,a,j,sx,sy,pal;
+    spritetype *s = &sprite[sp];
 
     if (badguy(s) && s->xrepeat < 16)
         sx = sy = 8;
@@ -633,7 +640,7 @@ void guts(spritetype *s,int gtype, int n, int p)
     for (j=0;j<n;j++)
     {
         a = TRAND&2047;
-        i = EGS(s->sectnum,s->x+(TRAND&255)-128,s->y+(TRAND&255)-128,gutz-(TRAND&8191),gtype,-32,sx,sy,a,48+(TRAND&31),-512-(TRAND&2047),ps[p].i,5);
+        i = EGS(s->sectnum,s->x+(TRAND&255)-128,s->y+(TRAND&255)-128,gutz-(TRAND&8191),gtype,-32,sx,sy,a,48+(TRAND&31),-512-(TRAND&2047),sp,5);
         if (PN == JIBS2)
         {
             sprite[i].xrepeat >>= 2;
@@ -644,11 +651,12 @@ void guts(spritetype *s,int gtype, int n, int p)
     }
 }
 
-void gutsdir(spritetype *s,int gtype, int n, int p)
+void gutsdir(int sp, int gtype, int n, int p)
 {
     long gutz,floorz;
     int i,a,j,sx,sy;
-
+    spritetype *s = &sprite[sp];
+    
     if (badguy(s) && s->xrepeat < 16)
         sx = sy = 8;
     else sx = sy = 32;
@@ -665,7 +673,7 @@ void gutsdir(spritetype *s,int gtype, int n, int p)
     for (j=0;j<n;j++)
     {
         a = TRAND&2047;
-        i = EGS(s->sectnum,s->x,s->y,gutz,gtype,-32,sx,sy,a,256+(TRAND&127),-512-(TRAND&2047),ps[p].i,5);
+        i = EGS(s->sectnum,s->x,s->y,gutz,gtype,-32,sx,sy,a,256+(TRAND&127),-512-(TRAND&2047),sp,5);
     }
 }
 
@@ -692,7 +700,7 @@ void setsectinterpolate(int i)
 void clearsectinterpolate(int i)
 {
     int j = sector[SECT].wallptr,endwall = j+sector[SECT].wallnum;
-    
+
     for (;j<endwall;j++)
     {
         stopinterpolation(&wall[j].x);
@@ -718,7 +726,7 @@ static void ms(int i)
 
     {
         int x = sector[s->sectnum].wallptr, endwall = x+sector[s->sectnum].wallnum;
-        
+
         for (;x<endwall;x++)
         {
             rotatepoint(0,0,msx[j],msy[j],k&2047,&tx,&ty);
@@ -2302,7 +2310,7 @@ static void bounce(int i)
     int hitsect = s->sectnum;
     long k = sector[hitsect].wallptr;
     long l = wall[k].point2;
-    
+
     xvect = mulscale10(s->xvel,sintable[(s->ang+512)&2047]);
     yvect = mulscale10(s->xvel,sintable[s->ang&2047]);
     zvect = s->zvel;
@@ -3450,7 +3458,7 @@ BOLT:
 static short LocateTheLocator(int n,int sn)
 {
     int i = headspritestat[7];
-    
+
     while (i >= 0)
     {
         if ((sn == -1 || sn == SECT) && n == SLT)
@@ -3466,7 +3474,7 @@ static void moveactors(void)
     int a, j, nexti, nextj, sect, p, switchpicnum, k;
     spritetype *s;
     int i = headspritestat[1];
-    
+
     while (i >= 0)
     {
         nexti = nextspritestat[i];
@@ -5751,7 +5759,7 @@ static void moveeffectors(void)   //STATNUM 3
                             updatesector(sprite[j].x,sprite[j].y,&k);
                             if (sprite[j].extra >= 0 && k == s->sectnum)
                             {
-                                gutsdir(&sprite[j],JIBS6,72,myconnectindex);
+                                gutsdir(j,JIBS6,72,myconnectindex);
                                 spritesound(SQUISHED,i);
                                 deletesprite(j);
                             }
@@ -5925,7 +5933,7 @@ static void moveeffectors(void)   //STATNUM 3
                                 updatesector(sprite[j].x,sprite[j].y,&k);
                                 if (sprite[j].extra >= 0 && k == s->sectnum)
                                 {
-                                    gutsdir(&sprite[j],JIBS6,24,myconnectindex);
+                                    gutsdir(j,JIBS6,24,myconnectindex);
                                     spritesound(SQUISHED,j);
                                     deletesprite(j);
                                 }
@@ -6300,7 +6308,7 @@ static void moveeffectors(void)   //STATNUM 3
             if (t[4])
             {
                 int endwall = sc->wallptr+sc->wallnum;
-                
+
                 for (j=sc->wallptr;j<endwall;j++)
                 {
                     k = headspritestat[1];
