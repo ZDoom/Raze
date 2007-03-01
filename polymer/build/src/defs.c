@@ -1159,7 +1159,7 @@ static int defsparser(scriptfile *script)
                     char *detailtokptr = script->ltextptr, *detailend;
                     int pal = 0, i;
                     char *fn = NULL;
-                    double param = 1.0;
+                    double xscale = 1.0, yscale = 1.0;
                     char flags = 0;
 
                     if (scriptfile_getbraces(script,&detailend)) break;
@@ -1168,7 +1168,9 @@ static int defsparser(scriptfile *script)
                         case T_FILE:
                             scriptfile_getstring(script,&fn); break;
                         case T_XSCALE:
-                            scriptfile_getdouble(script,&param); break;
+                            scriptfile_getdouble(script,&xscale); break;
+                        case T_YSCALE:
+                            scriptfile_getdouble(script,&yscale); break;
                         case T_NOCOMPRESS:
                             flags |= 1; break;
                         default:
@@ -1190,12 +1192,12 @@ static int defsparser(scriptfile *script)
                     if (token == T_DETAIL)
                     {
                         pal = DETAILPAL;
-                        param = 1.0f / param;
+                        xscale = 1.0f / xscale;
                     }
                     else if (token == T_GLOW)
                         pal = GLOWPAL;
 
-                    hicsetsubsttex(tile,pal,fn,-1.0,param,1.0,flags);
+                    hicsetsubsttex(tile,pal,fn,-1.0,xscale,yscale,flags);
                 } break;
                 default:
                     break;

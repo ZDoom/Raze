@@ -25,7 +25,9 @@ PLATFORMSDK="C:\Program Files\Microsoft Visual Studio 8\VC\PlatformSDK
 
 # /D these to enable certain features of the port's compile process
 # NOASM     When defined, uses C instead of assembly code
-TARGETOPTS=#/DNOASM
+!ifdef NOASM
+TARGETOPTS=/DNOASM
+!endif
 
 !ifdef DEBUG
 # debugging options
@@ -46,7 +48,12 @@ CFLAGS=$(CFLAGS) /nologo /MD /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(DXROOT)\i
 ASFLAGS=/nologo /coff
 EXESUFFIX=.exe
 
-ENGINEOBJS=$(OBJ)\a.$o \
+ENGINEOBJS= \
+!ifdef NOASM
+        $(OBJ)\a-c.$o \
+!else
+        $(OBJ)\a.$o \
+!endif
 	$(OBJ)\baselayer.$o \
 	$(OBJ)\cache1d.$o \
 	$(OBJ)\compat.$o \

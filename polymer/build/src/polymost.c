@@ -1694,7 +1694,13 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 
             bglMatrixMode(GL_TEXTURE);
             bglLoadIdentity();
-            bglScalef(f, f, 1.0f);
+
+            if (pth && pth->hicr && ((pth->hicr->xscale != 1.0f) || (pth->hicr->yscale != 1.0f)))
+                bglScalef(pth->hicr->xscale, pth->hicr->yscale, 1.0f);
+
+            if (detailpth && detailpth->hicr && ((detailpth->hicr->xscale != 1.0f) || (detailpth->hicr->yscale != 1.0f)))
+                bglScalef(detailpth->hicr->xscale, detailpth->hicr->yscale, 1.0f);
+
             bglMatrixMode(GL_MODELVIEW);
         }
         else

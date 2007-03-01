@@ -28,6 +28,8 @@ credits.
 -Ken S.
 **************************************************************************************************/
 
+#include "compat.h"
+
 #include <string.h>
 #include <fcntl.h>
 #include <sys/types.h>
