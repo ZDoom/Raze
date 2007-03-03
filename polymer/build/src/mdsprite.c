@@ -147,6 +147,9 @@ typedef struct
     //MD3 specific
     md3head_t head;
     point3d *muladdframes;
+    unsigned short      *indexes;
+    unsigned short      *vindexes;
+    float               *maxdepths;
 } md3model;
 
 #define VOXBORDWIDTH 1 //use 0 to save memory, but has texture artifacts; 1 looks better...
@@ -1089,6 +1092,10 @@ m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris
         m3->skinmap = sk;
     }
 
+    m3->indexes = malloc(sizeof(unsigned short) * s->numtris);
+    m3->vindexes = malloc(sizeof(unsigned short) * s->numtris * 3);
+    m3->maxdepths = malloc(sizeof(float) * s->numtris);
+
     // die MD2 ! DIE !
     free(m->texid); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m);
 
@@ -1143,6 +1150,7 @@ static md3model *md3load (int fil)
 {
     char *buf, st[BMAX_PATH+2], bst[BMAX_PATH+2];
     long i, j, surfi, ofsurf, bsc, offs[4], leng[4];
+    long maxtrispersurf;
     md3model *m;
     md3surf_t *s;
 
@@ -1195,6 +1203,8 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
         }
     }
 #endif
+
+    maxtrispersurf = 0;
 
     for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
@@ -1256,6 +1266,7 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
         }
 #endif
         maxmodelverts = max(maxmodelverts, s->numverts);
+        maxtrispersurf = max(maxtrispersurf, s->numtris);
         ofsurf += s->ofsend;
     }
 
@@ -1280,6 +1291,10 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
     if (!mdloadskin(&m->texid,&m->usesalpha,bst)) ;//bad!
 #endif
 
+    m->indexes = malloc(sizeof(unsigned short) * maxtrispersurf);
+    m->vindexes = malloc(sizeof(unsigned short) * maxtrispersurf * 3);
+    m->maxdepths = malloc(sizeof(float) * maxtrispersurf);
+
     return(m);
 }
 
@@ -1293,8 +1308,6 @@ static int md3draw (md3model *m, spritetype *tspr)
     int                 texunits = GL_TEXTURE0_ARB;
     mdskinmap_t *sk;
     //PLAG : sorting stuff
-    unsigned short      *indexes;
-    float               *maxdepths;
     unsigned short      tempus;
 
 
@@ -1581,9 +1594,6 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         //PLAG: delayed polygon-level sorted rendering
         if (m->usesalpha && !(tspr->cstat & 1024) && !r_depthpeeling)
         {
-            indexes = malloc(sizeof(unsigned short) * s->numtris);
-            maxdepths = malloc(sizeof(float) * s->numtris);
-
             // old sorting methods - dead code
             /*for(i=s->numtris-1;i>=0;i--)
             {
@@ -1652,8 +1662,8 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
                 if (f > g)
                     f = g;
 
-                maxdepths[i] = f;
-                indexes[i] = i;
+                m->maxdepths[i] = f;
+                m->indexes[i] = i;
             }
 
             //bubble sort - dead code
@@ -1677,50 +1687,85 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
             }*/
 
             // dichotomic recursive sorting - about 100x less iterations than bubblesort
-            quicksort(indexes, maxdepths, 0, s->numtris - 1);
+            quicksort(m->indexes, m->maxdepths, 0, s->numtris - 1);
 
-            bglBegin(GL_TRIANGLES);
-            for (i=s->numtris-1;i>=0;i--)
-                for (j=0;j<3;j++)
+            if (r_vertexarrays)
+            {
+                k = 0;
+                for (i=s->numtris-1;i>=0;i--)
+                    for (j=0;j<3;j++)
+                        m->vindexes[k++] = s->tris[m->indexes[i]].i[j];
+    
+                bglVertexPointer(3, GL_FLOAT, 0, &(vertlist[0].x));
+                l = GL_TEXTURE0_ARB;
+                while (l <= texunits)
                 {
-                    k = s->tris[indexes[i]].i[j];
-                    if (texunits > GL_TEXTURE0_ARB)
-                    {
-                        l = GL_TEXTURE0_ARB;
-                        while (l <= texunits)
-                            bglMultiTexCoord2fARB(l++, s->uv[k].u,s->uv[k].v);
-                    }
-                    else
-                        bglTexCoord2f(s->uv[k].u,s->uv[k].v);
-                    bglVertex3fv((float *)&vertlist[k]);
+                    bglClientActiveTextureARB(l++);
+                    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    bglTexCoordPointer(2, GL_FLOAT, 0, &(s->uv[0].u));
                 }
-            bglEnd();
-
-            free(indexes);
-            free(maxdepths);
+                bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, m->vindexes);
+            }
+            else
+            {
+                bglBegin(GL_TRIANGLES);
+                for (i=s->numtris-1;i>=0;i--)
+                    for (j=0;j<3;j++)
+                    {
+                        k = s->tris[m->indexes[i]].i[j];
+                        if (texunits > GL_TEXTURE0_ARB)
+                        {
+                            l = GL_TEXTURE0_ARB;
+                            while (l <= texunits)
+                                bglMultiTexCoord2fARB(l++, s->uv[k].u,s->uv[k].v);
+                        }
+                        else
+                            bglTexCoord2f(s->uv[k].u,s->uv[k].v);
+                        bglVertex3fv((float *)&vertlist[k]);
+                    }
+                bglEnd();
+            }
         }
         else
         {
-            bglBegin(GL_TRIANGLES);
-            for (i=s->numtris-1;i>=0;i--)
-                for (j=0;j<3;j++)
+            if (r_vertexarrays)
+            {
+                k = 0;
+                for (i=s->numtris-1;i>=0;i--)
+                    for (j=0;j<3;j++)
+                        m->vindexes[k++] = s->tris[i].i[j];
+
+                bglVertexPointer(3, GL_FLOAT, 0, &(vertlist[0].x));
+                l = GL_TEXTURE0_ARB;
+                while (l <= texunits)
                 {
-                    k = s->tris[i].i[j];
-                    if (texunits > GL_TEXTURE0_ARB)
-                    {
-                        l = GL_TEXTURE0_ARB;
-                        while (l <= texunits)
-                            bglMultiTexCoord2fARB(l++, s->uv[k].u,s->uv[k].v);
-                    }
-                    else
-                        bglTexCoord2f(s->uv[k].u,s->uv[k].v);
-                    bglVertex3fv((float *)&vertlist[k]);
+                    bglClientActiveTextureARB(l++);
+                    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    bglTexCoordPointer(2, GL_FLOAT, 0, &(s->uv[0].u));
                 }
-            bglEnd();
+                bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, m->vindexes);
+            }
+            else
+            {
+                bglBegin(GL_TRIANGLES);
+                for (i=s->numtris-1;i>=0;i--)
+                    for (j=0;j<3;j++)
+                    {
+                        k = s->tris[i].i[j];
+                        if (texunits > GL_TEXTURE0_ARB)
+                        {
+                            l = GL_TEXTURE0_ARB;
+                            while (l <= texunits)
+                                bglMultiTexCoord2fARB(l++, s->uv[k].u,s->uv[k].v);
+                        }
+                        else
+                            bglTexCoord2f(s->uv[k].u,s->uv[k].v);
+                        bglVertex3fv((float *)&vertlist[k]);
+                    }
+                bglEnd();
+            }
         }
 
-        if (texunits > GL_TEXTURE0_ARB)
-        {
             while (texunits > GL_TEXTURE0_ARB)
             {
                 bglMatrixMode(GL_TEXTURE);
@@ -1728,9 +1773,13 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
                 bglMatrixMode(GL_MODELVIEW);
                 bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
                 bglDisable(GL_TEXTURE_2D);
+                if (r_vertexarrays)
+                {
+                    bglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                    bglClientActiveTextureARB(texunits - 1);
+                }
                 bglActiveTextureARB(--texunits);
             }
-        }
     }
     //------------
 
@@ -1789,6 +1838,10 @@ static void md3free (md3model *m)
     if (m->texid) free(m->texid);
 
     if (m->muladdframes) free(m->muladdframes);
+
+    if (m->indexes) free(m->indexes);
+    if (m->vindexes) free(m->vindexes);
+    if (m->maxdepths) free(m->maxdepths);
 
     free(m);
 }

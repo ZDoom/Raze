@@ -498,6 +498,7 @@ void gltexapplyprops (void);
 extern long r_depthpeeling, r_peelscount;
 extern long r_detailmapping;
 extern long r_glowmapping;
+extern long r_vertexarrays;
 #endif
 
 void hicinit(void);

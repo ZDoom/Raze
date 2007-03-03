@@ -1193,6 +1193,7 @@ static int defsparser(scriptfile *script)
                     {
                         pal = DETAILPAL;
                         xscale = 1.0f / xscale;
+                        yscale = 1.0f / yscale;
                     }
                     else if (token == T_GLOW)
                         pal = GLOWPAL;

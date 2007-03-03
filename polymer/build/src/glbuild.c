@@ -123,6 +123,7 @@ void (APIENTRY * bglDeleteProgramsARB)(GLsizei n, const GLuint *programs);
 
 // Multitexturing
 void (APIENTRY * bglActiveTextureARB)(GLenum texture);
+void (APIENTRY * bglClientActiveTextureARB)(GLenum texture);
 void (APIENTRY * bglMultiTexCoord2dARB)(GLenum target, GLdouble s, GLdouble t );
 void (APIENTRY * bglMultiTexCoord2fARB)(GLenum target, GLfloat s, GLfloat t );
 
@@ -354,9 +355,10 @@ int loadglextensions(void)
     bglDeleteProgramsARB= GETPROCEXTSOFT("glDeleteProgramsARB");
 
     // Multitexturing
-    bglActiveTextureARB     = GETPROCEXTSOFT("glActiveTextureARB");
-    bglMultiTexCoord2dARB   = GETPROCEXTSOFT("glMultiTexCoord2dARB");
-    bglMultiTexCoord2fARB   = GETPROCEXTSOFT("glMultiTexCoord2fARB");
+    bglActiveTextureARB         = GETPROCEXTSOFT("glActiveTextureARB");
+    bglClientActiveTextureARB   = GETPROCEXTSOFT("glClientActiveTextureARB");
+    bglMultiTexCoord2dARB       = GETPROCEXTSOFT("glMultiTexCoord2dARB");
+    bglMultiTexCoord2fARB       = GETPROCEXTSOFT("glMultiTexCoord2fARB");
 
     // Frame Buffer Objects
     bglGenFramebuffersEXT =         GETPROCEXTSOFT("glGenFramebuffersEXT");
@@ -488,9 +490,10 @@ int unloadgldriver(void)
     bglDeleteProgramsARB= NULL;
 
     // Multitexturing
-    bglActiveTextureARB     = NULL;
-    bglMultiTexCoord2dARB   = NULL;
-    bglMultiTexCoord2fARB   = NULL;
+    bglActiveTextureARB         = NULL;
+    bglClientActiveTextureARB   = NULL;
+    bglMultiTexCoord2dARB       = NULL;
+    bglMultiTexCoord2fARB       = NULL;
 
     // Frame Buffer Objects
     bglGenFramebuffersEXT = NULL;

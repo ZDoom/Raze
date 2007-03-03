@@ -155,6 +155,10 @@ long r_detailmapping = 1;
 // Glow mapping cvar
 long r_glowmapping = 1;
 
+// Vertex Array model drawing cvar
+long r_vertexarrays = 1;
+
+
 static float fogresult, ofogresult, fogcol[4];
 
 static void fogcalc (signed char shade, char vis, char pal)
@@ -798,6 +802,9 @@ void polymost_glinit()
         bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[1]);
         bglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(peeledprogramstring), peeledprogramstring);
     }
+
+    bglEnableClientState(GL_VERTEX_ARRAY);
+    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void resizeglcheck ()
@@ -5336,6 +5343,11 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         }
         return OSDCMD_OK;
     }
+    else if (!Bstrcasecmp(parm->name, "r_vertexarrays")) {
+        if (showval) { OSD_Printf("r_vertexarrays is %d\n", r_vertexarrays); }
+        else r_vertexarrays = (val != 0);
+        return OSDCMD_OK;
+    }
     else if (!Bstrcasecmp(parm->name, "glpolygonmode")) {
         if (showval) { OSD_Printf("glpolygonmode is %d\n", glpolygonmode); }
         else glpolygonmode = val;
@@ -5422,6 +5434,7 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
     OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars);
     OSD_RegisterFunction("r_glowmapping","r_glowmapping: enable/disable glow mapping",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",osdcmd_polymostvars);
 #endif
     OSD_RegisterFunction("usemodels","usemodels: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
     OSD_RegisterFunction("usehightile","usehightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);
