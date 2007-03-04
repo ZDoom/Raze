@@ -38,7 +38,7 @@ static void _internal_clearbackground(int,int);
 static int _internal_gettime(void);
 static void _internal_onshowosd(int);
 
-#define TEXTSIZE 16384
+#define TEXTSIZE 32768
 
 // history display
 static char osdtext[TEXTSIZE];

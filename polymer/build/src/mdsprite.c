@@ -1321,12 +1321,6 @@ static int md3draw (md3model *m, spritetype *tspr)
 
     if (m->head.flags == 1337)
     { // md2
-        /*m0.x = m->scale * g * m->muladdframes[m->cframe*2].x; m1.x = m->scale * f * m->muladdframes[m->nframe*2].x;
-        m0.y = m->scale * g * m->muladdframes[m->cframe*2].y; m1.y = m->scale * f * m->muladdframes[m->nframe*2].y;
-        m0.z = m->scale * g * m->muladdframes[m->cframe*2].z; m1.z = m->scale * f * m->muladdframes[m->nframe*2].z;
-        a0.x = m->muladdframes[m->cframe*2+1].x * m->scale; a0.x = (m->muladdframes[m->nframe*2+1].x * m->scale - a0.x)*f+a0.x;
-        a0.y = m->muladdframes[m->cframe*2+1].y * m->scale; a0.y = (m->muladdframes[m->nframe*2+1].y * m->scale - a0.y)*f+a0.y;
-        a0.z = m->muladdframes[m->cframe*2+1].z * m->scale; a0.z = (m->muladdframes[m->nframe*2+1].z * m->scale - a0.z)*f+a0.z + m->zadd*m->scale;*/
         m0.x = m->scale * g; m1.x = m->scale *f;
         m0.y = m->scale * g; m1.y = m->scale *f;
         m0.z = m->scale * g; m1.z = m->scale *f;
@@ -1594,50 +1588,6 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         //PLAG: delayed polygon-level sorted rendering
         if (m->usesalpha && !(tspr->cstat & 1024) && !r_depthpeeling)
         {
-            // old sorting methods - dead code
-            /*for(i=s->numtris-1;i>=0;i--)
-            {
-                tempf = (vertlist[s->tris[i].i[0]].x * mat[2]) + (vertlist[s->tris[i].i[0]].y * mat[6]) + (vertlist[s->tris[i].i[0]].z * mat[10]) + mat[14];
-                if (tempf < ((vertlist[s->tris[i].i[1]].x * mat[2]) + (vertlist[s->tris[i].i[1]].y * mat[6]) + (vertlist[s->tris[i].i[1]].z * mat[10]) + mat[14]))
-                    tempf = (vertlist[s->tris[i].i[1]].x * mat[2]) + (vertlist[s->tris[i].i[1]].y * mat[6]) + (vertlist[s->tris[i].i[1]].z * mat[10]) + mat[14];
-                if (tempf < ((vertlist[s->tris[i].i[2]].x * mat[2]) + (vertlist[s->tris[i].i[2]].y * mat[6]) + (vertlist[s->tris[i].i[2]].z * mat[10]) + mat[14]))
-                    tempf = (vertlist[s->tris[i].i[2]].x * mat[2]) + (vertlist[s->tris[i].i[2]].y * mat[6]) + (vertlist[s->tris[i].i[2]].z * mat[10]) + mat[14];
-                maxdepths[i] = tempf;
-                indexes[i] = i;
-            }            
-
-            for(i=s->numtris-1;i>=0;i--)
-            {
-                tempf = (vertlist[s->tris[i].i[0]].x * mat[2]) + (vertlist[s->tris[i].i[0]].y * mat[6]) + (vertlist[s->tris[i].i[0]].z * mat[10]) + mat[14];
-                tempf += (vertlist[s->tris[i].i[1]].x * mat[2]) + (vertlist[s->tris[i].i[1]].y * mat[6]) + (vertlist[s->tris[i].i[1]].z * mat[10]) + mat[14];
-                tempf += (vertlist[s->tris[i].i[2]].x * mat[2]) + (vertlist[s->tris[i].i[2]].y * mat[6]) + (vertlist[s->tris[i].i[2]].z * mat[10]) + mat[14];
-                tempf /= 3.0f;
-                maxdepths[i] = tempf;
-                indexes[i] = i;
-            }
-
-            for(i=s->numtris-1;i>=0;i--)
-            {
-                tempvec[0].x = (vertlist[s->tris[i].i[0]].x * mat[0]) + (vertlist[s->tris[i].i[0]].y * mat[4]) + (vertlist[s->tris[i].i[0]].z * mat[8]) + mat[12];
-                tempvec[0].y = (vertlist[s->tris[i].i[0]].x * mat[1]) + (vertlist[s->tris[i].i[0]].y * mat[5]) + (vertlist[s->tris[i].i[0]].z * mat[9]) + mat[13];
-                tempvec[0].z = (vertlist[s->tris[i].i[0]].x * mat[2]) + (vertlist[s->tris[i].i[0]].y * mat[6]) + (vertlist[s->tris[i].i[0]].z * mat[10]) + mat[14];
-                
-                tempvec[1].x = (vertlist[s->tris[i].i[1]].x * mat[0]) + (vertlist[s->tris[i].i[1]].y * mat[4]) + (vertlist[s->tris[i].i[1]].z * mat[8]) + mat[12];
-                tempvec[1].y = (vertlist[s->tris[i].i[1]].x * mat[1]) + (vertlist[s->tris[i].i[1]].y * mat[5]) + (vertlist[s->tris[i].i[1]].z * mat[9]) + mat[13];
-                tempvec[1].z = (vertlist[s->tris[i].i[1]].x * mat[2]) + (vertlist[s->tris[i].i[1]].y * mat[6]) + (vertlist[s->tris[i].i[1]].z * mat[10]) + mat[14];
-                
-                tempvec[2].x = (vertlist[s->tris[i].i[2]].x * mat[0]) + (vertlist[s->tris[i].i[2]].y * mat[4]) + (vertlist[s->tris[i].i[2]].z * mat[8]) + mat[12];
-                tempvec[2].y = (vertlist[s->tris[i].i[2]].x * mat[1]) + (vertlist[s->tris[i].i[2]].y * mat[5]) + (vertlist[s->tris[i].i[2]].z * mat[9]) + mat[13];
-                tempvec[2].z = (vertlist[s->tris[i].i[2]].x * mat[2]) + (vertlist[s->tris[i].i[2]].y * mat[6]) + (vertlist[s->tris[i].i[2]].z * mat[10]) + mat[14];
-
-                tempf = (tempvec[0].x * tempvec[0].x) + (tempvec[0].y * tempvec[0].y) + (tempvec[0].z * tempvec[0].z);
-                tempf += (tempvec[1].x * tempvec[1].x) + (tempvec[1].y * tempvec[1].y) + (tempvec[1].z * tempvec[1].z);
-                tempf += (tempvec[2].x * tempvec[2].x) + (tempvec[2].y * tempvec[2].y) + (tempvec[2].z * tempvec[2].z);
-                
-                maxdepths[i] = tempf;
-                indexes[i] = i;
-            }*/
-
             for (i=s->numtris-1;i>=0;i--)
             {
                 // Matrix multiplication - ugly but clear
@@ -1665,26 +1615,6 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
                 m->maxdepths[i] = f;
                 m->indexes[i] = i;
             }
-
-            //bubble sort - dead code
-            /*test = 0;
-            j = 0;
-            while (j == 0)
-            {
-                j = 1;
-                for(i=s->numtris-1;i>0;i--)
-                    if (maxdepths[i] < maxdepths[i-1])
-                    {
-                        f = maxdepths[i];
-                        maxdepths[i] = maxdepths[i-1];
-                        maxdepths[i-1] = f;
-                        k = indexes[i];
-                        indexes[i] = indexes[i-1];
-                        indexes[i-1] = k;
-                        test++;
-                        j = 0;
-                    }
-            }*/
 
             // dichotomic recursive sorting - about 100x less iterations than bubblesort
             quicksort(m->indexes, m->maxdepths, 0, s->numtris - 1);

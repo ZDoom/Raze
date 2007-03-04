@@ -4381,7 +4381,7 @@ int ExtPreInit(int argc,char **argv)
     OSD_SetLogFile("mapster32.log");
     OSD_SetVersionString("Mapster32"VERSION);
     initprintf("Mapster32"VERSION" ("__DATE__" "__TIME__")\n");
-    initprintf("Copyright (c) 2006 EDuke32 team\n\n");
+    initprintf("Copyright (c) 2007 EDuke32 team\n\n");
 
     checkcommandline(argc,argv);
 
@@ -4788,17 +4788,20 @@ void ExtAnalyzeSprites(void)
                 if (tspr->lotag>skill+1)
                 {
                     tspr->xrepeat=0;
+                    tspr->cstat=32768;
                     break;
                 }
             }
             if (nosprites==2||nosprites==3)
             {
                 tspr->xrepeat=0;
-                //                  tspr->cstat|=32768;
+                tspr->cstat=32768;
             }
             //                else tspr->cstat&=32767;
 
+#if defined(USE_OPENGL) && defined(POLYMOST)
             if (!usemodels || md_tilehasmodel(tspr->picnum) < 0)
+#endif            
             {
                 if (frames!=0)
                 {

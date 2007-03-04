@@ -330,7 +330,7 @@ int loadgldriver(const char *driver)
     bglClearStencil = GETPROC("glClearStencil");
     bglStencilOp    = GETPROC("glStencilOp");
     bglStencilFunc  = GETPROC("glStencilFunc");
-
+    
     loadglextensions();
     loadglulibrary(getenv("BUILD_GLULIB"));
 

@@ -6084,12 +6084,13 @@ if ((!r_depthpeeling) || (rendmode < 3))
         drawline256(xs+65536,ys-65536,xs-65536,ys+65536,31);
     }*/
 
-#ifdef USE_OPENGL
+#if defined(USE_OPENGL) && defined(POLYMOST)
 if ((!r_depthpeeling) || (rendmode < 3))
 #endif
 {
+#if defined(USE_OPENGL) && defined(POLYMOST)
     curpolygonoffset = 0;
-
+#endif
     pos.x = globalposx;
     pos.y = globalposy;
 
@@ -6136,7 +6137,7 @@ if ((!r_depthpeeling) || (rendmode < 3))
     }
 
 } /* depthpeeling */
-#ifdef USE_OPENGL
+#if defined(USE_OPENGL) && defined(POLYMOST)
 else
 {
     curpolygonoffset = 0;
@@ -6148,7 +6149,7 @@ else
 }
 #endif
 
-#ifdef USE_OPENGL
+#if defined(USE_OPENGL) && defined(POLYMOST)
     if ((r_depthpeeling) && (rendmode >= 3))
     {
         bglPopAttrib();

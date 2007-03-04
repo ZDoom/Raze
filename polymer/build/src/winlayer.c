@@ -399,6 +399,62 @@ static int set_maxrefreshfreq(const osdfuncparm_t *parm)
 //
 // initsystem() -- init systems
 //
+
+static void print_os_version(void)
+{
+    OSVERSIONINFO osv;
+    const char *ver;
+    // I was going to call this 'windows_9x_is_awful', but I couldn't justify ever setting it to 0
+    int awful_windows_9x = 0;
+
+    osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osv);
+
+    switch (osv.dwPlatformId)
+    {
+    case VER_PLATFORM_WIN32_NT:
+        if (osv.dwMajorVersion == 5)
+        {
+            switch (osv.dwMinorVersion)
+            {
+            case 0:
+                ver = "2000";
+                break;
+            case 1:
+                ver = "XP";
+                break;                
+            case 2:
+                ver = "Server 2003";
+                break;
+            }
+            break;    
+        }
+        if (osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0)
+            ver = "Vista";
+        break;
+  
+    case VER_PLATFORM_WIN32_WINDOWS:
+        awful_windows_9x = 1;
+        if (osv.dwMinorVersion < 10)
+            ver = "95";
+        else if (osv.dwMinorVersion < 90)
+            ver = "98";
+        else ver = "Me";
+        break;
+
+    default:
+        ver = "Unknown";
+        initprintf("OS: Unknown OS\n");
+        return;
+    }
+
+    initprintf("OS: Windows %s (Version %lu.%lu.%lu)\n", ver, osv.dwMajorVersion, osv.dwMinorVersion,
+               awful_windows_9x?osv.dwBuildNumber&0xffff:osv.dwBuildNumber);
+    if (osv.szCSDVersion[0])
+        initprintf("  - %s\n", osv.szCSDVersion);
+}
+
+
 int initsystem(void)
 {
     DEVMODE desktopmode;
@@ -424,6 +480,8 @@ int initsystem(void)
 
     frameplace=0;
     lockcount=0;
+
+    print_os_version();
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
     if (loadgldriver(getenv("BUILD_GLDRV"))) {

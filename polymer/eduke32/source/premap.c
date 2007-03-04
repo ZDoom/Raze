@@ -25,6 +25,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "osd.h"
 
+#ifdef RENDERTYPEWIN
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 extern char pow2char[];
 
 extern char everyothertime;
@@ -1310,7 +1315,8 @@ static void resetpspritevars(char g)
     for (i=1;i<MAXPLAYERS;i++)
         memcpy(&ps[i],&ps[0],sizeof(ps[0]));
 
-    if (ud.recstat != 2) for (i=0;i<MAXPLAYERS;i++)
+    if (ud.recstat != 2)
+        for (i=0;i<MAXPLAYERS;i++)
         {
             ps[i].aim_mode = aimmode[i];
             ps[i].auto_aim = autoaim[i];
@@ -1387,9 +1393,9 @@ static void resetpspritevars(char g)
             {
                 if (s->pal == 0)
                 {
-                    int k;
+                    int k = 0;
 
-                    for (k=0;k<MAXPLAYERS;k++)
+                    for (;k<MAXPLAYERS;k++)
                     {
                         if (which_palookup == ps[k].palookup)
                         {
@@ -1438,7 +1444,7 @@ static void resetpspritevars(char g)
 
 static inline void clearfrags(void)
 {
-    short i = 0;
+    int i = 0;
 
     while (i<MAXPLAYERS)
         ps[i].frag = ps[i].fraggedself = 0, i++;
@@ -1652,7 +1658,7 @@ int enterlevel(int g)
         {
             if (loadboard(boardfilename,0,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
             {
-                initprintf("Map %s not found!\n",boardfilename);
+                initprintf("Map '%s' not found!\n",boardfilename);
                 //gameexit(tempbuf);
                 return 1;
             }
@@ -1669,7 +1675,7 @@ int enterlevel(int g)
                     p[3]='k';
                     p[4]=0;
                 }
-                if (!loadmaphack(levname)) initprintf("Loaded map hack file %s\n",levname);
+                if (!loadmaphack(levname)) initprintf("Loaded map hack file '%s'\n",levname);
             }
         }
         else if (loadboard(level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number],0,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
@@ -1691,7 +1697,7 @@ int enterlevel(int g)
                 p[3]='k';
                 p[4]=0;
             }
-            if (!loadmaphack(levname)) initprintf("Loaded map hack file %s\n",levname);
+            if (!loadmaphack(levname)) initprintf("Loaded map hack file '%s'\n",levname);
         }
 
     }
@@ -1705,7 +1711,7 @@ int enterlevel(int g)
 
         if (loadboard(levname,1,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
         {
-            initprintf("Map %s not found!\n",level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
+            initprintf("Map '%s' not found!\n",level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
             //gameexit(tempbuf);
             return 1;
         }
@@ -1721,7 +1727,7 @@ int enterlevel(int g)
                 p[3]='k';
                 p[4]=0;
             }
-            if (!loadmaphack(levname)) initprintf("Loaded map hack file %s\n",levname);
+            if (!loadmaphack(levname)) initprintf("Loaded map hack file '%s'\n",levname);
         }
     }
 

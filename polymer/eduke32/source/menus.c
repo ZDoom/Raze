@@ -3225,7 +3225,7 @@ cheat_for_port_credits:
         menutext(c,50+62+16,MENUHIGHLIGHT(4),PHX(-6),"BRIGHTNESS");
         {
             short ss = ud.brightness;
-            bar(c+167,50+62+16,&ss,8,x==4,MENUHIGHLIGHT(4),PHX(-6));
+            bar(c+171,50+62+16,&ss,8,x==4,MENUHIGHLIGHT(4),PHX(-6));
             if (x==4)
             {
                 ud.brightness = ss;
@@ -4255,9 +4255,9 @@ cheat_for_port_credits:
             break;
         }
 
-        menutext(c+160+40,50,MENUHIGHLIGHT(0),(FXDevice<0),SoundToggle && FXDevice >= 0?"ON":"OFF");
+        menutext(c+151+40,50,MENUHIGHLIGHT(0),(FXDevice<0),SoundToggle && FXDevice >= 0?"ON":"OFF");
 
-        menutext(c+160+40,50+16,MENUHIGHLIGHT(1),(MusicDevice<0||(numplayers > 1 && !MusicToggle)),(MusicToggle && (MusicDevice >= 0))?"ON":"OFF");
+        menutext(c+151+40,50+16,MENUHIGHLIGHT(1),(MusicDevice<0||(numplayers > 1 && !MusicToggle)),(MusicToggle && (MusicDevice >= 0))?"ON":"OFF");
 
         menutext(c,50,MENUHIGHLIGHT(0),(FXDevice<0),"SOUND");
         menutext(c,50+16+16,MENUHIGHLIGHT(2),(FXDevice<0)||SoundToggle==0,"SOUND VOLUME");
@@ -4291,12 +4291,12 @@ cheat_for_port_credits:
 
         {
             char *s[] = { "OFF", "LOCAL", "ALL" };
-            menutext(c+160+40,50+16+16+16+16,MENUHIGHLIGHT(4),(FXDevice<0)||SoundToggle==0,s[VoiceToggle]);
+            menutext(c+151+40,50+16+16+16+16,MENUHIGHLIGHT(4),(FXDevice<0)||SoundToggle==0,s[VoiceToggle]);
         }
 
-        menutext(c+160+40,50+16+16+16+16+16,MENUHIGHLIGHT(5),(FXDevice<0)||SoundToggle==0,AmbienceToggle?"ON":"OFF");
+        menutext(c+151+40,50+16+16+16+16+16,MENUHIGHLIGHT(5),(FXDevice<0)||SoundToggle==0,AmbienceToggle?"ON":"OFF");
 
-        menutext(c+160+40,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(FXDevice<0)||SoundToggle==0,ReverseStereo?"ON":"OFF");
+        menutext(c+151+40,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(FXDevice<0)||SoundToggle==0,ReverseStereo?"ON":"OFF");
 
         break;
 

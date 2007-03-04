@@ -48,6 +48,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "util_lib.h"
 
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
 #define BUILDDATE 20070125
@@ -3457,7 +3459,10 @@ void displayrest(long smoothratio)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     {
         extern char mdpause;
-        mdpause = ud.pause_on;
+        
+        mdpause = 0;
+        if (ud.pause_on || (ps[myconnectindex].gm&MODE_MENU && numplayers < 2))
+            mdpause = 1;
     }
 #endif
 
@@ -7585,7 +7590,8 @@ FOUNDCHEAT:
         {
             if (ps[myconnectindex].cheat_phase >= 0 && numplayers < 2 && ud.recstat == 0)
             {
-                KB_ClearKeyDown((unsigned char)cheatkey[0]);
+                if (cheatkey[0] == cheatkey[1])
+                    KB_ClearKeyDown((unsigned char)cheatkey[0]);
                 ps[myconnectindex].cheat_phase = -1;
             }
         }
@@ -9739,7 +9745,7 @@ void app_main(int argc,char **argv)
 
     initprintf("%s (%s)\n",apptitle,datetimestring);
     initprintf("Copyright (c) 1996, 2003 3D Realms Entertainment\n");
-    initprintf("Copyright (c) 2006 EDuke32 team\n");
+    initprintf("Copyright (c) 2007 EDuke32 team\n");
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
     addsearchpath("/usr/share/games/jfduke3d");
