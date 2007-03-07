@@ -836,7 +836,7 @@ static long mdloadskin (md2model *m, int number, int pal, int surf)
     return(*texidx);
 }
 
-char mdpause;
+int mdpause;
 
 //Note: even though it says md2model, it works for both md2model&md3model
 static void updateanimation (md2model *m, spritetype *tspr)

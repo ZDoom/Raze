@@ -3458,7 +3458,7 @@ void displayrest(long smoothratio)
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     {
-        extern char mdpause;
+        extern int mdpause;
         
         mdpause = 0;
         if (ud.pause_on || (ps[myconnectindex].gm&MODE_MENU && numplayers < 2))

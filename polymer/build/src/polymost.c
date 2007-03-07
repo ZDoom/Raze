@@ -412,6 +412,8 @@ pthtyp * gltexcache (long dapicnum, long dapalnum, long dameth)
                 {
                     memcpy(pth, pth2, sizeof(pthtyp));
                     pth->picnum = dapicnum;
+                    pth->flags = ((dameth&4)>>2) + 2 + ((drawingskybox>0)<<2);
+                    if (pth2->flags & 8) pth->flags |= 8; //hasalpha                    
                     pth->hicr = si;
                     pth->next = gltexcachead[j];
                     gltexcachead[j] = pth;
@@ -1710,8 +1712,6 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
 
             bglMatrixMode(GL_MODELVIEW);
         }
-        else
-            detailpth = NULL;
 
         // glow texture
         glowpth = NULL;
@@ -1745,8 +1745,6 @@ void drawpoly (double *dpx, double *dpy, long n, long method)
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
         }
-        else
-            glowpth = NULL;
 
         if (pth && (pth->flags & 2))
         {
