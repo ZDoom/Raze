@@ -3256,8 +3256,6 @@ static void move(void)
             goalang = getangle(ps[g_p].oposx-g_sp->x,ps[g_p].oposy-g_sp->y);
         else goalang = getangle(ps[g_p].posx-g_sp->x,ps[g_p].posy-g_sp->y);
         angdif = getincangle(g_sp->ang,goalang)>>2;
-        if ((angdif > -8 && angdif < 0) || (angdif > 0 && angdif < 8))
-            angdif = 0;
         g_sp->ang += angdif;
     }
 
@@ -3269,12 +3267,7 @@ static void move(void)
         if (ps[g_p].newowner >= 0)
             goalang = getangle(ps[g_p].oposx-g_sp->x,ps[g_p].oposy-g_sp->y);
         else goalang = getangle(ps[g_p].posx-g_sp->x,ps[g_p].posy-g_sp->y);
-        angdif = getincangle(g_sp->ang,goalang)>>3;
-        if ((angdif > -8 && angdif < 0) || (angdif > 0 && angdif < 8))
-        {
-            angdif = 0;
-            g_sp->ang = goalang;
-        }
+        angdif = getincangle(g_sp->ang,goalang)>>4;
         g_sp->ang += angdif;
     }
 
@@ -3291,8 +3284,6 @@ static void move(void)
         
         goalang = getangle(newx-g_sp->x,newy-g_sp->y);
         angdif = getincangle(g_sp->ang,goalang)>>2;
-        if ((angdif > -8 && angdif < 0) || (angdif > 0 && angdif < 8))
-            angdif = 0;
         g_sp->ang += angdif;
     }
 
