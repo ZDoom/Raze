@@ -3256,7 +3256,7 @@ static void move(void)
             goalang = getangle(ps[g_p].oposx-g_sp->x,ps[g_p].oposy-g_sp->y);
         else goalang = getangle(ps[g_p].posx-g_sp->x,ps[g_p].posy-g_sp->y);
         angdif = getincangle(g_sp->ang,goalang)>>2;
-        if (angdif > -8 && angdif < 0) angdif = 0;
+        if ((angdif > -8 && angdif < 0) || (angdif > 0 && angdif < 8)) angdif = 0;
         g_sp->ang += angdif;
     }
 
@@ -3269,7 +3269,7 @@ static void move(void)
             goalang = getangle(ps[g_p].oposx-g_sp->x,ps[g_p].oposy-g_sp->y);
         else goalang = getangle(ps[g_p].posx-g_sp->x,ps[g_p].posy-g_sp->y);
         angdif = ksgn(getincangle(g_sp->ang,goalang))<<5;
-        if (angdif > -32 && angdif < 0)
+        if ((angdif > -32 && angdif < 0) || (angdif > 0 && angdif < 32))
         {
             angdif = 0;
             g_sp->ang = goalang;
@@ -3285,13 +3285,12 @@ static void move(void)
 
     if (a&face_player_smart)
     {
-        long newx,newy;
-
-        newx = ps[g_p].posx+(ps[g_p].posxv/768);
-        newy = ps[g_p].posy+(ps[g_p].posyv/768);
+        long newx = ps[g_p].posx+(ps[g_p].posxv/768);
+        long newy = ps[g_p].posy+(ps[g_p].posyv/768);
+        
         goalang = getangle(newx-g_sp->x,newy-g_sp->y);
         angdif = getincangle(g_sp->ang,goalang)>>2;
-        if (angdif > -8 && angdif < 0) angdif = 0;
+        if ((angdif > -8 && angdif < 0) || (angdif > 0 && angdif < 8)) angdif = 0;
         g_sp->ang += angdif;
     }
 
