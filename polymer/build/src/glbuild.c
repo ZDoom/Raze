@@ -134,6 +134,14 @@ void (APIENTRY * bglFramebufferTexture2DEXT)(GLenum target, GLenum attachment, G
 GLenum (APIENTRY * bglCheckFramebufferStatusEXT)(GLenum target);
 void (APIENTRY * bglDeleteFramebuffersEXT)(GLsizei n, const GLuint *framebuffers);
 
+// Vertex Buffer Objects
+void        (APIENTRY * bglGenBuffersARB)(GLsizei n, GLuint * buffers);
+void        (APIENTRY * bglBindBufferARB)(GLenum target, GLuint buffer);
+void        (APIENTRY * bglDeleteBuffersARB)(GLsizei n, const GLuint * buffers);
+void        (APIENTRY * bglBufferDataARB)(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
+void*       (APIENTRY * bglMapBufferARB)(GLenum target, GLenum access);
+GLboolean   (APIENTRY * bglUnmapBufferARB)(GLenum target);
+
 // GLU
 void (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
 void (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);
@@ -367,6 +375,14 @@ int loadglextensions(void)
     bglCheckFramebufferStatusEXT =  GETPROCEXTSOFT("glCheckFramebufferStatusEXT");
     bglDeleteFramebuffersEXT =      GETPROCEXTSOFT("glDeleteFramebuffersEXT");
 
+    // Vertex Buffer Objects
+    bglGenBuffersARB    = GETPROCEXTSOFT("glGenBuffersARB");
+    bglBindBufferARB    = GETPROCEXTSOFT("glBindBufferARB");
+    bglDeleteBuffersARB = GETPROCEXTSOFT("glDeleteBuffersARB");
+    bglBufferDataARB    = GETPROCEXTSOFT("glBufferDataARB");
+    bglMapBufferARB     = GETPROCEXTSOFT("glMapBufferARB");
+    bglUnmapBufferARB   = GETPROCEXTSOFT("glUnmapBufferARB");
+    
     return err;
 }
 
@@ -501,6 +517,14 @@ int unloadgldriver(void)
     bglFramebufferTexture2DEXT = NULL;
     bglCheckFramebufferStatusEXT = NULL;
     bglDeleteFramebuffersEXT = NULL;
+
+    // Vertex Buffer Objects
+    bglGenBuffersARB    = NULL;
+    bglBindBufferARB    = NULL;
+    bglDeleteBuffersARB = NULL;
+    bglBufferDataARB    = NULL;
+    bglMapBufferARB     = NULL;
+    bglUnmapBufferARB   = NULL;
 
 #ifdef RENDERTYPEWIN
     bwglCreateContext	= NULL;

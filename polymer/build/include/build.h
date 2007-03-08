@@ -499,6 +499,8 @@ extern long r_depthpeeling, r_peelscount;
 extern long r_detailmapping;
 extern long r_glowmapping;
 extern long r_vertexarrays;
+extern long r_vbos;
+extern long r_vbocount;
 #endif
 
 void hicinit(void);

@@ -694,11 +694,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\develop.h"
+					RelativePath=".\source\jmact\develop.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jmact\develop.h"
+					RelativePath=".\source\develop.h"
 					>
 				</File>
 				<File

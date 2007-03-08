@@ -28,6 +28,7 @@ struct glinfo glinfo = {
                            0,       // rectangle textures
                            0,       // multitexturing
                            0,       // env_combine
+                           0,       // Vertex Buffer Objects
                        };
 #endif
 
@@ -101,6 +102,9 @@ static int osdcmd_glinfo(const osdfuncparm_t *parm)
                " Shadow textures:         %s\n"
                " Frame Buffer Objects:    %s\n"
                " Rectangle textures:      %s\n"
+               " Multitexturing:          %s\n"
+               " env_combine:             %s\n"
+               " Vertex Buffer Objects:   %s\n"
                " Extensions:\n",
                glinfo.version,
                glinfo.vendor,
@@ -116,7 +120,10 @@ static int osdcmd_glinfo(const osdfuncparm_t *parm)
                glinfo.depthtex ? "supported": "not supported",
                glinfo.shadow ? "supported": "not supported",
                glinfo.fbos ? "supported": "not supported",
-               glinfo.rect ? "supported": "not supported"
+               glinfo.rect ? "supported": "not supported",
+               glinfo.multitex ? "supported": "not supported",
+               glinfo.envcombine ? "supported": "not supported",
+               glinfo.vbos ? "supported": "not supported"
               );
 
     s = Bstrdup(glinfo.extensions);

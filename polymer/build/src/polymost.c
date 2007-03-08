@@ -158,6 +158,10 @@ long r_glowmapping = 1;
 // Vertex Array model drawing cvar
 long r_vertexarrays = 1;
 
+// Vertex Buffer Objects model drawing cvars
+long r_vbos = 1;
+long r_vbocount = 1;
+
 
 static float fogresult, ofogresult, fogcol[4];
 
@@ -413,7 +417,7 @@ pthtyp * gltexcache (long dapicnum, long dapalnum, long dameth)
                     memcpy(pth, pth2, sizeof(pthtyp));
                     pth->picnum = dapicnum;
                     pth->flags = ((dameth&4)>>2) + 2 + ((drawingskybox>0)<<2);
-                    if (pth2->flags & 8) pth->flags |= 8; //hasalpha                    
+                    if (pth2->flags & 8) pth->flags |= 8; //hasalpha
                     pth->hicr = si;
                     pth->next = gltexcachead[j];
                     gltexcachead[j] = pth;
@@ -731,6 +735,12 @@ void polymost_glinit()
     {
         OSD_Printf("Your OpenGL implementation doesn't support glow mapping. Disabling...\n");
         r_glowmapping = 0;
+    }
+
+    if (r_vbos && (!glinfo.vbos))
+    {
+        OSD_Printf("Your OpenGL implementation doesn't support Vertex Buffer Objects. Disabling...\n");
+        r_vbos = 0;
     }
 
     //depth peeling initialization
@@ -5346,6 +5356,25 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else r_vertexarrays = (val != 0);
         return OSDCMD_OK;
     }
+    else if (!Bstrcasecmp(parm->name, "r_vbos")) {
+        if (showval) { OSD_Printf("r_vbos is %d\n", r_vbos); }
+        else {
+            if (!glinfo.vbos)
+            {
+                OSD_Printf("Your OpenGL implementation doesn't support Vertex Buffer Objects.\n");
+                r_vbos = 0;
+                return OSDCMD_OK;
+            }
+            r_vbos = (val != 0);
+        }
+        return OSDCMD_OK;
+    }
+    else if (!Bstrcasecmp(parm->name, "r_vbocount")) {
+        if (showval) { OSD_Printf("r_vbocount is %d\n", r_vbocount); }
+        else if (val < 1) { OSD_Printf("Value out of range.\n"); }
+        else r_vbocount = val;
+        return OSDCMD_OK;
+    }
     else if (!Bstrcasecmp(parm->name, "glpolygonmode")) {
         if (showval) { OSD_Printf("glpolygonmode is %d\n", glpolygonmode); }
         else glpolygonmode = val;
@@ -5433,6 +5462,8 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars);
     OSD_RegisterFunction("r_glowmapping","r_glowmapping: enable/disable glow mapping",osdcmd_polymostvars);
     OSD_RegisterFunction("r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",osdcmd_polymostvars);
 #endif
     OSD_RegisterFunction("usemodels","usemodels: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
     OSD_RegisterFunction("usehightile","usehightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);

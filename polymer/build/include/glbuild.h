@@ -163,6 +163,14 @@ extern void (APIENTRY * bglFramebufferTexture2DEXT)(GLenum target, GLenum attach
 extern GLenum (APIENTRY * bglCheckFramebufferStatusEXT)(GLenum target);
 extern void (APIENTRY * bglDeleteFramebuffersEXT)(GLsizei n, const GLuint *framebuffers);
 
+// Vertex Buffer Objects
+extern void        (APIENTRY * bglGenBuffersARB)(GLsizei n, GLuint * buffers);
+extern void        (APIENTRY * bglBindBufferARB)(GLenum target, GLuint buffer);
+extern void        (APIENTRY * bglDeleteBuffersARB)(GLsizei n, const GLuint * buffers);
+extern void        (APIENTRY * bglBufferDataARB)(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
+extern void*       (APIENTRY * bglMapBufferARB)(GLenum target, GLenum access);
+extern GLboolean   (APIENTRY * bglUnmapBufferARB)(GLenum target);
+
 // GLU
 extern void (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
 extern void (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);

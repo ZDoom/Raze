@@ -682,6 +682,8 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLDetailMapping", &r_detailmapping);
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLGlowMapping", &r_glowmapping);
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLVertexArrays", &r_vertexarrays);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLVBOs", &r_vbos);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLVBOCount", &r_vbocount);
 
         dummy = usemodels;
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "UseModels",&dummy);
@@ -840,6 +842,8 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLDetailMapping", r_detailmapping,false,false);
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLGlowMapping", r_glowmapping,false,false);
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLVertexArrays", r_vertexarrays,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLVBOs", r_vbos,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLVBOCount", r_vbocount,false,false);
 #endif
 #ifdef RENDERTYPEWIN
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);

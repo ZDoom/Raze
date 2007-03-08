@@ -2961,6 +2961,10 @@ static int SetupOpenGL(int width, int height, int bitspp)
             {
                 glinfo.envcombine = 1;
             }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_vertex_buffer_object"))
+            {
+                glinfo.vbos = 1;
+            }
         }
         Bfree(p);
     }

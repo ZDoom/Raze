@@ -150,6 +150,7 @@ typedef struct
     unsigned short      *indexes;
     unsigned short      *vindexes;
     float               *maxdepths;
+    GLuint*             vbos;
 } md3model;
 
 #define VOXBORDWIDTH 1 //use 0 to save memory, but has texture artifacts; 1 looks better...
@@ -196,7 +197,12 @@ static long nummodelsalloced = 0, nextmodelid = 0;
 static mdmodel **models = NULL;
 
 static long maxmodelverts = 0, allocmodelverts = 0;
+static long maxmodeltris = 0, allocmodeltris = 0;
 static point3d *vertlist = NULL; //temp array to store interpolated vertices for drawing
+
+static long allocvbos = 0, curvbo = 0;
+static GLuint* vertvbos = NULL;
+static GLuint* indexvbos = NULL;
 
 mdmodel *mdload (const char *);
 int mddraw (spritetype *);
@@ -223,6 +229,16 @@ static void freeallmodels ()
         free(vertlist);
         vertlist = NULL;
         allocmodelverts = maxmodelverts = 0;
+        allocmodeltris = maxmodeltris = 0;
+    }
+
+    if (allocvbos)
+    {
+        bglDeleteBuffersARB(allocvbos, indexvbos);
+        bglDeleteBuffersARB(allocvbos, vertvbos);
+        free(indexvbos);
+        free(vertvbos);
+        allocvbos = 0;
     }
 }
 
@@ -886,6 +902,24 @@ else { if (i >= j) { i -= j; if (i >= j) i %= j; } }
     m->interpol = ((float)(i&65535))/65536.f;
 }
 
+// VBO generation and allocation
+static void mdloadvbos (md3model *m)
+{
+    int     i;
+
+    m->vbos = malloc(m->head.numsurfs * sizeof(GLuint));
+    bglGenBuffersARB(m->head.numsurfs, m->vbos);
+
+    i = 0;
+    while (i < m->head.numsurfs)
+    {
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->vbos[i]);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, m->head.surfs[i].numverts * sizeof(md3uv_t), m->head.surfs[i].uv, GL_STATIC_DRAW_ARB);
+        i++;
+    }
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+}
+
 //--------------------------------------- MD2 LIBRARY BEGINS ---------------------------------------
 static long long memoryusage = 0;
 
@@ -978,6 +1012,7 @@ m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris
     if (!m->texid) { free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
     maxmodelverts = max(maxmodelverts, m->numverts);
+    maxmodeltris = max(maxmodeltris, head.numtris);
 
     //return(m);
 
@@ -1095,6 +1130,8 @@ m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris
     m3->indexes = malloc(sizeof(unsigned short) * s->numtris);
     m3->vindexes = malloc(sizeof(unsigned short) * s->numtris * 3);
     m3->maxdepths = malloc(sizeof(float) * s->numtris);
+
+    m3->vbos = NULL;
 
     // die MD2 ! DIE !
     free(m->texid); free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m);
@@ -1266,6 +1303,7 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
         }
 #endif
         maxmodelverts = max(maxmodelverts, s->numverts);
+        maxmodeltris = max(maxmodeltris, s->numtris);
         maxtrispersurf = max(maxtrispersurf, s->numtris);
         ofsurf += s->ofsend;
     }
@@ -1295,6 +1333,8 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
     m->vindexes = malloc(sizeof(unsigned short) * maxtrispersurf * 3);
     m->maxdepths = malloc(sizeof(float) * maxtrispersurf);
 
+    m->vbos = NULL;
+
     return(m);
 }
 
@@ -1309,7 +1349,12 @@ static int md3draw (md3model *m, spritetype *tspr)
     mdskinmap_t *sk;
     //PLAG : sorting stuff
     unsigned short      tempus;
+    void*               vbotemp;
+    point3d*            vertexhandle;
+    unsigned short*     indexhandle;
 
+    if (r_vbos && (m->vbos == NULL))
+        mdloadvbos(m);
 
     //    if ((tspr->cstat&48) == 32) return 0;
 
@@ -1475,6 +1520,16 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
         v0 = &s->xyzn[m->cframe*s->numverts];
         v1 = &s->xyzn[m->nframe*s->numverts];
 
+        if (r_vertexarrays && r_vbos)
+        {
+            if (++curvbo >= r_vbocount)
+                curvbo = 0;
+
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, vertvbos[curvbo]);
+            vbotemp = bglMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+            vertexhandle = (point3d *)vbotemp;
+        }
+
         for (i=s->numverts-1;i>=0;i--)
         {
             if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll || m->head.flags == 1337)
@@ -1501,10 +1556,23 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
                 fp.y = v0[i].z*m0.z + v1[i].z*m1.z;
                 fp.x = v0[i].y*m0.y + v1[i].y*m1.y;
             }
+            if (r_vertexarrays && r_vbos)
+            {
+                vertexhandle[i].x = fp.x;
+                vertexhandle[i].y = fp.y;
+                vertexhandle[i].z = fp.z;
+            }
             vertlist[i].x = fp.x;
             vertlist[i].y = fp.y;
             vertlist[i].z = fp.z;
         }
+
+        if (r_vertexarrays && r_vbos)
+        {
+            bglUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+        }
+
         bglMatrixMode(GL_MODELVIEW); //Let OpenGL (and perhaps hardware :) handle the matrix rotation
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; bglLoadMatrixf(mat);
         // PLAG: End
@@ -1585,6 +1653,15 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
         }
 
+        if (r_vertexarrays && r_vbos)
+        {
+            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexvbos[curvbo]);
+            vbotemp = bglMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+            indexhandle = (unsigned short *)vbotemp;
+        }
+        else
+            indexhandle = m->vindexes;
+
         //PLAG: delayed polygon-level sorted rendering
         if (m->usesalpha && !(tspr->cstat & 1024) && !r_depthpeeling)
         {
@@ -1624,17 +1701,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
                 k = 0;
                 for (i=s->numtris-1;i>=0;i--)
                     for (j=0;j<3;j++)
-                        m->vindexes[k++] = s->tris[m->indexes[i]].i[j];
-    
-                bglVertexPointer(3, GL_FLOAT, 0, &(vertlist[0].x));
-                l = GL_TEXTURE0_ARB;
-                while (l <= texunits)
-                {
-                    bglClientActiveTextureARB(l++);
-                    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                    bglTexCoordPointer(2, GL_FLOAT, 0, &(s->uv[0].u));
-                }
-                bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, m->vindexes);
+                        indexhandle[k++] = s->tris[m->indexes[i]].i[j];
             }
             else
             {
@@ -1663,17 +1730,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
                 k = 0;
                 for (i=s->numtris-1;i>=0;i--)
                     for (j=0;j<3;j++)
-                        m->vindexes[k++] = s->tris[i].i[j];
-
-                bglVertexPointer(3, GL_FLOAT, 0, &(vertlist[0].x));
-                l = GL_TEXTURE0_ARB;
-                while (l <= texunits)
-                {
-                    bglClientActiveTextureARB(l++);
-                    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                    bglTexCoordPointer(2, GL_FLOAT, 0, &(s->uv[0].u));
-                }
-                bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, m->vindexes);
+                        indexhandle[k++] = s->tris[i].i[j];
             }
             else
             {
@@ -1694,6 +1751,50 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
                     }
                 bglEnd();
             }
+        }
+
+        if (r_vertexarrays && r_vbos)
+        {
+            bglUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB);
+            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+        }
+
+        if (r_vertexarrays)
+        {
+                if (r_vbos)
+                    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->vbos[surfi]);
+                l = GL_TEXTURE0_ARB;
+                while (l <= texunits)
+                {
+                    bglClientActiveTextureARB(l++);
+                    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    if (r_vbos)
+                        bglTexCoordPointer(2, GL_FLOAT, 0, 0);
+                    else
+                        bglTexCoordPointer(2, GL_FLOAT, 0, &(s->uv[0].u));
+                }
+
+                if (r_vbos)
+                {
+                    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, vertvbos[curvbo]);
+                    bglVertexPointer(3, GL_FLOAT, 0, 0);
+                }
+                else
+                    bglVertexPointer(3, GL_FLOAT, 0, &(vertlist[0].x));
+
+                if (r_vbos)
+                {
+                    bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexvbos[curvbo]);
+                    bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, 0);
+                }
+                else
+                    bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, m->vindexes);
+
+                if (r_vbos)
+                {
+                    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+                    bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+                }
         }
 
             while (texunits > GL_TEXTURE0_ARB)
@@ -1772,6 +1873,12 @@ static void md3free (md3model *m)
     if (m->indexes) free(m->indexes);
     if (m->vindexes) free(m->vindexes);
     if (m->maxdepths) free(m->maxdepths);
+
+    if (r_vbos && m->vbos)
+    {
+        bglDeleteBuffersARB(m->head.numsurfs, m->vbos);
+        free(m->vbos);
+    }
 
     free(m);
 }
@@ -2609,12 +2716,38 @@ int mddraw (spritetype *tspr)
 {
     mdanim_t *anim;
     mdmodel *vm;
+    int i;
+
+    if (r_vbos && (r_vbocount > allocvbos))
+    {
+        indexvbos = realloc(indexvbos, sizeof(GLuint) * r_vbocount);
+        vertvbos = realloc(vertvbos, sizeof(GLuint) * r_vbocount);
+
+        bglGenBuffersARB(r_vbocount - allocvbos, &(indexvbos[allocvbos]));
+        bglGenBuffersARB(r_vbocount - allocvbos, &(vertvbos[allocvbos]));
+
+        i = allocvbos;
+        while (i < r_vbocount)
+        {
+            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexvbos[i]);
+            bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, maxmodeltris * 3 * sizeof(unsigned short), NULL, GL_STREAM_DRAW_ARB);
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, vertvbos[i]);
+            bglBufferDataARB(GL_ARRAY_BUFFER_ARB, maxmodelverts * sizeof(point3d), NULL, GL_STREAM_DRAW_ARB);
+            i++;
+        }
+
+        bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,0);
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+        allocvbos = r_vbocount;
+    }
 
     if (maxmodelverts > allocmodelverts)
     {
         point3d *vl = (point3d *)realloc(vertlist,sizeof(point3d)*maxmodelverts);
         if (!vl) { OSD_Printf("ERROR: Not enough memory to allocate %d vertices!\n",maxmodelverts); return 0; }
-        vertlist = vl; allocmodelverts = maxmodelverts;
+        vertlist = vl;
+        allocmodelverts = maxmodelverts;
     }
 
     vm = models[tile2model[tspr->picnum].modelid];

@@ -48,6 +48,7 @@ struct glinfo {
     char rect;
     char multitex;
     char envcombine;
+    char vbos;
 };
 extern struct glinfo glinfo;
 #endif
