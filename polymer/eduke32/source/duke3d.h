@@ -498,6 +498,15 @@ struct weaponhit {
 
 extern struct weaponhit hittype[MAXSPRITES];
 
+struct spriteinterpolate {
+    long x;
+    long y;
+    long z;
+    int ang;
+};
+
+extern struct spriteinterpolate sprpos[MAXSPRITES];
+
 extern input loc;
 extern input recsync[RECSYNCBUFSIZ];
 extern long avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;

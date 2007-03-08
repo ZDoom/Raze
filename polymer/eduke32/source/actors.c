@@ -468,9 +468,7 @@ int movesprite(int spritenum, long xchange, long ychange, long zchange, unsigned
 {
     long daz,h, oldx, oldy;
     short retval, dasectnum, cd;
-    char bg;
-
-    bg = badguy(&sprite[spritenum]);
+    int bg = badguy(&sprite[spritenum]);
 
     if (sprite[spritenum].statnum == 5 || (bg && sprite[spritenum].xrepeat < 4))
     {

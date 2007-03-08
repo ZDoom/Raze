@@ -1730,9 +1730,9 @@ static void Keys3d(void)
         }
 
         if (tabgraphic == 1)
-            rotatesprite((44+(tilesizx[temppicnum]>>2))<<16,(114)<<16,32768,0,temppicnum,tempshade,temppal,2,0L,0L,xdim-1L,ydim-1L);
+            rotatesprite((44+(tilesizx[temppicnum]>>3))<<16,(114)<<16,32768,0,temppicnum,tempshade,temppal,2,0L,0L,xdim-1L,ydim-1L);
         else if (tabgraphic == 2)
-            rotatesprite((44+(tilesizx[temppicnum]>>2))<<16,(114)<<16,16384,0,temppicnum,tempshade,temppal,2,0L,0L,xdim-1L,ydim-1L);
+            rotatesprite((44+(tilesizx[temppicnum]>>3))<<16,(114)<<16,16384,0,temppicnum,tempshade,temppal,2,0L,0L,xdim-1L,ydim-1L);
 
         begindrawing();
         j = xdimgame>640?0:1;

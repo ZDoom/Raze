@@ -34,6 +34,8 @@ long gc=176;
 
 // long temp_data[MAXSPRITES][6];
 struct weaponhit hittype[MAXSPRITES];
+struct spriteinterpolate sprpos[MAXSPRITES];
+
 short spriteq[1024],spriteqloc,spriteqamount=64;
 struct animwalltype animwall[MAXANIMWALLS];
 short numanimwalls;

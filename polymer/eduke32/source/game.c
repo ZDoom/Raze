@@ -4247,6 +4247,11 @@ int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_
 
     actorspriteflags[i] = 0;
 
+    sprpos[i].x = sprite[i].x;
+    sprpos[i].y = sprite[i].y;
+    sprpos[i].z = sprite[i].z;
+    sprpos[i].ang = sprite[i].ang;
+    
     if (actorscrptr[s_pn])
     {
         s->extra = *actorscrptr[s_pn];
@@ -4375,6 +4380,11 @@ int spawn(int j, int pn)
         T1 = T2 = T3 = T4 = T5 = T6 = T7 = T8 = T9 = 0;
 
         actorspriteflags[i] = 0;
+
+        sprpos[i].x = sprite[i].x;
+        sprpos[i].y = sprite[i].y;
+        sprpos[i].z = sprite[i].z;
+        sprpos[i].ang = sprite[i].ang;
 
         if (PN != SPEAKER && PN != LETTER && PN != DUCK && PN != TARGET && PN != TRIPBOMB && PN != VIEWSCREEN && PN != VIEWSCREEN2 && (CS&48))
             if (!(PN >= CRACK1 && PN <= CRACK4))
@@ -6221,6 +6231,16 @@ void animatesprites(long x,long y,int a,long smoothratio)
         t = &tsprite[j];
         i = t->owner;
         s = &sprite[t->owner];
+
+/*        
+        t->x = sprpos[i].x+mulscale16((long)(s->x-sprpos[i].x),smoothratio);
+        t->y = sprpos[i].y+mulscale16((long)(s->y-sprpos[i].y),smoothratio);
+        t->z = sprpos[i].z+mulscale16((long)(s->z-sprpos[i].z),smoothratio);
+
+        sprpos[i].x = s->x;
+        sprpos[i].y = s->y;
+        sprpos[i].z = s->z;
+*/        
         //greenslime can't be handled through the dynamictostatic system due to addition on constant
         if ((t->picnum >= GREENSLIME)&&(t->picnum <= GREENSLIME+7))
         {}
