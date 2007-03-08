@@ -474,7 +474,7 @@ void cacheit(void)
         }
         if (totalclock - tc > TICRATE/4)
         {
-            sprintf(tempbuf,"Loading textures ... %ld%%\n",min(100,100*pc/precachecount));
+            sprintf(tempbuf,"Loading resources... %ld%%\n",min(100,100*pc/precachecount));
             dofrontscreens(tempbuf);
             tc = totalclock;
         }
