@@ -451,14 +451,14 @@ void cacheit(void)
                 loadtile((short)i);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (useprecache && !KB_KeyPressed(sc_Space))
+            if (useprecache)
             {
                 if (precachehightile[0][i>>3] & pow2char[i&7])
-                    for (k=0; k<MAXPALOOKUPS; k++)
+                    for (k=0; k<MAXPALOOKUPS && !KB_KeyPressed(sc_Space); k++)
                         polymost_precache(i,k,0);
 
                 if (precachehightile[1][i>>3] & pow2char[i&7])
-                    for (k=0; k<MAXPALOOKUPS; k++)
+                    for (k=0; k<MAXPALOOKUPS && !KB_KeyPressed(sc_Space); k++)
                         polymost_precache(i,k,1);
             }
 #endif

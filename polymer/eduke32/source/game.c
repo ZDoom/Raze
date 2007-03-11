@@ -52,7 +52,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20070125
+#define BUILDDATE 20070310
 #define UPDATEINTERVAL 86400 // 24h
 #endif
 
@@ -6604,7 +6604,7 @@ void animatesprites(long x,long y,int a,long smoothratio)
                 }
             }
 
-            if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1)
+            if ((display_mirror || screenpeek != p || s->owner == -1) && ud.multimode > 1)
             {
                 if (ud.showweapons && sprite[ps[p].i].extra > 0 && ps[p].curr_weapon > 0)
                 {

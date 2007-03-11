@@ -3167,13 +3167,17 @@ int getincangle(int a,int na)
     na &= 2047;
 
     if (klabs(a-na) < 1024)
+    {
+//        OSD_Printf("getincangle() returning %d\n",na-a);
         return (na-a);
+    }    
 
     if (na > 1024) na -= 2048;
     if (a > 1024) a -= 2048;
 
     na -= 2048;
     a -= 2048;
+//    OSD_Printf("getincangle() returning %d\n",na-a);
     return (na-a);
 }
 
@@ -4602,7 +4606,8 @@ static int parse(void)
             long y1=scale(GetGameVarID(*insptr++,g_i,g_p),ydim,200);
             long x2=scale(GetGameVarID(*insptr++,g_i,g_p),xdim,320);
             long y2=scale(GetGameVarID(*insptr++,g_i,g_p),ydim,200);
-
+            long smoothratio = 65536;
+            
             if (x1 > x2) swaplong(&x1,&x2);
             if (y1 > y2) swaplong(&y1,&y2);
 
@@ -4614,9 +4619,57 @@ static int parse(void)
             glprojectionhacks = 0;
 #endif
             setview(x1,y1,x2,y2);
+
+#if 0
+            if (!ud.pause_on && ((ud.show_help == 0 && ud.multimode < 2 && !(ps[myconnectindex].gm&MODE_MENU)) || ud.multimode > 1 || ud.recstat == 2))
+                smoothratio = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
+#endif
+            dointerpolations(smoothratio);            
+            
+#ifdef SE40
+            se40code(x,y,z,a,horiz,smoothratio);
+#endif
+
+            if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
+            {
+                long j, i = 0, k, dst = 0x7fffffff;
+
+                for (k=0;k<mirrorcnt;k++)
+                {
+                    j = klabs(wall[mirrorwall[k]].x-x);
+                    j += klabs(wall[mirrorwall[k]].y-y);
+                    if (j < dst) dst = j, i = k;
+                }
+
+                if (wall[mirrorwall[i]].overpicnum == MIRROR)
+                {
+                    long tposx,tposy;
+                    short tang;
+                
+                    preparemirror(x,y,z,a,horiz,mirrorwall[i],mirrorsector[i],&tposx,&tposy,&tang);
+
+                    j = visibility;
+                    visibility = (j>>1) + (j>>2);
+
+                    drawrooms(tposx,tposy,z,tang,horiz,mirrorsector[i]+MAXSECTORS);
+
+                    display_mirror = 1;
+                    animatesprites(tposx,tposy,tang,smoothratio);
+                    display_mirror = 0;
+
+                    drawmasks();
+                    completemirror();   //Reverse screen x-wise in this function
+                    visibility = j;
+                }
+                gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
+            }
+
             drawrooms(x,y,z,a,horiz,sect);
-            display_mirror = 1; animatesprites(x,y,a,65536L); display_mirror = 0;
+            display_mirror = 2;
+            animatesprites(x,y,a,smoothratio);
+            display_mirror = 0;
             drawmasks();
+            restoreinterpolations();
             vscrn();
 #if defined(USE_OPENGL) && defined(POLYMOST)
             glprojectionhacks = j;
