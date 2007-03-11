@@ -1187,8 +1187,8 @@ static void AddSystemVars()
     AddGameVar("myonground",(long)&myonground, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("myhardlanding",(long)&myhardlanding, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("myreturntocenter",(long)&myreturntocenter, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
-    
-    AddGameVar("display_mirror",(long)&display_mirror, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);    
+
+    AddGameVar("display_mirror",(long)&display_mirror, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
 }
 
 void InitGameVars(void)

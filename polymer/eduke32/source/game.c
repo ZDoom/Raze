@@ -3459,7 +3459,7 @@ void displayrest(long smoothratio)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     {
         extern int mdpause;
-        
+
         mdpause = 0;
         if (ud.pause_on || (ps[myconnectindex].gm&MODE_MENU && numplayers < 2))
             mdpause = 1;
@@ -4251,7 +4251,7 @@ int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_
     sprpos[i].y = sprite[i].y;
     sprpos[i].z = sprite[i].z;
     sprpos[i].ang = sprite[i].ang;
-    
+
     if (actorscrptr[s_pn])
     {
         s->extra = *actorscrptr[s_pn];
@@ -6232,15 +6232,15 @@ void animatesprites(long x,long y,int a,long smoothratio)
         i = t->owner;
         s = &sprite[t->owner];
 
-/*        
-        t->x = sprpos[i].x+mulscale16((long)(s->x-sprpos[i].x),smoothratio);
-        t->y = sprpos[i].y+mulscale16((long)(s->y-sprpos[i].y),smoothratio);
-        t->z = sprpos[i].z+mulscale16((long)(s->z-sprpos[i].z),smoothratio);
+        /*
+                t->x = sprpos[i].x+mulscale16((long)(s->x-sprpos[i].x),smoothratio);
+                t->y = sprpos[i].y+mulscale16((long)(s->y-sprpos[i].y),smoothratio);
+                t->z = sprpos[i].z+mulscale16((long)(s->z-sprpos[i].z),smoothratio);
 
-        sprpos[i].x = s->x;
-        sprpos[i].y = s->y;
-        sprpos[i].z = s->z;
-*/        
+                sprpos[i].x = s->x;
+                sprpos[i].y = s->y;
+                sprpos[i].z = s->z;
+        */
         //greenslime can't be handled through the dynamictostatic system due to addition on constant
         if ((t->picnum >= GREENSLIME)&&(t->picnum <= GREENSLIME+7))
         {}

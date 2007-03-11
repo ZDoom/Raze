@@ -1626,7 +1626,7 @@ static void m32_showmouse(void)
         plotpixel(searchx,searchy-i,0);
         plotpixel(searchx,searchy+i,0);
     }
-    
+
     if (xdim > 640)
     {
         for (i=1;i<=4;i++)
@@ -1636,7 +1636,7 @@ static void m32_showmouse(void)
             plotpixel(searchx,searchy-i,whitecol);
             plotpixel(searchx,searchy+i,whitecol);
         }
-    }    
+    }
 }
 
 static int AskIfSure(void)
@@ -4669,7 +4669,7 @@ int ExtInit(void)
     autosavetimer = totalclock+120*180;
 
     OSD_RegisterFunction("quit","you tried to get help on quit?",osdcmd_quit);
-    OSD_RegisterFunction("editorgridextent","editorgridextent: sets the size of the 2D mode editing grid",osdcmd_editorgridextent);    
+    OSD_RegisterFunction("editorgridextent","editorgridextent: sets the size of the 2D mode editing grid",osdcmd_editorgridextent);
 
     return rv;
 }
@@ -4801,7 +4801,7 @@ void ExtAnalyzeSprites(void)
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
             if (!usemodels || md_tilehasmodel(tspr->picnum) < 0)
-#endif            
+#endif
             {
                 if (frames!=0)
                 {

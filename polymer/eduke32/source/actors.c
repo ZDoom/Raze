@@ -580,7 +580,7 @@ void lotsofmoney(int sp, int n)
 {
     int i ,j;
     spritetype *s = &sprite[sp];
-        
+
     for (i=n;i>0;i--)
     {
         j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),MONEY,-32,8,8,TRAND&2047,0,0,sp,5);
@@ -592,7 +592,7 @@ void lotsofmail(int sp, int n)
 {
     int i ,j;
     spritetype *s = &sprite[sp];
-        
+
     for (i=n;i>0;i--)
     {
         j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),MAIL,-32,8,8,TRAND&2047,0,0,sp,5);
@@ -604,7 +604,7 @@ void lotsofpaper(int sp, int n)
 {
     int i ,j;
     spritetype *s = &sprite[sp];
-        
+
     for (i=n;i>0;i--)
     {
         j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),PAPER,-32,8,8,TRAND&2047,0,0,sp,5);
@@ -654,7 +654,7 @@ void gutsdir(int sp, int gtype, int n, int p)
     long gutz,floorz;
     int i,a,j,sx,sy;
     spritetype *s = &sprite[sp];
-    
+
     if (badguy(s) && s->xrepeat < 16)
         sx = sy = 8;
     else sx = sy = 32;

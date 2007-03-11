@@ -250,7 +250,7 @@ static void cachegoodsprites(void)
     tloadtile(BULLETHOLE,1);
     tloadtile(BLOODPOOL,1);
     for (i = TRANSPORTERBEAM; i < (TRANSPORTERBEAM+6); i++) tloadtile(i,1);
-    
+
     for (i = SMALLSMOKE; i < (SMALLSMOKE+4); i++) tloadtile(i,1);
 
     for (i = BLOOD; i < (BLOOD+4); i++) tloadtile(i,1);
@@ -261,7 +261,7 @@ static void cachegoodsprites(void)
     for (i=FORCERIPPLE; i<(FORCERIPPLE+9); i++) tloadtile(i,1);
 
     for (i=MENUSCREEN; i<DUKECAR; i++) tloadtile(i,1);
-    
+
     for (i=RPG; i<RPG+7; i++) tloadtile(i,1);
     for (i=FREEZEBLAST; i<FREEZEBLAST+3; i++) tloadtile(i,1);
     for (i=SHRINKSPARK; i<SHRINKSPARK+4; i++) tloadtile(i,1);

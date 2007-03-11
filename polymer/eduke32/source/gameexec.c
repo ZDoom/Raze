@@ -3170,7 +3170,7 @@ int getincangle(int a,int na)
     {
 //        OSD_Printf("getincangle() returning %d\n",na-a);
         return (na-a);
-    }    
+    }
 
     if (na > 1024) na -= 2048;
     if (a > 1024) a -= 2048;
@@ -3289,7 +3289,7 @@ static void move(void)
     {
         long newx = ps[g_p].posx+(ps[g_p].posxv/768);
         long newy = ps[g_p].posy+(ps[g_p].posyv/768);
-        
+
         goalang = getangle(newx-g_sp->x,newy-g_sp->y);
         angdif = getincangle(g_sp->ang,goalang)>>2;
         if ((angdif > -8 && angdif < 0) || (angdif < 8 && angdif > 0))
@@ -4607,7 +4607,7 @@ static int parse(void)
             long x2=scale(GetGameVarID(*insptr++,g_i,g_p),xdim,320);
             long y2=scale(GetGameVarID(*insptr++,g_i,g_p),ydim,200);
             long smoothratio = 65536;
-            
+
             if (x1 > x2) swaplong(&x1,&x2);
             if (y1 > y2) swaplong(&y1,&y2);
 
@@ -4624,8 +4624,8 @@ static int parse(void)
             if (!ud.pause_on && ((ud.show_help == 0 && ud.multimode < 2 && !(ps[myconnectindex].gm&MODE_MENU)) || ud.multimode > 1 || ud.recstat == 2))
                 smoothratio = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
 #endif
-            dointerpolations(smoothratio);            
-            
+            dointerpolations(smoothratio);
+
 #ifdef SE40
             se40code(x,y,z,a,horiz,smoothratio);
 #endif
@@ -4645,7 +4645,7 @@ static int parse(void)
                 {
                     long tposx,tposy;
                     short tang;
-                
+
                     preparemirror(x,y,z,a,horiz,mirrorwall[i],mirrorsector[i],&tposx,&tposy,&tang);
 
                     j = visibility;

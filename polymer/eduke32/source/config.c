@@ -227,7 +227,7 @@ void CONFIG_SetDefaultKeys(int type)
         }
         return;
     }
-    
+
     for (i=0; i < (int32)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3)
     {
         f = CONFIG_FunctionNameToNum(keydefaults[i+0]);
@@ -311,7 +311,7 @@ void CONFIG_SetDefaults(void)
 
     // JBF 20031211
 
-    CONFIG_SetDefaultKeys(0);    
+    CONFIG_SetDefaultKeys(0);
 
     memset(MouseFunctions, -1, sizeof(MouseFunctions));
     for (i=0; i<MAXMOUSEBUTTONS; i++)
