@@ -4626,6 +4626,8 @@ static int parse(void)
 #endif
             dointerpolations(smoothratio);
 
+#define SE40
+
 #ifdef SE40
             se40code(x,y,z,a,horiz,smoothratio);
 #endif
@@ -6430,6 +6432,13 @@ void execute(int iActor,int iPlayer,long lDist)
     else
     {
         move();
+
+#if 0 
+        sprpos[g_i].x = g_sp->x;
+        sprpos[g_i].y = g_sp->y;
+        sprpos[g_i].z = g_sp->z;
+        sprpos[g_i].ang = g_sp->ang;
+#endif
 
         if (g_sp->statnum == 1)
         {

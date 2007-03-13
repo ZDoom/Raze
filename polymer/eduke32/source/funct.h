@@ -245,4 +245,6 @@ extern inline int checkspriteflagsp(int iPicnum, int iType);
 
 extern int getteampal(int team);
 
+extern void se40code(long x,long y,long z,long a,long h, long smoothratio);
+
 #endif // __funct_h__

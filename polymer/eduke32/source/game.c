@@ -3832,7 +3832,7 @@ static void SE40_Draw(int spnum,long x,long y,long z,int a,int h,long smoothrati
     }
 } // end SE40
 
-static void se40code(long x,long y,long z,long a,long h, long smoothratio)
+void se40code(long x,long y,long z,long a,long h, long smoothratio)
 {
     int i;
 
@@ -6232,15 +6232,6 @@ void animatesprites(long x,long y,int a,long smoothratio)
         i = t->owner;
         s = &sprite[t->owner];
 
-        /*
-                t->x = sprpos[i].x+mulscale16((long)(s->x-sprpos[i].x),smoothratio);
-                t->y = sprpos[i].y+mulscale16((long)(s->y-sprpos[i].y),smoothratio);
-                t->z = sprpos[i].z+mulscale16((long)(s->z-sprpos[i].z),smoothratio);
-
-                sprpos[i].x = s->x;
-                sprpos[i].y = s->y;
-                sprpos[i].z = s->z;
-        */
         //greenslime can't be handled through the dynamictostatic system due to addition on constant
         if ((t->picnum >= GREENSLIME)&&(t->picnum <= GREENSLIME+7))
         {}
@@ -6774,6 +6765,12 @@ PALONLY:
 
         if (actorscrptr[s->picnum])
         {
+#if 0        
+            t->x = sprpos[i].x+mulscale16((long)(s->x-sprpos[i].x),smoothratio);
+            t->y = sprpos[i].y+mulscale16((long)(s->y-sprpos[i].y),smoothratio);
+            t->z = sprpos[i].z+mulscale16((long)(s->z-sprpos[i].z),smoothratio);
+            t->ang = sprpos[i].ang+mulscale16((long)(s->ang-sprpos[i].ang),smoothratio);
+#endif        
             if (t4)
             {
                 l = *(long *)(t4+8);

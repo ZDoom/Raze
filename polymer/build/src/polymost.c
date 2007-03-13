@@ -159,8 +159,8 @@ long r_glowmapping = 1;
 long r_vertexarrays = 1;
 
 // Vertex Buffer Objects model drawing cvars
-long r_vbos = 1;
-long r_vbocount = 1;
+long r_vbos = 0;
+long r_vbocount = 64;
 
 
 static float fogresult, ofogresult, fogcol[4];
