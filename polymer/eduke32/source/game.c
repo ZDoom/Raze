@@ -4379,6 +4379,7 @@ int spawn(int j, int pn)
 
         T1 = T2 = T3 = T4 = T5 = T6 = T7 = T8 = T9 = 0;
 
+        ResetActorGameVars(i); // this shouldn't be necessary
         actorspriteflags[i] = 0;
 
         sprpos[i].x = sprite[i].x;
@@ -6765,12 +6766,12 @@ PALONLY:
 
         if (actorscrptr[s->picnum])
         {
-#if 0        
+#if 0
             t->x = sprpos[i].x+mulscale16((long)(s->x-sprpos[i].x),smoothratio);
             t->y = sprpos[i].y+mulscale16((long)(s->y-sprpos[i].y),smoothratio);
             t->z = sprpos[i].z+mulscale16((long)(s->z-sprpos[i].z),smoothratio);
             t->ang = sprpos[i].ang+mulscale16((long)(s->ang-sprpos[i].ang),smoothratio);
-#endif        
+#endif
             if (t4)
             {
                 l = *(long *)(t4+8);
@@ -8403,6 +8404,49 @@ static void setup_rancid_net(const char *fn)
     }
 }
 
+static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
+static int numdirs=0, numfiles=0;
+static int currentlist=0;
+
+static void clearfilenames(void)
+{
+    klistfree(finddirs);
+    klistfree(findfiles);
+    finddirs = findfiles = NULL;
+    numfiles = numdirs = 0;
+}
+
+static int getfilenames(const char *path, char kind[])
+{
+    CACHE1D_FIND_REC *r;
+
+    clearfilenames();
+    finddirs = klistpath(path,"*",CACHE1D_FIND_DIR);
+    findfiles = klistpath(path,kind,CACHE1D_FIND_FILE);
+    for (r = finddirs; r; r=r->next) numdirs++;
+    for (r = findfiles; r; r=r->next) numfiles++;
+
+    finddirshigh = finddirs;
+    findfileshigh = findfiles;
+    currentlist = 0;
+    if (findfileshigh) currentlist = 1;
+
+    return(0);
+}
+
+static void autoloadgrps(const char *fn)
+{
+    Bsprintf(tempbuf,"autoload/%s",fn);
+    getfilenames(tempbuf,"*.grp");
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+    Bsprintf(tempbuf,"autoload/%s",fn);
+    getfilenames(tempbuf,"*.zip");
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+    Bsprintf(tempbuf,"autoload/%s",fn);
+    getfilenames(tempbuf,"*.pk3");
+    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+}
+
 static int loadgroupfiles(const char *fn)
 {
     int tokn;
@@ -8438,7 +8482,11 @@ static int loadgroupfiles(const char *fn)
                 if (j == -1)
                     initprintf("Could not find group file '%s'.\n",fn);
                 else
+                {
                     initprintf("Using group file '%s'.\n",fn);
+                    autoloadgrps(fn);
+                }
+
             }
             pathsearchmode = 0;
         }
@@ -9707,36 +9755,6 @@ int load_script(const char *szScript)
     return 1;
 }
 
-static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
-static int numdirs=0, numfiles=0;
-static int currentlist=0;
-
-static void clearfilenames(void)
-{
-    klistfree(finddirs);
-    klistfree(findfiles);
-    finddirs = findfiles = NULL;
-    numfiles = numdirs = 0;
-}
-
-static int getfilenames(const char *path, char kind[])
-{
-    CACHE1D_FIND_REC *r;
-
-    clearfilenames();
-    finddirs = klistpath(path,"*",CACHE1D_FIND_DIR);
-    findfiles = klistpath(path,kind,CACHE1D_FIND_FILE);
-    for (r = finddirs; r; r=r->next) numdirs++;
-    for (r = findfiles; r; r=r->next) numfiles++;
-
-    finddirshigh = finddirs;
-    findfileshigh = findfiles;
-    currentlist = 0;
-    if (findfileshigh) currentlist = 1;
-
-    return(0);
-}
-
 void app_main(int argc,char **argv)
 {
     int i, j;
@@ -9967,17 +9985,11 @@ void app_main(int argc,char **argv)
 
     if (initgroupfile(duke3dgrp) == -1)
         initprintf("Warning: could not find group file '%s'.\n",duke3dgrp);
-    else initprintf("Using group file '%s' as main group file.\n", duke3dgrp);
-
-    Bsprintf(tempbuf,"autoload/%s",duke3dgrp);
-    getfilenames(tempbuf,"*.grp");
-while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
-    Bsprintf(tempbuf,"autoload/%s",duke3dgrp);
-    getfilenames(tempbuf,"*.zip");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
-    Bsprintf(tempbuf,"autoload/%s",duke3dgrp);
-    getfilenames(tempbuf,"*.pk3");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+    else
+    {
+        initprintf("Using group file '%s' as main group file.\n", duke3dgrp);
+        autoloadgrps(duke3dgrp);
+    }
 
     getfilenames("autoload","*.grp");
     while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
@@ -10001,6 +10013,7 @@ while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",duke3dgrp,findfiles->name)
             {
                 groupfile = j;
                 initprintf("Using group file '%s'.\n",CommandGrps->str);
+                autoloadgrps(CommandGrps->str);
             }
 
             free(CommandGrps->str);

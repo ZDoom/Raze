@@ -6433,7 +6433,7 @@ void execute(int iActor,int iPlayer,long lDist)
     {
         move();
 
-#if 0 
+#if 0
         sprpos[g_i].x = g_sp->x;
         sprpos[g_i].y = g_sp->y;
         sprpos[g_i].z = g_sp->z;

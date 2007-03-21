@@ -231,7 +231,7 @@ char *MV_ErrorString(int ErrorNumber)
 
    Returns the buffer size for the given samplerate.
 ---------------------------------------------------------------------*/
-#define BASEBUFSZ (512+256)
+#define BASEBUFSZ (512+128)
 static unsigned MV_GetBufferSize(unsigned samplerate)
 {
     static unsigned lastsr = 0, lastbufsz = 0;
