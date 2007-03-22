@@ -4250,7 +4250,7 @@ int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_
     sprpos[i].x = sprite[i].x;
     sprpos[i].y = sprite[i].y;
     sprpos[i].z = sprite[i].z;
-    sprpos[i].ang = sprite[i].ang;
+    sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
 
     if (actorscrptr[s_pn])
     {
@@ -4385,7 +4385,7 @@ int spawn(int j, int pn)
         sprpos[i].x = sprite[i].x;
         sprpos[i].y = sprite[i].y;
         sprpos[i].z = sprite[i].z;
-        sprpos[i].ang = sprite[i].ang;
+        sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
 
         if (PN != SPEAKER && PN != LETTER && PN != DUCK && PN != TARGET && PN != TRIPBOMB && PN != VIEWSCREEN && PN != VIEWSCREEN2 && (CS&48))
             if (!(PN >= CRACK1 && PN <= CRACK4))
@@ -6772,6 +6772,14 @@ PALONLY:
             t->z = sprpos[i].z+mulscale16((long)(s->z-sprpos[i].z),smoothratio);
             t->ang = sprpos[i].ang+mulscale16((long)(s->ang-sprpos[i].ang),smoothratio);
 #endif
+            if (ud.angleinterpolation)
+            {
+                if (sprpos[i].ang != sprpos[i].oldang)
+                    t->ang = (sprpos[i].oldang + (mulscale16((long)(sprpos[i].angdif),smoothratio) * sprpos[i].angdir)) & 2047;
+                else
+                    t->ang = sprpos[i].ang;
+            }
+
             if (t4)
             {
                 l = *(long *)(t4+8);

@@ -162,6 +162,8 @@ long r_vertexarrays = 1;
 long r_vbos = 0;
 long r_vbocount = 64;
 
+// model animation smoothing cvar
+long r_animsmoothing = 0;
 
 static float fogresult, ofogresult, fogcol[4];
 
@@ -5375,6 +5377,12 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else r_vbocount = val;
         return OSDCMD_OK;
     }
+    else if (!Bstrcasecmp(parm->name, "r_animsmoothing")) {
+        if (showval) { OSD_Printf("r_animsmoothing is %d\n", r_animsmoothing); }
+        else if (val < 1) { OSD_Printf("Value out of range.\n"); }
+        else r_animsmoothing = val;
+        return OSDCMD_OK;
+    }
     else if (!Bstrcasecmp(parm->name, "glpolygonmode")) {
         if (showval) { OSD_Printf("glpolygonmode is %d\n", glpolygonmode); }
         else glpolygonmode = val;
@@ -5464,6 +5472,7 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",osdcmd_polymostvars);
     OSD_RegisterFunction("r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",osdcmd_polymostvars);
     OSD_RegisterFunction("r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",osdcmd_polymostvars);
 #endif
     OSD_RegisterFunction("usemodels","usemodels: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
     OSD_RegisterFunction("usehightile","usehightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);

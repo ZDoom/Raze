@@ -366,7 +366,7 @@ struct user_defs {
 
     int32 entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
     int32 coords,tickrate,levelstats,m_coop,coop,screen_size,lockout,crosshair;
-    int32 wchoice[MAXPLAYERS][MAX_WEAPONS],playerai;
+    int32 wchoice[MAXPLAYERS][MAX_WEAPONS],playerai,angleinterpolation;
 
     int32 respawn_monsters,respawn_items,respawn_inventory,recstat,monsters_off,brightness;
     int32 m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off,detail;
@@ -502,7 +502,7 @@ struct spriteinterpolate {
     long x;
     long y;
     long z;
-    int ang;
+    short ang, oldang, angdir, angdif;
 };
 
 extern struct spriteinterpolate sprpos[MAXSPRITES];

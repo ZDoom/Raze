@@ -20,6 +20,11 @@ short           cursky;
 // CONTROL
 float           frustum[16]; // left right top bottom
 
+GLdouble        modelviewmatrix[16];
+GLdouble        projectionmatrix[16];
+GLint           viewport[4];
+GLint           portal[4];
+
 _cliplane       *cliplanes;
 int             cliplanecount, maxcliplanecount;
 
@@ -77,6 +82,8 @@ void                polymer_glinit(void)
     bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     bglViewport(0, 0, xdim, ydim);
 
+    bglGetIntegerv(GL_VIEWPORT, viewport);
+
     // texturing
     bglEnable(GL_TEXTURE_2D);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -93,6 +100,9 @@ void                polymer_glinit(void)
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
     bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f), (float)xdim / (float)ydim, 0.001f, 1000000.0f);
+
+    // get the new projection matrix
+    bglGetDoublev(GL_PROJECTION_MATRIX, projectionmatrix);
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
@@ -175,11 +185,18 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
     bglScalef(1.0f / 1000.0f, 1.0f / 16000.0f, 1.0f / 1000.0f);
     bglTranslatef(pos[0], pos[1], pos[2]);
 
+    // get the new modelview
+    bglGetDoublev(GL_MODELVIEW_MATRIX, modelviewmatrix);
+
     if (pr_frustumculling)
-        polymer_extractfrustum();
+        polymer_extractfrustum(modelviewmatrix, projectionmatrix);
+
+    // initialize the portal to the whole viewport
+    memcpy(portal, viewport, sizeof(GLint) * 4);
 
     cliplanecount = 0;
 
+    // game tic
     if (updatesectors || 1)
     {
         i = 0;
@@ -198,6 +215,7 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
         updatesectors = 0;
     }
 
+    // external view (editor)
     if (dacursectnum == -1)
     {
         i = 0;
@@ -216,6 +234,7 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
         return;
     }
 
+    // unflag all sectors
     i = 0;
     while (i < numsectors)
     {
@@ -223,7 +242,9 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
         i++;
     }
 
-    prsectors[dacursectnum]->drawingstate = 2; // SEED OF LIFE
+    polymer_drawroom(dacursectnum);
+
+    /*prsectors[dacursectnum]->drawingstate = 2; // SEED OF LIFE
 
     drawnsectors = 1;
     while (drawnsectors > 0)
@@ -243,20 +264,11 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
                 j = 0;
                 while (j < sec->wallnum)
                 {
-                    if (((pr_frustumculling == 0) || polymer_portalinfrustum(sec->wallptr + j)) &&
-                            ((pr_cliplanes == 0) || polymer_wallincliplanes(sec->wallptr + j)))
+                    if ((pr_frustumculling == 0) || polymer_portalinfrustum(sec->wallptr + j))
                     {
                         polymer_drawwall(sec->wallptr + j);
                         if ((wal->nextsector != -1) && (prsectors[wal->nextsector]) && (prsectors[wal->nextsector]->drawingstate == 0))
                             prsectors[wal->nextsector]->drawingstate = 1;
-                        if (wal->nextsector == -1 && pr_cliplanes)
-                        {   // add a 2D cliplane for map limits
-                            polymer_addcliplane(equation(wal->x, wal->y, wall[wal->point2].x, wall[wal->point2].y),
-                                                equation(daposx, daposy, wal->x, wal->y),
-                                                equation(daposx, daposy, wall[wal->point2].x, wall[wal->point2].y),
-                                                (float)(daposx + wal->x + wall[wal->point2].x) / 3.0f,
-                                                (float)(daposy + wal->y + wall[wal->point2].y) / 3.0f);
-                        }
                     }
 
                     j++;
@@ -276,10 +288,49 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
                 prsectors[i]->drawingstate = 2;
             i++;
         }
-    }
+    }*/
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
 }
+
+void                polymer_drawroom(short sectnum)
+{
+    int             i, j;
+    sectortype      *sec;
+    walltype        *wal;
+    GLint           curportal[4];
+
+    sec = &sector[i];
+    wal = &wall[sec->wallptr];
+
+    memcpy(curportal, portal, sizeof(GLint) * 4);
+
+    // first draw the sector
+    polymer_drawsector(sectnum);
+    prsectors[sectnum]->drawingstate = 1;
+
+    i = 0;
+    while (i < sec->wallnum)
+    {
+        if (polymer_checkportal(sec->wallptr + i))
+        {
+            polymer_drawwall(sec->wallptr + i);
+            if ((wal->nextsector != -1) && (prsectors[wal->nextsector]->drawingstate == 0))
+                polymer_drawroom(wal->nextsector);
+            memcpy(portal, curportal, sizeof(GLint) * 4);
+        }
+        i++;
+        wal = &wall[sec->wallptr + i];
+    }
+
+
+}
+
+int                 polymer_checkportal(short wallnum)
+{   // Returns 1 if the wall is in the current portal and sets the current portal to the wall, returns 0 otherwise
+
+}
+
 
 void                polymer_rotatesprite(long sx, long sy, long z, short a, short picnum, signed char dashade, char dapalnum, char dastat, long cx1, long cy1, long cx2, long cy2)
 {
@@ -977,17 +1028,15 @@ void                polymer_drawwall(short wallnum)
 }
 
 // HSR
-void                polymer_extractfrustum(void)
+void                polymer_extractfrustum(GLdouble* modelview, GLdouble* projection)
 {
-    GLfloat         matrix[16];
+    GLdouble        matrix[16];
     int             i;
 
     bglMatrixMode(GL_TEXTURE);
-    bglGetFloatv(GL_PROJECTION_MATRIX, matrix);
-    bglLoadMatrixf(matrix);
-    bglGetFloatv(GL_MODELVIEW_MATRIX, matrix);
-    bglMultMatrixf(matrix);
-    bglGetFloatv(GL_TEXTURE_MATRIX, matrix);
+    bglLoadMatrixd(projection);
+    bglMultMatrixd(modelview);
+    bglGetDoublev(GL_TEXTURE_MATRIX, matrix);
     bglLoadIdentity();
 
     i = 0;

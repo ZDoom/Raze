@@ -55,6 +55,7 @@ extern void (APIENTRY * bglPolygonOffset)( GLfloat factor, GLfloat units );
 extern void (APIENTRY * bglPolygonMode)( GLenum face, GLenum mode );
 extern void (APIENTRY * bglEnable)( GLenum cap );
 extern void (APIENTRY * bglDisable)( GLenum cap );
+extern void (APIENTRY * bglGetDoublev)( GLenum pname, GLdouble *params );
 extern void (APIENTRY * bglGetFloatv)( GLenum pname, GLfloat *params );
 extern void (APIENTRY * bglGetIntegerv)( GLenum pname, GLint *params );
 extern void (APIENTRY * bglPushAttrib)( GLbitfield mask );
@@ -79,7 +80,9 @@ extern void (APIENTRY * bglPushMatrix)( void );
 extern void (APIENTRY * bglPopMatrix)( void );
 extern void (APIENTRY * bglLoadIdentity)( void );
 extern void (APIENTRY * bglLoadMatrixf)( const GLfloat *m );
+extern void (APIENTRY * bglLoadMatrixd)( const GLdouble *m );
 extern void (APIENTRY * bglMultMatrixf)( const GLfloat *m );
+extern void (APIENTRY * bglMultMatrixd)( const GLdouble *m );
 extern void (APIENTRY * bglRotatef)(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
 extern void (APIENTRY * bglScalef)(GLfloat x, GLfloat y, GLfloat z);
 extern void (APIENTRY * bglTranslatef)(GLfloat x, GLfloat y, GLfloat z);
@@ -172,17 +175,19 @@ extern void*       (APIENTRY * bglMapBufferARB)(GLenum target, GLenum access);
 extern GLboolean   (APIENTRY * bglUnmapBufferARB)(GLenum target);
 
 // GLU
-extern void (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
-extern void (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);
-extern void (APIENTRY * bgluTessCallback) (GLUtesselator* tess, GLenum which, void (PR_CALLBACK CallBackFunc)());
-extern void (APIENTRY * bgluTessEndContour) (GLUtesselator* tess);
-extern void (APIENTRY * bgluTessEndPolygon) (GLUtesselator* tess);
-extern void (APIENTRY * bgluTessNormal) (GLUtesselator* tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ);
-extern void (APIENTRY * bgluTessProperty) (GLUtesselator* tess, GLenum which, GLdouble data);
-extern void (APIENTRY * bgluTessVertex) (GLUtesselator* tess, GLdouble *location, GLvoid* data);
-extern GLUtesselator* (APIENTRY * bgluNewTess) (void);
-extern void (APIENTRY * bgluPerspective) (GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
-extern const GLubyte * (APIENTRY * bgluErrorString) (GLenum error);
+extern void             (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
+extern void             (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);
+extern void             (APIENTRY * bgluTessCallback) (GLUtesselator* tess, GLenum which, void (PR_CALLBACK CallBackFunc)());
+extern void             (APIENTRY * bgluTessEndContour) (GLUtesselator* tess);
+extern void             (APIENTRY * bgluTessEndPolygon) (GLUtesselator* tess);
+extern void             (APIENTRY * bgluTessNormal) (GLUtesselator* tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ);
+extern void             (APIENTRY * bgluTessProperty) (GLUtesselator* tess, GLenum which, GLdouble data);
+extern void             (APIENTRY * bgluTessVertex) (GLUtesselator* tess, GLdouble *location, GLvoid* data);
+extern GLUtesselator*   (APIENTRY * bgluNewTess) (void);
+
+extern void             (APIENTRY * bgluPerspective) (GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+
+extern const GLubyte *  (APIENTRY * bgluErrorString) (GLenum error);
 
 #ifdef RENDERTYPEWIN
 // Windows

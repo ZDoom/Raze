@@ -291,6 +291,7 @@ void CONFIG_SetDefaults(void)
     ud.viewbob = 1;
     ud.weaponsway = 1;
     ud.weaponswitch = 3;	// new+empty
+    ud.angleinterpolation = 50;
     UseJoystick = 0;
     UseMouse = 1;
     VoiceToggle = 2;
@@ -685,6 +686,8 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLVBOs", &r_vbos);
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLVBOCount", &r_vbocount);
 
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "GLAnimationSmoothing", &r_animsmoothing);
+
         dummy = usemodels;
         SCRIPT_GetNumber(scripthandle, "Screen Setup", "UseModels",&dummy);
         usemodels = dummy != 0;
@@ -721,6 +724,8 @@ int32 CONFIG_ReadSetup(void)
         dummy = useprecache;
         SCRIPT_GetNumber(scripthandle, "Misc", "UsePrecache",&dummy);
         useprecache = dummy != 0;
+
+        SCRIPT_GetNumber(scripthandle, "Misc","AngleInterpolation",&ud.angleinterpolation);
 
         // weapon choices are defaulted in checkcommandline, which may override them
         if (!CommandWeaponChoice)
@@ -825,6 +830,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Misc", "UsePrecache",useprecache,false,false);
     SCRIPT_PutNumber(scripthandle, "Misc", "ViewBobbing",ud.viewbob,false,false);
     SCRIPT_PutNumber(scripthandle, "Misc", "WeaponSway",ud.weaponsway,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "AngleInterpolation",ud.angleinterpolation,false,false);
 
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "Detail",ud.detail,false,false);
 #if defined(POLYMOST) && defined(USE_OPENGL)
@@ -844,6 +850,8 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLVertexArrays", r_vertexarrays,false,false);
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLVBOs", r_vbos,false,false);
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLVBOCount", r_vbocount,false,false);
+
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLAnimationSmoothing",r_animsmoothing,false,false);
 #endif
 #ifdef RENDERTYPEWIN
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);

@@ -6385,6 +6385,8 @@ void LoadActor(long iActor)
 
 void execute(int iActor,int iPlayer,long lDist)
 {
+    short temp, temp2;
+
     g_i = iActor;    // Sprite ID
     g_p = iPlayer;   // Player ID
     g_x = lDist;     // ??
@@ -6439,6 +6441,21 @@ void execute(int iActor,int iPlayer,long lDist)
         sprpos[g_i].z = g_sp->z;
         sprpos[g_i].ang = g_sp->ang;
 #endif
+
+        if (ud.angleinterpolation)
+        {
+            temp = (g_sp->ang & 2047) - sprpos[g_i].ang;
+            sprpos[g_i].oldang = sprpos[g_i].ang;
+            if (temp)
+            {
+                temp2 = temp/klabs(temp);
+                if (klabs(temp) > 1024) temp2 = -(temp2);
+                sprpos[g_i].angdir = temp2;
+                sprpos[g_i].angdif = min(ud.angleinterpolation,klabs(temp));
+                sprpos[g_i].ang += sprpos[g_i].angdif * sprpos[g_i].angdir;
+                sprpos[g_i].ang &= 2047;
+            }
+        }
 
         if (g_sp->statnum == 1)
         {

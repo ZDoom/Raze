@@ -84,6 +84,7 @@ extern int          updatesectors;
 int                 polymer_init(void);
 void                polymer_glinit(void);
 void                polymer_loadboard(void);
+void                polymer_drawroom(short sectnum);
 void                polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum, int root);
 void                polymer_rotatesprite(long sx, long sy, long z, short a, short picnum, signed char dashade, char dapalnum, char dastat, long cx1, long cy1, long cx2, long cy2);
 void                polymer_drawmaskwall(long damaskwallcnt);
@@ -102,7 +103,7 @@ int                 polymer_initwall(short wallnum);
 void                polymer_updatewall(short wallnum);
 void                polymer_drawwall(short wallnum);
 // HSR
-void                polymer_extractfrustum(void);
+void                polymer_extractfrustum(GLdouble* modelview, GLdouble* projection);
 int                 polymer_portalinfrustum(short wallnum);
 void                polymer_addcliplane(_equation clip, _equation left, _equation right, float refx, float refy);
 int                 polymer_wallincliplanes(short wallnum);

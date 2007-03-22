@@ -859,6 +859,7 @@ static void updateanimation (md2model *m, spritetype *tspr)
 {
     mdanim_t *anim;
     long i, j;
+    int fps;
 
     if (mdpause)
     {
@@ -880,25 +881,49 @@ if (!anim) { m->interpol = 0; return; }
     {
         spriteext[tspr->owner].mdanimcur = (short)anim->startframe;
         spriteext[tspr->owner].mdanimtims = mdtims;
-        m->cframe = m->nframe = anim->startframe;
         m->interpol = 0;
-        return;
+        if (!r_animsmoothing)
+        {
+            m->cframe = m->nframe = anim->startframe;
+            return;
+        }
+        spriteext[tspr->owner].mdsmooth = 1;
     }
 
-    i = (mdtims-spriteext[tspr->owner].mdanimtims)*((anim->fpssc*timerticspersec)/120);
+    if (spriteext[tspr->owner].mdsmooth)
+        fps = anim->fpssc / r_animsmoothing;
+    else
+        fps = anim->fpssc;
+
+    i = (mdtims-spriteext[tspr->owner].mdanimtims)*((fps*timerticspersec)/120);
     j = ((anim->endframe+1-anim->startframe)<<16);
     //Just in case you play the game for a VERY long time...
     if (i < 0) { i = 0; spriteext[tspr->owner].mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
-    if ((i >= j+j) && (anim->fpssc)) //Keep mdanimtims close to mdtims to avoid the use of MOD
-        spriteext[tspr->owner].mdanimtims += j/((anim->fpssc*timerticspersec)/120);
+    if ((i >= j+j) && (fps)) //Keep mdanimtims close to mdtims to avoid the use of MOD
+        spriteext[tspr->owner].mdanimtims += j/((fps*timerticspersec)/120);
 
     if (anim->flags&MDANIM_ONESHOT)
     { if (i > j-65536) i = j-65536; }
 else { if (i >= j) { i -= j; if (i >= j) i %= j; } }
 
-    m->cframe = (i>>16)+anim->startframe;
-    m->nframe = m->cframe+1; if (m->nframe > anim->endframe) m->nframe = anim->startframe;
+    if (r_animsmoothing)
+    {
+        m->nframe = (i>>16)+anim->startframe;
+        if (m->nframe != spriteext[tspr->owner].mdcurframe)
+        {
+            spriteext[tspr->owner].mdoldframe = spriteext[tspr->owner].mdcurframe;
+            spriteext[tspr->owner].mdcurframe = m->nframe;
+        }
+        m->cframe = spriteext[tspr->owner].mdoldframe;
+        if (m->nframe > anim->startframe)
+            spriteext[tspr->owner].mdsmooth = 0;
+    }
+    else
+    {
+        m->cframe = (i>>16)+anim->startframe;
+        m->nframe = m->cframe+1; if (m->nframe > anim->endframe) m->nframe = anim->startframe;
+    }
     m->interpol = ((float)(i&65535))/65536.f;
 }
 

@@ -153,6 +153,8 @@ typedef struct BPACK
 typedef struct BPACK {
     unsigned long mdanimtims;
     short mdanimcur;
+    short mdcurframe, mdoldframe;
+    short mdsmooth;
     short angoff;
     short pitch, roll;
     long xoff, yoff, zoff;
@@ -277,13 +279,13 @@ SPRITE VARIABLES:
     EXTERN short nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
     Example: if the linked lists look like the following:
-         �������������������������������Ŀ
+         ????????????????????????????????
                Sector lists:               Status lists:               
-         �������������������������������Ĵ
+         ???????????????????????????????J
            Sector0:  4, 5, 8             Status0:  2, 0, 8             
            Sector1:  16, 2, 0, 7         Status1:  4, 5, 16, 7, 3, 9   
            Sector2:  3, 9                                              
-         ��������������������������������
+         ????????????????????????????????
     Notice that each number listed above is shown exactly once on both the
         left and right side.  This is because any sprite that exists must
         be in some sector, and must have some kind of status that you define.
@@ -501,6 +503,7 @@ extern long r_glowmapping;
 extern long r_vertexarrays;
 extern long r_vbos;
 extern long r_vbocount;
+extern long r_animsmoothing;
 #endif
 
 void hicinit(void);

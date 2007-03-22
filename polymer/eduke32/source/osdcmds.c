@@ -643,6 +643,7 @@ cvar[] =
 
         { "cl_weaponsway", "cl_weaponsway: enable/disable player weapon swaying\n", (void*)&ud.weaponsway, CVAR_BOOL, 0, 0, 1 },
         { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|256, 0, 0, 3 },
+        { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void*)&ud.angleinterpolation, CVAR_INT, 0, 0, 256 },
 #if defined(POLYMOST) && defined(USE_OPENGL)
         { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
         { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_BOOL, 0, 0, 1 },
