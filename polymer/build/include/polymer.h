@@ -84,6 +84,7 @@ extern int          updatesectors;
 int                 polymer_init(void);
 void                polymer_glinit(void);
 void                polymer_loadboard(void);
+int                 polymer_checkportal(short wallnum);
 void                polymer_drawroom(short sectnum);
 void                polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum, int root);
 void                polymer_rotatesprite(long sx, long sy, long z, short a, short picnum, signed char dashade, char dapalnum, char dastat, long cx1, long cy1, long cx2, long cy2);
