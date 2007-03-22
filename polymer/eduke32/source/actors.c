@@ -23,13 +23,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 #include "duke3d.h"
 
-extern char numenvsnds,actor_tog;
+extern long numenvsnds;
+extern int actor_tog;
 
 void updateinterpolations()  //Stick at beginning of domovethings
 {
-    long i;
+    long i=numinterpolations-1;
 
-    for (i=numinterpolations-1;i>=0;i--) oldipos[i] = *curipos[i];
+    for (;i>=0;i--) oldipos[i] = *curipos[i];
 }
 
 void setinterpolation(long *posptr)
@@ -60,11 +61,9 @@ void stopinterpolation(long *posptr)
 
 void dointerpolations(long smoothratio)       //Stick at beginning of drawscreen
 {
-    long i, j, odelta, ndelta;
+    long i=numinterpolations-1, j = 0, odelta, ndelta = 0;
 
-    ndelta = 0;
-    j = 0;
-    for (i=numinterpolations-1;i>=0;i--)
+    for (;i>=0;i--)
     {
         bakipos[i] = *curipos[i];
         odelta = ndelta;
@@ -76,18 +75,15 @@ void dointerpolations(long smoothratio)       //Stick at beginning of drawscreen
 
 void restoreinterpolations()  //Stick at end of drawscreen
 {
-    long i;
+    long i=numinterpolations-1;
 
-    for (i=numinterpolations-1;i>=0;i--) *curipos[i] = bakipos[i];
+    for (;i>=0;i--) *curipos[i] = bakipos[i];
 }
 
 long ceilingspace(int sectnum)
 {
-    if ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0)
-    {
-        if ((sector[sectnum].ceilingpicnum==MOONSKY1)||(sector[sectnum].ceilingpicnum==BIGORBIT1)) return 1;
-
-    }
+    if ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 && (sector[sectnum].ceilingpicnum==MOONSKY1 || sector[sectnum].ceilingpicnum==BIGORBIT1))
+        return 1;
     return 0;
 }
 
@@ -219,7 +215,7 @@ void checkavailweapon(struct player_struct *p)
     short i,snum;
     int32 weap;
 
-    if (p->reloading == 1) return;
+    if (p->reloading) return;
 
     if (p->wantweaponfire >= 0)
     {
@@ -282,7 +278,7 @@ void checkavailweapon(struct player_struct *p)
 
 void hitradius(int i, long  r, long  hp1, long  hp2, long  hp3, long  hp4)
 {
-    spritetype *s,*sj;
+    spritetype *s=&sprite[i],*sj;
     walltype *wal;
     long d, q, x1, y1;
     long sectcnt, sectend, dasect, startwall, endwall, nextsect;
@@ -290,8 +286,6 @@ void hitradius(int i, long  r, long  hp1, long  hp2, long  hp3, long  hp4)
     short sect=-1;
     char statlist[] = {0,1,6,10,12,2,5};
     short *tempshort = (short *)tempbuf;
-
-    s = &sprite[i];
 
     if (s->picnum == RPG && s->xrepeat < 11) goto SKIPWALLCHECK;
 
@@ -550,10 +544,8 @@ int movesprite(int spritenum, long xchange, long ychange, long zchange, unsigned
 
 int ssp(int i,unsigned long cliptype) //The set sprite function
 {
-    spritetype *s;
+    spritetype *s= &sprite[i];
     long movetype;
-
-    s = &sprite[i];
 
     movetype = movesprite(i,
                           (s->xvel*(sintable[(s->ang+512)&2047]))>>14,
@@ -578,10 +570,10 @@ void insertspriteq(int i)
 
 void lotsofmoney(int sp, int n)
 {
-    int i ,j;
+    int i=n ,j;
     spritetype *s = &sprite[sp];
 
-    for (i=n;i>0;i--)
+    for (;i>0;i--)
     {
         j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),MONEY,-32,8,8,TRAND&2047,0,0,sp,5);
         sprite[j].cstat = TRAND&12;
@@ -590,10 +582,10 @@ void lotsofmoney(int sp, int n)
 
 void lotsofmail(int sp, int n)
 {
-    int i ,j;
+    int i=n ,j;
     spritetype *s = &sprite[sp];
 
-    for (i=n;i>0;i--)
+    for (;i>0;i--)
     {
         j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),MAIL,-32,8,8,TRAND&2047,0,0,sp,5);
         sprite[j].cstat = TRAND&12;
@@ -602,10 +594,10 @@ void lotsofmail(int sp, int n)
 
 void lotsofpaper(int sp, int n)
 {
-    int i ,j;
+    int i=n ,j;
     spritetype *s = &sprite[sp];
 
-    for (i=n;i>0;i--)
+    for (;i>0;i--)
     {
         j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),PAPER,-32,8,8,TRAND&2047,0,0,sp,5);
         sprite[j].cstat = TRAND&12;

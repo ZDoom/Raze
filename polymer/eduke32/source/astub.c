@@ -56,7 +56,7 @@ static struct strllist
 *CommandPaths = NULL;
 
 #define MAXHELP2D (signed int)(sizeof(Help2d)/sizeof(Help2d[0]))
-char *Help2d[]= {
+static char *Help2d[]= {
                     " 'A = Autosave toggle",
                     " 'J = Jump to location",
                     " 'L = Adjust sprite/wall coords",
@@ -78,7 +78,7 @@ char *Help2d[]= {
                     " ]      = Search backward",
                 };
 
-char *SpriteMode[]= {
+static char *SpriteMode[]= {
                         "NONE",
                         "SECTORS",
                         "WALLS",
@@ -91,7 +91,7 @@ char *SpriteMode[]= {
                     };
 
 #define MAXSKILL 5
-char *SKILLMODE[MAXSKILL]= {
+static char *SKILLMODE[MAXSKILL]= {
                                "Actor skill display: PIECE OF CAKE",
                                "Actor skill display: LET'S ROCK",
                                "Actor skill display: COME GET SOME",
@@ -100,7 +100,7 @@ char *SKILLMODE[MAXSKILL]= {
                            };
 
 #define MAXNOSPRITES 4
-char *SPRDSPMODE[MAXNOSPRITES]= {
+static char *SPRDSPMODE[MAXNOSPRITES]= {
                                     "Sprite display: DISPLAY ALL SPRITES",
                                     "Sprite display: NO EFFECTORS",
                                     "Sprite display: NO ACTORS",
@@ -108,7 +108,7 @@ char *SPRDSPMODE[MAXNOSPRITES]= {
                                 };
 
 #define MAXHELP3D (signed int)(sizeof(Help3d)/sizeof(Help3d[0]))
-char *Help3d[]= {
+static char *Help3d[]= {
                     "Mapster32 3D mode help",
                     " ",
                     " F1 = TOGGLE THIS HELP DISPLAY",
@@ -141,11 +141,6 @@ char *Help3d[]= {
                     " HOME = PGUP/PGDN MODIFIER (256 UNITS)",
                     " END = PGUP/PGDN MODIFIER (512 UNITS)",
                 };
-
-static inline long GetTime(void)
-{
-    return totalclock;
-}
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int numdirs=0, numfiles=0;
@@ -1802,11 +1797,11 @@ static void Keys3d(void)
         }
     }
 
-    if (keystatus[0x4] > 0)  /* 3 (toggle floor-over-floor (cduke3d only) */
+    if (keystatus[0x04] > 0)  /* 3 (toggle floor-over-floor (cduke3d only) */
     {
         floor_over_floor = !floor_over_floor;
         //        if (!floor_over_floor) ResetFOFSize();
-        keystatus[0x4] = 0;
+        keystatus[0x04] = 0;
     }
 
     if (keystatus[KEYSC_F3])
@@ -2055,7 +2050,7 @@ static void Keys3d(void)
 
     getzrange(posx,posy,posz,cursectnum,&hiz,&hihit,&loz,&lohit,128L,CLIPMASK0);
 
-    if (keystatus[KEYSC_CAPS] > 0)
+    if (keystatus[KEYSC_CAPS] > 0 || ((keystatus[KEYSC_Z] > 0) && (keystatus[KEYSC_QUOTE] > 0)))
     {
         zmode++;
         if (zmode == 3) zmode = 0;
@@ -2063,7 +2058,7 @@ static void Keys3d(void)
         if (zmode == 0) message("Zmode = Gravity");
         else if (zmode == 1) message("Zmode = Locked/Sector");
         else if (zmode == 2) message("Zmode = Locked/Free");
-        keystatus[KEYSC_CAPS] = 0;
+        keystatus[KEYSC_CAPS] = keystatus[KEYSC_Z] = 0;
     }
 
     if (keystatus[KEYSC_M] > 0 && (keystatus[KEYSC_QUOTE]) > 0)  // M

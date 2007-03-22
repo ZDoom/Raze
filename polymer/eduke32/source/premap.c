@@ -32,15 +32,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern char pow2char[];
 
-extern char everyothertime;
-static short which_palookup = 9;
-char numl, useprecache = 1;
+extern int everyothertime;
+static int which_palookup = 9;
+int useprecache = 1;
+char numl;
 short spritecache[MAXTILES][3];
 
 static char precachehightile[2][MAXTILES>>3];
 static int  precachecount;
 
-static void tloadtile(short tilenume, char type)
+static void tloadtile(int tilenume, int type)
 {
     if ((picanm[tilenume]&63) < 1)
     {
@@ -72,10 +73,10 @@ static void tloadtile(short tilenume, char type)
     }
 }
 
-static void cachespritenum(short i)
+static void cachespritenum(int i)
 {
     char maxc;
-    short j;
+    int j;
 
     if (ud.monsters_off && badguy(&sprite[i])) return;
 
@@ -213,7 +214,7 @@ static void cachespritenum(short i)
 
 static void cachegoodsprites(void)
 {
-    short i,j;
+    int i,j;
 
     for (i=0;i<MAXTILES;i++)
     {
@@ -270,7 +271,7 @@ static void cachegoodsprites(void)
     for (i=MORTER; i<MORTER+4; i++) tloadtile(i,4);
 }
 
-static char getsound(unsigned short num)
+static int getsound(unsigned int num)
 {
     short fp;
     long   l;
@@ -299,7 +300,7 @@ static char getsound(unsigned short num)
 
 static void precachenecessarysounds(void)
 {
-    short i, j;
+    int i, j;
 
     if (FXDevice < 0) return;
     j = 0;
@@ -834,8 +835,8 @@ static void setupbackdrop(short sky)
 
 static void prelevel(char g)
 {
-    short i, nexti, j, startwall, endwall, lotaglist;
-    short lotags[65];
+    int i, nexti, j, startwall, endwall, lotaglist;
+    int lotags[MAXSPRITES];
     int switchpicnum;
 
 
@@ -983,8 +984,8 @@ static void prelevel(char g)
             {
                 lotags[lotaglist] = SLT;
                 lotaglist++;
-                if (lotaglist > 64)
-                    gameexit("\nToo many switches (64 max).");
+                if (lotaglist > MAXSPRITES-1)
+                    gameexit("\nToo many switches.");
 
                 j = headspritestat[3];
                 while (j >= 0)

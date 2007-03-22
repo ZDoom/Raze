@@ -403,7 +403,7 @@ static int set_maxrefreshfreq(const osdfuncparm_t *parm)
 static void print_os_version(void)
 {
     OSVERSIONINFO osv;
-    const char *ver;
+    const char *ver = NULL;
     // I was going to call this 'windows_9x_is_awful', but I couldn't justify ever setting it to 0
     int awful_windows_9x = 0;
 
@@ -448,10 +448,13 @@ static void print_os_version(void)
         return;
     }
 
-    initprintf("OS: Windows %s (Version %lu.%lu.%lu)\n", ver, osv.dwMajorVersion, osv.dwMinorVersion,
-               awful_windows_9x?osv.dwBuildNumber&0xffff:osv.dwBuildNumber);
-    if (osv.szCSDVersion[0])
-        initprintf("  - %s\n", osv.szCSDVersion);
+    if (ver != NULL)
+    {
+        initprintf("OS: Windows %s (Version %lu.%lu.%lu)\n", ver, osv.dwMajorVersion, osv.dwMinorVersion,
+                   awful_windows_9x?osv.dwBuildNumber&0xffff:osv.dwBuildNumber);
+        if (osv.szCSDVersion[0])
+            initprintf("  - %s\n", osv.szCSDVersion);
+    }
 }
 
 

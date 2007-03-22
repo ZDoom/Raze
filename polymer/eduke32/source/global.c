@@ -147,7 +147,7 @@ short weaponsandammosprites[15] = {
                                   };
 
 long impact_damage;
-char condebug;
+int condebug;
 
 //GLOBAL.C - replace the end "my's" with this
 long myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
@@ -162,8 +162,9 @@ long myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];
 long myhorizbak[MOVEFIFOSIZ],dukefriction = 0xcc00, show_shareware;
 
 short myangbak[MOVEFIFOSIZ];
-char myname[32],camerashitable,freezerhurtowner=0,lasermode=0;
-char networkmode = 255, movesperpacket = 1,gamequit = 0,everyothertime;
+char myname[32];
+int camerashitable,freezerhurtowner=0,lasermode=0;
+int networkmode = 255, movesperpacket = 1,gamequit = 0,everyothertime;
 long numfreezebounces=3,rpgblastradius,pipebombblastradius,tripbombblastradius,shrinkerblastradius,morterblastradius,bouncemineblastradius,seenineblastradius;
 STATUSBARTYPE sbar;
 

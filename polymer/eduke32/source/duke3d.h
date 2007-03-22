@@ -587,7 +587,7 @@ extern int packetrate;
 extern long cachecount;
 extern char boardfilename[BMAX_PATH],waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],animpal[768];
 extern char cachedebug,earthquaketime;
-extern char networkmode;
+extern int networkmode;
 extern char lumplockbyte[11];
 
 //DUKE3D.H - replace the end "my's" with this
@@ -615,15 +615,16 @@ typedef struct {
 extern STATUSBARTYPE sbar;
 extern short frags[MAXPLAYERS][MAXPLAYERS];
 extern long cameradist, cameraclock, dukefriction,show_shareware;
-extern char networkmode, movesperpacket;
-extern char gamequit;
+extern int networkmode, movesperpacket;
+extern int gamequit;
 
-extern char pus,pub,camerashitable,freezerhurtowner,lasermode;
+extern char pus,pub;
+extern int camerashitable,freezerhurtowner,lasermode;
 extern char syncstat, syncval[MAXPLAYERS][MOVEFIFOSIZ];
 extern signed char multiwho, multipos, multiwhat, multiflag;
 extern long syncvalhead[MAXPLAYERS], syncvaltail, syncvaltottail;
 extern long numfreezebounces,rpgblastradius,pipebombblastradius,tripbombblastradius,shrinkerblastradius,morterblastradius,bouncemineblastradius,seenineblastradius;
-extern char stereo,playerswhenstarted,everyothertime;
+extern int everyothertime;
 extern long myminlag[MAXPLAYERS], mymaxlag, otherminlag, bufferjitter;
 
 extern long numinterpolations, startofdynamicinterpolations;
@@ -647,7 +648,7 @@ extern long myaimmode, myaimstat, omyaimstat;
 #define TILE_ANIM     (MAXTILES-4)
 #define TILE_VIEWSCR  (MAXTILES-5)
 
-extern char useprecache;
+extern int useprecache;
 
 enum events {
     EVENT_INIT,
@@ -885,7 +886,8 @@ enum logoflags {
     LOGO_FLAG_PLUTOPAKSPRITE    = 128
 };
 
-extern char numl, condebug;
+extern char numl;
+extern int condebug;
 
 #define MAXCHEATLEN 20
 #define NUMCHEATCODES (signed int)(sizeof(cheatquotes)/sizeof(cheatquotes[MAXCHEATLEN]))

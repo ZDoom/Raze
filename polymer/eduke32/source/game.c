@@ -52,7 +52,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20070310
+#define BUILDDATE 20070321
 #define UPDATEINTERVAL 86400 // 24h
 #endif
 
@@ -62,8 +62,8 @@ extern int getversionfromwebsite(char *buffer);
 #define TIMERUPDATESIZ 32
 
 long cameradist = 0, cameraclock = 0;
-char playerswhenstarted;
-char qe,cp,usecwd = 0;
+static int playerswhenstarted;
+static int qe,cp,usecwd = 0;
 
 static int32 CommandSetup = 0;
 static int32 NoSetup = 0;
@@ -92,12 +92,13 @@ int votes[MAXPLAYERS], gotvote[MAXPLAYERS], voting = -1;
 int vote_map = -1, vote_episode = -1;
 
 int recfilep,totalreccnt;
-char debug_on = 0,actor_tog = 0,*rtsptr,memorycheckoveride=0;
+int debug_on = 0,actor_tog = 0;
+static char *rtsptr;
 
 extern char syncstate;
 extern int32 numlumps;
 
-FILE *frecfilep = (FILE *)NULL;
+static FILE *frecfilep = (FILE *)NULL;
 
 int restorepalette,screencapt;
 static int nomorelogohack;

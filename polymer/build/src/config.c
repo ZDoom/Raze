@@ -156,7 +156,7 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
     option[4] = 0;	// no multiplayer
     option[5] = 0;
 
-#if 0
+#if 1
     if (readconfig(fp, "keyforward", val, VL) > 0) keys[0] = Bstrtol(val, NULL, 16);
     if (readconfig(fp, "keybackward", val, VL) > 0) keys[1] = Bstrtol(val, NULL, 16);
     if (readconfig(fp, "keyturnleft", val, VL) > 0) keys[2] = Bstrtol(val, NULL, 16);
@@ -260,7 +260,7 @@ int writesetup(const char *fn)
              "; Mouse sensitivity\n"
              "mousesensitivity = %g\n"
              "\n"
-#if 0             
+#if 1             
              "; Key Settings\n"
              ";  Here's a map of all the keyboard scan codes: NOTE: values are listed in hex!\n"
              "; +---------------------------------------------------------------------------------------------+\n"
@@ -320,7 +320,7 @@ int writesetup(const char *fn)
              option[7]>>4, option[2],
 #endif             
              option[3], msens,
-#if 0             
+#if 1            
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
              keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],
              keys[12], keys[13], keys[14], keys[15], keys[16], keys[17],
