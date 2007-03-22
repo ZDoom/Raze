@@ -5379,7 +5379,7 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
     }
     else if (!Bstrcasecmp(parm->name, "r_animsmoothing")) {
         if (showval) { OSD_Printf("r_animsmoothing is %d\n", r_animsmoothing); }
-        else if (val < 1) { OSD_Printf("Value out of range.\n"); }
+        else if (val < 0) { OSD_Printf("Value out of range.\n"); }
         else r_animsmoothing = val;
         return OSDCMD_OK;
     }
