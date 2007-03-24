@@ -679,6 +679,20 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
             SetGameVarID(lVar2, ud.weaponsway, g_i, g_p);
         break;
 
+    case USERDEFS_ANGLEINTERPOLATION:
+        if (iSet)
+            ud.angleinterpolation = lValue;
+        else
+            SetGameVarID(lVar2, ud.angleinterpolation, g_i, g_p);
+        break;
+
+    case USERDEFS_DEATHMSGS:
+        if (iSet)
+            ud.deathmsgs = lValue;
+        else
+            SetGameVarID(lVar2, ud.deathmsgs, g_i, g_p);
+        break;
+
     default:
         break;
     }

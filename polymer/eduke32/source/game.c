@@ -4380,7 +4380,6 @@ int spawn(int j, int pn)
 
         T1 = T2 = T3 = T4 = T5 = T6 = T7 = T8 = T9 = 0;
 
-        ResetActorGameVars(i); // this shouldn't be necessary
         actorspriteflags[i] = 0;
 
         sprpos[i].x = sprite[i].x;
@@ -9991,14 +9990,12 @@ void app_main(int argc,char **argv)
         Bsprintf(gametype_names[2],"GRUNTMATCH (NO SPAWN)");
     }
 
+    i = initgroupfile(duke3dgrp);
 
-    if (initgroupfile(duke3dgrp) == -1)
+    if (i == -1)
         initprintf("Warning: could not find group file '%s'.\n",duke3dgrp);
     else
-    {
         initprintf("Using group file '%s' as main group file.\n", duke3dgrp);
-        autoloadgrps(duke3dgrp);
-    }
 
     getfilenames("autoload","*.grp");
     while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
@@ -10006,6 +10003,9 @@ void app_main(int argc,char **argv)
     while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
     getfilenames("autoload","*.pk3");
     while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+
+    if (i != -1)
+        autoloadgrps(duke3dgrp);
 
     loadgroupfiles(duke3ddef);
 

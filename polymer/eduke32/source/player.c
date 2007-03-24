@@ -3546,6 +3546,7 @@ void processinput(int snum)
                         FTA(116,&ps[p->frag_ps]);
                     }
 
+                    if (ud.deathmsgs)
                     {
                         char name1[32],name2[32];
 
@@ -3615,9 +3616,12 @@ void processinput(int snum)
                     }
                     else Bsprintf(tempbuf,fta_quotes[PSDEATHSTRINGS+3],&ud.user_name[snum][0],p->team+1);
 
-                    if (ScreenWidth >= 800)
-                        adduserquote(tempbuf);
-                    else OSD_Printf("%s\n",stripcolorcodes(tempbuf));
+                    if (ud.deathmsgs)
+                    {
+                        if (ScreenWidth >= 800)
+                            adduserquote(tempbuf);
+                        else OSD_Printf("%s\n",stripcolorcodes(tempbuf));
+                    }
                 }
 
                 if (myconnectindex == connecthead)

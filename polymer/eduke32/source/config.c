@@ -269,6 +269,7 @@ void CONFIG_SetDefaults(void)
     ud.brightness = 8;
     ud.color = 0;
     ud.crosshair = 2;
+    ud.deathmsgs = 1;
     ud.democams = 1;
     ud.detail = 1;
     ud.drawweapon = 1;
@@ -291,7 +292,7 @@ void CONFIG_SetDefaults(void)
     ud.viewbob = 1;
     ud.weaponsway = 1;
     ud.weaponswitch = 3;	// new+empty
-    ud.angleinterpolation = 50;
+    ud.angleinterpolation = 0;
     UseJoystick = 0;
     UseMouse = 1;
     VoiceToggle = 2;
@@ -704,6 +705,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(scripthandle, "Misc", "ShowOpponentWeapons",&ShowOpponentWeapons);
         ud.showweapons = ShowOpponentWeapons;
         SCRIPT_GetNumber(scripthandle, "Misc", "ShowViewWeapon",&ud.drawweapon);
+        SCRIPT_GetNumber(scripthandle, "Misc", "DeathMessages",&ud.deathmsgs);
         SCRIPT_GetNumber(scripthandle, "Misc", "DemoCams",&ud.democams);
         SCRIPT_GetNumber(scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         SCRIPT_GetNumber(scripthandle, "Misc", "Color",&ud.color);
@@ -813,6 +815,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Misc", "AutoVote",ud.autovote,false,false);
     SCRIPT_PutNumber(scripthandle, "Misc", "Color",ud.color,false,false);
     SCRIPT_PutNumber(scripthandle, "Misc", "Crosshairs",ud.crosshair,false,false);
+    SCRIPT_PutNumber(scripthandle, "Misc", "DeathMessages",ud.deathmsgs,false,false);
     SCRIPT_PutNumber(scripthandle, "Misc", "DemoCams",ud.democams,false,false);
     ud.executions++;
     SCRIPT_PutNumber(scripthandle, "Misc", "Executions",ud.executions,false,false);
@@ -830,7 +833,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Misc", "UsePrecache",useprecache,false,false);
     SCRIPT_PutNumber(scripthandle, "Misc", "ViewBobbing",ud.viewbob,false,false);
     SCRIPT_PutNumber(scripthandle, "Misc", "WeaponSway",ud.weaponsway,false,false);
-    SCRIPT_PutNumber(scripthandle, "Misc", "AngleInterpolation",ud.angleinterpolation,false,false);
+//    SCRIPT_PutNumber(scripthandle, "Misc", "AngleInterpolation",ud.angleinterpolation,false,false);
 
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "Detail",ud.detail,false,false);
 #if defined(POLYMOST) && defined(USE_OPENGL)
@@ -851,7 +854,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLVBOs", r_vbos,false,false);
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLVBOCount", r_vbocount,false,false);
 
-    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLAnimationSmoothing",r_animsmoothing,false,false);
+//    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLAnimationSmoothing",r_animsmoothing,false,false);
 #endif
 #ifdef RENDERTYPEWIN
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);

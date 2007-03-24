@@ -303,7 +303,7 @@ int writesetup(const char *fn)
              "key2dzoomout = %X\n"
              "keychat = %X\n"
 #endif
-             "; Console key scancode, in hex\n"
+//             "; Console key scancode, in hex\n"
              "keyconsole = %X\n"
              "\n",
 
