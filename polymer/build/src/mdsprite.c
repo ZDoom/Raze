@@ -858,7 +858,7 @@ int mdpause;
 static void updateanimation (md2model *m, spritetype *tspr)
 {
     mdanim_t *anim;
-    long i, j;
+    long i, j, k;
     int fps;
 
     if (mdpause)
@@ -874,11 +874,45 @@ static void updateanimation (md2model *m, spritetype *tspr)
     for (anim = m->animations;
             anim && anim->startframe != m->cframe;
             anim = anim->next) ;
-if (!anim) { m->interpol = 0; return; }
+    if (!anim) {
+        if (r_animsmoothing && (spriteext[tspr->owner].mdoldframe != m->cframe))
+        {
+            if (spriteext[tspr->owner].mdsmooth == 0)
+            {
+                spriteext[tspr->owner].mdanimtims = mdtims;
+                m->interpol = 0;
+                spriteext[tspr->owner].mdsmooth = 1;
+                spriteext[tspr->owner].mdcurframe = m->cframe;
+            }
+            if (r_animsmoothing && (spriteext[tspr->owner].mdcurframe != m->cframe))
+            {
+                spriteext[tspr->owner].mdanimtims = mdtims;
+                m->interpol = 0;
+                spriteext[tspr->owner].mdsmooth = 1;
+                spriteext[tspr->owner].mdoldframe = spriteext[tspr->owner].mdcurframe;
+                spriteext[tspr->owner].mdcurframe = m->cframe;
+            }
+        }
+        else if (r_animsmoothing && (spriteext[tspr->owner].mdcurframe != m->cframe))
+        {
+            spriteext[tspr->owner].mdanimtims = mdtims;
+            m->interpol = 0;
+            spriteext[tspr->owner].mdsmooth = 1;
+            spriteext[tspr->owner].mdoldframe = spriteext[tspr->owner].mdcurframe;
+            spriteext[tspr->owner].mdcurframe = m->cframe;
+        }
+        else
+        {
+            m->interpol = 0;
+            return;
+        }
+    }
 
-    if (((long)spriteext[tspr->owner].mdanimcur) != anim->startframe ||
+    if (anim && ((long)spriteext[tspr->owner].mdanimcur) != anim->startframe ||
             (spriteext[tspr->owner].flags & SPREXT_NOMDANIM))
     {
+        if (spriteext[tspr->owner].flags & SPREXT_NOMDANIM) OSD_Printf("SPREXT_NOMDANIM\n");
+        OSD_Printf("smooth launched ! oldanim %i new anim %i\n", spriteext[tspr->owner].mdanimcur, anim->startframe);
         spriteext[tspr->owner].mdanimcur = (short)anim->startframe;
         spriteext[tspr->owner].mdanimtims = mdtims;
         m->interpol = 0;
@@ -887,44 +921,60 @@ if (!anim) { m->interpol = 0; return; }
             m->cframe = m->nframe = anim->startframe;
             return;
         }
+        m->nframe = anim->startframe;
+        m->cframe = spriteext[tspr->owner].mdoldframe;
         spriteext[tspr->owner].mdsmooth = 1;
+        return;
     }
 
     if (spriteext[tspr->owner].mdsmooth)
-        fps = anim->fpssc / r_animsmoothing;
+        fps = ((anim) ? anim->fpssc : 1500) / r_animsmoothing;
     else
         fps = anim->fpssc;
 
     i = (mdtims-spriteext[tspr->owner].mdanimtims)*((fps*timerticspersec)/120);
-    j = ((anim->endframe+1-anim->startframe)<<16);
+
+    if (anim)
+        j = ((anim->endframe+1-anim->startframe)<<16);
+    else
+        j = 65535;
     //Just in case you play the game for a VERY long time...
     if (i < 0) { i = 0; spriteext[tspr->owner].mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
-    if ((i >= j+j) && (fps)) //Keep mdanimtims close to mdtims to avoid the use of MOD
+    if ((anim) && (i >= j+j) && (fps)) //Keep mdanimtims close to mdtims to avoid the use of MOD
         spriteext[tspr->owner].mdanimtims += j/((fps*timerticspersec)/120);
 
-    if (anim->flags&MDANIM_ONESHOT)
+    k = i;
+
+    if (anim && (anim->flags&MDANIM_ONESHOT))
     { if (i > j-65536) i = j-65536; }
 else { if (i >= j) { i -= j; if (i >= j) i %= j; } }
 
-    if (r_animsmoothing)
+    if (r_animsmoothing && spriteext[tspr->owner].mdsmooth)
     {
-        m->nframe = (i>>16)+anim->startframe;
-        if (m->nframe != spriteext[tspr->owner].mdcurframe)
-        {
-            spriteext[tspr->owner].mdoldframe = spriteext[tspr->owner].mdcurframe;
-            spriteext[tspr->owner].mdcurframe = m->nframe;
-        }
+        m->nframe = (anim) ? anim->startframe : spriteext[tspr->owner].mdcurframe;
         m->cframe = spriteext[tspr->owner].mdoldframe;
-        if (m->nframe > anim->startframe)
+        //OSD_Printf("smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
+        if (k > 65535)
+        {
+            spriteext[tspr->owner].mdanimtims = mdtims;
+            m->interpol = 0;
             spriteext[tspr->owner].mdsmooth = 0;
+            m->cframe = m->nframe = (anim) ? anim->startframe : spriteext[tspr->owner].mdcurframe;
+            spriteext[tspr->owner].mdoldframe = m->cframe;
+            //OSD_Printf("smooth stopped !\n");
+            return;
+        }
     }
     else
     {
         m->cframe = (i>>16)+anim->startframe;
         m->nframe = m->cframe+1; if (m->nframe > anim->endframe) m->nframe = anim->startframe;
+        spriteext[tspr->owner].mdoldframe = m->cframe;
+        //OSD_Printf("not smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
     }
     m->interpol = ((float)(i&65535))/65536.f;
+    //OSD_Printf("interpol %f\n", m->interpol);
 }
 
 // VBO generation and allocation

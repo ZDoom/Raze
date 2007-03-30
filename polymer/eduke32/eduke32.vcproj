@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="eduke32"
 	ProjectGUID="{8E7A6179-0B72-4073-8A4C-E8682D481DAE}"
 	RootNamespace="eduke32"
@@ -44,11 +44,11 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="nmake /f Makefile.msvc DEBUG=1 NOASM=1"
-				ReBuildCommandLine="nmake /f Makefile.msvc veryclean all DEBUG=1 NOASM=1"
+				BuildCommandLine="nmake /f Makefile.msvc DEBUG=1"
+				ReBuildCommandLine="nmake /f Makefile.msvc veryclean all DEBUG=1"
 				CleanCommandLine="nmake /f Makefile.msvc veryclean"
 				Output="eduke32.exe"
-				PreprocessorDefinitions="WIN32;_DEBUG;SUPERBUILD;POLYMOST;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN;NOASM;ENGINE_USING_A_C"
+				PreprocessorDefinitions="WIN32;_DEBUG;SUPERBUILD;POLYMOST;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN"
 				IncludeSearchPath=""
 				ForcedIncludes=""
 				AssemblySearchPath=""
@@ -694,11 +694,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jmact\develop.h"
+					RelativePath=".\source\develop.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\develop.h"
+					RelativePath=".\source\jmact\develop.h"
 					>
 				</File>
 				<File
