@@ -31,6 +31,7 @@ enum {
     T_SCALE,
     T_SHADE,
     T_FRAME,
+    T_SMOOTHDURATION,
     T_ANIM,
     T_SKIN,
     T_SURF,
@@ -127,11 +128,12 @@ static tokenlist modeltokens[] = {
                                  };
 
 static tokenlist modelframetokens[] = {
-                                          { "frame",  T_FRAME   },
-                                          { "name",   T_FRAME   },
-                                          { "tile",   T_TILE   },
-                                          { "tile0",  T_TILE0  },
-                                          { "tile1",  T_TILE1  },
+                                          { "frame",            T_FRAME             },
+                                          { "name",             T_FRAME             },
+                                          { "tile",             T_TILE              },
+                                          { "tile0",            T_TILE0             },
+                                          { "tile1",            T_TILE1             },
+                                          { "smoothduration",   T_SMOOTHDURATION    },
                                       };
 
 static tokenlist modelanimtokens[] = {
@@ -534,7 +536,7 @@ static int defsparser(scriptfile *script)
             }
 #if defined(POLYMOST) && defined(USE_OPENGL)
             for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
-                switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin))) {
+                switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), 0.0f)) {
                 case 0:
                     break;
                 case -1:
@@ -730,6 +732,7 @@ static int defsparser(scriptfile *script)
                     char *frametokptr = script->ltextptr;
                     char *frameend, *framename = 0, happy=1;
                     int ftilenume = -1, ltilenume = -1, tilex = 0;
+                    double smoothduration = 0.0f;
 
                     if (scriptfile_getbraces(script,&frameend)) break;
                     while (script->textptr < frameend) {
@@ -742,6 +745,8 @@ static int defsparser(scriptfile *script)
                             scriptfile_getsymbol(script,&ftilenume); break; //first tile number
                         case T_TILE1:
                             scriptfile_getsymbol(script,&ltilenume); break; //last tile number (inclusive)
+                        case T_SMOOTHDURATION:
+                            scriptfile_getdouble(script,&smoothduration); break;
                         }
                     }
 
@@ -762,7 +767,7 @@ static int defsparser(scriptfile *script)
                     }
 #if defined(POLYMOST) && defined(USE_OPENGL)
                     for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
-                        switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin))) {
+                        switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), smoothduration)) {
                         case 0:
                             break;
                         case -1:

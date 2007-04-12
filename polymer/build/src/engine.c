@@ -6655,6 +6655,7 @@ long loadboard(char *filename, char fromwhere, long *daposx, long *daposy, long 
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     memset(spriteext, 0, sizeof(spriteext));
+    memset(spritesmooth, 0, sizeof(spritesmooth));
 
     if (rendmode == 4)
         polymer_loadboard();
@@ -7125,6 +7126,7 @@ if (numsprites > MAXSPRITES) { kclose(fil); return(-1); }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     memset(spriteext, 0, sizeof(spriteext));
+    memset(spritesmooth, 0, sizeof(spritesmooth));
 #endif
     guniqhudid = 0;
 
@@ -7175,6 +7177,7 @@ long loadmaphack(char *filename)
     if (!script) return -1;
 
     memset(spriteext, 0, sizeof(spriteext));
+    memset(spritesmooth, 0, sizeof(spritesmooth));
 
     while (1) {
         tok = scriptfile_gettoken(script);
