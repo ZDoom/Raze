@@ -854,7 +854,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLVBOs", r_vbos,false,false);
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLVBOCount", r_vbocount,false,false);
 
-//    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLAnimationSmoothing",r_animsmoothing,false,false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "GLAnimationSmoothing",r_animsmoothing,false,false);
 #endif
 #ifdef RENDERTYPEWIN
     SCRIPT_PutNumber(scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);

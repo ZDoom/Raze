@@ -3831,79 +3831,85 @@ static int parse(void)
         insptr++;
         g_sp->xoffset = 0;
         g_sp->yoffset = 0;
-        //            if(!gotz)
+
+        j = gc;
+
+        if (ceilingspace(g_sp->sectnum) || sector[g_sp->sectnum].lotag == 2)
+            j = gc/6;
+        else if (floorspace(g_sp->sectnum))
+            j = 0;
+
+        if (hittype[g_i].cgg <= 0 || (sector[g_sp->sectnum].floorstat&2))
         {
-            j = gc;
+            getglobalz(g_i);
+            hittype[g_i].cgg = 3;
+        }
+        else hittype[g_i].cgg --;
 
-            if (ceilingspace(g_sp->sectnum) || sector[g_sp->sectnum].lotag == 2)
-                j = gc/6;
-            else if (floorspace(g_sp->sectnum))
-                j = 0;
+        if (g_sp->z < (hittype[g_i].floorz-FOURSLEIGHT))
+        {
+            g_sp->zvel += j;
+            g_sp->z+=g_sp->zvel;
 
-            if (hittype[g_i].cgg <= 0 || (sector[g_sp->sectnum].floorstat&2))
-            {
-                getglobalz(g_i);
-                hittype[g_i].cgg = 6;
-            }
-            else hittype[g_i].cgg --;
+            if (g_sp->zvel > 6144) g_sp->zvel = 6144;
 
-            if (g_sp->z < (hittype[g_i].floorz-FOURSLEIGHT))
-            {
-                g_sp->zvel += j;
-                g_sp->z+=g_sp->zvel;
-
-                if (g_sp->zvel > 6144) g_sp->zvel = 6144;
-            }
-            else
-            {
-                g_sp->z = hittype[g_i].floorz - FOURSLEIGHT;
-
-                if (badguy(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
-                {
-                    if (g_sp->zvel > 3084 && g_sp->extra <= 1)
-                    {
-                        if (g_sp->pal != 1 && g_sp->picnum != DRONE)
-                        {
-                            if (!(g_sp->picnum == APLAYER && g_sp->extra > 0))
-                            {
-                                guts(g_i,JIBS6,15,g_p);
-                                spritesound(SQUISHED,g_i);
-                                spawn(g_i,BLOODPOOL);
-                            }
-                        }
-
-                        hittype[g_i].picnum = SHOTSPARK1;
-                        hittype[g_i].extra = 1;
-                        g_sp->zvel = 0;
-                    }
-                    else if (g_sp->zvel > 2048 && sector[g_sp->sectnum].lotag != 1)
-                    {
-                        j = g_sp->sectnum;
-                        pushmove(&g_sp->x,&g_sp->y,&g_sp->z,(short*)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
-                        if (j != g_sp->sectnum && j >= 0 && j < MAXSECTORS)
-                            changespritesect(g_i,j);
-
-                        spritesound(THUD,g_i);
-                    }
-                }
-                if (sector[g_sp->sectnum].lotag == 1)
-                    switch (dynamictostatic[g_sp->picnum])
-                    {
-                    case OCTABRAIN__STATIC:
-                    case COMMANDER__STATIC:
-                    case DRONE__STATIC:
-                        break;
-                    default:
-                        g_sp->z += (24<<8);
-                        break;
-                    }
-                else g_sp->zvel = 0;
-            }
-
-            if (g_sp->z > (hittype[g_i].floorz-FOURSLEIGHT))
+            if (g_sp->z > (hittype[g_i].floorz - FOURSLEIGHT))
                 g_sp->z = (hittype[g_i].floorz - FOURSLEIGHT);
         }
+        else
+        {
+            g_sp->z = hittype[g_i].floorz - FOURSLEIGHT;
 
+            if (badguy(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
+            {
+                if (g_sp->zvel > 3084 && g_sp->extra <= 1)
+                {
+                    if (g_sp->pal != 1 && g_sp->picnum != DRONE)
+                    {
+                        if (!(g_sp->picnum == APLAYER && g_sp->extra > 0))
+                        {
+                            guts(g_i,JIBS6,15,g_p);
+                            spritesound(SQUISHED,g_i);
+                            spawn(g_i,BLOODPOOL);
+                        }
+                    }
+
+                    hittype[g_i].picnum = SHOTSPARK1;
+                    hittype[g_i].extra = 1;
+                    g_sp->zvel = 0;
+                }
+                else if (g_sp->zvel > 2048 && sector[g_sp->sectnum].lotag != 1)
+                {
+                    j = g_sp->sectnum;
+                    pushmove(&g_sp->x,&g_sp->y,&g_sp->z,(short*)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
+                    if (j != g_sp->sectnum && j >= 0 && j < MAXSECTORS)
+                        changespritesect(g_i,j);
+
+                    spritesound(THUD,g_i);
+                }
+            }
+
+            if (g_sp->z > (hittype[g_i].floorz - FOURSLEIGHT))
+            {
+                getglobalz(g_i);
+                if (hittype[g_i].floorz != sector[g_sp->sectnum].floorz)
+                    g_sp->z = (hittype[g_i].floorz - FOURSLEIGHT);
+            }
+            else if (sector[g_sp->sectnum].lotag == 1)
+            {
+                switch (dynamictostatic[g_sp->picnum])
+                {
+                case OCTABRAIN__STATIC:
+                case COMMANDER__STATIC:
+                case DRONE__STATIC:
+                    break;
+                default:
+                    g_sp->z += (24<<8);
+                    break;
+                }
+            }
+            else g_sp->zvel = 0;
+        }
         break;
 
     case CON_ENDA:

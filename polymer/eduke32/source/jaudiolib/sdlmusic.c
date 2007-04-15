@@ -387,8 +387,8 @@ void PlayMusic(char *_filename)
     {
         char *user = getenv("USERNAME");
 
-        if (user) Bsprintf(tempbuf,"duke3d-%s.mid.%d",user,getpid());
-        else Bsprintf(tempbuf,"duke3d.mid.%d",getpid());
+        if (user) Bsprintf(tempbuf,"duke3d-%s.%d.mid",user,getpid());
+        else Bsprintf(tempbuf,"duke3d.%d.mid",getpid());
 
         GetUnixPathFromEnvironment(filename, BMAX_PATH, tempbuf);
 

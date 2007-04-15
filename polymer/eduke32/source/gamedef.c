@@ -4621,6 +4621,7 @@ static void AddDefaultDefinitions(void)
     AddDefinition("PROJ_YREPEAT",PROJ_YREPEAT,LABEL_DEFINE);
 }
 
+
 static void InitProjectiles(void)
 {
     int i;
@@ -4824,7 +4825,7 @@ void loadefs(const char *filenam)
                                          "^2%s ^2WAS CHASED OFF OF %s^2'S PORCH",
                                          "^2%s ^2COULDN'T DANCE FAST ENOUGH FOR %s",
                                          "^2%s ^2TRIED TO OUTRUN %s^2'S ROCKET",
-                                         "^2%s ^2FINALLY FOUND %s^2'S HIDDEN WMDS",
+                                         "^2%s ^2FOUND %s^2'S HIDDEN WEAPONS OF MASS DESTRUCTION",
                                          "^2%s ^2WAS JUST TRYING TO HELP %s ^2TIE HIS SHOELACES",
                                          "^2%s^2's IGLOO WAS WRECKED BY %s",
                                          "^2%s ^2BECAME A STICKY FILM ON %s^2'S BOOTS",
@@ -4832,8 +4833,8 @@ void loadefs(const char *filenam)
 
                                          "^2%s ^2WAS WALKED ALL OVER BY %s",
                                          "^2%s ^2WAS PICKED OFF BY %s",
-                                         "^2%s ^2WENT QUAIL HUNTING WITH VICE PRESIDENT %s",
-                                         "^2%s ^2ENDED UP WITH A FEW NEW HOLES FROM %s^2's CHAINGUN",
+                                         "^2%s ^2SUCKED %s^2'S SHOTGUN",
+                                         "^2%s ^2ENDED UP WITH A FEW NEW HOLES FROM %s^2'S CHAINGUN",
                                          "^2%s ^2WAS TURNED INTO %s^2 BRAND CHUNKY SALSA",
                                          "^2%s ^2FOUND A PRESENT FROM %s",
                                          "^2%s ^2WAS SCATHED BY %s^2'S SHRINK RAY",

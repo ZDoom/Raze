@@ -163,7 +163,7 @@ long r_vbos = 0;
 long r_vbocount = 64;
 
 // model animation smoothing cvar
-long r_animsmoothing = 0;
+long r_animsmoothing = 1;
 
 static float fogresult, ofogresult, fogcol[4];
 

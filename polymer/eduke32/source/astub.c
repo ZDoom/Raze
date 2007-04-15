@@ -1770,16 +1770,16 @@ static void Keys3d(void)
             dax = wall[searchwall].x-wall[wall[searchwall].point2].x;
             day = wall[searchwall].y-wall[wall[searchwall].point2].y;
             dist = ksqrt(dax*dax+day*day);
-            Bsprintf(msgbuf,"Wall %d: length:%ld lo:%d hi:%d",searchwall,dist,wall[searchwall].lotag,wall[searchwall].hitag);
+            Bsprintf(msgbuf,"Wall %d: length:%ld lo:%d hi:%d ex:%d",searchwall,dist,wall[searchwall].lotag,wall[searchwall].hitag,wall[searchwall].extra);
             _message(msgbuf);
             break;
         }
         case 1:
-            Bsprintf(msgbuf,"Sector %d ceiling: lo:%s hi:%d",searchsector,ExtGetSectorCaption(searchsector),sector[searchsector].hitag);
+            Bsprintf(msgbuf,"Sector %d ceiling: lo:%s hi:%d ex:%d",searchsector,ExtGetSectorCaption(searchsector),sector[searchsector].hitag,sector[searchsector].extra);
             _message(msgbuf);
             break;
         case 2:
-            Bsprintf(msgbuf,"Sector %d floor: lo:%s hi:%d",searchsector,ExtGetSectorCaption(searchsector),sector[searchsector].hitag);
+            Bsprintf(msgbuf,"Sector %d floor: lo:%s hi:%d ex:%d",searchsector,ExtGetSectorCaption(searchsector),sector[searchsector].hitag,sector[searchsector].extra);
             _message(msgbuf);
             break;
         case 3:
@@ -1787,7 +1787,7 @@ static void Keys3d(void)
             if (strlen(names[sprite[searchwall].picnum]) > 0)
             {
                 if (sprite[searchwall].picnum==SECTOREFFECTOR)
-                    Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d",searchwall,SectorEffectorText(searchwall),sprite[searchwall].lotag,sprite[searchwall].hitag);
+                    Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",searchwall,SectorEffectorText(searchwall),sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
                 else Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",searchwall,names[sprite[searchwall].picnum],sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
             }
             else Bsprintf(msgbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",searchwall,sprite[searchwall].picnum,sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
@@ -3014,9 +3014,7 @@ static void Keys3d(void)
     clockcnt = ((clockcnt+1)&15);
 
     tempbuf[0] = 0;
-    if ((bstatus&4) && (bstatus&2))
-        Bsprintf(tempbuf,"PAN");
-    else if (bstatus&4)
+    if (bstatus&4)
     {
         if (bstatus&1) Bsprintf(tempbuf,"VIEW");
         else Bsprintf(tempbuf,"SHADE");
@@ -3573,7 +3571,7 @@ static void Keys2d(void)
             if (strlen(names[sprite[i].picnum]) > 0)
             {
                 if (sprite[i].picnum==SECTOREFFECTOR)
-                    Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d",i,SectorEffectorText(i),sprite[i].lotag,sprite[i].hitag);
+                    Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",i,SectorEffectorText(i),sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
                 else Bsprintf(tmpbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",i,names[sprite[i].picnum],sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
             }
             else Bsprintf(tmpbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",i,sprite[i].picnum,sprite[i].lotag,sprite[i].hitag,sprite[i].extra);
@@ -3585,12 +3583,12 @@ static void Keys2d(void)
             dax = wall[linehighlight].x-wall[wall[linehighlight].point2].x;
             day = wall[linehighlight].y-wall[wall[linehighlight].point2].y;
             dist = ksqrt(dax*dax+day*day);
-            Bsprintf(tempbuf,"Wall %d: length:%ld lo:%d hi:%d",linehighlight,dist,wall[linehighlight].lotag,wall[linehighlight].hitag);
+            Bsprintf(tempbuf,"Wall %d: length:%ld lo:%d hi:%d ex:%d",linehighlight,dist,wall[linehighlight].lotag,wall[linehighlight].hitag,wall[linehighlight].extra);
             _printmessage16(tempbuf);
         }
         else if (cursectornum >= 0)
         {
-            Bsprintf(tempbuf,"Sector %d: lo:%d hi:%d",cursectornum,sector[cursectornum].lotag,sector[cursectornum].hitag);
+            Bsprintf(tempbuf,"Sector %d: lo:%d hi:%d ex:%d",cursectornum,sector[cursectornum].lotag,sector[cursectornum].hitag,sector[cursectornum].extra);
             _printmessage16(tempbuf);
         }
         else _printmessage16("");

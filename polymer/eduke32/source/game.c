@@ -52,7 +52,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20070321
+#define BUILDDATE 20070413
 #define UPDATEINTERVAL 86400 // 24h
 #endif
 
@@ -82,8 +82,9 @@ static struct strllist
 
 char boardfilename[BMAX_PATH] = {0};
 char waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768], animpal[768];
-char firstdemofile[80] = { '\0' };
-int display_bonus_screen = 1, userconfiles = 0;
+static char firstdemofile[80] = { '\0' };
+int display_bonus_screen = 1;
+static int userconfiles = 0;
 
 static int netparamcount = 0;
 static char **netparam = NULL;
@@ -105,9 +106,9 @@ static int nomorelogohack;
 static int sendmessagecommand = -1;
 
 char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
-char defaultconfilename[BMAX_PATH] = {"EDUKE.CON"};
 char *duke3dgrp = defaultduke3dgrp;
-char *confilename = defaultconfilename;
+static char defaultconfilename[BMAX_PATH] = {"EDUKE.CON"};
+static char *confilename = defaultconfilename;
 static char *duke3ddef = "duke3d.def";
 
 extern long lastvisinc;
@@ -140,6 +141,10 @@ static void fakedomovethings(void);
 static void fakedomovethingscorrect(void);
 static int domovethings(void);
 static long playback(void);
+
+static char recbuf[180];
+
+extern void computergetinput(long snum, input *syn);
 
 enum
 {
@@ -377,7 +382,7 @@ inline int gametextpal(int x,int y,const char *t,int s,int p)
     return(gametext_(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1));
 }
 
-inline int mpgametext(int y,const char *t,int s,int dabits)
+static inline int mpgametext(int y,const char *t,int s,int dabits)
 {
     if (xdim >= 640 && ydim >= 480)
         return(gametext_(1,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
@@ -432,7 +437,6 @@ static void gamenumber(long x,long y,long n,char s)
 }
 #endif
 
-char recbuf[180];
 static void allowtimetocorrecterrorswhenquitting(void)
 {
     long i, j, oldtotalclock;
@@ -967,8 +971,6 @@ void getpackets(void)
     }
 }
 
-extern void computergetinput(long snum, input *syn);
-
 void faketimerhandler(void)
 {
     long i, j, k;
@@ -1443,12 +1445,9 @@ int inventory(spritetype *s)
     return 0;
 }
 
-int checkspriteflags(int iActor, int iType)
+inline int checkspriteflags(int iActor, int iType)
 {
-    int i;
-
-    i = (spriteflags[sprite[iActor].picnum]^actorspriteflags[iActor]);
-    if (i & iType) return 1;
+    if ((spriteflags[sprite[iActor].picnum]^actorspriteflags[iActor]) & iType) return 1;
     return 0;
 }
 
@@ -1741,14 +1740,11 @@ static void weapon_amounts(struct player_struct *p,long x,long y,long u)
 
 static void digitalnumber(long x,long y,long n,char s,char cs)
 {
-
-    short i, j, k, p, c;
+    int i, j = 0, k, p, c;
     char b[10];
 
-    //ltoa(n,b,10);
     Bsnprintf(b,10,"%ld",n);
     i = Bstrlen(b);
-    j = 0;
 
     for (k=0;k<i;k++)
     {
@@ -1768,13 +1764,12 @@ static void digitalnumber(long x,long y,long n,char s,char cs)
 
 void txdigitalnumber(int starttile, long x,long y,long n,int s,int pal,int cs,long x1, long y1, long x2, long y2)
 {
-    int i, j, k, p, c;
+    int i, j = 0, k, p, c;
     char b[10];
 
     //ltoa(n,b,10);
     Bsnprintf(b,10,"%ld",n);
     i = Bstrlen(b);
-    j = 0;
 
     for (k=0;k<i;k++)
     {
@@ -1796,9 +1791,7 @@ void txdigitalnumber(int starttile, long x,long y,long n,int s,int pal,int cs,lo
 
 static void displayinventory(struct player_struct *p)
 {
-    short n, j, xoff, y;
-
-    j = xoff = 0;
+    int n, j = 0, xoff = 0, y;
 
     n = (p->jetpack_amount > 0)<<3;
     if (n&8) j++;
@@ -1825,9 +1818,9 @@ static void displayinventory(struct player_struct *p)
 
     if (ud.screen_size == 4 && ud.drawweapon != 2)
     {
+        xoff += 65;
         if (ud.multimode > 1)
-            xoff += 56;
-        else xoff += 65;
+            xoff -= 9;
     }
 
     while (j <= 9)
@@ -1871,9 +1864,7 @@ static void displayinventory(struct player_struct *p)
 
 void displayfragbar(void)
 {
-    short i, j;
-
-    j = 0;
+    int i, j = 0;
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
         if (i > j) j = i;
@@ -1896,15 +1887,14 @@ void displayfragbar(void)
 static void coolgaugetext(int snum)
 {
     struct player_struct *p = &ps[snum];
-    long i, j, o, ss, u;
+    long i, j, o, ss = ud.screen_size, u;
     int permbit = 0;
+
+    if (ss < 4) return;
 
     if (ps[snum].gm&MODE_MENU)
         if ((current_menu >= 400  && current_menu <= 405))
             return;
-
-    ss = ud.screen_size;
-    if (ss < 4) return;
 
     if (getrendermode() >= 3) pus = NUMPAGES;	// JBF 20040101: always redraw in GL
 
@@ -2321,10 +2311,9 @@ static long frameval[AVERAGEFRAMES], framecnt = 0;
 
 static void tics(void)
 {
-    long i,j;
+    long i = totalclock,j;
     char b[10];
 
-    i = totalclock;
     if (i != frameval[framecnt])
     {
         j=(timer*AVERAGEFRAMES)/(i-frameval[framecnt]);
@@ -2371,10 +2360,10 @@ static void coords(int snum)
 
     if ((gametype_flags[ud.coop] & GAMETYPE_FLAG_FRAGBAR))
     {
-        if (ud.multimode > 1 && ud.multimode < 5)
-            y = 16;
-        else if (ud.multimode > 4)
+        if (ud.multimode > 4)
             y = 24;
+        else if (ud.multimode > 1)
+            y = 16;
     }
     sprintf(tempbuf,"X= %ld",ps[snum].posx);
     printext256(250L,y,31,-1,tempbuf,0);
@@ -2404,10 +2393,10 @@ static void coords(int snum)
 
 static void operatefta(void)
 {
-    long i, j, k, l;
+    long i, j = 200-45, k, l;
 
-    if (ud.screen_size > 0) j = 200-45;
-    else j = 200-8;
+    if (ud.screen_size < 1) j = 200-8;
+
     quotebot = min(quotebot,j);
     quotebotgoal = min(quotebotgoal,j);
     if (ps[myconnectindex].gm&MODE_TYPE) j -= 8;
@@ -3835,9 +3824,8 @@ static void SE40_Draw(int spnum,long x,long y,long z,int a,int h,long smoothrati
 
 void se40code(long x,long y,long z,long a,long h, long smoothratio)
 {
-    int i;
+    int i= headspritestat[15];
 
-    i = headspritestat[15];
     while (i >= 0)
     {
         int t = sprite[i].lotag;
@@ -8209,7 +8197,7 @@ static void comlinehelp(void)
               "-map FILE\tUse user map FILE\n"
               "-name NAME\tUse NAME as multiplayer name\n"
               "-nD\t\tDump default gamevars to gamevars.txt\n"
-              "-net PARAMETERS\tEnable network play (see documentation for PARAMETERS)\n"
+              "-net PARAMETERS\tEnable network play (see documentation for parameters)\n"
               "-nm\t\tDisable music\n"
               "-ns\t\tDisable sound\n"
               "-qNUM\t\tUse NUM players for fake multiplayer (2-8)\n"
@@ -8465,8 +8453,8 @@ static int loadgroupfiles(const char *fn)
         {
             { "include",         T_INCLUDE          },
             { "#include",        T_INCLUDE          },
-            { "loadgrp",         T_LOADGRP },
-            { "cachesize",       T_CACHESIZE },
+            { "loadgrp",         T_LOADGRP          },
+            { "cachesize",       T_CACHESIZE        },
         };
 
     script = scriptfile_fromfile((char *)fn);
@@ -9013,9 +9001,8 @@ static void checkcommandline(int argc,char **argv)
 
 static void Logo(void)
 {
-    short soundanm;
+    int soundanm = 0;
     long logoflags=GetGameVar("LOGO_FLAGS",255, -1, -1);
-    soundanm = 0;
 
     ready2send = 0;
 
@@ -9998,7 +9985,7 @@ void app_main(int argc,char **argv)
         initprintf("Using group file '%s' as main group file.\n", duke3dgrp);
 
     getfilenames("autoload","*.grp");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
     getfilenames("autoload","*.zip");
     while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
     getfilenames("autoload","*.pk3");

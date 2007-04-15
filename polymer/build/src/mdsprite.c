@@ -911,8 +911,7 @@ static void updateanimation (md2model *m, spritetype *tspr)
         }
     }
 
-    if (anim && ((long)spriteext[tspr->owner].mdanimcur) != anim->startframe ||
-            (spriteext[tspr->owner].flags & SPREXT_NOMDANIM))
+    if (anim && (((long)spriteext[tspr->owner].mdanimcur) != anim->startframe || (spriteext[tspr->owner].flags & SPREXT_NOMDANIM)))
     {
         //if (spriteext[tspr->owner].flags & SPREXT_NOMDANIM) OSD_Printf("SPREXT_NOMDANIM\n");
         //OSD_Printf("smooth launched ! oldanim %i new anim %i\n", spriteext[tspr->owner].mdanimcur, anim->startframe);
@@ -1428,7 +1427,7 @@ static int md3draw (md3model *m, spritetype *tspr)
     //PLAG : sorting stuff
     unsigned short      tempus;
     void*               vbotemp;
-    point3d*            vertexhandle;
+    point3d*            vertexhandle = NULL;
     unsigned short*     indexhandle;
 
     if (r_vbos && (m->vbos == NULL))
