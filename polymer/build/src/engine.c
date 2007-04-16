@@ -8316,8 +8316,15 @@ long hitscan(long xs, long ys, long zs, short sectnum, long vx, long vy, long vz
                 if ((cstat&64) != 0)
                     if ((zs > intz) == ((cstat&8)==0)) continue;
 
+#if 1           // Abyss crash prevention code ((intz-zs)*zx overflowing a 8-bit word)
+                zz=(long)((intz-zs)*vx);
+                intx = xs+scale(zz,1,vz);
+                zz=(long)((intz-zs)*vy);
+                inty = ys+scale(zz,1,vz);
+#else
                 intx = xs+scale(intz-zs,vx,vz);
                 inty = ys+scale(intz-zs,vy,vz);
+#endif
 
                 if (klabs(intx-xs)+klabs(inty-ys) > klabs((*hitx)-xs)+klabs((*hity)-ys)) continue;
 
