@@ -5015,7 +5015,7 @@ void polymost_fillpolygon (long npoints)
 long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen)
 {
 #ifdef USE_OPENGL
-    float xdime, ydime, xdimepad, ydimepad, scx, scy;
+    float xdime, ydime, xdimepad, ydimepad, scx, scy, ratio = 1.0;
     long i;
     pthtyp *pth;
 
@@ -5048,6 +5048,9 @@ long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen)
 
     bglDisable(GL_ALPHA_TEST);
 
+    if (scx > scy) ratio = dimen/scx;
+    else ratio = dimen/scy;
+
     if (!pth || (pth->flags & 8)) {
         bglDisable(GL_TEXTURE_2D);
         bglBegin(GL_TRIANGLE_FAN);
@@ -5062,9 +5065,9 @@ long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen)
                        (float)britable[curbrightness][ curpalette[255].b ] / 255.0,
                        1);
         bglVertex2f((float)tilex    ,(float)tiley    );
-        bglVertex2f((float)tilex+scx,(float)tiley    );
-        bglVertex2f((float)tilex+scx,(float)tiley+scy);
-        bglVertex2f((float)tilex    ,(float)tiley+scy);
+        bglVertex2f((float)tilex+(scx*ratio),(float)tiley    );
+        bglVertex2f((float)tilex+(scx*ratio),(float)tiley+(scy*ratio));
+        bglVertex2f((float)tilex    ,(float)tiley+(scy*ratio));
         bglEnd();
     }
 
@@ -5073,9 +5076,9 @@ long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen)
     bglEnable(GL_BLEND);
     bglBegin(GL_TRIANGLE_FAN);
     bglTexCoord2f(       0,       0); bglVertex2f((float)tilex    ,(float)tiley    );
-    bglTexCoord2f(xdimepad,       0); bglVertex2f((float)tilex+scx,(float)tiley    );
-    bglTexCoord2f(xdimepad,ydimepad); bglVertex2f((float)tilex+scx,(float)tiley+scy);
-    bglTexCoord2f(       0,ydimepad); bglVertex2f((float)tilex    ,(float)tiley+scy);
+    bglTexCoord2f(xdimepad,       0); bglVertex2f((float)tilex+(scx*ratio),(float)tiley    );
+    bglTexCoord2f(xdimepad,ydimepad); bglVertex2f((float)tilex+(scx*ratio),(float)tiley+(scy*ratio));
+    bglTexCoord2f(       0,ydimepad); bglVertex2f((float)tilex    ,(float)tiley+(scy*ratio));
     bglEnd();
 
     return(0);
