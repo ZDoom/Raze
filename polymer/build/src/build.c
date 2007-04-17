@@ -90,8 +90,8 @@ short brightness = 0;
 long zlock = 0x7fffffff, zmode = 0, whitecol, kensplayerheight = 32;
 short defaultspritecstat = 0;
 
-static short localartfreq[MAXTILES];
-static short localartlookup[MAXTILES], localartlookupnum;
+short localartfreq[MAXTILES];
+short localartlookup[MAXTILES], localartlookupnum;
 
 char tempbuf[4096];
 

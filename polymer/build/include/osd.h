@@ -55,7 +55,7 @@ void OSD_ResizeDisplay(int w,int h);
 void OSD_CaptureInput(int cap);
 
 // sets the console version string
-void OSD_SetVersionString(const char *version);
+void OSD_SetVersionString(const char *version, int shade, int pal);
 
 // shows or hides the onscreen display
 void OSD_ShowDisplay(int onf);

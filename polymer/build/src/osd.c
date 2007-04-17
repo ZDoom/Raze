@@ -44,6 +44,8 @@ static void _internal_onshowosd(int);
 static char osdtext[TEXTSIZE];
 static char osdversionstring[32];
 static int  osdversionstringlen;
+static int  osdversionstringshade;
+static int  osdversionstringpal;
 static int  osdpos=0;			// position next character will be written at
 static int  osdlines=1;			// # lines of text in the buffer
 static int  osdrows=20;			// # lines of the buffer that are visible
@@ -773,7 +775,7 @@ void OSD_Draw(void)
     clearbackground(osdcols,osdrowscur+1);
     
     if (osdversionstring[0])
-        drawosdstr(osdcols-osdversionstringlen,osdrowscur,osdversionstring,osdversionstringlen,0,2);
+        drawosdstr(osdcols-osdversionstringlen,osdrowscur,osdversionstring,osdversionstringlen,osdversionstringshade,osdversionstringpal);
        
     for (; lines>0; lines--, row--) {
         drawosdstr(0,row,osdtext+topoffs,osdcols,osdtextshade,osdtextpal);
@@ -1051,12 +1053,14 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 //
 // OSD_SetVersionString()
 //
-void OSD_SetVersionString(const char *version)
+void OSD_SetVersionString(const char *version, int shade, int pal)
 {
     if (!osdinited) OSD_Init();
 
-    strcpy(osdversionstring,version);
-    osdversionstringlen = strlen(osdversionstring);
+    Bstrcpy(osdversionstring,version);
+    osdversionstringlen = Bstrlen(osdversionstring);
+    osdversionstringshade = shade;
+    osdversionstringpal = pal;
 }
 
 //

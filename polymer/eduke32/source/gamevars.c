@@ -28,6 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern int g_i,g_p;
 
+static void ResetPointerVars(void);
+
 static void FreeGameVars(void)
 {
     // call this function as many times as needed.
@@ -128,6 +130,8 @@ int ReadGameVars(long fil)
         }
         // else nothing 'extra...'
     }
+
+    ResetPointerVars();
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
@@ -1256,3 +1260,75 @@ void InitGameVarPointers(void)
     }
 }
 
+static void ResetPointerVars(void)
+{
+    aGameVars[GetGameID("RESPAWN_MONSTERS")].lValue = (long)&ud.respawn_monsters;
+    aGameVars[GetGameID("RESPAWN_ITEMS")].lValue = (long)&ud.respawn_items;
+    aGameVars[GetGameID("RESPAWN_INVENTORY")].lValue = (long)&ud.respawn_inventory;
+    aGameVars[GetGameID("MONSTERS_OFF")].lValue = (long)&ud.monsters_off;
+    aGameVars[GetGameID("MARKER")].lValue = (long)&ud.marker;
+    aGameVars[GetGameID("FFIRE")].lValue = (long)&ud.ffire;
+    aGameVars[GetGameID("LEVEL")].lValue = (long)&ud.level_number;
+    aGameVars[GetGameID("VOLUME")].lValue = (long)&ud.volume_number;
+
+    aGameVars[GetGameID("COOP")].lValue = (long)&ud.coop;
+    aGameVars[GetGameID("MULTIMODE")].lValue = (long)&ud.multimode;
+
+    aGameVars[GetGameID("myconnectindex")].lValue =  (long)&myconnectindex;
+    aGameVars[GetGameID("screenpeek")].lValue =  (long)&screenpeek;
+    aGameVars[GetGameID("currentweapon")].lValue = (long)&g_currentweapon;
+    aGameVars[GetGameID("gs")].lValue = (long)&g_gs;
+    aGameVars[GetGameID("looking_arc")].lValue = (long)&g_looking_arc;
+    aGameVars[GetGameID("gun_pos")].lValue = (long)&g_gun_pos;
+    aGameVars[GetGameID("weapon_xoffset")].lValue = (long)&g_weapon_xoffset;
+    aGameVars[GetGameID("weaponcount")].lValue = (long)&g_kb;
+    aGameVars[GetGameID("looking_angSR1")].lValue = (long)&g_looking_angSR1;
+    aGameVars[GetGameID("xdim")].lValue = (long)&xdim;
+    aGameVars[GetGameID("ydim")].lValue = (long)&ydim;
+    aGameVars[GetGameID("windowx1")].lValue = (long)&windowx1;
+    aGameVars[GetGameID("windowx2")].lValue = (long)&windowx2;
+    aGameVars[GetGameID("windowy1")].lValue = (long)&windowy1;
+    aGameVars[GetGameID("windowy2")].lValue = (long)&windowy2;
+    aGameVars[GetGameID("totalclock")].lValue = (long)&totalclock;
+    aGameVars[GetGameID("lastvisinc")].lValue = (long)&lastvisinc;
+    aGameVars[GetGameID("numsectors")].lValue = (long)&numsectors;
+    aGameVars[GetGameID("numplayers")].lValue = (long)&numplayers;
+    aGameVars[GetGameID("viewingrange")].lValue = (long)&viewingrange;
+    aGameVars[GetGameID("yxaspect")].lValue = (long)&yxaspect;
+    aGameVars[GetGameID("gravitationalconstant")].lValue = (long)&gc;
+    aGameVars[GetGameID("gametype_flags")].lValue = (long)&gametype_flags[ud.coop];
+    aGameVars[GetGameID("framerate")].lValue = (long)&framerate;
+
+    aGameVars[GetGameID("camerax")].lValue = (long)&ud.camerax;
+    aGameVars[GetGameID("cameray")].lValue = (long)&ud.cameray;
+    aGameVars[GetGameID("cameraz")].lValue = (long)&ud.cameraz;
+    aGameVars[GetGameID("cameraang")].lValue = (long)&ud.cameraang;
+    aGameVars[GetGameID("camerahoriz")].lValue = (long)&ud.camerahoriz;
+    aGameVars[GetGameID("camerasect")].lValue = (long)&ud.camerasect;
+
+    aGameVars[GetGameID("myx")].lValue = (long)&myx;
+    aGameVars[GetGameID("myy")].lValue = (long)&myy;
+    aGameVars[GetGameID("myz")].lValue = (long)&myz;
+    aGameVars[GetGameID("omyx")].lValue = (long)&omyx;
+    aGameVars[GetGameID("omyy")].lValue = (long)&omyy;
+    aGameVars[GetGameID("omyz")].lValue = (long)&omyz;
+    aGameVars[GetGameID("myxvel")].lValue = (long)&myxvel;
+    aGameVars[GetGameID("myyvel")].lValue = (long)&myyvel;
+    aGameVars[GetGameID("myzvel")].lValue = (long)&myzvel;
+
+    aGameVars[GetGameID("myhoriz")].lValue = (long)&myhoriz;
+    aGameVars[GetGameID("myhorizoff")].lValue = (long)&myhorizoff;
+    aGameVars[GetGameID("omyhoriz")].lValue = (long)&omyhoriz;
+    aGameVars[GetGameID("omyhorizoff")].lValue = (long)&omyhorizoff;
+    aGameVars[GetGameID("myang")].lValue = (long)&myang;
+    aGameVars[GetGameID("omyang")].lValue = (long)&omyang;
+    aGameVars[GetGameID("mycursectnum")].lValue = (long)&mycursectnum;
+    aGameVars[GetGameID("myjumpingcounter")].lValue = (long)&myjumpingcounter;
+
+    aGameVars[GetGameID("myjumpingtoggle")].lValue = (long)&myjumpingtoggle;
+    aGameVars[GetGameID("myonground")].lValue = (long)&myonground;
+    aGameVars[GetGameID("myhardlanding")].lValue = (long)&myhardlanding;
+    aGameVars[GetGameID("myreturntocenter")].lValue = (long)&myreturntocenter;
+
+    aGameVars[GetGameID("display_mirror")].lValue = (long)&display_mirror;
+}

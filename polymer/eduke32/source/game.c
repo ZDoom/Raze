@@ -102,7 +102,7 @@ extern int32 numlumps;
 static FILE *frecfilep = (FILE *)NULL;
 
 int restorepalette,screencapt;
-static int nomorelogohack;
+static int nomorelogohack, nologo = 0;
 static int sendmessagecommand = -1;
 
 char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
@@ -8715,6 +8715,12 @@ static void checkcommandline(int argc,char **argv)
                     i++;
                     continue;
                 }
+                if (!Bstrcasecmp(c+1,"nologo"))
+                {
+                    nologo = 1;
+                    i++;
+                    continue;
+                }
 #if !defined(_WIN32)
                 if (!Bstrcasecmp(c+1,"usecwd"))
                 {
@@ -9022,7 +9028,7 @@ static void Logo(void)
     MUSIC_StopSong();
     FX_StopAllSounds(); // JBF 20031228
     clearsoundlocks();  // JBF 20031228
-    if (ud.multimode < 2 && (logoflags & LOGO_FLAG_ENABLED))
+    if (ud.multimode < 2 && (logoflags & LOGO_FLAG_ENABLED) && !nologo)
     {
         if (VOLUMEALL && (logoflags & LOGO_FLAG_PLAYANIM))
         {
@@ -10064,7 +10070,7 @@ while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf(
     }
 
     if (quitevent) return;
-    if (!loaddefinitionsfile(duke3ddef)) initprintf("Definitions file loaded.\n");
+    if (!loaddefinitionsfile(duke3ddef)) initprintf("Definitions file '%s' loaded.\n",duke3ddef);
 
     //     initprintf("numplayers=%i\n",numplayers);
 
@@ -10119,7 +10125,7 @@ while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf(
         GAME_onshowosd
     );
     OSD_SetParameters(0,2, 0,0, 4,0);
-    OSD_SetVersionString(HEAD2);
+    OSD_SetVersionString(HEAD2,0,2);
     registerosdcommands();
 
     if (setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP) < 0)

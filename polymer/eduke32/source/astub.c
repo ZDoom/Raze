@@ -36,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "types.h"
 #include "keyboard.h"
 #include "scriptfile.h"
+#include "crc32.h"
 
 #define VERSION " 1.1.0 svn"
 
@@ -56,91 +57,96 @@ static struct strllist
 *CommandPaths = NULL;
 
 #define MAXHELP2D (signed int)(sizeof(Help2d)/sizeof(Help2d[0]))
-static char *Help2d[]= {
-                    " 'A = Autosave toggle",
-                    " 'J = Jump to location",
-                    " 'L = Adjust sprite/wall coords",
-                    " 'S = Sprite size",
-                    " '3 = Caption mode",
-                    " '7 = Swap tags",
-                    " 'F = Special functions",
-                    " X  = Horiz. flip selected sects",
-                    " Y  = Vert. flip selected sects",
-                    " F5 = Item count",
-                    " F6 = Actor count/SE help",
-                    " F7 = Edit sector",
-                    " F8 = Edit wall/sprite",
-                    " F9 = Sector tag help",
-                    " Ctrl-S = Quick save",
-                    " Alt-F7 = Search sector lotag",
-                    " Alt-F8 = Search wall/sprite tags",
-                    " [      = Search forward",
-                    " ]      = Search backward",
-                };
+static char *Help2d[]=
+    {
+        " 'A = Autosave toggle",
+        " 'J = Jump to location",
+        " 'L = Adjust sprite/wall coords",
+        " 'S = Sprite size",
+        " '3 = Caption mode",
+        " '7 = Swap tags",
+        " 'F = Special functions",
+        " X  = Horiz. flip selected sects",
+        " Y  = Vert. flip selected sects",
+        " F5 = Item count",
+        " F6 = Actor count/SE help",
+        " F7 = Edit sector",
+        " F8 = Edit wall/sprite",
+        " F9 = Sector tag help",
+        " Ctrl-S = Quick save",
+        " Alt-F7 = Search sector lotag",
+        " Alt-F8 = Search wall/sprite tags",
+        " [      = Search forward",
+        " ]      = Search backward",
+    };
 
-static char *SpriteMode[]= {
-                        "NONE",
-                        "SECTORS",
-                        "WALLS",
-                        "SPRITES",
-                        "ALL",
-                        "ITEMS ONLY",
-                        "CURRENT SPRITE ONLY",
-                        "ONLY SECTOREFFECTORS AND SECTORS",
-                        "NO SECTOREFFECTORS OR SECTORS"
-                    };
+static char *SpriteMode[]=
+    {
+        "NONE",
+        "SECTORS",
+        "WALLS",
+        "SPRITES",
+        "ALL",
+        "ITEMS ONLY",
+        "CURRENT SPRITE ONLY",
+        "ONLY SECTOREFFECTORS AND SECTORS",
+        "NO SECTOREFFECTORS OR SECTORS"
+    };
 
 #define MAXSKILL 5
-static char *SKILLMODE[MAXSKILL]= {
-                               "Actor skill display: PIECE OF CAKE",
-                               "Actor skill display: LET'S ROCK",
-                               "Actor skill display: COME GET SOME",
-                               "Actor skill display: DAMN I'M GOOD",
-                               "Actor skill display: ALL SKILL LEVELS"
-                           };
+static char *SKILLMODE[MAXSKILL]=
+    {
+        "Actor skill display: PIECE OF CAKE",
+        "Actor skill display: LET'S ROCK",
+        "Actor skill display: COME GET SOME",
+        "Actor skill display: DAMN I'M GOOD",
+        "Actor skill display: ALL SKILL LEVELS"
+    };
 
 #define MAXNOSPRITES 4
-static char *SPRDSPMODE[MAXNOSPRITES]= {
-                                    "Sprite display: DISPLAY ALL SPRITES",
-                                    "Sprite display: NO EFFECTORS",
-                                    "Sprite display: NO ACTORS",
-                                    "Sprite display: NO EFFECTORS OR ACTORS"
-                                };
+static char *SPRDSPMODE[MAXNOSPRITES]=
+    {
+        "Sprite display: DISPLAY ALL SPRITES",
+        "Sprite display: NO EFFECTORS",
+        "Sprite display: NO ACTORS",
+        "Sprite display: NO EFFECTORS OR ACTORS"
+    };
 
 #define MAXHELP3D (signed int)(sizeof(Help3d)/sizeof(Help3d[0]))
-static char *Help3d[]= {
-                    "Mapster32 3D mode help",
-                    " ",
-                    " F1 = TOGGLE THIS HELP DISPLAY",
-                    " F2 = TOGGLE CLIPBOARD",
-                    " F3 = MOUSELOOK",
-                    " F6 = AUTOMATIC SECTOREFFECTOR HELP",
-                    " F7 = AUTOMATIC SECTOR TAG HELP",
-                    "",
-                    " ' A = TOGGLE AUTOSAVE",
-                    " ' D = CYCLE SPRITE SKILL DISPLAY",
-                    " ' G = TOGGLE CLIPBOARD GRAPHIC DISPLAY",
-                    " ' R = TOGGLE FRAMERATE DISPLAY",
-                    " ' W = TOGGLE SPRITE DISPLAY",
-                    " ' X = SPRITE SHADE PREVIEW",
-                    " ' Y = TOGGLE PURPLE BACKGROUND",
-                    "",
-                    " ' T = CHANGE LOTAG",
-                    " ' H = CHANGE HITAG",
-                    " ' S = CHANGE SHADE",
-                    " ' M = CHANGE EXTRA",
-                    " ' V = CHANGE VISIBILITY",
-                    " ' L = CHANGE OBJECT COORDINATES",
-                    " ' C = CHANGE GLOBAL SHADE",
-                    "",
-                    " ' ENTER = PASTE GRAPHIC ONLY",
-                    " ' P & ; P = PASTE PALETTE TO ALL SELECTED SECTORS",
-                    " ; V = SET VISIBILITY ON ALL SELECTED SECTORS",
-                    " ' DEL = CSTAT=0",
-                    " CTRL-S = SAVE BOARD",
-                    " HOME = PGUP/PGDN MODIFIER (256 UNITS)",
-                    " END = PGUP/PGDN MODIFIER (512 UNITS)",
-                };
+static char *Help3d[]=
+    {
+        "Mapster32 3D mode help",
+        " ",
+        " F1 = TOGGLE THIS HELP DISPLAY",
+        " F2 = TOGGLE CLIPBOARD",
+        " F3 = MOUSELOOK",
+        " F6 = AUTOMATIC SECTOREFFECTOR HELP",
+        " F7 = AUTOMATIC SECTOR TAG HELP",
+        "",
+        " ' A = TOGGLE AUTOSAVE",
+        " ' D = CYCLE SPRITE SKILL DISPLAY",
+        " ' G = TOGGLE CLIPBOARD GRAPHIC DISPLAY",
+        " ' R = TOGGLE FRAMERATE DISPLAY",
+        " ' W = TOGGLE SPRITE DISPLAY",
+        " ' X = SPRITE SHADE PREVIEW",
+        " ' Y = TOGGLE PURPLE BACKGROUND",
+        "",
+        " ' T = CHANGE LOTAG",
+        " ' H = CHANGE HITAG",
+        " ' S = CHANGE SHADE",
+        " ' M = CHANGE EXTRA",
+        " ' V = CHANGE VISIBILITY",
+        " ' L = CHANGE OBJECT COORDINATES",
+        " ' C = CHANGE GLOBAL SHADE",
+        "",
+        " ' ENTER = PASTE GRAPHIC ONLY",
+        " ' P & ; P = PASTE PALETTE TO ALL SELECTED SECTORS",
+        " ; V = SET VISIBILITY ON ALL SELECTED SECTORS",
+        " ' DEL = CSTAT=0",
+        " CTRL-S = SAVE BOARD",
+        " HOME = PGUP/PGDN MODIFIER (256 UNITS)",
+        " END = PGUP/PGDN MODIFIER (512 UNITS)",
+    };
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int numdirs=0, numfiles=0;
@@ -1671,10 +1677,718 @@ static int AskIfSure(void)
     return(retval);
 }
 
+static long IsValidTile(const long idTile)
+{
+    long bValid = 0;
+
+    if ((idTile >= 0) && (idTile < MAXTILES))
+    {
+        if ((tilesizx[idTile] != 0) && (tilesizy[idTile] != 0))
+        {
+            bValid = 1;
+        }
+    }
+
+    return bValid;
+}
+
+static long SelectAllTiles(long iCurrentTile)
+{
+    long i;
+
+    if (iCurrentTile < localartlookupnum)
+    {
+        iCurrentTile = localartlookup[iCurrentTile];
+    }
+    else
+    {
+        iCurrentTile = 0;
+    }
+
+    localartlookupnum = MAXTILES;
+
+    for (i = 0; i < MAXTILES; i++)
+    {
+        localartlookup[i] = i;
+        localartfreq[i] = 0;
+    }
+
+    return iCurrentTile;
+}
+
+static long OnGotoTile(long iTile);
+static long OnSelectTile(long iTile);
+
+
+static long DrawTiles(long iTopLeft, long iSelected, long nXTiles, long nYTiles, long TileDim);
+
+
+static long m32gettile(long idInitialTile)
+{
+    static long s_Zoom = INITIAL_ZOOM;
+    long gap, temp;
+    long nXTiles, nYTiles, nDisplayedTiles;
+    long i;
+    long iTile, iTopLeftTile;
+    long idSelectedTile;
+    long j;
+    char ch, szTemp[128];
+
+
+// Enable following line for testing. I couldn't work out how to change vidmode on the fly
+// s_Zoom = NUM_ZOOMS - 1;
+
+    if (idInitialTile < 0)
+    {
+        idInitialTile = 0;
+    }
+    else if (idInitialTile >= MAXTILES)
+    {
+        idInitialTile = MAXTILES - 1;
+    }
+
+    // Ensure zoom not to big (which can happen if display size
+    //   changes whilst Mapster is running)
+    do
+    {
+        nXTiles = xdim / ZoomToThumbSize[s_Zoom];
+        nYTiles = ydim / ZoomToThumbSize[s_Zoom];
+        nDisplayedTiles  = nXTiles * nYTiles;
+
+        if (0 == nDisplayedTiles)
+        {
+            // Eh-up, resolution changed since we were last displaying tiles.
+            s_Zoom--;
+        }
+    }
+    while (0 == nDisplayedTiles) ;
+
+    keystatus[0x2F] = 0;
+
+    for (i = 0; i < MAXTILES; i++)
+    {
+        localartfreq[i] = 0;
+
+        localartlookup[i] = i;
+    }
+
+    iTile = idSelectedTile = idInitialTile;
+
+    switch (searchstat)
+    {
+    case 0 :
+        for (i = 0; i < numwalls; i++)
+        {
+            localartfreq[ wall[i].picnum ]++;
+        }
+        break;
+
+    case 1 :
+    case 2 :
+        for (i = 0; i < numsectors; i++)
+        {
+            localartfreq[ sector[i].ceilingpicnum ]++;
+            localartfreq[ sector[i].floorpicnum ]++;
+        }
+        break;
+
+    case 3 :
+        for (i=0;i<MAXSPRITES;i++)
+        {
+            if (sprite[i].statnum < MAXSTATUS)
+            {
+                localartfreq[ sprite[i].picnum ]++;
+            }
+        }
+        break;
+
+    case 4 :
+        for (i = 0; i < numwalls; i++)
+        {
+            localartfreq[ wall[i].overpicnum ]++;
+        }
+        break;
+
+    default :
+        break;
+    }
+
+
+    //
+    //	Sort tiles into frequency order
+    //
+
+    gap = MAXTILES / 2;
+
+    do
+    {
+        for (i = 0; i < MAXTILES-gap; i++)
+        {
+            temp = i;
+
+            while ((localartfreq[temp] < localartfreq[temp+gap]) && (temp >= 0))
+            {
+                long templong;
+
+                templong = localartfreq[temp];
+                localartfreq[temp] = localartfreq[temp+gap];
+                localartfreq[temp+gap] = templong;
+
+                templong = localartlookup[temp];
+                localartlookup[temp] = localartlookup[temp+gap];
+                localartlookup[temp+gap] = templong;
+
+                if (iTile == temp)
+                {
+                    iTile = temp + gap;
+                }
+                else if (iTile == temp + gap)
+                {
+                    iTile = temp;
+                }
+
+                temp -= gap;
+            }
+        }
+        gap >>= 1;
+    }
+    while (gap > 0);
+
+    //
+    // Set up count of number of used tiles
+    //
+
+    localartlookupnum = 0;
+    while (localartfreq[localartlookupnum] > 0)
+    {
+        localartlookupnum++;
+    }
+
+    //
+    // Check : If no tiles used at all then switch to displaying all tiles
+    //
+
+    if (0 == localartfreq[0])
+    {
+        localartlookupnum = MAXTILES;
+
+        for (i = 0; i < MAXTILES; i++)
+        {
+            localartlookup[i] = i;
+            localartfreq[i] = 0; // Terrible bodge : zero tilefreq's not displayed in tile view. Still, when in Rome ... :-)
+        }
+
+        iTile = idInitialTile;
+    }
+
+    //
+    //
+    //
+
+    iTopLeftTile = iTile - (iTile % nXTiles);
+
+    if (iTopLeftTile < 0)
+    {
+        iTopLeftTile = 0;
+    }
+
+    if (iTopLeftTile > MAXTILES-nDisplayedTiles)
+    {
+        iTopLeftTile = MAXTILES-nDisplayedTiles;
+    }
+
+
+
+    ////////////////////////////////
+    // Start of key handling code //
+    ////////////////////////////////
+
+    while ((keystatus[0x1c]|keystatus[1]) == 0)	// <- Presumably one of these is escape key ???
+    {
+        DrawTiles(iTopLeftTile, iTile, nXTiles, nYTiles, ZoomToThumbSize[s_Zoom]);
+
+        if (handleevents())
+        {
+            if (quitevent) quitevent = 0;
+        }
+
+        // These two lines are so obvious I don't need to comment them ...;-)
+        synctics = totalclock-lockclock;
+        lockclock += synctics;
+
+        // Zoom in / out using numeric key pad's / and * keys
+        if (((keystatus[0xb5] > 0) && ((unsigned)s_Zoom < NUM_ZOOMS-1))
+                || ((keystatus[0x37] > 0) && (s_Zoom > 0)))
+        {
+            if (keystatus[0xb5])
+            {
+                keystatus[0xb5] = 0;
+
+                // Watch out : If editor window is small, then the next zoom level
+                //  might get so large that even one tile might not fit !
+                if ((ZoomToThumbSize[s_Zoom+1] <= xdim)
+                        && (ZoomToThumbSize[s_Zoom+1] <= ydim))
+                {
+                    // Phew, plenty of room.
+                    s_Zoom++;
+                }
+            }
+            else
+            {
+                keystatus[0x37] = 0;
+                s_Zoom--;
+            }
+
+            // Calculate new num of tiles to display
+            nXTiles = xdim / ZoomToThumbSize[s_Zoom];
+            nYTiles = ydim / ZoomToThumbSize[s_Zoom];
+            nDisplayedTiles  = nXTiles * nYTiles;
+
+            // Determine if the top-left displayed tile needs to
+            //   alter in order to display selected tile
+            iTopLeftTile = iTile - (iTile % nXTiles);
+
+            if (iTopLeftTile < 0)
+            {
+                iTopLeftTile = 0;
+            }
+            else if (iTopLeftTile > MAXTILES - nDisplayedTiles)
+            {
+                iTopLeftTile = MAXTILES - nDisplayedTiles;
+            }
+
+        }
+
+        // LEFT KEYPRESS
+        if (keystatus[0xcb] > 0)
+        {
+            iTile -= (iTile > 0);
+            keystatus[0xcb] = 0;
+        }
+
+        // RIGHT KEYPRESS
+        if (keystatus[0xcd] > 0)
+        {
+            iTile += (iTile < MAXTILES);
+            keystatus[0xcd] = 0;
+        }
+
+        // UP KEYPRESS
+        if (keystatus[0xc8] > 0)
+        {
+            iTile -= nXTiles;
+            keystatus[0xc8] = 0;
+        }
+
+        // DOWN KEYPRESS
+        if (keystatus[0xd0] > 0)
+        {
+            iTile += nXTiles;
+            keystatus[0xd0] = 0;
+        }
+
+        // PGUP KEYPRESS
+        if (keystatus[0xc9] > 0)
+        {
+            iTile -= nDisplayedTiles;
+            keystatus[0xc9] = 0;
+        }
+
+        // PGDOWN KEYPRESS
+        if (keystatus[0xd1] > 0)
+        {
+            iTile += nDisplayedTiles;
+            keystatus[0xd1] = 0;
+        }
+
+        //
+        // Ensure tilenum is within valid range
+        //
+
+        while (iTile < 0)
+        {
+            iTile += nXTiles;
+        }
+
+        while (iTile >= MAXTILES)	// shouldn't this be the count of num tiles ???
+        {
+            iTile -= nXTiles;
+        }
+
+        // 'V'  KEYPRESS
+        if (keystatus[0x2f] > 0)
+        {
+            keystatus[0x2f] = 0;
+
+            iTile = SelectAllTiles(iTile);
+        }
+
+        // 'G'  KEYPRESS - Goto frame
+        if (keystatus[0x22] > 0)
+        {
+            keystatus[0x22] = 0;
+
+            iTile = OnGotoTile(iTile);
+        }
+
+        // 'U'  KEYPRESS : go straight to user defined art
+        if (keystatus[0x16])
+        {
+            SelectAllTiles(iTile);
+
+            iTile = FIRST_USER_ART_TILE;
+        }
+
+        // 'A'  KEYPRESS : Go straight to start of Atomic edition's art
+        if (keystatus[0x1E])
+        {
+            SelectAllTiles(iTile);
+
+            iTile = FIRST_ATOMIC_TILE;
+        }
+
+        // 'T' KEYPRESS = Select from pre-defined tileset
+        if (keystatus[0x14])
+        {
+            keystatus[0x14] = 0;
+
+            iTile = OnSelectTile(iTile);
+        }
+
+        //
+        //	Adjust top-left to ensure tilenum is within displayed range of tiles
+        //
+
+        while (iTile < iTopLeftTile)
+        {
+            iTopLeftTile -= nXTiles;
+        }
+
+        while (iTile >= iTopLeftTile + nDisplayedTiles)
+        {
+            iTopLeftTile += nXTiles;
+        }
+
+        if (iTopLeftTile < 0)
+        {
+            iTopLeftTile = 0;
+        }
+
+        if (iTopLeftTile > MAXTILES - nDisplayedTiles)
+        {
+            iTopLeftTile = MAXTILES - nDisplayedTiles;
+        }
+
+        if (keystatus[0x1c] == 0)	// uh ? Not escape key ?
+        {
+            idSelectedTile = idInitialTile;
+        }
+        else
+        {
+            if (iTile < localartlookupnum)
+            {
+                // Convert tile num from index to actual tile num
+                idSelectedTile = localartlookup[iTile];
+
+                // Check : if invalid tile selected, return original tile num
+                if (!IsValidTile(idSelectedTile))
+                {
+                    idSelectedTile = idInitialTile;
+                }
+            }
+            else
+            {
+                idSelectedTile = idInitialTile;
+            }
+        }
+    }
+
+    keystatus[0x1] = 0;
+    keystatus[0x1c] = 0;
+
+    return(idSelectedTile);
+
+}
+
+// Dir = 0 (zoom out) or 1 (zoom in)
+//void OnZoomInOut( long *pZoom, long Dir /*0*/ )
+//{
+//}
+
+static long OnGotoTile(long iTile)
+{
+    long iTemp, iNewTile;
+    char ch;
+    char szTemp[128];
+
+    //Automatically press 'V'
+    iTile = SelectAllTiles(iTile);
+
+    bflushchars();
+
+    iNewTile = iTemp = iTile;
+
+    while (keystatus[1] == 0)
+    {
+        if (handleevents())
+        {
+            if (quitevent) quitevent = 0;
+        }
+
+        ch = bgetchar();
+
+        Bsprintf(szTemp, "Goto tile: %ld_ ", iNewTile);
+        printext256(0, 0, whitecol, 0, szTemp, 0);
+        showframe(1);
+
+        if (ch >= '0' && ch <= '9')
+        {
+            iTemp = (iNewTile*10) + (ch-'0');
+            if (iTemp < MAXTILES)
+            {
+                iNewTile = iTemp;
+            }
+        }
+        else if (ch == 8)
+        {
+            iNewTile /= 10;
+        }
+        else if (ch == 13)
+        {
+            iTile = iNewTile;
+            break;
+        }
+    }
+
+    clearkeys();
+
+    return iTile;
+}
+
+static long LoadTileSet(const long idCurrentTile, const long *pIds, const long nIds)
+{
+    long iNewTile = 0;
+    long i;
+
+    localartlookupnum = nIds;
+
+    for (i = 0; i < localartlookupnum; i++)
+    {
+        localartlookup[i] = pIds[i];
+        // REM : Could we still utilise localartfreq[] to mark
+        //  which tiles are currently used in the map ? Set to 0xFFFF perhaps ?
+        localartfreq[i] = 0;
+
+        if (idCurrentTile == pIds[i])
+        {
+            iNewTile = i;
+        }
+    }
+
+    return iNewTile;
+
+}
+
+static long OnSelectTile(long iTile)
+{
+    long bDone = 0;
+    long i, j;
+    char ch;
+
+    SelectAllTiles(iTile);
+
+    bflushchars();
+
+    begindrawing();
+    setpolymost2dview();
+    clearview(0);
+
+    //
+    // Display the description strings for each available tile group
+    //
+
+    for (i = 0; (unsigned)i < NUM_TILE_GROUPS; i++)
+    {
+        printext256(10L, (i+1)*16, whitecol, -1, s_TileGroups[i].szText, 0);
+    }
+    showframe(1);
+
+    //
+    //	Await appropriate selection keypress.
+    //
+
+    bDone = 0;
+
+    while (keystatus[1] == 0 && (0 == bDone))
+    {
+        if (handleevents())
+        {
+            if (quitevent) quitevent = 0;
+        }
+
+        ch = bgetchar();
+
+        for (i = 0; (unsigned)i < NUM_TILE_GROUPS; i++)
+        {
+            if ((ch == s_TileGroups[i].key1) || (ch == s_TileGroups[i].key2))
+            {
+                iTile = LoadTileSet(iTile, s_TileGroups[i].pIds, s_TileGroups[i].nIds);
+                bDone = 1;
+            }
+        }
+    }
+
+    enddrawing();
+    showframe(1);
+
+    clearkeys();
+
+    return iTile;
+}
+
+const char * GetTilePixels(const long idTile)
+{
+    char *pPixelData = 0;
+
+    if ((idTile >= 0) && (idTile < MAXTILES))
+    {
+        if (0 == waloff[idTile])
+        {
+            loadtile(idTile);
+        }
+
+        if (IsValidTile(idTile))
+        {
+            pPixelData = (char *)waloff[idTile];
+        }
+    }
+
+    return pPixelData;
+}
+
+#define PIXELS_PER_DISPLAY_LINE ylookup[1]
+
+static long DrawTiles(long iTopLeft, long iSelected, long nXTiles, long nYTiles, long TileDim)
+{
+    long XTile, YTile;
+    long iTile, idTile;
+    long XBox, YBox;
+    long XPos, YPos;
+    long XOffset, YOffset;
+    long i;
+    const char * pRawPixels;
+    long TileSizeX, TileSizeY;
+    long DivInc,MulInc;
+    char *pScreen;
+    char szT[128];
+
+    begindrawing();
+
+    setpolymost2dview();
+
+    clearview(0);
+
+    for (YTile = 0; YTile < nYTiles; YTile++)
+    {
+        for (XTile = 0; XTile < nXTiles; XTile++)
+        {
+            iTile = iTopLeft + XTile + (YTile * nXTiles);
+
+            if (iTile < localartlookupnum)
+            {
+                idTile = localartlookup[ iTile ];
+
+                // Get pointer to tile's raw pixel data
+                pRawPixels = GetTilePixels(idTile);
+
+                if (pRawPixels != NULL)
+                {
+                    XPos = XTile * TileDim;
+                    YPos = YTile * TileDim;
+
+                    if (polymost_drawtilescreen(XPos, YPos, idTile, TileDim))
+                    {
+                        TileSizeX = tilesizx[ idTile ];
+                        TileSizeY = tilesizy[ idTile ];
+
+                        DivInc = 1;
+                        MulInc = 1;
+
+                        while ((TileSizeX/DivInc > TileDim)
+                                || (TileSizeY/DivInc) > TileDim)
+                        {
+                            DivInc++;
+                        }
+
+                        if (1 == DivInc)
+                        {
+                            while (((TileSizeX*(MulInc+1)) <= TileDim)
+                                    && ((TileSizeY*(MulInc+1)) <= TileDim))
+                            {
+                                MulInc++;
+                            }
+                        }
+
+                        TileSizeX = (TileSizeX / DivInc) * MulInc;
+                        TileSizeY = (TileSizeY / DivInc) * MulInc;
+
+                        pScreen = (char *)ylookup[YPos]+XPos+frameplace;
+
+                        for (YOffset = 0; YOffset < TileSizeY; YOffset++)
+                        {
+                            for (XOffset = 0; XOffset < TileSizeX; XOffset++)
+                            {
+                                pScreen[XOffset] = pRawPixels[((YOffset * DivInc) / MulInc) + (((XOffset * DivInc) / MulInc) * tilesizy[idTile])];
+                            }
+
+                            pScreen += PIXELS_PER_DISPLAY_LINE;
+                        }
+                    }
+                    if (localartfreq[iTile] != 0)
+                    {
+                        Bsprintf(szT, "%d", localartfreq[iTile]);
+                        printext256(XPos, YPos, whitecol, -1, szT, 1);
+                    }
+                }
+            }
+        }
+    }
+
+    //
+    // Draw white box around currently selected tile
+    //
+
+    XBox = (iSelected % nXTiles) * TileDim;
+    YBox = ((iSelected - (iSelected % nXTiles) - iTopLeft) / nXTiles) * TileDim;
+
+    for (i = 0; i < TileDim; i++)
+    {
+        plotpixel(XBox+i,         YBox,           whitecol);
+        plotpixel(XBox+i,         YBox + TileDim, whitecol);
+        plotpixel(XBox,           YBox + i,       whitecol);
+        plotpixel(XBox + TileDim, YBox + i,       whitecol);
+    }
+
+    idTile = localartlookup[ iSelected ];
+
+    Bsprintf(szT, "%ld" , idTile);
+    printext256(0L, ydim-8, whitecol, -1, szT, 0);
+    printext256(xdim-(Bstrlen(names[idTile])<<3),ydim-8,whitecol,-1,names[idTile],0);
+
+    Bsprintf(szT,"%dx%d",tilesizx[idTile],tilesizy[idTile]);
+    printext256(xdim>>2,ydim-8,whitecol,-1,szT,0);
+
+    enddrawing();
+    showframe(1);
+
+    return(0);
+
+}
+
 static void Keys3d(void)
 {
     long i,count,rate,nexti;
-    long j, k, templong, changedir, hiz, loz;
+    long j, k, templong = 0, changedir, hiz, loz;
     long hitx, hity, hitz, hihit, lohit;
     long repeatcountx=0,repeatcounty=0;
     char smooshyalign=0, repeatpanalign=0, buffer[80];
@@ -1795,6 +2509,28 @@ static void Keys3d(void)
             break;
         }
         }
+    }
+
+    if (keystatus[0x2f] > 0)  //V
+    {
+        if (searchstat == 0) templong = wall[searchwall].picnum;
+        if (searchstat == 1) templong = sector[searchsector].ceilingpicnum;
+        if (searchstat == 2) templong = sector[searchsector].floorpicnum;
+        if (searchstat == 3) templong = sprite[searchwall].picnum;
+        if (searchstat == 4) templong = wall[searchwall].overpicnum;
+        templong = m32gettile(templong);
+        if (searchstat == 0) wall[searchwall].picnum = templong;
+        if (searchstat == 1) sector[searchsector].ceilingpicnum = templong;
+        if (searchstat == 2) sector[searchsector].floorpicnum = templong;
+        if (searchstat == 3) sprite[searchwall].picnum = templong;
+        if (searchstat == 4)
+        {
+            wall[searchwall].overpicnum = templong;
+            if (wall[searchwall].nextwall >= 0)
+                wall[wall[searchwall].nextwall].overpicnum = templong;
+        }
+        asksave = 1;
+        keystatus[0x2f] = 0;
     }
 
     if (keystatus[0x04] > 0)  /* 3 (toggle floor-over-floor (cduke3d only) */
@@ -4372,7 +5108,7 @@ int ExtPreInit(int argc,char **argv)
     wm_setapptitle("Mapster32"VERSION);
 
     OSD_SetLogFile("mapster32.log");
-    OSD_SetVersionString("Mapster32"VERSION);
+    OSD_SetVersionString("Mapster32"VERSION,0,2);
     initprintf("Mapster32"VERSION" ("__DATE__" "__TIME__")\n");
     initprintf("Copyright (c) 2007 EDuke32 team\n\n");
 
@@ -4414,6 +5150,277 @@ static int osdcmd_editorgridextent(const osdfuncparm_t *parm)
     else OSD_Printf("editorgridextent: value out of range\n");
     return OSDCMD_OK;
 }
+
+static int osdcmd_addpath(const osdfuncparm_t *parm)
+{
+    char pathname[BMAX_PATH];
+
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    strcpy(pathname,parm->parms[0]);
+    addsearchpath(pathname);
+    return OSDCMD_OK;
+}
+
+static int osdcmd_initgroupfile(const osdfuncparm_t *parm)
+{
+    char file[BMAX_PATH];
+
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    strcpy(file,parm->parms[0]);
+    initgroupfile(file);
+    return OSDCMD_OK;
+}
+
+static int osdcmd_echo(const osdfuncparm_t *parm)
+{
+    int i;
+    for (i = 0; i < parm->numparms; i++)
+    {
+        if (i > 0) OSD_Printf(" ");
+        OSD_Printf("%s", parm->parms[i]);
+    }
+    OSD_Printf("\n");
+
+    return OSDCMD_OK;
+}
+
+static int osdcmd_fileinfo(const osdfuncparm_t *parm)
+{
+    unsigned long crc, length;
+    int i,j;
+    char buf[256];
+
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    if ((i = kopen4load((char *)parm->parms[0],0)) < 0)
+    {
+        OSD_Printf("fileinfo: File \"%s\" not found.\n", parm->parms[0]);
+        return OSDCMD_OK;
+    }
+
+    length = kfilelength(i);
+
+    crc32init(&crc);
+    do
+    {
+        j = kread(i,buf,256);
+        crc32block(&crc,(unsigned char *)buf,j);
+    }
+    while (j == 256);
+    crc32finish(&crc);
+
+    kclose(i);
+
+    OSD_Printf("fileinfo: %s\n"
+               "  File size: %d\n"
+               "  CRC-32:    %08X\n",
+               parm->parms[0], length, crc);
+
+    return OSDCMD_OK;
+}
+
+static int osdcmd_sensitivity(const osdfuncparm_t *parm)
+{
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("\"sensitivity\" is \"%.2f\"\n",msens);
+        return OSDCMD_SHOWHELP;
+    }
+    msens = atof(parm->parms[0]);
+    OSD_Printf("sensitivity %.2f\n",msens);
+    return OSDCMD_OK;
+}
+
+static int osdcmd_gamma(const osdfuncparm_t *parm)
+{
+    extern short brightness;
+
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("\"gamma\" \"%d\"\n",brightness);
+        return OSDCMD_SHOWHELP;
+    }
+    brightness = atoi(parm->parms[0]);
+    setbrightness(brightness,palette,0);
+    OSD_Printf("gamma %d\n",brightness);
+    return OSDCMD_OK;
+}
+
+static int load_script(const char *szScript)
+{
+    FILE* fp = fopenfrompath(szScript, "r");
+
+    if (fp != NULL)
+    {
+        char line[255];
+
+        OSD_Printf("Executing \"%s\"\n", szScript);
+        while (fgets(line ,sizeof(line)-1, fp) != NULL)
+            OSD_Dispatch(strtok(line,"\r\n"));
+        fclose(fp);
+        return 0;
+    }
+    return 1;
+}
+
+static int osdcmd_exec(const osdfuncparm_t *parm)
+{
+    char fn[BMAX_PATH];
+
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    Bstrcpy(fn,parm->parms[0]);
+
+    if (load_script(fn))
+    {
+        OSD_Printf("exec: file \"%s\" not found.\n", fn);
+        return OSDCMD_OK;
+    }
+    return OSDCMD_OK;
+}
+
+static int osdcmd_noclip(const osdfuncparm_t *parm)
+{
+    noclip = !noclip;
+
+    return OSDCMD_OK;
+}
+
+static int registerosdcommands(void)
+{
+    OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
+
+    OSD_RegisterFunction("echo","echo [text]: echoes text to the console", osdcmd_echo);
+    OSD_RegisterFunction("editorgridextent","editorgridextent: sets the size of the 2D mode editing grid",osdcmd_editorgridextent);
+    OSD_RegisterFunction("exec","exec <scriptfile>: executes a script", osdcmd_exec);
+
+    OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
+
+    OSD_RegisterFunction("gamma","gamma <value>: changes brightness", osdcmd_gamma);
+
+    OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
+
+    OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
+
+    OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
+
+    OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
+
+    return 0;
+}
+
+#ifdef DUKEOSD
+void GAME_drawosdchar(int x, int y, char ch, int shade, int pal)
+{
+    int ac;
+
+    if (ch == 32) return;
+    ac = ch-'!'+STARTALPHANUM;
+    if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
+
+    rotatesprite(((x<<3)+x)<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
+}
+
+void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
+{
+    int ac;
+
+    for (x = (x<<3)+x; len>0; len--, ch++, x++)
+    {
+        if (*ch == 32)
+        {
+            x+=5;
+            continue;
+        }
+        ac = *ch-'!'+STARTALPHANUM;
+        if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
+
+        rotatesprite(x<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
+        if (*ch >= '0' && *ch <= '9') x+=8;
+        else x += tilesizx[ac];
+    }
+}
+
+static long GetTime(void)
+{
+    return totalclock;
+}
+
+void GAME_drawosdcursor(int x, int y, int type, int lastkeypress)
+{
+    int ac;
+
+    if (type) ac = SMALLFNTCURSOR;
+    else ac = '_'-'!'+STARTALPHANUM;
+
+    if (!((GetTime()-lastkeypress) & 0x40l))
+        rotatesprite(((x<<3)+x)<<16, ((y<<3)+(type?-1:2))<<16, 65536l, 0, ac, 0, 8, 8|16, 0, 0, xdim-1, ydim-1);
+}
+
+int GAME_getcolumnwidth(int w)
+{
+    return w/9;
+}
+
+int GAME_getrowheight(int w)
+{
+    return w>>3;
+}
+
+//#define BGTILE 311
+//#define BGTILE 1156
+#define BGTILE 1141	// BIGHOLE
+#define BORDTILE 3250	// VIEWBORDER
+#define BITSTH 1+32+8+16	// high translucency
+#define BITSTL 1+8+16	// low translucency
+#define BITS 8+16+64		// solid
+#define SHADE 16
+#define PALETTE 4
+void GAME_clearbackground(int c, int r)
+{
+    long x, y, xsiz, ysiz, tx2, ty2;
+    long daydim, bits;
+
+#ifdef _WIN32
+    if (qsetmode != 200)
+    {
+        OSD_SetFunctions(
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            (int(*)(void))GetTime,
+            NULL
+        );
+        return;
+    }
+#endif
+
+    if (getrendermode() < 3) bits = BITS;
+    else bits = BITSTL;
+
+    daydim = r<<3;
+
+    xsiz = tilesizx[BGTILE];
+    tx2 = xdim/xsiz;
+    ysiz = tilesizy[BGTILE];
+    ty2 = daydim/ysiz;
+
+    for (x=0;x<=tx2;x++)
+        for (y=0;y<=ty2;y++)
+            rotatesprite(x*xsiz<<16,y*ysiz<<16,65536L,0,BGTILE,SHADE,PALETTE,bits,0,0,xdim,daydim);
+
+    xsiz = tilesizy[BORDTILE];
+    tx2 = xdim/xsiz;
+    ysiz = tilesizx[BORDTILE];
+
+    for (x=0;x<=tx2;x++)
+        rotatesprite(x*xsiz<<16,(daydim+ysiz+1)<<16,65536L,1536,BORDTILE,SHADE-12,PALETTE,BITS,0,0,xdim,daydim+ysiz+1);
+}
+#endif
 
 enum {
     T_EOF = -2,
@@ -4607,7 +5614,7 @@ int ExtInit(void)
     if (getenv("DUKE3DDEF"))
     {
         defsfilename = getenv("DUKE3DDEF");
-        initprintf("Using %s as definitions file\n", defsfilename);
+        initprintf("Using '%s' as definitions file\n", defsfilename);
     }
     loadgroupfiles(defsfilename);
 
@@ -4661,8 +5668,21 @@ int ExtInit(void)
     Bstrcpy(apptitle, "Mapster32"VERSION"");
     autosavetimer = totalclock+120*180;
 
-    OSD_RegisterFunction("quit","you tried to get help on quit?",osdcmd_quit);
-    OSD_RegisterFunction("editorgridextent","editorgridextent: sets the size of the 2D mode editing grid",osdcmd_editorgridextent);
+#if defined(_WIN32) && defined(DUKEOSD)
+    OSD_SetFunctions(
+        GAME_drawosdchar,
+        GAME_drawosdstr,
+        GAME_drawosdcursor,
+        GAME_getcolumnwidth,
+        GAME_getrowheight,
+        GAME_clearbackground,
+        (int(*)(void))GetTime,
+        NULL
+    );
+#endif
+
+    OSD_SetParameters(0,2, 0,0, 4,0);
+    registerosdcommands();
 
     return rv;
 }
@@ -4882,6 +5902,34 @@ static void Keys2d3d(void)
     {
         getmessageleng = 0;
         getmessagetimeoff = 0;
+#if defined(_WIN32) && defined(DUKEOSD)
+        if (qsetmode == 200)
+        {
+            OSD_SetFunctions(
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                (int(*)(void))GetTime,
+                NULL
+            );
+        }
+        else
+        {
+            OSD_SetFunctions(
+                GAME_drawosdchar,
+                GAME_drawosdstr,
+                GAME_drawosdcursor,
+                GAME_getcolumnwidth,
+                GAME_getrowheight,
+                GAME_clearbackground,
+                (int(*)(void))GetTime,
+                NULL
+            );
+        }
+#endif
     }
 
     if (getmessageleng > 0)
