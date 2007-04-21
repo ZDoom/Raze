@@ -178,32 +178,21 @@ static const long ZoomToThumbSize[] =
 
 #define INITIAL_ZOOM 2
 
-struct
+typedef struct
 {
 	long *pIds ;	// ptr to list of tile Ids
 	long  nIds ;		// num of tile ids
 	char  key1 ;		// key1 and key2 are two alternative keypresses used to
 	char  key2 ;		//    select tile set. Bodge to do eary upper/lower case handling
 	char *szText ;		// description to present to user.
-} s_TileGroups[] =
-{
-	{ NULL,     0,     0, 0, NULL },
-	{ NULL,     0,     0, 0, NULL },
-	{ NULL,     0,     0, 0, NULL },
-	{ NULL,     0,     0, 0, NULL },
-	{ NULL,     0,     0, 0, NULL },
-	{ NULL,     0,     0, 0, NULL },
-	{ NULL,     0,     0, 0, NULL },
-	{ NULL,     0,     0, 0, NULL },
-	{ NULL,     0,     0, 0, NULL },
-	{ NULL,     0,     0, 0, NULL },
-} ;
+} TileGroup;
 
-#define NUM_TILE_GROUPS (sizeof(s_TileGroups)/sizeof(s_TileGroups[0]))
-#define MAX_TILE_GROUP_ENTRIES 128
+#define MAX_TILE_GROUPS 10
+#define MAX_TILE_GROUP_ENTRIES 1024
+
+TileGroup s_TileGroups[MAX_TILE_GROUPS];
 
 static unsigned int tile_groups = 0;
-
 
 #define FIRST_USER_ART_TILE 3584
 // Some atomic tiles are sprinkled in the V1.3d's area but

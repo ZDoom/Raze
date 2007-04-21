@@ -2211,13 +2211,13 @@ static long OnSelectTile(long iTile)
     long i, j;
     char ch;
 
-    for (i = 0; (unsigned)i < NUM_TILE_GROUPS; i++)
+    for (i = 0; (unsigned)i < tile_groups; i++)
     {
         if (s_TileGroups[i].pIds != NULL)
             break;
     }
 
-    if (i == NUM_TILE_GROUPS) // no tile groups
+    if ((unsigned)i == tile_groups) // no tile groups
         return (iTile);
 
     SelectAllTiles(iTile);
@@ -2232,7 +2232,7 @@ static long OnSelectTile(long iTile)
     // Display the description strings for each available tile group
     //
 
-    for (i = 0; (unsigned)i < NUM_TILE_GROUPS; i++)
+    for (i = 0; (unsigned)i < tile_groups; i++)
     {
         if (s_TileGroups[i].szText != NULL)
         {
@@ -2258,7 +2258,7 @@ static long OnSelectTile(long iTile)
 
         ch = bgetchar();
 
-        for (i = 0; (unsigned)i < NUM_TILE_GROUPS; i++)
+        for (i = 0; (unsigned)i < tile_groups; i++)
         {
             if (s_TileGroups[i].pIds != NULL && s_TileGroups[i].key1)
                 if ((ch == s_TileGroups[i].key1) || (ch == s_TileGroups[i].key2))
@@ -2701,7 +2701,7 @@ static void Keys3d(void)
         {
             deletesprite(searchwall);
             updatenumsprites();
-            Bsprintf(tempbuf,"Sprite (%d) deleted",searchwall);
+            Bsprintf(tempbuf,"Sprite %d deleted",searchwall);
             message(tempbuf);
             asksave = 1;
         }
@@ -2744,7 +2744,7 @@ static void Keys3d(void)
                 sprite[i].ang = ((sprite[i].ang+2048-128)&2047);
                 keystatus[0x33] = 0;
             }
-            Bsprintf(tempbuf,"Sprite (%ld) angle: %d",i,sprite[i].ang);
+            Bsprintf(tempbuf,"Sprite %ld angle: %d",i,sprite[i].ang);
             message(tempbuf);
         }
     }
@@ -2765,7 +2765,7 @@ static void Keys3d(void)
                 sprite[i].ang = ((sprite[i].ang+2048+128)&2047);
                 keystatus[0x34] = 0;
             }
-            Bsprintf(tempbuf,"Sprite (%ld) angle: %d",i,sprite[i].ang);
+            Bsprintf(tempbuf,"Sprite %ld angle: %d",i,sprite[i].ang);
             message(tempbuf);
         }
     }
@@ -2859,7 +2859,7 @@ static void Keys3d(void)
         if (searchstat != 3)
         {
             wall[searchwall].cstat ^= 32;
-            sprintf(getmessage,"Wall (%d) 1 side masking %s",searchwall,wall[searchwall].cstat&32?"ON":"OFF");
+            sprintf(getmessage,"Wall %d 1 side masking %s",searchwall,wall[searchwall].cstat&32?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -2875,7 +2875,7 @@ static void Keys3d(void)
                         sprite[searchwall].cstat |= 8;
             }
             asksave = 1;
-            sprintf(getmessage,"Sprite (%d) 1 sided %s",searchwall,sprite[searchwall].cstat&64?"ON":"OFF");
+            sprintf(getmessage,"Sprite %d 1 sided %s",searchwall,sprite[searchwall].cstat&64?"ON":"OFF");
             message(getmessage);
 
         }
@@ -2886,7 +2886,7 @@ static void Keys3d(void)
         if (searchstat != 3)
         {
             wall[searchwall].cstat ^= 2;
-            sprintf(getmessage,"Wall (%d) bottom texture swap %s",searchwall,wall[searchwall].cstat&2?"ON":"OFF");
+            sprintf(getmessage,"Wall %d bottom texture swap %s",searchwall,wall[searchwall].cstat&2?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -2936,7 +2936,7 @@ static void Keys3d(void)
             if (i >= 0)
             {
                 wall[searchwall].cstat ^= 16;
-                sprintf(getmessage,"Wall (%d) masking %s",searchwall,wall[searchwall].cstat&16?"ON":"OFF");
+                sprintf(getmessage,"Wall %d masking %s",searchwall,wall[searchwall].cstat&16?"ON":"OFF");
                 message(getmessage);
                 if ((wall[searchwall].cstat&16) > 0)
                 {
@@ -2997,7 +2997,7 @@ static void Keys3d(void)
             if (searchstat == 3)
             {
                 sprite[searchwall].cstat ^= 256;
-                sprintf(getmessage,"Sprite (%d) hitscan sensitivity %s",searchwall,sprite[searchwall].cstat&256?"ON":"OFF");
+                sprintf(getmessage,"Sprite %d hitscan sensitivity %s",searchwall,sprite[searchwall].cstat&256?"ON":"OFF");
                 message(getmessage);
                 asksave = 1;
             }
@@ -3010,7 +3010,7 @@ static void Keys3d(void)
                     wall[wall[searchwall].nextwall].cstat &= ~64;
                     wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&64);
                 }
-                sprintf(getmessage,"Wall (%d) hitscan sensitivity %s",searchwall,wall[searchwall].cstat&64?"ON":"OFF");
+                sprintf(getmessage,"Wall %d hitscan sensitivity %s",searchwall,wall[searchwall].cstat&64?"ON":"OFF");
                 message(getmessage);
 
                 asksave = 1;
@@ -3270,14 +3270,14 @@ static void Keys3d(void)
         if (searchstat == 1)
         {
             sector[searchsector].ceilingstat ^= 8;
-            sprintf(getmessage,"Sector (%d) ceiling texture expansion %s",searchsector,sector[searchsector].ceilingstat&8?"ON":"OFF");
+            sprintf(getmessage,"Sector %d ceiling texture expansion %s",searchsector,sector[searchsector].ceilingstat&8?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
         if (searchstat == 2)
         {
             sector[searchsector].floorstat ^= 8;
-            sprintf(getmessage,"Sector (%d) floor texture expansion %s",searchsector,sector[searchsector].floorstat&8?"ON":"OFF");
+            sprintf(getmessage,"Sector %d floor texture expansion %s",searchsector,sector[searchsector].floorstat&8?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -3301,14 +3301,14 @@ static void Keys3d(void)
             if (searchstat == 1)
             {
                 sector[searchsector].ceilingstat ^= 64;
-                sprintf(getmessage,"Sector (%d) ceiling texture relativity %s",searchsector,sector[searchsector].ceilingstat&64?"ON":"OFF");
+                sprintf(getmessage,"Sector %d ceiling texture relativity %s",searchsector,sector[searchsector].ceilingstat&64?"ON":"OFF");
                 message(getmessage);
                 asksave = 1;
             }
             if (searchstat == 2)
             {
                 sector[searchsector].floorstat ^= 64;
-                sprintf(getmessage,"Sector (%d) ceiling texture relativity %s",searchsector,sector[searchsector].floorstat&64?"ON":"OFF");
+                sprintf(getmessage,"Sector %d ceiling texture relativity %s",searchsector,sector[searchsector].floorstat&64?"ON":"OFF");
                 message(getmessage);
                 asksave = 1;
             }
@@ -3321,11 +3321,11 @@ static void Keys3d(void)
                 sprite[searchwall].cstat = i;
 
                 if (sprite[searchwall].cstat&16)
-                    sprintf(getmessage,"Sprite (%d) now wall aligned",searchwall);
+                    sprintf(getmessage,"Sprite %d now wall aligned",searchwall);
                 else if (sprite[searchwall].cstat&32)
-                    sprintf(getmessage,"Sprite (%d) now floor aligned",searchwall);
+                    sprintf(getmessage,"Sprite %d now floor aligned",searchwall);
                 else
-                    sprintf(getmessage,"Sprite (%d) now view aligned",searchwall);
+                    sprintf(getmessage,"Sprite %d now view aligned",searchwall);
                 message(getmessage);
                 asksave = 1;
             }
@@ -3511,7 +3511,7 @@ static void Keys3d(void)
                     i = nextspritesect[i];
                 }
                 sector[searchsector].ceilingz -= updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1); // JBF 20031128
-                sprintf(getmessage,"Sector (%d) ceilingz = %ld",searchsector,sector[searchsector].ceilingz);
+                sprintf(getmessage,"Sector %d ceilingz = %ld",searchsector,sector[searchsector].ceilingz);
                 message(getmessage);
 
             }
@@ -3530,7 +3530,7 @@ static void Keys3d(void)
                         i = nextspritesect[i];
                     }
                     sector[highlightsector[j]].ceilingz -= updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
-                    sprintf(getmessage,"Sector (%d) ceilingz = %ld",*highlightsector,sector[highlightsector[j]].ceilingz);
+                    sprintf(getmessage,"Sector %d ceilingz = %ld",*highlightsector,sector[highlightsector[j]].ceilingz);
                     message(getmessage);
 
                 }
@@ -3550,7 +3550,7 @@ static void Keys3d(void)
                     i = nextspritesect[i];
                 }
                 sector[searchsector].floorz -= updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
-                sprintf(getmessage,"Sector (%d) floorz = %ld",searchsector,sector[searchsector].floorz);
+                sprintf(getmessage,"Sector %d floorz = %ld",searchsector,sector[searchsector].floorz);
                 message(getmessage);
 
             }
@@ -3568,7 +3568,7 @@ static void Keys3d(void)
                         i = nextspritesect[i];
                     }
                     sector[highlightsector[j]].floorz -= updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1); // JBF 20031128
-                    sprintf(getmessage,"Sector (%d) floorz = %ld",*highlightsector,sector[highlightsector[j]].floorz);
+                    sprintf(getmessage,"Sector %d floorz = %ld",*highlightsector,sector[highlightsector[j]].floorz);
                     message(getmessage);
 
                 }
@@ -3600,7 +3600,7 @@ static void Keys3d(void)
                 if (k == 0)
                 {
                     sprite[searchwall].z -= updownunits;
-                    sprintf(getmessage,"Sprite (%d) z = %ld",searchwall,sprite[searchwall].z);
+                    sprintf(getmessage,"Sprite %d z = %ld",searchwall,sprite[searchwall].z);
                     message(getmessage);
 
                 }
@@ -3609,7 +3609,7 @@ static void Keys3d(void)
                     for (i=0;i<highlightcnt;i++)
                         if ((highlight[i]&0xc000) == 16384)
                             sprite[highlight[i]&16383].z -= updownunits;
-                    sprintf(getmessage,"Sprite (%d) z = %ld",highlight[i]&16383,sprite[highlight[i]&16383].z);
+                    sprintf(getmessage,"Sprite %d z = %ld",highlight[i]&16383,sprite[highlight[i]&16383].z);
                     message(getmessage);
 
                 }
@@ -3647,7 +3647,7 @@ static void Keys3d(void)
                     i = nextspritesect[i];
                 }
                 sector[searchsector].ceilingz += updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1); // JBF 20031128
-                sprintf(getmessage,"Sector (%d) ceilingz = %ld",searchsector,sector[searchsector].ceilingz);
+                sprintf(getmessage,"Sector %d ceilingz = %ld",searchsector,sector[searchsector].ceilingz);
                 message(getmessage);
 
             }
@@ -3666,7 +3666,7 @@ static void Keys3d(void)
                         i = nextspritesect[i];
                     }
                     sector[highlightsector[j]].ceilingz += updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
-                    sprintf(getmessage,"Sector (%d) ceilingz = %ld",*highlightsector,sector[highlightsector[j]].ceilingz);
+                    sprintf(getmessage,"Sector %d ceilingz = %ld",*highlightsector,sector[highlightsector[j]].ceilingz);
                     message(getmessage);
 
                 }
@@ -3686,7 +3686,7 @@ static void Keys3d(void)
                     i = nextspritesect[i];
                 }
                 sector[searchsector].floorz += updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
-                sprintf(getmessage,"Sector (%d) floorz = %ld",searchsector,sector[searchsector].floorz);
+                sprintf(getmessage,"Sector %d floorz = %ld",searchsector,sector[searchsector].floorz);
                 message(getmessage);
 
             }
@@ -3704,7 +3704,7 @@ static void Keys3d(void)
                         i = nextspritesect[i];
                     }
                     sector[highlightsector[j]].floorz += updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1); // JBF 20031128
-                    sprintf(getmessage,"Sector (%d) floorz = %ld",*highlightsector,sector[highlightsector[j]].floorz);
+                    sprintf(getmessage,"Sector %d floorz = %ld",*highlightsector,sector[highlightsector[j]].floorz);
                     message(getmessage);
 
                 }
@@ -3733,7 +3733,7 @@ static void Keys3d(void)
                 if (k == 0)
                 {
                     sprite[searchwall].z += updownunits;
-                    sprintf(getmessage,"Sprite (%d) z = %ld",searchwall,sprite[searchwall].z);
+                    sprintf(getmessage,"Sprite %d z = %ld",searchwall,sprite[searchwall].z);
                     message(getmessage);
 
                 }
@@ -3742,7 +3742,7 @@ static void Keys3d(void)
                     for (i=0;i<highlightcnt;i++)
                         if ((highlight[i]&0xc000) == 16384)
                             sprite[highlight[i]&16383].z += updownunits;
-                    sprintf(getmessage,"Sprite (%d) z = %ld",highlight[i]&16383,sprite[highlight[i]&16383].z);
+                    sprintf(getmessage,"Sprite %d z = %ld",highlight[i]&16383,sprite[highlight[i]&16383].z);
                     message(getmessage);
 
                 }
@@ -4160,7 +4160,7 @@ static void Keys3d(void)
             sprite[searchwall].cstat ^= 1;
             //                                sprite[searchwall].cstat &= ~256;
             //                                sprite[searchwall].cstat |= ((sprite[searchwall].cstat&1)<<8);
-            sprintf(getmessage,"Sprite (%d) blocking %s",searchwall,sprite[searchwall].cstat&1?"ON":"OFF");
+            sprintf(getmessage,"Sprite %d blocking %s",searchwall,sprite[searchwall].cstat&1?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -4173,7 +4173,7 @@ static void Keys3d(void)
                 wall[wall[searchwall].nextwall].cstat &= ~(1+64);
                 wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&1);
             }
-            sprintf(getmessage,"Wall (%d) blocking %s",searchwall,wall[searchwall].cstat&1?"ON":"OFF");
+            sprintf(getmessage,"Wall %d blocking %s",searchwall,wall[searchwall].cstat&1?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -4423,7 +4423,7 @@ static void Keys2d(void)
             if (pointhighlight >= 16384)
             {
                 i = pointhighlight-16384;
-                Bsprintf(tempbuf,"Sprite (%d) Extra: ",i);
+                Bsprintf(tempbuf,"Sprite %d Extra: ",i);
                 sprite[i].extra = getnumber16(tempbuf,sprite[i].extra,65536L,1);
                 clearmidstatbar16();
                 showspritedata((short)i);
@@ -4431,7 +4431,7 @@ static void Keys2d(void)
             else if (linehighlight >= 0)
             {
                 i = linehighlight;
-                Bsprintf(tempbuf,"Wall (%d) Extra: ",i);
+                Bsprintf(tempbuf,"Wall %d Extra: ",i);
                 wall[i].extra = getnumber16(tempbuf,wall[i].extra,65536L,1);
                 clearmidstatbar16();
                 showwalldata((short)i);
@@ -4443,7 +4443,7 @@ static void Keys2d(void)
             for (i=0;i<numsectors;i++)
                 if (inside(mousxplc,mousyplc,i) == 1)
                 {
-                    Bsprintf(tempbuf,"Sector (%d) Extra: ",i);
+                    Bsprintf(tempbuf,"Sector %d Extra: ",i);
                     sector[i].extra = getnumber16(tempbuf,sector[i].extra,65536L,1);
                     clearmidstatbar16();
                     showsectordata((short)i);
@@ -4529,11 +4529,11 @@ static void Keys2d(void)
             sprite[cursprite].cstat = i;
 
             if (sprite[cursprite].cstat&16)
-                sprintf(getmessage,"Sprite (%d) now wall aligned",cursprite);
+                sprintf(getmessage,"Sprite %d now wall aligned",cursprite);
             else if (sprite[cursprite].cstat&32)
-                sprintf(getmessage,"Sprite (%d) now floor aligned",cursprite);
+                sprintf(getmessage,"Sprite %d now floor aligned",cursprite);
             else
-                sprintf(getmessage,"Sprite (%d) now view aligned",cursprite);
+                sprintf(getmessage,"Sprite %d now view aligned",cursprite);
             message(getmessage);
             asksave = 1;
 
@@ -4547,11 +4547,11 @@ static void Keys2d(void)
         if (pointhighlight >= 16384)
         {
             keystatus[0x1f] = 0;
-            Bsprintf(tempbuf,"Sprite (%d) xrepeat: ",cursprite);
+            Bsprintf(tempbuf,"Sprite %d xrepeat: ",cursprite);
             sprite[cursprite].xrepeat=getnumber16(tempbuf, sprite[cursprite].xrepeat, 256,0);
-            Bsprintf(tempbuf,"Sprite (%d) yrepeat: ",cursprite);
+            Bsprintf(tempbuf,"Sprite %d yrepeat: ",cursprite);
             sprite[cursprite].yrepeat=getnumber16(tempbuf, sprite[cursprite].yrepeat, 256,0);
-            Bsprintf(tempbuf,"Sprite (%d) updated",i);
+            Bsprintf(tempbuf,"Sprite %d updated",i);
             printmessage16(tempbuf);
         }
     }
@@ -5462,7 +5462,7 @@ enum {
     T_TILEGROUP,
     T_TILE,
     T_TILERANGE,
-    T_KEYPRESS,
+    T_HOTKEY,
     T_TILES
 };
 
@@ -5625,31 +5625,22 @@ int parsetilegroups(scriptfile *script)
             char *end, *name;
             int i;
 
-//            if (scriptfile_getnumber(script,&g)) break;
-
-            if (tile_groups >= NUM_TILE_GROUPS) break;
-
-            if (s_TileGroups[tile_groups].pIds != NULL)
-                Bfree(s_TileGroups[tile_groups].pIds);
-            s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(long));
-
+            if (tile_groups >= MAX_TILE_GROUPS) break;
             if (scriptfile_getstring(script,&name)) break;
+            if (scriptfile_getbraces(script,&end)) break;
 
-            if (s_TileGroups[tile_groups].szText != NULL)
-                Bfree(s_TileGroups[tile_groups].szText);
-
+            s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(long));
             s_TileGroups[tile_groups].szText = strdup(name);
 
-            if (scriptfile_getbraces(script,&end)) break;
             while (script->textptr < end)
             {
             tokenlist tgtokens2[] =
                 {
-                    { "tilegroup",       T_TILEGROUP        },
+                    { "tilegroup",  T_TILEGROUP   },
                     { "tile",       T_TILE        },
-                    { "tilerange",       T_TILERANGE        },
-                    { "keypress",       T_KEYPRESS        },
-                    { "tiles",      T_TILES },
+                    { "tilerange",  T_TILERANGE   },
+                    { "hotkey",     T_HOTKEY      },
+                    { "tiles",      T_TILES       },
                 };
 
                 int token = getatoken(script,tgtokens2,sizeof(tgtokens2)/sizeof(tokenlist));
@@ -5669,14 +5660,14 @@ int parsetilegroups(scriptfile *script)
                     if (scriptfile_getsymbol(script,&i)) break;
                     if (scriptfile_getsymbol(script,&j)) break;
                     if (i < 0 || i >= MAXTILES || j < 0 || j >= MAXTILES) break;
-                    while (s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES && i < j)
+                    while (s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES && i <= j)
                     {
                         s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i++;
 //                        OSD_Printf("added tile %d to group %d\n",i,g);
                     }
                     break;
                 }
-                case T_KEYPRESS:
+                case T_HOTKEY:
                 {
                     char *c;
                     if (scriptfile_getstring(script,&c)) break;
@@ -5701,6 +5692,7 @@ int parsetilegroups(scriptfile *script)
                 }
                 }
             }
+            s_TileGroups[tile_groups].pIds = Brealloc(s_TileGroups[tile_groups].pIds,s_TileGroups[tile_groups].nIds*sizeof(long));
             tile_groups++;
             break;
         }
@@ -5715,10 +5707,17 @@ int parsetilegroups(scriptfile *script)
 
 int loadtilegroups(char *fn)
 {
+    int i;
     scriptfile *script;
+    TileGroup blank = { NULL,     0,     0, 0, NULL };
 
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
+
+    for (i = 0; i < MAX_TILE_GROUPS; i++)
+    {
+        Bmemcpy(&s_TileGroups[i],&blank,sizeof(blank));
+    }
 
     parsetilegroups(script);
 
@@ -5902,7 +5901,7 @@ void ExtUnInit(void)
     uninitgroupfile();
     writesetup(setupfilename);
 
-    for (i = 0; (unsigned)i < NUM_TILE_GROUPS; i++)
+    for (i = 0; (unsigned)i < MAX_TILE_GROUPS; i++)
     {
         if (s_TileGroups[i].pIds != NULL)
             Bfree(s_TileGroups[i].pIds);
@@ -6443,7 +6442,7 @@ static void EditSectorData(short sectnum)
             {
             case 0:
                 for (i=Bsprintf(disptext,"Flags (hex): %x",sector[sectnum].ceilingstat); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Ceiling Flags: ",sectnum);
+                Bsprintf(edittext,"Sector %d Ceiling Flags: ",sectnum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6454,17 +6453,17 @@ static void EditSectorData(short sectnum)
                 for (i=Bsprintf(disptext,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    Bsprintf(edittext,"Sector (%d) Ceiling X Pan: ",sectnum);
+                    Bsprintf(edittext,"Sector %d Ceiling X Pan: ",sectnum);
                     printmessage16(edittext);
                     sector[sectnum].ceilingxpanning = (char)getnumber16(edittext,(long)sector[sectnum].ceilingxpanning,256L,0);
-                    Bsprintf(edittext,"Sector (%d) Ceiling Y Pan: ",sectnum);
+                    Bsprintf(edittext,"Sector %d Ceiling Y Pan: ",sectnum);
                     printmessage16(edittext);
                     sector[sectnum].ceilingypanning = (char)getnumber16(edittext,(long)sector[sectnum].ceilingypanning,256L,0);
                 }
                 break;
             case 2:
                 for (i=Bsprintf(disptext,"Shade byte: %d",sector[sectnum].ceilingshade); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Ceiling Shade: ",sectnum);
+                Bsprintf(edittext,"Sector %d Ceiling Shade: ",sectnum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6474,7 +6473,7 @@ static void EditSectorData(short sectnum)
 
             case 3:
                 for (i=Bsprintf(disptext,"Z-coordinate: %ld",sector[sectnum].ceilingz); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Ceiling Z-coordinate: ",sectnum);
+                Bsprintf(edittext,"Sector %d Ceiling Z-coordinate: ",sectnum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6484,7 +6483,7 @@ static void EditSectorData(short sectnum)
 
             case 4:
                 for (i=Bsprintf(disptext,"Tile number: %d",sector[sectnum].ceilingpicnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Ceiling Tile Number: ",sectnum);
+                Bsprintf(edittext,"Sector %d Ceiling Tile Number: ",sectnum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6494,7 +6493,7 @@ static void EditSectorData(short sectnum)
 
             case 5:
                 for (i=Bsprintf(disptext,"Ceiling heinum: %d",sector[sectnum].ceilingheinum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Ceiling Heinum: ",sectnum);
+                Bsprintf(edittext,"Sector %d Ceiling Heinum: ",sectnum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6504,7 +6503,7 @@ static void EditSectorData(short sectnum)
 
             case 6:
                 for (i=Bsprintf(disptext,"Palookup number: %d",sector[sectnum].ceilingpal); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Ceiling Palookup Number: ",sectnum);
+                Bsprintf(edittext,"Sector %d Ceiling Palookup Number: ",sectnum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6519,7 +6518,7 @@ static void EditSectorData(short sectnum)
             {
             case 0:
                 for (i=Bsprintf(disptext,"Flags (hex): %x",sector[sectnum].floorstat); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Floor Flags: ",sectnum);
+                Bsprintf(edittext,"Sector %d Floor Flags: ",sectnum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6531,10 +6530,10 @@ static void EditSectorData(short sectnum)
                 for (i=Bsprintf(disptext,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    Bsprintf(edittext,"Sector (%d) Floor X Pan: ",sectnum);
+                    Bsprintf(edittext,"Sector %d Floor X Pan: ",sectnum);
                     printmessage16(edittext);
                     sector[sectnum].floorxpanning = (char)getnumber16(edittext,(long)sector[sectnum].floorxpanning,256L,0);
-                    Bsprintf(edittext,"Sector (%d) Floor Y Pan: ",sectnum);
+                    Bsprintf(edittext,"Sector %d Floor Y Pan: ",sectnum);
                     printmessage16(edittext);
                     sector[sectnum].floorypanning = (char)getnumber16(edittext,(long)sector[sectnum].floorypanning,256L,0);
                 }
@@ -6542,7 +6541,7 @@ static void EditSectorData(short sectnum)
 
             case 2:
                 for (i=Bsprintf(disptext,"Shade byte: %d",sector[sectnum].floorshade); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Floor Shade: ",sectnum);
+                Bsprintf(edittext,"Sector %d Floor Shade: ",sectnum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6552,7 +6551,7 @@ static void EditSectorData(short sectnum)
 
             case 3:
                 for (i=Bsprintf(disptext,"Z-coordinate: %ld",sector[sectnum].floorz); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Floor Z-coordinate: ",sectnum);
+                Bsprintf(edittext,"Sector %d Floor Z-coordinate: ",sectnum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6562,7 +6561,7 @@ static void EditSectorData(short sectnum)
 
             case 4:
                 for (i=Bsprintf(disptext,"Tile number: %d",sector[sectnum].floorpicnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Floor Tile Number: ",sectnum);
+                Bsprintf(edittext,"Sector %d Floor Tile Number: ",sectnum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6571,7 +6570,7 @@ static void EditSectorData(short sectnum)
                 break;
             case 5:
                 for (i=Bsprintf(disptext,"Floor heinum: %d",sector[sectnum].floorheinum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Flooring Heinum: ",sectnum);
+                Bsprintf(edittext,"Sector %d Flooring Heinum: ",sectnum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6580,7 +6579,7 @@ static void EditSectorData(short sectnum)
                 break;
             case 6:
                 for (i=Bsprintf(disptext,"Palookup number: %d",sector[sectnum].floorpal); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector (%d) Floor Palookup Number: ",sectnum);
+                Bsprintf(edittext,"Sector %d Floor Palookup Number: ",sectnum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6649,7 +6648,7 @@ static void EditWallData(short wallnum)
         {
         case 0:
             for (i=Bsprintf(disptext,"Flags (hex): %x",wall[wallnum].cstat); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall (%d) Flags: ",wallnum);
+            Bsprintf(edittext,"Wall %d Flags: ",wallnum);
             if (editval)
             {
                 printmessage16(edittext);
@@ -6658,7 +6657,7 @@ static void EditWallData(short wallnum)
             break;
         case 1:
             for (i=Bsprintf(disptext,"Shade: %d",wall[wallnum].shade); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall (%d) Shade: ",wallnum);
+            Bsprintf(edittext,"Wall %d Shade: ",wallnum);
             if (editval)
             {
                 printmessage16(edittext);
@@ -6667,7 +6666,7 @@ static void EditWallData(short wallnum)
             break;
         case 2:
             for (i=Bsprintf(disptext,"Pal: %d",wall[wallnum].pal); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall (%d) Pal: ",wallnum);
+            Bsprintf(edittext,"Wall %d Pal: ",wallnum);
             if (editval)
             {
                 printmessage16(edittext);
@@ -6678,10 +6677,10 @@ static void EditWallData(short wallnum)
             for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
             if (editval)
             {
-                Bsprintf(edittext,"Wall (%d) X Repeat: ",wallnum);
+                Bsprintf(edittext,"Wall %d X Repeat: ",wallnum);
                 printmessage16(edittext);
                 wall[wallnum].xrepeat = (char)getnumber16(edittext,(long)wall[wallnum].xrepeat,256L,0);
-                Bsprintf(edittext,"Wall (%d) Y Repeat: ",wallnum);
+                Bsprintf(edittext,"Wall %d Y Repeat: ",wallnum);
                 printmessage16(edittext);
                 wall[wallnum].yrepeat = (char)getnumber16(edittext,(long)wall[wallnum].yrepeat,256L,0);
             }
@@ -6690,17 +6689,17 @@ static void EditWallData(short wallnum)
             for (i=Bsprintf(disptext,"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning); i < dispwidth; i++) disptext[i] = ' ';
             if (editval)
             {
-                Bsprintf(edittext,"Wall (%d) X Pan: ",wallnum);
+                Bsprintf(edittext,"Wall %d X Pan: ",wallnum);
                 printmessage16(edittext);
                 wall[wallnum].xpanning = (char)getnumber16(edittext,(long)wall[wallnum].xpanning,256L,0);
-                Bsprintf(edittext,"Wall (%d) Y Pan: ",wallnum);
+                Bsprintf(edittext,"Wall %d Y Pan: ",wallnum);
                 printmessage16(edittext);
                 wall[wallnum].ypanning = (char)getnumber16(edittext,(long)wall[wallnum].ypanning,256L,0);
             }
             break;
         case 5:
             for (i=Bsprintf(disptext,"Tile number: %d",wall[wallnum].picnum); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall (%d) Tile number: ",wallnum);
+            Bsprintf(edittext,"Wall %d Tile number: ",wallnum);
             if (editval)
             {
                 printmessage16(edittext);
@@ -6710,7 +6709,7 @@ static void EditWallData(short wallnum)
 
         case 6:
             for (i=Bsprintf(disptext,"OverTile number: %d",wall[wallnum].overpicnum); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall (%d) OverTile number: ",wallnum);
+            Bsprintf(edittext,"Wall %d OverTile number: ",wallnum);
             if (editval)
             {
                 printmessage16(edittext);
@@ -6846,7 +6845,7 @@ static void EditSpriteData(short spritenum)
             case 0:
             {
                 for (i=Bsprintf(disptext,"X-coordinate: %ld",sprite[spritenum].x); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) X-coordinate: ",spritenum);
+                Bsprintf(edittext,"Sprite %d X-coordinate: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6857,7 +6856,7 @@ static void EditSpriteData(short spritenum)
             case 1:
             {
                 for (i=Bsprintf(disptext,"Y-coordinate: %ld",sprite[spritenum].y); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Y-coordinate: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Y-coordinate: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6868,7 +6867,7 @@ static void EditSpriteData(short spritenum)
             case 2:
             {
                 for (i=Bsprintf(disptext,"Z-coordinate: %ld",sprite[spritenum].z); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Z-coordinate: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Z-coordinate: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6879,7 +6878,7 @@ static void EditSpriteData(short spritenum)
             case 3:
             {
                 for (i=Bsprintf(disptext,"Sectnum: %d",sprite[spritenum].sectnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Sectnum: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Sectnum: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6892,7 +6891,7 @@ static void EditSpriteData(short spritenum)
             case 4:
             {
                 for (i=Bsprintf(disptext,"Statnum: %d",sprite[spritenum].statnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Statnum: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Statnum: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6912,7 +6911,7 @@ static void EditSpriteData(short spritenum)
             case 0:
             {
                 for (i=Bsprintf(disptext,"Flags (hex): %x",sprite[spritenum].cstat); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Flags: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Flags: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6923,7 +6922,7 @@ static void EditSpriteData(short spritenum)
             case 1:
             {
                 for (i=Bsprintf(disptext,"Shade: %d",sprite[spritenum].shade); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Shade: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Shade: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6934,7 +6933,7 @@ static void EditSpriteData(short spritenum)
             case 2:
             {
                 for (i=Bsprintf(disptext,"Pal: %d",sprite[spritenum].pal); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Pal: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Pal: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6947,10 +6946,10 @@ static void EditSpriteData(short spritenum)
                 for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    Bsprintf(edittext,"Sprite (%d) X Repeat: ",spritenum);
+                    Bsprintf(edittext,"Sprite %d X Repeat: ",spritenum);
                     printmessage16(edittext);
                     sprite[spritenum].xrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].xrepeat,256L,0);
-                    Bsprintf(edittext,"Sprite (%d) Y Repeat: ",spritenum);
+                    Bsprintf(edittext,"Sprite %d Y Repeat: ",spritenum);
                     printmessage16(edittext);
                     sprite[spritenum].yrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].yrepeat,256L,0);
                 }
@@ -6961,10 +6960,10 @@ static void EditSpriteData(short spritenum)
                 for (i=Bsprintf(disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
-                    Bsprintf(edittext,"Sprite (%d) X Offset: ",spritenum);
+                    Bsprintf(edittext,"Sprite %d X Offset: ",spritenum);
                     printmessage16(edittext);
                     sprite[spritenum].xoffset = (char)getnumber16(edittext,(long)sprite[spritenum].xoffset,128L,1);
-                    Bsprintf(edittext,"Sprite (%d) Y Offset: ",spritenum);
+                    Bsprintf(edittext,"Sprite %d Y Offset: ",spritenum);
                     printmessage16(edittext);
                     sprite[spritenum].yoffset = (char)getnumber16(edittext,(long)sprite[spritenum].yoffset,128L,1);
                 }
@@ -6973,7 +6972,7 @@ static void EditSpriteData(short spritenum)
             case 5:
             {
                 for (i=Bsprintf(disptext,"Tile number: %d",sprite[spritenum].picnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Tile number: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Tile number: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -6991,7 +6990,7 @@ static void EditSpriteData(short spritenum)
             case 0:
             {
                 for (i=Bsprintf(disptext,"Angle (2048 degrees): %d",sprite[spritenum].ang); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Angle: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Angle: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -7002,7 +7001,7 @@ static void EditSpriteData(short spritenum)
             case 1:
             {
                 for (i=Bsprintf(disptext,"X-Velocity: %d",sprite[spritenum].xvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) X-Velocity: ",spritenum);
+                Bsprintf(edittext,"Sprite %d X-Velocity: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -7013,7 +7012,7 @@ static void EditSpriteData(short spritenum)
             case 2:
             {
                 for (i=Bsprintf(disptext,"Y-Velocity: %d",sprite[spritenum].yvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Y-Velocity: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Y-Velocity: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -7024,7 +7023,7 @@ static void EditSpriteData(short spritenum)
             case 3:
             {
                 for (i=Bsprintf(disptext,"Z-Velocity: %d",sprite[spritenum].zvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Z-Velocity: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Z-Velocity: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -7035,7 +7034,7 @@ static void EditSpriteData(short spritenum)
             case 4:
             {
                 for (i=Bsprintf(disptext,"Owner: %d",sprite[spritenum].owner); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Owner: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Owner: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -7046,7 +7045,7 @@ static void EditSpriteData(short spritenum)
             case 5:
             {
                 for (i=Bsprintf(disptext,"Clipdist: %d",sprite[spritenum].clipdist); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Clipdist: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Clipdist: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
@@ -7057,7 +7056,7 @@ static void EditSpriteData(short spritenum)
             case 6:
             {
                 for (i=Bsprintf(disptext,"Extra: %d",sprite[spritenum].extra); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite (%d) Extra: ",spritenum);
+                Bsprintf(edittext,"Sprite %d Extra: ",spritenum);
                 if (editval)
                 {
                     printmessage16(edittext);
