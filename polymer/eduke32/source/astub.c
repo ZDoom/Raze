@@ -1755,13 +1755,13 @@ static long m32gettile(long idInitialTile)
         nYTiles = ydim / ZoomToThumbSize[s_Zoom];
         nDisplayedTiles  = nXTiles * nYTiles;
 
-        if (0 == nDisplayedTiles)
+        if (!nDisplayedTiles)
         {
             // Eh-up, resolution changed since we were last displaying tiles.
             s_Zoom--;
         }
     }
-    while (0 == nDisplayedTiles) ;
+    while (!nDisplayedTiles);
 
     keystatus[0x2F] = 0;
 
@@ -1868,7 +1868,7 @@ static long m32gettile(long idInitialTile)
     // Check : If no tiles used at all then switch to displaying all tiles
     //
 
-    if (0 == localartfreq[0])
+    if (!localartfreq[0])
     {
         localartlookupnum = MAXTILES;
 
@@ -1911,6 +1911,7 @@ static long m32gettile(long idInitialTile)
         {
             if (quitevent) quitevent = 0;
         }
+        idle();
 
         // These two lines are so obvious I don't need to comment them ...;-)
         synctics = totalclock-lockclock;
@@ -2005,14 +2006,14 @@ static long m32gettile(long idInitialTile)
         // Ensure tilenum is within valid range
         //
 
-        while (iTile < 0)
+        if (iTile < 0)
         {
-            iTile += nXTiles;
+            iTile = 0;
         }
 
-        while (iTile >= MAXTILES)	// shouldn't this be the count of num tiles ???
+        if (iTile >= MAXTILES)	// shouldn't this be the count of num tiles ???
         {
-            iTile -= nXTiles;
+            iTile = MAXTILES-1;
         }
 
         // 'V'  KEYPRESS
@@ -2037,6 +2038,7 @@ static long m32gettile(long idInitialTile)
             SelectAllTiles(iTile);
 
             iTile = FIRST_USER_ART_TILE;
+            keystatus[0x16] = 0;
         }
 
         // 'A'  KEYPRESS : Go straight to start of Atomic edition's art
@@ -2045,6 +2047,7 @@ static long m32gettile(long idInitialTile)
             SelectAllTiles(iTile);
 
             iTile = FIRST_ATOMIC_TILE;
+            keystatus[0x1e] = 0;
         }
 
         // 'T' KEYPRESS = Select from pre-defined tileset
@@ -2053,6 +2056,18 @@ static long m32gettile(long idInitialTile)
             keystatus[0x14] = 0;
 
             iTile = OnSelectTile(iTile);
+        }
+
+        // 'E'  KEYPRESS : Go straight to start of extended art
+        if (keystatus[0x12])
+        {
+            SelectAllTiles(iTile);
+
+            if (iTile == FIRST_EXTENDED_TILE)
+                iTile = SECOND_EXTENDED_TILE;
+            else iTile = FIRST_EXTENDED_TILE;
+
+            keystatus[0x12] = 0;
         }
 
         //
@@ -2134,6 +2149,7 @@ static long OnGotoTile(long iTile)
         {
             if (quitevent) quitevent = 0;
         }
+        idle();
 
         ch = bgetchar();
 
@@ -2195,6 +2211,15 @@ static long OnSelectTile(long iTile)
     long i, j;
     char ch;
 
+    for (i = 0; (unsigned)i < NUM_TILE_GROUPS; i++)
+    {
+        if (s_TileGroups[i].pIds != NULL)
+            break;
+    }
+
+    if (i == NUM_TILE_GROUPS) // no tile groups
+        return (iTile);
+
     SelectAllTiles(iTile);
 
     bflushchars();
@@ -2209,7 +2234,8 @@ static long OnSelectTile(long iTile)
 
     for (i = 0; (unsigned)i < NUM_TILE_GROUPS; i++)
     {
-        printext256(10L, (i+1)*16, whitecol, -1, s_TileGroups[i].szText, 0);
+        if (s_TileGroups[i].szText != NULL)
+            printext256(10L, (i+1)*16, whitecol, -1, s_TileGroups[i].szText, 0);
     }
     showframe(1);
 
@@ -2219,22 +2245,24 @@ static long OnSelectTile(long iTile)
 
     bDone = 0;
 
-    while (keystatus[1] == 0 && (0 == bDone))
+    while (keystatus[1] == 0 && (!bDone))
     {
         if (handleevents())
         {
             if (quitevent) quitevent = 0;
         }
+        idle();
 
         ch = bgetchar();
 
         for (i = 0; (unsigned)i < NUM_TILE_GROUPS; i++)
         {
-            if ((ch == s_TileGroups[i].key1) || (ch == s_TileGroups[i].key2))
-            {
-                iTile = LoadTileSet(iTile, s_TileGroups[i].pIds, s_TileGroups[i].nIds);
-                bDone = 1;
-            }
+            if (s_TileGroups[i].pIds != NULL)
+                if ((ch == s_TileGroups[i].key1) || (ch == s_TileGroups[i].key2))
+                {
+                    iTile = LoadTileSet(iTile, s_TileGroups[i].pIds, s_TileGroups[i].nIds);
+                    bDone = 1;
+                }
         }
     }
 
@@ -2252,7 +2280,7 @@ const char * GetTilePixels(const long idTile)
 
     if ((idTile >= 0) && (idTile < MAXTILES))
     {
-        if (0 == waloff[idTile])
+        if (!waloff[idTile])
         {
             loadtile(idTile);
         }
@@ -3290,11 +3318,11 @@ static void Keys3d(void)
                 sprite[searchwall].cstat = i;
 
                 if (sprite[searchwall].cstat&16)
-                    sprintf(getmessage,"Sprite (%d) wall aligned",searchwall);
+                    sprintf(getmessage,"Sprite (%d) now wall aligned",searchwall);
                 else if (sprite[searchwall].cstat&32)
-                    sprintf(getmessage,"Sprite (%d) floor aligned",searchwall);
+                    sprintf(getmessage,"Sprite (%d) now floor aligned",searchwall);
                 else
-                    sprintf(getmessage,"Sprite (%d) un-aligned",searchwall);
+                    sprintf(getmessage,"Sprite (%d) now view aligned",searchwall);
                 message(getmessage);
                 asksave = 1;
             }
@@ -4498,11 +4526,11 @@ static void Keys2d(void)
             sprite[cursprite].cstat = i;
 
             if (sprite[cursprite].cstat&16)
-                sprintf(getmessage,"Sprite (%d) is wall aligned",cursprite);
+                sprintf(getmessage,"Sprite (%d) now wall aligned",cursprite);
             else if (sprite[cursprite].cstat&32)
-                sprintf(getmessage,"Sprite (%d) is floor aligned",cursprite);
+                sprintf(getmessage,"Sprite (%d) now floor aligned",cursprite);
             else
-                sprintf(getmessage,"Sprite (%d) is un-aligned",cursprite);
+                sprintf(getmessage,"Sprite (%d) now view aligned",cursprite);
             message(getmessage);
             asksave = 1;
 
@@ -5426,7 +5454,13 @@ enum {
     T_EOF = -2,
     T_ERROR = -1,
     T_INCLUDE = 0,
-    T_LOADGRP = 1,
+    T_DEFINE = 1,
+    T_LOADGRP,
+    T_TILEGROUP,
+    T_NAME,
+    T_TILE,
+    T_TILERANGE,
+    T_KEY
 };
 
 typedef struct
@@ -5456,17 +5490,14 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
 static tokenlist grptokens[] =
     {
         { "include",         T_INCLUDE },
+        { "#include",        T_INCLUDE },
         { "loadgrp",         T_LOADGRP },
     };
 
-int loadgroupfiles(char *fn)
+int parsegroupfiles(scriptfile *script)
 {
     int tokn;
     char *cmdtokptr;
-    scriptfile *script;
-
-    script = scriptfile_fromfile(fn);
-    if (!script) return -1;
 
     while (1)
     {
@@ -5502,7 +5533,7 @@ int loadgroupfiles(char *fn)
                 }
                 else
                 {
-                    loadgroupfiles((char *)included);
+                    parsegroupfiles(included);
                     scriptfile_close(included);
                 }
             }
@@ -5515,6 +5546,165 @@ int loadgroupfiles(char *fn)
             break;
         }
     }
+    return 0;
+}
+
+int loadgroupfiles(char *fn)
+{
+    scriptfile *script;
+
+    script = scriptfile_fromfile(fn);
+    if (!script) return -1;
+
+    parsegroupfiles(script);
+
+    scriptfile_close(script);
+    scriptfile_clearsymbols();
+
+    return 0;
+}
+
+static tokenlist tgtokens[] =
+    {
+        { "include",         T_INCLUDE          },
+        { "#include",        T_INCLUDE          },
+        { "define",          T_DEFINE           },
+        { "#define",         T_DEFINE           },
+        { "tilegroup",       T_TILEGROUP        },
+    };
+
+static tokenlist tgtokens2[] =
+    {
+        { "tilegroup",       T_TILEGROUP        },
+        { "name",       T_NAME        },
+        { "tile",       T_TILE        },
+        { "tilerange",       T_TILERANGE        },
+        { "key",       T_KEY        },
+    };
+
+int parsetilegroups(scriptfile *script)
+{
+    int tokn;
+    char *cmdtokptr;
+
+    while (1)
+    {
+        tokn = getatoken(script,tgtokens,sizeof(tgtokens)/sizeof(tokenlist));
+        cmdtokptr = script->ltextptr;
+        switch (tokn)
+        {
+        case T_INCLUDE:
+        {
+            char *fn;
+            if (!scriptfile_getstring(script,&fn))
+            {
+                scriptfile *included;
+
+                included = scriptfile_fromfile(fn);
+                if (!included)
+                {
+                    initprintf("Warning: Failed including %s on line %s:%d\n",
+                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                }
+                else
+                {
+                    parsetilegroups(included);
+                    scriptfile_close(included);
+                }
+            }
+            break;
+        }
+        case T_DEFINE:
+        {
+            char *name;
+            int number;
+
+            if (scriptfile_getstring(script,&name)) break;
+            if (scriptfile_getsymbol(script,&number)) break;
+            if (scriptfile_addsymbolvalue(name,number) < 0)
+                initprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
+                           name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
+            break;
+        }
+        case T_TILEGROUP:
+        {
+            char *end, *name;
+            int g, i;
+
+            if (scriptfile_getnumber(script,&g)) break;
+
+            if ((unsigned)g >= NUM_TILE_GROUPS) break;
+
+            if (s_TileGroups[g].pIds == NULL)
+                s_TileGroups[g].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(long));
+
+//            if (scriptfile_getstring(script,&name)) break;
+
+            if (scriptfile_getbraces(script,&end)) break;
+            while (script->textptr < end)
+            {
+                int token = getatoken(script,tgtokens2,sizeof(tgtokens2)/sizeof(tokenlist));
+                switch (token)
+                {
+                case T_NAME:
+                {
+                    if (scriptfile_getstring(script,&name)) break;
+                    if (s_TileGroups[g].szText != NULL)
+                        Bfree(s_TileGroups[g].szText);
+
+                    s_TileGroups[g].szText = strdup(name);
+                    break;
+                }
+                case T_TILE:
+                {
+                    if (scriptfile_getsymbol(script,&i)) break;
+                    if (i >= 0 && i < MAXTILES && s_TileGroups[g].nIds < MAX_TILE_GROUP_ENTRIES)
+                        s_TileGroups[g].pIds[s_TileGroups[g].nIds++] = i;
+//                    OSD_Printf("added tile %d to group %d\n",i,g);
+                    break;
+                }
+                case T_TILERANGE:
+                {
+                    int j;
+                    if (scriptfile_getsymbol(script,&i)) break;
+                    if (scriptfile_getsymbol(script,&j)) break;
+                    if (i < 0 || i >= MAXTILES || j < 0 || j >= MAXTILES) break;
+                    while (s_TileGroups[g].nIds < MAX_TILE_GROUP_ENTRIES && i < j)
+                    {
+                        s_TileGroups[g].pIds[s_TileGroups[g].nIds++] = i++;
+//                        OSD_Printf("added tile %d to group %d\n",i,g);
+                    }
+                    break;
+                }
+                case T_KEY:
+                {
+                    char *c;
+                    if (scriptfile_getstring(script,&c)) break;
+                    s_TileGroups[g].key1 = Btoupper(c[0]);
+                    s_TileGroups[g].key2 = Btolower(c[0]);
+                    break;
+                }
+                }
+            }
+            break;
+        }
+        case T_EOF:
+            return(0);
+        default:
+            break;
+        }
+    }
+    return 0;
+}
+
+int loadtilegroups(char *fn)
+{
+    scriptfile *script;
+
+    script = scriptfile_fromfile(fn);
+    if (!script) return -1;
+
+    parsetilegroups(script);
 
     scriptfile_close(script);
     scriptfile_clearsymbols();
@@ -5684,14 +5874,25 @@ int ExtInit(void)
     OSD_SetParameters(0,2, 0,0, 4,0);
     registerosdcommands();
 
+    loadtilegroups("tiles.cfg");
+
     return rv;
 }
 
 void ExtUnInit(void)
 {
+    int i;
     // setvmode(0x03);
     uninitgroupfile();
     writesetup(setupfilename);
+
+    for (i = 0; (unsigned)i < NUM_TILE_GROUPS; i++)
+    {
+        if (s_TileGroups[i].pIds != NULL)
+            Bfree(s_TileGroups[i].pIds);
+        if (s_TileGroups[i].szText != NULL)
+            Bfree(s_TileGroups[i].szText);
+    }
 }
 
 void ExtPreCheckKeys(void) // just before drawrooms

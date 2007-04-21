@@ -8443,11 +8443,10 @@ static void autoloadgrps(const char *fn)
     while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
 }
 
-static int loadgroupfiles(const char *fn)
+static int parsegroupfiles(scriptfile *script)
 {
     int tokn;
     char *cmdtokptr;
-    scriptfile *script;
 
     tokenlist grptokens[] =
         {
@@ -8456,9 +8455,6 @@ static int loadgroupfiles(const char *fn)
             { "loadgrp",         T_LOADGRP          },
             { "cachesize",       T_CACHESIZE        },
         };
-
-    script = scriptfile_fromfile((char *)fn);
-    if (!script) return -1;
 
     while (1)
     {
@@ -8510,7 +8506,7 @@ static int loadgroupfiles(const char *fn)
                 }
                 else
                 {
-                    loadgroupfiles((const char *)included);
+                    parsegroupfiles(included);
                     scriptfile_close(included);
                 }
             }
@@ -8522,6 +8518,17 @@ static int loadgroupfiles(const char *fn)
             break;
         }
     }
+    return 0;
+}
+
+static int loadgroupfiles(const char *fn)
+{
+    scriptfile *script;
+
+    script = scriptfile_fromfile((char *)fn);
+    if (!script) return -1;
+
+    parsegroupfiles(script);
 
     scriptfile_close(script);
     scriptfile_clearsymbols();

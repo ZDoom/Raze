@@ -1489,6 +1489,7 @@ void editinput(void)
                 }
             }
         }
+# if 0
         if (keystatus[0x2f] > 0)  //V
         {
             if (searchstat == 0) templong = wall[searchwall].picnum;
@@ -1510,7 +1511,7 @@ void editinput(void)
             asksave = 1;
             keystatus[0x2f] = 0;
         }
-
+#endif
         if (keystatus[0x1a])  // [
         {
             keystatus[0x1a] = 0;
@@ -2439,7 +2440,7 @@ char changechar(char dachar, long dadir, char smooshyalign, char boundcheck)
     }
     return(dachar);
 }
-
+#if 0
 long gettile(long tilenum)
 {
     char snotbuf[80], ch;
@@ -2740,6 +2741,7 @@ long drawtilescreen(long pictopleft, long picbox)
 
     return(0);
 }
+#endif
 
 void overheadeditor(void)
 {

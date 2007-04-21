@@ -178,164 +178,37 @@ static const long ZoomToThumbSize[] =
 
 #define INITIAL_ZOOM 2
 
-
-// If I wasn't a lazy sod I'd have made these loadable from external config files.
-
-	///////////////////
-	// ACTOR SPRITES //
-	///////////////////
-
-static const long s_idActors[] =
+struct
 {
-	LIZTROOP, LIZTROOPRUNNING, LIZTROOPSTAYPUT, LIZTROOPSHOOT, LIZTROOPJETPACK,
-	LIZTROOPONTOILET, LIZTROOPJUSTSIT, LIZTROOPDUCKING,
-	PIGCOP, PIGCOPSTAYPUT, PIGCOPDIVE,
-	LIZMAN, LIZMANSTAYPUT, LIZMANSPITTING, LIZMANFEEDING, LIZMANJUMP,
-	COMMANDER, COMMANDERSTAYPUT,
-	OCTABRAIN, OCTABRAINSTAYPUT,
-	ORGANTIC,
-	NEWBEAST, NEWBEASTSTAYPUT, NEWBEASTJUMP,
-	EGG, GREENSLIME, ROTATEGUN, RECON, TANK, BOUNCEMINE,
-	FLOORFLAME,
-	// FEMS
-	FEM1, FEM2, FEM3, FEM4, FEM5, FEM6, FEM7, FEM8, FEM9, FEM10, NAKED1,
-	// Lil' critters
-	SHARK,
-	// BIG critters
-	BOSS1, BOSS1STAYPUT, BOSS1SHOOT, BOSS1LOB,
-	BOSS2,
-	BOSS3,
-	BOSS4, BOSS4STAYPUT
-} ;
-
-#define NUM_ACTORS (sizeof(s_idActors)/sizeof(s_idActors[0]))
-
-	/////////////////
-	// DOOR TILES ///
-	/////////////////
-
-// Not all of these are tuely door tiles but are useable as such
-
-static const long s_idDoors[] =
-{
-	DOORTILE1, DOORTILE2, DOORTILE3, DOORTILE4, DOORTILE5,
-	DOORTILE6, DOORTILE7, DOORTILE8, DOORTILE9, DOORTILE10,
-	312, 313, 314, 345,
-	DOORTILE22, DOORTILE18, DOORTILE19, DOORTILE20,
-	450, 455, 457, 458, 459, 469, 470, 477, 
-	DOORTILE14,
-	719, 735, 771,
-	DOORTILE16,
-	843, 858, 883,
-	DOORTILE15, DOORTILE21,
-	1173,
-	DOORTILE11,DOORTILE12,
-	353, 355,
-	// Related items
-	DOORSHOCK, ACCESSCARD
-};
-
-#define NUM_DOORS (sizeof(s_idDoors)/sizeof(s_idDoors[0]))
-
-	//////////////////
-	// SWITCH TILES //
-	//////////////////
-
-static const long s_idSwitches[] =
-{
-	ACCESSSWITCH,ACCESSSWITCH2, SLOTDOOR, LIGHTSWITCH, SPACEDOORSWITCH, SPACELIGHTSWITCH,
-	FRANKENSTINESWITCH, MULTISWITCH,
-	DIPSWITCH, DIPSWITCH2, DIPSWITCH3, TECHSWITCH,
-	LIGHTSWITCH2, LIGHTSWITCH2+1,
-	POWERSWITCH1, LOCKSWITCH1, POWERSWITCH2, HANDSWITCH, PULLSWITCH,
-	ALIENSWITCH, HANDPRINTSWITCH, NUKEBUTTON,
-	TARGET,
-	4083, 4954 // Busted switches (Atomic)
-} ;
-
-#define NUM_SWITCHES (sizeof(s_idSwitches)/sizeof(s_idSwitches[0]))
-
-	///////////////////
-	// GOODIES TILES //
-	///////////////////
-
-static const long s_idGoodies[] =
-{
-	// Ammo
-	AMMO,SHOTGUNAMMO, BATTERYAMMO, RPGAMMO, HEAVYHBOMB, FREEZEAMMO, GROWAMMO, CRYSTALAMMO,
-	DEVISTATORAMMO, HBOMBAMMO,
-	
-	// Items (health,etc)
-	COLA, SIXPAK, FIRSTAID, SHIELD, STEROIDS, AIRTANK, JETPACK, HEATSENSOR, ACCESSCARD,
-	BOOTS, ATOMICHEALTH,
-	
-	// Weapons
-	FIRSTGUNSPRITE, CHAINGUNSPRITE, RPGSPRITE, FREEZESPRITE, SHRINKERSPRITE, 
-	TRIPBOMBSPRITE, SHOTGUNSPRITE, DEVISTATORSPRITE
-
-} ;
-
-#define NUM_GOODIES (sizeof(s_idGoodies)/sizeof(s_idGoodies[0]))
-
-	////////////////////////
-	// ITEMS THAT RESPAWN //
-	////////////////////////
-
-// Thought there were more than just these :-(
-
-static const long s_idRespawns[] =
-{
-	CANWITHSOMETHING, CANWITHSOMETHING2, CANWITHSOMETHING3, CANWITHSOMETHING4,
-	// FEMS
-	FEM1, FEM2, FEM3, FEM4, FEM5, FEM6, FEM7, FEM8, FEM9, FEM10, NAKED1,
-} ;
-
-#define NUM_RESPAWNS (sizeof(s_idRespawns)/sizeof(s_idRespawns[0]))
-
-	////////////////////////
-	// EXPLOSION AND FIRE //
-	////////////////////////
-
-static const long s_idExplosions[] =
-{
-	CRACK1, CRACK2, CRACK3, CRACK4,
-	FIREEXT, SEENINE, OOZFILTER,
-	EXPLODINGBARREL, EXPLODINGBARREL2, FIREBARREL, GUNPOWDERBARREL,
-	REACTOR2SPARK, BOLT1, SIDEBOLT1,
-	CEILINGSTEAM,
-	FIREVASE, 2066, BURNING, FIRE, BURNING2, FIRE2
-} ;
-
-#define NUM_EXPLOSIONS (sizeof(s_idExplosions)/sizeof(s_idExplosions[0]))
-
-	////////////////////////////////////////////////////////////////
-	// BUILD STRUCTURE USED IN SELECTING ONE OF ABOVE LTILE LISTS //
-	////////////////////////////////////////////////////////////////
-
-const struct
-{
-	const long *pIds ;	// ptr to list of tile Ids
+	long *pIds ;	// ptr to list of tile Ids
 	long  nIds ;		// num of tile ids
 	char  key1 ;		// key1 and key2 are two alternative keypresses used to
 	char  key2 ;		//    select tile set. Bodge to do eary upper/lower case handling
 	char *szText ;		// description to present to user.
 } s_TileGroups[] =
 {
-	{ s_idActors,     NUM_ACTORS,     'A', 'a', "(A) Actor group" },
-	{ s_idDoors,      NUM_DOORS,      'D', 'd', "(D) Door group" },
-	{ s_idGoodies,    NUM_GOODIES,    'G', 'g', "(G) Goodies (ammo, weapons, etc)" },
-	{ s_idRespawns,   NUM_RESPAWNS,   'R', 'r', "(R) Respawning Items" },
-	{ s_idSwitches,   NUM_SWITCHES,   'S', 's', "(S) Switch group" },
-	{ s_idExplosions, NUM_EXPLOSIONS, 'X', 'x', "(X) eXplosions, fire, sparks, etc" }
+	{ NULL,     0,     0, 0, NULL },
+	{ NULL,     0,     0, 0, NULL },
+	{ NULL,     0,     0, 0, NULL },
+	{ NULL,     0,     0, 0, NULL },
+	{ NULL,     0,     0, 0, NULL },
+	{ NULL,     0,     0, 0, NULL },
+	{ NULL,     0,     0, 0, NULL },
+	{ NULL,     0,     0, 0, NULL },
+	{ NULL,     0,     0, 0, NULL },
+	{ NULL,     0,     0, 0, NULL },
 } ;
 
 #define NUM_TILE_GROUPS (sizeof(s_TileGroups)/sizeof(s_TileGroups[0]))
+#define MAX_TILE_GROUP_ENTRIES 128
 
 
 #define FIRST_USER_ART_TILE 3584
 // Some atomic tiles are sprinkled in the V1.3d's area but
 //   this is where the main atomic tiles start :-
 #define FIRST_ATOMIC_TILE   4096
+#define FIRST_EXTENDED_TILE 6144
+#define SECOND_EXTENDED_TILE 9216
 
 extern short localartfreq[MAXTILES];
 extern short localartlookup[MAXTILES], localartlookupnum;
