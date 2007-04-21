@@ -2235,7 +2235,10 @@ static long OnSelectTile(long iTile)
     for (i = 0; (unsigned)i < NUM_TILE_GROUPS; i++)
     {
         if (s_TileGroups[i].szText != NULL)
-            printext256(10L, (i+1)*16, whitecol, -1, s_TileGroups[i].szText, 0);
+        {
+            Bsprintf(tempbuf,"(%c) %s",s_TileGroups[i].key1,s_TileGroups[i].szText);
+            printext256(10L, (i+1)*16, whitecol, -1, tempbuf, 0);
+        }
     }
     showframe(1);
 
@@ -2257,7 +2260,7 @@ static long OnSelectTile(long iTile)
 
         for (i = 0; (unsigned)i < NUM_TILE_GROUPS; i++)
         {
-            if (s_TileGroups[i].pIds != NULL)
+            if (s_TileGroups[i].pIds != NULL && s_TileGroups[i].key1)
                 if ((ch == s_TileGroups[i].key1) || (ch == s_TileGroups[i].key2))
                 {
                     iTile = LoadTileSet(iTile, s_TileGroups[i].pIds, s_TileGroups[i].nIds);
@@ -5457,10 +5460,10 @@ enum {
     T_DEFINE = 1,
     T_LOADGRP,
     T_TILEGROUP,
-    T_NAME,
     T_TILE,
     T_TILERANGE,
-    T_KEY
+    T_KEYPRESS,
+    T_TILES
 };
 
 typedef struct
@@ -5487,17 +5490,17 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
     return T_ERROR;
 }
 
-static tokenlist grptokens[] =
-    {
-        { "include",         T_INCLUDE },
-        { "#include",        T_INCLUDE },
-        { "loadgrp",         T_LOADGRP },
-    };
-
 int parsegroupfiles(scriptfile *script)
 {
     int tokn;
     char *cmdtokptr;
+
+    tokenlist grptokens[] =
+        {
+            { "include",         T_INCLUDE },
+            { "#include",        T_INCLUDE },
+            { "loadgrp",         T_LOADGRP },
+        };
 
     while (1)
     {
@@ -5564,28 +5567,19 @@ int loadgroupfiles(char *fn)
     return 0;
 }
 
-static tokenlist tgtokens[] =
-    {
-        { "include",         T_INCLUDE          },
-        { "#include",        T_INCLUDE          },
-        { "define",          T_DEFINE           },
-        { "#define",         T_DEFINE           },
-        { "tilegroup",       T_TILEGROUP        },
-    };
-
-static tokenlist tgtokens2[] =
-    {
-        { "tilegroup",       T_TILEGROUP        },
-        { "name",       T_NAME        },
-        { "tile",       T_TILE        },
-        { "tilerange",       T_TILERANGE        },
-        { "key",       T_KEY        },
-    };
-
 int parsetilegroups(scriptfile *script)
 {
     int tokn;
     char *cmdtokptr;
+
+    tokenlist tgtokens[] =
+        {
+            { "include",         T_INCLUDE          },
+            { "#include",        T_INCLUDE          },
+            { "define",          T_DEFINE           },
+            { "#define",         T_DEFINE           },
+            { "tilegroup",       T_TILEGROUP        },
+        };
 
     while (1)
     {
@@ -5629,37 +5623,43 @@ int parsetilegroups(scriptfile *script)
         case T_TILEGROUP:
         {
             char *end, *name;
-            int g, i;
+            int i;
 
-            if (scriptfile_getnumber(script,&g)) break;
+//            if (scriptfile_getnumber(script,&g)) break;
 
-            if ((unsigned)g >= NUM_TILE_GROUPS) break;
+            if (tile_groups >= NUM_TILE_GROUPS) break;
 
-            if (s_TileGroups[g].pIds == NULL)
-                s_TileGroups[g].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(long));
+            if (s_TileGroups[tile_groups].pIds != NULL)
+                Bfree(s_TileGroups[tile_groups].pIds);
+            s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(long));
 
-//            if (scriptfile_getstring(script,&name)) break;
+            if (scriptfile_getstring(script,&name)) break;
+
+            if (s_TileGroups[tile_groups].szText != NULL)
+                Bfree(s_TileGroups[tile_groups].szText);
+
+            s_TileGroups[tile_groups].szText = strdup(name);
 
             if (scriptfile_getbraces(script,&end)) break;
             while (script->textptr < end)
             {
+            tokenlist tgtokens2[] =
+                {
+                    { "tilegroup",       T_TILEGROUP        },
+                    { "tile",       T_TILE        },
+                    { "tilerange",       T_TILERANGE        },
+                    { "keypress",       T_KEYPRESS        },
+                    { "tiles",      T_TILES },
+                };
+
                 int token = getatoken(script,tgtokens2,sizeof(tgtokens2)/sizeof(tokenlist));
                 switch (token)
                 {
-                case T_NAME:
-                {
-                    if (scriptfile_getstring(script,&name)) break;
-                    if (s_TileGroups[g].szText != NULL)
-                        Bfree(s_TileGroups[g].szText);
-
-                    s_TileGroups[g].szText = strdup(name);
-                    break;
-                }
                 case T_TILE:
                 {
                     if (scriptfile_getsymbol(script,&i)) break;
-                    if (i >= 0 && i < MAXTILES && s_TileGroups[g].nIds < MAX_TILE_GROUP_ENTRIES)
-                        s_TileGroups[g].pIds[s_TileGroups[g].nIds++] = i;
+                    if (i >= 0 && i < MAXTILES && s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES)
+                        s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i;
 //                    OSD_Printf("added tile %d to group %d\n",i,g);
                     break;
                 }
@@ -5669,23 +5669,39 @@ int parsetilegroups(scriptfile *script)
                     if (scriptfile_getsymbol(script,&i)) break;
                     if (scriptfile_getsymbol(script,&j)) break;
                     if (i < 0 || i >= MAXTILES || j < 0 || j >= MAXTILES) break;
-                    while (s_TileGroups[g].nIds < MAX_TILE_GROUP_ENTRIES && i < j)
+                    while (s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES && i < j)
                     {
-                        s_TileGroups[g].pIds[s_TileGroups[g].nIds++] = i++;
+                        s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i++;
 //                        OSD_Printf("added tile %d to group %d\n",i,g);
                     }
                     break;
                 }
-                case T_KEY:
+                case T_KEYPRESS:
                 {
                     char *c;
                     if (scriptfile_getstring(script,&c)) break;
-                    s_TileGroups[g].key1 = Btoupper(c[0]);
-                    s_TileGroups[g].key2 = Btolower(c[0]);
+                    s_TileGroups[tile_groups].key1 = Btoupper(c[0]);
+                    s_TileGroups[tile_groups].key2 = Btolower(c[0]);
+                    break;
+                }
+                case T_TILES:
+                {
+                    char *end2;
+                    if (scriptfile_getbraces(script,&end2)) break;
+                    while (script->textptr < end2-1)
+                    {
+                        if (!scriptfile_getsymbol(script,&i))
+                        {
+                            if (i >= 0 && i < MAXTILES && s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES)
+                                s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i;
+        //                    OSD_Printf("added tile %d to group %d\n",i,g);
+                        }
+                    }
                     break;
                 }
                 }
             }
+            tile_groups++;
             break;
         }
         case T_EOF:

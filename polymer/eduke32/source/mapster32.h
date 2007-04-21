@@ -202,6 +202,8 @@ struct
 #define NUM_TILE_GROUPS (sizeof(s_TileGroups)/sizeof(s_TileGroups[0]))
 #define MAX_TILE_GROUP_ENTRIES 128
 
+static unsigned int tile_groups = 0;
+
 
 #define FIRST_USER_ART_TILE 3584
 // Some atomic tiles are sprinkled in the V1.3d's area but
