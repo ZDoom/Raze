@@ -771,6 +771,11 @@ int32 CONFIG_ReadSetup(void)
 #ifdef _WIN32
         SCRIPT_GetNumber(scripthandle, "Updates", "CheckForUpdates", &checkforupdates);
         SCRIPT_GetNumber(scripthandle, "Updates", "LastUpdateCheck", &lastupdatecheck);
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "WindowPositioning", (int32 *)&windowpos);
+        windowx = -1;
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "WindowPosX", (int32 *)&windowx);
+        windowy = -1;
+        SCRIPT_GetNumber(scripthandle, "Screen Setup", "WindowPosY", (int32 *)&windowy);
 #endif
     }
 
@@ -894,6 +899,9 @@ void CONFIG_WriteSetup(void)
 #ifdef _WIN32
     SCRIPT_PutNumber(scripthandle, "Updates", "CheckForUpdates", checkforupdates, false, false);
     SCRIPT_PutNumber(scripthandle, "Updates", "LastUpdateCheck", lastupdatecheck, false, false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "WindowPositioning", windowpos, false, false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "WindowPosX", windowx, false, false);
+    SCRIPT_PutNumber(scripthandle, "Screen Setup", "WindowPosY", windowy, false, false);
 #endif
 
     // JBF 20031211

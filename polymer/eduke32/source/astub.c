@@ -5630,7 +5630,7 @@ int parsetilegroups(scriptfile *script)
             if (scriptfile_getbraces(script,&end)) break;
 
             s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(long));
-            s_TileGroups[tile_groups].szText = strdup(name);
+            s_TileGroups[tile_groups].szText = Bstrdup(name);
 
             while (script->textptr < end)
             {

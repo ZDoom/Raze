@@ -219,6 +219,8 @@ EXTERN char walock[MAXTILES];
 EXTERN long pow2long[32];
 EXTERN long numtiles, picanm[MAXTILES], waloff[MAXTILES];
 
+EXTERN int windowpos, windowx, windowy;
+
     //These variables are for auto-mapping with the draw2dscreen function.
     //When you load a new board, these bits are all set to 0 - since
     //you haven't mapped out anything yet.  Note that these arrays are

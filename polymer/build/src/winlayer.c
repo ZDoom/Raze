@@ -103,7 +103,7 @@ static void RestoreSystemColours(void);
 static long desktopxdim=0,desktopydim=0,desktopbpp=0,modesetusing=-1;
 long xres=-1, yres=-1, fullscreen=0, bpp=0, bytesperline=0, imageSize=0;
 long frameplace=0, lockcount=0;
-static int windowposx, windowposy, curvidmode = -1;
+static int curvidmode = -1;
 static int customxdim = 640, customydim = 480, custombpp = 8, customfs = 0;
 static unsigned modeschecked=0;
 unsigned maxrefreshfreq=60;
@@ -3075,12 +3075,19 @@ static BOOL CreateAppWindow(int modenum)
         w=width;
         h=height;
     }
-    SetWindowPos(hWindow, HWND_TOP, x, y, w, h, 0);
+
+    if (windowx == -1)
+        windowx = x;
+
+    if (windowy == -1)
+        windowy = y;
 
     SetWindowText(hWindow, apptitle);
     ShowWindow(hWindow, SW_SHOWNORMAL);
     SetForegroundWindow(hWindow);
     SetFocus(hWindow);
+
+    SetWindowPos(hWindow, HWND_TOP, windowpos?windowx:x, windowpos?windowy:y, w, h, 0);
 
     // fullscreen?
     if (!fs) {
@@ -3663,10 +3670,18 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         return TRUE;
 
     case WM_MOVE:
-        windowposx = LOWORD(lParam);
-        windowposy = HIWORD(lParam);
+//        windowx = LOWORD(lParam);
+//        windowy = HIWORD(lParam);
         return 0;
 
+    case WM_MOVING:
+    {
+        RECT *RECTYMcRECT = (LPRECT)lParam;
+
+        windowx = RECTYMcRECT->left;
+        windowy = RECTYMcRECT->top;
+        return 0;
+    }
     case WM_CLOSE:
         quitevent = 1;
         return 0;

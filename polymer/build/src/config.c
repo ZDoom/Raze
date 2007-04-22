@@ -177,7 +177,15 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
     if (readconfig(fp, "key2dzoomout", val, VL) > 0) keys[17] = Bstrtol(val, NULL, 16);
     if (readconfig(fp, "keychat", val, VL) > 0) keys[18] = Bstrtol(val, NULL, 16);
 #endif
-    
+
+#ifdef RENDERTYPEWIN
+    if (readconfig(fp, "windowpos", val, VL) > 0) windowpos = Batoi(val);
+    windowx = -1;
+    if (readconfig(fp, "windowx", val, VL) > 0) windowx = Batoi(val);
+    windowy = -1;
+    if (readconfig(fp, "windowy", val, VL) > 0) windowy = Batoi(val);
+#endif    
+
 if (readconfig(fp, "keyconsole", val, VL) > 0) { keys[19] = Bstrtol(val, NULL, 16); OSD_CaptureKey(keys[19]); }
 
     if (readconfig(fp, "mousesensitivity", val, VL) > 0) msens = Bstrtod(val, NULL);
@@ -228,6 +236,11 @@ int writesetup(const char *fn)
 #ifdef RENDERTYPEWIN
              "; Maximum OpenGL mode refresh rate (Windows only, in Hertz)\n"
              "maxrefreshfreq = %d\n"
+             "\n"
+             "; Window positioning, 0 = center, 1 = memory\n"
+             "windowpos = %d\n"
+             "windowx = %d\n"
+             "windowy = %d\n"
              "\n"
 #endif
              "; 3D mode brightness setting\n"
@@ -313,7 +326,7 @@ int writesetup(const char *fn)
              glusetexcache, glusetexcachecompression, gltexfiltermode, glanisotropy,
 #endif
 #ifdef RENDERTYPEWIN
-             maxrefreshfreq,
+             maxrefreshfreq, windowpos, windowx, windowy,
 #endif
              brightness, 
 #if 0
