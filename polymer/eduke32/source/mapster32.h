@@ -187,7 +187,7 @@ typedef struct
 	char *szText ;		// description to present to user.
 } TileGroup;
 
-#define MAX_TILE_GROUPS 10
+#define MAX_TILE_GROUPS 32
 #define MAX_TILE_GROUP_ENTRIES 1024
 
 TileGroup s_TileGroups[MAX_TILE_GROUPS];

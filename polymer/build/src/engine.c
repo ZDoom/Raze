@@ -693,7 +693,7 @@ void hicsetpalettetint(long palnum, unsigned char r, unsigned char g, unsigned c
 int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut, float xscale, float yscale, char flags) { return 0; }
 int hicsetskybox(long picnum, long palnum, char *faces[6]) { return 0; }
 int hicclearsubst(long picnum, long palnum) { return 0; }
-long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen) { return -1; }
+long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen, int tilezoom) { return -1; }
 #endif
 //============================================================================= //POLYMOST ENDS
 

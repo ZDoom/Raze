@@ -179,11 +179,11 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
 #endif
 
 #ifdef RENDERTYPEWIN
-    if (readconfig(fp, "windowpos", val, VL) > 0) windowpos = Batoi(val);
+    if (readconfig(fp, "windowpositioning", val, VL) > 0) windowpos = Batoi(val);
     windowx = -1;
-    if (readconfig(fp, "windowx", val, VL) > 0) windowx = Batoi(val);
+    if (readconfig(fp, "windowposx", val, VL) > 0) windowx = Batoi(val);
     windowy = -1;
-    if (readconfig(fp, "windowy", val, VL) > 0) windowy = Batoi(val);
+    if (readconfig(fp, "windowposy", val, VL) > 0) windowy = Batoi(val);
 #endif    
 
 if (readconfig(fp, "keyconsole", val, VL) > 0) { keys[19] = Bstrtol(val, NULL, 16); OSD_CaptureKey(keys[19]); }
@@ -238,9 +238,9 @@ int writesetup(const char *fn)
              "maxrefreshfreq = %d\n"
              "\n"
              "; Window positioning, 0 = center, 1 = memory\n"
-             "windowpos = %d\n"
-             "windowx = %d\n"
-             "windowy = %d\n"
+             "windowpositioning = %d\n"
+             "windowposx = %d\n"
+             "windowposy = %d\n"
              "\n"
 #endif
              "; 3D mode brightness setting\n"

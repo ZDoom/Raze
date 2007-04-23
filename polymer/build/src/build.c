@@ -2669,7 +2669,7 @@ long drawtilescreen(long pictopleft, long picbox)
 
                 dax = ((cnt%(xtiles<<gettilezoom))<<(6-gettilezoom));
                 day = ((cnt/(xtiles<<gettilezoom))<<(6-gettilezoom));
-                if (polymost_drawtilescreen(dax, day, wallnum, 64>>gettilezoom)) {
+                if (polymost_drawtilescreen(dax, day, wallnum, 64>>gettilezoom, 0)) {
                     vidpos = ylookup[day]+dax+frameplace;
                     if ((xdime <= (64>>gettilezoom)) && (ydime <= (64>>gettilezoom)))
                     {

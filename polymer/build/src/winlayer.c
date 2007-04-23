@@ -380,9 +380,9 @@ static int set_maxrefreshfreq(const osdfuncparm_t *parm)
     int freq;
     if (parm->numparms == 0) {
         if (maxrefreshfreq == 0)
-            OSD_Printf("maxrefreshfreq = No maximum\n");
+            OSD_Printf("\"maxrefreshfreq\" is \"No maximum\"\n");
         else
-            OSD_Printf("maxrefreshfreq = %d Hz\n",maxrefreshfreq);
+            OSD_Printf("\"maxrefreshfreq\" is \"%d\"\n",maxrefreshfreq);
         return OSDCMD_OK;
     }
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
@@ -392,6 +392,20 @@ static int set_maxrefreshfreq(const osdfuncparm_t *parm)
 
     maxrefreshfreq = (unsigned)freq;
     modeschecked = 0;
+
+    return OSDCMD_OK;
+}
+
+static int set_windowpos(const osdfuncparm_t *parm)
+{
+    if (parm->numparms == 0) {
+        OSD_Printf("\"r_windowpositioning\" is \"%d\"\n",windowpos);
+        return OSDCMD_OK;
+    }
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    windowpos = Batol(parm->parms[0])>0;
+    OSD_Printf("r_windowpositioning %d\n",windowpos);
 
     return OSDCMD_OK;
 }
@@ -498,6 +512,7 @@ int initsystem(void)
         initprintf("DirectDraw initialisation failed. Fullscreen modes will be unavailable.\n");
 
     OSD_RegisterFunction("maxrefreshfreq", "maxrefreshfreq: maximum display frequency to set for OpenGL Polymost modes (0=no maximum)", set_maxrefreshfreq);
+    OSD_RegisterFunction("r_windowpositioning", "r_windowpositioning: enable/disable window position memory", set_windowpos);
     return 0;
 }
 

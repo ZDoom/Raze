@@ -5012,7 +5012,7 @@ void polymost_fillpolygon (long npoints)
 }
 #endif
 
-long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen)
+long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen, int tilezoom)
 {
 #ifdef USE_OPENGL
     float xdime, ydime, xdimepad, ydimepad, scx, scy, ratio = 1.0;
@@ -5048,8 +5048,11 @@ long polymost_drawtilescreen (long tilex, long tiley, long wallnum, long dimen)
 
     bglDisable(GL_ALPHA_TEST);
 
-    if (scx > scy) ratio = dimen/scx;
-    else ratio = dimen/scy;
+    if (tilezoom)
+    {
+        if (scx > scy) ratio = dimen/scx;
+        else ratio = dimen/scy;
+    }
 
     if (!pth || (pth->flags & 8)) {
         bglDisable(GL_TEXTURE_2D);

@@ -1718,14 +1718,14 @@ static long SelectAllTiles(long iCurrentTile)
 
 static long OnGotoTile(long iTile);
 static long OnSelectTile(long iTile);
-
+static long s_Zoom = INITIAL_ZOOM;
+static long s_TileZoom = 1;
 
 static long DrawTiles(long iTopLeft, long iSelected, long nXTiles, long nYTiles, long TileDim);
 
 
 static long m32gettile(long idInitialTile)
 {
-    static long s_Zoom = INITIAL_ZOOM;
     long gap, temp;
     long nXTiles, nYTiles, nDisplayedTiles;
     long i;
@@ -2017,49 +2017,49 @@ static long m32gettile(long idInitialTile)
         }
 
         // 'V'  KEYPRESS
-        if (keystatus[0x2f] > 0)
+        if (keystatus[KEYSC_V] > 0)
         {
-            keystatus[0x2f] = 0;
+            keystatus[KEYSC_V] = 0;
 
             iTile = SelectAllTiles(iTile);
         }
 
         // 'G'  KEYPRESS - Goto frame
-        if (keystatus[0x22] > 0)
+        if (keystatus[KEYSC_G] > 0)
         {
-            keystatus[0x22] = 0;
+            keystatus[KEYSC_G] = 0;
 
             iTile = OnGotoTile(iTile);
         }
 
         // 'U'  KEYPRESS : go straight to user defined art
-        if (keystatus[0x16])
+        if (keystatus[KEYSC_U])
         {
             SelectAllTiles(iTile);
 
             iTile = FIRST_USER_ART_TILE;
-            keystatus[0x16] = 0;
+            keystatus[KEYSC_U] = 0;
         }
 
         // 'A'  KEYPRESS : Go straight to start of Atomic edition's art
-        if (keystatus[0x1E])
+        if (keystatus[KEYSC_A])
         {
             SelectAllTiles(iTile);
 
             iTile = FIRST_ATOMIC_TILE;
-            keystatus[0x1e] = 0;
+            keystatus[KEYSC_A] = 0;
         }
 
         // 'T' KEYPRESS = Select from pre-defined tileset
-        if (keystatus[0x14])
+        if (keystatus[KEYSC_T])
         {
-            keystatus[0x14] = 0;
+            keystatus[KEYSC_T] = 0;
 
             iTile = OnSelectTile(iTile);
         }
 
         // 'E'  KEYPRESS : Go straight to start of extended art
-        if (keystatus[0x12])
+        if (keystatus[KEYSC_E])
         {
             SelectAllTiles(iTile);
 
@@ -2067,7 +2067,13 @@ static long m32gettile(long idInitialTile)
                 iTile = SECOND_EXTENDED_TILE;
             else iTile = FIRST_EXTENDED_TILE;
 
-            keystatus[0x12] = 0;
+            keystatus[KEYSC_E] = 0;
+        }
+
+        if (keystatus[KEYSC_Z])
+        {
+            s_TileZoom = !s_TileZoom;
+            keystatus[KEYSC_Z] = 0;
         }
 
         //
@@ -2236,6 +2242,7 @@ static long OnSelectTile(long iTile)
     {
         if (s_TileGroups[i].szText != NULL)
         {
+            if ((i+2)*16 > ydimgame) break;
             Bsprintf(tempbuf,"(%c) %s",s_TileGroups[i].key1,s_TileGroups[i].szText);
             printext256(10L, (i+1)*16, whitecol, -1, tempbuf, 0);
         }
@@ -2337,7 +2344,7 @@ static long DrawTiles(long iTopLeft, long iSelected, long nXTiles, long nYTiles,
                     XPos = XTile * TileDim;
                     YPos = YTile * TileDim;
 
-                    if (polymost_drawtilescreen(XPos, YPos, idTile, TileDim))
+                    if (polymost_drawtilescreen(XPos, YPos, idTile, TileDim, s_TileZoom))
                     {
                         TileSizeX = tilesizx[ idTile ];
                         TileSizeY = tilesizy[ idTile ];
@@ -2542,7 +2549,44 @@ static void Keys3d(void)
         }
     }
 
-    if (keystatus[0x2f] > 0)  //V
+    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x2f]==1) // ' V
+    {
+        keystatus[0x2f] = 0;
+        switch (searchstat)
+        {
+        case 1:
+        case 2:
+            Bstrcpy(tempbuf,"Sector visibility: ");
+            sector[searchsector].visibility =
+                getnumber256(tempbuf,sector[searchsector].visibility,256L,0);
+            break;
+        }
+    }
+
+    if (keystatus[KEYSC_SEMI] && keystatus[KEYSC_V])   // ; V
+    {
+        short currsector;
+        unsigned char visval;
+
+        keystatus[KEYSC_V] = 0;
+
+        if (highlightsectorcnt == -1)
+        {
+            message("You didn't select any sectors!");
+            return;
+        }
+        visval = (unsigned char)getnumber256("Visibility of selected sectors: ",sector[searchsector].visibility,256L,0);
+        if (AskIfSure()) return;
+
+        for (i = 0; i < highlightsectorcnt; i++)
+        {
+            currsector = highlightsector[i];
+            sector[currsector].visibility = visval;
+        }
+        message("Visibility changed on all selected sectors");
+    }
+
+    if (keystatus[KEYSC_V] > 0)  //V
     {
         if (searchstat == 0) templong = wall[searchwall].picnum;
         if (searchstat == 1) templong = sector[searchsector].ceilingpicnum;
@@ -2670,29 +2714,6 @@ static void Keys3d(void)
             }
         }
         message("Palettes changed");
-    }
-
-    if (keystatus[KEYSC_SEMI] && keystatus[KEYSC_V])   // ; V
-    {
-        short currsector;
-        unsigned char visval;
-
-        keystatus[KEYSC_V] = 0;
-
-        if (highlightsectorcnt == -1)
-        {
-            message("You didn't select any sectors!");
-            return;
-        }
-        visval = (unsigned char)getnumber256("Visibility of selected sectors: ",sector[searchsector].visibility,256L,0);
-        if (AskIfSure()) return;
-
-        for (i = 0; i < highlightsectorcnt; i++)
-        {
-            currsector = highlightsector[i];
-            sector[currsector].visibility = visval;
-        }
-        message("Visibility changed on all selected sectors");
     }
 
     if (keystatus[0xd3] > 0)
@@ -4053,20 +4074,6 @@ static void Keys3d(void)
             Bstrcpy(tempbuf,"Sprite shade: ");
             sprite[searchwall].shade =
                 getnumber256(tempbuf,sprite[searchwall].shade,128L,1);
-            break;
-        }
-    }
-
-    if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x2f]==1) // ' V
-    {
-        keystatus[0x2f] = 0;
-        switch (searchstat)
-        {
-        case 1:
-        case 2:
-            Bstrcpy(tempbuf,"Sector visibility: ");
-            sector[searchsector].visibility =
-                getnumber256(tempbuf,sector[searchsector].visibility,256L,0);
             break;
         }
     }
