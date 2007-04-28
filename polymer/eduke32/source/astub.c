@@ -2358,7 +2358,7 @@ static long DrawTiles(long iTopLeft, long iSelected, long nXTiles, long nYTiles,
                             DivInc++;
                         }
 
-                        if (1 == DivInc)
+                        if (DivInc == 1 && s_TileZoom)
                         {
                             while (((TileSizeX*(MulInc+1)) <= TileDim)
                                     && ((TileSizeY*(MulInc+1)) <= TileDim))
@@ -5148,7 +5148,7 @@ int ExtPreInit(int argc,char **argv)
     OSD_SetLogFile("mapster32.log");
     OSD_SetVersionString("Mapster32"VERSION,0,2);
     initprintf("Mapster32"VERSION" ("__DATE__" "__TIME__")\n");
-    initprintf("Copyright (c) 2007 EDuke32 team\n\n");
+    initprintf("Copyright (c) 2007 EDuke32 team\n");
 
     checkcommandline(argc,argv);
 

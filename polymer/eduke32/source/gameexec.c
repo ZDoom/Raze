@@ -41,7 +41,12 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
 {
     long lValue;
 
-    if (g_p != myconnectindex) return;
+    if (g_p != myconnectindex)
+    {
+        if (lVar2 == MAXGAMEVARS)
+            insptr++;
+        return;
+    }
 
     lValue=GetGameVarID(lVar2, g_i, g_p);
 
@@ -709,6 +714,8 @@ static void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     if (proj < 0 || proj >= MAXSPRITES)
     {
         OSD_Printf("DoThisProjectile(): invalid projectile (%d)\n",proj);
+        if (lVar2 == MAXGAMEVARS)
+            insptr++;
         return;
     }
 
@@ -928,7 +935,11 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         iPlayer=GetGameVarID(lVar1, g_i, g_p);
 
     if (iPlayer<0 || iPlayer >= MAXPLAYERS)
+    {
+        if (lVar2 == MAXGAMEVARS)
+            insptr++;
         return;
+    }
 
     lValue=GetGameVarID(lVar2, g_i, g_p);
 
@@ -1958,7 +1969,11 @@ static void DoInput(int iSet, int lVar1, int lLabelID, int lVar2)
         iPlayer=GetGameVarID(lVar1, g_i, g_p);
 
     if (iPlayer<0 || iPlayer >= MAXPLAYERS)
+    {
+        if (lVar2 == MAXGAMEVARS)
+            insptr++;
         return;
+    }
 
     lValue=GetGameVarID(lVar2, g_i, g_p);
 
@@ -2017,7 +2032,11 @@ static void DoWall(int iSet, int lVar1, int lLabelID, int lVar2)
     int iWall = GetGameVarID(lVar1, g_i, g_p);
 
     if (iWall<0 || iWall >= MAXWALLS)
+    {
+        if (lVar2 == MAXGAMEVARS)
+            insptr++;
         return;
+    }
 
     lValue=GetGameVarID(lVar2, g_i, g_p);
 
@@ -2156,7 +2175,11 @@ static void DoSector(int iSet, int lVar1, int lLabelID, int lVar2)
         iSector=GetGameVarID(lVar1, g_i, g_p);
 
     if (iSector<0 || iSector >= MAXSECTORS)
+    {
+        if (lVar2 == MAXGAMEVARS)
+            insptr++;
         return;
+    }
 
     lValue=GetGameVarID(lVar2, g_i, g_p);
 
@@ -2334,6 +2357,8 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     if (iActor < 0 || iActor >= MAXSPRITES)
     {
         OSD_Printf("DoActor(): invalid target sprite (%d) %d %d\n",iActor,g_i,g_sp->picnum);
+        if (lVar2 == MAXGAMEVARS)
+            insptr++;
         return;
     }
 
@@ -2684,6 +2709,8 @@ static void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     if (lVar1 < 0 || lVar1 >= MAXTILES)
     {
         OSD_Printf("DoProjectile(): invalid tile (%d)\n",lVar1);
+        if (lVar2 == MAXGAMEVARS)
+            insptr++;
         return;
     }
 

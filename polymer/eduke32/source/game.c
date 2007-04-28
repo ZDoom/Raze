@@ -8663,6 +8663,13 @@ static void checkcommandline(int argc,char **argv)
                     i++;
                     continue;
                 }
+                if (!Bstrcasecmp(c+1,"nosetup"))
+                {
+                    NoSetup = 1;
+                    CommandSetup = 0;
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"keepaddr"))
                 {
                     keepaddr = 1;
