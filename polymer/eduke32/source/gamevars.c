@@ -426,7 +426,7 @@ static int GetGameID(const char *szGameLabel)
 
 long GetGameVarID(int id, int iActor, int iPlayer)
 {
-    int inv=0;
+    int inv = 0;
 
     if (id == g_iThisActorID)
         return iActor;
@@ -442,14 +442,14 @@ long GetGameVarID(int id, int iActor, int iPlayer)
             return -1;
         }
 
-        inv=1;
+        inv = 1;
         id ^= (MAXGAMEVARS<<1);
     }
 
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER)
     {
         // for the current player
-        if (iPlayer >=0 && iPlayer < MAXPLAYERS)
+        if (iPlayer >= 0 && iPlayer < MAXPLAYERS)
         {
             //Bsprintf(g_szBuf,"GetGameVarID(%d, %d, %d) returns %ld\n",id,iActor,iPlayer, aGameVars[id].plValues[iPlayer]);
             //AddLog(g_szBuf);
@@ -464,7 +464,7 @@ long GetGameVarID(int id, int iActor, int iPlayer)
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR)
     {
         // for the current actor
-        if (iActor >= 0 && iActor <=MAXSPRITES)
+        if (iActor >= 0 && iActor <= MAXSPRITES)
         {
             if (inv) return(-aGameVars[id].plValues[iActor]);
             return (aGameVars[id].plValues[iActor]);

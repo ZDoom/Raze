@@ -285,7 +285,7 @@ static int defsparser(scriptfile *script)
         case T_DEFINETEXTURE:
         {
             int tile,pal,fnoo,i;
-            char *fn;
+            char *fn, *tfn = NULL;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getsymbol(script,&pal))  break;
@@ -295,28 +295,35 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&fnoo)) break; //y-size
             if (scriptfile_getstring(script,&fn))  break;
 
-            if ((i = kopen4load(fn,0)) < 0) {
+            i = pathsearchmode;
+            pathsearchmode = 1;                    
+            if (!findfrompath(fn,&tfn)) {
                 initprintf("Error: file '%s' does not exist\n",fn);
+                pathsearchmode = i;
                 break;
-            } else kclose(i);
+            } else Bfree(tfn);
+            pathsearchmode = i;
 
             hicsetsubsttex(tile,pal,fn,-1.0,1.0,1.0,0);
         }
         break;
         case T_DEFINESKYBOX:
         {
-            int tile,pal,i,j;
-            char *fn[6],happy=1;
+            int tile,pal,i,j,ii;
+            char *fn[6],happy=1,*tfn = NULL;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getsymbol(script,&pal)) break;
             if (scriptfile_getsymbol(script,&i)) break; //future expansion
             for (i=0;i<6;i++) {
                 if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
-                if ((j = kopen4load(fn[i],0)) < 0) {
+                ii = pathsearchmode;
+                pathsearchmode = 1;
+                if (!findfrompath(fn[i],&tfn)) {
                     initprintf("Error: file '%s' does not exist\n",fn[i]);
                     happy = 0;
-                } else kclose(j);
+                } else Bfree(tfn);
+                pathsearchmode = ii;
             }
             if (i < 6 || !happy) break;
             hicsetskybox(tile,pal,fn);
@@ -1034,8 +1041,8 @@ static int defsparser(scriptfile *script)
         case T_SKYBOX:
         {
             char *skyboxtokptr = script->ltextptr;
-            char *fn[6] = {0,0,0,0,0,0}, *modelend, happy=1;
-            int i, tile = -1, pal = 0,j;
+            char *fn[6] = {0,0,0,0,0,0}, *modelend, happy=1, *tfn = NULL;
+            int i, tile = -1, pal = 0,j,ii;
 
             if (scriptfile_getbraces(script,&modelend)) break;
             while (script->textptr < modelend) {
@@ -1063,10 +1070,13 @@ static int defsparser(scriptfile *script)
             if (tile < 0) initprintf("Error: missing 'tile number' for skybox definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy=0;
             for (i=0;i<6;i++) {
                 if (!fn[i]) initprintf("Error: missing '%s filename' for skybox definition near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
-                if ((j = kopen4load(fn[i],0)) < 0) {
+                ii = pathsearchmode;
+                pathsearchmode = 1;
+                if (!findfrompath(fn[i],&tfn)) {
                     initprintf("Error: file '%s' does not exist\n",fn[i]);
                     happy = 0;
-                } else kclose(j);
+                } else Bfree(tfn);
+                pathsearchmode = ii;
             }
             if (!happy) break;
 
@@ -1116,7 +1126,7 @@ static int defsparser(scriptfile *script)
                 case T_PAL: {
                     char *paltokptr = script->ltextptr, *palend;
                     int pal=-1, i;
-                    char *fn = NULL;
+                    char *fn = NULL, *tfn = NULL;
                     double alphacut = -1.0, xscale = 1.0, yscale = 1.0;
                     char flags = 0;
 
@@ -1150,11 +1160,14 @@ static int defsparser(scriptfile *script)
                                    script->filename, scriptfile_getlinum(script,paltokptr));
                         break;
                     }
-                    if ((i = kopen4load(fn,0)) < 0) {
+
+                    i = pathsearchmode;
+                    pathsearchmode = 1;
+                    if (!findfrompath(fn,&tfn)) {
                         initprintf("Error: file '%s' does not exist\n",fn);
                         break;
-                    } else kclose(i);
-
+                    } else Bfree(tfn);
+                    pathsearchmode = i;
                     xscale = 1.0f / xscale;
                     yscale = 1.0f / yscale;
 
@@ -1163,7 +1176,7 @@ static int defsparser(scriptfile *script)
                 case T_DETAIL: case T_GLOW: {
                     char *detailtokptr = script->ltextptr, *detailend;
                     int pal = 0, i;
-                    char *fn = NULL;
+                    char *fn = NULL, *tfn = NULL;
                     double xscale = 1.0, yscale = 1.0;
                     char flags = 0;
 
@@ -1189,10 +1202,15 @@ static int defsparser(scriptfile *script)
                                    script->filename, scriptfile_getlinum(script,detailtokptr));
                         break;
                     }
-                    if ((i = kopen4load(fn,0)) < 0) {
+
+                    i = pathsearchmode;
+                    pathsearchmode = 1;                    
+                    if (!findfrompath(fn,&tfn)) {
                         initprintf("Error: file '%s' does not exist\n",fn);
+                        pathsearchmode = i;
                         break;
-                    } else kclose(i);
+                    } else Bfree(tfn);
+                    pathsearchmode = i;
 
                     if (token == T_DETAIL)
                     {

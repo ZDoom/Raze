@@ -2784,7 +2784,7 @@ void overheadeditor(void)
     drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,1);
     drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,1);
     drawline16(0,ydim-STATUS2DSIZ+24,xdim-1,ydim-STATUS2DSIZ+24,1);
-    drawline16(192,ydim-STATUS2DSIZ,192,ydim-STATUS2DSIZ+24,1);
+    drawline16(192-24,ydim-STATUS2DSIZ,192-24,ydim-STATUS2DSIZ+24,1);
     if (totalclock < 120*5) printext16(8L,ydim-STATUS2DSIZ+32L,9,-1,kensig,0);
 
     //  printmessage16("Version: "VERSION);
@@ -7335,7 +7335,7 @@ void _printmessage16(char name[82])
     }
     snotbuf[54] = 0;
     begindrawing();
-    printext16(200L, ydim-STATUS2DSIZ+8L, 9, 0, snotbuf, 0);
+    printext16(200L-24, ydim-STATUS2DSIZ+8L, 9, 0, snotbuf, 0);
     enddrawing();
 }
 
