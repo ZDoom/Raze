@@ -10,6 +10,7 @@
 #include "baselayer.h"
 #include "scriptfile.h"
 #include "cache1d.h"
+#include "kplib.h"
 
 enum {
     T_EOF = -2,
@@ -296,11 +297,16 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getstring(script,&fn))  break;
 
             i = pathsearchmode;
-            pathsearchmode = 1;                    
-            if (!findfrompath(fn,&tfn)) {
-                initprintf("Error: file '%s' does not exist\n",fn);
-                pathsearchmode = i;
-                break;
+            pathsearchmode = 1;
+            if (findfrompath(fn,&tfn) < 0) {
+                char buf[BMAX_PATH];
+
+                Bstrcpy(buf,fn);
+                kzfindfilestart(buf);
+                if (!kzfindfile(buf)) {
+                    initprintf("Error: file '%s' does not exist\n",fn);
+                    break;
+                } 
             } else Bfree(tfn);
             pathsearchmode = i;
 
@@ -319,9 +325,15 @@ static int defsparser(scriptfile *script)
                 if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
                 ii = pathsearchmode;
                 pathsearchmode = 1;
-                if (!findfrompath(fn[i],&tfn)) {
-                    initprintf("Error: file '%s' does not exist\n",fn[i]);
-                    happy = 0;
+                if (findfrompath(fn[i],&tfn) < 0) {
+                    char buf[BMAX_PATH];
+
+                    Bstrcpy(buf,fn[i]);
+                    kzfindfilestart(buf);
+                    if (!kzfindfile(buf)) {
+                        initprintf("Error: file '%s' does not exist\n",fn[i]);
+                        happy = 0;
+                    } 
                 } else Bfree(tfn);
                 pathsearchmode = ii;
             }
@@ -1072,9 +1084,15 @@ static int defsparser(scriptfile *script)
                 if (!fn[i]) initprintf("Error: missing '%s filename' for skybox definition near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
                 ii = pathsearchmode;
                 pathsearchmode = 1;
-                if (!findfrompath(fn[i],&tfn)) {
-                    initprintf("Error: file '%s' does not exist\n",fn[i]);
-                    happy = 0;
+                if (findfrompath(fn[i],&tfn) < 0) {
+                    char buf[BMAX_PATH];
+
+                    Bstrcpy(buf,fn[i]);
+                    kzfindfilestart(buf);
+                    if (!kzfindfile(buf)) {
+                        initprintf("Error: file '%s' does not exist\n",fn[i]);
+                        happy = 0;
+                    } 
                 } else Bfree(tfn);
                 pathsearchmode = ii;
             }
@@ -1163,9 +1181,15 @@ static int defsparser(scriptfile *script)
 
                     i = pathsearchmode;
                     pathsearchmode = 1;
-                    if (!findfrompath(fn,&tfn)) {
-                        initprintf("Error: file '%s' does not exist\n",fn);
-                        break;
+                    if (findfrompath(fn,&tfn) < 0) {
+                        char buf[BMAX_PATH];
+
+                        Bstrcpy(buf,fn);
+                        kzfindfilestart(buf);
+                        if (!kzfindfile(buf)) {
+                            initprintf("Error: file '%s' does not exist\n",fn);
+                            break;
+                        }
                     } else Bfree(tfn);
                     pathsearchmode = i;
                     xscale = 1.0f / xscale;
@@ -1204,11 +1228,16 @@ static int defsparser(scriptfile *script)
                     }
 
                     i = pathsearchmode;
-                    pathsearchmode = 1;                    
-                    if (!findfrompath(fn,&tfn)) {
-                        initprintf("Error: file '%s' does not exist\n",fn);
-                        pathsearchmode = i;
-                        break;
+                    pathsearchmode = 1;
+                    if (findfrompath(fn,&tfn) < 0) {
+                        char buf[BMAX_PATH];
+
+                        Bstrcpy(buf,fn);
+                        kzfindfilestart(buf);
+                        if (!kzfindfile(buf)) {
+                            initprintf("Error: file '%s' does not exist\n",fn);
+                            break;
+                        } 
                     } else Bfree(tfn);
                     pathsearchmode = i;
 
