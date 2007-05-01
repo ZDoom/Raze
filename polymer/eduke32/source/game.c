@@ -884,14 +884,12 @@ void getpackets(void)
                 Bcorrectfilename(boardfilename,0);
                 if (boardfilename[0] != 0)
                 {
-                    char *tfn;
-
-                    if (!findfrompath(boardfilename,&tfn))
+                    if ((i = kopen4load(boardfilename,0)) < 0)
                     {
                         Bmemset(boardfilename,0,sizeof(boardfilename));
                         sendboardname();
                     }
-                    else Bfree(tfn);
+                    else kclose(i);
                 }
 
                 if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
@@ -9444,8 +9442,7 @@ static void Startup(long argc, char **argv)
         }
         else
         {
-            char *dot, *slash, *tfn;
-            int i;
+            char *dot, *slash;
 
             boardfilename[0] = '/';
             boardfilename[1] = 0;
@@ -9460,19 +9457,17 @@ static void Startup(long argc, char **argv)
 
             Bcorrectfilename(boardfilename,0);
 
-//            i = pathsearchmode;
-//            pathsearchmode = 1;
-            if (!findfrompath(boardfilename,&tfn))
+            i = kopen4load(boardfilename,0);
+            if (i!=-1)
+            {
+                initprintf("Using level: '%s'.\n",boardfilename);
+                kclose(i);
+            }
+            else
             {
                 initprintf("Level '%s' not found.\n",boardfilename);
                 boardfilename[0] = 0;
             }
-            else 
-            {
-                initprintf("Using level: '%s'.\n",boardfilename);
-                Bfree(tfn);
-            }
-//            pathsearchmode = i;
         }
     }
 
