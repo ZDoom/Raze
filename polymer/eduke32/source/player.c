@@ -3388,7 +3388,7 @@ void processinput(int snum)
             if (p->buttonpalette && ud.from_bonus == 0)
             {
                 ud.from_bonus = ud.level_number+1;
-                if (ud.secretlevel > 0 && ud.secretlevel < 12) ud.level_number = ud.secretlevel-1;
+                if (ud.secretlevel > 0 && ud.secretlevel < MAXLEVELS) ud.level_number = ud.secretlevel-1;
                 ud.m_level_number = ud.level_number;
             }
             else

@@ -1274,8 +1274,8 @@ static void ResetPointerVars(void)
     aGameVars[GetGameID("COOP")].lValue = (long)&ud.coop;
     aGameVars[GetGameID("MULTIMODE")].lValue = (long)&ud.multimode;
 
-    aGameVars[GetGameID("myconnectindex")].lValue =  (long)&myconnectindex;
-    aGameVars[GetGameID("screenpeek")].lValue =  (long)&screenpeek;
+    aGameVars[GetGameID("myconnectindex")].lValue = (long)&myconnectindex;
+    aGameVars[GetGameID("screenpeek")].lValue = (long)&screenpeek;
     aGameVars[GetGameID("currentweapon")].lValue = (long)&g_currentweapon;
     aGameVars[GetGameID("gs")].lValue = (long)&g_gs;
     aGameVars[GetGameID("looking_arc")].lValue = (long)&g_looking_arc;

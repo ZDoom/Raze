@@ -5641,14 +5641,14 @@ int parsetilegroups(scriptfile *script)
 
             while (script->textptr < end)
             {
-            tokenlist tgtokens2[] =
-                {
-                    { "tilegroup",  T_TILEGROUP   },
-                    { "tile",       T_TILE        },
-                    { "tilerange",  T_TILERANGE   },
-                    { "hotkey",     T_HOTKEY      },
-                    { "tiles",      T_TILES       },
-                };
+                tokenlist tgtokens2[] =
+                    {
+                        { "tilegroup",  T_TILEGROUP   },
+                        { "tile",       T_TILE        },
+                        { "tilerange",  T_TILERANGE   },
+                        { "hotkey",     T_HOTKEY      },
+                        { "tiles",      T_TILES       },
+                    };
 
                 int token = getatoken(script,tgtokens2,sizeof(tgtokens2)/sizeof(tokenlist));
                 switch (token)
@@ -5692,7 +5692,7 @@ int parsetilegroups(scriptfile *script)
                         {
                             if (i >= 0 && i < MAXTILES && s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES)
                                 s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i;
-        //                    OSD_Printf("added tile %d to group %d\n",i,g);
+                            //                    OSD_Printf("added tile %d to group %d\n",i,g);
                         }
                     }
                     break;

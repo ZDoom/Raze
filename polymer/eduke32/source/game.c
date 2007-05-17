@@ -52,8 +52,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20070413
-#define UPDATEINTERVAL 86400 // 24h
+#define BUILDDATE 20070501
+#define UPDATEINTERVAL 604800 // 1w
 #endif
 
 #define IDFSIZE 479985668

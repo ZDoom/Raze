@@ -594,7 +594,7 @@ int loadglulibrary(const char *driver)
     if (!hGLUDLL) return -1;
 #else
     gluhandle = dlopen(driver, RTLD_NOW|RTLD_GLOBAL);
-    if (!gluhandle) return 0;
+    if (!gluhandle) return -1;
 #endif
     glulibrary = strdup(driver);
 

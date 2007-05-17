@@ -189,13 +189,13 @@ all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
 endif
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB)
-	$(CC) -o $@ $^ $(JFAUDLIBS) $(LIBS) $(STDCPPLIB) -Wl,-Map=$@.map
+	$(CC) -o $@ $^ $(JFAUDLIBS) $(LIBS) $(STDCPPLIB) # -Wl,-Map=$@.map
 	-rm -f eduke32.sym$(EXESUFFIX)
 	cp eduke32$(EXESUFFIX) eduke32.sym$(EXESUFFIX)
 	strip eduke32$(EXESUFFIX)
 	
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB)
-	$(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) -Wl,-Map=$@.map
+	$(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) # -Wl,-Map=$@.map
 	-rm -f mapster32.sym$(EXESUFFIX)
 	cp mapster32$(EXESUFFIX) mapster32.sym$(EXESUFFIX)
 	strip mapster32$(EXESUFFIX)

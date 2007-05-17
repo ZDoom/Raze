@@ -1005,7 +1005,7 @@ static void DefineProjectile(long lVar1, long lLabelID, long lVar2)
     return;
 }
 
-char CheckEventSync(int iEventID)
+static int CheckEventSync(int iEventID)
 {
     if (parsing_event || parsing_actor)
     {
@@ -1737,7 +1737,7 @@ static int parsecommand(void)
 
         for (i=0;i<labelcnt;i++)
         {
-            if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 && (labeltype[i] & LABEL_DEFINE))
+            if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 /* && (labeltype[i] & LABEL_DEFINE) */)
             {
                 if (i >= defaultlabelcnt)
                 {
@@ -1817,7 +1817,7 @@ static int parsecommand(void)
                 }
 
             for (i=0;i<labelcnt;i++)
-                if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 && (labeltype[i] & LABEL_MOVE))
+                if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 /* && (labeltype[i] & LABEL_MOVE) */)
                 {
                     warning++;
                     initprintf("%s:%ld: warning: duplicate move `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
@@ -2009,7 +2009,7 @@ static int parsecommand(void)
                 }
 
             for (i=0;i<labelcnt;i++)
-                if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 && (labeltype[i] & LABEL_AI))
+                if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 /* && (labeltype[i] & LABEL_AI) */)
                 {
                     warning++;
                     initprintf("%s:%ld: warning: duplicate ai `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
@@ -2076,7 +2076,7 @@ static int parsecommand(void)
                     return 0;
                 }
             for (i=0;i<labelcnt;i++)
-                if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 && (labeltype[i] & LABEL_ACTION))
+                if (Bstrcmp(label+(labelcnt<<6),label+(i<<6)) == 0 /* && (labeltype[i] & LABEL_ACTION) */)
                 {
                     warning++;
                     initprintf("%s:%ld: warning: duplicate action `%s' ignored.\n",compilefile,line_number,label+(labelcnt<<6));
