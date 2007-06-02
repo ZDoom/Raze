@@ -672,7 +672,7 @@ LABELS playerlabels[]=
         { "walking_snd_toggle", PLAYER_WALKING_SND_TOGGLE, 0, 0 },
         { "palookup", PLAYER_PALOOKUP, 0, 0 },
         { "hard_landing", PLAYER_HARD_LANDING, 0, 0 },
-        { "max_+_rooms", PLAYER_MAX_SECRET_ROOMS, 0, 0 },
+        { "max_secret_rooms", PLAYER_MAX_SECRET_ROOMS, 0, 0 },
         { "secret_rooms", PLAYER_SECRET_ROOMS, 0, 0 },
         { "pals", PLAYER_PALS, LABEL_HASPARM2, 2 },
         { "max_actors_killed", PLAYER_MAX_ACTORS_KILLED, 0, 0 },

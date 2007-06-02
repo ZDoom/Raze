@@ -7347,12 +7347,11 @@ long saveboard(char *filename, long *daposx, long *daposy, long *daposz,
 
     ts = B_LITTLE16(numsprites);    Bwrite(fil,&ts,2);
 
-    for (j=0;j<MAXSTATUS;j++)
+    for (j=0;j<MAXSPRITES;j++)
     {
-        i = headspritestat[j];
-        while (i != -1)
+        if (sprite[j].statnum != MAXSTATUS)
         {
-            tspri = sprite[i];
+            tspri = sprite[j];
             tspri.x       = B_LITTLE32(tspri.x);
             tspri.y       = B_LITTLE32(tspri.y);
             tspri.z       = B_LITTLE32(tspri.z);
@@ -7369,7 +7368,6 @@ long saveboard(char *filename, long *daposx, long *daposy, long *daposz,
             tspri.hitag   = B_LITTLE16(tspri.hitag);
             tspri.extra   = B_LITTLE16(tspri.extra);
             Bwrite(fil,&tspri,sizeof(spritetype));
-            i = nextspritestat[i];
         }
     }
 
