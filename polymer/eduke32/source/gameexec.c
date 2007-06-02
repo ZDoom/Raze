@@ -2259,6 +2259,13 @@ static void DoSector(int iSet, int lVar1, int lLabelID, int lVar2)
         if (iSet)
             sector[iSector].ceilingxpanning=lValue;
         else
+            SetGameVarID(lVar2, sector[iSector].ceilingxpanning,g_i,g_p);
+        break;
+
+    case SECTOR_CEILINGYPANNING:
+        if (iSet)
+            sector[iSector].ceilingypanning=lValue;
+        else
             SetGameVarID(lVar2, sector[iSector].ceilingypanning,g_i,g_p);
         break;
 
