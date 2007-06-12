@@ -2708,7 +2708,7 @@ static void Keys3d(void)
                 while (w >= 0)
                 {
                     j = nextspritesect[w];
-                    sprite[i].pal = pal;
+                    sprite[w].pal = pal;
                     w = j;
                 }
             }

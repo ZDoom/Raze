@@ -2381,7 +2381,6 @@ static int parsecommand(void)
         if (!CheckEventSync(current_event))
             ReportError(WARNING_EVENTSYNC);
     case CON_ANGOFF:
-    case CON_USERQUOTE:
     case CON_QUOTE:
     case CON_SOUND:
     case CON_GLOBALSOUND:
@@ -3044,6 +3043,7 @@ static int parsecommand(void)
     case CON_GUNIQHUDID:
     case CON_SAVEGAMEVAR:
     case CON_READGAMEVAR:
+    case CON_USERQUOTE:
         transvar();
         return 0;
 

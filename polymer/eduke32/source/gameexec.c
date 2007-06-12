@@ -6315,15 +6315,18 @@ static int parse(void)
 
     case CON_USERQUOTE:
         insptr++;
-        if (fta_quotes[*insptr] == NULL)
         {
-            OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,*insptr);
-            insptr++;
-            break;
-        }
-        adduserquote(fta_quotes[*insptr++]);
-        break;
+            int i=GetGameVarID(*insptr++, g_i, g_p);
 
+            if (fta_quotes[i] == NULL)
+            {
+                OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,i);
+                break;
+            }
+            adduserquote(fta_quotes[i]);
+        }
+        break;
+    
     case CON_IFINOUTERSPACE:
         parseifelse(floorspace(g_sp->sectnum));
         break;
