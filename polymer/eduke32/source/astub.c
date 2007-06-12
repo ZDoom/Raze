@@ -2643,7 +2643,7 @@ static void Keys3d(void)
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_P])   // ' P
     {
         short w, start_wall, end_wall, currsector;
-        unsigned char pal;
+        signed char pal[4];
 
         keystatus[KEYSC_P] = 0;
 
@@ -2653,22 +2653,39 @@ static void Keys3d(void)
             return;
         }
 
-        pal = (unsigned char)getnumber256("Palette: ",0,MAXPALOOKUPS,0);
+        pal[0] = getnumber256("Ceiling palette: ",-1,MAXPALOOKUPS,1);
+        pal[1] = getnumber256("Floor palette: ",-1,MAXPALOOKUPS,1);
+        pal[2] = getnumber256("Wall palette: ",-1,MAXPALOOKUPS,1);
+        pal[3] = getnumber256("Sprite palette: ",-1,MAXPALOOKUPS,1);
         if (AskIfSure()) return;
 
         for (i = 0; i < highlightsectorcnt; i++)
         {
             currsector = highlightsector[i];
-            sector[currsector].ceilingpal = pal;
-            sector[currsector].floorpal = pal;
+            if (pal[0] > -1)
+                sector[currsector].ceilingpal = pal[0];
+            if (pal[1] > -1)
+                sector[currsector].floorpal = pal[1];
             // Do all the walls in the sector
             start_wall = sector[currsector].wallptr;
             end_wall = start_wall + sector[currsector].wallnum;
 
-            for (w = start_wall; w < end_wall; w++)
-            {
-                wall[w].pal = pal;
-            }
+            if (pal[2] > -1)
+                for (w = start_wall; w < end_wall; w++)
+                {
+                    wall[w].pal = pal[2];
+                }
+            if (pal[3] > -1)
+                for (k=0;k<highlightsectorcnt;k++)
+                {
+                    w = headspritesect[highlightsector[k]];
+                    while (w >= 0)
+                    {
+                        j = nextspritesect[w];
+                        sprite[w].pal = pal[3];
+                        w = j;
+                    }
+                }
         }
         message("Palettes changed");
     }
@@ -2687,7 +2704,7 @@ static void Keys3d(void)
             return;
         }
 
-        pal = (unsigned char)getnumber256("Palette: ",0,MAXPALOOKUPS,0);
+        pal = (unsigned char)getnumber256("Global palette: ",0,MAXPALOOKUPS,0);
         if (AskIfSure()) return;
 
         for (i = 0; i < highlightsectorcnt; i++)
