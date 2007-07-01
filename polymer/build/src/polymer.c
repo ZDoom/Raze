@@ -5,7 +5,7 @@
 // CVARS
 int             pr_cliplanes = 1;
 int             pr_fov = 426;           // appears to be the classic setting.
-int             pr_frustumculling = 1;
+int             pr_showportals = 0;
 int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
 int             pr_wireframe = 0;
 
@@ -15,24 +15,26 @@ _prwall         *prwalls[MAXWALLS];
 
 GLfloat         skybox[16];
 
-short           cursky;
-
 // CONTROL
-float           frustum[16]; // left right top bottom
+float           frustum[20]; // left right top bottom near
+float           frustumnorms[5];
 
 GLdouble        modelviewmatrix[16];
 GLdouble        projectionmatrix[16];
 GLint           viewport[4];
 GLint           portal[4];
 
-_cliplane       *cliplanes;
-int             cliplanecount, maxcliplanecount;
+GLfloat         *portalpoints = NULL;
+float           *distances = NULL;
+int             maxportalpointcount = 0;
 
 int             updatesectors = 1;
 
 GLUtesselator*  prtess;
 int             tempverticescount;
 GLdouble        tempvertice[3];
+
+short           cursky;
 
 // EXTERNAL FUNCTIONS
 int                 polymer_init(void)
@@ -54,9 +56,6 @@ int                 polymer_init(void)
         prwalls[i] = NULL;
         i++;
     }
-
-    cliplanes = NULL;
-    cliplanecount = maxcliplanecount = 0;
 
     prtess = bgluNewTess();
     if (prtess == 0)
@@ -188,13 +187,10 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
     // get the new modelview
     bglGetDoublev(GL_MODELVIEW_MATRIX, modelviewmatrix);
 
-    if (pr_frustumculling)
-        polymer_extractfrustum(modelviewmatrix, projectionmatrix);
+    polymer_extractfrustum(modelviewmatrix, projectionmatrix);
 
     // initialize the portal to the whole viewport
     memcpy(portal, viewport, sizeof(GLint) * 4);
-
-    cliplanecount = 0;
 
     // game tic
     if (updatesectors || 1)
@@ -241,96 +237,21 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
         prsectors[i]->drawingstate = 0;
         i++;
     }
-
-    polymer_drawroom(dacursectnum);
-
-    /*prsectors[dacursectnum]->drawingstate = 2; // SEED OF LIFE
-
-    drawnsectors = 1;
-    while (drawnsectors > 0)
+    i = 0;
+    while (i < numwalls)
     {
-        drawnsectors = 0;
+        prwalls[i]->drawn = 0;
+        i++;
+    }
 
-        i = 0;
-        while (i < numsectors)
-        {
-            if (prsectors[i] && prsectors[i]->drawingstate == 2)
-            {
-                polymer_drawsector(i);
+    // stupid waste of performance - the position doesn't match the sector number when running from a sector to another
+    updatesector(daposx, daposy, &dacursectnum);
 
-                sec = &sector[i];
-                wal = &wall[sec->wallptr];
-
-                j = 0;
-                while (j < sec->wallnum)
-                {
-                    if ((pr_frustumculling == 0) || polymer_portalinfrustum(sec->wallptr + j))
-                    {
-                        polymer_drawwall(sec->wallptr + j);
-                        if ((wal->nextsector != -1) && (prsectors[wal->nextsector]) && (prsectors[wal->nextsector]->drawingstate == 0))
-                            prsectors[wal->nextsector]->drawingstate = 1;
-                    }
-
-                    j++;
-                    wal = &wall[sec->wallptr + j];
-                }
-
-                prsectors[i]->drawingstate = 3;
-                drawnsectors++;
-            }
-            i++;
-        }
-
-        i = 0;
-        while (i < numsectors)
-        {
-            if (prsectors[i] && prsectors[i]->drawingstate == 1)
-                prsectors[i]->drawingstate = 2;
-            i++;
-        }
-    }*/
+    // GO
+    polymer_drawroom(dacursectnum);
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
 }
-
-void                polymer_drawroom(short sectnum)
-{
-    int             i, j;
-    sectortype      *sec;
-    walltype        *wal;
-    GLint           curportal[4];
-
-    sec = &sector[i];
-    wal = &wall[sec->wallptr];
-
-    memcpy(curportal, portal, sizeof(GLint) * 4);
-
-    // first draw the sector
-    polymer_drawsector(sectnum);
-    prsectors[sectnum]->drawingstate = 1;
-
-    i = 0;
-    while (i < sec->wallnum)
-    {
-        if (polymer_checkportal(sec->wallptr + i))
-        {
-            polymer_drawwall(sec->wallptr + i);
-            if ((wal->nextsector != -1) && (prsectors[wal->nextsector]->drawingstate == 0))
-                polymer_drawroom(wal->nextsector);
-            memcpy(portal, curportal, sizeof(GLint) * 4);
-        }
-        i++;
-        wal = &wall[sec->wallptr + i];
-    }
-
-
-}
-
-int                 polymer_checkportal(short wallnum)
-{   // Returns 1 if the wall is in the current portal and sets the current portal to the wall, returns 0 otherwise
-
-}
-
 
 void                polymer_rotatesprite(long sx, long sy, long z, short a, short picnum, signed char dashade, char dapalnum, char dastat, long cx1, long cy1, long cx2, long cy2)
 {
@@ -1046,19 +967,115 @@ void                polymer_extractfrustum(GLdouble* modelview, GLdouble* projec
         frustum[i + 4] = matrix[(4 * i) + 3] - matrix[4 * i];           // right
         frustum[i + 8] = matrix[(4 * i) + 3] - matrix[(4 * i) + 1];     // top
         frustum[i + 12] = matrix[(4 * i) + 3] + matrix[(4 * i) + 1];    // bottom
+        frustum[i + 16] = matrix[(4 * i) + 3] + matrix[(4 * i) + 2];    // near
         i++;
     }
+    i = 0;
+    while (i < 5)
+    { // frustum plane norms
+        frustumnorms[i] = sqrt((frustum[(i * 4) + 0] * frustum[(i * 4) + 0]) +
+                               (frustum[(i * 4) + 1] * frustum[(i * 4) + 1]) +
+                               (frustum[(i * 4) + 2] * frustum[(i * 4) + 2]));
+        i++;
+    }
+
+    if (pr_verbosity >= 3) OSD_Printf("PR : Frustum extracted.\n");
 }
 
+void                polymer_drawroom(short sectnum)
+{
+    int             i, j;
+    sectortype      *sec;
+    walltype        *wal;
+    GLint           curportal[4];
+    GLfloat         currecursive;
+
+    if (pr_verbosity >= 3) OSD_Printf("PR : Drawing room %d.\n", sectnum);
+
+    sec = &sector[sectnum];
+    wal = &wall[sec->wallptr];
+
+    memcpy(curportal, portal, sizeof(GLint) * 4);
+
+    // first draw the sector
+    bglScissor(portal[0], viewport[3] - portal[3], portal[2] - portal[0], portal[3] - portal[1]);
+    bglEnable(GL_SCISSOR_TEST);
+    polymer_drawsector(sectnum);
+    prsectors[sectnum]->drawingstate = 1;
+    bglDisable(GL_SCISSOR_TEST);
+
+    i = 0;
+    while (i < sec->wallnum)
+    {
+        if ((prwalls[sec->wallptr + i]->drawn == 0) && (wallvisible(sec->wallptr + i)) && polymer_checkportal(sec->wallptr + i))
+        {
+            polymer_drawwall(sec->wallptr + i);
+            prwalls[sec->wallptr + i]->drawn = 1;
+
+            if ((wal->nextsector != -1) && (prsectors[wal->nextsector]->drawingstate == 0))
+            {
+                polymer_drawroom(wal->nextsector);
+            }
+
+            if (pr_verbosity >= 3) OSD_Printf("PR : Popping portal...\n");
+            memcpy(portal, curportal, sizeof(GLint) * 4);
+
+            prwalls[sec->wallptr + i]->drawn = 0;
+        }
+        i++;
+        wal = &wall[sec->wallptr + i];
+    }
+
+    prsectors[sectnum]->drawingstate = 0;
+}
+
+int                 polymer_checkportal(short wallnum)
+{   // Returns 1 if the wall is in the current portal and sets the current portal to the wall, returns 0 otherwise
+    GLint           wallportal[4], newportal[4];
+    int             mask, portalpointcount;
+
+    if (pr_verbosity >= 3) OSD_Printf("PR : Checking wall %d.\n", wallnum);
+
+    mask = polymer_portalinfrustum(wallnum);
+
+    if (mask == 0)
+        return (0); // not visible
+    if (mask > 1)
+    { // only some points visible, clip the polygon to the viewport
+        portalpointcount = polymer_cliptofrustum(wallnum, mask);
+        polymer_getportal(portalpoints, portalpointcount, wallportal);
+    }
+    else // all visible
+        polymer_getportal(prwalls[wallnum]->portal, 4, wallportal);
+
+    if ((wallportal[0] > portal[2]) || (wallportal[2] < portal[0]) || (wallportal[1] > portal[3]) || (wallportal[3] < portal[1]))
+        return (0); // the wall is totally outside the current portal
+
+    // we need to find the intersection of the current portal and the wall portal
+    newportal[0] = portal[0] + (klabs(wallportal[0] - portal[0]) + (wallportal[0] - portal[0])) / 2;
+    newportal[1] = portal[1] + (klabs(wallportal[1] - portal[1]) + (wallportal[1] - portal[1])) / 2;
+    newportal[2] = portal[2] + ((wallportal[2] - portal[2]) - klabs(wallportal[2] - portal[2])) / 2;
+    newportal[3] = portal[3] + ((wallportal[3] - portal[3]) - klabs(wallportal[3] - portal[3])) / 2;
+
+    // update the view portal
+    if (pr_verbosity >= 3) OSD_Printf("PR : Updating portal...\n");
+    memcpy(portal, newportal, sizeof(GLint) * 4);
+
+    // draw the new portal
+    if (pr_showportals)
+        polymer_drawportal();
+
+    return (1);
+}
 int                 polymer_portalinfrustum(short wallnum)
 {
-    int             i, j, k;
+    int             i, j, k, result;
     float           sqdist;
     _prwall         *w;
 
     w = prwalls[wallnum];
 
-    i = 0;
+    i = result = 0;
     while (i < 4)
     {
         j = k = 0;
@@ -1068,8 +1085,11 @@ int                 polymer_portalinfrustum(short wallnum)
                      frustum[(i * 4) + 1] * w->portal[(j * 3) + 1] +
                      frustum[(i * 4) + 2] * w->portal[(j * 3) + 2] +
                      frustum[(i * 4) + 3];
-            if (sqdist  < 0)
+            if (sqdist < 0)
+            {
                 k++;
+                result |= 2<<j;
+            }
             j++;
         }
         if (k == 4)
@@ -1077,58 +1097,210 @@ int                 polymer_portalinfrustum(short wallnum)
         i++;
     }
 
-    return (1);
+    result |= 1;
+
+    return (result);
 }
 
-void                polymer_addcliplane(_equation clip, _equation left, _equation right, float refx, float refy)
+float               polymer_pointdistancetoplane(GLfloat* point, GLfloat* plane)
 {
-    if (cliplanecount == maxcliplanecount)
-        cliplanes = realloc(cliplanes, sizeof(_cliplane) * ++maxcliplanecount);
+    float           result, t;
 
-    cliplanes[cliplanecount].clip = clip;
-    cliplanes[cliplanecount].left = left;
-    cliplanes[cliplanecount].right = right;
-    cliplanes[cliplanecount].ref.x = refx;
-    cliplanes[cliplanecount].ref.y = refy;
-
-    cliplanecount++;
+    result = plane[0] * point[0] +
+             plane[1] * point[1] +
+             plane[2] * point[2] +
+             plane[3];
+    return (result);
 }
 
-int                 polymer_wallincliplanes(short wallnum)
+void                polymer_lineplaneintersection(GLfloat *point1, GLfloat *point2, float dist1, float dist2, GLfloat *output)
 {
-    walltype        *wal;
-    _point2d        p1, p2;
-    int             i, j;
+    GLfloat         result[3];
+    float           s;
 
-    wal = &wall[wallnum];
+    s = dist1 / (dist1 - dist2);
 
-    p1.x = wal->x;
-    p1.y = wal->y;
+    result[0] = point1[0] + (s * (point2[0] - point1[0]));
+    result[1] = point1[1] + (s * (point2[1] - point1[1]));
+    result[2] = point1[2] + (s * (point2[2] - point1[2]));
 
-    p2.x = wall[wal->point2].x;
-    p2.y = wall[wal->point2].y;
+    memcpy(output, result, sizeof(GLfloat) * 3);
+}
 
+int                 polymer_cliptofrustum(short wallnum, int mask)
+{   // sutherland-hofnman polygon clipping algorithm against all planes of the frustum
+    GLfloat         intersect[3];
+    int             i, j, k, l, m, result, exitpoint;
+
+    if (portalpoints == NULL)
+    { // one-time initialization
+        portalpoints = calloc(4, sizeof(GLfloat) * 3);
+        distances = calloc(4, sizeof(float));
+        maxportalpointcount = 4;
+    }
+    result = 4; // 4 points to start with
+    if (pr_verbosity >= 3) OSD_Printf("PR : Clipping wall %d...\n", wallnum);
+    memcpy(portalpoints, prwalls[wallnum]->portal, sizeof(GLfloat) * 3 * 4);
     i = 0;
-    while (i < cliplanecount)
-    {
-        j = 0;
-
-        if ((sameside(&cliplanes[i].clip, &cliplanes[i].ref, &p1) == 0) && (sameside(&cliplanes[i].clip, &cliplanes[i].ref, &p2) == 0))
+    while (i < 4)
+    { // frustum planes
+        j = k = 0;
+        m = -1;
+        while (j < result)
+        {
+            distances[j] = polymer_pointdistancetoplane(&portalpoints[j * 3], &frustum[i * 4]);
+            if (distances[j] < 0)
+                k = 1; // at least one is outside
+            if ((distances[j] > 0) && (m < 0))
+                m = j; // first point inside
             j++;
+        }
 
-        if ((sameside(&cliplanes[i].left, &cliplanes[i].ref, &p1) == 1) && (sameside(&cliplanes[i].left, &cliplanes[i].ref, &p2) == 1))
-            j++;
+        if ((k) && (m != -1))
+        { // divide and conquer while we may
+            j = m;
+            while ((j != m) || (k))
+            {
+                if (k)
+                {
+                    k = 0;
+                    if (pr_verbosity >= 3) OSD_Printf("PR : Clipping against frustum plane %d starting with point %d...\n", i, m);
+                }
+                
+                l = j + 1; // L is next point
+                if (l == result)
+                    l = 0;
+                
+                if ((distances[j] >= 0) && (distances[l] < 0))
+                { // case 1 : line exits the plane -> compute intersection
+                    polymer_lineplaneintersection(&portalpoints[j * 3], &portalpoints[l * 3], distances[j], distances[l], intersect);
+                    exitpoint = l;
+                    if (pr_verbosity >= 3) OSD_Printf("PR : %d: EXIT\n", j);
+                }
+                else if ((distances[j] < 0) && (distances[l] < 0))
+                { // case 2 : line is totally outside the plane
+                    if (j != exitpoint)
+                    { // if we didn't just exit we need to delete this point forever
+                        result--;
+                        if (j != result)
+                        {
+                            memmove(&portalpoints[j * 3], &portalpoints[l * 3], (result - j) * sizeof(GLfloat) * 3);
+                            memmove(&distances[j], &distances[l], (result - j) * sizeof(float));
+                            if (m >= l)
+                            {
+                                m--;
+                            }
+                                l--;
+                        }
+                        if (l == result)
+                            l = 0;
+                    }
+                    else
+                        memcpy(&portalpoints[j * 3], intersect, sizeof(GLfloat) * 3); // replace point by intersection from previous entry
+                    if (pr_verbosity >= 3) OSD_Printf("PR : %d: IN\n", j);
+                }
+                else if ((distances[j] < 0) && (distances[l] >= 0))
+                { // case 3 : we're going back into the plane -> replace current point with intersection
+                    if (j == exitpoint)
+                    { // if we just exited a point is created
+                        if (result == maxportalpointcount)
+                        {
+                            portalpoints = realloc(portalpoints, sizeof(GLfloat) * 3 * (maxportalpointcount + 1));
+                            distances = realloc(distances, sizeof(float) * (maxportalpointcount + 1));
+                            maxportalpointcount++;
+                        }
+                        if ((result - 1) != j)
+                        {
+                            memmove(&portalpoints[(l + 1) * 3], &portalpoints[l * 3], (result - l) * sizeof(GLfloat) * 3);
+                            memmove(&distances[l + 1], &distances[l], (result - l) * sizeof(float));
+                            if (m >= l)
+                                m++;
+                        }
+                        result++;
+                        polymer_lineplaneintersection(&portalpoints[j * 3], &portalpoints[l * 3], distances[j], distances[l], &portalpoints[(j + 1) * 3]);
+                        memcpy(&portalpoints[j * 3], intersect, sizeof(GLfloat) * 3); // replace point by intersection from previous entry
+                        if ((l) && (l != m))
+                            l++; // if not at the end of the list, skip the point we just created
+                    }
+                    else
+                        polymer_lineplaneintersection(&portalpoints[j * 3], &portalpoints[l * 3], distances[j], distances[l], &portalpoints[j * 3]);
+                    if (pr_verbosity >= 3) OSD_Printf("PR : %d: ENTER\n", j);
+                }
+                else
+                    if (pr_verbosity >= 3) OSD_Printf("PR : %d: OUT\n", j);
 
-        if ((sameside(&cliplanes[i].right, &cliplanes[i].ref, &p1) == 1) && (sameside(&cliplanes[i].right, &cliplanes[i].ref, &p2) == 1))
-            j++;
-
-        if (j == 3)
-            return (0);
+                j = l; // L
+            }
+        }
+        
+        if (pr_verbosity >= 3) OSD_Printf("PR : Plane %d finished, result : %d.\n", i, result);
 
         i++;
     }
 
-    return (1);
+    return (result);
+}
+
+void                polymer_getportal(GLfloat* portalpoints, int portalpointcount, GLint* output)
+{
+    GLdouble        result[3];
+    int             i;
+
+    bgluProject(portalpoints[0], portalpoints[1], portalpoints[2], modelviewmatrix, projectionmatrix, viewport, &(result[0]), &(result[1]), &(result[2]));
+
+    result[1] = viewport[3] - result[1];
+
+    output[0] = (GLint)result[0];
+    output[1] = (GLint)result[1];
+    output[2] = (GLint)result[0];
+    output[3] = (GLint)result[1];
+
+    i = 1;
+    while (i < portalpointcount)
+    {
+        bgluProject(portalpoints[(i * 3)], portalpoints[(i * 3) + 1], portalpoints[(i * 3) + 2], modelviewmatrix, projectionmatrix, viewport, &(result[0]), &(result[1]), &(result[2]));
+
+        result[1] = viewport[3] - result[1];
+
+        if (((GLint)result[0]) < output[0])
+            output[0] = (GLint)result[0];
+        if (((GLint)result[0]) > output[2])
+            output[2] = (GLint)result[0];
+        if (((GLint)result[1]) < output[1])
+            output[1] = (GLint)result[1];
+        if (((GLint)result[1]) > output[3])
+            output[3] = (GLint)result[1];
+
+        i++;
+    }
+}
+
+void                polymer_drawportal(void)
+{
+    bglMatrixMode(GL_PROJECTION);
+    bglPushMatrix();
+    bglLoadIdentity();
+    bglOrtho(0, xdim, ydim, 0, 0, 1);
+    bglMatrixMode(GL_MODELVIEW);
+    bglPushMatrix();
+    bglLoadIdentity();
+
+    bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    bglDisable(GL_TEXTURE_2D);
+
+    bglBegin(GL_LINE_LOOP);
+    bglVertex3f(portal[0], portal[1], 0.0f);
+    bglVertex3f(portal[0], portal[3], 0.0f);
+    bglVertex3f(portal[2], portal[3], 0.0f);
+    bglVertex3f(portal[2], portal[1], 0.0f);
+    bglEnd();
+
+    bglEnable(GL_TEXTURE_2D);
+
+    bglPopMatrix();
+    bglMatrixMode(GL_PROJECTION);
+    bglPopMatrix();
+    bglMatrixMode(GL_MODELVIEW);
 }
 
 // SKIES

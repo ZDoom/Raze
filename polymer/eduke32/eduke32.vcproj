@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="eduke32"
 	ProjectGUID="{8E7A6179-0B72-4073-8A4C-E8682D481DAE}"
 	RootNamespace="eduke32"
@@ -694,11 +694,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\develop.h"
+					RelativePath=".\source\jmact\develop.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jmact\develop.h"
+					RelativePath=".\source\develop.h"
 					>
 				</File>
 				<File

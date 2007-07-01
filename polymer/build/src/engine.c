@@ -5869,6 +5869,26 @@ _equation       equation(long x1, long y1, long x2, long y2)
     return (ret);
 }
 
+int                 wallvisible(short wallnum)
+{ // 1 if wall is in front of player 0 otherwise
+    long            a1, a2;
+    walltype        *w1, *w2;
+
+    w1 = &wall[wallnum];
+    w2 = &wall[w1->point2];
+
+    a1 = getangle(w1->x - globalposx, w1->y - globalposy);
+    a2 = getangle(w2->x - globalposx, w2->y - globalposy);
+
+    //if ((wallnum == 23) || (wallnum == 9))
+    //    OSD_Printf("Wall %d : %d - sector %d - x %d - y %d.\n", wallnum, (a2 + (2048 - a1)) & 2047, globalcursectnum, globalposx, globalposy);
+
+    if (((a2 + (2048 - a1)) & 2047) <= 1024)
+        return (1);
+    else
+        return (0);
+}
+
 // returns the intersection point between two lines
 _point2d        intersection(_equation eq1, _equation eq2)
 {

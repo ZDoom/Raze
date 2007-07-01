@@ -458,6 +458,7 @@ typedef struct  s_point2d {
 }               _point2d;
 _equation       equation(long x1, long y1, long x2, long y2);
 int             sameside(_equation* eq, _point2d* p1, _point2d* p2);
+int             wallvisible(short wallnum);
 
 #define STATUS2DSIZ 144
 void   qsetmode640350(void);

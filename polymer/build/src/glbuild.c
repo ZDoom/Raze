@@ -36,6 +36,7 @@ const GLubyte* (APIENTRY * bglGetString)( GLenum name );
 void (APIENTRY * bglHint)( GLenum target, GLenum mode );
 void (APIENTRY * bglDrawBuffer)(GLenum mode);
 void (APIENTRY * bglReadBuffer)(GLenum mode);
+void (APIENTRY * bglScissor)(GLint x, GLint y, GLsizei width, GLsizei height);
 
 // Depth
 void (APIENTRY * bglDepthFunc)( GLenum func );
@@ -146,17 +147,21 @@ void*       (APIENTRY * bglMapBufferARB)(GLenum target, GLenum access);
 GLboolean   (APIENTRY * bglUnmapBufferARB)(GLenum target);
 
 // GLU
-void (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
-void (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);
-void (APIENTRY * bgluTessCallback) (GLUtesselator* tess, GLenum which, void (PR_CALLBACK CallBackFunc)());
-void (APIENTRY * bgluTessEndContour) (GLUtesselator* tess);
-void (APIENTRY * bgluTessEndPolygon) (GLUtesselator* tess);
-void (APIENTRY * bgluTessNormal) (GLUtesselator* tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ);
-void (APIENTRY * bgluTessProperty) (GLUtesselator* tess, GLenum which, GLdouble data);
-void (APIENTRY * bgluTessVertex) (GLUtesselator* tess, GLdouble *location, GLvoid* data);
-GLUtesselator* (APIENTRY * bgluNewTess) (void);
-void (APIENTRY * bgluPerspective) (GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+void            (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
+void            (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);
+void            (APIENTRY * bgluTessCallback) (GLUtesselator* tess, GLenum which, void (PR_CALLBACK CallBackFunc)());
+void            (APIENTRY * bgluTessEndContour) (GLUtesselator* tess);
+void            (APIENTRY * bgluTessEndPolygon) (GLUtesselator* tess);
+void            (APIENTRY * bgluTessNormal) (GLUtesselator* tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ);
+void            (APIENTRY * bgluTessProperty) (GLUtesselator* tess, GLenum which, GLdouble data);
+void            (APIENTRY * bgluTessVertex) (GLUtesselator* tess, GLdouble *location, GLvoid* data);
+GLUtesselator*  (APIENTRY * bgluNewTess) (void);
+
+void            (APIENTRY * bgluPerspective) (GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+
 const GLubyte * (APIENTRY * bgluErrorString) (GLenum error);
+
+GLint           (APIENTRY * bgluProject)(GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint	*view, GLdouble* winX, GLdouble* winY, GLdouble* winZ);
 
 #ifdef RENDERTYPEWIN
 // Windows
@@ -265,6 +270,7 @@ int loadgldriver(const char *driver)
     bglHint			    = GETPROC("glHint");
     bglDrawBuffer       = GETPROC("glDrawBuffer");
     bglReadBuffer       = GETPROC("glDrawBuffer");
+    bglScissor          = GETPROC("glScissor");
 
     // Depth
     bglDepthFunc		= GETPROC("glDepthFunc");
@@ -429,6 +435,7 @@ int unloadgldriver(void)
     bglHint			    = NULL;
     bglDrawBuffer       = NULL;
     bglReadBuffer       = NULL;
+    bglScissor          = NULL;
 
     // Depth
     bglDepthFunc		= NULL;
@@ -607,8 +614,12 @@ int loadglulibrary(const char *driver)
     bgluTessProperty = GLUGETPROC("gluTessProperty");
     bgluTessVertex = GLUGETPROC("gluTessVertex");
     bgluNewTess = GLUGETPROC("gluNewTess");
+
     bgluPerspective = GLUGETPROC("gluPerspective");
+
     bgluErrorString = GLUGETPROC("gluErrorString");
+
+    bgluProject = GLUGETPROC("gluProject");
 
     if (err) unloadglulibrary();
     return err;
@@ -631,17 +642,21 @@ int unloadglulibrary(void)
     gluhandle = NULL;
 #endif
 
-    bgluTessBeginContour = NULL;
-    bgluTessBeginPolygon = NULL;
-    bgluTessCallback     = NULL;
-    bgluTessEndContour = NULL;
-    bgluTessEndPolygon = NULL;
-    bgluTessNormal = NULL;
-    bgluTessProperty = NULL;
-    bgluTessVertex = NULL;
-    bgluNewTess = NULL;
-    bgluPerspective = NULL;
-    bgluErrorString = NULL;
+    bgluTessBeginContour    = NULL;
+    bgluTessBeginPolygon    = NULL;
+    bgluTessCallback        = NULL;
+    bgluTessEndContour      = NULL;
+    bgluTessEndPolygon      = NULL;
+    bgluTessNormal          = NULL;
+    bgluTessProperty        = NULL;
+    bgluTessVertex          = NULL;
+    bgluNewTess             = NULL;
+
+    bgluPerspective         = NULL;
+
+    bgluErrorString         = NULL;
+
+    bgluProject             = NULL;
    
     return 0;
 }

@@ -652,7 +652,7 @@ cvar[] =
         // polymer cvars
         { "pr_cliplanes", "pr_cliplanes: toggles clipping behind map limits (recommended yet may decrease performance in complex maps)", (void*)&pr_cliplanes, CVAR_INT, 0, 0, 1 },
         { "pr_fov", "pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 0, 1023},
-        { "pr_frustumculling", "pr_frustumculling: toggles frustum culling (recommended)", (void*)&pr_frustumculling, CVAR_INT, 0, 0, 1 },
+        { "pr_showportals", "pr_showportals: toggles frustum culling (recommended)", (void*)&pr_showportals, CVAR_INT, 0, 0, 1 },
         { "pr_verbosity", "pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
         { "pr_wireframe", "pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT, 0, 0, 1 },
 #endif

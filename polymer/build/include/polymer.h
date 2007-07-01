@@ -29,11 +29,14 @@
 # include "osd.h"
 # include "polymost.h"
 # include "pragmas.h"
+# include <math.h>
+
+//# define  differentsign(x, y) ((((x) < 0) && ((y) > 0)) || (((x) > 0) && ((y) < 0)))
 
 // CVARS
 extern int          pr_cliplanes;
 extern int          pr_fov;
-extern int          pr_frustumculling;
+extern int          pr_showportals;
 extern int          pr_verbosity;
 extern int          pr_wireframe;
 
@@ -67,6 +70,7 @@ typedef struct      s_prwall {
 
     char            underover;
     char            invalidate;
+    char            drawn;
 }                   _prwall;
 
 typedef struct      s_cliplane {
@@ -84,8 +88,6 @@ extern int          updatesectors;
 int                 polymer_init(void);
 void                polymer_glinit(void);
 void                polymer_loadboard(void);
-int                 polymer_checkportal(short wallnum);
-void                polymer_drawroom(short sectnum);
 void                polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum, int root);
 void                polymer_rotatesprite(long sx, long sy, long z, short a, short picnum, signed char dashade, char dapalnum, char dastat, long cx1, long cy1, long cx2, long cy2);
 void                polymer_drawmaskwall(long damaskwallcnt);
@@ -105,9 +107,14 @@ void                polymer_updatewall(short wallnum);
 void                polymer_drawwall(short wallnum);
 // HSR
 void                polymer_extractfrustum(GLdouble* modelview, GLdouble* projection);
+void                polymer_drawroom(short sectnum);
+int                 polymer_checkportal(short wallnum);
 int                 polymer_portalinfrustum(short wallnum);
-void                polymer_addcliplane(_equation clip, _equation left, _equation right, float refx, float refy);
-int                 polymer_wallincliplanes(short wallnum);
+float               polymer_pointdistancetoplane(GLfloat* point, GLfloat* plane);
+void                polymer_lineplaneintersection(GLfloat *point1, GLfloat *point2, float dist1, float dist2, GLfloat *output);
+int                 polymer_cliptofrustum(short wallnum, int mask);
+void                polymer_getportal(GLfloat* portalpoints, int portalpointcount, GLint* output);
+void                polymer_drawportal(void);
 // SKIES
 void                polymer_initskybox(void);
 void                polymer_getsky(void);

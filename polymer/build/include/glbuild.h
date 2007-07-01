@@ -65,6 +65,7 @@ extern const GLubyte* (APIENTRY * bglGetString)( GLenum name );
 extern void (APIENTRY * bglHint)( GLenum target, GLenum mode );
 extern void (APIENTRY * bglDrawBuffer)(GLenum mode);
 extern void (APIENTRY * bglReadBuffer)(GLenum mode);
+extern void (APIENTRY * bglScissor)(GLint x, GLint y, GLsizei width, GLsizei height);
 
 // Depth
 extern void (APIENTRY * bglDepthFunc)( GLenum func );
@@ -188,6 +189,9 @@ extern GLUtesselator*   (APIENTRY * bgluNewTess) (void);
 extern void             (APIENTRY * bgluPerspective) (GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
 extern const GLubyte *  (APIENTRY * bgluErrorString) (GLenum error);
+
+extern GLint            (APIENTRY * bgluProject)(GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint	*view, GLdouble* winX, GLdouble* winY, GLdouble* winZ);
+
 
 #ifdef RENDERTYPEWIN
 // Windows
