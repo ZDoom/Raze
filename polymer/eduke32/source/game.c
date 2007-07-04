@@ -67,6 +67,7 @@ static int qe,cp,usecwd = 0;
 
 static int32 CommandSetup = 0;
 static int32 NoSetup = 0;
+static int32 NoAutoLoad = 0;
 static int32 CommandSoundToggleOff = 0;
 static int32 CommandMusicToggleOff = 0;
 static char *CommandMap = NULL;
@@ -8476,7 +8477,8 @@ static int parsegroupfiles(scriptfile *script)
                 else
                 {
                     initprintf("Using group file '%s'.\n",fn);
-                    autoloadgrps(fn);
+                    if (!NoAutoLoad)
+                        autoloadgrps(fn);
                 }
 
             }
@@ -8641,6 +8643,16 @@ static void checkcommandline(int argc,char **argv)
                     i++;
                     continue;
                 }
+                if (!Bstrcasecmp(c+1,"gamegrp"))
+                {
+                    if (argc > i+1)
+                    {
+                        Bstrcpy(defaultduke3dgrp,argv[i+1]);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"nam"))
                 {
                     strcpy(defaultduke3dgrp, "nam.grp");
@@ -8667,6 +8679,13 @@ static void checkcommandline(int argc,char **argv)
                 {
                     NoSetup = 1;
                     CommandSetup = 0;
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"noautoload"))
+                {
+                    initprintf("Autoload disabled\n");
+                    NoAutoLoad = 1;
                     i++;
                     continue;
                 }
@@ -10004,15 +10023,18 @@ void app_main(int argc,char **argv)
     else
         initprintf("Using group file '%s' as main group file.\n", duke3dgrp);
 
-    getfilenames("autoload","*.grp");
-while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
-    getfilenames("autoload","*.zip");
+    if (!NoAutoLoad)
+    {
+        getfilenames("autoload","*.grp");
     while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
-    getfilenames("autoload","*.pk3");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+        getfilenames("autoload","*.zip");
+        while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+        getfilenames("autoload","*.pk3");
+        while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
 
-    if (i != -1)
-        autoloadgrps(duke3dgrp);
+        if (i != -1)
+            autoloadgrps(duke3dgrp);
+    }
 
     loadgroupfiles(duke3ddef);
 
@@ -10029,7 +10051,8 @@ while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf(
             {
                 groupfile = j;
                 initprintf("Using group file '%s'.\n",CommandGrps->str);
-                autoloadgrps(CommandGrps->str);
+                if (!NoAutoLoad)
+                    autoloadgrps(CommandGrps->str);
             }
 
             free(CommandGrps->str);

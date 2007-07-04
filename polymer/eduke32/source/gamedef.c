@@ -1318,7 +1318,7 @@ static void transvartype(int type)
     if ((aGameVars[i].dwFlags & GAMEVAR_FLAG_SYNCCHECK) && parsing_actor && CheckEventSync(current_event))
     {
         ReportError(-1);
-        initprintf("%s:%ld: warning: found local gamevar `%s' used within %s.\n",compilefile,line_number,label+(labelcnt<<6),parsing_event?"a synced event":"an actor");
+        initprintf("%s:%ld: warning: found local gamevar `%s' used within %s; expect multiplayer synchronization issues.\n",compilefile,line_number,label+(labelcnt<<6),parsing_event?"a synced event":"an actor");
     }
     if (!(error || warning) && condebug > 1)
         initprintf("%s:%ld: debug: accepted gamevar `%s'.\n",compilefile,line_number,label+(labelcnt<<6));

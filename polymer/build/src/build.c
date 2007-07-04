@@ -243,15 +243,6 @@ extern int startwin_run(void);
 
 extern char *defsfilename;	// set in bstub.c
 
-char **grps = NULL;
-char grpstoadd = 0;
-
-void buildaddgroup(const char *buffer)
-{
-    grps = (char**)realloc(grps, sizeof(char*)*(grpstoadd+1));
-    grps[grpstoadd++] = strdup(buffer);
-}
-
 int app_main(int argc, char **argv)
 {
     char ch, quitflag, cmdsetup = 0;
@@ -277,10 +268,6 @@ int app_main(int argc, char **argv)
     for (i=1; i<argc; i++) {
         if (argv[i][0] == '-') {
             if (!strcmp(argv[i], "-setup")) cmdsetup = 1;
-            else if (!strcmp(argv[i], "-g") || !strcmp(argv[i], "-grp")) {
-                i++;
-                buildaddgroup(argv[i]);
-            }
             else if (!strcmp(argv[i], "-help") || !strcmp(argv[i], "--help") || !strcmp(argv[i], "-?")) {
                 char *s =
                     "Mapster32\n"
@@ -323,15 +310,6 @@ int app_main(int argc, char **argv)
     if (initinput()) return -1;
     // if (option[3] != 0) moustat =
     initmouse();
-
-    if (grps && grpstoadd > 0) {
-        for (i=0;i<grpstoadd;i++) {
-            initprintf("Adding %s\n",grps[i]);
-            initgroupfile(grps[i]);
-            free(grps[i]);
-        }
-        free(grps);
-    }
 
     inittimer(TIMERINTSPERSECOND);
     installusertimercallback(keytimerstuff);

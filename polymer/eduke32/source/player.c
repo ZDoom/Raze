@@ -1533,7 +1533,6 @@ SKIPBULLETHOLE:
                 else zvel = (100-ps[p].horiz-ps[p].horizoff)*81;
                 if (atwith == RPG)
                     spritesound(RPG_SHOOT,i);
-
             }
             else
             {
