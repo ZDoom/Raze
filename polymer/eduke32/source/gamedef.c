@@ -4650,7 +4650,6 @@ static void InitProjectiles(void)
         projectile[i].offset = 448;
         projectile[i].bounces = numfreezebounces;
         projectile[i].bsound = PIPEBOMB_BOUNCE;
-        //      defaultprojectile[i] = projectile[i];
     }
     Bmemcpy(&defaultprojectile, &projectile, sizeof(projectile));
 }
