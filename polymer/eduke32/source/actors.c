@@ -1239,9 +1239,7 @@ static void movefx(void)
                             if (p == myconnectindex && ps[p].cursectnum == s->sectnum)
                             {
                                 j = s->lotag+((unsigned)global_random%(s->hitag+1));
-								if (j < NUM_SOUNDS && sounds[j])
-									sound(j);
-								else OSD_Printf("WARNING: invalid sound #%d\n",j);
+								sound(j);
                                 T5 =  26*40 + (global_random%(26*40));
                             }
                 }

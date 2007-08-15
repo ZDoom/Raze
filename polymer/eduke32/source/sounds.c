@@ -414,6 +414,12 @@ void sound(int num)
     if (VoiceToggle==0 && (soundm[num]&4)) return;
     if ((soundm[num]&8) && ud.lockout) return;
     if (FX_VoiceAvailable(soundpr[num]) == 0) return;
+	if (num > NUM_SOUNDS-1 || !sounds[num])
+    {
+	    OSD_Printf("WARNING: invalid sound #%d\n",num);
+        return;
+    }
+
 
     pitchs = soundps[num];
     pitche = soundpe[num];
