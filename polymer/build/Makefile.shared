@@ -142,6 +142,4 @@ endif
 ifneq (0,$(NOASM))
   BUILDCFLAGS+= -DNOASM
 endif
-ifneq (0,$(SETSPRITEZ))
-  BUILDCFLAGS+= -DSETSPRITEZ
-endif
+

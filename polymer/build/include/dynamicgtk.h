@@ -6,6 +6,9 @@
 #include <gtk/gtk.h>
 
 struct _dynamicgtksyms {
+
+    // glib.h
+void        (*g_free)                           (gpointer      mem);
 	// gobject.h
 gpointer    (*g_object_get_data)                 (GObject        *object,
 					       const gchar    *key);
@@ -205,6 +208,8 @@ GtkWidget*     (*gtk_scrolled_window_new)               (GtkAdjustment     *hadj
 void           (*gtk_scrolled_window_set_policy)        (GtkScrolledWindow *scrolled_window,
 						      GtkPolicyType      hscrollbar_policy,
 						      GtkPolicyType      vscrollbar_policy);
+void           (*gtk_scrolled_window_set_shadow_type)   (GtkScrolledWindow *scrolled_window,
+                                                      GtkShadowType      type);
 
 	// gtktextbuffer.h
 gboolean (*gtk_text_buffer_backspace)          (GtkTextBuffer *buffer,
@@ -257,6 +262,53 @@ void              (*gtk_tree_model_get)             (GtkTreeModel *tree_model,
 						  ...);
 GType             (*gtk_tree_model_get_type)        (void) G_GNUC_CONST;
 
+    // gtktreeselection.h
+gboolean         (*gtk_tree_selection_get_selected)        (GtkTreeSelection            *selection,
+							 GtkTreeModel               **model,
+							 GtkTreeIter                 *iter);
+void             (*gtk_tree_selection_select_iter)         (GtkTreeSelection            *selection,
+							 GtkTreeIter                 *iter);
+GType            (*gtk_tree_selection_get_type)            (void) G_GNUC_CONST;
+
+void             (*gtk_tree_selection_set_mode)            (GtkTreeSelection            *selection,
+							 GtkSelectionMode             type);
+
+    // gtktreesortable.h
+GType    (*gtk_tree_sortable_get_type)              (void) G_GNUC_CONST;
+
+void     (*gtk_tree_sortable_set_sort_column_id)    (GtkTreeSortable        *sortable,
+						  gint                    sort_column_id,
+						  GtkSortType             order);
+void     (*gtk_tree_sortable_set_sort_func)         (GtkTreeSortable        *sortable,
+						  gint                    sort_column_id,
+						  GtkTreeIterCompareFunc  sort_func,
+						  gpointer                user_data,
+						  GtkDestroyNotify        destroy);
+
+    // gtktreeview.h
+GType                  (*gtk_tree_view_get_type)                      (void) G_GNUC_CONST;
+GtkWidget             *(*gtk_tree_view_new_with_model)                (GtkTreeModel              *model);
+
+GtkTreeModel          *(*gtk_tree_view_get_model)                     (GtkTreeView               *tree_view);
+
+GtkTreeSelection      *(*gtk_tree_view_get_selection)                 (GtkTreeView               *tree_view);
+gint                   (*gtk_tree_view_append_column)                 (GtkTreeView               *tree_view,
+								    GtkTreeViewColumn         *column);
+void                       (*gtk_tree_view_set_enable_search)     (GtkTreeView                *tree_view,
+								gboolean                    enable_search);
+void                   (*gtk_tree_view_set_headers_visible)           (GtkTreeView               *tree_view,
+								    gboolean                   headers_visible);
+
+    // gtktreeviewcolumn.h
+GtkTreeViewColumn      *(*gtk_tree_view_column_new_with_attributes) (const gchar             *title,
+								  GtkCellRenderer         *cell,
+								  ...) G_GNUC_NULL_TERMINATED;
+void                    (*gtk_tree_view_column_set_expand)          (GtkTreeViewColumn       *tree_column,
+								  gboolean                 expand);
+void                    (*gtk_tree_view_column_set_min_width)       (GtkTreeViewColumn       *tree_column,
+								  gint                     min_width);
+
+
 	// gtkvbox.h
 GtkWidget* (*gtk_vbox_new)	     (gboolean homogeneous,
 			      gint spacing);
@@ -293,6 +345,10 @@ void       (*gtk_window_set_title)                (GtkWindow           *window,
 void       (*gtk_window_set_type_hint)            (GtkWindow           *window, 
 						GdkWindowTypeHint    hint);
 
+    // gunicode.h
+gint   (*g_utf8_collate)     (const gchar *str1,
+                           const gchar *str2);
+
 };
 extern struct _dynamicgtksyms dynamicgtksyms;
 
@@ -300,6 +356,9 @@ int dynamicgtk_init(void);
 void dynamicgtk_uninit(void);
 
 #ifndef __dynamicgtkfoo__
+
+// glib.h
+#define g_free dynamicgtksyms.g_free
 
 // gobject.h
 #define g_object_get_data dynamicgtksyms.g_object_get_data
@@ -424,6 +483,7 @@ void dynamicgtk_uninit(void);
 #define gtk_scrolled_window_get_type dynamicgtksyms.gtk_scrolled_window_get_type
 #define gtk_scrolled_window_new dynamicgtksyms.gtk_scrolled_window_new
 #define gtk_scrolled_window_set_policy dynamicgtksyms.gtk_scrolled_window_set_policy
+#define gtk_scrolled_window_set_shadow_type dynamicgtksyms.gtk_scrolled_window_set_shadow_type
 
 // gtktextbuffer.h
 #define gtk_text_buffer_backspace dynamicgtksyms.gtk_text_buffer_backspace
@@ -452,6 +512,31 @@ void dynamicgtk_uninit(void);
 #define gtk_tree_model_get dynamicgtksyms.gtk_tree_model_get
 #define gtk_tree_model_get_type dynamicgtksyms.gtk_tree_model_get_type
 
+// gtktreeselection.h
+#define gtk_tree_selection_get_selected dynamicgtksyms.gtk_tree_selection_get_selected
+#define gtk_tree_selection_select_iter dynamicgtksyms.gtk_tree_selection_select_iter
+#define gtk_tree_selection_set_mode dynamicgtksyms.gtk_tree_selection_set_mode
+
+// gtktreesortable.h
+#define gtk_tree_sortable_get_type dynamicgtksyms.gtk_tree_sortable_get_type
+#define gtk_tree_sortable_set_sort_column_id dynamicgtksyms.gtk_tree_sortable_set_sort_column_id
+#define gtk_tree_sortable_set_sort_func dynamicgtksyms.gtk_tree_sortable_set_sort_func
+
+// gtktreeview.h
+#define gtk_tree_view_append_column dynamicgtksyms.gtk_tree_view_append_column
+#define gtk_tree_view_get_model dynamicgtksyms.gtk_tree_view_get_model
+#define gtk_tree_view_get_selection dynamicgtksyms.gtk_tree_view_get_selection
+#define gtk_tree_view_get_type dynamicgtksyms.gtk_tree_view_get_type
+#define gtk_tree_view_new_with_model dynamicgtksyms.gtk_tree_view_new_with_model
+#define gtk_tree_view_set_enable_search dynamicgtksyms.gtk_tree_view_set_enable_search
+#define gtk_tree_view_set_headers_visible dynamicgtksyms.gtk_tree_view_set_headers_visible
+
+// gtktreeviewcolumn.h
+#define gtk_tree_view_column_new_with_attributes dynamicgtksyms.gtk_tree_view_column_new_with_attributes
+#define gtk_tree_view_column_set_expand dynamicgtksyms.gtk_tree_view_column_set_expand
+#define gtk_tree_view_column_set_min_width dynamicgtksyms.gtk_tree_view_column_set_min_width
+
+
 // gtkvbox.h
 #define gtk_vbox_new dynamicgtksyms.gtk_vbox_new
 
@@ -473,6 +558,9 @@ void dynamicgtk_uninit(void);
 #define gtk_window_set_resizable dynamicgtksyms.gtk_window_set_resizable
 #define gtk_window_set_title dynamicgtksyms.gtk_window_set_title
 #define gtk_window_set_type_hint dynamicgtksyms.gtk_window_set_type_hint
+
+// gunicode.h
+#define g_utf8_collate dynamicgtksyms.g_utf8_collate
 
 #endif
 

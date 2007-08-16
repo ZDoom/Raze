@@ -1875,6 +1875,8 @@ static void wallscan(long x1, long x2, short *uwal, short *dwal, long *swal, lon
     long y1ve[4], y2ve[4], u4, d4, z, tsizx, tsizy;
     char bad;
 
+    if (x2 >= xdim) x2 = xdim-1;
+
     tsizx = tilesizx[globalpicnum];
     tsizy = tilesizy[globalpicnum];
     setgotpic(globalpicnum);
@@ -7940,11 +7942,8 @@ long setsprite(short spritenum, long newx, long newy, long newz)
     sprite[spritenum].z = newz;
 
     tempsectnum = sprite[spritenum].sectnum;
-#ifdef SETSPRITEZ
-    updatesectorz(newx,newy,newz,&tempsectnum);
-#else
     updatesector(newx,newy,&tempsectnum);
-#endif
+
     if (tempsectnum < 0)
         return(-1);
     if (tempsectnum != sprite[spritenum].sectnum)
@@ -7953,6 +7952,24 @@ long setsprite(short spritenum, long newx, long newy, long newz)
     return(0);
 }
 
+long setspritez(short spritenum, long newx, long newy, long newz)
+{
+    short tempsectnum;
+
+    sprite[spritenum].x = newx;
+    sprite[spritenum].y = newy;
+    sprite[spritenum].z = newz;
+
+    tempsectnum = sprite[spritenum].sectnum;
+    updatesectorz(newx,newy,newz,&tempsectnum);
+
+    if (tempsectnum < 0)
+        return(-1);
+    if (tempsectnum != sprite[spritenum].sectnum)
+        changespritesect(spritenum,tempsectnum);
+
+    return(0);
+}
 
 //
 // insertsprite

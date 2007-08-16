@@ -12,13 +12,11 @@
 #  USE_OPENGL     - enables OpenGL support in Polymost
 #  NOASM          - disables the use of inline assembly pragmas
 #
-#  SETSPRITEZ     - set to 1 for Shadow Warrior
+
 SUPERBUILD ?= 1
 POLYMOST ?= 1		
 USE_OPENGL ?= 1
 NOASM ?= 0
-
-SETSPRITEZ ?= 0
 
 # Debugging options
 #  RELEASE - 1 = no debugging
