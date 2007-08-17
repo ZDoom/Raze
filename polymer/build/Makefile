@@ -11,12 +11,14 @@
 #  POLYMOST       - enables Polymost renderer
 #  USE_OPENGL     - enables OpenGL support in Polymost
 #  NOASM          - disables the use of inline assembly pragmas
+#  LINKED_GTK     - enables compile-time linkage to GTK
 #
 
 SUPERBUILD ?= 1
 POLYMOST ?= 1		
 USE_OPENGL ?= 1
 NOASM ?= 0
+LINKED_GTK ?= 0
 
 # Debugging options
 #  RELEASE - 1 = no debugging

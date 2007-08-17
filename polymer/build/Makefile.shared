@@ -113,10 +113,12 @@ ifeq ($(RENDERTYPE),SDL)
 			# on my 64bit Gentoo box I have Cairo enabled which means the libs list includes
 			# -lpangocairo-1.0 and -lcairo, however the 32bit compatibility libraries don't
 			# include cairo, so we need to filter out those -l switches in order to link
-			ifeq ($(GTKCOMPAT32),1)
-			#	LIBS+= $(shell pkg-config --libs gtk+-2.0 | sed 's/\s-l\(pango\)\{0,1\}cairo\S*\s/ /g')
-			else
-			#	LIBS+= $(shell pkg-config --libs gtk+-2.0)
+			ifneq ($(LINKED_GTK),0)
+				ifeq ($(GTKCOMPAT32),1)
+					LIBS+= $(shell pkg-config --libs gtk+-2.0 | sed 's/\s-l\(pango\)\{0,1\}cairo\S*\s/ /g')
+				else
+					LIBS+= $(shell pkg-config --libs gtk+-2.0)
+				endif
 			endif
 		else
 			HAVE_GTK2=0
@@ -141,5 +143,8 @@ ifneq (0,$(USE_OPENGL))
 endif
 ifneq (0,$(NOASM))
   BUILDCFLAGS+= -DNOASM
+endif
+ifneq (0,$(LINKED_GTK))
+  BUILDCFLAGS+= -DLINKED_GTK
 endif
 
