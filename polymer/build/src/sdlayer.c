@@ -44,7 +44,7 @@ int startwin_settitle(const char *s) { s=s; return 0; }
 static unsigned long mwheelup, mwheeldown;
 
 int   _buildargc = 1;
-char **_buildargv = NULL;
+const char **_buildargv = NULL;
 extern long app_main(long argc, char *argv[]);
 
 char quitevent=0, appactive=1;
@@ -167,9 +167,7 @@ int main(int argc, char *argv[])
     startwin_open();
 
     _buildargc = argc;
-    _buildargv = (char**)argv;
-    //_buildargv = (char**)malloc(argc * sizeof(char*));
-    //memcpy(_buildargv, argv, sizeof(char*)*argc);
+    _buildargv = (const char**)argv;
 
     baselayer_init();
     r = app_main(argc, argv);

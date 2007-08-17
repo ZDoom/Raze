@@ -5066,7 +5066,7 @@ static void buildaddgroup(const char *buffer)
     grps[grpstoadd++] = strdup(buffer);
 }
 
-static void checkcommandline(int argc,char **argv)
+static void checkcommandline(int argc,const char **argv)
 {
     int i = 1;
     char *c;
@@ -5075,7 +5075,7 @@ static void checkcommandline(int argc,char **argv)
     {
         while (i < argc)
         {
-            c = argv[i];
+            c = (char *)argv[i];
             if (((*c == '/') || (*c == '-')))
             {
                 if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
@@ -5194,7 +5194,7 @@ static void checkcommandline(int argc,char **argv)
     }
 }
 
-int ExtPreInit(int argc,char **argv)
+int ExtPreInit(int argc,const char **argv)
 {
     wm_setapptitle("Mapster32"VERSION);
 
@@ -6192,7 +6192,7 @@ static void Keys2d3d(void)
     if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL
         if (keystatus[0x1f] > 0) // S
         {
-            if (levelname)
+            if (levelname[0])
             {
                 fixspritesectors();   //Do this before saving!
                 updatesector(startposx,startposy,&startsectnum);

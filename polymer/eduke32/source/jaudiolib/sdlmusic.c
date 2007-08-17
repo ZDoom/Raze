@@ -31,6 +31,8 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #include <stdarg.h>
 #include <string.h>
 #include <assert.h>
+#include <dirent.h>
+#include <errno.h>
 
 #include "duke3d.h"
 #include "cache1d.h"
@@ -65,8 +67,6 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #endif
 
-void GetUnixPathFromEnvironment(char *fullname, int32 length, const char *filename);
-
 int MUSIC_ErrorCode = MUSIC_Ok;
 
 static char warningMessage[80];
@@ -75,6 +75,128 @@ static FILE *debug_file = NULL;
 static int initialized_debugging = 0;
 
 static char *midifn = NULL;
+
+static char ApogeePath[256] = "/tmp/";
+
+#define PATH_SEP_CHAR '/'
+#define PATH_SEP_STR  "/"
+#define ROOTDIR       "/"
+#define CURDIR        "./"
+
+#ifndef MAX_PATH
+#define MAX_PATH 256
+#endif
+
+void FixFilePath(char *filename)
+{
+    char *ptr;
+    char *lastsep = filename;
+
+    if ((!filename) || (*filename == '\0'))
+        return;
+
+    if (access(filename, F_OK) == 0)  /* File exists; we're good to go. */
+        return;
+
+    for (ptr = filename; 1; ptr++)
+    {
+        if (*ptr == '\\')
+            *ptr = PATH_SEP_CHAR;
+
+        if ((*ptr == PATH_SEP_CHAR) || (*ptr == '\0'))
+        {
+            char pch = *ptr;
+            struct dirent *dent = NULL;
+            DIR *dir;
+
+            if ((pch == PATH_SEP_CHAR) && (*(ptr + 1) == '\0'))
+                return; /* eos is pathsep; we're done. */
+
+            if (lastsep == ptr)
+                continue;  /* absolute path; skip to next one. */
+
+            *ptr = '\0';
+            if (lastsep == filename)
+            {
+                dir = opendir((*lastsep == PATH_SEP_CHAR) ? ROOTDIR : CURDIR);
+
+                if (*lastsep == PATH_SEP_CHAR)
+                {
+                    lastsep++;
+                }
+            }
+            else
+            {
+                *lastsep = '\0';
+                dir = opendir(filename);
+                *lastsep = PATH_SEP_CHAR;
+                lastsep++;
+            }
+
+            if (dir == NULL)
+            {
+                *ptr = PATH_SEP_CHAR;
+                return;  /* maybe dir doesn't exist? give up. */
+            }
+
+            while ((dent = readdir(dir)) != NULL)
+            {
+                if (strcasecmp(dent->d_name, lastsep) == 0)
+                {
+                    /* found match; replace it. */
+                    strcpy(lastsep, dent->d_name);
+                    break;
+                }
+            }
+
+            closedir(dir);
+            *ptr = pch;
+            lastsep = ptr;
+
+            if (dent == NULL)
+                return;  /* no match. oh well. */
+
+            if (pch == '\0')  /* eos? */
+                return;
+        }
+    }
+}
+
+int32 SafeOpenWrite(const char *_filename, int32 filetype)
+{
+    int handle;
+    char filename[MAX_PATH];
+    strncpy(filename, _filename, sizeof(filename));
+    filename[sizeof(filename) - 1] = '\0';
+    FixFilePath(filename);
+
+    handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_TRUNC
+                  , S_IREAD | S_IWRITE);
+
+    if (handle == -1)
+        Error("Error opening %s: %s",filename,strerror(errno));
+
+    return handle;
+}
+
+void SafeWrite(int32 handle, void *buffer, int32 count)
+{
+    unsigned    iocount;
+
+    while (count)
+    {
+        iocount = count > 0x8000 ? 0x8000 : count;
+        if (write(handle,buffer,iocount) != (int)iocount)
+            Error("File write failure writing %ld bytes",count);
+        buffer = (void *)((byte *)buffer + iocount);
+        count -= iocount;
+    }
+}
+
+void GetUnixPathFromEnvironment(char *fullname, int32 length, const char *filename)
+{
+    snprintf(fullname, length-1, "%s%s", ApogeePath, filename);
+}
 
 // This gets called all over the place for information and debugging messages.
 //  If the user set the DUKESND_DEBUG environment variable, the messages

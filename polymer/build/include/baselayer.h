@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 extern int _buildargc;
-extern char **_buildargv;
+extern const char **_buildargv;
 
 extern char quitevent, appactive;
 

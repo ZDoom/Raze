@@ -51,12 +51,17 @@ EXESUFFIX=
 include $(EROOT)/Makefile.shared
 
 ifeq ($(PLATFORM),LINUX)
-	OBJ=obj.nix
-	EOBJ=eobj.nix
-	NASMFLAGS+= -f elf
-else
 	OBJ=obj
 	EOBJ=eobj
+	NASMFLAGS+= -f elf
+else
+    ifeq ($(PLATFORM),WINDOWS)
+	    OBJ=obj_win
+	    EOBJ=eobj_win
+    else
+    	OBJ=obj
+    	EOBJ=eobj
+    endif
 endif
 
 JMACTOBJ=$(OBJ)/util_lib.$o \
@@ -78,8 +83,7 @@ AUDIOLIB_FX_SDL=$(OBJ)/mv_mix.$o \
 	  $(OBJ)/dsl.$o \
 	  $(OBJ)/pitch.$o \
 	  $(OBJ)/multivoc.$o
-AUDIOLIB_MUSIC_SDL=$(OBJ)/sdlmusic.$o \
-	  $(OBJ)/unixglob.$o
+AUDIOLIB_MUSIC_SDL=$(OBJ)/sdlmusic.$o
 
 AUDIOLIB_JFAUD=$(OBJ)/jfaud_sounds.$o
 

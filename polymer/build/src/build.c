@@ -27,7 +27,7 @@ static long crctable[256];
 static char kensig[32];
 
 extern int ExtInit(void);
-extern int ExtPreInit(int argc,char **argv);
+extern int ExtPreInit(int argc,const char **argv);
 extern void ExtUnInit(void);
 extern void ExtPreCheckKeys(void);
 #ifdef SUPERBUILD
@@ -243,7 +243,7 @@ extern int startwin_run(void);
 
 extern char *defsfilename;	// set in bstub.c
 
-int app_main(int argc, char **argv)
+int app_main(int argc, const char **argv)
 {
     char ch, quitflag, cmdsetup = 0;
     long i, j, k;

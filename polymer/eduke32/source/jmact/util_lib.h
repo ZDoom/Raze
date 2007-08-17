@@ -39,8 +39,6 @@ extern "C" {
 
 #if RENDERTYPEWIN
 #include "winlayer.h"
-#define _argc _buildargc
-#define _argv _buildargv
 #endif
 
 void RegisterShutdownFunction( void (* sh) (void) );

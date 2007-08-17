@@ -44,7 +44,7 @@
 #define ANY_WINDOWED_SIZE
 
 int   _buildargc = 0;
-char **_buildargv = NULL;
+const char **_buildargv = NULL;
 static char *argvbuf = NULL;
 extern long app_main(long argc, char *argv[]);
 

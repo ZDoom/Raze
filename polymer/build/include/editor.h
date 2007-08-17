@@ -26,7 +26,7 @@ extern long ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
 
 
 extern int ExtInit(void);
-extern int ExtPreInit(int argc,char **argv);
+extern int ExtPreInit(int argc,const char **argv);
 extern void ExtUnInit(void);
 extern void ExtPreCheckKeys(void);
 #ifdef SUPERBUILD
