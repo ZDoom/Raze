@@ -46,7 +46,7 @@
 int   _buildargc = 0;
 const char **_buildargv = NULL;
 static char *argvbuf = NULL;
-extern long app_main(long argc, char *argv[]);
+extern long app_main(long argc, const char *argv[]);
 
 // Windows crud
 static HINSTANCE hInstance = 0;
@@ -318,7 +318,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
         }
         *wp = 0;
 
-        _buildargv = (char**)malloc(sizeof(char*)*_buildargc);
+        _buildargv = (const char**)malloc(sizeof(char*)*_buildargc);
         wp = argvbuf;
         for (i=0; i<_buildargc; i++,wp++) {
             _buildargv[i] = wp;

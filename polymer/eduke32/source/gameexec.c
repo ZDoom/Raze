@@ -2703,6 +2703,13 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
             SetGameVarID(lVar2,spriteext[iActor].zoff, g_i, g_p);
         break;
 
+    case ACTOR_MDFLAGS:
+        if (iSet)
+            spriteext[iActor].flags=lValue;
+        else
+            SetGameVarID(lVar2,spriteext[iActor].flags, g_i, g_p);
+        break;
+
     default:
         break;
     }
@@ -4236,6 +4243,46 @@ static int parse(void)
                 break;
             }
             SetGameVarID(i,Bstrlen(fta_quotes[j]),g_i,g_p);
+            break;
+        }
+
+    case CON_HEADSPRITESTAT:
+    case CON_PREVSPRITESTAT:
+    case CON_NEXTSPRITESTAT:
+    case CON_HEADSPRITESECT:
+    case CON_PREVSPRITESECT:
+    case CON_NEXTSPRITESECT:
+        insptr++;
+        {
+            int i=*insptr++;
+            j=GetGameVarID(*insptr++, g_i, g_p);
+            switch (tw)
+            {
+                case CON_HEADSPRITESTAT:
+                    if (j < MAXSTATUS)
+                        SetGameVarID(i,headspritestat[j],g_i,g_p);
+                    break;
+                case CON_PREVSPRITESTAT:
+                    if (j < MAXSPRITES)
+                        SetGameVarID(i,prevspritestat[j],g_i,g_p);
+                    break;
+                case CON_NEXTSPRITESTAT:
+                    if (j < MAXSPRITES)
+                        SetGameVarID(i,nextspritestat[j],g_i,g_p);
+                    break;
+                case CON_HEADSPRITESECT:
+                    if (j < MAXSECTORS)
+                        SetGameVarID(i,headspritesect[j],g_i,g_p);
+                    break;
+                case CON_PREVSPRITESECT:
+                    if (j < MAXSPRITES)
+                        SetGameVarID(i,prevspritesect[j],g_i,g_p);
+                    break;
+                case CON_NEXTSPRITESECT:
+                    if (j < MAXSPRITES)
+                        SetGameVarID(i,nextspritesect[j],g_i,g_p);
+                    break;
+            }
             break;
         }
 

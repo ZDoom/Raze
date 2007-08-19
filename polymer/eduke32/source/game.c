@@ -8573,7 +8573,7 @@ static void addgamepath(const char *buffer)
 }
 
 
-static void checkcommandline(int argc,char **argv)
+static void checkcommandline(int argc,const char **argv)
 {
     short i, j;
     char *c;
@@ -8604,7 +8604,7 @@ static void checkcommandline(int argc,char **argv)
     {
         while (i < argc)
         {
-            c = argv[i];
+            c = (char *)argv[i];
             if (((*c == '/') || (*c == '-')) && (!firstnet))
             {
                 if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
@@ -8707,7 +8707,7 @@ static void checkcommandline(int argc,char **argv)
                     {
                         NoSetup = TRUE;
                         networkmode = 1;
-                        netcfg = argv[i+1];
+                        netcfg = (char *)argv[i+1];
                         i++;
                     }
                     i++;
@@ -8726,7 +8726,7 @@ static void checkcommandline(int argc,char **argv)
                 {
                     if (argc > i+1)
                     {
-                        CommandName = argv[i+1];
+                        CommandName = (char *)argv[i+1];
                         i++;
                     }
                     i++;
@@ -8736,7 +8736,7 @@ static void checkcommandline(int argc,char **argv)
                 {
                     if (argc > i+1)
                     {
-                        CommandMap = argv[i+1];
+                        CommandMap = (char *)argv[i+1];
                         i++;
                     }
                     i++;
@@ -8781,7 +8781,7 @@ static void checkcommandline(int argc,char **argv)
                     }
 
                 }
-                netparam[i-firstnet-1] = argv[i];
+                netparam[i-firstnet-1] = (char *)argv[i];
                 i++;
                 continue;
             }
@@ -9416,7 +9416,7 @@ static void genspriteremaps(void)
 extern int startwin_run(void);
 static void SetupGameButtons(void);
 
-static void Startup(long argc, char **argv)
+static void Startup(long argc, const char **argv)
 {
     int i;
 
@@ -9789,7 +9789,7 @@ int load_script(const char *szScript)
     return 1;
 }
 
-void app_main(int argc,char **argv)
+void app_main(int argc,const char **argv)
 {
     int i, j;
     char cwd[BMAX_PATH];

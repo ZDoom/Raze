@@ -414,7 +414,8 @@ enum actorlabels {
     ACTOR_ROLL,
     ACTOR_MDXOFF,
     ACTOR_MDYOFF,
-    ACTOR_MDZOFF
+    ACTOR_MDZOFF,
+    ACTOR_MDFLAGS
 };
 
 enum inputlabels {
@@ -761,5 +762,11 @@ enum keywords {
     CON_GETINCANGLE,        // 300
     CON_QUAKE,              // 301
     CON_SHOWVIEW,           // 302
+    CON_HEADSPRITESTAT,     // 303
+    CON_PREVSPRITESTAT,     // 304
+    CON_NEXTSPRITESTAT,     // 305
+    CON_HEADSPRITESECT,     // 306
+    CON_PREVSPRITESECT,     // 307
+    CON_NEXTSPRITESECT,     // 308
     END
 };

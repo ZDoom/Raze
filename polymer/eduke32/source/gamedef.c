@@ -432,6 +432,12 @@ static const char *keyw[] =
         "getincangle",              // 300
         "quake",                    // 301
         "showview",                 // 302
+        "headspritestat",           // 303
+        "prevspritestat",           // 304
+        "nextspritestat",           // 305
+        "headspritesect",           // 306
+        "prevspritesect",           // 307
+        "nextspritesect",           // 308
         "<null>"
     };
 
@@ -539,6 +545,7 @@ LABELS actorlabels[]=
         { "mdxoff", ACTOR_MDXOFF, 0, 0 },
         { "mdyoff", ACTOR_MDYOFF, 0, 0 },
         { "mdzoff", ACTOR_MDZOFF, 0, 0 },
+        { "mdflags", ACTOR_MDFLAGS, 0, 0 },
         { "", -1, 0, 0  }     // END OF LIST
     };
 
@@ -3718,6 +3725,12 @@ repeatcase:
     case CON_QSTRCAT:
     case CON_QSTRCPY:
     case CON_QSTRLEN:
+    case CON_HEADSPRITESTAT:
+    case CON_PREVSPRITESTAT:
+    case CON_NEXTSPRITESTAT:
+    case CON_HEADSPRITESECT:
+    case CON_PREVSPRITESECT:
+    case CON_NEXTSPRITESECT:
         transmultvars(2);
         return 0;
     case CON_SETACTORANGLE:

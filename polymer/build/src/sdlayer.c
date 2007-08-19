@@ -45,7 +45,7 @@ static unsigned long mwheelup, mwheeldown;
 
 int   _buildargc = 1;
 const char **_buildargv = NULL;
-extern long app_main(long argc, char *argv[]);
+extern long app_main(long argc, const char *argv[]);
 
 char quitevent=0, appactive=1;
 

@@ -1193,6 +1193,7 @@ static void AddSystemVars()
     AddGameVar("myreturntocenter",(long)&myreturntocenter, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
 
     AddGameVar("display_mirror",(long)&display_mirror, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("randomseed",(long)&randomseed, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
 }
 
 void InitGameVars(void)
@@ -1331,4 +1332,5 @@ static void ResetPointerVars(void)
     aGameVars[GetGameID("myreturntocenter")].lValue = (long)&myreturntocenter;
 
     aGameVars[GetGameID("display_mirror")].lValue = (long)&display_mirror;
+	aGameVars[GetGameID("randomseed")].lValue = (long)&randomseed;
 }

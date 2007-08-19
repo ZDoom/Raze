@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "scriptfile.h"
 #include "crc32.h"
 
-#define VERSION " 1.1.0 svn"
+#define VERSION " 1.1.0 rc1"
 
 static int floor_over_floor;
 
