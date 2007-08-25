@@ -600,7 +600,8 @@ static int osdcmd_exec(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-enum cvartypes {
+enum cvartypes
+{
     CVAR_INT,
     CVAR_UNSIGNEDINT,
     CVAR_BOOL,
@@ -618,56 +619,56 @@ struct cvarmappings
     int max;
 }
 cvar[] =
-    {
-        { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_INT, 0, 0, 3 },
+{
+    { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_INT, 0, 0, 3 },
 
-        { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&AutoAim, CVAR_INT|256, 0, 0, 2 },
-        { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
-        { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT|256, 0, 0, 2 },
+    { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&AutoAim, CVAR_INT|256, 0, 0, 2 },
+    { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
+    { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT|256, 0, 0, 2 },
 
 
-        { "cl_deathmessages", "cl_deathmessages: enable/disable multiplayer death messages", (void*)&ud.deathmsgs, CVAR_BOOL, 0, 0, 1 },
-        { "cl_democams", "cl_democams: enable/disable demo playback cameras", (void*)&ud.democams, CVAR_BOOL, 0, 0, 1 },
-        { "cl_drawweapon", "cl_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
+    { "cl_deathmessages", "cl_deathmessages: enable/disable multiplayer death messages", (void*)&ud.deathmsgs, CVAR_BOOL, 0, 0, 1 },
+    { "cl_democams", "cl_democams: enable/disable demo playback cameras", (void*)&ud.democams, CVAR_BOOL, 0, 0, 1 },
+    { "cl_drawweapon", "cl_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
 
-        { "cl_idplayers", "cl_idplayers: enable/disable name display when aiming at opponents", (void*)&ud.idplayers, CVAR_BOOL, 0, 0, 1 },
+    { "cl_idplayers", "cl_idplayers: enable/disable name display when aiming at opponents", (void*)&ud.idplayers, CVAR_BOOL, 0, 0, 1 },
 
-        { "cl_messagetime", "cl_messagetime: length of time to display multiplayer chat messages\n", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
+    { "cl_messagetime", "cl_messagetime: length of time to display multiplayer chat messages\n", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
 
-        { "cl_mousebias", "cl_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time\n", (void*)&MouseBias, CVAR_INT, 0, 0, 32 },
-        { "cl_mousefilter", "cl_mousefilter: amount of mouse movement to filter out\n", (void*)&MouseFilter, CVAR_INT, 0, 0, 512 },
+    { "cl_mousebias", "cl_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time\n", (void*)&MouseBias, CVAR_INT, 0, 0, 32 },
+    { "cl_mousefilter", "cl_mousefilter: amount of mouse movement to filter out\n", (void*)&MouseFilter, CVAR_INT, 0, 0, 512 },
 
-        { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
-        { "cl_showfps", "cl_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
-        { "cl_smoothinput", "cl_smoothinput: enable/disable input smoothing\n", (void*)&SmoothInput, CVAR_BOOL, 0, 0, 1 },
+    { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
+    { "cl_showfps", "cl_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
+    { "cl_smoothinput", "cl_smoothinput: enable/disable input smoothing\n", (void*)&SmoothInput, CVAR_BOOL, 0, 0, 1 },
 
-        { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing\n", (void*)&ud.viewbob, CVAR_BOOL, 0, 0, 1 },
+    { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing\n", (void*)&ud.viewbob, CVAR_BOOL, 0, 0, 1 },
 
-        { "cl_weaponsway", "cl_weaponsway: enable/disable player weapon swaying\n", (void*)&ud.weaponsway, CVAR_BOOL, 0, 0, 1 },
-        { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|256, 0, 0, 3 },
-        { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void*)&ud.angleinterpolation, CVAR_INT, 0, 0, 256 },
+    { "cl_weaponsway", "cl_weaponsway: enable/disable player weapon swaying\n", (void*)&ud.weaponsway, CVAR_BOOL, 0, 0, 1 },
+    { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|256, 0, 0, 3 },
+    { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void*)&ud.angleinterpolation, CVAR_INT, 0, 0, 256 },
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
-        { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_BOOL, 0, 0, 1 },
-        // polymer cvars
-        { "pr_cliplanes", "pr_cliplanes: toggles clipping behind map limits (recommended yet may decrease performance in complex maps)", (void*)&pr_cliplanes, CVAR_INT, 0, 0, 1 },
-        { "pr_fov", "pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 0, 1023},
-        { "pr_showportals", "pr_showportals: toggles frustum culling (recommended)", (void*)&pr_showportals, CVAR_INT, 0, 0, 1 },
-        { "pr_verbosity", "pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
-        { "pr_wireframe", "pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT, 0, 0, 1 },
+    { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
+    { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_BOOL, 0, 0, 1 },
+    // polymer cvars
+    { "pr_cliplanes", "pr_cliplanes: toggles clipping behind map limits (recommended yet may decrease performance in complex maps)", (void*)&pr_cliplanes, CVAR_INT, 0, 0, 1 },
+    { "pr_fov", "pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 0, 1023},
+    { "pr_showportals", "pr_showportals: toggles frustum culling (recommended)", (void*)&pr_showportals, CVAR_INT, 0, 0, 1 },
+    { "pr_verbosity", "pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
+    { "pr_wireframe", "pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT, 0, 0, 1 },
 #endif
-        { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0, 0, 1 },
+    { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0, 0, 1 },
 
-        { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
-        { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&VoiceToggle, CVAR_INT, 0, 0, 2 },
-        { "snd_fxvolume", "snd_fxvolume: volume of sound effects", (void*)&FXVolume, CVAR_INT, 0, 0, 255 },
-        { "snd_mixrate", "snd_mixrate: sound mixing rate", (void*)&MixRate, CVAR_INT, 0, 0, 48000 },
-        { "snd_musvolume", "snd_musvolume: volume of midi music", (void*)&MusicVolume, CVAR_INT, 0, 0, 255 },
-        { "snd_numbits", "snd_numbits: sound bits", (void*)&NumBits, CVAR_INT, 0, 8, 16 },
-        { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&NumChannels, CVAR_INT, 0, 0, 2 },
-        { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&NumVoices, CVAR_INT, 0, 0, 32 },
-        { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ReverseStereo, CVAR_BOOL, 0, 0, 16 },
-    };
+    { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
+    { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&VoiceToggle, CVAR_INT, 0, 0, 2 },
+    { "snd_fxvolume", "snd_fxvolume: volume of sound effects", (void*)&FXVolume, CVAR_INT, 0, 0, 255 },
+    { "snd_mixrate", "snd_mixrate: sound mixing rate", (void*)&MixRate, CVAR_INT, 0, 0, 48000 },
+    { "snd_musvolume", "snd_musvolume: volume of midi music", (void*)&MusicVolume, CVAR_INT, 0, 0, 255 },
+    { "snd_numbits", "snd_numbits: sound bits", (void*)&NumBits, CVAR_INT, 0, 8, 16 },
+    { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&NumChannels, CVAR_INT, 0, 0, 2 },
+    { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&NumVoices, CVAR_INT, 0, 0, 32 },
+    { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ReverseStereo, CVAR_BOOL, 0, 0, 16 },
+};
 
 static int osdcmd_cvar_set(const osdfuncparm_t *parm)
 {

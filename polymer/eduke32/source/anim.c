@@ -204,7 +204,7 @@ void playanm(const char *fn,char t)
     char *animbuf;
     unsigned char *palptr;
     long i, j, length=0, numframes=0;
-#if defined(POLYMOST) && defined(USE_OPENGL)    
+#if defined(POLYMOST) && defined(USE_OPENGL)
     int ogltexfiltermode=gltexfiltermode;
 #endif
     int32 handle=-1;
@@ -250,7 +250,7 @@ void playanm(const char *fn,char t)
     //setbrightness(ud.brightness>>2,tempbuf,2);
     setgamepalette(&ps[myconnectindex],animpal,10);
 
-#if defined(POLYMOST) && defined(USE_OPENGL)    
+#if defined(POLYMOST) && defined(USE_OPENGL)
     gltexfiltermode = 0;
     gltexapplyprops();
 #endif
@@ -300,10 +300,10 @@ void playanm(const char *fn,char t)
 
 ENDOFANIMLOOP:
 
-#if defined(POLYMOST) && defined(USE_OPENGL)    
+#if defined(POLYMOST) && defined(USE_OPENGL)
     gltexfiltermode = ogltexfiltermode;
     gltexapplyprops();
-#endif    
+#endif
     MOUSE_ClearButton(LEFT_MOUSE);
     ANIM_FreeAnim();
     walock[TILE_ANIM] = 1;

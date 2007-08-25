@@ -381,7 +381,6 @@ struct player_orig {
 
 
 extern char numplayersprites;
-extern char picsiz[MAXTILES];
 
 extern long fricxv,fricyv;
 
@@ -883,7 +882,9 @@ enum logoflags {
     LOGO_FLAG_TITLESCREEN       = 16,
     LOGO_FLAG_DUKENUKEM         = 32,
     LOGO_FLAG_THREEDEE          = 64,
-    LOGO_FLAG_PLUTOPAKSPRITE    = 128
+    LOGO_FLAG_PLUTOPAKSPRITE    = 128,
+	LOGO_FLAG_SHAREWARESCREENS	= 256,
+	LOGO_FLAG_TENSCREEN			= 512
 };
 
 extern char numl;

@@ -9,17 +9,17 @@
 #include "grpscan.h"
 
 struct grpfile grpfiles[numgrpfiles] =
-    {
-        { "Duke Nukem 3D",						    0xBBC9CE44, 26524524, GAMEDUKE, NULL },
-        { "Duke Nukem 3D: Atomic Edition",		    0xF514A6AC, 44348015, GAMEDUKE, NULL },
-        { "Duke Nukem 3D: Atomic Edition",		    0xFD3DCFF1, 44356548, GAMEDUKE, NULL },
-        { "Duke Nukem 3D Shareware",		        0x983AD923, 11035779, GAMEDUKE, NULL },
-        { "Duke Nukem 3D Mac Shareware",	        0xC5F71561, 10444391, GAMEDUKE, NULL },
-        { "Duke Nukem 3D Mac",     				    0x00000000, 0,        GAMEDUKE, NULL },
-        { "NAM",                        			0x75C1F07B, 43448927, GAMENAM,  NULL },
-        { "Napalm",                        			0x3DE1589A, 44365728, GAMENAM,  NULL },
-        { "WW2GI",                         			0x907B82BF, 77939508, GAMEWW2,  NULL },
-    };
+{
+    { "Duke Nukem 3D",						    0xBBC9CE44, 26524524, GAMEDUKE, NULL },
+    { "Duke Nukem 3D: Atomic Edition",		    0xF514A6AC, 44348015, GAMEDUKE, NULL },
+    { "Duke Nukem 3D: Atomic Edition",		    0xFD3DCFF1, 44356548, GAMEDUKE, NULL },
+    { "Duke Nukem 3D Shareware",		        0x983AD923, 11035779, GAMEDUKE, NULL },
+    { "Duke Nukem 3D Mac Shareware",	        0xC5F71561, 10444391, GAMEDUKE, NULL },
+    { "Duke Nukem 3D Mac",     				    0x00000000, 0,        GAMEDUKE, NULL },
+    { "NAM",                        			0x75C1F07B, 43448927, GAMENAM,  NULL },
+    { "Napalm",                        			0x3DE1589A, 44365728, GAMENAM,  NULL },
+    { "WW2GI",                         			0x907B82BF, 77939508, GAMEWW2,  NULL },
+};
 struct grpfile *foundgrps = NULL;
 
 #define GRPCACHEFILE "grpfiles.cache"

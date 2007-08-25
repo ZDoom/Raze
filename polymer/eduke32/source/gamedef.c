@@ -101,14 +101,14 @@ enum labeltypes
 };
 
 static const char *labeltypenames[] =
-    {
-        "define",
-        "state",
-        "actor",
-        "action",
-        "ai",
-        "move"
-    };
+{
+    "define",
+    "state",
+    "actor",
+    "action",
+    "ai",
+    "move"
+};
 
 static const char *translatelabeltype(long type)
 {
@@ -128,714 +128,714 @@ static const char *translatelabeltype(long type)
 #define NUMKEYWORDS (signed int)(sizeof(keyw)/sizeof(keyw[0]))
 
 static const char *keyw[] =
-    {
-        "definelevelname",          // 0  defines level name
-        "actor",                    // 1  defines an actor
-        "addammo",                  // 2  adds ammo to a weapon
-        "ifrnd",                    // 3  checks against a randomizer
-        "enda",                     // 4  ends an actor definition
-        "ifcansee",                 // 5  checks if the player can see an object
-        "ifhitweapon",              // 6  checks if an object was hit by a weapon
-        "action",                   // 7  defines an action if used outside a state or actor, otherwise triggers actor to perform action
-        "ifpdistl",                 // 8  checks if player distance is less than value
-        "ifpdistg",                 // 9  checks if player distance is more than value
-        "else",                     // 10 used with if checks
-        "strength",                 // 11 sets health
-        "break",                    // 12 stops processing
-        "shoot",                    // 13 shoots a projectile
-        "palfrom",                  // 14 used for player screen shading effect, sets p->pals_time and p->pals[0-2]
-        "sound",                    // 15 plays a sound that was defined with definesound
-        "fall",                     // 16 causes actor to fall to sector floor height
-        "state",                    // 17 begins defining a state if used outside a state or actor, otherwise calls a state
-        "ends",                     // 18 ends defining a state
-        "define",                   // 19 defines a value
-        "<null>",                   // 20 was previously used to define a comment
-        "ifai",                     // 21 checks if actor is currently performing a specific ai function
-        "killit",                   // 22 kills an actor
-        "addweapon",                // 23 adds a weapon to the closest player
-        "ai",                       // 24 sets an ai function to be used by an actor
-        "addphealth",               // 25 adds health to the player
-        "ifdead",                   // 26 checks if actor is dead
-        "ifsquished",               // 27 checks if actor has been squished
-        "sizeto",                   // 28 gradually increases actor size until it matches parameters given
-        "{",                        // 29 used to indicate segments of code
-        "}",                        // 30 used to indicate segments of code
-        "spawn",                    // 31 spawns an actor
-        "move",                     // 32
-        "ifwasweapon",              // 33
-        "ifaction",                 // 34
-        "ifactioncount",            // 35
-        "resetactioncount",         // 36
-        "debris",                   // 37
-        "pstomp",                   // 38
-        "<null>",                   // 39 was previously used to define the start of a comment block
-        "cstat",                    // 40
-        "ifmove",                   // 41
-        "resetplayer",              // 42
-        "ifonwater",                // 43
-        "ifinwater",                // 44
-        "ifcanshoottarget",         // 45
-        "ifcount",                  // 46
-        "resetcount",               // 47
-        "addinventory",             // 48
-        "ifactornotstayput",        // 49
-        "hitradius",                // 50
-        "ifp",                      // 51
-        "count",                    // 52
-        "ifactor",                  // 53
-        "music",                    // 54
-        "include",                  // 55
-        "ifstrength",               // 56
-        "definesound",              // 57
-        "guts",                     // 58
-        "ifspawnedby",              // 59
-        "gamestartup",              // 60
-        "wackplayer",               // 61
-        "ifgapzl",                  // 62
-        "ifhitspace",               // 63
-        "ifoutside",                // 64
-        "ifmultiplayer",            // 65
-        "operate",                  // 66
-        "ifinspace",                // 67
-        "debug",                    // 68
-        "endofgame",                // 69
-        "ifbulletnear",             // 70
-        "ifrespawn",                // 71
-        "iffloordistl",             // 72
-        "ifceilingdistl",           // 73
-        "spritepal",                // 74
-        "ifpinventory",             // 75
-        "betaname",                 // 76
-        "cactor",                   // 77
-        "ifphealthl",               // 78
-        "definequote",              // 79
-        "quote",                    // 80
-        "ifinouterspace",           // 81
-        "ifnotmoving",              // 82
-        "respawnhitag",             // 83
-        "tip",                      // 84
-        "ifspritepal",              // 85
-        "money",                    // 86
-        "soundonce",                // 87
-        "addkills",                 // 88
-        "stopsound",                // 89
-        "ifawayfromwall",           // 90
-        "ifcanseetarget",           // 91
-        "globalsound",              // 92
-        "lotsofglass",              // 93
-        "ifgotweaponce",            // 94
-        "getlastpal",               // 95
-        "pkick",                    // 96
-        "mikesnd",                  // 97
-        "useractor",                // 98
-        "sizeat",                   // 99
-        "addstrength",              // 100  [#]
-        "cstator",                  // 101
-        "mail",                     // 102
-        "paper",                    // 103
-        "tossweapon",               // 104
-        "sleeptime",                // 105
-        "nullop",                   // 106
-        "definevolumename",         // 107
-        "defineskillname",          // 108
-        "ifnosounds",               // 109
-        "clipdist",                 // 110
-        "ifangdiffl",               // 111
-        "gamevar",                  // 112
-        "ifvarl",                   // 113
-        "ifvarg",                   // 114
-        "setvarvar",                // 115
-        "setvar",                   // 116
-        "addvarvar",                // 117
-        "addvar",                   // 118
-        "ifvarvarl",                // 119
-        "ifvarvarg",                // 120
-        "addlogvar",                // 121
-        "addlog",                   // 122
-        "onevent",                  // 123
-        "endevent",                 // 124
-        "ifvare",                   // 125
-        "ifvarvare",                // 126
-        "spgetlotag",               // 127
-        "spgethitag",               // 128
-        "sectgetlotag",             // 129
-        "sectgethitag",             // 130
-        "ifsound",                  // 131
-        "gettexturefloor",          // 132
-        "gettextureceiling",        // 133
-        "inittimer",                // 134
-        "starttrack",               // 135
-        "randvar",                  // 136
-        "enhanced",                 // 137
-        "getangletotarget",         // 138
-        "getactorangle",            // 139
-        "setactorangle",            // 140
-        "mulvar",                   // 141
-        "mulvarvar",                // 142
-        "divvar",                   // 143
-        "divvarvar",                // 144
-        "modvar",                   // 145
-        "modvarvar",                // 146
-        "andvar",                   // 147
-        "andvarvar",                // 148
-        "orvar",                    // 149
-        "orvarvar",                 // 150
-        "getplayerangle",           // 151
-        "setplayerangle",           // 152
-        "lockplayer",               // 153
-        "setsector",                // 154
-        "getsector",                // 155
-        "setactor",                 // 156
-        "getactor",                 // 157
-        "setwall",                  // 158
-        "getwall",                  // 159
-        "findnearactor",            // 160
-        "findnearactorvar",         // 161
-        "setactorvar",              // 162
-        "getactorvar",              // 163
-        "espawn",                   // 164
-        "getplayer",                // 165
-        "setplayer",                // 166
-        "sqrt",                     // 167
-        "eventloadactor",           // 168
-        "espawnvar",                // 169
-        "getuserdef",               // 170
-        "setuserdef",               // 171
-        "subvarvar",                // 172
-        "subvar",                   // 173
-        "ifvarn",                   // 174
-        "ifvarvarn",                // 175
-        "ifvarand",                 // 176
-        "ifvarvarand",              // 177
-        "myos",                     // 178
-        "myospal",                  // 179
-        "displayrand",              // 180
-        "sin",                      // 181
-        "xorvarvar",                // 182
-        "xorvar",                   // 183
-        "randvarvar",               // 184
-        "myosx",                    // 185
-        "myospalx",                 // 186
-        "gmaxammo",                 // 187
-        "smaxammo",                 // 188
-        "startlevel",               // 189
-        "eshoot",                   // 190
-        "qspawn",                   // 191
-        "rotatesprite",             // 192
-        "defineprojectile",         // 193
-        "spriteshadow",             // 194
-        "cos",                      // 195
-        "eshootvar",                // 196
-        "findnearactor3d",          // 197
-        "findnearactor3dvar",       // 198
-        "flash",                    // 199
-        "qspawnvar",                // 200
-        "eqspawn",                  // 201
-        "eqspawnvar",               // 202
-        "minitext",                 // 203
-        "gametext",                 // 204
-        "digitalnumber",            // 205
-        "addweaponvar",             // 206
-        "setprojectile",            // 207
-        "angoff",                   // 208
-        "updatesector",             // 209
-        "insertspriteq",            // 210
-        "angoffvar",                // 211
-        "whilevarn",                // 212
-        "switch",                   // 213
-        "case",                     // 214
-        "default",                  // 215
-        "endswitch",                // 216
-        "shootvar",                 // 217
-        "soundvar",                 // 218
-        "findplayer",               // 219
-        "findotherplayer",          // 220
-        "activatebysector",         // 221 sectnum, spriteid
-        "operatesectors",           // 222 sectnum, spriteid
-        "operaterespawns",          // 223 lotag
-        "operateactivators",        // 224 lotag, player index
-        "operatemasterswitches",    // 225 lotag
-        "checkactivatormotion",     // 226 lotag
-        "zshoot",                   // 227 zvar projnum
-        "dist",                     // 228 sprite1 sprite2
-        "ldist",                    // 229 sprite1 sprite2
-        "shiftvarl",                // 230
-        "shiftvarr",                // 231
-        "spritenvg",                // 232
-        "getangle",                 // 233
-        "whilevarvarn",             // 234
-        "hitscan",                  // 235
-        "time",                     // 236
-        "getplayervar",             // 237
-        "setplayervar",             // 238
-        "mulscale",                 // 239
-        "setaspect",                // 240
-        "ezshoot",                  // 241
-        "spritenoshade",            // 242
-        "movesprite",               // 243
-        "checkavailweapon",         // 244
-        "soundoncevar",             // 245
-        "updatesectorz",            // 246
-        "stopallsounds",            // 247
-        "ssp",                      // 248
-        "stopsoundvar",             // 249
-        "displayrandvar",           // 250
-        "displayrandvarvar",        // 251
-        "checkavailinven",          // 252
-        "globalsoundvar",           // 253
-        "guniqhudid",               // 254
-        "getprojectile",            // 255
-        "getthisprojectile",        // 256
-        "setthisprojectile",        // 257
-        "definecheat",              // 258
-        "cheatkeys",                // 259
-        "userquote",                // 260
-        "precache",                 // 261
-        "definegamefuncname",       // 262
-        "redefinequote",            // 263
-        "qsprintf",                 // 264
-        "getpname",                 // 265
-        "qstrcat",                  // 266
-        "qstrcpy",                  // 267
-        "setsprite",                // 268
-        "rotatepoint",              // 269
-        "dragpoint",                // 270
-        "getzrange",                // 271
-        "changespritestat",         // 272
-        "getceilzofslope",          // 273
-        "getflorzofslope",          // 274
-        "neartag",                  // 275
-        "definegametype",           // 276
-        "changespritesect",         // 277
-        "spriteflags",              // 278
-        "savegamevar",              // 279
-        "readgamevar",              // 280
-        "findnearsprite",           // 281
-        "findnearspritevar",        // 282
-        "findnearsprite3d",         // 283
-        "findnearsprite3dvar",      // 284
-        "dynamicremap",             // 285
-        "setinput",                 // 286
-        "getinput",                 // 287
-        "save",					   // 288
-        "cansee",                   // 289
-        "canseespr",                // 290
-        "findnearactorz",           // 291
-        "findnearactorzvar",        // 292
-        "findnearspritez",          // 293
-        "findnearspritezvar",       // 294
-        "zshootvar",				   // 295
-        "ezshootvar",			   // 296
-        "getcurraddress",		   // 297
-        "jump",					   // 298
-        "qstrlen",				   // 299
-        "getincangle",              // 300
-        "quake",                    // 301
-        "showview",                 // 302
-        "headspritestat",           // 303
-        "prevspritestat",           // 304
-        "nextspritestat",           // 305
-        "headspritesect",           // 306
-        "prevspritesect",           // 307
-        "nextspritesect",           // 308
-        "<null>"
-    };
+{
+    "definelevelname",          // 0  defines level name
+    "actor",                    // 1  defines an actor
+    "addammo",                  // 2  adds ammo to a weapon
+    "ifrnd",                    // 3  checks against a randomizer
+    "enda",                     // 4  ends an actor definition
+    "ifcansee",                 // 5  checks if the player can see an object
+    "ifhitweapon",              // 6  checks if an object was hit by a weapon
+    "action",                   // 7  defines an action if used outside a state or actor, otherwise triggers actor to perform action
+    "ifpdistl",                 // 8  checks if player distance is less than value
+    "ifpdistg",                 // 9  checks if player distance is more than value
+    "else",                     // 10 used with if checks
+    "strength",                 // 11 sets health
+    "break",                    // 12 stops processing
+    "shoot",                    // 13 shoots a projectile
+    "palfrom",                  // 14 used for player screen shading effect, sets p->pals_time and p->pals[0-2]
+    "sound",                    // 15 plays a sound that was defined with definesound
+    "fall",                     // 16 causes actor to fall to sector floor height
+    "state",                    // 17 begins defining a state if used outside a state or actor, otherwise calls a state
+    "ends",                     // 18 ends defining a state
+    "define",                   // 19 defines a value
+    "<null>",                   // 20 was previously used to define a comment
+    "ifai",                     // 21 checks if actor is currently performing a specific ai function
+    "killit",                   // 22 kills an actor
+    "addweapon",                // 23 adds a weapon to the closest player
+    "ai",                       // 24 sets an ai function to be used by an actor
+    "addphealth",               // 25 adds health to the player
+    "ifdead",                   // 26 checks if actor is dead
+    "ifsquished",               // 27 checks if actor has been squished
+    "sizeto",                   // 28 gradually increases actor size until it matches parameters given
+    "{",                        // 29 used to indicate segments of code
+    "}",                        // 30 used to indicate segments of code
+    "spawn",                    // 31 spawns an actor
+    "move",                     // 32
+    "ifwasweapon",              // 33
+    "ifaction",                 // 34
+    "ifactioncount",            // 35
+    "resetactioncount",         // 36
+    "debris",                   // 37
+    "pstomp",                   // 38
+    "<null>",                   // 39 was previously used to define the start of a comment block
+    "cstat",                    // 40
+    "ifmove",                   // 41
+    "resetplayer",              // 42
+    "ifonwater",                // 43
+    "ifinwater",                // 44
+    "ifcanshoottarget",         // 45
+    "ifcount",                  // 46
+    "resetcount",               // 47
+    "addinventory",             // 48
+    "ifactornotstayput",        // 49
+    "hitradius",                // 50
+    "ifp",                      // 51
+    "count",                    // 52
+    "ifactor",                  // 53
+    "music",                    // 54
+    "include",                  // 55
+    "ifstrength",               // 56
+    "definesound",              // 57
+    "guts",                     // 58
+    "ifspawnedby",              // 59
+    "gamestartup",              // 60
+    "wackplayer",               // 61
+    "ifgapzl",                  // 62
+    "ifhitspace",               // 63
+    "ifoutside",                // 64
+    "ifmultiplayer",            // 65
+    "operate",                  // 66
+    "ifinspace",                // 67
+    "debug",                    // 68
+    "endofgame",                // 69
+    "ifbulletnear",             // 70
+    "ifrespawn",                // 71
+    "iffloordistl",             // 72
+    "ifceilingdistl",           // 73
+    "spritepal",                // 74
+    "ifpinventory",             // 75
+    "betaname",                 // 76
+    "cactor",                   // 77
+    "ifphealthl",               // 78
+    "definequote",              // 79
+    "quote",                    // 80
+    "ifinouterspace",           // 81
+    "ifnotmoving",              // 82
+    "respawnhitag",             // 83
+    "tip",                      // 84
+    "ifspritepal",              // 85
+    "money",                    // 86
+    "soundonce",                // 87
+    "addkills",                 // 88
+    "stopsound",                // 89
+    "ifawayfromwall",           // 90
+    "ifcanseetarget",           // 91
+    "globalsound",              // 92
+    "lotsofglass",              // 93
+    "ifgotweaponce",            // 94
+    "getlastpal",               // 95
+    "pkick",                    // 96
+    "mikesnd",                  // 97
+    "useractor",                // 98
+    "sizeat",                   // 99
+    "addstrength",              // 100  [#]
+    "cstator",                  // 101
+    "mail",                     // 102
+    "paper",                    // 103
+    "tossweapon",               // 104
+    "sleeptime",                // 105
+    "nullop",                   // 106
+    "definevolumename",         // 107
+    "defineskillname",          // 108
+    "ifnosounds",               // 109
+    "clipdist",                 // 110
+    "ifangdiffl",               // 111
+    "gamevar",                  // 112
+    "ifvarl",                   // 113
+    "ifvarg",                   // 114
+    "setvarvar",                // 115
+    "setvar",                   // 116
+    "addvarvar",                // 117
+    "addvar",                   // 118
+    "ifvarvarl",                // 119
+    "ifvarvarg",                // 120
+    "addlogvar",                // 121
+    "addlog",                   // 122
+    "onevent",                  // 123
+    "endevent",                 // 124
+    "ifvare",                   // 125
+    "ifvarvare",                // 126
+    "spgetlotag",               // 127
+    "spgethitag",               // 128
+    "sectgetlotag",             // 129
+    "sectgethitag",             // 130
+    "ifsound",                  // 131
+    "gettexturefloor",          // 132
+    "gettextureceiling",        // 133
+    "inittimer",                // 134
+    "starttrack",               // 135
+    "randvar",                  // 136
+    "enhanced",                 // 137
+    "getangletotarget",         // 138
+    "getactorangle",            // 139
+    "setactorangle",            // 140
+    "mulvar",                   // 141
+    "mulvarvar",                // 142
+    "divvar",                   // 143
+    "divvarvar",                // 144
+    "modvar",                   // 145
+    "modvarvar",                // 146
+    "andvar",                   // 147
+    "andvarvar",                // 148
+    "orvar",                    // 149
+    "orvarvar",                 // 150
+    "getplayerangle",           // 151
+    "setplayerangle",           // 152
+    "lockplayer",               // 153
+    "setsector",                // 154
+    "getsector",                // 155
+    "setactor",                 // 156
+    "getactor",                 // 157
+    "setwall",                  // 158
+    "getwall",                  // 159
+    "findnearactor",            // 160
+    "findnearactorvar",         // 161
+    "setactorvar",              // 162
+    "getactorvar",              // 163
+    "espawn",                   // 164
+    "getplayer",                // 165
+    "setplayer",                // 166
+    "sqrt",                     // 167
+    "eventloadactor",           // 168
+    "espawnvar",                // 169
+    "getuserdef",               // 170
+    "setuserdef",               // 171
+    "subvarvar",                // 172
+    "subvar",                   // 173
+    "ifvarn",                   // 174
+    "ifvarvarn",                // 175
+    "ifvarand",                 // 176
+    "ifvarvarand",              // 177
+    "myos",                     // 178
+    "myospal",                  // 179
+    "displayrand",              // 180
+    "sin",                      // 181
+    "xorvarvar",                // 182
+    "xorvar",                   // 183
+    "randvarvar",               // 184
+    "myosx",                    // 185
+    "myospalx",                 // 186
+    "gmaxammo",                 // 187
+    "smaxammo",                 // 188
+    "startlevel",               // 189
+    "eshoot",                   // 190
+    "qspawn",                   // 191
+    "rotatesprite",             // 192
+    "defineprojectile",         // 193
+    "spriteshadow",             // 194
+    "cos",                      // 195
+    "eshootvar",                // 196
+    "findnearactor3d",          // 197
+    "findnearactor3dvar",       // 198
+    "flash",                    // 199
+    "qspawnvar",                // 200
+    "eqspawn",                  // 201
+    "eqspawnvar",               // 202
+    "minitext",                 // 203
+    "gametext",                 // 204
+    "digitalnumber",            // 205
+    "addweaponvar",             // 206
+    "setprojectile",            // 207
+    "angoff",                   // 208
+    "updatesector",             // 209
+    "insertspriteq",            // 210
+    "angoffvar",                // 211
+    "whilevarn",                // 212
+    "switch",                   // 213
+    "case",                     // 214
+    "default",                  // 215
+    "endswitch",                // 216
+    "shootvar",                 // 217
+    "soundvar",                 // 218
+    "findplayer",               // 219
+    "findotherplayer",          // 220
+    "activatebysector",         // 221 sectnum, spriteid
+    "operatesectors",           // 222 sectnum, spriteid
+    "operaterespawns",          // 223 lotag
+    "operateactivators",        // 224 lotag, player index
+    "operatemasterswitches",    // 225 lotag
+    "checkactivatormotion",     // 226 lotag
+    "zshoot",                   // 227 zvar projnum
+    "dist",                     // 228 sprite1 sprite2
+    "ldist",                    // 229 sprite1 sprite2
+    "shiftvarl",                // 230
+    "shiftvarr",                // 231
+    "spritenvg",                // 232
+    "getangle",                 // 233
+    "whilevarvarn",             // 234
+    "hitscan",                  // 235
+    "time",                     // 236
+    "getplayervar",             // 237
+    "setplayervar",             // 238
+    "mulscale",                 // 239
+    "setaspect",                // 240
+    "ezshoot",                  // 241
+    "spritenoshade",            // 242
+    "movesprite",               // 243
+    "checkavailweapon",         // 244
+    "soundoncevar",             // 245
+    "updatesectorz",            // 246
+    "stopallsounds",            // 247
+    "ssp",                      // 248
+    "stopsoundvar",             // 249
+    "displayrandvar",           // 250
+    "displayrandvarvar",        // 251
+    "checkavailinven",          // 252
+    "globalsoundvar",           // 253
+    "guniqhudid",               // 254
+    "getprojectile",            // 255
+    "getthisprojectile",        // 256
+    "setthisprojectile",        // 257
+    "definecheat",              // 258
+    "cheatkeys",                // 259
+    "userquote",                // 260
+    "precache",                 // 261
+    "definegamefuncname",       // 262
+    "redefinequote",            // 263
+    "qsprintf",                 // 264
+    "getpname",                 // 265
+    "qstrcat",                  // 266
+    "qstrcpy",                  // 267
+    "setsprite",                // 268
+    "rotatepoint",              // 269
+    "dragpoint",                // 270
+    "getzrange",                // 271
+    "changespritestat",         // 272
+    "getceilzofslope",          // 273
+    "getflorzofslope",          // 274
+    "neartag",                  // 275
+    "definegametype",           // 276
+    "changespritesect",         // 277
+    "spriteflags",              // 278
+    "savegamevar",              // 279
+    "readgamevar",              // 280
+    "findnearsprite",           // 281
+    "findnearspritevar",        // 282
+    "findnearsprite3d",         // 283
+    "findnearsprite3dvar",      // 284
+    "dynamicremap",             // 285
+    "setinput",                 // 286
+    "getinput",                 // 287
+    "save",					   // 288
+    "cansee",                   // 289
+    "canseespr",                // 290
+    "findnearactorz",           // 291
+    "findnearactorzvar",        // 292
+    "findnearspritez",          // 293
+    "findnearspritezvar",       // 294
+    "zshootvar",				   // 295
+    "ezshootvar",			   // 296
+    "getcurraddress",		   // 297
+    "jump",					   // 298
+    "qstrlen",				   // 299
+    "getincangle",              // 300
+    "quake",                    // 301
+    "showview",                 // 302
+    "headspritestat",           // 303
+    "prevspritestat",           // 304
+    "nextspritestat",           // 305
+    "headspritesect",           // 306
+    "prevspritesect",           // 307
+    "nextspritesect",           // 308
+    "<null>"
+};
 
 LABELS sectorlabels[]=
-    {
-        { "wallptr", SECTOR_WALLPTR, 0, 0 },
-        { "wallnum", SECTOR_WALLNUM, 0, 0 },
-        { "ceilingz", SECTOR_CEILINGZ, 0, 0 },
-        { "floorz", SECTOR_FLOORZ, 0, 0 },
-        { "ceilingstat", SECTOR_CEILINGSTAT, 0, 0 },
-        { "floorstat", SECTOR_FLOORSTAT, 0, 0 },
-        { "ceilingpicnum", SECTOR_CEILINGPICNUM, 0, 0 },
-        { "ceilingslope", SECTOR_CEILINGSLOPE, 0, 0 },
-        { "ceilingshade", SECTOR_CEILINGSHADE, 0, 0 },
-        { "ceilingpal", SECTOR_CEILINGPAL, 0, 0 },
-        { "ceilingxpanning", SECTOR_CEILINGXPANNING, 0, 0 },
-        { "ceilingypanning", SECTOR_CEILINGYPANNING, 0, 0 },
-        { "floorpicnum", SECTOR_FLOORPICNUM, 0, 0 },
-        { "floorslope", SECTOR_FLOORSLOPE, 0, 0 },
-        { "floorshade", SECTOR_FLOORSHADE, 0, 0 },
-        { "floorpal", SECTOR_FLOORPAL, 0, 0 },
-        { "floorxpanning", SECTOR_FLOORXPANNING, 0, 0 },
-        { "floorypanning", SECTOR_FLOORYPANNING, 0, 0 },
-        { "visibility", SECTOR_VISIBILITY, 0, 0 },
-        { "alignto", SECTOR_ALIGNTO, 0, 0 },
-        { "lotag", SECTOR_LOTAG, 0, 0 },
-        { "hitag", SECTOR_HITAG, 0, 0 },
-        { "extra", SECTOR_EXTRA, 0, 0 },
-        { "", -1, 0, 0  }     // END OF LIST
-    };
+{
+    { "wallptr", SECTOR_WALLPTR, 0, 0 },
+    { "wallnum", SECTOR_WALLNUM, 0, 0 },
+    { "ceilingz", SECTOR_CEILINGZ, 0, 0 },
+    { "floorz", SECTOR_FLOORZ, 0, 0 },
+    { "ceilingstat", SECTOR_CEILINGSTAT, 0, 0 },
+    { "floorstat", SECTOR_FLOORSTAT, 0, 0 },
+    { "ceilingpicnum", SECTOR_CEILINGPICNUM, 0, 0 },
+    { "ceilingslope", SECTOR_CEILINGSLOPE, 0, 0 },
+    { "ceilingshade", SECTOR_CEILINGSHADE, 0, 0 },
+    { "ceilingpal", SECTOR_CEILINGPAL, 0, 0 },
+    { "ceilingxpanning", SECTOR_CEILINGXPANNING, 0, 0 },
+    { "ceilingypanning", SECTOR_CEILINGYPANNING, 0, 0 },
+    { "floorpicnum", SECTOR_FLOORPICNUM, 0, 0 },
+    { "floorslope", SECTOR_FLOORSLOPE, 0, 0 },
+    { "floorshade", SECTOR_FLOORSHADE, 0, 0 },
+    { "floorpal", SECTOR_FLOORPAL, 0, 0 },
+    { "floorxpanning", SECTOR_FLOORXPANNING, 0, 0 },
+    { "floorypanning", SECTOR_FLOORYPANNING, 0, 0 },
+    { "visibility", SECTOR_VISIBILITY, 0, 0 },
+    { "alignto", SECTOR_ALIGNTO, 0, 0 },
+    { "lotag", SECTOR_LOTAG, 0, 0 },
+    { "hitag", SECTOR_HITAG, 0, 0 },
+    { "extra", SECTOR_EXTRA, 0, 0 },
+    { "", -1, 0, 0  }     // END OF LIST
+};
 
 LABELS walllabels[]=
-    {
-        { "x", WALL_X, 0, 0 },
-        { "y", WALL_Y, 0, 0 },
-        { "point2", WALL_POINT2, 0, 0 },
-        { "nextwall", WALL_NEXTWALL, 0, 0 },
-        { "nextsector", WALL_NEXTSECTOR, 0, 0 },
-        { "cstat", WALL_CSTAT, 0, 0 },
-        { "picnum", WALL_PICNUM, 0, 0 },
-        { "overpicnum", WALL_OVERPICNUM, 0, 0 },
-        { "shade", WALL_SHADE, 0, 0 },
-        { "pal", WALL_PAL, 0, 0 },
-        { "xrepeat", WALL_XREPEAT, 0, 0 },
-        { "yrepeat", WALL_YREPEAT, 0, 0 },
-        { "xpanning", WALL_XPANNING, 0, 0 },
-        { "ypanning", WALL_YPANNING, 0, 0 },
-        { "lotag", WALL_LOTAG, 0, 0 },
-        { "hitag", WALL_HITAG, 0, 0 },
-        { "extra", WALL_EXTRA, 0, 0 },
-        { "", -1, 0, 0  }     // END OF LIST
-    };
+{
+    { "x", WALL_X, 0, 0 },
+    { "y", WALL_Y, 0, 0 },
+    { "point2", WALL_POINT2, 0, 0 },
+    { "nextwall", WALL_NEXTWALL, 0, 0 },
+    { "nextsector", WALL_NEXTSECTOR, 0, 0 },
+    { "cstat", WALL_CSTAT, 0, 0 },
+    { "picnum", WALL_PICNUM, 0, 0 },
+    { "overpicnum", WALL_OVERPICNUM, 0, 0 },
+    { "shade", WALL_SHADE, 0, 0 },
+    { "pal", WALL_PAL, 0, 0 },
+    { "xrepeat", WALL_XREPEAT, 0, 0 },
+    { "yrepeat", WALL_YREPEAT, 0, 0 },
+    { "xpanning", WALL_XPANNING, 0, 0 },
+    { "ypanning", WALL_YPANNING, 0, 0 },
+    { "lotag", WALL_LOTAG, 0, 0 },
+    { "hitag", WALL_HITAG, 0, 0 },
+    { "extra", WALL_EXTRA, 0, 0 },
+    { "", -1, 0, 0  }     // END OF LIST
+};
 
 LABELS actorlabels[]=
-    {
-        { "x", ACTOR_X, 0, 0 },
-        { "y", ACTOR_Y, 0, 0 },
-        { "z", ACTOR_Z, 0, 0 },
-        { "cstat", ACTOR_CSTAT, 0, 0 },
-        { "picnum", ACTOR_PICNUM, 0, 0 },
-        { "shade", ACTOR_SHADE, 0, 0 },
-        { "pal", ACTOR_PAL, 0, 0 },
-        { "clipdist", ACTOR_CLIPDIST, 0, 0 },
-        { "detail", ACTOR_DETAIL, 0, 0 },
-        { "xrepeat", ACTOR_XREPEAT, 0, 0 },
-        { "yrepeat", ACTOR_YREPEAT, 0, 0 },
-        { "xoffset", ACTOR_XOFFSET, 0, 0 },
-        { "yoffset", ACTOR_YOFFSET, 0, 0 },
-        { "sectnum", ACTOR_SECTNUM, 0, 0 },
-        { "statnum", ACTOR_STATNUM, 0, 0 },
-        { "ang", ACTOR_ANG, 0, 0 },
-        { "owner", ACTOR_OWNER, 0, 0 },
-        { "xvel", ACTOR_XVEL, 0, 0 },
-        { "yvel", ACTOR_YVEL, 0, 0 },
-        { "zvel", ACTOR_ZVEL, 0, 0 },
-        { "lotag", ACTOR_LOTAG, 0, 0 },
-        { "hitag", ACTOR_HITAG, 0, 0 },
-        { "extra", ACTOR_EXTRA, 0, 0 },
+{
+    { "x", ACTOR_X, 0, 0 },
+    { "y", ACTOR_Y, 0, 0 },
+    { "z", ACTOR_Z, 0, 0 },
+    { "cstat", ACTOR_CSTAT, 0, 0 },
+    { "picnum", ACTOR_PICNUM, 0, 0 },
+    { "shade", ACTOR_SHADE, 0, 0 },
+    { "pal", ACTOR_PAL, 0, 0 },
+    { "clipdist", ACTOR_CLIPDIST, 0, 0 },
+    { "detail", ACTOR_DETAIL, 0, 0 },
+    { "xrepeat", ACTOR_XREPEAT, 0, 0 },
+    { "yrepeat", ACTOR_YREPEAT, 0, 0 },
+    { "xoffset", ACTOR_XOFFSET, 0, 0 },
+    { "yoffset", ACTOR_YOFFSET, 0, 0 },
+    { "sectnum", ACTOR_SECTNUM, 0, 0 },
+    { "statnum", ACTOR_STATNUM, 0, 0 },
+    { "ang", ACTOR_ANG, 0, 0 },
+    { "owner", ACTOR_OWNER, 0, 0 },
+    { "xvel", ACTOR_XVEL, 0, 0 },
+    { "yvel", ACTOR_YVEL, 0, 0 },
+    { "zvel", ACTOR_ZVEL, 0, 0 },
+    { "lotag", ACTOR_LOTAG, 0, 0 },
+    { "hitag", ACTOR_HITAG, 0, 0 },
+    { "extra", ACTOR_EXTRA, 0, 0 },
 
-        // hittype labels...
-        { "htcgg", ACTOR_HTCGG, 0, 0 },
-        { "htpicnum", ACTOR_HTPICNUM, 0, 0 },
-        { "htang", ACTOR_HTANG, 0, 0 },
-        { "htextra", ACTOR_HTEXTRA, 0, 0 },
-        { "htowner", ACTOR_HTOWNER, 0, 0 },
-        { "htmovflag", ACTOR_HTMOVFLAG, 0, 0 },
-        { "httempang", ACTOR_HTTEMPANG, 0, 0 },
-        { "htactorstayput", ACTOR_HTACTORSTAYPUT, 0, 0 },
-        { "htdispicnum", ACTOR_HTDISPICNUM, 0, 0 },
-        { "httimetosleep", ACTOR_HTTIMETOSLEEP, 0, 0 },
-        { "htfloorz", ACTOR_HTFLOORZ, 0, 0 },
-        { "htceilingz", ACTOR_HTCEILINGZ, 0, 0 },
-        { "htlastvx", ACTOR_HTLASTVX, 0, 0 },
-        { "htlastvy", ACTOR_HTLASTVY, 0, 0 },
-        { "htbposx", ACTOR_HTBPOSX, 0, 0 },
-        { "htbposy", ACTOR_HTBPOSY, 0, 0 },
-        { "htbposz", ACTOR_HTBPOSZ, 0, 0 },
-        { "htg_t", ACTOR_HTG_T, LABEL_HASPARM2, 8 },
+    // hittype labels...
+    { "htcgg", ACTOR_HTCGG, 0, 0 },
+    { "htpicnum", ACTOR_HTPICNUM, 0, 0 },
+    { "htang", ACTOR_HTANG, 0, 0 },
+    { "htextra", ACTOR_HTEXTRA, 0, 0 },
+    { "htowner", ACTOR_HTOWNER, 0, 0 },
+    { "htmovflag", ACTOR_HTMOVFLAG, 0, 0 },
+    { "httempang", ACTOR_HTTEMPANG, 0, 0 },
+    { "htactorstayput", ACTOR_HTACTORSTAYPUT, 0, 0 },
+    { "htdispicnum", ACTOR_HTDISPICNUM, 0, 0 },
+    { "httimetosleep", ACTOR_HTTIMETOSLEEP, 0, 0 },
+    { "htfloorz", ACTOR_HTFLOORZ, 0, 0 },
+    { "htceilingz", ACTOR_HTCEILINGZ, 0, 0 },
+    { "htlastvx", ACTOR_HTLASTVX, 0, 0 },
+    { "htlastvy", ACTOR_HTLASTVY, 0, 0 },
+    { "htbposx", ACTOR_HTBPOSX, 0, 0 },
+    { "htbposy", ACTOR_HTBPOSY, 0, 0 },
+    { "htbposz", ACTOR_HTBPOSZ, 0, 0 },
+    { "htg_t", ACTOR_HTG_T, LABEL_HASPARM2, 8 },
 
-        // model flags
+    // model flags
 
-        { "angoff", ACTOR_ANGOFF, 0, 0 },
-        { "pitch", ACTOR_PITCH, 0, 0 },
-        { "roll", ACTOR_ROLL, 0, 0 },
-        { "mdxoff", ACTOR_MDXOFF, 0, 0 },
-        { "mdyoff", ACTOR_MDYOFF, 0, 0 },
-        { "mdzoff", ACTOR_MDZOFF, 0, 0 },
-        { "mdflags", ACTOR_MDFLAGS, 0, 0 },
-        { "", -1, 0, 0  }     // END OF LIST
-    };
+    { "angoff", ACTOR_ANGOFF, 0, 0 },
+    { "pitch", ACTOR_PITCH, 0, 0 },
+    { "roll", ACTOR_ROLL, 0, 0 },
+    { "mdxoff", ACTOR_MDXOFF, 0, 0 },
+    { "mdyoff", ACTOR_MDYOFF, 0, 0 },
+    { "mdzoff", ACTOR_MDZOFF, 0, 0 },
+    { "mdflags", ACTOR_MDFLAGS, 0, 0 },
+    { "", -1, 0, 0  }     // END OF LIST
+};
 
 LABELS playerlabels[]=
-    {
-        { "zoom", PLAYER_ZOOM, 0, 0 },
-        { "exitx", PLAYER_EXITX, 0, 0 },
-        { "exity", PLAYER_EXITY, 0, 0 },
-        { "loogiex", PLAYER_LOOGIEX, LABEL_HASPARM2, 64 },
-        { "loogiey", PLAYER_LOOGIEY, LABEL_HASPARM2, 64 },
-        { "numloogs", PLAYER_NUMLOOGS, 0, 0 },
-        { "loogcnt", PLAYER_LOOGCNT, 0, 0 },
-        { "posx", PLAYER_POSX, 0, 0 },
-        { "posy", PLAYER_POSY, 0, 0 },
-        { "posz", PLAYER_POSZ, 0, 0 },
-        { "horiz", PLAYER_HORIZ, 0, 0 },
-        { "ohoriz", PLAYER_OHORIZ, 0, 0 },
-        { "ohorizoff", PLAYER_OHORIZOFF, 0, 0 },
-        { "invdisptime", PLAYER_INVDISPTIME, 0, 0 },
-        { "bobposx", PLAYER_BOBPOSX, 0, 0 },
-        { "bobposy", PLAYER_BOBPOSY, 0, 0 },
-        { "oposx", PLAYER_OPOSX, 0, 0 },
-        { "oposy", PLAYER_OPOSY, 0, 0 },
-        { "oposz", PLAYER_OPOSZ, 0, 0 },
-        { "pyoff", PLAYER_PYOFF, 0, 0 },
-        { "opyoff", PLAYER_OPYOFF, 0, 0 },
-        { "posxv", PLAYER_POSXV, 0, 0 },
-        { "posyv", PLAYER_POSYV, 0, 0 },
-        { "poszv", PLAYER_POSZV, 0, 0 },
-        { "last_pissed_time", PLAYER_LAST_PISSED_TIME, 0, 0 },
-        { "truefz", PLAYER_TRUEFZ, 0, 0 },
-        { "truecz", PLAYER_TRUECZ, 0, 0 },
-        { "player_par", PLAYER_PLAYER_PAR, 0, 0 },
-        { "visibility", PLAYER_VISIBILITY, 0, 0 },
-        { "bobcounter", PLAYER_BOBCOUNTER, 0, 0 },
-        { "weapon_sway", PLAYER_WEAPON_SWAY, 0, 0 },
-        { "pals_time", PLAYER_PALS_TIME, 0, 0 },
-        { "randomflamex", PLAYER_RANDOMFLAMEX, 0, 0 },
-        { "crack_time", PLAYER_CRACK_TIME, 0, 0 },
-        { "aim_mode", PLAYER_AIM_MODE, 0, 0 },
-        { "ang", PLAYER_ANG, 0, 0 },
-        { "oang", PLAYER_OANG, 0, 0 },
-        { "angvel", PLAYER_ANGVEL, 0, 0 },
-        { "cursectnum", PLAYER_CURSECTNUM, 0, 0 },
-        { "look_ang", PLAYER_LOOK_ANG, 0, 0 },
-        { "last_extra", PLAYER_LAST_EXTRA, 0, 0 },
-        { "subweapon", PLAYER_SUBWEAPON, 0, 0 },
-        { "ammo_amount", PLAYER_AMMO_AMOUNT, LABEL_HASPARM2, MAX_WEAPONS },
-        { "wackedbyactor", PLAYER_WACKEDBYACTOR, 0, 0 },
-        { "frag", PLAYER_FRAG, 0, 0 },
-        { "fraggedself", PLAYER_FRAGGEDSELF, 0, 0 },
-        { "curr_weapon", PLAYER_CURR_WEAPON, 0, 0 },
-        { "last_weapon", PLAYER_LAST_WEAPON, 0, 0 },
-        { "tipincs", PLAYER_TIPINCS, 0, 0 },
-        { "horizoff", PLAYER_HORIZOFF, 0, 0 },
-        { "wantweaponfire", PLAYER_WANTWEAPONFIRE, 0, 0 },
-        { "holoduke_amount", PLAYER_HOLODUKE_AMOUNT, 0, 0 },
-        { "newowner", PLAYER_NEWOWNER, 0, 0 },
-        { "hurt_delay", PLAYER_HURT_DELAY, 0, 0 },
-        { "hbomb_hold_delay", PLAYER_HBOMB_HOLD_DELAY, 0, 0 },
-        { "jumping_counter", PLAYER_JUMPING_COUNTER, 0, 0 },
-        { "airleft", PLAYER_AIRLEFT, 0, 0 },
-        { "knee_incs", PLAYER_KNEE_INCS, 0, 0 },
-        { "access_incs", PLAYER_ACCESS_INCS, 0, 0 },
-        { "fta", PLAYER_FTA, 0, 0 },
-        { "ftq", PLAYER_FTQ, 0, 0 },
-        { "access_wallnum", PLAYER_ACCESS_WALLNUM, 0, 0 },
-        { "access_spritenum", PLAYER_ACCESS_SPRITENUM, 0, 0 },
-        { "kickback_pic", PLAYER_KICKBACK_PIC, 0, 0 },
-        { "got_access", PLAYER_GOT_ACCESS, 0, 0 },
-        { "weapon_ang", PLAYER_WEAPON_ANG, 0, 0 },
-        { "firstaid_amount", PLAYER_FIRSTAID_AMOUNT, 0, 0 },
-        { "somethingonplayer", PLAYER_SOMETHINGONPLAYER, 0, 0 },
-        { "on_crane", PLAYER_ON_CRANE, 0, 0 },
-        { "i", PLAYER_I, 0, 0 },
-        { "one_parallax_sectnum", PLAYER_ONE_PARALLAX_SECTNUM, 0, 0 },
-        { "over_shoulder_on", PLAYER_OVER_SHOULDER_ON, 0, 0 },
-        { "random_club_frame", PLAYER_RANDOM_CLUB_FRAME, 0, 0 },
-        { "fist_incs", PLAYER_FIST_INCS, 0, 0 },
-        { "one_eighty_count", PLAYER_ONE_EIGHTY_COUNT, 0, 0 },
-        { "cheat_phase", PLAYER_CHEAT_PHASE, 0, 0 },
-        { "dummyplayersprite", PLAYER_DUMMYPLAYERSPRITE, 0, 0 },
-        { "extra_extra8", PLAYER_EXTRA_EXTRA8, 0, 0 },
-        { "quick_kick", PLAYER_QUICK_KICK, 0, 0 },
-        { "heat_amount", PLAYER_HEAT_AMOUNT, 0, 0 },
-        { "actorsqu", PLAYER_ACTORSQU, 0, 0 },
-        { "timebeforeexit", PLAYER_TIMEBEFOREEXIT, 0, 0 },
-        { "customexitsound", PLAYER_CUSTOMEXITSOUND, 0, 0 },
-        { "weaprecs[16]", PLAYER_WEAPRECS, 0, 0 },
-        { "weapreccnt", PLAYER_WEAPRECCNT, 0, 0 },
-        { "interface_toggle_flag", PLAYER_INTERFACE_TOGGLE_FLAG, 0, 0 },
-        { "rotscrnang", PLAYER_ROTSCRNANG, 0, 0 },
-        { "dead_flag", PLAYER_DEAD_FLAG, 0, 0 },
-        { "show_empty_weapon", PLAYER_SHOW_EMPTY_WEAPON, 0, 0 },
-        { "scuba_amount", PLAYER_SCUBA_AMOUNT, 0, 0 },
-        { "jetpack_amount", PLAYER_JETPACK_AMOUNT, 0, 0 },
-        { "steroids_amount", PLAYER_STEROIDS_AMOUNT, 0, 0 },
-        { "shield_amount", PLAYER_SHIELD_AMOUNT, 0, 0 },
-        { "holoduke_on", PLAYER_HOLODUKE_ON, 0, 0 },
-        { "pycount", PLAYER_PYCOUNT, 0, 0 },
-        { "weapon_pos", PLAYER_WEAPON_POS, 0, 0 },
-        { "frag_ps", PLAYER_FRAG_PS, 0, 0 },
-        { "transporter_hold", PLAYER_TRANSPORTER_HOLD, 0, 0 },
-        { "last_full_weapon", PLAYER_LAST_FULL_WEAPON, 0, 0 },
-        { "footprintshade", PLAYER_FOOTPRINTSHADE, 0, 0 },
-        { "boot_amount", PLAYER_BOOT_AMOUNT, 0, 0 },
-        { "scream_voice", PLAYER_SCREAM_VOICE, 0, 0 },
-        { "gm", PLAYER_GM, 0, 0 },
-        { "on_warping_sector", PLAYER_ON_WARPING_SECTOR, 0, 0 },
-        { "footprintcount", PLAYER_FOOTPRINTCOUNT, 0, 0 },
-        { "hbomb_on", PLAYER_HBOMB_ON, 0, 0 },
-        { "jumping_toggle", PLAYER_JUMPING_TOGGLE, 0, 0 },
-        { "rapid_fire_hold", PLAYER_RAPID_FIRE_HOLD, 0, 0 },
-        { "on_ground", PLAYER_ON_GROUND, 0, 0 },
-        { "name", PLAYER_NAME,  LABEL_ISSTRING, 32 },
-        { "inven_icon", PLAYER_INVEN_ICON, 0, 0 },
-        { "buttonpalette", PLAYER_BUTTONPALETTE, 0, 0 },
-        { "jetpack_on", PLAYER_JETPACK_ON, 0, 0 },
-        { "spritebridge", PLAYER_SPRITEBRIDGE, 0, 0 },
-        { "lastrandomspot", PLAYER_LASTRANDOMSPOT, 0, 0 },
-        { "scuba_on", PLAYER_SCUBA_ON, 0, 0 },
-        { "footprintpal", PLAYER_FOOTPRINTPAL, 0, 0 },
-        { "heat_on", PLAYER_HEAT_ON, 0, 0 },
-        { "holster_weapon", PLAYER_HOLSTER_WEAPON, 0, 0 },
-        { "falling_counter", PLAYER_FALLING_COUNTER, 0, 0 },
-        { "gotweapon", PLAYER_GOTWEAPON, LABEL_HASPARM2, MAX_WEAPONS },
-        { "refresh_inventory", PLAYER_REFRESH_INVENTORY, 0, 0 },
-        { "palette", PLAYER_PALETTE, 0, 0 },
-        { "toggle_key_flag", PLAYER_TOGGLE_KEY_FLAG, 0, 0 },
-        { "knuckle_incs", PLAYER_KNUCKLE_INCS, 0, 0 },
-        { "walking_snd_toggle", PLAYER_WALKING_SND_TOGGLE, 0, 0 },
-        { "palookup", PLAYER_PALOOKUP, 0, 0 },
-        { "hard_landing", PLAYER_HARD_LANDING, 0, 0 },
-        { "max_secret_rooms", PLAYER_MAX_SECRET_ROOMS, 0, 0 },
-        { "secret_rooms", PLAYER_SECRET_ROOMS, 0, 0 },
-        { "pals", PLAYER_PALS, LABEL_HASPARM2, 2 },
-        { "max_actors_killed", PLAYER_MAX_ACTORS_KILLED, 0, 0 },
-        { "actors_killed", PLAYER_ACTORS_KILLED, 0, 0 },
-        { "return_to_center", PLAYER_RETURN_TO_CENTER, 0, 0 },
-        { "runspeed", PLAYER_RUNSPEED, 0, 0 },
-        { "sbs", PLAYER_SBS, 0, 0 },
-        { "reloading", PLAYER_RELOADING, 0, 0 },
-        { "auto_aim", PLAYER_AUTO_AIM, 0, 0 },
-        { "movement_lock", PLAYER_MOVEMENT_LOCK, 0, 0 },
-        { "sound_pitch", PLAYER_SOUND_PITCH, 0, 0 },
-        { "weaponswitch", PLAYER_WEAPONSWITCH, 0, 0 },
-        { "team", PLAYER_TEAM, 0, 0 },
-        { "", -1, 0, 0  }     // END OF LIST
-    };
+{
+    { "zoom", PLAYER_ZOOM, 0, 0 },
+    { "exitx", PLAYER_EXITX, 0, 0 },
+    { "exity", PLAYER_EXITY, 0, 0 },
+    { "loogiex", PLAYER_LOOGIEX, LABEL_HASPARM2, 64 },
+    { "loogiey", PLAYER_LOOGIEY, LABEL_HASPARM2, 64 },
+    { "numloogs", PLAYER_NUMLOOGS, 0, 0 },
+    { "loogcnt", PLAYER_LOOGCNT, 0, 0 },
+    { "posx", PLAYER_POSX, 0, 0 },
+    { "posy", PLAYER_POSY, 0, 0 },
+    { "posz", PLAYER_POSZ, 0, 0 },
+    { "horiz", PLAYER_HORIZ, 0, 0 },
+    { "ohoriz", PLAYER_OHORIZ, 0, 0 },
+    { "ohorizoff", PLAYER_OHORIZOFF, 0, 0 },
+    { "invdisptime", PLAYER_INVDISPTIME, 0, 0 },
+    { "bobposx", PLAYER_BOBPOSX, 0, 0 },
+    { "bobposy", PLAYER_BOBPOSY, 0, 0 },
+    { "oposx", PLAYER_OPOSX, 0, 0 },
+    { "oposy", PLAYER_OPOSY, 0, 0 },
+    { "oposz", PLAYER_OPOSZ, 0, 0 },
+    { "pyoff", PLAYER_PYOFF, 0, 0 },
+    { "opyoff", PLAYER_OPYOFF, 0, 0 },
+    { "posxv", PLAYER_POSXV, 0, 0 },
+    { "posyv", PLAYER_POSYV, 0, 0 },
+    { "poszv", PLAYER_POSZV, 0, 0 },
+    { "last_pissed_time", PLAYER_LAST_PISSED_TIME, 0, 0 },
+    { "truefz", PLAYER_TRUEFZ, 0, 0 },
+    { "truecz", PLAYER_TRUECZ, 0, 0 },
+    { "player_par", PLAYER_PLAYER_PAR, 0, 0 },
+    { "visibility", PLAYER_VISIBILITY, 0, 0 },
+    { "bobcounter", PLAYER_BOBCOUNTER, 0, 0 },
+    { "weapon_sway", PLAYER_WEAPON_SWAY, 0, 0 },
+    { "pals_time", PLAYER_PALS_TIME, 0, 0 },
+    { "randomflamex", PLAYER_RANDOMFLAMEX, 0, 0 },
+    { "crack_time", PLAYER_CRACK_TIME, 0, 0 },
+    { "aim_mode", PLAYER_AIM_MODE, 0, 0 },
+    { "ang", PLAYER_ANG, 0, 0 },
+    { "oang", PLAYER_OANG, 0, 0 },
+    { "angvel", PLAYER_ANGVEL, 0, 0 },
+    { "cursectnum", PLAYER_CURSECTNUM, 0, 0 },
+    { "look_ang", PLAYER_LOOK_ANG, 0, 0 },
+    { "last_extra", PLAYER_LAST_EXTRA, 0, 0 },
+    { "subweapon", PLAYER_SUBWEAPON, 0, 0 },
+    { "ammo_amount", PLAYER_AMMO_AMOUNT, LABEL_HASPARM2, MAX_WEAPONS },
+    { "wackedbyactor", PLAYER_WACKEDBYACTOR, 0, 0 },
+    { "frag", PLAYER_FRAG, 0, 0 },
+    { "fraggedself", PLAYER_FRAGGEDSELF, 0, 0 },
+    { "curr_weapon", PLAYER_CURR_WEAPON, 0, 0 },
+    { "last_weapon", PLAYER_LAST_WEAPON, 0, 0 },
+    { "tipincs", PLAYER_TIPINCS, 0, 0 },
+    { "horizoff", PLAYER_HORIZOFF, 0, 0 },
+    { "wantweaponfire", PLAYER_WANTWEAPONFIRE, 0, 0 },
+    { "holoduke_amount", PLAYER_HOLODUKE_AMOUNT, 0, 0 },
+    { "newowner", PLAYER_NEWOWNER, 0, 0 },
+    { "hurt_delay", PLAYER_HURT_DELAY, 0, 0 },
+    { "hbomb_hold_delay", PLAYER_HBOMB_HOLD_DELAY, 0, 0 },
+    { "jumping_counter", PLAYER_JUMPING_COUNTER, 0, 0 },
+    { "airleft", PLAYER_AIRLEFT, 0, 0 },
+    { "knee_incs", PLAYER_KNEE_INCS, 0, 0 },
+    { "access_incs", PLAYER_ACCESS_INCS, 0, 0 },
+    { "fta", PLAYER_FTA, 0, 0 },
+    { "ftq", PLAYER_FTQ, 0, 0 },
+    { "access_wallnum", PLAYER_ACCESS_WALLNUM, 0, 0 },
+    { "access_spritenum", PLAYER_ACCESS_SPRITENUM, 0, 0 },
+    { "kickback_pic", PLAYER_KICKBACK_PIC, 0, 0 },
+    { "got_access", PLAYER_GOT_ACCESS, 0, 0 },
+    { "weapon_ang", PLAYER_WEAPON_ANG, 0, 0 },
+    { "firstaid_amount", PLAYER_FIRSTAID_AMOUNT, 0, 0 },
+    { "somethingonplayer", PLAYER_SOMETHINGONPLAYER, 0, 0 },
+    { "on_crane", PLAYER_ON_CRANE, 0, 0 },
+    { "i", PLAYER_I, 0, 0 },
+    { "one_parallax_sectnum", PLAYER_ONE_PARALLAX_SECTNUM, 0, 0 },
+    { "over_shoulder_on", PLAYER_OVER_SHOULDER_ON, 0, 0 },
+    { "random_club_frame", PLAYER_RANDOM_CLUB_FRAME, 0, 0 },
+    { "fist_incs", PLAYER_FIST_INCS, 0, 0 },
+    { "one_eighty_count", PLAYER_ONE_EIGHTY_COUNT, 0, 0 },
+    { "cheat_phase", PLAYER_CHEAT_PHASE, 0, 0 },
+    { "dummyplayersprite", PLAYER_DUMMYPLAYERSPRITE, 0, 0 },
+    { "extra_extra8", PLAYER_EXTRA_EXTRA8, 0, 0 },
+    { "quick_kick", PLAYER_QUICK_KICK, 0, 0 },
+    { "heat_amount", PLAYER_HEAT_AMOUNT, 0, 0 },
+    { "actorsqu", PLAYER_ACTORSQU, 0, 0 },
+    { "timebeforeexit", PLAYER_TIMEBEFOREEXIT, 0, 0 },
+    { "customexitsound", PLAYER_CUSTOMEXITSOUND, 0, 0 },
+    { "weaprecs[16]", PLAYER_WEAPRECS, 0, 0 },
+    { "weapreccnt", PLAYER_WEAPRECCNT, 0, 0 },
+    { "interface_toggle_flag", PLAYER_INTERFACE_TOGGLE_FLAG, 0, 0 },
+    { "rotscrnang", PLAYER_ROTSCRNANG, 0, 0 },
+    { "dead_flag", PLAYER_DEAD_FLAG, 0, 0 },
+    { "show_empty_weapon", PLAYER_SHOW_EMPTY_WEAPON, 0, 0 },
+    { "scuba_amount", PLAYER_SCUBA_AMOUNT, 0, 0 },
+    { "jetpack_amount", PLAYER_JETPACK_AMOUNT, 0, 0 },
+    { "steroids_amount", PLAYER_STEROIDS_AMOUNT, 0, 0 },
+    { "shield_amount", PLAYER_SHIELD_AMOUNT, 0, 0 },
+    { "holoduke_on", PLAYER_HOLODUKE_ON, 0, 0 },
+    { "pycount", PLAYER_PYCOUNT, 0, 0 },
+    { "weapon_pos", PLAYER_WEAPON_POS, 0, 0 },
+    { "frag_ps", PLAYER_FRAG_PS, 0, 0 },
+    { "transporter_hold", PLAYER_TRANSPORTER_HOLD, 0, 0 },
+    { "last_full_weapon", PLAYER_LAST_FULL_WEAPON, 0, 0 },
+    { "footprintshade", PLAYER_FOOTPRINTSHADE, 0, 0 },
+    { "boot_amount", PLAYER_BOOT_AMOUNT, 0, 0 },
+    { "scream_voice", PLAYER_SCREAM_VOICE, 0, 0 },
+    { "gm", PLAYER_GM, 0, 0 },
+    { "on_warping_sector", PLAYER_ON_WARPING_SECTOR, 0, 0 },
+    { "footprintcount", PLAYER_FOOTPRINTCOUNT, 0, 0 },
+    { "hbomb_on", PLAYER_HBOMB_ON, 0, 0 },
+    { "jumping_toggle", PLAYER_JUMPING_TOGGLE, 0, 0 },
+    { "rapid_fire_hold", PLAYER_RAPID_FIRE_HOLD, 0, 0 },
+    { "on_ground", PLAYER_ON_GROUND, 0, 0 },
+    { "name", PLAYER_NAME,  LABEL_ISSTRING, 32 },
+    { "inven_icon", PLAYER_INVEN_ICON, 0, 0 },
+    { "buttonpalette", PLAYER_BUTTONPALETTE, 0, 0 },
+    { "jetpack_on", PLAYER_JETPACK_ON, 0, 0 },
+    { "spritebridge", PLAYER_SPRITEBRIDGE, 0, 0 },
+    { "lastrandomspot", PLAYER_LASTRANDOMSPOT, 0, 0 },
+    { "scuba_on", PLAYER_SCUBA_ON, 0, 0 },
+    { "footprintpal", PLAYER_FOOTPRINTPAL, 0, 0 },
+    { "heat_on", PLAYER_HEAT_ON, 0, 0 },
+    { "holster_weapon", PLAYER_HOLSTER_WEAPON, 0, 0 },
+    { "falling_counter", PLAYER_FALLING_COUNTER, 0, 0 },
+    { "gotweapon", PLAYER_GOTWEAPON, LABEL_HASPARM2, MAX_WEAPONS },
+    { "refresh_inventory", PLAYER_REFRESH_INVENTORY, 0, 0 },
+    { "palette", PLAYER_PALETTE, 0, 0 },
+    { "toggle_key_flag", PLAYER_TOGGLE_KEY_FLAG, 0, 0 },
+    { "knuckle_incs", PLAYER_KNUCKLE_INCS, 0, 0 },
+    { "walking_snd_toggle", PLAYER_WALKING_SND_TOGGLE, 0, 0 },
+    { "palookup", PLAYER_PALOOKUP, 0, 0 },
+    { "hard_landing", PLAYER_HARD_LANDING, 0, 0 },
+    { "max_secret_rooms", PLAYER_MAX_SECRET_ROOMS, 0, 0 },
+    { "secret_rooms", PLAYER_SECRET_ROOMS, 0, 0 },
+    { "pals", PLAYER_PALS, LABEL_HASPARM2, 2 },
+    { "max_actors_killed", PLAYER_MAX_ACTORS_KILLED, 0, 0 },
+    { "actors_killed", PLAYER_ACTORS_KILLED, 0, 0 },
+    { "return_to_center", PLAYER_RETURN_TO_CENTER, 0, 0 },
+    { "runspeed", PLAYER_RUNSPEED, 0, 0 },
+    { "sbs", PLAYER_SBS, 0, 0 },
+    { "reloading", PLAYER_RELOADING, 0, 0 },
+    { "auto_aim", PLAYER_AUTO_AIM, 0, 0 },
+    { "movement_lock", PLAYER_MOVEMENT_LOCK, 0, 0 },
+    { "sound_pitch", PLAYER_SOUND_PITCH, 0, 0 },
+    { "weaponswitch", PLAYER_WEAPONSWITCH, 0, 0 },
+    { "team", PLAYER_TEAM, 0, 0 },
+    { "", -1, 0, 0  }     // END OF LIST
+};
 
 LABELS projectilelabels[]=
-    {
-        { "workslike", PROJ_WORKSLIKE, 0, 0 },
-        { "spawns", PROJ_SPAWNS, 0, 0 },
-        { "sxrepeat", PROJ_SXREPEAT, 0, 0 },
-        { "syrepeat", PROJ_SYREPEAT, 0, 0 },
-        { "sound", PROJ_SOUND, 0, 0 },
-        { "isound", PROJ_ISOUND, 0, 0 },
-        { "vel", PROJ_VEL, 0, 0 },
-        { "extra", PROJ_EXTRA, 0, 0 },
-        { "decal", PROJ_DECAL, 0, 0 },
-        { "trail", PROJ_TRAIL, 0, 0 },
-        { "txrepeat", PROJ_TXREPEAT, 0, 0 },
-        { "tyrepeat", PROJ_TYREPEAT, 0, 0 },
-        { "toffset", PROJ_TOFFSET, 0, 0 },
-        { "tnum", PROJ_TNUM, 0, 0 },
-        { "drop", PROJ_DROP, 0, 0 },
-        { "cstat", PROJ_CSTAT, 0, 0 },
-        { "clipdist", PROJ_CLIPDIST, 0, 0 },
-        { "shade", PROJ_SHADE, 0, 0 },
-        { "xrepeat", PROJ_XREPEAT, 0, 0 },
-        { "yrepeat", PROJ_YREPEAT, 0, 0 },
-        { "pal", PROJ_PAL, 0, 0 },
-        { "extra_rand", PROJ_EXTRA_RAND, 0, 0 },
-        { "hitradius", PROJ_HITRADIUS, 0, 0 },
-        { "velmult", PROJ_VEL_MULT, 0, 0 },
-        { "offset", PROJ_OFFSET, 0, 0 },
-        { "bounces", PROJ_BOUNCES, 0, 0 },
-        { "bsound", PROJ_BSOUND, 0, 0 },
-        { "range", PROJ_RANGE, 0, 0 },
-        { "", -1, 0, 0  }     // END OF LIST
-    };
+{
+    { "workslike", PROJ_WORKSLIKE, 0, 0 },
+    { "spawns", PROJ_SPAWNS, 0, 0 },
+    { "sxrepeat", PROJ_SXREPEAT, 0, 0 },
+    { "syrepeat", PROJ_SYREPEAT, 0, 0 },
+    { "sound", PROJ_SOUND, 0, 0 },
+    { "isound", PROJ_ISOUND, 0, 0 },
+    { "vel", PROJ_VEL, 0, 0 },
+    { "extra", PROJ_EXTRA, 0, 0 },
+    { "decal", PROJ_DECAL, 0, 0 },
+    { "trail", PROJ_TRAIL, 0, 0 },
+    { "txrepeat", PROJ_TXREPEAT, 0, 0 },
+    { "tyrepeat", PROJ_TYREPEAT, 0, 0 },
+    { "toffset", PROJ_TOFFSET, 0, 0 },
+    { "tnum", PROJ_TNUM, 0, 0 },
+    { "drop", PROJ_DROP, 0, 0 },
+    { "cstat", PROJ_CSTAT, 0, 0 },
+    { "clipdist", PROJ_CLIPDIST, 0, 0 },
+    { "shade", PROJ_SHADE, 0, 0 },
+    { "xrepeat", PROJ_XREPEAT, 0, 0 },
+    { "yrepeat", PROJ_YREPEAT, 0, 0 },
+    { "pal", PROJ_PAL, 0, 0 },
+    { "extra_rand", PROJ_EXTRA_RAND, 0, 0 },
+    { "hitradius", PROJ_HITRADIUS, 0, 0 },
+    { "velmult", PROJ_VEL_MULT, 0, 0 },
+    { "offset", PROJ_OFFSET, 0, 0 },
+    { "bounces", PROJ_BOUNCES, 0, 0 },
+    { "bsound", PROJ_BSOUND, 0, 0 },
+    { "range", PROJ_RANGE, 0, 0 },
+    { "", -1, 0, 0  }     // END OF LIST
+};
 
 LABELS userdefslabels[]=
-    {
-        //        { "<null>", 1, 0, 0 },
-        { "god", USERDEFS_GOD, 0, 0 },
-        { "warp_on", USERDEFS_WARP_ON, 0, 0 },
-        { "cashman", USERDEFS_CASHMAN, 0, 0 },
-        { "eog", USERDEFS_EOG, 0, 0 },
-        { "showallmap", USERDEFS_SHOWALLMAP, 0, 0 },
-        { "show_help", USERDEFS_SHOW_HELP, 0, 0 },
-        { "scrollmode", USERDEFS_SCROLLMODE, 0, 0 },
-        { "clipping", USERDEFS_CLIPPING, 0, 0 },
-        { "user_name", USERDEFS_USER_NAME, LABEL_HASPARM2, MAXPLAYERS },
-        { "ridecule", USERDEFS_RIDECULE, LABEL_HASPARM2 | LABEL_ISSTRING, 10 },
-        { "savegame", USERDEFS_SAVEGAME, LABEL_HASPARM2 | LABEL_ISSTRING, 10 },
-        { "pwlockout", USERDEFS_PWLOCKOUT, LABEL_ISSTRING, 128 },
-        { "rtsname;", USERDEFS_RTSNAME,  LABEL_ISSTRING, 128 },
-        { "overhead_on", USERDEFS_OVERHEAD_ON, 0, 0 },
-        { "last_overhead", USERDEFS_LAST_OVERHEAD, 0, 0 },
-        { "showweapons", USERDEFS_SHOWWEAPONS, 0, 0 },
+{
+    //        { "<null>", 1, 0, 0 },
+    { "god", USERDEFS_GOD, 0, 0 },
+    { "warp_on", USERDEFS_WARP_ON, 0, 0 },
+    { "cashman", USERDEFS_CASHMAN, 0, 0 },
+    { "eog", USERDEFS_EOG, 0, 0 },
+    { "showallmap", USERDEFS_SHOWALLMAP, 0, 0 },
+    { "show_help", USERDEFS_SHOW_HELP, 0, 0 },
+    { "scrollmode", USERDEFS_SCROLLMODE, 0, 0 },
+    { "clipping", USERDEFS_CLIPPING, 0, 0 },
+    { "user_name", USERDEFS_USER_NAME, LABEL_HASPARM2, MAXPLAYERS },
+    { "ridecule", USERDEFS_RIDECULE, LABEL_HASPARM2 | LABEL_ISSTRING, 10 },
+    { "savegame", USERDEFS_SAVEGAME, LABEL_HASPARM2 | LABEL_ISSTRING, 10 },
+    { "pwlockout", USERDEFS_PWLOCKOUT, LABEL_ISSTRING, 128 },
+    { "rtsname;", USERDEFS_RTSNAME,  LABEL_ISSTRING, 128 },
+    { "overhead_on", USERDEFS_OVERHEAD_ON, 0, 0 },
+    { "last_overhead", USERDEFS_LAST_OVERHEAD, 0, 0 },
+    { "showweapons", USERDEFS_SHOWWEAPONS, 0, 0 },
 
-        { "pause_on", USERDEFS_PAUSE_ON, 0, 0 },
-        { "from_bonus", USERDEFS_FROM_BONUS, 0, 0 },
-        { "camerasprite", USERDEFS_CAMERASPRITE, 0, 0 },
-        { "last_camsprite", USERDEFS_LAST_CAMSPRITE, 0, 0 },
-        { "last_level", USERDEFS_LAST_LEVEL, 0, 0 },
-        { "secretlevel", USERDEFS_SECRETLEVEL, 0, 0 },
+    { "pause_on", USERDEFS_PAUSE_ON, 0, 0 },
+    { "from_bonus", USERDEFS_FROM_BONUS, 0, 0 },
+    { "camerasprite", USERDEFS_CAMERASPRITE, 0, 0 },
+    { "last_camsprite", USERDEFS_LAST_CAMSPRITE, 0, 0 },
+    { "last_level", USERDEFS_LAST_LEVEL, 0, 0 },
+    { "secretlevel", USERDEFS_SECRETLEVEL, 0, 0 },
 
-        { "const_visibility", USERDEFS_CONST_VISIBILITY, 0, 0 },
-        { "uw_framerate", USERDEFS_UW_FRAMERATE, 0, 0 },
-        { "camera_time", USERDEFS_CAMERA_TIME, 0, 0 },
-        { "folfvel", USERDEFS_FOLFVEL, 0, 0 },
-        { "folavel", USERDEFS_FOLAVEL, 0, 0 },
-        { "folx", USERDEFS_FOLX, 0, 0 },
-        { "foly", USERDEFS_FOLY, 0, 0 },
-        { "fola", USERDEFS_FOLA, 0, 0 },
-        { "reccnt", USERDEFS_RECCNT, 0, 0 },
+    { "const_visibility", USERDEFS_CONST_VISIBILITY, 0, 0 },
+    { "uw_framerate", USERDEFS_UW_FRAMERATE, 0, 0 },
+    { "camera_time", USERDEFS_CAMERA_TIME, 0, 0 },
+    { "folfvel", USERDEFS_FOLFVEL, 0, 0 },
+    { "folavel", USERDEFS_FOLAVEL, 0, 0 },
+    { "folx", USERDEFS_FOLX, 0, 0 },
+    { "foly", USERDEFS_FOLY, 0, 0 },
+    { "fola", USERDEFS_FOLA, 0, 0 },
+    { "reccnt", USERDEFS_RECCNT, 0, 0 },
 
-        { "entered_name", USERDEFS_ENTERED_NAME, 0, 0 },
-        { "screen_tilting", USERDEFS_SCREEN_TILTING, 0, 0 },
-        { "shadows", USERDEFS_SHADOWS, 0, 0 },
-        { "fta_on", USERDEFS_FTA_ON, 0, 0 },
-        { "executions", USERDEFS_EXECUTIONS, 0, 0 },
-        { "auto_run", USERDEFS_AUTO_RUN, 0, 0 },
-        { "coords", USERDEFS_COORDS, 0, 0 },
-        { "tickrate", USERDEFS_TICKRATE, 0, 0 },
-        { "m_coop", USERDEFS_M_COOP, 0, 0 },
-        { "coop", USERDEFS_COOP, 0, 0 },
-        { "screen_size", USERDEFS_SCREEN_SIZE, 0, 0 },
-        { "lockout", USERDEFS_LOCKOUT, 0, 0 },
-        { "crosshair", USERDEFS_CROSSHAIR, 0, 0 },
-        { "wchoice[MAXPLAYERS][MAX_WEAPONS]", USERDEFS_WCHOICE, 0, 0 },
-        { "playerai", USERDEFS_PLAYERAI, 0, 0 },
-        { "respawn_monsters", USERDEFS_RESPAWN_MONSTERS, 0, 0 },
-        { "respawn_items", USERDEFS_RESPAWN_ITEMS, 0, 0 },
-        { "respawn_inventory", USERDEFS_RESPAWN_INVENTORY, 0, 0 },
-        { "recstat", USERDEFS_RECSTAT, 0, 0 },
-        { "monsters_off", USERDEFS_MONSTERS_OFF, 0, 0 },
-        { "brightness", USERDEFS_BRIGHTNESS, 0, 0 },
-        { "m_respawn_items", USERDEFS_M_RESPAWN_ITEMS, 0, 0 },
-        { "m_respawn_monsters", USERDEFS_M_RESPAWN_MONSTERS, 0, 0 },
-        { "m_respawn_inventory", USERDEFS_M_RESPAWN_INVENTORY, 0, 0 },
-        { "m_recstat", USERDEFS_M_RECSTAT, 0, 0 },
-        { "m_monsters_off", USERDEFS_M_MONSTERS_OFF, 0, 0 },
-        { "detail", USERDEFS_DETAIL, 0, 0 },
-        { "m_ffire", USERDEFS_M_FFIRE, 0, 0 },
-        { "ffire", USERDEFS_FFIRE, 0, 0 },
-        { "m_player_skill", USERDEFS_M_PLAYER_SKILL, 0, 0 },
-        { "m_level_number", USERDEFS_M_LEVEL_NUMBER, 0, 0 },
-        { "m_volume_number", USERDEFS_M_VOLUME_NUMBER, 0, 0 },
-        { "multimode", USERDEFS_MULTIMODE, 0, 0 },
-        { "player_skill", USERDEFS_PLAYER_SKILL, 0, 0 },
-        { "level_number", USERDEFS_LEVEL_NUMBER, 0, 0 },
-        { "volume_number", USERDEFS_VOLUME_NUMBER, 0, 0 },
-        { "m_marker", USERDEFS_M_MARKER, 0, 0 },
-        { "marker", USERDEFS_MARKER, 0, 0 },
-        { "mouseflip", USERDEFS_MOUSEFLIP, 0, 0 },
-        { "statusbarscale", USERDEFS_STATUSBARSCALE, 0, 0 },
-        { "drawweapon", USERDEFS_DRAWWEAPON, 0, 0 },
-        { "mouseaiming", USERDEFS_MOUSEAIMING, 0, 0 },
-        { "weaponswitch", USERDEFS_WEAPONSWITCH, 0, 0 },
-        { "democams", USERDEFS_DEMOCAMS, 0, 0 },
-        { "color", USERDEFS_COLOR, 0, 0 },
-        { "msgdisptime", USERDEFS_MSGDISPTIME, 0, 0 },
-        { "statusbarmode", USERDEFS_STATUSBARMODE, 0, 0 },
-        { "m_noexits", USERDEFS_M_NOEXITS, 0, 0 },
-        { "noexits", USERDEFS_NOEXITS, 0, 0 },
-        { "autovote", USERDEFS_AUTOVOTE, 0, 0 },
-        { "automsg", USERDEFS_AUTOMSG, 0, 0 },
-        { "idplayers", USERDEFS_IDPLAYERS, 0, 0 },
-        { "team", USERDEFS_TEAM, 0, 0 },
-        { "viewbob", USERDEFS_VIEWBOB, 0, 0 },
-        { "weaponsway", USERDEFS_WEAPONSWAY, 0, 0 },
-        { "angleinterpolation", USERDEFS_ANGLEINTERPOLATION, 0, 0 },
-        { "deathmsgs", USERDEFS_DEATHMSGS, 0, 0 },
-        { "", -1, 0, 0  }     // END OF LIST
-    };
+    { "entered_name", USERDEFS_ENTERED_NAME, 0, 0 },
+    { "screen_tilting", USERDEFS_SCREEN_TILTING, 0, 0 },
+    { "shadows", USERDEFS_SHADOWS, 0, 0 },
+    { "fta_on", USERDEFS_FTA_ON, 0, 0 },
+    { "executions", USERDEFS_EXECUTIONS, 0, 0 },
+    { "auto_run", USERDEFS_AUTO_RUN, 0, 0 },
+    { "coords", USERDEFS_COORDS, 0, 0 },
+    { "tickrate", USERDEFS_TICKRATE, 0, 0 },
+    { "m_coop", USERDEFS_M_COOP, 0, 0 },
+    { "coop", USERDEFS_COOP, 0, 0 },
+    { "screen_size", USERDEFS_SCREEN_SIZE, 0, 0 },
+    { "lockout", USERDEFS_LOCKOUT, 0, 0 },
+    { "crosshair", USERDEFS_CROSSHAIR, 0, 0 },
+    { "wchoice[MAXPLAYERS][MAX_WEAPONS]", USERDEFS_WCHOICE, 0, 0 },
+    { "playerai", USERDEFS_PLAYERAI, 0, 0 },
+    { "respawn_monsters", USERDEFS_RESPAWN_MONSTERS, 0, 0 },
+    { "respawn_items", USERDEFS_RESPAWN_ITEMS, 0, 0 },
+    { "respawn_inventory", USERDEFS_RESPAWN_INVENTORY, 0, 0 },
+    { "recstat", USERDEFS_RECSTAT, 0, 0 },
+    { "monsters_off", USERDEFS_MONSTERS_OFF, 0, 0 },
+    { "brightness", USERDEFS_BRIGHTNESS, 0, 0 },
+    { "m_respawn_items", USERDEFS_M_RESPAWN_ITEMS, 0, 0 },
+    { "m_respawn_monsters", USERDEFS_M_RESPAWN_MONSTERS, 0, 0 },
+    { "m_respawn_inventory", USERDEFS_M_RESPAWN_INVENTORY, 0, 0 },
+    { "m_recstat", USERDEFS_M_RECSTAT, 0, 0 },
+    { "m_monsters_off", USERDEFS_M_MONSTERS_OFF, 0, 0 },
+    { "detail", USERDEFS_DETAIL, 0, 0 },
+    { "m_ffire", USERDEFS_M_FFIRE, 0, 0 },
+    { "ffire", USERDEFS_FFIRE, 0, 0 },
+    { "m_player_skill", USERDEFS_M_PLAYER_SKILL, 0, 0 },
+    { "m_level_number", USERDEFS_M_LEVEL_NUMBER, 0, 0 },
+    { "m_volume_number", USERDEFS_M_VOLUME_NUMBER, 0, 0 },
+    { "multimode", USERDEFS_MULTIMODE, 0, 0 },
+    { "player_skill", USERDEFS_PLAYER_SKILL, 0, 0 },
+    { "level_number", USERDEFS_LEVEL_NUMBER, 0, 0 },
+    { "volume_number", USERDEFS_VOLUME_NUMBER, 0, 0 },
+    { "m_marker", USERDEFS_M_MARKER, 0, 0 },
+    { "marker", USERDEFS_MARKER, 0, 0 },
+    { "mouseflip", USERDEFS_MOUSEFLIP, 0, 0 },
+    { "statusbarscale", USERDEFS_STATUSBARSCALE, 0, 0 },
+    { "drawweapon", USERDEFS_DRAWWEAPON, 0, 0 },
+    { "mouseaiming", USERDEFS_MOUSEAIMING, 0, 0 },
+    { "weaponswitch", USERDEFS_WEAPONSWITCH, 0, 0 },
+    { "democams", USERDEFS_DEMOCAMS, 0, 0 },
+    { "color", USERDEFS_COLOR, 0, 0 },
+    { "msgdisptime", USERDEFS_MSGDISPTIME, 0, 0 },
+    { "statusbarmode", USERDEFS_STATUSBARMODE, 0, 0 },
+    { "m_noexits", USERDEFS_M_NOEXITS, 0, 0 },
+    { "noexits", USERDEFS_NOEXITS, 0, 0 },
+    { "autovote", USERDEFS_AUTOVOTE, 0, 0 },
+    { "automsg", USERDEFS_AUTOMSG, 0, 0 },
+    { "idplayers", USERDEFS_IDPLAYERS, 0, 0 },
+    { "team", USERDEFS_TEAM, 0, 0 },
+    { "viewbob", USERDEFS_VIEWBOB, 0, 0 },
+    { "weaponsway", USERDEFS_WEAPONSWAY, 0, 0 },
+    { "angleinterpolation", USERDEFS_ANGLEINTERPOLATION, 0, 0 },
+    { "deathmsgs", USERDEFS_DEATHMSGS, 0, 0 },
+    { "", -1, 0, 0  }     // END OF LIST
+};
 
 LABELS inputlabels[]=
-    {
-        { "avel", INPUT_AVEL, 0, 0 },
-        { "horz", INPUT_HORZ, 0, 0 },
-        { "fvel", INPUT_FVEL, 0, 0 },
-        { "svel", INPUT_SVEL, 0, 0 },
-        { "bits", INPUT_BITS, 0, 0 },
-        { "extbits", INPUT_EXTBITS, 0, 0 },
-        { "", -1, 0, 0  }     // END OF LIST
-    };
+{
+    { "avel", INPUT_AVEL, 0, 0 },
+    { "horz", INPUT_HORZ, 0, 0 },
+    { "fvel", INPUT_FVEL, 0, 0 },
+    { "svel", INPUT_SVEL, 0, 0 },
+    { "bits", INPUT_BITS, 0, 0 },
+    { "extbits", INPUT_EXTBITS, 0, 0 },
+    { "", -1, 0, 0  }     // END OF LIST
+};
 
 static void skipcomments(void)
 {
@@ -2888,7 +2888,8 @@ static int parsecommand(void)
         i=GetDefID(label+(labelcnt<<6));
         //printf("Label '%s' ID is %d\n",label+(labelcnt<<6), i);
         if (i<0)
-        {   // not a defined DEF
+        {
+            // not a defined DEF
             error++;
             ReportError(ERROR_NOTAGAMEVAR);
             return 0;
@@ -4474,12 +4475,12 @@ static void passone(void)
 
 #define NUM_DEFAULT_CONS    4
 static const char *defaultcons[NUM_DEFAULT_CONS] =
-    {
-        "EDUKE.CON",
-        "GAME.CON",
-        "USER.CON",
-        "DEFS.CON"
-    };
+{
+    "EDUKE.CON",
+    "GAME.CON",
+    "USER.CON",
+    "DEFS.CON"
+};
 
 void copydefaultcons(void)
 {
@@ -4820,47 +4821,49 @@ void loadefs(const char *filenam)
             if (fta_quotes[i] == NULL)
                 fta_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
         {
-            char *ppdeathstrings[] = {
-                                         "^2%s ^2WAS KICKED TO THE CURB BY %s",
-                                         "^2%s ^2WAS PICKED OFF BY %s",
-                                         "^2%s ^2TOOK %s^2'S SHOT TO THE FACE",
-                                         "^2%s ^2DANCED THE CHAINGUN CHA-CHA WITH %s",
-                                         "^2%s ^2TRIED TO MAKE A BONG OUT OF %s^2'S ROCKET",
-                                         "^2%s ^2EXPLODED.  BLAME %s^2!",
-                                         "^2%s ^2BECAME ONE WITH THE GUM ON %s^2'S SHOE",
-                                         "^2%s ^2WAS TOO COOL FOR %s",
-                                         "^2%s ^2EXPANDED HIS HORIZONS WITH HELP FROM %s",
-                                         "^2%s ^2THINKS %s ^2SHOULD CHECK HIS GLASSES",
+            char *ppdeathstrings[] =
+            {
+                "^2%s ^2WAS KICKED TO THE CURB BY %s",
+                "^2%s ^2WAS PICKED OFF BY %s",
+                "^2%s ^2TOOK %s^2'S SHOT TO THE FACE",
+                "^2%s ^2DANCED THE CHAINGUN CHA-CHA WITH %s",
+                "^2%s ^2TRIED TO MAKE A BONG OUT OF %s^2'S ROCKET",
+                "^2%s ^2EXPLODED.  BLAME %s^2!",
+                "^2%s ^2BECAME ONE WITH THE GUM ON %s^2'S SHOE",
+                "^2%s ^2WAS TOO COOL FOR %s",
+                "^2%s ^2EXPANDED HIS HORIZONS WITH HELP FROM %s",
+                "^2%s ^2THINKS %s ^2SHOULD CHECK HIS GLASSES",
 
-                                         "^2%s ^2TOOK %s^2'S BOOT TO THE HEAD",
-                                         "^2%s ^2FELL VICTIM TO %s^2's MAGIC AUTOAIMING PISTOL",
-                                         "^2%s ^2WAS CHASED OFF OF %s^2'S PORCH",
-                                         "^2%s ^2COULDN'T DANCE FAST ENOUGH FOR %s",
-                                         "^2%s ^2TRIED TO OUTRUN %s^2'S ROCKET",
-                                         "^2%s ^2FOUND %s^2'S HIDDEN WEAPONS OF MASS DESTRUCTION",
-                                         "^2%s ^2WAS JUST TRYING TO HELP %s ^2TIE HIS SHOELACES",
-                                         "^2%s^2's IGLOO WAS WRECKED BY %s",
-                                         "^2%s ^2BECAME A STICKY FILM ON %s^2'S BOOTS",
-                                         "^2%s ^2WISHES %s ^2HAD PRACTICED BEFORE PLAYING",
+                "^2%s ^2TOOK %s^2'S BOOT TO THE HEAD",
+                "^2%s ^2FELL VICTIM TO %s^2's MAGIC AUTOAIMING PISTOL",
+                "^2%s ^2WAS CHASED OFF OF %s^2'S PORCH",
+                "^2%s ^2COULDN'T DANCE FAST ENOUGH FOR %s",
+                "^2%s ^2TRIED TO OUTRUN %s^2'S ROCKET",
+                "^2%s ^2FOUND %s^2'S HIDDEN WEAPONS OF MASS DESTRUCTION",
+                "^2%s ^2WAS JUST TRYING TO HELP %s ^2TIE HIS SHOELACES",
+                "^2%s^2's IGLOO WAS WRECKED BY %s",
+                "^2%s ^2BECAME A STICKY FILM ON %s^2'S BOOTS",
+                "^2%s ^2WISHES %s ^2HAD PRACTICED BEFORE PLAYING",
 
-                                         "^2%s ^2WAS WALKED ALL OVER BY %s",
-                                         "^2%s ^2WAS PICKED OFF BY %s",
-                                         "^2%s ^2SUCKED %s^2'S SHOTGUN",
-                                         "^2%s ^2ENDED UP WITH A FEW NEW HOLES FROM %s^2'S CHAINGUN",
-                                         "^2%s ^2WAS TURNED INTO %s^2 BRAND CHUNKY SALSA",
-                                         "^2%s ^2FOUND A PRESENT FROM %s",
-                                         "^2%s ^2WAS SCATHED BY %s^2'S SHRINK RAY",
-                                         "^2%s ^2WENT TO PIECES.  %s^2, HOW COULD YOU?",
-                                         "^2%s ^2EXPANDED HIS HORIZONS WITH HELP FROM %s",
-                                         "^2%s ^2WANTS TO KNOW WHY %s ^2IS EVEN PLAYING COOP",
-                                     };
+                "^2%s ^2WAS WALKED ALL OVER BY %s",
+                "^2%s ^2WAS PICKED OFF BY %s",
+                "^2%s ^2SUCKED %s^2'S SHOTGUN",
+                "^2%s ^2ENDED UP WITH A FEW NEW HOLES FROM %s^2'S CHAINGUN",
+                "^2%s ^2WAS TURNED INTO %s^2 BRAND CHUNKY SALSA",
+                "^2%s ^2FOUND A PRESENT FROM %s",
+                "^2%s ^2WAS SCATHED BY %s^2'S SHRINK RAY",
+                "^2%s ^2WENT TO PIECES.  %s^2, HOW COULD YOU?",
+                "^2%s ^2EXPANDED HIS HORIZONS WITH HELP FROM %s",
+                "^2%s ^2WANTS TO KNOW WHY %s ^2IS EVEN PLAYING COOP",
+            };
 
-            char *podeathstrings[] = {
-                                         "^2%s ^2KILLED HIMSELF.  WHAT A TOOL!",
-                                         "^2%s ^2TRIED TO LEAVE",
-                                         "^2%s ^2GOT FRAGGED BY A MONSTER.  IT WAS PROBABLY A LIZTROOP.",
-                                         "^2%s ^2SWITCHED TO TEAM %ld"
-                                     };
+            char *podeathstrings[] =
+            {
+                "^2%s ^2KILLED HIMSELF.  WHAT A TOOL!",
+                "^2%s ^2TRIED TO LEAVE",
+                "^2%s ^2GOT FRAGGED BY A MONSTER.  IT WAS PROBABLY A LIZTROOP.",
+                "^2%s ^2SWITCHED TO TEAM %ld"
+            };
 
             for (i=0;i<(signed int)(sizeof(ppdeathstrings)/sizeof(ppdeathstrings[0]));i++)
             {

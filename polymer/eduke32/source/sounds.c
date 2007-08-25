@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "music.h"
 #include "duke3d.h"
 #include "util_lib.h"
-
+#include "osd.h"
 
 #define LOUDESTVOLUME 150
 
@@ -164,25 +164,25 @@ unsigned char menunum=0;
 void intomenusounds(void)
 {
     short menusnds[] =
-        {
-            LASERTRIP_EXPLODE,
-            DUKE_GRUNT,
-            DUKE_LAND_HURT,
-            CHAINGUN_FIRE,
-            SQUISHED,
-            KICK_HIT,
-            PISTOL_RICOCHET,
-            PISTOL_BODYHIT,
-            PISTOL_FIRE,
-            SHOTGUN_FIRE,
-            BOS1_WALK,
-            RPG_EXPLODE,
-            PIPEBOMB_BOUNCE,
-            PIPEBOMB_EXPLODE,
-            NITEVISION_ONOFF,
-            RPG_SHOOT,
-            SELECT_WEAPON
-        };
+    {
+        LASERTRIP_EXPLODE,
+        DUKE_GRUNT,
+        DUKE_LAND_HURT,
+        CHAINGUN_FIRE,
+        SQUISHED,
+        KICK_HIT,
+        PISTOL_RICOCHET,
+        PISTOL_BODYHIT,
+        PISTOL_FIRE,
+        SHOTGUN_FIRE,
+        BOS1_WALK,
+        RPG_EXPLODE,
+        PIPEBOMB_BOUNCE,
+        PIPEBOMB_EXPLODE,
+        NITEVISION_ONOFF,
+        RPG_SHOOT,
+        SELECT_WEAPON
+    };
     sound(menusnds[menunum++]);
     menunum %= 17;
 }
@@ -414,9 +414,9 @@ void sound(int num)
     if (VoiceToggle==0 && (soundm[num]&4)) return;
     if ((soundm[num]&8) && ud.lockout) return;
     if (FX_VoiceAvailable(soundpr[num]) == 0) return;
-	if (num > NUM_SOUNDS-1 || !sounds[num])
+    if (num > NUM_SOUNDS-1 || !sounds[num])
     {
-	    OSD_Printf("WARNING: invalid sound #%d\n",num);
+        OSD_Printf("WARNING: invalid sound #%d\n",num);
         return;
     }
 

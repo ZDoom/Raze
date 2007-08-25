@@ -128,23 +128,24 @@ char env_music_fn[MAXVOLUMES+1][BMAX_PATH];
 char rtsplaying;
 
 
-short weaponsandammosprites[15] = {
-                                      RPGSPRITE__STATIC,
-                                      CHAINGUNSPRITE__STATIC,
-                                      DEVISTATORAMMO__STATIC,
-                                      RPGAMMO__STATIC,
-                                      RPGAMMO__STATIC,
-                                      JETPACK__STATIC,
-                                      SHIELD__STATIC,
-                                      FIRSTAID__STATIC,
-                                      STEROIDS__STATIC,
-                                      RPGAMMO__STATIC,
-                                      RPGAMMO__STATIC,
-                                      RPGSPRITE__STATIC,
-                                      RPGAMMO__STATIC,
-                                      FREEZESPRITE__STATIC,
-                                      FREEZEAMMO__STATIC
-                                  };
+short weaponsandammosprites[15] =
+{
+    RPGSPRITE__STATIC,
+    CHAINGUNSPRITE__STATIC,
+    DEVISTATORAMMO__STATIC,
+    RPGAMMO__STATIC,
+    RPGAMMO__STATIC,
+    JETPACK__STATIC,
+    SHIELD__STATIC,
+    FIRSTAID__STATIC,
+    STEROIDS__STATIC,
+    RPGAMMO__STATIC,
+    RPGAMMO__STATIC,
+    RPGSPRITE__STATIC,
+    RPGAMMO__STATIC,
+    FREEZESPRITE__STATIC,
+    FREEZEAMMO__STATIC
+};
 
 long impact_damage;
 int condebug;

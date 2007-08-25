@@ -59,95 +59,95 @@ static struct strllist
 
 #define MAXHELP2D (signed int)(sizeof(Help2d)/sizeof(Help2d[0]))
 static char *Help2d[]=
-    {
-        " 'A = Autosave toggle",
-        " 'J = Jump to location",
-        " 'L = Adjust sprite/wall coords",
-        " 'S = Sprite size",
-        " '3 = Caption mode",
-        " '7 = Swap tags",
-        " 'F = Special functions",
-        " X  = Horiz. flip selected sects",
-        " Y  = Vert. flip selected sects",
-        " F5 = Item count",
-        " F6 = Actor count/SE help",
-        " F7 = Edit sector",
-        " F8 = Edit wall/sprite",
-        " F9 = Sector tag help",
-        " Ctrl-S = Quick save",
-        " Alt-F7 = Search sector lotag",
-        " Alt-F8 = Search wall/sprite tags",
-        " [      = Search forward",
-        " ]      = Search backward",
-    };
+{
+    " 'A = Autosave toggle",
+    " 'J = Jump to location",
+    " 'L = Adjust sprite/wall coords",
+    " 'S = Sprite size",
+    " '3 = Caption mode",
+    " '7 = Swap tags",
+    " 'F = Special functions",
+    " X  = Horiz. flip selected sects",
+    " Y  = Vert. flip selected sects",
+    " F5 = Item count",
+    " F6 = Actor count/SE help",
+    " F7 = Edit sector",
+    " F8 = Edit wall/sprite",
+    " F9 = Sector tag help",
+    " Ctrl-S = Quick save",
+    " Alt-F7 = Search sector lotag",
+    " Alt-F8 = Search wall/sprite tags",
+    " [      = Search forward",
+    " ]      = Search backward",
+};
 
 static char *SpriteMode[]=
-    {
-        "NONE",
-        "SECTORS",
-        "WALLS",
-        "SPRITES",
-        "ALL",
-        "ITEMS ONLY",
-        "CURRENT SPRITE ONLY",
-        "ONLY SECTOREFFECTORS AND SECTORS",
-        "NO SECTOREFFECTORS OR SECTORS"
-    };
+{
+    "NONE",
+    "SECTORS",
+    "WALLS",
+    "SPRITES",
+    "ALL",
+    "ITEMS ONLY",
+    "CURRENT SPRITE ONLY",
+    "ONLY SECTOREFFECTORS AND SECTORS",
+    "NO SECTOREFFECTORS OR SECTORS"
+};
 
 #define MAXSKILL 5
 static char *SKILLMODE[MAXSKILL]=
-    {
-        "Actor skill display: PIECE OF CAKE",
-        "Actor skill display: LET'S ROCK",
-        "Actor skill display: COME GET SOME",
-        "Actor skill display: DAMN I'M GOOD",
-        "Actor skill display: ALL SKILL LEVELS"
-    };
+{
+    "Actor skill display: PIECE OF CAKE",
+    "Actor skill display: LET'S ROCK",
+    "Actor skill display: COME GET SOME",
+    "Actor skill display: DAMN I'M GOOD",
+    "Actor skill display: ALL SKILL LEVELS"
+};
 
 #define MAXNOSPRITES 4
 static char *SPRDSPMODE[MAXNOSPRITES]=
-    {
-        "Sprite display: DISPLAY ALL SPRITES",
-        "Sprite display: NO EFFECTORS",
-        "Sprite display: NO ACTORS",
-        "Sprite display: NO EFFECTORS OR ACTORS"
-    };
+{
+    "Sprite display: DISPLAY ALL SPRITES",
+    "Sprite display: NO EFFECTORS",
+    "Sprite display: NO ACTORS",
+    "Sprite display: NO EFFECTORS OR ACTORS"
+};
 
 #define MAXHELP3D (signed int)(sizeof(Help3d)/sizeof(Help3d[0]))
 static char *Help3d[]=
-    {
-        "Mapster32 3D mode help",
-        " ",
-        " F1 = TOGGLE THIS HELP DISPLAY",
-        " F2 = TOGGLE CLIPBOARD",
-        " F3 = MOUSELOOK",
-        " F6 = AUTOMATIC SECTOREFFECTOR HELP",
-        " F7 = AUTOMATIC SECTOR TAG HELP",
-        "",
-        " ' A = TOGGLE AUTOSAVE",
-        " ' D = CYCLE SPRITE SKILL DISPLAY",
-        " ' G = TOGGLE CLIPBOARD GRAPHIC DISPLAY",
-        " ' R = TOGGLE FRAMERATE DISPLAY",
-        " ' W = TOGGLE SPRITE DISPLAY",
-        " ' X = SPRITE SHADE PREVIEW",
-        " ' Y = TOGGLE PURPLE BACKGROUND",
-        "",
-        " ' T = CHANGE LOTAG",
-        " ' H = CHANGE HITAG",
-        " ' S = CHANGE SHADE",
-        " ' M = CHANGE EXTRA",
-        " ' V = CHANGE VISIBILITY",
-        " ' L = CHANGE OBJECT COORDINATES",
-        " ' C = CHANGE GLOBAL SHADE",
-        "",
-        " ' ENTER = PASTE GRAPHIC ONLY",
-        " ' P & ; P = PASTE PALETTE TO ALL SELECTED SECTORS",
-        " ; V = SET VISIBILITY ON ALL SELECTED SECTORS",
-        " ' DEL = CSTAT=0",
-        " CTRL-S = SAVE BOARD",
-        " HOME = PGUP/PGDN MODIFIER (256 UNITS)",
-        " END = PGUP/PGDN MODIFIER (512 UNITS)",
-    };
+{
+    "Mapster32 3D mode help",
+    " ",
+    " F1 = TOGGLE THIS HELP DISPLAY",
+    " F2 = TOGGLE CLIPBOARD",
+    " F3 = MOUSELOOK",
+    " F6 = AUTOMATIC SECTOREFFECTOR HELP",
+    " F7 = AUTOMATIC SECTOR TAG HELP",
+    "",
+    " ' A = TOGGLE AUTOSAVE",
+    " ' D = CYCLE SPRITE SKILL DISPLAY",
+    " ' G = TOGGLE CLIPBOARD GRAPHIC DISPLAY",
+    " ' R = TOGGLE FRAMERATE DISPLAY",
+    " ' W = TOGGLE SPRITE DISPLAY",
+    " ' X = SPRITE SHADE PREVIEW",
+    " ' Y = TOGGLE PURPLE BACKGROUND",
+    "",
+    " ' T = CHANGE LOTAG",
+    " ' H = CHANGE HITAG",
+    " ' S = CHANGE SHADE",
+    " ' M = CHANGE EXTRA",
+    " ' V = CHANGE VISIBILITY",
+    " ' L = CHANGE OBJECT COORDINATES",
+    " ' C = CHANGE GLOBAL SHADE",
+    "",
+    " ' ENTER = PASTE GRAPHIC ONLY",
+    " ' P & ; P = PASTE PALETTE TO ALL SELECTED SECTORS",
+    " ; V = SET VISIBILITY ON ALL SELECTED SECTORS",
+    " ' DEL = CSTAT=0",
+    " CTRL-S = SAVE BOARD",
+    " HOME = PGUP/PGDN MODIFIER (256 UNITS)",
+    " END = PGUP/PGDN MODIFIER (512 UNITS)",
+};
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int numdirs=0, numfiles=0;
@@ -203,7 +203,7 @@ void ExtLoadMap(const char *mapname)
                 {
                     polymost_precache(sector[j].floorpicnum,sector[j].floorpal,0);
                     polymost_precache(sector[j].floorpicnum,sector[j].floorpal,0);
-                }    
+                }
             }
 
         for(j=0;j<numsprites;j++)
@@ -3895,11 +3895,11 @@ static void Keys3d(void)
     }
 
     /* if(purpleon) {
-                begindrawing(); 
-    //          printext256(1*4,1*8,whitecol,-1,"Purple ON",0); 
+                begindrawing();
+    //          printext256(1*4,1*8,whitecol,-1,"Purple ON",0);
                     sprintf(getmessage,"Purple ON");
                     message(getmessage);
-                enddrawing(); 
+                enddrawing();
                 }
     */
     if (sector[cursectnum].lotag==2)
@@ -5513,7 +5513,8 @@ void GAME_clearbackground(int c, int r)
 }
 #endif
 
-enum {
+enum
+{
     T_EOF = -2,
     T_ERROR = -1,
     T_INCLUDE = 0,
@@ -5569,11 +5570,11 @@ int parsegroupfiles(scriptfile *script)
     char *cmdtokptr;
 
     tokenlist grptokens[] =
-        {
-            { "include",         T_INCLUDE },
-            { "#include",        T_INCLUDE },
-            { "loadgrp",         T_LOADGRP },
-        };
+    {
+        { "include",         T_INCLUDE },
+        { "#include",        T_INCLUDE },
+        { "loadgrp",         T_LOADGRP },
+    };
 
     while (1)
     {
@@ -5655,13 +5656,13 @@ int parsetilegroups(scriptfile *script)
     char *cmdtokptr;
 
     tokenlist tgtokens[] =
-        {
-            { "include",         T_INCLUDE          },
-            { "#include",        T_INCLUDE          },
-            { "define",          T_DEFINE           },
-            { "#define",         T_DEFINE           },
-            { "tilegroup",       T_TILEGROUP        },
-        };
+    {
+        { "include",         T_INCLUDE          },
+        { "#include",        T_INCLUDE          },
+        { "define",          T_DEFINE           },
+        { "#define",         T_DEFINE           },
+        { "tilegroup",       T_TILEGROUP        },
+    };
 
     while (1)
     {
@@ -5717,13 +5718,13 @@ int parsetilegroups(scriptfile *script)
             while (script->textptr < end)
             {
                 tokenlist tgtokens2[] =
-                    {
-                        { "tilegroup",  T_TILEGROUP   },
-                        { "tile",       T_TILE        },
-                        { "tilerange",  T_TILERANGE   },
-                        { "hotkey",     T_HOTKEY      },
-                        { "tiles",      T_TILES       },
-                    };
+                {
+                    { "tilegroup",  T_TILEGROUP   },
+                    { "tile",       T_TILE        },
+                    { "tilerange",  T_TILERANGE   },
+                    { "hotkey",     T_HOTKEY      },
+                    { "tiles",      T_TILES       },
+                };
 
                 int token = getatoken(script,tgtokens2,sizeof(tgtokens2)/sizeof(tokenlist));
                 switch (token)
@@ -5903,8 +5904,10 @@ int ExtInit(void)
     }
     loadgroupfiles(defsfilename);
 
-    if (grps && grpstoadd > 0) {
-        for (i=0;i<grpstoadd;i++) {
+    if (grps && grpstoadd > 0)
+    {
+        for (i=0;i<grpstoadd;i++)
+        {
             initprintf("Adding %s\n",grps[i]);
             initgroupfile(grps[i]);
             if (!NoAutoLoad)
@@ -7287,7 +7290,8 @@ static void FuncMenu(void)
                             disptext[dispwidth] = 0;
                             if (row > rowmax) row = rowmax;
                         }
-                        else */ if (col == 1)
+                        else */
+            if (col == 1)
             {
                 printext16(xpos,ypos+row*8,11,0,disptext,0);
                 col = 0;

@@ -726,28 +726,29 @@ void menus(void)
         c = (320>>1)-120;
         {
             int io, ii, yy = 37, d=c+140, enabled;
-            char *opts[] = {
-                               "Name",
-                               "-",
-                               "Color",
-                               "-",
-                               "Team",
-                               "-",
-                               "-",
-                               "Auto aim",
-                               "Mouse aim",
-                               "-",
-                               "-",
-                               "Switch weapon on pickup",
-                               "Switch weapon when empty",
-                               "-",
-                               "-",
-                               "Network packets/sec",
-                               "-",
-                               "-",
-                               "Multiplayer macros",
-                               NULL
-                           };
+            char *opts[] =
+            {
+                "Name",
+                "-",
+                "Color",
+                "-",
+                "Team",
+                "-",
+                "-",
+                "Auto aim",
+                "Mouse aim",
+                "-",
+                "-",
+                "Switch weapon on pickup",
+                "Switch weapon when empty",
+                "-",
+                "-",
+                "Network packets/sec",
+                "-",
+                "-",
+                "Multiplayer macros",
+                NULL
+            };
 
             x = ud.color;
 
@@ -940,7 +941,8 @@ void menus(void)
                     case 1:
                         {
                             char *s[] = { "Auto","","","","","","","","","Blue","Red","Green","Gray","Dark gray","Dark green","Brown",
-                                          "Dark blue","","","","","Bright red","","Yellow","","" };
+                                          "Dark blue","","","","","Bright red","","Yellow","",""
+                                        };
                             gametext(d-50,yy,s[ud.color],MENUHIGHLIGHT(io),2+8+16);
                         }
                         break;
@@ -1248,7 +1250,7 @@ void menus(void)
                 current_menu = 20022;
             }
             else if (x == 2)
-            {}
+                {}
             KB_ClearKeyDown(sc_Enter);
             KB_ClearKeyDown(sc_kpad_Enter);
             KB_FlushKeyboardQueue();
@@ -1867,36 +1869,36 @@ cheat_for_port_credits:
             gametext(160,122-l,"LICENSE AND OTHER CONTRIBUTORS",0,2+8+16);
             {
                 const char *scroller[] =
-                    {
-                        "This program is distributed under the terms of the",
-                        "GNU General Public License version 2 as published by the",
-                        "Free Software Foundation. See GNU.TXT for details.",
-                        "",
-                        "Thanks to the following people for their contributions:",
-                        "",
-                        "Adam Fazakerley",
-                        "Charlie Honig",
-                        "Ed Coolidge",
-                        "James Bentler",
-                        "Javier Martinez",
-                        "Jeff Hart",
-                        "Jonathan Smith",
-                        "Jose del Castillo",
-                        "Lachlan McDonald",
-                        "Matthew Palmer",
-                        "Peter Green",
-                        "Ryan Gordon",
-                        "",
-                        "EDuke originally by Matt Saettler",
-                        "",
-                        "--x--",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        ""
-                    };
+                {
+                    "This program is distributed under the terms of the",
+                    "GNU General Public License version 2 as published by the",
+                    "Free Software Foundation. See GNU.TXT for details.",
+                    "",
+                    "Thanks to the following people for their contributions:",
+                    "",
+                    "Adam Fazakerley",
+                    "Charlie Honig",
+                    "Ed Coolidge",
+                    "James Bentler",
+                    "Javier Martinez",
+                    "Jeff Hart",
+                    "Jonathan Smith",
+                    "Jose del Castillo",
+                    "Lachlan McDonald",
+                    "Matthew Palmer",
+                    "Peter Green",
+                    "Ryan Gordon",
+                    "",
+                    "EDuke originally by Matt Saettler",
+                    "",
+                    "--x--",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    ""
+                };
                 const int numlines = sizeof(scroller)/sizeof(char *);
                 for (m=0,i=(totalclock/104)%numlines; m<6; m++,i++)
                 {
@@ -2182,7 +2184,8 @@ cheat_for_port_credits:
         // path
         minitext(52,32,boardfilename,0,26);
 
-        {   // JBF 20040208: seek to first name matching pressed character
+        {
+            // JBF 20040208: seek to first name matching pressed character
             CACHE1D_FIND_REC *seeker = currentlist ? findfiles : finddirs;
             if ((KB_KeyPressed(sc_Home)|KB_KeyPressed(sc_End)) > 0)
             {
@@ -2418,25 +2421,26 @@ cheat_for_port_credits:
 
         {
             int io, ii, yy, d=c+160+40, enabled;
-            char *opts[] = {
-                               "Widescreen",
-                               "-",
-                               "Anisotropic filtering",
-                               "-",
-                               "Hightile textures",
-                               "Precache textures",
-                               "GL texture compression",
-                               "Cache textures on disk",
-                               "Compress disk cache",
-                               "Detail mapping",
-                               "Glow mapping",
-                               "-",
-                               "Models",
-                               "-",
-                               "-",
-                               "-",
-                               NULL
-                           };
+            char *opts[] =
+            {
+                "Widescreen",
+                "-",
+                "Anisotropic filtering",
+                "-",
+                "Hightile textures",
+                "Precache textures",
+                "GL texture compression",
+                "Cache textures on disk",
+                "Compress disk cache",
+                "Detail mapping",
+                "Glow mapping",
+                "-",
+                "Models",
+                "-",
+                "-",
+                "-",
+                NULL
+            };
 
             yy = 37;
             for (ii=io=0; opts[ii]; ii++)
@@ -2554,29 +2558,30 @@ cheat_for_port_credits:
 
         {
             int io, ii, yy, d=c+160+40, enabled;
-            char *opts[] = {
-                               "Crosshair",
-                               "Level stats",
-                               "-",
-                               "Screen size",
-                               "Status bar size",
-                               "-",
-                               "Run key style",
-                               "-",
-                               "Shadows",
-                               "Screen tilting",
-                               "-",
-                               "Show opponent weapon",
-                               "Demo playback cameras",
-                               "Record demo",
-                               "-",
-                               "-",
-                               "-",
-                               "-",
-                               "-",
-                               "More...",
-                               NULL
-                           };
+            char *opts[] =
+            {
+                "Crosshair",
+                "Level stats",
+                "-",
+                "Screen size",
+                "Status bar size",
+                "-",
+                "Run key style",
+                "-",
+                "Shadows",
+                "Screen tilting",
+                "-",
+                "Show opponent weapon",
+                "Demo playback cameras",
+                "Record demo",
+                "-",
+                "-",
+                "-",
+                "-",
+                "-",
+                "More...",
+                NULL
+            };
 
             yy = 37;
             for (ii=io=0; opts[ii]; ii++)
@@ -2694,7 +2699,7 @@ cheat_for_port_credits:
                     gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && ps[myconnectindex].gm&MODE_GAME)?"Running":"On"):"Off",enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE,enabled?0:1);
                     break;
                 case 10:
-                        if (x==io) cmenu(201);
+                    if (x==io) cmenu(201);
                     break;
                 default:
                     break;
@@ -2715,35 +2720,36 @@ cheat_for_port_credits:
 
         {
             int io, ii, yy, d=c+160+40, enabled;
-            char *opts[] = {
-                               "Parental lock",
-                               "-",
-                               "Game messages",
-                               "HUD weapon",
-                               "FPS counter",
-                               "-",
-                               "Automatic voting",
-                               "Send MP messages to all",
-                               "Display other player IDs",
-                               "-",
-                               "Show startup window",
+            char *opts[] =
+            {
+                "Parental lock",
+                "-",
+                "Game messages",
+                "HUD weapon",
+                "FPS counter",
+                "-",
+                "Automatic voting",
+                "Send MP messages to all",
+                "Display other player IDs",
+                "-",
+                "Show startup window",
 #ifdef _WIN32
-                               "Release notification",
+                "Release notification",
 #else
-                               "-",
-                               "-",
+                "-",
+                "-",
 #endif
-                               "-",
-                               "-",
-                               "-",
-                               "-",
-                               "-",
-                               "-",
-                               "-",
-                               "-",
-                               "Previous page",
-                               NULL
-                           };
+                "-",
+                "-",
+                "-",
+                "-",
+                "-",
+                "-",
+                "-",
+                "-",
+                "Previous page",
+                NULL
+            };
 
             yy = 37;
             for (ii=io=0; opts[ii]; ii++)
@@ -3535,22 +3541,26 @@ cheat_for_port_credits:
         if (x==-1)
         {
             if (function == 0)
-            {    // mouse button
+            {
+                // mouse button
                 cmenu(205);
                 probey = whichkey;
             }
             else if (function == 1)
-            { // mouse digital axis
+            {
+                // mouse digital axis
                 cmenu(212);
                 probey = 3+(whichkey^2);
             }
             else if (function == 2)
-            { // joystick button/hat
+            {
+                // joystick button/hat
                 cmenu(207);
                 probey = whichkey;
             }
             else if (function == 3)
-            { // joystick digital axis
+            {
+                // joystick digital axis
                 cmenu((whichkey>>2)+208);
                 probey = 1+((whichkey>>1)&1)*4+(whichkey&1);
             }
@@ -4117,7 +4127,8 @@ cheat_for_port_credits:
     case 214:
     case 215:
     case 216:
-        { // Pray this is enough pages for now :-|
+        {
+            // Pray this is enough pages for now :-|
             int first,last;
             rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
             menutext(320>>1,24,0,0,"JOY DEAD ZONES");

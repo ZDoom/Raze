@@ -1239,7 +1239,7 @@ static void movefx(void)
                             if (p == myconnectindex && ps[p].cursectnum == s->sectnum)
                             {
                                 j = s->lotag+((unsigned)global_random%(s->hitag+1));
-								sound(j);
+                                sound(j);
                                 T5 =  26*40 + (global_random%(26*40));
                             }
                 }
@@ -1272,8 +1272,8 @@ static void movefallers(void)
             IFHIT
             {
                 if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
-            {
-                if (s->extra <= 0)
+                {
+                    if (s->extra <= 0)
                     {
                         T1 = 1;
                         j = headspritestat[12];
@@ -1516,31 +1516,31 @@ static void movestandables(void)
                 IFHIT
                 {
                     if (s->owner == -2)
-                    if (ps[p].on_crane == i)
-                        ps[p].on_crane = -1;
-                        s->owner = -1;
-                        s->picnum = CRANE;
-                        goto BOLT;
-                    }
+                        if (ps[p].on_crane == i)
+                            ps[p].on_crane = -1;
+                    s->owner = -1;
+                    s->picnum = CRANE;
+                    goto BOLT;
+                }
 
-                    if (s->owner >= 0)
-                        {
-                            setsprite(s->owner,s->x,s->y,s->z);
+                if (s->owner >= 0)
+                {
+                    setsprite(s->owner,s->x,s->y,s->z);
 
-                            hittype[s->owner].bposx = s->x;
-                            hittype[s->owner].bposy = s->y;
-                            hittype[s->owner].bposz = s->z;
+                    hittype[s->owner].bposx = s->x;
+                    hittype[s->owner].bposy = s->y;
+                    hittype[s->owner].bposz = s->z;
 
-                            s->zvel = 0;
-                        }
-                        else if (s->owner == -2)
-                        {
-                            ps[p].oposx = ps[p].posx = s->x-(sintable[(ps[p].ang+512)&2047]>>6);
-                            ps[p].oposy = ps[p].posy = s->y-(sintable[ps[p].ang&2047]>>6);
-                            ps[p].oposz = ps[p].posz = s->z+(2<<8);
-                            setsprite(ps[p].i,ps[p].posx,ps[p].posy,ps[p].posz);
-                            ps[p].cursectnum = sprite[ps[p].i].sectnum;
-                        }
+                    s->zvel = 0;
+                }
+                else if (s->owner == -2)
+                {
+                    ps[p].oposx = ps[p].posx = s->x-(sintable[(ps[p].ang+512)&2047]>>6);
+                    ps[p].oposy = ps[p].posy = s->y-(sintable[ps[p].ang&2047]>>6);
+                    ps[p].oposz = ps[p].posz = s->z+(2<<8);
+                    setsprite(ps[p].i,ps[p].posx,ps[p].posy,ps[p].posz);
+                    ps[p].cursectnum = sprite[ps[p].i].sectnum;
+                }
             }
 
             goto BOLT;
@@ -2037,8 +2037,8 @@ DETONATE:
                 if (TRAND&1) s->zvel -= 256;
                 if (klabs(s->xvel) < 48)
                     s->xvel += (TRAND&3);
-                }
-                else KILLIT(i);
+            }
+            else KILLIT(i);
             break;
 
         case SIDEBOLT1__STATIC:
@@ -2258,28 +2258,28 @@ CLEAR_THE_BOLT:
             {
                 spritesound(VENT_BUST,i);
                 for (j=0;j<10;j++)
-                RANDOMSCRAP;
+                    RANDOMSCRAP;
 
                 if (s->lotag) spawn(i,s->lotag);
 
-                    KILLIT(i);
-                }
-                goto BOLT;
+                KILLIT(i);
+            }
+            goto BOLT;
 
-    case EXPLODINGBARREL__STATIC:
-    case WOODENHORSE__STATIC:
-    case HORSEONSIDE__STATIC:
-    case FLOORFLAME__STATIC:
-    case FIREBARREL__STATIC:
-    case FIREVASE__STATIC:
-    case NUKEBARREL__STATIC:
-    case NUKEBARRELDENTED__STATIC:
-    case NUKEBARRELLEAKED__STATIC:
-    case TOILETWATER__STATIC:
-    case RUBBERCAN__STATIC:
-    case STEAM__STATIC:
-    case CEILINGSTEAM__STATIC:
-        p = findplayer(s, &x);
+        case EXPLODINGBARREL__STATIC:
+        case WOODENHORSE__STATIC:
+        case HORSEONSIDE__STATIC:
+        case FLOORFLAME__STATIC:
+        case FIREBARREL__STATIC:
+        case FIREVASE__STATIC:
+        case NUKEBARREL__STATIC:
+        case NUKEBARRELDENTED__STATIC:
+        case NUKEBARRELLEAKED__STATIC:
+        case TOILETWATER__STATIC:
+        case RUBBERCAN__STATIC:
+        case STEAM__STATIC:
+        case CEILINGSTEAM__STATIC:
+            p = findplayer(s, &x);
             execute(i,p,x);
             goto BOLT;
         case WATERBUBBLEMAKER__STATIC:
@@ -3581,11 +3581,11 @@ static void moveactors(void)
             {
                 T1++;
                 if (T1 > 1)
-                    {
-                        KILLIT(i);
-                    }
-                    else s->ang = (TRAND&2047);
+                {
+                    KILLIT(i);
                 }
+                else s->ang = (TRAND&2047);
+            }
             if (s->xvel < 128)
                 s->xvel+=2;
             s->ang += (TRAND&3)-6;
@@ -3745,8 +3745,8 @@ static void moveactors(void)
             IFHIT
             {
                 if (s->extra < 0 && t[0] != -1)
-            {
-                t[0] = -1;
+                {
+                    t[0] = -1;
                     s->extra = 0;
                 }
                 spritesound(RECO_PAIN,i);
@@ -3983,8 +3983,8 @@ static void moveactors(void)
                     for (j=16; j >= 0 ;j--)
                     {
                         k = EGS(SECT,SX,SY,SZ,GLASSPIECES+(j%3),-32,36,36,TRAND&2047,32+(TRAND&63),1024-(TRAND&1023),i,5);
-                            sprite[k].pal = 1;
-                        }
+                        sprite[k].pal = 1;
+                    }
                     spritesound(GLASS_BREAKING,i);
                     KILLIT(i);
                 }
@@ -4116,25 +4116,25 @@ static void moveactors(void)
 
                 ps[p].actors_killed ++;
                 if (ps[p].somethingonplayer == i)
-                ps[p].somethingonplayer = -1;
+                    ps[p].somethingonplayer = -1;
 
                 if (j == FREEZEBLAST)
                 {
                     spritesound(SOMETHINGFROZE,i);
-                        t[0] = -5 ;
-                        t[3] = 0 ;
-                        goto BOLT;
-                    }
+                    t[0] = -5 ;
+                    t[3] = 0 ;
+                    goto BOLT;
+                }
 
                 if ((TRAND&255) < 32)
-            {
-                j = spawn(i,BLOODPOOL);
+                {
+                    j = spawn(i,BLOODPOOL);
                     sprite[j].pal = 0;
                 }
 
                 for (x=0;x<8;x++)
-            {
-                j = EGS(sect,s->x,s->y,s->z-(8<<8),SCRAP3+(TRAND&3),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(s->zvel>>2),i,5);
+                {
+                    j = EGS(sect,s->x,s->y,s->z-(8<<8),SCRAP3+(TRAND&3),-8,48,48,TRAND&2047,(TRAND&63)+64,-(TRAND&4095)-(s->zvel>>2),i,5);
                     sprite[j].pal = 6;
                 }
                 t[0] = -3;
@@ -4714,16 +4714,16 @@ DETONATEB:
                 IFHIT
                 {
                     for (x=0;x<32;x++)
-                    RANDOMSCRAP;
+                        RANDOMSCRAP;
                     if (s->extra < 0)
                         t[1] = 1;
-                    }
                 }
-        goto BOLT;
+            }
+            goto BOLT;
 
-    case CAMERA1__STATIC:
+        case CAMERA1__STATIC:
 
-        if (t[0] == 0)
+            if (t[0] == 0)
             {
                 t[1]+=8;
                 if (camerashitable)
@@ -4737,7 +4737,7 @@ DETONATEB:
                     }
                 }
 
-            if (s->hitag > 0)
+                if (s->hitag > 0)
                 {
                     if (t[1]<s->hitag)
                         s->ang+=8;
@@ -6169,9 +6169,9 @@ static void moveeffectors(void)   //STATNUM 3
             {
                 t[3]++;
                 if (t[3] == 5)
-            {
-                s->zvel += 1024;
-                FTA(7,&ps[myconnectindex]);
+                {
+                    s->zvel += 1024;
+                    FTA(7,&ps[myconnectindex]);
                 }
             }
 
@@ -6793,8 +6793,8 @@ static void moveeffectors(void)   //STATNUM 3
 
                     l = headspritestat[3];
                     while (l >= 0)
-                {
-                    x = sprite[l].lotag&0x7fff;
+                    {
+                        x = sprite[l].lotag&0x7fff;
                         switch (x)
                         {
                         case 0:

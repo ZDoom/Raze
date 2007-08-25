@@ -2510,7 +2510,11 @@ void fadepal(int r, int g, int b, int start, int end, int step)
 
 static void showtwoscreens(void)
 {
-    if (!VOLUMEALL)
+    int flags = GetGameVar("LOGO_FLAGS",255, -1, -1);
+
+    MUSIC_StopSong();
+
+    if (!VOLUMEALL || flags & LOGO_FLAG_SHAREWARESCREENS)
     {
         setview(0,0,xdim-1,ydim-1);
         flushperms();
@@ -2533,6 +2537,24 @@ static void showtwoscreens(void)
         IFISSOFTMODE fadepal(0,0,0, 63,0,-7);
         else nextpage();
         while (!KB_KeyWaiting())
+        {
+            handleevents();
+            getpackets();
+        }
+    }
+
+    if (flags & LOGO_FLAG_TENSCREEN)
+    {
+        setview(0,0,xdim-1,ydim-1);
+        flushperms();
+        //ps[myconnectindex].palette = palette;
+        setgamepalette(&ps[myconnectindex], palette, 1);	// JBF 20040308
+        fadepal(0,0,0, 0,64,7);
+        KB_FlushKeyboardQueue();
+        rotatesprite(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+        IFISSOFTMODE fadepal(0,0,0, 63,0,-7);
+        else nextpage();
+        while (!KB_KeyWaiting() && totalclock < 2400)
         {
             handleevents();
             getpackets();
@@ -2626,7 +2648,8 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
             {
                 ch = Btoupper(ch);
                 if (c != 997 || (ch >= '0' && ch <= '9'))
-                { // JBF 20040508: so we can have numeric only if we want
+                {
+                    // JBF 20040508: so we can have numeric only if we want
                     *(t+inputloc) = ch;
                     *(t+inputloc+1) = 0;
                     inputloc++;
@@ -3930,7 +3953,8 @@ void displayrooms(int snum,long smoothratio)
             else tang = 0;
 
             if (xres <= 320 && yres <= 240)
-            {   // JBF 20030807: Increased tilted-screen quality
+            {
+                // JBF 20030807: Increased tilted-screen quality
                 tiltcs = 1;
                 tiltcx = 320;
                 tiltcy = 200;
@@ -3950,7 +3974,8 @@ void displayrooms(int snum,long smoothratio)
             else
                 setviewtotile(TILE_TILT,tiltcx>>(1-ud.detail),tiltcx>>(1-ud.detail));
             if ((tang&1023) == 512)
-            {     //Block off unscreen section of 90ø tilted screen
+            {
+                //Block off unscreen section of 90ø tilted screen
                 j = ((tiltcx-(60*tiltcs))>>(1-ud.detail));
                 for (i=((60*tiltcs)>>(1-ud.detail))-1;i>=0;i--)
                 {
@@ -5289,7 +5314,8 @@ int spawn(int j, int pn)
             }
         case WATERBUBBLEMAKER__STATIC:
             if (sp->hitag && sp->picnum == WATERBUBBLEMAKER)
-            {  // JBF 20030913: Pisses off move(), eg. in bobsp2
+            {
+                // JBF 20030913: Pisses off move(), eg. in bobsp2
                 OSD_Printf("WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
                            i,sp->x,sp->y);
                 sp->hitag = 0;
@@ -6224,7 +6250,7 @@ void animatesprites(long x,long y,int a,long smoothratio)
 
         //greenslime can't be handled through the dynamictostatic system due to addition on constant
         if ((t->picnum >= GREENSLIME)&&(t->picnum <= GREENSLIME+7))
-        {}
+            {}
         else switch (dynamictostatic[t->picnum])
             {
             case BLOODPOOL__STATIC:
@@ -6311,7 +6337,8 @@ void animatesprites(long x,long y,int a,long smoothratio)
     }
 
     for (j=0;j < spritesortcnt; j++) //Between drawrooms() and drawmasks()
-    {                             //is the perfect time to animate sprites
+    {
+        //is the perfect time to animate sprites
         t = &tsprite[j];
         i = t->owner;
         s = &sprite[i];
@@ -7042,35 +7069,35 @@ PALONLY:
 static char terminx[64] = { "Undead TC still sucks." };
 
 char cheatquotes[][MAXCHEATLEN] =
-    {
-        "cornholio",    // 0
-        "stuff",        // 1
-        "scotty###",    // 2
-        "coords",       // 3
-        "view",         // 4
-        "time",         // 5
-        "unlock",       // 6
-        "cashman",      // 7
-        "items",        // 8
-        "rate",         // 9
-        "skill#",       // 10
-        "beta",         // 11
-        "hyper",        // 12
-        "monsters",     // 13
-        "<RESERVED>",   // 14
-        "<RESERVED>",   // 15
-        "todd",         // 16
-        "showmap",      // 17
-        "kroz",         // 18
-        "allen",        // 19
-        "clip",         // 20
-        "weapons",      // 21
-        "inventory",    // 22
-        "keys",         // 23
-        "debug",        // 24
-        "<RESERVED>",   // 25
-        "sfm",  // 26
-    };
+{
+    "cornholio",    // 0
+    "stuff",        // 1
+    "scotty###",    // 2
+    "coords",       // 3
+    "view",         // 4
+    "time",         // 5
+    "unlock",       // 6
+    "cashman",      // 7
+    "items",        // 8
+    "rate",         // 9
+    "skill#",       // 10
+    "beta",         // 11
+    "hyper",        // 12
+    "monsters",     // 13
+    "<RESERVED>",   // 14
+    "<RESERVED>",   // 15
+    "todd",         // 16
+    "showmap",      // 17
+    "kroz",         // 18
+    "allen",        // 19
+    "clip",         // 20
+    "weapons",      // 21
+    "inventory",    // 22
+    "keys",         // 23
+    "debug",        // 24
+    "<RESERVED>",   // 25
+    "sfm",  // 26
+};
 
 enum cheats
 {
@@ -7179,7 +7206,8 @@ static void cheats(void)
     char consolecheat = 0;  // JBF 20030914
 
     if (osdcmd_cheatsinfo_stat.cheatnum != -1)
-    {        // JBF 20030914
+    {
+        // JBF 20030914
         k = osdcmd_cheatsinfo_stat.cheatnum;
         osdcmd_cheatsinfo_stat.cheatnum = -1;
         consolecheat = 1;
@@ -7420,7 +7448,8 @@ FOUNDCHEAT:
                     {
                         i = Bstrlen(cheatquotes[k])-3+VOLUMEONE;
                         if (!consolecheat)
-                        {        // JBF 20030914
+                        {
+                            // JBF 20030914
                             short volnume,levnume;
                             if (VOLUMEALL)
                             {
@@ -7448,7 +7477,8 @@ FOUNDCHEAT:
                             ud.m_level_number = ud.level_number = levnume;
                         }
                         else
-                        {    // JBF 20030914
+                        {
+                            // JBF 20030914
                             ud.m_volume_number = ud.volume_number = osdcmd_cheatsinfo_stat.volume;
                             ud.m_level_number = ud.level_number = osdcmd_cheatsinfo_stat.level;
                         }
@@ -8232,11 +8262,11 @@ static int load_rancid_net(const char *fn)
     char *cmdtokptr;
 
     tokenlist rancidtokens[] =
-        {
-            { "interface",       T_INTERFACE       },
-            { "mode",            T_MODE            },
-            { "allow",           T_ALLOW           },
-        };
+    {
+        { "interface",       T_INTERFACE       },
+        { "mode",            T_MODE            },
+        { "allow",           T_ALLOW           },
+    };
 
     scriptfile *script;
 
@@ -8450,12 +8480,12 @@ static int parsegroupfiles(scriptfile *script)
     char *cmdtokptr;
 
     tokenlist grptokens[] =
-        {
-            { "include",         T_INCLUDE          },
-            { "#include",        T_INCLUDE          },
-            { "loadgrp",         T_LOADGRP          },
-            { "cachesize",       T_CACHESIZE        },
-        };
+    {
+        { "include",         T_INCLUDE          },
+        { "#include",        T_INCLUDE          },
+        { "loadgrp",         T_LOADGRP          },
+        { "cachesize",       T_CACHESIZE        },
+    };
 
     while (1)
     {
@@ -9157,7 +9187,8 @@ static void Logo(void)
                 }
                 else soundanm = 2;
                 if (PLUTOPAK && (logoflags & LOGO_FLAG_PLUTOPAKSPRITE))
-                {   // JBF 20030804
+                {
+                    // JBF 20030804
                     if (totalclock >= 280 && totalclock < 395)
                     {
                         rotatesprite(160<<16,(151)<<16,(410-totalclock)<<12,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
@@ -9960,7 +9991,8 @@ void app_main(int argc,const char **argv)
     initprintf("Using config file '%s'.\n",setupfilename);
 
     ScanGroups();
-    {	// try and identify the 'defaultduke3dgrp' in the set of GRPs.
+    {
+        // try and identify the 'defaultduke3dgrp' in the set of GRPs.
         // if it is found, set up the environment accordingly for the game it represents.
         // if it is not found, choose the first GRP from the list of
         struct grpfile *fg, *first = NULL;
@@ -10026,7 +10058,7 @@ void app_main(int argc,const char **argv)
     if (!NoAutoLoad)
     {
         getfilenames("autoload","*.grp");
-    while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
+        while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
         getfilenames("autoload","*.zip");
         while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
         getfilenames("autoload","*.pk3");
@@ -10294,7 +10326,8 @@ MAIN_LOOP_RESTART:
     while (!(ps[myconnectindex].gm&MODE_END)) //The whole loop!!!!!!!!!!!!!!!!!!
     {
         if (handleevents())
-        {   // JBF
+        {
+            // JBF
             if (quitevent)
             {
                 KB_KeyDown[sc_Escape] = 1;
@@ -10440,7 +10473,8 @@ static int opendemoread(int which_demo) // 0 = mine
     if (kread(recfilep,&ver,sizeof(char)) != sizeof(char)) goto corrupt;
 
     if (ver != BYTEVERSION /*&& ver != 116 && ver != 117*/)
-    { /* old demo playback */
+    {
+        /* old demo playback */
         if (ver == BYTEVERSION_JF)   initprintf("Demo %s is for Regular edition.\n", d);
         else if (ver == BYTEVERSION_JF+1) initprintf("Demo %s is for Atomic edition.\n", d);
         else if (ver == BYTEVERSION_JF+2) initprintf("Demo %s is for Shareware version.\n", d);
@@ -11149,7 +11183,8 @@ static void fakedomovethings(void)
         myyvel = 0;
     }
     else if (syn->avel)          //p->ang += syncangvel * constant
-    {                         //ENGINE calculates angvel for you
+    {
+        //ENGINE calculates angvel for you
         long tempang = syn->avel<<1;
 
         if (psectlotag == 2)
@@ -11566,22 +11601,22 @@ void dobonus(int bonusonly)
     int32 playerbest = -1;
 
     int breathe[] =
-        {
-            0,  30,VICTORY1+1,176,59,
-            30,  60,VICTORY1+2,176,59,
-            60,  90,VICTORY1+1,176,59,
-            90, 120,0         ,176,59
-        };
+    {
+        0,  30,VICTORY1+1,176,59,
+        30,  60,VICTORY1+2,176,59,
+        60,  90,VICTORY1+1,176,59,
+        90, 120,0         ,176,59
+    };
 
     int bossmove[] =
-        {
-            0, 120,VICTORY1+3,86,59,
-            220, 260,VICTORY1+4,86,59,
-            260, 290,VICTORY1+5,86,59,
-            290, 320,VICTORY1+6,86,59,
-            320, 350,VICTORY1+7,86,59,
-            350, 380,VICTORY1+8,86,59
-        };
+    {
+        0, 120,VICTORY1+3,86,59,
+        220, 260,VICTORY1+4,86,59,
+        260, 290,VICTORY1+5,86,59,
+        290, 320,VICTORY1+6,86,59,
+        320, 350,VICTORY1+7,86,59,
+        350, 380,VICTORY1+8,86,59
+    };
 
     if (VOLUMEALL) wm_setapptitle(HEAD2);
     else wm_setapptitle(HEAD);

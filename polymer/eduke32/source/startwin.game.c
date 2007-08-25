@@ -39,9 +39,9 @@ settings;
 
 static HWND startupdlg = NULL;
 static HWND pages[3] =
-    {
-        NULL, NULL, NULL
-    };
+{
+    NULL, NULL, NULL
+};
 static int done = -1, mode = TAB_CONFIG;
 
 #define POPULATE_VIDEO 1

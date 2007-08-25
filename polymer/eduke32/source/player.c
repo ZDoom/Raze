@@ -3222,7 +3222,8 @@ static int doincrements(struct player_struct *p)
 
 short weapon_sprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATIC, SHOTGUNSPRITE__STATIC,
                                       CHAINGUNSPRITE__STATIC, RPGSPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC, DEVISTATORSPRITE__STATIC,
-                                      TRIPBOMBSPRITE__STATIC, FREEZESPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC};
+                                      TRIPBOMBSPRITE__STATIC, FREEZESPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC
+                                    };
 
 void checkweapons(struct player_struct *p)
 {
@@ -4176,7 +4177,8 @@ void processinput(int snum)
         p->posyv = 0;
     }
     else if (sync[snum].avel)            //p->ang += syncangvel * constant
-    {                         //ENGINE calculates angvel for you
+    {
+        //ENGINE calculates angvel for you
         long tempang = sync[snum].avel<<1;
 
         if (psectlotag == 2) p->angvel =(tempang-(tempang>>3))*ksgn(doubvel);
@@ -4504,7 +4506,8 @@ HORIZONLY:
     }
 
     else if (sb_snum&(1<<3))
-    {   // aim_up
+    {
+        // aim_up
         SetGameVarID(g_iReturnVarID,0,pi,snum);
         OnEvent(EVENT_AIMUP,pi,snum, -1);
         if (GetGameVarID(g_iReturnVarID,pi,snum) == 0)
@@ -4517,7 +4520,8 @@ HORIZONLY:
     }
 
     else if (sb_snum&(1<<4))
-    {   // aim_down
+    {
+        // aim_down
         SetGameVarID(g_iReturnVarID,0,pi,snum);
         OnEvent(EVENT_AIMDOWN,pi,snum, -1);
         if (GetGameVarID(g_iReturnVarID,pi,snum) == 0)
@@ -5185,21 +5189,21 @@ int getspritescore(long snum, long dapicnum)
 }
 
 static long fdmatrix[12][12] =
-    {
-        //KNEE PIST SHOT CHAIN RPG PIPE SHRI DEVI WALL FREE HAND EXPA
-        {  128,  -1,  -1,  -1, 128,  -1,  -1,  -1, 128,  -1, 128,  -1 },   //KNEE
-        { 1024,1024,1024,1024,2560, 128,2560,2560,1024,2560,2560,2560 },   //PIST
-        {  512, 512, 512, 512,2560, 128,2560,2560,1024,2560,2560,2560 },   //SHOT
-        {  512, 512, 512, 512,2560, 128,2560,2560,1024,2560,2560,2560 },   //CHAIN
-        { 2560,2560,2560,2560,2560,2560,2560,2560,2560,2560,2560,2560 },   //RPG
-        {  512, 512, 512, 512,2048, 512,2560,2560, 512,2560,2560,2560 },   //PIPE
-        {  128, 128, 128, 128,2560, 128,2560,2560, 128, 128, 128, 128 },   //SHRI
-        { 1536,1536,1536,1536,2560,1536,1536,1536,1536,1536,1536,1536 },   //DEVI
-        {   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1 },   //WALL
-        {  128, 128, 128, 128,2560, 128,2560,2560, 128, 128, 128, 128 },   //FREE
-        { 2560,2560,2560,2560,2560,2560,2560,2560,2560,2560,2560,2560 },   //HAND
-        {  128, 128, 128, 128,2560, 128,2560,2560, 128, 128, 128, 128 }    //EXPA
-    };
+{
+    //KNEE PIST SHOT CHAIN RPG PIPE SHRI DEVI WALL FREE HAND EXPA
+    {  128,  -1,  -1,  -1, 128,  -1,  -1,  -1, 128,  -1, 128,  -1 },   //KNEE
+    { 1024,1024,1024,1024,2560, 128,2560,2560,1024,2560,2560,2560 },   //PIST
+    {  512, 512, 512, 512,2560, 128,2560,2560,1024,2560,2560,2560 },   //SHOT
+    {  512, 512, 512, 512,2560, 128,2560,2560,1024,2560,2560,2560 },   //CHAIN
+    { 2560,2560,2560,2560,2560,2560,2560,2560,2560,2560,2560,2560 },   //RPG
+    {  512, 512, 512, 512,2048, 512,2560,2560, 512,2560,2560,2560 },   //PIPE
+    {  128, 128, 128, 128,2560, 128,2560,2560, 128, 128, 128, 128 },   //SHRI
+    { 1536,1536,1536,1536,2560,1536,1536,1536,1536,1536,1536,1536 },   //DEVI
+    {   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1 },   //WALL
+    {  128, 128, 128, 128,2560, 128,2560,2560, 128, 128, 128, 128 },   //FREE
+    { 2560,2560,2560,2560,2560,2560,2560,2560,2560,2560,2560,2560 },   //HAND
+    {  128, 128, 128, 128,2560, 128,2560,2560, 128, 128, 128, 128 }    //EXPA
+};
 
 static long goalx[MAXPLAYERS], goaly[MAXPLAYERS], goalz[MAXPLAYERS];
 static long goalsect[MAXPLAYERS], goalwall[MAXPLAYERS], goalsprite[MAXPLAYERS], goalspritescore[MAXPLAYERS];

@@ -4258,30 +4258,30 @@ static int parse(void)
             j=GetGameVarID(*insptr++, g_i, g_p);
             switch (tw)
             {
-                case CON_HEADSPRITESTAT:
-                    if (j < MAXSTATUS)
-                        SetGameVarID(i,headspritestat[j],g_i,g_p);
-                    break;
-                case CON_PREVSPRITESTAT:
-                    if (j < MAXSPRITES)
-                        SetGameVarID(i,prevspritestat[j],g_i,g_p);
-                    break;
-                case CON_NEXTSPRITESTAT:
-                    if (j < MAXSPRITES)
-                        SetGameVarID(i,nextspritestat[j],g_i,g_p);
-                    break;
-                case CON_HEADSPRITESECT:
-                    if (j < MAXSECTORS)
-                        SetGameVarID(i,headspritesect[j],g_i,g_p);
-                    break;
-                case CON_PREVSPRITESECT:
-                    if (j < MAXSPRITES)
-                        SetGameVarID(i,prevspritesect[j],g_i,g_p);
-                    break;
-                case CON_NEXTSPRITESECT:
-                    if (j < MAXSPRITES)
-                        SetGameVarID(i,nextspritesect[j],g_i,g_p);
-                    break;
+            case CON_HEADSPRITESTAT:
+                if (j < MAXSTATUS)
+                    SetGameVarID(i,headspritestat[j],g_i,g_p);
+                break;
+            case CON_PREVSPRITESTAT:
+                if (j < MAXSPRITES)
+                    SetGameVarID(i,prevspritestat[j],g_i,g_p);
+                break;
+            case CON_NEXTSPRITESTAT:
+                if (j < MAXSPRITES)
+                    SetGameVarID(i,nextspritestat[j],g_i,g_p);
+                break;
+            case CON_HEADSPRITESECT:
+                if (j < MAXSECTORS)
+                    SetGameVarID(i,headspritesect[j],g_i,g_p);
+                break;
+            case CON_PREVSPRITESECT:
+                if (j < MAXSPRITES)
+                    SetGameVarID(i,prevspritesect[j],g_i,g_p);
+                break;
+            case CON_NEXTSPRITESECT:
+                if (j < MAXSPRITES)
+                    SetGameVarID(i,nextspritesect[j],g_i,g_p);
+                break;
             }
             break;
         }
@@ -6373,7 +6373,7 @@ static int parse(void)
             adduserquote(fta_quotes[i]);
         }
         break;
-    
+
     case CON_IFINOUTERSPACE:
         parseifelse(floorspace(g_sp->sectnum));
         break;

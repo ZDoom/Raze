@@ -202,7 +202,6 @@ int loadplayer(int spot)
 
     FX_StopAllSounds();
     clearsoundlocks();
-    MUSIC_StopSong();
 
     if (numplayers > 1)
     {
@@ -403,9 +402,13 @@ int loadplayer(int spot)
     clearsoundlocks();
     cacheit();
 
+    i = music_select;
     music_select = (ud.volume_number*MAXLEVELS) + ud.level_number;
-    if (music_fn[0][(unsigned char)music_select] != NULL)
+    if (music_fn[0][(unsigned char)music_select] != NULL && i != music_select)
+    {
+        MUSIC_StopSong();
         playmusic(&music_fn[0][(unsigned char)music_select][0]);
+    }
 
     ps[myconnectindex].gm = MODE_GAME;
     ud.recstat = 0;

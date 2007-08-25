@@ -1332,5 +1332,5 @@ static void ResetPointerVars(void)
     aGameVars[GetGameID("myreturntocenter")].lValue = (long)&myreturntocenter;
 
     aGameVars[GetGameID("display_mirror")].lValue = (long)&display_mirror;
-	aGameVars[GetGameID("randomseed")].lValue = (long)&randomseed;
+    aGameVars[GetGameID("randomseed")].lValue = (long)&randomseed;
 }
