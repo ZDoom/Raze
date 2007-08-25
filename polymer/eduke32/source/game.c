@@ -114,8 +114,6 @@ static char *duke3ddef = "duke3d.def";
 
 extern long lastvisinc;
 
-static char colstrip[1024];
-
 int shareware = 0;
 int gametype = 0;
 
@@ -271,6 +269,7 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
 const char *stripcolorcodes(const char *t)
 {
     int i = 0;
+    static char colstrip[1024];
 
     while (*t)
     {
@@ -2322,12 +2321,6 @@ static void tics(void)
         {
             int ii, k = 0, p = 8;
 
-            if (ud.screen_size != 0 && GTFLAGS(GAMETYPE_FLAG_FRAGBAR) && ud.multimode > 1)
-            {
-                k = 8;
-                if (ud.multimode > 4)
-                    k += 8;
-            }
             Bsprintf(b,"%ld",max(j,0));
 //            minitext(scale(windowx1,320,xdim)+1,scale(windowy1,200,ydim)+1,b,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
 
@@ -2513,6 +2506,7 @@ static void showtwoscreens(void)
     int flags = GetGameVar("LOGO_FLAGS",255, -1, -1);
 
     MUSIC_StopSong();
+    FX_StopAllSounds();
 
     if (!VOLUMEALL || flags & LOGO_FLAG_SHAREWARESCREENS)
     {
@@ -9108,8 +9102,12 @@ static void Logo(void)
             clearview(0L);
             nextpage();
         }
+
         if (logoflags & LOGO_FLAG_PLAYMUSIC)
+        {
+            music_select = -1; // hack
             playmusic(&env_music_fn[0][0]);
+        }
 
         if (!NAM)
         {
