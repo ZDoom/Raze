@@ -575,14 +575,14 @@ int startwin_run(void)
     SetPage(TAB_CONFIG);
     EnableConfig(1);
 
-    settings.fullscreen = ScreenMode;
-    settings.xdim = ScreenWidth;
-    settings.ydim = ScreenHeight;
-    settings.bpp = ScreenBPP;
-    settings.forcesetup = ForceSetup;
-    settings.usemouse = UseMouse;
-    settings.usejoy = UseJoystick;
-    settings.game = gametype;
+    settings.fullscreen = config.ScreenMode;
+    settings.xdim = config.ScreenWidth;
+    settings.ydim = config.ScreenHeight;
+    settings.bpp = config.ScreenBPP;
+    settings.forcesetup = config.ForceSetup;
+    settings.usemouse = config.UseMouse;
+    settings.usejoy = config.UseJoystick;
+    settings.game = g_GameType;
     strncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
     PopulateForm(-1);
 
@@ -607,15 +607,15 @@ int startwin_run(void)
     EnableConfig(0);
     if (done)
     {
-        ScreenMode = settings.fullscreen;
-        ScreenWidth = settings.xdim;
-        ScreenHeight = settings.ydim;
-        ScreenBPP = settings.bpp;
-        ForceSetup = settings.forcesetup;
-        UseMouse = settings.usemouse;
-        UseJoystick = settings.usejoy;
+        config.ScreenMode = settings.fullscreen;
+        config.ScreenWidth = settings.xdim;
+        config.ScreenHeight = settings.ydim;
+        config.ScreenBPP = settings.bpp;
+        config.ForceSetup = settings.forcesetup;
+        config.UseMouse = settings.usemouse;
+        config.UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
-        gametype = settings.game;
+        g_GameType = settings.game;
     }
 
     if (wavedevs)

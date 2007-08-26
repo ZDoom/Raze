@@ -748,7 +748,7 @@ int startwin_run(void)
     settings.xdim3d = ScreenWidth;
     settings.ydim3d = ScreenHeight;
     settings.bpp3d = ScreenBPP;
-    settings.forcesetup = ForceSetup;
+    settings.forcesetup = g_ForceSetup;
     settings.usemouse = UseMouse;
     settings.usejoy = UseJoystick;
     settings.game = gametype;
@@ -764,7 +764,7 @@ int startwin_run(void)
         ScreenWidth = settings.xdim3d;
         ScreenHeight = settings.ydim3d;
         ScreenBPP = settings.bpp3d;
-        ForceSetup = settings.forcesetup;
+        g_ForceSetup = settings.forcesetup;
         UseMouse = settings.usemouse;
         UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;

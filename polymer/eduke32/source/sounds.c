@@ -49,13 +49,13 @@ void SoundStartup(void)
     int32 status;
 
     // if they chose None lets return
-    if (FXDevice < 0) return;
+    if (config.FXDevice < 0) return;
 
-    status = FX_Init(FXDevice, NumVoices, NumChannels, NumBits, MixRate);
+    status = FX_Init(config.FXDevice, config.NumVoices, config.NumChannels, config.NumBits, config.MixRate);
     if (status == FX_Ok)
     {
-        FX_SetVolume(FXVolume);
-        if (ReverseStereo == 1)
+        FX_SetVolume(config.FXVolume);
+        if (config.ReverseStereo == 1)
         {
             FX_SetReverseStereo(!FX_GetReverseStereo());
         }
@@ -82,7 +82,7 @@ void SoundShutdown(void)
     int32 status;
 
     // if they chose None lets return
-    if (FXDevice < 0)
+    if (config.FXDevice < 0)
         return;
 
     status = FX_Shutdown();
@@ -106,14 +106,14 @@ void MusicStartup(void)
     int32 status;
 
     // if they chose None lets return
-    if (MusicDevice < 0)
+    if (config.MusicDevice < 0)
         return;
 
-    status = MUSIC_Init(MusicDevice, 0);
+    status = MUSIC_Init(config.MusicDevice, 0);
 
     if (status == MUSIC_Ok)
     {
-        MUSIC_SetVolume(MusicVolume);
+        MUSIC_SetVolume(config.MusicVolume);
     }
     else
     {
@@ -144,7 +144,7 @@ void MusicShutdown(void)
     int32 status;
 
     // if they chose None lets return
-    if (MusicDevice < 0)
+    if (config.MusicDevice < 0)
         return;
 
     status = MUSIC_Shutdown();
@@ -195,8 +195,8 @@ void playmusic(const char *fn)
 
     if (fn == NULL) return;
 
-    if (MusicToggle == 0) return;
-    if (MusicDevice < 0) return;
+    if (config.MusicToggle == 0) return;
+    if (config.MusicDevice < 0) return;
 
     fp = kopen4load((char *)fn,0);
 
@@ -217,8 +217,8 @@ void playmusic(const char *fn)
 
     if (fn == NULL) return;
 
-    if (MusicToggle == 0) return;
-    if (MusicDevice < 0) return;
+    if (config.MusicToggle == 0) return;
+    if (config.MusicDevice < 0) return;
 
     // FIXME: I need this to get the music volume initialized (not sure why) -- Jim Bentler
     MUSIC_SetVolume(MusicVolume);
@@ -230,8 +230,8 @@ int loadsound(unsigned int num)
 {
     long   fp, l;
 
-    if (num >= NUM_SOUNDS || SoundToggle == 0) return 0;
-    if (FXDevice < 0) return 0;
+    if (num >= NUM_SOUNDS || config.SoundToggle == 0) return 0;
+    if (config.FXDevice < 0) return 0;
 
     fp = kopen4load(sounds[num],loadfromgrouponly);
     if (fp == -1)
@@ -262,9 +262,9 @@ int xyzsound(int num,int i,long x,long y,long z)
     //    if(num != 358) return 0;
 
     if (num >= NUM_SOUNDS ||
-            FXDevice < 0 ||
+            config.FXDevice < 0 ||
             ((soundm[num]&8) && ud.lockout) ||
-            SoundToggle == 0 ||
+            config.SoundToggle == 0 ||
             Sound[num].num > 3 ||
             FX_VoiceAvailable(soundpr[num]) == 0 ||
             (ps[myconnectindex].timebeforeexit > 0 && ps[myconnectindex].timebeforeexit <= 26*3) ||
@@ -278,9 +278,9 @@ int xyzsound(int num,int i,long x,long y,long z)
 
     if (soundm[num]&4)
     {
-        if (VoiceToggle==0)
+        if (config.VoiceToggle==0)
             return -1;
-        else if (ud.multimode > 1 && PN == APLAYER && sprite[i].yvel != screenpeek && VoiceToggle!=2)
+        else if (ud.multimode > 1 && PN == APLAYER && sprite[i].yvel != screenpeek && config.VoiceToggle!=2)
             return -1;
         for (j=0;j<NUM_SOUNDS;j++)
             for (k=0;k<Sound[j].num;k++)
@@ -409,9 +409,9 @@ void sound(int num)
     int voice;
     long start;
 
-    if (FXDevice < 0) return;
-    if (SoundToggle==0) return;
-    if (VoiceToggle==0 && (soundm[num]&4)) return;
+    if (config.FXDevice < 0) return;
+    if (config.SoundToggle==0) return;
+    if (config.VoiceToggle==0 && (soundm[num]&4)) return;
     if ((soundm[num]&8) && ud.lockout) return;
     if (FX_VoiceAvailable(soundpr[num]) == 0) return;
     if (num > NUM_SOUNDS-1 || !sounds[num])

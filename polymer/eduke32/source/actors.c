@@ -1181,9 +1181,9 @@ static void movefx(void)
 
             ht = s->hitag;
 
-            if (T2 != SoundToggle)
+            if (T2 != config.SoundToggle)
             {
-                T2 = SoundToggle;
+                T2 = config.SoundToggle;
                 T1 = 0;
             }
 
@@ -1202,14 +1202,14 @@ static void movefx(void)
                     T1 = 0;
                 }
             }
-            else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 && AmbienceToggle && sector[SECT].floorz != sector[SECT].ceilingz)
+            else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 && config.AmbienceToggle && sector[SECT].floorz != sector[SECT].ceilingz)
             {
                 if ((soundm[s->lotag]&2))
                 {
                     x = dist(&sprite[ps[screenpeek].i],s);
                     if (x < ht && T1 == 0 && FX_VoiceAvailable(soundpr[s->lotag]-1))
                     {
-                        if (numenvsnds == NumVoices)
+                        if (numenvsnds == config.NumVoices)
                         {
                             j = headspritestat[11];
                             while (j >= 0)

@@ -2590,7 +2590,7 @@ void sharedkeys(int snum)
             }
             else
             {
-                if (MusicToggle) MUSIC_Continue();
+                if (config.MusicToggle) MUSIC_Continue();
                 pub = NUMPAGES;
                 pus = NUMPAGES;
             }

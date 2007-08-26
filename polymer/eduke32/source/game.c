@@ -65,14 +65,15 @@ long cameradist = 0, cameraclock = 0;
 static int playerswhenstarted;
 static int qe,cp,usecwd = 0;
 
-static int32 CommandSetup = 0;
-static int32 NoSetup = 0;
-static int32 NoAutoLoad = 0;
-static int32 CommandSoundToggleOff = 0;
-static int32 CommandMusicToggleOff = 0;
+static int32 g_CommandSetup = 0;
+static int32 g_NoSetup = 0;
+static int32 g_NoAutoLoad = 0;
+static int32 g_NoSound = 0;
+static int32 g_NoMusic = 0;
 static char *CommandMap = NULL;
-static char *CommandName = NULL,*netcfg = NULL;
-static int keepaddr = 0;
+static char *CommandName = NULL;
+static char *CommandNet = NULL;
+static int g_KeepAddr = 0;
 int32 CommandWeaponChoice = 0;
 static struct strllist
 {
@@ -103,7 +104,8 @@ extern int32 numlumps;
 static FILE *frecfilep = (FILE *)NULL;
 
 int restorepalette,screencapt;
-static int nomorelogohack, nologo = 0;
+static int g_NoLogoAnim = 0;
+static int g_NoLogo = 0;
 static int sendmessagecommand = -1;
 
 char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
@@ -114,8 +116,8 @@ static char *duke3ddef = "duke3d.def";
 
 extern long lastvisinc;
 
-int shareware = 0;
-int gametype = 0;
+int g_Shareware = 0;
+int g_GameType = 0;
 
 #define MAXUSERQUOTES 4
 static long quotebot, quotebotgoal;
@@ -264,7 +266,7 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
     player->palette = pal;
 }
 
-#define TEXTWRAPLEN (scale(35,ScreenWidth,320))
+#define TEXTWRAPLEN (scale(35,config.ScreenWidth,320))
 
 const char *stripcolorcodes(const char *t)
 {
@@ -361,7 +363,7 @@ int gametext_(int small, int starttile, int x,int y,const char *t,int s,int p,in
         if (ac < starttile || ac > (starttile + 93))
             break;
 
-        rotatesprite(x<<16,(y<<16)+(small?ScreenHeight<<15:0),65536,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
+        rotatesprite(x<<16,(y<<16)+(small?config.ScreenHeight<<15:0),65536,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
         if ((*t >= '0' && *t <= '9'))
             x += 8;
         else x += tilesizx[ac];//(tilesizx[ac]>>small);
@@ -492,13 +494,13 @@ void getpackets(void)
 
     if (ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
-        if (setgamemode(!ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP))
+        if (setgamemode(!config.ScreenMode,config.ScreenWidth,config.ScreenHeight,config.ScreenBPP))
         {
             OSD_Printf("Failed setting fullscreen video mode.\n");
-            if (setgamemode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP))
+            if (setgamemode(config.ScreenMode, config.ScreenWidth, config.ScreenHeight, config.ScreenBPP))
                 gameexit("Failed to recover from failure to set fullscreen video mode.\n");
         }
-        else ScreenMode = !ScreenMode;
+        else config.ScreenMode = !config.ScreenMode;
         KB_ClearKeyDown(sc_Enter);
         restorepalette = 1;
         vscrn();
@@ -823,7 +825,7 @@ void getpackets(void)
 
                 if (numlumps == 0) break;
 
-                if (SoundToggle == 0 || ud.lockout == 1 || FXDevice < 0)
+                if (config.SoundToggle == 0 || ud.lockout == 1 || config.FXDevice < 0)
                     break;
                 rtsptr = (char *)RTS_GetSound(packbuf[1]-1);
                 if (*rtsptr == 'C')
@@ -2578,7 +2580,7 @@ void gameexit(const char *t)
         if (playerswhenstarted > 1 && ps[myconnectindex].gm&MODE_GAME && GTFLAGS(GAMETYPE_FLAG_SCORESHEET) && *t == ' ')
         {
             dobonus(1);
-            setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP);
+            setgamemode(config.ScreenMode,config.ScreenWidth,config.ScreenHeight,config.ScreenBPP);
         }
 
         if (*t != 0 && *(t+1) != 'V' && *(t+1) != 'Y')
@@ -2678,7 +2680,7 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
         y += 8;
     }
 
-    rotatesprite((x+(small?4:8))<<16,((y+(small?0:4))<<16)+(small?ScreenHeight<<15:0),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,small?(8|16):2+8,0,0,xdim-1,ydim-1);
+    rotatesprite((x+(small?4:8))<<16,((y+(small?0:4))<<16)+(small?config.ScreenHeight<<15:0),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,small?(8|16):2+8,0,0,xdim-1,ydim-1);
     return (0);
 }
 
@@ -7090,7 +7092,7 @@ char cheatquotes[][MAXCHEATLEN] =
     "keys",         // 23
     "debug",        // 24
     "<RESERVED>",   // 25
-    "sfm",  // 26
+    "sfm",			// 26
 };
 
 enum cheats
@@ -7757,7 +7759,7 @@ static void nonsharedkeys(void)
     {
         CONTROL_ClearButton(gamefunc_Show_Opponents_Weapon);
         ud.showweapons = 1-ud.showweapons;
-        ShowOpponentWeapons = ud.showweapons;
+        config.ShowOpponentWeapons = ud.showweapons;
         FTA(82-ud.showweapons,&ps[screenpeek]);
     }
 
@@ -7882,7 +7884,7 @@ static void nonsharedkeys(void)
             }
 
             if (ud.lockout == 0)
-                if (SoundToggle && ALT_IS_PRESSED && (RTS_NumSounds() > 0) && rtsplaying == 0 && VoiceToggle)
+                if (config.SoundToggle && ALT_IS_PRESSED && (RTS_NumSounds() > 0) && rtsplaying == 0 && config.VoiceToggle)
                 {
                     rtsptr = (char *)RTS_GetSound(i-1);
                     if (*rtsptr == 'C')
@@ -8005,7 +8007,7 @@ FAKE_F3:
             }
         }
 
-        if (KB_KeyPressed(sc_F4) && FXDevice >= 0)
+        if (KB_KeyPressed(sc_F4) && config.FXDevice >= 0)
         {
             KB_ClearKeyDown(sc_F4);
             FX_StopAllSounds();
@@ -8066,7 +8068,7 @@ FAKE_F3:
             FTA(109+ps[myconnectindex].over_shoulder_on,&ps[myconnectindex]);
         }
 
-        if (KB_KeyPressed(sc_F5) && MusicDevice >= 0)
+        if (KB_KeyPressed(sc_F5) && config.MusicDevice >= 0)
         {
             KB_ClearKeyDown(sc_F5);
             if (music_fn[0][(unsigned char)music_select] != NULL)
@@ -8163,7 +8165,7 @@ FAKE_F3:
     {
         CONTROL_ClearButton(gamefunc_AutoRun);
         ud.auto_run = 1-ud.auto_run;
-        RunMode = ud.auto_run;
+        config.RunMode = ud.auto_run;
         FTA(85+ud.auto_run,&ps[myconnectindex]);
     }
 
@@ -8343,7 +8345,7 @@ static void setup_rancid_net(const char *fn)
             return;
         }
 
-        if (keepaddr == 0)
+        if (g_KeepAddr == 0)
         {
             for (i=0;i<rancid_players;i++)
             {
@@ -8501,7 +8503,7 @@ static int parsegroupfiles(scriptfile *script)
                 else
                 {
                     initprintf("Using group file '%s'.\n",fn);
-                    if (!NoAutoLoad)
+                    if (!g_NoAutoLoad)
                         autoloadgrps(fn);
                 }
 
@@ -8681,7 +8683,7 @@ static void checkcommandline(int argc,const char **argv)
                 {
                     strcpy(defaultduke3dgrp, "nam.grp");
                     strcpy(defaultconfilename, "nam.con");
-                    gametype = 1;
+                    g_GameType = GAMENAM;
                     i++;
                     continue;
                 }
@@ -8689,33 +8691,33 @@ static void checkcommandline(int argc,const char **argv)
                 {
                     strcpy(defaultduke3dgrp, "ww2gi.grp");
                     strcpy(defaultconfilename, "ww2gi.con");
-                    gametype = 3;
+                    g_GameType = GAMEWW2;
                     i++;
                     continue;
                 }
                 if (!Bstrcasecmp(c+1,"setup"))
                 {
-                    CommandSetup = TRUE;
+                    g_CommandSetup = TRUE;
                     i++;
                     continue;
                 }
                 if (!Bstrcasecmp(c+1,"nosetup"))
                 {
-                    NoSetup = 1;
-                    CommandSetup = 0;
+                    g_NoSetup = 1;
+                    g_CommandSetup = 0;
                     i++;
                     continue;
                 }
                 if (!Bstrcasecmp(c+1,"noautoload"))
                 {
                     initprintf("Autoload disabled\n");
-                    NoAutoLoad = 1;
+                    g_NoAutoLoad = 1;
                     i++;
                     continue;
                 }
                 if (!Bstrcasecmp(c+1,"keepaddr"))
                 {
-                    keepaddr = 1;
+                    g_KeepAddr = 1;
                     i++;
                     continue;
                 }
@@ -8729,9 +8731,9 @@ static void checkcommandline(int argc,const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        NoSetup = TRUE;
+                        g_NoSetup = TRUE;
                         networkmode = 1;
-                        netcfg = (char *)argv[i+1];
+                        CommandNet = (char *)argv[i+1];
                         i++;
                     }
                     i++;
@@ -8739,7 +8741,7 @@ static void checkcommandline(int argc,const char **argv)
                 }
                 if (!Bstrcasecmp(c+1,"net"))
                 {
-                    NoSetup = TRUE;
+                    g_NoSetup = TRUE;
                     firstnet = i;
                     netparamcount = argc - i - 1;
                     netparam = (char **)calloc(netparamcount, sizeof(char**));
@@ -8774,7 +8776,7 @@ static void checkcommandline(int argc,const char **argv)
                 }
                 if (!Bstrcasecmp(c+1,"nologo"))
                 {
-                    nologo = 1;
+                    g_NoLogo = 1;
                     i++;
                     continue;
                 }
@@ -8918,12 +8920,12 @@ static void checkcommandline(int argc,const char **argv)
                     c++;
                     if (*c == 's' || *c == 'S')
                     {
-                        CommandSoundToggleOff = 2;
+                        g_NoSound = 2;
                         initprintf("Sound off.\n");
                     }
                     else if (*c == 'm' || *c == 'M')
                     {
-                        CommandMusicToggleOff = 1;
+                        g_NoMusic = 1;
                         initprintf("Music off.\n");
                     }
                     else if (*c == 'd' || *c == 'D')
@@ -9085,12 +9087,12 @@ static void Logo(void)
     MUSIC_StopSong();
     FX_StopAllSounds(); // JBF 20031228
     clearsoundlocks();  // JBF 20031228
-    if (ud.multimode < 2 && (logoflags & LOGO_FLAG_ENABLED) && !nologo)
+    if (ud.multimode < 2 && (logoflags & LOGO_FLAG_ENABLED) && !g_NoLogo)
     {
         if (VOLUMEALL && (logoflags & LOGO_FLAG_PLAYANIM))
         {
 
-            if (!KB_KeyWaiting() && nomorelogohack == 0)
+            if (!KB_KeyWaiting() && g_NoLogoAnim == 0)
             {
                 getpackets();
                 playanm("logo.anm",5);
@@ -9465,8 +9467,8 @@ static void Startup(long argc, const char **argv)
 
     if (ud.multimode > 1) sanitizegametype();
 
-    if (CommandSoundToggleOff) SoundToggle = 0;
-    if (CommandMusicToggleOff) MusicToggle = 0;
+    if (g_NoSound) config.SoundToggle = 0;
+    if (g_NoMusic) config.MusicToggle = 0;
 
     if (CommandName)
     {
@@ -9534,12 +9536,12 @@ static void Startup(long argc, const char **argv)
     CONFIG_SetupMouse();
     CONFIG_SetupJoystick();
 
-    CONTROL_JoystickEnabled = (UseJoystick && CONTROL_JoyPresent);
-    CONTROL_MouseEnabled = (UseMouse && CONTROL_MousePresent);
+    CONTROL_JoystickEnabled = (config.UseJoystick && CONTROL_JoyPresent);
+    CONTROL_MouseEnabled = (config.UseMouse && CONTROL_MousePresent);
 
     // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
     for (i=0;i<joynumaxes;i++)
-        setjoydeadzone(i,JoystickAnalogueDead[i],JoystickAnalogueSaturate[i]);
+        setjoydeadzone(i,config.JoystickAnalogueDead[i],config.JoystickAnalogueSaturate[i]);
 
     inittimer(TICRATE);
 
@@ -9558,15 +9560,15 @@ static void Startup(long argc, const char **argv)
     for (i=0;i<MAXPLAYERS;i++)
         playerreadyflag[i] = 0;
 
-    if (netcfg)
+    if (CommandNet)
     {
-        setup_rancid_net(netcfg);
+        setup_rancid_net(CommandNet);
         if (Bstrlen(rancid_ip_strings[MAXPLAYERS-1]))
         {
             initprintf("rmnet: Using %s as sort IP\n",rancid_ip_strings[MAXPLAYERS-1]);
             initprintf("rmnet: %d players\n",rancid_players);
         }
-        netcfg = 0;
+        CommandNet = NULL;
     }
 
     //initmultiplayers(netparamcount,netparam, 0,0,0);
@@ -9639,7 +9641,7 @@ static void sendplayerupdate(void)
     buf[l++] = 0;
 
     buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
-    buf[l++] = ps[myconnectindex].auto_aim = AutoAim;
+    buf[l++] = ps[myconnectindex].auto_aim = config.AutoAim;
     buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
     buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
 
@@ -9741,7 +9743,7 @@ void updateplayer(void)
         int j;
 
         ps[myconnectindex].aim_mode = ud.mouseaiming;
-        ps[myconnectindex].auto_aim = AutoAim;
+        ps[myconnectindex].auto_aim = config.AutoAim;
         ps[myconnectindex].weaponswitch = ud.weaponswitch;
         ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
         j = ps[myconnectindex].team;
@@ -9912,7 +9914,7 @@ void app_main(int argc,const char **argv)
 #endif
 
 #ifdef _WIN32
-    checkforupdates = -1;
+    config.CheckForUpdates = -1;
 #endif
 
     i = CONFIG_ReadSetup();
@@ -9926,28 +9928,28 @@ void app_main(int argc,const char **argv)
                    "on your hard disk to store textures in your video card's native format, enabling them to load dramatically "
                    "faster after the first time they are loaded.\n\n"
                    "You will generally want to say 'yes' here, especially if using the HRP.");
-        if (i) useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
+        if (i) config.useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
     }
 #endif
 
 #ifdef _WIN32
-    if (checkforupdates == -1)
+    if (config.CheckForUpdates == -1)
     {
         i=wm_ynbox("Automatic Release Notification",
                    "Would you like EDuke32 to automatically check for new releases "
                    "at startup?");
-        checkforupdates = 0;
-        if (i) checkforupdates = 1;
+        config.CheckForUpdates = 0;
+        if (i) config.CheckForUpdates = 1;
     }
 
-    if (checkforupdates == 1)
+    if (config.CheckForUpdates == 1)
     {
-        if (time(NULL) - lastupdatecheck > UPDATEINTERVAL)
+        if (time(NULL) - config.LastUpdateCheck > UPDATEINTERVAL)
         {
             if (getversionfromwebsite(tempbuf))
             {
-                lastupdatecheck = time(NULL);
+                config.LastUpdateCheck = time(NULL);
 
                 if (atol(tempbuf) > BUILDDATE)
                 {
@@ -10003,19 +10005,19 @@ void app_main(int argc,const char **argv)
             if (!first) first = fg;
             if (!Bstrcasecmp(fg->name, defaultduke3dgrp))
             {
-                gametype = grpfiles[i].game;
+                g_GameType = grpfiles[i].game;
                 break;
             }
         }
         if (!fg && first)
         {
             Bstrcpy(defaultduke3dgrp, first->name);
-            gametype = first->game;
+            g_GameType = first->game;
         }
     }
 
 #if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2))
-    if (i < 0 || (!NoSetup && ForceSetup) || CommandSetup)
+    if (i < 0 || (!g_NoSetup && config.ForceSetup) || g_CommandSetup)
     {
         if (quitevent || !startwin_run())
         {
@@ -10053,7 +10055,7 @@ void app_main(int argc,const char **argv)
     else
         initprintf("Using group file '%s' as main group file.\n", duke3dgrp);
 
-    if (!NoAutoLoad)
+    if (!g_NoAutoLoad)
     {
         getfilenames("autoload","*.grp");
         while (findfiles) { Bsprintf(tempbuf,"autoload/%s",findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
@@ -10081,7 +10083,7 @@ void app_main(int argc,const char **argv)
             {
                 groupfile = j;
                 initprintf("Using group file '%s'.\n",CommandGrps->str);
-                if (!NoAutoLoad)
+                if (!g_NoAutoLoad)
                     autoloadgrps(CommandGrps->str);
             }
 
@@ -10095,7 +10097,7 @@ void app_main(int argc,const char **argv)
     i = kopen4load("DUKESW.BIN",1); // JBF 20030810
     if (i!=-1)
     {
-        shareware = 1;
+        g_Shareware = 1;
         kclose(i);
     }
 
@@ -10195,7 +10197,7 @@ void app_main(int argc,const char **argv)
     OSD_SetVersionString(HEAD2,0,2);
     registerosdcommands();
 
-    if (setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP) < 0)
+    if (setgamemode(config.ScreenMode,config.ScreenWidth,config.ScreenHeight,config.ScreenBPP) < 0)
     {
         int i = 0;
         int xres[] = {800,640,320};
@@ -10203,7 +10205,7 @@ void app_main(int argc,const char **argv)
         int bpp[] = {32,16,8};
 
         initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n",
-                   ScreenWidth,ScreenHeight,ScreenBPP,ScreenMode?"fullscreen":"windowed");
+                   config.ScreenWidth,config.ScreenHeight,config.ScreenBPP,config.ScreenMode?"fullscreen":"windowed");
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
         while (setgamemode(0,xres[i],yres[i],bpp[i]) < 0)
@@ -10218,9 +10220,9 @@ void app_main(int argc,const char **argv)
             i++;
         }
 #endif
-        ScreenWidth = xres[i];
-        ScreenHeight = yres[i];
-        ScreenBPP = bpp[i];
+        config.ScreenWidth = xres[i];
+        config.ScreenHeight = yres[i];
+        config.ScreenBPP = bpp[i];
     }
 
     initprintf("Checking music inits...\n");
@@ -10299,14 +10301,14 @@ MAIN_LOOP_RESTART:
     {
         FX_StopAllSounds();
         clearsoundlocks();
-        nomorelogohack = 1;
+        g_NoLogoAnim = 1;
         goto MAIN_LOOP_RESTART;
     }
 
-    ud.auto_run = RunMode;
-    ud.showweapons = ShowOpponentWeapons;
+    ud.auto_run = config.RunMode;
+    ud.showweapons = config.ShowOpponentWeapons;
     ps[myconnectindex].aim_mode = ud.mouseaiming;
-    ps[myconnectindex].auto_aim = AutoAim;
+    ps[myconnectindex].auto_aim = config.AutoAim;
     ps[myconnectindex].weaponswitch = ud.weaponswitch;
     ud.pteam[myconnectindex] = ud.team;
 
@@ -11928,7 +11930,7 @@ FRAGBONUS:
 
     if (playerswhenstarted > 1 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_SCORESHEET))
     {
-        if (!(MusicToggle == 0 || MusicDevice < 0))
+        if (!(config.MusicToggle == 0 || config.MusicDevice < 0))
             sound(BONUSMUSIC);
 
         rotatesprite(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64,0,0,xdim-1,ydim-1);
@@ -12033,7 +12035,7 @@ FRAGBONUS:
 
     gametext(160,192,"PRESS ANY KEY TO CONTINUE",16,2+8+16);
 
-    if (!(MusicToggle == 0 || MusicDevice < 0))
+    if (!(config.MusicToggle == 0 || config.MusicDevice < 0))
         sound(BONUSMUSIC);
 
     nextpage();

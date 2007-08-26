@@ -359,7 +359,7 @@ static int osdcmd_restartsound(const osdfuncparm_t *parm)
     FX_StopAllSounds();
     clearsoundlocks();
 
-    if (MusicToggle == 1)
+    if (config.MusicToggle == 1)
     {
         if (ud.recstat != 2 && ps[myconnectindex].gm&MODE_GAME)
         {
@@ -375,9 +375,9 @@ static int osdcmd_restartsound(const osdfuncparm_t *parm)
 static int osdcmd_restartvid(const osdfuncparm_t *parm)
 {
     resetvideomode();
-    if (setgamemode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP))
+    if (setgamemode(config.ScreenMode,config.ScreenWidth,config.ScreenHeight,config.ScreenBPP))
         gameexit("restartvid: Reset failed...\n");
-    onvideomodechange(ScreenBPP>8);
+    onvideomodechange(config.ScreenBPP>8);
     vscrn();
 
     return OSDCMD_OK;
@@ -385,8 +385,8 @@ static int osdcmd_restartvid(const osdfuncparm_t *parm)
 
 static int osdcmd_vidmode(const osdfuncparm_t *parm)
 {
-    int newbpp = ScreenBPP, newwidth = ScreenWidth,
-                                       newheight = ScreenHeight, newfs = ScreenMode;
+    int newbpp = config.ScreenBPP, newwidth = config.ScreenWidth,
+                 newheight = config.ScreenHeight, newfs = config.ScreenMode;
     if (parm->numparms < 1 || parm->numparms > 4) return OSDCMD_SHOWHELP;
 
     switch (parm->numparms)
@@ -411,14 +411,14 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
     if (setgamemode(newfs,newwidth,newheight,newbpp))
     {
         initprintf("vidmode: Mode change failed!\n");
-        if (setgamemode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP))
+        if (setgamemode(config.ScreenMode, config.ScreenWidth, config.ScreenHeight, config.ScreenBPP))
             gameexit("vidmode: Reset failed!\n");
     }
-    ScreenBPP = newbpp;
-    ScreenWidth = newwidth;
-    ScreenHeight = newheight;
-    ScreenMode = newfs;
-    onvideomodechange(ScreenBPP>8);
+    config.ScreenBPP = newbpp;
+    config.ScreenWidth = newwidth;
+    config.ScreenHeight = newheight;
+    config.ScreenMode = newfs;
+    onvideomodechange(config.ScreenBPP>8);
     vscrn();
     return OSDCMD_OK;
 }
@@ -622,7 +622,7 @@ cvar[] =
 {
     { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_INT, 0, 0, 3 },
 
-    { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&AutoAim, CVAR_INT|256, 0, 0, 2 },
+    { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&config.AutoAim, CVAR_INT|256, 0, 0, 2 },
     { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
     { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT|256, 0, 0, 2 },
 
@@ -635,12 +635,12 @@ cvar[] =
 
     { "cl_messagetime", "cl_messagetime: length of time to display multiplayer chat messages\n", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
 
-    { "cl_mousebias", "cl_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time\n", (void*)&MouseBias, CVAR_INT, 0, 0, 32 },
-    { "cl_mousefilter", "cl_mousefilter: amount of mouse movement to filter out\n", (void*)&MouseFilter, CVAR_INT, 0, 0, 512 },
+    { "cl_mousebias", "cl_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time\n", (void*)&config.MouseBias, CVAR_INT, 0, 0, 32 },
+    { "cl_mousefilter", "cl_mousefilter: amount of mouse movement to filter out\n", (void*)&config.MouseFilter, CVAR_INT, 0, 0, 512 },
 
     { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
     { "cl_showfps", "cl_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
-    { "cl_smoothinput", "cl_smoothinput: enable/disable input smoothing\n", (void*)&SmoothInput, CVAR_BOOL, 0, 0, 1 },
+    { "cl_smoothinput", "cl_smoothinput: enable/disable input smoothing\n", (void*)&config.SmoothInput, CVAR_BOOL, 0, 0, 1 },
 
     { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing\n", (void*)&ud.viewbob, CVAR_BOOL, 0, 0, 1 },
 
@@ -657,17 +657,17 @@ cvar[] =
     { "pr_verbosity", "pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
     { "pr_wireframe", "pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT, 0, 0, 1 },
 #endif
-    { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&useprecache, CVAR_BOOL, 0, 0, 1 },
+    { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&config.useprecache, CVAR_BOOL, 0, 0, 1 },
 
-    { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
-    { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&VoiceToggle, CVAR_INT, 0, 0, 2 },
-    { "snd_fxvolume", "snd_fxvolume: volume of sound effects", (void*)&FXVolume, CVAR_INT, 0, 0, 255 },
-    { "snd_mixrate", "snd_mixrate: sound mixing rate", (void*)&MixRate, CVAR_INT, 0, 0, 48000 },
-    { "snd_musvolume", "snd_musvolume: volume of midi music", (void*)&MusicVolume, CVAR_INT, 0, 0, 255 },
-    { "snd_numbits", "snd_numbits: sound bits", (void*)&NumBits, CVAR_INT, 0, 8, 16 },
-    { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&NumChannels, CVAR_INT, 0, 0, 2 },
-    { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&NumVoices, CVAR_INT, 0, 0, 32 },
-    { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ReverseStereo, CVAR_BOOL, 0, 0, 16 },
+    { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&config.AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
+    { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&config.VoiceToggle, CVAR_INT, 0, 0, 2 },
+    { "snd_fxvolume", "snd_fxvolume: volume of sound effects", (void*)&config.FXVolume, CVAR_INT, 0, 0, 255 },
+    { "snd_mixrate", "snd_mixrate: sound mixing rate", (void*)&config.MixRate, CVAR_INT, 0, 0, 48000 },
+    { "snd_musvolume", "snd_musvolume: volume of midi music", (void*)&config.MusicVolume, CVAR_INT, 0, 0, 255 },
+    { "snd_numbits", "snd_numbits: sound bits", (void*)&config.NumBits, CVAR_INT, 0, 8, 16 },
+    { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&config.NumChannels, CVAR_INT, 0, 0, 2 },
+    { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&config.NumVoices, CVAR_INT, 0, 0, 32 },
+    { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&config.ReverseStereo, CVAR_BOOL, 0, 0, 16 },
 };
 
 static int osdcmd_cvar_set(const osdfuncparm_t *parm)
@@ -856,12 +856,12 @@ static int osdcmd_usemousejoy(const osdfuncparm_t *parm)
     {
         if (showval)
         {
-            OSD_Printf("usemouse is %d\n", UseMouse);
+            OSD_Printf("usemouse is %d\n", config.UseMouse);
         }
         else
         {
-            UseMouse = (atoi(parm->parms[0]) != 0);
-            CONTROL_MouseEnabled = (UseMouse && CONTROL_MousePresent);
+            config.UseMouse = (atoi(parm->parms[0]) != 0);
+            CONTROL_MouseEnabled = (config.UseMouse && CONTROL_MousePresent);
         }
         return OSDCMD_OK;
     }
@@ -869,12 +869,12 @@ static int osdcmd_usemousejoy(const osdfuncparm_t *parm)
     {
         if (showval)
         {
-            OSD_Printf("usejoystick is %d\n", UseJoystick);
+            OSD_Printf("usejoystick is %d\n", config.UseJoystick);
         }
         else
         {
-            UseJoystick = (atoi(parm->parms[0]) != 0);
-            CONTROL_JoystickEnabled = (UseJoystick && CONTROL_JoyPresent);
+            config.UseJoystick = (atoi(parm->parms[0]) != 0);
+            CONTROL_JoystickEnabled = (config.UseJoystick && CONTROL_JoyPresent);
         }
         return OSDCMD_OK;
     }

@@ -34,7 +34,6 @@ extern char pow2char[];
 
 extern int everyothertime;
 static int which_palookup = 9;
-int useprecache = 1;
 char numl;
 short spritecache[MAXTILES][3];
 
@@ -276,8 +275,8 @@ static int getsound(unsigned int num)
     short fp;
     long   l;
 
-    if (num >= NUM_SOUNDS || SoundToggle == 0) return 0;
-    if (FXDevice < 0) return 0;
+    if (num >= NUM_SOUNDS || config.SoundToggle == 0) return 0;
+    if (config.FXDevice < 0) return 0;
 
     if (!sounds[num][0]) return 0;
     fp = kopen4load(sounds[num],loadfromgrouponly);
@@ -302,7 +301,7 @@ static void precachenecessarysounds(void)
 {
     int i, j;
 
-    if (FXDevice < 0) return;
+    if (config.FXDevice < 0) return;
     j = 0;
 
     for (i=0;i<NUM_SOUNDS;i++)
@@ -452,7 +451,7 @@ void cacheit(void)
                 loadtile((short)i);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (useprecache)
+            if (config.useprecache)
             {
                 if (precachehightile[0][i>>3] & pow2char[i&7])
                     for (k=0; k<MAXPALOOKUPS && !KB_KeyPressed(sc_Space); k++)
@@ -1162,7 +1161,7 @@ void newgame(int vn,int ln,int sk)
     handleevents();
     getpackets();
 
-    if (globalskillsound >= 0 && FXDevice >= 0 && SoundToggle)
+    if (globalskillsound >= 0 && config.FXDevice >= 0 && config.SoundToggle)
     {
         while (issoundplaying(-1,globalskillsound))
         {

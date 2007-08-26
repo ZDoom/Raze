@@ -48,17 +48,17 @@ extern "C" {
 
 #include "function.h"
 
-extern int conversion, shareware, gametype;
+extern int g_ScriptVersion, g_Shareware, g_GameType;
 
 #define GAMEDUKE 0
 #define GAMENAM 1
 #define GAMEWW2 3
 
-#define VOLUMEALL (shareware==0)
-#define PLUTOPAK (conversion==14)
-#define VOLUMEONE (shareware==1)
-#define NAM (gametype&1)
-#define WW2GI (gametype&2)
+#define VOLUMEALL (g_Shareware==0)
+#define PLUTOPAK (g_ScriptVersion==14)
+#define VOLUMEONE (g_Shareware==1)
+#define NAM (g_GameType&1)
+#define WW2GI (g_GameType&2)
 
 #define MAXSLEEPDIST  16384
 #define SLEEPTIME 24*64
@@ -464,7 +464,6 @@ extern char scantoascwithshift[128];
 
 //extern fx_device device;
 extern SAMPLE Sound[ NUM_SOUNDS ];
-extern int32 VoiceToggle,AmbienceToggle;
 extern SOUNDOWNER SoundOwner[NUM_SOUNDS][4];
 
 extern char playerreadyflag[MAXPLAYERS],playerquitflag[MAXPLAYERS];
@@ -578,7 +577,6 @@ enum gametypeflags {
 extern char *level_file_names[MAXVOLUMES*MAXLEVELS];
 extern char num_volumes;
 
-extern int32 SoundToggle,MusicToggle;
 extern int lastsavedpos;
 extern int restorepalette;
 extern int packetrate;
@@ -646,8 +644,6 @@ extern long myaimmode, myaimstat, omyaimstat;
 #define TILE_TILT     (MAXTILES-2)
 #define TILE_ANIM     (MAXTILES-4)
 #define TILE_VIEWSCR  (MAXTILES-5)
-
-extern int useprecache;
 
 enum events {
     EVENT_INIT,

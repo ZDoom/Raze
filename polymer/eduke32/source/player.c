@@ -2749,7 +2749,7 @@ void getinput(int snum)
     {
         int32 i;
         if (myaimmode) i = analog_lookingupanddown;
-        else i = MouseAnalogueAxes[1];
+        else i = config.MouseAnalogueAxes[1];
 
         if (i != mouseyaxismode)
         {
@@ -2760,39 +2760,39 @@ void getinput(int snum)
 
     CONTROL_GetInput(&info);
 
-    if (MouseFilter)
+    if (config.MouseFilter)
     {
         if (info.dpitch > 0)
         {
-            if (info.dpitch > MouseFilter)
-                info.dpitch -= MouseFilter;
+            if (info.dpitch > config.MouseFilter)
+                info.dpitch -= config.MouseFilter;
             else info.dpitch = 0;
         }
         else if (info.dpitch < 0)
         {
-            if (info.dpitch < -MouseFilter)
-                info.dpitch += MouseFilter;
+            if (info.dpitch < -config.MouseFilter)
+                info.dpitch += config.MouseFilter;
             else info.dpitch = 0;
         }
         if (info.dyaw > 0)
         {
-            if (info.dyaw > MouseFilter)
-                info.dyaw -= MouseFilter;
+            if (info.dyaw > config.MouseFilter)
+                info.dyaw -= config.MouseFilter;
             else info.dyaw = 0;
         }
         else if (info.dyaw < 0)
         {
-            if (info.dyaw < -MouseFilter)
-                info.dyaw += MouseFilter;
+            if (info.dyaw < -config.MouseFilter)
+                info.dyaw += config.MouseFilter;
             else info.dyaw = 0;
         }
     }
 
-    if (MouseBias)
+    if (config.MouseBias)
     {
         if (klabs(info.dyaw) > klabs(info.dpitch))
-            info.dpitch /= MouseBias;
-        else info.dyaw /= MouseBias;
+            info.dpitch /= config.MouseBias;
+        else info.dyaw /= config.MouseBias;
     }
 
     tics = totalclock-lastcontroltime;
@@ -2883,7 +2883,7 @@ void getinput(int snum)
 
     svel = vel = angvel = horiz = 0;
 
-    if (SmoothInput)
+    if (config.SmoothInput)
     {
         if (BUTTON(gamefunc_Strafe))
         {
@@ -3597,7 +3597,7 @@ void processinput(int snum)
                         Bstrcpy(name2,&ud.user_name[p->frag_ps][0]);
 
                         Bsprintf(tempbuf,fta_quotes[PPDEATHSTRINGS+i+(mulscale(krand(), 3, 16)*10)],name1,name2);
-                        if (ScreenWidth >= 800)
+                        if (config.ScreenWidth >= 800)
                             adduserquote(tempbuf);
                         else OSD_Printf("%s\n",stripcolorcodes(tempbuf));
                     }
@@ -3618,7 +3618,7 @@ void processinput(int snum)
 
                     if (ud.deathmsgs)
                     {
-                        if (ScreenWidth >= 800)
+                        if (config.ScreenWidth >= 800)
                             adduserquote(tempbuf);
                         else OSD_Printf("%s\n",stripcolorcodes(tempbuf));
                     }

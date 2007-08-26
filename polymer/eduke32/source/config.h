@@ -27,45 +27,69 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define SETUPNAMEPARM "SETUPFILE"
 
-extern int32 FXDevice;
-extern int32 MusicDevice;
-extern int32 FXVolume;
-extern int32 MusicVolume;
-//extern fx_blaster_config BlasterConfig;
-extern int32 NumVoices;
-extern int32 NumChannels;
-extern int32 NumBits;
-extern int32 MixRate;
-//extern int32 MidiPort;
-extern int32 ReverseStereo;
+typedef struct {
+	//
+	// Sound variables
+	//
+	int32 FXDevice;
+	int32 MusicDevice;
+	int32 FXVolume;
+	int32 MusicVolume;
+	int32 SoundToggle;
+	int32 MusicToggle;
+	int32 VoiceToggle;
+	int32 AmbienceToggle;
 
-extern int32 UseJoystick, UseMouse;
-extern int32 RunMode;
-extern int32 AutoAim;
-extern int32 MouseFilter, MouseBias;
-extern int32 SmoothInput;
-extern int32 ShowOpponentWeapons;
-extern int32 ScreenMode;
-extern int32 ScreenWidth;
-extern int32 ScreenHeight;
-extern int32 ScreenBPP;
-extern int32 ForceSetup;
+	int32 NumVoices;
+	int32 NumChannels;
+	int32 NumBits;
+	int32 MixRate;
+	
+	int32 ReverseStereo;
 
-extern byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
-extern int32 MouseFunctions[MAXMOUSEBUTTONS][2];
-extern int32 MouseDigitalFunctions[MAXMOUSEAXES][2];
-extern int32 MouseAnalogueAxes[MAXMOUSEAXES];
-extern int32 MouseAnalogueScale[MAXMOUSEAXES];
-extern int32 JoystickFunctions[MAXJOYBUTTONS][2];
-extern int32 JoystickDigitalFunctions[MAXJOYAXES][2];
-extern int32 JoystickAnalogueAxes[MAXJOYAXES];
-extern int32 JoystickAnalogueScale[MAXJOYAXES];
-extern int32 JoystickAnalogueDead[MAXJOYAXES];
-extern int32 JoystickAnalogueSaturate[MAXJOYAXES];
+	int32 UseJoystick;
+	int32 UseMouse;
+	int32 RunMode;
+	int32 AutoAim;
+	int32 ShowOpponentWeapons;
+	int32 MouseFilter,MouseBias;
+	int32 SmoothInput;
 
-#ifdef _WIN32
-extern int32 checkforupdates, lastupdatecheck;
-#endif
+	// JBF 20031211: Store the input settings because
+	// (currently) jmact can't regurgitate them
+	byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
+	int32 MouseFunctions[MAXMOUSEBUTTONS][2];
+	int32 MouseDigitalFunctions[MAXMOUSEAXES][2];
+	int32 MouseAnalogueAxes[MAXMOUSEAXES];
+	int32 MouseAnalogueScale[MAXMOUSEAXES];
+	int32 JoystickFunctions[MAXJOYBUTTONS][2];
+	int32 JoystickDigitalFunctions[MAXJOYAXES][2];
+	int32 JoystickAnalogueAxes[MAXJOYAXES];
+	int32 JoystickAnalogueScale[MAXJOYAXES];
+	int32 JoystickAnalogueDead[MAXJOYAXES];
+	int32 JoystickAnalogueSaturate[MAXJOYAXES];
+
+	//
+	// Screen variables
+	//
+
+	int32 ScreenMode;
+
+	int32 ScreenWidth;
+	int32 ScreenHeight;
+	int32 ScreenBPP;
+
+	int32 ForceSetup;
+
+	int32 scripthandle;
+	int32 setupread;
+
+	int32 CheckForUpdates;
+	int32 LastUpdateCheck;
+	int32 useprecache;
+} config_t;
+
+extern config_t config;
 
 int32 CONFIG_ReadSetup( void );
 void CONFIG_GetSetupFilename( void );

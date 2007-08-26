@@ -35,8 +35,6 @@ static long g_x,*g_t;
 static spritetype *g_sp;
 static int killit_flag;
 
-extern int32 scripthandle;
-
 static void DoUserDef(int iSet, int lLabelID, int lVar2)
 {
     long lValue;
@@ -4679,15 +4677,15 @@ static int parse(void)
     {
         int32 i=0;
         insptr++;
-        if (scripthandle < 0) break;
+        if (config.scripthandle < 0) break;
         switch (tw)
         {
         case CON_SAVEGAMEVAR:
             i=GetGameVarID(*insptr, g_i, g_p);
-            SCRIPT_PutNumber(scripthandle, "Gamevars",aGameVars[*insptr++].szLabel,i,false,false);
+            SCRIPT_PutNumber(config.scripthandle, "Gamevars",aGameVars[*insptr++].szLabel,i,false,false);
             break;
         case CON_READGAMEVAR:
-            SCRIPT_GetNumber(scripthandle, "Gamevars",aGameVars[*insptr].szLabel,&i);
+            SCRIPT_GetNumber(config.scripthandle, "Gamevars",aGameVars[*insptr].szLabel,&i);
             SetGameVarID(*insptr++, i, g_i, g_p);
             break;
         }

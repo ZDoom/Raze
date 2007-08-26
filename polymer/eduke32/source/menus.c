@@ -829,11 +829,11 @@ void menus(void)
                         break;
 
                     case 3:
-                        i = AutoAim;
+                        i = config.AutoAim;
                         if (x == io)
-                            AutoAim = (AutoAim == 2) ? 0 : AutoAim+1;
-                        modval(0,2,(int *)&AutoAim,1,probey==3);
-                        if (AutoAim != i)
+                            config.AutoAim = (config.AutoAim == 2) ? 0 : config.AutoAim+1;
+                        modval(0,2,(int *)&config.AutoAim,1,probey==3);
+                        if (config.AutoAim != i)
                             updateplayer();
                         break;
 
@@ -957,7 +957,7 @@ void menus(void)
                     case 3:
                         {
                             char *s[] = { "Off", "All weapons", "Hitscan only" };
-                            gametext(d-50,yy,s[AutoAim],MENUHIGHLIGHT(io),2+8+16);
+                            gametext(d-50,yy,s[config.AutoAim],MENUHIGHLIGHT(io),2+8+16);
                         }
                         break;
 
@@ -1844,7 +1844,7 @@ void menus(void)
             menutext(160,24,0,0,"ABOUT EDUKE32");
 
 cheat_for_port_credits:
-            if (conversion == 13) l = (-2);
+            if (g_ScriptVersion == 13) l = (-2);
             gametext(160,38-l,"GAME PROGRAMMING",0,2+8+16);
             p = "Richard \"TerminX\" Gobeille";
             minitext(161-(Bstrlen(p)<<1), 39+10-l, p, 4, 10+16+128);
@@ -2499,9 +2499,9 @@ cheat_for_port_credits:
                     break;
                 case 3:
                     enabled = usehightile;
-                    if (enabled && x==io) useprecache = !useprecache;
-                    if (enabled) modval(0,1,(int *)&useprecache,1,probey==io);
-                    gametextpal(d,yy, useprecache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    if (enabled && x==io) config.useprecache = !config.useprecache;
+                    if (enabled) modval(0,1,(int *)&config.useprecache,1,probey==io);
+                    gametextpal(d,yy, config.useprecache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 4:
                     enabled = usehightile;
@@ -2510,13 +2510,13 @@ cheat_for_port_credits:
                     gametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 5:
-                    enabled = (glusetexcompr && usehightile && useprecache);
+                    enabled = (glusetexcompr && usehightile && config.useprecache);
                     if (enabled && x==io) glusetexcache = !glusetexcache;
                     if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==io);
                     gametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 6:
-                    enabled = (glusetexcompr && usehightile && useprecache && glusetexcache);
+                    enabled = (glusetexcompr && usehightile && config.useprecache && glusetexcache);
                     if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
                     if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==io);
                     gametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
@@ -2679,8 +2679,8 @@ cheat_for_port_credits:
                 case 7:
                     if (x==io) ud.showweapons = 1-ud.showweapons;
                     modval(0,1,(int *)&ud.showweapons,1,probey==io);
-                    ShowOpponentWeapons = ud.showweapons;
-                    gametextpal(d,yy, ShowOpponentWeapons ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    config.ShowOpponentWeapons = ud.showweapons;
+                    gametextpal(d,yy, config.ShowOpponentWeapons ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
                 case 8:
                     if (x==io) ud.democams = 1-ud.democams;
@@ -2834,18 +2834,18 @@ cheat_for_port_credits:
                     gametextpal(d,yy, ud.idplayers ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
                 case 7:
-                    if (x==io) ForceSetup = 1-ForceSetup;
-                    modval(0,1,(int *)&ForceSetup,1,probey==io);
-                    gametextpal(d,yy, ForceSetup ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    if (x==io) config.ForceSetup = 1-config.ForceSetup;
+                    modval(0,1,(int *)&config.ForceSetup,1,probey==io);
+                    gametextpal(d,yy, config.ForceSetup ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
 #ifdef _WIN32
                 case 8:
-                    i = checkforupdates;
-                    if (x==io) checkforupdates = 1-checkforupdates;
-                    modval(0,1,(int *)&checkforupdates,1,probey==io);
-                    if (checkforupdates != i)
-                        lastupdatecheck = 0;
-                    gametextpal(d,yy, checkforupdates ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    i = config.CheckForUpdates;
+                    if (x==io) config.CheckForUpdates = 1-config.CheckForUpdates;
+                    modval(0,1,(int *)&config.CheckForUpdates,1,probey==io);
+                    if (config.CheckForUpdates != i)
+                        config.LastUpdateCheck = 0;
+                    gametextpal(d,yy, config.CheckForUpdates ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
                 case 9:
 #else
@@ -3170,10 +3170,10 @@ cheat_for_port_credits:
                 curvidset = newvidset;
                 changesmade = 0;
 
-                ScreenMode = fullscreen;
-                ScreenWidth = xdim;
-                ScreenHeight = ydim;
-                ScreenBPP = bpp;
+                config.ScreenMode = fullscreen;
+                config.ScreenWidth = xdim;
+                config.ScreenHeight = ydim;
+                config.ScreenBPP = bpp;
             }
             break;
 
@@ -3339,8 +3339,8 @@ cheat_for_port_credits:
         }
         else if (KB_KeyPressed(sc_Delete))
         {
-            KeyboardKeys[probey][currentlist] = 0;
-            CONTROL_MapKey(probey, KeyboardKeys[probey][0], KeyboardKeys[probey][1]);
+            config.KeyboardKeys[probey][currentlist] = 0;
+            CONTROL_MapKey(probey, config.KeyboardKeys[probey][0], config.KeyboardKeys[probey][1]);
             sound(KICK_HIT);
             KB_ClearKeyDown(sc_Delete);
         }
@@ -3354,14 +3354,14 @@ cheat_for_port_credits:
             for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
             minitextshade(70,34+l*8,tempbuf,(m+l == probey)?0:16,1,10+16);
 
-            //strcpy(tempbuf, KB_ScanCodeToString(KeyboardKeys[m+l][0]));
-            strcpy(tempbuf, (char *)getkeyname(KeyboardKeys[m+l][0]));
+            //strcpy(tempbuf, KB_ScanCodeToString(config.KeyboardKeys[m+l][0]));
+            strcpy(tempbuf, (char *)getkeyname(config.KeyboardKeys[m+l][0]));
             if (!tempbuf[0]) strcpy(tempbuf, "  -");
             minitextshade(70+100,34+l*8,tempbuf,
                           (m+l == probey && !currentlist?0:16),2,10+16);
 
-            //strcpy(tempbuf, KB_ScanCodeToString(KeyboardKeys[m+l][1]));
-            strcpy(tempbuf, (char *)getkeyname(KeyboardKeys[m+l][1]));
+            //strcpy(tempbuf, KB_ScanCodeToString(config.KeyboardKeys[m+l][1]));
+            strcpy(tempbuf, (char *)getkeyname(config.KeyboardKeys[m+l][1]));
             if (!tempbuf[0]) strcpy(tempbuf, "  -");
             minitextshade(70+120+34,34+l*8,tempbuf,
                           (m+l == probey && currentlist?0:16),2,10+16);
@@ -3397,11 +3397,11 @@ cheat_for_port_credits:
                 {
                     sound(PISTOL_BODYHIT);
 
-                    KeyboardKeys[function][whichkey] = KB_GetLastScanCode();
+                    config.KeyboardKeys[function][whichkey] = KB_GetLastScanCode();
                     if (function == gamefunc_Show_Console)
                         OSD_CaptureKey(KB_GetLastScanCode());
                     else
-                        CONTROL_MapKey(function, KeyboardKeys[function][0], KeyboardKeys[function][1]);
+                        CONTROL_MapKey(function, config.KeyboardKeys[function][0], config.KeyboardKeys[function][1]);
                 }
 
                 cmenu(204);
@@ -3459,9 +3459,9 @@ cheat_for_port_credits:
             function = 0;
             whichkey = x;
             if (x < (MAXMOUSEBUTTONS-2)*2)
-                probey = MouseFunctions[x>>1][x&1];
+                probey = config.MouseFunctions[x>>1][x&1];
             else
-                probey = MouseFunctions[x-4][0];
+                probey = config.MouseFunctions[x-4][0];
             if (probey < 0) probey = NUMGAMEFUNCTIONS-1;
             break;
         }
@@ -3474,16 +3474,16 @@ cheat_for_port_credits:
                 if (l&1)
                 {
                     Bstrcpy(tempbuf, "Double ");
-                    m = MouseFunctions[l>>1][1];
+                    m = config.MouseFunctions[l>>1][1];
                 }
                 else
-                    m = MouseFunctions[l>>1][0];
+                    m = config.MouseFunctions[l>>1][0];
                 Bstrcat(tempbuf, mousebuttonnames[l>>1]);
             }
             else
             {
                 Bstrcpy(tempbuf, mousebuttonnames[l-(MAXMOUSEBUTTONS-2)]);
-                m = MouseFunctions[l-(MAXMOUSEBUTTONS-2)][0];
+                m = config.MouseFunctions[l-(MAXMOUSEBUTTONS-2)][0];
             }
 
             minitextshade(c+20,36+l*8,tempbuf,(l==probey)?0:16,1,10+16);
@@ -3574,12 +3574,12 @@ cheat_for_port_credits:
             {
                 if (whichkey < (MAXMOUSEBUTTONS-2)*2)
                 {
-                    MouseFunctions[whichkey>>1][whichkey&1] = x;
+                    config.MouseFunctions[whichkey>>1][whichkey&1] = x;
                     CONTROL_MapButton(x, whichkey>>1, whichkey&1, controldevice_mouse);
                 }
                 else
                 {
-                    MouseFunctions[whichkey-(MAXMOUSEBUTTONS-2)][0] = x;
+                    config.MouseFunctions[whichkey-(MAXMOUSEBUTTONS-2)][0] = x;
                     CONTROL_MapButton(x, whichkey-(MAXMOUSEBUTTONS-2), 0, controldevice_mouse);
                 }
                 cmenu(205);
@@ -3587,7 +3587,7 @@ cheat_for_port_credits:
             }
             else if (function == 1)
             {
-                MouseDigitalFunctions[whichkey>>1][whichkey&1] = x;
+                config.MouseDigitalFunctions[whichkey>>1][whichkey&1] = x;
                 CONTROL_MapDigitalAxis(whichkey>>1, x, whichkey&1, controldevice_mouse);
                 cmenu(212);
                 probey = 3+(whichkey^2);
@@ -3596,12 +3596,12 @@ cheat_for_port_credits:
             {
                 if (whichkey < 2*joynumbuttons)
                 {
-                    JoystickFunctions[whichkey>>1][whichkey&1] = x;
+                    config.JoystickFunctions[whichkey>>1][whichkey&1] = x;
                     CONTROL_MapButton(x, whichkey>>1, whichkey&1, controldevice_joystick);
                 }
                 else
                 {
-                    JoystickFunctions[joynumbuttons + (whichkey-2*joynumbuttons)][0] = x;
+                    config.JoystickFunctions[joynumbuttons + (whichkey-2*joynumbuttons)][0] = x;
                     CONTROL_MapButton(x, joynumbuttons + (whichkey-2*joynumbuttons), 0, controldevice_joystick);
                 }
                 cmenu(207);
@@ -3609,7 +3609,7 @@ cheat_for_port_credits:
             }
             else if (function == 3)
             {
-                JoystickDigitalFunctions[whichkey>>1][whichkey&1] = x;
+                config.JoystickDigitalFunctions[whichkey>>1][whichkey&1] = x;
                 CONTROL_MapDigitalAxis(whichkey>>1, x, whichkey&1, controldevice_joystick);
                 cmenu((whichkey>>2)+208);
                 probey = 1+((whichkey>>1)&1)*4+(whichkey&1);
@@ -3739,7 +3739,7 @@ cheat_for_port_credits:
             function = 1;
             whichkey = (x-3)^2; // flip the actual axis number
             cmenu(211);
-            probey = MouseDigitalFunctions[whichkey>>1][whichkey&1];
+            probey = config.MouseDigitalFunctions[whichkey>>1][whichkey&1];
             if (probey < 0) probey = NUMGAMEFUNCTIONS-1;
             break;
         }
@@ -3755,79 +3755,79 @@ cheat_for_port_credits:
         }
 
         menutext(c,46,MENUHIGHLIGHT(0),0,"X-AXIS SCALE");
-        l = (MouseAnalogueScale[0]+262144) >> 13;
+        l = (config.MouseAnalogueScale[0]+262144) >> 13;
         bar(c+160+40,46,(short *)&l,1,x==0,MENUHIGHLIGHT(0),0);
         l = (l<<13)-262144;
-        if (l != MouseAnalogueScale[0])
+        if (l != config.MouseAnalogueScale[0])
         {
             CONTROL_SetAnalogAxisScale(0, l, controldevice_mouse);
-            MouseAnalogueScale[0] = l;
+            config.MouseAnalogueScale[0] = l;
         }
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
         gametext(c+160-16,46-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
 
         menutext(c,46+16,MENUHIGHLIGHT(1),0,"Y-AXIS SCALE");
-        l = (MouseAnalogueScale[1]+262144) >> 13;
+        l = (config.MouseAnalogueScale[1]+262144) >> 13;
         bar(c+160+40,46+16,(short *)&l,1,x==1,MENUHIGHLIGHT(1),0);
         l = (l<<13)-262144;
-        if (l != MouseAnalogueScale[1])
+        if (l != config.MouseAnalogueScale[1])
         {
             CONTROL_SetAnalogAxisScale(1, l, controldevice_mouse);
-            MouseAnalogueScale[1] = l;
+            config.MouseAnalogueScale[1] = l;
         }
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
         gametext(c+160-16,46+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
         menutext(c,46+16+16,MENUHIGHLIGHT(2),0,"DEAD ZONE");
-        l = MouseFilter>>1;
+        l = config.MouseFilter>>1;
         bar(c+160+40,46+16+16,(short *)&l,2,x==2,MENUHIGHLIGHT(2),0);
-        MouseFilter = l<<1;
+        config.MouseFilter = l<<1;
         menutext(c,46+16+16+16+8,/*(MENUHIGHLIGHT(3))+(MENUHIGHLIGHT(4))+(MENUHIGHLIGHT(5))+(MENUHIGHLIGHT(6))-24*/0,0,"DIGITAL AXES ACTIONS");
 
-        if (MouseFilter == 0)
+        if (config.MouseFilter == 0)
             Bsprintf(tempbuf," OFF");
-        else if (MouseFilter < 48)
+        else if (config.MouseFilter < 48)
             Bsprintf(tempbuf," LOW");
-        else if (MouseFilter < 96)
+        else if (config.MouseFilter < 96)
             Bsprintf(tempbuf," MED");
-        else if (MouseFilter < 128)
+        else if (config.MouseFilter < 128)
             Bsprintf(tempbuf,"HIGH");
 
         gametext(c+160-16,46+16+16-8,tempbuf,MENUHIGHLIGHT(2),2+8+16);
 
 
         gametextpal(c+10,90+16,"UP:",MENUHIGHLIGHT(3),10);
-        if (MouseDigitalFunctions[1][0] < 0)
+        if (config.MouseDigitalFunctions[1][0] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
-            strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[1][0]));
+            strcpy(tempbuf, CONFIG_FunctionNumToName(config.MouseDigitalFunctions[1][0]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,91+16,tempbuf,MENUHIGHLIGHT(3),0,10+16);
 
         gametextpal(c+10,90+16+10,"DOWN:",MENUHIGHLIGHT(4),10);
-        if (MouseDigitalFunctions[1][1] < 0)
+        if (config.MouseDigitalFunctions[1][1] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
-            strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[1][1]));
+            strcpy(tempbuf, CONFIG_FunctionNumToName(config.MouseDigitalFunctions[1][1]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,91+16+10,tempbuf,MENUHIGHLIGHT(4),0,10+16);
 
         gametextpal(c+10,90+16+10+10,"LEFT:",MENUHIGHLIGHT(5),10);
-        if (MouseDigitalFunctions[0][0] < 0)
+        if (config.MouseDigitalFunctions[0][0] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
-            strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[0][0]));
+            strcpy(tempbuf, CONFIG_FunctionNumToName(config.MouseDigitalFunctions[0][0]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,91+16+10+10,tempbuf,MENUHIGHLIGHT(5),0,10+16);
 
         gametextpal(c+10,90+16+10+10+10,"RIGHT:",MENUHIGHLIGHT(6),10);
-        if (MouseDigitalFunctions[0][1] < 0)
+        if (config.MouseDigitalFunctions[0][1] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
-            strcpy(tempbuf, CONFIG_FunctionNumToName(MouseDigitalFunctions[0][1]));
+            strcpy(tempbuf, CONFIG_FunctionNumToName(config.MouseDigitalFunctions[0][1]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,91+16+10+10+10,tempbuf,MENUHIGHLIGHT(6),0,10+16);
@@ -3882,11 +3882,11 @@ cheat_for_port_credits:
             cmenu(211);
             if (x < 2*joynumbuttons)
             {
-                probey = JoystickFunctions[x>>1][x&1];
+                probey = config.JoystickFunctions[x>>1][x&1];
             }
             else
             {
-                probey = JoystickFunctions[joynumbuttons + (x-2*joynumbuttons)][0];
+                probey = config.JoystickFunctions[joynumbuttons + (x-2*joynumbuttons)][0];
             }
             if (probey < 0) probey = NUMGAMEFUNCTIONS-1;
             break;
@@ -3906,7 +3906,7 @@ cheat_for_port_credits:
             if (m+l < 2*joynumbuttons)
             {
                 sprintf(tempbuf, "%s%s", ((l+m)&1)?"Double ":"", getjoyname(1,(l+m)>>1));
-                x = JoystickFunctions[(l+m)>>1][(l+m)&1];
+                x = config.JoystickFunctions[(l+m)>>1][(l+m)&1];
             }
             else
             {
@@ -3914,7 +3914,7 @@ cheat_for_port_credits:
                     { "Up", "Right", "Down", "Left"
                     };
                 sprintf(tempbuf, "Hat %s", directions[(l+m)-2*joynumbuttons]);
-                x = JoystickFunctions[joynumbuttons + ((l+m)-2*joynumbuttons)][0];
+                x = config.JoystickFunctions[joynumbuttons + ((l+m)-2*joynumbuttons)][0];
             }
             minitextshade(80-4,33+l*8,tempbuf,(m+l == probey)?0:16,1,10+16);
 
@@ -4003,19 +4003,19 @@ cheat_for_port_credits:
                 function = 3;
                 whichkey = ((thispage*2+(x==5||x==6)) << 1) + (x==2||x==6);
                 cmenu(211);
-                probey = JoystickDigitalFunctions[whichkey>>1][whichkey&1];
+                probey = config.JoystickDigitalFunctions[whichkey>>1][whichkey&1];
                 if (probey < 0) probey = NUMGAMEFUNCTIONS-1;
                 break;
 
             case 3: // analogues
             case 7:
-                l = JoystickAnalogueAxes[thispage*2+(x==7)];
+                l = config.JoystickAnalogueAxes[thispage*2+(x==7)];
                 if (l == analog_turning) l = analog_strafing;
                 else if (l == analog_strafing) l = analog_lookingupanddown;
                 else if (l == analog_lookingupanddown) l = analog_moving;
                 else if (l == analog_moving) l = -1;
                 else l = analog_turning;
-                JoystickAnalogueAxes[thispage*2+(x==7)] = l;
+                config.JoystickAnalogueAxes[thispage*2+(x==7)] = l;
                 CONTROL_MapAnalogAxis(thispage*2+(x==7),l,controldevice_joystick);
                 {
                     extern int32 mouseyaxismode;	// player.c
@@ -4034,38 +4034,38 @@ cheat_for_port_credits:
                 menutext(42,32+64,0,0,tempbuf);
             }
             gametext(76,38,"SCALE",0,2+8+16);
-            l = (JoystickAnalogueScale[thispage*2]+262144) >> 13;
+            l = (config.JoystickAnalogueScale[thispage*2]+262144) >> 13;
             bar(140+56,38+8,(short *)&l,1,x==0,0,0);
             l = (l<<13)-262144;
-            if (l != JoystickAnalogueScale[thispage*2])
+            if (l != config.JoystickAnalogueScale[thispage*2])
             {
                 CONTROL_SetAnalogAxisScale(thispage*2, l, controldevice_joystick);
-                JoystickAnalogueScale[thispage*2] = l;
+                config.JoystickAnalogueScale[thispage*2] = l;
             }
             Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
             gametext(140,38,tempbuf,0,2+8+16);
 
             gametext(76,38+15,"DIGITAL",0,2+8+16);
-            if (JoystickDigitalFunctions[thispage*2][0] < 0)
+            if (config.JoystickDigitalFunctions[thispage*2][0] < 0)
                 strcpy(tempbuf, "  -NONE-");
             else
-                strcpy(tempbuf, CONFIG_FunctionNumToName(JoystickDigitalFunctions[thispage*2][0]));
+                strcpy(tempbuf, CONFIG_FunctionNumToName(config.JoystickDigitalFunctions[thispage*2][0]));
 
             for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
             minitext(140+12,38+15,tempbuf,0,10+16);
 
-            if (JoystickDigitalFunctions[thispage*2][1] < 0)
+            if (config.JoystickDigitalFunctions[thispage*2][1] < 0)
                 strcpy(tempbuf, "  -NONE-");
             else
-                strcpy(tempbuf, CONFIG_FunctionNumToName(JoystickDigitalFunctions[thispage*2][1]));
+                strcpy(tempbuf, CONFIG_FunctionNumToName(config.JoystickDigitalFunctions[thispage*2][1]));
 
             for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
             minitext(140+12+72,38+15,tempbuf,0,10+16);
 
             gametext(76,38+15+15,"ANALOG",0,2+8+16);
-            if (CONFIG_AnalogNumToName(JoystickAnalogueAxes[thispage*2]))
+            if (CONFIG_AnalogNumToName(config.JoystickAnalogueAxes[thispage*2]))
             {
-                p = CONFIG_AnalogNumToName(JoystickAnalogueAxes[thispage*2]);
+                p = CONFIG_AnalogNumToName(config.JoystickAnalogueAxes[thispage*2]);
                 if (p)
                 {
                     gametext(140+12,38+15+15, strchr(p,'_')+1, 0, 2+8+16);
@@ -4075,38 +4075,38 @@ cheat_for_port_credits:
             if (twothispage)
             {
                 gametext(76,38+64,"SCALE",0,2+8+16);
-                l = (JoystickAnalogueScale[thispage*2+1]+262144) >> 13;
+                l = (config.JoystickAnalogueScale[thispage*2+1]+262144) >> 13;
                 bar(140+56,38+8+64,(short *)&l,1,x==4,0,0);
                 l = (l<<13)-262144;
-                if (l != JoystickAnalogueScale[thispage*2+1])
+                if (l != config.JoystickAnalogueScale[thispage*2+1])
                 {
                     CONTROL_SetAnalogAxisScale(thispage*2+1, l, controldevice_joystick);
-                    JoystickAnalogueScale[thispage*2+1] = l;
+                    config.JoystickAnalogueScale[thispage*2+1] = l;
                 }
                 Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
                 gametext(140,38+64,tempbuf,0,2+8+16);
 
                 gametext(76,38+64+15,"DIGITAL",0,2+8+16);
-                if (JoystickDigitalFunctions[thispage*2+1][0] < 0)
+                if (config.JoystickDigitalFunctions[thispage*2+1][0] < 0)
                     strcpy(tempbuf, "  -NONE-");
                 else
-                    strcpy(tempbuf, CONFIG_FunctionNumToName(JoystickDigitalFunctions[thispage*2+1][0]));
+                    strcpy(tempbuf, CONFIG_FunctionNumToName(config.JoystickDigitalFunctions[thispage*2+1][0]));
 
                 for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
                 minitext(140+12,38+15+64,tempbuf,0,10+16);
 
-                if (JoystickDigitalFunctions[thispage*2+1][1] < 0)
+                if (config.JoystickDigitalFunctions[thispage*2+1][1] < 0)
                     strcpy(tempbuf, "  -NONE-");
                 else
-                    strcpy(tempbuf, CONFIG_FunctionNumToName(JoystickDigitalFunctions[thispage*2+1][1]));
+                    strcpy(tempbuf, CONFIG_FunctionNumToName(config.JoystickDigitalFunctions[thispage*2+1][1]));
 
                 for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
                 minitext(140+12+72,38+15+64,tempbuf,0,10+16);
 
                 gametext(76,38+64+15+15,"ANALOG",0,2+8+16);
-                if (CONFIG_AnalogNumToName(JoystickAnalogueAxes[thispage*2+1]))
+                if (CONFIG_AnalogNumToName(config.JoystickAnalogueAxes[thispage*2+1]))
                 {
-                    p = CONFIG_AnalogNumToName(JoystickAnalogueAxes[thispage*2+1]);
+                    p = CONFIG_AnalogNumToName(config.JoystickAnalogueAxes[thispage*2+1]);
                     if (p)
                     {
                         gametext(140+12,38+64+15+15, strchr(p,'_')+1, 0, 2+8+16);
@@ -4161,8 +4161,8 @@ cheat_for_port_credits:
                 gametext(128,48+30*(m-first)-8,"DEAD",0,2+8+16);
                 gametext(128,48+30*(m-first)-8+15,"SATU",0,2+8+16);
 
-                dx = odx = min(64,64l*JoystickAnalogueDead[m]/10000l);
-                dy = ody = min(64,64l*JoystickAnalogueSaturate[m]/10000l);
+                dx = odx = min(64,64l*config.JoystickAnalogueDead[m]/10000l);
+                dy = ody = min(64,64l*config.JoystickAnalogueSaturate[m]/10000l);
 
                 bar(217,48+30*(m-first),(short *)&dx,4,x==((m-first)*2),0,0);
                 bar(217,48+30*(m-first)+15,(short *)&dy,4,x==((m-first)*2+1),0,0);
@@ -4172,10 +4172,10 @@ cheat_for_port_credits:
                 Bsprintf(tempbuf,"%3d%%",100*dy/64);
                 gametext(217-49,48+30*(m-first)-8+15,tempbuf,0,2+8+16);
 
-                if (dx != odx) JoystickAnalogueDead[m]     = 10000l*dx/64l;
-                if (dy != ody) JoystickAnalogueSaturate[m] = 10000l*dy/64l;
+                if (dx != odx) config.JoystickAnalogueDead[m]     = 10000l*dx/64l;
+                if (dy != ody) config.JoystickAnalogueSaturate[m] = 10000l*dy/64l;
                 if (dx != odx || dy != ody)
-                    setjoydeadzone(m,JoystickAnalogueDead[m],JoystickAnalogueSaturate[m]);
+                    setjoydeadzone(m,config.JoystickAnalogueDead[m],config.JoystickAnalogueSaturate[m]);
             }
             //gametext(160,158,"DEAD = DEAD ZONE, SAT. = SATURATION",0,2+8+16);
             if (joynumaxes>4)
@@ -4212,10 +4212,10 @@ cheat_for_port_credits:
             probey = 1;
             break;
         case 0:
-            if (FXDevice >= 0)
+            if (config.FXDevice >= 0)
             {
-                SoundToggle = 1-SoundToggle;
-                if (SoundToggle == 0)
+                config.SoundToggle = 1-config.SoundToggle;
+                if (config.SoundToggle == 0)
                 {
                     FX_StopAllSounds();
                     clearsoundlocks();
@@ -4224,10 +4224,10 @@ cheat_for_port_credits:
             }
             break;
         case 1:
-            if (MusicDevice >= 0 && (numplayers < 2 || MusicToggle))
+            if (config.MusicDevice >= 0 && (numplayers < 2 || config.MusicToggle))
             {
-                MusicToggle = 1-MusicToggle;
-                if (MusicToggle == 0) MUSIC_Pause();
+                config.MusicToggle = 1-config.MusicToggle;
+                if (config.MusicToggle == 0) MUSIC_Pause();
                 else
                 {
                     if (ud.recstat != 2 && ps[myconnectindex].gm&MODE_GAME)
@@ -4244,21 +4244,21 @@ cheat_for_port_credits:
 
             break;
         case 4:
-            if (SoundToggle && (FXDevice >= 0))
+            if (config.SoundToggle && (config.FXDevice >= 0))
             {
-                VoiceToggle = (VoiceToggle == 2) ? 0 : VoiceToggle+1;
+                config.VoiceToggle = (config.VoiceToggle == 2) ? 0 : config.VoiceToggle+1;
             }
             onbar = 0;
             break;
         case 5:
-            if (SoundToggle && (FXDevice >= 0)) AmbienceToggle = 1-AmbienceToggle;
+            if (config.SoundToggle && (config.FXDevice >= 0)) config.AmbienceToggle = 1-config.AmbienceToggle;
             onbar = 0;
             break;
         case 6:
-            if (SoundToggle && (FXDevice >= 0))
+            if (config.SoundToggle && (config.FXDevice >= 0))
             {
-                ReverseStereo = 1-ReverseStereo;
-                FX_SetReverseStereo(ReverseStereo);
+                config.ReverseStereo = 1-config.ReverseStereo;
+                FX_SetReverseStereo(config.ReverseStereo);
             }
             onbar = 0;
             break;
@@ -4267,48 +4267,48 @@ cheat_for_port_credits:
             break;
         }
 
-        menutext(c+151+40,50,MENUHIGHLIGHT(0),(FXDevice<0),SoundToggle && FXDevice >= 0?"ON":"OFF");
+        menutext(c+151+40,50,MENUHIGHLIGHT(0),(config.FXDevice<0),config.SoundToggle && config.FXDevice >= 0?"ON":"OFF");
 
-        menutext(c+151+40,50+16,MENUHIGHLIGHT(1),(MusicDevice<0||(numplayers > 1 && !MusicToggle)),(MusicToggle && (MusicDevice >= 0))?"ON":"OFF");
+        menutext(c+151+40,50+16,MENUHIGHLIGHT(1),(config.MusicDevice<0||(numplayers > 1 && !config.MusicToggle)),(config.MusicToggle && (config.MusicDevice >= 0))?"ON":"OFF");
 
-        menutext(c,50,MENUHIGHLIGHT(0),(FXDevice<0),"SOUND");
-        menutext(c,50+16+16,MENUHIGHLIGHT(2),(FXDevice<0)||SoundToggle==0,"SOUND VOLUME");
+        menutext(c,50,MENUHIGHLIGHT(0),(config.FXDevice<0),"SOUND");
+        menutext(c,50+16+16,MENUHIGHLIGHT(2),(config.FXDevice<0)||config.SoundToggle==0,"SOUND VOLUME");
         {
-            l = FXVolume;
-            FXVolume >>= 2;
-            bar(c+167+40,50+16+16,(short *)&FXVolume,4,(FXDevice>=0)&&x==2,MENUHIGHLIGHT(2),SoundToggle==0||(FXDevice<0));
-            if (l != FXVolume)
-                FXVolume <<= 2;
-            if (l != FXVolume)
-                FX_SetVolume((short) FXVolume);
+            l = config.FXVolume;
+            config.FXVolume >>= 2;
+            bar(c+167+40,50+16+16,(short *)&config.FXVolume,4,(config.FXDevice>=0)&&x==2,MENUHIGHLIGHT(2),config.SoundToggle==0||(config.FXDevice<0));
+            if (l != config.FXVolume)
+                config.FXVolume <<= 2;
+            if (l != config.FXVolume)
+                FX_SetVolume((short) config.FXVolume);
         }
-        menutext(c,50+16,MENUHIGHLIGHT(1),(MusicDevice<0||(numplayers > 1 && !MusicToggle)),"MUSIC");
-        menutext(c,50+16+16+16,MENUHIGHLIGHT(3),(MusicDevice<0)||MusicToggle==0,"MUSIC VOLUME");
+        menutext(c,50+16,MENUHIGHLIGHT(1),(config.MusicDevice<0||(numplayers > 1 && !config.MusicToggle)),"MUSIC");
+        menutext(c,50+16+16+16,MENUHIGHLIGHT(3),(config.MusicDevice<0)||config.MusicToggle==0,"MUSIC VOLUME");
         {
-            l = MusicVolume;
-            MusicVolume >>= 2;
+            l = config.MusicVolume;
+            config.MusicVolume >>= 2;
             bar(c+167+40,50+16+16+16,
-                (short *)&MusicVolume,4,
-                (MusicDevice>=0) && x==3,MENUHIGHLIGHT(3),
-                MusicToggle==0||(MusicDevice<0));
-            MusicVolume <<= 2;
-            if (l != MusicVolume)
-                MUSIC_SetVolume((short) MusicVolume);
+                (short *)&config.MusicVolume,4,
+                (config.MusicDevice>=0) && x==3,MENUHIGHLIGHT(3),
+                config.MusicToggle==0||(config.MusicDevice<0));
+            config.MusicVolume <<= 2;
+            if (l != config.MusicVolume)
+                MUSIC_SetVolume((short) config.MusicVolume);
 
         }
-        menutext(c,50+16+16+16+16,MENUHIGHLIGHT(4),(FXDevice<0)||SoundToggle==0,"DUKE TALK");
-        menutext(c,50+16+16+16+16+16,MENUHIGHLIGHT(5),(FXDevice<0)||SoundToggle==0,"AMBIENCE");
+        menutext(c,50+16+16+16+16,MENUHIGHLIGHT(4),(config.FXDevice<0)||config.SoundToggle==0,"DUKE TALK");
+        menutext(c,50+16+16+16+16+16,MENUHIGHLIGHT(5),(config.FXDevice<0)||config.SoundToggle==0,"AMBIENCE");
 
-        menutext(c,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(FXDevice<0)||SoundToggle==0,"FLIP STEREO");
+        menutext(c,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(config.FXDevice<0)||config.SoundToggle==0,"FLIP STEREO");
 
         {
             char *s[] = { "OFF", "LOCAL", "ALL" };
-            menutext(c+151+40,50+16+16+16+16,MENUHIGHLIGHT(4),(FXDevice<0)||SoundToggle==0,s[VoiceToggle]);
+            menutext(c+151+40,50+16+16+16+16,MENUHIGHLIGHT(4),(config.FXDevice<0)||config.SoundToggle==0,s[config.VoiceToggle]);
         }
 
-        menutext(c+151+40,50+16+16+16+16+16,MENUHIGHLIGHT(5),(FXDevice<0)||SoundToggle==0,AmbienceToggle?"ON":"OFF");
+        menutext(c+151+40,50+16+16+16+16+16,MENUHIGHLIGHT(5),(config.FXDevice<0)||config.SoundToggle==0,config.AmbienceToggle?"ON":"OFF");
 
-        menutext(c+151+40,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(FXDevice<0)||SoundToggle==0,ReverseStereo?"ON":"OFF");
+        menutext(c+151+40,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(config.FXDevice<0)||config.SoundToggle==0,config.ReverseStereo?"ON":"OFF");
 
         break;
 

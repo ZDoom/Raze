@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "osd.h"
 
-int conversion = 13;
+int g_ScriptVersion = 13;
 
 char compilefile[BMAX_PATH] = "(none)";  // file we're currently compiling
 static char parsing_item_name[MAXVARLABEL] = "(none)", previous_item_name[MAXVARLABEL] = "NULL";
@@ -4371,7 +4371,7 @@ repeatcase:
             }
             else
             {
-                conversion = 14;
+                g_ScriptVersion = 14;
                 initprintf("Duke Nukem 3D v1.4+ style CON files detected.\n");
             }
 
@@ -4419,7 +4419,7 @@ repeatcase:
         respawnactortime = params[j++];
         respawnitemtime = params[j++];
         dukefriction = params[j++];
-        if (conversion == 14) gc = params[j++];
+        if (g_ScriptVersion == 14) gc = params[j++];
         rpgblastradius = params[j++];
         pipebombblastradius = params[j++];
         shrinkerblastradius = params[j++];
@@ -4436,11 +4436,11 @@ repeatcase:
         max_ammo_amount[DEVISTATOR_WEAPON] = params[j++];
         max_ammo_amount[TRIPBOMB_WEAPON] = params[j++];
         max_ammo_amount[FREEZE_WEAPON] = params[j++];
-        if (conversion == 14) max_ammo_amount[GROW_WEAPON] = params[j++];
+        if (g_ScriptVersion == 14) max_ammo_amount[GROW_WEAPON] = params[j++];
         camerashitable = params[j++];
         numfreezebounces = params[j++];
         freezerhurtowner = params[j++];
-        if (conversion == 14)
+        if (g_ScriptVersion == 14)
         {
             spriteqamount = params[j++];
             if (spriteqamount > 1024) spriteqamount = 1024;
