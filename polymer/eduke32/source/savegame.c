@@ -404,10 +404,10 @@ int loadplayer(int spot)
 
     i = music_select;
     music_select = (ud.volume_number*MAXLEVELS) + ud.level_number;
-    if (music_fn[0][(unsigned char)music_select] != NULL && i != music_select)
+    if (map[(unsigned char)music_select].musicfn != NULL && i != music_select)
     {
         MUSIC_StopSong();
-        playmusic(&music_fn[0][(unsigned char)music_select][0]);
+        playmusic(&map[(unsigned char)music_select].musicfn[0]);
     }
 
     ps[myconnectindex].gm = MODE_GAME;

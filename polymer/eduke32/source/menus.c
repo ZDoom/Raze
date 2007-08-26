@@ -4232,8 +4232,8 @@ cheat_for_port_credits:
                 {
                     if (ud.recstat != 2 && ps[myconnectindex].gm&MODE_GAME)
                     {
-                        if (music_fn[0][(unsigned char)music_select] != NULL)
-                            playmusic(&music_fn[0][(unsigned char)music_select][0]);
+                        if (map[(unsigned char)music_select].musicfn != NULL)
+                            playmusic(&map[(unsigned char)music_select].musicfn[0]);
                     }
                     else playmusic(&env_music_fn[0][0]);
 
@@ -4836,7 +4836,7 @@ VOLUME_ALL_40x:
             if (ud.m_volume_number == 0 && ud.m_level_number > 6+(boardfilename[0]!=0))
                 ud.m_level_number = 0;
 
-        while (level_names[(ud.m_volume_number*MAXLEVELS)+ud.m_level_number] == NULL)
+        while (map[(ud.m_volume_number*MAXLEVELS)+ud.m_level_number].name == NULL)
         {
             if (ud.m_level_number < i || i == 0)
                 ud.m_level_number--;
@@ -4965,7 +4965,7 @@ VOLUME_ALL_40x:
             gametext(c+70,57+16-7-9,volume_names[ud.m_volume_number],MENUHIGHLIGHT(1),2+8+16);
         }
 
-        gametext(c+70,57+16+16-7-9,&level_names[MAXLEVELS*ud.m_volume_number+ud.m_level_number][0],MENUHIGHLIGHT(2),2+8+16);
+        gametext(c+70,57+16+16-7-9,&map[MAXLEVELS*ud.m_volume_number+ud.m_level_number].name[0],MENUHIGHLIGHT(2),2+8+16);
 
         gametext(c+70,57+16+16+16-7-9,ud.m_monsters_off == 0 || ud.m_player_skill > 0?skill_names[ud.m_player_skill]:"NONE",MENUHIGHLIGHT(3),2+8+16);
 

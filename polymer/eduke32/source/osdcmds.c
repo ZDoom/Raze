@@ -363,8 +363,8 @@ static int osdcmd_restartsound(const osdfuncparm_t *parm)
     {
         if (ud.recstat != 2 && ps[myconnectindex].gm&MODE_GAME)
         {
-            if (music_fn[0][(unsigned char)music_select] != NULL)
-                playmusic(&music_fn[0][(unsigned char)music_select][0]);
+            if (map[(unsigned char)music_select].musicfn != NULL)
+                playmusic(&map[(unsigned char)music_select].musicfn[0]);
         }
         else playmusic(&env_music_fn[0][0]);
     }

@@ -1881,12 +1881,12 @@ static int parsecommand(void)
                 }
                 tempbuf[j+1] = '\0';
 
-                if (music_fn[k][i] == NULL)
-                    music_fn[k][i] = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
-                else if ((Bstrlen(tempbuf)+1) > sizeof(music_fn[k][i]))
-                    music_fn[k][i] = Brealloc(music_fn[k][i],(Bstrlen(tempbuf)+1));
+                if (map[(k*MAXLEVELS)+i].musicfn == NULL)
+                    map[(k*MAXLEVELS)+i].musicfn = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
+                else if ((Bstrlen(tempbuf)+1) > sizeof(map[(k*MAXLEVELS)+i].musicfn))
+                    map[(k*MAXLEVELS)+i].musicfn = Brealloc(map[(k*MAXLEVELS)+i].musicfn,(Bstrlen(tempbuf)+1));
 
-                Bstrcpy(music_fn[k][i],tempbuf);
+                Bstrcpy(map[(k*MAXLEVELS)+i].musicfn,tempbuf);
 
                 textptr += j;
                 if (i > MAXLEVELS-1) break;
@@ -4065,25 +4065,25 @@ repeatcase:
 
         Bcorrectfilename(tempbuf,0);
 
-        if (level_file_names[j*MAXLEVELS+k] == NULL)
-            level_file_names[j*MAXLEVELS+k] = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
-        else if ((Bstrlen(tempbuf)+1) > sizeof(level_file_names[j*MAXLEVELS+k]))
-            level_file_names[j*MAXLEVELS+k] = Brealloc(level_file_names[j*MAXLEVELS+k],(Bstrlen(tempbuf)+1));
+        if (map[j*MAXLEVELS+k].filename == NULL)
+            map[j*MAXLEVELS+k].filename = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
+        else if ((Bstrlen(tempbuf)+1) > sizeof(map[j*MAXLEVELS+k].filename))
+            map[j*MAXLEVELS+k].filename = Brealloc(map[j*MAXLEVELS+k].filename,(Bstrlen(tempbuf)+1));
 
         /*         initprintf("level file name string len: %ld\n",Bstrlen(tempbuf)); */
 
-        Bstrcpy(level_file_names[j*MAXLEVELS+k],tempbuf);
+        Bstrcpy(map[j*MAXLEVELS+k].filename,tempbuf);
 
         while (*textptr == ' ' || *textptr == '\t') textptr++;
 
-        partime[j*MAXLEVELS+k] =
+        map[j*MAXLEVELS+k].partime =
             (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*26*60)+
             (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*26);
 
         textptr += 5;
         while (*textptr == ' '  || *textptr == '\t') textptr++;
 
-        designertime[j*MAXLEVELS+k] =
+        map[j*MAXLEVELS+k].designertime =
             (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*26*60)+
             (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*26);
 
@@ -4107,14 +4107,14 @@ repeatcase:
 
         tempbuf[i] = '\0';
 
-        if (level_names[j*MAXLEVELS+k] == NULL)
-            level_names[j*MAXLEVELS+k] = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
-        else if ((Bstrlen(tempbuf)+1) > sizeof(level_names[j*MAXLEVELS+k]))
-            level_names[j*MAXLEVELS+k] = Brealloc(level_names[j*MAXLEVELS+k],(Bstrlen(tempbuf)+1));
+        if (map[j*MAXLEVELS+k].name == NULL)
+            map[j*MAXLEVELS+k].name = Bcalloc(Bstrlen(tempbuf)+1,sizeof(char));
+        else if ((Bstrlen(tempbuf)+1) > sizeof(map[j*MAXLEVELS+k].name))
+            map[j*MAXLEVELS+k].name = Brealloc(map[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
 
         /*         initprintf("level name string len: %ld\n",Bstrlen(tempbuf)); */
 
-        Bstrcpy(level_names[j*MAXLEVELS+k],tempbuf);
+        Bstrcpy(map[j*MAXLEVELS+k].name,tempbuf);
 
         return 0;
 

@@ -6136,8 +6136,8 @@ static int parse(void)
     case CON_STARTTRACK:
         insptr++;
         music_select=*insptr++;
-        if (music_fn[ud.volume_number][(unsigned char)music_select] != NULL)
-            playmusic(&music_fn[ud.volume_number][(unsigned char)music_select][0]);
+        if (map[(unsigned char)music_select].musicfn != NULL)
+            playmusic(&map[(unsigned char)music_select].musicfn[0]);
         break;
 
     case CON_GETTEXTURECEILING:

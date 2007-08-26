@@ -351,8 +351,8 @@ static void dofrontscreens(char *statustext)
         else
         {
             menutext(160,90,0,0,"ENTERING");
-            if (level_names[(ud.volume_number*MAXLEVELS) + ud.level_number] != NULL)
-                menutext(160,90+16+8,0,0,level_names[(ud.volume_number*MAXLEVELS) + ud.level_number]);
+            if (map[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
+                menutext(160,90+16+8,0,0,map[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
         }
 
         if (statustext) gametext(160,180,statustext,0,2+8+16);
@@ -1556,8 +1556,8 @@ static void getlevelfromfilename(const char *fn, char *volume, char *level)
     {
         for (*level=0;*level<MAXLEVELS;(*level)++)
         {
-            if (level_file_names[(*volume*MAXLEVELS)+*level] != NULL)
-                if (!Bstrcasecmp(fn, level_file_names[(*volume*MAXLEVELS)+*level]))
+            if (map[(*volume*MAXLEVELS)+*level].filename != NULL)
+                if (!Bstrcasecmp(fn, map[(*volume*MAXLEVELS)+*level].filename))
                     break;
         }
         if (*level != MAXLEVELS)
@@ -1614,16 +1614,16 @@ int enterlevel(int g)
         }
     }
 
-    if (level_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL || level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL)
+    if (map[(ud.volume_number*MAXLEVELS)+ud.level_number].name == NULL || map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename == NULL)
     {
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
         {
-            if (level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL)
-                level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number] = Bcalloc(BMAX_PATH,sizeof(char));
-            if (level_names[(ud.volume_number*MAXLEVELS)+ud.level_number] == NULL)
+            if (map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename == NULL)
+                map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename = Bcalloc(BMAX_PATH,sizeof(char));
+            if (map[(ud.volume_number*MAXLEVELS)+ud.level_number].name == NULL)
             {
-                level_names[(ud.volume_number*MAXLEVELS)+ud.level_number] = Bcalloc(9,sizeof(char));
-                Bsprintf(level_names[(ud.volume_number*MAXLEVELS)+ud.level_number],"USER MAP");
+                map[(ud.volume_number*MAXLEVELS)+ud.level_number].name = Bcalloc(9,sizeof(char));
+                Bsprintf(map[(ud.volume_number*MAXLEVELS)+ud.level_number].name,"USER MAP");
             }
         }
         else
@@ -1644,7 +1644,7 @@ int enterlevel(int g)
         Bstrcpy(levname, boardfilename);
         Bsprintf(apptitle," - %s",levname);
     }
-    else Bsprintf(apptitle," - %s",level_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
+    else Bsprintf(apptitle," - %s",map[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
 
     if (VOLUMEALL) Bsprintf(tempbuf,HEAD2);
     else Bsprintf(tempbuf,HEAD);
@@ -1678,16 +1678,16 @@ int enterlevel(int g)
                 if (!loadmaphack(levname)) initprintf("Loaded map hack file '%s'\n",levname);
             }
         }
-        else if (loadboard(level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number],0,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
+        else if (loadboard(map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,0,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
         {
-            initprintf("Map %s not found!\n",level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
+            initprintf("Map %s not found!\n",map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
             //gameexit(tempbuf);
             return 1;
         }
         else
         {
             char *p;
-            strcpy(levname, level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
+            strcpy(levname, map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
             p = Bstrrchr(levname,'.');
             if (!p) strcat(levname,".mhk");
             else
@@ -1704,14 +1704,14 @@ int enterlevel(int g)
     else
     {
 
-        i = strlen(level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
-        copybufbyte(level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number],&levname[0],i);
+        i = strlen(map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
+        copybufbyte(map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,&levname[0],i);
         levname[i] = 255;
         levname[i+1] = 0;
 
         if (loadboard(levname,1,&ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang,&ps[0].cursectnum) == -1)
         {
-            initprintf("Map '%s' not found!\n",level_file_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
+            initprintf("Map '%s' not found!\n",map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
             //gameexit(tempbuf);
             return 1;
         }
@@ -1751,8 +1751,8 @@ int enterlevel(int g)
     if (ud.recstat != 2)
     {
         music_select = (ud.volume_number*MAXLEVELS) + ud.level_number;
-        if (music_fn[0][(unsigned char)music_select] != NULL)
-            playmusic(&music_fn[0][(unsigned char)music_select][0]);
+        if (map[(unsigned char)music_select].musicfn != NULL)
+            playmusic(&map[(unsigned char)music_select].musicfn[0]);
     }
 
     if ((g&MODE_GAME) || (g&MODE_EOL))
@@ -1830,6 +1830,6 @@ int enterlevel(int g)
     // variables are set by pointer...
 
     OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
-    initprintf("E%ldL%ld: %s\n",ud.volume_number+1,ud.level_number+1,level_names[(ud.volume_number*MAXLEVELS)+ud.level_number]);
+    initprintf("E%ldL%ld: %s\n",ud.volume_number+1,ud.level_number+1,map[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
     return 0;
 }

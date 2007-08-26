@@ -56,8 +56,8 @@ short mirrorwall[64], mirrorsector[64], mirrorcnt;
 
 int current_menu;
 
-char *level_names[MAXVOLUMES*MAXLEVELS],*level_file_names[MAXVOLUMES*MAXLEVELS];
-long partime[MAXVOLUMES*MAXLEVELS],designertime[MAXVOLUMES*MAXLEVELS];
+map_t map[MAXVOLUMES*MAXLEVELS];
+
 char volume_names[MAXVOLUMES][33] = { "L.A. MELTDOWN", "LUNAR APOCALYPSE", "SHRAPNEL CITY" };
 char skill_names[5][33] = { "PIECE OF CAKE", "LET'S ROCK", "COME GET SOME", "DAMN I'M GOOD" };
 

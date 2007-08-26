@@ -478,7 +478,7 @@ extern long *actorLoadEventScrptr[MAXTILES];
 extern char actortype[MAXTILES];
 extern char *music_pointer;
 
-extern char *music_fn[MAXVOLUMES+1][MAXLEVELS],music_select;
+extern char music_select;
 extern char env_music_fn[MAXVOLUMES+1][BMAX_PATH];
 extern short camsprite;
 
@@ -539,8 +539,6 @@ extern int screencapt;
 extern short soundps[NUM_SOUNDS],soundpe[NUM_SOUNDS],soundvo[NUM_SOUNDS];
 extern char soundpr[NUM_SOUNDS],soundm[NUM_SOUNDS];
 extern long soundsiz[NUM_SOUNDS];
-extern char *level_names[MAXVOLUMES*MAXLEVELS];
-extern long partime[MAXVOLUMES*MAXLEVELS],designertime[MAXVOLUMES*MAXLEVELS];
 extern char volume_names[MAXVOLUMES][33];
 extern char skill_names[5][33];
 
@@ -574,7 +572,6 @@ enum gametypeflags {
 
 #define GTFLAGS(x) (gametype_flags[ud.coop] & x)
 
-extern char *level_file_names[MAXVOLUMES*MAXLEVELS];
 extern char num_volumes;
 
 extern int lastsavedpos;
@@ -897,6 +894,13 @@ extern short weapon_sprites[MAX_WEAPONS];
 extern int redefined_quote_count;
 
 extern char setupfilename[BMAX_PATH];
+
+typedef struct {
+	char *name, *filename, *musicfn;
+	long partime, designertime;
+} map_t;
+
+extern map_t map[MAXVOLUMES*MAXLEVELS];
 
 #ifdef __cplusplus
 }
