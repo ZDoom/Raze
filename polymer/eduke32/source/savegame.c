@@ -93,7 +93,7 @@ int loadpheader(char spot,struct savehead *saveh)
     if (kdfread(&bv,4,1,fil) != 1) goto corrupt;
     if (bv != BYTEVERSION && bv != BYTEVERSION_COMPAT)
     {
-        FTA(114,&g_player[myconnectindex].ps);
+        FTA(114,g_player[myconnectindex].ps);
         kclose(fil);
         return 1;
     }
@@ -170,7 +170,7 @@ int loadplayer(int spot)
     if (kdfread(&bv,4,1,fil) != 1) return -1;
     if (bv != BYTEVERSION && bv != BYTEVERSION_COMPAT)
     {
-        FTA(114,&g_player[myconnectindex].ps);
+        FTA(114,g_player[myconnectindex].ps);
         kclose(fil);
         ototalclock = totalclock;
         ready2send = 1;
@@ -183,7 +183,7 @@ int loadplayer(int spot)
         kclose(fil);
         ototalclock = totalclock;
         ready2send = 1;
-        FTA(124,&g_player[myconnectindex].ps);
+        FTA(124,g_player[myconnectindex].ps);
         return 1;
     }
     else ud.multimode = nump;
@@ -244,10 +244,9 @@ int loadplayer(int spot)
     if (kdfread(&nextspritestat[0],2,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
     if (kdfread(&numcyclers,sizeof(numcyclers),1,fil) != 1) goto corrupt;
     if (kdfread(&cyclers[0][0],12,MAXCYCLERS,fil) != MAXCYCLERS) goto corrupt;
-	for (i=0;i<MAXPLAYERS;i++)
-	    if (kdfread(&g_player[i].ps,sizeof(g_player[i].ps),1,fil) != 1) goto corrupt;
-	for (i=0;i<MAXPLAYERS;i++)
-	    if (kdfread(&g_player[i].po,sizeof(g_player[i].po),1,fil) != 1) goto corrupt;
+    for (i=0;i<nump;i++)
+        if (kdfread(g_player[i].ps,sizeof(player_struct),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_PlayerSpawnPoints,sizeof(g_PlayerSpawnPoints),1,fil) != 1) goto corrupt;
     if (kdfread(&numanimwalls,sizeof(numanimwalls),1,fil) != 1) goto corrupt;
     if (kdfread(&animwall,sizeof(animwall),1,fil) != 1) goto corrupt;
     if (kdfread(&msx[0],sizeof(long),sizeof(msx)/sizeof(long),fil) != sizeof(msx)/sizeof(long)) goto corrupt;
@@ -341,8 +340,8 @@ int loadplayer(int spot)
     if (kdfread(&connecthead,sizeof(connecthead),1,fil) != 1) goto corrupt;
     if (kdfread(connectpoint2,sizeof(connectpoint2),1,fil) != 1) goto corrupt;
     if (kdfread(&numplayersprites,sizeof(numplayersprites),1,fil) != 1) goto corrupt;
-	for (i=0;i<MAXPLAYERS;i++)
-	    if (kdfread((short *)&g_player[i].frags[0],sizeof(g_player[i].frags),1,fil) != 1) goto corrupt;
+    for (i=0;i<MAXPLAYERS;i++)
+        if (kdfread((short *)&g_player[i].frags[0],sizeof(g_player[i].frags),1,fil) != 1) goto corrupt;
 
     if (kdfread(&randomseed,sizeof(randomseed),1,fil) != 1) goto corrupt;
     if (kdfread(&global_random,sizeof(global_random),1,fil) != 1) goto corrupt;
@@ -392,11 +391,11 @@ int loadplayer(int spot)
 
     kclose(fil);
 
-    if (g_player[myconnectindex].ps.over_shoulder_on != 0)
+    if (g_player[myconnectindex].ps->over_shoulder_on != 0)
     {
         cameradist = 0;
         cameraclock = 0;
-        g_player[myconnectindex].ps.over_shoulder_on = 1;
+        g_player[myconnectindex].ps->over_shoulder_on = 1;
     }
 
     screenpeek = myconnectindex;
@@ -413,14 +412,14 @@ int loadplayer(int spot)
         playmusic(&map[(unsigned char)music_select].musicfn[0]);
     }
 
-    g_player[myconnectindex].ps.gm = MODE_GAME;
+    g_player[myconnectindex].ps->gm = MODE_GAME;
     ud.recstat = 0;
 
-    if (g_player[myconnectindex].ps.jetpack_on)
-        spritesound(DUKE_JETPACK_IDLE,g_player[myconnectindex].ps.i);
+    if (g_player[myconnectindex].ps->jetpack_on)
+        spritesound(DUKE_JETPACK_IDLE,g_player[myconnectindex].ps->i);
 
     restorepalette = 1;
-    setpal(&g_player[myconnectindex].ps);
+    setpal(g_player[myconnectindex].ps);
     vscrn();
 
     FX_SetReverb(0);
@@ -493,8 +492,8 @@ int loadplayer(int spot)
 
 //    clearbufbyte(playerquitflag,MAXPLAYERS,0x01010101);
 
-	for (i=0;i<MAXPLAYERS;i++)
-		clearbufbyte(&g_player[i].playerquitflag,1,0x01010101);
+    for (i=0;i<MAXPLAYERS;i++)
+        clearbufbyte(&g_player[i].playerquitflag,1,0x01010101);
 
     resetmys();
 
@@ -593,10 +592,9 @@ int saveplayer(int spot)
     dfwrite(&nextspritestat[0],2,MAXSPRITES,fil);
     dfwrite(&numcyclers,sizeof(numcyclers),1,fil);
     dfwrite(&cyclers[0][0],12,MAXCYCLERS,fil);
-	for (i=0;i<MAXPLAYERS;i++)
-	    dfwrite(&g_player[i].ps,sizeof(g_player[i].ps),1,fil);
-	for (i=0;i<MAXPLAYERS;i++)
-	    dfwrite(&g_player[i].po,sizeof(g_player[i].po),1,fil);
+    for (i=0;i<ud.multimode;i++)
+        dfwrite(g_player[i].ps,sizeof(player_struct),1,fil);
+    dfwrite(&g_PlayerSpawnPoints,sizeof(g_PlayerSpawnPoints),1,fil);
     dfwrite(&numanimwalls,sizeof(numanimwalls),1,fil);
     dfwrite(&animwall,sizeof(animwall),1,fil);
     dfwrite(&msx[0],sizeof(long),sizeof(msx)/sizeof(long),fil);
@@ -736,8 +734,8 @@ int saveplayer(int spot)
     dfwrite(&connecthead,sizeof(connecthead),1,fil);
     dfwrite(connectpoint2,sizeof(connectpoint2),1,fil);
     dfwrite(&numplayersprites,sizeof(numplayersprites),1,fil);
-	for (i=0;i<MAXPLAYERS;i++)
-	    dfwrite((short *)&g_player[i].frags[0],sizeof(g_player[i].frags),1,fil);
+    for (i=0;i<MAXPLAYERS;i++)
+        dfwrite((short *)&g_player[i].frags[0],sizeof(g_player[i].frags),1,fil);
 
     dfwrite(&randomseed,sizeof(randomseed),1,fil);
     dfwrite(&global_random,sizeof(global_random),1,fil);
@@ -780,7 +778,7 @@ int saveplayer(int spot)
     if (ud.multimode < 2)
     {
         strcpy(fta_quotes[122],"GAME SAVED");
-        FTA(122,&g_player[myconnectindex].ps);
+        FTA(122,g_player[myconnectindex].ps);
     }
 
     ready2send = 1;

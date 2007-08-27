@@ -748,7 +748,7 @@ int startwin_run(void)
     settings.xdim3d = ud.config.ScreenWidth;
     settings.ydim3d = ud.config.ScreenHeight;
     settings.bpp3d = ud.config.ScreenBPP;
-	settings.forcesetup = ud.config.ForceSetup;
+    settings.forcesetup = ud.config.ForceSetup;
     settings.usemouse = ud.config.UseMouse;
     settings.usejoy = ud.config.UseJoystick;
     settings.game = g_GameType;

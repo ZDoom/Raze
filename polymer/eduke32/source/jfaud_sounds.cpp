@@ -365,8 +365,8 @@ int xyzsound(short num, short i, long x, long y, long z)
 	    num >= NUM_SOUNDS ||
 	    ((soundm[num] & SOUNDM_PARENT) && ud.lockout) ||	// parental mode
 	    SoundToggle == 0 ||
-	    (g_player[myconnectindex].ps.timebeforeexit > 0 && g_player[myconnectindex].ps.timebeforeexit <= 26*3) ||
-	    (g_player[myconnectindex].ps.gm & MODE_MENU)
+	    (g_player[myconnectindex].ps->timebeforeexit > 0 && g_player[myconnectindex].ps->timebeforeexit <= 26*3) ||
+	    (g_player[myconnectindex].ps->gm & MODE_MENU)
 	   ) return -1;
 
 	if (soundm[num] & SOUNDM_PLAYER) {
@@ -410,8 +410,8 @@ int xyzsound(short num, short i, long x, long y, long z)
 		refdist *= d;
 	}
 	if (PN != MUSICANDSFX &&
-	    !cansee(g_player[screenpeek].ps.oposx,g_player[screenpeek].ps.oposy,g_player[screenpeek].ps.oposz-(24<<8),
-	            g_player[screenpeek].ps.cursectnum,SX,SY,SZ-(24<<8),SECT) )
+	    !cansee(g_player[screenpeek].ps->oposx,g_player[screenpeek].ps->oposy,g_player[screenpeek].ps->oposz-(24<<8),
+	            g_player[screenpeek].ps->cursectnum,SX,SY,SZ-(24<<8),SECT) )
 		gain *= OCCLUDEDFACTOR;
 	
 	switch(num)
@@ -421,10 +421,10 @@ int xyzsound(short num, short i, long x, long y, long z)
 		case RPG_EXPLODE:
 			gain = 1.0;
 			global = 1;
-			if (sector[g_player[screenpeek].ps.cursectnum].lotag == 2) pitch -= translatepitch(1024);
+			if (sector[g_player[screenpeek].ps->cursectnum].lotag == 2) pitch -= translatepitch(1024);
 			break;
 		default:
-			if(sector[g_player[screenpeek].ps.cursectnum].lotag == 2 && (soundm[num]&SOUNDM_DUKE) == 0)
+			if(sector[g_player[screenpeek].ps->cursectnum].lotag == 2 && (soundm[num]&SOUNDM_DUKE) == 0)
 				pitch = translatepitch(-768);
 			//if( sndist > 31444 && PN != MUSICANDSFX)
 			//	return -1;
@@ -575,11 +575,11 @@ void pan3dsound(void)
 	jfaud->AgeCache();
 	
 	if(ud.camerasprite == -1) {
-		cx = g_player[screenpeek].ps.oposx;
-		cy = g_player[screenpeek].ps.oposy;
-		cz = g_player[screenpeek].ps.oposz;
-		cs = g_player[screenpeek].ps.cursectnum;
-		ca = g_player[screenpeek].ps.ang+g_player[screenpeek].ps.look_ang;
+		cx = g_player[screenpeek].ps->oposx;
+		cy = g_player[screenpeek].ps->oposy;
+		cz = g_player[screenpeek].ps->oposz;
+		cs = g_player[screenpeek].ps->cursectnum;
+		ca = g_player[screenpeek].ps->ang+g_player[screenpeek].ps->look_ang;
 	} else {
 		cx = sprite[ud.camerasprite].x;
 		cy = sprite[ud.camerasprite].y;

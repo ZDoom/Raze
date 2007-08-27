@@ -852,14 +852,14 @@ static void skipcomments(void)
         }
         else if (c == '/' && textptr[1] == '/')
         {
-            if (!(error || warning) && condebug > 1)
+            if (!(error || warning) && g_ScriptDebug > 1)
                 initprintf("%s:%ld: debug: got comment.\n",compilefile,line_number);
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
                 textptr++;
         }
         else if (c == '/' && textptr[1] == '*')
         {
-            if (!(error || warning) && condebug > 1)
+            if (!(error || warning) && g_ScriptDebug > 1)
                 initprintf("%s:%ld: debug: got start of comment block.\n",compilefile,line_number);
             while (*textptr && !(textptr[0] == '*' && textptr[1] == '/'))
             {
@@ -867,11 +867,11 @@ static void skipcomments(void)
                     line_number++;
                 textptr++;
             }
-            if ((!(error || warning) && condebug > 1) && (textptr[0] == '*' && textptr[1] == '/'))
+            if ((!(error || warning) && g_ScriptDebug > 1) && (textptr[0] == '*' && textptr[1] == '/'))
                 initprintf("%s:%ld: debug: got end of comment block.\n",compilefile,line_number);
             if (!*textptr)
             {
-                if (!(error || warning) && condebug)
+                if (!(error || warning) && g_ScriptDebug)
                     initprintf("%s:%ld: debug: EOF in comment!\n",compilefile,line_number);
                 ReportError(-1);
                 initprintf("%s:%ld: error: found `/*' with no `*/'.\n",compilefile,line_number);
@@ -1152,7 +1152,7 @@ static void getlabel(void)
         label[(labelcnt<<6)+i++] = *(textptr++);
 
     label[(labelcnt<<6)+i] = 0;
-    if (!(error || warning) && condebug > 1)
+    if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%ld: debug: got label `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
 }
 
@@ -1220,7 +1220,7 @@ static long transword(void) //Returns its code #
             *scriptptr = i;
             textptr += l;
             scriptptr++;
-            if (!(error || warning) && condebug)
+            if (!(error || warning) && g_ScriptDebug)
                 initprintf("%s:%ld: debug: translating keyword `%s'.\n",compilefile,line_number,keyw[i]);
             return i;
         }
@@ -1250,7 +1250,7 @@ static void transvartype(int type)
     skipcomments();
     if (!type && !labelsonly && (isdigit(*textptr) || ((*textptr == '-') && (isdigit(*(textptr+1))))))
     {
-        if (!(error || warning) && condebug)
+        if (!(error || warning) && g_ScriptDebug)
             initprintf("%s:%ld: debug: accepted constant %ld in place of gamevar.\n",compilefile,line_number,atol(textptr));
         *scriptptr++=MAXGAMEVARS;
         *scriptptr++=atol(textptr);
@@ -1261,7 +1261,7 @@ static void transvartype(int type)
     {
         if (!type)
         {
-            if (!(error || warning) && condebug)
+            if (!(error || warning) && g_ScriptDebug)
                 initprintf("%s:%ld: debug: flagging gamevar as negative.\n",compilefile,line_number,atol(textptr));
             f = (MAXGAMEVARS<<1);
         }
@@ -1292,7 +1292,7 @@ static void transvartype(int type)
             {
                 if (Bstrcmp(tempbuf,label+(i<<6)) == 0 && (labeltype[i] & LABEL_DEFINE))
                 {
-                    if (!(error || warning) && condebug)
+                    if (!(error || warning) && g_ScriptDebug)
                         initprintf("%s:%ld: debug: accepted defined label `%s' instead of gamevar.\n",compilefile,line_number,label+(i<<6));
                     *scriptptr++=MAXGAMEVARS;
                     *scriptptr++=labelcode[i];
@@ -1327,7 +1327,7 @@ static void transvartype(int type)
         ReportError(-1);
         initprintf("%s:%ld: warning: found local gamevar `%s' used within %s; expect multiplayer synchronization issues.\n",compilefile,line_number,label+(labelcnt<<6),parsing_event?"a synced event":"an actor");
     }
-    if (!(error || warning) && condebug > 1)
+    if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%ld: debug: accepted gamevar `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
     i |= f;
     *scriptptr++=i;
@@ -1389,7 +1389,7 @@ static long transnum(long type)
 
             if (labeltype[i] & type)
             {
-                if (!(error || warning) && condebug > 1)
+                if (!(error || warning) && g_ScriptDebug > 1)
                 {
                     gl = (char *)translatelabeltype(labeltype[i]);
                     initprintf("%s:%ld: debug: accepted %s label `%s'.\n",compilefile,line_number,gl,label+(i<<6));
@@ -1424,7 +1424,7 @@ static long transnum(long type)
         ReportError(WARNING_LABELSONLY);
         //         warning++;
     }
-    if (!(error || warning) && condebug > 1)
+    if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%ld: debug: accepted constant %ld.\n",compilefile,line_number,atol(textptr));
     *scriptptr = atol(textptr);
     scriptptr++;
@@ -1484,7 +1484,7 @@ static int parsecommand(void)
 
     if ((error+warning) > 63 || (*textptr == '\0') || (*(textptr+1) == '\0')) return 1;
 
-    if (condebug)
+    if (g_ScriptDebug)
         ReportError(-1);
 
     if (checking_switch > 0)
@@ -1532,7 +1532,7 @@ static int parsecommand(void)
             {
                 if (labeltype[j] & LABEL_STATE)
                 {
-                    if (!(error || warning) && condebug > 1)
+                    if (!(error || warning) && g_ScriptDebug > 1)
                         initprintf("%s:%ld: debug: accepted state label `%s'.\n",compilefile,line_number,label+(j<<6));
                     *scriptptr = labelcode[j];
                     break;

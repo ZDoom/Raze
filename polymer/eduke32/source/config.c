@@ -196,7 +196,7 @@ void CONFIG_SetDefaults(void)
     ud.config.MusicDevice = 0;
     ud.config.MusicToggle = 1;
     ud.config.MusicVolume = 200;
-    myaimmode = g_player[0].ps.aim_mode = 1;
+    myaimmode = g_player[0].ps->aim_mode = 1;
     ud.config.NumBits = 16;
     ud.config.NumChannels = 2;
     ud.config.NumVoices = 32;
@@ -651,7 +651,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Color",&ud.color);
         check_player_color((int *)&ud.color,-1);
-        g_player[0].ps.palookup = g_player[0].pcolor = ud.color;
+        g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Team",&dummy);
         ud.team = 0;
         if (dummy < 4 && dummy > -1) ud.team = dummy;
@@ -696,7 +696,7 @@ int32 CONFIG_ReadSetup(void)
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","MouseAimingFlipped",&ud.mouseflip);  // mouse aiming inverted
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","MouseAiming",&ud.mouseaiming);		// 1=momentary/0=toggle
-        g_player[0].ps.aim_mode = ud.mouseaiming;
+        g_player[0].ps->aim_mode = ud.mouseaiming;
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","MouseBias",&ud.config.MouseBias);
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","MouseFilter",&ud.config.MouseFilter);
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","SmoothInput",&ud.config.SmoothInput);
@@ -705,9 +705,9 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","AimingFlag",(int32 *)&myaimmode);    // (if toggle mode) gives state
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","RunKeyBehaviour",&ud.runkey_mode);   // JBF 20031125
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","AutoAim",&ud.config.AutoAim);          // JBF 20031125
-        g_player[0].ps.auto_aim = ud.config.AutoAim;
+        g_player[0].ps->auto_aim = ud.config.AutoAim;
         SCRIPT_GetNumber(ud.config.scripthandle, "Controls","WeaponSwitchMode",&ud.weaponswitch);
-        g_player[0].ps.weaponswitch = ud.weaponswitch;
+        g_player[0].ps->weaponswitch = ud.weaponswitch;
 
 #ifdef _WIN32
         SCRIPT_GetNumber(ud.config.scripthandle, "Updates", "CheckForUpdates", &ud.config.CheckForUpdates);

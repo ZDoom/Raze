@@ -237,7 +237,7 @@ int loadsound(unsigned int num)
     if (fp == -1)
     {
 //        Bsprintf(fta_quotes[113],"Sound %s(#%d) not found.",sounds[num],num);
-//        FTA(113,&g_player[myconnectindex].ps);
+//        FTA(113,g_player[myconnectindex].ps);
         initprintf("Sound %s(#%d) not found.\n",sounds[num],num);
         return 0;
     }
@@ -267,8 +267,8 @@ int xyzsound(int num,int i,long x,long y,long z)
             ud.config.SoundToggle == 0 ||
             Sound[num].num > 3 ||
             FX_VoiceAvailable(soundpr[num]) == 0 ||
-            (g_player[myconnectindex].ps.timebeforeexit > 0 && g_player[myconnectindex].ps.timebeforeexit <= 26*3) ||
-            g_player[myconnectindex].ps.gm&MODE_MENU) return -1;
+            (g_player[myconnectindex].ps->timebeforeexit > 0 && g_player[myconnectindex].ps->timebeforeexit <= 26*3) ||
+            g_player[myconnectindex].ps->gm&MODE_MENU) return -1;
 
     if (soundm[num]&128)
     {
@@ -288,11 +288,11 @@ int xyzsound(int num,int i,long x,long y,long z)
                     return -1;
     }
 
-    cx = g_player[screenpeek].ps.oposx;
-    cy = g_player[screenpeek].ps.oposy;
-    cz = g_player[screenpeek].ps.oposz;
-    cs = g_player[screenpeek].ps.cursectnum;
-    ca = g_player[screenpeek].ps.ang+g_player[screenpeek].ps.look_ang;
+    cx = g_player[screenpeek].ps->oposx;
+    cy = g_player[screenpeek].ps->oposy;
+    cz = g_player[screenpeek].ps->oposz;
+    cs = g_player[screenpeek].ps->cursectnum;
+    ca = g_player[screenpeek].ps->ang+g_player[screenpeek].ps->look_ang;
 
     sndist = FindDistance3D((cx-x),(cy-y),(cz-z)>>4);
 
@@ -323,18 +323,18 @@ int xyzsound(int num,int i,long x,long y,long z)
     case RPG_EXPLODE:
         if (sndist > (6144))
             sndist = 6144;
-        if (sector[g_player[screenpeek].ps.cursectnum].lotag == 2)
+        if (sector[g_player[screenpeek].ps->cursectnum].lotag == 2)
             pitch -= 1024;
         break;
     default:
-        if (sector[g_player[screenpeek].ps.cursectnum].lotag == 2 && (soundm[num]&4) == 0)
+        if (sector[g_player[screenpeek].ps->cursectnum].lotag == 2 && (soundm[num]&4) == 0)
             pitch = -768;
         if (sndist > 31444 && PN != MUSICANDSFX)
             return -1;
         break;
     }
 
-    if (g_player[screenpeek].ps.sound_pitch) pitch += g_player[screenpeek].ps.sound_pitch;
+    if (g_player[screenpeek].ps->sound_pitch) pitch += g_player[screenpeek].ps->sound_pitch;
 
     if (Sound[num].num > 0 && PN != MUSICANDSFX)
     {
@@ -515,11 +515,11 @@ void pan3dsound(void)
 
     if (ud.camerasprite == -1)
     {
-        cx = g_player[screenpeek].ps.oposx;
-        cy = g_player[screenpeek].ps.oposy;
-        cz = g_player[screenpeek].ps.oposz;
-        cs = g_player[screenpeek].ps.cursectnum;
-        ca = g_player[screenpeek].ps.ang+g_player[screenpeek].ps.look_ang;
+        cx = g_player[screenpeek].ps->oposx;
+        cy = g_player[screenpeek].ps->oposy;
+        cz = g_player[screenpeek].ps->oposz;
+        cs = g_player[screenpeek].ps->cursectnum;
+        ca = g_player[screenpeek].ps->ang+g_player[screenpeek].ps->look_ang;
     }
     else
     {

@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "crc32.h"
 #include <ctype.h>
 
-extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting;
+extern int voting;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 
 static inline int osdcmd_quit(const osdfuncparm_t *parm)
@@ -86,21 +86,10 @@ static int osdcmd_changelevel(const osdfuncparm_t *parm)
         }
     }
 
-    if (volume == 0)
+    if (level > MAXLEVELS || map[volume*MAXLEVELS+level].filename == NULL)
     {
-        if (level > 6)
-        {
-            OSD_Printf("changelevel: invalid volume 1 level number (range 1-7)\n");
-            return OSDCMD_OK;
-        }
-    }
-    else
-    {
-        if (level > 10)
-        {
-            OSD_Printf("changelevel: invalid volume 2+ level number (range 1-11)\n");
-            return OSDCMD_SHOWHELP;
-        }
+        OSD_Printf("changelevel: invalid level number\n");
+        return OSDCMD_SHOWHELP;
     }
 
     if (numplayers > 1)
@@ -112,13 +101,18 @@ static int osdcmd_changelevel(const osdfuncparm_t *parm)
             ud.m_volume_number = volume;
             ud.m_level_number = level;
 
-            if (g_player[myconnectindex].ps.i)
+            if (g_player[myconnectindex].ps->i)
             {
                 int i;
 
-                Bmemset(votes,0,sizeof(votes));
-                Bmemset(gotvote,0,sizeof(gotvote));
-                votes[myconnectindex] = gotvote[myconnectindex] = 1;
+                for (i=0;i<MAXPLAYERS;i++)
+                {
+                    g_player[i].vote = 0;
+                    g_player[i].gotvote = 0;
+                }
+
+                g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
+
                 voting = myconnectindex;
 
                 tempbuf[0] = 18;
@@ -136,12 +130,12 @@ static int osdcmd_changelevel(const osdfuncparm_t *parm)
             if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && !(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_TDM))
                 ud.m_noexits = 0;
 
-            g_player[myconnectindex].ps.gm |= MODE_MENU;
+            g_player[myconnectindex].ps->gm |= MODE_MENU;
             cmenu(603);
         }
         return OSDCMD_OK;
     }
-    if (g_player[myconnectindex].ps.gm & MODE_GAME)
+    if (g_player[myconnectindex].ps->gm & MODE_GAME)
     {
         // in-game behave like a cheat
         osdcmd_cheatsinfo_stat.cheatnum = 2;
@@ -214,13 +208,17 @@ static int osdcmd_map(const osdfuncparm_t *parm)
             ud.m_volume_number = 0;
             ud.m_level_number = 7;
 
-            if (g_player[myconnectindex].ps.i)
+            if (g_player[myconnectindex].ps->i)
             {
                 int i;
 
-                Bmemset(votes,0,sizeof(votes));
-                Bmemset(gotvote,0,sizeof(gotvote));
-                votes[myconnectindex] = gotvote[myconnectindex] = 1;
+                for (i=0;i<MAXPLAYERS;i++)
+                {
+                    g_player[i].vote = 0;
+                    g_player[i].gotvote = 0;
+                }
+
+                g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
                 voting = myconnectindex;
 
                 tempbuf[0] = 18;
@@ -238,7 +236,7 @@ static int osdcmd_map(const osdfuncparm_t *parm)
             if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && !(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_TDM))
                 ud.m_noexits = 0;
 
-            g_player[myconnectindex].ps.gm |= MODE_MENU;
+            g_player[myconnectindex].ps->gm |= MODE_MENU;
             cmenu(603);
         }
         return OSDCMD_OK;
@@ -263,7 +261,7 @@ static int osdcmd_map(const osdfuncparm_t *parm)
 
 static int osdcmd_god(const osdfuncparm_t *parm)
 {
-    if (numplayers == 1 && g_player[myconnectindex].ps.gm & MODE_GAME)
+    if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
     {
         osdcmd_cheatsinfo_stat.cheatnum = 0;
     }
@@ -277,7 +275,7 @@ static int osdcmd_god(const osdfuncparm_t *parm)
 
 static int osdcmd_noclip(const osdfuncparm_t *parm)
 {
-    if (numplayers == 1 && g_player[myconnectindex].ps.gm & MODE_GAME)
+    if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
     {
         osdcmd_cheatsinfo_stat.cheatnum = 20;
     }
@@ -361,7 +359,7 @@ static int osdcmd_restartsound(const osdfuncparm_t *parm)
 
     if (ud.config.MusicToggle == 1)
     {
-        if (ud.recstat != 2 && g_player[myconnectindex].ps.gm&MODE_GAME)
+        if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
         {
             if (map[(unsigned char)music_select].musicfn != NULL)
                 playmusic(&map[(unsigned char)music_select].musicfn[0]);
@@ -445,7 +443,7 @@ static int osdcmd_spawn(const osdfuncparm_t *parm)
     short ang=0;
     short set=0, idx;
 
-    if (numplayers > 1 || !(g_player[myconnectindex].ps.gm & MODE_GAME))
+    if (numplayers > 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
     {
         OSD_Printf("spawn: Can't spawn sprites in multiplayer games or demos\n");
         return OSDCMD_OK;
@@ -507,7 +505,7 @@ static int osdcmd_spawn(const osdfuncparm_t *parm)
         return OSDCMD_SHOWHELP;
     }
 
-    idx = spawn(g_player[myconnectindex].ps.i, (short)picnum);
+    idx = spawn(g_player[myconnectindex].ps->i, (short)picnum);
     if (set & 1) sprite[idx].pal = (char)pal;
     if (set & 2) sprite[idx].cstat = (short)cstat;
     if (set & 4) sprite[idx].ang = ang;
@@ -542,7 +540,7 @@ static int osdcmd_setvar(const osdfuncparm_t *parm)
     for (i=0;i<iGameVarCount;i++)
         if (aGameVars[i].szLabel != NULL)
             if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
-                SetGameVarID(i, varval, g_player[myconnectindex].ps.i, myconnectindex);
+                SetGameVarID(i, varval, g_player[myconnectindex].ps->i, myconnectindex);
     return OSDCMD_OK;
 }
 
@@ -757,7 +755,7 @@ static int osdcmd_gamma(const osdfuncparm_t *parm)
         return OSDCMD_SHOWHELP;
     }
     ud.brightness = atoi(parm->parms[0])<<2;
-    setbrightness(ud.brightness>>2,&g_player[screenpeek].ps.palette[0],0);
+    setbrightness(ud.brightness>>2,&g_player[screenpeek].ps->palette[0],0);
     OSD_Printf("gamma %d\n",ud.brightness>>2);
     return OSDCMD_OK;
 }
@@ -766,9 +764,9 @@ static int osdcmd_give(const osdfuncparm_t *parm)
 {
     int i;
 
-    if (numplayers == 1 && g_player[myconnectindex].ps.gm & MODE_GAME)
+    if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
     {
-        if (g_player[myconnectindex].ps.dead_flag != 0)
+        if (g_player[myconnectindex].ps->dead_flag != 0)
         {
             OSD_Printf("give: Cannot give while dead.\n");
             return OSDCMD_OK;
@@ -783,7 +781,7 @@ static int osdcmd_give(const osdfuncparm_t *parm)
         }
         else if (!Bstrcasecmp(parm->parms[0], "health"))
         {
-            sprite[g_player[myconnectindex].ps.i].extra = 200;
+            sprite[g_player[myconnectindex].ps->i].extra = 200;
             return OSDCMD_OK;
         }
         else if (!Bstrcasecmp(parm->parms[0], "weapons"))
@@ -795,13 +793,13 @@ static int osdcmd_give(const osdfuncparm_t *parm)
         {
             for (i=PISTOL_WEAPON;i<MAX_WEAPONS-(VOLUMEONE?6:1);i++)
             {
-                addammo(i,&g_player[myconnectindex].ps,max_ammo_amount[i]);
+                addammo(i,g_player[myconnectindex].ps,max_ammo_amount[i]);
             }
             return OSDCMD_OK;
         }
         else if (!Bstrcasecmp(parm->parms[0], "armor"))
         {
-            g_player[myconnectindex].ps.shield_amount = 100;
+            g_player[myconnectindex].ps->shield_amount = 100;
             return OSDCMD_OK;
         }
         else if (!Bstrcasecmp(parm->parms[0], "keys"))
@@ -829,20 +827,20 @@ void onvideomodechange(int newmode)
 
     if (newmode)
     {
-        if (g_player[screenpeek].ps.palette == palette ||
-                g_player[screenpeek].ps.palette == waterpal ||
-                g_player[screenpeek].ps.palette == titlepal ||
-                g_player[screenpeek].ps.palette == animpal ||
-                g_player[screenpeek].ps.palette == endingpal ||
-                g_player[screenpeek].ps.palette == drealms ||
-                g_player[screenpeek].ps.palette == slimepal)
-            pal = g_player[screenpeek].ps.palette;
+        if (g_player[screenpeek].ps->palette == palette ||
+                g_player[screenpeek].ps->palette == waterpal ||
+                g_player[screenpeek].ps->palette == titlepal ||
+                g_player[screenpeek].ps->palette == animpal ||
+                g_player[screenpeek].ps->palette == endingpal ||
+                g_player[screenpeek].ps->palette == drealms ||
+                g_player[screenpeek].ps->palette == slimepal)
+            pal = g_player[screenpeek].ps->palette;
         else
             pal = palette;
     }
     else
     {
-        pal = g_player[screenpeek].ps.palette;
+        pal = g_player[screenpeek].ps->palette;
     }
 
     setbrightness(ud.brightness>>2, pal, 0);

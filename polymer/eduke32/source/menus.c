@@ -48,7 +48,7 @@ static int curvidset, newvidset = 0;
 
 static char *mousebuttonnames[] = { "Left", "Right", "Middle", "Thumb", "Wheel Up", "Wheel Down" };
 
-extern int gotvote[MAXPLAYERS], votes[MAXPLAYERS], voting;
+extern int voting;
 
 void cmenu(int cm)
 {
@@ -560,7 +560,7 @@ void sendquit(void)
 {
     if (gamequit == 0 && (numplayers > 1))
     {
-        if (g_player[myconnectindex].ps.gm&MODE_GAME)
+        if (g_player[myconnectindex].ps->gm&MODE_GAME)
         {
             gamequit = 1;
             quittimer = totalclock+120;
@@ -607,14 +607,14 @@ void menus(void)
             buttonstat = MOUSE_GetButtons();
     }
 
-    if ((g_player[myconnectindex].ps.gm&MODE_MENU) == 0)
+    if ((g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
     {
         walock[TILE_LOADSHOT] = 1;
         return;
     }
 
-    g_player[myconnectindex].ps.gm &= (0xff-MODE_TYPE);
-    g_player[myconnectindex].ps.fta = 0;
+    g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
+    g_player[myconnectindex].ps->fta = 0;
 
     x = 0;
 
@@ -679,7 +679,7 @@ void menus(void)
                 ready2send = 1;
                 totalclock = ototalclock;
             }
-            g_player[myconnectindex].ps.gm &= ~MODE_MENU;
+            g_player[myconnectindex].ps->gm &= ~MODE_MENU;
         }
         break;
 
@@ -1320,7 +1320,7 @@ void menus(void)
 
         if (KB_KeyPressed(sc_Escape) || KB_KeyPressed(sc_N) || RMB)
         {
-            if (sprite[g_player[myconnectindex].ps.i].extra <= 0)
+            if (sprite[g_player[myconnectindex].ps->i].extra <= 0)
             {
                 if (enterlevel(MODE_GAME)) backtomenu();
                 return;
@@ -1329,7 +1329,7 @@ void menus(void)
             KB_ClearKeyDown(sc_N);
             KB_ClearKeyDown(sc_Escape);
 
-            g_player[myconnectindex].ps.gm &= ~MODE_MENU;
+            g_player[myconnectindex].ps->gm &= ~MODE_MENU;
             if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 1;
@@ -1346,13 +1346,13 @@ void menus(void)
             if (ud.multimode > 1)
             {
                 loadplayer(-1-lastsavedpos);
-                g_player[myconnectindex].ps.gm = MODE_GAME;
+                g_player[myconnectindex].ps->gm = MODE_GAME;
             }
             else
             {
                 c = loadplayer(lastsavedpos);
                 if (c == 0)
-                    g_player[myconnectindex].ps.gm = MODE_GAME;
+                    g_player[myconnectindex].ps->gm = MODE_GAME;
             }
         }
 
@@ -1506,10 +1506,10 @@ void menus(void)
 
             if (ud.multimode > 1)
             {
-                if (g_player[myconnectindex].ps.gm&MODE_GAME)
+                if (g_player[myconnectindex].ps->gm&MODE_GAME)
                 {
                     loadplayer(-1-lastsavedpos);
-                    g_player[myconnectindex].ps.gm = MODE_GAME;
+                    g_player[myconnectindex].ps->gm = MODE_GAME;
                 }
                 else
                 {
@@ -1532,7 +1532,7 @@ void menus(void)
             {
                 c = loadplayer(lastsavedpos);
                 if (c == 0)
-                    g_player[myconnectindex].ps.gm = MODE_GAME;
+                    g_player[myconnectindex].ps->gm = MODE_GAME;
             }
 
             break;
@@ -1545,9 +1545,9 @@ void menus(void)
             KB_ClearKeyDown(sc_N);
             KB_ClearKeyDown(sc_Escape);
             sound(EXITMENUSOUND);
-            if (g_player[myconnectindex].ps.gm&MODE_GAME)
+            if (g_player[myconnectindex].ps->gm&MODE_GAME)
             {
-                g_player[myconnectindex].ps.gm &= ~MODE_MENU;
+                g_player[myconnectindex].ps->gm &= ~MODE_MENU;
                 if (ud.multimode < 2 && ud.recstat != 2)
                 {
                     ready2send = 1;
@@ -1579,7 +1579,7 @@ void menus(void)
                 ready2send = 1;
                 totalclock = ototalclock;
             }
-            g_player[myconnectindex].ps.gm &= ~MODE_MENU;
+            g_player[myconnectindex].ps->gm &= ~MODE_MENU;
             sound(EXITMENUSOUND);
             break;
         }
@@ -1963,9 +1963,9 @@ cheat_for_port_credits:
 
         if (KB_KeyPressed(sc_Q)) cmenu(500);
 
-        if (x == -1 && (g_player[myconnectindex].ps.gm&MODE_GAME || ud.recstat == 2))
+        if (x == -1 && (g_player[myconnectindex].ps->gm&MODE_GAME || ud.recstat == 2))
         {
-            g_player[myconnectindex].ps.gm &= ~MODE_MENU;
+            g_player[myconnectindex].ps->gm &= ~MODE_MENU;
             if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 1;
@@ -2064,7 +2064,7 @@ cheat_for_port_credits:
             cmenu(500);
             break;
         case -1:
-            g_player[myconnectindex].ps.gm &= ~MODE_MENU;
+            g_player[myconnectindex].ps->gm &= ~MODE_MENU;
             if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 1;
@@ -2144,7 +2144,7 @@ cheat_for_port_credits:
         }
         else if (x == -1)
         {
-            if (g_player[myconnectindex].ps.gm&MODE_GAME) cmenu(50);
+            if (g_player[myconnectindex].ps->gm&MODE_GAME) cmenu(50);
             else cmenu(0);
         }
 
@@ -2690,13 +2690,13 @@ cheat_for_port_credits:
                 case 9:
                     if (x==io)
                     {
-                        enabled = !((g_player[myconnectindex].ps.gm&MODE_GAME) && ud.m_recstat != 1);
-                        if ((g_player[myconnectindex].ps.gm&MODE_GAME)) closedemowrite();
+                        enabled = !((g_player[myconnectindex].ps->gm&MODE_GAME) && ud.m_recstat != 1);
+                        if ((g_player[myconnectindex].ps->gm&MODE_GAME)) closedemowrite();
                         else ud.m_recstat = !ud.m_recstat;
                     }
-                    if ((g_player[myconnectindex].ps.gm&MODE_GAME) && ud.m_recstat != 1)
+                    if ((g_player[myconnectindex].ps->gm&MODE_GAME) && ud.m_recstat != 1)
                         enabled = 0;
-                    gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && g_player[myconnectindex].ps.gm&MODE_GAME)?"Running":"On"):"Off",enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE,enabled?0:1);
+                    gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && g_player[myconnectindex].ps->gm&MODE_GAME)?"Running":"On"):"Off",enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE,enabled?0:1);
                     break;
                 case 10:
                     if (x==io) cmenu(201);
@@ -2878,7 +2878,7 @@ cheat_for_port_credits:
         switch (x)
         {
         case -1:
-            if (g_player[myconnectindex].ps.gm&MODE_GAME) cmenu(50);
+            if (g_player[myconnectindex].ps->gm&MODE_GAME) cmenu(50);
             else cmenu(0);
             break;
 
@@ -3236,7 +3236,7 @@ cheat_for_port_credits:
             if (x==4)
             {
                 ud.brightness = ss;
-                setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps.palette[0],0);
+                setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
             }
         }
 
@@ -4198,9 +4198,9 @@ cheat_for_port_credits:
         switch (x)
         {
         case -1:
-            if (g_player[myconnectindex].ps.gm&MODE_GAME && current_menu == 701)
+            if (g_player[myconnectindex].ps->gm&MODE_GAME && current_menu == 701)
             {
-                g_player[myconnectindex].ps.gm &= ~MODE_MENU;
+                g_player[myconnectindex].ps->gm &= ~MODE_MENU;
                 if (ud.multimode < 2  && ud.recstat != 2)
                 {
                     ready2send = 1;
@@ -4230,7 +4230,7 @@ cheat_for_port_credits:
                 if (ud.config.MusicToggle == 0) MUSIC_Pause();
                 else
                 {
-                    if (ud.recstat != 2 && g_player[myconnectindex].ps.gm&MODE_GAME)
+                    if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
                     {
                         if (map[(unsigned char)music_select].musicfn != NULL)
                             playmusic(&map[(unsigned char)music_select].musicfn[0]);
@@ -4354,7 +4354,7 @@ cheat_for_port_credits:
             if (x == -1)
             {
                 //        readsavenames();
-                g_player[myconnectindex].ps.gm = MODE_GAME;
+                g_player[myconnectindex].ps->gm = MODE_GAME;
                 if (ud.multimode < 2  && ud.recstat != 2)
                 {
                     ready2send = 1;
@@ -4376,7 +4376,7 @@ cheat_for_port_credits:
                         saveplayer(-1-(current_menu-360));
                     else saveplayer(current_menu-360);
                     lastsavedpos = current_menu-360;
-                    g_player[myconnectindex].ps.gm = MODE_GAME;
+                    g_player[myconnectindex].ps->gm = MODE_GAME;
 
                     if (ud.multimode < 2  && ud.recstat != 2)
                     {
@@ -4441,16 +4441,16 @@ cheat_for_port_credits:
         case -1:
             if (current_menu == 300)
             {
-                if ((g_player[myconnectindex].ps.gm&MODE_GAME) != MODE_GAME)
+                if ((g_player[myconnectindex].ps->gm&MODE_GAME) != MODE_GAME)
                 {
                     cmenu(0);
                     break;
                 }
                 else
-                    g_player[myconnectindex].ps.gm &= ~MODE_MENU;
+                    g_player[myconnectindex].ps->gm &= ~MODE_MENU;
             }
             else
-                g_player[myconnectindex].ps.gm = MODE_GAME;
+                g_player[myconnectindex].ps->gm = MODE_GAME;
 
             if (ud.multimode < 2 && ud.recstat != 2)
             {
@@ -4544,7 +4544,7 @@ DISPLAYNAMES:
 
         if (KB_KeyPressed(sc_Escape))
         {
-            if (g_player[myconnectindex].ps.gm&MODE_GAME)
+            if (g_player[myconnectindex].ps->gm&MODE_GAME)
                 cmenu(50);
             else cmenu(0);
             return;
@@ -4604,7 +4604,7 @@ VOLUME_ALL_40x:
 
         if (x == -1)
         {
-            if (g_player[myconnectindex].ps.gm&MODE_GAME)
+            if (g_player[myconnectindex].ps->gm&MODE_GAME)
                 cmenu(50);
             else cmenu(0);
             return;
@@ -4642,8 +4642,8 @@ VOLUME_ALL_40x:
         {
             KB_ClearKeyDown(sc_N);
             quittimer = 0;
-            if (g_player[myconnectindex].ps.gm&MODE_DEMO && ud.recstat == 2)
-                g_player[myconnectindex].ps.gm = MODE_DEMO;
+            if (g_player[myconnectindex].ps->gm&MODE_DEMO && ud.recstat == 2)
+                g_player[myconnectindex].ps->gm = MODE_DEMO;
             else
             {
                 if (current_menu == 502)
@@ -4651,9 +4651,9 @@ VOLUME_ALL_40x:
                     cmenu(last_menu);
                     probey = last_menu_pos;
                 }
-                else if (!(g_player[myconnectindex].ps.gm & MODE_GAME || ud.recstat == 2))
+                else if (!(g_player[myconnectindex].ps->gm & MODE_GAME || ud.recstat == 2))
                     cmenu(0);
-                else g_player[myconnectindex].ps.gm &= ~MODE_MENU;
+                else g_player[myconnectindex].ps->gm &= ~MODE_MENU;
                 if (ud.multimode < 2  && ud.recstat != 2)
                 {
                     ready2send = 1;
@@ -4671,7 +4671,7 @@ VOLUME_ALL_40x:
         if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
         {
             KB_FlushKeyboardQueue();
-            g_player[myconnectindex].ps.gm = MODE_DEMO;
+            g_player[myconnectindex].ps->gm = MODE_DEMO;
             if (ud.recstat == 1)
                 closedemowrite();
             cmenu(0);
@@ -4681,7 +4681,7 @@ VOLUME_ALL_40x:
 
         if (x == -1 || KB_KeyPressed(sc_N) || RMB)
         {
-            g_player[myconnectindex].ps.gm &= ~MODE_MENU;
+            g_player[myconnectindex].ps->gm &= ~MODE_MENU;
             if (ud.multimode < 2  && ud.recstat != 2)
             {
                 ready2send = 1;
@@ -4724,14 +4724,17 @@ VOLUME_ALL_40x:
             x = probe(186,124,0,0);
 
             if (voting != myconnectindex)
-                g_player[myconnectindex].ps.gm &= ~MODE_MENU;
+                g_player[myconnectindex].ps->gm &= ~MODE_MENU;
 
             if (x == -1)
             {
                 if (voting == myconnectindex)
                 {
-                    Bmemset(votes,0,sizeof(votes));
-                    Bmemset(gotvote,0,sizeof(gotvote));
+                    for (i=0;i<MAXPLAYERS;i++)
+                    {
+                        g_player[i].vote = 0;
+                        g_player[i].gotvote = 0;
+                    }
 
                     tempbuf[0] = 18;
                     tempbuf[1] = 2;
@@ -4749,12 +4752,12 @@ VOLUME_ALL_40x:
 
             for (i=0;i<MAXPLAYERS;i++)
             {
-                plrvotes += votes[i];
-                j += gotvote[i];
+                plrvotes += g_player[i].vote;
+                j += g_player[i].gotvote;
             }
-            if (j == numplayers || !g_player[myconnectindex].ps.i || (plrvotes > (numplayers>>1)) || (!networkmode && myconnectindex == connecthead))
+            if (j == numplayers || !g_player[myconnectindex].ps->i || (plrvotes > (numplayers>>1)) || (!networkmode && myconnectindex == connecthead))
             {
-                if (plrvotes > (numplayers>>1) || !g_player[myconnectindex].ps.i || (!networkmode && myconnectindex == connecthead))
+                if (plrvotes > (numplayers>>1) || !g_player[myconnectindex].ps->i || (!networkmode && myconnectindex == connecthead))
                 {
                     if (ud.m_player_skill == 3) ud.m_respawn_monsters = 1;
                     else ud.m_respawn_monsters = 0;
@@ -4783,8 +4786,12 @@ VOLUME_ALL_40x:
                 }
                 else if (j == numplayers)
                 {
-                    Bmemset(votes,0,sizeof(votes));
-                    Bmemset(gotvote,0,sizeof(gotvote));
+                    for (i=0;i<MAXPLAYERS;i++)
+                    {
+                        g_player[i].vote = 0;
+                        g_player[i].gotvote = 0;
+                    }
+
                     voting = -1;
 
                     tempbuf[0] = 18;
@@ -4799,8 +4806,8 @@ VOLUME_ALL_40x:
                     }
 
                     Bsprintf(fta_quotes[116],"VOTE FAILED");
-                    FTA(116,&g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps.gm &= ~MODE_MENU;
+                    FTA(116,g_player[myconnectindex].ps);
+                    g_player[myconnectindex].ps->gm &= ~MODE_MENU;
                 }
             }
             else
@@ -4811,7 +4818,7 @@ VOLUME_ALL_40x:
         }
     case 600:
         c = (320>>1) - 120;
-        if ((g_player[myconnectindex].ps.gm&MODE_GAME) != MODE_GAME)
+        if ((g_player[myconnectindex].ps->gm&MODE_GAME) != MODE_GAME)
             displayfragbar();
         rotatesprite(160<<16,26<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(160,31,0,0,&g_player[myconnectindex].user_name[0]);
@@ -4853,7 +4860,7 @@ VOLUME_ALL_40x:
         {
         case -1:
             ud.m_recstat = 0;
-            if (g_player[myconnectindex].ps.gm&MODE_GAME) cmenu(50);
+            if (g_player[myconnectindex].ps->gm&MODE_GAME) cmenu(50);
             else cmenu(0);
             break;
         case 0:
@@ -4923,11 +4930,14 @@ VOLUME_ALL_40x:
         case 7:
             if (voting == -1)
             {
-                if (g_player[myconnectindex].ps.i)
+                if (g_player[myconnectindex].ps->i)
                 {
-                    Bmemset(votes,0,sizeof(votes));
-                    Bmemset(gotvote,0,sizeof(gotvote));
-                    votes[myconnectindex] = gotvote[myconnectindex] = 1;
+                    for (i=0;i<MAXPLAYERS;i++)
+                    {
+                        g_player[i].vote = 0;
+                        g_player[i].gotvote = 0;
+                    }
+                    g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
                     voting = myconnectindex;
 
                     tempbuf[0] = 18;
@@ -5021,7 +5031,7 @@ VOLUME_ALL_40x:
         break;
     }
 
-    if ((g_player[myconnectindex].ps.gm&MODE_MENU) != MODE_MENU)
+    if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)
     {
         vscrn();
         cameraclock = totalclock;

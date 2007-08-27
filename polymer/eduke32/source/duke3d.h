@@ -304,7 +304,7 @@ typedef struct {
     unsigned long bits, extbits;
 } input;
 
-#define sync dsync  // JBF 20040604: sync is a function on some platforms
+// #define sync dsync  // JBF 20040604: sync is a function on some platforms
 extern input recsync[RECSYNCBUFSIZ];
 
 extern long movefifosendplc;
@@ -933,8 +933,8 @@ enum logoflags {
 	LOGO_FLAG_TENSCREEN			= 512
 };
 
-extern char numl;
-extern int condebug;
+extern int g_NumPalettes;
+extern int g_ScriptDebug;
 
 #define MAXCHEATLEN 20
 #define NUMCHEATCODES (signed int)(sizeof(cheatquotes)/sizeof(cheatquotes[MAXCHEATLEN]))
@@ -956,9 +956,8 @@ typedef struct {
 extern map_t map[MAXVOLUMES*MAXLEVELS];
 
 typedef struct {
-	player_struct ps;
-	player_orig po;
-	input sync;
+	player_struct *ps;
+	input *sync;
 
 	long movefifoend;
 	long syncvalhead;
@@ -973,9 +972,13 @@ typedef struct {
 	char user_name[32];
 	char playerreadyflag;
 	char playerquitflag;
+
+	char vote;
+	char gotvote;
 } playerdata_t;
 
 extern input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
+extern player_orig g_PlayerSpawnPoints[MAXPLAYERS];
 extern playerdata_t g_player[MAXPLAYERS];
 #include "funct.h"
 

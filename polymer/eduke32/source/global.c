@@ -88,6 +88,7 @@ char numplayersprites,loadfromgrouponly=0,earthquaketime;
 long fricxv,fricyv;
 playerdata_t g_player[MAXPLAYERS];
 input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
+player_orig g_PlayerSpawnPoints[MAXPLAYERS];
 user_defs ud;
 
 char pus, pub;
@@ -142,7 +143,7 @@ short weaponsandammosprites[15] =
 };
 
 long impact_damage;
-int condebug;
+int g_ScriptDebug;
 
 //GLOBAL.C - replace the end "my's" with this
 long myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
