@@ -1313,7 +1313,7 @@ static void resetpspritevars(char g)
     resetplayerstats(0);
 
     for (i=1;i<ud.multimode;i++)
-        memcpy(g_player[i].ps,g_player[0].ps,sizeof(g_player[0].ps));
+        memcpy(g_player[i].ps,g_player[0].ps,sizeof(player_struct));
 
     if (ud.recstat != 2)
         for (i=0;i<ud.multimode;i++)

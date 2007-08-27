@@ -304,7 +304,7 @@ typedef struct {
     unsigned long bits, extbits;
 } input;
 
-// #define sync dsync  // JBF 20040604: sync is a function on some platforms
+#define sync dsync  // JBF 20040604: sync is a function on some platforms
 extern input recsync[RECSYNCBUFSIZ];
 
 extern long movefifosendplc;

@@ -6308,12 +6308,12 @@ static int parse(void)
         if (g_player[g_p].ps->knee_incs == 0 && sprite[g_player[g_p].ps->i].xrepeat >= 40)
             if (cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,g_player[g_p].ps->posx,g_player[g_p].ps->posy,g_player[g_p].ps->posz+(16<<8),sprite[g_player[g_p].ps->i].sectnum))
             {
-                for (j=0;j<MAXPLAYERS;j++)
+                for (j=0;j<ud.multimode;j++)
                 {
                     if (g_player[j].ps->actorsqu == g_i)
                         break;
                 }
-                if (j == MAXPLAYERS)
+                if (j == ud.multimode)
                 {
                     g_player[g_p].ps->knee_incs = 1;
                     if (g_player[g_p].ps->weapon_pos == 0)
