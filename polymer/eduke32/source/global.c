@@ -28,7 +28,7 @@ char MusicPtr[72000*2];
 short global_random;
 short neartagsector, neartagwall, neartagsprite;
 
-long neartaghitdist,lockclock,max_player_health,max_armour_amount,max_ammo_amount[MAX_WEAPONS];
+long neartaghitdist,lockclock,start_armour_amount;
 // JBF: gc modified to default to Atomic ed. default when using 1.3d CONs
 long gc=176;
 

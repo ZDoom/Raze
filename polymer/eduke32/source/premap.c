@@ -720,7 +720,7 @@ void resetinventory(int snum)
     p->heat_on = 0;
     p->jetpack_on =         0;
     p->jetpack_amount =       0;
-    p->shield_amount =      max_armour_amount;
+    p->shield_amount =      start_armour_amount;
     p->holoduke_on = -1;
     p->holoduke_amount =    0;
     p->firstaid_amount = 0;
@@ -1381,8 +1381,8 @@ static void resetpspritevars(char g)
 
             if ((g&MODE_EOL) != MODE_EOL || g_player[j].ps->last_extra == 0)
             {
-                g_player[j].ps->last_extra = max_player_health;
-                s->extra = max_player_health;
+                g_player[j].ps->last_extra = g_player[j].ps->max_player_health;
+                s->extra = g_player[j].ps->max_player_health;
                 g_player[j].ps->runspeed = dukefriction;
             }
             else s->extra = g_player[j].ps->last_extra;

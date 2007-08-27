@@ -693,6 +693,9 @@ LABELS playerlabels[]=
     { "sound_pitch", PLAYER_SOUND_PITCH, 0, 0 },
     { "weaponswitch", PLAYER_WEAPONSWITCH, 0, 0 },
     { "team", PLAYER_TEAM, 0, 0 },
+    { "max_player_health", PLAYER_MAX_PLAYER_HEALTH, 0, 0 },
+    { "max_shield_amount", PLAYER_MAX_SHIELD_AMOUNT, 0, 0 },
+    { "max_ammo_amount", PLAYER_MAX_AMMO_AMOUNT, LABEL_HASPARM2, MAX_WEAPONS },
     { "", -1, 0, 0  }     // END OF LIST
 };
 
@@ -4414,8 +4417,8 @@ repeatcase:
         j = 0;
         ud.const_visibility = params[j++];
         impact_damage = params[j++];
-        max_player_health = params[j++];
-        max_armour_amount = params[j++];
+        g_player[0].ps->max_player_health = g_player[0].ps->max_shield_amount = params[j++];
+        start_armour_amount = params[j++];
         respawnactortime = params[j++];
         respawnitemtime = params[j++];
         dukefriction = params[j++];
@@ -4427,16 +4430,16 @@ repeatcase:
         morterblastradius = params[j++];
         bouncemineblastradius = params[j++];
         seenineblastradius = params[j++];
-        max_ammo_amount[PISTOL_WEAPON] = params[j++];
-        max_ammo_amount[SHOTGUN_WEAPON] = params[j++];
-        max_ammo_amount[CHAINGUN_WEAPON] = params[j++];
-        max_ammo_amount[RPG_WEAPON] = params[j++];
-        max_ammo_amount[HANDBOMB_WEAPON] = params[j++];
-        max_ammo_amount[SHRINKER_WEAPON] = params[j++];
-        max_ammo_amount[DEVISTATOR_WEAPON] = params[j++];
-        max_ammo_amount[TRIPBOMB_WEAPON] = params[j++];
-        max_ammo_amount[FREEZE_WEAPON] = params[j++];
-        if (g_ScriptVersion == 14) max_ammo_amount[GROW_WEAPON] = params[j++];
+        g_player[0].ps->max_ammo_amount[PISTOL_WEAPON] = params[j++];
+        g_player[0].ps->max_ammo_amount[SHOTGUN_WEAPON] = params[j++];
+        g_player[0].ps->max_ammo_amount[CHAINGUN_WEAPON] = params[j++];
+        g_player[0].ps->max_ammo_amount[RPG_WEAPON] = params[j++];
+        g_player[0].ps->max_ammo_amount[HANDBOMB_WEAPON] = params[j++];
+        g_player[0].ps->max_ammo_amount[SHRINKER_WEAPON] = params[j++];
+        g_player[0].ps->max_ammo_amount[DEVISTATOR_WEAPON] = params[j++];
+        g_player[0].ps->max_ammo_amount[TRIPBOMB_WEAPON] = params[j++];
+        g_player[0].ps->max_ammo_amount[FREEZE_WEAPON] = params[j++];
+        if (g_ScriptVersion == 14) g_player[0].ps->max_ammo_amount[GROW_WEAPON] = params[j++];
         camerashitable = params[j++];
         numfreezebounces = params[j++];
         freezerhurtowner = params[j++];

@@ -781,7 +781,7 @@ static int osdcmd_give(const osdfuncparm_t *parm)
         }
         else if (!Bstrcasecmp(parm->parms[0], "health"))
         {
-            sprite[g_player[myconnectindex].ps->i].extra = 200;
+            sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health<<1;
             return OSDCMD_OK;
         }
         else if (!Bstrcasecmp(parm->parms[0], "weapons"))
@@ -793,7 +793,7 @@ static int osdcmd_give(const osdfuncparm_t *parm)
         {
             for (i=PISTOL_WEAPON;i<MAX_WEAPONS-(VOLUMEONE?6:1);i++)
             {
-                addammo(i,g_player[myconnectindex].ps,max_ammo_amount[i]);
+                addammo(i,g_player[myconnectindex].ps,g_player[myconnectindex].ps->max_ammo_amount[i]);
             }
             return OSDCMD_OK;
         }

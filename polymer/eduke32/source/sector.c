@@ -3096,14 +3096,14 @@ CHECKINV1:
             OnEvent(EVENT_USEMEDKIT,g_player[snum].ps->i,snum, -1);
             if (GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
             {
-                if (p->firstaid_amount > 0 && sprite[p->i].extra < max_player_health)
+                if (p->firstaid_amount > 0 && sprite[p->i].extra < p->max_player_health)
                 {
-                    j = max_player_health-sprite[p->i].extra;
+                    j = p->max_player_health-sprite[p->i].extra;
 
                     if ((unsigned long)p->firstaid_amount > j)
                     {
                         p->firstaid_amount -= j;
-                        sprite[p->i].extra = max_player_health;
+                        sprite[p->i].extra = p->max_player_health;
                         p->inven_icon = 1;
                     }
                     else
@@ -3383,13 +3383,13 @@ void checksectors(int snum)
                         p->holster_weapon = 1;
                         p->weapon_pos = -1;
                     }
-                    if (sprite[p->i].extra <= (max_player_health-(max_player_health/10)))
+                    if (sprite[p->i].extra <= (p->max_player_health-(p->max_player_health/10)))
                     {
-                        sprite[p->i].extra += max_player_health/10;
+                        sprite[p->i].extra += p->max_player_health/10;
                         p->last_extra = sprite[p->i].extra;
                     }
-                    else if (sprite[p->i].extra < max_player_health)
-                        sprite[p->i].extra = max_player_health;
+                    else if (sprite[p->i].extra < p->max_player_health)
+                        sprite[p->i].extra = p->max_player_health;
                 }
                 else if (!isspritemakingsound(neartagsprite,FLUSH_TOILET))
                     spritesound(FLUSH_TOILET,neartagsprite);
@@ -3423,7 +3423,7 @@ void checksectors(int snum)
                     hittype[neartagsprite].temp_data[0] = 1;
                     sprite[neartagsprite].owner = p->i;
 
-                    if (sprite[p->i].extra < max_player_health)
+                    if (sprite[p->i].extra < p->max_player_health)
                     {
                         sprite[p->i].extra++;
                         spritesound(DUKE_DRINKING,p->i);

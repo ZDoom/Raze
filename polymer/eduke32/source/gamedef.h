@@ -56,12 +56,21 @@ extern char cheatquotes[][MAXCHEATLEN];
 extern char compilefile[BMAX_PATH];
 extern int total_lines,line_number;
 extern int error,warning;
-typedef struct _labels {
+typedef struct _labels
+{
     char *name;
     long lId;
     int flags;
     int maxParm2;
 } LABELS;
+
+extern LABELS sectorlabels[];
+extern LABELS walllabels[];
+extern LABELS actorlabels[];
+extern LABELS playerlabels[];
+extern LABELS projectilelabels[];
+extern LABELS userdeflabels[];
+extern LABELS inputlabels[];
 
 enum errors
 {
@@ -85,7 +94,8 @@ enum errors
     WARNING_LABELSONLY,
 };
 
-enum playerlabels {
+enum playerlabels
+{
     PLAYER_ZOOM,
     PLAYER_EXITX,
     PLAYER_EXITY,
@@ -227,10 +237,14 @@ enum playerlabels {
     PLAYER_MOVEMENT_LOCK,
     PLAYER_SOUND_PITCH,
     PLAYER_WEAPONSWITCH,
-    PLAYER_TEAM
+    PLAYER_TEAM,
+    PLAYER_MAX_PLAYER_HEALTH,
+    PLAYER_MAX_SHIELD_AMOUNT,
+    PLAYER_MAX_AMMO_AMOUNT
 };
 
-enum userdefslabels {
+enum userdefslabels
+{
     USERDEFS_GOD,
     USERDEFS_WARP_ON,
     USERDEFS_CASHMAN,
@@ -321,7 +335,8 @@ enum userdefslabels {
     USERDEFS_DEATHMSGS
 };
 
-enum sectorlabels {
+enum sectorlabels
+{
     SECTOR_WALLPTR,
     SECTOR_WALLNUM,
     SECTOR_CEILINGZ,
@@ -347,7 +362,8 @@ enum sectorlabels {
     SECTOR_EXTRA
 };
 
-enum walllabels {
+enum walllabels
+{
     WALL_X,
     WALL_Y,
     WALL_POINT2,
@@ -367,7 +383,8 @@ enum walllabels {
     WALL_EXTRA
 };
 
-enum actorlabels {
+enum actorlabels
+{
     ACTOR_X,
     ACTOR_Y,
     ACTOR_Z,
@@ -418,7 +435,8 @@ enum actorlabels {
     ACTOR_MDFLAGS
 };
 
-enum inputlabels {
+enum inputlabels
+{
     INPUT_AVEL,
     INPUT_HORZ,
     INPUT_FVEL,
@@ -427,7 +445,8 @@ enum inputlabels {
     INPUT_EXTBITS
 };
 
-enum projectilelabels {
+enum projectilelabels
+{
     PROJ_WORKSLIKE,
     PROJ_SPAWNS,
     PROJ_SXREPEAT,
@@ -458,7 +477,8 @@ enum projectilelabels {
     PROJ_RANGE // 28
 };
 
-enum keywords {
+enum keywords
+{
     CON_DEFINELEVELNAME,    // 0
     CON_ACTOR,              // 1
     CON_ADDAMMO,            // 2

@@ -66,7 +66,7 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
 #define BYTEVERSION_13  27
 #define BYTEVERSION_14  116
 #define BYTEVERSION_15  117
-#define BYTEVERSION_JF  174 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
+#define BYTEVERSION_JF  177 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
 
 #define BYTEVERSION (BYTEVERSION_JF+(PLUTOPAK?1:(VOLUMEONE<<1)))    // JBF 20040116: different data files give different versions
 
@@ -496,14 +496,16 @@ typedef struct {
 
     long max_secret_rooms,secret_rooms,max_actors_killed,actors_killed;
     long runspeed, movement_lock, team;
+    long max_player_health, max_shield_amount, max_ammo_amount[MAX_WEAPONS];
     short sbs, sound_pitch;
 } player_struct;
 
 extern char tempbuf[2048], packbuf[576];
 
-extern long gc,max_player_health,max_armour_amount,max_ammo_amount[MAX_WEAPONS];
+extern long gc;
 
 extern long impact_damage,respawnactortime,respawnitemtime;
+extern long start_armour_amount;
 
 #define MOVFIFOSIZ 256
 

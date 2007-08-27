@@ -1666,14 +1666,14 @@ static void weapon_amounts(player_struct *p,long x,long y,long u)
     {
         if (u != -1) patchstatusbar(88,178,88+37,178+6); //original code: (96,178,96+12,178+6);
         weaponnum999(PISTOL_WEAPON,x,y,
-                     p->ammo_amount[PISTOL_WEAPON],max_ammo_amount[PISTOL_WEAPON],
+                     p->ammo_amount[PISTOL_WEAPON],p->max_ammo_amount[PISTOL_WEAPON],
                      12-20*(cw == PISTOL_WEAPON));
     }
     if (u&8)
     {
         if (u != -1) patchstatusbar(88,184,88+37,184+6); //original code: (96,184,96+12,184+6);
         weaponnum999(SHOTGUN_WEAPON,x,y+6,
-                     p->ammo_amount[SHOTGUN_WEAPON],max_ammo_amount[SHOTGUN_WEAPON],
+                     p->ammo_amount[SHOTGUN_WEAPON],p->max_ammo_amount[SHOTGUN_WEAPON],
                      (!p->gotweapon[SHOTGUN_WEAPON]*9)+12-18*
                      (cw == SHOTGUN_WEAPON));
     }
@@ -1681,7 +1681,7 @@ static void weapon_amounts(player_struct *p,long x,long y,long u)
     {
         if (u != -1) patchstatusbar(88,190,88+37,190+6); //original code: (96,190,96+12,190+6);
         weaponnum999(CHAINGUN_WEAPON,x,y+12,
-                     p->ammo_amount[CHAINGUN_WEAPON],max_ammo_amount[CHAINGUN_WEAPON],
+                     p->ammo_amount[CHAINGUN_WEAPON],p->max_ammo_amount[CHAINGUN_WEAPON],
                      (!p->gotweapon[CHAINGUN_WEAPON]*9)+12-18*
                      (cw == CHAINGUN_WEAPON));
     }
@@ -1689,7 +1689,7 @@ static void weapon_amounts(player_struct *p,long x,long y,long u)
     {
         if (u != -1) patchstatusbar(127,178,127+29,178+6); //original code: (135,178,135+8,178+6);
         weaponnum(RPG_WEAPON,x+39,y,
-                  p->ammo_amount[RPG_WEAPON],max_ammo_amount[RPG_WEAPON],
+                  p->ammo_amount[RPG_WEAPON],p->max_ammo_amount[RPG_WEAPON],
                   (!p->gotweapon[RPG_WEAPON]*9)+12-19*
                   (cw == RPG_WEAPON));
     }
@@ -1697,7 +1697,7 @@ static void weapon_amounts(player_struct *p,long x,long y,long u)
     {
         if (u != -1) patchstatusbar(127,184,127+29,184+6); //original code: (135,184,135+8,184+6);
         weaponnum(HANDBOMB_WEAPON,x+39,y+6,
-                  p->ammo_amount[HANDBOMB_WEAPON],max_ammo_amount[HANDBOMB_WEAPON],
+                  p->ammo_amount[HANDBOMB_WEAPON],p->max_ammo_amount[HANDBOMB_WEAPON],
                   (((!p->ammo_amount[HANDBOMB_WEAPON])|(!p->gotweapon[HANDBOMB_WEAPON]))*9)+12-19*
                   ((cw == HANDBOMB_WEAPON) || (cw == HANDREMOTE_WEAPON)));
     }
@@ -1707,12 +1707,12 @@ static void weapon_amounts(player_struct *p,long x,long y,long u)
 
         if (p->subweapon&(1<<GROW_WEAPON))
             weaponnum(SHRINKER_WEAPON,x+39,y+12,
-                      p->ammo_amount[GROW_WEAPON],max_ammo_amount[GROW_WEAPON],
+                      p->ammo_amount[GROW_WEAPON],p->max_ammo_amount[GROW_WEAPON],
                       (!p->gotweapon[GROW_WEAPON]*9)+12-18*
                       (cw == GROW_WEAPON));
         else
             weaponnum(SHRINKER_WEAPON,x+39,y+12,
-                      p->ammo_amount[SHRINKER_WEAPON],max_ammo_amount[SHRINKER_WEAPON],
+                      p->ammo_amount[SHRINKER_WEAPON],p->max_ammo_amount[SHRINKER_WEAPON],
                       (!p->gotweapon[SHRINKER_WEAPON]*9)+12-18*
                       (cw == SHRINKER_WEAPON));
     }
@@ -1721,7 +1721,7 @@ static void weapon_amounts(player_struct *p,long x,long y,long u)
         if (u != -1) patchstatusbar(158,178,162+29,178+6); //original code: (166,178,166+8,178+6);
 
         weaponnum(DEVISTATOR_WEAPON,x+70,y,
-                  p->ammo_amount[DEVISTATOR_WEAPON],max_ammo_amount[DEVISTATOR_WEAPON],
+                  p->ammo_amount[DEVISTATOR_WEAPON],p->max_ammo_amount[DEVISTATOR_WEAPON],
                   (!p->gotweapon[DEVISTATOR_WEAPON]*9)+12-18*
                   (cw == DEVISTATOR_WEAPON));
     }
@@ -1730,7 +1730,7 @@ static void weapon_amounts(player_struct *p,long x,long y,long u)
         if (u != -1) patchstatusbar(158,184,162+29,184+6); //original code: (166,184,166+8,184+6);
 
         weaponnum(TRIPBOMB_WEAPON,x+70,y+6,
-                  p->ammo_amount[TRIPBOMB_WEAPON],max_ammo_amount[TRIPBOMB_WEAPON],
+                  p->ammo_amount[TRIPBOMB_WEAPON],p->max_ammo_amount[TRIPBOMB_WEAPON],
                   (!p->gotweapon[TRIPBOMB_WEAPON]*9)+12-18*
                   (cw == TRIPBOMB_WEAPON));
     }
@@ -1740,7 +1740,7 @@ static void weapon_amounts(player_struct *p,long x,long y,long u)
         if (u != -1) patchstatusbar(158,190,162+29,190+6); //original code: (166,190,166+8,190+6);
 
         weaponnum(-1,x+70,y+12,
-                  p->ammo_amount[FREEZE_WEAPON],max_ammo_amount[FREEZE_WEAPON],
+                  p->ammo_amount[FREEZE_WEAPON],p->max_ammo_amount[FREEZE_WEAPON],
                   (!p->gotweapon[FREEZE_WEAPON]*9)+12-18*
                   (cw == FREEZE_WEAPON));
     }
@@ -7190,7 +7190,7 @@ void CheatGetInventory(void)
             GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex);
     }
 
-    SetGameVarID(g_iReturnVarID, max_player_health, g_player[myconnectindex].ps->i, myconnectindex);
+    SetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps->max_player_health, g_player[myconnectindex].ps->i, myconnectindex);
     OnEvent(EVENT_CHEATGETFIRSTAID, g_player[myconnectindex].ps->i, myconnectindex, -1);
     if (GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps->i, myconnectindex) >=0)
     {
@@ -7280,7 +7280,7 @@ FOUNDCHEAT:
 
                     for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
                     {
-                        addammo(weapon, g_player[myconnectindex].ps, max_ammo_amount[weapon]);
+                        addammo(weapon, g_player[myconnectindex].ps, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
                         g_player[myconnectindex].ps->gotweapon[weapon]  = 1;
                     }
 
@@ -7361,13 +7361,13 @@ FOUNDCHEAT:
                     else
                     {
                         ud.god = 0;
-                        sprite[g_player[myconnectindex].ps->i].extra = max_player_health;
+                        sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
                         hittype[g_player[myconnectindex].ps->i].extra = -1;
-                        g_player[myconnectindex].ps->last_extra = max_player_health;
+                        g_player[myconnectindex].ps->last_extra = g_player[myconnectindex].ps->max_player_health;
                         FTA(18,g_player[myconnectindex].ps);
                     }
 
-                    sprite[g_player[myconnectindex].ps->i].extra = max_player_health;
+                    sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
                     hittype[g_player[myconnectindex].ps->i].extra = 0;
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
@@ -7401,18 +7401,18 @@ FOUNDCHEAT:
                         for (weapon = PISTOL_WEAPON;
                                 weapon < (MAX_WEAPONS);
                                 weapon++)
-                            addammo(weapon, g_player[myconnectindex].ps, max_ammo_amount[weapon]);
+                            addammo(weapon, g_player[myconnectindex].ps, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
                         g_player[myconnectindex].ps->got_access = 7;
                     }
                     else
                     {
-                        sprite[g_player[myconnectindex].ps->i].extra = max_player_health;
+                        sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
                         hittype[g_player[myconnectindex].ps->i].extra = -1;
-                        g_player[myconnectindex].ps->last_extra = max_player_health;
+                        g_player[myconnectindex].ps->last_extra = g_player[myconnectindex].ps->max_player_health;
                         FTA(18,g_player[myconnectindex].ps);
                     }
 
-                    sprite[g_player[myconnectindex].ps->i].extra = max_player_health;
+                    sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
                     hittype[g_player[myconnectindex].ps->i].extra = 0;
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
@@ -7432,7 +7432,7 @@ FOUNDCHEAT:
                     for (weapon = PISTOL_WEAPON;
                             weapon < (MAX_WEAPONS-j);
                             weapon++)
-                        addammo(weapon, g_player[myconnectindex].ps, max_ammo_amount[weapon]);
+                        addammo(weapon, g_player[myconnectindex].ps, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
                     CheatGetInventory();
                     g_player[myconnectindex].ps->got_access =              7;
                     FTA(5,g_player[myconnectindex].ps);
@@ -10147,10 +10147,10 @@ void app_main(int argc,const char **argv)
     if (numplayers > 1)
         ud.multimode = numplayers;
 
-    for (i=1;i<MAXPLAYERS;i++)
+    for (i=1;i<ud.multimode;i++)
     {
-        g_player[i].ps = Bcalloc(1,sizeof(player_struct));
-        g_player[i].sync = Bcalloc(1,sizeof(input));
+        g_player[i].ps = (player_struct *) Bcalloc(1,sizeof(player_struct));
+        g_player[i].sync = (input *) Bcalloc(1,sizeof(input));
     }
 
     g_player[myconnectindex].ps->palette = (char *) &palette[0];

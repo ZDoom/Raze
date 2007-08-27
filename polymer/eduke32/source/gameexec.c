@@ -1953,6 +1953,28 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
             SetGameVarID(lVar2, g_player[iPlayer].ps->team, g_i, g_p);
         break;
 
+    case PLAYER_MAX_PLAYER_HEALTH:
+        if (iSet)
+            g_player[iPlayer].ps->max_player_health = lValue;
+        else
+            SetGameVarID(lVar2, g_player[iPlayer].ps->max_player_health, g_i, g_p);
+        break;
+
+    case PLAYER_MAX_SHIELD_AMOUNT:
+        if (iSet)
+            g_player[iPlayer].ps->max_shield_amount = lValue;
+        else
+            SetGameVarID(lVar2, g_player[iPlayer].ps->max_shield_amount, g_i, g_p);
+        break;
+
+    case PLAYER_MAX_AMMO_AMOUNT:
+        lTemp=lParm2;
+        if (iSet)
+            g_player[iPlayer].ps->max_ammo_amount[lTemp]=lValue;
+        else
+            SetGameVarID(lVar2, g_player[iPlayer].ps->max_ammo_amount[lTemp], g_i, g_p);
+        break;
+
     default:
         break;
     }
@@ -3962,7 +3984,7 @@ static int parse(void)
         return 1;
     case CON_ADDAMMO:
         insptr++;
-        if (g_player[g_p].ps->ammo_amount[*insptr] >= max_ammo_amount[*insptr])
+        if (g_player[g_p].ps->ammo_amount[*insptr] >= g_player[g_p].ps->max_ammo_amount[*insptr])
         {
             killit_flag = 2;
             break;
@@ -4020,7 +4042,7 @@ static int parse(void)
             if (!(g_player[g_p].ps->weaponswitch & 1)) addweaponnoswitch(g_player[g_p].ps, *insptr);
             else addweapon(g_player[g_p].ps, *insptr);
         }
-        else if (g_player[g_p].ps->ammo_amount[*insptr] >= max_ammo_amount[*insptr])
+        else if (g_player[g_p].ps->ammo_amount[*insptr] >= g_player[g_p].ps->max_ammo_amount[*insptr])
         {
             killit_flag = 2;
             break;
@@ -4073,7 +4095,7 @@ static int parse(void)
 
         if (g_sp->picnum != ATOMICHEALTH)
         {
-            if (j > max_player_health && *insptr > 0)
+            if (j > g_player[g_p].ps->max_player_health && *insptr > 0)
             {
                 insptr++;
                 break;
@@ -4082,16 +4104,16 @@ static int parse(void)
             {
                 if (j > 0)
                     j += *insptr;
-                if (j > max_player_health && *insptr > 0)
-                    j = max_player_health;
+                if (j > g_player[g_p].ps->max_player_health && *insptr > 0)
+                    j = g_player[g_p].ps->max_player_health;
             }
         }
         else
         {
             if (j > 0)
                 j += *insptr;
-            if (j > (max_player_health<<1))
-                j = (max_player_health<<1);
+            if (j > (g_player[g_p].ps->max_player_health<<1))
+                j = (g_player[g_p].ps->max_player_health<<1);
         }
 
         if (j < 0) j = 0;
@@ -4100,8 +4122,8 @@ static int parse(void)
         {
             if (*insptr > 0)
             {
-                if ((j - *insptr) < (max_player_health>>2) &&
-                        j >= (max_player_health>>2))
+                if ((j - *insptr) < (g_player[g_p].ps->max_player_health>>2) &&
+                        j >= (g_player[g_p].ps->max_player_health>>2))
                     spritesound(DUKE_GOTHEALTHATLOW,g_player[g_p].ps->i);
 
                 g_player[g_p].ps->last_extra = j;
@@ -4144,7 +4166,7 @@ static int parse(void)
             if (!(g_player[g_p].ps->weaponswitch & 1)) addweaponnoswitch(g_player[g_p].ps, GetGameVarID(*(insptr),g_i,g_p));
             else addweapon(g_player[g_p].ps, GetGameVarID(*(insptr),g_i,g_p));
         }
-        else if (g_player[g_p].ps->ammo_amount[GetGameVarID(*(insptr),g_i,g_p)] >= max_ammo_amount[GetGameVarID(*(insptr),g_i,g_p)])
+        else if (g_player[g_p].ps->ammo_amount[GetGameVarID(*(insptr),g_i,g_p)] >= g_player[g_p].ps->max_ammo_amount[GetGameVarID(*(insptr),g_i,g_p)])
         {
             killit_flag = 2;
             break;
@@ -5131,7 +5153,7 @@ static int parse(void)
             g_sp->xoffset = 0;
             g_sp->pal = g_player[g_p].ps->palookup;
 
-            g_player[g_p].ps->last_extra = g_sp->extra = max_player_health;
+            g_player[g_p].ps->last_extra = g_sp->extra = g_player[g_p].ps->max_player_health;
             g_player[g_p].ps->wantweaponfire = -1;
             g_player[g_p].ps->horiz = 100;
             g_player[g_p].ps->on_crane = -1;
@@ -5139,7 +5161,7 @@ static int parse(void)
             g_player[g_p].ps->horizoff = 0;
             g_player[g_p].ps->opyoff = 0;
             g_player[g_p].ps->wackedbyactor = -1;
-            g_player[g_p].ps->shield_amount = max_armour_amount;
+            g_player[g_p].ps->shield_amount = start_armour_amount;
             g_player[g_p].ps->dead_flag = 0;
             g_player[g_p].ps->pals_time = 0;
             g_player[g_p].ps->footprintcount = 0;
@@ -5211,8 +5233,8 @@ static int parse(void)
 
         case GET_SHIELD:
             g_player[g_p].ps->shield_amount +=          *insptr;// 100;
-            if (g_player[g_p].ps->shield_amount > max_player_health)
-                g_player[g_p].ps->shield_amount = max_player_health;
+            if (g_player[g_p].ps->shield_amount > g_player[g_p].ps->max_shield_amount)
+                g_player[g_p].ps->shield_amount = g_player[g_p].ps->max_shield_amount;
             break;
 
         case GET_SCUBA:
@@ -5732,22 +5754,11 @@ static int parse(void)
         {
             // syntax [gs]etplayer[<var>].x <VAR>
             // <varid> <xxxid> <varid>
-            int lVar1=*insptr++, lLabelID=*insptr++, lParm2, lVar2;
+            int lVar1=*insptr++, lLabelID=*insptr++, lParm2 = 0, lVar2;
             // HACK: need to have access to labels structure at run-time...
 
-            switch (lLabelID)
-            {
-            case PLAYER_AMMO_AMOUNT:
-            case PLAYER_GOTWEAPON:
-            case PLAYER_PALS:
-            case PLAYER_LOOGIEX:
-            case PLAYER_LOOGIEY:
+            if (playerlabels[lLabelID].flags & LABEL_HASPARM2)
                 lParm2=GetGameVarID(*insptr++, g_i, g_p);
-                break;
-            default:
-                lParm2=0;
-                break;
-            }
             lVar2=*insptr++;
 
             DoPlayer(tw==CON_SETPLAYER, lVar1, lLabelID, lVar2, lParm2);
@@ -5851,17 +5862,10 @@ static int parse(void)
             // syntax [gs]etactor[<var>].x <VAR>
             // <varid> <xxxid> <varid>
 
-            int lVar1=*insptr++, lLabelID=*insptr++, lParm2, lVar2;
+            int lVar1=*insptr++, lLabelID=*insptr++, lParm2 = 0, lVar2;
 
-            switch (lLabelID)
-            {
-            case ACTOR_HTG_T:
+            if (actorlabels[lLabelID].flags & LABEL_HASPARM2)
                 lParm2=GetGameVarID(*insptr++, g_i, g_p);
-                break;
-            default:
-                lParm2=0;
-                break;
-            }
             lVar2=*insptr++;
 
             DoActor(tw==CON_SETACTOR, lVar1, lLabelID, lVar2, lParm2);
@@ -6003,13 +6007,13 @@ static int parse(void)
     case CON_GMAXAMMO:
         insptr++;
         j=GetGameVarID(*insptr++, g_i, g_p);
-        SetGameVarID(*insptr++, max_ammo_amount[j], g_i, g_p);
+        SetGameVarID(*insptr++, g_player[g_p].ps->max_ammo_amount[j], g_i, g_p);
         break;
 
     case CON_SMAXAMMO:
         insptr++;
         j=GetGameVarID(*insptr++, g_i, g_p);
-        max_ammo_amount[j]=GetGameVarID(*insptr++, g_i, g_p);
+        g_player[g_p].ps->max_ammo_amount[j]=GetGameVarID(*insptr++, g_i, g_p);
         break;
 
     case CON_MULVARVAR:
@@ -6137,7 +6141,7 @@ static int parse(void)
 
     case CON_STARTTRACK:
         insptr++;
-        music_select=*insptr++;
+        music_select=(ud.volume_number*MAXLEVELS)+(*(insptr++));
         if (map[(unsigned char)music_select].musicfn != NULL)
             playmusic(&map[(unsigned char)music_select].musicfn[0]);
         break;
@@ -6262,7 +6266,7 @@ static int parse(void)
                 j = 1;
             break;
         case GET_SHIELD:
-            if (g_player[g_p].ps->shield_amount != max_player_health)
+            if (g_player[g_p].ps->shield_amount != g_player[g_p].ps->max_shield_amount)
                 j = 1;
             break;
         case GET_SCUBA:

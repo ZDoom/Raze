@@ -512,7 +512,7 @@ int shoot(int i,int atwith)
                     }
 
                     if (p >= 0 && g_player[p].ps->steroids_amount > 0 && g_player[p].ps->steroids_amount < 400)
-                        sprite[j].extra += (max_player_health>>2);
+                        sprite[j].extra += (g_player[p].ps->max_player_health>>2);
 
                     if (hitspr >= 0 && sprite[hitspr].picnum != ACCESSSWITCH && sprite[hitspr].picnum != ACCESSSWITCH2)
                     {
@@ -1076,7 +1076,7 @@ DOSKIPBULLETHOLE:
                     }
 
                     if (p >= 0 && g_player[p].ps->steroids_amount > 0 && g_player[p].ps->steroids_amount < 400)
-                        sprite[j].extra += (max_player_health>>2);
+                        sprite[j].extra += (g_player[p].ps->max_player_health>>2);
 
                     if (hitspr >= 0 && sprite[hitspr].picnum != ACCESSSWITCH && sprite[hitspr].picnum != ACCESSSWITCH2)
                     {
@@ -3179,7 +3179,7 @@ static int doincrements(player_struct *p)
             else
             {
                 p->extra_extra8 += 32;
-                if (p->last_extra < (max_player_health>>1) && (p->last_extra&3) == 0)
+                if (p->last_extra < (p->max_player_health>>1) && (p->last_extra&3) == 0)
                     spritesound(DUKE_LONGTERM_PAIN,p->i);
             }
         }
@@ -5123,41 +5123,41 @@ int getspritescore(long snum, long dapicnum)
         return(120);
 
     case FREEZEAMMO__STATIC:
-        if (g_player[snum].ps->ammo_amount[FREEZE_WEAPON] < max_ammo_amount[FREEZE_WEAPON]) return(10);
+        if (g_player[snum].ps->ammo_amount[FREEZE_WEAPON] < g_player[snum].ps->max_ammo_amount[FREEZE_WEAPON]) return(10);
         return(1);
     case AMMO__STATIC:
-        if (g_player[snum].ps->ammo_amount[PISTOL_WEAPON] < max_ammo_amount[PISTOL_WEAPON]) return(10);
+        if (g_player[snum].ps->ammo_amount[PISTOL_WEAPON] < g_player[snum].ps->max_ammo_amount[PISTOL_WEAPON]) return(10);
         return(1);
     case BATTERYAMMO__STATIC:
-        if (g_player[snum].ps->ammo_amount[CHAINGUN_WEAPON] < max_ammo_amount[CHAINGUN_WEAPON]) return(20);
+        if (g_player[snum].ps->ammo_amount[CHAINGUN_WEAPON] < g_player[snum].ps->max_ammo_amount[CHAINGUN_WEAPON]) return(20);
         return(1);
     case DEVISTATORAMMO__STATIC:
-        if (g_player[snum].ps->ammo_amount[DEVISTATOR_WEAPON] < max_ammo_amount[DEVISTATOR_WEAPON]) return(25);
+        if (g_player[snum].ps->ammo_amount[DEVISTATOR_WEAPON] < g_player[snum].ps->max_ammo_amount[DEVISTATOR_WEAPON]) return(25);
         return(1);
     case RPGAMMO__STATIC:
-        if (g_player[snum].ps->ammo_amount[RPG_WEAPON] < max_ammo_amount[RPG_WEAPON]) return(50);
+        if (g_player[snum].ps->ammo_amount[RPG_WEAPON] < g_player[snum].ps->max_ammo_amount[RPG_WEAPON]) return(50);
         return(1);
     case CRYSTALAMMO__STATIC:
-        if (g_player[snum].ps->ammo_amount[SHRINKER_WEAPON] < max_ammo_amount[SHRINKER_WEAPON]) return(10);
+        if (g_player[snum].ps->ammo_amount[SHRINKER_WEAPON] < g_player[snum].ps->max_ammo_amount[SHRINKER_WEAPON]) return(10);
         return(1);
     case HBOMBAMMO__STATIC:
-        if (g_player[snum].ps->ammo_amount[HANDBOMB_WEAPON] < max_ammo_amount[HANDBOMB_WEAPON]) return(30);
+        if (g_player[snum].ps->ammo_amount[HANDBOMB_WEAPON] < g_player[snum].ps->max_ammo_amount[HANDBOMB_WEAPON]) return(30);
         return(1);
     case SHOTGUNAMMO__STATIC:
-        if (g_player[snum].ps->ammo_amount[SHOTGUN_WEAPON] < max_ammo_amount[SHOTGUN_WEAPON]) return(25);
+        if (g_player[snum].ps->ammo_amount[SHOTGUN_WEAPON] < g_player[snum].ps->max_ammo_amount[SHOTGUN_WEAPON]) return(25);
         return(1);
 
     case COLA__STATIC:
-        if (sprite[g_player[snum].ps->i].extra < 100) return(10);
+        if (sprite[g_player[snum].ps->i].extra < g_player[snum].ps->max_player_health) return(10);
         return(1);
     case SIXPAK__STATIC:
-        if (sprite[g_player[snum].ps->i].extra < 100) return(30);
+        if (sprite[g_player[snum].ps->i].extra < g_player[snum].ps->max_player_health) return(30);
         return(1);
     case FIRSTAID__STATIC:
-        if (g_player[snum].ps->firstaid_amount < 100) return(100);
+        if (g_player[snum].ps->firstaid_amount < g_player[snum].ps->max_player_health) return(100);
         return(1);
     case SHIELD__STATIC:
-        if (g_player[snum].ps->shield_amount < 100) return(50);
+        if (g_player[snum].ps->shield_amount < g_player[snum].ps->max_shield_amount) return(50);
         return(1);
     case STEROIDS__STATIC:
         if (g_player[snum].ps->steroids_amount < 400) return(30);
@@ -5177,7 +5177,7 @@ int getspritescore(long snum, long dapicnum)
         if (g_player[snum].ps->boot_amount < 200) return(15);
         return(1);
     case ATOMICHEALTH__STATIC:
-        if (sprite[g_player[snum].ps->i].extra < max_player_health<<1) return(50);
+        if (sprite[g_player[snum].ps->i].extra < g_player[snum].ps->max_player_health<<1) return(50);
         return(1);
     case HOLODUKE__STATIC:
         if (g_player[snum].ps->holoduke_amount < 2400) return(5);

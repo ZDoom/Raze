@@ -100,8 +100,8 @@ void addammo(int weapon,player_struct *p,int amount)
 {
     p->ammo_amount[weapon] += amount;
 
-    if (p->ammo_amount[weapon] > max_ammo_amount[weapon])
-        p->ammo_amount[weapon] = max_ammo_amount[weapon];
+    if (p->ammo_amount[weapon] > p->max_ammo_amount[weapon])
+        p->ammo_amount[weapon] = p->max_ammo_amount[weapon];
 }
 
 void addweaponnoswitch(player_struct *p, int weapon)
@@ -1067,7 +1067,7 @@ static void moveplayers(void) //Players
                     }
                 if (ud.god)
                 {
-                    s->extra = max_player_health;
+                    s->extra = p->max_player_health;
                     s->cstat = 257;
                     p->jetpack_amount =     1599;
                 }
@@ -4524,7 +4524,7 @@ DETONATEB:
             }
             else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
                 if (cansee(s->x,s->y,s->z-(8<<8),s->sectnum,g_player[p].ps->posx,g_player[p].ps->posy,g_player[p].ps->posz,g_player[p].ps->cursectnum))
-                    if (g_player[p].ps->ammo_amount[HANDBOMB_WEAPON] < max_ammo_amount[HANDBOMB_WEAPON])
+                    if (g_player[p].ps->ammo_amount[HANDBOMB_WEAPON] < g_player[p].ps->max_ammo_amount[HANDBOMB_WEAPON])
                     {
                         if ((gametype_flags[ud.coop] & GAMETYPE_FLAG_WEAPSTAY) && s->owner == i)
                         {

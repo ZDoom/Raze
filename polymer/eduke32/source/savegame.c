@@ -24,8 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 
-#define BYTEVERSION_COMPAT (BYTEVERSION-3)
-
 void readsavenames(void)
 {
     long dummy,j;
@@ -54,7 +52,7 @@ void readsavenames(void)
             Bfclose(fil);
             continue;
         }
-        if (dummy != BYTEVERSION && dummy != BYTEVERSION_COMPAT)
+        if (dummy != BYTEVERSION)
         {
             Bfclose(fil);
             continue;
@@ -91,7 +89,7 @@ int loadpheader(char spot,struct savehead *saveh)
     //    AddLog(g_szBuf);
 
     if (kdfread(&bv,4,1,fil) != 1) goto corrupt;
-    if (bv != BYTEVERSION && bv != BYTEVERSION_COMPAT)
+    if (bv != BYTEVERSION)
     {
         FTA(114,g_player[myconnectindex].ps);
         kclose(fil);
@@ -168,7 +166,7 @@ int loadplayer(int spot)
     //    AddLog(g_szBuf);
 
     if (kdfread(&bv,4,1,fil) != 1) return -1;
-    if (bv != BYTEVERSION && bv != BYTEVERSION_COMPAT)
+    if (bv != BYTEVERSION)
     {
         FTA(114,g_player[myconnectindex].ps);
         kclose(fil);
