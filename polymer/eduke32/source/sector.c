@@ -192,7 +192,7 @@ int checkcursectnums(int sect)
 {
     int i;
     for (i=connecthead;i>=0;i=connectpoint2[i])
-        if (sprite[ps[i].i].sectnum == sect) return i;
+        if (sprite[g_player[i].ps.i].sectnum == sect) return i;
     return -1;
 }
 
@@ -220,7 +220,7 @@ int findplayer(spritetype *s,long *d)
 
     if (ud.multimode < 2)
     {
-        *d = klabs(ps[myconnectindex].oposx-s->x) + klabs(ps[myconnectindex].oposy-s->y) + ((klabs(ps[myconnectindex].oposz-s->z+(28<<8)))>>4);
+        *d = klabs(g_player[myconnectindex].ps.oposx-s->x) + klabs(g_player[myconnectindex].ps.oposy-s->y) + ((klabs(g_player[myconnectindex].ps.oposz-s->z+(28<<8)))>>4);
         return myconnectindex;
     }
 
@@ -229,8 +229,8 @@ int findplayer(spritetype *s,long *d)
 
     for (j=connecthead;j>=0;j=connectpoint2[j])
     {
-        x = klabs(ps[j].oposx-s->x) + klabs(ps[j].oposy-s->y) + ((klabs(ps[j].oposz-s->z+(28<<8)))>>4);
-        if (x < closest && sprite[ps[j].i].extra > 0)
+        x = klabs(g_player[j].ps.oposx-s->x) + klabs(g_player[j].ps.oposy-s->y) + ((klabs(g_player[j].ps.oposz-s->z+(28<<8)))>>4);
+        if (x < closest && sprite[g_player[j].ps.i].extra > 0)
         {
             closest_player = j;
             closest = x;
@@ -250,9 +250,9 @@ int findotherplayer(int p,long *d)
     closest_player = p;
 
     for (j=connecthead;j>=0;j=connectpoint2[j])
-        if (p != j && sprite[ps[j].i].extra > 0)
+        if (p != j && sprite[g_player[j].ps.i].extra > 0)
         {
-            x = klabs(ps[j].oposx-ps[p].posx) + klabs(ps[j].oposy-ps[p].posy) + (klabs(ps[j].oposz-ps[p].posz)>>4);
+            x = klabs(g_player[j].ps.oposx-g_player[p].ps.posx) + klabs(g_player[j].ps.oposy-g_player[p].ps.posy) + (klabs(g_player[j].ps.oposz-g_player[p].ps.posz)>>4);
 
             if (x < closest)
             {
@@ -306,17 +306,17 @@ void doanimations(void)
         if (animateptr[i] == &sector[animatesect[i]].floorz)
         {
             for (p=connecthead;p>=0;p=connectpoint2[p])
-                if (ps[p].cursectnum == dasect)
-                    if ((sector[dasect].floorz-ps[p].posz) < (64<<8))
-                        if (sprite[ps[p].i].owner >= 0)
+                if (g_player[p].ps.cursectnum == dasect)
+                    if ((sector[dasect].floorz-g_player[p].ps.posz) < (64<<8))
+                        if (sprite[g_player[p].ps.i].owner >= 0)
                         {
-                            ps[p].posz += v;
-                            ps[p].poszv = 0;
+                            g_player[p].ps.posz += v;
+                            g_player[p].ps.poszv = 0;
                             if (p == myconnectindex)
                             {
                                 myz += v;
                                 myzvel = 0;
-                                myzbak[((movefifoplc-1)&(MOVEFIFOSIZ-1))] = ps[p].posz;
+                                myzbak[((movefifoplc-1)&(MOVEFIFOSIZ-1))] = g_player[p].ps.posz;
                             }
                         }
 
@@ -389,10 +389,10 @@ void animatecamsprite(void)
     {
         T1 = 0;
 
-        if (ps[screenpeek].newowner >= 0)
-            OW = ps[screenpeek].newowner;
+        if (g_player[screenpeek].ps.newowner >= 0)
+            OW = g_player[screenpeek].ps.newowner;
 
-        else if (OW >= 0 && dist(&sprite[ps[screenpeek].i],&sprite[i]) < 2048)
+        else if (OW >= 0 && dist(&sprite[g_player[screenpeek].ps.i],&sprite[i]) < 2048)
         {
             if (waloff[TILE_VIEWSCR] == 0)
                 allocatepermanenttile(TILE_VIEWSCR,tilesizx[PN],tilesizy[PN]);
@@ -1033,8 +1033,8 @@ void operateactivators(int low,int snum)
                 if (snum >= 0)
                 {
                     if (sector[SECT].lotag&16384)
-                        FTA(4,&ps[snum]);
-                    else FTA(8,&ps[snum]);
+                        FTA(4,&g_player[snum].ps);
+                    else FTA(8,&g_player[snum].ps);
                 }
             }
             else
@@ -1199,35 +1199,35 @@ int checkhitswitch(int snum,long w,int switchtype)
         break;
     case ACCESSSWITCH__STATIC:
     case ACCESSSWITCH2__STATIC:
-        if (ps[snum].access_incs == 0)
+        if (g_player[snum].ps.access_incs == 0)
         {
             if (switchpal == 0)
             {
-                if ((ps[snum].got_access&1))
-                    ps[snum].access_incs = 1;
-                else FTA(70,&ps[snum]);
+                if ((g_player[snum].ps.got_access&1))
+                    g_player[snum].ps.access_incs = 1;
+                else FTA(70,&g_player[snum].ps);
             }
 
             else if (switchpal == 21)
             {
-                if (ps[snum].got_access&2)
-                    ps[snum].access_incs = 1;
-                else FTA(71,&ps[snum]);
+                if (g_player[snum].ps.got_access&2)
+                    g_player[snum].ps.access_incs = 1;
+                else FTA(71,&g_player[snum].ps);
             }
 
             else if (switchpal == 23)
             {
-                if (ps[snum].got_access&4)
-                    ps[snum].access_incs = 1;
-                else FTA(72,&ps[snum]);
+                if (g_player[snum].ps.got_access&4)
+                    g_player[snum].ps.access_incs = 1;
+                else FTA(72,&g_player[snum].ps);
             }
 
-            if (ps[snum].access_incs == 1)
+            if (g_player[snum].ps.access_incs == 1)
             {
                 if (switchtype == 0)
-                    ps[snum].access_wallnum = w;
+                    g_player[snum].ps.access_wallnum = w;
                 else
-                    ps[snum].access_spritenum = w;
+                    g_player[snum].ps.access_spritenum = w;
             }
 
             return 0;
@@ -1417,7 +1417,7 @@ int checkhitswitch(int snum,long w,int switchtype)
     if (lotag == (short) 65535)
     {
 
-        ps[myconnectindex].gm = MODE_EOL;
+        g_player[myconnectindex].ps.gm = MODE_EOL;
         if (ud.from_bonus)
         {
             ud.level_number = ud.from_bonus;
@@ -1480,17 +1480,17 @@ int checkhitswitch(int snum,long w,int switchtype)
             if (picnum == ALIENSWITCH || picnum == ALIENSWITCH+1)
             {
                 if (switchtype == 1)
-                    xyzsound(ALIEN_SWITCH1,w,sx,sy,ps[snum].posz);
-                else xyzsound(ALIEN_SWITCH1,ps[snum].i,sx,sy,ps[snum].posz);
+                    xyzsound(ALIEN_SWITCH1,w,sx,sy,g_player[snum].ps.posz);
+                else xyzsound(ALIEN_SWITCH1,g_player[snum].ps.i,sx,sy,g_player[snum].ps.posz);
             }
             else
             {
                 if (switchtype == 1)
-                    xyzsound(SWITCH_ON,w,sx,sy,ps[snum].posz);
-                else xyzsound(SWITCH_ON,ps[snum].i,sx,sy,ps[snum].posz);
+                    xyzsound(SWITCH_ON,w,sx,sy,g_player[snum].ps.posz);
+                else xyzsound(SWITCH_ON,g_player[snum].ps.i,sx,sy,g_player[snum].ps.posz);
             }
             if (numdips != correctdips) break;
-            xyzsound(END_OF_LEVEL_WARN,ps[snum].i,sx,sy,ps[snum].posz);
+            xyzsound(END_OF_LEVEL_WARN,g_player[snum].ps.i,sx,sy,g_player[snum].ps.posz);
         }
     case DIPSWITCH2__STATIC:
         //case DIPSWITCH2+1:
@@ -1548,11 +1548,11 @@ int checkhitswitch(int snum,long w,int switchtype)
                 case 25:
                     hittype[x].temp_data[4] = !hittype[x].temp_data[4];
                     if (hittype[x].temp_data[4])
-                        FTA(15,&ps[snum]);
-                    else FTA(2,&ps[snum]);
+                        FTA(15,&g_player[snum].ps);
+                    else FTA(2,&g_player[snum].ps);
                     break;
                 case 21:
-                    FTA(2,&ps[screenpeek]);
+                    FTA(2,&g_player[screenpeek].ps);
                     break;
                 }
             }
@@ -1560,7 +1560,7 @@ int checkhitswitch(int snum,long w,int switchtype)
         }
 
         operateactivators(lotag,snum);
-        operateforcefields(ps[snum].i,lotag);
+        operateforcefields(g_player[snum].ps.i,lotag);
         operatemasterswitches(lotag);
 
         if (picnum == DIPSWITCH || picnum == DIPSWITCH+1 ||
@@ -1570,14 +1570,14 @@ int checkhitswitch(int snum,long w,int switchtype)
         if (hitag == 0 && isadoorwall(picnum) == 0)
         {
             if (switchtype == 1)
-                xyzsound(SWITCH_ON,w,sx,sy,ps[snum].posz);
-            else xyzsound(SWITCH_ON,ps[snum].i,sx,sy,ps[snum].posz);
+                xyzsound(SWITCH_ON,w,sx,sy,g_player[snum].ps.posz);
+            else xyzsound(SWITCH_ON,g_player[snum].ps.i,sx,sy,g_player[snum].ps.posz);
         }
         else if (hitag != 0)
         {
             if (switchtype == 1 && (soundm[hitag]&4) == 0)
-                xyzsound(hitag,w,sx,sy,ps[snum].posz);
-            else spritesound(hitag,ps[snum].i);
+                xyzsound(hitag,w,sx,sy,g_player[snum].ps.posz);
+            else spritesound(hitag,g_player[snum].ps.i);
         }
 
         return 1;
@@ -1705,7 +1705,7 @@ void checkhitwall(int spr,int dawallnum,long x,long y,long z,int atwith)
                     if (wal->nextwall >= 0)
                         wall[wal->nextwall].cstat = 0;
 
-                    i = EGS(sn,x,y,z,SECTOREFFECTOR,0,0,0,ps[0].ang,0,0,spr,3);
+                    i = EGS(sn,x,y,z,SECTOREFFECTOR,0,0,0,g_player[0].ps.ang,0,0,spr,3);
                     SLT = 128;
                     T2 = 5;
                     T3 = dawallnum;
@@ -1870,7 +1870,7 @@ void checkhitwall(int spr,int dawallnum,long x,long y,long z,int atwith)
     }
 }
 
-void checkplayerhurt(struct player_struct *p,int j)
+void checkplayerhurt(player_struct *p,int j)
 {
     if ((j&49152) == 49152)
     {
@@ -1954,8 +1954,8 @@ int checkhitceiling(int sn)
     case TECHLIGHT2__STATIC:
     case TECHLIGHT4__STATIC:
 
-        ceilingglass(ps[myconnectindex].i,sn,10);
-        spritesound(GLASS_BREAKING,ps[screenpeek].i);
+        ceilingglass(g_player[myconnectindex].ps.i,sn,10);
+        spritesound(GLASS_BREAKING,g_player[screenpeek].ps.i);
 
         if (sector[sn].ceilingpicnum == WALLLIGHT1)
             sector[sn].ceilingpicnum = WALLLIGHTBUST1;
@@ -2414,7 +2414,7 @@ void checkhitsprite(int i,int sn)
                 j = sprite[sn].owner;
 
                 if (j >= 0 && sprite[j].picnum == APLAYER && PN != ROTATEGUN && PN != DRONE)
-                    if (ps[sprite[j].yvel].curr_weapon == SHOTGUN_WEAPON)
+                    if (g_player[sprite[j].yvel].ps.curr_weapon == SHOTGUN_WEAPON)
                     {
                         shoot(i,BLOODSPLAT3);
                         shoot(i,BLOODSPLAT1);
@@ -2455,16 +2455,16 @@ void checkhitsprite(int i,int sn)
             if (sprite[i].statnum == 10)
             {
                 p = sprite[i].yvel;
-                if (ps[p].newowner >= 0)
+                if (g_player[p].ps.newowner >= 0)
                 {
-                    ps[p].newowner = -1;
-                    ps[p].posx = ps[p].oposx;
-                    ps[p].posy = ps[p].oposy;
-                    ps[p].posz = ps[p].oposz;
-                    ps[p].ang = ps[p].oang;
+                    g_player[p].ps.newowner = -1;
+                    g_player[p].ps.posx = g_player[p].ps.oposx;
+                    g_player[p].ps.posy = g_player[p].ps.oposy;
+                    g_player[p].ps.posz = g_player[p].ps.oposz;
+                    g_player[p].ps.ang = g_player[p].ps.oang;
 
-                    updatesector(ps[p].posx,ps[p].posy,&ps[p].cursectnum);
-                    setpal(&ps[p]);
+                    updatesector(g_player[p].ps.posx,g_player[p].ps.posy,&g_player[p].ps.cursectnum);
+                    setpal(&g_player[p].ps);
 
                     j = headspritestat[1];
                     while (j >= 0)
@@ -2517,8 +2517,8 @@ void allignwarpelevators(void)
 void sharedkeys(int snum)
 {
     int i, k, dainv;
-    unsigned long sb_snum = sync[snum].bits, j;
-    struct player_struct *p = &ps[snum];
+    unsigned long sb_snum = g_player[snum].sync.bits, j;
+    player_struct *p = &g_player[snum].ps;
 
     if (p->cheat_phase == 1) return;
 
@@ -2560,9 +2560,9 @@ void sharedkeys(int snum)
     if ((sb_snum&(1<<22)) && p->quick_kick == 0)
         if (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0)
         {
-            SetGameVarID(g_iReturnVarID,0,ps[snum].i,snum);
-            OnEvent(EVENT_QUICKKICK,ps[snum].i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,ps[snum].i,snum) == 0)
+            SetGameVarID(g_iReturnVarID,0,g_player[snum].ps.i,snum);
+            OnEvent(EVENT_QUICKKICK,g_player[snum].ps.i,snum, -1);
+            if (GetGameVarID(g_iReturnVarID,g_player[snum].ps.i,snum) == 0)
             {
                 p->quick_kick = 14;
                 FTA(80,p);
@@ -2590,7 +2590,7 @@ void sharedkeys(int snum)
             }
             else
             {
-                if (config.MusicToggle) MUSIC_Continue();
+                if (ud.config.MusicToggle) MUSIC_Continue();
                 pub = NUMPAGES;
                 pus = NUMPAGES;
             }
@@ -2602,9 +2602,9 @@ void sharedkeys(int snum)
 
         if (sb_snum&(1<<30) && p->newowner == -1)	// inventory button generates event for selected item
         {
-            SetGameVarID(g_iReturnVarID,0,ps[snum].i,snum);
-            OnEvent(EVENT_INVENTORY,ps[snum].i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,ps[snum].i,snum) == 0)
+            SetGameVarID(g_iReturnVarID,0,g_player[snum].ps.i,snum);
+            OnEvent(EVENT_INVENTORY,g_player[snum].ps.i,snum, -1);
+            if (GetGameVarID(g_iReturnVarID,g_player[snum].ps.i,snum) == 0)
             {
                 switch (p->inven_icon)
                 {
@@ -2629,9 +2629,9 @@ void sharedkeys(int snum)
 
         if (sb_snum&(1<<15))
         {
-            SetGameVarID(g_iReturnVarID,0,ps[snum].i,snum);
-            OnEvent(EVENT_USENIGHTVISION,ps[snum].i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,ps[snum].i,snum) == 0
+            SetGameVarID(g_iReturnVarID,0,g_player[snum].ps.i,snum);
+            OnEvent(EVENT_USENIGHTVISION,g_player[snum].ps.i,snum, -1);
+            if (GetGameVarID(g_iReturnVarID,g_player[snum].ps.i,snum) == 0
                     &&  p->heat_amount > 0)
             {
                 p->heat_on = !p->heat_on;
@@ -2644,9 +2644,9 @@ void sharedkeys(int snum)
 
         if ((sb_snum&(1<<12)))
         {
-            SetGameVarID(g_iReturnVarID,0,ps[snum].i,snum);
-            OnEvent(EVENT_USESTEROIDS,ps[snum].i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,ps[snum].i,snum) == 0)
+            SetGameVarID(g_iReturnVarID,0,g_player[snum].ps.i,snum);
+            OnEvent(EVENT_USESTEROIDS,g_player[snum].ps.i,snum, -1);
+            if (GetGameVarID(g_iReturnVarID,g_player[snum].ps.i,snum) == 0)
             {
                 if (p->steroids_amount == 400)
                 {
@@ -2731,15 +2731,15 @@ CHECKINV1:
 
                 if (sb_snum&(1<<20))   // Inventory_Left
                 {
-                    SetGameVarID(g_iReturnVarID,dainv,ps[snum].i,snum);
-                    OnEvent(EVENT_INVENTORYLEFT,ps[snum].i,snum, -1);
-                    dainv=GetGameVarID(g_iReturnVarID,ps[snum].i,snum);
+                    SetGameVarID(g_iReturnVarID,dainv,g_player[snum].ps.i,snum);
+                    OnEvent(EVENT_INVENTORYLEFT,g_player[snum].ps.i,snum, -1);
+                    dainv=GetGameVarID(g_iReturnVarID,g_player[snum].ps.i,snum);
                 }
                 if (sb_snum&(1<<27))   // Inventory_Right
                 {
-                    SetGameVarID(g_iReturnVarID,dainv,ps[snum].i,snum);
-                    OnEvent(EVENT_INVENTORYRIGHT,ps[snum].i,snum, -1);
-                    dainv=GetGameVarID(g_iReturnVarID,ps[snum].i,snum);
+                    SetGameVarID(g_iReturnVarID,dainv,g_player[snum].ps.i,snum);
+                    OnEvent(EVENT_INVENTORYRIGHT,g_player[snum].ps.i,snum, -1);
+                    dainv=GetGameVarID(g_iReturnVarID,g_player[snum].ps.i,snum);
                 }
 
                 p->inven_icon = dainv;
@@ -3054,9 +3054,9 @@ CHECKINV1:
             if (p->holoduke_on == -1)
             {
 
-                SetGameVarID(g_iReturnVarID,0,ps[snum].i,snum);
-                OnEvent(EVENT_HOLODUKEON,ps[snum].i,snum, -1);
-                if (GetGameVarID(g_iReturnVarID,ps[snum].i,snum) == 0)
+                SetGameVarID(g_iReturnVarID,0,g_player[snum].ps.i,snum);
+                OnEvent(EVENT_HOLODUKEON,g_player[snum].ps.i,snum, -1);
+                if (GetGameVarID(g_iReturnVarID,g_player[snum].ps.i,snum) == 0)
                 {
                     if (p->holoduke_amount > 0)
                     {
@@ -3079,9 +3079,9 @@ CHECKINV1:
             }
             else
             {
-                SetGameVarID(g_iReturnVarID,0,ps[snum].i,snum);
-                OnEvent(EVENT_HOLODUKEOFF,ps[snum].i,snum, -1);
-                if (GetGameVarID(g_iReturnVarID,ps[snum].i,snum) == 0)
+                SetGameVarID(g_iReturnVarID,0,g_player[snum].ps.i,snum);
+                OnEvent(EVENT_HOLODUKEOFF,g_player[snum].ps.i,snum, -1);
+                if (GetGameVarID(g_iReturnVarID,g_player[snum].ps.i,snum) == 0)
                 {
                     spritesound(TELEPORTER,p->holoduke_on);
                     p->holoduke_on = -1;
@@ -3092,9 +3092,9 @@ CHECKINV1:
 
         if (sb_snum&(1<<16))
         {
-            SetGameVarID(g_iReturnVarID,0,ps[snum].i,snum);
-            OnEvent(EVENT_USEMEDKIT,ps[snum].i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,ps[snum].i,snum) == 0)
+            SetGameVarID(g_iReturnVarID,0,g_player[snum].ps.i,snum);
+            OnEvent(EVENT_USEMEDKIT,g_player[snum].ps.i,snum, -1);
+            if (GetGameVarID(g_iReturnVarID,g_player[snum].ps.i,snum) == 0)
             {
                 if (p->firstaid_amount > 0 && sprite[p->i].extra < max_player_health)
                 {
@@ -3119,9 +3119,9 @@ CHECKINV1:
 
         if (sb_snum&(1<<25) && p->newowner == -1)
         {
-            SetGameVarID(g_iReturnVarID,0,ps[snum].i,snum);
-            OnEvent(EVENT_USEJETPACK,ps[snum].i,snum, -1);
-            if (GetGameVarID(g_iReturnVarID,ps[snum].i,snum) == 0)
+            SetGameVarID(g_iReturnVarID,0,g_player[snum].ps.i,snum);
+            OnEvent(EVENT_USEJETPACK,g_player[snum].ps.i,snum, -1);
+            if (GetGameVarID(g_iReturnVarID,g_player[snum].ps.i,snum) == 0)
             {
                 if (p->jetpack_amount > 0)
                 {
@@ -3187,7 +3187,7 @@ long hitasprite(int i,short *hitsp)
     return (FindDistance2D(sx-SX,sy-SY));
 }
 
-static long hitawall(struct player_struct *p,short *hitw)
+static long hitawall(player_struct *p,short *hitw)
 {
     long sx,sy,sz;
     short sect,hs;
@@ -3204,7 +3204,7 @@ static long hitawall(struct player_struct *p,short *hitw)
 void checksectors(int snum)
 {
     long i = -1,oldz;
-    struct player_struct *p = &ps[snum];
+    player_struct *p = &g_player[snum].ps;
     short j,hitscanwall;
 
     switch (sector[p->cursectnum].lotag)
@@ -3217,7 +3217,7 @@ void checksectors(int snum)
         return;
     case -1:
         for (i=connecthead;i>=0;i=connectpoint2[i])
-            ps[i].gm = MODE_EOL;
+            g_player[i].ps.gm = MODE_EOL;
         sector[p->cursectnum].lotag = 0;
         if (ud.from_bonus)
         {
@@ -3253,33 +3253,33 @@ void checksectors(int snum)
 
     if (p->gm&MODE_TYPE || sprite[p->i].extra <= 0) return;
 
-    if ((sync[snum].bits&(1<<29)))
+    if ((g_player[snum].sync.bits&(1<<29)))
     {
         SetGameVarID(g_iReturnVarID,0,p->i,snum);
         OnEvent(EVENT_USE, p->i, snum, -1);
         if (GetGameVarID(g_iReturnVarID,p->i,snum) != 0)
-            sync[snum].bits &= ~(1<<29);
+            g_player[snum].sync.bits &= ~(1<<29);
     }
 
-    if (ud.cashman && sync[snum].bits&(1<<29))
+    if (ud.cashman && g_player[snum].sync.bits&(1<<29))
         lotsofmoney(p->i,2);
 
     if (p->newowner >= 0)
     {
-        if (klabs(sync[snum].svel) > 768 || klabs(sync[snum].fvel) > 768)
+        if (klabs(g_player[snum].sync.svel) > 768 || klabs(g_player[snum].sync.fvel) > 768)
         {
             i = -1;
             goto CLEARCAMERAS;
         }
     }
 
-    if (!(sync[snum].bits&(1<<29)) && !(sync[snum].bits&(1<<31)))
+    if (!(g_player[snum].sync.bits&(1<<29)) && !(g_player[snum].sync.bits&(1<<31)))
         p->toggle_key_flag = 0;
 
     else if (!p->toggle_key_flag)
     {
 
-        if ((sync[snum].bits&(1<<31)))
+        if ((g_player[snum].sync.bits&(1<<31)))
         {
             if (p->newowner >= 0)
             {
@@ -3498,7 +3498,7 @@ CLEARCAMERAS:
             }
         }
 
-        if ((sync[snum].bits&(1<<29)) == 0) return;
+        if ((g_player[snum].sync.bits&(1<<29)) == 0) return;
         else if (p->newowner >= 0)
         {
             i = -1;

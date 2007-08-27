@@ -100,7 +100,6 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
 #include "music.h"
 
 #include "namesdyn.h"
-#include "funct.h"
 
 #define TICRATE (120)
 #define TICSPERFRAME (TICRATE/26)
@@ -306,7 +305,6 @@ typedef struct {
 } input;
 
 #define sync dsync  // JBF 20040604: sync is a function on some platforms
-extern input inputfifo[MOVEFIFOSIZ][MAXPLAYERS], sync[MAXPLAYERS];
 extern input recsync[RECSYNCBUFSIZ];
 
 extern long movefifosendplc;
@@ -317,12 +315,12 @@ typedef struct {
 int  length, num;
 } SAMPLE;
 
-struct animwalltype {
+typedef struct {
 short wallnum;
 long tag;
-};
+} animwalltype;
 
-extern struct animwalltype animwall[MAXANIMWALLS];
+extern animwalltype animwall[MAXANIMWALLS];
 
 extern short numanimwalls;
 extern int probey;
@@ -339,10 +337,71 @@ struct savehead {
     char boardfn[BMAX_PATH];
 };
 
-struct user_defs {
+typedef struct {
+	//
+	// Sound variables
+	//
+	int32 FXDevice;
+	int32 MusicDevice;
+	int32 FXVolume;
+	int32 MusicVolume;
+	int32 SoundToggle;
+	int32 MusicToggle;
+	int32 VoiceToggle;
+	int32 AmbienceToggle;
+
+	int32 NumVoices;
+	int32 NumChannels;
+	int32 NumBits;
+	int32 MixRate;
+	
+	int32 ReverseStereo;
+
+	int32 UseJoystick;
+	int32 UseMouse;
+	int32 RunMode;
+	int32 AutoAim;
+	int32 ShowOpponentWeapons;
+	int32 MouseFilter,MouseBias;
+	int32 SmoothInput;
+
+	// JBF 20031211: Store the input settings because
+	// (currently) jmact can't regurgitate them
+	byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
+	int32 MouseFunctions[MAXMOUSEBUTTONS][2];
+	int32 MouseDigitalFunctions[MAXMOUSEAXES][2];
+	int32 MouseAnalogueAxes[MAXMOUSEAXES];
+	int32 MouseAnalogueScale[MAXMOUSEAXES];
+	int32 JoystickFunctions[MAXJOYBUTTONS][2];
+	int32 JoystickDigitalFunctions[MAXJOYAXES][2];
+	int32 JoystickAnalogueAxes[MAXJOYAXES];
+	int32 JoystickAnalogueScale[MAXJOYAXES];
+	int32 JoystickAnalogueDead[MAXJOYAXES];
+	int32 JoystickAnalogueSaturate[MAXJOYAXES];
+
+	//
+	// Screen variables
+	//
+
+	int32 ScreenMode;
+
+	int32 ScreenWidth;
+	int32 ScreenHeight;
+	int32 ScreenBPP;
+
+	int32 ForceSetup;
+
+	int32 scripthandle;
+	int32 setupread;
+
+	int32 CheckForUpdates;
+	int32 LastUpdateCheck;
+	int32 useprecache;
+} config_t;
+
+typedef struct {
     char god,warp_on,cashman,eog,showallmap;
     char show_help,scrollmode,clipping;
-    char user_name[MAXPLAYERS][32];
     char ridecule[10][40];
     char savegame[10][22];
     char pwlockout[128],rtsname[128];
@@ -360,31 +419,32 @@ struct user_defs {
     long reccnt;
 
     int32 runkey_mode,statusbarscale,mouseaiming,weaponswitch,drawweapon;   // JBF 20031125
-    int32 democams,color,pcolor[MAXPLAYERS],msgdisptime,statusbarmode;
+    int32 democams,color,msgdisptime,statusbarmode;
     int32 m_noexits,noexits,autovote,automsg,idplayers;
-	int32 team, pteam[MAXPLAYERS], viewbob, weaponsway;
+	int32 team, viewbob, weaponsway;
 
     int32 entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
     int32 coords,tickrate,levelstats,m_coop,coop,screen_size,lockout,crosshair;
-    int32 wchoice[MAXPLAYERS][MAX_WEAPONS],playerai,angleinterpolation,deathmsgs;
+    int32 playerai,angleinterpolation,deathmsgs;
 
     int32 respawn_monsters,respawn_items,respawn_inventory,recstat,monsters_off,brightness;
     int32 m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off,detail;
     int32 m_ffire,ffire,m_player_skill,m_level_number,m_volume_number,multimode;
     int32 player_skill,level_number,volume_number,m_marker,marker,mouseflip;
-};
+	config_t config;
+} user_defs;
 
-struct player_orig {
+typedef struct {
     long ox,oy,oz;
     short oa,os;
-};
+} player_orig;
 
 
 extern char numplayersprites;
 
 extern long fricxv,fricyv;
 
-struct player_struct {
+typedef struct {
     long zoom,exitx,exity,loogiex[64],loogiey[64],numloogs,loogcnt;
     long posx, posy, posz, horiz, ohoriz, ohorizoff, invdisptime;
     long bobposx,bobposy,oposx,oposy,oposz,pyoff,opyoff;
@@ -437,7 +497,7 @@ struct player_struct {
     long max_secret_rooms,secret_rooms,max_actors_killed,actors_killed;
     long runspeed, movement_lock, team;
     short sbs, sound_pitch;
-};
+} player_struct;
 
 extern char tempbuf[2048], packbuf[576];
 
@@ -448,9 +508,7 @@ extern long impact_damage,respawnactortime,respawnitemtime;
 #define MOVFIFOSIZ 256
 
 extern short spriteq[1024],spriteqloc,spriteqamount;
-extern struct player_struct ps[MAXPLAYERS];
-extern struct player_orig po[MAXPLAYERS];
-extern struct user_defs ud;
+extern user_defs ud;
 extern short int moustat;
 extern short int global_random;
 extern long scaredfallz;
@@ -459,14 +517,12 @@ extern char buf[1024]; //My own generic input buffer
 #define MAXQUOTELEN 128
 
 extern char *fta_quotes[MAXQUOTES],*redefined_quotes[MAXQUOTES];
-extern char scantoasc[128],ready2send;
-extern char scantoascwithshift[128];
+extern char ready2send;
 
 //extern fx_device device;
 extern SAMPLE Sound[ NUM_SOUNDS ];
 extern SOUNDOWNER SoundOwner[NUM_SOUNDS][4];
 
-extern char playerreadyflag[MAXPLAYERS],playerquitflag[MAXPLAYERS];
 extern char sounds[NUM_SOUNDS][BMAX_PATH];
 
 // JBF 20040531: adding 16 extra to the script so we have some leeway
@@ -483,27 +539,25 @@ extern char env_music_fn[MAXVOLUMES+1][BMAX_PATH];
 extern short camsprite;
 
 // extern char gotz;
-extern char inspace(short sectnum);
-
-struct weaponhit {
+typedef struct {
     char cgg;
     short picnum,ang,extra,owner,movflag;
     short tempang,actorstayput,dispicnum;
     short timetosleep;
     long floorz,ceilingz,lastvx,lastvy,bposx,bposy,bposz;
     long temp_data[10];
-};
+} weaponhit;
 
-extern struct weaponhit hittype[MAXSPRITES];
+extern weaponhit hittype[MAXSPRITES];
 
-struct spriteinterpolate {
+typedef struct {
     long x;
     long y;
     long z;
     short ang, oldang, angdir, angdif;
-};
+} spriteinterpolate;
 
-extern struct spriteinterpolate sprpos[MAXSPRITES];
+extern spriteinterpolate sprpos[MAXSPRITES];
 
 extern input loc;
 extern input recsync[RECSYNCBUFSIZ];
@@ -518,7 +572,7 @@ extern long tempwallptr,animatecnt;
 extern long lockclock,frameplace;
 extern char display_mirror,loadfromgrouponly,rtsplaying;
 
-extern long movefifoend[MAXPLAYERS], groupfile;
+extern long groupfile;
 extern long ototalclock;
 
 extern long *animateptr[MAXANIMATES], animategoal[MAXANIMATES];
@@ -607,19 +661,18 @@ typedef struct {
 } STATUSBARTYPE;
 
 extern STATUSBARTYPE sbar;
-extern short frags[MAXPLAYERS][MAXPLAYERS];
 extern long cameradist, cameraclock, dukefriction,show_shareware;
 extern int networkmode, movesperpacket;
 extern int gamequit;
 
 extern char pus,pub;
 extern int camerashitable,freezerhurtowner,lasermode;
-extern char syncstat, syncval[MAXPLAYERS][MOVEFIFOSIZ];
+extern char syncstat;
 extern signed char multiwho, multipos, multiwhat, multiflag;
-extern long syncvalhead[MAXPLAYERS], syncvaltail, syncvaltottail;
+extern long syncvaltail, syncvaltottail;
 extern long numfreezebounces,rpgblastradius,pipebombblastradius,tripbombblastradius,shrinkerblastradius,morterblastradius,bouncemineblastradius,seenineblastradius;
 extern int everyothertime;
-extern long myminlag[MAXPLAYERS], mymaxlag, otherminlag, bufferjitter;
+extern long mymaxlag, otherminlag, bufferjitter;
 
 extern long numinterpolations, startofdynamicinterpolations;
 extern long oldipos[MAXINTERPOLATIONS];
@@ -901,6 +954,30 @@ typedef struct {
 } map_t;
 
 extern map_t map[MAXVOLUMES*MAXLEVELS];
+
+typedef struct {
+	player_struct ps;
+	player_orig po;
+	input sync;
+
+	long movefifoend;
+	long syncvalhead;
+	long myminlag;
+
+	int	frags[MAXPLAYERS];
+	int32 pcolor;
+	int32 pteam;
+	int32 wchoice[MAX_WEAPONS];
+
+	char syncval[MOVEFIFOSIZ];
+	char user_name[32];
+	char playerreadyflag;
+	char playerquitflag;
+} playerdata_t;
+
+extern input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
+extern playerdata_t g_player[MAXPLAYERS];
+#include "funct.h"
 
 #ifdef __cplusplus
 }

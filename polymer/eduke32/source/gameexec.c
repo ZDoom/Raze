@@ -945,1011 +945,1011 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     {
     case PLAYER_ZOOM:
         if (iSet)
-            ps[iPlayer].zoom=lValue;
+            g_player[iPlayer].ps.zoom=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].zoom, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.zoom, g_i, g_p);
         break;
 
     case PLAYER_EXITX:
         if (iSet)
-            ps[iPlayer].exitx=lValue;
+            g_player[iPlayer].ps.exitx=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].exitx, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.exitx, g_i, g_p);
         break;
 
     case PLAYER_EXITY:
         if (iSet)
-            ps[iPlayer].exity=lValue;
+            g_player[iPlayer].ps.exity=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].exity, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.exity, g_i, g_p);
         break;
 
     case PLAYER_LOOGIEX:
         lTemp=lParm2;
         if (iSet)
-            ps[iPlayer].loogiex[lTemp]=lValue;
+            g_player[iPlayer].ps.loogiex[lTemp]=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].loogiex[lTemp], g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.loogiex[lTemp], g_i, g_p);
         break;
 
     case PLAYER_LOOGIEY:
         lTemp=lParm2;
         if (iSet)
-            ps[iPlayer].loogiey[lTemp]=lValue;
+            g_player[iPlayer].ps.loogiey[lTemp]=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].loogiey[lTemp], g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.loogiey[lTemp], g_i, g_p);
         break;
 
     case PLAYER_NUMLOOGS:
         if (iSet)
-            ps[iPlayer].numloogs=lValue;
+            g_player[iPlayer].ps.numloogs=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].numloogs, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.numloogs, g_i, g_p);
         break;
 
     case PLAYER_LOOGCNT:
         if (iSet)
-            ps[iPlayer].loogcnt=lValue;
+            g_player[iPlayer].ps.loogcnt=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].loogcnt, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.loogcnt, g_i, g_p);
         break;
 
     case PLAYER_POSX:
         if (iSet)
-            ps[iPlayer].posx=lValue;
+            g_player[iPlayer].ps.posx=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].posx, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.posx, g_i, g_p);
         break;
 
     case PLAYER_POSY:
         if (iSet)
-            ps[iPlayer].posy=lValue;
+            g_player[iPlayer].ps.posy=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].posy, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.posy, g_i, g_p);
         break;
 
     case PLAYER_POSZ:
         if (iSet)
-            ps[iPlayer].posz=lValue;
+            g_player[iPlayer].ps.posz=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].posz, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.posz, g_i, g_p);
         break;
 
     case PLAYER_HORIZ:
         if (iSet)
-            ps[iPlayer].horiz=lValue;
+            g_player[iPlayer].ps.horiz=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].horiz, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.horiz, g_i, g_p);
         break;
 
     case PLAYER_OHORIZ:
         if (iSet)
-            ps[iPlayer].ohoriz=lValue;
+            g_player[iPlayer].ps.ohoriz=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].ohoriz, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.ohoriz, g_i, g_p);
         break;
 
     case PLAYER_OHORIZOFF:
         if (iSet)
-            ps[iPlayer].ohorizoff=lValue;
+            g_player[iPlayer].ps.ohorizoff=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].ohorizoff, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.ohorizoff, g_i, g_p);
         break;
 
     case PLAYER_INVDISPTIME:
         if (iSet)
-            ps[iPlayer].invdisptime=lValue;
+            g_player[iPlayer].ps.invdisptime=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].invdisptime, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.invdisptime, g_i, g_p);
         break;
 
     case PLAYER_BOBPOSX:
         if (iSet)
-            ps[iPlayer].bobposx=lValue;
+            g_player[iPlayer].ps.bobposx=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].bobposx, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.bobposx, g_i, g_p);
         break;
 
     case PLAYER_BOBPOSY:
         if (iSet)
-            ps[iPlayer].bobposy=lValue;
+            g_player[iPlayer].ps.bobposy=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].bobposy, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.bobposy, g_i, g_p);
         break;
 
     case PLAYER_OPOSX:
         if (iSet)
-            ps[iPlayer].oposx=lValue;
+            g_player[iPlayer].ps.oposx=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].oposx, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.oposx, g_i, g_p);
         break;
 
     case PLAYER_OPOSY:
         if (iSet)
-            ps[iPlayer].oposy=lValue;
+            g_player[iPlayer].ps.oposy=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].oposy, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.oposy, g_i, g_p);
         break;
 
     case PLAYER_OPOSZ:
         if (iSet)
-            ps[iPlayer].oposz=lValue;
+            g_player[iPlayer].ps.oposz=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].oposz, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.oposz, g_i, g_p);
         break;
 
     case PLAYER_PYOFF:
         if (iSet)
-            ps[iPlayer].pyoff=lValue;
+            g_player[iPlayer].ps.pyoff=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].pyoff, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.pyoff, g_i, g_p);
         break;
 
     case PLAYER_OPYOFF:
         if (iSet)
-            ps[iPlayer].opyoff=lValue;
+            g_player[iPlayer].ps.opyoff=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].opyoff, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.opyoff, g_i, g_p);
         break;
 
     case PLAYER_POSXV:
         if (iSet)
-            ps[iPlayer].posxv=lValue;
+            g_player[iPlayer].ps.posxv=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].posxv, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.posxv, g_i, g_p);
         break;
 
     case PLAYER_POSYV:
         if (iSet)
-            ps[iPlayer].posyv=lValue;
+            g_player[iPlayer].ps.posyv=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].posyv, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.posyv, g_i, g_p);
         break;
 
     case PLAYER_POSZV:
         if (iSet)
-            ps[iPlayer].poszv=lValue;
+            g_player[iPlayer].ps.poszv=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].poszv, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.poszv, g_i, g_p);
         break;
 
     case PLAYER_LAST_PISSED_TIME:
         if (iSet)
-            ps[iPlayer].last_pissed_time=lValue;
+            g_player[iPlayer].ps.last_pissed_time=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].last_pissed_time, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.last_pissed_time, g_i, g_p);
         break;
 
     case PLAYER_TRUEFZ:
         if (iSet)
-            ps[iPlayer].truefz=lValue;
+            g_player[iPlayer].ps.truefz=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].truefz, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.truefz, g_i, g_p);
         break;
 
     case PLAYER_TRUECZ:
         if (iSet)
-            ps[iPlayer].truecz=lValue;
+            g_player[iPlayer].ps.truecz=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].truecz, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.truecz, g_i, g_p);
         break;
 
     case PLAYER_PLAYER_PAR:
         if (iSet)
-            ps[iPlayer].player_par=lValue;
+            g_player[iPlayer].ps.player_par=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].player_par, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.player_par, g_i, g_p);
         break;
 
     case PLAYER_VISIBILITY:
         if (iSet)
-            ps[iPlayer].visibility=lValue;
+            g_player[iPlayer].ps.visibility=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].visibility, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.visibility, g_i, g_p);
         break;
 
     case PLAYER_BOBCOUNTER:
         if (iSet)
-            ps[iPlayer].bobcounter=lValue;
+            g_player[iPlayer].ps.bobcounter=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].bobcounter, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.bobcounter, g_i, g_p);
         break;
 
     case PLAYER_WEAPON_SWAY:
         if (iSet)
-            ps[iPlayer].weapon_sway=lValue;
+            g_player[iPlayer].ps.weapon_sway=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].weapon_sway, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.weapon_sway, g_i, g_p);
         break;
 
     case PLAYER_PALS_TIME:
         if (iSet)
-            ps[iPlayer].pals_time=lValue;
+            g_player[iPlayer].ps.pals_time=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].pals_time, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.pals_time, g_i, g_p);
         break;
 
     case PLAYER_RANDOMFLAMEX:
         if (iSet)
-            ps[iPlayer].randomflamex=lValue;
+            g_player[iPlayer].ps.randomflamex=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].randomflamex, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.randomflamex, g_i, g_p);
         break;
 
     case PLAYER_CRACK_TIME:
         if (iSet)
-            ps[iPlayer].crack_time=lValue;
+            g_player[iPlayer].ps.crack_time=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].crack_time, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.crack_time, g_i, g_p);
         break;
 
     case PLAYER_AIM_MODE:
         if (iSet)
-            ps[iPlayer].aim_mode=lValue;
+            g_player[iPlayer].ps.aim_mode=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].aim_mode, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.aim_mode, g_i, g_p);
         break;
 
     case PLAYER_ANG:
         if (iSet)
-            ps[iPlayer].ang=lValue;
+            g_player[iPlayer].ps.ang=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].ang, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.ang, g_i, g_p);
         break;
 
     case PLAYER_OANG:
         if (iSet)
-            ps[iPlayer].oang=lValue;
+            g_player[iPlayer].ps.oang=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].oang, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.oang, g_i, g_p);
         break;
 
     case PLAYER_ANGVEL:
         if (iSet)
-            ps[iPlayer].angvel=lValue;
+            g_player[iPlayer].ps.angvel=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].angvel, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.angvel, g_i, g_p);
         break;
 
     case PLAYER_CURSECTNUM:
         if (iSet)
-            ps[iPlayer].cursectnum=lValue;
+            g_player[iPlayer].ps.cursectnum=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].cursectnum, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.cursectnum, g_i, g_p);
         break;
 
     case PLAYER_LOOK_ANG:
         if (iSet)
-            ps[iPlayer].look_ang=lValue;
+            g_player[iPlayer].ps.look_ang=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].look_ang, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.look_ang, g_i, g_p);
         break;
 
     case PLAYER_LAST_EXTRA:
         if (iSet)
-            ps[iPlayer].last_extra=lValue;
+            g_player[iPlayer].ps.last_extra=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].last_extra, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.last_extra, g_i, g_p);
         break;
 
     case PLAYER_SUBWEAPON:
         if (iSet)
-            ps[iPlayer].subweapon=lValue;
+            g_player[iPlayer].ps.subweapon=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].subweapon, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.subweapon, g_i, g_p);
         break;
 
     case PLAYER_AMMO_AMOUNT:
         lTemp=lParm2;
         if (iSet)
-            ps[iPlayer].ammo_amount[lTemp]=lValue;
+            g_player[iPlayer].ps.ammo_amount[lTemp]=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].ammo_amount[lTemp], g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.ammo_amount[lTemp], g_i, g_p);
         break;
 
     case PLAYER_WACKEDBYACTOR:
         if (iSet)
-            ps[iPlayer].wackedbyactor=lValue;
+            g_player[iPlayer].ps.wackedbyactor=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].wackedbyactor, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.wackedbyactor, g_i, g_p);
         break;
 
     case PLAYER_FRAG:
         if (iSet)
-            ps[iPlayer].frag=lValue;
+            g_player[iPlayer].ps.frag=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].frag, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.frag, g_i, g_p);
         break;
 
     case PLAYER_FRAGGEDSELF:
         if (iSet)
-            ps[iPlayer].fraggedself=lValue;
+            g_player[iPlayer].ps.fraggedself=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].fraggedself, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.fraggedself, g_i, g_p);
         break;
 
     case PLAYER_CURR_WEAPON:
         if (iSet)
-            ps[iPlayer].curr_weapon=lValue;
+            g_player[iPlayer].ps.curr_weapon=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].curr_weapon, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.curr_weapon, g_i, g_p);
         break;
 
     case PLAYER_LAST_WEAPON:
         if (iSet)
-            ps[iPlayer].last_weapon=lValue;
+            g_player[iPlayer].ps.last_weapon=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].last_weapon, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.last_weapon, g_i, g_p);
         break;
 
     case PLAYER_TIPINCS:
         if (iSet)
-            ps[iPlayer].tipincs=lValue;
+            g_player[iPlayer].ps.tipincs=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].tipincs, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.tipincs, g_i, g_p);
         break;
 
     case PLAYER_HORIZOFF:
         if (iSet)
-            ps[iPlayer].horizoff=lValue;
+            g_player[iPlayer].ps.horizoff=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].horizoff, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.horizoff, g_i, g_p);
         break;
 
     case PLAYER_WANTWEAPONFIRE:
         if (iSet)
-            ps[iPlayer].wantweaponfire=lValue;
+            g_player[iPlayer].ps.wantweaponfire=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].wantweaponfire, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.wantweaponfire, g_i, g_p);
         break;
 
     case PLAYER_HOLODUKE_AMOUNT:
         if (iSet)
-            ps[iPlayer].holoduke_amount=lValue;
+            g_player[iPlayer].ps.holoduke_amount=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].holoduke_amount, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.holoduke_amount, g_i, g_p);
         break;
 
     case PLAYER_NEWOWNER:
         if (iSet)
-            ps[iPlayer].newowner=lValue;
+            g_player[iPlayer].ps.newowner=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].newowner, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.newowner, g_i, g_p);
         break;
 
     case PLAYER_HURT_DELAY:
         if (iSet)
-            ps[iPlayer].hurt_delay=lValue;
+            g_player[iPlayer].ps.hurt_delay=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].hurt_delay, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.hurt_delay, g_i, g_p);
         break;
 
     case PLAYER_HBOMB_HOLD_DELAY:
         if (iSet)
-            ps[iPlayer].hbomb_hold_delay=lValue;
+            g_player[iPlayer].ps.hbomb_hold_delay=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].hbomb_hold_delay, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.hbomb_hold_delay, g_i, g_p);
         break;
 
     case PLAYER_JUMPING_COUNTER:
         if (iSet)
-            ps[iPlayer].jumping_counter=lValue;
+            g_player[iPlayer].ps.jumping_counter=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].jumping_counter, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.jumping_counter, g_i, g_p);
         break;
 
     case PLAYER_AIRLEFT:
         if (iSet)
-            ps[iPlayer].airleft=lValue;
+            g_player[iPlayer].ps.airleft=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].airleft, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.airleft, g_i, g_p);
         break;
 
     case PLAYER_KNEE_INCS:
         if (iSet)
-            ps[iPlayer].knee_incs=lValue;
+            g_player[iPlayer].ps.knee_incs=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].knee_incs, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.knee_incs, g_i, g_p);
         break;
 
     case PLAYER_ACCESS_INCS:
         if (iSet)
-            ps[iPlayer].access_incs=lValue;
+            g_player[iPlayer].ps.access_incs=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].access_incs, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.access_incs, g_i, g_p);
         break;
 
     case PLAYER_FTA:
         if (iSet)
-            ps[iPlayer].fta=lValue;
+            g_player[iPlayer].ps.fta=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].fta, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.fta, g_i, g_p);
         break;
 
     case PLAYER_FTQ:
         if (iSet)
-            ps[iPlayer].ftq=lValue;
+            g_player[iPlayer].ps.ftq=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].ftq, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.ftq, g_i, g_p);
         break;
 
     case PLAYER_ACCESS_WALLNUM:
         if (iSet)
-            ps[iPlayer].access_wallnum=lValue;
+            g_player[iPlayer].ps.access_wallnum=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].access_wallnum, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.access_wallnum, g_i, g_p);
         break;
 
     case PLAYER_ACCESS_SPRITENUM:
         if (iSet)
-            ps[iPlayer].access_spritenum=lValue;
+            g_player[iPlayer].ps.access_spritenum=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].access_spritenum, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.access_spritenum, g_i, g_p);
         break;
 
     case PLAYER_KICKBACK_PIC:
         if (iSet)
-            ps[iPlayer].kickback_pic=lValue;
+            g_player[iPlayer].ps.kickback_pic=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].kickback_pic, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.kickback_pic, g_i, g_p);
         break;
 
     case PLAYER_GOT_ACCESS:
         if (iSet)
-            ps[iPlayer].got_access=lValue;
+            g_player[iPlayer].ps.got_access=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].got_access, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.got_access, g_i, g_p);
         break;
 
     case PLAYER_WEAPON_ANG:
         if (iSet)
-            ps[iPlayer].weapon_ang=lValue;
+            g_player[iPlayer].ps.weapon_ang=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].weapon_ang, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.weapon_ang, g_i, g_p);
         break;
 
     case PLAYER_FIRSTAID_AMOUNT:
         if (iSet)
-            ps[iPlayer].firstaid_amount=lValue;
+            g_player[iPlayer].ps.firstaid_amount=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].firstaid_amount, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.firstaid_amount, g_i, g_p);
         break;
 
     case PLAYER_SOMETHINGONPLAYER:
         if (iSet)
-            ps[iPlayer].somethingonplayer=lValue;
+            g_player[iPlayer].ps.somethingonplayer=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].somethingonplayer, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.somethingonplayer, g_i, g_p);
         break;
 
     case PLAYER_ON_CRANE:
         if (iSet)
-            ps[iPlayer].on_crane=lValue;
+            g_player[iPlayer].ps.on_crane=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].on_crane, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.on_crane, g_i, g_p);
         break;
 
     case PLAYER_I:
         if (iSet)
-            ps[iPlayer].i=lValue;
+            g_player[iPlayer].ps.i=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].i, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.i, g_i, g_p);
         break;
 
     case PLAYER_ONE_PARALLAX_SECTNUM:
         if (iSet)
-            ps[iPlayer].one_parallax_sectnum=lValue;
+            g_player[iPlayer].ps.one_parallax_sectnum=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].one_parallax_sectnum, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.one_parallax_sectnum, g_i, g_p);
         break;
 
     case PLAYER_OVER_SHOULDER_ON:
         if (iSet)
-            ps[iPlayer].over_shoulder_on=lValue;
+            g_player[iPlayer].ps.over_shoulder_on=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].over_shoulder_on, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.over_shoulder_on, g_i, g_p);
         break;
 
     case PLAYER_RANDOM_CLUB_FRAME:
         if (iSet)
-            ps[iPlayer].random_club_frame=lValue;
+            g_player[iPlayer].ps.random_club_frame=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].random_club_frame, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.random_club_frame, g_i, g_p);
         break;
 
     case PLAYER_FIST_INCS:
         if (iSet)
-            ps[iPlayer].fist_incs=lValue;
+            g_player[iPlayer].ps.fist_incs=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].fist_incs, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.fist_incs, g_i, g_p);
         break;
 
     case PLAYER_ONE_EIGHTY_COUNT:
         if (iSet)
-            ps[iPlayer].one_eighty_count=lValue;
+            g_player[iPlayer].ps.one_eighty_count=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].one_eighty_count, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.one_eighty_count, g_i, g_p);
         break;
 
     case PLAYER_CHEAT_PHASE:
         if (iSet)
-            ps[iPlayer].cheat_phase=lValue;
+            g_player[iPlayer].ps.cheat_phase=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].cheat_phase, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.cheat_phase, g_i, g_p);
         break;
 
     case PLAYER_DUMMYPLAYERSPRITE:
         if (iSet)
-            ps[iPlayer].dummyplayersprite=lValue;
+            g_player[iPlayer].ps.dummyplayersprite=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].dummyplayersprite, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.dummyplayersprite, g_i, g_p);
         break;
 
     case PLAYER_EXTRA_EXTRA8:
         if (iSet)
-            ps[iPlayer].extra_extra8=lValue;
+            g_player[iPlayer].ps.extra_extra8=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].extra_extra8, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.extra_extra8, g_i, g_p);
         break;
 
     case PLAYER_QUICK_KICK:
         if (iSet)
-            ps[iPlayer].quick_kick=lValue;
+            g_player[iPlayer].ps.quick_kick=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].quick_kick, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.quick_kick, g_i, g_p);
         break;
 
     case PLAYER_HEAT_AMOUNT:
         if (iSet)
-            ps[iPlayer].heat_amount=lValue;
+            g_player[iPlayer].ps.heat_amount=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].heat_amount, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.heat_amount, g_i, g_p);
         break;
 
     case PLAYER_ACTORSQU:
         if (iSet)
-            ps[iPlayer].actorsqu=lValue;
+            g_player[iPlayer].ps.actorsqu=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].actorsqu, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.actorsqu, g_i, g_p);
         break;
 
     case PLAYER_TIMEBEFOREEXIT:
         if (iSet)
-            ps[iPlayer].timebeforeexit=lValue;
+            g_player[iPlayer].ps.timebeforeexit=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].timebeforeexit, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.timebeforeexit, g_i, g_p);
         break;
 
     case PLAYER_CUSTOMEXITSOUND:
         if (iSet)
-            ps[iPlayer].customexitsound=lValue;
+            g_player[iPlayer].ps.customexitsound=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].customexitsound, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.customexitsound, g_i, g_p);
         break;
 
     case PLAYER_WEAPRECS:
         if (iSet)
-            ps[iPlayer].weaprecs[16]=lValue;
+            g_player[iPlayer].ps.weaprecs[16]=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].weaprecs[16], g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.weaprecs[16], g_i, g_p);
         break;
 
     case PLAYER_WEAPRECCNT:
         if (iSet)
-            ps[iPlayer].weapreccnt=lValue;
+            g_player[iPlayer].ps.weapreccnt=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].weapreccnt, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.weapreccnt, g_i, g_p);
         break;
 
     case PLAYER_INTERFACE_TOGGLE_FLAG:
         if (iSet)
-            ps[iPlayer].interface_toggle_flag=lValue;
+            g_player[iPlayer].ps.interface_toggle_flag=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].interface_toggle_flag, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.interface_toggle_flag, g_i, g_p);
         break;
 
     case PLAYER_ROTSCRNANG:
         if (iSet)
-            ps[iPlayer].rotscrnang=lValue;
+            g_player[iPlayer].ps.rotscrnang=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].rotscrnang, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.rotscrnang, g_i, g_p);
         break;
 
     case PLAYER_DEAD_FLAG:
         if (iSet)
-            ps[iPlayer].dead_flag=lValue;
+            g_player[iPlayer].ps.dead_flag=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].dead_flag, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.dead_flag, g_i, g_p);
         break;
 
     case PLAYER_SHOW_EMPTY_WEAPON:
         if (iSet)
-            ps[iPlayer].show_empty_weapon=lValue;
+            g_player[iPlayer].ps.show_empty_weapon=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].show_empty_weapon, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.show_empty_weapon, g_i, g_p);
         break;
 
     case PLAYER_SCUBA_AMOUNT:
         if (iSet)
-            ps[iPlayer].scuba_amount=lValue;
+            g_player[iPlayer].ps.scuba_amount=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].scuba_amount, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.scuba_amount, g_i, g_p);
         break;
 
     case PLAYER_JETPACK_AMOUNT:
         if (iSet)
-            ps[iPlayer].jetpack_amount=lValue;
+            g_player[iPlayer].ps.jetpack_amount=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].jetpack_amount, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.jetpack_amount, g_i, g_p);
         break;
 
     case PLAYER_STEROIDS_AMOUNT:
         if (iSet)
-            ps[iPlayer].steroids_amount=lValue;
+            g_player[iPlayer].ps.steroids_amount=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].steroids_amount, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.steroids_amount, g_i, g_p);
         break;
 
     case PLAYER_SHIELD_AMOUNT:
         if (iSet)
-            ps[iPlayer].shield_amount=lValue;
+            g_player[iPlayer].ps.shield_amount=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].shield_amount, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.shield_amount, g_i, g_p);
         break;
 
     case PLAYER_HOLODUKE_ON:
         if (iSet)
-            ps[iPlayer].holoduke_on=lValue;
+            g_player[iPlayer].ps.holoduke_on=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].holoduke_on, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.holoduke_on, g_i, g_p);
         break;
 
     case PLAYER_PYCOUNT:
         if (iSet)
-            ps[iPlayer].pycount=lValue;
+            g_player[iPlayer].ps.pycount=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].pycount, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.pycount, g_i, g_p);
         break;
 
     case PLAYER_WEAPON_POS:
         if (iSet)
-            ps[iPlayer].weapon_pos=lValue;
+            g_player[iPlayer].ps.weapon_pos=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].weapon_pos, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.weapon_pos, g_i, g_p);
         break;
 
     case PLAYER_FRAG_PS:
         if (iSet)
-            ps[iPlayer].frag_ps=lValue;
+            g_player[iPlayer].ps.frag_ps=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].frag_ps, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.frag_ps, g_i, g_p);
         break;
 
     case PLAYER_TRANSPORTER_HOLD:
         if (iSet)
-            ps[iPlayer].transporter_hold=lValue;
+            g_player[iPlayer].ps.transporter_hold=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].transporter_hold, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.transporter_hold, g_i, g_p);
         break;
 
     case PLAYER_LAST_FULL_WEAPON:
         if (iSet)
-            ps[iPlayer].last_full_weapon=lValue;
+            g_player[iPlayer].ps.last_full_weapon=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].last_full_weapon, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.last_full_weapon, g_i, g_p);
         break;
 
     case PLAYER_FOOTPRINTSHADE:
         if (iSet)
-            ps[iPlayer].footprintshade=lValue;
+            g_player[iPlayer].ps.footprintshade=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].footprintshade, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.footprintshade, g_i, g_p);
         break;
 
     case PLAYER_BOOT_AMOUNT:
         if (iSet)
-            ps[iPlayer].boot_amount=lValue;
+            g_player[iPlayer].ps.boot_amount=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].boot_amount, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.boot_amount, g_i, g_p);
         break;
 
     case PLAYER_SCREAM_VOICE:
         if (iSet)
-            ps[iPlayer].scream_voice=lValue;
+            g_player[iPlayer].ps.scream_voice=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].scream_voice, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.scream_voice, g_i, g_p);
         break;
 
     case PLAYER_GM:
         if (iSet)
-            ps[iPlayer].gm=lValue;
+            g_player[iPlayer].ps.gm=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].gm, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.gm, g_i, g_p);
         break;
 
     case PLAYER_ON_WARPING_SECTOR:
         if (iSet)
-            ps[iPlayer].on_warping_sector=lValue;
+            g_player[iPlayer].ps.on_warping_sector=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].on_warping_sector, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.on_warping_sector, g_i, g_p);
         break;
 
     case PLAYER_FOOTPRINTCOUNT:
         if (iSet)
-            ps[iPlayer].footprintcount=lValue;
+            g_player[iPlayer].ps.footprintcount=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].footprintcount, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.footprintcount, g_i, g_p);
         break;
 
     case PLAYER_HBOMB_ON:
         if (iSet)
-            ps[iPlayer].hbomb_on=lValue;
+            g_player[iPlayer].ps.hbomb_on=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].hbomb_on, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.hbomb_on, g_i, g_p);
         break;
 
     case PLAYER_JUMPING_TOGGLE:
         if (iSet)
-            ps[iPlayer].jumping_toggle=lValue;
+            g_player[iPlayer].ps.jumping_toggle=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].jumping_toggle, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.jumping_toggle, g_i, g_p);
         break;
 
     case PLAYER_RAPID_FIRE_HOLD:
         if (iSet)
-            ps[iPlayer].rapid_fire_hold=lValue;
+            g_player[iPlayer].ps.rapid_fire_hold=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].rapid_fire_hold, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.rapid_fire_hold, g_i, g_p);
         break;
 
     case PLAYER_ON_GROUND:
         if (iSet)
-            ps[iPlayer].on_ground=lValue;
+            g_player[iPlayer].ps.on_ground=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].on_ground, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.on_ground, g_i, g_p);
         break;
 
     case PLAYER_NAME:
         if (iSet)
-            ps[iPlayer].name[32]=lValue;
+            g_player[iPlayer].ps.name[32]=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].name[32], g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.name[32], g_i, g_p);
         break;
 
     case PLAYER_INVEN_ICON:
         if (iSet)
-            ps[iPlayer].inven_icon=lValue;
+            g_player[iPlayer].ps.inven_icon=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].inven_icon, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.inven_icon, g_i, g_p);
         break;
 
     case PLAYER_BUTTONPALETTE:
         if (iSet)
-            ps[iPlayer].buttonpalette=lValue;
+            g_player[iPlayer].ps.buttonpalette=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].buttonpalette, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.buttonpalette, g_i, g_p);
         break;
 
     case PLAYER_JETPACK_ON:
         if (iSet)
-            ps[iPlayer].jetpack_on=lValue;
+            g_player[iPlayer].ps.jetpack_on=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].jetpack_on, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.jetpack_on, g_i, g_p);
         break;
 
     case PLAYER_SPRITEBRIDGE:
         if (iSet)
-            ps[iPlayer].spritebridge=lValue;
+            g_player[iPlayer].ps.spritebridge=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].spritebridge, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.spritebridge, g_i, g_p);
         break;
 
     case PLAYER_LASTRANDOMSPOT:
         if (iSet)
-            ps[iPlayer].lastrandomspot=lValue;
+            g_player[iPlayer].ps.lastrandomspot=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].lastrandomspot, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.lastrandomspot, g_i, g_p);
         break;
 
     case PLAYER_SCUBA_ON:
         if (iSet)
-            ps[iPlayer].scuba_on=lValue;
+            g_player[iPlayer].ps.scuba_on=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].scuba_on, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.scuba_on, g_i, g_p);
         break;
 
     case PLAYER_FOOTPRINTPAL:
         if (iSet)
-            ps[iPlayer].footprintpal=lValue;
+            g_player[iPlayer].ps.footprintpal=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].footprintpal, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.footprintpal, g_i, g_p);
         break;
 
     case PLAYER_HEAT_ON:
         if (iSet)
         {
-            if (ps[iPlayer].heat_on != lValue)
+            if (g_player[iPlayer].ps.heat_on != lValue)
             {
-                ps[iPlayer].heat_on=lValue;
-                setpal(&ps[iPlayer]);
+                g_player[iPlayer].ps.heat_on=lValue;
+                setpal(&g_player[iPlayer].ps);
             }
         }
         else
-            SetGameVarID(lVar2, ps[iPlayer].heat_on, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.heat_on, g_i, g_p);
         break;
 
     case PLAYER_HOLSTER_WEAPON:
         if (iSet)
-            ps[iPlayer].holster_weapon=lValue;
+            g_player[iPlayer].ps.holster_weapon=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].holster_weapon, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.holster_weapon, g_i, g_p);
         break;
 
     case PLAYER_FALLING_COUNTER:
         if (iSet)
-            ps[iPlayer].falling_counter=lValue;
+            g_player[iPlayer].ps.falling_counter=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].falling_counter, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.falling_counter, g_i, g_p);
         break;
 
     case PLAYER_GOTWEAPON:
         lTemp=lParm2;
         if (iSet)
-            ps[iPlayer].gotweapon[lTemp]=lValue;
+            g_player[iPlayer].ps.gotweapon[lTemp]=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].gotweapon[lTemp], g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.gotweapon[lTemp], g_i, g_p);
         break;
 
     case PLAYER_REFRESH_INVENTORY:
         if (iSet)
-            ps[iPlayer].refresh_inventory=lValue;
+            g_player[iPlayer].ps.refresh_inventory=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].refresh_inventory, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.refresh_inventory, g_i, g_p);
         break;
 
         //      case PLAYER_PALETTE:
         //          if(iSet)
         //          {
-        //              ps[iPlayer].palette=lValue;
+        //              g_player[iPlayer].ps.palette=lValue;
         //          }
         //          else
         //          {
-        //              SetGameVarID(lVar2, ps[iPlayer].palette, g_i, g_p);
+        //              SetGameVarID(lVar2, g_player[iPlayer].ps.palette, g_i, g_p);
         //          }
         //          break;
 
     case PLAYER_TOGGLE_KEY_FLAG:
         if (iSet)
-            ps[iPlayer].toggle_key_flag=lValue;
+            g_player[iPlayer].ps.toggle_key_flag=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].toggle_key_flag, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.toggle_key_flag, g_i, g_p);
         break;
 
     case PLAYER_KNUCKLE_INCS:
         if (iSet)
-            ps[iPlayer].knuckle_incs=lValue;
+            g_player[iPlayer].ps.knuckle_incs=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].knuckle_incs, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.knuckle_incs, g_i, g_p);
         break;
 
     case PLAYER_WALKING_SND_TOGGLE:
         if (iSet)
-            ps[iPlayer].walking_snd_toggle=lValue;
+            g_player[iPlayer].ps.walking_snd_toggle=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].walking_snd_toggle, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.walking_snd_toggle, g_i, g_p);
         break;
 
     case PLAYER_PALOOKUP:
         if (iSet)
-            ps[iPlayer].palookup=lValue;
+            g_player[iPlayer].ps.palookup=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].palookup, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.palookup, g_i, g_p);
         break;
 
     case PLAYER_HARD_LANDING:
         if (iSet)
-            ps[iPlayer].hard_landing=lValue;
+            g_player[iPlayer].ps.hard_landing=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].hard_landing, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.hard_landing, g_i, g_p);
         break;
 
     case PLAYER_MAX_SECRET_ROOMS:
         if (iSet)
-            ps[iPlayer].max_secret_rooms=lValue;
+            g_player[iPlayer].ps.max_secret_rooms=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].max_secret_rooms, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.max_secret_rooms, g_i, g_p);
         break;
 
     case PLAYER_SECRET_ROOMS:
         if (iSet)
-            ps[iPlayer].secret_rooms=lValue;
+            g_player[iPlayer].ps.secret_rooms=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].secret_rooms, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.secret_rooms, g_i, g_p);
         break;
 
     case PLAYER_PALS:
         lTemp=lParm2;
         if (iSet)
-            ps[iPlayer].pals[lTemp]=lValue;
+            g_player[iPlayer].ps.pals[lTemp]=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].pals[lTemp], g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.pals[lTemp], g_i, g_p);
         break;
 
     case PLAYER_MAX_ACTORS_KILLED:
         if (iSet)
-            ps[iPlayer].max_actors_killed=lValue;
+            g_player[iPlayer].ps.max_actors_killed=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].max_actors_killed, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.max_actors_killed, g_i, g_p);
         break;
 
     case PLAYER_ACTORS_KILLED:
         if (iSet)
-            ps[iPlayer].actors_killed=lValue;
+            g_player[iPlayer].ps.actors_killed=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].actors_killed, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.actors_killed, g_i, g_p);
         break;
 
     case PLAYER_RETURN_TO_CENTER:
         if (iSet)
-            ps[iPlayer].return_to_center=lValue;
+            g_player[iPlayer].ps.return_to_center=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].return_to_center, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.return_to_center, g_i, g_p);
         break;
 
     case PLAYER_RUNSPEED:
         if (iSet)
-            ps[iPlayer].runspeed=lValue;
+            g_player[iPlayer].ps.runspeed=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].runspeed, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.runspeed, g_i, g_p);
         break;
 
     case PLAYER_SBS:
         if (iSet)
-            ps[iPlayer].sbs=lValue;
+            g_player[iPlayer].ps.sbs=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].sbs, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.sbs, g_i, g_p);
         break;
 
     case PLAYER_RELOADING:
         if (iSet)
-            ps[iPlayer].reloading=lValue;
+            g_player[iPlayer].ps.reloading=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].reloading, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.reloading, g_i, g_p);
         break;
 
     case PLAYER_AUTO_AIM:
         if (iSet)
-            ps[iPlayer].auto_aim=lValue;
+            g_player[iPlayer].ps.auto_aim=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].auto_aim, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.auto_aim, g_i, g_p);
         break;
 
     case PLAYER_MOVEMENT_LOCK:
         if (iSet)
-            ps[iPlayer].movement_lock=lValue;
+            g_player[iPlayer].ps.movement_lock=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].movement_lock, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.movement_lock, g_i, g_p);
         break;
 
     case PLAYER_SOUND_PITCH:
         if (iSet)
-            ps[iPlayer].sound_pitch=lValue;
+            g_player[iPlayer].ps.sound_pitch=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].sound_pitch, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.sound_pitch, g_i, g_p);
         break;
 
     case PLAYER_WEAPONSWITCH:
         if (iSet)
-            ps[iPlayer].weaponswitch=lValue;
+            g_player[iPlayer].ps.weaponswitch=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].weaponswitch, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.weaponswitch, g_i, g_p);
         break;
 
     case PLAYER_TEAM:
         if (iSet)
-            ps[iPlayer].team=lValue;
+            g_player[iPlayer].ps.team=lValue;
         else
-            SetGameVarID(lVar2, ps[iPlayer].team, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].ps.team, g_i, g_p);
         break;
 
     default:
@@ -1979,44 +1979,44 @@ static void DoInput(int iSet, int lVar1, int lLabelID, int lVar2)
     {
     case INPUT_AVEL:
         if (iSet)
-            sync[iPlayer].avel=lValue;
+            g_player[iPlayer].sync.avel=lValue;
         else
-            SetGameVarID(lVar2, sync[iPlayer].avel, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].sync.avel, g_i, g_p);
         break;
 
     case INPUT_HORZ:
         if (iSet)
-            sync[iPlayer].horz=lValue;
+            g_player[iPlayer].sync.horz=lValue;
         else
-            SetGameVarID(lVar2, sync[iPlayer].horz, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].sync.horz, g_i, g_p);
         break;
 
     case INPUT_FVEL:
         if (iSet)
-            sync[iPlayer].fvel=lValue;
+            g_player[iPlayer].sync.fvel=lValue;
         else
-            SetGameVarID(lVar2, sync[iPlayer].fvel, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].sync.fvel, g_i, g_p);
         break;
 
     case INPUT_SVEL:
         if (iSet)
-            sync[iPlayer].svel=lValue;
+            g_player[iPlayer].sync.svel=lValue;
         else
-            SetGameVarID(lVar2, sync[iPlayer].svel, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].sync.svel, g_i, g_p);
         break;
 
     case INPUT_BITS:
         if (iSet)
-            sync[iPlayer].bits=lValue;
+            g_player[iPlayer].sync.bits=lValue;
         else
-            SetGameVarID(lVar2, sync[iPlayer].bits, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].sync.bits, g_i, g_p);
         break;
 
     case INPUT_EXTBITS:
         if (iSet)
-            sync[iPlayer].extbits=lValue;
+            g_player[iPlayer].sync.extbits=lValue;
         else
-            SetGameVarID(lVar2, sync[iPlayer].extbits, g_i, g_p);
+            SetGameVarID(lVar2, g_player[iPlayer].sync.extbits, g_i, g_p);
         break;
     default:
         break;
@@ -2973,8 +2973,8 @@ void OnEvent(int iEventID, int iActor, int iPlayer, long lDist)
             // if player was set to squish, first stop that...
             if (g_p >= 0)
             {
-                if (ps[g_p].actorsqu == g_i)
-                    ps[g_p].actorsqu = -1;
+                if (g_player[g_p].ps.actorsqu == g_i)
+                    g_player[g_p].ps.actorsqu = -1;
             }
             deletesprite(g_i);
         }
@@ -3011,7 +3011,7 @@ static int ifsquished(int i, int p)
 
     if (squishme)
     {
-        FTA(10,&ps[p]);
+        FTA(10,&g_player[p].ps);
 
         if (badguy(&sprite[i])) sprite[i].xvel = 0;
 
@@ -3027,7 +3027,7 @@ static int ifsquished(int i, int p)
     return 0;
 }
 
-static void forceplayerangle(struct player_struct *p)
+static void forceplayerangle(player_struct *p)
 {
     int n = 128-(TRAND&255);
 
@@ -3238,7 +3238,7 @@ static void alterang(int a)
 {
     int aang = g_sp->ang, angdif, goalang;
     long ticselapsed = (g_t[0])&31, *moveptr = (long *)g_t[1];
-    int j = ps[g_p].holoduke_on;
+    int j = g_player[g_p].ps.holoduke_on;
 
     g_sp->xvel += (*moveptr-g_sp->xvel)/5;
     if (g_sp->zvel < 648) g_sp->zvel += ((*(moveptr+1)<<4)-g_sp->zvel)/5;
@@ -3249,7 +3249,7 @@ static void alterang(int a)
 
         if (j >= 0 && cansee(sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].sectnum,g_sp->x,g_sp->y,g_sp->z,g_sp->sectnum))
             g_sp->owner = j;
-        else g_sp->owner = ps[g_p].i;
+        else g_sp->owner = g_player[g_p].ps.i;
 
         if (sprite[g_sp->owner].picnum == APLAYER)
             goalang = getangle(hittype[g_i].lastvx-g_sp->x,hittype[g_i].lastvy-g_sp->y);
@@ -3286,7 +3286,7 @@ static void alterang(int a)
         {
             goalang = furthestangle(g_i,j);
             g_sp->ang = goalang;
-            g_sp->owner = ps[g_p].i;
+            g_sp->owner = g_player[g_p].ps.i;
         }
 
         if (a&fleeenemy)
@@ -3309,9 +3309,9 @@ static void move(void)
 
     if (a&face_player)
     {
-        if (ps[g_p].newowner >= 0)
-            goalang = getangle(ps[g_p].oposx-g_sp->x,ps[g_p].oposy-g_sp->y);
-        else goalang = getangle(ps[g_p].posx-g_sp->x,ps[g_p].posy-g_sp->y);
+        if (g_player[g_p].ps.newowner >= 0)
+            goalang = getangle(g_player[g_p].ps.oposx-g_sp->x,g_player[g_p].ps.oposy-g_sp->y);
+        else goalang = getangle(g_player[g_p].ps.posx-g_sp->x,g_player[g_p].ps.posy-g_sp->y);
         angdif = getincangle(g_sp->ang,goalang)>>2;
         if ((angdif > -8 && angdif < 0) || (angdif < 8 && angdif > 0))
             angdif *= 2;
@@ -3323,9 +3323,9 @@ static void move(void)
 
     if (a&face_player_slow)
     {
-        if (ps[g_p].newowner >= 0)
-            goalang = getangle(ps[g_p].oposx-g_sp->x,ps[g_p].oposy-g_sp->y);
-        else goalang = getangle(ps[g_p].posx-g_sp->x,ps[g_p].posy-g_sp->y);
+        if (g_player[g_p].ps.newowner >= 0)
+            goalang = getangle(g_player[g_p].ps.oposx-g_sp->x,g_player[g_p].ps.oposy-g_sp->y);
+        else goalang = getangle(g_player[g_p].ps.posx-g_sp->x,g_player[g_p].ps.posy-g_sp->y);
         angdif = getincangle(g_sp->ang,goalang)>>4;
         if ((angdif > -8 && angdif < 0) || (angdif < 8 && angdif > 0))
             angdif *= 2;
@@ -3340,8 +3340,8 @@ static void move(void)
 
     if (a&face_player_smart)
     {
-        long newx = ps[g_p].posx+(ps[g_p].posxv/768);
-        long newy = ps[g_p].posy+(ps[g_p].posyv/768);
+        long newx = g_player[g_p].ps.posx+(g_player[g_p].ps.posxv/768);
+        long newy = g_player[g_p].ps.posy+(g_player[g_p].ps.posyv/768);
 
         goalang = getangle(newx-g_sp->x,newy-g_sp->y);
         angdif = getincangle(g_sp->ang,goalang)>>2;
@@ -3445,29 +3445,29 @@ static void move(void)
             {
 
                 daxvel = -(1024-g_x);
-                angdif = getangle(ps[g_p].posx-g_sp->x,ps[g_p].posy-g_sp->y);
+                angdif = getangle(g_player[g_p].ps.posx-g_sp->x,g_player[g_p].ps.posy-g_sp->y);
 
                 if (g_x < 512)
                 {
-                    ps[g_p].posxv = 0;
-                    ps[g_p].posyv = 0;
+                    g_player[g_p].ps.posxv = 0;
+                    g_player[g_p].ps.posyv = 0;
                 }
                 else
                 {
-                    ps[g_p].posxv = mulscale(ps[g_p].posxv,ps[g_p].runspeed-0x2000,16);
-                    ps[g_p].posyv = mulscale(ps[g_p].posyv,ps[g_p].runspeed-0x2000,16);
+                    g_player[g_p].ps.posxv = mulscale(g_player[g_p].ps.posxv,g_player[g_p].ps.runspeed-0x2000,16);
+                    g_player[g_p].ps.posyv = mulscale(g_player[g_p].ps.posyv,g_player[g_p].ps.runspeed-0x2000,16);
                 }
             }
             else if (g_sp->picnum != DRONE && g_sp->picnum != SHARK && g_sp->picnum != COMMANDER)
             {
                 if (hittype[g_i].bposz != g_sp->z || (ud.multimode < 2 && ud.player_skill < 2))
                 {
-                    if ((g_t[0]&1) || ps[g_p].actorsqu == g_i) return;
+                    if ((g_t[0]&1) || g_player[g_p].ps.actorsqu == g_i) return;
                     else daxvel <<= 1;
                 }
                 else
                 {
-                    if ((g_t[0]&3) || ps[g_p].actorsqu == g_i) return;
+                    if ((g_t[0]&3) || g_player[g_p].ps.actorsqu == g_i) return;
                     else daxvel <<= 2;
                 }
             }
@@ -3611,7 +3611,7 @@ static int parse(void)
         break;
 
     case CON_IFCANSEETARGET:
-        j = cansee(g_sp->x,g_sp->y,g_sp->z-((TRAND&41)<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz/*-((TRAND&41)<<8)*/,sprite[ps[g_p].i].sectnum);
+        j = cansee(g_sp->x,g_sp->y,g_sp->z-((TRAND&41)<<8),g_sp->sectnum,g_player[g_p].ps.posx,g_player[g_p].ps.posy,g_player[g_p].ps.posz/*-((TRAND&41)<<8)*/,sprite[g_player[g_p].ps.i].sectnum);
         parseifelse(j);
         if (j) hittype[g_i].timetosleep = SLEEPTIME;
         break;
@@ -3627,9 +3627,9 @@ static int parse(void)
         // select sprite for monster to target
         // if holoduke is on, let them target holoduke first.
         //
-        if (ps[g_p].holoduke_on >= 0)
+        if (g_player[g_p].ps.holoduke_on >= 0)
         {
-            s = &sprite[ps[g_p].holoduke_on];
+            s = &sprite[g_player[g_p].ps.holoduke_on];
             j = cansee(g_sp->x,g_sp->y,g_sp->z-(TRAND&((32<<8)-1)),g_sp->sectnum,
                        s->x,s->y,s->z,s->sectnum);
 
@@ -3637,10 +3637,10 @@ static int parse(void)
             {
                 // they can't see player's holoduke
                 // check for player...
-                s = &sprite[ps[g_p].i];
+                s = &sprite[g_player[g_p].ps.i];
             }
         }
-        else s = &sprite[ps[g_p].i];    // holoduke not on. look for player
+        else s = &sprite[g_player[g_p].ps.i];    // holoduke not on. look for player
 
         // can they see player, (or player's holoduke)
         j = cansee(g_sp->x,g_sp->y,g_sp->z-(TRAND&((47<<8))),g_sp->sectnum,
@@ -3752,15 +3752,15 @@ static int parse(void)
         {
             if (*insptr == 0)
             {
-                for (j=0;j < ps[g_p].weapreccnt;j++)
-                    if (ps[g_p].weaprecs[j] == g_sp->picnum)
+                for (j=0;j < g_player[g_p].ps.weapreccnt;j++)
+                    if (g_player[g_p].ps.weaprecs[j] == g_sp->picnum)
                         break;
 
-                parseifelse(j < ps[g_p].weapreccnt && g_sp->owner == g_i);
+                parseifelse(j < g_player[g_p].ps.weapreccnt && g_sp->owner == g_i);
             }
-            else if (ps[g_p].weapreccnt < 16)
+            else if (g_player[g_p].ps.weapreccnt < 16)
             {
-                ps[g_p].weaprecs[ps[g_p].weapreccnt++] = g_sp->picnum;
+                g_player[g_p].ps.weaprecs[g_player[g_p].ps.weapreccnt++] = g_sp->picnum;
                 parseifelse(g_sp->owner == g_i);
             }
             else parseifelse(0);
@@ -3771,14 +3771,14 @@ static int parse(void)
     case CON_GETLASTPAL:
         insptr++;
         if (g_sp->picnum == APLAYER)
-            g_sp->pal = ps[g_sp->yvel].palookup;
+            g_sp->pal = g_player[g_sp->yvel].ps.palookup;
         else g_sp->pal = hittype[g_i].tempang;
         hittype[g_i].tempang = 0;
         break;
 
     case CON_TOSSWEAPON:
         insptr++;
-        checkweapons(&ps[g_sp->yvel]);
+        checkweapons(&g_player[g_sp->yvel].ps);
         break;
 
     case CON_NULLOP:
@@ -3796,11 +3796,11 @@ static int parse(void)
 
         if (ud.multimode > 1 && g_sp->picnum == APLAYER)
         {
-            if (ps[otherp].quick_kick == 0)
-                ps[otherp].quick_kick = 14;
+            if (g_player[otherp].ps.quick_kick == 0)
+                g_player[otherp].ps.quick_kick = 14;
         }
-        else if (g_sp->picnum != APLAYER && ps[g_p].quick_kick == 0)
-            ps[g_p].quick_kick = 14;
+        else if (g_sp->picnum != APLAYER && g_player[g_p].ps.quick_kick == 0)
+            g_player[g_p].ps.quick_kick = 14;
         break;
 
     case CON_SIZETO:
@@ -3852,7 +3852,7 @@ static int parse(void)
     case CON_GLOBALSOUND:
         insptr++;
         if (g_p == screenpeek || (gametype_flags[ud.coop]&GAMETYPE_FLAG_COOPSOUND))
-            spritesound((short) *insptr,ps[screenpeek].i);
+            spritesound((short) *insptr,g_player[screenpeek].ps.i);
         insptr++;
         break;
 
@@ -3863,7 +3863,7 @@ static int parse(void)
 
     case CON_TIP:
         insptr++;
-        ps[g_p].tipincs = 26;
+        g_player[g_p].ps.tipincs = 26;
         break;
 
     case CON_FALL:
@@ -3960,17 +3960,17 @@ static int parse(void)
         return 1;
     case CON_ADDAMMO:
         insptr++;
-        if (ps[g_p].ammo_amount[*insptr] >= max_ammo_amount[*insptr])
+        if (g_player[g_p].ps.ammo_amount[*insptr] >= max_ammo_amount[*insptr])
         {
             killit_flag = 2;
             break;
         }
-        addammo(*insptr, &ps[g_p], *(insptr+1));
-        if (ps[g_p].curr_weapon == KNEE_WEAPON)
-            if (ps[g_p].gotweapon[*insptr])
+        addammo(*insptr, &g_player[g_p].ps, *(insptr+1));
+        if (g_player[g_p].ps.curr_weapon == KNEE_WEAPON)
+            if (g_player[g_p].ps.gotweapon[*insptr])
             {
-                if (!(ps[g_p].weaponswitch & 1)) addweaponnoswitch(&ps[g_p], *insptr);
-                else addweapon(&ps[g_p], *insptr);
+                if (!(g_player[g_p].ps.weaponswitch & 1)) addweaponnoswitch(&g_player[g_p].ps, *insptr);
+                else addweapon(&g_player[g_p].ps, *insptr);
             }
         insptr += 2;
         break;
@@ -3997,7 +3997,7 @@ static int parse(void)
 
     case CON_ADDKILLS:
         insptr++;
-        ps[g_p].actors_killed += *insptr++;
+        g_player[g_p].ps.actors_killed += *insptr++;
         hittype[g_i].actorstayput = -1;
         break;
 
@@ -4013,22 +4013,22 @@ static int parse(void)
 
     case CON_ADDWEAPON:
         insptr++;
-        if (ps[g_p].gotweapon[*insptr] == 0)
+        if (g_player[g_p].ps.gotweapon[*insptr] == 0)
         {
-            if (!(ps[g_p].weaponswitch & 1)) addweaponnoswitch(&ps[g_p], *insptr);
-            else addweapon(&ps[g_p], *insptr);
+            if (!(g_player[g_p].ps.weaponswitch & 1)) addweaponnoswitch(&g_player[g_p].ps, *insptr);
+            else addweapon(&g_player[g_p].ps, *insptr);
         }
-        else if (ps[g_p].ammo_amount[*insptr] >= max_ammo_amount[*insptr])
+        else if (g_player[g_p].ps.ammo_amount[*insptr] >= max_ammo_amount[*insptr])
         {
             killit_flag = 2;
             break;
         }
-        addammo(*insptr, &ps[g_p], *(insptr+1));
-        if (ps[g_p].curr_weapon == KNEE_WEAPON)
-            if (ps[g_p].gotweapon[*insptr])
+        addammo(*insptr, &g_player[g_p].ps, *(insptr+1));
+        if (g_player[g_p].ps.curr_weapon == KNEE_WEAPON)
+            if (g_player[g_p].ps.gotweapon[*insptr])
             {
-                if (!(ps[g_p].weaponswitch & 1)) addweaponnoswitch(&ps[g_p], *insptr);
-                else addweapon(&ps[g_p], *insptr);
+                if (!(g_player[g_p].ps.weaponswitch & 1)) addweaponnoswitch(&g_player[g_p].ps, *insptr);
+                else addweapon(&g_player[g_p].ps, *insptr);
             }
         insptr+=2;
         break;
@@ -4040,23 +4040,23 @@ static int parse(void)
 
     case CON_ENDOFGAME:
         insptr++;
-        ps[g_p].timebeforeexit = *insptr++;
-        ps[g_p].customexitsound = -1;
+        g_player[g_p].ps.timebeforeexit = *insptr++;
+        g_player[g_p].ps.customexitsound = -1;
         ud.eog = 1;
         break;
 
     case CON_ADDPHEALTH:
         insptr++;
 
-        if (ps[g_p].newowner >= 0)
+        if (g_player[g_p].ps.newowner >= 0)
         {
-            ps[g_p].newowner = -1;
-            ps[g_p].posx = ps[g_p].oposx;
-            ps[g_p].posy = ps[g_p].oposy;
-            ps[g_p].posz = ps[g_p].oposz;
-            ps[g_p].ang = ps[g_p].oang;
-            updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
-            setpal(&ps[g_p]);
+            g_player[g_p].ps.newowner = -1;
+            g_player[g_p].ps.posx = g_player[g_p].ps.oposx;
+            g_player[g_p].ps.posy = g_player[g_p].ps.oposy;
+            g_player[g_p].ps.posz = g_player[g_p].ps.oposz;
+            g_player[g_p].ps.ang = g_player[g_p].ps.oang;
+            updatesector(g_player[g_p].ps.posx,g_player[g_p].ps.posy,&g_player[g_p].ps.cursectnum);
+            setpal(&g_player[g_p].ps);
 
             j = headspritestat[1];
             while (j >= 0)
@@ -4067,7 +4067,7 @@ static int parse(void)
             }
         }
 
-        j = sprite[ps[g_p].i].extra;
+        j = sprite[g_player[g_p].ps.i].extra;
 
         if (g_sp->picnum != ATOMICHEALTH)
         {
@@ -4100,12 +4100,12 @@ static int parse(void)
             {
                 if ((j - *insptr) < (max_player_health>>2) &&
                         j >= (max_player_health>>2))
-                    spritesound(DUKE_GOTHEALTHATLOW,ps[g_p].i);
+                    spritesound(DUKE_GOTHEALTHATLOW,g_player[g_p].ps.i);
 
-                ps[g_p].last_extra = j;
+                g_player[g_p].ps.last_extra = j;
             }
 
-            sprite[ps[g_p].i].extra = j;
+            sprite[g_player[g_p].ps.i].extra = j;
         }
 
         insptr++;
@@ -4137,22 +4137,22 @@ static int parse(void)
 
     case CON_ADDWEAPONVAR:
         insptr++;
-        if (ps[g_p].gotweapon[GetGameVarID(*(insptr),g_i,g_p)] == 0)
+        if (g_player[g_p].ps.gotweapon[GetGameVarID(*(insptr),g_i,g_p)] == 0)
         {
-            if (!(ps[g_p].weaponswitch & 1)) addweaponnoswitch(&ps[g_p], GetGameVarID(*(insptr),g_i,g_p));
-            else addweapon(&ps[g_p], GetGameVarID(*(insptr),g_i,g_p));
+            if (!(g_player[g_p].ps.weaponswitch & 1)) addweaponnoswitch(&g_player[g_p].ps, GetGameVarID(*(insptr),g_i,g_p));
+            else addweapon(&g_player[g_p].ps, GetGameVarID(*(insptr),g_i,g_p));
         }
-        else if (ps[g_p].ammo_amount[GetGameVarID(*(insptr),g_i,g_p)] >= max_ammo_amount[GetGameVarID(*(insptr),g_i,g_p)])
+        else if (g_player[g_p].ps.ammo_amount[GetGameVarID(*(insptr),g_i,g_p)] >= max_ammo_amount[GetGameVarID(*(insptr),g_i,g_p)])
         {
             killit_flag = 2;
             break;
         }
-        addammo(GetGameVarID(*(insptr),g_i,g_p), &ps[g_p], GetGameVarID(*(insptr+1),g_i,g_p));
-        if (ps[g_p].curr_weapon == KNEE_WEAPON)
-            if (ps[g_p].gotweapon[GetGameVarID(*(insptr),g_i,g_p)])
+        addammo(GetGameVarID(*(insptr),g_i,g_p), &g_player[g_p].ps, GetGameVarID(*(insptr+1),g_i,g_p));
+        if (g_player[g_p].ps.curr_weapon == KNEE_WEAPON)
+            if (g_player[g_p].ps.gotweapon[GetGameVarID(*(insptr),g_i,g_p)])
             {
-                if (!(ps[g_p].weaponswitch & 1)) addweaponnoswitch(&ps[g_p], GetGameVarID(*(insptr),g_i,g_p));
-                else addweapon(&ps[g_p], GetGameVarID(*(insptr),g_i,g_p));
+                if (!(g_player[g_p].ps.weaponswitch & 1)) addweaponnoswitch(&g_player[g_p].ps, GetGameVarID(*(insptr),g_i,g_p));
+                else addweapon(&g_player[g_p].ps, GetGameVarID(*(insptr),g_i,g_p));
             }
         insptr+=2;
         break;
@@ -4304,8 +4304,8 @@ static int parse(void)
             case CON_GETPNAME:
                 if (fta_quotes[i] != NULL)
                 {
-                    if (ud.user_name[j][0])
-                        Bstrcpy(fta_quotes[i],ud.user_name[j]);
+                    if (g_player[j].user_name[0])
+                        Bstrcpy(fta_quotes[i],g_player[j].user_name);
                     else Bsprintf(fta_quotes[i],"%d",j);
                 }
                 else OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,i);
@@ -4354,7 +4354,7 @@ static int parse(void)
                 mpchangemap(volnume,levnume);
             else
             {
-                ps[myconnectindex].gm |= MODE_EOL;
+                g_player[myconnectindex].ps.gm |= MODE_EOL;
                 display_bonus_screen = 0;
             } // MODE_RESTART;
 
@@ -4651,7 +4651,7 @@ static int parse(void)
                 spritesound((short)j,g_i);
             break;
         case CON_GLOBALSOUNDVAR:
-            spritesound((short)j,ps[screenpeek].i);
+            spritesound((short)j,g_player[screenpeek].ps.i);
             break;
         case CON_STOPSOUNDVAR:
             if (isspritemakingsound(g_i,j))
@@ -4677,15 +4677,15 @@ static int parse(void)
     {
         int32 i=0;
         insptr++;
-        if (config.scripthandle < 0) break;
+        if (ud.config.scripthandle < 0) break;
         switch (tw)
         {
         case CON_SAVEGAMEVAR:
             i=GetGameVarID(*insptr, g_i, g_p);
-            SCRIPT_PutNumber(config.scripthandle, "Gamevars",aGameVars[*insptr++].szLabel,i,false,false);
+            SCRIPT_PutNumber(ud.config.scripthandle, "Gamevars",aGameVars[*insptr++].szLabel,i,false,false);
             break;
         case CON_READGAMEVAR:
-            SCRIPT_GetNumber(config.scripthandle, "Gamevars",aGameVars[*insptr].szLabel,&i);
+            SCRIPT_GetNumber(ud.config.scripthandle, "Gamevars",aGameVars[*insptr].szLabel,&i);
             SetGameVarID(*insptr++, i, g_i, g_p);
             break;
         }
@@ -4720,7 +4720,7 @@ static int parse(void)
             setview(x1,y1,x2,y2);
 
 #if 0
-            if (!ud.pause_on && ((ud.show_help == 0 && ud.multimode < 2 && !(ps[myconnectindex].gm&MODE_MENU)) || ud.multimode > 1 || ud.recstat == 2))
+            if (!ud.pause_on && ((ud.show_help == 0 && ud.multimode < 2 && !(g_player[myconnectindex].ps.gm&MODE_MENU)) || ud.multimode > 1 || ud.recstat == 2))
                 smoothratio = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
 #endif
             dointerpolations(smoothratio);
@@ -5087,7 +5087,7 @@ static int parse(void)
     case CON_QUAKE:
         insptr++;
         earthquaketime = (char)GetGameVarID(*insptr++,g_i,g_p);
-        spritesound(EARTHQUAKE,ps[screenpeek].i);
+        spritesound(EARTHQUAKE,g_player[screenpeek].ps.i);
         break;
 
     case CON_IFMOVE:
@@ -5104,21 +5104,21 @@ static int parse(void)
         {
             if (lastsavedpos >= 0 && ud.recstat != 2)
             {
-                ps[g_p].gm = MODE_MENU;
+                g_player[g_p].ps.gm = MODE_MENU;
                 KB_ClearKeyDown(sc_Space);
                 cmenu(15000);
             }
-            else ps[g_p].gm = MODE_RESTART;
+            else g_player[g_p].ps.gm = MODE_RESTART;
             killit_flag = 2;
         }
         else
         {
             pickrandomspot(g_p);
-            g_sp->x = hittype[g_i].bposx = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
-            g_sp->y = hittype[g_i].bposy = ps[g_p].bobposy = ps[g_p].oposy =ps[g_p].posy;
-            g_sp->z = hittype[g_i].bposy = ps[g_p].oposz =ps[g_p].posz;
-            updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
-            setsprite(ps[g_p].i,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+PHEIGHT);
+            g_sp->x = hittype[g_i].bposx = g_player[g_p].ps.bobposx = g_player[g_p].ps.oposx = g_player[g_p].ps.posx;
+            g_sp->y = hittype[g_i].bposy = g_player[g_p].ps.bobposy = g_player[g_p].ps.oposy =g_player[g_p].ps.posy;
+            g_sp->z = hittype[g_i].bposy = g_player[g_p].ps.oposz =g_player[g_p].ps.posz;
+            updatesector(g_player[g_p].ps.posx,g_player[g_p].ps.posy,&g_player[g_p].ps.cursectnum);
+            setsprite(g_player[g_p].ps.i,g_player[g_p].ps.posx,g_player[g_p].ps.posy,g_player[g_p].ps.posz+PHEIGHT);
             g_sp->cstat = 257;
 
             g_sp->shade = -12;
@@ -5127,27 +5127,27 @@ static int parse(void)
             g_sp->yrepeat = 36;
             g_sp->owner = g_i;
             g_sp->xoffset = 0;
-            g_sp->pal = ps[g_p].palookup;
+            g_sp->pal = g_player[g_p].ps.palookup;
 
-            ps[g_p].last_extra = g_sp->extra = max_player_health;
-            ps[g_p].wantweaponfire = -1;
-            ps[g_p].horiz = 100;
-            ps[g_p].on_crane = -1;
-            ps[g_p].frag_ps = g_p;
-            ps[g_p].horizoff = 0;
-            ps[g_p].opyoff = 0;
-            ps[g_p].wackedbyactor = -1;
-            ps[g_p].shield_amount = max_armour_amount;
-            ps[g_p].dead_flag = 0;
-            ps[g_p].pals_time = 0;
-            ps[g_p].footprintcount = 0;
-            ps[g_p].weapreccnt = 0;
-            ps[g_p].fta = 0;
-            ps[g_p].ftq = 0;
-            ps[g_p].posxv = ps[g_p].posyv = 0;
-            ps[g_p].rotscrnang = 0;
-            ps[g_p].runspeed = dukefriction;
-            ps[g_p].falling_counter = 0;
+            g_player[g_p].ps.last_extra = g_sp->extra = max_player_health;
+            g_player[g_p].ps.wantweaponfire = -1;
+            g_player[g_p].ps.horiz = 100;
+            g_player[g_p].ps.on_crane = -1;
+            g_player[g_p].ps.frag_ps = g_p;
+            g_player[g_p].ps.horizoff = 0;
+            g_player[g_p].ps.opyoff = 0;
+            g_player[g_p].ps.wackedbyactor = -1;
+            g_player[g_p].ps.shield_amount = max_armour_amount;
+            g_player[g_p].ps.dead_flag = 0;
+            g_player[g_p].ps.pals_time = 0;
+            g_player[g_p].ps.footprintcount = 0;
+            g_player[g_p].ps.weapreccnt = 0;
+            g_player[g_p].ps.fta = 0;
+            g_player[g_p].ps.ftq = 0;
+            g_player[g_p].ps.posxv = g_player[g_p].ps.posyv = 0;
+            g_player[g_p].ps.rotscrnang = 0;
+            g_player[g_p].ps.runspeed = dukefriction;
+            g_player[g_p].ps.falling_counter = 0;
 
             hittype[g_i].extra = -1;
             hittype[g_i].owner = g_i;
@@ -5157,20 +5157,20 @@ static int parse(void)
             hittype[g_i].tempang = 0;
             hittype[g_i].actorstayput = -1;
             hittype[g_i].dispicnum = 0;
-            hittype[g_i].owner = ps[g_p].i;
+            hittype[g_i].owner = g_player[g_p].ps.i;
 
             resetinventory(g_p);
             resetweapons(g_p);
 
-            ps[g_p].reloading = 0;
+            g_player[g_p].ps.reloading = 0;
 
-            ps[g_p].movement_lock = 0;
+            g_player[g_p].ps.movement_lock = 0;
 
-            OnEvent(EVENT_RESETPLAYER, ps[g_p].i, g_p, -1);
+            OnEvent(EVENT_RESETPLAYER, g_player[g_p].ps.i, g_p, -1);
             cameradist = 0;
             cameraclock = totalclock;
         }
-        setpal(&ps[g_p]);
+        setpal(&g_player[g_p].ps);
         //AddLog("EOF: resetplayer");
     }
     break;
@@ -5203,59 +5203,59 @@ static int parse(void)
         switch (*(insptr-1))
         {
         case GET_STEROIDS:
-            ps[g_p].steroids_amount = *insptr;
-            ps[g_p].inven_icon = 2;
+            g_player[g_p].ps.steroids_amount = *insptr;
+            g_player[g_p].ps.inven_icon = 2;
             break;
 
         case GET_SHIELD:
-            ps[g_p].shield_amount +=          *insptr;// 100;
-            if (ps[g_p].shield_amount > max_player_health)
-                ps[g_p].shield_amount = max_player_health;
+            g_player[g_p].ps.shield_amount +=          *insptr;// 100;
+            if (g_player[g_p].ps.shield_amount > max_player_health)
+                g_player[g_p].ps.shield_amount = max_player_health;
             break;
 
         case GET_SCUBA:
-            ps[g_p].scuba_amount =             *insptr;// 1600;
-            ps[g_p].inven_icon = 6;
+            g_player[g_p].ps.scuba_amount =             *insptr;// 1600;
+            g_player[g_p].ps.inven_icon = 6;
             break;
 
         case GET_HOLODUKE:
-            ps[g_p].holoduke_amount =          *insptr;// 1600;
-            ps[g_p].inven_icon = 3;
+            g_player[g_p].ps.holoduke_amount =          *insptr;// 1600;
+            g_player[g_p].ps.inven_icon = 3;
             break;
 
         case GET_JETPACK:
-            ps[g_p].jetpack_amount =           *insptr;// 1600;
-            ps[g_p].inven_icon = 4;
+            g_player[g_p].ps.jetpack_amount =           *insptr;// 1600;
+            g_player[g_p].ps.inven_icon = 4;
             break;
 
         case GET_ACCESS:
             switch (g_sp->pal)
             {
             case  0:
-                ps[g_p].got_access |= 1;
+                g_player[g_p].ps.got_access |= 1;
                 break;
             case 21:
-                ps[g_p].got_access |= 2;
+                g_player[g_p].ps.got_access |= 2;
                 break;
             case 23:
-                ps[g_p].got_access |= 4;
+                g_player[g_p].ps.got_access |= 4;
                 break;
             }
             break;
 
         case GET_HEATS:
-            ps[g_p].heat_amount = *insptr;
-            ps[g_p].inven_icon = 5;
+            g_player[g_p].ps.heat_amount = *insptr;
+            g_player[g_p].ps.inven_icon = 5;
             break;
 
         case GET_FIRSTAID:
-            ps[g_p].inven_icon = 1;
-            ps[g_p].firstaid_amount = *insptr;
+            g_player[g_p].ps.inven_icon = 1;
+            g_player[g_p].ps.firstaid_amount = *insptr;
             break;
 
         case GET_BOOTS:
-            ps[g_p].inven_icon = 7;
-            ps[g_p].boot_amount = *insptr;
+            g_player[g_p].ps.inven_icon = 7;
+            g_player[g_p].ps.boot_amount = *insptr;
             break;
         }
         insptr++;
@@ -5273,47 +5273,47 @@ static int parse(void)
         l = *insptr;
         j = 0;
 
-        s = sprite[ps[g_p].i].xvel;
+        s = sprite[g_player[g_p].ps.i].xvel;
 
-        if ((l&8) && ps[g_p].on_ground && (sync[g_p].bits&2))
+        if ((l&8) && g_player[g_p].ps.on_ground && (g_player[g_p].sync.bits&2))
             j = 1;
-        else if ((l&16) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&
-                 ps[g_p].poszv > 2048)
+        else if ((l&16) && g_player[g_p].ps.jumping_counter == 0 && !g_player[g_p].ps.on_ground &&
+                 g_player[g_p].ps.poszv > 2048)
             j = 1;
-        else if ((l&32) && ps[g_p].jumping_counter > 348)
+        else if ((l&32) && g_player[g_p].ps.jumping_counter > 348)
             j = 1;
         else if ((l&1) && s >= 0 && s < 8)
             j = 1;
-        else if ((l&2) && s >= 8 && !(sync[g_p].bits&(1<<5)))
+        else if ((l&2) && s >= 8 && !(g_player[g_p].sync.bits&(1<<5)))
             j = 1;
-        else if ((l&4) && s >= 8 && sync[g_p].bits&(1<<5))
+        else if ((l&4) && s >= 8 && g_player[g_p].sync.bits&(1<<5))
             j = 1;
-        else if ((l&64) && ps[g_p].posz < (g_sp->z-(48<<8)))
+        else if ((l&64) && g_player[g_p].ps.posz < (g_sp->z-(48<<8)))
             j = 1;
-        else if ((l&128) && s <= -8 && !(sync[g_p].bits&(1<<5)))
+        else if ((l&128) && s <= -8 && !(g_player[g_p].sync.bits&(1<<5)))
             j = 1;
-        else if ((l&256) && s <= -8 && (sync[g_p].bits&(1<<5)))
+        else if ((l&256) && s <= -8 && (g_player[g_p].sync.bits&(1<<5)))
             j = 1;
-        else if ((l&512) && (ps[g_p].quick_kick > 0 || (ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0)))
+        else if ((l&512) && (g_player[g_p].ps.quick_kick > 0 || (g_player[g_p].ps.curr_weapon == KNEE_WEAPON && g_player[g_p].ps.kickback_pic > 0)))
             j = 1;
-        else if ((l&1024) && sprite[ps[g_p].i].xrepeat < 32)
+        else if ((l&1024) && sprite[g_player[g_p].ps.i].xrepeat < 32)
             j = 1;
-        else if ((l&2048) && ps[g_p].jetpack_on)
+        else if ((l&2048) && g_player[g_p].ps.jetpack_on)
             j = 1;
-        else if ((l&4096) && ps[g_p].steroids_amount > 0 && ps[g_p].steroids_amount < 400)
+        else if ((l&4096) && g_player[g_p].ps.steroids_amount > 0 && g_player[g_p].ps.steroids_amount < 400)
             j = 1;
-        else if ((l&8192) && ps[g_p].on_ground)
+        else if ((l&8192) && g_player[g_p].ps.on_ground)
             j = 1;
-        else if ((l&16384) && sprite[ps[g_p].i].xrepeat > 32 && sprite[ps[g_p].i].extra > 0 && ps[g_p].timebeforeexit == 0)
+        else if ((l&16384) && sprite[g_player[g_p].ps.i].xrepeat > 32 && sprite[g_player[g_p].ps.i].extra > 0 && g_player[g_p].ps.timebeforeexit == 0)
             j = 1;
-        else if ((l&32768) && sprite[ps[g_p].i].extra <= 0)
+        else if ((l&32768) && sprite[g_player[g_p].ps.i].extra <= 0)
             j = 1;
         else if ((l&65536L))
         {
             if (g_sp->picnum == APLAYER && ud.multimode > 1)
-                j = getincangle(ps[otherp].ang,getangle(ps[g_p].posx-ps[otherp].posx,ps[g_p].posy-ps[otherp].posy));
+                j = getincangle(g_player[otherp].ps.ang,getangle(g_player[g_p].ps.posx-g_player[otherp].ps.posx,g_player[g_p].ps.posy-g_player[otherp].ps.posy));
             else
-                j = getincangle(ps[g_p].ang,getangle(g_sp->x-ps[g_p].posx,g_sp->y-ps[g_p].posy));
+                j = getincangle(g_player[g_p].ps.ang,getangle(g_sp->x-g_player[g_p].ps.posx,g_sp->y-g_player[g_p].ps.posy));
 
             if (j > -128 && j < 128)
                 j = 1;
@@ -5342,13 +5342,13 @@ static int parse(void)
 
     case CON_WACKPLAYER:
         insptr++;
-        forceplayerangle(&ps[g_p]);
+        forceplayerangle(&g_player[g_p].ps);
         return 0;
 
     case CON_FLASH:
         insptr++;
         sprite[g_i].shade = -127;
-        ps[g_p].visibility = -127;
+        g_player[g_p].ps.visibility = -127;
         lastvisinc = totalclock+32;
         return 0;
 
@@ -5364,7 +5364,7 @@ static int parse(void)
         break;
 
     case CON_IFHITSPACE:
-        parseifelse(sync[g_p].bits&(1<<29));
+        parseifelse(g_player[g_p].sync.bits&(1<<29));
         break;
 
     case CON_IFOUTSIDE:
@@ -5439,9 +5439,9 @@ static int parse(void)
 
     case CON_PALFROM:
         insptr++;
-        ps[g_p].pals_time = *insptr++;
+        g_player[g_p].ps.pals_time = *insptr++;
         for (j=0;j<3;j++)
-            ps[g_p].pals[j] = *insptr++;
+            g_player[g_p].ps.pals[j] = *insptr++;
         break;
 
     case CON_QSPRINTF:
@@ -5879,7 +5879,7 @@ static int parse(void)
 
     case CON_LOCKPLAYER:
         insptr++;
-        ps[g_p].transporter_hold=GetGameVarID(*insptr++, g_i, g_p);
+        g_player[g_p].ps.transporter_hold=GetGameVarID(*insptr++, g_i, g_p);
         break;
 
     case CON_CHECKAVAILWEAPON:
@@ -5895,20 +5895,20 @@ static int parse(void)
         if (j < MAXPLAYERS)
         {
             if (tw == CON_CHECKAVAILWEAPON)
-                checkavailweapon(&ps[j]);
-            else checkavailinven(&ps[j]);
+                checkavailweapon(&g_player[j].ps);
+            else checkavailinven(&g_player[j].ps);
         }
         break;
 
     case CON_GETPLAYERANGLE:
         insptr++;
-        SetGameVarID(*insptr++, ps[g_p].ang, g_i, g_p);
+        SetGameVarID(*insptr++, g_player[g_p].ps.ang, g_i, g_p);
         break;
 
     case CON_SETPLAYERANGLE:
         insptr++;
-        ps[g_p].ang=GetGameVarID(*insptr++, g_i, g_p);
-        ps[g_p].ang &= 2047;
+        g_player[g_p].ps.ang=GetGameVarID(*insptr++, g_i, g_p);
+        g_player[g_p].ps.ang &= 2047;
         break;
 
     case CON_GETACTORANGLE:
@@ -6246,7 +6246,7 @@ static int parse(void)
 
     case CON_IFPHEALTHL:
         insptr++;
-        parseifelse(sprite[ps[g_p].i].extra < *insptr);
+        parseifelse(sprite[g_player[g_p].ps.i].extra < *insptr);
         break;
 
     case CON_IFPINVENTORY:
@@ -6256,44 +6256,44 @@ static int parse(void)
         switch (*insptr++)
         {
         case GET_STEROIDS:
-            if (ps[g_p].steroids_amount != *insptr)
+            if (g_player[g_p].ps.steroids_amount != *insptr)
                 j = 1;
             break;
         case GET_SHIELD:
-            if (ps[g_p].shield_amount != max_player_health)
+            if (g_player[g_p].ps.shield_amount != max_player_health)
                 j = 1;
             break;
         case GET_SCUBA:
-            if (ps[g_p].scuba_amount != *insptr) j = 1;
+            if (g_player[g_p].ps.scuba_amount != *insptr) j = 1;
             break;
         case GET_HOLODUKE:
-            if (ps[g_p].holoduke_amount != *insptr) j = 1;
+            if (g_player[g_p].ps.holoduke_amount != *insptr) j = 1;
             break;
         case GET_JETPACK:
-            if (ps[g_p].jetpack_amount != *insptr) j = 1;
+            if (g_player[g_p].ps.jetpack_amount != *insptr) j = 1;
             break;
         case GET_ACCESS:
             switch (g_sp->pal)
             {
             case  0:
-                if (ps[g_p].got_access&1) j = 1;
+                if (g_player[g_p].ps.got_access&1) j = 1;
                 break;
             case 21:
-                if (ps[g_p].got_access&2) j = 1;
+                if (g_player[g_p].ps.got_access&2) j = 1;
                 break;
             case 23:
-                if (ps[g_p].got_access&4) j = 1;
+                if (g_player[g_p].ps.got_access&4) j = 1;
                 break;
             }
             break;
         case GET_HEATS:
-            if (ps[g_p].heat_amount != *insptr) j = 1;
+            if (g_player[g_p].ps.heat_amount != *insptr) j = 1;
             break;
         case GET_FIRSTAID:
-            if (ps[g_p].firstaid_amount != *insptr) j = 1;
+            if (g_player[g_p].ps.firstaid_amount != *insptr) j = 1;
             break;
         case GET_BOOTS:
-            if (ps[g_p].boot_amount != *insptr) j = 1;
+            if (g_player[g_p].ps.boot_amount != *insptr) j = 1;
             break;
         }
 
@@ -6303,20 +6303,20 @@ static int parse(void)
 
     case CON_PSTOMP:
         insptr++;
-        if (ps[g_p].knee_incs == 0 && sprite[ps[g_p].i].xrepeat >= 40)
-            if (cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+(16<<8),sprite[ps[g_p].i].sectnum))
+        if (g_player[g_p].ps.knee_incs == 0 && sprite[g_player[g_p].ps.i].xrepeat >= 40)
+            if (cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,g_player[g_p].ps.posx,g_player[g_p].ps.posy,g_player[g_p].ps.posz+(16<<8),sprite[g_player[g_p].ps.i].sectnum))
             {
                 for (j=0;j<MAXPLAYERS;j++)
                 {
-                    if (ps[j].actorsqu == g_i)
+                    if (g_player[j].ps.actorsqu == g_i)
                         break;
                 }
                 if (j == MAXPLAYERS)
                 {
-                    ps[g_p].knee_incs = 1;
-                    if (ps[g_p].weapon_pos == 0)
-                        ps[g_p].weapon_pos = -1;
-                    ps[g_p].actorsqu = g_i;
+                    g_player[g_p].ps.knee_incs = 1;
+                    if (g_player[g_p].ps.weapon_pos == 0)
+                        g_player[g_p].ps.weapon_pos = -1;
+                    g_player[g_p].ps.actorsqu = g_i;
                 }
             }
         break;
@@ -6355,7 +6355,7 @@ static int parse(void)
             insptr++;
             break;
         }
-        FTA(*insptr++,&ps[g_p]);
+        FTA(*insptr++,&g_player[g_p].ps);
         break;
 
     case CON_USERQUOTE:
@@ -6412,7 +6412,7 @@ static int parse(void)
 
     case CON_IFANGDIFFL:
         insptr++;
-        j = klabs(getincangle(ps[g_p].ang,g_sp->ang));
+        j = klabs(getincangle(g_player[g_p].ps.ang,g_sp->ang));
         parseifelse(j <= *insptr);
         break;
 
@@ -6466,7 +6466,7 @@ void LoadActor(long iActor)
     if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
     {
         //      if(badguy(g_sp))
-        //          ps[g_p].actors_killed++;
+        //          g_player[g_p].ps.actors_killed++;
         deletesprite(g_i);
         return;
     }
@@ -6478,8 +6478,8 @@ void LoadActor(long iActor)
         // if player was set to squish, first stop that...
         if (g_p >= 0)
         {
-            if (ps[g_p].actorsqu == g_i)
-                ps[g_p].actorsqu = -1;
+            if (g_player[g_p].ps.actorsqu == g_i)
+                g_player[g_p].ps.actorsqu = -1;
         }
         deletesprite(g_i);
     }
@@ -6504,7 +6504,7 @@ void execute(int iActor,int iPlayer,long lDist)
     if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
     {
         if (badguy(g_sp))
-            ps[g_p].actors_killed++;
+            g_player[g_p].ps.actors_killed++;
         deletesprite(g_i);
         return;
     }
@@ -6529,8 +6529,8 @@ void execute(int iActor,int iPlayer,long lDist)
     if (killit_flag == 1)
     {
         // if player was set to squish, first stop that...
-        if (ps[g_p].actorsqu == g_i)
-            ps[g_p].actorsqu = -1;
+        if (g_player[g_p].ps.actorsqu == g_i)
+            g_player[g_p].ps.actorsqu = -1;
         deletesprite(g_i);
     }
     else

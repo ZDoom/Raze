@@ -744,14 +744,14 @@ int startwin_run(void)
 
     SetPage(TAB_CONFIG);
 
-    settings.fullscreen = ScreenMode;
-    settings.xdim3d = ScreenWidth;
-    settings.ydim3d = ScreenHeight;
-    settings.bpp3d = ScreenBPP;
-    settings.forcesetup = g_ForceSetup;
-    settings.usemouse = UseMouse;
-    settings.usejoy = UseJoystick;
-    settings.game = gametype;
+    settings.fullscreen = ud.config.ScreenMode;
+    settings.xdim3d = ud.config.ScreenWidth;
+    settings.ydim3d = ud.config.ScreenHeight;
+    settings.bpp3d = ud.config.ScreenBPP;
+	settings.forcesetup = ud.config.ForceSetup;
+    settings.usemouse = ud.config.UseMouse;
+    settings.usejoy = ud.config.UseJoystick;
+    settings.game = g_GameType;
     strncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
     PopulateForm(-1);
 
@@ -760,15 +760,15 @@ int startwin_run(void)
     SetPage(TAB_MESSAGES);
     if (retval)
     {
-        ScreenMode = settings.fullscreen;
-        ScreenWidth = settings.xdim3d;
-        ScreenHeight = settings.ydim3d;
-        ScreenBPP = settings.bpp3d;
-        g_ForceSetup = settings.forcesetup;
-        UseMouse = settings.usemouse;
-        UseJoystick = settings.usejoy;
+        ud.config.ScreenMode = settings.fullscreen;
+        ud.config.ScreenWidth = settings.xdim3d;
+        ud.config.ScreenHeight = settings.ydim3d;
+        ud.config.ScreenBPP = settings.bpp3d;
+        ud.config.ForceSetup = settings.forcesetup;
+        ud.config.UseMouse = settings.usemouse;
+        ud.config.UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
-        gametype = settings.game;
+        g_GameType = settings.game;
     }
 
     return retval;

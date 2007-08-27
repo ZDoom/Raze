@@ -25,8 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __funct_h__
 #define __funct_h__
 
-struct player_struct;     // JBF: duke3d.h defines this later
-
 extern void sendscore(const char *s);
 extern void SoundStartup(void);
 extern void SoundShutdown(void);
@@ -67,7 +65,7 @@ extern void operateforcefields(int s,int low);
 extern int checkhitswitch(int snum,long w,int switchtype);
 extern void activatebysector(int sect,int j);
 extern void checkhitwall(int spr,int dawallnum,long x,long y,long z,int atwith);
-extern void checkplayerhurt(struct player_struct *p,int j);
+extern void checkplayerhurt(player_struct *p,int j);
 extern int checkhitceiling(int sn);
 extern void checkhitsprite(int i,int sn);
 extern void allignwarpelevators(void);
@@ -94,15 +92,15 @@ extern void clearfifo(void);
 extern void resetmys(void);
 extern int  enterlevel(int g);
 extern void backtomenu(void);
-extern void setpal(struct player_struct *p);
-extern void quickkill(struct player_struct *p);
+extern void setpal(player_struct *p);
+extern void quickkill(player_struct *p);
 extern long hits(int i);
 extern long hitasprite(int i,short *hitsp);
 extern int shoot(int i,int atwith);
 extern void displaymasks(int snum);
 extern void displayweapon(int snum);
 extern void getinput(int snum);
-extern void checkweapons(struct player_struct *p);
+extern void checkweapons(player_struct *p);
 extern void processinput(int snum);
 extern void cmenu(int cm);
 extern void savetemp(const char *fn,long daptr,long dasiz);
@@ -133,7 +131,7 @@ extern int badguypic(int pn);
 extern void myos(long x,long y,int tilenum,int shade,int orientation);
 extern void myospal(long x,long y,int tilenum,int shade,int orientation,int p);
 extern void displayfragbar(void);
-extern void FTA(int q,struct player_struct *p);
+extern void FTA(int q,player_struct *p);
 extern void gameexit(const char *t);
 extern inline int strget(int x,int y,char *t,int dalen,int c);
 extern void displayrest(long smoothratio);
@@ -170,11 +168,11 @@ extern void dointerpolations(long smoothratio);
 extern void restoreinterpolations(void);
 extern long ceilingspace(int sectnum);
 extern long floorspace(int sectnum);
-extern void addammo(int weapon,struct player_struct *p,int amount);
-extern void addweaponnoswitch(struct player_struct *p,int weapon);
-extern void addweapon(struct player_struct *p,int weapon);
-extern void checkavailinven(struct player_struct *p);
-extern void checkavailweapon(struct player_struct *p);
+extern void addammo(int weapon,player_struct *p,int amount);
+extern void addweaponnoswitch(player_struct *p,int weapon);
+extern void addweapon(player_struct *p,int weapon);
+extern void checkavailinven(player_struct *p);
+extern void checkavailweapon(player_struct *p);
 extern void hitradius(int i,long r,long hp1,long hp2,long hp3,long hp4);
 extern int movesprite(int spritenum,long xchange,long ychange,long zchange,unsigned long cliptype);
 extern int ssp(int i,unsigned long cliptype);
@@ -194,7 +192,7 @@ extern void movedummyplayers(void);
 // game.c
 extern inline void setstatusbarscale(long sc);
 
-extern void setgamepalette(struct player_struct *player, char *pal, int set);
+extern void setgamepalette(player_struct *player, char *pal, int set);
 extern void fadepal(int r, int g, int b, int start, int end, int step);
 
 extern inline int minitextshade(int x,int y,const char *t,int s,int p,int sb);

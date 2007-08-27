@@ -112,7 +112,7 @@ static int osdcmd_changelevel(const osdfuncparm_t *parm)
             ud.m_volume_number = volume;
             ud.m_level_number = level;
 
-            if (ps[myconnectindex].i)
+            if (g_player[myconnectindex].ps.i)
             {
                 int i;
 
@@ -136,12 +136,12 @@ static int osdcmd_changelevel(const osdfuncparm_t *parm)
             if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && !(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_TDM))
                 ud.m_noexits = 0;
 
-            ps[myconnectindex].gm |= MODE_MENU;
+            g_player[myconnectindex].ps.gm |= MODE_MENU;
             cmenu(603);
         }
         return OSDCMD_OK;
     }
-    if (ps[myconnectindex].gm & MODE_GAME)
+    if (g_player[myconnectindex].ps.gm & MODE_GAME)
     {
         // in-game behave like a cheat
         osdcmd_cheatsinfo_stat.cheatnum = 2;
@@ -214,7 +214,7 @@ static int osdcmd_map(const osdfuncparm_t *parm)
             ud.m_volume_number = 0;
             ud.m_level_number = 7;
 
-            if (ps[myconnectindex].i)
+            if (g_player[myconnectindex].ps.i)
             {
                 int i;
 
@@ -238,7 +238,7 @@ static int osdcmd_map(const osdfuncparm_t *parm)
             if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_PLAYERSFRIENDLY) && !(gametype_flags[ud.m_coop] & GAMETYPE_FLAG_TDM))
                 ud.m_noexits = 0;
 
-            ps[myconnectindex].gm |= MODE_MENU;
+            g_player[myconnectindex].ps.gm |= MODE_MENU;
             cmenu(603);
         }
         return OSDCMD_OK;
@@ -263,7 +263,7 @@ static int osdcmd_map(const osdfuncparm_t *parm)
 
 static int osdcmd_god(const osdfuncparm_t *parm)
 {
-    if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME)
+    if (numplayers == 1 && g_player[myconnectindex].ps.gm & MODE_GAME)
     {
         osdcmd_cheatsinfo_stat.cheatnum = 0;
     }
@@ -277,7 +277,7 @@ static int osdcmd_god(const osdfuncparm_t *parm)
 
 static int osdcmd_noclip(const osdfuncparm_t *parm)
 {
-    if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME)
+    if (numplayers == 1 && g_player[myconnectindex].ps.gm & MODE_GAME)
     {
         osdcmd_cheatsinfo_stat.cheatnum = 20;
     }
@@ -359,9 +359,9 @@ static int osdcmd_restartsound(const osdfuncparm_t *parm)
     FX_StopAllSounds();
     clearsoundlocks();
 
-    if (config.MusicToggle == 1)
+    if (ud.config.MusicToggle == 1)
     {
-        if (ud.recstat != 2 && ps[myconnectindex].gm&MODE_GAME)
+        if (ud.recstat != 2 && g_player[myconnectindex].ps.gm&MODE_GAME)
         {
             if (map[(unsigned char)music_select].musicfn != NULL)
                 playmusic(&map[(unsigned char)music_select].musicfn[0]);
@@ -375,9 +375,9 @@ static int osdcmd_restartsound(const osdfuncparm_t *parm)
 static int osdcmd_restartvid(const osdfuncparm_t *parm)
 {
     resetvideomode();
-    if (setgamemode(config.ScreenMode,config.ScreenWidth,config.ScreenHeight,config.ScreenBPP))
+    if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
         gameexit("restartvid: Reset failed...\n");
-    onvideomodechange(config.ScreenBPP>8);
+    onvideomodechange(ud.config.ScreenBPP>8);
     vscrn();
 
     return OSDCMD_OK;
@@ -385,8 +385,8 @@ static int osdcmd_restartvid(const osdfuncparm_t *parm)
 
 static int osdcmd_vidmode(const osdfuncparm_t *parm)
 {
-    int newbpp = config.ScreenBPP, newwidth = config.ScreenWidth,
-                 newheight = config.ScreenHeight, newfs = config.ScreenMode;
+    int newbpp = ud.config.ScreenBPP, newwidth = ud.config.ScreenWidth,
+                 newheight = ud.config.ScreenHeight, newfs = ud.config.ScreenMode;
     if (parm->numparms < 1 || parm->numparms > 4) return OSDCMD_SHOWHELP;
 
     switch (parm->numparms)
@@ -411,14 +411,14 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
     if (setgamemode(newfs,newwidth,newheight,newbpp))
     {
         initprintf("vidmode: Mode change failed!\n");
-        if (setgamemode(config.ScreenMode, config.ScreenWidth, config.ScreenHeight, config.ScreenBPP))
+        if (setgamemode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP))
             gameexit("vidmode: Reset failed!\n");
     }
-    config.ScreenBPP = newbpp;
-    config.ScreenWidth = newwidth;
-    config.ScreenHeight = newheight;
-    config.ScreenMode = newfs;
-    onvideomodechange(config.ScreenBPP>8);
+    ud.config.ScreenBPP = newbpp;
+    ud.config.ScreenWidth = newwidth;
+    ud.config.ScreenHeight = newheight;
+    ud.config.ScreenMode = newfs;
+    onvideomodechange(ud.config.ScreenBPP>8);
     vscrn();
     return OSDCMD_OK;
 }
@@ -445,7 +445,7 @@ static int osdcmd_spawn(const osdfuncparm_t *parm)
     short ang=0;
     short set=0, idx;
 
-    if (numplayers > 1 || !(ps[myconnectindex].gm & MODE_GAME))
+    if (numplayers > 1 || !(g_player[myconnectindex].ps.gm & MODE_GAME))
     {
         OSD_Printf("spawn: Can't spawn sprites in multiplayer games or demos\n");
         return OSDCMD_OK;
@@ -507,7 +507,7 @@ static int osdcmd_spawn(const osdfuncparm_t *parm)
         return OSDCMD_SHOWHELP;
     }
 
-    idx = spawn(ps[myconnectindex].i, (short)picnum);
+    idx = spawn(g_player[myconnectindex].ps.i, (short)picnum);
     if (set & 1) sprite[idx].pal = (char)pal;
     if (set & 2) sprite[idx].cstat = (short)cstat;
     if (set & 4) sprite[idx].ang = ang;
@@ -542,7 +542,7 @@ static int osdcmd_setvar(const osdfuncparm_t *parm)
     for (i=0;i<iGameVarCount;i++)
         if (aGameVars[i].szLabel != NULL)
             if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
-                SetGameVarID(i, varval, ps[myconnectindex].i, myconnectindex);
+                SetGameVarID(i, varval, g_player[myconnectindex].ps.i, myconnectindex);
     return OSDCMD_OK;
 }
 
@@ -622,7 +622,7 @@ cvar[] =
 {
     { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_INT, 0, 0, 3 },
 
-    { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&config.AutoAim, CVAR_INT|256, 0, 0, 2 },
+    { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&ud.config.AutoAim, CVAR_INT|256, 0, 0, 2 },
     { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
     { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT|256, 0, 0, 2 },
 
@@ -635,12 +635,12 @@ cvar[] =
 
     { "cl_messagetime", "cl_messagetime: length of time to display multiplayer chat messages\n", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
 
-    { "cl_mousebias", "cl_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time\n", (void*)&config.MouseBias, CVAR_INT, 0, 0, 32 },
-    { "cl_mousefilter", "cl_mousefilter: amount of mouse movement to filter out\n", (void*)&config.MouseFilter, CVAR_INT, 0, 0, 512 },
+    { "cl_mousebias", "cl_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time\n", (void*)&ud.config.MouseBias, CVAR_INT, 0, 0, 32 },
+    { "cl_mousefilter", "cl_mousefilter: amount of mouse movement to filter out\n", (void*)&ud.config.MouseFilter, CVAR_INT, 0, 0, 512 },
 
     { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
     { "cl_showfps", "cl_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
-    { "cl_smoothinput", "cl_smoothinput: enable/disable input smoothing\n", (void*)&config.SmoothInput, CVAR_BOOL, 0, 0, 1 },
+    { "cl_smoothinput", "cl_smoothinput: enable/disable input smoothing\n", (void*)&ud.config.SmoothInput, CVAR_BOOL, 0, 0, 1 },
 
     { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing\n", (void*)&ud.viewbob, CVAR_BOOL, 0, 0, 1 },
 
@@ -657,17 +657,17 @@ cvar[] =
     { "pr_verbosity", "pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
     { "pr_wireframe", "pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT, 0, 0, 1 },
 #endif
-    { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&config.useprecache, CVAR_BOOL, 0, 0, 1 },
+    { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
 
-    { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&config.AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
-    { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&config.VoiceToggle, CVAR_INT, 0, 0, 2 },
-    { "snd_fxvolume", "snd_fxvolume: volume of sound effects", (void*)&config.FXVolume, CVAR_INT, 0, 0, 255 },
-    { "snd_mixrate", "snd_mixrate: sound mixing rate", (void*)&config.MixRate, CVAR_INT, 0, 0, 48000 },
-    { "snd_musvolume", "snd_musvolume: volume of midi music", (void*)&config.MusicVolume, CVAR_INT, 0, 0, 255 },
-    { "snd_numbits", "snd_numbits: sound bits", (void*)&config.NumBits, CVAR_INT, 0, 8, 16 },
-    { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&config.NumChannels, CVAR_INT, 0, 0, 2 },
-    { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&config.NumVoices, CVAR_INT, 0, 0, 32 },
-    { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&config.ReverseStereo, CVAR_BOOL, 0, 0, 16 },
+    { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
+    { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&ud.config.VoiceToggle, CVAR_INT, 0, 0, 2 },
+    { "snd_fxvolume", "snd_fxvolume: volume of sound effects", (void*)&ud.config.FXVolume, CVAR_INT, 0, 0, 255 },
+    { "snd_mixrate", "snd_mixrate: sound mixing rate", (void*)&ud.config.MixRate, CVAR_INT, 0, 0, 48000 },
+    { "snd_musvolume", "snd_musvolume: volume of midi music", (void*)&ud.config.MusicVolume, CVAR_INT, 0, 0, 255 },
+    { "snd_numbits", "snd_numbits: sound bits", (void*)&ud.config.NumBits, CVAR_INT, 0, 8, 16 },
+    { "snd_numchannels", "snd_numchannels: the number of sound channels", (void*)&ud.config.NumChannels, CVAR_INT, 0, 0, 2 },
+    { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void*)&ud.config.NumVoices, CVAR_INT, 0, 0, 32 },
+    { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void*)&ud.config.ReverseStereo, CVAR_BOOL, 0, 0, 16 },
 };
 
 static int osdcmd_cvar_set(const osdfuncparm_t *parm)
@@ -757,7 +757,7 @@ static int osdcmd_gamma(const osdfuncparm_t *parm)
         return OSDCMD_SHOWHELP;
     }
     ud.brightness = atoi(parm->parms[0])<<2;
-    setbrightness(ud.brightness>>2,&ps[screenpeek].palette[0],0);
+    setbrightness(ud.brightness>>2,&g_player[screenpeek].ps.palette[0],0);
     OSD_Printf("gamma %d\n",ud.brightness>>2);
     return OSDCMD_OK;
 }
@@ -766,9 +766,9 @@ static int osdcmd_give(const osdfuncparm_t *parm)
 {
     int i;
 
-    if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME)
+    if (numplayers == 1 && g_player[myconnectindex].ps.gm & MODE_GAME)
     {
-        if (ps[myconnectindex].dead_flag != 0)
+        if (g_player[myconnectindex].ps.dead_flag != 0)
         {
             OSD_Printf("give: Cannot give while dead.\n");
             return OSDCMD_OK;
@@ -783,7 +783,7 @@ static int osdcmd_give(const osdfuncparm_t *parm)
         }
         else if (!Bstrcasecmp(parm->parms[0], "health"))
         {
-            sprite[ps[myconnectindex].i].extra = 200;
+            sprite[g_player[myconnectindex].ps.i].extra = 200;
             return OSDCMD_OK;
         }
         else if (!Bstrcasecmp(parm->parms[0], "weapons"))
@@ -795,13 +795,13 @@ static int osdcmd_give(const osdfuncparm_t *parm)
         {
             for (i=PISTOL_WEAPON;i<MAX_WEAPONS-(VOLUMEONE?6:1);i++)
             {
-                addammo(i,&ps[myconnectindex],max_ammo_amount[i]);
+                addammo(i,&g_player[myconnectindex].ps,max_ammo_amount[i]);
             }
             return OSDCMD_OK;
         }
         else if (!Bstrcasecmp(parm->parms[0], "armor"))
         {
-            ps[myconnectindex].shield_amount = 100;
+            g_player[myconnectindex].ps.shield_amount = 100;
             return OSDCMD_OK;
         }
         else if (!Bstrcasecmp(parm->parms[0], "keys"))
@@ -829,20 +829,20 @@ void onvideomodechange(int newmode)
 
     if (newmode)
     {
-        if (ps[screenpeek].palette == palette ||
-                ps[screenpeek].palette == waterpal ||
-                ps[screenpeek].palette == titlepal ||
-                ps[screenpeek].palette == animpal ||
-                ps[screenpeek].palette == endingpal ||
-                ps[screenpeek].palette == drealms ||
-                ps[screenpeek].palette == slimepal)
-            pal = ps[screenpeek].palette;
+        if (g_player[screenpeek].ps.palette == palette ||
+                g_player[screenpeek].ps.palette == waterpal ||
+                g_player[screenpeek].ps.palette == titlepal ||
+                g_player[screenpeek].ps.palette == animpal ||
+                g_player[screenpeek].ps.palette == endingpal ||
+                g_player[screenpeek].ps.palette == drealms ||
+                g_player[screenpeek].ps.palette == slimepal)
+            pal = g_player[screenpeek].ps.palette;
         else
             pal = palette;
     }
     else
     {
-        pal = ps[screenpeek].palette;
+        pal = g_player[screenpeek].ps.palette;
     }
 
     setbrightness(ud.brightness>>2, pal, 0);
@@ -856,12 +856,12 @@ static int osdcmd_usemousejoy(const osdfuncparm_t *parm)
     {
         if (showval)
         {
-            OSD_Printf("usemouse is %d\n", config.UseMouse);
+            OSD_Printf("usemouse is %d\n", ud.config.UseMouse);
         }
         else
         {
-            config.UseMouse = (atoi(parm->parms[0]) != 0);
-            CONTROL_MouseEnabled = (config.UseMouse && CONTROL_MousePresent);
+            ud.config.UseMouse = (atoi(parm->parms[0]) != 0);
+            CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
         }
         return OSDCMD_OK;
     }
@@ -869,12 +869,12 @@ static int osdcmd_usemousejoy(const osdfuncparm_t *parm)
     {
         if (showval)
         {
-            OSD_Printf("usejoystick is %d\n", config.UseJoystick);
+            OSD_Printf("usejoystick is %d\n", ud.config.UseJoystick);
         }
         else
         {
-            config.UseJoystick = (atoi(parm->parms[0]) != 0);
-            CONTROL_JoystickEnabled = (config.UseJoystick && CONTROL_JoyPresent);
+            ud.config.UseJoystick = (atoi(parm->parms[0]) != 0);
+            CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
         }
         return OSDCMD_OK;
     }

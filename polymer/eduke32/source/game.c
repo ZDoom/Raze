@@ -226,9 +226,9 @@ static void patchstatusbar(long x1, long y1, long x2, long y2)
 //    else rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1,cly1,clx2+clofx-1,cly2+clofy-1);
 }
 
-void setgamepalette(struct player_struct *player, char *pal, int set)
+void setgamepalette(player_struct *player, char *pal, int set)
 {
-    if (player != &ps[screenpeek])
+    if (player != &g_player[screenpeek].ps)
     {
         // another head
         player->palette = pal;
@@ -266,7 +266,7 @@ void setgamepalette(struct player_struct *player, char *pal, int set)
     player->palette = pal;
 }
 
-#define TEXTWRAPLEN (scale(35,config.ScreenWidth,320))
+#define TEXTWRAPLEN (scale(35,ud.config.ScreenWidth,320))
 
 const char *stripcolorcodes(const char *t)
 {
@@ -363,7 +363,7 @@ int gametext_(int small, int starttile, int x,int y,const char *t,int s,int p,in
         if (ac < starttile || ac > (starttile + 93))
             break;
 
-        rotatesprite(x<<16,(y<<16)+(small?config.ScreenHeight<<15:0),65536,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
+        rotatesprite(x<<16,(y<<16)+(small?ud.config.ScreenHeight<<15:0),65536,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
         if ((*t >= '0' && *t <= '9'))
             x += 8;
         else x += tilesizx[ac];//(tilesizx[ac]>>small);
@@ -494,13 +494,13 @@ void getpackets(void)
 
     if (ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
-        if (setgamemode(!config.ScreenMode,config.ScreenWidth,config.ScreenHeight,config.ScreenBPP))
+        if (setgamemode(!ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
         {
             OSD_Printf("Failed setting fullscreen video mode.\n");
-            if (setgamemode(config.ScreenMode, config.ScreenWidth, config.ScreenHeight, config.ScreenBPP))
+            if (setgamemode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP))
                 gameexit("Failed to recover from failure to set fullscreen video mode.\n");
         }
-        else config.ScreenMode = !config.ScreenMode;
+        else ud.config.ScreenMode = !ud.config.ScreenMode;
         KB_ClearKeyDown(sc_Enter);
         restorepalette = 1;
         vscrn();
@@ -510,11 +510,11 @@ void getpackets(void)
     {
         KB_ClearKeyDown(sc_F12);
         screencapture("duke0000.tga",0);
-        FTA(103,&ps[myconnectindex]);
+        FTA(103,&g_player[myconnectindex].ps);
     }
 
     // only dispatch commands here when not in a game
-    if (!(ps[myconnectindex].gm&MODE_GAME))
+    if (!(g_player[myconnectindex].ps.gm&MODE_GAME))
     {
         OSD_DispatchQueued();
     }
@@ -537,24 +537,24 @@ void getpackets(void)
         case 0:  //[0] (receive master sync buffer)
             j = 1;
 
-            if ((movefifoend[other]&(TIMERUPDATESIZ-1)) == 0)
+            if ((g_player[other].movefifoend&(TIMERUPDATESIZ-1)) == 0)
                 for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                 {
-                    if (playerquitflag[i] == 0) continue;
+                    if (g_player[i].playerquitflag == 0) continue;
                     if (i == myconnectindex)
                         otherminlag = (long)((signed char)packbuf[j]);
                     j++;
                 }
 
-            osyn = (input *)&inputfifo[(movefifoend[connecthead]-1)&(MOVEFIFOSIZ-1)][0];
-            nsyn = (input *)&inputfifo[(movefifoend[connecthead])&(MOVEFIFOSIZ-1)][0];
+            osyn = (input *)&inputfifo[(g_player[connecthead].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
+            nsyn = (input *)&inputfifo[(g_player[connecthead].movefifoend)&(MOVEFIFOSIZ-1)][0];
 
             k = j;
             for (i=connecthead;i>=0;i=connectpoint2[i])
-                j += playerquitflag[i]+playerquitflag[i];
+                j += g_player[i].playerquitflag+g_player[i].playerquitflag;
             for (i=connecthead;i>=0;i=connectpoint2[i])
             {
-                if (playerquitflag[i] == 0) continue;
+                if (g_player[i].playerquitflag == 0) continue;
 
                 l = packbuf[k++];
                 l += (long)(packbuf[k++]<<8);
@@ -579,8 +579,8 @@ void getpackets(void)
                 if (l&1024) nsyn[i].extbits = ((nsyn[i].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
                 if (l&2048) nsyn[i].extbits = ((nsyn[i].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
 
-                if (nsyn[i].bits&(1<<26)) playerquitflag[i] = 0;
-                movefifoend[i]++;
+                if (nsyn[i].bits&(1<<26)) g_player[i].playerquitflag = 0;
+                g_player[i].movefifoend++;
             }
 
             while (j != packbufleng)
@@ -588,8 +588,8 @@ void getpackets(void)
                 for (i=connecthead;i>=0;i=connectpoint2[i])
                     if (i != myconnectindex)
                     {
-                        syncval[i][syncvalhead[i]&(MOVEFIFOSIZ-1)] = packbuf[j];
-                        syncvalhead[i]++;
+                        g_player[i].syncval[g_player[i].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j];
+                        g_player[i].syncvalhead++;
                     }
                 j++;
             }
@@ -598,8 +598,8 @@ void getpackets(void)
                 if (i != myconnectindex)
                     for (j=1;j<movesperpacket;j++)
                     {
-                        copybufbyte(&nsyn[i],&inputfifo[movefifoend[i]&(MOVEFIFOSIZ-1)][i],sizeof(input));
-                        movefifoend[i]++;
+                        copybufbyte(&nsyn[i],&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input));
+                        g_player[i].movefifoend++;
                     }
 
             movefifosendplc += movesperpacket;
@@ -609,8 +609,8 @@ void getpackets(void)
             j = 3;
             k = packbuf[1] + (long)(packbuf[2]<<8);
 
-            osyn = (input *)&inputfifo[(movefifoend[other]-1)&(MOVEFIFOSIZ-1)][0];
-            nsyn = (input *)&inputfifo[(movefifoend[other])&(MOVEFIFOSIZ-1)][0];
+            osyn = (input *)&inputfifo[(g_player[other].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
+            nsyn = (input *)&inputfifo[(g_player[other].movefifoend)&(MOVEFIFOSIZ-1)][0];
 
             copybufbyte(&osyn[other],&nsyn[other],sizeof(input));
             if (k&1)   nsyn[other].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
@@ -625,29 +625,29 @@ void getpackets(void)
             if (k&512)  nsyn[other].extbits = ((nsyn[other].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
             if (k&1024) nsyn[other].extbits = ((nsyn[other].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
             if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
-            movefifoend[other]++;
+            g_player[other].movefifoend++;
 
             while (j != packbufleng)
             {
-                syncval[other][syncvalhead[other]&(MOVEFIFOSIZ-1)] = packbuf[j++];
-                syncvalhead[other]++;
+                g_player[other].syncval[g_player[other].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j++];
+                g_player[other].syncvalhead++;
             }
 
             for (i=1;i<movesperpacket;i++)
             {
-                copybufbyte(&nsyn[other],&inputfifo[movefifoend[other]&(MOVEFIFOSIZ-1)][other],sizeof(input));
-                movefifoend[other]++;
+                copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input));
+                g_player[other].movefifoend++;
             }
 
             break;
 
         case 16:
-            movefifoend[other] = movefifoplc = movefifosendplc = fakemovefifoplc = 0;
-            syncvalhead[other] = syncvaltottail = 0L;
+            g_player[other].movefifoend = movefifoplc = movefifosendplc = fakemovefifoplc = 0;
+            g_player[other].syncvalhead = syncvaltottail = 0L;
         case 17:
             j = 1;
 
-            if ((movefifoend[other]&(TIMERUPDATESIZ-1)) == 0)
+            if ((g_player[other].movefifoend&(TIMERUPDATESIZ-1)) == 0)
                 if (other == connecthead)
                     for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                     {
@@ -656,8 +656,8 @@ void getpackets(void)
                         j++;
                     }
 
-            osyn = (input *)&inputfifo[(movefifoend[other]-1)&(MOVEFIFOSIZ-1)][0];
-            nsyn = (input *)&inputfifo[(movefifoend[other])&(MOVEFIFOSIZ-1)][0];
+            osyn = (input *)&inputfifo[(g_player[other].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
+            nsyn = (input *)&inputfifo[(g_player[other].movefifoend)&(MOVEFIFOSIZ-1)][0];
 
             copybufbyte(&osyn[other],&nsyn[other],sizeof(input));
             k = packbuf[j++];
@@ -675,12 +675,12 @@ void getpackets(void)
             if (k&512)  nsyn[other].extbits = ((nsyn[other].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
             if (k&1024) nsyn[other].extbits = ((nsyn[other].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
             if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
-            movefifoend[other]++;
+            g_player[other].movefifoend++;
 
             for (i=1;i<movesperpacket;i++)
             {
-                copybufbyte(&nsyn[other],&inputfifo[movefifoend[other]&(MOVEFIFOSIZ-1)][other],sizeof(input));
-                movefifoend[other]++;
+                copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input));
+                g_player[other].movefifoend++;
             }
 
             if (j > packbufleng)
@@ -688,8 +688,8 @@ void getpackets(void)
 
             while (j < packbufleng)
             {
-                syncval[other][syncvalhead[other]&(MOVEFIFOSIZ-1)] = packbuf[j++];
-                syncvalhead[other]++;
+                g_player[other].syncval[g_player[other].syncvalhead&(MOVEFIFOSIZ-1)] = packbuf[j++];
+                g_player[other].syncvalhead++;
             }
 
             break;
@@ -697,9 +697,9 @@ void getpackets(void)
             break;
 
         case 250:
-            if (playerreadyflag[other] == 0)
+            if (g_player[other].playerreadyflag == 0)
                 initprintf("Player %ld is ready\n", other);
-            playerreadyflag[other]++;
+            g_player[other].playerreadyflag++;
             break;
         case 255:
             gameexit(" ");
@@ -784,20 +784,20 @@ void getpackets(void)
                 other = packbuf[1];
 
                 for (i=3;packbuf[i];i++)
-                    ud.user_name[other][i-3] = packbuf[i];
-                ud.user_name[other][i-3] = 0;
+                    g_player[other].user_name[i-3] = packbuf[i];
+				g_player[other].user_name[i-3] = 0;
                 i++;
 
-                ps[other].aim_mode = packbuf[i++];
-                ps[other].auto_aim = packbuf[i++];
-                ps[other].weaponswitch = packbuf[i++];
-                ps[other].palookup = ud.pcolor[other] = packbuf[i++];
-                ud.pteam[other] = packbuf[i++];
+                g_player[other].ps.aim_mode = packbuf[i++];
+                g_player[other].ps.auto_aim = packbuf[i++];
+                g_player[other].ps.weaponswitch = packbuf[i++];
+                g_player[other].ps.palookup = g_player[other].pcolor = packbuf[i++];
+                g_player[other].pteam = packbuf[i++];
 
-                /*            if(ps[other].team != j && sprite[ps[other].i].picnum == APLAYER)
+                /*            if(g_player[other].ps.team != j && sprite[g_player[other].ps.i].picnum == APLAYER)
                             {
-                                hittype[ps[other].i].extra = 1000;
-                                hittype[ps[other].i].picnum = APLAYERTOP;
+                                hittype[g_player[other].ps.i].extra = 1000;
+                                hittype[g_player[other].ps.i].picnum = APLAYERTOP;
                             } */
 
                 break;
@@ -813,7 +813,7 @@ void getpackets(void)
                 i = 2;
 
                 j = i; //This used to be Duke packet #9... now concatenated with Duke packet #6
-                for (;i-j<10;i++) ud.wchoice[other][i-j] = packbuf[i];
+				for (;i-j<10;i++) g_player[other].wchoice[i-j] = packbuf[i];
 
                 break;
             case 7:
@@ -825,7 +825,7 @@ void getpackets(void)
 
                 if (numlumps == 0) break;
 
-                if (config.SoundToggle == 0 || ud.lockout == 1 || config.FXDevice < 0)
+                if (ud.config.SoundToggle == 0 || ud.lockout == 1 || ud.config.FXDevice < 0)
                     break;
                 rtsptr = (char *)RTS_GetSound(packbuf[1]-1);
                 if (*rtsptr == 'C')
@@ -851,7 +851,7 @@ void getpackets(void)
                             j = -1;
                             for(i=connecthead;i>=0;i=connectpoint2[i])
                             {
-                                if (playerquitflag[i]) { j = i; continue; }
+                                if (g_player[i].playerquitflag) { j = i; continue; }
 
                                 if (i == connecthead) connecthead = connectpoint2[connecthead];
                                 else connectpoint2[j] = connectpoint2[i];
@@ -859,7 +859,7 @@ void getpackets(void)
                                 numplayers--;
                                 ud.multimode--;
 
-                                Bsprintf(buf,"%s is history!",ud.user_name[i]);
+                                Bsprintf(buf,"%s is history!",g_player[i].user_name);
                                 adduserquote(buf);
 
                                 if (numplayers < 2)
@@ -916,7 +916,7 @@ void getpackets(void)
                     {
                         gotvote[(unsigned char)packbuf[2]] = 1;
                         votes[(unsigned char)packbuf[2]] = packbuf[3];
-                        Bsprintf(tempbuf,"GOT VOTE FROM %s",ud.user_name[(unsigned char)packbuf[2]]);
+						Bsprintf(tempbuf,"GOT VOTE FROM %s",g_player[(unsigned char)packbuf[2]].user_name);
                         adduserquote(tempbuf);
                     }
                     break;
@@ -925,7 +925,7 @@ void getpackets(void)
                     voting = packbuf[2];
                     vote_episode = packbuf[3];
                     vote_map = packbuf[4];
-                    Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",ud.user_name[(unsigned char)packbuf[2]],map[(unsigned char)(packbuf[3]*MAXLEVELS + packbuf[4])].name,packbuf[3]+1,packbuf[4]+1);
+					Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",g_player[(unsigned char)packbuf[2]].user_name,map[(unsigned char)(packbuf[3]*MAXLEVELS + packbuf[4])].name,packbuf[3]+1,packbuf[4]+1);
                     adduserquote(tempbuf);
                     Bsprintf(tempbuf,"PRESS F1 TO VOTE YES, F2 TO VOTE NO");
                     adduserquote(tempbuf);
@@ -943,7 +943,7 @@ void getpackets(void)
                             i += gotvote[j];
 
                         if (i != numplayers)
-                            Bsprintf(tempbuf,"%s^00 HAS CANCELED THE VOTE",ud.user_name[(unsigned char)packbuf[2]]);
+							Bsprintf(tempbuf,"%s^00 HAS CANCELED THE VOTE",g_player[(unsigned char)packbuf[2]].user_name);
                         else Bsprintf(tempbuf,"VOTE FAILED");
                         Bmemset(votes,0,sizeof(votes));
                         Bmemset(gotvote,0,sizeof(gotvote));
@@ -995,7 +995,7 @@ void faketimerhandler(void)
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
         if (i != myconnectindex)
-            if (movefifoend[i] < movefifoend[myconnectindex]-200) return;
+            if (g_player[i].movefifoend < g_player[myconnectindex].movefifoend-200) return;
 
     getinput(myconnectindex);
 
@@ -1005,14 +1005,14 @@ void faketimerhandler(void)
     avghorz += loc.horz;
     avgbits |= loc.bits;
     avgextbits |= loc.extbits;
-    if (movefifoend[myconnectindex]&(movesperpacket-1))
+    if (g_player[myconnectindex].movefifoend&(movesperpacket-1))
     {
-        copybufbyte(&inputfifo[(movefifoend[myconnectindex]-1)&(MOVEFIFOSIZ-1)][myconnectindex],
-                    &inputfifo[movefifoend[myconnectindex]&(MOVEFIFOSIZ-1)][myconnectindex],sizeof(input));
-        movefifoend[myconnectindex]++;
+        copybufbyte(&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex],
+                    &inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex],sizeof(input));
+        g_player[myconnectindex].movefifoend++;
         return;
     }
-    nsyn = &inputfifo[movefifoend[myconnectindex]&(MOVEFIFOSIZ-1)][myconnectindex];
+    nsyn = &inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex];
     nsyn[0].fvel = avgfvel/movesperpacket;
     nsyn[0].svel = avgsvel/movesperpacket;
     nsyn[0].avel = avgavel/movesperpacket;
@@ -1020,19 +1020,19 @@ void faketimerhandler(void)
     nsyn[0].bits = avgbits;
     nsyn[0].extbits = avgextbits;
     avgfvel = avgsvel = avgavel = avghorz = avgbits = avgextbits = 0;
-    movefifoend[myconnectindex]++;
+    g_player[myconnectindex].movefifoend++;
 
     if (numplayers < 2)
     {
         if (ud.multimode > 1) for (i=connecthead;i>=0;i=connectpoint2[i])
                 if (i != myconnectindex)
                 {
-                    //clearbufbyte(&inputfifo[movefifoend[i]&(MOVEFIFOSIZ-1)][i],sizeof(input),0L);
+                    //clearbufbyte(&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input),0L);
                     if (ud.playerai)
-                        computergetinput(i,&inputfifo[movefifoend[i]&(MOVEFIFOSIZ-1)][i]);
-                    inputfifo[movefifoend[i]&(MOVEFIFOSIZ-1)][i].svel++;
-                    inputfifo[movefifoend[i]&(MOVEFIFOSIZ-1)][i].fvel++;
-                    movefifoend[i]++;
+                        computergetinput(i,&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i]);
+                    inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i].svel++;
+                    inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i].fvel++;
+                    g_player[i].movefifoend++;
                 }
         return;
     }
@@ -1040,12 +1040,12 @@ void faketimerhandler(void)
     for (i=connecthead;i>=0;i=connectpoint2[i])
         if (i != myconnectindex)
         {
-            k = (movefifoend[myconnectindex]-1)-movefifoend[i];
-            myminlag[i] = min(myminlag[i],k);
+            k = (g_player[myconnectindex].movefifoend-1)-g_player[i].movefifoend;
+            g_player[i].myminlag = min(g_player[i].myminlag,k);
             mymaxlag = max(mymaxlag,k);
         }
 
-    if (((movefifoend[myconnectindex]-1)&(TIMERUPDATESIZ-1)) == 0)
+    if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
     {
         i = mymaxlag-bufferjitter;
         mymaxlag = 0;
@@ -1056,34 +1056,34 @@ void faketimerhandler(void)
     if (networkmode == 1)
     {
         packbuf[0] = 17;
-        if ((movefifoend[myconnectindex]-1) == 0) packbuf[0] = 16;
+        if ((g_player[myconnectindex].movefifoend-1) == 0) packbuf[0] = 16;
         j = 1;
 
         //Fix timers and buffer/jitter value
-        if (((movefifoend[myconnectindex]-1)&(TIMERUPDATESIZ-1)) == 0)
+        if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
         {
             if (myconnectindex != connecthead)
             {
-                i = myminlag[connecthead]-otherminlag;
+                i = g_player[connecthead].myminlag-otherminlag;
                 if (klabs(i) > 8) i >>= 1;
                 else if (klabs(i) > 2) i = ksgn(i);
                 else i = 0;
 
                 totalclock -= TICSPERFRAME*i;
-                myminlag[connecthead] -= i;
+                g_player[connecthead].myminlag -= i;
                 otherminlag += i;
             }
 
             if (myconnectindex == connecthead)
                 for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                    packbuf[j++] = min(max(myminlag[i],-128),127);
+                    packbuf[j++] = min(max(g_player[i].myminlag,-128),127);
 
             for (i=connecthead;i>=0;i=connectpoint2[i])
-                myminlag[i] = 0x7fffffff;
+                g_player[i].myminlag = 0x7fffffff;
         }
 
-        osyn = (input *)&inputfifo[(movefifoend[myconnectindex]-2)&(MOVEFIFOSIZ-1)][myconnectindex];
-        nsyn = (input *)&inputfifo[(movefifoend[myconnectindex]-1)&(MOVEFIFOSIZ-1)][myconnectindex];
+        osyn = (input *)&inputfifo[(g_player[myconnectindex].movefifoend-2)&(MOVEFIFOSIZ-1)][myconnectindex];
+        nsyn = (input *)&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex];
 
         k = j;
         packbuf[j++] = 0;
@@ -1122,9 +1122,9 @@ void faketimerhandler(void)
         if ((nsyn[0].extbits^osyn[0].extbits)&0x00ff0000) packbuf[j++] = ((nsyn[0].extbits>>16)&255), packbuf[k] |= 4;
         if ((nsyn[0].extbits^osyn[0].extbits)&0xff000000) packbuf[j++] = ((nsyn[0].extbits>>24)&255), packbuf[k] |= 8;
 
-        while (syncvalhead[myconnectindex] != syncvaltail)
+        while (g_player[myconnectindex].syncvalhead != syncvaltail)
         {
-            packbuf[j++] = syncval[myconnectindex][syncvaltail&(MOVEFIFOSIZ-1)];
+            packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
             syncvaltail++;
         }
 
@@ -1137,19 +1137,19 @@ void faketimerhandler(void)
     if (myconnectindex != connecthead)   //Slave
     {
         //Fix timers and buffer/jitter value
-        if (((movefifoend[myconnectindex]-1)&(TIMERUPDATESIZ-1)) == 0)
+        if (((g_player[myconnectindex].movefifoend-1)&(TIMERUPDATESIZ-1)) == 0)
         {
-            i = myminlag[connecthead]-otherminlag;
+            i = g_player[connecthead].myminlag-otherminlag;
             if (klabs(i) > 8) i >>= 1;
             else if (klabs(i) > 2) i = ksgn(i);
             else i = 0;
 
             totalclock -= TICSPERFRAME*i;
-            myminlag[connecthead] -= i;
+            g_player[connecthead].myminlag -= i;
             otherminlag += i;
 
             for (i=connecthead;i>=0;i=connectpoint2[i])
-                myminlag[i] = 0x7fffffff;
+                g_player[i].myminlag = 0x7fffffff;
         }
 
         packbuf[0] = 1;
@@ -1157,8 +1157,8 @@ void faketimerhandler(void)
         packbuf[2] = 0;
         j = 3;
 
-        osyn = (input *)&inputfifo[(movefifoend[myconnectindex]-2)&(MOVEFIFOSIZ-1)][myconnectindex];
-        nsyn = (input *)&inputfifo[(movefifoend[myconnectindex]-1)&(MOVEFIFOSIZ-1)][myconnectindex];
+        osyn = (input *)&inputfifo[(g_player[myconnectindex].movefifoend-2)&(MOVEFIFOSIZ-1)][myconnectindex];
+        nsyn = (input *)&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex];
 
         if (nsyn[0].fvel != osyn[0].fvel)
         {
@@ -1192,9 +1192,9 @@ void faketimerhandler(void)
         if ((nsyn[0].extbits^osyn[0].extbits)&0x00ff0000) packbuf[j++] = ((nsyn[0].extbits>>16)&255), packbuf[2] |= 4;
         if ((nsyn[0].extbits^osyn[0].extbits)&0xff000000) packbuf[j++] = ((nsyn[0].extbits>>24)&255), packbuf[2] |= 8;
 
-        while (syncvalhead[myconnectindex] != syncvaltail)
+        while (g_player[myconnectindex].syncvalhead != syncvaltail)
         {
-            packbuf[j++] = syncval[myconnectindex][syncvaltail&(MOVEFIFOSIZ-1)];
+            packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
             syncvaltail++;
         }
 
@@ -1204,7 +1204,7 @@ void faketimerhandler(void)
 
     //This allows allow packet resends
     for (i=connecthead;i>=0;i=connectpoint2[i])
-        if (movefifoend[i] <= movefifosendplc)
+        if (g_player[i].movefifoend <= movefifosendplc)
         {
             packbuf[0] = 127;
             for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
@@ -1215,7 +1215,7 @@ void faketimerhandler(void)
     while (1)  //Master
     {
         for (i=connecthead;i>=0;i=connectpoint2[i])
-            if (playerquitflag[i] && (movefifoend[i] <= movefifosendplc)) return;
+            if (g_player[i].playerquitflag && (g_player[i].movefifoend <= movefifosendplc)) return;
 
         osyn = (input *)&inputfifo[(movefifosendplc-1)&(MOVEFIFOSIZ-1)][0];
         nsyn = (input *)&inputfifo[(movefifosendplc)&(MOVEFIFOSIZ-1)][0];
@@ -1228,19 +1228,19 @@ void faketimerhandler(void)
         if ((movefifosendplc&(TIMERUPDATESIZ-1)) == 0)
         {
             for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                if (playerquitflag[i])
-                    packbuf[j++] = min(max(myminlag[i],-128),127);
+                if (g_player[i].playerquitflag)
+                    packbuf[j++] = min(max(g_player[i].myminlag,-128),127);
 
             for (i=connecthead;i>=0;i=connectpoint2[i])
-                myminlag[i] = 0x7fffffff;
+                g_player[i].myminlag = 0x7fffffff;
         }
 
         k = j;
         for (i=connecthead;i>=0;i=connectpoint2[i])
-            j += playerquitflag[i] + playerquitflag[i];
+            j += g_player[i].playerquitflag + g_player[i].playerquitflag;
         for (i=connecthead;i>=0;i=connectpoint2[i])
         {
-            if (playerquitflag[i] == 0) continue;
+            if (g_player[i].playerquitflag == 0) continue;
 
             packbuf[k] = 0;
             if (nsyn[i].fvel != osyn[i].fvel)
@@ -1278,18 +1278,18 @@ void faketimerhandler(void)
             k++;
         }
 
-        while (syncvalhead[myconnectindex] != syncvaltail)
+        while (g_player[myconnectindex].syncvalhead != syncvaltail)
         {
-            packbuf[j++] = syncval[myconnectindex][syncvaltail&(MOVEFIFOSIZ-1)];
+            packbuf[j++] = g_player[myconnectindex].syncval[syncvaltail&(MOVEFIFOSIZ-1)];
             syncvaltail++;
         }
 
         for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-            if (playerquitflag[i])
+            if (g_player[i].playerquitflag)
             {
                 sendpacket(i,packbuf,j);
                 if (nsyn[i].bits&(1<<26))
-                    playerquitflag[i] = 0;
+                    g_player[i].playerquitflag = 0;
             }
 
         movefifosendplc += movesperpacket;
@@ -1334,20 +1334,20 @@ static void checksync(void)
     long i;
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
-        if (syncvalhead[i] == syncvaltottail) break;
+        if (g_player[i].syncvalhead == syncvaltottail) break;
     if (i < 0)
     {
         syncstat = 0;
         do
         {
             for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
-                if (syncval[i][syncvaltottail&(MOVEFIFOSIZ-1)] !=
-                        syncval[connecthead][syncvaltottail&(MOVEFIFOSIZ-1)])
+                if (g_player[i].syncval[syncvaltottail&(MOVEFIFOSIZ-1)] !=
+                        g_player[connecthead].syncval[syncvaltottail&(MOVEFIFOSIZ-1)])
                     syncstat = 1;
 
             syncvaltottail++;
             for (i=connecthead;i>=0;i=connectpoint2[i])
-                if (syncvalhead[i] == syncvaltottail) break;
+                if (g_player[i].syncvalhead == syncvaltottail) break;
         }
         while (i < 0);
     }
@@ -1520,7 +1520,7 @@ inline int badguy(spritetype *s)
 
 void myos(long x, long y, int tilenum, int shade, int orientation)
 {
-    int p = sector[ps[screenpeek].cursectnum].floorpal, a = 0;
+    int p = sector[g_player[screenpeek].ps.cursectnum].floorpal, a = 0;
 
     if (orientation&4)
         a = 1024;
@@ -1540,7 +1540,7 @@ void myospal(long x, long y, int tilenum, int shade, int orientation, int p)
 
 void myosx(long x, long y, int tilenum, int shade, int orientation)
 {
-    int p = sector[ps[screenpeek].cursectnum].floorpal, a = 0;
+    int p = sector[g_player[screenpeek].ps.cursectnum].floorpal, a = 0;
 
     if (orientation&4)
         a = 1024;
@@ -1652,7 +1652,7 @@ static void weaponnum999(char ind,long x,long y,long num1, long num2,char ha)
     rotatesprite(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
 }
 
-static void weapon_amounts(struct player_struct *p,long x,long y,long u)
+static void weapon_amounts(player_struct *p,long x,long y,long u)
 {
     int cw = p->curr_weapon;
 
@@ -1791,7 +1791,7 @@ void txdigitalnumber(int starttile, long x,long y,long n,int s,int pal,int cs,lo
     }
 }
 
-static void displayinventory(struct player_struct *p)
+static void displayinventory(player_struct *p)
 {
     int n, j = 0, xoff = 0, y;
 
@@ -1878,9 +1878,9 @@ void displayfragbar(void)
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
     {
-        minitext(21+(73*(i&3)),2+((i&28)<<1),&ud.user_name[i][0],/*sprite[ps[i].i].pal*/ps[i].palookup,2+8+16);
-        Bsprintf(tempbuf,"%d",ps[i].frag-ps[i].fraggedself);
-        minitext(17+50+(73*(i&3)),2+((i&28)<<1),tempbuf,/*sprite[ps[i].i].pal*/ps[i].palookup,2+8+16);
+        minitext(21+(73*(i&3)),2+((i&28)<<1),&g_player[i].user_name[0],/*sprite[g_player[i].ps.i].pal*/g_player[i].ps.palookup,2+8+16);
+        Bsprintf(tempbuf,"%d",g_player[i].ps.frag-g_player[i].ps.fraggedself);
+        minitext(17+50+(73*(i&3)),2+((i&28)<<1),tempbuf,/*sprite[g_player[i].ps.i].pal*/g_player[i].ps.palookup,2+8+16);
     }
 }
 
@@ -1888,13 +1888,13 @@ void displayfragbar(void)
 
 static void coolgaugetext(int snum)
 {
-    struct player_struct *p = &ps[snum];
+    player_struct *p = &g_player[snum].ps;
     long i, j, o, ss = ud.screen_size, u;
     int permbit = 0;
 
     if (ss < 4) return;
 
-    if (ps[snum].gm&MODE_MENU)
+    if (g_player[snum].ps.gm&MODE_MENU)
         if ((current_menu >= 400  && current_menu <= 405))
             return;
 
@@ -1909,7 +1909,7 @@ static void coolgaugetext(int snum)
         else
         {
             for (i=connecthead;i>=0;i=connectpoint2[i])
-                if (ps[i].frag != sbar.frag[i])
+                if (g_player[i].ps.frag != sbar.frag[i])
                 {
                     displayfragbar();
                     break;
@@ -1918,7 +1918,7 @@ static void coolgaugetext(int snum)
         }
         for (i=connecthead;i>=0;i=connectpoint2[i])
             if (i != myconnectindex)
-                sbar.frag[i] = ps[i].frag;
+                sbar.frag[i] = g_player[i].ps.frag;
     }
 
     if (ss == 4)   //DRAW MINI STATUS BAR:
@@ -2319,7 +2319,7 @@ static void tics(void)
     if (i != frameval[framecnt])
     {
         j=(timer*AVERAGEFRAMES)/(i-frameval[framecnt]);
-        if (ud.tickrate && !(ps[myconnectindex].gm&MODE_MENU))
+        if (ud.tickrate && !(g_player[myconnectindex].ps.gm&MODE_MENU))
         {
             int ii, k = 0, p = 8;
 
@@ -2361,29 +2361,29 @@ static void coords(int snum)
         else if (ud.multimode > 1)
             y = 16;
     }
-    sprintf(tempbuf,"X= %ld",ps[snum].posx);
+    sprintf(tempbuf,"X= %ld",g_player[snum].ps.posx);
     printext256(250L,y,31,-1,tempbuf,0);
-    sprintf(tempbuf,"Y= %ld",ps[snum].posy);
+    sprintf(tempbuf,"Y= %ld",g_player[snum].ps.posy);
     printext256(250L,y+9L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"Z= %ld",ps[snum].posz);
+    Bsprintf(tempbuf,"Z= %ld",g_player[snum].ps.posz);
     printext256(250L,y+18L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"A= %d",ps[snum].ang);
+    Bsprintf(tempbuf,"A= %d",g_player[snum].ps.ang);
     printext256(250L,y+27L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"H= %ld",ps[snum].horiz);
+    Bsprintf(tempbuf,"H= %ld",g_player[snum].ps.horiz);
     printext256(250L,y+36L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"ZV= %ld",ps[snum].poszv);
+    Bsprintf(tempbuf,"ZV= %ld",g_player[snum].ps.poszv);
     printext256(250L,y+45L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"OG= %d",ps[snum].on_ground);
+    Bsprintf(tempbuf,"OG= %d",g_player[snum].ps.on_ground);
     printext256(250L,y+54L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"AM= %d",ps[snum].ammo_amount[GROW_WEAPON]);
+    Bsprintf(tempbuf,"AM= %d",g_player[snum].ps.ammo_amount[GROW_WEAPON]);
     printext256(250L,y+63L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"LFW= %d",ps[snum].last_full_weapon);
+    Bsprintf(tempbuf,"LFW= %d",g_player[snum].ps.last_full_weapon);
     printext256(250L,y+72L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"SECTL= %d",sector[ps[snum].cursectnum].lotag);
+    Bsprintf(tempbuf,"SECTL= %d",sector[g_player[snum].ps.cursectnum].lotag);
     printext256(250L,y+81L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"SEED= %ld",randomseed);
     printext256(250L,y+90L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"THOLD= %d",ps[snum].transporter_hold);
+    Bsprintf(tempbuf,"THOLD= %d",g_player[snum].ps.transporter_hold);
     printext256(250L,y+99L+7,31,-1,tempbuf,0);
 }
 
@@ -2395,7 +2395,7 @@ static void operatefta(void)
 
     quotebot = min(quotebot,j);
     quotebotgoal = min(quotebotgoal,j);
-    if (ps[myconnectindex].gm&MODE_TYPE) j -= 8;
+    if (g_player[myconnectindex].ps.gm&MODE_TYPE) j -= 8;
     quotebotgoal = j;
     j = quotebot;
     for (i=0;i<MAXUSERQUOTES;i++)
@@ -2420,11 +2420,11 @@ static void operatefta(void)
     else
         quotebot = quotebotgoal;
 
-    if (ps[screenpeek].fta <= 1) return;
+    if (g_player[screenpeek].ps.fta <= 1) return;
 
-    if (fta_quotes[ps[screenpeek].ftq] == NULL)
+    if (fta_quotes[g_player[screenpeek].ps.ftq] == NULL)
     {
-        OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,ps[screenpeek].ftq);
+        OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,g_player[screenpeek].ps.ftq);
         return;
     }
 
@@ -2441,7 +2441,7 @@ static void operatefta(void)
         else if (j > 12) k += 24;
     }
 
-    if (ps[screenpeek].ftq == 115 || ps[screenpeek].ftq == 116 || ps[screenpeek].ftq == 117)
+    if (g_player[screenpeek].ps.ftq == 115 || g_player[screenpeek].ps.ftq == 116 || g_player[screenpeek].ps.ftq == 117)
     {
         k = quotebot-8-4;
         /*        for(i=0;i<MAXUSERQUOTES;i++)
@@ -2458,16 +2458,16 @@ static void operatefta(void)
                 k -= 4; */
     }
 
-    j = ps[screenpeek].fta;
+    j = g_player[screenpeek].ps.fta;
     if (j > 4)
-        gametext(320>>1,k,fta_quotes[ps[screenpeek].ftq],0,2+8+16);
+        gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps.ftq],0,2+8+16);
     else
-        if (j > 2) gametext(320>>1,k,fta_quotes[ps[screenpeek].ftq],0,2+8+16+1);
+        if (j > 2) gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps.ftq],0,2+8+16+1);
         else
-            gametext(320>>1,k,fta_quotes[ps[screenpeek].ftq],0,2+8+16+1+32);
+            gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps.ftq],0,2+8+16+1+32);
 }
 
-void FTA(int q,struct player_struct *p)
+void FTA(int q,player_struct *p)
 {
     if (fta_quotes[p->ftq] == NULL)
     {
@@ -2487,7 +2487,7 @@ void FTA(int q,struct player_struct *p)
     // || q == 26 || q == 115 || q ==116 || q == 117 || q == 122)
     {
         if (p->ftq != q)
-            if (p == &ps[screenpeek])
+            if (p == &g_player[screenpeek].ps)
                 OSD_Printf("%s\n",stripcolorcodes(fta_quotes[q]));
 
         p->ftq = q;
@@ -2514,8 +2514,8 @@ static void showtwoscreens(void)
     {
         setview(0,0,xdim-1,ydim-1);
         flushperms();
-        //ps[myconnectindex].palette = palette;
-        setgamepalette(&ps[myconnectindex], palette, 1);	// JBF 20040308
+        //g_player[myconnectindex].ps.palette = palette;
+        setgamepalette(&g_player[myconnectindex].ps, palette, 1);	// JBF 20040308
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
         rotatesprite(0,0,65536L,0,3291,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
@@ -2543,8 +2543,8 @@ static void showtwoscreens(void)
     {
         setview(0,0,xdim-1,ydim-1);
         flushperms();
-        //ps[myconnectindex].palette = palette;
-        setgamepalette(&ps[myconnectindex], palette, 1);	// JBF 20040308
+        //g_player[myconnectindex].ps.palette = palette;
+        setgamepalette(&g_player[myconnectindex].ps, palette, 1);	// JBF 20040308
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
         rotatesprite(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
@@ -2562,7 +2562,7 @@ extern long qsetmode;
 
 void gameexit(const char *t)
 {
-    if (*t != 0) ps[myconnectindex].palette = (char *) &palette[0];
+    if (*t != 0) g_player[myconnectindex].ps.palette = (char *) &palette[0];
 
     if (numplayers > 1)
         allowtimetocorrecterrorswhenquitting();
@@ -2577,10 +2577,10 @@ void gameexit(const char *t)
 
     if (!qe && !cp)
     {
-        if (playerswhenstarted > 1 && ps[myconnectindex].gm&MODE_GAME && GTFLAGS(GAMETYPE_FLAG_SCORESHEET) && *t == ' ')
+        if (playerswhenstarted > 1 && g_player[myconnectindex].ps.gm&MODE_GAME && GTFLAGS(GAMETYPE_FLAG_SCORESHEET) && *t == ' ')
         {
             dobonus(1);
-            setgamemode(config.ScreenMode,config.ScreenWidth,config.ScreenHeight,config.ScreenBPP);
+            setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
         }
 
         if (*t != 0 && *(t+1) != 'V' && *(t+1) != 'Y')
@@ -2616,7 +2616,7 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
     short ch;
     int i;
 
-    while ((ch = KB_Getch()) != 0 || (ps[myconnectindex].gm&MODE_MENU && MOUSE_GetButtons()&RIGHT_MOUSE))
+    while ((ch = KB_Getch()) != 0 || (g_player[myconnectindex].ps.gm&MODE_MENU && MOUSE_GetButtons()&RIGHT_MOUSE))
     {
         if (ch == asc_BackSpace)
         {
@@ -2634,7 +2634,7 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
                 KB_ClearKeyDown(sc_kpad_Enter);
                 return (1);
             }
-            else if (ch == asc_Escape || (ps[myconnectindex].gm&MODE_MENU && MOUSE_GetButtons()&RIGHT_MOUSE))
+            else if (ch == asc_Escape || (g_player[myconnectindex].ps.gm&MODE_MENU && MOUSE_GetButtons()&RIGHT_MOUSE))
             {
                 KB_ClearKeyDown(sc_Escape);
                 MOUSE_ClearButton(RIGHT_MOUSE);
@@ -2661,13 +2661,13 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
         for (ii=0;ii<inputloc;ii++)
             b[(unsigned char)ii] = '*';
         b[(unsigned char)ii] = 0;
-        if (ps[myconnectindex].gm&MODE_TYPE)
+        if (g_player[myconnectindex].ps.gm&MODE_TYPE)
             x = mpgametext(y,b,c,2+8+16);
         else x = gametext(x,y,b,c,2+8+16);
     }
     else
     {
-        if (ps[myconnectindex].gm&MODE_TYPE)
+        if (g_player[myconnectindex].ps.gm&MODE_TYPE)
             x = mpgametext(y,t,c,2+8+16);
         else x = gametext(x,y,t,c,2+8+16);
     }
@@ -2680,7 +2680,7 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
         y += 8;
     }
 
-    rotatesprite((x+(small?4:8))<<16,((y+(small?0:4))<<16)+(small?config.ScreenHeight<<15:0),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,small?(8|16):2+8,0,0,xdim-1,ydim-1);
+    rotatesprite((x+(small?4:8))<<16,((y+(small?0:4))<<16)+(small?ud.config.ScreenHeight<<15:0),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,small?(8|16):2+8,0,0,xdim-1,ydim-1);
     return (0);
 }
 
@@ -2705,7 +2705,7 @@ static void typemode(void)
 {
     short ch, hitstate, i, j, l;
 
-    if (ps[myconnectindex].gm&MODE_SENDTOWHOM)
+    if (g_player[myconnectindex].ps.gm&MODE_SENDTOWHOM)
     {
         if (sendmessagecommand != -1 || ud.multimode < 3 || movesperpacket == 4)
         {
@@ -2727,11 +2727,11 @@ static void typemode(void)
                     i++;
                 }
                 typebuf[i-3] = '\0';
-                Bstrcat(recbuf,ud.user_name[myconnectindex]);
+				Bstrcat(recbuf,g_player[myconnectindex].user_name);
             }
             else
             {
-                Bstrcat(recbuf,ud.user_name[myconnectindex]);
+                Bstrcat(recbuf,g_player[myconnectindex].user_name);
                 Bstrcat(recbuf,": ");
             }
 
@@ -2768,7 +2768,7 @@ static void typemode(void)
             }
 
             sendmessagecommand = -1;
-            ps[myconnectindex].gm &= ~(MODE_TYPE|MODE_SENDTOWHOM);
+            g_player[myconnectindex].ps.gm &= ~(MODE_TYPE|MODE_SENDTOWHOM);
         }
         else if (sendmessagecommand == -1)
         {
@@ -2785,7 +2785,7 @@ static void typemode(void)
                 }
                 else
                 {
-                    Bsprintf(buf,"      %d - %s",i+1,ud.user_name[i]);
+                    Bsprintf(buf,"      %d - %s",i+1,g_player[i].user_name);
                     minitextshade((320>>1)-40-6+1,j+1,buf,26,0,2+8+16);
                     minitext((320>>1)-40-6,j,buf,0,2+8+16);
                     j += 7;
@@ -2812,7 +2812,7 @@ static void typemode(void)
                     sendmessagecommand = ud.multimode;
                     if (i == 27)
                     {
-                        ps[myconnectindex].gm &= ~(MODE_TYPE|MODE_SENDTOWHOM);
+                        g_player[myconnectindex].ps.gm &= ~(MODE_TYPE|MODE_SENDTOWHOM);
                         sendmessagecommand = -1;
                     }
                     else
@@ -2847,10 +2847,10 @@ static void typemode(void)
                 if (SHIFTS_IS_PRESSED) sendmessagecommand = -1;
                 else sendmessagecommand = ud.multimode;
             }
-            ps[myconnectindex].gm |= MODE_SENDTOWHOM;
+            g_player[myconnectindex].ps.gm |= MODE_SENDTOWHOM;
         }
         else if (hitstate == -1)
-            ps[myconnectindex].gm &= ~(MODE_TYPE|MODE_SENDTOWHOM);
+            g_player[myconnectindex].ps.gm &= ~(MODE_TYPE|MODE_SENDTOWHOM);
         else pub = NUMPAGES;
     }
 }
@@ -2865,8 +2865,8 @@ static void moveclouds(void)
 
         for (i=0;i<numclouds;i++)
         {
-            cloudx[i] += (sintable[(ps[screenpeek].ang+512)&2047]>>9);
-            cloudy[i] += (sintable[ps[screenpeek].ang&2047]>>9);
+            cloudx[i] += (sintable[(g_player[screenpeek].ps.ang+512)&2047]>>9);
+            cloudy[i] += (sintable[g_player[screenpeek].ps.ang&2047]>>9);
 
             sector[clouds[i]].ceilingxpanning = cloudx[i]>>6;
             sector[clouds[i]].ceilingypanning = cloudy[i]>>6;
@@ -2936,7 +2936,7 @@ static void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
     }
 
     //Draw sprites
-    k = ps[screenpeek].i;
+    k = g_player[screenpeek].ps.i;
     for (i=0;i<numsectors;i++)
     {
         if (!(show2dsector[i>>3]&(1<<(i&7)))) continue;
@@ -3128,9 +3128,9 @@ static void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
     {
         if (ud.scrollmode && p == screenpeek) continue;
 
-        ox = sprite[ps[p].i].x-cposx;
-        oy = sprite[ps[p].i].y-cposy;
-        daang = (sprite[ps[p].i].ang-cang)&2047;
+        ox = sprite[g_player[p].ps.i].x-cposx;
+        oy = sprite[g_player[p].ps.i].y-cposy;
+        daang = (sprite[g_player[p].ps.i].ang-cang)&2047;
         if (p == screenpeek)
         {
             ox = 0;
@@ -3142,20 +3142,20 @@ static void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
 
         if (p == screenpeek || GTFLAGS(GAMETYPE_FLAG_OTHERPLAYERSINMAP))
         {
-            if (sprite[ps[p].i].xvel > 16 && ps[p].on_ground)
+            if (sprite[g_player[p].ps.i].xvel > 16 && g_player[p].ps.on_ground)
                 i = APLAYERTOP+((totalclock>>4)&3);
             else
                 i = APLAYERTOP;
 
-            j = klabs(ps[p].truefz-ps[p].posz)>>8;
-            j = mulscale(czoom*(sprite[ps[p].i].yrepeat+j),yxaspect,16);
+            j = klabs(g_player[p].ps.truefz-g_player[p].ps.posz)>>8;
+            j = mulscale(czoom*(sprite[g_player[p].ps.i].yrepeat+j),yxaspect,16);
 
             if (j < 22000) j = 22000;
             else if (j > (65536<<1)) j = (65536<<1);
 
             rotatesprite((x1<<4)+(xdim<<15),(y1<<4)+(ydim<<15),j,
-                         daang,i,sprite[ps[p].i].shade,/*sprite[ps[p].i].pal*/sector[ps[p].cursectnum].floorpal,
-                         (sprite[ps[p].i].cstat&2)>>1,windowx1,windowy1,windowx2,windowy2);
+                         daang,i,sprite[g_player[p].ps.i].shade,/*sprite[g_player[p].ps.i].pal*/sector[g_player[p].ps.cursectnum].floorpal,
+                         (sprite[g_player[p].ps.i].cstat&2)>>1,windowx1,windowy1,windowx2,windowy2);
         }
     }
 }
@@ -3167,11 +3167,11 @@ void palto(int r,int g,int b,long e)
         for(i=0;i<768;i+=3)
         {
             temparray[i  ] =
-                ps[myconnectindex].palette[i+0]+((((long)r-(long)ps[myconnectindex].palette[i+0])*(long)(e&127))>>6);
+                g_player[myconnectindex].ps.palette[i+0]+((((long)r-(long)g_player[myconnectindex].ps.palette[i+0])*(long)(e&127))>>6);
             temparray[i+1] =
-                ps[myconnectindex].palette[i+1]+((((long)g-(long)ps[myconnectindex].palette[i+1])*(long)(e&127))>>6);
+                g_player[myconnectindex].ps.palette[i+1]+((((long)g-(long)g_player[myconnectindex].ps.palette[i+1])*(long)(e&127))>>6);
             temparray[i+2] =
-                ps[myconnectindex].palette[i+2]+((((long)b-(long)ps[myconnectindex].palette[i+2])*(long)(e&127))>>6);
+                g_player[myconnectindex].ps.palette[i+2]+((((long)b-(long)g_player[myconnectindex].ps.palette[i+2])*(long)(e&127))>>6);
         }
     */
 
@@ -3190,7 +3190,7 @@ void displayrest(long smoothratio)
     long a, i, j;
     char fader=0,fadeg=0,fadeb=0,fadef=0,tintr=0,tintg=0,tintb=0,tintf=0,dotint=0;
 
-    struct player_struct *pp = &ps[screenpeek];
+    player_struct *pp = &g_player[screenpeek].ps;
     walltype *wal;
     long cposx,cposy,cang;
 
@@ -3387,21 +3387,21 @@ void displayrest(long smoothratio)
 
     if (pp->invdisptime > 0) displayinventory(pp);
 
-    SetGameVarID(g_iReturnVarID,0,ps[screenpeek].i,screenpeek);
-    OnEvent(EVENT_DISPLAYSBAR, ps[screenpeek].i, screenpeek, -1);
-    if (GetGameVarID(g_iReturnVarID,ps[screenpeek].i,screenpeek) == 0)
+    SetGameVarID(g_iReturnVarID,0,g_player[screenpeek].ps.i,screenpeek);
+    OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps.i, screenpeek, -1);
+    if (GetGameVarID(g_iReturnVarID,g_player[screenpeek].ps.i,screenpeek) == 0)
         coolgaugetext(screenpeek);
 
     operatefta();
 
     if (KB_KeyPressed(sc_Escape) && ud.overhead_on == 0
             && ud.show_help == 0
-            && ps[myconnectindex].newowner == -1)
+            && g_player[myconnectindex].ps.newowner == -1)
     {
-        if ((ps[myconnectindex].gm&MODE_MENU) == MODE_MENU && current_menu < 51)
+        if ((g_player[myconnectindex].ps.gm&MODE_MENU) == MODE_MENU && current_menu < 51)
         {
             KB_ClearKeyDown(sc_Escape);
-            ps[myconnectindex].gm &= ~MODE_MENU;
+            g_player[myconnectindex].ps.gm &= ~MODE_MENU;
             if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 1;
@@ -3412,9 +3412,9 @@ void displayrest(long smoothratio)
             walock[TILE_SAVESHOT] = 199;
             vscrn();
         }
-        else if ((ps[myconnectindex].gm&MODE_MENU) != MODE_MENU &&
-                 ps[myconnectindex].newowner == -1 &&
-                 (ps[myconnectindex].gm&MODE_TYPE) != MODE_TYPE)
+        else if ((g_player[myconnectindex].ps.gm&MODE_MENU) != MODE_MENU &&
+                 g_player[myconnectindex].ps.newowner == -1 &&
+                 (g_player[myconnectindex].ps.gm&MODE_TYPE) != MODE_TYPE)
         {
             KB_ClearKeyDown(sc_Escape);
             FX_StopAllSounds();
@@ -3422,43 +3422,43 @@ void displayrest(long smoothratio)
 
             intomenusounds();
 
-            ps[myconnectindex].gm |= MODE_MENU;
+            g_player[myconnectindex].ps.gm |= MODE_MENU;
 
             if (ud.multimode < 2 && ud.recstat != 2) ready2send = 0;
 
-            if (ps[myconnectindex].gm&MODE_GAME) cmenu(50);
+            if (g_player[myconnectindex].ps.gm&MODE_GAME) cmenu(50);
             else cmenu(0);
             screenpeek = myconnectindex;
         }
     }
 
-    OnEvent(EVENT_DISPLAYREST, ps[screenpeek].i, screenpeek, -1);
+    OnEvent(EVENT_DISPLAYREST, g_player[screenpeek].ps.i, screenpeek, -1);
 
-    if (ps[myconnectindex].newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
+    if (g_player[myconnectindex].ps.newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
     {
-        SetGameVarID(g_iReturnVarID,0,ps[screenpeek].i,screenpeek);
-        OnEvent(EVENT_DISPLAYCROSSHAIR, ps[screenpeek].i, screenpeek, -1);
-        if (GetGameVarID(g_iReturnVarID,ps[screenpeek].i,screenpeek) == 0)
-            rotatesprite((160L-(ps[myconnectindex].look_ang>>1))<<16,100L<<16,ud.crosshair>1?65536L>>(ud.crosshair-1):65536L,0,CROSSHAIR,0,0,2+1,windowx1,windowy1,windowx2,windowy2);
+        SetGameVarID(g_iReturnVarID,0,g_player[screenpeek].ps.i,screenpeek);
+        OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps.i, screenpeek, -1);
+        if (GetGameVarID(g_iReturnVarID,g_player[screenpeek].ps.i,screenpeek) == 0)
+            rotatesprite((160L-(g_player[myconnectindex].ps.look_ang>>1))<<16,100L<<16,ud.crosshair>1?65536L>>(ud.crosshair-1):65536L,0,CROSSHAIR,0,0,2+1,windowx1,windowy1,windowx2,windowy2);
     }
 #if 0
     if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
     {
         for (i=0;i<ud.multimode;i++)
         {
-            if (ps[i].team == ps[myconnectindex].team)
+            if (g_player[i].ps.team == g_player[myconnectindex].ps.team)
             {
-                j = min(max((getincangle(getangle(ps[i].posx-ps[myconnectindex].posx,ps[i].posy-ps[myconnectindex].posy),ps[myconnectindex].ang))>>1,-160),160);
+                j = min(max((getincangle(getangle(g_player[i].ps.posx-g_player[myconnectindex].ps.posx,g_player[i].ps.posy-g_player[myconnectindex].ps.posy),g_player[myconnectindex].ps.ang))>>1,-160),160);
                 rotatesprite((160-j)<<16,100L<<16,65536L,0,DUKEICON,0,0,2+1,windowx1,windowy1,windowx2,windowy2);
             }
         }
     }
 #endif
 
-    if (ud.pause_on==1 && (ps[myconnectindex].gm&MODE_MENU) == 0)
+    if (ud.pause_on==1 && (g_player[myconnectindex].ps.gm&MODE_MENU) == 0)
         menutext(160,100,0,0,"GAME PAUSED");
 
-    if (ps[myconnectindex].gm&MODE_TYPE)
+    if (g_player[myconnectindex].ps.gm&MODE_TYPE)
         typemode();
     else
         menus();
@@ -3471,7 +3471,7 @@ void displayrest(long smoothratio)
         extern int mdpause;
 
         mdpause = 0;
-        if (ud.pause_on || (ps[myconnectindex].gm&MODE_MENU && numplayers < 2))
+        if (ud.pause_on || (g_player[myconnectindex].ps.gm&MODE_MENU && numplayers < 2))
             mdpause = 1;
     }
 #endif
@@ -3479,30 +3479,30 @@ void displayrest(long smoothratio)
     tics();
 
     // JBF 20040124: display level stats in screen corner
-    if (ud.levelstats && (ps[myconnectindex].gm&MODE_MENU) == 0)
+    if (ud.levelstats && (g_player[myconnectindex].ps.gm&MODE_MENU) == 0)
     {
         i = (ud.screen_size <= 4)?0:scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100);
 
         Bsprintf(tempbuf,"Time: %ld:%02ld",
-                 (ps[myconnectindex].player_par/(26*60)),
-                 (ps[myconnectindex].player_par/26)%60);
+                 (g_player[myconnectindex].ps.player_par/(26*60)),
+                 (g_player[myconnectindex].ps.player_par/26)%60);
         minitext(320-5*12,200-i-6-6-6,tempbuf,0,26);
 
         if (ud.player_skill > 3 || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY)))
-            Bsprintf(tempbuf,"Kills: %ld",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?ps[i].frag-ps[i].fraggedself:ps[myconnectindex].actors_killed);
+            Bsprintf(tempbuf,"Kills: %ld",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?g_player[i].ps.frag-g_player[i].ps.fraggedself:g_player[myconnectindex].ps.actors_killed);
         else
-            Bsprintf(tempbuf,"Kills: %ld/%ld",ps[myconnectindex].actors_killed,
-                     ps[myconnectindex].max_actors_killed>ps[myconnectindex].actors_killed?
-                     ps[myconnectindex].max_actors_killed:ps[myconnectindex].actors_killed);
+            Bsprintf(tempbuf,"Kills: %ld/%ld",g_player[myconnectindex].ps.actors_killed,
+                     g_player[myconnectindex].ps.max_actors_killed>g_player[myconnectindex].ps.actors_killed?
+                     g_player[myconnectindex].ps.max_actors_killed:g_player[myconnectindex].ps.actors_killed);
         minitext(320-5*12,200-i-6-6,tempbuf,0,26);
 
-        Bsprintf(tempbuf,"Secrets: %ld/%ld", ps[myconnectindex].secret_rooms,ps[myconnectindex].max_secret_rooms);
+        Bsprintf(tempbuf,"Secrets: %ld/%ld", g_player[myconnectindex].ps.secret_rooms,g_player[myconnectindex].ps.max_secret_rooms);
         minitext(320-5*12,200-i-6,tempbuf,0,26);
     }
     if (tintf > 0 || dotint) palto(tintr,tintg,tintb,tintf|128);
 }
 
-static void view(struct player_struct *pp, long *vx, long *vy,long *vz,short *vsectnum, int ang, int horiz)
+static void view(player_struct *pp, long *vx, long *vy,long *vz,short *vsectnum, int ang, int horiz)
 {
     spritetype *sp = &sprite[pp->i];
     long i, hx, hy, hitx, hity, hitz;
@@ -3587,7 +3587,7 @@ void drawbackground(void)
 
     y1 = 0;
     y2 = ydim;
-    if (ps[myconnectindex].gm & MODE_GAME || ud.recstat == 2)
+    if (g_player[myconnectindex].ps.gm & MODE_GAME || ud.recstat == 2)
         //if (ud.recstat == 0 || ud.recstat == 1 || (ud.recstat == 2 && ud.reccnt > 0)) // JBF 20040717
     {
         if (ud.screen_size == 8 && ud.statusbarmode == 0)
@@ -3859,7 +3859,7 @@ void se40code(long x,long y,long z,long a,long h, long smoothratio)
         case 43:
         case 44:
         case 45:
-            if (ps[screenpeek].cursectnum == sprite[i].sectnum)
+            if (g_player[screenpeek].ps.cursectnum == sprite[i].sectnum)
                 SE40_Draw(i,x,y,z,a,h,smoothratio);
             break;
         }
@@ -3875,7 +3875,7 @@ void displayrooms(int snum,long smoothratio)
     long dst,j,fz,cz;
     long tposx,tposy,i;
     short k;
-    struct player_struct *p = &ps[snum];
+    player_struct *p = &g_player[snum].ps;
     short tang;
     long tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
 #ifdef POLYMOST
@@ -3899,7 +3899,7 @@ void displayrooms(int snum,long smoothratio)
 
     visibility = p->visibility;
 
-    if (ud.pause_on || ps[snum].on_crane > -1) smoothratio = 65536;
+    if (ud.pause_on || g_player[snum].ps.on_crane > -1) smoothratio = 65536;
 
     ud.camerasect = p->cursectnum;
 
@@ -4059,7 +4059,7 @@ void displayrooms(int snum,long smoothratio)
         if (ud.camerahoriz > 299) ud.camerahoriz = 299;
         else if (ud.camerahoriz < -99) ud.camerahoriz = -99;
 
-        OnEvent(EVENT_DISPLAYROOMS, ps[screenpeek].i, screenpeek, -1);
+        OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps.i, screenpeek, -1);
 
 #ifdef SE40
         se40code(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,smoothratio);
@@ -4197,7 +4197,7 @@ static void dumpdebugdata(void)
     }
     DumpGameVars(fp);
     fclose(fp);
-    saveboard("debug.map",&ps[myconnectindex].posx,&ps[myconnectindex].posy,&ps[myconnectindex].posz,&ps[myconnectindex].ang,&ps[myconnectindex].cursectnum);
+    saveboard("debug.map",&g_player[myconnectindex].ps.posx,&g_player[myconnectindex].ps.posy,&g_player[myconnectindex].ps.posz,&g_player[myconnectindex].ps.ang,&g_player[myconnectindex].ps.cursectnum);
 }
 
 int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_yr,int s_a,int s_ve,long s_zv,int s_ow,int s_ss)
@@ -4508,7 +4508,7 @@ int spawn(int j, int pn)
                     if (actortype[sp->picnum] & 2)
                         hittype[i].actorstayput = sp->sectnum;
 
-                    ps[myconnectindex].max_actors_killed++;
+                    g_player[myconnectindex].ps.max_actors_killed++;
                     sp->clipdist = 80;
                     if (j >= 0)
                     {
@@ -4959,7 +4959,7 @@ int spawn(int j, int pn)
                     break;
                 }
 
-                sp->cstat = 32+((ps[sprite[j].yvel].footprintcount&1)<<2);
+                sp->cstat = 32+((g_player[sprite[j].yvel].ps.footprintcount&1)<<2);
                 sp->ang = sprite[j].ang;
             }
 
@@ -5013,7 +5013,7 @@ int spawn(int j, int pn)
                 sp->xrepeat = sprite[j].xrepeat;
                 sp->yrepeat = sprite[j].yrepeat;
                 sp->shade = sprite[j].shade;
-                sp->pal = ps[sprite[j].yvel].palookup;
+                sp->pal = g_player[sprite[j].yvel].ps.palookup;
             }
         case DUKECAR__STATIC:
         case HELECOPT__STATIC:
@@ -5083,12 +5083,12 @@ int spawn(int j, int pn)
                 if (sprite[j].picnum == APLAYER)
                 {
                     snum = sprite[j].yvel;
-                    a = ps[snum].ang-(TRAND&63)+8;  //Fine tune
+                    a = g_player[snum].ps.ang-(TRAND&63)+8;  //Fine tune
 
                     T1 = TRAND&1;
                     if (sp->picnum == SHOTGUNSHELL)
-                        sp->z = (6<<8)+ps[snum].pyoff+ps[snum].posz-((ps[snum].horizoff+ps[snum].horiz-100)<<4);
-                    else sp->z = (3<<8)+ps[snum].pyoff+ps[snum].posz-((ps[snum].horizoff+ps[snum].horiz-100)<<4);
+                        sp->z = (6<<8)+g_player[snum].ps.pyoff+g_player[snum].ps.posz-((g_player[snum].ps.horizoff+g_player[snum].ps.horiz-100)<<4);
+                    else sp->z = (3<<8)+g_player[snum].ps.pyoff+g_player[snum].ps.posz-((g_player[snum].ps.horizoff+g_player[snum].ps.horiz-100)<<4);
                     sp->zvel = -(TRAND&255);
                 }
                 else
@@ -5271,7 +5271,7 @@ int spawn(int j, int pn)
                     sp->z -= (18<<8);
                 }
                 else sp->z -= (13<<8);
-                sp->ang = getangle(ps[connecthead].posx-sp->x,ps[connecthead].posy-sp->y);
+                sp->ang = getangle(g_player[connecthead].ps.posx-sp->x,g_player[connecthead].ps.posy-sp->y);
                 sp->xvel = 48-(TRAND&31);
                 ssp(i,CLIPMASK0);
             }
@@ -5451,7 +5451,7 @@ int spawn(int j, int pn)
                     sp->cstat |= 257;
 
                     if (sp->picnum != SHARK)
-                        ps[myconnectindex].max_actors_killed++;
+                        g_player[myconnectindex].ps.max_actors_killed++;
                 }
 
                 if (sp->picnum == ORGANTIC) sp->cstat |= 128;
@@ -5530,7 +5530,7 @@ int spawn(int j, int pn)
                     changespritestat(i,5);
                     return i;
                 }
-                ps[myconnectindex].max_actors_killed++;
+                g_player[myconnectindex].ps.max_actors_killed++;
                 hittype[i].temp_data[5] = 0;
                 if (ud.monsters_off == 1)
                 {
@@ -6430,11 +6430,11 @@ void animatesprites(long x,long y,int a,long smoothratio)
         }
 
         if (t->statnum == 99) continue;
-        if (s->statnum != 1 && s->picnum == APLAYER && ps[s->yvel].newowner == -1 && s->owner >= 0)
+        if (s->statnum != 1 && s->picnum == APLAYER && g_player[s->yvel].ps.newowner == -1 && s->owner >= 0)
         {
-            t->x -= mulscale16(65536-smoothratio,ps[s->yvel].posx-ps[s->yvel].oposx);
-            t->y -= mulscale16(65536-smoothratio,ps[s->yvel].posy-ps[s->yvel].oposy);
-            t->z = ps[s->yvel].oposz + mulscale16(smoothratio,ps[s->yvel].posz-ps[s->yvel].oposz);
+            t->x -= mulscale16(65536-smoothratio,g_player[s->yvel].ps.posx-g_player[s->yvel].ps.oposx);
+            t->y -= mulscale16(65536-smoothratio,g_player[s->yvel].ps.posy-g_player[s->yvel].ps.oposy);
+            t->z = g_player[s->yvel].ps.oposz + mulscale16(smoothratio,g_player[s->yvel].ps.posz-g_player[s->yvel].ps.oposz);
             t->z += (40<<8);
         }
         else if ((s->statnum == 0 && s->picnum != CRANEPOLE) || s->statnum == 10 || s->statnum == 6 || s->statnum == 4 || s->statnum == 5 || s->statnum == 1)
@@ -6489,15 +6489,15 @@ void animatesprites(long x,long y,int a,long smoothratio)
 
                 sqa =
                     getangle(
-                        sprite[s->owner].x-ps[screenpeek].posx,
-                        sprite[s->owner].y-ps[screenpeek].posy);
+                        sprite[s->owner].x-g_player[screenpeek].ps.posx,
+                        sprite[s->owner].y-g_player[screenpeek].ps.posy);
                 sqb =
                     getangle(
                         sprite[s->owner].x-t->x,
                         sprite[s->owner].y-t->y);
 
                 if (klabs(getincangle(sqa,sqb)) > 512)
-                    if (ldist(&sprite[s->owner],t) < ldist(&sprite[ps[screenpeek].i],&sprite[s->owner]))
+                    if (ldist(&sprite[s->owner],t) < ldist(&sprite[g_player[screenpeek].ps.i],&sprite[s->owner]))
                         t->xrepeat = t->yrepeat = 0;
             }
             continue;
@@ -6505,7 +6505,7 @@ void animatesprites(long x,long y,int a,long smoothratio)
         case BURNING2__STATIC:
             if (sprite[s->owner].statnum == 10)
             {
-                if (display_mirror == 0 && sprite[s->owner].yvel == screenpeek && ps[sprite[s->owner].yvel].over_shoulder_on == 0)
+                if (display_mirror == 0 && sprite[s->owner].yvel == screenpeek && g_player[sprite[s->owner].yvel].ps.over_shoulder_on == 0)
                     t->xrepeat = 0;
                 else
                 {
@@ -6595,7 +6595,7 @@ void animatesprites(long x,long y,int a,long smoothratio)
 
             if (t->pal == 1) t->z -= (18<<8);
 
-            if (ps[p].over_shoulder_on > 0 && ps[p].newowner < 0)
+            if (g_player[p].ps.over_shoulder_on > 0 && g_player[p].ps.newowner < 0)
             {
                 t->cstat |= 2;
                 if (screenpeek == myconnectindex && numplayers >= 2)
@@ -6610,7 +6610,7 @@ void animatesprites(long x,long y,int a,long smoothratio)
 
             if ((display_mirror || screenpeek != p || s->owner == -1) && ud.multimode > 1)
             {
-                if (ud.showweapons && sprite[ps[p].i].extra > 0 && ps[p].curr_weapon > 0)
+                if (ud.showweapons && sprite[g_player[p].ps.i].extra > 0 && g_player[p].ps.curr_weapon > 0)
                 {
                     memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
@@ -6622,10 +6622,10 @@ void animatesprites(long x,long y,int a,long smoothratio)
                     tsprite[spritesortcnt].shade = t->shade;
                     tsprite[spritesortcnt].cstat = 0;
 
-                    tsprite[spritesortcnt].picnum = (ps[p].curr_weapon==GROW_WEAPON?GROWSPRITEICON:weapon_sprites[ps[p].curr_weapon]);
+                    tsprite[spritesortcnt].picnum = (g_player[p].ps.curr_weapon==GROW_WEAPON?GROWSPRITEICON:weapon_sprites[g_player[p].ps.curr_weapon]);
 
                     if (s->owner >= 0)
-                        tsprite[spritesortcnt].z = ps[p].posz-(12<<8);
+                        tsprite[spritesortcnt].z = g_player[p].ps.posz-(12<<8);
                     else tsprite[spritesortcnt].z = s->z-(51<<8);
                     if (tsprite[spritesortcnt].picnum == HEAVYHBOMB)
                     {
@@ -6641,7 +6641,7 @@ void animatesprites(long x,long y,int a,long smoothratio)
                     spritesortcnt++;
                 }
 
-                if (sync[p].extbits & (1<<7) && !ud.pause_on)
+                if (g_player[p].sync.extbits & (1<<7) && !ud.pause_on)
                 {
                     memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
@@ -6655,7 +6655,7 @@ void animatesprites(long x,long y,int a,long smoothratio)
                     tsprite[spritesortcnt].picnum = RESPAWNMARKERGREEN;
 
                     if (s->owner >= 0)
-                        tsprite[spritesortcnt].z = ps[p].posz-(20<<8);
+                        tsprite[spritesortcnt].z = g_player[p].ps.posz-(20<<8);
                     else tsprite[spritesortcnt].z = s->z-(96<<8);
                     tsprite[spritesortcnt].xrepeat = 32;
                     tsprite[spritesortcnt].yrepeat = 32;
@@ -6688,28 +6688,28 @@ void animatesprites(long x,long y,int a,long smoothratio)
                 else if ((hittype[i].floorz-s->z) > (64<<8)) k += 60;
 
                 t->picnum += k;
-                t->pal = ps[p].palookup;
+                t->pal = g_player[p].ps.palookup;
 
                 goto PALONLY;
             }
 
-            if (ps[p].on_crane == -1 && (sector[s->sectnum].lotag&0x7ff) != 1)
+            if (g_player[p].ps.on_crane == -1 && (sector[s->sectnum].lotag&0x7ff) != 1)
             {
-                l = s->z-hittype[ps[p].i].floorz+(3<<8);
+                l = s->z-hittype[g_player[p].ps.i].floorz+(3<<8);
                 if (l > 1024 && s->yrepeat > 32 && s->extra > 0)
                     s->yoffset = (signed char)(l/(s->yrepeat<<2));
                 else s->yoffset=0;
             }
 
-            if (ps[p].newowner > -1)
+            if (g_player[p].ps.newowner > -1)
             {
                 t4 = *(actorscrptr[APLAYER]+1);
                 t3 = 0;
                 t1 = *(actorscrptr[APLAYER]+2);
             }
 
-            if (ud.camerasprite == -1 && ps[p].newowner == -1)
-                if (s->owner >= 0 && display_mirror == 0 && ps[p].over_shoulder_on == 0)
+            if (ud.camerasprite == -1 && g_player[p].ps.newowner == -1)
+                if (s->owner >= 0 && display_mirror == 0 && g_player[p].ps.over_shoulder_on == 0)
                     if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
                     {
                         t->owner = -1;
@@ -6861,7 +6861,7 @@ PALONLY:
                 t->cstat |= 4;
         }
 
-        if (ps[screenpeek].heat_amount > 0 && ps[screenpeek].heat_on && (badguy(s) || checkspriteflags(t->owner,SPRITE_FLAG_NVG) || s->picnum == APLAYER || s->statnum == 13))
+        if (g_player[screenpeek].ps.heat_amount > 0 && g_player[screenpeek].ps.heat_on && (badguy(s) || checkspriteflags(t->owner,SPRITE_FLAG_NVG) || s->picnum == APLAYER || s->statnum == 13))
         {
             t->pal = 6;
             t->shade = 0;
@@ -6886,7 +6886,7 @@ PALONLY:
                             daz = hittype[i].floorz;
 
                         if ((s->z-daz) < (8<<8))
-                            if (ps[screenpeek].posz < daz)
+                            if (g_player[screenpeek].ps.posz < daz)
                             {
                                 memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
@@ -6918,8 +6918,8 @@ PALONLY:
                                 {
                                     int ii;
 
-                                    ii = getangle(tsprite[spritesortcnt].x-ps[screenpeek].posx,
-                                                  tsprite[spritesortcnt].y-ps[screenpeek].posy);
+                                    ii = getangle(tsprite[spritesortcnt].x-g_player[screenpeek].ps.posx,
+                                                  tsprite[spritesortcnt].y-g_player[screenpeek].ps.posy);
 
                                     tsprite[spritesortcnt].x += sintable[(ii+2560)&2047]>>9;
                                     tsprite[spritesortcnt].y += sintable[(ii+2048)&2047]>>9;
@@ -6935,7 +6935,7 @@ PALONLY:
         case LASERLINE__STATIC:
             if (sector[t->sectnum].lotag == 2) t->pal = 8;
             t->z = sprite[s->owner].z-(3<<8);
-            if (lasermode == 2 && ps[screenpeek].heat_on == 0)
+            if (lasermode == 2 && g_player[screenpeek].ps.heat_on == 0)
                 t->yrepeat = 0;
         case EXPLOSION2__STATIC:
         case EXPLOSION2BOT__STATIC:
@@ -6950,7 +6950,7 @@ PALONLY:
         case FLOORFLAME__STATIC:
             if (t->picnum == EXPLOSION2)
             {
-                ps[screenpeek].visibility = -127;
+                g_player[screenpeek].ps.visibility = -127;
                 lastvisinc = totalclock+32;
                 //restorepalette = 1;   // JBF 20040101: why?
             }
@@ -7128,68 +7128,68 @@ enum cheats
 
 void CheatGetInventory(void)
 {
-    SetGameVarID(g_iReturnVarID, 400, ps[myconnectindex].i, myconnectindex);
-    OnEvent(EVENT_CHEATGETSTEROIDS, ps[myconnectindex].i, myconnectindex, -1);
-    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    SetGameVarID(g_iReturnVarID, 400, g_player[myconnectindex].ps.i, myconnectindex);
+    OnEvent(EVENT_CHEATGETSTEROIDS, g_player[myconnectindex].ps.i, myconnectindex, -1);
+    if (GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex) >=0)
     {
-        ps[myconnectindex].steroids_amount =
-            GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
+        g_player[myconnectindex].ps.steroids_amount =
+            GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex);
     }
 
-    SetGameVarID(g_iReturnVarID, 1200, ps[myconnectindex].i, myconnectindex);
-    OnEvent(EVENT_CHEATGETHEAT, ps[myconnectindex].i, myconnectindex, -1);
-    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    SetGameVarID(g_iReturnVarID, 1200, g_player[myconnectindex].ps.i, myconnectindex);
+    OnEvent(EVENT_CHEATGETHEAT, g_player[myconnectindex].ps.i, myconnectindex, -1);
+    if (GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex) >=0)
     {
-        ps[myconnectindex].heat_amount     =
-            GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
+        g_player[myconnectindex].ps.heat_amount     =
+            GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex);
     }
 
-    SetGameVarID(g_iReturnVarID, 200, ps[myconnectindex].i, myconnectindex);
-    OnEvent(EVENT_CHEATGETBOOT, ps[myconnectindex].i, myconnectindex, -1);
-    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    SetGameVarID(g_iReturnVarID, 200, g_player[myconnectindex].ps.i, myconnectindex);
+    OnEvent(EVENT_CHEATGETBOOT, g_player[myconnectindex].ps.i, myconnectindex, -1);
+    if (GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex) >=0)
     {
-        ps[myconnectindex].boot_amount          =
-            GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
+        g_player[myconnectindex].ps.boot_amount          =
+            GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex);
     }
 
-    SetGameVarID(g_iReturnVarID, 100, ps[myconnectindex].i, myconnectindex);
-    OnEvent(EVENT_CHEATGETSHIELD, ps[myconnectindex].i, myconnectindex, -1);
-    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    SetGameVarID(g_iReturnVarID, 100, g_player[myconnectindex].ps.i, myconnectindex);
+    OnEvent(EVENT_CHEATGETSHIELD, g_player[myconnectindex].ps.i, myconnectindex, -1);
+    if (GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex) >=0)
     {
-        ps[myconnectindex].shield_amount =
-            GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
+        g_player[myconnectindex].ps.shield_amount =
+            GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex);
     }
 
-    SetGameVarID(g_iReturnVarID, 6400, ps[myconnectindex].i, myconnectindex);
-    OnEvent(EVENT_CHEATGETSCUBA, ps[myconnectindex].i, myconnectindex, -1);
-    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    SetGameVarID(g_iReturnVarID, 6400, g_player[myconnectindex].ps.i, myconnectindex);
+    OnEvent(EVENT_CHEATGETSCUBA, g_player[myconnectindex].ps.i, myconnectindex, -1);
+    if (GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex) >=0)
     {
-        ps[myconnectindex].scuba_amount =
-            GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
+        g_player[myconnectindex].ps.scuba_amount =
+            GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex);
     }
 
-    SetGameVarID(g_iReturnVarID, 2400, ps[myconnectindex].i, myconnectindex);
-    OnEvent(EVENT_CHEATGETHOLODUKE, ps[myconnectindex].i, myconnectindex, -1);
-    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    SetGameVarID(g_iReturnVarID, 2400, g_player[myconnectindex].ps.i, myconnectindex);
+    OnEvent(EVENT_CHEATGETHOLODUKE, g_player[myconnectindex].ps.i, myconnectindex, -1);
+    if (GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex) >=0)
     {
-        ps[myconnectindex].holoduke_amount =
-            GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
+        g_player[myconnectindex].ps.holoduke_amount =
+            GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex);
     }
 
-    SetGameVarID(g_iReturnVarID, 1600, ps[myconnectindex].i, myconnectindex);
-    OnEvent(EVENT_CHEATGETJETPACK, ps[myconnectindex].i, myconnectindex, -1);
-    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    SetGameVarID(g_iReturnVarID, 1600, g_player[myconnectindex].ps.i, myconnectindex);
+    OnEvent(EVENT_CHEATGETJETPACK, g_player[myconnectindex].ps.i, myconnectindex, -1);
+    if (GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex) >=0)
     {
-        ps[myconnectindex].jetpack_amount =
-            GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
+        g_player[myconnectindex].ps.jetpack_amount =
+            GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex);
     }
 
-    SetGameVarID(g_iReturnVarID, max_player_health, ps[myconnectindex].i, myconnectindex);
-    OnEvent(EVENT_CHEATGETFIRSTAID, ps[myconnectindex].i, myconnectindex, -1);
-    if (GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex) >=0)
+    SetGameVarID(g_iReturnVarID, max_player_health, g_player[myconnectindex].ps.i, myconnectindex);
+    OnEvent(EVENT_CHEATGETFIRSTAID, g_player[myconnectindex].ps.i, myconnectindex, -1);
+    if (GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex) >=0)
     {
-        ps[myconnectindex].firstaid_amount =
-            GetGameVarID(g_iReturnVarID, ps[myconnectindex].i, myconnectindex);
+        g_player[myconnectindex].ps.firstaid_amount =
+            GetGameVarID(g_iReturnVarID, g_player[myconnectindex].ps.i, myconnectindex);
     }
 }
 
@@ -7209,7 +7209,7 @@ static void cheats(void)
         consolecheat = 1;
     }
 
-    if ((ps[myconnectindex].gm&MODE_TYPE) || (ps[myconnectindex].gm&MODE_MENU))
+    if ((g_player[myconnectindex].ps.gm&MODE_TYPE) || (g_player[myconnectindex].ps.gm&MODE_MENU))
         return;
 
     if (VOLUMEONE && !z)
@@ -7222,7 +7222,7 @@ static void cheats(void)
     if (consolecheat && numplayers < 2 && ud.recstat == 0)
         goto FOUNDCHEAT;
 
-    if (ps[myconnectindex].cheat_phase == 1)
+    if (g_player[myconnectindex].ps.cheat_phase == 1)
     {
         while (KB_KeyWaiting())
         {
@@ -7230,8 +7230,8 @@ static void cheats(void)
 
             if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
             {
-                ps[myconnectindex].cheat_phase = 0;
-                //                             FTA(46,&ps[myconnectindex]);
+                g_player[myconnectindex].ps.cheat_phase = 0;
+                //                             FTA(46,&g_player[myconnectindex].ps);
                 return;
             }
 
@@ -7241,7 +7241,7 @@ static void cheats(void)
 
             if (cheatbuflen > MAXCHEATLEN)
             {
-                ps[myconnectindex].cheat_phase = 0;
+                g_player[myconnectindex].ps.cheat_phase = 0;
                 return;
             }
 
@@ -7258,7 +7258,7 @@ static void cheats(void)
                 }
             }
 
-            ps[myconnectindex].cheat_phase = 0;
+            g_player[myconnectindex].ps.cheat_phase = 0;
             return;
 
 FOUNDCHEAT:
@@ -7274,34 +7274,34 @@ FOUNDCHEAT:
 
                     for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
                     {
-                        addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
-                        ps[myconnectindex].gotweapon[weapon]  = 1;
+                        addammo(weapon, &g_player[myconnectindex].ps, max_ammo_amount[weapon]);
+                        g_player[myconnectindex].ps.gotweapon[weapon]  = 1;
                     }
 
                     KB_FlushKeyBoardQueue();
-                    ps[myconnectindex].cheat_phase = 0;
-                    FTA(119,&ps[myconnectindex]);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
+                    FTA(119,&g_player[myconnectindex].ps);
                     return;
 
                 case CHEAT_INVENTORY:
                     KB_FlushKeyBoardQueue();
-                    ps[myconnectindex].cheat_phase = 0;
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     CheatGetInventory();
-                    FTA(120,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
+                    FTA(120,&g_player[myconnectindex].ps);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     return;
 
                 case CHEAT_KEYS:
-                    ps[myconnectindex].got_access =  7;
+                    g_player[myconnectindex].ps.got_access =  7;
                     KB_FlushKeyBoardQueue();
-                    ps[myconnectindex].cheat_phase = 0;
-                    FTA(121,&ps[myconnectindex]);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
+                    FTA(121,&g_player[myconnectindex].ps);
                     return;
 
                 case CHEAT_DEBUG:
                     debug_on = 1-debug_on;
                     KB_FlushKeyBoardQueue();
-                    ps[myconnectindex].cheat_phase = 0;
+                    g_player[myconnectindex].ps.cheat_phase = 0;
 
                     dumpdebugdata();
                     Bsprintf(tempbuf,"GAMEVARS DUMPED TO DEBUG.CON");
@@ -7313,19 +7313,19 @@ FOUNDCHEAT:
                 case CHEAT_CLIP:
                     ud.clipping = 1-ud.clipping;
                     KB_FlushKeyBoardQueue();
-                    ps[myconnectindex].cheat_phase = 0;
-                    FTA(112+ud.clipping,&ps[myconnectindex]);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
+                    FTA(112+ud.clipping,&g_player[myconnectindex].ps);
                     return;
 
                 case CHEAT_RESERVED2:
-                    ps[myconnectindex].gm = MODE_EOL;
-                    ps[myconnectindex].cheat_phase = 0;
+                    g_player[myconnectindex].ps.gm = MODE_EOL;
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
                 case CHEAT_ALLEN:
-                    FTA(79,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
+                    FTA(79,&g_player[myconnectindex].ps);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_ClearKeyDown(sc_N);
                     return;
 
@@ -7337,33 +7337,33 @@ FOUNDCHEAT:
                     {
                         pus = 1;
                         pub = 1;
-                        sprite[ps[myconnectindex].i].cstat = 257;
+                        sprite[g_player[myconnectindex].ps.i].cstat = 257;
 
-                        hittype[ps[myconnectindex].i].temp_data[0] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[1] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[2] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[3] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[4] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[5] = 0;
+                        hittype[g_player[myconnectindex].ps.i].temp_data[0] = 0;
+                        hittype[g_player[myconnectindex].ps.i].temp_data[1] = 0;
+                        hittype[g_player[myconnectindex].ps.i].temp_data[2] = 0;
+                        hittype[g_player[myconnectindex].ps.i].temp_data[3] = 0;
+                        hittype[g_player[myconnectindex].ps.i].temp_data[4] = 0;
+                        hittype[g_player[myconnectindex].ps.i].temp_data[5] = 0;
 
-                        sprite[ps[myconnectindex].i].hitag = 0;
-                        sprite[ps[myconnectindex].i].lotag = 0;
-                        sprite[ps[myconnectindex].i].pal = ps[myconnectindex].palookup;
+                        sprite[g_player[myconnectindex].ps.i].hitag = 0;
+                        sprite[g_player[myconnectindex].ps.i].lotag = 0;
+                        sprite[g_player[myconnectindex].ps.i].pal = g_player[myconnectindex].ps.palookup;
 
-                        FTA(17,&ps[myconnectindex]);
+                        FTA(17,&g_player[myconnectindex].ps);
                     }
                     else
                     {
                         ud.god = 0;
-                        sprite[ps[myconnectindex].i].extra = max_player_health;
-                        hittype[ps[myconnectindex].i].extra = -1;
-                        ps[myconnectindex].last_extra = max_player_health;
-                        FTA(18,&ps[myconnectindex]);
+                        sprite[g_player[myconnectindex].ps.i].extra = max_player_health;
+                        hittype[g_player[myconnectindex].ps.i].extra = -1;
+                        g_player[myconnectindex].ps.last_extra = max_player_health;
+                        FTA(18,&g_player[myconnectindex].ps);
                     }
 
-                    sprite[ps[myconnectindex].i].extra = max_player_health;
-                    hittype[ps[myconnectindex].i].extra = 0;
-                    ps[myconnectindex].cheat_phase = 0;
+                    sprite[g_player[myconnectindex].ps.i].extra = max_player_health;
+                    hittype[g_player[myconnectindex].ps.i].extra = 0;
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
@@ -7374,41 +7374,41 @@ FOUNDCHEAT:
                     {
                         pus = 1;
                         pub = 1;
-                        sprite[ps[myconnectindex].i].cstat = 257;
+                        sprite[g_player[myconnectindex].ps.i].cstat = 257;
 
-                        hittype[ps[myconnectindex].i].temp_data[0] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[1] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[2] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[3] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[4] = 0;
-                        hittype[ps[myconnectindex].i].temp_data[5] = 0;
+                        hittype[g_player[myconnectindex].ps.i].temp_data[0] = 0;
+                        hittype[g_player[myconnectindex].ps.i].temp_data[1] = 0;
+                        hittype[g_player[myconnectindex].ps.i].temp_data[2] = 0;
+                        hittype[g_player[myconnectindex].ps.i].temp_data[3] = 0;
+                        hittype[g_player[myconnectindex].ps.i].temp_data[4] = 0;
+                        hittype[g_player[myconnectindex].ps.i].temp_data[5] = 0;
 
-                        sprite[ps[myconnectindex].i].hitag = 0;
-                        sprite[ps[myconnectindex].i].lotag = 0;
-                        sprite[ps[myconnectindex].i].pal = ps[myconnectindex].palookup;
+                        sprite[g_player[myconnectindex].ps.i].hitag = 0;
+                        sprite[g_player[myconnectindex].ps.i].lotag = 0;
+                        sprite[g_player[myconnectindex].ps.i].pal = g_player[myconnectindex].ps.palookup;
                         Bstrcpy(fta_quotes[122],"Scream for me, Long Beach!");
-                        FTA(122,&ps[myconnectindex]);
+                        FTA(122,&g_player[myconnectindex].ps);
                         CheatGetInventory();
                         for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS;weapon++)
-                            ps[myconnectindex].gotweapon[weapon]  = 1;
+                            g_player[myconnectindex].ps.gotweapon[weapon]  = 1;
 
                         for (weapon = PISTOL_WEAPON;
                                 weapon < (MAX_WEAPONS);
                                 weapon++)
-                            addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
-                        ps[myconnectindex].got_access = 7;
+                            addammo(weapon, &g_player[myconnectindex].ps, max_ammo_amount[weapon]);
+                        g_player[myconnectindex].ps.got_access = 7;
                     }
                     else
                     {
-                        sprite[ps[myconnectindex].i].extra = max_player_health;
-                        hittype[ps[myconnectindex].i].extra = -1;
-                        ps[myconnectindex].last_extra = max_player_health;
-                        FTA(18,&ps[myconnectindex]);
+                        sprite[g_player[myconnectindex].ps.i].extra = max_player_health;
+                        hittype[g_player[myconnectindex].ps.i].extra = -1;
+                        g_player[myconnectindex].ps.last_extra = max_player_health;
+                        FTA(18,&g_player[myconnectindex].ps);
                     }
 
-                    sprite[ps[myconnectindex].i].extra = max_player_health;
-                    hittype[ps[myconnectindex].i].extra = 0;
-                    ps[myconnectindex].cheat_phase = 0;
+                    sprite[g_player[myconnectindex].ps.i].extra = max_player_health;
+                    hittype[g_player[myconnectindex].ps.i].extra = 0;
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     Bstrcpy(terminx,terminx);
                     return;
@@ -7421,21 +7421,21 @@ FOUNDCHEAT:
                         j = 6;
 
                     for (weapon = PISTOL_WEAPON;weapon < MAX_WEAPONS-j;weapon++)
-                        ps[myconnectindex].gotweapon[weapon]  = 1;
+                        g_player[myconnectindex].ps.gotweapon[weapon]  = 1;
 
                     for (weapon = PISTOL_WEAPON;
                             weapon < (MAX_WEAPONS-j);
                             weapon++)
-                        addammo(weapon, &ps[myconnectindex], max_ammo_amount[weapon]);
+                        addammo(weapon, &g_player[myconnectindex].ps, max_ammo_amount[weapon]);
                     CheatGetInventory();
-                    ps[myconnectindex].got_access =              7;
-                    FTA(5,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
+                    g_player[myconnectindex].ps.got_access =              7;
+                    FTA(5,&g_player[myconnectindex].ps);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
 
-                    //                        FTA(21,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
+                    //                        FTA(21,&g_player[myconnectindex].ps);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
-                    ps[myconnectindex].inven_icon = 1;
+                    g_player[myconnectindex].ps.inven_icon = 1;
                     return;
 
                 case CHEAT_SCOTTY:
@@ -7464,7 +7464,7 @@ FOUNDCHEAT:
                             if ((VOLUMEONE && volnume > 0) || volnume > num_volumes-1 ||
                                     levnume >= MAXLEVELS || map[volnume*MAXLEVELS+levnume].filename == NULL)
                             {
-                                ps[myconnectindex].cheat_phase = 0;
+                                g_player[myconnectindex].ps.cheat_phase = 0;
                                 KB_FlushKeyBoardQueue();
                                 return;
                             }
@@ -7486,36 +7486,36 @@ FOUNDCHEAT:
                     }
                     if (numplayers > 1 && myconnectindex == connecthead)
                         mpchangemap(ud.m_volume_number,ud.m_level_number);
-                    else ps[myconnectindex].gm |= MODE_RESTART;
+                    else g_player[myconnectindex].ps.gm |= MODE_RESTART;
 
-                    ps[myconnectindex].cheat_phase = 0;
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
                 case CHEAT_COORDS:
-                    ps[myconnectindex].cheat_phase = 0;
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     ud.coords = 1-ud.coords;
                     KB_FlushKeyBoardQueue();
                     return;
 
                 case CHEAT_VIEW:
-                    if (ps[myconnectindex].over_shoulder_on)
-                        ps[myconnectindex].over_shoulder_on = 0;
+                    if (g_player[myconnectindex].ps.over_shoulder_on)
+                        g_player[myconnectindex].ps.over_shoulder_on = 0;
                     else
                     {
-                        ps[myconnectindex].over_shoulder_on = 1;
+                        g_player[myconnectindex].ps.over_shoulder_on = 1;
                         cameradist = 0;
                         cameraclock = totalclock;
                     }
-                    FTA(22,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
+                    FTA(22,&g_player[myconnectindex].ps);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
                 case CHEAT_TIME:
 
-                    FTA(21,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
+                    FTA(21,&g_player[myconnectindex].ps);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
@@ -7530,27 +7530,27 @@ FOUNDCHEAT:
                         {
                             if (j&(0xffff-16384))
                                 sector[i].lotag &= (0xffff-16384);
-                            operatesectors(i,ps[myconnectindex].i);
+                            operatesectors(i,g_player[myconnectindex].ps.i);
                         }
                     }
-                    operateforcefields(ps[myconnectindex].i,-1);
+                    operateforcefields(g_player[myconnectindex].ps.i,-1);
 
-                    FTA(100,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
+                    FTA(100,&g_player[myconnectindex].ps);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
                 case CHEAT_CASHMAN:
                     ud.cashman = 1-ud.cashman;
                     KB_ClearKeyDown(sc_N);
-                    ps[myconnectindex].cheat_phase = 0;
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     return;
 
                 case CHEAT_ITEMS:
                     CheatGetInventory();
-                    ps[myconnectindex].got_access =              7;
-                    FTA(5,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
+                    g_player[myconnectindex].ps.got_access =              7;
+                    FTA(5,&g_player[myconnectindex].ps);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
@@ -7562,7 +7562,7 @@ FOUNDCHEAT:
                             show2dsector[i] = 255;
                         for (i=0;i<(MAXWALLS>>3);i++)
                             show2dwall[i] = 255;
-                        FTA(111,&ps[myconnectindex]);
+                        FTA(111,&g_player[myconnectindex].ps);
                     }
                     else
                     {
@@ -7570,36 +7570,36 @@ FOUNDCHEAT:
                             show2dsector[i] = 0;
                         for (i=0;i<(MAXWALLS>>3);i++)
                             show2dwall[i] = 0;
-                        FTA(1,&ps[myconnectindex]);
+                        FTA(1,&g_player[myconnectindex].ps);
                     }
-                    ps[myconnectindex].cheat_phase = 0;
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
                 case CHEAT_TODD:
-                    FTA(99,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
+                    FTA(99,&g_player[myconnectindex].ps);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
                 case CHEAT_RATE:
                     ud.tickrate = !ud.tickrate;
-                    ps[myconnectindex].cheat_phase = 0;
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
                 case CHEAT_BETA:
-                    FTA(105,&ps[myconnectindex]);
+                    FTA(105,&g_player[myconnectindex].ps);
                     KB_ClearKeyDown(sc_H);
-                    ps[myconnectindex].cheat_phase = 0;
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
                 case CHEAT_HYPER:
-                    ps[myconnectindex].steroids_amount = 399;
-                    ps[myconnectindex].heat_amount = 1200;
-                    ps[myconnectindex].cheat_phase = 0;
-                    FTA(37,&ps[myconnectindex]);
+                    g_player[myconnectindex].ps.steroids_amount = 399;
+                    g_player[myconnectindex].ps.heat_amount = 1200;
+                    g_player[myconnectindex].ps.cheat_phase = 0;
+                    FTA(37,&g_player[myconnectindex].ps);
                     KB_FlushKeyBoardQueue();
                     return;
 
@@ -7609,16 +7609,16 @@ FOUNDCHEAT:
 
                     actor_tog++;
                     if (actor_tog == 3) actor_tog = 0;
-                    ps[screenpeek].cheat_phase = 0;
+                    g_player[screenpeek].ps.cheat_phase = 0;
                     Bsprintf(fta_quotes[122],"MONSTERS: %s",s[(unsigned char)actor_tog]);
-                    FTA(122,&ps[myconnectindex]);
+                    FTA(122,&g_player[myconnectindex].ps);
                     KB_FlushKeyBoardQueue();
                     return;
                 }
                 case CHEAT_RESERVED:
                 case CHEAT_RESERVED3:
                     ud.eog = 1;
-                    ps[myconnectindex].gm |= MODE_EOL;
+                    g_player[myconnectindex].ps.gm |= MODE_EOL;
                     KB_FlushKeyBoardQueue();
                     return;
                 }
@@ -7629,34 +7629,34 @@ FOUNDCHEAT:
     {
         if (KB_KeyPressed((unsigned char)cheatkey[0]))
         {
-            if (ps[myconnectindex].cheat_phase >= 0 && numplayers < 2 && ud.recstat == 0)
+            if (g_player[myconnectindex].ps.cheat_phase >= 0 && numplayers < 2 && ud.recstat == 0)
             {
                 if (cheatkey[0] == cheatkey[1])
                     KB_ClearKeyDown((unsigned char)cheatkey[0]);
-                ps[myconnectindex].cheat_phase = -1;
+                g_player[myconnectindex].ps.cheat_phase = -1;
             }
         }
 
         if (KB_KeyPressed((unsigned char)cheatkey[1]))
         {
-            if (ps[myconnectindex].cheat_phase == -1)
+            if (g_player[myconnectindex].ps.cheat_phase == -1)
             {
                 if (ud.player_skill == 4)
                 {
-                    FTA(22,&ps[myconnectindex]);
-                    ps[myconnectindex].cheat_phase = 0;
+                    FTA(22,&g_player[myconnectindex].ps);
+                    g_player[myconnectindex].ps.cheat_phase = 0;
                 }
                 else
                 {
-                    ps[myconnectindex].cheat_phase = 1;
-                    //                    FTA(25,&ps[myconnectindex]);
+                    g_player[myconnectindex].ps.cheat_phase = 1;
+                    //                    FTA(25,&g_player[myconnectindex].ps);
                     cheatbuflen = 0;
                 }
                 KB_FlushKeyboardQueue();
             }
-            else if (ps[myconnectindex].cheat_phase != 0)
+            else if (g_player[myconnectindex].ps.cheat_phase != 0)
             {
-                ps[myconnectindex].cheat_phase = 0;
+                g_player[myconnectindex].ps.cheat_phase = 0;
                 KB_ClearKeyDown((unsigned char)cheatkey[0]);
                 KB_ClearKeyDown((unsigned char)cheatkey[1]);
             }
@@ -7697,7 +7697,7 @@ static void nonsharedkeys(void)
         }
     }
 
-    if (!ALT_IS_PRESSED && ud.overhead_on == 0 && (ps[myconnectindex].gm & MODE_TYPE) == 0)
+    if (!ALT_IS_PRESSED && ud.overhead_on == 0 && (g_player[myconnectindex].ps.gm & MODE_TYPE) == 0)
     {
         if (BUTTON(gamefunc_Enlarge_Screen))
         {
@@ -7745,7 +7745,7 @@ static void nonsharedkeys(void)
         }
     }
 
-    if (ps[myconnectindex].cheat_phase == 1 || (ps[myconnectindex].gm&(MODE_MENU|MODE_TYPE))) return;
+    if (g_player[myconnectindex].ps.cheat_phase == 1 || (g_player[myconnectindex].ps.gm&(MODE_MENU|MODE_TYPE))) return;
 
     if (BUTTON(gamefunc_See_Coop_View) && (GTFLAGS(GAMETYPE_FLAG_COOPVIEW) || ud.recstat == 2))
     {
@@ -7759,15 +7759,15 @@ static void nonsharedkeys(void)
     {
         CONTROL_ClearButton(gamefunc_Show_Opponents_Weapon);
         ud.showweapons = 1-ud.showweapons;
-        config.ShowOpponentWeapons = ud.showweapons;
-        FTA(82-ud.showweapons,&ps[screenpeek]);
+        ud.config.ShowOpponentWeapons = ud.showweapons;
+        FTA(82-ud.showweapons,&g_player[screenpeek].ps);
     }
 
     if (BUTTON(gamefunc_Toggle_Crosshair))
     {
         CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
         ud.crosshair = (ud.crosshair==3)?0:ud.crosshair+1;
-        FTA(ud.crosshair?20:21,&ps[screenpeek]);
+        FTA(ud.crosshair?20:21,&g_player[screenpeek].ps);
     }
 
     if (ud.overhead_on && BUTTON(gamefunc_Map_Follow_Mode))
@@ -7776,11 +7776,11 @@ static void nonsharedkeys(void)
         ud.scrollmode = 1-ud.scrollmode;
         if (ud.scrollmode)
         {
-            ud.folx = ps[screenpeek].oposx;
-            ud.foly = ps[screenpeek].oposy;
-            ud.fola = ps[screenpeek].oang;
+            ud.folx = g_player[screenpeek].ps.oposx;
+            ud.foly = g_player[screenpeek].ps.oposy;
+            ud.fola = g_player[screenpeek].ps.oang;
         }
-        FTA(83+ud.scrollmode,&ps[myconnectindex]);
+        FTA(83+ud.scrollmode,&g_player[myconnectindex].ps);
     }
 
     if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED)
@@ -7841,7 +7841,7 @@ static void nonsharedkeys(void)
         {
             if (SHIFTS_IS_PRESSED)
             {
-                if (i == 5 && ps[myconnectindex].fta > 0 && ps[myconnectindex].ftq == 26)
+                if (i == 5 && g_player[myconnectindex].ps.fta > 0 && g_player[myconnectindex].ps.ftq == 26)
                 {
                     i = (VOLUMEALL?MAXVOLUMES*MAXLEVELS:6);
                     music_select++;
@@ -7852,7 +7852,7 @@ static void nonsharedkeys(void)
                     if (map[(unsigned char)music_select].musicfn != NULL)
                     {
                         Bsprintf(fta_quotes[26],"PLAYING %s",&map[(unsigned char)music_select].musicfn[0]);
-                        FTA(26,&ps[myconnectindex]);
+                        FTA(26,&g_player[myconnectindex].ps);
                         playmusic(&map[(unsigned char)music_select].musicfn[0]);
                     }
                     return;
@@ -7884,7 +7884,7 @@ static void nonsharedkeys(void)
             }
 
             if (ud.lockout == 0)
-                if (config.SoundToggle && ALT_IS_PRESSED && (RTS_NumSounds() > 0) && rtsplaying == 0 && config.VoiceToggle)
+                if (ud.config.SoundToggle && ALT_IS_PRESSED && (RTS_NumSounds() > 0) && rtsplaying == 0 && ud.config.VoiceToggle)
                 {
                     rtsptr = (char *)RTS_GetSound(i-1);
                     if (*rtsptr == 'C')
@@ -7920,7 +7920,7 @@ static void nonsharedkeys(void)
         {
             KB_FlushKeyboardQueue();
             CONTROL_ClearButton(gamefunc_SendMessage);
-            ps[myconnectindex].gm |= MODE_TYPE;
+            g_player[myconnectindex].ps.gm |= MODE_TYPE;
             typebuf[0] = 0;
             inputloc = 0;
         }
@@ -7961,9 +7961,9 @@ static void nonsharedkeys(void)
                     return;
 
 FAKE_F2:
-                if (sprite[ps[myconnectindex].i].extra <= 0)
+                if (sprite[g_player[myconnectindex].ps.i].extra <= 0)
                 {
-                    FTA(118,&ps[myconnectindex]);
+                    FTA(118,&g_player[myconnectindex].ps);
                     return;
                 }
                 cmenu(350);
@@ -7975,7 +7975,7 @@ FAKE_F2:
                 clearsoundlocks();
 
                 //                setview(0,0,xdim-1,ydim-1);
-                ps[myconnectindex].gm |= MODE_MENU;
+                g_player[myconnectindex].ps.gm |= MODE_MENU;
 
                 if (ud.multimode < 2)
                 {
@@ -7997,7 +7997,7 @@ FAKE_F3:
                 clearsoundlocks();
 
                 //                setview(0,0,xdim-1,ydim-1);
-                ps[myconnectindex].gm |= MODE_MENU;
+                g_player[myconnectindex].ps.gm |= MODE_MENU;
                 if (ud.multimode < 2 && ud.recstat != 2)
                 {
                     ready2send = 0;
@@ -8007,13 +8007,13 @@ FAKE_F3:
             }
         }
 
-        if (KB_KeyPressed(sc_F4) && config.FXDevice >= 0)
+        if (KB_KeyPressed(sc_F4) && ud.config.FXDevice >= 0)
         {
             KB_ClearKeyDown(sc_F4);
             FX_StopAllSounds();
             clearsoundlocks();
 
-            ps[myconnectindex].gm |= MODE_MENU;
+            g_player[myconnectindex].ps.gm |= MODE_MENU;
             if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 0;
@@ -8023,7 +8023,7 @@ FAKE_F3:
 
         }
 
-        if (KB_KeyPressed(sc_F6) && (ps[myconnectindex].gm&MODE_GAME))
+        if (KB_KeyPressed(sc_F6) && (g_player[myconnectindex].ps.gm&MODE_GAME))
         {
             KB_ClearKeyDown(sc_F6);
 
@@ -8034,9 +8034,9 @@ FAKE_F3:
 
             KB_FlushKeyboardQueue();
 
-            if (sprite[ps[myconnectindex].i].extra <= 0)
+            if (sprite[g_player[myconnectindex].ps.i].extra <= 0)
             {
-                FTA(118,&ps[myconnectindex]);
+                FTA(118,&g_player[myconnectindex].ps);
                 return;
             }
             screencapt = 1;
@@ -8057,41 +8057,41 @@ FAKE_F3:
         if (KB_KeyPressed(sc_F7))
         {
             KB_ClearKeyDown(sc_F7);
-            if (ps[myconnectindex].over_shoulder_on)
-                ps[myconnectindex].over_shoulder_on = 0;
+            if (g_player[myconnectindex].ps.over_shoulder_on)
+                g_player[myconnectindex].ps.over_shoulder_on = 0;
             else
             {
-                ps[myconnectindex].over_shoulder_on = 1;
+                g_player[myconnectindex].ps.over_shoulder_on = 1;
                 cameradist = 0;
                 cameraclock = totalclock;
             }
-            FTA(109+ps[myconnectindex].over_shoulder_on,&ps[myconnectindex]);
+            FTA(109+g_player[myconnectindex].ps.over_shoulder_on,&g_player[myconnectindex].ps);
         }
 
-        if (KB_KeyPressed(sc_F5) && config.MusicDevice >= 0)
+        if (KB_KeyPressed(sc_F5) && ud.config.MusicDevice >= 0)
         {
             KB_ClearKeyDown(sc_F5);
             if (map[(unsigned char)music_select].musicfn != NULL)
                 Bstrcpy(fta_quotes[26],&map[(unsigned char)music_select].musicfn[0]);
             else fta_quotes[26][0] = '\0';
             Bstrcat(fta_quotes[26],".  USE SHIFT-F5 TO CHANGE.");
-            FTA(26,&ps[myconnectindex]);
+            FTA(26,&g_player[myconnectindex].ps);
         }
 
         if (KB_KeyPressed(sc_F8))
         {
             KB_ClearKeyDown(sc_F8);
             ud.fta_on = !ud.fta_on;
-            if (ud.fta_on) FTA(23,&ps[myconnectindex]);
+            if (ud.fta_on) FTA(23,&g_player[myconnectindex].ps);
             else
             {
                 ud.fta_on = 1;
-                FTA(24,&ps[myconnectindex]);
+                FTA(24,&g_player[myconnectindex].ps);
                 ud.fta_on = 0;
             }
         }
 
-        if (KB_KeyPressed(sc_F9) && (ps[myconnectindex].gm&MODE_GAME))
+        if (KB_KeyPressed(sc_F9) && (g_player[myconnectindex].ps.gm&MODE_GAME))
         {
             KB_ClearKeyDown(sc_F9);
 
@@ -8109,13 +8109,13 @@ FAKE_F3:
                 if (ud.multimode > 1)
                 {
                     loadplayer(-1-lastsavedpos);
-                    ps[myconnectindex].gm = MODE_GAME;
+                    g_player[myconnectindex].ps.gm = MODE_GAME;
                 }
                 else
                 {
                     i = loadplayer(lastsavedpos);
                     if (i == 0)
-                        ps[myconnectindex].gm = MODE_GAME;
+                        g_player[myconnectindex].ps.gm = MODE_GAME;
                 }
             }
         }
@@ -8126,7 +8126,7 @@ FAKE_F3:
             cmenu(500);
             FX_StopAllSounds();
             clearsoundlocks();
-            ps[myconnectindex].gm |= MODE_MENU;
+            g_player[myconnectindex].ps.gm |= MODE_MENU;
             if (ud.multimode < 2 && ud.recstat != 2)
             {
                 ready2send = 0;
@@ -8140,19 +8140,19 @@ FAKE_F3:
             j = totalclock-nonsharedtimer;
             nonsharedtimer += j;
             if (BUTTON(gamefunc_Enlarge_Screen))
-                ps[myconnectindex].zoom += mulscale6(j,max(ps[myconnectindex].zoom,256));
+                g_player[myconnectindex].ps.zoom += mulscale6(j,max(g_player[myconnectindex].ps.zoom,256));
             if (BUTTON(gamefunc_Shrink_Screen))
-                ps[myconnectindex].zoom -= mulscale6(j,max(ps[myconnectindex].zoom,256));
+                g_player[myconnectindex].ps.zoom -= mulscale6(j,max(g_player[myconnectindex].ps.zoom,256));
 
-            if ((ps[myconnectindex].zoom > 2048))
-                ps[myconnectindex].zoom = 2048;
-            if ((ps[myconnectindex].zoom < 48))
-                ps[myconnectindex].zoom = 48;
+            if ((g_player[myconnectindex].ps.zoom > 2048))
+                g_player[myconnectindex].ps.zoom = 2048;
+            if ((g_player[myconnectindex].ps.zoom < 48))
+                g_player[myconnectindex].ps.zoom = 48;
 
         }
     }
 
-    if (KB_KeyPressed(sc_Escape) && ud.overhead_on && ps[myconnectindex].newowner == -1)
+    if (KB_KeyPressed(sc_Escape) && ud.overhead_on && g_player[myconnectindex].ps.newowner == -1)
     {
         KB_ClearKeyDown(sc_Escape);
         ud.last_overhead = ud.overhead_on;
@@ -8165,8 +8165,8 @@ FAKE_F3:
     {
         CONTROL_ClearButton(gamefunc_AutoRun);
         ud.auto_run = 1-ud.auto_run;
-        config.RunMode = ud.auto_run;
-        FTA(85+ud.auto_run,&ps[myconnectindex]);
+        ud.config.RunMode = ud.auto_run;
+        FTA(85+ud.auto_run,&g_player[myconnectindex].ps);
     }
 
     if (BUTTON(gamefunc_Map))
@@ -8198,9 +8198,9 @@ FAKE_F3:
         else if (ud.brightness < 0)
             ud.brightness = (7<<3);
 
-        setbrightness(ud.brightness>>2,&ps[myconnectindex].palette[0],0);
-        if (ud.brightness < 40) FTA(29 + (ud.brightness>>3) ,&ps[myconnectindex]);
-        else if (ud.brightness < 80) FTA(96 + (ud.brightness>>3) - 5,&ps[myconnectindex]);
+        setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps.palette[0],0);
+        if (ud.brightness < 40) FTA(29 + (ud.brightness>>3) ,&g_player[myconnectindex].ps);
+        else if (ud.brightness < 80) FTA(96 + (ud.brightness>>3) - 5,&g_player[myconnectindex].ps);
     }
 }
 
@@ -8615,16 +8615,16 @@ static void checkcommandline(int argc,const char **argv)
     ud.warp_on = 0;
     ud.cashman = 0;
     ud.m_player_skill = ud.player_skill = 2;
-    ud.wchoice[0][0] = 3;
-    ud.wchoice[0][1] = 4;
-    ud.wchoice[0][2] = 5;
-    ud.wchoice[0][3] = 7;
-    ud.wchoice[0][4] = 8;
-    ud.wchoice[0][5] = 6;
-    ud.wchoice[0][6] = 0;
-    ud.wchoice[0][7] = 2;
-    ud.wchoice[0][8] = 9;
-    ud.wchoice[0][9] = 1;
+    g_player[0].wchoice[0] = 3;
+    g_player[0].wchoice[1] = 4;
+    g_player[0].wchoice[2] = 5;
+    g_player[0].wchoice[3] = 7;
+    g_player[0].wchoice[4] = 8;
+    g_player[0].wchoice[5] = 6;
+    g_player[0].wchoice[6] = 0;
+    g_player[0].wchoice[7] = 2;
+    g_player[0].wchoice[8] = 9;
+    g_player[0].wchoice[9] = 1;
 
     if (argc > 1)
     {
@@ -8989,16 +8989,16 @@ static void checkcommandline(int argc,const char **argv)
                         initprintf("Using favorite weapon order(s).\n");
                         while (*c)
                         {
-                            ud.wchoice[0][j] = *c-'0';
+                            g_player[0].wchoice[j] = *c-'0';
                             c++;
                             j++;
                         }
                         while (j < 10)
                         {
                             if (j == 9)
-                                ud.wchoice[0][9] = 1;
+                                g_player[0].wchoice[9] = 1;
                             else
-                                ud.wchoice[0][j] = 2;
+                                g_player[0].wchoice[j] = 2;
 
                             j++;
                         }
@@ -9006,16 +9006,16 @@ static void checkcommandline(int argc,const char **argv)
                     else
                     {
                         initprintf("Using default weapon orders.\n");
-                        ud.wchoice[0][0] = 3;
-                        ud.wchoice[0][1] = 4;
-                        ud.wchoice[0][2] = 5;
-                        ud.wchoice[0][3] = 7;
-                        ud.wchoice[0][4] = 8;
-                        ud.wchoice[0][5] = 6;
-                        ud.wchoice[0][6] = 0;
-                        ud.wchoice[0][7] = 2;
-                        ud.wchoice[0][8] = 9;
-                        ud.wchoice[0][9] = 1;
+                        g_player[0].wchoice[0] = 3;
+                        g_player[0].wchoice[1] = 4;
+                        g_player[0].wchoice[2] = 5;
+                        g_player[0].wchoice[3] = 7;
+                        g_player[0].wchoice[4] = 8;
+                        g_player[0].wchoice[5] = 6;
+                        g_player[0].wchoice[6] = 0;
+                        g_player[0].wchoice[7] = 2;
+                        g_player[0].wchoice[8] = 9;
+                        g_player[0].wchoice[9] = 1;
                     }
                     break;
                 case 'v':
@@ -9114,11 +9114,11 @@ static void Logo(void)
         if (!NAM)
         {
             fadepal(0,0,0, 0,64,7);
-            //ps[myconnectindex].palette = drealms;
+            //g_player[myconnectindex].ps.palette = drealms;
             //palto(0,0,0,63);
             if (logoflags & LOGO_FLAG_3DRSCREEN)
             {
-                setgamepalette(&ps[myconnectindex], drealms, 11);    // JBF 20040308
+                setgamepalette(&g_player[myconnectindex].ps, drealms, 11);    // JBF 20040308
                 rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
                 nextpage();
                 fadepal(0,0,0, 63,0,-7);
@@ -9129,7 +9129,7 @@ static void Logo(void)
                     getpackets();
                     if (restorepalette)
                     {
-                        setgamepalette(&ps[myconnectindex],ps[myconnectindex].palette,0);
+                        setgamepalette(&g_player[myconnectindex].ps,g_player[myconnectindex].ps.palette,0);
                         restorepalette = 0;
                     }
                 }
@@ -9143,8 +9143,8 @@ static void Logo(void)
         nextpage();
         if (logoflags & LOGO_FLAG_TITLESCREEN)
         {
-            //ps[myconnectindex].palette = titlepal;
-            setgamepalette(&ps[myconnectindex], titlepal, 11);   // JBF 20040308
+            //g_player[myconnectindex].ps.palette = titlepal;
+            setgamepalette(&g_player[myconnectindex].ps, titlepal, 11);   // JBF 20040308
             flushperms();
             rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
             KB_FlushKeyboardQueue();
@@ -9213,7 +9213,7 @@ static void Logo(void)
                 getpackets();
                 if (restorepalette)
                 {
-                    setgamepalette(&ps[myconnectindex],ps[myconnectindex].palette,0);
+                    setgamepalette(&g_player[myconnectindex].ps,g_player[myconnectindex].ps.palette,0);
                     restorepalette = 0;
                 }
                 nextpage();
@@ -9225,7 +9225,7 @@ static void Logo(void)
 
     if (ud.multimode > 1)
     {
-        setgamepalette(&ps[myconnectindex], titlepal, 11);
+        setgamepalette(&g_player[myconnectindex].ps, titlepal, 11);
         rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
         rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
@@ -9243,8 +9243,8 @@ static void Logo(void)
     clearview(0L);
     nextpage();
 
-    //ps[myconnectindex].palette = palette;
-    setgamepalette(&ps[myconnectindex], palette, 0);	// JBF 20040308
+    //g_player[myconnectindex].ps.palette = palette;
+    setgamepalette(&g_player[myconnectindex].ps, palette, 0);	// JBF 20040308
     sound(NITEVISION_ONOFF);
 
     //palto(0,0,0,0);
@@ -9467,8 +9467,8 @@ static void Startup(long argc, const char **argv)
 
     if (ud.multimode > 1) sanitizegametype();
 
-    if (g_NoSound) config.SoundToggle = 0;
-    if (g_NoMusic) config.MusicToggle = 0;
+    if (g_NoSound) ud.config.SoundToggle = 0;
+    if (g_NoMusic) ud.config.MusicToggle = 0;
 
     if (CommandName)
     {
@@ -9536,12 +9536,12 @@ static void Startup(long argc, const char **argv)
     CONFIG_SetupMouse();
     CONFIG_SetupJoystick();
 
-    CONTROL_JoystickEnabled = (config.UseJoystick && CONTROL_JoyPresent);
-    CONTROL_MouseEnabled = (config.UseMouse && CONTROL_MousePresent);
+    CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
+    CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
 
     // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
     for (i=0;i<joynumaxes;i++)
-        setjoydeadzone(i,config.JoystickAnalogueDead[i],config.JoystickAnalogueSaturate[i]);
+        setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
 
     inittimer(TICRATE);
 
@@ -9558,7 +9558,7 @@ static void Startup(long argc, const char **argv)
     tilesizx[MIRROR] = tilesizy[MIRROR] = 0;
 
     for (i=0;i<MAXPLAYERS;i++)
-        playerreadyflag[i] = 0;
+        g_player[i].playerreadyflag = 0;
 
     if (CommandNet)
     {
@@ -9594,7 +9594,7 @@ static void Startup(long argc, const char **argv)
         initprintf("Multiplayer initialized.\n");
 
     screenpeek = myconnectindex;
-    ps[myconnectindex].palette = (char *) &palette[0];
+    g_player[myconnectindex].ps.palette = (char *) &palette[0];
 
     if (networkmode == 255)
         networkmode = 1;
@@ -9616,8 +9616,8 @@ static void sendwchoice(void)
 
     for (i=0;i<10;i++)
     {
-        ud.wchoice[myconnectindex][i] = ud.wchoice[0][i];
-        buf[l++] = (char)ud.wchoice[0][i];
+        g_player[myconnectindex].wchoice[i] = g_player[0].wchoice[i];
+        buf[l++] = (char)g_player[0].wchoice[i];
     }
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
@@ -9640,12 +9640,12 @@ static void sendplayerupdate(void)
     for (i=0;myname[i];i++) buf[l++] = Btoupper(myname[i]);
     buf[l++] = 0;
 
-    buf[l++] = ps[myconnectindex].aim_mode = ud.mouseaiming;
-    buf[l++] = ps[myconnectindex].auto_aim = config.AutoAim;
-    buf[l++] = ps[myconnectindex].weaponswitch = ud.weaponswitch;
-    buf[l++] = ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
+    buf[l++] = g_player[myconnectindex].ps.aim_mode = ud.mouseaiming;
+    buf[l++] = g_player[myconnectindex].ps.auto_aim = ud.config.AutoAim;
+    buf[l++] = g_player[myconnectindex].ps.weaponswitch = ud.weaponswitch;
+    buf[l++] = g_player[myconnectindex].ps.palookup = g_player[myconnectindex].pcolor = ud.color;
 
-    buf[l++] = ud.pteam[myconnectindex] = ud.team;
+    buf[l++] = g_player[myconnectindex].pteam = ud.team;
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
     {
@@ -9707,7 +9707,7 @@ static void getnames(void)
     int l;
 
     for (l=0;(unsigned)l<sizeof(myname)-1;l++)
-        ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
+        g_player[myconnectindex].user_name[l] = Btoupper(myname[l]);
 
     if (numplayers > 1)
     {
@@ -9730,27 +9730,27 @@ void updateplayer(void)
         return;
 
     for (l=0;(unsigned)l<sizeof(myname)-1;l++)
-        ud.user_name[myconnectindex][l] = Btoupper(myname[l]);
+        g_player[myconnectindex].user_name[l] = Btoupper(myname[l]);
 
     if (numplayers > 1)
     {
         sendplayerupdate();
-        if (sprite[ps[myconnectindex].i].picnum == APLAYER && sprite[ps[myconnectindex].i].pal != 1)
-            sprite[ps[myconnectindex].i].pal = ud.pcolor[myconnectindex];
+        if (sprite[g_player[myconnectindex].ps.i].picnum == APLAYER && sprite[g_player[myconnectindex].ps.i].pal != 1)
+            sprite[g_player[myconnectindex].ps.i].pal = g_player[myconnectindex].pcolor;
     }
     else
     {
         int j;
 
-        ps[myconnectindex].aim_mode = ud.mouseaiming;
-        ps[myconnectindex].auto_aim = config.AutoAim;
-        ps[myconnectindex].weaponswitch = ud.weaponswitch;
-        ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
-        j = ps[myconnectindex].team;
-        ud.pteam[myconnectindex] = ud.team;
+        g_player[myconnectindex].ps.aim_mode = ud.mouseaiming;
+        g_player[myconnectindex].ps.auto_aim = ud.config.AutoAim;
+        g_player[myconnectindex].ps.weaponswitch = ud.weaponswitch;
+        g_player[myconnectindex].ps.palookup = g_player[myconnectindex].pcolor = ud.color;
+        j = g_player[myconnectindex].ps.team;
+        g_player[myconnectindex].pteam = ud.team;
 
-        if (sprite[ps[myconnectindex].i].picnum == APLAYER && sprite[ps[myconnectindex].i].pal != 1)
-            sprite[ps[myconnectindex].i].pal = ud.pcolor[myconnectindex];
+        if (sprite[g_player[myconnectindex].ps.i].picnum == APLAYER && sprite[g_player[myconnectindex].ps.i].pal != 1)
+            sprite[g_player[myconnectindex].ps.i].pal = g_player[myconnectindex].pcolor;
     }
 }
 
@@ -9796,7 +9796,7 @@ void backtomenu(void)
     boardfilename[0] = 0;
     if (ud.recstat == 1) closedemowrite();
     ud.warp_on = 0;
-    ps[myconnectindex].gm = MODE_MENU;
+    g_player[myconnectindex].ps.gm = MODE_MENU;
     cmenu(0);
     KB_FlushKeyboardQueue();
     if (VOLUMEALL) wm_setapptitle(HEAD2);
@@ -9914,7 +9914,7 @@ void app_main(int argc,const char **argv)
 #endif
 
 #ifdef _WIN32
-    config.CheckForUpdates = -1;
+    ud.config.CheckForUpdates = -1;
 #endif
 
     i = CONFIG_ReadSetup();
@@ -9928,28 +9928,28 @@ void app_main(int argc,const char **argv)
                    "on your hard disk to store textures in your video card's native format, enabling them to load dramatically "
                    "faster after the first time they are loaded.\n\n"
                    "You will generally want to say 'yes' here, especially if using the HRP.");
-        if (i) config.useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
+        if (i) ud.config.useprecache = glusetexcompr = glusetexcache = glusetexcachecompression = 1;
         else glusetexcache = glusetexcachecompression = 0;
     }
 #endif
 
 #ifdef _WIN32
-    if (config.CheckForUpdates == -1)
+    if (ud.config.CheckForUpdates == -1)
     {
         i=wm_ynbox("Automatic Release Notification",
                    "Would you like EDuke32 to automatically check for new releases "
                    "at startup?");
-        config.CheckForUpdates = 0;
-        if (i) config.CheckForUpdates = 1;
+        ud.config.CheckForUpdates = 0;
+        if (i) ud.config.CheckForUpdates = 1;
     }
 
-    if (config.CheckForUpdates == 1)
+    if (ud.config.CheckForUpdates == 1)
     {
-        if (time(NULL) - config.LastUpdateCheck > UPDATEINTERVAL)
+        if (time(NULL) - ud.config.LastUpdateCheck > UPDATEINTERVAL)
         {
             if (getversionfromwebsite(tempbuf))
             {
-                config.LastUpdateCheck = time(NULL);
+                ud.config.LastUpdateCheck = time(NULL);
 
                 if (atol(tempbuf) > BUILDDATE)
                 {
@@ -10017,7 +10017,7 @@ void app_main(int argc,const char **argv)
     }
 
 #if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2))
-    if (i < 0 || (!g_NoSetup && config.ForceSetup) || g_CommandSetup)
+    if (i < 0 || (!g_NoSetup && ud.config.ForceSetup) || g_CommandSetup)
     {
         if (quitevent || !startwin_run())
         {
@@ -10131,10 +10131,10 @@ void app_main(int argc,const char **argv)
     i = 1;
     for (j=numplayers;j<ud.multimode;j++)
     {
-        Bsprintf(ud.user_name[j],"PLAYER %d",j+1);
-        ps[j].team = ud.pteam[j] = i;
-        ps[j].weaponswitch = 3;
-        ps[j].auto_aim = 0;
+        Bsprintf(g_player[j].user_name,"PLAYER %d",j+1);
+        g_player[j].ps.team = g_player[j].pteam = i;
+        g_player[j].ps.weaponswitch = 3;
+        g_player[j].ps.auto_aim = 0;
         i = 1-i;
     }
 
@@ -10197,7 +10197,7 @@ void app_main(int argc,const char **argv)
     OSD_SetVersionString(HEAD2,0,2);
     registerosdcommands();
 
-    if (setgamemode(config.ScreenMode,config.ScreenWidth,config.ScreenHeight,config.ScreenBPP) < 0)
+    if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
     {
         int i = 0;
         int xres[] = {800,640,320};
@@ -10205,7 +10205,7 @@ void app_main(int argc,const char **argv)
         int bpp[] = {32,16,8};
 
         initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n",
-                   config.ScreenWidth,config.ScreenHeight,config.ScreenBPP,config.ScreenMode?"fullscreen":"windowed");
+                   ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.config.ScreenMode?"fullscreen":"windowed");
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
         while (setgamemode(0,xres[i],yres[i],bpp[i]) < 0)
@@ -10220,9 +10220,9 @@ void app_main(int argc,const char **argv)
             i++;
         }
 #endif
-        config.ScreenWidth = xres[i];
-        config.ScreenHeight = yres[i];
-        config.ScreenBPP = bpp[i];
+        ud.config.ScreenWidth = xres[i];
+        ud.config.ScreenHeight = yres[i];
+        ud.config.ScreenBPP = bpp[i];
     }
 
     initprintf("Checking music inits...\n");
@@ -10237,7 +10237,7 @@ void app_main(int argc,const char **argv)
             gameexit(" The full version of Duke Nukem 3D supports 5 or more players.");
     }
 
-    setbrightness(ud.brightness>>2,&ps[myconnectindex].palette[0],0);
+    setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps.palette[0],0);
 
     //    ESCESCAPE;
 
@@ -10249,9 +10249,9 @@ void app_main(int argc,const char **argv)
     if (ud.warp_on > 1 && ud.multimode < 2)
     {
         clearview(0L);
-        //ps[myconnectindex].palette = palette;
+        //g_player[myconnectindex].ps.palette = palette;
         //palto(0,0,0,0);
-        setgamepalette(&ps[myconnectindex], palette, 0);    // JBF 20040308
+        setgamepalette(&g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
         rotatesprite(320<<15,200<<15,65536L,0,LOADSCREEN,0,0,2+8+64,0,0,xdim-1,ydim-1);
         menutext(160,105,0,0,"LOADING SAVED GAME...");
         nextpage();
@@ -10305,25 +10305,25 @@ MAIN_LOOP_RESTART:
         goto MAIN_LOOP_RESTART;
     }
 
-    ud.auto_run = config.RunMode;
-    ud.showweapons = config.ShowOpponentWeapons;
-    ps[myconnectindex].aim_mode = ud.mouseaiming;
-    ps[myconnectindex].auto_aim = config.AutoAim;
-    ps[myconnectindex].weaponswitch = ud.weaponswitch;
-    ud.pteam[myconnectindex] = ud.team;
+    ud.auto_run = ud.config.RunMode;
+    ud.showweapons = ud.config.ShowOpponentWeapons;
+    g_player[myconnectindex].ps.aim_mode = ud.mouseaiming;
+    g_player[myconnectindex].ps.auto_aim = ud.config.AutoAim;
+    g_player[myconnectindex].ps.weaponswitch = ud.weaponswitch;
+    g_player[myconnectindex].pteam = ud.team;
 
     if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
-        ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = getteampal(ud.pteam[myconnectindex]);
+        g_player[myconnectindex].ps.palookup = g_player[myconnectindex].pcolor = getteampal(g_player[myconnectindex].pteam);
     else
     {
-        if (ud.color) ps[myconnectindex].palookup = ud.pcolor[myconnectindex] = ud.color;
-        else ps[myconnectindex].palookup = ud.pcolor[myconnectindex];
+        if (ud.color) g_player[myconnectindex].ps.palookup = g_player[myconnectindex].pcolor = ud.color;
+        else g_player[myconnectindex].ps.palookup = g_player[myconnectindex].pcolor;
     }
 
     ud.warp_on = 0;
     KB_KeyDown[sc_Pause] = 0;   // JBF: I hate the pause key
 
-    while (!(ps[myconnectindex].gm&MODE_END)) //The whole loop!!!!!!!!!!!!!!!!!!
+    while (!(g_player[myconnectindex].ps.gm&MODE_END)) //The whole loop!!!!!!!!!!!!!!!!!!
     {
         if (handleevents())
         {
@@ -10339,13 +10339,13 @@ MAIN_LOOP_RESTART:
 
         OSD_DispatchQueued();
 
-        if (ud.recstat == 2 || ud.multimode > 1 || (ud.show_help == 0 && (ps[myconnectindex].gm&MODE_MENU) != MODE_MENU))
-            if (ps[myconnectindex].gm&MODE_GAME)
+        if (ud.recstat == 2 || ud.multimode > 1 || (ud.show_help == 0 && (g_player[myconnectindex].ps.gm&MODE_MENU) != MODE_MENU))
+            if (g_player[myconnectindex].ps.gm&MODE_GAME)
                 if (moveloop()) continue;
 
-        if (ps[myconnectindex].gm&MODE_EOL || ps[myconnectindex].gm&MODE_RESTART)
+        if (g_player[myconnectindex].ps.gm&MODE_EOL || g_player[myconnectindex].ps.gm&MODE_RESTART)
         {
-            if (ps[myconnectindex].gm&MODE_EOL)
+            if (g_player[myconnectindex].ps.gm&MODE_EOL)
             {
                 closedemowrite();
 
@@ -10368,7 +10368,7 @@ MAIN_LOOP_RESTART:
                         {
                             doorders();
                         }
-                        ps[myconnectindex].gm = MODE_MENU;
+                        g_player[myconnectindex].ps.gm = MODE_MENU;
                         cmenu(0);
                         probey = 0;
                         goto MAIN_LOOP_RESTART;
@@ -10382,8 +10382,8 @@ MAIN_LOOP_RESTART:
             }
             display_bonus_screen = 1;
             ready2send = 0;
-            if (numplayers > 1) ps[myconnectindex].gm = MODE_GAME;
-            if (enterlevel(ps[myconnectindex].gm))
+            if (numplayers > 1) g_player[myconnectindex].ps.gm = MODE_GAME;
+            if (enterlevel(g_player[myconnectindex].ps.gm))
             {
                 backtomenu();
                 goto MAIN_LOOP_RESTART;
@@ -10394,7 +10394,7 @@ MAIN_LOOP_RESTART:
         cheats();
         nonsharedkeys();
 
-        if ((ud.show_help == 0 && ud.multimode < 2 && !(ps[myconnectindex].gm&MODE_MENU)) || ud.multimode > 1 || ud.recstat == 2)
+        if ((ud.show_help == 0 && ud.multimode < 2 && !(g_player[myconnectindex].ps.gm&MODE_MENU)) || ud.multimode > 1 || ud.recstat == 2)
             i = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
         else
             i = 65536;
@@ -10410,7 +10410,7 @@ MAIN_LOOP_RESTART:
 
         if (gotvote[myconnectindex] == 0 && voting != -1 && voting != myconnectindex)
         {
-            Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE FOR MAP",ud.user_name[voting]);
+			Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE FOR MAP",g_player[voting].user_name);
             gametext(160,40,tempbuf,0,2+8+16);
             Bsprintf(tempbuf,"%s (E%dL%d)",map[vote_episode*MAXLEVELS + vote_map].name,vote_episode+1,vote_map+1);
             gametext(160,48,tempbuf,0,2+8+16);
@@ -10423,7 +10423,7 @@ MAIN_LOOP_RESTART:
         //            addplayer();
         //        }
 
-        if (ps[myconnectindex].gm&MODE_DEMO)
+        if (g_player[myconnectindex].ps.gm&MODE_DEMO)
             goto MAIN_LOOP_RESTART;
 
         if (debug_on) caches();
@@ -10432,13 +10432,13 @@ MAIN_LOOP_RESTART:
 
         if (VOLUMEONE)
         {
-            if (ud.show_help == 0 && show_shareware > 0 && (ps[myconnectindex].gm&MODE_MENU) == 0)
+            if (ud.show_help == 0 && show_shareware > 0 && (g_player[myconnectindex].ps.gm&MODE_MENU) == 0)
                 rotatesprite((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128,0,0,xdim-1,ydim-1);
         }
 
         nextpage();
 
-        while (!(ps[myconnectindex].gm&MODE_MENU) && ready2send && totalclock >= ototalclock+TICSPERFRAME)
+        while (!(g_player[myconnectindex].ps.gm&MODE_MENU) && ready2send && totalclock >= ototalclock+TICSPERFRAME)
             faketimerhandler();
     }
 
@@ -10512,8 +10512,6 @@ static int opendemoread(int which_demo) // 0 = mine
     OSD_Printf("ud.m_respawn_inventory: %d\n",ud.m_respawn_inventory);
     if (kread(recfilep,(int32 *)&ud.playerai,sizeof(int32)) != sizeof(int32)) goto corrupt;
     OSD_Printf("ud.playerai: %d\n",ud.playerai);
-    if (kread(recfilep,(char *)&ud.user_name[0][0],sizeof(ud.user_name)) != sizeof(ud.user_name)) goto corrupt;
-    OSD_Printf("ud.user_name: %s\n",ud.user_name);
     if (kread(recfilep,(int32 *)&i,sizeof(int32)) != sizeof(int32)) goto corrupt;
 
     if (kread(recfilep,(char *)boardfilename,sizeof(boardfilename)) != sizeof(boardfilename)) goto corrupt;
@@ -10528,13 +10526,15 @@ static int opendemoread(int which_demo) // 0 = mine
 
     for (i=0;i<ud.multimode;i++)
     {
-        if (kread(recfilep,(int32 *)&ps[i].aim_mode,sizeof(int32)) != sizeof(int32)) goto corrupt;
-        if (kread(recfilep,(int32 *)&ps[i].auto_aim,sizeof(int32)) != sizeof(int32)) goto corrupt;	// JBF 20031126
-        if (kread(recfilep,(int32 *)&ps[i].weaponswitch,sizeof(int32)) != sizeof(int32)) goto corrupt;
-        if (kread(recfilep,(int32 *)&ud.pcolor[i],sizeof(int32)) != sizeof(int32)) goto corrupt;
-        ps[i].palookup = ud.pcolor[i];
-        if (kread(recfilep,(int32 *)&ud.pteam[i],sizeof(int32)) != sizeof(int32)) goto corrupt;
-        ps[i].team = ud.pteam[i];
+		if (kread(recfilep,(char *)&g_player[i].user_name,sizeof(g_player[i].user_name)) != sizeof(g_player[i].user_name)) goto corrupt;
+		OSD_Printf("ud.user_name: %s\n",g_player[i].user_name);
+        if (kread(recfilep,(int32 *)&g_player[i].ps.aim_mode,sizeof(int32)) != sizeof(int32)) goto corrupt;
+        if (kread(recfilep,(int32 *)&g_player[i].ps.auto_aim,sizeof(int32)) != sizeof(int32)) goto corrupt;	// JBF 20031126
+        if (kread(recfilep,(int32 *)&g_player[i].ps.weaponswitch,sizeof(int32)) != sizeof(int32)) goto corrupt;
+        if (kread(recfilep,(int32 *)&g_player[i].pcolor,sizeof(int32)) != sizeof(int32)) goto corrupt;
+        g_player[i].ps.palookup = g_player[i].pcolor;
+        if (kread(recfilep,(int32 *)&g_player[i].pteam,sizeof(int32)) != sizeof(int32)) goto corrupt;
+        g_player[i].ps.team = g_player[i].pteam;
     }
 
     ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
@@ -10574,18 +10574,18 @@ void opendemowrite(void)
     fwrite((int32 *)&ud.m_respawn_items,sizeof(int32),1,frecfilep);
     fwrite((int32 *)&ud.m_respawn_inventory,sizeof(int32),1,frecfilep);
     fwrite((int32 *)&ud.playerai,sizeof(int32),1,frecfilep);
-    fwrite((char *)&ud.user_name[0][0],sizeof(ud.user_name),1,frecfilep);
     fwrite((int32 *)&ud.auto_run,sizeof(int32),1,frecfilep);
     fwrite((char *)boardfilename,sizeof(boardfilename),1,frecfilep);
     fwrite((int32 *)&ud.m_noexits,sizeof(int32),1,frecfilep);
 
     for (i=0;i<ud.multimode;i++)
     {
-        fwrite((int32 *)&ps[i].aim_mode,sizeof(int32),1,frecfilep);
-        fwrite((int32 *)&ps[i].auto_aim,sizeof(int32),1,frecfilep);		// JBF 20031126
-        fwrite(&ps[i].weaponswitch,sizeof(int32),1,frecfilep);
-        fwrite(&ud.pcolor[i],sizeof(int32),1,frecfilep);
-        fwrite(&ud.pteam[i],sizeof(int32),1,frecfilep);
+		fwrite((char *)&g_player[i].user_name,sizeof(g_player[i].user_name),1,frecfilep);
+        fwrite((int32 *)&g_player[i].ps.aim_mode,sizeof(int32),1,frecfilep);
+        fwrite((int32 *)&g_player[i].ps.auto_aim,sizeof(int32),1,frecfilep);		// JBF 20031126
+        fwrite(&g_player[i].ps.weaponswitch,sizeof(int32),1,frecfilep);
+        fwrite(&g_player[i].pcolor,sizeof(int32),1,frecfilep);
+        fwrite(&g_player[i].pteam,sizeof(int32),1,frecfilep);
     }
 
     totalreccnt = 0;
@@ -10598,7 +10598,7 @@ static void record(void)
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
     {
-        copybufbyte(&sync[i],&recsync[ud.reccnt],sizeof(input));
+        copybufbyte(&g_player[i].sync,&recsync[ud.reccnt],sizeof(input));
         ud.reccnt++;
         totalreccnt++;
         if (ud.reccnt >= RECSYNCBUFSIZ)
@@ -10638,7 +10638,7 @@ static long playback(void)
 
 RECHECK:
 
-    in_menu = ps[myconnectindex].gm&MODE_MENU;
+    in_menu = g_player[myconnectindex].ps.gm&MODE_MENU;
 
     pub = NUMPAGES;
     pus = NUMPAGES;
@@ -10655,10 +10655,10 @@ RECHECK:
             goto RECHECK;
         }
         fadepal(0,0,0, 0,63,7);
-        setgamepalette(&ps[myconnectindex], palette, 1);    // JBF 20040308
+        setgamepalette(&g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
         drawbackground();
         menus();
-        //ps[myconnectindex].palette = palette;
+        //g_player[myconnectindex].ps.palette = palette;
         nextpage();
         fadepal(0,0,0, 63,0,-7);
         ud.reccnt = 0;
@@ -10675,7 +10675,7 @@ RECHECK:
     {
         FX_StopAllSounds();
         clearsoundlocks();
-        ps[myconnectindex].gm |= MODE_MENU;
+        g_player[myconnectindex].ps.gm |= MODE_MENU;
     }
 
     ready2send = 0;
@@ -10700,15 +10700,15 @@ RECHECK:
                         foundemo = 0;
                         ud.reccnt = 0;
                         kclose(recfilep);
-                        ps[myconnectindex].gm |= MODE_MENU;
+                        g_player[myconnectindex].ps.gm |= MODE_MENU;
                         goto RECHECK;
                     }
                 }
 
                 for (j=connecthead;j>=0;j=connectpoint2[j])
                 {
-                    copybufbyte(&recsync[i],&inputfifo[movefifoend[j]&(MOVEFIFOSIZ-1)][j],sizeof(input));
-                    movefifoend[j]++;
+					copybufbyte(&recsync[i],&inputfifo[g_player[j].movefifoend&(MOVEFIFOSIZ-1)][j],sizeof(input));
+                    g_player[j].movefifoend++;
                     i++;
                     ud.reccnt--;
                 }
@@ -10725,31 +10725,31 @@ RECHECK:
             displayrooms(screenpeek,j);
             displayrest(j);
 
-            if (ud.multimode > 1 && ps[myconnectindex].gm)
+            if (ud.multimode > 1 && g_player[myconnectindex].ps.gm)
                 getpackets();
 
             if (gotvote[myconnectindex] == 0 && voting != -1 && voting != myconnectindex)
                 gametext(160,60,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2+8+16);
         }
 
-        if ((ps[myconnectindex].gm&MODE_MENU) && (ps[myconnectindex].gm&MODE_EOL))
+        if ((g_player[myconnectindex].ps.gm&MODE_MENU) && (g_player[myconnectindex].ps.gm&MODE_EOL))
             goto RECHECK;
 
-        if (KB_KeyPressed(sc_Escape) && (ps[myconnectindex].gm&MODE_MENU) == 0 && (ps[myconnectindex].gm&MODE_TYPE) == 0)
+        if (KB_KeyPressed(sc_Escape) && (g_player[myconnectindex].ps.gm&MODE_MENU) == 0 && (g_player[myconnectindex].ps.gm&MODE_TYPE) == 0)
         {
             KB_ClearKeyDown(sc_Escape);
             FX_StopAllSounds();
             clearsoundlocks();
-            ps[myconnectindex].gm |= MODE_MENU;
+            g_player[myconnectindex].ps.gm |= MODE_MENU;
             cmenu(0);
             intomenusounds();
         }
 
-        if (ps[myconnectindex].gm&MODE_TYPE)
+        if (g_player[myconnectindex].ps.gm&MODE_TYPE)
         {
             typemode();
-            if ((ps[myconnectindex].gm&MODE_TYPE) != MODE_TYPE)
-                ps[myconnectindex].gm = MODE_MENU;
+            if ((g_player[myconnectindex].ps.gm&MODE_TYPE) != MODE_TYPE)
+                g_player[myconnectindex].ps.gm = MODE_MENU;
         }
         else
         {
@@ -10763,7 +10763,7 @@ RECHECK:
                 {
                     KB_FlushKeyboardQueue();
                     CONTROL_ClearButton(gamefunc_SendMessage);
-                    ps[myconnectindex].gm = MODE_TYPE;
+                    g_player[myconnectindex].ps.gm = MODE_TYPE;
                     typebuf[0] = 0;
                     inputloc = 0;
                 }
@@ -10780,14 +10780,14 @@ RECHECK:
 
         if (VOLUMEONE)
         {
-            if (ud.show_help == 0 && (ps[myconnectindex].gm&MODE_MENU) == 0)
+            if (ud.show_help == 0 && (g_player[myconnectindex].ps.gm&MODE_MENU) == 0)
                 rotatesprite((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128,0,0,xdim-1,ydim-1);
         }
         handleevents();
         getpackets();
         nextpage();
 
-        if (ps[myconnectindex].gm==MODE_END || ps[myconnectindex].gm==MODE_GAME)
+        if (g_player[myconnectindex].ps.gm==MODE_END || g_player[myconnectindex].ps.gm==MODE_GAME)
         {
             if (foundemo)
                 kclose(recfilep);
@@ -10810,7 +10810,7 @@ RECHECK:
     }
 #endif
 
-    if (ps[myconnectindex].gm&MODE_MENU) goto RECHECK;
+    if (g_player[myconnectindex].ps.gm&MODE_MENU) goto RECHECK;
     return 1;
 }
 
@@ -10819,15 +10819,15 @@ static int moveloop()
     int i;
 
     if (numplayers > 1)
-        while (fakemovefifoplc < movefifoend[myconnectindex]) fakedomovethings();
+        while (fakemovefifoplc < g_player[myconnectindex].movefifoend) fakedomovethings();
 
     getpackets();
 
     if (numplayers < 2) bufferjitter = 0;
-    while (movefifoend[myconnectindex]-movefifoplc > bufferjitter)
+    while (g_player[myconnectindex].movefifoend-movefifoplc > bufferjitter)
     {
         for (i=connecthead;i>=0;i=connectpoint2[i])
-            if (movefifoplc == movefifoend[i]) break;
+            if (movefifoplc == g_player[i].movefifoend) break;
         if (i >= 0) break;
         if (domovethings()) return 1;
     }
@@ -10837,12 +10837,12 @@ static int moveloop()
 static void fakedomovethingscorrect(void)
 {
     long i;
-    struct player_struct *p;
+    player_struct *p;
 
     if (numplayers < 2) return;
 
     i = ((movefifoplc-1)&(MOVEFIFOSIZ-1));
-    p = &ps[myconnectindex];
+    p = &g_player[myconnectindex].ps;
 
     if (p->posx == myxbak[i] && p->posy == myybak[i] && p->posz == myzbak[i]
             && p->horiz == myhorizbak[i] && p->ang == myangbak[i]) return;
@@ -10870,14 +10870,14 @@ static void fakedomovethingscorrect(void)
     myreturntocenter = p->return_to_center;
 
     fakemovefifoplc = movefifoplc;
-    while (fakemovefifoplc < movefifoend[myconnectindex])
+    while (fakemovefifoplc < g_player[myconnectindex].movefifoend)
         fakedomovethings();
 }
 
 static void fakedomovethings(void)
 {
     input *syn;
-    struct player_struct *p;
+    player_struct *p;
     long i, j, k, doubvel, fz, cz, hz, lz, x, y;
     unsigned long sb_snum;
     short psect, psectlotag, tempsect, backcstat;
@@ -10885,7 +10885,7 @@ static void fakedomovethings(void)
 
     syn = (input *)&inputfifo[fakemovefifoplc&(MOVEFIFOSIZ-1)][myconnectindex];
 
-    p = &ps[myconnectindex];
+    p = &g_player[myconnectindex].ps;
 
     backcstat = sprite[p->i].cstat;
     sprite[p->i].cstat &= ~257;
@@ -11300,7 +11300,7 @@ FAKEHORIZONLY:
 
 ENDFAKEPROCESSINPUT:
 
-    OnEvent(EVENT_FAKEDOMOVETHINGS, ps[myconnectindex].i, myconnectindex, -1);
+    OnEvent(EVENT_FAKEDOMOVETHINGS, g_player[myconnectindex].ps.i, myconnectindex, -1);
 
     myxbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myx;
     myybak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myy;
@@ -11318,11 +11318,11 @@ static int domovethings(void)
     char ch;
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
-        if (sync[i].bits&(1<<17))
+        if (g_player[i].sync.bits&(1<<17))
         {
             multiflag = 2;
-            multiwhat = (sync[i].bits>>18)&1;
-            multipos = (unsigned)(sync[i].bits>>19)&15;
+            multiwhat = (g_player[i].sync.bits>>18)&1;
+            multipos = (unsigned)(g_player[i].sync.bits>>19)&15;
             multiwho = i;
 
             if (multiwhat)
@@ -11332,13 +11332,13 @@ static int domovethings(void)
 
                 if (multiwho != myconnectindex)
                 {
-                    Bsprintf(fta_quotes[122],"%s^00 SAVED A MULTIPLAYER GAME",&ud.user_name[multiwho][0]);
-                    FTA(122,&ps[myconnectindex]);
+					Bsprintf(fta_quotes[122],"%s^00 SAVED A MULTIPLAYER GAME",&g_player[multiwho].user_name[0]);
+                    FTA(122,&g_player[myconnectindex].ps);
                 }
                 else
                 {
                     Bstrcpy(fta_quotes[122],"MULTIPLAYER GAME SAVED");
-                    FTA(122,&ps[myconnectindex]);
+                    FTA(122,&g_player[myconnectindex].ps);
                 }
                 break;
             }
@@ -11354,13 +11354,13 @@ static int domovethings(void)
                 {
                     if (multiwho != myconnectindex)
                     {
-                        Bsprintf(fta_quotes[122],"%s^00 LOADED A MULTIPLAYER GAME",&ud.user_name[multiwho][0]);
-                        FTA(122,&ps[myconnectindex]);
+                        Bsprintf(fta_quotes[122],"%s^00 LOADED A MULTIPLAYER GAME",&g_player[multiwho].user_name[0]);
+                        FTA(122,&g_player[myconnectindex].ps);
                     }
                     else
                     {
                         Bstrcpy(fta_quotes[122],"MULTIPLAYER GAME LOADED");
-                        FTA(122,&ps[myconnectindex]);
+                        FTA(122,&g_player[myconnectindex].ps);
                     }
                     return 1;
                 }
@@ -11386,29 +11386,29 @@ static int domovethings(void)
         short sect,hw,hs;
 
         for (i=0;i<MAXPLAYERS;i++)
-            if (ps[i].holoduke_on != -1)
-                sprite[ps[i].holoduke_on].cstat ^= 256;
+            if (g_player[i].ps.holoduke_on != -1)
+                sprite[g_player[i].ps.holoduke_on].cstat ^= 256;
 
-        hitscan(ps[screenpeek].posx,ps[screenpeek].posy,ps[screenpeek].posz,ps[screenpeek].cursectnum,
-                sintable[(ps[screenpeek].ang+512)&2047],
-                sintable[ps[screenpeek].ang&2047],
-                (100-ps[screenpeek].horiz-ps[screenpeek].horizoff)<<11,&sect,&hw,&hs,&sx,&sy,&sz,0xffff0030);
+        hitscan(g_player[screenpeek].ps.posx,g_player[screenpeek].ps.posy,g_player[screenpeek].ps.posz,g_player[screenpeek].ps.cursectnum,
+                sintable[(g_player[screenpeek].ps.ang+512)&2047],
+                sintable[g_player[screenpeek].ps.ang&2047],
+                (100-g_player[screenpeek].ps.horiz-g_player[screenpeek].ps.horizoff)<<11,&sect,&hw,&hs,&sx,&sy,&sz,0xffff0030);
 
         for (i=0;i<MAXPLAYERS;i++)
-            if (ps[i].holoduke_on != -1)
-                sprite[ps[i].holoduke_on].cstat ^= 256;
+            if (g_player[i].ps.holoduke_on != -1)
+                sprite[g_player[i].ps.holoduke_on].cstat ^= 256;
 
-        if (!(ps[myconnectindex].gm & MODE_MENU) && sprite[hs].picnum == APLAYER && sprite[hs].yvel != screenpeek && ps[sprite[hs].yvel].dead_flag == 0)
+        if (!(g_player[myconnectindex].ps.gm & MODE_MENU) && sprite[hs].picnum == APLAYER && sprite[hs].yvel != screenpeek && g_player[sprite[hs].yvel].ps.dead_flag == 0)
         {
-            if (ps[screenpeek].fta == 0 || ps[screenpeek].ftq == 117)
+            if (g_player[screenpeek].ps.fta == 0 || g_player[screenpeek].ps.ftq == 117)
             {
-                if (ldist(&sprite[ps[screenpeek].i],&sprite[hs]) < 9216)
+                if (ldist(&sprite[g_player[screenpeek].ps.i],&sprite[hs]) < 9216)
                 {
-                    Bsprintf(fta_quotes[117],"%s",&ud.user_name[sprite[hs].yvel][0]);
-                    ps[screenpeek].fta = 12, ps[screenpeek].ftq = 117;
+                    Bsprintf(fta_quotes[117],"%s",&g_player[sprite[hs].yvel].user_name[0]);
+                    g_player[screenpeek].ps.fta = 12, g_player[screenpeek].ps.ftq = 117;
                 }
             }
-            else if (ps[screenpeek].fta > 2) ps[screenpeek].fta -= 3;
+            else if (g_player[screenpeek].ps.fta > 2) g_player[screenpeek].ps.fta -= 3;
         }
     }
 
@@ -11425,7 +11425,7 @@ static int domovethings(void)
     everyothertime++;
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
-        copybufbyte(&inputfifo[movefifoplc&(MOVEFIFOSIZ-1)][i],&sync[i],sizeof(input));
+        copybufbyte(&inputfifo[movefifoplc&(MOVEFIFOSIZ-1)][i],&g_player[i].sync,sizeof(input));
     movefifoplc++;
 
     updateinterpolations();
@@ -11433,7 +11433,7 @@ static int domovethings(void)
     j = -1;
     for (i=connecthead;i>=0;i=connectpoint2[i])
     {
-        if ((sync[i].bits&(1<<26)) == 0)
+        if ((g_player[i].sync.bits&(1<<26)) == 0)
         {
             j = i;
             continue;
@@ -11461,10 +11461,10 @@ static int domovethings(void)
         pus = NUMPAGES;
         vscrn();
 
-        quickkill(&ps[i]);
-        deletesprite(ps[i].i);
+        quickkill(&g_player[i].ps);
+        deletesprite(g_player[i].ps.i);
 
-        Bsprintf(buf,"%s^00 is history!",ud.user_name[i]);
+        Bsprintf(buf,"%s^00 is history!",g_player[i].user_name);
         adduserquote(buf);
         Bstrcpy(fta_quotes[116],buf);
 
@@ -11475,7 +11475,7 @@ static int domovethings(void)
             voting = -1;
         }
 
-        ps[myconnectindex].ftq = 116, ps[myconnectindex].fta = 180;
+        g_player[myconnectindex].ps.ftq = 116, g_player[myconnectindex].ps.fta = 180;
 
         if (j < 0 && networkmode == 0)
             gameexit("The server/master player just quit the game; disconnected.");
@@ -11485,9 +11485,9 @@ static int domovethings(void)
     {
         ch = (char)(randomseed&255);
         for (i=connecthead;i>=0;i=connectpoint2[i])
-            ch += ((ps[i].posx+ps[i].posy+ps[i].posz+ps[i].ang+ps[i].horiz)&255);
-        syncval[myconnectindex][syncvalhead[myconnectindex]&(MOVEFIFOSIZ-1)] = ch;
-        syncvalhead[myconnectindex]++;
+            ch += ((g_player[i].ps.posx+g_player[i].ps.posy+g_player[i].ps.posz+g_player[i].ps.ang+g_player[i].ps.horiz)&255);
+        g_player[myconnectindex].syncval[g_player[myconnectindex].syncvalhead&(MOVEFIFOSIZ-1)] = ch;
+        g_player[myconnectindex].syncvalhead++;
     }
 
     if (ud.recstat == 1) record();
@@ -11500,20 +11500,20 @@ static int domovethings(void)
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
     {
-        if (sync[i].extbits&(1<<6))
+        if (g_player[i].sync.extbits&(1<<6))
         {
-            ps[i].team = ud.pteam[i];
+            g_player[i].ps.team = g_player[i].pteam;
             if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
             {
-                hittype[ps[i].i].picnum = APLAYERTOP;
-                quickkill(&ps[i]);
+                hittype[g_player[i].ps.i].picnum = APLAYERTOP;
+                quickkill(&g_player[i].ps);
             }
         }
         if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
-            ps[i].palookup = ud.pcolor[i] = getteampal(ps[i].team);
+            g_player[i].ps.palookup = g_player[i].pcolor = getteampal(g_player[i].ps.team);
 
-        if (sprite[ps[i].i].pal != 1)
-            sprite[ps[i].i].pal = ud.pcolor[i];
+        if (sprite[g_player[i].ps.i].pal != 1)
+            sprite[g_player[i].ps.i].pal = g_player[i].pcolor;
 
         sharedkeys(i);
 
@@ -11549,8 +11549,8 @@ static void doorders(void)
     setview(0,0,xdim-1,ydim-1);
 
     fadepal(0,0,0, 0,63,7);
-    //ps[myconnectindex].palette = palette;
-    setgamepalette(&ps[myconnectindex], palette, 1);	// JBF 20040308
+    //g_player[myconnectindex].ps.palette = palette;
+    setgamepalette(&g_player[myconnectindex].ps, palette, 1);	// JBF 20040308
     KB_FlushKeyboardQueue();
     rotatesprite(0,0,65536L,0,ORDERING,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
@@ -11649,11 +11649,11 @@ void dobonus(int bonusonly)
         case 0:
             if (ud.lockout == 0)
             {
-                setgamepalette(&ps[myconnectindex], endingpal, 11);	// JBF 20040308
+                setgamepalette(&g_player[myconnectindex].ps, endingpal, 11);	// JBF 20040308
                 clearview(0L);
                 rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
                 nextpage();
-                //ps[myconnectindex].palette = endingpal;
+                //g_player[myconnectindex].ps.palette = endingpal;
                 fadepal(0,0,0, 63,0,-1);
 
                 KB_FlushKeyboardQueue();
@@ -11711,8 +11711,8 @@ void dobonus(int bonusonly)
             fadepal(0,0,0, 0,64,1);
 
             KB_FlushKeyboardQueue();
-            //ps[myconnectindex].palette = palette;
-            setgamepalette(&ps[myconnectindex], palette, 11);	// JBF 20040308
+            //g_player[myconnectindex].ps.palette = palette;
+            setgamepalette(&g_player[myconnectindex].ps, palette, 11);	// JBF 20040308
 
             rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
             IFISSOFTMODE fadepal(0,0,0, 63,0,-1);
@@ -11745,8 +11745,8 @@ void dobonus(int bonusonly)
             fadepal(0,0,0, 0,64,1);
             setview(0,0,xdim-1,ydim-1);
             KB_FlushKeyboardQueue();
-            //ps[myconnectindex].palette = palette;
-            setgamepalette(&ps[myconnectindex], palette, 11);	// JBF 20040308
+            //g_player[myconnectindex].ps.palette = palette;
+            setgamepalette(&g_player[myconnectindex].ps, palette, 11);	// JBF 20040308
             rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
             IFISSOFTMODE fadepal(0,0,0, 63,0,-1);
             else nextpage();
@@ -11786,8 +11786,8 @@ void dobonus(int bonusonly)
             sound(ENDSEQVOL3SND4);
             KB_FlushKeyBoardQueue();
 
-            //ps[myconnectindex].palette = palette;
-            setgamepalette(&ps[myconnectindex], palette, 11);	// JBF 20040308
+            //g_player[myconnectindex].ps.palette = palette;
+            setgamepalette(&g_player[myconnectindex].ps, palette, 11);	// JBF 20040308
             IFISSOFTMODE palto(0,0,0,63);
             clearview(0L);
             menutext(160,60,0,0,"THANKS TO ALL OUR");
@@ -11916,8 +11916,8 @@ ENDANM:
 
 FRAGBONUS:
 
-    //ps[myconnectindex].palette = palette;
-    setgamepalette(&ps[myconnectindex], palette, 11);	// JBF 20040308
+    //g_player[myconnectindex].ps.palette = palette;
+    setgamepalette(&g_player[myconnectindex].ps, palette, 11);	// JBF 20040308
     IFISSOFTMODE palto(0,0,0,63);   // JBF 20031228
     KB_FlushKeyboardQueue();
     totalclock = 0;
@@ -11930,7 +11930,7 @@ FRAGBONUS:
 
     if (playerswhenstarted > 1 && (gametype_flags[ud.coop]&GAMETYPE_FLAG_SCORESHEET))
     {
-        if (!(config.MusicToggle == 0 || config.MusicDevice < 0))
+        if (!(ud.config.MusicToggle == 0 || ud.config.MusicDevice < 0))
             sound(BONUSMUSIC);
 
         rotatesprite(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64,0,0,xdim-1,ydim-1);
@@ -11956,26 +11956,26 @@ FRAGBONUS:
             Bsprintf(tempbuf,"%d",i+1);
 
             minitext(30,90+t,tempbuf,0,2+8+16+128);
-            minitext(38,90+t,ud.user_name[i],ps[i].palookup,2+8+16+128);
+            minitext(38,90+t,g_player[i].user_name,g_player[i].ps.palookup,2+8+16+128);
 
             for (y=0;y<playerswhenstarted;y++)
             {
                 if (i == y)
                 {
-                    Bsprintf(tempbuf,"%-4d",ps[y].fraggedself);
+                    Bsprintf(tempbuf,"%-4d",g_player[y].ps.fraggedself);
                     minitext(92+(y*23),90+t,tempbuf,2,2+8+16+128);
-                    xfragtotal -= ps[y].fraggedself;
+                    xfragtotal -= g_player[y].ps.fraggedself;
                 }
                 else
                 {
-                    Bsprintf(tempbuf,"%-4d",frags[i][y]);
+                    Bsprintf(tempbuf,"%-4d",g_player[i].frags[y]);
                     minitext(92+(y*23),90+t,tempbuf,0,2+8+16+128);
-                    xfragtotal += frags[i][y];
+                    xfragtotal += g_player[i].frags[y];
                 }
 
                 if (myconnectindex == connecthead)
                 {
-                    Bsprintf(tempbuf,"stats %d killed %d %d\n",i+1,y+1,frags[i][y]);
+                    Bsprintf(tempbuf,"stats %d killed %d %d\n",i+1,y+1,g_player[i].frags[y]);
                     sendscore(tempbuf);
                 }
             }
@@ -11992,8 +11992,8 @@ FRAGBONUS:
             for (i=0;i<playerswhenstarted;i++)
             {
                 if (i == y)
-                    yfragtotal += ps[i].fraggedself;
-                yfragtotal += frags[i][y];
+                    yfragtotal += g_player[i].ps.fraggedself;
+                yfragtotal += g_player[i].frags[y];
             }
             Bsprintf(tempbuf,"%-4d",yfragtotal);
             minitext(92+(y*23),96+(8*7),tempbuf,2,2+8+16+128);
@@ -12035,7 +12035,7 @@ FRAGBONUS:
 
     gametext(160,192,"PRESS ANY KEY TO CONTINUE",16,2+8+16);
 
-    if (!(config.MusicToggle == 0 || config.MusicDevice < 0))
+    if (!(ud.config.MusicToggle == 0 || ud.config.MusicDevice < 0))
         sound(BONUSMUSIC);
 
     nextpage();
@@ -12047,17 +12047,17 @@ FRAGBONUS:
 
     playerbest = CONFIG_GetMapBestTime(map[ud.volume_number*MAXLEVELS+ud.last_level-1].filename);
 
-    if (ps[myconnectindex].player_par < playerbest || playerbest < 0)
+    if (g_player[myconnectindex].ps.player_par < playerbest || playerbest < 0)
     {
-        CONFIG_SetMapBestTime(map[ud.volume_number*MAXLEVELS+ud.last_level-1].filename, ps[myconnectindex].player_par);
+        CONFIG_SetMapBestTime(map[ud.volume_number*MAXLEVELS+ud.last_level-1].filename, g_player[myconnectindex].ps.player_par);
         //        if(playerbest != -1)
-        //            playerbest = ps[myconnectindex].player_par;
+        //            playerbest = g_player[myconnectindex].ps.player_par;
     }
 
     {
         int ii, ij;
 
-        for (ii=ps[myconnectindex].player_par/(26*60), ij=1; ii>9; ii/=10, ij++) ;
+        for (ii=g_player[myconnectindex].ps.player_par/(26*60), ij=1; ii>9; ii/=10, ij++) ;
         clockpad = max(clockpad,ij);
         if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
         {
@@ -12080,7 +12080,7 @@ FRAGBONUS:
         handleevents();
         AudioUpdate();
 
-        if (ps[myconnectindex].gm&MODE_EOL)
+        if (g_player[myconnectindex].ps.gm&MODE_EOL)
         {
             rotatesprite(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
 
@@ -12158,7 +12158,7 @@ FRAGBONUS:
                 }
                 if (playerbest > 0)
                 {
-                    gametext(10,yy+9,ps[myconnectindex].player_par<playerbest?"Prev Best Time:":"Your Best Time:",0,2+8+16);
+                    gametext(10,yy+9,g_player[myconnectindex].ps.player_par<playerbest?"Prev Best Time:":"Your Best Time:",0,2+8+16);
                     yy += 10;
                 }
 
@@ -12175,10 +12175,10 @@ FRAGBONUS:
                     }
 
                     Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
-                             (ps[myconnectindex].player_par/(26*60)),
-                             (ps[myconnectindex].player_par/26)%60);
+                             (g_player[myconnectindex].ps.player_par/(26*60)),
+                             (g_player[myconnectindex].ps.player_par/26)%60);
                     gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
-                    if (ps[myconnectindex].player_par < playerbest)
+                    if (g_player[myconnectindex].ps.player_par < playerbest)
                         gametext((320>>2)+71+(clockpad*24),yy+9,"New record!",0,2+8+16);
                     yy+=10;
 
@@ -12234,7 +12234,7 @@ FRAGBONUS:
                         bonuscnt++;
                         sound(PIPEBOMB_EXPLODE);
                     }
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].actors_killed);
+                    sprintf(tempbuf,"%-3ld",g_player[myconnectindex].ps.actors_killed);
                     gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                     yy += 10;
                     if (ud.player_skill > 3)
@@ -12245,9 +12245,9 @@ FRAGBONUS:
                     }
                     else
                     {
-                        if ((ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed) < 0)
+                        if ((g_player[myconnectindex].ps.max_actors_killed-g_player[myconnectindex].ps.actors_killed) < 0)
                             sprintf(tempbuf,"%-3d",0);
-                        else sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed);
+                        else sprintf(tempbuf,"%-3ld",g_player[myconnectindex].ps.max_actors_killed-g_player[myconnectindex].ps.actors_killed);
                         gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                         yy += 10;
                     }
@@ -12271,12 +12271,12 @@ FRAGBONUS:
                         bonuscnt++;
                         sound(PIPEBOMB_EXPLODE);
                     }
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].secret_rooms);
+                    sprintf(tempbuf,"%-3ld",g_player[myconnectindex].ps.secret_rooms);
                     gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                     yy += 10;
-                    if (ps[myconnectindex].secret_rooms > 0)
-                        sprintf(tempbuf,"%-3ld%%",(100*ps[myconnectindex].secret_rooms/ps[myconnectindex].max_secret_rooms));
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_secret_rooms-ps[myconnectindex].secret_rooms);
+                    if (g_player[myconnectindex].ps.secret_rooms > 0)
+                        sprintf(tempbuf,"%-3ld%%",(100*g_player[myconnectindex].ps.secret_rooms/g_player[myconnectindex].ps.max_secret_rooms));
+                    sprintf(tempbuf,"%-3ld",g_player[myconnectindex].ps.max_secret_rooms-g_player[myconnectindex].ps.secret_rooms);
                     gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                     yy += 10;
                 }

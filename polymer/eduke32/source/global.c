@@ -33,11 +33,11 @@ long neartaghitdist,lockclock,max_player_health,max_armour_amount,max_ammo_amoun
 long gc=176;
 
 // long temp_data[MAXSPRITES][6];
-struct weaponhit hittype[MAXSPRITES];
-struct spriteinterpolate sprpos[MAXSPRITES];
+weaponhit hittype[MAXSPRITES];
+spriteinterpolate sprpos[MAXSPRITES];
 
 short spriteq[1024],spriteqloc,spriteqamount=64;
-struct animwalltype animwall[MAXANIMWALLS];
+animwalltype animwall[MAXANIMWALLS];
 short numanimwalls;
 long *animateptr[MAXANIMATES], animategoal[MAXANIMATES], animatevel[MAXANIMATES], animatecnt;
 // long oanimateval[MAXANIMATES];
@@ -86,32 +86,26 @@ SOUNDOWNER SoundOwner[NUM_SOUNDS][4];
 char numplayersprites,loadfromgrouponly=0,earthquaketime;
 
 long fricxv,fricyv;
-struct player_orig po[MAXPLAYERS];
-struct player_struct ps[MAXPLAYERS];
-struct user_defs ud;
+playerdata_t g_player[MAXPLAYERS];
+input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
+user_defs ud;
 
 char pus, pub;
-char syncstat, syncval[MAXPLAYERS][MOVEFIFOSIZ];
-long syncvalhead[MAXPLAYERS], syncvaltail, syncvaltottail;
+char syncstat;
+long syncvaltail, syncvaltottail;
 
-input sync[MAXPLAYERS], loc;
+input loc;
 input recsync[RECSYNCBUFSIZ];
 long avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
-
-
-input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 
 long movefifosendplc;
 
 //Multiplayer syncing variables
 short screenpeek;
-long movefifoend[MAXPLAYERS];
-
 
 //Game recording variables
 
-char playerreadyflag[MAXPLAYERS],ready2send;
-char playerquitflag[MAXPLAYERS];
+char ready2send;
 long vel, svel, angvel, horiz, ototalclock, respawnactortime=768, respawnitemtime=768, groupfile;
 
 long *scriptptr,*insptr,*labelcode,labelcnt,defaultlabelcnt,*labeltype;
@@ -153,7 +147,7 @@ int condebug;
 //GLOBAL.C - replace the end "my's" with this
 long myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
 short myhoriz, omyhoriz, myhorizoff, omyhorizoff;
-short myang, omyang, mycursectnum, myjumpingcounter,frags[MAXPLAYERS][MAXPLAYERS];
+short myang, omyang, mycursectnum, myjumpingcounter;
 
 char myjumpingtoggle, myonground, myhardlanding, myreturntocenter;
 signed char multiwho, multipos, multiwhat, multiflag;
@@ -169,7 +163,7 @@ int networkmode = 255, movesperpacket = 1,gamequit = 0,everyothertime;
 long numfreezebounces=3,rpgblastradius,pipebombblastradius,tripbombblastradius,shrinkerblastradius,morterblastradius,bouncemineblastradius,seenineblastradius;
 STATUSBARTYPE sbar;
 
-long myminlag[MAXPLAYERS], mymaxlag, otherminlag, bufferjitter = 1;
+long mymaxlag, otherminlag, bufferjitter = 1;
 short numclouds,clouds[128],cloudx[128],cloudy[128];
 long cloudtotalclock = 0,totalmemory = 0;
 long numinterpolations = 0, startofdynamicinterpolations = 0;

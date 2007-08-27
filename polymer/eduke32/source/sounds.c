@@ -49,13 +49,13 @@ void SoundStartup(void)
     int32 status;
 
     // if they chose None lets return
-    if (config.FXDevice < 0) return;
+    if (ud.config.FXDevice < 0) return;
 
-    status = FX_Init(config.FXDevice, config.NumVoices, config.NumChannels, config.NumBits, config.MixRate);
+    status = FX_Init(ud.config.FXDevice, ud.config.NumVoices, ud.config.NumChannels, ud.config.NumBits, ud.config.MixRate);
     if (status == FX_Ok)
     {
-        FX_SetVolume(config.FXVolume);
-        if (config.ReverseStereo == 1)
+        FX_SetVolume(ud.config.FXVolume);
+        if (ud.config.ReverseStereo == 1)
         {
             FX_SetReverseStereo(!FX_GetReverseStereo());
         }
@@ -82,7 +82,7 @@ void SoundShutdown(void)
     int32 status;
 
     // if they chose None lets return
-    if (config.FXDevice < 0)
+    if (ud.config.FXDevice < 0)
         return;
 
     status = FX_Shutdown();
@@ -106,14 +106,14 @@ void MusicStartup(void)
     int32 status;
 
     // if they chose None lets return
-    if (config.MusicDevice < 0)
+    if (ud.config.MusicDevice < 0)
         return;
 
-    status = MUSIC_Init(config.MusicDevice, 0);
+    status = MUSIC_Init(ud.config.MusicDevice, 0);
 
     if (status == MUSIC_Ok)
     {
-        MUSIC_SetVolume(config.MusicVolume);
+        MUSIC_SetVolume(ud.config.MusicVolume);
     }
     else
     {
@@ -144,7 +144,7 @@ void MusicShutdown(void)
     int32 status;
 
     // if they chose None lets return
-    if (config.MusicDevice < 0)
+    if (ud.config.MusicDevice < 0)
         return;
 
     status = MUSIC_Shutdown();
@@ -195,8 +195,8 @@ void playmusic(const char *fn)
 
     if (fn == NULL) return;
 
-    if (config.MusicToggle == 0) return;
-    if (config.MusicDevice < 0) return;
+    if (ud.config.MusicToggle == 0) return;
+    if (ud.config.MusicDevice < 0) return;
 
     fp = kopen4load((char *)fn,0);
 
@@ -217,11 +217,11 @@ void playmusic(const char *fn)
 
     if (fn == NULL) return;
 
-    if (config.MusicToggle == 0) return;
-    if (config.MusicDevice < 0) return;
+    if (ud.config.MusicToggle == 0) return;
+    if (ud.config.MusicDevice < 0) return;
 
     // FIXME: I need this to get the music volume initialized (not sure why) -- Jim Bentler
-    MUSIC_SetVolume(MusicVolume);
+    MUSIC_SetVolume(ud.config.MusicVolume);
     PlayMusic((char *)fn);
 #endif
 }
@@ -230,14 +230,14 @@ int loadsound(unsigned int num)
 {
     long   fp, l;
 
-    if (num >= NUM_SOUNDS || config.SoundToggle == 0) return 0;
-    if (config.FXDevice < 0) return 0;
+    if (num >= NUM_SOUNDS || ud.config.SoundToggle == 0) return 0;
+    if (ud.config.FXDevice < 0) return 0;
 
     fp = kopen4load(sounds[num],loadfromgrouponly);
     if (fp == -1)
     {
 //        Bsprintf(fta_quotes[113],"Sound %s(#%d) not found.",sounds[num],num);
-//        FTA(113,&ps[myconnectindex]);
+//        FTA(113,&g_player[myconnectindex].ps);
         initprintf("Sound %s(#%d) not found.\n",sounds[num],num);
         return 0;
     }
@@ -262,13 +262,13 @@ int xyzsound(int num,int i,long x,long y,long z)
     //    if(num != 358) return 0;
 
     if (num >= NUM_SOUNDS ||
-            config.FXDevice < 0 ||
+            ud.config.FXDevice < 0 ||
             ((soundm[num]&8) && ud.lockout) ||
-            config.SoundToggle == 0 ||
+            ud.config.SoundToggle == 0 ||
             Sound[num].num > 3 ||
             FX_VoiceAvailable(soundpr[num]) == 0 ||
-            (ps[myconnectindex].timebeforeexit > 0 && ps[myconnectindex].timebeforeexit <= 26*3) ||
-            ps[myconnectindex].gm&MODE_MENU) return -1;
+            (g_player[myconnectindex].ps.timebeforeexit > 0 && g_player[myconnectindex].ps.timebeforeexit <= 26*3) ||
+            g_player[myconnectindex].ps.gm&MODE_MENU) return -1;
 
     if (soundm[num]&128)
     {
@@ -278,9 +278,9 @@ int xyzsound(int num,int i,long x,long y,long z)
 
     if (soundm[num]&4)
     {
-        if (config.VoiceToggle==0)
+        if (ud.config.VoiceToggle==0)
             return -1;
-        else if (ud.multimode > 1 && PN == APLAYER && sprite[i].yvel != screenpeek && config.VoiceToggle!=2)
+        else if (ud.multimode > 1 && PN == APLAYER && sprite[i].yvel != screenpeek && ud.config.VoiceToggle!=2)
             return -1;
         for (j=0;j<NUM_SOUNDS;j++)
             for (k=0;k<Sound[j].num;k++)
@@ -288,11 +288,11 @@ int xyzsound(int num,int i,long x,long y,long z)
                     return -1;
     }
 
-    cx = ps[screenpeek].oposx;
-    cy = ps[screenpeek].oposy;
-    cz = ps[screenpeek].oposz;
-    cs = ps[screenpeek].cursectnum;
-    ca = ps[screenpeek].ang+ps[screenpeek].look_ang;
+    cx = g_player[screenpeek].ps.oposx;
+    cy = g_player[screenpeek].ps.oposy;
+    cz = g_player[screenpeek].ps.oposz;
+    cs = g_player[screenpeek].ps.cursectnum;
+    ca = g_player[screenpeek].ps.ang+g_player[screenpeek].ps.look_ang;
 
     sndist = FindDistance3D((cx-x),(cy-y),(cz-z)>>4);
 
@@ -323,18 +323,18 @@ int xyzsound(int num,int i,long x,long y,long z)
     case RPG_EXPLODE:
         if (sndist > (6144))
             sndist = 6144;
-        if (sector[ps[screenpeek].cursectnum].lotag == 2)
+        if (sector[g_player[screenpeek].ps.cursectnum].lotag == 2)
             pitch -= 1024;
         break;
     default:
-        if (sector[ps[screenpeek].cursectnum].lotag == 2 && (soundm[num]&4) == 0)
+        if (sector[g_player[screenpeek].ps.cursectnum].lotag == 2 && (soundm[num]&4) == 0)
             pitch = -768;
         if (sndist > 31444 && PN != MUSICANDSFX)
             return -1;
         break;
     }
 
-    if (ps[screenpeek].sound_pitch) pitch += ps[screenpeek].sound_pitch;
+    if (g_player[screenpeek].ps.sound_pitch) pitch += g_player[screenpeek].ps.sound_pitch;
 
     if (Sound[num].num > 0 && PN != MUSICANDSFX)
     {
@@ -409,9 +409,9 @@ void sound(int num)
     int voice;
     long start;
 
-    if (config.FXDevice < 0) return;
-    if (config.SoundToggle==0) return;
-    if (config.VoiceToggle==0 && (soundm[num]&4)) return;
+    if (ud.config.FXDevice < 0) return;
+    if (ud.config.SoundToggle==0) return;
+    if (ud.config.VoiceToggle==0 && (soundm[num]&4)) return;
     if ((soundm[num]&8) && ud.lockout) return;
     if (FX_VoiceAvailable(soundpr[num]) == 0) return;
     if (num > NUM_SOUNDS-1 || !sounds[num])
@@ -419,7 +419,6 @@ void sound(int num)
         OSD_Printf("WARNING: invalid sound #%d\n",num);
         return;
     }
-
 
     pitchs = soundps[num];
     pitche = soundpe[num];
@@ -516,11 +515,11 @@ void pan3dsound(void)
 
     if (ud.camerasprite == -1)
     {
-        cx = ps[screenpeek].oposx;
-        cy = ps[screenpeek].oposy;
-        cz = ps[screenpeek].oposz;
-        cs = ps[screenpeek].cursectnum;
-        ca = ps[screenpeek].ang+ps[screenpeek].look_ang;
+        cx = g_player[screenpeek].ps.oposx;
+        cy = g_player[screenpeek].ps.oposy;
+        cz = g_player[screenpeek].ps.oposz;
+        cs = g_player[screenpeek].ps.cursectnum;
+        ca = g_player[screenpeek].ps.ang+g_player[screenpeek].ps.look_ang;
     }
     else
     {
