@@ -1483,18 +1483,17 @@ static int parsecommand(void)
         long ocasescriptptr = (unsigned)(casescriptptr-script);
         long oparsing_event = (unsigned)(parsing_event-script);
         long oparsing_actor = (unsigned)(parsing_actor-script);
-        long olabelcode[MAXSECTORS];
         long *scriptptrs;
 
-        Bmemset(&olabelcode,0,sizeof(olabelcode));
-
-        for (j=0;j<labelcnt;j++)
+        for (i=0;i<MAXSECTORS;i++)
         {
-            if (labeltype[j] != LABEL_DEFINE) //== LABEL_STATE || labeltype[j] == LABEL_AI || labeltype[j] == LABEL_ACTION || labeltype[j] == LABEL_MOVE)
-                olabelcode[j] = (long)(labelcode[j]-(long)script);
+            if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
+            {
+                labelcode[i] -= (long)&script[0];
+            }
         }
 
-        scriptptrs = Bcalloc(1, (g_ScriptSize+16) * sizeof(long));
+        scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(long));
         for (i=0;i<g_ScriptSize-1;i++)
         {
             if ((long)script[i] >= (long)(&script[0]) && (long)script[i] < (long)(&script[g_ScriptSize]))
@@ -1530,7 +1529,7 @@ static int parsecommand(void)
         //initprintf("offset: %ld\n",(unsigned)(scriptptr-script));
         g_ScriptSize += 16384;
         initprintf("Increasing script buffer size to %ld bytes...\n",g_ScriptSize);
-        script = (long *)realloc(script, (g_ScriptSize+16) * sizeof(long));
+        script = (long *)realloc(script, g_ScriptSize * sizeof(long));
 
         if (script == NULL)
         {
@@ -1549,11 +1548,11 @@ static int parsecommand(void)
         if (parsing_actor != NULL)
             parsing_actor = (long *)(script+oparsing_actor);
 
-        for (j=0;j<labelcnt;j++)
+        for (i=0;i<MAXSECTORS;i++)
         {
-            if (labeltype[j] != LABEL_DEFINE)//== LABEL_STATE || labeltype[j] == LABEL_AI || labeltype[j] == LABEL_ACTION || labeltype[j] == LABEL_MOVE)
+            if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
             {
-                labelcode[j] = (long)(script+olabelcode[j]);
+                labelcode[i] += (long)&script[0];
             }
         }
 
@@ -3420,7 +3419,7 @@ static int parsecommand(void)
 
         transmultvars(2);
         tempscrptr = scriptptr;
-        offset = (unsigned)(tempscrptr-script);
+        offset = (unsigned)(scriptptr-script);
         scriptptr++; // Leave a spot for the fail location
 
         j = keyword();
@@ -3695,7 +3694,7 @@ static int parsecommand(void)
         casecount=0;
         if (tempscrptr)
         {
-            tempscrptr[0]= (unsigned)(scriptptr-script);    // save 'end' location
+            tempscrptr[0]= (long)scriptptr - (long)&script[0];    // save 'end' location
         }
         else
         {
@@ -3742,7 +3741,7 @@ repeatcase:
         {
             //AddLog("Adding value to script");
             casescriptptr[casecount++]=j;   // save value
-            casescriptptr[casecount]=(long)((long*)scriptptr-script);   // save offset
+            casescriptptr[casecount]=(long)((long*)scriptptr-&script[0]);   // save offset
         }
         //      j = keyword();
         //Bsprintf(g_szBuf,"case3: %.12s",textptr);
@@ -3790,7 +3789,7 @@ repeatcase:
         }
         if (casescriptptr)
         {
-            casescriptptr[0]=(long)(scriptptr-script);   // save offset
+            casescriptptr[0]=(long)(scriptptr-&script[0]);   // save offset
         }
         //Bsprintf(g_szBuf,"default: '%.22s'",textptr);
         //AddLog(g_szBuf);
@@ -4862,7 +4861,7 @@ void loadefs(const char *filenam)
 //    clearbufbyte(script,sizeof(script),0l); // JBF 20040531: yes? no?
     if (script != NULL)
         Bfree(script);
-    script = Bcalloc(1,sizeof(long)*(g_ScriptSize+16));
+    script = Bcalloc(1,g_ScriptSize * sizeof(long));
 
     labelcnt = defaultlabelcnt = 0;
     scriptptr = script+1;
@@ -4875,7 +4874,7 @@ void loadefs(const char *filenam)
 
     Bstrcpy(compilefile, filenam);   // JBF 20031130: Store currently compiling file name
     passone(); //Tokenize
-    *script = (long) scriptptr;
+    //*script = (long) scriptptr;
 
     Bfree(mptr);
     mptr = NULL;

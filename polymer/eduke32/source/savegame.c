@@ -267,6 +267,9 @@ int loadplayer(int spot)
     if (kdfread(&g_ScriptSize,sizeof(g_ScriptSize),1,fil) != 1) goto corrupt;
     scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(g_ScriptSize));
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
+    if (script != NULL)
+        Bfree(script);
+    script = Bcalloc(1,g_ScriptSize * sizeof(long));
     if (kdfread(&script[0],sizeof(script),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
     for (i=0;i<g_ScriptSize;i++)
         if (scriptptrs[i])
