@@ -1477,6 +1477,15 @@ static int parsecommand(void)
     char *temptextptr;
     long *tempscrptr;
 
+#if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2))
+    if (quitevent)
+    {
+        initprintf("Aborted.\n");
+        Shutdown();
+        exit(0);
+    }
+#endif
+
     if ((unsigned)(scriptptr-script) > (unsigned)(g_ScriptSize-128))
     {
         long oscriptptr = (unsigned)(scriptptr-script);
