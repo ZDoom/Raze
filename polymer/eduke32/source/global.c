@@ -88,7 +88,7 @@ char numplayersprites,loadfromgrouponly=0,earthquaketime;
 long fricxv,fricyv;
 playerdata_t g_player[MAXPLAYERS];
 input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
-player_orig g_PlayerSpawnPoints[MAXPLAYERS];
+player_spawnpoint g_PlayerSpawnPoints[MAXPLAYERS];
 user_defs ud;
 
 char pus, pub;
@@ -114,7 +114,9 @@ long *actorscrptr[MAXTILES],*parsing_actor;
 char *label;
 char *music_pointer;
 char actortype[MAXTILES];
-long script[MAXSCRIPTSIZE+16];
+long *script = NULL;
+
+int g_ScriptSize = 16384;
 
 char display_mirror,typebuflen,typebuf[141];
 

@@ -1443,9 +1443,9 @@ static long CountCaseStatements()
 {
     long lCount;
     char *temptextptr = textptr;
-    long *savescript = scriptptr;
-    long *savecase = casescriptptr;
     int temp_line_number = line_number;
+    long tempscriptptr = (unsigned)(scriptptr-script);
+    long tempsavecase = (unsigned)(casescriptptr-script);
 
     casecount=0;
     casescriptptr=NULL;
@@ -1461,28 +1461,129 @@ static long CountCaseStatements()
     checking_switch++;
 
     textptr=temptextptr;
-    scriptptr=savescript;
+    scriptptr = (long *)(script+tempscriptptr);
 
     line_number = temp_line_number;
 
     lCount=casecount;
     casecount=0;
-    casescriptptr=savecase;
+    casescriptptr = (long *)(script+tempsavecase);
     return lCount;
 }
 
 static int parsecommand(void)
 {
-    long i, j=0, k=0, *tempscrptr, done, tw;
+    long i, j=0, k=0, done, tw;
     char *temptextptr;
+    long *tempscrptr;
 
-    if (((unsigned)(scriptptr-script) > MAXSCRIPTSIZE) && error == 0)
+    if ((unsigned)(scriptptr-script) > (unsigned)(g_ScriptSize-128))
     {
-        /* Bsprintf(tempbuf,"fatal error: Size of compiled CON code exceeds maximum size! (%ud, %d)\n",(unsigned)(scriptptr-script),MAXSCRIPTSIZE); */
-        ReportError(-1);
-        initprintf("%s:%ld: internal compiler error: Aborted (%ud)\n",compilefile,line_number,(unsigned)(scriptptr-script));
-        initprintf(tempbuf);
-        error++;
+        long oscriptptr = (unsigned)(scriptptr-script);
+        long ocasescriptptr = (unsigned)(casescriptptr-script);
+        long oparsing_event = (unsigned)(parsing_event-script);
+        long oparsing_actor = (unsigned)(parsing_actor-script);
+        long olabelcode[MAXSECTORS];
+        long *scriptptrs;
+
+        Bmemset(&olabelcode,0,sizeof(olabelcode));
+
+        for (j=0;j<labelcnt;j++)
+        {
+            if (labeltype[j] != LABEL_DEFINE) //== LABEL_STATE || labeltype[j] == LABEL_AI || labeltype[j] == LABEL_ACTION || labeltype[j] == LABEL_MOVE)
+                olabelcode[j] = (long)(labelcode[j]-(long)script);
+        }
+
+        scriptptrs = Bcalloc(1, (g_ScriptSize+16) * sizeof(long));
+        for (i=0;i<g_ScriptSize-1;i++)
+        {
+            if ((long)script[i] >= (long)(&script[0]) && (long)script[i] < (long)(&script[g_ScriptSize]))
+            {
+                scriptptrs[i] = 1;
+                j = (long)script[i] - (long)&script[0];
+                script[i] = j;
+            }
+            else scriptptrs[i] = 0;
+        }
+
+        for (i=0;i<MAXTILES;i++)
+            if (actorscrptr[i])
+            {
+                j = (long)actorscrptr[i]-(long)&script[0];
+                actorscrptr[i] = (long *)j;
+            }
+
+        for (i=0;i<MAXTILES;i++)
+            if (actorLoadEventScrptr[i])
+            {
+                j = (long)actorLoadEventScrptr[i]-(long)&script[0];
+                actorLoadEventScrptr[i] = (long *)j;
+            }
+
+        for (i=0;i<MAXGAMEEVENTS;i++)
+            if (apScriptGameEvent[i])
+            {
+                j = (long)apScriptGameEvent[i]-(long)&script[0];
+                apScriptGameEvent[i] = (long *)j;
+            }
+
+        //initprintf("offset: %ld\n",(unsigned)(scriptptr-script));
+        g_ScriptSize += 16384;
+        initprintf("Increasing script buffer size to %ld bytes...\n",g_ScriptSize);
+        script = (long *)realloc(script, (g_ScriptSize+16) * sizeof(long));
+
+        if (script == NULL)
+        {
+            ReportError(-1);
+            initprintf("%s:%ld: out of memory: Aborted (%ud)\n",compilefile,line_number,(unsigned)(scriptptr-script));
+            initprintf(tempbuf);
+            error++;
+            return 1;
+        }
+        scriptptr = (long *)(script+oscriptptr);
+        //initprintf("offset: %ld\n",(unsigned)(scriptptr-script));
+        if (casescriptptr != NULL)
+            casescriptptr = (long *)(script+ocasescriptptr);
+        if (parsing_event != NULL)
+            parsing_event = (long *)(script+oparsing_event);
+        if (parsing_actor != NULL)
+            parsing_actor = (long *)(script+oparsing_actor);
+
+        for (j=0;j<labelcnt;j++)
+        {
+            if (labeltype[j] != LABEL_DEFINE)//== LABEL_STATE || labeltype[j] == LABEL_AI || labeltype[j] == LABEL_ACTION || labeltype[j] == LABEL_MOVE)
+            {
+                labelcode[j] = (long)(script+olabelcode[j]);
+            }
+        }
+
+        for (i=0;i<g_ScriptSize-16384;i++)
+            if (scriptptrs[i])
+            {
+                j = (long)script[i]+(long)&script[0];
+                script[i] = j;
+            }
+
+        for (i=0;i<MAXTILES;i++)
+            if (actorscrptr[i])
+            {
+                j = (long)actorscrptr[i]+(long)&script[0];
+                actorscrptr[i] = (long *)j;
+            }
+        for (i=0;i<MAXTILES;i++)
+            if (actorLoadEventScrptr[i])
+            {
+                j = (long)actorLoadEventScrptr[i]+(long)&script[0];
+                actorLoadEventScrptr[i] = (long *)j;
+            }
+
+        for (i=0;i<MAXGAMEEVENTS;i++)
+            if (apScriptGameEvent[i])
+            {
+                j = (long)apScriptGameEvent[i]+(long)&script[0];
+                apScriptGameEvent[i] = (long *)j;
+            }
+        Bfree(scriptptrs);
     }
 
     if ((error+warning) > 63 || (*textptr == '\0') || (*(textptr+1) == '\0')) return 1;
@@ -2435,10 +2536,13 @@ static int parsecommand(void)
     case CON_ELSE:
         if (checking_ifelse)
         {
+            long offset;
             checking_ifelse--;
             tempscrptr = scriptptr;
+            offset = (unsigned)(tempscrptr-script);
             scriptptr++; //Leave a spot for the fail location
             parsecommand();
+            tempscrptr = (long *)script+offset;
             *tempscrptr = (long) scriptptr;
         }
         else
@@ -3311,17 +3415,23 @@ static int parsecommand(void)
     case CON_IFVARVARN:
     case CON_IFVARVARAND:
     case CON_WHILEVARVARN:
+    {
+        long offset;
+
         transmultvars(2);
         tempscrptr = scriptptr;
+        offset = (unsigned)(tempscrptr-script);
         scriptptr++; // Leave a spot for the fail location
 
         j = keyword();
         parsecommand();
 
+        tempscrptr = (long *)script+offset;
         *tempscrptr = (long) scriptptr;
 
         if (tw != CON_WHILEVARVARN) checking_ifelse++;
         return 0;
+    }
 
     case CON_SPGETLOTAG:
     case CON_SPGETHITAG:
@@ -3343,22 +3453,26 @@ static int parsecommand(void)
     case CON_IFVARN:
     case CON_IFVARAND:
     case CON_WHILEVARN:
+    {
+        long offset;
 
         // get the ID of the DEF
         transvar();
         transnum(LABEL_DEFINE); // the number to check against...
 
         tempscrptr = scriptptr;
+        offset = (unsigned)(tempscrptr-script);
         scriptptr++; //Leave a spot for the fail location
 
         j = keyword();
         parsecommand();
 
+        tempscrptr = (long *)script+offset;
         *tempscrptr = (long) scriptptr;
 
         if (tw != CON_WHILEVARN) checking_ifelse++;
         return 0;
-
+    }
     case CON_ADDLOGVAR:
 
         // syntax: addlogvar <var>
@@ -3503,6 +3617,9 @@ static int parsecommand(void)
         break;
 
     case CON_SWITCH:
+    {
+        long tempoffset;
+
         //AddLog("Got Switch statement");
         if (checking_switch)
         {
@@ -3514,6 +3631,7 @@ static int parsecommand(void)
         transvar();
 
         tempscrptr= scriptptr;
+        tempoffset = (unsigned)(tempscrptr-script);
         *scriptptr++=0; // leave spot for end location (for after processing)
         *scriptptr++=0; // count of case statements
         casescriptptr=scriptptr;        // the first case's pointer.
@@ -3540,6 +3658,7 @@ static int parsecommand(void)
         }
         if (tempscrptr)
         {
+            tempscrptr = (long *)(script+tempoffset);
             tempscrptr[1]=(long)j;  // save count of cases
         }
         else
@@ -3559,12 +3678,12 @@ static int parsecommand(void)
         //AddLog(g_szBuf);
 
         casecount=0;
-
         while (parsecommand() == 0)
         {
             //Bsprintf(g_szBuf,"SWITCH2: '%.22s'",textptr);
             //AddLog(g_szBuf);
         }
+
         //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr);
         //AddLog(g_szBuf);
         // done processing switch.  clean up.
@@ -3576,7 +3695,7 @@ static int parsecommand(void)
         casecount=0;
         if (tempscrptr)
         {
-            tempscrptr[0]= (long)scriptptr - (long)&script[0];    // save 'end' location
+            tempscrptr[0]= (unsigned)(scriptptr-script);    // save 'end' location
         }
         else
         {
@@ -3593,7 +3712,8 @@ static int parsecommand(void)
             //AddLog(g_szBuf);
         }
         //AddLog("End of Switch statement");
-        break;
+    }
+    break;
 
     case CON_CASE:
         //AddLog("Found Case");
@@ -3622,7 +3742,7 @@ repeatcase:
         {
             //AddLog("Adding value to script");
             casescriptptr[casecount++]=j;   // save value
-            casescriptptr[casecount]=(long)((long*)scriptptr-&script[0]);   // save offset
+            casescriptptr[casecount]=(long)((long*)scriptptr-script);   // save offset
         }
         //      j = keyword();
         //Bsprintf(g_szBuf,"case3: %.12s",textptr);
@@ -3670,7 +3790,7 @@ repeatcase:
         }
         if (casescriptptr)
         {
-            casescriptptr[0]=(long)(scriptptr-&script[0]);   // save offset
+            casescriptptr[0]=(long)(scriptptr-script);   // save offset
         }
         //Bsprintf(g_szBuf,"default: '%.22s'",textptr);
         //AddLog(g_szBuf);
@@ -3827,6 +3947,8 @@ repeatcase:
     case CON_IFAWAYFROMWALL:
     case CON_IFCANSEETARGET:
     case CON_IFNOSOUNDS:
+    {
+        long offset;
         if (tw == CON_IFP)
         {
             j = 0;
@@ -3842,16 +3964,18 @@ repeatcase:
         }
 
         tempscrptr = scriptptr;
+        offset = (unsigned)(tempscrptr-script);
+
         scriptptr++; //Leave a spot for the fail location
 
         j = keyword();
         parsecommand();
-
+        tempscrptr = (long *)script+offset;
         *tempscrptr = (long) scriptptr;
 
         checking_ifelse++;
         return 0;
-
+    }
     case CON_LEFTBRACE:
         if (!(parsing_state || parsing_actor || parsing_event))
         {
@@ -4735,7 +4859,10 @@ void loadefs(const char *filenam)
     clearbuf(actorscrptr,MAXTILES,0L);  // JBF 20040531: MAXSPRITES? I think Todd meant MAXTILES...
     clearbuf(actorLoadEventScrptr,MAXTILES,0L); // I think this should be here...
     clearbufbyte(actortype,MAXTILES,0L);
-    clearbufbyte(script,sizeof(script),0l); // JBF 20040531: yes? no?
+//    clearbufbyte(script,sizeof(script),0l); // JBF 20040531: yes? no?
+    if (script != NULL)
+        Bfree(script);
+    script = Bcalloc(1,sizeof(long)*(g_ScriptSize+16));
 
     labelcnt = defaultlabelcnt = 0;
     scriptptr = script+1;
@@ -4816,7 +4943,7 @@ void loadefs(const char *filenam)
                 k++;
         }
 
-        initprintf("\nCompiled code size: %ld/%ld bytes\n",(unsigned)(scriptptr-script),MAXSCRIPTSIZE);
+        initprintf("\nCompiled code size: %ld/%ld bytes\n",(unsigned)(scriptptr-script),g_ScriptSize);
         initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((sizeof(sector)/sizeof(long)),(sizeof(sprite)/(1<<6))),iGameVarCount,MAXGAMEVARS);
         initprintf("%ld event definitions, %ld defined actors\n\n",j,k);
 

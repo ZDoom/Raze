@@ -4506,15 +4506,15 @@ static int parse(void)
     case CON_LDIST:
         insptr++;
         {
-            int distvar = *insptr++, xvar = *insptr++, yvar = *insptr++, distx=0;
+            int distvar = *insptr++, xvar = GetGameVarID(*insptr++, g_i, g_p), yvar = GetGameVarID(*insptr++, g_i, g_p), distx=0;
 
             switch (tw)
             {
             case CON_DIST:
-                distx = dist(&sprite[GetGameVarID(xvar, g_i, g_p)],&sprite[GetGameVarID(yvar, g_i, g_p)]);
+                distx = dist(&sprite[xvar],&sprite[yvar]);
                 break;
             case CON_LDIST:
-                distx = ldist(&sprite[GetGameVarID(xvar, g_i, g_p)],&sprite[GetGameVarID(yvar, g_i, g_p)]);
+                distx = ldist(&sprite[xvar],&sprite[yvar]);
                 break;
             }
 
@@ -4526,14 +4526,16 @@ static int parse(void)
     case CON_GETANGLE:
         insptr++;
         {
-            int angvar = *insptr++, xvar = *insptr++, yvar = *insptr++;
+            int angvar = *insptr++;
+            int xvar = GetGameVarID(*insptr++, g_i, g_p);
+            int yvar = GetGameVarID(*insptr++, g_i, g_p);
 
             if (tw==CON_GETANGLE)
             {
-                SetGameVarID(angvar, getangle(GetGameVarID(xvar, g_i, g_p),GetGameVarID(yvar, g_i, g_p)), g_i, g_p);
+                SetGameVarID(angvar, getangle(xvar,yvar), g_i, g_p);
                 break;
             }
-            SetGameVarID(angvar, getincangle(GetGameVarID(xvar, g_i, g_p),GetGameVarID(yvar, g_i, g_p)), g_i, g_p);
+            SetGameVarID(angvar, getincangle(xvar,yvar), g_i, g_p);
             break;
         }
 

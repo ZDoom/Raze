@@ -9314,6 +9314,8 @@ static void freeconmem(void)
         Bfree(label);
     if (labelcode != NULL)
         Bfree(labelcode);
+    if (script != NULL)
+        Bfree(script);
 }
 
 /*

@@ -123,7 +123,8 @@ int loadplayer(int spot)
     int k;
     char fn[13];
     char mpfn[13];
-    char *fnptr, scriptptrs[MAXSCRIPTSIZE];
+    char *fnptr;
+    long *scriptptrs;
     long fil, bv, i, j, x;
     int32 nump;
 
@@ -263,9 +264,11 @@ int loadplayer(int spot)
     if (kdfread(&cloudx[0],sizeof(short)<<7,1,fil) != 1) goto corrupt;
     if (kdfread(&cloudy[0],sizeof(short)<<7,1,fil) != 1) goto corrupt;
 
-    if (kdfread(&scriptptrs[0],1,MAXSCRIPTSIZE,fil) != MAXSCRIPTSIZE) goto corrupt;
-    if (kdfread(&script[0],4,MAXSCRIPTSIZE,fil) != MAXSCRIPTSIZE) goto corrupt;
-    for (i=0;i<MAXSCRIPTSIZE;i++)
+    if (kdfread(&g_ScriptSize,sizeof(g_ScriptSize),1,fil) != 1) goto corrupt;
+    scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(g_ScriptSize));
+    if (kdfread(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
+    if (kdfread(&script[0],sizeof(script),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
+    for (i=0;i<g_ScriptSize;i++)
         if (scriptptrs[i])
         {
             j = (long)script[i]+(long)&script[0];
@@ -287,7 +290,7 @@ int loadplayer(int spot)
             actorLoadEventScrptr[i] = (long *)j;
         }
 
-    if (kdfread(&scriptptrs[0],1,MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
     if (kdfread(&hittype[0],sizeof(weaponhit),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
     for (i=0;i<MAXSPRITES;i++)
@@ -515,7 +518,8 @@ int saveplayer(int spot)
     long i, j;
     char fn[13];
     char mpfn[13];
-    char *fnptr,scriptptrs[MAXSCRIPTSIZE];
+    char *fnptr;
+    long *scriptptrs;
     FILE *fil;
     long bv = BYTEVERSION;
 
@@ -611,9 +615,11 @@ int saveplayer(int spot)
     dfwrite(&cloudx[0],sizeof(short)<<7,1,fil);
     dfwrite(&cloudy[0],sizeof(short)<<7,1,fil);
 
-    for (i=0;i<MAXSCRIPTSIZE;i++)
+    dfwrite(&g_ScriptSize,sizeof(g_ScriptSize),1,fil);
+    scriptptrs = Bcalloc(1, g_ScriptSize * sizeof(scriptptrs));
+    for (i=0;i<g_ScriptSize;i++)
     {
-        if ((long)script[i] >= (long)(&script[0]) && (long)script[i] < (long)(&script[MAXSCRIPTSIZE]))
+        if ((long)script[i] >= (long)(&script[0]) && (long)script[i] < (long)(&script[g_ScriptSize]))
         {
             scriptptrs[i] = 1;
             j = (long)script[i] - (long)&script[0];
@@ -622,10 +628,10 @@ int saveplayer(int spot)
         else scriptptrs[i] = 0;
     }
 
-    dfwrite(&scriptptrs[0],1,MAXSCRIPTSIZE,fil);
-    dfwrite(&script[0],4,MAXSCRIPTSIZE,fil);
+    dfwrite(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil);
+    dfwrite(&script[0],sizeof(script),g_ScriptSize,fil);
 
-    for (i=0;i<MAXSCRIPTSIZE;i++)
+    for (i=0;i<g_ScriptSize;i++)
         if (scriptptrs[i])
         {
             j = script[i]+(long)&script[0];
@@ -669,24 +675,24 @@ int saveplayer(int spot)
 
         j = (long)&script[0];
 
-        if (T2 >= j && T2 < (long)(&script[MAXSCRIPTSIZE]))
+        if (T2 >= j && T2 < (long)(&script[g_ScriptSize]))
         {
             scriptptrs[i] |= 1;
             T2 -= j;
         }
-        if (T5 >= j && T5 < (long)(&script[MAXSCRIPTSIZE]))
+        if (T5 >= j && T5 < (long)(&script[g_ScriptSize]))
         {
             scriptptrs[i] |= 2;
             T5 -= j;
         }
-        if (T6 >= j && T6 < (long)(&script[MAXSCRIPTSIZE]))
+        if (T6 >= j && T6 < (long)(&script[g_ScriptSize]))
         {
             scriptptrs[i] |= 4;
             T6 -= j;
         }
     }
 
-    dfwrite(&scriptptrs[0],1,MAXSPRITES,fil);
+    dfwrite(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil);
     dfwrite(&hittype[0],sizeof(weaponhit),MAXSPRITES,fil);
 
     for (i=0;i<MAXSPRITES;i++)

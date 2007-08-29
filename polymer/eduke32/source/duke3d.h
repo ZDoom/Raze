@@ -148,7 +148,7 @@ enum gamemodes {
 
 #define MAXCYCLERS 1024
 
-#define MAXSCRIPTSIZE 98304
+#define MAXSCRIPTSIZE 131072
 
 #define MAXANIMATES 256
 
@@ -437,8 +437,7 @@ typedef struct {
 typedef struct {
     long ox,oy,oz;
     short oa,os;
-} player_orig;
-
+} player_spawnpoint;
 
 extern char numplayersprites;
 
@@ -529,7 +528,8 @@ extern char sounds[NUM_SOUNDS][BMAX_PATH];
 
 // JBF 20040531: adding 16 extra to the script so we have some leeway
 // to (hopefully) safely abort when hitting the limit
-extern long script[MAXSCRIPTSIZE+16],*scriptptr,*insptr,*labelcode,labelcnt,defaultlabelcnt,*labeltype;
+extern long *script,*scriptptr,*insptr,*labelcode,labelcnt,defaultlabelcnt,*labeltype;
+extern int g_ScriptSize;
 extern char *label;
 extern long *actorscrptr[MAXTILES],*parsing_actor;
 extern long *actorLoadEventScrptr[MAXTILES];
@@ -980,7 +980,7 @@ typedef struct {
 } playerdata_t;
 
 extern input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
-extern player_orig g_PlayerSpawnPoints[MAXPLAYERS];
+extern player_spawnpoint g_PlayerSpawnPoints[MAXPLAYERS];
 extern playerdata_t g_player[MAXPLAYERS];
 #include "funct.h"
 
