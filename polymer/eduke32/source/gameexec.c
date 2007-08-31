@@ -4428,7 +4428,7 @@ static int parse(void)
             // script offset to default case (null if none)
             // For each case: value, ptr to code
             //AddLog("Processing Switch...");
-            long lVarID=*insptr++, lValue=GetGameVarID(lVarID, g_i, g_p), lEnd=*insptr++, lCases=*insptr++;
+            long lValue=GetGameVarID(*insptr++, g_i, g_p), lEnd=*insptr++, lCases=*insptr++;
             long *lpDefault=insptr++, *lpCases=insptr, bMatched=0, *lTempInsPtr, lCheckCase;
             insptr+=lCases*2;
             lTempInsPtr=insptr;

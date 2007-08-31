@@ -123,8 +123,7 @@ int loadplayer(int spot)
     int k;
     char fn[13];
     char mpfn[13];
-    char *fnptr;
-    long *scriptptrs;
+    char *fnptr, *scriptptrs;
     long fil, bv, i, j, x;
     int32 nump;
 
@@ -265,7 +264,7 @@ int loadplayer(int spot)
     if (kdfread(&cloudy[0],sizeof(short)<<7,1,fil) != 1) goto corrupt;
 
     if (kdfread(&g_ScriptSize,sizeof(g_ScriptSize),1,fil) != 1) goto corrupt;
-    scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(g_ScriptSize));
+    scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(scriptptrs));
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
     if (script != NULL)
         Bfree(script);
@@ -521,8 +520,7 @@ int saveplayer(int spot)
     long i, j;
     char fn[13];
     char mpfn[13];
-    char *fnptr;
-    long *scriptptrs;
+    char *fnptr, *scriptptrs;
     FILE *fil;
     long bv = BYTEVERSION;
 

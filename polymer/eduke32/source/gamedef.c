@@ -840,9 +840,10 @@ LABELS inputlabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
-static void skipcomments(void)
+static int skipcomments(void)
 {
     char c;
+    int i,j;
 
     while ((c = *textptr))
     {
@@ -887,6 +888,120 @@ static void skipcomments(void)
         }
         else break;
     }
+
+    if ((unsigned)(scriptptr-script) > (unsigned)(g_ScriptSize-32))
+    {
+        long oscriptptr = (unsigned)(scriptptr-script);
+        long ocasescriptptr = (unsigned)(casescriptptr-script);
+        long oparsing_event = (unsigned)(parsing_event-script);
+        long oparsing_actor = (unsigned)(parsing_actor-script);
+        char *scriptptrs;
+        long *newscript;
+
+        for (i=0;i<MAXSECTORS;i++)
+        {
+            if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
+            {
+                labelcode[i] -= (long)&script[0];
+            }
+        }
+
+        scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(char));
+        for (i=0;i<g_ScriptSize;i++)
+        {
+//            initprintf("%ld\n",i);
+            if ((long)script[i] >= (long)(&script[0]) && (long)script[i] < (long)(&script[g_ScriptSize]))
+            {
+                scriptptrs[i] = 1;
+                j = (long)script[i] - (long)&script[0];
+                script[i] = j;
+            }
+            else scriptptrs[i] = 0;
+        }
+
+        for (i=0;i<MAXTILES;i++)
+            if (actorscrptr[i])
+            {
+                j = (long)actorscrptr[i]-(long)&script[0];
+                actorscrptr[i] = (long *)j;
+            }
+
+        for (i=0;i<MAXTILES;i++)
+            if (actorLoadEventScrptr[i])
+            {
+                j = (long)actorLoadEventScrptr[i]-(long)&script[0];
+                actorLoadEventScrptr[i] = (long *)j;
+            }
+
+        for (i=0;i<MAXGAMEEVENTS;i++)
+            if (apScriptGameEvent[i])
+            {
+                j = (long)apScriptGameEvent[i]-(long)&script[0];
+                apScriptGameEvent[i] = (long *)j;
+            }
+
+        //initprintf("offset: %ld\n",(unsigned)(scriptptr-script));
+        g_ScriptSize += 16384;
+        initprintf("Increasing script buffer size to %ld bytes...\n",g_ScriptSize);
+        newscript = (long *)Brealloc(script, g_ScriptSize * sizeof(long));
+
+        if (newscript == NULL)
+        {
+            ReportError(-1);
+            initprintf("%s:%ld: out of memory: Aborted (%ud)\n",compilefile,line_number,(unsigned)(scriptptr-script));
+            initprintf(tempbuf);
+            error++;
+            return 1;
+        }
+        script = newscript;
+        scriptptr = (long *)(script+oscriptptr);
+        //initprintf("offset: %ld\n",(unsigned)(scriptptr-script));
+        if (casescriptptr != NULL)
+            casescriptptr = (long *)(script+ocasescriptptr);
+        if (parsing_event != NULL)
+            parsing_event = (long *)(script+oparsing_event);
+        if (parsing_actor != NULL)
+            parsing_actor = (long *)(script+oparsing_actor);
+
+        for (i=0;i<MAXSECTORS;i++)
+        {
+            if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
+            {
+                labelcode[i] += (long)&script[0];
+            }
+        }
+
+        for (i=0;i<g_ScriptSize-16384;i++)
+            if (scriptptrs[i])
+            {
+                j = (long)script[i]+(long)&script[0];
+                script[i] = j;
+            }
+
+        for (i=0;i<MAXTILES;i++)
+            if (actorscrptr[i])
+            {
+                j = (long)actorscrptr[i]+(long)&script[0];
+                actorscrptr[i] = (long *)j;
+            }
+
+        for (i=0;i<MAXTILES;i++)
+            if (actorLoadEventScrptr[i])
+            {
+                j = (long)actorLoadEventScrptr[i]+(long)&script[0];
+                actorLoadEventScrptr[i] = (long *)j;
+            }
+
+        for (i=0;i<MAXGAMEEVENTS;i++)
+            if (apScriptGameEvent[i])
+            {
+                j = (long)apScriptGameEvent[i]+(long)&script[0];
+                apScriptGameEvent[i] = (long *)j;
+            }
+        Bfree(scriptptrs);
+    }
+
+    return 0;
 }
 
 static void DefineProjectile(long lVar1, long lLabelID, long lVar2)
@@ -1444,8 +1559,9 @@ static long CountCaseStatements()
     long lCount;
     char *temptextptr = textptr;
     int temp_line_number = line_number;
-    long tempscriptptr = (unsigned)(scriptptr-script);
-    long tempsavecase = (unsigned)(casescriptptr-script);
+    long scriptoffset = (unsigned)(scriptptr-script);
+    long caseoffset = (unsigned)(casescriptptr-script);
+    int i;
 
     casecount=0;
     casescriptptr=NULL;
@@ -1461,13 +1577,14 @@ static long CountCaseStatements()
     checking_switch++;
 
     textptr=temptextptr;
-    scriptptr = (long *)(script+tempscriptptr);
+    scriptptr = (long *)(script+scriptoffset);
 
     line_number = temp_line_number;
 
     lCount=casecount;
     casecount=0;
-    casescriptptr = (long *)(script+tempsavecase);
+    casescriptptr = (long *)(script+caseoffset);
+    casecount = 0;
     return lCount;
 }
 
@@ -1477,121 +1594,11 @@ static int parsecommand(void)
     char *temptextptr;
     long *tempscrptr;
 
-#if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2))
     if (quitevent)
     {
         initprintf("Aborted.\n");
         Shutdown();
         exit(0);
-    }
-#endif
-
-    if ((unsigned)(scriptptr-script) > (unsigned)(g_ScriptSize-128))
-    {
-        long oscriptptr = (unsigned)(scriptptr-script);
-        long ocasescriptptr = (unsigned)(casescriptptr-script);
-        long oparsing_event = (unsigned)(parsing_event-script);
-        long oparsing_actor = (unsigned)(parsing_actor-script);
-        long *scriptptrs;
-
-        for (i=0;i<MAXSECTORS;i++)
-        {
-            if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
-            {
-                labelcode[i] -= (long)&script[0];
-            }
-        }
-
-        scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(long));
-        for (i=0;i<g_ScriptSize-1;i++)
-        {
-            if ((long)script[i] >= (long)(&script[0]) && (long)script[i] < (long)(&script[g_ScriptSize]))
-            {
-                scriptptrs[i] = 1;
-                j = (long)script[i] - (long)&script[0];
-                script[i] = j;
-            }
-            else scriptptrs[i] = 0;
-        }
-
-        for (i=0;i<MAXTILES;i++)
-            if (actorscrptr[i])
-            {
-                j = (long)actorscrptr[i]-(long)&script[0];
-                actorscrptr[i] = (long *)j;
-            }
-
-        for (i=0;i<MAXTILES;i++)
-            if (actorLoadEventScrptr[i])
-            {
-                j = (long)actorLoadEventScrptr[i]-(long)&script[0];
-                actorLoadEventScrptr[i] = (long *)j;
-            }
-
-        for (i=0;i<MAXGAMEEVENTS;i++)
-            if (apScriptGameEvent[i])
-            {
-                j = (long)apScriptGameEvent[i]-(long)&script[0];
-                apScriptGameEvent[i] = (long *)j;
-            }
-
-        //initprintf("offset: %ld\n",(unsigned)(scriptptr-script));
-        g_ScriptSize += 16384;
-        initprintf("Increasing script buffer size to %ld bytes...\n",g_ScriptSize);
-        script = (long *)realloc(script, g_ScriptSize * sizeof(long));
-
-        if (script == NULL)
-        {
-            ReportError(-1);
-            initprintf("%s:%ld: out of memory: Aborted (%ud)\n",compilefile,line_number,(unsigned)(scriptptr-script));
-            initprintf(tempbuf);
-            error++;
-            return 1;
-        }
-        scriptptr = (long *)(script+oscriptptr);
-        //initprintf("offset: %ld\n",(unsigned)(scriptptr-script));
-        if (casescriptptr != NULL)
-            casescriptptr = (long *)(script+ocasescriptptr);
-        if (parsing_event != NULL)
-            parsing_event = (long *)(script+oparsing_event);
-        if (parsing_actor != NULL)
-            parsing_actor = (long *)(script+oparsing_actor);
-
-        for (i=0;i<MAXSECTORS;i++)
-        {
-            if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
-            {
-                labelcode[i] += (long)&script[0];
-            }
-        }
-
-        for (i=0;i<g_ScriptSize-16384;i++)
-            if (scriptptrs[i])
-            {
-                j = (long)script[i]+(long)&script[0];
-                script[i] = j;
-            }
-
-        for (i=0;i<MAXTILES;i++)
-            if (actorscrptr[i])
-            {
-                j = (long)actorscrptr[i]+(long)&script[0];
-                actorscrptr[i] = (long *)j;
-            }
-        for (i=0;i<MAXTILES;i++)
-            if (actorLoadEventScrptr[i])
-            {
-                j = (long)actorLoadEventScrptr[i]+(long)&script[0];
-                actorLoadEventScrptr[i] = (long *)j;
-            }
-
-        for (i=0;i<MAXGAMEEVENTS;i++)
-            if (apScriptGameEvent[i])
-            {
-                j = (long)apScriptGameEvent[i]+(long)&script[0];
-                apScriptGameEvent[i] = (long *)j;
-            }
-        Bfree(scriptptrs);
     }
 
     if ((error+warning) > 63 || (*textptr == '\0') || (*(textptr+1) == '\0')) return 1;
@@ -1608,7 +1615,8 @@ static int parsecommand(void)
     //    Bsprintf(tempbuf,"%s",keyw[tw]);
     //    AddLog(tempbuf);
 
-    skipcomments(); // yes?  no?
+    if (skipcomments())
+        return 1;
 
     switch (tw)
     {
@@ -3653,7 +3661,9 @@ static int parsecommand(void)
         //AddLog("Counting Case Statements...");
 
         j=CountCaseStatements();
-        //Bsprintf(g_szBuf,"Done Counting Case Statements: found %d.", j);
+//        initprintf("Done Counting Case Statements for switch %d: found %d.\n", checking_switch,j);
+        tempscrptr = (long *)(script+tempoffset);
+
         //AddLog(g_szBuf);
         if (checking_switch>1)
         {
@@ -3666,7 +3676,6 @@ static int parsecommand(void)
         }
         if (tempscrptr)
         {
-            tempscrptr = (long *)(script+tempoffset);
             tempscrptr[1]=(long)j;  // save count of cases
         }
         else
@@ -3695,7 +3704,7 @@ static int parsecommand(void)
         //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr);
         //AddLog(g_szBuf);
         // done processing switch.  clean up.
-        if (checking_switch!=1)
+        if (checking_switch<1)
         {
             //    Bsprintf(g_szBuf,"ERROR::%s %d: Checking_switch=%d",__FILE__,__LINE__, checking_switch);
             //    AddLog(g_szBuf);
@@ -3724,6 +3733,8 @@ static int parsecommand(void)
     break;
 
     case CON_CASE:
+    {
+        long tempoffset;
         //AddLog("Found Case");
 repeatcase:
         scriptptr--; // don't save in code
@@ -3765,6 +3776,7 @@ repeatcase:
         }
         //Bsprintf(g_szBuf,"case4: '%.12s'",textptr);
         //AddLog(g_szBuf);
+        tempoffset = (unsigned)(tempscrptr-script);
         while (parsecommand() == 0)
         {
             //Bsprintf(g_szBuf,"case5 '%.25s'",textptr);
@@ -3774,12 +3786,15 @@ repeatcase:
             {
                 //AddLog("Found Repeat Case");
                 transword();    // eat 'case'
+                tempscrptr = (long *)(script+tempoffset);
                 goto repeatcase;
             }
         }
+        tempscrptr = (long *)(script+tempoffset);
         //AddLog("End Case");
         return 0;
         //      break;
+    }
     case CON_DEFAULT:
         scriptptr--;    // don't save
         if (checking_switch<1)
@@ -3818,30 +3833,6 @@ repeatcase:
             error++;
             ReportError(-1);
             initprintf("%s:%ld: error: found `endswitch' without matching `switch'\n",compilefile,line_number);
-        }
-        if (casescriptptr)
-        {
-            int i;
-
-            //Bsprintf(g_szBuf,"Default Offset is %ld\n Total of %ld cases",casescriptptr[0],(long)casecount/2);
-            //AddLog(g_szBuf);
-            for (i=1;i<=casecount;i++)
-            {
-                if (i & 1)
-                {
-                    //Bsprintf(g_szBuf,"Case Value %d is %ld",i/2+1,casescriptptr[i]);
-                    //AddLog(g_szBuf);
-                }
-                else
-                {
-                    //Bsprintf(g_szBuf,"Offset %d is %ld",i/2+1,casescriptptr[i]);
-                    //AddLog(g_szBuf);
-                }
-            }
-        }
-        else
-        {
-            //AddLog("Not saving case value: just counting");
         }
         return 1;      // end of block
         break;
@@ -4937,21 +4928,21 @@ void loadefs(const char *filenam)
     }
     else
     {
-        int j, k;
+        int j=0, k=0;
 
         total_lines += line_number;
-        for (i=j=0;i<MAXGAMEEVENTS;i++)
+        for (i=0;i<MAXGAMEEVENTS;i++)
         {
             if (apScriptGameEvent[i])
                 j++;
         }
-        for (i=k=0;i<MAXTILES;i++)
+        for (i=0;i<MAXTILES;i++)
         {
             if (actorscrptr[i])
                 k++;
         }
 
-        initprintf("\nCompiled code size: %ld/%ld bytes\n",(unsigned)(scriptptr-script),g_ScriptSize);
+        initprintf("\nCompiled code size: %ld bytes\n",(unsigned)(scriptptr-script));
         initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((sizeof(sector)/sizeof(long)),(sizeof(sprite)/(1<<6))),iGameVarCount,MAXGAMEVARS);
         initprintf("%ld event definitions, %ld defined actors\n\n",j,k);
 

@@ -460,8 +460,9 @@ BOLT:
 
 int movesprite(int spritenum, long xchange, long ychange, long zchange, unsigned long cliptype)
 {
-    long daz,h, oldx, oldy;
-    short retval, dasectnum, cd;
+    long daz, oldx, oldy;
+    int retval;
+    short dasectnum, cd;
     int bg = badguy(&sprite[spritenum]);
 
     if (sprite[spritenum].statnum == 5 || (bg && sprite[spritenum].xrepeat < 4))
@@ -476,9 +477,7 @@ int movesprite(int spritenum, long xchange, long ychange, long zchange, unsigned
 
     dasectnum = sprite[spritenum].sectnum;
 
-    daz = sprite[spritenum].z;
-    h = ((tilesizy[sprite[spritenum].picnum]*sprite[spritenum].yrepeat)<<1);
-    daz -= h;
+    daz = sprite[spritenum].z - ((tilesizy[sprite[spritenum].picnum]*sprite[spritenum].yrepeat)<<1);
 
     if (bg)
     {
@@ -1429,8 +1428,8 @@ static void movestandables(void)
                         {
                             if (s->owner==-2)
                             {
-                                spritesound(DUKE_GRUNT,g_player[p].ps->i);
                                 p = findplayer(s,&x);
+                                spritesound(DUKE_GRUNT,g_player[p].ps->i);
                                 if (g_player[p].ps->on_crane == i)
                                     g_player[p].ps->on_crane = -1;
                             }

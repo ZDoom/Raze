@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="eduke32"
 	ProjectGUID="{8E7A6179-0B72-4073-8A4C-E8682D481DAE}"
 	RootNamespace="eduke32"
@@ -462,47 +462,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jmact\animlib.c"
-					>
-				</File>
-				<File
 					RelativePath=".\source\astub.c"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\audiolib_fx_fmod.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\audiolib_fxstub.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\audiolib_musicstub.c"
-					>
-				</File>
-				<File
 					RelativePath=".\source\config.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\control.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\dsl.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\dsoundout.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\file_lib.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\fx_man.c"
 					>
 				</File>
 				<File
@@ -534,39 +498,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jmact\keyboard.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\ll_man.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\mathutil.c"
-					>
-				</File>
-				<File
 					RelativePath=".\source\menus.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\midi.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\mouse.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\mpu401.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\multivoc.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\music.c"
 					>
 				</File>
 				<File
@@ -579,10 +511,6 @@
 				</File>
 				<File
 					RelativePath=".\source\osdfuncs.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\pitch.c"
 					>
 				</File>
 				<File
@@ -599,18 +527,6 @@
 				</File>
 				<File
 					RelativePath=".\source\savegame.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\scriplib.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\sdlmusic.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\sdlout.c"
 					>
 				</File>
 				<File
@@ -634,14 +550,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\unixglob.c"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\util_lib.c"
-					>
-				</File>
-				<File
 					RelativePath=".\source\winbits.c"
 					>
 				</File>
@@ -654,19 +562,7 @@
 				Name="Header Files"
 				>
 				<File
-					RelativePath=".\source\jmact\_control.h"
-					>
-				</File>
-				<File
 					RelativePath=".\source\_functio.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\_midi.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\_multivc.h"
 					>
 				</File>
 				<File
@@ -674,27 +570,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jmact\_scrplib.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\animlib.h"
-					>
-				</File>
-				<File
 					RelativePath=".\source\config.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\control.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\debugio.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\develop.h"
 					>
 				</File>
 				<File
@@ -702,19 +578,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\dsl.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\dsoundout.h"
-					>
-				</File>
-				<File
 					RelativePath=".\source\duke3d.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\file_lib.h"
 					>
 				</File>
 				<File
@@ -723,14 +587,6 @@
 				</File>
 				<File
 					RelativePath=".\source\function.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\fx_man.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\fx_man_fmod.h"
 					>
 				</File>
 				<File
@@ -746,51 +602,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\interrup.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\keyboard.h"
-					>
-				</File>
-				<File
 					RelativePath=".\source\keys.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\linklist.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\ll_man.h"
-					>
-				</File>
-				<File
 					RelativePath=".\source\mapster32.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\mathutil.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\midi.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\mouse.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\mpu401.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\multivoc.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\music.h"
 					>
 				</File>
 				<File
@@ -810,23 +626,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\pitch.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\platform.h"
-					>
-				</File>
-				<File
 					RelativePath=".\source\rts.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jmact\scriplib.h"
-					>
-				</File>
-				<File
-					RelativePath=".\source\jaudiolib\sdlout.h"
 					>
 				</File>
 				<File
@@ -838,11 +638,203 @@
 					>
 				</File>
 				<File
+					RelativePath=".\source\startwin.game.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\wtf.h"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Audiolib"
+			>
+			<Filter
+				Name="Header Files"
+				>
+				<File
+					RelativePath=".\source\jaudiolib\_midi.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\_multivc.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\debugio.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\dsl.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\dsoundout.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\fx_man.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\fx_man_fmod.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\interrup.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\linklist.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\ll_man.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\midi.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\mpu401.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\multivoc.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\music.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\pitch.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\platform.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\sdlout.h"
+					>
+				</File>
+				<File
 					RelativePath=".\source\jaudiolib\standard.h"
 					>
 				</File>
 				<File
-					RelativePath=".\source\startwin.game.h"
+					RelativePath=".\source\jaudiolib\usrhooks.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Source Files"
+				>
+				<File
+					RelativePath=".\source\jaudiolib\audiolib_fx_fmod.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\audiolib_fxstub.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\audiolib_musicstub.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\dsl.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\dsoundout.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\fx_man.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\ll_man.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\midi.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\mpu401.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\multivoc.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\music.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\pitch.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\sdlmusic.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\sdlout.c"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Mact"
+			>
+			<Filter
+				Name="Header Files"
+				>
+				<File
+					RelativePath=".\source\jmact\_control.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\_scrplib.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\animlib.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\control.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\develop.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\file_lib.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\keyboard.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\mathutil.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\mouse.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\scriplib.h"
 					>
 				</File>
 				<File
@@ -850,11 +842,43 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jaudiolib\usrhooks.h"
+					RelativePath=".\source\jmact\util_lib.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Source Files"
+				>
+				<File
+					RelativePath=".\source\jmact\animlib.c"
 					>
 				</File>
 				<File
-					RelativePath=".\source\jmact\util_lib.h"
+					RelativePath=".\source\jmact\control.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\file_lib.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\keyboard.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\mathutil.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\mouse.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\scriplib.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jmact\util_lib.c"
 					>
 				</File>
 			</Filter>

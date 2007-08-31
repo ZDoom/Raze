@@ -1030,7 +1030,7 @@ void operateactivators(int low,int snum)
                 else
                     sector[SECT].lotag |= 16384;
 
-                if (snum >= 0)
+                if (snum >= 0 && snum < ud.multimode)
                 {
                     if (sector[SECT].lotag&16384)
                         FTA(4,g_player[snum].ps);

@@ -208,6 +208,7 @@ void CONFIG_SetDefaults(void)
     ud.automsg = 0;
     ud.autovote = 0;
     ud.brightness = 8;
+    ud.camerasprite = -1;
     ud.color = 0;
     ud.crosshair = 2;
     ud.deathmsgs = 1;
