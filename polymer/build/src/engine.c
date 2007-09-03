@@ -7301,9 +7301,12 @@ long saveboard(char *filename, long *daposx, long *daposy, long *daposz,
 {
     short fil, i, j, numsprites, ts;
     long tl;
-    sectortype tsect;
-    walltype   twall;
-    spritetype tspri;
+    sectortype tsect[MAXSECTORS];
+    walltype   twall[MAXWALLS];
+    spritetype tspri[MAXSPRITES];
+    sectortype *sec;
+    walltype *wal;
+    spritetype *spri;
 
     if ((fil = Bopen(filename,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
         return(-1);
@@ -7333,39 +7336,43 @@ long saveboard(char *filename, long *daposx, long *daposy, long *daposz,
 
     ts = B_LITTLE16(numsectors);    Bwrite(fil,&ts,2);
     for (i=0; i<numsectors; i++) {
-        tsect = sector[i];
-        tsect.wallptr       = B_LITTLE16(tsect.wallptr);
-        tsect.wallnum       = B_LITTLE16(tsect.wallnum);
-        tsect.ceilingz      = B_LITTLE32(tsect.ceilingz);
-        tsect.floorz        = B_LITTLE32(tsect.floorz);
-        tsect.ceilingstat   = B_LITTLE16(tsect.ceilingstat);
-        tsect.floorstat     = B_LITTLE16(tsect.floorstat);
-        tsect.ceilingpicnum = B_LITTLE16(tsect.ceilingpicnum);
-        tsect.ceilingheinum = B_LITTLE16(tsect.ceilingheinum);
-        tsect.floorpicnum   = B_LITTLE16(tsect.floorpicnum);
-        tsect.floorheinum   = B_LITTLE16(tsect.floorheinum);
-        tsect.lotag         = B_LITTLE16(tsect.lotag);
-        tsect.hitag         = B_LITTLE16(tsect.hitag);
-        tsect.extra         = B_LITTLE16(tsect.extra);
-        Bwrite(fil,&tsect,sizeof(sectortype));
+        Bmemcpy(&tsect[i], &sector[i], sizeof(sectortype));
+        sec = &tsect[i];
+        sec->wallptr       = B_LITTLE16(sec->wallptr);
+        sec->wallnum       = B_LITTLE16(sec->wallnum);
+        sec->ceilingz      = B_LITTLE32(sec->ceilingz);
+        sec->floorz        = B_LITTLE32(sec->floorz);
+        sec->ceilingstat   = B_LITTLE16(sec->ceilingstat);
+        sec->floorstat     = B_LITTLE16(sec->floorstat);
+        sec->ceilingpicnum = B_LITTLE16(sec->ceilingpicnum);
+        sec->ceilingheinum = B_LITTLE16(sec->ceilingheinum);
+        sec->floorpicnum   = B_LITTLE16(sec->floorpicnum);
+        sec->floorheinum   = B_LITTLE16(sec->floorheinum);
+        sec->lotag         = B_LITTLE16(sec->lotag);
+        sec->hitag         = B_LITTLE16(sec->hitag);
+        sec->extra         = B_LITTLE16(sec->extra);
     }
+
+    Bwrite(fil,&tsect[0],sizeof(sectortype) * numsectors);
 
     ts = B_LITTLE16(numwalls);      Bwrite(fil,&ts,2);
     for (i=0; i<numwalls; i++) {
-        twall = wall[i];
-        twall.x          = B_LITTLE32(twall.x);
-        twall.y          = B_LITTLE32(twall.y);
-        twall.point2     = B_LITTLE16(twall.point2);
-        twall.nextwall   = B_LITTLE16(twall.nextwall);
-        twall.nextsector = B_LITTLE16(twall.nextsector);
-        twall.cstat      = B_LITTLE16(twall.cstat);
-        twall.picnum     = B_LITTLE16(twall.picnum);
-        twall.overpicnum = B_LITTLE16(twall.overpicnum);
-        twall.lotag      = B_LITTLE16(twall.lotag);
-        twall.hitag      = B_LITTLE16(twall.hitag);
-        twall.extra      = B_LITTLE16(twall.extra);
-        Bwrite(fil,&twall,sizeof(walltype));
+        Bmemcpy(&twall[i], &wall[i], sizeof(walltype));
+        wal = &twall[i];
+        wal->x          = B_LITTLE32(wal->x);
+        wal->y          = B_LITTLE32(wal->y);
+        wal->point2     = B_LITTLE16(wal->point2);
+        wal->nextwall   = B_LITTLE16(wal->nextwall);
+        wal->nextsector = B_LITTLE16(wal->nextsector);
+        wal->cstat      = B_LITTLE16(wal->cstat);
+        wal->picnum     = B_LITTLE16(wal->picnum);
+        wal->overpicnum = B_LITTLE16(wal->overpicnum);
+        wal->lotag      = B_LITTLE16(wal->lotag);
+        wal->hitag      = B_LITTLE16(wal->hitag);
+        wal->extra      = B_LITTLE16(wal->extra);
     }
+
+    Bwrite(fil,&twall[0],sizeof(walltype) * numwalls);
 
     ts = B_LITTLE16(numsprites);    Bwrite(fil,&ts,2);
 
@@ -7373,25 +7380,27 @@ long saveboard(char *filename, long *daposx, long *daposy, long *daposz,
     {
         if (sprite[j].statnum != MAXSTATUS)
         {
-            tspri = sprite[j];
-            tspri.x       = B_LITTLE32(tspri.x);
-            tspri.y       = B_LITTLE32(tspri.y);
-            tspri.z       = B_LITTLE32(tspri.z);
-            tspri.cstat   = B_LITTLE16(tspri.cstat);
-            tspri.picnum  = B_LITTLE16(tspri.picnum);
-            tspri.sectnum = B_LITTLE16(tspri.sectnum);
-            tspri.statnum = B_LITTLE16(tspri.statnum);
-            tspri.ang     = B_LITTLE16(tspri.ang);
-            tspri.owner   = B_LITTLE16(tspri.owner);
-            tspri.xvel    = B_LITTLE16(tspri.xvel);
-            tspri.yvel    = B_LITTLE16(tspri.yvel);
-            tspri.zvel    = B_LITTLE16(tspri.zvel);
-            tspri.lotag   = B_LITTLE16(tspri.lotag);
-            tspri.hitag   = B_LITTLE16(tspri.hitag);
-            tspri.extra   = B_LITTLE16(tspri.extra);
-            Bwrite(fil,&tspri,sizeof(spritetype));
+            Bmemcpy(&tspri[j], &sprite[j], sizeof(spritetype));
+            spri = &tspri[j];
+            spri->x       = B_LITTLE32(spri->x);
+            spri->y       = B_LITTLE32(spri->y);
+            spri->z       = B_LITTLE32(spri->z);
+            spri->cstat   = B_LITTLE16(spri->cstat);
+            spri->picnum  = B_LITTLE16(spri->picnum);
+            spri->sectnum = B_LITTLE16(spri->sectnum);
+            spri->statnum = B_LITTLE16(spri->statnum);
+            spri->ang     = B_LITTLE16(spri->ang);
+            spri->owner   = B_LITTLE16(spri->owner);
+            spri->xvel    = B_LITTLE16(spri->xvel);
+            spri->yvel    = B_LITTLE16(spri->yvel);
+            spri->zvel    = B_LITTLE16(spri->zvel);
+            spri->lotag   = B_LITTLE16(spri->lotag);
+            spri->hitag   = B_LITTLE16(spri->hitag);
+            spri->extra   = B_LITTLE16(spri->extra);
         }
     }
+
+    Bwrite(fil,&tspri[0],sizeof(spritetype) * numsprites);
 
     Bclose(fil);
     return(0);
