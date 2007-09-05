@@ -7172,7 +7172,10 @@ long loadmaphack(char *filename)
         T_NOMODEL,
         T_NOANIM,
         T_PITCH,
-        T_ROLL
+        T_ROLL,
+        T_MDXOFF,
+        T_MDYOFF,
+        T_MDZOFF
     };
 
     static struct { char *text; int tokenid; } legaltokens[] = {
@@ -7187,6 +7190,9 @@ long loadmaphack(char *filename)
                 { "nomdanim", T_NOANIM },
                 { "pitch", T_PITCH },
                 { "roll", T_ROLL },
+                { "mdxoff", T_MDXOFF },
+                { "mdyoff", T_MDYOFF },
+                { "mdzoff", T_MDZOFF },
                 { NULL, -1 }
             };
 
@@ -7277,6 +7283,46 @@ long loadmaphack(char *filename)
             }
             spriteext[whichsprite].roll = (short)roll;
         }
+        case T_MDXOFF:     // mdxoff <xx>
+        {
+            int i;
+            if (scriptfile_getnumber(script, &i)) break;
+
+            if (whichsprite < 0) {
+                // no sprite directive preceeding
+                initprintf("Ignoring mdxoff directive because of absent/invalid sprite number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+            spriteext[whichsprite].xoff = i;
+        }
+        case T_MDYOFF:     // mdyoff <xx>
+        {
+            int i;
+            if (scriptfile_getnumber(script, &i)) break;
+
+            if (whichsprite < 0) {
+                // no sprite directive preceeding
+                initprintf("Ignoring mdyoff directive because of absent/invalid sprite number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+            spriteext[whichsprite].yoff = i;
+        }
+        case T_MDZOFF:     // mdzoff <xx>
+        {
+            int i;
+            if (scriptfile_getnumber(script, &i)) break;
+
+            if (whichsprite < 0) {
+                // no sprite directive preceeding
+                initprintf("Ignoring mdzoff directive because of absent/invalid sprite number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+            spriteext[whichsprite].zoff = i;
+        }
+
         break;
 
         default:
