@@ -5519,6 +5519,30 @@ int preinitengine(void)
     char *e;
     if (initsystem()) exit(1);
 
+    if (sector != NULL)
+        Bfree(sector);
+    sector = Bcalloc(MAXSECTORS,sizeof(sectortype));
+
+    if (wall != NULL)
+        Bfree(wall);
+    wall = Bcalloc(MAXWALLS,sizeof(walltype));
+
+    if (sprite != NULL)
+        Bfree(sprite);
+    sprite = Bcalloc(MAXSPRITES,sizeof(spritetype));
+
+    if (tsprite != NULL)
+        Bfree(tsprite);
+    tsprite = Bcalloc(MAXSPRITESONSCREEN,sizeof(spritetype));
+
+    if (spriteext != NULL)
+        Bfree(spriteext);
+    spriteext = Bcalloc(MAXSPRITES+MAXUNIQHUDID,sizeof(spriteexttype));
+
+    if (spritesmooth != NULL)
+        Bfree(spritesmooth);
+    spritesmooth = Bcalloc(MAXSPRITES+MAXUNIQHUDID,sizeof(spritesmoothtype));
+
     if ((e = Bgetenv("BUILD_NOP6")) != NULL)
         if (!Bstrcasecmp(e, "TRUE")) {
             Bprintf("Disabling P6 optimizations.\n");
@@ -5550,6 +5574,7 @@ int initengine(void)
     sigact.sa_flags = SA_SIGINFO;
     sigaction(SIGFPE, &sigact, &oldact);
 #endif
+
     if (!preinitcalled) {
         i = preinitengine();
         if (i) return i;
@@ -5642,6 +5667,19 @@ if (transluc != NULL) { kkfree(transluc); transluc = NULL; }
     }
     for (i=0;i<MAXPALOOKUPS;i++)
     if (palookup[i] != NULL) { kkfree(palookup[i]); palookup[i] = NULL; }
+
+    if (sector != NULL)
+        Bfree(sector);
+    if (wall != NULL)
+        Bfree(wall);
+    if (sprite != NULL)
+        Bfree(sprite);
+    if (tsprite != NULL)
+        Bfree(tsprite);
+    if (spriteext != NULL)
+        Bfree(spriteext);
+    if (spritesmooth != NULL)
+        Bfree(spritesmooth);
 }
 
 
@@ -6676,7 +6714,7 @@ long loadboard(char *filename, char fromwhere, long *daposx, long *daposy, long 
     kclose(fil);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    memset(spriteext, 0, sizeof(spriteext));
+    memset(spriteext, 0, sizeof(spriteexttype) * MAXSPRITES);
     memset(spritesmooth, 0, sizeof(spritesmooth));
 
     if (rendmode == 4)
@@ -7147,7 +7185,7 @@ if (numsprites > MAXSPRITES) { kclose(fil); return(-1); }
     kclose(fil);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-    memset(spriteext, 0, sizeof(spriteext));
+    memset(spriteext, 0, sizeof(spriteexttype) * MAXSPRITES);
     memset(spritesmooth, 0, sizeof(spritesmooth));
 #endif
     guniqhudid = 0;
@@ -7204,7 +7242,7 @@ long loadmaphack(char *filename)
     script = scriptfile_fromfile(filename);
     if (!script) return -1;
 
-    memset(spriteext, 0, sizeof(spriteext));
+    memset(spriteext, 0, sizeof(spriteexttype) * MAXSPRITES);
     memset(spritesmooth, 0, sizeof(spritesmooth));
 
     while (1) {

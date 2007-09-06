@@ -4943,7 +4943,7 @@ void loadefs(const char *filenam)
         }
 
         initprintf("\nCompiled code size: %ld bytes\n",(unsigned)(scriptptr-script));
-        initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((sizeof(sector)/sizeof(long)),(sizeof(sprite)/(1<<6))),iGameVarCount,MAXGAMEVARS);
+        initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((MAXSECTORS * sizeof(sectortype)/sizeof(long)),(MAXSPRITES * sizeof(spritetype)/(1<<6))),iGameVarCount,MAXGAMEVARS);
         initprintf("%ld event definitions, %ld defined actors\n\n",j,k);
 
         for (i=0;i<128;i++)

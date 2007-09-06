@@ -168,16 +168,16 @@ typedef struct BPACK {
 
 #define SPREXT_NOTMD 1
 #define SPREXT_NOMDANIM 2
-EXTERN spriteexttype spriteext[MAXSPRITES+MAXUNIQHUDID];
-EXTERN spritesmoothtype spritesmooth[MAXSPRITES+MAXUNIQHUDID];
+EXTERN spriteexttype *spriteext;
+EXTERN spritesmoothtype *spritesmooth;
 EXTERN long guniqhudid;
 
-EXTERN sectortype sector[MAXSECTORS];
-EXTERN walltype wall[MAXWALLS];
-EXTERN spritetype sprite[MAXSPRITES];
+EXTERN sectortype *sector;
+EXTERN walltype *wall;
+EXTERN spritetype *sprite;
 
 EXTERN long spritesortcnt;
-EXTERN spritetype tsprite[MAXSPRITESONSCREEN];
+EXTERN spritetype *tsprite;
 
 EXTERN long xdim, ydim, ylookup[MAXYDIM+1], numpages;
 EXTERN long yxaspect, viewingrange;

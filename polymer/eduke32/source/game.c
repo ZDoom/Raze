@@ -9378,7 +9378,7 @@ static void compilecons(void)
         loadefs(confilename);
     }
 
-    if ((unsigned long)labelcnt > sizeof(sprite)/64)   // see the arithmetic above for why
+    if ((unsigned long)labelcnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
         gameexit("Error: too many labels defined!");
     else
     {
@@ -9399,9 +9399,9 @@ static void compilecons(void)
         label = newlabel;
         labelcode = newlabelcode;
     }
-    clearbufbyte(&sprite[0], sizeof(sprite), 0);
-    clearbufbyte(&sector[0], sizeof(sector), 0);
-    clearbufbyte(&wall[0], sizeof(wall), 0);
+    clearbufbyte(&sprite[0], sizeof(spritetype) * MAXSPRITES, 0);
+    clearbufbyte(&sector[0], sizeof(sectortype) * MAXSECTORS, 0);
+    clearbufbyte(&wall[0], sizeof(walltype) * MAXWALLS, 0);
 
     OnEvent(EVENT_INIT, -1, -1, -1);
 }
