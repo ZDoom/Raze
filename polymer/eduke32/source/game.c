@@ -12108,6 +12108,7 @@ FRAGBONUS:
     {
         int yy = 0, zz;
 
+        getpackets();
         handleevents();
         AudioUpdate();
 

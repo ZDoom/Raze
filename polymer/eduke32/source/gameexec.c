@@ -4508,15 +4508,18 @@ static int parse(void)
         {
             int distvar = *insptr++, xvar = GetGameVarID(*insptr++, g_i, g_p), yvar = GetGameVarID(*insptr++, g_i, g_p), distx=0;
 
-            switch (tw)
+            if (xvar > -1 && xvar < MAXSPRITES && yvar > -1 && yvar < MAXSPRITES)
             {
-            case CON_DIST:
-                distx = dist(&sprite[xvar],&sprite[yvar]);
-                break;
-            case CON_LDIST:
-                distx = ldist(&sprite[xvar],&sprite[yvar]);
-                break;
-            }
+                switch (tw)
+                {
+                    case CON_DIST:
+                        distx = dist(&sprite[xvar],&sprite[yvar]);
+                        break;
+                    case CON_LDIST:
+                        distx = ldist(&sprite[xvar],&sprite[yvar]);
+                        break;
+                }
+            } else OSD_Printf("error: invalid sprite\n");
 
             SetGameVarID(distvar, distx, g_i, g_p);
             break;

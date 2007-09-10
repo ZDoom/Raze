@@ -198,10 +198,11 @@ int checkcursectnums(int sect)
 
 long ldist(spritetype *s1,spritetype *s2)
 {
-    long vx,vy;
+    long vx,vy,ret;
     vx = s1->x - s2->x;
     vy = s1->y - s2->y;
-    return(FindDistance2D(vx,vy) + 1);
+    ret = FindDistance2D(vx,vy);
+    return(ret?ret:1);
 }
 
 long dist(spritetype *s1,spritetype *s2)
