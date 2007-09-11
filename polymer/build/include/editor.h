@@ -61,7 +61,7 @@ void printmessage256(char name[82]);
 void printmessage16(char name[82]);
 
 void getpoint(long searchxe, long searchye, long *x, long *y);
-long getpointhighlight(long xplc, long yplc);
+short getpointhighlight(long xplc, long yplc);
 
 #ifdef __cplusplus
 }

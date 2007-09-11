@@ -6,6 +6,7 @@ EROOT=..\build
 EINC=$(EROOT)\include
 EOBJ=eobj
 INC=$(SRC)
+RSRC=rsrc
 o=obj
 
 ENGINELIB=engine.lib
@@ -102,10 +103,12 @@ GAMEOBJS=$(OBJ)\game.$o \
 	$(OBJ)\gameres.res \
 	$(OBJ)\startwin.game.$o \
  	$(JMACTOBJ) \
-	$(AUDIOLIBOBJ)
+	$(AUDIOLIBOBJ) \
+	$(OBJ)\mdump.$o
 
 EDITOROBJS=$(OBJ)\astub.$o \
-	$(OBJ)\buildres.res
+	$(OBJ)\buildres.res \
+	$(OBJ)\mdump.$o
 
 		
 # RULES
@@ -141,11 +144,11 @@ all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX);
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
-	$(MT) -manifest $@.manifest -outputresource:$@
+	$(MT) -manifest $@.manifest $(RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
-	$(MT) -manifest $@.manifest -outputresource:$@
+	$(MT) -manifest $@.manifest $(RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 duke3d_w32$(EXESUFFIX): $(OBJ)/wrapper.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib

@@ -11149,6 +11149,8 @@ void printext16(long xpos, long ypos, short col, short backcol, char *name, char
     long stx, i, x, y, charxsiz;
     char *fontptr, *letptr, *ptr;
 
+    if (!frameplace) return;
+
     stx = xpos;
 
     if (fontsize) { fontptr = smalltextfont; charxsiz = 4; }

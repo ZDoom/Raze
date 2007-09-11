@@ -181,7 +181,7 @@ void showwalldata(short wallnum);
 void showspritedata(short spritenum);
 long drawtilescreen(long pictopleft, long picbox);
 void overheadeditor(void);
-long getlinehighlight(long xplc, long yplc);
+short getlinehighlight(long xplc, long yplc);
 void fixspritesectors(void);
 long movewalls(long start, long offs);
 long loadnames(void);
@@ -5941,7 +5941,7 @@ void getpoint(long searchxe, long searchye, long *x, long *y)
     if (*y >= editorgridextent) *y = editorgridextent;
 }
 
-long getlinehighlight(long xplc, long yplc)
+short getlinehighlight(long xplc, long yplc)
 {
     long i, dst, dist, closest, x1, y1, x2, y2, nx, ny;
 
@@ -5973,18 +5973,16 @@ long getlinehighlight(long xplc, long yplc)
     return(closest);
 }
 
-long getpointhighlight(long xplc, long yplc)
+short getpointhighlight(long xplc, long yplc)
 {
-    long i, dst, dist, closest;
+    long i, dst, dist = 512, closest = -1;
 
     if (numwalls == 0)
         return(-1);
 
-    dist = 0;
-    if (grid > 0)
-        dist = 512;
+    if (grid < 1)
+        dist = 0;
 
-    closest = -1;
     for (i=0;i<numwalls;i++)
     {
         dst = klabs(xplc-wall[i].x) + klabs(yplc-wall[i].y);
