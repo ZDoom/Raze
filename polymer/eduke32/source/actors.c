@@ -379,7 +379,7 @@ SKIPWALLCHECK:
 
                     if (s->picnum == RPG && sj->extra > 0)
                         hittype[j].picnum = RPG;
-                    else if (checkspriteflags(i,SPRITE_FLAG_PROJECTILE) && thisprojectile[i].workslike & PROJECTILE_FLAG_RADIUS_PICNUM && sj->extra > 0)
+                    else if (checkspriteflags(i,SPRITE_FLAG_PROJECTILE) && hittype[i].projectile.workslike & PROJECTILE_FLAG_RADIUS_PICNUM && sj->extra > 0)
                         hittype[j].picnum = s->picnum;
                     else
                     {
@@ -877,7 +877,7 @@ int ifhitbyweapon(int sn)
                     }
                 }
 
-                if (checkspriteflagsp(hittype[sn].picnum,SPRITE_FLAG_PROJECTILE) && (thisprojectile[sn].workslike & PROJECTILE_FLAG_RPG))
+                if (checkspriteflagsp(hittype[sn].picnum,SPRITE_FLAG_PROJECTILE) && (hittype[sn].projectile.workslike & PROJECTILE_FLAG_RPG))
                 {
                     g_player[p].ps->posxv +=
                         hittype[sn].extra*(sintable[(hittype[sn].ang+512)&2047])<<2;
@@ -1203,10 +1203,10 @@ static void movefx(void)
             }
             else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 && ud.config.AmbienceToggle && sector[SECT].floorz != sector[SECT].ceilingz)
             {
-                if ((soundm[s->lotag]&2))
+                if ((g_sounds[s->lotag].m&2))
                 {
                     x = dist(&sprite[g_player[screenpeek].ps->i],s);
-                    if (x < ht && T1 == 0 && FX_VoiceAvailable(soundpr[s->lotag]-1))
+                    if (x < ht && T1 == 0 && FX_VoiceAvailable(g_sounds[s->lotag].pr-1))
                     {
                         if (numenvsnds == ud.config.NumVoices)
                         {
@@ -1231,7 +1231,7 @@ static void movefx(void)
                         stopenvsound(s->lotag,i);
                     }
                 }
-                if ((soundm[s->lotag]&16))
+                if ((g_sounds[s->lotag].m&16))
                 {
                     if (T5 > 0) T5--;
                     else for (p=connecthead;p>=0;p=connectpoint2[p])
@@ -2353,30 +2353,30 @@ static void moveweapons(void)
         {
             /* Custom projectiles.  This is a big hack. */
 
-            if (thisprojectile[i].pal >= 0)
-                s->pal=thisprojectile[i].pal;
+            if (hittype[i].projectile.pal >= 0)
+                s->pal=hittype[i].projectile.pal;
 
-            if (thisprojectile[i].workslike & PROJECTILE_FLAG_KNEE)
+            if (hittype[i].projectile.workslike & PROJECTILE_FLAG_KNEE)
                 KILLIT(i);
 
-            if (thisprojectile[i].workslike & PROJECTILE_FLAG_RPG)
+            if (hittype[i].projectile.workslike & PROJECTILE_FLAG_RPG)
             {
-                //  if (thisprojectile[i].workslike & COOLEXPLOSION1)
-                //                if( Sound[WIERDSHOT_FLY].num == 0 )
+                //  if (hittype[i].projectile.workslike & COOLEXPLOSION1)
+                //                if( g_sounds[WIERDSHOT_FLY].num == 0 )
                 //                    spritesound(WIERDSHOT_FLY,i);
 
                 p = -1;
 
-                if (thisprojectile[i].workslike & PROJECTILE_FLAG_COOLEXPLOSION1)
+                if (hittype[i].projectile.workslike & PROJECTILE_FLAG_COOLEXPLOSION1)
                 {
                     s->shade++;
                     if (s->shade >= 40) KILLIT(i);
                 }
 
-                if (thisprojectile[i].drop)
-                    s->zvel -= thisprojectile[i].drop;
+                if (hittype[i].projectile.drop)
+                    s->zvel -= hittype[i].projectile.drop;
 
-                if (thisprojectile[i].workslike & PROJECTILE_FLAG_SPIT)
+                if (hittype[i].projectile.workslike & PROJECTILE_FLAG_SPIT)
                     if (s->zvel < 6144)
                         s->zvel += gc-112;
 
@@ -2396,27 +2396,27 @@ static void moveweapons(void)
                 getglobalz(i);
                 qq = CLIPMASK1;
 
-                if (thisprojectile[i].trail > -1)
+                if (hittype[i].projectile.trail > -1)
                 {
-                    for (f=0;f<=thisprojectile[i].tnum;f++)
+                    for (f=0;f<=hittype[i].projectile.tnum;f++)
                     {
-                        j = spawn(i,thisprojectile[i].trail);
-                        if (thisprojectile[i].toffset != 0)
-                            sprite[j].z += (thisprojectile[i].toffset<<8);
-                        if (thisprojectile[i].txrepeat >= 0)
-                            sprite[j].xrepeat=thisprojectile[i].txrepeat;
-                        if (thisprojectile[i].tyrepeat >= 0)
-                            sprite[j].yrepeat=thisprojectile[i].tyrepeat;
+                        j = spawn(i,hittype[i].projectile.trail);
+                        if (hittype[i].projectile.toffset != 0)
+                            sprite[j].z += (hittype[i].projectile.toffset<<8);
+                        if (hittype[i].projectile.txrepeat >= 0)
+                            sprite[j].xrepeat=hittype[i].projectile.txrepeat;
+                        if (hittype[i].projectile.tyrepeat >= 0)
+                            sprite[j].yrepeat=hittype[i].projectile.tyrepeat;
                     }
                 }
 
-                for (f=1;f<=thisprojectile[i].velmult;f++)
+                for (f=1;f<=hittype[i].projectile.velmult;f++)
                     j = movesprite(i,
                                    (k*(sintable[(s->ang+512)&2047]))>>14,
                                    (k*(sintable[s->ang&2047]))>>14,ll,qq);
 
 
-                if (!(thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS) && s->yvel >= 0)
+                if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS) && s->yvel >= 0)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                         j = 49152|s->yvel;
 
@@ -2425,69 +2425,69 @@ static void moveweapons(void)
                     KILLIT(i);
                 }
 
-                if (thisprojectile[i].workslike & PROJECTILE_FLAG_TIMED && thisprojectile[i].range > 0)
+                if (hittype[i].projectile.workslike & PROJECTILE_FLAG_TIMED && hittype[i].projectile.range > 0)
                 {
                     if (!(hittype[i].temp_data[8]))
                         hittype[i].temp_data[8] = 1;
                     else
                         hittype[i].temp_data[8]++;
 
-                    if (hittype[i].temp_data[8] > thisprojectile[i].range)
+                    if (hittype[i].temp_data[8] > hittype[i].projectile.range)
                     {
-                        if (thisprojectile[i].workslike & PROJECTILE_FLAG_EXPLODEONTIMER)
+                        if (hittype[i].projectile.workslike & PROJECTILE_FLAG_EXPLODEONTIMER)
                         {
-                            if (thisprojectile[i].spawns >= 0)
+                            if (hittype[i].projectile.spawns >= 0)
                             {
-                                k = spawn(i,thisprojectile[i].spawns);
+                                k = spawn(i,hittype[i].projectile.spawns);
                                 sprite[k].x = dax;
                                 sprite[k].y = day;
                                 sprite[k].z = daz;
 
-                                if (thisprojectile[i].sxrepeat > 4) sprite[k].xrepeat=thisprojectile[i].sxrepeat;
-                                if (thisprojectile[i].syrepeat > 4) sprite[k].yrepeat=thisprojectile[i].syrepeat;
+                                if (hittype[i].projectile.sxrepeat > 4) sprite[k].xrepeat=hittype[i].projectile.sxrepeat;
+                                if (hittype[i].projectile.syrepeat > 4) sprite[k].yrepeat=hittype[i].projectile.syrepeat;
                             }
-                            if (thisprojectile[i].isound > -1)
-                                spritesound(thisprojectile[i].isound,i);
+                            if (hittype[i].projectile.isound > -1)
+                                spritesound(hittype[i].projectile.isound,i);
 
-                            s->extra=thisprojectile[i].extra;
+                            s->extra=hittype[i].projectile.extra;
 
-                            if (thisprojectile[i].extra_rand > 0)
-                                s->extra += (TRAND&thisprojectile[i].extra_rand);
+                            if (hittype[i].projectile.extra_rand > 0)
+                                s->extra += (TRAND&hittype[i].projectile.extra_rand);
 
                             x = s->extra;
-                            hitradius(i,thisprojectile[i].hitradius, x>>2,x>>1,x-(x>>2),x);
+                            hitradius(i,hittype[i].projectile.hitradius, x>>2,x>>1,x-(x>>2),x);
                         }
                         KILLIT(i);
                     }
                 }
 
-                if (thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS)
+                if (hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS)
                 {
                     /*                    if(s->yvel < 1 || s->extra < 2 || (s->xvel|s->zvel) == 0)
                                 Did this cause the bug with prematurely exploding projectiles? */
                     if (s->yvel < 1)
                     {
 
-                        if (thisprojectile[i].spawns >= 0)
+                        if (hittype[i].projectile.spawns >= 0)
                         {
-                            k = spawn(i,thisprojectile[i].spawns);
+                            k = spawn(i,hittype[i].projectile.spawns);
                             sprite[k].x = dax;
                             sprite[k].y = day;
                             sprite[k].z = daz;
 
-                            if (thisprojectile[i].sxrepeat > 4) sprite[k].xrepeat=thisprojectile[i].sxrepeat;
-                            if (thisprojectile[i].syrepeat > 4) sprite[k].yrepeat=thisprojectile[i].syrepeat;
+                            if (hittype[i].projectile.sxrepeat > 4) sprite[k].xrepeat=hittype[i].projectile.sxrepeat;
+                            if (hittype[i].projectile.syrepeat > 4) sprite[k].yrepeat=hittype[i].projectile.syrepeat;
                         }
-                        if (thisprojectile[i].isound > -1)
-                            spritesound(thisprojectile[i].isound,i);
+                        if (hittype[i].projectile.isound > -1)
+                            spritesound(hittype[i].projectile.isound,i);
 
-                        s->extra=thisprojectile[i].extra;
+                        s->extra=hittype[i].projectile.extra;
 
-                        if (thisprojectile[i].extra_rand > 0)
-                            s->extra += (TRAND&thisprojectile[i].extra_rand);
+                        if (hittype[i].projectile.extra_rand > 0)
+                            s->extra += (TRAND&hittype[i].projectile.extra_rand);
 
                         x = s->extra;
-                        hitradius(i,thisprojectile[i].hitradius, x>>2,x>>1,x-(x>>2),x);
+                        hitradius(i,hittype[i].projectile.hitradius, x>>2,x>>1,x-(x>>2),x);
 
                         KILLIT(i);
                     }
@@ -2495,7 +2495,7 @@ static void moveweapons(void)
                 }
 
                 if ((j&49152) != 49152)
-                    if (!(thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS))
+                    if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS))
                     {
                         if (s->z < hittype[i].ceilingz)
                         {
@@ -2512,7 +2512,7 @@ static void moveweapons(void)
                             }
                     }
 
-                /*                if(thisprojectile[i].workslike & 8192)
+                /*                if(hittype[i].projectile.workslike & 8192)
                                 {
                                     for(k=-3;k<2;k++)
                                     {
@@ -2530,12 +2530,12 @@ static void moveweapons(void)
                                 }
                                 else */
 
-                if (thisprojectile[i].workslike & PROJECTILE_FLAG_WATERBUBBLES && sector[s->sectnum].lotag == 2 && rnd(140))
+                if (hittype[i].projectile.workslike & PROJECTILE_FLAG_WATERBUBBLES && sector[s->sectnum].lotag == 2 && rnd(140))
                     spawn(i,WATERBUBBLE);
 
                 if (j != 0)
                 {
-                    if (thisprojectile[i].workslike & PROJECTILE_FLAG_COOLEXPLOSION1)
+                    if (hittype[i].projectile.workslike & PROJECTILE_FLAG_COOLEXPLOSION1)
                     {
                         /*                        if( (j&49152) == 49152 && sprite[j&(MAXSPRITES-1)].picnum != APLAYER)
                                                     goto BOLT; */
@@ -2547,7 +2547,7 @@ static void moveweapons(void)
                     {
                         j &= (MAXSPRITES-1);
 
-                        /*                        if(thisprojectile[i].workslike & PROJECTILE_FLAG_FREEZEBLAST && sprite[j].pal == 1 )
+                        /*                        if(hittype[i].projectile.workslike & PROJECTILE_FLAG_FREEZEBLAST && sprite[j].pal == 1 )
                                                     if( badguy(&sprite[j]) || sprite[j].picnum == APLAYER )
                                                     {
                                                         j = spawn(i,TRANSPORTERSTAR);
@@ -2558,17 +2558,17 @@ static void moveweapons(void)
                                                         KILLIT(i);
                                                     }*/
 
-                        if (thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFSPRITES)
+                        if (hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFSPRITES)
                         {
                             s->yvel--;
 
                             k = getangle(sprite[j].x-s->x,sprite[j].y-s->y)+(sprite[j].cstat&16?0:512);
                             s->ang = ((k<<1) - s->ang)&2047;
 
-                            if (thisprojectile[i].bsound > -1)
-                                spritesound(thisprojectile[i].bsound,i);
+                            if (hittype[i].projectile.bsound > -1)
+                                spritesound(hittype[i].projectile.bsound,i);
 
-                            if (thisprojectile[i].workslike & PROJECTILE_FLAG_LOSESVELOCITY)
+                            if (hittype[i].projectile.workslike & PROJECTILE_FLAG_LOSESVELOCITY)
                             {
                                 s->xvel=s->xvel>>1;
                                 s->zvel=s->zvel>>1;
@@ -2583,7 +2583,7 @@ static void moveweapons(void)
                             p = sprite[j].yvel;
                             spritesound(PISTOL_BODYHIT,j);
 
-                            if (thisprojectile[i].workslike & PROJECTILE_FLAG_SPIT)
+                            if (hittype[i].projectile.workslike & PROJECTILE_FLAG_SPIT)
                             {
                                 g_player[p].ps->horiz += 32;
                                 g_player[p].ps->return_to_center = 8;
@@ -2605,26 +2605,26 @@ static void moveweapons(void)
                             }
                         }
 
-                        if (thisprojectile[i].workslike & PROJECTILE_FLAG_RPG_IMPACT)
+                        if (hittype[i].projectile.workslike & PROJECTILE_FLAG_RPG_IMPACT)
                         {
 
                             hittype[j].owner = s->owner;
                             hittype[j].picnum = s->picnum;
-                            hittype[j].extra += thisprojectile[i].extra;
+                            hittype[j].extra += hittype[i].projectile.extra;
 
-                            if (thisprojectile[i].spawns >= 0)
+                            if (hittype[i].projectile.spawns >= 0)
                             {
-                                k = spawn(i,thisprojectile[i].spawns);
+                                k = spawn(i,hittype[i].projectile.spawns);
                                 sprite[k].x = dax;
                                 sprite[k].y = day;
                                 sprite[k].z = daz;
 
-                                if (thisprojectile[i].sxrepeat > 4) sprite[k].xrepeat=thisprojectile[i].sxrepeat;
-                                if (thisprojectile[i].syrepeat > 4) sprite[k].yrepeat=thisprojectile[i].syrepeat;
+                                if (hittype[i].projectile.sxrepeat > 4) sprite[k].xrepeat=hittype[i].projectile.sxrepeat;
+                                if (hittype[i].projectile.syrepeat > 4) sprite[k].yrepeat=hittype[i].projectile.syrepeat;
                             }
 
-                            if (thisprojectile[i].isound > -1)
-                                spritesound(thisprojectile[i].isound,i);
+                            if (hittype[i].projectile.isound > -1)
+                                spritesound(hittype[i].projectile.isound,i);
 
                             KILLIT(i);
 
@@ -2635,7 +2635,7 @@ static void moveweapons(void)
                     {
                         j &= (MAXWALLS-1);
 
-                        if (thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFMIRRORS && (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
+                        if (hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFMIRRORS && (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
                         {
                             k = getangle(
                                     wall[wall[j].point2].x-wall[j].x,
@@ -2650,7 +2650,7 @@ static void moveweapons(void)
                             setsprite(i,dax,day,daz);
                             checkhitwall(i,j,s->x,s->y,s->z,s->picnum);
 
-                            if (thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS)
+                            if (hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS)
                             {
                                 if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
                                     s->yvel--;
@@ -2660,10 +2660,10 @@ static void moveweapons(void)
                                         wall[wall[j].point2].y-wall[j].y);
                                 s->ang = ((k<<1) - s->ang)&2047;
 
-                                if (thisprojectile[i].bsound > -1)
-                                    spritesound(thisprojectile[i].bsound,i);
+                                if (hittype[i].projectile.bsound > -1)
+                                    spritesound(hittype[i].projectile.bsound,i);
 
-                                if (thisprojectile[i].workslike & PROJECTILE_FLAG_LOSESVELOCITY)
+                                if (hittype[i].projectile.workslike & PROJECTILE_FLAG_LOSESVELOCITY)
                                 {
                                     s->xvel=s->xvel>>1;
                                     s->zvel=s->zvel>>1;
@@ -2685,7 +2685,7 @@ static void moveweapons(void)
                             checkhitceiling(s->sectnum);
                         }
 
-                        if (thisprojectile[i].workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS)
+                        if (hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS)
                         {
                             bounce(i);
                             ssp(i,qq);
@@ -2696,10 +2696,10 @@ static void moveweapons(void)
                                                             s->yrepeat -= 2;*/
                             s->yvel--;
 
-                            if (thisprojectile[i].bsound > -1)
-                                spritesound(thisprojectile[i].bsound,i);
+                            if (hittype[i].projectile.bsound > -1)
+                                spritesound(hittype[i].projectile.bsound,i);
 
-                            if (thisprojectile[i].workslike & PROJECTILE_FLAG_LOSESVELOCITY)
+                            if (hittype[i].projectile.workslike & PROJECTILE_FLAG_LOSESVELOCITY)
                             {
                                 s->xvel=s->xvel>>1;
                                 s->zvel=s->zvel>>1;
@@ -2709,17 +2709,17 @@ static void moveweapons(void)
                         }
                     }
 
-                    if (thisprojectile[i].workslike & PROJECTILE_FLAG_RPG)
+                    if (hittype[i].projectile.workslike & PROJECTILE_FLAG_RPG)
                     {
-                        if (thisprojectile[i].spawns > 0)
+                        if (hittype[i].projectile.spawns > 0)
                         {
-                            k = spawn(i,thisprojectile[i].spawns);
+                            k = spawn(i,hittype[i].projectile.spawns);
                             sprite[k].x = dax;
                             sprite[k].y = day;
                             sprite[k].z = daz;
 
-                            if (thisprojectile[i].sxrepeat > 4) sprite[k].xrepeat=thisprojectile[i].sxrepeat;
-                            if (thisprojectile[i].syrepeat > 4) sprite[k].yrepeat=thisprojectile[i].syrepeat;
+                            if (hittype[i].projectile.sxrepeat > 4) sprite[k].xrepeat=hittype[i].projectile.sxrepeat;
+                            if (hittype[i].projectile.syrepeat > 4) sprite[k].yrepeat=hittype[i].projectile.syrepeat;
                         }
                         /*                            if(s->xrepeat < 10)
                                                     {
@@ -2740,7 +2740,7 @@ static void moveweapons(void)
                     }
 
 
-                    if (thisprojectile[i].workslike & PROJECTILE_FLAG_HITSCAN)
+                    if (hittype[i].projectile.workslike & PROJECTILE_FLAG_HITSCAN)
                     {
                         p = findplayer(s,&x);
                         execute(i,p,x);
@@ -2748,26 +2748,26 @@ static void moveweapons(void)
                     }
 
 
-                    if (thisprojectile[i].workslike & PROJECTILE_FLAG_RPG)
+                    if (hittype[i].projectile.workslike & PROJECTILE_FLAG_RPG)
                     {
-                        if (thisprojectile[i].isound > -1)
-                            spritesound(thisprojectile[i].isound,i);
+                        if (hittype[i].projectile.isound > -1)
+                            spritesound(hittype[i].projectile.isound,i);
 
                         /*                            if(s->xrepeat >= 10)
                                                     {*/
-                        s->extra=thisprojectile[i].extra;
-                        if (thisprojectile[i].extra_rand > 0)
-                            s->extra += (TRAND&thisprojectile[i].extra_rand);
+                        s->extra=hittype[i].projectile.extra;
+                        if (hittype[i].projectile.extra_rand > 0)
+                            s->extra += (TRAND&hittype[i].projectile.extra_rand);
 
                         x = s->extra;
-                        hitradius(i,thisprojectile[i].hitradius, x>>2,x>>1,x-(x>>2),x);
+                        hitradius(i,hittype[i].projectile.hitradius, x>>2,x>>1,x-(x>>2),x);
                         /*                            }
                                                     else
                                                     {
                                                         x = s->extra+(global_random&3);
-                                                        hitradius( i,(thisprojectile[i].hitradius>>1),x>>2,x>>1,x-(x>>2),x);
+                                                        hitradius( i,(hittype[i].projectile.hitradius>>1),x>>2,x>>1,x-(x>>2),x);
                                                     }*/
-                        //                        if (!(thisprojectile[i].workslike & PROJECTILE_FLAG_COOLEXPLOSION1))
+                        //                        if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_COOLEXPLOSION1))
                         KILLIT(i);
                     }
                 }

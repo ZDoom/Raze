@@ -33,8 +33,7 @@ long neartaghitdist,lockclock,start_armour_amount;
 long gc=176;
 
 // long temp_data[MAXSPRITES][6];
-weaponhit hittype[MAXSPRITES];
-spriteinterpolate sprpos[MAXSPRITES];
+actordata_t hittype[MAXSPRITES];
 
 short spriteq[1024],spriteqloc,spriteqamount=64;
 animwalltype animwall[MAXANIMWALLS];
@@ -65,12 +64,6 @@ char gametype_names[MAXGAMETYPES][33] = { "DUKEMATCH (SPAWN)","COOPERATIVE PLAY"
 int gametype_flags[MAXGAMETYPES] = {4+8+16+1024+2048+16384,1+2+32+64+128+256+512+4096+8192+32768,2+4+8+16+16384,4+8+16+1024+2048+16384+65536+131072,2+4+8+16+16384+65536+131072};
 char num_gametypes = 5;
 
-long soundsiz[NUM_SOUNDS];
-
-short soundps[NUM_SOUNDS],soundpe[NUM_SOUNDS],soundvo[NUM_SOUNDS];
-char soundm[NUM_SOUNDS],soundpr[NUM_SOUNDS];
-char sounds[NUM_SOUNDS][BMAX_PATH];
-
 short title_zoom;
 
 int framerate;
@@ -80,8 +73,7 @@ char num_volumes = 3;
 short timer=120;
 //fx_device device;
 
-SAMPLE Sound[ NUM_SOUNDS ];
-SOUNDOWNER SoundOwner[NUM_SOUNDS][4];
+sound_t g_sounds[ NUM_SOUNDS ];
 
 char numplayersprites,loadfromgrouponly=0,earthquaketime;
 
@@ -176,7 +168,7 @@ long *curipos[MAXINTERPOLATIONS];
 
 int nextvoxid = 0;
 
-int spriteflags[MAXTILES], actorspriteflags[MAXSPRITES];
+int spriteflags[MAXTILES];
 
 proj_struct projectile[MAXTILES], thisprojectile[MAXSPRITES], defaultprojectile[MAXTILES];
 

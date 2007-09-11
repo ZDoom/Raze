@@ -293,7 +293,7 @@ int loadplayer(int spot)
         }
 
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-    if (kdfread(&hittype[0],sizeof(weaponhit),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&hittype[0],sizeof(actordata_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
     for (i=0;i<MAXSPRITES;i++)
     {
@@ -352,10 +352,8 @@ int loadplayer(int spot)
 
     if (kdfread(&projectile[0],sizeof(proj_struct),MAXTILES,fil) != MAXTILES) goto corrupt;
     if (kdfread(&defaultprojectile[0],sizeof(proj_struct),MAXTILES,fil) != MAXTILES) goto corrupt;
-    if (kdfread(&thisprojectile[0],sizeof(proj_struct),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
     if (kdfread(&spriteflags[0],sizeof(spriteflags[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
-    if (kdfread(&actorspriteflags[0],sizeof(actorspriteflags[0]),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
     if (kdfread(&spritecache[0],sizeof(spritecache[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
 
@@ -694,7 +692,7 @@ int saveplayer(int spot)
     }
 
     dfwrite(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil);
-    dfwrite(&hittype[0],sizeof(weaponhit),MAXSPRITES,fil);
+    dfwrite(&hittype[0],sizeof(actordata_t),MAXSPRITES,fil);
 
     for (i=0;i<MAXSPRITES;i++)
     {
@@ -748,10 +746,8 @@ int saveplayer(int spot)
 
     dfwrite(&projectile[0],sizeof(proj_struct),MAXTILES,fil);
     dfwrite(&defaultprojectile[0],sizeof(proj_struct),MAXTILES,fil);
-    dfwrite(&thisprojectile[0],sizeof(proj_struct),MAXSPRITES,fil);
 
     dfwrite(&spriteflags[0],sizeof(spriteflags[0]),MAXTILES,fil);
-    dfwrite(&actorspriteflags[0],sizeof(actorspriteflags[0]),MAXSPRITES,fil);
 
     dfwrite(&spritecache[0],sizeof(spritecache[0]),MAXTILES,fil);
 

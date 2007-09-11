@@ -723,198 +723,198 @@ static void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     {
     case PROJ_WORKSLIKE:
         if (iSet)
-            thisprojectile[proj].workslike=lValue;
+            hittype[proj].projectile.workslike=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].workslike, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.workslike, g_i, g_p);
         break;
 
     case PROJ_SPAWNS:
         if (iSet)
-            thisprojectile[proj].spawns=lValue;
+            hittype[proj].projectile.spawns=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].spawns, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.spawns, g_i, g_p);
         break;
 
     case PROJ_SXREPEAT:
         if (iSet)
-            thisprojectile[proj].sxrepeat=lValue;
+            hittype[proj].projectile.sxrepeat=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].sxrepeat, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.sxrepeat, g_i, g_p);
         break;
 
     case PROJ_SYREPEAT:
         if (iSet)
-            thisprojectile[proj].syrepeat=lValue;
+            hittype[proj].projectile.syrepeat=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].syrepeat, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.syrepeat, g_i, g_p);
         break;
 
     case PROJ_SOUND:
         if (iSet)
-            thisprojectile[proj].sound=lValue;
+            hittype[proj].projectile.sound=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].sound, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.sound, g_i, g_p);
         break;
 
     case PROJ_ISOUND:
         if (iSet)
-            thisprojectile[proj].isound=lValue;
+            hittype[proj].projectile.isound=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].isound, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.isound, g_i, g_p);
         break;
 
     case PROJ_VEL:
         if (iSet)
-            thisprojectile[proj].vel=lValue;
+            hittype[proj].projectile.vel=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].vel, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.vel, g_i, g_p);
         break;
 
     case PROJ_EXTRA:
         if (iSet)
-            thisprojectile[proj].extra=lValue;
+            hittype[proj].projectile.extra=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].extra, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.extra, g_i, g_p);
         break;
 
     case PROJ_DECAL:
         if (iSet)
-            thisprojectile[proj].decal=lValue;
+            hittype[proj].projectile.decal=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].decal, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.decal, g_i, g_p);
         break;
 
     case PROJ_TRAIL:
         if (iSet)
-            thisprojectile[proj].trail=lValue;
+            hittype[proj].projectile.trail=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].trail, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.trail, g_i, g_p);
         break;
 
     case PROJ_TXREPEAT:
         if (iSet)
-            thisprojectile[proj].txrepeat=lValue;
+            hittype[proj].projectile.txrepeat=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].txrepeat, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.txrepeat, g_i, g_p);
         break;
 
     case PROJ_TYREPEAT:
         if (iSet)
-            thisprojectile[proj].tyrepeat=lValue;
+            hittype[proj].projectile.tyrepeat=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].tyrepeat, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.tyrepeat, g_i, g_p);
         break;
 
     case PROJ_TOFFSET:
         if (iSet)
-            thisprojectile[proj].toffset=lValue;
+            hittype[proj].projectile.toffset=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].toffset, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.toffset, g_i, g_p);
         break;
 
     case PROJ_TNUM:
         if (iSet)
-            thisprojectile[proj].tnum=lValue;
+            hittype[proj].projectile.tnum=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].tnum, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.tnum, g_i, g_p);
         break;
 
     case PROJ_DROP:
         if (iSet)
-            thisprojectile[proj].drop=lValue;
+            hittype[proj].projectile.drop=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].drop, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.drop, g_i, g_p);
         break;
 
     case PROJ_CSTAT:
         if (iSet)
-            thisprojectile[proj].cstat=lValue;
+            hittype[proj].projectile.cstat=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].cstat, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.cstat, g_i, g_p);
         break;
 
     case PROJ_CLIPDIST:
         if (iSet)
-            thisprojectile[proj].clipdist=lValue;
+            hittype[proj].projectile.clipdist=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].clipdist, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.clipdist, g_i, g_p);
         break;
 
     case PROJ_SHADE:
         if (iSet)
-            thisprojectile[proj].shade=lValue;
+            hittype[proj].projectile.shade=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].shade, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.shade, g_i, g_p);
         break;
 
     case PROJ_XREPEAT:
         if (iSet)
-            thisprojectile[proj].xrepeat=lValue;
+            hittype[proj].projectile.xrepeat=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].xrepeat, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.xrepeat, g_i, g_p);
         break;
 
     case PROJ_YREPEAT:
         if (iSet)
-            thisprojectile[proj].yrepeat=lValue;
+            hittype[proj].projectile.yrepeat=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].yrepeat, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.yrepeat, g_i, g_p);
         break;
 
     case PROJ_PAL:
         if (iSet)
-            thisprojectile[proj].pal=lValue;
+            hittype[proj].projectile.pal=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].pal, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.pal, g_i, g_p);
         break;
 
     case PROJ_EXTRA_RAND:
         if (iSet)
-            thisprojectile[proj].extra_rand=lValue;
+            hittype[proj].projectile.extra_rand=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].extra_rand, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.extra_rand, g_i, g_p);
         break;
 
     case PROJ_HITRADIUS:
         if (iSet)
-            thisprojectile[proj].hitradius=lValue;
+            hittype[proj].projectile.hitradius=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].hitradius, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.hitradius, g_i, g_p);
         break;
 
     case PROJ_VEL_MULT:
         if (iSet)
-            thisprojectile[proj].velmult=lValue;
+            hittype[proj].projectile.velmult=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].velmult, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.velmult, g_i, g_p);
         break;
 
     case PROJ_OFFSET:
         if (iSet)
-            thisprojectile[proj].offset=lValue;
+            hittype[proj].projectile.offset=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].offset, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.offset, g_i, g_p);
         break;
 
     case PROJ_BOUNCES:
         if (iSet)
-            thisprojectile[proj].bounces=lValue;
+            hittype[proj].projectile.bounces=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].bounces, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.bounces, g_i, g_p);
         break;
 
     case PROJ_BSOUND:
         if (iSet)
-            thisprojectile[proj].bsound=lValue;
+            hittype[proj].projectile.bsound=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].bsound, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.bsound, g_i, g_p);
         break;
 
     case PROJ_RANGE:
         if (iSet)
-            thisprojectile[proj].range=lValue;
+            hittype[proj].projectile.range=lValue;
         else
-            SetGameVarID(lVar2, thisprojectile[proj].range, g_i, g_p);
+            SetGameVarID(lVar2, hittype[proj].projectile.range, g_i, g_p);
         break;
 
     default:
@@ -6429,7 +6429,7 @@ static int parse(void)
 
     case CON_IFNOSOUNDS:
         for (j=1;j<NUM_SOUNDS;j++)
-            if (SoundOwner[j][0].i == g_i)
+            if (g_sounds[j].SoundOwner[0].i == g_i)
                 break;
 
         parseifelse(j == NUM_SOUNDS);
@@ -6437,7 +6437,7 @@ static int parse(void)
 
     case CON_SPRITEFLAGS:
         insptr++;
-        actorspriteflags[g_i] = GetGameVarID(*insptr++, g_i, g_p);
+        hittype[g_i].flags = GetGameVarID(*insptr++, g_i, g_p);
         break;
 
     case CON_GETCURRADDRESS:
@@ -6547,13 +6547,6 @@ void execute(int iActor,int iPlayer,long lDist)
     else
     {
         move();
-
-#if 0
-        sprpos[g_i].x = g_sp->x;
-        sprpos[g_i].y = g_sp->y;
-        sprpos[g_i].z = g_sp->z;
-        sprpos[g_i].ang = g_sp->ang;
-#endif
 
         if (ud.angleinterpolation)
         {

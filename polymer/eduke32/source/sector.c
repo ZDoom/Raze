@@ -46,7 +46,7 @@ int callsound(int sn,int whatsprite)
 
             if (T1 == 0)
             {
-                if ((soundm[SLT]&16) == 0)
+                if ((g_sounds[SLT].m&16) == 0)
                 {
                     if (SLT)
                     {
@@ -63,7 +63,7 @@ int callsound(int sn,int whatsprite)
             else if (SHT < NUM_SOUNDS)
             {
                 if (SHT) spritesound(SHT,whatsprite);
-                if ((soundm[SLT]&1) || (SHT && SHT != SLT))
+                if ((g_sounds[SLT].m&1) || (SHT && SHT != SLT))
                     stopspritesound(SLT,T6);
                 T6 = whatsprite;
                 T1 = 0;
@@ -1576,7 +1576,7 @@ int checkhitswitch(int snum,long w,int switchtype)
         }
         else if (hitag != 0)
         {
-            if (switchtype == 1 && (soundm[hitag]&4) == 0)
+            if (switchtype == 1 && (g_sounds[hitag].m&4) == 0)
                 xyzsound(hitag,w,sx,sy,g_player[snum].ps->posz);
             else spritesound(hitag,g_player[snum].ps->i);
         }
@@ -1623,7 +1623,7 @@ void checkhitwall(int spr,int dawallnum,long x,long y,long z,int atwith)
 
     wal = &wall[dawallnum];
 
-    if (wal->overpicnum == MIRROR && checkspriteflagsp(atwith,SPRITE_FLAG_PROJECTILE) && (thisprojectile[spr].workslike & PROJECTILE_FLAG_RPG))
+    if (wal->overpicnum == MIRROR && checkspriteflagsp(atwith,SPRITE_FLAG_PROJECTILE) && (hittype[spr].projectile.workslike & PROJECTILE_FLAG_RPG))
     {
         lotsofglass(spr,dawallnum,70);
         wal->cstat &= ~16;
@@ -2025,7 +2025,7 @@ void checkhitsprite(int i,int sn)
     i &= (MAXSPRITES-1);
 
     if (checkspriteflags(sn,SPRITE_FLAG_PROJECTILE))
-        if (thisprojectile[sn].workslike & PROJECTILE_FLAG_RPG)
+        if (hittype[sn].projectile.workslike & PROJECTILE_FLAG_RPG)
             rpg = 1;
     switchpicnum = PN;
     if ((PN > WATERFOUNTAIN)&&(PN < WATERFOUNTAIN+3))

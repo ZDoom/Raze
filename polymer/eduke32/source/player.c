@@ -494,7 +494,7 @@ int shoot(int i,int atwith)
                 if (hitwall >= 0 || hitspr >= 0)
                 {
                     j = EGS(hitsect,hitx,hity,hitz,atwith,-15,0,0,sa,32,0,i,4);
-                    thisprojectile[j].workslike = projectile[sprite[j].picnum].workslike;
+                    hittype[j].projectile.workslike = projectile[sprite[j].picnum].workslike;
                     sprite[j].extra = projectile[atwith].extra;
                     if (projectile[atwith].extra_rand > 0)
                         sprite[j].extra += (TRAND&projectile[atwith].extra_rand);
@@ -963,7 +963,7 @@ DOSKIPBULLETHOLE:
             if (projectile[atwith].clipdist >= 0) sprite[j].clipdist = projectile[atwith].clipdist;
             else sprite[j].clipdist = 40;
 
-            Bmemcpy(&thisprojectile[j], &projectile[sprite[j].picnum], sizeof(projectile[sprite[j].picnum]));
+            Bmemcpy(&hittype[j].projectile, &projectile[sprite[j].picnum], sizeof(projectile[sprite[j].picnum]));
 
             //            sa = s->ang+32-(TRAND&63);
             //            zvel = oldzvel+512-(TRAND&1023);

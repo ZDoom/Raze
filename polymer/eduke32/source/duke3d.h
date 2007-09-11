@@ -106,7 +106,7 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
 
 // #define GC (TICSPERFRAME*44)
 
-#define NUM_SOUNDS 1500
+#define NUM_SOUNDS 1536
 
 /*
 #pragma aux sgn =\
@@ -312,8 +312,13 @@ extern long movefifosendplc;
 typedef struct {
     char *ptr;
     volatile char lock;
-int  length, num;
-} SAMPLE;
+    int  length, num;
+    SOUNDOWNER SoundOwner[4];
+    char *filename;
+    short ps,pe,vo;
+    char pr,m;
+    long soundsiz;
+} sound_t;
 
 typedef struct {
 short wallnum;
@@ -521,10 +526,9 @@ extern char *fta_quotes[MAXQUOTES],*redefined_quotes[MAXQUOTES];
 extern char ready2send;
 
 //extern fx_device device;
-extern SAMPLE Sound[ NUM_SOUNDS ];
-extern SOUNDOWNER SoundOwner[NUM_SOUNDS][4];
+extern sound_t g_sounds[ NUM_SOUNDS ];
 
-extern char sounds[NUM_SOUNDS][BMAX_PATH];
+// extern char sounds[NUM_SOUNDS][BMAX_PATH];
 
 // JBF 20040531: adding 16 extra to the script so we have some leeway
 // to (hopefully) safely abort when hitting the limit
@@ -540,7 +544,24 @@ extern char music_select;
 extern char env_music_fn[MAXVOLUMES+1][BMAX_PATH];
 extern short camsprite;
 
+typedef struct {
+    int workslike, extra, cstat, extra_rand, hitradius, range;
+    short spawns, sound, isound, vel, decal, trail, tnum, drop, clipdist, offset, bounces, bsound, toffset;
+    signed char sxrepeat, syrepeat, txrepeat, tyrepeat, shade, xrepeat, yrepeat, pal, velmult;
+} proj_struct;
+
 // extern char gotz;
+
+typedef struct {
+/*    long x;
+    long y;
+    long z; */
+    short ang, oldang, angdir, angdif;
+} spriteinterpolate;
+
+spriteinterpolate sprpos[MAXSPRITES];
+
+
 typedef struct {
     char cgg;
     short picnum,ang,extra,owner,movflag;
@@ -548,18 +569,11 @@ typedef struct {
     short timetosleep;
     long floorz,ceilingz,lastvx,lastvy,bposx,bposy,bposz;
     long temp_data[10];
-} weaponhit;
+    int flags;
+    proj_struct projectile;
+} actordata_t;
 
-extern weaponhit hittype[MAXSPRITES];
-
-typedef struct {
-    long x;
-    long y;
-    long z;
-    short ang, oldang, angdir, angdif;
-} spriteinterpolate;
-
-extern spriteinterpolate sprpos[MAXSPRITES];
+extern actordata_t hittype[MAXSPRITES];
 
 extern input loc;
 extern input recsync[RECSYNCBUFSIZ];
@@ -592,9 +606,6 @@ extern short mirrorwall[64], mirrorsector[64], mirrorcnt;
 #include "funct.h"
 
 extern int screencapt;
-extern short soundps[NUM_SOUNDS],soundpe[NUM_SOUNDS],soundvo[NUM_SOUNDS];
-extern char soundpr[NUM_SOUNDS],soundm[NUM_SOUNDS];
-extern long soundsiz[NUM_SOUNDS];
 extern char volume_names[MAXVOLUMES][33];
 extern char skill_names[5][33];
 
@@ -806,13 +817,14 @@ typedef struct {
     unsigned long dwFlags;
 
     long *plValues;     // array of values when 'per-player', or 'per-actor'
-} MATTGAMEVAR;
+    long lDefault;
+    char bReset;
+} gamevar_t;
 
-extern MATTGAMEVAR aGameVars[MAXGAMEVARS];
-extern MATTGAMEVAR aDefaultGameVars[MAXGAMEVARS];
+extern gamevar_t aGameVars[MAXGAMEVARS];
 extern int iGameVarCount;
 
-extern int spriteflags[MAXTILES], actorspriteflags[MAXSPRITES];
+extern int spriteflags[MAXTILES];
 
 enum spriteflags {
     SPRITE_FLAG_SHADOW       = 1,
@@ -912,13 +924,7 @@ enum projectileflags {
     PROJECTILE_FLAG_ACCURATE_AUTOAIM    = 131072
 };
 
-typedef struct {
-    int workslike, extra, cstat, extra_rand, hitradius, range;
-    short spawns, sound, isound, vel, decal, trail, tnum, drop, clipdist, offset, bounces, bsound, toffset;
-    signed char sxrepeat, syrepeat, txrepeat, tyrepeat, shade, xrepeat, yrepeat, pal, velmult;
-} proj_struct;
-
-extern proj_struct projectile[MAXTILES], thisprojectile[MAXSPRITES], defaultprojectile[MAXTILES];
+extern proj_struct projectile[MAXTILES], defaultprojectile[MAXTILES];
 
 // logo control
 

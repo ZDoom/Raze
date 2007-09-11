@@ -649,10 +649,6 @@
 					RelativePath=".\source\startwin.game.h"
 					>
 				</File>
-				<File
-					RelativePath=".\source\wtf.h"
-					>
-				</File>
 			</Filter>
 		</Filter>
 		<Filter

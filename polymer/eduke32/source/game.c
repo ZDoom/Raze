@@ -1455,7 +1455,7 @@ int inventory(spritetype *s)
 
 inline int checkspriteflags(int iActor, int iType)
 {
-    if ((spriteflags[sprite[iActor].picnum]^actorspriteflags[iActor]) & iType) return 1;
+    if ((spriteflags[sprite[iActor].picnum]^hittype[iActor].flags) & iType) return 1;
     return 0;
 }
 
@@ -4180,7 +4180,7 @@ static void dumpdebugdata(void)
             {
                 if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERACTOR))
                 {
-                    if (aGameVars[i].plValues[j] != aDefaultGameVars[i].lValue)
+                    if (aGameVars[i].plValues[j] != aGameVars[i].lDefault)
                     {
                         fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
                         fprintf(fp,"%ld",aGameVars[i].plValues[j]);
@@ -4262,11 +4262,8 @@ int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_
 
     T1=T3=T4=T6=T7=T8=T9=0;
 
-    actorspriteflags[i] = 0;
+    hittype[i].flags = 0;
 
-    sprpos[i].x = sprite[i].x;
-    sprpos[i].y = sprite[i].y;
-    sprpos[i].z = sprite[i].z;
     sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
 
     if (actorscrptr[s_pn])
@@ -4296,7 +4293,7 @@ int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_
         }
     */
     ResetActorGameVars(i);
-    actorspriteflags[i] = 0;
+    hittype[i].flags = 0;
     OnEvent(EVENT_EGS,i, findplayer(&sprite[i],&p), p);
     return(i);
 }
@@ -4396,11 +4393,8 @@ int spawn(int j, int pn)
 
         T1 = T2 = T3 = T4 = T5 = T6 = T7 = T8 = T9 = 0;
 
-        actorspriteflags[i] = 0;
+        hittype[i].flags = 0;
 
-        sprpos[i].x = sprite[i].x;
-        sprpos[i].y = sprite[i].y;
-        sprpos[i].z = sprite[i].z;
         sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
 
         if (PN != SPEAKER && PN != LETTER && PN != DUCK && PN != TARGET && PN != TRIPBOMB && PN != VIEWSCREEN && PN != VIEWSCREEN2 && (CS&48))
@@ -6784,12 +6778,6 @@ PALONLY:
 
         if (actorscrptr[s->picnum])
         {
-#if 0
-            t->x = sprpos[i].x+mulscale16((long)(s->x-sprpos[i].x),smoothratio);
-            t->y = sprpos[i].y+mulscale16((long)(s->y-sprpos[i].y),smoothratio);
-            t->z = sprpos[i].z+mulscale16((long)(s->z-sprpos[i].z),smoothratio);
-            t->ang = sprpos[i].ang+mulscale16((long)(s->ang-sprpos[i].ang),smoothratio);
-#endif
             if (ud.angleinterpolation)
             {
                 if (sprpos[i].ang != sprpos[i].oldang)
@@ -9296,8 +9284,6 @@ static void freeconmem(void)
     {
         if (aGameVars[i].szLabel != NULL)
             Bfree(aGameVars[i].szLabel);
-        if (aDefaultGameVars[i].szLabel != NULL)
-            Bfree(aDefaultGameVars[i].szLabel);
         if (aGameVars[i].plValues != NULL)
             Bfree(aGameVars[i].plValues);
     }
@@ -9308,6 +9294,12 @@ static void freeconmem(void)
             Bfree(g_player[i].ps);
         if (g_player[i].sync != NULL)
             Bfree(g_player[i].sync);
+    }
+
+    for (i=NUM_SOUNDS-1;i>=0;i--)
+    {
+        if (g_sounds[i].filename != NULL)
+            Bfree(g_sounds[i].filename);
     }
 
     if (label != NULL)

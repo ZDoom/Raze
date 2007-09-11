@@ -79,10 +79,8 @@ long *actorLoadEventScrptr[MAXTILES];
 long *apScriptGameEvent[MAXGAMEEVENTS];
 long *parsing_event=NULL;
 
-MATTGAMEVAR aGameVars[MAXGAMEVARS];
+gamevar_t aGameVars[MAXGAMEVARS];
 int iGameVarCount=0;
-
-MATTGAMEVAR aDefaultGameVars[MAXGAMEVARS];  // the 'original' values
 
 extern long qsetmode;
 
@@ -4372,9 +4370,17 @@ repeatcase:
         i = 0;
         skipcomments();
 
+        if (g_sounds[k].filename == NULL)
+            g_sounds[k].filename = Bcalloc(BMAX_PATH,sizeof(char));
+        if (!g_sounds[k].filename)
+        {
+            Bsprintf(tempbuf,"Failed allocating %d byte buffer.",sizeof(char) * BMAX_PATH);
+            gameexit(tempbuf);
+        }
+
         while (*textptr != ' ' || *textptr == '\t')
         {
-            sounds[k][i] = *textptr;
+            g_sounds[k].filename[i] = *textptr;
             textptr++,i++;
             if (i >= BMAX_PATH)
             {
@@ -4384,22 +4390,22 @@ repeatcase:
                 break;
             }
         }
-        sounds[k][i] = '\0';
+        g_sounds[k].filename[i] = '\0';
 
         transnum(LABEL_DEFINE);
-        soundps[k] = *(scriptptr-1);
+        g_sounds[k].ps = *(scriptptr-1);
         scriptptr--;
         transnum(LABEL_DEFINE);
-        soundpe[k] = *(scriptptr-1);
+        g_sounds[k].pe = *(scriptptr-1);
         scriptptr--;
         transnum(LABEL_DEFINE);
-        soundpr[k] = *(scriptptr-1);
+        g_sounds[k].pr = *(scriptptr-1);
         scriptptr--;
         transnum(LABEL_DEFINE);
-        soundm[k] = *(scriptptr-1);
+        g_sounds[k].m = *(scriptptr-1);
         scriptptr--;
         transnum(LABEL_DEFINE);
-        soundvo[k] = *(scriptptr-1);
+        g_sounds[k].vo = *(scriptptr-1);
         scriptptr--;
         return 0;
 

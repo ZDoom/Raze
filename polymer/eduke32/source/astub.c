@@ -4350,8 +4350,8 @@ static void Keys2d(void)
     */
 
     Bsprintf(tempbuf, "Mapster32"VERSION"");
-    printext16(9L,ydim-STATUS2DSIZ+9L,4,-1,tempbuf,0);
-    printext16(8L,ydim-STATUS2DSIZ+8L,12,-1,tempbuf,0);
+    printext16(9L,ydim2d-STATUS2DSIZ+9L,4,-1,tempbuf,0);
+    printext16(8L,ydim2d-STATUS2DSIZ+8L,12,-1,tempbuf,0);
 
     if ((totalclock > getmessagetimeoff) && (totalclock > (lastpm16time + 120*3)))
     {

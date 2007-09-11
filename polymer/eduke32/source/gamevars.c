@@ -37,15 +37,16 @@ static void FreeGameVars(void)
     //  AddLog("FreeGameVars");
     for (i=0;i<MAXGAMEVARS;i++)
     {
-        aGameVars[i].lValue=0;
-        if (aGameVars[i].szLabel)
-            Bfree(aGameVars[i].szLabel);
-        aGameVars[i].szLabel=NULL;
-        aGameVars[i].dwFlags=0;
+//        aGameVars[i].lValue=0;
+//        if (aGameVars[i].szLabel)
+            //Bfree(aGameVars[i].szLabel);
+//        aGameVars[i].szLabel=NULL;
+//        aGameVars[i].dwFlags=0;
 
         if (aGameVars[i].plValues)
             Bfree(aGameVars[i].plValues);
         aGameVars[i].plValues=NULL;
+        aGameVars[i].bReset=1;
     }
     iGameVarCount=0;
     return;
@@ -63,15 +64,13 @@ static void ClearGameVars(void)
         aGameVars[i].lValue=0;
         if (aGameVars[i].szLabel)
             Bfree(aGameVars[i].szLabel);
-        if (aDefaultGameVars[i].szLabel)
-            Bfree(aDefaultGameVars[i].szLabel);
         aGameVars[i].szLabel=NULL;
-        aDefaultGameVars[i].szLabel=NULL;
         aGameVars[i].dwFlags=0;
 
         if (aGameVars[i].plValues)
             Bfree(aGameVars[i].plValues);
         aGameVars[i].plValues=NULL;
+        aGameVars[i].bReset=1;
     }
     iGameVarCount=0;
     return;
@@ -91,7 +90,7 @@ int ReadGameVars(long fil)
     if (kdfread(&iGameVarCount,sizeof(iGameVarCount),1,fil) != 1) goto corrupt;
     for (i=0;i<iGameVarCount;i++)
     {
-        if (kdfread(&(aGameVars[i]),sizeof(MATTGAMEVAR),1,fil) != 1) goto corrupt;
+        if (kdfread(&(aGameVars[i]),sizeof(gamevar_t),1,fil) != 1) goto corrupt;
         aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
         if (kdfread(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil) != 1) goto corrupt;
     }
@@ -178,7 +177,7 @@ void SaveGameVars(FILE *fil)
 
     for (i=0;i<iGameVarCount;i++)
     {
-        dfwrite(&(aGameVars[i]),sizeof(MATTGAMEVAR),1,fil);
+        dfwrite(&(aGameVars[i]),sizeof(gamevar_t),1,fil);
         dfwrite(aGameVars[i].szLabel,sizeof(char) * MAXVARLABEL, 1, fil);
     }
 
@@ -279,8 +278,8 @@ void ResetGameVars(void)
         //      aDefaultGameVars[i].lValue
         //     );
         //AddLog(g_szBuf);
-        if (aDefaultGameVars[i].szLabel != NULL)
-            AddGameVar(aDefaultGameVars[i].szLabel,aDefaultGameVars[i].lValue,aDefaultGameVars[i].dwFlags);
+        if (aGameVars[i].szLabel != NULL && aGameVars[i].bReset)
+            AddGameVar(aGameVars[i].szLabel,aGameVars[i].lValue,aGameVars[i].dwFlags);
     }
 }
 
@@ -300,7 +299,7 @@ int AddGameVar(const char *pszLabel, long lValue, unsigned long dwFlags)
     }
     for (i=0;i<iGameVarCount;i++)
     {
-        if (aGameVars[i].szLabel != NULL)
+        if (aGameVars[i].szLabel != NULL && !aGameVars[i].bReset)
         {
             if (Bstrcmp(pszLabel,aGameVars[i].szLabel) == 0)
             {
@@ -343,22 +342,18 @@ int AddGameVar(const char *pszLabel, long lValue, unsigned long dwFlags)
             //}
             // if existing is system, they only get to change default value....
             aGameVars[i].lValue=lValue;
-            aDefaultGameVars[i].lValue=lValue;
+            aGameVars[i].lDefault=lValue;
         }
         else
         {
             if (aGameVars[i].szLabel == NULL)
                 aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
-            Bstrcpy(aGameVars[i].szLabel,pszLabel);
+            if (aGameVars[i].szLabel != pszLabel)
+                Bstrcpy(aGameVars[i].szLabel,pszLabel);
             aGameVars[i].dwFlags=dwFlags;
             aGameVars[i].lValue=lValue;
-            if (aDefaultGameVars[i].szLabel == NULL)
-            {
-                aDefaultGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
-                Bstrcpy(aDefaultGameVars[i].szLabel,pszLabel);
-            }
-            aDefaultGameVars[i].dwFlags=dwFlags;
-            aDefaultGameVars[i].lValue=lValue;
+            aGameVars[i].lDefault=lValue;
+            aGameVars[i].bReset=0;
         }
 
         if (i==iGameVarCount)
@@ -403,7 +398,7 @@ void ResetActorGameVars(int iActor)
         if ((aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR) && !(aGameVars[i].dwFlags & GAMEVAR_FLAG_NODEFAULT))
         {
             //            OSD_Printf("reset %s (%d) to %s (%d)\n",aGameVars[i].szLabel,aGameVars[i].plValues[iActor],aDefaultGameVars[i].szLabel,aDefaultGameVars[i].lValue);
-            aGameVars[i].plValues[iActor]=aDefaultGameVars[i].lValue;
+            aGameVars[i].plValues[iActor]=aGameVars[i].lDefault;
         }
 }
 

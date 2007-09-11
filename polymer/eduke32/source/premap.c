@@ -278,20 +278,20 @@ static int getsound(unsigned int num)
     if (num >= NUM_SOUNDS || ud.config.SoundToggle == 0) return 0;
     if (ud.config.FXDevice < 0) return 0;
 
-    if (!sounds[num][0]) return 0;
-    fp = kopen4load(sounds[num],loadfromgrouponly);
+    if (!g_sounds[num].filename) return 0;
+    fp = kopen4load(g_sounds[num].filename,loadfromgrouponly);
     if (fp == -1) return 0;
 
     l = kfilelength(fp);
-    soundsiz[num] = l;
+    g_sounds[num].soundsiz = l;
 
     if ((ud.level_number == 0 && ud.volume_number == 0 && (num == 189 || num == 232 || num == 99 || num == 233 || num == 17)) ||
             (l < 12288))
     {
-        Sound[num].lock = 199;
-        allocache((long *)&Sound[num].ptr,l,(char *)&Sound[num].lock);
-        if (Sound[num].ptr != NULL)
-            kread(fp, Sound[num].ptr , l);
+        g_sounds[num].lock = 199;
+        allocache((long *)&g_sounds[num].ptr,l,(char *)&g_sounds[num].lock);
+        if (g_sounds[num].ptr != NULL)
+            kread(fp, g_sounds[num].ptr , l);
     }
     kclose(fp);
     return 1;
@@ -305,7 +305,7 @@ static void precachenecessarysounds(void)
     j = 0;
 
     for (i=0;i<NUM_SOUNDS;i++)
-        if (Sound[i].ptr == 0)
+        if (g_sounds[i].ptr == 0)
         {
             j++;
             if ((j&7) == 0)
