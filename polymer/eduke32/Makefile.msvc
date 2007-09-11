@@ -31,6 +31,7 @@ ENGINEOPTS=/DSUPERBUILD /DPOLYMOST /DUSE_OPENGL
 CC=cl
 AS=ml
 LINK=link /opt:nowin98 /nologo /opt:ref
+MT=mt
 CFLAGS= /MD /J /nologo $(flags_cl)  \
 	/I$(INC) /I$(EINC)\ /I$(SRC)\jmact /I$(SRC)\jaudiolib /I..\jfaud\inc /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
  	/DNOCOPYPROTECT  /D "_CRT_SECURE_NO_DEPRECATE" -W0 $(ENGINEOPTS) \
@@ -140,13 +141,16 @@ all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX);
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
+	$(MT) -manifest $@.manifest -outputresource:$@
 	
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
-
+	$(MT) -manifest $@.manifest -outputresource:$@
+	
 duke3d_w32$(EXESUFFIX): $(OBJ)/wrapper.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib /LIBPATH:$(PLATFORMSDK)\lib" /LIBPATH:$(MSSDKROOT)\lib" $(flags_link) /MAP $** $(LIBS) msvcrt.lib
-
+	$(MT) -manifest $@.manifest -outputresource:$@
+	
 !include Makefile.deps
 
 enginelib editorlib: AlwaysBuild
