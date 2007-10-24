@@ -6719,7 +6719,7 @@ void animatesprites(long x,long y,int a,long smoothratio)
 
 PALONLY:
 
-            if (sector[sect].floorpal && sector[sect].floorpal < g_NumPalettes)
+            if (sector[sect].floorpal && sector[sect].floorpal < g_NumPalettes && !checkspriteflags(t->owner,SPRITE_FLAG_NOPAL))
                 t->pal = sector[sect].floorpal;
 
             if (s->owner == -1) continue;
@@ -6760,7 +6760,7 @@ PALONLY:
             else t->picnum += T1;
             t->shade -= 6;
 
-            if (sector[sect].floorpal && sector[sect].floorpal < g_NumPalettes)
+            if (sector[sect].floorpal && sector[sect].floorpal < g_NumPalettes && !checkspriteflags(t->owner,SPRITE_FLAG_NOPAL))
                 t->pal = sector[sect].floorpal;
             break;
 
@@ -6771,7 +6771,7 @@ PALONLY:
                 break;
             }
         default:
-            if (sector[sect].floorpal && sector[sect].floorpal < g_NumPalettes)
+            if (sector[sect].floorpal && sector[sect].floorpal < g_NumPalettes && !checkspriteflags(t->owner,SPRITE_FLAG_NOPAL))
                 t->pal = sector[sect].floorpal;
             break;
         }

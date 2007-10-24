@@ -825,7 +825,8 @@ enum spriteflags {
     SPRITE_FLAG_NOSHADE      = 4,
     SPRITE_FLAG_PROJECTILE   = 8,
     SPRITE_FLAG_DECAL        = 16,
-    SPRITE_FLAG_BADGUY       = 32
+    SPRITE_FLAG_BADGUY       = 32,
+    SPRITE_FLAG_NOPAL        = 64
 };
 
 extern short spritecache[MAXTILES][3];

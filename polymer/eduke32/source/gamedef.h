@@ -788,5 +788,7 @@ enum keywords
     CON_HEADSPRITESECT,     // 306
     CON_PREVSPRITESECT,     // 307
     CON_NEXTSPRITESECT,     // 308
+    CON_SPRITENOPAL,        // 309
+    CON_GETKEYNAME,         // 310
     END
 };

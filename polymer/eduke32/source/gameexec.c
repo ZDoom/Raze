@@ -4385,6 +4385,19 @@ static int parse(void)
             break;
         }
 
+    case CON_GETKEYNAME:
+        insptr++;
+        {
+            int i = GetGameVarID(*insptr++, g_i, g_p), f=GetGameVarID(*insptr++, g_i, g_p);
+
+            j=GetGameVarID(*insptr++, g_i, g_p);
+
+            if (fta_quotes[i] != NULL && f < NUMGAMEFUNCTIONS && j < 2)
+                Bstrcpy(fta_quotes[i], KB_ScanCodeToString(ud.config.KeyboardKeys[f][j]));
+
+            break;
+        }
+
     case CON_MYOSX:
     case CON_MYOSPALX:
     case CON_MYOS:

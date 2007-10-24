@@ -5543,6 +5543,8 @@ int preinitengine(void)
         Bfree(spritesmooth);
     spritesmooth = Bcalloc(MAXSPRITES+MAXUNIQHUDID,sizeof(spritesmoothtype));
 
+	makeasmwriteable();
+
     if ((e = Bgetenv("BUILD_NOP6")) != NULL)
         if (!Bstrcasecmp(e, "TRUE")) {
             Bprintf("Disabling P6 optimizations.\n");

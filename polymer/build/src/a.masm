@@ -111,8 +111,11 @@ CDECLENDSET MACRO numparams:REQ
 	CDECLEND numparams
 ENDM
 
-CODE SEGMENT PUBLIC USE32 'DATA'
+CODE SEGMENT PUBLIC USE32 'CODE'
 ASSUME cs:CODE,ds:CODE
+
+PUBLIC _dep_begin
+_dep_begin:
 
 ALIGN 16
 PUBLIC _sethlinesizes
@@ -2660,5 +2663,7 @@ pentiumpro:
 	pop ebx		;JBF
 	ret
 
+PUBLIC _dep_end
+_dep_end:
 CODE ENDS
 END

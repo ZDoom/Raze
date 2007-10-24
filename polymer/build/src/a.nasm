@@ -7,7 +7,7 @@
 
 ;CPU 586
 
-SECTION .data
+SECTION .text
 	
 %ifdef UNDERSCORES
 %define asm1 _asm1
@@ -79,6 +79,8 @@ SECTION .data
 %define stretchhline		_stretchhline
 %define mmxoverlay		_mmxoverlay
 
+%define dep_begin		_dep_begin
+%define dep_end			_dep_end
 %endif
 
 ; Some macros to help make cdecl calling easier to manage
@@ -225,6 +227,10 @@ SECTION .data
 	GLOBAL stretchhline
 	GLOBAL mmxoverlay
 
+	GLOBAL dep_begin
+	GLOBAL dep_end
+
+dep_begin:
 
 	ALIGN 16
 sethlinesizes:
@@ -2749,3 +2755,4 @@ pentiumpro:
 	pop ebx		;JBF
 	ret
 
+dep_end:

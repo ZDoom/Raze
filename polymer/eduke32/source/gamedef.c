@@ -436,6 +436,8 @@ static const char *keyw[] =
     "headspritesect",           // 306
     "prevspritesect",           // 307
     "nextspritesect",           // 308
+    "spritenopal",              // 309
+    "getkeyname",               // 310
     "<null>"
 };
 
@@ -3300,6 +3302,7 @@ static int parsecommand(void)
         return 0;
 
     case CON_DRAGPOINT:
+    case CON_GETKEYNAME:
         transmultvars(3);
         return 0;
 
@@ -3372,6 +3375,7 @@ static int parsecommand(void)
     case CON_SPRITESHADOW:
     case CON_SPRITENVG:
     case CON_SPRITENOSHADE:
+    case CON_SPRITENOPAL:
     case CON_PRECACHE:
     {
         if (parsing_state || parsing_actor)
@@ -3402,6 +3406,9 @@ static int parsecommand(void)
             break;
         case CON_SPRITENOSHADE:
             spriteflags[*scriptptr] |= SPRITE_FLAG_NOSHADE;
+            break;
+        case CON_SPRITENOPAL:
+            spriteflags[*scriptptr] |= SPRITE_FLAG_NOPAL;
             break;
         case CON_PRECACHE:
             spritecache[*scriptptr][0] = j;

@@ -132,6 +132,8 @@ void wm_setapptitle(char *name);
 // baselayer.c
 int baselayer_init();
 
+void makeasmwriteable(void);
+
 #ifdef __cplusplus
 }
 #endif

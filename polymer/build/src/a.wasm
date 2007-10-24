@@ -39,8 +39,11 @@ EXTRN _espbak : dword
 EXTRN _pow2char : near
 EXTRN _pow2long : near
 
-CODE SEGMENT PUBLIC USE32 'DATA'
+CODE SEGMENT PUBLIC USE32 'CODE'
 ASSUME cs:CODE,ds:CODE
+
+PUBLIC _dep_begin
+_dep_begin:
 
 ALIGN 16
 PUBLIC sethlinesizes_
@@ -2416,5 +2419,7 @@ pentiumpro:
 
 	ret
 
+PUBLIC _dep_end
+_dep_end:
 CODE ENDS
 END
