@@ -16,7 +16,6 @@ $(OBJ)/premap.$o: $(SRC)/premap.c $(duke3d_h) $(EINC)/osd.h
 $(OBJ)/savegame.$o: $(SRC)/savegame.c $(duke3d_h)
 $(OBJ)/sector.$o: $(SRC)/sector.c $(duke3d_h)
 $(OBJ)/sounds.$o: $(SRC)/sounds.c $(duke3d_h)
-$(OBJ)/jfaud_sounds.$o: $(SRC)/jfaud_sounds.cpp $(duke3d_h) $(EINC)/osd.h
 $(OBJ)/rts.$o: $(SRC)/rts.c $(duke3d_h)
 $(OBJ)/config.$o: $(SRC)/config.c $(duke3d_h) $(SRC)/jmact/scriplib.h $(INC)/_functio.h
 $(OBJ)/testcd.$o: $(SRC)/testcd.c

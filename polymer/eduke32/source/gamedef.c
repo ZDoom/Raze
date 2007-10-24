@@ -4361,9 +4361,9 @@ repeatcase:
         scriptptr--;
         transnum(LABEL_DEFINE);
         k = *(scriptptr-1);
-        if (k >= NUM_SOUNDS)
+        if (k >= MAXSOUNDS)
         {
-            initprintf("%s:%ld: error: exceeded sound limit of %ld.\n",compilefile,line_number,NUM_SOUNDS);
+            initprintf("%s:%ld: error: exceeded sound limit of %ld.\n",compilefile,line_number,MAXSOUNDS);
             error++;
         }
         scriptptr--;

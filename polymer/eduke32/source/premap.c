@@ -275,7 +275,7 @@ static int getsound(unsigned int num)
     short fp;
     long   l;
 
-    if (num >= NUM_SOUNDS || ud.config.SoundToggle == 0) return 0;
+    if (num >= MAXSOUNDS || ud.config.SoundToggle == 0) return 0;
     if (ud.config.FXDevice < 0) return 0;
 
     if (!g_sounds[num].filename) return 0;
@@ -304,7 +304,7 @@ static void precachenecessarysounds(void)
     if (ud.config.FXDevice < 0) return;
     j = 0;
 
-    for (i=0;i<NUM_SOUNDS;i++)
+    for (i=0;i<MAXSOUNDS;i++)
         if (g_sounds[i].ptr == 0)
         {
             j++;

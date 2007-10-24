@@ -12,7 +12,6 @@ LINKED_GTK = 0
 
 # Debugging options
 RELEASE?=1
-JFAUD?=0
 NOSOUND?=0
 
 # build locations
@@ -38,13 +37,9 @@ CXX=g++
 
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration -Wno-unused \
 	-fno-pic -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -DNOCOPYPROTECT \
-	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib -I../jfaud/inc
+	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib 
 OURCXXFLAGS=-fno-exceptions -fno-rtti
 LIBS=-lm
-ifneq (0,$(JFAUD))
-	JFAUDLIBS=../jfaud/libjfaud.a ../jfaud/mpadec/libmpadec.a
-	OURCFLAGS+=-DJFAUD
-endif
 
 NASMFLAGS=-s #-g
 EXESUFFIX=
@@ -85,8 +80,6 @@ AUDIOLIB_FX_SDL=$(OBJ)/mv_mix.$o \
 	  $(OBJ)/pitch.$o \
 	  $(OBJ)/multivoc.$o
 AUDIOLIB_MUSIC_SDL=$(OBJ)/sdlmusic.$o
-
-AUDIOLIB_JFAUD=$(OBJ)/jfaud_sounds.$o
 
 AUDIOLIB_FX=$(OBJ)/mv_mix.$o \
 	  $(OBJ)/mv_mix16.$o \
@@ -134,16 +127,12 @@ endif
 ifeq ($(RENDERTYPE),SDL)
 	 OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell sdl-config --cflags))
 
-	ifneq (0,$(JFAUD))
-		AUDIOLIBOBJ=$(AUDIOLIB_JFAUD)
-	else
 		ifneq ($(PLATFORM),WINDOWS)
 			AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_SDL) $(AUDIOLIB_FX_SDL) $(OBJ)/sounds.$o
 			LIBS+= -lSDL_mixer
 		else
 			AUDIOLIBOBJ=$(AUDIOLIB_MUSIC_STUB) $(AUDIOLIB_FX_STUB) $(OBJ)/sounds.$o
 		endif
-	endif
 
 	ifeq (1,$(HAVE_GTK2))
 		OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
@@ -156,11 +145,7 @@ ifeq ($(RENDERTYPE),SDL)
 endif
 
 ifeq ($(RENDERTYPE),WIN)
-	ifneq (0,$(JFAUD))
-		AUDIOLIBOBJ=$(AUDIOLIB_JFAUD)
-	else
 		AUDIOLIBOBJ=$(AUDIOLIB_MUSIC) $(AUDIOLIB_FX) $(OBJ)/sounds.$o
-	endif
 endif
 
 ifeq ($(NOSOUND),1)
@@ -194,7 +179,7 @@ all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
 endif
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB)
-	$(CC) -o $@ $^ $(JFAUDLIBS) $(LIBS) $(STDCPPLIB) # -Wl,-Map=$@.map
+	$(CC) -o $@ $^ $(LIBS) $(STDCPPLIB) # -Wl,-Map=$@.map
 	-rm -f eduke32.sym$(EXESUFFIX)
 	cp eduke32$(EXESUFFIX) eduke32.sym$(EXESUFFIX)
 	strip eduke32$(EXESUFFIX)
@@ -237,13 +222,8 @@ $(OBJ)/%.$o: $(SRC)/jmact/%.c
 $(OBJ)/%.$o: $(SRC)/jaudiolib/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
 
-ifeq (1,$(JFAUD))
-$(OBJ)/%.$o: $(SRC)/misc/%.rc
-	windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC) -DJFAUD
-else
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC)
-endif
 
 $(OBJ)/%.$o: $(SRC)/util/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1

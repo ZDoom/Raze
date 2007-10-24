@@ -6428,11 +6428,11 @@ static int parse(void)
         break;
 
     case CON_IFNOSOUNDS:
-        for (j=1;j<NUM_SOUNDS;j++)
+        for (j=1;j<MAXSOUNDS;j++)
             if (g_sounds[j].SoundOwner[0].i == g_i)
                 break;
 
-        parseifelse(j == NUM_SOUNDS);
+        parseifelse(j == MAXSOUNDS);
         break;
 
     case CON_SPRITEFLAGS:

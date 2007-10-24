@@ -3,7 +3,7 @@
 #include <tchar.H>
 LPCSTR MiniDumper::m_szAppName;
 
-// MiniDumper g_dumper("EDuke32");
+MiniDumper g_dumper("eduke32");
 
 MiniDumper::MiniDumper( LPCSTR szAppName )
 {

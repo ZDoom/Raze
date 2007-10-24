@@ -10842,7 +10842,7 @@ void draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
                     char pointsize;
                     col = 6;
                     pointsize=2;
-                    if (i == pointhighlight || ((pointhighlight < MAXWALLS) && (wall[i].x == wall[pointhighlight].x) && (wall[i].y == wall[pointhighlight].y)))
+                    if (i == pointhighlight || ((pointhighlight < MAXWALLS) && (pointhighlight >= 0) && (wall[i].x == wall[pointhighlight].x) && (wall[i].y == wall[pointhighlight].y)))
                     {
                         if (totalclock & 16)
                         {
@@ -10887,7 +10887,7 @@ void draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
                     }
                     if (editstatus == 1)
                     {
-                        if (j+16384 == pointhighlight || ((pointhighlight-16384 < MAXSPRITES) && (sprite[j].x == sprite[pointhighlight-16384].x) && (sprite[j].y == sprite[pointhighlight-16384].y))) {
+                        if ((pointhighlight-16384) > 0 && (j+16384 == pointhighlight || ((sprite[j].x == sprite[pointhighlight-16384].x) && (sprite[j].y == sprite[pointhighlight-16384].y)))) {
                             if (totalclock & 32) col += (2<<2);
                         }
                         else if ((highlightcnt > 0) && (editstatus == 1))
@@ -11148,8 +11148,6 @@ void printext16(long xpos, long ypos, short col, short backcol, char *name, char
 {
     long stx, i, x, y, charxsiz;
     char *fontptr, *letptr, *ptr;
-
-    if (!frameplace) return;
 
     stx = xpos;
 

@@ -106,7 +106,7 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
 
 // #define GC (TICSPERFRAME*44)
 
-#define NUM_SOUNDS 1536
+#define MAXSOUNDS 1536
 
 /*
 #pragma aux sgn =\
@@ -122,10 +122,6 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
 #define    RANDOMSCRAP EGS(s->sectnum,s->x+(TRAND&255)-128,s->y+(TRAND&255)-128,s->z-(8<<8)-(TRAND&8191),SCRAP6+(TRAND&15),-8,48,48,TRAND&2047,(TRAND&63)+64,-512-(TRAND&2047),i,5)
 
 #define    PHEIGHT (38<<8)
-
-// #define P(X) printf("%ld\n",X);
-
-#define WAIT(X) ototalclock=totalclock+(X);while(totalclock<ototalclock)getpackets()
 
 enum gamemodes {
     MODE_MENU       = 1,
@@ -285,11 +281,6 @@ enum weapons {
 
 #define rnd(X) ((TRAND>>8)>=(255-(X)))
 
-typedef struct {
-    short i;
-    int voice;
-} SOUNDOWNER;
-
 #define __USRHOOKS_H
 
 enum USRHOOKS_Errors {
@@ -310,6 +301,11 @@ extern input recsync[RECSYNCBUFSIZ];
 extern long movefifosendplc;
 
 typedef struct {
+    short i;
+    int voice;
+} SOUNDOWNER;
+
+typedef struct {
     char *ptr;
     volatile char lock;
     int  length, num;
@@ -319,6 +315,8 @@ typedef struct {
     char pr,m;
     long soundsiz;
 } sound_t;
+
+extern sound_t g_sounds[MAXSOUNDS];
 
 typedef struct {
 short wallnum;
@@ -442,7 +440,7 @@ typedef struct {
 typedef struct {
     long ox,oy,oz;
     short oa,os;
-} player_spawnpoint;
+} playerspawn_t;
 
 extern char numplayersprites;
 
@@ -524,11 +522,6 @@ extern char buf[1024]; //My own generic input buffer
 
 extern char *fta_quotes[MAXQUOTES],*redefined_quotes[MAXQUOTES];
 extern char ready2send;
-
-//extern fx_device device;
-extern sound_t g_sounds[ NUM_SOUNDS ];
-
-// extern char sounds[NUM_SOUNDS][BMAX_PATH];
 
 // JBF 20040531: adding 16 extra to the script so we have some leeway
 // to (hopefully) safely abort when hitting the limit
@@ -986,7 +979,7 @@ typedef struct {
 } playerdata_t;
 
 extern input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
-extern player_spawnpoint g_PlayerSpawnPoints[MAXPLAYERS];
+extern playerspawn_t g_PlayerSpawnPoints[MAXPLAYERS];
 extern playerdata_t g_player[MAXPLAYERS];
 #include "funct.h"
 

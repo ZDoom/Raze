@@ -230,15 +230,15 @@ int loadsound(unsigned int num)
 {
     long   fp, l;
 
-    if (num >= NUM_SOUNDS || ud.config.SoundToggle == 0) return 0;
+    if (num >= MAXSOUNDS || ud.config.SoundToggle == 0) return 0;
     if (ud.config.FXDevice < 0) return 0;
 
     fp = kopen4load(g_sounds[num].filename,loadfromgrouponly);
     if (fp == -1)
     {
-//        Bsprintf(fta_quotes[113],"Sound %s(#%d) not found.",sounds[num],num);
+//        Bsprintf(fta_quotes[113],"g_sounds %s(#%d) not found.",sounds[num],num);
 //        FTA(113,g_player[myconnectindex].ps);
-        initprintf("Sound %s(#%d) not found.\n",g_sounds[num].filename,num);
+        OSD_Printf("Sound %s(#%d) not found.\n",g_sounds[num].filename,num);
         return 0;
     }
 
@@ -261,7 +261,7 @@ int xyzsound(int num,int i,long x,long y,long z)
 
     //    if(num != 358) return 0;
 
-    if (num >= NUM_SOUNDS ||
+    if (num >= MAXSOUNDS ||
             ud.config.FXDevice < 0 ||
             ((g_sounds[num].m&8) && ud.lockout) ||
             ud.config.SoundToggle == 0 ||
@@ -282,7 +282,7 @@ int xyzsound(int num,int i,long x,long y,long z)
             return -1;
         else if (ud.multimode > 1 && PN == APLAYER && sprite[i].yvel != screenpeek && ud.config.VoiceToggle!=2)
             return -1;
-        for (j=0;j<NUM_SOUNDS;j++)
+        for (j=0;j<MAXSOUNDS;j++)
             for (k=0;k<g_sounds[j].num;k++)
                 if ((g_sounds[j].num > 0) && (g_sounds[j].m&4))
                     return -1;
@@ -414,7 +414,7 @@ void sound(int num)
     if (ud.config.VoiceToggle==0 && (g_sounds[num].m&4)) return;
     if ((g_sounds[num].m&8) && ud.lockout) return;
     if (FX_VoiceAvailable(g_sounds[num].pr) == 0) return;
-    if (num > NUM_SOUNDS-1 || !g_sounds[num].filename)
+    if (num > MAXSOUNDS-1 || !g_sounds[num].filename)
     {
         OSD_Printf("WARNING: invalid sound #%d\n",num);
         return;
@@ -472,7 +472,7 @@ void sound(int num)
 
 int spritesound(unsigned int num, int i)
 {
-    if (num >= NUM_SOUNDS) return -1;
+    if (num >= MAXSOUNDS) return -1;
     return xyzsound(num,i,SX,SY,SZ);
 }
 
@@ -530,7 +530,7 @@ void pan3dsound(void)
         ca = sprite[ud.camerasprite].ang;
     }
 
-    for (j=0;j<NUM_SOUNDS;j++) for (k=0;k<g_sounds[j].num;k++)
+    for (j=0;j<MAXSOUNDS;j++) for (k=0;k<g_sounds[j].num;k++)
         {
             i = g_sounds[j].SoundOwner[k].i;
 
@@ -628,7 +628,7 @@ void clearsoundlocks(void)
 {
     long i;
 
-    for (i=0;i<NUM_SOUNDS;i++)
+    for (i=0;i<MAXSOUNDS;i++)
         if (g_sounds[i].lock >= 200)
             g_sounds[i].lock = 199;
 

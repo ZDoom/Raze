@@ -9296,7 +9296,7 @@ static void freeconmem(void)
             Bfree(g_player[i].sync);
     }
 
-    for (i=NUM_SOUNDS-1;i>=0;i--)
+    for (i=MAXSOUNDS-1;i>=0;i--)
     {
         if (g_sounds[i].filename != NULL)
             Bfree(g_sounds[i].filename);
@@ -10546,6 +10546,11 @@ static int opendemoread(int which_demo) // 0 = mine
 
     for (i=0;i<ud.multimode;i++)
     {
+	if (!g_player[i].ps)
+	    g_player[i].ps = (player_struct *) Bcalloc(1,sizeof(player_struct));
+	if (!g_player[i].sync)
+            g_player[i].sync = (input *) Bcalloc(1,sizeof(input));
+
         if (kread(recfilep,(char *)g_player[i].user_name,sizeof(g_player[i].user_name)) != sizeof(g_player[i].user_name)) goto corrupt;
         OSD_Printf("ud.user_name: %s\n",g_player[i].user_name);
         if (kread(recfilep,(int32 *)&g_player[i].ps->aim_mode,sizeof(int32)) != sizeof(int32)) goto corrupt;

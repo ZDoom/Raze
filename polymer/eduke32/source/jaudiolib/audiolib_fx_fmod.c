@@ -44,7 +44,7 @@ int FX_ErrorCode = FX_Ok;
 #define FX_SetErrorCode( status ) \
    FX_ErrorCode = ( status );
 
-FSOUND_SAMPLE * FX_Samples[NUM_SOUNDS + 11];	// 11 remote ridicules
+FSOUND_SAMPLE * FX_Samples[MAXSOUNDS + 11];	// 11 remote ridicules
 
 int FX_NumVoices = 0;
 static char chtoggle=0;

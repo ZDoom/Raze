@@ -343,6 +343,7 @@ int AddGameVar(const char *pszLabel, long lValue, unsigned long dwFlags)
             // if existing is system, they only get to change default value....
             aGameVars[i].lValue=lValue;
             aGameVars[i].lDefault=lValue;
+            aGameVars[i].bReset=0;
         }
         else
         {

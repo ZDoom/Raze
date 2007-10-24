@@ -51,7 +51,7 @@ int callsound(int sn,int whatsprite)
                     if (SLT)
                     {
                         spritesound(SLT,whatsprite);
-                        if (SHT && SLT != SHT && SHT < NUM_SOUNDS)
+                        if (SHT && SLT != SHT && SHT < MAXSOUNDS)
                             stopspritesound(SHT,T6);
                         T6 = whatsprite;
                     }
@@ -60,7 +60,7 @@ int callsound(int sn,int whatsprite)
                         T1 = 1;
                 }
             }
-            else if (SHT < NUM_SOUNDS)
+            else if (SHT < MAXSOUNDS)
             {
                 if (SHT) spritesound(SHT,whatsprite);
                 if ((g_sounds[SLT].m&1) || (SHT && SHT != SLT))

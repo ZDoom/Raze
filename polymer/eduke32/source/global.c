@@ -73,14 +73,14 @@ char num_volumes = 3;
 short timer=120;
 //fx_device device;
 
-sound_t g_sounds[ NUM_SOUNDS ];
+sound_t g_sounds[ MAXSOUNDS ];
 
 char numplayersprites,loadfromgrouponly=0,earthquaketime;
 
 long fricxv,fricyv;
 playerdata_t g_player[MAXPLAYERS];
 input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
-player_spawnpoint g_PlayerSpawnPoints[MAXPLAYERS];
+playerspawn_t g_PlayerSpawnPoints[MAXPLAYERS];
 user_defs ud;
 
 char pus, pub;

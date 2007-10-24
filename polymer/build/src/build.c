@@ -181,7 +181,7 @@ void showwalldata(short wallnum);
 void showspritedata(short spritenum);
 long drawtilescreen(long pictopleft, long picbox);
 void overheadeditor(void);
-short getlinehighlight(long xplc, long yplc);
+long getlinehighlight(long xplc, long yplc);
 void fixspritesectors(void);
 long movewalls(long start, long offs);
 long loadnames(void);
@@ -5941,7 +5941,7 @@ void getpoint(long searchxe, long searchye, long *x, long *y)
     if (*y >= editorgridextent) *y = editorgridextent;
 }
 
-short getlinehighlight(long xplc, long yplc)
+long getlinehighlight(long xplc, long yplc)
 {
     long i, dst, dist, closest, x1, y1, x2, y2, nx, ny;
 
@@ -5973,7 +5973,7 @@ short getlinehighlight(long xplc, long yplc)
     return(closest);
 }
 
-short getpointhighlight(long xplc, long yplc)
+long getpointhighlight(long xplc, long yplc)
 {
     long i, dst, dist = 512, closest = -1;
 
