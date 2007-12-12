@@ -226,11 +226,7 @@ static void       MV_SetVoicePitch( VoiceNode *voice, unsigned int rate, int pit
 static void       MV_CalcVolume( int MaxLevel );
 static void       MV_CalcPanTable( void );
 
-void ClearBuffer_DW(void *ptr, int data, int length)
-{
-	int *pptr = ptr;
-	for (; length>0; length--) *(pptr++) = data;
-}
+static void ClearBuffer_DW(void *ptr, int data, int length);
 
 /*
 #define ClearBuffer_DW( ptr, data, length ) \

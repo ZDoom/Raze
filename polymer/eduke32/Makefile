@@ -71,20 +71,14 @@ JMACTOBJ=$(OBJ)/util_lib.$o \
 AUDIOLIB_FX_STUB=$(OBJ)/audiolib_fxstub.$o
 AUDIOLIB_MUSIC_STUB=$(OBJ)/audiolib_musicstub.$o
 
-AUDIOLIB_FX_SDL=$(OBJ)/mv_mix.$o \
-	  $(OBJ)/mv_mix16.$o \
-	  $(OBJ)/mvreverb.$o \
-	  $(OBJ)/ll_man.$o \
+AUDIOLIB_FX_SDL=$(OBJ)/ll_man.$o \
 	  $(OBJ)/fx_man.$o \
 	  $(OBJ)/dsl.$o \
 	  $(OBJ)/pitch.$o \
 	  $(OBJ)/multivoc.$o
 AUDIOLIB_MUSIC_SDL=$(OBJ)/sdlmusic.$o
 
-AUDIOLIB_FX=$(OBJ)/mv_mix.$o \
-	  $(OBJ)/mv_mix16.$o \
-	  $(OBJ)/mvreverb.$o \
-	  $(OBJ)/pitch.$o \
+AUDIOLIB_FX=$(OBJ)/pitch.$o \
 	  $(OBJ)/multivoc.$o \
 	  $(OBJ)/ll_man.$o \
 	  $(OBJ)/fx_man.$o \
@@ -92,6 +86,17 @@ AUDIOLIB_FX=$(OBJ)/mv_mix.$o \
 AUDIOLIB_MUSIC=$(OBJ)/midi.$o \
 	  $(OBJ)/mpu401.$o \
 	  $(OBJ)/music.$o
+
+ifeq (0,$(NOASM))
+  # Assembly sound mixing code
+  AUDIOLIB_FX_SDL += $(OBJ)/mv_mix.$o $(OBJ)/mv_mix16.$o $(OBJ)/mvreverb.$o
+  AUDIOLIB_FX     += $(OBJ)/mv_mix.$o $(OBJ)/mv_mix16.$o $(OBJ)/mvreverb.$o
+else
+  # C fallbacks for sound mixing code
+  AUDIOLIB_FX_SDL += $(OBJ)/mv_mix-c.$o $(OBJ)/mvreverb-c.$o
+  AUDIOLIB_FX     += $(OBJ)/mv_mix-c.$o $(OBJ)/mvreverb-c.$o
+endif
+
 
 GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/actors.$o \

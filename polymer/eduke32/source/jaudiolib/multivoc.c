@@ -127,6 +127,19 @@ int MV_ErrorCode = MV_Ok;
 
 
 /*---------------------------------------------------------------------
+   Function: ClearBuffer_DW
+
+   Function code relocated from _multivc.h due to linking issues.
+---------------------------------------------------------------------*/
+
+void ClearBuffer_DW(void *ptr, int data, int length)
+{
+	int *pptr = ptr;
+	for (; length>0; length--) *(pptr++) = data;
+}
+
+
+/*---------------------------------------------------------------------
    Function: MV_ErrorString
 
    Returns a pointer to the error message associated with an error
