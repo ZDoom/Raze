@@ -5519,31 +5519,19 @@ int preinitengine(void)
     char *e;
     if (initsystem()) exit(1);
 
-    if (sector != NULL)
-        Bfree(sector);
+    makeasmwriteable();
+
+    // this shite is to help get around data segment size limits on some platforms
+
     sector = Bcalloc(MAXSECTORS,sizeof(sectortype));
-
-    if (wall != NULL)
-        Bfree(wall);
     wall = Bcalloc(MAXWALLS,sizeof(walltype));
-
-    if (sprite != NULL)
-        Bfree(sprite);
     sprite = Bcalloc(MAXSPRITES,sizeof(spritetype));
-
-    if (tsprite != NULL)
-        Bfree(tsprite);
     tsprite = Bcalloc(MAXSPRITESONSCREEN,sizeof(spritetype));
-
-    if (spriteext != NULL)
-        Bfree(spriteext);
     spriteext = Bcalloc(MAXSPRITES+MAXUNIQHUDID,sizeof(spriteexttype));
-
-    if (spritesmooth != NULL)
-        Bfree(spritesmooth);
     spritesmooth = Bcalloc(MAXSPRITES+MAXUNIQHUDID,sizeof(spritesmoothtype));
 
-	makeasmwriteable();
+    if (!sector || !wall || !sprite || !tsprite || !spriteext || !spritesmooth)
+        return 1;
 
     if ((e = Bgetenv("BUILD_NOP6")) != NULL)
         if (!Bstrcasecmp(e, "TRUE")) {

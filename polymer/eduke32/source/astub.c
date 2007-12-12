@@ -55,7 +55,7 @@ static struct strllist
     struct strllist *next;
     char *str;
 }
-*CommandPaths = NULL;
+*CommandPaths = NULL, *CommandGrps = NULL;
 
 #define MAXHELP2D (signed int)(sizeof(Help2d)/sizeof(Help2d[0]))
 static char *Help2d[]=
@@ -5057,13 +5057,22 @@ static void addgamepath(const char *buffer)
     CommandPaths = s;
 }
 
-static char **grps = NULL;
-static signed char grpstoadd = 0;
-
-static void buildaddgroup(const char *buffer)
+static void addgroup(const char *buffer)
 {
-    grps = (char**)realloc(grps, sizeof(char*)*(grpstoadd+1));
-    grps[grpstoadd++] = strdup(buffer);
+    struct strllist *s;
+    s = (struct strllist *)calloc(1,sizeof(struct strllist));
+    s->str = Bstrdup(buffer);
+    if (Bstrchr(s->str,'.') == 0)
+        Bstrcat(s->str,".grp");
+
+    if (CommandGrps)
+    {
+        struct strllist *t;
+        for (t = CommandGrps; t->next; t=t->next) ;
+        t->next = s;
+        return;
+    }
+    CommandGrps = s;
 }
 
 static void checkcommandline(int argc,const char **argv)
@@ -5084,11 +5093,11 @@ static void checkcommandline(int argc,const char **argv)
                     exit(0);
                 }
 
-                if (!Bstrcasecmp(c+1, "-g") || !Bstrcasecmp(c+1,  "-grp"))
+                if (!Bstrcasecmp(c+1, "g") || !Bstrcasecmp(c+1,  "grp"))
                 {
                     if (argc > i+1)
                     {
-                        buildaddgroup(argv[i+1]);
+                        addgroup(argv[i+1]);
                         i++;
                     }
                     i++;
@@ -5185,7 +5194,7 @@ static void checkcommandline(int argc,const char **argv)
                 case 'G':
                     c++;
                     if (!*c) break;
-                    buildaddgroup(c);
+                    addgroup(c);
                     break;
                 }
             }
@@ -5904,17 +5913,28 @@ int ExtInit(void)
     }
     loadgroupfiles(defsfilename);
 
-    if (grps && grpstoadd > 0)
     {
-        for (i=0;i<grpstoadd;i++)
+        struct strllist *s;
+        int j;
+
+        pathsearchmode = 1;
+        while (CommandGrps)
         {
-            initprintf("Adding %s\n",grps[i]);
-            initgroupfile(grps[i]);
-            if (!NoAutoLoad)
-                autoloadgrps(grps[i]);
-            free(grps[i]);
+            s = CommandGrps->next;
+            j = initgroupfile(CommandGrps->str);
+            if (j == -1) initprintf("Could not find group file '%s'.\n",CommandGrps->str);
+            else
+            {
+                initprintf("Using group file '%s'.\n",CommandGrps->str);
+                if (!NoAutoLoad)
+                    autoloadgrps(CommandGrps->str);
+            }
+
+            free(CommandGrps->str);
+            free(CommandGrps);
+            CommandGrps = s;
         }
-        free(grps);
+        pathsearchmode = 0;
     }
 
     bpp = 32;
