@@ -4,7 +4,7 @@
 # include "glbuild.h"
 
 struct hicskybox_t {
-    long ignore;
+    int ignore;
     char *face[6];
 };
 
@@ -32,7 +32,7 @@ typedef struct pthtyp_t
     struct pthtyp_t *ofb; // only fullbright
 } pthtyp;
 
-pthtyp * gltexcache (long dapicnum, long dapalnum, long dameth);
+pthtyp * gltexcache (int dapicnum, int dapalnum, int dameth);
 
 extern palette_t hictinting[MAXPALOOKUPS];
 extern float     gtang;

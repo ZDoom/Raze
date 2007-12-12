@@ -181,8 +181,8 @@ static int getfilenames(const char *path, char kind[])
 
 void ExtLoadMap(const char *mapname)
 {
-    long i;
-    long sky=0;
+    int i;
+    int sky=0;
     int j;
     // PreCache Wall Tiles
     /*
@@ -607,7 +607,7 @@ const char *ExtGetSpriteCaption(short spritenum)
 } //end
 
 //printext16 parameters:
-//printext16(long xpos, long ypos, short col, short backcol,
+//printext16(int xpos, int ypos, short col, short backcol,
 //           char name[82], char fontsize)
 //  xpos 0-639   (top left)
 //  ypos 0-479   (top left)
@@ -617,7 +617,7 @@ const char *ExtGetSpriteCaption(short spritenum)
 //  fontsize 0=8*8, 1=3*5
 
 //drawline16 parameters:
-// drawline16(long x1, long y1, long x2, long y2, char col)
+// drawline16(int x1, int y1, int x2, int y2, char col)
 //  x1, x2  0-639
 //  y1, y2  0-143  (status bar is 144 high, origin is top-left of STATUS BAR)
 //  col     0-15
@@ -1238,14 +1238,14 @@ static void ResetFOFSize()
     if (fofsizey != -1) tilesizy[FOF] = fofsizey;
 }
 
-static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
+static void ExtSE40Draw(int spnum,int x,int y,int z,short a,short h)
 {
-    static long tempsectorz[MAXSECTORS];
-    static long tempsectorpicnum[MAXSECTORS];
+    static int tempsectorz[MAXSECTORS];
+    static int tempsectorpicnum[MAXSECTORS];
 
     int i=0,j=0,k=0;
     int floor1=0,floor2=0,ok=0,fofmode=0,draw_both=0;
-    long offx,offy,offz;
+    int offx,offy,offz;
 
     if (sprite[spnum].ang!=512) return;
 
@@ -1393,7 +1393,7 @@ static void ExtSE40Draw(int spnum,long x,long y,long z,short a,short h)
 
 } // end SE40
 
-static void SE40Code(long x,long y,long z,long a,long h)
+static void SE40Code(int x,int y,int z,int a,int h)
 {
     int i;
 
@@ -1576,7 +1576,7 @@ static void message(char message[162])
 
 static char lockbyte4094;
 
-static long lastupdate, mousecol, mouseadd = 1, bstatus;
+static int lastupdate, mousecol, mouseadd = 1, bstatus;
 
 static void m32_showmouse(void)
 {
@@ -1678,9 +1678,9 @@ static int AskIfSure(void)
     return(retval);
 }
 
-static long IsValidTile(const long idTile)
+static int IsValidTile(const int idTile)
 {
-    long bValid = 0;
+    int bValid = 0;
 
     if ((idTile >= 0) && (idTile < MAXTILES))
     {
@@ -1693,9 +1693,9 @@ static long IsValidTile(const long idTile)
     return bValid;
 }
 
-static long SelectAllTiles(long iCurrentTile)
+static int SelectAllTiles(int iCurrentTile)
 {
-    long i;
+    int i;
 
     if (iCurrentTile < localartlookupnum)
     {
@@ -1717,22 +1717,22 @@ static long SelectAllTiles(long iCurrentTile)
     return iCurrentTile;
 }
 
-static long OnGotoTile(long iTile);
-static long OnSelectTile(long iTile);
-static long s_Zoom = INITIAL_ZOOM;
-static long s_TileZoom = 1;
+static int OnGotoTile(int iTile);
+static int OnSelectTile(int iTile);
+static int s_Zoom = INITIAL_ZOOM;
+static int s_TileZoom = 1;
 
-static long DrawTiles(long iTopLeft, long iSelected, long nXTiles, long nYTiles, long TileDim);
+static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int TileDim);
 
 
-static long m32gettile(long idInitialTile)
+static int m32gettile(int idInitialTile)
 {
-    long gap, temp;
-    long nXTiles, nYTiles, nDisplayedTiles;
-    long i;
-    long iTile, iTopLeftTile;
-    long idSelectedTile;
-    long j;
+    int gap, temp;
+    int nXTiles, nYTiles, nDisplayedTiles;
+    int i;
+    int iTile, iTopLeftTile;
+    int idSelectedTile;
+    int j;
     char ch, szTemp[128];
 
 
@@ -1829,15 +1829,15 @@ static long m32gettile(long idInitialTile)
 
             while ((localartfreq[temp] < localartfreq[temp+gap]) && (temp >= 0))
             {
-                long templong;
+                int tempint;
 
-                templong = localartfreq[temp];
+                tempint = localartfreq[temp];
                 localartfreq[temp] = localartfreq[temp+gap];
-                localartfreq[temp+gap] = templong;
+                localartfreq[temp+gap] = tempint;
 
-                templong = localartlookup[temp];
+                tempint = localartlookup[temp];
                 localartlookup[temp] = localartlookup[temp+gap];
-                localartlookup[temp+gap] = templong;
+                localartlookup[temp+gap] = tempint;
 
                 if (iTile == temp)
                 {
@@ -2133,13 +2133,13 @@ static long m32gettile(long idInitialTile)
 }
 
 // Dir = 0 (zoom out) or 1 (zoom in)
-//void OnZoomInOut( long *pZoom, long Dir /*0*/ )
+//void OnZoomInOut( int *pZoom, int Dir /*0*/ )
 //{
 //}
 
-static long OnGotoTile(long iTile)
+static int OnGotoTile(int iTile)
 {
-    long iTemp, iNewTile;
+    int iTemp, iNewTile;
     char ch;
     char szTemp[128];
 
@@ -2160,7 +2160,7 @@ static long OnGotoTile(long iTile)
 
         ch = bgetchar();
 
-        Bsprintf(szTemp, "Goto tile: %ld_ ", iNewTile);
+        Bsprintf(szTemp, "Goto tile: %d_ ", iNewTile);
         printext256(0, 0, whitecol, 0, szTemp, 0);
         showframe(1);
 
@@ -2188,10 +2188,10 @@ static long OnGotoTile(long iTile)
     return iTile;
 }
 
-static long LoadTileSet(const long idCurrentTile, const long *pIds, const long nIds)
+static int LoadTileSet(const int idCurrentTile, const int *pIds, const int nIds)
 {
-    long iNewTile = 0;
-    long i;
+    int iNewTile = 0;
+    int i;
 
     localartlookupnum = nIds;
 
@@ -2212,10 +2212,10 @@ static long LoadTileSet(const long idCurrentTile, const long *pIds, const long n
 
 }
 
-static long OnSelectTile(long iTile)
+static int OnSelectTile(int iTile)
 {
-    long bDone = 0;
-    long i, j;
+    int bDone = 0;
+    int i, j;
     char ch;
 
     for (i = 0; (unsigned)i < tile_groups; i++)
@@ -2285,7 +2285,7 @@ static long OnSelectTile(long iTile)
     return iTile;
 }
 
-const char * GetTilePixels(const long idTile)
+const char * GetTilePixels(const int idTile)
 {
     char *pPixelData = 0;
 
@@ -2307,17 +2307,17 @@ const char * GetTilePixels(const long idTile)
 
 #define PIXELS_PER_DISPLAY_LINE ylookup[1]
 
-static long DrawTiles(long iTopLeft, long iSelected, long nXTiles, long nYTiles, long TileDim)
+static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int TileDim)
 {
-    long XTile, YTile;
-    long iTile, idTile;
-    long XBox, YBox;
-    long XPos, YPos;
-    long XOffset, YOffset;
-    long i;
+    int XTile, YTile;
+    int iTile, idTile;
+    int XBox, YBox;
+    int XPos, YPos;
+    int XOffset, YOffset;
+    int i;
     const char * pRawPixels;
-    long TileSizeX, TileSizeY;
-    long DivInc,MulInc;
+    int TileSizeX, TileSizeY;
+    int DivInc,MulInc;
     char *pScreen;
     char szT[128];
 
@@ -2410,7 +2410,7 @@ static long DrawTiles(long iTopLeft, long iSelected, long nXTiles, long nYTiles,
 
     idTile = localartlookup[ iSelected ];
 
-    Bsprintf(szT, "%ld" , idTile);
+    Bsprintf(szT, "%d" , idTile);
     printext256(0L, ydim-8, whitecol, -1, szT, 0);
     printext256(xdim-(Bstrlen(names[idTile])<<3),ydim-8,whitecol,-1,names[idTile],0);
 
@@ -2426,10 +2426,10 @@ static long DrawTiles(long iTopLeft, long iSelected, long nXTiles, long nYTiles,
 
 static void Keys3d(void)
 {
-    long i,count,rate,nexti;
-    long j, k, templong = 0, changedir, hiz, loz;
-    long hitx, hity, hitz, hihit, lohit;
-    long repeatcountx=0,repeatcounty=0;
+    int i,count,rate,nexti;
+    int j, k, tempint = 0, changedir, hiz, loz;
+    int hitx, hity, hitz, hihit, lohit;
+    int repeatcountx=0,repeatcounty=0;
     char smooshyalign=0, repeatpanalign=0, buffer[80];
     short startwall, endwall, dasector, hitsect, hitwall, hitsprite, statnum=0;
 
@@ -2519,11 +2519,11 @@ static void Keys3d(void)
         case 0:
         case 4:
         {
-            long dax, day, dist;
+            int dax, day, dist;
             dax = wall[searchwall].x-wall[wall[searchwall].point2].x;
             day = wall[searchwall].y-wall[wall[searchwall].point2].y;
             dist = ksqrt(dax*dax+day*day);
-            Bsprintf(msgbuf,"Wall %d: length:%ld lo:%d hi:%d ex:%d",searchwall,dist,wall[searchwall].lotag,wall[searchwall].hitag,wall[searchwall].extra);
+            Bsprintf(msgbuf,"Wall %d: length:%d lo:%d hi:%d ex:%d",searchwall,dist,wall[searchwall].lotag,wall[searchwall].hitag,wall[searchwall].extra);
             _message(msgbuf);
             break;
         }
@@ -2589,21 +2589,21 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_V] > 0)  //V
     {
-        if (searchstat == 0) templong = wall[searchwall].picnum;
-        if (searchstat == 1) templong = sector[searchsector].ceilingpicnum;
-        if (searchstat == 2) templong = sector[searchsector].floorpicnum;
-        if (searchstat == 3) templong = sprite[searchwall].picnum;
-        if (searchstat == 4) templong = wall[searchwall].overpicnum;
-        templong = m32gettile(templong);
-        if (searchstat == 0) wall[searchwall].picnum = templong;
-        if (searchstat == 1) sector[searchsector].ceilingpicnum = templong;
-        if (searchstat == 2) sector[searchsector].floorpicnum = templong;
-        if (searchstat == 3) sprite[searchwall].picnum = templong;
+        if (searchstat == 0) tempint = wall[searchwall].picnum;
+        if (searchstat == 1) tempint = sector[searchsector].ceilingpicnum;
+        if (searchstat == 2) tempint = sector[searchsector].floorpicnum;
+        if (searchstat == 3) tempint = sprite[searchwall].picnum;
+        if (searchstat == 4) tempint = wall[searchwall].overpicnum;
+        tempint = m32gettile(tempint);
+        if (searchstat == 0) wall[searchwall].picnum = tempint;
+        if (searchstat == 1) sector[searchsector].ceilingpicnum = tempint;
+        if (searchstat == 2) sector[searchsector].floorpicnum = tempint;
+        if (searchstat == 3) sprite[searchwall].picnum = tempint;
         if (searchstat == 4)
         {
-            wall[searchwall].overpicnum = templong;
+            wall[searchwall].overpicnum = tempint;
             if (wall[searchwall].nextwall >= 0)
-                wall[wall[searchwall].nextwall].overpicnum = templong;
+                wall[wall[searchwall].nextwall].overpicnum = tempint;
         }
         asksave = 1;
         keystatus[0x2f] = 0;
@@ -2783,7 +2783,7 @@ static void Keys3d(void)
                 sprite[i].ang = ((sprite[i].ang+2048-128)&2047);
                 keystatus[0x33] = 0;
             }
-            Bsprintf(tempbuf,"Sprite %ld angle: %d",i,sprite[i].ang);
+            Bsprintf(tempbuf,"Sprite %d angle: %d",i,sprite[i].ang);
             message(tempbuf);
         }
     }
@@ -2791,7 +2791,7 @@ static void Keys3d(void)
     {
         if ((searchstat == 0) || (searchstat == 4))
         {
-            AutoAlignWalls((long)searchwall,0L);
+            AutoAlignWalls((int)searchwall,0L);
             keystatus[0x34] = 0;
         }
         if (searchstat == 3)
@@ -2804,7 +2804,7 @@ static void Keys3d(void)
                 sprite[i].ang = ((sprite[i].ang+2048+128)&2047);
                 keystatus[0x34] = 0;
             }
-            Bsprintf(tempbuf,"Sprite %ld angle: %d",i,sprite[i].ang);
+            Bsprintf(tempbuf,"Sprite %d angle: %d",i,sprite[i].ang);
             message(tempbuf);
         }
     }
@@ -2874,19 +2874,19 @@ static void Keys3d(void)
         case 0:
         case 4:
             strcpy(buffer,"Wall extra: ");
-            wall[searchwall].extra = getnumber256(buffer,(long)wall[searchwall].extra,65536L,1);
+            wall[searchwall].extra = getnumber256(buffer,(int)wall[searchwall].extra,65536L,1);
             break;
         case 1:
             strcpy(buffer,"Sector extra: ");
-            sector[searchsector].extra = getnumber256(buffer,(long)sector[searchsector].extra,65536L,1);
+            sector[searchsector].extra = getnumber256(buffer,(int)sector[searchsector].extra,65536L,1);
             break;
         case 2:
             strcpy(buffer,"Sector extra: ");
-            sector[searchsector].extra = getnumber256(buffer,(long)sector[searchsector].extra,65536L,1);
+            sector[searchsector].extra = getnumber256(buffer,(int)sector[searchsector].extra,65536L,1);
             break;
         case 3:
             strcpy(buffer,"Sprite extra: ");
-            sprite[searchwall].extra = getnumber256(buffer,(long)sprite[searchwall].extra,65536L,1);
+            sprite[searchwall].extra = getnumber256(buffer,(int)sprite[searchwall].extra,65536L,1);
             break;
         }
         asksave = 1;
@@ -2971,7 +2971,7 @@ static void Keys3d(void)
         if (searchstat != 3)
         {
             i = wall[searchwall].nextwall;
-            templong = (keystatus[0x2a]|keystatus[0x36]);
+            tempint = (keystatus[0x2a]|keystatus[0x36]);
             if (i >= 0)
             {
                 wall[searchwall].cstat ^= 16;
@@ -2980,7 +2980,7 @@ static void Keys3d(void)
                 if ((wall[searchwall].cstat&16) > 0)
                 {
                     wall[searchwall].cstat &= ~8;
-                    if (templong == 0)
+                    if (tempint == 0)
                     {
                         wall[i].cstat |= 8;           //auto other-side flip
                         wall[i].cstat |= 16;
@@ -2990,14 +2990,14 @@ static void Keys3d(void)
                 else
                 {
                     wall[searchwall].cstat &= ~8;
-                    if (templong == 0)
+                    if (tempint == 0)
                     {
                         wall[i].cstat &= ~8;         //auto other-side unflip
                         wall[i].cstat &= ~16;
                     }
                 }
                 wall[searchwall].cstat &= ~32;
-                if (templong == 0) wall[i].cstat &= ~32;
+                if (tempint == 0) wall[i].cstat &= ~32;
                 asksave = 1;
             }
         }
@@ -3013,19 +3013,19 @@ static void Keys3d(void)
             case 0:
             case 4:
                 strcpy(buffer,"Wall hitag: ");
-                wall[searchwall].hitag = getnumber256(buffer,(long)wall[searchwall].hitag,65536L,0);
+                wall[searchwall].hitag = getnumber256(buffer,(int)wall[searchwall].hitag,65536L,0);
                 break;
             case 1:
                 strcpy(buffer,"Sector hitag: ");
-                sector[searchsector].hitag = getnumber256(buffer,(long)sector[searchsector].hitag,65536L,0);
+                sector[searchsector].hitag = getnumber256(buffer,(int)sector[searchsector].hitag,65536L,0);
                 break;
             case 2:
                 strcpy(buffer,"Sector hitag: ");
-                sector[searchsector].hitag = getnumber256(buffer,(long)sector[searchsector].hitag,65536L,0);
+                sector[searchsector].hitag = getnumber256(buffer,(int)sector[searchsector].hitag,65536L,0);
                 break;
             case 3:
                 strcpy(buffer,"Sprite hitag: ");
-                sprite[searchwall].hitag = getnumber256(buffer,(long)sprite[searchwall].hitag,65536L,0);
+                sprite[searchwall].hitag = getnumber256(buffer,(int)sprite[searchwall].hitag,65536L,0);
                 break;
             }
         }
@@ -3542,15 +3542,15 @@ static void Keys3d(void)
                 i = headspritesect[searchsector];
                 while (i != -1)
                 {
-                    templong = getceilzofslope(searchsector,sprite[i].x,sprite[i].y);
-                    templong += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
-                    if (sprite[i].cstat&128) templong += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                    if (sprite[i].z == templong)
+                    tempint = getceilzofslope(searchsector,sprite[i].x,sprite[i].y);
+                    tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
+                    if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                    if (sprite[i].z == tempint)
                         sprite[i].z -= updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
                     i = nextspritesect[i];
                 }
                 sector[searchsector].ceilingz -= updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1); // JBF 20031128
-                sprintf(getmessage,"Sector %d ceilingz = %ld",searchsector,sector[searchsector].ceilingz);
+                sprintf(getmessage,"Sector %d ceilingz = %d",searchsector,sector[searchsector].ceilingz);
                 message(getmessage);
 
             }
@@ -3561,15 +3561,15 @@ static void Keys3d(void)
                     i = headspritesect[highlightsector[j]];
                     while (i != -1)
                     {
-                        templong = getceilzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
-                        templong += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
-                        if (sprite[i].cstat&128) templong += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                        if (sprite[i].z == templong)
+                        tempint = getceilzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
+                        tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
+                        if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                        if (sprite[i].z == tempint)
                             sprite[i].z -= updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
                         i = nextspritesect[i];
                     }
                     sector[highlightsector[j]].ceilingz -= updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
-                    sprintf(getmessage,"Sector %d ceilingz = %ld",*highlightsector,sector[highlightsector[j]].ceilingz);
+                    sprintf(getmessage,"Sector %d ceilingz = %d",*highlightsector,sector[highlightsector[j]].ceilingz);
                     message(getmessage);
 
                 }
@@ -3582,14 +3582,14 @@ static void Keys3d(void)
                 i = headspritesect[searchsector];
                 while (i != -1)
                 {
-                    templong = getflorzofslope(searchsector,sprite[i].x,sprite[i].y);
-                    if (sprite[i].cstat&128) templong += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                    if (sprite[i].z == templong)
+                    tempint = getflorzofslope(searchsector,sprite[i].x,sprite[i].y);
+                    if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                    if (sprite[i].z == tempint)
                         sprite[i].z -= updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
                     i = nextspritesect[i];
                 }
                 sector[searchsector].floorz -= updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
-                sprintf(getmessage,"Sector %d floorz = %ld",searchsector,sector[searchsector].floorz);
+                sprintf(getmessage,"Sector %d floorz = %d",searchsector,sector[searchsector].floorz);
                 message(getmessage);
 
             }
@@ -3600,14 +3600,14 @@ static void Keys3d(void)
                     i = headspritesect[highlightsector[j]];
                     while (i != -1)
                     {
-                        templong = getflorzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
-                        if (sprite[i].cstat&128) templong += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                        if (sprite[i].z == templong)
+                        tempint = getflorzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
+                        if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                        if (sprite[i].z == tempint)
                             sprite[i].z -= updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
                         i = nextspritesect[i];
                     }
                     sector[highlightsector[j]].floorz -= updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1); // JBF 20031128
-                    sprintf(getmessage,"Sector %d floorz = %ld",*highlightsector,sector[highlightsector[j]].floorz);
+                    sprintf(getmessage,"Sector %d floorz = %d",*highlightsector,sector[highlightsector[j]].floorz);
                     message(getmessage);
 
                 }
@@ -3639,7 +3639,7 @@ static void Keys3d(void)
                 if (k == 0)
                 {
                     sprite[searchwall].z -= updownunits;
-                    sprintf(getmessage,"Sprite %d z = %ld",searchwall,sprite[searchwall].z);
+                    sprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
                     message(getmessage);
 
                 }
@@ -3648,7 +3648,7 @@ static void Keys3d(void)
                     for (i=0;i<highlightcnt;i++)
                         if ((highlight[i]&0xc000) == 16384)
                             sprite[highlight[i]&16383].z -= updownunits;
-                    sprintf(getmessage,"Sprite %d z = %ld",highlight[i]&16383,sprite[highlight[i]&16383].z);
+                    sprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
                     message(getmessage);
 
                 }
@@ -3678,15 +3678,15 @@ static void Keys3d(void)
                 i = headspritesect[searchsector];
                 while (i != -1)
                 {
-                    templong = getceilzofslope(searchsector,sprite[i].x,sprite[i].y);
-                    if (sprite[i].cstat&128) templong += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                    templong += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
-                    if (sprite[i].z == templong)
+                    tempint = getceilzofslope(searchsector,sprite[i].x,sprite[i].y);
+                    if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                    tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
+                    if (sprite[i].z == tempint)
                         sprite[i].z += updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
                     i = nextspritesect[i];
                 }
                 sector[searchsector].ceilingz += updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1); // JBF 20031128
-                sprintf(getmessage,"Sector %d ceilingz = %ld",searchsector,sector[searchsector].ceilingz);
+                sprintf(getmessage,"Sector %d ceilingz = %d",searchsector,sector[searchsector].ceilingz);
                 message(getmessage);
 
             }
@@ -3697,15 +3697,15 @@ static void Keys3d(void)
                     i = headspritesect[highlightsector[j]];
                     while (i != -1)
                     {
-                        templong = getceilzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
-                        if (sprite[i].cstat&128) templong += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                        templong += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
-                        if (sprite[i].z == templong)
+                        tempint = getceilzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
+                        if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                        tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
+                        if (sprite[i].z == tempint)
                             sprite[i].z += updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
                         i = nextspritesect[i];
                     }
                     sector[highlightsector[j]].ceilingz += updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
-                    sprintf(getmessage,"Sector %d ceilingz = %ld",*highlightsector,sector[highlightsector[j]].ceilingz);
+                    sprintf(getmessage,"Sector %d ceilingz = %d",*highlightsector,sector[highlightsector[j]].ceilingz);
                     message(getmessage);
 
                 }
@@ -3718,14 +3718,14 @@ static void Keys3d(void)
                 i = headspritesect[searchsector];
                 while (i != -1)
                 {
-                    templong = getflorzofslope(searchsector,sprite[i].x,sprite[i].y);
-                    if (sprite[i].cstat&128) templong += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                    if (sprite[i].z == templong)
+                    tempint = getflorzofslope(searchsector,sprite[i].x,sprite[i].y);
+                    if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                    if (sprite[i].z == tempint)
                         sprite[i].z += updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
                     i = nextspritesect[i];
                 }
                 sector[searchsector].floorz += updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
-                sprintf(getmessage,"Sector %d floorz = %ld",searchsector,sector[searchsector].floorz);
+                sprintf(getmessage,"Sector %d floorz = %d",searchsector,sector[searchsector].floorz);
                 message(getmessage);
 
             }
@@ -3736,14 +3736,14 @@ static void Keys3d(void)
                     i = headspritesect[highlightsector[j]];
                     while (i != -1)
                     {
-                        templong = getflorzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
-                        if (sprite[i].cstat&128) templong += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                        if (sprite[i].z == templong)
+                        tempint = getflorzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
+                        if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                        if (sprite[i].z == tempint)
                             sprite[i].z += updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1);   // JBF 20031128
                         i = nextspritesect[i];
                     }
                     sector[highlightsector[j]].floorz += updownunits << ((keystatus[0x1d]|keystatus[0x9d])<<1); // JBF 20031128
-                    sprintf(getmessage,"Sector %d floorz = %ld",*highlightsector,sector[highlightsector[j]].floorz);
+                    sprintf(getmessage,"Sector %d floorz = %d",*highlightsector,sector[highlightsector[j]].floorz);
                     message(getmessage);
 
                 }
@@ -3772,7 +3772,7 @@ static void Keys3d(void)
                 if (k == 0)
                 {
                     sprite[searchwall].z += updownunits;
-                    sprintf(getmessage,"Sprite %d z = %ld",searchwall,sprite[searchwall].z);
+                    sprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
                     message(getmessage);
 
                 }
@@ -3781,7 +3781,7 @@ static void Keys3d(void)
                     for (i=0;i<highlightcnt;i++)
                         if ((highlight[i]&0xc000) == 16384)
                             sprite[highlight[i]&16383].z += updownunits;
-                    sprintf(getmessage,"Sprite %d z = %ld",highlight[i]&16383,sprite[highlight[i]&16383].z);
+                    sprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
                     message(getmessage);
 
                 }
@@ -3804,7 +3804,7 @@ static void Keys3d(void)
         {
             int p = 8;
 
-            Bsprintf(tempbuf,"%ld",rate);
+            Bsprintf(tempbuf,"%d",rate);
             if (rate > 9) p += 8;
             if (rate > 99) p += 8;
             if (rate > 999) p += 8;
@@ -4257,19 +4257,19 @@ static void Keys3d(void)
             case 0:
             case 4:
                 strcpy(buffer,"Wall lotag: ");
-                wall[searchwall].lotag = getnumber256(buffer,(long)wall[searchwall].lotag,65536L,0);
+                wall[searchwall].lotag = getnumber256(buffer,(int)wall[searchwall].lotag,65536L,0);
                 break;
             case 1:
                 strcpy(buffer,"Sector lotag: ");
-                sector[searchsector].lotag = getnumber256(buffer,(long)sector[searchsector].lotag,65536L,0);
+                sector[searchsector].lotag = getnumber256(buffer,(int)sector[searchsector].lotag,65536L,0);
                 break;
             case 2:
                 strcpy(buffer,"Sector lotag: ");
-                sector[searchsector].lotag = getnumber256(buffer,(long)sector[searchsector].lotag,65536L,0);
+                sector[searchsector].lotag = getnumber256(buffer,(int)sector[searchsector].lotag,65536L,0);
                 break;
             case 3:
                 strcpy(buffer,"Sprite lotag: ");
-                sprite[searchwall].lotag = getnumber256(buffer,(long)sprite[searchwall].lotag,65536L,0);
+                sprite[searchwall].lotag = getnumber256(buffer,(int)sprite[searchwall].lotag,65536L,0);
                 break;
             }
         }
@@ -4339,13 +4339,13 @@ static void Keys2d(void)
 {
     short temp=0;
     int i=0, j,k;
-    long radius, xp1, yp1;
+    int radius, xp1, yp1;
     char col;
 
-    long repeatcountx=0,repeatcounty=0,smooshyalign,changedir;
+    int repeatcountx=0,repeatcounty=0,smooshyalign,changedir;
     /*
        for(i=0;i<0x50;i++)
-       {if(keystatus[i]==1) {Bsprintf(tempbuf,"key %ld",i); printmessage16(tempbuf);
+       {if(keystatus[i]==1) {Bsprintf(tempbuf,"key %d",i); printmessage16(tempbuf);
     }}
     */
 
@@ -4371,11 +4371,11 @@ static void Keys2d(void)
         }
         else if ((linehighlight >= 0) && (sectorofwall(linehighlight) == cursectornum))
         {
-            long dax, day, dist;
+            int dax, day, dist;
             dax = wall[linehighlight].x-wall[wall[linehighlight].point2].x;
             day = wall[linehighlight].y-wall[wall[linehighlight].point2].y;
             dist = ksqrt(dax*dax+day*day);
-            Bsprintf(tempbuf,"Wall %d: length:%ld lo:%d hi:%d ex:%d",linehighlight,dist,wall[linehighlight].lotag,wall[linehighlight].hitag,wall[linehighlight].extra);
+            Bsprintf(tempbuf,"Wall %d: length:%d lo:%d hi:%d ex:%d",linehighlight,dist,wall[linehighlight].lotag,wall[linehighlight].hitag,wall[linehighlight].extra);
             _printmessage16(tempbuf);
         }
         else if (cursectornum >= 0)
@@ -4845,7 +4845,7 @@ static void Keys2d(void)
     {
         posx=getnumber16("X-coordinate:    ",posx,131072L,1);
         posy=getnumber16("Y-coordinate:    ",posy,131072L,1);
-        Bsprintf(tempbuf,"Current pos now (%ld, %ld)",posx,posy);
+        Bsprintf(tempbuf,"Current pos now (%d, %d)",posx,posy);
         printmessage16(tempbuf);
         keystatus[0x24]=0;
     }
@@ -5235,7 +5235,7 @@ static int osdcmd_editorgridextent(const osdfuncparm_t *parm)
 
     if (parm->numparms == 0)
     {
-        OSD_Printf("\"editorgridextent\" is \"%ld\"\n", editorgridextent);
+        OSD_Printf("\"editorgridextent\" is \"%d\"\n", editorgridextent);
         return OSDCMD_SHOWHELP;
     }
     else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
@@ -5245,7 +5245,7 @@ static int osdcmd_editorgridextent(const osdfuncparm_t *parm)
     if (i >= 65536 && i <= 524288)
     {
         editorgridextent = i;
-        OSD_Printf("editorgridextent %ld\n", editorgridextent);
+        OSD_Printf("editorgridextent %d\n", editorgridextent);
     }
     else OSD_Printf("editorgridextent: value out of range\n");
     return OSDCMD_OK;
@@ -5288,7 +5288,7 @@ static int osdcmd_echo(const osdfuncparm_t *parm)
 
 static int osdcmd_fileinfo(const osdfuncparm_t *parm)
 {
-    unsigned long crc, length;
+    unsigned int crc, length;
     int i,j;
     char buf[256];
 
@@ -5442,7 +5442,7 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
     }
 }
 
-static long GetTime(void)
+static int GetTime(void)
 {
     return totalclock;
 }
@@ -5479,8 +5479,8 @@ int GAME_getrowheight(int w)
 #define PALETTE 4
 void GAME_clearbackground(int c, int r)
 {
-    long x, y, xsiz, ysiz, tx2, ty2;
-    long daydim, bits;
+    int x, y, xsiz, ysiz, tx2, ty2;
+    int daydim, bits;
 
 #ifdef _WIN32
     if (qsetmode != 200)
@@ -5721,7 +5721,7 @@ int parsetilegroups(scriptfile *script)
             if (scriptfile_getstring(script,&name)) break;
             if (scriptfile_getbraces(script,&end)) break;
 
-            s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(long));
+            s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(int));
             s_TileGroups[tile_groups].szText = Bstrdup(name);
 
             while (script->textptr < end)
@@ -5784,7 +5784,7 @@ int parsetilegroups(scriptfile *script)
                 }
                 }
             }
-            s_TileGroups[tile_groups].pIds = Brealloc(s_TileGroups[tile_groups].pIds,s_TileGroups[tile_groups].nIds*sizeof(long));
+            s_TileGroups[tile_groups].pIds = Brealloc(s_TileGroups[tile_groups].pIds,s_TileGroups[tile_groups].nIds*sizeof(int));
             tile_groups++;
             break;
         }
@@ -5821,7 +5821,7 @@ int loadtilegroups(char *fn)
 
 int ExtInit(void)
 {
-    long rv = 0;
+    int rv = 0;
     int i;
     char cwd[BMAX_PATH];
 
@@ -6046,7 +6046,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
 void ExtAnalyzeSprites(void)
 {
-    long i, k;
+    int i, k;
     spritetype *tspr;
     int frames=0, l;
 
@@ -6311,8 +6311,8 @@ void ExtCheckKeys(void)
 
 void faketimerhandler(void)
 {
-    long i, dist;
-    long hiz, hihit, loz, lohit, oposx, oposy;
+    int i, dist;
+    int hiz, hihit, loz, lohit, oposx, oposy;
     short hitwall, daang;
 
     counter++;
@@ -6345,8 +6345,8 @@ void faketimerhandler(void)
         if (yvel > 0) yvel--;
 
         i = 4-keystatus[buildkeys[4]];
-        xvel += mulscale(vel,(long)sintable[(ang+512)&2047],i);
-        yvel += mulscale(vel,(long)sintable[ang&2047],i);
+        xvel += mulscale(vel,(int)sintable[(ang+512)&2047],i);
+        yvel += mulscale(vel,(int)sintable[ang&2047],i);
 
         if (((daang-ang)&2047) < 1024)
             ang = ((ang+((((daang-ang)&2047)+24)>>4))&2047);
@@ -6418,7 +6418,7 @@ static void SetGAMEPalette()
 
 static void kensetpalette(char *vgapal)
 {
-    long i;
+    int i;
     char vesapal[1024];
 
     for (i=0;i<256;i++)
@@ -6433,7 +6433,7 @@ static void kensetpalette(char *vgapal)
 
 static void SearchSectorsForward()
 {
-    long ii=0;
+    int ii=0;
     if (cursector_lotag!=0)
     {
         if (cursectornum<MAXSECTORS) cursectornum++;
@@ -6456,7 +6456,7 @@ static void SearchSectorsForward()
 
 static void SearchSectorsBackward()
 {
-    long ii=0;
+    int ii=0;
     if (cursector_lotag!=0)
     {
         if (cursectornum>0) cursectornum--;
@@ -6483,7 +6483,7 @@ static void EditSectorData(short sectnum)
     char disptext[80];
     char edittext[80];
     int col=1, row=0, rowmax = 6, dispwidth = 24, editval = 0, i = -1;
-    long xpos = 200, ypos = ydim-STATUS2DSIZ+48;
+    int xpos = 200, ypos = ydim-STATUS2DSIZ+48;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -6560,7 +6560,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].ceilingstat = (short)getnumber16(edittext,(long)sector[sectnum].ceilingstat,65536L,0);
+                    sector[sectnum].ceilingstat = (short)getnumber16(edittext,(int)sector[sectnum].ceilingstat,65536L,0);
                 }
                 break;
             case 1:
@@ -6569,10 +6569,10 @@ static void EditSectorData(short sectnum)
                 {
                     Bsprintf(edittext,"Sector %d Ceiling X Pan: ",sectnum);
                     printmessage16(edittext);
-                    sector[sectnum].ceilingxpanning = (char)getnumber16(edittext,(long)sector[sectnum].ceilingxpanning,256L,0);
+                    sector[sectnum].ceilingxpanning = (char)getnumber16(edittext,(int)sector[sectnum].ceilingxpanning,256L,0);
                     Bsprintf(edittext,"Sector %d Ceiling Y Pan: ",sectnum);
                     printmessage16(edittext);
-                    sector[sectnum].ceilingypanning = (char)getnumber16(edittext,(long)sector[sectnum].ceilingypanning,256L,0);
+                    sector[sectnum].ceilingypanning = (char)getnumber16(edittext,(int)sector[sectnum].ceilingypanning,256L,0);
                 }
                 break;
             case 2:
@@ -6581,12 +6581,12 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].ceilingshade = (char)getnumber16(edittext,(long)sector[sectnum].ceilingshade,128L,1);
+                    sector[sectnum].ceilingshade = (char)getnumber16(edittext,(int)sector[sectnum].ceilingshade,128L,1);
                 }
                 break;
 
             case 3:
-                for (i=Bsprintf(disptext,"Z-coordinate: %ld",sector[sectnum].ceilingz); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"Z-coordinate: %d",sector[sectnum].ceilingz); i < dispwidth; i++) disptext[i] = ' ';
                 Bsprintf(edittext,"Sector %d Ceiling Z-coordinate: ",sectnum);
                 if (editval)
                 {
@@ -6601,7 +6601,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].ceilingpicnum = (short)getnumber16(edittext,(long)sector[sectnum].ceilingpicnum,MAXTILES,0);
+                    sector[sectnum].ceilingpicnum = (short)getnumber16(edittext,(int)sector[sectnum].ceilingpicnum,MAXTILES,0);
                 }
                 break;
 
@@ -6611,7 +6611,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].ceilingheinum = (short)getnumber16(edittext,(long)sector[sectnum].ceilingheinum,65536L,1);
+                    sector[sectnum].ceilingheinum = (short)getnumber16(edittext,(int)sector[sectnum].ceilingheinum,65536L,1);
                 }
                 break;
 
@@ -6621,7 +6621,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].ceilingpal = (char)getnumber16(edittext,(long)sector[sectnum].ceilingpal,MAXPALOOKUPS,0);
+                    sector[sectnum].ceilingpal = (char)getnumber16(edittext,(int)sector[sectnum].ceilingpal,MAXPALOOKUPS,0);
                 }
                 break;
             }
@@ -6636,7 +6636,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorstat = (short)getnumber16(edittext,(long)sector[sectnum].floorstat,65536L,0);
+                    sector[sectnum].floorstat = (short)getnumber16(edittext,(int)sector[sectnum].floorstat,65536L,0);
                 }
                 break;
 
@@ -6646,10 +6646,10 @@ static void EditSectorData(short sectnum)
                 {
                     Bsprintf(edittext,"Sector %d Floor X Pan: ",sectnum);
                     printmessage16(edittext);
-                    sector[sectnum].floorxpanning = (char)getnumber16(edittext,(long)sector[sectnum].floorxpanning,256L,0);
+                    sector[sectnum].floorxpanning = (char)getnumber16(edittext,(int)sector[sectnum].floorxpanning,256L,0);
                     Bsprintf(edittext,"Sector %d Floor Y Pan: ",sectnum);
                     printmessage16(edittext);
-                    sector[sectnum].floorypanning = (char)getnumber16(edittext,(long)sector[sectnum].floorypanning,256L,0);
+                    sector[sectnum].floorypanning = (char)getnumber16(edittext,(int)sector[sectnum].floorypanning,256L,0);
                 }
                 break;
 
@@ -6659,12 +6659,12 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorshade = (char)getnumber16(edittext,(long)sector[sectnum].floorshade,128L,1L);
+                    sector[sectnum].floorshade = (char)getnumber16(edittext,(int)sector[sectnum].floorshade,128L,1L);
                 }
                 break;
 
             case 3:
-                for (i=Bsprintf(disptext,"Z-coordinate: %ld",sector[sectnum].floorz); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"Z-coordinate: %d",sector[sectnum].floorz); i < dispwidth; i++) disptext[i] = ' ';
                 Bsprintf(edittext,"Sector %d Floor Z-coordinate: ",sectnum);
                 if (editval)
                 {
@@ -6679,7 +6679,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorpicnum = (short)getnumber16(edittext,(long)sector[sectnum].floorpicnum,MAXTILES,0);
+                    sector[sectnum].floorpicnum = (short)getnumber16(edittext,(int)sector[sectnum].floorpicnum,MAXTILES,0);
                 }
                 break;
             case 5:
@@ -6688,7 +6688,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorheinum = (short)getnumber16(edittext,(long)sector[sectnum].floorheinum,65536L,1);
+                    sector[sectnum].floorheinum = (short)getnumber16(edittext,(int)sector[sectnum].floorheinum,65536L,1);
                 }
                 break;
             case 6:
@@ -6697,7 +6697,7 @@ static void EditSectorData(short sectnum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sector[sectnum].floorpal = (char)getnumber16(edittext,(long)sector[sectnum].floorpal,MAXPALOOKUPS,0);
+                    sector[sectnum].floorpal = (char)getnumber16(edittext,(int)sector[sectnum].floorpal,MAXPALOOKUPS,0);
                 }
                 break;
             }
@@ -6721,7 +6721,7 @@ static void EditWallData(short wallnum)
     char disptext[80];
     char edittext[80];
     int row=0, dispwidth = 24, editval = 0, i = -1;
-    long xpos = 200, ypos = ydim-STATUS2DSIZ+48;
+    int xpos = 200, ypos = ydim-STATUS2DSIZ+48;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -6766,7 +6766,7 @@ static void EditWallData(short wallnum)
             if (editval)
             {
                 printmessage16(edittext);
-                wall[wallnum].cstat = (short)getnumber16(edittext,(long)wall[wallnum].cstat,65536L,0);
+                wall[wallnum].cstat = (short)getnumber16(edittext,(int)wall[wallnum].cstat,65536L,0);
             }
             break;
         case 1:
@@ -6775,7 +6775,7 @@ static void EditWallData(short wallnum)
             if (editval)
             {
                 printmessage16(edittext);
-                wall[wallnum].shade = (char)getnumber16(edittext,(long)wall[wallnum].shade,128,1);
+                wall[wallnum].shade = (char)getnumber16(edittext,(int)wall[wallnum].shade,128,1);
             }
             break;
         case 2:
@@ -6784,7 +6784,7 @@ static void EditWallData(short wallnum)
             if (editval)
             {
                 printmessage16(edittext);
-                wall[wallnum].pal = (char)getnumber16(edittext,(long)wall[wallnum].pal,MAXPALOOKUPS,0);
+                wall[wallnum].pal = (char)getnumber16(edittext,(int)wall[wallnum].pal,MAXPALOOKUPS,0);
             }
             break;
         case 3:
@@ -6793,10 +6793,10 @@ static void EditWallData(short wallnum)
             {
                 Bsprintf(edittext,"Wall %d X Repeat: ",wallnum);
                 printmessage16(edittext);
-                wall[wallnum].xrepeat = (char)getnumber16(edittext,(long)wall[wallnum].xrepeat,256L,0);
+                wall[wallnum].xrepeat = (char)getnumber16(edittext,(int)wall[wallnum].xrepeat,256L,0);
                 Bsprintf(edittext,"Wall %d Y Repeat: ",wallnum);
                 printmessage16(edittext);
-                wall[wallnum].yrepeat = (char)getnumber16(edittext,(long)wall[wallnum].yrepeat,256L,0);
+                wall[wallnum].yrepeat = (char)getnumber16(edittext,(int)wall[wallnum].yrepeat,256L,0);
             }
             break;
         case 4:
@@ -6805,10 +6805,10 @@ static void EditWallData(short wallnum)
             {
                 Bsprintf(edittext,"Wall %d X Pan: ",wallnum);
                 printmessage16(edittext);
-                wall[wallnum].xpanning = (char)getnumber16(edittext,(long)wall[wallnum].xpanning,256L,0);
+                wall[wallnum].xpanning = (char)getnumber16(edittext,(int)wall[wallnum].xpanning,256L,0);
                 Bsprintf(edittext,"Wall %d Y Pan: ",wallnum);
                 printmessage16(edittext);
-                wall[wallnum].ypanning = (char)getnumber16(edittext,(long)wall[wallnum].ypanning,256L,0);
+                wall[wallnum].ypanning = (char)getnumber16(edittext,(int)wall[wallnum].ypanning,256L,0);
             }
             break;
         case 5:
@@ -6817,7 +6817,7 @@ static void EditWallData(short wallnum)
             if (editval)
             {
                 printmessage16(edittext);
-                wall[wallnum].picnum = (short)getnumber16(edittext,(long)wall[wallnum].picnum,MAXTILES,0);
+                wall[wallnum].picnum = (short)getnumber16(edittext,(int)wall[wallnum].picnum,MAXTILES,0);
             }
             break;
 
@@ -6827,7 +6827,7 @@ static void EditWallData(short wallnum)
             if (editval)
             {
                 printmessage16(edittext);
-                wall[wallnum].overpicnum = (short)getnumber16(edittext,(long)wall[wallnum].overpicnum,MAXTILES,0);
+                wall[wallnum].overpicnum = (short)getnumber16(edittext,(int)wall[wallnum].overpicnum,MAXTILES,0);
             }
             break;
         }
@@ -6854,7 +6854,7 @@ static void EditSpriteData(short spritenum)
     char disptext[80];
     char edittext[80];
     int col=0, row=0, rowmax=4, dispwidth = 24, editval = 0, i = -1;
-    long xpos = 8, ypos = ydim-STATUS2DSIZ+48;
+    int xpos = 8, ypos = ydim-STATUS2DSIZ+48;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();
@@ -6958,7 +6958,7 @@ static void EditSpriteData(short spritenum)
             {
             case 0:
             {
-                for (i=Bsprintf(disptext,"X-coordinate: %ld",sprite[spritenum].x); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"X-coordinate: %d",sprite[spritenum].x); i < dispwidth; i++) disptext[i] = ' ';
                 Bsprintf(edittext,"Sprite %d X-coordinate: ",spritenum);
                 if (editval)
                 {
@@ -6969,7 +6969,7 @@ static void EditSpriteData(short spritenum)
             break;
             case 1:
             {
-                for (i=Bsprintf(disptext,"Y-coordinate: %ld",sprite[spritenum].y); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"Y-coordinate: %d",sprite[spritenum].y); i < dispwidth; i++) disptext[i] = ' ';
                 Bsprintf(edittext,"Sprite %d Y-coordinate: ",spritenum);
                 if (editval)
                 {
@@ -6980,7 +6980,7 @@ static void EditSpriteData(short spritenum)
             break;
             case 2:
             {
-                for (i=Bsprintf(disptext,"Z-coordinate: %ld",sprite[spritenum].z); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"Z-coordinate: %d",sprite[spritenum].z); i < dispwidth; i++) disptext[i] = ' ';
                 Bsprintf(edittext,"Sprite %d Z-coordinate: ",spritenum);
                 if (editval)
                 {
@@ -7029,7 +7029,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].cstat = (short)getnumber16(edittext,(long)sprite[spritenum].cstat,65536L,0);
+                    sprite[spritenum].cstat = (short)getnumber16(edittext,(int)sprite[spritenum].cstat,65536L,0);
                 }
             }
             break;
@@ -7040,7 +7040,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].shade = (char)getnumber16(edittext,(long)sprite[spritenum].shade,128,1);
+                    sprite[spritenum].shade = (char)getnumber16(edittext,(int)sprite[spritenum].shade,128,1);
                 }
             }
             break;
@@ -7051,7 +7051,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].pal = (char)getnumber16(edittext,(long)sprite[spritenum].pal,MAXPALOOKUPS,0);
+                    sprite[spritenum].pal = (char)getnumber16(edittext,(int)sprite[spritenum].pal,MAXPALOOKUPS,0);
                 }
             }
             break;
@@ -7062,10 +7062,10 @@ static void EditSpriteData(short spritenum)
                 {
                     Bsprintf(edittext,"Sprite %d X Repeat: ",spritenum);
                     printmessage16(edittext);
-                    sprite[spritenum].xrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].xrepeat,256L,0);
+                    sprite[spritenum].xrepeat = (char)getnumber16(edittext,(int)sprite[spritenum].xrepeat,256L,0);
                     Bsprintf(edittext,"Sprite %d Y Repeat: ",spritenum);
                     printmessage16(edittext);
-                    sprite[spritenum].yrepeat = (char)getnumber16(edittext,(long)sprite[spritenum].yrepeat,256L,0);
+                    sprite[spritenum].yrepeat = (char)getnumber16(edittext,(int)sprite[spritenum].yrepeat,256L,0);
                 }
             }
             break;
@@ -7076,10 +7076,10 @@ static void EditSpriteData(short spritenum)
                 {
                     Bsprintf(edittext,"Sprite %d X Offset: ",spritenum);
                     printmessage16(edittext);
-                    sprite[spritenum].xoffset = (char)getnumber16(edittext,(long)sprite[spritenum].xoffset,128L,1);
+                    sprite[spritenum].xoffset = (char)getnumber16(edittext,(int)sprite[spritenum].xoffset,128L,1);
                     Bsprintf(edittext,"Sprite %d Y Offset: ",spritenum);
                     printmessage16(edittext);
-                    sprite[spritenum].yoffset = (char)getnumber16(edittext,(long)sprite[spritenum].yoffset,128L,1);
+                    sprite[spritenum].yoffset = (char)getnumber16(edittext,(int)sprite[spritenum].yoffset,128L,1);
                 }
             }
             break;
@@ -7090,7 +7090,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].picnum = (short)getnumber16(edittext,(long)sprite[spritenum].picnum,MAXTILES,0);
+                    sprite[spritenum].picnum = (short)getnumber16(edittext,(int)sprite[spritenum].picnum,MAXTILES,0);
                 }
             }
             break;
@@ -7108,7 +7108,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].ang = (short)getnumber16(edittext,(long)sprite[spritenum].ang,2048L,0);
+                    sprite[spritenum].ang = (short)getnumber16(edittext,(int)sprite[spritenum].ang,2048L,0);
                 }
             }
             break;
@@ -7119,7 +7119,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].xvel = getnumber16(edittext,(long)sprite[spritenum].xvel,65536,1);
+                    sprite[spritenum].xvel = getnumber16(edittext,(int)sprite[spritenum].xvel,65536,1);
                 }
             }
             break;
@@ -7130,7 +7130,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].yvel = getnumber16(edittext,(long)sprite[spritenum].yvel,65536,1);
+                    sprite[spritenum].yvel = getnumber16(edittext,(int)sprite[spritenum].yvel,65536,1);
                 }
             }
             break;
@@ -7141,7 +7141,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].zvel = getnumber16(edittext,(long)sprite[spritenum].zvel,65536,1);
+                    sprite[spritenum].zvel = getnumber16(edittext,(int)sprite[spritenum].zvel,65536,1);
                 }
             }
             break;
@@ -7152,7 +7152,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].owner = getnumber16(edittext,(long)sprite[spritenum].owner,MAXSPRITES,0);
+                    sprite[spritenum].owner = getnumber16(edittext,(int)sprite[spritenum].owner,MAXSPRITES,0);
                 }
             }
             break;
@@ -7163,7 +7163,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].clipdist = (char)getnumber16(edittext,(long)sprite[spritenum].clipdist,256,0);
+                    sprite[spritenum].clipdist = (char)getnumber16(edittext,(int)sprite[spritenum].clipdist,256,0);
                 }
             }
             break;
@@ -7174,7 +7174,7 @@ static void EditSpriteData(short spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].extra = getnumber16(edittext,(long)sprite[spritenum].extra,65536,1);
+                    sprite[spritenum].extra = getnumber16(edittext,(int)sprite[spritenum].extra,65536,1);
                 }
             }
             break;
@@ -7264,7 +7264,7 @@ static void FuncMenu(void)
 {
     char disptext[80];
     int col=0, row=0, rowmax=7, dispwidth = 24, editval = 0, i = -1, j;
-    long xpos = 8, ypos = ydim-STATUS2DSIZ+48;
+    int xpos = 8, ypos = ydim-STATUS2DSIZ+48;
 
     disptext[dispwidth] = 0;
     clearmidstatbar16();

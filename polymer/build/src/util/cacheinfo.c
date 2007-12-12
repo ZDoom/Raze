@@ -11,14 +11,14 @@
 
 typedef struct {
 	char magic[8];	// 'Polymost'
-	long xdim, ydim;	// of image, unpadded
-	long flags;		// 1 = !2^x, 2 = has alpha, 4 = lzw compressed
+	int xdim, ydim;	// of image, unpadded
+	int flags;		// 1 = !2^x, 2 = has alpha, 4 = lzw compressed
 } texcacheheader;
 typedef struct {
-	long size;
-	long format;
-	long xdim, ydim;	// of mipmap (possibly padded)
-	long border, depth;
+	int size;
+	int format;
+	int xdim, ydim;	// of mipmap (possibly padded)
+	int border, depth;
 } texcachepicture;
 
 int main(int argc, char **argv)

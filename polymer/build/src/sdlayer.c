@@ -41,24 +41,24 @@ int startwin_settitle(const char *s) { s=s; return 0; }
 
 // fix for mousewheel
 #define MWHEELTICKS 10
-static unsigned long mwheelup, mwheeldown;
+static unsigned int mwheelup, mwheeldown;
 
 int   _buildargc = 1;
 const char **_buildargv = NULL;
-extern long app_main(long argc, const char *argv[]);
+extern int app_main(int argc, const char *argv[]);
 
 char quitevent=0, appactive=1;
 
 // video
 static SDL_Surface *sdl_surface;
-long xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline, imageSize;
-long frameplace=0, lockcount=0;
+int xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline, imageSize;
+int frameplace=0, lockcount=0;
 char modechange=1;
 char offscreenrendering=0;
 char videomodereset = 0;
 char nofog=0;
 static unsigned short sysgamma[3][256];
-extern long curbrightness, gammabrightness;
+extern int curbrightness, gammabrightness;
 
 #ifdef USE_OPENGL
 // OpenGL stuff
@@ -70,15 +70,15 @@ char inputdevices=0;
 char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
 unsigned char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
 static unsigned char keynames[256][24];
-long mousex=0,mousey=0,mouseb=0;
-long *joyaxis = NULL, joyb=0, *joyhat = NULL;
+int mousex=0,mousey=0,mouseb=0;
+int *joyaxis = NULL, joyb=0, *joyhat = NULL;
 char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
-long joyaxespresent=0;
+int joyaxespresent=0;
 
 
-void(*keypresscallback)(long,long) = 0;
-void(*mousepresscallback)(long,long) = 0;
-void(*joypresscallback)(long,long) = 0;
+void(*keypresscallback)(int,int) = 0;
+void(*mousepresscallback)(int,int) = 0;
+void(*joypresscallback)(int,int) = 0;
 
 static unsigned char keytranslation[SDLK_LAST];
 static int buildkeytranslationtable(void);
@@ -321,7 +321,7 @@ void debugprintf(const char *f, ...)
 //
 
 static char mouseacquired=0,moustat=0;
-static long joyblast=0;
+static int joyblast=0;
 static SDL_Joystick *joydev = NULL;
 
 //
@@ -366,8 +366,8 @@ int initinput(void)
             initprintf("Joystick 1 has %d axes, %d buttons, and %d hat(s).\n",
                        joynumaxes,joynumbuttons,joynumhats);
 
-            joyaxis = (long *)Bcalloc(joynumaxes, sizeof(long));
-            joyhat = (long *)Bcalloc(joynumhats, sizeof(long));
+            joyaxis = (int *)Bcalloc(joynumaxes, sizeof(int));
+            joyhat = (int *)Bcalloc(joynumhats, sizeof(int));
         }
     }
 
@@ -446,9 +446,9 @@ void bflushchars(void)
 //
 // set{key|mouse|joy}presscallback() -- sets a callback which gets notified when keys are pressed
 //
-void setkeypresscallback(void(*callback)(long, long)) { keypresscallback = callback; }
-void setmousepresscallback(void(*callback)(long, long)) { mousepresscallback = callback; }
-void setjoypresscallback(void(*callback)(long, long)) { joypresscallback = callback; }
+void setkeypresscallback(void(*callback)(int, int)) { keypresscallback = callback; }
+void setmousepresscallback(void(*callback)(int, int)) { mousepresscallback = callback; }
+void setjoypresscallback(void(*callback)(int, int)) { joypresscallback = callback; }
 
 //
 // initmouse() -- init mouse input
@@ -503,7 +503,7 @@ void grabmouse(char a)
 //
 // readmousexy() -- return mouse motion information
 //
-void readmousexy(long *x, long *y)
+void readmousexy(int *x, int *y)
 {
     if (!mouseacquired || !appactive || !moustat) { *x = *y = 0; return; }
     *x = mousex;
@@ -514,7 +514,7 @@ void readmousexy(long *x, long *y)
 //
 // readmousebstatus() -- return mouse button information
 //
-void readmousebstatus(long *b)
+void readmousebstatus(int *b)
 {
     if (!mouseacquired || !appactive || !moustat) *b = 0;
     else *b = mouseb;
@@ -593,12 +593,12 @@ void uninittimer(void)
 void sampletimer(void)
 {
     Uint32 i;
-    long n;
+    int n;
 
     if (!timerfreq) return;
 
     i = SDL_GetTicks();
-    n = (long)(i * timerticspersec / timerfreq) - timerlastsample;
+    n = (int)(i * timerticspersec / timerfreq) - timerlastsample;
     if (n>0)
     {
         totalclock += n;
@@ -611,9 +611,9 @@ void sampletimer(void)
 //
 // getticks() -- returns the sdl ticks count
 //
-unsigned long getticks(void)
+unsigned int getticks(void)
 {
-    return (unsigned long)SDL_GetTicks();
+    return (unsigned int)SDL_GetTicks();
 }
 
 
@@ -670,19 +670,19 @@ static char modeschecked=0;
 void getvalidmodes(void)
 {
     static int cdepths[] =
-        {
-            8,
+    {
+        8,
 #ifdef USE_OPENGL
-            16,24,32,
+        16,24,32,
 #endif
-            0
-        };
+        0
+    };
     static int defaultres[][2] =
-        {
-            {1280,1024}
-            ,{1280,960},{1152,864},{1024,768},{800,600},{640,480},
-            {640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
-        };
+    {
+        {1280,1024}
+        ,{1280,960},{1152,864},{1024,768},{800,600},{640,480},
+        {640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
+    };
     SDL_Rect **modes;
     SDL_PixelFormat pf = { NULL, 8, 1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0 };
     int i, j, maxx=0, maxy=0;
@@ -804,7 +804,8 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
         dx = klabs(validmode[i].xdim - *x);
         dy = klabs(validmode[i].ydim - *y);
         if (!(dx | dy))
-        { 	// perfect match
+        {
+            // perfect match
             nearest = i;
             break;
         }
@@ -880,24 +881,25 @@ int setvideomode(int x, int y, int c, int fs)
             SDL_GLattr attr;
             int value;
         }
-        attributes[] = {
+        attributes[] =
+        {
 #if 0
-                           { SDL_GL_RED_SIZE, 8 },
-                           { SDL_GL_GREEN_SIZE, 8 },
-                           { SDL_GL_BLUE_SIZE, 8 },
-                           { SDL_GL_ALPHA_SIZE, 8 },
-                           { SDL_GL_BUFFER_SIZE, c },
-                           { SDL_GL_STENCIL_SIZE, 0 },
-                           { SDL_GL_ACCUM_RED_SIZE, 0 },
-                           { SDL_GL_ACCUM_GREEN_SIZE, 0 },
-                           { SDL_GL_ACCUM_BLUE_SIZE, 0 },
-                           { SDL_GL_ACCUM_ALPHA_SIZE, 0 },
-                           { SDL_GL_DEPTH_SIZE, 24 },
+            { SDL_GL_RED_SIZE, 8 },
+            { SDL_GL_GREEN_SIZE, 8 },
+            { SDL_GL_BLUE_SIZE, 8 },
+            { SDL_GL_ALPHA_SIZE, 8 },
+            { SDL_GL_BUFFER_SIZE, c },
+            { SDL_GL_STENCIL_SIZE, 0 },
+            { SDL_GL_ACCUM_RED_SIZE, 0 },
+            { SDL_GL_ACCUM_GREEN_SIZE, 0 },
+            { SDL_GL_ACCUM_BLUE_SIZE, 0 },
+            { SDL_GL_ACCUM_ALPHA_SIZE, 0 },
+            { SDL_GL_DEPTH_SIZE, 24 },
 #endif
-                           { SDL_GL_DOUBLEBUFFER, 1 },
-                           { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
-                           { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
-                       };
+            { SDL_GL_DOUBLEBUFFER, 1 },
+            { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
+            { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
+        };
 
         if (nogl) return -1;
 
@@ -1138,7 +1140,7 @@ void resetvideomode(void)
 //
 void begindrawing(void)
 {
-    long i,j;
+    int i,j;
 
     if (bpp > 8)
     {
@@ -1157,7 +1159,7 @@ void begindrawing(void)
     if (offscreenrendering) return;
 
     if (SDL_MUSTLOCK(sdl_surface)) SDL_LockSurface(sdl_surface);
-    frameplace = (long)sdl_surface->pixels;
+    frameplace = (int)sdl_surface->pixels;
 
     if (sdl_surface->pitch != bytesperline || modechange)
     {
@@ -1184,7 +1186,7 @@ void enddrawing(void)
     }
 
     if (!frameplace) return;
-if (lockcount > 1) { lockcount--; return; }
+    if (lockcount > 1) { lockcount--; return; }
     if (!offscreenrendering) frameplace = 0;
     if (lockcount == 0) return;
     lockcount = 0;
@@ -1200,7 +1202,7 @@ if (lockcount > 1) { lockcount--; return; }
 //
 void showframe(int w)
 {
-    long i,j;
+    int i,j;
 
 #ifdef USE_OPENGL
     if (bpp > 8)
@@ -1243,7 +1245,7 @@ void showframe(int w)
 
     if (lockcount)
     {
-        printf("Frame still locked %ld times when showframe() called.\n", lockcount);
+        printf("Frame still locked %d times when showframe() called.\n", lockcount);
         while (lockcount) enddrawing();
     }
 
@@ -1451,8 +1453,8 @@ int handleevents(void)
         case SDL_MOUSEMOTION:
             if (appactive)
             {
-                    mousex += ev.motion.xrel;
-                    mousey += ev.motion.yrel;
+                mousex += ev.motion.xrel;
+                mousey += ev.motion.yrel;
             }
             break;
 
@@ -1463,24 +1465,25 @@ int handleevents(void)
 
         case SDL_JOYHATMOTION:
         {
-            int hatvals[16] = {
-                                  -1,	// centre
-                                  0, 	// up 1
-                                  9000,	// right 2
-                                  4500,	// up+right 3
-                                  18000,	// down 4
-                                  -1,	// down+up!! 5
-                                  13500,	// down+right 6
-                                  -1,	// down+right+up!! 7
-                                  27000,	// left 8
-                                  27500,	// left+up 9
-                                  -1,	// left+right!! 10
-                                  -1,	// left+right+up!! 11
-                                  22500,	// left+down 12
-                                  -1,	// left+down+up!! 13
-                                  -1,	// left+down+right!! 14
-                                  -1,	// left+down+right+up!! 15
-                              };
+            int hatvals[16] =
+            {
+                -1,	// centre
+                0, 	// up 1
+                9000,	// right 2
+                4500,	// up+right 3
+                18000,	// down 4
+                -1,	// down+up!! 5
+                13500,	// down+right 6
+                -1,	// down+right+up!! 7
+                27000,	// left 8
+                27500,	// left+up 9
+                -1,	// left+right!! 10
+                -1,	// left+right+up!! 11
+                22500,	// left+down 12
+                -1,	// left+down+up!! 13
+                -1,	// left+down+right!! 14
+                -1,	// left+down+right+up!! 15
+            };
             if (appactive && ev.jhat.hat < joynumhats)
                 joyhat[ ev.jhat.hat ] = hatvals[ ev.jhat.value & 15 ];
             break;
@@ -1680,26 +1683,29 @@ static int buildkeytranslationtable(void)
 void makeasmwriteable(void)
 {
 #ifndef ENGINE_USING_A_C
-	extern int dep_begin, dep_end;
+    extern int dep_begin, dep_end;
 # if defined _WIN32
-	DWORD oldprot;
-	if (!VirtualProtect((LPVOID)&dep_begin, (SIZE_T)&dep_end - (SIZE_T)&dep_begin, PAGE_EXECUTE_READWRITE, &oldprot)) {
-		initprint("Error making code writeable\n");
-		return;
-	}
+    DWORD oldprot;
+    if (!VirtualProtect((LPVOID)&dep_begin, (SIZE_T)&dep_end - (SIZE_T)&dep_begin, PAGE_EXECUTE_READWRITE, &oldprot))
+    {
+        initprint("Error making code writeable\n");
+        return;
+    }
 # elif defined __linux || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__
-	int pagesize;
-	size_t dep_begin_page;
-	pagesize = sysconf(_SC_PAGE_SIZE);
-	if (pagesize == -1) {
-		initprintf("Error getting system page size\n");
-		return;
-	}
-	dep_begin_page = ((size_t)&dep_begin) & ~(pagesize-1);
-	if (mprotect((const void *)dep_begin_page, (size_t)&dep_end - dep_begin_page, PROT_READ|PROT_WRITE) < 0) {
-		initprintf("Error making code writeable (errno=%d)\n", errno);
-		return;
-	}
+    int pagesize;
+    size_t dep_begin_page;
+    pagesize = sysconf(_SC_PAGE_SIZE);
+    if (pagesize == -1)
+    {
+        initprintf("Error getting system page size\n");
+        return;
+    }
+    dep_begin_page = ((size_t)&dep_begin) & ~(pagesize-1);
+    if (mprotect((const void *)dep_begin_page, (size_t)&dep_end - dep_begin_page, PROT_READ|PROT_WRITE) < 0)
+    {
+        initprintf("Error making code writeable (errno=%d)\n", errno);
+        return;
+    }
 # else
 #  error Don't know how to unprotect the self-modifying assembly on this platform!
 # endif

@@ -12,7 +12,8 @@
 #include "cache1d.h"
 #include "kplib.h"
 
-enum {
+enum
+{
     T_EOF = -2,
     T_ERROR = -1,
     T_INCLUDE = 0,
@@ -72,140 +73,150 @@ enum {
 
 typedef struct { char *text; int tokenid; } tokenlist;
 static tokenlist basetokens[] =
-    {
-        { "include",         T_INCLUDE          },
-        { "#include",        T_INCLUDE          },
-        { "define",          T_DEFINE           },
-        { "#define",         T_DEFINE           },
+{
+    { "include",         T_INCLUDE          },
+    { "#include",        T_INCLUDE          },
+    { "define",          T_DEFINE           },
+    { "#define",         T_DEFINE           },
 
-        // deprecated style
-        { "definetexture",   T_DEFINETEXTURE    },
-        { "defineskybox",    T_DEFINESKYBOX     },
-        { "definetint",      T_DEFINETINT       },
-        { "definemodel",     T_DEFINEMODEL      },
-        { "definemodelframe",T_DEFINEMODELFRAME },
-        { "definemodelanim", T_DEFINEMODELANIM  },
-        { "definemodelskin", T_DEFINEMODELSKIN  },
-        { "selectmodelskin", T_SELECTMODELSKIN  },
-        { "definevoxel",     T_DEFINEVOXEL      },
-        { "definevoxeltiles",T_DEFINEVOXELTILES },
+    // deprecated style
+    { "definetexture",   T_DEFINETEXTURE    },
+    { "defineskybox",    T_DEFINESKYBOX     },
+    { "definetint",      T_DEFINETINT       },
+    { "definemodel",     T_DEFINEMODEL      },
+    { "definemodelframe",T_DEFINEMODELFRAME },
+    { "definemodelanim", T_DEFINEMODELANIM  },
+    { "definemodelskin", T_DEFINEMODELSKIN  },
+    { "selectmodelskin", T_SELECTMODELSKIN  },
+    { "definevoxel",     T_DEFINEVOXEL      },
+    { "definevoxeltiles",T_DEFINEVOXELTILES },
 
-        // new style
+    // new style
 
-        { "model",           T_MODEL            },
-        { "voxel",           T_VOXEL            },
-        { "skybox",          T_SKYBOX           },
-        { "tint",            T_TINT             },
-        { "texture",         T_TEXTURE          },
-        { "tile",            T_TEXTURE          },
+    { "model",           T_MODEL            },
+    { "voxel",           T_VOXEL            },
+    { "skybox",          T_SKYBOX           },
+    { "tint",            T_TINT             },
+    { "texture",         T_TEXTURE          },
+    { "tile",            T_TEXTURE          },
 
-        // other stuff
-        { "undefmodel",      T_UNDEFMODEL       },
-        { "undefmodelrange", T_UNDEFMODELRANGE  },
-        { "undefmodelof",    T_UNDEFMODELOF     },
-        { "undeftexture",    T_UNDEFTEXTURE     },
-        { "undeftexturerange", T_UNDEFTEXTURERANGE },
-        { "alphahack",	     T_ALPHAHACK 		},
-        { "alphahackrange",  T_ALPHAHACKRANGE 	},
-        { "spritecol",	     T_SPRITECOL 		},
-        { "2dcol",	     	 T_2DCOL 			},
-        { "fogpal",	     	 T_FOGPAL	 		},
-        { "loadgrp",     	 T_LOADGRP	 		},
-        { "dummytile",     	 T_DUMMYTILE		},
-        { "dummytilerange",  T_DUMMYTILERANGE   },
-        { "cachesize",       T_CACHESIZE        },
-    };
+    // other stuff
+    { "undefmodel",      T_UNDEFMODEL       },
+    { "undefmodelrange", T_UNDEFMODELRANGE  },
+    { "undefmodelof",    T_UNDEFMODELOF     },
+    { "undeftexture",    T_UNDEFTEXTURE     },
+    { "undeftexturerange", T_UNDEFTEXTURERANGE },
+    { "alphahack",	     T_ALPHAHACK 		},
+    { "alphahackrange",  T_ALPHAHACKRANGE 	},
+    { "spritecol",	     T_SPRITECOL 		},
+    { "2dcol",	     	 T_2DCOL 			},
+    { "fogpal",	     	 T_FOGPAL	 		},
+    { "loadgrp",     	 T_LOADGRP	 		},
+    { "dummytile",     	 T_DUMMYTILE		},
+    { "dummytilerange",  T_DUMMYTILERANGE   },
+    { "cachesize",       T_CACHESIZE        },
+};
 
-static tokenlist modeltokens[] = {
-                                     { "scale",  T_SCALE  },
-                                     { "shade",  T_SHADE  },
-                                     { "zadd",   T_ZADD   },
-                                     { "frame",  T_FRAME  },
-                                     { "anim",   T_ANIM   },
-                                     { "skin",   T_SKIN   },
-                                     { "glow",   T_GLOW   },
-                                     { "detail", T_DETAIL },
-                                     { "hud",    T_HUD    },
-                                 };
+static tokenlist modeltokens[] =
+{
+    { "scale",  T_SCALE  },
+    { "shade",  T_SHADE  },
+    { "zadd",   T_ZADD   },
+    { "frame",  T_FRAME  },
+    { "anim",   T_ANIM   },
+    { "skin",   T_SKIN   },
+    { "glow",   T_GLOW   },
+    { "detail", T_DETAIL },
+    { "hud",    T_HUD    },
+};
 
-static tokenlist modelframetokens[] = {
-                                          { "frame",            T_FRAME             },
-                                          { "name",             T_FRAME             },
-                                          { "tile",             T_TILE              },
-                                          { "tile0",            T_TILE0             },
-                                          { "tile1",            T_TILE1             },
-                                          { "smoothduration",   T_SMOOTHDURATION    },
-                                      };
+static tokenlist modelframetokens[] =
+{
+    { "frame",            T_FRAME             },
+    { "name",             T_FRAME             },
+    { "tile",             T_TILE              },
+    { "tile0",            T_TILE0             },
+    { "tile1",            T_TILE1             },
+    { "smoothduration",   T_SMOOTHDURATION    },
+};
 
-static tokenlist modelanimtokens[] = {
-                                         { "frame0", T_FRAME0 },
-                                         { "frame1", T_FRAME1 },
-                                         { "fps",    T_FPS    },
-                                         { "flags",  T_FLAGS  },
-                                     };
+static tokenlist modelanimtokens[] =
+{
+    { "frame0", T_FRAME0 },
+    { "frame1", T_FRAME1 },
+    { "fps",    T_FPS    },
+    { "flags",  T_FLAGS  },
+};
 
-static tokenlist modelskintokens[] = {
-                                         { "pal",           T_PAL    },
-                                         { "file",          T_FILE   },
-                                         { "surf",          T_SURF   },
-                                         { "surface",       T_SURF   },
-                                         { "intensity",     T_PARAM  },
-                                         { "scale",         T_PARAM  },
-                                         { "detailscale",   T_PARAM  },
-                                     };
+static tokenlist modelskintokens[] =
+{
+    { "pal",           T_PAL    },
+    { "file",          T_FILE   },
+    { "surf",          T_SURF   },
+    { "surface",       T_SURF   },
+    { "intensity",     T_PARAM  },
+    { "scale",         T_PARAM  },
+    { "detailscale",   T_PARAM  },
+};
 
-static tokenlist modelhudtokens[] = {
-                                        { "tile",   T_TILE   },
-                                        { "tile0",  T_TILE0  },
-                                        { "tile1",  T_TILE1  },
-                                        { "xadd",   T_XADD   },
-                                        { "yadd",   T_YADD   },
-                                        { "zadd",   T_ZADD   },
-                                        { "angadd", T_ANGADD },
-                                        { "hide",   T_HIDE   },
-                                        { "nobob",  T_NOBOB  },
-                                        { "flipped",T_FLIPPED},
-                                        { "nodepth",T_NODEPTH},
-                                    };
+static tokenlist modelhudtokens[] =
+{
+    { "tile",   T_TILE   },
+    { "tile0",  T_TILE0  },
+    { "tile1",  T_TILE1  },
+    { "xadd",   T_XADD   },
+    { "yadd",   T_YADD   },
+    { "zadd",   T_ZADD   },
+    { "angadd", T_ANGADD },
+    { "hide",   T_HIDE   },
+    { "nobob",  T_NOBOB  },
+    { "flipped",T_FLIPPED},
+    { "nodepth",T_NODEPTH},
+};
 
-static tokenlist voxeltokens[] = {
-                                     { "tile",   T_TILE   },
-                                     { "tile0",  T_TILE0  },
-                                     { "tile1",  T_TILE1  },
-                                     { "scale",  T_SCALE  },
-                                 };
+static tokenlist voxeltokens[] =
+{
+    { "tile",   T_TILE   },
+    { "tile0",  T_TILE0  },
+    { "tile1",  T_TILE1  },
+    { "scale",  T_SCALE  },
+};
 
-static tokenlist skyboxtokens[] = {
-                                      { "tile"   ,T_TILE   },
-                                      { "pal"    ,T_PAL    },
-                                      { "ft"     ,T_FRONT  },{ "front"  ,T_FRONT  },{ "forward",T_FRONT  },
-                                      { "rt"     ,T_RIGHT  },{ "right"  ,T_RIGHT  },
-                                      { "bk"     ,T_BACK   },{ "back"   ,T_BACK   },
-                                      { "lf"     ,T_LEFT   },{ "left"   ,T_LEFT   },{ "lt"     ,T_LEFT   },
-                                      { "up"     ,T_TOP    },{ "top"    ,T_TOP    },{ "ceiling",T_TOP    },{ "ceil"   ,T_TOP    },
-                                      { "dn"     ,T_BOTTOM },{ "bottom" ,T_BOTTOM },{ "floor"  ,T_BOTTOM },{ "down"   ,T_BOTTOM }
-                                  };
+static tokenlist skyboxtokens[] =
+{
+    { "tile"   ,T_TILE   },
+    { "pal"    ,T_PAL    },
+    { "ft"     ,T_FRONT  },{ "front"  ,T_FRONT  },{ "forward",T_FRONT  },
+    { "rt"     ,T_RIGHT  },{ "right"  ,T_RIGHT  },
+    { "bk"     ,T_BACK   },{ "back"   ,T_BACK   },
+    { "lf"     ,T_LEFT   },{ "left"   ,T_LEFT   },{ "lt"     ,T_LEFT   },
+    { "up"     ,T_TOP    },{ "top"    ,T_TOP    },{ "ceiling",T_TOP    },{ "ceil"   ,T_TOP    },
+    { "dn"     ,T_BOTTOM },{ "bottom" ,T_BOTTOM },{ "floor"  ,T_BOTTOM },{ "down"   ,T_BOTTOM }
+};
 
-static tokenlist tinttokens[] = {
-                                    { "pal",   T_PAL },
-                                    { "red",   T_RED   },{ "r", T_RED },
-                                    { "green", T_GREEN },{ "g", T_GREEN },
-                                    { "blue",  T_BLUE  },{ "b", T_BLUE },
-                                    { "flags", T_FLAGS }
-                                };
+static tokenlist tinttokens[] =
+{
+    { "pal",   T_PAL },
+    { "red",   T_RED   },{ "r", T_RED },
+    { "green", T_GREEN },{ "g", T_GREEN },
+    { "blue",  T_BLUE  },{ "b", T_BLUE },
+    { "flags", T_FLAGS }
+};
 
-static tokenlist texturetokens[] = {
-                                       { "pal",     T_PAL  },
-                                       { "detail",  T_DETAIL },
-                                       { "glow",    T_GLOW },
-                                   };
-static tokenlist texturetokens_pal[] = {
-                                           { "file",            T_FILE },{ "name", T_FILE },
-                                           { "alphacut",        T_ALPHACUT },
-                                           { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
-                                           { "yscale",          T_YSCALE },
-                                           { "nocompress",      T_NOCOMPRESS },
-                                       };
+static tokenlist texturetokens[] =
+{
+    { "pal",     T_PAL  },
+    { "detail",  T_DETAIL },
+    { "glow",    T_GLOW },
+};
+static tokenlist texturetokens_pal[] =
+{
+    { "file",            T_FILE },{ "name", T_FILE },
+    { "alphacut",        T_ALPHACUT },
+    { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
+    { "yscale",          T_YSCALE },
+    { "nocompress",      T_NOCOMPRESS },
+};
 
 static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
 {
@@ -216,7 +227,8 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
     tok = scriptfile_gettoken(sf);
     if (!tok) return T_EOF;
 
-    for (i=0;i<ntokens;i++) {
+    for (i=0;i<ntokens;i++)
+    {
         if (!Bstrcasecmp(tok, tl[i].text))
             return tl[i].tokenid;
     }
@@ -233,19 +245,22 @@ extern float alphahackarray[MAXTILES];
 extern char spritecol2d[MAXTILES][2];
 extern char vgapal16[4*256];
 
-static const char *skyfaces[6] = {
-                                     "front face", "right face", "back face",
-                                     "left face", "top face", "bottom face"
-                                 };
+static const char *skyfaces[6] =
+{
+    "front face", "right face", "back face",
+    "left face", "top face", "bottom face"
+};
 
 static int defsparser(scriptfile *script)
 {
     int tokn;
     char *cmdtokptr;
-    while (1) {
+    while (1)
+    {
         tokn = getatoken(script,basetokens,sizeof(basetokens)/sizeof(tokenlist));
         cmdtokptr = script->ltextptr;
-        switch (tokn) {
+        switch (tokn)
+        {
         case T_ERROR:
             initprintf("Error on line %s:%d.\n", script->filename,scriptfile_getlinum(script,cmdtokptr));
             break;
@@ -254,14 +269,18 @@ static int defsparser(scriptfile *script)
         case T_INCLUDE:
         {
             char *fn;
-            if (!scriptfile_getstring(script,&fn)) {
+            if (!scriptfile_getstring(script,&fn))
+            {
                 scriptfile *included;
 
                 included = scriptfile_fromfile(fn);
-                if (!included) {
+                if (!included)
+                {
                     initprintf("Warning: Failed including %s on line %s:%d\n",
                                fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                } else {
+                }
+                else
+                {
                     defsparser(included);
                     scriptfile_close(included);
                 }
@@ -298,16 +317,19 @@ static int defsparser(scriptfile *script)
 
             i = pathsearchmode;
             pathsearchmode = 1;
-            if (findfrompath(fn,&tfn) < 0) {
+            if (findfrompath(fn,&tfn) < 0)
+            {
                 char buf[BMAX_PATH];
 
                 Bstrcpy(buf,fn);
                 kzfindfilestart(buf);
-                if (!kzfindfile(buf)) {
+                if (!kzfindfile(buf))
+                {
                     initprintf("Error: file '%s' does not exist\n",fn);
                     break;
-                } 
-            } else Bfree(tfn);
+                }
+            }
+            else Bfree(tfn);
             pathsearchmode = i;
 
             hicsetsubsttex(tile,pal,fn,-1.0,1.0,1.0,0);
@@ -321,20 +343,24 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getsymbol(script,&pal)) break;
             if (scriptfile_getsymbol(script,&i)) break; //future expansion
-            for (i=0;i<6;i++) {
+            for (i=0;i<6;i++)
+            {
                 if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
                 ii = pathsearchmode;
                 pathsearchmode = 1;
-                if (findfrompath(fn[i],&tfn) < 0) {
+                if (findfrompath(fn[i],&tfn) < 0)
+                {
                     char buf[BMAX_PATH];
 
                     Bstrcpy(buf,fn[i]);
                     kzfindfilestart(buf);
-                    if (!kzfindfile(buf)) {
+                    if (!kzfindfile(buf))
+                    {
                         initprintf("Error: file '%s' does not exist\n",fn[i]);
                         happy = 0;
-                    } 
-                } else Bfree(tfn);
+                    }
+                }
+                else Bfree(tfn);
                 pathsearchmode = ii;
             }
             if (i < 6 || !happy) break;
@@ -361,7 +387,7 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getdouble(script,&alpha)) break;
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if ((unsigned long)tile < MAXTILES) alphahackarray[tile] = alpha;
+            if ((unsigned int)tile < MAXTILES) alphahackarray[tile] = alpha;
 #endif
         }
         break;
@@ -373,7 +399,8 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&tilenume1)) break;
             if (scriptfile_getsymbol(script,&tilenume2)) break;
             if (scriptfile_getdouble(script,&alpha)) break;
-            if (tilenume2 < tilenume1) {
+            if (tilenume2 < tilenume1)
+            {
                 initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
                 i = tilenume2;
                 tilenume2 = tilenume1;
@@ -384,7 +411,7 @@ static int defsparser(scriptfile *script)
             {
                 for (i=tilenume1;i<=tilenume2;i++)
                 {
-                    if ((unsigned long)i < MAXTILES)
+                    if ((unsigned int)i < MAXTILES)
                         alphahackarray[i] = alpha;
                 }
             }
@@ -398,7 +425,7 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getnumber(script,&col)) break;
             if (scriptfile_getnumber(script,&col2)) break;
-            if ((unsigned long)tile < MAXTILES)
+            if ((unsigned int)tile < MAXTILES)
             {
                 spritecol2d[tile][0] = col;
                 spritecol2d[tile][1] = col2;
@@ -414,7 +441,8 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&g)) break;
             if (scriptfile_getnumber(script,&b)) break;
 
-            if (col < 256) {
+            if (col < 256)
+            {
                 vgapal16[col*4+0] = b; // blue
                 vgapal16[col*4+1] = g; // green
                 vgapal16[col*4+2] = r; // red
@@ -445,7 +473,7 @@ static int defsparser(scriptfile *script)
         case T_CACHESIZE:
         {
             int j;
-            
+
             if (scriptfile_getnumber(script,&j)) break;
         }
         break;
@@ -482,7 +510,8 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&tile2)) break;
             if (scriptfile_getnumber(script,&xsiz)) break;
             if (scriptfile_getnumber(script,&ysiz)) break;
-            if (tile2 < tile1) {
+            if (tile2 < tile1)
+            {
                 initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
                 i = tile2;
                 tile2 = tile1;
@@ -492,7 +521,7 @@ static int defsparser(scriptfile *script)
             {
                 for (i=tile1;i<=tile2;i++)
                 {
-                    if ((unsigned long)i < MAXTILES)
+                    if ((unsigned int)i < MAXTILES)
                     {
                         if (xsiz > 0 && ysiz > 0)
                         {
@@ -524,7 +553,8 @@ static int defsparser(scriptfile *script)
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
             lastmodelid = md_loadmodel(modelfn);
-            if (lastmodelid < 0) {
+            if (lastmodelid < 0)
+            {
                 initprintf("Failure loading MD2/MD3 model \"%s\"\n", modelfn);
                 break;
             }
@@ -542,20 +572,24 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getstring(script,&framename)) break;
             if (scriptfile_getnumber(script,&ftilenume)) break; //first tile number
             if (scriptfile_getnumber(script,&ltilenume)) break; //last tile number (inclusive)
-            if (ltilenume < ftilenume) {
+            if (ltilenume < ftilenume)
+            {
                 initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
                 tilex = ftilenume;
                 ftilenume = ltilenume;
                 ltilenume = tilex;
             }
 
-            if (lastmodelid < 0) {
+            if (lastmodelid < 0)
+            {
                 initprintf("Warning: Ignoring frame definition.\n");
                 break;
             }
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
-                switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), 0.0f)) {
+            for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
+            {
+                switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), 0.0f))
+                {
                 case 0:
                     break;
                 case -1:
@@ -587,12 +621,14 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getdouble(script,&dfps)) break; //animation frame rate
             if (scriptfile_getnumber(script,&flags)) break;
 
-            if (lastmodelid < 0) {
+            if (lastmodelid < 0)
+            {
                 initprintf("Warning: Ignoring animation definition.\n");
                 break;
             }
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            switch (md_defineanimation(lastmodelid, startframe, endframe, (int)(dfps*(65536.0*.001)), flags)) {
+            switch (md_defineanimation(lastmodelid, startframe, endframe, (int)(dfps*(65536.0*.001)), flags))
+            {
             case 0:
                 break;
             case -1:
@@ -633,11 +669,12 @@ static int defsparser(scriptfile *script)
             // definemodelframe "foo2" 1003 1004   // these use skin 1
             // selectmodelskin 0         // resets to skin 0
             // definemodelframe "foo3" 1005 1006   // these use skin 0
-        if (seenframe) { modelskin = ++lastmodelskin; }
+            if (seenframe) { modelskin = ++lastmodelskin; }
             seenframe = 0;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0, 0.0f)) {
+            switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0, 0.0f))
+            {
             case 0:
                 break;
             case -1:
@@ -669,13 +706,15 @@ static int defsparser(scriptfile *script)
 
             if (scriptfile_getstring(script,&fn)) break; //voxel filename
 
-            if (nextvoxid == MAXVOXELS) {
+            if (nextvoxid == MAXVOXELS)
+            {
                 initprintf("Maximum number of voxels already defined.\n");
                 break;
             }
 
 #ifdef SUPERBUILD
-            if (qloadkvx(nextvoxid, fn)) {
+            if (qloadkvx(nextvoxid, fn))
+            {
                 initprintf("Failure loading voxel file \"%s\"\n",fn);
                 break;
             }
@@ -691,25 +730,29 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&ftilenume)) break; //1st tile #
             if (scriptfile_getnumber(script,&ltilenume)) break; //last tile #
 
-            if (ltilenume < ftilenume) {
+            if (ltilenume < ftilenume)
+            {
                 initprintf("Warning: backwards tile range on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 tilex = ftilenume;
                 ftilenume = ltilenume;
                 ltilenume = tilex;
             }
-            if (ltilenume < 0 || ftilenume >= MAXTILES) {
+            if (ltilenume < 0 || ftilenume >= MAXTILES)
+            {
                 initprintf("Invalid tile range on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
 
-            if (lastvoxid < 0) {
+            if (lastvoxid < 0)
+            {
                 initprintf("Warning: Ignoring voxel tiles definition.\n");
                 break;
             }
 #ifdef SUPERBUILD
-            for (tilex = ftilenume; tilex <= ltilenume; tilex++) {
+            for (tilex = ftilenume; tilex <= ltilenume; tilex++)
+            {
                 tiletovox[tilex] = lastvoxid;
             }
 #endif
@@ -730,15 +773,18 @@ static int defsparser(scriptfile *script)
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
             lastmodelid = md_loadmodel(modelfn);
-            if (lastmodelid < 0) {
+            if (lastmodelid < 0)
+            {
                 initprintf("Failure loading MD2/MD3 model \"%s\"\n", modelfn);
                 break;
             }
 #endif
             if (scriptfile_getbraces(script,&modelend)) break;
-            while (script->textptr < modelend) {
+            while (script->textptr < modelend)
+            {
                 int token = getatoken(script,modeltokens,sizeof(modeltokens)/sizeof(tokenlist));
-                switch (token) {
+                switch (token)
+                {
                     //case T_ERROR: initprintf("Error on line %s:%d in model tokens\n", script->filename,script->linenum); break;
                 case T_SCALE:
                     scriptfile_getdouble(script,&scale); break;
@@ -754,8 +800,10 @@ static int defsparser(scriptfile *script)
                     double smoothduration = 0.0f;
 
                     if (scriptfile_getbraces(script,&frameend)) break;
-                    while (script->textptr < frameend) {
-                        switch (getatoken(script,modelframetokens,sizeof(modelframetokens)/sizeof(tokenlist))) {
+                    while (script->textptr < frameend)
+                    {
+                        switch (getatoken(script,modelframetokens,sizeof(modelframetokens)/sizeof(tokenlist)))
+                        {
                         case T_FRAME:
                             scriptfile_getstring(script,&framename); break;
                         case T_TILE:
@@ -773,20 +821,24 @@ static int defsparser(scriptfile *script)
                     if (ltilenume < 0) initprintf("Error: missing 'last tile number' for frame definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,frametokptr)), happy = 0;
                     if (!happy) break;
 
-                    if (ltilenume < ftilenume) {
+                    if (ltilenume < ftilenume)
+                    {
                         initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,frametokptr));
                         tilex = ftilenume;
                         ftilenume = ltilenume;
                         ltilenume = tilex;
                     }
 
-                    if (lastmodelid < 0) {
+                    if (lastmodelid < 0)
+                    {
                         initprintf("Warning: Ignoring frame definition.\n");
                         break;
                     }
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                    for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
-                        switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), smoothduration)) {
+                    for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
+                    {
+                        switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), smoothduration))
+                        {
                         case 0:
                             break;
                         case -1:
@@ -815,8 +867,10 @@ static int defsparser(scriptfile *script)
                     double dfps = 1.0;
 
                     if (scriptfile_getbraces(script,&animend)) break;
-                    while (script->textptr < animend) {
-                        switch (getatoken(script,modelanimtokens,sizeof(modelanimtokens)/sizeof(tokenlist))) {
+                    while (script->textptr < animend)
+                    {
+                        switch (getatoken(script,modelanimtokens,sizeof(modelanimtokens)/sizeof(tokenlist)))
+                        {
                         case T_FRAME0:
                             scriptfile_getstring(script,&startframe); break;
                         case T_FRAME1:
@@ -832,12 +886,14 @@ static int defsparser(scriptfile *script)
                     if (!endframe) initprintf("Error: missing 'end frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr)), happy = 0;
                     if (!happy) break;
 
-                    if (lastmodelid < 0) {
+                    if (lastmodelid < 0)
+                    {
                         initprintf("Warning: Ignoring animation definition.\n");
                         break;
                     }
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                    switch (md_defineanimation(lastmodelid, startframe, endframe, (int)(dfps*(65536.0*.001)), flags)) {
+                    switch (md_defineanimation(lastmodelid, startframe, endframe, (int)(dfps*(65536.0*.001)), flags))
+                    {
                     case 0:
                         break;
                     case -1:
@@ -856,8 +912,9 @@ static int defsparser(scriptfile *script)
                         break;
                     }
 #endif
-                } break;
-                case T_SKIN: case T_DETAIL: case T_GLOW:
+                }
+                break;
+        case T_SKIN: case T_DETAIL: case T_GLOW:
                 {
                     char *skintokptr = script->ltextptr;
                     char *skinend, *skinfn = 0;
@@ -865,8 +922,10 @@ static int defsparser(scriptfile *script)
                     double param = 1.0;
 
                     if (scriptfile_getbraces(script,&skinend)) break;
-                    while (script->textptr < skinend) {
-                        switch (getatoken(script,modelskintokens,sizeof(modelskintokens)/sizeof(tokenlist))) {
+                    while (script->textptr < skinend)
+                    {
+                        switch (getatoken(script,modelskintokens,sizeof(modelskintokens)/sizeof(tokenlist)))
+                        {
                         case T_PAL:
                             scriptfile_getsymbol(script,&palnum); break;
                         case T_PARAM:
@@ -878,7 +937,8 @@ static int defsparser(scriptfile *script)
                         }
                     }
 
-                    if (!skinfn) {
+                    if (!skinfn)
+                    {
                         initprintf("Error: missing 'skin filename' for skin definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,skintokptr));
                         break;
                     }
@@ -895,7 +955,8 @@ static int defsparser(scriptfile *script)
                         palnum = GLOWPAL;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                    switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param)) {
+                    switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param))
+                    {
                     case 0:
                         break;
                     case -1:
@@ -914,7 +975,8 @@ static int defsparser(scriptfile *script)
                         break;
                     }
 #endif
-                } break;
+                }
+                break;
                 case T_HUD:
                 {
                     char *hudtokptr = script->ltextptr;
@@ -923,8 +985,10 @@ static int defsparser(scriptfile *script)
                     double xadd = 0.0, yadd = 0.0, zadd = 0.0, angadd = 0.0;
 
                     if (scriptfile_getbraces(script,&frameend)) break;
-                    while (script->textptr < frameend) {
-                        switch (getatoken(script,modelhudtokens,sizeof(modelhudtokens)/sizeof(tokenlist))) {
+                    while (script->textptr < frameend)
+                    {
+                        switch (getatoken(script,modelhudtokens,sizeof(modelhudtokens)/sizeof(tokenlist)))
+                        {
                         case T_TILE:
                             scriptfile_getsymbol(script,&ftilenume); ltilenume = ftilenume; break;
                         case T_TILE0:
@@ -954,20 +1018,24 @@ static int defsparser(scriptfile *script)
                     if (ltilenume < 0) initprintf("Error: missing 'last tile number' for hud definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,hudtokptr)), happy = 0;
                     if (!happy) break;
 
-                    if (ltilenume < ftilenume) {
+                    if (ltilenume < ftilenume)
+                    {
                         initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,hudtokptr));
                         tilex = ftilenume;
                         ftilenume = ltilenume;
                         ltilenume = tilex;
                     }
 
-                    if (lastmodelid < 0) {
+                    if (lastmodelid < 0)
+                    {
                         initprintf("Warning: Ignoring frame definition.\n");
                         break;
                     }
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                    for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++) {
-                        switch (md_definehud(lastmodelid, tilex, xadd, yadd, zadd, angadd, flags)) {
+                    for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
+                    {
+                        switch (md_definehud(lastmodelid, tilex, xadd, yadd, zadd, angadd, flags))
+                        {
                         case 0:
                             break;
                         case -1:
@@ -985,7 +1053,8 @@ static int defsparser(scriptfile *script)
                         }
                     }
 #endif
-                } break;
+                }
+                break;
                 }
             }
 
@@ -1005,20 +1074,22 @@ static int defsparser(scriptfile *script)
             int tile0 = MAXTILES, tile1 = -1, tilex = -1;
 
             if (scriptfile_getstring(script,&fn)) break; //voxel filename
-        if (nextvoxid == MAXVOXELS) { initprintf("Maximum number of voxels already defined.\n"); break; }
+            if (nextvoxid == MAXVOXELS) { initprintf("Maximum number of voxels already defined.\n"); break; }
 #ifdef SUPERBUILD
             if (qloadkvx(nextvoxid, fn)) { initprintf("Failure loading voxel file \"%s\"\n",fn); break; }
             lastvoxid = nextvoxid++;
 #endif
 
             if (scriptfile_getbraces(script,&modelend)) break;
-            while (script->textptr < modelend) {
-                switch (getatoken(script,voxeltokens,sizeof(voxeltokens)/sizeof(tokenlist))) {
+            while (script->textptr < modelend)
+            {
+                switch (getatoken(script,voxeltokens,sizeof(voxeltokens)/sizeof(tokenlist)))
+                {
                     //case T_ERROR: initprintf("Error on line %s:%d in voxel tokens\n", script->filename,linenum); break;
                 case T_TILE:
                     scriptfile_getsymbol(script,&tilex);
 #ifdef SUPERBUILD
-                    if ((unsigned long)tilex < MAXTILES) tiletovox[tilex] = lastvoxid;
+                    if ((unsigned int)tilex < MAXTILES) tiletovox[tilex] = lastvoxid;
                     else initprintf("Invalid tile number on line %s:%d\n",script->filename, scriptfile_getlinum(script,voxeltokptr));
 #endif
                     break;
@@ -1032,12 +1103,13 @@ static int defsparser(scriptfile *script)
                         tilex = tile0; tile0 = tile1; tile1 = tilex;
                     }
                     if ((tile1 < 0) || (tile0 >= MAXTILES))
-                    { initprintf("Invalid tile range on line %s:%d\n",script->filename, scriptfile_getlinum(script,voxeltokptr)); break; }
+                        { initprintf("Invalid tile range on line %s:%d\n",script->filename, scriptfile_getlinum(script,voxeltokptr)); break; }
 #ifdef SUPERBUILD
                     for (tilex=tile0;tilex<=tile1;tilex++) tiletovox[tilex] = lastvoxid;
 #endif
                     break; //last tile number (inclusive)
-                case T_SCALE: {
+                case T_SCALE:
+                {
                     double scale=1.0;
                     scriptfile_getdouble(script,&scale);
 #ifdef SUPERBUILD
@@ -1057,13 +1129,15 @@ static int defsparser(scriptfile *script)
             int i, tile = -1, pal = 0,j,ii;
 
             if (scriptfile_getbraces(script,&modelend)) break;
-            while (script->textptr < modelend) {
-                switch (getatoken(script,skyboxtokens,sizeof(skyboxtokens)/sizeof(tokenlist))) {
+            while (script->textptr < modelend)
+            {
+                switch (getatoken(script,skyboxtokens,sizeof(skyboxtokens)/sizeof(tokenlist)))
+                {
                     //case T_ERROR: initprintf("Error on line %s:%d in skybox tokens\n",script->filename,linenum); break;
                 case T_TILE:
-                    scriptfile_getsymbol(script,&tile ); break;
+                    scriptfile_getsymbol(script,&tile); break;
                 case T_PAL:
-                    scriptfile_getsymbol(script,&pal  ); break;
+                    scriptfile_getsymbol(script,&pal); break;
                 case T_FRONT:
                     scriptfile_getstring(script,&fn[0]); break;
                 case T_RIGHT:
@@ -1080,20 +1154,24 @@ static int defsparser(scriptfile *script)
             }
 
             if (tile < 0) initprintf("Error: missing 'tile number' for skybox definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy=0;
-            for (i=0;i<6;i++) {
+            for (i=0;i<6;i++)
+            {
                 if (!fn[i]) initprintf("Error: missing '%s filename' for skybox definition near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
                 ii = pathsearchmode;
                 pathsearchmode = 1;
-                if (findfrompath(fn[i],&tfn) < 0) {
+                if (findfrompath(fn[i],&tfn) < 0)
+                {
                     char buf[BMAX_PATH];
 
                     Bstrcpy(buf,fn[i]);
                     kzfindfilestart(buf);
-                    if (!kzfindfile(buf)) {
+                    if (!kzfindfile(buf))
+                    {
                         initprintf("Error: file '%s' does not exist\n",fn[i]);
                         happy = 0;
-                    } 
-                } else Bfree(tfn);
+                    }
+                }
+                else Bfree(tfn);
                 pathsearchmode = ii;
             }
             if (!happy) break;
@@ -1108,8 +1186,10 @@ static int defsparser(scriptfile *script)
             char *tintend;
 
             if (scriptfile_getbraces(script,&tintend)) break;
-            while (script->textptr < tintend) {
-                switch (getatoken(script,tinttokens,sizeof(tinttokens)/sizeof(tokenlist))) {
+            while (script->textptr < tintend)
+            {
+                switch (getatoken(script,tinttokens,sizeof(tinttokens)/sizeof(tokenlist)))
+                {
                 case T_PAL:
                     scriptfile_getsymbol(script,&pal);   break;
                 case T_RED:
@@ -1123,7 +1203,8 @@ static int defsparser(scriptfile *script)
                 }
             }
 
-            if (pal < 0) {
+            if (pal < 0)
+            {
                 initprintf("Error: missing 'palette number' for tint definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
                 break;
             }
@@ -1138,10 +1219,13 @@ static int defsparser(scriptfile *script)
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
-            while (script->textptr < textureend) {
+            while (script->textptr < textureend)
+            {
                 token = getatoken(script,texturetokens,sizeof(texturetokens)/sizeof(tokenlist));
-                switch (token) {
-                case T_PAL: {
+                switch (token)
+                {
+                case T_PAL:
+                {
                     char *paltokptr = script->ltextptr, *palend;
                     int pal=-1, i;
                     char *fn = NULL, *tfn = NULL;
@@ -1150,8 +1234,10 @@ static int defsparser(scriptfile *script)
 
                     if (scriptfile_getsymbol(script,&pal)) break;
                     if (scriptfile_getbraces(script,&palend)) break;
-                    while (script->textptr < palend) {
-                        switch (getatoken(script,texturetokens_pal,sizeof(texturetokens_pal)/sizeof(tokenlist))) {
+                    while (script->textptr < palend)
+                    {
+                        switch (getatoken(script,texturetokens_pal,sizeof(texturetokens_pal)/sizeof(tokenlist)))
+                        {
                         case T_FILE:
                             scriptfile_getstring(script,&fn); break;
                         case T_ALPHACUT:
@@ -1168,12 +1254,14 @@ static int defsparser(scriptfile *script)
                     }
 
                     if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
-                    if ((unsigned)pal >= ((unsigned)MAXPALOOKUPS - RESERVEDPALS)) {
+                    if ((unsigned)pal >= ((unsigned)MAXPALOOKUPS - RESERVEDPALS))
+                    {
                         initprintf("Error: missing or invalid 'palette number' for texture definition near "
                                    "line %s:%d\n", script->filename, scriptfile_getlinum(script,paltokptr));
                         break;
                     }
-                    if (!fn) {
+                    if (!fn)
+                    {
                         initprintf("Error: missing 'file name' for texture definition near line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,paltokptr));
                         break;
@@ -1181,23 +1269,28 @@ static int defsparser(scriptfile *script)
 
                     i = pathsearchmode;
                     pathsearchmode = 1;
-                    if (findfrompath(fn,&tfn) < 0) {
+                    if (findfrompath(fn,&tfn) < 0)
+                    {
                         char buf[BMAX_PATH];
 
                         Bstrcpy(buf,fn);
                         kzfindfilestart(buf);
-                        if (!kzfindfile(buf)) {
+                        if (!kzfindfile(buf))
+                        {
                             initprintf("Error: file '%s' does not exist\n",fn);
                             break;
                         }
-                    } else Bfree(tfn);
+                    }
+                    else Bfree(tfn);
                     pathsearchmode = i;
                     xscale = 1.0f / xscale;
                     yscale = 1.0f / yscale;
 
                     hicsetsubsttex(tile,pal,fn,alphacut,xscale,yscale,flags);
-                } break;
-                case T_DETAIL: case T_GLOW: {
+                }
+                break;
+            case T_DETAIL: case T_GLOW:
+                {
                     char *detailtokptr = script->ltextptr, *detailend;
                     int pal = 0, i;
                     char *fn = NULL, *tfn = NULL;
@@ -1205,8 +1298,10 @@ static int defsparser(scriptfile *script)
                     char flags = 0;
 
                     if (scriptfile_getbraces(script,&detailend)) break;
-                    while (script->textptr < detailend) {
-                        switch (getatoken(script,texturetokens_pal,sizeof(texturetokens_pal)/sizeof(tokenlist))) {
+                    while (script->textptr < detailend)
+                    {
+                        switch (getatoken(script,texturetokens_pal,sizeof(texturetokens_pal)/sizeof(tokenlist)))
+                        {
                         case T_FILE:
                             scriptfile_getstring(script,&fn); break;
                         case T_XSCALE:
@@ -1221,7 +1316,8 @@ static int defsparser(scriptfile *script)
                     }
 
                     if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
-                    if (!fn) {
+                    if (!fn)
+                    {
                         initprintf("Error: missing 'file name' for texture definition near line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,detailtokptr));
                         break;
@@ -1229,16 +1325,19 @@ static int defsparser(scriptfile *script)
 
                     i = pathsearchmode;
                     pathsearchmode = 1;
-                    if (findfrompath(fn,&tfn) < 0) {
+                    if (findfrompath(fn,&tfn) < 0)
+                    {
                         char buf[BMAX_PATH];
 
                         Bstrcpy(buf,fn);
                         kzfindfilestart(buf);
-                        if (!kzfindfile(buf)) {
+                        if (!kzfindfile(buf))
+                        {
                             initprintf("Error: file '%s' does not exist\n",fn);
                             break;
-                        } 
-                    } else Bfree(tfn);
+                        }
+                    }
+                    else Bfree(tfn);
                     pathsearchmode = i;
 
                     if (token == T_DETAIL)
@@ -1251,13 +1350,15 @@ static int defsparser(scriptfile *script)
                         pal = GLOWPAL;
 
                     hicsetsubsttex(tile,pal,fn,-1.0,xscale,yscale,flags);
-                } break;
+                }
+                break;
                 default:
                     break;
                 }
             }
 
-            if ((unsigned)tile >= (unsigned)MAXTILES) {
+            if ((unsigned)tile >= (unsigned)MAXTILES)
+            {
                 initprintf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,texturetokptr));
                 break;
@@ -1271,21 +1372,27 @@ static int defsparser(scriptfile *script)
             int r0,r1;
 
             if (scriptfile_getsymbol(script,&r0)) break;
-            if (tokn == T_UNDEFMODELRANGE) {
+            if (tokn == T_UNDEFMODELRANGE)
+            {
                 if (scriptfile_getsymbol(script,&r1)) break;
-                if (r1 < r0) {
+                if (r1 < r0)
+                {
                     int t = r1;
                     r1 = r0;
                     r0 = t;
                     initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
                 }
-                if (r0 < 0 || r1 >= MAXTILES) {
+                if (r0 < 0 || r1 >= MAXTILES)
+                {
                     initprintf("Error: invalid tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
                     break;
                 }
-            } else {
+            }
+            else
+            {
                 r1 = r0;
-                if ((unsigned)r0 >= (unsigned)MAXTILES) {
+                if ((unsigned)r0 >= (unsigned)MAXTILES)
+                {
                     initprintf("Error: invalid tile number on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
                     break;
                 }
@@ -1301,7 +1408,8 @@ static int defsparser(scriptfile *script)
             int mid,r0;
 
             if (scriptfile_getsymbol(script,&r0)) break;
-            if ((unsigned)r0 >= (unsigned)MAXTILES) {
+            if ((unsigned)r0 >= (unsigned)MAXTILES)
+            {
                 initprintf("Error: invalid tile number on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
@@ -1321,21 +1429,27 @@ static int defsparser(scriptfile *script)
             int r0,r1,i;
 
             if (scriptfile_getsymbol(script,&r0)) break;
-            if (tokn == T_UNDEFTEXTURERANGE) {
+            if (tokn == T_UNDEFTEXTURERANGE)
+            {
                 if (scriptfile_getsymbol(script,&r1)) break;
-                if (r1 < r0) {
+                if (r1 < r0)
+                {
                     int t = r1;
                     r1 = r0;
                     r0 = t;
                     initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
                 }
-                if (r0 < 0 || r1 >= MAXTILES) {
+                if (r0 < 0 || r1 >= MAXTILES)
+                {
                     initprintf("Error: invalid tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
                     break;
                 }
-            } else {
+            }
+            else
+            {
                 r1 = r0;
-                if ((unsigned)r0 >= (unsigned)MAXTILES) {
+                if ((unsigned)r0 >= (unsigned)MAXTILES)
+                {
                     initprintf("Error: invalid tile number on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
                     break;
                 }

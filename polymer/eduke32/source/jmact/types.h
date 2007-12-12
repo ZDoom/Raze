@@ -46,15 +46,15 @@ typedef unsigned short int      uint16;
 typedef uint16                  word;
 typedef short int               int16;
 
-typedef unsigned long           uint32;
-typedef long                    int32;
+typedef unsigned int           uint32;
+typedef int                    int32;
 typedef uint32                  dword;
 
 typedef int32                   fixed;
 typedef int32                   boolean;
 typedef float                   float32;
 typedef double                  float64;
-//typedef long double             float128;
+//typedef int double             float128;
 typedef float64                 appfloat;
 
 #define MAXINT32                0x7fffffff

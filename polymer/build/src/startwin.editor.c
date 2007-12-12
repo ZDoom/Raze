@@ -19,7 +19,8 @@
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1
 
-static struct {
+static struct
+{
     int fullscreen;
     int xdim2d, ydim2d;
     int xdim3d, ydim3d, bpp3d;
@@ -43,10 +44,12 @@ static void PopulateForm(void)
     mode2d = checkvideomode(&settings.xdim2d, &settings.ydim2d, 8, settings.fullscreen, 1);
     mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, settings.bpp3d, settings.fullscreen, 1);
     if (mode2d < 0) mode2d = 0;
-    if (mode3d < 0) {
+    if (mode3d < 0)
+    {
         int cd[] = { 32, 24, 16, 15, 8, 0 };
-        for (i=0; cd[i]; ) { if (cd[i] >= settings.bpp3d) i++; else break; }
-        for ( ; cd[i]; i++) {
+        for (i=0; cd[i];) { if (cd[i] >= settings.bpp3d) i++; else break; }
+        for (; cd[i]; i++)
+        {
             mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, cd[i], settings.fullscreen, 1);
             if (mode3d < 0) continue;
             settings.bpp3d = cd[i];
@@ -59,18 +62,19 @@ static void PopulateForm(void)
 
     ComboBox_ResetContent(hwnd2d);
     ComboBox_ResetContent(hwnd3d);
-    for (i=0; i<validmodecnt; i++) {
+    for (i=0; i<validmodecnt; i++)
+    {
         if (validmode[i].fs != settings.fullscreen) continue;
 
         // all modes get added to the 3D mode list
-        Bsprintf(buf, "%ld x %ld %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
+        Bsprintf(buf, "%d x %d %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
         j = ComboBox_AddString(hwnd3d, buf);
         ComboBox_SetItemData(hwnd3d, j, i);
         if (i == mode3d) ComboBox_SetCurSel(hwnd3d, j);
 
         // only 8-bit modes get used for 2D
         if (validmode[i].bpp != 8) continue;
-        Bsprintf(buf, "%ld x %ld", validmode[i].xdim, validmode[i].ydim);
+        Bsprintf(buf, "%d x %d", validmode[i].xdim, validmode[i].ydim);
         j = ComboBox_AddString(hwnd2d, buf);
         ComboBox_SetItemData(hwnd2d, j, i);
         if (i == mode2d) ComboBox_SetCurSel(hwnd2d, j);
@@ -79,30 +83,36 @@ static void PopulateForm(void)
 
 static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMsg) {
+    switch (uMsg)
+    {
     case WM_COMMAND:
-        switch (LOWORD(wParam)) {
+        switch (LOWORD(wParam))
+        {
         case IDCFULLSCREEN:
             settings.fullscreen = !settings.fullscreen;
             PopulateForm();
             return TRUE;
         case IDC2DVMODE:
-            if (HIWORD(wParam) == CBN_SELCHANGE) {
+            if (HIWORD(wParam) == CBN_SELCHANGE)
+            {
                 int i;
                 i = ComboBox_GetCurSel((HWND)lParam);
                 if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
-                if (i != CB_ERR) {
+                if (i != CB_ERR)
+                {
                     settings.xdim2d = validmode[i].xdim;
                     settings.ydim2d = validmode[i].ydim;
                 }
             }
             return TRUE;
         case IDC3DVMODE:
-            if (HIWORD(wParam) == CBN_SELCHANGE) {
+            if (HIWORD(wParam) == CBN_SELCHANGE)
+            {
                 int i;
                 i = ComboBox_GetCurSel((HWND)lParam);
                 if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
-                if (i != CB_ERR) {
+                if (i != CB_ERR)
+                {
                     settings.xdim3d = validmode[i].xdim;
                     settings.ydim3d = validmode[i].ydim;
                     settings.bpp3d  = validmode[i].bpp;
@@ -152,8 +162,10 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
     static HBITMAP hbmp = NULL;
     HDC hdc;
 
-    switch (uMsg) {
-    case WM_INITDIALOG: {
+    switch (uMsg)
+    {
+    case WM_INITDIALOG:
+    {
         HWND hwnd;
         RECT r, rdlg, chrome, rtab, rcancel, rstart;
         int xoffset = 0, yoffset = 0;
@@ -253,18 +265,22 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         return FALSE;
     }
 
-    case WM_NOTIFY: {
+    case WM_NOTIFY:
+    {
         LPNMHDR nmhdr = (LPNMHDR)lParam;
         int cur;
         if (nmhdr->idFrom != WIN_STARTWIN_TABCTL) break;
         cur = (int)SendMessage(nmhdr->hwndFrom, TCM_GETCURSEL,0,0);
-        switch (nmhdr->code) {
-        case TCN_SELCHANGING: {
+        switch (nmhdr->code)
+        {
+        case TCN_SELCHANGING:
+        {
             if (cur < 0 || !pages[cur]) break;
             ShowWindow(pages[cur],SW_HIDE);
             return TRUE;
         }
-        case TCN_SELCHANGE: {
+        case TCN_SELCHANGE:
+        {
             if (cur < 0 || !pages[cur]) break;
             ShowWindow(pages[cur],SW_SHOW);
             return TRUE;
@@ -279,12 +295,14 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         return TRUE;
 
     case WM_DESTROY:
-        if (hbmp) {
+        if (hbmp)
+        {
             DeleteObject(hbmp);
             hbmp = NULL;
         }
 
-        if (pages[TAB_CONFIG]) {
+        if (pages[TAB_CONFIG])
+        {
             DestroyWindow(pages[TAB_CONFIG]);
             pages[TAB_CONFIG] = NULL;
         }
@@ -293,7 +311,8 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         return TRUE;
 
     case WM_COMMAND:
-        switch (LOWORD(wParam)) {
+        switch (LOWORD(wParam))
+        {
         case WIN_STARTWIN_CANCEL:
             if (mode == TAB_CONFIG) done = 0;
             else quitevent++;
@@ -324,7 +343,8 @@ int startwin_open(void)
     icc.dwICC = ICC_TAB_CLASSES;
     InitCommonControlsEx(&icc);
     startupdlg = CreateDialog((HINSTANCE)win_gethinstance(), MAKEINTRESOURCE(WIN_STARTWIN), NULL, startup_dlgproc);
-    if (startupdlg) {
+    if (startupdlg)
+    {
         SetPage(TAB_MESSAGES);
         EnableConfig(0);
         return 0;
@@ -361,25 +381,33 @@ int startwin_puts(const char *buf)
     SendMessage(edctl, EM_SETSEL, (WPARAM)curlen, (LPARAM)curlen);
     linesbefore = SendMessage(edctl, EM_GETLINECOUNT, 0,0);
     p = buf;
-    while (*p) {
-        if (newline) {
+    while (*p)
+    {
+        if (newline)
+        {
             SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)"\r\n");
             newline = 0;
         }
         q = p;
         while (*q && *q != '\n') q++;
         memcpy(workbuf, p, q-p);
-        if (*q == '\n') {
-            if (!q[1]) {
+        if (*q == '\n')
+        {
+            if (!q[1])
+            {
                 newline = 1;
                 workbuf[q-p] = 0;
-            } else {
+            }
+            else
+            {
                 workbuf[q-p] = '\r';
                 workbuf[q-p+1] = '\n';
                 workbuf[q-p+2] = 0;
             }
             p = q+1;
-        } else {
+        }
+        else
+        {
             workbuf[q-p] = 0;
             p = q;
         }
@@ -424,8 +452,10 @@ int startwin_run(void)
     settings.forcesetup = forcesetup;
     PopulateForm();
 
-    while (done < 0) {
-        switch (GetMessage(&msg, NULL, 0,0)) {
+    while (done < 0)
+    {
+        switch (GetMessage(&msg, NULL, 0,0))
+        {
         case 0:
             done = 1; break;
         case -1:
@@ -440,7 +470,8 @@ int startwin_run(void)
 
     SetPage(TAB_MESSAGES);
     EnableConfig(0);
-    if (done) {
+    if (done)
+    {
         fullscreen = settings.fullscreen;
         xdim2d = settings.xdim2d;
         ydim2d = settings.ydim2d;

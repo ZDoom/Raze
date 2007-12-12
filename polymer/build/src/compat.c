@@ -95,7 +95,8 @@ bssize_t Bread(int fd, void *buf, bsize_t count)
 
 int Blseek(int fildes, int offset, int whence)
 {
-    switch (whence) {
+    switch (whence)
+    {
     case BSEEK_SET:
         whence=SEEK_SET; break;
     case BSEEK_CUR:
@@ -225,17 +226,17 @@ int Batoi(const char *nptr)
     return atoi(nptr);
 }
 
-long Batol(const char *nptr)
+int Batol(const char *nptr)
 {
     return atol(nptr);
 }
 
-long int Bstrtol(const char *nptr, char **endptr, int base)
+int int Bstrtol(const char *nptr, char **endptr, int base)
 {
     return strtol(nptr,endptr,base);
 }
 
-unsigned long int Bstrtoul(const char *nptr, char **endptr, int base)
+unsigned int int Bstrtoul(const char *nptr, char **endptr, int base)
 {
     return strtoul(nptr,endptr,base);
 }
@@ -396,7 +397,8 @@ int Bcorrectfilename(char *filename, int removefn)
     fn = strdup(filename);
     if (!fn) return -1;
 
-    for (first=fn; *first; first++) {
+    for (first=fn; *first; first++)
+    {
 #ifdef _WIN32
         if (*first == '\\') *first = '/';
 #endif
@@ -405,7 +407,8 @@ int Bcorrectfilename(char *filename, int removefn)
     trailslash = (first>fn && first[-1] == '/');
 
     first = fn;
-    do {
+    do
+    {
         token = Bstrtoken(first, "/", &next, 1);
         first = NULL;
         if (!token) break;
@@ -413,14 +416,16 @@ int Bcorrectfilename(char *filename, int removefn)
         else if (token[0] == '.' && token[1] == 0) continue;
         else if (token[0] == '.' && token[1] == '.' && token[2] == 0) ntok = max(0,ntok-1);
         else tokarr[ntok++] = token;
-    } while (1);
+    }
+    while (1);
 
-if (!trailslash && removefn) { ntok = max(0,ntok-1); trailslash = 1; }
+    if (!trailslash && removefn) { ntok = max(0,ntok-1); trailslash = 1; }
     if (ntok == 0 && trailslash && leadslash) trailslash = 0;
 
     first = filename;
     if (leadslash) *(first++) = '/';
-    for (i=0; i<ntok; i++) {
+    for (i=0; i<ntok; i++)
+    {
         if (i>0) *(first++) = '/';
         for (token=tokarr[i]; *token; token++)
             *(first++) = *token;
@@ -442,7 +447,8 @@ int Bcanonicalisefilename(char *filename, int removefn)
 
 #ifdef _WIN32
     {
-        if (filename[0] && filename[1] == ':') {
+        if (filename[0] && filename[1] == ':')
+        {
             // filename is prefixed with a drive
             drv = toupper(filename[0])-'A' + 1;
             fnp += 2;
@@ -460,11 +466,14 @@ int Bcanonicalisefilename(char *filename, int removefn)
     for (p=fn; *p; p++) if (*p == '\\') *p = '/';
 #endif
 
-    if (fn[0] != '/') {
+    if (fn[0] != '/')
+    {
         // we are dealing with a path relative to the current directory
         strcpy(filename, cwd);
         strcat(filename, fn);
-    } else {
+    }
+    else
+    {
 #ifdef _WIN32
         filename[0] = cwd[0];
         filename[1] = ':';
@@ -492,7 +501,8 @@ char *Bgetsystemdrives(void)
     drv = GetLogicalDrives();
     if (drv == 0) return NULL;
 
-    for (mask=1; mask<0x8000000l; mask<<=1) {
+    for (mask=1; mask<0x8000000l; mask<<=1)
+    {
         if ((drv&mask) == 0) continue;
         number++;
     }
@@ -501,7 +511,8 @@ char *Bgetsystemdrives(void)
     if (!str) return NULL;
 
     number = 0;
-    for (mask=1; mask<0x8000000l; mask<<=1, number++) {
+    for (mask=1; mask<0x8000000l; mask<<=1, number++)
+    {
         if ((drv&mask) == 0) continue;
         *(p++) = 'A' + number;
         *(p++) = ':';
@@ -517,17 +528,18 @@ char *Bgetsystemdrives(void)
 }
 
 
-long Bfilelength(int fd)
+int Bfilelength(int fd)
 {
     struct stat st;
     if (fstat(fd, &st) < 0) return -1;
-    return(long)(st.st_size);
+    return(int)(st.st_size);
 }
 
 
-typedef struct {
+typedef struct
+{
 #ifdef _MSC_VER
-    long dir;
+    int dir;
     struct _finddata_t fid;
 #else
     DIR *dir;
@@ -547,7 +559,8 @@ BDIR* Bopendir(const char *name)
 #endif
 
     dirr = (BDIR_real*)malloc(sizeof(BDIR_real) + strlen(name));
-    if (!dirr) {
+    if (!dirr)
+    {
 #ifdef _MSC_VER
         free(t);
 #endif
@@ -566,13 +579,15 @@ BDIR* Bopendir(const char *name)
 
     dirr->dir = _findfirst(t,&dirr->fid);
     free(t);
-    if (dirr->dir == -1) {
+    if (dirr->dir == -1)
+    {
         free(dirr);
         return NULL;
     }
 #else
     dirr->dir = opendir(name);
-    if (dirr->dir == NULL) {
+    if (dirr->dir == NULL)
+    {
         free(dirr);
         return NULL;
     }
@@ -592,8 +607,10 @@ struct Bdirent*	Breaddir(BDIR *dir)
     char *fn;
 
 #ifdef _MSC_VER
-    if (dirr->status > 0) {
-        if (_findnext(dirr->dir,&dirr->fid) != 0) {
+    if (dirr->status > 0)
+    {
+        if (_findnext(dirr->dir,&dirr->fid) != 0)
+        {
             dirr->status = -1;
             return NULL;
         }
@@ -603,10 +620,13 @@ struct Bdirent*	Breaddir(BDIR *dir)
     dirr->status++;
 #else
     de = readdir(dirr->dir);
-    if (de == NULL) {
+    if (de == NULL)
+    {
         dirr->status = -1;
         return NULL;
-    } else {
+    }
+    else
+    {
         dirr->status++;
     }
     //# if defined(__WATCOMC__) || defined(__linux) || defined(__BEOS__) || defined(__QNX__) || defined(SKYOS)
@@ -621,9 +641,11 @@ struct Bdirent*	Breaddir(BDIR *dir)
     dirr->info.mtime = 0;
 
     fn = (char *)malloc(strlen(dirr->name) + 1 + dirr->info.namlen + 1);
-    if (fn) {
+    if (fn)
+    {
         sprintf(fn,"%s/%s",dirr->name,dirr->info.name);
-        if (!stat(fn, &st)) {
+        if (!stat(fn, &st))
+        {
             dirr->info.mode = st.st_mode;
             dirr->info.size = st.st_size;
             dirr->info.mtime = st.st_mtime;
@@ -661,14 +683,16 @@ char *Bstrtoken(char *s, char *delim, char **ptrptr, int chop)
     if (!p) return NULL;
 
     while (*p != 0 && strchr(delim, *p)) p++;
-    if (*p == 0) {
+    if (*p == 0)
+    {
         *ptrptr = NULL;
         return NULL;
     }
     start = p;
     while (*p != 0 && !strchr(delim, *p)) p++;
     if (*p == 0) *ptrptr = NULL;
-    else {
+    else
+    {
         if (chop) *(p++) = 0;
         *ptrptr = p;
     }
@@ -680,7 +704,7 @@ char *Bstrtoken(char *s, char *delim, char **ptrptr, int chop)
 //Brute-force case-insensitive, slash-insensitive, * and ? wildcard matcher
 //Given: string i and string j. string j can have wildcards
 //Returns: 1:matches, 0:doesn't match
-long Bwildmatch (const char *i, const char *j)
+int Bwildmatch(const char *i, const char *j)
 {
     const char *k;
     char c0, c1;
@@ -694,7 +718,7 @@ long Bwildmatch (const char *i, const char *j)
             continue;
         }
         if (!*i) return(0);
-    if (*j == '?') { i++; j++; continue; }
+        if (*j == '?') { i++; j++; continue; }
         c0 = *i; if ((c0 >= 'a') && (c0 <= 'z')) c0 -= 32;
         c1 = *j; if ((c1 >= 'a') && (c1 <= 'z')) c1 -= 32;
 #ifdef _WIN32
@@ -703,7 +727,8 @@ long Bwildmatch (const char *i, const char *j)
 #endif
         if (c0 != c1) return(0);
         i++; j++;
-    } while (*j);
+    }
+    while (*j);
     return(!*i);
 }
 
@@ -712,7 +737,7 @@ char *Bstrlwr(char *s)
 {
     char *t = s;
     if (!s) return s;
-while (*t) { *t = Btolower(*t); t++; }
+    while (*t) { *t = Btolower(*t); t++; }
     return s;
 }
 
@@ -720,7 +745,7 @@ char *Bstrupr(char *s)
 {
     char *t = s;
     if (!s) return s;
-while (*t) { *t = Btoupper(*t); t++; }
+    while (*t) { *t = Btoupper(*t); t++; }
     return s;
 }
 #endif
@@ -737,7 +762,7 @@ unsigned int Bgetsysmemsize(void)
     return (unsigned int)memst.dwTotalPhys;
 #elif (defined(_SC_PAGE_SIZE) || defined(_SC_PAGESIZE)) && defined(_SC_PHYS_PAGES)
     unsigned int siz = 0x7fffffff;
-    long scpagesiz, scphyspages;
+    int scpagesiz, scphyspages;
 
 #ifdef _SC_PAGE_SIZE
     scpagesiz = sysconf(_SC_PAGE_SIZE);

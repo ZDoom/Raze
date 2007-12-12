@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "animlib.h"
 #include "mouse.h"
 
-void endanimsounds(long fr)
+void endanimsounds(int fr)
 {
     switch (ud.volume_number)
     {
@@ -91,7 +91,7 @@ void endanimsounds(long fr)
     }
 }
 
-void logoanimsounds(long fr)
+void logoanimsounds(int fr)
 {
     switch (fr)
     {
@@ -104,7 +104,7 @@ void logoanimsounds(long fr)
     }
 }
 
-void intro4animsounds(long fr)
+void intro4animsounds(int fr)
 {
     switch (fr)
     {
@@ -121,7 +121,7 @@ void intro4animsounds(long fr)
     }
 }
 
-void first4animsounds(long fr)
+void first4animsounds(int fr)
 {
     switch (fr)
     {
@@ -140,7 +140,7 @@ void first4animsounds(long fr)
     }
 }
 
-void intro42animsounds(long fr)
+void intro42animsounds(int fr)
 {
     switch (fr)
     {
@@ -150,7 +150,7 @@ void intro42animsounds(long fr)
     }
 }
 
-void endanimvol41(long fr)
+void endanimvol41(int fr)
 {
     switch (fr)
     {
@@ -163,7 +163,7 @@ void endanimvol41(long fr)
     }
 }
 
-void endanimvol42(long fr)
+void endanimvol42(int fr)
 {
     switch (fr)
     {
@@ -182,7 +182,7 @@ void endanimvol42(long fr)
     }
 }
 
-void endanimvol43(long fr)
+void endanimvol43(int fr)
 {
     switch (fr)
     {
@@ -203,7 +203,7 @@ void playanm(const char *fn,char t)
 {
     char *animbuf;
     unsigned char *palptr;
-    long i, j, length=0, numframes=0;
+    int i, j, length=0, numframes=0;
 #if defined(POLYMOST) && defined(USE_OPENGL)
     int ogltexfiltermode=gltexfiltermode;
 #endif
@@ -226,7 +226,7 @@ void playanm(const char *fn,char t)
 
     walock[TILE_ANIM] = 219+t;
 
-    allocache((long *)&animbuf,length,&walock[TILE_ANIM]);
+    allocache((int *)&animbuf,length,&walock[TILE_ANIM]);
 
     tilesizx[TILE_ANIM] = 200;
     tilesizy[TILE_ANIM] = 320;

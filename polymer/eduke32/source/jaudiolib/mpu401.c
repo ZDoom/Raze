@@ -42,9 +42,9 @@ static DWORD mididevice = -1;
 
 typedef struct
 {
-    long time;
-    long stream;
-    long event;
+    int time;
+    int stream;
+    int event;
 }
 MIDIEVENTHEAD;
 #define PAD(x) ((((x)+3)&(~3)))
@@ -57,8 +57,8 @@ static MIDIHDR bufferheaders[NUMBUFFERS];
 int  _MPU_CurrentBuffer = 0;
 int  _MPU_BuffersWaiting = 0;
 
-extern unsigned long _MIDI_GlobalPositionInTicks;
-unsigned long _MPU_LastEvent=0;
+extern unsigned int _MIDI_GlobalPositionInTicks;
+unsigned int _MPU_LastEvent=0;
 
 #define MIDI_NOTE_OFF         0x80
 #define MIDI_NOTE_ON          0x90
@@ -120,7 +120,7 @@ void CALLBACK MPU_MIDICallback(HMIDIOUT handle, UINT uMsg, DWORD dwInstance, DWO
         midiOutUnprepareHeader((HMIDIOUT)handle, (MIDIHDR*)dwParam1, sizeof(MIDIHDR));
         for (i=0;i<NUMBUFFERS;i++)
         {
-            if (dwParam1 == (unsigned long)&bufferheaders[i])
+            if (dwParam1 == (unsigned int)&bufferheaders[i])
             {
                 eventcnt[i] = 0;	// marks the buffer as free
 //					printf("Finished buffer %d\n",i);
@@ -174,9 +174,9 @@ void MPU_SendMidi(char *data, int count)
         }
 
         p = eventbuf[_MPU_CurrentBuffer] + eventcnt[_MPU_CurrentBuffer];
-        ((long*)p)[0] = _MIDI_GlobalPositionInTicks - _MPU_LastEvent;
-        ((long*)p)[1] = 0;
-        ((long*)p)[2] = (MEVT_SHORTMSG << 24) | ((*((long*)data)) & masks[count-1]);
+        ((int*)p)[0] = _MIDI_GlobalPositionInTicks - _MPU_LastEvent;
+        ((int*)p)[1] = 0;
+        ((int*)p)[2] = (MEVT_SHORTMSG << 24) | ((*((int*)data)) & masks[count-1]);
         eventcnt[_MPU_CurrentBuffer] += 12;
     }
     else
@@ -196,9 +196,9 @@ void MPU_SendMidi(char *data, int count)
         }
 
         p = eventbuf[_MPU_CurrentBuffer] + eventcnt[_MPU_CurrentBuffer];
-        ((long*)p)[0] = _MIDI_GlobalPositionInTicks - _MPU_LastEvent;
-        ((long*)p)[1] = 0;
-        ((long*)p)[2] = (MEVT_LONGMSG<<24) | (count & 0xffffffl);
+        ((int*)p)[0] = _MIDI_GlobalPositionInTicks - _MPU_LastEvent;
+        ((int*)p)[1] = 0;
+        ((int*)p)[2] = (MEVT_LONGMSG<<24) | (count & 0xffffffl);
         p+=12; eventcnt[_MPU_CurrentBuffer] += 12;
         for (; count>0; count--, padded--, eventcnt[_MPU_CurrentBuffer]++)
             *(p++) = *(data++);
@@ -220,7 +220,7 @@ void MPU_SendMidiImmediate(char *data, int count)
     static int masks[3] = { 0x00ffffffl, 0x0000ffffl, 0x000000ffl };
 
     if (!count) return;
-    if (count<=3) midiOutShortMsg((HMIDIOUT)hmido, (*((long*)data)) & masks[count-1]);
+    if (count<=3) midiOutShortMsg((HMIDIOUT)hmido, (*((int*)data)) & masks[count-1]);
     else
     {
         ZeroMemory(&mhdr, sizeof(mhdr));
@@ -450,7 +450,7 @@ void MPU_SetVolume(int volume)
 {
     /*
     HMIXER hmixer;
-    long mixerid;
+    int mixerid;
     MIXERCONTROLDETAILS mxcd;
     MIXERCONTROLDETAILS_UNSIGNED mxcdu;
     MMRESULT mme;

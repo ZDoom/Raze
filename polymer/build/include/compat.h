@@ -73,7 +73,7 @@
 # define longlong(x) x##i64
 #else
 # define longlong(x) x##ll
-typedef long long int64;
+typedef long long int int64;
 typedef unsigned long long uint64;
 #endif
 
@@ -178,7 +178,7 @@ extern "C" {
 # endif
 #elif defined B_ENDIAN_C_INLINE
 static inline unsigned short B_SWAP16(unsigned short s) { return (s>>8)|(s<<8); }
-static inline unsigned long  B_SWAP32(unsigned long  l) { return ((l>>8)&0xff00)|((l&0xff00)<<8)|(l<<24)|(l>>24); }
+static inline unsigned int  B_SWAP32(unsigned int  l) { return ((l>>8)&0xff00)|((l&0xff00)<<8)|(l<<24)|(l>>24); }
 static inline uint64 B_SWAP64(uint64 l) { return (l>>56)|((l>>40)&0xff00)|((l>>24)&0xff0000)|((l>>8)&0xff000000)|((l&255)<<56)|((l&0xff00)<<40)|((l&0xff0000)<<24)|((l&0xff000000)<<8); }
 #endif
 
@@ -298,8 +298,8 @@ int		Bclosedir(BDIR *dir);
 # define bssize_t ssize_t
 #else
   typedef void          BFILE;
-  typedef unsigned long bsize_t;
-  typedef signed   long bssize_t;
+  typedef unsigned int bsize_t;
+  typedef signed   int bssize_t;
 #endif
 
 
@@ -415,9 +415,9 @@ bsize_t Bstrlen(const char *s);
 char *Bstrchr(const char *s, int c);
 char *Bstrrchr(const char *s, int c);
 int Batoi(const char *nptr);
-long Batol(const char *nptr);
-long int Bstrtol(const char *nptr, char **endptr, int base);
-unsigned long int Bstrtoul(const char *nptr, char **endptr, int base);
+int Batol(const char *nptr);
+int int Bstrtol(const char *nptr, char **endptr, int base);
+unsigned int int Bstrtoul(const char *nptr, char **endptr, int base);
 void *Bmemcpy(void *dest, const void *src, bsize_t n);
 void *Bmemmove(void *dest, const void *src, bsize_t n);
 void *Bmemchr(const void *s, int c, bsize_t n);
@@ -437,9 +437,9 @@ unsigned int Bgetsysmemsize(void);
 int Bcorrectfilename(char *filename, int removefn);
 int Bcanonicalisefilename(char *filename, int removefn);
 char *Bgetsystemdrives(void);
-long Bfilelength(int fd);
+int Bfilelength(int fd);
 char *Bstrtoken(char *s, char *delim, char **ptrptr, int chop);
-long Bwildmatch (const char *i, const char *j);
+int Bwildmatch (const char *i, const char *j);
 
 #if !defined(_WIN32)
 char *Bstrlwr(char *);

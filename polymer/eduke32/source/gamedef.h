@@ -37,21 +37,21 @@ extern int g_iHiTagID;          // var ID of "HITAG"
 extern int g_iTextureID;        // var ID of "TEXTURE"
 extern int g_iThisActorID;      // var ID of "THISACTOR"
 
-extern long *actorLoadEventScrptr[MAXTILES];
+extern int *actorLoadEventScrptr[MAXTILES];
 
-extern long *apScriptGameEvent[MAXGAMEEVENTS];
+extern int *apScriptGameEvent[MAXGAMEEVENTS];
 
 extern short otherp;
-extern long g_currentweapon;
-extern long g_gun_pos;
-extern long g_looking_arc;
-extern long g_currentweapon;
-extern long g_weapon_xoffset;
-extern long g_gs;
-extern long g_kb;
-extern long g_looking_angSR1;
+extern int g_currentweapon;
+extern int g_gun_pos;
+extern int g_looking_arc;
+extern int g_currentweapon;
+extern int g_weapon_xoffset;
+extern int g_gs;
+extern int g_kb;
+extern int g_looking_angSR1;
 extern int display_bonus_screen;
-extern long lastvisinc;
+extern int lastvisinc;
 extern char cheatquotes[][MAXCHEATLEN];
 extern char compilefile[BMAX_PATH];
 extern int total_lines,line_number;
@@ -59,7 +59,7 @@ extern int error,warning;
 typedef struct _labels
 {
     char *name;
-    long lId;
+    int lId;
     int flags;
     int maxParm2;
 } LABELS;

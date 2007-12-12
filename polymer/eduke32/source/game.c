@@ -61,20 +61,20 @@ extern int getversionfromwebsite(char *buffer);
 
 #define TIMERUPDATESIZ 32
 
-long cameradist = 0, cameraclock = 0;
+int cameradist = 0, cameraclock = 0;
 static int playerswhenstarted;
 static int qe,cp,usecwd = 0;
 
-static int32 g_CommandSetup = 0;
-static int32 g_NoSetup = 0;
-static int32 g_NoAutoLoad = 0;
-static int32 g_NoSound = 0;
-static int32 g_NoMusic = 0;
+static int g_CommandSetup = 0;
+static int g_NoSetup = 0;
+static int g_NoAutoLoad = 0;
+static int g_NoSound = 0;
+static int g_NoMusic = 0;
 static char *CommandMap = NULL;
 static char *CommandName = NULL;
 static char *CommandNet = NULL;
 static int g_KeepAddr = 0;
-int32 CommandWeaponChoice = 0;
+int CommandWeaponChoice = 0;
 static struct strllist
 {
     struct strllist *next;
@@ -99,7 +99,7 @@ int debug_on = 0,actor_tog = 0;
 static char *rtsptr;
 
 extern char syncstate;
-extern int32 numlumps;
+extern int numlumps;
 
 static FILE *frecfilep = (FILE *)NULL;
 
@@ -114,13 +114,13 @@ static char defaultconfilename[BMAX_PATH] = {"EDUKE.CON"};
 static char *confilename = defaultconfilename;
 static char *duke3ddef = "duke3d.def";
 
-extern long lastvisinc;
+extern int lastvisinc;
 
 int g_Shareware = 0;
 int g_GameType = 0;
 
 #define MAXUSERQUOTES 4
-static long quotebot, quotebotgoal;
+static int quotebot, quotebotgoal;
 static int user_quote_time[MAXUSERQUOTES];
 static char user_quote[MAXUSERQUOTES][178];
 // char typebuflen,typebuf[41];
@@ -131,9 +131,9 @@ static int MAXCACHE1DSIZE = (16*1048576);
 static int MAXCACHE1DSIZE = (32*1048576);
 #endif
 
-long tempwallptr;
+int tempwallptr;
 
-static long nonsharedtimer;
+static int nonsharedtimer;
 
 static void cameratext(short i);
 static int moveloop(void);
@@ -141,11 +141,11 @@ static void doorders(void);
 static void fakedomovethings(void);
 static void fakedomovethingscorrect(void);
 static int domovethings(void);
-static long playback(void);
+static int playback(void);
 
 static char recbuf[180];
 
-extern void computergetinput(long snum, input *syn);
+extern void computergetinput(int snum, input *syn);
 
 enum
 {
@@ -183,32 +183,32 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
     return T_ERROR;
 }
 
-inline void setstatusbarscale(long sc)
+inline void setstatusbarscale(int sc)
 {
     ud.statusbarscale = min(100,max(10,sc));
     vscrn();
 }
 
-static inline long sbarx(long x)
+static inline int sbarx(int x)
 {
     if (ud.screen_size == 4 /*|| ud.statusbarmode == 1*/) return scale(x<<16,ud.statusbarscale,100);
     return (((320l<<16) - scale(320l<<16,ud.statusbarscale,100)) >> 1) + scale(x<<16,ud.statusbarscale,100);
 }
 
-static inline long sbary(long y)
+static inline int sbary(int y)
 {
     return ((200l<<16) - scale(200l<<16,ud.statusbarscale,100) + scale(y<<16,ud.statusbarscale,100));
 }
 
-static inline long sbarsc(long sc)
+static inline int sbarsc(int sc)
 {
     return scale(sc,ud.statusbarscale,100);
 }
 
-static void patchstatusbar(long x1, long y1, long x2, long y2)
+static void patchstatusbar(int x1, int y1, int x2, int y2)
 {
-    long scl, tx, ty;
-    long clx1,cly1,clx2,cly2,clofx,clofy;
+    int scl, tx, ty;
+    int clx1,cly1,clx2,cly2,clofx,clofy;
 
     scl = sbarsc(65536);
     tx = sbarx(0);
@@ -289,7 +289,7 @@ const char *stripcolorcodes(const char *t)
     return(colstrip);
 }
 
-int gametext_(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,long x1, long y1, long x2, long y2)
+int gametext_(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2)
 {
     int ac,newx,oldx=x;
     char centre, *oldt;
@@ -430,18 +430,18 @@ inline int minitext(int x,int y,const char *t,int p,int sb)
 }
 
 #if 0
-static void gamenumber(long x,long y,long n,char s)
+static void gamenumber(int x,int y,int n,char s)
 {
     char b[10];
     //ltoa(n,b,10);
-    Bsnprintf(b,10,"%ld",n);
+    Bsnprintf(b,10,"%d",n);
     gametext(x,y,b,s,2+8+16);
 }
 #endif
 
 static void allowtimetocorrecterrorswhenquitting(void)
 {
-    long i, j, oldtotalclock;
+    int i, j, oldtotalclock;
 
     ready2send = 0;
 
@@ -467,7 +467,7 @@ static void allowtimetocorrecterrorswhenquitting(void)
 
 void adduserquote(const char *daquote)
 {
-    long i;
+    int i;
 
     for (i=MAXUSERQUOTES-1;i>0;i--)
     {
@@ -481,12 +481,12 @@ void adduserquote(const char *daquote)
     pub = NUMPAGES;
 }
 
-long lastpackettime = 0;
+int lastpackettime = 0;
 
 void getpackets(void)
 {
-    long i, j, k, l;
-    long other, packbufleng;
+    int i, j, k, l;
+    int other, packbufleng;
     input *osyn, *nsyn;
 
     sampletimer();
@@ -542,7 +542,7 @@ void getpackets(void)
                 {
                     if (g_player[i].playerquitflag == 0) continue;
                     if (i == myconnectindex)
-                        otherminlag = (long)((signed char)packbuf[j]);
+                        otherminlag = (int)((signed char)packbuf[j]);
                     j++;
                 }
 
@@ -557,7 +557,7 @@ void getpackets(void)
                 if (g_player[i].playerquitflag == 0) continue;
 
                 l = packbuf[k++];
-                l += (long)(packbuf[k++]<<8);
+                l += (int)(packbuf[k++]<<8);
 
                 if (i == myconnectindex)
                 {
@@ -569,15 +569,15 @@ void getpackets(void)
                 if (l&1)   nsyn[i].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
                 if (l&2)   nsyn[i].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
                 if (l&4)   nsyn[i].avel = (signed char)packbuf[j++];
-                if (l&8)   nsyn[i].bits = ((nsyn[i].bits&0xffffff00)|((long)packbuf[j++]));
-                if (l&16)  nsyn[i].bits = ((nsyn[i].bits&0xffff00ff)|((long)packbuf[j++])<<8);
-                if (l&32)  nsyn[i].bits = ((nsyn[i].bits&0xff00ffff)|((long)packbuf[j++])<<16);
-                if (l&64)  nsyn[i].bits = ((nsyn[i].bits&0x00ffffff)|((long)packbuf[j++])<<24);
+                if (l&8)   nsyn[i].bits = ((nsyn[i].bits&0xffffff00)|((int)packbuf[j++]));
+                if (l&16)  nsyn[i].bits = ((nsyn[i].bits&0xffff00ff)|((int)packbuf[j++])<<8);
+                if (l&32)  nsyn[i].bits = ((nsyn[i].bits&0xff00ffff)|((int)packbuf[j++])<<16);
+                if (l&64)  nsyn[i].bits = ((nsyn[i].bits&0x00ffffff)|((int)packbuf[j++])<<24);
                 if (l&128) nsyn[i].horz = (signed char)packbuf[j++];
-                if (l&256)  nsyn[i].extbits = ((nsyn[i].extbits&0xffffff00)|((long)packbuf[j++]));
-                if (l&512)  nsyn[i].extbits = ((nsyn[i].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
-                if (l&1024) nsyn[i].extbits = ((nsyn[i].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
-                if (l&2048) nsyn[i].extbits = ((nsyn[i].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
+                if (l&256)  nsyn[i].extbits = ((nsyn[i].extbits&0xffffff00)|((int)packbuf[j++]));
+                if (l&512)  nsyn[i].extbits = ((nsyn[i].extbits&0xffff00ff)|((int)packbuf[j++])<<8);
+                if (l&1024) nsyn[i].extbits = ((nsyn[i].extbits&0xff00ffff)|((int)packbuf[j++])<<16);
+                if (l&2048) nsyn[i].extbits = ((nsyn[i].extbits&0x00ffffff)|((int)packbuf[j++])<<24);
 
                 if (nsyn[i].bits&(1<<26)) g_player[i].playerquitflag = 0;
                 g_player[i].movefifoend++;
@@ -607,7 +607,7 @@ void getpackets(void)
             break;
         case 1:  //[1] (receive slave sync buffer)
             j = 3;
-            k = packbuf[1] + (long)(packbuf[2]<<8);
+            k = packbuf[1] + (int)(packbuf[2]<<8);
 
             osyn = (input *)&inputfifo[(g_player[other].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
             nsyn = (input *)&inputfifo[(g_player[other].movefifoend)&(MOVEFIFOSIZ-1)][0];
@@ -616,15 +616,15 @@ void getpackets(void)
             if (k&1)   nsyn[other].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
             if (k&2)   nsyn[other].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
             if (k&4)   nsyn[other].avel = (signed char)packbuf[j++];
-            if (k&8)   nsyn[other].bits = ((nsyn[other].bits&0xffffff00)|((long)packbuf[j++]));
-            if (k&16)  nsyn[other].bits = ((nsyn[other].bits&0xffff00ff)|((long)packbuf[j++])<<8);
-            if (k&32)  nsyn[other].bits = ((nsyn[other].bits&0xff00ffff)|((long)packbuf[j++])<<16);
-            if (k&64)  nsyn[other].bits = ((nsyn[other].bits&0x00ffffff)|((long)packbuf[j++])<<24);
+            if (k&8)   nsyn[other].bits = ((nsyn[other].bits&0xffffff00)|((int)packbuf[j++]));
+            if (k&16)  nsyn[other].bits = ((nsyn[other].bits&0xffff00ff)|((int)packbuf[j++])<<8);
+            if (k&32)  nsyn[other].bits = ((nsyn[other].bits&0xff00ffff)|((int)packbuf[j++])<<16);
+            if (k&64)  nsyn[other].bits = ((nsyn[other].bits&0x00ffffff)|((int)packbuf[j++])<<24);
             if (k&128) nsyn[other].horz = (signed char)packbuf[j++];
-            if (k&256)  nsyn[other].extbits = ((nsyn[other].extbits&0xffffff00)|((long)packbuf[j++]));
-            if (k&512)  nsyn[other].extbits = ((nsyn[other].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
-            if (k&1024) nsyn[other].extbits = ((nsyn[other].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
-            if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
+            if (k&256)  nsyn[other].extbits = ((nsyn[other].extbits&0xffffff00)|((int)packbuf[j++]));
+            if (k&512)  nsyn[other].extbits = ((nsyn[other].extbits&0xffff00ff)|((int)packbuf[j++])<<8);
+            if (k&1024) nsyn[other].extbits = ((nsyn[other].extbits&0xff00ffff)|((int)packbuf[j++])<<16);
+            if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((int)packbuf[j++])<<24);
             g_player[other].movefifoend++;
 
             while (j != packbufleng)
@@ -652,7 +652,7 @@ void getpackets(void)
                     for (i=connectpoint2[connecthead];i>=0;i=connectpoint2[i])
                     {
                         if (i == myconnectindex)
-                            otherminlag = (long)((signed char)packbuf[j]);
+                            otherminlag = (int)((signed char)packbuf[j]);
                         j++;
                     }
 
@@ -661,20 +661,20 @@ void getpackets(void)
 
             copybufbyte(&osyn[other],&nsyn[other],sizeof(input));
             k = packbuf[j++];
-            k += (long)(packbuf[j++]<<8);
+            k += (int)(packbuf[j++]<<8);
 
             if (k&1)   nsyn[other].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
             if (k&2)   nsyn[other].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
             if (k&4)   nsyn[other].avel = (signed char)packbuf[j++];
-            if (k&8)   nsyn[other].bits = ((nsyn[other].bits&0xffffff00)|((long)packbuf[j++]));
-            if (k&16)  nsyn[other].bits = ((nsyn[other].bits&0xffff00ff)|((long)packbuf[j++])<<8);
-            if (k&32)  nsyn[other].bits = ((nsyn[other].bits&0xff00ffff)|((long)packbuf[j++])<<16);
-            if (k&64)  nsyn[other].bits = ((nsyn[other].bits&0x00ffffff)|((long)packbuf[j++])<<24);
+            if (k&8)   nsyn[other].bits = ((nsyn[other].bits&0xffffff00)|((int)packbuf[j++]));
+            if (k&16)  nsyn[other].bits = ((nsyn[other].bits&0xffff00ff)|((int)packbuf[j++])<<8);
+            if (k&32)  nsyn[other].bits = ((nsyn[other].bits&0xff00ffff)|((int)packbuf[j++])<<16);
+            if (k&64)  nsyn[other].bits = ((nsyn[other].bits&0x00ffffff)|((int)packbuf[j++])<<24);
             if (k&128) nsyn[other].horz = (signed char)packbuf[j++];
-            if (k&256)  nsyn[other].extbits = ((nsyn[other].extbits&0xffffff00)|((long)packbuf[j++]));
-            if (k&512)  nsyn[other].extbits = ((nsyn[other].extbits&0xffff00ff)|((long)packbuf[j++])<<8);
-            if (k&1024) nsyn[other].extbits = ((nsyn[other].extbits&0xff00ffff)|((long)packbuf[j++])<<16);
-            if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((long)packbuf[j++])<<24);
+            if (k&256)  nsyn[other].extbits = ((nsyn[other].extbits&0xffffff00)|((int)packbuf[j++]));
+            if (k&512)  nsyn[other].extbits = ((nsyn[other].extbits&0xffff00ff)|((int)packbuf[j++])<<8);
+            if (k&1024) nsyn[other].extbits = ((nsyn[other].extbits&0xff00ffff)|((int)packbuf[j++])<<16);
+            if (k&2048) nsyn[other].extbits = ((nsyn[other].extbits&0x00ffffff)|((int)packbuf[j++])<<24);
             g_player[other].movefifoend++;
 
             for (i=1;i<movesperpacket;i++)
@@ -684,7 +684,7 @@ void getpackets(void)
             }
 
             if (j > packbufleng)
-                initprintf("INVALID GAME PACKET!!! (packet %d, %ld too many bytes (%ld %ld))\n",packbuf[0],j-packbufleng,packbufleng,k);
+                initprintf("INVALID GAME PACKET!!! (packet %d, %d too many bytes (%d %d))\n",packbuf[0],j-packbufleng,packbufleng,k);
 
             while (j < packbufleng)
             {
@@ -698,7 +698,7 @@ void getpackets(void)
 
         case 250:
             if (g_player[other].playerreadyflag == 0)
-                initprintf("Player %ld is ready\n", other);
+                initprintf("Player %d is ready\n", other);
             g_player[other].playerreadyflag++;
             break;
         case 255:
@@ -718,10 +718,10 @@ void getpackets(void)
                             if (i != other)
                                 sendpacket(i,packbuf,packbufleng);
                     }
-                    else if (((long)packbuf[1]) != myconnectindex)
+                    else if (((int)packbuf[1]) != myconnectindex)
                     {
                         //Master re-transmits message not intended for master
-                        sendpacket((long)packbuf[1],packbuf,packbufleng);
+                        sendpacket((int)packbuf[1],packbuf,packbufleng);
                         break;
                     }
                 }
@@ -981,7 +981,7 @@ void getpackets(void)
 
 void faketimerhandler(void)
 {
-    long i, j, k;
+    int i, j, k;
     //    short who;
     input *osyn, *nsyn;
 
@@ -1302,10 +1302,10 @@ void faketimerhandler(void)
     }
 }
 
-extern long cacnum;
+extern int cacnum;
 typedef struct
 {
-    long *hand, leng;
+    int *hand, leng;
     char *lock ;
 }
 cactype;
@@ -1319,7 +1319,7 @@ static void caches(void)
     for (i=0;i<cacnum;i++)
         if ((*cac[i].lock) >= 200)
         {
-            Bsprintf(tempbuf,"Locked- %d: Leng:%ld, Lock:%d",i,cac[i].leng,*cac[i].lock);
+            Bsprintf(tempbuf,"Locked- %d: Leng:%d, Lock:%d",i,cac[i].leng,*cac[i].lock);
             printext256(0L,k,31,-1,tempbuf,1);
             k += 6;
         }
@@ -1337,7 +1337,7 @@ static void caches(void)
 
 static void checksync(void)
 {
-    long i;
+    int i;
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
         if (g_player[i].syncvalhead == syncvaltottail) break;
@@ -1524,7 +1524,7 @@ inline int badguy(spritetype *s)
     return(badguypic(s->picnum));
 }
 
-void myos(long x, long y, int tilenum, int shade, int orientation)
+void myos(int x, int y, int tilenum, int shade, int orientation)
 {
     int p = sector[g_player[screenpeek].ps->cursectnum].floorpal, a = 0;
 
@@ -1534,7 +1534,7 @@ void myos(long x, long y, int tilenum, int shade, int orientation)
     rotatesprite(x<<16,y<<16,65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
-void myospal(long x, long y, int tilenum, int shade, int orientation, int p)
+void myospal(int x, int y, int tilenum, int shade, int orientation, int p)
 {
     int a = 0;
 
@@ -1544,7 +1544,7 @@ void myospal(long x, long y, int tilenum, int shade, int orientation, int p)
     rotatesprite(x<<16,y<<16,65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
-void myosx(long x, long y, int tilenum, int shade, int orientation)
+void myosx(int x, int y, int tilenum, int shade, int orientation)
 {
     int p = sector[g_player[screenpeek].ps->cursectnum].floorpal, a = 0;
 
@@ -1554,7 +1554,7 @@ void myosx(long x, long y, int tilenum, int shade, int orientation)
     rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
-void myospalx(long x, long y, int tilenum, int shade, int orientation, int p)
+void myospalx(int x, int y, int tilenum, int shade, int orientation, int p)
 {
     int a = 0;
 
@@ -1564,7 +1564,7 @@ void myospalx(long x, long y, int tilenum, int shade, int orientation, int p)
     rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
-static void invennum(long x,long y,char num1,char ha,char sbits)
+static void invennum(int x,int y,char num1,char ha,char sbits)
 {
     char dabuf[80] = {0};
     Bsprintf(dabuf,"%d",num1);
@@ -1584,7 +1584,7 @@ static void invennum(long x,long y,char num1,char ha,char sbits)
     rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
 }
 
-static void weaponnum(short ind,long x,long y,long num1, long num2,char ha)
+static void weaponnum(short ind,int x,int y,int num1, int num2,char ha)
 {
     char dabuf[80] = {0};
 
@@ -1602,7 +1602,7 @@ static void weaponnum(short ind,long x,long y,long num1, long num2,char ha)
     if (num1 > 99) num1 = 99;
     if (num2 > 99) num2 = 99;
 
-    Bsprintf(dabuf,"%ld",num1);
+    Bsprintf(dabuf,"%d",num1);
     if (num1 > 9)
     {
         rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
@@ -1610,7 +1610,7 @@ static void weaponnum(short ind,long x,long y,long num1, long num2,char ha)
     }
     else rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
 
-    Bsprintf(dabuf,"%ld",num2);
+    Bsprintf(dabuf,"%d",num2);
     if (num2 > 9)
     {
         rotatesprite(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
@@ -1620,7 +1620,7 @@ static void weaponnum(short ind,long x,long y,long num1, long num2,char ha)
     rotatesprite(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
 }
 
-static void weaponnum999(char ind,long x,long y,long num1, long num2,char ha)
+static void weaponnum999(char ind,int x,int y,int num1, int num2,char ha)
 {
     char dabuf[80] = {0};
 
@@ -1628,7 +1628,7 @@ static void weaponnum999(char ind,long x,long y,long num1, long num2,char ha)
     rotatesprite(sbarx(x-4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+10,ha,0,10,0,0,xdim-1,ydim-1);
     rotatesprite(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+11,ha,0,10,0,0,xdim-1,ydim-1);
 
-    Bsprintf(dabuf,"%ld",num1);
+    Bsprintf(dabuf,"%d",num1);
     if (num1 > 99)
     {
         rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
@@ -1642,7 +1642,7 @@ static void weaponnum999(char ind,long x,long y,long num1, long num2,char ha)
     }
     else rotatesprite(sbarx(x+8),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
 
-    Bsprintf(dabuf,"%ld",num2);
+    Bsprintf(dabuf,"%d",num2);
     if (num2 > 99)
     {
         rotatesprite(sbarx(x+17),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
@@ -1658,7 +1658,7 @@ static void weaponnum999(char ind,long x,long y,long num1, long num2,char ha)
     rotatesprite(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
 }
 
-static void weapon_amounts(player_struct *p,long x,long y,long u)
+static void weapon_amounts(player_struct *p,int x,int y,int u)
 {
     int cw = p->curr_weapon;
 
@@ -1746,12 +1746,12 @@ static void weapon_amounts(player_struct *p,long x,long y,long u)
     }
 }
 
-static void digitalnumber(long x,long y,long n,char s,char cs)
+static void digitalnumber(int x,int y,int n,char s,char cs)
 {
     int i, j = 0, k, p, c;
     char b[10];
 
-    Bsnprintf(b,10,"%ld",n);
+    Bsnprintf(b,10,"%d",n);
     i = Bstrlen(b);
 
     for (k=0;k<i;k++)
@@ -1770,13 +1770,13 @@ static void digitalnumber(long x,long y,long n,char s,char cs)
     }
 }
 
-void txdigitalnumber(int starttile, long x,long y,long n,int s,int pal,int cs,long x1, long y1, long x2, long y2)
+void txdigitalnumber(int starttile, int x,int y,int n,int s,int pal,int cs,int x1, int y1, int x2, int y2)
 {
     int i, j = 0, k, p, c;
     char b[10];
 
     //ltoa(n,b,10);
-    Bsnprintf(b,10,"%ld",n);
+    Bsnprintf(b,10,"%d",n);
     i = Bstrlen(b);
 
     for (k=0;k<i;k++)
@@ -1895,7 +1895,7 @@ void displayfragbar(void)
 static void coolgaugetext(int snum)
 {
     player_struct *p = g_player[snum].ps;
-    long i, j, o, ss = ud.screen_size, u;
+    int i, j, o, ss = ud.screen_size, u;
     int permbit = 0;
 
     if (ss < 4) return;
@@ -2007,7 +2007,7 @@ static void coolgaugetext(int snum)
             }
             invennum(284-30-o,200-6,(char)i,0,10+permbit);
             if (j > 0) minitext(288-30-o,180,"ON",0,10+16+permbit + 256);
-            else if ((unsigned long)j != 0x80000000) minitext(284-30-o,180,"OFF",2,10+16+permbit + 256);
+            else if ((unsigned int)j != 0x80000000) minitext(284-30-o,180,"OFF",2,10+16+permbit + 256);
             if (p->inven_icon >= 6) minitext(284-35-o,180,"AUTO",2,10+16+permbit + 256);
         }
         return;
@@ -2040,7 +2040,7 @@ static void coolgaugetext(int snum)
     }
 
     {
-        long lAmount=GetGameVar("PLR_MORALE",-1, p->i, snum);
+        int lAmount=GetGameVar("PLR_MORALE",-1, p->i, snum);
         if (lAmount == -1)
         {
             if (sbar.shield_amount != p->shield_amount)
@@ -2195,7 +2195,7 @@ static void coolgaugetext(int snum)
     }
     if (u&2)
     {
-        long lAmount=GetGameVar("PLR_MORALE",-1, p->i, snum);
+        int lAmount=GetGameVar("PLR_MORALE",-1, p->i, snum);
         if (u != -1) patchstatusbar(52,SBY+17,75,SBY+17+11);
         if (lAmount == -1)
             digitalnumber(64,SBY+17,p->shield_amount,-16,10+16);
@@ -2280,7 +2280,7 @@ static void coolgaugetext(int snum)
                     j = 0x80000000;
                 }
                 if (j > 0) minitext(288-30-o,SBY+14,"ON",0,10+16+permbit + 256);
-                else if ((unsigned long)j != 0x80000000) minitext(284-30-o,SBY+14,"OFF",2,10+16+permbit + 256);
+                else if ((unsigned int)j != 0x80000000) minitext(284-30-o,SBY+14,"OFF",2,10+16+permbit + 256);
             }
             if (u&8192)
             {
@@ -2315,11 +2315,11 @@ static void coolgaugetext(int snum)
 }
 
 #define AVERAGEFRAMES 16
-static long frameval[AVERAGEFRAMES], framecnt = 0;
+static int frameval[AVERAGEFRAMES], framecnt = 0;
 
 static void tics(void)
 {
-    long i = totalclock,j;
+    int i = totalclock,j;
     char b[10];
 
     if (i != frameval[framecnt])
@@ -2329,7 +2329,7 @@ static void tics(void)
         {
             int ii, k = 0, p = 8;
 
-            Bsprintf(b,"%ld",max(j,0));
+            Bsprintf(b,"%d",max(j,0));
 //            minitext(scale(windowx1,320,xdim)+1,scale(windowy1,200,ydim)+1,b,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
 
             ii = scale(k,ydim,200)+windowy1;
@@ -2367,17 +2367,17 @@ static void coords(int snum)
         else if (ud.multimode > 1)
             y = 16;
     }
-    sprintf(tempbuf,"X= %ld",g_player[snum].ps->posx);
+    sprintf(tempbuf,"X= %d",g_player[snum].ps->posx);
     printext256(250L,y,31,-1,tempbuf,0);
-    sprintf(tempbuf,"Y= %ld",g_player[snum].ps->posy);
+    sprintf(tempbuf,"Y= %d",g_player[snum].ps->posy);
     printext256(250L,y+9L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"Z= %ld",g_player[snum].ps->posz);
+    Bsprintf(tempbuf,"Z= %d",g_player[snum].ps->posz);
     printext256(250L,y+18L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"A= %d",g_player[snum].ps->ang);
     printext256(250L,y+27L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"H= %ld",g_player[snum].ps->horiz);
+    Bsprintf(tempbuf,"H= %d",g_player[snum].ps->horiz);
     printext256(250L,y+36L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"ZV= %ld",g_player[snum].ps->poszv);
+    Bsprintf(tempbuf,"ZV= %d",g_player[snum].ps->poszv);
     printext256(250L,y+45L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"OG= %d",g_player[snum].ps->on_ground);
     printext256(250L,y+54L,31,-1,tempbuf,0);
@@ -2387,7 +2387,7 @@ static void coords(int snum)
     printext256(250L,y+72L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"SECTL= %d",sector[g_player[snum].ps->cursectnum].lotag);
     printext256(250L,y+81L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"SEED= %ld",randomseed);
+    Bsprintf(tempbuf,"SEED= %d",randomseed);
     printext256(250L,y+90L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"THOLD= %d",g_player[snum].ps->transporter_hold);
     printext256(250L,y+99L+7,31,-1,tempbuf,0);
@@ -2395,7 +2395,7 @@ static void coords(int snum)
 
 static void operatefta(void)
 {
-    long i, j = 200-45, k, l;
+    int i, j = 200-45, k, l;
 
     if (ud.screen_size < 1) j = 200-8;
 
@@ -2564,7 +2564,7 @@ static void showtwoscreens(void)
     }
 }
 
-extern long qsetmode;
+extern int qsetmode;
 
 void gameexit(const char *t)
 {
@@ -2880,12 +2880,12 @@ static void moveclouds(void)
     }
 }
 
-static void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
+static void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 {
-    long i, j, k, l, x1, y1, x2=0, y2=0, x3, y3, x4, y4, ox, oy, xoff, yoff;
-    long dax, day, cosang, sinang, xspan, yspan, sprx, spry;
-    long xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
-    long xvect, yvect, xvect2, yvect2;
+    int i, j, k, l, x1, y1, x2=0, y2=0, x3, y3, x4, y4, ox, oy, xoff, yoff;
+    int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
+    int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
+    int xvect, yvect, xvect2, yvect2;
     short p;
     char col;
     walltype *wal, *wal2;
@@ -2991,7 +2991,7 @@ static void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
                         x1 = sprx;
                         y1 = spry;
                         tilenum = spr->picnum;
-                        xoff = (long)((signed char)((picanm[tilenum]>>8)&255))+((long)spr->xoffset);
+                        xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
                         if ((spr->cstat&4) > 0) xoff = -xoff;
                         k = spr->ang;
                         l = spr->xrepeat;
@@ -3023,8 +3023,8 @@ static void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
                 case 32:
 
                     tilenum = spr->picnum;
-                    xoff = (long)((signed char)((picanm[tilenum]>>8)&255))+((long)spr->xoffset);
-                    yoff = (long)((signed char)((picanm[tilenum]>>16)&255))+((long)spr->yoffset);
+                    xoff = (int)((signed char)((picanm[tilenum]>>8)&255))+((int)spr->xoffset);
+                    yoff = (int)((signed char)((picanm[tilenum]>>16)&255))+((int)spr->yoffset);
                     if ((spr->cstat&4) > 0) xoff = -xoff;
                     if ((spr->cstat&8) > 0) yoff = -yoff;
 
@@ -3166,18 +3166,18 @@ static void drawoverheadmap(long cposx, long cposy, long czoom, short cang)
     }
 }
 
-void palto(int r,int g,int b,long e)
+void palto(int r,int g,int b,int e)
 {
-    long tc;
+    int tc;
     /*
         for(i=0;i<768;i+=3)
         {
             temparray[i  ] =
-                g_player[myconnectindex].ps->palette[i+0]+((((long)r-(long)g_player[myconnectindex].ps->palette[i+0])*(long)(e&127))>>6);
+                g_player[myconnectindex].ps->palette[i+0]+((((int)r-(int)g_player[myconnectindex].ps->palette[i+0])*(int)(e&127))>>6);
             temparray[i+1] =
-                g_player[myconnectindex].ps->palette[i+1]+((((long)g-(long)g_player[myconnectindex].ps->palette[i+1])*(long)(e&127))>>6);
+                g_player[myconnectindex].ps->palette[i+1]+((((int)g-(int)g_player[myconnectindex].ps->palette[i+1])*(int)(e&127))>>6);
             temparray[i+2] =
-                g_player[myconnectindex].ps->palette[i+2]+((((long)b-(long)g_player[myconnectindex].ps->palette[i+2])*(long)(e&127))>>6);
+                g_player[myconnectindex].ps->palette[i+2]+((((int)b-(int)g_player[myconnectindex].ps->palette[i+2])*(int)(e&127))>>6);
         }
     */
 
@@ -3191,14 +3191,14 @@ void palto(int r,int g,int b,long e)
     }
 }
 
-void displayrest(long smoothratio)
+void displayrest(int smoothratio)
 {
-    long a, i, j;
+    int a, i, j;
     char fader=0,fadeg=0,fadeb=0,fadef=0,tintr=0,tintg=0,tintb=0,tintf=0,dotint=0;
 
     player_struct *pp = g_player[screenpeek].ps;
     walltype *wal;
-    long cposx,cposy,cang;
+    int cposx,cposy,cang;
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
     // this takes care of fullscreen tint for OpenGL
@@ -3340,15 +3340,15 @@ void displayrest(long smoothratio)
                 {
                     if (screenpeek == myconnectindex && numplayers > 1)
                     {
-                        cposx = omyx+mulscale16((long)(myx-omyx),smoothratio);
-                        cposy = omyy+mulscale16((long)(myy-omyy),smoothratio);
-                        cang = omyang+mulscale16((long)(((myang+1024-omyang)&2047)-1024),smoothratio);
+                        cposx = omyx+mulscale16((int)(myx-omyx),smoothratio);
+                        cposy = omyy+mulscale16((int)(myy-omyy),smoothratio);
+                        cang = omyang+mulscale16((int)(((myang+1024-omyang)&2047)-1024),smoothratio);
                     }
                     else
                     {
-                        cposx = pp->oposx+mulscale16((long)(pp->posx-pp->oposx),smoothratio);
-                        cposy = pp->oposy+mulscale16((long)(pp->posy-pp->oposy),smoothratio);
-                        cang = pp->oang+mulscale16((long)(((pp->ang+1024-pp->oang)&2047)-1024),smoothratio);
+                        cposx = pp->oposx+mulscale16((int)(pp->posx-pp->oposx),smoothratio);
+                        cposy = pp->oposy+mulscale16((int)(pp->posy-pp->oposy),smoothratio);
+                        cang = pp->oang+mulscale16((int)(((pp->ang+1024-pp->oang)&2047)-1024),smoothratio);
                     }
                 }
                 else
@@ -3489,32 +3489,32 @@ void displayrest(long smoothratio)
     {
         i = (ud.screen_size <= 4)?0:scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100);
 
-        Bsprintf(tempbuf,"Time: %ld:%02ld",
+        Bsprintf(tempbuf,"Time: %d:%02d",
                  (g_player[myconnectindex].ps->player_par/(26*60)),
                  (g_player[myconnectindex].ps->player_par/26)%60);
         minitext(320-5*12,200-i-6-6-6,tempbuf,0,26);
 
         if (ud.player_skill > 3 || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY)))
-            Bsprintf(tempbuf,"Kills: %ld",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?g_player[i].ps->frag-g_player[i].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
+            Bsprintf(tempbuf,"Kills: %d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?g_player[i].ps->frag-g_player[i].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
         else
-            Bsprintf(tempbuf,"Kills: %ld/%ld",g_player[myconnectindex].ps->actors_killed,
+            Bsprintf(tempbuf,"Kills: %d/%d",g_player[myconnectindex].ps->actors_killed,
                      g_player[myconnectindex].ps->max_actors_killed>g_player[myconnectindex].ps->actors_killed?
                      g_player[myconnectindex].ps->max_actors_killed:g_player[myconnectindex].ps->actors_killed);
         minitext(320-5*12,200-i-6-6,tempbuf,0,26);
 
-        Bsprintf(tempbuf,"Secrets: %ld/%ld", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
+        Bsprintf(tempbuf,"Secrets: %d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
         minitext(320-5*12,200-i-6,tempbuf,0,26);
     }
     if (tintf > 0 || dotint) palto(tintr,tintg,tintb,tintf|128);
 }
 
-static void view(player_struct *pp, long *vx, long *vy,long *vz,short *vsectnum, int ang, int horiz)
+static void view(player_struct *pp, int *vx, int *vy,int *vz,short *vsectnum, int ang, int horiz)
 {
     spritetype *sp = &sprite[pp->i];
-    long i, hx, hy, hitx, hity, hitz;
-    long nx = (sintable[(ang+1536)&2047]>>4);
-    long ny = (sintable[(ang+1024)&2047]>>4);
-    long nz = (horiz-100)*128;
+    int i, hx, hy, hitx, hity, hitz;
+    int nx = (sintable[(ang+1536)&2047]>>4);
+    int ny = (sintable[(ang+1024)&2047]>>4);
+    int nz = (horiz-100)*128;
     short hitsect, hitwall, hitsprite, daang;
     short bakcstat = sp->cstat;
 
@@ -3568,7 +3568,7 @@ static void view(player_struct *pp, long *vx, long *vy,long *vz,short *vsectnum,
 void drawbackground(void)
 {
     short dapicnum;
-    long x,y,x1,y1,x2,y2,rx;
+    int x,y,x1,y1,x2,y2,rx;
 
     flushperms();
 
@@ -3704,14 +3704,14 @@ void drawbackground(void)
 // If standing in sector with SE43 or SE45
 // then draw viewing to SE40 and lower all =hi SE42 floors.
 
-static void SE40_Draw(int spnum,long x,long y,long z,int a,int h,long smoothratio)
+static void SE40_Draw(int spnum,int x,int y,int z,int a,int h,int smoothratio)
 {
-    static long tempsectorz[MAXSECTORS];
-    static long tempsectorpicnum[MAXSECTORS];
+    static int tempsectorz[MAXSECTORS];
+    static int tempsectorpicnum[MAXSECTORS];
 
     int i=0,j=0,k=0;
     int floor1=0,floor2=0,ok=0,fofmode=0,draw_both=0;
-    long offx,offy,offz;
+    int offx,offy,offz;
 
     if (sprite[spnum].ang!=512) return;
 
@@ -3848,7 +3848,7 @@ static void SE40_Draw(int spnum,long x,long y,long z,int a,int h,long smoothrati
     }
 } // end SE40
 
-void se40code(long x,long y,long z,long a,long h, long smoothratio)
+void se40code(int x,int y,int z,int a,int h, int smoothratio)
 {
     int i= headspritestat[15];
 
@@ -3874,18 +3874,18 @@ void se40code(long x,long y,long z,long a,long h, long smoothratio)
 }
 #endif
 
-static long oyrepeat=-1;
+static int oyrepeat=-1;
 
-void displayrooms(int snum,long smoothratio)
+void displayrooms(int snum,int smoothratio)
 {
-    long dst,j,fz,cz;
-    long tposx,tposy,i;
+    int dst,j,fz,cz;
+    int tposx,tposy,i;
     short k;
     player_struct *p = g_player[snum].ps;
     short tang;
-    long tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
+    int tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
 #ifdef POLYMOST
-    extern long rendmode;
+    extern int rendmode;
 #endif
 
     if (pub > 0 || getrendermode() >= 3) // JBF 20040101: redraw background always
@@ -3925,7 +3925,7 @@ void displayrooms(int snum,long smoothratio)
         if (s->yvel < 0) s->yvel = -100;
         else if (s->yvel > 199) s->yvel = 300;
 
-        ud.cameraang = hittype[ud.camerasprite].tempang+mulscale16((long)(((s->ang+1024-hittype[ud.camerasprite].tempang)&2047)-1024),smoothratio);
+        ud.cameraang = hittype[ud.camerasprite].tempang+mulscale16((int)(((s->ang+1024-hittype[ud.camerasprite].tempang)&2047)-1024),smoothratio);
 #ifdef SE40
         se40code(s->x,s->y,s->z,ud.cameraang,s->yvel,smoothratio);
 #endif
@@ -3946,7 +3946,7 @@ void displayrooms(int snum,long smoothratio)
         {
             walock[TILE_SAVESHOT] = 199;
             if (waloff[TILE_SAVESHOT] == 0)
-                allocache((long *)&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
+                allocache((int *)&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
             setviewtotile(TILE_SAVESHOT,200L,320L);
         }
         else if (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || ud.detail==0))
@@ -4001,20 +4001,20 @@ void displayrooms(int snum,long smoothratio)
 
         if ((snum == myconnectindex) && (numplayers > 1))
         {
-            ud.camerax = omyx+mulscale16((long)(myx-omyx),smoothratio);
-            ud.cameray = omyy+mulscale16((long)(myy-omyy),smoothratio);
-            ud.cameraz = omyz+mulscale16((long)(myz-omyz),smoothratio);
-            ud.cameraang = omyang+mulscale16((long)(((myang+1024-omyang)&2047)-1024),smoothratio);
-            ud.camerahoriz = omyhoriz+omyhorizoff+mulscale16((long)(myhoriz+myhorizoff-omyhoriz-omyhorizoff),smoothratio);
+            ud.camerax = omyx+mulscale16((int)(myx-omyx),smoothratio);
+            ud.cameray = omyy+mulscale16((int)(myy-omyy),smoothratio);
+            ud.cameraz = omyz+mulscale16((int)(myz-omyz),smoothratio);
+            ud.cameraang = omyang+mulscale16((int)(((myang+1024-omyang)&2047)-1024),smoothratio);
+            ud.camerahoriz = omyhoriz+omyhorizoff+mulscale16((int)(myhoriz+myhorizoff-omyhoriz-omyhorizoff),smoothratio);
             ud.camerasect = mycursectnum;
         }
         else
         {
-            ud.camerax = p->oposx+mulscale16((long)(p->posx-p->oposx),smoothratio);
-            ud.cameray = p->oposy+mulscale16((long)(p->posy-p->oposy),smoothratio);
-            ud.cameraz = p->oposz+mulscale16((long)(p->posz-p->oposz),smoothratio);
-            ud.cameraang = p->oang+mulscale16((long)(((p->ang+1024-p->oang)&2047)-1024),smoothratio);
-            ud.camerahoriz = p->ohoriz+p->ohorizoff+mulscale16((long)(p->horiz+p->horizoff-p->ohoriz-p->ohorizoff),smoothratio);
+            ud.camerax = p->oposx+mulscale16((int)(p->posx-p->oposx),smoothratio);
+            ud.cameray = p->oposy+mulscale16((int)(p->posy-p->oposy),smoothratio);
+            ud.cameraz = p->oposz+mulscale16((int)(p->posz-p->oposz),smoothratio);
+            ud.cameraang = p->oang+mulscale16((int)(((p->ang+1024-p->oang)&2047)-1024),smoothratio);
+            ud.camerahoriz = p->ohoriz+p->ohorizoff+mulscale16((int)(p->horiz+p->horizoff-p->ohoriz-p->ohorizoff),smoothratio);
         }
         ud.cameraang += p->look_ang;
 
@@ -4032,7 +4032,7 @@ void displayrooms(int snum,long smoothratio)
         else if (p->over_shoulder_on == 0)
         {
             if (ud.viewbob)
-                ud.cameraz += p->opyoff+mulscale16((long)(p->pyoff-p->opyoff),smoothratio);
+                ud.cameraz += p->opyoff+mulscale16((int)(p->pyoff-p->opyoff),smoothratio);
         }
         else view(p,&ud.camerax,&ud.cameray,&ud.cameraz,&ud.camerasect,ud.cameraang,ud.camerahoriz);
 
@@ -4150,23 +4150,23 @@ static void dumpdebugdata(void)
         for (j=0;j<numplayers;j++)
         {
             fprintf(fp,"Player %d\n\n",j);
-            fprintf(fp,"WEAPON%d_CLIP %ld\n",i,aplWeaponClip[i][j]);
-            fprintf(fp,"WEAPON%d_RELOAD %ld\n",i,aplWeaponReload[i][j]);
-            fprintf(fp,"WEAPON%d_FIREDELAY %ld\n",i,aplWeaponFireDelay[i][j]);
-            fprintf(fp,"WEAPON%d_TOTALTIME %ld\n",i,aplWeaponTotalTime[i][j]);
-            fprintf(fp,"WEAPON%d_HOLDDELAY %ld\n",i,aplWeaponHoldDelay[i][j]);
-            fprintf(fp,"WEAPON%d_FLAGS %ld\n",i,aplWeaponFlags[i][j]);
-            fprintf(fp,"WEAPON%d_SHOOTS %ld\n",i,aplWeaponShoots[i][j]);
-            fprintf(fp,"WEAPON%d_SPAWNTIME %ld\n",i,aplWeaponSpawnTime[i][j]);
-            fprintf(fp,"WEAPON%d_SPAWN %ld\n",i,aplWeaponSpawn[i][j]);
-            fprintf(fp,"WEAPON%d_SHOTSPERBURST %ld\n",i,aplWeaponShotsPerBurst[i][j]);
-            fprintf(fp,"WEAPON%d_WORKSLIKE %ld\n",i,aplWeaponWorksLike[i][j]);
-            fprintf(fp,"WEAPON%d_INITIALSOUND %ld\n",i,aplWeaponInitialSound[i][j]);
-            fprintf(fp,"WEAPON%d_FIRESOUND %ld\n",i,aplWeaponFireSound[i][j]);
-            fprintf(fp,"WEAPON%d_SOUND2TIME %ld\n",i,aplWeaponSound2Time[i][j]);
-            fprintf(fp,"WEAPON%d_SOUND2SOUND %ld\n",i,aplWeaponSound2Sound[i][j]);
-            fprintf(fp,"WEAPON%d_RELOADSOUND1 %ld\n",i,aplWeaponReloadSound1[i][j]);
-            fprintf(fp,"WEAPON%d_RELOADSOUND2 %ld\n",i,aplWeaponReloadSound2[i][j]);
+            fprintf(fp,"WEAPON%d_CLIP %d\n",i,aplWeaponClip[i][j]);
+            fprintf(fp,"WEAPON%d_RELOAD %d\n",i,aplWeaponReload[i][j]);
+            fprintf(fp,"WEAPON%d_FIREDELAY %d\n",i,aplWeaponFireDelay[i][j]);
+            fprintf(fp,"WEAPON%d_TOTALTIME %d\n",i,aplWeaponTotalTime[i][j]);
+            fprintf(fp,"WEAPON%d_HOLDDELAY %d\n",i,aplWeaponHoldDelay[i][j]);
+            fprintf(fp,"WEAPON%d_FLAGS %d\n",i,aplWeaponFlags[i][j]);
+            fprintf(fp,"WEAPON%d_SHOOTS %d\n",i,aplWeaponShoots[i][j]);
+            fprintf(fp,"WEAPON%d_SPAWNTIME %d\n",i,aplWeaponSpawnTime[i][j]);
+            fprintf(fp,"WEAPON%d_SPAWN %d\n",i,aplWeaponSpawn[i][j]);
+            fprintf(fp,"WEAPON%d_SHOTSPERBURST %d\n",i,aplWeaponShotsPerBurst[i][j]);
+            fprintf(fp,"WEAPON%d_WORKSLIKE %d\n",i,aplWeaponWorksLike[i][j]);
+            fprintf(fp,"WEAPON%d_INITIALSOUND %d\n",i,aplWeaponInitialSound[i][j]);
+            fprintf(fp,"WEAPON%d_FIRESOUND %d\n",i,aplWeaponFireSound[i][j]);
+            fprintf(fp,"WEAPON%d_SOUND2TIME %d\n",i,aplWeaponSound2Time[i][j]);
+            fprintf(fp,"WEAPON%d_SOUND2SOUND %d\n",i,aplWeaponSound2Sound[i][j]);
+            fprintf(fp,"WEAPON%d_RELOADSOUND1 %d\n",i,aplWeaponReloadSound1[i][j]);
+            fprintf(fp,"WEAPON%d_RELOADSOUND2 %d\n",i,aplWeaponReloadSound2[i][j]);
         }
         fprintf(fp,"\n");
     }
@@ -4175,7 +4175,7 @@ static void dumpdebugdata(void)
         j = headspritestat[x];
         while (j >= 0)
         {
-            fprintf(fp,"Sprite %d (%ld,%ld,%ld) (picnum: %d)\n",j,sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].picnum);
+            fprintf(fp,"Sprite %d (%d,%d,%d) (picnum: %d)\n",j,sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].picnum);
             for (i=0;i<iGameVarCount;i++)
             {
                 if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERACTOR))
@@ -4183,7 +4183,7 @@ static void dumpdebugdata(void)
                     if (aGameVars[i].plValues[j] != aGameVars[i].lDefault)
                     {
                         fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
-                        fprintf(fp,"%ld",aGameVars[i].plValues[j]);
+                        fprintf(fp,"%d",aGameVars[i].plValues[j]);
                         fprintf(fp," GAMEVAR_FLAG_PERACTOR");
                         if (aGameVars[i].dwFlags != GAMEVAR_FLAG_PERACTOR)
                         {
@@ -4206,16 +4206,16 @@ static void dumpdebugdata(void)
     saveboard("debug.map",&g_player[myconnectindex].ps->posx,&g_player[myconnectindex].ps->posy,&g_player[myconnectindex].ps->posz,&g_player[myconnectindex].ps->ang,&g_player[myconnectindex].ps->cursectnum);
 }
 
-int EGS(int whatsect,long s_x,long s_y,long s_z,int s_pn,int s_s,int s_xr,int s_yr,int s_a,int s_ve,long s_zv,int s_ow,int s_ss)
+int EGS(int whatsect,int s_x,int s_y,int s_z,int s_pn,int s_s,int s_xr,int s_yr,int s_a,int s_ve,int s_zv,int s_ow,int s_ss)
 {
     int i = insertsprite(whatsect,s_ss);
-    long p;
+    int p;
     spritetype *s = &sprite[i];
 
     if (i < 0)
     {
         dumpdebugdata();
-        OSD_Printf("Failed spawning sprite with tile %ld from sprite %ld (%ld) at x:%ld,y:%ld,z:%ld,sector:%ld\n",s_pn,s_ow,sprite[s_ow].picnum,s_x,s_y,s_z,whatsect);
+        OSD_Printf("Failed spawning sprite with tile %d from sprite %d (%d) at x:%d,y:%d,z:%d,sector:%d\n",s_pn,s_ow,sprite[s_ow].picnum,s_x,s_y,s_z,whatsect);
         gameexit("Too many sprites spawned.");
     }
 
@@ -4359,7 +4359,7 @@ int wallswitchcheck(int i)
 int spawn(int j, int pn)
 {
     int i, s, startwall, endwall, sect, clostest=0;
-    long x, y, d, p;
+    int x, y, d, p;
     spritetype *sp;
 
     if (j >= 0)
@@ -5835,7 +5835,7 @@ int spawn(int j, int pn)
 
             case 20:
             {
-                long q;
+                int q;
 
                 startwall = sector[sect].wallptr;
                 endwall = startwall+sector[sect].wallnum;
@@ -6008,7 +6008,7 @@ int spawn(int j, int pn)
                     }
                     if (j == MAXSPRITES)
                     {
-                        Bsprintf(tempbuf,"Found lonely Sector Effector (lotag 0) at (%ld,%ld)\n",sp->x,sp->y);
+                        Bsprintf(tempbuf,"Found lonely Sector Effector (lotag 0) at (%d,%d)\n",sp->x,sp->y);
                         gameexit(tempbuf);
                     }
                     sp->owner = j;
@@ -6025,7 +6025,7 @@ int spawn(int j, int pn)
                     tempwallptr++;
                     if (tempwallptr > 2047)
                     {
-                        Bsprintf(tempbuf,"Too many moving sectors at (%ld,%ld).\n",wall[s].x,wall[s].y);
+                        Bsprintf(tempbuf,"Too many moving sectors at (%d,%d).\n",wall[s].x,wall[s].y);
                         gameexit(tempbuf);
                     }
                 }
@@ -6057,7 +6057,7 @@ int spawn(int j, int pn)
 
                     if (j == 0)
                     {
-                        Bsprintf(tempbuf,"Subway found no zero'd sectors with locators\nat (%ld,%ld).\n",sp->x,sp->y);
+                        Bsprintf(tempbuf,"Subway found no zero'd sectors with locators\nat (%d,%d).\n",sp->x,sp->y);
                         gameexit(tempbuf);
                     }
 
@@ -6231,10 +6231,10 @@ int spawn(int j, int pn)
 //#pragma auto_inline(off)
 #pragma optimize("g",off)
 #endif
-void animatesprites(long x,long y,int a,long smoothratio)
+void animatesprites(int x,int y,int a,int smoothratio)
 {
     int i, j, k, p, sect;
-    long l, t1,t3,t4;
+    int l, t1,t3,t4;
     spritetype *s,*t;
     int switchpic;
 
@@ -6600,10 +6600,10 @@ void animatesprites(long x,long y,int a,long smoothratio)
                 t->cstat |= 2;
                 if (screenpeek == myconnectindex && numplayers >= 2)
                 {
-                    t->x = omyx+mulscale16((long)(myx-omyx),smoothratio);
-                    t->y = omyy+mulscale16((long)(myy-omyy),smoothratio);
-                    t->z = omyz+mulscale16((long)(myz-omyz),smoothratio)+(40<<8);
-                    t->ang = omyang+mulscale16((long)(((myang+1024-omyang)&2047)-1024),smoothratio);
+                    t->x = omyx+mulscale16((int)(myx-omyx),smoothratio);
+                    t->y = omyy+mulscale16((int)(myy-omyy),smoothratio);
+                    t->z = omyz+mulscale16((int)(myz-omyz),smoothratio)+(40<<8);
+                    t->ang = omyang+mulscale16((int)(((myang+1024-omyang)&2047)-1024),smoothratio);
                     t->sectnum = mycursectnum;
                 }
             }
@@ -6781,14 +6781,14 @@ PALONLY:
             if (ud.angleinterpolation)
             {
                 if (sprpos[i].ang != sprpos[i].oldang)
-                    t->ang = (sprpos[i].oldang + (mulscale16((long)(sprpos[i].angdif),smoothratio) * sprpos[i].angdir)) & 2047;
+                    t->ang = (sprpos[i].oldang + (mulscale16((int)(sprpos[i].angdif),smoothratio) * sprpos[i].angdir)) & 2047;
                 else
                     t->ang = sprpos[i].ang;
             }
 
             if (t4)
             {
-                l = *(long *)(t4+8);
+                l = *(int *)(t4+8);
 #if defined(POLYMOST) && defined(USE_OPENGL)
                 if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0)
                 {
@@ -6843,7 +6843,7 @@ PALONLY:
                         break;
                     }
 
-                t->picnum += k + (*(long *)t4) + l * t3;
+                t->picnum += k + (*(int *)t4) + l * t3;
 
                 if (l > 0) while (tilesizx[t->picnum] == 0 && t->picnum > 0)
                         t->picnum -= l;       //Hack, for actors
@@ -6872,7 +6872,7 @@ PALONLY:
                     }
                     else if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2))
                     {
-                        long daz,xrep,yrep;
+                        int daz,xrep,yrep;
 
                         if ((sector[sect].lotag&0xff) > 2 || s->statnum == 4 || s->statnum == 5 || s->picnum == DRONE || s->picnum == COMMANDER)
                             daz = sector[sect].floorz;
@@ -7661,7 +7661,7 @@ FOUNDCHEAT:
 static void nonsharedkeys(void)
 {
     int i,ch;
-    long j;
+    int j;
 
     if (ud.recstat == 2)
     {
@@ -9061,7 +9061,7 @@ static void checkcommandline(int argc,const char **argv)
 static void Logo(void)
 {
     int soundanm = 0;
-    long logoflags=GetGameVar("LOGO_FLAGS",255, -1, -1);
+    int logoflags=GetGameVar("LOGO_FLAGS",255, -1, -1);
 
     ready2send = 0;
 
@@ -9248,7 +9248,7 @@ static void Logo(void)
 static void loadtmb(void)
 {
     unsigned char tmb[8000];
-    long fil, l;
+    int fil, l;
 
     fil = kopen4load("d3dtimbr.tmb",0);
     if (fil == -1) return;
@@ -9342,8 +9342,8 @@ static void compilecons(void)
 {
     int i;
     label     = (char *)&sprite[0]; // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
-    labelcode = (long *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
-    labeltype = (long *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
+    labelcode = (int *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
+    labeltype = (int *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
     // if we compile for a V7 engine wall[] should be used for label names since it's bigger
 
     if (userconfiles == 0)
@@ -9370,15 +9370,15 @@ static void compilecons(void)
         loadefs(confilename);
     }
 
-    if ((unsigned long)labelcnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
+    if ((unsigned int)labelcnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
         gameexit("Error: too many labels defined!");
     else
     {
         char *newlabel;
-        long *newlabelcode;
+        int *newlabelcode;
 
         newlabel     = (char *)malloc(labelcnt<<6);
-        newlabelcode = (long *)malloc(labelcnt*sizeof(long));
+        newlabelcode = (int *)malloc(labelcnt*sizeof(int));
 
         if (!newlabel || !newlabelcode)
         {
@@ -9386,7 +9386,7 @@ static void compilecons(void)
         }
 
         copybuf(label,     newlabel, (labelcnt*64)/4);
-        copybuf(labelcode, newlabelcode, (labelcnt*sizeof(long))/4);
+        copybuf(labelcode, newlabelcode, (labelcnt*sizeof(int))/4);
 
         label = newlabel;
         labelcode = newlabelcode;
@@ -9414,7 +9414,7 @@ static void sanitizegametype()
 
 static void genspriteremaps(void)
 {
-    long j,fp;
+    int j,fp;
     signed char look_pos;
     char *lookfn = "lookup.dat";
 
@@ -9428,7 +9428,7 @@ static void genspriteremaps(void)
     {
         kread(fp,(signed char *)&look_pos,1);
         kread(fp,tempbuf,256);
-        makepalookup((long)look_pos,tempbuf,0,0,0,1);
+        makepalookup((int)look_pos,tempbuf,0,0,0,1);
     }
 
     for (j = 0; j < 256; j++)
@@ -9455,7 +9455,7 @@ static void genspriteremaps(void)
 extern int startwin_run(void);
 static void SetupGameButtons(void);
 
-static void Startup(long argc, const char **argv)
+static void Startup(int argc, const char **argv)
 {
     int i;
 
@@ -9531,7 +9531,7 @@ static void Startup(long argc, const char **argv)
 
     if (VOLUMEONE)
     {
-        initprintf("*** You have run Duke Nukem 3D %ld times. ***\n\n",ud.executions);
+        initprintf("*** You have run Duke Nukem 3D %d times. ***\n\n",ud.executions);
         if (ud.executions >= 50) initprintf("IT IS NOW TIME TO UPGRADE TO THE COMPLETE VERSION!!!\n");
     }
 
@@ -9762,20 +9762,20 @@ void updateplayer(void)
 }
 
 #if 0
-void writestring(long a1,long a2,long a3,short a4,long vx,long vy,long vz)
+void writestring(int a1,int a2,int a3,short a4,int vx,int vy,int vz)
 {
 
     FILE *fp;
 
     fp = (FILE *)fopen("debug.txt","rt+");
 
-    fprintf(fp,"%ld %ld %ld %d %ld %ld %ld\n",a1,a2,a3,a4,vx,vy,vz);
+    fprintf(fp,"%d %d %d %d %d %d %d\n",a1,a2,a3,a4,vx,vy,vz);
     fclose(fp);
 }
 #endif
 
 #if 0
-char testcd(char *fn, long testsiz);
+char testcd(char *fn, int testsiz);
 
 // JBF: various hacks here
 static void copyprotect(void)
@@ -10471,7 +10471,7 @@ static int opendemoread(int which_demo) // 0 = mine
 {
     char d[13];
     char ver;
-    int32 i;
+    int i;
 
     Bstrcpy(d, "demo_.dmo");
 
@@ -10489,7 +10489,7 @@ static int opendemoread(int which_demo) // 0 = mine
     else
         if ((recfilep = kopen4load(d,loadfromgrouponly)) == -1) return(0);
 
-    if (kread(recfilep,&ud.reccnt,sizeof(long)) != sizeof(long)) goto corrupt;
+    if (kread(recfilep,&ud.reccnt,sizeof(int)) != sizeof(int)) goto corrupt;
     if (kread(recfilep,&ver,sizeof(char)) != sizeof(char)) goto corrupt;
 
     if (ver != BYTEVERSION /*&& ver != 116 && ver != 117*/)
@@ -10524,15 +10524,15 @@ static int opendemoread(int which_demo) // 0 = mine
     OSD_Printf("ud.multimode: %d\n",ud.multimode);
     if (kread(recfilep,(short *)&ud.m_monsters_off,sizeof(short)) != sizeof(short)) goto corrupt;
     OSD_Printf("ud.m_monsters_off: %d\n",ud.m_monsters_off);
-    if (kread(recfilep,(int32 *)&ud.m_respawn_monsters,sizeof(int32)) != sizeof(int32)) goto corrupt;
+    if (kread(recfilep,(int *)&ud.m_respawn_monsters,sizeof(int)) != sizeof(int)) goto corrupt;
     OSD_Printf("ud.m_respawn_monsters: %d\n",ud.m_respawn_monsters);
-    if (kread(recfilep,(int32 *)&ud.m_respawn_items,sizeof(int32)) != sizeof(int32)) goto corrupt;
+    if (kread(recfilep,(int *)&ud.m_respawn_items,sizeof(int)) != sizeof(int)) goto corrupt;
     OSD_Printf("ud.m_respawn_items: %d\n",ud.m_respawn_items);
-    if (kread(recfilep,(int32 *)&ud.m_respawn_inventory,sizeof(int32)) != sizeof(int32)) goto corrupt;
+    if (kread(recfilep,(int *)&ud.m_respawn_inventory,sizeof(int)) != sizeof(int)) goto corrupt;
     OSD_Printf("ud.m_respawn_inventory: %d\n",ud.m_respawn_inventory);
-    if (kread(recfilep,(int32 *)&ud.playerai,sizeof(int32)) != sizeof(int32)) goto corrupt;
+    if (kread(recfilep,(int *)&ud.playerai,sizeof(int)) != sizeof(int)) goto corrupt;
     OSD_Printf("ud.playerai: %d\n",ud.playerai);
-    if (kread(recfilep,(int32 *)&i,sizeof(int32)) != sizeof(int32)) goto corrupt;
+    if (kread(recfilep,(int *)&i,sizeof(int)) != sizeof(int)) goto corrupt;
 
     if (kread(recfilep,(char *)boardfilename,sizeof(boardfilename)) != sizeof(boardfilename)) goto corrupt;
 
@@ -10542,23 +10542,23 @@ static int opendemoread(int which_demo) // 0 = mine
         ud.m_volume_number = 0;
     }
 
-    if (kread(recfilep,(int32 *)&ud.m_noexits,sizeof(int32)) != sizeof(int32)) goto corrupt;
+    if (kread(recfilep,(int *)&ud.m_noexits,sizeof(int)) != sizeof(int)) goto corrupt;
 
     for (i=0;i<ud.multimode;i++)
     {
-	if (!g_player[i].ps)
-	    g_player[i].ps = (player_struct *) Bcalloc(1,sizeof(player_struct));
-	if (!g_player[i].sync)
+        if (!g_player[i].ps)
+            g_player[i].ps = (player_struct *) Bcalloc(1,sizeof(player_struct));
+        if (!g_player[i].sync)
             g_player[i].sync = (input *) Bcalloc(1,sizeof(input));
 
         if (kread(recfilep,(char *)g_player[i].user_name,sizeof(g_player[i].user_name)) != sizeof(g_player[i].user_name)) goto corrupt;
         OSD_Printf("ud.user_name: %s\n",g_player[i].user_name);
-        if (kread(recfilep,(int32 *)&g_player[i].ps->aim_mode,sizeof(int32)) != sizeof(int32)) goto corrupt;
-        if (kread(recfilep,(int32 *)&g_player[i].ps->auto_aim,sizeof(int32)) != sizeof(int32)) goto corrupt;	// JBF 20031126
-        if (kread(recfilep,(int32 *)&g_player[i].ps->weaponswitch,sizeof(int32)) != sizeof(int32)) goto corrupt;
-        if (kread(recfilep,(int32 *)&g_player[i].pcolor,sizeof(int32)) != sizeof(int32)) goto corrupt;
+        if (kread(recfilep,(int *)&g_player[i].ps->aim_mode,sizeof(int)) != sizeof(int)) goto corrupt;
+        if (kread(recfilep,(int *)&g_player[i].ps->auto_aim,sizeof(int)) != sizeof(int)) goto corrupt;	// JBF 20031126
+        if (kread(recfilep,(int *)&g_player[i].ps->weaponswitch,sizeof(int)) != sizeof(int)) goto corrupt;
+        if (kread(recfilep,(int *)&g_player[i].pcolor,sizeof(int)) != sizeof(int)) goto corrupt;
         g_player[i].ps->palookup = g_player[i].pcolor;
-        if (kread(recfilep,(int32 *)&g_player[i].pteam,sizeof(int32)) != sizeof(int32)) goto corrupt;
+        if (kread(recfilep,(int *)&g_player[i].pteam,sizeof(int)) != sizeof(int)) goto corrupt;
         g_player[i].ps->team = g_player[i].pteam;
     }
 
@@ -10577,7 +10577,7 @@ corrupt:
 void opendemowrite(void)
 {
     char *d = "demo1.dmo";
-    long dummylong = 0;
+    int dummylong = 0;
     char ver;
     short i;
 
@@ -10595,22 +10595,22 @@ void opendemowrite(void)
     fwrite((char *)&ud.m_ffire,sizeof(char),1,frecfilep);
     fwrite((short *)&ud.multimode,sizeof(short),1,frecfilep);
     fwrite((short *)&ud.m_monsters_off,sizeof(short),1,frecfilep);
-    fwrite((int32 *)&ud.m_respawn_monsters,sizeof(int32),1,frecfilep);
-    fwrite((int32 *)&ud.m_respawn_items,sizeof(int32),1,frecfilep);
-    fwrite((int32 *)&ud.m_respawn_inventory,sizeof(int32),1,frecfilep);
-    fwrite((int32 *)&ud.playerai,sizeof(int32),1,frecfilep);
-    fwrite((int32 *)&ud.auto_run,sizeof(int32),1,frecfilep);
+    fwrite((int *)&ud.m_respawn_monsters,sizeof(int),1,frecfilep);
+    fwrite((int *)&ud.m_respawn_items,sizeof(int),1,frecfilep);
+    fwrite((int *)&ud.m_respawn_inventory,sizeof(int),1,frecfilep);
+    fwrite((int *)&ud.playerai,sizeof(int),1,frecfilep);
+    fwrite((int *)&ud.auto_run,sizeof(int),1,frecfilep);
     fwrite((char *)boardfilename,sizeof(boardfilename),1,frecfilep);
-    fwrite((int32 *)&ud.m_noexits,sizeof(int32),1,frecfilep);
+    fwrite((int *)&ud.m_noexits,sizeof(int),1,frecfilep);
 
     for (i=0;i<ud.multimode;i++)
     {
         fwrite((char *)&g_player[i].user_name,sizeof(g_player[i].user_name),1,frecfilep);
-        fwrite((int32 *)&g_player[i].ps->aim_mode,sizeof(int32),1,frecfilep);
-        fwrite((int32 *)&g_player[i].ps->auto_aim,sizeof(int32),1,frecfilep);		// JBF 20031126
-        fwrite(&g_player[i].ps->weaponswitch,sizeof(int32),1,frecfilep);
-        fwrite(&g_player[i].pcolor,sizeof(int32),1,frecfilep);
-        fwrite(&g_player[i].pteam,sizeof(int32),1,frecfilep);
+        fwrite((int *)&g_player[i].ps->aim_mode,sizeof(int),1,frecfilep);
+        fwrite((int *)&g_player[i].ps->auto_aim,sizeof(int),1,frecfilep);		// JBF 20031126
+        fwrite(&g_player[i].ps->weaponswitch,sizeof(int),1,frecfilep);
+        fwrite(&g_player[i].pcolor,sizeof(int),1,frecfilep);
+        fwrite(&g_player[i].pteam,sizeof(int),1,frecfilep);
     }
 
     totalreccnt = 0;
@@ -10643,7 +10643,7 @@ void closedemowrite(void)
             dfwrite(recsync,sizeof(input)*ud.multimode,ud.reccnt/ud.multimode,frecfilep);
 
             fseek(frecfilep,SEEK_SET,0L);
-            fwrite(&totalreccnt,sizeof(long),1,frecfilep);
+            fwrite(&totalreccnt,sizeof(int),1,frecfilep);
             ud.recstat = ud.m_recstat = 0;
         }
         fclose(frecfilep);
@@ -10653,10 +10653,10 @@ void closedemowrite(void)
 static int which_demo = 1;
 static int in_menu = 0;
 
-// extern long syncs[];
-static long playback(void)
+// extern int syncs[];
+static int playback(void)
 {
-    long i,j,k,l;
+    int i,j,k,l;
     int foundemo = 0;
 
     if (ready2send) return 0;
@@ -10823,7 +10823,7 @@ RECHECK:
 
 #if 0
     {
-        unsigned long crcv;
+        unsigned int crcv;
         // sync checker
         +       initcrc32table();
         crc32init(&crcv);
@@ -10861,7 +10861,7 @@ static int moveloop()
 
 static void fakedomovethingscorrect(void)
 {
-    long i;
+    int i;
     player_struct *p;
 
     if (numplayers < 2) return;
@@ -10903,8 +10903,8 @@ static void fakedomovethings(void)
 {
     input *syn;
     player_struct *p;
-    long i, j, k, doubvel, fz, cz, hz, lz, x, y;
-    unsigned long sb_snum;
+    int i, j, k, doubvel, fz, cz, hz, lz, x, y;
+    unsigned int sb_snum;
     short psect, psectlotag, tempsect, backcstat;
     char shrunk, spritebridge;
 
@@ -11210,7 +11210,7 @@ static void fakedomovethings(void)
     else if (syn->avel)          //p->ang += syncangvel * constant
     {
         //ENGINE calculates angvel for you
-        long tempang = syn->avel<<1;
+        int tempang = syn->avel<<1;
 
         if (psectlotag == 2)
             myang += (tempang-(tempang>>3))*ksgn(doubvel);
@@ -11407,7 +11407,7 @@ static int domovethings(void)
 
     if (ud.idplayers && ud.multimode > 1)
     {
-        long sx,sy,sz;
+        int sx,sy,sz;
         short sect,hw,hs;
 
         for (i=0;i<ud.multimode;i++)
@@ -11626,7 +11626,7 @@ void dobonus(int bonusonly)
     int bonuscnt;
     int clockpad = 2;
     char *lastmapname;
-    int32 playerbest = -1;
+    int playerbest = -1;
 
     int breathe[] =
     {
@@ -12203,7 +12203,7 @@ FRAGBONUS:
                         sound(PIPEBOMB_EXPLODE);
                     }
 
-                    Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
+                    Bsprintf(tempbuf,"%0*d:%02d",clockpad,
                              (g_player[myconnectindex].ps->player_par/(26*60)),
                              (g_player[myconnectindex].ps->player_par/26)%60);
                     gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
@@ -12213,7 +12213,7 @@ FRAGBONUS:
 
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
                     {
-                        Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
+                        Bsprintf(tempbuf,"%0*d:%02d",clockpad,
                                  (map[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/(26*60)),
                                  (map[ud.volume_number*MAXLEVELS+ud.last_level-1].partime/26)%60);
                         gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
@@ -12221,7 +12221,7 @@ FRAGBONUS:
 
                         if (!NAM)
                         {
-                            Bsprintf(tempbuf,"%0*ld:%02ld",clockpad,
+                            Bsprintf(tempbuf,"%0*d:%02d",clockpad,
                                      (map[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/(26*60)),
                                      (map[ud.volume_number*MAXLEVELS+ud.last_level-1].designertime/26)%60);
                             gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
@@ -12231,7 +12231,7 @@ FRAGBONUS:
 
                     if (playerbest > 0)
                     {
-                        sprintf(tempbuf,"%0*ld:%02ld",clockpad,
+                        sprintf(tempbuf,"%0*d:%02d",clockpad,
                                 (playerbest/(26*60)),
                                 (playerbest/26)%60);
                         gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
@@ -12263,7 +12263,7 @@ FRAGBONUS:
                         bonuscnt++;
                         sound(PIPEBOMB_EXPLODE);
                     }
-                    sprintf(tempbuf,"%-3ld",g_player[myconnectindex].ps->actors_killed);
+                    sprintf(tempbuf,"%-3d",g_player[myconnectindex].ps->actors_killed);
                     gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                     yy += 10;
                     if (ud.player_skill > 3)
@@ -12276,7 +12276,7 @@ FRAGBONUS:
                     {
                         if ((g_player[myconnectindex].ps->max_actors_killed-g_player[myconnectindex].ps->actors_killed) < 0)
                             sprintf(tempbuf,"%-3d",0);
-                        else sprintf(tempbuf,"%-3ld",g_player[myconnectindex].ps->max_actors_killed-g_player[myconnectindex].ps->actors_killed);
+                        else sprintf(tempbuf,"%-3d",g_player[myconnectindex].ps->max_actors_killed-g_player[myconnectindex].ps->actors_killed);
                         gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                         yy += 10;
                     }
@@ -12300,12 +12300,12 @@ FRAGBONUS:
                         bonuscnt++;
                         sound(PIPEBOMB_EXPLODE);
                     }
-                    sprintf(tempbuf,"%-3ld",g_player[myconnectindex].ps->secret_rooms);
+                    sprintf(tempbuf,"%-3d",g_player[myconnectindex].ps->secret_rooms);
                     gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                     yy += 10;
                     if (g_player[myconnectindex].ps->secret_rooms > 0)
-                        sprintf(tempbuf,"%-3ld%%",(100*g_player[myconnectindex].ps->secret_rooms/g_player[myconnectindex].ps->max_secret_rooms));
-                    sprintf(tempbuf,"%-3ld",g_player[myconnectindex].ps->max_secret_rooms-g_player[myconnectindex].ps->secret_rooms);
+                        sprintf(tempbuf,"%-3d%%",(100*g_player[myconnectindex].ps->secret_rooms/g_player[myconnectindex].ps->max_secret_rooms));
+                    sprintf(tempbuf,"%-3d",g_player[myconnectindex].ps->max_secret_rooms-g_player[myconnectindex].ps->secret_rooms);
                     gametext((320>>2)+70,yy+9,tempbuf,0,2+8+16);
                     yy += 10;
                 }
@@ -12334,7 +12334,7 @@ FRAGBONUS:
 static void cameratext(short i)
 {
     char flipbits;
-    long x , y;
+    int x , y;
 
     if (!T1)
     {
@@ -12355,9 +12355,9 @@ static void cameratext(short i)
 }
 
 #if 0
-void vglass(long x,long y,short a,short wn,short n)
+void vglass(int x,int y,short a,short wn,short n)
 {
-    long z, zincs;
+    int z, zincs;
     short sect;
 
     sect = wall[wn].nextsector;
@@ -12371,7 +12371,7 @@ void vglass(long x,long y,short a,short wn,short n)
 
 void lotsofglass(int i,int wallnum,int n)
 {
-    long j, xv, yv, z, x1, y1;
+    int j, xv, yv, z, x1, y1;
     short sect;
     int a;
 
@@ -12420,7 +12420,7 @@ void lotsofglass(int i,int wallnum,int n)
 
 void spriteglass(int i,int n)
 {
-    long j, k, a, z;
+    int j, k, a, z;
 
     for (j=n;j>0;j--)
     {
@@ -12433,7 +12433,7 @@ void spriteglass(int i,int n)
 
 void ceilingglass(int i,int sectnum,int n)
 {
-    long j, xv, yv, z, x1, y1;
+    int j, xv, yv, z, x1, y1;
     int a,s, startwall,endwall;
 
     startwall = sector[sectnum].wallptr;
@@ -12460,7 +12460,7 @@ void ceilingglass(int i,int sectnum,int n)
 
 void lotsofcolourglass(int i,int wallnum,int n)
 {
-    long j, xv, yv, z, x1, y1;
+    int j, xv, yv, z, x1, y1;
     short sect = -1;
     int a, k;
 
@@ -12561,7 +12561,7 @@ static void SetupGameButtons(void)
 ===================
 */
 
-long GetTime(void)
+int GetTime(void)
 {
     return totalclock;
 }

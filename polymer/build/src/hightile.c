@@ -11,7 +11,7 @@ palette_t hictinting[MAXPALOOKUPS];
 
 //moved into polymost.h
 /*struct hicskybox_t {
-    long ignore;
+    int ignore;
     char *face[6];
 };
 
@@ -28,19 +28,25 @@ static char hicfirstinit = 0;
 //
 // find the index into hicreplc[] which contains the replacement tile particulars
 //
-static hicreplctyp * hicfindsubst(long picnum, long palnum, long skybox)
+static hicreplctyp * hicfindsubst(int picnum, int palnum, int skybox)
 {
     hicreplctyp *hr;
 
     if (!hicfirstinit) return NULL;
-    if ((unsigned long)picnum >= (unsigned long)MAXTILES) return NULL;
+    if ((unsigned int)picnum >= (unsigned int)MAXTILES) return NULL;
 
-    do {
-        for (hr = hicreplc[picnum]; hr; hr = hr->next) {
-            if (hr->palnum == palnum) {
-                if (skybox) {
+    do
+    {
+        for (hr = hicreplc[picnum]; hr; hr = hr->next)
+        {
+            if (hr->palnum == palnum)
+            {
+                if (skybox)
+                {
                     if (hr->skybox && !hr->skybox->ignore) return hr;
-                } else {
+                }
+                else
+                {
                     if (!hr->ignore) return hr;
                 }
             }
@@ -48,7 +54,8 @@ static hicreplctyp * hicfindsubst(long picnum, long palnum, long skybox)
 
         if (!palnum || palnum >= (MAXPALOOKUPS - RESERVEDPALS)) break;
         palnum = 0;
-    } while (1);
+    }
+    while (1);
 
     return NULL;	// no replacement found
 }
@@ -60,22 +67,28 @@ static hicreplctyp * hicfindsubst(long picnum, long palnum, long skybox)
 //
 void hicinit(void)
 {
-    long i,j;
+    int i,j;
     hicreplctyp *hr, *next;
 
-    for (i=0;i<MAXPALOOKUPS;i++) {	// all tints should be 100%
+    for (i=0;i<MAXPALOOKUPS;i++)  	// all tints should be 100%
+    {
         hictinting[i].r = hictinting[i].g = hictinting[i].b = 0xff;
         hictinting[i].f = 0;
     }
 
     if (hicfirstinit)
-        for (i=MAXTILES-1;i>=0;i--) {
-            for (hr=hicreplc[i]; hr; ) {
+        for (i=MAXTILES-1;i>=0;i--)
+        {
+            for (hr=hicreplc[i]; hr;)
+            {
                 next = hr->next;
 
-                if (hr->skybox) {
-                    for (j=5;j>=0;j--) {
-                        if (hr->skybox->face[j]) {
+                if (hr->skybox)
+                {
+                    for (j=5;j>=0;j--)
+                    {
+                        if (hr->skybox->face[j])
+                        {
                             free(hr->skybox->face[j]);
                         }
                     }
@@ -99,9 +112,9 @@ void hicinit(void)
 //   palette shifts on true-colour textures and only true-colour textures.
 //   effect bitset: 1 = greyscale, 2 = invert
 //
-void hicsetpalettetint(long palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect)
+void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect)
 {
-    if ((unsigned long)palnum >= (unsigned long)MAXPALOOKUPS) return;
+    if ((unsigned int)palnum >= (unsigned int)MAXPALOOKUPS) return;
     if (!hicfirstinit) hicinit();
 
     hictinting[palnum].r = r;
@@ -115,31 +128,35 @@ void hicsetpalettetint(long palnum, unsigned char r, unsigned char g, unsigned c
 // hicsetsubsttex(picnum,pal,filen,alphacut)
 //   Specifies a replacement graphic file for an ART tile.
 //
-int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut, float xscale, float yscale, char flags)
+int hicsetsubsttex(int picnum, int palnum, char *filen, float alphacut, float xscale, float yscale, char flags)
 {
     hicreplctyp *hr, *hrn;
 
-    if ((unsigned long)picnum >= (unsigned long)MAXTILES) return -1;
-    if ((unsigned long)palnum >= (unsigned long)MAXPALOOKUPS) return -1;
+    if ((unsigned int)picnum >= (unsigned int)MAXTILES) return -1;
+    if ((unsigned int)palnum >= (unsigned int)MAXPALOOKUPS) return -1;
     if (!hicfirstinit) hicinit();
 
-    for (hr = hicreplc[picnum]; hr; hr = hr->next) {
+    for (hr = hicreplc[picnum]; hr; hr = hr->next)
+    {
         if (hr->palnum == palnum)
             break;
     }
 
-    if (!hr) {
+    if (!hr)
+    {
         // no replacement yet defined
         hrn = (hicreplctyp *)calloc(1,sizeof(hicreplctyp));
         if (!hrn) return -1;
         hrn->palnum = palnum;
-    } else hrn = hr;
+    }
+    else hrn = hr;
 
     // store into hicreplc the details for this replacement
     if (hrn->filename) free(hrn->filename);
 
     hrn->filename = strdup(filen);
-    if (!hrn->filename) {
+    if (!hrn->filename)
+    {
         if (hrn->skybox) return -1;	// don't free the base structure if there's a skybox defined
         if (hr == NULL) free(hrn);	// not yet a link in the chain
         return -1;
@@ -149,7 +166,8 @@ int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut, float 
     hrn->xscale = xscale;
     hrn->yscale = yscale;
     hrn->flags = flags;
-    if (hr == NULL) {
+    if (hr == NULL)
+    {
         hrn->next = hicreplc[picnum];
         hicreplc[picnum] = hrn;
     }
@@ -164,46 +182,56 @@ int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut, float 
 // hicsetskybox(picnum,pal,faces[6])
 //   Specifies a graphic files making up a skybox.
 //
-int hicsetskybox(long picnum, long palnum, char *faces[6])
+int hicsetskybox(int picnum, int palnum, char *faces[6])
 {
     hicreplctyp *hr, *hrn;
-    long j;
+    int j;
 
-    if ((unsigned long)picnum >= (unsigned long)MAXTILES) return -1;
-    if ((unsigned long)palnum >= (unsigned long)MAXPALOOKUPS) return -1;
+    if ((unsigned int)picnum >= (unsigned int)MAXTILES) return -1;
+    if ((unsigned int)palnum >= (unsigned int)MAXPALOOKUPS) return -1;
     for (j=5;j>=0;j--) if (!faces[j]) return -1;
     if (!hicfirstinit) hicinit();
 
-    for (hr = hicreplc[picnum]; hr; hr = hr->next) {
+    for (hr = hicreplc[picnum]; hr; hr = hr->next)
+    {
         if (hr->palnum == palnum)
             break;
     }
 
-    if (!hr) {
+    if (!hr)
+    {
         // no replacement yet defined
         hrn = (hicreplctyp *)calloc(1,sizeof(hicreplctyp));
         if (!hrn) return -1;
 
         hrn->palnum = palnum;
-    } else hrn = hr;
+    }
+    else hrn = hr;
 
-    if (!hrn->skybox) {
+    if (!hrn->skybox)
+    {
         hrn->skybox = (struct hicskybox_t *)calloc(1,sizeof(struct hicskybox_t));
-        if (!hrn->skybox) {
+        if (!hrn->skybox)
+        {
             if (hr == NULL) free(hrn);	// not yet a link in the chain
             return -1;
         }
-    } else {
-        for (j=5;j>=0;j--) {
+    }
+    else
+    {
+        for (j=5;j>=0;j--)
+        {
             if (hrn->skybox->face[j])
                 free(hrn->skybox->face[j]);
         }
     }
 
     // store each face's filename
-    for (j=0;j<6;j++) {
+    for (j=0;j<6;j++)
+    {
         hrn->skybox->face[j] = strdup(faces[j]);
-        if (!hrn->skybox->face[j]) {
+        if (!hrn->skybox->face[j])
+        {
             for (--j; j>=0; --j)	// free any previous faces
                 free(hrn->skybox->face[j]);
             free(hrn->skybox);
@@ -213,7 +241,8 @@ int hicsetskybox(long picnum, long palnum, char *faces[6])
         }
     }
     hrn->skybox->ignore = 0;
-    if (hr == NULL) {
+    if (hr == NULL)
+    {
         hrn->next = hicreplc[picnum];
         hicreplc[picnum] = hrn;
     }
@@ -226,15 +255,16 @@ int hicsetskybox(long picnum, long palnum, char *faces[6])
 // hicclearsubst(picnum,pal)
 //   Clears a replacement for an ART tile, including skybox faces.
 //
-int hicclearsubst(long picnum, long palnum)
+int hicclearsubst(int picnum, int palnum)
 {
     hicreplctyp *hr, *hrn = NULL;
 
-    if ((unsigned long)picnum >= (unsigned long)MAXTILES) return -1;
-    if ((unsigned long)palnum >= (unsigned long)MAXPALOOKUPS) return -1;
+    if ((unsigned int)picnum >= (unsigned int)MAXTILES) return -1;
+    if ((unsigned int)palnum >= (unsigned int)MAXPALOOKUPS) return -1;
     if (!hicfirstinit) return 0;
 
-    for (hr = hicreplc[picnum]; hr; hrn = hr, hr = hr->next) {
+    for (hr = hicreplc[picnum]; hr; hrn = hr, hr = hr->next)
+    {
         if (hr->palnum == palnum)
             break;
     }
@@ -242,7 +272,8 @@ int hicclearsubst(long picnum, long palnum)
     if (!hr) return 0;
 
     if (hr->filename) free(hr->filename);
-    if (hr->skybox) {
+    if (hr->skybox)
+    {
         int i;
         for (i=5;i>=0;i--)
             if (hr->skybox->face[i])

@@ -24,7 +24,7 @@ void DB_SetXY( int x, int y );
 void DB_PutChar( char ch );
 int  DB_PrintString( char *string );
 int  DB_PrintNum( int number );
-int  DB_PrintUnsigned( unsigned long number, int radix );
+int  DB_PrintUnsigned( unsigned int number, int radix );
 int  DB_printf( char *fmt, ... );
 
 #endif

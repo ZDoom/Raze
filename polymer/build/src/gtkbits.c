@@ -67,7 +67,8 @@ void gtkbuild_init(int *argc, char ***argv)
 {
 #ifndef LINKED_GTK
     gtkenabled = dynamicgtk_init();
-    if (gtkenabled < 0) {
+    if (gtkenabled < 0)
+    {
         gtkenabled = 0;
         return;
     }
@@ -84,7 +85,8 @@ void gtkbuild_init(int *argc, char ***argv)
 
 void gtkbuild_exit(int r)
 {
-    if (gtkenabled) {
+    if (gtkenabled)
+    {
         if (appicon) g_object_unref((gpointer)appicon);
     }
 #ifndef LINKED_GTK

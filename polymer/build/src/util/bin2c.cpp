@@ -41,7 +41,7 @@ void main(int argc, char *argv[])
 	FILE *in, *out;
 	char datab1, datab2;
 	int across=0, maxacross;
-	long length, written=0;
+	int length, written=0;
 
 
 	// get the source file

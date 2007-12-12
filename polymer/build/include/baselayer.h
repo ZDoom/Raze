@@ -22,7 +22,7 @@ extern int startwin_settitle(const char *);
 extern int startwin_idle(void *);
 
 // video
-extern long xres, yres, bpp, fullscreen, bytesperline, imageSize, frameplace;
+extern int xres, yres, bpp, fullscreen, bytesperline, imageSize, frameplace;
 extern char offscreenrendering;
 
 extern void (*baselayer_onvideomodechange)(int);
@@ -61,12 +61,12 @@ extern char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
 extern unsigned char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
 
 // mouse
-extern long mousex, mousey, mouseb;
+extern int mousex, mousey, mouseb;
 
 // joystick
-extern long *joyaxis, *joyhat, joyb;
+extern int *joyaxis, *joyhat, joyb;
 extern char joyisgamepad, joynumaxes, joynumbuttons, joynumhats;
-extern long joyaxespresent;
+extern int joyaxespresent;
 
 
 
@@ -79,15 +79,15 @@ void debugprintf(const char *,...);
 int handleevents(void);
 extern inline void idle(void);
 
-typedef void (*KeyPressCallback)(long,long);
-typedef void (*MousePressCallback)(long,long);
-typedef void (*JoyPressCallback)(long,long);
+typedef void (*KeyPressCallback)(int,int);
+typedef void (*MousePressCallback)(int,int);
+typedef void (*JoyPressCallback)(int,int);
 int initinput(void);
 void uninitinput(void);
 void releaseallbuttons(void);
-void setkeypresscallback(void (*callback)(long,long));
-void setmousepresscallback(void (*callback)(long,long));
-void setjoypresscallback(void (*callback)(long,long));
+void setkeypresscallback(void (*callback)(int,int));
+void setmousepresscallback(void (*callback)(int,int));
+void setjoypresscallback(void (*callback)(int,int));
 const unsigned char *getkeyname(int num);
 const unsigned char *getjoyname(int what, int num); // what: 0=axis, 1=button, 2=hat
 
@@ -98,15 +98,15 @@ void bflushchars(void);
 int initmouse(void);
 void uninitmouse(void);
 void grabmouse(char a);
-void readmousexy(long *x, long *y);
-void readmousebstatus(long *b);
+void readmousexy(int *x, int *y);
+void readmousebstatus(int *b);
 void setjoydeadzone(int axis, unsigned short dead, unsigned short satur);
 void getjoydeadzone(int axis, unsigned short *dead, unsigned short *satur);
 
 int inittimer(int);
 void uninittimer(void);
 void sampletimer(void);
-unsigned long getticks(void);
+unsigned int getticks(void);
 int gettimerfreq(void);
 void (*installusertimercallback(void (*callback)(void)))(void);
 

@@ -15,9 +15,9 @@ static void jstrupr(char *s) { while (*s) { *s = Btoupper(*s); s++; } }
 
 static char buf[65536];		// These limits should be abolished one day
 
-static long numfiles;
+static int numfiles;
 static char filespec[MAXFILES][128], filelist[MAXFILES][16];
-static long fileleng[MAXFILES];
+static int fileleng[MAXFILES];
 
 
 static char *matchstr = "*.*";
@@ -28,7 +28,7 @@ int checkmatch(const struct Bdirent *a)
 	return Bwildmatch(a->name, matchstr);
 }
 
-long filesize(const char *path, const char *name)
+int filesize(const char *path, const char *name)
 {
 	char p[BMAX_PATH];
 	struct stat st;
@@ -44,7 +44,7 @@ long filesize(const char *path, const char *name)
 void findfiles(const char *dafilespec)
 {
 	struct Bdirent *name;
-	long daspeclen;
+	int daspeclen;
 	char daspec[128], *dir;
 	BDIR *di;
 
@@ -91,7 +91,7 @@ void findfiles(const char *dafilespec)
 
 int main(int argc, char **argv)
 {
-	long i, j, k, l, fil, fil2;
+	int i, j, k, l, fil, fil2;
 
 	if (argc < 3)
 	{

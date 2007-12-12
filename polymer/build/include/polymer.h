@@ -88,10 +88,10 @@ extern int          updatesectors;
 int                 polymer_init(void);
 void                polymer_glinit(void);
 void                polymer_loadboard(void);
-void                polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum, int root);
-void                polymer_rotatesprite(long sx, long sy, long z, short a, short picnum, signed char dashade, char dapalnum, char dastat, long cx1, long cy1, long cx2, long cy2);
-void                polymer_drawmaskwall(long damaskwallcnt);
-void                polymer_drawsprite(long snum);
+void                polymer_drawrooms(int daposx, int daposy, int daposz, short daang, int dahoriz, short dacursectnum, int root);
+void                polymer_rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2);
+void                polymer_drawmaskwall(int damaskwallcnt);
+void                polymer_drawsprite(int snum);
 // SECTORS
 int                 polymer_initsector(short sectnum);
 int                 polymer_updatesector(short sectnum);

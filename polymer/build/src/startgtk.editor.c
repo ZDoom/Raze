@@ -27,7 +27,8 @@
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1
 
-static struct {
+static struct
+{
     int fullscreen;
     int xdim2d, ydim2d;
     int xdim3d, ydim3d, bpp3d;
@@ -83,10 +84,12 @@ static void PopulateForm(void)
     mode2d = checkvideomode(&settings.xdim2d, &settings.ydim2d, 8, settings.fullscreen, 1);
     mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, settings.bpp3d, settings.fullscreen, 1);
     if (mode2d < 0) mode2d = 0;
-    if (mode3d < 0) {
+    if (mode3d < 0)
+    {
         int i, cd[] = { 32, 24, 16, 15, 8, 0 };
-        for (i=0; cd[i]; ) { if (cd[i] >= settings.bpp3d) i++; else break; }
-        for ( ; cd[i]; i++) {
+        for (i=0; cd[i];) { if (cd[i] >= settings.bpp3d) i++; else break; }
+        for (; cd[i]; i++)
+        {
             mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, cd[i], settings.fullscreen, 1);
             if (mode3d < 0) continue;
             settings.bpp3d = cd[i];
@@ -104,14 +107,16 @@ static void PopulateForm(void)
     gtk_list_store_clear(modes2d);
     gtk_list_store_clear(modes3d);
 
-    for (i=0; i<validmodecnt; i++) {
+    for (i=0; i<validmodecnt; i++)
+    {
         if (validmode[i].fs != settings.fullscreen) continue;
 
         // all modes get added to the 3D mode list
-        Bsprintf(buf, "%ld x %ld %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
+        Bsprintf(buf, "%d x %d %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
         gtk_list_store_append(modes3d, &iter);
         gtk_list_store_set(modes3d, &iter, 0,buf, 1,i, -1);
-        if (i == mode3d) {
+        if (i == mode3d)
+        {
             g_signal_handlers_block_by_func(box3d, on_vmode3dcombo_changed, NULL);
             gtk_combo_box_set_active_iter(box3d, &iter);
             g_signal_handlers_unblock_by_func(box3d, on_vmode3dcombo_changed, NULL);
@@ -119,10 +124,11 @@ static void PopulateForm(void)
 
         // only 8-bit modes get used for 2D
         if (validmode[i].bpp != 8) continue;
-        Bsprintf(buf, "%ld x %ld", validmode[i].xdim, validmode[i].ydim);
+        Bsprintf(buf, "%d x %d", validmode[i].xdim, validmode[i].ydim);
         gtk_list_store_append(modes2d, &iter);
         gtk_list_store_set(modes2d, &iter, 0,buf, 1,i, -1);
-        if (i == mode2d) {
+        if (i == mode2d)
+        {
             g_signal_handlers_block_by_func(box2d, on_vmode2dcombo_changed, NULL);
             gtk_combo_box_set_active_iter(box2d, &iter);
             g_signal_handlers_unblock_by_func(box2d, on_vmode2dcombo_changed, NULL);
@@ -219,19 +225,19 @@ static GtkWidget *create_window(void)
     GtkWidget *startbuttonlabel;
     GtkAccelGroup *accel_group;
 
-    accel_group = gtk_accel_group_new ();
+    accel_group = gtk_accel_group_new();
 
     // Basic window
-    startwin = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title (GTK_WINDOW (startwin), apptitle);	// NOTE: use global app title
-    gtk_window_set_position (GTK_WINDOW (startwin), GTK_WIN_POS_CENTER);
-    gtk_window_set_resizable (GTK_WINDOW (startwin), FALSE);
-    gtk_window_set_type_hint (GTK_WINDOW (startwin), GDK_WINDOW_TYPE_HINT_DIALOG);
+    startwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(startwin), apptitle);	// NOTE: use global app title
+    gtk_window_set_position(GTK_WINDOW(startwin), GTK_WIN_POS_CENTER);
+    gtk_window_set_resizable(GTK_WINDOW(startwin), FALSE);
+    gtk_window_set_type_hint(GTK_WINDOW(startwin), GDK_WINDOW_TYPE_HINT_DIALOG);
 
     // Horizontal layout of banner and controls
-    hlayout = gtk_hbox_new (FALSE, 0);
-    gtk_widget_show (hlayout);
-    gtk_container_add (GTK_CONTAINER (startwin), hlayout);
+    hlayout = gtk_hbox_new(FALSE, 0);
+    gtk_widget_show(hlayout);
+    gtk_container_add(GTK_CONTAINER(startwin), hlayout);
 
     // Banner
     {
@@ -239,248 +245,248 @@ static GtkWidget *create_window(void)
         banner = gtk_image_new_from_pixbuf(pixbuf);
         g_object_unref((gpointer)pixbuf);
     }
-    gtk_widget_show (banner);
-    gtk_box_pack_start (GTK_BOX (hlayout), banner, FALSE, FALSE, 0);
-    gtk_misc_set_alignment (GTK_MISC (banner), 0.5, 0);
+    gtk_widget_show(banner);
+    gtk_box_pack_start(GTK_BOX(hlayout), banner, FALSE, FALSE, 0);
+    gtk_misc_set_alignment(GTK_MISC(banner), 0.5, 0);
 
     // Vertical layout of tab control and start+cancel buttons
-    vlayout = gtk_vbox_new (FALSE, 0);
-    gtk_widget_show (vlayout);
-    gtk_box_pack_start (GTK_BOX (hlayout), vlayout, TRUE, TRUE, 0);
+    vlayout = gtk_vbox_new(FALSE, 0);
+    gtk_widget_show(vlayout);
+    gtk_box_pack_start(GTK_BOX(hlayout), vlayout, TRUE, TRUE, 0);
 
     // Tab control
-    tabs = gtk_notebook_new ();
-    gtk_widget_show (tabs);
-    gtk_box_pack_start (GTK_BOX (vlayout), tabs, TRUE, TRUE, 0);
-    gtk_container_set_border_width (GTK_CONTAINER (tabs), 4);
+    tabs = gtk_notebook_new();
+    gtk_widget_show(tabs);
+    gtk_box_pack_start(GTK_BOX(vlayout), tabs, TRUE, TRUE, 0);
+    gtk_container_set_border_width(GTK_CONTAINER(tabs), 4);
 
     // Vertical layout of config page main body
-    configvlayout = gtk_vbox_new (FALSE, 0);
-    gtk_widget_show (configvlayout);
-    gtk_container_add (GTK_CONTAINER (tabs), configvlayout);
+    configvlayout = gtk_vbox_new(FALSE, 0);
+    gtk_widget_show(configvlayout);
+    gtk_container_add(GTK_CONTAINER(tabs), configvlayout);
 
     // Fixed-position layout of config page controls
-    configlayout = gtk_fixed_new ();
-    gtk_widget_show (configlayout);
-    gtk_box_pack_start (GTK_BOX (configvlayout), configlayout, TRUE, TRUE, 0);
-    gtk_container_set_border_width (GTK_CONTAINER (configlayout), 6);
+    configlayout = gtk_fixed_new();
+    gtk_widget_show(configlayout);
+    gtk_box_pack_start(GTK_BOX(configvlayout), configlayout, TRUE, TRUE, 0);
+    gtk_container_set_border_width(GTK_CONTAINER(configlayout), 6);
 
     // 2D video mode label
-    vmode2dlabel = gtk_label_new_with_mnemonic ("_2D Video mode:");
-    gtk_widget_show (vmode2dlabel);
-    gtk_fixed_put (GTK_FIXED (configlayout), vmode2dlabel, 0, 0);
-    gtk_widget_set_size_request (vmode2dlabel, 88, 29);
-    gtk_misc_set_alignment (GTK_MISC (vmode2dlabel), 0, 0.5);
+    vmode2dlabel = gtk_label_new_with_mnemonic("_2D Video mode:");
+    gtk_widget_show(vmode2dlabel);
+    gtk_fixed_put(GTK_FIXED(configlayout), vmode2dlabel, 0, 0);
+    gtk_widget_set_size_request(vmode2dlabel, 88, 29);
+    gtk_misc_set_alignment(GTK_MISC(vmode2dlabel), 0, 0.5);
 
     // 3D video mode label
-    vmode3dlabel = gtk_label_new_with_mnemonic ("_3D Video mode:");
-    gtk_widget_show (vmode3dlabel);
-    gtk_fixed_put (GTK_FIXED (configlayout), vmode3dlabel, 0, 32);
-    gtk_widget_set_size_request (vmode3dlabel, 88, 29);
-    gtk_misc_set_alignment (GTK_MISC (vmode3dlabel), 0, 0.5);
+    vmode3dlabel = gtk_label_new_with_mnemonic("_3D Video mode:");
+    gtk_widget_show(vmode3dlabel);
+    gtk_fixed_put(GTK_FIXED(configlayout), vmode3dlabel, 0, 32);
+    gtk_widget_set_size_request(vmode3dlabel, 88, 29);
+    gtk_misc_set_alignment(GTK_MISC(vmode3dlabel), 0, 0.5);
 
     // 2D video mode combo
     {
         GtkListStore *list = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_INT);
         GtkCellRenderer *cell;
 
-        vmode2dcombo = gtk_combo_box_new_with_model (GTK_TREE_MODEL(list));
+        vmode2dcombo = gtk_combo_box_new_with_model(GTK_TREE_MODEL(list));
         g_object_unref(G_OBJECT(list));
 
         cell = gtk_cell_renderer_text_new();
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(vmode2dcombo), cell, FALSE);
         gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(vmode2dcombo), cell, "text", 0, NULL);
     }
-    gtk_widget_show (vmode2dcombo);
-    gtk_fixed_put (GTK_FIXED (configlayout), vmode2dcombo, 96, 0);
-    gtk_widget_set_size_request (vmode2dcombo, 150, 29);
-    gtk_widget_add_accelerator (vmode2dcombo, "grab_focus", accel_group,
-                                GDK_2, GDK_MOD1_MASK,
-                                GTK_ACCEL_VISIBLE);
+    gtk_widget_show(vmode2dcombo);
+    gtk_fixed_put(GTK_FIXED(configlayout), vmode2dcombo, 96, 0);
+    gtk_widget_set_size_request(vmode2dcombo, 150, 29);
+    gtk_widget_add_accelerator(vmode2dcombo, "grab_focus", accel_group,
+                               GDK_2, GDK_MOD1_MASK,
+                               GTK_ACCEL_VISIBLE);
 
     // 3D video mode combo
     {
         GtkListStore *list = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_INT);
         GtkCellRenderer *cell;
 
-        vmode3dcombo = gtk_combo_box_new_with_model (GTK_TREE_MODEL(list));
+        vmode3dcombo = gtk_combo_box_new_with_model(GTK_TREE_MODEL(list));
         g_object_unref(G_OBJECT(list));
 
         cell = gtk_cell_renderer_text_new();
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(vmode3dcombo), cell, FALSE);
         gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(vmode3dcombo), cell, "text", 0, NULL);
     }
-    gtk_widget_show (vmode3dcombo);
-    gtk_fixed_put (GTK_FIXED (configlayout), vmode3dcombo, 96, 32);
-    gtk_widget_set_size_request (vmode3dcombo, 150, 29);
-    gtk_widget_add_accelerator (vmode3dcombo, "grab_focus", accel_group,
-                                GDK_3, GDK_MOD1_MASK,
-                                GTK_ACCEL_VISIBLE);
+    gtk_widget_show(vmode3dcombo);
+    gtk_fixed_put(GTK_FIXED(configlayout), vmode3dcombo, 96, 32);
+    gtk_widget_set_size_request(vmode3dcombo, 150, 29);
+    gtk_widget_add_accelerator(vmode3dcombo, "grab_focus", accel_group,
+                               GDK_3, GDK_MOD1_MASK,
+                               GTK_ACCEL_VISIBLE);
 
     // Fullscreen checkbox
-    fullscreencheck = gtk_check_button_new_with_mnemonic ("_Fullscreen");
-    gtk_widget_show (fullscreencheck);
-    gtk_fixed_put (GTK_FIXED (configlayout), fullscreencheck, 248, 0);
-    gtk_widget_set_size_request (fullscreencheck, 85, 29);
-    gtk_widget_add_accelerator (fullscreencheck, "grab_focus", accel_group,
-                                GDK_F, GDK_MOD1_MASK,
-                                GTK_ACCEL_VISIBLE);
+    fullscreencheck = gtk_check_button_new_with_mnemonic("_Fullscreen");
+    gtk_widget_show(fullscreencheck);
+    gtk_fixed_put(GTK_FIXED(configlayout), fullscreencheck, 248, 0);
+    gtk_widget_set_size_request(fullscreencheck, 85, 29);
+    gtk_widget_add_accelerator(fullscreencheck, "grab_focus", accel_group,
+                               GDK_F, GDK_MOD1_MASK,
+                               GTK_ACCEL_VISIBLE);
 
     // Always show config checkbox
-    alwaysshowcheck = gtk_check_button_new_with_mnemonic ("_Always show configuration on start");
-    gtk_widget_show (alwaysshowcheck);
-    gtk_box_pack_start (GTK_BOX (configvlayout), alwaysshowcheck, FALSE, FALSE, 0);
-    gtk_widget_add_accelerator (alwaysshowcheck, "grab_focus", accel_group,
-                                GDK_A, GDK_MOD1_MASK,
-                                GTK_ACCEL_VISIBLE);
+    alwaysshowcheck = gtk_check_button_new_with_mnemonic("_Always show configuration on start");
+    gtk_widget_show(alwaysshowcheck);
+    gtk_box_pack_start(GTK_BOX(configvlayout), alwaysshowcheck, FALSE, FALSE, 0);
+    gtk_widget_add_accelerator(alwaysshowcheck, "grab_focus", accel_group,
+                               GDK_A, GDK_MOD1_MASK,
+                               GTK_ACCEL_VISIBLE);
 
     // Configuration tab
-    configtab = gtk_label_new ("Configuration");
-    gtk_widget_show (configtab);
-    gtk_notebook_set_tab_label (GTK_NOTEBOOK (tabs), gtk_notebook_get_nth_page (GTK_NOTEBOOK (tabs), 0), configtab);
+    configtab = gtk_label_new("Configuration");
+    gtk_widget_show(configtab);
+    gtk_notebook_set_tab_label(GTK_NOTEBOOK(tabs), gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), 0), configtab);
 
     // Messages scrollable area
-    messagesscroll = gtk_scrolled_window_new (NULL, NULL);
-    gtk_widget_show (messagesscroll);
-    gtk_container_add (GTK_CONTAINER (tabs), messagesscroll);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (messagesscroll), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+    messagesscroll = gtk_scrolled_window_new(NULL, NULL);
+    gtk_widget_show(messagesscroll);
+    gtk_container_add(GTK_CONTAINER(tabs), messagesscroll);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(messagesscroll), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 
     // Messages text area
-    messagestext = gtk_text_view_new ();
-    gtk_widget_show (messagestext);
-    gtk_container_add (GTK_CONTAINER (messagesscroll), messagestext);
-    gtk_text_view_set_editable (GTK_TEXT_VIEW (messagestext), FALSE);
-    gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (messagestext), GTK_WRAP_WORD);
-    gtk_text_view_set_cursor_visible (GTK_TEXT_VIEW (messagestext), FALSE);
-    gtk_text_view_set_left_margin (GTK_TEXT_VIEW (messagestext), 2);
-    gtk_text_view_set_right_margin (GTK_TEXT_VIEW (messagestext), 2);
+    messagestext = gtk_text_view_new();
+    gtk_widget_show(messagestext);
+    gtk_container_add(GTK_CONTAINER(messagesscroll), messagestext);
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(messagestext), FALSE);
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(messagestext), GTK_WRAP_WORD);
+    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(messagestext), FALSE);
+    gtk_text_view_set_left_margin(GTK_TEXT_VIEW(messagestext), 2);
+    gtk_text_view_set_right_margin(GTK_TEXT_VIEW(messagestext), 2);
 
     // Messages tab
-    messagestab = gtk_label_new ("Messages");
-    gtk_widget_show (messagestab);
-    gtk_notebook_set_tab_label (GTK_NOTEBOOK (tabs), gtk_notebook_get_nth_page (GTK_NOTEBOOK (tabs), 1), messagestab);
+    messagestab = gtk_label_new("Messages");
+    gtk_widget_show(messagestab);
+    gtk_notebook_set_tab_label(GTK_NOTEBOOK(tabs), gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), 1), messagestab);
 
     // Dialogue box buttons layout
-    buttons = gtk_hbutton_box_new ();
-    gtk_widget_show (buttons);
-    gtk_box_pack_start (GTK_BOX (vlayout), buttons, FALSE, TRUE, 0);
-    gtk_container_set_border_width (GTK_CONTAINER (buttons), 3);
-    gtk_button_box_set_layout (GTK_BUTTON_BOX (buttons), GTK_BUTTONBOX_END);
+    buttons = gtk_hbutton_box_new();
+    gtk_widget_show(buttons);
+    gtk_box_pack_start(GTK_BOX(vlayout), buttons, FALSE, TRUE, 0);
+    gtk_container_set_border_width(GTK_CONTAINER(buttons), 3);
+    gtk_button_box_set_layout(GTK_BUTTON_BOX(buttons), GTK_BUTTONBOX_END);
 
     // Cancel button
-    cancelbutton = gtk_button_new ();
-    gtk_widget_show (cancelbutton);
-    gtk_container_add (GTK_CONTAINER (buttons), cancelbutton);
-    GTK_WIDGET_SET_FLAGS (cancelbutton, GTK_CAN_DEFAULT);
-    gtk_widget_add_accelerator (cancelbutton, "grab_focus", accel_group,
-                                GDK_C, GDK_MOD1_MASK,
-                                GTK_ACCEL_VISIBLE);
-    gtk_widget_add_accelerator (cancelbutton, "clicked", accel_group,
-                                GDK_Escape, 0,
-                                GTK_ACCEL_VISIBLE);
+    cancelbutton = gtk_button_new();
+    gtk_widget_show(cancelbutton);
+    gtk_container_add(GTK_CONTAINER(buttons), cancelbutton);
+    GTK_WIDGET_SET_FLAGS(cancelbutton, GTK_CAN_DEFAULT);
+    gtk_widget_add_accelerator(cancelbutton, "grab_focus", accel_group,
+                               GDK_C, GDK_MOD1_MASK,
+                               GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(cancelbutton, "clicked", accel_group,
+                               GDK_Escape, 0,
+                               GTK_ACCEL_VISIBLE);
 
-    cancelbuttonalign = gtk_alignment_new (0.5, 0.5, 0, 0);
-    gtk_widget_show (cancelbuttonalign);
-    gtk_container_add (GTK_CONTAINER (cancelbutton), cancelbuttonalign);
+    cancelbuttonalign = gtk_alignment_new(0.5, 0.5, 0, 0);
+    gtk_widget_show(cancelbuttonalign);
+    gtk_container_add(GTK_CONTAINER(cancelbutton), cancelbuttonalign);
 
-    cancelbuttonlayout = gtk_hbox_new (FALSE, 2);
-    gtk_widget_show (cancelbuttonlayout);
-    gtk_container_add (GTK_CONTAINER (cancelbuttonalign), cancelbuttonlayout);
+    cancelbuttonlayout = gtk_hbox_new(FALSE, 2);
+    gtk_widget_show(cancelbuttonlayout);
+    gtk_container_add(GTK_CONTAINER(cancelbuttonalign), cancelbuttonlayout);
 
-    cancelbuttonicon = gtk_image_new_from_stock ("gtk-cancel", GTK_ICON_SIZE_BUTTON);
-    gtk_widget_show (cancelbuttonicon);
-    gtk_box_pack_start (GTK_BOX (cancelbuttonlayout), cancelbuttonicon, FALSE, FALSE, 0);
+    cancelbuttonicon = gtk_image_new_from_stock("gtk-cancel", GTK_ICON_SIZE_BUTTON);
+    gtk_widget_show(cancelbuttonicon);
+    gtk_box_pack_start(GTK_BOX(cancelbuttonlayout), cancelbuttonicon, FALSE, FALSE, 0);
 
-    cancelbuttonlabel = gtk_label_new_with_mnemonic ("_Cancel");
-    gtk_widget_show (cancelbuttonlabel);
-    gtk_box_pack_start (GTK_BOX (cancelbuttonlayout), cancelbuttonlabel, FALSE, FALSE, 0);
+    cancelbuttonlabel = gtk_label_new_with_mnemonic("_Cancel");
+    gtk_widget_show(cancelbuttonlabel);
+    gtk_box_pack_start(GTK_BOX(cancelbuttonlayout), cancelbuttonlabel, FALSE, FALSE, 0);
 
     // Start button
-    startbutton = gtk_button_new ();
-    gtk_widget_show (startbutton);
-    gtk_container_add (GTK_CONTAINER (buttons), startbutton);
-    GTK_WIDGET_SET_FLAGS (startbutton, GTK_CAN_DEFAULT);
-    gtk_widget_add_accelerator (startbutton, "grab_focus", accel_group,
-                                GDK_S, GDK_MOD1_MASK,
-                                GTK_ACCEL_VISIBLE);
-    gtk_widget_add_accelerator (startbutton, "clicked", accel_group,
-                                GDK_Return, 0,
-                                GTK_ACCEL_VISIBLE);
+    startbutton = gtk_button_new();
+    gtk_widget_show(startbutton);
+    gtk_container_add(GTK_CONTAINER(buttons), startbutton);
+    GTK_WIDGET_SET_FLAGS(startbutton, GTK_CAN_DEFAULT);
+    gtk_widget_add_accelerator(startbutton, "grab_focus", accel_group,
+                               GDK_S, GDK_MOD1_MASK,
+                               GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(startbutton, "clicked", accel_group,
+                               GDK_Return, 0,
+                               GTK_ACCEL_VISIBLE);
 
-    startbuttonalign = gtk_alignment_new (0.5, 0.5, 0, 0);
-    gtk_widget_show (startbuttonalign);
-    gtk_container_add (GTK_CONTAINER (startbutton), startbuttonalign);
+    startbuttonalign = gtk_alignment_new(0.5, 0.5, 0, 0);
+    gtk_widget_show(startbuttonalign);
+    gtk_container_add(GTK_CONTAINER(startbutton), startbuttonalign);
 
-    startbuttonlayout = gtk_hbox_new (FALSE, 2);
-    gtk_widget_show (startbuttonlayout);
-    gtk_container_add (GTK_CONTAINER (startbuttonalign), startbuttonlayout);
+    startbuttonlayout = gtk_hbox_new(FALSE, 2);
+    gtk_widget_show(startbuttonlayout);
+    gtk_container_add(GTK_CONTAINER(startbuttonalign), startbuttonlayout);
 
-    startbuttonicon = gtk_image_new_from_stock ("gtk-execute", GTK_ICON_SIZE_BUTTON);
-    gtk_widget_show (startbuttonicon);
-    gtk_box_pack_start (GTK_BOX (startbuttonlayout), startbuttonicon, FALSE, FALSE, 0);
+    startbuttonicon = gtk_image_new_from_stock("gtk-execute", GTK_ICON_SIZE_BUTTON);
+    gtk_widget_show(startbuttonicon);
+    gtk_box_pack_start(GTK_BOX(startbuttonlayout), startbuttonicon, FALSE, FALSE, 0);
 
-    startbuttonlabel = gtk_label_new_with_mnemonic ("_Start");
-    gtk_widget_show (startbuttonlabel);
-    gtk_box_pack_start (GTK_BOX (startbuttonlayout), startbuttonlabel, FALSE, FALSE, 0);
+    startbuttonlabel = gtk_label_new_with_mnemonic("_Start");
+    gtk_widget_show(startbuttonlabel);
+    gtk_box_pack_start(GTK_BOX(startbuttonlayout), startbuttonlabel, FALSE, FALSE, 0);
 
     // Wire up the signals
-    g_signal_connect ((gpointer) startwin, "delete_event",
-                      G_CALLBACK (on_startwin_delete_event),
-                      NULL);
-    g_signal_connect ((gpointer) vmode2dcombo, "changed",
-                      G_CALLBACK (on_vmode2dcombo_changed),
-                      NULL);
-    g_signal_connect ((gpointer) vmode3dcombo, "changed",
-                      G_CALLBACK (on_vmode3dcombo_changed),
-                      NULL);
-    g_signal_connect ((gpointer) fullscreencheck, "toggled",
-                      G_CALLBACK (on_fullscreencheck_toggled),
-                      NULL);
-    g_signal_connect ((gpointer) alwaysshowcheck, "toggled",
-                      G_CALLBACK (on_alwaysshowcheck_toggled),
-                      NULL);
-    g_signal_connect ((gpointer) cancelbutton, "clicked",
-                      G_CALLBACK (on_cancelbutton_clicked),
-                      NULL);
-    g_signal_connect ((gpointer) startbutton, "clicked",
-                      G_CALLBACK (on_startbutton_clicked),
-                      NULL);
+    g_signal_connect((gpointer) startwin, "delete_event",
+                     G_CALLBACK(on_startwin_delete_event),
+                     NULL);
+    g_signal_connect((gpointer) vmode2dcombo, "changed",
+                     G_CALLBACK(on_vmode2dcombo_changed),
+                     NULL);
+    g_signal_connect((gpointer) vmode3dcombo, "changed",
+                     G_CALLBACK(on_vmode3dcombo_changed),
+                     NULL);
+    g_signal_connect((gpointer) fullscreencheck, "toggled",
+                     G_CALLBACK(on_fullscreencheck_toggled),
+                     NULL);
+    g_signal_connect((gpointer) alwaysshowcheck, "toggled",
+                     G_CALLBACK(on_alwaysshowcheck_toggled),
+                     NULL);
+    g_signal_connect((gpointer) cancelbutton, "clicked",
+                     G_CALLBACK(on_cancelbutton_clicked),
+                     NULL);
+    g_signal_connect((gpointer) startbutton, "clicked",
+                     G_CALLBACK(on_startbutton_clicked),
+                     NULL);
 
     // Associate labels with their controls
-    gtk_label_set_mnemonic_widget (GTK_LABEL (vmode2dlabel), vmode2dcombo);
-    gtk_label_set_mnemonic_widget (GTK_LABEL (vmode3dlabel), vmode3dcombo);
+    gtk_label_set_mnemonic_widget(GTK_LABEL(vmode2dlabel), vmode2dcombo);
+    gtk_label_set_mnemonic_widget(GTK_LABEL(vmode3dlabel), vmode3dcombo);
 
     /* Store pointers to all widgets, for use by lookup_widget(). */
-    GLADE_HOOKUP_OBJECT_NO_REF (startwin, startwin, "startwin");
-    GLADE_HOOKUP_OBJECT (startwin, hlayout, "hlayout");
-    GLADE_HOOKUP_OBJECT (startwin, banner, "banner");
-    GLADE_HOOKUP_OBJECT (startwin, vlayout, "vlayout");
-    GLADE_HOOKUP_OBJECT (startwin, tabs, "tabs");
-    GLADE_HOOKUP_OBJECT (startwin, configvlayout, "configvlayout");
-    GLADE_HOOKUP_OBJECT (startwin, configlayout, "configlayout");
-    GLADE_HOOKUP_OBJECT (startwin, vmode2dlabel, "vmode2dlabel");
-    GLADE_HOOKUP_OBJECT (startwin, vmode3dlabel, "vmode3dlabel");
-    GLADE_HOOKUP_OBJECT (startwin, vmode2dcombo, "vmode2dcombo");
-    GLADE_HOOKUP_OBJECT (startwin, vmode3dcombo, "vmode3dcombo");
-    GLADE_HOOKUP_OBJECT (startwin, fullscreencheck, "fullscreencheck");
-    GLADE_HOOKUP_OBJECT (startwin, alwaysshowcheck, "alwaysshowcheck");
-    GLADE_HOOKUP_OBJECT (startwin, configtab, "configtab");
-    GLADE_HOOKUP_OBJECT (startwin, messagesscroll, "messagesscroll");
-    GLADE_HOOKUP_OBJECT (startwin, messagestext, "messagestext");
-    GLADE_HOOKUP_OBJECT (startwin, messagestab, "messagestab");
-    GLADE_HOOKUP_OBJECT (startwin, buttons, "buttons");
-    GLADE_HOOKUP_OBJECT (startwin, cancelbutton, "cancelbutton");
-    GLADE_HOOKUP_OBJECT (startwin, cancelbuttonalign, "cancelbuttonalign");
-    GLADE_HOOKUP_OBJECT (startwin, cancelbuttonlayout, "cancelbuttonlayout");
-    GLADE_HOOKUP_OBJECT (startwin, cancelbuttonicon, "cancelbuttonicon");
-    GLADE_HOOKUP_OBJECT (startwin, cancelbuttonlabel, "cancelbuttonlabel");
-    GLADE_HOOKUP_OBJECT (startwin, startbutton, "startbutton");
-    GLADE_HOOKUP_OBJECT (startwin, startbuttonalign, "startbuttonalign");
-    GLADE_HOOKUP_OBJECT (startwin, startbuttonlayout, "startbuttonlayout");
-    GLADE_HOOKUP_OBJECT (startwin, startbuttonicon, "startbuttonicon");
-    GLADE_HOOKUP_OBJECT (startwin, startbuttonlabel, "startbuttonlabel");
+    GLADE_HOOKUP_OBJECT_NO_REF(startwin, startwin, "startwin");
+    GLADE_HOOKUP_OBJECT(startwin, hlayout, "hlayout");
+    GLADE_HOOKUP_OBJECT(startwin, banner, "banner");
+    GLADE_HOOKUP_OBJECT(startwin, vlayout, "vlayout");
+    GLADE_HOOKUP_OBJECT(startwin, tabs, "tabs");
+    GLADE_HOOKUP_OBJECT(startwin, configvlayout, "configvlayout");
+    GLADE_HOOKUP_OBJECT(startwin, configlayout, "configlayout");
+    GLADE_HOOKUP_OBJECT(startwin, vmode2dlabel, "vmode2dlabel");
+    GLADE_HOOKUP_OBJECT(startwin, vmode3dlabel, "vmode3dlabel");
+    GLADE_HOOKUP_OBJECT(startwin, vmode2dcombo, "vmode2dcombo");
+    GLADE_HOOKUP_OBJECT(startwin, vmode3dcombo, "vmode3dcombo");
+    GLADE_HOOKUP_OBJECT(startwin, fullscreencheck, "fullscreencheck");
+    GLADE_HOOKUP_OBJECT(startwin, alwaysshowcheck, "alwaysshowcheck");
+    GLADE_HOOKUP_OBJECT(startwin, configtab, "configtab");
+    GLADE_HOOKUP_OBJECT(startwin, messagesscroll, "messagesscroll");
+    GLADE_HOOKUP_OBJECT(startwin, messagestext, "messagestext");
+    GLADE_HOOKUP_OBJECT(startwin, messagestab, "messagestab");
+    GLADE_HOOKUP_OBJECT(startwin, buttons, "buttons");
+    GLADE_HOOKUP_OBJECT(startwin, cancelbutton, "cancelbutton");
+    GLADE_HOOKUP_OBJECT(startwin, cancelbuttonalign, "cancelbuttonalign");
+    GLADE_HOOKUP_OBJECT(startwin, cancelbuttonlayout, "cancelbuttonlayout");
+    GLADE_HOOKUP_OBJECT(startwin, cancelbuttonicon, "cancelbuttonicon");
+    GLADE_HOOKUP_OBJECT(startwin, cancelbuttonlabel, "cancelbuttonlabel");
+    GLADE_HOOKUP_OBJECT(startwin, startbutton, "startbutton");
+    GLADE_HOOKUP_OBJECT(startwin, startbuttonalign, "startbuttonalign");
+    GLADE_HOOKUP_OBJECT(startwin, startbuttonlayout, "startbuttonlayout");
+    GLADE_HOOKUP_OBJECT(startwin, startbuttonicon, "startbuttonicon");
+    GLADE_HOOKUP_OBJECT(startwin, startbuttonlabel, "startbuttonlabel");
 
-    gtk_window_add_accel_group (GTK_WINDOW (startwin), accel_group);
+    gtk_window_add_accel_group(GTK_WINDOW(startwin), accel_group);
 
     return startwin;
 }
@@ -493,7 +499,8 @@ int startwin_open(void)
     if (startwin) return 1;
 
     startwin = create_window();
-    if (startwin) {
+    if (startwin)
+    {
         SetPage(TAB_MESSAGES);
         gtk_widget_show(startwin);
         gtk_main_iteration_do(FALSE);
@@ -506,7 +513,7 @@ int startwin_close(void)
 {
     if (!gtkenabled) return 0;
     if (!startwin) return 1;
-    gtk_widget_destroy (startwin);
+    gtk_widget_destroy(startwin);
     startwin = NULL;
     return 0;
 }
@@ -525,8 +532,10 @@ int startwin_puts(const char *str)
     textbuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
 
     gtk_text_buffer_get_end_iter(textbuffer, &enditer);
-    for (aptr = bptr = str; *aptr != 0; ) {
-        switch (*bptr) {
+    for (aptr = bptr = str; *aptr != 0;)
+    {
+        switch (*bptr)
+        {
         case '\b':
             if (bptr > aptr)
                 gtk_text_buffer_insert(textbuffer, &enditer, (const gchar *)aptr, (gint)(bptr-aptr)-1);
@@ -566,7 +575,7 @@ int startwin_settitle(const char *title)
 {
     if (!gtkenabled) return 0;
     if (!startwin) return 1;
-    gtk_window_set_title (GTK_WINDOW (startwin), title);
+    gtk_window_set_title(GTK_WINDOW(startwin), title);
     return 0;
 }
 
@@ -574,7 +583,7 @@ int startwin_idle(void *s)
 {
     if (!gtkenabled) return 0;
     //if (!startwin) return 1;
-    gtk_main_iteration_do (FALSE);
+    gtk_main_iteration_do(FALSE);
     return 0;
 }
 
@@ -597,7 +606,8 @@ int startwin_run(void)
     gtk_main();
 
     SetPage(TAB_MESSAGES);
-    if (retval) {
+    if (retval)
+    {
         fullscreen = settings.fullscreen;
         xdim2d = settings.xdim2d;
         ydim2d = settings.ydim2d;

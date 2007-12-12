@@ -323,7 +323,7 @@ int FX_Shutdown
 
 int FX_SetCallBack
 (
-    void(*function)(unsigned long)
+    void(*function)(unsigned int)
 )
 
 {
@@ -612,7 +612,7 @@ int FX_PlayVOC
     int left,
     int right,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {
@@ -639,14 +639,14 @@ int FX_PlayVOC
 int FX_PlayLoopedVOC
 (
     char *ptr,
-    long loopstart,
-    long loopend,
+    int loopstart,
+    int loopend,
     int pitchoffset,
     int vol,
     int left,
     int right,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {
@@ -678,7 +678,7 @@ int FX_PlayWAV
     int left,
     int right,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {
@@ -705,14 +705,14 @@ int FX_PlayWAV
 int FX_PlayLoopedWAV
 (
     char *ptr,
-    long loopstart,
-    long loopend,
+    int loopstart,
+    int loopend,
     int pitchoffset,
     int vol,
     int left,
     int right,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {
@@ -744,7 +744,7 @@ int FX_PlayVOC3D
     int angle,
     int distance,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {
@@ -776,7 +776,7 @@ int FX_PlayWAV3D
     int angle,
     int distance,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {
@@ -803,14 +803,14 @@ int FX_PlayWAV3D
 int FX_PlayRaw
 (
     char *ptr,
-    unsigned long length,
+    unsigned int length,
     unsigned rate,
     int pitchoffset,
     int vol,
     int left,
     int right,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {
@@ -837,7 +837,7 @@ int FX_PlayRaw
 int FX_PlayLoopedRaw
 (
     char *ptr,
-    unsigned long length,
+    unsigned int length,
     char *loopstart,
     char *loopend,
     unsigned rate,
@@ -846,7 +846,7 @@ int FX_PlayLoopedRaw
     int left,
     int right,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {
@@ -982,14 +982,14 @@ int FX_StopAllSounds
 
 int FX_StartDemandFeedPlayback
 (
-    void(*function)(char **ptr, unsigned long *length),
+    void(*function)(char **ptr, unsigned int *length),
     int rate,
     int pitchoffset,
     int vol,
     int left,
     int right,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {

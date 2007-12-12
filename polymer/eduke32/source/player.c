@@ -27,14 +27,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "osd.h"
 
-long g_currentweapon;
-long g_gun_pos;
-long g_looking_arc;
-long g_weapon_offset;
-long g_gs;
-long g_kb;
-long g_looking_angSR1;
-long g_weapon_xoffset;
+int g_currentweapon;
+int g_gun_pos;
+int g_looking_arc;
+int g_weapon_offset;
+int g_gs;
+int g_kb;
+int g_looking_angSR1;
+int g_weapon_xoffset;
 
 int32 turnheldtime; //MED
 int32 lastcontroltime; //MED
@@ -57,7 +57,7 @@ void setpal(player_struct *p)
 
 static void incur_damage(player_struct *p)
 {
-    long damage = 0L, shield_damage = 0L;
+    int damage = 0L, shield_damage = 0L;
 
     SetGameVarID(g_iReturnVarID,0,p->i,sprite[p->i].yvel);
     OnEvent(EVENT_INCURDAMAGE, p->i, sprite[p->i].yvel, -1);
@@ -107,9 +107,9 @@ void quickkill(player_struct *p)
     return;
 }
 
-static void tracers(long x1,long y1,long z1,long x2,long y2,long z2,long n)
+static void tracers(int x1,int y1,int z1,int x2,int y2,int z2,int n)
 {
-    long i, xv, yv, zv;
+    int i, xv, yv, zv;
     short sect = -1;
 
     i = n+1;
@@ -136,9 +136,9 @@ static void tracers(long x1,long y1,long z1,long x2,long y2,long z2,long n)
     }
 }
 
-static void hitscantrail(long x1, long y1, long z1, long x2, long y2, long z2, int ang, int atwith)
+static void hitscantrail(int x1, int y1, int z1, int x2, int y2, int z2, int ang, int atwith)
 {
-    long xv, yv, zv, n, j, i;
+    int xv, yv, zv, n, j, i;
     short sect = -1;
 
     x1 += (sintable[(348+ang+512)&2047]/projectile[atwith].offset);
@@ -174,11 +174,11 @@ static void hitscantrail(long x1, long y1, long z1, long x2, long y2, long z2, i
     }
 }
 
-long hits(int i)
+int hits(int i)
 {
-    long sx,sy,sz;
+    int sx,sy,sz;
     short sect,hw,hs;
-    long zoff;
+    int zoff;
 
     if (PN == APLAYER) zoff = (40<<8);
     else zoff = 0;
@@ -196,8 +196,8 @@ static int aim(spritetype *s,int aang,int atwith)
     int gotshrinker,gotfreezer;
     int i, j, a, k, cans;
     int aimstats[] = {10,13,1,2};
-    long dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
-    long xv, yv;
+    int dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
+    int xv, yv;
 
     if (s->picnum == APLAYER)
     {
@@ -304,7 +304,7 @@ static int aim(spritetype *s,int aang,int atwith)
 int shoot(int i,int atwith)
 {
     short hitsect, hitspr, hitwall, l, sa, p, j, k=-1, wh, scount;
-    long sx, sy, sz, vel, zvel = 0, hitx, hity, hitz, x, oldzvel, dal;
+    int sx, sy, sz, vel, zvel = 0, hitx, hity, hitz, x, oldzvel, dal;
     unsigned char sizx,sizy;
     spritetype *s = &sprite[i];
     short sect = s->sectnum;
@@ -1664,12 +1664,12 @@ SKIPBULLETHOLE:
 
             if (j == 1)
             {
-                long lTripBombControl=GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, g_player[p].ps->i, p);
+                int lTripBombControl=GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, g_player[p].ps->i, p);
                 k = EGS(hitsect,hitx,hity,hitz,TRIPBOMB,-16,4,5,sa,0,0,i,6);
                 if (lTripBombControl & TRIPBOMB_TIMER)
                 {
-                    long lLifetime=GetGameVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, g_player[p].ps->i, p);
-                    long lLifetimeVar=GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, g_player[p].ps->i, p);
+                    int lLifetime=GetGameVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, g_player[p].ps->i, p);
+                    int lLifetimeVar=GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, g_player[p].ps->i, p);
                     // set timer.  blows up when at zero....
                     hittype[k].temp_data[7]=lLifetime
                                             + mulscale(krand(),lLifetimeVar, 14)
@@ -1847,7 +1847,7 @@ SKIPBULLETHOLE:
 
 static void displayloogie(int snum)
 {
-    long i, a, x, y, z;
+    int i, a, x, y, z;
 
     if (g_player[snum].ps->loogcnt == 0) return;
 
@@ -1867,7 +1867,7 @@ static void displayloogie(int snum)
 static int animatefist(int gs,int snum)
 {
     int looking_arc,fisti,fistpal;
-    long fistzoom, fistz;
+    int fistzoom, fistz;
 
     fisti = g_player[snum].ps->fist_incs;
     if (fisti > 32) fisti = 32;
@@ -1941,7 +1941,7 @@ static int animateknuckles(int gs,int snum)
     return 1;
 }
 
-long lastvisinc;
+int lastvisinc;
 
 void DoFire(player_struct *p)
 {
@@ -2085,7 +2085,7 @@ static int animateaccess(int gs,int snum)
     return 1;
 }
 
-static void myospalw(long x, long y, int tilenum, int shade, int orientation, int p)
+static void myospalw(int x, int y, int tilenum, int shade, int orientation, int p)
 {
     if (!ud.drawweapon)
         return;
@@ -2116,8 +2116,8 @@ static int fistsign, last_quick_kick[MAXPLAYERS];
 
 void displayweapon(int snum)
 {
-    long gun_pos, looking_arc, cw;
-    long weapon_xoffset, i, j;
+    int gun_pos, looking_arc, cw;
+    int weapon_xoffset, i, j;
     int o = 0,pal;
     player_struct *p = g_player[snum].ps;
     short *kb = &p->kickback_pic;
@@ -2702,7 +2702,7 @@ void displayweapon(int snum)
 #define MAXANGVEL    127
 #define MAXHORIZ     127
 
-long myaimmode = 0, myaimstat = 0, omyaimstat = 0;
+int myaimmode = 0, myaimstat = 0, omyaimstat = 0;
 int32 mouseyaxismode = -1;
 static ControlInfo lastinfo = { 0,0,0,0,0,0 };
 int jump_input = 0;
@@ -2727,7 +2727,7 @@ void getinput(int snum)
         loc.svel = svel = 0;
         loc.avel = angvel = 0;
         loc.horz = horiz = 0;
-        loc.bits = (((long)gamequit)<<26);
+        loc.bits = (((int)gamequit)<<26);
         loc.extbits = (g_player[snum].pteam != g_player[snum].ps->team)<<6;
         loc.extbits |= (1<<7);
         return;
@@ -2867,7 +2867,7 @@ void getinput(int snum)
     loc.bits |=   myaimmode<<23;
     loc.bits |=   BUTTON(gamefunc_Holo_Duke)<<24;
     loc.bits |=   BUTTON(gamefunc_Jetpack)<<25;
-    loc.bits |= (((long)gamequit)<<26);
+    loc.bits |= (((int)gamequit)<<26);
     loc.bits |=   BUTTON(gamefunc_Inventory_Right)<<27;
     loc.bits |=   BUTTON(gamefunc_TurnAround)<<28;
     loc.bits |=   BUTTON(gamefunc_Open)<<29;
@@ -3249,9 +3249,9 @@ void checkweapons(player_struct *p)
 
 void processinput(int snum)
 {
-    long j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y;
+    int j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y;
     int shrunk;
-    unsigned long sb_snum;
+    unsigned int sb_snum;
     int psect, psectlotag;
     short *kb, tempsect;
     player_struct *p = g_player[snum].ps;
@@ -4179,7 +4179,7 @@ void processinput(int snum)
     else if (g_player[snum].sync->avel)            //p->ang += syncangvel * constant
     {
         //ENGINE calculates angvel for you
-        long tempang = g_player[snum].sync->avel<<1;
+        int tempang = g_player[snum].sync->avel<<1;
 
         if (psectlotag == 2) p->angvel =(tempang-(tempang>>3))*ksgn(doubvel);
         else p->angvel = tempang*ksgn(doubvel);
@@ -4743,7 +4743,7 @@ SHOOTINCODE:
                 case TRIPBOMB_WEAPON:
                     if (p->ammo_amount[p->curr_weapon] > 0)
                     {
-                        long sx,sy,sz;
+                        int sx,sy,sz;
                         short sect,hw,hitsp;
 
                         hitscan(p->posx, p->posy, p->posz,
@@ -4842,7 +4842,7 @@ SHOOTINCODE:
             (*kb)++;
             if ((*kb)==aplWeaponHoldDelay[p->curr_weapon][snum])
             {
-                long lPipeBombControl;
+                int lPipeBombControl;
 
                 p->ammo_amount[p->curr_weapon]--;
 
@@ -4867,8 +4867,8 @@ SHOOTINCODE:
 
                 if (lPipeBombControl & PIPEBOMB_TIMER)
                 {
-                    long lGrenadeLifetime=GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
-                    long lGrenadeLifetimeVar=GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
+                    int lGrenadeLifetime=GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
+                    int lGrenadeLifetimeVar=GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
                     hittype[j].temp_data[7]=lGrenadeLifetime
                                             + mulscale(krand(),lGrenadeLifetimeVar, 14)
                                             - lGrenadeLifetimeVar;
@@ -4898,7 +4898,7 @@ SHOOTINCODE:
             }
             else if ((*kb) > aplWeaponTotalTime[p->curr_weapon][snum])
             {
-                long lPipeBombControl=GetGameVar("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
+                int lPipeBombControl=GetGameVar("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
 
                 (*kb) = 0;
 
@@ -4937,7 +4937,7 @@ SHOOTINCODE:
 
             if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
             {
-                long lPipeBombControl=GetGameVar("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
+                int lPipeBombControl=GetGameVar("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum);
                 (*kb) = 0;
                 if ((p->ammo_amount[HANDBOMB_WEAPON] > 0) && lPipeBombControl == PIPEBOMB_REMOTE)
                     addweapon(p,HANDBOMB_WEAPON);
@@ -5099,7 +5099,7 @@ SHOOTINCODE:
 }
 
 //UPDATE THIS FILE OVER THE OLD GETSPRITESCORE/COMPUTERGETINPUT FUNCTIONS
-int getspritescore(long snum, long dapicnum)
+int getspritescore(int snum, int dapicnum)
 {
     switch (dynamictostatic[dapicnum])
     {
@@ -5188,7 +5188,7 @@ int getspritescore(long snum, long dapicnum)
     return(0);
 }
 
-static long fdmatrix[12][12] =
+static int fdmatrix[12][12] =
 {
     //KNEE PIST SHOT CHAIN RPG PIPE SHRI DEVI WALL FREE HAND EXPA
     {  128,  -1,  -1,  -1, 128,  -1,  -1,  -1, 128,  -1, 128,  -1 },   //KNEE
@@ -5205,16 +5205,16 @@ static long fdmatrix[12][12] =
     {  128, 128, 128, 128,2560, 128,2560,2560, 128, 128, 128, 128 }    //EXPA
 };
 
-static long goalx[MAXPLAYERS], goaly[MAXPLAYERS], goalz[MAXPLAYERS];
-static long goalsect[MAXPLAYERS], goalwall[MAXPLAYERS], goalsprite[MAXPLAYERS], goalspritescore[MAXPLAYERS];
-static long goalplayer[MAXPLAYERS], clipmovecount[MAXPLAYERS];
+static int goalx[MAXPLAYERS], goaly[MAXPLAYERS], goalz[MAXPLAYERS];
+static int goalsect[MAXPLAYERS], goalwall[MAXPLAYERS], goalsprite[MAXPLAYERS], goalspritescore[MAXPLAYERS];
+static int goalplayer[MAXPLAYERS], clipmovecount[MAXPLAYERS];
 short searchsect[MAXSECTORS], searchparent[MAXSECTORS];
 char dashow2dsector[(MAXSECTORS+7)>>3];
-void computergetinput(long snum, input *syn)
+void computergetinput(int snum, input *syn)
 {
-    long i, j, k, l, x1, y1, z1, x2, y2, z2, x3, y3, z3, dx, dy;
-    long dist, daang, zang, fightdist, damyang, damysect;
-    long startsect, endsect, splc, send, startwall, endwall;
+    int i, j, k, l, x1, y1, z1, x2, y2, z2, x3, y3, z3, dx, dy;
+    int dist, daang, zang, fightdist, damyang, damysect;
+    int startsect, endsect, splc, send, startwall, endwall;
     short dasect, dawall, daspr;
     player_struct *p = g_player[snum].ps;
     walltype *wal;
@@ -5328,7 +5328,7 @@ void computergetinput(long snum, input *syn)
                     hitscan(sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].sectnum,
                             mulscale14(sprite[j].xvel,sintable[(sprite[j].ang+512)&2047]),
                             mulscale14(sprite[j].xvel,sintable[sprite[j].ang&2047]),
-                            (long)sprite[j].zvel,
+                            (int)sprite[j].zvel,
                             &dasect,&dawall,&daspr,&x3,&y3,&z3,CLIPMASK1);
                 }
             }

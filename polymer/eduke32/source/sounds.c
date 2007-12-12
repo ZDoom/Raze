@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define LOUDESTVOLUME 150
 
-long backflag,numenvsnds;
+int backflag,numenvsnds;
 
 /*
 ===================
@@ -46,7 +46,7 @@ long backflag,numenvsnds;
 
 void SoundStartup(void)
 {
-    int32 status;
+    int status;
 
     // if they chose None lets return
     if (ud.config.FXDevice < 0) return;
@@ -79,7 +79,7 @@ void SoundStartup(void)
 
 void SoundShutdown(void)
 {
-    int32 status;
+    int status;
 
     // if they chose None lets return
     if (ud.config.FXDevice < 0)
@@ -103,7 +103,7 @@ void SoundShutdown(void)
 
 void MusicStartup(void)
 {
-    int32 status;
+    int status;
 
     // if they chose None lets return
     if (ud.config.MusicDevice < 0)
@@ -141,7 +141,7 @@ void MusicStartup(void)
 
 void MusicShutdown(void)
 {
-    int32 status;
+    int status;
 
     // if they chose None lets return
     if (ud.config.MusicDevice < 0)
@@ -191,7 +191,7 @@ void playmusic(const char *fn)
 {
 #if defined(_WIN32)
     short      fp;
-    long        l;
+    int        l;
 
     if (fn == NULL) return;
 
@@ -203,7 +203,7 @@ void playmusic(const char *fn)
     if (fp == -1) return;
 
     l = kfilelength(fp);
-    if (l >= (signed long)sizeof(MusicPtr))
+    if (l >= (signed int)sizeof(MusicPtr))
     {
         kclose(fp);
         return;
@@ -228,7 +228,7 @@ void playmusic(const char *fn)
 
 int loadsound(unsigned int num)
 {
-    long   fp, l;
+    int   fp, l;
 
     if (num >= MAXSOUNDS || ud.config.SoundToggle == 0) return 0;
     if (ud.config.FXDevice < 0) return 0;
@@ -247,15 +247,15 @@ int loadsound(unsigned int num)
 
     g_sounds[num].lock = 200;
 
-    allocache((long *)&g_sounds[num].ptr,l,(char *)&g_sounds[num].lock);
+    allocache((int *)&g_sounds[num].ptr,l,(char *)&g_sounds[num].lock);
     kread(fp, g_sounds[num].ptr , l);
     kclose(fp);
     return 1;
 }
 
-int xyzsound(int num,int i,long x,long y,long z)
+int xyzsound(int num,int i,int x,int y,int z)
 {
-    long sndist, cx, cy, cz, j,k;
+    int sndist, cx, cy, cz, j,k;
     int pitche,pitchs,cs;
     int voice, sndang, ca, pitch;
 
@@ -407,7 +407,7 @@ void sound(int num)
 {
     int pitch,pitche,pitchs,cx;
     int voice;
-    long start;
+    int start;
 
     if (ud.config.FXDevice < 0) return;
     if (ud.config.SoundToggle==0) return;
@@ -447,13 +447,13 @@ void sound(int num)
     {
         if (*g_sounds[num].ptr == 'C')
         {
-            start = (long)*(unsigned short *)(g_sounds[num].ptr + 0x14);
+            start = (int)*(unsigned short *)(g_sounds[num].ptr + 0x14);
             voice = FX_PlayLoopedVOC(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
                                      pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
         }
         else
         {
-            start = (long)*(unsigned short *)(g_sounds[num].ptr + 0x14);
+            start = (int)*(unsigned short *)(g_sounds[num].ptr + 0x14);
             voice = FX_PlayLoopedWAV(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
                                      pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
         }
@@ -508,7 +508,7 @@ void stopenvsound(int num,int i)
 
 void pan3dsound(void)
 {
-    long sndist, sx, sy, sz, cx, cy, cz;
+    int sndist, sx, sy, sz, cx, cy, cz;
     int sndang,ca,j,k,i,cs;
 
     numenvsnds = 0;
@@ -586,11 +586,11 @@ void pan3dsound(void)
         }
 }
 
-void testcallback(unsigned long num)
+void testcallback(unsigned int num)
 {
     int tempi,tempj,tempk;
 
-    if ((long)num < 0)
+    if ((int)num < 0)
     {
         if (lumplockbyte[-num] >= 200)
             lumplockbyte[-num]--;
@@ -626,7 +626,7 @@ void testcallback(unsigned long num)
 
 void clearsoundlocks(void)
 {
-    long i;
+    int i;
 
     for (i=0;i<MAXSOUNDS;i++)
         if (g_sounds[i].lock >= 200)

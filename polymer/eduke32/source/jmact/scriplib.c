@@ -879,8 +879,8 @@ void SCRIPT_PutNumber
 {
 	char raw[64];
 
-	if (hexadecimal) sprintf(raw, "0x%lX", number);
-	else sprintf(raw, "%ld", number);
+	if (hexadecimal) sprintf(raw, "0x%X", number);
+	else sprintf(raw, "%d", number);
 
 	SCRIPT_AddEntry(scripthandle, sectionname, entryname, raw);
 }

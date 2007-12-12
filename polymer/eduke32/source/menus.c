@@ -74,7 +74,7 @@ void cmenu(int cm)
 }
 
 #if 0
-void savetemp(char *fn,long daptr,long dasiz)
+void savetemp(char *fn,int daptr,int dasiz)
 {
     FILE *fp;
 
@@ -538,7 +538,7 @@ static int getfilenames(const char *path, char kind[])
     return(0);
 }
 
-long quittimer = 0;
+int quittimer = 0;
 
 void check_player_color(int *color,int prev_color)
 {
@@ -591,7 +591,7 @@ void menus(void)
 {
     CACHE1D_FIND_REC *dir;
     int c,x,i;
-    long l,m;
+    int l,m;
     char *p = NULL;
 
     getpackets();
@@ -622,7 +622,7 @@ void menus(void)
 
     if (bpp > 8)
     {
-        long x,y,y1=0,y2=ydim;
+        int x,y,y1=0,y2=ydim;
         for (y=y1;y<y2;y+=tilesizy[BIGHOLE])
             for (x=0;x<xdim;x+=tilesizx[BIGHOLE])
                 rotatesprite(x<<16,y<<16,65536L,0,BIGHOLE,80,0,1+8+16,0,0,xdim-1,ydim-1);
@@ -1191,10 +1191,10 @@ void menus(void)
 
         menutext(c,57-9,MENUHIGHLIGHT(0),PHX(-2),"GAME TYPE");
 
-        sprintf(tempbuf,"EPISODE %ld",ud.m_volume_number+1);
+        sprintf(tempbuf,"EPISODE %d",ud.m_volume_number+1);
         menutext(c,57+16-9,MENUHIGHLIGHT(1),PHX(-3),tempbuf);
 
-        sprintf(tempbuf,"LEVEL %ld",ud.m_level_number+1);
+        sprintf(tempbuf,"LEVEL %d",ud.m_level_number+1);
         menutext(c,57+16+16-9,MENUHIGHLIGHT(2),PHX(-4),tempbuf);
 
         menutext(c,57+16+16+16-9,MENUHIGHLIGHT(3),PHX(-5),"MONSTERS");
@@ -1478,10 +1478,10 @@ void menus(void)
 
         dispnames();
 
-        sprintf(tempbuf,"PLAYERS: %-2ld                      ",savehead.numplr);
+        sprintf(tempbuf,"PLAYERS: %-2d                      ",savehead.numplr);
         gametext(160,156,tempbuf,0,2+8+16);
 
-        sprintf(tempbuf,"EPISODE: %-2ld / LEVEL: %-2ld / SKILL: %-2ld",1+savehead.volnum,1+savehead.levnum,savehead.plrskl);
+        sprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+savehead.volnum,1+savehead.levnum,savehead.plrskl);
         gametext(160,168,tempbuf,0,2+8+16);
 
         if (savehead.volnum == 0 && savehead.levnum == 7)
@@ -1605,10 +1605,10 @@ void menus(void)
         menutext(160,24,0,0,"SAVE GAME");
 
         rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
-        sprintf(tempbuf,"PLAYERS: %-2ld                      ",ud.multimode);
+        sprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
         gametext(160,156,tempbuf,0,2+8+16);
 
-        sprintf(tempbuf,"EPISODE: %-2ld / LEVEL: %-2ld / SKILL: %-2ld",1+ud.volume_number,1+ud.level_number,ud.player_skill);
+        sprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
         gametext(160,168,tempbuf,0,2+8+16);
 
         if (ud.volume_number == 0 && ud.level_number == 7)
@@ -2488,7 +2488,7 @@ cheat_for_port_credits:
                         gltexapplyprops();
                     }
                     if (glanisotropy == 1) strcpy(tempbuf,"NONE");
-                    else sprintf(tempbuf,"%ldx",glanisotropy);
+                    else sprintf(tempbuf,"%dx",glanisotropy);
                     gametextpal(d,yy, tempbuf, MENUHIGHLIGHT(io), 0);
                     break;
 
@@ -2914,9 +2914,9 @@ cheat_for_port_credits:
                     else
                         vidsets[dax++] = 0x20000|validmode[day].bpp|((validmode[day].fs&1)<<16);
                 }
-                for (dax = 0; dax < (long)(sizeof(vidsets)/sizeof(vidsets[1])) && vidsets[dax] != -1; dax++)
+                for (dax = 0; dax < (int)(sizeof(vidsets)/sizeof(vidsets[1])) && vidsets[dax] != -1; dax++)
                     if (vidsets[dax] == (((getrendermode()>=2)<<17)|(fullscreen<<16)|bpp)) break;
-                if (dax < (long)(sizeof(vidsets)/sizeof(vidsets[1]))) newvidset = dax;
+                if (dax < (int)(sizeof(vidsets)/sizeof(vidsets[1]))) newvidset = dax;
                 curvidset = newvidset;
 
                 cmenu(203);
@@ -3137,8 +3137,8 @@ cheat_for_port_credits:
         case 3:
             if (!changesmade) break;
             {
-                long pxdim, pydim, pfs, pbpp, prend;
-                long nxdim, nydim, nfs, nbpp, nrend;
+                int pxdim, pydim, pfs, pbpp, prend;
+                int nxdim, nydim, nfs, nbpp, nrend;
 
                 pxdim = xdim;
                 pydim = ydim;
@@ -3215,7 +3215,7 @@ cheat_for_port_credits:
         }
 
         menutext(c,50,MENUHIGHLIGHT(0),0,"RESOLUTION");
-        sprintf(tempbuf,"%ld x %ld",
+        sprintf(tempbuf,"%d x %d",
                 (newvidmode==validmodecnt)?xdim:validmode[newvidmode].xdim,
                 (newvidmode==validmodecnt)?ydim:validmode[newvidmode].ydim);
         gametext(c+154,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
@@ -4342,9 +4342,9 @@ cheat_for_port_credits:
 
         if (current_menu >= 360 && current_menu <= 369)
         {
-            sprintf(tempbuf,"PLAYERS: %-2ld                      ",ud.multimode);
+            sprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
             gametext(160,156,tempbuf,0,2+8+16);
-            sprintf(tempbuf,"EPISODE: %-2ld / LEVEL: %-2ld / SKILL: %-2ld",1+ud.volume_number,1+ud.level_number,ud.player_skill);
+            sprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
             gametext(160,168,tempbuf,0,2+8+16);
             if (ud.volume_number == 0 && ud.level_number == 7)
                 gametext(160,180,boardfilename,0,2+8+16);
@@ -4409,9 +4409,9 @@ cheat_for_port_credits:
                 }
 
                 rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
-                sprintf(tempbuf,"PLAYERS: %-2ld                      ",savehead.numplr);
+                sprintf(tempbuf,"PLAYERS: %-2d                      ",savehead.numplr);
                 gametext(160,156,tempbuf,0,2+8+16);
-                sprintf(tempbuf,"EPISODE: %-2ld / LEVEL: %-2ld / SKILL: %-2ld",1+savehead.volnum,1+savehead.levnum,savehead.plrskl);
+                sprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+savehead.volnum,1+savehead.levnum,savehead.plrskl);
                 gametext(160,168,tempbuf,0,2+8+16);
                 if (savehead.volnum == 0 && savehead.levnum == 7)
                     gametext(160,180,savehead.boardfn,0,2+8+16);
@@ -4428,9 +4428,9 @@ cheat_for_port_credits:
                 rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
             }
             else menutext(69,70,0,0,"EMPTY");
-            sprintf(tempbuf,"PLAYERS: %-2ld                      ",ud.multimode);
+            sprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
             gametext(160,156,tempbuf,0,2+8+16);
-            sprintf(tempbuf,"EPISODE: %-2ld / LEVEL: %-2ld / SKILL: %-2ld",1+ud.volume_number,1+ud.level_number,ud.player_skill);
+            sprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
             gametext(160,168,tempbuf,0,2+8+16);
             if (ud.volume_number == 0 && ud.level_number == 7)
                 gametext(160,180,boardfilename,0,2+8+16);
@@ -4992,16 +4992,16 @@ VOLUME_ALL_40x:
 
         if (VOLUMEONE)
         {
-            sprintf(tempbuf,"EPISODE %ld",ud.m_volume_number+1);
+            sprintf(tempbuf,"EPISODE %d",ud.m_volume_number+1);
             menutext(c,57+16-9,MENUHIGHLIGHT(1),1,tempbuf);
         }
         else
         {
-            sprintf(tempbuf,"EPISODE %ld",ud.m_volume_number+1);
+            sprintf(tempbuf,"EPISODE %d",ud.m_volume_number+1);
             menutext(c,57+16-9,MENUHIGHLIGHT(1),PHX(-3),tempbuf);
         }
 
-        sprintf(tempbuf,"LEVEL %ld",ud.m_level_number+1);
+        sprintf(tempbuf,"LEVEL %d",ud.m_level_number+1);
         menutext(c,57+16+16-9,MENUHIGHLIGHT(2),PHX(-4),tempbuf);
 
         menutext(c,57+16+16+16-9,MENUHIGHLIGHT(3),PHX(-5),"MONSTERS");

@@ -85,7 +85,7 @@ extern "C" {
 typedef struct BPACK
 {
     short wallptr, wallnum;
-    long ceilingz, floorz;
+    int ceilingz, floorz;
     short ceilingstat, floorstat;
     short ceilingpicnum, ceilingheinum;
     signed char ceilingshade;
@@ -113,7 +113,7 @@ typedef struct BPACK
     //32 bytes
 typedef struct BPACK
 {
-    long x, y;
+    int x, y;
     short point2, nextwall, nextsector, cstat;
     short picnum, overpicnum;
     signed char shade;
@@ -139,7 +139,7 @@ typedef struct BPACK
     //44 bytes
 typedef struct BPACK
 {
-    long x, y, z;
+    int x, y, z;
     short cstat, picnum;
     signed char shade;
     char pal, clipdist, filler;
@@ -151,11 +151,11 @@ typedef struct BPACK
 } spritetype;
 
 typedef struct BPACK {
-    unsigned long mdanimtims;
+    unsigned int mdanimtims;
     short mdanimcur;
     short angoff;
     short pitch, roll;
-    long xoff, yoff, zoff;
+    int xoff, yoff, zoff;
     unsigned char flags;
     char filler[3];
 } spriteexttype;
@@ -170,41 +170,41 @@ typedef struct BPACK {
 #define SPREXT_NOMDANIM 2
 EXTERN spriteexttype *spriteext;
 EXTERN spritesmoothtype *spritesmooth;
-EXTERN long guniqhudid;
+EXTERN int guniqhudid;
 
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
 EXTERN spritetype *sprite;
 
-EXTERN long spritesortcnt;
+EXTERN int spritesortcnt;
 EXTERN spritetype *tsprite;
 
-EXTERN long xdim, ydim, ylookup[MAXYDIM+1], numpages;
-EXTERN long yxaspect, viewingrange;
+EXTERN int xdim, ydim, ylookup[MAXYDIM+1], numpages;
+EXTERN int yxaspect, viewingrange;
 
 #define MAXVALIDMODES 256
-EXTERN long validmodecnt;
+EXTERN int validmodecnt;
 struct validmode_t {
-    long xdim,ydim;
+    int xdim,ydim;
     char bpp;
     char fs;    // bit 0 = fullscreen flag
     char filler[2];
-    long extra; // internal use
+    int extra; // internal use
 };
 EXTERN struct validmode_t validmode[MAXVALIDMODES];
 
 EXTERN short numsectors, numwalls;
-EXTERN /*volatile*/ long totalclock;
-EXTERN long numframes, randomseed;
+EXTERN /*volatile*/ int totalclock;
+EXTERN int numframes, randomseed;
 EXTERN short sintable[2048];
 EXTERN char palette[768];
 EXTERN short numpalookups;
 EXTERN char *palookup[MAXPALOOKUPS];
 EXTERN char parallaxtype, showinvisibility;
-EXTERN long parallaxyoffs, parallaxyscale;
-EXTERN long visibility, parallaxvisibility;
+EXTERN int parallaxyoffs, parallaxyscale;
+EXTERN int visibility, parallaxvisibility;
 
-EXTERN long windowx1, windowy1, windowx2, windowy2;
+EXTERN int windowx1, windowy1, windowx2, windowy2;
 EXTERN short startumost[MAXXDIM], startdmost[MAXXDIM];
 
 EXTERN short pskyoff[MAXPSKYTILES], pskybits;
@@ -216,8 +216,8 @@ EXTERN short nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 EXTERN short tilesizx[MAXTILES], tilesizy[MAXTILES];
 EXTERN char picsiz[MAXTILES];
 EXTERN char walock[MAXTILES];
-EXTERN long pow2long[32];
-EXTERN long numtiles, picanm[MAXTILES], waloff[MAXTILES];
+EXTERN int pow2long[32];
+EXTERN int numtiles, picanm[MAXTILES], waloff[MAXTILES];
 
 EXTERN int windowpos, windowx, windowy;
 
@@ -245,7 +245,7 @@ EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
 EXTERN char captureformat;
 extern char vgapalette[5*256];
-extern unsigned long drawlinepat;
+extern unsigned int drawlinepat;
 
 extern void faketimerhandler(void);
 
@@ -256,14 +256,14 @@ typedef struct {
 extern palette_t curpalette[256], curpalettefaded[256], palfadergb;
 extern char palfadedelta;
 
-extern long dommxoverlay, novoxmips;
+extern int dommxoverlay, novoxmips;
 
 #ifdef SUPERBUILD
-extern long tiletovox[MAXTILES];
-extern long usevoxels, voxscale[MAXVOXELS];
+extern int tiletovox[MAXTILES];
+extern int usevoxels, voxscale[MAXVOXELS];
 #endif
 #ifdef POLYMOST
-extern long usemodels, usehightile;
+extern int usemodels, usehightile;
 #endif
 
 extern char *engineerrstr;
@@ -375,79 +375,79 @@ int    preinitengine(void);	// a partial setup of the engine used for launch win
 int    initengine(void);
 void   uninitengine(void);
 void   initspritelists(void);
-long   loadboard(char *filename, char fromwhere, long *daposx, long *daposy, long *daposz, short *daang, short *dacursectnum);
-long   loadmaphack(char *filename);
-long   saveboard(char *filename, long *daposx, long *daposy, long *daposz, short *daang, short *dacursectnum);
-long   loadpics(char *filename, long askedsize);
+int   loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
+int   loadmaphack(char *filename);
+int   saveboard(char *filename, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
+int   loadpics(char *filename, int askedsize);
 void   loadtile(short tilenume);
-long   qloadkvx(long voxindex, char *filename);
-long   allocatepermanenttile(short tilenume, long xsiz, long ysiz);
-void   copytilepiece(long tilenume1, long sx1, long sy1, long xsiz, long ysiz, long tilenume2, long sx2, long sy2);
-void   makepalookup(long palnum, char *remapbuf, signed char r, signed char g, signed char b, char dastat);
+int   qloadkvx(int voxindex, char *filename);
+int   allocatepermanenttile(short tilenume, int xsiz, int ysiz);
+void   copytilepiece(int tilenume1, int sx1, int sy1, int xsiz, int ysiz, int tilenume2, int sx2, int sy2);
+void   makepalookup(int palnum, char *remapbuf, signed char r, signed char g, signed char b, char dastat);
 void   setvgapalette(void);
 void   setbrightness(char dabrightness, char *dapal, char noapply);
 void   setpalettefade(char r, char g, char b, char offset);
 void   squarerotatetile(short tilenume);
 
-long   setgamemode(char davidoption, long daxdim, long daydim, long dabpp);
+int   setgamemode(char davidoption, int daxdim, int daydim, int dabpp);
 void   nextpage(void);
-void   setview(long x1, long y1, long x2, long y2);
-void   setaspect(long daxrange, long daaspect);
+void   setview(int x1, int y1, int x2, int y2);
+void   setaspect(int daxrange, int daaspect);
 void   flushperms(void);
 
-void   plotpixel(long x, long y, char col);
-char   getpixel(long x, long y);
-void   setviewtotile(short tilenume, long xsiz, long ysiz);
+void   plotpixel(int x, int y, char col);
+char   getpixel(int x, int y);
+void   setviewtotile(short tilenume, int xsiz, int ysiz);
 void   setviewback(void);
-void   preparemirror(long dax, long day, long daz, short daang, long dahoriz, short dawall, short dasector, long *tposx, long *tposy, short *tang);
+void   preparemirror(int dax, int day, int daz, short daang, int dahoriz, short dawall, short dasector, int *tposx, int *tposy, short *tang);
 void   completemirror(void);
 
-void   drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum);
+void   drawrooms(int daposx, int daposy, int daposz, short daang, int dahoriz, short dacursectnum);
 void   drawmasks(void);
-void   clearview(long dacol);
-void   clearallviews(long dacol);
-void   drawmapview(long dax, long day, long zoome, short ang);
-void   rotatesprite(long sx, long sy, long z, short a, short picnum, signed char dashade, char dapalnum, char dastat, long cx1, long cy1, long cx2, long cy2);
-void   drawline256(long x1, long y1, long x2, long y2, char col);
-void   printext16(long xpos, long ypos, short col, short backcol, char *name, char fontsize);
-void   printext256(long xpos, long ypos, short col, short backcol, char *name, char fontsize);
+void   clearview(int dacol);
+void   clearallviews(int dacol);
+void   drawmapview(int dax, int day, int zoome, short ang);
+void   rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2);
+void   drawline256(int x1, int y1, int x2, int y2, char col);
+void   printext16(int xpos, int ypos, short col, short backcol, char *name, char fontsize);
+void   printext256(int xpos, int ypos, short col, short backcol, char *name, char fontsize);
 
-long   clipmove(long *x, long *y, long *z, short *sectnum, long xvect, long yvect, long walldist, long ceildist, long flordist, unsigned long cliptype);
-long   clipinsidebox(long x, long y, short wallnum, long walldist);
-long   clipinsideboxline(long x, long y, long x1, long y1, long x2, long y2, long walldist);
-long   pushmove(long *x, long *y, long *z, short *sectnum, long walldist, long ceildist, long flordist, unsigned long cliptype);
-void   getzrange(long x, long y, long z, short sectnum, long *ceilz, long *ceilhit, long *florz, long *florhit, long walldist, unsigned long cliptype);
-long   hitscan(long xs, long ys, long zs, short sectnum, long vx, long vy, long vz, short *hitsect, short *hitwall, short *hitsprite, long *hitx, long *hity, long *hitz, unsigned long cliptype);
-long   neartag(long xs, long ys, long zs, short sectnum, short ange, short *neartagsector, short *neartagwall, short *neartagsprite, long *neartaghitdist, long neartagrange, char tagsearch);
-long   cansee(long x1, long y1, long z1, short sect1, long x2, long y2, long z2, short sect2);
-void   updatesector(long x, long y, short *sectnum);
-void   updatesectorz(long x, long y, long z, short *sectnum);
-long   inside(long x, long y, short sectnum);
-void   dragpoint(short pointhighlight, long dax, long day);
+int   clipmove(int *x, int *y, int *z, short *sectnum, int xvect, int yvect, int walldist, int ceildist, int flordist, unsigned int cliptype);
+int   clipinsidebox(int x, int y, short wallnum, int walldist);
+int   clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist);
+int   pushmove(int *x, int *y, int *z, short *sectnum, int walldist, int ceildist, int flordist, unsigned int cliptype);
+void   getzrange(int x, int y, int z, short sectnum, int *ceilz, int *ceilhit, int *florz, int *florhit, int walldist, unsigned int cliptype);
+int   hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz, short *hitsect, short *hitwall, short *hitsprite, int *hitx, int *hity, int *hitz, unsigned int cliptype);
+int   neartag(int xs, int ys, int zs, short sectnum, short ange, short *neartagsector, short *neartagwall, short *neartagsprite, int *neartaghitdist, int neartagrange, char tagsearch);
+int   cansee(int x1, int y1, int z1, short sect1, int x2, int y2, int z2, short sect2);
+void   updatesector(int x, int y, short *sectnum);
+void   updatesectorz(int x, int y, int z, short *sectnum);
+int   inside(int x, int y, short sectnum);
+void   dragpoint(short pointhighlight, int dax, int day);
 void   setfirstwall(short sectnum, short newfirstwall);
 
-void   getmousevalues(long *mousx, long *mousy, long *bstatus);
-long    krand(void);
-long   ksqrt(long num);
-long   getangle(long xvect, long yvect);
-void   rotatepoint(long xpivot, long ypivot, long x, long y, short daang, long *x2, long *y2);
-long   lastwall(short point);
-long   nextsectorneighborz(short sectnum, long thez, short topbottom, short direction);
-long   getceilzofslope(short sectnum, long dax, long day);
-long   getflorzofslope(short sectnum, long dax, long day);
-void   getzsofslope(short sectnum, long dax, long day, long *ceilz, long *florz);
-void   alignceilslope(short dasect, long x, long y, long z);
-void   alignflorslope(short dasect, long x, long y, long z);
-long   sectorofwall(short theline);
-long   loopnumofsector(short sectnum, short wallnum);
+void   getmousevalues(int *mousx, int *mousy, int *bstatus);
+int    krand(void);
+int   ksqrt(int num);
+int   getangle(int xvect, int yvect);
+void   rotatepoint(int xpivot, int ypivot, int x, int y, short daang, int *x2, int *y2);
+int   lastwall(short point);
+int   nextsectorneighborz(short sectnum, int thez, short topbottom, short direction);
+int   getceilzofslope(short sectnum, int dax, int day);
+int   getflorzofslope(short sectnum, int dax, int day);
+void   getzsofslope(short sectnum, int dax, int day, int *ceilz, int *florz);
+void   alignceilslope(short dasect, int x, int y, int z);
+void   alignflorslope(short dasect, int x, int y, int z);
+int   sectorofwall(short theline);
+int   loopnumofsector(short sectnum, short wallnum);
 
-long   insertsprite(short sectnum, short statnum);
-long   deletesprite(short spritenum);
-long   changespritesect(short spritenum, short newsectnum);
-long   changespritestat(short spritenum, short newstatnum);
-long   setsprite(short spritenum, long newx, long newy, long newz);
+int   insertsprite(short sectnum, short statnum);
+int   deletesprite(short spritenum);
+int   changespritesect(short spritenum, short newsectnum);
+int   changespritestat(short spritenum, short newstatnum);
+int   setsprite(short spritenum, int newx, int newy, int newz);
 
-long   screencapture(char *filename, char inverseit);
+int   screencapture(char *filename, char inverseit);
 
 // PLAG: line utility functions
 typedef struct  s_equation {
@@ -456,24 +456,24 @@ typedef struct  s_equation {
 typedef struct  s_point2d {
     float       x, y;
 }               _point2d;
-_equation       equation(long x1, long y1, long x2, long y2);
+_equation       equation(int x1, int y1, int x2, int y2);
 int             sameside(_equation* eq, _point2d* p1, _point2d* p2);
 int             wallvisible(short wallnum);
 
 #define STATUS2DSIZ 144
 void   qsetmode640350(void);
 void   qsetmode640480(void);
-void   qsetmodeany(long,long);
+void   qsetmodeany(int,int);
 void   clear2dscreen(void);
-void   draw2dgrid(long posxe, long posye, short ange, long zoome, short gride);
-void   draw2dscreen(long posxe, long posye, short ange, long zoome, short gride);
-void   drawline16(long x1, long y1, long x2, long y2, char col);
-void   drawcircle16(long x1, long y1, long r, char col);
+void   draw2dgrid(int posxe, int posye, short ange, int zoome, short gride);
+void   draw2dscreen(int posxe, int posye, short ange, int zoome, short gride);
+void   drawline16(int x1, int y1, int x2, int y2, char col);
+void   drawcircle16(int x1, int y1, int r, char col);
 
 int   setrendermode(int renderer);
 int   getrendermode(void);
 
-void    setrollangle(long rolla);
+void    setrollangle(int rolla);
 
 //  pal: pass -1 to invalidate all palettes for the tile, or >=0 for a particular palette
 //  how: pass -1 to invalidate all instances of the tile in texture memory, or a bitfield
@@ -486,42 +486,42 @@ void    setrollangle(long rolla);
 //         bit 6: 33% translucence, using clamping
 //         bit 7: 67% translucence, using clamping
 //       clamping is for sprites, repeating is for walls
-void invalidatetile(short tilenume, long pal, long how);
+void invalidatetile(short tilenume, int pal, int how);
 
-long animateoffs(short tilenum, short fakevar);
+int animateoffs(short tilenum, short fakevar);
 
 void setpolymost2dview(void);   // sets up GL for 2D drawing
 
-long polymost_drawtilescreen(long tilex, long tiley, long wallnum, long dimen, int tilezoom);
+int polymost_drawtilescreen(int tilex, int tiley, int wallnum, int dimen, int tilezoom);
 void polymost_glreset(void);
-void polymost_precache(long dapicnum, long dapalnum, long datype);
+void polymost_precache(int dapicnum, int dapalnum, int datype);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-extern long glanisotropy;
-extern long glusetexcompr;
-extern long gltexfiltermode;
-extern long glredbluemode;
-extern long glusetexcache, glusetexcachecompression;
-extern long glmultisample, glnvmultisamplehint;
-extern long glwidescreen, glprojectionhacks;
+extern int glanisotropy;
+extern int glusetexcompr;
+extern int gltexfiltermode;
+extern int glredbluemode;
+extern int glusetexcache, glusetexcachecompression;
+extern int glmultisample, glnvmultisamplehint;
+extern int glwidescreen, glprojectionhacks;
 void gltexapplyprops (void);
 
-extern long r_depthpeeling, r_peelscount;
-extern long r_detailmapping;
-extern long r_glowmapping;
-extern long r_vertexarrays;
-extern long r_vbos;
-extern long r_vbocount;
-extern long r_animsmoothing;
+extern int r_depthpeeling, r_peelscount;
+extern int r_detailmapping;
+extern int r_glowmapping;
+extern int r_vertexarrays;
+extern int r_vbos;
+extern int r_vbocount;
+extern int r_animsmoothing;
 #endif
 
 void hicinit(void);
 // effect bitset: 1 = greyscale, 2 = invert
-void hicsetpalettetint(long palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect);
+void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect);
 // flags bitset: 1 = don't compress
-int hicsetsubsttex(long picnum, long palnum, char *filen, float alphacut, float xscale, float yscale, char flags);
-int hicsetskybox(long picnum, long palnum, char *faces[6]);
-int hicclearsubst(long picnum, long palnum);
+int hicsetsubsttex(int picnum, int palnum, char *filen, float alphacut, float xscale, float yscale, char flags);
+int hicsetskybox(int picnum, int palnum, char *faces[6]);
+int hicclearsubst(int picnum, int palnum);
 
 int md_loadmodel(const char *fn);
 int md_setmisc(int modelid, float scale, int shadeoff, float zadd);
@@ -535,8 +535,8 @@ int md_undefinemodel(int modelid);
 
 int loaddefinitionsfile(char *fn);
 
-extern long mapversion;	// if loadboard() fails with -2 return, try loadoldboard(). if it fails with -2, board is dodgy
-long loadoldboard(char *filename, char fromwhere, long *daposx, long *daposy, long *daposz, short *daang, short *dacursectnum);
+extern int mapversion;	// if loadboard() fails with -2 return, try loadoldboard(). if it fails with -2, board is dodgy
+int loadoldboard(char *filename, char fromwhere, int *daposx, int *daposy, int *daposz, short *daang, short *dacursectnum);
 
 #ifdef _MSC_VER
 #pragma pack()

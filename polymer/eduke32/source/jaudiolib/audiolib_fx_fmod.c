@@ -34,11 +34,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define dprintOSD(...)
 
 #ifdef WINDOWS
-extern long hWindow;
+extern int hWindow;
 #endif
 
 
-void(*FX_CallBackFunc)(unsigned long) = NULL;
+void(*FX_CallBackFunc)(unsigned int) = NULL;
 int FX_ErrorCode = FX_Ok;
 
 #define FX_SetErrorCode( status ) \
@@ -49,9 +49,9 @@ FSOUND_SAMPLE * FX_Samples[MAXSOUNDS + 11];	// 11 remote ridicules
 int FX_NumVoices = 0;
 static char chtoggle=0;
 static char *chstates=NULL, *chstatesa, *chstatesb;
-static long *chcallvals=NULL;
+static int *chcallvals=NULL;
 
-int FX_ReadVOCInfo(char *data, long size, int *samplerate, int *channels, int *samplesize, long *datalen);
+int FX_ReadVOCInfo(char *data, int size, int *samplerate, int *channels, int *samplesize, int *datalen);
 int FX_ReadVOCData(char *data, char *buf, int bufferlen, char eightbit);
 
 int FX_SimulateCallbacks(void);
@@ -146,10 +146,10 @@ int FX_Init(int SoundCard, int numvoices, int numchannels, int samplebits, unsig
 
     chtoggle=0;
     if (chstates) free(chstates);
-    chstates = (char*)malloc(numvoices*2 + sizeof(long)*numvoices);
-    memset(chstates,0,numvoices*2 + sizeof(long)*numvoices);
+    chstates = (char*)malloc(numvoices*2 + sizeof(int)*numvoices);
+    memset(chstates,0,numvoices*2 + sizeof(int)*numvoices);
 
-    chcallvals = (long*)(chstates + numvoices*2);
+    chcallvals = (int*)(chstates + numvoices*2);
     chstatesa = chstates;
     chstatesb = chstates + numvoices;
 
@@ -192,7 +192,7 @@ int FX_Shutdown(void)
    Sets the function to call when a voice is done.
 ---------------------------------------------------------------------*/
 
-int FX_SetCallBack(void(*function)(unsigned long))
+int FX_SetCallBack(void(*function)(unsigned int))
 {
     FX_CallBackFunc = function;
     FX_SetErrorCode(FX_Ok);
@@ -281,14 +281,14 @@ int FX_VoiceAvailable(int priority)
 int FX_PlayLoopedVOC
 (
     char *ptr,
-    long loopstart,
-    long loopend,
+    int loopstart,
+    int loopend,
     int pitchoffset,
     int vol,
     int left,
     int right,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 {
     return FX_PlayLoopedSound(pitchoffset, vol, callbackval);
@@ -304,14 +304,14 @@ int FX_PlayLoopedVOC
 int FX_PlayLoopedWAV
 (
     char *ptr,
-    long loopstart,
-    long loopend,
+    int loopstart,
+    int loopend,
     int pitchoffset,
     int vol,
     int left,
     int right,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 {
     return FX_PlayLoopedSound(pitchoffset, vol, callbackval);
@@ -332,7 +332,7 @@ int FX_PlayVOC3D
     int angle,
     int distance,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 {
     return FX_PlayPositionedSound(pitchoffset, angle, distance, callbackval);
@@ -353,7 +353,7 @@ int FX_PlayWAV3D
     int angle,
     int distance,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 {
     return FX_PlayPositionedSound(pitchoffset, angle, distance, callbackval);
@@ -424,7 +424,7 @@ int FX_StopAllSounds(void)
 int FX_PlayLoopedSound(
     int pitchoffset,
     int vol,
-    unsigned long num
+    unsigned int num
 )
 {
     int chan;
@@ -460,7 +460,7 @@ int FX_PlayPositionedSound(
     int pitchoffset,
     int angle,
     int distance,
-    unsigned long num
+    unsigned int num
 )
 {
     int chan;
@@ -491,12 +491,12 @@ int FX_PlayPositionedSound(
 }
 
 
-int FX_LoadSample(char *ptr, long size, unsigned long number, int priority)
+int FX_LoadSample(char *ptr, int size, unsigned int number, int priority)
 {
     FSOUND_SAMPLE *samp = NULL;
     int samplerate=0, channels=0, samplesize=0;
     int flags=0;
-    long datalen=0;
+    int datalen=0;
     void *ptr1,*ptr2;
     int ptr1len,ptr2len;
 
@@ -532,7 +532,7 @@ int FX_LoadSample(char *ptr, long size, unsigned long number, int priority)
 }
 
 
-int FX_SampleLoaded(unsigned long number)
+int FX_SampleLoaded(unsigned int number)
 {
     return (FX_Samples[number] != NULL);
 }
@@ -541,7 +541,7 @@ int FX_SampleLoaded(unsigned long number)
 #define REGRESSTC(tc) (256000000/(65536-(tc)))
 #define REGRESSSR(sr) (1000000/(256-(sr)))
 
-int FX_ReadVOCInfo(char *data, long size, int *samplerate, int *channels, int *samplesize, long *datalen)
+int FX_ReadVOCInfo(char *data, int size, int *samplerate, int *channels, int *samplesize, int *datalen)
 {
     short version,version2;
     char blocktype=0;
@@ -646,7 +646,7 @@ int FX_ReadVOCInfo(char *data, long size, int *samplerate, int *channels, int *s
             break;
 
         case 9: /* sound data format 3 */
-            *samplerate = *((long*)(ptr));
+            *samplerate = *((int*)(ptr));
             *samplesize = ptr[4];
             *channels   = ptr[5];
             if ((ptr[6] | (ptr[7] << 8)) != 0 &&

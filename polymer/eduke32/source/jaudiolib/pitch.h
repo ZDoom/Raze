@@ -40,5 +40,5 @@ enum PITCH_ERRORS
    };
 
 //void          PITCH_Init( void );
-unsigned long PITCH_GetScale( int pitchoffset );
+unsigned int PITCH_GetScale( int pitchoffset );
 #endif

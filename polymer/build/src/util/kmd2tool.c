@@ -11,9 +11,9 @@ kmd2tool.exe: kmd2tool.c; cl kmd2tool.c /Ox /G6fy /MD /link /opt:nowin98
 typedef struct { float x, y, z; } point3d;
 
 typedef struct
-{  long id, vers, skinxsiz, skinysiz, framebytes; //id:"IPD2", vers:8
-	long numskins, numverts, numuv, numtris, numglcmds, numframes;
-	long ofsskins, ofsuv, ofstris, ofsframes, ofsglcmds, ofseof; //ofsskins: skin names (64 bytes each)
+{  int id, vers, skinxsiz, skinysiz, framebytes; //id:"IPD2", vers:8
+	int numskins, numverts, numuv, numtris, numglcmds, numframes;
+	int ofsskins, ofsuv, ofstris, ofsframes, ofsglcmds, ofseof; //ofsskins: skin names (64 bytes each)
 } md2typ;
 
 typedef struct { point3d mul, add; } frametyp;
@@ -21,7 +21,7 @@ typedef struct { point3d mul, add; } frametyp;
 int main (int argc, char **argv)
 {
 	FILE *fil;
-	long i, leng;
+	int i, leng;
 	char *fbuf;
 	md2typ *head;
 	frametyp *fptr;

@@ -25,10 +25,10 @@
 static unsigned short sqrtable[4096], shlookup[4096+256];
 
 static char iwadata[MAXWADS][9];
-static long inumwads, iwadstart, iwadplc[MAXWADS], iwadlen[MAXWADS];
+static int inumwads, iwadstart, iwadplc[MAXWADS], iwadlen[MAXWADS];
 
 static char pwadata[MAXWADS][9];
-static long pnumwads, pwadstart, pwadplc[MAXWADS], pwadlen[MAXWADS];
+static int pnumwads, pwadstart, pwadplc[MAXWADS], pwadlen[MAXWADS];
 
 static short px[MAXPOINTS], py[MAXPOINTS];
 
@@ -64,7 +64,7 @@ typedef struct
 static thingtype thing[MAXTHINGS];
 
 static char textname[MAXTEXTS][9];
-static long textoffs[MAXTEXTS];
+static int textoffs[MAXTEXTS];
 static short textpname[MAXTEXTS];
 
 static char pname[MAXPNAMES][9];
@@ -77,7 +77,7 @@ static short point2[MAXPOINTS], slist[MAXPOINTS], sectorofwall[MAXPOINTS];
 typedef struct
 {
 	short wallptr, wallnum;
-	long ceilingz, floorz;
+	int ceilingz, floorz;
 	short ceilingstat, floorstat;
 	short ceilingpicnum, ceilingheinum;
 	signed char ceilingshade;
@@ -91,7 +91,7 @@ typedef struct
 
 typedef struct
 {
-	long x, y;
+	int x, y;
 	short point2, nextwall, nextsector, cstat;
 	short picnum, overpicnum;
 	signed char shade;
@@ -101,7 +101,7 @@ typedef struct
 
 typedef struct
 {
-	long x, y, z;
+	int x, y, z;
 	short cstat, picnum;
 	signed char shade;
 	char pal, clipdist, filler;
@@ -123,31 +123,31 @@ static short tempshort[4096];
 	//SCRIPT parsing variables:
 static char scriptname[16];
 static char filebuf[16384];
-static long filhandle, filpos, fileng;
+static int filhandle, filpos, fileng;
 
 static char definemode = 0, define[16384], *defineptr[4096];
-static long defineval[16384], definecnt = 0, numdefines = 0;
+static int defineval[16384], definecnt = 0, numdefines = 0;
 
 static char thingtypemode = 0;
-static long thingnum[1024], thingnum2[1024], thingoff[1024], numthings = 0;
+static int thingnum[1024], thingnum2[1024], thingoff[1024], numthings = 0;
 static short thingfield[4096];
 static char thingop[4096];
-static long thingval[4096], thingopnum = 0;
+static int thingval[4096], thingopnum = 0;
 
 static char texturelookupmode = 0;
 static short texturelookup[4096];
 
 static char tagtypemode = 0;
-static long tagnum[1024], tagnum2[1024], tagoff[1024], numtags = 0;
+static int tagnum[1024], tagnum2[1024], tagoff[1024], numtags = 0;
 static char tagstruct[4096], tagop[4096];
 static short tagfield[4096];
-static long tagval[4096], tagopnum = 0;
+static int tagval[4096], tagopnum = 0;
 
 static char sectypemode = 0;
-static long secnum[1024], secnum2[1024], secoff[1024], numsecs = 0;
+static int secnum[1024], secnum2[1024], secoff[1024], numsecs = 0;
 static short secfield[4096];
 static char secop[4096];
-static long secval[4096], secopnum = 0;
+static int secval[4096], secopnum = 0;
 
 #define THINGLISTNUM 123
 static short thinglookup[MAXTHINGTYPES];
@@ -177,7 +177,7 @@ static thinglisttype thinglist[THINGLISTNUM] =
 {23,""}};
 
 // These three were nicked from Build's engine.c.
-static inline unsigned long ksqrtasm(unsigned long a)
+static inline unsigned int ksqrtasm(unsigned int a)
 {
 	unsigned short c;
 
@@ -190,9 +190,9 @@ static inline unsigned long ksqrtasm(unsigned long a)
 	return a;
 }
 
-static inline long msqrtasm(unsigned long c)
+static inline int msqrtasm(unsigned int c)
 {
-	unsigned long a,b;
+	unsigned int a,b;
 
 	a = 0x40000000l;
 	b = 0x20000000l;
@@ -212,7 +212,7 @@ static inline long msqrtasm(unsigned long c)
 
 static void initksqrt(void)
 {
-	long i, j, k;
+	int i, j, k;
 
 	j = 1; k = 0;
 	for(i=0;i<4096;i++)
@@ -225,10 +225,10 @@ static void initksqrt(void)
 }
 
 
-long inside(long x, long y, short sectnum)
+int inside(int x, int y, short sectnum)
 {
 	walltype *wal;
-	long i, x1, y1, x2, y2;
+	int i, x1, y1, x2, y2;
 	char cnt;
 
 	cnt = 0;
@@ -251,17 +251,17 @@ long inside(long x, long y, short sectnum)
 	return(cnt);
 }
 
-long readbyte(void)
+int readbyte(void)
 {
 	if (filpos >= fileng) return(-1);
 	if ((filpos&16383) == 0) Bread(filhandle,filebuf,16384);
 	filpos++;
-	return((long)filebuf[(filpos-1)&16383]);
+	return((int)filebuf[(filpos-1)&16383]);
 }
 
-long readline(void)
+int readline(void)
 {
-	long i, ch;
+	int i, ch;
 
 	do
 	{
@@ -296,8 +296,8 @@ long readline(void)
 
 void parsescript(void)
 {
-	long i, j, k, l, lasti, breakout, tstart, tend, textnum, frontbackstat;
-	long spritenumstat, slen;
+	int i, j, k, l, lasti, breakout, tstart, tend, textnum, frontbackstat;
+	int spritenumstat, slen;
 	char ch;
 
 	clearbufbyte(FP_OFF(sectspri),MAXSECTS*8*sizeof(short),0xffffffff);
@@ -730,37 +730,37 @@ void parsescript(void)
 	close(filhandle);
 }
 
-long getspritefield(long i, long fieldnum)
+int getspritefield(int i, int fieldnum)
 {
 	switch(fieldnum)
 	{
-		case 0: return((long)sprite[i].x);
-		case 1: return((long)sprite[i].y);
-		case 2: return((long)sprite[i].z);
-		case 3: return((long)sprite[i].cstat);
-		case 4: return((long)sprite[i].shade);
-		case 5: return((long)sprite[i].pal);
-		case 6: return((long)sprite[i].clipdist);
-		case 7: return((long)sprite[i].xrepeat);
-		case 8: return((long)sprite[i].yrepeat);
-		case 9: return((long)sprite[i].xoffset);
-		case 10: return((long)sprite[i].yoffset);
-		case 11: return((long)sprite[i].picnum);
-		case 12: return((long)sprite[i].ang);
-		case 13: return((long)sprite[i].xvel);
-		case 14: return((long)sprite[i].yvel);
-		case 15: return((long)sprite[i].zvel);
-		case 16: return((long)sprite[i].owner);
-		case 17: return((long)sprite[i].sectnum);
-		case 18: return((long)sprite[i].statnum);
-		case 19: return((long)sprite[i].lotag);
-		case 20: return((long)sprite[i].hitag);
-		case 21: return((long)sprite[i].extra);
+		case 0: return((int)sprite[i].x);
+		case 1: return((int)sprite[i].y);
+		case 2: return((int)sprite[i].z);
+		case 3: return((int)sprite[i].cstat);
+		case 4: return((int)sprite[i].shade);
+		case 5: return((int)sprite[i].pal);
+		case 6: return((int)sprite[i].clipdist);
+		case 7: return((int)sprite[i].xrepeat);
+		case 8: return((int)sprite[i].yrepeat);
+		case 9: return((int)sprite[i].xoffset);
+		case 10: return((int)sprite[i].yoffset);
+		case 11: return((int)sprite[i].picnum);
+		case 12: return((int)sprite[i].ang);
+		case 13: return((int)sprite[i].xvel);
+		case 14: return((int)sprite[i].yvel);
+		case 15: return((int)sprite[i].zvel);
+		case 16: return((int)sprite[i].owner);
+		case 17: return((int)sprite[i].sectnum);
+		case 18: return((int)sprite[i].statnum);
+		case 19: return((int)sprite[i].lotag);
+		case 20: return((int)sprite[i].hitag);
+		case 21: return((int)sprite[i].extra);
 	}
 	return(0);
 }
 
-void setspritefield(long i, long fieldnum, long newval)
+void setspritefield(int i, int fieldnum, int newval)
 {
 	switch(fieldnum)
 	{
@@ -789,32 +789,32 @@ void setspritefield(long i, long fieldnum, long newval)
 	}
 }
 
-long getwallfield(long i, long fieldnum)
+int getwallfield(int i, int fieldnum)
 {
 	switch(fieldnum)
 	{
-		case 64: return((long)wall[i].x);
-		case 65: return((long)wall[i].y);
-		case 66: return((long)wall[i].point2);
-		case 67: return((long)wall[i].nextsector);
-		case 68: return((long)wall[i].nextwall);
-		case 69: return((long)wall[i].picnum);
-		case 70: return((long)wall[i].overpicnum);
-		case 71: return((long)wall[i].shade);
-		case 72: return((long)wall[i].pal);
-		case 73: return((long)wall[i].cstat);
-		case 74: return((long)wall[i].xrepeat);
-		case 75: return((long)wall[i].yrepeat);
-		case 76: return((long)wall[i].xpanning);
-		case 77: return((long)wall[i].ypanning);
-		case 78: return((long)wall[i].lotag);
-		case 79: return((long)wall[i].hitag);
-		case 80: return((long)wall[i].extra);
+		case 64: return((int)wall[i].x);
+		case 65: return((int)wall[i].y);
+		case 66: return((int)wall[i].point2);
+		case 67: return((int)wall[i].nextsector);
+		case 68: return((int)wall[i].nextwall);
+		case 69: return((int)wall[i].picnum);
+		case 70: return((int)wall[i].overpicnum);
+		case 71: return((int)wall[i].shade);
+		case 72: return((int)wall[i].pal);
+		case 73: return((int)wall[i].cstat);
+		case 74: return((int)wall[i].xrepeat);
+		case 75: return((int)wall[i].yrepeat);
+		case 76: return((int)wall[i].xpanning);
+		case 77: return((int)wall[i].ypanning);
+		case 78: return((int)wall[i].lotag);
+		case 79: return((int)wall[i].hitag);
+		case 80: return((int)wall[i].extra);
 	}
 	return(0);
 }
 
-void setwallfield(long i, long fieldnum, long newval)
+void setwallfield(int i, int fieldnum, int newval)
 {
 	switch(fieldnum)
 	{
@@ -838,37 +838,37 @@ void setwallfield(long i, long fieldnum, long newval)
 	}
 }
 
-long getsectorfield(long i, long fieldnum)
+int getsectorfield(int i, int fieldnum)
 {
 	switch(fieldnum)
 	{
-		case 32: return((long)sector[i].wallptr);
-		case 33: return((long)sector[i].wallnum);
-		case 34: return((long)sector[i].ceilingpicnum);
-		case 35: return((long)sector[i].floorpicnum);
-		case 36: return((long)sector[i].ceilingheinum);
-		case 37: return((long)sector[i].floorheinum);
-		case 38: return((long)sector[i].ceilingz);
-		case 39: return((long)sector[i].floorz);
-		case 40: return((long)sector[i].ceilingshade);
-		case 41: return((long)sector[i].floorshade);
-		case 42: return((long)sector[i].ceilingxpanning);
-		case 43: return((long)sector[i].floorxpanning);
-		case 44: return((long)sector[i].ceilingypanning);
-		case 45: return((long)sector[i].floorypanning);
-		case 46: return((long)sector[i].ceilingstat);
-		case 47: return((long)sector[i].floorstat);
-		case 48: return((long)sector[i].ceilingpal);
-		case 49: return((long)sector[i].floorpal);
-		case 50: return((long)sector[i].visibility);
-		case 51: return((long)sector[i].lotag);
-		case 52: return((long)sector[i].hitag);
-		case 53: return((long)sector[i].extra);
+		case 32: return((int)sector[i].wallptr);
+		case 33: return((int)sector[i].wallnum);
+		case 34: return((int)sector[i].ceilingpicnum);
+		case 35: return((int)sector[i].floorpicnum);
+		case 36: return((int)sector[i].ceilingheinum);
+		case 37: return((int)sector[i].floorheinum);
+		case 38: return((int)sector[i].ceilingz);
+		case 39: return((int)sector[i].floorz);
+		case 40: return((int)sector[i].ceilingshade);
+		case 41: return((int)sector[i].floorshade);
+		case 42: return((int)sector[i].ceilingxpanning);
+		case 43: return((int)sector[i].floorxpanning);
+		case 44: return((int)sector[i].ceilingypanning);
+		case 45: return((int)sector[i].floorypanning);
+		case 46: return((int)sector[i].ceilingstat);
+		case 47: return((int)sector[i].floorstat);
+		case 48: return((int)sector[i].ceilingpal);
+		case 49: return((int)sector[i].floorpal);
+		case 50: return((int)sector[i].visibility);
+		case 51: return((int)sector[i].lotag);
+		case 52: return((int)sector[i].hitag);
+		case 53: return((int)sector[i].extra);
 	}
 	return(0);
 }
 
-void setsectorfield(long i, long fieldnum, long newval)
+void setsectorfield(int i, int fieldnum, int newval)
 {
 	switch(fieldnum)
 	{
@@ -897,9 +897,9 @@ void setsectorfield(long i, long fieldnum, long newval)
 	}
 }
 
-long getwadindex(char *nam)
+int getwadindex(char *nam)
 {
-	long i, j;
+	int i, j;
 
 	i = 0;
 	for(j=2048;j>0;j>>=1)
@@ -913,13 +913,13 @@ int main(int argc, char **argv)
 {
 	char argstring[5][80];
 	char iwadfil[80], pwadfil[80], doommap[16], buildmap[16], picstr[16];
-	long w, numwads, numtexts, startnumtexts, danumtexts, numpnames;
-	long x, y, z, zz, zzz, zzx, zx, cx, cy, gap, p, pp, i, j, k, l, offs;
-	long dnumpoints, dnumlines, dnumsides, dnumsectors, dnumthings, good;
-	long minx, maxx, miny, maxy, numsectors, numwalls, wadtype;
-	long startnumwalls, l1, l2, startpoint2, dapoint2, area;
-	long fil, ifil, pfil, x1, y1, x2, y2, startwall, endwall;
-	long mapversion, posx, posy, posz, templong, cnt, boardwadindex;
+	int w, numwads, numtexts, startnumtexts, danumtexts, numpnames;
+	int x, y, z, zz, zzz, zzx, zx, cx, cy, gap, p, pp, i, j, k, l, offs;
+	int dnumpoints, dnumlines, dnumsides, dnumsectors, dnumthings, good;
+	int minx, maxx, miny, maxy, numsectors, numwalls, wadtype;
+	int startnumwalls, l1, l2, startpoint2, dapoint2, area;
+	int fil, ifil, pfil, x1, y1, x2, y2, startwall, endwall;
+	int mapversion, posx, posy, posz, tempint, cnt, boardwadindex;
 	short ang, cursectnum;
 
 	printf("Wad2Map!                                       Copyright 1995 by Ken Silverman\n");
@@ -991,9 +991,9 @@ int main(int argc, char **argv)
 	{
 		if ((z&1023) == 0) Bread(ifil,tempbuf,16384);
 		zz = ((z&1023)<<4);
-		iwadplc[z] = ((long)tempbuf[zz]) + (((long)tempbuf[zz+1])<<8) + (((long)tempbuf[zz+2])<<16) + (((long)tempbuf[zz+3])<<24);
+		iwadplc[z] = ((int)tempbuf[zz]) + (((int)tempbuf[zz+1])<<8) + (((int)tempbuf[zz+2])<<16) + (((int)tempbuf[zz+3])<<24);
 		zz += 4;
-		iwadlen[z] = ((long)tempbuf[zz]) + (((long)tempbuf[zz+1])<<8) + (((long)tempbuf[zz+2])<<16) + (((long)tempbuf[zz+3])<<24);
+		iwadlen[z] = ((int)tempbuf[zz]) + (((int)tempbuf[zz+1])<<8) + (((int)tempbuf[zz+2])<<16) + (((int)tempbuf[zz+3])<<24);
 		zz += 4;
 		iwadata[z][0] = tempbuf[zz+0]; iwadata[z][1] = tempbuf[zz+1];
 		iwadata[z][2] = tempbuf[zz+2]; iwadata[z][3] = tempbuf[zz+3];
@@ -1023,9 +1023,9 @@ int main(int argc, char **argv)
 		{
 			if ((z&1023) == 0) Bread(ifil,tempbuf,16384);
 			zz = ((z&1023)<<4);
-			pwadplc[z] = ((long)tempbuf[zz]) + (((long)tempbuf[zz+1])<<8) + (((long)tempbuf[zz+2])<<16) + (((long)tempbuf[zz+3])<<24);
+			pwadplc[z] = ((int)tempbuf[zz]) + (((int)tempbuf[zz+1])<<8) + (((int)tempbuf[zz+2])<<16) + (((int)tempbuf[zz+3])<<24);
 			zz += 4;
-			pwadlen[z] = ((long)tempbuf[zz]) + (((long)tempbuf[zz+1])<<8) + (((long)tempbuf[zz+2])<<16) + (((long)tempbuf[zz+3])<<24);
+			pwadlen[z] = ((int)tempbuf[zz]) + (((int)tempbuf[zz+1])<<8) + (((int)tempbuf[zz+2])<<16) + (((int)tempbuf[zz+3])<<24);
 			zz += 4;
 			pwadata[z][0] = tempbuf[zz+0]; pwadata[z][1] = tempbuf[zz+1];
 			pwadata[z][2] = tempbuf[zz+2]; pwadata[z][3] = tempbuf[zz+3];
@@ -1061,7 +1061,7 @@ int main(int argc, char **argv)
 		{ printf("TEXTURE1 not found!\n"); exit(0); }
 	Blseek(ifil,iwadplc[w],BSEEK_SET);
 	Bread(ifil,&numtexts,4);
-	Bread(ifil,textoffs,numtexts*sizeof(long));
+	Bread(ifil,textoffs,numtexts*sizeof(int));
 	for(z=0;z<numtexts;z++)
 	{
 		Blseek(ifil,iwadplc[w]+textoffs[z],BSEEK_SET);
@@ -1071,7 +1071,7 @@ int main(int argc, char **argv)
 		textname[z][4] = tempbuf[4]; textname[z][5] = tempbuf[5];
 		textname[z][6] = tempbuf[6]; textname[z][7] = tempbuf[7];
 		textname[z][8] = 0;
-		textpname[z] = ((long)tempbuf[26]) + (((long)tempbuf[27])<<8);
+		textpname[z] = ((int)tempbuf[26]) + (((int)tempbuf[27])<<8);
 	}
 
 	if ((w = getwadindex("TEXTURE2")) >= 0)
@@ -1079,7 +1079,7 @@ int main(int argc, char **argv)
 		Blseek(ifil,iwadplc[w],BSEEK_SET);
 		startnumtexts = numtexts;
 		Bread(ifil,&danumtexts,4); numtexts += danumtexts;
-		Bread(ifil,&textoffs[startnumtexts],(numtexts-startnumtexts)*sizeof(long));
+		Bread(ifil,&textoffs[startnumtexts],(numtexts-startnumtexts)*sizeof(int));
 		for(z=startnumtexts;z<numtexts;z++)
 		{
 			Blseek(ifil,iwadplc[w]+textoffs[z],BSEEK_SET);
@@ -1089,7 +1089,7 @@ int main(int argc, char **argv)
 			textname[z][4] = tempbuf[4]; textname[z][5] = tempbuf[5];
 			textname[z][6] = tempbuf[6]; textname[z][7] = tempbuf[7];
 			textname[z][8] = 0;
-			textpname[z] = ((long)tempbuf[26]) + (((long)tempbuf[27])<<8);
+			textpname[z] = ((int)tempbuf[26]) + (((int)tempbuf[27])<<8);
 		}
 	}
 
@@ -1312,8 +1312,8 @@ int main(int argc, char **argv)
 
 	for(z=0;z<numwalls;z++)
 	{
-		wall[z].x = (((long)wx[z]-cx)<<4);
-		wall[z].y = (((long)wy[z]-cy)<<4);
+		wall[z].x = (((int)wx[z]-cx)<<4);
+		wall[z].y = (((int)wy[z]-cy)<<4);
 		wall[z].point2 = point2[z];
 
 		wall[z].nextwall = -1;
@@ -1376,8 +1376,8 @@ int main(int argc, char **argv)
 
 	for(z=0;z<dnumthings;z++)
 	{
-		sprite[z].x = (((long)thing[z].x-cx)<<4);
-		sprite[z].y = (((long)-thing[z].y-cy)<<4);
+		sprite[z].x = (((int)thing[z].x-cx)<<4);
+		sprite[z].y = (((int)-thing[z].y-cy)<<4);
 
 		sprite[z].sectnum = 0;
 		for(zz=0;zz<dnumsectors;zz++)
@@ -1569,8 +1569,8 @@ int main(int argc, char **argv)
 	for(i=0;i<dnumthings;i++)
 		if (thing[i].type == 1)
 		{
-			posx = (((long)thing[i].x-cx)<<4);
-			posy = (((long)-thing[i].y-cy)<<4);
+			posx = (((int)thing[i].x-cx)<<4);
+			posy = (((int)-thing[i].y-cy)<<4);
 
 			cursectnum = 0;
 			for(zz=0;zz<dnumsectors;zz++)

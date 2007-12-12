@@ -10,25 +10,25 @@
 
 #define MAXPALOOKUPS 256
 
-static long numpalookups, transratio;
+static int numpalookups, transratio;
 static char palettefilename[13], origpalookup[MAXPALOOKUPS<<8];
 static char palette[768], palookup[MAXPALOOKUPS<<8], transluc[65536];
 static char closestcol[64][64][64];
 
 #define FASTPALGRIDSIZ 8
-static long rdist[129], gdist[129], bdist[129];
+static int rdist[129], gdist[129], bdist[129];
 static char colhere[((FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2))>>3];
 static char colhead[(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)];
-static long colnext[256];
+static int colnext[256];
 static char coldist[8] = {0,1,2,3,4,3,2,1};
-static long colscan[27];
+static int colscan[27];
 
 
 
-char getclosestcol(long r, long g, long b)
+char getclosestcol(int r, int g, int b)
 {
-	long i, j, k, dist, mindist, retcol;
-	long *rlookup, *glookup, *blookup;
+	int i, j, k, dist, mindist, retcol;
+	int *rlookup, *glookup, *blookup;
 	char *ptr;
 
 	if (closestcol[r][g][b] != 255) return(closestcol[r][g][b]);
@@ -38,9 +38,9 @@ char getclosestcol(long r, long g, long b)
 	mindist = min(mindist,bdist[coldist[b&7]+64+8]);
 	mindist++;
 
-	rlookup = (long *)&rdist[64-r];
-	glookup = (long *)&gdist[64-g];
-	blookup = (long *)&bdist[64-b];
+	rlookup = (int *)&rdist[64-r];
+	glookup = (int *)&gdist[64-g];
+	blookup = (int *)&bdist[64-b];
 
 	retcol = -1;
 	for(k=26;k>=0;k--)
@@ -86,7 +86,7 @@ char getclosestcol(long r, long g, long b)
 
 char getpalookup(char dashade, char dacol)
 {
-	long r, g, b, t;
+	int r, g, b, t;
 	char *ptr;
 
 	ptr = (char *)&palette[dacol*3];
@@ -97,9 +97,9 @@ char getpalookup(char dashade, char dacol)
 	return(getclosestcol(r,g,b));
 }
 
-char gettrans(char dat1, char dat2, long datransratio)
+char gettrans(char dat1, char dat2, int datransratio)
 {
-	long r, g, b;
+	int r, g, b;
 	char *ptr, *ptr2;
 
 	ptr = (char *)&palette[dat1*3];
@@ -110,9 +110,9 @@ char gettrans(char dat1, char dat2, long datransratio)
 	return(getclosestcol(r,g,b));
 }
 
-void initfastcolorlookup(long rscale, long gscale, long bscale)
+void initfastcolorlookup(int rscale, int gscale, int bscale)
 {
-	long i, j, x, y, z;
+	int i, j, x, y, z;
 	char *ptr;
 
 	j = 0;
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
 {
 	char col, ch;
 	short orignumpalookups;
-	long fil, i, j, rscale, gscale, bscale;
+	int fil, i, j, rscale, gscale, bscale;
 	char buf[65536];
 
 	ch = 13;
@@ -203,7 +203,7 @@ int main(int argc, char **argv)
 	Bread(fil,palette,768);
 	Bread(fil,&orignumpalookups,2); orignumpalookups = B_LITTLE16(orignumpalookups);
 	orignumpalookups = min(max(orignumpalookups,1),256);
-	Bread(fil,origpalookup,(long)orignumpalookups<<8);
+	Bread(fil,origpalookup,(int)orignumpalookups<<8);
 	Bclose(fil);
 
 	clearbuf(buf,65536>>2,0L);
@@ -217,8 +217,8 @@ int main(int argc, char **argv)
 			col = getpalookup((char)i,(char)j);
 			palookup[(i<<8)+j] = col;
 
-			drawpixel(((((i<<1)+0)*320+(j+8))>>2)+buf,(long)col);
-			drawpixel(((((i<<1)+1)*320+(j+8))>>2)+buf,(long)col);
+			drawpixel(((((i<<1)+0)*320+(j+8))>>2)+buf,(int)col);
+			drawpixel(((((i<<1)+1)*320+(j+8))>>2)+buf,(int)col);
 		}
 
 	for(i=0;i<256;i++)
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
 			col = gettrans((char)i,(char)j,transratio);
 			transluc[(i<<8)+j] = col;
 
-			drawpixel((((j+132+8)*320+(i+8))>>2)+buf,(long)col);
+			drawpixel((((j+132+8)*320+(i+8))>>2)+buf,(int)col);
 		}
 
 	if (ch == 13)
@@ -257,7 +257,7 @@ int main(int argc, char **argv)
 			{ printf("Couldn't save file %s",palettefilename); return(0); }
 		Bwrite(fil,palette,768);
 		s = B_LITTLE16(orignumpalookups); Bwrite(fil,&s,2);
-		Bwrite(fil,origpalookup,(long)orignumpalookups<<8);
+		Bwrite(fil,origpalookup,(int)orignumpalookups<<8);
 		Bwrite(fil,transluc,65536);
 		Bclose(fil);
 		printf("Transluscent table updated\n");

@@ -341,7 +341,7 @@ int MUSIC_GetContext
 
 void MUSIC_SetSongTick
 (
-    unsigned long PositionInTicks
+    unsigned int PositionInTicks
 )
 
 {}
@@ -355,7 +355,7 @@ void MUSIC_SetSongTick
 
 void MUSIC_SetSongTime
 (
-    unsigned long milliseconds
+    unsigned int milliseconds
 )
 
 {}

@@ -768,7 +768,7 @@ unsigned short RESERVEDSLOT12 = 6143;
 
 unsigned short dynamictostatic[MAXTILES];
 
-void processnames(const char *szLabel, long lValue)
+void processnames(const char *szLabel, int lValue)
 {
     switch (szLabel[0])
     {

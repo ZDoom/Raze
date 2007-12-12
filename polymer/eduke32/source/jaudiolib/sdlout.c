@@ -185,7 +185,7 @@ static void isr(void *userdata, unsigned char *stream, int len)
         {
             /*
             #define copybuf(S,D,c) \
-            ({ void *__S=(S), *__D=(D); long __c=(c); \
+            ({ void *__S=(S), *__D=(D); int __c=(c); \
             __asm__ __volatile__ ("rep; movsl" \
             : "+S" (__S), "+D" (__D), "+c" (__c) : : "memory", "cc"); \
             0; })

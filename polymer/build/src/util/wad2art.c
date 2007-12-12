@@ -10,11 +10,11 @@
 
 #define MAXWADS 4096
 
-static long artversion, localtilestart, localtileend;
-static long fil1, fil2;
+static int artversion, localtilestart, localtileend;
+static int fil1, fil2;
 static char wadata[MAXWADS][8];
-static long wadplc[MAXWADS], wadlen[MAXWADS], numwads;
-static long xoffses[1024], ylookup[256], picanm[MAXWADS];
+static int wadplc[MAXWADS], wadlen[MAXWADS], numwads;
+static int xoffses[1024], ylookup[256], picanm[MAXWADS];
 static short tilesizx[MAXWADS], tilesizy[MAXWADS];
 static char pal[768], palookup[8192];
 static char screen[65536], tempbuf[131072];
@@ -22,19 +22,19 @@ static char screen[65536], tempbuf[131072];
 
 void loadwadheader(void)
 {
-	long i, j;
+	int i, j;
 
 	Bread(fil1,&tempbuf[0],12);
-	numwads = ((long)tempbuf[4])+(((long)tempbuf[5])<<8)+(((long)tempbuf[6])<<16)+(((long)tempbuf[7])<<24);
-	i = ((long)tempbuf[8])+(((long)tempbuf[9])<<8)+(((long)tempbuf[10])<<16)+(((long)tempbuf[11])<<24);
+	numwads = ((int)tempbuf[4])+(((int)tempbuf[5])<<8)+(((int)tempbuf[6])<<16)+(((int)tempbuf[7])<<24);
+	i = ((int)tempbuf[8])+(((int)tempbuf[9])<<8)+(((int)tempbuf[10])<<16)+(((int)tempbuf[11])<<24);
 	Blseek(fil1,i,BSEEK_SET);
 	Bread(fil1,&tempbuf[0],numwads*16);
 	j = 0;
 	for(i=0;i<numwads;i++)
 	{
-		wadplc[i] = ((long)tempbuf[j])+(((long)tempbuf[j+1])<<8)+(((long)tempbuf[j+2])<<16)+(((long)tempbuf[j+3])<<24);
+		wadplc[i] = ((int)tempbuf[j])+(((int)tempbuf[j+1])<<8)+(((int)tempbuf[j+2])<<16)+(((int)tempbuf[j+3])<<24);
 		j += 4;
-		wadlen[i] = ((long)tempbuf[j])+(((long)tempbuf[j+1])<<8)+(((long)tempbuf[j+2])<<16)+(((long)tempbuf[j+3])<<24);
+		wadlen[i] = ((int)tempbuf[j])+(((int)tempbuf[j+1])<<8)+(((int)tempbuf[j+2])<<16)+(((int)tempbuf[j+3])<<24);
 		j += 4;
 		wadata[i][0] = tempbuf[j+0]; wadata[i][1] = tempbuf[j+1];
 		wadata[i][2] = tempbuf[j+2]; wadata[i][3] = tempbuf[j+3];
@@ -46,7 +46,7 @@ void loadwadheader(void)
 
 void convpalette(void)
 {
-	long i, fil3;
+	int i, fil3;
 	short danumshades;
 
 	i = 0;
@@ -71,7 +71,7 @@ void convpalette(void)
 
 void saveart (short tilenum, short xlen, short ylen)
 {
-	long i, x, p, pend;
+	int i, x, p, pend;
 
 	pend = ylookup[ylen];
 
@@ -91,7 +91,7 @@ void saveart (short tilenum, short xlen, short ylen)
 void savenames(void)
 {
 	char buffer[160];
-	long fil3, i, j;
+	int fil3, i, j;
 
 	if ((fil3 = Bopen("names.h",BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
 		return;
@@ -127,7 +127,7 @@ void showart (char *part)
 {
 	char yoff, ylen;
 	short xsiz, ysiz;
-	long i, j, z, zx, zzx, x, y, p, pend, junk, curplc;
+	int i, j, z, zx, zzx, x, y, p, pend, junk, curplc;
 
 	curplc = -1;
 	if ((Bstrncasecmp(part,"L_START",7) == 0) || (Bstrncasecmp(part,"S_START",7) == 0) || (Bstrncasecmp(part,"P_START",7) == 0))
@@ -154,13 +154,13 @@ void showart (char *part)
 			read(fil1,&tempbuf[0],wadlen[z]);
 			curplc = wadplc[z]+wadlen[z];
 
-			xsiz = (long)tempbuf[0]+(((long)tempbuf[1])<<8);
-			ysiz = (long)tempbuf[2]+(((long)tempbuf[3])<<8);
+			xsiz = (int)tempbuf[0]+(((int)tempbuf[1])<<8);
+			ysiz = (int)tempbuf[2]+(((int)tempbuf[3])<<8);
 			if ((xsiz <= 0) || (ysiz <= 0) || (xsiz > 320) || (ysiz > 200)) goto skipit;
 			i = 8;
 			for(zx=0;zx<xsiz;zx++)
 			{
-				xoffses[zx] = ((long)tempbuf[i])+(((long)tempbuf[i+1])<<8)+(((long)tempbuf[i+2])<<16)+(((long)tempbuf[i+3])<<24);
+				xoffses[zx] = ((int)tempbuf[i])+(((int)tempbuf[i+1])<<8)+(((int)tempbuf[i+2])<<16)+(((int)tempbuf[i+3])<<24);
 				i += 4;
 			}
 
@@ -219,7 +219,7 @@ skipit:
 
 int main(int argc, char **argv)
 {
-	long i, j, endoffile;
+	int i, j, endoffile;
 	char wadfile[80];
 
 	printf("Wad2Art!                                       Copyright 1995 by Ken Silverman\n");

@@ -31,13 +31,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 
 int g_i,g_p;
-static long g_x,*g_t;
+static int g_x,*g_t;
 static spritetype *g_sp;
 static int killit_flag;
 
 static void DoUserDef(int iSet, int lLabelID, int lVar2)
 {
-    long lValue;
+    int lValue;
 
     if (g_p != myconnectindex)
     {
@@ -704,7 +704,7 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
 
 static void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    long lValue,proj=g_i;
+    int lValue,proj=g_i;
 
     if (lVar1 != g_iThisActorID)
         proj=GetGameVarID(lVar1, g_i, g_p);
@@ -925,8 +925,8 @@ static void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 
 static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 {
-    long lValue;
-    long lTemp;
+    int lValue;
+    int lTemp;
     int iPlayer=g_p;
 
     if (lVar1 != g_iThisActorID)
@@ -1983,7 +1983,7 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
 static void DoInput(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    long lValue;
+    int lValue;
     int iPlayer=g_p;
 
     if (lVar1 != g_iThisActorID)
@@ -2050,7 +2050,7 @@ static void DoInput(int iSet, int lVar1, int lLabelID, int lVar2)
 
 static void DoWall(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    long lValue;
+    int lValue;
     int iWall = GetGameVarID(lVar1, g_i, g_p);
 
     if (iWall<0 || iWall >= MAXWALLS)
@@ -2190,7 +2190,7 @@ static void DoWall(int iSet, int lVar1, int lLabelID, int lVar2)
 
 static void DoSector(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    long lValue;
+    int lValue;
     int iSector=sprite[g_i].sectnum;
 
     if (lVar1 != g_iThisActorID)
@@ -2376,8 +2376,8 @@ static void DoSector(int iSet, int lVar1, int lLabelID, int lVar2)
 
 static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 {
-    long lValue;
-    long lTemp;
+    int lValue;
+    int lTemp;
     int iActor=g_i;
 
     if (lVar1 != g_iThisActorID)
@@ -2740,7 +2740,7 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
 static void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    long lValue;
+    int lValue;
 
     if (lVar1 < 0 || lVar1 >= MAXTILES)
     {
@@ -2958,7 +2958,7 @@ static void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 
 static int parse(void);
 
-void OnEvent(int iEventID, int iActor, int iPlayer, long lDist)
+void OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
 {
     if (iEventID >= MAXGAMEEVENTS)
     {
@@ -2975,7 +2975,7 @@ void OnEvent(int iEventID, int iActor, int iPlayer, long lDist)
 
     {
         int og_i=g_i, og_p=g_p, okillit_flag=killit_flag;
-        long og_x=g_x, *og_t=g_t, *oinsptr=insptr;
+        int og_x=g_x, *og_t=g_t, *oinsptr=insptr;
         spritetype *og_sp=g_sp;
 
         g_i = iActor;    // current sprite ID
@@ -3063,10 +3063,10 @@ static void forceplayerangle(player_struct *p)
 
 static char dodge(spritetype *s)
 {
-    long bx,by,bxvect,byvect,d,i;
-    long mx = s->x, my = s->y;
-    long mxvect = sintable[(s->ang+512)&2047];
-    long myvect = sintable[s->ang&2047];
+    int bx,by,bxvect,byvect,d,i;
+    int mx = s->x, my = s->y;
+    int mxvect = sintable[(s->ang+512)&2047];
+    int myvect = sintable[s->ang&2047];
 
     for (i=headspritestat[4];i>=0;i=nextspritestat[i]) //weapons list
     {
@@ -3095,9 +3095,9 @@ static char dodge(spritetype *s)
 int furthestangle(int iActor,int angs)
 {
     short hitsect,hitwall,hitspr,furthest_angle=0;
-    long hx, hy, hz, d;
+    int hx, hy, hz, d;
     spritetype *s = &sprite[iActor];
-    long greatestd = -(1<<30);
+    int greatestd = -(1<<30);
     int angincs = 2048/angs,j;
 
     if (s->picnum != APLAYER)
@@ -3121,10 +3121,10 @@ int furthestangle(int iActor,int angs)
     return (furthest_angle&2047);
 }
 
-int furthestcanseepoint(int iActor,spritetype *ts,long *dax,long *day)
+int furthestcanseepoint(int iActor,spritetype *ts,int *dax,int *day)
 {
     short hitsect,hitwall,hitspr, angincs;
-    long hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
+    int hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
     int j;
     spritetype *s = &sprite[iActor];
 
@@ -3161,7 +3161,7 @@ void getglobalz(int iActor)
 
     if (s->statnum == 10 || s->statnum == 6 || s->statnum == 2 || s->statnum == 1 || s->statnum == 4)
     {
-        long hz,lz,zr = 127L;
+        int hz,lz,zr = 127L;
 
         if (s->statnum == 4)
             zr = 4L;
@@ -3204,7 +3204,7 @@ void getglobalz(int iActor)
 void makeitfall(int iActor)
 {
     spritetype *s = &sprite[iActor];
-    long hz,lz,c = gc;
+    int hz,lz,c = gc;
 
     if (floorspace(s->sectnum))
         c = 0;
@@ -3261,7 +3261,7 @@ int getincangle(int a,int na)
 static void alterang(int a)
 {
     int aang = g_sp->ang, angdif, goalang;
-    long ticselapsed = (g_t[0])&31, *moveptr = (long *)g_t[1];
+    int ticselapsed = (g_t[0])&31, *moveptr = (int *)g_t[1];
     int j = g_player[g_p].ps->holoduke_on;
 
     g_sp->xvel += (*moveptr-g_sp->xvel)/5;
@@ -3323,9 +3323,9 @@ static void alterang(int a)
 
 static void move(void)
 {
-    long l, *moveptr;
+    int l, *moveptr;
     int a = g_sp->hitag, goalang, angdif;
-    long daxvel;
+    int daxvel;
 
     if (a == -1) a = 0;
 
@@ -3364,8 +3364,8 @@ static void move(void)
 
     if (a&face_player_smart)
     {
-        long newx = g_player[g_p].ps->posx+(g_player[g_p].ps->posxv/768);
-        long newy = g_player[g_p].ps->posy+(g_player[g_p].ps->posyv/768);
+        int newx = g_player[g_p].ps->posx+(g_player[g_p].ps->posxv/768);
+        int newy = g_player[g_p].ps->posy+(g_player[g_p].ps->posyv/768);
 
         goalang = getangle(newx-g_sp->x,newy-g_sp->y);
         angdif = getincangle(g_sp->ang,goalang)>>2;
@@ -3385,7 +3385,7 @@ static void move(void)
         return;
     }
 
-    moveptr = (long *)g_t[1];
+    moveptr = (int *)g_t[1];
 
     if (a&geth) g_sp->xvel += (*moveptr-g_sp->xvel)>>1;
     if (a&getv) g_sp->zvel += ((*(moveptr+1)<<4)-g_sp->zvel)>>1;
@@ -3513,7 +3513,7 @@ static void move(void)
     }
 }
 
-static void parseifelse(long condition)
+static void parseifelse(int condition)
 {
     if (condition)
     {
@@ -3523,7 +3523,7 @@ static void parseifelse(long condition)
     }
     else
     {
-        insptr = (long *) *(insptr+1);
+        insptr = (int *) *(insptr+1);
         if (*insptr == 10)
         {
             // else...
@@ -3534,11 +3534,11 @@ static void parseifelse(long condition)
     }
 }
 
-// long *it = 0x00589a04;
+// int *it = 0x00589a04;
 
 static int parse(void)
 {
-    long j, l, s, tw;
+    int j, l, s, tw;
 
     if (killit_flag) return 1;
 
@@ -3726,9 +3726,9 @@ static int parse(void)
     case CON_AI:
         insptr++;
         g_t[5] = *insptr++; // Ai
-        g_t[4] = *(long *)(g_t[5]);       // Action
-        g_t[1] = *(long *)(g_t[5]+4);       // move
-        g_sp->hitag = *(long *)(g_t[5]+8);    // move flags
+        g_t[4] = *(int *)(g_t[5]);       // Action
+        g_t[1] = *(int *)(g_t[5]+4);       // move
+        g_sp->hitag = *(int *)(g_t[5]+8);    // move flags
         g_t[0] = g_t[2] = g_t[3] = 0; // count, actioncount... g_t[3] = ???
         if (g_sp->hitag&random_angle)
             g_sp->ang = TRAND&2047;
@@ -3756,7 +3756,7 @@ static int parse(void)
         break;
 
     case CON_ELSE:
-        insptr = (long *) *(insptr+1);
+        insptr = (int *) *(insptr+1);
         break;
 
     case CON_ADDSTRENGTH:
@@ -4059,7 +4059,7 @@ static int parse(void)
 
     case CON_DEBUG:
         insptr++;
-        initprintf("%ld\n",*insptr++);
+        initprintf("%d\n",*insptr++);
         break;
 
     case CON_ENDOFGAME:
@@ -4137,9 +4137,9 @@ static int parse(void)
 
     case CON_STATE:
     {
-        long *tempscrptr=insptr+2;
+        int *tempscrptr=insptr+2;
 
-        insptr = (long *) *(insptr+1);
+        insptr = (int *) *(insptr+1);
         while (1) if (parse()) break;
         insptr = tempscrptr;
     }
@@ -4441,29 +4441,29 @@ static int parse(void)
             // script offset to default case (null if none)
             // For each case: value, ptr to code
             //AddLog("Processing Switch...");
-            long lValue=GetGameVarID(*insptr++, g_i, g_p), lEnd=*insptr++, lCases=*insptr++;
-            long *lpDefault=insptr++, *lpCases=insptr, bMatched=0, *lTempInsPtr, lCheckCase;
+            int lValue=GetGameVarID(*insptr++, g_i, g_p), lEnd=*insptr++, lCases=*insptr++;
+            int *lpDefault=insptr++, *lpCases=insptr, bMatched=0, *lTempInsPtr, lCheckCase;
             insptr+=lCases*2;
             lTempInsPtr=insptr;
-            //Bsprintf(g_szBuf,"lEnd= %ld *lpDefault=%ld",lEnd,*lpDefault);
+            //Bsprintf(g_szBuf,"lEnd= %d *lpDefault=%d",lEnd,*lpDefault);
             //AddLog(g_szBuf);
 
-            //Bsprintf(g_szBuf,"Checking %ld cases for %ld",lCases, lValue);
+            //Bsprintf(g_szBuf,"Checking %d cases for %d",lCases, lValue);
             //AddLog(g_szBuf);
             for (lCheckCase=0; lCheckCase<lCases && !bMatched; lCheckCase++)
             {
-                //Bsprintf(g_szBuf,"Checking #%ld Value= %ld",lCheckCase, lpCases[lCheckCase*2]);
+                //Bsprintf(g_szBuf,"Checking #%d Value= %d",lCheckCase, lpCases[lCheckCase*2]);
                 //AddLog(g_szBuf);
 
                 if (lpCases[lCheckCase*2] == lValue)
                 {
                     //AddLog("Found Case Match");
-                    //Bsprintf(g_szBuf,"insptr=%ld. lCheckCase=%ld, offset=%ld, &script[0]=%ld",
-                    //            (long)insptr,(long)lCheckCase,lpCases[lCheckCase*2+1],(long)&script[0]);
+                    //Bsprintf(g_szBuf,"insptr=%d. lCheckCase=%d, offset=%d, &script[0]=%d",
+                    //            (int)insptr,(int)lCheckCase,lpCases[lCheckCase*2+1],(int)&script[0]);
                     //AddLog(g_szBuf);
                     // fake a 2-d Array
-                    insptr=(long*)(lpCases[lCheckCase*2+1] + &script[0]);
-                    //Bsprintf(g_szBuf,"insptr=%ld. ",     (long)insptr);
+                    insptr=(int*)(lpCases[lCheckCase*2+1] + &script[0]);
+                    //Bsprintf(g_szBuf,"insptr=%d. ",     (int)insptr);
                     //AddLog(g_szBuf);
                     while (1)
                     {
@@ -4479,7 +4479,7 @@ static int parse(void)
                 if (*lpDefault)
                 {
                     //AddLog("No Matching Case: Using Default");
-                    insptr=(long*)(*lpDefault + &script[0]);
+                    insptr=(int*)(*lpDefault + &script[0]);
                     while (1) if (parse()) break;
                 }
                 else
@@ -4487,8 +4487,8 @@ static int parse(void)
                     //AddLog("No Matching Case: No Default to use");
                 }
             }
-            insptr=(long*)(lEnd + (long)&script[0]);
-            //Bsprintf(g_szBuf,"insptr=%ld. ",     (long)insptr);
+            insptr=(int*)(lEnd + (int)&script[0]);
+            //Bsprintf(g_szBuf,"insptr=%d. ",     (int)insptr);
             //AddLog(g_szBuf);
             //AddLog("Done Processing Switch");
 
@@ -4525,14 +4525,15 @@ static int parse(void)
             {
                 switch (tw)
                 {
-                    case CON_DIST:
-                        distx = dist(&sprite[xvar],&sprite[yvar]);
-                        break;
-                    case CON_LDIST:
-                        distx = ldist(&sprite[xvar],&sprite[yvar]);
-                        break;
+                case CON_DIST:
+                    distx = dist(&sprite[xvar],&sprite[yvar]);
+                    break;
+                case CON_LDIST:
+                    distx = ldist(&sprite[xvar],&sprite[yvar]);
+                    break;
                 }
-            } else OSD_Printf("error: invalid sprite\n");
+            }
+            else OSD_Printf("error: invalid sprite\n");
 
             SetGameVarID(distvar, distx, g_i, g_p);
             break;
@@ -4658,7 +4659,7 @@ static int parse(void)
     case CON_EZSHOOTVAR:
     case CON_ZSHOOTVAR:
     {
-        long lReturn=-1;
+        int lReturn=-1;
 
         insptr++;
 
@@ -4743,11 +4744,11 @@ static int parse(void)
             int a=GetGameVarID(*insptr++,g_i,g_p);
             int horiz=GetGameVarID(*insptr++,g_i,g_p);
             int sect=GetGameVarID(*insptr++,g_i,g_p);
-            long x1=scale(GetGameVarID(*insptr++,g_i,g_p),xdim,320);
-            long y1=scale(GetGameVarID(*insptr++,g_i,g_p),ydim,200);
-            long x2=scale(GetGameVarID(*insptr++,g_i,g_p),xdim,320);
-            long y2=scale(GetGameVarID(*insptr++,g_i,g_p),ydim,200);
-            long smoothratio = 65536;
+            int x1=scale(GetGameVarID(*insptr++,g_i,g_p),xdim,320);
+            int y1=scale(GetGameVarID(*insptr++,g_i,g_p),ydim,200);
+            int x2=scale(GetGameVarID(*insptr++,g_i,g_p),xdim,320);
+            int y2=scale(GetGameVarID(*insptr++,g_i,g_p),ydim,200);
+            int smoothratio = 65536;
 
             if (x1 > x2) swaplong(&x1,&x2);
             if (y1 > y2) swaplong(&y1,&y2);
@@ -4775,7 +4776,7 @@ static int parse(void)
 
             if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
             {
-                long j, i = 0, k, dst = 0x7fffffff;
+                int j, i = 0, k, dst = 0x7fffffff;
 
                 for (k=0;k<mirrorcnt;k++)
                 {
@@ -4786,7 +4787,7 @@ static int parse(void)
 
                 if (wall[mirrorwall[i]].overpicnum == MIRROR)
                 {
-                    long tposx,tposy;
+                    int tposx,tposy;
                     short tang;
 
                     preparemirror(x,y,z,a,horiz,mirrorwall[i],mirrorsector[i],&tposx,&tposy,&tang);
@@ -4826,8 +4827,8 @@ static int parse(void)
             int x=GetGameVarID(*insptr++,g_i,g_p),   y=GetGameVarID(*insptr++,g_i,g_p),           z=GetGameVarID(*insptr++,g_i,g_p);
             int a=GetGameVarID(*insptr++,g_i,g_p),   tilenum=GetGameVarID(*insptr++,g_i,g_p),     shade=GetGameVarID(*insptr++,g_i,g_p);
             int pal=GetGameVarID(*insptr++,g_i,g_p), orientation=GetGameVarID(*insptr++,g_i,g_p);
-            long x1=GetGameVarID(*insptr++,g_i,g_p),  y1=GetGameVarID(*insptr++,g_i,g_p);
-            long x2=GetGameVarID(*insptr++,g_i,g_p),  y2=GetGameVarID(*insptr++,g_i,g_p);
+            int x1=GetGameVarID(*insptr++,g_i,g_p),  y1=GetGameVarID(*insptr++,g_i,g_p);
+            int x2=GetGameVarID(*insptr++,g_i,g_p),  y2=GetGameVarID(*insptr++,g_i,g_p);
 
             rotatesprite(x<<16,y<<16,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
             break;
@@ -4883,7 +4884,7 @@ static int parse(void)
             int sectnum=GetGameVarID(*insptr++,g_i,g_p);
             int ceilzvar=*insptr++, ceilhitvar=*insptr++, florzvar=*insptr++, florhitvar=*insptr++;
             int walldist=GetGameVarID(*insptr++,g_i,g_p), clipmask=GetGameVarID(*insptr++,g_i,g_p);
-            long ceilz, ceilhit, florz, florhit;
+            int ceilz, ceilhit, florz, florhit;
 
             getzrange(x, y, z, sectnum, &ceilz, &ceilhit, &florz, &florhit, walldist, clipmask);
             SetGameVarID(ceilzvar, ceilz, g_i, g_p);
@@ -4902,7 +4903,7 @@ static int parse(void)
             int hitsectvar=*insptr++, hitwallvar=*insptr++, hitspritevar=*insptr++;
             int hitxvar=*insptr++, hityvar=*insptr++, hitzvar=*insptr++, cliptype=GetGameVarID(*insptr++,g_i,g_p);
             short hitsect, hitwall, hitsprite;
-            long hitx, hity, hitz;
+            int hitx, hity, hitz;
 
             hitscan(xs, ys, zs, sectnum, vx, vy, vz, &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, cliptype);
             SetGameVarID(hitsectvar, hitsect, g_i, g_p);
@@ -4932,7 +4933,7 @@ static int parse(void)
             int xpivot=GetGameVarID(*insptr++,g_i,g_p), ypivot=GetGameVarID(*insptr++,g_i,g_p);
             int x=GetGameVarID(*insptr++,g_i,g_p), y=GetGameVarID(*insptr++,g_i,g_p), daang=GetGameVarID(*insptr++,g_i,g_p);
             int x2var=*insptr++, y2var=*insptr++;
-            long x2, y2;
+            int x2, y2;
 
             rotatepoint(xpivot,ypivot,x,y,daang,&x2,&y2);
             SetGameVarID(x2var, x2, g_i, g_p);
@@ -4943,12 +4944,12 @@ static int parse(void)
     case CON_NEARTAG:
         insptr++;
         {
-            //             neartag(long x, long y, long z, short sectnum, short ang,  //Starting position & angle
+            //             neartag(int x, int y, int z, short sectnum, short ang,  //Starting position & angle
             //                     short *neartagsector,   //Returns near sector if sector[].tag != 0
             //                     short *neartagwall,     //Returns near wall if wall[].tag != 0
             //                     short *neartagsprite,   //Returns near sprite if sprite[].tag != 0
-            //                     long *neartaghitdist,   //Returns actual distance to object (scale: 1024=largest grid size)
-            //                     long neartagrange,      //Choose maximum distance to scan (scale: 1024=largest grid size)
+            //                     int *neartaghitdist,   //Returns actual distance to object (scale: 1024=largest grid size)
+            //                     int neartagrange,      //Choose maximum distance to scan (scale: 1024=largest grid size)
             //                     char tagsearch)         //1-lotag only, 2-hitag only, 3-lotag&hitag
 
             int x=GetGameVarID(*insptr++,g_i,g_p), y=GetGameVarID(*insptr++,g_i,g_p), z=GetGameVarID(*insptr++,g_i,g_p);
@@ -5362,7 +5363,7 @@ static int parse(void)
             else
                 j = 0;
         }
-        parseifelse((long) j);
+        parseifelse((int) j);
     }
     break;
 
@@ -5507,7 +5508,7 @@ static int parse(void)
     case CON_ADDLOG:
     {
         insptr++;
-        OSD_Printf("CONLOG: L=%ld\n",*insptr++);
+        OSD_Printf("CONLOG: L=%d\n",*insptr++);
         break;
     }
 
@@ -5516,7 +5517,7 @@ static int parse(void)
         {
             int m=1;
             char szBuf[256];
-            long l=*insptr++, lVarID = *insptr;
+            int l=*insptr++, lVarID = *insptr;
 
             if ((lVarID >= iGameVarCount) || lVarID < 0)
             {
@@ -5531,11 +5532,11 @@ static int parse(void)
                 {
                     // invalid varID
                     insptr++;
-                    OSD_Printf("CONLOGVAR: L=%ld INVALID VARIABLE\n",l);
+                    OSD_Printf("CONLOGVAR: L=%d INVALID VARIABLE\n",l);
                     break;  // out of switch
                 }
             }
-            Bsprintf(szBuf,"CONLOGVAR: L=%ld %s ",l, aGameVars[lVarID].szLabel);
+            Bsprintf(szBuf,"CONLOGVAR: L=%d %s ",l, aGameVars[lVarID].szLabel);
             strcpy(g_szBuf,szBuf);
 
             if (aGameVars[lVarID].dwFlags & GAMEVAR_FLAG_READONLY)
@@ -5556,7 +5557,7 @@ static int parse(void)
                 Bsprintf(szBuf," (Global)");
             }
             Bstrcat(g_szBuf,szBuf);
-            Bsprintf(szBuf," =%ld\n", GetGameVarID(lVarID, g_i, g_p)*m);
+            Bsprintf(szBuf," =%d\n", GetGameVarID(lVarID, g_i, g_p)*m);
             Bstrcat(g_szBuf,szBuf);
             OSD_Printf(g_szBuf);
             insptr++;
@@ -5755,7 +5756,7 @@ static int parse(void)
             // that is of <type> into <getvar>
             // -1 for none found
             // <type> <maxdistvarid> <varid>
-            long var1 = *insptr++, d;
+            int var1 = *insptr++, d;
 
             if (tw == CON_FINDPLAYER) j=findplayer(&sprite[g_i],&d);
             else if (tw == CON_FINDOTHERPLAYER) j=findotherplayer(g_i,&d);
@@ -6214,7 +6215,7 @@ static int parse(void)
     case CON_WHILEVARN:
     {
         int i;
-        long *savedinsptr=insptr;
+        int *savedinsptr=insptr;
         j=1;
         while (j)
         {
@@ -6233,7 +6234,7 @@ static int parse(void)
     case CON_WHILEVARVARN:
     {
         int i,k;
-        long *savedinsptr=insptr;
+        int *savedinsptr=insptr;
         j=1;
         while (j)
         {
@@ -6456,24 +6457,24 @@ static int parse(void)
     case CON_GETCURRADDRESS:
         insptr++;
         j=*insptr++;
-        SetGameVarID(j, (long)insptr, g_i, g_p);
+        SetGameVarID(j, (int)insptr, g_i, g_p);
         break;
 
     case CON_JUMP:
         insptr++;
         j = GetGameVarID(*insptr++, g_i, g_p);
-        insptr = (long *)j;
+        insptr = (int *)j;
         break;
 
     default:
-        OSD_Printf("fatal error: default processing: prev inst: %ld, curr inst: %ld, next inst: %ld\ncurrent actor: %d (%d)\n",*(insptr-1),*insptr,*(insptr+1),g_i,g_sp->picnum);
+        OSD_Printf("fatal error: default processing: prev inst: %d, curr inst: %d, next inst: %d\ncurrent actor: %d (%d)\n",*(insptr-1),*insptr,*(insptr+1),g_i,g_sp->picnum);
         gameexit("An error has occurred in the EDuke32 CON executor.\n\nPlease mail all of your CON files along with the file eduke32.log\nto terminx@gmail.com.\n\nThank you.");
         break;
     }
     return 0;
 }
 
-void LoadActor(long iActor)
+void LoadActor(int iActor)
 {
     g_i = iActor;    // Sprite ID
     g_p = -1; // iPlayer;    // Player ID
@@ -6509,7 +6510,7 @@ void LoadActor(long iActor)
     }
 }
 
-void execute(int iActor,int iPlayer,long lDist)
+void execute(int iActor,int iPlayer,int lDist)
 {
     short temp, temp2;
 
@@ -6537,14 +6538,14 @@ void execute(int iActor,int iPlayer,long lDist)
     {
         g_sp->lotag += TICSPERFRAME;
 
-        if (g_sp->lotag > *(long *)(g_t[4]+16))
+        if (g_sp->lotag > *(int *)(g_t[4]+16))
         {
             g_t[2]++;
             g_sp->lotag = 0;
-            g_t[3] +=  *(long *)(g_t[4]+12);
+            g_t[3] +=  *(int *)(g_t[4]+12);
         }
 
-        if (klabs(g_t[3]) >= klabs(*(long *)(g_t[4]+4) * *(long *)(g_t[4]+12)))
+        if (klabs(g_t[3]) >= klabs(*(int *)(g_t[4]+4) * *(int *)(g_t[4]+12)))
             g_t[3] = 0;
     }
 

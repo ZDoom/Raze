@@ -7,11 +7,11 @@ extern "C" {
 
 void initcrc32table(void);
 
-unsigned long crc32once(unsigned char *blk, unsigned long len);
+unsigned int crc32once(unsigned char *blk, unsigned int len);
 
-void crc32init(unsigned long *crcvar);
-void crc32block(unsigned long *crcvar, unsigned char *blk, unsigned long len);
-unsigned long crc32finish(unsigned long *crcvar);
+void crc32init(unsigned int *crcvar);
+void crc32block(unsigned int *crcvar, unsigned char *blk, unsigned int len);
+unsigned int crc32finish(unsigned int *crcvar);
 
 #ifdef __cplusplus
 }

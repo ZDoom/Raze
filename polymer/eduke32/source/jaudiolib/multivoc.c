@@ -105,7 +105,7 @@ static VoiceNode VoicePool;
 int MV_MixPage      = 0;
 static int MV_VoiceHandle  = MV_MinVoiceHandle;
 
-static void(*MV_CallBackFunc)(unsigned long) = NULL;
+static void(*MV_CallBackFunc)(unsigned int) = NULL;
 static void(*MV_RecordFunc)(char *ptr, int length) = NULL;
 static void(*MV_MixFunction)(VoiceNode *voice, int buffer);
 
@@ -118,7 +118,7 @@ short *MV_RightVolume;
 int MV_SampleSize = 1;
 int MV_RightChannelOffset;
 
-unsigned long MV_MixPosition;
+unsigned int MV_MixPosition;
 
 int MV_ErrorCode = MV_Ok;
 
@@ -255,10 +255,10 @@ static void MV_Mix(VoiceNode *voice, int buffer)
 {
     char          *start;
     int length;
-    long voclength;
-    unsigned long position;
-    unsigned long rate;
-    unsigned long FixedPointBufferSize;
+    int voclength;
+    unsigned int position;
+    unsigned int rate;
+    unsigned int FixedPointBufferSize;
 
     if ((voice->length == 0) && (voice->GetSound(voice) != KeepPlaying))
     {
@@ -504,8 +504,8 @@ playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
     unsigned char *ptr;
     int blocktype;
     int lastblocktype;
-    unsigned long blocklength = 0;
-    unsigned long samplespeed = 0;
+    unsigned int blocklength = 0;
+    unsigned int samplespeed = 0;
     unsigned int tc = 0;
     int packtype;
     int voicemode;
@@ -559,14 +559,14 @@ playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
         }
 
         blocktype = (int)*ptr;
-        blocklength = (*(unsigned long *)(ptr + 1)) & 0x00ffffff;
+        blocklength = (*(unsigned int *)(ptr + 1)) & 0x00ffffff;
         ptr += 4;
 
         switch (blocktype)
         {
         case 0 :
             // End of data
-            if ((voice->LoopStart == NULL) || ((unsigned long *)voice->LoopStart >= (unsigned long *)(ptr - 4)))
+            if ((voice->LoopStart == NULL) || ((unsigned int *)voice->LoopStart >= (unsigned int *)(ptr - 4)))
             {
                 voice->Playing = FALSE;
                 done = TRUE;
@@ -678,7 +678,7 @@ playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
 
         case 9 :
             // New sound data block
-            samplespeed = *(unsigned long *)ptr;
+            samplespeed = *(unsigned int *)ptr;
             BitsPerSample = (unsigned)*(ptr + 4);
             Channels = (unsigned)*(ptr + 5);
             Format = (unsigned)*(unsigned short *)(ptr + 6);
@@ -727,17 +727,17 @@ playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
 
         if (voice->LoopEnd != NULL)
         {
-            if (blocklength > (unsigned long)voice->LoopEnd)
+            if (blocklength > (unsigned int)voice->LoopEnd)
             {
-                blocklength = (unsigned long)voice->LoopEnd;
+                blocklength = (unsigned int)voice->LoopEnd;
             }
             else
             {
                 voice->LoopEnd = (char *)blocklength;
             }
 
-            voice->LoopStart = voice->sound + (unsigned long)voice->LoopStart;
-            voice->LoopEnd   = voice->sound + (unsigned long)voice->LoopEnd;
+            voice->LoopStart = voice->sound + (unsigned int)voice->LoopStart;
+            voice->LoopEnd   = voice->sound + (unsigned int)voice->LoopEnd;
             voice->LoopSize  = voice->LoopEnd - voice->LoopStart;
         }
 
@@ -989,7 +989,7 @@ int MV_Kill(int handle)
 {
     VoiceNode *voice;
     unsigned  flags;
-    unsigned  long callbackval;
+    unsigned  int callbackval;
 
     if (!MV_Installed)
     {
@@ -1168,7 +1168,7 @@ int MV_VoiceAvailable(int priority)
    Sets the pitch for the specified voice.
 ---------------------------------------------------------------------*/
 
-void MV_SetVoicePitch(VoiceNode *voice, unsigned long rate, int pitchoffset)
+void MV_SetVoicePitch(VoiceNode *voice, unsigned int rate, int pitchoffset)
 {
     voice->SamplingRate = rate;
     voice->PitchScale   = PITCH_GetScale(pitchoffset);
@@ -1824,7 +1824,7 @@ void MV_StopRecord(void)
    Plays a digitized sound from a user controlled buffering system.
 ---------------------------------------------------------------------*/
 
-int MV_StartDemandFeedPlayback(void(*function)(char **ptr, unsigned long *length), int rate, int pitchoffset, int vol, int left, int right, int priority, unsigned long callbackval)
+int MV_StartDemandFeedPlayback(void(*function)(char **ptr, unsigned int *length), int rate, int pitchoffset, int vol, int left, int right, int priority, unsigned int callbackval)
 {
     VoiceNode *voice;
 
@@ -1875,7 +1875,7 @@ int MV_StartDemandFeedPlayback(void(*function)(char **ptr, unsigned long *length
    priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayRaw(char *ptr, unsigned long length, unsigned rate, int pitchoffset, int vol, int left, int right, int priority, unsigned long callbackval)
+int MV_PlayRaw(char *ptr, unsigned int length, unsigned rate, int pitchoffset, int vol, int left, int right, int priority, unsigned int callbackval)
 {
     int status;
 
@@ -1892,7 +1892,7 @@ int MV_PlayRaw(char *ptr, unsigned long length, unsigned rate, int pitchoffset, 
    priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayLoopedRaw(char *ptr, long length, char *loopstart, char *loopend, unsigned rate, int pitchoffset, int vol, int left, int right, int priority, unsigned long callbackval)
+int MV_PlayLoopedRaw(char *ptr, int length, char *loopstart, char *loopend, unsigned rate, int pitchoffset, int vol, int left, int right, int priority, unsigned int callbackval)
 {
     VoiceNode *voice;
 
@@ -1941,7 +1941,7 @@ int MV_PlayLoopedRaw(char *ptr, long length, char *loopstart, char *loopend, uns
    priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayWAV(char *ptr, int pitchoffset, int vol, int left, int right, int priority, unsigned long callbackval)
+int MV_PlayWAV(char *ptr, int pitchoffset, int vol, int left, int right, int priority, unsigned int callbackval)
 {
     int status;
 
@@ -1958,7 +1958,7 @@ int MV_PlayWAV(char *ptr, int pitchoffset, int vol, int left, int right, int pri
    from listener.
 ---------------------------------------------------------------------*/
 
-int MV_PlayWAV3D(char *ptr, int pitchoffset, int angle, int distance, int priority, unsigned long callbackval)
+int MV_PlayWAV3D(char *ptr, int pitchoffset, int angle, int distance, int priority, unsigned int callbackval)
 {
     int left;
     int right;
@@ -2000,7 +2000,7 @@ int MV_PlayWAV3D(char *ptr, int pitchoffset, int angle, int distance, int priori
    priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayLoopedWAV(char *ptr, long loopstart, long loopend, int pitchoffset, int vol, int left, int right, int priority, unsigned long callbackval)
+int MV_PlayLoopedWAV(char *ptr, int loopstart, int loopend, int pitchoffset, int vol, int left, int right, int priority, unsigned int callbackval)
 {
     riff_header   *riff;
     format_header *format;
@@ -2116,7 +2116,7 @@ int MV_PlayLoopedWAV(char *ptr, long loopstart, long loopend, int pitchoffset, i
    from listener.
 ---------------------------------------------------------------------*/
 
-int MV_PlayVOC3D(char *ptr, int pitchoffset, int angle, int distance, int priority, unsigned long callbackval)
+int MV_PlayVOC3D(char *ptr, int pitchoffset, int angle, int distance, int priority, unsigned int callbackval)
 {
     int left;
     int right;
@@ -2158,7 +2158,7 @@ int MV_PlayVOC3D(char *ptr, int pitchoffset, int angle, int distance, int priori
    priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayVOC(char *ptr, int pitchoffset, int vol, int left, int right, int priority, unsigned long callbackval)
+int MV_PlayVOC(char *ptr, int pitchoffset, int vol, int left, int right, int priority, unsigned int callbackval)
 {
     int status;
 
@@ -2175,7 +2175,7 @@ int MV_PlayVOC(char *ptr, int pitchoffset, int vol, int left, int right, int pri
    priority.
 ---------------------------------------------------------------------*/
 
-int MV_PlayLoopedVOC(char *ptr, long loopstart, long loopend, int pitchoffset, int vol, int left, int right, int priority, unsigned long callbackval)
+int MV_PlayLoopedVOC(char *ptr, int loopstart, int loopend, int pitchoffset, int vol, int left, int right, int priority, unsigned int callbackval)
 {
     VoiceNode   *voice;
     int status;
@@ -2375,7 +2375,7 @@ int MV_GetVolume(void)
    Set the function to call when a voice stops.
 ---------------------------------------------------------------------*/
 
-void MV_SetCallBack(void(*function)(unsigned long))
+void MV_SetCallBack(void(*function)(unsigned int))
 {
     MV_CallBackFunc = function;
 }
@@ -2414,7 +2414,7 @@ int MV_GetReverseStereo(void)
 int MV_TestPlayback(void)
 {
     unsigned flags;
-    long time;
+    int time;
     int start;
     int status;
     int pos;
@@ -2474,7 +2474,7 @@ int MV_TestPlayback(void)
 }
 #endif
 
-int USRHOOKS_GetMem(void **ptr, unsigned long size)
+int USRHOOKS_GetMem(void **ptr, unsigned int size)
 {
     *ptr = malloc(size);
 

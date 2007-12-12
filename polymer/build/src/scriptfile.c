@@ -54,7 +54,8 @@ int scriptfile_getnumber(scriptfile *sf, int *num)
 
     sf->ltextptr = sf->textptr;
     (*num) = strtol((const char *)sf->textptr,&sf->textptr,0);
-    if (!ISWS(*sf->textptr) && *sf->textptr) {
+    if (!ISWS(*sf->textptr) && *sf->textptr)
+    {
         char *p = sf->textptr;
         skipovertoken(sf);
         initprintf("Error on line %s:%d: expecting int, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
@@ -73,23 +74,31 @@ static double parsedouble(char *ptr, char **end)
     p = ptr;
     if (*p == '-') negative = 1, p++;
     else if (*p == '+') p++;
-    for (;; p++) {
-        if (*p >= '0' && *p <= '9') {
+    for (;; p++)
+    {
+        if (*p >= '0' && *p <= '9')
+        {
             dig = *p - '0';
             if (beforedecimal) num = num * 10.0 + dig;
             else if (exposgn) expo = expo*10 + dig;
-            else {
+            else
+            {
                 num += (double)dig * decpl;
                 decpl /= 10.0;
             }
-        } else if (*p == '.') {
+        }
+        else if (*p == '.')
+        {
             if (beforedecimal) beforedecimal = 0;
             else break;
-        } else if ((*p == 'E') || (*p == 'e')) {
+        }
+        else if ((*p == 'E') || (*p == 'e'))
+        {
             exposgn = 1;
             if (p[1] == '-') { exposgn = -1; p++; }
             else if (p[1] == '+') p++;
-        } else break;
+        }
+        else break;
     }
 
     if (end) *end = p;
@@ -112,7 +121,8 @@ int scriptfile_getdouble(scriptfile *sf, double *num)
     //(*num) = strtod((const char *)sf->textptr,&sf->textptr);
     (*num) = parsedouble(sf->textptr, &sf->textptr);
 
-    if (!ISWS(*sf->textptr) && *sf->textptr) {
+    if (!ISWS(*sf->textptr) && *sf->textptr)
+    {
         char *p = sf->textptr;
         skipovertoken(sf);
         initprintf("Error on line %s:%d: expecting float, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
@@ -130,7 +140,8 @@ int scriptfile_getsymbol(scriptfile *sf, int *num)
     if (!t) return -1;
 
     v = Bstrtol(t, &e, 10);
-    if (*e) {
+    if (*e)
+    {
         // looks like a string, so find it in the symbol table
         if (scriptfile_getsymbolvalue(t, num)) return 0;
         initprintf("Error on line %s:%d: expecting symbol, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),t);
@@ -153,7 +164,8 @@ int scriptfile_getbraces(scriptfile *sf, char **braceend)
         return -1;
     }
 
-    if (sf->textptr[0] != '{') {
+    if (sf->textptr[0] != '{')
+    {
         initprintf("Error on line %s:%d: expecting '{'\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
         return -1;
     }
@@ -162,7 +174,7 @@ int scriptfile_getbraces(scriptfile *sf, char **braceend)
     {
         if (sf->textptr >= sf->eof) return(0);
         if (sf->textptr[0] == '{') bracecnt++;
-    if (sf->textptr[0] == '}') { bracecnt--; if (!bracecnt) break; }
+        if (sf->textptr[0] == '}') { bracecnt--; if (!bracecnt) break; }
         sf->textptr++;
     }
     (*braceend) = sf->textptr;
@@ -171,13 +183,13 @@ int scriptfile_getbraces(scriptfile *sf, char **braceend)
 }
 
 
-int scriptfile_getlinum (scriptfile *sf, char *ptr)
+int scriptfile_getlinum(scriptfile *sf, char *ptr)
 {
     int i, stp, ind;
 
     //for(i=0;i<sf->linenum;i++) if (sf->lineoffs[i] >= ind) return(i+1); //brute force algo
 
-    ind = ((long)ptr) - ((long)sf->textbuf);
+    ind = ((int)ptr) - ((int)sf->textbuf);
 
     for (stp=1;stp+stp<sf->linenum;stp+=stp); //stp = highest power of 2 less than sf->linenum
     for (i=0;stp;stp>>=1)
@@ -185,9 +197,9 @@ int scriptfile_getlinum (scriptfile *sf, char *ptr)
     return(i+1); //i = index to highest lineoffs which is less than ind; convert to 1-based line numbers
 }
 
-void scriptfile_preparse (scriptfile *sf, char *tx, long flen)
+void scriptfile_preparse(scriptfile *sf, char *tx, int flen)
 {
-    long i, cr, numcr, nflen, ws, cs, inquote;
+    int i, cr, numcr, nflen, ws, cs, inquote;
 
     //Count number of lines
     numcr = 1;
@@ -200,7 +212,7 @@ void scriptfile_preparse (scriptfile *sf, char *tx, long flen)
     }
 
     sf->linenum = numcr;
-    sf->lineoffs = (long *)malloc(sf->linenum*sizeof(long));
+    sf->lineoffs = (int *)malloc(sf->linenum*sizeof(int));
 
     //Preprocess file for comments (// and /*...*/, and convert all whitespace to single spaces)
     nflen = 0; ws = 0; cs = 0; numcr = 0; inquote = 0;
@@ -218,13 +230,13 @@ void scriptfile_preparse (scriptfile *sf, char *tx, long flen)
             ws = 1; continue; //strip CR/LF
         }
 
-    if ((!inquote) && ((tx[i] == ' ') || (tx[i] == '\t'))) { ws = 1; continue; } //strip Space/Tab
+        if ((!inquote) && ((tx[i] == ' ') || (tx[i] == '\t'))) { ws = 1; continue; } //strip Space/Tab
         if ((tx[i] == '/') && (tx[i+1] == '/') && (!cs)) cs = 1;
-    if ((tx[i] == '/') && (tx[i+1] == '*') && (!cs)) { ws = 1; cs = 2; }
+        if ((tx[i] == '/') && (tx[i+1] == '*') && (!cs)) { ws = 1; cs = 2; }
         if ((tx[i] == '*') && (tx[i+1] == '/') && (cs == 2)) { cs = 0; i++; continue; }
         if (cs) continue;
 
-    if (ws) { tx[nflen++] = 0; ws = 0; }
+        if (ws) { tx[nflen++] = 0; ws = 0; }
 
         //quotes inside strings: \"
         if ((tx[i] == '\\') && (tx[i+1] == '\"')) { i++; tx[nflen++] = '\"'; continue; }
@@ -260,13 +272,15 @@ scriptfile *scriptfile_fromfile(char *fn)
 
     flen = kfilelength(fp);
     tx = (char *) malloc(flen + 2);
-    if (!tx) {
+    if (!tx)
+    {
         kclose(fp);
         return NULL;
     }
 
     sf = (scriptfile*) malloc(sizeof(scriptfile));
-    if (!sf) {
+    if (!sf)
+    {
         kclose(fp);
         free(tx);
         return NULL;
@@ -297,7 +311,8 @@ scriptfile *scriptfile_fromstring(char *string)
     if (!tx) return NULL;
 
     sf = (scriptfile*) malloc(sizeof(scriptfile));
-    if (!sf) {
+    if (!sf)
+    {
         free(tx);
         return NULL;
     }
@@ -355,8 +370,10 @@ int scriptfile_getsymbolvalue(char *name, int *val)
     char *scanner = symbtab;
 
     if (!symbtab) return 0;
-    while (scanner - symbtab < symbtablength) {
-        if (!Bstrcasecmp(name, scanner)) {
+    while (scanner - symbtab < symbtablength)
+    {
+        if (!Bstrcasecmp(name, scanner))
+        {
             *val = *(int*)(scanner + strlen(scanner) + 1);
             return 1;
         }
@@ -373,10 +390,13 @@ int scriptfile_addsymbolvalue(char *name, int val)
     char *sp;
     //	if (scriptfile_getsymbolvalue(name, &x)) return -1;   // already exists
 
-    if (symbtab) {
+    if (symbtab)
+    {
         char *scanner = symbtab;
-        while (scanner - symbtab < symbtablength) {
-            if (!Bstrcasecmp(name, scanner)) {
+        while (scanner - symbtab < symbtablength)
+        {
+            if (!Bstrcasecmp(name, scanner))
+            {
                 *(int*)(scanner + strlen(scanner) + 1) = val;
                 return 1;
             }

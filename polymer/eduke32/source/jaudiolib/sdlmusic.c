@@ -187,7 +187,7 @@ void SafeWrite(int32 handle, void *buffer, int32 count)
     {
         iocount = count > 0x8000 ? 0x8000 : count;
         if (write(handle,buffer,iocount) != (int)iocount)
-            Error("File write failure writing %ld bytes",count);
+            Error("File write failure writing %d bytes",count);
         buffer = (void *)((byte *)buffer + iocount);
         count -= iocount;
     }
@@ -470,10 +470,10 @@ void PlayMusic(char *_filename)
     //FixFilePath(filename);
 
     char filename[BMAX_PATH];
-    long handle;
-    long size;
+    int handle;
+    int size;
     void *song;
-    long rc;
+    int rc;
 
     MUSIC_StopSong();
 
@@ -550,13 +550,13 @@ int MUSIC_GetContext(void)
 } // MUSIC_GetContext
 
 
-void MUSIC_SetSongTick(unsigned long PositionInTicks)
+void MUSIC_SetSongTick(unsigned int PositionInTicks)
 {
     musdebug("STUB ... MUSIC_SetSongTick().\n");
 } // MUSIC_SetSongTick
 
 
-void MUSIC_SetSongTime(unsigned long milliseconds)
+void MUSIC_SetSongTime(unsigned int milliseconds)
 {
     musdebug("STUB ... MUSIC_SetSongTime().\n");
 }// MUSIC_SetSongTime

@@ -11,10 +11,10 @@
 #endif
 #include "baselayer.h"
 
-static long vesares[13][2] = {{320,200},{360,200},{320,240},{360,240},{320,400},
-                              {360,400},{640,350},{640,400},{640,480},{800,600},
-                              {1024,768},{1280,1024},{1600,1200}
-                             };
+static int vesares[13][2] = {{320,200},{360,200},{320,240},{360,240},{320,400},
+    {360,400},{640,350},{640,400},{640,480},{800,600},
+    {1024,768},{1280,1024},{1600,1200}
+};
 
 static int readconfig(BFILE *fp, const char *key, char *value, unsigned len)
 {
@@ -25,7 +25,8 @@ static int readconfig(BFILE *fp, const char *key, char *value, unsigned len)
 
     Brewind(fp);
 
-    while (1) {
+    while (1)
+    {
         if (!Bfgets(buf, 1000, fp)) return 0;
 
         if (buf[0] == ';') continue;
@@ -55,11 +56,11 @@ static int readconfig(BFILE *fp, const char *key, char *value, unsigned len)
 }
 
 extern short brightness;
-extern long fullscreen;
+extern int fullscreen;
 extern char option[8];
 extern char keys[NUMBUILDKEYS];
 extern double msens;
-extern long editorgridextent;
+extern int editorgridextent;
 
 /*
  * SETUP.DAT
@@ -108,13 +109,15 @@ int loadsetup(const char *fn)
 
     if ((fp = Bfopen(fn, "rt")) == NULL) return -1;
 
-if (readconfig(fp, "forcesetup", val, VL) > 0) { if (Batoi(val) != 0) forcesetup = 1; else forcesetup = 0; }
-if (readconfig(fp, "fullscreen", val, VL) > 0) { if (Batoi(val) != 0) fullscreen = 1; else fullscreen = 0; }
-    if (readconfig(fp, "resolution", val, VL) > 0) {
+    if (readconfig(fp, "forcesetup", val, VL) > 0) { if (Batoi(val) != 0) forcesetup = 1; else forcesetup = 0; }
+    if (readconfig(fp, "fullscreen", val, VL) > 0) { if (Batoi(val) != 0) fullscreen = 1; else fullscreen = 0; }
+    if (readconfig(fp, "resolution", val, VL) > 0)
+    {
         i = Batoi(val) & 0x0f;
         if ((unsigned)i<13) { xdimgame = xdim2d = vesares[i][0]; ydimgame = ydim2d = vesares[i][1]; }
     }
-    if (readconfig(fp, "2dresolution", val, VL) > 0) {
+    if (readconfig(fp, "2dresolution", val, VL) > 0)
+    {
         i = Batoi(val) & 0x0f;
         if ((unsigned)i<13) { xdim2d = vesares[i][0]; ydim2d = vesares[i][1]; }
     }
@@ -123,11 +126,11 @@ if (readconfig(fp, "fullscreen", val, VL) > 0) { if (Batoi(val) != 0) fullscreen
     if (readconfig(fp, "xdim3d", val, VL) > 0) xdimgame = Batoi(val);
     if (readconfig(fp, "ydim3d", val, VL) > 0) ydimgame = Batoi(val);
     if (readconfig(fp, "samplerate", val, VL) > 0) option[7] = (Batoi(val) & 0x0f) << 4;
-if (readconfig(fp, "music", val, VL) > 0) { if (Batoi(val) != 0) option[2] = 1; else option[2] = 0; }
-if (readconfig(fp, "mouse", val, VL) > 0) { if (Batoi(val) != 0) option[3] = 1; else option[3] = 0; }
+    if (readconfig(fp, "music", val, VL) > 0) { if (Batoi(val) != 0) option[2] = 1; else option[2] = 0; }
+    if (readconfig(fp, "mouse", val, VL) > 0) { if (Batoi(val) != 0) option[3] = 1; else option[3] = 0; }
     if (readconfig(fp, "bpp", val, VL) > 0) bppgame = Batoi(val);
     if (readconfig(fp, "editorgridextent", val, VL) > 0) editorgridextent = max(min(524288,Batoi(val)),65536);
-if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i); }
+    if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i); }
     if (readconfig(fp, "brightness", val, VL) > 0) brightness = min(max(Batoi(val),0),15);
 
 #ifdef RENDERTYPEWIN
@@ -135,18 +138,22 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
 #endif
 #if defined(POLYMOST) && defined(USE_OPENGL)
     glusetexcache = glusetexcachecompression = -1;
-    if (readconfig(fp, "glusetexcache", val, VL) > 0) {
+    if (readconfig(fp, "glusetexcache", val, VL) > 0)
+    {
         if (Batoi(val) != 0) glusetexcache = 1;
         else glusetexcache = 0;
     }
-    if (readconfig(fp, "glusetexcachecompression", val, VL) > 0) {
+    if (readconfig(fp, "glusetexcachecompression", val, VL) > 0)
+    {
         if (Batoi(val) != 0) glusetexcachecompression = 1;
         else glusetexcachecompression = 0;
     }
-    if (readconfig(fp, "gltexfiltermode", val, VL) > 0) {
+    if (readconfig(fp, "gltexfiltermode", val, VL) > 0)
+    {
         gltexfiltermode = Batoi(val);
     }
-    if (readconfig(fp, "glanisotropy", val, VL) > 0) {
+    if (readconfig(fp, "glanisotropy", val, VL) > 0)
+    {
         glanisotropy = Batoi(val);
     }
 #endif
@@ -184,9 +191,9 @@ if (readconfig(fp, "renderer", val, VL) > 0) { i = Batoi(val); setrendermode(i);
     if (readconfig(fp, "windowposx", val, VL) > 0) windowx = Batoi(val);
     windowy = -1;
     if (readconfig(fp, "windowposy", val, VL) > 0) windowy = Batoi(val);
-#endif    
+#endif
 
-if (readconfig(fp, "keyconsole", val, VL) > 0) { keys[19] = Bstrtol(val, NULL, 16); OSD_CaptureKey(keys[19]); }
+    if (readconfig(fp, "keyconsole", val, VL) > 0) { keys[19] = Bstrtol(val, NULL, 16); OSD_CaptureKey(keys[19]); }
 
     if (readconfig(fp, "mousesensitivity", val, VL) > 0) msens = Bstrtod(val, NULL);
     Bfclose(fp);
@@ -205,31 +212,31 @@ int writesetup(const char *fn)
              "; Always show configuration options on startup\n"
              ";   0 - No\n"
              ";   1 - Yes\n"
-             "forcesetup = %ld\n"
+             "forcesetup = %d\n"
              "\n"
              "; Video mode selection\n"
              ";   0 - Windowed\n"
              ";   1 - Fullscreen\n"
-             "fullscreen = %ld\n"
+             "fullscreen = %d\n"
              "\n"
              "; Video resolution\n"
-             "xdim2d = %ld\n"
-             "ydim2d = %ld\n"
-             "xdim3d = %ld\n"
-             "ydim3d = %ld\n"
+             "xdim2d = %d\n"
+             "ydim2d = %d\n"
+             "xdim3d = %d\n"
+             "ydim3d = %d\n"
              "\n"
              "; 3D-mode colour depth\n"
-             "bpp = %ld\n"
+             "bpp = %d\n"
              "\n"
              "; Grid limits\n"
-             "editorgridextent = %ld\n"
+             "editorgridextent = %d\n"
              "\n"
 #if defined(POLYMOST) && defined(USE_OPENGL)
              "; OpenGL mode options\n"
-             "glusetexcache = %ld\n"
-             "glusetexcachecompression = %ld\n"
-             "gltexfiltermode = %ld\n"
-             "glanisotropy = %ld\n"
+             "glusetexcache = %d\n"
+             "glusetexcachecompression = %d\n"
+             "gltexfiltermode = %d\n"
+             "glanisotropy = %d\n"
              "\n"
 #endif
 
@@ -248,7 +255,7 @@ int writesetup(const char *fn)
              ";   15 - highest\n"
              "brightness = %d\n"
              "\n"
-#if 0             
+#if 0
              "; Sound sample frequency\n"
              ";   0 - 6 KHz\n"
              ";   1 - 8 KHz\n"
@@ -264,7 +271,7 @@ int writesetup(const char *fn)
              ";   1 - On\n"
              "music = %d\n"
              "\n"
-#endif             
+#endif
              "; Enable mouse\n"
              ";   0 - No\n"
              ";   1 - Yes\n"
@@ -273,7 +280,7 @@ int writesetup(const char *fn)
              "; Mouse sensitivity\n"
              "mousesensitivity = %g\n"
              "\n"
-#if 1             
+#if 1
              "; Key Settings\n"
              ";  Here's a map of all the keyboard scan codes: NOTE: values are listed in hex!\n"
              "; +---------------------------------------------------------------------------------------------+\n"
@@ -328,17 +335,17 @@ int writesetup(const char *fn)
 #ifdef RENDERTYPEWIN
              maxrefreshfreq, windowpos, windowx, windowy,
 #endif
-             brightness, 
+             brightness,
 #if 0
              option[7]>>4, option[2],
-#endif             
+#endif
              option[3], msens,
-#if 1            
+#if 1
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
              keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],
              keys[12], keys[13], keys[14], keys[15], keys[16], keys[17],
              keys[18],
-#endif             
+#endif
              keys[19]
             );
 

@@ -28,20 +28,20 @@ char MusicPtr[72000*2];
 short global_random;
 short neartagsector, neartagwall, neartagsprite;
 
-long neartaghitdist,lockclock,start_armour_amount;
+int neartaghitdist,lockclock,start_armour_amount;
 // JBF: gc modified to default to Atomic ed. default when using 1.3d CONs
-long gc=176;
+int gc=176;
 
-// long temp_data[MAXSPRITES][6];
+// int temp_data[MAXSPRITES][6];
 actordata_t hittype[MAXSPRITES];
 
 short spriteq[1024],spriteqloc,spriteqamount=64;
 animwalltype animwall[MAXANIMWALLS];
 short numanimwalls;
-long *animateptr[MAXANIMATES], animategoal[MAXANIMATES], animatevel[MAXANIMATES], animatecnt;
-// long oanimateval[MAXANIMATES];
+int *animateptr[MAXANIMATES], animategoal[MAXANIMATES], animatevel[MAXANIMATES], animatecnt;
+// int oanimateval[MAXANIMATES];
 short animatesect[MAXANIMATES];
-long msx[2048],msy[2048];
+int msx[2048],msy[2048];
 short cyclers[MAXCYCLERS][6],numcyclers;
 
 char *fta_quotes[MAXQUOTES],*redefined_quotes[MAXQUOTES];
@@ -77,7 +77,7 @@ sound_t g_sounds[ MAXSOUNDS ];
 
 char numplayersprites,loadfromgrouponly=0,earthquaketime;
 
-long fricxv,fricyv;
+int fricxv,fricyv;
 playerdata_t g_player[MAXPLAYERS];
 input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 playerspawn_t g_PlayerSpawnPoints[MAXPLAYERS];
@@ -85,13 +85,13 @@ user_defs ud;
 
 char pus, pub;
 char syncstat;
-long syncvaltail, syncvaltottail;
+int syncvaltail, syncvaltottail;
 
 input loc;
 input recsync[RECSYNCBUFSIZ];
-long avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
+int avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
 
-long movefifosendplc;
+int movefifosendplc;
 
 //Multiplayer syncing variables
 short screenpeek;
@@ -99,14 +99,14 @@ short screenpeek;
 //Game recording variables
 
 char ready2send;
-long vel, svel, angvel, horiz, ototalclock, respawnactortime=768, respawnitemtime=768, groupfile;
+int vel, svel, angvel, horiz, ototalclock, respawnactortime=768, respawnitemtime=768, groupfile;
 
-long *scriptptr,*insptr,*labelcode,labelcnt,defaultlabelcnt,*labeltype;
-long *actorscrptr[MAXTILES],*parsing_actor;
+int *scriptptr,*insptr,*labelcode,labelcnt,defaultlabelcnt,*labeltype;
+int *actorscrptr[MAXTILES],*parsing_actor;
 char *label;
 char *music_pointer;
 char actortype[MAXTILES];
-long *script = NULL;
+int *script = NULL;
 
 int g_ScriptSize = 16384;
 
@@ -136,35 +136,35 @@ short weaponsandammosprites[15] =
     FREEZEAMMO__STATIC
 };
 
-long impact_damage;
+int impact_damage;
 int g_ScriptDebug;
 
 //GLOBAL.C - replace the end "my's" with this
-long myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
+int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
 short myhoriz, omyhoriz, myhorizoff, omyhorizoff;
 short myang, omyang, mycursectnum, myjumpingcounter;
 
 char myjumpingtoggle, myonground, myhardlanding, myreturntocenter;
 signed char multiwho, multipos, multiwhat, multiflag;
 
-long fakemovefifoplc,movefifoplc;
-long myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];
-long myhorizbak[MOVEFIFOSIZ],dukefriction = 0xcc00, show_shareware;
+int fakemovefifoplc,movefifoplc;
+int myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];
+int myhorizbak[MOVEFIFOSIZ],dukefriction = 0xcc00, show_shareware;
 
 short myangbak[MOVEFIFOSIZ];
 char myname[32];
 int camerashitable,freezerhurtowner=0,lasermode=0;
 int networkmode = 255, movesperpacket = 1,gamequit = 0,everyothertime;
-long numfreezebounces=3,rpgblastradius,pipebombblastradius,tripbombblastradius,shrinkerblastradius,morterblastradius,bouncemineblastradius,seenineblastradius;
+int numfreezebounces=3,rpgblastradius,pipebombblastradius,tripbombblastradius,shrinkerblastradius,morterblastradius,bouncemineblastradius,seenineblastradius;
 STATUSBARTYPE sbar;
 
-long mymaxlag, otherminlag, bufferjitter = 1;
+int mymaxlag, otherminlag, bufferjitter = 1;
 short numclouds,clouds[128],cloudx[128],cloudy[128];
-long cloudtotalclock = 0,totalmemory = 0;
-long numinterpolations = 0, startofdynamicinterpolations = 0;
-long oldipos[MAXINTERPOLATIONS];
-long bakipos[MAXINTERPOLATIONS];
-long *curipos[MAXINTERPOLATIONS];
+int cloudtotalclock = 0,totalmemory = 0;
+int numinterpolations = 0, startofdynamicinterpolations = 0;
+int oldipos[MAXINTERPOLATIONS];
+int bakipos[MAXINTERPOLATIONS];
+int *curipos[MAXINTERPOLATIONS];
 
 int nextvoxid = 0;
 

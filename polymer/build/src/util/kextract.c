@@ -11,10 +11,10 @@
 
 static char buf[65536];
 
-static long numfiles, anyfiles4extraction;
+static int numfiles, anyfiles4extraction;
 static char marked4extraction[MAXFILES];
 static char filelist[MAXFILES][16];
-static long fileoffs[MAXFILES+1], fileleng[MAXFILES];
+static int fileoffs[MAXFILES+1], fileleng[MAXFILES];
 
 void findfiles(const char *dafilespec)
 {
@@ -35,7 +35,7 @@ void findfiles(const char *dafilespec)
 
 int main(int argc, char **argv)
 {
-	long i, j, k, l, fil, fil2;
+	int i, j, k, l, fil, fil2;
 
 	if (argc < 3)
 	{
@@ -63,14 +63,14 @@ int main(int argc, char **argv)
 		printf("Error: %s not a valid group file\n",argv[1]);
 		return(0);
 	}
-	numfiles = *((long*)&buf[12]); numfiles = B_LITTLE32(numfiles);
+	numfiles = *((int*)&buf[12]); numfiles = B_LITTLE32(numfiles);
 
 	Bread(fil,filelist,numfiles<<4);
 
 	j = 0;
 	for(i=0;i<numfiles;i++)
 	{
-		k = *((long*)&filelist[i][12]); k = B_LITTLE32(k);
+		k = *((int*)&filelist[i][12]); k = B_LITTLE32(k);
 		filelist[i][12] = 0;
 		fileoffs[i] = j;
 		j += k;

@@ -15,90 +15,90 @@
 #endif
 #endif
 
-void (APIENTRY * bglClearColor)( GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha );
-void (APIENTRY * bglClear)( GLbitfield mask );
-void (APIENTRY * bglColorMask)( GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha );
-void (APIENTRY * bglAlphaFunc)( GLenum func, GLclampf ref );
-void (APIENTRY * bglBlendFunc)( GLenum sfactor, GLenum dfactor );
-void (APIENTRY * bglCullFace)( GLenum mode );
-void (APIENTRY * bglFrontFace)( GLenum mode );
-void (APIENTRY * bglPolygonOffset)( GLfloat factor, GLfloat units );
-void (APIENTRY * bglPolygonMode)( GLenum face, GLenum mode );
-void (APIENTRY * bglEnable)( GLenum cap );
-void (APIENTRY * bglDisable)( GLenum cap );
-void (APIENTRY * bglGetDoublev)( GLenum pname, GLdouble *params );
-void (APIENTRY * bglGetFloatv)( GLenum pname, GLfloat *params );
-void (APIENTRY * bglGetIntegerv)( GLenum pname, GLint *params );
-void (APIENTRY * bglPushAttrib)( GLbitfield mask );
-void (APIENTRY * bglPopAttrib)( void );
-GLenum (APIENTRY * bglGetError)( void );
-const GLubyte* (APIENTRY * bglGetString)( GLenum name );
-void (APIENTRY * bglHint)( GLenum target, GLenum mode );
+void (APIENTRY * bglClearColor)(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+void (APIENTRY * bglClear)(GLbitfield mask);
+void (APIENTRY * bglColorMask)(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+void (APIENTRY * bglAlphaFunc)(GLenum func, GLclampf ref);
+void (APIENTRY * bglBlendFunc)(GLenum sfactor, GLenum dfactor);
+void (APIENTRY * bglCullFace)(GLenum mode);
+void (APIENTRY * bglFrontFace)(GLenum mode);
+void (APIENTRY * bglPolygonOffset)(GLfloat factor, GLfloat units);
+void (APIENTRY * bglPolygonMode)(GLenum face, GLenum mode);
+void (APIENTRY * bglEnable)(GLenum cap);
+void (APIENTRY * bglDisable)(GLenum cap);
+void (APIENTRY * bglGetDoublev)(GLenum pname, GLdouble *params);
+void (APIENTRY * bglGetFloatv)(GLenum pname, GLfloat *params);
+void (APIENTRY * bglGetIntegerv)(GLenum pname, GLint *params);
+void (APIENTRY * bglPushAttrib)(GLbitfield mask);
+void (APIENTRY * bglPopAttrib)(void);
+GLenum(APIENTRY * bglGetError)(void);
+const GLubyte*(APIENTRY * bglGetString)(GLenum name);
+void (APIENTRY * bglHint)(GLenum target, GLenum mode);
 void (APIENTRY * bglDrawBuffer)(GLenum mode);
 void (APIENTRY * bglReadBuffer)(GLenum mode);
 void (APIENTRY * bglScissor)(GLint x, GLint y, GLsizei width, GLsizei height);
 
 // Depth
-void (APIENTRY * bglDepthFunc)( GLenum func );
-void (APIENTRY * bglDepthMask)( GLboolean flag );
-void (APIENTRY * bglDepthRange)( GLclampd near_val, GLclampd far_val );
+void (APIENTRY * bglDepthFunc)(GLenum func);
+void (APIENTRY * bglDepthMask)(GLboolean flag);
+void (APIENTRY * bglDepthRange)(GLclampd near_val, GLclampd far_val);
 
 // Matrix
-void (APIENTRY * bglMatrixMode)( GLenum mode );
-void (APIENTRY * bglOrtho)( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_val, GLdouble far_val );
-void (APIENTRY * bglFrustum)( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_val, GLdouble far_val );
-void (APIENTRY * bglViewport)( GLint x, GLint y, GLsizei width, GLsizei height );
-void (APIENTRY * bglPushMatrix)( void );
-void (APIENTRY * bglPopMatrix)( void );
-void (APIENTRY * bglLoadIdentity)( void );
-void (APIENTRY * bglLoadMatrixf)( const GLfloat *m );
-void (APIENTRY * bglLoadMatrixd)( const GLdouble *m );
-void (APIENTRY * bglMultMatrixf)( const GLfloat *m );
-void (APIENTRY * bglMultMatrixd)( const GLdouble *m );
+void (APIENTRY * bglMatrixMode)(GLenum mode);
+void (APIENTRY * bglOrtho)(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_val, GLdouble far_val);
+void (APIENTRY * bglFrustum)(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_val, GLdouble far_val);
+void (APIENTRY * bglViewport)(GLint x, GLint y, GLsizei width, GLsizei height);
+void (APIENTRY * bglPushMatrix)(void);
+void (APIENTRY * bglPopMatrix)(void);
+void (APIENTRY * bglLoadIdentity)(void);
+void (APIENTRY * bglLoadMatrixf)(const GLfloat *m);
+void (APIENTRY * bglLoadMatrixd)(const GLdouble *m);
+void (APIENTRY * bglMultMatrixf)(const GLfloat *m);
+void (APIENTRY * bglMultMatrixd)(const GLdouble *m);
 void (APIENTRY * bglRotatef)(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
 void (APIENTRY * bglScalef)(GLfloat x, GLfloat y, GLfloat z);
 void (APIENTRY * bglTranslatef)(GLfloat x, GLfloat y, GLfloat z);
 
 // Drawing
-void (APIENTRY * bglBegin)( GLenum mode );
-void (APIENTRY * bglEnd)( void );
-void (APIENTRY * bglVertex2f)( GLfloat x, GLfloat y );
-void (APIENTRY * bglVertex2i)( GLint x, GLint y );
-void (APIENTRY * bglVertex3f)( GLfloat x, GLfloat y, GLfloat z );
-void (APIENTRY * bglVertex3d)( GLdouble x, GLdouble y, GLdouble z );
-void (APIENTRY * bglVertex3fv)( const GLfloat *v );
-void (APIENTRY * bglVertex3dv)( const GLdouble *v );
-void (APIENTRY * bglColor4f)( GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha );
-void (APIENTRY * bglColor4ub)( GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha );
-void (APIENTRY * bglTexCoord2d)( GLdouble s, GLdouble t );
-void (APIENTRY * bglTexCoord2f)( GLfloat s, GLfloat t );
+void (APIENTRY * bglBegin)(GLenum mode);
+void (APIENTRY * bglEnd)(void);
+void (APIENTRY * bglVertex2f)(GLfloat x, GLfloat y);
+void (APIENTRY * bglVertex2i)(GLint x, GLint y);
+void (APIENTRY * bglVertex3f)(GLfloat x, GLfloat y, GLfloat z);
+void (APIENTRY * bglVertex3d)(GLdouble x, GLdouble y, GLdouble z);
+void (APIENTRY * bglVertex3fv)(const GLfloat *v);
+void (APIENTRY * bglVertex3dv)(const GLdouble *v);
+void (APIENTRY * bglColor4f)(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+void (APIENTRY * bglColor4ub)(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha);
+void (APIENTRY * bglTexCoord2d)(GLdouble s, GLdouble t);
+void (APIENTRY * bglTexCoord2f)(GLfloat s, GLfloat t);
 
 // Lighting
-void (APIENTRY * bglShadeModel)( GLenum mode );
+void (APIENTRY * bglShadeModel)(GLenum mode);
 
 // Raster funcs
-void (APIENTRY * bglReadPixels)( GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels );
+void (APIENTRY * bglReadPixels)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
 
 // Texture mapping
-void (APIENTRY * bglTexEnvf)( GLenum target, GLenum pname, GLfloat param );
-void (APIENTRY * bglGenTextures)( GLsizei n, GLuint *textures );	// 1.1
-void (APIENTRY * bglDeleteTextures)( GLsizei n, const GLuint *textures);	// 1.1
-void (APIENTRY * bglBindTexture)( GLenum target, GLuint texture );	// 1.1
-void (APIENTRY * bglTexImage2D)( GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
-void (APIENTRY * bglCopyTexImage2D)( GLenum	target, GLint level, GLenum	internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border );
+void (APIENTRY * bglTexEnvf)(GLenum target, GLenum pname, GLfloat param);
+void (APIENTRY * bglGenTextures)(GLsizei n, GLuint *textures);	// 1.1
+void (APIENTRY * bglDeleteTextures)(GLsizei n, const GLuint *textures);	// 1.1
+void (APIENTRY * bglBindTexture)(GLenum target, GLuint texture);	// 1.1
+void (APIENTRY * bglTexImage2D)(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+void (APIENTRY * bglCopyTexImage2D)(GLenum	target, GLint level, GLenum	internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
 void (APIENTRY * bglCopyTexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
-void (APIENTRY * bglTexSubImage2D)( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels );	// 1.1
-void (APIENTRY * bglTexParameterf)( GLenum target, GLenum pname, GLfloat param );
-void (APIENTRY * bglTexParameteri)( GLenum target, GLenum pname, GLint param );
-void (APIENTRY * bglGetTexLevelParameteriv)( GLenum target, GLint level, GLenum pname, GLint *params );
+void (APIENTRY * bglTexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);	// 1.1
+void (APIENTRY * bglTexParameterf)(GLenum target, GLenum pname, GLfloat param);
+void (APIENTRY * bglTexParameteri)(GLenum target, GLenum pname, GLint param);
+void (APIENTRY * bglGetTexLevelParameteriv)(GLenum target, GLint level, GLenum pname, GLint *params);
 void (APIENTRY * bglCompressedTexImage2DARB)(GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *);
 void (APIENTRY * bglGetCompressedTexImageARB)(GLenum, GLint, GLvoid *);
 void (APIENTRY * bglTexGenfv)(GLenum coord, GLenum pname, const GLfloat *params);
 
 // Fog
-void (APIENTRY * bglFogf)( GLenum pname, GLfloat param );
-void (APIENTRY * bglFogi)( GLenum pname, GLint param );
-void (APIENTRY * bglFogfv)( GLenum pname, const GLfloat *params );
+void (APIENTRY * bglFogf)(GLenum pname, GLfloat param);
+void (APIENTRY * bglFogi)(GLenum pname, GLint param);
+void (APIENTRY * bglFogfv)(GLenum pname, const GLfloat *params);
 
 // Display Lists
 void (APIENTRY * bglNewList)(GLuint list, GLenum mode);
@@ -128,46 +128,46 @@ void (APIENTRY * bglDeleteProgramsARB)(GLsizei n, const GLuint *programs);
 // Multitexturing
 void (APIENTRY * bglActiveTextureARB)(GLenum texture);
 void (APIENTRY * bglClientActiveTextureARB)(GLenum texture);
-void (APIENTRY * bglMultiTexCoord2dARB)(GLenum target, GLdouble s, GLdouble t );
-void (APIENTRY * bglMultiTexCoord2fARB)(GLenum target, GLfloat s, GLfloat t );
+void (APIENTRY * bglMultiTexCoord2dARB)(GLenum target, GLdouble s, GLdouble t);
+void (APIENTRY * bglMultiTexCoord2fARB)(GLenum target, GLfloat s, GLfloat t);
 
 // Frame Buffer Objects
 void (APIENTRY * bglGenFramebuffersEXT)(GLsizei n, GLuint *framebuffers);
 void (APIENTRY * bglBindFramebufferEXT)(GLenum target, GLuint framebuffer);
 void (APIENTRY * bglFramebufferTexture2DEXT)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-GLenum (APIENTRY * bglCheckFramebufferStatusEXT)(GLenum target);
+GLenum(APIENTRY * bglCheckFramebufferStatusEXT)(GLenum target);
 void (APIENTRY * bglDeleteFramebuffersEXT)(GLsizei n, const GLuint *framebuffers);
 
 // Vertex Buffer Objects
-void        (APIENTRY * bglGenBuffersARB)(GLsizei n, GLuint * buffers);
-void        (APIENTRY * bglBindBufferARB)(GLenum target, GLuint buffer);
-void        (APIENTRY * bglDeleteBuffersARB)(GLsizei n, const GLuint * buffers);
-void        (APIENTRY * bglBufferDataARB)(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
-void*       (APIENTRY * bglMapBufferARB)(GLenum target, GLenum access);
-GLboolean   (APIENTRY * bglUnmapBufferARB)(GLenum target);
+void (APIENTRY * bglGenBuffersARB)(GLsizei n, GLuint * buffers);
+void (APIENTRY * bglBindBufferARB)(GLenum target, GLuint buffer);
+void (APIENTRY * bglDeleteBuffersARB)(GLsizei n, const GLuint * buffers);
+void (APIENTRY * bglBufferDataARB)(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
+void* (APIENTRY * bglMapBufferARB)(GLenum target, GLenum access);
+GLboolean(APIENTRY * bglUnmapBufferARB)(GLenum target);
 
 // GLU
-void            (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
-void            (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);
-void            (APIENTRY * bgluTessCallback) (GLUtesselator* tess, GLenum which, void (PR_CALLBACK CallBackFunc)());
-void            (APIENTRY * bgluTessEndContour) (GLUtesselator* tess);
-void            (APIENTRY * bgluTessEndPolygon) (GLUtesselator* tess);
-void            (APIENTRY * bgluTessNormal) (GLUtesselator* tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ);
-void            (APIENTRY * bgluTessProperty) (GLUtesselator* tess, GLenum which, GLdouble data);
-void            (APIENTRY * bgluTessVertex) (GLUtesselator* tess, GLdouble *location, GLvoid* data);
-GLUtesselator*  (APIENTRY * bgluNewTess) (void);
+void (APIENTRY * bgluTessBeginContour)(GLUtesselator* tess);
+void (APIENTRY * bgluTessBeginPolygon)(GLUtesselator* tess, GLvoid* data);
+void (APIENTRY * bgluTessCallback)(GLUtesselator* tess, GLenum which, void (PR_CALLBACK CallBackFunc)());
+void (APIENTRY * bgluTessEndContour)(GLUtesselator* tess);
+void (APIENTRY * bgluTessEndPolygon)(GLUtesselator* tess);
+void (APIENTRY * bgluTessNormal)(GLUtesselator* tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ);
+void (APIENTRY * bgluTessProperty)(GLUtesselator* tess, GLenum which, GLdouble data);
+void (APIENTRY * bgluTessVertex)(GLUtesselator* tess, GLdouble *location, GLvoid* data);
+GLUtesselator*(APIENTRY * bgluNewTess)(void);
 
-void            (APIENTRY * bgluPerspective) (GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+void (APIENTRY * bgluPerspective)(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
-const GLubyte * (APIENTRY * bgluErrorString) (GLenum error);
+const GLubyte * (APIENTRY * bgluErrorString)(GLenum error);
 
-GLint           (APIENTRY * bgluProject)(GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint	*view, GLdouble* winX, GLdouble* winY, GLdouble* winZ);
+GLint(APIENTRY * bgluProject)(GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint	*view, GLdouble* winX, GLdouble* winY, GLdouble* winZ);
 
 #ifdef RENDERTYPEWIN
 // Windows
-HGLRC (WINAPI * bwglCreateContext)(HDC);
+HGLRC(WINAPI * bwglCreateContext)(HDC);
 BOOL (WINAPI * bwglDeleteContext)(HGLRC);
-PROC (WINAPI * bwglGetProcAddress)(LPCSTR);
+PROC(WINAPI * bwglGetProcAddress)(LPCSTR);
 BOOL (WINAPI * bwglMakeCurrent)(HDC,HGLRC);
 
 BOOL (WINAPI * bwglSwapBuffers)(HDC);
@@ -196,7 +196,8 @@ static void * getproc_(const char *s, int *err, int fatal, int extension)
 #else
 #error Need a dynamic loader for this platform...
 #endif
-    if (!t && fatal) {
+    if (!t && fatal)
+    {
         initprintf("Failed to find %s in %s\n", s, gldriver);
         *err = 1;
     }
@@ -216,7 +217,8 @@ int loadgldriver(const char *driver)
     if (hGLDLL) return 0;
 #endif
 
-    if (!driver) {
+    if (!driver)
+    {
 #ifdef _WIN32
         driver = "OPENGL32.DLL";
 #elif defined __APPLE__
@@ -350,7 +352,7 @@ int loadgldriver(const char *driver)
     bglClearStencil = GETPROC("glClearStencil");
     bglStencilOp    = GETPROC("glStencilOp");
     bglStencilFunc  = GETPROC("glStencilFunc");
-    
+
     loadglextensions();
     loadglulibrary(getenv("BUILD_GLULIB"));
 
@@ -394,14 +396,14 @@ int loadglextensions(void)
     bglBufferDataARB    = GETPROCEXTSOFT("glBufferDataARB");
     bglMapBufferARB     = GETPROCEXTSOFT("glMapBufferARB");
     bglUnmapBufferARB   = GETPROCEXTSOFT("glUnmapBufferARB");
-    
+
     return err;
 }
 
 int unloadgldriver(void)
 {
     unloadglulibrary();
-    
+
 #ifdef RENDERTYPEWIN
     if (!hGLDLL) return 0;
 #endif
@@ -566,7 +568,8 @@ static void * glugetproc_(const char *s, int *err, int fatal)
 #else
     t = (void*)dlsym(gluhandle,s);
 #endif
-    if (!t && fatal) {
+    if (!t && fatal)
+    {
         initprintf("Failed to find %s in %s\n", s, glulibrary);
         *err = 1;
     }
@@ -584,7 +587,8 @@ int loadglulibrary(const char *driver)
     if (hGLUDLL) return 0;
 #endif
 
-    if (!driver) {
+    if (!driver)
+    {
 #ifdef _WIN32
         driver = "GLU32.DLL";
 #elif defined __APPLE__
@@ -657,7 +661,7 @@ int unloadglulibrary(void)
     bgluErrorString         = NULL;
 
     bgluProject             = NULL;
-   
+
     return 0;
 }
 #endif

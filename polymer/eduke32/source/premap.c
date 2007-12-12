@@ -273,7 +273,7 @@ static void cachegoodsprites(void)
 static int getsound(unsigned int num)
 {
     short fp;
-    long   l;
+    int   l;
 
     if (num >= MAXSOUNDS || ud.config.SoundToggle == 0) return 0;
     if (ud.config.FXDevice < 0) return 0;
@@ -289,7 +289,7 @@ static int getsound(unsigned int num)
             (l < 12288))
     {
         g_sounds[num].lock = 199;
-        allocache((long *)&g_sounds[num].ptr,l,(char *)&g_sounds[num].lock);
+        allocache((int *)&g_sounds[num].ptr,l,(char *)&g_sounds[num].lock);
         if (g_sounds[num].ptr != NULL)
             kread(fp, g_sounds[num].ptr , l);
     }
@@ -319,7 +319,7 @@ static void precachenecessarysounds(void)
 
 static void dofrontscreens(char *statustext)
 {
-    long i=0,j;
+    int i=0,j;
 
     if (ud.recstat != 2)
     {
@@ -393,9 +393,9 @@ static void dofrontscreens(char *statustext)
 
 void cacheit(void)
 {
-    long i,j,k, pc=0;
-    long tc;
-    unsigned long starttime, endtime;
+    int i,j,k, pc=0;
+    int tc;
+    unsigned int starttime, endtime;
 
     if (ud.recstat == 2)
         return;
@@ -474,7 +474,7 @@ void cacheit(void)
         }
         if (totalclock - tc > TICRATE/4)
         {
-            sprintf(tempbuf,"Loading resources... %ld%%\n",min(100,100*pc/precachecount));
+            sprintf(tempbuf,"Loading resources... %d%%\n",min(100,100*pc/precachecount));
             dofrontscreens(tempbuf);
             tc = totalclock;
         }
@@ -504,7 +504,7 @@ void xyzmirror(int i,int wn)
 
 void vscrn(void)
 {
-    long i, j, ss, x1, x2, y1, y2;
+    int i, j, ss, x1, x2, y1, y2;
 
     if (ud.screen_size < 0) ud.screen_size = 0;
     if (ud.screen_size > 64) ud.screen_size = 64;
@@ -545,7 +545,7 @@ void pickrandomspot(int snum)
 {
     player_struct *p = g_player[snum].ps;
     int i=snum,j,k;
-    unsigned long dist,pdist = -1;
+    unsigned int dist,pdist = -1;
 
     if (ud.multimode > 1 && !(gametype_flags[ud.coop] & GAMETYPE_FLAG_FIXEDRESPAWN))
     {
@@ -1275,7 +1275,7 @@ int getteampal(int team)
 static void resetpspritevars(char g)
 {
     short i, j, nexti,circ;
-    long firstx,firsty;
+    int firstx,firsty;
     spritetype *s;
     char aimmode[MAXPLAYERS],autoaim[MAXPLAYERS],weaponswitch[MAXPLAYERS];
     STATUSBARTYPE tsbar[MAXPLAYERS];
@@ -1466,7 +1466,7 @@ void resettimevars(void)
 
 void waitforeverybody()
 {
-    long i;
+    int i;
 
     if (numplayers < 2) return;
     packbuf[0] = 250;
@@ -1634,7 +1634,7 @@ int enterlevel(int g)
         }
         else
         {
-            initprintf("Map E%ldL%ld not defined!\n",ud.volume_number+1,ud.level_number+1);
+            initprintf("Map E%dL%d not defined!\n",ud.volume_number+1,ud.level_number+1);
             return 1;
         }
     }
@@ -1837,6 +1837,6 @@ int enterlevel(int g)
     // variables are set by pointer...
 
     OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
-    initprintf("E%ldL%ld: %s\n",ud.volume_number+1,ud.level_number+1,map[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
+    initprintf("E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,map[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
     return 0;
 }

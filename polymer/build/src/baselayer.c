@@ -8,28 +8,29 @@
 #endif
 
 #ifdef USE_OPENGL
-struct glinfo glinfo = {
-                           "Unknown",	// vendor
-                           "Unknown",	// renderer
-                           "0.0.0",	// version
-                           "",		// extensions
+struct glinfo glinfo =
+{
+    "Unknown",	// vendor
+    "Unknown",	// renderer
+    "0.0.0",	// version
+    "",		// extensions
 
-                           1.0,		// max anisotropy
-                           0,		// brga texture format
-                           0,		// clamp-to-edge support
-                           0,		// texture compression
-                           0,		// non-power-of-two textures
-                           0,		// multisampling
-                           0,		// nvidia multisampling hint
-                           0,       // ARBfp
-                           0,       // depth textures
-                           0,       // shadow comparison
-                           0,       // Frame Buffer Objects
-                           0,       // rectangle textures
-                           0,       // multitexturing
-                           0,       // env_combine
-                           0,       // Vertex Buffer Objects
-                       };
+    1.0,		// max anisotropy
+    0,		// brga texture format
+    0,		// clamp-to-edge support
+    0,		// texture compression
+    0,		// non-power-of-two textures
+    0,		// multisampling
+    0,		// nvidia multisampling hint
+    0,       // ARBfp
+    0,       // depth textures
+    0,       // shadow comparison
+    0,       // Frame Buffer Objects
+    0,       // rectangle textures
+    0,       // multitexturing
+    0,       // env_combine
+    0,       // Vertex Buffer Objects
+};
 #endif
 
 static void onvideomodechange(int newmode) { }
@@ -40,10 +41,11 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
     int m;
     char *p;
 
-    char *modestrs[] = {
-                           "classic software", "polygonal flat-shaded software",
-                           "polygonal textured software", "polygonal OpenGL", "great justice"
-                       };
+    char *modestrs[] =
+    {
+        "classic software", "polygonal flat-shaded software",
+        "polygonal textured software", "polygonal OpenGL", "great justice"
+    };
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
     m = Bstrtol(parm->parms[0], &p, 10);
@@ -51,7 +53,7 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
     if (m < 0 || m > 4) return OSDCMD_SHOWHELP;
 
     setrendermode(m);
-    OSD_Printf("Rendering method changed to %s\n", modestrs[ getrendermode() ] );
+    OSD_Printf("Rendering method changed to %s\n", modestrs[ getrendermode()]);
 
     return OSDCMD_OK;
 }
@@ -60,7 +62,7 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 #ifdef DEBUGGINGAIDS
 static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 {
-    long pal, cols[3], eff;
+    int pal, cols[3], eff;
     char *p;
 
     if (parm->numparms != 5) return OSDCMD_SHOWHELP;
@@ -81,7 +83,8 @@ static int osdcmd_glinfo(const osdfuncparm_t *parm)
 {
     char *s,*t,*u,i;
 
-    if (bpp == 8) {
+    if (bpp == 8)
+    {
         OSD_Printf("glinfo: Not in OpenGL mode.\n");
         return OSDCMD_OK;
     }
@@ -128,11 +131,15 @@ static int osdcmd_glinfo(const osdfuncparm_t *parm)
 
     s = Bstrdup(glinfo.extensions);
     if (!s) OSD_Printf(glinfo.extensions);
-    else {
+    else
+    {
         i = 0; t = u = s;
-        while (*t) {
-            if (*t == ' ') {
-                if (i&1) {
+        while (*t)
+        {
+            if (*t == ' ')
+            {
+                if (i&1)
+                {
                     *t = 0;
                     OSD_Printf("   %s\n",u);
                     u = t+1;
@@ -153,24 +160,28 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 {
     int showval = (parm->numparms < 1);
 
-    if (!Bstrcasecmp(parm->name, "screencaptureformat")) {
+    if (!Bstrcasecmp(parm->name, "screencaptureformat"))
+    {
         const char *fmts[] = {"TGA", "PCX"};
         if (showval) { OSD_Printf("captureformat is %s\n", fmts[captureformat]); }
-        else {
+        else
+        {
             int j;
             for (j=0; j<2; j++)
-                    if (!Bstrcasecmp(parm->parms[0], fmts[j])) break;
+                if (!Bstrcasecmp(parm->parms[0], fmts[j])) break;
             if (j == 2) return OSDCMD_SHOWHELP;
             captureformat = j;
         }
         return OSDCMD_OK;
     }
 #ifdef SUPERBUILD
-    else if (!Bstrcasecmp(parm->name, "novoxmips")) {
+    else if (!Bstrcasecmp(parm->name, "novoxmips"))
+    {
         if (showval) { OSD_Printf("novoxmips is %d\n", novoxmips); }
         else { novoxmips = (atoi(parm->parms[0]) != 0); }
     }
-    else if (!Bstrcasecmp(parm->name, "usevoxels")) {
+    else if (!Bstrcasecmp(parm->name, "usevoxels"))
+    {
         if (showval) { OSD_Printf("usevoxels is %d\n", usevoxels); }
         else { usevoxels = (atoi(parm->parms[0]) != 0); }
     }

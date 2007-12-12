@@ -36,7 +36,7 @@ Replacement cd-auth routine by Jonathon Fowler.
  * of it all. Because it's amusing. Who cares?
  */
 
-char testcd(char *fn, long testsiz)
+char testcd(char *fn, int testsiz)
 {
     DWORD driveletters;
     int i, fil, dalen;

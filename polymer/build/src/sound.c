@@ -61,7 +61,7 @@ static int F_CALLBACKAPI f_tell(unsigned int handle)
 }
 
 
-void initsb(char dadigistat, char damusistat, long dasamplerate, char danumspeakers, char dabytespersample, char daintspersec, char daquality)
+void initsb(char dadigistat, char damusistat, int dasamplerate, char danumspeakers, char dabytespersample, char daintspersec, char daquality)
 {
     char *s;
     int i,j;
@@ -78,7 +78,8 @@ void initsb(char dadigistat, char damusistat, long dasamplerate, char danumspeak
     printOSD("  Linked version: %.02f\n", FMOD_VERSION);
     printOSD("  DLL version: %.02f\n", FSOUND_GetVersion());
 
-    if (FSOUND_GetVersion() < FMOD_VERSION) {
+    if (FSOUND_GetVersion() < FMOD_VERSION)
+    {
         printOSD("  ... Failure: FMOD DLL too old! Sound disabled.\n");
         return;
     }
@@ -87,14 +88,18 @@ void initsb(char dadigistat, char damusistat, long dasamplerate, char danumspeak
 
     //FSOUND_SetOutput(FSOUND_OUTPUT_ASIO);
 
-    if (FSOUND_Init(dasamplerate, NUMCHANNELS, 0)) {
+    if (FSOUND_Init(dasamplerate, NUMCHANNELS, 0))
+    {
         printOSD("  ... Success\n");
         fmod_inited = 1;
-    } else {
+    }
+    else
+    {
         printOSD("  ... Failure: %s\n", FMOD_ErrorString(FSOUND_GetError()));
     }
 
-    switch (FSOUND_GetOutput()) {
+    switch (FSOUND_GetOutput())
+    {
     case FSOUND_OUTPUT_NOSOUND:
         s = "No Sound"; break;
     case FSOUND_OUTPUT_WINMM:
@@ -129,19 +134,20 @@ void initsb(char dadigistat, char damusistat, long dasamplerate, char danumspeak
 
 void uninitsb(void)
 {
-    if (fmod_inited) {
+    if (fmod_inited)
+    {
         FSOUND_Close();
         fmod_inited = 0;
     }
 }
 
 
-void setears(long daposx, long daposy, long daxvect, long dayvect)
+void setears(int daposx, int daposy, int daxvect, int dayvect)
 {
 }
 
 
-void wsayfollow(char *dafilename, long dafreq, long davol, long *daxplc, long *dayplc, char followstat)
+void wsayfollow(char *dafilename, int dafreq, int davol, int *daxplc, int *dayplc, char followstat)
 {
     /*
     	dafilename:
@@ -164,13 +170,14 @@ void wsayfollow(char *dafilename, long dafreq, long davol, long *daxplc, long *d
     		1 = position follows an object
     */
     unsigned char ch1, ch2;
-    long i, wavnum, bad, oldest=0, free=-1, ox, oy, x, y, vo;
+    int i, wavnum, bad, oldest=0, free=-1, ox, oy, x, y, vo;
     unsigned int oldestpos=0;
     int chan;
 
     if (fmod_inited == 0) return;
 
-    for (wavnum=numwaves-1;wavnum>=0;wavnum--) {
+    for (wavnum=numwaves-1;wavnum>=0;wavnum--)
+    {
         bad = 0;
 
         i = 0;
@@ -178,25 +185,29 @@ void wsayfollow(char *dafilename, long dafreq, long davol, long *daxplc, long *d
         {
             ch1 = dafilename[i]; if ((ch1 >= 97) && (ch1 <= 123)) ch1 -= 32;
             ch2 = instname[wavnum][i]; if ((ch2 >= 97) && (ch2 <= 123)) ch2 -= 32;
-        if (ch1 != ch2) {bad = 1; break;}
+            if (ch1 != ch2) {bad = 1; break;}
             i++;
         }
         if (bad != 0) continue;
 
-        for (i=0; i<NUMCHANNELS; i++) {
-            if (!FSOUND_IsPlaying(channels[i])) {
+        for (i=0; i<NUMCHANNELS; i++)
+        {
+            if (!FSOUND_IsPlaying(channels[i]))
+            {
                 free = i;
                 break;
             }
             if (i==0) continue;
 
-            if (FSOUND_GetCurrentPosition(channels[i]) > oldestpos) {
+            if (FSOUND_GetCurrentPosition(channels[i]) > oldestpos)
+            {
                 oldest = i;
                 oldestpos = FSOUND_GetCurrentPosition(channels[i]);
             }
         }
 
-        if (free < 0) {
+        if (free < 0)
+        {
             FSOUND_StopSound(channels[oldest]);
             free = oldest;
         }
@@ -214,10 +225,10 @@ void wsayfollow(char *dafilename, long dafreq, long davol, long *daxplc, long *d
 }
 
 
-void wsay(char *dafilename, long dafreq, long volume1, long volume2)
+void wsay(char *dafilename, int dafreq, int volume1, int volume2)
 {
     unsigned char ch1, ch2;
-    long i, j, bad, free=-1, oldest=0;
+    int i, j, bad, free=-1, oldest=0;
     unsigned int oldestpos=0;
     int chan;
 
@@ -233,25 +244,29 @@ void wsay(char *dafilename, long dafreq, long volume1, long volume2)
         {
             ch1 = dafilename[j]; if ((ch1 >= 97) && (ch1 <= 123)) ch1 -= 32;
             ch2 = instname[i][j]; if ((ch2 >= 97) && (ch2 <= 123)) ch2 -= 32;
-        if (ch1 != ch2) {bad = 1; break;}
+            if (ch1 != ch2) {bad = 1; break;}
             j++;
         }
         if (bad == 0)
         {
-            for (j=0; j<NUMCHANNELS; j++) {
-                if (!FSOUND_IsPlaying(channels[j])) {
+            for (j=0; j<NUMCHANNELS; j++)
+            {
+                if (!FSOUND_IsPlaying(channels[j]))
+                {
                     free = j;
                     break;
                 }
                 if (j==0) continue;
 
-                if (FSOUND_GetCurrentPosition(channels[j]) > oldestpos) {
+                if (FSOUND_GetCurrentPosition(channels[j]) > oldestpos)
+                {
                     oldest = j;
                     oldestpos = FSOUND_GetCurrentPosition(channels[j]);
                 }
             }
 
-            if (free < 0) {
+            if (free < 0)
+            {
                 FSOUND_StopSound(channels[oldest]);
                 free = oldest;
             }
@@ -269,36 +284,42 @@ void wsay(char *dafilename, long dafreq, long volume1, long volume2)
         }
 
         i--;
-    } while (i >= 0);
+    }
+    while (i >= 0);
 }
 
 
 void loadwaves(void)
 {
-    long fil, dawaversionum, i, tmp;
-    long wavleng[MAXWAVES], repstart[MAXWAVES], repleng[MAXWAVES], finetune[MAXWAVES];
+    int fil, dawaversionum, i, tmp;
+    int wavleng[MAXWAVES], repstart[MAXWAVES], repleng[MAXWAVES], finetune[MAXWAVES];
     char *p;
 
     fil = kopen4load("WAVES.KWV", 0);
 
-    if (fil != -1) {
+    if (fil != -1)
+    {
         kread(fil, &dawaversionum, 4); dawaversionum = B_LITTLE32(dawaversionum);
         if (dawaversionum != 0) { kclose(fil); return; }
 
         kread(fil, &numwaves, 4); numwaves = B_LITTLE32(numwaves);
-        for (i=0; i<numwaves; i++) {
+        for (i=0; i<numwaves; i++)
+        {
             kread(fil, &instname[i][0], 16);
             kread(fil, &wavleng[i], 4);  wavleng[i]  = B_LITTLE32(wavleng[i]);
             kread(fil, &repstart[i], 4); repstart[i] = B_LITTLE32(repstart[i]);
             kread(fil, &repleng[i], 4);  repleng[i]  = B_LITTLE32(repleng[i]);
             kread(fil, &finetune[i], 4); finetune[i] = B_LITTLE32(finetune[i]);
         }
-    } else {
+    }
+    else
+    {
         dawaversionum = 0;
         numwaves = 0;
     }
 
-    for (i=numwaves; i<MAXWAVES; i++) {
+    for (i=numwaves; i<MAXWAVES; i++)
+    {
         memset(&instname[i][0], 0, 16);
         wavleng[i] = 0;
         repstart[i] = 0;
@@ -309,7 +330,8 @@ void loadwaves(void)
 
     if (fil == -1) return;
 
-    for (i=0; i<numwaves; i++) {
+    for (i=0; i<numwaves; i++)
+    {
         if (repleng[i]) tmp = FSOUND_LOOP_NORMAL;
         else tmp = FSOUND_LOOP_OFF;
         samples[i] = FSOUND_Sample_Alloc(FSOUND_FREE, wavleng[i], tmp, 11025, 255, 128, 1);

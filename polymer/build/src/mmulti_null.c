@@ -9,32 +9,32 @@
 #include "mmulti.h"
 
 
-long myconnectindex, numplayers;
-long connecthead, connectpoint2[MAXMULTIPLAYERS];
+int myconnectindex, numplayers;
+int connecthead, connectpoint2[MAXMULTIPLAYERS];
 char syncstate = 0;
 
-long isvalidipaddress (char *st)
+int isvalidipaddress(char *st)
 {
     return 0;
 }
 
-long initmultiplayersparms(long argc, char **argv)
+int initmultiplayersparms(int argc, char **argv)
 {
     return 0;
 }
 
-long initmultiplayerscycle(void)
+int initmultiplayerscycle(void)
 {
     return 0;
 }
 
-void initmultiplayers(long argc, char **argv, char damultioption, char dacomrateoption, char dapriority)
+void initmultiplayers(int argc, char **argv, char damultioption, char dacomrateoption, char dapriority)
 {
     numplayers = 1; myconnectindex = 0;
     connecthead = 0; connectpoint2[0] = -1;
 }
 
-void setpackettimeout(long datimeoutcount, long daresendagaincount)
+void setpackettimeout(int datimeoutcount, int daresendagaincount)
 {
 }
 
@@ -50,7 +50,7 @@ void sendlogoff(void)
 {
 }
 
-long getoutputcirclesize(void)
+int getoutputcirclesize(void)
 {
     return 0;
 }
@@ -59,11 +59,11 @@ void setsocket(short newsocket)
 {
 }
 
-void sendpacket(long other, char *bufptr, long messleng)
+void sendpacket(int other, char *bufptr, int messleng)
 {
 }
 
-long getpacket (long *other, char *bufptr)
+int getpacket(int *other, char *bufptr)
 {
     return 0;
 }
@@ -72,7 +72,7 @@ void flushpackets(void)
 {
 }
 
-void genericmultifunction(long other, char *bufptr, long messleng, long command)
+void genericmultifunction(int other, char *bufptr, int messleng, int command)
 {
 }
 

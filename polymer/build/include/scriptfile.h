@@ -6,7 +6,7 @@ typedef struct {
 	char *eof;
 	char *filename;
 	int linenum;
-	long *lineoffs;
+	int *lineoffs;
 } scriptfile;
 
 char *scriptfile_gettoken(scriptfile *sf);

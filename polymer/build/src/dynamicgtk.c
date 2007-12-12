@@ -25,7 +25,8 @@ int dynamicgtk_init(void)
 
     memset(&dynamicgtksyms, 0, sizeof(dynamicgtksyms));
 
-    do {
+    do
+    {
         GETDLSYM(g_free)
         GETDLSYM(g_object_get_data)
         GETDLSYM(g_object_set_data)
@@ -146,9 +147,11 @@ int dynamicgtk_init(void)
         GETDLSYM(gtk_window_set_title)
         GETDLSYM(gtk_window_set_type_hint)
         GETDLSYM(g_utf8_collate)
-    } while (0);
+    }
+    while (0);
 
-    if (err) {
+    if (err)
+    {
         //printf("Failed fetching symbol %s from GTK lib\n", failsym);
         dlclose(handle);
         handle = NULL;

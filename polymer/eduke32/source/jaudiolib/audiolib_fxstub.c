@@ -122,7 +122,7 @@ int FX_Shutdown
 
 int FX_SetCallBack
 (
-    void(*function)(unsigned long)
+    void(*function)(unsigned int)
 )
 
 {
@@ -227,14 +227,14 @@ int FX_VoiceAvailable
 int FX_PlayLoopedVOC
 (
     char *ptr,
-    long loopstart,
-    long loopend,
+    int loopstart,
+    int loopend,
     int pitchoffset,
     int vol,
     int left,
     int right,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {
@@ -251,14 +251,14 @@ int FX_PlayLoopedVOC
 int FX_PlayLoopedWAV
 (
     char *ptr,
-    long loopstart,
-    long loopend,
+    int loopstart,
+    int loopend,
     int pitchoffset,
     int vol,
     int left,
     int right,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {
@@ -280,7 +280,7 @@ int FX_PlayVOC3D
     int angle,
     int distance,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {
@@ -302,7 +302,7 @@ int FX_PlayWAV3D
     int angle,
     int distance,
     int priority,
-    unsigned long callbackval
+    unsigned int callbackval
 )
 
 {

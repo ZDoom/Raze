@@ -138,14 +138,14 @@ int ScanGroups(void)
             if (fstat(fh, &st)) continue;
 
             initprintf(" Checksumming %s...", sidx->name);
-            crc32init((unsigned long *)&crcval);
+            crc32init((unsigned int *)&crcval);
             do
             {
                 b = read(fh, buf, sizeof(buf));
-                if (b > 0) crc32block((unsigned long *)&crcval, (unsigned char *)buf, b);
+                if (b > 0) crc32block((unsigned int *)&crcval, (unsigned char *)buf, b);
             }
             while (b == sizeof(buf));
-            crc32finish((unsigned long *)&crcval);
+            crc32finish((unsigned int *)&crcval);
             close(fh);
             initprintf(" Done\n");
 

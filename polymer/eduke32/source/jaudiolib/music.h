@@ -50,8 +50,8 @@ enum MUSIC_ERRORS
 
 typedef struct
    {
-   unsigned long tickposition;
-   unsigned long milliseconds;
+   unsigned int tickposition;
+   unsigned int milliseconds;
    unsigned int  measure;
    unsigned int  beat;
    unsigned int  tick;
@@ -75,8 +75,8 @@ int   MUSIC_StopSong( void );
 int   MUSIC_PlaySong( unsigned char *song, int loopflag );
 void  MUSIC_SetContext( int context );
 int   MUSIC_GetContext( void );
-void  MUSIC_SetSongTick( unsigned long PositionInTicks );
-void  MUSIC_SetSongTime( unsigned long milliseconds );
+void  MUSIC_SetSongTick( unsigned int PositionInTicks );
+void  MUSIC_SetSongTime( unsigned int milliseconds );
 void  MUSIC_SetSongPosition( int measure, int beat, int tick );
 void  MUSIC_GetSongPosition( songposition *pos );
 void  MUSIC_GetSongLength( songposition *pos );

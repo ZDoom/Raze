@@ -11,9 +11,9 @@ extern "C" {
 
 #define NUMBUILDKEYS 20
 
-extern long qsetmode;
+extern int qsetmode;
 extern short searchsector, searchwall, searchstat;
-extern long zmode, kensplayerheight;
+extern int zmode, kensplayerheight;
 extern short defaultspritecstat;
 
 extern short temppicnum, tempcstat, templotag, temphitag, tempextra;
@@ -22,7 +22,7 @@ extern unsigned char somethingintab;
 
 extern unsigned char buildkeys[NUMBUILDKEYS];
 
-extern long ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
+extern int ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
 
 
 extern int ExtInit(void);
@@ -55,13 +55,13 @@ int writesetup(const char *fn);	// from config.c
 void editinput(void);
 void clearmidstatbar16(void);
 
-long getnumber256(char namestart[80], long num, long maxnumber, char sign);
-long getnumber16(char namestart[80], long num, long maxnumber, char sign);
+int getnumber256(char namestart[80], int num, int maxnumber, char sign);
+int getnumber16(char namestart[80], int num, int maxnumber, char sign);
 void printmessage256(char name[82]);
 void printmessage16(char name[82]);
 
-void getpoint(long searchxe, long searchye, long *x, long *y);
-long getpointhighlight(long xplc, long yplc);
+void getpoint(int searchxe, int searchye, int *x, int *y);
+int getpointhighlight(int xplc, int yplc);
 
 #ifdef __cplusplus
 }

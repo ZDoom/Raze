@@ -10,7 +10,7 @@
 //#include "pragmas.h"
 #include "compat.h"
 
-long dmval;
+int dmval;
 
 #if defined(__GNUC__) && defined(__i386__) && !defined(NOASM)	// NOASM
 
@@ -21,9 +21,9 @@ long dmval;
 #define ASM __asm__ __volatile__
 
 
-long boundmulscale(long a, long b, long c)
+int boundmulscale(int a, int b, int c)
 {
-    ASM (
+    ASM(
         "imull %%ebx\n\t"
         "movl %%edx, %%ebx\n\t"		// mov ebx, edx
         "shrdl %%cl, %%edx, %%eax\n\t"	// mov eax, edx, cl
@@ -39,7 +39,7 @@ long boundmulscale(long a, long b, long c)
         "sarl $31, %%eax\n\t"		// sar eax, 31
         "xorl $0x7fffffff, %%eax\n\t"	// xor eax, 0x7fffffff
         "1:"				// skipboundit:
-    : "+a" (a), "+b" (b), "+c" (c)	// input eax ebx ecx
+    : "+a"(a), "+b"(b), "+c"(c)	// input eax ebx ecx
                 :
                 : "edx", "cc"
             );
@@ -47,9 +47,9 @@ long boundmulscale(long a, long b, long c)
 }
 
 
-void clearbufbyte(void *D, long c, long a)
+void clearbufbyte(void *D, int c, int a)
 {
-    ASM (
+    ASM(
         "cmpl $4, %%ecx\n\t"
         "jae 1f\n\t"
         "testb $1, %%cl\n\t"
@@ -83,14 +83,14 @@ void clearbufbyte(void *D, long c, long a)
         "jz 5f\n\t"			// jz endit
         "stosb\n\t"
         "5:"				// endit
-    : "+D" (D), "+c" (c), "+a" (a) :
+    : "+D"(D), "+c"(c), "+a"(a) :
                 : "ebx", "memory", "cc"
             );
 }
 
-void copybufbyte(void *S, void *D, long c)
+void copybufbyte(void *S, void *D, int c)
 {
-    ASM (
+    ASM(
         "cmpl $4, %%ecx\n\t"		// cmp ecx, 4
         "jae 1f\n\t"
         "testb $1, %%cl\n\t"		// test cl, 1
@@ -124,14 +124,14 @@ void copybufbyte(void *S, void *D, long c)
         "jz 5f\n\t"
         "movsb\n\t"
         "5:"				// endit:
-    : "+c" (c), "+S" (S), "+D" (D) :
+    : "+c"(c), "+S"(S), "+D"(D) :
                 : "ebx", "memory", "cc"
             );
 }
 
-void copybufreverse(void *S, void *D, long c)
+void copybufreverse(void *S, void *D, int c)
 {
-    ASM (
+    ASM(
         "shrl $1, %%ecx\n\t"
         "jnc 0f\n\t"		// jnc skipit1
         "movb (%%esi), %%al\n\t"
@@ -158,7 +158,7 @@ void copybufreverse(void *S, void *D, long c)
         "decl %%ecx\n\t"
         "jnz 2b\n\t"		// jnz begloop
         "3:"
-    : "+S" (S), "+D" (D), "+c" (c) :
+    : "+S"(S), "+D"(D), "+c"(c) :
                 : "eax", "memory", "cc"
             );
 }
@@ -181,35 +181,38 @@ void copybufreverse(void *S, void *D, long c)
 // Generic C version
 //
 
-void qinterpolatedown16(long bufptr, long num, long val, long add)
-{ // gee, I wonder who could have provided this...
-    long i, *lptr = (long *)bufptr;
+void qinterpolatedown16(int bufptr, int num, int val, int add)
+{
+    // gee, I wonder who could have provided this...
+    int i, *lptr = (int *)bufptr;
     for (i=0;i<num;i++) { lptr[i] = (val>>16); val += add; }
 }
 
-void qinterpolatedown16short(long bufptr, long num, long val, long add)
-{ // ...maybe the same person who provided this too?
-    long i; short *sptr = (short *)bufptr;
+void qinterpolatedown16short(int bufptr, int num, int val, int add)
+{
+    // ...maybe the same person who provided this too?
+    int i; short *sptr = (short *)bufptr;
     for (i=0;i<num;i++) { sptr[i] = (short)(val>>16); val += add; }
 }
 
-void clearbuf(void *d, long c, long a)
+void clearbuf(void *d, int c, int a)
 {
-    long *p = (long*)d;
+    int *p = (int*)d;
     while ((c--) > 0) *(p++) = a;
 }
 
-void copybuf(void *s, void *d, long c)
+void copybuf(void *s, void *d, int c)
 {
-    long *p = (long*)s, *q = (long*)d;
+    int *p = (int*)s, *q = (int*)d;
     while ((c--) > 0) *(q++) = *(p++);
 }
 
-void swapbuf4(void *a, void *b, long c)
+void swapbuf4(void *a, void *b, int c)
 {
-    long *p = (long*)a, *q = (long*)b;
-    long x, y;
-    while ((c--) > 0) {
+    int *p = (int*)a, *q = (int*)b;
+    int x, y;
+    while ((c--) > 0)
+    {
         x = *q;
         y = *p;
         *(q++) = y;
@@ -217,25 +220,27 @@ void swapbuf4(void *a, void *b, long c)
     }
 }
 
-void clearbufbyte(void *D, long c, long a)
-{ // Cringe City
+void clearbufbyte(void *D, int c, int a)
+{
+    // Cringe City
     char *p = (char*)D;
-    long m[4] = { 0xffl,0xff00l,0xff0000l,0xff000000l };
-    long n[4] = { 0,8,16,24 };
-    long z=0;
-    while ((c--) > 0) {
+    int m[4] = { 0xffl,0xff00l,0xff0000l,0xff000000l };
+    int n[4] = { 0,8,16,24 };
+    int z=0;
+    while ((c--) > 0)
+    {
         *(p++) = (char)((a & m[z])>>n[z]);
         z=(z+1)&3;
     }
 }
 
-void copybufbyte(void *S, void *D, long c)
+void copybufbyte(void *S, void *D, int c)
 {
     char *p = (char*)S, *q = (char*)D;
     while ((c--) > 0) *(q++) = *(p++);
 }
 
-void copybufreverse(void *S, void *D, long c)
+void copybufreverse(void *S, void *D, int c)
 {
     char *p = (char*)S, *q = (char*)D;
     while ((c--) > 0) *(q++) = *(p--);

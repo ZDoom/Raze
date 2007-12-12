@@ -196,28 +196,28 @@ int checkcursectnums(int sect)
     return -1;
 }
 
-long ldist(spritetype *s1,spritetype *s2)
+int ldist(spritetype *s1,spritetype *s2)
 {
-    long vx,vy,ret;
+    int vx,vy,ret;
     vx = s1->x - s2->x;
     vy = s1->y - s2->y;
     ret = FindDistance2D(vx,vy);
     return(ret?ret:1);
 }
 
-long dist(spritetype *s1,spritetype *s2)
+int dist(spritetype *s1,spritetype *s2)
 {
-    long vx,vy,vz;
+    int vx,vy,vz;
     vx = s1->x - s2->x;
     vy = s1->y - s2->y;
     vz = s1->z - s2->z;
     return(FindDistance3D(vx,vy,vz>>4));
 }
 
-int findplayer(spritetype *s,long *d)
+int findplayer(spritetype *s,int *d)
 {
     int j, closest_player;
-    long x, closest;
+    int x, closest;
 
     if (ud.multimode < 2)
     {
@@ -242,10 +242,10 @@ int findplayer(spritetype *s,long *d)
     return closest_player;
 }
 
-int findotherplayer(int p,long *d)
+int findotherplayer(int p,int *d)
 {
     int j, closest_player;
-    long x, closest;
+    int x, closest;
 
     closest = 0x7fffffff;
     closest_player = p;
@@ -268,7 +268,7 @@ int findotherplayer(int p,long *d)
 
 void doanimations(void)
 {
-    long i, j, a, p, v, dasect;
+    int i, j, a, p, v, dasect;
 
     for (i=animatecnt-1;i>=0;i--)
     {
@@ -334,13 +334,13 @@ void doanimations(void)
     }
 }
 
-int getanimationgoal(long *animptr)
+int getanimationgoal(int *animptr)
 {
-    long i, j;
+    int i, j;
 
     j = -1;
     for (i=animatecnt-1;i>=0;i--)
-        if (animptr == (long *)animateptr[i])
+        if (animptr == (int *)animateptr[i])
         {
             j = i;
             break;
@@ -348,9 +348,9 @@ int getanimationgoal(long *animptr)
     return(j);
 }
 
-int setanimation(int animsect,long *animptr, long thegoal, long thevel)
+int setanimation(int animsect,int *animptr, int thegoal, int thevel)
 {
-    long i, j;
+    int i, j;
 
     if (animatecnt >= MAXANIMATES-1)
         return(-1);
@@ -406,7 +406,7 @@ void animatecamsprite(void)
 
 void animatewalls(void)
 {
-    long i, j, p, t;
+    int i, j, p, t;
 
     for (p=0;p < numanimwalls ;p++)
         //    for(p=numanimwalls-1;p>=0;p--)
@@ -538,7 +538,7 @@ int activatewarpelevators(int s,int d) //Parm = sectoreffectornum
 
 void operatesectors(int sn,int ii)
 {
-    long j=0, l, q, startwall, endwall;
+    int j=0, l, q, startwall, endwall;
     int i;
     sectortype *sptr = &sector[sn];
 
@@ -582,8 +582,8 @@ void operatesectors(int sn,int ii)
 
     case 9:
     {
-        long dax,day,dax2,day2,sp;
-        long wallfind[2];
+        int dax,day,dax2,day2,sp;
+        int wallfind[2];
 
         startwall = sptr->wallptr;
         endwall = startwall+sptr->wallnum-1;
@@ -1131,11 +1131,11 @@ void operateforcefields(int s, int low)
     }
 }
 
-int checkhitswitch(int snum,long w,int switchtype)
+int checkhitswitch(int snum,int w,int switchtype)
 {
     int switchpal, switchpicnum;
     int i, x, lotag,hitag,picnum,correctdips,numdips;
-    long sx,sy;
+    int sx,sy;
 
     if (w < 0) return 0;
     correctdips = 1;
@@ -1615,7 +1615,7 @@ static void breakwall(int newpn,int spr,int dawallnum)
     lotsofglass(spr,dawallnum,10);
 }
 
-void checkhitwall(int spr,int dawallnum,long x,long y,long z,int atwith)
+void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
 {
     short sn = -1;
     int j, i, darkestwall;
@@ -2518,7 +2518,7 @@ void allignwarpelevators(void)
 void sharedkeys(int snum)
 {
     int i, k, dainv;
-    unsigned long sb_snum = g_player[snum].sync->bits, j;
+    unsigned int sb_snum = g_player[snum].sync->bits, j;
     player_struct *p = g_player[snum].ps;
 
     if (p->cheat_phase == 1) return;
@@ -2815,8 +2815,8 @@ CHECKINV1:
             break;
         }
 
-        if ((unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
-            j = (unsigned long) GetGameVarID(g_iReturnVarID,p->i,snum);
+        if ((unsigned int) GetGameVarID(g_iReturnVarID,p->i,snum) != j)
+            j = (unsigned int) GetGameVarID(g_iReturnVarID,p->i,snum);
 
         if (p->reloading == 1)
             j = -1;
@@ -2839,7 +2839,7 @@ CHECKINV1:
                     {
                         if (k == GROW_WEAPON)   // JBF: this is handling next/previous with the grower selected
                         {
-                            if (j == (unsigned long)-1)
+                            if (j == (unsigned int)-1)
                                 k = 5;
                             else k = 7;
 
@@ -2942,7 +2942,7 @@ CHECKINV1:
                         sb_snum |= 1<<19;
                         p->weapon_pos = -9;
                     }
-                    else if ((long)j >= 0 && p->gotweapon[j] && (unsigned long)p->curr_weapon != j)
+                    else if ((int)j >= 0 && p->gotweapon[j] && (unsigned int)p->curr_weapon != j)
                         switch (j)
                         {
                         case KNEE_WEAPON:
@@ -3101,7 +3101,7 @@ CHECKINV1:
                 {
                     j = p->max_player_health-sprite[p->i].extra;
 
-                    if ((unsigned long)p->firstaid_amount > j)
+                    if ((unsigned int)p->firstaid_amount > j)
                     {
                         p->firstaid_amount -= j;
                         sprite[p->i].extra = p->max_player_health;
@@ -3167,9 +3167,9 @@ CHECKINV1:
     }
 }
 
-long hitasprite(int i,short *hitsp)
+int hitasprite(int i,short *hitsp)
 {
-    long sx,sy,sz,zoff;
+    int sx,sy,sz,zoff;
     short sect,hw;
 
     if (badguy(&sprite[i]))
@@ -3188,9 +3188,9 @@ long hitasprite(int i,short *hitsp)
     return (FindDistance2D(sx-SX,sy-SY));
 }
 
-static long hitawall(player_struct *p,short *hitw)
+static int hitawall(player_struct *p,short *hitw)
 {
-    long sx,sy,sz;
+    int sx,sy,sz;
     short sect,hs;
 
     hitscan(p->posx,p->posy,p->posz,p->cursectnum,
@@ -3204,7 +3204,7 @@ static long hitawall(player_struct *p,short *hitw)
 
 void checksectors(int snum)
 {
-    long i = -1,oldz;
+    int i = -1,oldz;
     player_struct *p = g_player[snum].ps;
     short j,hitscanwall;
 

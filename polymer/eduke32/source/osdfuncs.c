@@ -73,8 +73,8 @@ void GAME_onshowosd(int shown)
 #define PALETTE 4
 void GAME_clearbackground(int c, int r)
 {
-    long x, y, xsiz, ysiz, tx2, ty2;
-    long daydim, bits;
+    int x, y, xsiz, ysiz, tx2, ty2;
+    int daydim, bits;
 
     if (getrendermode() < 3) bits = BITS;
     else bits = BITSTL;

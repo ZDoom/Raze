@@ -7,9 +7,9 @@
 extern "C" {
 #endif
 
-void	initcache(long dacachestart, long dacachesize);
-void	allocache(long *newhandle, long newbytes, char *newlockptr);
-void	suckcache(long *suckptr);
+void	initcache(int dacachestart, int dacachesize);
+void	allocache(int *newhandle, int newbytes, char *newlockptr);
+void	suckcache(int *suckptr);
 void	agecache(void);
 
 extern int pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)
@@ -18,15 +18,15 @@ int		findfrompath(const char *fn, char **where);
 int     openfrompath(const char *fn, int flags, int mode);
 BFILE  *fopenfrompath(const char *fn, const char *mode);
 
-long	initgroupfile(char *filename);
-void	uninitsinglegroupfile(long grphandle);
+int	initgroupfile(char *filename);
+void	uninitsinglegroupfile(int grphandle);
 void	uninitgroupfile(void);
-long	kopen4load(char *filename, char searchfirst);	// searchfirst: 0 = anywhere, 1 = first group, 2 = any group
-long	kread(long handle, void *buffer, long leng);
-long	klseek(long handle, long offset, long whence);
-long	kfilelength(long handle);
-long	ktell(long handle);
-void	kclose(long handle);
+int	kopen4load(char *filename, char searchfirst);	// searchfirst: 0 = anywhere, 1 = first group, 2 = any group
+int	kread(int handle, void *buffer, int leng);
+int	klseek(int handle, int offset, int whence);
+int	kfilelength(int handle);
+int	ktell(int handle);
+void	kclose(int handle);
 
 enum {
 	CACHE1D_FIND_FILE = 1,
@@ -50,9 +50,9 @@ typedef struct _CACHE1D_FIND_REC {
 void klistfree(CACHE1D_FIND_REC *rec);
 CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int type);
 
-int	kdfread(void *buffer, bsize_t dasizeof, bsize_t count, long fil);
+int	kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int fil);
 int	dfread(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil);
-void	kdfwrite(void *buffer, bsize_t dasizeof, bsize_t count, long fil);
+void	kdfwrite(void *buffer, bsize_t dasizeof, bsize_t count, int fil);
 void	dfwrite(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil);
 
 #ifdef __cplusplus

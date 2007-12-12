@@ -8,8 +8,8 @@
 
 typedef struct
 {
-    long mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
-    long shadeoff;
+    int mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
+    int shadeoff;
     float scale, bscale, zadd;
     GLuint *texid;	// skins
 } mdmodel;
@@ -43,9 +43,9 @@ typedef struct { float x, y, z; } point3d;
 
 typedef struct
 {
-    long id, vers, skinxsiz, skinysiz, framebytes; //id:"IPD2", vers:8
-    long numskins, numverts, numuv, numtris, numglcmds, numframes;
-    long ofsskins, ofsuv, ofstris, ofsframes, ofsglcmds, ofseof; //ofsskins: skin names (64 bytes each)
+    int id, vers, skinxsiz, skinysiz, framebytes; //id:"IPD2", vers:8
+    int numskins, numverts, numuv, numtris, numglcmds, numframes;
+    int ofsskins, ofsuv, ofstris, ofsframes, ofsglcmds, ofseof; //ofsskins: skin names (64 bytes each)
 } md2head_t;
 
 typedef struct { unsigned char v[3], ni; } md2vert_t; //compressed vertex coords (x,y,z)
@@ -66,19 +66,19 @@ typedef struct
 typedef struct
 {
     //WARNING: This top block is a union between md2model&md3model: Make sure it matches!
-    long mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
-    long shadeoff;
+    int mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
+    int shadeoff;
     float scale, bscale, zadd;
     GLuint *texid;   // texture ids for base skin if no mappings defined
 
-    long numframes, cframe, nframe, fpssc, usesalpha;
+    int numframes, cframe, nframe, fpssc, usesalpha;
     float oldtime, curtime, interpol;
     mdanim_t *animations;
     mdskinmap_t *skinmap;
-    long numskins, skinloaded;   // set to 1+numofskin when a skin is loaded and the tex coords are modified,
+    int numskins, skinloaded;   // set to 1+numofskin when a skin is loaded and the tex coords are modified,
 
     //MD2 specific stuff:
-    long numverts, numglcmds, framebytes, *glcmds;
+    int numverts, numglcmds, framebytes, *glcmds;
     char *frames;
     char *basepath;   // pointer to string of base path
     char *skinfn;   // pointer to first of numskins 64-char strings
@@ -87,8 +87,8 @@ typedef struct
 } md2model;
 
 
-typedef struct { char nam[64]; long i; } md3shader_t; //ascz path of shader, shader index
-typedef struct { long i[3]; } md3tri_t; //indices of tri
+typedef struct { char nam[64]; int i; } md3shader_t; //ascz path of shader, shader index
+typedef struct { int i[3]; } md3tri_t; //indices of tri
 typedef struct { float u, v; } md3uv_t;
 typedef struct { signed short x, y, z; unsigned char nlat, nlng; } md3xyzn_t; //xyz are [10:6] ints
 
@@ -107,42 +107,42 @@ typedef struct
 
 typedef struct
 {
-    long id; //IDP3(0x33806873)
+    int id; //IDP3(0x33806873)
     char nam[64]; //ascz surface name
-    long flags; //?
-    long numframes, numshaders, numverts, numtris; //numframes same as md3head,max shade=~256,vert=~4096,tri=~8192
+    int flags; //?
+    int numframes, numshaders, numverts, numtris; //numframes same as md3head,max shade=~256,vert=~4096,tri=~8192
     md3tri_t *tris;       //file format: rel offs from md3surf
     md3shader_t *shaders; //file format: rel offs from md3surf
     md3uv_t *uv;          //file format: rel offs from md3surf
     md3xyzn_t *xyzn;      //file format: rel offs from md3surf
-    long ofsend;
+    int ofsend;
 } md3surf_t;
 
 typedef struct
 {
-    long id, vers; //id=IDP3(0x33806873), vers=15
+    int id, vers; //id=IDP3(0x33806873), vers=15
     char nam[64]; //ascz path in PK3
-    long flags; //?
-    long numframes, numtags, numsurfs, numskins; //max=~1024,~16,~32,numskins=artifact of MD2; use shader field instead
+    int flags; //?
+    int numframes, numtags, numsurfs, numskins; //max=~1024,~16,~32,numskins=artifact of MD2; use shader field instead
     md3frame_t *frames; //file format: abs offs
     md3tag_t *tags;     //file format: abs offs
     md3surf_t *surfs;   //file format: abs offs
-    long eof;           //file format: abs offs
+    int eof;           //file format: abs offs
 } md3head_t;
 
 typedef struct
 {
     //WARNING: This top block is a union between md2model&md3model: Make sure it matches!
-    long mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
-    long shadeoff;
+    int mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
+    int shadeoff;
     float scale, bscale, zadd;
     unsigned int *texid;   // texture ids for base skin if no mappings defined
 
-    long numframes, cframe, nframe, fpssc, usesalpha;
+    int numframes, cframe, nframe, fpssc, usesalpha;
     float oldtime, curtime, interpol;
     mdanim_t *animations;
     mdskinmap_t *skinmap;
-    long numskins, skinloaded;   // set to 1+numofskin when a skin is loaded and the tex coords are modified,
+    int numskins, skinloaded;   // set to 1+numofskin when a skin is loaded and the tex coords are modified,
 
     //MD3 specific
     md3head_t head;
@@ -164,22 +164,23 @@ typedef struct { vert_t v[4]; } voxrect_t;
 typedef struct
 {
     //WARNING: This top block is a union of md2model,md3model,voxmodel: Make sure it matches!
-    long mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
-    long shadeoff;
+    int mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
+    int shadeoff;
     float scale, bscale, zadd;
     unsigned int *texid;    // skins for palettes
 
     //VOX specific stuff:
-    voxrect_t *quad; long qcnt, qfacind[7];
-    long *mytex, mytexx, mytexy;
-    long xsiz, ysiz, zsiz;
+    voxrect_t *quad; int qcnt, qfacind[7];
+    int *mytex, mytexx, mytexy;
+    int xsiz, ysiz, zsiz;
     float xpiv, ypiv, zpiv;
-    long is8bit;
+    int is8bit;
 } voxmodel;
 static voxmodel *voxmodels[MAXVOXELS];
 
 typedef struct
-{ // maps build tiles to particular animation frames of a model
+{
+    // maps build tiles to particular animation frames of a model
     int     modelid;
     int     skinnum;
     int     framenum;   // calculate the number from the name when declaring
@@ -194,24 +195,24 @@ hudtyp hudmem[2][MAXTILES]; //~320KB ... ok for now ... could replace with dynam
 static char mdinited=0;
 
 #define MODELALLOCGROUP 256
-static long nummodelsalloced = 0, nextmodelid = 0;
+static int nummodelsalloced = 0, nextmodelid = 0;
 static mdmodel **models = NULL;
 
-static long maxmodelverts = 0, allocmodelverts = 0;
-static long maxmodeltris = 0, allocmodeltris = 0;
+static int maxmodelverts = 0, allocmodelverts = 0;
+static int maxmodeltris = 0, allocmodeltris = 0;
 static point3d *vertlist = NULL; //temp array to store interpolated vertices for drawing
 
-static long allocvbos = 0, curvbo = 0;
+static int allocvbos = 0, curvbo = 0;
 static GLuint* vertvbos = NULL;
 static GLuint* indexvbos = NULL;
 
-mdmodel *mdload (const char *);
-int mddraw (spritetype *);
-void mdfree (mdmodel *);
+mdmodel *mdload(const char *);
+int mddraw(spritetype *);
+void mdfree(mdmodel *);
 
 extern int timerticspersec;
 
-static void freeallmodels ()
+static void freeallmodels()
 {
     int i;
 
@@ -243,7 +244,7 @@ static void freeallmodels ()
     }
 }
 
-static void clearskins ()
+static void clearskins()
 {
     mdmodel *m;
     int i, j;
@@ -251,13 +252,17 @@ static void clearskins ()
     for (i=0;i<nextmodelid;i++)
     {
         m = models[i];
-        if (m->mdnum == 1) {
+        if (m->mdnum == 1)
+        {
             voxmodel *v = (voxmodel*)m;
-            for (j=0;j<MAXPALOOKUPS;j++) {
+            for (j=0;j<MAXPALOOKUPS;j++)
+            {
                 if (v->texid[j]) bglDeleteTextures(1,(GLuint*)&v->texid[j]);
                 v->texid[j] = 0;
             }
-        } else if (m->mdnum == 2 || m->mdnum == 3) {
+        }
+        else if (m->mdnum == 2 || m->mdnum == 3)
+        {
             md2model *m2 = (md2model*)m;
             mdskinmap_t *sk;
             for (j=0;j<m2->numskins*(HICEFFECTMASK+1);j++)
@@ -278,21 +283,22 @@ static void clearskins ()
     for (i=0;i<MAXVOXELS;i++)
     {
         voxmodel *v = (voxmodel*)voxmodels[i]; if (!v) continue;
-        for (j=0;j<MAXPALOOKUPS;j++) {
+        for (j=0;j<MAXPALOOKUPS;j++)
+        {
             if (v->texid[j]) bglDeleteTextures(1,(GLuint*)&v->texid[j]);
             v->texid[j] = 0;
         }
     }
 }
 
-static void mdinit ()
+static void mdinit()
 {
     memset(hudmem,0,sizeof(hudmem));
     freeallmodels();
     mdinited = 1;
 }
 
-int md_loadmodel (const char *fn)
+int md_loadmodel(const char *fn)
 {
     mdmodel *vm, **ml;
 
@@ -309,13 +315,13 @@ int md_loadmodel (const char *fn)
     return(nextmodelid-1);
 }
 
-int md_setmisc (int modelid, float scale, int shadeoff, float zadd)
+int md_setmisc(int modelid, float scale, int shadeoff, float zadd)
 {
     mdmodel *m;
 
     if (!mdinited) mdinit();
 
-    if ((unsigned long)modelid >= (unsigned long)nextmodelid) return -1;
+    if ((unsigned int)modelid >= (unsigned int)nextmodelid) return -1;
     m = models[modelid];
     m->bscale = scale;
     m->shadeoff = shadeoff;
@@ -324,13 +330,13 @@ int md_setmisc (int modelid, float scale, int shadeoff, float zadd)
     return 0;
 }
 
-int md_tilehasmodel (int tilenume)
+int md_tilehasmodel(int tilenume)
 {
     if (!mdinited) return -1;
     return tile2model[tilenume].modelid;
 }
 
-static long framename2index (mdmodel *vm, const char *nam)
+static int framename2index(mdmodel *vm, const char *nam)
 {
     int i = 0;
 
@@ -358,7 +364,7 @@ static long framename2index (mdmodel *vm, const char *nam)
     return(i);
 }
 
-int md_defineframe (int modelid, const char *framename, int tilenume, int skinnum, float smoothduration)
+int md_defineframe(int modelid, const char *framename, int tilenume, int skinnum, float smoothduration)
 {
     void *vm;
     md2model *m;
@@ -366,12 +372,13 @@ int md_defineframe (int modelid, const char *framename, int tilenume, int skinnu
 
     if (!mdinited) mdinit();
 
-    if ((unsigned long)modelid >= (unsigned long)nextmodelid) return(-1);
-    if ((unsigned long)tilenume >= (unsigned long)MAXTILES) return(-2);
+    if ((unsigned int)modelid >= (unsigned int)nextmodelid) return(-1);
+    if ((unsigned int)tilenume >= (unsigned int)MAXTILES) return(-2);
     if (!framename) return(-3);
 
     m = (md2model *)models[modelid];
-    if (m->mdnum == 1) {
+    if (m->mdnum == 1)
+    {
         tile2model[tilenume].modelid = modelid;
         tile2model[tilenume].framenum = tile2model[tilenume].skinnum = 0;
         return 0;
@@ -388,7 +395,7 @@ int md_defineframe (int modelid, const char *framename, int tilenume, int skinnu
     return 0;
 }
 
-int md_defineanimation (int modelid, const char *framestart, const char *frameend, int fpssc, int flags)
+int md_defineanimation(int modelid, const char *framestart, const char *frameend, int fpssc, int flags)
 {
     md2model *m;
     mdanim_t ma, *map;
@@ -396,7 +403,7 @@ int md_defineanimation (int modelid, const char *framestart, const char *frameen
 
     if (!mdinited) mdinit();
 
-    if ((unsigned long)modelid >= (unsigned long)nextmodelid) return(-1);
+    if ((unsigned int)modelid >= (unsigned int)nextmodelid) return(-1);
 
     memset(&ma, 0, sizeof(ma));
     m = (md2model *)models[modelid];
@@ -425,14 +432,14 @@ int md_defineanimation (int modelid, const char *framestart, const char *frameen
     return(0);
 }
 
-int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int surfnum, float param)
+int md_defineskin(int modelid, const char *skinfn, int palnum, int skinnum, int surfnum, float param)
 {
     mdskinmap_t *sk, *skl;
     md2model *m;
 
     if (!mdinited) mdinit();
 
-    if ((unsigned long)modelid >= (unsigned long)nextmodelid) return -1;
+    if ((unsigned int)modelid >= (unsigned int)nextmodelid) return -1;
     if (!skinfn) return -2;
     if ((unsigned)palnum >= (unsigned)MAXPALOOKUPS) return -3;
 
@@ -443,13 +450,15 @@ int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int
     skl = NULL;
     for (sk = m->skinmap; sk; skl = sk, sk = sk->next)
         if (sk->palette == (unsigned char)palnum && skinnum == sk->skinnum && surfnum == sk->surfnum) break;
-    if (!sk) {
+    if (!sk)
+    {
         sk = (mdskinmap_t *)calloc(1,sizeof(mdskinmap_t));
         if (!sk) return -4;
 
         if (!skl) m->skinmap = sk;
         else skl->next = sk;
-    } else if (sk->fn) free(sk->fn);
+    }
+    else if (sk->fn) free(sk->fn);
 
     sk->palette = (unsigned char)palnum;
     sk->skinnum = skinnum;
@@ -462,12 +471,12 @@ int md_defineskin (int modelid, const char *skinfn, int palnum, int skinnum, int
     return 0;
 }
 
-int md_definehud (int modelid, int tilex, double xadd, double yadd, double zadd, double angadd, int flags)
+int md_definehud(int modelid, int tilex, double xadd, double yadd, double zadd, double angadd, int flags)
 {
     if (!mdinited) mdinit();
 
-    if ((unsigned long)modelid >= (unsigned long)nextmodelid) return -1;
-    if ((unsigned long)tilex >= (unsigned long)MAXTILES) return -2;
+    if ((unsigned int)modelid >= (unsigned int)nextmodelid) return -1;
+    if ((unsigned int)tilex >= (unsigned int)MAXTILES) return -2;
 
     hudmem[(flags>>2)&1][tilex].xadd = xadd;
     hudmem[(flags>>2)&1][tilex].yadd = yadd;
@@ -491,13 +500,14 @@ int md_undefinemodel(int modelid)
 {
     int i;
     if (!mdinited) return 0;
-    if ((unsigned long)modelid >= (unsigned long)nextmodelid) return -1;
+    if ((unsigned int)modelid >= (unsigned int)nextmodelid) return -1;
 
     for (i=MAXTILES-1; i>=0; i--)
         if (tile2model[i].modelid == modelid)
             tile2model[i].modelid = -1;
 
-    if (models) {
+    if (models)
+    {
         mdfree(models[modelid]);
         models[modelid] = NULL;
     }
@@ -505,12 +515,12 @@ int md_undefinemodel(int modelid)
     return 0;
 }
 
-static int daskinloader (long filh, long *fptr, long *bpl, long *sizx, long *sizy, long *osizx, long *osizy, char *hasalpha, char effect)
+static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int *osizx, int *osizy, char *hasalpha, char effect)
 {
-    long picfillen, j,y,x;
+    int picfillen, j,y,x;
     char *picfil,*cptr,al=255;
     coltype *pic;
-    long xsiz, ysiz, tsizx, tsizy;
+    int xsiz, ysiz, tsizx, tsizy;
 
     picfillen = kfilelength(filh);
     picfil = (char *)malloc(picfillen); if (!picfil) { return -1; }
@@ -522,10 +532,13 @@ static int daskinloader (long filh, long *fptr, long *bpl, long *sizx, long *siz
     kpgetdim(picfil,picfillen,&tsizx,&tsizy);
     if (tsizx == 0 || tsizy == 0) { free(picfil); return -1; }
 
-    if (!glinfo.texnpot) {
+    if (!glinfo.texnpot)
+    {
         for (xsiz=1;xsiz<tsizx;xsiz+=xsiz);
         for (ysiz=1;ysiz<tsizy;ysiz+=ysiz);
-    } else {
+    }
+    else
+    {
         xsiz = tsizx;
         ysiz = tsizy;
     }
@@ -534,8 +547,8 @@ static int daskinloader (long filh, long *fptr, long *bpl, long *sizx, long *siz
     if (!pic) { free(picfil); return -1; }
     memset(pic,0,xsiz*ysiz*sizeof(coltype));
 
-    if (kprender(picfil,picfillen,(long)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0))
-    { free(picfil); free(pic); return -1; }
+    if (kprender(picfil,picfillen,(int)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0))
+        { free(picfil); free(pic); return -1; }
     free(picfil);
 
     cptr = &britable[gammabrightness ? 0 : curbrightness][0];
@@ -549,12 +562,14 @@ static int daskinloader (long filh, long *fptr, long *bpl, long *sizx, long *siz
             tcol.g = cptr[rpptr[x].g];
             tcol.r = cptr[rpptr[x].r];
 
-            if (effect & 1) {
+            if (effect & 1)
+            {
                 // greyscale
                 tcol.b = max(tcol.b, max(tcol.g, tcol.r));
                 tcol.g = tcol.r = tcol.b;
             }
-            if (effect & 2) {
+            if (effect & 2)
+            {
                 // invert
                 tcol.b = 255-tcol.b;
                 tcol.g = 255-tcol.g;
@@ -567,8 +582,10 @@ static int daskinloader (long filh, long *fptr, long *bpl, long *sizx, long *siz
             al &= rpptr[x].a;
         }
     }
-    if (!glinfo.bgra) {
-        for (j=xsiz*ysiz-1;j>=0;j--) {
+    if (!glinfo.bgra)
+    {
+        for (j=xsiz*ysiz-1;j>=0;j--)
+        {
             swapchar(&pic[j].r, &pic[j].b);
         }
     }
@@ -576,20 +593,21 @@ static int daskinloader (long filh, long *fptr, long *bpl, long *sizx, long *siz
     *sizx = xsiz;
     *sizy = ysiz;
     *bpl = xsiz;
-    *fptr = (long)pic;
+    *fptr = (int)pic;
     *hasalpha = (al != 255);
     return 0;
 }
 
 // JONOF'S COMPRESSED TEXTURE CACHE STUFF ---------------------------------------------------
-long mdloadskin_trytexcache(char *fn, long len, char effect, texcacheheader *head)
+int mdloadskin_trytexcache(char *fn, int len, char effect, texcacheheader *head)
 {
-    long fil, fp;
+    int fil, fp;
     char cachefn[BMAX_PATH], *cp;
     unsigned char mdsum[16];
 
     if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) return -1;
-    if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB) {
+    if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
+    {
         // lacking the necessary extensions to do this
         initprintf("Warning: the GL driver lacks necessary functions to use caching\n");
         glusetexcache = 0;
@@ -600,7 +618,7 @@ long mdloadskin_trytexcache(char *fn, long len, char effect, texcacheheader *hea
     for (cp = cachefn, fp = 0; (*cp = TEXCACHEDIR[fp]); cp++,fp++);
     *(cp++) = '/';
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
-    sprintf(cp, "-%lx-0%x", len, effect);
+    sprintf(cp, "-%x-0%x", len, effect);
 
     fil = kopen4load(cachefn, 0);
     if (fil < 0) return -1;
@@ -622,15 +640,16 @@ failure:
     return -1;
 }
 
-static long mdloadskin_cached(long fil, texcacheheader *head, long *doalloc, GLuint *glpic, long *xsiz, long *ysiz)
+static int mdloadskin_cached(int fil, texcacheheader *head, int *doalloc, GLuint *glpic, int *xsiz, int *ysiz)
 {
     int level, r;
     texcachepicture pict;
     void *pic = NULL, *packbuf = NULL;
     void *midbuf = NULL;
-    long alloclen=0;
+    int alloclen=0;
 
-    if (*doalloc&1) {
+    if (*doalloc&1)
+    {
         bglGenTextures(1,glpic);  //# of textures (make OpenGL allocate structure)
         *doalloc |= 2;	// prevents bglGenTextures being called again if we fail in here
     }
@@ -639,7 +658,8 @@ static long mdloadskin_cached(long fil, texcacheheader *head, long *doalloc, GLu
     bglGetError();
 
     // load the mipmaps
-    for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++) {
+    for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
+    {
         r = kread(fil, &pict, sizeof(texcachepicture));
         if (r < (int)sizeof(texcachepicture)) goto failure;
 
@@ -650,9 +670,10 @@ static long mdloadskin_cached(long fil, texcacheheader *head, long *doalloc, GLu
         pict.border = B_LITTLE32(pict.border);
         pict.depth = B_LITTLE32(pict.depth);
 
-    if (level == 0) { *xsiz = pict.xdim; *ysiz = pict.ydim; }
+        if (level == 0) { *xsiz = pict.xdim; *ysiz = pict.ydim; }
 
-        if (alloclen < pict.size) {
+        if (alloclen < pict.size)
+        {
             void *picc = realloc(pic, pict.size);
             if (!picc) goto failure; else pic = picc;
             alloclen = pict.size;
@@ -684,15 +705,15 @@ failure:
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
 
 //Note: even though it says md2model, it works for both md2model&md3model
-static long mdloadskin (md2model *m, int number, int pal, int surf)
+static int mdloadskin(md2model *m, int number, int pal, int surf)
 {
-    long i,j, fptr=0, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
+    int i,j, fptr=0, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
     char *skinfile, hasalpha, fn[BMAX_PATH+65];
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
-    long doalloc = 1, filh;
+    int doalloc = 1, filh;
 
-    long cachefil = -1, picfillen;
+    int cachefil = -1, picfillen;
     texcacheheader cachead;
 
     if (m->mdnum == 2) surf = 0;
@@ -753,7 +774,8 @@ static long mdloadskin (md2model *m, int number, int pal, int surf)
 
     *texidx = 0;
 
-    if ((filh = kopen4load(fn, 0)) < 0) {
+    if ((filh = kopen4load(fn, 0)) < 0)
+    {
         initprintf("Skin %s not found.\n",fn);
         skinfile[0] = 0;
         return 0;
@@ -763,14 +785,17 @@ static long mdloadskin (md2model *m, int number, int pal, int surf)
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
     cachefil = mdloadskin_trytexcache(fn, picfillen, hictinting[pal].f, &cachead);
-    if (cachefil >= 0 && !mdloadskin_cached(cachefil, &cachead, &doalloc, texidx, &xsiz, &ysiz)) {
+    if (cachefil >= 0 && !mdloadskin_cached(cachefil, &cachead, &doalloc, texidx, &xsiz, &ysiz))
+    {
         osizx = cachead.xdim;
         osizy = cachead.ydim;
         m->usesalpha = hasalpha = (cachead.flags & 2) ? 1 : 0;
         kclose(cachefil);
         //kclose(filh);	// FIXME: uncomment when cache1d.c is fixed
         // cachefil >= 0, so it won't be rewritten
-    } else {
+    }
+    else
+    {
         if (cachefil >= 0) kclose(cachefil);
         cachefil = -1;	// the compressed version will be saved to disk
 
@@ -781,7 +806,8 @@ static long mdloadskin (md2model *m, int number, int pal, int surf)
             initprintf("Failed loading skin file \"%s\"\n", fn);
             skinfile[0] = 0;
             return(0);
-        } else kclose(filh);
+        }
+        else kclose(filh);
         m->usesalpha = hasalpha;
 
         if ((doalloc&3)==1) bglGenTextures(1,(GLuint*)texidx);
@@ -804,7 +830,7 @@ static long mdloadskin (md2model *m, int number, int pal, int surf)
             fy = ((float)osizy)/((float)ysiz);
             if (m->mdnum == 2)
             {
-                long *lptr;
+                int *lptr;
                 for (lptr=m->glcmds;(i=*lptr++);)
                     for (i=labs(i);i>0;i--,lptr+=3)
                     {
@@ -816,7 +842,7 @@ static long mdloadskin (md2model *m, int number, int pal, int surf)
             {
                 md3model *m3 = (md3model *)m;
                 md3surf_t *s;
-                long surfi;
+                int surfi;
                 for (surfi=0;surfi<m3->head.numsurfs;surfi++)
                 {
                     s = &m3->head.surfs[surfi];
@@ -838,12 +864,14 @@ static long mdloadskin (md2model *m, int number, int pal, int surf)
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
-    if (cachefil < 0) {
+    if (cachefil < 0)
+    {
         // save off the compressed version
         cachead.xdim = osizx;
         cachead.ydim = osizy;
         i = 0;
-        for (j=0;j<31;j++) {
+        for (j=0;j<31;j++)
+        {
             if (xsiz == pow2long[j]) { i |= 1; }
             if (ysiz == pow2long[j]) { i |= 2; }
         }
@@ -857,10 +885,10 @@ static long mdloadskin (md2model *m, int number, int pal, int surf)
 int mdpause;
 
 //Note: even though it says md2model, it works for both md2model&md3model
-static void updateanimation (md2model *m, spritetype *tspr)
+static void updateanimation(md2model *m, spritetype *tspr)
 {
     mdanim_t *anim;
-    long i, j, k;
+    int i, j, k;
     int fps;
 
     if (mdpause)
@@ -877,7 +905,8 @@ static void updateanimation (md2model *m, spritetype *tspr)
     for (anim = m->animations;
             anim && anim->startframe != m->cframe;
             anim = anim->next) ;
-    if (!anim) {
+    if (!anim)
+    {
         if (r_animsmoothing && (tile2model[tspr->picnum].smoothduration != 0) && (spritesmooth[tspr->owner].mdoldframe != m->cframe))
         {
             if (spritesmooth[tspr->owner].mdsmooth == 0)
@@ -911,7 +940,7 @@ static void updateanimation (md2model *m, spritetype *tspr)
         }
     }
 
-    if (anim && (((long)spriteext[tspr->owner].mdanimcur) != anim->startframe || (spriteext[tspr->owner].flags & SPREXT_NOMDANIM)))
+    if (anim && (((int)spriteext[tspr->owner].mdanimcur) != anim->startframe || (spriteext[tspr->owner].flags & SPREXT_NOMDANIM)))
     {
         //if (spriteext[tspr->owner].flags & SPREXT_NOMDANIM) OSD_Printf("SPREXT_NOMDANIM\n");
         //OSD_Printf("smooth launched ! oldanim %i new anim %i\n", spriteext[tspr->owner].mdanimcur, anim->startframe);
@@ -940,7 +969,7 @@ static void updateanimation (md2model *m, spritetype *tspr)
         j = 65536;
     else
         j = ((anim->endframe+1-anim->startframe)<<16);
-    //Just in case you play the game for a VERY long time...
+    //Just in case you play the game for a VERY int time...
     if (i < 0) { i = 0; spriteext[tspr->owner].mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
     if ((anim) && (i >= j+j) && (fps)) //Keep mdanimtims close to mdtims to avoid the use of MOD
@@ -949,8 +978,8 @@ static void updateanimation (md2model *m, spritetype *tspr)
     k = i;
 
     if (anim && (anim->flags&MDANIM_ONESHOT))
-    { if (i > j-65536) i = j-65536; }
-else { if (i >= j) { i -= j; if (i >= j) i %= j; } }
+        { if (i > j-65536) i = j-65536; }
+    else { if (i >= j) { i -= j; if (i >= j) i %= j; } }
 
     if (r_animsmoothing && spritesmooth[tspr->owner].mdsmooth)
     {
@@ -980,7 +1009,7 @@ else { if (i >= j) { i -= j; if (i >= j) i %= j; } }
 }
 
 // VBO generation and allocation
-static void mdloadvbos (md3model *m)
+static void mdloadvbos(md3model *m)
 {
     int     i;
 
@@ -998,9 +1027,9 @@ static void mdloadvbos (md3model *m)
 }
 
 //--------------------------------------- MD2 LIBRARY BEGINS ---------------------------------------
-static long long memoryusage = 0;
+static int memoryusage = 0;
 
-static md2model *md2load (int fil, const char *filnam)
+static md2model *md2load(int fil, const char *filnam)
 {
     md2model *m;
     md3model *m3;
@@ -1008,7 +1037,7 @@ static md2model *md2load (int fil, const char *filnam)
     md2frame_t *f;
     md2head_t head;
     char *buf, st[BMAX_PATH];
-    long i, j, k;
+    int i, j, k;
 
     m = (md2model *)calloc(1,sizeof(md2model)); if (!m) return(0);
     m->mdnum = 2; m->scale = .01;
@@ -1024,7 +1053,7 @@ static md2model *md2load (int fil, const char *filnam)
     head.ofsframes = B_LITTLE32(head.ofsframes);   head.ofsglcmds = B_LITTLE32(head.ofsglcmds);
     head.ofseof = B_LITTLE32(head.ofseof);
 
-if ((head.id != 0x32504449) || (head.vers != 8)) { free(m); return(0); } //"IDP2"
+    if ((head.id != 0x32504449) || (head.vers != 8)) { free(m); return(0); } //"IDP2"
 
     m->numskins = head.numskins;
     m->numframes = head.numframes;
@@ -1033,40 +1062,42 @@ if ((head.id != 0x32504449) || (head.vers != 8)) { free(m); return(0); } //"IDP2
     m->framebytes = head.framebytes;
 
     m->frames = (char *)calloc(m->numframes,m->framebytes); if (!m->frames) { free(m); return(0); }
-    m->glcmds = (long *)calloc(m->numglcmds,sizeof(long)); if (!m->glcmds) { free(m->frames); free(m); return(0); }
+    m->glcmds = (int *)calloc(m->numglcmds,sizeof(int)); if (!m->glcmds) { free(m->frames); free(m); return(0); }
     m->tris = (md2tri_t *)calloc(head.numtris, sizeof(md2tri_t)); if (!m->tris) { free(m->glcmds); free(m->frames); free(m); return(0); }
     m->uv = (md2uv_t *)calloc(head.numuv, sizeof(md2uv_t)); if (!m->uv) { free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
     klseek(fil,head.ofsframes,SEEK_SET);
     if (kread(fil,(char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
-    { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+        { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
     klseek(fil,head.ofsglcmds,SEEK_SET);
-    if (kread(fil,(char *)m->glcmds,m->numglcmds*sizeof(long)) != (long)(m->numglcmds*sizeof(long)))
-    { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+    if (kread(fil,(char *)m->glcmds,m->numglcmds*sizeof(int)) != (int)(m->numglcmds*sizeof(int)))
+        { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
     klseek(fil,head.ofstris,SEEK_SET);
-    if (kread(fil,(char *)m->tris,head.numtris*sizeof(md2tri_t)) != (long)(head.numtris*sizeof(md2tri_t)))
-    { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+    if (kread(fil,(char *)m->tris,head.numtris*sizeof(md2tri_t)) != (int)(head.numtris*sizeof(md2tri_t)))
+        { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
     klseek(fil,head.ofsuv,SEEK_SET);
-    if (kread(fil,(char *)m->uv,head.numuv*sizeof(md2uv_t)) != (long)(head.numuv*sizeof(md2uv_t)))
-    { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+    if (kread(fil,(char *)m->uv,head.numuv*sizeof(md2uv_t)) != (int)(head.numuv*sizeof(md2uv_t)))
+        { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
 
 #if B_BIG_ENDIAN != 0
     {
         char *f = (char *)m->frames;
-        long *l,j;
+        int *l,j;
         md2frame_t *fr;
 
-        for (i = m->numframes-1; i>=0; i--) {
+        for (i = m->numframes-1; i>=0; i--)
+        {
             fr = (md2frame_t *)f;
-            l = (long *)&fr->mul;
+            l = (int *)&fr->mul;
             for (j=5;j>=0;j--) l[j] = B_LITTLE32(l[j]);
             f += m->framebytes;
         }
 
-        for (i = m->numglcmds-1; i>=0; i--) {
+        for (i = m->numglcmds-1; i>=0; i--)
+        {
             m->glcmds[i] = B_LITTLE32(m->glcmds[i]);
         }
     }
@@ -1074,16 +1105,16 @@ if ((head.id != 0x32504449) || (head.vers != 8)) { free(m); return(0); } //"IDP2
 
     strcpy(st,filnam);
     for (i=strlen(st)-1;i>0;i--)
-    if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
+        if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
     if (i<0) i=0;
     st[i] = 0;
-m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
+    m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
     strcpy(m->basepath, st);
 
     m->skinfn = (char *)calloc(m->numskins,64); if (!m->skinfn) { free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
     klseek(fil,head.ofsskins,SEEK_SET);
     if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins)
-    { free(m->glcmds); free(m->frames); free(m); return(0); }
+        { free(m->glcmds); free(m->frames); free(m); return(0); }
 
     m->texid = (GLuint *)calloc(m->numskins, sizeof(GLuint) * (HICEFFECTMASK+1));
     if (!m->texid) { free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
@@ -1195,8 +1226,8 @@ m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris
         sk->skinnum = 0;
         sk->surfnum = 0;
 
-        if(m->numskins > 0)
-        {        
+        if (m->numskins > 0)
+        {
             sk->fn = (char *)malloc(strlen(m->basepath)+strlen(m->skinfn)+1);
             strcpy(sk->fn, m->basepath);
             strcat(sk->fn, m->skinfn);
@@ -1218,7 +1249,8 @@ m->basepath = (char *)malloc(i+1); if (!m->basepath) { free(m->uv); free(m->tris
 //---------------------------------------- MD2 LIBRARY ENDS ----------------------------------------
 
 // DICHOTOMIC RECURSIVE SORTING - USED BY MD3DRAW - MAY PUT IT IN ITS OWN SOURCE FILE LATER
-int partition(unsigned short *indexes, float *depths, int f, int l) {
+int partition(unsigned short *indexes, float *depths, int f, int l)
+{
     int up,down,temp;
     float tempf;
     unsigned short tempus;
@@ -1226,12 +1258,13 @@ int partition(unsigned short *indexes, float *depths, int f, int l) {
     unsigned short piv2 = indexes[f];
     up = f;
     down = l;
-    do {
+    do
+    {
         while ((depths[up] <= piv) && (up < l))
             up++;
         while ((depths[down] > piv)  && (down > f))
             down--;
-        if (up < down )
+        if (up < down)
         {
             tempf = depths[up];
             depths[up] = depths[down];
@@ -1240,7 +1273,8 @@ int partition(unsigned short *indexes, float *depths, int f, int l) {
             indexes[up] = indexes[down];
             indexes[down] = tempus;
         }
-    } while (down > up);
+    }
+    while (down > up);
     depths[f] = depths[down];
     depths[down] = piv;
     indexes[f] = indexes[down];
@@ -1248,9 +1282,11 @@ int partition(unsigned short *indexes, float *depths, int f, int l) {
     return down;
 }
 
-void quicksort(unsigned short *indexes, float *depths, int first, int last) {
+void quicksort(unsigned short *indexes, float *depths, int first, int last)
+{
     int pivIndex = 0;
-    if (first < last) {
+    if (first < last)
+    {
         pivIndex = partition(indexes,depths,first, last);
         quicksort(indexes,depths,first,(pivIndex-1));
         quicksort(indexes,depths,(pivIndex+1),last);
@@ -1260,11 +1296,11 @@ void quicksort(unsigned short *indexes, float *depths, int first, int last) {
 
 //--------------------------------------- MD3 LIBRARY BEGINS ---------------------------------------
 
-static md3model *md3load (int fil)
+static md3model *md3load(int fil)
 {
     char *buf, st[BMAX_PATH+2], bst[BMAX_PATH+2];
-    long i, j, surfi, ofsurf, bsc, offs[4], leng[4];
-    long maxtrispersurf;
+    int i, j, surfi, ofsurf, bsc, offs[4], leng[4];
+    int maxtrispersurf;
     md3model *m;
     md3surf_t *s;
 
@@ -1277,42 +1313,45 @@ static md3model *md3load (int fil)
     m->head.id = B_LITTLE32(m->head.id);             m->head.vers = B_LITTLE32(m->head.vers);
     m->head.flags = B_LITTLE32(m->head.flags);       m->head.numframes = B_LITTLE32(m->head.numframes);
     m->head.numtags = B_LITTLE32(m->head.numtags);   m->head.numsurfs = B_LITTLE32(m->head.numsurfs);
-    m->head.numskins = B_LITTLE32(m->head.numskins); m->head.frames = (md3frame_t*)B_LITTLE32((long)m->head.frames);
-    m->head.tags = (md3tag_t*)B_LITTLE32((long)m->head.tags); m->head.surfs = (md3surf_t*)B_LITTLE32((long)m->head.surfs);
+    m->head.numskins = B_LITTLE32(m->head.numskins); m->head.frames = (md3frame_t*)B_LITTLE32((int)m->head.frames);
+    m->head.tags = (md3tag_t*)B_LITTLE32((int)m->head.tags); m->head.surfs = (md3surf_t*)B_LITTLE32((int)m->head.surfs);
     m->head.eof = B_LITTLE32(m->head.eof);
 
-if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } //"IDP3"
+    if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } //"IDP3"
 
     m->numskins = m->head.numskins; //<- dead code?
     m->numframes = m->head.numframes;
 
-    ofsurf = (long)m->head.surfs;
+    ofsurf = (int)m->head.surfs;
 
-    klseek(fil,(long)m->head.frames,SEEK_SET); i = m->head.numframes*sizeof(md3frame_t);
+    klseek(fil,(int)m->head.frames,SEEK_SET); i = m->head.numframes*sizeof(md3frame_t);
     m->head.frames = (md3frame_t *)malloc(i); if (!m->head.frames) { free(m); return(0); }
     kread(fil,m->head.frames,i);
 
     if (m->head.numtags == 0) m->head.tags = NULL;
-    else {
-        klseek(fil,(long)m->head.tags,SEEK_SET); i = m->head.numtags*sizeof(md3tag_t);
+    else
+    {
+        klseek(fil,(int)m->head.tags,SEEK_SET); i = m->head.numtags*sizeof(md3tag_t);
         m->head.tags = (md3tag_t *)malloc(i); if (!m->head.tags) { free(m->head.frames); free(m); return(0); }
         kread(fil,m->head.tags,i);
     }
 
-    klseek(fil,(long)m->head.surfs,SEEK_SET); i = m->head.numsurfs*sizeof(md3surf_t);
+    klseek(fil,(int)m->head.surfs,SEEK_SET); i = m->head.numsurfs*sizeof(md3surf_t);
     m->head.surfs = (md3surf_t *)malloc(i); if (!m->head.surfs) { if (m->head.tags) free(m->head.tags); free(m->head.frames); free(m); return(0); }
 
 #if B_BIG_ENDIAN != 0
     {
-        long *l;
+        int *l;
 
-        for (i = m->head.numframes-1; i>=0; i--) {
-            l = (long *)&m->head.frames[i].min;
+        for (i = m->head.numframes-1; i>=0; i--)
+        {
+            l = (int *)&m->head.frames[i].min;
             for (j=3+3+3+1-1;j>=0;j--) l[j] = B_LITTLE32(l[j]);
         }
 
-        for (i = m->head.numtags-1; i>=0; i--) {
-            l = (long *)&m->head.tags[i].p;
+        for (i = m->head.numtags-1; i>=0; i--)
+        {
+            l = (int *)&m->head.tags[i].p;
             for (j=3+3+3+3-1;j>=0;j--) l[j] = B_LITTLE32(l[j]);
         }
     }
@@ -1327,17 +1366,17 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
 
 #if B_BIG_ENDIAN != 0
         {
-            long *l;
+            int *l;
             s->id = B_LITTLE32(s->id);
-            l =	(long *)&s->flags;
+            l =	(int *)&s->flags;
             for	(j=1+1+1+1+1+1+1+1+1+1-1;j>=0;j--) l[j] = B_LITTLE32(l[j]);
         }
 #endif
 
-        offs[0] = ofsurf+((long)(s->tris   )); leng[0] = s->numtris*sizeof(md3tri_t);
-        offs[1] = ofsurf+((long)(s->shaders)); leng[1] = s->numshaders*sizeof(md3shader_t);
-        offs[2] = ofsurf+((long)(s->uv     )); leng[2] = s->numverts*sizeof(md3uv_t);
-        offs[3] = ofsurf+((long)(s->xyzn   )); leng[3] = s->numframes*s->numverts*sizeof(md3xyzn_t);
+        offs[0] = ofsurf+((int)(s->tris)); leng[0] = s->numtris*sizeof(md3tri_t);
+        offs[1] = ofsurf+((int)(s->shaders)); leng[1] = s->numshaders*sizeof(md3shader_t);
+        offs[2] = ofsurf+((int)(s->uv)); leng[2] = s->numverts*sizeof(md3uv_t);
+        offs[3] = ofsurf+((int)(s->xyzn)); leng[3] = s->numframes*s->numverts*sizeof(md3xyzn_t);
         //memoryusage += (s->numverts * s->numframes * sizeof(md3xyzn_t));
         //OSD_Printf("Current model geometry memory usage : %i.\n", memoryusage);
 
@@ -1348,9 +1387,9 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
             for (surfi--;surfi>=0;surfi--) free(m->head.surfs[surfi].tris);
             if (m->head.tags) free(m->head.tags); free(m->head.frames); free(m); return(0);
         }
-        s->shaders = (md3shader_t *)(((long)s->tris   )+leng[0]);
-        s->uv      = (md3uv_t     *)(((long)s->shaders)+leng[1]);
-        s->xyzn    = (md3xyzn_t   *)(((long)s->uv     )+leng[2]);
+        s->shaders = (md3shader_t *)(((int)s->tris)+leng[0]);
+        s->uv      = (md3uv_t     *)(((int)s->shaders)+leng[1]);
+        s->xyzn    = (md3xyzn_t   *)(((int)s->uv)+leng[2]);
 
         klseek(fil,offs[0],SEEK_SET); kread(fil,s->tris   ,leng[0]);
         klseek(fil,offs[1],SEEK_SET); kread(fil,s->shaders,leng[1]);
@@ -1359,20 +1398,24 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
 
 #if B_BIG_ENDIAN != 0
         {
-            long *l;
+            int *l;
 
-            for (i=s->numtris-1;i>=0;i--) {
+            for (i=s->numtris-1;i>=0;i--)
+            {
                 for (j=2;j>=0;j--) s->tris[i].i[j] = B_LITTLE32(s->tris[i].i[j]);
             }
-            for (i=s->numshaders-1;i>=0;i--) {
+            for (i=s->numshaders-1;i>=0;i--)
+            {
                 s->shaders[i].i = B_LITTLE32(s->shaders[i].i);
             }
-            for (i=s->numverts-1;i>=0;i--) {
-                l = (long*)&s->uv[i].u;
+            for (i=s->numverts-1;i>=0;i--)
+            {
+                l = (int*)&s->uv[i].u;
                 l[0] = B_LITTLE32(l[0]);
                 l[1] = B_LITTLE32(l[1]);
             }
-            for (i=s->numframes*s->numverts-1;i>=0;i--) {
+            for (i=s->numframes*s->numverts-1;i>=0;i--)
+            {
                 s->xyzn[i].x = (signed short)B_LITTLE16((unsigned short)s->xyzn[i].x);
                 s->xyzn[i].y = (signed short)B_LITTLE16((unsigned short)s->xyzn[i].y);
                 s->xyzn[i].z = (signed short)B_LITTLE16((unsigned short)s->xyzn[i].z);
@@ -1400,7 +1443,7 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
                 (!stricmp(&st[j],"CEL")))
         {
             for (i=0;st[i];i++) if (st[i] != filnam[i]) break;
-        if (i > bsc) { bsc = i; strcpy(bst,st); }
+            if (i > bsc) { bsc = i; strcpy(bst,st); }
         }
     }
     if (!mdloadskin(&m->texid,&m->usesalpha,bst)) ;//bad!
@@ -1415,11 +1458,11 @@ if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } 
     return(m);
 }
 
-static int md3draw (md3model *m, spritetype *tspr)
+static int md3draw(md3model *m, spritetype *tspr)
 {
     point3d fp, fp1, fp2, m0, m1, a0, a1;
     md3xyzn_t *v0, *v1;
-    long i, j, k, l, surfi, *lptr;
+    int i, j, k, l, surfi, *lptr;
     float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], pc[4], mult;
     md3surf_t *s;
     int                 texunits = GL_TEXTURE0_ARB;
@@ -1442,7 +1485,8 @@ static int md3draw (md3model *m, spritetype *tspr)
     f = m->interpol; g = 1-f;
 
     if (m->head.flags == 1337)
-    { // md2
+    {
+        // md2
         m0.x = m->scale * g; m1.x = m->scale *f;
         m0.y = m->scale * g; m1.y = m->scale *f;
         m0.z = m->scale * g; m1.z = m->scale *f;
@@ -1530,7 +1574,7 @@ static int md3draw (md3model *m, spritetype *tspr)
         bglDepthRange(0.0,0.9999);
     }
     bglPushAttrib(GL_POLYGON_BIT);
-    if ((grhalfxdown10x >= 0) ^ ((globalorientation&8) != 0) ^ ((globalorientation&4) != 0)) bglFrontFace(GL_CW); else bglFrontFace(GL_CCW);
+    if ((grhalfxdown10x >= 0) ^((globalorientation&8) != 0) ^((globalorientation&4) != 0)) bglFrontFace(GL_CW); else bglFrontFace(GL_CCW);
     bglEnable(GL_CULL_FACE);
     bglCullFace(GL_BACK);
 
@@ -1547,7 +1591,8 @@ static int md3draw (md3model *m, spritetype *tspr)
         pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
     }
 
-if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } else pc[3] = 1.0;
+    if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; }
+    else pc[3] = 1.0;
     if (m->usesalpha) //Sprites with alpha in texture
     {
         //      bglEnable(GL_BLEND);// bglBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -1678,7 +1723,7 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
 
             bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
             bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR);
-  
+
             bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
             bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_PREVIOUS_ARB);
             bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
@@ -1838,56 +1883,56 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
 
         if (r_vertexarrays)
         {
+            if (r_vbos)
+                bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->vbos[surfi]);
+            l = GL_TEXTURE0_ARB;
+            while (l <= texunits)
+            {
+                bglClientActiveTextureARB(l++);
+                bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
                 if (r_vbos)
-                    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->vbos[surfi]);
-                l = GL_TEXTURE0_ARB;
-                while (l <= texunits)
-                {
-                    bglClientActiveTextureARB(l++);
-                    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                    if (r_vbos)
-                        bglTexCoordPointer(2, GL_FLOAT, 0, 0);
-                    else
-                        bglTexCoordPointer(2, GL_FLOAT, 0, &(s->uv[0].u));
-                }
-
-                if (r_vbos)
-                {
-                    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, vertvbos[curvbo]);
-                    bglVertexPointer(3, GL_FLOAT, 0, 0);
-                }
+                    bglTexCoordPointer(2, GL_FLOAT, 0, 0);
                 else
-                    bglVertexPointer(3, GL_FLOAT, 0, &(vertlist[0].x));
+                    bglTexCoordPointer(2, GL_FLOAT, 0, &(s->uv[0].u));
+            }
 
-                if (r_vbos)
-                {
-                    bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexvbos[curvbo]);
-                    bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, 0);
-                }
-                else
-                    bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, m->vindexes);
+            if (r_vbos)
+            {
+                bglBindBufferARB(GL_ARRAY_BUFFER_ARB, vertvbos[curvbo]);
+                bglVertexPointer(3, GL_FLOAT, 0, 0);
+            }
+            else
+                bglVertexPointer(3, GL_FLOAT, 0, &(vertlist[0].x));
 
-                if (r_vbos)
-                {
-                    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-                    bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-                }
+            if (r_vbos)
+            {
+                bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexvbos[curvbo]);
+                bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, 0);
+            }
+            else
+                bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_SHORT, m->vindexes);
+
+            if (r_vbos)
+            {
+                bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+                bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+            }
         }
 
-            while (texunits > GL_TEXTURE0_ARB)
+        while (texunits > GL_TEXTURE0_ARB)
+        {
+            bglMatrixMode(GL_TEXTURE);
+            bglLoadIdentity();
+            bglMatrixMode(GL_MODELVIEW);
+            bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
+            bglDisable(GL_TEXTURE_2D);
+            if (r_vertexarrays)
             {
-                bglMatrixMode(GL_TEXTURE);
-                bglLoadIdentity();
-                bglMatrixMode(GL_MODELVIEW);
-                bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
-                bglDisable(GL_TEXTURE_2D);
-                if (r_vertexarrays)
-                {
-                    bglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                    bglClientActiveTextureARB(texunits - 1);
-                }
-                bglActiveTextureARB(--texunits);
+                bglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                bglClientActiveTextureARB(texunits - 1);
             }
+            bglActiveTextureARB(--texunits);
+        }
     }
     //------------
 
@@ -1904,12 +1949,12 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
     return 1;
 }
 
-static void md3free (md3model *m)
+static void md3free(md3model *m)
 {
     mdanim_t *anim, *nanim = NULL;
     mdskinmap_t *sk, *nsk = NULL;
     md3surf_t *s;
-    long surfi;
+    int surfi;
 
     if (!m) return;
 
@@ -1964,27 +2009,27 @@ static void md3free (md3model *m)
 //--------------------------------------- VOX LIBRARY BEGINS ---------------------------------------
 
 //For loading/conversion only
-static long xsiz, ysiz, zsiz, yzsiz, *vbit = 0; //vbit: 1 bit per voxel: 0=air,1=solid
+static int xsiz, ysiz, zsiz, yzsiz, *vbit = 0; //vbit: 1 bit per voxel: 0=air,1=solid
 static float xpiv, ypiv, zpiv; //Might want to use more complex/unique names!
-static long *vcolhashead = 0, vcolhashsizm1;
-typedef struct { long p, c, n; } voxcol_t;
-static voxcol_t *vcol = 0; long vnum = 0, vmax = 0;
+static int *vcolhashead = 0, vcolhashsizm1;
+typedef struct { int p, c, n; } voxcol_t;
+static voxcol_t *vcol = 0; int vnum = 0, vmax = 0;
 typedef struct { short x, y; } spoint2d;
 static spoint2d *shp;
-static long *shcntmal, *shcnt = 0, shcntp;
-static long mytexo5, *zbit, gmaxx, gmaxy, garea, pow2m1[33];
+static int *shcntmal, *shcnt = 0, shcntp;
+static int mytexo5, *zbit, gmaxx, gmaxy, garea, pow2m1[33];
 static voxmodel *gvox;
 
 //pitch must equal xsiz*4
-unsigned gloadtex (long *picbuf, long xsiz, long ysiz, long is8bit, long dapal)
+unsigned gloadtex(int *picbuf, int xsiz, int ysiz, int is8bit, int dapal)
 {
     unsigned rtexid;
     coltype *pic, *pic2;
     unsigned char *cptr;
-    long i;
+    int i;
 
     pic = (coltype *)picbuf; //Correct for GL's RGB order; also apply gamma here..
-    pic2 = (coltype *)malloc(xsiz*ysiz*sizeof(long)); if (!pic2) return((unsigned)-1);
+    pic2 = (coltype *)malloc(xsiz*ysiz*sizeof(int)); if (!pic2) return((unsigned)-1);
     cptr = (unsigned char*)&britable[gammabrightness ? 0 : curbrightness][0];
     if (!is8bit)
     {
@@ -2001,9 +2046,9 @@ unsigned gloadtex (long *picbuf, long xsiz, long ysiz, long is8bit, long dapal)
         if (palookup[dapal] == NULL) dapal = 0;
         for (i=xsiz*ysiz-1;i>=0;i--)
         {
-            pic2[i].b = cptr[palette[(long)palookup[dapal][pic[i].a]*3+2]*4];
-            pic2[i].g = cptr[palette[(long)palookup[dapal][pic[i].a]*3+1]*4];
-            pic2[i].r = cptr[palette[(long)palookup[dapal][pic[i].a]*3+0]*4];
+            pic2[i].b = cptr[palette[(int)palookup[dapal][pic[i].a]*3+2]*4];
+            pic2[i].g = cptr[palette[(int)palookup[dapal][pic[i].a]*3+1]*4];
+            pic2[i].r = cptr[palette[(int)palookup[dapal][pic[i].a]*3+0]*4];
             pic2[i].a = 255;
         }
     }
@@ -2017,7 +2062,7 @@ unsigned gloadtex (long *picbuf, long xsiz, long ysiz, long is8bit, long dapal)
     return(rtexid);
 }
 
-static long getvox (long x, long y, long z)
+static int getvox(int x, int y, int z)
 {
     z += x*yzsiz + y*zsiz;
     for (x=vcolhashead[(z*214013)&vcolhashsizm1];x>=0;x=vcol[x].n)
@@ -2025,7 +2070,7 @@ static long getvox (long x, long y, long z)
     return(0x808080);
 }
 
-static void putvox (long x, long y, long z, long col)
+static void putvox(int x, int y, int z, int col)
 {
     if (vnum >= vmax) { vmax = max(vmax<<1,4096); vcol = (voxcol_t *)realloc(vcol,vmax*sizeof(voxcol_t)); }
 
@@ -2036,9 +2081,9 @@ static void putvox (long x, long y, long z, long col)
 }
 
 //Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 0's
-static void setzrange0 (long *lptr, long z0, long z1)
+static void setzrange0(int *lptr, int z0, int z1)
 {
-    long z, ze;
+    int z, ze;
     if (!((z0^z1)&~31)) { lptr[z0>>5] &= ((~(-1<<SHIFTMOD32(z0)))|(-1<<SHIFTMOD32(z1))); return; }
     z = (z0>>5); ze = (z1>>5);
     lptr[z] &=~(-1<<SHIFTMOD32(z0)); for (z++;z<ze;z++) lptr[z] = 0;
@@ -2046,30 +2091,31 @@ static void setzrange0 (long *lptr, long z0, long z1)
 }
 
 //Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 1's
-static void setzrange1 (long *lptr, long z0, long z1)
+static void setzrange1(int *lptr, int z0, int z1)
 {
-    long z, ze;
+    int z, ze;
     if (!((z0^z1)&~31)) { lptr[z0>>5] |= ((~(-1<<SHIFTMOD32(z1)))&(-1<<SHIFTMOD32(z0))); return; }
     z = (z0>>5); ze = (z1>>5);
     lptr[z] |= (-1<<SHIFTMOD32(z0)); for (z++;z<ze;z++) lptr[z] = -1;
     lptr[z] |=~(-1<<SHIFTMOD32(z1));
 }
 
-static long isrectfree (long x0, long y0, long dx, long dy)
+static int isrectfree(int x0, int y0, int dx, int dy)
 {
 #if 0
-    long i, j, x;
+    int i, j, x;
     i = y0*gvox->mytexx + x0;
     for (dy=0;dy;dy--,i+=gvox->mytexx)
-    for (x=0;x<dx;x++) { j = i+x; if (zbit[j>>5]&(1<<SHIFTMOD32(j))) return(0); }
+        for (x=0;x<dx;x++) { j = i+x; if (zbit[j>>5]&(1<<SHIFTMOD32(j))) return(0); }
 #else
-    long i, c, m, m1, x;
+    int i, c, m, m1, x;
 
     i = y0*mytexo5 + (x0>>5); dx += x0-1; c = (dx>>5) - (x0>>5);
     m = ~pow2m1[x0&31]; m1 = pow2m1[(dx&31)+1];
     if (!c) { for (m&=m1;dy;dy--,i+=mytexo5) if (zbit[i]&m) return(0); }
     else
-        {  for (;dy;dy--,i+=mytexo5)
+    {
+        for (;dy;dy--,i+=mytexo5)
         {
             if (zbit[i]&m) return(0);
             for (x=1;x<c;x++) if (zbit[i+x]) return(0);
@@ -2080,21 +2126,22 @@ static long isrectfree (long x0, long y0, long dx, long dy)
     return(1);
 }
 
-static void setrect (long x0, long y0, long dx, long dy)
+static void setrect(int x0, int y0, int dx, int dy)
 {
 #if 0
-    long i, j, y;
+    int i, j, y;
     i = y0*gvox->mytexx + x0;
     for (y=0;y<dy;y++,i+=gvox->mytexx)
-    for (x=0;x<dx;x++) { j = i+x; zbit[j>>5] |= (1<<SHIFTMOD32(j)); }
+        for (x=0;x<dx;x++) { j = i+x; zbit[j>>5] |= (1<<SHIFTMOD32(j)); }
 #else
-    long i, c, m, m1, x;
+    int i, c, m, m1, x;
 
     i = y0*mytexo5 + (x0>>5); dx += x0-1; c = (dx>>5) - (x0>>5);
     m = ~pow2m1[x0&31]; m1 = pow2m1[(dx&31)+1];
     if (!c) { for (m&=m1;dy;dy--,i+=mytexo5) zbit[i] |= m; }
     else
-        {  for (;dy;dy--,i+=mytexo5)
+    {
+        for (;dy;dy--,i+=mytexo5)
         {
             zbit[i] |= m;
             for (x=1;x<c;x++) zbit[i+x] = -1;
@@ -2104,13 +2151,13 @@ static void setrect (long x0, long y0, long dx, long dy)
 #endif
 }
 
-static void cntquad (long x0, long y0, long z0, long x1, long y1, long z1, long x2, long y2, long z2, long face)
+static void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
 {
-    long x, y, z;
+    int x, y, z;
 
     x = labs(x2-x0); y = labs(y2-y0); z = labs(z2-z0);
     if (!x) x = z; else if (!y) y = z;
-if (x < y) { z = x; x = y; y = z; }
+    if (x < y) { z = x; x = y; y = z; }
     shcnt[y*shcntp+x]++;
     if (x > gmaxx) gmaxx = x;
     if (y > gmaxy) gmaxy = y;
@@ -2118,14 +2165,16 @@ if (x < y) { z = x; x = y; y = z; }
     gvox->qcnt++;
 }
 
-static void addquad (long x0, long y0, long z0, long x1, long y1, long z1, long x2, long y2, long z2, long face)
+static void addquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
 {
-    long i, j, x, y, z, xx, yy, nx = 0, ny = 0, nz = 0, *lptr;
+    int i, j, x, y, z, xx, yy, nx = 0, ny = 0, nz = 0, *lptr;
     voxrect_t *qptr;
 
     x = labs(x2-x0); y = labs(y2-y0); z = labs(z2-z0);
-    if (!x) { x = y; y = z; i = 0; } else if (!y) { y = z; i = 1; } else i = 2;
-if (x < y) { z = x; x = y; y = z; i += 3; }
+    if (!x) { x = y; y = z; i = 0; }
+    else if (!y) { y = z; i = 1; }
+    else i = 2;
+    if (x < y) { z = x; x = y; y = z; i += 3; }
     z = shcnt[y*shcntp+x]++;
     lptr = &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx+(shp[z].x+VOXBORDWIDTH)];
     switch (face)
@@ -2149,23 +2198,29 @@ if (x < y) { z = x; x = y; y = z; i += 3; }
             switch (face)
             {
             case 0:
-            if (i < 3) { nx = x1+x-1-xx; nz = z1+yy;   } //back
-                else { nx = x1+y-1-yy; nz = z1+xx;   } break;
+                if (i < 3) { nx = x1+x-1-xx; nz = z1+yy;   } //back
+                else { nx = x1+y-1-yy; nz = z1+xx;   }
+                break;
             case 1:
-            if (i < 3) { nx = x0+xx;     nz = z0+yy;   } //front
-                else { nx = x0+yy;     nz = z0+xx;   } break;
+                if (i < 3) { nx = x0+xx;     nz = z0+yy;   } //front
+                else { nx = x0+yy;     nz = z0+xx;   }
+                break;
             case 2:
-            if (i < 3) { nx = x1-x+xx;   ny = y1-1-yy; } //bot
-                else { nx = x1-1-yy;   ny = y1-1-xx; } break;
+                if (i < 3) { nx = x1-x+xx;   ny = y1-1-yy; } //bot
+                else { nx = x1-1-yy;   ny = y1-1-xx; }
+                break;
             case 3:
-            if (i < 3) { nx = x0+xx;     ny = y0+yy;   } //top
-                else { nx = x0+yy;     ny = y0+xx;   } break;
+                if (i < 3) { nx = x0+xx;     ny = y0+yy;   } //top
+                else { nx = x0+yy;     ny = y0+xx;   }
+                break;
             case 4:
-            if (i < 3) { ny = y1+x-1-xx; nz = z1+yy;   } //right
-                else { ny = y1+y-1-yy; nz = z1+xx;   } break;
+                if (i < 3) { ny = y1+x-1-xx; nz = z1+yy;   } //right
+                else { ny = y1+y-1-yy; nz = z1+xx;   }
+                break;
             case 5:
-            if (i < 3) { ny = y0+xx;     nz = z0+yy;   } //left
-                else { ny = y0+yy;     nz = z0+xx;   } break;
+                if (i < 3) { ny = y0+xx;     nz = z0+yy;   } //left
+                else { ny = y0+yy;     nz = z0+xx;   }
+                break;
             }
             lptr[xx] = getvox(nx,ny,nz);
         }
@@ -2206,18 +2261,18 @@ if (x < y) { z = x; x = y; y = z; i += 3; }
 
 }
 
-static long isolid (long x, long y, long z)
+static int isolid(int x, int y, int z)
 {
-    if ((unsigned long)x >= (unsigned long)xsiz) return(0);
-    if ((unsigned long)y >= (unsigned long)ysiz) return(0);
-    if ((unsigned long)z >= (unsigned long)zsiz) return(0);
+    if ((unsigned int)x >= (unsigned int)xsiz) return(0);
+    if ((unsigned int)y >= (unsigned int)ysiz) return(0);
+    if ((unsigned int)z >= (unsigned int)zsiz) return(0);
     z += x*yzsiz + y*zsiz; return(vbit[z>>5]&(1<<SHIFTMOD32(z)));
 }
 
-static voxmodel *vox2poly ()
+static voxmodel *vox2poly()
 {
-    long i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy, i0, i1, *bx0, *by0;
-    void (*daquad)(long, long, long, long, long, long, long, long, long, long);
+    int i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy, i0, i1, *bx0, *by0;
+    void (*daquad)(int, int, int, int, int, int, int, int, int, int);
     coltype *pic;
     unsigned char *cptr, ch;
 
@@ -2227,9 +2282,9 @@ static voxmodel *vox2poly ()
     //x is largest dimension, y is 2nd largest dimension
     x = xsiz; y = ysiz; z = zsiz;
     if ((x < y) && (x < z)) x = z; else if (y < z) y = z;
-if (x < y) { z = x; x = y; y = z; }
-    shcntp = x; i = x*y*sizeof(long);
-    shcntmal = (long *)malloc(i); if (!shcntmal) { free(gvox); return(0); }
+    if (x < y) { z = x; x = y; y = z; }
+    shcntp = x; i = x*y*sizeof(int);
+    shcntmal = (int *)malloc(i); if (!shcntmal) { free(gvox); return(0); }
     memset(shcntmal,0,i); shcnt = &shcntmal[-shcntp-1];
     gmaxx = gmaxy = garea = 0;
 
@@ -2237,8 +2292,8 @@ if (x < y) { z = x; x = y; y = z; }
     for (i=0;i<7;i++) gvox->qfacind[i] = -1;
 
     i = ((max(ysiz,zsiz)+1)<<2);
-bx0 = (long *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
-    by0 = (long *)(((long)bx0)+i);
+    bx0 = (int *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
+    by0 = (int *)(((int)bx0)+i);
 
     for (cnt=0;cnt<2;cnt++)
     {
@@ -2255,7 +2310,7 @@ bx0 = (long *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
                     {
                         ov = v; v = (isolid(x,y,z) && (!isolid(x,y+i,z)));
                         if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
-                        { daquad(bx0[z],y,by0[z],x,y,by0[z],x,y,z,i>=0); by0[z] = -1; }
+                            { daquad(bx0[z],y,by0[z],x,y,by0[z],x,y,z,i>=0); by0[z] = -1; }
                         if (v > ov) oz = z; else if ((v < ov) && (by0[z] != oz)) { bx0[z] = x; by0[z] = oz; }
                     }
 
@@ -2266,7 +2321,7 @@ bx0 = (long *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
                     {
                         ov = v; v = (isolid(x,y,z) && (!isolid(x,y,z-i)));
                         if ((by0[y] >= 0) && ((by0[y] != oz) || (v >= ov)))
-                        { daquad(bx0[y],by0[y],z,x,by0[y],z,x,y,z,(i>=0)+2); by0[y] = -1; }
+                            { daquad(bx0[y],by0[y],z,x,by0[y],z,x,y,z,(i>=0)+2); by0[y] = -1; }
                         if (v > ov) oz = y; else if ((v < ov) && (by0[y] != oz)) { bx0[y] = x; by0[y] = oz; }
                     }
 
@@ -2277,7 +2332,7 @@ bx0 = (long *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
                     {
                         ov = v; v = (isolid(x,y,z) && (!isolid(x-i,y,z)));
                         if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
-                        { daquad(x,bx0[z],by0[z],x,y,by0[z],x,y,z,(i>=0)+4); by0[z] = -1; }
+                            { daquad(x,bx0[z],by0[z],x,y,by0[z],x,y,z,(i>=0)+4); by0[z] = -1; }
                         if (v > ov) oz = z; else if ((v < ov) && (by0[z] != oz)) { bx0[z] = y; by0[z] = oz; }
                     }
 
@@ -2305,7 +2360,7 @@ skindidntfit:
             mytexo5 = (gvox->mytexx>>5);
 
             i = (((gvox->mytexx*gvox->mytexy+31)>>5)<<2);
-        zbit = (long *)malloc(i); if (!zbit) { free(bx0); free(gvox); free(shp); return(0); }
+            zbit = (int *)malloc(i); if (!zbit) { free(bx0); free(gvox); free(shp); return(0); }
             memset(zbit,0,i);
 
             v = gvox->mytexx*gvox->mytexy;
@@ -2339,7 +2394,8 @@ skindidntfit:
 
                         goto skindidntfit;
                     }
-                } while (!isrectfree(x0,y0,dx,dy));
+                }
+                while (!isrectfree(x0,y0,dx,dy));
                 while ((y0) && (isrectfree(x0,y0-1,dx,1))) y0--;
                 while ((x0) && (isrectfree(x0-1,y0,1,dy))) x0--;
                 setrect(x0,y0,dx,dy);
@@ -2347,9 +2403,9 @@ skindidntfit:
             }
 
             gvox->quad = (voxrect_t *)malloc(gvox->qcnt*sizeof(voxrect_t));
-        if (!gvox->quad) { free(zbit); free(shp); free(bx0); free(gvox); return(0); }
+            if (!gvox->quad) { free(zbit); free(shp); free(bx0); free(gvox); return(0); }
 
-            gvox->mytex = (long *)malloc(gvox->mytexx*gvox->mytexy*sizeof(long));
+            gvox->mytex = (int *)malloc(gvox->mytexx*gvox->mytexy*sizeof(int));
             if (!gvox->mytex) { free(gvox->quad); free(zbit); free(shp); free(bx0); free(gvox); return(0); }
         }
     }
@@ -2357,9 +2413,9 @@ skindidntfit:
     return(gvox);
 }
 
-static long loadvox (const char *filnam)
+static int loadvox(const char *filnam)
 {
-    long i, j, k, x, y, z, pal[256], fil;
+    int i, j, k, x, y, z, pal[256], fil;
     unsigned char c[3], *tbuf;
 
     fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
@@ -2372,15 +2428,15 @@ static long loadvox (const char *filnam)
 
     klseek(fil,-768,SEEK_END);
     for (i=0;i<256;i++)
-    { kread(fil,c,3); pal[i] = (((long)c[0])<<18)+(((long)c[1])<<10)+(((long)c[2])<<2)+(i<<24); }
+        { kread(fil,c,3); pal[i] = (((int)c[0])<<18)+(((int)c[1])<<10)+(((int)c[2])<<2)+(i<<24); }
     pal[255] = -1;
 
     vcolhashsizm1 = 8192-1;
-    vcolhashead = (long *)malloc((vcolhashsizm1+1)*sizeof(long)); if (!vcolhashead) { kclose(fil); return(-1); }
-    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(long));
+    vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { kclose(fil); return(-1); }
+    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (long *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
+    vbit = (int *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
     memset(vbit,0,i);
 
     tbuf = (unsigned char *)malloc(zsiz*sizeof(char)); if (!tbuf) { kclose(fil); return(-1); }
@@ -2391,7 +2447,7 @@ static long loadvox (const char *filnam)
         {
             kread(fil,tbuf,zsiz);
             for (z=zsiz-1;z>=0;z--)
-            { if (tbuf[z] != 255) { i = j+z; vbit[i>>5] |= (1<<SHIFTMOD32(i)); } }
+                { if (tbuf[z] != 255) { i = j+z; vbit[i>>5] |= (1<<SHIFTMOD32(i)); } }
         }
 
     klseek(fil,12,SEEK_SET);
@@ -2403,7 +2459,7 @@ static long loadvox (const char *filnam)
             {
                 if (tbuf[z] == 255) continue;
                 if ((!x) || (!y) || (!z) || (x == xsiz-1) || (y == ysiz-1) || (z == zsiz-1))
-                { putvox(x,y,z,pal[tbuf[z]]); continue; }
+                    { putvox(x,y,z,pal[tbuf[z]]); continue; }
                 k = j+z;
                 if ((!(vbit[(k-yzsiz)>>5]&(1<<SHIFTMOD32(k-yzsiz)))) ||
                         (!(vbit[(k+yzsiz)>>5]&(1<<SHIFTMOD32(k+yzsiz)))) ||
@@ -2411,16 +2467,16 @@ static long loadvox (const char *filnam)
                         (!(vbit[(k+ zsiz)>>5]&(1<<SHIFTMOD32(k+ zsiz)))) ||
                         (!(vbit[(k-    1)>>5]&(1<<SHIFTMOD32(k-    1)))) ||
                         (!(vbit[(k+    1)>>5]&(1<<SHIFTMOD32(k+    1)))))
-                { putvox(x,y,z,pal[tbuf[z]]); continue; }
+                    { putvox(x,y,z,pal[tbuf[z]]); continue; }
             }
         }
 
     free(tbuf); kclose(fil); return(0);
 }
 
-static long loadkvx (const char *filnam)
+static int loadkvx(const char *filnam)
 {
-    long i, j, k, x, y, z, pal[256], z0, z1, mip1leng, ysizp1, fil;
+    int i, j, k, x, y, z, pal[256], z0, z1, mip1leng, ysizp1, fil;
     unsigned short *xyoffs;
     unsigned char c[3], *tbuf, *cptr;
 
@@ -2435,20 +2491,20 @@ static long loadkvx (const char *filnam)
     klseek(fil,(xsiz+1)<<2,SEEK_CUR);
     ysizp1 = ysiz+1;
     i = xsiz*ysizp1*sizeof(short);
-xyoffs = (unsigned short *)malloc(i); if (!xyoffs) { kclose(fil); return(-1); }
+    xyoffs = (unsigned short *)malloc(i); if (!xyoffs) { kclose(fil); return(-1); }
     kread(fil,xyoffs,i); for (i=i/sizeof(short)-1; i>=0; i--) xyoffs[i] = B_LITTLE16(xyoffs[i]);
 
     klseek(fil,-768,SEEK_END);
     for (i=0;i<256;i++)
-    { kread(fil,c,3); pal[i] = B_LITTLE32((((long)c[0])<<18)+(((long)c[1])<<10)+(((long)c[2])<<2)+(i<<24)); }
+        { kread(fil,c,3); pal[i] = B_LITTLE32((((int)c[0])<<18)+(((int)c[1])<<10)+(((int)c[2])<<2)+(i<<24)); }
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (long *)malloc(i); if (!vbit) { free(xyoffs); kclose(fil); return(-1); }
+    vbit = (int *)malloc(i); if (!vbit) { free(xyoffs); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
     for (vcolhashsizm1=4096;vcolhashsizm1<(mip1leng>>1);vcolhashsizm1<<=1); vcolhashsizm1--; //approx to numvoxs!
-vcolhashead = (long *)malloc((vcolhashsizm1+1)*sizeof(long)); if (!vcolhashead) { free(xyoffs); kclose(fil); return(-1); }
-    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(long));
+    vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { free(xyoffs); kclose(fil); return(-1); }
+    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
     klseek(fil,28+((xsiz+1)<<2)+((ysizp1*xsiz)<<1),SEEK_SET);
 
@@ -2464,7 +2520,7 @@ vcolhashead = (long *)malloc((vcolhashsizm1+1)*sizeof(long)); if (!vcolhashead) 
             z1 = 0;
             while (i)
             {
-                z0 = (long)cptr[0]; k = (long)cptr[1]; cptr += 3;
+                z0 = (int)cptr[0]; k = (int)cptr[1]; cptr += 3;
                 if (!(cptr[-1]&16)) setzrange1(vbit,j+z1,j+z0);
                 i -= k+3; z1 = z0+k;
                 setzrange1(vbit,j+z0,j+z1);
@@ -2475,14 +2531,14 @@ vcolhashead = (long *)malloc((vcolhashsizm1+1)*sizeof(long)); if (!vcolhashead) 
     free(tbuf); free(xyoffs); return(0);
 }
 
-static long loadkv6 (const char *filnam)
+static int loadkv6(const char *filnam)
 {
-    long i, j, x, y, z, numvoxs, z0, z1, fil;
+    int i, j, x, y, z, numvoxs, z0, z1, fil;
     unsigned short *ylen;
     unsigned char c[8];
 
     fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
-kread(fil,&i,4); if (B_LITTLE32(i) != 0x6c78764b) { kclose(fil); return(-1); } //Kvxl
+    kread(fil,&i,4); if (B_LITTLE32(i) != 0x6c78764b) { kclose(fil); return(-1); } //Kvxl
     kread(fil,&xsiz,4);    xsiz = B_LITTLE32(xsiz);
     kread(fil,&ysiz,4);    ysiz = B_LITTLE32(ysiz);
     kread(fil,&zsiz,4);    zsiz = B_LITTLE32(zsiz);
@@ -2499,12 +2555,12 @@ kread(fil,&i,4); if (B_LITTLE32(i) != 0x6c78764b) { kclose(fil); return(-1); } /
     klseek(fil,32,SEEK_SET);
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-vbit = (long *)malloc(i); if (!vbit) { free(ylen); kclose(fil); return(-1); }
+    vbit = (int *)malloc(i); if (!vbit) { free(ylen); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
     for (vcolhashsizm1=4096;vcolhashsizm1<numvoxs;vcolhashsizm1<<=1); vcolhashsizm1--;
-vcolhashead = (long *)malloc((vcolhashsizm1+1)*sizeof(long)); if (!vcolhashead) { free(ylen); kclose(fil); return(-1); }
-    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(long));
+    vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { free(ylen); kclose(fil); return(-1); }
+    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
     for (x=0;x<xsiz;x++)
         for (y=0,j=x*yzsiz;y<ysiz;y++,j+=zsiz)
@@ -2516,7 +2572,7 @@ vcolhashead = (long *)malloc((vcolhashsizm1+1)*sizeof(long)); if (!vcolhashead) 
                 z0 = B_LITTLE16(*(unsigned short *)&c[4]);
                 if (!(c[6]&16)) setzrange1(vbit,j+z1,j+z0);
                 vbit[(j+z0)>>5] |= (1<<SHIFTMOD32(j+z0));
-                putvox(x,y,z0,B_LITTLE32(*(long *)&c[0])&0xffffff);
+                putvox(x,y,z0,B_LITTLE32(*(int *)&c[0])&0xffffff);
                 z1 = z0+1;
             }
         }
@@ -2525,16 +2581,16 @@ vcolhashead = (long *)malloc((vcolhashsizm1+1)*sizeof(long)); if (!vcolhashead) 
 
 #if 0
 //While this code works, it's way too slow and can only cause trouble.
-static long loadvxl (const char *filnam)
+static int loadvxl(const char *filnam)
 {
-    long i, j, x, y, z, fil;
+    int i, j, x, y, z, fil;
     unsigned char *v, *vbuf;
 
     fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
     kread(fil,&i,4);
     kread(fil,&xsiz,4);
     kread(fil,&ysiz,4);
-if ((i != 0x09072000) || (xsiz != 1024) || (ysiz != 1024)) { kclose(fil); return(-1); }
+    if ((i != 0x09072000) || (xsiz != 1024) || (ysiz != 1024)) { kclose(fil); return(-1); }
     zsiz = 256;
     klseek(fil,96,SEEK_CUR); //skip pos&orient
     xpiv = ((float)xsiz)*.5;
@@ -2542,12 +2598,12 @@ if ((i != 0x09072000) || (xsiz != 1024) || (ysiz != 1024)) { kclose(fil); return
     zpiv = ((float)zsiz)*.5;
 
     yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
-    vbit = (long *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
+    vbit = (int *)malloc(i); if (!vbit) { kclose(fil); return(-1); }
     memset(vbit,-1,i);
 
     vcolhashsizm1 = 1048576-1;
-    vcolhashead = (long *)malloc((vcolhashsizm1+1)*sizeof(long)); if (!vcolhashead) { kclose(fil); return(-1); }
-    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(long));
+    vcolhashead = (int *)malloc((vcolhashsizm1+1)*sizeof(int)); if (!vcolhashead) { kclose(fil); return(-1); }
+    memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int));
 
     //Allocate huge buffer and load rest of file into it...
     i = kfilelength(fil)-ktell(fil);
@@ -2563,17 +2619,17 @@ if ((i != 0x09072000) || (xsiz != 1024) || (ysiz != 1024)) { kclose(fil); return
             while (1)
             {
                 setzrange0(vbit,j+z,j+v[1]);
-                for (z=v[1];z<=v[2];z++) putvox(x,y,z,(*(long *)&v[(z-v[1]+1)<<2])&0xffffff);
+                for (z=v[1];z<=v[2];z++) putvox(x,y,z,(*(int *)&v[(z-v[1]+1)<<2])&0xffffff);
                 if (!v[0]) break; z = v[2]-v[1]-v[0]+2; v += v[0]*4;
-                for (z+=v[3];z<v[3];z++) putvox(x,y,z,(*(long *)&v[(z-v[3])<<2])&0xffffff);
+                for (z+=v[3];z<v[3];z++) putvox(x,y,z,(*(int *)&v[(z-v[3])<<2])&0xffffff);
             }
-            v += ((((long)v[2])-((long)v[1])+2)<<2);
+            v += ((((int)v[2])-((int)v[1])+2)<<2);
         }
     free(vbuf); return(0);
 }
 #endif
 
-static void voxfree (voxmodel *m)
+static void voxfree(voxmodel *m)
 {
     if (!m) return;
     if (m->mytex) free(m->mytex);
@@ -2582,13 +2638,13 @@ static void voxfree (voxmodel *m)
     free(m);
 }
 
-static voxmodel *voxload (const char *filnam)
+static voxmodel *voxload(const char *filnam)
 {
-    long i, is8bit, ret;
+    int i, is8bit, ret;
     voxmodel *vm;
 
     i = strlen(filnam)-4; if (i < 0) return(0);
-if (!Bstrcasecmp(&filnam[i],".vox")) { ret = loadvox(filnam); is8bit = 1; }
+    if (!Bstrcasecmp(&filnam[i],".vox")) { ret = loadvox(filnam); is8bit = 1; }
     else if (!Bstrcasecmp(&filnam[i],".kvx")) { ret = loadkvx(filnam); is8bit = 1; }
     else if (!Bstrcasecmp(&filnam[i],".kv6")) { ret = loadkv6(filnam); is8bit = 0; }
     //else if (!Bstrcasecmp(&filnam[i],".vxl")) { ret = loadvxl(filnam); is8bit = 0; }
@@ -2613,10 +2669,10 @@ if (!Bstrcasecmp(&filnam[i],".vox")) { ret = loadvox(filnam); is8bit = 1; }
 }
 
 //Draw voxel model as perfect cubes
-static int voxdraw (voxmodel *m, spritetype *tspr)
+static int voxdraw(voxmodel *m, spritetype *tspr)
 {
     point3d fp, m0, a0;
-    long i, j, k, fi, *lptr, xx, yy, zz;
+    int i, j, k, fi, *lptr, xx, yy, zz;
     float ru, rv, uhack[2], vhack[2], phack[2], clut[6] = {1,1,1,1,1,1}; //1.02,1.02,0.94,1.06,0.98,0.98};
     float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], omat[16], pc[4];
     vert_t *vptr;
@@ -2675,7 +2731,7 @@ static int voxdraw (voxmodel *m, spritetype *tspr)
     mat[14] += a0.y*mat[2] + a0.z*mat[6] + a0.x*mat[10];
 
     //Mirrors
-if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
+    if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
 
     //------------
     //bit 10 is an ugly hack in game.c\animatesprites telling MD2SPRITE
@@ -2696,7 +2752,8 @@ if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; 
     pc[0] *= (float)hictinting[globalpal].r / 255.0;
     pc[1] *= (float)hictinting[globalpal].g / 255.0;
     pc[2] *= (float)hictinting[globalpal].b / 255.0;
-if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } else pc[3] = 1.0;
+    if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; }
+    else pc[3] = 1.0;
     if (tspr->cstat&2 && (!peelcompiling)) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     //------------
 
@@ -2765,11 +2822,11 @@ if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; } 
 //---------------------------------------- VOX LIBRARY ENDS ----------------------------------------
 //--------------------------------------- MD LIBRARY BEGINS  ---------------------------------------
 
-mdmodel *mdload (const char *filnam)
+mdmodel *mdload(const char *filnam)
 {
     mdmodel *vm;
     int fil;
-    long i;
+    int i;
 
     vm = (mdmodel*)voxload(filnam); if (vm) return(vm);
 
@@ -2789,7 +2846,7 @@ mdmodel *mdload (const char *filnam)
     return(vm);
 }
 
-int mddraw (spritetype *tspr)
+int mddraw(spritetype *tspr)
 {
     mdanim_t *anim;
     mdmodel *vm;
@@ -2833,7 +2890,7 @@ int mddraw (spritetype *tspr)
     return 0;
 }
 
-void mdfree (mdmodel *vm)
+void mdfree(mdmodel *vm)
 {
     if (vm->mdnum == 1) { voxfree((voxmodel *)vm); return; }
     if (vm->mdnum == 3) { md3free((md3model *)vm); return; }

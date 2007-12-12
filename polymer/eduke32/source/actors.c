@@ -23,19 +23,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 #include "duke3d.h"
 
-extern long numenvsnds;
+extern int numenvsnds;
 extern int actor_tog;
 
 void updateinterpolations()  //Stick at beginning of domovethings
 {
-    long i=numinterpolations-1;
+    int i=numinterpolations-1;
 
     for (;i>=0;i--) oldipos[i] = *curipos[i];
 }
 
-void setinterpolation(long *posptr)
+void setinterpolation(int *posptr)
 {
-    long i;
+    int i;
 
     if (numinterpolations >= MAXINTERPOLATIONS) return;
     for (i=numinterpolations-1;i>=0;i--)
@@ -45,9 +45,9 @@ void setinterpolation(long *posptr)
     numinterpolations++;
 }
 
-void stopinterpolation(long *posptr)
+void stopinterpolation(int *posptr)
 {
-    long i;
+    int i;
 
     for (i=numinterpolations-1;i>=startofdynamicinterpolations;i--)
         if (curipos[i] == posptr)
@@ -59,9 +59,9 @@ void stopinterpolation(long *posptr)
         }
 }
 
-void dointerpolations(long smoothratio)       //Stick at beginning of drawscreen
+void dointerpolations(int smoothratio)       //Stick at beginning of drawscreen
 {
-    long i=numinterpolations-1, j = 0, odelta, ndelta = 0;
+    int i=numinterpolations-1, j = 0, odelta, ndelta = 0;
 
     for (;i>=0;i--)
     {
@@ -75,19 +75,19 @@ void dointerpolations(long smoothratio)       //Stick at beginning of drawscreen
 
 void restoreinterpolations()  //Stick at end of drawscreen
 {
-    long i=numinterpolations-1;
+    int i=numinterpolations-1;
 
     for (;i>=0;i--) *curipos[i] = bakipos[i];
 }
 
-long ceilingspace(int sectnum)
+int ceilingspace(int sectnum)
 {
     if ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 && (sector[sectnum].ceilingpicnum==MOONSKY1 || sector[sectnum].ceilingpicnum==BIGORBIT1))
         return 1;
     return 0;
 }
 
-long floorspace(int sectnum)
+int floorspace(int sectnum)
 {
     if ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0)
     {
@@ -276,12 +276,12 @@ void checkavailweapon(player_struct *p)
     else p->weapon_pos   = -1;
 }
 
-void hitradius(int i, long  r, long  hp1, long  hp2, long  hp3, long  hp4)
+void hitradius(int i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 {
     spritetype *s=&sprite[i],*sj;
     walltype *wal;
-    long d, q, x1, y1;
-    long sectcnt, sectend, dasect, startwall, endwall, nextsect;
+    int d, q, x1, y1;
+    int sectcnt, sectend, dasect, startwall, endwall, nextsect;
     int j,k,p,x,nextj;
     short sect=-1;
     char statlist[] = {0,1,6,10,12,2,5};
@@ -458,9 +458,9 @@ BOLT:
     }
 }
 
-int movesprite(int spritenum, long xchange, long ychange, long zchange, unsigned long cliptype)
+int movesprite(int spritenum, int xchange, int ychange, int zchange, unsigned int cliptype)
 {
-    long daz, oldx, oldy;
+    int daz, oldx, oldy;
     int retval;
     short dasectnum, cd;
     int bg = badguy(&sprite[spritenum]);
@@ -525,7 +525,7 @@ int movesprite(int spritenum, long xchange, long ychange, long zchange, unsigned
                 clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((xchange*TICSPERFRAME)<<11),((ychange*TICSPERFRAME)<<11),8L,(4<<8),(4<<8),cliptype);
         else
             retval =
-                clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((xchange*TICSPERFRAME)<<11),((ychange*TICSPERFRAME)<<11),(long)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
+                clipmove(&sprite[spritenum].x,&sprite[spritenum].y,&daz,&dasectnum,((xchange*TICSPERFRAME)<<11),((ychange*TICSPERFRAME)<<11),(int)(sprite[spritenum].clipdist<<2),(4<<8),(4<<8),cliptype);
     }
 
     if (dasectnum >= 0)
@@ -541,10 +541,10 @@ int movesprite(int spritenum, long xchange, long ychange, long zchange, unsigned
     return(retval);
 }
 
-int ssp(int i,unsigned long cliptype) //The set sprite function
+int ssp(int i,unsigned int cliptype) //The set sprite function
 {
     spritetype *s= &sprite[i];
-    long movetype;
+    int movetype;
 
     movetype = movesprite(i,
                           (s->xvel*(sintable[(s->ang+512)&2047]))>>14,
@@ -605,7 +605,7 @@ void lotsofpaper(int sp, int n)
 
 void guts(int sp, int gtype, int n, int p)
 {
-    long gutz,floorz;
+    int gutz,floorz;
     int i,a,j,sx,sy,pal;
     spritetype *s = &sprite[sp];
 
@@ -642,7 +642,7 @@ void guts(int sp, int gtype, int n, int p)
 
 void gutsdir(int sp, int gtype, int n, int p)
 {
-    long gutz,floorz;
+    int gutz,floorz;
     int i,a,j,sx,sy;
     spritetype *s = &sprite[sp];
 
@@ -706,9 +706,9 @@ static void ms(int i)
 {
     //T1,T2 and T3 are used for all the sector moving stuff!!!
 
-    long tx,ty;
+    int tx,ty;
     spritetype *s = &sprite[i];
-    long j = T2, k = T3;
+    int j = T2, k = T3;
 
     s->x += (s->xvel*(sintable[(s->ang+512)&2047]))>>14;
     s->y += (s->xvel*(sintable[s->ang&2047]))>>14;
@@ -728,7 +728,7 @@ static void ms(int i)
 
 static void movefta(void)
 {
-    long x, px, py, sx, sy;
+    int x, px, py, sx, sy;
     int i = headspritestat[2], j, p, nexti;
     short psect, ssect;
     spritetype *s;
@@ -1019,7 +1019,7 @@ int otherp;
 static void moveplayers(void) //Players
 {
     int i = headspritestat[10], nexti;
-    long otherx;
+    int otherx;
     spritetype *s;
     player_struct *p;
 
@@ -1154,7 +1154,7 @@ BOLT:
 static void movefx(void)
 {
     int i = headspritestat[11], j, nexti, p;
-    long x, ht;
+    int x, ht;
     spritetype *s;
 
     while (i >= 0)
@@ -1254,7 +1254,7 @@ static void movefallers(void)
 {
     int i = headspritestat[12], nexti, sect, j;
     spritetype *s;
-    long x;
+    int x;
 
     while (i >= 0)
     {
@@ -1350,7 +1350,7 @@ BOLT:
 static void movestandables(void)
 {
     int i = headspritestat[6], j, k, nexti, nextj, p=0, sect, switchpicnum;
-    long l=0, x, *t;
+    int l=0, x, *t;
     spritetype *s;
     short m;
 
@@ -1617,7 +1617,7 @@ static void movestandables(void)
 
         if (s->picnum == TRIPBOMB)
         {
-            //            long lTripBombControl=GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
+            //            int lTripBombControl=GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
             //            if(lTripBombControl & TRIPBOMB_TIMER)
             if (hittype[i].temp_data[6] == 1)
             {
@@ -2294,11 +2294,11 @@ BOLT:
 
 static void bounce(int i)
 {
-    long daang, dax, day, daz, xvect, yvect, zvect;
+    int daang, dax, day, daz, xvect, yvect, zvect;
     spritetype *s = &sprite[i];
     int hitsect = s->sectnum;
-    long k = sector[hitsect].wallptr;
-    long l = wall[k].point2;
+    int k = sector[hitsect].wallptr;
+    int l = wall[k].point2;
 
     xvect = mulscale10(s->xvel,sintable[(s->ang+512)&2047]);
     yvect = mulscale10(s->xvel,sintable[s->ang&2047]);
@@ -2333,8 +2333,8 @@ static void bounce(int i)
 static void moveweapons(void)
 {
     int i = headspritestat[4], j=0, k, f, nexti, p, q;
-    long dax,day,daz, x, ll;
-    unsigned long qq;
+    int dax,day,daz, x, ll;
+    unsigned int qq;
     spritetype *s;
 
     while (i >= 0)
@@ -3117,7 +3117,7 @@ static void movetransports(void)
 {
     int warpspriteto;
     int i = headspritestat[9], j, k, l, p, sect, sectlotag, nexti, nextj;
-    long ll,onfloorz,q;
+    int ll,onfloorz,q;
 
     while (i >= 0)
     {
@@ -3459,7 +3459,7 @@ static short LocateTheLocator(int n,int sn)
 
 static void moveactors(void)
 {
-    long x, m, l, *t;
+    int x, m, l, *t;
     int a, j, nexti, nextj, sect, p, switchpicnum, k;
     spritetype *s;
     int i = headspritestat[1];
@@ -4434,7 +4434,7 @@ static void moveactors(void)
                 s->xvel >>= 1;
             }
 
-            //      long lPipeBombControl=GetGameVar("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, -1);
+            //      int lPipeBombControl=GetGameVar("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, -1);
 
 DETONATEB:
 
@@ -4786,7 +4786,7 @@ BOLT:
 static void moveexplosions(void)  // STATNUM 5
 {
     short i, j, nexti, sect, p;
-    long l, x, *t;
+    int l, x, *t;
     spritetype *s;
     int switchpicnum;
 
@@ -5349,7 +5349,7 @@ BOLT:
 
 static void moveeffectors(void)   //STATNUM 3
 {
-    long q=0, l, m, x, st, j, *t;
+    int q=0, l, m, x, st, j, *t;
     int i = headspritestat[3], nexti, nextk, p, sh, nextj;
     short k;
     spritetype *s;
@@ -5373,7 +5373,7 @@ static void moveeffectors(void)   //STATNUM 3
         {
         case 0:
         {
-            long zchange = 0;
+            int zchange = 0;
 
             zchange = 0;
 
@@ -5588,7 +5588,7 @@ static void moveeffectors(void)   //STATNUM 3
 
             if (s->owner == -1)
             {
-                Bsprintf(tempbuf,"Could not find any locators for SE# 6 and 14 with a hitag of %ld.\n",t[3]);
+                Bsprintf(tempbuf,"Could not find any locators for SE# 6 and 14 with a hitag of %d.\n",t[3]);
                 gameexit(tempbuf);
             }
 
@@ -6901,23 +6901,23 @@ static void moveeffectors(void)   //STATNUM 3
             if (t[0] == 0) break;
 
             if (s->ang == 1536)
-                l = (long) &sc->ceilingz;
+                l = (int) &sc->ceilingz;
             else
-                l = (long) &sc->floorz;
+                l = (int) &sc->floorz;
 
             if (t[0] == 1)   //Decide if the s->sectnum should go up or down
             {
-                s->zvel = ksgn(s->z-*(long *)l) * (SP<<4);
+                s->zvel = ksgn(s->z-*(int *)l) * (SP<<4);
                 t[0]++;
             }
 
             if (sc->extra == 0)
             {
-                *(long *)l += s->zvel;
+                *(int *)l += s->zvel;
 
-                if (klabs(*(long *)l-s->z) < 1024)
+                if (klabs(*(int *)l-s->z) < 1024)
                 {
-                    *(long *)l = s->z;
+                    *(int *)l = s->z;
                     KILLIT(i); //All done
                 }
             }
@@ -7150,7 +7150,7 @@ static void moveeffectors(void)   //STATNUM 3
                 {
                     if (cansee(s->x,s->y,s->z,SECT,g_player[p].ps->posx,g_player[p].ps->posy,g_player[p].ps->posz,g_player[p].ps->cursectnum))
                     {
-                        if (x < (long)((unsigned)sh))
+                        if (x < (int)((unsigned)sh))
                         {
                             ud.camerasprite = i;
                             t[0] = 999;
@@ -7270,7 +7270,7 @@ static void moveeffectors(void)   //STATNUM 3
             break;
         case 29:
             s->hitag += 64;
-            l = mulscale12((long)s->yvel,sintable[s->hitag&2047]);
+            l = mulscale12((int)s->yvel,sintable[s->hitag&2047]);
             sc->floorz = s->z + l;
             break;
         case 31: // True Drop Floor
@@ -7596,7 +7596,7 @@ void moveobjects(void)
         while (i >= 0)
         {
             int p, j = nextspritestat[i];
-            OnEvent(EVENT_GAME,i, findplayer(&sprite[i],(long *)&p), p);
+            OnEvent(EVENT_GAME,i, findplayer(&sprite[i],(int *)&p), p);
             i = j;
         }
     }

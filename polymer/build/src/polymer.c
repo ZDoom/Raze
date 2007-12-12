@@ -148,7 +148,7 @@ void                polymer_loadboard(void)
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Board loaded.\n");
 }
-void                polymer_drawrooms(long daposx, long daposy, long daposz, short daang, long dahoriz, short dacursectnum, int root)
+void                polymer_drawrooms(int daposx, int daposy, int daposz, short daang, int dahoriz, short dacursectnum, int root)
 {
     int             i, j;
     float           ang, horizang, tiltang;
@@ -253,16 +253,16 @@ void                polymer_drawrooms(long daposx, long daposy, long daposz, sho
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
 }
 
-void                polymer_rotatesprite(long sx, long sy, long z, short a, short picnum, signed char dashade, char dapalnum, char dastat, long cx1, long cy1, long cx2, long cy2)
+void                polymer_rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2)
 {
 }
 
-void                polymer_drawmaskwall(long damaskwallcnt)
+void                polymer_drawmaskwall(int damaskwallcnt)
 {
     OSD_Printf("PR : Masked wall %i...\n", damaskwallcnt);
 }
 
-void                polymer_drawsprite(long snum)
+void                polymer_drawsprite(int snum)
 {
     OSD_Printf("PR : Sprite %i...\n", snum);
 }
@@ -310,10 +310,10 @@ int                 polymer_updatesector(short sectnum)
     sectortype      *sec;
     walltype        *wal;
     int             i, j;
-    long            ceilz, florz;
-    long            tex, tey;
+    int             ceilz, florz;
+    int             tex, tey;
     float           secangcos, secangsin, scalecoef;
-    long            ang;
+    int             ang;
     short           curstat, curpicnum;
     char            curxpanning, curypanning;
     GLfloat*        curbuffer;
@@ -431,7 +431,8 @@ int                 polymer_updatesector(short sectnum)
 
             pth = gltexcache(curpicnum,curxpanning,0);
 
-            if (pth && (pth->flags & 2) && (pth->palnum != curxpanning)) {
+            if (pth && (pth->flags & 2) && (pth->palnum != curxpanning))
+            {
                 curbuffer[0] *= (float)hictinting[curxpanning].r / 255.0;
                 curbuffer[1] *= (float)hictinting[curxpanning].g / 255.0;
                 curbuffer[2] *= (float)hictinting[curxpanning].b / 255.0;
@@ -464,7 +465,8 @@ int                 polymer_updatesector(short sectnum)
 
 
 void PR_CALLBACK    polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloat weight[4], GLdouble **out)
-{   // This callback is called by the tesselator when it detects an intersection between contours (HELLO ROTATING SPOTLIGHT IN E1L1).
+{
+    // This callback is called by the tesselator when it detects an intersection between contours (HELLO ROTATING SPOTLIGHT IN E1L1).
     GLdouble*       ptr;
 
     tempvertice[0] = v[0];
@@ -479,13 +481,15 @@ void PR_CALLBACK    polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloa
 
 
 void PR_CALLBACK    polymer_tesserror(GLenum error)
-{   // This callback is called by the tesselator whenever it raises an error.
+{
+    // This callback is called by the tesselator whenever it raises an error.
     if (pr_verbosity >= 1) OSD_Printf("PR : Tesselation error number %i reported : %s.\n", error, bgluErrorString(errno));
 }
 
 
 void PR_CALLBACK    polymer_tessedgeflag(GLenum error)
-{   // Passing an edgeflag callback forces the tesselator to output a triangle list
+{
+    // Passing an edgeflag callback forces the tesselator to output a triangle list
     return;
 }
 
@@ -506,7 +510,8 @@ void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
     s->curindice++;
 }
 int                 polymer_buildfloor(short sectnum)
-{   // This function tesselates the floor/ceiling of a sector and stores the triangles in a display list.
+{
+    // This function tesselates the floor/ceiling of a sector and stores the triangles in a display list.
     _prsector*      s;
     sectortype      *sec;
     int             i;
@@ -571,7 +576,7 @@ void                polymer_drawsector(short sectnum)
     walltype        *wal;
     _prsector*      s;
     int             i;
-    long            zdiff;
+    int             zdiff;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing sector %i...\n", sectnum);
 
@@ -655,7 +660,7 @@ void                polymer_updatewall(short wallnum)
     _prwall         *w;
     _prsector       *s, *ns;
     pthtyp*         pth;
-    long            xref, yref, xdif, ydif;
+    int             xref, yref, xdif, ydif;
     float           ypancoef, dist;
     int             i;
 
@@ -699,7 +704,8 @@ void                polymer_updatewall(short wallnum)
         else
             w->wallfbglpic = 0;
 
-        if (pth && (pth->flags & 2) && (pth->palnum != wal->pal)) {
+        if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
+        {
             w->wallcolor[0] *= (float)hictinting[wal->pal].r / 255.0;
             w->wallcolor[1] *= (float)hictinting[wal->pal].g / 255.0;
             w->wallcolor[2] *= (float)hictinting[wal->pal].b / 255.0;
@@ -780,7 +786,8 @@ void                polymer_updatewall(short wallnum)
             else
                 w->wallfbglpic = 0;
 
-            if (pth && (pth->flags & 2) && (pth->palnum != wal->pal)) {
+            if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
+            {
                 w->wallcolor[0] *= (float)hictinting[wal->pal].r / 255.0;
                 w->wallcolor[1] *= (float)hictinting[wal->pal].g / 255.0;
                 w->wallcolor[2] *= (float)hictinting[wal->pal].b / 255.0;
@@ -853,7 +860,8 @@ void                polymer_updatewall(short wallnum)
 
             memcpy(w->overcolor, w->wallcolor, sizeof(GLfloat) * 4);
 
-            if (pth && (pth->flags & 2) && (pth->palnum != wal->pal)) {
+            if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
+            {
                 w->overcolor[0] *= (float)hictinting[wal->pal].r / 255.0;
                 w->overcolor[1] *= (float)hictinting[wal->pal].g / 255.0;
                 w->overcolor[2] *= (float)hictinting[wal->pal].b / 255.0;
@@ -972,7 +980,8 @@ void                polymer_extractfrustum(GLdouble* modelview, GLdouble* projec
     }
     i = 0;
     while (i < 5)
-    { // frustum plane norms
+    {
+        // frustum plane norms
         frustumnorms[i] = sqrt((frustum[(i * 4) + 0] * frustum[(i * 4) + 0]) +
                                (frustum[(i * 4) + 1] * frustum[(i * 4) + 1]) +
                                (frustum[(i * 4) + 2] * frustum[(i * 4) + 2]));
@@ -1030,7 +1039,8 @@ void                polymer_drawroom(short sectnum)
 }
 
 int                 polymer_checkportal(short wallnum)
-{   // Returns 1 if the wall is in the current portal and sets the current portal to the wall, returns 0 otherwise
+{
+    // Returns 1 if the wall is in the current portal and sets the current portal to the wall, returns 0 otherwise
     GLint           wallportal[4], newportal[4];
     int             mask, portalpointcount;
 
@@ -1041,7 +1051,8 @@ int                 polymer_checkportal(short wallnum)
     if (mask == 0)
         return (0); // not visible
     if (mask > 1)
-    { // only some points visible, clip the polygon to the viewport
+    {
+        // only some points visible, clip the polygon to the viewport
         portalpointcount = polymer_cliptofrustum(wallnum, mask);
         polymer_getportal(portalpoints, portalpointcount, wallportal);
     }
@@ -1128,12 +1139,14 @@ void                polymer_lineplaneintersection(GLfloat *point1, GLfloat *poin
 }
 
 int                 polymer_cliptofrustum(short wallnum, int mask)
-{   // sutherland-hofnman polygon clipping algorithm against all planes of the frustum
+{
+    // sutherland-hofnman polygon clipping algorithm against all planes of the frustum
     GLfloat         intersect[3];
     int             i, j, k, l, m, result, exitpoint;
 
     if (portalpoints == NULL)
-    { // one-time initialization
+    {
+        // one-time initialization
         portalpoints = calloc(4, sizeof(GLfloat) * 3);
         distances = calloc(4, sizeof(float));
         maxportalpointcount = 4;
@@ -1143,7 +1156,8 @@ int                 polymer_cliptofrustum(short wallnum, int mask)
     memcpy(portalpoints, prwalls[wallnum]->portal, sizeof(GLfloat) * 3 * 4);
     i = 0;
     while (i < 4)
-    { // frustum planes
+    {
+        // frustum planes
         j = k = 0;
         m = -1;
         while (j < result)
@@ -1157,7 +1171,8 @@ int                 polymer_cliptofrustum(short wallnum, int mask)
         }
 
         if ((k) && (m != -1))
-        { // divide and conquer while we may
+        {
+            // divide and conquer while we may
             j = m;
             while ((j != m) || (k))
             {
@@ -1166,21 +1181,24 @@ int                 polymer_cliptofrustum(short wallnum, int mask)
                     k = 0;
                     if (pr_verbosity >= 3) OSD_Printf("PR : Clipping against frustum plane %d starting with point %d...\n", i, m);
                 }
-                
+
                 l = j + 1; // L is next point
                 if (l == result)
                     l = 0;
-                
+
                 if ((distances[j] >= 0) && (distances[l] < 0))
-                { // case 1 : line exits the plane -> compute intersection
+                {
+                    // case 1 : line exits the plane -> compute intersection
                     polymer_lineplaneintersection(&portalpoints[j * 3], &portalpoints[l * 3], distances[j], distances[l], intersect);
                     exitpoint = l;
                     if (pr_verbosity >= 3) OSD_Printf("PR : %d: EXIT\n", j);
                 }
                 else if ((distances[j] < 0) && (distances[l] < 0))
-                { // case 2 : line is totally outside the plane
+                {
+                    // case 2 : line is totally outside the plane
                     if (j != exitpoint)
-                    { // if we didn't just exit we need to delete this point forever
+                    {
+                        // if we didn't just exit we need to delete this point forever
                         result--;
                         if (j != result)
                         {
@@ -1190,7 +1208,7 @@ int                 polymer_cliptofrustum(short wallnum, int mask)
                             {
                                 m--;
                             }
-                                l--;
+                            l--;
                         }
                         if (l == result)
                             l = 0;
@@ -1200,9 +1218,11 @@ int                 polymer_cliptofrustum(short wallnum, int mask)
                     if (pr_verbosity >= 3) OSD_Printf("PR : %d: IN\n", j);
                 }
                 else if ((distances[j] < 0) && (distances[l] >= 0))
-                { // case 3 : we're going back into the plane -> replace current point with intersection
+                {
+                    // case 3 : we're going back into the plane -> replace current point with intersection
                     if (j == exitpoint)
-                    { // if we just exited a point is created
+                    {
+                        // if we just exited a point is created
                         if (result == maxportalpointcount)
                         {
                             portalpoints = realloc(portalpoints, sizeof(GLfloat) * 3 * (maxportalpointcount + 1));
@@ -1232,7 +1252,7 @@ int                 polymer_cliptofrustum(short wallnum, int mask)
                 j = l; // L
             }
         }
-        
+
         if (pr_verbosity >= 3) OSD_Printf("PR : Plane %d finished, result : %d.\n", i, result);
 
         i++;

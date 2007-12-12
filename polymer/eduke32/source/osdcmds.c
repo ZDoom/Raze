@@ -81,7 +81,7 @@ static int osdcmd_changelevel(const osdfuncparm_t *parm)
     {
         if (volume > num_volumes)
         {
-            OSD_Printf("changelevel: invalid volume number (range 1-%ld)\n",num_volumes);
+            OSD_Printf("changelevel: invalid volume number (range 1-%d)\n",num_volumes);
             return OSDCMD_OK;
         }
     }
@@ -289,7 +289,7 @@ static int osdcmd_noclip(const osdfuncparm_t *parm)
 
 static int osdcmd_fileinfo(const osdfuncparm_t *parm)
 {
-    unsigned long crc, length;
+    unsigned int crc, length;
     int i,j;
     char buf[256];
 
@@ -437,7 +437,7 @@ static int osdcmd_setstatusbarscale(const osdfuncparm_t *parm)
 
 static int osdcmd_spawn(const osdfuncparm_t *parm)
 {
-    long x=0,y=0,z=0;
+    int x=0,y=0,z=0;
     unsigned short cstat=0,picnum=0;
     unsigned char pal=0;
     short ang=0;

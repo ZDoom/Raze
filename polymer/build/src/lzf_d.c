@@ -46,8 +46,8 @@
 #endif
 
 unsigned int
-lzf_decompress (const void *const in_data,  unsigned int in_len,
-                void             *out_data, unsigned int out_len)
+lzf_decompress(const void *const in_data,  unsigned int in_len,
+               void             *out_data, unsigned int out_len)
 {
     u8 const *ip = (const u8 *)in_data;
     u8       *op = (u8 *)out_data;
@@ -64,12 +64,12 @@ lzf_decompress (const void *const in_data,  unsigned int in_len,
 
             if (op + ctrl > out_end)
             {
-                SET_ERRNO (E2BIG);
+                SET_ERRNO(E2BIG);
                 return 0;
             }
 
 #if USE_MEMCPY
-            memcpy (op, ip, ctrl);
+            memcpy(op, ip, ctrl);
             op += ctrl;
             ip += ctrl;
 #else
@@ -91,13 +91,13 @@ lzf_decompress (const void *const in_data,  unsigned int in_len,
 
             if (op + len + 2 > out_end)
             {
-                SET_ERRNO (E2BIG);
+                SET_ERRNO(E2BIG);
                 return 0;
             }
 
             if (ref < (u8 *)out_data)
             {
-                SET_ERRNO (EINVAL);
+                SET_ERRNO(EINVAL);
                 return 0;
             }
 

@@ -10,31 +10,31 @@
 
 #ifdef ENGINE_USING_A_C
 
-long krecip(long num);	// from engine.c
+int krecip(int num);	// from engine.c
 
 #define BITSOFPRECISION 3
 #define BITSOFPRECISIONPOW 8
 
-extern long asm1, asm2, asm3, asm4, fpuasm, globalx3, globaly3;
+extern int asm1, asm2, asm3, asm4, fpuasm, globalx3, globaly3;
 extern void *reciptable;
 
-static long bpl, transmode = 0;
-static long glogx, glogy, gbxinc, gbyinc, gpinc;
+static int bpl, transmode = 0;
+static int glogx, glogy, gbxinc, gbyinc, gpinc;
 static char *gbuf, *gpal, *ghlinepal, *gtrans;
 
 //Global variable functions
-void setvlinebpl(long dabpl) { bpl = dabpl; }
-void fixtransluscence(long datransoff) { gtrans = (char *)datransoff; }
+void setvlinebpl(int dabpl) { bpl = dabpl; }
+void fixtransluscence(int datransoff) { gtrans = (char *)datransoff; }
 void settransnormal(void) { transmode = 0; }
 void settransreverse(void) { transmode = 1; }
 
 
 //Ceiling/floor horizontal line functions
-void sethlinesizes(long logx, long logy, long bufplc)
+void sethlinesizes(int logx, int logy, int bufplc)
 { glogx = logx; glogy = logy; gbuf = (char *)bufplc; }
 void setpalookupaddress(char *paladdr) { ghlinepal = paladdr; }
-void setuphlineasm4(long bxinc, long byinc) { gbxinc = bxinc; gbyinc = byinc; }
-void hlineasm4(long cnt, long skiploadincs, long paloffs, unsigned long by, unsigned long bx, long p)
+void setuphlineasm4(int bxinc, int byinc) { gbxinc = bxinc; gbyinc = byinc; }
+void hlineasm4(int cnt, int skiploadincs, int paloffs, unsigned int by, unsigned int bx, int p)
 {
     char *palptr;
 
@@ -51,18 +51,18 @@ void hlineasm4(long cnt, long skiploadincs, long paloffs, unsigned long by, unsi
 
 
 //Sloped ceiling/floor vertical line functions
-void setupslopevlin(long logylogx, long bufplc, long pinc)
+void setupslopevlin(int logylogx, int bufplc, int pinc)
 {
     glogx = (logylogx&255); glogy = (logylogx>>8);
     gbuf = (char *)bufplc; gpinc = pinc;
 }
-void slopevlin(long p, long i, long slopaloffs, long cnt, long bx, long by)
+void slopevlin(int p, int i, int slopaloffs, int cnt, int bx, int by)
 {
-    long *slopalptr, bz, bzinc;
-    unsigned long u, v;
+    int *slopalptr, bz, bzinc;
+    unsigned int u, v;
 
     bz = asm3; bzinc = (asm1>>3);
-    slopalptr = (long *)slopaloffs;
+    slopalptr = (int *)slopaloffs;
     for (;cnt>0;cnt--)
     {
         i = krecip(bz>>6); bz += bzinc;
@@ -76,8 +76,8 @@ void slopevlin(long p, long i, long slopaloffs, long cnt, long bx, long by)
 
 
 //Wall,face sprite/wall sprite vertical line functions
-void setupvlineasm(long neglogy) { glogy = neglogy; }
-void vlineasm1(long vinc, long paloffs, long cnt, unsigned long vplc, long bufplc, long p)
+void setupvlineasm(int neglogy) { glogy = neglogy; }
+void vlineasm1(int vinc, int paloffs, int cnt, unsigned int vplc, int bufplc, int p)
 {
     gbuf = (char *)bufplc;
     gpal = (char *)paloffs;
@@ -89,8 +89,8 @@ void vlineasm1(long vinc, long paloffs, long cnt, unsigned long vplc, long bufpl
     }
 }
 
-void setupmvlineasm(long neglogy) { glogy = neglogy; }
-void mvlineasm1(long vinc, long paloffs, long cnt, unsigned long vplc, long bufplc, long p)
+void setupmvlineasm(int neglogy) { glogy = neglogy; }
+void mvlineasm1(int vinc, int paloffs, int cnt, unsigned int vplc, int bufplc, int p)
 {
     char ch;
 
@@ -104,8 +104,8 @@ void mvlineasm1(long vinc, long paloffs, long cnt, unsigned long vplc, long bufp
     }
 }
 
-void setuptvlineasm(long neglogy) { glogy = neglogy; }
-void tvlineasm1(long vinc, long paloffs, long cnt, unsigned long vplc, long bufplc, long p)
+void setuptvlineasm(int neglogy) { glogy = neglogy; }
+void tvlineasm1(int vinc, int paloffs, int cnt, unsigned int vplc, int bufplc, int p)
 {
     char ch;
 
@@ -134,8 +134,8 @@ void tvlineasm1(long vinc, long paloffs, long cnt, unsigned long vplc, long bufp
 }
 
 //Floor sprite horizontal line functions
-void msethlineshift(long logx, long logy) { glogx = logx; glogy = logy; }
-void mhline(long bufplc, unsigned long bx, long cntup16, long junk, unsigned long by, long p)
+void msethlineshift(int logx, int logy) { glogx = logx; glogy = logy; }
+void mhline(int bufplc, unsigned int bx, int cntup16, int junk, unsigned int by, int p)
 {
     char ch;
 
@@ -151,8 +151,8 @@ void mhline(long bufplc, unsigned long bx, long cntup16, long junk, unsigned lon
     }
 }
 
-void tsethlineshift(long logx, long logy) { glogx = logx; glogy = logy; }
-void thline(long bufplc, unsigned long bx, long cntup16, long junk, unsigned long by, long p)
+void tsethlineshift(int logx, int logy) { glogx = logx; glogy = logy; }
+void thline(int bufplc, unsigned int bx, int cntup16, int junk, unsigned int by, int p)
 {
     char ch;
 
@@ -184,14 +184,14 @@ void thline(long bufplc, unsigned long bx, long cntup16, long junk, unsigned lon
 
 
 //Rotatesprite vertical line functions
-void setupspritevline(long paloffs, long bxinc, long byinc, long ysiz)
+void setupspritevline(int paloffs, int bxinc, int byinc, int ysiz)
 {
     gpal = (char *)paloffs;
     gbxinc = bxinc;
     gbyinc = byinc;
     glogy = ysiz;
 }
-void spritevline(long bx, long by, long cnt, long bufplc, long p)
+void spritevline(int bx, int by, int cnt, int bufplc, int p)
 {
     gbuf = (char *)bufplc;
     for (;cnt>1;cnt--)
@@ -204,14 +204,14 @@ void spritevline(long bx, long by, long cnt, long bufplc, long p)
 }
 
 //Rotatesprite vertical line functions
-void msetupspritevline(long paloffs, long bxinc, long byinc, long ysiz)
+void msetupspritevline(int paloffs, int bxinc, int byinc, int ysiz)
 {
     gpal = (char *)paloffs;
     gbxinc = bxinc;
     gbyinc = byinc;
     glogy = ysiz;
 }
-void mspritevline(long bx, long by, long cnt, long bufplc, long p)
+void mspritevline(int bx, int by, int cnt, int bufplc, int p)
 {
     char ch;
 
@@ -219,21 +219,21 @@ void mspritevline(long bx, long by, long cnt, long bufplc, long p)
     for (;cnt>1;cnt--)
     {
         ch = gbuf[(bx>>16)*glogy+(by>>16)];
-        if (ch != 255) (*(char *)p) = gpal[ch];
+        if (ch != 255)(*(char *)p) = gpal[ch];
         bx += gbxinc;
         by += gbyinc;
         p += bpl;
     }
 }
 
-void tsetupspritevline(long paloffs, long bxinc, long byinc, long ysiz)
+void tsetupspritevline(int paloffs, int bxinc, int byinc, int ysiz)
 {
     gpal = (char *)paloffs;
     gbxinc = bxinc;
     gbyinc = byinc;
     glogy = ysiz;
 }
-void tspritevline(long bx, long by, long cnt, long bufplc, long p)
+void tspritevline(int bx, int by, int cnt, int bufplc, int p)
 {
     char ch;
 
@@ -262,28 +262,29 @@ void tspritevline(long bx, long by, long cnt, long bufplc, long p)
     }
 }
 
-void setupdrawslab (long dabpl, long pal)
+void setupdrawslab(int dabpl, int pal)
 { bpl = dabpl; gpal = (char *)pal; }
 
-void drawslab (long dx, long v, long dy, long vi, long vptr, long p)
+void drawslab(int dx, int v, int dy, int vi, int vptr, int p)
 {
-    long x;
+    int x;
 
     while (dy > 0)
     {
-        for (x=0;x<dx;x++) *(char *)(p+x) = gpal[(long)(*(char *)((v>>16)+vptr))];
+        for (x=0;x<dx;x++) *(char *)(p+x) = gpal[(int)(*(char *)((v>>16)+vptr))];
         p += bpl; v += vi; dy--;
     }
 }
 
-void stretchhline (long p0, long u, long cnt, long uinc, long rptr, long p)
+void stretchhline(int p0, int u, int cnt, int uinc, int rptr, int p)
 {
     p0 = p-(cnt<<2);
     do
     {
         p--;
         *(char *)p = *(char *)((u>>16)+rptr); u -= uinc;
-    } while (p > p0);
+    }
+    while (p > p0);
 }
 
 

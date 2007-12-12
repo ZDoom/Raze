@@ -81,12 +81,12 @@
  */
 
 unsigned int
-lzf_compress (const void *const in_data, unsigned int in_len,
-              void *out_data, unsigned int out_len
+lzf_compress(const void *const in_data, unsigned int in_len,
+             void *out_data, unsigned int out_len
 #if LZF_STATE_ARG
-              , LZF_STATE *htab
+             , LZF_STATE *htab
 #endif
-             )
+            )
 {
 #if !LZF_STATE_ARG
     LZF_STATE htab;
@@ -98,13 +98,13 @@ lzf_compress (const void *const in_data, unsigned int in_len,
     u8 *out_end = op + out_len;
     const u8 *ref;
 
-    unsigned int hval = FRST (ip);
-    unsigned long off;
+    unsigned int hval = FRST(ip);
+    unsigned int off;
     int lit = 0;
 
 #if INIT_HTAB
 # if USE_MEMCPY
-    memset (htab, 0, sizeof (htab));
+    memset(htab, 0, sizeof(htab));
 # else
     for (hslot = htab; hslot < htab + HSIZE; hslot++)
         *hslot++ = ip;
@@ -115,8 +115,8 @@ lzf_compress (const void *const in_data, unsigned int in_len,
     {
         if (ip < in_end - 2)
         {
-            hval = NEXT (hval, ip);
-            hslot = htab + IDX (hval);
+            hval = NEXT(hval, ip);
+            hslot = htab + IDX(hval);
             ref = *hslot; *hslot = ip;
 
             if (1
@@ -166,7 +166,7 @@ lzf_compress (const void *const in_data, unsigned int in_len,
                 }
                 else
                 {
-                    *op++ = (off >> 8) + (  7 << 5);
+                    *op++ = (off >> 8) + (7 << 5);
                     *op++ = len - 7;
                 }
 
@@ -177,22 +177,22 @@ lzf_compress (const void *const in_data, unsigned int in_len,
 #if VERY_FAST && !ULTRA_FAST
                 --ip;
 #endif
-                hval = FRST (ip);
+                hval = FRST(ip);
 
-                hval = NEXT (hval, ip);
-                htab[IDX (hval)] = ip;
+                hval = NEXT(hval, ip);
+                htab[IDX(hval)] = ip;
                 ip++;
 
 #if VERY_FAST && !ULTRA_FAST
-                hval = NEXT (hval, ip);
-                htab[IDX (hval)] = ip;
+                hval = NEXT(hval, ip);
+                htab[IDX(hval)] = ip;
                 ip++;
 #endif
 #else
                 do
                 {
-                    hval = NEXT (hval, ip);
-                    htab[IDX (hval)] = ip;
+                    hval = NEXT(hval, ip);
+                    htab[IDX(hval)] = ip;
                     ip++;
                 }
                 while (len--);
@@ -214,7 +214,7 @@ lzf_compress (const void *const in_data, unsigned int in_len,
 
             *op++ = MAX_LIT - 1;
 #if USE_MEMCPY
-            memcpy (op, ip - MAX_LIT, MAX_LIT);
+            memcpy(op, ip - MAX_LIT, MAX_LIT);
             op += MAX_LIT;
             lit = 0;
 #else

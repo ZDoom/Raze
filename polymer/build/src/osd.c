@@ -8,7 +8,8 @@
 #include "baselayer.h"
 
 
-typedef struct _symbol {
+typedef struct _symbol
+{
     const char *name;
     struct _symbol *next;
 
@@ -61,7 +62,7 @@ static BFILE *osdlog=NULL;		// log filehandle
 static char osdinited=0;		// text buffer initialised?
 static int  osdkey=0x29;		// tilde shows the osd
 static int  keytime=0;
-static long osdscrtime = 0;
+static int osdscrtime = 0;
 
 // command prompt editing
 #define EDITLENGTH 512
@@ -114,7 +115,8 @@ static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 
     st[0] = ch;
 
-    if (white<0) {
+    if (white<0)
+    {
         // find the palette index closest to white
         k=0;
         for (i=0;i<256;i++)
@@ -136,7 +138,8 @@ static void _internal_drawosdstr(int x, int y, char *ch, int len, int shade, int
     memcpy(st,ch,len);
     st[len]=0;
 
-    if (white<0) {
+    if (white<0)
+    {
         // find the palette index closest to white
         k=0;
         for (i=0;i<256;i++)
@@ -156,7 +159,8 @@ static void _internal_drawosdcursor(int x, int y, int type, int lastkeypress)
 
     if (type) st[0] = '#';
 
-    if (white<0) {
+    if (white<0)
+    {
         // find the palette index closest to white
         k=0;
         for (i=0;i<256;i++)
@@ -198,9 +202,11 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
 {
     int showval = (parm->numparms < 1);
 
-    if (!Bstrcasecmp(parm->name, "osdrows")) {
+    if (!Bstrcasecmp(parm->name, "osdrows"))
+    {
         if (showval) { OSD_Printf("osdrows is %d\n", osdrows); return OSDCMD_OK; }
-        else {
+        else
+        {
             osdrows = atoi(parm->parms[0]);
             if (osdrows < 1) osdrows = 1;
             else if (osdrows > osdmaxrows) osdrows = osdmaxrows;
@@ -228,9 +234,12 @@ static int _internal_osdfunc_help(const osdfuncparm_t *parm)
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
     symb = findexactsymbol(parm->parms[0]);
-    if (!symb) {
+    if (!symb)
+    {
         OSD_Printf("Help Error: \"%s\" is not a defined variable or function\n", parm->parms[0]);
-    } else {
+    }
+    else
+    {
         OSD_Printf("%s\n", symb->help);
     }
 
@@ -254,7 +263,8 @@ void OSD_Cleanup(void)
 {
     symbol_t *s;
 
-    for (; symbols; symbols=s) {
+    for (; symbols; symbols=s)
+    {
         s=symbols->next;
         Bfree(symbols);
     }
@@ -372,23 +382,28 @@ int OSD_HandleKey(int sc, int press)
 
     if (!osdinited) return sc;
 
-    if (sc == osdkey) {
-        if (press) {
+    if (sc == osdkey)
+    {
+        if (press)
+        {
             osdscroll = -osdscroll;
             if (osdrowscur == -1)
                 osdscroll = 1;
             else if (osdrowscur == osdrows)
                 osdscroll = -1;
-            osdrowscur += osdscroll;                
+            osdrowscur += osdscroll;
             OSD_CaptureInput(osdscroll == 1);
             osdscrtime = getticks();
         }
         return 0;//sc;
-    } else if (!osdinput) {
+    }
+    else if (!osdinput)
+    {
         return sc;
     }
 
-    if (!press) {
+    if (!press)
+    {
         if (sc == 42 || sc == 54) // shift
             osdeditshift = 0;
         if (sc == 29 || sc == 157)	// control
@@ -400,22 +415,36 @@ int OSD_HandleKey(int sc, int press)
 
     if (sc != 15) lastmatch = NULL;		// tab
 
-    while ( (ch = bgetchar()) ) {
-        if (ch == 1) {	// control a. jump to beginning of line
-        } else if (ch == 2) {	// control b, move one character left
-        } else if (ch == 5) {	// control e, jump to end of line
-        } else if (ch == 6) {	// control f, move one character right
-        } else if (ch == 8 || ch == 127) {	// control h, backspace
+    while ((ch = bgetchar()))
+    {
+        if (ch == 1)  	// control a. jump to beginning of line
+        {
+        }
+        else if (ch == 2)  	// control b, move one character left
+        {
+        }
+        else if (ch == 5)  	// control e, jump to end of line
+        {
+        }
+        else if (ch == 6)  	// control f, move one character right
+        {
+        }
+        else if (ch == 8 || ch == 127)  	// control h, backspace
+        {
             if (!osdeditcursor || !osdeditlen) return 0;
-            if (!osdovertype) {
+            if (!osdovertype)
+            {
                 if (osdeditcursor < osdeditlen)
                     Bmemmove(osdeditbuf+osdeditcursor-1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
                 osdeditlen--;
             }
             osdeditcursor--;
             if (osdeditcursor<osdeditwinstart) osdeditwinstart--,osdeditwinend--;
-        } else if (ch == 9) {	// tab
-            if (!lastmatch) {
+        }
+        else if (ch == 9)  	// tab
+        {
+            if (!lastmatch)
+            {
                 for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
                 for (j=0;osdeditbuf[i] != ' ' && i < osdeditlen;j++,i++)
                     osdedittmp[j] = osdeditbuf[i];
@@ -424,7 +453,7 @@ int OSD_HandleKey(int sc, int press)
                 if (j > 0)
                 {
                     tabc = findsymbol(osdedittmp, NULL);
-                    
+
                     if (tabc)
                     {
                         if (tabc->next)
@@ -438,19 +467,22 @@ int OSD_HandleKey(int sc, int press)
                                 {
                                     OSD_Printf("     %s\n", symb->name);
                                     lastmatch = symb;
-                                    symb=findsymbol(osdedittmp, lastmatch->next);                               
+                                    symb=findsymbol(osdedittmp, lastmatch->next);
                                 }
                             }
                         }
                     }
                 }
-            } else {
+            }
+            else
+            {
                 tabc = findsymbol(osdedittmp, lastmatch->next);
                 if (!tabc && lastmatch)
                     tabc = findsymbol(osdedittmp, NULL);	// wrap
             }
 
-            if (tabc) {
+            if (tabc)
+            {
                 for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
                 osdeditlen = i;
                 for (j=0;tabc->name[j] && osdeditlen <= EDITLENGTH;i++,j++,osdeditlen++)
@@ -458,19 +490,27 @@ int OSD_HandleKey(int sc, int press)
                 osdeditcursor = osdeditlen;
                 osdeditwinend = osdeditcursor;
                 osdeditwinstart = osdeditwinend-editlinewidth;
-                if (osdeditwinstart<0) {
+                if (osdeditwinstart<0)
+                {
                     osdeditwinstart=0;
                     osdeditwinend = editlinewidth;
                 }
 
                 lastmatch = tabc;
             }
-        } else if (ch == 11) {	// control k, delete all to end of line
-        } else if (ch == 12) {	// control l, clear screen
+        }
+        else if (ch == 11)  	// control k, delete all to end of line
+        {
+        }
+        else if (ch == 12)  	// control l, clear screen
+        {
             Bmemset(osdtext,0,sizeof(osdtext));
             osdlines = 1;
-        } else if (ch == 13) {	// control m, enter
-            if (osdeditlen>0) {
+        }
+        else if (ch == 13)  	// control m, enter
+        {
+            if (osdeditlen>0)
+            {
                 osdeditbuf[osdeditlen] = 0;
                 Bmemmove(osdhistorybuf[1], osdhistorybuf[0], HISTORYDEPTH*(EDITLENGTH+1));
                 Bmemmove(osdhistorybuf[0], osdeditbuf, EDITLENGTH+1);
@@ -487,10 +527,17 @@ int OSD_HandleKey(int sc, int press)
             osdeditcursor=0;
             osdeditwinstart=0;
             osdeditwinend=editlinewidth;
-        } else if (ch == 16) {	// control p, previous (ie. up arrow)
-        } else if (ch == 20) {	// control t, swap previous two chars
-        } else if (ch == 21) {	// control u, delete all to beginning
-            if (osdeditcursor>0 && osdeditlen) {
+        }
+        else if (ch == 16)  	// control p, previous (ie. up arrow)
+        {
+        }
+        else if (ch == 20)  	// control t, swap previous two chars
+        {
+        }
+        else if (ch == 21)  	// control u, delete all to beginning
+        {
+            if (osdeditcursor>0 && osdeditlen)
+            {
                 if (osdeditcursor<osdeditlen)
                     Bmemmove(osdeditbuf, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
                 osdeditlen-=osdeditcursor;
@@ -498,8 +545,11 @@ int OSD_HandleKey(int sc, int press)
                 osdeditwinstart = 0;
                 osdeditwinend = editlinewidth;
             }
-        } else if (ch == 23) {	// control w, delete one word back
-            if (osdeditcursor>0 && osdeditlen>0) {
+        }
+        else if (ch == 23)  	// control w, delete one word back
+        {
+            if (osdeditcursor>0 && osdeditlen>0)
+            {
                 i=osdeditcursor;
                 while (i>0 && osdeditbuf[i-1]==32) i--;
                 while (i>0 && osdeditbuf[i-1]!=32) i--;
@@ -507,20 +557,26 @@ int OSD_HandleKey(int sc, int press)
                     Bmemmove(osdeditbuf+i, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
                 osdeditlen -= (osdeditcursor-i);
                 osdeditcursor = i;
-                if (osdeditcursor < osdeditwinstart) {
+                if (osdeditcursor < osdeditwinstart)
+                {
                     osdeditwinstart=osdeditcursor;
                     osdeditwinend=osdeditwinstart+editlinewidth;
                 }
             }
-        } else if (ch >= 32) {	// text char
+        }
+        else if (ch >= 32)  	// text char
+        {
             if (!osdovertype && osdeditlen == EDITLENGTH)	// buffer full, can't insert another char
                 return 0;
 
-            if (!osdovertype) {
+            if (!osdovertype)
+            {
                 if (osdeditcursor < osdeditlen)
                     Bmemmove(osdeditbuf+osdeditcursor+1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
                 osdeditlen++;
-            } else {
+            }
+            else
+            {
                 if (osdeditcursor == osdeditlen)
                     osdeditlen++;
             }
@@ -530,124 +586,183 @@ int OSD_HandleKey(int sc, int press)
         }
     }
 
-    if (sc == 15) {		// tab
-    } else if (sc == 1) {		// escape
-//        OSD_ShowDisplay(0);
-            osdscroll = -1;
-            osdrowscur += osdscroll;                
-            OSD_CaptureInput(0);
-            osdscrtime = getticks();
-    } else if (sc == 201) {	// page up
+    if (sc == 15)  		// tab
+    {
+    }
+    else if (sc == 1)  		// escape
+{
+        //        OSD_ShowDisplay(0);
+        osdscroll = -1;
+        osdrowscur += osdscroll;
+        OSD_CaptureInput(0);
+        osdscrtime = getticks();
+    }
+    else if (sc == 201)  	// page up
+    {
         if (osdhead < osdlines-1)
             osdhead++;
-    } else if (sc == 209) {	// page down
+    }
+    else if (sc == 209)  	// page down
+    {
         if (osdhead > 0)
             osdhead--;
-    } else if (sc == 199) {	// home
-        if (osdeditcontrol) {
+    }
+    else if (sc == 199)  	// home
+    {
+        if (osdeditcontrol)
+        {
             osdhead = osdlines-1;
-        } else {
+        }
+        else
+        {
             osdeditcursor = 0;
             osdeditwinstart = osdeditcursor;
             osdeditwinend = osdeditwinstart+editlinewidth;
         }
-    } else if (sc == 207) {	// end
-        if (osdeditcontrol) {
+    }
+    else if (sc == 207)  	// end
+    {
+        if (osdeditcontrol)
+        {
             osdhead = 0;
-        } else {
+        }
+        else
+        {
             osdeditcursor = osdeditlen;
             osdeditwinend = osdeditcursor;
             osdeditwinstart = osdeditwinend-editlinewidth;
-            if (osdeditwinstart<0) {
+            if (osdeditwinstart<0)
+            {
                 osdeditwinstart=0;
                 osdeditwinend = editlinewidth;
             }
         }
-    } else if (sc == 210) {	// insert
+    }
+    else if (sc == 210)  	// insert
+    {
         osdovertype ^= 1;
-    } else if (sc == 203) {	// left
-        if (osdeditcursor>0) {
-            if (osdeditcontrol) {
-                while (osdeditcursor>0) {
+    }
+    else if (sc == 203)  	// left
+    {
+        if (osdeditcursor>0)
+        {
+            if (osdeditcontrol)
+            {
+                while (osdeditcursor>0)
+                {
                     if (osdeditbuf[osdeditcursor-1] != 32) break;
                     osdeditcursor--;
                 }
-                while (osdeditcursor>0) {
+                while (osdeditcursor>0)
+                {
                     if (osdeditbuf[osdeditcursor-1] == 32) break;
                     osdeditcursor--;
                 }
-            } else osdeditcursor--;
+            }
+            else osdeditcursor--;
         }
         if (osdeditcursor<osdeditwinstart)
             osdeditwinend-=(osdeditwinstart-osdeditcursor),
                            osdeditwinstart-=(osdeditwinstart-osdeditcursor);
-    } else if (sc == 205) {	// right
-        if (osdeditcursor<osdeditlen) {
-            if (osdeditcontrol) {
-                while (osdeditcursor<osdeditlen) {
+    }
+    else if (sc == 205)  	// right
+    {
+        if (osdeditcursor<osdeditlen)
+        {
+            if (osdeditcontrol)
+            {
+                while (osdeditcursor<osdeditlen)
+                {
                     if (osdeditbuf[osdeditcursor] == 32) break;
                     osdeditcursor++;
                 }
-                while (osdeditcursor<osdeditlen) {
+                while (osdeditcursor<osdeditlen)
+                {
                     if (osdeditbuf[osdeditcursor] != 32) break;
                     osdeditcursor++;
                 }
-            } else osdeditcursor++;
+            }
+            else osdeditcursor++;
         }
         if (osdeditcursor>=osdeditwinend)
             osdeditwinstart+=(osdeditcursor-osdeditwinend),
                              osdeditwinend+=(osdeditcursor-osdeditwinend);
-    } else if (sc == 200) {	// up
-        if (osdhistorypos < osdhistorysize-1) {
+    }
+    else if (sc == 200)  	// up
+    {
+        if (osdhistorypos < osdhistorysize-1)
+        {
             osdhistorypos++;
             memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
             osdeditlen = osdeditcursor = 0;
             while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
-            if (osdeditcursor<osdeditwinstart) {
+            if (osdeditcursor<osdeditwinstart)
+            {
                 osdeditwinend = osdeditcursor;
                 osdeditwinstart = osdeditwinend-editlinewidth;
 
                 if (osdeditwinstart<0)
                     osdeditwinend-=osdeditwinstart,
                                    osdeditwinstart=0;
-            } else if (osdeditcursor>=osdeditwinend)
+            }
+            else if (osdeditcursor>=osdeditwinend)
                 osdeditwinstart+=(osdeditcursor-osdeditwinend),
                                  osdeditwinend+=(osdeditcursor-osdeditwinend);
         }
-    } else if (sc == 208) {	// down
-        if (osdhistorypos >= 0) {
-            if (osdhistorypos == 0) {
+    }
+    else if (sc == 208)  	// down
+    {
+        if (osdhistorypos >= 0)
+        {
+            if (osdhistorypos == 0)
+            {
                 osdeditlen=0;
                 osdeditcursor=0;
                 osdeditwinstart=0;
                 osdeditwinend=editlinewidth;
                 osdhistorypos = -1;
-            } else {
+            }
+            else
+            {
                 osdhistorypos--;
                 memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
                 osdeditlen = osdeditcursor = 0;
                 while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
-                if (osdeditcursor<osdeditwinstart) {
+                if (osdeditcursor<osdeditwinstart)
+                {
                     osdeditwinend = osdeditcursor;
                     osdeditwinstart = osdeditwinend-editlinewidth;
 
                     if (osdeditwinstart<0)
                         osdeditwinend-=osdeditwinstart,
                                        osdeditwinstart=0;
-                } else if (osdeditcursor>=osdeditwinend)
+                }
+                else if (osdeditcursor>=osdeditwinend)
                     osdeditwinstart+=(osdeditcursor-osdeditwinend),
                                      osdeditwinend+=(osdeditcursor-osdeditwinend);
             }
         }
-    } else if (sc == 42 || sc == 54) {	// shift
+    }
+    else if (sc == 42 || sc == 54)  	// shift
+    {
         osdeditshift = 1;
-    } else if (sc == 29 || sc == 157) {	// control
+    }
+    else if (sc == 29 || sc == 157)  	// control
+    {
         osdeditcontrol = 1;
-    } else if (sc == 58) {	// capslock
+    }
+    else if (sc == 58)  	// capslock
+    {
         osdeditcaps ^= 1;
-    } else if (sc == 28 || sc == 156) {	// enter
-    } else if (sc == 14) {		// backspace
-    } else if (sc == 211) {	// delete
+    }
+    else if (sc == 28 || sc == 156)  	// enter
+    {
+    }
+    else if (sc == 14)  		// backspace
+    {
+    }
+    else if (sc == 211)  	// delete
+    {
         if (osdeditcursor == osdeditlen || !osdeditlen) return 0;
         if (osdeditcursor <= osdeditlen-1) Bmemmove(osdeditbuf+osdeditcursor, osdeditbuf+osdeditcursor+1, osdeditlen-osdeditcursor-1);
         osdeditlen--;
@@ -675,7 +790,8 @@ void OSD_ResizeDisplay(int w, int h)
     k = min(newcols, osdcols);
 
     memset(newtext, 32, TEXTSIZE);
-    for (i=0;i<j;i++) {
+    for (i=0;i<j;i++)
+    {
         memcpy(newtext+newcols*i, osdtext+osdcols*i, k);
     }
 
@@ -738,7 +854,7 @@ void OSD_Draw(void)
     else
     {
         int j;
-    
+
         if ((osdrowscur < osdrows && osdscroll == 1) || osdrowscur < -1)
         {
             j = (getticks()-osdscrtime);
@@ -763,21 +879,22 @@ void OSD_Draw(void)
         }
         osdscrtime = getticks();
     }
-    
+
     if (!osdvisible || !osdrowscur) return;
 
     topoffs = osdhead * osdcols;
     row = osdrowscur-1;
-    lines = min( osdlines-osdhead, osdrowscur );
+    lines = min(osdlines-osdhead, osdrowscur);
 
     begindrawing();
 
     clearbackground(osdcols,osdrowscur+1);
-    
+
     if (osdversionstring[0])
         drawosdstr(osdcols-osdversionstringlen,osdrowscur,osdversionstring,osdversionstringlen,osdversionstringshade,osdversionstringpal);
-       
-    for (; lines>0; lines--, row--) {
+
+    for (; lines>0; lines--, row--)
+    {
         drawosdstr(0,row,osdtext+topoffs,osdcols,osdtextshade,osdtextpal);
         topoffs+=osdcols;
     }
@@ -791,7 +908,7 @@ void OSD_Draw(void)
         drawosdchar(3+x,osdrowscur,osdeditbuf[osdeditwinstart+x],osdeditshade,osdeditpal);
 
     drawosdcursor(3+osdeditcursor-osdeditwinstart,osdrowscur,osdovertype,keytime);
-    
+
     enddrawing();
 }
 
@@ -822,14 +939,19 @@ void OSD_Printf(const char *fmt, ...)
 
     if (osdlog) Bfputs(tmpstr, osdlog);
 
-    for (chp = tmpstr; *chp; chp++) {
+    for (chp = tmpstr; *chp; chp++)
+    {
         if (*chp == '\r') osdpos=0;
-        else if (*chp == '\n') {
+        else if (*chp == '\n')
+        {
             osdpos=0;
             linefeed();
-        } else {
+        }
+        else
+        {
             osdtext[osdpos++] = *chp;
-            if (osdpos == osdcols) {
+            if (osdpos == osdcols)
+            {
                 osdpos = 0;
                 linefeed();
             }
@@ -850,7 +972,8 @@ void OSD_DispatchQueued(void)
     cmd=osdexeccount-1;
     osdexeccount=0;
 
-    for (; cmd>=0; cmd--) {
+    for (; cmd>=0; cmd--)
+    {
         OSD_Dispatch((const char *)osdhistorybuf[cmd]);
     }
 }
@@ -879,27 +1002,35 @@ static char *strtoken(char *s, char **ptrptr, int *restart)
 
     // a semicolon is an end of statement delimiter like a \0 is, so we signal
     // the caller to 'restart' for the rest of the string pointed at by *ptrptr
-    if (*p == ';') {
+    if (*p == ';')
+    {
         *restart = 1;
         *ptrptr = p+1;
         return NULL;
     }
     // or if we hit the end of the input, signal all done by nulling *ptrptr
-    else if (*p == 0) {
+    else if (*p == 0)
+    {
         *ptrptr = NULL;
         return NULL;
     }
 
-    if (*p == '\"') {
+    if (*p == '\"')
+    {
         // quoted string
         start = ++p;
         p2 = p;
-        while (*p != 0) {
-            if (*p == '\"') {
+        while (*p != 0)
+        {
+            if (*p == '\"')
+            {
                 p++;
                 break;
-            } else if (*p == '\\') {
-                switch (*(++p)) {
+            }
+            else if (*p == '\\')
+            {
+                switch (*(++p))
+                {
                 case 'n':
                     *p2 = '\n'; break;
                 case 'r':
@@ -907,30 +1038,37 @@ static char *strtoken(char *s, char **ptrptr, int *restart)
                 default:
                     *p2 = *p; break;
                 }
-            } else {
+            }
+            else
+            {
                 *p2 = *p;
             }
             p2++, p++;
         }
         *p2 = 0;
-    } else {
+    }
+    else
+    {
         start = p;
         while (*p != 0 && *p != ';' && *p != ' ') p++;
     }
 
     // if we hit the end of input, signal all done by nulling *ptrptr
-    if (*p == 0) {
+    if (*p == 0)
+    {
         *ptrptr = NULL;
     }
     // or if we came upon a semicolon, signal caller to restart with the
     // string at *ptrptr
-    else if (*p == ';') {
+    else if (*p == ';')
+    {
         *p = 0;
         *ptrptr = p+1;
         *restart = 1;
     }
     // otherwise, clip off the token and carry on
-    else {
+    else
+    {
         *(p++) = 0;
         *ptrptr = p;
     }
@@ -951,31 +1089,36 @@ int OSD_Dispatch(const char *cmd)
     workbuf = state = Bstrdup(cmd);
     if (!workbuf) return -1;
 
-    do {
+    do
+    {
         numparms = 0;
         Bmemset(parms, 0, sizeof(parms));
         wp = strtoken(state, &wtp, &restart);
-        if (!wp) {
+        if (!wp)
+        {
             state = wtp;
             continue;
         }
 
         symb = findexactsymbol(wp);
-        if (!symb) {
+        if (!symb)
+        {
             OSD_Printf("Error: \"%s\" is not defined\n", wp);
             free(workbuf);
             return -1;
         }
 
         ofp.name = wp;
-        while (wtp && !restart) {
+        while (wtp && !restart)
+        {
             wp = strtoken(NULL, &wtp, &restart);
             if (wp && numparms < MAXPARMS) parms[numparms++] = wp;
         }
         ofp.numparms = numparms;
         ofp.parms    = (const char **)parms;
         ofp.raw      = cmd;
-        switch (symb->func(&ofp)) {
+        switch (symb->func(&ofp))
+        {
         case OSDCMD_OK:
             break;
         case OSDCMD_SHOWHELP:
@@ -983,7 +1126,8 @@ int OSD_Dispatch(const char *cmd)
         }
 
         state = wtp;
-    } while (wtp && restart);
+    }
+    while (wtp && restart);
 
     free(workbuf);
 
@@ -1001,44 +1145,52 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 
     if (!osdinited) OSD_Init();
 
-    if (!name) {
+    if (!name)
+    {
         Bprintf("OSD_RegisterFunction(): may not register a function with a null name\n");
         return -1;
     }
-    if (!name[0]) {
+    if (!name[0])
+    {
         Bprintf("OSD_RegisterFunction(): may not register a function with no name\n");
         return -1;
     }
 
     // check for illegal characters in name
-    for (cp = name; *cp; cp++) {
-        if ((cp == name) && (*cp >= '0') && (*cp <= '9')) {
+    for (cp = name; *cp; cp++)
+    {
+        if ((cp == name) && (*cp >= '0') && (*cp <= '9'))
+        {
             Bprintf("OSD_RegisterFunction(): first character of function name \"%s\" must not be a numeral\n", name);
             return -1;
         }
         if ((*cp < '0') ||
                 (*cp > '9' && *cp < 'A') ||
                 (*cp > 'Z' && *cp < 'a' && *cp != '_') ||
-                (*cp > 'z')) {
+                (*cp > 'z'))
+        {
             Bprintf("OSD_RegisterFunction(): illegal character in function name \"%s\"\n", name);
             return -1;
         }
     }
 
     if (!help) help = "(no description for this function)";
-    if (!func) {
+    if (!func)
+    {
         Bprintf("OSD_RegisterFunction(): may not register a null function\n");
         return -1;
     }
 
     symb = findexactsymbol(name);
-    if (symb) {
+    if (symb)
+    {
         Bprintf("OSD_RegisterFunction(): \"%s\" is already defined\n", name);
         return -1;
     }
 
     symb = addnewsymbol(name);
-    if (!symb) {
+    if (!symb)
+    {
         Bprintf("OSD_RegisterFunction(): Failed registering function \"%s\"\n", name);
         return -1;
     }
@@ -1076,16 +1228,23 @@ static symbol_t *addnewsymbol(const char *name)
     Bmemset(newsymb, 0, sizeof(symbol_t));
 
     // link it to the main chain
-    if (!symbols) {
+    if (!symbols)
+    {
         symbols = newsymb;
-    } else {
-        if (Bstrcasecmp(name, symbols->name) <= 0) {
+    }
+    else
+    {
+        if (Bstrcasecmp(name, symbols->name) <= 0)
+        {
             t = symbols;
             symbols = newsymb;
             symbols->next = t;
-        } else {
+        }
+        else
+        {
             s = symbols;
-            while (s->next) {
+            while (s->next)
+            {
                 if (Bstrcasecmp(s->next->name, name) > 0) break;
                 s=s->next;
             }
