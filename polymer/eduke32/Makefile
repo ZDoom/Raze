@@ -9,6 +9,7 @@ POLYMOST = 1
 USE_OPENGL = 1
 NOASM = 0
 LINKED_GTK = 0
+BUILD32_ON_64 = 1
 
 # Debugging options
 RELEASE?=1
@@ -206,7 +207,7 @@ enginelib editorlib:
 	-mkdir -p $(EOBJ)
 	$(MAKE) -C $(EROOT)/ "OBJ=$(CURDIR)/$(EOBJ)" \
 		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) \
-		USE_OPENGL=$(USE_OPENGL) \
+		USE_OPENGL=$(USE_OPENGL) BUILD32_ON_64=$(BUILD32_ON_64) \
 		NOASM=$(NOASM) RELEASE=$(RELEASE) $@
 	
 $(EOBJ)/$(ENGINELIB): enginelib

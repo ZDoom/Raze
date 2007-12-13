@@ -48,14 +48,16 @@ endif
 
 ifeq ($(PLATFORM),LINUX)
 	RENDERTYPE=SDL
+
+	GTKCOMPAT32=0
 	ifeq ($(findstring x86_64,$(shell uname -m)),x86_64)
-		# on my 64bit Gentoo these are the 32bit emulation libs
-		LIBS+= -m32 -L/emul/linux/x86/usr/lib
-		BUILDCFLAGS+= -m32
-		#override WITHOUT_GTK=0
-		GTKCOMPAT32=1
-	else
-		GTKCOMPAT32=0
+		ifeq (1,$(BUILD32_ON_64))
+			# on my 64bit Gentoo these are the 32bit emulation libs
+			LIBS+= -m32 -L/emul/linux/x86/usr/lib
+			BUILDCFLAGS+= -m32
+			#override WITHOUT_GTK=0
+			GTKCOMPAT32=1
+		endif
 	endif
 endif
 ifeq ($(PLATFORM),WINDOWS)
