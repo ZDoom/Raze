@@ -436,8 +436,11 @@ static const char *keyw[] =
     "headspritesect",           // 306
     "prevspritesect",           // 307
     "nextspritesect",           // 308
-    "spritenopal",              // 309
-    "getkeyname",               // 310
+    "getkeyname",               // 309
+    "qsubstr",                  // 310
+    "gametextz",                // 311
+    "digitalnumberz",           // 312
+    "spritenopal",              // 313
     "<null>"
 };
 
@@ -1371,7 +1374,9 @@ static void transvartype(int type)
         if (!(error || warning) && g_ScriptDebug)
             initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",compilefile,line_number,atol(textptr));
         *scriptptr++=MAXGAMEVARS;
-        *scriptptr++=atol(textptr);
+        if (tolower(textptr[1])=='x')sscanf(textptr+2,"%x",scriptptr);else
+        *scriptptr=atol(textptr);
+        scriptptr++;
         getlabel();
         return;
     }
@@ -1544,6 +1549,7 @@ static int transnum(int type)
     }
     if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%d: debug: accepted constant %d.\n",compilefile,line_number,atol(textptr));
+    if (tolower(textptr[1])=='x')sscanf(textptr+2,"%x",scriptptr);else
     *scriptptr = atol(textptr);
     scriptptr++;
 
@@ -1731,8 +1737,8 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-        if (tw == CON_SETTHISPROJECTILE)
-            labelsonly = 1;
+//        if (tw == CON_SETTHISPROJECTILE)
+//            labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
@@ -1837,7 +1843,12 @@ static int parsecommand(void)
         //Bsprintf(g_szBuf,"Adding GameVar='%s', val=%l, flags=%lX",label+(labelcnt<<6),
         //      *(scriptptr-2), *(scriptptr-1));
         //AddLog(g_szBuf);
-
+        if ((*(scriptptr-1)&GAMEVAR_FLAG_USER_MASK)==3)
+        {
+            warning++;
+            *(scriptptr-1)^=GAMEVAR_FLAG_PERPLAYER;
+            ReportError(WARNING_BADGAMEVAR);
+        }
         AddGameVar(label+(labelcnt<<6),*(scriptptr-2),
                    (*(scriptptr-1))
                    // can't define default or secret
@@ -2320,7 +2331,7 @@ static int parsecommand(void)
             j++;
         }
         parsing_item_name[j] = 0;
-        labelsonly = 1;
+//        labelsonly = 1;
         transnum(LABEL_DEFINE);
         labelsonly = 0;
         scriptptr--;
@@ -2589,7 +2600,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-        labelsonly = 1;
+//        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
@@ -2720,7 +2731,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-        labelsonly = 1;
+//        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
@@ -2783,7 +2794,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-        labelsonly = 1;
+//        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
@@ -2860,7 +2871,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-        labelsonly = 1;
+//        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
@@ -2973,7 +2984,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-        labelsonly = 1;
+//        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .<varx>
@@ -3087,7 +3098,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-        labelsonly = 1;
+//        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
@@ -3576,7 +3587,9 @@ static int parsecommand(void)
 
     case CON_MINITEXT:
     case CON_GAMETEXT:
+    case CON_GAMETEXTZ:
     case CON_DIGITALNUMBER:
+    case CON_DIGITALNUMBERZ:
         if (parsing_event == 0 && parsing_state == 0)
         {
             ReportError(ERROR_EVENTONLY);
@@ -3585,6 +3598,9 @@ static int parsecommand(void)
 
         switch (tw)
         {
+        case CON_GAMETEXTZ:
+        case CON_DIGITALNUMBERZ:
+            transmultvars(1);
         case CON_GAMETEXT:
         case CON_DIGITALNUMBER:
             transmultvars(6);
@@ -3705,6 +3721,7 @@ static int parsecommand(void)
             //Bsprintf(g_szBuf,"SWITCH2: '%.22s'",textptr);
             //AddLog(g_szBuf);
         }
+        tempscrptr = (int *)(script+tempoffset);
 
         //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr);
         //AddLog(g_szBuf);
@@ -3764,6 +3781,13 @@ repeatcase:
         //AddLog(g_szBuf);
         if (casescriptptr)
         {
+            for (i=0;i<casecount/2;i++)
+                if (casescriptptr[i*2+1]==j)
+                {
+                    warning++;
+                    ReportError(WARNING_DUPLICATECASE);
+                    break;
+                }
             //AddLog("Adding value to script");
             casescriptptr[casecount++]=j;   // save value
             casescriptptr[casecount]=(int)((int*)scriptptr-&script[0]);   // save offset
@@ -3860,6 +3884,9 @@ repeatcase:
     case CON_PREVSPRITESECT:
     case CON_NEXTSPRITESECT:
         transmultvars(2);
+        return 0;
+    case CON_QSUBSTR:
+        transmultvars(4);
         return 0;
     case CON_SETACTORANGLE:
     case CON_SETPLAYERANGLE:
@@ -4741,6 +4768,7 @@ static void AddDefaultDefinitions(void)
     AddDefinition("EVENT_WEAPKEY7",EVENT_WEAPKEY7,LABEL_DEFINE);
     AddDefinition("EVENT_WEAPKEY8",EVENT_WEAPKEY8,LABEL_DEFINE);
     AddDefinition("EVENT_WEAPKEY9",EVENT_WEAPKEY9,LABEL_DEFINE);
+    AddDefinition("EVENT_KILLIT",EVENT_KILLIT,LABEL_DEFINE);
 
     AddDefinition("NO",0,LABEL_DEFINE|LABEL_ACTION|LABEL_AI|LABEL_MOVE);
 
@@ -5092,6 +5120,12 @@ void ReportError(int iError)
         break;
     case WARNING_LABELSONLY:
         initprintf("%s:%d: warning: expected a label, found a constant.\n",compilefile,line_number);
+        break;
+    case WARNING_BADGAMEVAR:
+        initprintf("%s:%ld: warning: variable `%s' should be either per-player OR per-actor, not both.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case WARNING_DUPLICATECASE:
+        initprintf("%s:%ld: warning: duplicate case ignored.\n",compilefile,line_number);
         break;
     }
 }

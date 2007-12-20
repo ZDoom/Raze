@@ -264,6 +264,9 @@ enum weapons {
 #define ESCESCAPE if(KB_KeyPressed( sc_Escape ) ) gameexit(" ");
 
 #define IFWITHIN(B,E) if((PN)>=(B) && (PN)<=(E))
+
+#define deletesprite deletespriteEVENT
+void deletespriteEVENT(int s);
 #define KILLIT(KX) {deletesprite(KX);goto BOLT;}
 
 
@@ -781,7 +784,8 @@ enum events {
     EVENT_USE,
     EVENT_PROCESSINPUT,
     EVENT_FAKEDOMOVETHINGS,
-    EVENT_DISPLAYROOMS
+    EVENT_DISPLAYROOMS,
+    EVENT_KILLIT
 };
 
 // store global game definitions
@@ -915,7 +919,8 @@ enum projectileflags {
     PROJECTILE_FLAG_EXPLODEONTIMER      = 16384,
     PROJECTILE_FLAG_RPG_IMPACT          = 32768,
     PROJECTILE_FLAG_RADIUS_PICNUM       = 65536,
-    PROJECTILE_FLAG_ACCURATE_AUTOAIM    = 131072
+    PROJECTILE_FLAG_ACCURATE_AUTOAIM    = 131072,
+    PROJECTILE_FLAG_FORCEIMPACT         = 262144
 };
 
 extern proj_struct projectile[MAXTILES], defaultprojectile[MAXTILES];

@@ -36,9 +36,15 @@ extern "C" {
 #define MAXSPRITESONSCREEN 4096
 #define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
 
-#define RESERVEDPALS 2 // don't forget to increment this when adding reserved pals
+#define RESERVEDPALS 8 // don't forget to increment this when adding reserved pals
 #define DETAILPAL   (MAXPALOOKUPS - 1)
 #define GLOWPAL     (MAXPALOOKUPS - 2)
+#define REDPAL      (MAXPALOOKUPS - 3)
+#define BLUEPAL     (MAXPALOOKUPS - 4)
+#define BROWNPAL    (MAXPALOOKUPS - 5)
+#define GREYPAL     (MAXPALOOKUPS - 6)
+#define GREENPAL    (MAXPALOOKUPS - 7)
+#define SPECPAL     (MAXPALOOKUPS - 8)
 
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)
@@ -168,6 +174,8 @@ typedef struct BPACK {
 
 #define SPREXT_NOTMD 1
 #define SPREXT_NOMDANIM 2
+#define SPREXT_AWAY1 4
+#define SPREXT_AWAY2 8
 EXTERN spriteexttype *spriteext;
 EXTERN spritesmoothtype *spritesmooth;
 EXTERN int guniqhudid;
@@ -523,15 +531,23 @@ int hicsetsubsttex(int picnum, int palnum, char *filen, float alphacut, float xs
 int hicsetskybox(int picnum, int palnum, char *faces[6]);
 int hicclearsubst(int picnum, int palnum);
 
+int Ptile2tile(int tile, int pallet);
 int md_loadmodel(const char *fn);
-int md_setmisc(int modelid, float scale, int shadeoff, float zadd);
-int md_tilehasmodel(int tilenume);
-int md_defineframe(int modelid, const char *framename, int tilenume, int skinnum, float smoothduration);
+int md_setmisc(int modelid, float scale, int shadeoff, float zadd, int flags);
+int md_tilehasmodel(int tilenume, int pal);
+int md_defineframe(int modelid, const char *framename, int tilenume, int skinnum, float smoothduration, int pal);
 int md_defineanimation(int modelid, const char *framestart, const char *frameend, int fps, int flags);
 int md_defineskin(int modelid, const char *skinfn, int palnum, int skinnum, int surfnum, float param);
 int md_definehud (int modelid, int tilex, double xadd, double yadd, double zadd, double angadd, int flags);
 int md_undefinetile(int tile);
 int md_undefinemodel(int modelid);
+
+#define MAXPALCONV 200
+void clearconv();
+void setpalconv(int pal,int pal1,int pal2);
+void getpalmap(int stage,int *pal1,int *pal2);
+int checkpalmaps(int pal);
+void applypalmap(char *pic, char *palmap, int size, int pal);
 
 int loaddefinitionsfile(char *fn);
 

@@ -554,6 +554,16 @@ int ssp(int i,unsigned int cliptype) //The set sprite function
     return (movetype==0);
 }
 
+
+#undef deletesprite
+void deletespriteEVENT(int s)
+{
+    SetGameVarID(g_iReturnVarID,0, -1, -1);
+    OnEvent(EVENT_KILLIT, s, myconnectindex, -1);
+    if (!GetGameVarID(g_iReturnVarID, -1, -1))deletesprite(s);
+}
+#define deletesprite deletespriteEVENT
+
 void insertspriteq(int i)
 {
     if (spriteqamount > 0)
@@ -2573,7 +2583,7 @@ static void moveweapons(void)
                                 s->xvel=s->xvel>>1;
                                 s->zvel=s->zvel>>1;
                             }
-                            goto BOLT;
+                            if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_FORCEIMPACT))goto BOLT;
                         }
 
                         checkhitsprite(j,i);
@@ -2626,9 +2636,10 @@ static void moveweapons(void)
                             if (hittype[i].projectile.isound > -1)
                                 spritesound(hittype[i].projectile.isound,i);
 
-                            KILLIT(i);
+                            if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_FORCEIMPACT))KILLIT(i);
 
                         }
+                        if (hittype[i].projectile.workslike & PROJECTILE_FLAG_FORCEIMPACT)goto BOLT;
 
                     }
                     else if ((j&49152) == 32768)
@@ -3286,7 +3297,7 @@ static void movetransports(void)
 
             case 1:
                 if ((sprite[j].picnum == SHARK) || (sprite[j].picnum == COMMANDER) || (sprite[j].picnum == OCTABRAIN)
-                        || ((sprite[j].picnum >= GREENSLIME) && (sprite[j].picnum >= GREENSLIME+7)))
+                        || ((sprite[j].picnum >= GREENSLIME) && (sprite[j].picnum <= GREENSLIME+7)))
                 {
                     if (sprite[j].extra > 0)
                         goto JBOLT;

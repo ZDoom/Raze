@@ -4308,6 +4308,43 @@ static int parse(void)
             break;
         }
 
+    case CON_GETKEYNAME:
+        insptr++;
+        {
+            int i = GetGameVarID(*insptr++, g_i, g_p),
+                    f=GetGameVarID(*insptr++, g_i, g_p);
+            j=GetGameVarID(*insptr++, g_i, g_p);
+            if (i<MAXQUOTES&&fta_quotes[i] != NULL&&f<NUMGAMEFUNCTIONS)
+            {
+                if (j<2)Bstrcpy(tempbuf,KB_ScanCodeToString(ud.config.KeyboardKeys[f][j]));else
+                {
+                    Bstrcpy(tempbuf,KB_ScanCodeToString(ud.config.KeyboardKeys[f][0]));
+                    if (!*tempbuf)
+                    Bstrcpy(tempbuf,KB_ScanCodeToString(ud.config.KeyboardKeys[f][1]));
+                }
+            }
+        if (*tempbuf)Bstrcpy(fta_quotes[i],tempbuf);
+            break;
+        }
+    case CON_QSUBSTR:
+        insptr++;
+        {
+            char *s1,*s2;int q1,q2,st,ln;
+            q1 = GetGameVarID(*insptr++, g_i, g_p),
+                 q2 = GetGameVarID(*insptr++, g_i, g_p);
+            st = GetGameVarID(*insptr++, g_i, g_p);
+            ln = GetGameVarID(*insptr++, g_i, g_p);
+            if (q1<MAXQUOTES&&fta_quotes[q1] != NULL&&q2<MAXQUOTES&&fta_quotes[q2] != NULL)
+            {
+                s1=fta_quotes[q1];
+                s2=fta_quotes[q2];
+                while (*s2&&st--)s2++;
+                while ((*s1=*s2)&&ln--){s1++;s2++;}
+                *s1=0;
+            }
+            break;
+        }
+
     case CON_GETPNAME:
     case CON_QSTRCAT:
     case CON_QSTRCPY:
@@ -4381,19 +4418,6 @@ static int parse(void)
                 g_player[myconnectindex].ps->gm |= MODE_EOL;
                 display_bonus_screen = 0;
             } // MODE_RESTART;
-
-            break;
-        }
-
-    case CON_GETKEYNAME:
-        insptr++;
-        {
-            int i = GetGameVarID(*insptr++, g_i, g_p), f=GetGameVarID(*insptr++, g_i, g_p);
-
-            j=GetGameVarID(*insptr++, g_i, g_p);
-
-            if (fta_quotes[i] != NULL && f < NUMGAMEFUNCTIONS && j < 2)
-                Bstrcpy(fta_quotes[i], KB_ScanCodeToString(ud.config.KeyboardKeys[f][j]));
 
             break;
         }
@@ -4836,30 +4860,36 @@ static int parse(void)
 
     case CON_MINITEXT:
     case CON_GAMETEXT:
+    case CON_GAMETEXTZ:
     case CON_DIGITALNUMBER:
+    case CON_DIGITALNUMBERZ:
         insptr++;
         {
-            int tilenum = (tw == CON_GAMETEXT || tw == CON_DIGITALNUMBER)?GetGameVarID(*insptr++,g_i,g_p):0;
+            int tilenum = (tw == CON_GAMETEXT || tw == CON_GAMETEXTZ || tw == CON_DIGITALNUMBER || tw == CON_DIGITALNUMBERZ)?GetGameVarID(*insptr++,g_i,g_p):0;
             int x=GetGameVarID(*insptr++,g_i,g_p), y=GetGameVarID(*insptr++,g_i,g_p), q=GetGameVarID(*insptr++,g_i,g_p);
             int shade=GetGameVarID(*insptr++,g_i,g_p), pal=GetGameVarID(*insptr++,g_i,g_p);
 
-            if (tw == CON_GAMETEXT || tw == CON_DIGITALNUMBER)
+            if (tw == CON_GAMETEXT || tw == CON_GAMETEXTZ || tw == CON_DIGITALNUMBER || tw == CON_DIGITALNUMBERZ)
             {
                 int orientation=GetGameVarID(*insptr++,g_i,g_p);
                 int x1=GetGameVarID(*insptr++,g_i,g_p), y1=GetGameVarID(*insptr++,g_i,g_p);
                 int x2=GetGameVarID(*insptr++,g_i,g_p), y2=GetGameVarID(*insptr++,g_i,g_p);
 
-                if (tw == CON_GAMETEXT)
+                if (tw == CON_GAMETEXT || tw == CON_GAMETEXTZ)
                 {
                     if (fta_quotes[q] == NULL)
                     {
                         OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,q);
                         break;
                     }
-                    gametext_(0,tilenum,x>>1,y,fta_quotes[q],shade,pal,orientation,x1,y1,x2,y2);
+                    int z=65536;
+                    if (tw == CON_GAMETEXTZ)z=GetGameVarID(*insptr++,g_i,g_p);
+                    gametext_z(0,tilenum,x>>1,y,fta_quotes[q],shade,pal,orientation,x1,y1,x2,y2,z);
                     break;
                 }
-                txdigitalnumber(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2);
+                int z=65536;
+                if (tw == CON_DIGITALNUMBERZ)z=GetGameVarID(*insptr++,g_i,g_p);
+                txdigitalnumberz(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2,z);
                 break;
             }
 

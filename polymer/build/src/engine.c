@@ -7275,7 +7275,9 @@ int loadmaphack(char *filename)
         T_ROLL,
         T_MDXOFF,
         T_MDYOFF,
-        T_MDZOFF
+        T_MDZOFF,
+        T_AWAY1,
+        T_AWAY2,
     };
 
     static struct { char *text; int tokenid; } legaltokens[] =
@@ -7294,6 +7296,8 @@ int loadmaphack(char *filename)
         { "mdxoff", T_MDXOFF },
         { "mdyoff", T_MDYOFF },
         { "mdzoff", T_MDZOFF },
+        { "away1", T_AWAY1 },
+        { "away2", T_AWAY2 },
         { NULL, -1 }
     };
 
@@ -7434,8 +7438,27 @@ int loadmaphack(char *filename)
             }
             spriteext[whichsprite].zoff = i;
         }
-
         break;
+        case T_AWAY1:      // away1
+            if (whichsprite < 0)
+            {
+                // no sprite directive preceeding
+                initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+            spriteext[whichsprite].flags |= SPREXT_AWAY1;
+            break;
+        case T_AWAY2:      // away2
+            if (whichsprite < 0)
+            {
+                // no sprite directive preceeding
+                initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+            spriteext[whichsprite].flags |= SPREXT_AWAY2;
+            break;
 
         default:
             // unrecognised token
@@ -7559,13 +7582,14 @@ int saveboard(char *filename, int *daposx, int *daposy, int *daposz,
         if (tspri == NULL)
             break;
 
-        Bmemcpy(&tspri[0], &sprite[0], sizeof(spritetype) * numsprites);
 
-        for (j=0;j<MAXSPRITES;j++)
+        spri=tspri;
+        for (j=0;j<MAXSTATUS;j++)
         {
-            if (sprite[j].statnum != MAXSTATUS)
+            int i = headspritestat[j];
+            while (i != -1)
             {
-                spri = &tspri[j];
+                Bmemcpy(spri,&sprite[i],sizeof(spritetype));
                 spri->x       = B_LITTLE32(spri->x);
                 spri->y       = B_LITTLE32(spri->y);
                 spri->z       = B_LITTLE32(spri->z);
@@ -7581,6 +7605,7 @@ int saveboard(char *filename, int *daposx, int *daposy, int *daposz,
                 spri->lotag   = B_LITTLE16(spri->lotag);
                 spri->hitag   = B_LITTLE16(spri->hitag);
                 spri->extra   = B_LITTLE16(spri->extra);
+                i = nextspritestat[i];spri++;
             }
         }
 

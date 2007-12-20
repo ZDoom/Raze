@@ -364,8 +364,10 @@ static pthtyp *gltexcachead[GLTEXCACHEADSIZ];
 
 static int drawingskybox = 0;
 
+pthtyp *pichead;
+
 int gloadtile_art(int,int,int,pthtyp*,int);
-int gloadtile_hi(int,int,hicreplctyp*,int,pthtyp*,int,char);
+int gloadtile_hi(int,int,int,hicreplctyp*,int,pthtyp*,int,char);
 static int hicprecaching = 0;
 pthtyp * gltexcache(int dapicnum, int dapalnum, int dameth)
 {
@@ -389,8 +391,9 @@ pthtyp * gltexcache(int dapicnum, int dapalnum, int dameth)
      *    effects are applied to the palette 0 texture if it exists
      */
 
+    pichead=gltexcachead[j]; // for palmaps
     // load a replacement
-    for (pth=gltexcachead[j]; pth; pth=pth->next)
+    for (pth=pichead; pth; pth=pth->next)
     {
         if (pth->picnum == dapicnum &&
                 pth->palnum == si->palnum &&
@@ -402,7 +405,7 @@ pthtyp * gltexcache(int dapicnum, int dapalnum, int dameth)
             if (pth->flags & 128)
             {
                 pth->flags &= ~128;
-                if (gloadtile_hi(dapicnum,drawingskybox,si,dameth,pth,0,
+                if (gloadtile_hi(dapicnum,dapalnum,drawingskybox,si,dameth,pth,0,
                                  (si->palnum>0) ? 0 : hictinting[dapalnum].f))    // reload tile
                 {
                     if (drawingskybox) return NULL;
@@ -430,12 +433,18 @@ pthtyp * gltexcache(int dapicnum, int dapalnum, int dameth)
                     if (pth2->flags & 8) pth->flags |= 8; //hasalpha
                     pth->hicr = si;
                     pth->next = gltexcachead[j];
+                    if (pth->palmap)
+                    {
+                        //_initprintf("Realloc #%d->#%d\n",pth2->palmap, pth->palmap);
+                        pth->palmap=malloc(pth->size*4);
+                        memcpy(pth->palmap, pth2->palmap, pth->size*4);
+                    }
                     gltexcachead[j] = pth;
                     return(pth);
                 }
             }
 
-    if (gloadtile_hi(dapicnum,drawingskybox,si,dameth,pth,1, (si->palnum>0) ? 0 : hictinting[dapalnum].f))
+    if (gloadtile_hi(dapicnum,dapalnum,drawingskybox,si,dameth,pth,1, (si->palnum>0) ? 0 : hictinting[dapalnum].f))
     {
         free(pth);
         if (drawingskybox) return NULL;
@@ -642,6 +651,11 @@ void polymost_glreset()
                     free(pth->ofb);
                 }
                 bglDeleteTextures(1,&pth->glpic);
+                if (pth->palmap)
+                {
+                    //_initprintf("Kill #%d\n",pth->palmap);
+                    free(pth->palmap);pth->palmap=0;
+                }
                 free(pth);
                 pth = next;
             }
@@ -1353,7 +1367,7 @@ failure:
     if (packbuf) free(packbuf);
 }
 
-int gloadtile_cached(int fil, texcacheheader *head, int *doalloc, pthtyp *pth)
+int gloadtile_cached(int fil, texcacheheader *head, int *doalloc, pthtyp *pth,int dapalnum)
 {
     int level, r;
     texcachepicture pict;
@@ -1417,8 +1431,26 @@ failure:
     return -1;
 }
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
+static void applypalmapsT(char *pic, int sizx, int sizy, int pal)
+{
+    //_initprintf("%d\n",pal);
+    int stage;
+    for (stage=0;stage<MAXPALCONV;stage++)
+    {
+        int pal1=0,pal2=pal;
+        getpalmap(stage,&pal1,&pal2);
+        if (!pal1)return;
 
-int gloadtile_hi(int dapic, int facen, hicreplctyp *hicr, int dameth, pthtyp *pth, int doalloc, char effect)
+        pthtyp *pth;
+        for (pth=pichead; pth; pth=pth->next)
+            if (pth->palnum ==pal1&&pth->palmap)break;
+        if (!pth||pth->size!=sizx*sizy)continue;
+
+        applypalmap(pic,pth->palmap,pth->size,pal2);
+    }
+}
+
+int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int dameth, pthtyp *pth, int doalloc, char effect)
 {
     coltype *pic = NULL, *rpptr;
     int j, x, y, x2, y2, xsiz=0, ysiz=0, tsizx, tsizy;
@@ -1456,8 +1488,8 @@ int gloadtile_hi(int dapic, int facen, hicreplctyp *hicr, int dameth, pthtyp *pt
 
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
-    cachefil = trytexcache(fn, picfillen, dameth, effect, &cachead);
-    if (cachefil >= 0 && !gloadtile_cached(cachefil, &cachead, &doalloc, pth))
+    cachefil = trytexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
+    if (cachefil >= 0 && !gloadtile_cached(cachefil, &cachead, &doalloc, pth, dapalnum))
     {
         tsizx = cachead.xdim;
         tsizy = cachead.ydim;
@@ -1498,6 +1530,7 @@ int gloadtile_hi(int dapic, int facen, hicreplctyp *hicr, int dameth, pthtyp *pt
         pic = (coltype *)calloc(xsiz,ysiz*sizeof(coltype)); if (!pic) { free(picfil); return 1; }
 
         if (kprender(picfil,picfillen,(int)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0)) { free(picfil); free(pic); return -2; }
+        applypalmapsT((char *)pic,tsizx,tsizy,dapalnum);
         for (y=0,j=0;y<tsizy;y++,j+=xsiz)
         {
             coltype tcol;
@@ -1559,6 +1592,18 @@ int gloadtile_hi(int dapic, int facen, hicreplctyp *hicr, int dameth, pthtyp *pt
         if ((doalloc&3)==1) bglGenTextures(1,(GLuint*)&pth->glpic);  //# of textures (make OpenGL allocate structure)
         bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
+        if (dapalnum>=SPECPAL&&dapalnum<=REDPAL)
+        {
+            //_initprintf("%cLoaded palamp %d(%dx%d)",pth->palmap?'+':'-',dapalnum,xsiz,ysiz);
+            if (!pth->palmap)
+            {
+                pth->size=xsiz*ysiz;
+                pth->palmap=malloc(pth->size*4);
+                memcpy(pth->palmap,pic,pth->size*4);
+            }
+            cachefil=0;
+            //_initprintf("#%d\n",pth->palmap);
+        }
         fixtransparency(pic,tsizx,tsizy,xsiz,ysiz,dameth);
         uploadtexture(doalloc,xsiz,ysiz,intexfmt,texfmt,pic,-1,tsizy,dameth);
     }
@@ -1618,7 +1663,7 @@ int gloadtile_hi(int dapic, int facen, hicreplctyp *hicr, int dameth, pthtyp *pt
             if (ysiz == pow2long[j]) { x |= 2; }
         }
         cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0);
-        writexcache(fn, picfillen, dameth, effect, &cachead);
+        writexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
     }
 
     return 0;
@@ -1642,8 +1687,9 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
     int i, j, k, x, y, z, nn, ix0, ix1, mini, maxi, tsizx, tsizy, tsizxm1 = 0, tsizym1 = 0, ltsizy = 0;
     int xx, yy, xi, d0, u0, v0, d1, u1, v1, xmodnice = 0, ymulnice = 0, dorot;
     char dacol = 0, *walptr, *palptr = NULL, *vidp, *vide;
+    GLfloat pc1[4];
 #ifdef USE_OPENGL
-    pthtyp *pth, *detailpth, *glowpth;
+    pthtyp *pth, *detailpth, *glowpth, *palpth;
     int texunits = GL_TEXTURE0_ARB;
 #endif
     // backup of the n for possible redrawing of fullbright
@@ -1729,6 +1775,11 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
     if (rendmode >= 3)
     {
         float hackscx, hackscy;
+
+        int pal1;
+        for (pal1=SPECPAL;pal1<=REDPAL;pal1++)
+            if (hicfindsubst(globalpicnum, pal1, 0))
+                gltexcache(globalpicnum, pal1, method&(~3));
 
         if (skyclamphack) method |= 4;
         pth = gltexcache(globalpicnum,globalpal,method&(~3));
@@ -4321,7 +4372,7 @@ void polymost_drawsprite(int snum)
 
     while (rendmode >= 3 && !(spriteext[tspr->owner].flags&SPREXT_NOTMD))
     {
-        if (usemodels && tile2model[tspr->picnum].modelid >= 0 && tile2model[tspr->picnum].framenum >= 0)
+        if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0)
         {
             if (mddraw(tspr)) return;
             break;	// else, render as flat sprite
@@ -4345,6 +4396,18 @@ void polymost_drawsprite(int snum)
         bglPolygonOffset(-curpolygonoffset, -curpolygonoffset);
     }
 #endif
+    int posx=tspr->x,posy=tspr->y;
+    if (spriteext[tspr->owner].flags&SPREXT_AWAY1)
+    {
+        posx+=(sintable[(tspr->ang+512)&2047]>>13);
+        posy+=(sintable[(tspr->ang)&2047]>>13);
+    }
+    else
+        if (spriteext[tspr->owner].flags&SPREXT_AWAY2)
+        {
+            posx-=(sintable[(tspr->ang+512)&2047]>>13);
+            posy-=(sintable[(tspr->ang)&2047]>>13);
+        }
 
     switch ((globalorientation>>4)&3)
     {
@@ -4402,8 +4465,8 @@ void polymost_drawsprite(int snum)
         xv = (float)tspr->xrepeat * (float)sintable[(tspr->ang)&2047] / 65536.0;
         yv = (float)tspr->xrepeat * (float)sintable[(tspr->ang+1536)&2047] / 65536.0;
         f = (float)(tilesizx[globalpicnum]>>1) + (float)xoff;
-        x0 = (float)(tspr->x-globalposx) - xv*f; x1 = xv*(float)tilesizx[globalpicnum] + x0;
-        y0 = (float)(tspr->y-globalposy) - yv*f; y1 = yv*(float)tilesizx[globalpicnum] + y0;
+        x0 = (float)(posx-globalposx) - xv*f; x1 = xv*(float)tilesizx[globalpicnum] + x0;
+        y0 = (float)(posy-globalposy) - yv*f; y1 = yv*(float)tilesizx[globalpicnum] + y0;
 
         yp0 = x0*gcosang2 + y0*gsinang2;
         yp1 = x1*gcosang2 + y1*gsinang2;
@@ -4633,7 +4696,7 @@ void polymost_dorotatesprite(int sx, int sy, int z, short a, short picnum,
 #ifdef USE_OPENGL
     if (rendmode >= 3 && usemodels && hudmem[(dastat&4)>>2][picnum].angadd)
     {
-        if ((tile2model[picnum].modelid >= 0) && (tile2model[picnum].framenum >= 0))
+        if ((tile2model[Ptile2tile(picnum,dapalnum)].modelid >= 0) && (tile2model[Ptile2tile(picnum,dapalnum)].framenum >= 0))
         {
             spritetype tspr;
             memset(&tspr,0,sizeof(spritetype));
@@ -5669,12 +5732,17 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
 
     //OSD_Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
+    int pal1;
+    for (pal1=SPECPAL;pal1<=REDPAL;pal1++)
+        if (hicfindsubst(globalpicnum, pal1, 0))
+            gltexcache(globalpicnum, pal1, (datype & 1) << 2);
+
     gltexcache(dapicnum, dapalnum, (datype & 1) << 2);
     hicprecaching = 0;
 
     if (datype == 0) return;
 
-    mid = md_tilehasmodel(dapicnum);
+    mid = md_tilehasmodel(dapicnum,dapalnum);
     if (mid < 0 || models[mid]->mdnum < 2) return;
 
     {
@@ -5684,7 +5752,11 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
             j = ((md3model *)models[mid])->head.numsurfs;
 
         for (i=0;i<=j;i++)
+        {
+            int pal1;
+            for (pal1=SPECPAL;pal1<=REDPAL;pal1++)mdloadskin((md2model*)models[mid],0,pal1,i);
             mdloadskin((md2model*)models[mid], 0, dapalnum, i);
+        }
     }
 #endif
 }

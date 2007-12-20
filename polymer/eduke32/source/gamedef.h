@@ -92,6 +92,8 @@ enum errors
     WARNING_DUPLICATEDEFINITION,
     WARNING_EVENTSYNC,
     WARNING_LABELSONLY,
+    WARNING_BADGAMEVAR,
+    WARNING_DUPLICATECASE
 };
 
 enum playerlabels
@@ -788,7 +790,10 @@ enum keywords
     CON_HEADSPRITESECT,     // 306
     CON_PREVSPRITESECT,     // 307
     CON_NEXTSPRITESECT,     // 308
-    CON_SPRITENOPAL,        // 309
-    CON_GETKEYNAME,         // 310
+    CON_GETKEYNAME,         // 309
+    CON_QSUBSTR,            // 310
+    CON_GAMETEXTZ,          // 311
+    CON_DIGITALNUMBERZ,     // 312
+    CON_SPRITENOPAL,        // 313
     END
 };

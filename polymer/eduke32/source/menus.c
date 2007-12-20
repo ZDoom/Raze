@@ -2673,6 +2673,7 @@ cheat_for_port_credits:
                     break;
                 case 6:
                     if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
+                    if (!ud.screen_tilting)setrollangle(0);
                     modval(0,1,(int *)&ud.screen_tilting,1,probey==io);
                     gametextpal(d,yy, ud.screen_tilting ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;  // original had a 'full' option

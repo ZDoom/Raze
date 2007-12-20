@@ -288,8 +288,12 @@ const char *stripcolorcodes(const char *t)
     colstrip[i] = '\0';
     return(colstrip);
 }
-
 int gametext_(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2)
+{
+    return gametext_z(small,starttile,x,y,t,s,p,orientation,x1,y1,x2,y2,65536);
+}
+
+int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2, int z)
 {
     int ac,newx,oldx=x;
     char centre, *oldt;
@@ -313,7 +317,7 @@ int gametext_(int small, int starttile, int x,int y,const char *t,int s,int p,in
             }
             if (*t == 32)
             {
-                newx+=5;
+                newx+=5*z/65536;
                 t++;
                 continue;
             }
@@ -322,8 +326,8 @@ int gametext_(int small, int starttile, int x,int y,const char *t,int s,int p,in
             if (ac < starttile || ac > (starttile + 93)) break;
 
             if (*t >= '0' && *t <= '9')
-                newx += 8;
-            else newx += tilesizx[ac];
+                newx += 8*z/65536;
+            else newx += tilesizx[ac]*z/65536;
             t++;
         }
 
@@ -354,7 +358,7 @@ int gametext_(int small, int starttile, int x,int y,const char *t,int s,int p,in
         }
         if (*t == 32)
         {
-            x+=5;
+            x+=5*z/65536;
             t++;
             continue;
         }
@@ -363,11 +367,11 @@ int gametext_(int small, int starttile, int x,int y,const char *t,int s,int p,in
         if (ac < starttile || ac > (starttile + 93))
             break;
 
-        rotatesprite(x<<16,(y<<16)+(small?ud.config.ScreenHeight<<15:0),65536,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
+        rotatesprite(x<<16,(y<<16)+(small?ud.config.ScreenHeight<<15:0),z,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
         if ((*t >= '0' && *t <= '9'))
-            x += 8;
-        else x += tilesizx[ac];//(tilesizx[ac]>>small);
-        if (t-oldt >= (signed)TEXTWRAPLEN-!small) oldt = (char *)t, x = oldx, y+=8;
+            x += 8*z/65536;
+        else x += tilesizx[ac]*z/65536;//(tilesizx[ac]>>small);
+        if (t-oldt >= (signed)TEXTWRAPLEN-!small) oldt = (char *)t, x = oldx, y+=8*z/65536;
         t++;
     }
 
@@ -519,7 +523,7 @@ void getpackets(void)
         OSD_DispatchQueued();
     }
 
-    if (qe == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && KB_KeyPressed(sc_Delete))
+    if (qe == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && (KB_KeyPressed(sc_Delete)||KB_KeyPressed(sc_End)))
     {
         qe = 1;
         gameexit("Quick Exit.");
@@ -1655,7 +1659,8 @@ static void weaponnum999(char ind,int x,int y,int num1, int num2,char ha)
         rotatesprite(sbarx(x+21),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10,0,0,xdim-1,ydim-1);
         return;
     }
-    rotatesprite(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+    else
+        rotatesprite(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
 }
 
 static void weapon_amounts(player_struct *p,int x,int y,int u)
@@ -1770,7 +1775,7 @@ static void digitalnumber(int x,int y,int n,char s,char cs)
     }
 }
 
-void txdigitalnumber(int starttile, int x,int y,int n,int s,int pal,int cs,int x1, int y1, int x2, int y2)
+void txdigitalnumberz(int starttile, int x,int y,int n,int s,int pal,int cs,int x1, int y1, int x2, int y2, int z)
 {
     int i, j = 0, k, p, c;
     char b[10];
@@ -1782,7 +1787,7 @@ void txdigitalnumber(int starttile, int x,int y,int n,int s,int pal,int cs,int x
     for (k=0;k<i;k++)
     {
         p = starttile+*(b+k)-'0';
-        j += tilesizx[p]+1;
+        j += (tilesizx[p]+1)*z/65536;
     }
     c = x-(j>>1);
 
@@ -1790,11 +1795,15 @@ void txdigitalnumber(int starttile, int x,int y,int n,int s,int pal,int cs,int x
     for (k=0;k<i;k++)
     {
         p = starttile+*(b+k)-'0';
-        rotatesprite((c+j)<<16,y<<16,65536L,0,p,s,pal,2|cs,x1,y1,x2,y2);
+        rotatesprite((c+j)<<16,y<<16,z,0,p,s,pal,2|cs,x1,y1,x2,y2);
         /*        rotatesprite((c+j)<<16,y<<16,65536L,0,p,s,pal,cs,0,0,xdim-1,ydim-1);
                 rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);*/
-        j += tilesizx[p]+1;
+        j += (tilesizx[p]+1)*z/65536;
     }
+}
+void txdigitalnumber(int starttile, int x,int y,int n,int s,int pal,int cs,int x1, int y1, int x2, int y2)
+{
+    txdigitalnumberz(starttile,x,y,n,s,pal,cs,x1,y1,x2,y2,65536);
 }
 
 static void displayinventory(player_struct *p)
@@ -6265,7 +6274,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
                 continue;
             case CHAIR3__STATIC:
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0)
+                if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     t->cstat &= ~4;
                     break;
@@ -6546,8 +6555,9 @@ void animatesprites(int x,int y,int a,int smoothratio)
             t->picnum = GROWSPARK+((totalclock>>4)&3);
             break;
         case RPG__STATIC:
+
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0)
+            if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
@@ -6565,8 +6575,9 @@ void animatesprites(int x,int y,int a,int smoothratio)
             break;
 
         case RECON__STATIC:
+
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0)
+            if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
@@ -6666,8 +6677,9 @@ void animatesprites(int x,int y,int a,int smoothratio)
 
             if (s->owner == -1)
             {
+
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0)
+                if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     k = 0;
                     t->cstat &= ~4;
@@ -6789,8 +6801,9 @@ PALONLY:
             if (t4)
             {
                 l = *(int *)(t4+8);
+
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0)
+                if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     k = 0;
                     t->cstat &= ~4;
@@ -6895,13 +6908,13 @@ PALONLY:
                                 tsprite[spritesortcnt].z = daz;
                                 xrep = tsprite[spritesortcnt].xrepeat;// - (klabs(daz-t->z)>>11);
                                 tsprite[spritesortcnt].xrepeat = xrep;
-                                tsprite[spritesortcnt].pal = 4;
+//                                tsprite[spritesortcnt].pal = 4; (shadow will have the same model as its actor)
 
                                 yrep = tsprite[spritesortcnt].yrepeat;// - (klabs(daz-t->z)>>11);
                                 tsprite[spritesortcnt].yrepeat = yrep;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                                if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0)
+                                if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
                                 {
                                     tsprite[spritesortcnt].yrepeat = 0;
                                     // 512:trans reverse
@@ -6964,7 +6977,7 @@ PALONLY:
             break;
         case PLAYERONWATER__STATIC:
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0)
+            if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 k = 0;
                 t->cstat &= ~4;
@@ -7028,7 +7041,7 @@ PALONLY:
         case RAT__STATIC:
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0)
+            if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;

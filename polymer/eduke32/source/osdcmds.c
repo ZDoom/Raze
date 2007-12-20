@@ -534,13 +534,54 @@ static int osdcmd_setvar(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
-    strcpy(varname,parm->parms[0]);
-    varval = Batol(parm->parms[1]);
+    strcpy(varname,parm->parms[1]);
+    varval = Batol(varname);
+    for (i=0;i<iGameVarCount;i++)
+        if (aGameVars[i].szLabel != NULL)
+            if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
+                varval=GetGameVarID(i, g_player[myconnectindex].ps->i, myconnectindex);
 
+    strcpy(varname,parm->parms[0]);
     for (i=0;i<iGameVarCount;i++)
         if (aGameVars[i].szLabel != NULL)
             if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
                 SetGameVarID(i, varval, g_player[myconnectindex].ps->i, myconnectindex);
+    return OSDCMD_OK;
+}
+
+static int osdcmd_setactorvar(const osdfuncparm_t *parm)
+{
+    int i, varval, ID;
+    char varname[256];
+
+    if (parm->numparms != 3) return OSDCMD_SHOWHELP;
+
+    if (numplayers > 1)
+    {
+        OSD_Printf("Command not allowed in multiplayer\n");
+        return OSDCMD_OK;
+    }
+
+    ID=Batol(parm->parms[0]);
+    if (ID>=MAXSPRITES)
+    {
+        OSD_Printf("Invalid sprite ID\n");
+        return OSDCMD_OK;
+    }
+
+    varval = Batol(parm->parms[2]);
+    strcpy(varname,parm->parms[2]);
+    varval = Batol(varname);
+    for (i=0;i<iGameVarCount;i++)
+        if (aGameVars[i].szLabel != NULL)
+            if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
+                varval=GetGameVarID(i, g_player[myconnectindex].ps->i, myconnectindex);
+
+    strcpy(varname,parm->parms[1]);
+    for (i=0;i<iGameVarCount;i++)
+        if (aGameVars[i].szLabel != NULL)
+            if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
+                SetGameVarID(i, varval, ID, -1);
     return OSDCMD_OK;
 }
 
@@ -948,6 +989,8 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
+    OSD_RegisterFunction("setvarvar","setvar <gamevar> <gamevar>: sets the value of a gamevar", osdcmd_setvar);
+    OSD_RegisterFunction("setactorvar","setactorvar <actorID> <gamevar> <value>: sets the value of a gamevar", osdcmd_setactorvar);
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 
     OSD_RegisterFunction("usejoystick","usejoystick: enables input from the joystick if it is present",osdcmd_usemousejoy);

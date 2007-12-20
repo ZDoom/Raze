@@ -30,6 +30,8 @@ typedef struct pthtyp_t
     unsigned short sizx, sizy;
     float scalex, scaley;
     struct pthtyp_t *ofb; // only fullbright
+
+    char *palmap;int size;
 } pthtyp;
 
 pthtyp * gltexcache (int dapicnum, int dapalnum, int dameth);

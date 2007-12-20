@@ -70,6 +70,7 @@ void hicinit(void)
     int i,j;
     hicreplctyp *hr, *next;
 
+    clearconv();
     for (i=0;i<MAXPALOOKUPS;i++)  	// all tints should be 100%
     {
         hictinting[i].r = hictinting[i].g = hictinting[i].b = 0xff;

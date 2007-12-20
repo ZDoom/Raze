@@ -6143,7 +6143,7 @@ void ExtAnalyzeSprites(void)
             //                else tspr->cstat&=32767;
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
-            if (!usemodels || md_tilehasmodel(tspr->picnum) < 0)
+            if (!usemodels || md_tilehasmodel(tspr->picnum,tspr->pal) < 0)
 #endif
             {
                 if (frames!=0)

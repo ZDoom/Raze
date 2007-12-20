@@ -590,7 +590,7 @@ int OSD_HandleKey(int sc, int press)
     {
     }
     else if (sc == 1)  		// escape
-{
+    {
         //        OSD_ShowDisplay(0);
         osdscroll = -1;
         osdrowscur += osdscroll;

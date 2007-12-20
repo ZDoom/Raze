@@ -12,6 +12,7 @@ typedef struct
     int shadeoff;
     float scale, bscale, zadd;
     GLuint *texid;	// skins
+    int flags;
 } mdmodel;
 
 typedef struct _mdanim_t
@@ -31,6 +32,7 @@ typedef struct _mdskinmap_t
     GLuint texid[HICEFFECTMASK+1];   // OpenGL texture numbers for effect variations
     struct _mdskinmap_t *next;
     float param;
+    char *palmap;int size;
 } mdskinmap_t;
 
 
@@ -70,6 +72,7 @@ typedef struct
     int shadeoff;
     float scale, bscale, zadd;
     GLuint *texid;   // texture ids for base skin if no mappings defined
+    int flags;
 
     int numframes, cframe, nframe, fpssc, usesalpha;
     float oldtime, curtime, interpol;
@@ -137,6 +140,7 @@ typedef struct
     int shadeoff;
     float scale, bscale, zadd;
     unsigned int *texid;   // texture ids for base skin if no mappings defined
+    int flags;
 
     int numframes, cframe, nframe, fpssc, usesalpha;
     float oldtime, curtime, interpol;
@@ -168,6 +172,7 @@ typedef struct
     int shadeoff;
     float scale, bscale, zadd;
     unsigned int *texid;    // skins for palettes
+    int flags;
 
     //VOX specific stuff:
     voxrect_t *quad; int qcnt, qfacind[7];
@@ -185,8 +190,32 @@ typedef struct
     int     skinnum;
     int     framenum;   // calculate the number from the name when declaring
     float   smoothduration;
+    int     next;
+    char    pal;
 } tile2model_t;
-static tile2model_t tile2model[MAXTILES];
+
+#define EXTRATILES MAXTILES
+int curextra=MAXTILES;
+static tile2model_t tile2model[MAXTILES+EXTRATILES];
+
+int addtileP(int model,int tile,int pallet)
+{
+    if (curextra==MAXTILES+EXTRATILES-2)return curextra;
+    if (tile2model[tile].modelid==-1)return tile;
+    while (tile2model[tile].next!=-1)tile=tile2model[tile].next;
+    tile2model[tile].next=curextra;
+    tile2model[curextra].pal=pallet;
+    return curextra++;
+}
+int Ptile2tile(int tile,int pallet)
+{
+    int t=tile;
+//  if(tile>=1550&&tile<=1589){initprintf("(%d, %d)\n",tile,pallet);pallet=0;}
+    while ((tile=tile2model[tile].next)!=-1)
+        if (tile2model[tile].pal==pallet)
+            return tile;
+    return t;
+}
 
 //Move this to appropriate place!
 typedef struct { float xadd, yadd, zadd; short angadd, flags; } hudtyp;
@@ -209,6 +238,7 @@ static GLuint* indexvbos = NULL;
 mdmodel *mdload(const char *);
 int mddraw(spritetype *);
 void mdfree(mdmodel *);
+int globalnoeffect=0;
 
 extern int timerticspersec;
 
@@ -225,6 +255,7 @@ static void freeallmodels()
     }
 
     memset(tile2model,-1,sizeof(tile2model));
+    curextra=MAXTILES;
 
     if (vertlist)
     {
@@ -315,7 +346,7 @@ int md_loadmodel(const char *fn)
     return(nextmodelid-1);
 }
 
-int md_setmisc(int modelid, float scale, int shadeoff, float zadd)
+int md_setmisc(int modelid, float scale, int shadeoff, float zadd, int flags)
 {
     mdmodel *m;
 
@@ -326,14 +357,15 @@ int md_setmisc(int modelid, float scale, int shadeoff, float zadd)
     m->bscale = scale;
     m->shadeoff = shadeoff;
     m->zadd = zadd;
+    m->flags = flags;
 
     return 0;
 }
 
-int md_tilehasmodel(int tilenume)
+int md_tilehasmodel(int tilenume,int pal)
 {
     if (!mdinited) return -1;
-    return tile2model[tilenume].modelid;
+    return tile2model[Ptile2tile(tilenume,pal)].modelid;
 }
 
 static int framename2index(mdmodel *vm, const char *nam)
@@ -364,7 +396,7 @@ static int framename2index(mdmodel *vm, const char *nam)
     return(i);
 }
 
-int md_defineframe(int modelid, const char *framename, int tilenume, int skinnum, float smoothduration)
+int md_defineframe(int modelid, const char *framename, int tilenume, int skinnum, float smoothduration, int pal)
 {
     void *vm;
     md2model *m;
@@ -376,6 +408,7 @@ int md_defineframe(int modelid, const char *framename, int tilenume, int skinnum
     if ((unsigned int)tilenume >= (unsigned int)MAXTILES) return(-2);
     if (!framename) return(-3);
 
+    tilenume=addtileP(modelid,tilenume,pal);
     m = (md2model *)models[modelid];
     if (m->mdnum == 1)
     {
@@ -467,6 +500,7 @@ int md_defineskin(int modelid, const char *skinfn, int palnum, int skinnum, int 
     sk->fn = (char *)malloc(strlen(skinfn)+1);
     if (!sk->fn) return(-4);
     strcpy(sk->fn, skinfn);
+    sk->palmap=0;
 
     return 0;
 }
@@ -493,6 +527,7 @@ int md_undefinetile(int tile)
     if ((unsigned)tile >= (unsigned)MAXTILES) return -1;
 
     tile2model[tile].modelid = -1;
+    tile2model[tile].next=-1;
     return 0;
 }
 
@@ -502,7 +537,7 @@ int md_undefinemodel(int modelid)
     if (!mdinited) return 0;
     if ((unsigned int)modelid >= (unsigned int)nextmodelid) return -1;
 
-    for (i=MAXTILES-1; i>=0; i--)
+    for (i=MAXTILES+EXTRATILES-1; i>=0; i--)
         if (tile2model[i].modelid == modelid)
             tile2model[i].modelid = -1;
 
@@ -515,7 +550,105 @@ int md_undefinemodel(int modelid)
     return 0;
 }
 
-static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int *osizx, int *osizy, char *hasalpha, char effect)
+md2model *modelhead;
+mdskinmap_t *skhead;
+
+typedef struct
+{
+    int pal,pal1,pal2;
+} palmaptr;
+palmaptr palconv[MAXPALCONV];
+
+void clearconv()
+{
+    Bmemset(palconv,0,sizeof(palconv));
+}
+void setpalconv(int pal,int pal1,int pal2)
+{
+    int i;
+    for (i=0;i<MAXPALCONV;i++)
+        if (!palconv[i].pal)
+        {
+            palconv[i].pal =pal;
+            palconv[i].pal1=pal1;
+            palconv[i].pal2=pal2;return;
+        }
+        else
+            if (palconv[i].pal==pal&&palconv[i].pal1==pal1)
+            {
+                palconv[i].pal2=pal2;return;
+            }
+}
+
+
+void getpalmap(int stage,int *pal1,int *pal2)
+{
+    int i;
+    for (i=0;i<MAXPALCONV;i++)
+        if (palconv[i].pal==*pal2)
+        {
+            if (!stage)
+            {
+                *pal1=palconv[i].pal1;
+                *pal2=palconv[i].pal2;
+                return;
+            }
+            stage--;
+        }
+}
+
+int checkpalmaps(int pal)
+{
+    int stage,val=0;
+
+    for (stage=0;stage<MAXPALCONV;stage++)
+    {
+        int pal1=0,pal2=pal;
+        getpalmap(stage,&pal1,&pal2);
+        if (!pal)break;
+        if (pal1)val|=1<<(pal1-SPECPAL);
+    }
+    return val;
+}
+
+void applypalmap(char *pic, char *palmap, int size, int pal)
+{
+    pal+=200;
+    int r=0,g=1,b=2;
+    //_initprintf("  %d #%d\n",pal,palmap);
+    while (size--)
+    {
+        char a=palmap[b+1];
+        if (glinfo.bgra)swapchar(&pic[r], &pic[b]);
+        pic[r]=((pic[r]*(255-a)+hictinting[pal].r*a)*palmap[r])/255/255;
+        pic[g]=((pic[g]*(255-a)+hictinting[pal].g*a)*palmap[g])/255/255;
+        pic[b]=((pic[b]*(255-a)+hictinting[pal].b*a)*palmap[b])/255/255;
+        if (glinfo.bgra)swapchar(&pic[r], &pic[b]);
+        r+=4;g+=4;b+=4;
+    }
+}
+
+static void applypalmapSkin(char *pic, int sizx, int sizy, int pal)
+{
+    int stage;
+
+    //_initprintf("%d(%dx%d)\n",pal,sizx,sizy);
+    for (stage=0;stage<MAXPALCONV;stage++)
+    {
+        int pal1=0,pal2=pal;
+        getpalmap(stage,&pal1,&pal2);
+        if (!pal1)return;
+
+        mdskinmap_t *sk;
+        for (sk = modelhead->skinmap; sk; sk = sk->next)
+            if ((int)sk->palette == pal1&&sk->palmap)break;
+        if (!sk||sk->size!=sizx*sizy)continue;
+
+        applypalmap(pic,sk->palmap,sk->size,pal2);
+    }
+}
+
+static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int *osizx, int *osizy, char *hasalpha, int pal, char effect)
 {
     int picfillen, j,y,x;
     char *picfil,*cptr,al=255;
@@ -551,6 +684,7 @@ static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int
         { free(picfil); free(pic); return -1; }
     free(picfil);
 
+    applypalmapSkin((char *)pic,tsizx,tsizy,pal);
     cptr = &britable[gammabrightness ? 0 : curbrightness][0];
     for (y=0,j=0;y<tsizy;y++,j+=xsiz)
     {
@@ -599,7 +733,7 @@ static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int
 }
 
 // JONOF'S COMPRESSED TEXTURE CACHE STUFF ---------------------------------------------------
-int mdloadskin_trytexcache(char *fn, int len, char effect, texcacheheader *head)
+int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcacheheader *head)
 {
     int fil, fp;
     char cachefn[BMAX_PATH], *cp;
@@ -618,7 +752,7 @@ int mdloadskin_trytexcache(char *fn, int len, char effect, texcacheheader *head)
     for (cp = cachefn, fp = 0; (*cp = TEXCACHEDIR[fp]); cp++,fp++);
     *(cp++) = '/';
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
-    sprintf(cp, "-%x-0%x", len, effect);
+    sprintf(cp, "-%x-%x%x", len, pal, effect);
 
     fil = kopen4load(cachefn, 0);
     if (fil < 0) return -1;
@@ -640,7 +774,7 @@ failure:
     return -1;
 }
 
-static int mdloadskin_cached(int fil, texcacheheader *head, int *doalloc, GLuint *glpic, int *xsiz, int *ysiz)
+static int mdloadskin_cached(int fil, texcacheheader *head, int *doalloc, GLuint *glpic, int *xsiz, int *ysiz, int pal)
 {
     int level, r;
     texcachepicture pict;
@@ -712,6 +846,7 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
     int doalloc = 1, filh;
+    modelhead=m; // for palmaps
 
     int cachefil = -1, picfillen;
     texcacheheader cachead;
@@ -725,7 +860,7 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
         if ((int)sk->palette == pal && sk->skinnum == number && sk->surfnum == surf)
         {
             skinfile = sk->fn;
-            texidx = &sk->texid[ hictinting[pal].f ];
+            texidx = &sk->texid[(globalnoeffect)?0:hictinting[pal].f ];
             strcpy(fn,skinfile);
             //OSD_Printf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
             break;
@@ -745,7 +880,7 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
         if (skzero)
         {
             skinfile = skzero->fn;
-            texidx = &skzero->texid[ hictinting[pal].f ];
+            texidx = &skzero->texid[(globalnoeffect)?0:hictinting[pal].f ];
             strcpy(fn,skinfile);
             //OSD_Printf("Using def skin 0,0 as fallback, pal=%d\n", pal);
         }
@@ -753,11 +888,12 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
         {
             if ((unsigned)number >= (unsigned)m->numskins) number = 0;
             skinfile = m->skinfn + number*64;
-            texidx = &m->texid[ number * (HICEFFECTMASK+1) + hictinting[pal].f ];
+            texidx = &m->texid[ number * (HICEFFECTMASK+1) + (globalnoeffect)?0:hictinting[pal].f ];
             strcpy(fn,m->basepath); strcat(fn,skinfile);
             //OSD_Printf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
         }
     }
+    skhead=sk; // for palmaps
     if (!skinfile[0]) return 0;
 
     if (*texidx) return *texidx;
@@ -766,10 +902,10 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
     if (pal >= (MAXPALOOKUPS - RESERVEDPALS))
         for (i=0;i<nextmodelid;i++)
             for (skzero = ((md2model *)models[i])->skinmap; skzero; skzero = skzero->next)
-                if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[hictinting[pal].f])
+                if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[(globalnoeffect)?0:hictinting[pal].f])
                 {
-                    sk->texid[hictinting[pal].f] = skzero->texid[hictinting[pal].f];
-                    return sk->texid[hictinting[pal].f];
+                    sk->texid[(globalnoeffect)?0:hictinting[pal].f] = skzero->texid[(globalnoeffect)?0:hictinting[pal].f];
+                    return sk->texid[(globalnoeffect)?0:hictinting[pal].f];
                 }
 
     *texidx = 0;
@@ -784,8 +920,8 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
     picfillen = kfilelength(filh);
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
-    cachefil = mdloadskin_trytexcache(fn, picfillen, hictinting[pal].f, &cachead);
-    if (cachefil >= 0 && !mdloadskin_cached(cachefil, &cachead, &doalloc, texidx, &xsiz, &ysiz))
+    cachefil = mdloadskin_trytexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:hictinting[pal].f, &cachead);
+    if (cachefil >= 0 && !mdloadskin_cached(cachefil, &cachead, &doalloc, texidx, &xsiz, &ysiz, pal))
     {
         osizx = cachead.xdim;
         osizy = cachead.ydim;
@@ -800,7 +936,7 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
         cachefil = -1;	// the compressed version will be saved to disk
 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
-        if (daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,hictinting[pal].f))
+        if (daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,(globalnoeffect)?0:hictinting[pal].f))
         {
             kclose(filh);
             initprintf("Failed loading skin file \"%s\"\n", fn);
@@ -818,6 +954,18 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
         else if (!hasalpha) intexfmt = GL_RGB;
         if (glinfo.bgra) texfmt = GL_BGRA;
         uploadtexture((doalloc&1), xsiz, ysiz, intexfmt, texfmt, (coltype*)fptr, xsiz, ysiz, 0);
+        if (pal>=SPECPAL&&pal<=REDPAL)
+        {
+            //_initprintf("%cLoaded palmap %d(%dx%d)",sk->palmap?'+':'-',pal,xsiz,ysiz);
+            if (!sk->palmap)
+            {
+                sk->size=xsiz*ysiz;
+                sk->palmap=malloc(sk->size*4);
+                memcpy(sk->palmap,(char *)fptr,sk->size*4);
+            }
+            cachefil=0;
+            //_initprintf("#%d\n",sk->palmap);
+        }
         free((void*)fptr);
     }
 
@@ -876,7 +1024,7 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
             if (ysiz == pow2long[j]) { i |= 2; }
         }
         cachead.flags = (i!=3) | (hasalpha ? 2 : 0);
-        writexcache(fn, picfillen, 0, hictinting[pal].f, &cachead);
+        writexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:hictinting[pal].f, &cachead);
     }
 
     return(*texidx);
@@ -891,23 +1039,22 @@ static void updateanimation(md2model *m, spritetype *tspr)
     int i, j, k;
     int fps;
 
+    m->cframe = m->nframe = tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum;
     if (mdpause)
     {
 //        spriteext[tspr->owner].mdanimtims = mdtims;
         m->interpol = 0;
         spriteext[tspr->owner].mdanimtims = mdtims;
-        m->nframe = m->cframe;
+        spriteext[tspr->picnum].mdanimtims = mdtims;
         return;
     }
-
-    m->cframe = m->nframe = tile2model[tspr->picnum].framenum;
 
     for (anim = m->animations;
             anim && anim->startframe != m->cframe;
             anim = anim->next) ;
     if (!anim)
     {
-        if (r_animsmoothing && (tile2model[tspr->picnum].smoothduration != 0) && (spritesmooth[tspr->owner].mdoldframe != m->cframe))
+        if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,tspr->pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdoldframe != m->cframe))
         {
             if (spritesmooth[tspr->owner].mdsmooth == 0)
             {
@@ -916,7 +1063,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
                 spritesmooth[tspr->owner].mdsmooth = 1;
                 spritesmooth[tspr->owner].mdcurframe = m->cframe;
             }
-            if (r_animsmoothing && (tile2model[tspr->picnum].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
+            if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,tspr->pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
             {
                 spriteext[tspr->owner].mdanimtims = mdtims;
                 m->interpol = 0;
@@ -925,7 +1072,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
                 spritesmooth[tspr->owner].mdcurframe = m->cframe;
             }
         }
-        else if (r_animsmoothing && (tile2model[tspr->picnum].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
+        else if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,tspr->pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
         {
             spriteext[tspr->owner].mdanimtims = mdtims;
             m->interpol = 0;
@@ -947,7 +1094,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
         spriteext[tspr->owner].mdanimcur = (short)anim->startframe;
         spriteext[tspr->owner].mdanimtims = mdtims;
         m->interpol = 0;
-        if (!r_animsmoothing || (tile2model[tspr->picnum].smoothduration == 0))
+        if (!r_animsmoothing || (tile2model[Ptile2tile(tspr->picnum,tspr->pal)].smoothduration == 0))
         {
             m->cframe = m->nframe = anim->startframe;
             return;
@@ -959,7 +1106,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
     }
 
     if (spritesmooth[tspr->owner].mdsmooth)
-        fps = (1.0f / (float)(tile2model[tspr->picnum].smoothduration)) * 66;
+        fps = (1.0f / (float)(tile2model[Ptile2tile(tspr->picnum,tspr->pal)].smoothduration)) * 66;
     else
         fps = anim->fpssc;
 
@@ -1229,6 +1376,11 @@ static md2model *md2load(int fil, const char *filnam)
         if (m->numskins > 0)
         {
             sk->fn = (char *)malloc(strlen(m->basepath)+strlen(m->skinfn)+1);
+            if (sk->palmap)
+            {
+                //_initprintf("Delete %s",m->skinfn);
+                sk->palmap=0;sk->size=0;
+            }
             strcpy(sk->fn, m->basepath);
             strcat(sk->fn, m->skinfn);
         }
@@ -1463,8 +1615,9 @@ static int md3draw(md3model *m, spritetype *tspr)
     point3d fp, fp1, fp2, m0, m1, a0, a1;
     md3xyzn_t *v0, *v1;
     int i, j, k, l, surfi, *lptr;
-    float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], pc[4], mult;
+    float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], mult;
     md3surf_t *s;
+    GLfloat pc[4],pc1[4];
     int                 texunits = GL_TEXTURE0_ARB;
     mdskinmap_t *sk;
     //PLAG : sorting stuff
@@ -1490,14 +1643,14 @@ static int md3draw(md3model *m, spritetype *tspr)
         m0.x = m->scale * g; m1.x = m->scale *f;
         m0.y = m->scale * g; m1.y = m->scale *f;
         m0.z = m->scale * g; m1.z = m->scale *f;
-        a0.x = a0.y = 0; a0.z = m->zadd*m->scale;
+        a0.x = a0.y = 0; a0.z = ((globalorientation&8)?-m->zadd:m->zadd)*m->scale;
     }
     else
     {
         m0.x = (1.0/64.0) * m->scale * g; m1.x = (1.0/64.0) * m->scale *f;
         m0.y = (1.0/64.0) * m->scale * g; m1.y = (1.0/64.0) * m->scale *f;
         m0.z = (1.0/64.0) * m->scale * g; m1.z = (1.0/64.0) * m->scale *f;
-        a0.x = a0.y = 0; a0.z = m->zadd*m->scale;
+        a0.x = a0.y = 0; a0.z = ((globalorientation&8)?-m->zadd:m->zadd)*m->scale;
     }
 
 
@@ -1581,15 +1734,19 @@ static int md3draw(md3model *m, spritetype *tspr)
     bglEnable(GL_TEXTURE_2D);
 
     pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max((globalshade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
-    pc[0] *= (float)hictinting[globalpal].r / 255.0;
-    pc[1] *= (float)hictinting[globalpal].g / 255.0;
-    pc[2] *= (float)hictinting[globalpal].b / 255.0;
-    if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
+    if (!(m->flags&1))
     {
-        pc[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
-        pc[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
-        pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
+        pc[0] *= (float)hictinting[globalpal].r / 255.0;
+        pc[1] *= (float)hictinting[globalpal].g / 255.0;
+        pc[2] *= (float)hictinting[globalpal].b / 255.0;
+        if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
+        {
+            pc[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
+            pc[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
+            pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
+        }
     }
+    else globalnoeffect=1;
 
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; }
     else pc[3] = 1.0;
@@ -1699,12 +1856,17 @@ static int md3draw(md3model *m, spritetype *tspr)
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; bglLoadMatrixf(mat);
         // PLAG: End
 
-        i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,globalpal,surfi); if (!i) continue;
-        //i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,surfi); //hack for testing multiple surfaces per MD3
+
+        int pal1;
+        for (pal1=SPECPAL;pal1<=REDPAL;pal1++)
+            mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum,pal1,surfi);
+
+        i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum,globalpal,surfi); if (!i) continue;
+        //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
         if (r_detailmapping && !r_depthpeeling && !(tspr->cstat&1024))
-            i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,DETAILPAL,surfi);
+            i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum,DETAILPAL,surfi);
         else
             i = 0;
 
@@ -1734,7 +1896,7 @@ static int md3draw(md3model *m, spritetype *tspr)
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
             for (sk = m->skinmap; sk; sk = sk->next)
-                if ((int)sk->palette == DETAILPAL && sk->skinnum == tile2model[tspr->picnum].skinnum && sk->surfnum == surfi)
+                if ((int)sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum && sk->surfnum == surfi)
                     f = sk->param;
 
             bglMatrixMode(GL_TEXTURE);
@@ -1744,7 +1906,7 @@ static int md3draw(md3model *m, spritetype *tspr)
         }
 
         if (r_glowmapping && !r_depthpeeling && !(tspr->cstat&1024))
-            i = mdloadskin((md2model *)m,tile2model[tspr->picnum].skinnum,GLOWPAL,surfi);
+            i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum,GLOWPAL,surfi);
         else
             i = 0;
 
@@ -1946,6 +2108,7 @@ static int md3draw(md3model *m, spritetype *tspr)
     }
     bglLoadIdentity();
 
+    globalnoeffect=0;
     return 1;
 }
 
@@ -1967,6 +2130,11 @@ static void md3free(md3model *m)
     {
         nsk = sk->next;
         free(sk->fn);
+        if (sk->palmap)
+        {
+            //_initprintf("Kill %d\n",sk->palette);
+            free(sk->palmap);sk->palmap=0;
+        }
         free(sk);
     }
 
@@ -2686,7 +2854,7 @@ static int voxdraw(voxmodel *m, spritetype *tspr)
     m0.x = m->scale;
     m0.y = m->scale;
     m0.z = m->scale;
-    a0.x = a0.y = 0; a0.z = m->zadd*m->scale;
+    a0.x = a0.y = 0; a0.z = ((globalorientation&8)?-m->zadd:m->zadd)*m->scale;
 
     //if (globalorientation&8) //y-flipping
     //{
@@ -2884,7 +3052,7 @@ int mddraw(spritetype *tspr)
         allocmodelverts = maxmodelverts;
     }
 
-    vm = models[tile2model[tspr->picnum].modelid];
+    vm = models[tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid];
     if (vm->mdnum == 1) { return voxdraw((voxmodel *)vm,tspr); }
     if (vm->mdnum == 3) { return md3draw((md3model *)vm,tspr); }
     return 0;
