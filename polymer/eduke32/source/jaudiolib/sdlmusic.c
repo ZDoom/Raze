@@ -73,6 +73,7 @@ static char warningMessage[80];
 static char errorMessage[80];
 static FILE *debug_file = NULL;
 static int initialized_debugging = 0;
+static int external_midi = 0;
 
 static char *midifn = NULL;
 
@@ -316,6 +317,12 @@ static Mix_Music *music_musicchunk = NULL;
 
 int MUSIC_Init(int SoundCard, int Address)
 {
+    // Use an external MIDI player if the user has specified to do so
+    char *command = getenv("EDUKE32_MIDI_CMD");
+    external_midi = (command != NULL && command[0] != 0);
+    if(external_midi)
+        Mix_SetMusicCMD(command);
+
     init_debugging();
 
     musdebug("INIT! card=>%d, address=>%d...", SoundCard, Address);
@@ -336,6 +343,10 @@ int MUSIC_Init(int SoundCard, int Address)
 int MUSIC_Shutdown(void)
 {
     musdebug("shutting down sound subsystem.");
+
+    // TODO - make sure this is being called from the menu -- SA
+    if(external_midi)
+        Mix_SetMusicCMD(NULL);
 
     MUSIC_StopSong();
     music_context = 0;
