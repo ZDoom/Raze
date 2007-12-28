@@ -1438,10 +1438,10 @@ static void applypalmapsT(char *pic, int sizx, int sizy, int pal)
     for (stage=0;stage<MAXPALCONV;stage++)
     {
         int pal1=0,pal2=pal;
+        pthtyp *pth;
         getpalmap(stage,&pal1,&pal2);
         if (!pal1)return;
 
-        pthtyp *pth;
         for (pth=pichead; pth; pth=pth->next)
             if (pth->palnum ==pal1&&pth->palmap)break;
         if (!pth||pth->size!=sizx*sizy)continue;
@@ -4333,6 +4333,7 @@ void polymost_drawsprite(int snum)
     float x0, y0, x1, y1, sc0, sf0, sc1, sf1, px2[6], py2[6], xv, yv, t0, t1;
     int i, j, spritenum, xoff=0, yoff=0, method, npoints;
     spritetype *tspr;
+    int posx,posy;
 
     tspr = tspriteptr[snum];
     if (tspr->owner < 0 || tspr->picnum < 0) return;
@@ -4396,18 +4397,18 @@ void polymost_drawsprite(int snum)
         bglPolygonOffset(-curpolygonoffset, -curpolygonoffset);
     }
 #endif
-    int posx=tspr->x,posy=tspr->y;
+    posx=tspr->x;
+    posy=tspr->y;
     if (spriteext[tspr->owner].flags&SPREXT_AWAY1)
     {
         posx+=(sintable[(tspr->ang+512)&2047]>>13);
         posy+=(sintable[(tspr->ang)&2047]>>13);
     }
-    else
-        if (spriteext[tspr->owner].flags&SPREXT_AWAY2)
-        {
-            posx-=(sintable[(tspr->ang+512)&2047]>>13);
-            posy-=(sintable[(tspr->ang)&2047]>>13);
-        }
+    else if (spriteext[tspr->owner].flags&SPREXT_AWAY2)
+    {
+        posx-=(sintable[(tspr->ang+512)&2047]>>13);
+        posy-=(sintable[(tspr->ang)&2047]>>13);
+    }
 
     switch ((globalorientation>>4)&3)
     {
@@ -5725,6 +5726,7 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
     //    basically this just means walls are repeating
     //    while sprites are clamped
     int mid;
+    int pal1;
 
     if (rendmode < 3) return;
 
@@ -5732,7 +5734,6 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
 
     //OSD_Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
-    int pal1;
     for (pal1=SPECPAL;pal1<=REDPAL;pal1++)
         if (hicfindsubst(globalpicnum, pal1, 0))
             gltexcache(globalpicnum, pal1, (datype & 1) << 2);

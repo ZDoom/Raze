@@ -4874,20 +4874,20 @@ static int parse(void)
                 int orientation=GetGameVarID(*insptr++,g_i,g_p);
                 int x1=GetGameVarID(*insptr++,g_i,g_p), y1=GetGameVarID(*insptr++,g_i,g_p);
                 int x2=GetGameVarID(*insptr++,g_i,g_p), y2=GetGameVarID(*insptr++,g_i,g_p);
+                int z=65536;
 
                 if (tw == CON_GAMETEXT || tw == CON_GAMETEXTZ)
                 {
+                    int z=65536;
                     if (fta_quotes[q] == NULL)
                     {
                         OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,q);
                         break;
                     }
-                    int z=65536;
                     if (tw == CON_GAMETEXTZ)z=GetGameVarID(*insptr++,g_i,g_p);
                     gametext_z(0,tilenum,x>>1,y,fta_quotes[q],shade,pal,orientation,x1,y1,x2,y2,z);
                     break;
                 }
-                int z=65536;
                 if (tw == CON_DIGITALNUMBERZ)z=GetGameVarID(*insptr++,g_i,g_p);
                 txdigitalnumberz(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2,z);
                 break;

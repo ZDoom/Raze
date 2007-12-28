@@ -1428,11 +1428,12 @@ case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL:
                 }
             }
 
-            int i;
-            if (palmapbits&&fnB)
+            if (palmapbits&&fnB) {
+                int i;
                 for (i=0;i<=25;i++)
                     if (!(palbits&(1<<i))&&(palmapbits&checkpalmaps(i)))
                         hicsetsubsttex(tile,i,fnB,alphacutB,xscaleB,yscaleB,flagsB);
+            }
 
             if ((unsigned)tile >= (unsigned)MAXTILES)
             {

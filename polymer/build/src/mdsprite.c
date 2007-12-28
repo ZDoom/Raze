@@ -613,8 +613,9 @@ int checkpalmaps(int pal)
 
 void applypalmap(char *pic, char *palmap, int size, int pal)
 {
-    pal+=200;
     int r=0,g=1,b=2;
+    pal+=200;
+
     //_initprintf("  %d #%d\n",pal,palmap);
     while (size--)
     {
@@ -636,10 +637,10 @@ static void applypalmapSkin(char *pic, int sizx, int sizy, int pal)
     for (stage=0;stage<MAXPALCONV;stage++)
     {
         int pal1=0,pal2=pal;
+        mdskinmap_t *sk;
         getpalmap(stage,&pal1,&pal2);
         if (!pal1)return;
 
-        mdskinmap_t *sk;
         for (sk = modelhead->skinmap; sk; sk = sk->next)
             if ((int)sk->palette == pal1&&sk->palmap)break;
         if (!sk||sk->size!=sizx*sizy)continue;
@@ -846,10 +847,10 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
     int doalloc = 1, filh;
-    modelhead=m; // for palmaps
-
     int cachefil = -1, picfillen;
     texcacheheader cachead;
+
+    modelhead=m; // for palmaps
 
     if (m->mdnum == 2) surf = 0;
 
@@ -1795,6 +1796,8 @@ static int md3draw(md3model *m, spritetype *tspr)
     }
     for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
+        int pal1;
+
         s = &m->head.surfs[surfi];
         v0 = &s->xyzn[m->cframe*s->numverts];
         v1 = &s->xyzn[m->nframe*s->numverts];
@@ -1856,8 +1859,6 @@ static int md3draw(md3model *m, spritetype *tspr)
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; bglLoadMatrixf(mat);
         // PLAG: End
 
-
-        int pal1;
         for (pal1=SPECPAL;pal1<=REDPAL;pal1++)
             mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum,pal1,surfi);
 
