@@ -163,7 +163,8 @@ typedef struct BPACK {
     short pitch, roll;
     int xoff, yoff, zoff;
     unsigned char flags;
-    char filler[3];
+    unsigned char xpanning, ypanning;
+    char filler[1];
 } spriteexttype;
 
 typedef struct BPACK {

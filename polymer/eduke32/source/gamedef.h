@@ -434,7 +434,9 @@ enum actorlabels
     ACTOR_MDXOFF,
     ACTOR_MDYOFF,
     ACTOR_MDZOFF,
-    ACTOR_MDFLAGS
+    ACTOR_MDFLAGS,
+    ACTOR_XPANNING,
+    ACTOR_YPANNING
 };
 
 enum inputlabels

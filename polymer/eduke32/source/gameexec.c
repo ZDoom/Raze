@@ -2732,6 +2732,20 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
             SetGameVarID(lVar2,spriteext[iActor].flags, g_i, g_p);
         break;
 
+    case ACTOR_XPANNING:
+        if (iSet)
+            spriteext[iActor].xpanning=lValue;
+        else
+            SetGameVarID(lVar2, spriteext[iActor].xpanning,g_i,g_p);
+        break;
+
+    case ACTOR_YPANNING:
+        if (iSet)
+            spriteext[iActor].ypanning=lValue;
+        else
+            SetGameVarID(lVar2, spriteext[iActor].ypanning,g_i,g_p);
+        break;
+
     default:
         break;
     }

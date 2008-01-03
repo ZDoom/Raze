@@ -99,6 +99,8 @@ int zbufmem = 0, zbufysiz = 0, zbufbpl = 0, *zbufoff = 0;
 #endif
 
 #ifdef USE_OPENGL
+static int srepeat = 0, trepeat = 0;
+
 int glredbluemode = 0;
 static int lastglredbluemode = 0, redblueclearcnt = 0;
 
@@ -1795,6 +1797,11 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
 
         bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
+        if (srepeat)
+            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+        if (trepeat)
+            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+
         // texture scale by parkar request
         if (pth && pth->hicr && ((pth->hicr->xscale != 1.0f) || (pth->hicr->yscale != 1.0f)) && !drawingskybox)
         {
@@ -2130,6 +2137,11 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
             }
             bglActiveTextureARB(--texunits);
         }
+
+        if (srepeat)
+            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+        if (trepeat)
+            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
 
         if (fullbrightdrawingpass == 1) // tile has fullbright colors ?
         {
@@ -4443,6 +4455,12 @@ void polymost_drawsprite(int snum)
             { gvy = (float)tilesizy[globalpicnum]*gdo/(py[3]-py[0]+.002); gvo = -gvy*(py[0]-.001); }
         else { gvy = (float)tilesizy[globalpicnum]*gdo/(py[0]-py[3]-.002); gvo = -gvy*(py[3]+.001); }
 
+        // sprite panning
+        guy -= gdy*((float)(spriteext[spritenum].xpanning)/255.f)*tilesizx[globalpicnum];
+        guo -= gdo*((float)(spriteext[spritenum].xpanning)/255.f)*tilesizx[globalpicnum];
+        gvy -= gdy*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
+        gvo -= gdo*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
+
         //Clip sprites to ceilings/floors when no parallaxing and not sloped
         if (!(sector[tspr->sectnum].ceilingstat&3))
         {
@@ -4455,7 +4473,22 @@ void polymost_drawsprite(int snum)
             if (py[2] > sy0) py[2] = py[3] = sy0;
         }
 
+#ifdef USE_OPENGL
+        if (spriteext[spritenum].xpanning)
+            srepeat = 1;
+        if (spriteext[spritenum].ypanning)
+            trepeat = 1;
+#endif
+
         pow2xsplit = 0; drawpoly(px,py,4,method);
+
+#ifdef USE_OPENGL
+        if (spriteext[spritenum].xpanning)
+            srepeat = 0;
+        if (spriteext[spritenum].ypanning)
+            trepeat = 0;
+#endif
+
         break;
     case 1: //Wall sprite
 
@@ -4519,6 +4552,10 @@ void polymost_drawsprite(int snum)
         //gux*sx0 + guo = t0*tilesizx[globalpicnum]*yp0
         //gux*sx1 + guo = t1*tilesizx[globalpicnum]*yp1
         if (globalorientation&4) { t0 = 1.f-t0; t1 = 1.f-t1; }
+
+        //sprite panning
+        t0 -= ((float)(spriteext[spritenum].xpanning)/255.f);
+        t1 -= ((float)(spriteext[spritenum].xpanning)/255.f);
         gux = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)tilesizx[globalpicnum] / (sx0-sx1);
         guy = 0;
         guo = t0*ryp0*gxyaspect*(float)tilesizx[globalpicnum] - gux*sx0;
@@ -4539,6 +4576,11 @@ void polymost_drawsprite(int snum)
             gvy = (sx0-sx1)*f;
             gvo = -gvx*sx0 - gvy*sf0;
         }
+
+        // sprite panning
+        gvx -= gdx*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
+        gvy -= gdy*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
+        gvo -= gdo*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
 
         //Clip sprites to ceilings/floors when no parallaxing
         if (!(sector[tspr->sectnum].ceilingstat&1))
@@ -4571,7 +4613,23 @@ void polymost_drawsprite(int snum)
         px[1] = sx1; py[1] = sc1;
         px[2] = sx1; py[2] = sf1;
         px[3] = sx0; py[3] = sf0;
+
+#ifdef USE_OPENGL
+        if (spriteext[spritenum].xpanning)
+            srepeat = 1;
+        if (spriteext[spritenum].ypanning)
+            trepeat = 1;
+#endif
+
         pow2xsplit = 0; drawpoly(px,py,4,method);
+
+#ifdef USE_OPENGL
+        if (spriteext[spritenum].xpanning)
+            srepeat = 0;
+        if (spriteext[spritenum].ypanning)
+            trepeat = 0;
+#endif
+
         break;
     case 2: //Floor sprite
 
@@ -4661,7 +4719,28 @@ void polymost_drawsprite(int snum)
             guo = ((float)tilesizx[globalpicnum])*gdo - guo;
         }
 
+        // sprite panning
+        guy -= gdy*((float)(spriteext[spritenum].xpanning)/255.f)*tilesizx[globalpicnum];
+        guo -= gdo*((float)(spriteext[spritenum].xpanning)/255.f)*tilesizx[globalpicnum];
+        gvy -= gdy*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
+        gvo -= gdo*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
+
+#ifdef USE_OPENGL
+        if (spriteext[spritenum].xpanning)
+            srepeat = 1;
+        if (spriteext[spritenum].ypanning)
+            trepeat = 1;
+#endif
+
         pow2xsplit = 0; drawpoly(px,py,npoints,method);
+
+#ifdef USE_OPENGL
+        if (spriteext[spritenum].xpanning)
+            srepeat = 0;
+        if (spriteext[spritenum].ypanning)
+            trepeat = 0;
+#endif
+
         break;
 
     case 3: //Voxel sprite

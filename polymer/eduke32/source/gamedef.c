@@ -549,6 +549,8 @@ LABELS actorlabels[]=
     { "mdyoff", ACTOR_MDYOFF, 0, 0 },
     { "mdzoff", ACTOR_MDZOFF, 0, 0 },
     { "mdflags", ACTOR_MDFLAGS, 0, 0 },
+    { "xpanning", ACTOR_XPANNING, 0, 0 },
+    { "ypanning", ACTOR_YPANNING, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 
