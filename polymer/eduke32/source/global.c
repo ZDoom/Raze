@@ -94,7 +94,7 @@ int avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
 int movefifosendplc;
 
 //Multiplayer syncing variables
-short screenpeek;
+int screenpeek;
 
 //Game recording variables
 

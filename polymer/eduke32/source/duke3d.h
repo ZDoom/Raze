@@ -577,7 +577,7 @@ extern int avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
 
 extern int numplayers, myconnectindex;
 extern int connecthead, connectpoint2[MAXPLAYERS];   //Player linked list variables (indeces, not connection numbers)
-extern short screenpeek;
+extern int screenpeek;
 
 extern int current_menu;
 extern int tempwallptr,animatecnt;
