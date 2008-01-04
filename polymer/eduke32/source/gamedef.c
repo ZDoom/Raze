@@ -3786,7 +3786,7 @@ repeatcase:
             for (i=0;i<casecount/2;i++)
                 if (casescriptptr[i*2+1]==j)
                 {
-                    warning++;
+                    //warning++;
                     ReportError(WARNING_DUPLICATECASE);
                     break;
                 }
