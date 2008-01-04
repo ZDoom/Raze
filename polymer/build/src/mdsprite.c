@@ -201,8 +201,13 @@ static tile2model_t tile2model[MAXTILES+EXTRATILES];
 int addtileP(int model,int tile,int pallet)
 {
     if (curextra==MAXTILES+EXTRATILES-2)return curextra;
-    if (tile2model[tile].modelid==-1)return tile;
-    while (tile2model[tile].next!=-1)tile=tile2model[tile].next;
+    if (tile2model[tile].modelid==-1){tile2model[tile].pal=pallet;return tile;}
+    if (tile2model[tile].pal==pallet)return tile;
+    while(tile2model[tile].next!=-1)
+    {
+        tile=tile2model[tile].next;
+        if(tile2model[tile].pal==pallet)return tile;
+    }
     tile2model[tile].next=curextra;
     tile2model[curextra].pal=pallet;
     return curextra++;

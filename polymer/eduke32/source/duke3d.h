@@ -989,6 +989,24 @@ extern playerspawn_t g_PlayerSpawnPoints[MAXPLAYERS];
 extern playerdata_t g_player[MAXPLAYERS];
 #include "funct.h"
 
+// key bindings stuff
+#define MAXSCRIPTFILENAMELENGTH 32
+#define MAXBOUNDKEYS 256
+
+typedef struct {
+    char *name;
+    int id;
+} keydef;
+
+extern keydef keynames[];
+
+typedef struct binding {
+    char name[MAXSCRIPTFILENAMELENGTH];
+    char *key;
+} keybind;
+
+extern keybind boundkeys[MAXBOUNDKEYS];
+
 #ifdef __cplusplus
 }
 #endif

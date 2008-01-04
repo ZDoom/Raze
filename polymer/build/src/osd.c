@@ -88,6 +88,10 @@ static int  osdhistorysize=0;		// number of entries in history
 // the execution buffer works from the command history
 static int  osdexeccount=0;		// number of lines from the head of the history buffer to execute
 
+// maximal log line count
+int logcutoff=120000;
+int linecnt;
+
 // presentation parameters
 static int  osdpromptshade=0;
 static int  osdpromptpal=0;
@@ -210,7 +214,14 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
             osdrows = atoi(parm->parms[0]);
             if (osdrows < 1) osdrows = 1;
             else if (osdrows > osdmaxrows) osdrows = osdmaxrows;
-            osdrowscur = osdrows;
+            if(osdrowscur!=-1)osdrowscur = osdrows;
+            return OSDCMD_OK;
+        }
+    } else
+    if (!Bstrcasecmp(parm->name, "logcutoff")) {
+        if (showval) { OSD_Printf("logcutoff is %d\n", logcutoff); return OSDCMD_OK; }
+        else {
+            logcutoff = atoi(parm->parms[0]);
             return OSDCMD_OK;
         }
     }
@@ -289,6 +300,7 @@ void OSD_Init(void)
     OSD_RegisterFunction("listsymbols","listsymbols: lists all the recognized symbols",_internal_osdfunc_listsymbols);
     OSD_RegisterFunction("help","help: displays help on the named symbol",_internal_osdfunc_help);
     OSD_RegisterFunction("osdrows","osdrows: sets the number of visible lines of the OSD",_internal_osdfunc_vars);
+    OSD_RegisterFunction("logcutoff","logcutoff: sets the maximal line count of the log file",_internal_osdfunc_vars);
     OSD_RegisterFunction("clear","clear: clears the console text buffer",_internal_osdfunc_clear);
 
     atexit(OSD_Cleanup);
@@ -861,7 +873,7 @@ void OSD_Draw(void)
             while (j > -1)
             {
                 osdrowscur++;
-                j -= 10;
+                j -= 200/osdrows;
                 if (osdrowscur > osdrows-1)
                     break;
             }
@@ -872,7 +884,7 @@ void OSD_Draw(void)
             while (j > -1)
             {
                 osdrowscur--;
-                j -= 10;
+                j -= 200/osdrows;
                 if (osdrowscur < 1)
                     break;
             }
@@ -937,7 +949,17 @@ void OSD_Printf(const char *fmt, ...)
     Bvsnprintf(tmpstr, 1024, fmt, va);
     va_end(va);
 
-    if (osdlog) Bfputs(tmpstr, osdlog);
+    if(linecnt<logcutoff)
+    {
+        if (osdlog&&(!logcutoff||linecnt<logcutoff))
+            Bfputs(tmpstr, osdlog);
+    }
+    else if(linecnt==logcutoff)
+    {
+        Bfputs("\nMaximal log size reached. Logging stopped.\nSet the \"logcutoff\" console variable to a higher value if you need a longer log.\n", osdlog);
+        linecnt=logcutoff+1;
+    }
+
 
     for (chp = tmpstr; *chp; chp++)
     {
@@ -945,6 +967,7 @@ void OSD_Printf(const char *fmt, ...)
         else if (*chp == '\n')
         {
             osdpos=0;
+            linecnt++;
             linefeed();
         }
         else

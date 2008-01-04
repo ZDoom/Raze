@@ -147,6 +147,104 @@ static char recbuf[180];
 
 extern void computergetinput(int snum, input *syn);
 
+keydef keynames[]=
+{
+     {"COMMA",       sc_Comma},
+     {"PERIOD",      sc_Period},
+     {"ENTER",       sc_Enter},
+     {"ESCAPE",      sc_Escape},
+     {"SPACE",       sc_Space},
+     {"BACKSPACE",   sc_BackSpace},
+     {"TAB",         sc_Tab},
+     {"LEFTALT",     sc_LeftAlt},
+     {"LEFTCONTROL", sc_LeftControl},
+     {"CAPSLOCK",    sc_CapsLock},
+     {"LEFTSHIFT",   sc_LeftShift},
+     {"RIGHTSHIFT",  sc_RightShift},
+     {"F1",          sc_F1},
+     {"F2",          sc_F2},
+     {"F3",          sc_F3},
+     {"F4",          sc_F4},
+     {"F5",          sc_F5},
+     {"F6",          sc_F6},
+     {"F7",          sc_F7},
+     {"F8",          sc_F8},
+     {"F9",          sc_F9},
+     {"F10",         sc_F10},
+     {"F11",         sc_F11},
+     {"F12",         sc_F12},
+     {"KPAD_STAR",   sc_Kpad_Star},
+     {"PAUSE",       sc_Pause},
+     {"SCROLLLOCK",  sc_ScrollLock},
+     {"NUMLOCK",     sc_NumLock},
+     {"SLASH",       sc_Slash},
+     {"SEMICOLON",   sc_SemiColon},
+     {"QUOTE",       sc_Quote},
+     {"TILDE",       sc_Tilde},
+     {"BACKSLASH",   sc_BackSlash},
+
+     {"OPENBRACKET", sc_OpenBracket},
+     {"CLOSEBRACKET",sc_CloseBracket},
+
+     {"1",           sc_1},
+     {"2",           sc_2},
+     {"3",           sc_3},
+     {"4",           sc_4},
+     {"5",           sc_5},
+     {"6",           sc_6},
+     {"7",           sc_7},
+     {"8",           sc_8},
+     {"9",           sc_9},
+     {"0",           sc_0},
+     {"MINUS",       sc_Minus},
+     {"EQUALS",      sc_Equals},
+     {"PLUS",        sc_Plus},
+
+     {"KPAD_1",      sc_kpad_1},
+     {"KPAD_2",      sc_kpad_2},
+     {"KPAD_3",      sc_kpad_3},
+     {"KPAD_4",      sc_kpad_4},
+     {"KPAD_5",      sc_kpad_5},
+     {"KPAD_6",      sc_kpad_6},
+     {"KPAD_7",      sc_kpad_7},
+     {"KPAD_8",      sc_kpad_8},
+     {"KPAD_9",      sc_kpad_9},
+     {"KPAD_0",      sc_kpad_0},
+     {"KPAD_MINUS",  sc_kpad_Minus},
+     {"KPAD_PLUS",   sc_kpad_Plus},
+     {"KPAD_PERIOD", sc_kpad_Period},
+
+     {"A",           sc_A},
+     {"B",           sc_B},
+     {"C",           sc_C},
+     {"D",           sc_D},
+     {"E",           sc_E},
+     {"F",           sc_F},
+     {"G",           sc_G},
+     {"H",           sc_H},
+     {"I",           sc_I},
+     {"J",           sc_J},
+     {"K",           sc_K},
+     {"L",           sc_L},
+     {"M",           sc_M},
+     {"N",           sc_N},
+     {"O",           sc_O},
+     {"P",           sc_P},
+     {"Q",           sc_Q},
+     {"R",           sc_R},
+     {"S",           sc_S},
+     {"T",           sc_T},
+     {"U",           sc_U},
+     {"V",           sc_V},
+     {"W",           sc_W},
+     {"X",           sc_X},
+     {"Y",           sc_Y},
+     {"Z",           sc_Z},
+     {0,0}
+};
+
+keybind boundkeys[MAXBOUNDKEYS];
+
 enum
 {
     T_EOF = -2,
@@ -7671,11 +7769,34 @@ FOUNDCHEAT:
     }
 }
 
+int load_script(const char *szScript)
+{
+    FILE* fp = fopenfrompath(szScript, "r");
+
+    if (fp != NULL)
+    {
+        char line[255];
+
+        OSD_Printf("Executing \"%s\"\n", szScript);
+        while (fgets(line ,sizeof(line)-1, fp) != NULL)
+            OSD_Dispatch(strtok(line,"\r\n"));
+        fclose(fp);
+        return 0;
+    }
+    return 1;
+}
+
 static void nonsharedkeys(void)
 {
     int i,ch;
     int j;
 
+    for(i=0;i<256;i++)
+    if (*boundkeys[i].name&&KB_KeyPressed(i))
+    {
+        load_script(boundkeys[i].name);
+        KB_ClearKeyDown(i);
+    }
     if (ud.recstat == 2)
     {
         ControlInfo noshareinfo;
@@ -9821,23 +9942,6 @@ void backtomenu(void)
     KB_FlushKeyboardQueue();
     if (VOLUMEALL) wm_setapptitle(HEAD2);
     else wm_setapptitle(HEAD);
-}
-
-int load_script(const char *szScript)
-{
-    FILE* fp = fopenfrompath(szScript, "r");
-
-    if (fp != NULL)
-    {
-        char line[255];
-
-        OSD_Printf("Executing \"%s\"\n", szScript);
-        while (fgets(line ,sizeof(line)-1, fp) != NULL)
-            OSD_Dispatch(strtok(line,"\r\n"));
-        fclose(fp);
-        return 0;
-    }
-    return 1;
 }
 
 void app_main(int argc,const char **argv)

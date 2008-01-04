@@ -943,6 +943,32 @@ static int osdcmd_name(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int osdcmd_bind(const osdfuncparm_t *parm)
+{
+    int i;
+
+    if (parm->numparms==1&&!strcmpi(parm->parms[0],"showkeys"))
+    {
+        for(i=0;keynames[i].name;i++)OSD_Printf("%s\n",keynames[i].name);
+        return OSDCMD_OK;
+    }
+    if (parm->numparms==0)
+    {
+        OSD_Printf("Keybindings:\n");
+                for(i=0;i<MAXBOUNDKEYS;i++)if(*boundkeys[i].name)
+        OSD_Printf("%-11s = %s\n",boundkeys[i].key,boundkeys[i].name);
+        return OSDCMD_OK;
+    }
+
+    if (parm->numparms < 2) return OSDCMD_SHOWHELP;
+    for(i=0;keynames[i].name;i++)if(!strcmpi(parm->parms[0],keynames[i].name))break;
+    if (!keynames[i].name) return OSDCMD_SHOWHELP;
+
+    Bstrncpy(boundkeys[keynames[i].id].name,parm->parms[1], MAXSCRIPTFILENAMELENGTH-1);
+    boundkeys[keynames[i].id].key=keynames[i].name;
+    return OSDCMD_OK;
+}
+
 int registerosdcommands(void)
 {
     unsigned int i;
@@ -998,6 +1024,7 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: immediately change the video mode",osdcmd_vidmode);
 
+    OSD_RegisterFunction("bind","bind <key> <scriptfile>: executes a command script when <key> gets pressed. Type \"bind showkeys\" for a list of keys.", osdcmd_bind);
     //baselayer_onvideomodechange = onvideomodechange;
 
     return 0;
