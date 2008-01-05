@@ -690,7 +690,7 @@ cvar[] =
     { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
     { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_BOOL, 0, 0, 1 },
     // polymer cvars
-    { "pr_cliplanes", "pr_cliplanes: toggles clipping behind map limits (recommended yet may decrease performance in complex maps)", (void*)&pr_cliplanes, CVAR_INT, 0, 0, 1 },
+    { "pr_scissorstest", "pr_scissorstest: scissors testing", (void*)&pr_scissorstest, CVAR_INT, 0, 0, 1 },
     { "pr_fov", "pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 0, 1023},
     { "pr_showportals", "pr_showportals: toggles frustum culling (recommended)", (void*)&pr_showportals, CVAR_INT, 0, 0, 1 },
     { "pr_verbosity", "pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
