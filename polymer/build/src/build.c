@@ -5337,7 +5337,7 @@ void overheadeditor(void)
             }
         }
 
-        if ((keystatus[0xd3] > 0) && (keystatus[0x9d] > 0) && (numwalls >= 0))
+        if ((keystatus[0xd3] > 0) && ((keystatus[0x1d]|keystatus[0x9d]) > 0) && (numwalls >= 0))
         {
             //sector delete
             keystatus[0xd3] = 0;
