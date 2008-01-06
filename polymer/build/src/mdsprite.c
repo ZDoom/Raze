@@ -1045,7 +1045,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
     int i, j, k;
     int fps;
 
-    m->cframe = m->nframe = tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum;
+    m->cframe = m->nframe = tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].framenum;
     if (mdpause)
     {
 //        spriteext[tspr->owner].mdanimtims = mdtims;
@@ -1060,7 +1060,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
             anim = anim->next) ;
     if (!anim)
     {
-        if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,tspr->pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdoldframe != m->cframe))
+        if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdoldframe != m->cframe))
         {
             if (spritesmooth[tspr->owner].mdsmooth == 0)
             {
@@ -1069,7 +1069,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
                 spritesmooth[tspr->owner].mdsmooth = 1;
                 spritesmooth[tspr->owner].mdcurframe = m->cframe;
             }
-            if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,tspr->pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
+            if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
             {
                 spriteext[tspr->owner].mdanimtims = mdtims;
                 m->interpol = 0;
@@ -1078,7 +1078,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
                 spritesmooth[tspr->owner].mdcurframe = m->cframe;
             }
         }
-        else if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,tspr->pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
+        else if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
         {
             spriteext[tspr->owner].mdanimtims = mdtims;
             m->interpol = 0;
@@ -1100,7 +1100,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
         spriteext[tspr->owner].mdanimcur = (short)anim->startframe;
         spriteext[tspr->owner].mdanimtims = mdtims;
         m->interpol = 0;
-        if (!r_animsmoothing || (tile2model[Ptile2tile(tspr->picnum,tspr->pal)].smoothduration == 0))
+        if (!r_animsmoothing || (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration == 0))
         {
             m->cframe = m->nframe = anim->startframe;
             return;
@@ -1112,7 +1112,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
     }
 
     if (spritesmooth[tspr->owner].mdsmooth)
-        fps = (1.0f / (float)(tile2model[Ptile2tile(tspr->picnum,tspr->pal)].smoothduration)) * 66;
+        fps = (1.0f / (float)(tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration)) * 66;
     else
         fps = anim->fpssc;
 
@@ -1865,14 +1865,14 @@ static int md3draw(md3model *m, spritetype *tspr)
         // PLAG: End
 
         for (pal1=SPECPAL;pal1<=REDPAL;pal1++)
-            mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum,pal1,surfi);
+            mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,pal1,surfi);
 
-        i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum,globalpal,surfi); if (!i) continue;
-        //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
+        i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,globalpal,surfi); if (!i) continue;
+        //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
         if (r_detailmapping && !r_depthpeeling && !(tspr->cstat&1024))
-            i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum,DETAILPAL,surfi);
+            i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,DETAILPAL,surfi);
         else
             i = 0;
 
@@ -1902,7 +1902,7 @@ static int md3draw(md3model *m, spritetype *tspr)
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
             for (sk = m->skinmap; sk; sk = sk->next)
-                if ((int)sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum && sk->surfnum == surfi)
+                if ((int)sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum && sk->surfnum == surfi)
                     f = sk->param;
 
             bglMatrixMode(GL_TEXTURE);
@@ -1912,7 +1912,7 @@ static int md3draw(md3model *m, spritetype *tspr)
         }
 
         if (r_glowmapping && !r_depthpeeling && !(tspr->cstat&1024))
-            i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,tspr->pal)].skinnum,GLOWPAL,surfi);
+            i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,GLOWPAL,surfi);
         else
             i = 0;
 
@@ -3058,7 +3058,7 @@ int mddraw(spritetype *tspr)
         allocmodelverts = maxmodelverts;
     }
 
-    vm = models[tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid];
+    vm = models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
     if (vm->mdnum == 1) { return voxdraw((voxmodel *)vm,tspr); }
     if (vm->mdnum == 3) { return md3draw((md3model *)vm,tspr); }
     return 0;
