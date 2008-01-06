@@ -1337,6 +1337,7 @@ case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL:
                         if (!kzfindfile(buf))
                         {
                             initprintf("Error: file '%s' does not exist\n",fn);
+                            pathsearchmode = i;
                             break;
                         }
                     }
@@ -1396,6 +1397,7 @@ case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL:
                         if (!kzfindfile(buf))
                         {
                             initprintf("Error: file '%s' does not exist\n",fn);
+                            pathsearchmode = i;
                             break;
                         }
                     }
