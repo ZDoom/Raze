@@ -785,7 +785,8 @@ enum events {
     EVENT_PROCESSINPUT,
     EVENT_FAKEDOMOVETHINGS,
     EVENT_DISPLAYROOMS,
-    EVENT_KILLIT
+    EVENT_KILLIT,
+    EVENT_LOADACTOR
 };
 
 // store global game definitions

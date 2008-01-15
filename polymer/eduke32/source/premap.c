@@ -896,6 +896,7 @@ static void prelevel(char g)
         nexti = nextspritestat[i];
         ResetActorGameVars(i);
         LoadActor(i);
+        OnEvent(EVENT_LOADACTOR, i, -1, -1);
         if (sprite[i].lotag == -1 && (sprite[i].cstat&16))
         {
             g_player[0].ps->exitx = SX;

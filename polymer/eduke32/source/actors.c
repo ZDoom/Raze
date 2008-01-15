@@ -559,7 +559,7 @@ int ssp(int i,unsigned int cliptype) //The set sprite function
 void deletespriteEVENT(int s)
 {
     SetGameVarID(g_iReturnVarID,0, -1, -1);
-    OnEvent(EVENT_KILLIT, s, myconnectindex, -1);
+    OnEvent(EVENT_KILLIT, s, -1, -1);
     if (!GetGameVarID(g_iReturnVarID, -1, -1))deletesprite(s);
 }
 #define deletesprite deletespriteEVENT
