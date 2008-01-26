@@ -3736,6 +3736,19 @@ static int parsecommand(void)
         casecount=0;
         if (tempscrptr)
         {
+            int t,n;
+            for (i=3;i<3+tempscrptr[1]*2-2;i+=2) // sort them
+            {
+                t=tempscrptr[i];n=i;
+                for (j=i+2;j<3+tempscrptr[1]*2;j+=2)
+                    if (tempscrptr[j]<t){t=tempscrptr[j];n=j;}
+                if (n!=i)
+                {
+                    t=tempscrptr[i  ];tempscrptr[i  ]=tempscrptr[n  ];tempscrptr[n  ]=t;
+                    t=tempscrptr[i+1];tempscrptr[i+1]=tempscrptr[n+1];tempscrptr[n+1]=t;
+                }
+            }
+//            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
             tempscrptr[0]= (int)scriptptr - (int)&script[0];    // save 'end' location
         }
         else

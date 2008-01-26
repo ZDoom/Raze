@@ -4481,6 +4481,7 @@ static int parse(void)
             //AddLog("Processing Switch...");
             int lValue=GetGameVarID(*insptr++, g_i, g_p), lEnd=*insptr++, lCases=*insptr++;
             int *lpDefault=insptr++, *lpCases=insptr, bMatched=0, *lTempInsPtr, lCheckCase;
+            int left,right;
             insptr+=lCases*2;
             lTempInsPtr=insptr;
             //Bsprintf(g_szBuf,"lEnd= %d *lpDefault=%d",lEnd,*lpDefault);
@@ -4488,29 +4489,34 @@ static int parse(void)
 
             //Bsprintf(g_szBuf,"Checking %d cases for %d",lCases, lValue);
             //AddLog(g_szBuf);
-            for (lCheckCase=0; lCheckCase<lCases && !bMatched; lCheckCase++)
+            left=0;right=lCases-1;
+            while (!bMatched)
             {
                 //Bsprintf(g_szBuf,"Checking #%d Value= %d",lCheckCase, lpCases[lCheckCase*2]);
                 //AddLog(g_szBuf);
-
-                if (lpCases[lCheckCase*2] == lValue)
-                {
-                    //AddLog("Found Case Match");
-                    //Bsprintf(g_szBuf,"insptr=%d. lCheckCase=%d, offset=%d, &script[0]=%d",
-                    //            (int)insptr,(int)lCheckCase,lpCases[lCheckCase*2+1],(int)&script[0]);
-                    //AddLog(g_szBuf);
-                    // fake a 2-d Array
-                    insptr=(int*)(lpCases[lCheckCase*2+1] + &script[0]);
-                    //Bsprintf(g_szBuf,"insptr=%d. ",     (int)insptr);
-                    //AddLog(g_szBuf);
-                    while (1)
-                    {
-                        if (parse())
-                            break;
-                    }
-                    //AddLog("Done Executing Case");
-                    bMatched=1;
-                }
+                lCheckCase=(left+right)/2;
+//                initprintf("(%2d..%2d..%2d) [%2d..%2d..%2d]==%2d\n",left,lCheckCase,right,lpCases[left*2],lpCases[lCheckCase*2],lpCases[right*2],lValue);
+                if (lpCases[lCheckCase*2] >  lValue) right=lCheckCase-1; else
+                        if (lpCases[lCheckCase*2] <  lValue) left =lCheckCase+1; else
+                        if (lpCases[lCheckCase*2] == lValue)
+                        {
+                            //AddLog("Found Case Match");
+                            //Bsprintf(g_szBuf,"insptr=%d. lCheckCase=%d, offset=%d, &script[0]=%d",
+                            //            (int)insptr,(int)lCheckCase,lpCases[lCheckCase*2+1],(int)&script[0]);
+                            //AddLog(g_szBuf);
+                            // fake a 2-d Array
+                            insptr=(int*)(lpCases[lCheckCase*2+1] + &script[0]);
+                            //Bsprintf(g_szBuf,"insptr=%d. ",     (int)insptr);
+                            //AddLog(g_szBuf);
+                            while (1)
+                            {
+                                if (parse())
+                                    break;
+                            }
+                            //AddLog("Done Executing Case");
+                            bMatched=1;
+                        }
+                if (right-left<0)break;
             }
             if (!bMatched)
             {

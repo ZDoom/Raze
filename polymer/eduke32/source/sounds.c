@@ -233,6 +233,14 @@ int loadsound(unsigned int num)
     if (num >= MAXSOUNDS || ud.config.SoundToggle == 0) return 0;
     if (ud.config.FXDevice < 0) return 0;
 
+    if (g_sounds[num].filename == NULL)
+    {
+//        Bsprintf(fta_quotes[113],"g_sounds %s(#%d) not found.",sounds[num],num);
+//        FTA(113,g_player[myconnectindex].ps);
+        OSD_Printf("Sound (#%d) not defined!\n",num);
+        return 0;
+    }
+
     fp = kopen4load(g_sounds[num].filename,loadfromgrouponly);
     if (fp == -1)
     {
