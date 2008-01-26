@@ -235,8 +235,6 @@ int loadsound(unsigned int num)
 
     if (g_sounds[num].filename == NULL)
     {
-//        Bsprintf(fta_quotes[113],"g_sounds %s(#%d) not found.",sounds[num],num);
-//        FTA(113,g_player[myconnectindex].ps);
         OSD_Printf("Sound (#%d) not defined!\n",num);
         return 0;
     }

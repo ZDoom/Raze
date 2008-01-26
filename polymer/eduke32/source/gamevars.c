@@ -279,7 +279,7 @@ void ResetGameVars(void)
         //     );
         //AddLog(g_szBuf);
         if (aGameVars[i].szLabel != NULL && aGameVars[i].bReset)
-            AddGameVar(aGameVars[i].szLabel,aGameVars[i].lValue,aGameVars[i].dwFlags);
+            AddGameVar(aGameVars[i].szLabel,aGameVars[i].lDefault,aGameVars[i].dwFlags);
     }
 }
 
