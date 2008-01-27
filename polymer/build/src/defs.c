@@ -417,7 +417,9 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&pal)) break;
             if (scriptfile_getnumber(script,&pal1)) break;
             if (scriptfile_getnumber(script,&pal2)) break;
+#if defined(POLYMOST) && defined(USE_OPENGL)
             setpalconv(pal,pal1,pal2);
+#endif
         }
         break;
         case T_ALPHAHACK:
@@ -1430,12 +1432,14 @@ case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL:
                 }
             }
 
+#if defined(POLYMOST) && defined(USE_OPENGL)
             if (palmapbits&&fnB) {
                 int i;
                 for (i=0;i<=25;i++)
                     if (!(palbits&(1<<i))&&(palmapbits&checkpalmaps(i)))
                         hicsetsubsttex(tile,i,fnB,alphacutB,xscaleB,yscaleB,flagsB);
             }
+#endif
 
             if ((unsigned)tile >= (unsigned)MAXTILES)
             {
