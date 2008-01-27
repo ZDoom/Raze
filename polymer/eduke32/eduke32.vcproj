@@ -494,10 +494,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\source\jfaud_sounds.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\source\mdump.cpp"
 					>
 				</File>

@@ -95,11 +95,15 @@ GAMEOBJS=$(OBJ)\game.$o \
 	$(OBJ)\startwin.game.$o \
  	$(JMACTOBJ) \
 	$(AUDIOLIBOBJ) \
+!ifdef DEBUG
 	$(OBJ)\mdump.$o
+!endif
 
 EDITOROBJS=$(OBJ)\astub.$o \
 	$(OBJ)\buildres.res \
+!ifdef DEBUG
 	$(OBJ)\mdump.$o
+!endif
 
 		
 # RULES
