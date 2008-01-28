@@ -73,7 +73,7 @@ static void PopulateForm(void)
         if (i == mode3d) ComboBox_SetCurSel(hwnd3d, j);
 
         // only 8-bit modes get used for 2D
-        if (validmode[i].bpp != 8) continue;
+        if (validmode[i].bpp != 8 || validmode[i].xdim < 640 || validmode[i].ydim < 480) continue;
         Bsprintf(buf, "%d x %d", validmode[i].xdim, validmode[i].ydim);
         j = ComboBox_AddString(hwnd2d, buf);
         ComboBox_SetItemData(hwnd2d, j, i);

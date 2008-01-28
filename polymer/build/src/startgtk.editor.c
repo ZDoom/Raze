@@ -123,7 +123,7 @@ static void PopulateForm(void)
         }
 
         // only 8-bit modes get used for 2D
-        if (validmode[i].bpp != 8) continue;
+        if (validmode[i].bpp != 8 || validmode[i].xdim < 640 || validmode[i].ydim < 480) continue;
         Bsprintf(buf, "%d x %d", validmode[i].xdim, validmode[i].ydim);
         gtk_list_store_append(modes2d, &iter);
         gtk_list_store_set(modes2d, &iter, 0,buf, 1,i, -1);
