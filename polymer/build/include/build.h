@@ -158,6 +158,7 @@ typedef struct BPACK
 
 typedef struct BPACK {
     unsigned int mdanimtims;
+    int oldmdtims;
     short mdanimcur;
     short angoff;
     short pitch, roll;

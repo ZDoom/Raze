@@ -637,7 +637,7 @@ void editinput(void)
         goalz += mousz;
         if (keystatus[buildkeys[8]] > 0)                            //A (stand high)
         {
-            if (keystatus[0x1d] > 0)
+            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)
                 horiz = max(-100,horiz-((keystatus[buildkeys[4]]+1)*synctics*2));
             else
             {
@@ -648,7 +648,7 @@ void editinput(void)
         }
         if (keystatus[buildkeys[9]] > 0)                            //Z (stand low)
         {
-            if (keystatus[0x1d] > 0)
+            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)
                 horiz = min(300,horiz+((keystatus[buildkeys[4]]+1)*synctics*2));
             else
             {
@@ -673,7 +673,7 @@ void editinput(void)
         goalz = posz;
         if (keystatus[buildkeys[8]] > 0)                            //A
         {
-            if (keystatus[0x1d] > 0)
+            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)
             {
                 horiz = max(-100,horiz-((keystatus[buildkeys[4]]+1)*synctics*2));
             }
@@ -690,7 +690,7 @@ void editinput(void)
         }
         if (keystatus[buildkeys[9]] > 0)                            //Z (stand low)
         {
-            if (keystatus[0x1d] > 0)
+            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)
             {
                 horiz = min(300,horiz+((keystatus[buildkeys[4]]+1)*synctics*2));
             }
@@ -1445,7 +1445,7 @@ void editinput(void)
         if (keystatus[0x2e] > 0)      //C
         {
             keystatus[0x2e] = 0;
-            if (keystatus[0x38] > 0)    //Alt-C
+            if ((keystatus[0x38]|keystatus[0xb8]) > 0)    //Alt-C
             {
                 if (somethingintab < 255)
                 {
@@ -5807,7 +5807,7 @@ CANCEL:
                     }
                     if (bad == 2)
                     {
-                        char *f;
+                        char *f;int res;
                         keystatus[0x1c] = 0;
 
                         boardfilename[i] = '.';
@@ -5835,16 +5835,16 @@ CANCEL:
                         fixspritesectors();   //Do this before saving!
                         updatesector(startposx,startposy,&startsectnum);
                         ExtPreSaveMap();
-                        saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
+                        res=saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
                         ExtSaveMap(f);
-                        printmessage16("Board saved.");
+                        printmessage16((res==0)?"Board saved.":"Saving board failed.");
                         Bstrcpy(boardfilename, selectedboardfilename);
                     }
                     bad = 0;
                 }
                 else if (ch == 's' || ch == 'S')  //S
                 {
-                    char *f;
+                    char *f;int res;
                     bad = 0;
                     printmessage16("Saving board...");
                     showframe(1);
@@ -5859,9 +5859,9 @@ CANCEL:
                         if (!f) f = boardfilename; else f++;
                     }
                     ExtPreSaveMap();
-                    saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
+                    res=saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
                     ExtSaveMap(f);
-                    printmessage16("Board saved.");
+                    printmessage16((res==0)?"Board saved.":"Saving board failed.");
                     showframe(1);
                 }
                 else if (ch == 'q' || ch == 'Q')  //Q

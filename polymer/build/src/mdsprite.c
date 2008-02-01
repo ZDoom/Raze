@@ -203,10 +203,10 @@ int addtileP(int model,int tile,int pallet)
     if (curextra==MAXTILES+EXTRATILES-2)return curextra;
     if (tile2model[tile].modelid==-1){tile2model[tile].pal=pallet;return tile;}
     if (tile2model[tile].pal==pallet)return tile;
-    while(tile2model[tile].next!=-1)
+    while (tile2model[tile].next!=-1)
     {
         tile=tile2model[tile].next;
-        if(tile2model[tile].pal==pallet)return tile;
+        if (tile2model[tile].pal==pallet)return tile;
     }
     tile2model[tile].next=curextra;
     tile2model[curextra].pal=pallet;
@@ -1046,13 +1046,10 @@ static void updateanimation(md2model *m, spritetype *tspr)
     int fps;
 
     m->cframe = m->nframe = tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].framenum;
-    if (mdpause)
+    if (!mdpause&&spriteext[tspr->owner].oldmdtims!=mdtims)
     {
-//        spriteext[tspr->owner].mdanimtims = mdtims;
-        m->interpol = 0;
-        spriteext[tspr->owner].mdanimtims = mdtims;
-        spriteext[tspr->picnum].mdanimtims = mdtims;
-        return;
+        spriteext[tspr->owner].mdanimtims+=max(0,mdtims-omdtims);
+        spriteext[tspr->owner].oldmdtims=mdtims;
     }
 
     for (anim = m->animations;
@@ -1064,14 +1061,14 @@ static void updateanimation(md2model *m, spritetype *tspr)
         {
             if (spritesmooth[tspr->owner].mdsmooth == 0)
             {
-                spriteext[tspr->owner].mdanimtims = mdtims;
+                spriteext[tspr->owner].mdanimtims = 0;
                 m->interpol = 0;
                 spritesmooth[tspr->owner].mdsmooth = 1;
                 spritesmooth[tspr->owner].mdcurframe = m->cframe;
             }
             if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
             {
-                spriteext[tspr->owner].mdanimtims = mdtims;
+                spriteext[tspr->owner].mdanimtims = 0;
                 m->interpol = 0;
                 spritesmooth[tspr->owner].mdsmooth = 1;
                 spritesmooth[tspr->owner].mdoldframe = spritesmooth[tspr->owner].mdcurframe;
@@ -1080,7 +1077,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
         }
         else if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
         {
-            spriteext[tspr->owner].mdanimtims = mdtims;
+            spriteext[tspr->owner].mdanimtims = 0;
             m->interpol = 0;
             spritesmooth[tspr->owner].mdsmooth = 1;
             spritesmooth[tspr->owner].mdoldframe = spritesmooth[tspr->owner].mdcurframe;
@@ -1098,7 +1095,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
         //if (spriteext[tspr->owner].flags & SPREXT_NOMDANIM) OSD_Printf("SPREXT_NOMDANIM\n");
         //OSD_Printf("smooth launched ! oldanim %i new anim %i\n", spriteext[tspr->owner].mdanimcur, anim->startframe);
         spriteext[tspr->owner].mdanimcur = (short)anim->startframe;
-        spriteext[tspr->owner].mdanimtims = mdtims;
+        spriteext[tspr->owner].mdanimtims = 0;
         m->interpol = 0;
         if (!r_animsmoothing || (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration == 0))
         {
@@ -1116,16 +1113,16 @@ static void updateanimation(md2model *m, spritetype *tspr)
     else
         fps = anim->fpssc;
 
-    i = (mdtims-spriteext[tspr->owner].mdanimtims)*((fps*timerticspersec)/120);
+    i = (spriteext[tspr->owner].mdanimtims)*((fps*timerticspersec)/120);
 
     if (spritesmooth[tspr->owner].mdsmooth)
         j = 65536;
     else
         j = ((anim->endframe+1-anim->startframe)<<16);
     //Just in case you play the game for a VERY int time...
-    if (i < 0) { i = 0; spriteext[tspr->owner].mdanimtims = mdtims; }
+    if (i < 0) { i = 0; spriteext[tspr->owner].mdanimtims = 0; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
-    if ((anim) && (i >= j+j) && (fps)) //Keep mdanimtims close to mdtims to avoid the use of MOD
+    if ((anim) && (i >= j+j) && (fps) && !mdpause) //Keep mdanimtims close to mdtims to avoid the use of MOD
         spriteext[tspr->owner].mdanimtims += j/((fps*timerticspersec)/120);
 
     k = i;
@@ -1141,7 +1138,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
         //OSD_Printf("smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
         if (k > 65535)
         {
-            spriteext[tspr->owner].mdanimtims = mdtims;
+            spriteext[tspr->owner].mdanimtims = 0;
             m->interpol = 0;
             spritesmooth[tspr->owner].mdsmooth = 0;
             m->cframe = m->nframe = (anim) ? anim->startframe : spritesmooth[tspr->owner].mdcurframe;
@@ -1740,7 +1737,7 @@ static int md3draw(md3model *m, spritetype *tspr)
     bglEnable(GL_TEXTURE_2D);
 
     pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max((globalshade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
-    if (!(m->flags&1))
+    if (!(m->flags&1)||sector[sprite[tspr->owner].sectnum].floorpal!=0)
     {
         pc[0] *= (float)hictinting[globalpal].r / 255.0;
         pc[1] *= (float)hictinting[globalpal].g / 255.0;

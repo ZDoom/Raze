@@ -357,6 +357,7 @@ static int defsparser(scriptfile *script)
                 if (!kzfindfile(buf))
                 {
                     initprintf("Error: file '%s' does not exist\n",fn);
+                    pathsearchmode = i;
                     break;
                 }
             }
@@ -1433,7 +1434,8 @@ case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL:
             }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (palmapbits&&fnB) {
+            if (palmapbits&&fnB)
+            {
                 int i;
                 for (i=0;i<=25;i++)
                     if (!(palbits&(1<<i))&&(palmapbits&checkpalmaps(i)))

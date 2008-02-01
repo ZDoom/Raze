@@ -7383,6 +7383,7 @@ int loadmaphack(char *filename)
             }
             spriteext[whichsprite].pitch = (short)pitch;
         }
+        break;
         case T_ROLL:     // roll <xx>
         {
             int roll;
@@ -7397,6 +7398,7 @@ int loadmaphack(char *filename)
             }
             spriteext[whichsprite].roll = (short)roll;
         }
+        break;
         case T_MDXOFF:     // mdxoff <xx>
         {
             int i;
@@ -7411,6 +7413,7 @@ int loadmaphack(char *filename)
             }
             spriteext[whichsprite].xoff = i;
         }
+        break;
         case T_MDYOFF:     // mdyoff <xx>
         {
             int i;
@@ -7425,6 +7428,7 @@ int loadmaphack(char *filename)
             }
             spriteext[whichsprite].yoff = i;
         }
+        break;
         case T_MDZOFF:     // mdzoff <xx>
         {
             int i;
@@ -7585,12 +7589,12 @@ int saveboard(char *filename, int *daposx, int *daposy, int *daposz,
 
 
         spri=tspri;
-        for (j=0;j<MAXSTATUS;j++)
+
+        for (j=0;j<MAXSPRITES;j++)
         {
-            int i = headspritestat[j];
-            while (i != -1)
+            if (sprite[j].statnum != MAXSTATUS)
             {
-                Bmemcpy(spri,&sprite[i],sizeof(spritetype));
+                Bmemcpy(spri,&sprite[j],sizeof(spritetype));
                 spri->x       = B_LITTLE32(spri->x);
                 spri->y       = B_LITTLE32(spri->y);
                 spri->z       = B_LITTLE32(spri->z);
@@ -7606,7 +7610,7 @@ int saveboard(char *filename, int *daposx, int *daposy, int *daposz,
                 spri->lotag   = B_LITTLE16(spri->lotag);
                 spri->hitag   = B_LITTLE16(spri->hitag);
                 spri->extra   = B_LITTLE16(spri->extra);
-                i = nextspritestat[i];spri++;
+                spri++;
             }
         }
 
