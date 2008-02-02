@@ -7777,7 +7777,12 @@ void nextpage(void)
 
 #ifdef USE_OPENGL
     omdtims = mdtims; mdtims = getticks();
-    if (((unsigned int)(mdtims-omdtims)) > 10000) omdtims = mdtims;
+
+    if(mdpause)
+    {
+        int i;
+        for(i=0;i<MAXSPRITES;i++)if(spriteext[i].mdanimtims)spriteext[i].mdanimtims+=mdtims-omdtims;
+    }
 #endif
 
     beforedrawrooms = 1;

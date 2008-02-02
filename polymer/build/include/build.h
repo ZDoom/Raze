@@ -158,7 +158,6 @@ typedef struct BPACK
 
 typedef struct BPACK {
     unsigned int mdanimtims;
-    int oldmdtims;
     short mdanimcur;
     short angoff;
     short pitch, roll;
@@ -523,6 +522,7 @@ extern int r_vertexarrays;
 extern int r_vbos;
 extern int r_vbocount;
 extern int r_animsmoothing;
+extern int mdtims, omdtims;
 #endif
 
 void hicinit(void);

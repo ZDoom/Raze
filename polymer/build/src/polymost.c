@@ -333,7 +333,7 @@ int dedxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *p
 static inline void phex(unsigned char v, char *s);
 void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *head);
 
-static int mdtims, omdtims;
+int mdtims, omdtims;
 float alphahackarray[MAXTILES];
 #include "mdsprite.c"
 
@@ -1779,6 +1779,7 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
         float hackscx, hackscy;
 
         int pal1;
+        if(usehightile)
         for (pal1=SPECPAL;pal1<=REDPAL;pal1++)
             if (hicfindsubst(globalpicnum, pal1, 0))
                 gltexcache(globalpicnum, pal1, method&(~3));

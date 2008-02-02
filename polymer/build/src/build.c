@@ -194,6 +194,7 @@ int gettile(int tilenum);
 int menuselect(void);
 int getfilenames(char *path, char *kind);
 void clearfilenames(void);
+void loadmhk();
 
 void clearkeys(void) { memset(keystatus,0,sizeof(keystatus)); }
 
@@ -355,6 +356,7 @@ int app_main(int argc, const char **argv)
 
     ExtPreLoadMap();
     i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+    loadmhk();
     if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
     if (i < 0)
     {
@@ -511,6 +513,25 @@ void showmouse(void)
     }
 }
 
+int mhk=0;
+void loadmhk()
+{
+    char *p;char levname[BMAX_PATH];
+
+    if(!mhk)return;
+    strcpy(levname, boardfilename);
+    p = Bstrrchr(levname,'.');
+    if (!p) strcat(levname,".mhk");
+    else
+    {
+        p[1]='m';
+        p[2]='h';
+        p[3]='k';
+        p[4]=0;
+    }
+    if (!loadmaphack(levname))initprintf("Loaded map hack file '%s'\n",levname);else mhk=2;
+}
+
 void editinput(void)
 {
     char smooshyalign, repeatpanalign, *ptr, buffer[80];
@@ -583,8 +604,26 @@ void editinput(void)
     if (keystatus[0x3c] > 0) posx++;
     if (keystatus[0x3d] > 0) posy--;
     if (keystatus[0x3e] > 0) posy++;
-    if (keystatus[0x43] > 0) ang--;
-    if (keystatus[0x44] > 0) ang++;
+//    if (keystatus[0x43] > 0) ang--;
+//    if (keystatus[0x44] > 0) ang++;
+
+    if (keystatus[0x43] > 0)
+    {
+        mhk=1;
+        loadmhk();
+        keystatus[0x43] = 0;
+    }
+    if (keystatus[0x44] > 0)
+    {
+        memset(spriteext, 0, sizeof(spriteexttype) * MAXSPRITES);
+        memset(spritesmooth, 0, sizeof(spritesmooth));
+        mhk=0;
+        initprintf("Maphacks dissabled\n");
+        keystatus[0x44] = 0;
+    }
+    begindrawing();     //{{{
+    if(mhk)printext256(0,16,whitecol,0,(mhk==1)?"Maphacks ON":"Maphacks ON (not found)",0);
+    enddrawing();       //}}}
 
     if (angvel != 0)          //ang += angvel * constant
     {
@@ -5678,6 +5717,7 @@ CANCEL:
 
                         ExtPreLoadMap();
                         i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+                        loadmhk();
                         if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
                         if (i < 0)
                         {

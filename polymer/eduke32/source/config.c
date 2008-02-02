@@ -869,6 +869,7 @@ void CONFIG_WriteSetup(void)
         Bsprintf(buf,"MouseButtonClicked%d",dummy);
         SCRIPT_PutString(ud.config.scripthandle,"Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseFunctions[dummy][1]));
     }
+
     for (dummy=0;dummy<MAXMOUSEAXES;dummy++)
     {
         Bsprintf(buf,"MouseAnalogAxes%d",dummy);

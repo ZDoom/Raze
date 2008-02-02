@@ -7006,7 +7006,7 @@ PALONLY:
                                 tsprite[spritesortcnt].z = daz;
                                 xrep = tsprite[spritesortcnt].xrepeat;// - (klabs(daz-t->z)>>11);
                                 tsprite[spritesortcnt].xrepeat = xrep;
-//                                tsprite[spritesortcnt].pal = 4; (shadow will have the same model as its actor)
+                                tsprite[spritesortcnt].pal = 4;
 
                                 yrep = tsprite[spritesortcnt].yrepeat;// - (klabs(daz-t->z)>>11);
                                 tsprite[spritesortcnt].yrepeat = yrep;

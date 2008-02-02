@@ -951,15 +951,6 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
         }
         else kclose(filh);
         m->usesalpha = hasalpha;
-
-        if ((doalloc&3)==1) bglGenTextures(1,(GLuint*)texidx);
-        bglBindTexture(GL_TEXTURE_2D,*texidx);
-
-        //gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA,xsiz,ysiz,GL_BGRA_EXT,GL_UNSIGNED_BYTE,(char *)fptr);
-        if (glinfo.texcompr && glusetexcompr) intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
-        else if (!hasalpha) intexfmt = GL_RGB;
-        if (glinfo.bgra) texfmt = GL_BGRA;
-        uploadtexture((doalloc&1), xsiz, ysiz, intexfmt, texfmt, (coltype*)fptr, xsiz, ysiz, 0);
         if (pal>=SPECPAL&&pal<=REDPAL)
         {
             //_initprintf("%cLoaded palmap %d(%dx%d)",sk->palmap?'+':'-',pal,xsiz,ysiz);
@@ -972,6 +963,15 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
             cachefil=0;
             //_initprintf("#%d\n",sk->palmap);
         }
+
+        if ((doalloc&3)==1) bglGenTextures(1,(GLuint*)texidx);
+        bglBindTexture(GL_TEXTURE_2D,*texidx);
+
+        //gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA,xsiz,ysiz,GL_BGRA_EXT,GL_UNSIGNED_BYTE,(char *)fptr);
+        if (glinfo.texcompr && glusetexcompr) intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
+        else if (!hasalpha) intexfmt = GL_RGB;
+        if (glinfo.bgra) texfmt = GL_BGRA;
+        uploadtexture((doalloc&1), xsiz, ysiz, intexfmt, texfmt, (coltype*)fptr, xsiz, ysiz, 0);
         free((void*)fptr);
     }
 
@@ -1046,11 +1046,6 @@ static void updateanimation(md2model *m, spritetype *tspr)
     int fps;
 
     m->cframe = m->nframe = tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].framenum;
-    if (!mdpause&&spriteext[tspr->owner].oldmdtims!=mdtims)
-    {
-        spriteext[tspr->owner].mdanimtims+=max(0,mdtims-omdtims);
-        spriteext[tspr->owner].oldmdtims=mdtims;
-    }
 
     for (anim = m->animations;
             anim && anim->startframe != m->cframe;
@@ -1061,14 +1056,14 @@ static void updateanimation(md2model *m, spritetype *tspr)
         {
             if (spritesmooth[tspr->owner].mdsmooth == 0)
             {
-                spriteext[tspr->owner].mdanimtims = 0;
+                spriteext[tspr->owner].mdanimtims = mdtims;
                 m->interpol = 0;
                 spritesmooth[tspr->owner].mdsmooth = 1;
                 spritesmooth[tspr->owner].mdcurframe = m->cframe;
             }
             if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
             {
-                spriteext[tspr->owner].mdanimtims = 0;
+                spriteext[tspr->owner].mdanimtims = mdtims;
                 m->interpol = 0;
                 spritesmooth[tspr->owner].mdsmooth = 1;
                 spritesmooth[tspr->owner].mdoldframe = spritesmooth[tspr->owner].mdcurframe;
@@ -1077,7 +1072,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
         }
         else if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
         {
-            spriteext[tspr->owner].mdanimtims = 0;
+            spriteext[tspr->owner].mdanimtims = mdtims;
             m->interpol = 0;
             spritesmooth[tspr->owner].mdsmooth = 1;
             spritesmooth[tspr->owner].mdoldframe = spritesmooth[tspr->owner].mdcurframe;
@@ -1095,7 +1090,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
         //if (spriteext[tspr->owner].flags & SPREXT_NOMDANIM) OSD_Printf("SPREXT_NOMDANIM\n");
         //OSD_Printf("smooth launched ! oldanim %i new anim %i\n", spriteext[tspr->owner].mdanimcur, anim->startframe);
         spriteext[tspr->owner].mdanimcur = (short)anim->startframe;
-        spriteext[tspr->owner].mdanimtims = 0;
+        spriteext[tspr->owner].mdanimtims = mdtims;
         m->interpol = 0;
         if (!r_animsmoothing || (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration == 0))
         {
@@ -1113,14 +1108,14 @@ static void updateanimation(md2model *m, spritetype *tspr)
     else
         fps = anim->fpssc;
 
-    i = (spriteext[tspr->owner].mdanimtims)*((fps*timerticspersec)/120);
+    i = (mdtims-spriteext[tspr->owner].mdanimtims)*((fps*timerticspersec)/120);
 
     if (spritesmooth[tspr->owner].mdsmooth)
         j = 65536;
     else
         j = ((anim->endframe+1-anim->startframe)<<16);
     //Just in case you play the game for a VERY int time...
-    if (i < 0) { i = 0; spriteext[tspr->owner].mdanimtims = 0; }
+    if (i < 0) { i = 0;spriteext[tspr->owner].mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
     if ((anim) && (i >= j+j) && (fps) && !mdpause) //Keep mdanimtims close to mdtims to avoid the use of MOD
         spriteext[tspr->owner].mdanimtims += j/((fps*timerticspersec)/120);
@@ -1138,7 +1133,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
         //OSD_Printf("smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
         if (k > 65535)
         {
-            spriteext[tspr->owner].mdanimtims = 0;
+            spriteext[tspr->owner].mdanimtims = mdtims;
             m->interpol = 0;
             spritesmooth[tspr->owner].mdsmooth = 0;
             m->cframe = m->nframe = (anim) ? anim->startframe : spritesmooth[tspr->owner].mdcurframe;
