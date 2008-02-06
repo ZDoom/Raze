@@ -171,18 +171,16 @@ int r_animsmoothing = 1;
 
 static float fogresult, ofogresult, fogcol[4];
 
-static void fogcalc(signed char shade, char vis, char pal)
-{
-    if (vis < 240) fogresult = (float)gvisibility*(vis+16+(shade<0?(-(shade)*(shade))/8.f:((shade)*(shade))/8.f));
-    else fogresult = (float)gvisibility*((vis-240+(shade<0?(-(shade)*(shade))/8.f:((shade)*(shade))/8.f))/(klabs(vis-256)));
-
-    if (fogresult < 0.010) fogresult = 0.010;
-    else if (fogresult > 10.000) fogresult = 10.000;
-
-    fogcol[0] = (float)palookupfog[pal].r / 63.f;
-    fogcol[1] = (float)palookupfog[pal].g / 63.f;
-    fogcol[2] = (float)palookupfog[pal].b / 63.f;
-    fogcol[3] = 0;
+// making this a macro should speed things up at the expense of code size
+#define fogcalc(shade, vis, pal) \
+{ \
+    fogresult = (float)gvisibility*(vis+16+(shade<0?(-(shade)*(shade))*0.125f:((shade)*(shade))*0.125f)); \
+    if (vis > 239) fogresult = (float)gvisibility*((vis-240+(shade<0?(-(shade)*(shade))*0.125f:((shade)*(shade))*0.125f))/(klabs(vis-256))); \
+    fogresult = min(max(fogresult, 0.01f),10.f); \
+    fogcol[0] = (float)palookupfog[pal].r / 63.f; \
+    fogcol[1] = (float)palookupfog[pal].g / 63.f; \
+    fogcol[2] = (float)palookupfog[pal].b / 63.f; \
+    fogcol[3] = 0; \
 }
 #endif
 
@@ -1779,10 +1777,10 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
         float hackscx, hackscy;
 
         int pal1;
-        if(usehightile)
-        for (pal1=SPECPAL;pal1<=REDPAL;pal1++)
-            if (hicfindsubst(globalpicnum, pal1, 0))
-                gltexcache(globalpicnum, pal1, method&(~3));
+        if (usehightile)
+            for (pal1=SPECPAL;pal1<=REDPAL;pal1++)
+                if (hicfindsubst(globalpicnum, pal1, 0))
+                    gltexcache(globalpicnum, pal1, method&(~3));
 
         if (skyclamphack) method |= 4;
         pth = gltexcache(globalpicnum,globalpal,method&(~3));

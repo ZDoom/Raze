@@ -4015,12 +4015,12 @@ static int parse(void)
 
     case CON_MONEY:
         insptr++;
-        lotsofmoney(g_i,*insptr++);
+        lotsofmoneymailpaper(g_i,*insptr++,MONEY);
         break;
 
     case CON_MAIL:
         insptr++;
-        lotsofmail(g_i,*insptr++);
+        lotsofmoneymailpaper(g_i,*insptr++,MAIL);
         break;
 
     case CON_SLEEPTIME:
@@ -4030,7 +4030,7 @@ static int parse(void)
 
     case CON_PAPER:
         insptr++;
-        lotsofpaper(g_i,*insptr++);
+        lotsofmoneymailpaper(g_i,*insptr++,PAPER);
         break;
 
     case CON_ADDKILLS:

@@ -27,19 +27,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern int numenvsnds;
 extern int actor_tog;
 
-void updateinterpolations()  //Stick at beginning of domovethings
+inline void updateinterpolations(void)  //Stick at beginning of domovethings
 {
     int i=numinterpolations-1;
-
     for (;i>=0;i--) oldipos[i] = *curipos[i];
 }
 
 void setinterpolation(int *posptr)
 {
-    int i;
+    int i=numinterpolations-1;
 
     if (numinterpolations >= MAXINTERPOLATIONS) return;
-    for (i=numinterpolations-1;i>=0;i--)
+    for (;i>=0;i--)
         if (curipos[i] == posptr) return;
     curipos[numinterpolations] = posptr;
     oldipos[numinterpolations] = *posptr;
@@ -48,9 +47,9 @@ void setinterpolation(int *posptr)
 
 void stopinterpolation(int *posptr)
 {
-    int i;
+    int i=numinterpolations-1;
 
-    for (i=numinterpolations-1;i>=startofdynamicinterpolations;i--)
+    for (;i>=startofdynamicinterpolations;i--)
         if (curipos[i] == posptr)
         {
             numinterpolations--;
@@ -74,27 +73,20 @@ void dointerpolations(int smoothratio)       //Stick at beginning of drawscreen
     }
 }
 
-void restoreinterpolations()  //Stick at end of drawscreen
+inline void restoreinterpolations(void)  //Stick at end of drawscreen
 {
     int i=numinterpolations-1;
-
     for (;i>=0;i--) *curipos[i] = bakipos[i];
 }
 
-int ceilingspace(int sectnum)
+inline int ceilingspace(int sectnum)
 {
-    if ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 && (sector[sectnum].ceilingpicnum==MOONSKY1 || sector[sectnum].ceilingpicnum==BIGORBIT1))
-        return 1;
-    return 0;
+    return ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 && (sector[sectnum].ceilingpicnum==MOONSKY1 || sector[sectnum].ceilingpicnum==BIGORBIT1)?1:0);
 }
 
-int floorspace(int sectnum)
+inline int floorspace(int sectnum)
 {
-    if ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0)
-    {
-        if ((sector[sectnum].floorpicnum==MOONSKY1)||(sector[sectnum].floorpicnum==BIGORBIT1)) return 1;
-    }
-    return 0;
+    return ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0 && ((sector[sectnum].floorpicnum==MOONSKY1)||(sector[sectnum].floorpicnum==BIGORBIT1))?1:0);
 }
 
 void addammo(int weapon,player_struct *p,int amount)
@@ -541,15 +533,12 @@ int movesprite(int spritenum, int xchange, int ychange, int zchange, unsigned in
     return(retval);
 }
 
-int ssp(int i,unsigned int cliptype) //The set sprite function
+inline int ssp(int i,unsigned int cliptype) //The set sprite function
 {
-    spritetype *s= &sprite[i];
-    int movetype = movesprite(i,
-                          (s->xvel*(sintable[(s->ang+512)&2047]))>>14,
-                          (s->xvel*(sintable[s->ang&2047]))>>14,s->zvel,
-                          cliptype);
-
-    return (movetype==0);
+    return (movesprite(i,
+                          (sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
+                          (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,sprite[i].zvel,
+                          cliptype)==0);
 }
 
 #undef deletesprite
@@ -570,49 +559,26 @@ void deletespriteEVENT(int s)
 
 void insertspriteq(int i)
 {
-    if (spriteqamount > 0)
+    if (spriteqamount == 0)
     {
-        if (spriteq[spriteqloc] >= 0)
-            sprite[spriteq[spriteqloc]].xrepeat = 0;
-        spriteq[spriteqloc] = i;
-        spriteqloc = (spriteqloc+1)%spriteqamount;
+        deletesprite(i);
+        return;
     }
-    //    else sprite[i].xrepeat = sprite[i].yrepeat = 0;
-    else deletesprite(i);
+
+    if (spriteq[spriteqloc] >= 0)
+        sprite[spriteq[spriteqloc]].xrepeat = 0;
+    spriteq[spriteqloc] = i;
+    spriteqloc = (spriteqloc+1)%spriteqamount;
 }
 
-void lotsofmoney(int sp, int n)
+void lotsofmoneymailpaper(int sp, int n, int pic)
 {
     int i=n ,j;
     spritetype *s = &sprite[sp];
 
     for (;i>0;i--)
     {
-        j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),MONEY,-32,8,8,TRAND&2047,0,0,sp,5);
-        sprite[j].cstat = TRAND&12;
-    }
-}
-
-void lotsofmail(int sp, int n)
-{
-    int i=n ,j;
-    spritetype *s = &sprite[sp];
-
-    for (;i>0;i--)
-    {
-        j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),MAIL,-32,8,8,TRAND&2047,0,0,sp,5);
-        sprite[j].cstat = TRAND&12;
-    }
-}
-
-void lotsofpaper(int sp, int n)
-{
-    int i=n ,j;
-    spritetype *s = &sprite[sp];
-
-    for (;i>0;i--)
-    {
-        j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),PAPER,-32,8,8,TRAND&2047,0,0,sp,5);
+        j = EGS(s->sectnum,s->x,s->y,s->z-(TRAND%(47<<8)),pic,-32,8,8,TRAND&2047,0,0,sp,5);
         sprite[j].cstat = TRAND&12;
     }
 }

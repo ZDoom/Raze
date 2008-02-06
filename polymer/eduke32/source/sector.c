@@ -1788,7 +1788,7 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
 
     case ATM__STATIC:
         wal->picnum = ATMBROKE;
-        lotsofmoney(spr,1+(TRAND&7));
+        lotsofmoneymailpaper(spr,1+(TRAND&7),MONEY);
         spritesound(GLASS_HEAVYBREAK,spr);
         break;
 
@@ -2173,7 +2173,7 @@ void checkhitsprite(int i,int sn)
     case STATUEFLASH__STATIC:
     case STATUE__STATIC:
         if (PN == BOTTLE10)
-            lotsofmoney(i,4+(TRAND&3));
+            lotsofmoneymailpaper(i,4+(TRAND&3),MONEY);
         else if (PN == STATUE || PN == STATUEFLASH)
         {
             lotsofcolourglass(i,-1,40);
@@ -3241,7 +3241,7 @@ void checksectors(int snum)
     }
 
     if (ud.cashman && g_player[snum].sync->bits&(1<<29))
-        lotsofmoney(p->i,2);
+        lotsofmoneymailpaper(p->i,2,MONEY);
 
     if (p->newowner >= 0)
     {

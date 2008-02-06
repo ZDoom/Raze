@@ -3675,7 +3675,7 @@ static void view(player_struct *pp, int *vx, int *vy,int *vz,short *vsectnum, in
 //REPLACE FULLY
 void drawbackground(void)
 {
-    short dapicnum;
+    int dapicnum;
     int x,y,x1,y1,x2,y2,rx;
 
     flushperms();

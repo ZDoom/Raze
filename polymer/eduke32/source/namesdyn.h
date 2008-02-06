@@ -22,1478 +22,1478 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-extern unsigned short SECTOREFFECTOR;
+extern int SECTOREFFECTOR;
 #define SECTOREFFECTOR__STATIC 1
-extern unsigned short ACTIVATOR;
+extern int ACTIVATOR;
 #define ACTIVATOR__STATIC 2
-extern unsigned short TOUCHPLATE;
+extern int TOUCHPLATE;
 #define TOUCHPLATE__STATIC 3
-extern unsigned short ACTIVATORLOCKED;
+extern int ACTIVATORLOCKED;
 #define ACTIVATORLOCKED__STATIC 4
-extern unsigned short MUSICANDSFX;
+extern int MUSICANDSFX;
 #define MUSICANDSFX__STATIC 5
-extern unsigned short LOCATORS;
+extern int LOCATORS;
 #define LOCATORS__STATIC 6
-extern unsigned short CYCLER;
+extern int CYCLER;
 #define CYCLER__STATIC 7
-extern unsigned short MASTERSWITCH;
+extern int MASTERSWITCH;
 #define MASTERSWITCH__STATIC 8
-extern unsigned short RESPAWN;
+extern int RESPAWN;
 #define RESPAWN__STATIC 9
-extern unsigned short GPSPEED;
+extern int GPSPEED;
 #define GPSPEED__STATIC 10
-extern unsigned short FOF;
+extern int FOF;
 #define FOF__STATIC 13
-extern unsigned short ARROW;
+extern int ARROW;
 #define ARROW__STATIC 20
-extern unsigned short FIRSTGUNSPRITE;
+extern int FIRSTGUNSPRITE;
 #define FIRSTGUNSPRITE__STATIC 21
-extern unsigned short CHAINGUNSPRITE;
+extern int CHAINGUNSPRITE;
 #define CHAINGUNSPRITE__STATIC 22
-extern unsigned short RPGSPRITE;
+extern int RPGSPRITE;
 #define RPGSPRITE__STATIC 23
-extern unsigned short FREEZESPRITE;
+extern int FREEZESPRITE;
 #define FREEZESPRITE__STATIC 24
-extern unsigned short SHRINKERSPRITE;
+extern int SHRINKERSPRITE;
 #define SHRINKERSPRITE__STATIC 25
-extern unsigned short HEAVYHBOMB;
+extern int HEAVYHBOMB;
 #define HEAVYHBOMB__STATIC 26
-extern unsigned short TRIPBOMBSPRITE;
+extern int TRIPBOMBSPRITE;
 #define TRIPBOMBSPRITE__STATIC 27
-extern unsigned short SHOTGUNSPRITE;
+extern int SHOTGUNSPRITE;
 #define SHOTGUNSPRITE__STATIC 28
-extern unsigned short DEVISTATORSPRITE;
+extern int DEVISTATORSPRITE;
 #define DEVISTATORSPRITE__STATIC 29
-extern unsigned short HEALTHBOX;
+extern int HEALTHBOX;
 #define HEALTHBOX__STATIC 30
-extern unsigned short AMMOBOX;
+extern int AMMOBOX;
 #define AMMOBOX__STATIC 31
-extern unsigned short GROWSPRITEICON;
+extern int GROWSPRITEICON;
 #define GROWSPRITEICON__STATIC 32
-extern unsigned short INVENTORYBOX;
+extern int INVENTORYBOX;
 #define INVENTORYBOX__STATIC 33
-extern unsigned short FREEZEAMMO;
+extern int FREEZEAMMO;
 #define FREEZEAMMO__STATIC 37
-extern unsigned short AMMO;
+extern int AMMO;
 #define AMMO__STATIC 40
-extern unsigned short BATTERYAMMO;
+extern int BATTERYAMMO;
 #define BATTERYAMMO__STATIC 41
-extern unsigned short DEVISTATORAMMO;
+extern int DEVISTATORAMMO;
 #define DEVISTATORAMMO__STATIC 42
-extern unsigned short RPGAMMO;
+extern int RPGAMMO;
 #define RPGAMMO__STATIC 44
-extern unsigned short GROWAMMO;
+extern int GROWAMMO;
 #define GROWAMMO__STATIC 45
-extern unsigned short CRYSTALAMMO;
+extern int CRYSTALAMMO;
 #define CRYSTALAMMO__STATIC 46
-extern unsigned short HBOMBAMMO;
+extern int HBOMBAMMO;
 #define HBOMBAMMO__STATIC 47
-extern unsigned short AMMOLOTS;
+extern int AMMOLOTS;
 #define AMMOLOTS__STATIC 48
-extern unsigned short SHOTGUNAMMO;
+extern int SHOTGUNAMMO;
 #define SHOTGUNAMMO__STATIC 49
-extern unsigned short COLA;
+extern int COLA;
 #define COLA__STATIC 51
-extern unsigned short SIXPAK;
+extern int SIXPAK;
 #define SIXPAK__STATIC 52
-extern unsigned short FIRSTAID;
+extern int FIRSTAID;
 #define FIRSTAID__STATIC 53
-extern unsigned short SHIELD;
+extern int SHIELD;
 #define SHIELD__STATIC 54
-extern unsigned short STEROIDS;
+extern int STEROIDS;
 #define STEROIDS__STATIC 55
-extern unsigned short AIRTANK;
+extern int AIRTANK;
 #define AIRTANK__STATIC 56
-extern unsigned short JETPACK;
+extern int JETPACK;
 #define JETPACK__STATIC 57
-extern unsigned short HEATSENSOR;
+extern int HEATSENSOR;
 #define HEATSENSOR__STATIC 59
-extern unsigned short ACCESSCARD;
+extern int ACCESSCARD;
 #define ACCESSCARD__STATIC 60
-extern unsigned short BOOTS;
+extern int BOOTS;
 #define BOOTS__STATIC 61
-extern unsigned short MIRRORBROKE;
+extern int MIRRORBROKE;
 #define MIRRORBROKE__STATIC 70
-extern unsigned short CLOUDYOCEAN;
+extern int CLOUDYOCEAN;
 #define CLOUDYOCEAN__STATIC 78
-extern unsigned short CLOUDYSKIES;
+extern int CLOUDYSKIES;
 #define CLOUDYSKIES__STATIC 79
-extern unsigned short MOONSKY1;
+extern int MOONSKY1;
 #define MOONSKY1__STATIC 80
-extern unsigned short MOONSKY2;
+extern int MOONSKY2;
 #define MOONSKY2__STATIC 81
-extern unsigned short MOONSKY3;
+extern int MOONSKY3;
 #define MOONSKY3__STATIC 82
-extern unsigned short MOONSKY4;
+extern int MOONSKY4;
 #define MOONSKY4__STATIC 83
-extern unsigned short BIGORBIT1;
+extern int BIGORBIT1;
 #define BIGORBIT1__STATIC 84
-extern unsigned short BIGORBIT2;
+extern int BIGORBIT2;
 #define BIGORBIT2__STATIC 85
-extern unsigned short BIGORBIT3;
+extern int BIGORBIT3;
 #define BIGORBIT3__STATIC 86
-extern unsigned short BIGORBIT4;
+extern int BIGORBIT4;
 #define BIGORBIT4__STATIC 87
-extern unsigned short BIGORBIT5;
+extern int BIGORBIT5;
 #define BIGORBIT5__STATIC 88
-extern unsigned short LA;
+extern int LA;
 #define LA__STATIC 89
-extern unsigned short REDSKY1;
+extern int REDSKY1;
 #define REDSKY1__STATIC 98
-extern unsigned short REDSKY2;
+extern int REDSKY2;
 #define REDSKY2__STATIC 99
-extern unsigned short ATOMICHEALTH;
+extern int ATOMICHEALTH;
 #define ATOMICHEALTH__STATIC 100
-extern unsigned short TECHLIGHT2;
+extern int TECHLIGHT2;
 #define TECHLIGHT2__STATIC 120
-extern unsigned short TECHLIGHTBUST2;
+extern int TECHLIGHTBUST2;
 #define TECHLIGHTBUST2__STATIC 121
-extern unsigned short TECHLIGHT4;
+extern int TECHLIGHT4;
 #define TECHLIGHT4__STATIC 122
-extern unsigned short TECHLIGHTBUST4;
+extern int TECHLIGHTBUST4;
 #define TECHLIGHTBUST4__STATIC 123
-extern unsigned short WALLLIGHT4;
+extern int WALLLIGHT4;
 #define WALLLIGHT4__STATIC 124
-extern unsigned short WALLLIGHTBUST4;
+extern int WALLLIGHTBUST4;
 #define WALLLIGHTBUST4__STATIC 125
-extern unsigned short ACCESSSWITCH;
+extern int ACCESSSWITCH;
 #define ACCESSSWITCH__STATIC 130
-extern unsigned short SLOTDOOR;
+extern int SLOTDOOR;
 #define SLOTDOOR__STATIC 132
-extern unsigned short LIGHTSWITCH;
+extern int LIGHTSWITCH;
 #define LIGHTSWITCH__STATIC 134
-extern unsigned short SPACEDOORSWITCH;
+extern int SPACEDOORSWITCH;
 #define SPACEDOORSWITCH__STATIC 136
-extern unsigned short SPACELIGHTSWITCH;
+extern int SPACELIGHTSWITCH;
 #define SPACELIGHTSWITCH__STATIC 138
-extern unsigned short FRANKENSTINESWITCH;
+extern int FRANKENSTINESWITCH;
 #define FRANKENSTINESWITCH__STATIC 140
-extern unsigned short NUKEBUTTON;
+extern int NUKEBUTTON;
 #define NUKEBUTTON__STATIC 142
-extern unsigned short MULTISWITCH;
+extern int MULTISWITCH;
 #define MULTISWITCH__STATIC 146
-extern unsigned short DOORTILE5;
+extern int DOORTILE5;
 #define DOORTILE5__STATIC 150
-extern unsigned short DOORTILE6;
+extern int DOORTILE6;
 #define DOORTILE6__STATIC 151
-extern unsigned short DOORTILE1;
+extern int DOORTILE1;
 #define DOORTILE1__STATIC 152
-extern unsigned short DOORTILE2;
+extern int DOORTILE2;
 #define DOORTILE2__STATIC 153
-extern unsigned short DOORTILE3;
+extern int DOORTILE3;
 #define DOORTILE3__STATIC 154
-extern unsigned short DOORTILE4;
+extern int DOORTILE4;
 #define DOORTILE4__STATIC 155
-extern unsigned short DOORTILE7;
+extern int DOORTILE7;
 #define DOORTILE7__STATIC 156
-extern unsigned short DOORTILE8;
+extern int DOORTILE8;
 #define DOORTILE8__STATIC 157
-extern unsigned short DOORTILE9;
+extern int DOORTILE9;
 #define DOORTILE9__STATIC 158
-extern unsigned short DOORTILE10;
+extern int DOORTILE10;
 #define DOORTILE10__STATIC 159
-extern unsigned short DOORSHOCK;
+extern int DOORSHOCK;
 #define DOORSHOCK__STATIC 160
-extern unsigned short DIPSWITCH;
+extern int DIPSWITCH;
 #define DIPSWITCH__STATIC 162
-extern unsigned short DIPSWITCH2;
+extern int DIPSWITCH2;
 #define DIPSWITCH2__STATIC 164
-extern unsigned short TECHSWITCH;
+extern int TECHSWITCH;
 #define TECHSWITCH__STATIC 166
-extern unsigned short DIPSWITCH3;
+extern int DIPSWITCH3;
 #define DIPSWITCH3__STATIC 168
-extern unsigned short ACCESSSWITCH2;
+extern int ACCESSSWITCH2;
 #define ACCESSSWITCH2__STATIC 170
-extern unsigned short REFLECTWATERTILE;
+extern int REFLECTWATERTILE;
 #define REFLECTWATERTILE__STATIC 180
-extern unsigned short FLOORSLIME;
+extern int FLOORSLIME;
 #define FLOORSLIME__STATIC 200
-extern unsigned short BIGFORCE;
+extern int BIGFORCE;
 #define BIGFORCE__STATIC 230
-extern unsigned short EPISODE;
+extern int EPISODE;
 #define EPISODE__STATIC 247
-extern unsigned short MASKWALL9;
+extern int MASKWALL9;
 #define MASKWALL9__STATIC 255
-extern unsigned short W_LIGHT;
+extern int W_LIGHT;
 #define W_LIGHT__STATIC 260
-extern unsigned short SCREENBREAK1;
+extern int SCREENBREAK1;
 #define SCREENBREAK1__STATIC 263
-extern unsigned short SCREENBREAK2;
+extern int SCREENBREAK2;
 #define SCREENBREAK2__STATIC 264
-extern unsigned short SCREENBREAK3;
+extern int SCREENBREAK3;
 #define SCREENBREAK3__STATIC 265
-extern unsigned short SCREENBREAK4;
+extern int SCREENBREAK4;
 #define SCREENBREAK4__STATIC 266
-extern unsigned short SCREENBREAK5;
+extern int SCREENBREAK5;
 #define SCREENBREAK5__STATIC 267
-extern unsigned short SCREENBREAK6;
+extern int SCREENBREAK6;
 #define SCREENBREAK6__STATIC 268
-extern unsigned short SCREENBREAK7;
+extern int SCREENBREAK7;
 #define SCREENBREAK7__STATIC 269
-extern unsigned short SCREENBREAK8;
+extern int SCREENBREAK8;
 #define SCREENBREAK8__STATIC 270
-extern unsigned short SCREENBREAK9;
+extern int SCREENBREAK9;
 #define SCREENBREAK9__STATIC 271
-extern unsigned short SCREENBREAK10;
+extern int SCREENBREAK10;
 #define SCREENBREAK10__STATIC 272
-extern unsigned short SCREENBREAK11;
+extern int SCREENBREAK11;
 #define SCREENBREAK11__STATIC 273
-extern unsigned short SCREENBREAK12;
+extern int SCREENBREAK12;
 #define SCREENBREAK12__STATIC 274
-extern unsigned short SCREENBREAK13;
+extern int SCREENBREAK13;
 #define SCREENBREAK13__STATIC 275
-extern unsigned short MASKWALL1;
+extern int MASKWALL1;
 #define MASKWALL1__STATIC 285
-extern unsigned short W_TECHWALL1;
+extern int W_TECHWALL1;
 #define W_TECHWALL1__STATIC 293
-extern unsigned short W_TECHWALL2;
+extern int W_TECHWALL2;
 #define W_TECHWALL2__STATIC 297
-extern unsigned short W_TECHWALL15;
+extern int W_TECHWALL15;
 #define W_TECHWALL15__STATIC 299
-extern unsigned short W_TECHWALL3;
+extern int W_TECHWALL3;
 #define W_TECHWALL3__STATIC 301
-extern unsigned short W_TECHWALL4;
+extern int W_TECHWALL4;
 #define W_TECHWALL4__STATIC 305
-extern unsigned short W_TECHWALL10;
+extern int W_TECHWALL10;
 #define W_TECHWALL10__STATIC 306
-extern unsigned short W_TECHWALL16;
+extern int W_TECHWALL16;
 #define W_TECHWALL16__STATIC 307
-extern unsigned short WATERTILE2;
+extern int WATERTILE2;
 #define WATERTILE2__STATIC 336
-extern unsigned short BPANNEL1;
+extern int BPANNEL1;
 #define BPANNEL1__STATIC 341
-extern unsigned short PANNEL1;
+extern int PANNEL1;
 #define PANNEL1__STATIC 342
-extern unsigned short PANNEL2;
+extern int PANNEL2;
 #define PANNEL2__STATIC 343
-extern unsigned short WATERTILE;
+extern int WATERTILE;
 #define WATERTILE__STATIC 344
-extern unsigned short STATIC;
+extern int STATIC;
 #define STATIC__STATIC 351
-extern unsigned short W_SCREENBREAK;
+extern int W_SCREENBREAK;
 #define W_SCREENBREAK__STATIC 357
-extern unsigned short W_HITTECHWALL3;
+extern int W_HITTECHWALL3;
 #define W_HITTECHWALL3__STATIC 360
-extern unsigned short W_HITTECHWALL4;
+extern int W_HITTECHWALL4;
 #define W_HITTECHWALL4__STATIC 361
-extern unsigned short W_HITTECHWALL2;
+extern int W_HITTECHWALL2;
 #define W_HITTECHWALL2__STATIC 362
-extern unsigned short W_HITTECHWALL1;
+extern int W_HITTECHWALL1;
 #define W_HITTECHWALL1__STATIC 363
-extern unsigned short MASKWALL10;
+extern int MASKWALL10;
 #define MASKWALL10__STATIC 387
-extern unsigned short MASKWALL11;
+extern int MASKWALL11;
 #define MASKWALL11__STATIC 391
-extern unsigned short DOORTILE22;
+extern int DOORTILE22;
 #define DOORTILE22__STATIC 395
-extern unsigned short FANSPRITE;
+extern int FANSPRITE;
 #define FANSPRITE__STATIC 407
-extern unsigned short FANSPRITEBROKE;
+extern int FANSPRITEBROKE;
 #define FANSPRITEBROKE__STATIC 411
-extern unsigned short FANSHADOW;
+extern int FANSHADOW;
 #define FANSHADOW__STATIC 412
-extern unsigned short FANSHADOWBROKE;
+extern int FANSHADOWBROKE;
 #define FANSHADOWBROKE__STATIC 416
-extern unsigned short DOORTILE18;
+extern int DOORTILE18;
 #define DOORTILE18__STATIC 447
-extern unsigned short DOORTILE19;
+extern int DOORTILE19;
 #define DOORTILE19__STATIC 448
-extern unsigned short DOORTILE20;
+extern int DOORTILE20;
 #define DOORTILE20__STATIC 449
-extern unsigned short SATELLITE;
+extern int SATELLITE;
 #define SATELLITE__STATIC 489
-extern unsigned short VIEWSCREEN2;
+extern int VIEWSCREEN2;
 #define VIEWSCREEN2__STATIC 499
-extern unsigned short VIEWSCREENBROKE;
+extern int VIEWSCREENBROKE;
 #define VIEWSCREENBROKE__STATIC 501
-extern unsigned short VIEWSCREEN;
+extern int VIEWSCREEN;
 #define VIEWSCREEN__STATIC 502
-extern unsigned short GLASS;
+extern int GLASS;
 #define GLASS__STATIC 503
-extern unsigned short GLASS2;
+extern int GLASS2;
 #define GLASS2__STATIC 504
-extern unsigned short STAINGLASS1;
+extern int STAINGLASS1;
 #define STAINGLASS1__STATIC 510
-extern unsigned short MASKWALL5;
+extern int MASKWALL5;
 #define MASKWALL5__STATIC 514
-extern unsigned short SATELITE;
+extern int SATELITE;
 #define SATELITE__STATIC 516
-extern unsigned short FUELPOD;
+extern int FUELPOD;
 #define FUELPOD__STATIC 517
-extern unsigned short SLIMEPIPE;
+extern int SLIMEPIPE;
 #define SLIMEPIPE__STATIC 538
-extern unsigned short CRACK1;
+extern int CRACK1;
 #define CRACK1__STATIC 546
-extern unsigned short CRACK2;
+extern int CRACK2;
 #define CRACK2__STATIC 547
-extern unsigned short CRACK3;
+extern int CRACK3;
 #define CRACK3__STATIC 548
-extern unsigned short CRACK4;
+extern int CRACK4;
 #define CRACK4__STATIC 549
-extern unsigned short FOOTPRINTS;
+extern int FOOTPRINTS;
 #define FOOTPRINTS__STATIC 550
-extern unsigned short DOMELITE;
+extern int DOMELITE;
 #define DOMELITE__STATIC 551
-extern unsigned short CAMERAPOLE;
+extern int CAMERAPOLE;
 #define CAMERAPOLE__STATIC 554
-extern unsigned short CHAIR1;
+extern int CHAIR1;
 #define CHAIR1__STATIC 556
-extern unsigned short CHAIR2;
+extern int CHAIR2;
 #define CHAIR2__STATIC 557
-extern unsigned short BROKENCHAIR;
+extern int BROKENCHAIR;
 #define BROKENCHAIR__STATIC 559
-extern unsigned short MIRROR;
+extern int MIRROR;
 #define MIRROR__STATIC 560
-extern unsigned short WATERFOUNTAIN;
+extern int WATERFOUNTAIN;
 #define WATERFOUNTAIN__STATIC 563
-extern unsigned short WATERFOUNTAINBROKE;
+extern int WATERFOUNTAINBROKE;
 #define WATERFOUNTAINBROKE__STATIC 567
-extern unsigned short FEMMAG1;
+extern int FEMMAG1;
 #define FEMMAG1__STATIC 568
-extern unsigned short TOILET;
+extern int TOILET;
 #define TOILET__STATIC 569
-extern unsigned short STALL;
+extern int STALL;
 #define STALL__STATIC 571
-extern unsigned short STALLBROKE;
+extern int STALLBROKE;
 #define STALLBROKE__STATIC 573
-extern unsigned short FEMMAG2;
+extern int FEMMAG2;
 #define FEMMAG2__STATIC 577
-extern unsigned short REACTOR2;
+extern int REACTOR2;
 #define REACTOR2__STATIC 578
-extern unsigned short REACTOR2BURNT;
+extern int REACTOR2BURNT;
 #define REACTOR2BURNT__STATIC 579
-extern unsigned short REACTOR2SPARK;
+extern int REACTOR2SPARK;
 #define REACTOR2SPARK__STATIC 580
-extern unsigned short GRATE1;
+extern int GRATE1;
 #define GRATE1__STATIC 595
-extern unsigned short BGRATE1;
+extern int BGRATE1;
 #define BGRATE1__STATIC 596
-extern unsigned short SOLARPANNEL;
+extern int SOLARPANNEL;
 #define SOLARPANNEL__STATIC 602
-extern unsigned short NAKED1;
+extern int NAKED1;
 #define NAKED1__STATIC 603
-extern unsigned short ANTENNA;
+extern int ANTENNA;
 #define ANTENNA__STATIC 607
-extern unsigned short MASKWALL12;
+extern int MASKWALL12;
 #define MASKWALL12__STATIC 609
-extern unsigned short TOILETBROKE;
+extern int TOILETBROKE;
 #define TOILETBROKE__STATIC 615
-extern unsigned short PIPE2;
+extern int PIPE2;
 #define PIPE2__STATIC 616
-extern unsigned short PIPE1B;
+extern int PIPE1B;
 #define PIPE1B__STATIC 617
-extern unsigned short PIPE3;
+extern int PIPE3;
 #define PIPE3__STATIC 618
-extern unsigned short PIPE1;
+extern int PIPE1;
 #define PIPE1__STATIC 619
-extern unsigned short CAMERA1;
+extern int CAMERA1;
 #define CAMERA1__STATIC 621
-extern unsigned short BRICK;
+extern int BRICK;
 #define BRICK__STATIC 626
-extern unsigned short SPLINTERWOOD;
+extern int SPLINTERWOOD;
 #define SPLINTERWOOD__STATIC 630
-extern unsigned short PIPE2B;
+extern int PIPE2B;
 #define PIPE2B__STATIC 633
-extern unsigned short BOLT1;
+extern int BOLT1;
 #define BOLT1__STATIC 634
-extern unsigned short W_NUMBERS;
+extern int W_NUMBERS;
 #define W_NUMBERS__STATIC 640
-extern unsigned short WATERDRIP;
+extern int WATERDRIP;
 #define WATERDRIP__STATIC 660
-extern unsigned short WATERBUBBLE;
+extern int WATERBUBBLE;
 #define WATERBUBBLE__STATIC 661
-extern unsigned short WATERBUBBLEMAKER;
+extern int WATERBUBBLEMAKER;
 #define WATERBUBBLEMAKER__STATIC 662
-extern unsigned short W_FORCEFIELD;
+extern int W_FORCEFIELD;
 #define W_FORCEFIELD__STATIC 663
-extern unsigned short VACUUM;
+extern int VACUUM;
 #define VACUUM__STATIC 669
-extern unsigned short FOOTPRINTS2;
+extern int FOOTPRINTS2;
 #define FOOTPRINTS2__STATIC 672
-extern unsigned short FOOTPRINTS3;
+extern int FOOTPRINTS3;
 #define FOOTPRINTS3__STATIC 673
-extern unsigned short FOOTPRINTS4;
+extern int FOOTPRINTS4;
 #define FOOTPRINTS4__STATIC 674
-extern unsigned short EGG;
+extern int EGG;
 #define EGG__STATIC 675
-extern unsigned short SCALE;
+extern int SCALE;
 #define SCALE__STATIC 678
-extern unsigned short CHAIR3;
+extern int CHAIR3;
 #define CHAIR3__STATIC 680
-extern unsigned short CAMERALIGHT;
+extern int CAMERALIGHT;
 #define CAMERALIGHT__STATIC 685
-extern unsigned short MOVIECAMERA;
+extern int MOVIECAMERA;
 #define MOVIECAMERA__STATIC 686
-extern unsigned short IVUNIT;
+extern int IVUNIT;
 #define IVUNIT__STATIC 689
-extern unsigned short POT1;
+extern int POT1;
 #define POT1__STATIC 694
-extern unsigned short POT2;
+extern int POT2;
 #define POT2__STATIC 695
-extern unsigned short POT3;
+extern int POT3;
 #define POT3__STATIC 697
-extern unsigned short PIPE3B;
+extern int PIPE3B;
 #define PIPE3B__STATIC 700
-extern unsigned short WALLLIGHT3;
+extern int WALLLIGHT3;
 #define WALLLIGHT3__STATIC 701
-extern unsigned short WALLLIGHTBUST3;
+extern int WALLLIGHTBUST3;
 #define WALLLIGHTBUST3__STATIC 702
-extern unsigned short WALLLIGHT1;
+extern int WALLLIGHT1;
 #define WALLLIGHT1__STATIC 703
-extern unsigned short WALLLIGHTBUST1;
+extern int WALLLIGHTBUST1;
 #define WALLLIGHTBUST1__STATIC 704
-extern unsigned short WALLLIGHT2;
+extern int WALLLIGHT2;
 #define WALLLIGHT2__STATIC 705
-extern unsigned short WALLLIGHTBUST2;
+extern int WALLLIGHTBUST2;
 #define WALLLIGHTBUST2__STATIC 706
-extern unsigned short LIGHTSWITCH2;
+extern int LIGHTSWITCH2;
 #define LIGHTSWITCH2__STATIC 712
-extern unsigned short WAITTOBESEATED;
+extern int WAITTOBESEATED;
 #define WAITTOBESEATED__STATIC 716
-extern unsigned short DOORTILE14;
+extern int DOORTILE14;
 #define DOORTILE14__STATIC 717
-extern unsigned short STATUE;
+extern int STATUE;
 #define STATUE__STATIC 753
-extern unsigned short MIKE;
+extern int MIKE;
 #define MIKE__STATIC 762
-extern unsigned short VASE;
+extern int VASE;
 #define VASE__STATIC 765
-extern unsigned short SUSHIPLATE1;
+extern int SUSHIPLATE1;
 #define SUSHIPLATE1__STATIC 768
-extern unsigned short SUSHIPLATE2;
+extern int SUSHIPLATE2;
 #define SUSHIPLATE2__STATIC 769
-extern unsigned short SUSHIPLATE3;
+extern int SUSHIPLATE3;
 #define SUSHIPLATE3__STATIC 774
-extern unsigned short SUSHIPLATE4;
+extern int SUSHIPLATE4;
 #define SUSHIPLATE4__STATIC 779
-extern unsigned short DOORTILE16;
+extern int DOORTILE16;
 #define DOORTILE16__STATIC 781
-extern unsigned short SUSHIPLATE5;
+extern int SUSHIPLATE5;
 #define SUSHIPLATE5__STATIC 792
-extern unsigned short OJ;
+extern int OJ;
 #define OJ__STATIC 806
-extern unsigned short MASKWALL13;
+extern int MASKWALL13;
 #define MASKWALL13__STATIC 830
-extern unsigned short HURTRAIL;
+extern int HURTRAIL;
 #define HURTRAIL__STATIC 859
-extern unsigned short POWERSWITCH1;
+extern int POWERSWITCH1;
 #define POWERSWITCH1__STATIC 860
-extern unsigned short LOCKSWITCH1;
+extern int LOCKSWITCH1;
 #define LOCKSWITCH1__STATIC 862
-extern unsigned short POWERSWITCH2;
+extern int POWERSWITCH2;
 #define POWERSWITCH2__STATIC 864
-extern unsigned short ATM;
+extern int ATM;
 #define ATM__STATIC 867
-extern unsigned short STATUEFLASH;
+extern int STATUEFLASH;
 #define STATUEFLASH__STATIC 869
-extern unsigned short ATMBROKE;
+extern int ATMBROKE;
 #define ATMBROKE__STATIC 888
-extern unsigned short BIGHOLE2;
+extern int BIGHOLE2;
 #define BIGHOLE2__STATIC 893
-extern unsigned short STRIPEBALL;
+extern int STRIPEBALL;
 #define STRIPEBALL__STATIC 901
-extern unsigned short QUEBALL;
+extern int QUEBALL;
 #define QUEBALL__STATIC 902
-extern unsigned short POCKET;
+extern int POCKET;
 #define POCKET__STATIC 903
-extern unsigned short WOODENHORSE;
+extern int WOODENHORSE;
 #define WOODENHORSE__STATIC 904
-extern unsigned short TREE1;
+extern int TREE1;
 #define TREE1__STATIC 908
-extern unsigned short TREE2;
+extern int TREE2;
 #define TREE2__STATIC 910
-extern unsigned short CACTUS;
+extern int CACTUS;
 #define CACTUS__STATIC 911
-extern unsigned short MASKWALL2;
+extern int MASKWALL2;
 #define MASKWALL2__STATIC 913
-extern unsigned short MASKWALL3;
+extern int MASKWALL3;
 #define MASKWALL3__STATIC 914
-extern unsigned short MASKWALL4;
+extern int MASKWALL4;
 #define MASKWALL4__STATIC 915
-extern unsigned short FIREEXT;
+extern int FIREEXT;
 #define FIREEXT__STATIC 916
-extern unsigned short TOILETWATER;
+extern int TOILETWATER;
 #define TOILETWATER__STATIC 921
-extern unsigned short NEON1;
+extern int NEON1;
 #define NEON1__STATIC 925
-extern unsigned short NEON2;
+extern int NEON2;
 #define NEON2__STATIC 926
-extern unsigned short CACTUSBROKE;
+extern int CACTUSBROKE;
 #define CACTUSBROKE__STATIC 939
-extern unsigned short BOUNCEMINE;
+extern int BOUNCEMINE;
 #define BOUNCEMINE__STATIC 940
-extern unsigned short BROKEFIREHYDRENT;
+extern int BROKEFIREHYDRENT;
 #define BROKEFIREHYDRENT__STATIC 950
-extern unsigned short BOX;
+extern int BOX;
 #define BOX__STATIC 951
-extern unsigned short BULLETHOLE;
+extern int BULLETHOLE;
 #define BULLETHOLE__STATIC 952
-extern unsigned short BOTTLE1;
+extern int BOTTLE1;
 #define BOTTLE1__STATIC 954
-extern unsigned short BOTTLE2;
+extern int BOTTLE2;
 #define BOTTLE2__STATIC 955
-extern unsigned short BOTTLE3;
+extern int BOTTLE3;
 #define BOTTLE3__STATIC 956
-extern unsigned short BOTTLE4;
+extern int BOTTLE4;
 #define BOTTLE4__STATIC 957
-extern unsigned short FEMPIC5;
+extern int FEMPIC5;
 #define FEMPIC5__STATIC 963
-extern unsigned short FEMPIC6;
+extern int FEMPIC6;
 #define FEMPIC6__STATIC 964
-extern unsigned short FEMPIC7;
+extern int FEMPIC7;
 #define FEMPIC7__STATIC 965
-extern unsigned short HYDROPLANT;
+extern int HYDROPLANT;
 #define HYDROPLANT__STATIC 969
-extern unsigned short OCEANSPRITE1;
+extern int OCEANSPRITE1;
 #define OCEANSPRITE1__STATIC 971
-extern unsigned short OCEANSPRITE2;
+extern int OCEANSPRITE2;
 #define OCEANSPRITE2__STATIC 972
-extern unsigned short OCEANSPRITE3;
+extern int OCEANSPRITE3;
 #define OCEANSPRITE3__STATIC 973
-extern unsigned short OCEANSPRITE4;
+extern int OCEANSPRITE4;
 #define OCEANSPRITE4__STATIC 974
-extern unsigned short OCEANSPRITE5;
+extern int OCEANSPRITE5;
 #define OCEANSPRITE5__STATIC 975
-extern unsigned short GENERICPOLE;
+extern int GENERICPOLE;
 #define GENERICPOLE__STATIC 977
-extern unsigned short CONE;
+extern int CONE;
 #define CONE__STATIC 978
-extern unsigned short HANGLIGHT;
+extern int HANGLIGHT;
 #define HANGLIGHT__STATIC 979
-extern unsigned short HYDRENT;
+extern int HYDRENT;
 #define HYDRENT__STATIC 981
-extern unsigned short MASKWALL14;
+extern int MASKWALL14;
 #define MASKWALL14__STATIC 988
-extern unsigned short TIRE;
+extern int TIRE;
 #define TIRE__STATIC 990
-extern unsigned short PIPE5;
+extern int PIPE5;
 #define PIPE5__STATIC 994
-extern unsigned short PIPE6;
+extern int PIPE6;
 #define PIPE6__STATIC 995
-extern unsigned short PIPE4;
+extern int PIPE4;
 #define PIPE4__STATIC 996
-extern unsigned short PIPE4B;
+extern int PIPE4B;
 #define PIPE4B__STATIC 997
-extern unsigned short BROKEHYDROPLANT;
+extern int BROKEHYDROPLANT;
 #define BROKEHYDROPLANT__STATIC 1003
-extern unsigned short PIPE5B;
+extern int PIPE5B;
 #define PIPE5B__STATIC 1005
-extern unsigned short NEON3;
+extern int NEON3;
 #define NEON3__STATIC 1007
-extern unsigned short NEON4;
+extern int NEON4;
 #define NEON4__STATIC 1008
-extern unsigned short NEON5;
+extern int NEON5;
 #define NEON5__STATIC 1009
-extern unsigned short BOTTLE5;
+extern int BOTTLE5;
 #define BOTTLE5__STATIC 1012
-extern unsigned short BOTTLE6;
+extern int BOTTLE6;
 #define BOTTLE6__STATIC 1013
-extern unsigned short BOTTLE8;
+extern int BOTTLE8;
 #define BOTTLE8__STATIC 1014
-extern unsigned short SPOTLITE;
+extern int SPOTLITE;
 #define SPOTLITE__STATIC 1020
-extern unsigned short HANGOOZ;
+extern int HANGOOZ;
 #define HANGOOZ__STATIC 1022
-extern unsigned short MASKWALL15;
+extern int MASKWALL15;
 #define MASKWALL15__STATIC 1024
-extern unsigned short BOTTLE7;
+extern int BOTTLE7;
 #define BOTTLE7__STATIC 1025
-extern unsigned short HORSEONSIDE;
+extern int HORSEONSIDE;
 #define HORSEONSIDE__STATIC 1026
-extern unsigned short GLASSPIECES;
+extern int GLASSPIECES;
 #define GLASSPIECES__STATIC 1031
-extern unsigned short HORSELITE;
+extern int HORSELITE;
 #define HORSELITE__STATIC 1034
-extern unsigned short DONUTS;
+extern int DONUTS;
 #define DONUTS__STATIC 1045
-extern unsigned short NEON6;
+extern int NEON6;
 #define NEON6__STATIC 1046
-extern unsigned short MASKWALL6;
+extern int MASKWALL6;
 #define MASKWALL6__STATIC 1059
-extern unsigned short CLOCK;
+extern int CLOCK;
 #define CLOCK__STATIC 1060
-extern unsigned short RUBBERCAN;
+extern int RUBBERCAN;
 #define RUBBERCAN__STATIC 1062
-extern unsigned short BROKENCLOCK;
+extern int BROKENCLOCK;
 #define BROKENCLOCK__STATIC 1067
-extern unsigned short PLUG;
+extern int PLUG;
 #define PLUG__STATIC 1069
-extern unsigned short OOZFILTER;
+extern int OOZFILTER;
 #define OOZFILTER__STATIC 1079
-extern unsigned short FLOORPLASMA;
+extern int FLOORPLASMA;
 #define FLOORPLASMA__STATIC 1082
-extern unsigned short REACTOR;
+extern int REACTOR;
 #define REACTOR__STATIC 1088
-extern unsigned short REACTORSPARK;
+extern int REACTORSPARK;
 #define REACTORSPARK__STATIC 1092
-extern unsigned short REACTORBURNT;
+extern int REACTORBURNT;
 #define REACTORBURNT__STATIC 1096
-extern unsigned short DOORTILE15;
+extern int DOORTILE15;
 #define DOORTILE15__STATIC 1102
-extern unsigned short HANDSWITCH;
+extern int HANDSWITCH;
 #define HANDSWITCH__STATIC 1111
-extern unsigned short CIRCLEPANNEL;
+extern int CIRCLEPANNEL;
 #define CIRCLEPANNEL__STATIC 1113
-extern unsigned short CIRCLEPANNELBROKE;
+extern int CIRCLEPANNELBROKE;
 #define CIRCLEPANNELBROKE__STATIC 1114
-extern unsigned short PULLSWITCH;
+extern int PULLSWITCH;
 #define PULLSWITCH__STATIC 1122
-extern unsigned short MASKWALL8;
+extern int MASKWALL8;
 #define MASKWALL8__STATIC 1124
-extern unsigned short BIGHOLE;
+extern int BIGHOLE;
 #define BIGHOLE__STATIC 1141
-extern unsigned short ALIENSWITCH;
+extern int ALIENSWITCH;
 #define ALIENSWITCH__STATIC 1142
-extern unsigned short DOORTILE21;
+extern int DOORTILE21;
 #define DOORTILE21__STATIC 1144
-extern unsigned short HANDPRINTSWITCH;
+extern int HANDPRINTSWITCH;
 #define HANDPRINTSWITCH__STATIC 1155
-extern unsigned short BOTTLE10;
+extern int BOTTLE10;
 #define BOTTLE10__STATIC 1157
-extern unsigned short BOTTLE11;
+extern int BOTTLE11;
 #define BOTTLE11__STATIC 1158
-extern unsigned short BOTTLE12;
+extern int BOTTLE12;
 #define BOTTLE12__STATIC 1159
-extern unsigned short BOTTLE13;
+extern int BOTTLE13;
 #define BOTTLE13__STATIC 1160
-extern unsigned short BOTTLE14;
+extern int BOTTLE14;
 #define BOTTLE14__STATIC 1161
-extern unsigned short BOTTLE15;
+extern int BOTTLE15;
 #define BOTTLE15__STATIC 1162
-extern unsigned short BOTTLE16;
+extern int BOTTLE16;
 #define BOTTLE16__STATIC 1163
-extern unsigned short BOTTLE17;
+extern int BOTTLE17;
 #define BOTTLE17__STATIC 1164
-extern unsigned short BOTTLE18;
+extern int BOTTLE18;
 #define BOTTLE18__STATIC 1165
-extern unsigned short BOTTLE19;
+extern int BOTTLE19;
 #define BOTTLE19__STATIC 1166
-extern unsigned short DOORTILE17;
+extern int DOORTILE17;
 #define DOORTILE17__STATIC 1169
-extern unsigned short MASKWALL7;
+extern int MASKWALL7;
 #define MASKWALL7__STATIC 1174
-extern unsigned short JAILBARBREAK;
+extern int JAILBARBREAK;
 #define JAILBARBREAK__STATIC 1175
-extern unsigned short DOORTILE11;
+extern int DOORTILE11;
 #define DOORTILE11__STATIC 1178
-extern unsigned short DOORTILE12;
+extern int DOORTILE12;
 #define DOORTILE12__STATIC 1179
-extern unsigned short VENDMACHINE;
+extern int VENDMACHINE;
 #define VENDMACHINE__STATIC 1212
-extern unsigned short VENDMACHINEBROKE;
+extern int VENDMACHINEBROKE;
 #define VENDMACHINEBROKE__STATIC 1214
-extern unsigned short COLAMACHINE;
+extern int COLAMACHINE;
 #define COLAMACHINE__STATIC 1215
-extern unsigned short COLAMACHINEBROKE;
+extern int COLAMACHINEBROKE;
 #define COLAMACHINEBROKE__STATIC 1217
-extern unsigned short CRANEPOLE;
+extern int CRANEPOLE;
 #define CRANEPOLE__STATIC 1221
-extern unsigned short CRANE;
+extern int CRANE;
 #define CRANE__STATIC 1222
-extern unsigned short BARBROKE;
+extern int BARBROKE;
 #define BARBROKE__STATIC 1225
-extern unsigned short BLOODPOOL;
+extern int BLOODPOOL;
 #define BLOODPOOL__STATIC 1226
-extern unsigned short NUKEBARREL;
+extern int NUKEBARREL;
 #define NUKEBARREL__STATIC 1227
-extern unsigned short NUKEBARRELDENTED;
+extern int NUKEBARRELDENTED;
 #define NUKEBARRELDENTED__STATIC 1228
-extern unsigned short NUKEBARRELLEAKED;
+extern int NUKEBARRELLEAKED;
 #define NUKEBARRELLEAKED__STATIC 1229
-extern unsigned short CANWITHSOMETHING;
+extern int CANWITHSOMETHING;
 #define CANWITHSOMETHING__STATIC 1232
-extern unsigned short MONEY;
+extern int MONEY;
 #define MONEY__STATIC 1233
-extern unsigned short BANNER;
+extern int BANNER;
 #define BANNER__STATIC 1236
-extern unsigned short EXPLODINGBARREL;
+extern int EXPLODINGBARREL;
 #define EXPLODINGBARREL__STATIC 1238
-extern unsigned short EXPLODINGBARREL2;
+extern int EXPLODINGBARREL2;
 #define EXPLODINGBARREL2__STATIC 1239
-extern unsigned short FIREBARREL;
+extern int FIREBARREL;
 #define FIREBARREL__STATIC 1240
-extern unsigned short SEENINE;
+extern int SEENINE;
 #define SEENINE__STATIC 1247
-extern unsigned short SEENINEDEAD;
+extern int SEENINEDEAD;
 #define SEENINEDEAD__STATIC 1248
-extern unsigned short STEAM;
+extern int STEAM;
 #define STEAM__STATIC 1250
-extern unsigned short CEILINGSTEAM;
+extern int CEILINGSTEAM;
 #define CEILINGSTEAM__STATIC 1255
-extern unsigned short PIPE6B;
+extern int PIPE6B;
 #define PIPE6B__STATIC 1260
-extern unsigned short TRANSPORTERBEAM;
+extern int TRANSPORTERBEAM;
 #define TRANSPORTERBEAM__STATIC 1261
-extern unsigned short RAT;
+extern int RAT;
 #define RAT__STATIC 1267
-extern unsigned short TRASH;
+extern int TRASH;
 #define TRASH__STATIC 1272
-extern unsigned short FEMPIC1;
+extern int FEMPIC1;
 #define FEMPIC1__STATIC 1280
-extern unsigned short FEMPIC2;
+extern int FEMPIC2;
 #define FEMPIC2__STATIC 1289
-extern unsigned short BLANKSCREEN;
+extern int BLANKSCREEN;
 #define BLANKSCREEN__STATIC 1293
-extern unsigned short PODFEM1;
+extern int PODFEM1;
 #define PODFEM1__STATIC 1294
-extern unsigned short FEMPIC3;
+extern int FEMPIC3;
 #define FEMPIC3__STATIC 1298
-extern unsigned short FEMPIC4;
+extern int FEMPIC4;
 #define FEMPIC4__STATIC 1306
-extern unsigned short FEM1;
+extern int FEM1;
 #define FEM1__STATIC 1312
-extern unsigned short FEM2;
+extern int FEM2;
 #define FEM2__STATIC 1317
-extern unsigned short FEM3;
+extern int FEM3;
 #define FEM3__STATIC 1321
-extern unsigned short FEM5;
+extern int FEM5;
 #define FEM5__STATIC 1323
-extern unsigned short BLOODYPOLE;
+extern int BLOODYPOLE;
 #define BLOODYPOLE__STATIC 1324
-extern unsigned short FEM4;
+extern int FEM4;
 #define FEM4__STATIC 1325
-extern unsigned short FEM6;
+extern int FEM6;
 #define FEM6__STATIC 1334
-extern unsigned short FEM6PAD;
+extern int FEM6PAD;
 #define FEM6PAD__STATIC 1335
-extern unsigned short FEM8;
+extern int FEM8;
 #define FEM8__STATIC 1336
-extern unsigned short HELECOPT;
+extern int HELECOPT;
 #define HELECOPT__STATIC 1346
-extern unsigned short FETUSJIB;
+extern int FETUSJIB;
 #define FETUSJIB__STATIC 1347
-extern unsigned short HOLODUKE;
+extern int HOLODUKE;
 #define HOLODUKE__STATIC 1348
-extern unsigned short SPACEMARINE;
+extern int SPACEMARINE;
 #define SPACEMARINE__STATIC 1353
-extern unsigned short INDY;
+extern int INDY;
 #define INDY__STATIC 1355
-extern unsigned short FETUS;
+extern int FETUS;
 #define FETUS__STATIC 1358
-extern unsigned short FETUSBROKE;
+extern int FETUSBROKE;
 #define FETUSBROKE__STATIC 1359
-extern unsigned short MONK;
+extern int MONK;
 #define MONK__STATIC 1352
-extern unsigned short LUKE;
+extern int LUKE;
 #define LUKE__STATIC 1354
-extern unsigned short COOLEXPLOSION1;
+extern int COOLEXPLOSION1;
 #define COOLEXPLOSION1__STATIC 1360
-extern unsigned short WATERSPLASH2;
+extern int WATERSPLASH2;
 #define WATERSPLASH2__STATIC 1380
-extern unsigned short FIREVASE;
+extern int FIREVASE;
 #define FIREVASE__STATIC 1390
-extern unsigned short SCRATCH;
+extern int SCRATCH;
 #define SCRATCH__STATIC 1393
-extern unsigned short FEM7;
+extern int FEM7;
 #define FEM7__STATIC 1395
-extern unsigned short APLAYERTOP;
+extern int APLAYERTOP;
 #define APLAYERTOP__STATIC 1400
-extern unsigned short APLAYER;
+extern int APLAYER;
 #define APLAYER__STATIC 1405
-extern unsigned short PLAYERONWATER;
+extern int PLAYERONWATER;
 #define PLAYERONWATER__STATIC 1420
-extern unsigned short DUKELYINGDEAD;
+extern int DUKELYINGDEAD;
 #define DUKELYINGDEAD__STATIC 1518
-extern unsigned short DUKETORSO;
+extern int DUKETORSO;
 #define DUKETORSO__STATIC 1520
-extern unsigned short DUKEGUN;
+extern int DUKEGUN;
 #define DUKEGUN__STATIC 1528
-extern unsigned short DUKELEG;
+extern int DUKELEG;
 #define DUKELEG__STATIC 1536
-extern unsigned short SHARK;
+extern int SHARK;
 #define SHARK__STATIC 1550
-extern unsigned short BLOOD;
+extern int BLOOD;
 #define BLOOD__STATIC 1620
-extern unsigned short FIRELASER;
+extern int FIRELASER;
 #define FIRELASER__STATIC 1625
-extern unsigned short TRANSPORTERSTAR;
+extern int TRANSPORTERSTAR;
 #define TRANSPORTERSTAR__STATIC 1630
-extern unsigned short SPIT;
+extern int SPIT;
 #define SPIT__STATIC 1636
-extern unsigned short LOOGIE;
+extern int LOOGIE;
 #define LOOGIE__STATIC 1637
-extern unsigned short FIST;
+extern int FIST;
 #define FIST__STATIC 1640
-extern unsigned short FREEZEBLAST;
+extern int FREEZEBLAST;
 #define FREEZEBLAST__STATIC 1641
-extern unsigned short DEVISTATORBLAST;
+extern int DEVISTATORBLAST;
 #define DEVISTATORBLAST__STATIC 1642
-extern unsigned short SHRINKSPARK;
+extern int SHRINKSPARK;
 #define SHRINKSPARK__STATIC 1646
-extern unsigned short TONGUE;
+extern int TONGUE;
 #define TONGUE__STATIC 1647
-extern unsigned short MORTER;
+extern int MORTER;
 #define MORTER__STATIC 1650
-extern unsigned short SHRINKEREXPLOSION;
+extern int SHRINKEREXPLOSION;
 #define SHRINKEREXPLOSION__STATIC 1656
-extern unsigned short RADIUSEXPLOSION;
+extern int RADIUSEXPLOSION;
 #define RADIUSEXPLOSION__STATIC 1670
-extern unsigned short FORCERIPPLE;
+extern int FORCERIPPLE;
 #define FORCERIPPLE__STATIC 1671
-extern unsigned short LIZTROOP;
+extern int LIZTROOP;
 #define LIZTROOP__STATIC 1680
-extern unsigned short LIZTROOPRUNNING;
+extern int LIZTROOPRUNNING;
 #define LIZTROOPRUNNING__STATIC 1681
-extern unsigned short LIZTROOPSTAYPUT;
+extern int LIZTROOPSTAYPUT;
 #define LIZTROOPSTAYPUT__STATIC 1682
-extern unsigned short LIZTOP;
+extern int LIZTOP;
 #define LIZTOP__STATIC 1705
-extern unsigned short LIZTROOPSHOOT;
+extern int LIZTROOPSHOOT;
 #define LIZTROOPSHOOT__STATIC 1715
-extern unsigned short LIZTROOPJETPACK;
+extern int LIZTROOPJETPACK;
 #define LIZTROOPJETPACK__STATIC 1725
-extern unsigned short LIZTROOPDSPRITE;
+extern int LIZTROOPDSPRITE;
 #define LIZTROOPDSPRITE__STATIC 1734
-extern unsigned short LIZTROOPONTOILET;
+extern int LIZTROOPONTOILET;
 #define LIZTROOPONTOILET__STATIC 1741
-extern unsigned short LIZTROOPJUSTSIT;
+extern int LIZTROOPJUSTSIT;
 #define LIZTROOPJUSTSIT__STATIC 1742
-extern unsigned short LIZTROOPDUCKING;
+extern int LIZTROOPDUCKING;
 #define LIZTROOPDUCKING__STATIC 1744
-extern unsigned short HEADJIB1;
+extern int HEADJIB1;
 #define HEADJIB1__STATIC 1768
-extern unsigned short ARMJIB1;
+extern int ARMJIB1;
 #define ARMJIB1__STATIC 1772
-extern unsigned short LEGJIB1;
+extern int LEGJIB1;
 #define LEGJIB1__STATIC 1776
-extern unsigned short CANNONBALL;
+extern int CANNONBALL;
 #define CANNONBALL__STATIC 1817
-extern unsigned short OCTABRAIN;
+extern int OCTABRAIN;
 #define OCTABRAIN__STATIC 1820
-extern unsigned short OCTABRAINSTAYPUT;
+extern int OCTABRAINSTAYPUT;
 #define OCTABRAINSTAYPUT__STATIC 1821
-extern unsigned short OCTATOP;
+extern int OCTATOP;
 #define OCTATOP__STATIC 1845
-extern unsigned short OCTADEADSPRITE;
+extern int OCTADEADSPRITE;
 #define OCTADEADSPRITE__STATIC 1855
-extern unsigned short INNERJAW;
+extern int INNERJAW;
 #define INNERJAW__STATIC 1860
-extern unsigned short DRONE;
+extern int DRONE;
 #define DRONE__STATIC 1880
-extern unsigned short EXPLOSION2;
+extern int EXPLOSION2;
 #define EXPLOSION2__STATIC 1890
-extern unsigned short COMMANDER;
+extern int COMMANDER;
 #define COMMANDER__STATIC 1920
-extern unsigned short COMMANDERSTAYPUT;
+extern int COMMANDERSTAYPUT;
 #define COMMANDERSTAYPUT__STATIC 1921
-extern unsigned short RECON;
+extern int RECON;
 #define RECON__STATIC 1960
-extern unsigned short TANK;
+extern int TANK;
 #define TANK__STATIC 1975
-extern unsigned short PIGCOP;
+extern int PIGCOP;
 #define PIGCOP__STATIC 2000
-extern unsigned short PIGCOPSTAYPUT;
+extern int PIGCOPSTAYPUT;
 #define PIGCOPSTAYPUT__STATIC 2001
-extern unsigned short PIGCOPDIVE;
+extern int PIGCOPDIVE;
 #define PIGCOPDIVE__STATIC 2045
-extern unsigned short PIGCOPDEADSPRITE;
+extern int PIGCOPDEADSPRITE;
 #define PIGCOPDEADSPRITE__STATIC 2060
-extern unsigned short PIGTOP;
+extern int PIGTOP;
 #define PIGTOP__STATIC 2061
-extern unsigned short LIZMAN;
+extern int LIZMAN;
 #define LIZMAN__STATIC 2120
-extern unsigned short LIZMANSTAYPUT;
+extern int LIZMANSTAYPUT;
 #define LIZMANSTAYPUT__STATIC 2121
-extern unsigned short LIZMANSPITTING;
+extern int LIZMANSPITTING;
 #define LIZMANSPITTING__STATIC 2150
-extern unsigned short LIZMANFEEDING;
+extern int LIZMANFEEDING;
 #define LIZMANFEEDING__STATIC 2160
-extern unsigned short LIZMANJUMP;
+extern int LIZMANJUMP;
 #define LIZMANJUMP__STATIC 2165
-extern unsigned short LIZMANDEADSPRITE;
+extern int LIZMANDEADSPRITE;
 #define LIZMANDEADSPRITE__STATIC 2185
-extern unsigned short FECES;
+extern int FECES;
 #define FECES__STATIC 2200
-extern unsigned short LIZMANHEAD1;
+extern int LIZMANHEAD1;
 #define LIZMANHEAD1__STATIC 2201
-extern unsigned short LIZMANARM1;
+extern int LIZMANARM1;
 #define LIZMANARM1__STATIC 2205
-extern unsigned short LIZMANLEG1;
+extern int LIZMANLEG1;
 #define LIZMANLEG1__STATIC 2209
-extern unsigned short EXPLOSION2BOT;
+extern int EXPLOSION2BOT;
 #define EXPLOSION2BOT__STATIC 2219
-extern unsigned short USERWEAPON;
+extern int USERWEAPON;
 #define USERWEAPON__STATIC 2235
-extern unsigned short HEADERBAR;
+extern int HEADERBAR;
 #define HEADERBAR__STATIC 2242
-extern unsigned short JIBS1;
+extern int JIBS1;
 #define JIBS1__STATIC 2245
-extern unsigned short JIBS2;
+extern int JIBS2;
 #define JIBS2__STATIC 2250
-extern unsigned short JIBS3;
+extern int JIBS3;
 #define JIBS3__STATIC 2255
-extern unsigned short JIBS4;
+extern int JIBS4;
 #define JIBS4__STATIC 2260
-extern unsigned short JIBS5;
+extern int JIBS5;
 #define JIBS5__STATIC 2265
-extern unsigned short BURNING;
+extern int BURNING;
 #define BURNING__STATIC 2270
-extern unsigned short FIRE;
+extern int FIRE;
 #define FIRE__STATIC 2271
-extern unsigned short JIBS6;
+extern int JIBS6;
 #define JIBS6__STATIC 2286
-extern unsigned short BLOODSPLAT1;
+extern int BLOODSPLAT1;
 #define BLOODSPLAT1__STATIC 2296
-extern unsigned short BLOODSPLAT3;
+extern int BLOODSPLAT3;
 #define BLOODSPLAT3__STATIC 2297
-extern unsigned short BLOODSPLAT2;
+extern int BLOODSPLAT2;
 #define BLOODSPLAT2__STATIC 2298
-extern unsigned short BLOODSPLAT4;
+extern int BLOODSPLAT4;
 #define BLOODSPLAT4__STATIC 2299
-extern unsigned short OOZ;
+extern int OOZ;
 #define OOZ__STATIC 2300
-extern unsigned short OOZ2;
+extern int OOZ2;
 #define OOZ2__STATIC 2309
-extern unsigned short WALLBLOOD1;
+extern int WALLBLOOD1;
 #define WALLBLOOD1__STATIC 2301
-extern unsigned short WALLBLOOD2;
+extern int WALLBLOOD2;
 #define WALLBLOOD2__STATIC 2302
-extern unsigned short WALLBLOOD3;
+extern int WALLBLOOD3;
 #define WALLBLOOD3__STATIC 2303
-extern unsigned short WALLBLOOD4;
+extern int WALLBLOOD4;
 #define WALLBLOOD4__STATIC 2304
-extern unsigned short WALLBLOOD5;
+extern int WALLBLOOD5;
 #define WALLBLOOD5__STATIC 2305
-extern unsigned short WALLBLOOD6;
+extern int WALLBLOOD6;
 #define WALLBLOOD6__STATIC 2306
-extern unsigned short WALLBLOOD7;
+extern int WALLBLOOD7;
 #define WALLBLOOD7__STATIC 2307
-extern unsigned short WALLBLOOD8;
+extern int WALLBLOOD8;
 #define WALLBLOOD8__STATIC 2308
-extern unsigned short BURNING2;
+extern int BURNING2;
 #define BURNING2__STATIC 2310
-extern unsigned short FIRE2;
+extern int FIRE2;
 #define FIRE2__STATIC 2311
-extern unsigned short CRACKKNUCKLES;
+extern int CRACKKNUCKLES;
 #define CRACKKNUCKLES__STATIC 2324
-extern unsigned short SMALLSMOKE;
+extern int SMALLSMOKE;
 #define SMALLSMOKE__STATIC 2329
-extern unsigned short SMALLSMOKEMAKER;
+extern int SMALLSMOKEMAKER;
 #define SMALLSMOKEMAKER__STATIC 2330
-extern unsigned short FLOORFLAME;
+extern int FLOORFLAME;
 #define FLOORFLAME__STATIC 2333
-extern unsigned short ROTATEGUN;
+extern int ROTATEGUN;
 #define ROTATEGUN__STATIC 2360
-extern unsigned short GREENSLIME;
+extern int GREENSLIME;
 #define GREENSLIME__STATIC 2370
-extern unsigned short WATERDRIPSPLASH;
+extern int WATERDRIPSPLASH;
 #define WATERDRIPSPLASH__STATIC 2380
-extern unsigned short SCRAP6;
+extern int SCRAP6;
 #define SCRAP6__STATIC 2390
-extern unsigned short SCRAP1;
+extern int SCRAP1;
 #define SCRAP1__STATIC 2400
-extern unsigned short SCRAP2;
+extern int SCRAP2;
 #define SCRAP2__STATIC 2404
-extern unsigned short SCRAP3;
+extern int SCRAP3;
 #define SCRAP3__STATIC 2408
-extern unsigned short SCRAP4;
+extern int SCRAP4;
 #define SCRAP4__STATIC 2412
-extern unsigned short SCRAP5;
+extern int SCRAP5;
 #define SCRAP5__STATIC 2416
-extern unsigned short ORGANTIC;
+extern int ORGANTIC;
 #define ORGANTIC__STATIC 2420
-extern unsigned short BETAVERSION;
+extern int BETAVERSION;
 #define BETAVERSION__STATIC 2440
-extern unsigned short PLAYERISHERE;
+extern int PLAYERISHERE;
 #define PLAYERISHERE__STATIC 2442
-extern unsigned short PLAYERWASHERE;
+extern int PLAYERWASHERE;
 #define PLAYERWASHERE__STATIC 2443
-extern unsigned short SELECTDIR;
+extern int SELECTDIR;
 #define SELECTDIR__STATIC 2444
-extern unsigned short F1HELP;
+extern int F1HELP;
 #define F1HELP__STATIC 2445
-extern unsigned short NOTCHON;
+extern int NOTCHON;
 #define NOTCHON__STATIC 2446
-extern unsigned short NOTCHOFF;
+extern int NOTCHOFF;
 #define NOTCHOFF__STATIC 2447
-extern unsigned short GROWSPARK;
+extern int GROWSPARK;
 #define GROWSPARK__STATIC 2448
-extern unsigned short DUKEICON;
+extern int DUKEICON;
 #define DUKEICON__STATIC 2452
-extern unsigned short BADGUYICON;
+extern int BADGUYICON;
 #define BADGUYICON__STATIC 2453
-extern unsigned short FOODICON;
+extern int FOODICON;
 #define FOODICON__STATIC 2454
-extern unsigned short GETICON;
+extern int GETICON;
 #define GETICON__STATIC 2455
-extern unsigned short MENUSCREEN;
+extern int MENUSCREEN;
 #define MENUSCREEN__STATIC 2456
-extern unsigned short MENUBAR;
+extern int MENUBAR;
 #define MENUBAR__STATIC 2457
-extern unsigned short KILLSICON;
+extern int KILLSICON;
 #define KILLSICON__STATIC 2458
-extern unsigned short FIRSTAID_ICON;
+extern int FIRSTAID_ICON;
 #define FIRSTAID_ICON__STATIC 2460
-extern unsigned short HEAT_ICON;
+extern int HEAT_ICON;
 #define HEAT_ICON__STATIC 2461
-extern unsigned short BOTTOMSTATUSBAR;
+extern int BOTTOMSTATUSBAR;
 #define BOTTOMSTATUSBAR__STATIC 2462
-extern unsigned short BOOT_ICON;
+extern int BOOT_ICON;
 #define BOOT_ICON__STATIC 2463
-extern unsigned short FRAGBAR;
+extern int FRAGBAR;
 #define FRAGBAR__STATIC 2465
-extern unsigned short JETPACK_ICON;
+extern int JETPACK_ICON;
 #define JETPACK_ICON__STATIC 2467
-extern unsigned short AIRTANK_ICON;
+extern int AIRTANK_ICON;
 #define AIRTANK_ICON__STATIC 2468
-extern unsigned short STEROIDS_ICON;
+extern int STEROIDS_ICON;
 #define STEROIDS_ICON__STATIC 2469
-extern unsigned short HOLODUKE_ICON;
+extern int HOLODUKE_ICON;
 #define HOLODUKE_ICON__STATIC 2470
-extern unsigned short ACCESS_ICON;
+extern int ACCESS_ICON;
 #define ACCESS_ICON__STATIC 2471
-extern unsigned short DIGITALNUM;
+extern int DIGITALNUM;
 #define DIGITALNUM__STATIC 2472
-extern unsigned short DUKECAR;
+extern int DUKECAR;
 #define DUKECAR__STATIC 2491
-extern unsigned short CAMCORNER;
+extern int CAMCORNER;
 #define CAMCORNER__STATIC 2482
-extern unsigned short CAMLIGHT;
+extern int CAMLIGHT;
 #define CAMLIGHT__STATIC 2484
-extern unsigned short LOGO;
+extern int LOGO;
 #define LOGO__STATIC 2485
-extern unsigned short TITLE;
+extern int TITLE;
 #define TITLE__STATIC 2486
-extern unsigned short NUKEWARNINGICON;
+extern int NUKEWARNINGICON;
 #define NUKEWARNINGICON__STATIC 2487
-extern unsigned short MOUSECURSOR;
+extern int MOUSECURSOR;
 #define MOUSECURSOR__STATIC 2488
-extern unsigned short SLIDEBAR;
+extern int SLIDEBAR;
 #define SLIDEBAR__STATIC 2489
-extern unsigned short DREALMS;
+extern int DREALMS;
 #define DREALMS__STATIC 2492
-extern unsigned short BETASCREEN;
+extern int BETASCREEN;
 #define BETASCREEN__STATIC 2493
-extern unsigned short WINDOWBORDER1;
+extern int WINDOWBORDER1;
 #define WINDOWBORDER1__STATIC 2494
-extern unsigned short TEXTBOX;
+extern int TEXTBOX;
 #define TEXTBOX__STATIC 2495
-extern unsigned short WINDOWBORDER2;
+extern int WINDOWBORDER2;
 #define WINDOWBORDER2__STATIC 2496
-extern unsigned short DUKENUKEM;
+extern int DUKENUKEM;
 #define DUKENUKEM__STATIC 2497
-extern unsigned short THREEDEE;
+extern int THREEDEE;
 #define THREEDEE__STATIC 2498
-extern unsigned short INGAMEDUKETHREEDEE;
+extern int INGAMEDUKETHREEDEE;
 #define INGAMEDUKETHREEDEE__STATIC 2499
-extern unsigned short TENSCREEN;
+extern int TENSCREEN;
 #define TENSCREEN__STATIC 2500
-extern unsigned short PLUTOPAKSPRITE;
+extern int PLUTOPAKSPRITE;
 #define PLUTOPAKSPRITE__STATIC 2501
-extern unsigned short DEVISTATOR;
+extern int DEVISTATOR;
 #define DEVISTATOR__STATIC 2510
-extern unsigned short KNEE;
+extern int KNEE;
 #define KNEE__STATIC 2521
-extern unsigned short CROSSHAIR;
+extern int CROSSHAIR;
 #define CROSSHAIR__STATIC 2523
-extern unsigned short FIRSTGUN;
+extern int FIRSTGUN;
 #define FIRSTGUN__STATIC 2524
-extern unsigned short FIRSTGUNRELOAD;
+extern int FIRSTGUNRELOAD;
 #define FIRSTGUNRELOAD__STATIC 2528
-extern unsigned short FALLINGCLIP;
+extern int FALLINGCLIP;
 #define FALLINGCLIP__STATIC 2530
-extern unsigned short CLIPINHAND;
+extern int CLIPINHAND;
 #define CLIPINHAND__STATIC 2531
-extern unsigned short HAND;
+extern int HAND;
 #define HAND__STATIC 2532
-extern unsigned short SHELL;
+extern int SHELL;
 #define SHELL__STATIC 2533
-extern unsigned short SHOTGUNSHELL;
+extern int SHOTGUNSHELL;
 #define SHOTGUNSHELL__STATIC 2535
-extern unsigned short CHAINGUN;
+extern int CHAINGUN;
 #define CHAINGUN__STATIC 2536
-extern unsigned short RPGGUN;
+extern int RPGGUN;
 #define RPGGUN__STATIC 2544
-extern unsigned short RPGMUZZLEFLASH;
+extern int RPGMUZZLEFLASH;
 #define RPGMUZZLEFLASH__STATIC 2545
-extern unsigned short FREEZE;
+extern int FREEZE;
 #define FREEZE__STATIC 2548
-extern unsigned short CATLITE;
+extern int CATLITE;
 #define CATLITE__STATIC 2552
-extern unsigned short SHRINKER;
+extern int SHRINKER;
 #define SHRINKER__STATIC 2556
-extern unsigned short HANDHOLDINGLASER;
+extern int HANDHOLDINGLASER;
 #define HANDHOLDINGLASER__STATIC 2563
-extern unsigned short TRIPBOMB;
+extern int TRIPBOMB;
 #define TRIPBOMB__STATIC 2566
-extern unsigned short LASERLINE;
+extern int LASERLINE;
 #define LASERLINE__STATIC 2567
-extern unsigned short HANDHOLDINGACCESS;
+extern int HANDHOLDINGACCESS;
 #define HANDHOLDINGACCESS__STATIC 2568
-extern unsigned short HANDREMOTE;
+extern int HANDREMOTE;
 #define HANDREMOTE__STATIC 2570
-extern unsigned short HANDTHROW;
+extern int HANDTHROW;
 #define HANDTHROW__STATIC 2573
-extern unsigned short TIP;
+extern int TIP;
 #define TIP__STATIC 2576
-extern unsigned short GLAIR;
+extern int GLAIR;
 #define GLAIR__STATIC 2578
-extern unsigned short SCUBAMASK;
+extern int SCUBAMASK;
 #define SCUBAMASK__STATIC 2581
-extern unsigned short SPACEMASK;
+extern int SPACEMASK;
 #define SPACEMASK__STATIC 2584
-extern unsigned short FORCESPHERE;
+extern int FORCESPHERE;
 #define FORCESPHERE__STATIC 2590
-extern unsigned short SHOTSPARK1;
+extern int SHOTSPARK1;
 #define SHOTSPARK1__STATIC 2595
-extern unsigned short RPG;
+extern int RPG;
 #define RPG__STATIC 2605
-extern unsigned short LASERSITE;
+extern int LASERSITE;
 #define LASERSITE__STATIC 2612
-extern unsigned short SHOTGUN;
+extern int SHOTGUN;
 #define SHOTGUN__STATIC 2613
-extern unsigned short BOSS1;
+extern int BOSS1;
 #define BOSS1__STATIC 2630
-extern unsigned short BOSS1STAYPUT;
+extern int BOSS1STAYPUT;
 #define BOSS1STAYPUT__STATIC 2631
-extern unsigned short BOSS1SHOOT;
+extern int BOSS1SHOOT;
 #define BOSS1SHOOT__STATIC 2660
-extern unsigned short BOSS1LOB;
+extern int BOSS1LOB;
 #define BOSS1LOB__STATIC 2670
-extern unsigned short BOSSTOP;
+extern int BOSSTOP;
 #define BOSSTOP__STATIC 2696
-extern unsigned short BOSS2;
+extern int BOSS2;
 #define BOSS2__STATIC 2710
-extern unsigned short BOSS3;
+extern int BOSS3;
 #define BOSS3__STATIC 2760
-extern unsigned short SPINNINGNUKEICON;
+extern int SPINNINGNUKEICON;
 #define SPINNINGNUKEICON__STATIC 2813
-extern unsigned short BIGFNTCURSOR;
+extern int BIGFNTCURSOR;
 #define BIGFNTCURSOR__STATIC 2820
-extern unsigned short SMALLFNTCURSOR;
+extern int SMALLFNTCURSOR;
 #define SMALLFNTCURSOR__STATIC 2821
-extern unsigned short STARTALPHANUM;
+extern int STARTALPHANUM;
 #define STARTALPHANUM__STATIC 2822
-extern unsigned short ENDALPHANUM;
+extern int ENDALPHANUM;
 #define ENDALPHANUM__STATIC 2915
-extern unsigned short BIGALPHANUM;
+extern int BIGALPHANUM;
 #define BIGALPHANUM__STATIC 2940
-extern unsigned short BIGPERIOD;
+extern int BIGPERIOD;
 #define BIGPERIOD__STATIC 3002
-extern unsigned short BIGCOMMA;
+extern int BIGCOMMA;
 #define BIGCOMMA__STATIC 3003
-extern unsigned short BIGX;
+extern int BIGX;
 #define BIGX__STATIC 3004
-extern unsigned short BIGQ;
+extern int BIGQ;
 #define BIGQ__STATIC 3005
-extern unsigned short BIGSEMI;
+extern int BIGSEMI;
 #define BIGSEMI__STATIC 3006
-extern unsigned short BIGCOLIN;
+extern int BIGCOLIN;
 #define BIGCOLIN__STATIC 3007
-extern unsigned short THREEBYFIVE;
+extern int THREEBYFIVE;
 #define THREEBYFIVE__STATIC 3010
-extern unsigned short BIGAPPOS;
+extern int BIGAPPOS;
 #define BIGAPPOS__STATIC 3022
-extern unsigned short BLANK;
+extern int BLANK;
 #define BLANK__STATIC 3026
-extern unsigned short MINIFONT;
+extern int MINIFONT;
 #define MINIFONT__STATIC 3072
-extern unsigned short BUTTON1;
+extern int BUTTON1;
 #define BUTTON1__STATIC 3164
-extern unsigned short GLASS3;
+extern int GLASS3;
 #define GLASS3__STATIC 3187
-extern unsigned short RESPAWNMARKERRED;
+extern int RESPAWNMARKERRED;
 #define RESPAWNMARKERRED__STATIC 3190
-extern unsigned short RESPAWNMARKERYELLOW;
+extern int RESPAWNMARKERYELLOW;
 #define RESPAWNMARKERYELLOW__STATIC 3200
-extern unsigned short RESPAWNMARKERGREEN;
+extern int RESPAWNMARKERGREEN;
 #define RESPAWNMARKERGREEN__STATIC 3210
-extern unsigned short BONUSSCREEN;
+extern int BONUSSCREEN;
 #define BONUSSCREEN__STATIC 3240
-extern unsigned short VIEWBORDER;
+extern int VIEWBORDER;
 #define VIEWBORDER__STATIC 3250
-extern unsigned short VICTORY1;
+extern int VICTORY1;
 #define VICTORY1__STATIC 3260
-extern unsigned short ORDERING;
+extern int ORDERING;
 #define ORDERING__STATIC 3270
-extern unsigned short TEXTSTORY;
+extern int TEXTSTORY;
 #define TEXTSTORY__STATIC 3280
-extern unsigned short LOADSCREEN;
+extern int LOADSCREEN;
 #define LOADSCREEN__STATIC 3281
-extern unsigned short BORNTOBEWILDSCREEN;
+extern int BORNTOBEWILDSCREEN;
 #define BORNTOBEWILDSCREEN__STATIC 3370
-extern unsigned short BLIMP;
+extern int BLIMP;
 #define BLIMP__STATIC 3400
-extern unsigned short FEM9;
+extern int FEM9;
 #define FEM9__STATIC 3450
-extern unsigned short FOOTPRINT;
+extern int FOOTPRINT;
 #define FOOTPRINT__STATIC 3701
-extern unsigned short FRAMEEFFECT1_13;
+extern int FRAMEEFFECT1_13;
 #define FRAMEEFFECT1_13__STATIC 3999
-extern unsigned short POOP;
+extern int POOP;
 #define POOP__STATIC 4094
-extern unsigned short FRAMEEFFECT1;
+extern int FRAMEEFFECT1;
 #define FRAMEEFFECT1__STATIC 4095
-extern unsigned short PANNEL3;
+extern int PANNEL3;
 #define PANNEL3__STATIC 4099
-extern unsigned short SCREENBREAK14;
+extern int SCREENBREAK14;
 #define SCREENBREAK14__STATIC 4120
-extern unsigned short SCREENBREAK15;
+extern int SCREENBREAK15;
 #define SCREENBREAK15__STATIC 4123
-extern unsigned short SCREENBREAK19;
+extern int SCREENBREAK19;
 #define SCREENBREAK19__STATIC 4125
-extern unsigned short SCREENBREAK16;
+extern int SCREENBREAK16;
 #define SCREENBREAK16__STATIC 4127
-extern unsigned short SCREENBREAK17;
+extern int SCREENBREAK17;
 #define SCREENBREAK17__STATIC 4128
-extern unsigned short SCREENBREAK18;
+extern int SCREENBREAK18;
 #define SCREENBREAK18__STATIC 4129
-extern unsigned short W_TECHWALL11;
+extern int W_TECHWALL11;
 #define W_TECHWALL11__STATIC 4130
-extern unsigned short W_TECHWALL12;
+extern int W_TECHWALL12;
 #define W_TECHWALL12__STATIC 4131
-extern unsigned short W_TECHWALL13;
+extern int W_TECHWALL13;
 #define W_TECHWALL13__STATIC 4132
-extern unsigned short W_TECHWALL14;
+extern int W_TECHWALL14;
 #define W_TECHWALL14__STATIC 4133
-extern unsigned short W_TECHWALL5;
+extern int W_TECHWALL5;
 #define W_TECHWALL5__STATIC 4134
-extern unsigned short W_TECHWALL6;
+extern int W_TECHWALL6;
 #define W_TECHWALL6__STATIC 4136
-extern unsigned short W_TECHWALL7;
+extern int W_TECHWALL7;
 #define W_TECHWALL7__STATIC 4138
-extern unsigned short W_TECHWALL8;
+extern int W_TECHWALL8;
 #define W_TECHWALL8__STATIC 4140
-extern unsigned short W_TECHWALL9;
+extern int W_TECHWALL9;
 #define W_TECHWALL9__STATIC 4142
-extern unsigned short BPANNEL3;
+extern int BPANNEL3;
 #define BPANNEL3__STATIC 4100
-extern unsigned short W_HITTECHWALL16;
+extern int W_HITTECHWALL16;
 #define W_HITTECHWALL16__STATIC 4144
-extern unsigned short W_HITTECHWALL10;
+extern int W_HITTECHWALL10;
 #define W_HITTECHWALL10__STATIC 4145
-extern unsigned short W_HITTECHWALL15;
+extern int W_HITTECHWALL15;
 #define W_HITTECHWALL15__STATIC 4147
-extern unsigned short W_MILKSHELF;
+extern int W_MILKSHELF;
 #define W_MILKSHELF__STATIC 4181
-extern unsigned short W_MILKSHELFBROKE;
+extern int W_MILKSHELFBROKE;
 #define W_MILKSHELFBROKE__STATIC 4203
-extern unsigned short PURPLELAVA;
+extern int PURPLELAVA;
 #define PURPLELAVA__STATIC 4240
-extern unsigned short LAVABUBBLE;
+extern int LAVABUBBLE;
 #define LAVABUBBLE__STATIC 4340
-extern unsigned short DUKECUTOUT;
+extern int DUKECUTOUT;
 #define DUKECUTOUT__STATIC 4352
-extern unsigned short TARGET;
+extern int TARGET;
 #define TARGET__STATIC 4359
-extern unsigned short GUNPOWDERBARREL;
+extern int GUNPOWDERBARREL;
 #define GUNPOWDERBARREL__STATIC 4360
-extern unsigned short DUCK;
+extern int DUCK;
 #define DUCK__STATIC 4361
-extern unsigned short HATRACK;
+extern int HATRACK;
 #define HATRACK__STATIC 4367
-extern unsigned short DESKLAMP;
+extern int DESKLAMP;
 #define DESKLAMP__STATIC 4370
-extern unsigned short COFFEEMACHINE;
+extern int COFFEEMACHINE;
 #define COFFEEMACHINE__STATIC 4372
-extern unsigned short CUPS;
+extern int CUPS;
 #define CUPS__STATIC 4373
-extern unsigned short GAVALS;
+extern int GAVALS;
 #define GAVALS__STATIC 4374
-extern unsigned short GAVALS2;
+extern int GAVALS2;
 #define GAVALS2__STATIC 4375
-extern unsigned short POLICELIGHTPOLE;
+extern int POLICELIGHTPOLE;
 #define POLICELIGHTPOLE__STATIC 4377
-extern unsigned short FLOORBASKET;
+extern int FLOORBASKET;
 #define FLOORBASKET__STATIC 4388
-extern unsigned short PUKE;
+extern int PUKE;
 #define PUKE__STATIC 4389
-extern unsigned short DOORTILE23;
+extern int DOORTILE23;
 #define DOORTILE23__STATIC 4391
-extern unsigned short TOPSECRET;
+extern int TOPSECRET;
 #define TOPSECRET__STATIC 4396
-extern unsigned short SPEAKER;
+extern int SPEAKER;
 #define SPEAKER__STATIC 4397
-extern unsigned short TEDDYBEAR;
+extern int TEDDYBEAR;
 #define TEDDYBEAR__STATIC 4400
-extern unsigned short ROBOTDOG;
+extern int ROBOTDOG;
 #define ROBOTDOG__STATIC 4402
-extern unsigned short ROBOTPIRATE;
+extern int ROBOTPIRATE;
 #define ROBOTPIRATE__STATIC 4404
-extern unsigned short ROBOTMOUSE;
+extern int ROBOTMOUSE;
 #define ROBOTMOUSE__STATIC 4407
-extern unsigned short MAIL;
+extern int MAIL;
 #define MAIL__STATIC 4410
-extern unsigned short MAILBAG;
+extern int MAILBAG;
 #define MAILBAG__STATIC 4413
-extern unsigned short HOTMEAT;
+extern int HOTMEAT;
 #define HOTMEAT__STATIC 4427
-extern unsigned short COFFEEMUG;
+extern int COFFEEMUG;
 #define COFFEEMUG__STATIC 4438
-extern unsigned short DONUTS2;
+extern int DONUTS2;
 #define DONUTS2__STATIC 4440
-extern unsigned short TRIPODCAMERA;
+extern int TRIPODCAMERA;
 #define TRIPODCAMERA__STATIC 4444
-extern unsigned short METER;
+extern int METER;
 #define METER__STATIC 4453
-extern unsigned short DESKPHONE;
+extern int DESKPHONE;
 #define DESKPHONE__STATIC 4454
-extern unsigned short GUMBALLMACHINE;
+extern int GUMBALLMACHINE;
 #define GUMBALLMACHINE__STATIC 4458
-extern unsigned short GUMBALLMACHINEBROKE;
+extern int GUMBALLMACHINEBROKE;
 #define GUMBALLMACHINEBROKE__STATIC 4459
-extern unsigned short PAPER;
+extern int PAPER;
 #define PAPER__STATIC 4460
-extern unsigned short MACE;
+extern int MACE;
 #define MACE__STATIC 4464
-extern unsigned short GENERICPOLE2;
+extern int GENERICPOLE2;
 #define GENERICPOLE2__STATIC 4465
-extern unsigned short XXXSTACY;
+extern int XXXSTACY;
 #define XXXSTACY__STATIC 4470
-extern unsigned short WETFLOOR;
+extern int WETFLOOR;
 #define WETFLOOR__STATIC 4495
-extern unsigned short BROOM;
+extern int BROOM;
 #define BROOM__STATIC 4496
-extern unsigned short MOP;
+extern int MOP;
 #define MOP__STATIC 4497
-extern unsigned short LETTER;
+extern int LETTER;
 #define LETTER__STATIC 4502
-extern unsigned short PIRATE1A;
+extern int PIRATE1A;
 #define PIRATE1A__STATIC 4510
-extern unsigned short PIRATE4A;
+extern int PIRATE4A;
 #define PIRATE4A__STATIC 4511
-extern unsigned short PIRATE2A;
+extern int PIRATE2A;
 #define PIRATE2A__STATIC 4512
-extern unsigned short PIRATE5A;
+extern int PIRATE5A;
 #define PIRATE5A__STATIC 4513
-extern unsigned short PIRATE3A;
+extern int PIRATE3A;
 #define PIRATE3A__STATIC 4514
-extern unsigned short PIRATE6A;
+extern int PIRATE6A;
 #define PIRATE6A__STATIC 4515
-extern unsigned short PIRATEHALF;
+extern int PIRATEHALF;
 #define PIRATEHALF__STATIC 4516
-extern unsigned short CHESTOFGOLD;
+extern int CHESTOFGOLD;
 #define CHESTOFGOLD__STATIC 4520
-extern unsigned short SIDEBOLT1;
+extern int SIDEBOLT1;
 #define SIDEBOLT1__STATIC 4525
-extern unsigned short FOODOBJECT1;
+extern int FOODOBJECT1;
 #define FOODOBJECT1__STATIC 4530
-extern unsigned short FOODOBJECT2;
+extern int FOODOBJECT2;
 #define FOODOBJECT2__STATIC 4531
-extern unsigned short FOODOBJECT3;
+extern int FOODOBJECT3;
 #define FOODOBJECT3__STATIC 4532
-extern unsigned short FOODOBJECT4;
+extern int FOODOBJECT4;
 #define FOODOBJECT4__STATIC 4533
-extern unsigned short FOODOBJECT5;
+extern int FOODOBJECT5;
 #define FOODOBJECT5__STATIC 4534
-extern unsigned short FOODOBJECT6;
+extern int FOODOBJECT6;
 #define FOODOBJECT6__STATIC 4535
-extern unsigned short FOODOBJECT7;
+extern int FOODOBJECT7;
 #define FOODOBJECT7__STATIC 4536
-extern unsigned short FOODOBJECT8;
+extern int FOODOBJECT8;
 #define FOODOBJECT8__STATIC 4537
-extern unsigned short FOODOBJECT9;
+extern int FOODOBJECT9;
 #define FOODOBJECT9__STATIC 4538
-extern unsigned short FOODOBJECT10;
+extern int FOODOBJECT10;
 #define FOODOBJECT10__STATIC 4539
-extern unsigned short FOODOBJECT11;
+extern int FOODOBJECT11;
 #define FOODOBJECT11__STATIC 4540
-extern unsigned short FOODOBJECT12;
+extern int FOODOBJECT12;
 #define FOODOBJECT12__STATIC 4541
-extern unsigned short FOODOBJECT13;
+extern int FOODOBJECT13;
 #define FOODOBJECT13__STATIC 4542
-extern unsigned short FOODOBJECT14;
+extern int FOODOBJECT14;
 #define FOODOBJECT14__STATIC 4543
-extern unsigned short FOODOBJECT15;
+extern int FOODOBJECT15;
 #define FOODOBJECT15__STATIC 4544
-extern unsigned short FOODOBJECT16;
+extern int FOODOBJECT16;
 #define FOODOBJECT16__STATIC 4545
-extern unsigned short FOODOBJECT17;
+extern int FOODOBJECT17;
 #define FOODOBJECT17__STATIC 4546
-extern unsigned short FOODOBJECT18;
+extern int FOODOBJECT18;
 #define FOODOBJECT18__STATIC 4547
-extern unsigned short FOODOBJECT19;
+extern int FOODOBJECT19;
 #define FOODOBJECT19__STATIC 4548
-extern unsigned short FOODOBJECT20;
+extern int FOODOBJECT20;
 #define FOODOBJECT20__STATIC 4549
-extern unsigned short HEADLAMP;
+extern int HEADLAMP;
 #define HEADLAMP__STATIC 4550
-extern unsigned short TAMPON;
+extern int TAMPON;
 #define TAMPON__STATIC 4557
-extern unsigned short SKINNEDCHICKEN;
+extern int SKINNEDCHICKEN;
 #define SKINNEDCHICKEN__STATIC 4554
-extern unsigned short FEATHEREDCHICKEN;
+extern int FEATHEREDCHICKEN;
 #define FEATHEREDCHICKEN__STATIC 4555
-extern unsigned short ROBOTDOG2;
+extern int ROBOTDOG2;
 #define ROBOTDOG2__STATIC 4560
-extern unsigned short JOLLYMEAL;
+extern int JOLLYMEAL;
 #define JOLLYMEAL__STATIC 4569
-extern unsigned short DUKEBURGER;
+extern int DUKEBURGER;
 #define DUKEBURGER__STATIC 4570
-extern unsigned short SHOPPINGCART;
+extern int SHOPPINGCART;
 #define SHOPPINGCART__STATIC 4576
-extern unsigned short CANWITHSOMETHING2;
+extern int CANWITHSOMETHING2;
 #define CANWITHSOMETHING2__STATIC 4580
-extern unsigned short CANWITHSOMETHING3;
+extern int CANWITHSOMETHING3;
 #define CANWITHSOMETHING3__STATIC 4581
-extern unsigned short CANWITHSOMETHING4;
+extern int CANWITHSOMETHING4;
 #define CANWITHSOMETHING4__STATIC 4582
-extern unsigned short SNAKEP;
+extern int SNAKEP;
 #define SNAKEP__STATIC 4590
-extern unsigned short DOLPHIN1;
+extern int DOLPHIN1;
 #define DOLPHIN1__STATIC 4591
-extern unsigned short DOLPHIN2;
+extern int DOLPHIN2;
 #define DOLPHIN2__STATIC 4592
-extern unsigned short NEWBEAST;
+extern int NEWBEAST;
 #define NEWBEAST__STATIC 4610
-extern unsigned short NEWBEASTSTAYPUT;
+extern int NEWBEASTSTAYPUT;
 #define NEWBEASTSTAYPUT__STATIC 4611
-extern unsigned short NEWBEASTJUMP;
+extern int NEWBEASTJUMP;
 #define NEWBEASTJUMP__STATIC 4690
-extern unsigned short NEWBEASTHANG;
+extern int NEWBEASTHANG;
 #define NEWBEASTHANG__STATIC 4670
-extern unsigned short NEWBEASTHANGDEAD;
+extern int NEWBEASTHANGDEAD;
 #define NEWBEASTHANGDEAD__STATIC 4671
-extern unsigned short BOSS4;
+extern int BOSS4;
 #define BOSS4__STATIC 4740
-extern unsigned short BOSS4STAYPUT;
+extern int BOSS4STAYPUT;
 #define BOSS4STAYPUT__STATIC 4741
-extern unsigned short FEM10;
+extern int FEM10;
 #define FEM10__STATIC 4864
-extern unsigned short TOUGHGAL;
+extern int TOUGHGAL;
 #define TOUGHGAL__STATIC 4866
-extern unsigned short MAN;
+extern int MAN;
 #define MAN__STATIC 4871
-extern unsigned short MAN2;
+extern int MAN2;
 #define MAN2__STATIC 4872
-extern unsigned short WOMAN;
+extern int WOMAN;
 #define WOMAN__STATIC 4874
-extern unsigned short PLEASEWAIT;
+extern int PLEASEWAIT;
 #define PLEASEWAIT__STATIC 4887
-extern unsigned short NATURALLIGHTNING;
+extern int NATURALLIGHTNING;
 #define NATURALLIGHTNING__STATIC 4890
-extern unsigned short WEATHERWARN;
+extern int WEATHERWARN;
 #define WEATHERWARN__STATIC 4893
-extern unsigned short DUKETAG;
+extern int DUKETAG;
 #define DUKETAG__STATIC 4900
-extern unsigned short SIGN1;
+extern int SIGN1;
 #define SIGN1__STATIC 4909
-extern unsigned short SIGN2;
+extern int SIGN2;
 #define SIGN2__STATIC 4912
-extern unsigned short JURYGUY;
+extern int JURYGUY;
 #define JURYGUY__STATIC 4943
-extern unsigned short RESERVEDSLOT1;
+extern int RESERVEDSLOT1;
 #define RESERVEDSLOT1__STATIC 6132
-extern unsigned short RESERVEDSLOT2;
+extern int RESERVEDSLOT2;
 #define RESERVEDSLOT2__STATIC 6133
-extern unsigned short RESERVEDSLOT3;
+extern int RESERVEDSLOT3;
 #define RESERVEDSLOT3__STATIC 6134
-extern unsigned short RESERVEDSLOT4;
+extern int RESERVEDSLOT4;
 #define RESERVEDSLOT4__STATIC 6135
-extern unsigned short RESERVEDSLOT5;
+extern int RESERVEDSLOT5;
 #define RESERVEDSLOT5__STATIC 6136
-extern unsigned short RESERVEDSLOT6;
+extern int RESERVEDSLOT6;
 #define RESERVEDSLOT6__STATIC 6137
-extern unsigned short RESERVEDSLOT7;
+extern int RESERVEDSLOT7;
 #define RESERVEDSLOT7__STATIC 6138
-extern unsigned short RESERVEDSLOT8;
+extern int RESERVEDSLOT8;
 #define RESERVEDSLOT8__STATIC 6139
-extern unsigned short RESERVEDSLOT9;
+extern int RESERVEDSLOT9;
 #define RESERVEDSLOT9__STATIC 6140
-extern unsigned short RESERVEDSLOT10;
+extern int RESERVEDSLOT10;
 #define RESERVEDSLOT10__STATIC 6141
-extern unsigned short RESERVEDSLOT11;
+extern int RESERVEDSLOT11;
 #define RESERVEDSLOT11__STATIC 6142
-extern unsigned short RESERVEDSLOT12;
+extern int RESERVEDSLOT12;
 #define RESERVEDSLOT12__STATIC 6143
-extern unsigned short dynamictostatic[MAXTILES];
+extern int dynamictostatic[MAXTILES];
