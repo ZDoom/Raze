@@ -134,8 +134,8 @@ int MV_ErrorCode = MV_Ok;
 
 void ClearBuffer_DW(void *ptr, int data, int length)
 {
-	int *pptr = ptr;
-	for (; length>0; length--) *(pptr++) = data;
+    int *pptr = ptr;
+    for (; length>0; length--) *(pptr++) = data;
 }
 
 
@@ -253,6 +253,15 @@ static unsigned MV_GetBufferSize(unsigned samplerate)
 
     lastsr = samplerate;
     lastbufsz = (samplerate*BASEBUFSZ/22050)&(~15);
+
+#ifdef RENDERTYPEWIN
+    {
+        extern int is_vista;
+
+        if (is_vista)
+            lastbufsz = (samplerate*BASEBUFSZ/22050*2)&(~15);
+    }
+#endif
 
     return lastbufsz;
 }

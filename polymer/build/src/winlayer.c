@@ -57,6 +57,7 @@ static BOOL window_class_registered = FALSE;
 static HANDLE instanceflag = NULL;
 
 int    backgroundidle = 1;
+int	   is_vista = 0;
 
 static WORD sysgamma[3][256];
 extern int curbrightness, gammabrightness;
@@ -476,7 +477,10 @@ static void print_os_version(void)
             break;
         }
         if (osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0)
+        {
             ver = "Vista";
+            is_vista = 1;
+        }
         break;
 
     case VER_PLATFORM_WIN32_WINDOWS:

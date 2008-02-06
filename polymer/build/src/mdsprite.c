@@ -1085,7 +1085,7 @@ static void updateanimation(md2model *m, spritetype *tspr)
         }
     }
 
-    if (anim && (((int)spriteext[tspr->owner].mdanimcur) != anim->startframe || (spriteext[tspr->owner].flags & SPREXT_NOMDANIM)))
+    if (anim && (((int)spriteext[tspr->owner].mdanimcur) != anim->startframe))
     {
         //if (spriteext[tspr->owner].flags & SPREXT_NOMDANIM) OSD_Printf("SPREXT_NOMDANIM\n");
         //OSD_Printf("smooth launched ! oldanim %i new anim %i\n", spriteext[tspr->owner].mdanimcur, anim->startframe);

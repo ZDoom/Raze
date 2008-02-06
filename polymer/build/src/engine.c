@@ -6753,6 +6753,12 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
         sprite[i].lotag   = B_LITTLE16(sprite[i].lotag);
         sprite[i].hitag   = B_LITTLE16(sprite[i].hitag);
         sprite[i].extra   = B_LITTLE16(sprite[i].extra);
+
+        if(sprite[i].sectnum<0||sprite[i].sectnum>=MYMAXSECTORS)
+        {
+          initprintf("Map error: sprite #%d(%d,%d) with wrong sector(%d)\n",i,sprite[i].x,sprite[i].y,sprite[i].sectnum);
+          sprite[i].sectnum=MYMAXSECTORS-1;
+        }
     }
 
     for (i=0;i<numsprites;i++)
@@ -7778,10 +7784,11 @@ void nextpage(void)
 #ifdef USE_OPENGL
     omdtims = mdtims; mdtims = getticks();
 
-    if(mdpause)
     {
         int i;
-        for(i=0;i<MAXSPRITES;i++)if(spriteext[i].mdanimtims)spriteext[i].mdanimtims+=mdtims-omdtims;
+        for(i=0;i<MAXSPRITES;i++)
+          if((mdpause&&spriteext[i].mdanimtims)||(spriteext[i].flags & SPREXT_NOMDANIM))
+            spriteext[i].mdanimtims+=mdtims-omdtims;
     }
 #endif
 
