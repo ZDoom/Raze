@@ -14,11 +14,11 @@ EDITORLIB=build.lib
 
 !ifdef DEBUG
 # debugging options
-flags_cl= /Ot /Zi
+flags_cl= /Ot /Zi /MTd
 flags_link=/DEBUG
 !else
 # release options
-flags_cl=/O2 /Ox #/Ob1gity
+flags_cl=/O2 /Ox /MT #/Ob1gity
 flags_link=/RELEASE
 !endif
 
@@ -33,7 +33,7 @@ CC=cl
 AS=ml
 LINK=link /opt:nowin98 /nologo /opt:ref
 MT=mt
-CFLAGS= /MD /J /nologo $(flags_cl)  \
+CFLAGS= /J /nologo $(flags_cl)  \
 	/I$(INC) /I$(EINC)\ /I$(SRC)\jmact /I$(SRC)\jaudiolib /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include" \
  	/DNOCOPYPROTECT  /D "_CRT_SECURE_NO_DEPRECATE" -W0 $(ENGINEOPTS) \
  	/I$(DXROOT)\include /DRENDERTYPEWIN=1

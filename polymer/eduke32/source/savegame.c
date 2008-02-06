@@ -511,7 +511,7 @@ int loadplayer(int spot)
 
     return(0);
 corrupt:
-    Bsprintf(tempbuf,"Save game file \"%s\" is corrupt.",fnptr);
+    Bsprintf(tempbuf,"Save game file \"%s\" is corrupt or of the wrong version.",fnptr);
     gameexit(tempbuf);
     return -1;
 }
