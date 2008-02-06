@@ -190,16 +190,15 @@ int isanearoperator(int lotag)
 
 inline int checkcursectnums(int sect)
 {
-    int i;
-    for (i=connecthead;i>=0;i=connectpoint2[i])
+    int i = connecthead;
+    for (;i>=0;i=connectpoint2[i])
         if (sprite[g_player[i].ps->i].sectnum == sect) return i;
     return -1;
 }
 
 inline int ldist(spritetype *s1,spritetype *s2)
 {
-    int ret = FindDistance2D(s1->x-s2->x, s1->y-s2->y);
-    return (ret?ret:1);
+    return (FindDistance2D(s1->x-s2->x, s1->y-s2->y));
 }
 
 inline int dist(spritetype *s1,spritetype *s2)
