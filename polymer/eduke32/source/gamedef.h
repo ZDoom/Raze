@@ -41,7 +41,7 @@ extern int *actorLoadEventScrptr[MAXTILES];
 
 extern int *apScriptGameEvent[MAXGAMEEVENTS];
 
-extern short otherp;
+extern int otherp;
 extern int g_currentweapon;
 extern int g_gun_pos;
 extern int g_looking_arc;

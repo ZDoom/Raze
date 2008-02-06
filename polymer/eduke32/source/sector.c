@@ -188,7 +188,7 @@ int isanearoperator(int lotag)
     return 0;
 }
 
-int checkcursectnums(int sect)
+inline int checkcursectnums(int sect)
 {
     int i;
     for (i=connecthead;i>=0;i=connectpoint2[i])
@@ -196,37 +196,27 @@ int checkcursectnums(int sect)
     return -1;
 }
 
-int ldist(spritetype *s1,spritetype *s2)
+inline int ldist(spritetype *s1,spritetype *s2)
 {
-    int vx,vy,ret;
-    vx = s1->x - s2->x;
-    vy = s1->y - s2->y;
-    ret = FindDistance2D(vx,vy);
-    return(ret?ret:1);
+    int ret = FindDistance2D(s1->x-s2->x, s1->y-s2->y);
+    return (ret?ret:1);
 }
 
-int dist(spritetype *s1,spritetype *s2)
+inline int dist(spritetype *s1,spritetype *s2)
 {
-    int vx,vy,vz;
-    vx = s1->x - s2->x;
-    vy = s1->y - s2->y;
-    vz = s1->z - s2->z;
-    return(FindDistance3D(vx,vy,vz>>4));
+    return (FindDistance3D(s1->x-s2->x, s1->y-s2->y, (s1->z-s2->z)>>4));
 }
 
 int findplayer(spritetype *s,int *d)
 {
-    int j, closest_player;
-    int x, closest;
+    int j, closest_player = 0;
+    int x, closest = 0x7fffffff;
 
     if (ud.multimode < 2)
     {
         *d = klabs(g_player[myconnectindex].ps->oposx-s->x) + klabs(g_player[myconnectindex].ps->oposy-s->y) + ((klabs(g_player[myconnectindex].ps->oposz-s->z+(28<<8)))>>4);
         return myconnectindex;
     }
-
-    closest = 0x7fffffff;
-    closest_player = 0;
 
     for (j=connecthead;j>=0;j=connectpoint2[j])
     {
@@ -244,11 +234,8 @@ int findplayer(spritetype *s,int *d)
 
 int findotherplayer(int p,int *d)
 {
-    int j, closest_player;
-    int x, closest;
-
-    closest = 0x7fffffff;
-    closest_player = p;
+    int j, closest_player = p;
+    int x, closest = 0x7fffffff;
 
     for (j=connecthead;j>=0;j=connectpoint2[j])
         if (p != j && sprite[g_player[j].ps->i].extra > 0)
@@ -336,10 +323,9 @@ void doanimations(void)
 
 int getanimationgoal(int *animptr)
 {
-    int i, j;
+    int i = animatecnt-1, j = -1;
 
-    j = -1;
-    for (i=animatecnt-1;i>=0;i--)
+    for (;i>=0;i--)
         if (animptr == (int *)animateptr[i])
         {
             j = i;
@@ -350,13 +336,12 @@ int getanimationgoal(int *animptr)
 
 int setanimation(int animsect,int *animptr, int thegoal, int thevel)
 {
-    int i, j;
+    int i = 0, j = animatecnt;
 
     if (animatecnt >= MAXANIMATES-1)
         return(-1);
 
-    j = animatecnt;
-    for (i=0;i<animatecnt;i++)
+    for (;i<animatecnt;i++)
         if (animptr == animateptr[i])
         {
             j = i;
@@ -380,11 +365,9 @@ int setanimation(int animsect,int *animptr, int thegoal, int thevel)
 
 void animatecamsprite(void)
 {
-    int i;
+    int i = camsprite;
 
     if (camsprite <= 0) return;
-
-    i = camsprite;
 
     if (T1 >= 11)
     {
@@ -406,9 +389,9 @@ void animatecamsprite(void)
 
 void animatewalls(void)
 {
-    int i, j, p, t;
+    int i, j, p = 0, t;
 
-    for (p=0;p < numanimwalls ;p++)
+    for (;p < numanimwalls ;p++)
         //    for(p=numanimwalls-1;p>=0;p--)
     {
         i = animwall[p].wallnum;
@@ -1104,9 +1087,9 @@ void operatemasterswitches(int low)
 
 void operateforcefields(int s, int low)
 {
-    int i, p;
+    int i, p=numanimwalls;
 
-    for (p=numanimwalls;p>=0;p--)
+    for (;p>=0;p--)
     {
         i = animwall[p].wallnum;
 
@@ -1134,12 +1117,10 @@ void operateforcefields(int s, int low)
 int checkhitswitch(int snum,int w,int switchtype)
 {
     int switchpal, switchpicnum;
-    int i, x, lotag,hitag,picnum,correctdips,numdips;
+    int i, x, lotag,hitag,picnum,correctdips = 1, numdips = 0;
     int sx,sy;
 
     if (w < 0) return 0;
-    correctdips = 1;
-    numdips = 0;
 
     if (switchtype == 1) // A wall sprite
     {
@@ -1619,9 +1600,7 @@ void checkhitwall(int spr,int dawallnum,int x,int y,int z,int atwith)
 {
     short sn = -1;
     int j, i, darkestwall;
-    walltype *wal;
-
-    wal = &wall[dawallnum];
+    walltype *wal = &wall[dawallnum];
 
     if (wal->overpicnum == MIRROR && checkspriteflagsp(atwith,SPRITE_FLAG_PROJECTILE) && (hittype[spr].projectile.workslike & PROJECTILE_FLAG_RPG))
     {
@@ -2020,7 +1999,7 @@ void checkhitsprite(int i,int sn)
     short j;
     int k, p, rpg=0;
     spritetype *s;
-    int switchpicnum;
+    int switchpicnum = PN;
 
     i &= (MAXSPRITES-1);
 

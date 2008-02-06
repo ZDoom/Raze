@@ -42,6 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osdcmds.h"
 #include "scriptfile.h"
 #include "grpscan.h"
+#include "gamedef.h"
 
 //#include "crc32.h"
 
@@ -4401,7 +4402,10 @@ int EGS(int whatsect,int s_x,int s_y,int s_z,int s_pn,int s_s,int s_xr,int s_yr,
     */
     ResetActorGameVars(i);
     hittype[i].flags = 0;
-    OnEvent(EVENT_EGS,i, findplayer(&sprite[i],&p), p);
+
+    if (apScriptGameEvent[EVENT_EGS])
+        OnEvent(EVENT_EGS,i, findplayer(&sprite[i],&p), p);
+
     return(i);
 }
 
@@ -6328,7 +6332,9 @@ int spawn(int j, int pn)
             break;
         }
 
-    OnEvent(EVENT_SPAWN,i, findplayer(&sprite[i],&p), p);
+    if (apScriptGameEvent[EVENT_SPAWN])
+        OnEvent(EVENT_SPAWN,i, findplayer(&sprite[i],&p), p);
+
     return i;
 }
 

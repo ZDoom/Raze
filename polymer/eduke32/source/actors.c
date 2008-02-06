@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 #include "duke3d.h"
+#include "gamedef.h"
 
 extern int numenvsnds;
 extern int actor_tog;
@@ -192,7 +193,6 @@ void addweapon(player_struct *p,int weapon)
 
 void checkavailinven(player_struct *p)
 {
-
     if (p->firstaid_amount > 0)
         p->inven_icon = 1;
     else if (p->steroids_amount > 0)
@@ -544,9 +544,7 @@ int movesprite(int spritenum, int xchange, int ychange, int zchange, unsigned in
 int ssp(int i,unsigned int cliptype) //The set sprite function
 {
     spritetype *s= &sprite[i];
-    int movetype;
-
-    movetype = movesprite(i,
+    int movetype = movesprite(i,
                           (s->xvel*(sintable[(s->ang+512)&2047]))>>14,
                           (s->xvel*(sintable[s->ang&2047]))>>14,s->zvel,
                           cliptype);
@@ -554,15 +552,19 @@ int ssp(int i,unsigned int cliptype) //The set sprite function
     return (movetype==0);
 }
 
-
 #undef deletesprite
 void deletespriteEVENT(int s)
 {
-    int p;
+    if (apScriptGameEvent[EVENT_KILLIT])
+    {
+        int p;
 
-    SetGameVarID(g_iReturnVarID,0, -1, -1);
-    OnEvent(EVENT_KILLIT, s, findplayer(&sprite[s],(int *)&p), p);
-    if (!GetGameVarID(g_iReturnVarID, -1, -1))deletesprite(s);
+        SetGameVarID(g_iReturnVarID,0, -1, -1);
+        OnEvent(EVENT_KILLIT, s, findplayer(&sprite[s],(int *)&p), p);
+        if (GetGameVarID(g_iReturnVarID, -1, -1))
+            return;
+    }
+    deletesprite(s);
 }
 #define deletesprite deletespriteEVENT
 
@@ -7603,14 +7605,19 @@ void moveobjects(void)
 
     movestandables();       //ST 6
 
-    for (;k<MAXSTATUS;k++)
+    if (apScriptGameEvent[EVENT_GAME])
     {
-        int i = headspritestat[k];
-        while (i >= 0)
+        int i, p, j;
+
+        for (;k<MAXSTATUS;k++)
         {
-            int p, j = nextspritestat[i];
-            OnEvent(EVENT_GAME,i, findplayer(&sprite[i],(int *)&p), p);
-            i = j;
+            i = headspritestat[k];
+            while (i >= 0)
+            {
+                j = nextspritestat[i];
+                OnEvent(EVENT_GAME,i, findplayer(&sprite[i],(int *)&p), p);
+                i = j;
+            }
         }
     }
 
