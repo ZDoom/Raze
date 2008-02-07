@@ -803,10 +803,10 @@ enum gamevarflags {
     GAMEVAR_FLAG_NODEFAULT  = 1024,  // don't reset on actor spawn
     GAMEVAR_FLAG_SYSTEM     = 2048,  // cannot change mode flags...(only default value)
     GAMEVAR_FLAG_READONLY   = 4096,  // values are read-only (no setvar allowed)
-    GAMEVAR_FLAG_PLONG      = 8192,  // plValue is a pointer to a long
+    GAMEVAR_FLAG_INTPTR      = 8192,  // plValue is a pointer to an int
     GAMEVAR_FLAG_SYNCCHECK  = 16384, // check event sync when translating
-    GAMEVAR_FLAG_PSHORT     = 32768, // plValue is a pointer to a short
-    GAMEVAR_FLAG_PCHAR      = 65536  // plValue is a pointer to a char
+    GAMEVAR_FLAG_SHORTPTR     = 32768, // plValue is a pointer to a short
+    GAMEVAR_FLAG_CHARPTR      = 65536  // plValue is a pointer to a char
 };
 
 typedef struct {

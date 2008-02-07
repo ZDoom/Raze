@@ -238,11 +238,11 @@ void DumpGameVars(FILE *fp)
         {
             fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
 
-            if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PLONG))
+            if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_INTPTR))
                 fprintf(fp,"%d",*((int*)aGameVars[i].lValue));
-            else if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PSHORT))
+            else if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_SHORTPTR))
                 fprintf(fp,"%d",*((short*)aGameVars[i].lValue));
-            else if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PCHAR))
+            else if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_CHARPTR))
                 fprintf(fp,"%d",*((char*)aGameVars[i].lValue));
             else
                 fprintf(fp,"%d",aGameVars[i].lValue);
@@ -255,7 +255,7 @@ void DumpGameVars(FILE *fp)
             fprintf(fp," // ");
             if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_SYSTEM))
                 fprintf(fp," (system)");
-            if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PLONG|GAMEVAR_FLAG_PSHORT|GAMEVAR_FLAG_PCHAR))
+            if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_INTPTR|GAMEVAR_FLAG_SHORTPTR|GAMEVAR_FLAG_CHARPTR))
                 fprintf(fp," (pointer)");
             if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_READONLY))
                 fprintf(fp," (read only)");
@@ -304,7 +304,7 @@ int AddGameVar(const char *pszLabel, int lValue, unsigned int dwFlags)
             if (Bstrcmp(pszLabel,aGameVars[i].szLabel) == 0)
             {
                 // found it...
-                if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PLONG|GAMEVAR_FLAG_PSHORT|GAMEVAR_FLAG_PCHAR))
+                if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_INTPTR|GAMEVAR_FLAG_SHORTPTR|GAMEVAR_FLAG_CHARPTR))
                 {
                     //                 warning++;
                     //                 initprintf("%s:%d: warning: Internal gamevar '%s' cannot be redefined.\n",compilefile,line_number,label+(labelcnt<<6));
@@ -470,19 +470,19 @@ int GetGameVarID(int id, int iActor, int iPlayer)
         return (aGameVars[id].lValue);
     }
 
-    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG)
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_INTPTR)
     {
         if (inv) return(-(*((int*)aGameVars[id].lValue)));
         return(*((int*)aGameVars[id].lValue));
     }
 
-    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PSHORT)
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_SHORTPTR)
     {
         if (inv) return(-(*((short*)aGameVars[id].lValue)));
         return(*((short*)aGameVars[id].lValue));
     }
 
-    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PCHAR)
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_CHARPTR)
     {
         if (inv) return(-(*((char*)aGameVars[id].lValue)));
         return(*((char*)aGameVars[id].lValue));
@@ -525,21 +525,21 @@ void SetGameVarID(int id, int lValue, int iActor, int iPlayer)
         return;
     }
 
-    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG)
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_INTPTR)
     {
         // set the value at pointer
         *((int*)aGameVars[id].lValue)=lValue;
         return;
     }
 
-    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PSHORT)
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_SHORTPTR)
     {
         // set the value at pointer
         *((short*)aGameVars[id].lValue)=(short)lValue;
         return;
     }
 
-    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PCHAR)
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_CHARPTR)
     {
         // set the value at pointer
         *((char*)aGameVars[id].lValue)=(char)lValue;
@@ -1108,17 +1108,17 @@ static void AddSystemVars()
     AddGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
     AddGameVar("PIPEBOMB_CONTROL", NAM?PIPEBOMB_TIMER:PIPEBOMB_REMOTE, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-    AddGameVar("RESPAWN_MONSTERS", (int)&ud.respawn_monsters,GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
-    AddGameVar("RESPAWN_ITEMS",(int)&ud.respawn_items, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
-    AddGameVar("RESPAWN_INVENTORY",(int)&ud.respawn_inventory, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
-    AddGameVar("MONSTERS_OFF",(int)&ud.monsters_off, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
-    AddGameVar("MARKER",(int)&ud.marker, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
-    AddGameVar("FFIRE",(int)&ud.ffire, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
-    AddGameVar("LEVEL",(int)&ud.level_number, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY);
-    AddGameVar("VOLUME",(int)&ud.volume_number, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY);
+    AddGameVar("RESPAWN_MONSTERS", (int)&ud.respawn_monsters,GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
+    AddGameVar("RESPAWN_ITEMS",(int)&ud.respawn_items, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
+    AddGameVar("RESPAWN_INVENTORY",(int)&ud.respawn_inventory, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
+    AddGameVar("MONSTERS_OFF",(int)&ud.monsters_off, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
+    AddGameVar("MARKER",(int)&ud.marker, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
+    AddGameVar("FFIRE",(int)&ud.ffire, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
+    AddGameVar("LEVEL",(int)&ud.level_number, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY);
+    AddGameVar("VOLUME",(int)&ud.volume_number, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY);
 
-    AddGameVar("COOP",(int)&ud.coop, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
-    AddGameVar("MULTIMODE",(int)&ud.multimode, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
+    AddGameVar("COOP",(int)&ud.coop, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
+    AddGameVar("MULTIMODE",(int)&ud.multimode, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
 
     AddGameVar("WEAPON", 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYSTEM);
     AddGameVar("WORKSLIKE", 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYSTEM);
@@ -1130,66 +1130,68 @@ static void AddSystemVars()
     AddGameVar("HITAG", 0, GAMEVAR_FLAG_SYSTEM);
     AddGameVar("TEXTURE", 0, GAMEVAR_FLAG_SYSTEM);
     AddGameVar("THISACTOR", 0, GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYSTEM);
-    AddGameVar("myconnectindex", (int)&myconnectindex, GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("screenpeek", (int)&screenpeek, GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("currentweapon",(int)&g_currentweapon, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("gs",(int)&g_gs, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("looking_arc",(int)&g_looking_arc, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("gun_pos",(int)&g_gun_pos, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("weapon_xoffset",(int)&g_weapon_xoffset, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("weaponcount",(int)&g_kb, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("looking_angSR1",(int)&g_looking_angSR1, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("xdim",(int)&xdim, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("ydim",(int)&ydim, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("windowx1",(int)&windowx1, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("windowx2",(int)&windowx2, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("windowy1",(int)&windowy1, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("windowy2",(int)&windowy2, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("totalclock",(int)&totalclock, GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("lastvisinc",(int)&lastvisinc, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("numsectors",(int)&numsectors, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY);
-    AddGameVar("numplayers",(int)&numplayers, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY);
-    AddGameVar("viewingrange",(int)&viewingrange, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("yxaspect",(int)&yxaspect, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("gravitationalconstant",(int)&gc, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
-    AddGameVar("gametype_flags",(int)&gametype_flags[ud.coop], GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
-    AddGameVar("framerate",(int)&framerate, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myconnectindex", (int)&myconnectindex, GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("screenpeek", (int)&screenpeek, GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("currentweapon",(int)&g_currentweapon, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("gs",(int)&g_gs, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("looking_arc",(int)&g_looking_arc, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("gun_pos",(int)&g_gun_pos, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("weapon_xoffset",(int)&g_weapon_xoffset, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("weaponcount",(int)&g_kb, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("looking_angSR1",(int)&g_looking_angSR1, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("xdim",(int)&xdim, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("ydim",(int)&ydim, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("windowx1",(int)&windowx1, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("windowx2",(int)&windowx2, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("windowy1",(int)&windowy1, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("windowy2",(int)&windowy2, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("totalclock",(int)&totalclock, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("lastvisinc",(int)&lastvisinc, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("numsectors",(int)&numsectors, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY);
+    AddGameVar("numplayers",(int)&numplayers, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY);
+    AddGameVar("viewingrange",(int)&viewingrange, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("yxaspect",(int)&yxaspect, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("gravitationalconstant",(int)&gc, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
+    AddGameVar("gametype_flags",(int)&gametype_flags[ud.coop], GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
+    AddGameVar("framerate",(int)&framerate, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("CLIPMASK0", CLIPMASK0, GAMEVAR_FLAG_SYSTEM|GAMEVAR_FLAG_READONLY);
     AddGameVar("CLIPMASK1", CLIPMASK1, GAMEVAR_FLAG_SYSTEM|GAMEVAR_FLAG_READONLY);
 
-    AddGameVar("camerax",(int)&ud.camerax, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("cameray",(int)&ud.cameray, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("cameraz",(int)&ud.cameraz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("cameraang",(int)&ud.cameraang, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("camerahoriz",(int)&ud.camerahoriz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("camerasect",(int)&ud.camerasect, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("camerax",(int)&ud.camerax, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("cameray",(int)&ud.cameray, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("cameraz",(int)&ud.cameraz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("cameraang",(int)&ud.cameraang, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("camerahoriz",(int)&ud.camerahoriz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("camerasect",(int)&ud.camerasect, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("cameradist",(int)&cameradist, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("cameraclock",(int)&cameraclock, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
 
-    AddGameVar("myx",(int)&myx, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("myy",(int)&myy, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("myz",(int)&myz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("omyx",(int)&omyx, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("omyy",(int)&omyy, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("omyz",(int)&omyz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("myxvel",(int)&myxvel, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("myyvel",(int)&myyvel, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("myzvel",(int)&myzvel, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myx",(int)&myx, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myy",(int)&myy, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myz",(int)&myz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("omyx",(int)&omyx, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("omyy",(int)&omyy, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("omyz",(int)&omyz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myxvel",(int)&myxvel, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myyvel",(int)&myyvel, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myzvel",(int)&myzvel, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
 
-    AddGameVar("myhoriz",(int)&myhoriz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("myhorizoff",(int)&myhorizoff, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("omyhoriz",(int)&omyhoriz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("omyhorizoff",(int)&omyhorizoff, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("myang",(int)&myang, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("omyang",(int)&omyang, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("mycursectnum",(int)&mycursectnum, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("myjumpingcounter",(int)&myjumpingcounter, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PSHORT | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myhoriz",(int)&myhoriz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myhorizoff",(int)&myhorizoff, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("omyhoriz",(int)&omyhoriz, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("omyhorizoff",(int)&omyhorizoff, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myang",(int)&myang, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("omyang",(int)&omyang, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("mycursectnum",(int)&mycursectnum, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myjumpingcounter",(int)&myjumpingcounter, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_SYNCCHECK);
 
-    AddGameVar("myjumpingtoggle",(int)&myjumpingtoggle, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("myonground",(int)&myonground, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("myhardlanding",(int)&myhardlanding, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("myreturntocenter",(int)&myreturntocenter, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myjumpingtoggle",(int)&myjumpingtoggle, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_CHARPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myonground",(int)&myonground, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_CHARPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myhardlanding",(int)&myhardlanding, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_CHARPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("myreturntocenter",(int)&myreturntocenter, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_CHARPTR | GAMEVAR_FLAG_SYNCCHECK);
 
-    AddGameVar("display_mirror",(int)&display_mirror, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PCHAR | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("randomseed",(int)&randomseed, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
+    AddGameVar("display_mirror",(int)&display_mirror, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_CHARPTR | GAMEVAR_FLAG_SYNCCHECK);
+    AddGameVar("randomseed",(int)&randomseed, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
 }
 
 void InitGameVars(void)
@@ -1302,6 +1304,8 @@ static void ResetPointerVars(void)
     aGameVars[GetGameID("cameraang")].lValue = (int)&ud.cameraang;
     aGameVars[GetGameID("camerahoriz")].lValue = (int)&ud.camerahoriz;
     aGameVars[GetGameID("camerasect")].lValue = (int)&ud.camerasect;
+    aGameVars[GetGameID("cameradist")].lValue = (int)&cameradist;
+    aGameVars[GetGameID("cameraclock")].lValue = (int)&cameraclock;
 
     aGameVars[GetGameID("myx")].lValue = (int)&myx;
     aGameVars[GetGameID("myy")].lValue = (int)&myy;
