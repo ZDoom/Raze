@@ -518,7 +518,7 @@ void loadmhk()
 {
     char *p;char levname[BMAX_PATH];
 
-    if(!mhk)return;
+    if (!mhk)return;
     strcpy(levname, boardfilename);
     p = Bstrrchr(levname,'.');
     if (!p) strcat(levname,".mhk");
@@ -618,11 +618,11 @@ void editinput(void)
         memset(spriteext, 0, sizeof(spriteexttype) * MAXSPRITES);
         memset(spritesmooth, 0, sizeof(spritesmooth));
         mhk=0;
-        initprintf("Maphacks dissabled\n");
+        initprintf("Maphacks disabled\n");
         keystatus[0x44] = 0;
     }
     begindrawing();     //{{{
-    if(mhk)printext256(0,16,whitecol,0,(mhk==1)?"Maphacks ON":"Maphacks ON (not found)",0);
+    if (mhk)printext256(0,16,whitecol,0,(mhk==1)?"Maphacks ON":"Maphacks ON (not found)",0);
     enddrawing();       //}}}
 
     if (angvel != 0)          //ang += angvel * constant

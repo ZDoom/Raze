@@ -513,7 +513,7 @@ void SetGameVarID(int id, int lValue, int iActor, int iPlayer)
         return;
     }
 
-    if ((aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR))
+    if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR)
     {
         if (iActor < 0 || iActor > MAXSPRITES-1)
         {
@@ -528,7 +528,7 @@ void SetGameVarID(int id, int lValue, int iActor, int iPlayer)
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_INTPTR)
     {
         // set the value at pointer
-        *((int*)aGameVars[id].lValue)=lValue;
+        *((int*)aGameVars[id].lValue)=(int)lValue;
         return;
     }
 

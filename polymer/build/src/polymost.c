@@ -1418,6 +1418,19 @@ int gloadtile_cached(int fil, texcacheheader *head, int *doalloc, pthtyp *pth,in
         bglCompressedTexImage2DARB(GL_TEXTURE_2D,level,pict.format,pict.xdim,pict.ydim,pict.border,
                                    pict.size,pic);
         if (bglGetError() != GL_NO_ERROR) goto failure;
+
+        {
+            GLint format;
+            bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &format);
+            if (bglGetError() != GL_NO_ERROR) goto failure;
+            format = B_LITTLE32(format);
+            if (pict.format != format)
+            {
+                initprintf("invalid texture cache file format %d %d\n",pict.format, format);
+                goto failure;
+            }
+        }
+
     }
 
     if (midbuf) free(midbuf);

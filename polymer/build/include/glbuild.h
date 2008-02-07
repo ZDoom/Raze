@@ -214,5 +214,6 @@ extern char *gldriver;
 int loadgldriver(const char *driver);
 int loadglextensions(void);
 int unloadgldriver(void);
-int loadglulibrary(const char *driver);
+
+int loadglulibrary(const char *driver);
 int unloadglulibrary(void);
