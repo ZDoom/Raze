@@ -3032,7 +3032,6 @@ CHECKINV1:
 
             if (p->holoduke_on == -1)
             {
-
                 SetGameVarID(g_iReturnVarID,0,g_player[snum].ps->i,snum);
                 OnEvent(EVENT_HOLODUKEON,g_player[snum].ps->i,snum, -1);
                 if (GetGameVarID(g_iReturnVarID,g_player[snum].ps->i,snum) == 0)
@@ -3050,11 +3049,10 @@ CHECKINV1:
                         SP = snum;
                         sprite[i].extra = 0;
                         FTA(47,p);
+                        spritesound(TELEPORTER,p->holoduke_on);
                     }
                     else FTA(49,p);
-                    spritesound(TELEPORTER,p->holoduke_on);
                 }
-
             }
             else
             {
