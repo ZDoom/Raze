@@ -444,7 +444,7 @@ static const char *keyw[] =
     "<null>"
 };
 
-LABELS sectorlabels[]=
+static const memberlabel_t sectorlabels[]=
 {
     { "wallptr", SECTOR_WALLPTR, 0, 0 },
     { "wallnum", SECTOR_WALLNUM, 0, 0 },
@@ -472,7 +472,7 @@ LABELS sectorlabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
-LABELS walllabels[]=
+static const memberlabel_t walllabels[]=
 {
     { "x", WALL_X, 0, 0 },
     { "y", WALL_Y, 0, 0 },
@@ -494,7 +494,7 @@ LABELS walllabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
-LABELS actorlabels[]=
+const memberlabel_t actorlabels[]=
 {
     { "x", ACTOR_X, 0, 0 },
     { "y", ACTOR_Y, 0, 0 },
@@ -554,7 +554,7 @@ LABELS actorlabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
-LABELS playerlabels[]=
+const memberlabel_t playerlabels[]=
 {
     { "zoom", PLAYER_ZOOM, 0, 0 },
     { "exitx", PLAYER_EXITX, 0, 0 },
@@ -704,7 +704,7 @@ LABELS playerlabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
-LABELS projectilelabels[]=
+static const memberlabel_t projectilelabels[]=
 {
     { "workslike", PROJ_WORKSLIKE, 0, 0 },
     { "spawns", PROJ_SPAWNS, 0, 0 },
@@ -737,7 +737,7 @@ LABELS projectilelabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
-LABELS userdefslabels[]=
+static const memberlabel_t userdefslabels[]=
 {
     //        { "<null>", 1, 0, 0 },
     { "god", USERDEFS_GOD, 0, 0 },
@@ -834,7 +834,7 @@ LABELS userdefslabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
-LABELS inputlabels[]=
+static const memberlabel_t inputlabels[]=
 {
     { "avel", INPUT_AVEL, 0, 0 },
     { "horz", INPUT_HORZ, 0, 0 },
@@ -1220,7 +1220,7 @@ static inline int isaltok(char c)
     return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
 }
 
-static int getlabelid(LABELS *pLabel, const char *psz)
+static int getlabelid(const memberlabel_t *pLabel, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the ID for the label, or -1
@@ -1239,7 +1239,7 @@ static int getlabelid(LABELS *pLabel, const char *psz)
     return l;
 }
 
-static int getlabeloffset(LABELS *pLabel, const char *psz)
+static int getlabeloffset(const memberlabel_t *pLabel, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the offset in the array for the label, or -1
@@ -5007,7 +5007,7 @@ void loadefs(const char *filenam)
             if (fta_quotes[i] == NULL)
                 fta_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
         {
-            char *ppdeathstrings[] =
+            const char *ppdeathstrings[] =
             {
                 "^2%s ^2WAS KICKED TO THE CURB BY %s",
                 "^2%s ^2WAS PICKED OFF BY %s",
@@ -5043,7 +5043,7 @@ void loadefs(const char *filenam)
                 "^2%s ^2WANTS TO KNOW WHY %s ^2IS EVEN PLAYING COOP",
             };
 
-            char *podeathstrings[] =
+            const char *podeathstrings[] =
             {
                 "^2%s ^2KILLED HIMSELF.  WHAT A TOOL!",
                 "^2%s ^2TRIED TO LEAVE",

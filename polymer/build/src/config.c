@@ -59,6 +59,8 @@ extern short brightness;
 extern int fullscreen;
 extern char option[8];
 extern char keys[NUMBUILDKEYS];
+extern unsigned char remap[256];
+extern int remapinit;
 extern double msens;
 extern int editorgridextent;
 
@@ -103,7 +105,7 @@ extern int editorgridextent;
 int loadsetup(const char *fn)
 {
     BFILE *fp;
-#define VL 32
+#define VL 256
     char val[VL];
     int i;
 
@@ -196,6 +198,22 @@ int loadsetup(const char *fn)
     if (readconfig(fp, "keyconsole", val, VL) > 0) { keys[19] = Bstrtol(val, NULL, 16); OSD_CaptureKey(keys[19]); }
 
     if (readconfig(fp, "mousesensitivity", val, VL) > 0) msens = Bstrtod(val, NULL);
+
+    for (i=0;i<256;i++)remap[i]=i;
+    remapinit=1;
+    if (readconfig(fp, "remap", val, VL) > 0)
+    {
+        char *p=val;int v1,v2;
+        while (*p)
+        {
+            if (!sscanf(p,"%x",&v1))break;
+            if ((p=strchr(p,'-'))==0)break;p++;
+            if (!sscanf(p,"%x",&v2))break;
+            remap[v1]=v2;
+            initprintf("Remap %X key to %X\n",v1,v2);
+            if ((p=strchr(p,','))==0)break;p++;
+        }
+    }
     Bfclose(fp);
 
     return 0;
@@ -204,6 +222,7 @@ int loadsetup(const char *fn)
 int writesetup(const char *fn)
 {
     BFILE *fp;
+    int i,first=1;
 
     fp = Bfopen(fn,"wt");
     if (!fp) return -1;
@@ -325,7 +344,7 @@ int writesetup(const char *fn)
 #endif
 //             "; Console key scancode, in hex\n"
              "keyconsole = %X\n"
-             "\n",
+             "remap = ",
 
              forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame,
              editorgridextent,
@@ -349,6 +368,13 @@ int writesetup(const char *fn)
              keys[19]
             );
 
+
+    for (i=0;i<256;i++)if (remap[i]!=i)
+        {
+            Bfprintf(fp,first?"%02X-%02X":",%02X-%02X",i,remap[i]);
+            first=0;
+        }
+    Bfprintf(fp,"\n");
     Bfclose(fp);
 
     return 0;

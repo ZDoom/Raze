@@ -69,6 +69,8 @@ static char nogl=0;
 char inputdevices=0;
 char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
 unsigned char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
+unsigned char remap[256];
+int remapinit=0;
 static unsigned char keynames[256][24];
 int mousex=0,mousey=0,mouseb=0;
 int *joyaxis = NULL, joyb=0, *joyhat = NULL;
@@ -335,6 +337,7 @@ int initinput(void)
     // force OS X to operate in >1 button mouse mode so that LMB isn't adulterated
     if (!getenv("SDL_HAS3BUTTONMOUSE")) putenv("SDL_HAS3BUTTONMOUSE=1");
 #endif
+    if (!remapinit)for (i=0;i<256;i++)remap[i]=i;remapinit=1;
 
     if (SDL_EnableKeyRepeat(250, 30)) initprintf("Error enabling keyboard repeat.\n");
     inputdevices = 1|2;	// keyboard (1) and mouse (2)
@@ -1346,9 +1349,9 @@ int handleevents(void)
     SDL_Event ev;
 
 #define SetKey(key,state) { \
-	keystatus[key] = state; \
+        keystatus[remap[key]] = state; \
 		if (state) { \
-	keyfifo[keyfifoend] = key; \
+        keyfifo[keyfifoend] = remap[key]; \
 	keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state; \
 	keyfifoend = ((keyfifoend+2)&(KEYFIFOSIZ-1)); \
 		} \

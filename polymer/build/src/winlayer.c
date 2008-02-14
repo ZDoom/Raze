@@ -126,6 +126,8 @@ static char taskswitching=1;
 
 char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
 unsigned char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
+unsigned char remap[256];
+int remapinit=0;
 static unsigned char keynames[256][24];
 static unsigned int lastKeyDown = 0;
 static unsigned int lastKeyTime = 0;
@@ -725,9 +727,9 @@ static struct _joydevicedefn *thisjoydef = NULL, joyfeatures[] =
 
 // I don't see any pressing need to store the key-up events yet
 #define SetKey(key,state) { \
-	keystatus[key] = state; \
+        keystatus[remap[key]] = state; \
 		if (state) { \
-	keyfifo[keyfifoend] = key; \
+        keyfifo[keyfifoend] = remap[key]; \
 	keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state; \
 	keyfifoend = ((keyfifoend+2)&(KEYFIFOSIZ-1)); \
 		} \
@@ -739,8 +741,10 @@ static struct _joydevicedefn *thisjoydef = NULL, joyfeatures[] =
 //
 int initinput(void)
 {
+    int i;
     moustat=0;
     memset(keystatus, 0, sizeof(keystatus));
+    if (!remapinit)for (i=0;i<256;i++)remap[i]=i;remapinit=1;
     keyfifoplc = keyfifoend = 0;
     keyasciififoplc = keyasciififoend = 0;
 

@@ -66,7 +66,7 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
 #define BYTEVERSION_13  27
 #define BYTEVERSION_14  116
 #define BYTEVERSION_15  117
-#define BYTEVERSION_JF  177 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
+#define BYTEVERSION_JF  180 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
 
 #define BYTEVERSION (BYTEVERSION_JF+(PLUTOPAK?1:(VOLUMEONE<<1)))    // JBF 20040116: different data files give different versions
 
@@ -293,9 +293,9 @@ enum USRHOOKS_Errors {
 };
 
 typedef struct {
-    signed char avel, horz;
-    short fvel, svel;
     unsigned int bits, extbits;
+    short fvel, svel;
+    signed char avel, horz;
 } input;
 
 #define sync dsync  // JBF 20040604: sync is a function on some platforms
@@ -304,26 +304,23 @@ extern input recsync[RECSYNCBUFSIZ];
 extern int movefifosendplc;
 
 typedef struct {
-    short i;
     int voice;
+    int i;
 } SOUNDOWNER;
 
 typedef struct {
-    char *ptr;
-    volatile char lock;
-    int  length, num;
-    SOUNDOWNER SoundOwner[4];
-    char *filename;
+    int  length, num, soundsiz;
+    char *filename, *ptr;
     short ps,pe,vo;
+    volatile char lock;
     char pr,m;
-    int soundsiz;
+    SOUNDOWNER SoundOwner[4];
 } sound_t;
 
 extern sound_t g_sounds[MAXSOUNDS];
 
 typedef struct {
-short wallnum;
-int tag;
+    int wallnum, tag;
 } animwalltype;
 
 extern animwalltype animwall[MAXANIMWALLS];
@@ -344,6 +341,14 @@ struct savehead {
 };
 
 typedef struct {
+	int UseJoystick;
+	int UseMouse;
+	int RunMode;
+	int AutoAim;
+	int ShowOpponentWeapons;
+	int MouseFilter,MouseBias;
+	int SmoothInput;
+
 	//
 	// Sound variables
 	//
@@ -363,28 +368,6 @@ typedef struct {
 	
 	int ReverseStereo;
 
-	int UseJoystick;
-	int UseMouse;
-	int RunMode;
-	int AutoAim;
-	int ShowOpponentWeapons;
-	int MouseFilter,MouseBias;
-	int SmoothInput;
-
-	// JBF 20031211: Store the input settings because
-	// (currently) jmact can't regurgitate them
-	byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
-	int MouseFunctions[MAXMOUSEBUTTONS][2];
-	int MouseDigitalFunctions[MAXMOUSEAXES][2];
-	int MouseAnalogueAxes[MAXMOUSEAXES];
-	int MouseAnalogueScale[MAXMOUSEAXES];
-	int JoystickFunctions[MAXJOYBUTTONS][2];
-	int JoystickDigitalFunctions[MAXJOYAXES][2];
-	int JoystickAnalogueAxes[MAXJOYAXES];
-	int JoystickAnalogueScale[MAXJOYAXES];
-	int JoystickAnalogueDead[MAXJOYAXES];
-	int JoystickAnalogueSaturate[MAXJOYAXES];
-
 	//
 	// Screen variables
 	//
@@ -403,23 +386,23 @@ typedef struct {
 	int CheckForUpdates;
 	int LastUpdateCheck;
 	int useprecache;
+
+	// JBF 20031211: Store the input settings because
+	// (currently) jmact can't regurgitate them
+	int MouseFunctions[MAXMOUSEBUTTONS][2];
+	int MouseDigitalFunctions[MAXMOUSEAXES][2];
+	int MouseAnalogueAxes[MAXMOUSEAXES];
+	int MouseAnalogueScale[MAXMOUSEAXES];
+	int JoystickFunctions[MAXJOYBUTTONS][2];
+	int JoystickDigitalFunctions[MAXJOYAXES][2];
+	int JoystickAnalogueAxes[MAXJOYAXES];
+	int JoystickAnalogueScale[MAXJOYAXES];
+	int JoystickAnalogueDead[MAXJOYAXES];
+	int JoystickAnalogueSaturate[MAXJOYAXES];
+	byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
 } config_t;
 
 typedef struct {
-    char god,warp_on,cashman,eog,showallmap;
-    char show_help,scrollmode,clipping;
-    char ridecule[10][40];
-    char savegame[10][22];
-    char pwlockout[128],rtsname[128];
-    char overhead_on,last_overhead,showweapons;
-
-    short pause_on,from_bonus;
-    short camerasprite,last_camsprite;
-    short last_level,secretlevel;
-
-    short cameraang, camerasect, camerahoriz;
-    int camerax,cameray,cameraz;
-
     int const_visibility,uw_framerate;
     int camera_time,folfvel,folavel,folx,foly,fola;
     int reccnt;
@@ -437,6 +420,21 @@ typedef struct {
     int m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off,detail;
     int m_ffire,ffire,m_player_skill,m_level_number,m_volume_number,multimode;
     int player_skill,level_number,volume_number,m_marker,marker,mouseflip;
+
+    int camerax,cameray,cameraz;
+
+    short cameraang, camerasect, camerahoriz;
+    short pause_on,from_bonus;
+    short camerasprite,last_camsprite;
+    short last_level,secretlevel;
+
+    char god,warp_on,cashman,eog,showallmap;
+    char show_help,scrollmode,clipping;
+    char ridecule[10][40];
+    char savegame[10][22];
+    char pwlockout[128],rtsname[128];
+    char overhead_on,last_overhead,showweapons;
+
 	config_t config;
 } user_defs;
 
@@ -450,7 +448,7 @@ extern char numplayersprites;
 extern int fricxv,fricyv;
 
 typedef struct {
-    int zoom,exitx,exity,loogiex[64],loogiey[64],numloogs,loogcnt;
+    int zoom,exitx,exity;
     int posx, posy, posz, horiz, ohoriz, ohorizoff, invdisptime;
     int bobposx,bobposy,oposx,oposy,oposz,pyoff,opyoff;
     int posxv,posyv,poszv,last_pissed_time,truefz,truecz;
@@ -458,7 +456,19 @@ typedef struct {
     int bobcounter,weapon_sway;
     int pals_time,randomflamex,crack_time;
 
-    char aim_mode,auto_aim,weaponswitch;
+    unsigned int interface_toggle_flag;
+
+    int max_secret_rooms,secret_rooms,max_actors_killed,actors_killed;
+    int runspeed, movement_lock, team;
+    int max_player_health, max_shield_amount, max_ammo_amount[MAX_WEAPONS];
+
+    int scream_voice;
+
+    int loogiex[64],loogiey[64],numloogs,loogcnt;
+
+    char *palette;
+
+    short sbs, sound_pitch;
 
     short ang,oang,angvel,cursectnum,look_ang,last_extra,subweapon;
     short ammo_amount[MAX_WEAPONS],wackedbyactor,frag,fraggedself;
@@ -475,34 +485,29 @@ typedef struct {
     short heat_amount,actorsqu,timebeforeexit,customexitsound;
 
     short weaprecs[16],weapreccnt;
-    unsigned int interface_toggle_flag;
+
 
     short orotscrnang,rotscrnang,dead_flag,show_empty_weapon;   // JBF 20031220: added orotscrnang
     short scuba_amount,jetpack_amount,steroids_amount,shield_amount;
     short holoduke_on,pycount,weapon_pos,frag_ps;
     short transporter_hold,last_full_weapon,footprintshade,boot_amount;
 
-    int scream_voice;
+    char aim_mode,auto_aim,weaponswitch;
 
     char gm,on_warping_sector,footprintcount;
     char hbomb_on,jumping_toggle,rapid_fire_hold,on_ground;
-    char name[32],inven_icon,buttonpalette;
+    char inven_icon,buttonpalette;
 
     char jetpack_on,spritebridge,lastrandomspot;
     char scuba_on,footprintpal,heat_on;
 
     char  holster_weapon,falling_counter;
-    char  gotweapon[MAX_WEAPONS],refresh_inventory,*palette;
+    char  gotweapon[MAX_WEAPONS],refresh_inventory;
 
     char toggle_key_flag,knuckle_incs; // ,select_dir;
     char walking_snd_toggle, palookup, hard_landing;
     char /*fire_flag,*/pals[3];
-    char return_to_center, reloading;
-
-    int max_secret_rooms,secret_rooms,max_actors_killed,actors_killed;
-    int runspeed, movement_lock, team;
-    int max_player_health, max_shield_amount, max_ammo_amount[MAX_WEAPONS];
-    short sbs, sound_pitch;
+    char return_to_center, reloading, name[32];
 } player_struct;
 
 extern char tempbuf[2048], packbuf[576];
@@ -559,13 +564,13 @@ spriteinterpolate sprpos[MAXSPRITES];
 
 
 typedef struct {
-    char cgg;
+    int floorz,ceilingz,lastvx,lastvy,bposx,bposy,bposz;
+    int flags;
+    int temp_data[10];
     short picnum,ang,extra,owner,movflag;
     short tempang,actorstayput,dispicnum;
     short timetosleep;
-    int floorz,ceilingz,lastvx,lastvy,bposx,bposy,bposz;
-    int temp_data[10];
-    int flags;
+    char cgg;
     proj_struct projectile;
 } actordata_t;
 
@@ -661,12 +666,12 @@ extern short weaponsandammosprites[15];
 
 //DUKE3D.H:
 typedef struct {
-    short frag[MAXPLAYERS], got_access, last_extra, shield_amount, curr_weapon;
-    short ammo_amount[MAX_WEAPONS], holoduke_on;
-    char gotweapon[MAX_WEAPONS], inven_icon, jetpack_on, heat_on;
+    short got_access, last_extra, shield_amount, curr_weapon, holoduke_on;
     short firstaid_amount, steroids_amount, holoduke_amount, jetpack_amount;
     short heat_amount, scuba_amount, boot_amount;
     short last_weapon, weapon_pos, kickback_pic;
+    short ammo_amount[MAX_WEAPONS], frag[MAXPLAYERS];
+    char inven_icon, jetpack_on, heat_on, gotweapon[MAX_WEAPONS];
 } STATUSBARTYPE;
 
 extern STATUSBARTYPE sbar;
@@ -811,11 +816,10 @@ enum gamevarflags {
 
 typedef struct {
     int lValue;
-    char *szLabel;
-    unsigned int dwFlags;
-
-    int *plValues;     // array of values when 'per-player', or 'per-actor'
     int lDefault;
+    int *plValues;     // array of values when 'per-player', or 'per-actor'
+    unsigned int dwFlags;
+    char *szLabel;
     char bReset;
 } gamevar_t;
 
@@ -957,8 +961,8 @@ extern int redefined_quote_count;
 extern char setupfilename[BMAX_PATH];
 
 typedef struct {
-	char *name, *filename, *musicfn;
 	int partime, designertime;
+	char *name, *filename, *musicfn;
 } map_t;
 
 extern map_t map[MAXVOLUMES*MAXLEVELS];
@@ -967,22 +971,11 @@ typedef struct {
 	player_struct *ps;
 	input *sync;
 
-	int movefifoend;
-	int syncvalhead;
-	int myminlag;
+	int movefifoend, syncvalhead, myminlag;
+	int pcolor, pteam, frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
-	int	frags[MAXPLAYERS];
-	int pcolor;
-	int pteam;
-	int wchoice[MAX_WEAPONS];
-
-	char syncval[MOVEFIFOSIZ];
-	char user_name[32];
-	char playerreadyflag;
-	char playerquitflag;
-
-	char vote;
-	char gotvote;
+	char vote, gotvote, playerreadyflag, playerquitflag;
+	char user_name[32], syncval[MOVEFIFOSIZ];
 } playerdata_t;
 
 extern input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
@@ -1002,8 +995,8 @@ typedef struct {
 extern keydef keynames[];
 
 typedef struct binding {
-    char name[MAXSCRIPTFILENAMELENGTH];
     char *key;
+    char name[MAXSCRIPTFILENAMELENGTH];
 } keybind;
 
 extern keybind boundkeys[MAXBOUNDKEYS];

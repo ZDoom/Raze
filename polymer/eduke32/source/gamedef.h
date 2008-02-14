@@ -56,21 +56,21 @@ extern char cheatquotes[][MAXCHEATLEN];
 extern char compilefile[BMAX_PATH];
 extern int total_lines,line_number;
 extern int error,warning;
-typedef struct _labels
+typedef struct
 {
     char *name;
     int lId;
     int flags;
     int maxParm2;
-} LABELS;
+} memberlabel_t;
 
-extern LABELS sectorlabels[];
-extern LABELS walllabels[];
-extern LABELS actorlabels[];
-extern LABELS playerlabels[];
-extern LABELS projectilelabels[];
-extern LABELS userdeflabels[];
-extern LABELS inputlabels[];
+/* extern memberlabel_t sectorlabels[];
+extern memberlabel_t walllabels[]; */
+extern const memberlabel_t actorlabels[];
+extern const memberlabel_t playerlabels[];
+/* extern memberlabel_t projectilelabels[];
+extern memberlabel_t userdeflabels[];
+extern memberlabel_t inputlabels[]; */
 
 enum errors
 {
