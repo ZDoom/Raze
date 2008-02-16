@@ -5,6 +5,13 @@
 #ifndef __compat_h__
 #define __compat_h__
 
+// This gives us access to 'intptr_t' and 'uintptr_t', which are
+// abstractions to the size of a pointer on a given platform
+// (ie, they're guaranteed to be the same size as a pointer)
+#ifdef HAVE_INTTYPES
+#  include <inttypes.h>
+#endif
+
 // Define this to rewrite all 'B' versions to library functions. This
 // is for platforms which give us a standard sort of C library so we
 // link directly. Platforms like PalmOS which don't have a standard C

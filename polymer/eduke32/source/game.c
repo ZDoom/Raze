@@ -4054,7 +4054,7 @@ void displayrooms(int snum,int smoothratio)
         {
             walock[TILE_SAVESHOT] = 199;
             if (waloff[TILE_SAVESHOT] == 0)
-                allocache((int *)&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
+                allocache(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
             setviewtotile(TILE_SAVESHOT,200L,320L);
         }
         else if (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || ud.detail==0))

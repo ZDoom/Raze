@@ -37,16 +37,16 @@ static int kzipopen(char *filnam)
 //   Step 1: Allocate a nice BIG buffer, like from 1MB-4MB and
 //           Call initcache(int cachestart, int cachesize) where
 //
-//              cachestart = (int)(pointer to start of BIG buffer)
+//              cachestart = (intptr_t)(pointer to start of BIG buffer)
 //              cachesize = length of BIG buffer
 //
-//   Step 2: Call allocache(int *bufptr, int bufsiz, char *lockptr)
+//   Step 2: Call allocache(intptr_t *bufptr, int bufsiz, char *lockptr)
 //              whenever you need to allocate a buffer, where:
 //
-//              *bufptr = pointer to 4-byte pointer to buffer
+//              *bufptr = pointer to multi-byte pointer to buffer
 //                 Confused?  Using this method, cache2d can remove
 //                 previously allocated things from the cache safely by
-//                 setting the 4-byte pointer to 0.
+//                 setting the multi-byte pointer to 0.
 //              bufsiz = number of bytes to allocate
 //              *lockptr = pointer to locking char which tells whether
 //                 the region can be removed or not.  If *lockptr = 0 then
@@ -64,8 +64,9 @@ static int kzipopen(char *filnam)
 static int cachesize = 0;
 int cachecount = 0;
 char zerochar = 0;
-int cachestart = 0, cacnum = 0, agecount = 0;
-typedef struct { int *hand, leng; char *lock ; } cactype;
+intptr_t cachestart = 0;
+int cacnum = 0, agecount = 0;
+typedef struct { intptr_t *hand, leng; char *lock ; } cactype;
 cactype cac[MAXCACHEOBJECTS];
 static int lockrecip[200];
 
@@ -79,14 +80,25 @@ static void reportandexit(char *errormessage);
 extern char pow2char[8];
 
 
-void initcache(int dacachestart, int dacachesize)
+void initcache(intptr_t dacachestart, int dacachesize)
 {
     int i;
 
     for (i=1;i<200;i++) lockrecip[i] = (1<<28)/(200-i);
 
-    cachestart = dacachestart;
-    cachesize = dacachesize;
+    // The following code was relocated here from engine.c, since this
+    // function is only ever called once (from there), and it seems to
+    // really belong here:
+    //
+    //   initcache((FP_OFF(pic)+15)&0xfffffff0,(cachesize-((-FP_OFF(pic))&15))&0xfffffff0);
+    //
+    // I'm not sure why it's necessary, but the code is making sure the
+    // cache starts on a multiple of 16 bytes??  -- SA
+
+//printf("BEFORE: cachestart = %x, cachesize = %d\n", dacachestart, dacachesize);
+    cachestart = ((uintptr_t)dacachestart+15)&~(uintptr_t)0xf;
+    cachesize = (dacachesize-((-(uintptr_t)(dacachestart))&0xf))&~(uintptr_t)0xf;
+//printf("AFTER : cachestart = %x, cachesize = %d\n", cachestart, cachesize);
 
     cac[0].leng = cachesize;
     cac[0].lock = &zerochar;
@@ -95,16 +107,19 @@ void initcache(int dacachestart, int dacachesize)
     initprintf("initcache(): Initialised with %d bytes\n", dacachesize);
 }
 
-void allocache(int *newhandle, int newbytes, char *newlockptr)
+void allocache(intptr_t *newhandle, int newbytes, char *newlockptr)
 {
     int i, /*j,*/ z, zz, bestz=0, daval, bestval, besto=0, o1, o2, sucklen, suckz;
 
-    newbytes = ((newbytes+15)&0xfffffff0);
-
+//printf("  ==> asking for %d bytes, ", newbytes);
+    // Make all requests a multiple of 16 bytes
+    newbytes = (newbytes+15)&0xfffffff0;
+//printf("allocated %d bytes\n", newbytes);
+	
     if ((unsigned)newbytes > (unsigned)cachesize)
     {
         Bprintf("Cachesize: %d\n",cachesize);
-        Bprintf("*Newhandle: 0x%x, Newbytes: %d, *Newlock: %d\n",(int)newhandle,newbytes,*newlockptr);
+        Bprintf("*Newhandle: 0x%x, Newbytes: %d, *Newlock: %d\n",(intptr_t)newhandle,newbytes,*newlockptr);
         reportandexit("BUFFER TOO BIG TO FIT IN CACHE!");
     }
 
@@ -147,7 +162,7 @@ void allocache(int *newhandle, int newbytes, char *newlockptr)
     //Remove all blocks except 1
     suckz -= (bestz+1); cacnum -= suckz;
     copybufbyte(&cac[bestz+suckz],&cac[bestz],(cacnum-bestz)*sizeof(cactype));
-    cac[bestz].hand = newhandle; *newhandle = cachestart+besto;
+    cac[bestz].hand = newhandle; *newhandle = cachestart+(intptr_t)besto;
     cac[bestz].leng = newbytes;
     cac[bestz].lock = newlockptr;
     cachecount++;
@@ -172,7 +187,7 @@ void allocache(int *newhandle, int newbytes, char *newlockptr)
     cac[bestz].lock = &zerochar;
 }
 
-void suckcache(int *suckptr)
+void suckcache(intptr_t *suckptr)
 {
     int i;
 
@@ -1096,11 +1111,11 @@ int kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int fil)
     char *ptr;
 
     lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 200;
-    if (lzwbuf1 == NULL) allocache((int *)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
-    if (lzwbuf2 == NULL) allocache((int *)&lzwbuf2,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[1]);
-    if (lzwbuf3 == NULL) allocache((int *)&lzwbuf3,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[2]);
-    if (lzwbuf4 == NULL) allocache((int *)&lzwbuf4,LZWSIZE,&lzwbuflock[3]);
-    if (lzwbuf5 == NULL) allocache((int *)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
+    if (lzwbuf1 == NULL) allocache((intptr_t *)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
+    if (lzwbuf2 == NULL) allocache((intptr_t *)&lzwbuf2,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[1]);
+    if (lzwbuf3 == NULL) allocache((intptr_t *)&lzwbuf3,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[2]);
+    if (lzwbuf4 == NULL) allocache((intptr_t *)&lzwbuf4,LZWSIZE,&lzwbuflock[3]);
+    if (lzwbuf5 == NULL) allocache((intptr_t *)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
 
     if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
     ptr = (char *)buffer;
@@ -1135,11 +1150,11 @@ int dfread(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
     char *ptr;
 
     lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 200;
-    if (lzwbuf1 == NULL) allocache((int *)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
-    if (lzwbuf2 == NULL) allocache((int *)&lzwbuf2,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[1]);
-    if (lzwbuf3 == NULL) allocache((int *)&lzwbuf3,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[2]);
-    if (lzwbuf4 == NULL) allocache((int *)&lzwbuf4,LZWSIZE,&lzwbuflock[3]);
-    if (lzwbuf5 == NULL) allocache((int *)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
+    if (lzwbuf1 == NULL) allocache((intptr_t *)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
+    if (lzwbuf2 == NULL) allocache((intptr_t *)&lzwbuf2,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[1]);
+    if (lzwbuf3 == NULL) allocache((intptr_t *)&lzwbuf3,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[2]);
+    if (lzwbuf4 == NULL) allocache((intptr_t *)&lzwbuf4,LZWSIZE,&lzwbuflock[3]);
+    if (lzwbuf5 == NULL) allocache((intptr_t *)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
 
     if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
     ptr = (char *)buffer;
@@ -1174,11 +1189,11 @@ void kdfwrite(void *buffer, bsize_t dasizeof, bsize_t count, int fil)
     char *ptr;
 
     lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 200;
-    if (lzwbuf1 == NULL) allocache((int *)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
-    if (lzwbuf2 == NULL) allocache((int *)&lzwbuf2,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[1]);
-    if (lzwbuf3 == NULL) allocache((int *)&lzwbuf3,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[2]);
-    if (lzwbuf4 == NULL) allocache((int *)&lzwbuf4,LZWSIZE,&lzwbuflock[3]);
-    if (lzwbuf5 == NULL) allocache((int *)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
+    if (lzwbuf1 == NULL) allocache((intptr_t *)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
+    if (lzwbuf2 == NULL) allocache((intptr_t *)&lzwbuf2,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[1]);
+    if (lzwbuf3 == NULL) allocache((intptr_t *)&lzwbuf3,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[2]);
+    if (lzwbuf4 == NULL) allocache((intptr_t *)&lzwbuf4,LZWSIZE,&lzwbuflock[3]);
+    if (lzwbuf5 == NULL) allocache((intptr_t *)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
 
     if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
     ptr = (char *)buffer;
@@ -1218,11 +1233,11 @@ void dfwrite(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
     char *ptr;
 
     lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 200;
-    if (lzwbuf1 == NULL) allocache((int *)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
-    if (lzwbuf2 == NULL) allocache((int *)&lzwbuf2,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[1]);
-    if (lzwbuf3 == NULL) allocache((int *)&lzwbuf3,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[2]);
-    if (lzwbuf4 == NULL) allocache((int *)&lzwbuf4,LZWSIZE,&lzwbuflock[3]);
-    if (lzwbuf5 == NULL) allocache((int *)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
+    if (lzwbuf1 == NULL) allocache((intptr_t *)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
+    if (lzwbuf2 == NULL) allocache((intptr_t *)&lzwbuf2,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[1]);
+    if (lzwbuf3 == NULL) allocache((intptr_t *)&lzwbuf3,(LZWSIZE+(LZWSIZE>>4))*2,&lzwbuflock[2]);
+    if (lzwbuf4 == NULL) allocache((intptr_t *)&lzwbuf4,LZWSIZE,&lzwbuflock[3]);
+    if (lzwbuf5 == NULL) allocache((intptr_t *)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
 
     if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
     ptr = (char *)buffer;

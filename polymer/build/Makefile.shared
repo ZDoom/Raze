@@ -48,6 +48,7 @@ endif
 
 ifeq ($(PLATFORM),LINUX)
 	RENDERTYPE=SDL
+	BUILDCFLAGS+= -DHAVE_INTTYPES
 
 	GTKCOMPAT32=0
 	ifeq ($(findstring x86_64,$(shell uname -m)),x86_64)
@@ -57,16 +58,20 @@ ifeq ($(PLATFORM),LINUX)
 			BUILDCFLAGS+= -m32
 			#override WITHOUT_GTK=0
 			GTKCOMPAT32=1
+		else
+			override NOASM=1
 		endif
 	endif
 endif
 ifeq ($(PLATFORM),WINDOWS)
 	RENDERTYPE ?= WIN
+	BUILDCFLAGS+= -DHAVE_INTTYPES
 	EXESUFFIX=.exe
 	LIBS+= -lmingwex -lwinmm -L$(DXROOT)/lib -lwsock32 -lcomctl32 #-lshfolder
 endif
 ifeq ($(PLATFORM),BSD)
 	RENDERTYPE=SDL
+	BUILDCFLAGS+= -DHAVE_INTTYPES
 endif
 ifeq ($(PLATFORM),BEOS)
 	RENDERTYPE=SDL

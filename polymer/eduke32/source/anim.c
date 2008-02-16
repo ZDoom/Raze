@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "animlib.h"
 #include "mouse.h"
+#include "compat.h"
 
 void endanimsounds(int fr)
 {
@@ -226,7 +227,7 @@ void playanm(const char *fn,char t)
 
     walock[TILE_ANIM] = 219+t;
 
-    allocache((int *)&animbuf,length,&walock[TILE_ANIM]);
+    allocache((intptr_t *)&animbuf,length,&walock[TILE_ANIM]);
 
     tilesizx[TILE_ANIM] = 200;
     tilesizy[TILE_ANIM] = 320;
@@ -283,7 +284,7 @@ void playanm(const char *fn,char t)
         else if (ud.volume_number == 1) ototalclock += 18;
         else                           ototalclock += 10;
 
-        waloff[TILE_ANIM] = FP_OFF(ANIM_DrawFrame(i));
+        waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
         invalidatetile(TILE_ANIM, 0, 1<<4);  // JBF 20031228
         rotatesprite(0<<16,0<<16,65536L,512,TILE_ANIM,0,0,2+4+8+16+64, 0,0,xdim-1,ydim-1);
         nextpage();

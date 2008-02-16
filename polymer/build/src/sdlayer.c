@@ -52,7 +52,8 @@ char quitevent=0, appactive=1;
 // video
 static SDL_Surface *sdl_surface;
 int xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline, imageSize;
-int frameplace=0, lockcount=0;
+intptr_t frameplace=0;
+int lockcount=0;
 char modechange=1;
 char offscreenrendering=0;
 char videomodereset = 0;
@@ -459,7 +460,7 @@ void setjoypresscallback(void(*callback)(int, int)) { joypresscallback = callbac
 int initmouse(void)
 {
     moustat=1;
-    grabmouse(1);
+    grabmouse(1); // FIXME - SA
     return 0;
 }
 
@@ -1162,7 +1163,7 @@ void begindrawing(void)
     if (offscreenrendering) return;
 
     if (SDL_MUSTLOCK(sdl_surface)) SDL_LockSurface(sdl_surface);
-    frameplace = (int)sdl_surface->pixels;
+    frameplace = (intptr_t)sdl_surface->pixels;
 
     if (sdl_surface->pitch != bytesperline || modechange)
     {

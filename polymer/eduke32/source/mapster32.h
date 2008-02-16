@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "compat.h"
+
 #define TICSPERFRAME 3
 
 // #define VULGARITY
@@ -139,7 +141,8 @@ extern char custom2dcolors;
 extern char mlook;
 
 int intro=0;
-extern int frameplace, ydim16, halfxdim16, midydim16, zoom;
+extern int ydim16, halfxdim16, midydim16, zoom;
+extern intptr_t frameplace;
 extern char pow2char[8];
 
 static int acurpalette=0;

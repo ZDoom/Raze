@@ -70,7 +70,7 @@ static int lowrecip[1024], nytooclose, nytoofar;
 static unsigned int distrecip[65536];
 #endif
 
-static int *lookups = NULL;
+static intptr_t *lookups = NULL;
 static char lookupsalloctype = 255;
 int dommxoverlay = 1, beforedrawrooms = 1, indrawroomsandmasks = 0;
 
@@ -586,7 +586,8 @@ int /*viewoffset,*/ frameoffset;
 static int nrx1[8], nry1[8], nrx2[8], nry2[8]; // JBF 20031206: Thanks Ken
 
 static int rxi[8], ryi[8], rzi[8], rxi2[8], ryi2[8], rzi2[8];
-static int xsi[8], ysi[8], *horizlookup=0, *horizlookup2=0, horizycent;
+static int xsi[8], ysi[8], horizycent;
+static intptr_t *horizlookup=0, *horizlookup2=0;
 
 int globalposx, globalposy, globalposz, globalhoriz;
 short globalang, globalcursectnum;
@@ -604,7 +605,8 @@ int vplce[4], vince[4], palookupoffse[4], bufplce[4];
 char globalxshift, globalyshift;
 int globalxpanning, globalypanning, globalshade;
 short globalpicnum, globalshiftval;
-int globalzd, globalbufplc, globalyscale, globalorientation;
+int globalzd, globalyscale, globalorientation;
+intptr_t globalbufplc;
 int globalx1, globaly1, globalx2, globaly2, globalx3, globaly3, globalzx;
 int globalx, globaly, globalz;
 
@@ -1157,7 +1159,7 @@ static void hline(int xr, int yp)
     asm2 = globaly2*r;
     s = ((int)getpalookup((int)mulscale16(r,globvis),globalshade)<<8);
 
-    hlineasm4(xr-xl,0L,s,globalx2*r+globalypanning,globaly1*r+globalxpanning,
+    hlineasm4(xr-xl,0,s,globalx2*r+globalypanning,globaly1*r+globalxpanning,
               ylookup[yp]+xr+frameoffset);
 }
 
@@ -5220,9 +5222,9 @@ static void loadpalette(void)
     kread(fil,&numpalookups,2); numpalookups = B_LITTLE16(numpalookups);
 
     if ((palookup[0] = (char *)kkmalloc(numpalookups<<8)) == NULL)
-        allocache((int*)&palookup[0],numpalookups<<8,&permanentlock);
+        allocache((intptr_t*)&palookup[0],numpalookups<<8,&permanentlock);
     if ((transluc = (char *)kkmalloc(65536L)) == NULL)
-        allocache((int*)&transluc,65536,&permanentlock);
+        allocache((intptr_t*)&transluc,65536,&permanentlock);
 
     globalpalwritten = palookup[0]; globalpal = 0;
     setpalookupaddress(globalpalwritten);
@@ -7672,23 +7674,23 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 
     xdim = daxdim; ydim = daydim;
 
-    j = ydim*4*sizeof(int);  //Leave room for horizlookup&horizlookup2
+    j = ydim*4*sizeof(intptr_t);  //Leave room for horizlookup&horizlookup2
 
     if (lookups != NULL)
     {
         if (lookupsalloctype == 0) kkfree((void *)lookups);
-        if (lookupsalloctype == 1) suckcache((int *)lookups);
+        if (lookupsalloctype == 1) suckcache(lookups);
         lookups = NULL;
     }
     lookupsalloctype = 0;
-    if ((lookups = (int *)kkmalloc(j<<1)) == NULL)
+    if ((lookups = (intptr_t *)kkmalloc(j<<1)) == NULL)
     {
-        allocache((int *)&lookups,j<<1,&permanentlock);
+        allocache((intptr_t *)&lookups,j<<1,&permanentlock);
         lookupsalloctype = 1;
     }
 
-    horizlookup = (int *)(lookups);
-    horizlookup2 = (int *)(FP_OFF(lookups)+j);
+    horizlookup = lookups;
+    horizlookup2 = (intptr_t *)((intptr_t)lookups+j); // FIXME_SA
     horizycent = ((ydim*4)>>1);
 
     //Force drawrooms to call dosetaspect & recalculate stuff
@@ -7875,7 +7877,7 @@ int loadpics(char *filename, int askedsize)
         cachesize -= 65536L;
         if (cachesize < 65536) return(-1);
     }
-    initcache((FP_OFF(pic)+15)&0xfffffff0,(cachesize-((-FP_OFF(pic))&15))&0xfffffff0);
+    initcache((intptr_t) pic, cachesize);
 
     for (i=0;i<MAXTILES;i++)
     {
@@ -9809,7 +9811,7 @@ void makepalookup(int palnum, char *remapbuf, signed char r, signed char g, sign
     {
         //Allocate palookup buffer
         if ((palookup[palnum] = (char *)kkmalloc(numpalookups<<8)) == NULL)
-            allocache((int*)&palookup[palnum],numpalookups<<8,&permanentlock);
+            allocache((intptr_t*)&palookup[palnum],numpalookups<<8,&permanentlock);
     }
 
     if (dastat == 0) return;

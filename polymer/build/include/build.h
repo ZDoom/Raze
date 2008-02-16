@@ -9,6 +9,8 @@
 #ifndef __build_h__
 #define __build_h__
 
+#include "compat.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -188,8 +190,9 @@ EXTERN spritetype *sprite;
 EXTERN int spritesortcnt;
 EXTERN spritetype *tsprite;
 
-EXTERN int xdim, ydim, ylookup[MAXYDIM+1], numpages;
+EXTERN int xdim, ydim, numpages;
 EXTERN int yxaspect, viewingrange;
+EXTERN intptr_t ylookup[MAXYDIM+1];
 
 #define MAXVALIDMODES 256
 EXTERN int validmodecnt;
@@ -226,7 +229,8 @@ EXTERN short tilesizx[MAXTILES], tilesizy[MAXTILES];
 EXTERN char picsiz[MAXTILES];
 EXTERN char walock[MAXTILES];
 EXTERN int pow2long[32];
-EXTERN int numtiles, picanm[MAXTILES], waloff[MAXTILES];
+EXTERN int numtiles, picanm[MAXTILES];
+EXTERN intptr_t waloff[MAXTILES];  // stores pointers to cache  -- SA
 
 EXTERN int windowpos, windowx, windowy;
 

@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 #include "duke3d.h"
 #include "gamedef.h"
+#include "compat.h"
 
 extern int numenvsnds;
 extern int actor_tog;

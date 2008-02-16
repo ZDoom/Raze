@@ -3,13 +3,15 @@
 #ifndef __cache1d_h__
 #define __cache1d_h__
 
+#include "compat.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void	initcache(int dacachestart, int dacachesize);
-void	allocache(int *newhandle, int newbytes, char *newlockptr);
-void	suckcache(int *suckptr);
+void	initcache(intptr_t dacachestart, int dacachesize);
+void	allocache(intptr_t *newhandle, int newbytes, char *newlockptr);
+void	suckcache(intptr_t *suckptr);
 void	agecache(void);
 
 extern int pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)

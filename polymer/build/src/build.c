@@ -79,7 +79,8 @@ extern char vgacompatible;
 extern char picsiz[MAXTILES];
 extern int startposx, startposy, startposz;
 extern short startang, startsectnum;
-extern int frameplace, ydim16, halfxdim16, midydim16;
+extern int ydim16, halfxdim16, midydim16;
+extern intptr_t frameplace;
 int xdim2d = 640, ydim2d = 480, xdimgame = 640, ydimgame = 480, bppgame = 8;
 int forcesetup = 1;
 

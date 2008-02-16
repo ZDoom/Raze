@@ -586,13 +586,15 @@ extern int screenpeek;
 
 extern int current_menu;
 extern int tempwallptr,animatecnt;
-extern int lockclock,frameplace;
+extern int lockclock;
+extern intptr_t frameplace;
 extern char display_mirror,loadfromgrouponly,rtsplaying;
 
 extern int groupfile;
 extern int ototalclock;
 
-extern int *animateptr[MAXANIMATES], animategoal[MAXANIMATES];
+extern int *animateptr[MAXANIMATES];
+extern int animategoal[MAXANIMATES];
 extern int animatevel[MAXANIMATES];
 // extern int oanimateval[MAXANIMATES];
 extern short neartagsector, neartagwall, neartagsprite;

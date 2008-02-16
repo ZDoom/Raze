@@ -5,6 +5,8 @@
 #ifndef __baselayer_h__
 #define __baselayer_h__
 
+#include "compat.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,7 +24,8 @@ extern int startwin_settitle(const char *);
 extern int startwin_idle(void *);
 
 // video
-extern int xres, yres, bpp, fullscreen, bytesperline, imageSize, frameplace;
+extern int xres, yres, bpp, fullscreen, bytesperline, imageSize;
+extern intptr_t frameplace;
 extern char offscreenrendering;
 
 extern void (*baselayer_onvideomodechange)(int);

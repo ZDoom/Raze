@@ -576,7 +576,7 @@ int saveplayer(int spot)
     if (!waloff[TILE_SAVESHOT])
     {
         walock[TILE_SAVESHOT] = 254;
-        allocache((int *)&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
+        allocache(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
         clearbuf((void*)waloff[TILE_SAVESHOT],(200*320)/4,0);
         walock[TILE_SAVESHOT] = 1;
     }
