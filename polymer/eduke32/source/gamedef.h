@@ -797,5 +797,6 @@ enum keywords
     CON_GAMETEXTZ,          // 311
     CON_DIGITALNUMBERZ,     // 312
     CON_SPRITENOPAL,        // 313
+    CON_HITRADIUSVAR,       // 314
     END
 };

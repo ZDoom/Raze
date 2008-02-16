@@ -1657,7 +1657,7 @@ void editinput(void)
         repeatpanalign = (keystatus[0x2a]|keystatus[0x36]);
         if ((keystatus[0x4b]|keystatus[0x4d]) > 0)  // 4 & 6 (keypad)
         {
-            if ((repeatcountx == 0) || (repeatcountx > 16))
+            if ((repeatcountx == 0) || (repeatcountx > 32))
             {
                 changedir = 0;
                 if (keystatus[0x4b] > 0) changedir = -1;
@@ -1684,16 +1684,16 @@ void editinput(void)
                         sprite[searchwall].xrepeat = 4;
                 }
                 asksave = 1;
-                repeatcountx = max(1,repeatcountx);
+                repeatcountx = max(1,repeatcountx-2);
             }
-            repeatcountx += (synctics>>1);
+            repeatcountx += synctics;
         }
         else
             repeatcountx = 0;
 
         if ((keystatus[0x48]|keystatus[0x50]) > 0)  // 2 & 8 (keypad)
         {
-            if ((repeatcounty == 0) || (repeatcounty > 16))
+            if ((repeatcounty == 0) || (repeatcounty > 32))
             {
                 changedir = 0;
                 if (keystatus[0x48] > 0) changedir = -1;
@@ -1720,9 +1720,9 @@ void editinput(void)
                         sprite[searchwall].yrepeat = 4;
                 }
                 asksave = 1;
-                repeatcounty = max(1,repeatcounty);
+                repeatcounty = max(1,repeatcounty-2);
             }
-            repeatcounty += (synctics>>1);
+            repeatcounty += synctics;
             //}
         }
         else

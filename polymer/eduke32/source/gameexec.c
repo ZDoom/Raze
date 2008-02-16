@@ -35,6 +35,8 @@ static int g_x,*g_t;
 static spritetype *g_sp;
 static int killit_flag;
 
+static int parse(void);
+
 static void DoUserDef(int iSet, int lLabelID, int lVar2)
 {
     int lValue;
@@ -3712,8 +3714,6 @@ static void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     }
 }
 
-static int parse(void);
-
 void OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
 {
     if (iEventID >= MAXGAMEEVENTS)
@@ -6094,6 +6094,15 @@ static int parse(void)
         insptr++;
         break;
 
+    case CON_HITRADIUSVAR:
+        insptr++;
+        {
+            int v1=GetGameVarID(*insptr++,g_i,g_p),v2=GetGameVarID(*insptr++,g_i,g_p),v3=GetGameVarID(*insptr++,g_i,g_p);
+            int v4=GetGameVarID(*insptr++,g_i,g_p),v5=GetGameVarID(*insptr++,g_i,g_p);
+            hitradius(g_i,v1,v2,v3,v4,v5);
+        }
+        break;
+
     case CON_HITRADIUS:
         hitradius(g_i,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5));
         insptr+=6;
@@ -6101,9 +6110,9 @@ static int parse(void)
 
     case CON_IFP:
     {
-        insptr++;
+//        insptr++;
 
-        l = *insptr;
+        l = *(++insptr);
         j = 0;
 
         s = sprite[g_player[g_p].ps->i].xvel;

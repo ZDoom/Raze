@@ -441,6 +441,7 @@ static const char *keyw[] =
     "gametextz",                // 311
     "digitalnumberz",           // 312
     "spritenopal",              // 313
+    "hitradiusvar",             // 314
     "<null>"
 };
 
@@ -2545,6 +2546,11 @@ static int parsecommand(void)
         }
         return 0;
 
+    case CON_HITRADIUSVAR:
+        if (!CheckEventSync(current_event))
+            ReportError(WARNING_EVENTSYNC);
+        transmultvars(5);
+        break;
     case CON_HITRADIUS:
         transnum(LABEL_DEFINE);
         transnum(LABEL_DEFINE);

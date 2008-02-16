@@ -6723,7 +6723,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
                 }
             }
 
-            if ((display_mirror || screenpeek != p || s->owner == -1) && ud.multimode > 1)
+            if (ud.multimode > 1 && (display_mirror || screenpeek != p || s->owner == -1))
             {
                 if (ud.showweapons && sprite[g_player[p].ps->i].extra > 0 && g_player[p].ps->curr_weapon > 0)
                 {
@@ -6731,17 +6731,19 @@ void animatesprites(int x,int y,int a,int smoothratio)
 
                     tsprite[spritesortcnt].statnum = 99;
 
-                    tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
-                    if (t->yrepeat < 4) t->yrepeat = 4;
+/*                    tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
+                    if (t->yrepeat < 4) t->yrepeat = 4; */
 
                     tsprite[spritesortcnt].shade = t->shade;
                     tsprite[spritesortcnt].cstat = 0;
+                    tsprite[spritesortcnt].pal = 0;
 
                     tsprite[spritesortcnt].picnum = (g_player[p].ps->curr_weapon==GROW_WEAPON?GROWSPRITEICON:weapon_sprites[g_player[p].ps->curr_weapon]);
 
                     if (s->owner >= 0)
                         tsprite[spritesortcnt].z = g_player[p].ps->posz-(12<<8);
                     else tsprite[spritesortcnt].z = s->z-(51<<8);
+
                     if (tsprite[spritesortcnt].picnum == HEAVYHBOMB)
                     {
                         tsprite[spritesortcnt].xrepeat = 10;
@@ -6752,7 +6754,6 @@ void animatesprites(int x,int y,int a,int smoothratio)
                         tsprite[spritesortcnt].xrepeat = 16;
                         tsprite[spritesortcnt].yrepeat = 16;
                     }
-                    tsprite[spritesortcnt].pal = 0;
                     spritesortcnt++;
                 }
 

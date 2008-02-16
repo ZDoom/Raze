@@ -3227,9 +3227,7 @@ short weapon_sprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATIC, SHOT
 
 void checkweapons(player_struct *p)
 {
-    int cw, snum = sprite[p->i].yvel;
-
-    cw = aplWeaponWorksLike[p->curr_weapon][snum];
+    int snum = sprite[p->i].yvel, cw = aplWeaponWorksLike[p->curr_weapon][snum];
 
     if (cw < 1 || cw >= MAX_WEAPONS) return;
 
@@ -3249,23 +3247,20 @@ void checkweapons(player_struct *p)
 
 void processinput(int snum)
 {
-    int j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y;
-    int shrunk;
-    unsigned int sb_snum;
-    int psect, psectlotag;
-    short *kb, tempsect;
+    int j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y, shrunk;
+    unsigned int sb_snum = g_player[snum].sync->bits;
+    short tempsect;
     player_struct *p = g_player[snum].ps;
     int pi = p->i;
     spritetype *s = &sprite[pi];
-
-    kb = &p->kickback_pic;
+    short *kb = &p->kickback_pic;
+    int psect = p->cursectnum, psectlotag;
 
     p->player_par++;
 
     OnEvent(EVENT_PROCESSINPUT, pi, snum, -1);
 
-    if (p->cheat_phase <= 0) sb_snum = g_player[snum].sync->bits;
-    else sb_snum = 0;
+    if (p->cheat_phase > 0) sb_snum = 0;
 
     if ((sb_snum&(1<<2)))
     {
@@ -3275,7 +3270,6 @@ void processinput(int snum)
             sb_snum &= ~(1<<2);
     }
 
-    psect = p->cursectnum;
     if (psect == -1)
     {
         if (s->extra > 0 && ud.clipping == 0)
