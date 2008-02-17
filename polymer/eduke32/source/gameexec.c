@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 
 int g_i,g_p;
-static int g_x,*g_t;
+static intptr_t g_x,*g_t;
 static spritetype *g_sp;
 static int killit_flag;
 
@@ -4017,7 +4017,8 @@ int getincangle(int a,int na)
 static void alterang(int a)
 {
     int aang = g_sp->ang, angdif, goalang;
-    int ticselapsed = (g_t[0])&31, *moveptr = (int *)g_t[1];
+    int ticselapsed = (g_t[0])&31;
+    intptr_t *moveptr = (intptr_t *)g_t[1];
     int j = g_player[g_p].ps->holoduke_on;
 
     g_sp->xvel += (*moveptr-g_sp->xvel)/5;
@@ -4141,7 +4142,7 @@ static void move(void)
         return;
     }
 
-    moveptr = (int *)g_t[1];
+    moveptr = (intptr_t *)g_t[1];
 
     if (a&geth) g_sp->xvel += (*moveptr-g_sp->xvel)>>1;
     if (a&getv) g_sp->zvel += ((*(moveptr+1)<<4)-g_sp->zvel)>>1;
@@ -4278,7 +4279,7 @@ static inline void parseifelse(int condition)
         parse();
         return;
     }
-    insptr = (int *) *(insptr+1);
+    insptr = (intptr_t *) *(insptr+1);
     if (*insptr == CON_ELSE)
     {
         // else...
@@ -4478,9 +4479,9 @@ static int parse(void)
     case CON_AI:
         insptr++;
         g_t[5] = *insptr++; // Ai
-        g_t[4] = *(int *)(g_t[5]);       // Action
-        g_t[1] = *(int *)(g_t[5]+4);       // move
-        g_sp->hitag = *(int *)(g_t[5]+8);    // move flags
+        g_t[4] = *(intptr_t *)(g_t[5]);       // Action
+        g_t[1] = *(intptr_t *)(g_t[5]+4);       // move
+        g_sp->hitag = *(intptr_t *)(g_t[5]+8);    // move flags
         g_t[0] = g_t[2] = g_t[3] = 0; // count, actioncount... g_t[3] = ???
         if (g_sp->hitag&random_angle)
             g_sp->ang = TRAND&2047;
@@ -4508,7 +4509,7 @@ static int parse(void)
         break;
 
     case CON_ELSE:
-        insptr = (int *) *(insptr+1);
+        insptr = (intptr_t *) *(insptr+1);
         break;
 
     case CON_ADDSTRENGTH:
@@ -4889,9 +4890,9 @@ static int parse(void)
 
     case CON_STATE:
     {
-        int *tempscrptr=insptr+2;
+        intptr_t *tempscrptr=insptr+2;
 
-        insptr = (int *) *(insptr+1);
+        insptr = (intptr_t *) *(insptr+1);
         while (1) if (parse()) break;
         insptr = tempscrptr;
     }
@@ -5218,7 +5219,8 @@ static int parse(void)
             // For each case: value, ptr to code
             //AddLog("Processing Switch...");
             int lValue=GetGameVarID(*insptr++, g_i, g_p), lEnd=*insptr++, lCases=*insptr++;
-            int *lpDefault=insptr++, *lpCases=insptr, bMatched=0, *lTempInsPtr, lCheckCase;
+            intptr_t *lpDefault=insptr++, *lpCases=insptr, *lTempInsPtr;
+            int bMatched=0, lCheckCase;
             int left,right;
             insptr+=lCases*2;
             lTempInsPtr=insptr;
@@ -5243,7 +5245,7 @@ static int parse(void)
                             //            (int)insptr,(int)lCheckCase,lpCases[lCheckCase*2+1],(int)&script[0]);
                             //AddLog(g_szBuf);
                             // fake a 2-d Array
-                            insptr=(int*)(lpCases[lCheckCase*2+1] + &script[0]);
+                            insptr=(intptr_t*)(lpCases[lCheckCase*2+1] + &script[0]);
                             //Bsprintf(g_szBuf,"insptr=%d. ",     (int)insptr);
                             //AddLog(g_szBuf);
                             while (1)
@@ -5269,7 +5271,7 @@ static int parse(void)
                     //AddLog("No Matching Case: No Default to use");
                 }
             }
-            insptr=(int*)(lEnd + (int)&script[0]);
+            insptr=(intptr_t *)(lEnd + (intptr_t)&script[0]);
             //Bsprintf(g_szBuf,"insptr=%d. ",     (int)insptr);
             //AddLog(g_szBuf);
             //AddLog("Done Processing Switch");
@@ -6162,7 +6164,7 @@ static int parse(void)
             else
                 j = 0;
         }
-        parseifelse((int) j);
+        parseifelse((intptr_t) j);
     }
     break;
 
@@ -7014,7 +7016,7 @@ static int parse(void)
     case CON_WHILEVARN:
     {
         int i;
-        int *savedinsptr=insptr;
+        intptr_t *savedinsptr=insptr;
         j=1;
         while (j)
         {
@@ -7033,7 +7035,7 @@ static int parse(void)
     case CON_WHILEVARVARN:
     {
         int i,k;
-        int *savedinsptr=insptr;
+        intptr_t *savedinsptr=insptr;
         j=1;
         while (j)
         {
@@ -7256,13 +7258,13 @@ static int parse(void)
     case CON_GETCURRADDRESS:
         insptr++;
         j=*insptr++;
-        SetGameVarID(j, (int)insptr, g_i, g_p);
+        SetGameVarID(j, (intptr_t) insptr, g_i, g_p);
         break;
 
     case CON_JUMP:
         insptr++;
         j = GetGameVarID(*insptr++, g_i, g_p);
-        insptr = (int *)j;
+        insptr = (intptr_t *)j;
         break;
 
     default:
@@ -7337,14 +7339,14 @@ void execute(int iActor,int iPlayer,int lDist)
     {
         g_sp->lotag += TICSPERFRAME;
 
-        if (g_sp->lotag > *(int *)(g_t[4]+16))
+        if (g_sp->lotag > *(intptr_t *)(g_t[4]+16))
         {
             g_t[2]++;
             g_sp->lotag = 0;
-            g_t[3] +=  *(int *)(g_t[4]+12);
+            g_t[3] +=  *(intptr_t *)(g_t[4]+12);
         }
 
-        if (klabs(g_t[3]) >= klabs(*(int *)(g_t[4]+4) * *(int *)(g_t[4]+12)))
+        if (klabs(g_t[3]) >= klabs(*(intptr_t *)(g_t[4]+4) * *(intptr_t *)(g_t[4]+12)))
             g_t[3] = 0;
     }
 

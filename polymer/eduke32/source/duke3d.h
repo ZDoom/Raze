@@ -533,11 +533,12 @@ extern char ready2send;
 
 // JBF 20040531: adding 16 extra to the script so we have some leeway
 // to (hopefully) safely abort when hitting the limit
-extern int *script,*scriptptr,*insptr,*labelcode,labelcnt,defaultlabelcnt,*labeltype;
+extern intptr_t *script,*scriptptr,*insptr,*labelcode,*labeltype;
+extern int labelcnt,defaultlabelcnt;
 extern int g_ScriptSize;
 extern char *label;
-extern int *actorscrptr[MAXTILES],*parsing_actor;
-extern int *actorLoadEventScrptr[MAXTILES];
+extern intptr_t *actorscrptr[MAXTILES],*parsing_actor;
+extern intptr_t *actorLoadEventScrptr[MAXTILES];
 extern char actortype[MAXTILES];
 extern char *music_pointer;
 
@@ -566,7 +567,7 @@ spriteinterpolate sprpos[MAXSPRITES];
 typedef struct {
     int floorz,ceilingz,lastvx,lastvy,bposx,bposy,bposz;
     int flags;
-    int temp_data[10];
+    intptr_t temp_data[10]; // sometimes used to hold pointers to con code
     short picnum,ang,extra,owner,movflag;
     short tempang,actorstayput,dispicnum;
     short timetosleep;
@@ -817,9 +818,9 @@ enum gamevarflags {
 };
 
 typedef struct {
-    int lValue;
-    int lDefault;
-    int *plValues;     // array of values when 'per-player', or 'per-actor'
+    intptr_t lValue;
+    intptr_t lDefault;
+    intptr_t *plValues;     // array of values when 'per-player', or 'per-actor'
     unsigned int dwFlags;
     char *szLabel;
     char bReset;

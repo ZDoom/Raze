@@ -101,12 +101,13 @@ int screenpeek;
 char ready2send;
 int vel, svel, angvel, horiz, ototalclock, respawnactortime=768, respawnitemtime=768, groupfile;
 
-int *scriptptr,*insptr,*labelcode,labelcnt,defaultlabelcnt,*labeltype;
-int *actorscrptr[MAXTILES],*parsing_actor;
+intptr_t *scriptptr,*insptr,*labelcode,*labeltype;
+int labelcnt,defaultlabelcnt;
+intptr_t *actorscrptr[MAXTILES],*parsing_actor;
 char *label;
 char *music_pointer;
 char actortype[MAXTILES];
-int *script = NULL;
+intptr_t *script = NULL;
 
 int g_ScriptSize = 16384;
 

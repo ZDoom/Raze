@@ -36,7 +36,7 @@ int total_lines,line_number;
 static int checking_ifelse,parsing_state;
 char g_szBuf[1024];
 
-int *casescriptptr=NULL;      // the pointer to the start of the case table in a switch statement
+intptr_t *casescriptptr=NULL;      // the pointer to the start of the case table in a switch statement
 // first entry is 'default' code.
 static int casecount = 0;
 static int checking_switch = 0, current_event = -1;
@@ -45,23 +45,23 @@ static int num_braces = 0;    // init to some sensible defaults
 
 int redefined_quote_count = 0;
 
-int *aplWeaponClip[MAX_WEAPONS];       // number of items in magazine
-int *aplWeaponReload[MAX_WEAPONS];     // delay to reload (include fire)
-int *aplWeaponFireDelay[MAX_WEAPONS];      // delay to fire
-int *aplWeaponHoldDelay[MAX_WEAPONS];      // delay after release fire button to fire (0 for none)
-int *aplWeaponTotalTime[MAX_WEAPONS];      // The total time the weapon is cycling before next fire.
-int *aplWeaponFlags[MAX_WEAPONS];      // Flags for weapon
-int *aplWeaponShoots[MAX_WEAPONS];     // what the weapon shoots
-int *aplWeaponSpawnTime[MAX_WEAPONS];      // the frame at which to spawn an item
-int *aplWeaponSpawn[MAX_WEAPONS];      // the item to spawn
-int *aplWeaponShotsPerBurst[MAX_WEAPONS];  // number of shots per 'burst' (one ammo per 'burst'
-int *aplWeaponWorksLike[MAX_WEAPONS];      // What original the weapon works like
-int *aplWeaponInitialSound[MAX_WEAPONS];   // Sound made when initialy firing. zero for no sound
-int *aplWeaponFireSound[MAX_WEAPONS];      // Sound made when firing (each time for automatic)
-int *aplWeaponSound2Time[MAX_WEAPONS];     // Alternate sound time
-int *aplWeaponSound2Sound[MAX_WEAPONS];    // Alternate sound sound ID
-int *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
-int *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
+intptr_t *aplWeaponClip[MAX_WEAPONS];       // number of items in magazine
+intptr_t *aplWeaponReload[MAX_WEAPONS];     // delay to reload (include fire)
+intptr_t *aplWeaponFireDelay[MAX_WEAPONS];      // delay to fire
+intptr_t *aplWeaponHoldDelay[MAX_WEAPONS];      // delay after release fire button to fire (0 for none)
+intptr_t *aplWeaponTotalTime[MAX_WEAPONS];      // The total time the weapon is cycling before next fire.
+intptr_t *aplWeaponFlags[MAX_WEAPONS];      // Flags for weapon
+intptr_t *aplWeaponShoots[MAX_WEAPONS];     // what the weapon shoots
+intptr_t *aplWeaponSpawnTime[MAX_WEAPONS];      // the frame at which to spawn an item
+intptr_t *aplWeaponSpawn[MAX_WEAPONS];      // the item to spawn
+intptr_t *aplWeaponShotsPerBurst[MAX_WEAPONS];  // number of shots per 'burst' (one ammo per 'burst'
+intptr_t *aplWeaponWorksLike[MAX_WEAPONS];      // What original the weapon works like
+intptr_t *aplWeaponInitialSound[MAX_WEAPONS];   // Sound made when initialy firing. zero for no sound
+intptr_t *aplWeaponFireSound[MAX_WEAPONS];      // Sound made when firing (each time for automatic)
+intptr_t *aplWeaponSound2Time[MAX_WEAPONS];     // Alternate sound time
+intptr_t *aplWeaponSound2Sound[MAX_WEAPONS];    // Alternate sound sound ID
+intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
+intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
 
 int g_iReturnVarID=-1;      // var ID of "RETURN"
 int g_iWeaponVarID=-1;      // var ID of "WEAPON"
@@ -74,10 +74,10 @@ int g_iHiTagID=-1;          // var ID of "HITAG"
 int g_iTextureID=-1;        // var ID of "TEXTURE"
 int g_iThisActorID=-1;      // var ID of "THISACTOR"
 
-int *actorLoadEventScrptr[MAXTILES];
+intptr_t *actorLoadEventScrptr[MAXTILES];
 
-int *apScriptGameEvent[MAXGAMEEVENTS];
-int *parsing_event=NULL;
+intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
+intptr_t *parsing_event=NULL;
 
 gamevar_t aGameVars[MAXGAMEVARS];
 int iGameVarCount=0;
@@ -849,7 +849,7 @@ static const memberlabel_t inputlabels[]=
 static int skipcomments(void)
 {
     char c;
-    int i,j;
+    intptr_t i, j;
 
     while ((c = *textptr))
     {
@@ -897,18 +897,18 @@ static int skipcomments(void)
 
     if ((unsigned)(scriptptr-script) > (unsigned)(g_ScriptSize-32))
     {
-        int oscriptptr = (unsigned)(scriptptr-script);
-        int ocasescriptptr = (unsigned)(casescriptptr-script);
-        int oparsing_event = (unsigned)(parsing_event-script);
-        int oparsing_actor = (unsigned)(parsing_actor-script);
+        intptr_t oscriptptr = (unsigned)(scriptptr-script);
+        intptr_t ocasescriptptr = (unsigned)(casescriptptr-script);
+        intptr_t oparsing_event = (unsigned)(parsing_event-script);
+        intptr_t oparsing_actor = (unsigned)(parsing_actor-script);
         char *scriptptrs;
-        int *newscript;
+        intptr_t *newscript;
 
         for (i=0;i<MAXSECTORS;i++)
         {
             if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
             {
-                labelcode[i] -= (int)&script[0];
+                labelcode[i] -= (intptr_t)&script[0];
             }
         }
 
@@ -916,10 +916,10 @@ static int skipcomments(void)
         for (i=0;i<g_ScriptSize;i++)
         {
 //            initprintf("%d\n",i);
-            if ((int)script[i] >= (int)(&script[0]) && (int)script[i] < (int)(&script[g_ScriptSize]))
+            if ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))
             {
                 scriptptrs[i] = 1;
-                j = (int)script[i] - (int)&script[0];
+                j = (intptr_t)script[i] - (intptr_t)&script[0];
                 script[i] = j;
             }
             else scriptptrs[i] = 0;
@@ -928,28 +928,28 @@ static int skipcomments(void)
         for (i=0;i<MAXTILES;i++)
             if (actorscrptr[i])
             {
-                j = (int)actorscrptr[i]-(int)&script[0];
-                actorscrptr[i] = (int *)j;
+                j = (intptr_t)actorscrptr[i]-(intptr_t)&script[0];
+                actorscrptr[i] = (intptr_t *)j;
             }
 
         for (i=0;i<MAXTILES;i++)
             if (actorLoadEventScrptr[i])
             {
-                j = (int)actorLoadEventScrptr[i]-(int)&script[0];
-                actorLoadEventScrptr[i] = (int *)j;
+                j = (intptr_t)actorLoadEventScrptr[i]-(intptr_t)&script[0];
+                actorLoadEventScrptr[i] = (intptr_t *)j;
             }
 
         for (i=0;i<MAXGAMEEVENTS;i++)
             if (apScriptGameEvent[i])
             {
-                j = (int)apScriptGameEvent[i]-(int)&script[0];
-                apScriptGameEvent[i] = (int *)j;
+                j = (intptr_t)apScriptGameEvent[i]-(intptr_t)&script[0];
+                apScriptGameEvent[i] = (intptr_t *)j;
             }
 
         //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
         g_ScriptSize += 16384;
         initprintf("Increasing script buffer size to %d bytes...\n",g_ScriptSize);
-        newscript = (int *)Brealloc(script, g_ScriptSize * sizeof(int));
+        newscript = (intptr_t *)Brealloc(script, g_ScriptSize * sizeof(intptr_t));
 
         if (newscript == NULL)
         {
@@ -960,49 +960,49 @@ static int skipcomments(void)
             return 1;
         }
         script = newscript;
-        scriptptr = (int *)(script+oscriptptr);
+        scriptptr = (intptr_t *)(script+oscriptptr);
         //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
         if (casescriptptr != NULL)
-            casescriptptr = (int *)(script+ocasescriptptr);
+            casescriptptr = (intptr_t *)(script+ocasescriptptr);
         if (parsing_event != NULL)
-            parsing_event = (int *)(script+oparsing_event);
+            parsing_event = (intptr_t *)(script+oparsing_event);
         if (parsing_actor != NULL)
-            parsing_actor = (int *)(script+oparsing_actor);
+            parsing_actor = (intptr_t *)(script+oparsing_actor);
 
         for (i=0;i<MAXSECTORS;i++)
         {
             if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
             {
-                labelcode[i] += (int)&script[0];
+                labelcode[i] += (intptr_t)&script[0];
             }
         }
 
         for (i=0;i<g_ScriptSize-16384;i++)
             if (scriptptrs[i])
             {
-                j = (int)script[i]+(int)&script[0];
+                j = (intptr_t)script[i]+(intptr_t)&script[0];
                 script[i] = j;
             }
 
         for (i=0;i<MAXTILES;i++)
             if (actorscrptr[i])
             {
-                j = (int)actorscrptr[i]+(int)&script[0];
-                actorscrptr[i] = (int *)j;
+                j = (intptr_t)actorscrptr[i]+(intptr_t)&script[0];
+                actorscrptr[i] = (intptr_t *)j;
             }
 
         for (i=0;i<MAXTILES;i++)
             if (actorLoadEventScrptr[i])
             {
-                j = (int)actorLoadEventScrptr[i]+(int)&script[0];
-                actorLoadEventScrptr[i] = (int *)j;
+                j = (intptr_t)actorLoadEventScrptr[i]+(intptr_t)&script[0];
+                actorLoadEventScrptr[i] = (intptr_t *)j;
             }
 
         for (i=0;i<MAXGAMEEVENTS;i++)
             if (apScriptGameEvent[i])
             {
-                j = (int)apScriptGameEvent[i]+(int)&script[0];
-                apScriptGameEvent[i] = (int *)j;
+                j = (intptr_t)apScriptGameEvent[i]+(intptr_t)&script[0];
+                apScriptGameEvent[i] = (intptr_t *)j;
             }
         Bfree(scriptptrs);
     }
@@ -1568,9 +1568,9 @@ static int CountCaseStatements()
     int lCount;
     char *temptextptr = textptr;
     int temp_line_number = line_number;
-    int scriptoffset = (unsigned)(scriptptr-script);
-    int caseoffset = (unsigned)(casescriptptr-script);
-    int i;
+    intptr_t scriptoffset = (unsigned)(scriptptr-script);
+    intptr_t caseoffset = (unsigned)(casescriptptr-script);
+//    int i;
 
     casecount=0;
     casescriptptr=NULL;
@@ -1586,13 +1586,13 @@ static int CountCaseStatements()
     checking_switch++;
 
     textptr=temptextptr;
-    scriptptr = (int *)(script+scriptoffset);
+    scriptptr = (intptr_t *)(script+scriptoffset);
 
     line_number = temp_line_number;
 
     lCount=casecount;
     casecount=0;
-    casescriptptr = (int *)(script+caseoffset);
+    casescriptptr = (intptr_t *)(script+caseoffset);
     casecount = 0;
     return lCount;
 }
@@ -1601,7 +1601,7 @@ static int parsecommand(void)
 {
     int i, j=0, k=0, done, tw;
     char *temptextptr;
-    int *tempscrptr;
+    intptr_t *tempscrptr;
 
     if (quitevent)
     {
@@ -1637,7 +1637,7 @@ static int parsecommand(void)
         {
             getlabel();
             scriptptr--;
-            labelcode[labelcnt] = (int) scriptptr;
+            labelcode[labelcnt] = (intptr_t) scriptptr;
             labeltype[labelcnt] = LABEL_STATE;
 
             parsing_state = 1;
@@ -1967,7 +1967,7 @@ static int parsecommand(void)
             if (i == labelcnt)
             {
                 labeltype[labelcnt] = LABEL_MOVE;
-                labelcode[labelcnt++] = (int) scriptptr;
+                labelcode[labelcnt++] = (intptr_t) scriptptr;
             }
             for (j=0;j<2;j++)
             {
@@ -2160,7 +2160,7 @@ static int parsecommand(void)
             if (i == labelcnt)
             {
                 labeltype[labelcnt] = LABEL_AI;
-                labelcode[labelcnt++] = (int) scriptptr;
+                labelcode[labelcnt++] = (intptr_t) scriptptr;
             }
 
             for (j=0;j<3;j++)
@@ -2227,7 +2227,7 @@ static int parsecommand(void)
             if (i == labelcnt)
             {
                 labeltype[labelcnt] = LABEL_ACTION;
-                labelcode[labelcnt] = (int) scriptptr;
+                labelcode[labelcnt] = (intptr_t) scriptptr;
                 labelcnt++;
             }
 
@@ -2571,14 +2571,14 @@ static int parsecommand(void)
     case CON_ELSE:
         if (checking_ifelse)
         {
-            int offset;
+            intptr_t offset;
             checking_ifelse--;
             tempscrptr = scriptptr;
             offset = (unsigned)(tempscrptr-script);
             scriptptr++; //Leave a spot for the fail location
             parsecommand();
-            tempscrptr = (int *)script+offset;
-            *tempscrptr = (int) scriptptr;
+            tempscrptr = (intptr_t *)script+offset;
+            *tempscrptr = (intptr_t) scriptptr;
         }
         else
         {
@@ -3456,7 +3456,7 @@ static int parsecommand(void)
     case CON_IFVARVARAND:
     case CON_WHILEVARVARN:
     {
-        int offset;
+        intptr_t offset;
 
         transmultvars(2);
         tempscrptr = scriptptr;
@@ -3466,8 +3466,8 @@ static int parsecommand(void)
         j = keyword();
         parsecommand();
 
-        tempscrptr = (int *)script+offset;
-        *tempscrptr = (int) scriptptr;
+        tempscrptr = (intptr_t *)script+offset;
+        *tempscrptr = (intptr_t) scriptptr;
 
         if (tw != CON_WHILEVARVARN) checking_ifelse++;
         return 0;
@@ -3494,7 +3494,7 @@ static int parsecommand(void)
     case CON_IFVARAND:
     case CON_WHILEVARN:
     {
-        int offset;
+        intptr_t offset;
 
         // get the ID of the DEF
         transvar();
@@ -3507,8 +3507,8 @@ static int parsecommand(void)
         j = keyword();
         parsecommand();
 
-        tempscrptr = (int *)script+offset;
-        *tempscrptr = (int) scriptptr;
+        tempscrptr = (intptr_t *)script+offset;
+        *tempscrptr = (intptr_t) scriptptr;
 
         if (tw != CON_WHILEVARN) checking_ifelse++;
         return 0;
@@ -3663,7 +3663,7 @@ static int parsecommand(void)
 
     case CON_SWITCH:
     {
-        int tempoffset;
+        intptr_t tempoffset;
 
         //AddLog("Got Switch statement");
         if (checking_switch)
@@ -3691,7 +3691,7 @@ static int parsecommand(void)
 
         j=CountCaseStatements();
 //        initprintf("Done Counting Case Statements for switch %d: found %d.\n", checking_switch,j);
-        tempscrptr = (int *)(script+tempoffset);
+        tempscrptr = (intptr_t *)(script+tempoffset);
 
         //AddLog(g_szBuf);
         if (checking_switch>1)
@@ -3705,7 +3705,7 @@ static int parsecommand(void)
         }
         if (tempscrptr)
         {
-            tempscrptr[1]=(int)j;  // save count of cases
+            tempscrptr[1]=(intptr_t)j;  // save count of cases
         }
         else
         {
@@ -3729,7 +3729,7 @@ static int parsecommand(void)
             //Bsprintf(g_szBuf,"SWITCH2: '%.22s'",textptr);
             //AddLog(g_szBuf);
         }
-        tempscrptr = (int *)(script+tempoffset);
+        tempscrptr = (intptr_t *)(script+tempoffset);
 
         //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr);
         //AddLog(g_szBuf);
@@ -3742,7 +3742,7 @@ static int parsecommand(void)
         casecount=0;
         if (tempscrptr)
         {
-            int t,n;
+            intptr_t t,n;
             for (i=3;i<3+tempscrptr[1]*2-2;i+=2) // sort them
             {
                 t=tempscrptr[i];n=i;
@@ -3755,7 +3755,7 @@ static int parsecommand(void)
                 }
             }
 //            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
-            tempscrptr[0]= (int)scriptptr - (int)&script[0];    // save 'end' location
+            tempscrptr[0]= (intptr_t)scriptptr - (intptr_t)&script[0];    // save 'end' location
         }
         else
         {
@@ -3777,7 +3777,7 @@ static int parsecommand(void)
 
     case CON_CASE:
     {
-        int tempoffset;
+        intptr_t tempoffset;
         //AddLog("Found Case");
 repeatcase:
         scriptptr--; // don't save in code
@@ -3811,7 +3811,7 @@ repeatcase:
                 }
             //AddLog("Adding value to script");
             casescriptptr[casecount++]=j;   // save value
-            casescriptptr[casecount]=(int)((int*)scriptptr-&script[0]);   // save offset
+            casescriptptr[casecount]=(intptr_t)((intptr_t*)scriptptr-&script[0]);   // save offset
         }
         //      j = keyword();
         //Bsprintf(g_szBuf,"case3: %.12s",textptr);
@@ -3836,11 +3836,11 @@ repeatcase:
             {
                 //AddLog("Found Repeat Case");
                 transword();    // eat 'case'
-                tempscrptr = (int *)(script+tempoffset);
+                tempscrptr = (intptr_t *)(script+tempoffset);
                 goto repeatcase;
             }
         }
-        tempscrptr = (int *)(script+tempoffset);
+        tempscrptr = (intptr_t *)(script+tempoffset);
         //AddLog("End Case");
         return 0;
         //      break;
@@ -3863,7 +3863,7 @@ repeatcase:
         }
         if (casescriptptr)
         {
-            casescriptptr[0]=(int)(scriptptr-&script[0]);   // save offset
+            casescriptptr[0]=(intptr_t)(scriptptr-&script[0]);   // save offset
         }
         //Bsprintf(g_szBuf,"default: '%.22s'",textptr);
         //AddLog(g_szBuf);
@@ -4000,7 +4000,7 @@ repeatcase:
     case CON_IFCANSEETARGET:
     case CON_IFNOSOUNDS:
     {
-        int offset;
+        intptr_t offset;
         if (tw == CON_IFP)
         {
             j = 0;
@@ -4022,8 +4022,8 @@ repeatcase:
 
         j = keyword();
         parsecommand();
-        tempscrptr = (int *)script+offset;
-        *tempscrptr = (int) scriptptr;
+        tempscrptr = (intptr_t *)script+offset;
+        *tempscrptr = (intptr_t) scriptptr;
 
         checking_ifelse++;
         return 0;
@@ -4924,7 +4924,7 @@ void loadefs(const char *filenam)
 //    clearbufbyte(script,sizeof(script),0l); // JBF 20040531: yes? no?
     if (script != NULL)
         Bfree(script);
-    script = Bcalloc(1,g_ScriptSize * sizeof(int));
+    script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t));
 
     labelcnt = defaultlabelcnt = 0;
     scriptptr = script+1;
@@ -4937,7 +4937,7 @@ void loadefs(const char *filenam)
 
     Bstrcpy(compilefile, filenam);   // JBF 20031130: Store currently compiling file name
     passone(); //Tokenize
-    //*script = (int) scriptptr;
+    //*script = (intptr_t) scriptptr;
 
     Bfree(mptr);
     mptr = NULL;
