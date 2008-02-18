@@ -635,6 +635,7 @@ void menus(void)
     {
         switch (current_menu)
         {
+        case 102:
         case 210:
         case 360:
         case 361:

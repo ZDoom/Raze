@@ -5801,7 +5801,7 @@ int loadtilegroups(char *fn)
 {
     int i;
     scriptfile *script;
-    TileGroup blank = { NULL,     0,     0, 0, NULL };
+    TileGroup blank = { NULL,     0,  NULL,     0, 0 };
 
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
