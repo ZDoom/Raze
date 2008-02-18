@@ -169,7 +169,7 @@ int r_vbocount = 64;
 // model animation smoothing cvar
 int r_animsmoothing = 1;
 
-static float fogresult, ofogresult, fogcol[4];
+static float fogresult, fogcol[4];
 
 // making this a macro should speed things up at the expense of code size
 #define fogcalc(shade, vis, pal) \
@@ -2159,13 +2159,11 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
         {
             fullbrightdrawingpass = 2;
             shadeforfullbrightpass = globalshade; // save the current shade
-            bglFogf(GL_FOG_DENSITY,0.0f); // no fog
             globalshade = -128; // fullbright
-            ofogresult = fogresult;
+            bglDisable(GL_FOG);
             drawpoly(dpx, dpy, n_, method_); // draw them afterwards, then. :)
-            fogresult = ofogresult;
+            bglEnable(GL_FOG);
             globalshade = shadeforfullbrightpass;
-            bglFogf(GL_FOG_DENSITY, fogresult);
             fullbrightdrawingpass = 0;
         }
         return;
