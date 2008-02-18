@@ -41,7 +41,7 @@ intptr_t *casescriptptr=NULL;      // the pointer to the start of the case table
 static int casecount = 0;
 static int checking_switch = 0, current_event = -1;
 static int labelsonly = 0, nokeywordcheck = 0, dynamicremap = 0;
-static int num_braces = 0;    // init to some sensible defaults
+static int num_braces = 0;
 
 int redefined_quote_count = 0;
 
@@ -1377,8 +1377,10 @@ static void transvartype(int type)
         if (!(error || warning) && g_ScriptDebug)
             initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",compilefile,line_number,atol(textptr));
         *scriptptr++=MAXGAMEVARS;
-        if (tolower(textptr[1])=='x')sscanf(textptr+2,"%x",scriptptr);else
-        *scriptptr=atol(textptr);
+        if (tolower(textptr[1])=='x')
+            sscanf(textptr+2,"%x",scriptptr);
+        else
+            *scriptptr=atol(textptr);
         scriptptr++;
         getlabel();
         return;
@@ -1552,8 +1554,9 @@ static int transnum(int type)
     }
     if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%d: debug: accepted constant %d.\n",compilefile,line_number,atol(textptr));
-    if (tolower(textptr[1])=='x')sscanf(textptr+2,"%x",scriptptr);else
-    *scriptptr = atol(textptr);
+    if (tolower(textptr[1])=='x')sscanf(textptr+2,"%x",scriptptr);
+    else
+        *scriptptr = atol(textptr);
     scriptptr++;
 
     textptr += l;

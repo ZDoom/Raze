@@ -161,6 +161,8 @@ void wm_setapptitle(char *name)
 int main(int argc, char *argv[])
 {
     int r;
+    char *argp;
+    FILE *fp;
 
     buildkeytranslationtable();
 
@@ -171,6 +173,25 @@ int main(int argc, char *argv[])
 
     _buildargc = argc;
     _buildargv = (const char**)argv;
+
+    // pipe standard outputs to files
+    if ((argp = Bgetenv("BUILD_LOGSTDOUT")) != NULL)
+        if (!Bstrcasecmp(argp, "TRUE"))
+        {
+            fp = freopen("stdout.txt", "w", stdout);
+            if (!fp)
+            {
+                fp = fopen("stdout.txt", "w");
+            }
+            if (fp) setvbuf(fp, 0, _IONBF, 0);
+            *stdout = *fp;
+            *stderr = *fp;
+        }
+
+#if defined(USE_OPENGL) && defined(POLYMOST)
+    if ((argp = Bgetenv("BUILD_NOFOG")) != NULL)
+        nofog = Batol(argp);
+#endif
 
     baselayer_init();
     r = app_main(_buildargc, _buildargv);

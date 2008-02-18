@@ -174,8 +174,8 @@ static float fogresult, fogcol[4];
 // making this a macro should speed things up at the expense of code size
 #define fogcalc(shade, vis, pal) \
 { \
-    fogresult = (float)gvisibility*(vis+16+(shade<0?(-(shade)*(shade))*0.125f:((shade)*(shade))*0.125f)); \
-    if (vis > 239) fogresult = (float)gvisibility*((vis-240+(shade<0?(-(shade)*(shade))*0.125f:((shade)*(shade))*0.125f))/(klabs(vis-256))); \
+    fogresult = (float)gvisibility*(vis+16+(shade<0?(-shade*shade)*0.125f:(shade*shade)*0.125f)); \
+    if (vis > 239) fogresult = (float)gvisibility*((vis-240+(shade<0?(-shade*shade)*0.125f:(shade*shade)*0.125f))/(klabs(vis-256))); \
     fogresult = min(max(fogresult, 0.01f),10.f); \
     fogcol[0] = (float)palookupfog[pal].r / 63.f; \
     fogcol[1] = (float)palookupfog[pal].g / 63.f; \
@@ -3379,7 +3379,7 @@ static void polymost_drawalls(int bunch)
 #ifdef USE_OPENGL
             if (!nofog)
             {
-                fogcalc(sec->ceilingshade,sec->visibility,sec->floorpal);
+                fogcalc(sec->ceilingshade,sec->visibility,sec->ceilingpal);
                 bglFogf(GL_FOG_DENSITY,fogresult);
                 bglFogfv(GL_FOG_COLOR,fogcol);
             }
@@ -3401,7 +3401,7 @@ static void polymost_drawalls(int bunch)
                 */
                 if (!nofog)
                 {
-                    fogcalc(sec->ceilingshade,sec->visibility,sec->floorpal);
+                    fogcalc(sec->ceilingshade,sec->visibility,sec->ceilingpal);
                     bglFogf(GL_FOG_DENSITY,fogresult * 0.005);
                     bglFogfv(GL_FOG_COLOR,fogcol);
                 }
@@ -4377,7 +4377,6 @@ void polymost_drawsprite(int snum)
     method = 1+4;
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) method = 2+4; else method = 3+4; }
 
-
 #ifdef USE_OPENGL
     if (r_depthpeeling)
     {
@@ -4386,6 +4385,7 @@ void polymost_drawsprite(int snum)
         if (!(((tspr->cstat&2) || (gltexmayhavealpha(globalpicnum,tspr->pal)))) && peelcompiling)
             return; // discard opaque sprite when composing the depth peels
     }
+
     if (!nofog && rendmode >= 3)
     {
         fogcalc(globalshade,sector[tspr->sectnum].visibility,sector[tspr->sectnum].floorpal);

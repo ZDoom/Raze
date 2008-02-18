@@ -163,9 +163,9 @@ int mymaxlag, otherminlag, bufferjitter = 1;
 short numclouds,clouds[128],cloudx[128],cloudy[128];
 int cloudtotalclock = 0,totalmemory = 0;
 int numinterpolations = 0, startofdynamicinterpolations = 0;
-int oldipos[MAXINTERPOLATIONS];
-int bakipos[MAXINTERPOLATIONS];
-int *curipos[MAXINTERPOLATIONS];
+intptr_t oldipos[MAXINTERPOLATIONS];
+intptr_t bakipos[MAXINTERPOLATIONS];
+intptr_t *curipos[MAXINTERPOLATIONS];
 
 int nextvoxid = 0;
 

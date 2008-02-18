@@ -27,8 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define HEAD  "EDuke32"VERSION" (shareware)"
 #define HEAD2 "EDuke32"VERSION
 
-#include "compat.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -692,9 +690,9 @@ extern int everyothertime;
 extern int mymaxlag, otherminlag, bufferjitter;
 
 extern int numinterpolations, startofdynamicinterpolations;
-extern int oldipos[MAXINTERPOLATIONS];
-extern int bakipos[MAXINTERPOLATIONS];
-extern int *curipos[MAXINTERPOLATIONS];
+extern intptr_t oldipos[MAXINTERPOLATIONS];
+extern intptr_t bakipos[MAXINTERPOLATIONS];
+extern intptr_t *curipos[MAXINTERPOLATIONS];
 
 extern short numclouds,clouds[128],cloudx[128],cloudy[128];
 extern int cloudtotalclock,totalmemory;

@@ -589,7 +589,7 @@ int startwin_idle(void *s)
 
 int startwin_run(void)
 {
-    if (!gtkenabled) return 0;
+    if (!gtkenabled) return 1;
     if (!startwin) return 1;
 
     SetPage(TAB_CONFIG);

@@ -31,12 +31,12 @@ TARGETOPTS=/DNOASM
 
 !ifdef DEBUG
 # debugging options
-flags_cl=/Ot /Zi /MTd
+flags_cl=/Ot /Zi 
 flags_link=/DEBUG
 !else
 # release options
 #flags_cl=/Ox
-flags_cl= /O2 /Ox /MT
+flags_cl= /O2 /Ox
 flags_link=/RELEASE
 !endif
 
@@ -44,7 +44,7 @@ CC=cl
 AS=ml
 RC=rc
 LINK=link /opt:nowin98 /opt:ref /nologo
-CFLAGS=$(CFLAGS) /nologo /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(DXROOT)\include /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include"
+CFLAGS=$(CFLAGS) /nologo /MD /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(DXROOT)\include /I$(MSSDKROOT)\include" /I$(PLATFORMSDK)\include"
 ASFLAGS=/nologo /coff
 EXESUFFIX=.exe
 

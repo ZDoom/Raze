@@ -184,6 +184,14 @@ void CONFIG_SetDefaults(void)
     int32 i,f;
 
     ud.config.scripthandle = -1;
+    ud.config.ScreenWidth = 1024;
+    ud.config.ScreenHeight = 768;
+    ud.config.ScreenMode = 0;
+#if defined(POLYMOST) && defined(USE_OPENGL)
+    ud.config.ScreenBPP = 32;
+#else
+    ud.config.ScreenBPP = 8;
+#endif
     ud.config.useprecache = 1;
     ud.config.ForceSetup = 1;
     ud.config.AmbienceToggle = 1;

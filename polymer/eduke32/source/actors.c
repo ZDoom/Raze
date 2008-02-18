@@ -34,7 +34,7 @@ inline void updateinterpolations(void)  //Stick at beginning of domovethings
     for (;i>=0;i--) oldipos[i] = *curipos[i];
 }
 
-void setinterpolation(int *posptr)
+void setinterpolation(intptr_t *posptr)
 {
     int i=numinterpolations-1;
 
@@ -46,7 +46,7 @@ void setinterpolation(int *posptr)
     numinterpolations++;
 }
 
-void stopinterpolation(int *posptr)
+void stopinterpolation(intptr_t *posptr)
 {
     int i=numinterpolations-1;
 
@@ -537,9 +537,9 @@ int movesprite(int spritenum, int xchange, int ychange, int zchange, unsigned in
 inline int ssp(int i,unsigned int cliptype) //The set sprite function
 {
     return (movesprite(i,
-                          (sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
-                          (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,sprite[i].zvel,
-                          cliptype)==0);
+                       (sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
+                       (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,sprite[i].zvel,
+                       cliptype)==0);
 }
 
 #undef deletesprite

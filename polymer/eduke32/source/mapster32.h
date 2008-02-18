@@ -160,12 +160,6 @@ void ResetKeys();
 extern void fixspritesectors(void);
  #define KEY_PRESSED(sc) KB_KeyPressed((sc))
 
-// REM : This file should be included in file BUILD.C _ONLY_
-
-#include "names.h"
-
-
-
 // This table defines the various zoom levels, the numbers being the pixel width
 //   and height of the sprite when plotted on the screen. Probably zooms in too far
 //   for some, but I'm a blind old git :-(
@@ -185,9 +179,9 @@ typedef struct
 {
 	int *pIds ;	// ptr to list of tile Ids
 	int  nIds ;		// num of tile ids
+	char *szText ;		// description to present to user.
 	char  key1 ;		// key1 and key2 are two alternative keypresses used to
 	char  key2 ;		//    select tile set. Bodge to do eary upper/lower case handling
-	char *szText ;		// description to present to user.
 } TileGroup;
 
 #define MAX_TILE_GROUPS 32

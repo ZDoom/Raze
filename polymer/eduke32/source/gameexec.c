@@ -31,7 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 
 int g_i,g_p;
-static intptr_t g_x,*g_t;
+static int g_x;
+static intptr_t *g_t;
 static spritetype *g_sp;
 static int killit_flag;
 
@@ -129,55 +130,45 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
         //      if(iSet)
         //      {
         //          ud.user_name[MAXPLAYERS][32] = lValue;
+        //          return;
         //      }
-        //      return; }
-        //      {
-        //          SetGameVarID(lVar2, ud.user_name[MAXPLAYERS][32], g_i, g_p);
-        //      }
+        //      SetGameVarID(lVar2, ud.user_name[MAXPLAYERS][32], g_i, g_p);
         //      return;
 
         //  case USERDEFS_RIDECULE:
         //      if(iSet)
         //      {
         //          ud.ridecule = lValue;
+        //          return;
         //      }
-        //      return; }
-        //      {
-        //          SetGameVarID(lVar2, ud.ridecule, g_i, g_p);
-        //      }
+        //      SetGameVarID(lVar2, ud.ridecule, g_i, g_p);
         //      return;
 
         //  case USERDEFS_SAVEGAME:
         //      if(iSet)
         //      {
         //          ud.savegame = lValue;
+        //          return;
         //      }
-        //      return; }
-        //      {
-        //          SetGameVarID(lVar2, ud.savegame, g_i, g_p);
-        //      }
+        //      SetGameVarID(lVar2, ud.savegame, g_i, g_p);
         //      return;
 
         //  case USERDEFS_PWLOCKOUT:
         //      if(iSet)
         //      {
         //          ud.pwlockout = lValue;
+        //          return;
         //      }
-        //      return; }
-        //      {
-        //          SetGameVarID(lVar2, ud.pwlockout, g_i, g_p);
-        //      }
+        //      SetGameVarID(lVar2, ud.pwlockout, g_i, g_p);
         //      return;
 
         //  case USERDEFS_RTSNAME:
         //      if(iSet)
         //      {
         //          ud.rtsname = lValue;
+        //          return;
         //      }
-        //      return; }
-        //      {
-        //          SetGameVarID(lVar2, ud.rtsname, g_i, g_p);
-        //      }
+        //      SetGameVarID(lVar2, ud.rtsname, g_i, g_p);
         //      return;
 
     case USERDEFS_OVERHEAD_ON:
@@ -469,11 +460,9 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
         //      if(iSet)
         //      {
         //          ud.wchoice = lValue;
+        //          return;
         //      }
-        //      return; }
-        //      {
-        //          SetGameVarID(lVar2, ud.wchoice, g_i, g_p);
-        //      }
+        //      SetGameVarID(lVar2, ud.wchoice, g_i, g_p);
         //      return;
 
     case USERDEFS_PLAYERAI:
@@ -5069,24 +5058,31 @@ static int parse(void)
             j=GetGameVarID(*insptr++, g_i, g_p);
             if (i<MAXQUOTES&&fta_quotes[i] != NULL&&f<NUMGAMEFUNCTIONS)
             {
-                if (j<2)Bstrcpy(tempbuf,KB_ScanCodeToString(ud.config.KeyboardKeys[f][j]));else
+                if (j<2)
+                    Bstrcpy(tempbuf,KB_ScanCodeToString(ud.config.KeyboardKeys[f][j]));
+                else
                 {
                     Bstrcpy(tempbuf,KB_ScanCodeToString(ud.config.KeyboardKeys[f][0]));
                     if (!*tempbuf)
-                    Bstrcpy(tempbuf,KB_ScanCodeToString(ud.config.KeyboardKeys[f][1]));
+                        Bstrcpy(tempbuf,KB_ScanCodeToString(ud.config.KeyboardKeys[f][1]));
                 }
             }
-        if (*tempbuf)Bstrcpy(fta_quotes[i],tempbuf);
+
+            if (*tempbuf)
+                Bstrcpy(fta_quotes[i],tempbuf);
             break;
         }
     case CON_QSUBSTR:
         insptr++;
         {
-            char *s1,*s2;int q1,q2,st,ln;
+            char *s1,*s2;
+            int q1,q2,st,ln;
+
             q1 = GetGameVarID(*insptr++, g_i, g_p),
                  q2 = GetGameVarID(*insptr++, g_i, g_p);
             st = GetGameVarID(*insptr++, g_i, g_p);
             ln = GetGameVarID(*insptr++, g_i, g_p);
+
             if (q1<MAXQUOTES&&fta_quotes[q1] != NULL&&q2<MAXQUOTES&&fta_quotes[q2] != NULL)
             {
                 s1=fta_quotes[q1];
@@ -7258,13 +7254,13 @@ static int parse(void)
     case CON_GETCURRADDRESS:
         insptr++;
         j=*insptr++;
-        SetGameVarID(j, (intptr_t) insptr, g_i, g_p);
+        SetGameVarID(j, (intptr_t)(insptr-script), g_i, g_p);
         break;
 
     case CON_JUMP:
         insptr++;
         j = GetGameVarID(*insptr++, g_i, g_p);
-        insptr = (intptr_t *)j;
+        insptr = (intptr_t *)(j+script);
         break;
 
     default:
