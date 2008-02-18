@@ -235,7 +235,7 @@ $(OBJ)/%.$o: $(SRC)/util/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
  
 $(OBJ)/%.$o: $(RSRC)/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
+	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
  
 $(OBJ)/game_banner.$o: $(RSRC)/game_banner.c
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
