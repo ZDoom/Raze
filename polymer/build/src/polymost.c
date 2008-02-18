@@ -3037,7 +3037,7 @@ static void polymost_drawalls(int bunch)
                 //Use clamping for tiled sky textures
                 for (i=(1<<pskybits)-1;i>0;i--)
                     if (pskyoff[i] != pskyoff[i-1])
-                        { skyclamphack = 1; break; }
+                        { skyclamphack = 0; break; }
             }
 #endif
             if (bpp == 8 || !usehightile || !hicfindsubst(globalpicnum,globalpal,1))
@@ -3410,7 +3410,7 @@ static void polymost_drawalls(int bunch)
                 //Use clamping for tiled sky textures
                 for (i=(1<<pskybits)-1;i>0;i--)
                     if (pskyoff[i] != pskyoff[i-1])
-                        { skyclamphack = 1; break; }
+                        { skyclamphack = 0; break; }
             }
 #endif
             //Parallaxing sky...
