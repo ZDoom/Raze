@@ -169,6 +169,10 @@ int r_vbocount = 64;
 // model animation smoothing cvar
 int r_animsmoothing = 1;
 
+// polymost ART sky control
+int r_parallaxskyclamping = 1;
+int r_parallaxskypanning = 0;
+
 static float fogresult, fogcol[4];
 
 // making this a macro should speed things up at the expense of code size
@@ -3035,7 +3039,7 @@ static void polymost_drawalls(int bunch)
                 //Use clamping for tiled sky textures
                 for (i=(1<<pskybits)-1;i>0;i--)
                     if (pskyoff[i] != pskyoff[i-1])
-                        { skyclamphack = 0; break; }
+                        { skyclamphack = r_parallaxskyclamping; break; }
             }
 #endif
             if (bpp == 8 || !usehightile || !hicfindsubst(globalpicnum,globalpal,1))
@@ -3045,7 +3049,7 @@ static void polymost_drawalls(int bunch)
                 vv[1] = dd[0]*((double)xdimscale*(double)viewingrange)/(65536.0*65536.0);
                 vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)+parallaxyoffs)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesizy[globalpicnum]) i += i;
-                vv[0] += dd[0]*((double)sec->floorypanning)*((double)i)/256.0;
+                vv[0] += dd[0]*((double)((r_parallaxskypanning)?sec->floorypanning:0))*((double)i)/256.0;
 
 
                 //Hack to draw black rectangle below sky when looking down...
@@ -3081,7 +3085,7 @@ static void polymost_drawalls(int bunch)
                 do
                 {
                     globalpicnum = pskyoff[y&((1<<pskybits)-1)]+i;
-                    guo = gdo*(t*((double)(globalang-(y<<(11-pskybits))))/2048.0 + (double)sec->floorxpanning) - gux*ghalfx;
+                    guo = gdo*(t*((double)(globalang-(y<<(11-pskybits))))/2048.0 + (double)((r_parallaxskypanning)?sec->floorxpanning:0)) - gux*ghalfx;
                     y++;
                     ox = fx; fx = ((double)((y<<(11-pskybits))-globalang))*oz+ghalfx;
                     if (fx > x1) { fx = x1; i = -1; }
@@ -3408,7 +3412,7 @@ static void polymost_drawalls(int bunch)
                 //Use clamping for tiled sky textures
                 for (i=(1<<pskybits)-1;i>0;i--)
                     if (pskyoff[i] != pskyoff[i-1])
-                        { skyclamphack = 0; break; }
+                        { skyclamphack = r_parallaxskyclamping; break; }
             }
 #endif
             //Parallaxing sky...
@@ -3420,7 +3424,7 @@ static void polymost_drawalls(int bunch)
                 vv[1] = dd[0]*((double)xdimscale*(double)viewingrange)/(65536.0*65536.0);
                 vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)+parallaxyoffs)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesizy[globalpicnum]) i += i;
-                vv[0] += dd[0]*((double)sec->ceilingypanning)*((double)i)/256.0;
+                vv[0] += dd[0]*((double)((r_parallaxskypanning)?sec->ceilingypanning:0))*((double)i)/256.0;
 
                 //Hack to draw black rectangle below sky when looking down...
                 gdx = 0; gdy = gxyaspect / -262144.0; gdo = -ghoriz*gdy;
@@ -3454,7 +3458,7 @@ static void polymost_drawalls(int bunch)
                 do
                 {
                     globalpicnum = pskyoff[y&((1<<pskybits)-1)]+i;
-                    guo = gdo*(t*((double)(globalang-(y<<(11-pskybits))))/2048.0 + (double)sec->ceilingxpanning) - gux*ghalfx;
+                    guo = gdo*(t*((double)(globalang-(y<<(11-pskybits))))/2048.0 + (double)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - gux*ghalfx;
                     y++;
                     ox = fx; fx = ((double)((y<<(11-pskybits))-globalang))*oz+ghalfx;
                     if (fx > x1) { fx = x1; i = -1; }
@@ -5703,6 +5707,18 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else r_animsmoothing = (val != 0);
         return OSDCMD_OK;
     }
+    else if (!Bstrcasecmp(parm->name, "r_parallaxskyclamping"))
+    {
+        if (showval) { OSD_Printf("r_parallaxskyclamping is %d\n", r_parallaxskyclamping); }
+        else r_parallaxskyclamping = (val != 0);
+        return OSDCMD_OK;
+    }
+    else if (!Bstrcasecmp(parm->name, "r_parallaxskypanning"))
+    {
+        if (showval) { OSD_Printf("r_parallaxskypanning is %d\n", r_parallaxskypanning); }
+        else r_parallaxskypanning = (val != 0);
+        return OSDCMD_OK;
+    }
     else if (!Bstrcasecmp(parm->name, "glpolygonmode"))
     {
         if (showval) { OSD_Printf("glpolygonmode is %d\n", glpolygonmode); }
@@ -5801,6 +5817,8 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",osdcmd_polymostvars);
     OSD_RegisterFunction("r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",osdcmd_polymostvars);
     OSD_RegisterFunction("r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",osdcmd_polymostvars);
 #endif
     OSD_RegisterFunction("usemodels","usemodels: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
     OSD_RegisterFunction("usehightile","usehightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);

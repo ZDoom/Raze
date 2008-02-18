@@ -220,19 +220,19 @@ $(OBJ)/%.$o: $(SRC)/jaudiolib/%.nasm
 	nasm $(NASMFLAGS) $< -o $@
  
 $(OBJ)/%.$o: $(SRC)/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
+	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
 $(OBJ)/%.$o: $(SRC)/%.cpp
-	$(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
+	$(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@
 $(OBJ)/%.$o: $(SRC)/jmact/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
+	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
 $(OBJ)/%.$o: $(SRC)/jaudiolib/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
+	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	windres -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC)
 
 $(OBJ)/%.$o: $(SRC)/util/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
+	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
  
 $(OBJ)/%.$o: $(RSRC)/%.c
 	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1

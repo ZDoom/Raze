@@ -203,19 +203,19 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(AS) $(ASFLAGS) $< -o $@
 
 $(OBJ)/%.$o: $(SRC)/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
+	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
 
 $(OBJ)/%.$o: $(SRC)/%.cpp
-	$(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
+	$(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	$(RC) -i $< -o $@ --include-dir=$(INC) --include-dir=$(SRC)
 
 $(OBJ)/%.$o: $(SRC)/util/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
+	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
 
 $(OBJ)/%.$o: $(RSRC)/%.c
-	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@ 2>&1
+	$(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@
 
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@

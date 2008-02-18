@@ -526,6 +526,8 @@ extern int r_vertexarrays;
 extern int r_vbos;
 extern int r_vbocount;
 extern int r_animsmoothing;
+extern int r_parallaxskyclamping;
+extern int r_parallaxskypanning;
 extern int mdtims, omdtims;
 #endif
 
