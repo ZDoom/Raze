@@ -255,7 +255,8 @@ enum
     T_LOADGRP = 1,
     T_MODE = 1,
     T_CACHESIZE = 2,
-    T_ALLOW = 2
+    T_ALLOW = 2,
+    T_NOAUTOLOAD,
 };
 
 typedef struct
@@ -8616,6 +8617,7 @@ static int parsegroupfiles(scriptfile *script)
         { "#include",        T_INCLUDE          },
         { "loadgrp",         T_LOADGRP          },
         { "cachesize",       T_CACHESIZE        },
+        { "noautload",       T_NOAUTOLOAD       },
     };
 
     while (1)
@@ -8675,6 +8677,9 @@ static int parsegroupfiles(scriptfile *script)
             }
             break;
         }
+        case T_NOAUTOLOAD:
+            g_NoAutoLoad = 1;
+            break;
         case T_EOF:
             return(0);
         default:
@@ -9976,7 +9981,7 @@ void app_main(int argc,const char **argv)
 
     initprintf("%s (%s)\n",apptitle,datetimestring);
     initprintf("Copyright (c) 1996, 2003 3D Realms Entertainment\n");
-    initprintf("Copyright (c) 2007 EDuke32 team\n");
+    initprintf("Copyright (c) 2008 EDuke32 team\n");
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
     addsearchpath("/usr/share/games/jfduke3d");

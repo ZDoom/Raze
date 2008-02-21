@@ -5210,7 +5210,7 @@ int ExtPreInit(int argc,const char **argv)
     OSD_SetLogFile("mapster32.log");
     OSD_SetVersionString("Mapster32"VERSION,0,2);
     initprintf("Mapster32"VERSION" ("__DATE__" "__TIME__")\n");
-    initprintf("Copyright (c) 2007 EDuke32 team\n");
+    initprintf("Copyright (c) 2008 EDuke32 team\n");
 
     checkcommandline(argc,argv);
 
@@ -5533,7 +5533,8 @@ enum
     T_TILE,
     T_TILERANGE,
     T_HOTKEY,
-    T_TILES
+    T_TILES,
+    T_NOAUTOLOAD
 };
 
 typedef struct
@@ -5583,6 +5584,7 @@ int parsegroupfiles(scriptfile *script)
         { "include",         T_INCLUDE },
         { "#include",        T_INCLUDE },
         { "loadgrp",         T_LOADGRP },
+        { "noautoload",      T_NOAUTOLOAD }
     };
 
     while (1)
@@ -5635,6 +5637,9 @@ int parsegroupfiles(scriptfile *script)
             break;
         }
         break;
+        case T_NOAUTOLOAD:
+            NoAutoLoad = 1;
+            break;
         case T_EOF:
             return(0);
         default:

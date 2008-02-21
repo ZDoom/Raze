@@ -622,8 +622,8 @@ void menus(void)
 
     if (bpp > 8)
     {
-        int x,y,y1=0,y2=ydim;
-        for (y=y1;y<y2;y+=tilesizy[BIGHOLE])
+        int x,y=0;
+        for (;y<ydim;y+=tilesizy[BIGHOLE])
             for (x=0;x<xdim;x+=tilesizx[BIGHOLE])
                 rotatesprite(x<<16,y<<16,65536L,0,BIGHOLE,80,0,1+8+16,0,0,xdim-1,ydim-1);
     }
@@ -1856,13 +1856,13 @@ cheat_for_port_credits:
             minitext(161-(Bstrlen(p)<<1), 58+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 57+10-l, p, 8, 10+16+128);
 
-            gametext(160,76-l,"ORIGINAL \"POLYMOST\" RENDERER",0,2+8+16);
+            gametext(160,76-l,"BUILD ENGINE, \"POLYMOST\" RENDERER",0,2+8+16);
             gametext(160,76+8-l,"NETWORKING, OTHER CODE",0,2+8+16);
             p = "Ken \"Awesoken\" Silverman";
             minitext(161-(Bstrlen(p)<<1), 77+8+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 76+8+10-l, p, 8, 10+16+128);
 
-            gametext(160,103-l,"RENDERING FEATURES",0,2+8+16);
+            gametext(160,103-l,"ADDITIONAL RENDERING FEATURES",0,2+8+16);
             p = "Pierre-Loup \"Plagman\" Griffais";
             minitext(161-(Bstrlen(p)<<1), 104+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 103+10-l, p, 8, 10+16+128);
@@ -1912,6 +1912,9 @@ cheat_for_port_credits:
             p = "Visit www.eduke32.com for news and updates";
             minitext(161-(Bstrlen(p)<<1), 136+10+10+10+10+4-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 135+10+10+10+10+4-l, p, 8, 10+16+128);
+            p = "See wiki.eduke32.com/stuff for new beta snapshots";
+            minitext(161-(Bstrlen(p)<<1), 143+10+10+10+10+4-l, p, 4, 10+16+128);
+            minitext(160-(Bstrlen(p)<<1), 142+10+10+10+10+4-l, p, 8, 10+16+128);
         }
         break;
 

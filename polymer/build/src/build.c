@@ -217,8 +217,6 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
     int newx = xdim, newy = ydim, newbpp = bpp, newfullscreen = fullscreen;
     extern int qsetmode;
 
-    if (qsetmode != 200) return OSDCMD_OK;
-
     switch (parm->numparms)
     {
     case 1:	// bpp switch
@@ -234,6 +232,30 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
         break;
     default:
         return OSDCMD_SHOWHELP;
+    }
+
+    if (qsetmode != 200) 
+    {
+        qsetmodeany(newx,newy);
+        xdim2d = xdim;
+        ydim2d = ydim;
+
+        begindrawing();	//{{{
+        clearbuf((char *)(frameplace + (ydim16*bytesperline)), (bytesperline*STATUS2DSIZ) >> 2, 0x00000000l);
+        clearbuf((char *)frameplace, (ydim16*bytesperline) >> 2, 0L);
+
+        ydim16 = ydim;
+        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,1);
+        drawline16(0,ydim-1,xdim-1,ydim-1,1);
+        drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,1);
+        drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,1);
+        drawline16(0,ydim-STATUS2DSIZ+24,xdim-1,ydim-STATUS2DSIZ+24,1);
+        drawline16(192-24,ydim-STATUS2DSIZ,192-24,ydim-STATUS2DSIZ+24,1);
+        drawline16(0,ydim-1-20,xdim-1,ydim-1-20,1);
+        drawline16(256,ydim-1-20,256,ydim-1,1);
+        ydim16 = ydim-STATUS2DSIZ;
+        enddrawing();	//}}}
+        return OSDCMD_OK;
     }
 
     if (setgamemode(newfullscreen,newx,newy,newbpp))
@@ -2833,7 +2855,8 @@ void overheadeditor(void)
     drawline16(xdim-1,ydim-STATUS2DSIZ,xdim-1,ydim-1,1);
     drawline16(0,ydim-STATUS2DSIZ+24,xdim-1,ydim-STATUS2DSIZ+24,1);
     drawline16(192-24,ydim-STATUS2DSIZ,192-24,ydim-STATUS2DSIZ+24,1);
-    if (totalclock < 120*5) printext16(8L,ydim-STATUS2DSIZ+32L,9,-1,kensig,0);
+    if (totalclock < 120*5)
+        printext16(8L,ydim-STATUS2DSIZ+32L,9,-1,kensig,0);
 
     //  printmessage16("Version: "VERSION);
     if (totalclock < 30) printmessage16("Press F1 for help");
@@ -5974,8 +5997,6 @@ CANCEL:
                             uninitinput();
                             ExtUnInit();
                             uninitengine();
-                            printf("Memory status: %d(%d) bytes\n",cachesize,artsize);
-                            printf("%s\n",kensig);
                             exit(0);
                         }
                         else if (ch == 'n' || ch == 'N' || ch == 13 || ch == ' ')
@@ -6012,9 +6033,9 @@ CANCEL:
         ExtUnInit();
         uninitinput();
         uninittimer();
+        initprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
         uninitsystem();
         clearfilenames();
-        printf("%d * %d not supported in this graphics mode\n",xdim,ydim);
         exit(0);
     }
 
@@ -7067,7 +7088,7 @@ int loadnames(void)
     {
         if ((fp = fopenfrompath("names.h","r")) == NULL)
         {
-            printf("Failed to open NAMES.H\n");
+            initprintf("Failed to open NAMES.H\n");
             return -1;
         }
     }
@@ -7075,7 +7096,7 @@ int loadnames(void)
     //clearbufbyte(names, sizeof(names), 0);
     memset(names,0,sizeof(names));
 
-    printf("Loading NAMES.H\n");
+    initprintf("Loading NAMES.H\n");
 
     while (Bfgets(buffer, 1024, fp))
     {
@@ -7105,7 +7126,7 @@ int loadnames(void)
                 while (*p == 32) p++;
                 if (*p == 0)
                 {
-                    printf("Error: Malformed #define at line %d\n", line-1);
+                    initprintf("Error: Malformed #define at line %d\n", line-1);
                     continue;
                 }
 
@@ -7117,7 +7138,7 @@ int loadnames(void)
                     while (*p == 32) p++;
                     if (*p == 0)  	// #define_NAME with no number
                     {
-                        printf("Error: No number given for name \"%s\" (line %d)\n", name, line-1);
+                        initprintf("Error: No number given for name \"%s\" (line %d)\n", name, line-1);
                         continue;
                     }
 
@@ -7135,12 +7156,12 @@ int loadnames(void)
                     //printf("Grokked \"%s\" -> \"%d\"\n", name, num);
                     if (num < 0 || num >= MAXTILES)
                     {
-                        printf("Error: Constant %d for name \"%s\" out of range (line %d)\n", num, name, line-1);
+                        initprintf("Error: Constant %d for name \"%s\" out of range (line %d)\n", num, name, line-1);
                         continue;
                     }
 
                     if (Bstrlen(name) > 24)
-                        printf("Warning: Name \"%s\" longer than 24 characters (line %d). Truncating.\n", name, line-1);
+                        initprintf("Warning: Name \"%s\" longer than 24 characters (line %d). Truncating.\n", name, line-1);
 
                     Bstrncpy(names[num], name, 24);
                     names[num][24] = 0;
@@ -7152,7 +7173,7 @@ int loadnames(void)
                 }
                 else  	// #define_NAME with no number
                 {
-                    printf("Error: No number given for name \"%s\" (line %d)\n", name, line-1);
+                    initprintf("Error: No number given for name \"%s\" (line %d)\n", name, line-1);
                     continue;
                 }
             }
@@ -7163,9 +7184,9 @@ int loadnames(void)
             if (*(p+1) == '/') continue;	// comment
         }
 badline:
-        printf("Error: Invalid statement found at character %d on line %d\n", (p-buffer), line-1);
+        initprintf("Error: Invalid statement found at character %d on line %d\n", (p-buffer), line-1);
     }
-    printf("Read %d lines, loaded %d names.\n", line, syms);
+    initprintf("Read %d lines, loaded %d names.\n", line, syms);
 
     Bfclose(fp);
     return 0;
