@@ -59,7 +59,7 @@ static char osdvisible=0;		// onscreen display visible?
 static char osdinput=0;         // capture input?
 static int  osdhead=0; 			// topmost visible line number
 static BFILE *osdlog=NULL;		// log filehandle
-static char osdinited=0;		// text buffer initialised?
+static char osdinited=0;		// text buffer initialized?
 static int  osdkey=0x29;		// tilde shows the osd
 static int  keytime=0;
 static int osdscrtime = 0;
@@ -288,7 +288,7 @@ void OSD_Cleanup(void)
 
 
 //
-// OSD_Init() -- Initialises the on-screen display
+// OSD_Init() -- Initializes the on-screen display
 //
 void OSD_Init(void)
 {

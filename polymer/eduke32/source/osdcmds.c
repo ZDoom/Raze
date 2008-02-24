@@ -1010,8 +1010,8 @@ int registerosdcommands(void)
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
 
     OSD_RegisterFunction("rate","rate: sets the multiplayer packet send rate, in packets/sec",osdcmd_rate);
-    OSD_RegisterFunction("restartsound","restartsound: reinitialises the sound system",osdcmd_restartsound);
-    OSD_RegisterFunction("restartvid","restartvid: reinitialises the video mode",osdcmd_restartvid);
+    OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
+    OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
 
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);

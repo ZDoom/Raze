@@ -30,6 +30,7 @@ struct glinfo glinfo =
     0,       // multitexturing
     0,       // env_combine
     0,       // Vertex Buffer Objects
+    0,       // GL info dumped
 };
 #endif
 
@@ -79,17 +80,17 @@ static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 }
 #endif
 
-static int osdcmd_glinfo(const osdfuncparm_t *parm)
+int osdcmd_glinfo(const osdfuncparm_t *parm)
 {
     char *s,*t,*u,i;
 
     if (bpp == 8)
     {
-        OSD_Printf("glinfo: Not in OpenGL mode.\n");
+        initprintf("glinfo: Not in OpenGL mode.\n");
         return OSDCMD_OK;
     }
 
-    OSD_Printf("OpenGL Information:\n"
+    initprintf("OpenGL Information:\n"
                " Version:  %s\n"
                " Vendor:   %s\n"
                " Renderer: %s\n"
@@ -130,7 +131,7 @@ static int osdcmd_glinfo(const osdfuncparm_t *parm)
               );
 
     s = Bstrdup(glinfo.extensions);
-    if (!s) OSD_Printf(glinfo.extensions);
+    if (!s) initprintf(glinfo.extensions);
     else
     {
         i = 0; t = u = s;
@@ -141,14 +142,14 @@ static int osdcmd_glinfo(const osdfuncparm_t *parm)
                 if (i&1)
                 {
                     *t = 0;
-                    OSD_Printf("   %s\n",u);
+                    initprintf("   %s\n",u);
                     u = t+1;
                 }
                 i++;
             }
             t++;
         }
-        if (i&1) OSD_Printf("   %s\n",u);
+        if (i&1) initprintf("   %s\n",u);
         Bfree(s);
     }
 

@@ -31,6 +31,9 @@ extern char offscreenrendering;
 extern void (*baselayer_onvideomodechange)(int);
 
 #ifdef USE_OPENGL
+#include "osd.h"
+extern int osdcmd_glinfo(const osdfuncparm_t *parm);
+
 struct glinfo {
     const char *vendor;
     const char *renderer;
@@ -52,6 +55,7 @@ struct glinfo {
     char multitex;
     char envcombine;
     char vbos;
+    char dumped;
 };
 extern struct glinfo glinfo;
 #endif

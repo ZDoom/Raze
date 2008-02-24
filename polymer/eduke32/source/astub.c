@@ -5972,7 +5972,7 @@ int ExtInit(void)
 
     if (initengine())
     {
-        initprintf("There was a problem initialising the engine.\n");
+        initprintf("There was a problem initializing the engine.\n");
         return -1;
     }
 

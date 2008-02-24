@@ -63,7 +63,7 @@ static hicreplctyp * hicfindsubst(int picnum, int palnum, int skybox)
 
 //
 // hicinit()
-//   Initialise the high-colour stuff to default.
+//   Initialize the high-colour stuff to default.
 //
 void hicinit(void)
 {

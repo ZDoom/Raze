@@ -566,7 +566,7 @@ int GetGameVar(const char *szGameLabel, int lDefault, int iActor, int iPlayer)
     return lDefault;
 }
 
-static int *GetGameValuePtr(const char *szGameLabel)
+static intptr_t *GetGameValuePtr(const char *szGameLabel)
 {
     int i;
     for (i=0;i<iGameVarCount;i++)
@@ -652,9 +652,6 @@ void ResetSystemDefaults(void)
     g_iHiTagID=GetGameID("HITAG");
     g_iTextureID=GetGameID("TEXTURE");
     g_iThisActorID=GetGameID("THISACTOR");
-
-    //  for(i=0;i<MAXTILES;i++)
-    //      projectile[i] = defaultprojectile[i];
 
     Bmemcpy(&projectile,&defaultprojectile,sizeof(projectile));
 

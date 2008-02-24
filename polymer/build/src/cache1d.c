@@ -104,7 +104,7 @@ void initcache(intptr_t dacachestart, int dacachesize)
     cac[0].lock = &zerochar;
     cacnum = 1;
 
-    initprintf("initcache(): Initialised with %d bytes\n", dacachesize);
+    initprintf("initcache(): Initialized with %d bytes\n", dacachesize);
 }
 
 void allocache(intptr_t *newhandle, int newbytes, char *newlockptr)

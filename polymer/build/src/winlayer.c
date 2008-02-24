@@ -514,7 +514,7 @@ int initsystem(void)
 {
     DEVMODE desktopmode;
 
-    initprintf("Initialising Windows DirectX/GDI system interface\n");
+    initprintf("Initializing Windows DirectX/GDI system interface\n");
 
     // get the desktop dimensions before anything changes them
     ZeroMemory(&desktopmode, sizeof(DEVMODE));
@@ -548,7 +548,7 @@ int initsystem(void)
 
     // try and start DirectDraw
     if (InitDirectDraw())
-        initprintf("DirectDraw initialisation failed. Fullscreen modes will be unavailable.\n");
+        initprintf("DirectDraw initialization failed. Fullscreen modes will be unavailable.\n");
 
     OSD_RegisterFunction("maxrefreshfreq", "maxrefreshfreq: maximum display frequency to set for OpenGL Polymost modes (0=no maximum)", set_maxrefreshfreq);
     OSD_RegisterFunction("r_windowpositioning", "r_windowpositioning: enable/disable window position memory", set_windowpos);
@@ -807,7 +807,7 @@ int initmouse(void)
 {
     if (moustat) return 0;
 
-    initprintf("Initialising mouse\n");
+    initprintf("Initializing mouse\n");
 
     // grab input
     moustat=1;
@@ -1135,7 +1135,7 @@ static BOOL InitDirectInput(void)
 
     if (bDInputInited) return FALSE;
 
-    initprintf("Initialising DirectInput...\n");
+    initprintf("Initializing DirectInput...\n");
 
     // load up the DirectInput DLL
     if (!hDInputDLL)
@@ -1267,7 +1267,7 @@ static void UninitDirectInput(void)
     int devn;
     int i;
 
-    if (bDInputInited) initprintf("Uninitialising DirectInput...\n");
+    if (bDInputInited) initprintf("Uninitializing DirectInput...\n");
 
     AcquireInputDevices(0,-1);
 
@@ -1798,7 +1798,7 @@ void (*installusertimercallback(void (*callback)(void)))(void)
 
 
 //
-// inittimer() -- initialise timer
+// inittimer() -- initialize timer
 //
 int inittimer(int tickspersecond)
 {
@@ -1806,7 +1806,7 @@ int inittimer(int tickspersecond)
 
     if (timerfreq) return 0;	// already installed
 
-//    initprintf("Initialising timer\n");
+//    initprintf("Initializing timer\n");
 
     // OpenWatcom seems to want us to query the value into a local variable
     // instead of the global 'timerfreq' or else it gets pissed with an
@@ -2164,7 +2164,7 @@ void getvalidmodes(void)
 
     if (bDDrawInited)
     {
-        // if DirectDraw initialisation didn't fail enumerate fullscreen modes
+        // if DirectDraw initialization didn't fail enumerate fullscreen modes
 
         result = IDirectDraw_EnumDisplayModes(lpDD, 0, NULL, 0, getvalidmodes_enum);
         if (result != DD_OK)
@@ -2663,7 +2663,7 @@ static BOOL InitDirectDraw(void)
 
     if (bDDrawInited) return FALSE;
 
-    initprintf("Initialising DirectDraw...\n");
+    initprintf("Initializing DirectDraw...\n");
 
     // load up the DirectDraw DLL
     if (!hDDrawDLL)
@@ -2734,7 +2734,7 @@ static BOOL InitDirectDraw(void)
 //
 static void UninitDirectDraw(void)
 {
-    if (bDDrawInited) initprintf("Uninitialising DirectDraw...\n");
+    if (bDDrawInited) initprintf("Uninitializing DirectDraw...\n");
 
     ReleaseDirectDrawSurfaces();
 
@@ -3052,7 +3052,7 @@ static void ReleaseOpenGL(void)
 
 
 //
-// UninitOpenGL() -- unitialises any openGL libraries
+// UninitOpenGL() -- unitializes any openGL libraries
 //
 static void UninitOpenGL(void)
 {
@@ -3247,6 +3247,12 @@ static int SetupOpenGL(int width, int height, int bitspp)
         Bfree(p);
     }
     numpages = 2;	// KJS 20031225: tell rotatesprite that it's double buffered!
+
+    if (!glinfo.dumped)
+    {
+        osdcmd_glinfo(NULL);
+        glinfo.dumped = TRUE;
+    }
 
     return FALSE;
 }

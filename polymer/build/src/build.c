@@ -276,7 +276,7 @@ int app_main(int argc, const char **argv)
     pathsearchmode = 1;		// unrestrict findfrompath so that full access to the filesystem can be had
 
 #ifdef USE_OPENGL
-    OSD_RegisterFunction("restartvid","restartvid: reinitialise the video mode",osdcmd_restartvid);
+    OSD_RegisterFunction("restartvid","restartvid: reinitialize the video mode",osdcmd_restartvid);
     OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: immediately change the video mode",osdcmd_vidmode);
 #endif
 

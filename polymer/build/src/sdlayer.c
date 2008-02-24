@@ -216,7 +216,7 @@ int initsystem(void)
 
     SDL_VERSION(&compiled);
 
-    initprintf("Initialising SDL system interface "
+    initprintf("Initializing SDL system interface "
                "(compiled with SDL version %d.%d.%d, DLL version %d.%d.%d)\n",
                linked->major, linked->minor, linked->patch,
                compiled.major, compiled.minor, compiled.patch);
@@ -227,7 +227,7 @@ int initsystem(void)
 #endif
                 ))
     {
-        initprintf("Initialisation failed! (%s)\n", SDL_GetError());
+        initprintf("Initialization failed! (%s)\n", SDL_GetError());
         return -1;
     }
 
@@ -585,13 +585,13 @@ Uint32 timerticspersec=0;
 static void(*usertimercallback)(void) = NULL;
 
 //
-// inittimer() -- initialise timer
+// inittimer() -- initialize timer
 //
 int inittimer(int tickspersecond)
 {
     if (timerfreq) return 0;	// already installed
 
-//    initprintf("Initialising timer\n");
+//    initprintf("Initializing timer\n");
 
     timerfreq = 1000;
     timerticspersec = tickspersecond;
@@ -1110,6 +1110,12 @@ int setvideomode(int x, int y, int c, int fs)
             }
         }
         Bfree(p);
+
+        if (!glinfo.dumped)
+        {
+            osdcmd_glinfo(NULL);
+            glinfo.dumped = 1;
+        }
     }
 #endif
 

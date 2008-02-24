@@ -9611,8 +9611,8 @@ static void Startup(int argc, const char **argv)
 
     if (initengine())
     {
-        wm_msgbox("Build Engine Initialisation Error",
-                  "There was a problem initialising the Build engine: %s", engineerrstr);
+        wm_msgbox("Build Engine Initialization Error",
+                  "There was a problem initializing the Build engine: %s", engineerrstr);
         freeconmem();
         exit(1);
     }
@@ -10122,8 +10122,8 @@ void app_main(int argc,const char **argv)
 
     if (preinitengine())
     {
-        wm_msgbox("Build Engine Initialisation Error",
-                  "There was a problem initialising the Build engine: %s", engineerrstr);
+        wm_msgbox("Build Engine Initialization Error",
+                  "There was a problem initializing the Build engine: %s", engineerrstr);
         exit(1);
     }
 

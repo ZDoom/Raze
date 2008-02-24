@@ -688,7 +688,7 @@ void polymost_glreset()
     }
 }
 
-// one-time initialisation of OpenGL for polymost
+// one-time initialization of OpenGL for polymost
 void polymost_glinit()
 {
     GLfloat col[4];
