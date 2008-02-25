@@ -198,12 +198,16 @@ inline int checkcursectnums(int sect)
 
 inline int ldist(spritetype *s1,spritetype *s2)
 {
-    return (FindDistance2D(s1->x-s2->x, s1->y-s2->y));
+    int i = FindDistance2D(s1->x-s2->x, s1->y-s2->y);
+    if (!i) return 1;
+    return i;
 }
 
 inline int dist(spritetype *s1,spritetype *s2)
 {
-    return (FindDistance3D(s1->x-s2->x, s1->y-s2->y, (s1->z-s2->z)>>4));
+    int i = FindDistance3D(s1->x-s2->x, s1->y-s2->y, (s1->z-s2->z)>>4);
+    if (!i) return 1;
+    return i;
 }
 
 int findplayer(spritetype *s,int *d)
