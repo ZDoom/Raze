@@ -8768,6 +8768,12 @@ static void checkcommandline(int argc,const char **argv)
 
     if (argc > 1)
     {
+        initprintf("Application parameters: ");
+        while (i < argc)
+            initprintf("%s ",argv[i++]);
+        initprintf("\n");
+
+        i = 1;
         while (i < argc)
         {
             c = (char *)argv[i];
