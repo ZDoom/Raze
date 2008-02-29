@@ -150,7 +150,7 @@ extern void lotsofglass(int i,int wallnum,int n);
 extern void spriteglass(int i,int n);
 extern void ceilingglass(int i,int sectnum,int n);
 extern void lotsofcolourglass(int i,int wallnum,int n);
-extern int GetTime(void);
+extern inline int GetTime(void);
 extern void CONFIG_GetSetupFilename(void);
 extern int32 CONFIG_FunctionNameToNum(char *func);
 extern char *CONFIG_FunctionNumToName(int32 func);

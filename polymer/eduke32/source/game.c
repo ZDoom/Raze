@@ -12696,7 +12696,7 @@ static void SetupGameButtons(void)
 ===================
 */
 
-int GetTime(void)
+inline int GetTime(void)
 {
     return totalclock;
 }

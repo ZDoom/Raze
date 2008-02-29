@@ -347,6 +347,20 @@ typedef struct {
 	int MouseFilter,MouseBias;
 	int SmoothInput;
 
+	// JBF 20031211: Store the input settings because
+	// (currently) jmact can't regurgitate them
+	int MouseFunctions[MAXMOUSEBUTTONS][2];
+	int MouseDigitalFunctions[MAXMOUSEAXES][2];
+	int MouseAnalogueAxes[MAXMOUSEAXES];
+	int MouseAnalogueScale[MAXMOUSEAXES];
+	int JoystickFunctions[MAXJOYBUTTONS][2];
+	int JoystickDigitalFunctions[MAXJOYAXES][2];
+	int JoystickAnalogueAxes[MAXJOYAXES];
+	int JoystickAnalogueScale[MAXJOYAXES];
+	int JoystickAnalogueDead[MAXJOYAXES];
+	int JoystickAnalogueSaturate[MAXJOYAXES];
+	byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
+
 	//
 	// Sound variables
 	//
@@ -384,20 +398,6 @@ typedef struct {
 	int CheckForUpdates;
 	int LastUpdateCheck;
 	int useprecache;
-
-	// JBF 20031211: Store the input settings because
-	// (currently) jmact can't regurgitate them
-	int MouseFunctions[MAXMOUSEBUTTONS][2];
-	int MouseDigitalFunctions[MAXMOUSEAXES][2];
-	int MouseAnalogueAxes[MAXMOUSEAXES];
-	int MouseAnalogueScale[MAXMOUSEAXES];
-	int JoystickFunctions[MAXJOYBUTTONS][2];
-	int JoystickDigitalFunctions[MAXJOYAXES][2];
-	int JoystickAnalogueAxes[MAXJOYAXES];
-	int JoystickAnalogueScale[MAXJOYAXES];
-	int JoystickAnalogueDead[MAXJOYAXES];
-	int JoystickAnalogueSaturate[MAXJOYAXES];
-	byte KeyboardKeys[NUMGAMEFUNCTIONS][2];
 } config_t;
 
 typedef struct {
@@ -561,7 +561,6 @@ typedef struct {
 
 spriteinterpolate sprpos[MAXSPRITES];
 
-
 typedef struct {
     int floorz,ceilingz,lastvx,lastvy,bposx,bposy,bposz;
     int flags;
@@ -592,7 +591,7 @@ extern char display_mirror,loadfromgrouponly,rtsplaying;
 extern int groupfile;
 extern int ototalclock;
 
-extern int *animateptr[MAXANIMATES];
+extern intptr_t *animateptr[MAXANIMATES];
 extern int animategoal[MAXANIMATES];
 extern int animatevel[MAXANIMATES];
 // extern int oanimateval[MAXANIMATES];
