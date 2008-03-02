@@ -8386,7 +8386,7 @@ static void comlinehelp(void)
 static signed int rancid_players = 0;
 static char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
-extern int getexternaladdress(char *buffer);
+extern int getexternaladdress(char *buffer, const char *host, int port);
 
 static int load_rancid_net(const char *fn)
 {
@@ -8528,7 +8528,11 @@ static void setup_rancid_net(const char *fn)
             Bstrcpy(tmp,strtok(tempbuf,"."));
             if (i == rancid_players && ((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0) || (Bstrcmp(tmp,"169") == 0) || (Bstrcmp(tmp,"10") == 0)))
             {
-                if (getexternaladdress(tempbuf))
+                int ii = getexternaladdress(tempbuf, "checkip.dyndns.org", 80);
+
+                if (!ii)
+                    ii = getexternaladdress(tempbuf, "checkip.dyndns.org", 8245);
+                if (ii)
                 {
                     if (tempbuf[0])
                     {

@@ -821,14 +821,15 @@ int getpacket(int *retother, char *bufptr)
     return(0);
 }
 
-int getexternaladdress(char *buffer)
+int getexternaladdress(char *buffer, const char *host, int port)
 {
     int bytes_sent, i=0, j=0;
     struct sockaddr_in dest_addr;
     struct hostent *h;
-    char *host = "checkip.dyndns.org";
     char *req = "GET / HTTP/1.0\r\n\r\n";
-    char tempbuf[512], ipaddr[32];
+    char tempbuf[1024], ipaddr[32];
+
+    memset(buffer, 0, sizeof(buffer));
 
 #ifdef _WIN32
     if (wsainitialized == 0)
@@ -852,7 +853,7 @@ int getexternaladdress(char *buffer)
 
     dest_addr.sin_addr.s_addr = ((struct in_addr *)(h->h_addr))->s_addr;
     dest_addr.sin_family = AF_INET;
-    dest_addr.sin_port = htons(8245);
+    dest_addr.sin_port = htons(port);
 
     memset(&(dest_addr.sin_zero), '\0', 8);
 
@@ -884,6 +885,8 @@ int getexternaladdress(char *buffer)
 
     for (i=0;(unsigned)i<strlen(tempbuf);i++)
     {
+        if (tempbuf[i] == ':' && tempbuf[i+1] == ' ')
+            i += 2;
         if (isdigit(tempbuf[i]) && (isdigit(tempbuf[i+1]) || (tempbuf[i+1] == '.')) && (isdigit(tempbuf[i+2]) || (tempbuf[i+2] == '.')) && (isdigit(tempbuf[i+3]) || (tempbuf[i+3] == '.')))
         {
             while (isdigit(tempbuf[i]) || (tempbuf[i] == '.'))
@@ -891,7 +894,7 @@ int getexternaladdress(char *buffer)
                 ipaddr[j] = tempbuf[i];
                 i++, j++;
             }
-            ipaddr[j] = '\0';
+            ipaddr[j++] = '\0';
             break;
         }
     }
