@@ -3977,6 +3977,9 @@ repeatcase:
             transnum(LABEL_DEFINE);
             transnum(LABEL_DEFINE);
             break;
+        case CON_IFSOUND:
+            if (CheckEventSync(current_event))
+                ReportError(WARNING_REVEVENTSYNC);
         default:
             transnum(LABEL_DEFINE);
             break;
@@ -5151,6 +5154,9 @@ void ReportError(int iError)
         break;
     case WARNING_DUPLICATECASE:
         initprintf("%s:%ld: warning: duplicate case ignored.\n",compilefile,line_number);
+        break;
+    case WARNING_REVEVENTSYNC:
+        initprintf("%s:%d: warning: found `%s' outside of a local event.\n",compilefile,line_number,tempbuf);
         break;
     }
 }

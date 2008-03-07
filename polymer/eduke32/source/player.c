@@ -2020,12 +2020,10 @@ void DoSpawn(player_struct *p)
 
 void displaymasks(int snum)
 {
-    int p;
+    int p = sector[g_player[snum].ps->cursectnum].floorpal;
 
     if (sprite[g_player[snum].ps->i].pal == 1)
         p = 1;
-    else
-        p = sector[g_player[snum].ps->cursectnum].floorpal;
 
     if (g_player[snum].ps->scuba_on)
     {
@@ -2037,7 +2035,7 @@ void displaymasks(int snum)
 static int animatetip(int gs,int snum)
 {
     int p,looking_arc;
-    short tip_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
+    static short tip_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
 
     if (g_player[snum].ps->tipincs == 0) return 0;
 
@@ -2062,7 +2060,7 @@ static int animatetip(int gs,int snum)
 
 static int animateaccess(int gs,int snum)
 {
-    short access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
+    static short access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
     int looking_arc;
     int p;
 
@@ -2500,7 +2498,7 @@ void displayweapon(int snum)
                         if ((*kb) < (*aplWeaponTotalTime[p->curr_weapon]))
                         {
 
-                            char throw_frames[]
+                            static char throw_frames[]
                             = {0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2};
 
                             if ((*kb) < 7)
@@ -2525,7 +2523,7 @@ void displayweapon(int snum)
                 OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
                 if (GetGameVarID(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
                 {
-                    signed char remote_frames[] = {0,1,1,2,1,1,0,0,0,0,0};
+                    static char remote_frames[] = {0,1,1,2,1,1,0,0,0,0,0};
                     if (sprite[p->i].pal == 1)
                         pal = 1;
                     else
@@ -2553,7 +2551,7 @@ void displayweapon(int snum)
 
                     if ((*kb) < (*aplWeaponTotalTime[DEVISTATOR_WEAPON]+1) && (*kb) > 0)
                     {
-                        char cycloidy[] = {0,4,12,24,12,4,0};
+                        static char cycloidy[] = {0,4,12,24,12,4,0};
 
                         i = ksgn((*kb)>>2);
 
@@ -2589,7 +2587,7 @@ void displayweapon(int snum)
 
                     if ((*kb) < (aplWeaponTotalTime[p->curr_weapon][snum]+1) && (*kb) > 0)
                     {
-                        char cat_frames[] = { 0,0,1,1,2,2 };
+                        static char cat_frames[] = { 0,0,1,1,2,2 };
 
                         if (sprite[p->i].pal != 1)
                         {
@@ -2612,10 +2610,9 @@ void displayweapon(int snum)
                 {
                     weapon_xoffset += 28;
                     looking_arc += 18;
+                    pal = sector[p->cursectnum].floorpal;
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else
-                        pal = sector[p->cursectnum].floorpal;
                     {
                         if ((*kb) < aplWeaponTotalTime[p->curr_weapon][snum] && (*kb) > 0)
                         {
@@ -3249,12 +3246,12 @@ void processinput(int snum)
 {
     int j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y, shrunk;
     unsigned int sb_snum = g_player[snum].sync->bits;
-    short tempsect;
     player_struct *p = g_player[snum].ps;
     int pi = p->i;
     spritetype *s = &sprite[pi];
-    short *kb = &p->kickback_pic;
     int psect = p->cursectnum, psectlotag;
+    short *kb = &p->kickback_pic;
+    short tempsect;
 
     p->player_par++;
 
