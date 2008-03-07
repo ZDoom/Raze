@@ -335,10 +335,13 @@ char *Bgetcwd(char *buf, bsize_t size)
 char *Bgethomedir(void)
 {
 #ifdef _WIN32
+    FARPROC aSHGetSpecialFolderPathA;
     TCHAR appdata[MAX_PATH];
 
-    if (SUCCEEDED(SHGetSpecialFolderPathA(NULL, appdata, CSIDL_APPDATA, FALSE)))
-        return strdup(appdata);
+    aSHGetSpecialFolderPathA = GetProcAddress(GetModuleHandle("shell32.dll"), "SHGetSpecialFolderPathA");
+    if (aSHGetSpecialFolderPathA != NULL)
+        if (SUCCEEDED(aSHGetSpecialFolderPathA(NULL, appdata, CSIDL_APPDATA, FALSE)))
+            return strdup(appdata);
     return NULL;
 #elif defined __APPLE__
     FSRef ref;
