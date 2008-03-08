@@ -8720,8 +8720,10 @@ static int parsegroupfiles(scriptfile *script)
                 initprintf("Error: missing ID for music definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
                 break;
             }
+#ifdef USE_OPENAL
             if (AL_DefineMusic(ID,ext))
                 initprintf("Error: invalid music ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+#endif
         }
         break;
 

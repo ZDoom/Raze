@@ -50,9 +50,7 @@ enum MV_Errors
    MV_DPMI_Error,
    MV_InvalidVOCFile,
    MV_InvalidWAVFile,
-#ifdef USE_OPENAL
    MV_InvalidOGGFile,
-#endif
    MV_InvalidMixMode,
    MV_IrqFailure,
    MV_DMAFailure,

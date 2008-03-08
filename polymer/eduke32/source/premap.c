@@ -1605,7 +1605,8 @@ int enterlevel(int g)
     FX_StopAllSounds();
     clearsoundlocks();
     FX_SetReverb(0);
-    playmusicMAP(&env_music_fn[1][0],MAXVOLUMES*MAXLEVELS+2); // loadmus
+    MUSIC_StopSong();
+    playmusicMAP(&env_music_fn[2][0],MAXVOLUMES*MAXLEVELS+2); // loadmus
 
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {

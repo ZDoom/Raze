@@ -341,7 +341,7 @@ int MUSIC_StopSong
 {
 #ifdef USE_OPENAL
     if (!openal_disabled)
-        AL_stop();
+        AL_Stop();
 #endif
     MUSIC_StopFade();
     MIDI_StopSong();

@@ -206,11 +206,9 @@ char *MV_ErrorString(int ErrorNumber)
     case MV_InvalidWAVFile :
         ErrorString = "Invalid WAV file passed in to Multivoc.";
         break;
-#ifdef USE_OPENAL
     case MV_InvalidOGGFile :
         ErrorString = "Invalid OGG file passed in to Multivoc.";
         break;
-#endif
     case MV_InvalidMixMode :
         ErrorString = "Invalid mix mode request in Multivoc.";
         break;
@@ -918,7 +916,7 @@ playbackstatus MV_GetNextWAVBlock(VoiceNode *voice)
 
    Controls playback of demand fed data.
 ---------------------------------------------------------------------*/
-#ifdef USE_OPENAL
+
 void downsample(char *ptr,int size,int factor)
 {
     short *pti=(short *)ptr;int i,j,sum;
@@ -982,7 +980,7 @@ playbackstatus MV_GetNextOGGBlock(VoiceNode *voice)
 
     return(KeepPlaying);
 }
-#endif
+
 /*---------------------------------------------------------------------
    Function: MV_ServiceRecord
 
@@ -2406,7 +2404,7 @@ int MV_PlayLoopedVOC(char *ptr, int loopstart, int loopend, int pitchoffset, int
    priority.
 ---------------------------------------------------------------------*/
     VoiceNode     *voice;
-#ifdef USE_OPENAL
+
 int MV_PlayLoopedOGG(char *ptr, int loopstart, int loopend, int pitchoffset, int vol, int left, int right, int priority, unsigned int callbackval)
 {
     vorbis_info *vorbisInfo;
@@ -2546,7 +2544,7 @@ int MV_PlayOGG3D(char *ptr, int pitchoffset, int angle, int distance, int priori
 
     return(status);
 }
-#endif
+
 /*---------------------------------------------------------------------
    Function: MV_CreateVolumeTable
 
@@ -2886,11 +2884,11 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
                 Bfree(map[i].musicfn1);
         }
 
-        for (i=MAXSOUNDS-1;i>=0;i--)
+/*        for (i=MAXSOUNDS-1;i>=0;i--)
         {
             if (g_sounds[i].filename1 != NULL)
                 Bfree(g_sounds[i].filename1);
-        }
+        } */
     }
 #endif
 #if defined(_WIN32)

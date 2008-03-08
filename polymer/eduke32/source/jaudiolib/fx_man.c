@@ -705,7 +705,6 @@ int FX_PlayWAV
 
    Begin playback of sound data with the given volume and priority.
 ---------------------------------------------------------------------*/
-#ifdef USE_OPENAL
 int FX_PlayOGG
 (
     char *ptr,
@@ -730,7 +729,6 @@ int FX_PlayOGG
 
     return(handle);
 }
-#endif
 
 /*---------------------------------------------------------------------
    Function: FX_PlayWAV
@@ -766,7 +764,7 @@ int FX_PlayLoopedWAV
 
     return(handle);
 }
-#ifdef USE_OPENAL
+
 int FX_PlayLoopedOGG
 (
     char *ptr,
@@ -795,7 +793,7 @@ int FX_PlayLoopedOGG
 
     return(handle);
 }
-#endif
+
 /*---------------------------------------------------------------------
    Function: FX_PlayVOC3D
 
@@ -826,7 +824,7 @@ int FX_PlayVOC3D
 
     return(handle);
 }
-#ifdef USE_OPENAL
+
 int FX_PlayOGG3D
 (
     char *ptr,
@@ -850,7 +848,6 @@ int FX_PlayOGG3D
 
     return(handle);
 }
-#endif
 
 /*---------------------------------------------------------------------
    Function: FX_PlayWAV3D

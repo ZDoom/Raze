@@ -261,7 +261,7 @@ int AL_Init()
 {
     if (loadaldriver())
     {
-        initprintf("Failed loading OpenAL driver.\n");
+        initprintf("Failed loading OpenAL driver.\nDownload OpenAL 1.1 or greater from http://www.openal.org/downloads.html.");
         openal_disabled = 1;
 
         return 1;
@@ -282,7 +282,7 @@ int AL_Init()
        initprintf("OpenAL Information:\n"
                   " Version:  %s\n"
                   " Vendor:   %s\n\n",balGetString(AL_VERSION),balGetString(AL_VENDOR));
-    } else initprintf("OpenAL initialisation failed. Try http://www.openal.org/\n");
+    } else initprintf("OpenAL initialization failed.\n");
 
     ALdoing="Open";
     balGenBuffers(16, sounds1[1].buffers);
@@ -317,7 +317,7 @@ sounddef1 music;
 extern int Musicsize;
 
 
-void AL_stop();
+void AL_Stop();
 int update();
 int stream(ALuint buffer);
 void open1(char *ptr,int sizef,char loop);
@@ -326,7 +326,7 @@ void open1(char *ptr,int sizef,char loop);
 
 void AL_Pause()       {if(music.def.size)balSourcePause(music.source);}
 void AL_Continue()    {if(music.def.size)balSourcePlay(music.source);}
-void AL_Update()      {if(music.def.size&&!update(0))AL_stop();}
+void AL_Update()      {if(music.def.size&&!update(0))AL_Stop();}
 int  AL_isntALmusic() {return !music.def.size;}
 
 void AL_SetMusicVolume(int volume)
@@ -371,7 +371,7 @@ int update()
     return active;
 }
 
-void AL_stop()
+void AL_Stop()
 {
     int queued=0;ALuint buffer;
 

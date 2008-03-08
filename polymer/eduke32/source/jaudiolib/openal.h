@@ -9,7 +9,7 @@ void AL_Update();
 char *AL_ErrorString(int code);
 char *ALC_ErrorString(int code);
 
-void AL_stop();
+void AL_Stop();
 int  AL_isntALmusic();
 void AL_PlaySong(char *song,int loopflag);
 void AL_Pause();

@@ -88,9 +88,7 @@ typedef enum
    VOC,
    DemandFeed,
    WAV,
-#ifdef USE_OPENAL
    OGG
-#endif
    } wavedata;
 
 typedef enum
@@ -134,11 +132,11 @@ typedef struct VoiceNode
    int           priority;
 
    void          ( *DemandFeed )( char **ptr, unsigned int *length );
-#ifdef USE_OPENAL
+
    struct       sounddef OGGstream;
    char         *bufsnd;
    int          downsample;
-#endif
+
    short        *LeftVolume;
    short        *RightVolume;
 

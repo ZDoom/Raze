@@ -53,16 +53,12 @@ ifeq ($(PLATFORM),LINUX)
 	OBJ=obj
 	EOBJ=eobj
 	NASMFLAGS+= -f elf
-	ifeq ($(USE_OPENAL),1)
-		LIBS+= -lvorbisfile -lvorbis -logg
-	endif
+	LIBS+= -lvorbisfile -lvorbis -logg
 else
     ifeq ($(PLATFORM),WINDOWS)
 	    OBJ=obj_win
 	    EOBJ=eobj_win
-		ifeq ($(USE_OPENAL),1)	    
-			LIBS+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg
-		endif
+	    LIBS+= -L$(ALROOT)/lib -lvorbisfile -lvorbis -logg
     else
     	OBJ=obj
     	EOBJ=eobj

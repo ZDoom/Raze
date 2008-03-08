@@ -54,6 +54,10 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #include <SDL_mixer.h>
 #include "music.h"
 
+#ifdef USE_OPENAL
+#include "openal.h"
+#endif
+
 #define __FX_TRUE  (1 == 1)
 #define __FX_FALSE (!__FX_TRUE)
 
@@ -376,6 +380,11 @@ void MUSIC_SetVolume(int volume)
     volume = max(0, volume);
     volume = min(volume, 255);
 
+#ifdef USE_OPENAL
+    if (!openal_disabled)
+        AL_SetMusicVolume(volume);
+#endif
+
     Mix_VolumeMusic(volume >> 1);  // convert 0-255 to 0-128.
 } // MUSIC_SetVolume
 
@@ -412,6 +421,10 @@ int MUSIC_SongPlaying(void)
 
 void MUSIC_Continue(void)
 {
+#ifdef USE_OPENAL
+    if (!openal_disabled)
+        AL_Continue();
+#endif
     if (Mix_PausedMusic())
         Mix_ResumeMusic();
     else if (music_songdata)
@@ -421,12 +434,20 @@ void MUSIC_Continue(void)
 
 void MUSIC_Pause(void)
 {
+#ifdef USE_OPENAL
+    if (!openal_disabled)
+        AL_Pause();
+#endif
     Mix_PauseMusic();
 } // MUSIC_Pause
 
 
 int MUSIC_StopSong(void)
 {
+#ifdef USE_OPENAL
+    if (!openal_disabled)
+        AL_Stop();
+#endif
     //if (!fx_initialized)
     if (!Mix_QuerySpec(NULL, NULL, NULL))
     {
@@ -450,7 +471,12 @@ int MUSIC_StopSong(void)
 int MUSIC_PlaySong(unsigned char *song, int loopflag)
 {
     //SDL_RWops *rw;
-
+#ifdef USE_OPENAL
+   if (!openal_disabled)
+       AL_PlaySong((char *)song,loopflag);
+   if(openal_disabled || AL_isntALmusic())
+#endif
+   {
     MUSIC_StopSong();
 
     music_songdata = (char *)song;
@@ -468,7 +494,7 @@ int MUSIC_PlaySong(unsigned char *song, int loopflag)
     music_musicchunk = Mix_LoadMUS_RW(rw);
     Mix_PlayMusic(music_musicchunk, (loopflag == MUSIC_PlayOnce) ? 0 : -1);
     */
-
+   }
     return(MUSIC_Ok);
 } // MUSIC_PlaySong
 
