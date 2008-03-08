@@ -1211,7 +1211,7 @@ int AL_DefineMusic(char *ID,char *name)
     }
 
     map[sel].musicfn1=makename(map[sel].musicfn1,name/*,ID*/);
-    initprintf("%s | %3d %2d %2d | %s\n",ID,sel,ep,lev,map[sel].musicfn1);
+//    initprintf("%s | %3d %2d %2d | %s\n",ID,sel,ep,lev,map[sel].musicfn1);
 //    playmusicMAP(ID,sel);
     return 0;
 }

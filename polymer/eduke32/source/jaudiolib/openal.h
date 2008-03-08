@@ -3,7 +3,7 @@
 
 #include <vorbis/vorbisfile.h>
 
-void AL_Init();
+int AL_Init();
 void AL_Shutdown();
 void AL_Update();
 char *AL_ErrorString(int code);
@@ -23,4 +23,6 @@ typedef struct sounddef
         unsigned size;
         OggVorbis_File  oggStream;
 }sounddef;
+
+int openal_disabled;
 #endif

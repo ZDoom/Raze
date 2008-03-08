@@ -377,8 +377,11 @@ void MV_PlayVoice(VoiceNode *voice)
     flags = DisableInterrupts();
     LL_SortedInsertion(&VoiceList, voice, prev, next, VoiceNode, priority);
 #ifdef USE_OPENAL
-    if(!voice->bufsnd)voice->bufsnd=(char *)Bcalloc(0x8000*4,sizeof(char));
-    if(!voice->bufsnd)initprintf("Attention. It gonna crash! Thank you."); // FIXME: change the msg
+    if (!openal_disabled)
+    {
+        if(!voice->bufsnd)voice->bufsnd=(char *)Bcalloc(0x8000*4,sizeof(char));
+        if(!voice->bufsnd)initprintf("Attention. It gonna crash! Thank you."); // FIXME: change the msg
+    }
 #endif
     RestoreInterrupts(flags);
 }
@@ -396,7 +399,10 @@ void MV_StopVoice(VoiceNode *voice)
 
     flags = DisableInterrupts();
 #ifdef USE_OPENAL
-    if(!voice->bufsnd)Bfree(voice->bufsnd);
+    if (!openal_disabled)
+    {
+        if(!voice->bufsnd)Bfree(voice->bufsnd);
+    }
 #endif
     // move the voice from the play list to the free list
     LL_Remove(voice, next, prev);
@@ -2869,7 +2875,23 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
 
     // Initialize the sound card
 #ifdef USE_OPENAL
-    AL_Init();
+    if (AL_Init())
+    {
+        int i;
+
+        // no AL support so shitcan the ogg definitions
+        for (i=(MAXLEVELS*(MAXVOLUMES+1))-1;i>=0;i--) // +1 volume for "intro", "briefing" music
+        {
+            if (map[i].musicfn1 != NULL)
+                Bfree(map[i].musicfn1);
+        }
+
+        for (i=MAXSOUNDS-1;i>=0;i--)
+        {
+            if (g_sounds[i].filename1 != NULL)
+                Bfree(g_sounds[i].filename1);
+        }
+    }
 #endif
 #if defined(_WIN32)
     status = DSOUND_Init(soundcard, MixRate, numchannels, samplebits, TotalBufferSize);
@@ -2972,7 +2994,8 @@ int MV_Shutdown(void)
 
     // Shutdown the sound card
 #ifdef USE_OPENAL
-    AL_Shutdown();
+    if (!openal_disabled)
+        AL_Shutdown();
 #endif
 #if defined(_WIN32)
     DSOUND_Shutdown();
