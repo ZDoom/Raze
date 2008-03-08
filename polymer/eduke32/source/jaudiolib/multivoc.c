@@ -374,13 +374,9 @@ void MV_PlayVoice(VoiceNode *voice)
 
     flags = DisableInterrupts();
     LL_SortedInsertion(&VoiceList, voice, prev, next, VoiceNode, priority);
-#ifdef USE_OPENAL
-    if (!openal_disabled)
-    {
-        if(!voice->bufsnd)voice->bufsnd=(char *)Bcalloc(0x8000*4,sizeof(char));
-        if(!voice->bufsnd)initprintf("Attention. It gonna crash! Thank you."); // FIXME: change the msg
-    }
-#endif
+
+    if(!voice->bufsnd)voice->bufsnd=(char *)Bcalloc(0x8000*4,sizeof(char));
+    if(!voice->bufsnd)initprintf("Attention. It gonna crash! Thank you."); // FIXME: change the msg
     RestoreInterrupts(flags);
 }
 
@@ -396,12 +392,7 @@ void MV_StopVoice(VoiceNode *voice)
     unsigned int flags;
 
     flags = DisableInterrupts();
-#ifdef USE_OPENAL
-    if (!openal_disabled)
-    {
-        if(!voice->bufsnd)Bfree(voice->bufsnd);
-    }
-#endif
+    if(!voice->bufsnd)Bfree(voice->bufsnd);
     // move the voice from the play list to the free list
     LL_Remove(voice, next, prev);
     LL_Add(&VoicePool, voice, next, prev);

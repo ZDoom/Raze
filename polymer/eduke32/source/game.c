@@ -8614,7 +8614,7 @@ static void autoloadgrps(const char *fn)
     while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
 }
 
-static int parsegroupfiles(scriptfile *script)
+static int parsedefinitions_game(scriptfile *script, const int preload)
 {
     int tokn;
     char *cmdtokptr;
@@ -8647,7 +8647,7 @@ static int parsegroupfiles(scriptfile *script)
             char *fn;
 
             pathsearchmode = 1;
-            if (!scriptfile_getstring(script,&fn))
+            if (!scriptfile_getstring(script,&fn) && preload)
             {
                 int j = initgroupfile(fn);
 
@@ -8667,7 +8667,7 @@ static int parsegroupfiles(scriptfile *script)
         case T_CACHESIZE:
         {
             int j;
-            if (scriptfile_getnumber(script,&j)) break;
+            if (scriptfile_getnumber(script,&j) || !preload) break;
 
             if (j > 0) MAXCACHE1DSIZE = j<<10;
         }
@@ -8687,14 +8687,15 @@ static int parsegroupfiles(scriptfile *script)
                 }
                 else
                 {
-                    parsegroupfiles(included);
+                    parsedefinitions_game(included, preload);
                     scriptfile_close(included);
                 }
             }
             break;
         }
         case T_NOAUTOLOAD:
-            g_NoAutoLoad = 1;
+            if (preload)
+                g_NoAutoLoad = 1;
             break;
         case T_MUSIC:
         {
@@ -8715,15 +8716,18 @@ static int parsegroupfiles(scriptfile *script)
                     break;
                 }
             }
-            if(ID==NULL)
+            if (!preload)
             {
-                initprintf("Error: missing ID for music definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
-                break;
-            }
-#ifdef USE_OPENAL
-            if (AL_DefineMusic(ID,ext))
-                initprintf("Error: invalid music ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
-#endif
+                if(ID==NULL)
+                {
+                    initprintf("Error: missing ID for music definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+                    break;
+                }
+    #ifdef USE_OPENAL
+                if (AL_DefineMusic(ID,ext))
+                    initprintf("Error: invalid music ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+    #endif
+                }
         }
         break;
 
@@ -8744,12 +8748,15 @@ static int parsegroupfiles(scriptfile *script)
                     scriptfile_getstring(script,&name);
                 }
             }
-            if(num==-1)
+            if (!preload)
             {
-                initprintf("Error: missing ID for sound definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
-                break;
+                if(num==-1)
+                {
+                    initprintf("Error: missing ID for sound definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+                    break;
+                }
+                if(AL_DefineSound(num,name))initprintf("Error: invalid sound ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
             }
-            if(AL_DefineSound(num,name))initprintf("Error: invalid sound ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
         }
         break;
         case T_EOF:
@@ -8761,14 +8768,14 @@ static int parsegroupfiles(scriptfile *script)
     return 0;
 }
 
-static int loadgroupfiles(const char *fn)
+static int loaddefinitions_game(const char *fn, const int preload)
 {
     scriptfile *script;
 
     script = scriptfile_fromfile((char *)fn);
     if (!script) return -1;
 
-    parsegroupfiles(script);
+    parsedefinitions_game(script, preload);
 
     scriptfile_close(script);
     scriptfile_clearsymbols();
@@ -10289,7 +10296,7 @@ void app_main(int argc,const char **argv)
             autoloadgrps(duke3dgrp);
     }
 
-    loadgroupfiles(duke3ddef);
+    loaddefinitions_game(duke3ddef, TRUE);
 
     {
         struct strllist *s;
@@ -10371,8 +10378,11 @@ void app_main(int argc,const char **argv)
     }
 
     if (quitevent) return;
-    if (!loaddefinitionsfile(duke3ddef)) initprintf("Definitions file '%s' loaded.\n",duke3ddef);
-
+    if (!loaddefinitionsfile(duke3ddef))
+    {
+        initprintf("Definitions file '%s' loaded.\n",duke3ddef);
+        loaddefinitions_game(duke3ddef, FALSE);
+    }
     //     initprintf("numplayers=%i\n",numplayers);
 
     if (numplayers > 1)
