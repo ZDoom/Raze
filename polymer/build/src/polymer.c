@@ -1283,6 +1283,8 @@ int                 polymer_cliptofrustum(short wallnum)
     GLfloat         intersect[3], *frustum;
     int             i, j, k, l, m, result, exitpoint;
 
+    exitpoint = 0; // annoying "warning: 'exitpoint' may be used uninialized in this function"
+
     frustum = &frustumstack[frustumstackposition];
     result = 4; // 4 points to start with
     if (pr_verbosity >= 3) OSD_Printf("PR : Clipping wall %d...\n", wallnum);

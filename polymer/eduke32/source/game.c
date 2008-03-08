@@ -257,6 +257,10 @@ enum
     T_CACHESIZE = 2,
     T_ALLOW = 2,
     T_NOAUTOLOAD,
+    T_MUSIC,
+    T_SOUND,
+    T_FILE,
+    T_ID
 };
 
 typedef struct
@@ -7989,7 +7993,7 @@ static void nonsharedkeys(void)
                     {
                         Bsprintf(fta_quotes[26],"PLAYING %s",&map[(unsigned char)music_select].musicfn[0]);
                         FTA(26,g_player[myconnectindex].ps);
-                        playmusic(&map[(unsigned char)music_select].musicfn[0]);
+                        playmusicMAP(&map[(unsigned char)music_select].musicfn[0],music_select);
                     }
                     return;
                 }
@@ -8622,6 +8626,14 @@ static int parsegroupfiles(scriptfile *script)
         { "loadgrp",         T_LOADGRP          },
         { "cachesize",       T_CACHESIZE        },
         { "noautload",       T_NOAUTOLOAD       },
+        { "music",           T_MUSIC            },
+        { "sound",           T_SOUND            },
+    };
+
+    tokenlist sound_musictokens[] =
+    {
+        { "id",   T_ID  },
+        { "file", T_FILE },
     };
 
     while (1)
@@ -8684,6 +8696,60 @@ static int parsegroupfiles(scriptfile *script)
         case T_NOAUTOLOAD:
             g_NoAutoLoad = 1;
             break;
+        case T_MUSIC:
+        {
+            char *tinttokptr = script->ltextptr;
+            char *ID=NULL,*ext="";
+            char *musicend;
+
+            if (scriptfile_getbraces(script,&musicend)) break;
+            while (script->textptr < musicend)
+            {
+                switch (getatoken(script,sound_musictokens,sizeof(sound_musictokens)/sizeof(tokenlist)))
+                {
+                case T_ID:
+                    scriptfile_getstring(script,&ID);
+                    break;
+                case T_FILE:
+                    scriptfile_getstring(script,&ext);
+                    break;
+                }
+            }
+            if(ID==NULL)
+            {
+                initprintf("Error: missing ID for music definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+                break;
+            }
+            if (AL_DefineMusic(ID,ext))
+                initprintf("Error: invalid music ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+        }
+        break;
+
+        case T_SOUND:
+        {
+            char *tinttokptr = script->ltextptr;
+            char *name="";int num=-1;
+            char *musicend;
+
+            if (scriptfile_getbraces(script,&musicend)) break;
+            while (script->textptr < musicend)
+            {
+                switch (getatoken(script,sound_musictokens,sizeof(sound_musictokens)/sizeof(tokenlist)))
+                {
+                case T_ID:
+                    scriptfile_getsymbol(script,&num);break;
+                case T_FILE:
+                    scriptfile_getstring(script,&name);
+                }
+            }
+            if(num==-1)
+            {
+                initprintf("Error: missing ID for sound definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+                break;
+            }
+            if(AL_DefineSound(num,name))initprintf("Error: invalid sound ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+        }
+        break;
         case T_EOF:
             return(0);
         default:
@@ -9258,7 +9324,7 @@ static void Logo(void)
         if (logoflags & LOGO_FLAG_PLAYMUSIC)
         {
             music_select = -1; // hack
-            playmusic(&env_music_fn[0][0]);
+            playmusicMAP(&env_music_fn[0][0],MAXVOLUMES*MAXLEVELS);
         }
 
         if (!NAM)
@@ -9418,7 +9484,7 @@ static void freeconmem(void)
 {
     int i;
 
-    for (i=(MAXLEVELS*MAXVOLUMES)-1;i>=0;i--)
+    for (i=(MAXLEVELS*(MAXVOLUMES+1))-1;i>=0;i--) // +1 volume for "intro", "briefing" music
     {
         if (map[i].name != NULL)
             Bfree(map[i].name);
@@ -9426,6 +9492,8 @@ static void freeconmem(void)
             Bfree(map[i].filename);
         if (map[i].musicfn != NULL)
             Bfree(map[i].musicfn);
+        if (map[i].musicfn1 != NULL)
+            Bfree(map[i].musicfn1);
     }
 
     for (i=MAXQUOTES-1;i>=0;i--)
@@ -9456,6 +9524,8 @@ static void freeconmem(void)
     {
         if (g_sounds[i].filename != NULL)
             Bfree(g_sounds[i].filename);
+        if (g_sounds[i].filename1 != NULL)
+            Bfree(g_sounds[i].filename1);
     }
 
     if (label != NULL)

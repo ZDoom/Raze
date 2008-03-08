@@ -309,6 +309,7 @@ typedef struct {
 typedef struct {
     int  length, num, soundsiz;
     char *filename, *ptr;
+    char *filename1;
     short ps,pe,vo;
     volatile char lock;
     char pr,m;
@@ -327,7 +328,7 @@ extern short numanimwalls;
 extern int probey;
 
 extern char typebuflen,typebuf[141];
-extern char MusicPtr[72000*2];
+extern char *MusicPtr;extern int Musicsize;
 extern int msx[2048],msy[2048];
 extern short cyclers[MAXCYCLERS][6],numcyclers;
 extern char myname[32];
@@ -962,10 +963,10 @@ extern char setupfilename[BMAX_PATH];
 
 typedef struct {
 	int partime, designertime;
-	char *name, *filename, *musicfn;
+	char *name, *filename, *musicfn, *musicfn1;
 } map_t;
 
-extern map_t map[MAXVOLUMES*MAXLEVELS];
+extern map_t map[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
 
 typedef struct {
 	player_struct *ps;

@@ -50,6 +50,9 @@ enum MV_Errors
    MV_DPMI_Error,
    MV_InvalidVOCFile,
    MV_InvalidWAVFile,
+#ifdef USE_OPENAL
+   MV_InvalidOGGFile,
+#endif
    MV_InvalidMixMode,
    MV_IrqFailure,
    MV_DMAFailure,
@@ -93,6 +96,13 @@ int   MV_PlayWAV( char *ptr, int pitchoffset, int vol, int left,
 int   MV_PlayWAV3D( char *ptr, int pitchoffset, int angle, int distance,
          int priority, unsigned int callbackval );
 int   MV_PlayLoopedWAV( char *ptr, int loopstart, int loopend,
+         int pitchoffset, int vol, int left, int right, int priority,
+         unsigned int callbackval );
+int   MV_PlayOGG( char *ptr, int pitchoffset, int vol, int left,
+         int right, int priority, unsigned int callbackval );
+int   MV_PlayOGG3D( char *ptr, int pitchoffset, int angle, int distance,
+         int priority, unsigned int callbackval );
+int   MV_PlayLoopedOGG( char *ptr, int loopstart, int loopend,
          int pitchoffset, int vol, int left, int right, int priority,
          unsigned int callbackval );
 int   MV_PlayVOC3D( char *ptr, int pitchoffset, int angle, int distance,

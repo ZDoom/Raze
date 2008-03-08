@@ -272,14 +272,15 @@ static void cachegoodsprites(void)
 
 static int getsound(unsigned int num)
 {
-    short fp;
+    short fp = -1;
     int   l;
 
     if (num >= MAXSOUNDS || ud.config.SoundToggle == 0) return 0;
     if (ud.config.FXDevice < 0) return 0;
 
     if (!g_sounds[num].filename) return 0;
-    fp = kopen4load(g_sounds[num].filename,loadfromgrouponly);
+    if(g_sounds[num].filename1)fp = kopen4load(g_sounds[num].filename1,loadfromgrouponly);
+    if (fp == -1)fp = kopen4load(g_sounds[num].filename,loadfromgrouponly);
     if (fp == -1) return 0;
 
     l = kfilelength(fp);
@@ -1181,7 +1182,7 @@ void newgame(int vn,int ln,int sk)
 
     if (ln == 0 && vn == 3 && ud.multimode < 2 && ud.lockout == 0)
     {
-        playmusic(&env_music_fn[1][0]);
+        playmusicMAP(&env_music_fn[1][0],MAXVOLUMES*MAXLEVELS+1);
 
         flushperms();
         setview(0,0,xdim-1,ydim-1);
@@ -1604,6 +1605,7 @@ int enterlevel(int g)
     FX_StopAllSounds();
     clearsoundlocks();
     FX_SetReverb(0);
+    playmusicMAP(&env_music_fn[1][0],MAXVOLUMES*MAXLEVELS+2); // loadmus
 
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
@@ -1751,15 +1753,13 @@ int enterlevel(int g)
     cachedebug = 0;
     automapping = 0;
 
-    if (ud.recstat != 2) MUSIC_StopSong();
-
     cacheit();
 
     if (ud.recstat != 2)
     {
         music_select = (ud.volume_number*MAXLEVELS) + ud.level_number;
         if (map[(unsigned char)music_select].musicfn != NULL)
-            playmusic(&map[(unsigned char)music_select].musicfn[0]);
+            playmusicMAP(&map[(unsigned char)music_select].musicfn[0],music_select);
     }
 
     if ((g&MODE_GAME) || (g&MODE_EOL))

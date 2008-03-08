@@ -1,7 +1,8 @@
 # EDuke32 Makefile for GNU Make
 
 # SDK locations - adjust to match your setup
-# DXROOT=c:/sdks/msc/dx61
+DXROOT=../sdk/dx
+ALROOT=AL
 
 # Engine options
 SUPERBUILD = 1
@@ -14,6 +15,7 @@ BUILD32_ON_64 = 0
 # Debugging options
 RELEASE?=1
 NOSOUND?=0
+USE_OPENAL?=0
 
 # build locations
 
@@ -51,10 +53,16 @@ ifeq ($(PLATFORM),LINUX)
 	OBJ=obj
 	EOBJ=eobj
 	NASMFLAGS+= -f elf
+	ifeq ($(USE_OPENAL),1)
+		LIBS+= -lopenal -lvorbisfile -lvorbis -logg
+	endif
 else
     ifeq ($(PLATFORM),WINDOWS)
 	    OBJ=obj_win
 	    EOBJ=eobj_win
+		ifeq ($(USE_OPENAL),1)	    
+			LIBS+= -L$(ALROOT)/lib -lOpenAL32 -lvorbisfile -lvorbis -logg
+		endif
     else
     	OBJ=obj
     	EOBJ=eobj
@@ -76,14 +84,24 @@ AUDIOLIB_FX_SDL=$(OBJ)/ll_man.$o \
 	  $(OBJ)/fx_man.$o \
 	  $(OBJ)/dsl.$o \
 	  $(OBJ)/pitch.$o \
-	  $(OBJ)/multivoc.$o
+      $(OBJ)/multivoc.$o
+
+ifeq ($(USE_OPENAL),1)
+	AUDIOLIB_FX_SDL += $(OBJ)/openal.$o
+endif
+
 AUDIOLIB_MUSIC_SDL=$(OBJ)/sdlmusic.$o
 
 AUDIOLIB_FX=$(OBJ)/pitch.$o \
 	  $(OBJ)/multivoc.$o \
 	  $(OBJ)/ll_man.$o \
 	  $(OBJ)/fx_man.$o \
-	  $(OBJ)/dsoundout.$o
+      $(OBJ)/dsoundout.$o
+      
+ifeq ($(USE_OPENAL),1)
+	AUDIOLIB_FX += $(OBJ)/openal.$o
+endif
+      
 AUDIOLIB_MUSIC=$(OBJ)/midi.$o \
 	  $(OBJ)/mpu401.$o \
 	  $(OBJ)/music.$o
@@ -124,7 +142,7 @@ GAMEOBJS=$(OBJ)/game.$o \
 EDITOROBJS=$(OBJ)/astub.$o
 
 ifeq ($(PLATFORM),WINDOWS)
-	OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include
+        OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(ALROOT)/include
 	NASMFLAGS+= -DUNDERSCORES -f win32
 	GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o
 	EDITOROBJS+= $(OBJ)/buildres.$o
@@ -161,6 +179,10 @@ endif
 GAMEOBJS+= $(AUDIOLIBOBJ)
 OURCFLAGS+= $(BUILDCFLAGS)
 OURCXXFLAGS+= $(BUILDCFLAGS)
+
+ifeq ($(USE_OPENAL),1)
+    OURCFLAGS+= -DUSE_OPENAL
+endif
 
 .PHONY: clean all engine $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB)
 

@@ -238,12 +238,7 @@ static tokenlist texturetokens_pal[] =
     { "nocompress",      T_NOCOMPRESS },
 };
 
-static tokenlist musictokens[] =
-{
-    { "id",   T_ID  },
-    { "file", T_FILE },
-};
-static tokenlist soundtokens[] =
+static tokenlist sound_musictokens[] =
 {
     { "id",   T_ID  },
     { "file", T_FILE },
@@ -1549,19 +1544,19 @@ case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL:
 
         case T_MUSIC:
         {
-            char *tinttokptr = script->ltextptr;
-            char *ID=0,*ext="";
-            char *musicend;
+            char *dummy, *dummy2;
 
-            if (scriptfile_getbraces(script,&musicend)) break;
-            while (script->textptr < musicend)
+            if (scriptfile_getbraces(script,&dummy)) break;
+            while (script->textptr < dummy)
             {
-                switch (getatoken(script,musictokens,sizeof(musictokens)/sizeof(tokenlist)))
+                switch (getatoken(script,sound_musictokens,sizeof(sound_musictokens)/sizeof(tokenlist)))
                 {
                 case T_ID:
-                    scriptfile_getstring(script,&ID); break;
+                    scriptfile_getstring(script,&dummy2);
+                    break;
                 case T_FILE:
-                    scriptfile_getstring(script,&ext);
+                    scriptfile_getstring(script,&dummy2);
+                    break;
                 }
             }
         }
@@ -1569,19 +1564,19 @@ case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL:
 
         case T_SOUND:
         {
-            char *tinttokptr = script->ltextptr;
-            char *name=0;int num=0;
-            char *musicend;
+            char *dummy, *dummy2;
 
-            if (scriptfile_getbraces(script,&musicend)) break;
-            while (script->textptr < musicend)
+            if (scriptfile_getbraces(script,&dummy)) break;
+            while (script->textptr < dummy)
             {
-                switch (getatoken(script,soundtokens,sizeof(soundtokens)/sizeof(tokenlist)))
+                switch (getatoken(script,sound_musictokens,sizeof(sound_musictokens)/sizeof(tokenlist)))
                 {
                 case T_ID:
-                    scriptfile_getsymbol(script,&num);break;
+                    scriptfile_getsymbol(script,(intptr_t *)&dummy2);
+                    break;
                 case T_FILE:
-                    scriptfile_getstring(script,&name);
+                    scriptfile_getstring(script,&dummy2);
+                    break;
                 }
             }
         }

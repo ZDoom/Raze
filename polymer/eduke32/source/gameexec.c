@@ -6959,7 +6959,7 @@ static int parse(void)
         insptr++;
         music_select=(ud.volume_number*MAXLEVELS)+(*(insptr++));
         if (map[(unsigned char)music_select].musicfn != NULL)
-            playmusic(&map[(unsigned char)music_select].musicfn[0]);
+            playmusicMAP(&map[(unsigned char)music_select].musicfn[0],music_select);
         break;
 
     case CON_GETTEXTURECEILING:

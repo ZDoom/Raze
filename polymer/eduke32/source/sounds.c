@@ -203,11 +203,11 @@ void playmusic(const char *fn)
     if (fp == -1) return;
 
     l = kfilelength(fp);
-    if (l >= (signed int)sizeof(MusicPtr))
-    {
-        kclose(fp);
-        return;
-    }
+    MUSIC_StopSong();
+    Musicsize=0;
+    if(!MusicPtr)MusicPtr=Bcalloc(1,l);
+      else MusicPtr=Brealloc(MusicPtr,l);
+    Musicsize=l;
 
     kread(fp, MusicPtr, l);
     kclose(fp);
@@ -228,7 +228,7 @@ void playmusic(const char *fn)
 
 int loadsound(unsigned int num)
 {
-    int   fp, l;
+    int   fp = -1, l;
 
     if (num >= MAXSOUNDS || ud.config.SoundToggle == 0) return 0;
     if (ud.config.FXDevice < 0) return 0;
@@ -239,7 +239,8 @@ int loadsound(unsigned int num)
         return 0;
     }
 
-    fp = kopen4load(g_sounds[num].filename,loadfromgrouponly);
+    if(g_sounds[num].filename1)fp = kopen4load(g_sounds[num].filename1,loadfromgrouponly);
+    if (fp == -1)fp = kopen4load(g_sounds[num].filename,loadfromgrouponly);
     if (fp == -1)
     {
 //        Bsprintf(fta_quotes[113],"g_sounds %s(#%d) not found.",sounds[num],num);
@@ -387,6 +388,12 @@ int xyzsound(int num,int i,int x,int y,int z)
         if (*g_sounds[num].ptr == 'C')
             voice = FX_PlayLoopedVOC(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
                                      pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
+#ifdef USE_OPENAL
+        else
+        if (*g_sounds[num].ptr == 'O')
+            voice = FX_PlayLoopedOGG(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
+                                     pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
+#endif
         else
             voice = FX_PlayLoopedWAV(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
                                      pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,num);
@@ -395,6 +402,11 @@ int xyzsound(int num,int i,int x,int y,int z)
     {
         if (*g_sounds[num].ptr == 'C')
             voice = FX_PlayVOC3D(g_sounds[ num ].ptr,pitch,sndang>>6,sndist>>6, g_sounds[num].pr, num);
+#ifdef USE_OPENAL
+        else
+        if (*g_sounds[num].ptr == 'O')
+            voice = FX_PlayOGG3D(g_sounds[ num ].ptr,pitch,sndang>>6,sndist>>6, g_sounds[num].pr, num);
+#endif
         else
             voice = FX_PlayWAV3D(g_sounds[ num ].ptr,pitch,sndang>>6,sndist>>6, g_sounds[num].pr, num);
     }
@@ -457,6 +469,15 @@ void sound(int num)
             voice = FX_PlayLoopedVOC(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
                                      pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
         }
+#ifdef USE_OPENAL
+        else
+        if (*g_sounds[num].ptr == 'O')
+        {
+            start = (int)*(unsigned short *)(g_sounds[num].ptr + 0x14);
+            voice = FX_PlayLoopedOGG(g_sounds[num].ptr, start, start + g_sounds[num].soundsiz,
+                                     pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].pr,num);
+        }
+#endif
         else
         {
             start = (int)*(unsigned short *)(g_sounds[num].ptr + 0x14);
@@ -468,6 +489,11 @@ void sound(int num)
     {
         if (*g_sounds[num].ptr == 'C')
             voice = FX_PlayVOC3D(g_sounds[ num ].ptr, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
+#ifdef USE_OPENAL
+        else
+        if (*g_sounds[num].ptr == 'O')
+            voice = FX_PlayOGG3D(g_sounds[ num ].ptr, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
+#endif
         else
             voice = FX_PlayWAV3D(g_sounds[ num ].ptr, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
     }

@@ -33,7 +33,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <string.h>
 #include "dsound.h"
-
+#ifdef USE_OPENAL
+#include "openal.h"
+#endif
 #include "compat.h"
 #include "winlayer.h"
 
@@ -271,7 +273,7 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
         return DSOUND_Error;
     }
 
-    hr = IDirectSoundBuffer_QueryInterface(lpDSBSecondary, &IID_IDirectSoundNotify, &lpDSNotify);
+    hr = IDirectSoundBuffer_QueryInterface(lpDSBSecondary, &IID_IDirectSoundNotify, (LPVOID *)&lpDSNotify);
     if (hr != DS_OK)
     {
         DSOUND_Shutdown();
@@ -419,6 +421,9 @@ static DWORD WINAPI isr(LPVOID parm)
 
     while (1)
     {
+#ifdef USE_OPENAL
+        AL_Update();
+#endif
         rv = WaitForMultipleObjects(1+_DSOUND_NumBuffers, handles, FALSE, INFINITE);
 
         if (!(rv >= WAIT_OBJECT_0 && rv <= WAIT_OBJECT_0+1+_DSOUND_NumBuffers)) return -1;

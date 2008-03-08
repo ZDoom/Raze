@@ -31,12 +31,15 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <duke3d.h>
 #include "multivoc.h"
 #include "ll_man.h"
 #include "fx_man.h"
 
+#ifndef TRUE
 #define TRUE  ( 1 == 1 )
 #define FALSE ( !TRUE )
+#endif
 
 static unsigned FX_MixRate;
 
@@ -656,6 +659,8 @@ int FX_PlayLoopedVOC
                               vol, left, right, priority, callbackval);
     if (handle < MV_Ok)
     {
+        sprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
+        initprintf(tempbuf);
         FX_SetErrorCode(FX_MultiVocError);
         handle = FX_Warning;
     }
@@ -695,6 +700,37 @@ int FX_PlayWAV
     return(handle);
 }
 
+/*---------------------------------------------------------------------
+   Function: FX_PlayOGG
+
+   Begin playback of sound data with the given volume and priority.
+---------------------------------------------------------------------*/
+#ifdef USE_OPENAL
+int FX_PlayOGG
+(
+    char *ptr,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    unsigned int callbackval
+)
+
+{
+    int handle;
+
+    handle = MV_PlayOGG(ptr, pitchoffset, vol, left, right,
+                        priority, callbackval);
+    if (handle < MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
+
+    return(handle);
+}
+#endif
 
 /*---------------------------------------------------------------------
    Function: FX_PlayWAV
@@ -722,14 +758,44 @@ int FX_PlayLoopedWAV
                               pitchoffset, vol, left, right, priority, callbackval);
     if (handle < MV_Ok)
     {
+        sprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
+        initprintf(tempbuf);
         FX_SetErrorCode(FX_MultiVocError);
         handle = FX_Warning;
     }
 
     return(handle);
 }
+#ifdef USE_OPENAL
+int FX_PlayLoopedOGG
+(
+    char *ptr,
+    int loopstart,
+    int loopend,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    unsigned int callbackval
+)
 
+{
+    int handle;
 
+    handle = MV_PlayLoopedOGG(ptr, loopstart, loopend,
+                              pitchoffset, vol, left, right, priority, callbackval);
+    if (handle < MV_Ok)
+    {
+        sprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
+        initprintf(tempbuf);
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
+
+    return(handle);
+}
+#endif
 /*---------------------------------------------------------------------
    Function: FX_PlayVOC3D
 
@@ -760,7 +826,31 @@ int FX_PlayVOC3D
 
     return(handle);
 }
+#ifdef USE_OPENAL
+int FX_PlayOGG3D
+(
+    char *ptr,
+    int pitchoffset,
+    int angle,
+    int distance,
+    int priority,
+    unsigned int callbackval
+)
 
+{
+    int handle;
+
+    handle = MV_PlayOGG3D(ptr, pitchoffset, angle, distance,
+                          priority, callbackval);
+    if (handle < MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        handle = FX_Warning;
+    }
+
+    return(handle);
+}
+#endif
 
 /*---------------------------------------------------------------------
    Function: FX_PlayWAV3D
@@ -1072,3 +1162,65 @@ void FX_StopRecord
 
 extern void MUSIC_Update(void);
 void AudioUpdate(void) { MUSIC_Update(); }
+
+
+void playmusic(const char *fn);
+char *makename(char *destname,char *OGGname)
+{
+    if (!(*OGGname))
+        return NULL;
+    if (destname)
+        Bfree(destname);
+    destname=Bcalloc(Bstrlen(OGGname)+1,sizeof(char));
+    if (destname != NULL)
+        Bstrcpy(destname,OGGname);
+
+/*    if(*OGGname&&OGGname[Bstrlen(OGGname)-1]=='/')
+    {
+        while(*origname=='/')origname++;
+        Bstrcat(destname,origname);
+    }
+    OGGname=Bstrchr(destname,'.');
+    if(OGGname)Bstrcpy(OGGname,".ogg");else Bstrcat(destname,".ogg"); */
+    return destname;
+}
+
+int AL_DefineSound(int ID,char *name)
+{
+    if(ID>=MAXSOUNDS)return 1;
+    g_sounds[ID].filename1=makename(g_sounds[ID].filename1,name);
+//    initprintf("(%s)(%s)(%s)\n",g_sounds[ID].filename1,name,g_sounds[ID].filename);
+//    loadsound(ID);
+    return 0;
+}
+
+int AL_DefineMusic(char *ID,char *name)
+{
+    int lev,ep,sel;char b1,b2;
+
+    if(!ID)return 1;
+    if(!Bstrcmp(ID,"intro"))   {sel=MAXVOLUMES*MAXLEVELS;  ID=env_music_fn[0];}else
+    if(!Bstrcmp(ID,"briefing")){sel=MAXVOLUMES*MAXLEVELS+1;ID=env_music_fn[1];}else
+    if(!Bstrcmp(ID,"loading")) {sel=MAXVOLUMES*MAXLEVELS+2;ID=env_music_fn[2];}else
+    {
+        sscanf(ID,"%c%d%c%d",&b1,&ep,&b2,&lev);
+        lev--;ep--;
+        if(toupper(b1)!='E'||toupper(b2)!='L'||lev>=MAXLEVELS||ep>=MAXVOLUMES)return 1;
+        sel=(ep*MAXLEVELS)+lev;
+//        ID=map[sel].musicfn;
+    }
+
+    map[sel].musicfn1=makename(map[sel].musicfn1,name/*,ID*/);
+    initprintf("%s | %3d %2d %2d | %s\n",ID,sel,ep,lev,map[sel].musicfn1);
+//    playmusicMAP(ID,sel);
+    return 0;
+}
+
+void playmusicMAP(const char *fn,const int sel)
+{
+    Musicsize=0;
+    if(map[sel].musicfn1)
+        playmusic(map[sel].musicfn1);
+    if(!Musicsize)
+        playmusic(fn);
+}

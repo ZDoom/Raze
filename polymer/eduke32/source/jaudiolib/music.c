@@ -34,13 +34,21 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #include "music.h"
 #include "midi.h"
 #include "mpu401.h"
+#ifdef USE_OPENAL
+#include "openal.h"
+#endif
 
+#ifndef TRUE
 #define TRUE  ( 1 == 1 )
 #define FALSE ( !TRUE )
+#endif
 
-#ifdef __MINGW32__
-#define max(a,b) (((a)>(b))?(a):(b))
+#ifndef min
 #define min(a,b) (((a)<(b))?(a):(b))
+#endif
+
+#ifndef max
+# define max(a,b) ( ((a) > (b)) ? (a) : (b) )
 #endif
 
 int MUSIC_SoundDevice = -1;
@@ -182,7 +190,9 @@ void MUSIC_SetVolume
 {
     volume = max(0, volume);
     volume = min(volume, 255);
-
+#ifdef USE_OPENAL
+    AL_SetMusicVolume(volume);
+#endif
     if (MUSIC_SoundDevice != -1)
     {
         MIDI_SetVolume(volume);
@@ -288,6 +298,9 @@ void MUSIC_Continue
 )
 
 {
+#ifdef USE_OPENAL
+    AL_Continue();
+#endif
     MIDI_ContinueSong();
 }
 
@@ -304,6 +317,9 @@ void MUSIC_Pause
 )
 
 {
+#ifdef USE_OPENAL
+    AL_Pause();
+#endif
     MIDI_PauseSong();
 }
 
@@ -320,6 +336,9 @@ int MUSIC_StopSong
 )
 
 {
+#ifdef USE_OPENAL
+    AL_stop();
+#endif
     MUSIC_StopFade();
     MIDI_StopSong();
     MUSIC_SetErrorCode(MUSIC_Ok);
@@ -342,14 +361,19 @@ int MUSIC_PlaySong
 {
     int status;
 
+#ifdef USE_OPENAL
+   AL_PlaySong((char *)song,loopflag);
+   if(AL_isntALmusic())
+#endif
+   {
     MUSIC_StopSong();
-
     status = MIDI_PlaySong(song, loopflag);
     if (status != MIDI_Ok)
     {
         MUSIC_SetErrorCode(MUSIC_MidiError);
         return(MUSIC_Warning);
     }
+   }
 
     return(MUSIC_Ok);
 }

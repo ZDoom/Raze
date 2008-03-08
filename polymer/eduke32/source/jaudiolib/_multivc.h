@@ -32,8 +32,12 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #ifndef ___MULTIVC_H
 #define ___MULTIVC_H
 
+#include "openal.h"
+
+#ifndef TRUE
 #define TRUE  ( 1 == 1 )
 #define FALSE ( !TRUE )
+#endif
 
 #define VOC_8BIT            0x0
 #define VOC_CT4_ADPCM       0x1
@@ -83,7 +87,10 @@ typedef enum
    Raw,
    VOC,
    DemandFeed,
-   WAV
+   WAV,
+#ifdef USE_OPENAL
+   OGG
+#endif
    } wavedata;
 
 typedef enum
@@ -127,7 +134,11 @@ typedef struct VoiceNode
    int           priority;
 
    void          ( *DemandFeed )( char **ptr, unsigned int *length );
-
+#ifdef USE_OPENAL
+   struct       sounddef OGGstream;
+   char         *bufsnd;
+   int          downsample;
+#endif
    short        *LeftVolume;
    short        *RightVolume;
 

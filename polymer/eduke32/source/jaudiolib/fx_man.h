@@ -111,6 +111,11 @@ int FX_PlayWAV( char *ptr, int pitchoffset, int vol, int left, int right,
 int FX_PlayLoopedWAV( char *ptr, int loopstart, int loopend,
        int pitchoffset, int vol, int left, int right, int priority,
        unsigned int callbackval );
+int FX_PlayLoopedOGG( char *ptr, int loopstart, int loopend,
+       int pitchoffset, int vol, int left, int right, int priority,
+       unsigned int callbackval );
+int FX_PlayOGG3D( char *ptr, int pitchoffset, int angle, int distance,
+       int priority, unsigned int callbackval );
 int FX_PlayVOC3D( char *ptr, int pitchoffset, int angle, int distance,
        int priority, unsigned int callbackval );
 int FX_PlayWAV3D( char *ptr, int pitchoffset, int angle, int distance,
@@ -133,5 +138,8 @@ int  FX_StartRecording( int MixRate, void ( *function )( char *ptr, int length )
 void FX_StopRecord( void );
 
 void FX_Update(void);
+
+int AL_DefineMusic(char *ID,char *name);
+int AL_DefineSound(int ID,char *name);
 
 #endif

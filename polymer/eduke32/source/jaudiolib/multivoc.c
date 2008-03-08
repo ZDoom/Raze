@@ -35,6 +35,8 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
+
+#include <duke3d.h>
 #ifdef _WIN32
 #include "dsoundout.h"
 #else
@@ -47,6 +49,9 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #include "pitch.h"
 #include "multivoc.h"
 #include "_multivc.h"
+#ifdef USE_OPENAL
+#include "openal.h"
+#endif
 
 #define STEREO      1
 #define SIXTEEN_BIT 2
@@ -201,7 +206,11 @@ char *MV_ErrorString(int ErrorNumber)
     case MV_InvalidWAVFile :
         ErrorString = "Invalid WAV file passed in to Multivoc.";
         break;
-
+#ifdef USE_OPENAL
+    case MV_InvalidOGGFile :
+        ErrorString = "Invalid OGG file passed in to Multivoc.";
+        break;
+#endif
     case MV_InvalidMixMode :
         ErrorString = "Invalid mix mode request in Multivoc.";
         break;
@@ -367,7 +376,10 @@ void MV_PlayVoice(VoiceNode *voice)
 
     flags = DisableInterrupts();
     LL_SortedInsertion(&VoiceList, voice, prev, next, VoiceNode, priority);
-
+#ifdef USE_OPENAL
+    if(!voice->bufsnd)voice->bufsnd=(char *)Bcalloc(0x8000*4,sizeof(char));
+    if(!voice->bufsnd)initprintf("Attention. It gonna crash! Thank you."); // FIXME: change the msg
+#endif
     RestoreInterrupts(flags);
 }
 
@@ -383,7 +395,9 @@ void MV_StopVoice(VoiceNode *voice)
     unsigned int flags;
 
     flags = DisableInterrupts();
-
+#ifdef USE_OPENAL
+    if(!voice->bufsnd)Bfree(voice->bufsnd);
+#endif
     // move the voice from the play list to the free list
     LL_Remove(voice, next, prev);
     LL_Add(&VoicePool, voice, next, prev);
@@ -893,7 +907,76 @@ playbackstatus MV_GetNextWAVBlock(VoiceNode *voice)
     return(KeepPlaying);
 }
 
+/*---------------------------------------------------------------------
+   Function: MV_GetNextOGGBlock
 
+   Controls playback of demand fed data.
+---------------------------------------------------------------------*/
+#ifdef USE_OPENAL
+void downsample(char *ptr,int size,int factor)
+{
+    short *pti=(short *)ptr;int i,j,sum;
+
+    for(i=0;i<size>>factor;i++)
+    {
+        sum=0;
+        for(j=0;j<1<<factor;j++)sum+=pti[(i<<factor)+j];
+        pti[i]=sum>>factor;
+    }
+}
+playbackstatus MV_GetNextOGGBlock(VoiceNode *voice)
+{
+    int sz;
+    int size=0;
+    int section,result;
+
+//    initprintf("_%d %d, %d\n",voice->callbackval,voice->position,voice->BlockLength);
+    if (voice->BlockLength <= 0)
+    {
+        if (voice->LoopStart == NULL)
+        {
+//            initprintf("END %d\n",voice->callbackval);
+            voice->Playing = FALSE;
+            return(NoMoreData);
+        }
+//        initprintf("repeat 2\n");
+
+        voice->BlockLength = voice->LoopSize;
+        voice->length      = 0;
+        voice->position    = 0;
+        ov_pcm_seek(&voice->OGGstream.oggStream,0);
+    }
+
+    voice->position    -= voice->length;
+    sz=voice->length    = min(voice->BlockLength, 0x8000);
+    voice->BlockLength -= voice->length;
+    voice->length     <<= 16;
+
+    sz<<=voice->downsample+1;
+    while(size<sz)
+    {
+       result=ov_read(&voice->OGGstream.oggStream,voice->bufsnd+(size>>voice->downsample),sz-size,0,2,1,&section);
+       if(result> 0)
+       {
+           downsample(voice->bufsnd+(size>>voice->downsample),result,voice->downsample);
+           size+=result;
+       }else
+       if(result==0)
+       {
+//           initprintf("!repeat %d\n",voice->callbackval);
+           voice->BlockLength=0;
+           voice->length=size<<16;break;
+       }else
+       {
+           initprintf("#%d\n",result);
+           break;
+       }
+    }
+    voice->sound=voice->bufsnd;
+
+    return(KeepPlaying);
+}
+#endif
 /*---------------------------------------------------------------------
    Function: MV_ServiceRecord
 
@@ -1674,6 +1757,47 @@ int MV_SetMixMode(int numchannels, int samplebits)
 }
 
 
+// ---------------------------------------------------------------------
+//  OGG file
+// ---------------------------------------------------------------------
+ov_callbacks cb;
+size_t ReadOgg(void *ptr, size_t size1, size_t nmemb, void *datasource)
+{
+        sounddef *d=(sounddef *)datasource;
+        size1*=nmemb;
+        if(d->pos>=d->size)return 0;
+        if(d->pos+size1>=d->size)size1=d->size-d->pos;
+        Bmemcpy(ptr,(d->ptrsnd+d->pos),size1);
+        d->pos+=size1;
+        return size1;
+}
+
+int SeekOgg(void *datasource,ogg_int64_t offset,int whence)
+{
+        sounddef *d=(sounddef *)datasource;
+        switch(whence)
+        {
+                case SEEK_SET: whence=offset;break;
+                case SEEK_CUR: whence=d->pos+offset;break;
+                case SEEK_END: whence=d->size-offset-1;break;
+                default: return -1;
+        }
+        if(whence>=(int)d->size||whence<0)return -1;
+        d->pos=whence;
+        return 0;
+}
+
+long TellOgg(void *datasource)
+{
+        sounddef *d=(sounddef *)datasource;
+        return d->pos;
+}
+
+int CloseOgg(void *datasource)
+{
+        return 0;
+}
+
 /*---------------------------------------------------------------------
    Function: MV_StartPlayback
 
@@ -1684,6 +1808,11 @@ int MV_StartPlayback(void)
 {
     int status;
     int buffer;
+
+    cb.close_func=CloseOgg;
+    cb.read_func =ReadOgg;
+    cb.seek_func =SeekOgg;
+    cb.tell_func =TellOgg;
 
     // Initialize the buffers
     ClearBuffer_DW(MV_MixBuffer[ 0 ], MV_Silence, TotalBufferSize >> 2);
@@ -1968,6 +2097,11 @@ int MV_PlayWAV(char *ptr, int pitchoffset, int vol, int left, int right, int pri
     int status;
 
     status = MV_PlayLoopedWAV(ptr, -1, -1, pitchoffset, vol, left, right, priority, callbackval);
+    if (status < MV_Ok)
+    {
+        sprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
+        initprintf(tempbuf);
+    }
 
     return(status);
 }
@@ -2185,6 +2319,11 @@ int MV_PlayVOC(char *ptr, int pitchoffset, int vol, int left, int right, int pri
     int status;
 
     status = MV_PlayLoopedVOC(ptr, -1, -1, pitchoffset, vol, left, right, priority, callbackval);
+    if (status < MV_Ok)
+    {
+        sprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
+        initprintf(tempbuf);
+    }
 
     return(status);
 }
@@ -2254,7 +2393,154 @@ int MV_PlayLoopedVOC(char *ptr, int loopstart, int loopend, int pitchoffset, int
     return(voice->handle);
 }
 
+/*---------------------------------------------------------------------
+   Function: MV_PlayLoopedOGG
 
+   Begin playback of sound data with the given sound levels and
+   priority.
+---------------------------------------------------------------------*/
+    VoiceNode     *voice;
+#ifdef USE_OPENAL
+int MV_PlayLoopedOGG(char *ptr, int loopstart, int loopend, int pitchoffset, int vol, int left, int right, int priority, unsigned int callbackval)
+{
+    vorbis_info *vorbisInfo;
+    int length;
+
+    if (!MV_Installed)
+    {
+        MV_SetErrorCode(MV_NotInstalled);
+        return(MV_Error);
+    }
+
+    // Request a voice from the voice pool
+    voice = MV_AllocVoice(priority);
+    if (voice == NULL)
+    {
+        MV_SetErrorCode(MV_NoVoices);
+        return(MV_Error);
+    }
+
+    voice->OGGstream.pos=0;
+    voice->OGGstream.ptrsnd=ptr;
+    voice->OGGstream.size=g_sounds[callbackval].soundsiz;
+    voice->downsample=0;
+    if(ov_open_callbacks(&voice->OGGstream,&voice->OGGstream.oggStream,0,0,cb)<0)
+    {
+        MV_SetErrorCode(MV_InvalidOGGFile);
+        return(MV_Error);
+    }
+
+    vorbisInfo=ov_info(&voice->OGGstream.oggStream,-1);
+    if(!vorbisInfo)
+    {
+        MV_SetErrorCode(MV_InvalidOGGFile);
+        return(MV_Error);
+    }
+
+    while((uint64)(vorbisInfo->rate)/(1<<voice->downsample)*PITCH_GetScale(pitchoffset)/0x1000000/0x100)
+    voice->downsample++;
+    length=ov_pcm_total(&voice->OGGstream.oggStream,0);
+    if(!length)length=0xffffff;
+    loopend=length=length>>voice->downsample;
+
+    voice->wavetype    = OGG;
+    voice->bits        = 16;
+    voice->GetSound    = MV_GetNextOGGBlock;
+
+    voice->Playing     = TRUE;
+    voice->DemandFeed  = NULL;
+    voice->LoopStart   = NULL;
+    voice->LoopCount   = 0;
+    voice->position    = 0;
+    voice->length      = 0;
+    voice->BlockLength = loopend;
+    voice->NextBlock   = NULL;
+    voice->next        = NULL;
+    voice->prev        = NULL;
+    voice->priority    = priority;
+    voice->callbackval = callbackval;
+    voice->LoopStart   = voice->NextBlock + loopstart+1;
+    voice->LoopEnd     = voice->NextBlock + loopend+1;
+    voice->LoopSize    = loopend - loopstart;
+
+    if (loopstart < 0)
+    {
+        voice->LoopStart = NULL;
+        voice->LoopEnd   = NULL;
+        voice->BlockLength = length;
+    }
+
+    MV_SetVoicePitch(voice, vorbisInfo->rate>>voice->downsample, pitchoffset);
+    if(vorbisInfo->channels==2)voice->downsample++;
+    MV_SetVoiceVolume(voice, vol, left, right);
+    MV_PlayVoice(voice);
+
+    return(voice->handle);
+}
+
+/*---------------------------------------------------------------------
+   Function: MV_PlayOGG
+
+   Begin playback of sound data with the given sound levels and
+   priority.
+---------------------------------------------------------------------*/
+
+int MV_PlayOGG(char *ptr, int pitchoffset, int vol, int left, int right, int priority, unsigned int callbackval)
+{
+    int status;
+
+    status = MV_PlayLoopedOGG(ptr, -1, -1, pitchoffset, vol, left, right, priority, callbackval);
+    if (status < MV_Ok)
+    {
+        sprintf(tempbuf, "Sound error %d: %s\n",callbackval, FX_ErrorString(FX_Error));
+        initprintf(tempbuf);
+    }
+
+    return(status);
+}
+
+
+/*---------------------------------------------------------------------
+   Function: MV_PlayOGG3D
+
+   Begin playback of sound data at specified angle and distance
+   from listener.
+---------------------------------------------------------------------*/
+
+int MV_PlayOGG3D(char *ptr, int pitchoffset, int angle, int distance, int priority, unsigned int callbackval)
+{
+    int left;
+    int right;
+    int mid;
+    int volume;
+    int status;
+
+    if (!MV_Installed)
+    {
+        MV_SetErrorCode(MV_NotInstalled);
+        return(MV_Error);
+    }
+
+    if (distance < 0)
+    {
+        distance  = -distance;
+        angle    += MV_NumPanPositions / 2;
+    }
+
+    volume = MIX_VOLUME(distance);
+
+    // Ensure angle is within 0 - 31
+    angle &= MV_MaxPanPosition;
+
+    left  = MV_PanTable[ angle ][ volume ].left;
+    right = MV_PanTable[ angle ][ volume ].right;
+    mid   = max(0, 255 - distance);
+
+    status = MV_PlayOGG(ptr, pitchoffset, mid, left, right, priority, callbackval);
+
+    return(status);
+}
+#endif
 /*---------------------------------------------------------------------
    Function: MV_CreateVolumeTable
 
@@ -2582,6 +2868,9 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
     MV_SetReverseStereo(FALSE);
 
     // Initialize the sound card
+#ifdef USE_OPENAL
+    AL_Init();
+#endif
 #if defined(_WIN32)
     status = DSOUND_Init(soundcard, MixRate, numchannels, samplebits, TotalBufferSize);
     if (status != DSOUND_Ok)
@@ -2682,6 +2971,9 @@ int MV_Shutdown(void)
     MV_StopPlayback();
 
     // Shutdown the sound card
+#ifdef USE_OPENAL
+    AL_Shutdown();
+#endif
 #if defined(_WIN32)
     DSOUND_Shutdown();
 #else

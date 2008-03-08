@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 #include "duke3d.h"
 
-char MusicPtr[72000*2];
+char *MusicPtr=0;int Musicsize;
 
 short global_random;
 short neartagsector, neartagwall, neartagsprite;
@@ -56,7 +56,7 @@ short mirrorwall[64], mirrorsector[64], mirrorcnt;
 
 int current_menu;
 
-map_t map[MAXVOLUMES*MAXLEVELS];
+map_t map[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
 
 char volume_names[MAXVOLUMES][33] = { "L.A. MELTDOWN", "LUNAR APOCALYPSE", "SHRAPNEL CITY" };
 char skill_names[5][33] = { "PIECE OF CAKE", "LET'S ROCK", "COME GET SOME", "DAMN I'M GOOD" };

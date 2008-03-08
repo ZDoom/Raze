@@ -148,7 +148,7 @@ static int set_socket_blockmode(SOCKET socket, int onOrOff)
 
 #ifdef _WIN32
     flags = (onOrOff) ? 0 : 1;
-    rc = (ioctlsocket(socket, FIONBIO, &flags) == 0);
+    rc = (ioctlsocket(socket, FIONBIO, (void *)&flags) == 0);
 #else
     flags = fcntl(socket, F_GETFL, 0);
     if (flags != -1)

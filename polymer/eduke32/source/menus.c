@@ -4238,9 +4238,9 @@ cheat_for_port_credits:
                     if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
                     {
                         if (map[(unsigned char)music_select].musicfn != NULL)
-                            playmusic(&map[(unsigned char)music_select].musicfn[0]);
+                            playmusicMAP(&map[(unsigned char)music_select].musicfn[0],music_select);
                     }
-                    else playmusic(&env_music_fn[0][0]);
+                    else playmusicMAP(&env_music_fn[0][0],MAXVOLUMES*MAXLEVELS);
 
                     MUSIC_Continue();
                 }
