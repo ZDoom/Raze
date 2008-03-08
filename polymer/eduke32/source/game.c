@@ -8614,6 +8614,82 @@ static void autoloadgrps(const char *fn)
     while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
 }
 
+char *makename(char *destname, char *OGGname, char *origname)
+{
+    if (!origname)
+        return destname;
+
+    if (destname)
+        Bfree(destname);
+    destname=Bcalloc(Bstrlen(OGGname)+Bstrlen(origname)+1,sizeof(char));
+    if (!destname)
+        return NULL;
+
+    Bstrcpy(destname,(*OGGname)?OGGname:origname);
+
+    if (*OGGname&&OGGname[Bstrlen(OGGname)-1]=='/')
+    {
+        while (*origname=='/')
+            origname++;
+        Bstrcat(destname,origname);
+    }
+
+    OGGname=Bstrchr(destname,'.');
+    if (OGGname)
+        Bstrcpy(OGGname,".ogg");
+    else Bstrcat(destname,".ogg");
+
+    return destname;
+}
+
+int AL_DefineSound(int ID,char *name)
+{
+    if (ID>=MAXSOUNDS)
+        return 1;
+    g_sounds[ID].filename1=makename(g_sounds[ID].filename1,name,g_sounds[ID].filename);
+//    initprintf("(%s)(%s)(%s)\n",g_sounds[ID].filename1,name,g_sounds[ID].filename);
+//    loadsound(ID);
+    return 0;
+}
+
+int AL_DefineMusic(char *ID,char *name)
+{
+    int lev,ep,sel;char b1,b2;
+
+    if (!ID)
+        return 1;
+    if (!Bstrcmp(ID,"intro"))
+    {
+        sel=MAXVOLUMES*MAXLEVELS;  ID=env_music_fn[0];
+    }
+    else if (!Bstrcmp(ID,"briefing"))
+    {
+        sel=MAXVOLUMES*MAXLEVELS+1;
+        ID=env_music_fn[1];
+    }
+    else if (!Bstrcmp(ID,"loading"))
+    {
+        sel=MAXVOLUMES*MAXLEVELS+2;
+        ID=env_music_fn[2];
+    }
+    else
+    {
+        sscanf(ID,"%c%d%c%d",&b1,&ep,&b2,&lev);
+        lev--;
+        ep--;
+        if (toupper(b1)!='E'||toupper(b2)!='L'||lev>=MAXLEVELS||ep>=MAXVOLUMES)
+            return 1;
+        sel=(ep*MAXLEVELS)+lev;
+        ID=map[sel].musicfn;
+    }
+
+    map[sel].musicfn1=makename(map[sel].musicfn1,name,ID);
+    initprintf("%-15s | ",ID);
+    initprintf("%3d %2d %2d | %s\n",sel,ep,lev,map[sel].musicfn1);
+//    playmusicMAP(ID,sel);
+    return 0;
+}
+
 static int parsedefinitions_game(scriptfile *script, const int preload)
 {
     int tokn;
@@ -8718,16 +8794,16 @@ static int parsedefinitions_game(scriptfile *script, const int preload)
             }
             if (!preload)
             {
-                if(ID==NULL)
+                if (ID==NULL)
                 {
                     initprintf("Error: missing ID for music definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
                     break;
                 }
-    #ifdef USE_OPENAL
+#ifdef USE_OPENAL
                 if (AL_DefineMusic(ID,ext))
                     initprintf("Error: invalid music ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
-    #endif
-                }
+#endif
+            }
         }
         break;
 
@@ -8743,19 +8819,21 @@ static int parsedefinitions_game(scriptfile *script, const int preload)
                 switch (getatoken(script,sound_musictokens,sizeof(sound_musictokens)/sizeof(tokenlist)))
                 {
                 case T_ID:
-                    scriptfile_getsymbol(script,&num);break;
+                    scriptfile_getsymbol(script,&num);
+                    break;
                 case T_FILE:
                     scriptfile_getstring(script,&name);
+                    break;
                 }
             }
             if (!preload)
             {
-                if(num==-1)
+                if (num==-1)
                 {
                     initprintf("Error: missing ID for sound definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
                     break;
                 }
-                if(AL_DefineSound(num,name))initprintf("Error: invalid sound ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+                if (AL_DefineSound(num,name))initprintf("Error: invalid sound ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
             }
         }
         break;

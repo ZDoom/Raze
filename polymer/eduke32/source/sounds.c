@@ -217,7 +217,7 @@ void playmusic(const char *fn)
     kclose(fp);
     MUSIC_PlaySong((unsigned char *)MusicPtr, MUSIC_LoopSong);
 #else
-    void PlayMusic(char *_filename);
+    void PlayMusic(char *_filename, int loopflag);
 
     if (fn == NULL) return;
 
@@ -226,7 +226,7 @@ void playmusic(const char *fn)
 
     // FIXME: I need this to get the music volume initialized (not sure why) -- Jim Bentler
     MUSIC_SetVolume(ud.config.MusicVolume);
-    PlayMusic((char *)fn);
+    PlayMusic((char *)fn, MUSIC_LoopSong);
 #endif
 }
 

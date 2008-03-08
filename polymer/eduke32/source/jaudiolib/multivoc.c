@@ -2874,12 +2874,6 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
             if (map[i].musicfn1 != NULL)
                 Bfree(map[i].musicfn1);
         }
-
-/*        for (i=MAXSOUNDS-1;i>=0;i--)
-        {
-            if (g_sounds[i].filename1 != NULL)
-                Bfree(g_sounds[i].filename1);
-        } */
     }
 #endif
 #if defined(_WIN32)

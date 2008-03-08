@@ -116,7 +116,6 @@ static void mixer_callback(int chan, void *stream, int len, void *udata)
     Uint8 *fxptr;
     int copysize;
 
-    AL_Update();
     /* len should equal _BufferSize, else this is screwed up */
 
     stptr = (Uint8 *)stream;
@@ -139,6 +138,10 @@ static void mixer_callback(int chan, void *stream, int len, void *udata)
     while (len > 0)
     {
         /* new buffer */
+
+#ifdef USE_OPENAL
+        AL_Update();
+#endif
 
         _CallBackFunc();
 
