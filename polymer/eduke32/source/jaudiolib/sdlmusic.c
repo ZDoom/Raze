@@ -429,9 +429,9 @@ void MUSIC_Continue(void)
         Mix_ResumeMusic();
     else if (music_songdata
 #ifdef USE_OPENAL
-        && (openal_disabled || AL_isntALmusic())
+             && (openal_disabled || AL_isntALmusic())
 #endif
-        )
+            )
         MUSIC_PlaySong((unsigned char *)music_songdata, MUSIC_PlayOnce);
 } // MUSIC_Continue
 
@@ -512,7 +512,7 @@ void PlayMusic(char *_filename, int loopflag)
 #ifdef USE_OPENAL
     if (!openal_disabled)
     {
-        short      fp;
+        int      fp;
         int        l;
 
         fp = kopen4load(_filename,0);

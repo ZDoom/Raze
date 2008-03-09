@@ -375,8 +375,8 @@ void MV_PlayVoice(VoiceNode *voice)
     flags = DisableInterrupts();
     LL_SortedInsertion(&VoiceList, voice, prev, next, VoiceNode, priority);
 
-    if(!voice->bufsnd)voice->bufsnd=(char *)Bcalloc(0x8000*4,sizeof(char));
-    if(!voice->bufsnd)initprintf("Attention. It gonna crash! Thank you."); // FIXME: change the msg
+//    if(!voice->bufsnd)voice->bufsnd=(char *)Bcalloc(0x8000*4,sizeof(char));
+//    if(!voice->bufsnd)initprintf("Attention. It gonna crash! Thank you."); // FIXME: change the msg
     RestoreInterrupts(flags);
 }
 
@@ -392,7 +392,7 @@ void MV_StopVoice(VoiceNode *voice)
     unsigned int flags;
 
     flags = DisableInterrupts();
-    if(!voice->bufsnd)Bfree(voice->bufsnd);
+//    if(!voice->bufsnd)Bfree(voice->bufsnd);
     // move the voice from the play list to the free list
     LL_Remove(voice, next, prev);
     LL_Add(&VoicePool, voice, next, prev);
@@ -912,13 +912,14 @@ void downsample(char *ptr,int size,int factor)
 {
     short *pti=(short *)ptr;int i,j,sum;
 
-    for(i=0;i<size>>factor;i++)
+    for (i=0;i<size>>factor;i++)
     {
         sum=0;
-        for(j=0;j<1<<factor;j++)sum+=pti[(i<<factor)+j];
+        for (j=0;j<1<<factor;j++)sum+=pti[(i<<factor)+j];
         pti[i]=sum>>factor;
     }
 }
+
 playbackstatus MV_GetNextOGGBlock(VoiceNode *voice)
 {
     int sz;
@@ -948,24 +949,25 @@ playbackstatus MV_GetNextOGGBlock(VoiceNode *voice)
     voice->length     <<= 16;
 
     sz<<=voice->downsample+1;
-    while(size<sz)
+    while (size<sz)
     {
-       result=ov_read(&voice->OGGstream.oggStream,voice->bufsnd+(size>>voice->downsample),sz-size,0,2,1,&section);
-       if(result> 0)
-       {
-           downsample(voice->bufsnd+(size>>voice->downsample),result,voice->downsample);
-           size+=result;
-       }else
-       if(result==0)
-       {
+        result=ov_read(&voice->OGGstream.oggStream,voice->bufsnd+(size>>voice->downsample),sz-size,0,2,1,&section);
+        if (result> 0)
+        {
+            downsample(voice->bufsnd+(size>>voice->downsample),result,voice->downsample);
+            size+=result;
+        }
+        else if (result==0)
+        {
 //           initprintf("!repeat %d\n",voice->callbackval);
-           voice->BlockLength=0;
-           voice->length=size<<16;break;
-       }else
-       {
-           initprintf("#%d\n",result);
-           break;
-       }
+            voice->BlockLength=0;
+            voice->length=size<<16;break;
+        }
+        else
+        {
+            initprintf("#%d\n",result);
+            break;
+        }
     }
     voice->sound=voice->bufsnd;
 
@@ -1758,39 +1760,39 @@ int MV_SetMixMode(int numchannels, int samplebits)
 ov_callbacks cb;
 size_t ReadOgg(void *ptr, size_t size1, size_t nmemb, void *datasource)
 {
-        sounddef *d=(sounddef *)datasource;
-        size1*=nmemb;
-        if(d->pos>=d->size)return 0;
-        if(d->pos+size1>=d->size)size1=d->size-d->pos;
-        Bmemcpy(ptr,(d->ptrsnd+d->pos),size1);
-        d->pos+=size1;
-        return size1;
+    sounddef *d=(sounddef *)datasource;
+    size1*=nmemb;
+    if (d->pos>=d->size)return 0;
+    if (d->pos+size1>=d->size)size1=d->size-d->pos;
+    Bmemcpy(ptr,(d->ptrsnd+d->pos),size1);
+    d->pos+=size1;
+    return size1;
 }
 
 int SeekOgg(void *datasource,ogg_int64_t offset,int whence)
 {
-        sounddef *d=(sounddef *)datasource;
-        switch(whence)
-        {
-                case SEEK_SET: whence=offset;break;
-                case SEEK_CUR: whence=d->pos+offset;break;
-                case SEEK_END: whence=d->size-offset-1;break;
-                default: return -1;
-        }
-        if(whence>=(int)d->size||whence<0)return -1;
-        d->pos=whence;
-        return 0;
+    sounddef *d=(sounddef *)datasource;
+    switch (whence)
+    {
+    case SEEK_SET: whence=offset;break;
+    case SEEK_CUR: whence=d->pos+offset;break;
+    case SEEK_END: whence=d->size-offset-1;break;
+    default: return -1;
+    }
+    if (whence>=(int)d->size||whence<0)return -1;
+    d->pos=whence;
+    return 0;
 }
 
 long TellOgg(void *datasource)
 {
-        sounddef *d=(sounddef *)datasource;
-        return d->pos;
+    sounddef *d=(sounddef *)datasource;
+    return d->pos;
 }
 
 int CloseOgg(void *datasource)
 {
-        return 0;
+    return 0;
 }
 
 /*---------------------------------------------------------------------
@@ -2394,7 +2396,7 @@ int MV_PlayLoopedVOC(char *ptr, int loopstart, int loopend, int pitchoffset, int
    Begin playback of sound data with the given sound levels and
    priority.
 ---------------------------------------------------------------------*/
-    VoiceNode     *voice;
+VoiceNode     *voice;
 
 int MV_PlayLoopedOGG(char *ptr, int loopstart, int loopend, int pitchoffset, int vol, int left, int right, int priority, unsigned int callbackval)
 {
@@ -2419,23 +2421,23 @@ int MV_PlayLoopedOGG(char *ptr, int loopstart, int loopend, int pitchoffset, int
     voice->OGGstream.ptrsnd=ptr;
     voice->OGGstream.size=g_sounds[callbackval].soundsiz;
     voice->downsample=0;
-    if(ov_open_callbacks(&voice->OGGstream,&voice->OGGstream.oggStream,0,0,cb)<0)
+    if (ov_open_callbacks(&voice->OGGstream,&voice->OGGstream.oggStream,0,0,cb)<0)
     {
         MV_SetErrorCode(MV_InvalidOGGFile);
         return(MV_Error);
     }
 
     vorbisInfo=ov_info(&voice->OGGstream.oggStream,-1);
-    if(!vorbisInfo)
+    if (!vorbisInfo)
     {
         MV_SetErrorCode(MV_InvalidOGGFile);
         return(MV_Error);
     }
 
-    while((uint64)(vorbisInfo->rate)/(1<<voice->downsample)*PITCH_GetScale(pitchoffset)/0x1000000/0x100)
-    voice->downsample++;
+    while ((uint64)(vorbisInfo->rate)/(1<<voice->downsample)*PITCH_GetScale(pitchoffset)/0x1000000/0x100)
+        voice->downsample++;
     length=ov_pcm_total(&voice->OGGstream.oggStream,0);
-    if(!length)length=0xffffff;
+    if (!length)length=0xffffff;
     loopend=length=length>>voice->downsample;
 
     voice->wavetype    = OGG;
@@ -2466,7 +2468,7 @@ int MV_PlayLoopedOGG(char *ptr, int loopstart, int loopend, int pitchoffset, int
     }
 
     MV_SetVoicePitch(voice, vorbisInfo->rate>>voice->downsample, pitchoffset);
-    if(vorbisInfo->channels==2)voice->downsample++;
+    if (vorbisInfo->channels==2)voice->downsample++;
     MV_SetVoiceVolume(voice, vol, left, right);
     MV_PlayVoice(voice);
 
@@ -2873,6 +2875,7 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
         {
             if (map[i].musicfn1 != NULL)
                 Bfree(map[i].musicfn1);
+            map[i].musicfn1 = NULL;
         }
     }
 #endif

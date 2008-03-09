@@ -194,7 +194,7 @@ void intomenusounds(void)
 void playmusic(const char *fn)
 {
 #if defined(_WIN32)
-    short      fp;
+    int        fp;
     int        l;
 
     if (fn == NULL) return;
@@ -209,11 +209,12 @@ void playmusic(const char *fn)
     l = kfilelength(fp);
     MUSIC_StopSong();
     Musicsize=0;
-    if(!MusicPtr)MusicPtr=Bcalloc(1,l);
-      else MusicPtr=Brealloc(MusicPtr,l);
+    if(!MusicPtr)
+        MusicPtr=Bcalloc(1,l * sizeof(char));
+      else MusicPtr=Brealloc(MusicPtr,l * sizeof(char));
     Musicsize=l;
 
-    kread(fp, MusicPtr, l);
+    kread(fp, (unsigned char *)MusicPtr, l);
     kclose(fp);
     MUSIC_PlaySong((unsigned char *)MusicPtr, MUSIC_LoopSong);
 #else

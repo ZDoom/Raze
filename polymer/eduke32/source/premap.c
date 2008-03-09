@@ -279,7 +279,7 @@ static int getsound(unsigned int num)
     if (ud.config.FXDevice < 0) return 0;
 
     if (!g_sounds[num].filename) return 0;
-    if(g_sounds[num].filename1)fp = kopen4load(g_sounds[num].filename1,loadfromgrouponly);
+    if (g_sounds[num].filename1)fp = kopen4load(g_sounds[num].filename1,loadfromgrouponly);
     if (fp == -1)fp = kopen4load(g_sounds[num].filename,loadfromgrouponly);
     if (fp == -1) return 0;
 

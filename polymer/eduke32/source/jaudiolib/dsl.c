@@ -118,6 +118,10 @@ static void mixer_callback(int chan, void *stream, int len, void *udata)
 
     /* len should equal _BufferSize, else this is screwed up */
 
+#ifdef USE_OPENAL
+    AL_Update();
+#endif
+
     stptr = (Uint8 *)stream;
 
     if (_remainder > 0)
@@ -138,10 +142,6 @@ static void mixer_callback(int chan, void *stream, int len, void *udata)
     while (len > 0)
     {
         /* new buffer */
-
-#ifdef USE_OPENAL
-        AL_Update();
-#endif
 
         _CallBackFunc();
 
@@ -267,7 +267,7 @@ int DisableInterrupts(void)
     SDL_LockAudio();
     return(0);
 }
- 
+
 int RestoreInterrupts(int flags)
 {
     SDL_UnlockAudio();

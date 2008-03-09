@@ -27,7 +27,7 @@ DXROOT=c:\sdks\dx6
 MSSDKROOT="C:\Program Files\Microsoft Visual Studio 8\VC
 PLATFORMSDK="C:\Program Files\Microsoft Visual Studio 8\VC\PlatformSDK
 
-ENGINEOPTS=/DSUPERBUILD /DPOLYMOST /DUSE_OPENGL
+ENGINEOPTS=/DSUPERBUILD /DPOLYMOST /DUSE_OPENGL /DUSE_OPENAL
 
 CC=cl
 AS=ml
@@ -38,8 +38,9 @@ CFLAGS= /MD /J /nologo $(flags_cl)  \
  	/DNOCOPYPROTECT  /D "_CRT_SECURE_NO_DEPRECATE" -W0 $(ENGINEOPTS) \
  	/I$(DXROOT)\include /DRENDERTYPEWIN=1
 LIBS=user32.lib gdi32.lib shell32.lib dxguid.lib winmm.lib wsock32.lib comctl32.lib \
-        /NODEFAULTLIB:libFLAC.lib glu32.lib
-        
+        /NODEFAULTLIB:libFLAC.lib /NODEFAULTLIB:glu32.lib /NODEFAULTLIB:LIBCMT.lib /NODEFAULTLIB:LIBCMTD.lib
+
+LIBS=vorbisfile_static.lib vorbis_static.lib ogg_static.lib $(LIBS)
 
 ASFLAGS=/nologo /coff
 ASFLAGS=/nologo /coff
@@ -61,7 +62,7 @@ AUDIOLIB_FX=$(OBJ)\mv_mix.$o \
 	  $(OBJ)\mvreverb.$o \
 	  $(OBJ)\pitch.$o \
 	  $(OBJ)\multivoc.$o \
-#          $(OBJ)\openal.$o \
+          $(OBJ)\openal.$o \
 	  $(OBJ)\ll_man.$o \
 	  $(OBJ)\fx_man.$o \
  	  $(OBJ)\dsoundout.$o

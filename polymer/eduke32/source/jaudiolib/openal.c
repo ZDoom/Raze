@@ -12,7 +12,7 @@
 ALCdevice  * device=NULL;
 ALCcontext * context=NULL;
 
-char *ALdoing="";
+char *ALdoing = NULL;
 int AL_Error;
 int bufsize;
 int openal_disabled = 0;
@@ -33,37 +33,36 @@ sounddef1 sounds1[2];
 
 #ifdef _WIN32
 // Windows
-static HANDLE hALDLL;
+static HANDLE hALDLL = NULL;
 #else
 #include <dlfcn.h>
-
 static void *alhandle = NULL;
 #endif
 
-char *aldriver = NULL;
+static char *aldriver = NULL;
 
-void (AL_APIENTRY * balGetSourcei)(ALuint sid,  ALenum param, ALint* value);
-void (AL_APIENTRY * balSourcef)(ALuint sid, ALenum param, ALfloat value);
-void (AL_APIENTRY * balSourcePlay)(ALuint sid);
-void (AL_APIENTRY * balSourcePause)(ALuint sid);
-ALCenum(ALC_APIENTRY * balcGetError)(ALCdevice *device);
-ALenum(AL_APIENTRY * balGetError)(void);
-void (AL_APIENTRY * balBufferData)(ALuint bid, ALenum format, const ALvoid* data, ALsizei size, ALsizei freq);
-void (AL_APIENTRY * balGenBuffers)(ALsizei n, ALuint* buffers);
-void (AL_APIENTRY * balGenSources)(ALsizei n, ALuint* sources);
-void (AL_APIENTRY * balSourcei)(ALuint sid, ALenum param, ALint value);
-void (AL_APIENTRY * balSourceQueueBuffers)(ALuint sid, ALsizei numEntries, const ALuint *bids);
-void (AL_APIENTRY * balSourceStop)(ALuint sid);
-void (AL_APIENTRY * balSourceUnqueueBuffers)(ALuint sid, ALsizei numEntries, ALuint *bids);
-void (AL_APIENTRY * bbalDeleteSources)(ALsizei n, const ALuint* sources);
-ALCboolean(ALC_APIENTRY * balcMakeContextCurrent)(ALCcontext *context);
-void (AL_APIENTRY * balDeleteSources)(ALsizei n, const ALuint* sources);
-void (AL_APIENTRY * balDeleteBuffers)(ALsizei n, const ALuint* buffers);
-void (ALC_APIENTRY * balcDestroyContext)(ALCcontext *context);
-ALCboolean(ALC_APIENTRY * balcCloseDevice)(ALCdevice *device);
-ALCdevice *(ALC_APIENTRY * balcOpenDevice)(const ALCchar *devicename);
-ALCcontext *(ALC_APIENTRY * balcCreateContext)(ALCdevice *device, const ALCint* attrlist);
-const ALchar*(AL_APIENTRY * balGetString)(ALenum param);
+static void (AL_APIENTRY * balGetSourcei)(ALuint sid,  ALenum param, ALint* value);
+static void (AL_APIENTRY * balSourcef)(ALuint sid, ALenum param, ALfloat value);
+static void (AL_APIENTRY * balSourcePlay)(ALuint sid);
+static void (AL_APIENTRY * balSourcePause)(ALuint sid);
+static ALCenum(ALC_APIENTRY * balcGetError)(ALCdevice *device);
+static ALenum(AL_APIENTRY * balGetError)(void);
+static void (AL_APIENTRY * balBufferData)(ALuint bid, ALenum format, const ALvoid* data, ALsizei size, ALsizei freq);
+static void (AL_APIENTRY * balGenBuffers)(ALsizei n, ALuint* buffers);
+static void (AL_APIENTRY * balGenSources)(ALsizei n, ALuint* sources);
+static void (AL_APIENTRY * balSourcei)(ALuint sid, ALenum param, ALint value);
+static void (AL_APIENTRY * balSourceQueueBuffers)(ALuint sid, ALsizei numEntries, const ALuint *bids);
+static void (AL_APIENTRY * balSourceStop)(ALuint sid);
+static void (AL_APIENTRY * balSourceUnqueueBuffers)(ALuint sid, ALsizei numEntries, ALuint *bids);
+static void (AL_APIENTRY * bbalDeleteSources)(ALsizei n, const ALuint* sources);
+static ALCboolean(ALC_APIENTRY * balcMakeContextCurrent)(ALCcontext *context);
+static void (AL_APIENTRY * balDeleteSources)(ALsizei n, const ALuint* sources);
+static void (AL_APIENTRY * balDeleteBuffers)(ALsizei n, const ALuint* buffers);
+static void (ALC_APIENTRY * balcDestroyContext)(ALCcontext *context);
+static ALCboolean(ALC_APIENTRY * balcCloseDevice)(ALCdevice *device);
+static ALCdevice *(ALC_APIENTRY * balcOpenDevice)(const ALCchar *devicename);
+static ALCcontext *(ALC_APIENTRY * balcCreateContext)(ALCdevice *device, const ALCint* attrlist);
+static const ALchar*(AL_APIENTRY * balGetString)(ALenum param);
 
 static void * algetproc_(const char *s, int *err, int fatal)
 {
@@ -83,20 +82,23 @@ static void * algetproc_(const char *s, int *err, int fatal)
 #define ALGETPROC(s)        algetproc_(s,&err,1)
 #define ALGETPROCSOFT(s)    algetproc_(s,&err,0)
 
-int unloadaldriver(void)
+static int unloadaldriver(void)
 {
 #ifdef _WIN32
     if (!hALDLL) return 0;
 #endif
 
-    free(aldriver);
+    if (aldriver)
+        free(aldriver);
     aldriver = NULL;
 
 #ifdef _WIN32
-    FreeLibrary(hALDLL);
+    if (hALDLL)
+        FreeLibrary(hALDLL);
     hALDLL = NULL;
 #else
-    if (alhandle) dlclose(alhandle);
+    if (alhandle)
+        dlclose(alhandle);
     alhandle = NULL;
 #endif
 
@@ -126,14 +128,15 @@ int unloadaldriver(void)
     return 0;
 }
 
-int loadaldriver(void)
+static int loadaldriver(void)
 {
     void *t;
     int err=0;
     char *driver;
 
 #ifdef _WIN32
-    if (hALDLL) return 0;
+    if (hALDLL)
+        return 0;
 #endif
 
 //    if (!driver)
@@ -149,7 +152,7 @@ int loadaldriver(void)
 
     initprintf("Loading %s\n",driver);
 
-#if defined _WIN32
+#ifdef _WIN32
     hALDLL = LoadLibrary(driver);
     if (!hALDLL) return -1;
 #else
@@ -280,39 +283,39 @@ int AL_Init()
 
     if (context)
     {
-        char *s,*t,*u,i;
+//        char *s,*t,*u,i;
 
         balcMakeContextCurrent(context);check(1);
         initprintf("OpenAL Information:\n"
                    " Version:  %s\n"
                    " Vendor:   %s\n"
                    " Renderer: %s\n"
-                   " Extensions:\n"
+//                   " Extensions:\n"
                    ,balGetString(AL_VERSION),balGetString(AL_VENDOR),balGetString(AL_RENDERER));
 
-        s = Bstrdup(balGetString(AL_EXTENSIONS));
-        if (!s) initprintf(balGetString(AL_EXTENSIONS));
-        else
-        {
-            i = 0; t = u = s;
-            while (*t)
-            {
-                if (*t == ' ')
+        /*        s = Bstrdup(balGetString(AL_EXTENSIONS));
+                if (!s) initprintf(balGetString(AL_EXTENSIONS));
+                else
                 {
-                    if (i&1)
+                    i = 0; t = u = s;
+                    while (*t)
                     {
-                        *t = 0;
-                        initprintf("   %s\n",u);
-                        u = t+1;
+                        if (*t == ' ')
+                        {
+                            if (i&1)
+                            {
+                                *t = 0;
+                                initprintf("   %s\n",u);
+                                u = t+1;
+                            }
+                            i++;
+                        }
+                        t++;
                     }
-                    i++;
+                    if (i&1) initprintf("   %s\n",u);
+                    Bfree(s);
                 }
-                t++;
-            }
-            if (i&1) initprintf("   %s\n",u);
-            Bfree(s);
-        }
-
+        */
     }
     else initprintf("OpenAL initialization failed.\n");
 
@@ -425,9 +428,10 @@ void AL_Stop()
     Bmemset(&music,0,sizeof(sounddef1));
 }
 
+static char pcm[BUFFER_SIZE];
+
 int stream(ALuint buffer)
 {
-    char pcm[BUFFER_SIZE];
     ALsizei  size=0;
     int  section,result;
 
@@ -437,7 +441,8 @@ int stream(ALuint buffer)
         if (result==0&&music.loop)ov_pcm_seek(&music.def.oggStream,0);else
         if (result> 0)size+=result;else break;
     }
-    if (!size)return 0;
+    if (!size)
+        return 0;
     ALdoing="stream";
     balBufferData(buffer,music.format,pcm,size,music.rate);
     check(1);
@@ -448,14 +453,21 @@ void AL_PlaySong(char *ptr,int loop)
 {
     vorbis_info* vorbisInfo;
     int bf=2,i;
-    ALenum format;ALsizei size;ALsizei freq;ALvoid* data;
+    ALenum format;
+    ALsizei size;
+    ALsizei freq;
+    ALvoid* data;
 
-    if (!context)return;
+    if (!context)
+        return;
     Bmemset(&music,0,sizeof(sounddef1));
     switch (*ptr)
     {
-    case 'O':music.type=1;break;
-    default: return;
+    case 'O':
+        music.type=1;
+        break;
+    default:
+        return;
     }
     music.def.size=Musicsize;
     music.loop=loop;
@@ -478,7 +490,8 @@ void AL_PlaySong(char *ptr,int loop)
             return;
         }
         music.rate=vorbisInfo->rate;
-        music.format=(vorbisInfo->channels==1)?AL_FORMAT_MONO16:AL_FORMAT_STEREO16;break;
+        music.format=(vorbisInfo->channels==1)?AL_FORMAT_MONO16:AL_FORMAT_STEREO16;
+        break;
     }
 
     ALdoing="Open";
@@ -488,8 +501,10 @@ void AL_PlaySong(char *ptr,int loop)
 
     switch (music.type)
     {
-    case 1: stream(music.buffers[0]);
-        if (!stream(music.buffers[1]))bf=1;
+    case 1: 
+        stream(music.buffers[0]);
+        if (!stream(music.buffers[1]))
+            bf=1;
         balSourceQueueBuffers(music.source,bf,music.buffers);
         break;
     }

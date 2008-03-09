@@ -367,7 +367,7 @@ int MUSIC_PlaySong
 
 #ifdef USE_OPENAL
    if (!openal_disabled)
-       AL_PlaySong((char *)song,loopflag);
+       AL_PlaySong((unsigned char *)song,loopflag);
    if(openal_disabled || AL_isntALmusic())
 #endif
    {

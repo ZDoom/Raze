@@ -31,7 +31,7 @@ extern void SoundShutdown(void);
 extern void MusicStartup(void);
 extern void MusicShutdown(void);
 extern void intomenusounds(void);
-extern void playmusicMAP(const char *fn,const int sel);
+extern int playmusicMAP(const char *fn, const int sel);
 extern int loadsound(unsigned num);
 extern int xyzsound(int num,int i,int x,int y,int z);
 extern void sound(int num);

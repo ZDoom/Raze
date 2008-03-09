@@ -1162,11 +1162,15 @@ void AudioUpdate(void) { MUSIC_Update(); }
 
 void playmusic(const char *fn);
 
-void playmusicMAP(const char *fn,const int sel)
+int playmusicMAP(const char *fn,const int sel)
 {
     Musicsize=0;
-    if(map[sel].musicfn1)
+    if(map[sel].musicfn1 != NULL)
         playmusic(map[sel].musicfn1);
     if(!Musicsize)
+    {
         playmusic(fn);
+        return 0;
+    }
+    return 1;
 }
