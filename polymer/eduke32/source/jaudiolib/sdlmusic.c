@@ -487,7 +487,6 @@ void PlayMusic(char *_filename)
     int rc;
 
     MUSIC_StopSong();
-    initprintf("trying to play %s\n",_filename);
     // Read from a groupfile, write it to disk so SDL_mixer can read it.
     //   Lame.  --ryan.
     handle = kopen4load(_filename, 0);
@@ -539,11 +538,9 @@ void PlayMusic(char *_filename)
         //music_songdata = song;
 
         music_musicchunk = Mix_LoadMUS(filename);
-        initprintf("filename: %s\n",filename);
         if (music_musicchunk != NULL)
         {
             // !!! FIXME: I set the music to loop. Hope that's okay. --ryan.
-            initprintf("playing..\n");
             Musicsize = size;
             Mix_PlayMusic(music_musicchunk, -1);
         } // if
