@@ -29,7 +29,7 @@ typedef struct SD
     sounddef def;
 }sounddef1;
 
-sounddef1 sounds1[2];
+sounddef1 music;
 
 #ifdef _WIN32
 // Windows
@@ -262,6 +262,7 @@ extern ov_callbacks cb;
 
 int AL_Init()
 {
+    Bmemset(&music,0,sizeof(music)); // "music.def.size=0" means music not playing
     if (loadaldriver())
     {
         initprintf("Failed loading OpenAL driver.\nDownload OpenAL 1.1 or greater from http://www.openal.org/downloads.html.");
@@ -319,23 +320,12 @@ int AL_Init()
     }
     else initprintf("OpenAL initialization failed.\n");
 
-    ALdoing="Open";
-    balGenBuffers(16, sounds1[1].buffers);
-    check(1);
-    balGenSources(1,&sounds1[1].source);
-    check(1);
-
     return 0;
 }
 
 void AL_Shutdown()
 {
-    ALdoing="Delete source";
-    balDeleteSources(1,&sounds1[1].source);
-    check(1);
-    ALdoing="Delete buffers";
-    balDeleteBuffers(16, sounds1[1].buffers);
-    check(1);
+    if (openal_disabled)return;
 
     ALdoing="Shut";
     balcMakeContextCurrent(NULL);
@@ -346,9 +336,8 @@ void AL_Shutdown()
     unloadaldriver();
 }
 
-#define BUFFER_SIZE (4096 * 4*8*8)
+#define BUFFER_SIZE 65536 // (4096 * 4*8*8)
 int AL_MusicVolume;
-sounddef1 music;
 extern int Musicsize;
 
 
@@ -428,12 +417,11 @@ void AL_Stop()
     Bmemset(&music,0,sizeof(sounddef1));
 }
 
-static char pcm[BUFFER_SIZE];
-
 int stream(ALuint buffer)
 {
     ALsizei  size=0;
     int  section,result;
+    static char pcm[BUFFER_SIZE];
 
     while (size<BUFFER_SIZE)
     {

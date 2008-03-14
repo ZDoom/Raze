@@ -32,8 +32,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "util_lib.h"
 #include "osd.h"
 
+#ifdef _WIN32
 #ifdef USE_OPENAL
 #include "openal.h"
+#endif
 #endif
 
 #define LOUDESTVOLUME 150

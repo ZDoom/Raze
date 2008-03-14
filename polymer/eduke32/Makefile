@@ -15,7 +15,7 @@ BUILD32_ON_64 = 0
 # Debugging options
 RELEASE?=1
 NOSOUND?=0
-USE_OPENAL?=0
+USE_OPENAL?=1
 
 # build locations
 
@@ -81,10 +81,6 @@ AUDIOLIB_FX_SDL=$(OBJ)/ll_man.$o \
 	  $(OBJ)/dsl.$o \
 	  $(OBJ)/pitch.$o \
       $(OBJ)/multivoc.$o
-
-ifeq ($(USE_OPENAL),1)
-	AUDIOLIB_FX_SDL += $(OBJ)/openal.$o
-endif
 
 AUDIOLIB_MUSIC_SDL=$(OBJ)/sdlmusic.$o
 

@@ -54,10 +54,6 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #include <SDL_mixer.h>
 #include "music.h"
 
-#ifdef USE_OPENAL
-#include "openal.h"
-#endif
-
 #define __FX_TRUE  (1 == 1)
 #define __FX_FALSE (!__FX_TRUE)
 
@@ -324,7 +320,7 @@ int MUSIC_Init(int SoundCard, int Address)
     // Use an external MIDI player if the user has specified to do so
     char *command = getenv("EDUKE32_MIDI_CMD");
     external_midi = (command != NULL && command[0] != 0);
-    if (external_midi)
+    if(external_midi)
         Mix_SetMusicCMD(command);
 
     init_debugging();
@@ -349,7 +345,7 @@ int MUSIC_Shutdown(void)
     musdebug("shutting down sound subsystem.");
 
     // TODO - make sure this is being called from the menu -- SA
-    if (external_midi)
+    if(external_midi)
         Mix_SetMusicCMD(NULL);
 
     MUSIC_StopSong();
@@ -379,11 +375,6 @@ void MUSIC_SetVolume(int volume)
 {
     volume = max(0, volume);
     volume = min(volume, 255);
-
-#ifdef USE_OPENAL
-    if (!openal_disabled)
-        AL_SetMusicVolume(volume);
-#endif
 
     Mix_VolumeMusic(volume >> 1);  // convert 0-255 to 0-128.
 } // MUSIC_SetVolume
@@ -421,37 +412,21 @@ int MUSIC_SongPlaying(void)
 
 void MUSIC_Continue(void)
 {
-#ifdef USE_OPENAL
-    if (!openal_disabled)
-        AL_Continue();
-#endif
     if (Mix_PausedMusic())
         Mix_ResumeMusic();
-    else if (music_songdata
-#ifdef USE_OPENAL
-             && (openal_disabled || AL_isntALmusic())
-#endif
-            )
+    else if (music_songdata)
         MUSIC_PlaySong((unsigned char *)music_songdata, MUSIC_PlayOnce);
 } // MUSIC_Continue
 
 
 void MUSIC_Pause(void)
 {
-#ifdef USE_OPENAL
-    if (!openal_disabled)
-        AL_Pause();
-#endif
     Mix_PauseMusic();
 } // MUSIC_Pause
 
 
 int MUSIC_StopSong(void)
 {
-#ifdef USE_OPENAL
-    if (!openal_disabled)
-        AL_Stop();
-#endif
     //if (!fx_initialized)
     if (!Mix_QuerySpec(NULL, NULL, NULL))
     {
@@ -475,6 +450,7 @@ int MUSIC_StopSong(void)
 int MUSIC_PlaySong(unsigned char *song, int loopflag)
 {
     //SDL_RWops *rw;
+
     MUSIC_StopSong();
 
     music_songdata = (char *)song;
@@ -492,12 +468,13 @@ int MUSIC_PlaySong(unsigned char *song, int loopflag)
     music_musicchunk = Mix_LoadMUS_RW(rw);
     Mix_PlayMusic(music_musicchunk, (loopflag == MUSIC_PlayOnce) ? 0 : -1);
     */
+
     return(MUSIC_Ok);
 } // MUSIC_PlaySong
 
 
 // Duke3D-specific.  --ryan.
-void PlayMusic(char *_filename, int loopflag)
+void PlayMusic(char *_filename)
 {
     //char filename[MAX_PATH];
     //strcpy(filename, _filename);
@@ -509,89 +486,67 @@ void PlayMusic(char *_filename, int loopflag)
     void *song;
     int rc;
 
-#ifdef USE_OPENAL
-    if (!openal_disabled)
+    MUSIC_StopSong();
+    initprintf("trying to play %s\n",_filename);
+    // Read from a groupfile, write it to disk so SDL_mixer can read it.
+    //   Lame.  --ryan.
+    handle = kopen4load(_filename, 0);
+    if (handle == -1)
+        return;
+
+    size = kfilelength(handle);
+    if (size == -1)
     {
-        int      fp;
-        int        l;
+        kclose(handle);
+        return;
+    } // if
 
-        fp = kopen4load(_filename,0);
-
-        if (fp == -1) return;
-
-        l = kfilelength(fp);
-        MUSIC_StopSong();
-        Musicsize=0;
-        if (!MusicPtr)MusicPtr=Bcalloc(1,l);
-        else MusicPtr=Brealloc(MusicPtr,l);
-        Musicsize=l;
-
-        kread(fp, MusicPtr, l);
-        kclose(fp);
-        AL_PlaySong((char *)MusicPtr,loopflag);
-    }
-    if (openal_disabled || AL_isntALmusic())
-#endif
+    song = malloc(size);
+    if (song == NULL)
     {
-        MUSIC_StopSong();
+        kclose(handle);
+        return;
+    } // if
 
-        // Read from a groupfile, write it to disk so SDL_mixer can read it.
-        //   Lame.  --ryan.
-        handle = kopen4load(_filename, 0);
+    rc = kread(handle, song, size);
+    kclose(handle);
+    if (rc != size)
+    {
+        Bfree(song);
+        return;
+    } // if
+
+    // save the file somewhere, so SDL_mixer can load it
+    {
+        char *user = getenv("USERNAME");
+
+        if (user) Bsprintf(tempbuf,"duke3d_%s.%d",user,getpid());
+        else Bsprintf(tempbuf,"duke3d.%d",getpid());
+
+        GetUnixPathFromEnvironment(filename, BMAX_PATH, tempbuf);
+
+        handle = SafeOpenWrite(filename, filetype_binary);
+
         if (handle == -1)
             return;
 
-        size = kfilelength(handle);
-        if (size == -1)
+        midifn = Bstrdup(filename);
+
+        SafeWrite(handle, song, size);
+        close(handle);
+        Bfree(song);
+
+        //music_songdata = song;
+
+        music_musicchunk = Mix_LoadMUS(filename);
+        initprintf("filename: %s\n",filename);
+        if (music_musicchunk != NULL)
         {
-            kclose(handle);
-            return;
+            // !!! FIXME: I set the music to loop. Hope that's okay. --ryan.
+            initprintf("playing..\n");
+            Musicsize = size;
+            Mix_PlayMusic(music_musicchunk, -1);
         } // if
-
-        song = malloc(size);
-        if (song == NULL)
-        {
-            kclose(handle);
-            return;
-        } // if
-
-        rc = kread(handle, song, size);
-        kclose(handle);
-        if (rc != size)
-        {
-            Bfree(song);
-            return;
-        } // if
-
-        // save the file somewhere, so SDL_mixer can load it
-        {
-            char *user = getenv("USERNAME");
-
-            if (user) Bsprintf(tempbuf,"duke3d-%s.%d.mid",user,getpid());
-            else Bsprintf(tempbuf,"duke3d.%d.mid",getpid());
-
-            GetUnixPathFromEnvironment(filename, BMAX_PATH, tempbuf);
-
-            handle = SafeOpenWrite(filename, filetype_binary);
-
-            if (handle == -1)
-                return;
-
-            midifn = Bstrdup(filename);
-
-            SafeWrite(handle, song, size);
-            close(handle);
-            Bfree(song);
-
-            //music_songdata = song;
-
-            music_musicchunk = Mix_LoadMUS(filename);
-            if (music_musicchunk != NULL)
-            {
-                // !!! FIXME: I set the music to loop. Hope that's okay. --ryan.
-                Mix_PlayMusic(music_musicchunk, -1);
-            } // if
-        }
     }
 }
 

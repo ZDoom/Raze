@@ -5601,6 +5601,7 @@ static int parse(void)
             break;
         }
 
+    case CON_ROTATESPRITE16:
     case CON_ROTATESPRITE:
         insptr++;
         {
@@ -5610,7 +5611,8 @@ static int parse(void)
             int x1=GetGameVarID(*insptr++,g_i,g_p),  y1=GetGameVarID(*insptr++,g_i,g_p);
             int x2=GetGameVarID(*insptr++,g_i,g_p),  y2=GetGameVarID(*insptr++,g_i,g_p);
 
-            rotatesprite(x<<16,y<<16,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
+            if (tw == CON_ROTATESPRITE){x<<=16;y<<=16;}
+            rotatesprite(x,y,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
             break;
         }
 
@@ -6298,7 +6300,7 @@ static int parse(void)
             }
             if (fta_quotes[sq] == NULL) OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,sq);
             if (fta_quotes[dq] == NULL) OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,dq);
-            insptr += 5;
+            insptr += 4;
             break;
         }
 

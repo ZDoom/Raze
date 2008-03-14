@@ -442,6 +442,7 @@ static const char *keyw[] =
     "digitalnumberz",           // 312
     "spritenopal",              // 313
     "hitradiusvar",             // 314
+    "rotatesprite16",           // 315
     "<null>"
 };
 
@@ -3528,6 +3529,7 @@ static int parsecommand(void)
         transvar();
         return 0;
 
+    case CON_ROTATESPRITE16:
     case CON_ROTATESPRITE:
         if (parsing_event == 0 && parsing_state == 0)
         {

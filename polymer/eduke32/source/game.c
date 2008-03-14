@@ -5379,7 +5379,7 @@ int spawn(int j, int pn)
             break;
 
         case WATERDRIP__STATIC:
-            if ((j >= 0 && sprite[j].statnum == 10) || sprite[j].statnum == 1)
+            if (j >= 0 && (sprite[j].statnum == 10 || sprite[j].statnum == 1))
             {
                 sp->shade = 32;
                 if (sprite[j].pal != 1)
@@ -7995,7 +7995,7 @@ static void nonsharedkeys(void)
                         if (playmusicMAP(&map[(unsigned char)music_select].musicfn[0],music_select))
                             Bsprintf(fta_quotes[26],"PLAYING %s",&map[(unsigned char)music_select].musicfn1[0]);
                         else
-                            Bsprintf(fta_quotes[26],"PLAYING %s",&map[(unsigned char)music_select].musicfn1[0]);
+                            Bsprintf(fta_quotes[26],"PLAYING %s",&map[(unsigned char)music_select].musicfn[0]);
                         FTA(26,g_player[myconnectindex].ps);
                     }
                     return;
@@ -8806,7 +8806,7 @@ static int parsedefinitions_game(scriptfile *script, const int preload)
                     initprintf("Error: missing ID for music definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
                     break;
                 }
-#ifdef USE_OPENAL
+
                 i = pathsearchmode;
                 pathsearchmode = 1;
                 if (findfrompath(fn,&tfn) < 0)
@@ -8827,7 +8827,6 @@ static int parsedefinitions_game(scriptfile *script, const int preload)
 
                 if (AL_DefineMusic(ID,fn))
                     initprintf("Error: invalid music ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
-#endif
             }
         }
         break;

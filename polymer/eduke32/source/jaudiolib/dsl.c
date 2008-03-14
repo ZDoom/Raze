@@ -25,9 +25,6 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 
 #include "dsl.h"
 #include "compat.h"
-#ifdef USE_OPENAL
-#include "openal.h"
-#endif
 #include "SDL.h"
 #include "SDL_mixer.h"
 
@@ -117,10 +114,6 @@ static void mixer_callback(int chan, void *stream, int len, void *udata)
     int copysize;
 
     /* len should equal _BufferSize, else this is screwed up */
-
-#ifdef USE_OPENAL
-    AL_Update();
-#endif
 
     stptr = (Uint8 *)stream;
 

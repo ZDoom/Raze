@@ -39,6 +39,9 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #include <duke3d.h>
 #ifdef _WIN32
 #include "dsoundout.h"
+#ifdef USE_OPENAL
+#include "openal.h"
+#endif
 #else
 #include "dsl.h"
 #endif
@@ -49,9 +52,6 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #include "pitch.h"
 #include "multivoc.h"
 #include "_multivc.h"
-#ifdef USE_OPENAL
-#include "openal.h"
-#endif
 
 #define STEREO      1
 #define SIXTEEN_BIT 2
@@ -2865,6 +2865,7 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
     MV_SetReverseStereo(FALSE);
 
     // Initialize the sound card
+#if defined(_WIN32)
 #ifdef USE_OPENAL
     if (AL_Init())
     {
@@ -2879,7 +2880,7 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
         }
     }
 #endif
-#if defined(_WIN32)
+
     status = DSOUND_Init(soundcard, MixRate, numchannels, samplebits, TotalBufferSize);
     if (status != DSOUND_Ok)
     {
@@ -2979,11 +2980,10 @@ int MV_Shutdown(void)
     MV_StopPlayback();
 
     // Shutdown the sound card
-#ifdef USE_OPENAL
-    if (!openal_disabled)
-        AL_Shutdown();
-#endif
 #if defined(_WIN32)
+#ifdef USE_OPENAL
+    AL_Shutdown();
+#endif
     DSOUND_Shutdown();
 #else
     DSL_Shutdown();

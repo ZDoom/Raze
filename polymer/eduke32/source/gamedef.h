@@ -799,5 +799,6 @@ enum keywords
     CON_DIGITALNUMBERZ,     // 312
     CON_SPRITENOPAL,        // 313
     CON_HITRADIUSVAR,       // 314
+    CON_ROTATESPRITE16,     // 315
     END
 };
