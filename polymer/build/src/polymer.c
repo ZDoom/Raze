@@ -573,6 +573,7 @@ void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
     s->ceilindices[s->curindice] = (int)vertex;
     s->curindice++;
 }
+
 int                 polymer_buildfloor(short sectnum)
 {
     // This function tesselates the floor/ceiling of a sector and stores the triangles in a display list.
@@ -1039,12 +1040,12 @@ void                polymer_portaltofrustum(GLfloat* portal, int portalpointcoun
     }
 
     //near
-    memcpy(&triangle[3], &portal[(i-2) * 3], sizeof(GLfloat) * 3);
-    polymer_triangletoplane(triangle, &frustum[i*4]);
+    //memcpy(&triangle[3], &portal[(i-2) * 3], sizeof(GLfloat) * 3);
+    //polymer_triangletoplane(triangle, &frustum[i*4]);
 }
 
 void                polymer_triangletoplane(GLfloat* triangle, GLfloat* plane)
-{ 
+{
     GLfloat         vec1[3], vec2[3];
 
     vec1[0] = triangle[3] - triangle[0];
@@ -1059,6 +1060,7 @@ void                polymer_triangletoplane(GLfloat* triangle, GLfloat* plane)
 
     plane[3] = -(plane[0] * triangle[0] + plane[1] * triangle[1] + plane[2] * triangle[2]);
 }
+
 void                polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out)
 {
     out[0] = in_a[1] * in_b[2] - in_a[2] * in_b[1];
@@ -1102,7 +1104,7 @@ void                polymer_extractfrustum(GLdouble* modelview, GLdouble* projec
 
 void                polymer_drawroom(short sectnum)
 {
-    int             i, j;
+    int             i, j, secwallcount, curwallcount, walclips;
     sectortype      *sec;
     walltype        *wal;
 
@@ -1111,29 +1113,94 @@ void                polymer_drawroom(short sectnum)
     sec = &sector[sectnum];
     wal = &wall[sec->wallptr];
 
+    secwallcount = sec->wallnum;
+
     // first draw the sector
     polymer_drawsector(sectnum);
     prsectors[sectnum]->drawingstate = 1;
 
     i = 0;
-    while (i < sec->wallnum)
+    while (i < secwallcount)
     {
-        if ((prwalls[sec->wallptr + i]->drawn == 0) && (wallvisible(sec->wallptr + i)) && (j = polymer_portalinfrustum(sec->wallptr + i)))
+        walclips = 0;
+        curwallcount = 1;
+
+        if ((prwalls[sec->wallptr + i]->drawn == 0) &&
+            (wallvisible(sec->wallptr + i)) &&
+            (walclips |= polymer_portalinfrustum(sec->wallptr + i)))
         {
-            prwalls[sec->wallptr + i]->drawn = 1;
+            if ((wal->nextsector != -1) && (prsectors[wal->nextsector]->drawingstate == 0))
+            {
+                // check for contigous walls with the same nextsector
+                if ((i == 0) &&
+                    (wal->nextsector == wall[sec->wallptr + secwallcount - 1].nextsector) &&
+                    (prwalls[sec->wallptr + secwallcount - 1]->drawn == 0) &&
+                    (wallvisible(sec->wallptr + secwallcount - 1)) &&
+                    (walclips |= polymer_portalinfrustum(sec->wallptr + secwallcount - 1)))
+                {
+                    j = secwallcount - 2;
+                    while ((j > 1) &&
+                           (wall[sec->wallptr + j].nextsector == wal->nextsector) &&
+                           (prwalls[sec->wallptr + j]->drawn == 0) &&
+                           (wallvisible(sec->wallptr + j)) &&
+                           (walclips |= polymer_portalinfrustum(sec->wallptr + j)))
+                        j--;
+                    secwallcount = i = j + 1;
+                    curwallcount += sec->wallnum - secwallcount;
+                }
+                j = i + 1;
+                while ((wall[sec->wallptr + j].nextsector == wal->nextsector) &&
+                       (prwalls[sec->wallptr + j]->drawn == 0) &&
+                       (wallvisible(sec->wallptr + j)) &&
+                       (walclips |= polymer_portalinfrustum(sec->wallptr + j)))
+                    j++;
+                curwallcount += j - i - 1;
+            }
+
+            j = 0;
+            while (j < curwallcount)
+            {
+                prwalls[sec->wallptr + ((i + j) % sec->wallnum)]->drawn = 1;
+                j++;
+            }
 
             if ((wal->nextsector != -1) && (prsectors[wal->nextsector]->drawingstate == 0))
             {
-                if (j > 1)
-                {
-                    // the wall intersected at least one plane and needs to be clipped
-                    clippedportalpointcount = polymer_cliptofrustum(sec->wallptr + i);
-                }
+                clippedportalpointcount = 4 + ((curwallcount - 1) * 2);
+
+                // generate the portal from all the walls
+                if (curwallcount == 1)
+                    memcpy(clippedportalpoints, prwalls[sec->wallptr + i]->portal, sizeof(float) * 4 * 3);
                 else
                 {
-                    clippedportalpointcount = 4;
-                    memcpy(clippedportalpoints, prwalls[sec->wallptr + i]->portal, sizeof(float) * clippedportalpointcount * 3);
+                    if (clippedportalpointcount > maxclippedportalpointcount)
+                    {
+                        clippedportalpoints = realloc(clippedportalpoints, sizeof(GLfloat) * 3 * clippedportalpointcount);
+                        distances = realloc(distances, sizeof(float) * clippedportalpointcount);
+                        maxclippedportalpointcount = clippedportalpointcount;
+                    }
+
+                    j = 0;
+                    while (j < curwallcount)
+                    {
+                        memcpy(&clippedportalpoints[j * 3],
+                               &prwalls[sec->wallptr + ((i + j) % sec->wallnum)]->portal[0],
+                               sizeof(GLfloat) * 3);
+                        memcpy(&clippedportalpoints[(clippedportalpointcount - j - 1) * 3],
+                               &prwalls[sec->wallptr + ((i + j) % sec->wallnum)]->portal[9],
+                               sizeof(GLfloat) * 3);
+                        j++;
+                    }
+                    memcpy(&clippedportalpoints[j * 3],
+                           &prwalls[sec->wallptr + ((i + j - 1) % sec->wallnum)]->portal[3],
+                           sizeof(GLfloat) * 3);
+                    memcpy(&clippedportalpoints[(clippedportalpointcount - j - 1) * 3],
+                           &prwalls[sec->wallptr + ((i + j - 1) % sec->wallnum)]->portal[6],
+                           sizeof(GLfloat) * 3);
                 }
+
+                if (walclips > 1) // the wall intersected at least one plane and needs to be clipped
+                    clippedportalpointcount = polymer_cliptofrustum(sec->wallptr + i);
 
                 if (pr_showportals)
                 {
@@ -1154,7 +1221,7 @@ void                polymer_drawroom(short sectnum)
 
                 if (frustumstacksize <= (frustumstackposition + (frustumsizes[frustumdepth] + clippedportalpointcount + 1) * 4))
                 {
-                    frustumstacksize += (clippedportalpointcount + 1) * 4; // don't forget the near plane
+                    frustumstacksize += clippedportalpointcount * 4;
                     frustumstack = realloc(frustumstack, sizeof(GLfloat) * frustumstacksize);
                 }
                 if (maxfrustumcount == (frustumdepth + 1))
@@ -1166,7 +1233,7 @@ void                polymer_drawroom(short sectnum)
                 // push a new frustum on the stack
                 frustumstackposition += frustumsizes[frustumdepth] * 4;
                 frustumdepth++;
-                frustumsizes[frustumdepth] = (clippedportalpointcount + 1); // don't forget the near plane
+                frustumsizes[frustumdepth] = clippedportalpointcount;
 
                 // calculate the new frustum data
                 polymer_portaltofrustum(clippedportalpoints, clippedportalpointcount, pos, &frustumstack[frustumstackposition]);
@@ -1198,11 +1265,18 @@ void                polymer_drawroom(short sectnum)
                 }
             }
 
-            polymer_drawwall(sec->wallptr + i);
-
-            prwalls[sec->wallptr + i]->drawn = 0;
+            j = 0;
+            while (j < curwallcount)
+            {
+                polymer_drawwall(sec->wallptr + ((i + j) % sec->wallnum));
+                prwalls[sec->wallptr + ((i + j) % sec->wallnum)]->drawn = 0;
+                j++;
+            }
         }
-        i++;
+        i += curwallcount;
+        if (i > sec->wallnum)
+            i = i % sec->wallnum;
+
         wal = &wall[sec->wallptr + i];
     }
 
@@ -1229,14 +1303,13 @@ int                 polymer_portalinfrustum(short wallnum)
                      frustum[(i * 4) + 2] * w->portal[(j * 3) + 2] +
                      frustum[(i * 4) + 3];
             if (sqdist < 0)
-            {
                 k++;
-                result |= 2<<j;
-            }
             j++;
         }
         if (k == 4)
             return (0); // OUT !
+        if (k != 0)
+            result |= 2<<i;
         i++;
     }
 
@@ -1256,6 +1329,7 @@ float               polymer_pointdistancetoplane(GLfloat* point, GLfloat* plane)
 
     return (result);
 }
+
 float               polymer_pointdistancetopoint(GLfloat* point1, GLfloat* point2)
 {
     return ((point2[0] - point1[0]) * (point2[0] - point1[0]) +
@@ -1286,9 +1360,9 @@ int                 polymer_cliptofrustum(short wallnum)
     exitpoint = 0; // annoying "warning: 'exitpoint' may be used uninialized in this function"
 
     frustum = &frustumstack[frustumstackposition];
-    result = 4; // 4 points to start with
+    result = clippedportalpointcount; // 4 points to start with
     if (pr_verbosity >= 3) OSD_Printf("PR : Clipping wall %d...\n", wallnum);
-    memcpy(clippedportalpoints, prwalls[wallnum]->portal, sizeof(GLfloat) * 3 * 4);
+    //memcpy(clippedportalpoints, prwalls[wallnum]->portal, sizeof(GLfloat) * 3 * 4);
 
     i = 0;
     while (i < frustumsizes[frustumdepth])
