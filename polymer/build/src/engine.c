@@ -10976,6 +10976,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
         {
             col = 4;
             if ((wal->cstat&1) != 0) col = 5;
+            if (wal->nextwall!=-1&&((wal->cstat^wall[wal->nextwall].cstat)&1)) col = 2;
             if ((i == linehighlight) || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
                 if (totalclock & 16) col += (2<<2);
         }

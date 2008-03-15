@@ -2434,10 +2434,16 @@ int MV_PlayLoopedOGG(char *ptr, int loopstart, int loopend, int pitchoffset, int
         return(MV_Error);
     }
 
-    while ((uint64)(vorbisInfo->rate)/(1<<voice->downsample)*PITCH_GetScale(pitchoffset)/0x1000000/0x100)
+    while ((ogg_int64_t)(vorbisInfo->rate)/(1<<voice->downsample)*PITCH_GetScale(pitchoffset)/0x1000000/0x100)
         voice->downsample++;
     length=ov_pcm_total(&voice->OGGstream.oggStream,0);
-    if (!length)length=0xffffff;
+//    if (!length)length=0xffffff;
+    if (length == OV_EINVAL)
+    {
+        MV_SetErrorCode(MV_InvalidOGGFile);
+        return(MV_Error);
+    }
+
     loopend=length=length>>voice->downsample;
 
     voice->wavetype    = OGG;

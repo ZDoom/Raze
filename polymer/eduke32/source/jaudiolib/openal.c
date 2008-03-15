@@ -265,7 +265,7 @@ int AL_Init()
     Bmemset(&music,0,sizeof(music)); // "music.def.size=0" means music not playing
     if (loadaldriver())
     {
-        initprintf("Failed loading OpenAL driver.\nDownload OpenAL 1.1 or greater from http://www.openal.org/downloads.html.");
+        initprintf("Failed loading OpenAL driver.\nDownload OpenAL 1.1 or greater from http://www.openal.org/downloads.html\n");
         openal_disabled = 1;
 
         return 1;

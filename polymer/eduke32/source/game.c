@@ -8621,7 +8621,7 @@ static void autoloadgrps(const char *fn)
     while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
 }
 
-char *makename(char *destname, char *OGGname, char *origname)
+static char *makename(char *destname, char *OGGname, char *origname)
 {
     if (!origname)
         return destname;
@@ -8649,17 +8649,17 @@ char *makename(char *destname, char *OGGname, char *origname)
     return destname;
 }
 
-int AL_DefineSound(int ID,char *name)
+static int AL_DefineSound(int ID,char *name)
 {
     if (ID>=MAXSOUNDS)
         return 1;
     g_sounds[ID].filename1=makename(g_sounds[ID].filename1,name,g_sounds[ID].filename);
-    initprintf("(%s)(%s)(%s)\n",g_sounds[ID].filename1,name,g_sounds[ID].filename);
+//    initprintf("(%s)(%s)(%s)\n",g_sounds[ID].filename1,name,g_sounds[ID].filename);
 //    loadsound(ID);
     return 0;
 }
 
-int AL_DefineMusic(char *ID,char *name)
+static int AL_DefineMusic(char *ID,char *name)
 {
     int lev,ep,sel;char b1,b2;
 
@@ -8691,8 +8691,8 @@ int AL_DefineMusic(char *ID,char *name)
     }
 
     map[sel].musicfn1=makename(map[sel].musicfn1,name,ID);
-    initprintf("%-15s | ",ID);
-    initprintf("%3d %2d %2d | %s\n",sel,ep,lev,map[sel].musicfn1);
+//    initprintf("%-15s | ",ID);
+//    initprintf("%3d %2d %2d | %s\n",sel,ep,lev,map[sel].musicfn1);
 //    playmusicMAP(ID,sel);
     return 0;
 }

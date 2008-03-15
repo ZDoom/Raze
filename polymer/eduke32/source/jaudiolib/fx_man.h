@@ -138,8 +138,4 @@ int  FX_StartRecording( int MixRate, void ( *function )( char *ptr, int length )
 void FX_StopRecord( void );
 
 void FX_Update(void);
-
-int AL_DefineMusic(char *ID,char *name);
-int AL_DefineSound(int ID,char *name);
-
 #endif

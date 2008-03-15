@@ -495,12 +495,21 @@ CANCEL:
 
             if (keystatus[0x15] != 0)
             {
+                char *f;
                 keystatus[0x15] = 0;
                 fixspritesectors();
                 updatesector(startposx,startposy,&startsectnum);
                 ExtPreSaveMap();
-                saveboard(boardfilename,&startposx,&startposy,&startposz,&startang,&startsectnum);
-                ExtSaveMap(boardfilename);
+                if (pathsearchmode) f = boardfilename;
+                else
+                {
+                    // virtual filesystem mode can't save to directories so drop the file into
+                    // the current directory
+                    f = strrchr(boardfilename, '/');
+                    if (!f) f = boardfilename; else f++;
+                }
+                saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
+                ExtSaveMap(f);
                 break;
             }
         }
@@ -4959,7 +4968,7 @@ void overheadeditor(void)
                             {
                                 wall[i].point2 += (suckwall-numwalls);
 
-                                wall[i].cstat = wall[suckwall+j].cstat;
+                                wall[i].cstat = wall[suckwall+j].cstat&~(1+16+32+64);
                                 wall[i].shade = wall[suckwall+j].shade;
                                 wall[i].yrepeat = wall[suckwall+j].yrepeat;
                                 fixrepeats((short)i);
