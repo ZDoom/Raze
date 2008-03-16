@@ -37,15 +37,6 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #include "duke3d.h"
 #include "cache1d.h"
 
-#ifndef MAX_PATH
-#define MAX_PATH 256
-#endif
-
-#if (defined __WATCOMC__)
-// This is probably out of date.  --ryan.
-#include "dukesnd_watcom.h"
-#endif
-
 #if (!defined __WATCOMC__)
 #define cdecl
 #endif
@@ -75,129 +66,12 @@ static FILE *debug_file = NULL;
 static int initialized_debugging = 0;
 static int external_midi = 0;
 
-static char *midifn = NULL;
-
-static char ApogeePath[256] = "/tmp/";
-
-#define PATH_SEP_CHAR '/'
-#define PATH_SEP_STR  "/"
-#define ROOTDIR       "/"
-#define CURDIR        "./"
-
-#ifndef MAX_PATH
-#define MAX_PATH 256
-#endif
-
-void FixFilePath(char *filename)
-{
-    char *ptr;
-    char *lastsep = filename;
-
-    if ((!filename) || (*filename == '\0'))
-        return;
-
-    if (access(filename, F_OK) == 0)  /* File exists; we're good to go. */
-        return;
-
-    for (ptr = filename; 1; ptr++)
-    {
-        if (*ptr == '\\')
-            *ptr = PATH_SEP_CHAR;
-
-        if ((*ptr == PATH_SEP_CHAR) || (*ptr == '\0'))
-        {
-            char pch = *ptr;
-            struct dirent *dent = NULL;
-            DIR *dir;
-
-            if ((pch == PATH_SEP_CHAR) && (*(ptr + 1) == '\0'))
-                return; /* eos is pathsep; we're done. */
-
-            if (lastsep == ptr)
-                continue;  /* absolute path; skip to next one. */
-
-            *ptr = '\0';
-            if (lastsep == filename)
-            {
-                dir = opendir((*lastsep == PATH_SEP_CHAR) ? ROOTDIR : CURDIR);
-
-                if (*lastsep == PATH_SEP_CHAR)
-                {
-                    lastsep++;
-                }
-            }
-            else
-            {
-                *lastsep = '\0';
-                dir = opendir(filename);
-                *lastsep = PATH_SEP_CHAR;
-                lastsep++;
-            }
-
-            if (dir == NULL)
-            {
-                *ptr = PATH_SEP_CHAR;
-                return;  /* maybe dir doesn't exist? give up. */
-            }
-
-            while ((dent = readdir(dir)) != NULL)
-            {
-                if (strcasecmp(dent->d_name, lastsep) == 0)
-                {
-                    /* found match; replace it. */
-                    strcpy(lastsep, dent->d_name);
-                    break;
-                }
-            }
-
-            closedir(dir);
-            *ptr = pch;
-            lastsep = ptr;
-
-            if (dent == NULL)
-                return;  /* no match. oh well. */
-
-            if (pch == '\0')  /* eos? */
-                return;
-        }
-    }
-}
-
-int32 SafeOpenWrite(const char *_filename, int32 filetype)
-{
-    int handle;
-    char filename[MAX_PATH];
-    strncpy(filename, _filename, sizeof(filename));
-    filename[sizeof(filename) - 1] = '\0';
-    FixFilePath(filename);
-
-    handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_TRUNC
-                  , S_IREAD | S_IWRITE);
-
-    if (handle == -1)
-        Error("Error opening %s: %s",filename,strerror(errno));
-
-    return handle;
-}
-
-void SafeWrite(int32 handle, void *buffer, int32 count)
-{
-    unsigned    iocount;
-
-    while (count)
-    {
-        iocount = count > 0x8000 ? 0x8000 : count;
-        if (write(handle,buffer,iocount) != (int)iocount)
-            Error("File write failure writing %d bytes",count);
-        buffer = (void *)((byte *)buffer + iocount);
-        count -= iocount;
-    }
-}
-
-void GetUnixPathFromEnvironment(char *fullname, int32 length, const char *filename)
-{
-    snprintf(fullname, length-1, "%s%s", ApogeePath, filename);
-}
+static int music_initialized = 0;
+static int music_context = 0;
+static int music_loopflag = MUSIC_PlayOnce;
+static Mix_Music *music_musicchunk = NULL;
+static SDL_RWops *music_rw = NULL;
+static char *music_songdata = NULL;
 
 // This gets called all over the place for information and debugging messages.
 //  If the user set the DUKESND_DEBUG environment variable, the messages
@@ -242,16 +116,6 @@ static void init_debugging(void)
 
     initialized_debugging = 1;
 } // init_debugging
-
-#if 0
-static void setWarningMessage(const char *msg)
-{
-    strncpy(warningMessage, msg, sizeof(warningMessage));
-    // strncpy() doesn't add the null char if there isn't room...
-    warningMessage[sizeof(warningMessage) - 1] = '\0';
-    musdebug("Warning message set to [%s].", warningMessage);
-} // setErrorMessage
-#endif
 
 static void setErrorMessage(const char *msg)
 {
@@ -308,13 +172,6 @@ char *MUSIC_ErrorString(int ErrorNumber)
     return(NULL);
 } // MUSIC_ErrorString
 
-
-static int music_initialized = 0;
-static int music_context = 0;
-static int music_loopflag = MUSIC_PlayOnce;
-static char *music_songdata = NULL;
-static Mix_Music *music_musicchunk = NULL;
-
 int MUSIC_Init(int SoundCard, int Address)
 {
     // Use an external MIDI player if the user has specified to do so
@@ -352,14 +209,6 @@ int MUSIC_Shutdown(void)
     music_context = 0;
     music_initialized = 0;
     music_loopflag = MUSIC_PlayOnce;
-
-    if (midifn != NULL)
-    {
-        initprintf("Removing temporary file '%s'\n",midifn);
-        unlink(midifn);
-        Bfree(midifn);
-        midifn = NULL;
-    }
 
     return(MUSIC_Ok);
 } // MUSIC_Shutdown
@@ -414,8 +263,6 @@ void MUSIC_Continue(void)
 {
     if (Mix_PausedMusic())
         Mix_ResumeMusic();
-    else if (music_songdata)
-        MUSIC_PlaySong((unsigned char *)music_songdata, MUSIC_PlayOnce);
 } // MUSIC_Continue
 
 
@@ -439,39 +286,17 @@ int MUSIC_StopSong(void)
 
     if (music_musicchunk)
         Mix_FreeMusic(music_musicchunk);
+/*    if (music_rw)
+        SDL_FreeRW (music_rw); */
+    if (music_songdata)
+        Bfree (music_songdata);
 
-    music_songdata = NULL;
     music_musicchunk = NULL;
+    music_rw = NULL;
+    music_songdata = NULL;
 
     return(MUSIC_Ok);
 } // MUSIC_StopSong
-
-
-int MUSIC_PlaySong(unsigned char *song, int loopflag)
-{
-    //SDL_RWops *rw;
-
-    MUSIC_StopSong();
-
-    music_songdata = (char *)song;
-
-    // !!! FIXME: This could be a problem...SDL/SDL_mixer wants a RWops, which
-    // !!! FIXME:  is an i/o abstraction. Since we already have the MIDI data
-    // !!! FIXME:  in memory, we fake it with a memory-based RWops. None of
-    // !!! FIXME:  this is a problem, except the RWops wants to know how big
-    // !!! FIXME:  its memory block is (so it can do things like seek on an
-    // !!! FIXME:  offset from the end of the block), and since we don't have
-    // !!! FIXME:  this information, we have to give it SOMETHING.
-
-    /* !!! ARGH! There's no LoadMUS_RW  ?!
-    rw = SDL_RWFromMem((void *) song, (10 * 1024) * 1024);  // yikes.
-    music_musicchunk = Mix_LoadMUS_RW(rw);
-    Mix_PlayMusic(music_musicchunk, (loopflag == MUSIC_PlayOnce) ? 0 : -1);
-    */
-
-    return(MUSIC_Ok);
-} // MUSIC_PlaySong
-
 
 // Duke3D-specific.  --ryan.
 void PlayMusic(char *_filename)
@@ -483,12 +308,10 @@ void PlayMusic(char *_filename)
     char filename[BMAX_PATH];
     int handle;
     int size;
-    void *song;
     int rc;
 
     MUSIC_StopSong();
-    // Read from a groupfile, write it to disk so SDL_mixer can read it.
-    //   Lame.  --ryan.
+
     handle = kopen4load(_filename, 0);
     if (handle == -1)
         return;
@@ -500,44 +323,26 @@ void PlayMusic(char *_filename)
         return;
     } // if
 
-    song = malloc(size);
-    if (song == NULL)
+    music_songdata = malloc(size);
+    if (music_songdata == NULL)
     {
         kclose(handle);
         return;
     } // if
 
-    rc = kread(handle, song, size);
+    rc = kread(handle, music_songdata, size);
     kclose(handle);
     if (rc != size)
     {
-        Bfree(song);
+        Bfree(music_songdata);
+        music_songdata = NULL;
         return;
     } // if
 
-    // save the file somewhere, so SDL_mixer can load it
     {
-        char *user = getenv("USERNAME");
+        music_rw = SDL_RWFromMem((void *) music_songdata, size);
+        music_musicchunk = Mix_LoadMUS_RW(music_rw);
 
-        if (user) Bsprintf(tempbuf,"duke3d_%s.%d",user,getpid());
-        else Bsprintf(tempbuf,"duke3d.%d",getpid());
-
-        GetUnixPathFromEnvironment(filename, BMAX_PATH, tempbuf);
-
-        handle = SafeOpenWrite(filename, filetype_binary);
-
-        if (handle == -1)
-            return;
-
-        midifn = Bstrdup(filename);
-
-        SafeWrite(handle, song, size);
-        close(handle);
-        Bfree(song);
-
-        //music_songdata = song;
-
-        music_musicchunk = Mix_LoadMUS(filename);
         if (music_musicchunk != NULL)
         {
             // !!! FIXME: I set the music to loop. Hope that's okay. --ryan.
