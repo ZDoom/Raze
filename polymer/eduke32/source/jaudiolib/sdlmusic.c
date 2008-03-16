@@ -70,7 +70,6 @@ static int music_initialized = 0;
 static int music_context = 0;
 static int music_loopflag = MUSIC_PlayOnce;
 static Mix_Music *music_musicchunk = NULL;
-static SDL_RWops *music_rw = NULL;
 static char *music_songdata = NULL;
 
 // This gets called all over the place for information and debugging messages.
@@ -286,13 +285,10 @@ int MUSIC_StopSong(void)
 
     if (music_musicchunk)
         Mix_FreeMusic(music_musicchunk);
-/*    if (music_rw)
-        SDL_FreeRW (music_rw); */
     if (music_songdata)
         Bfree (music_songdata);
 
     music_musicchunk = NULL;
-    music_rw = NULL;
     music_songdata = NULL;
 
     return(MUSIC_Ok);
@@ -323,7 +319,7 @@ void PlayMusic(char *_filename)
         return;
     } // if
 
-    music_songdata = malloc(size);
+    music_songdata = Bcalloc(size,sizeof(char));
     if (music_songdata == NULL)
     {
         kclose(handle);
@@ -339,17 +335,14 @@ void PlayMusic(char *_filename)
         return;
     } // if
 
-    {
-        music_rw = SDL_RWFromMem((void *) music_songdata, size);
-        music_musicchunk = Mix_LoadMUS_RW(music_rw);
+    music_musicchunk = Mix_LoadMUS_RW(SDL_RWFromMem((char *) music_songdata, size));
 
-        if (music_musicchunk != NULL)
-        {
-            // !!! FIXME: I set the music to loop. Hope that's okay. --ryan.
-            Musicsize = size;
-            Mix_PlayMusic(music_musicchunk, -1);
-        } // if
-    }
+    if (music_musicchunk != NULL)
+    {
+        // !!! FIXME: I set the music to loop. Hope that's okay. --ryan.
+        Musicsize = size;
+        Mix_PlayMusic(music_musicchunk, -1);
+    } // if
 }
 
 
