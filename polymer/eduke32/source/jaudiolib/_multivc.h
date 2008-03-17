@@ -83,129 +83,136 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #define PI                3.1415926536
 
 typedef enum
-   {
-   Raw,
-   VOC,
-   DemandFeed,
-   WAV,
-   OGG
-   } wavedata;
+{
+    Raw,
+    VOC,
+    DemandFeed,
+    WAV,
+    OGG
+} wavedata;
 
 typedef enum
-   {
-   NoMoreData,
-   KeepPlaying
-   } playbackstatus;
+{
+    NoMoreData,
+    KeepPlaying
+} playbackstatus;
 
+typedef struct sounddef
+{
+        unsigned pos;
+        char *ptrsnd;
+        unsigned size;
+        OggVorbis_File  oggStream;
+} sounddef;
 
 typedef struct VoiceNode
-   {
-   struct VoiceNode *next;
-   struct VoiceNode *prev;
+{
+    struct VoiceNode *next;
+    struct VoiceNode *prev;
 
-   wavedata      wavetype;
-   char          bits;
+    wavedata      wavetype;
+    char          bits;
 
-   playbackstatus ( *GetSound )( struct VoiceNode *voice );
+    playbackstatus(*GetSound)(struct VoiceNode *voice);
 
-   void ( *mix )( unsigned int position, unsigned int rate,
-      char *start, unsigned int length );
+    void (*mix)(unsigned int position, unsigned int rate,
+                char *start, unsigned int length);
 
-   char         *NextBlock;
-   char         *LoopStart;
-   char         *LoopEnd;
-   unsigned      LoopCount;
-   unsigned int LoopSize;
-   unsigned int BlockLength;
+    char         *NextBlock;
+    char         *LoopStart;
+    char         *LoopEnd;
+    unsigned      LoopCount;
+    unsigned int LoopSize;
+    unsigned int BlockLength;
 
-   unsigned int PitchScale;
-   unsigned int FixedPointBufferSize;
+    unsigned int PitchScale;
+    unsigned int FixedPointBufferSize;
 
-   char         *sound;
-   unsigned int length;
-   unsigned int SamplingRate;
-   unsigned int RateScale;
-   unsigned int position;
-   int           Playing;
+    char         *sound;
+    unsigned int length;
+    unsigned int SamplingRate;
+    unsigned int RateScale;
+    unsigned int position;
+    int           Playing;
 
-   int           handle;
-   int           priority;
+    int           handle;
+    int           priority;
 
-   void          ( *DemandFeed )( char **ptr, unsigned int *length );
+    void (*DemandFeed)(char **ptr, unsigned int *length);
 
-   struct       sounddef OGGstream;
+    struct       sounddef OGGstream;
 //   char         *bufsnd;
-   char         bufsnd[0x8000*4];
-   int          downsample;
+    char         bufsnd[0x8000*4];
+    int          downsample;
 
-   short        *LeftVolume;
-   short        *RightVolume;
+    short        *LeftVolume;
+    short        *RightVolume;
 
-   unsigned int callbackval;
+    unsigned int callbackval;
 
-   } VoiceNode;
-
-typedef struct
-   {
-   VoiceNode *start;
-   VoiceNode *end;
-   } VList;
+} VoiceNode;
 
 typedef struct
-   {
-   char left;
-   char right;
-   } Pan;
+{
+    VoiceNode *start;
+    VoiceNode *end;
+} VList;
+
+typedef struct
+{
+    char left;
+    char right;
+} Pan;
 
 typedef signed short MONO16;
 typedef signed char  MONO8;
 
 typedef struct
-   {
-   MONO16 left;
-   MONO16 right;
+{
+    MONO16 left;
+    MONO16 right;
 //   unsigned short left;
 //   unsigned short right;
-   } STEREO16;
+} STEREO16;
 
 typedef struct
-   {
-   MONO16 left;
-   MONO16 right;
-   } SIGNEDSTEREO16;
+{
+    MONO16 left;
+    MONO16 right;
+} SIGNEDSTEREO16;
 
 typedef struct
-   {
+{
 //   MONO8 left;
 //   MONO8 right;
-   char left;
-   char right;
-   } STEREO8;
+    char left;
+    char right;
+} STEREO8;
 
 typedef struct
-   {
-   char          RIFF[ 4 ];
-   unsigned int file_size;
-   char          WAVE[ 4 ];
-   char          fmt[ 4 ];
-   unsigned int format_size;
-   } riff_header;
+{
+    char          RIFF[ 4 ];
+    unsigned int file_size;
+    char          WAVE[ 4 ];
+    char          fmt[ 4 ];
+    unsigned int format_size;
+} riff_header;
 
 typedef struct
-   {
-   unsigned short wFormatTag;
-   unsigned short nChannels;
-   unsigned int  nSamplesPerSec;
-   unsigned int  nAvgBytesPerSec;
-   unsigned short nBlockAlign;
-   unsigned short nBitsPerSample;
-   } format_header;
+{
+    unsigned short wFormatTag;
+    unsigned short nChannels;
+    unsigned int  nSamplesPerSec;
+    unsigned int  nAvgBytesPerSec;
+    unsigned short nBlockAlign;
+    unsigned short nBitsPerSample;
+} format_header;
 
 typedef struct
-   {
-   unsigned char DATA[ 4 ];
-   unsigned int size;
-   } data_header;
+{
+    unsigned char DATA[ 4 ];
+    unsigned int size;
+} data_header;
 
 typedef MONO8  VOLUME8[ 256 ];
 typedef MONO16 VOLUME16[ 256 ];
@@ -214,27 +221,27 @@ typedef char HARSH_CLIP_TABLE_8[ MV_NumVoices * 256 ];
 
 static unsigned MV_GetBufferSize(unsigned);
 
-static void MV_Mix( VoiceNode *voice, int buffer );
-static void MV_PlayVoice( VoiceNode *voice );
-static void MV_StopVoice( VoiceNode *voice );
-static int  MV_ServiceVoc( int );
+static void MV_Mix(VoiceNode *voice, int buffer);
+static void MV_PlayVoice(VoiceNode *voice);
+static void MV_StopVoice(VoiceNode *voice);
+static int  MV_ServiceVoc(int);
 
-static playbackstatus MV_GetNextVOCBlock( VoiceNode *voice );
-static playbackstatus MV_GetNextDemandFeedBlock( VoiceNode *voice );
-static playbackstatus MV_GetNextRawBlock( VoiceNode *voice );
-static playbackstatus MV_GetNextWAVBlock( VoiceNode *voice );
+static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice);
+static playbackstatus MV_GetNextDemandFeedBlock(VoiceNode *voice);
+static playbackstatus MV_GetNextRawBlock(VoiceNode *voice);
+static playbackstatus MV_GetNextWAVBlock(VoiceNode *voice);
 
 // static void       MV_ServiceRecord( void );
-static VoiceNode *MV_GetVoice( int handle );
-static VoiceNode *MV_AllocVoice( int priority );
+static VoiceNode *MV_GetVoice(int handle);
+static VoiceNode *MV_AllocVoice(int priority);
 
-static short     *MV_GetVolumeTable( int vol );
+static short     *MV_GetVolumeTable(int vol);
 
-static void       MV_SetVoiceMixMode( VoiceNode *voice );
+static void       MV_SetVoiceMixMode(VoiceNode *voice);
 
-static void       MV_SetVoicePitch( VoiceNode *voice, unsigned int rate, int pitchoffset );
-static void       MV_CalcVolume( int MaxLevel );
-static void       MV_CalcPanTable( void );
+static void       MV_SetVoicePitch(VoiceNode *voice, unsigned int rate, int pitchoffset);
+static void       MV_CalcVolume(int MaxLevel);
+static void       MV_CalcPanTable(void);
 
 static void ClearBuffer_DW(void *ptr, int data, int length);
 
@@ -289,34 +296,34 @@ parm [ edi ] [ eax ] [ ecx ] modify exact [ ecx edi ];
 #endif
 
 
-void CDEC MV_Mix8BitMono( unsigned int position, unsigned int rate,
-   char *start, unsigned int length );
+void CDEC MV_Mix8BitMono(unsigned int position, unsigned int rate,
+                         char *start, unsigned int length);
 
-void CDEC MV_Mix8BitStereo( unsigned int position,
-   unsigned int rate, char *start, unsigned int length );
+void CDEC MV_Mix8BitStereo(unsigned int position,
+                           unsigned int rate, char *start, unsigned int length);
 
-void CDEC MV_Mix16BitMono( unsigned int position,
-   unsigned int rate, char *start, unsigned int length );
+void CDEC MV_Mix16BitMono(unsigned int position,
+                          unsigned int rate, char *start, unsigned int length);
 
-void CDEC MV_Mix16BitStereo( unsigned int position,
-   unsigned int rate, char *start, unsigned int length );
+void CDEC MV_Mix16BitStereo(unsigned int position,
+                            unsigned int rate, char *start, unsigned int length);
 
-void CDEC MV_Mix16BitMono16( unsigned int position,
-   unsigned int rate, char *start, unsigned int length );
+void CDEC MV_Mix16BitMono16(unsigned int position,
+                            unsigned int rate, char *start, unsigned int length);
 
-void CDEC MV_Mix8BitMono16( unsigned int position, unsigned int rate,
-   char *start, unsigned int length );
+void CDEC MV_Mix8BitMono16(unsigned int position, unsigned int rate,
+                           char *start, unsigned int length);
 
-void CDEC MV_Mix8BitStereo16( unsigned int position,
-   unsigned int rate, char *start, unsigned int length );
+void CDEC MV_Mix8BitStereo16(unsigned int position,
+                             unsigned int rate, char *start, unsigned int length);
 
-void CDEC MV_Mix16BitStereo16( unsigned int position,
-   unsigned int rate, char *start, unsigned int length );
+void CDEC MV_Mix16BitStereo16(unsigned int position,
+                              unsigned int rate, char *start, unsigned int length);
 
-void CDEC MV_16BitReverb( char *src, char *dest, VOLUME16 *volume, int count );
-void CDEC MV_8BitReverb( signed char *src, signed char *dest, VOLUME16 *volume, int count );
-void CDEC MV_16BitReverbFast( char *src, char *dest, int count, int shift );
-void CDEC MV_8BitReverbFast( signed char *src, signed char *dest, int count, int shift );
+void CDEC MV_16BitReverb(char *src, char *dest, VOLUME16 *volume, int count);
+void CDEC MV_8BitReverb(signed char *src, signed char *dest, VOLUME16 *volume, int count);
+void CDEC MV_16BitReverbFast(char *src, char *dest, int count, int shift);
+void CDEC MV_8BitReverbFast(signed char *src, signed char *dest, int count, int shift);
 
 #undef CDEC
 

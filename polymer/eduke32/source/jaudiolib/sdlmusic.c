@@ -174,7 +174,7 @@ char *MUSIC_ErrorString(int ErrorNumber)
 int MUSIC_Init(int SoundCard, int Address)
 {
     // Use an external MIDI player if the user has specified to do so
-    char *command = getenv("EDUKE32_MIDI_CMD");
+    char *command = getenv("EDUKE32_MUSIC_CMD");
     external_midi = (command != NULL && command[0] != 0);
     if(external_midi)
         Mix_SetMusicCMD(command);
@@ -297,11 +297,6 @@ int MUSIC_StopSong(void)
 // Duke3D-specific.  --ryan.
 void PlayMusic(char *_filename)
 {
-    //char filename[MAX_PATH];
-    //strcpy(filename, _filename);
-    //FixFilePath(filename);
-
-    char filename[BMAX_PATH];
     int handle;
     int size;
     int rc;

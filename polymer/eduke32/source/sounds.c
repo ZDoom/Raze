@@ -196,14 +196,16 @@ void intomenusounds(void)
 void playmusic(const char *fn)
 {
 #if defined(_WIN32)
-    int        fp;
-    int        l;
+    int        fp, l;
+#else
+    extern void PlayMusic(char *_filename);
+#endif
 
     if (fn == NULL) return;
 
     if (ud.config.MusicToggle == 0) return;
     if (ud.config.MusicDevice < 0) return;
-
+#if defined(_WIN32)
     fp = kopen4load((char *)fn,0);
 
     if (fp == -1) return;
@@ -220,16 +222,9 @@ void playmusic(const char *fn)
     kclose(fp);
     MUSIC_PlaySong((unsigned char *)MusicPtr, MUSIC_LoopSong);
 #else
-    void PlayMusic(char *_filename, int loopflag);
-
-    if (fn == NULL) return;
-
-    if (ud.config.MusicToggle == 0) return;
-    if (ud.config.MusicDevice < 0) return;
-
     // FIXME: I need this to get the music volume initialized (not sure why) -- Jim Bentler
     MUSIC_SetVolume(ud.config.MusicVolume);
-    PlayMusic((char *)fn, MUSIC_LoopSong);
+    PlayMusic((char *)fn);
 #endif
 }
 

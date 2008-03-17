@@ -1758,12 +1758,15 @@ int MV_SetMixMode(int numchannels, int samplebits)
 //  OGG file
 // ---------------------------------------------------------------------
 ov_callbacks cb;
+
 size_t ReadOgg(void *ptr, size_t size1, size_t nmemb, void *datasource)
 {
     sounddef *d=(sounddef *)datasource;
     size1*=nmemb;
-    if (d->pos>=d->size)return 0;
-    if (d->pos+size1>=d->size)size1=d->size-d->pos;
+    if (d->pos>=d->size)
+        return 0;
+    if (d->pos+size1>=d->size)
+        size1=d->size-d->pos;
     Bmemcpy(ptr,(d->ptrsnd+d->pos),size1);
     d->pos+=size1;
     return size1;
@@ -1774,12 +1777,19 @@ int SeekOgg(void *datasource,ogg_int64_t offset,int whence)
     sounddef *d=(sounddef *)datasource;
     switch (whence)
     {
-    case SEEK_SET: whence=offset;break;
-    case SEEK_CUR: whence=d->pos+offset;break;
-    case SEEK_END: whence=d->size-offset-1;break;
+    case SEEK_SET: 
+        whence=offset;
+        break;
+    case SEEK_CUR: 
+        whence=d->pos+offset;
+        break;
+    case SEEK_END: 
+        whence=d->size-offset-1;
+        break;
     default: return -1;
     }
-    if (whence>=(int)d->size||whence<0)return -1;
+    if (whence>=(int)d->size||whence<0)
+        return -1;
     d->pos=whence;
     return 0;
 }
@@ -2436,7 +2446,7 @@ int MV_PlayLoopedOGG(char *ptr, int loopstart, int loopend, int pitchoffset, int
 
     while ((ogg_int64_t)(vorbisInfo->rate)/(1<<voice->downsample)*PITCH_GetScale(pitchoffset)/0x1000000/0x100)
         voice->downsample++;
-    length=ov_pcm_total(&voice->OGGstream.oggStream,0);
+    length=ov_pcm_total(&voice->OGGstream.oggStream,-1);
 //    if (!length)length=0xffffff;
     if (length == OV_EINVAL)
     {
@@ -2474,7 +2484,8 @@ int MV_PlayLoopedOGG(char *ptr, int loopstart, int loopend, int pitchoffset, int
     }
 
     MV_SetVoicePitch(voice, vorbisInfo->rate>>voice->downsample, pitchoffset);
-    if (vorbisInfo->channels==2)voice->downsample++;
+    if (vorbisInfo->channels==2)
+        voice->downsample++;
     MV_SetVoiceVolume(voice, vol, left, right);
     MV_PlayVoice(voice);
 
