@@ -140,7 +140,7 @@ typedef struct VoiceNode
 
     void (*DemandFeed)(char **ptr, unsigned int *length);
 
-    struct       sounddef OGGstream;
+    sounddef OGGstream;
 //   char         *bufsnd;
     char         bufsnd[0x8000*4];
     int          downsample;

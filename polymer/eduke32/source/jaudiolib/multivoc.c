@@ -1763,8 +1763,8 @@ size_t ReadOgg(void *ptr, size_t size1, size_t nmemb, void *datasource)
 {
     sounddef *d=(sounddef *)datasource;
     size1*=nmemb;
-    if (d->pos>=d->size)
-        return 0;
+/*    if (d->pos>=d->size)
+        return 0;*/
     if (d->pos+size1>=d->size)
         size1=d->size-d->pos;
     Bmemcpy(ptr,(d->ptrsnd+d->pos),size1);
@@ -1784,12 +1784,12 @@ int SeekOgg(void *datasource,ogg_int64_t offset,int whence)
         whence=d->pos+offset;
         break;
     case SEEK_END: 
-        whence=d->size-offset-1;
+        whence=d->size-offset;
         break;
     default: return -1;
     }
-    if (whence>=(int)d->size||whence<0)
-        return -1;
+/*    if (whence>=(int)d->size||whence<0)
+        return -1;*/
     d->pos=whence;
     return 0;
 }
@@ -2443,16 +2443,16 @@ int MV_PlayLoopedOGG(char *ptr, int loopstart, int loopend, int pitchoffset, int
         MV_SetErrorCode(MV_InvalidOGGFile);
         return(MV_Error);
     }
-
     while ((ogg_int64_t)(vorbisInfo->rate)/(1<<voice->downsample)*PITCH_GetScale(pitchoffset)/0x1000000/0x100)
         voice->downsample++;
     length=ov_pcm_total(&voice->OGGstream.oggStream,-1);
-//    if (!length)length=0xffffff;
-    if (length == OV_EINVAL)
+    if (!length)
+        length=0xffffff;
+/*    if (length == OV_EINVAL)
     {
         MV_SetErrorCode(MV_InvalidOGGFile);
         return(MV_Error);
-    }
+    }*/
 
     loopend=length=length>>voice->downsample;
 
