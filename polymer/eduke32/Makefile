@@ -38,7 +38,7 @@ endif
 CC=gcc
 CXX=g++
 
-OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration -Wno-unused \
+OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-fno-pic -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -DNOCOPYPROTECT \
 	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(SRC)/jaudiolib 
 OURCXXFLAGS=-fno-exceptions -fno-rtti

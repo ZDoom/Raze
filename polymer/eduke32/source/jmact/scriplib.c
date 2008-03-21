@@ -410,11 +410,6 @@ void SCRIPT_Free( int32 scripthandle )
 	SCRIPT_Delete(scripthandle);
 }
 
-int32 SCRIPT_Parse ( char *data, int32 length, char * name )
-{
-	return 0;
-}
-
 int32 SCRIPT_Load ( char * filename )
 {
 	int32 s,h,l;
@@ -735,42 +730,6 @@ boolean SCRIPT_GetBoolean( int32 scripthandle, char * sectionname, char * entryn
 	return 0;
 }
 
-boolean SCRIPT_GetDouble( int32 scripthandle, char * sectionname, char * entryname, double * number )
-{
-	ScriptSectionType *s;
-	ScriptEntryType *e;
-
-	if (!SC(scripthandle)) return 1;
-	if (!SCRIPT(scripthandle,script)) return 1;
-
-	s = SCRIPT_SectionExists(scripthandle, sectionname);
-	e = SCRIPT_EntryExists(s, entryname);
-	
-	if (!e) return 1;// *number = 0.0;
-	else {
-	}
-
-	return 0;
-}
-
-void SCRIPT_PutComment( int32 scripthandle, char * sectionname, char * comment )
-{
-}
-
-void SCRIPT_PutEOL( int32 scripthandle, char * sectionname )
-{
-}
-
-void SCRIPT_PutMultiComment
-   (
-   int32 scripthandle,
-   char * sectionname,
-   char * comment,
-   ...
-   )
-{
-}
-
 void SCRIPT_PutSection( int32 scripthandle, char * sectionname )
 {
 	SCRIPT_AddSection(scripthandle, sectionname);
@@ -879,6 +838,7 @@ void SCRIPT_PutNumber
 {
 	char raw[64];
 
+    UNUSED_PARAMETER(defaultvalue);
 	if (hexadecimal) sprintf(raw, "0x%X", number);
 	else sprintf(raw, "%d", number);
 
@@ -911,6 +871,7 @@ void SCRIPT_PutDouble
 {
 	char raw[64];
 
+    UNUSED_PARAMETER(defaultvalue);
 	sprintf(raw, "%g", number);
 
 	SCRIPT_AddEntry(scripthandle, sectionname, entryname, raw);

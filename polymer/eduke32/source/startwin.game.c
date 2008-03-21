@@ -79,7 +79,7 @@ static void PopulateForm(int pgs)
         }
 
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), (settings.fullscreen ? BST_CHECKED : BST_UNCHECKED));
-        ComboBox_ResetContent(hwnd);
+        (void)ComboBox_ResetContent(hwnd);
         for (i=0; i<validmodecnt; i++)
         {
             if (validmode[i].fs != settings.fullscreen) continue;
@@ -87,8 +87,8 @@ static void PopulateForm(int pgs)
             // all modes get added to the 3D mode list
             Bsprintf(buf, "%d x %d %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
             j = ComboBox_AddString(hwnd, buf);
-            ComboBox_SetItemData(hwnd, j, i);
-            if (i == mode) ComboBox_SetCurSel(hwnd, j);
+            (void)ComboBox_SetItemData(hwnd, j, i);
+            if (i == mode) (void)ComboBox_SetCurSel(hwnd, j);
         }
     }
 
@@ -98,7 +98,7 @@ static void PopulateForm(int pgs)
         char *n;
 
         hwnd = GetDlgItem(pages[TAB_CONFIG], IDCSOUNDDRV);
-        ComboBox_ResetContent(hwnd);
+        (void)ComboBox_ResetContent(hwnd);
         if (wavedevs)
         {
             d = wavedevs->devs;
@@ -112,12 +112,12 @@ static void PopulateForm(int pgs)
                     for (j=0; d->devs[j]; j++)
                     {
                         strcpy(n, d->devs[j]);
-                        ComboBox_AddString(hwnd, buf);
+                        (void)ComboBox_AddString(hwnd, buf);
                     }
                 }
                 else
                 {
-                    ComboBox_AddString(hwnd, buf);
+                    (void)ComboBox_AddString(hwnd, buf);
                 }
                 d = d->next;
             }
@@ -143,8 +143,8 @@ static void PopulateForm(int pgs)
             if (i == numgrpfiles) continue;	// unrecognised grp file
             Bsprintf(buf, "%s\t%s", grpfiles[i].name, fg->name);
             j = ListBox_AddString(hwnd, buf);
-            ListBox_SetItemData(hwnd, j, (LPARAM)fg);
-            if (!Bstrcasecmp(fg->name, settings.selectedgrp)) ListBox_SetCurSel(hwnd, j);
+            (void)ListBox_SetItemData(hwnd, j, (LPARAM)fg);
+            if (!Bstrcasecmp(fg->name, settings.selectedgrp)) (void)ListBox_SetCurSel(hwnd, j);
         }
     }
 }
@@ -195,6 +195,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
 
 static INT_PTR CALLBACK GamePageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    UNUSED_PARAMETER(hwndDlg);
     switch (uMsg)
     {
     case WM_COMMAND:
@@ -376,7 +377,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
             // Set a tab stop in the game data listbox
             {
                 DWORD tabs[1] = { 150 };
-                ListBox_SetTabStops(GetDlgItem(pages[TAB_GAME], IDGDATA), 1, tabs);
+                (void)ListBox_SetTabStops(GetDlgItem(pages[TAB_GAME], IDGDATA), 1, tabs);
             }
 
             SetFocus(GetDlgItem(hwndDlg, WIN_STARTWIN_START));

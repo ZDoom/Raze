@@ -178,7 +178,7 @@ extern int movesprite(int spritenum,int xchange,int ychange,int zchange,unsigned
 extern inline int ssp(int i,unsigned int cliptype);
 extern void insertspriteq(int i);
 extern void lotsofmoneymailpaper(int sp,int n,int pic);
-extern void guts(int sp,int gtype,int n,int p);
+extern void guts(int sp,int gtype,int n);
 extern void setsectinterpolate(int i);
 extern void clearsectinterpolate(int i);
 extern int ifhitsectors(int sectnum);

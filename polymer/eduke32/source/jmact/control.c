@@ -27,7 +27,7 @@ uint32  CONTROL_ButtonHeldState1 = 0;
 uint32  CONTROL_ButtonState2 = 0;
 uint32  CONTROL_ButtonHeldState2 = 0;
 
-static int32 CONTROL_UserInputDelay = -1;
+// static int32 CONTROL_UserInputDelay = -1;
 static int32 CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
 static int32 CONTROL_NumMouseButtons = 0;
 static int32 CONTROL_NumMouseAxes = 0;
@@ -108,29 +108,15 @@ void CONTROL_GetJoyDelta( void )
         CONTROL_JoyAxes[i].analog = joyaxis[i] >> 5;
 }
 
-
-void CONTROL_SetJoyScale( void )
-{
-}
-
-void CONTROL_CenterJoystick
-(
-    void ( *CenterCenter )( void ),
-    void ( *UpperLeft )( void ),
-    void ( *LowerRight )( void ),
-    void ( *CenterThrottle )( void ),
-    void ( *CenterRudder )( void )
-)
-{
-}
-
 boolean CONTROL_StartJoy(int32 joy)
 {
+    UNUSED_PARAMETER(joy);
     return (inputdevices & 4) == 4;
 }
 
 void CONTROL_ShutJoy(int32 joy)
 {
+    UNUSED_PARAMETER(joy);
     CONTROL_JoyPresent = false;
 }
 
@@ -833,6 +819,8 @@ void CONTROL_Ack( void )
 boolean CONTROL_Startup(controltype which, int32 ( *TimeFunction )( void ), int32 ticspersecond)
 {
     int32 i;
+
+    UNUSED_PARAMETER(which);
 
     if (CONTROL_Started) return false;
 

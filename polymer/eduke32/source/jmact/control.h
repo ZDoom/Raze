@@ -174,14 +174,6 @@ void CONTROL_ClearButton( int32 whichbutton );
 void CONTROL_ClearUserInput( UserInput *info );
 void CONTROL_WaitRelease( void );
 void CONTROL_Ack( void );
-void CONTROL_CenterJoystick
-   (
-   void ( *CenterCenter )( void ),
-   void ( *UpperLeft )( void ),
-   void ( *LowerRight )( void ),
-   void ( *CenterThrottle )( void ),
-   void ( *CenterRudder )( void )
-   );
 int32 CONTROL_GetMouseSensitivity( void );
 void CONTROL_SetMouseSensitivity( int32 newsensitivity );
 boolean CONTROL_Startup

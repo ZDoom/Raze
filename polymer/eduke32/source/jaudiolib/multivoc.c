@@ -251,6 +251,7 @@ char *MV_ErrorString(int ErrorNumber)
 
    Returns the buffer size for the given samplerate.
 ---------------------------------------------------------------------*/
+#if defined(_WIN32)
 #define BASEBUFSZ (512+128)
 static unsigned MV_GetBufferSize(unsigned samplerate)
 {
@@ -272,7 +273,7 @@ static unsigned MV_GetBufferSize(unsigned samplerate)
 
     return lastbufsz;
 }
-
+#endif
 
 /*---------------------------------------------------------------------
    Function: MV_Mix
@@ -417,6 +418,8 @@ int MV_ServiceVoc(int buffer)
     // Get the currently playing buffer
 #if defined(_WIN32)
     MV_MixPage   = buffer;
+#else
+    UNUSED_PARAMETER(buffer);
 #endif
 
     // Toggle which buffer we'll mix next
@@ -1794,16 +1797,18 @@ int SeekOgg(void *datasource,ogg_int64_t offset,int whence)
     return 0;
 }
 
-long TellOgg(void *datasource)
+intptr_t TellOgg(void *datasource)
 {
     sounddef *d=(sounddef *)datasource;
     return d->pos;
 }
 
+/*
 int CloseOgg(void *datasource)
 {
     return 0;
 }
+*/
 
 /*---------------------------------------------------------------------
    Function: MV_StartPlayback
@@ -1816,10 +1821,10 @@ int MV_StartPlayback(void)
     int status;
     int buffer;
 
-    cb.close_func=CloseOgg;
+    cb.close_func=NULL; //CloseOgg
     cb.read_func =ReadOgg;
     cb.seek_func =SeekOgg;
-    cb.tell_func =TellOgg;
+    cb.tell_func =(void *)TellOgg;
 
     // Initialize the buffers
     ClearBuffer_DW(MV_MixBuffer[ 0 ], MV_Silence, TotalBufferSize >> 2);

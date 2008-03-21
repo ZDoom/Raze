@@ -32,7 +32,7 @@ extern int recfilep;
 //extern char vgacompatible;
 short globalskillsound=-1;
 int probey=0;
-static int lastsavehead=0,last_menu_pos=0,last_menu,sh,onbar,buttonstat,deletespot;
+static int lastsavehead=0,last_menu_pos=0,last_menu,sh,onbar,buttonstat;
 static int last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehundred = 0;
 
 static char menunamecnt;

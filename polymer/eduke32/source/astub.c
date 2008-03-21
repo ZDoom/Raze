@@ -291,6 +291,7 @@ void ExtLoadMap(const char *mapname)
 
 void ExtSaveMap(const char *mapname)
 {
+    UNUSED_PARAMETER(mapname);
     saveboard("backup.map",&posx,&posy,&posz,&ang,&cursectnum);
 }
 
@@ -632,6 +633,7 @@ void ExtShowSectorData(short sectnum)   //F5
     int totalactors1=0,totalactors2=0,totalactors3=0,totalactors4=0;
     int totalrespawn=0;
 
+    UNUSED_PARAMETER(sectnum);
     if (qsetmode==200)
         return;
 
@@ -817,6 +819,8 @@ void ExtShowWallData(short wallnum)       //F6
 {
     int i,nextfreetag=0,total=0;
     char x,y;
+
+    UNUSED_PARAMETER(wallnum);
 
     if (qsetmode==200)
         return;
@@ -1176,10 +1180,12 @@ static void Show3dText(char *name)
     kclose(fp);
 }// end Show3dText
 
+#if 0
 static void ShowHelpText(char *name)
 {
     BFILE *fp;
     char x=0,y=4;
+    UNUSED_PARAMETER(name);
     if ((fp=fopenfrompath("helpdoc.txt","rb")) == NULL)
     {
         begindrawing();
@@ -1209,9 +1215,10 @@ static void ShowHelpText(char *name)
 
     Bfclose(fp);
 }// end ShowHelpText
-
+#endif
 void ExtShowSpriteData(short spritenum)   //F6
 {
+    UNUSED_PARAMETER(spritenum);
     if (qsetmode != 200)
         Show2dText("sehelp.hlp");
     /*    if (qsetmode == 200)                // In 3D mode
@@ -1232,12 +1239,13 @@ void ExtShowSpriteData(short spritenum)   //F6
 
 int fofsizex = -1;
 int fofsizey = -1;
+#if 0
 static void ResetFOFSize()
 {
     if (fofsizex != -1) tilesizx[FOF] = fofsizex;
     if (fofsizey != -1) tilesizy[FOF] = fofsizey;
 }
-
+#endif
 static void ExtSE40Draw(int spnum,int x,int y,int z,short a,short h)
 {
     static int tempsectorz[MAXSECTORS];
@@ -1732,9 +1740,6 @@ static int m32gettile(int idInitialTile)
     int i;
     int iTile, iTopLeftTile;
     int idSelectedTile;
-    int j;
-    char ch, szTemp[128];
-
 
 // Enable following line for testing. I couldn't work out how to change vidmode on the fly
 // s_Zoom = NUM_ZOOMS - 1;
@@ -2215,7 +2220,7 @@ static int LoadTileSet(const int idCurrentTile, const int *pIds, const int nIds)
 static int OnSelectTile(int iTile)
 {
     int bDone = 0;
-    int i, j;
+    int i;
     char ch;
 
     for (i = 0; (unsigned)i < tile_groups; i++)
@@ -2427,9 +2432,8 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
 static void Keys3d(void)
 {
     int i,count,rate,nexti;
-    int j, k, tempint = 0, changedir, hiz, loz;
+    int j, k, tempint = 0, hiz, loz;
     int hitx, hity, hitz, hihit, lohit;
-    int repeatcountx=0,repeatcounty=0;
     char smooshyalign=0, repeatpanalign=0, buffer[80];
     short startwall, endwall, dasector, hitsect, hitwall, hitsprite, statnum=0;
 
@@ -5219,6 +5223,7 @@ int ExtPreInit(int argc,const char **argv)
 
 static int osdcmd_quit(const osdfuncparm_t *parm)
 {
+    UNUSED_PARAMETER(parm);
     clearfilenames();
     ExtUnInit();
     uninitengine();
@@ -5382,6 +5387,7 @@ static int osdcmd_exec(const osdfuncparm_t *parm)
 
 static int osdcmd_noclip(const osdfuncparm_t *parm)
 {
+    UNUSED_PARAMETER(parm);
     noclip = !noclip;
 
     return OSDCMD_OK;
@@ -7476,7 +7482,7 @@ static void FuncMenu(void)
                     j=getnumber16("Size multiplier:    ",1,8,0);
                     if (j!=1)
                     {
-                        int k, l, w, currsector, start_wall, end_wall;
+                        int w, currsector, start_wall, end_wall;
                         for (i = 0; i < highlightsectorcnt; i++)
                         {
                             currsector = highlightsector[i];
@@ -7516,7 +7522,7 @@ static void FuncMenu(void)
                     j=getnumber16("Size divisor:    ",1,8,0);
                     if (j!=1)
                     {
-                        int k, l, w, currsector, start_wall, end_wall;
+                        int w, currsector, start_wall, end_wall;
                         for (i = 0; i < highlightsectorcnt; i++)
                         {
                             currsector = highlightsector[i];

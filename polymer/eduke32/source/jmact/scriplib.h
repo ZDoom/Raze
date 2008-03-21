@@ -54,17 +54,6 @@ void SCRIPT_Free( int32 scripthandle );
 /*
 ==============
 =
-= SCRIPT_Parse
-=
-==============
-*/
-
-int32 SCRIPT_Parse ( char *data, int32 length, char * name );
-
-
-/*
-==============
-=
 = SCRIPT_Load
 =
 ==============
@@ -191,57 +180,6 @@ boolean SCRIPT_GetBoolean
    char * sectionname,
    char * entryname,
    boolean * boole
-   );
-
-/*
-==============
-=
-= SCRIPT_GetDouble
-=
-==============
-*/
-
-boolean SCRIPT_GetDouble
-   (
-   int32 scripthandle,
-   char * sectionname,
-   char * entryname,
-   double * number
-   );
-
-
-
-/*
-==============
-=
-= SCRIPT_PutComment
-=
-==============
-*/
-void SCRIPT_PutComment( int32 scripthandle, char * sectionname, char * comment );
-
-/*
-==============
-=
-= SCRIPT_PutEOL
-=
-==============
-*/
-void SCRIPT_PutEOL( int32 scripthandle, char * sectionname );
-
-/*
-==============
-=
-= SCRIPT_PutMultiComment
-=
-==============
-*/
-void SCRIPT_PutMultiComment
-   (
-   int32 scripthandle,
-   char * sectionname,
-   char * comment,
-   ...
    );
 
 /*

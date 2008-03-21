@@ -181,7 +181,7 @@ void CONFIG_SetDefaultKeys(int type)
 void CONFIG_SetDefaults(void)
 {
     // JBF 20031211
-    int32 i,f;
+    int32 i;
 
     ud.config.scripthandle = -1;
     ud.config.ScreenWidth = 1024;

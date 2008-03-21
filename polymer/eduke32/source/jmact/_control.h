@@ -254,7 +254,6 @@ byte    CONTROL_GetMouseButtons( void );
 boolean CONTROL_StartMouse( void );
 void    CONTROL_GetJoyAbs( void );
 void    CONTROL_GetJoyDelta( void );
-void    CONTROL_SetJoyScale( void );
 boolean CONTROL_StartJoy( int32 joy );
 void    CONTROL_ShutJoy( int32 joy );
 void    CONTROL_SetFlag( int32 which, boolean active );

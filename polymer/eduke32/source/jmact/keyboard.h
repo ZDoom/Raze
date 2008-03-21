@@ -210,7 +210,6 @@ extern kb_scancode KB_LastScan;
 
 boolean KB_KeyWaiting( void );         // Checks if a character is waiting in the keyboard queue
 char    KB_Getch( void );              // Gets the next keypress
-void    KB_Addch( char ch );           // Adds key to end of queue
 void    KB_FlushKeyboardQueue( void ); // Empties the keyboard queue of all waiting characters.
 void    KB_ClearKeysDown( void );      // Clears all keys down flags.
 char *  KB_ScanCodeToString( kb_scancode scancode ); // convert scancode into a string

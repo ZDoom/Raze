@@ -167,6 +167,7 @@ static void on_vmode3dcombo_changed(GtkComboBox *combobox, gpointer user_data)
     GtkTreeModel *data;
     GtkTreeIter iter;
     int val;
+    UNUSED_PARAMETER(user_data);
     if (!gtk_combo_box_get_active_iter(combobox, &iter)) return;
     if (!(data = gtk_combo_box_get_model(combobox))) return;
     gtk_tree_model_get(data, &iter, 1, &val, -1);
@@ -176,23 +177,29 @@ static void on_vmode3dcombo_changed(GtkComboBox *combobox, gpointer user_data)
 
 static void on_fullscreencheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
+    UNUSED_PARAMETER(user_data);
     settings.fullscreen = (gtk_toggle_button_get_active(togglebutton) == TRUE);
     PopulateForm(1<<TAB_CONFIG);
 }
 
 static void on_alwaysshowcheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
+    UNUSED_PARAMETER(user_data);
     settings.forcesetup = (gtk_toggle_button_get_active(togglebutton) == TRUE);
 }
 
 static void on_cancelbutton_clicked(GtkButton *button, gpointer user_data)
 {
+    UNUSED_PARAMETER(button);
+    UNUSED_PARAMETER(user_data);
     if (mode == TAB_CONFIG) { retval = 0; gtk_main_quit(); }
     else quitevent++;
 }
 
 static void on_startbutton_clicked(GtkButton *button, gpointer user_data)
 {
+    UNUSED_PARAMETER(button);
+    UNUSED_PARAMETER(user_data);
     retval = 1;
     gtk_main_quit();
 }
@@ -203,11 +210,13 @@ static void on_startbutton_clicked(GtkButton *button, gpointer user_data)
 
 static void on_inputmousecheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
+    UNUSED_PARAMETER(user_data);
     settings.usemouse = (gtk_toggle_button_get_active(togglebutton) == TRUE);
 }
 
 static void on_inputjoycheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
+    UNUSED_PARAMETER(user_data);
     settings.usejoy = (gtk_toggle_button_get_active(togglebutton) == TRUE);
 }
 
@@ -216,7 +225,7 @@ static void on_gamelist_selection_changed(GtkTreeSelection *selection, gpointer 
     GtkTreeIter iter;
     GtkTreeModel *model;
     struct grpfile *fg;
-
+    UNUSED_PARAMETER(user_data);
     if (gtk_tree_selection_get_selected(selection, &model, &iter))
     {
         gtk_tree_model_get(model, &iter, 2, (gpointer)&fg, -1);
@@ -227,6 +236,9 @@ static void on_gamelist_selection_changed(GtkTreeSelection *selection, gpointer 
 
 static gboolean on_startwin_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
+    UNUSED_PARAMETER(widget);
+    UNUSED_PARAMETER(event);
+    UNUSED_PARAMETER(user_data);
     if (mode == TAB_CONFIG) { retval = 0; gtk_main_quit(); }
     else quitevent++;
     return TRUE;	// FALSE would let the event go through. we want the game to decide when to close
@@ -237,7 +249,7 @@ static gint name_sorter(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpo
 {
     gchar *as, *bs;
     gint r;
-
+    UNUSED_PARAMETER(user_data);
     gtk_tree_model_get(model, a, 0, &as, -1);
     gtk_tree_model_get(model, b, 0, &bs, -1);
 
@@ -729,6 +741,7 @@ int startwin_settitle(const char *title)
 
 int startwin_idle(void *s)
 {
+    UNUSED_PARAMETER(s);
     if (!gtkenabled) return 0;
     //if (!startwin) return 1;
     gtk_main_iteration_do(FALSE);

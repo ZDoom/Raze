@@ -31,6 +31,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 **********************************************************************/
 
 #include "mpu401.h"
+#include "compat.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -114,6 +115,10 @@ void MPU_Unpause(void)
 void CALLBACK MPU_MIDICallback(HMIDIOUT handle, UINT uMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
 {
     int i;
+
+    UNUSED_PARAMETER(dwInstance);
+    UNUSED_PARAMETER(dwParam2);
+
     switch (uMsg)
     {
     case MOM_DONE:
@@ -478,6 +483,7 @@ void MPU_SetVolume(int volume)
 
     mixerClose(hmixer);
     */
+    UNUSED_PARAMETER(volume);
 }
 
 int MPU_GetVolume(void)

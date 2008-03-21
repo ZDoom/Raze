@@ -71,6 +71,7 @@ char testcd(char *fn, int testsiz)
 #else
 char testcd(char *fn)
 {
+    fn = fn;
     return 0;
 }
 #endif

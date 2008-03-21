@@ -217,10 +217,6 @@ char KB_Getch( void )
 	return (char)bgetchar();
 }
 
-void KB_Addch( char ch )
-{
-}
-
 void KB_FlushKeyboardQueue( void )
 {
 	//keyfifoplc = keyfifoend = 0;

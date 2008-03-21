@@ -2340,12 +2340,12 @@ void checkhitsprite(int i,int sn)
         shoot(i,BLOODSPLAT3);
         SA = TRAND&2047;
         shoot(i,BLOODSPLAT4);
-        guts(i,JIBS1,1,myconnectindex);
-        guts(i,JIBS2,2,myconnectindex);
-        guts(i,JIBS3,3,myconnectindex);
-        guts(i,JIBS4,4,myconnectindex);
-        guts(i,JIBS5,1,myconnectindex);
-        guts(i,JIBS3,6,myconnectindex);
+        guts(i,JIBS1,1);
+        guts(i,JIBS2,2);
+        guts(i,JIBS3,3);
+        guts(i,JIBS4,4);
+        guts(i,JIBS5,1);
+        guts(i,JIBS3,6);
         sound(SQUISHED);
         deletesprite(i);
         break;

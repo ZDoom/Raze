@@ -99,7 +99,6 @@ int xvel, yvel, timoff;
 static void SearchSectorsForward();
 static void SearchSectorsBackward();
 static inline void SpriteName(short spritenum, char *lo2);
-static int ActorMem(int i);
 static void PrintStatus(char *string,int num,char x,char y,char color);
 static void SetBOSS1Palette();
 static void SetSLIMEPalette();

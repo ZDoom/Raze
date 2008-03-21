@@ -4673,7 +4673,7 @@ static int parse(void)
                     {
                         if (!(g_sp->picnum == APLAYER && g_sp->extra > 0))
                         {
-                            guts(g_i,JIBS6,15,g_p);
+                            guts(g_i,JIBS6,15);
                             spritesound(SQUISHED,g_i);
                             spawn(g_i,BLOODPOOL);
                         }
@@ -6173,7 +6173,7 @@ static int parse(void)
 
     case CON_GUTS:
         insptr += 2;
-        guts(g_i,*(insptr-1),*insptr,g_p);
+        guts(g_i,*(insptr-1),*insptr);
         insptr++;
         break;
 

@@ -453,6 +453,8 @@ char *Bstrlwr(char *);
 char *Bstrupr(char *);
 #endif
 
+#define UNUSED_PARAMETER(x) x=x
+
 #ifdef __cplusplus
 }
 #endif

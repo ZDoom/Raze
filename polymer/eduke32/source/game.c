@@ -65,8 +65,10 @@ extern int getversionfromwebsite(char *buffer);
 
 int cameradist = 0, cameraclock = 0;
 static int playerswhenstarted;
-static int qe,cp,usecwd = 0;
-
+static int qe,cp;
+#if !defined(_WIN32)
+static int usecwd = 0;
+#endif
 static int g_CommandSetup = 0;
 static int g_NoSetup = 0;
 static int g_NoAutoLoad = 0;
@@ -9815,7 +9817,7 @@ static void genspriteremaps(void)
 extern int startwin_run(void);
 static void SetupGameButtons(void);
 
-static void Startup(int argc, const char **argv)
+static void Startup(void)
 {
     int i;
 
@@ -10479,7 +10481,7 @@ void app_main(int argc,const char **argv)
         initprintf("Please read LICENSE.DOC for more details.\n");
     }
 
-    Startup(argc,argv); // a bunch of stuff including compiling cons
+    Startup(); // a bunch of stuff including compiling cons
 
     if (numplayers > 1)
         ud.multimode = numplayers;

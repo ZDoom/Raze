@@ -34,6 +34,7 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 #include "music.h"
 #include "midi.h"
 #include "mpu401.h"
+#include "compat.h"
 #ifdef USE_OPENAL
 #include "openal.h"
 #endif
@@ -502,6 +503,8 @@ int MUSIC_InitMidi
 )
 
 {
+    UNUSED_PARAMETER(card);
+    UNUSED_PARAMETER(Address);
     Funcs->NoteOff           = MPU_NoteOff;
     Funcs->NoteOn            = MPU_NoteOn;
     Funcs->PolyAftertouch    = MPU_PolyAftertouch;
@@ -534,6 +537,7 @@ int MUSIC_FadeVolume
 )
 
 {
+    UNUSED_PARAMETER(milliseconds);
     MIDI_SetVolume(tovolume);
     return(MUSIC_Ok);
 }
@@ -598,7 +602,9 @@ void MUSIC_RegisterTimbreBank
     unsigned char *timbres
 )
 
-{}
+{
+    UNUSED_PARAMETER(timbres);
+}
 
 
 void MUSIC_Update(void)

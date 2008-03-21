@@ -584,7 +584,7 @@ void lotsofmoneymailpaper(int sp, int n, int pic)
     }
 }
 
-void guts(int sp, int gtype, int n, int p)
+void guts(int sp, int gtype, int n)
 {
     int gutz,floorz;
     int i,a,j,sx,sy,pal;
@@ -621,7 +621,7 @@ void guts(int sp, int gtype, int n, int p)
     }
 }
 
-void gutsdir(int sp, int gtype, int n, int p)
+void gutsdir(int sp, int gtype, int n)
 {
     int gutz,floorz;
     int i,a,j,sx,sy;
@@ -5730,7 +5730,7 @@ static void moveeffectors(void)   //STATNUM 3
                             updatesector(sprite[j].x,sprite[j].y,&k);
                             if (sprite[j].extra >= 0 && k == s->sectnum)
                             {
-                                gutsdir(j,JIBS6,72,myconnectindex);
+                                gutsdir(j,JIBS6,72);
                                 spritesound(SQUISHED,i);
                                 deletesprite(j);
                             }
@@ -5904,7 +5904,7 @@ static void moveeffectors(void)   //STATNUM 3
                                 updatesector(sprite[j].x,sprite[j].y,&k);
                                 if (sprite[j].extra >= 0 && k == s->sectnum)
                                 {
-                                    gutsdir(j,JIBS6,24,myconnectindex);
+                                    gutsdir(j,JIBS6,24);
                                     spritesound(SQUISHED,j);
                                     deletesprite(j);
                                 }

@@ -1732,13 +1732,13 @@ void makeasmwriteable(void)
         return;
     }
     dep_begin_page = ((size_t)&dep_begin) & ~(pagesize-1);
-    if (mprotect((const void *)dep_begin_page, (size_t)&dep_end - dep_begin_page, PROT_READ|PROT_WRITE) < 0)
+    if (mprotect((void *)dep_begin_page, (size_t)&dep_end - dep_begin_page, PROT_READ|PROT_WRITE) < 0)
     {
         initprintf("Error making code writeable (errno=%d)\n", errno);
         return;
     }
 # else
-#  error Don't know how to unprotect the self-modifying assembly on this platform!
+#  error "Don't know how to unprotect the self-modifying assembly on this platform!"
 # endif
 #endif
 }
