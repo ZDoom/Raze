@@ -1880,6 +1880,7 @@ cheat_for_port_credits:
                     "Adam Fazakerley",
                     "Charlie Honig",
                     "Ed Coolidge",
+                    "Hunter_rus",
                     "James Bentler",
                     "Javier Martinez",
                     "Jeff Hart",
