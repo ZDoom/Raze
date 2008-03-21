@@ -415,18 +415,18 @@ static const char *keyw[] =
     "dynamicremap",             // 285
     "setinput",                 // 286
     "getinput",                 // 287
-    "save",					   // 288
+    "save",					    // 288
     "cansee",                   // 289
     "canseespr",                // 290
     "findnearactorz",           // 291
     "findnearactorzvar",        // 292
     "findnearspritez",          // 293
     "findnearspritezvar",       // 294
-    "zshootvar",				   // 295
-    "ezshootvar",			   // 296
-    "getcurraddress",		   // 297
-    "jump",					   // 298
-    "qstrlen",				   // 299
+    "zshootvar",				// 295
+    "ezshootvar",			    // 296
+    "getcurraddress",		    // 297
+    "jump",					    // 298
+    "qstrlen",				    // 299
     "getincangle",              // 300
     "quake",                    // 301
     "showview",                 // 302
