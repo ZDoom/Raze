@@ -8895,7 +8895,7 @@ static int parsedefinitions_game(scriptfile *script, const int preload)
     return 0;
 }
 
-static int loaddefinitions_game(const char *fn, const int preload)
+static int loaddefinitions_game(const char *fn, int preload)
 {
     scriptfile *script;
 
@@ -8945,7 +8945,7 @@ static void addgamepath(const char *buffer)
 }
 
 
-static void checkcommandline(int argc,const char **argv)
+static void checkcommandline(int argc, const char **argv)
 {
     short i, j;
     char *c;

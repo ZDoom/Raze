@@ -5079,7 +5079,7 @@ static void addgroup(const char *buffer)
     CommandGrps = s;
 }
 
-static void checkcommandline(int argc,const char **argv)
+static void checkcommandline(int argc, const char **argv)
 {
     int i = 1;
     char *c;

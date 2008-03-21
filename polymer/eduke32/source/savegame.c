@@ -412,7 +412,7 @@ int loadplayer(int spot)
 
     i = music_select;
     music_select = (ud.volume_number*MAXLEVELS) + ud.level_number;
-    if (map[(unsigned char)music_select].musicfn != NULL && i != music_select)
+    if (map[(unsigned char)music_select].musicfn != NULL && (i != music_select || env_music_fn[2][0]))
     {
         MUSIC_StopSong();
         playmusicMAP(&map[(unsigned char)music_select].musicfn[0],music_select);
