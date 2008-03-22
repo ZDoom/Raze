@@ -503,8 +503,8 @@ int MUSIC_InitMidi
 )
 
 {
-    UNUSED_PARAMETER(card);
-    UNUSED_PARAMETER(Address);
+    UNREFERENCED_PARAMETER(card);
+    UNREFERENCED_PARAMETER(Address);
     Funcs->NoteOff           = MPU_NoteOff;
     Funcs->NoteOn            = MPU_NoteOn;
     Funcs->PolyAftertouch    = MPU_PolyAftertouch;
@@ -537,7 +537,7 @@ int MUSIC_FadeVolume
 )
 
 {
-    UNUSED_PARAMETER(milliseconds);
+    UNREFERENCED_PARAMETER(milliseconds);
     MIDI_SetVolume(tovolume);
     return(MUSIC_Ok);
 }
@@ -603,7 +603,7 @@ void MUSIC_RegisterTimbreBank
 )
 
 {
-    UNUSED_PARAMETER(timbres);
+    UNREFERENCED_PARAMETER(timbres);
 }
 
 

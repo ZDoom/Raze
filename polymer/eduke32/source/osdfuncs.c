@@ -76,7 +76,7 @@ void GAME_clearbackground(int c, int r)
     int x, y, xsiz, ysiz, tx2, ty2;
     int daydim, bits;
 
-    UNUSED_PARAMETER(c);
+    UNREFERENCED_PARAMETER(c);
 
     if (getrendermode() < 3) bits = BITS;
     else bits = BITSTL;

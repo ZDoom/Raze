@@ -195,7 +195,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
 
 static INT_PTR CALLBACK GamePageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    UNUSED_PARAMETER(hwndDlg);
+    UNREFERENCED_PARAMETER(hwndDlg);
     switch (uMsg)
     {
     case WM_COMMAND:

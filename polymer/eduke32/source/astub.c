@@ -49,6 +49,10 @@ static char *duke3dgrp = defaultduke3dgrp;
 static int fixmapbeforesaving = 1;
 static int NoAutoLoad = 0;
 
+#if !defined(_WIN32)
+static int usecwd = 0;
+#endif
+
 static struct strllist
 {
     struct strllist *next;
@@ -290,7 +294,7 @@ void ExtLoadMap(const char *mapname)
 
 void ExtSaveMap(const char *mapname)
 {
-    UNUSED_PARAMETER(mapname);
+    UNREFERENCED_PARAMETER(mapname);
     saveboard("backup.map",&posx,&posy,&posz,&ang,&cursectnum);
 }
 
@@ -632,7 +636,7 @@ void ExtShowSectorData(short sectnum)   //F5
     int totalactors1=0,totalactors2=0,totalactors3=0,totalactors4=0;
     int totalrespawn=0;
 
-    UNUSED_PARAMETER(sectnum);
+    UNREFERENCED_PARAMETER(sectnum);
     if (qsetmode==200)
         return;
 
@@ -819,7 +823,7 @@ void ExtShowWallData(short wallnum)       //F6
     int i,nextfreetag=0,total=0;
     char x,y;
 
-    UNUSED_PARAMETER(wallnum);
+    UNREFERENCED_PARAMETER(wallnum);
 
     if (qsetmode==200)
         return;
@@ -1184,7 +1188,7 @@ static void ShowHelpText(char *name)
 {
     BFILE *fp;
     char x=0,y=4;
-    UNUSED_PARAMETER(name);
+    UNREFERENCED_PARAMETER(name);
     if ((fp=fopenfrompath("helpdoc.txt","rb")) == NULL)
     {
         begindrawing();
@@ -1217,7 +1221,7 @@ static void ShowHelpText(char *name)
 #endif
 void ExtShowSpriteData(short spritenum)   //F6
 {
-    UNUSED_PARAMETER(spritenum);
+    UNREFERENCED_PARAMETER(spritenum);
     if (qsetmode != 200)
         Show2dText("sehelp.hlp");
     /*    if (qsetmode == 200)                // In 3D mode
@@ -5222,7 +5226,7 @@ int ExtPreInit(int argc,const char **argv)
 
 static int osdcmd_quit(const osdfuncparm_t *parm)
 {
-    UNUSED_PARAMETER(parm);
+    UNREFERENCED_PARAMETER(parm);
     clearfilenames();
     ExtUnInit();
     uninitengine();
@@ -5386,7 +5390,7 @@ static int osdcmd_exec(const osdfuncparm_t *parm)
 
 static int osdcmd_noclip(const osdfuncparm_t *parm)
 {
-    UNUSED_PARAMETER(parm);
+    UNREFERENCED_PARAMETER(parm);
     noclip = !noclip;
 
     return OSDCMD_OK;

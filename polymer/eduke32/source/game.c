@@ -10713,6 +10713,9 @@ MAIN_LOOP_RESTART:
 
         if (g_player[myconnectindex].ps->gm&MODE_EOL || g_player[myconnectindex].ps->gm&MODE_RESTART)
         {
+            setgamepalette(g_player[myconnectindex].ps, palette, 0);
+            setpal(g_player[myconnectindex].ps);
+
             if (g_player[myconnectindex].ps->gm&MODE_EOL)
             {
                 closedemowrite();

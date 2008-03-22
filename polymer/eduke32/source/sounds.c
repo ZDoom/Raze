@@ -504,7 +504,7 @@ int spritesound(unsigned int num, int i)
 
 void stopspritesound(int num, int i)
 {
-    UNUSED_PARAMETER(i);
+    UNREFERENCED_PARAMETER(i);
     stopsound(num);
 }
 
@@ -666,7 +666,7 @@ void clearsoundlocks(void)
 
 int isspritemakingsound(int i, int num)
 {
-    UNUSED_PARAMETER(i);
+    UNREFERENCED_PARAMETER(i);
     if (num < 0) num=0;	// FIXME
     return (g_sounds[num].num > 0);
 }

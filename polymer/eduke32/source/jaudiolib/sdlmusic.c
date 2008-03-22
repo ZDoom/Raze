@@ -356,44 +356,44 @@ int MUSIC_GetContext(void)
 
 void MUSIC_SetSongTick(unsigned int PositionInTicks)
 {
-    UNUSED_PARAMETER(PositionInTicks);
+    UNREFERENCED_PARAMETER(PositionInTicks);
     musdebug("STUB ... MUSIC_SetSongTick().\n");
 } // MUSIC_SetSongTick
 
 
 void MUSIC_SetSongTime(unsigned int milliseconds)
 {
-    UNUSED_PARAMETER(milliseconds);
+    UNREFERENCED_PARAMETER(milliseconds);
     musdebug("STUB ... MUSIC_SetSongTime().\n");
 }// MUSIC_SetSongTime
 
 
 void MUSIC_SetSongPosition(int measure, int beat, int tick)
 {
-    UNUSED_PARAMETER(measure);
-    UNUSED_PARAMETER(beat);
-    UNUSED_PARAMETER(tick);
+    UNREFERENCED_PARAMETER(measure);
+    UNREFERENCED_PARAMETER(beat);
+    UNREFERENCED_PARAMETER(tick);
     musdebug("STUB ... MUSIC_SetSongPosition().\n");
 } // MUSIC_SetSongPosition
 
 
 void MUSIC_GetSongPosition(songposition *pos)
 {
-    UNUSED_PARAMETER(pos);
+    UNREFERENCED_PARAMETER(pos);
     musdebug("STUB ... MUSIC_GetSongPosition().\n");
 } // MUSIC_GetSongPosition
 
 
 void MUSIC_GetSongLength(songposition *pos)
 {
-    UNUSED_PARAMETER(pos);
+    UNREFERENCED_PARAMETER(pos);
     musdebug("STUB ... MUSIC_GetSongLength().\n");
 } // MUSIC_GetSongLength
 
 
 int MUSIC_FadeVolume(int tovolume, int milliseconds)
 {
-    UNUSED_PARAMETER(tovolume);
+    UNREFERENCED_PARAMETER(tovolume);
     Mix_FadeOutMusic(milliseconds);
     return(MUSIC_Ok);
 } // MUSIC_FadeVolume
@@ -413,15 +413,15 @@ void MUSIC_StopFade(void)
 
 void MUSIC_RerouteMidiChannel(int channel, int cdecl(*function)(int event, int c1, int c2))
 {
-    UNUSED_PARAMETER(channel);
-    UNUSED_PARAMETER(function);
+    UNREFERENCED_PARAMETER(channel);
+    UNREFERENCED_PARAMETER(function);
     musdebug("STUB ... MUSIC_RerouteMidiChannel().\n");
 } // MUSIC_RerouteMidiChannel
 
 
 void MUSIC_RegisterTimbreBank(unsigned char *timbres)
 {
-    UNUSED_PARAMETER(timbres);
+    UNREFERENCED_PARAMETER(timbres);
     musdebug("STUB ... MUSIC_RegisterTimbreBank().\n");
 } // MUSIC_RegisterTimbreBank
 

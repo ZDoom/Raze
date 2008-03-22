@@ -112,8 +112,8 @@ static void mixer_callback(int chan, void *stream, int len, void *udata)
     Uint8 *stptr;
     Uint8 *fxptr;
     int copysize;
-    UNUSED_PARAMETER(chan);
-    UNUSED_PARAMETER(udata);
+    UNREFERENCED_PARAMETER(chan);
+    UNREFERENCED_PARAMETER(udata);
     /* len should equal _BufferSize, else this is screwed up */
 
     stptr = (Uint8 *)stream;
@@ -264,7 +264,7 @@ int DisableInterrupts(void)
 
 int RestoreInterrupts(int flags)
 {
-    UNUSED_PARAMETER(flags);
+    UNREFERENCED_PARAMETER(flags);
     SDL_UnlockAudio();
     return(0);
 }

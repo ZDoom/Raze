@@ -419,7 +419,7 @@ int MV_ServiceVoc(int buffer)
 #if defined(_WIN32)
     MV_MixPage   = buffer;
 #else
-    UNUSED_PARAMETER(buffer);
+    UNREFERENCED_PARAMETER(buffer);
 #endif
 
     // Toggle which buffer we'll mix next
@@ -1803,12 +1803,13 @@ intptr_t TellOgg(void *datasource)
     return d->pos;
 }
 
-/*
+
 int CloseOgg(void *datasource)
 {
+    UNREFERENCED_PARAMETER(datasource);
     return 0;
 }
-*/
+
 
 /*---------------------------------------------------------------------
    Function: MV_StartPlayback
@@ -1821,7 +1822,7 @@ int MV_StartPlayback(void)
     int status;
     int buffer;
 
-    cb.close_func=NULL; //CloseOgg
+    cb.close_func=CloseOgg;
     cb.read_func =ReadOgg;
     cb.seek_func =SeekOgg;
     cb.tell_func =(void *)TellOgg;

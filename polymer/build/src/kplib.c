@@ -985,6 +985,8 @@ static int kpngrend(const char *kfilebuf, int kfilength,
     int slidew, slider;
     //int qhuf0v, qhuf1v;
 
+    UNREFERENCED_PARAMETER(kfilength);
+
     if (!pnginited) { pnginited = 1; initpngtables(); }
 
     if ((*(int *)&kfilebuf[0] != LSWAPIB(0x474e5089)) || (*(int *)&kfilebuf[4] != LSWAPIB(0x0a1a0a0d)))
@@ -1259,7 +1261,7 @@ static int gcompid[4], gcomphsamp[4], gcompvsamp[4], gcompquantab[4], gcomphsamp
 static int lnumcomponents, lcompid[4], lcompdc[4], lcompac[4], lcomphsamp[4], lcompvsamp[4], lcompquantab[4];
 static int lcomphvsamp0, lcomphsampshift0, lcompvsampshift0;
 static int colclip[1024], colclipup8[1024], colclipup16[1024];
-static unsigned char pow2char[8] = {1,2,4,8,16,32,64,128};
+// static unsigned char pow2char[8] = {1,2,4,8,16,32,64,128};
 
 #if defined(__WATCOMC__) && !defined(NOASM)
 
@@ -1536,8 +1538,8 @@ static int kpegrend(const char *kfilebuf, int kfilength,
                     int daframeplace, int dabytesperline, int daxres, int dayres,
                     int daglobxoffs, int daglobyoffs)
 {
-    int i, j, p, v, leng, xdim = 0, ydim = 0, index, prec, restartcnt, restartinterval;
-    int x, y, z, xx, yy, zz, *dc = 0, *dc2, num, curbits, c, daval, dabits, *hqval, *hqbits, hqcnt, *quanptr = 0;
+    int i, j, v, leng, xdim = 0, ydim = 0, index, prec, restartcnt, restartinterval;
+    int x, y, z, xx, yy, zz, *dc = 0, num, curbits, c, daval, dabits, *hqval, *hqbits, hqcnt, *quanptr = 0;
     int passcnt = 0, ghsampmax = 0, gvsampmax = 0, glhsampmax = 0, glvsampmax = 0, glhstep, glvstep;
     int eobrun, Ss, Se, Ah, Al, Alut[2], dctx[12], dcty[12], ldctx[12], ldcty[12], lshx[4], lshy[4];
     short *dctbuf = 0, *dctptr[12], *ldctptr[12], *dcs = 0;
@@ -1955,6 +1957,8 @@ static int kgifrend(const char *kfilebuf, int kfilelength,
     char numbits, startnumbits, chunkind, ilacefirst;
     const unsigned char *ptr, *cptr = 0;
 
+    UNREFERENCED_PARAMETER(kfilelength);
+
     coltype = 3; bitdepth = 8; //For PNGOUT
 
     if ((kfilebuf[0] != 'G') || (kfilebuf[1] != 'I') ||
@@ -2102,6 +2106,10 @@ static int kcelrend(const char *buf, int fleng,
     int i, x, y, x0, x1, y0, y1, xsiz, ysiz;
     const char *cptr;
 
+    UNREFERENCED_PARAMETER(fleng);
+    UNREFERENCED_PARAMETER(daglobxoffs);
+    UNREFERENCED_PARAMETER(daglobyoffs);
+
     if ((buf[0] != 0x19) || (buf[1] != 0x91) ||
             (buf[10] != 8) || (buf[11] != 0)) return(-1);
 
@@ -2244,6 +2252,8 @@ static int kbmprend(const char *buf, int fleng,
 {
     int i, j, x, y, x0, x1, y0, y1, rastoff, headsiz, xsiz, ysiz, cdim, comp, cptrinc, *lptr;
     const char *cptr;
+
+    UNREFERENCED_PARAMETER(fleng);
 
     headsiz = *(int *)&buf[14];
     if (headsiz == LSWAPIB(12)) //OS/2 1.x (old format)
@@ -2451,6 +2461,8 @@ static int kddsrend(const char *buf, int leng,
     int x = 0, y = 0, z = 0, xx, yy, xsiz, ysiz, dxt, al[2], ai, j, k, v, c0, c1, stride;
     unsigned int lut[256], r[4], g[4], b[4], a[8], rr, gg, bb;
     unsigned char *uptr, *wptr;
+
+    UNREFERENCED_PARAMETER(leng);
 
     xsiz = LSWAPIB(*(int *)&buf[16]);
     ysiz = LSWAPIB(*(int *)&buf[12]);

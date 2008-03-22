@@ -504,7 +504,7 @@ int gltexmayhavealpha(int dapicnum, int dapalnum)
 
 void gltexinvalidate(int dapicnum, int dapalnum, int dameth)
 {
-    int i, j;
+    int j;
     pthtyp *pth;
 
     j = (dapicnum&(GLTEXCACHEADSIZ-1));
@@ -1055,7 +1055,7 @@ static void uploadtexture(int doalloc, int xsiz, int ysiz, int intexfmt, int tex
 int gloadtile_art(int dapic, int dapal, int dameth, pthtyp *pth, int doalloc)
 {
     coltype *pic, *wpptr;
-    int j, x, y, x2, y2, xsiz, ysiz, dacol, tsizx, tsizy;
+    int x, y, x2, y2, xsiz, ysiz, dacol, tsizx, tsizy;
     char hasalpha = 0, hasfullbright = 0;
 
     tsizx = tilesizx[dapic];
@@ -1253,7 +1253,6 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
     unsigned int alloclen=0, level, miplen;
     unsigned int padx=0, pady=0;
     GLuint gi;
-    int j, k;
 
     if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) return;
     if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
@@ -1379,6 +1378,8 @@ int gloadtile_cached(int fil, texcacheheader *head, int *doalloc, pthtyp *pth,in
     void *midbuf = NULL;
     int alloclen=0;
 
+    UNREFERENCED_PARAMETER(dapalnum);
+
     if (*doalloc&1)
     {
         bglGenTextures(1,(GLuint*)&pth->glpic);  //# of textures (make OpenGL allocate structure)
@@ -1470,7 +1471,7 @@ static void applypalmapsT(char *pic, int sizx, int sizy, int pal)
 int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int dameth, pthtyp *pth, int doalloc, char effect)
 {
     coltype *pic = NULL, *rpptr;
-    int j, x, y, x2, y2, xsiz=0, ysiz=0, tsizx, tsizy;
+    int j, x, y, xsiz=0, ysiz=0, tsizx, tsizy;
 
     char *picfil = NULL, *fn, hasalpha = 255;
     int picfillen, texfmt = GL_RGBA, intexfmt = GL_RGBA, filh;
@@ -1704,9 +1705,8 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
     int i, j, k, x, y, z, nn, ix0, ix1, mini, maxi, tsizx, tsizy, tsizxm1 = 0, tsizym1 = 0, ltsizy = 0;
     int xx, yy, xi, d0, u0, v0, d1, u1, v1, xmodnice = 0, ymulnice = 0, dorot;
     char dacol = 0, *walptr, *palptr = NULL, *vidp, *vide;
-    GLfloat pc1[4];
 #ifdef USE_OPENGL
-    pthtyp *pth, *detailpth, *glowpth, *palpth;
+    pthtyp *pth, *detailpth, *glowpth;
     int texunits = GL_TEXTURE0_ARB;
 #endif
     // backup of the n for possible redrawing of fullbright
@@ -2827,7 +2827,7 @@ static void polymost_drawalls(int bunch)
     sectortype *sec, *nextsec;
     walltype *wal, *wal2, *nwal;
     double ox, oy, oz, ox2, oy2, px[3], py[3], dd[3], uu[3], vv[3];
-    double fx, fy, x0, x1, y0, y1, cy0, cy1, fy0, fy1, xp0, yp0, xp1, yp1, ryp0, ryp1, nx0, ny0, nx1, ny1;
+    double fx, fy, x0, x1, cy0, cy1, fy0, fy1, xp0, yp0, xp1, yp1, ryp0, ryp1, nx0, ny0, nx1, ny1;
     double t, r, t0, t1, ocy0, ocy1, ofy0, ofy1, oxp0, oyp0, ft[4];
     double oguo, ogux, oguy;
     int i, x, y, z, cz, fz, wallnum, sectnum, nextsectnum;
@@ -3935,7 +3935,7 @@ static void polymost_scansector(int sectnum)
 
 void polymost_drawrooms()
 {
-    int i, j, k, n, n2, closest;
+    int i, j, n, n2, closest;
     double ox, oy, oz, ox2, oy2, oz2, r, px[6], py[6], pz[6], px2[6], py2[6], pz2[6], sx[6], sy[6];
 
     if (!rendmode) return;
@@ -3961,7 +3961,6 @@ void polymost_drawrooms()
         //Enable this for OpenGL red-blue glasses mode :)
         if (glredbluemode)
         {
-            float m[4][4];
             static int grbfcnt = 0; grbfcnt++;
             if (redblueclearcnt < numpages) { redblueclearcnt++; bglColorMask(1,1,1,1); bglClear(GL_COLOR_BUFFER_BIT); }
             if (grbfcnt&1)
@@ -4180,9 +4179,9 @@ void polymost_drawrooms()
 void polymost_drawmaskwall(int damaskwallcnt)
 {
     double dpx[8], dpy[8], dpx2[8], dpy2[8];
-    float fx, fy, x0, x1, sx0, sy0, sx1, sy1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1;
-    float f, r, t, t0, t1, nx0, ny0, nx1, ny1, py[4], csy[4], fsy[4];
-    int i, j, k, n, n2, x, z, sectnum, z1, z2, lx, rx, cz[4], fz[4], method;
+    float fy, x0, x1, sx0, sy0, sx1, sy1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1;
+    float r, t, t0, t1, csy[4], fsy[4];
+    int i, j, n, n2, z, sectnum, z1, z2, cz[4], fz[4], method;
     sectortype *sec, *nsec;
     walltype *wal, *wal2;
 
@@ -4355,7 +4354,7 @@ void polymost_drawmaskwall(int damaskwallcnt)
 void polymost_drawsprite(int snum)
 {
     double px[6], py[6];
-    float f, r, c, s, fx, fy, sx0, sy0, sx1, sy1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1, ft[4];
+    float f, c, s, fx, fy, sx0, sy0, sx1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1, ft[4];
     float x0, y0, x1, y1, sc0, sf0, sc1, sf1, px2[6], py2[6], xv, yv, t0, t1;
     int i, j, spritenum, xoff=0, yoff=0, method, npoints;
     spritetype *tspr;
@@ -4778,14 +4777,13 @@ void polymost_dorotatesprite(int sx, int sy, int z, short a, short picnum,
                              signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2, int uniqid)
 {
     static int onumframes = 0;
-    int i, n, nn, x, zz, xoff, yoff, xsiz, ysiz, method;
+    int n, nn, x, zz, xoff, yoff, xsiz, ysiz, method;
     int ogpicnum, ogshade, ogpal, ofoffset, oxdimen, oydimen, oldviewingrange;
     double ogxyaspect;
     double ogchang, ogshang, ogctang, ogstang, oghalfx, oghoriz, fx, fy, x1, y1, z1, x2, y2;
     double ogrhalfxdown10, ogrhalfxdown10x;
     double d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
     float m[4][4];
-    int fovcorrect;
 
 #ifdef USE_OPENGL
     if (rendmode >= 3 && usemodels && hudmem[(dastat&4)>>2][picnum].angadd)
@@ -5246,7 +5244,7 @@ void polymost_fillpolygon(int npoints)
 {
     pthtyp *pth;
     float f,a=0.0;
-    int i, j, k;
+    int i;
 
     globalx1 = mulscale16(globalx1,xyaspect);
     globaly2 = mulscale16(globaly2,xyaspect);
@@ -5399,7 +5397,7 @@ int polymost_printext256(int xpos, int ypos, short col, short backcol, char *nam
     {
         // construct a 256x128 8-bit alpha-only texture for the font glyph matrix
         unsigned char *tbuf, *cptr, *tptr;
-        int h,i,j,l;
+        int h,i,j;
 
         bglGenTextures(1,&polymosttext);
         if (!polymosttext) return -1;

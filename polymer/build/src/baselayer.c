@@ -34,7 +34,7 @@ struct glinfo glinfo =
 };
 #endif
 
-static void onvideomodechange(int newmode) { }
+static void onvideomodechange(int newmode) { UNREFERENCED_PARAMETER(newmode); }
 void (*baselayer_onvideomodechange)(int) = onvideomodechange;
 
 static int osdfunc_setrendermode(const osdfuncparm_t *parm)
@@ -83,6 +83,8 @@ static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 int osdcmd_glinfo(const osdfuncparm_t *parm)
 {
     char *s,*t,*u,i;
+
+    UNREFERENCED_PARAMETER(parm);
 
     if (bpp == 8)
     {

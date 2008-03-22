@@ -178,7 +178,7 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
     WAVEFORMATEX wfex;
     DSBPOSITIONNOTIFY posn;
 
-    UNUSED_PARAMETER(soundcard);
+    UNREFERENCED_PARAMETER(soundcard);
 
     if (DSOUND_Installed)
     {
@@ -410,7 +410,7 @@ static DWORD WINAPI isr(LPVOID parm)
     LPVOID lockptr; DWORD lockbytes;
     LPVOID lockptr2; DWORD lockbytes2;
 
-    UNUSED_PARAMETER(parm);
+    UNREFERENCED_PARAMETER(parm);
 
     handles = (HANDLE *)malloc(sizeof(HANDLE)*(1+_DSOUND_NumBuffers));
     if (!handles) return 1;

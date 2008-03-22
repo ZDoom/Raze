@@ -270,7 +270,6 @@ int addsearchpath(const char *p)
     struct stat st;
     char *s;
     searchpath_t *srch;
-    int i;
 
     if (Bstat(p, &st) < 0)
     {
@@ -450,7 +449,6 @@ int initgroupfile(char *filename)
     int i, j, k;
 #ifdef WITHKPLIB
     char *zfn;
-    searchpath_t *sp = NULL;
 #endif
 
 #ifdef _WIN32
@@ -765,9 +763,7 @@ int kfilelength(int handle)
 
 int ktell(int handle)
 {
-    int i, groupnum;
-
-    groupnum = filegrp[handle];
+    int groupnum = filegrp[handle];
 
     if (groupnum == 255) return(Blseek(filehan[handle],0,BSEEK_CUR));
 #ifdef WITHKPLIB
@@ -980,7 +976,7 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
 
     if (!pathsearchmode)  	// next, zip files
     {
-        char buf[BMAX_PATH], *p;
+        char buf[BMAX_PATH];
         int i, j, ftype;
         strcpy(buf,path);
         if (*path) strcat(buf,"/");

@@ -653,7 +653,7 @@ static permfifotype permfifo[MAXPERMS];
 static int permhead = 0, permtail = 0;
 
 short numscans, numhits, numbunches;
-static short posfil, capturecount = 0, hitcnt;
+static short capturecount = 0;
 
 char vgapal16[4*256] =
 {
@@ -1076,6 +1076,7 @@ static int spritewallfront(spritetype *s, int w)
 //
 //  spritebehindwall(internal)
 //
+#if 0
 static int spriteobstructswall(spritetype *s, int w)
 {
     walltype *wal;
@@ -1123,7 +1124,7 @@ static int spriteobstructswall(spritetype *s, int w)
     else
         return (0);
 }
-
+#endif
 //
 // bunchfront (internal)
 //
@@ -1275,6 +1276,8 @@ static void prepwall(int z, walltype *wal)
 int animateoffs(short tilenum, short fakevar)
 {
     int i, k, offs;
+
+    UNREFERENCED_PARAMETER(fakevar);
 
     offs = 0;
     i = (totalclocklock>>((picanm[tilenum]>>24)&15));
@@ -2404,6 +2407,9 @@ static void parascan(int dax1, int dax2, int sectnum, char dastat, int bunch)
     sectortype *sec;
     int j, k, l, m, n, x, z, wallnum, nextsectnum, globalhorizbak;
     short *topptr, *botptr;
+
+    UNREFERENCED_PARAMETER(dax1);
+    UNREFERENCED_PARAMETER(dax2);
 
     sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];
 
@@ -4583,7 +4589,7 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
     int cosang, sinang, v, nextv, dax1, dax2, oy, bx, by, ny1, ny2;
     int i, x, y, x1, y1, x2, y2, gx1, gy1, p, bufplc, palookupoffs;
     int xsiz, ysiz, xoff, yoff, npoints, yplc, yinc, lx, rx, xx, xend;
-    int xv, yv, xv2, yv2, obuffermode, qlinemode=0, y1ve[4], y2ve[4], u4, d4;
+    int xv, yv, xv2, yv2, qlinemode=0, y1ve[4], y2ve[4], u4, d4;
     char bad;
 
     //============================================================================= //POLYMOST BEGINS
@@ -5081,7 +5087,7 @@ static void initksqrt(void)
 //
 static void dosetaspect(void)
 {
-    int i, j, k, x, xinc,a;
+    int i, j, k, x, xinc;
 
     if (xyaspect != oxyaspect)
     {
@@ -5213,7 +5219,7 @@ static void initfastcolorlookup(int rscale, int gscale, int bscale)
 //
 static void loadpalette(void)
 {
-    int fil,i;
+    int fil;
 
     if (paletteloaded != 0) return;
     if ((fil = kopen4load("palette.dat",0)) == -1) return;
@@ -6084,7 +6090,7 @@ void    drawpeel(int peel)
 //
 void drawmasks(void)
 {
-    int i, j, k, l, m, gap, xs, ys, xp, yp, yoff, yspan;
+    int i, j, k, l, gap, xs, ys, xp, yp, yoff, yspan;
     // PLAG: sorting stuff
     _equation maskeq, p1eq, p2eq;
     _point2d dot, dot2, middle, pos, spr;
@@ -9215,8 +9221,7 @@ int pushmove(int *x, int *y, int *z, short *sectnum,
              int walldist, int ceildist, int flordist, unsigned int cliptype)
 {
     sectortype *sec, *sec2;
-    walltype *wal, *wal2;
-    spritetype *spr;
+    walltype *wal;
     int i, j, k, t, dx, dy, dax, day, daz, daz2, bad, dir;
     int dasprclipmask, dawalclipmask;
     short startwall, endwall, clipsectcnt;
@@ -10201,6 +10206,10 @@ void preparemirror(int dax, int day, int daz, short daang, int dahoriz, short da
 {
     int i, j, x, y, dx, dy;
 
+    UNREFERENCED_PARAMETER(daz);
+    UNREFERENCED_PARAMETER(dahoriz);
+    UNREFERENCED_PARAMETER(dasector);
+
     x = wall[dawall].x; dx = wall[wall[dawall].point2].x-x;
     y = wall[dawall].y; dy = wall[wall[dawall].point2].y-y;
     j = dx*dx + dy*dy; if (j == 0) return;
@@ -10874,6 +10883,8 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
 {
     int i, xp1, yp1, xp2=0, yp2, tempy;
 
+    UNREFERENCED_PARAMETER(ange);
+
     if (gride > 0)
     {
         begindrawing();	//{{{
@@ -10935,8 +10946,8 @@ char spritecol2d[MAXTILES][2];
 void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 {
     walltype *wal;
-    int i, j, k, xp1, yp1, xp2, yp2, tempy, tempint;
-    char col, mask;
+    int i, j, xp1, yp1, xp2, yp2, tempint;
+    char col;
 
     if (qsetmode == 200) return;
 
@@ -11601,7 +11612,7 @@ static int writepcxbyte(char colour, unsigned char count, BFILE *fp)
 static void writepcxline(char *buf, int bytes, int step, BFILE *fp)
 {
     char ths, last;
-    int srcIndex, i;
+    int srcIndex;
     unsigned char runCount;
 
     runCount = 1;
@@ -11638,7 +11649,7 @@ int screencapture_pcx(char *filename, char inverseit)
     int i,j,bpl;
     char *ptr, head[128];
     //char palette[4*256];
-    char *fn = Bstrdup(filename), *inversebuf, c;
+    char *fn = Bstrdup(filename), *inversebuf;
     BFILE *fil;
 
     do      // JBF 2004022: So we don't overwrite existing screenshots
@@ -11783,8 +11794,6 @@ int screencapture(char *filename, char inverseit)
 int setrendermode(int renderer)
 {
 #ifdef POLYMOST
-    int method;
-
     if (bpp == 8)
     {
         if (renderer < 0) renderer = 0;

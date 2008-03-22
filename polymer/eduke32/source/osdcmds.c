@@ -35,7 +35,7 @@ struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 
 static inline int osdcmd_quit(const osdfuncparm_t *parm)
 {
-    UNUSED_PARAMETER(parm);
+    UNREFERENCED_PARAMETER(parm);
     sendquit();
     return OSDCMD_OK;
 }
@@ -262,7 +262,7 @@ static int osdcmd_map(const osdfuncparm_t *parm)
 
 static int osdcmd_god(const osdfuncparm_t *parm)
 {
-    UNUSED_PARAMETER(parm);
+    UNREFERENCED_PARAMETER(parm);
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
     {
         osdcmd_cheatsinfo_stat.cheatnum = 0;
@@ -277,7 +277,7 @@ static int osdcmd_god(const osdfuncparm_t *parm)
 
 static int osdcmd_noclip(const osdfuncparm_t *parm)
 {
-    UNUSED_PARAMETER(parm);
+    UNREFERENCED_PARAMETER(parm);
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
     {
         osdcmd_cheatsinfo_stat.cheatnum = 20;
@@ -349,7 +349,7 @@ static int osdcmd_rate(const osdfuncparm_t *parm)
 
 static int osdcmd_restartsound(const osdfuncparm_t *parm)
 {
-    UNUSED_PARAMETER(parm);
+    UNREFERENCED_PARAMETER(parm);
     SoundShutdown();
     MusicShutdown();
 
@@ -376,7 +376,7 @@ static int osdcmd_restartsound(const osdfuncparm_t *parm)
 
 static int osdcmd_restartvid(const osdfuncparm_t *parm)
 {
-    UNUSED_PARAMETER(parm);
+    UNREFERENCED_PARAMETER(parm);
     resetvideomode();
     if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
         gameexit("restartvid: Reset failed...\n");

@@ -57,7 +57,7 @@ AS=nasm
 RC=windres
 AR=ar
 RANLIB=ranlib
-OURCFLAGS=$(debug) -W -Wall -Wimplicit -Wno-char-subscripts -Wno-unused \
+OURCFLAGS=$(debug) -W -Wall -Wimplicit -Wno-char-subscripts \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
 	-DKSFORBUILD -I$(INC)
 OURCXXFLAGS=-fno-exceptions -fno-rtti

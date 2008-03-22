@@ -110,13 +110,13 @@ void CONTROL_GetJoyDelta( void )
 
 boolean CONTROL_StartJoy(int32 joy)
 {
-    UNUSED_PARAMETER(joy);
+    UNREFERENCED_PARAMETER(joy);
     return (inputdevices & 4) == 4;
 }
 
 void CONTROL_ShutJoy(int32 joy)
 {
-    UNUSED_PARAMETER(joy);
+    UNREFERENCED_PARAMETER(joy);
     CONTROL_JoyPresent = false;
 }
 
@@ -820,7 +820,7 @@ boolean CONTROL_Startup(controltype which, int32 ( *TimeFunction )( void ), int3
 {
     int32 i;
 
-    UNUSED_PARAMETER(which);
+    UNREFERENCED_PARAMETER(which);
 
     if (CONTROL_Started) return false;
 

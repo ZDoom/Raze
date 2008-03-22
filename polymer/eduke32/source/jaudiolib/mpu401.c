@@ -116,8 +116,8 @@ void CALLBACK MPU_MIDICallback(HMIDIOUT handle, UINT uMsg, DWORD dwInstance, DWO
 {
     int i;
 
-    UNUSED_PARAMETER(dwInstance);
-    UNUSED_PARAMETER(dwParam2);
+    UNREFERENCED_PARAMETER(dwInstance);
+    UNREFERENCED_PARAMETER(dwParam2);
 
     switch (uMsg)
     {
@@ -483,7 +483,7 @@ void MPU_SetVolume(int volume)
 
     mixerClose(hmixer);
     */
-    UNUSED_PARAMETER(volume);
+    UNREFERENCED_PARAMETER(volume);
 }
 
 int MPU_GetVolume(void)

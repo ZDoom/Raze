@@ -838,7 +838,7 @@ void SCRIPT_PutNumber
 {
 	char raw[64];
 
-    UNUSED_PARAMETER(defaultvalue);
+    UNREFERENCED_PARAMETER(defaultvalue);
 	if (hexadecimal) sprintf(raw, "0x%X", number);
 	else sprintf(raw, "%d", number);
 
@@ -871,7 +871,7 @@ void SCRIPT_PutDouble
 {
 	char raw[64];
 
-    UNUSED_PARAMETER(defaultvalue);
+    UNREFERENCED_PARAMETER(defaultvalue);
 	sprintf(raw, "%g", number);
 
 	SCRIPT_AddEntry(scripthandle, sectionname, entryname, raw);

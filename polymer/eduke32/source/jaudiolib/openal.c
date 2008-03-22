@@ -4,6 +4,8 @@
 
 #include "baselayer.h"
 #include "compat.h"
+#define AL_NO_PROTOTYPES
+#define ALC_NO_PROTOTYPES
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <vorbis/vorbisfile.h>
@@ -34,36 +36,34 @@ sounddef1 music;
 
 #ifdef _WIN32
 // Windows
-static HANDLE hALDLL = NULL;
+static HMODULE hALDLL = NULL;
 #else
 #include <dlfcn.h>
 static void *alhandle = NULL;
 #endif
 
 static char *aldriver = NULL;
-
-static void (AL_APIENTRY * balGetSourcei)(ALuint sid,  ALenum param, ALint* value);
-static void (AL_APIENTRY * balSourcef)(ALuint sid, ALenum param, ALfloat value);
-static void (AL_APIENTRY * balSourcePlay)(ALuint sid);
-static void (AL_APIENTRY * balSourcePause)(ALuint sid);
-static ALCenum(ALC_APIENTRY * balcGetError)(ALCdevice *device);
-static ALenum(AL_APIENTRY * balGetError)(void);
-static void (AL_APIENTRY * balBufferData)(ALuint bid, ALenum format, const ALvoid* data, ALsizei size, ALsizei freq);
-static void (AL_APIENTRY * balGenBuffers)(ALsizei n, ALuint* buffers);
-static void (AL_APIENTRY * balGenSources)(ALsizei n, ALuint* sources);
-static void (AL_APIENTRY * balSourcei)(ALuint sid, ALenum param, ALint value);
-static void (AL_APIENTRY * balSourceQueueBuffers)(ALuint sid, ALsizei numEntries, const ALuint *bids);
-static void (AL_APIENTRY * balSourceStop)(ALuint sid);
-static void (AL_APIENTRY * balSourceUnqueueBuffers)(ALuint sid, ALsizei numEntries, ALuint *bids);
-static void (AL_APIENTRY * bbalDeleteSources)(ALsizei n, const ALuint* sources);
-static ALCboolean(ALC_APIENTRY * balcMakeContextCurrent)(ALCcontext *context);
-static void (AL_APIENTRY * balDeleteSources)(ALsizei n, const ALuint* sources);
-static void (AL_APIENTRY * balDeleteBuffers)(ALsizei n, const ALuint* buffers);
-static void (ALC_APIENTRY * balcDestroyContext)(ALCcontext *context);
-static ALCboolean(ALC_APIENTRY * balcCloseDevice)(ALCdevice *device);
-static ALCdevice *(ALC_APIENTRY * balcOpenDevice)(const ALCchar *devicename);
-static ALCcontext *(ALC_APIENTRY * balcCreateContext)(ALCdevice *device, const ALCint* attrlist);
-static const ALchar*(AL_APIENTRY * balGetString)(ALenum param);
+static LPALGETSOURCEI balGetSourcei = NULL;
+static LPALSOURCEF balSourcef = NULL;
+static LPALSOURCEPLAY balSourcePlay = NULL;
+static LPALSOURCEPAUSE balSourcePause = NULL;
+static LPALCGETERROR balcGetError = NULL;
+static LPALGETERROR balGetError = NULL;
+static LPALBUFFERDATA balBufferData = NULL;
+static LPALGENBUFFERS balGenBuffers = NULL;
+static LPALGENSOURCES balGenSources = NULL;
+static LPALSOURCEI balSourcei = NULL;
+static LPALSOURCEQUEUEBUFFERS balSourceQueueBuffers = NULL;
+static LPALSOURCESTOP balSourceStop = NULL;
+static LPALSOURCEUNQUEUEBUFFERS balSourceUnqueueBuffers = NULL;
+static LPALCMAKECONTEXTCURRENT balcMakeContextCurrent = NULL;
+static LPALDELETESOURCES balDeleteSources = NULL;
+static LPALDELETEBUFFERS balDeleteBuffers = NULL;
+static LPALCDESTROYCONTEXT balcDestroyContext = NULL;
+static LPALCCLOSEDEVICE balcCloseDevice = NULL;
+static LPALCOPENDEVICE balcOpenDevice = NULL;
+static LPALCCREATECONTEXT balcCreateContext = NULL;
+static LPALGETSTRING balGetString = NULL;
 
 static void * algetproc_(const char *s, int *err, int fatal)
 {
@@ -116,7 +116,7 @@ static int unloadaldriver(void)
     balSourceQueueBuffers    = NULL;
     balSourceStop    = NULL;
     balSourceUnqueueBuffers    = NULL;
-    bbalDeleteSources    = NULL;
+    balDeleteSources    = NULL;
     balcMakeContextCurrent    = NULL;
     balDeleteSources    = NULL;
     balDeleteBuffers    = NULL;
@@ -399,7 +399,8 @@ void AL_Stop()
 {
     int queued=0;ALuint buffer;
 
-    if (!music.def.size)return;
+    if (!music.def.size)
+        return;
 
     balSourceStop(music.source);
     balGetSourcei(music.source,AL_BUFFERS_QUEUED,&queued);
@@ -413,16 +414,18 @@ void AL_Stop()
     balDeleteSources(1,&music.source);check(1);
     balDeleteBuffers(2, music.buffers);check(1);
 
-    if (music.type==1)ov_clear(&music.def.oggStream);
-    Bmemset(&music,0,sizeof(sounddef1));
+    if (music.type == 1)
+        ov_clear(&music.def.oggStream);
+    Bmemset(&music,0,sizeof(music));
 }
+
+static char pcm[BUFFER_SIZE];
 
 int stream(ALuint buffer)
 {
     ALsizei  size=0;
     int  section,result;
-    static char pcm[BUFFER_SIZE];
-
+     
     while (size<BUFFER_SIZE)
     {
         result=ov_read(&music.def.oggStream,pcm+size,BUFFER_SIZE-size,0,2,1,&section);

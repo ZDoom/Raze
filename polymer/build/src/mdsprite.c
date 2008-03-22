@@ -200,6 +200,7 @@ static tile2model_t tile2model[MAXTILES+EXTRATILES];
 
 int addtileP(int model,int tile,int pallet)
 {
+    UNREFERENCED_PARAMETER(model);
     if (curextra==MAXTILES+EXTRATILES-2)return curextra;
     if (tile2model[tile].modelid==-1){tile2model[tile].pal=pallet;return tile;}
     if (tile2model[tile].pal==pallet)return tile;
@@ -403,7 +404,6 @@ static int framename2index(mdmodel *vm, const char *nam)
 
 int md_defineframe(int modelid, const char *framename, int tilenume, int skinnum, float smoothduration, int pal)
 {
-    void *vm;
     md2model *m;
     int i;
 
@@ -787,6 +787,8 @@ static int mdloadskin_cached(int fil, texcacheheader *head, int *doalloc, GLuint
     void *pic = NULL, *packbuf = NULL;
     void *midbuf = NULL;
     int alloclen=0;
+
+    UNREFERENCED_PARAMETER(pal);
 
     if (*doalloc&1)
     {
@@ -1172,8 +1174,6 @@ static void mdloadvbos(md3model *m)
 }
 
 //--------------------------------------- MD2 LIBRARY BEGINS ---------------------------------------
-static int memoryusage = 0;
-
 static md2model *md2load(int fil, const char *filnam)
 {
     md2model *m;
@@ -1181,7 +1181,7 @@ static md2model *md2load(int fil, const char *filnam)
     md3surf_t *s;
     md2frame_t *f;
     md2head_t head;
-    char *buf, st[BMAX_PATH];
+    char st[BMAX_PATH];
     int i, j, k;
 
     m = (md2model *)calloc(1,sizeof(md2model)); if (!m) return(0);
@@ -1401,7 +1401,7 @@ static md2model *md2load(int fil, const char *filnam)
 // DICHOTOMIC RECURSIVE SORTING - USED BY MD3DRAW - MAY PUT IT IN ITS OWN SOURCE FILE LATER
 int partition(unsigned short *indexes, float *depths, int f, int l)
 {
-    int up,down,temp;
+    int up,down;
     float tempf;
     unsigned short tempus;
     float piv = depths[f];
@@ -1448,8 +1448,7 @@ void quicksort(unsigned short *indexes, float *depths, int first, int last)
 
 static md3model *md3load(int fil)
 {
-    char *buf, st[BMAX_PATH+2], bst[BMAX_PATH+2];
-    int i, j, surfi, ofsurf, bsc, offs[4], leng[4];
+    int i, surfi, ofsurf, offs[4], leng[4];
     int maxtrispersurf;
     md3model *m;
     md3surf_t *s;
@@ -1579,6 +1578,10 @@ static md3model *md3load(int fil)
     }
 
 #if 0
+    {
+    char *buf, st[BMAX_PATH+2], bst[BMAX_PATH+2];
+    int j, bsc;
+
     strcpy(st,filnam);
     for (i=0,j=0;st[i];i++) if ((st[i] == '/') || (st[i] == '\\')) j = i+1;
     st[j] = '*'; st[j+1] = 0;
@@ -1597,6 +1600,7 @@ static md3model *md3load(int fil)
         }
     }
     if (!mdloadskin(&m->texid,&m->usesalpha,bst)) ;//bad!
+    }
 #endif
 
     m->indexes = malloc(sizeof(unsigned short) * maxtrispersurf);
@@ -1610,16 +1614,15 @@ static md3model *md3load(int fil)
 
 static int md3draw(md3model *m, spritetype *tspr)
 {
-    point3d fp, fp1, fp2, m0, m1, a0, a1;
+    point3d fp, fp1, fp2, m0, m1, a0;
     md3xyzn_t *v0, *v1;
-    int i, j, k, l, surfi, *lptr;
-    float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], mult;
+    int i, j, k, l, surfi;
+    float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16];
     md3surf_t *s;
-    GLfloat pc[4],pc1[4];
+    GLfloat pc[4];
     int                 texunits = GL_TEXTURE0_ARB;
     mdskinmap_t *sk;
     //PLAG : sorting stuff
-    unsigned short      tempus;
     void*               vbotemp;
     point3d*            vertexhandle = NULL;
     unsigned short*     indexhandle;
@@ -2247,6 +2250,7 @@ static void putvox(int x, int y, int z, int col)
 }
 
 //Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 0's
+#if 0
 static void setzrange0(int *lptr, int z0, int z1)
 {
     int z, ze;
@@ -2255,7 +2259,7 @@ static void setzrange0(int *lptr, int z0, int z1)
     lptr[z] &=~(-1<<SHIFTMOD32(z0)); for (z++;z<ze;z++) lptr[z] = 0;
     lptr[z] &= (-1<<SHIFTMOD32(z1));
 }
-
+#endif
 //Set all bits in vbit from (x,y,z0) to (x,y,z1-1) to 1's
 static void setzrange1(int *lptr, int z0, int z1)
 {
@@ -2320,6 +2324,11 @@ static void setrect(int x0, int y0, int dx, int dy)
 static void cntquad(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, int face)
 {
     int x, y, z;
+
+    UNREFERENCED_PARAMETER(x1);
+    UNREFERENCED_PARAMETER(y1);
+    UNREFERENCED_PARAMETER(z1);
+    UNREFERENCED_PARAMETER(face);
 
     x = labs(x2-x0); y = labs(y2-y0); z = labs(z2-z0);
     if (!x) x = z; else if (!y) y = z;
@@ -2437,10 +2446,8 @@ static int isolid(int x, int y, int z)
 
 static voxmodel *vox2poly()
 {
-    int i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy, i0, i1, *bx0, *by0;
+    int i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy, *bx0, *by0;
     void (*daquad)(int, int, int, int, int, int, int, int, int, int);
-    coltype *pic;
-    unsigned char *cptr, ch;
 
     gvox = (voxmodel *)malloc(sizeof(voxmodel)); if (!gvox) return(0);
     memset(gvox,0,sizeof(voxmodel));
@@ -2699,7 +2706,7 @@ static int loadkvx(const char *filnam)
 
 static int loadkv6(const char *filnam)
 {
-    int i, j, x, y, z, numvoxs, z0, z1, fil;
+    int i, j, x, y, numvoxs, z0, z1, fil;
     unsigned short *ylen;
     unsigned char c[8];
 
@@ -2838,8 +2845,8 @@ static voxmodel *voxload(const char *filnam)
 static int voxdraw(voxmodel *m, spritetype *tspr)
 {
     point3d fp, m0, a0;
-    int i, j, k, fi, *lptr, xx, yy, zz;
-    float ru, rv, uhack[2], vhack[2], phack[2], clut[6] = {1,1,1,1,1,1}; //1.02,1.02,0.94,1.06,0.98,0.98};
+    int i, j, fi, xx, yy, zz;
+    float ru, rv, phack[2], clut[6] = {1,1,1,1,1,1}; //1.02,1.02,0.94,1.06,0.98,0.98};
     float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], omat[16], pc[4];
     vert_t *vptr;
 
@@ -3014,7 +3021,6 @@ mdmodel *mdload(const char *filnam)
 
 int mddraw(spritetype *tspr)
 {
-    mdanim_t *anim;
     mdmodel *vm;
     int i;
 

@@ -364,7 +364,7 @@ static int defsparser(scriptfile *script)
         break;
         case T_DEFINESKYBOX:
         {
-            int tile,pal,i,j,ii;
+            int tile,pal,i,ii;
             char *fn[6],happy=1,*tfn = NULL;
 
             if (scriptfile_getsymbol(script,&tile)) break;
@@ -690,7 +690,7 @@ static int defsparser(scriptfile *script)
         break;
         case T_DEFINEMODELSKIN:
         {
-            int palnum, palnumer;
+            int palnum;
             char *skinfn;
 
             if (scriptfile_getsymbol(script,&palnum)) break;
@@ -1180,7 +1180,7 @@ case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL:
         {
             char *skyboxtokptr = script->ltextptr;
             char *fn[6] = {0,0,0,0,0,0}, *modelend, happy=1, *tfn = NULL;
-            int i, tile = -1, pal = 0,j,ii;
+            int i, tile = -1, pal = 0,ii;
 
             if (scriptfile_getbraces(script,&modelend)) break;
             while (script->textptr < modelend)

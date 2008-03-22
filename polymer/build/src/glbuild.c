@@ -210,7 +210,6 @@ static void * getproc_(const char *s, int *err, int fatal, int extension)
 
 int loadgldriver(const char *driver)
 {
-    void *t;
     int err=0;
 
 #ifdef RENDERTYPEWIN
@@ -580,7 +579,6 @@ static void * glugetproc_(const char *s, int *err, int fatal)
 
 int loadglulibrary(const char *driver)
 {
-    void *t;
     int err=0;
 
 #ifdef RENDERTYPEWIN

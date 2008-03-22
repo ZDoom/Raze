@@ -369,6 +369,7 @@ char *Bgethomedir(void)
 char *Bgetsupportdir(int global)
 {
 #ifndef __APPLE__
+    UNREFERENCED_PARAMETER(global);
     return Bgethomedir();
 #else
     FSRef ref;
@@ -490,7 +491,7 @@ int Bcanonicalisefilename(char *filename, int removefn)
 #ifdef _WIN32
     fnp += 2;	// skip the drive
 #endif
-
+    UNREFERENCED_PARAMETER(removefn); // change the call below to use removefn instead of 1?
     return Bcorrectfilename(fnp,1);
 }
 

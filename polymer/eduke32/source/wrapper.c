@@ -6,7 +6,6 @@
 #include <stdio.h>
 
 #define ISWS(x) ((x == ' ') || (x == '\t') || (x == '\r') || (x == '\n'))
-#define UNUSED_PARAMETER(x) x=x
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -18,9 +17,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
 
-    UNUSED_PARAMETER(hInstance);
-    UNUSED_PARAMETER(hPrevInst);
-    UNUSED_PARAMETER(nCmdShow);
+    UNREFERENCED_PARAMETER(hInstance);
+    UNREFERENCED_PARAMETER(hPrevInst);
+    UNREFERENCED_PARAMETER(nCmdShow);
 
     strcpy(sCmdLine,lpCmdLine);
     szFileName[0] = '\0';

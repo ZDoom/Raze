@@ -5,6 +5,10 @@
 #ifndef __compat_h__
 #define __compat_h__
 
+#ifndef UNREFERENCED_PARAMETER
+#define UNREFERENCED_PARAMETER(x) x=x
+#endif
+
 // This gives us access to 'intptr_t' and 'uintptr_t', which are
 // abstractions to the size of a pointer on a given platform
 // (ie, they're guaranteed to be the same size as a pointer)
@@ -452,8 +456,6 @@ int Bwildmatch (const char *i, const char *j);
 char *Bstrlwr(char *);
 char *Bstrupr(char *);
 #endif
-
-#define UNUSED_PARAMETER(x) x=x
 
 #ifdef __cplusplus
 }
