@@ -253,7 +253,7 @@ char *MV_ErrorString(int ErrorNumber)
 ---------------------------------------------------------------------*/
 #if defined(_WIN32)
 #define BASEBUFSZ (512+128)
-static unsigned MV_GetBufferSize(unsigned samplerate)
+static unsigned int MV_GetBufferSize(unsigned samplerate)
 {
     static unsigned lastsr = 0, lastbufsz = 0;
 
@@ -533,7 +533,7 @@ int MV_ServiceVoc(int buffer)
    Interperate the information of a VOC format sound file.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
+static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
 {
     unsigned char *ptr;
     int blocktype;

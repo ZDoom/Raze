@@ -42,11 +42,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static int floor_over_floor;
 
-static char *startwin_labeltext = "Starting Mapster32...";
+// static char *startwin_labeltext = "Starting Mapster32...";
 static char setupfilename[BMAX_PATH]= "mapster32.cfg";
 static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 static char *duke3dgrp = defaultduke3dgrp;
-static int usecwd = 0;
 static int fixmapbeforesaving = 1;
 static int NoAutoLoad = 0;
 
@@ -6404,13 +6403,14 @@ static void SetBOSS1Palette()
     kensetpalette(BOSS1palette);
 }
 
-
+/*
 static void SetSLIMEPalette()
 {
     if (acurpalette==2) return;
     acurpalette=2;
     kensetpalette(SLIMEpalette);
 }
+*/
 
 static void SetWATERPalette()
 {

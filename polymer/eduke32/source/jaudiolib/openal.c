@@ -7,7 +7,8 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <vorbis/vorbisfile.h>
-#include "_multivc.h"
+#include "openal.h"
+// #include "_multivc.h"
 
 ALCdevice  * device=NULL;
 ALCcontext * context=NULL;
@@ -130,7 +131,6 @@ static int unloadaldriver(void)
 
 static int loadaldriver(void)
 {
-    void *t;
     int err=0;
     char *driver;
 
@@ -441,10 +441,6 @@ void AL_PlaySong(char *ptr,int loop)
 {
     vorbis_info* vorbisInfo;
     int bf=2,i;
-    ALenum format;
-    ALsizei size;
-    ALsizei freq;
-    ALvoid* data;
 
     if (!context)
         return;

@@ -17,4 +17,12 @@ void AL_Continue();
 void AL_SetMusicVolume(int volume);
 
 int openal_disabled;
+
+typedef struct sounddef
+{
+        unsigned pos;
+        char *ptrsnd;
+        unsigned size;
+        OggVorbis_File  oggStream;
+} sounddef;
 #endif

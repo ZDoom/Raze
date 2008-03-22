@@ -97,14 +97,6 @@ typedef enum
     KeepPlaying
 } playbackstatus;
 
-typedef struct sounddef
-{
-        unsigned pos;
-        char *ptrsnd;
-        unsigned size;
-        OggVorbis_File  oggStream;
-} sounddef;
-
 typedef struct VoiceNode
 {
     struct VoiceNode *next;
@@ -220,7 +212,7 @@ typedef MONO16 VOLUME16[ 256 ];
 typedef char HARSH_CLIP_TABLE_8[ MV_NumVoices * 256 ];
 
 #if defined(_WIN32)
-static unsigned MV_GetBufferSize(unsigned);
+static unsigned int MV_GetBufferSize(unsigned);
 #endif
 static void MV_Mix(VoiceNode *voice, int buffer);
 static void MV_PlayVoice(VoiceNode *voice);
