@@ -60,8 +60,8 @@ static void PopulateForm(void)
     Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), (settings.fullscreen ? BST_CHECKED : BST_UNCHECKED));
     Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.forcesetup ? BST_CHECKED : BST_UNCHECKED));
 
-    ComboBox_ResetContent(hwnd2d);
-    ComboBox_ResetContent(hwnd3d);
+    (void)ComboBox_ResetContent(hwnd2d);
+    (void)ComboBox_ResetContent(hwnd3d);
     for (i=0; i<validmodecnt; i++)
     {
         if (validmode[i].fs != settings.fullscreen) continue;
@@ -69,15 +69,15 @@ static void PopulateForm(void)
         // all modes get added to the 3D mode list
         Bsprintf(buf, "%d x %d %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
         j = ComboBox_AddString(hwnd3d, buf);
-        ComboBox_SetItemData(hwnd3d, j, i);
-        if (i == mode3d) ComboBox_SetCurSel(hwnd3d, j);
+        (void)ComboBox_SetItemData(hwnd3d, j, i);
+        if (i == mode3d) (void)ComboBox_SetCurSel(hwnd3d, j);
 
         // only 8-bit modes get used for 2D
         if (validmode[i].bpp != 8 || validmode[i].xdim < 640 || validmode[i].ydim < 480) continue;
         Bsprintf(buf, "%d x %d", validmode[i].xdim, validmode[i].ydim);
         j = ComboBox_AddString(hwnd2d, buf);
-        ComboBox_SetItemData(hwnd2d, j, i);
-        if (i == mode2d) ComboBox_SetCurSel(hwnd2d, j);
+        (void)ComboBox_SetItemData(hwnd2d, j, i);
+        if (i == mode2d) (void)ComboBox_SetCurSel(hwnd2d, j);
     }
 }
 

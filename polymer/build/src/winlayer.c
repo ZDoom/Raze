@@ -266,6 +266,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     FILE *fp;
     HDC hdc;
 
+    UNREFERENCED_PARAMETER(lpCmdLine);
+    UNREFERENCED_PARAMETER(nCmdShow);
+
     hInstance = hInst;
 
     if (CheckWinVersion() || hPrevInst)
@@ -582,7 +585,7 @@ void uninitsystem(void)
 void initprintf(const char *f, ...)
 {
     va_list va;
-    char buf[1024],*p=NULL,*q=NULL,workbuf[1024];
+    char buf[1024];
 
     va_start(va, f);
     Bvsnprintf(buf, 1024, f, va);
@@ -1010,7 +1013,8 @@ void releaseallbuttons(void)
 static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 {
     const char *d;
-    int i;
+
+    UNREFERENCED_PARAMETER(pvRef);
 
 #define COPYGUID(d,s) memcpy(&d,&s,sizeof(GUID))
 
@@ -1027,6 +1031,8 @@ static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRe
         COPYGUID(guidDevs[MOUSE],lpddi->guidInstance);
         break;
     case DIDEVTYPE_JOYSTICK:
+    {
+        int i;
         inputdevices |= (1<<JOYSTICK);
         joyisgamepad = ((lpddi->dwDevType & (DIDEVTYPEJOYSTICK_GAMEPAD<<8)) != 0);
         d = joyisgamepad ? "GAMEPAD" : "JOYSTICK";
@@ -1053,7 +1059,8 @@ static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRe
         		lpddi->guidProduct.Data4[6], lpddi->guidProduct.Data4[7]
         	);
         */
-        break;
+    }
+    break;
     default:
         d = "OTHER"; break;
     }
@@ -1077,7 +1084,6 @@ static const char *joyfindnameforofs(int ofs)
 
 static BOOL CALLBACK InitDirectInput_enumobjects(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
-    unsigned i;
     int *typecounts = (int*)pvRef;
 
     if (lpddoi->dwType & DIDFT_AXIS)
@@ -1131,7 +1137,7 @@ static BOOL InitDirectInput(void)
     LPDIRECTINPUTDEVICE2A dev2;
     DIDEVCAPS didc;
 
-    int devn,i;
+    int devn;
 
     if (bDInputInited) return FALSE;
 
@@ -1508,7 +1514,6 @@ static void ProcessInputDevices(void)
             if (result == DI_OK)
             {
                 DWORD k, numlockon = FALSE;
-                static DWORD shiftkey = 0, shiftkeycount = 0;
 
                 numlockon = (GetKeyState(VK_NUMLOCK) & 1);
 
@@ -2122,6 +2127,8 @@ static HRESULT WINAPI getvalidmodes_enum(DDSURFACEDESC *ddsd, VOID *udata)
 {
     unsigned maxx = MAXXDIM, maxy = MAXYDIM;
 
+    UNREFERENCED_PARAMETER(udata);
+
     if (ddsd->ddpfPixelFormat.dwRGBBitCount == 8)
     {
         CHECK(ddsd->dwWidth, ddsd->dwHeight)
@@ -2421,6 +2428,8 @@ int setpalette(int start, int num, char *dapal)
     RGBQUAD *rgb;
     //HPALETTE hPalPrev;
 
+    UNREFERENCED_PARAMETER(dapal);
+
     struct logpal
     {
         WORD palVersion;
@@ -2650,6 +2659,9 @@ static int getgammaramp(WORD gt[3][256])
 // device enumerator
 static BOOL WINAPI InitDirectDraw_enum(GUID *lpGUID, LPSTR lpDesc, LPSTR lpName, LPVOID lpContext)
 {
+    UNREFERENCED_PARAMETER(lpGUID);
+    UNREFERENCED_PARAMETER(lpName);
+    UNREFERENCED_PARAMETER(lpContext);
     initprintf("    * %s\n", lpDesc);
     return 1;
 }
@@ -3161,7 +3173,6 @@ static int SetupOpenGL(int width, int height, int bitspp)
 
     {
         GLubyte *p,*p2,*p3;
-        int i;
 
         glinfo.vendor     = (char *)bglGetString(GL_VENDOR);
         glinfo.renderer   = (char *)bglGetString(GL_RENDERER);
@@ -3902,9 +3913,9 @@ static BOOL CheckWinVersion(void)
 //
 static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    RECT rect;
-    POINT pt;
-    HRESULT result;
+    /*    RECT rect;
+        POINT pt;
+        HRESULT result; */
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (hWnd == hGLWindow) return DefWindowProc(hWnd,uMsg,wParam,lParam);
