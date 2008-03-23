@@ -189,6 +189,7 @@ static void * getproc_(const char *s, int *err, int fatal, int extension)
 {
     void *t;
 #if defined RENDERTYPESDL
+    UNREFERENCED_PARAMETER(extension);
     t = (void*)SDL_GL_GetProcAddress(s);
 #elif defined _WIN32
     if (extension) t = (void*)bwglGetProcAddress(s);

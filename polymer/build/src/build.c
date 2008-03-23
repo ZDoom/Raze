@@ -135,7 +135,7 @@ static int repeatcountx, repeatcounty;
 static int fillist[640];
 
 int mousx, mousy;
-
+/*
 static char scantoasc[128] =
 {
     0,0,'1','2','3','4','5','6','7','8','9','0','-','=',0,0,
@@ -158,8 +158,7 @@ static char scantoascwithshift[128] =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
-
-
+*/
 
 char changechar(char dachar, int dadir, char smooshyalign, char boundcheck);
 int adjustmark(int *xplc, int *yplc, short danumwalls);
@@ -202,6 +201,8 @@ void clearkeys(void) { memset(keystatus,0,sizeof(keystatus)); }
 static int osdcmd_restartvid(const osdfuncparm_t *parm)
 {
     extern int qsetmode;
+
+    UNREFERENCED_PARAMETER(parm);
 
     if (qsetmode != 200) return OSDCMD_OK;
 
@@ -270,7 +271,7 @@ extern char *defsfilename;	// set in bstub.c
 
 int app_main(int argc, const char **argv)
 {
-    char ch, quitflag, cmdsetup = 0;
+    char quitflag, cmdsetup = 0;
     int i, j, k;
 
     pathsearchmode = 1;		// unrestrict findfrompath so that full access to the filesystem can be had
@@ -566,10 +567,10 @@ void loadmhk()
 
 void editinput(void)
 {
-    char smooshyalign, repeatpanalign, *ptr, buffer[80];
-    short sectnum, nextsectnum, startwall, endwall, dasector, daang;
+    char smooshyalign, repeatpanalign, buffer[80];
+    short /*sectnum, nextsectnum,*/ startwall, endwall, dasector, daang;
     int mousz, bstatus;
-    int i, j, k, cnt, tempint=0, doubvel, changedir, wallfind[2], daz[2];
+    int i, j, k, /*cnt,*/ tempint=0, doubvel, changedir/*, wallfind[2], daz[2]*/;
     int dashade[2], goalz, xvect, yvect, hiz, loz;
     short hitsect, hitwall, hitsprite;
     int hitx, hity, hitz, dax, day, hihit, lohit;
@@ -6515,7 +6516,7 @@ int numloopsofsector(short sectnum)
 int getnumber16(char namestart[80], int num, int maxnumber, char sign)
 {
     char buffer[80], ch;
-    int j, k, n, danum, oldnum;
+    int n, danum, oldnum;
 
     danum = (int)num;
     oldnum = danum;
@@ -6569,7 +6570,7 @@ int getnumber16(char namestart[80], int num, int maxnumber, char sign)
 int getnumber256(char namestart[80], int num, int maxnumber, char sign)
 {
     char buffer[80], ch;
-    int j, k, n, danum, oldnum;
+    int n, danum, oldnum;
 
     danum = num;
     oldnum = danum;
@@ -6657,8 +6658,8 @@ int getfilenames(char *path, char *kind)
 int menuselect(void)
 {
     int listsize;
-    int i, j, topplc;
-    char ch, buffer[78], *sb;
+    int i;
+    char ch, buffer[78];
     static char oldpath[BMAX_PATH];
     CACHE1D_FIND_REC *dir;
 
@@ -7473,7 +7474,6 @@ void showspritedata(short spritenum)
 void keytimerstuff(void)
 {
     static int ltotalclock=0;
-    int i;
     if (totalclock == ltotalclock) return;
     ltotalclock=totalclock;
 

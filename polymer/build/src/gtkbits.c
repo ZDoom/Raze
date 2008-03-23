@@ -85,6 +85,7 @@ void gtkbuild_init(int *argc, char ***argv)
 
 void gtkbuild_exit(int r)
 {
+    UNREFERENCED_PARAMETER(r);
     if (gtkenabled)
     {
         if (appicon) g_object_unref((gpointer)appicon);

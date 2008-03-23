@@ -22,12 +22,12 @@ static symbol_t *addnewsymbol(const char *name);
 static symbol_t *findsymbol(const char *name, symbol_t *startingat);
 static symbol_t *findexactsymbol(const char *name);
 
-static int _validate_osdlines(void *);
+// static int _validate_osdlines(void *);
 
 static int _internal_osdfunc_listsymbols(const osdfuncparm_t *);
 static int _internal_osdfunc_help(const osdfuncparm_t *);
-static int _internal_osdfunc_dumpbuildinfo(const osdfuncparm_t *);
-static int _internal_osdfunc_setrendermode(const osdfuncparm_t *);
+// static int _internal_osdfunc_dumpbuildinfo(const osdfuncparm_t *);
+// static int _internal_osdfunc_setrendermode(const osdfuncparm_t *);
 
 static int white=-1;			// colour of white (used by default display routines)
 static void _internal_drawosdchar(int, int, char, int, int);
@@ -99,8 +99,8 @@ static int  osdeditshade=0;
 static int  osdeditpal=0;
 static int  osdtextshade=0;
 static int  osdtextpal=0;
-static int  osdcursorshade=0;
-static int  osdcursorpal=0;
+/* static int  osdcursorshade=0;
+static int  osdcursorpal=0; */
 
 // application callbacks
 static void (*drawosdchar)(int, int, char, int, int) = _internal_drawosdchar;
@@ -116,6 +116,9 @@ static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
     int i,j,k;
     char st[2] = { 0,0 };
+
+    UNREFERENCED_PARAMETER(shade);
+    UNREFERENCED_PARAMETER(pal);
 
     st[0] = ch;
 
@@ -137,6 +140,9 @@ static void _internal_drawosdstr(int x, int y, char *ch, int len, int shade, int
 {
     int i,j,k;
     char st[1024];
+
+    UNREFERENCED_PARAMETER(shade);
+    UNREFERENCED_PARAMETER(pal);
 
     if (len>1023) len=1023;
     memcpy(st,ch,len);
@@ -160,6 +166,8 @@ static void _internal_drawosdcursor(int x, int y, int type, int lastkeypress)
 {
     int i,j,k;
     char st[2] = { '_',0 };
+
+    UNREFERENCED_PARAMETER(lastkeypress);
 
     if (type) st[0] = '#';
 
@@ -189,6 +197,8 @@ static int _internal_getrowheight(int w)
 
 static void _internal_clearbackground(int cols, int rows)
 {
+    UNREFERENCED_PARAMETER(cols);
+    UNREFERENCED_PARAMETER(rows);
 }
 
 static int _internal_gettime(void)
@@ -198,6 +208,7 @@ static int _internal_gettime(void)
 
 static void _internal_onshowosd(int a)
 {
+    UNREFERENCED_PARAMETER(a);
 }
 
 ////////////////////////////
@@ -232,6 +243,8 @@ static int _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
 {
     symbol_t *i;
 
+    UNREFERENCED_PARAMETER(parm);
+
     OSD_Printf("Symbol listing:\n");
     for (i=symbols; i!=NULL; i=i->next)
         OSD_Printf("     %s\n", i->name);
@@ -259,6 +272,7 @@ static int _internal_osdfunc_help(const osdfuncparm_t *parm)
 
 static int _internal_osdfunc_clear(const osdfuncparm_t *parm)
 {
+    UNREFERENCED_PARAMETER(parm);
     Bmemset(osdtext,0,sizeof(osdtext));
     osdlines = 1;
     return OSDCMD_OK;

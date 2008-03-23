@@ -386,7 +386,6 @@ int scriptfile_getsymbolvalue(char *name, int *val)
 
 int scriptfile_addsymbolvalue(char *name, int val)
 {
-    int x;
     char *sp;
     //	if (scriptfile_getsymbolvalue(name, &x)) return -1;   // already exists
 

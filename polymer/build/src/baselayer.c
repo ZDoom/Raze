@@ -64,7 +64,6 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 {
     int pal, cols[3], eff;
-    char *p;
 
     if (parm->numparms != 5) return OSDCMD_SHOWHELP;
 

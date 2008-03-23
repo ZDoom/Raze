@@ -59,8 +59,10 @@ static int GetTickCount(void)
 int packetrate = PAKRATE;
 #define SIMMIS 0     //Release:0  Test:100 Packets per 256 missed.
 #define SIMLAG 0     //Release:0  Test: 10 Packets to delay receipt
+#if (SIMLAG != 0)
 static int simlagcnt[MAXPLAYERS];
 static char simlagfif[MAXPLAYERS][SIMLAG+1][MAXPAKSIZ+2];
+#endif
 #if ((SIMMIS != 0) || (SIMLAG != 0))
 #pragma message("\n\nWARNING! INTENTIONAL PACKET LOSS SIMULATION IS ENABLED!\nREMEMBER TO CHANGE SIMMIS&SIMLAG to 0 before RELEASE!\n\n")
 #endif
@@ -169,7 +171,9 @@ int netinit(int portnum)
     LPHOSTENT lpHostEnt;
     char hostnam[256];
     struct sockaddr_in ip;
+#ifdef __BEOS__
     int i;
+#endif
 
 #ifdef _WIN32
     if (wsainitialized == 0)
@@ -323,10 +327,16 @@ int isvalidipaddress(char *st)
 
 //---------------------------------- Obsolete variables&functions ----------------------------------
 char syncstate = 0;
-void setpackettimeout(int datimeoutcount, int daresendagaincount) {}
-void genericmultifunction(int other, char *bufptr, int messleng, int command) {}
+void setpackettimeout(int datimeoutcount, int daresendagaincount) { UNREFERENCED_PARAMETER(datimeoutcount); UNREFERENCED_PARAMETER(daresendagaincount); }
+void genericmultifunction(int other, char *bufptr, int messleng, int command)
+{
+    UNREFERENCED_PARAMETER(other);
+    UNREFERENCED_PARAMETER(bufptr);
+    UNREFERENCED_PARAMETER(messleng);
+    UNREFERENCED_PARAMETER(command);
+}
 int getoutputcirclesize() { return(0); }
-void setsocket(int newsocket) { }
+void setsocket(int newsocket) { UNREFERENCED_PARAMETER(newsocket); }
 void flushpackets() {}
 void sendlogon() {}
 void sendlogoff() {}
@@ -506,7 +516,7 @@ int initmultiplayersparms(int argc, char **argv)
 int initmultiplayerscycle(void)
 {
     int i, k;
-    extern int totalclock;
+//    extern int totalclock;
 
     idle();
 
@@ -550,11 +560,14 @@ int initmultiplayerscycle(void)
 
 void initmultiplayers(int argc, char **argv, char damultioption, char dacomrateoption, char dapriority)
 {
-    int i, j, k, otims;
+    UNREFERENCED_PARAMETER(damultioption);
+    UNREFERENCED_PARAMETER(dacomrateoption);
+    UNREFERENCED_PARAMETER(dapriority);
 
     if (initmultiplayersparms(argc,argv))
     {
 #if 0
+        int i, j, k, otims;
         //Console code seems to crash Win98 upon quitting game
         //it's not necessary and it's not portable anyway
         char tbuf[1024];
@@ -644,7 +657,7 @@ void dosendpackets(int other)  //Host to send intially, client to send to others
 
 void sendpacket(int other, char *bufptr, int messleng)
 {
-    int i, j;
+//    int i, j;
 
     if (numplayers < 2) return;
 

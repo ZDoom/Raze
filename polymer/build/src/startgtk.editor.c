@@ -143,6 +143,7 @@ static void on_vmode2dcombo_changed(GtkComboBox *combobox, gpointer user_data)
     GtkTreeModel *data;
     GtkTreeIter iter;
     int val;
+    UNREFERENCED_PARAMETER(user_data);
     if (!gtk_combo_box_get_active_iter(combobox, &iter)) return;
     if (!(data = gtk_combo_box_get_model(combobox))) return;
     gtk_tree_model_get(data, &iter, 1, &val, -1);
@@ -155,6 +156,7 @@ static void on_vmode3dcombo_changed(GtkComboBox *combobox, gpointer user_data)
     GtkTreeModel *data;
     GtkTreeIter iter;
     int val;
+    UNREFERENCED_PARAMETER(user_data);
     if (!gtk_combo_box_get_active_iter(combobox, &iter)) return;
     if (!(data = gtk_combo_box_get_model(combobox))) return;
     gtk_tree_model_get(data, &iter, 1, &val, -1);
@@ -164,29 +166,38 @@ static void on_vmode3dcombo_changed(GtkComboBox *combobox, gpointer user_data)
 
 static void on_fullscreencheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
+    UNREFERENCED_PARAMETER(user_data);
     settings.fullscreen = (gtk_toggle_button_get_active(togglebutton) == TRUE);
     PopulateForm();
 }
 
 static void on_alwaysshowcheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
+    UNREFERENCED_PARAMETER(user_data);
     settings.forcesetup = (gtk_toggle_button_get_active(togglebutton) == TRUE);
 }
 
 static void on_cancelbutton_clicked(GtkButton *button, gpointer user_data)
 {
+    UNREFERENCED_PARAMETER(button);
+    UNREFERENCED_PARAMETER(user_data);
     if (mode == TAB_CONFIG) { retval = 0; gtk_main_quit(); }
     else quitevent++;
 }
 
 static void on_startbutton_clicked(GtkButton *button, gpointer user_data)
 {
+    UNREFERENCED_PARAMETER(button);
+    UNREFERENCED_PARAMETER(user_data);
     retval = 1;
     gtk_main_quit();
 }
 
 static gboolean on_startwin_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
+    UNREFERENCED_PARAMETER(widget);
+    UNREFERENCED_PARAMETER(event);
+    UNREFERENCED_PARAMETER(user_data);
     if (mode == TAB_CONFIG) { retval = 0; gtk_main_quit(); }
     else quitevent++;
     return TRUE;	// FALSE would let the event go through. we want the game to decide when to close
@@ -581,6 +592,7 @@ int startwin_settitle(const char *title)
 
 int startwin_idle(void *s)
 {
+    UNREFERENCED_PARAMETER(s);
     if (!gtkenabled) return 0;
     //if (!startwin) return 1;
     gtk_main_iteration_do(FALSE);

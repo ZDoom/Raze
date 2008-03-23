@@ -5537,6 +5537,7 @@ static int raytrace(int x3, int y3, int *x4, int *y4)
 static void sighandler(int sig, const siginfo_t *info, void *ctx)
 {
     const char *s;
+    UNREFERENCED_PARAMETER(ctx);
     switch (sig)
     {
     case SIGFPE:

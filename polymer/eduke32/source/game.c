@@ -9221,7 +9221,7 @@ static void checkcommandline(int argc, const char **argv)
                     if (*c == '4')
                     {
                         movesperpacket = 4;
-                        setpackettimeout(0x3fffffff,0x3fffffff);
+                        setpackettimeout(0x3fffffff,0x3fffffff); // this doesn't do anything anymore
                     }
                     break;
                 case 'g':

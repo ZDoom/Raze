@@ -345,7 +345,7 @@ void debugprintf(const char *f, ...)
 //
 
 static char mouseacquired=0,moustat=0;
-static int joyblast=0;
+// static int joyblast=0;
 static SDL_Joystick *joydev = NULL;
 
 //
@@ -549,7 +549,11 @@ void readmousebstatus(int *b)
 // setjoydeadzone() -- sets the dead and saturation zones for the joystick
 //
 void setjoydeadzone(int axis, unsigned short dead, unsigned short satur)
-{}
+{
+    UNREFERENCED_PARAMETER(axis);
+    UNREFERENCED_PARAMETER(dead);
+    UNREFERENCED_PARAMETER(satur);
+}
 
 
 //
@@ -557,6 +561,7 @@ void setjoydeadzone(int axis, unsigned short dead, unsigned short satur)
 //
 void getjoydeadzone(int axis, unsigned short *dead, unsigned short *satur)
 {
+    UNREFERENCED_PARAMETER(axis);
     *dead = *satur = 0;
 }
 
@@ -864,7 +869,7 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 //
 int setvideomode(int x, int y, int c, int fs)
 {
-    int modenum, regrab = 0;
+    int regrab = 0;
     static int warnonce = 0;
 
     if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) &&
@@ -1007,7 +1012,6 @@ int setvideomode(int x, int y, int c, int fs)
     if (c > 8)
     {
         char *p,*p2,*p3;
-        int i;
 
         polymost_glreset();
 
@@ -1233,7 +1237,8 @@ void enddrawing(void)
 //
 void showframe(int w)
 {
-    int i,j;
+//    int i,j;
+    UNREFERENCED_PARAMETER(w);
 
 #ifdef USE_OPENGL
     if (bpp > 8)
