@@ -612,6 +612,8 @@ void debugprintf(const char *f, ...)
     va_end(va);
 
     OutputDebugString(buf);
+#else
+    UNREFERENCED_PARAMETER(f);
 #endif
 }
 

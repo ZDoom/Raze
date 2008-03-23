@@ -2735,7 +2735,7 @@ char inputloc = 0;
 
 static int strget_(int small,int x,int y,char *t,int dalen,int c)
 {
-    short ch;
+    char ch;
     int i;
 
     while ((ch = KB_Getch()) != 0 || (g_player[myconnectindex].ps->gm&MODE_MENU && MOUSE_GetButtons()&RIGHT_MOUSE))
