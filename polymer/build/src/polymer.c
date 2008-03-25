@@ -204,14 +204,11 @@ void                polymer_loadboard(void)
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Board loaded.\n");
 }
-void                polymer_drawrooms(int daposx, int daposy, int daposz, short daang, int dahoriz, short dacursectnum, int root)
+void                polymer_drawrooms(int daposx, int daposy, int daposz, short daang, int dahoriz, short dacursectnum)
 {
-    int             i, j;
+    int             i;
     float           ang, horizang, tiltang;
-    _point2d        ref;
-    sectortype      *sec;
-    walltype        *wal;
-    short           drawnsectors, fov;
+    short           fov;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
 
@@ -319,6 +316,18 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
 
 void                polymer_rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2)
 {
+    UNREFERENCED_PARAMETER(sx);
+    UNREFERENCED_PARAMETER(sy);
+    UNREFERENCED_PARAMETER(z);
+    UNREFERENCED_PARAMETER(a);
+    UNREFERENCED_PARAMETER(picnum);
+    UNREFERENCED_PARAMETER(dashade);
+    UNREFERENCED_PARAMETER(dapalnum);
+    UNREFERENCED_PARAMETER(dastat);
+    UNREFERENCED_PARAMETER(cx1);
+    UNREFERENCED_PARAMETER(cy1);
+    UNREFERENCED_PARAMETER(cx2);
+    UNREFERENCED_PARAMETER(cy2);
 }
 
 void                polymer_drawmaskwall(int damaskwallcnt)
@@ -336,7 +345,6 @@ int                 polymer_initsector(short sectnum)
 {
     sectortype      *sec;
     _prsector*      s;
-    int             i;
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Initalizing sector %i...\n", sectnum);
 
@@ -533,6 +541,9 @@ void PR_CALLBACK    polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloa
     // This callback is called by the tesselator when it detects an intersection between contours (HELLO ROTATING SPOTLIGHT IN E1L1).
     GLdouble*       ptr;
 
+    UNREFERENCED_PARAMETER(data);
+    UNREFERENCED_PARAMETER(weight);
+
     tempvertice[0] = v[0];
     tempvertice[1] = v[1];
     tempvertice[2] = v[2];
@@ -554,6 +565,7 @@ void PR_CALLBACK    polymer_tesserror(GLenum error)
 void PR_CALLBACK    polymer_tessedgeflag(GLenum error)
 {
     // Passing an edgeflag callback forces the tesselator to output a triangle list
+    UNREFERENCED_PARAMETER(error);
     return;
 }
 
@@ -637,11 +649,9 @@ int                 polymer_buildfloor(short sectnum)
 
 void                polymer_drawsector(short sectnum)
 {
-    sectortype      *sec, *nextsec;
+    sectortype      *sec;
     walltype        *wal;
     _prsector*      s;
-    int             i;
-    int             zdiff;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing sector %i...\n", sectnum);
 
@@ -725,7 +735,7 @@ void                polymer_updatewall(short wallnum)
     _prwall         *w;
     _prsector       *s, *ns;
     pthtyp*         pth;
-    int             xref, yref, xdif, ydif;
+    int             xref, yref;
     float           ypancoef, dist;
     int             i;
 
@@ -1320,7 +1330,7 @@ int                 polymer_portalinfrustum(short wallnum)
 
 float               polymer_pointdistancetoplane(GLfloat* point, GLfloat* plane)
 {
-    float           result, t;
+    float           result;
 
     result = plane[0] * point[0] +
              plane[1] * point[1] +

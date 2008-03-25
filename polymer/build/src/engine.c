@@ -5827,7 +5827,7 @@ void drawrooms(int daposx, int daposy, int daposz,
     if (rendmode == 4)
     {
         polymer_glinit();
-        polymer_drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum, 1);
+        polymer_drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
         bglDisable(GL_SCISSOR_TEST);
         bglDisable(GL_CULL_FACE);
         return;

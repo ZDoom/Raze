@@ -30,7 +30,7 @@
 int startwin_open(void) { return 0; }
 int startwin_close(void) { return 0; }
 int startwin_puts(const char *s) { s=s; return 0; }
-int startwin_idle(void *s) { return 0; }
+int startwin_idle(void *s) { s=s; return 0; }
 int startwin_settitle(const char *s) { s=s; return 0; }
 #endif
 
@@ -94,6 +94,8 @@ int wm_msgbox(char *name, char *fmt, ...)
     char buf[2048];
     va_list va;
 
+    UNREFERENCED_PARAMETER(name);
+
     va_start(va,fmt);
     vsprintf(buf,fmt,va);
     va_end(va);
@@ -115,7 +117,8 @@ int wm_ynbox(char *name, char *fmt, ...)
     char buf[2048];
     char c;
     va_list va;
-    int r;
+
+    UNREFERENCED_PARAMETER(name);
 
     va_start(va,fmt);
     vsprintf(buf,fmt,va);
