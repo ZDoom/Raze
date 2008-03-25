@@ -41,6 +41,9 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #define cdecl
 #endif
 
+// for SDL_mixer.h _RW functions
+#define USE_RWOPS
+
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include "music.h"
