@@ -175,6 +175,16 @@ extern void        (APIENTRY * bglBufferDataARB)(GLenum target, GLsizeiptrARB si
 extern void*       (APIENTRY * bglMapBufferARB)(GLenum target, GLenum access);
 extern GLboolean   (APIENTRY * bglUnmapBufferARB)(GLenum target);
 
+// Occlusion queries
+extern void (APIENTRY * bglGenQueriesARB)(GLsizei n, GLuint *ids);
+extern void (APIENTRY * bglDeleteQueriesARB)(GLsizei n, const GLuint *ids);
+extern GLboolean (APIENTRY * bglIsQueryARB)(GLuint id);
+extern void (APIENTRY * bglBeginQueryARB)(GLenum target, GLuint id);
+extern void (APIENTRY * bglEndQueryARB)(GLenum target);
+extern void (APIENTRY * bglGetQueryivARB)(GLenum target, GLenum pname, GLint *params);
+extern void (APIENTRY * bglGetQueryObjectivARB)(GLuint id, GLenum pname, GLint *params);
+extern void (APIENTRY * bglGetQueryObjectuivARB)(uint id, GLenum pname, GLuint *params);
+
 // GLU
 extern void             (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
 extern void             (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);

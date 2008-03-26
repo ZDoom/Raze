@@ -146,6 +146,16 @@ void (APIENTRY * bglBufferDataARB)(GLenum target, GLsizeiptrARB size, const GLvo
 void* (APIENTRY * bglMapBufferARB)(GLenum target, GLenum access);
 GLboolean(APIENTRY * bglUnmapBufferARB)(GLenum target);
 
+// Occlusion queries
+void (APIENTRY * bglGenQueriesARB)(GLsizei n, GLuint *ids);
+void (APIENTRY * bglDeleteQueriesARB)(GLsizei n, const GLuint *ids);
+GLboolean (APIENTRY * bglIsQueryARB)(GLuint id);
+void (APIENTRY * bglBeginQueryARB)(GLenum target, GLuint id);
+void (APIENTRY * bglEndQueryARB)(GLenum target);
+void (APIENTRY * bglGetQueryivARB)(GLenum target, GLenum pname, GLint *params);
+void (APIENTRY * bglGetQueryObjectivARB)(GLuint id, GLenum pname, GLint *params);
+void (APIENTRY * bglGetQueryObjectuivARB)(uint id, GLenum pname, GLuint *params);
+
 // GLU
 void (APIENTRY * bgluTessBeginContour)(GLUtesselator* tess);
 void (APIENTRY * bgluTessBeginPolygon)(GLUtesselator* tess, GLvoid* data);
@@ -396,6 +406,16 @@ int loadglextensions(void)
     bglBufferDataARB    = GETPROCEXTSOFT("glBufferDataARB");
     bglMapBufferARB     = GETPROCEXTSOFT("glMapBufferARB");
     bglUnmapBufferARB   = GETPROCEXTSOFT("glUnmapBufferARB");
+
+    // Occlusion queries
+    bglGenQueriesARB        = GETPROCEXTSOFT("glGenQueriesARB");
+    bglDeleteQueriesARB     = GETPROCEXTSOFT("glDeleteQueriesARB");
+    bglIsQueryARB           = GETPROCEXTSOFT("glIsQueryARB");
+    bglBeginQueryARB        = GETPROCEXTSOFT("glBeginQueryARB");
+    bglEndQueryARB          = GETPROCEXTSOFT("glEndQueryARB");
+    bglGetQueryivARB        = GETPROCEXTSOFT("glGetQueryivARB");
+    bglGetQueryObjectivARB  = GETPROCEXTSOFT("glGetQueryObjectivARB");
+    bglGetQueryObjectuivARB = GETPROCEXTSOFT("glGetQueryObjectuivARB");
 
     return err;
 }

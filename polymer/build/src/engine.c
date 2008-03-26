@@ -5828,8 +5828,8 @@ void drawrooms(int daposx, int daposy, int daposz,
     {
         polymer_glinit();
         polymer_drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
-        bglDisable(GL_SCISSOR_TEST);
         bglDisable(GL_CULL_FACE);
+        gloy1 = 0;
         return;
     }
 

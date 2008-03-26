@@ -3,7 +3,7 @@
 #include "polymer.h"
 
 // CVARS
-int             pr_scissorstest = 1;
+int             pr_occlusionculling = 1;
 int             pr_fov = 426;           // appears to be the classic setting.
 int             pr_showportals = 0;
 int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
@@ -18,26 +18,12 @@ GLfloat         skybox[16];
 // CONTROL
 float           pos[3];
 
-float           *frustumstack;
-int             frustumstacksize = 0;
+float           frustum[5 * 4];
 
-char            *frustumsizes;
-GLint           *projectedportals;
-int             maxfrustumcount = 0;
-
-int             frustumdepth = 0;
-int             frustumstackposition = 0;
-
-int             *curportal;
-
-//float           frustumnorms[5];
-
-GLfloat         *clippedportalpoints = NULL;
-float           *distances = NULL;
-int             maxclippedportalpointcount = 0;
-int             clippedportalpointcount;
-
-GLfloat         triangle[9];
+int             front;
+int             back;
+int             firstback;
+short           sectorqueue[MAXSECTORS];
 
 GLdouble        modelviewmatrix[16];
 GLdouble        projectionmatrix[16];
@@ -77,44 +63,6 @@ int                 polymer_init(void)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Tesselator initialization failed.\n");
         return (0);
-    }
-
-    if (frustumstacksize == 0)
-    {
-        frustumstacksize = 20; // 5 planes, 4 components
-        frustumstack = malloc(frustumstacksize * sizeof(float));
-        if (!frustumstack)
-        {
-            if (pr_verbosity >= 1) OSD_Printf("PR : Cannot allocate initial frustum stack : malloc failed.\n");
-            frustumstacksize = 0;
-            return (0);
-        }
-    }
-
-    if (maxfrustumcount == 0)
-    {
-        maxfrustumcount = 1;
-        frustumsizes = malloc (maxfrustumcount * sizeof(char));
-        projectedportals = malloc(maxfrustumcount * 4 * sizeof(GLint));
-        if (!frustumsizes || !projectedportals)
-        {
-            if (pr_verbosity >= 1) OSD_Printf("PR : Cannot allocate initial frustum size record : malloc failed.\n");
-            maxfrustumcount = 0;
-            return (0);
-        }
-    }
-
-    if (maxclippedportalpointcount == 0)
-    {
-        maxclippedportalpointcount = 4;
-        clippedportalpoints = calloc(maxclippedportalpointcount, sizeof(GLfloat) * 3);
-        distances = calloc(maxclippedportalpointcount, sizeof(float));
-        if (!clippedportalpoints || !distances)
-        {
-            if (pr_verbosity >= 1) OSD_Printf("PR : Cannot allocate initial clipping memory : malloc failed.\n");
-            maxclippedportalpointcount = 0;
-            return (0);
-        }
     }
 
     polymer_loadboard();
@@ -175,9 +123,6 @@ void                polymer_glinit(void)
 
     bglEnable(GL_CULL_FACE);
     bglCullFace(GL_BACK);
-
-    if (pr_scissorstest)
-        bglEnable(GL_SCISSOR_TEST);
 }
 
 void                polymer_loadboard(void)
@@ -204,18 +149,20 @@ void                polymer_loadboard(void)
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Board loaded.\n");
 }
+
 void                polymer_drawrooms(int daposx, int daposy, int daposz, short daang, int dahoriz, short dacursectnum)
 {
-    int             i;
+    int             i, j;
     float           ang, horizang, tiltang;
-    short           fov;
+    sectortype      *sec, *nextsec;
+    walltype        *wal, *nextwal;
+    GLint           result;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
 
     ang = (float)(daang) / (2048.0f / 360.0f);
     horizang = (float)(100 - dahoriz) / (512.0f / 180.0f);
     tiltang = (gtang * 90.0f);
-    fov = (pr_fov * (float)xdim / (float)ydim * 1) / 2;
 
     pos[0] = daposy;
     pos[1] = -daposz;
@@ -240,18 +187,6 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     bglGetDoublev(GL_MODELVIEW_MATRIX, modelviewmatrix);
 
     polymer_extractfrustum(modelviewmatrix, projectionmatrix);
-    if (pr_scissorstest)
-    {
-        memcpy(projectedportals, viewport, sizeof(GLint) * 4);
-        bglScissor(projectedportals[0],
-                   viewport[3] - projectedportals[3],
-                   projectedportals[2] - projectedportals[0],
-                   projectedportals[3] - projectedportals[1]);
-    }
-    
-    frustumsizes[0] = 5;
-    frustumdepth = 0;
-    frustumstackposition = 0;
 
     // game tic
     if (updatesectors)
@@ -308,8 +243,122 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     // stupid waste of performance - the position doesn't match the sector number when running from a sector to another
     updatesector(daposx, daposy, &dacursectnum);
 
+    if (dacursectnum == -1)
+    {
+        front = 0;
+    }
+
     // GO
-    polymer_drawroom(dacursectnum);
+    front = 0;
+    back = 0;
+
+    polymer_drawsector(dacursectnum);
+    prsectors[dacursectnum]->drawingstate = 1;
+
+    sec = &sector[dacursectnum];
+    wal = &wall[sec->wallptr];
+
+    i = 0;
+    while (i < sec->wallnum)
+    {
+        if ((wallvisible(sec->wallptr + i)) &&
+            (polymer_portalinfrustum(sec->wallptr + i)))
+        {
+            polymer_drawwall(sec->wallptr + i);
+            if ((wal->nextsector != -1) &&
+                (prsectors[wal->nextsector]->drawingstate == 0))
+            {
+                sectorqueue[back++] = wal->nextsector;
+                prsectors[wal->nextsector]->drawingstate = 1;
+            }
+        }
+        i++;
+        wal = &wall[sec->wallptr + i];
+    }
+
+    firstback = back;
+
+    while (front != back)
+    {
+        if ((front >= firstback) && (pr_occlusionculling))
+        {
+            bglGetQueryObjectivARB(sectorqueue[front] + 1,
+                                   GL_QUERY_RESULT_ARB,
+                                   &result);
+            if (!result)
+            {
+                front++;
+                continue;
+            }
+        }
+        polymer_drawsector(sectorqueue[front]);
+
+        sec = &sector[sectorqueue[front]];
+        wal = &wall[sec->wallptr];
+
+        i = 0;
+        while (i < sec->wallnum)
+        {
+            if ((wallvisible(sec->wallptr + i)) &&
+                (polymer_portalinfrustum(sec->wallptr + i)))
+            {
+                polymer_drawwall(sec->wallptr + i);
+                if ((wal->nextsector != -1) &&
+                    (prsectors[wal->nextsector]->drawingstate == 0))
+                {
+                    sectorqueue[back++] = wal->nextsector;
+                    prsectors[wal->nextsector]->drawingstate = 1;
+
+                    if (pr_occlusionculling)
+                    {
+
+                    nextsec = &sector[wal->nextsector];
+                    nextwal = &wall[nextsec->wallptr];
+
+                    bglDisable(GL_TEXTURE_2D);
+                    bglDisable(GL_FOG);
+                    bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+                    bglDepthMask(GL_FALSE);
+
+                    bglBeginQueryARB(GL_SAMPLES_PASSED_ARB, wal->nextsector + 1);
+                    bglBegin(GL_QUADS);
+
+                    j = 0;
+                    while (j < nextsec->wallnum)
+                    {
+                        if ((nextwal->nextwall == (sec->wallptr + i)) ||
+                           ((nextwal->nextwall != -1) &&
+                            (wallvisible(nextwal->nextwall)) &&
+                            (polymer_portalinfrustum(nextwal->nextwall))))
+                        {
+                            bglVertex3fv(&prwalls[nextwal->nextwall]->portal[0]);
+                            bglVertex3fv(&prwalls[nextwal->nextwall]->portal[3]);
+                            bglVertex3fv(&prwalls[nextwal->nextwall]->portal[6]);
+                            bglVertex3fv(&prwalls[nextwal->nextwall]->portal[9]);
+                        }
+
+                        j++;
+                        nextwal = &wall[nextsec->wallptr + j];
+                    }
+                    bglEnd();
+                    bglEndQueryARB(GL_SAMPLES_PASSED_ARB);
+
+                    bglDepthMask(GL_TRUE);
+                    bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+                    bglEnable(GL_FOG);
+                    bglEnable(GL_TEXTURE_2D);
+
+                    }
+                }
+            }
+            i++;
+            wal = &wall[sec->wallptr + i];
+        }
+
+        front++;
+    }
+    //polymer_drawroom(dacursectnum);
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
 }
@@ -1032,52 +1081,6 @@ void                polymer_drawwall(short wallnum)
 }
 
 // HSR
-void                polymer_portaltofrustum(GLfloat* portal, int portalpointcount, GLfloat* pos, GLfloat* frustum)
-{
-    int             i;
-
-    memcpy(&triangle[3], pos, sizeof(GLfloat) * 3);
-    i = 0;
-    while (i < portalpointcount)
-    {
-        memcpy(&triangle[0], &portal[i * 3], sizeof(GLfloat) * 3);
-        if (i != (portalpointcount - 1))
-            memcpy(&triangle[6], &portal[(i+1) * 3], sizeof(GLfloat) * 3);
-        else
-            memcpy(&triangle[6], &portal[0], sizeof(GLfloat) * 3);
-        polymer_triangletoplane(triangle, &frustum[i*4]);
-        i++;
-    }
-
-    //near
-    //memcpy(&triangle[3], &portal[(i-2) * 3], sizeof(GLfloat) * 3);
-    //polymer_triangletoplane(triangle, &frustum[i*4]);
-}
-
-void                polymer_triangletoplane(GLfloat* triangle, GLfloat* plane)
-{
-    GLfloat         vec1[3], vec2[3];
-
-    vec1[0] = triangle[3] - triangle[0];
-    vec1[1] = triangle[4] - triangle[1];
-    vec1[2] = triangle[5] - triangle[2];
-
-    vec2[0] = triangle[6] - triangle[0];
-    vec2[1] = triangle[7] - triangle[1];
-    vec2[2] = triangle[8] - triangle[2];
-
-    polymer_crossproduct(vec1, vec2, plane);
-
-    plane[3] = -(plane[0] * triangle[0] + plane[1] * triangle[1] + plane[2] * triangle[2]);
-}
-
-void                polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out)
-{
-    out[0] = in_a[1] * in_b[2] - in_a[2] * in_b[1];
-    out[1] = in_a[2] * in_b[0] - in_a[0] * in_b[2];
-    out[2] = in_a[0] * in_b[1] - in_a[1] * in_b[0];
-}
-
 void                polymer_extractfrustum(GLdouble* modelview, GLdouble* projection)
 {
     GLdouble        matrix[16];
@@ -1092,218 +1095,28 @@ void                polymer_extractfrustum(GLdouble* modelview, GLdouble* projec
     i = 0;
     while (i < 4)
     {
-        frustumstack[i] = matrix[(4 * i) + 3] + matrix[4 * i];               // left
-        frustumstack[i + 4] = matrix[(4 * i) + 3] - matrix[4 * i];           // right
-        frustumstack[i + 8] = matrix[(4 * i) + 3] - matrix[(4 * i) + 1];     // top
-        frustumstack[i + 12] = matrix[(4 * i) + 3] + matrix[(4 * i) + 1];    // bottom
-        frustumstack[i + 16] = matrix[(4 * i) + 3] + matrix[(4 * i) + 2];    // near
+        frustum[i] = matrix[(4 * i) + 3] + matrix[4 * i];               // left
+        frustum[i + 4] = matrix[(4 * i) + 3] - matrix[4 * i];           // right
+        frustum[i + 8] = matrix[(4 * i) + 3] - matrix[(4 * i) + 1];     // top
+        frustum[i + 12] = matrix[(4 * i) + 3] + matrix[(4 * i) + 1];    // bottom
+        frustum[i + 16] = matrix[(4 * i) + 3] + matrix[(4 * i) + 2];    // near
         i++;
     }
     i = 0;
-    /*while (i < 5)
-    {
-        // frustum plane norms
-        frustumnorms[i] = sqrt((frustum[(i * 4) + 0] * frustum[(i * 4) + 0]) +
-                               (frustum[(i * 4) + 1] * frustum[(i * 4) + 1]) +
-                               (frustum[(i * 4) + 2] * frustum[(i * 4) + 2]));
-        i++;
-    }*/
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Frustum extracted.\n");
 }
 
-void                polymer_drawroom(short sectnum)
-{
-    int             i, j, secwallcount, curwallcount, walclips;
-    sectortype      *sec;
-    walltype        *wal;
-
-    if (pr_verbosity >= 3) OSD_Printf("PR : Drawing room %d.\n", sectnum);
-
-    sec = &sector[sectnum];
-    wal = &wall[sec->wallptr];
-
-    secwallcount = sec->wallnum;
-
-    // first draw the sector
-    polymer_drawsector(sectnum);
-    prsectors[sectnum]->drawingstate = 1;
-
-    i = 0;
-    while (i < secwallcount)
-    {
-        walclips = 0;
-        curwallcount = 1;
-
-        if ((prwalls[sec->wallptr + i]->drawn == 0) &&
-            (wallvisible(sec->wallptr + i)) &&
-            (walclips |= polymer_portalinfrustum(sec->wallptr + i)))
-        {
-            if ((wal->nextsector != -1) && (prsectors[wal->nextsector]->drawingstate == 0))
-            {
-                // check for contigous walls with the same nextsector
-                if ((i == 0) &&
-                    (wal->nextsector == wall[sec->wallptr + secwallcount - 1].nextsector) &&
-                    (prwalls[sec->wallptr + secwallcount - 1]->drawn == 0) &&
-                    (wallvisible(sec->wallptr + secwallcount - 1)) &&
-                    (walclips |= polymer_portalinfrustum(sec->wallptr + secwallcount - 1)))
-                {
-                    j = secwallcount - 2;
-                    while ((j > 1) &&
-                           (wall[sec->wallptr + j].nextsector == wal->nextsector) &&
-                           (prwalls[sec->wallptr + j]->drawn == 0) &&
-                           (wallvisible(sec->wallptr + j)) &&
-                           (walclips |= polymer_portalinfrustum(sec->wallptr + j)))
-                        j--;
-                    secwallcount = i = j + 1;
-                    curwallcount += sec->wallnum - secwallcount;
-                }
-                j = i + 1;
-                while ((wall[sec->wallptr + j].nextsector == wal->nextsector) &&
-                       (prwalls[sec->wallptr + j]->drawn == 0) &&
-                       (wallvisible(sec->wallptr + j)) &&
-                       (walclips |= polymer_portalinfrustum(sec->wallptr + j)))
-                    j++;
-                curwallcount += j - i - 1;
-            }
-
-            j = 0;
-            while (j < curwallcount)
-            {
-                prwalls[sec->wallptr + ((i + j) % sec->wallnum)]->drawn = 1;
-                j++;
-            }
-
-            if ((wal->nextsector != -1) && (prsectors[wal->nextsector]->drawingstate == 0))
-            {
-                clippedportalpointcount = 4 + ((curwallcount - 1) * 2);
-
-                // generate the portal from all the walls
-                if (curwallcount == 1)
-                    memcpy(clippedportalpoints, prwalls[sec->wallptr + i]->portal, sizeof(float) * 4 * 3);
-                else
-                {
-                    if (clippedportalpointcount > maxclippedportalpointcount)
-                    {
-                        clippedportalpoints = realloc(clippedportalpoints, sizeof(GLfloat) * 3 * clippedportalpointcount);
-                        distances = realloc(distances, sizeof(float) * clippedportalpointcount);
-                        maxclippedportalpointcount = clippedportalpointcount;
-                    }
-
-                    j = 0;
-                    while (j < curwallcount)
-                    {
-                        memcpy(&clippedportalpoints[j * 3],
-                               &prwalls[sec->wallptr + ((i + j) % sec->wallnum)]->portal[0],
-                               sizeof(GLfloat) * 3);
-                        memcpy(&clippedportalpoints[(clippedportalpointcount - j - 1) * 3],
-                               &prwalls[sec->wallptr + ((i + j) % sec->wallnum)]->portal[9],
-                               sizeof(GLfloat) * 3);
-                        j++;
-                    }
-                    memcpy(&clippedportalpoints[j * 3],
-                           &prwalls[sec->wallptr + ((i + j - 1) % sec->wallnum)]->portal[3],
-                           sizeof(GLfloat) * 3);
-                    memcpy(&clippedportalpoints[(clippedportalpointcount - j - 1) * 3],
-                           &prwalls[sec->wallptr + ((i + j - 1) % sec->wallnum)]->portal[6],
-                           sizeof(GLfloat) * 3);
-                }
-
-                if (walclips > 1) // the wall intersected at least one plane and needs to be clipped
-                    clippedportalpointcount = polymer_cliptofrustum(sec->wallptr + i);
-
-                if (pr_showportals)
-                {
-                    bglDisable(GL_FOG);
-                    bglDisable(GL_TEXTURE_2D);
-                    bglColor4f(0.0f, 1.0f, 0.0f, 1.0f);
-                    bglBegin(GL_LINE_LOOP);
-                    j = 0;
-                    while (j < clippedportalpointcount)
-                    {
-                        bglVertex3fv(&clippedportalpoints[j*3]);
-                        j++;
-                    }
-                    bglEnd();
-                    bglEnable(GL_FOG);
-                    bglEnable(GL_TEXTURE_2D);
-                }
-
-                if (frustumstacksize <= (frustumstackposition + (frustumsizes[frustumdepth] + clippedportalpointcount + 1) * 4))
-                {
-                    frustumstacksize += clippedportalpointcount * 4;
-                    frustumstack = realloc(frustumstack, sizeof(GLfloat) * frustumstacksize);
-                }
-                if (maxfrustumcount == (frustumdepth + 1))
-                {
-                    maxfrustumcount++;
-                    frustumsizes = realloc(frustumsizes, sizeof(char) * maxfrustumcount);
-                    projectedportals = realloc(projectedportals, maxfrustumcount * 4 * sizeof(GLint));
-                }
-                // push a new frustum on the stack
-                frustumstackposition += frustumsizes[frustumdepth] * 4;
-                frustumdepth++;
-                frustumsizes[frustumdepth] = clippedportalpointcount;
-
-                // calculate the new frustum data
-                polymer_portaltofrustum(clippedportalpoints, clippedportalpointcount, pos, &frustumstack[frustumstackposition]);
-
-                if (pr_scissorstest)
-                {
-                    // project the scissor
-                    curportal = &projectedportals[frustumdepth * 4];
-                    polymer_getportal(clippedportalpoints, clippedportalpointcount, curportal);
-                    bglScissor(curportal[0] - 1, viewport[3] - curportal[3] - 1, curportal[2] - curportal[0] + 2, curportal[3] - curportal[1] + 2);
-
-                    // draw the new scissor
-                    if (pr_showportals)
-                        polymer_drawportal(curportal);
-                }
-
-                // recurse
-                polymer_drawroom(wal->nextsector);
-
-                if (pr_verbosity >= 3) OSD_Printf("PR : Popping...\n");
-                frustumdepth--;
-                frustumstackposition -= frustumsizes[frustumdepth] * 4;
-
-                if (pr_scissorstest)
-                {
-                    // pop the scissor
-                    curportal = &projectedportals[frustumdepth * 4];
-                    bglScissor(curportal[0] - 1, viewport[3] - curportal[3] - 1, curportal[2] - curportal[0] + 2, curportal[3] - curportal[1] + 2);
-                }
-            }
-
-            j = 0;
-            while (j < curwallcount)
-            {
-                polymer_drawwall(sec->wallptr + ((i + j) % sec->wallnum));
-                prwalls[sec->wallptr + ((i + j) % sec->wallnum)]->drawn = 0;
-                j++;
-            }
-        }
-        i += curwallcount;
-        if (i > sec->wallnum)
-            i = i % sec->wallnum;
-
-        wal = &wall[sec->wallptr + i];
-    }
-
-    prsectors[sectnum]->drawingstate = 0;
-}
-
 int                 polymer_portalinfrustum(short wallnum)
 {
-    int             i, j, k, result;
-    float           sqdist, *frustum;
+    int             i, j, k;
+    float           sqdist;
     _prwall         *w;
 
-    frustum = &frustumstack[frustumstackposition];
     w = prwalls[wallnum];
 
-    i = result = 0;
-    while (i < frustumsizes[frustumdepth])
+    i = 0;
+    while (i < 5)
     {
         j = k = 0;
         while (j < 4)
@@ -1318,257 +1131,10 @@ int                 polymer_portalinfrustum(short wallnum)
         }
         if (k == 4)
             return (0); // OUT !
-        if (k != 0)
-            result |= 2<<i;
         i++;
     }
 
-    result |= 1;
-
-    return (result);
-}
-
-float               polymer_pointdistancetoplane(GLfloat* point, GLfloat* plane)
-{
-    float           result;
-
-    result = plane[0] * point[0] +
-             plane[1] * point[1] +
-             plane[2] * point[2] +
-             plane[3];
-
-    return (result);
-}
-
-float               polymer_pointdistancetopoint(GLfloat* point1, GLfloat* point2)
-{
-    return ((point2[0] - point1[0]) * (point2[0] - point1[0]) +
-            (point2[1] - point1[1]) * (point2[1] - point1[1]) +
-            (point2[2] - point1[2]) * (point2[2] - point1[2]));
-}
-
-void                polymer_lineplaneintersection(GLfloat *point1, GLfloat *point2, float dist1, float dist2, GLfloat *output)
-{
-    GLfloat         result[3];
-    float           s;
-
-    s = dist1 / (dist1 - dist2);
-
-    result[0] = point1[0] + (s * (point2[0] - point1[0]));
-    result[1] = point1[1] + (s * (point2[1] - point1[1]));
-    result[2] = point1[2] + (s * (point2[2] - point1[2]));
-
-    memcpy(output, result, sizeof(GLfloat) * 3);
-}
-
-int                 polymer_cliptofrustum(short wallnum)
-{
-    // sutherland-hofnman polygon clipping algorithm against all planes of the frustum
-    GLfloat         intersect[3], *frustum;
-    int             i, j, k, l, m, result, exitpoint;
-
-    exitpoint = 0; // annoying "warning: 'exitpoint' may be used uninialized in this function"
-
-    frustum = &frustumstack[frustumstackposition];
-    result = clippedportalpointcount; // 4 points to start with
-    if (pr_verbosity >= 3) OSD_Printf("PR : Clipping wall %d...\n", wallnum);
-    //memcpy(clippedportalpoints, prwalls[wallnum]->portal, sizeof(GLfloat) * 3 * 4);
-
-    i = 0;
-    while (i < frustumsizes[frustumdepth])
-    {
-        if ((frustumdepth == 0) && (i == frustumsizes[frustumdepth] - 1))
-        {
-            // don't near-clip with the viewing frustum
-            i++;
-            continue;
-        }
-        // frustum planes
-        j = k = 0;
-        m = -1;
-        while (j < result)
-        {
-            distances[j] = polymer_pointdistancetoplane(&clippedportalpoints[j * 3], &frustum[i * 4]);
-            if (distances[j] < 0)
-                k = 1; // at least one is outside
-            if ((distances[j] > 0) && (m < 0))
-                m = j; // first point inside
-            j++;
-        }
-
-        if ((k) && (m != -1))
-        {
-            // divide and conquer while we may
-            j = m;
-            while ((j != m) || (k))
-            {
-                if (k)
-                {
-                    k = 0;
-                    if (pr_verbosity >= 3) OSD_Printf("PR : Clipping against frustum plane %d starting with point %d...\n", i, m);
-                }
-
-                l = j + 1; // L is next point
-                if (l == result)
-                    l = 0;
-
-                if ((distances[j] >= 0) && (distances[l] < 0))
-                {
-                    // case 1 : line exits the plane -> compute intersection
-                    polymer_lineplaneintersection(&clippedportalpoints[j * 3], &clippedportalpoints[l * 3], distances[j], distances[l], intersect);
-                    exitpoint = l;
-                    if (pr_verbosity >= 3) OSD_Printf("PR : %d: EXIT\n", j);
-                }
-                else if ((distances[j] < 0) && (distances[l] < 0))
-                {
-                    // case 2 : line is totally outside the plane
-                    if (j != exitpoint)
-                    {
-                        // if we didn't just exit we need to delete this point forever
-                        result--;
-                        if (j != result)
-                        {
-                            memmove(&clippedportalpoints[j * 3], &clippedportalpoints[l * 3], (result - j) * sizeof(GLfloat) * 3);
-                            memmove(&distances[j], &distances[l], (result - j) * sizeof(float));
-                            if (m >= l)
-                            {
-                                m--;
-                            }
-                            l--;
-                        }
-                        if (l == result)
-                            l = 0;
-                    }
-                    else
-                        memcpy(&clippedportalpoints[j * 3], intersect, sizeof(GLfloat) * 3); // replace point by intersection from previous entry
-                    if (pr_verbosity >= 3) OSD_Printf("PR : %d: IN\n", j);
-                }
-                else if ((distances[j] < 0) && (distances[l] >= 0))
-                {
-                    // case 3 : we're going back into the plane -> replace current point with intersection
-                    if (j == exitpoint)
-                    {
-                        // if we just exited a point is created
-                        if (result == maxclippedportalpointcount)
-                        {
-                            clippedportalpoints = realloc(clippedportalpoints, sizeof(GLfloat) * 3 * (maxclippedportalpointcount + 1));
-                            distances = realloc(distances, sizeof(float) * (maxclippedportalpointcount + 1));
-                            maxclippedportalpointcount++;
-                        }
-                        if ((result - 1) != j)
-                        {
-                            memmove(&clippedportalpoints[(l + 1) * 3], &clippedportalpoints[l * 3], (result - l) * sizeof(GLfloat) * 3);
-                            memmove(&distances[l + 1], &distances[l], (result - l) * sizeof(float));
-                            if (m >= l)
-                                m++;
-                        }
-                        result++;
-                        polymer_lineplaneintersection(&clippedportalpoints[j * 3], &clippedportalpoints[l * 3], distances[j], distances[l], &clippedportalpoints[(j + 1) * 3]);
-                        memcpy(&clippedportalpoints[j * 3], intersect, sizeof(GLfloat) * 3); // replace point by intersection from previous entry
-                        if ((l) && (l != m))
-                            l++; // if not at the end of the list, skip the point we just created
-                    }
-                    else
-                        polymer_lineplaneintersection(&clippedportalpoints[j * 3], &clippedportalpoints[l * 3], distances[j], distances[l], &clippedportalpoints[j * 3]);
-                    if (pr_verbosity >= 3) OSD_Printf("PR : %d: ENTER\n", j);
-                }
-                else
-                    if (pr_verbosity >= 3) OSD_Printf("PR : %d: OUT\n", j);
-
-                j = l; // L
-            }
-        }
-
-        if (pr_verbosity >= 3) OSD_Printf("PR : Plane %d finished, result : %d.\n", i, result);
-
-        i++;
-    }
-
-    // pruning duplicates
-    i = 0;
-    while (i < result)
-    {
-        if (i == (result - 1))
-            intersect[0] = polymer_pointdistancetopoint(&clippedportalpoints[i*3], &clippedportalpoints[0]);
-        else
-            intersect[0] = polymer_pointdistancetopoint(&clippedportalpoints[i*3], &clippedportalpoints[(i+1)*3]);
-        if (intersect[0] < 1)
-        {
-            if (i == (result - 1))
-                result--;
-            else
-            {
-                result--;
-                memmove(&clippedportalpoints[i*3], &clippedportalpoints[(i+1)*3], (result - i) * sizeof(GLfloat) * 3);
-                continue;
-            }
-        }
-        i++;
-    }
-
-    return (result);
-}
-
-void                polymer_getportal(GLfloat* portalpoints, int portalpointcount, GLint* output)
-{
-    GLdouble        result[3];
-    int             i;
-
-    bgluProject(portalpoints[0], portalpoints[1], portalpoints[2], modelviewmatrix, projectionmatrix, viewport, &(result[0]), &(result[1]), &(result[2]));
-
-    result[1] = viewport[3] - result[1];
-
-    output[0] = (GLint)result[0];
-    output[1] = (GLint)result[1];
-    output[2] = (GLint)result[0];
-    output[3] = (GLint)result[1];
-
-    i = 1;
-    while (i < portalpointcount)
-    {
-        bgluProject(portalpoints[(i * 3)], portalpoints[(i * 3) + 1], portalpoints[(i * 3) + 2], modelviewmatrix, projectionmatrix, viewport, &(result[0]), &(result[1]), &(result[2]));
-
-        result[1] = viewport[3] - result[1];
-
-        if (((GLint)result[0]) < output[0])
-            output[0] = (GLint)result[0];
-        if (((GLint)result[0]) > output[2])
-            output[2] = (GLint)result[0];
-        if (((GLint)result[1]) < output[1])
-            output[1] = (GLint)result[1];
-        if (((GLint)result[1]) > output[3])
-            output[3] = (GLint)result[1];
-
-        i++;
-    }
-}
-
-void                polymer_drawportal(int *portal)
-{
-    bglMatrixMode(GL_PROJECTION);
-    bglPushMatrix();
-    bglLoadIdentity();
-    bglOrtho(0, xdim, ydim, 0, 0, 1);
-    bglMatrixMode(GL_MODELVIEW);
-    bglPushMatrix();
-    bglLoadIdentity();
-
-    bglColor4f(1.0f, (1.0f - 0.1 * (frustumdepth-1)), (1.0f - 0.1 * (frustumdepth-1)), 1.0f);
-    bglDisable(GL_TEXTURE_2D);
-
-    bglBegin(GL_LINE_LOOP);
-    bglVertex3f(portal[0], portal[1], 0.0f);
-    bglVertex3f(portal[0], portal[3], 0.0f);
-    bglVertex3f(portal[2], portal[3], 0.0f);
-    bglVertex3f(portal[2], portal[1], 0.0f);
-    bglEnd();
-
-    bglEnable(GL_TEXTURE_2D);
-
-    bglPopMatrix();
-    bglMatrixMode(GL_PROJECTION);
-    bglPopMatrix();
-    bglMatrixMode(GL_MODELVIEW);
+    return (1);
 }
 
 // SKIES

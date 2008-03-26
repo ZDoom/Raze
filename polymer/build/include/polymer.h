@@ -32,7 +32,7 @@
 # include <math.h>
 
 // CVARS
-extern int          pr_scissorstest;
+extern int          pr_occlusionculling;
 extern int          pr_fov;
 extern int          pr_showportals;
 extern int          pr_verbosity;
@@ -104,18 +104,8 @@ int                 polymer_initwall(short wallnum);
 void                polymer_updatewall(short wallnum);
 void                polymer_drawwall(short wallnum);
 // HSR
-void                polymer_portaltofrustum(GLfloat* portal, int portalpointcount, GLfloat* pos, GLfloat* frustum);
-void                polymer_triangletoplane(GLfloat* triangle, GLfloat* plane);
-void                polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out);
 void                polymer_extractfrustum(GLdouble* modelview, GLdouble* projection);
-void                polymer_drawroom(short sectnum);
 int                 polymer_portalinfrustum(short wallnum);
-float               polymer_pointdistancetoplane(GLfloat* point, GLfloat* plane);
-float               polymer_pointdistancetopoint(GLfloat* point1, GLfloat* point2);
-void                polymer_lineplaneintersection(GLfloat *point1, GLfloat *point2, float dist1, float dist2, GLfloat *output);
-int                 polymer_cliptofrustum(short wallnum);
-void                polymer_getportal(GLfloat* portalpoints, int portalpointcount, GLint* output);
-void                polymer_drawportal(int *portal);
 // SKIES
 void                polymer_initskybox(void);
 void                polymer_getsky(void);
