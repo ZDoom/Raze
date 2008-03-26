@@ -19,7 +19,7 @@ POLYMOST ?= 1
 USE_OPENGL ?= 1
 NOASM ?= 0
 LINKED_GTK ?= 0
-BUILD32_ON_64 ?= 1
+BUILD32_ON_64 ?= 0
 
 # Debugging options
 #  RELEASE - 1 = no debugging

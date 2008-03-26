@@ -426,12 +426,10 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
     case USERDEFS_SCREEN_SIZE:
         if (iSet)
         {
+            if (ud.screen_size != lValue)
             {
-                if (ud.screen_size != lValue)
-                {
-                    ud.screen_size = lValue;
-                    vscrn();
-                }
+                ud.screen_size = lValue;
+                vscrn();
             }
             return;
         }

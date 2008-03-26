@@ -6,7 +6,7 @@
 #define __compat_h__
 
 #ifndef UNREFERENCED_PARAMETER
-#define UNREFERENCED_PARAMETER(x) x=x
+    #define UNREFERENCED_PARAMETER(x) x=x
 #endif
 
 // This gives us access to 'intptr_t' and 'uintptr_t', which are

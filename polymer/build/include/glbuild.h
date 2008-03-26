@@ -183,7 +183,7 @@ extern void (APIENTRY * bglBeginQueryARB)(GLenum target, GLuint id);
 extern void (APIENTRY * bglEndQueryARB)(GLenum target);
 extern void (APIENTRY * bglGetQueryivARB)(GLenum target, GLenum pname, GLint *params);
 extern void (APIENTRY * bglGetQueryObjectivARB)(GLuint id, GLenum pname, GLint *params);
-extern void (APIENTRY * bglGetQueryObjectuivARB)(uint id, GLenum pname, GLuint *params);
+extern void (APIENTRY * bglGetQueryObjectuivARB)(GLuint id, GLenum pname, GLuint *params);
 
 // GLU
 extern void             (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
