@@ -715,38 +715,45 @@ void                polymer_drawsector(short sectnum)
     }
 
     // floor
-    if (!(sec->floorstat & 1))
-    {
-        bglBindTexture(GL_TEXTURE_2D, s->floorglpic);
-        bglColor4f(s->floorcolor[0], s->floorcolor[1], s->floorcolor[2], s->floorcolor[3]);
-        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
-        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
-        bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
+    if (sec->floorstat & 1)
+        bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-        if (s->floorfbglpic)
-        {
-            bglBindTexture(GL_TEXTURE_2D, s->floorfbglpic);
-            bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
-        }
+    bglBindTexture(GL_TEXTURE_2D, s->floorglpic);
+    bglColor4f(s->floorcolor[0], s->floorcolor[1], s->floorcolor[2], s->floorcolor[3]);
+    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
+    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
+    bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
+
+    if (s->floorfbglpic)
+    {
+        bglBindTexture(GL_TEXTURE_2D, s->floorfbglpic);
+        bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
     }
+
+    if (sec->floorstat & 1)
+        bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
 
     // ceiling
-    if (!(sec->ceilingstat & 1))
-    {
-        bglBindTexture(GL_TEXTURE_2D, s->ceilglpic);
-        bglColor4f(s->ceilcolor[0], s->ceilcolor[1], s->ceilcolor[2], s->ceilcolor[3]);
-        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->ceilbuffer);
-        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->ceilbuffer[3]);
-        bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->ceilindices);
+    if (sec->ceilingstat & 1)
+        bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-        if (s->ceilfbglpic)
-        {
-            bglBindTexture(GL_TEXTURE_2D, s->ceilfbglpic);
-            bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
-        }
+    bglBindTexture(GL_TEXTURE_2D, s->ceilglpic);
+    bglColor4f(s->ceilcolor[0], s->ceilcolor[1], s->ceilcolor[2], s->ceilcolor[3]);
+    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->ceilbuffer);
+    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->ceilbuffer[3]);
+    bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->ceilindices);
+
+    if (s->ceilfbglpic)
+    {
+        bglBindTexture(GL_TEXTURE_2D, s->ceilfbglpic);
+        bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
     }
+
+    if (sec->ceilingstat & 1)
+        bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing sector %i...\n", sectnum);
 }
@@ -876,8 +883,9 @@ void                polymer_updatewall(short wallnum)
         ns = prsectors[wal->nextsector];
 
         if (((s->floorbuffer[((wallnum - sec->wallptr) * 5) + 1] != ns->floorbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-                (s->floorbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->floorbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
-                (s->floorbuffer[((wallnum - sec->wallptr) * 5) + 1] <= ns->floorbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]))
+             (s->floorbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->floorbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
+            ((s->floorbuffer[((wallnum - sec->wallptr) * 5) + 1] <= ns->floorbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
+             (s->floorbuffer[((wal->point2 - sec->wallptr) * 5) + 1] <= ns->floorbuffer[((nwallnum - nsec->wallptr) * 5) + 1])))
         {
             memcpy(w->wallbuffer, &s->floorbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
             memcpy(&w->wallbuffer[5], &s->floorbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
@@ -948,13 +956,15 @@ void                polymer_updatewall(short wallnum)
                 i++;
             }
 
-            if (!((sec->floorstat & 1) && (nsec->floorstat & 1)))
-                w->underover |= 1;
+            w->underover |= 1;
+            if ((sec->floorstat & 1) && (nsec->floorstat & 1))
+                w->underover |= 4;
         }
 
         if (((s->ceilbuffer[((wallnum - sec->wallptr) * 5) + 1] != ns->ceilbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-                (s->ceilbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->ceilbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
-                (s->ceilbuffer[((wallnum - sec->wallptr) * 5) + 1] >= ns->ceilbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]))
+             (s->ceilbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->ceilbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
+            ((s->ceilbuffer[((wallnum - sec->wallptr) * 5) + 1] >= ns->ceilbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
+             (s->ceilbuffer[((wal->point2 - sec->wallptr) * 5) + 1] >= ns->ceilbuffer[((nwallnum - nsec->wallptr) * 5) + 1])))
         {
             if (w->overbuffer == NULL)
                 w->overbuffer = calloc(4, sizeof(GLfloat) * 5);
@@ -1022,8 +1032,9 @@ void                polymer_updatewall(short wallnum)
                 i++;
             }
 
-            if (!((sec->ceilingstat & 1) && (nsec->ceilingstat & 1)))
-                w->underover |= 2;
+            w->underover |= 2;
+            if ((sec->ceilingstat & 1) && (nsec->ceilingstat & 1))
+                w->underover |= 8;
         }
     }
 
@@ -1048,33 +1059,46 @@ void                polymer_drawwall(short wallnum)
 
     if (w->underover & 1)
     {
+        if (w->underover & 4)
+            bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
         bglBindTexture(GL_TEXTURE_2D, w->wallglpic);
         bglColor4f(w->wallcolor[0], w->wallcolor[1], w->wallcolor[2], w->wallcolor[3]);
         bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->wallbuffer);
         bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &w->wallbuffer[3]);
         bglDrawArrays(GL_QUADS, 0, 4);
 
-        if (w->wallfbglpic)
+        if ((w->wallfbglpic) && !(w->underover & 4))
         {
             bglBindTexture(GL_TEXTURE_2D, w->wallfbglpic);
             bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
             bglDrawArrays(GL_QUADS, 0, 4);
         }
+
+        if (w->underover & 4)
+            bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
+
     if (w->underover & 2)
     {
+        if (w->underover & 8)
+            bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
         bglBindTexture(GL_TEXTURE_2D, w->overglpic);
         bglColor4f(w->overcolor[0], w->overcolor[1], w->overcolor[2], w->overcolor[3]);
         bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->overbuffer);
         bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &w->overbuffer[3]);
         bglDrawArrays(GL_QUADS, 0, 4);
 
-        if (w->overfbglpic)
+        if ((w->overfbglpic) && !(w->underover & 4))
         {
             bglBindTexture(GL_TEXTURE_2D, w->overfbglpic);
             bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
             bglDrawArrays(GL_QUADS, 0, 4);
         }
+
+        if (w->underover & 8)
+            bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing wall %i...\n", wallnum);
