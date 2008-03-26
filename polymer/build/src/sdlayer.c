@@ -117,6 +117,9 @@ int wm_ynbox(char *name, char *fmt, ...)
     char buf[2048];
     char c;
     va_list va;
+#if (!defined(__APPLE__) && defined(HAVE_GTK2))
+    int r;
+#endif
 
     UNREFERENCED_PARAMETER(name);
 
