@@ -1,11 +1,4 @@
 #include <gdk-pixbuf/gdk-pixdata.h>
-
-
-
-
-
-
-
 /* GdkPixbuf RGB C-Source image dump */
 
 const GdkPixdata startbanner_pixdata = {
@@ -16,7 +9,6 @@ const GdkPixdata startbanner_pixdata = {
   90, /* width */
   280, /* height */
   /* pixel_data: */
-  (guint8 *)
   "\2\36E\2\36E\2\36E\5\40H\2\36E\5\40H\2\36E\2\36E\5\40H\2\36E\2\36E\2"
   "\36E\5\40H\5\40H\5\40H\5\40H\5\40H\5\40H\5\40H\0\"M\4\37M\4\37M\0\"M"
   "\4\37M\4\37M\0\"M\0\"M\4\37M\0\"M\0#O\0#O\0$P\0#O\0$P\0$P\14#Q\0%Q\0"

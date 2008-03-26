@@ -215,7 +215,9 @@ int main(int argc, char *argv[])
 //
 int initsystem(void)
 {
+#ifdef DEBUGGINGAIDS
     const SDL_VideoInfo *vid;
+#endif
     const SDL_version *linked = SDL_Linked_Version();
     SDL_version compiled;
     char drvname[32];
@@ -336,6 +338,8 @@ void debugprintf(const char *f, ...)
     va_start(va,f);
     Bvfprintf(stderr, f, va);
     va_end(va);
+#else
+    UNREFERENCED_PARAMETER(f);
 #endif
 }
 
