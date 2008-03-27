@@ -6,7 +6,7 @@
 
 #include "kplib.h"
 
-#define HICEFFECTMASK (1|2)
+#define HICEFFECTMASK (1|2|4)
 palette_t hictinting[MAXPALOOKUPS];
 
 //moved into polymost.h

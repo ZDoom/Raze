@@ -1472,6 +1472,7 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
 {
     coltype *pic = NULL, *rpptr;
     int j, x, y, xsiz=0, ysiz=0, tsizx, tsizy;
+    int r, g, b;
 
     char *picfil = NULL, *fn, hasalpha = 255;
     int picfillen, texfmt = GL_RGBA, intexfmt = GL_RGBA, filh;
@@ -1549,6 +1550,10 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
 
         if (kprender(picfil,picfillen,(int)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0)) { free(picfil); free(pic); return -2; }
         applypalmapsT((char *)pic,tsizx,tsizy,dapalnum);
+
+        r=(glinfo.bgra)?hictinting[dapalnum].r:hictinting[dapalnum].b;
+        g=hictinting[dapalnum].g;
+        b=(glinfo.bgra)?hictinting[dapalnum].b:hictinting[dapalnum].r;
         for (y=0,j=0;y<tsizy;y++,j+=xsiz)
         {
             coltype tcol;
@@ -1574,6 +1579,13 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
                     tcol.b = 255-tcol.b;
                     tcol.g = 255-tcol.g;
                     tcol.r = 255-tcol.r;
+                }
+                if (effect & 4)
+                {
+                    // colorize
+                    tcol.b = min((int)((tcol.b)*r)/64,255);
+                    tcol.g = min((int)((tcol.g)*g)/64,255);
+                    tcol.r = min((int)((tcol.r)*b)/64,255);
                 }
 
                 rpptr[x].b = tcol.b;
@@ -1973,6 +1985,7 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
             }
             // tinting happens only to hightile textures, and only if the texture we're
             // rendering isn't for the same palette as what we asked for
+            if (!(hictinting[globalpal].f&4))
             if (pth && (pth->flags & 2))
             {
                 if (pth->palnum != globalpal)
@@ -2831,6 +2844,7 @@ static void polymost_drawalls(int bunch)
     double t, r, t0, t1, ocy0, ocy1, ofy0, ofy1, oxp0, oyp0, ft[4];
     double oguo, ogux, oguy;
     int i, x, y, z, cz, fz, wallnum, sectnum, nextsectnum;
+    int ypan; // for panning correction
 
     sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];
 
@@ -3711,7 +3725,12 @@ static void polymost_drawalls(int bunch)
                 t1 = ((float)(i-globalposz))*ryp1 + ghoriz;
                 t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.f);
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
-                fy = (float)wal->ypanning * ((float)i) / 256.0;
+
+                ypan = wal->ypanning;
+                if (ypan>256-(i-tilesizy[globalpicnum])*(256./i))
+                ypan -= (i-tilesizy[globalpicnum])*(256./i);
+
+                fy = (float)ypan * ((float)i) / 256.0;
                 gvx = (t0-t1)*t;
                 gvy = (x1-x0)*t;
                 gvo = -gvx*x0 - gvy*t0 + fy*gdo; gvx += fy*gdx; gvy += fy*gdy;
@@ -3753,7 +3772,12 @@ static void polymost_drawalls(int bunch)
                 t1 = ((float)(i-globalposz))*ryp1 + ghoriz;
                 t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.f);
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
-                fy = (float)nwal->ypanning * ((float)i) / 256.0;
+
+                ypan = nwal->ypanning;
+				if (ypan>256-(i-tilesizy[globalpicnum])*(256./i))
+				ypan -= (i-tilesizy[globalpicnum])*(256./i);
+
+                fy = (float)ypan * ((float)i) / 256.0;
                 gvx = (t0-t1)*t;
                 gvy = (x1-x0)*t;
                 gvo = -gvx*x0 - gvy*t0 + fy*gdo; gvx += fy*gdx; gvy += fy*gdy;
@@ -3791,7 +3815,12 @@ static void polymost_drawalls(int bunch)
             t1 = ((float)(i-globalposz))*ryp1 + ghoriz;
             t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.f);
             i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
-            fy = (float)wal->ypanning * ((float)i) / 256.0;
+
+            ypan = wal->ypanning;
+            if (ypan>256-(i-tilesizy[globalpicnum])*(256./i))
+            ypan -= (i-tilesizy[globalpicnum])*(256./i);
+
+            fy = (float)ypan * ((float)i) / 256.0;
             gvx = (t0-t1)*t;
             gvy = (x1-x0)*t;
             gvo = -gvx*x0 - gvy*t0 + fy*gdo; gvx += fy*gdx; gvy += fy*gdy;
@@ -4359,6 +4388,8 @@ void polymost_drawsprite(int snum)
     int i, j, spritenum, xoff=0, yoff=0, method, npoints;
     spritetype *tspr;
     int posx,posy;
+    int oldsizx, oldsizy;
+    int tsizx, tsizy;
 
     tspr = tspriteptr[snum];
     if (tspr->owner < 0 || tspr->picnum < 0) return;
@@ -4371,10 +4402,13 @@ void polymost_drawsprite(int snum)
 
     if ((globalorientation&48) != 48)  	// only non-voxel sprites should do this
     {
+        int flag;
         if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,spritenum+32768);
-
-        xoff = (int)((signed char)((picanm[globalpicnum]>>8)&255))+((int)tspr->xoffset);
-        yoff = (int)((signed char)((picanm[globalpicnum]>>16)&255))+((int)tspr->yoffset);
+        flag = usehightile&&h_xsize[globalpicnum];
+        xoff = (int)tspr->xoffset;
+        yoff = (int)tspr->yoffset;
+        xoff += (signed char)((flag)?(h_xoffs[globalpicnum]):((picanm[globalpicnum]>>8)&255));
+        yoff += (signed char)((flag)?(h_yoffs[globalpicnum]):((picanm[globalpicnum]>>16)&255));
     }
 
     method = 1+4;
@@ -4434,6 +4468,13 @@ void polymost_drawsprite(int snum)
         posx-=(sintable[(tspr->ang+512)&2047]>>13);
         posy-=(sintable[(tspr->ang)&2047]>>13);
     }
+    oldsizx=tsizx=tilesizx[globalpicnum];
+    oldsizy=tsizy=tilesizy[globalpicnum];
+    if (usehightile&&h_xsize[globalpicnum])
+    {
+        tsizx=h_xsize[globalpicnum];
+        tsizy=h_ysize[globalpicnum];
+    }
 
     switch ((globalorientation>>4)&3)
     {
@@ -4451,10 +4492,10 @@ void polymost_drawsprite(int snum)
         f = ryp0*(float)xdimen/160.0;
         fx = ((float)tspr->xrepeat)*f;
         fy = ((float)tspr->yrepeat)*f*((float)yxaspect/65536.0);
-        sx0 -= fx*(float)xoff; if (tilesizx[globalpicnum]&1) sx0 += fx*.5;
+        sx0 -= fx*(float)xoff; if (tsizx&1) sx0 += fx*.5;
         sy0 -= fy*(float)yoff;
-        fx *= ((float)tilesizx[globalpicnum]);
-        fy *= ((float)tilesizy[globalpicnum]);
+        fx *= ((float)tsizx);
+        fy *= ((float)tsizy);
 
         px[0] = px[3] = sx0-fx*.5; px[1] = px[2] = sx0+fx*.5;
         if (!(globalorientation&128)) { py[0] = py[1] = sy0-fy; py[2] = py[3] = sy0; }
@@ -4462,17 +4503,17 @@ void polymost_drawsprite(int snum)
 
         gdx = gdy = guy = gvx = 0; gdo = ryp0*gviewxrange;
         if (!(globalorientation&4))
-            { gux = (float)tilesizx[globalpicnum]*gdo/(px[1]-px[0]+.002); guo = -gux*(px[0]-.001); }
-        else { gux = (float)tilesizx[globalpicnum]*gdo/(px[0]-px[1]-.002); guo = -gux*(px[1]+.001); }
+            { gux = (float)tsizx*gdo/(px[1]-px[0]+.002); guo = -gux*(px[0]-.001); }
+        else { gux = (float)tsizx*gdo/(px[0]-px[1]-.002); guo = -gux*(px[1]+.001); }
         if (!(globalorientation&8))
-            { gvy = (float)tilesizy[globalpicnum]*gdo/(py[3]-py[0]+.002); gvo = -gvy*(py[0]-.001); }
-        else { gvy = (float)tilesizy[globalpicnum]*gdo/(py[0]-py[3]-.002); gvo = -gvy*(py[3]+.001); }
+            { gvy = (float)tsizy*gdo/(py[3]-py[0]+.002); gvo = -gvy*(py[0]-.001); }
+        else { gvy = (float)tsizy*gdo/(py[0]-py[3]-.002); gvo = -gvy*(py[3]+.001); }
 
         // sprite panning
-        guy -= gdy*((float)(spriteext[spritenum].xpanning)/255.f)*tilesizx[globalpicnum];
-        guo -= gdo*((float)(spriteext[spritenum].xpanning)/255.f)*tilesizx[globalpicnum];
-        gvy -= gdy*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
-        gvo -= gdo*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
+        guy -= gdy*((float)(spriteext[spritenum].xpanning)/255.f)*tsizx;
+        guo -= gdo*((float)(spriteext[spritenum].xpanning)/255.f)*tsizx;
+        gvy -= gdy*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
+        gvo -= gdo*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
 
         //Clip sprites to ceilings/floors when no parallaxing and not sloped
         if (!(sector[tspr->sectnum].ceilingstat&3))
@@ -4492,7 +4533,8 @@ void polymost_drawsprite(int snum)
         if (spriteext[spritenum].ypanning)
             trepeat = 1;
 #endif
-
+        tilesizx[globalpicnum] = tsizx;
+        tilesizy[globalpicnum] = tsizy;
         pow2xsplit = 0; drawpoly(px,py,4,method);
 
 #ifdef USE_OPENGL
@@ -4511,9 +4553,9 @@ void polymost_drawsprite(int snum)
 
         xv = (float)tspr->xrepeat * (float)sintable[(tspr->ang)&2047] / 65536.0;
         yv = (float)tspr->xrepeat * (float)sintable[(tspr->ang+1536)&2047] / 65536.0;
-        f = (float)(tilesizx[globalpicnum]>>1) + (float)xoff;
-        x0 = (float)(posx-globalposx) - xv*f; x1 = xv*(float)tilesizx[globalpicnum] + x0;
-        y0 = (float)(posy-globalposy) - yv*f; y1 = yv*(float)tilesizx[globalpicnum] + y0;
+        f = (float)(tsizx>>1) + (float)xoff;
+        x0 = (float)(posx-globalposx) - xv*f; x1 = xv*(float)tsizx + x0;
+        y0 = (float)(posy-globalposy) - yv*f; y1 = yv*(float)tsizx + y0;
 
         yp0 = x0*gcosang2 + y0*gsinang2;
         yp1 = x1*gcosang2 + y1*gsinang2;
@@ -4528,7 +4570,7 @@ void polymost_drawsprite(int snum)
         if (yp1 < SCISDIST) { t1 = (SCISDIST-oyp0)/(yp1-oyp0); xp1 = (xp1-oxp0)*t1+oxp0; yp1 = SCISDIST; }
         else { t1 = 1.f; }
 
-        f = ((float)tspr->yrepeat) * (float)tilesizy[globalpicnum] * 4;
+        f = ((float)tspr->yrepeat) * (float)tsizy * 4;
 
         ryp0 = 1.0/yp0;
         ryp1 = 1.0/yp1;
@@ -4540,8 +4582,8 @@ void polymost_drawsprite(int snum)
         tspr->z -= ((yoff*tspr->yrepeat)<<2);
         if (globalorientation&128)
         {
-            tspr->z += ((tilesizy[globalpicnum]*tspr->yrepeat)<<1);
-            if (tilesizy[globalpicnum]&1) tspr->z += (tspr->yrepeat<<1); //Odd yspans
+            tspr->z += ((tsizy*tspr->yrepeat)<<1);
+            if (tsizy&1) tspr->z += (tspr->yrepeat<<1); //Odd yspans
         }
 
         sc0 = ((float)(tspr->z-globalposz-f))*ryp0 + ghoriz;
@@ -4554,29 +4596,29 @@ void polymost_drawsprite(int snum)
         gdo = ryp0*gxyaspect - gdx*sx0;
 
         //Original equations:
-        //(gux*sx0 + guo)/(gdx*sx1 + gdo) = tilesizx[globalpicnum]*t0
-        //(gux*sx1 + guo)/(gdx*sx1 + gdo) = tilesizx[globalpicnum]*t1
+        //(gux*sx0 + guo)/(gdx*sx1 + gdo) = tsizx*t0
+        //(gux*sx1 + guo)/(gdx*sx1 + gdo) = tsizx*t1
         //
         // gvx*sx0 + gvy*sc0 + gvo = 0
         // gvy*sx1 + gvy*sc1 + gvo = 0
-        //(gvx*sx0 + gvy*sf0 + gvo)/(gdx*sx0 + gdo) = tilesizy[globalpicnum]
-        //(gvx*sx1 + gvy*sf1 + gvo)/(gdx*sx1 + gdo) = tilesizy[globalpicnum]
+        //(gvx*sx0 + gvy*sf0 + gvo)/(gdx*sx0 + gdo) = tsizy
+        //(gvx*sx1 + gvy*sf1 + gvo)/(gdx*sx1 + gdo) = tsizy
 
-        //gux*sx0 + guo = t0*tilesizx[globalpicnum]*yp0
-        //gux*sx1 + guo = t1*tilesizx[globalpicnum]*yp1
+        //gux*sx0 + guo = t0*tsizx*yp0
+        //gux*sx1 + guo = t1*tsizx*yp1
         if (globalorientation&4) { t0 = 1.f-t0; t1 = 1.f-t1; }
 
         //sprite panning
         t0 -= ((float)(spriteext[spritenum].xpanning)/255.f);
         t1 -= ((float)(spriteext[spritenum].xpanning)/255.f);
-        gux = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)tilesizx[globalpicnum] / (sx0-sx1);
+        gux = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)tsizx / (sx0-sx1);
         guy = 0;
-        guo = t0*ryp0*gxyaspect*(float)tilesizx[globalpicnum] - gux*sx0;
+        guo = t0*ryp0*gxyaspect*(float)tsizx - gux*sx0;
 
         //gvx*sx0 + gvy*sc0 + gvo = 0
         //gvx*sx1 + gvy*sc1 + gvo = 0
-        //gvx*sx0 + gvy*sf0 + gvo = tilesizy[globalpicnum]*(gdx*sx0 + gdo)
-        f = ((float)tilesizy[globalpicnum])*(gdx*sx0 + gdo) / ((sx0-sx1)*(sc0-sf0));
+        //gvx*sx0 + gvy*sf0 + gvo = tsizy*(gdx*sx0 + gdo)
+        f = ((float)tsizy)*(gdx*sx0 + gdo) / ((sx0-sx1)*(sc0-sf0));
         if (!(globalorientation&8))
         {
             gvx = (sc0-sc1)*f;
@@ -4591,14 +4633,14 @@ void polymost_drawsprite(int snum)
         }
 
         // sprite panning
-        gvx -= gdx*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
-        gvy -= gdy*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
-        gvo -= gdo*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
+        gvx -= gdx*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
+        gvy -= gdy*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
+        gvo -= gdo*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
 
         //Clip sprites to ceilings/floors when no parallaxing
         if (!(sector[tspr->sectnum].ceilingstat&1))
         {
-            f = ((float)tspr->yrepeat) * (float)tilesizy[globalpicnum] * 4;
+            f = ((float)tspr->yrepeat) * (float)tsizy * 4;
             if (sector[tspr->sectnum].ceilingz > tspr->z-f)
             {
                 sc0 = ((float)(sector[tspr->sectnum].ceilingz-globalposz))*ryp0 + ghoriz;
@@ -4634,6 +4676,8 @@ void polymost_drawsprite(int snum)
             trepeat = 1;
 #endif
 
+        tilesizx[globalpicnum] = tsizx;
+        tilesizy[globalpicnum] = tsizy;
         pow2xsplit = 0; drawpoly(px,py,4,method);
 
 #ifdef USE_OPENGL
@@ -4655,10 +4699,10 @@ void polymost_drawsprite(int snum)
         i = (tspr->ang&2047);
         c = sintable[(i+512)&2047]/65536.0;
         s = sintable[i]/65536.0;
-        x0 = ((tilesizx[globalpicnum]>>1)-xoff)*tspr->xrepeat;
-        y0 = ((tilesizy[globalpicnum]>>1)-yoff)*tspr->yrepeat;
-        x1 = ((tilesizx[globalpicnum]>>1)+xoff)*tspr->xrepeat;
-        y1 = ((tilesizy[globalpicnum]>>1)+yoff)*tspr->yrepeat;
+        x0 = ((tsizx>>1)-xoff)*tspr->xrepeat;
+        y0 = ((tsizy>>1)-yoff)*tspr->yrepeat;
+        x1 = ((tsizx>>1)+xoff)*tspr->xrepeat;
+        y1 = ((tsizy>>1)+yoff)*tspr->yrepeat;
 
         //Project 3D to 2D
         for (j=0;j<4;j++)
@@ -4727,16 +4771,16 @@ void polymost_drawsprite(int snum)
         f =-4.0/(float)tspr->yrepeat; gvx *= f; gvy *= f; gvo *= f;
         if (globalorientation&4)
         {
-            gux = ((float)tilesizx[globalpicnum])*gdx - gux;
-            guy = ((float)tilesizx[globalpicnum])*gdy - guy;
-            guo = ((float)tilesizx[globalpicnum])*gdo - guo;
+            gux = ((float)tsizx)*gdx - gux;
+            guy = ((float)tsizx)*gdy - guy;
+            guo = ((float)tsizx)*gdo - guo;
         }
 
         // sprite panning
-        guy -= gdy*((float)(spriteext[spritenum].xpanning)/255.f)*tilesizx[globalpicnum];
-        guo -= gdo*((float)(spriteext[spritenum].xpanning)/255.f)*tilesizx[globalpicnum];
-        gvy -= gdy*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
-        gvo -= gdo*((float)(spriteext[spritenum].ypanning)/255.f)*tilesizy[globalpicnum];
+        guy -= gdy*((float)(spriteext[spritenum].xpanning)/255.f)*tsizx;
+        guo -= gdo*((float)(spriteext[spritenum].xpanning)/255.f)*tsizx;
+        gvy -= gdy*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
+        gvo -= gdo*((float)(spriteext[spritenum].ypanning)/255.f)*tsizy;
 
 #ifdef USE_OPENGL
         if (spriteext[spritenum].xpanning)
@@ -4745,6 +4789,8 @@ void polymost_drawsprite(int snum)
             trepeat = 1;
 #endif
 
+        tilesizx[globalpicnum] = tsizx;
+        tilesizy[globalpicnum] = tsizy;
         pow2xsplit = 0; drawpoly(px,py,npoints,method);
 
 #ifdef USE_OPENGL
@@ -4759,6 +4805,8 @@ void polymost_drawsprite(int snum)
     case 3: //Voxel sprite
         break;
     }
+    tilesizx[globalpicnum]=oldsizx;
+    tilesizy[globalpicnum]=oldsizy;
 }
 
 //sx,sy       center of sprite; screen coods*65536

@@ -278,6 +278,8 @@ extern int usevoxels, voxscale[MAXVOXELS];
 #ifdef POLYMOST
 extern int usemodels, usehightile;
 #endif
+EXTERN int h_xsize[MAXTILES], h_ysize[MAXTILES];
+EXTERN signed char h_xoffs[MAXTILES], h_yoffs[MAXTILES];
 
 extern char *engineerrstr;
 extern char noclip;

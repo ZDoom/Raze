@@ -69,6 +69,7 @@ enum
     T_FOGPAL,
     T_LOADGRP,
     T_DUMMYTILE,T_DUMMYTILERANGE,
+    T_SETUPTILE,T_SETUPTILERANGE,
     T_CACHESIZE,
     T_MUSIC,T_ID,T_SOUND,
     T_REDPAL,T_BLUEPAL,T_BROWNPAL,T_GREYPAL,T_GREENPAL,T_SPECPAL
@@ -120,6 +121,8 @@ static tokenlist basetokens[] =
     { "loadgrp",     	 T_LOADGRP	 		},
     { "dummytile",     	 T_DUMMYTILE		},
     { "dummytilerange",  T_DUMMYTILERANGE   },
+    { "setuptile",       T_SETUPTILE        },
+    { "setuptilerange",  T_SETUPTILERANGE   },
     { "cachesize",       T_CACHESIZE        },
 };
 
@@ -516,6 +519,52 @@ static int defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&j)) break;
         }
         break;
+        case T_SETUPTILE:
+        {
+            int tile, tmp;
+
+            if (scriptfile_getsymbol(script,&tile)) break;
+            if (tile >= MAXTILES)break;
+            if (scriptfile_getsymbol(script,&h_xsize[tile])) break;
+            if (scriptfile_getsymbol(script,&h_ysize[tile])) break;
+            if (scriptfile_getsymbol(script,&tmp)) break;
+            h_xoffs[tile]=tmp;
+            if (scriptfile_getsymbol(script,&tmp)) break;
+            h_yoffs[tile]=tmp;
+            break;
+        }
+        case T_SETUPTILERANGE:
+        {
+            int tile1,tile2,xsiz,ysiz,xoffs,yoffs,i;
+
+            if (scriptfile_getnumber(script,&tile1)) break;
+            if (scriptfile_getnumber(script,&tile2)) break;
+            if (scriptfile_getnumber(script,&xsiz)) break;
+            if (scriptfile_getnumber(script,&ysiz)) break;
+            if (scriptfile_getsymbol(script,&xoffs)) break;
+            if (scriptfile_getsymbol(script,&yoffs)) break;
+            if (tile2 < tile1)
+            {
+                initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+                i = tile2;
+                tile2 = tile1;
+                tile1 = i;
+            }
+            if ((tile1 >= 0 && tile1 < MAXTILES) && (tile2 >= 0 && tile2 < MAXTILES))
+            {
+                for (i=tile1;i<=tile2;i++)
+                {
+                    if ((unsigned int)i < MAXTILES)
+                    {
+                        h_xsize[i] = xsiz;
+                        h_ysize[i] = ysiz;
+                        h_xoffs[i] = xoffs;
+                        h_yoffs[i] = yoffs;
+                    }
+                }
+            }
+            break;
+        }
         case T_DUMMYTILE:
         {
             int tile, xsiz, ysiz, j;

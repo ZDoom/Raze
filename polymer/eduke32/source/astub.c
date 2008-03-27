@@ -2425,6 +2425,9 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
     Bsprintf(szT,"%dx%d",tilesizx[idTile],tilesizy[idTile]);
     printext256(xdim>>2,ydim-8,whitecol,-1,szT,0);
 
+    Bsprintf(szT,"%d, %d",(picanm[idTile]>>8)&0xFF,(picanm[idTile]>>16)&0xFF);
+    printext256((xdim>>2)+100,ydim-8,whitecol,-1,szT,0);
+
     enddrawing();
     showframe(1);
 

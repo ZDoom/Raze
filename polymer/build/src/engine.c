@@ -7909,6 +7909,8 @@ int loadpics(char *filename, int askedsize)
 //
 char cachedebug = 0;
 char faketile[MAXTILES];
+int h_xsize[MAXTILES], h_ysize[MAXTILES];
+signed char h_xoffs[MAXTILES], h_yoffs[MAXTILES];
 
 void loadtile(short tilenume)
 {

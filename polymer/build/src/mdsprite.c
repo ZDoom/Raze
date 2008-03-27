@@ -660,6 +660,7 @@ static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int
     char *picfil,*cptr,al=255;
     coltype *pic;
     int xsiz, ysiz, tsizx, tsizy;
+    int r, g, b;
 
     picfillen = kfilelength(filh);
     picfil = (char *)malloc(picfillen); if (!picfil) { return -1; }
@@ -692,6 +693,9 @@ static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int
 
     applypalmapSkin((char *)pic,tsizx,tsizy,pal);
     cptr = &britable[gammabrightness ? 0 : curbrightness][0];
+    r=(glinfo.bgra)?hictinting[pal].b:hictinting[pal].r;
+    g=hictinting[pal].g;
+    b=(glinfo.bgra)?hictinting[pal].r:hictinting[pal].b;
     for (y=0,j=0;y<tsizy;y++,j+=xsiz)
     {
         coltype *rpptr = &pic[j], tcol;
@@ -714,6 +718,13 @@ static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int
                 tcol.b = 255-tcol.b;
                 tcol.g = 255-tcol.g;
                 tcol.r = 255-tcol.r;
+            }
+            if (effect & 4)
+            {
+                // colorize
+                tcol.b = min((int)(tcol.b)*b/64,255);
+                tcol.g = min((int)(tcol.g)*g/64,255);
+                tcol.r = min((int)(tcol.r)*r/64,255);
             }
 
             rpptr[x].b = tcol.b;
@@ -1735,6 +1746,8 @@ static int md3draw(md3model *m, spritetype *tspr)
     bglEnable(GL_TEXTURE_2D);
 
     pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max((globalshade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
+    if (!(hictinting[globalpal].f&4))
+    {
     if (!(m->flags&1)||sector[sprite[tspr->owner].sectnum].floorpal!=0)
     {
         pc[0] *= (float)hictinting[globalpal].r / 255.0;
@@ -1748,6 +1761,7 @@ static int md3draw(md3model *m, spritetype *tspr)
         }
     }
     else globalnoeffect=1;
+    }
 
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; }
     else pc[3] = 1.0;
