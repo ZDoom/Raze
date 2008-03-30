@@ -2156,6 +2156,7 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
 
         while (texunits >= GL_TEXTURE0_ARB)
         {
+            bglActiveTextureARB(texunits);
             bglMatrixMode(GL_TEXTURE);
             bglLoadIdentity();
             bglMatrixMode(GL_MODELVIEW);
@@ -2164,7 +2165,7 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
                 bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
                 bglDisable(GL_TEXTURE_2D);
             }
-            bglActiveTextureARB(--texunits);
+            texunits--;
         }
 
         if (srepeat)

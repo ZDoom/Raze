@@ -3184,7 +3184,6 @@ static void drawsprite(int snum)
 # endif
         return;
     }
-    if (rendmode == 4) { polymer_drawsprite(snum); return; }
 #endif
     //============================================================================= //POLYMOST ENDS
 
@@ -6095,6 +6094,14 @@ void drawmasks(void)
     // PLAG: sorting stuff
     _equation maskeq, p1eq, p2eq;
     _point2d dot, dot2, middle, pos, spr;
+
+#ifdef USE_OPENGL
+    if (rendmode == 4)
+    {
+        polymer_drawmasks();
+        return;
+    }
+#endif
 
     for (i=spritesortcnt-1;i>=0;i--) tspriteptr[i] = &tsprite[i];
     for (i=spritesortcnt-1;i>=0;i--)
