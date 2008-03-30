@@ -7,6 +7,7 @@
 //   o make occlusion queries every n frames (cvar)
 //   o there's still a texture alignment problem with slopes (waterfall in launch facility)
 //   o there's also the texture alignment problem Hunter reported (san andreas fault)
+//   o also sliding doors are still fucked up sometimes (like under the bar in E1L2)
 //   o port glowmaps and detail maps from hacked polymost (:(
 //   o shading needs a lot of work
 //   o make the portal smaller

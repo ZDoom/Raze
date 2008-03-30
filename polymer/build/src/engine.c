@@ -571,7 +571,7 @@ static short maskwall[MAXWALLSB], maskwallcnt;
 static int spritesx[MAXSPRITESONSCREEN];
 static int spritesy[MAXSPRITESONSCREEN+1];
 static int spritesz[MAXSPRITESONSCREEN];
-static spritetype *tspriteptr[MAXSPRITESONSCREEN];
+spritetype *tspriteptr[MAXSPRITESONSCREEN];
 
 short umost[MAXXDIM], dmost[MAXXDIM];
 static short bakumost[MAXXDIM], bakdmost[MAXXDIM];
@@ -3184,6 +3184,21 @@ static void drawsprite(int snum)
 # endif
         return;
     }
+# ifdef USE_OPENGL
+    if (rendmode == 4)
+    {
+        bglEnable(GL_ALPHA_TEST);
+        bglEnable(GL_BLEND);
+        bglEnable(GL_POLYGON_OFFSET_FILL);
+
+        polymer_drawsprite(snum);
+
+        bglDisable(GL_POLYGON_OFFSET_FILL);
+        bglDisable(GL_BLEND);
+        bglDisable(GL_ALPHA_TEST);
+        return;
+    }
+# endif
 #endif
     //============================================================================= //POLYMOST ENDS
 
@@ -6096,7 +6111,7 @@ void drawmasks(void)
     _point2d dot, dot2, middle, pos, spr;
 
 #ifdef USE_OPENGL
-    if (rendmode == 4)
+    if ((rendmode == 4) && 0)
     {
         polymer_drawmasks();
         return;

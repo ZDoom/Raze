@@ -437,7 +437,7 @@ void                polymer_drawsprite(int snum)
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
-    tspr = &tsprite[snum];
+    tspr = tspriteptr[snum];
 
     curpicnum = tspr->picnum;
     if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,tspr->owner+32768);

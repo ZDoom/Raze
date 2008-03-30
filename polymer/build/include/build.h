@@ -186,6 +186,7 @@ EXTERN int guniqhudid;
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
 EXTERN spritetype *sprite;
+EXTERN spritetype *tspriteptr[MAXSPRITESONSCREEN];
 
 EXTERN int spritesortcnt;
 EXTERN spritetype *tsprite;
