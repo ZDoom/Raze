@@ -3,6 +3,7 @@
 // - CORE STUFF
 //   o put all the sector/wall geometry in VBOs
 //   o optimize the update[sector|wall] functions to diff the changes
+//   o figure a way to get the interpolations from the game
 //   o make occlusion queries every n frames (cvar)
 //   o there's still a texture alignment problem with slopes (waterfall in launch facility)
 //   o there's also the texture alignment problem Hunter reported (san andreas fault)
