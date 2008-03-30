@@ -1,24 +1,38 @@
 // here lies the GREAT JUSTICE RENDERER
 // TODO :
-// - recursive drawrooms with cliplane stack (support for full portal engine with occlusion queries)
-// - crossed walls (tier drops stones)
-// - skies
-// - mirrors
-// - fullbright (multitexture OR)
-// - masks and sprites ! (use sortcnt and regular drawmask or recode it ?)
-// - classic shading
-// --------------------- CLASSIC LIMIT ---------------------
-// - mdsprites (tags)
-// - lights (dynamic phong)
-// - dynamic shadowmaps
-// - normalmap palette (unified gpu program, parallax mapping)
-// - shadow volumes
-// - hardware particles
-// - multitextured decals ? (on models too)
-// --------------- FIRST PUBLIC RELEASE LIMIT --------------
-// - horizon mapping (precalculate the horizon maps and store them into the gl cache ?)
-// - post processing ([HDR-]bloom and possibly DOF)
-// - MD5 (hardware skinning ?)
+// - CORE STUFF
+//   o put all the sector/wall geometry in VBOs
+//   o optimize the update[sector|wall] functions to diff the changes
+//   o make occlusion queries every n frames (cvar)
+//   o there's still a texture alignment problem with slopes (waterfall in launch facility)
+//   o there's also the texture alignment problem Hunter reported (san andreas fault)
+//   o port glowmaps and detail maps from hacked polymost (:(
+//   o shading needs a lot of work
+//   o make the portal smaller
+//   o one-way walls and masks
+//   o remove all the IM matrix crap and write real functions now that it works
+//   o polymer.c possibly needs to be split in several source files
+//   o some crap really needs factorization
+//   o ... possibly more important stuff I don't have in mind right now
+// - SPRITES
+//   o stop using IM
+//   o stop using Get for every face sprite (do the calculation by hand)
+//   o port sprite panning and fullbrights from hacked polymost (:(
+//   o draw all opaques first, keep translucent for later with masks
+//   o need smart PolygonOffset for floor and wall sprites
+// - SKIES
+//   o figure a better way to handle ART skies - maybe add symetric caps that would fade to black like a big gem or something wow this is a long column lol ;0)
+//   o implement polymost skyboxes
+// - MIRRORS
+//   o figure out how to get mirror data from game
+//   o unified mirror transformation (not just walls)
+// - MDSPRITES
+//   o need to reimplement them - hopefully the loader can be reused without too much hassle
+//   o need full translation and rotation support from CON to attach to game world or tags
+//   o need to put frames into VBOs and blend between them
+//
+// the renderer should hopefully be pretty solid after all that
+// the rest will be a bliss :)
 
 #ifndef _polymer_h_
 # define _polymer_h_
