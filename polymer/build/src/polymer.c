@@ -241,6 +241,8 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     while (i < numsectors)
     {
         prsectors[i]->drawingstate = 0;
+        prsectors[i]->wallsproffset = 0.0f;
+        prsectors[i]->floorsproffset = 0.0f;
         i++;
     }
     i = 0;
@@ -391,10 +393,18 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
 
 void                polymer_drawmasks(void)
 {
+    bglEnable(GL_ALPHA_TEST);
+    bglEnable(GL_BLEND);
+    bglEnable(GL_POLYGON_OFFSET_FILL);
+
     while (spritesortcnt)
     {
-            polymer_drawsprite(--spritesortcnt);
+        polymer_drawsprite(--spritesortcnt);
     }
+
+    bglDisable(GL_POLYGON_OFFSET_FILL);
+    bglDisable(GL_BLEND);
+    bglDisable(GL_ALPHA_TEST);
 }
 
 void                polymer_rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2)
@@ -499,6 +509,7 @@ void                polymer_drawsprite(int snum)
             bglLoadMatrixd(modelviewmatrix);
             bglRotatef((gtang * 90.0f), 0.0f, 0.0f, -1.0f);
             bglScalef(1.0f / 1000.0f, 1.0f / 16000.0f, 1.0f / 1000.0f);
+            bglPolygonOffset(0.0f, 0.0f);
             break;
         case 1:
             bglMatrixMode(GL_MODELVIEW);
@@ -508,6 +519,10 @@ void                polymer_drawsprite(int snum)
 
             bglTranslatef(spos[0], spos[1], spos[2]);
             bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+
+            prsectors[tspr->sectnum]->wallsproffset += 0.5f;
+            bglPolygonOffset(-prsectors[tspr->sectnum]->wallsproffset,
+                             -prsectors[tspr->sectnum]->wallsproffset);
             break;
         case 2:
             bglMatrixMode(GL_MODELVIEW);
@@ -519,6 +534,10 @@ void                polymer_drawsprite(int snum)
             bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
 
             ysize /= 32;
+
+            prsectors[tspr->sectnum]->floorsproffset += 0.5f;
+            bglPolygonOffset(-prsectors[tspr->sectnum]->floorsproffset,
+                             -prsectors[tspr->sectnum]->floorsproffset);
             break;
     }
 
@@ -532,8 +551,6 @@ void                polymer_drawsprite(int snum)
     else
         yref = 0.0f;
 
-    bglEnable(GL_ALPHA_TEST);
-    bglEnable(GL_BLEND);
     bglBindTexture(GL_TEXTURE_2D, glpic);
     bglColor4f(color[0], color[1], color[2], color[3]);
 
@@ -564,9 +581,6 @@ void                polymer_drawsprite(int snum)
         bglVertex3f(-xsize,ysize,0);
 
     bglEnd();
-
-    bglDisable(GL_BLEND);
-    bglDisable(GL_ALPHA_TEST);
 
     bglPopMatrix();
 }
@@ -1320,7 +1334,7 @@ int                 polymer_portalinfrustum(short wallnum)
     w = prwalls[wallnum];
 
     i = 0;
-    while (i < 5)
+    while (i < 4)
     {
         j = k = 0;
         while (j < 4)

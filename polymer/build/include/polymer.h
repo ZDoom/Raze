@@ -69,6 +69,9 @@ typedef struct      s_prsector {
     GLushort*       ceilindices;
     short           curindice;
     int             indicescount;
+    // stuff
+    float           wallsproffset;
+    float           floorsproffset;
 
     char            controlstate; // bit 1: up-to-date, bit 2: geometry invalidated
     char            drawingstate; // 0: fcuk, 1: in queue, 2: todraw, 3: drawn
