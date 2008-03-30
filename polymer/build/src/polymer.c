@@ -193,7 +193,7 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     polymer_extractfrustum(modelviewmatrix, projectionmatrix);
 
     // game tic
-    if (updatesectors)
+    if (updatesectors && 0)
     {
         i = 0;
         while (i < numsectors)
@@ -241,6 +241,7 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     while (i < numsectors)
     {
         prsectors[i]->drawingstate = 0;
+        prsectors[i]->controlstate = 0;
         prsectors[i]->wallsproffset = 0.0f;
         prsectors[i]->floorsproffset = 0.0f;
         i++;
@@ -248,7 +249,7 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     i = 0;
     while (i < numwalls)
     {
-        prwalls[i]->drawn = 0;
+        prwalls[i]->controlstate = 0;
         i++;
     }
 
@@ -256,6 +257,7 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     front = 0;
     back = 0;
 
+    polymer_pokesector(dacursectnum);
     polymer_drawsector(dacursectnum);
     prsectors[dacursectnum]->drawingstate = 1;
 
@@ -308,6 +310,7 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
                 continue;
             }
         }
+        polymer_pokesector(dacursectnum);
         polymer_drawsector(sectorqueue[front]);
 
         // scan sectors
@@ -324,6 +327,7 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
                 if ((wal->nextsector != -1) &&
                     (prsectors[wal->nextsector]->drawingstate == 0))
                 {
+                    polymer_pokesector(wal->nextsector);
                     sectorqueue[back++] = wal->nextsector;
                     prsectors[wal->nextsector]->drawingstate = 1;
 
@@ -389,6 +393,33 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
+}
+
+void                polymer_pokesector(short sectnum)
+{
+    sectortype      *sec;
+    _prsector       *s;
+    walltype        *wal;
+    int             i;
+
+    sec = &sector[sectnum];
+    s = prsectors[sectnum];
+    wal = &wall[sec->wallptr];
+
+    if (!s->controlstate)
+        polymer_updatesector(sectnum);
+
+    i = 0;
+    while (i < sec->wallnum)
+    {
+        if ((wal->nextsector != -1) && (!prsectors[wal->nextsector]->controlstate))
+            polymer_updatesector(wal->nextsector);
+        if (!prwalls[sec->wallptr + i]->controlstate)
+            polymer_updatewall(sec->wallptr + i);
+
+        i++;
+        wal = &wall[sec->wallptr + i];
+    }
 }
 
 void                polymer_drawmasks(void)
@@ -630,7 +661,7 @@ int                 polymer_updatesector(short sectnum)
     int             ceilz, florz;
     int             tex, tey;
     float           secangcos, secangsin, scalecoef;
-    int             ang;
+    int             ang, needfloor;
     short           curstat, curpicnum;
     char            curxpanning, curypanning;
     GLfloat*        curbuffer;
@@ -649,7 +680,7 @@ int                 polymer_updatesector(short sectnum)
         return (-1);
     }
 
-    s->controlstate = 0;
+    needfloor = 0;
 
     if ((sec->floorstat & 64) || (sec->ceilingstat & 64))
     {
@@ -665,12 +696,12 @@ int                 polymer_updatesector(short sectnum)
         if ((-wal->x != s->verts[(i*3)+2]))
         {
             s->verts[(i*3)+2] = s->floorbuffer[(i*5)+2] = s->ceilbuffer[(i*5)+2] = -wal->x;
-            s->controlstate |= 2;
+            needfloor = 1;
         }
         if ((wal->y != s->verts[i*3]))
         {
             s->verts[i*3] = s->floorbuffer[i*5] = s->ceilbuffer[i*5] = wal->y;
-            s->controlstate |= 2;
+            needfloor = 1;
         }
         getzsofslope(sectnum, wal->x, wal->y, &ceilz, &florz);
         s->verts[(i*3)+1] = 0;
@@ -769,11 +800,10 @@ int                 polymer_updatesector(short sectnum)
         wal = &wall[sec->wallptr + i];
     }
 
-    if (s->controlstate & 2)
-    {
+    if (needfloor)
         polymer_buildfloor(sectnum);
-        s->controlstate ^= 2;
-    }
+
+    s->controlstate = 1;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated sector %i.\n", sectnum);
 
@@ -1238,6 +1268,8 @@ void                polymer_updatewall(short wallnum)
     memcpy(&w->portal[3], &s->floorbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
     memcpy(&w->portal[6], &s->ceilbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
     memcpy(&w->portal[9], &s->ceilbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+
+    w->controlstate = 1;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated wall %i.\n", wallnum);
 }

@@ -89,7 +89,7 @@ typedef struct      s_prwall {
 
     char            underover;
     char            invalidate;
-    char            drawn;
+    char            controlstate;
 }                   _prwall;
 
 typedef struct      s_cliplane {
@@ -108,6 +108,7 @@ int                 polymer_init(void);
 void                polymer_glinit(void);
 void                polymer_loadboard(void);
 void                polymer_drawrooms(int daposx, int daposy, int daposz, short daang, int dahoriz, short dacursectnum);
+void                polymer_pokesector(short sectnum);
 void                polymer_drawmasks(void);
 void                polymer_rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2);
 void                polymer_drawmaskwall(int damaskwallcnt);
