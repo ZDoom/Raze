@@ -211,8 +211,14 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
         updatesectors = 0;
     }
 
+    cursectnum = dacursectnum;
+    updatesector(daposx, daposy, &cursectnum);
+
+    if ((cursectnum >= 0) && (cursectnum < numsectors))
+        dacursectnum = cursectnum;
+
     // external view (editor)
-    if (dacursectnum == -1)
+    if ((dacursectnum < 0) || (dacursectnum >= numsectors))
     {
         i = 0;
         while (i < numsectors)
@@ -243,12 +249,6 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
         prwalls[i]->drawn = 0;
         i++;
     }
-
-    cursectnum = dacursectnum;
-    updatesector(daposx, daposy, &cursectnum);
-
-    if (cursectnum >= 0)
-        dacursectnum = cursectnum;
 
     // GO
     front = 0;
@@ -423,7 +423,7 @@ void                polymer_drawsprite(int snum)
     int             i, j, curpicnum, glpic, xsize, ysize;
     spritetype      *tspr;
     pthtyp*         pth;
-    float           color[3], xratio;
+    float           color[4], xratio, ang, xref, yref;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
@@ -431,6 +431,9 @@ void                polymer_drawsprite(int snum)
 
     curpicnum = tspr->picnum;
     if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,tspr->owner+32768);
+
+    if (!waloff[curpicnum])
+        loadtile(curpicnum);
 
     pth = gltexcache(curpicnum, tspr->pal, 0);
 
@@ -442,6 +445,16 @@ void                polymer_drawsprite(int snum)
         color[1] *= (float)hictinting[tspr->pal].g / 255.0;
         color[2] *= (float)hictinting[tspr->pal].b / 255.0;
     }
+
+    if (tspr->cstat & 2)
+    {
+        if (tspr->cstat & 512)
+            color[3] = 0.33f;
+        else
+            color[3] = 0.66f;
+    }
+    else
+        color[3] = 1.0f;
 
     glpic = (pth) ? pth->glpic : 0;
 
@@ -459,47 +472,101 @@ void                polymer_drawsprite(int snum)
     spos[1] = -tspr->z;
     spos[2] = -tspr->x;
 
-    bglMatrixMode(GL_MODELVIEW);
-    bglPushMatrix();
-
-    bglTranslatef(spos[0], spos[1], spos[2]);
-    bglGetDoublev(GL_MODELVIEW_MATRIX, modelviewmatrix);
-
-    i = 0;
-    while (i < 3)
+    switch ((tspr->cstat>>4) & 3)
     {
-        j = 0;
-        while (j < 3)
-        {
-            if (i == j)
-                modelviewmatrix[(i * 4) + j] = 1.0;
-            else
-                modelviewmatrix[(i * 4) + j] = 0.0;
-            j++;
-        }
-        i++;
+        case 0:
+            bglMatrixMode(GL_MODELVIEW);
+            bglPushMatrix();
+
+            bglTranslatef(spos[0], spos[1], spos[2]);
+            bglGetDoublev(GL_MODELVIEW_MATRIX, modelviewmatrix);
+
+            i = 0;
+            while (i < 3)
+            {
+                j = 0;
+                while (j < 3)
+                {
+                    if (i == j)
+                        modelviewmatrix[(i * 4) + j] = 1.0;
+                    else
+                        modelviewmatrix[(i * 4) + j] = 0.0;
+                    j++;
+                }
+                i++;
+            }
+
+            bglLoadMatrixd(modelviewmatrix);
+            bglRotatef((gtang * 90.0f), 0.0f, 0.0f, -1.0f);
+            bglScalef(1.0f / 1000.0f, 1.0f / 16000.0f, 1.0f / 1000.0f);
+            break;
+        case 1:
+            bglMatrixMode(GL_MODELVIEW);
+            bglPushMatrix();
+
+            ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
+
+            bglTranslatef(spos[0], spos[1], spos[2]);
+            bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+            break;
+        case 2:
+            bglMatrixMode(GL_MODELVIEW);
+            bglPushMatrix();
+
+            ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
+
+            bglTranslatef(spos[0], spos[1], spos[2]);
+            bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+
+            ysize /= 32;
+            break;
     }
 
-    bglLoadMatrixd(modelviewmatrix);
-    bglScalef(1.0f / 1000.0f, 1.0f / 16000.0f, 1.0f / 1000.0f);
+    if ((tspr->cstat & 4) || (((tspr->cstat>>4) & 3) == 2))
+        xref = 1.0f;
+    else
+        xref = 0.0f;
+
+    if (tspr->cstat & 8)
+        yref = 1.0f;
+    else
+        yref = 0.0f;
 
     bglEnable(GL_ALPHA_TEST);
+    bglEnable(GL_BLEND);
     bglBindTexture(GL_TEXTURE_2D, glpic);
-    bglColor4f(color[0], color[1], color[2], 1.0f);
+    bglColor4f(color[0], color[1], color[2], color[3]);
 
     bglBegin(GL_QUADS);
-    bglTexCoord2f(0.0f, 1.0f);
-    bglVertex3f(-xsize,0,0);
-    bglTexCoord2f(1.0f, 1.0f);
-    bglVertex3f(xsize,0,0);
-    bglTexCoord2f(1.0f, 0.0f);
-    bglVertex3f(xsize,ysize,0);
-    bglTexCoord2f(0.0f, 0.0f);
-    bglVertex3f(-xsize,ysize,0);
+
+    bglTexCoord2f(fabs(xref - 0.0f), fabs(yref - 1.0f));
+    if (((tspr->cstat>>4) & 3) == 2)
+        bglVertex3f(-xsize,0,-ysize);
+    else
+        bglVertex3f(-xsize,0,0);
+
+    bglTexCoord2f(fabs(xref - 1.0f), fabs(yref - 1.0f));
+    if (((tspr->cstat>>4) & 3) == 2)
+        bglVertex3f(xsize,0,-ysize);
+    else
+        bglVertex3f(xsize,0,0);
+
+    bglTexCoord2f(fabs(xref - 1.0f), fabs(yref - 0.0f));
+    if (((tspr->cstat>>4) & 3) == 2)
+        bglVertex3f(xsize,0,ysize);
+    else
+        bglVertex3f(xsize,ysize,0);
+
+    bglTexCoord2f(fabs(xref - 0.0f), fabs(yref - 0.0f));
+    if (((tspr->cstat>>4) & 3) == 2)
+        bglVertex3f(-xsize,0,ysize);
+    else
+        bglVertex3f(-xsize,ysize,0);
+
     bglEnd();
 
+    bglDisable(GL_BLEND);
     bglDisable(GL_ALPHA_TEST);
-
 
     bglPopMatrix();
 }
