@@ -2194,7 +2194,7 @@ cheat_for_port_credits:
             CACHE1D_FIND_REC *seeker = currentlist ? findfiles : finddirs;
             if ((KB_KeyPressed(sc_Home)|KB_KeyPressed(sc_End)) > 0)
             {
-                while (KB_KeyPressed(sc_End)?seeker->next:seeker->prev)
+                while (seeker && (KB_KeyPressed(sc_End)?seeker->next:seeker->prev))
                     seeker = KB_KeyPressed(sc_End)?seeker->next:seeker->prev;
                 if (seeker)
                 {
@@ -2209,7 +2209,7 @@ cheat_for_port_credits:
                 i = 6;
                 while (i>0)
                 {
-                    if (KB_KeyPressed(sc_PgDn)?seeker->next:seeker->prev)
+                    if (seeker && (KB_KeyPressed(sc_PgDn)?seeker->next:seeker->prev))
                         seeker = KB_KeyPressed(sc_PgDn)?seeker->next:seeker->prev;
                     i--;
                 }
