@@ -833,6 +833,7 @@ static const memberlabel_t userdefslabels[]=
     { "weaponsway", USERDEFS_WEAPONSWAY, 0, 0 },
     { "angleinterpolation", USERDEFS_ANGLEINTERPOLATION, 0, 0 },
     { "deathmsgs", USERDEFS_DEATHMSGS, 0, 0 },
+    { "levelstats", USERDEFS_LEVELSTATS, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 

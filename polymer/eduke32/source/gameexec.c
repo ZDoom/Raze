@@ -850,6 +850,15 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
         SetGameVarID(lVar2, ud.deathmsgs, g_i, g_p);
         return;
 
+    case USERDEFS_LEVELSTATS:
+        if (iSet)
+        {
+            ud.levelstats = lValue;
+            return;
+        }
+        SetGameVarID(lVar2, ud.levelstats, g_i, g_p);
+        return;
+
     default:
         return;
     }
