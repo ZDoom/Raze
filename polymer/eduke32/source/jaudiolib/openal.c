@@ -30,6 +30,7 @@ typedef struct SD
     char type;
     int rate;
     sounddef def;
+    int ready;
 }sounddef1;
 
 sounddef1 music;
@@ -350,7 +351,7 @@ void open1(char *ptr,int sizef,char loop);
 
 void AL_Pause()       {if (music.def.size)balSourcePause(music.source);}
 void AL_Continue()    {if (music.def.size)balSourcePlay(music.source);}
-void AL_Update()      {if (music.def.size&&!update(0))AL_Stop();}
+void AL_Update()      {if (music.def.size&&music.ready&&!update(0))AL_Stop();}
 int  AL_isntALmusic() {return !music.def.size;}
 
 void AL_SetMusicVolume(int volume)
@@ -381,11 +382,13 @@ int update()
         case 1:
             while (processed--)
             {
+    			ALdoing="update1";
                 balSourceUnqueueBuffers(music.source,1,&buffer);
                 check(1);
                 active=stream(buffer);
                 if (active)
                 {
+    				ALdoing="update2";
                     balSourceQueueBuffers(music.source,1,&buffer);
                     check(1);
                 }
@@ -402,6 +405,7 @@ void AL_Stop()
     if (!music.def.size)
         return;
 
+    music.ready=0;
     balSourceStop(music.source);
     balGetSourcei(music.source,AL_BUFFERS_QUEUED,&queued);
 
@@ -498,4 +502,5 @@ void AL_PlaySong(char *ptr,int loop)
 
     AL_SetMusicVolume(AL_MusicVolume);
     AL_Continue();
+    music.ready=1;
 }

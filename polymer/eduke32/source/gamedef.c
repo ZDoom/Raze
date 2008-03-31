@@ -3697,6 +3697,7 @@ static int parsecommand(void)
 
         j=CountCaseStatements();
 //        initprintf("Done Counting Case Statements for switch %d: found %d.\n", checking_switch,j);
+        scriptptr+=j*2;skipcomments();scriptptr-=j*2; // allocate buffer for the table
         tempscrptr = (intptr_t *)(script+tempoffset);
 
         //AddLog(g_szBuf);
@@ -3724,6 +3725,7 @@ static int parsecommand(void)
             // leave room for statements
             *scriptptr++=0; // value check
             *scriptptr++=0; // code offset
+            skipcomments();
         }
 
         //Bsprintf(g_szBuf,"SWITCH1: '%.22s'",textptr);
