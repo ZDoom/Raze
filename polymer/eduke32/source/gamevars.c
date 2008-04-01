@@ -49,6 +49,14 @@ static void FreeGameVars(void)
         aGameVars[i].bReset=1;
     }
     iGameVarCount=0;
+    for (i=0;i<MAXGAMEARRAYS;i++)
+    {
+        if (aGameArrays[i].plValues)
+            Bfree(aGameArrays[i].plValues);
+        aGameArrays[i].plValues=NULL;
+        aGameArrays[i].bReset=1;
+    }
+    iGameArrayCount=0;
     return;
 }
 
@@ -73,6 +81,18 @@ static void ClearGameVars(void)
         aGameVars[i].bReset=1;
     }
     iGameVarCount=0;
+    for (i=0;i<MAXGAMEARRAYS;i++)
+    {
+        if (aGameArrays[i].szLabel)
+            Bfree(aGameArrays[i].szLabel);
+        aGameArrays[i].szLabel=NULL;
+
+        if (aGameArrays[i].plValues)
+            Bfree(aGameArrays[i].plValues);
+        aGameArrays[i].plValues=NULL;
+        aGameArrays[i].bReset=1;
+    }
+    iGameArrayCount=0;
     return;
 }
 
@@ -131,6 +151,29 @@ int ReadGameVars(int fil)
     }
 
     ResetPointerVars();
+
+    if (kdfread(&iGameArrayCount,sizeof(iGameArrayCount),1,fil) != 1) goto corrupt;
+    for (i=0;i<iGameArrayCount;i++)
+    {
+        if (kdfread(&(aGameArrays[i]),sizeof(gamearray_t),1,fil) != 1) goto corrupt;
+        aGameArrays[i].szLabel=Bcalloc(MAXARRAYLABEL,sizeof(char));
+        if (kdfread(aGameArrays[i].szLabel,sizeof(char) * MAXARRAYLABEL, 1, fil) != 1) goto corrupt;
+    }
+    //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
+    //  AddLog(g_szBuf);
+    for (i=0;i<iGameArrayCount;i++)
+    {
+        aGameArrays[i].plValues=Bcalloc(aGameArrays[i].size,sizeof(int));
+    }
+
+    //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
+    //  AddLog(g_szBuf);
+    for (i=0;i<iGameArrayCount;i++)
+    {
+        //Bsprintf(g_szBuf,"Reading value array for %s (%d)",aGameVars[i].szLabel,sizeof(int) * MAXPLAYERS);
+        //AddLog(g_szBuf);
+        if (kdfread(aGameArrays[i].plValues,sizeof(int) * aGameArrays[i].size, 1, fil) != 1) goto corrupt;
+    }
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
@@ -198,6 +241,21 @@ void SaveGameVars(FILE *fil)
             dfwrite(&aGameVars[i].plValues[0],sizeof(int), MAXSPRITES, fil);
         }
         // else nothing 'extra...'
+    }
+
+    dfwrite(&iGameArrayCount,sizeof(iGameArrayCount),1,fil);
+
+    for (i=0;i<iGameArrayCount;i++)
+    {
+        dfwrite(&(aGameArrays[i]),sizeof(gamearray_t),1,fil);
+        dfwrite(aGameArrays[i].szLabel,sizeof(char) * MAXARRAYLABEL, 1, fil);
+    }
+
+    //     dfwrite(&aGameVars,sizeof(aGameVars),1,fil);
+
+    for (i=0;i<iGameArrayCount;i++)
+    {
+            dfwrite(aGameArrays[i].plValues,sizeof(int) * aGameArrays[i].size, 1, fil);
     }
 
     for (i=0;i<MAXGAMEEVENTS;i++)
@@ -281,6 +339,56 @@ void ResetGameVars(void)
         if (aGameVars[i].szLabel != NULL && aGameVars[i].bReset)
             AddGameVar(aGameVars[i].szLabel,aGameVars[i].lDefault,aGameVars[i].dwFlags);
     }
+
+    for (i=0;i<MAXGAMEARRAYS;i++)
+    {
+        //Bsprintf(g_szBuf,"Resetting %d: '%s' to %d",i,aDefaultGameVars[i].szLabel,
+        //      aDefaultGameVars[i].lValue
+        //     );
+        //AddLog(g_szBuf);
+        if (aGameArrays[i].szLabel != NULL && aGameArrays[i].bReset)
+            AddGameArray(aGameArrays[i].szLabel,aGameArrays[i].size);
+    }
+}
+
+int AddGameArray(const char *pszLabel, int asize)
+{
+    int i;
+
+    if (Bstrlen(pszLabel) > (MAXARRAYLABEL-1))
+    {
+        error++;
+        ReportError(-1);
+        initprintf("%s:%d: error: array name `%s' exceeds limit of %d characters.\n",compilefile,line_number,pszLabel, MAXARRAYLABEL);
+        return 0;
+    }
+    for (i=0;i<iGameArrayCount;i++)
+    {
+        if (aGameVars[i].szLabel != NULL && !aGameArrays[i].bReset)
+        {
+            if (Bstrcmp(pszLabel,aGameArrays[i].szLabel) == 0)
+            {
+                // found it it's a duplicate in error
+                warning++;
+                ReportError(WARNING_DUPLICATEDEFINITION);
+                return 0;
+
+            }
+        }
+    }
+    if (i < MAXGAMEARRAYS)
+    {
+        if (aGameArrays[i].szLabel == NULL)
+            aGameArrays[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(char));
+        if (aGameArrays[i].szLabel != pszLabel)
+            Bstrcpy(aGameArrays[i].szLabel,pszLabel);
+        aGameArrays[i].plValues=Bcalloc(asize,sizeof(int));
+        aGameArrays[i].size=asize;
+        aGameVars[i].bReset=0;
+        iGameArrayCount++;
+        return 1;
+    }
+    return 0;
 }
 
 int AddGameVar(const char *pszLabel, int lValue, unsigned int dwFlags)
@@ -430,8 +538,21 @@ int GetGameVarID(int id, int iActor, int iPlayer)
     if (id<0 || id >= iGameVarCount)
     {
         if (id==MAXGAMEVARS)
+        {
+//            OSD_Printf("GetGameVarID(): reading gamevar constant\n");
             return(*insptr++);
-
+        }
+        if (id < MAXGAMEVARS+1+MAXGAMEARRAYS)
+        {
+            int index=0;
+//            OSD_Printf("GetGameVarID(): reading from array\n");
+            index=GetGameVarID(*insptr++,iActor,iPlayer);
+            if ((index < aGameArrays[id-MAXGAMEVARS-1].size)&&(index>=0))
+                inv =aGameArrays[id-MAXGAMEVARS-1].plValues[index];
+            else
+                gameexit("array");
+            return(inv);
+        }
         if (!(id&(MAXGAMEVARS<<1)))
         {
             OSD_Printf("GetGameVarID(): invalid gamevar ID (%d)\n",id);
@@ -491,7 +612,18 @@ int GetGameVarID(int id, int iActor, int iPlayer)
     if (inv) return(-aGameVars[id].lValue);
     return (aGameVars[id].lValue);
 }
-
+void SetGameArrayID(int id,int index, int lValue)
+{
+    if (id<0 || id >= iGameArrayCount)
+    {
+        OSD_Printf("SetGameVarID(): tried to set invalid gamevar ID (%d) from sprite %d (%d), player %d\n",id,g_i,sprite[g_i].picnum,g_p);
+        return;
+    }
+    if ((index < aGameArrays[id].size)&&(index>=0))
+        aGameArrays[id].plValues[index]=lValue;
+    else
+        gameexit("array1");
+}
 void SetGameVarID(int id, int lValue, int iActor, int iPlayer)
 {
     if (id<0 || id >= iGameVarCount)

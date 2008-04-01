@@ -220,7 +220,10 @@ extern int ReadGameVars(int fil);
 
 extern int GetGameVarID(int id, int iActor, int iPlayer);
 extern void SetGameVarID(int id, int lValue, int iActor, int iPlayer);
+extern void SetGameArrayID(int id,int index, int lValue);
+
 extern int AddGameVar(const char *pszLabel, int lValue, unsigned int dwFlags);
+extern int AddGameArray(const char *pszLabel, int asize);
 extern void ReportError(int iError);
 
 extern void onvideomodechange(int newmode);

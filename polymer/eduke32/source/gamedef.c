@@ -80,7 +80,9 @@ intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
 intptr_t *parsing_event=NULL;
 
 gamevar_t aGameVars[MAXGAMEVARS];
+gamearray_t aGameArrays[MAXGAMEARRAYS];
 int iGameVarCount=0;
+int iGameArrayCount=0;
 
 extern int qsetmode;
 
@@ -443,6 +445,8 @@ static const char *keyw[] =
     "spritenopal",              // 313
     "hitradiusvar",             // 314
     "rotatesprite16",           // 315
+    "gamearray",                // 316
+    "setarray",                 // 317
     "<null>"
 };
 
@@ -1203,7 +1207,23 @@ static int GetDefID(const char *szGameLabel)
     }
     return -1;
 }
-
+static int GetADefID(const char *szGameLabel)
+{
+    int i;
+//    initprintf("iGameArrayCount is %i\n",iGameArrayCount);
+    for (i=0;i<iGameArrayCount;i++)
+    {
+        if (aGameArrays[i].szLabel != NULL)
+        {
+            if (Bstrcmp(szGameLabel, aGameArrays[i].szLabel) == 0)
+            {
+                return i;
+            }
+        }
+    }
+//    initprintf("game array %s not found\n",szGameLabel);
+    return -1;
+}
 static int ispecial(char c)
 {
     if (c == 0x0a)
@@ -1274,7 +1294,7 @@ static void getlabel(void)
     }
 
     i = 0;
-    while (ispecial(*textptr) == 0 && *textptr!=']' && *textptr!='\t' && *textptr!='\n' && *textptr!='\r')
+    while (ispecial(*textptr) == 0 && *textptr!='['&& *textptr!=']' && *textptr!='\t' && *textptr!='\n' && *textptr!='\r')
         label[(labelcnt<<6)+i++] = *(textptr++);
 
     label[(labelcnt<<6)+i] = 0;
@@ -1404,6 +1424,7 @@ static void transvartype(int type)
         }
     }
     getlabel();
+
     if (!nokeywordcheck)
         for (i=0;i<NUMKEYWORDS;i++)
             if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
@@ -1412,11 +1433,50 @@ static void transvartype(int type)
                 ReportError(ERROR_ISAKEYWORD);
                 return;
             }
+
+    skipcomments(); //skip comments and whitespace
+    if ((*textptr == '['))     //read of array as a gamevar
+    {
+
+//        initprintf("got an array");
+        textptr++;
+        i=GetADefID(label+(labelcnt<<6));
+        if (i >= 0)
+        {
+            *scriptptr++=i+1+MAXGAMEVARS;
+            transvartype(0);
+
+        }
+        else
+        {
+            error++;
+            ReportError(ERROR_NOTAGAMEARRAY);
+            return;
+        }
+
+        skipcomments(); //skip comments and whitespace
+        if (*textptr != ']')
+        {
+            error++;
+            ReportError(ERROR_GAMEARRAYBNC);
+            return;
+        }
+        textptr++;
+        if (type)   //writing arrays in this way is not supported because it would require too many changes to other code
+        {
+            error++;
+            ReportError(ERROR_INVALIDARRAYWRITE);
+            return;
+        }
+        return;
+    }
+//    initprintf("not an array");
     i=GetDefID(label+(labelcnt<<6));
-    if (i<0)
+    if (i<0)   //gamevar not found
     {
         if (!type && !labelsonly)
         {
+            //try looking for a define instead
             Bstrcpy(tempbuf,label+(labelcnt<<6));
             for (i=0;i<labelcnt;i++)
             {
@@ -1426,19 +1486,18 @@ static void transvartype(int type)
                         initprintf("%s:%d: debug: accepted defined label `%s' instead of gamevar.\n",compilefile,line_number,label+(i<<6));
                     *scriptptr++=MAXGAMEVARS;
                     *scriptptr++=labelcode[i];
-                    textptr++;
                     return;
                 }
             }
             error++;
             ReportError(ERROR_NOTAGAMEVAR);
-            textptr++;
             return;
         }
         error++;
         ReportError(ERROR_NOTAGAMEVAR);
         textptr++;
         return;
+
     }
     if (type == GAMEVAR_FLAG_READONLY && aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
     {
@@ -1865,6 +1924,35 @@ static int parsecommand(void)
         //AddLog("Added gamevar");
         scriptptr -= 3; // no need to save in script...
         return 0;
+
+    case CON_GAMEARRAY:
+        if (isdigit(*textptr) || (*textptr == '-'))
+        {
+            getlabel();
+            error++;
+            ReportError(ERROR_SYNTAXERROR);
+            transnum(LABEL_DEFINE);
+            transnum(LABEL_DEFINE);
+            scriptptr -= 3; // we complete the process anyways just to skip past the fucked up section
+            return 0;
+        }
+        getlabel();
+        //printf("Got Label '%.20s'\n",textptr);
+        // Check to see it's already defined
+
+        for (i=0;i<NUMKEYWORDS;i++)
+            if (Bstrcmp(label+(labelcnt<<6),keyw[i]) == 0)
+            {
+                error++;
+                ReportError(ERROR_ISAKEYWORD);
+                return 0;
+            }
+        transnum(LABEL_DEFINE);
+        AddGameArray(label+(labelcnt<<6),*(scriptptr-1));
+
+        scriptptr -= 2; // no need to save in script...
+        return 0;
+
 
     case CON_DEFINE:
     {
@@ -3255,6 +3343,34 @@ static int parsecommand(void)
 
         transnum(LABEL_DEFINE); // the number to check against...
         return 0;
+    case CON_SETARRAY:
+        getlabel();
+        i=GetADefID(label+(labelcnt<<6));
+        if (i > (-1))
+        {
+            *scriptptr++=i;
+        }
+        else
+            ReportError(ERROR_NOTAGAMEARRAY);
+        skipcomments();// skip comments and whitespace
+        if (*textptr != '[')
+        {
+            error++;
+            ReportError(ERROR_GAMEARRAYBNO);
+            return 1;
+        }
+        textptr++;
+        transvar();
+        skipcomments();// skip comments and whitespace
+        if (*textptr != ']')
+        {
+            error++;
+            ReportError(ERROR_GAMEARRAYBNC);
+            return 1;
+        }
+        textptr++;
+        transvar();
+        return 0;
     case CON_RANDVARVAR:
         if (!CheckEventSync(current_event))
             ReportError(WARNING_EVENTSYNC);
@@ -3697,7 +3813,9 @@ static int parsecommand(void)
 
         j=CountCaseStatements();
 //        initprintf("Done Counting Case Statements for switch %d: found %d.\n", checking_switch,j);
-        scriptptr+=j*2;skipcomments();scriptptr-=j*2; // allocate buffer for the table
+        scriptptr+=j*2;
+        skipcomments();
+        scriptptr-=j*2; // allocate buffer for the table
         tempscrptr = (intptr_t *)(script+tempoffset);
 
         //AddLog(g_szBuf);
@@ -5126,6 +5244,18 @@ void ReportError(int iError)
         break;
     case ERROR_NOTAGAMEVAR:
         initprintf("%s:%d: error: symbol `%s' is not a game variable.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_NOTAGAMEARRAY:
+        initprintf("%s:%d: error: symbol `%s' is not a game array.\n",compilefile,line_number,label+(labelcnt<<6));
+        break;
+    case ERROR_GAMEARRAYBNC:
+        initprintf("%s:%d: error: square brackets for index of game array not closed, expected ] found %c\n",compilefile,line_number,*textptr);
+        break;
+    case ERROR_GAMEARRAYBNO:
+        initprintf("%s:%d: error: square brackets for index of game array not opened, expected [ found %c\n",compilefile,line_number,*textptr);
+        break;
+    case ERROR_INVALIDARRAYWRITE:
+        initprintf("%s:%d: error: arrays can only be written using setarray %c\n",compilefile,line_number,*textptr);
         break;
     case ERROR_OPENBRACKET:
         initprintf("%s:%d: error: found more `{' than `}' before `%s'.\n",compilefile,line_number,tempbuf);

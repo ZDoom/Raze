@@ -798,9 +798,13 @@ enum events {
 
 // store global game definitions
 
+
+
 enum gamevarflags {
-    MAXGAMEVARS             = 2048,
+    MAXGAMEVARS             = 2048, // must be a power of two
+    MAXGAMEARRAYS           = 256,  // must be lower than MAXGAMEVARS
     MAXVARLABEL             = 26,
+	MAXARRAYLABEL           = 26,
     GAMEVAR_FLAG_NORMAL     = 0,     // normal
     GAMEVAR_FLAG_PERPLAYER  = 1,     // per-player variable
     GAMEVAR_FLAG_PERACTOR   = 2,     // per-actor variable
@@ -824,9 +828,16 @@ typedef struct {
     char *szLabel;
     char bReset;
 } gamevar_t;
-
+typedef struct {
+    char *szLabel;
+    int *plValues;     // array of values
+	int size;
+    char bReset;
+} gamearray_t;
 extern gamevar_t aGameVars[MAXGAMEVARS];
+extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int iGameVarCount;
+extern int iGameArrayCount;
 
 extern int spriteflags[MAXTILES];
 

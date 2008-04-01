@@ -9648,6 +9648,14 @@ static void freeconmem(void)
             Bfree(aGameVars[i].plValues);
     }
 
+    for (i=iGameArrayCount-1;i>=0;i--)
+    {
+        if (aGameArrays[i].szLabel != NULL)
+            Bfree(aGameArrays[i].szLabel);
+        if (aGameArrays[i].plValues != NULL)
+            Bfree(aGameArrays[i].plValues);
+    }
+
     for (i=MAXPLAYERS-1;i>=0;i--)
     {
         if (g_player[i].ps != NULL)

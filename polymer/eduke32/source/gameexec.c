@@ -6758,6 +6758,16 @@ static int parse(void)
         SetGameVarID(*insptr, *(insptr+1), g_i, g_p);
         insptr += 2;
         break;
+    case CON_SETARRAY:
+    insptr++;
+    j=*insptr++;
+    {
+        int index = GetGameVarID(*insptr++, g_i, g_p);
+        int value = GetGameVarID(*insptr++, g_i, g_p);
+
+        SetGameArrayID(j,index,value);
+        break;
+    }
 
     case CON_RANDVAR:
         insptr++;
@@ -7273,8 +7283,13 @@ static int parse(void)
         break;
 
     default:
-        OSD_Printf("fatal error: default processing: prev inst: %d, curr inst: %d, next inst: %d\ncurrent actor: %d (%d)\n",*(insptr-1),*insptr,*(insptr+1),g_i,g_sp->picnum);
-        gameexit("An error has occurred in the EDuke32 CON executor.\n\nPlease mail all of your CON files along with the file eduke32.log\nto terminx@gmail.com.\n\nThank you.");
+        OSD_Printf("fatal error: default processing: previous five values: %d, %d, %d, %d, %d, currrent opcode: %d, next five values: %d, %d, %d, %d, %d\ncurrent actor: %d (%d)\n",*(insptr-5),*(insptr-4),*(insptr-3),*(insptr-2),*(insptr-1),*insptr,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5),g_i,g_sp->picnum);
+        gameexit("An error has occurred in the EDuke32 CON executor.\n\n\
+            If you are an end user, please e-mail the file eduke32.log\n\
+            along with links to any mods you're using to terminx@gmail.com.\n\n\
+            If you are a mod developer, please attach all of your CON files\n\
+            along with instructions on how to reproduce this error.\n\n\
+            Thank you.");
         break;
     }
     return 0;
