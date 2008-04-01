@@ -2430,14 +2430,14 @@ int setpalette(int start, int num, char *dapal)
     RGBQUAD *rgb;
     //HPALETTE hPalPrev;
 
-    UNREFERENCED_PARAMETER(dapal);
-
     struct logpal
     {
         WORD palVersion;
         WORD palNumEntries;
         PALETTEENTRY palPalEntry[256];
     } lpal;
+
+    UNREFERENCED_PARAMETER(dapal);
 
     copybuf(curpalettefaded, lpal.palPalEntry, 256);
 
