@@ -705,6 +705,7 @@ int FX_PlayWAV
 
    Begin playback of sound data with the given volume and priority.
 ---------------------------------------------------------------------*/
+
 int FX_PlayOGG
 (
     char *ptr,
@@ -1159,18 +1160,3 @@ void FX_StopRecord
 
 extern void MUSIC_Update(void);
 void AudioUpdate(void) { MUSIC_Update(); }
-
-void playmusic(const char *fn);
-
-int playmusicMAP(const char *fn,const int sel)
-{
-    Musicsize=0;
-    if(map[sel].musicfn1 != NULL)
-        playmusic(map[sel].musicfn1);
-    if(!Musicsize)
-    {
-        playmusic(fn);
-        return 0;
-    }
-    return 1;
-}

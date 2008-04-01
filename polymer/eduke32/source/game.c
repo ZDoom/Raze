@@ -54,7 +54,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20080321
+#define BUILDDATE 20080401
 #define UPDATEINTERVAL 604800 // 1w
 #endif
 
@@ -7994,7 +7994,7 @@ static void nonsharedkeys(void)
                         music_select = 0;
                     if (map[(unsigned char)music_select].musicfn != NULL)
                     {
-                        if (playmusicMAP(&map[(unsigned char)music_select].musicfn[0],music_select))
+                        if (playmusic(&map[(unsigned char)music_select].musicfn[0],music_select))
                             Bsprintf(fta_quotes[26],"PLAYING %s",&map[(unsigned char)music_select].musicfn1[0]);
                         else
                             Bsprintf(fta_quotes[26],"PLAYING %s",&map[(unsigned char)music_select].musicfn[0]);
@@ -8695,7 +8695,7 @@ static int AL_DefineMusic(char *ID,char *name)
     map[sel].musicfn1=makename(map[sel].musicfn1,name,ID);
 //    initprintf("%-15s | ",ID);
 //    initprintf("%3d %2d %2d | %s\n",sel,ep,lev,map[sel].musicfn1);
-//    playmusicMAP(ID,sel);
+//    playmusic(ID,sel);
     return 0;
 }
 
@@ -9460,7 +9460,7 @@ static void Logo(void)
         if (logoflags & LOGO_FLAG_PLAYMUSIC)
         {
             music_select = -1; // hack
-            playmusicMAP(&env_music_fn[0][0],MAXVOLUMES*MAXLEVELS);
+            playmusic(&env_music_fn[0][0],MAXVOLUMES*MAXLEVELS);
         }
 
         if (!NAM)

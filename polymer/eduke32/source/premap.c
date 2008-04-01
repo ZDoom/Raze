@@ -402,7 +402,7 @@ void cacheit(void)
         return;
 
     MUSIC_StopSong();
-    playmusicMAP(&env_music_fn[2][0],MAXVOLUMES*MAXLEVELS+2); // loadmus
+    playmusic(&env_music_fn[2][0],MAXVOLUMES*MAXLEVELS+2); // loadmus
 
     starttime = getticks();
 
@@ -1185,7 +1185,7 @@ void newgame(int vn,int ln,int sk)
 
     if (ln == 0 && vn == 3 && ud.multimode < 2 && ud.lockout == 0)
     {
-        playmusicMAP(&env_music_fn[1][0],MAXVOLUMES*MAXLEVELS+1);
+        playmusic(&env_music_fn[1][0],MAXVOLUMES*MAXLEVELS+1);
 
         flushperms();
         setview(0,0,xdim-1,ydim-1);
@@ -1761,7 +1761,7 @@ int enterlevel(int g)
     {
         music_select = (ud.volume_number*MAXLEVELS) + ud.level_number;
         if (map[(unsigned char)music_select].musicfn != NULL)
-            playmusicMAP(&map[(unsigned char)music_select].musicfn[0],music_select);
+            playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
     }
 
     if ((g&MODE_GAME) || (g&MODE_EOL))

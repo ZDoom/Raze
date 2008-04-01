@@ -193,7 +193,7 @@ void intomenusounds(void)
     menunum %= 17;
 }
 
-void playmusic(const char *fn)
+void _playmusic(const char *fn)
 {
 #if defined(_WIN32)
     int        fp, l;
@@ -226,6 +226,19 @@ void playmusic(const char *fn)
     MUSIC_SetVolume(ud.config.MusicVolume);
     PlayMusic((char *)fn);
 #endif
+}
+
+int playmusic(const char *fn, const int sel)
+{
+    Musicsize=0;
+    if(map[sel].musicfn1 != NULL)
+        _playmusic(map[sel].musicfn1);
+    if(!Musicsize)
+    {
+        _playmusic(fn);
+        return 0;
+    }
+    return 1;
 }
 
 int loadsound(unsigned int num)

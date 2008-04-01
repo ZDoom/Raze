@@ -30,7 +30,7 @@ extern int g_i,g_p;
 
 static void ResetPointerVars(void);
 
-static void FreeGameVars(void)
+static void FreeGameVars(void) /* called from ReadGameVars() and ResetGameVars() */
 {
     // call this function as many times as needed.
     int i;
@@ -323,7 +323,7 @@ void DumpGameVars(FILE *fp)
     fprintf(fp,"\n// end of game definitions\n");
 }
 
-void ResetGameVars(void)
+void ResetGameVars(void) /* this is called during a new game and nowhere else */
 {
     int i;
 

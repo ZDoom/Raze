@@ -801,10 +801,8 @@ enum events {
 
 
 enum gamevarflags {
-    MAXGAMEVARS             = 2048, // must be a power of two
-    MAXGAMEARRAYS           = 256,  // must be lower than MAXGAMEVARS
+    MAXGAMEVARS             = 2048,  // must be a power of two
     MAXVARLABEL             = 26,
-	MAXARRAYLABEL           = 26,
     GAMEVAR_FLAG_NORMAL     = 0,     // normal
     GAMEVAR_FLAG_PERPLAYER  = 1,     // per-player variable
     GAMEVAR_FLAG_PERACTOR   = 2,     // per-actor variable
@@ -814,10 +812,17 @@ enum gamevarflags {
     GAMEVAR_FLAG_NODEFAULT  = 1024,  // don't reset on actor spawn
     GAMEVAR_FLAG_SYSTEM     = 2048,  // cannot change mode flags...(only default value)
     GAMEVAR_FLAG_READONLY   = 4096,  // values are read-only (no setvar allowed)
-    GAMEVAR_FLAG_INTPTR      = 8192,  // plValue is a pointer to an int
+    GAMEVAR_FLAG_INTPTR     = 8192,  // plValue is a pointer to an int
     GAMEVAR_FLAG_SYNCCHECK  = 16384, // check event sync when translating
-    GAMEVAR_FLAG_SHORTPTR     = 32768, // plValue is a pointer to a short
-    GAMEVAR_FLAG_CHARPTR      = 65536  // plValue is a pointer to a char
+    GAMEVAR_FLAG_SHORTPTR   = 32768, // plValue is a pointer to a short
+    GAMEVAR_FLAG_CHARPTR    = 65536, // plValue is a pointer to a char
+};
+
+enum gamearrayflags {
+    MAXGAMEARRAYS           = (MAXGAMEVARS>>2), // must be lower than MAXGAMEVARS
+	MAXARRAYLABEL           = MAXVARLABEL,
+    GAMEARRAY_FLAG_NORMAL   = 0,
+    GAMEARRAY_FLAG_NORESET  = 1,
 };
 
 typedef struct {
@@ -828,12 +833,14 @@ typedef struct {
     char *szLabel;
     char bReset;
 } gamevar_t;
+
 typedef struct {
     char *szLabel;
-    int *plValues;     // array of values
+    intptr_t *plValues;     // array of values
 	int size;
     char bReset;
 } gamearray_t;
+
 extern gamevar_t aGameVars[MAXGAMEVARS];
 extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int iGameVarCount;

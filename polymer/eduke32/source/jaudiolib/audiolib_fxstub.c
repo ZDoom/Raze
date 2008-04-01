@@ -362,3 +362,32 @@ int FX_StopAllSounds
 
 
 void AudioUpdate(void) { }
+
+int FX_PlayLoopedOGG
+(
+    char *ptr,
+    int loopstart,
+    int loopend,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    unsigned int callbackval
+)
+{
+    return(0);
+}
+
+int FX_PlayOGG3D
+(
+    char *ptr,
+    int pitchoffset,
+    int angle,
+    int distance,
+    int priority,
+    unsigned int callbackval
+)
+{
+    return(0);
+}

@@ -415,7 +415,7 @@ int loadplayer(int spot)
     if (map[(unsigned char)music_select].musicfn != NULL && (i != music_select || env_music_fn[2][0]))
     {
         MUSIC_StopSong();
-        playmusicMAP(&map[(unsigned char)music_select].musicfn[0],music_select);
+        playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
     }
 
     g_player[myconnectindex].ps->gm = MODE_GAME;
