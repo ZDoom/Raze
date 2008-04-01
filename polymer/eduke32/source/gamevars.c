@@ -550,7 +550,10 @@ int GetGameVarID(int id, int iActor, int iPlayer)
             if ((index < aGameArrays[id-MAXGAMEVARS-1].size)&&(index>=0))
                 inv =aGameArrays[id-MAXGAMEVARS-1].plValues[index];
             else
-                gameexit("array");
+            {
+                OSD_Printf("GetGameVarID(): invalid array index (%s[%d])\n",aGameArrays[id-MAXGAMEVARS-1].szLabel,index);
+                return -1;
+            }
             return(inv);
         }
         if (!(id&(MAXGAMEVARS<<1)))
@@ -612,18 +615,17 @@ int GetGameVarID(int id, int iActor, int iPlayer)
     if (inv) return(-aGameVars[id].lValue);
     return (aGameVars[id].lValue);
 }
+
 void SetGameArrayID(int id,int index, int lValue)
 {
-    if (id<0 || id >= iGameArrayCount)
+    if (id<0 || id >= iGameArrayCount || !((index < aGameArrays[id].size)&&(index>=0)))
     {
-        OSD_Printf("SetGameVarID(): tried to set invalid gamevar ID (%d) from sprite %d (%d), player %d\n",id,g_i,sprite[g_i].picnum,g_p);
+        OSD_Printf("SetGameVarID(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",id,g_i,sprite[g_i].picnum,g_p);
         return;
     }
-    if ((index < aGameArrays[id].size)&&(index>=0))
-        aGameArrays[id].plValues[index]=lValue;
-    else
-        gameexit("array1");
+    aGameArrays[id].plValues[index]=lValue;
 }
+
 void SetGameVarID(int id, int lValue, int iActor, int iPlayer)
 {
     if (id<0 || id >= iGameVarCount)
@@ -677,7 +679,6 @@ void SetGameVarID(int id, int lValue, int iActor, int iPlayer)
         *((char*)aGameVars[id].lValue)=(char)lValue;
         return;
     }
-
 
     aGameVars[id].lValue=lValue;
 }
