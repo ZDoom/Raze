@@ -80,8 +80,9 @@ typedef struct      s_prsector {
     signed char     floorshade;
     char            floorpal, floorxpanning, floorypanning;
 
-    char            controlstate; // 1: up to date, 2: just allocated, 3: wall invalidation
+    char            controlstate; // 1: up to date, 2: just allocated
     char            drawingstate; // 0: fcuk, 1: in queue, 2: todraw, 3: drawn
+    unsigned int    invalidid;
 }                   _prsector;
 
 typedef struct      s_prwall {
@@ -92,9 +93,16 @@ typedef struct      s_prwall {
     // attributes
     GLfloat         wallcolor[4], overcolor[4];
     GLfloat         wallglpic, overglpic, wallfbglpic, overfbglpic;
+    // build wall data
+    short           cstat, nwallcstat;
+    short           picnum, overpicnum, nwallpicnum;
+    signed char     shade;
+    char            pal, xrepeat, yrepeat, xpanning, ypanning;
+    char            nwallxpanning, nwallypanning;
+
 
     char            underover;
-    char            invalidate;
+    unsigned int    invalidid;
     char            controlstate;
 }                   _prwall;
 

@@ -892,9 +892,9 @@ finish:
         polymer_buildfloor(sectnum);
 
     if (wallinvalidate)
-        s->controlstate = 3;
-    else
-        s->controlstate = 1;
+        s->invalidid++;
+
+    s->controlstate = 1;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated sector %i.\n", sectnum);
 
@@ -1079,15 +1079,14 @@ int                 polymer_initwall(short wallnum)
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Initalizing wall %i...\n", wallnum);
 
-    w = malloc(sizeof(_prwall));
+    w = calloc(1, sizeof(_prwall));
     if (w == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize wall %i : malloc failed.\n", wallnum);
         return (0);
     }
 
-    w->invalidate = w->underover = 0;
-    w->wallbuffer = w->overbuffer = w->portal = NULL;
+    w->controlstate = 2;
 
     prwalls[wallnum] = w;
 
@@ -1098,7 +1097,7 @@ int                 polymer_initwall(short wallnum)
 
 void                polymer_updatewall(short wallnum)
 {
-    short           nwallnum, nnwallnum, curpicnum;
+    short           nwallnum, nnwallnum, curpicnum, wallpicnum, walloverpicnum, nwallpicnum;
     char            curxpanning, curypanning;
     walltype        *wal;
     sectortype      *sec, *nsec;
@@ -1108,14 +1107,75 @@ void                polymer_updatewall(short wallnum)
     int             xref, yref;
     float           ypancoef, dist;
     int             i;
+    unsigned int    invalid;
 
     wal = &wall[wallnum];
+    nwallnum = wal->nextwall;
     sec = &sector[sectorofwall(wallnum)];
     w = prwalls[wallnum];
     s = prsectors[sectorofwall(wallnum)];
+    invalid = s->invalidid;
+    if (nwallnum != -1)
+    {
+        ns = prsectors[wal->nextsector];
+        invalid += ns->invalidid;
+    }
+    else
+        ns = NULL;
 
     if (w->wallbuffer == NULL)
         w->wallbuffer = calloc(4, sizeof(GLfloat) * 5);
+
+    wallpicnum = wal->picnum;
+    if (picanm[wallpicnum]&192) wallpicnum += animateoffs(wallpicnum,wallnum+16384);
+    walloverpicnum = wal->overpicnum;
+    if (picanm[walloverpicnum]&192) walloverpicnum += animateoffs(walloverpicnum,wallnum+16384);
+    if (nwallnum != -1)
+    {
+        nwallpicnum = wall[nwallnum].picnum;
+        if (picanm[nwallpicnum]&192) nwallpicnum += animateoffs(nwallpicnum,wallnum+16384);
+    }
+
+    if ((w->controlstate != 2) &&
+        (w->invalidid == invalid) &&
+        (wal->cstat == w->cstat) &&
+        (wallpicnum == w->picnum) &&
+        (wal->pal == w->pal) &&
+        (wal->xpanning == w->xpanning) &&
+        (wal->ypanning == w->ypanning) &&
+        (wal->xrepeat == w->xrepeat) &&
+        (wal->yrepeat == w->yrepeat) &&
+        (walloverpicnum == w->overpicnum) &&
+        (wal->shade == w->shade) &&
+        ((nwallnum == -1) ||
+        ((nwallpicnum == w->nwallpicnum) &&
+         (wall[nwallnum].xpanning == w->nwallxpanning) &&
+         (wall[nwallnum].ypanning == w->nwallypanning) &&
+         (wall[nwallnum].cstat == w->nwallcstat))))
+    {
+        w->controlstate = 1;
+        return; // screw you guys I'm going home
+    }
+    else
+    {
+        w->invalidid = invalid;
+        w->cstat = wal->cstat;
+        w->picnum = wallpicnum;
+        w->pal = wal->pal;
+        w->xpanning = wal->xpanning;
+        w->ypanning = wal->ypanning;
+        w->xrepeat = wal->xrepeat;
+        w->yrepeat = wal->yrepeat;
+        w->overpicnum = walloverpicnum;
+        w->shade = wal->shade;
+        if (nwallnum != -1)
+        {
+            w->nwallpicnum = nwallpicnum;
+            w->nwallxpanning = wall[nwallnum].xpanning;
+            w->nwallypanning = wall[nwallnum].ypanning;
+            w->nwallcstat = wall[nwallnum].cstat;
+        }
+    }
 
     w->underover = 0;
 
@@ -1134,9 +1194,7 @@ void                polymer_updatewall(short wallnum)
         memcpy(&w->wallbuffer[10], &s->ceilbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
         memcpy(&w->wallbuffer[15], &s->ceilbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
-        curpicnum = wal->picnum;
-
-        if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,wallnum+16384);
+        curpicnum = wallpicnum;
 
         if (!waloff[curpicnum])
             loadtile(curpicnum);
@@ -1191,10 +1249,8 @@ void                polymer_updatewall(short wallnum)
     }
     else
     {
-        nwallnum = wal->nextwall;
         nnwallnum = wall[nwallnum].point2;
         nsec = &sector[wal->nextsector];
-        ns = prsectors[wal->nextsector];
 
         if (((s->floorbuffer[((wallnum - sec->wallptr) * 5) + 1] != ns->floorbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
              (s->floorbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->floorbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
@@ -1208,18 +1264,16 @@ void                polymer_updatewall(short wallnum)
 
             if (wal->cstat & 2)
             {
-                curpicnum = wall[nwallnum].picnum;
+                curpicnum = nwallpicnum;
                 curxpanning = wall[nwallnum].xpanning;
                 curypanning = wall[nwallnum].ypanning;
             }
             else
             {
-                curpicnum = wal->picnum;
+                curpicnum = wallpicnum;
                 curxpanning = wal->xpanning;
                 curypanning = wal->ypanning;
             }
-
-            if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,wallnum+16384);
 
             if (!waloff[curpicnum])
                 loadtile(curpicnum);
@@ -1289,11 +1343,9 @@ void                polymer_updatewall(short wallnum)
             memcpy(&w->overbuffer[15], &s->ceilbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
             if ((wal->cstat & 16) || (wal->overpicnum == 0))
-                curpicnum = wal->picnum;
+                curpicnum = wallpicnum;
             else
-                curpicnum = wal->picnum;
-
-            if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,wallnum+16384);
+                curpicnum = wallpicnum;
 
             if (!waloff[curpicnum])
                 loadtile(curpicnum);
