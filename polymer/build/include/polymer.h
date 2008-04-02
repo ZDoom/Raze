@@ -17,8 +17,6 @@
 //   o only make parallaxes write into the depth buffer if map boundary (e1l2)
 //   o ... possibly more important stuff I don't have in mind right now
 // - SPRITES
-//   o stop using IM
-//   o stop using Get for every face sprite (do the calculation by hand)
 //   o port sprite panning and fullbrights from hacked polymost (:(
 //   o draw all opaques first, keep translucent for later with masks
 // - SKIES

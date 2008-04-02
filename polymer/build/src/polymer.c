@@ -17,6 +17,28 @@ _prwall         *prwalls[MAXWALLS];
 
 GLfloat         skybox[16];
 
+GLfloat         vertsprite[4 * 5] = {
+    -0.5f, 0.0f, 0.0f,
+     0.0f, 1.0f,
+     0.5f, 0.0f, 0.0f,
+     1.0f, 1.0f,
+     0.5f, 1.0f, 0.0f,
+     1.0f, 0.0f,
+    -0.5f, 1.0f, 0.0f,
+     0.0f, 0.0f,
+};
+
+GLfloat         horizsprite[4 * 5] = {
+    -0.5f, 0.0f, -0.03125f,
+     0.0f, 1.0f,
+     0.5f, 0.0f, -0.03125f,
+     1.0f, 1.0f,
+     0.5f, 0.0f, 0.03125f,
+     1.0f, 0.0f,
+    -0.5f, 0.0f, 0.03125f,
+     0.0f, 0.0f,
+};
+
 // CONTROL
 float           pos[3], spos[3];
 
@@ -28,6 +50,7 @@ int             firstback;
 short           sectorqueue[MAXSECTORS];
 
 GLdouble        modelviewmatrix[16];
+GLdouble        spritemodelview[16];
 GLdouble        projectionmatrix[16];
 GLint           viewport[4];
 
@@ -42,7 +65,7 @@ short           cursky;
 // EXTERNAL FUNCTIONS
 int                 polymer_init(void)
 {
-    int             i;
+    int             i, j;
 
     if (pr_verbosity >= 1) OSD_Printf("Initalizing Polymer subsystem...\n");
 
@@ -70,6 +93,22 @@ int                 polymer_init(void)
     polymer_loadboard();
 
     polymer_initskybox();
+
+    // init the face sprite modelview to identity
+    i = 0;
+    while (i < 4)
+    {
+        j = 0;
+        while (j < 4)
+        {
+            if (i == j)
+                spritemodelview[(i * 4) + j] = 1.0;
+            else
+                spritemodelview[(i * 4) + j] = 0.0;
+            j++;
+        }
+        i++;
+    }
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete.\n");
     return (1);
@@ -461,10 +500,10 @@ void                polymer_drawmaskwall(int damaskwallcnt)
 
 void                polymer_drawsprite(int snum)
 {
-    int             i, j, curpicnum, glpic, xsize, ysize;
+    int             curpicnum, glpic, xsize, ysize;
     spritetype      *tspr;
     pthtyp*         pth;
-    float           color[4], xratio, ang, xref, yref;
+    float           color[4], xratio, ang, *curspritedata;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
@@ -502,10 +541,10 @@ void                polymer_drawsprite(int snum)
     if (((tspr->cstat>>4) & 3) == 0)
     {
         xratio = (float)(tspr->xrepeat) / 160.0f;
-        xsize = (tilesizx[curpicnum] * 32 * xratio) / 2;
+        xsize = tilesizx[curpicnum] * 32 * xratio;
     }
     else
-        xsize = tspr->xrepeat * tilesizx[curpicnum] / 8;
+        xsize = tspr->xrepeat * tilesizx[curpicnum] / 4;
 
     ysize = tspr->yrepeat * tilesizy[curpicnum] * 4;
 
@@ -513,33 +552,31 @@ void                polymer_drawsprite(int snum)
     spos[1] = -tspr->z;
     spos[2] = -tspr->x;
 
+    curspritedata = vertsprite;
+
     switch ((tspr->cstat>>4) & 3)
     {
         case 0:
             bglMatrixMode(GL_MODELVIEW);
             bglPushMatrix();
 
-            bglTranslatef(spos[0], spos[1], spos[2]);
-            bglGetDoublev(GL_MODELVIEW_MATRIX, modelviewmatrix);
+            spritemodelview[12] =   modelviewmatrix[0] * spos[0] +
+                                    modelviewmatrix[4] * spos[1] +
+                                    modelviewmatrix[8] * spos[2] +
+                                    modelviewmatrix[12];
+            spritemodelview[13] =   modelviewmatrix[1] * spos[0] +
+                                    modelviewmatrix[5] * spos[1] +
+                                    modelviewmatrix[9] * spos[2] +
+                                    modelviewmatrix[13];
+            spritemodelview[14] =   modelviewmatrix[2]  * spos[0] +
+                                    modelviewmatrix[6]  * spos[1] +
+                                    modelviewmatrix[10] * spos[2] +
+                                    modelviewmatrix[14];
 
-            i = 0;
-            while (i < 3)
-            {
-                j = 0;
-                while (j < 3)
-                {
-                    if (i == j)
-                        modelviewmatrix[(i * 4) + j] = 1.0;
-                    else
-                        modelviewmatrix[(i * 4) + j] = 0.0;
-                    j++;
-                }
-                i++;
-            }
-
-            bglLoadMatrixd(modelviewmatrix);
+            bglLoadMatrixd(spritemodelview);
             bglRotatef((gtang * 90.0f), 0.0f, 0.0f, -1.0f);
-            bglScalef(1.0f / 1000.0f, 1.0f / 16000.0f, 1.0f / 1000.0f);
+            bglScalef((float)(xsize) / 1000.0f, (float)(ysize) / 16000.0f, 1.0f / 1000.0f);
+
             bglPolygonOffset(0.0f, 0.0f);
             break;
         case 1:
@@ -550,6 +587,7 @@ void                polymer_drawsprite(int snum)
 
             bglTranslatef(spos[0], spos[1], spos[2]);
             bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+            bglScalef((float)(xsize), (float)(ysize), 1.0f);
 
             prsectors[tspr->sectnum]->wallsproffset += 0.5f;
             bglPolygonOffset(-prsectors[tspr->sectnum]->wallsproffset,
@@ -563,8 +601,9 @@ void                polymer_drawsprite(int snum)
 
             bglTranslatef(spos[0], spos[1], spos[2]);
             bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+            bglScalef((float)(xsize), 1.0f, (float)(ysize));
 
-            ysize /= 32;
+            curspritedata = horizsprite;
 
             prsectors[tspr->sectnum]->floorsproffset += 0.5f;
             bglPolygonOffset(-prsectors[tspr->sectnum]->floorsproffset,
@@ -572,47 +611,24 @@ void                polymer_drawsprite(int snum)
             break;
     }
 
+    bglMatrixMode(GL_TEXTURE);
+    bglLoadIdentity();
+
     if ((tspr->cstat & 4) || (((tspr->cstat>>4) & 3) == 2))
-        xref = 1.0f;
-    else
-        xref = 0.0f;
+        bglScalef(-1.0f, 1.0f, 1.0f);
 
     if (tspr->cstat & 8)
-        yref = 1.0f;
-    else
-        yref = 0.0f;
+        bglScalef(1.0f, -1.0f, 1.0f);
 
     bglBindTexture(GL_TEXTURE_2D, glpic);
     bglColor4f(color[0], color[1], color[2], color[3]);
 
-    bglBegin(GL_QUADS);
+    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), curspritedata);
+    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &curspritedata[3]);
+    bglDrawArrays(GL_QUADS, 0, 4);
 
-    bglTexCoord2f(fabs(xref - 0.0f), fabs(yref - 1.0f));
-    if (((tspr->cstat>>4) & 3) == 2)
-        bglVertex3f(-xsize,0,-ysize);
-    else
-        bglVertex3f(-xsize,0,0);
-
-    bglTexCoord2f(fabs(xref - 1.0f), fabs(yref - 1.0f));
-    if (((tspr->cstat>>4) & 3) == 2)
-        bglVertex3f(xsize,0,-ysize);
-    else
-        bglVertex3f(xsize,0,0);
-
-    bglTexCoord2f(fabs(xref - 1.0f), fabs(yref - 0.0f));
-    if (((tspr->cstat>>4) & 3) == 2)
-        bglVertex3f(xsize,0,ysize);
-    else
-        bglVertex3f(xsize,ysize,0);
-
-    bglTexCoord2f(fabs(xref - 0.0f), fabs(yref - 0.0f));
-    if (((tspr->cstat>>4) & 3) == 2)
-        bglVertex3f(-xsize,0,ysize);
-    else
-        bglVertex3f(-xsize,ysize,0);
-
-    bglEnd();
-
+    bglLoadIdentity();
+    bglMatrixMode(GL_MODELVIEW);
     bglPopMatrix();
 }
 
