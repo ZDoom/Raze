@@ -2,8 +2,6 @@
 // TODO :
 // - CORE STUFF
 //   o put all the sector/wall geometry in VBOs
-//   o optimize the update[sector|wall] functions to diff the changes
-//   o make occlusion queries every n frames (cvar)
 //   o there's still a texture alignment problem with slopes (waterfall in launch facility)
 //   o there's also the texture alignment problem Hunter reported (san andreas fault)
 //   o also sliding doors are still fucked up sometimes (like under the bar in E1L2)
@@ -93,7 +91,8 @@ typedef struct      s_prwall {
     // attributes
     GLfloat         wallcolor[4], overcolor[4];
     GLfloat         wallglpic, overglpic, wallfbglpic, overfbglpic;
-    // build wall data
+    // build wall data# ifdef POLYMER_C
+
     short           cstat, nwallcstat;
     short           picnum, overpicnum, nwallpicnum;
     signed char     shade;
@@ -122,31 +121,36 @@ int                 polymer_init(void);
 void                polymer_glinit(void);
 void                polymer_loadboard(void);
 void                polymer_drawrooms(int daposx, int daposy, int daposz, short daang, int dahoriz, short dacursectnum);
-void                polymer_pokesector(short sectnum);
 void                polymer_drawmasks(void);
 void                polymer_rotatesprite(int sx, int sy, int z, short a, short picnum, signed char dashade, char dapalnum, char dastat, int cx1, int cy1, int cx2, int cy2);
 void                polymer_drawmaskwall(int damaskwallcnt);
 void                polymer_drawsprite(int snum);
+
+# ifdef POLYMER_C
+
 // SECTORS
-int                 polymer_initsector(short sectnum);
-int                 polymer_updatesector(short sectnum);
+static int          polymer_initsector(short sectnum);
+static int          polymer_updatesector(short sectnum);
 void PR_CALLBACK    polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloat weight[4], GLdouble **out);
 void PR_CALLBACK    polymer_tesserror(GLenum error);
 void PR_CALLBACK    polymer_tessedgeflag(GLenum error);
 void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector);
-int                 polymer_buildfloor(short sectnum);
-void                polymer_drawsector(short sectnum);
+static int          polymer_buildfloor(short sectnum);
+static void         polymer_drawsector(short sectnum);
 // WALLS
-int                 polymer_initwall(short wallnum);
-void                polymer_updatewall(short wallnum);
-void                polymer_drawwall(short wallnum);
+static int          polymer_initwall(short wallnum);
+static void         polymer_updatewall(short wallnum);
+static void         polymer_drawwall(short wallnum);
 // HSR
-void                polymer_extractfrustum(GLdouble* modelview, GLdouble* projection);
-int                 polymer_portalinfrustum(short wallnum);
+static void         polymer_pokesector(short sectnum);
+static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projection);
+static int          polymer_portalinfrustum(short wallnum);
 // SKIES
-void                polymer_initskybox(void);
-void                polymer_getsky(void);
-void                polymer_drawskyquad(int p1, int p2, GLfloat height);
-void                polymer_drawartsky(short tilenum);
+static void         polymer_initskybox(void);
+static void         polymer_getsky(void);
+static void         polymer_drawskyquad(int p1, int p2, GLfloat height);
+static void         polymer_drawartsky(short tilenum);
+
+# endif
 
 #endif // !_polymer_h_

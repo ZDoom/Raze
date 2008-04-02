@@ -1,5 +1,7 @@
 // blah
 #ifdef POLYMOST
+
+#define POLYMER_C
 #include "polymer.h"
 
 // CVARS
@@ -48,6 +50,7 @@ int             front;
 int             back;
 int             firstback;
 short           sectorqueue[MAXSECTORS];
+short           querydelay[MAXSECTORS];
 
 GLdouble        modelviewmatrix[16];
 GLdouble        spritemodelview[16];
@@ -338,7 +341,7 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
 
     while (front != back)
     {
-        if ((front >= firstback) && (pr_occlusionculling))
+        if ((front >= firstback) && (pr_occlusionculling) && (!querydelay[sectorqueue[front] + 1]))
         {
             bglGetQueryObjectivARB(sectorqueue[front] + 1,
                                    GL_QUERY_RESULT_ARB,
@@ -348,7 +351,12 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
                 front++;
                 continue;
             }
+            else
+                querydelay[sectorqueue[front] + 1] = pr_occlusionculling;
         }
+        else if ((front >= firstback) && (pr_occlusionculling) && (querydelay[sectorqueue[front] + 1]))
+            querydelay[sectorqueue[front] + 1]--;
+
         polymer_pokesector(sectorqueue[front]);
         polymer_drawsector(sectorqueue[front]);
 
@@ -370,7 +378,7 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
                     sectorqueue[back++] = wal->nextsector;
                     prsectors[wal->nextsector]->drawingstate = 1;
 
-                    if (pr_occlusionculling)
+                    if (pr_occlusionculling && !querydelay[wal->nextsector + 1])
                     {
                         nextsec = &sector[wal->nextsector];
                         nextwal = &wall[nextsec->wallptr];
@@ -432,33 +440,6 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
-}
-
-void                polymer_pokesector(short sectnum)
-{
-    sectortype      *sec;
-    _prsector       *s;
-    walltype        *wal;
-    int             i;
-
-    sec = &sector[sectnum];
-    s = prsectors[sectnum];
-    wal = &wall[sec->wallptr];
-
-    if (!s->controlstate)
-        polymer_updatesector(sectnum);
-
-    i = 0;
-    while (i < sec->wallnum)
-    {
-        if ((wal->nextsector != -1) && (!prsectors[wal->nextsector]->controlstate))
-            polymer_updatesector(wal->nextsector);
-        if (!prwalls[sec->wallptr + i]->controlstate)
-            polymer_updatewall(sec->wallptr + i);
-
-        i++;
-        wal = &wall[sec->wallptr + i];
-    }
 }
 
 void                polymer_drawmasks(void)
@@ -633,7 +614,7 @@ void                polymer_drawsprite(int snum)
 }
 
 // SECTORS
-int                 polymer_initsector(short sectnum)
+static int          polymer_initsector(short sectnum)
 {
     sectortype      *sec;
     _prsector*      s;
@@ -666,7 +647,7 @@ int                 polymer_initsector(short sectnum)
     return (1);
 }
 
-int                 polymer_updatesector(short sectnum)
+static int          polymer_updatesector(short sectnum)
 {
     _prsector*      s;
     sectortype      *sec;
@@ -949,7 +930,7 @@ void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
     s->curindice++;
 }
 
-int                 polymer_buildfloor(short sectnum)
+static int          polymer_buildfloor(short sectnum)
 {
     // This function tesselates the floor/ceiling of a sector and stores the triangles in a display list.
     _prsector*      s;
@@ -1010,7 +991,7 @@ int                 polymer_buildfloor(short sectnum)
     return (1);
 }
 
-void                polymer_drawsector(short sectnum)
+static void         polymer_drawsector(short sectnum)
 {
     sectortype      *sec;
     walltype        *wal;
@@ -1073,7 +1054,7 @@ void                polymer_drawsector(short sectnum)
 }
 
 // WALLS
-int                 polymer_initwall(short wallnum)
+static int          polymer_initwall(short wallnum)
 {
     _prwall         *w;
 
@@ -1095,7 +1076,7 @@ int                 polymer_initwall(short wallnum)
     return (1);
 }
 
-void                polymer_updatewall(short wallnum)
+static void         polymer_updatewall(short wallnum)
 {
     short           nwallnum, nnwallnum, curpicnum, wallpicnum, walloverpicnum, nwallpicnum;
     char            curxpanning, curypanning;
@@ -1417,7 +1398,7 @@ void                polymer_updatewall(short wallnum)
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated wall %i.\n", wallnum);
 }
 
-void                polymer_drawwall(short wallnum)
+static void         polymer_drawwall(short wallnum)
 {
     _prwall         *w;
 
@@ -1473,7 +1454,34 @@ void                polymer_drawwall(short wallnum)
 }
 
 // HSR
-void                polymer_extractfrustum(GLdouble* modelview, GLdouble* projection)
+static void         polymer_pokesector(short sectnum)
+{
+    sectortype      *sec;
+    _prsector       *s;
+    walltype        *wal;
+    int             i;
+
+    sec = &sector[sectnum];
+    s = prsectors[sectnum];
+    wal = &wall[sec->wallptr];
+
+    if (!s->controlstate)
+        polymer_updatesector(sectnum);
+
+    i = 0;
+    while (i < sec->wallnum)
+    {
+        if ((wal->nextsector != -1) && (!prsectors[wal->nextsector]->controlstate))
+            polymer_updatesector(wal->nextsector);
+        if (!prwalls[sec->wallptr + i]->controlstate)
+            polymer_updatewall(sec->wallptr + i);
+
+        i++;
+        wal = &wall[sec->wallptr + i];
+    }
+}
+
+static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projection)
 {
     GLdouble        matrix[16];
     int             i;
@@ -1500,7 +1508,7 @@ void                polymer_extractfrustum(GLdouble* modelview, GLdouble* projec
     if (pr_verbosity >= 3) OSD_Printf("PR : Frustum extracted.\n");
 }
 
-int                 polymer_portalinfrustum(short wallnum)
+static int          polymer_portalinfrustum(short wallnum)
 {
     int             i, j, k;
     float           sqdist;
@@ -1531,7 +1539,7 @@ int                 polymer_portalinfrustum(short wallnum)
 }
 
 // SKIES
-void                polymer_initskybox(void)
+static void         polymer_initskybox(void)
 {
     GLfloat         halfsqrt2 = 0.70710678f;
 
@@ -1554,7 +1562,7 @@ void                polymer_initskybox(void)
     skybox[14] = -1.0;          skybox[15] = -1.0;    // 7*/
 }
 
-void                polymer_getsky(void)
+static void         polymer_getsky(void)
 {
     int             i;
 
@@ -1570,7 +1578,7 @@ void                polymer_getsky(void)
     }
 }
 
-void                polymer_drawskyquad(int p1, int p2, GLfloat height)
+static void         polymer_drawskyquad(int p1, int p2, GLfloat height)
 {
     bglBegin(GL_QUADS);
     bglTexCoord2f(0.0f, 0.0f);
@@ -1588,7 +1596,7 @@ void                polymer_drawskyquad(int p1, int p2, GLfloat height)
     bglEnd();
 }
 
-void                polymer_drawartsky(short tilenum)
+static void         polymer_drawartsky(short tilenum)
 {
     pthtyp*         pth;
     GLuint          glpics[5];
