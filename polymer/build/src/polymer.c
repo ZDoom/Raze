@@ -310,7 +310,7 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
                 continue;
             }
         }
-        polymer_pokesector(dacursectnum);
+        polymer_pokesector(sectorqueue[front]);
         polymer_drawsector(sectorqueue[front]);
 
         // scan sectors

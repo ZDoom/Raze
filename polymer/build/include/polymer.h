@@ -3,7 +3,6 @@
 // - CORE STUFF
 //   o put all the sector/wall geometry in VBOs
 //   o optimize the update[sector|wall] functions to diff the changes
-//   o figure a way to get the interpolations from the game
 //   o make occlusion queries every n frames (cvar)
 //   o there's still a texture alignment problem with slopes (waterfall in launch facility)
 //   o there's also the texture alignment problem Hunter reported (san andreas fault)
@@ -15,13 +14,13 @@
 //   o remove all the IM matrix crap and write real functions now that it works
 //   o polymer.c possibly needs to be split in several source files
 //   o some crap really needs factorization
+//   o only make parallaxes write into the depth buffer if map boundary (e1l2)
 //   o ... possibly more important stuff I don't have in mind right now
 // - SPRITES
 //   o stop using IM
 //   o stop using Get for every face sprite (do the calculation by hand)
 //   o port sprite panning and fullbrights from hacked polymost (:(
 //   o draw all opaques first, keep translucent for later with masks
-//   o need smart PolygonOffset for floor and wall sprites
 // - SKIES
 //   o figure a better way to handle ART skies - maybe add symetric caps that would fade to black like a big gem or something wow this is a long column lol ;0)
 //   o implement polymost skyboxes
