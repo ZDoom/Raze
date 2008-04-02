@@ -641,7 +641,7 @@ int                 polymer_initsector(short sectnum)
     if (pr_verbosity >= 2) OSD_Printf("PR : Initalizing sector %i...\n", sectnum);
 
     sec = &sector[sectnum];
-    s = malloc(sizeof(_prsector));
+    s = calloc(1, sizeof(_prsector));
     if (s == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize sector %i : malloc failed.\n", sectnum);
@@ -657,9 +657,7 @@ int                 polymer_initsector(short sectnum)
         return (0);
     }
 
-    s->floorindices = s->ceilindices = NULL;
-
-    s->controlstate = s->drawingstate = 0;
+    s->controlstate = 2; // let updatesector know that everything needs to go
 
     prsectors[sectnum] = s;
 
@@ -677,8 +675,8 @@ int                 polymer_updatesector(short sectnum)
     int             ceilz, florz;
     int             tex, tey;
     float           secangcos, secangsin, scalecoef;
-    int             ang, needfloor;
-    short           curstat, curpicnum;
+    int             ang, needfloor, wallinvalidate;
+    short           curstat, curpicnum, floorpicnum, ceilingpicnum;
     char            curxpanning, curypanning;
     GLfloat*        curbuffer;
     GLuint          *curglpic, *curfbglpic;
@@ -686,9 +684,8 @@ int                 polymer_updatesector(short sectnum)
 
     s = prsectors[sectnum];
     sec = &sector[sectnum];
-    wal = &wall[sec->wallptr];
 
-    secangcos = secangsin = 0;
+    secangcos = secangsin = 2;
 
     if (s == NULL)
     {
@@ -696,38 +693,78 @@ int                 polymer_updatesector(short sectnum)
         return (-1);
     }
 
-    needfloor = 0;
-
-    if ((sec->floorstat & 64) || (sec->ceilingstat & 64))
-    {
-        ang = (getangle(wall[wal->point2].x - wal->x, wall[wal->point2].y - wal->y) + 512) & 2047;
-        secangcos = (float)(sintable[(ang+512)&2047]) / 16383.0f;
-        secangsin = (float)(sintable[ang&2047]) / 16383.0f;
-    }
+    needfloor = wallinvalidate = 0;
 
     // geometry
+    wal = &wall[sec->wallptr];
     i = 0;
     while (i < sec->wallnum)
     {
         if ((-wal->x != s->verts[(i*3)+2]))
         {
             s->verts[(i*3)+2] = s->floorbuffer[(i*5)+2] = s->ceilbuffer[(i*5)+2] = -wal->x;
-            needfloor = 1;
+            needfloor = wallinvalidate = 1;
         }
         if ((wal->y != s->verts[i*3]))
         {
             s->verts[i*3] = s->floorbuffer[i*5] = s->ceilbuffer[i*5] = wal->y;
-            needfloor = 1;
+            needfloor = wallinvalidate = 1;
         }
-        getzsofslope(sectnum, wal->x, wal->y, &ceilz, &florz);
-        s->verts[(i*3)+1] = 0;
-        s->floorbuffer[(i*5)+1] = -florz;
-        s->ceilbuffer[(i*5)+1] = -ceilz;
 
+        i++;
+        wal = &wall[sec->wallptr + i];
+    }
+
+    if ((s->controlstate == 2) ||
+        (sec->floorz != s->floorz) ||
+        (sec->ceilingz != s->ceilingz) ||
+        (sec->floorheinum != s->floorheinum) ||
+        (sec->ceilingheinum != s->ceilingheinum))
+    {
+        wallinvalidate = 1;
+
+        wal = &wall[sec->wallptr];
+        i = 0;
+        while (i < sec->wallnum)
+        {
+            getzsofslope(sectnum, wal->x, wal->y, &ceilz, &florz);
+            s->floorbuffer[(i*5)+1] = -florz;
+            s->ceilbuffer[(i*5)+1] = -ceilz;
+
+            i++;
+            wal = &wall[sec->wallptr + i];
+        }
+
+        s->floorz = sec->floorz;
+        s->ceilingz = sec->ceilingz;
+        s->floorheinum = sec->floorheinum;
+        s->ceilingheinum = sec->ceilingheinum;
+    }
+
+    floorpicnum = sec->floorpicnum;
+    if (picanm[floorpicnum]&192) floorpicnum += animateoffs(floorpicnum,sectnum);
+    ceilingpicnum = sec->ceilingpicnum;
+    if (picanm[ceilingpicnum]&192) ceilingpicnum += animateoffs(ceilingpicnum,sectnum);
+
+    if ((s->controlstate != 2) && (!needfloor) &&
+        (sec->floorstat == s->floorstat) &&
+        (sec->ceilingstat == s->ceilingstat) &&
+        (floorpicnum == s->floorpicnum) &&
+        (ceilingpicnum == s->ceilingpicnum) &&
+        (sec->floorxpanning == s->floorxpanning) &&
+        (sec->ceilingxpanning == s->ceilingxpanning) &&
+        (sec->floorypanning == s->floorypanning) &&
+        (sec->ceilingypanning == s->ceilingypanning))
+        goto attributes;
+
+    wal = &wall[sec->wallptr];
+    i = 0;
+    while (i < sec->wallnum)
+    {
         j = 2;
         curstat = sec->floorstat;
         curbuffer = s->floorbuffer;
-        curpicnum = sec->floorpicnum;
+        curpicnum = floorpicnum;
         curxpanning = sec->floorxpanning;
         curypanning = sec->floorypanning;
 
@@ -737,15 +774,22 @@ int                 polymer_updatesector(short sectnum)
             {
                 curstat = sec->ceilingstat;
                 curbuffer = s->ceilbuffer;
-                curpicnum = sec->ceilingpicnum;
+                curpicnum = ceilingpicnum;
                 curxpanning = sec->ceilingxpanning;
                 curypanning = sec->ceilingypanning;
             }
 
-            if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,sectnum);
-
             if (!waloff[curpicnum])
                 loadtile(curpicnum);
+
+            if (((sec->floorstat & 64) || (sec->ceilingstat & 64)) &&
+                ((secangcos == 2) && (secangsin == 2)))
+            {
+                ang = (getangle(wall[wal->point2].x - wal->x, wall[wal->point2].y - wal->y) + 512) & 2047;
+                secangcos = (float)(sintable[(ang+512)&2047]) / 16383.0f;
+                secangsin = (float)(sintable[ang&2047]) / 16383.0f;
+            }
+
 
             tex = (curstat & 64) ? ((wal->x - wall[sec->wallptr].x) * secangsin) + ((-wal->y - -wall[sec->wallptr].y) * secangcos) : wal->x;
             tey = (curstat & 64) ? ((wal->x - wall[sec->wallptr].x) * secangcos) - ((wall[sec->wallptr].y - wal->y) * secangsin) : -wal->y;
@@ -763,13 +807,37 @@ int                 polymer_updatesector(short sectnum)
 
             j--;
         }
+        i++;
+        wal = &wall[sec->wallptr + i];
+    }
 
+    s->floorstat = sec->floorstat;
+    s->ceilingstat = sec->ceilingstat;
+    s->floorpicnum = floorpicnum;
+    s->ceilingpicnum = ceilingpicnum;
+    s->floorxpanning = sec->floorxpanning;
+    s->ceilingxpanning = sec->ceilingxpanning;
+    s->floorypanning = sec->floorypanning;
+    s->ceilingypanning = sec->ceilingypanning;
+
+attributes:
+
+    if ((s->controlstate != 2) &&
+        (sec->floorshade == s->floorshade) &&
+        (sec->floorpal == s->floorpal) &&
+        (floorpicnum == s->floorpicnum) &&
+        (ceilingpicnum == s->ceilingpicnum))
+        goto finish;
+
+    i = 0;
+    while (i < sec->wallnum)
+    {
         //attributes
         j = 2;
         curbuffer = s->floorcolor;
         curstat = sec->floorshade;
         curxpanning = sec->floorpal;
-        curpicnum = sec->floorpicnum;
+        curpicnum = floorpicnum;
         curglpic = &s->floorglpic;
         curfbglpic = &s->floorfbglpic;
 
@@ -780,12 +848,10 @@ int                 polymer_updatesector(short sectnum)
                 curbuffer = s->ceilcolor;
                 curstat = sec->ceilingshade;
                 curxpanning = sec->ceilingpal;
-                curpicnum = sec->ceilingpicnum;
+                curpicnum = ceilingpicnum;
                 curglpic = &s->ceilglpic;
                 curfbglpic = &s->ceilfbglpic;
             }
-
-            if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,sectnum);
 
             if (!waloff[curpicnum])
                 loadtile(curpicnum);
@@ -813,13 +879,22 @@ int                 polymer_updatesector(short sectnum)
         }
 
         i++;
-        wal = &wall[sec->wallptr + i];
     }
+
+    s->floorshade = sec->floorshade;
+    s->floorpal = sec->floorpal;
+    s->floorpicnum = floorpicnum;
+    s->ceilingpicnum = ceilingpicnum;
+
+finish:
 
     if (needfloor)
         polymer_buildfloor(sectnum);
 
-    s->controlstate = 1;
+    if (wallinvalidate)
+        s->controlstate = 3;
+    else
+        s->controlstate = 1;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated sector %i.\n", sectnum);
 

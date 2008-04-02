@@ -70,8 +70,17 @@ typedef struct      s_prsector {
     // stuff
     float           wallsproffset;
     float           floorsproffset;
+    // build sector data
+    int             ceilingz, floorz;
+    short           ceilingstat, floorstat;
+    short           ceilingpicnum, ceilingheinum;
+    signed char     ceilingshade;
+    char            ceilingpal, ceilingxpanning, ceilingypanning;
+    short           floorpicnum, floorheinum;
+    signed char     floorshade;
+    char            floorpal, floorxpanning, floorypanning;
 
-    char            controlstate; // bit 1: up-to-date, bit 2: geometry invalidated
+    char            controlstate; // 1: up to date, 2: just allocated, 3: wall invalidation
     char            drawingstate; // 0: fcuk, 1: in queue, 2: todraw, 3: drawn
 }                   _prsector;
 
