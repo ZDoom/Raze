@@ -25,6 +25,7 @@ extern "C" {
 
 #define MAXSECTORS MAXSECTORSV8
 #define MAXWALLS MAXWALLSV8
+#define MAXWALLSB ((MAXWALLS>>2)+(MAXWALLS>>3))
 #define MAXSPRITES MAXSPRITESV8
 
 #define MAXTILES 15360
@@ -185,6 +186,8 @@ EXTERN int guniqhudid;
 
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
+EXTERN short maskwall[MAXWALLSB], maskwallcnt;
+EXTERN short thewall[MAXWALLSB];
 EXTERN spritetype *sprite;
 EXTERN spritetype *tspriteptr[MAXSPRITESONSCREEN];
 

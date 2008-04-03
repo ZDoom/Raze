@@ -38,7 +38,6 @@
 #define MAXTILEFILES 256
 #define MAXYSAVES ((MAXXDIM*MAXSPRITES)>>7)
 #define MAXNODESPERLINE 42   //Warning: This depends on MAXYSAVES & MAXYDIM!
-#define MAXWALLSB ((MAXWALLS>>2)+(MAXWALLS>>3))
 #define MAXCLIPDIST 1024
 
 
@@ -558,7 +557,8 @@ inline int getkensmessagecrc(int b)
 
 static int xb1[MAXWALLSB], yb1[MAXWALLSB], xb2[MAXWALLSB], yb2[MAXWALLSB];
 static int rx1[MAXWALLSB], ry1[MAXWALLSB], rx2[MAXWALLSB], ry2[MAXWALLSB];
-static short p2[MAXWALLSB], thesector[MAXWALLSB], thewall[MAXWALLSB];
+static short p2[MAXWALLSB], thesector[MAXWALLSB];
+short thewall[MAXWALLSB];
 
 static short bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 
@@ -567,7 +567,7 @@ static short smoststart[MAXWALLSB];
 static char smostwalltype[MAXWALLSB];
 static int smostwall[MAXWALLSB], smostwallcnt = -1L;
 
-static short maskwall[MAXWALLSB], maskwallcnt;
+short maskwall[MAXWALLSB], maskwallcnt;
 static int spritesx[MAXSPRITESONSCREEN];
 static int spritesy[MAXSPRITESONSCREEN+1];
 static int spritesz[MAXSPRITESONSCREEN];
@@ -4120,7 +4120,18 @@ static void drawmaskwall(short damaskwallcnt)
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
     if (rendmode == 3) { polymost_drawmaskwall(damaskwallcnt); return; }
-    if (rendmode == 4) { polymer_drawmaskwall(damaskwallcnt); return; }
+    if (rendmode == 4)
+    {
+        bglEnable(GL_ALPHA_TEST);
+        bglEnable(GL_BLEND);
+
+        polymer_drawmaskwall(damaskwallcnt);
+
+        bglDisable(GL_BLEND);
+        bglDisable(GL_ALPHA_TEST);
+
+        return;
+    }
 #endif
     //============================================================================= //POLYMOST ENDS
 
@@ -6237,10 +6248,20 @@ killsprite:
         {
             maskwallcnt--;
 
-            dot.x = wall[thewall[maskwall[maskwallcnt]]].x;
-            dot.y = wall[thewall[maskwall[maskwallcnt]]].y;
-            dot2.x = wall[wall[thewall[maskwall[maskwallcnt]]].point2].x;
-            dot2.y = wall[wall[thewall[maskwall[maskwallcnt]]].point2].y;
+            if (rendmode == 4)
+            {
+                dot.x = wall[maskwall[maskwallcnt]].x;
+                dot.y = wall[maskwall[maskwallcnt]].y;
+                dot2.x = wall[wall[maskwall[maskwallcnt]].point2].x;
+                dot2.y = wall[wall[maskwall[maskwallcnt]].point2].y;
+            }
+            else
+            {
+                dot.x = wall[thewall[maskwall[maskwallcnt]]].x;
+                dot.y = wall[thewall[maskwall[maskwallcnt]]].y;
+                dot2.x = wall[wall[thewall[maskwall[maskwallcnt]]].point2].x;
+                dot2.y = wall[wall[thewall[maskwall[maskwallcnt]]].point2].y;
+            }
 
             maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
             p1eq = equation(pos.x, pos.y, dot.x, dot.y);
