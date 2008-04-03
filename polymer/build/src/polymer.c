@@ -810,8 +810,6 @@ static int          polymer_updatesector(short sectnum)
 
     s->floorstat = sec->floorstat;
     s->ceilingstat = sec->ceilingstat;
-    s->floorpicnum = floorpicnum;
-    s->ceilingpicnum = ceilingpicnum;
     s->floorxpanning = sec->floorxpanning;
     s->ceilingxpanning = sec->ceilingxpanning;
     s->floorypanning = sec->floorypanning;
