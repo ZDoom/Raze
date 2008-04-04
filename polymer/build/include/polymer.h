@@ -44,7 +44,7 @@
 // CVARS
 extern int          pr_occlusionculling;
 extern int          pr_fov;
-extern int          pr_showportals;
+extern int          pr_billboardingmode;
 extern int          pr_verbosity;
 extern int          pr_wireframe;
 

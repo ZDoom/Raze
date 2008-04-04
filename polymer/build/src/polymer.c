@@ -7,7 +7,7 @@
 // CVARS
 int             pr_occlusionculling = 1;
 int             pr_fov = 426;           // appears to be the classic setting.
-int             pr_showportals = 0;
+int             pr_billboardingmode = 0;
 int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
 int             pr_wireframe = 0;
 
@@ -64,6 +64,8 @@ int             tempverticescount;
 GLdouble        tempvertice[3];
 
 short           cursky;
+
+short viewangle;
 
 // EXTERNAL FUNCTIONS
 int                 polymer_init(void)
@@ -205,6 +207,8 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     GLint           result;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
+
+    viewangle = daang;
 
     ang = (float)(daang) / (2048.0f / 360.0f);
     horizang = (float)(100 - dahoriz) / (512.0f / 180.0f);
@@ -544,6 +548,13 @@ void                polymer_drawsprite(int snum)
     spos[2] = -tspr->x;
 
     curspritedata = vertsprite;
+
+    if (pr_billboardingmode && !((tspr->cstat>>4) & 3))
+    {
+        // do surgery on the face tspr to make it look like a wall sprite
+        tspr->cstat |= 16;
+        tspr->ang = (viewangle + 1024) & 2047;
+    }
 
     switch ((tspr->cstat>>4) & 3)
     {
