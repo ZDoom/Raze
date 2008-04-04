@@ -614,9 +614,15 @@ void                polymer_drawsprite(int snum)
     bglBindTexture(GL_TEXTURE_2D, glpic);
     bglColor4f(color[0], color[1], color[2], color[3]);
 
+    if (tspr->cstat & 64)
+        bglEnable(GL_CULL_FACE);
+
     bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), curspritedata);
     bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &curspritedata[3]);
     bglDrawArrays(GL_QUADS, 0, 4);
+
+    if (tspr->cstat & 64)
+        bglDisable(GL_CULL_FACE);
 
     bglLoadIdentity();
     bglMatrixMode(GL_MODELVIEW);
