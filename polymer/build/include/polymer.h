@@ -8,7 +8,6 @@
 //   o also sliding doors are still fucked up sometimes (like under the bar in E1L2)
 //   o port glowmaps and detail maps from hacked polymost (:(
 //   o shading needs a lot of work
-//   o proper mask texture coordinates and color/palette and shit
 //   o remove all the IM matrix crap and write real functions now that it works
 //   o polymer.c possibly needs to be split in several source files
 //   o some crap really needs factorization

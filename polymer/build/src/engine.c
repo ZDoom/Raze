@@ -3190,9 +3190,11 @@ static void drawsprite(int snum)
         bglEnable(GL_ALPHA_TEST);
         bglEnable(GL_BLEND);
         bglEnable(GL_POLYGON_OFFSET_FILL);
+        bglEnable(GL_CULL_FACE);
 
         polymer_drawsprite(snum);
 
+        bglDisable(GL_CULL_FACE);
         bglDisable(GL_POLYGON_OFFSET_FILL);
         bglDisable(GL_BLEND);
         bglDisable(GL_ALPHA_TEST);
