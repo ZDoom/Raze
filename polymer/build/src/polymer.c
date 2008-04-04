@@ -234,8 +234,14 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
 
     polymer_extractfrustum(modelviewmatrix, projectionmatrix);
 
-    // game tic
-    if (updatesectors && 0)
+    cursectnum = dacursectnum;
+    updatesector(daposx, daposy, &cursectnum);
+
+    if ((cursectnum >= 0) && (cursectnum < numsectors))
+        dacursectnum = cursectnum;
+
+    // external view (editor)
+    if ((dacursectnum < 0) || (dacursectnum >= numsectors))
     {
         i = 0;
         while (i < numsectors)
@@ -250,18 +256,6 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
             polymer_updatewall(i);
             i++;
         }
-        updatesectors = 0;
-    }
-
-    cursectnum = dacursectnum;
-    updatesector(daposx, daposy, &cursectnum);
-
-    if ((cursectnum >= 0) && (cursectnum < numsectors))
-        dacursectnum = cursectnum;
-
-    // external view (editor)
-    if ((dacursectnum < 0) || (dacursectnum >= numsectors))
-    {
         i = 0;
         while (i < numsectors)
         {
@@ -488,7 +482,7 @@ void                polymer_drawmaskwall(int damaskwallcnt)
 
     bglBindTexture(GL_TEXTURE_2D, w->maskglpic);
 
-    bglColor4f(1.0f, 1.0f, 1.0f, 0.33f);
+    bglColor4f(w->maskcolor[0], w->maskcolor[1], w->maskcolor[2], w->maskcolor[3]);
 
     bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->portal);
     bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &w->portal[3]);
@@ -1081,6 +1075,11 @@ static int          polymer_initwall(short wallnum)
         return (0);
     }
 
+    if (w->portal == NULL)
+        w->portal = calloc(4, sizeof(GLfloat) * 5);
+    if (w->bigportal == NULL)
+        w->bigportal = calloc(4, sizeof(GLfloat) * 3);
+
     w->controlstate = 2;
 
     prwalls[wallnum] = w;
@@ -1104,6 +1103,8 @@ static void         polymer_updatewall(short wallnum)
     int             i;
     unsigned int    invalid;
 
+    // yes, this function is messy and unefficient
+    // it also works, bitches
     wal = &wall[wallnum];
     nwallnum = wal->nextwall;
     sec = &sector[sectorofwall(wallnum)];
@@ -1336,6 +1337,13 @@ static void         polymer_updatewall(short wallnum)
                 if ((sec->floorstat & 1) && (nsec->floorstat & 1))
                     w->underover |= 4;
             }
+            memcpy(w->portal, &w->wallbuffer[15], sizeof(GLfloat) * 5);
+            memcpy(&w->portal[5], &w->wallbuffer[10], sizeof(GLfloat) * 5);
+        }
+        else
+        {
+            memcpy(w->portal, &s->floorbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 5);
+            memcpy(&w->portal[5], &s->floorbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 5);
         }
 
         if (((s->ceilbuffer[((wallnum - sec->wallptr) * 5) + 1] != ns->ceilbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
@@ -1364,12 +1372,30 @@ static void         polymer_updatewall(short wallnum)
 
             if (wal->cstat & 16)
             {
+                // mask glpic and color
                 if (!waloff[wal->overpicnum])
                     loadtile(wal->overpicnum);
 
                 pth = gltexcache(wal->overpicnum, wal->pal, 0);
                 w->maskglpic = pth ? pth->glpic : 0;
 
+                memcpy(w->maskcolor, w->wallcolor, sizeof(GLfloat) * 3);
+
+                if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
+                {
+                    w->maskcolor[0] *= (float)hictinting[wal->pal].r / 255.0;
+                    w->maskcolor[1] *= (float)hictinting[wal->pal].g / 255.0;
+                    w->maskcolor[2] *= (float)hictinting[wal->pal].b / 255.0;
+                }
+                if (wal->cstat & 128)
+                {
+                    if (wal->cstat & 512)
+                        w->maskcolor[3] = 0.33f;
+                    else
+                        w->maskcolor[3] = 0.66f;
+                }
+                else
+                    w->maskcolor[3] = 1.0f;
             }
 
             pth = gltexcache(curpicnum, wal->pal, 0);
@@ -1426,32 +1452,45 @@ static void         polymer_updatewall(short wallnum)
                 if ((sec->ceilingstat & 1) && (nsec->ceilingstat & 1))
                     w->underover |= 8;
             }
-        }
-    }
-
-    if (w->portal == NULL)
-        w->portal = calloc(4, sizeof(GLfloat) * 5);
-    if (w->bigportal == NULL)
-        w->bigportal = calloc(4, sizeof(GLfloat) * 3);
-
-    if ((wal->nextsector == -1) || (wal->cstat & 32))
-        memcpy(w->portal, w->wallbuffer, sizeof(GLfloat) * 4 * 5);
-    else
-    {
-        if ((underwall) || (wal->cstat & 16))
-        {
-            memcpy(w->portal, &w->wallbuffer[15], sizeof(GLfloat) * 5);
-            memcpy(&w->portal[5], &w->wallbuffer[10], sizeof(GLfloat) * 5);
-        }
-        else
-        {
-            memcpy(w->portal, &s->floorbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 5);
-            memcpy(&w->portal[5], &s->floorbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 5);
-        }
-        if ((overwall) || (wal->cstat & 16))
-        {
             memcpy(&w->portal[10], &w->overbuffer[5], sizeof(GLfloat) * 5);
             memcpy(&w->portal[15], &w->overbuffer[0], sizeof(GLfloat) * 5);
+
+            if (wal->cstat & 16)
+            {
+                // mask wall pass
+                if (wal->cstat & 4)
+                    yref = min(sec->floorz, nsec->floorz);
+                else
+                    yref = max(sec->ceilingz, nsec->ceilingz);
+
+                curpicnum = wal->overpicnum;
+
+                if (wal->ypanning)
+                {
+                    ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
+                    if (ypancoef < tilesizy[curpicnum])
+                        ypancoef *= 2;
+                    ypancoef *= (float)(wal->ypanning) / (256.0f * (float)(tilesizy[curpicnum]));
+                }
+                else
+                    ypancoef = 0;
+
+                i = 0;
+                while (i < 4)
+                {
+                    if ((i == 0) || (i == 3))
+                        dist = xref;
+                    else
+                        dist = (xref == 0);
+
+                    w->portal[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesizx[curpicnum]);
+                    w->portal[(i * 5) + 4] = (-(float)(yref + w->portal[(i * 5) + 1]) / ((tilesizy[curpicnum] * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
+
+                    if (wal->cstat & 256) w->portal[(i * 5) + 4] = -w->portal[(i * 5) + 4];
+
+                    i++;
+                }
+            }
         }
         else
         {
@@ -1459,6 +1498,9 @@ static void         polymer_updatewall(short wallnum)
             memcpy(&w->portal[15], &s->ceilbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 5);
         }
     }
+
+    if ((wal->nextsector == -1) || (wal->cstat & 32))
+        memcpy(w->portal, w->wallbuffer, sizeof(GLfloat) * 4 * 5);
 
     memcpy(w->bigportal, &s->floorbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
     memcpy(&w->bigportal[3], &s->floorbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);

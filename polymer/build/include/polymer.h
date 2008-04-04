@@ -90,7 +90,7 @@ typedef struct      s_prwall {
     GLfloat*        portal;
     GLfloat*        bigportal;
     // attributes
-    GLfloat         wallcolor[4], overcolor[4];
+    GLfloat         wallcolor[4], overcolor[4], maskcolor[4];
     GLfloat         wallglpic, overglpic, wallfbglpic, overfbglpic, maskglpic;
     // build wall data# ifdef POLYMER_C
 
