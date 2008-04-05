@@ -68,7 +68,7 @@ extern char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
 extern unsigned char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
 
 // mouse
-extern int mousex, mousey, mouseb;
+extern volatile int mousex, mousey, mouseb;
 
 // joystick
 extern int *joyaxis, *joyhat, joyb;

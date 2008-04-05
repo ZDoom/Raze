@@ -98,6 +98,7 @@ static void DestroyAppWindow(void);
 static void SaveSystemColours(void);
 static void SetBWSystemColours(void);
 static void RestoreSystemColours(void);
+static void ProcessMouse(void);
 
 
 // video
@@ -116,7 +117,7 @@ char videomodereset = 0;
 // input and events
 char inputdevices=0;
 char quitevent=0, appactive=1, realfs=0;
-int mousex=0, mousey=0, mouseb=0;
+volatile int mousex=0, mousey=0, mouseb=0;
 static unsigned int mousewheel[2] = { 0,0 };
 #define MouseWheelFakePressTime (50)	// getticks() is a 1000Hz timer, and the button press is faked for 100ms
 int *joyaxis = NULL, joyb=0, *joyhat = NULL;
@@ -675,7 +676,8 @@ static GUID                  guidDevs[NUM_INPUTS];
 static char devacquired[NUM_INPUTS] = { 0,0,0 };
 static HANDLE inputevt[NUM_INPUTS] = {0,0,0};
 static int joyblast=0;
-static char moustat = 0, mousegrab = 0;
+static char volatile moustat = 0, mousegrab = 0;
+HANDLE  mousethread;
 
 static struct
 {
@@ -805,14 +807,47 @@ void setmousepresscallback(void (*callback)(int, int)) { mousepresscallback = ca
 void setjoypresscallback(void (*callback)(int, int)) { joypresscallback = callback; }
 
 
+DWORD WINAPI MouseFunc()
+{
+    while (moustat&&lpDID[MOUSE])
+    {
+        if ((WaitForSingleObject(inputevt[MOUSE], INFINITE)) == WAIT_OBJECT_0)
+        {
+            ProcessMouse();
+        }
+    }
+    return 0;
+}
 //
 // initmouse() -- init mouse input
 //
 int initmouse(void)
 {
+    DWORD   threadid;
+
     if (moustat) return 0;
 
-    initprintf("Initializing mouse\n");
+    initprintf("Initializing mouse... ");
+
+    mousethread = CreateThread
+                  (
+                      NULL,
+                      0,
+                      MouseFunc,
+                      NULL,
+                      CREATE_SUSPENDED,
+                      &threadid
+                  );
+
+    if (!mousethread)
+    {
+        initprintf("FAILED!\n");
+        return 0;
+    }
+
+    SetThreadPriority(mousethread, THREAD_PRIORITY_HIGHEST);
+    ResumeThread(mousethread);
+    initprintf("OK\n");
 
     // grab input
     moustat=1;
@@ -831,6 +866,11 @@ void uninitmouse(void)
 
     grabmouse(0);
     moustat=mousegrab=0;
+    SetEvent(inputevt[MOUSE]);
+    if (WaitForSingleObject(mousethread, 300) == WAIT_OBJECT_0)
+        initprintf("DirectInput: Mouse thread has exited\n");
+    else
+        initprintf("DirectInput: Mouse thread failed to exit!\n");
 }
 
 
@@ -858,8 +898,8 @@ void readmousexy(int *x, int *y)
     if (!moustat || !devacquired[MOUSE] || !mousegrab) { *x = *y = 0; return; }
     *x = mousex;
     *y = mousey;
-    mousex = 0;
-    mousey = 0;
+    mousex -= *x;
+    mousey -= *y;
 }
 
 
@@ -1441,6 +1481,80 @@ static void AcquireInputDevices(char acquire, signed char device)
 }
 
 
+static void ProcessMouse()
+{
+    DWORD i;
+    unsigned t;
+    int result;
+    DIDEVICEOBJECTDATA didod[INPUT_BUFFER_SIZE];
+    DWORD dwElements = INPUT_BUFFER_SIZE;
+
+    while (1)
+    {
+        t = getticks();
+        result = IDirectInputDevice2_GetDeviceData(lpDID[MOUSE], sizeof(DIDEVICEOBJECTDATA),
+                 (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
+
+        if (FAILED(result) || !dwElements)break;
+        if (!mousegrab) break;
+
+        if (result == DI_OK)
+        {
+            // process the mouse events
+            //  			  mousex=0;
+            //  			  mousey=0;
+            for (i=0; i<dwElements; i++)
+            {
+                switch (didod[i].dwOfs)
+                {
+                case DIMOFS_BUTTON0:
+                    if (didod[i].dwData & 0x80) mouseb |= 1;
+                    else mouseb &= ~1;
+                    if (mousepresscallback)
+                        mousepresscallback(1, (mouseb&1)==1);
+                    break;
+                case DIMOFS_BUTTON1:
+                    if (didod[i].dwData & 0x80) mouseb |= 2;
+                    else mouseb &= ~2;
+                    if (mousepresscallback)
+                        mousepresscallback(2, (mouseb&2)==2);
+                    break;
+                case DIMOFS_BUTTON2:
+                    if (didod[i].dwData & 0x80) mouseb |= 4;
+                    else mouseb &= ~4;
+                    if (mousepresscallback)
+                        mousepresscallback(3, (mouseb&4)==4);
+                    break;
+                case DIMOFS_BUTTON3:
+                    if (didod[i].dwData & 0x80) mouseb |= 8;
+                    else mouseb &= ~8;
+                    if (mousepresscallback)
+                        mousepresscallback(4, (mouseb&8)==8);
+                    break;
+                case DIMOFS_X:
+                    mousex += (short)didod[i].dwData; break;
+                case DIMOFS_Y:
+                    mousey += (short)didod[i].dwData; break;
+                case DIMOFS_Z:
+                    if ((int)didod[i].dwData > 0)   	// wheel up
+                    {
+                        if (mousewheel[0] > 0 && mousepresscallback) mousepresscallback(5,0);
+                        mousewheel[0] = t;
+                        mouseb |= 16; if (mousepresscallback) mousepresscallback(5, 1);
+                    }
+                    else if ((int)didod[i].dwData < 0)  	// wheel down
+                    {
+                        if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);
+                        mousewheel[1] = t;
+                        mouseb |= 32; if (mousepresscallback) mousepresscallback(6, 1);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+}
+
 //
 // ProcessInputDevices() -- processes the input devices
 //
@@ -1548,68 +1662,6 @@ static void ProcessInputDevices(void)
             }
             break;
 
-        case MOUSE:		// mouse
-            if (!lpDID[MOUSE]) break;
-            result = IDirectInputDevice2_GetDeviceData(lpDID[MOUSE], sizeof(DIDEVICEOBJECTDATA),
-                     (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
-
-            if (!mousegrab) break;
-
-            if (result == DI_OK)
-            {
-                // process the mouse events
-                //                mousex=0;
-                //                mousey=0;
-                for (i=0; i<dwElements; i++)
-                {
-                    switch (didod[i].dwOfs)
-                    {
-                    case DIMOFS_BUTTON0:
-                        if (didod[i].dwData & 0x80) mouseb |= 1;
-                        else mouseb &= ~1;
-                        if (mousepresscallback)
-                            mousepresscallback(1, (mouseb&1)==1);
-                        break;
-                    case DIMOFS_BUTTON1:
-                        if (didod[i].dwData & 0x80) mouseb |= 2;
-                        else mouseb &= ~2;
-                        if (mousepresscallback)
-                            mousepresscallback(2, (mouseb&2)==2);
-                        break;
-                    case DIMOFS_BUTTON2:
-                        if (didod[i].dwData & 0x80) mouseb |= 4;
-                        else mouseb &= ~4;
-                        if (mousepresscallback)
-                            mousepresscallback(3, (mouseb&4)==4);
-                        break;
-                    case DIMOFS_BUTTON3:
-                        if (didod[i].dwData & 0x80) mouseb |= 8;
-                        else mouseb &= ~8;
-                        if (mousepresscallback)
-                            mousepresscallback(4, (mouseb&8)==8);
-                        break;
-                    case DIMOFS_X:
-                        mousex += (short)didod[i].dwData; break;
-                    case DIMOFS_Y:
-                        mousey += (short)didod[i].dwData; break;
-                    case DIMOFS_Z:
-                        if ((int)didod[i].dwData > 0)  		// wheel up
-                        {
-                            if (mousewheel[0] > 0 && mousepresscallback) mousepresscallback(5,0);
-                            mousewheel[0] = t;
-                            mouseb |= 16; if (mousepresscallback) mousepresscallback(5, 1);
-                        }
-                        else if ((int)didod[i].dwData < 0)  	// wheel down
-                        {
-                            if (mousewheel[1] > 0 && mousepresscallback) mousepresscallback(6,0);
-                            mousewheel[1] = t;
-                            mouseb |= 32; if (mousepresscallback) mousepresscallback(6, 1);
-                        }
-                        break;
-                    }
-                }
-            }
-            break;
         case JOYSTICK:		// joystick
             if (!lpDID[JOYSTICK]) break;
             result = IDirectInputDevice2_GetDeviceData(lpDID[JOYSTICK], sizeof(DIDEVICEOBJECTDATA),
