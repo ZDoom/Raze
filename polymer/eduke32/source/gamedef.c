@@ -447,6 +447,9 @@ static const char *keyw[] =
     "rotatesprite16",           // 315
     "gamearray",                // 316
     "setarray",                 // 317
+    "resizearray",              // 318
+    "writearraytofile",         // 319
+    "readarrayfromfile",        // 320
     "<null>"
 };
 
@@ -3371,6 +3374,16 @@ static int parsecommand(void)
         textptr++;
         transvar();
         return 0;
+    case CON_RESIZEARRAY:
+        getlabel();
+        i=GetADefID(label+(labelcnt<<6));
+        if (i > (-1))
+            *scriptptr++=i;
+        else
+            ReportError(ERROR_NOTAGAMEARRAY);
+        skipcomments();
+        transvar();
+        return 0;
     case CON_RANDVARVAR:
         if (!CheckEventSync(current_event))
             ReportError(WARNING_EVENTSYNC);
@@ -4508,6 +4521,7 @@ repeatcase:
         cheatkey[0] = *(scriptptr-1);
         transnum(LABEL_DEFINE);
         cheatkey[1] = *(scriptptr-1);
+        scriptptr -= 2;
         return 0;
 
     case CON_DEFINECHEAT:

@@ -401,8 +401,12 @@ void cacheit(void)
     if (ud.recstat == 2)
         return;
 
-    MUSIC_StopSong();
-    playmusic(&env_music_fn[2][0],MAXVOLUMES*MAXLEVELS+2); // loadmus
+    MUSIC_Pause();
+    if (map[MAXVOLUMES*MAXLEVELS+2].musicfn1)
+    {
+        MUSIC_StopSong();
+        playmusic(&env_music_fn[2][0],MAXVOLUMES*MAXLEVELS+2); // loadmus
+    }
 
     starttime = getticks();
 

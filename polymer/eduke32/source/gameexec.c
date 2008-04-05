@@ -6776,6 +6776,7 @@ static int parse(void)
         SetGameVarID(*insptr, *(insptr+1), g_i, g_p);
         insptr += 2;
         break;
+
     case CON_SETARRAY:
         insptr++;
         j=*insptr++;
@@ -6784,6 +6785,20 @@ static int parse(void)
             int value = GetGameVarID(*insptr++, g_i, g_p);
 
             SetGameArrayID(j,index,value);
+            break;
+        }
+
+    case CON_RESIZEARRAY:
+        insptr++;
+        j=*insptr++;
+        {
+            int asize = GetGameVarID(*insptr++, g_i, g_p);
+            if (asize > 0)
+            {
+                OSD_Printf("resizing array %s, old size %d new size %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);
+                aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, sizeof(int) * asize);
+                aGameArrays[j].size = asize;
+            }
             break;
         }
 

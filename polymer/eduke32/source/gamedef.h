@@ -807,4 +807,7 @@ enum keywords
     CON_ROTATESPRITE16,     // 315
     CON_GAMEARRAY,          // 316
     CON_SETARRAY,           // 317
+    CON_RESIZEARRAY,        // 318
+    CON_WRITEARRAYTOFILE,   // 319
+    CON_READARRAYFROMFILE,  // 320
 };

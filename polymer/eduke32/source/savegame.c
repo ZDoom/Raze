@@ -412,11 +412,12 @@ int loadplayer(int spot)
 
     i = music_select;
     music_select = (ud.volume_number*MAXLEVELS) + ud.level_number;
-    if (map[(unsigned char)music_select].musicfn != NULL && (i != music_select || env_music_fn[2][0]))
+    if (map[(unsigned char)music_select].musicfn != NULL && (i != music_select || map[MAXVOLUMES*MAXLEVELS+2].musicfn1))
     {
         MUSIC_StopSong();
         playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
     }
+    MUSIC_Continue();
 
     g_player[myconnectindex].ps->gm = MODE_GAME;
     ud.recstat = 0;
