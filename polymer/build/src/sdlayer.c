@@ -73,7 +73,7 @@ unsigned char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
 unsigned char remap[256];
 int remapinit=0;
 static unsigned char keynames[256][24];
-int mousex=0,mousey=0,mouseb=0;
+volatile int mousex=0,mousey=0,mouseb=0;
 int *joyaxis = NULL, joyb=0, *joyhat = NULL;
 char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
 int joyaxespresent=0;
