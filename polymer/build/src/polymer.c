@@ -10,6 +10,7 @@ int             pr_fov = 426;           // appears to be the classic setting.
 int             pr_billboardingmode = 0;
 int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
 int             pr_wireframe = 0;
+int             pr_mirrordepth = 1;
 
 int             glerror;
 
@@ -42,30 +43,21 @@ GLfloat         horizsprite[4 * 5] = {
 };
 
 // CONTROL
-float           pos[3], spos[3];
-
-float           frustum[5 * 4];
-
-int             front;
-int             back;
-int             firstback;
-short           sectorqueue[MAXSECTORS];
-short           querydelay[MAXSECTORS];
-
-GLdouble        modelviewmatrix[16];
 GLdouble        spritemodelview[16];
+GLdouble        rootmodelviewmatrix[16];
+GLdouble        *curmodelviewmatrix;
 GLdouble        projectionmatrix[16];
-GLint           viewport[4];
 
 int             updatesectors = 1;
+int             depth;
 
 GLUtesselator*  prtess;
-int             tempverticescount;
-GLdouble        tempvertice[3];
 
 short           cursky;
 
-short viewangle;
+short           viewangle;
+
+int             rootsectnum;
 
 // EXTERNAL FUNCTIONS
 int                 polymer_init(void)
@@ -128,8 +120,6 @@ void                polymer_glinit(void)
     bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     bglViewport(0, 0, xdim, ydim);
 
-    bglGetIntegerv(GL_VIEWPORT, viewport);
-
     // texturing
     bglEnable(GL_TEXTURE_2D);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -169,6 +159,9 @@ void                polymer_glinit(void)
 
     bglEnable(GL_CULL_FACE);
     bglCullFace(GL_BACK);
+
+    // this probably shouldn't be here
+    depth = 0;
 }
 
 void                polymer_loadboard(void)
@@ -199,16 +192,11 @@ void                polymer_loadboard(void)
 void                polymer_drawrooms(int daposx, int daposy, int daposz, short daang, int dahoriz, short dacursectnum)
 {
     short           cursectnum;
-    int             i, j;
+    int             i;
     float           ang, horizang, tiltang;
-    sectortype      *sec, *nextsec;
-    walltype        *wal, *nextwal;
-    spritetype      *spr;
-    GLint           result;
+    float           pos[3];
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
-
-    viewangle = daang;
 
     ang = (float)(daang) / (2048.0f / 360.0f);
     horizang = (float)(100 - dahoriz) / (512.0f / 180.0f);
@@ -233,10 +221,7 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     bglScalef(1.0f / 1000.0f, 1.0f / 16000.0f, 1.0f / 1000.0f);
     bglTranslatef(-pos[0], -pos[1], -pos[2]);
 
-    // get the new modelview
-    bglGetDoublev(GL_MODELVIEW_MATRIX, modelviewmatrix);
-
-    polymer_extractfrustum(modelviewmatrix, projectionmatrix);
+    bglGetDoublev(GL_MODELVIEW_MATRIX, rootmodelviewmatrix);
 
     cursectnum = dacursectnum;
     updatesector(daposx, daposy, &cursectnum);
@@ -251,6 +236,8 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
         while (i < numsectors)
         {
             polymer_updatesector(i);
+            polymer_drawsector(i);
+            polymer_scansprites(i);
             i++;
         }
 
@@ -258,29 +245,19 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
         while (i < numwalls)
         {
             polymer_updatewall(i);
-            i++;
-        }
-        i = 0;
-        while (i < numsectors)
-        {
-            polymer_drawsector(i);
-            i++;
-        }
-
-        i = 0;
-        while (i < numwalls)
-        {
             polymer_drawwall(i);
             i++;
         }
+        viewangle = daang;
         return;
     }
+
+    rootsectnum = dacursectnum;
 
     // unflag all sectors
     i = 0;
     while (i < numsectors)
     {
-        prsectors[i]->drawingstate = 0;
         prsectors[i]->controlstate = 0;
         prsectors[i]->wallsproffset = 0.0f;
         prsectors[i]->floorsproffset = 0.0f;
@@ -293,153 +270,11 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
         i++;
     }
 
-    // GO
-    front = 0;
-    back = 0;
+    // GO!
+    polymer_displayrooms(dacursectnum);
 
-    polymer_pokesector(dacursectnum);
-    polymer_drawsector(dacursectnum);
-    prsectors[dacursectnum]->drawingstate = 1;
-
-    sec = &sector[dacursectnum];
-    wal = &wall[sec->wallptr];
-
-    // scan sprites
-    for (j = headspritesect[dacursectnum];j >=0;j = nextspritesect[j])
-    {
-        spr = &sprite[j];
-        if ((((spr->cstat&0x8000) == 0) || (showinvisibility)) &&
-               (spr->xrepeat > 0) && (spr->yrepeat > 0) &&
-               (spritesortcnt < MAXSPRITESONSCREEN))
-        {
-            copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
-            tsprite[spritesortcnt++].owner = j;
-        }
-    }
-
-    i = 0;
-    while (i < sec->wallnum)
-    {
-        if ((wallvisible(sec->wallptr + i)) &&
-            (polymer_portalinfrustum(sec->wallptr + i)))
-        {
-            polymer_drawwall(sec->wallptr + i);
-            // mask
-            if ((wal->cstat&48) == 16) maskwall[maskwallcnt++] = sec->wallptr + i;
-            //thewall[maskwall[maskwallcnt++]] = sec->wallptr + i;
-
-            if ((wal->nextsector != -1) &&
-                (prsectors[wal->nextsector]->drawingstate == 0))
-            {
-                sectorqueue[back++] = wal->nextsector;
-                prsectors[wal->nextsector]->drawingstate = 1;
-            }
-        }
-        i++;
-        wal = &wall[sec->wallptr + i];
-    }
-
-    firstback = back;
-
-    while (front != back)
-    {
-        if ((front >= firstback) && (pr_occlusionculling) && (!querydelay[sectorqueue[front] + 1]))
-        {
-            bglGetQueryObjectivARB(sectorqueue[front] + 1,
-                                   GL_QUERY_RESULT_ARB,
-                                   &result);
-            if (!result)
-            {
-                front++;
-                continue;
-            }
-            else
-                querydelay[sectorqueue[front] + 1] = pr_occlusionculling-1;
-        }
-        else if ((front >= firstback) && (pr_occlusionculling) && (querydelay[sectorqueue[front] + 1]))
-            querydelay[sectorqueue[front] + 1]--;
-
-        polymer_pokesector(sectorqueue[front]);
-        polymer_drawsector(sectorqueue[front]);
-
-        // scan sectors
-        sec = &sector[sectorqueue[front]];
-        wal = &wall[sec->wallptr];
-
-        i = 0;
-        while (i < sec->wallnum)
-        {
-            if ((wallvisible(sec->wallptr + i)) &&
-                (polymer_portalinfrustum(sec->wallptr + i)))
-            {
-                polymer_drawwall(sec->wallptr + i);
-                 // mask
-                if ((wal->cstat&48) == 16) maskwall[maskwallcnt++] = sec->wallptr + i;
-                //thewall[maskwall[maskwallcnt++]] = sec->wallptr + i;
-
-                if ((wal->nextsector != -1) &&
-                    (prsectors[wal->nextsector]->drawingstate == 0))
-                {
-                    polymer_pokesector(wal->nextsector);
-                    sectorqueue[back++] = wal->nextsector;
-                    prsectors[wal->nextsector]->drawingstate = 1;
-
-                    if (pr_occlusionculling && !querydelay[wal->nextsector + 1])
-                    {
-                        nextsec = &sector[wal->nextsector];
-                        nextwal = &wall[nextsec->wallptr];
-
-                        bglDisable(GL_TEXTURE_2D);
-                        bglDisable(GL_FOG);
-                        bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-                        bglDepthMask(GL_FALSE);
-
-                        bglBeginQueryARB(GL_SAMPLES_PASSED_ARB, wal->nextsector + 1);
-
-                        j = 0;
-                        while (j < nextsec->wallnum)
-                        {
-                            if ((nextwal->nextwall == (sec->wallptr + i)) ||
-                               ((nextwal->nextwall != -1) &&
-                                (wallvisible(nextwal->nextwall)) &&
-                                (polymer_portalinfrustum(nextwal->nextwall))))
-                            {
-                                bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), prwalls[nextwal->nextwall]->portal);
-                                bglDrawArrays(GL_QUADS, 0, 4);
-                            }
-
-                            j++;
-                            nextwal = &wall[nextsec->wallptr + j];
-                        }
-                        bglEndQueryARB(GL_SAMPLES_PASSED_ARB);
-
-                        bglDepthMask(GL_TRUE);
-                        bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-                        bglEnable(GL_FOG);
-                        bglEnable(GL_TEXTURE_2D);
-                    }
-                }
-            }
-            i++;
-            wal = &wall[sec->wallptr + i];
-        }
-
-        // scan sprites
-        for (j = headspritesect[sectorqueue[front]];j >=0;j = nextspritesect[j])
-        {
-            spr = &sprite[j];
-            if ((((spr->cstat&0x8000) == 0) || (showinvisibility)) &&
-                   (spr->xrepeat > 0) && (spr->yrepeat > 0) &&
-                   (spritesortcnt < MAXSPRITESONSCREEN))
-            {
-                copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
-                tsprite[spritesortcnt++].owner = j;
-            }
-        }
-
-        front++;
-    }
+    viewangle = daang;
+    curmodelviewmatrix = rootmodelviewmatrix;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
 }
@@ -499,6 +334,7 @@ void                polymer_drawsprite(int snum)
     spritetype      *tspr;
     pthtyp*         pth;
     float           color[4], xratio, ang, *curspritedata;
+    float           spos[3];
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
@@ -562,18 +398,18 @@ void                polymer_drawsprite(int snum)
             bglMatrixMode(GL_MODELVIEW);
             bglPushMatrix();
 
-            spritemodelview[12] =   modelviewmatrix[0] * spos[0] +
-                                    modelviewmatrix[4] * spos[1] +
-                                    modelviewmatrix[8] * spos[2] +
-                                    modelviewmatrix[12];
-            spritemodelview[13] =   modelviewmatrix[1] * spos[0] +
-                                    modelviewmatrix[5] * spos[1] +
-                                    modelviewmatrix[9] * spos[2] +
-                                    modelviewmatrix[13];
-            spritemodelview[14] =   modelviewmatrix[2]  * spos[0] +
-                                    modelviewmatrix[6]  * spos[1] +
-                                    modelviewmatrix[10] * spos[2] +
-                                    modelviewmatrix[14];
+            spritemodelview[12] =   curmodelviewmatrix[0] * spos[0] +
+                                    curmodelviewmatrix[4] * spos[1] +
+                                    curmodelviewmatrix[8] * spos[2] +
+                                    curmodelviewmatrix[12];
+            spritemodelview[13] =   curmodelviewmatrix[1] * spos[0] +
+                                    curmodelviewmatrix[5] * spos[1] +
+                                    curmodelviewmatrix[9] * spos[2] +
+                                    curmodelviewmatrix[13];
+            spritemodelview[14] =   curmodelviewmatrix[2]  * spos[0] +
+                                    curmodelviewmatrix[6]  * spos[1] +
+                                    curmodelviewmatrix[10] * spos[2] +
+                                    curmodelviewmatrix[14];
 
             bglLoadMatrixd(spritemodelview);
             bglRotatef((gtang * 90.0f), 0.0f, 0.0f, -1.0f);
@@ -638,6 +474,202 @@ void                polymer_drawsprite(int snum)
     bglLoadIdentity();
     bglMatrixMode(GL_MODELVIEW);
     bglPopMatrix();
+}
+
+// CORE
+static void         polymer_displayrooms(short dacursectnum)
+{
+    sectortype      *sec, *nextsec;
+    walltype        *wal, *nextwal;
+    int             i, j;
+    GLint           result;
+    int             front;
+    int             back;
+    int             firstback;
+    short           sectorqueue[MAXSECTORS];
+    short           querydelay[MAXSECTORS];
+    GLuint          queryid[MAXSECTORS];
+    short           drawingstate[MAXSECTORS];
+    GLdouble        localmodelviewmatrix[16];
+    float           frustum[5 * 4];
+
+    if (depth)
+    {
+        curmodelviewmatrix = localmodelviewmatrix;
+        bglGetDoublev(GL_MODELVIEW_MATRIX, localmodelviewmatrix);
+    }
+    else
+        curmodelviewmatrix = rootmodelviewmatrix;
+
+    polymer_extractfrustum(curmodelviewmatrix, projectionmatrix, frustum);
+
+    memset(querydelay, 0, sizeof(short) * MAXSECTORS);
+    memset(queryid, 0, sizeof(GLuint) * MAXSECTORS);
+    memset(drawingstate, 0, sizeof(short) * MAXSECTORS);
+
+    front = 0;
+    back = 0;
+
+    polymer_pokesector(dacursectnum);
+    polymer_drawsector(dacursectnum);
+    polymer_scansprites(dacursectnum);
+    drawingstate[dacursectnum] = 1;
+
+    sec = &sector[dacursectnum];
+    wal = &wall[sec->wallptr];
+
+    i = 0;
+    while (i < sec->wallnum)
+    {
+        if ((wallvisible(sec->wallptr + i)) &&
+             (polymer_portalinfrustum(sec->wallptr + i, frustum)))
+        {
+            polymer_drawwall(sec->wallptr + i);
+            // mask
+            if ((wal->cstat&48) == 16) maskwall[maskwallcnt++] = sec->wallptr + i;
+
+            if ((wal->nextsector != -1) &&
+                 (drawingstate[wal->nextsector] == 0))
+            {
+                sectorqueue[back++] = wal->nextsector;
+                drawingstate[wal->nextsector] = 1;
+            }
+        }
+        i++;
+        wal = &wall[sec->wallptr + i];
+    }
+
+    firstback = back;
+
+    while (front != back)
+    {
+        if ((front >= firstback) && (pr_occlusionculling) && (!querydelay[sectorqueue[front]]))
+        {
+            bglGetQueryObjectivARB(queryid[sectorqueue[front]],
+                                   GL_QUERY_RESULT_ARB,
+                                   &result);
+            bglDeleteQueriesARB(1, &queryid[sectorqueue[front]]);
+            if (!result)
+            {
+                front++;
+                continue;
+            }
+            else
+                querydelay[sectorqueue[front]] = pr_occlusionculling-1;
+        }
+        else if ((front >= firstback) && (pr_occlusionculling) && (querydelay[sectorqueue[front]]))
+            querydelay[sectorqueue[front]]--;
+
+        polymer_pokesector(sectorqueue[front]);
+        polymer_drawsector(sectorqueue[front]);
+        polymer_scansprites(sectorqueue[front]);
+
+        // scan sectors
+        sec = &sector[sectorqueue[front]];
+        wal = &wall[sec->wallptr];
+
+        i = 0;
+        while (i < sec->wallnum)
+        {
+            if ((wallvisible(sec->wallptr + i)) &&
+                 (polymer_portalinfrustum(sec->wallptr + i, frustum)))
+            {
+                polymer_drawwall(sec->wallptr + i);
+                // mask
+                if ((wal->cstat&48) == 16) maskwall[maskwallcnt++] = sec->wallptr + i;
+
+                if ((wal->nextsector != -1) &&
+                     (drawingstate[wal->nextsector] == 0))
+                {
+                    polymer_pokesector(wal->nextsector);
+                    sectorqueue[back++] = wal->nextsector;
+                    drawingstate[wal->nextsector] = 1;
+
+                    if (pr_occlusionculling && !querydelay[wal->nextsector])
+                    {
+                        nextsec = &sector[wal->nextsector];
+                        nextwal = &wall[nextsec->wallptr];
+
+                        bglDisable(GL_TEXTURE_2D);
+                        bglDisable(GL_FOG);
+                        bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+                        bglDepthMask(GL_FALSE);
+
+                        bglGenQueriesARB(1, &queryid[wal->nextsector]);
+                        bglBeginQueryARB(GL_SAMPLES_PASSED_ARB, queryid[wal->nextsector]);
+
+                        j = 0;
+                        while (j < nextsec->wallnum)
+                        {
+                            if ((nextwal->nextwall == (sec->wallptr + i)) ||
+                                 ((nextwal->nextwall != -1) &&
+                                 (wallvisible(nextwal->nextwall)) &&
+                                 (polymer_portalinfrustum(nextwal->nextwall, frustum))))
+                            {
+                                bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), prwalls[nextwal->nextwall]->portal);
+                                bglDrawArrays(GL_QUADS, 0, 4);
+                            }
+
+                            j++;
+                            nextwal = &wall[nextsec->wallptr + j];
+                        }
+                        bglEndQueryARB(GL_SAMPLES_PASSED_ARB);
+
+                        bglDepthMask(GL_TRUE);
+                        bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+                        bglEnable(GL_FOG);
+                        bglEnable(GL_TEXTURE_2D);
+                    }
+                }
+            }
+            i++;
+            wal = &wall[sec->wallptr + i];
+        }
+        front++;
+    }
+
+    if (depth)
+    {
+        drawmasks();
+    }
+}
+
+static void         polymer_inb4mirror(short sectnum)
+{
+    float           pv;
+    float           normal[3];
+    float           reflectionmatrix[16];
+
+    normal[0] = 0.0f;
+    normal[1] = -1.0f;
+    normal[2] = 0.0f;
+
+    pv = prsectors[sectnum]->floorbuffer[0] * normal[0] +
+            prsectors[sectnum]->floorbuffer[1] * normal[1] +
+            prsectors[sectnum]->floorbuffer[2] * normal[2];
+
+    reflectionmatrix[0] = 1 - (2 * normal[0] * normal[0]);
+    reflectionmatrix[1] = -2 * normal[0] * normal[1];
+    reflectionmatrix[2] = -2 * normal[0] * normal[2];
+    reflectionmatrix[3] = 0;
+
+    reflectionmatrix[4] = -2 * normal[0] * normal[1];
+    reflectionmatrix[5] = 1 - (2 * normal[1] * normal[1]);
+    reflectionmatrix[6] = -2 * normal[1] * normal[2];
+    reflectionmatrix[7] = 0;
+
+    reflectionmatrix[8] = -2 * normal[0] * normal[2];
+    reflectionmatrix[9] = -2 * normal[1] * normal[2];
+    reflectionmatrix[10] = 1 - (2 * normal[2] * normal[2]);
+    reflectionmatrix[11] = 0;
+
+    reflectionmatrix[12] = 2 * pv * normal[0];
+    reflectionmatrix[13] = 2 * pv * normal[1];
+    reflectionmatrix[14] = 2 * pv * normal[2];
+    reflectionmatrix[15] = 1;
+
+    bglMultMatrixf(reflectionmatrix);
 }
 
 // SECTORS
@@ -907,24 +939,6 @@ finish:
     return (0);
 }
 
-void PR_CALLBACK    polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloat weight[4], GLdouble **out)
-{
-    // This callback is called by the tesselator when it detects an intersection between contours (HELLO ROTATING SPOTLIGHT IN E1L1).
-    GLdouble*       ptr;
-
-    UNREFERENCED_PARAMETER(data);
-    UNREFERENCED_PARAMETER(weight);
-
-    tempvertice[0] = v[0];
-    tempvertice[1] = v[1];
-    tempvertice[2] = v[2];
-
-    ptr = tempvertice;
-    *out = tempvertice;
-
-    if (pr_verbosity >= 2) OSD_Printf("PR : Created additional geometry for sector tesselation.\n");
-}
-
 void PR_CALLBACK    polymer_tesserror(GLenum error)
 {
     // This callback is called by the tesselator whenever it raises an error.
@@ -981,7 +995,6 @@ static int          polymer_buildfloor(short sectnum)
 
     bgluTessCallback(prtess, GLU_TESS_VERTEX_DATA, polymer_tessvertex);
     bgluTessCallback(prtess, GLU_TESS_EDGE_FLAG, polymer_tessedgeflag);
-    //bgluTessCallback(prtess, GLU_TESS_COMBINE, polymer_tesscombine);
     bgluTessCallback(prtess, GLU_TESS_ERROR, polymer_tesserror);
 
     bgluTessProperty(prtess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_POSITIVE);
@@ -1034,6 +1047,40 @@ static void         polymer_drawsector(short sectnum)
         polymer_updatesector(sectnum);
     }
 
+//     if (depth < 1)
+//     {
+//         //bglDisable(GL_DEPTH_TEST);
+//         bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+// 
+//         bglEnable(GL_STENCIL_TEST);
+//         bglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+//         bglStencilFunc(GL_EQUAL, 0, 0xffffffff);
+// 
+//         bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
+//         bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
+//         bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
+// 
+//         bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+//         //bglEnable(GL_DEPTH_TEST);
+// 
+//         bglStencilFunc(GL_EQUAL, 1, 0xffffffff);  /* draw if stencil ==1 */
+//         bglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+// 
+//         bglMatrixMode(GL_MODELVIEW);
+//         bglPushMatrix();
+//         polymer_inb4mirror(sectnum);
+//         bglCullFace(GL_FRONT);
+//         depth++;
+//         bglDepthFunc(GL_GREATER);
+//         polymer_displayrooms(rootsectnum);
+//         bglDepthFunc(GL_LEQUAL);
+//         depth--;
+//         bglCullFace(GL_BACK);
+//         bglMatrixMode(GL_MODELVIEW);
+//         bglPopMatrix();
+//         //bglDisable(GL_DEPTH_TEST);
+//     }
+
     // floor
     if (sec->floorstat & 1)
         bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -1053,7 +1100,12 @@ static void         polymer_drawsector(short sectnum)
 
     if (sec->floorstat & 1)
         bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
+//     if (!depth)
+//     {
+//         //bglEnable(GL_DEPTH_TEST);
+//         bglDisable(GL_STENCIL_TEST);
+//         bglClear(GL_STENCIL_BUFFER_BIT);
+//     }
 
     // ceiling
     if (sec->ceilingstat & 1)
@@ -1135,7 +1187,10 @@ static void         polymer_updatewall(short wallnum)
         nsec = &sector[wal->nextsector];
     }
     else
+    {
         ns = NULL;
+        nsec = NULL;
+    }
 
     if (w->wallbuffer == NULL)
         w->wallbuffer = calloc(4, sizeof(GLfloat) * 5);
@@ -1149,6 +1204,8 @@ static void         polymer_updatewall(short wallnum)
         nwallpicnum = wall[nwallnum].picnum;
         if (picanm[nwallpicnum]&192) nwallpicnum += animateoffs(nwallpicnum,wallnum+16384);
     }
+    else
+        nwallpicnum = 0;
 
     if ((w->controlstate != 2) &&
         (w->invalidid == invalid) &&
@@ -1612,7 +1669,7 @@ static void         polymer_pokesector(short sectnum)
     }
 }
 
-static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projection)
+static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projection, float* frustum)
 {
     GLdouble        matrix[16];
     int             i;
@@ -1639,7 +1696,7 @@ static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projec
     if (pr_verbosity >= 3) OSD_Printf("PR : Frustum extracted.\n");
 }
 
-static int          polymer_portalinfrustum(short wallnum)
+static int          polymer_portalinfrustum(short wallnum, float* frustum)
 {
     int             i, j, k;
     float           sqdist;
@@ -1667,6 +1724,24 @@ static int          polymer_portalinfrustum(short wallnum)
     }
 
     return (1);
+}
+
+static void         polymer_scansprites(short sectnum)
+{
+    int             i;
+    spritetype      *spr;
+
+    for (i = headspritesect[sectnum];i >=0;i = nextspritesect[i])
+    {
+        spr = &sprite[i];
+        if ((((spr->cstat&0x8000) == 0) || (showinvisibility)) &&
+               (spr->xrepeat > 0) && (spr->yrepeat > 0) &&
+               (spritesortcnt < MAXSPRITESONSCREEN))
+        {
+            copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
+            tsprite[spritesortcnt++].owner = i;
+        }
+    }
 }
 
 // SKIES

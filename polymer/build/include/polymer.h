@@ -78,7 +78,6 @@ typedef struct      s_prsector {
     char            floorpal, floorxpanning, floorypanning;
 
     char            controlstate; // 1: up to date, 2: just allocated
-    char            drawingstate; // 0: fcuk, 1: in queue, 2: todraw, 3: drawn
     unsigned int    invalidid;
 }                   _prsector;
 
@@ -128,10 +127,12 @@ void                polymer_drawsprite(int snum);
 
 # ifdef POLYMER_C
 
+// CORE
+static void         polymer_displayrooms(short sectnum);
+static void         polymer_inb4mirror(short sectnum);
 // SECTORS
 static int          polymer_initsector(short sectnum);
 static int          polymer_updatesector(short sectnum);
-void PR_CALLBACK    polymer_tesscombine(GLdouble v[3], GLdouble *data[4], GLfloat weight[4], GLdouble **out);
 void PR_CALLBACK    polymer_tesserror(GLenum error);
 void PR_CALLBACK    polymer_tessedgeflag(GLenum error);
 void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector);
@@ -143,8 +144,9 @@ static void         polymer_updatewall(short wallnum);
 static void         polymer_drawwall(short wallnum);
 // HSR
 static void         polymer_pokesector(short sectnum);
-static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projection);
-static int          polymer_portalinfrustum(short wallnum);
+static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projection, float* frustum);
+static int          polymer_portalinfrustum(short wallnum, float* frustum);
+static void         polymer_scansprites(short sectnum);
 // SKIES
 static void         polymer_initskybox(void);
 static void         polymer_getsky(void);
