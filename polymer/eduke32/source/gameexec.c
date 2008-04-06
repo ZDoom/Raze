@@ -5561,7 +5561,7 @@ static int parse(void)
             se40code(x,y,z,a,horiz,smoothratio);
 #endif
 
-            if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
+            if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0) && (rendmode != 4))
             {
                 int j, i = 0, k, dst = 0x7fffffff;
 
@@ -5595,6 +5595,8 @@ static int parse(void)
                 gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
             }
 
+            if (rendmode == 4)
+                polymer_setanimatesprites(animatesprites, x,y,a,smoothratio);
             drawrooms(x,y,z,a,horiz,sect);
             display_mirror = 2;
             animatesprites(x,y,a,smoothratio);

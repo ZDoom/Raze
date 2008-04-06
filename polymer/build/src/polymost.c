@@ -66,7 +66,7 @@ Low priority:
 **************************************************************************************************/
 
 int animateoffs(short tilenum, short fakevar);
-int rendmode = 0;
+int rendmode=0;
 int usemodels=1, usehightile=1;
 
 #include <math.h> //<-important!

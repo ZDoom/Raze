@@ -68,6 +68,7 @@ extern void (APIENTRY * bglHint)( GLenum target, GLenum mode );
 extern void (APIENTRY * bglDrawBuffer)(GLenum mode);
 extern void (APIENTRY * bglReadBuffer)(GLenum mode);
 extern void (APIENTRY * bglScissor)(GLint x, GLint y, GLsizei width, GLsizei height);
+extern void (APIENTRY * bglClipPlane)(GLenum plane, const GLdouble *equation);
 
 // Depth
 extern void (APIENTRY * bglDepthFunc)( GLenum func );

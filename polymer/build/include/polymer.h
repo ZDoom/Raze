@@ -56,6 +56,7 @@ typedef struct      s_prsector {
     GLdouble*       verts;
     GLfloat*        floorbuffer;
     GLfloat*        ceilbuffer;
+    GLdouble        floorplane[4], ceilplane[4];
     // attributes
     GLfloat         floorcolor[4], ceilcolor[4];
     GLuint          floorglpic, ceilglpic, floorfbglpic, ceilfbglpic;
@@ -104,10 +105,10 @@ typedef struct      s_prwall {
     char            controlstate;
 }                   _prwall;
 
-typedef struct      s_cliplane {
-    _equation       left, right, clip;
-    _point2d        ref;
-}                   _cliplane;
+typedef struct      s_pranimatespritesinfo {
+    animatespritesptr animatesprites;
+    int             x, y, a, smoothratio;
+}                   _pranimatespritesinfo;
 
 extern _prsector*   prsectors[MAXSECTORS];
 extern _prwall*     prwalls[MAXWALLS];
@@ -127,9 +128,12 @@ void                polymer_drawsprite(int snum);
 
 # ifdef POLYMER_C
 
+extern int globalposx, globalposy, globalposz, globalhoriz;
+
 // CORE
 static void         polymer_displayrooms(short sectnum);
 static void         polymer_inb4mirror(short sectnum);
+static void         polymer_animatesprites(void);
 // SECTORS
 static int          polymer_initsector(short sectnum);
 static int          polymer_updatesector(short sectnum);
@@ -143,10 +147,12 @@ static int          polymer_initwall(short wallnum);
 static void         polymer_updatewall(short wallnum);
 static void         polymer_drawwall(short wallnum);
 // HSR
+static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, GLdouble* plane);
+static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLdouble* out);
 static void         polymer_pokesector(short sectnum);
 static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projection, float* frustum);
 static int          polymer_portalinfrustum(short wallnum, float* frustum);
-static void         polymer_scansprites(short sectnum);
+static void         polymer_scansprites(short sectnum, spritetype* tsprite, int* spritesortcnt);
 // SKIES
 static void         polymer_initskybox(void);
 static void         polymer_getsky(void);

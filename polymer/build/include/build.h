@@ -281,6 +281,7 @@ extern int usevoxels, voxscale[MAXVOXELS];
 #endif
 #ifdef POLYMOST
 extern int usemodels, usehightile;
+extern int rendmode;
 #endif
 EXTERN int h_xsize[MAXTILES], h_ysize[MAXTILES];
 EXTERN signed char h_xoffs[MAXTILES], h_yoffs[MAXTILES];
@@ -478,6 +479,10 @@ typedef struct  s_point2d {
 _equation       equation(int x1, int y1, int x2, int y2);
 int             sameside(_equation* eq, _point2d* p1, _point2d* p2);
 int             wallvisible(short wallnum);
+
+// polymer stuff for the game to provide it with the animatessprites ptr
+typedef void (*animatespritesptr)(int, int, int, int);
+EXTERN void polymer_setanimatesprites(animatespritesptr, int, int, int, int);
 
 #define STATUS2DSIZ 144
 void   qsetmode640350(void);

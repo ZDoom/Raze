@@ -4000,9 +4000,6 @@ void displayrooms(int snum,int smoothratio)
     player_struct *p = g_player[snum].ps;
     short tang;
     int tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
-#ifdef POLYMOST
-    extern int rendmode;
-#endif
 
     if (pub > 0 || getrendermode() >= 3) // JBF 20040101: redraw background always
     {
@@ -4045,6 +4042,8 @@ void displayrooms(int snum,int smoothratio)
 #ifdef SE40
         se40code(s->x,s->y,s->z,ud.cameraang,s->yvel,smoothratio);
 #endif
+        if (rendmode == 4)
+            polymer_setanimatesprites(animatesprites, s->x, s->y, ud.cameraang, smoothratio);
         drawrooms(s->x,s->y,s->z-(4<<8),ud.cameraang,s->yvel,s->sectnum);
         animatesprites(s->x,s->y,ud.cameraang,smoothratio);
         drawmasks();
@@ -4186,7 +4185,7 @@ void displayrooms(int snum,int smoothratio)
 #ifdef SE40
         se40code(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,smoothratio);
 #endif
-        if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
+        if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0) && (rendmode != 4))
         {
             dst = 0x7fffffff;
             i = 0;
@@ -4217,6 +4216,8 @@ void displayrooms(int snum,int smoothratio)
             gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
         }
 
+        if (rendmode == 4)
+            polymer_setanimatesprites(animatesprites, ud.camerax,ud.cameray,ud.cameraang,smoothratio);
         drawrooms(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,ud.camerasect);
         animatesprites(ud.camerax,ud.cameray,ud.cameraang,smoothratio);
         drawmasks();

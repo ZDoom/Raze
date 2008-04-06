@@ -939,6 +939,7 @@ int setvideomode(int x, int y, int c, int fs)
             { SDL_GL_DOUBLEBUFFER, 1 },
             { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
             { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
+            { SDL_GL_STENCIL_SIZE, 1 },
         };
 
         if (nogl) return -1;

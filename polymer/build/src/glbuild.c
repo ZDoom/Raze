@@ -37,6 +37,7 @@ void (APIENTRY * bglHint)(GLenum target, GLenum mode);
 void (APIENTRY * bglDrawBuffer)(GLenum mode);
 void (APIENTRY * bglReadBuffer)(GLenum mode);
 void (APIENTRY * bglScissor)(GLint x, GLint y, GLsizei width, GLsizei height);
+void (APIENTRY * bglClipPlane)(GLenum plane, const GLdouble *equation);
 
 // Depth
 void (APIENTRY * bglDepthFunc)(GLenum func);
@@ -283,6 +284,7 @@ int loadgldriver(const char *driver)
     bglDrawBuffer       = GETPROC("glDrawBuffer");
     bglReadBuffer       = GETPROC("glDrawBuffer");
     bglScissor          = GETPROC("glScissor");
+    bglClipPlane        = GETPROC("glClipPlane");
 
     // Depth
     bglDepthFunc		= GETPROC("glDepthFunc");
@@ -458,6 +460,7 @@ int unloadgldriver(void)
     bglDrawBuffer       = NULL;
     bglReadBuffer       = NULL;
     bglScissor          = NULL;
+    bglClipPlane        = NULL;
 
     // Depth
     bglDepthFunc		= NULL;
