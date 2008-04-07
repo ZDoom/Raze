@@ -944,7 +944,8 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
     {
         osizx = cachead.xdim;
         osizy = cachead.ydim;
-        m->usesalpha = hasalpha = (cachead.flags & 2) ? 1 : 0;
+        hasalpha = (cachead.flags & 2) ? 1 : 0;
+        if (pal < (MAXPALOOKUPS - RESERVEDPALS))m->usesalpha = hasalpha;
         kclose(cachefil);
         //kclose(filh);	// FIXME: uncomment when cache1d.c is fixed
         // cachefil >= 0, so it won't be rewritten
@@ -963,7 +964,7 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
             return(0);
         }
         else kclose(filh);
-        m->usesalpha = hasalpha;
+        if (pal < (MAXPALOOKUPS - RESERVEDPALS))m->usesalpha = hasalpha;
         if (pal>=SPECPAL&&pal<=REDPAL)
         {
             //_initprintf("%cLoaded palmap %d(%dx%d)",sk->palmap?'+':'-',pal,xsiz,ysiz);
@@ -1590,27 +1591,27 @@ static md3model *md3load(int fil)
 
 #if 0
     {
-    char *buf, st[BMAX_PATH+2], bst[BMAX_PATH+2];
-    int j, bsc;
+        char *buf, st[BMAX_PATH+2], bst[BMAX_PATH+2];
+        int j, bsc;
 
-    strcpy(st,filnam);
-    for (i=0,j=0;st[i];i++) if ((st[i] == '/') || (st[i] == '\\')) j = i+1;
-    st[j] = '*'; st[j+1] = 0;
-    kzfindfilestart(st); bsc = -1;
-    while (kzfindfile(st))
-    {
-        if (st[0] == '\\') continue;
-
-        for (i=0,j=0;st[i];i++) if (st[i] == '.') j = i+1;
-        if ((!stricmp(&st[j],"JPG")) || (!stricmp(&st[j],"PNG")) || (!stricmp(&st[j],"GIF")) ||
-                (!stricmp(&st[j],"PCX")) || (!stricmp(&st[j],"TGA")) || (!stricmp(&st[j],"BMP")) ||
-                (!stricmp(&st[j],"CEL")))
+        strcpy(st,filnam);
+        for (i=0,j=0;st[i];i++) if ((st[i] == '/') || (st[i] == '\\')) j = i+1;
+        st[j] = '*'; st[j+1] = 0;
+        kzfindfilestart(st); bsc = -1;
+        while (kzfindfile(st))
         {
-            for (i=0;st[i];i++) if (st[i] != filnam[i]) break;
-            if (i > bsc) { bsc = i; strcpy(bst,st); }
+            if (st[0] == '\\') continue;
+
+            for (i=0,j=0;st[i];i++) if (st[i] == '.') j = i+1;
+            if ((!stricmp(&st[j],"JPG")) || (!stricmp(&st[j],"PNG")) || (!stricmp(&st[j],"GIF")) ||
+                    (!stricmp(&st[j],"PCX")) || (!stricmp(&st[j],"TGA")) || (!stricmp(&st[j],"BMP")) ||
+                    (!stricmp(&st[j],"CEL")))
+            {
+                for (i=0;st[i];i++) if (st[i] != filnam[i]) break;
+                if (i > bsc) { bsc = i; strcpy(bst,st); }
+            }
         }
-    }
-    if (!mdloadskin(&m->texid,&m->usesalpha,bst)) ;//bad!
+        if (!mdloadskin(&m->texid,&m->usesalpha,bst)) ;//bad!
     }
 #endif
 
@@ -1748,19 +1749,19 @@ static int md3draw(md3model *m, spritetype *tspr)
     pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max((globalshade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
     if (!(hictinting[globalpal].f&4))
     {
-    if (!(m->flags&1)||sector[sprite[tspr->owner].sectnum].floorpal!=0)
-    {
-        pc[0] *= (float)hictinting[globalpal].r / 255.0;
-        pc[1] *= (float)hictinting[globalpal].g / 255.0;
-        pc[2] *= (float)hictinting[globalpal].b / 255.0;
-        if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
+        if (!(m->flags&1)||sector[sprite[tspr->owner].sectnum].floorpal!=0)
         {
-            pc[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
-            pc[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
-            pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
+            pc[0] *= (float)hictinting[globalpal].r / 255.0;
+            pc[1] *= (float)hictinting[globalpal].g / 255.0;
+            pc[2] *= (float)hictinting[globalpal].b / 255.0;
+            if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
+            {
+                pc[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
+                pc[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
+                pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
+            }
         }
-    }
-    else globalnoeffect=1;
+        else globalnoeffect=1;
     }
 
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66; else pc[3] = 0.33; }

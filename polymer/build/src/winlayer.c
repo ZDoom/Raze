@@ -811,6 +811,7 @@ DWORD WINAPI MouseFunc()
 {
     while (moustat&&lpDID[MOUSE])
     {
+        if (!appactive)Sleep(50);else
         if ((WaitForSingleObject(inputevt[MOUSE], INFINITE)) == WAIT_OBJECT_0)
         {
             ProcessMouse();
@@ -829,6 +830,7 @@ int initmouse(void)
 
     initprintf("Initializing mouse... ");
 
+    moustat=1;
     mousethread = CreateThread
                   (
                       NULL,
@@ -850,7 +852,6 @@ int initmouse(void)
     initprintf("OK\n");
 
     // grab input
-    moustat=1;
     grabmouse(1);
 
     return 0;
@@ -1492,11 +1493,11 @@ static void ProcessMouse()
     while (1)
     {
         t = getticks();
+        if (!mousegrab) break;
         result = IDirectInputDevice2_GetDeviceData(lpDID[MOUSE], sizeof(DIDEVICEOBJECTDATA),
                  (LPDIDEVICEOBJECTDATA)&didod, &dwElements, 0);
 
         if (FAILED(result) || !dwElements)break;
-        if (!mousegrab) break;
 
         if (result == DI_OK)
         {
@@ -1572,7 +1573,7 @@ static void ProcessInputDevices(void)
 
     for (t = 0; t < NUM_INPUTS; t++)
     {
-        if (*devicedef[t].did)
+        if (*devicedef[t].did&&t!=MOUSE)
         {
             result = IDirectInputDevice2_Poll(*devicedef[t].did);
             if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
