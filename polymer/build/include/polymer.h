@@ -90,9 +90,8 @@ typedef struct      s_prwall {
     GLfloat*        bigportal;
     // attributes
     GLfloat         wallcolor[4], overcolor[4], maskcolor[4];
-    GLfloat         wallglpic, overglpic, wallfbglpic, overfbglpic, maskglpic;
-    // build wall data# ifdef POLYMER_C
-
+    GLuint          wallglpic, overglpic, wallfbglpic, overfbglpic, maskglpic;
+    // build wall data
     short           cstat, nwallcstat;
     short           picnum, overpicnum, nwallpicnum;
     signed char     shade;
@@ -132,7 +131,8 @@ extern int globalposx, globalposy, globalposz, globalhoriz;
 
 // CORE
 static void         polymer_displayrooms(short sectnum);
-static void         polymer_inb4mirror(short sectnum);
+static void         polymer_drawplane(short sectnum, short wallnum, GLuint glpic, GLfloat* color, GLfloat* buffer, GLushort* indices, int indicecount, GLdouble* plane);
+static void         polymer_inb4mirror(GLfloat* buffer, GLdouble* plane);
 static void         polymer_animatesprites(void);
 // SECTORS
 static int          polymer_initsector(short sectnum);
@@ -145,7 +145,7 @@ static void         polymer_drawsector(short sectnum);
 // WALLS
 static int          polymer_initwall(short wallnum);
 static void         polymer_updatewall(short wallnum);
-static void         polymer_drawwall(short wallnum);
+static void         polymer_drawwall(short sectnum, short wallnum);
 // HSR
 static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, GLdouble* plane);
 static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLdouble* out);

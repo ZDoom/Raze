@@ -49,7 +49,9 @@ GLdouble        *curmodelviewmatrix;
 GLdouble        projectionmatrix[16];
 
 int             updatesectors = 1;
+
 int             depth;
+int             mirrorfrom[10]; // -3: no mirror; -2: floor; -1: ceiling; >=0: wallnum
 
 GLUtesselator*  prtess;
 
@@ -161,9 +163,6 @@ void                polymer_glinit(void)
 
     bglEnable(GL_CULL_FACE);
     bglCullFace(GL_BACK);
-
-    // this probably shouldn't be here
-    depth = 0;
 }
 
 void                polymer_loadboard(void)
@@ -247,7 +246,7 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
         while (i < numwalls)
         {
             polymer_updatewall(i);
-            polymer_drawwall(i);
+            polymer_drawwall(sectorofwall(i), i);
             i++;
         }
         viewangle = daang;
@@ -273,6 +272,8 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     }
 
     // GO!
+    depth = 0;
+    mirrorfrom[0] = -3; // no mirror
     polymer_displayrooms(dacursectnum);
 
     viewangle = daang;
@@ -321,13 +322,7 @@ void                polymer_drawmaskwall(int damaskwallcnt)
 
     w = prwalls[maskwall[damaskwallcnt]];
 
-    bglBindTexture(GL_TEXTURE_2D, w->maskglpic);
-
-    bglColor4f(w->maskcolor[0], w->maskcolor[1], w->maskcolor[2], w->maskcolor[3]);
-
-    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->portal);
-    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &w->portal[3]);
-    bglDrawArrays(GL_QUADS, 0, 4);
+    polymer_drawplane(-1, -3, w->maskglpic, w->maskcolor, w->portal, NULL, 0, NULL);
 }
 
 void                polymer_drawsprite(int snum)
@@ -460,15 +455,10 @@ void                polymer_drawsprite(int snum)
     if (tspr->cstat & 8)
         bglScalef(1.0f, -1.0f, 1.0f);
 
-    bglBindTexture(GL_TEXTURE_2D, glpic);
-    bglColor4f(color[0], color[1], color[2], color[3]);
-
     if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
         bglEnable(GL_CULL_FACE);
 
-    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), curspritedata);
-    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &curspritedata[3]);
-    bglDrawArrays(GL_QUADS, 0, 4);
+    polymer_drawplane(-1, -3, glpic, color, curspritedata, NULL, 0, NULL);
 
     if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
         bglDisable(GL_CULL_FACE);
@@ -526,10 +516,7 @@ static void         polymer_displayrooms(short dacursectnum)
     localspritesortcnt = localmaskwallcnt = 0;
 
     polymer_pokesector(dacursectnum);
-    if (!depth)
-        polymer_drawsector(dacursectnum);
-    else
-        polymer_drawsector(dacursectnum | 8192);
+    polymer_drawsector(dacursectnum);
     polymer_scansprites(dacursectnum, localtsprite, &localspritesortcnt);
     drawingstate[dacursectnum] = 1;
 
@@ -542,7 +529,8 @@ static void         polymer_displayrooms(short dacursectnum)
         if (((wallvisible(sec->wallptr + i))) &&
             (polymer_portalinfrustum(sec->wallptr + i, frustum)))
         {
-            polymer_drawwall(sec->wallptr + i);
+            if (mirrorfrom[depth] != (sec->wallptr + i))
+                polymer_drawwall(dacursectnum, sec->wallptr + i);
             // mask
             if ((wal->cstat&48) == 16) localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
 
@@ -556,6 +544,8 @@ static void         polymer_displayrooms(short dacursectnum)
         i++;
         wal = &wall[sec->wallptr + i];
     }
+
+    mirrorfrom[depth] = -3;
 
     firstback = back;
 
@@ -592,7 +582,7 @@ static void         polymer_displayrooms(short dacursectnum)
             if ((wallvisible(sec->wallptr + i)) &&
                 (polymer_portalinfrustum(sec->wallptr + i, frustum)))
             {
-                polymer_drawwall(sec->wallptr + i);
+                polymer_drawwall(sectorqueue[front], sec->wallptr + i);
                 // mask
                 if ((wal->cstat&48) == 16) localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
 
@@ -662,37 +652,154 @@ static void         polymer_displayrooms(short dacursectnum)
     }
 }
 
-static void         polymer_inb4mirror(short sectnum)
+
+#define OMGDRAWSHIT                                                             \
+    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), buffer);                 \
+    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &buffer[3]);           \
+    if (!indices)                                                               \
+        bglDrawArrays(GL_QUADS, 0, 4);                                          \
+    else                                                                        \
+        bglDrawElements(GL_TRIANGLES, indicecount, GL_UNSIGNED_SHORT, indices)
+
+static void         polymer_drawplane(short sectnum, short wallnum, GLuint glpic, GLfloat* color, GLfloat* buffer, GLushort* indices, int indicecount, GLdouble* plane)
+{
+
+    if ((depth < 1) && (plane != NULL) && 1) // insert mirror condition here
+    {
+        int             gx, gy, gz, px, py, pz;
+        float           coeff;
+
+        // set the stencil to 1 and clear the area to black where the sector floor is
+        bglDisable(GL_TEXTURE_2D);
+        bglDisable(GL_FOG);
+        bglColor4f(0.0f, 1.0f, 0.0f, 1.0f);
+        bglDepthMask(GL_FALSE);
+
+        bglEnable(GL_STENCIL_TEST);
+        bglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+        bglStencilFunc(GL_EQUAL, 0, 0xffffffff);
+
+        OMGDRAWSHIT;
+        bglDepthMask(GL_TRUE);
+
+        // set the depth to 1 where we put the stencil by drawing a screen aligned quad
+        bglStencilFunc(GL_EQUAL, 1, 0xffffffff);
+        bglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        bglDepthFunc(GL_ALWAYS);
+        bglMatrixMode(GL_PROJECTION);
+        bglPushMatrix();
+        bglLoadIdentity();
+        bglMatrixMode(GL_MODELVIEW);
+        bglPushMatrix();
+        bglLoadIdentity();
+
+        bglColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+        bglBegin(GL_QUADS);
+        bglVertex3f(-1.0f, -1.0f, 1.0f);
+        bglVertex3f(1.0f, -1.0f, 1.0f);
+        bglVertex3f(1.0f, 1.0f, 1.0f);
+        bglVertex3f(-1.0f, 1.0f, 1.0f);
+        bglEnd();
+
+        bglMatrixMode(GL_PROJECTION);
+        bglPopMatrix();
+        bglMatrixMode(GL_MODELVIEW);
+        bglPopMatrix();
+        bglDepthFunc(GL_LEQUAL);
+        bglEnable(GL_TEXTURE_2D);
+        bglEnable(GL_FOG);
+        // finally draw the shit
+        bglPushMatrix();
+        bglClipPlane(GL_CLIP_PLANE0, plane);
+        polymer_inb4mirror(buffer, plane);
+        bglCullFace(GL_FRONT);
+        bglEnable(GL_CLIP_PLANE0);
+
+        gx = globalposx;
+        gy = globalposy;
+        gz = globalposz;
+
+        // map the player pos from build to polymer
+        px = globalposy;
+        py = -globalposz / 16;
+        pz = -globalposx;
+
+        // calculate new player position on the other side of the mirror
+        // this way the basic build visibility shit can be used (wallvisible)
+        coeff = -plane[0] * px +
+                -plane[1] * py +
+                -plane[2] * pz +
+                -plane[3];
+
+        coeff /= (float)(plane[0] * plane[0] +
+                         plane[1] * plane[1] +
+                         plane[2] * plane[2]);
+
+        px = coeff*plane[0]*2 + px;
+        py = coeff*plane[1]*2 + py;
+        pz = coeff*plane[2]*2 + pz;
+
+        // map back from polymer to build
+        globalposx = -pz;
+        globalposy = px;
+        globalposz = -py * 16;
+
+        depth++;
+        mirrorfrom[depth] = wallnum;
+        polymer_displayrooms(sectnum);
+        depth--;
+
+        globalposx = gx;
+        globalposy = gy;
+        globalposz = gz;
+
+        bglDisable(GL_CLIP_PLANE0);
+        bglCullFace(GL_BACK);
+        bglMatrixMode(GL_MODELVIEW);
+        bglPopMatrix();
+
+        bglColor4f(color[0], color[1], color[2], 0.5f);
+    }
+    else
+        bglColor4f(color[0], color[1], color[2], color[3]);
+
+    bglBindTexture(GL_TEXTURE_2D, glpic);
+    OMGDRAWSHIT;
+
+    if ((depth < 1) && (plane != NULL) && 1) // insert mirror condition here
+    {
+        bglDisable(GL_STENCIL_TEST);
+        bglClear(GL_STENCIL_BUFFER_BIT);
+    }
+}
+
+static void         polymer_inb4mirror(GLfloat* buffer, GLdouble* plane)
 {
     float           pv;
-    GLdouble        *normal;
     float           reflectionmatrix[16];
 
+    pv = buffer[0] * plane[0] +
+         buffer[1] * plane[1] +
+         buffer[2] * plane[2];
 
-    normal = prsectors[sectnum]->floorplane;
-
-    pv = prsectors[sectnum]->floorbuffer[0] * normal[0] +
-         prsectors[sectnum]->floorbuffer[1] * normal[1] +
-         prsectors[sectnum]->floorbuffer[2] * normal[2];
-
-    reflectionmatrix[0] = 1 - (2 * normal[0] * normal[0]);
-    reflectionmatrix[1] = -2 * normal[0] * normal[1];
-    reflectionmatrix[2] = -2 * normal[0] * normal[2];
+    reflectionmatrix[0] = 1 - (2 * plane[0] * plane[0]);
+    reflectionmatrix[1] = -2 * plane[0] * plane[1];
+    reflectionmatrix[2] = -2 * plane[0] * plane[2];
     reflectionmatrix[3] = 0;
 
-    reflectionmatrix[4] = -2 * normal[0] * normal[1];
-    reflectionmatrix[5] = 1 - (2 * normal[1] * normal[1]);
-    reflectionmatrix[6] = -2 * normal[1] * normal[2];
+    reflectionmatrix[4] = -2 * plane[0] * plane[1];
+    reflectionmatrix[5] = 1 - (2 * plane[1] * plane[1]);
+    reflectionmatrix[6] = -2 * plane[1] * plane[2];
     reflectionmatrix[7] = 0;
 
-    reflectionmatrix[8] = -2 * normal[0] * normal[2];
-    reflectionmatrix[9] = -2 * normal[1] * normal[2];
-    reflectionmatrix[10] = 1 - (2 * normal[2] * normal[2]);
+    reflectionmatrix[8] = -2 * plane[0] * plane[2];
+    reflectionmatrix[9] = -2 * plane[1] * plane[2];
+    reflectionmatrix[10] = 1 - (2 * plane[2] * plane[2]);
     reflectionmatrix[11] = 0;
 
-    reflectionmatrix[12] = 2 * pv * normal[0];
-    reflectionmatrix[13] = 2 * pv * normal[1];
-    reflectionmatrix[14] = 2 * pv * normal[2];
+    reflectionmatrix[12] = 2 * pv * plane[0];
+    reflectionmatrix[13] = 2 * pv * plane[1];
+    reflectionmatrix[14] = 2 * pv * plane[2];
     reflectionmatrix[15] = 1;
 
     bglMultMatrixf(reflectionmatrix);
@@ -1067,177 +1174,21 @@ static int          polymer_buildfloor(short sectnum)
 static void         polymer_drawsector(short sectnum)
 {
     sectortype      *sec;
-    walltype        *wal;
     _prsector*      s;
-    int             skipfloor, gx, gy, gz, px, py, pz;
-    float           coeff;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing sector %i...\n", sectnum);
 
-    if (sectnum & 8192)
-    {
-        skipfloor = 1;
-        sectnum ^= 8192;
-    }
-    else
-        skipfloor = 0;
-
     sec = &sector[sectnum];
-    wal = &wall[sec->wallptr];
     s = prsectors[sectnum];
 
-    if (prsectors[sectnum] == NULL)
-    {
-        polymer_initsector(sectnum);
-        polymer_updatesector(sectnum);
-    }
-
-    if (skipfloor)
-        goto ceiling;
-
-    if ((depth < 1))
-    {
-        //bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-        // set the stencil to 1 and clear the area to black where the sector floor is
-        bglDisable(GL_TEXTURE_2D);
-        bglDisable(GL_FOG);
-        bglColor4f(0.0f, 1.0f, 0.0f, 1.0f);
-        bglDepthMask(0);
-
-        bglEnable(GL_STENCIL_TEST);
-        bglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-        bglStencilFunc(GL_EQUAL, 0, 0xffffffff);
-
-        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
-        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
-        bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
-        //bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        bglDepthMask(1);
-
-        // set the depth to 1 where we put the stencil by drawing a screen aligned quad
-        bglStencilFunc(GL_EQUAL, 1, 0xffffffff);
-        bglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-        bglDepthFunc(GL_ALWAYS);
-        bglMatrixMode(GL_PROJECTION);
-        bglPushMatrix();
-        bglLoadIdentity();
-        bglMatrixMode(GL_MODELVIEW);
-        bglPushMatrix();
-        bglLoadIdentity();
-
-        bglColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-        bglBegin(GL_QUADS);
-        bglVertex3f(-1.0f, -1.0f, 1.0f);
-        bglVertex3f(1.0f, -1.0f, 1.0f);
-        bglVertex3f(1.0f, 1.0f, 1.0f);
-        bglVertex3f(-1.0f, 1.0f, 1.0f);
-        bglEnd();
-
-        bglMatrixMode(GL_PROJECTION);
-        bglPopMatrix();
-        bglMatrixMode(GL_MODELVIEW);
-        bglPopMatrix();
-        bglDepthFunc(GL_LEQUAL);
-        bglEnable(GL_TEXTURE_2D);
-        bglEnable(GL_FOG);
-        // finally draw the shit
-        bglPushMatrix();
-        bglClipPlane(GL_CLIP_PLANE0, s->floorplane);
-        polymer_inb4mirror(sectnum);
-        //bglDisable(GL_CULL_FACE);
-        bglCullFace(GL_FRONT);
-        bglEnable(GL_CLIP_PLANE0);
-
-        gx = globalposx;
-        gy = globalposy;
-        gz = globalposz;
-
-        // map the player pos from build to polymer
-        px = globalposy;
-        py = -globalposz / 16;
-        pz = -globalposx;
-
-        // calculate new player position on the other side of the mirror
-        // this way the basic build visibility shit can be used (wallvisible)
-        coeff = -s->floorplane[0] * px +
-                -s->floorplane[1] * py +
-                -s->floorplane[2] * pz +
-                -s->floorplane[3];
-
-        coeff /= (float)(s->floorplane[0] * s->floorplane[0] +
-                         s->floorplane[1] * s->floorplane[1] +
-                         s->floorplane[2] * s->floorplane[2]);
-
-        px = coeff*s->floorplane[0]*2 + px;
-        py = coeff*s->floorplane[1]*2 + py;
-        pz = coeff*s->floorplane[2]*2 + pz;
-
-        // map back from polymer to build
-        globalposx = -pz;
-        globalposy = px;
-        globalposz = -py * 16;
-
-        depth++;
-        polymer_displayrooms(sectnum);
-        depth--;
-
-        globalposx = gx;
-        globalposy = gy;
-        globalposz = gz;
-
-        bglDisable(GL_CLIP_PLANE0);
-        bglCullFace(GL_BACK);
-        //bglEnable(GL_CULL_FACE);
-        bglMatrixMode(GL_MODELVIEW);
-        bglPopMatrix();
-    }
-
-    // floor
-    if (sec->floorstat & 1)
-        bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-    bglBindTexture(GL_TEXTURE_2D, s->floorglpic);
-    bglColor4f(s->floorcolor[0], s->floorcolor[1], s->floorcolor[2], (!depth) ? 0.5f : s->floorcolor[3]);
-    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->floorbuffer);
-    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->floorbuffer[3]);
-    bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
-
-    if (s->floorfbglpic)
-    {
-        bglBindTexture(GL_TEXTURE_2D, s->floorfbglpic);
-        bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
-    }
-
-    if (sec->floorstat & 1)
-        bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    if ((depth < 1))
-    {
-        //bglEnable(GL_DEPTH_TEST);
-        bglDisable(GL_STENCIL_TEST);
-        bglClear(GL_STENCIL_BUFFER_BIT);
-    }
-
-ceiling:
-    // ceiling
-    if (sec->ceilingstat & 1)
-        bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-    bglBindTexture(GL_TEXTURE_2D, s->ceilglpic);
-    bglColor4f(s->ceilcolor[0], s->ceilcolor[1], s->ceilcolor[2], s->ceilcolor[3]);
-    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), s->ceilbuffer);
-    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &s->ceilbuffer[3]);
-    bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->ceilindices);
-
-    if (s->ceilfbglpic)
-    {
-        bglBindTexture(GL_TEXTURE_2D, s->ceilfbglpic);
-        bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        bglDrawElements(GL_TRIANGLES, s->indicescount, GL_UNSIGNED_SHORT, s->floorindices);
-    }
-
-    if (sec->ceilingstat & 1)
-        bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    if (!(sec->floorstat & 1) && (mirrorfrom[depth] != -2))
+        polymer_drawplane(sectnum, -2, s->floorglpic, s->floorcolor,
+                          s->floorbuffer, s->floorindices, s->indicescount,
+                          s->floorplane);
+    if (!(sec->ceilingstat & 1) && (mirrorfrom[depth] != -1))
+        polymer_drawplane(sectnum, -1, s->ceilglpic, s->ceilcolor,
+                          s->ceilbuffer, s->ceilindices, s->indicescount,
+                          s->ceilplane);
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing sector %i...\n", sectnum);
 }
@@ -1698,7 +1649,7 @@ static void         polymer_updatewall(short wallnum)
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated wall %i.\n", wallnum);
 }
 
-static void         polymer_drawwall(short wallnum)
+static void         polymer_drawwall(short sectnum, short wallnum)
 {
     _prwall         *w;
 
@@ -1706,48 +1657,16 @@ static void         polymer_drawwall(short wallnum)
 
     w = prwalls[wallnum];
 
-    if (w->underover & 1)
+    if ((w->underover & 1) && !(w->underover & 4))
     {
-        if (w->underover & 4)
-            bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-        bglBindTexture(GL_TEXTURE_2D, w->wallglpic);
-        bglColor4f(w->wallcolor[0], w->wallcolor[1], w->wallcolor[2], w->wallcolor[3]);
-        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->wallbuffer);
-        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &w->wallbuffer[3]);
-        bglDrawArrays(GL_QUADS, 0, 4);
-
-        if ((w->wallfbglpic) && !(w->underover & 4))
-        {
-            bglBindTexture(GL_TEXTURE_2D, w->wallfbglpic);
-            bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            bglDrawArrays(GL_QUADS, 0, 4);
-        }
-
-        if (w->underover & 4)
-            bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        polymer_drawplane(sectnum, wallnum, w->wallglpic, w->wallcolor,
+                          w->wallbuffer, NULL, 0, NULL);
     }
 
-    if (w->underover & 2)
+    if ((w->underover & 2) && !(w->underover & 8))
     {
-        if (w->underover & 8)
-            bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-        bglBindTexture(GL_TEXTURE_2D, w->overglpic);
-        bglColor4f(w->overcolor[0], w->overcolor[1], w->overcolor[2], w->overcolor[3]);
-        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->overbuffer);
-        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &w->overbuffer[3]);
-        bglDrawArrays(GL_QUADS, 0, 4);
-
-        if ((w->overfbglpic) && !(w->underover & 4))
-        {
-            bglBindTexture(GL_TEXTURE_2D, w->overfbglpic);
-            bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            bglDrawArrays(GL_QUADS, 0, 4);
-        }
-
-        if (w->underover & 8)
-            bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        polymer_drawplane(sectnum, wallnum, w->overglpic, w->overcolor,
+                          w->overbuffer, NULL, 0, NULL);
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing wall %i...\n", wallnum);
