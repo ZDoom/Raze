@@ -1644,6 +1644,8 @@ static void         polymer_updatewall(short wallnum)
     memcpy(&w->bigportal[6], &s->ceilbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
     memcpy(&w->bigportal[9], &s->ceilbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
+    polymer_buffertoplane(w->portal, NULL, w->plane);
+
     w->controlstate = 1;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated wall %i.\n", wallnum);
@@ -1660,17 +1662,19 @@ static void         polymer_drawwall(short sectnum, short wallnum)
     if ((w->underover & 1) && !(w->underover & 4))
     {
         polymer_drawplane(sectnum, wallnum, w->wallglpic, w->wallcolor,
-                          w->wallbuffer, NULL, 0, NULL);
+                          w->wallbuffer, NULL, 0, w->plane);
     }
 
     if ((w->underover & 2) && !(w->underover & 8))
     {
         polymer_drawplane(sectnum, wallnum, w->overglpic, w->overcolor,
-                          w->overbuffer, NULL, 0, NULL);
+                          w->overbuffer, NULL, 0, w->plane);
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing wall %i...\n", wallnum);
 }
+
+#define INDICE(n) ((indices) ? (indices[i+n]*5) : ((i+n)*5))
 
 // HSR
 static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, GLdouble* plane)
@@ -1680,21 +1684,22 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, GL
 
     i = 0;
     do {
-    vec1[0] = buffer[(indices[i+1]*5) + 0] - buffer[(indices[i+0]*5) + 0];
-    vec1[1] = buffer[(indices[i+1]*5) + 1] - buffer[(indices[i+0]*5) + 1];
-    vec1[2] = buffer[(indices[i+1]*5) + 2] - buffer[(indices[i+0]*5) + 2];
+        vec1[0] = buffer[(INDICE(1)) + 0] - buffer[(INDICE(0)) + 0];
+        vec1[1] = buffer[(INDICE(1)) + 1] - buffer[(INDICE(0)) + 1];
+        vec1[2] = buffer[(INDICE(1)) + 2] - buffer[(INDICE(0)) + 2];
 
-    vec2[0] = buffer[(indices[i+2]*5) + 0] - buffer[(indices[i+1]*5) + 0];
-    vec2[1] = buffer[(indices[i+2]*5) + 1] - buffer[(indices[i+1]*5) + 1];
-    vec2[2] = buffer[(indices[i+2]*5) + 2] - buffer[(indices[i+1]*5) + 2];
+        vec2[0] = buffer[(INDICE(2)) + 0] - buffer[(INDICE(1)) + 0];
+        vec2[1] = buffer[(INDICE(2)) + 1] - buffer[(INDICE(1)) + 1];
+        vec2[2] = buffer[(INDICE(2)) + 2] - buffer[(INDICE(1)) + 2];
 
-    polymer_crossproduct(vec2, vec1, plane);
+        polymer_crossproduct(vec2, vec1, plane);
 
-    // normalize
-    vec1[0] = plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2];
-    i+= 3;
+        // normalize
+        vec1[0] = plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2];
+        i+= 3;
     }
     while (vec1[0] == 0);
+
     vec1[0] = sqrt(vec1[0]);
     plane[0] /= vec1[0];
     plane[1] /= vec1[0];
