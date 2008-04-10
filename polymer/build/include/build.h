@@ -210,6 +210,7 @@ struct validmode_t {
 EXTERN struct validmode_t validmode[MAXVALIDMODES];
 
 EXTERN short numsectors, numwalls;
+EXTERN char display_mirror;
 EXTERN /*volatile*/ int totalclock;
 EXTERN int numframes, randomseed;
 EXTERN short sintable[2048];

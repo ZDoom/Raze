@@ -278,6 +278,10 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
 
     viewangle = daang;
     curmodelviewmatrix = rootmodelviewmatrix;
+    cosglobalang = sintable[(viewangle+512)&2047];
+    singlobalang = sintable[viewangle&2047];
+    cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
+    sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
 }
@@ -290,7 +294,9 @@ void                polymer_drawmasks(void)
 
     while (spritesortcnt)
     {
-        polymer_drawsprite(--spritesortcnt);
+        spritesortcnt--;
+        tspriteptr[spritesortcnt] = &tsprite[spritesortcnt];
+        polymer_drawsprite(spritesortcnt);
     }
 
     bglDisable(GL_POLYGON_OFFSET_FILL);
@@ -644,7 +650,15 @@ static void         polymer_displayrooms(short dacursectnum)
 
     if (depth)
     {
+        cosglobalang = sintable[(viewangle+512)&2047];
+        singlobalang = sintable[viewangle&2047];
+        cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
+        sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
+
+        display_mirror = 1;
         polymer_animatesprites();
+        display_mirror = 0;
+
         bglDisable(GL_CULL_FACE);
         drawmasks();
         bglEnable(GL_CULL_FACE);
@@ -714,6 +728,10 @@ static void         polymer_drawplane(short sectnum, short wallnum, GLuint glpic
         polymer_inb4mirror(buffer, plane);
         bglCullFace(GL_FRONT);
         bglEnable(GL_CLIP_PLANE0);
+
+        if (wallnum >= 0)
+            preparemirror(globalposx, globalposy, 0, globalang,
+                          0, wallnum, 0, &gx, &gy, &viewangle);
 
         gx = globalposx;
         gy = globalposy;
@@ -807,7 +825,7 @@ static void         polymer_inb4mirror(GLfloat* buffer, GLdouble* plane)
 
 static void         polymer_animatesprites(void)
 {
-    asi.animatesprites(asi.x, asi.y, asi.a, asi.smoothratio);
+    asi.animatesprites(globalposx, globalposy, viewangle, asi.smoothratio);
 }
 
 // SECTORS
@@ -1644,7 +1662,7 @@ static void         polymer_updatewall(short wallnum)
     memcpy(&w->bigportal[6], &s->ceilbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
     memcpy(&w->bigportal[9], &s->ceilbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
-    polymer_buffertoplane(w->portal, NULL, w->plane);
+    polymer_buffertoplane(w->bigportal, NULL, w->plane);
 
     w->controlstate = 1;
 
@@ -1674,7 +1692,7 @@ static void         polymer_drawwall(short sectnum, short wallnum)
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing wall %i...\n", wallnum);
 }
 
-#define INDICE(n) ((indices) ? (indices[i+n]*5) : ((i+n)*5))
+#define INDICE(n) ((indices) ? (indices[i+n]*5) : ((i+n)*3))
 
 // HSR
 static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, GLdouble* plane)

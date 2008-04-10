@@ -129,6 +129,9 @@ void                polymer_drawsprite(int snum);
 # ifdef POLYMER_C
 
 extern int globalposx, globalposy, globalposz, globalhoriz;
+extern short globalang, globalcursectnum;
+extern int globalpal, cosglobalang, singlobalang;
+extern int cosviewingrangeglobalang, sinviewingrangeglobalang;
 
 // CORE
 static void         polymer_displayrooms(short sectnum);

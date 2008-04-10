@@ -113,7 +113,7 @@ intptr_t *script = NULL;
 
 int g_ScriptSize = 16384;
 
-char display_mirror,typebuflen,typebuf[141];
+char typebuflen,typebuf[141];
 
 char *music_fn[MAXVOLUMES+1][MAXLEVELS],music_select;
 char env_music_fn[MAXVOLUMES+1][BMAX_PATH];
