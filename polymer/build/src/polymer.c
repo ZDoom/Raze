@@ -678,7 +678,8 @@ static void         polymer_displayrooms(short dacursectnum)
 static void         polymer_drawplane(short sectnum, short wallnum, GLuint glpic, GLfloat* color, GLfloat* buffer, GLushort* indices, int indicecount, GLdouble* plane)
 {
 
-    if ((depth < 1) && (plane != NULL) && 1) // insert mirror condition here
+    if ((depth < 1) && (plane != NULL) &&
+        (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
     {
         int             gx, gy, gz, px, py, pz;
         float           coeff;
@@ -776,7 +777,7 @@ static void         polymer_drawplane(short sectnum, short wallnum, GLuint glpic
         bglMatrixMode(GL_MODELVIEW);
         bglPopMatrix();
 
-        bglColor4f(color[0], color[1], color[2], 0.5f);
+        bglColor4f(color[0], color[1], color[2], 0.0f);
     }
     else
         bglColor4f(color[0], color[1], color[2], color[3]);
@@ -784,7 +785,8 @@ static void         polymer_drawplane(short sectnum, short wallnum, GLuint glpic
     bglBindTexture(GL_TEXTURE_2D, glpic);
     OMGDRAWSHIT;
 
-    if ((depth < 1) && (plane != NULL) && 1) // insert mirror condition here
+    if ((depth < 1) && (plane != NULL) &&
+         (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
     {
         bglDisable(GL_STENCIL_TEST);
         bglClear(GL_STENCIL_BUFFER_BIT);
@@ -1088,8 +1090,8 @@ finish:
     if (wallinvalidate)
     {
         s->invalidid++;
-        polymer_buffertoplane(s->floorbuffer, s->floorindices, s->floorplane);
-        polymer_buffertoplane(s->ceilbuffer, s->ceilindices, s->ceilplane);
+        polymer_buffertoplane(s->floorbuffer, s->floorindices, s->indicescount, s->floorplane);
+        polymer_buffertoplane(s->ceilbuffer, s->ceilindices, s->indicescount, s->ceilplane);
     }
 
     s->controlstate = 1;
@@ -1662,7 +1664,7 @@ static void         polymer_updatewall(short wallnum)
     memcpy(&w->bigportal[6], &s->ceilbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
     memcpy(&w->bigportal[9], &s->ceilbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
-    polymer_buffertoplane(w->bigportal, NULL, w->plane);
+    polymer_buffertoplane(w->bigportal, NULL, 4, w->plane);
 
     w->controlstate = 1;
 
@@ -1695,7 +1697,7 @@ static void         polymer_drawwall(short sectnum, short wallnum)
 #define INDICE(n) ((indices) ? (indices[i+n]*5) : ((i+n)*3))
 
 // HSR
-static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, GLdouble* plane)
+static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int indicecount, GLdouble* plane)
 {
     GLfloat         vec1[3], vec2[3];
     int             i;
@@ -1716,7 +1718,7 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, GL
         vec1[0] = plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2];
         i+= 3;
     }
-    while (vec1[0] == 0);
+    while ((i < indicecount) && (vec1[0] == 0));
 
     vec1[0] = sqrt(vec1[0]);
     plane[0] /= vec1[0];

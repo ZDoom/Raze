@@ -151,7 +151,7 @@ static int          polymer_initwall(short wallnum);
 static void         polymer_updatewall(short wallnum);
 static void         polymer_drawwall(short sectnum, short wallnum);
 // HSR
-static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, GLdouble* plane);
+static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, int indicecount, GLdouble* plane);
 static void         polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLdouble* out);
 static void         polymer_pokesector(short sectnum);
 static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projection, float* frustum);
