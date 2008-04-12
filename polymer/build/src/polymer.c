@@ -621,7 +621,8 @@ static void         polymer_displayrooms(short dacursectnum)
                         nextsec = &sector[wal->nextsector];
                         nextwal = &wall[nextsec->wallptr];
 
-                        if (nextsec->floorz == nextsec->ceilingz)
+                        if ((nextsec->ceilingstat & 1) &&
+                            (nextsec->floorz == nextsec->ceilingz))
                         {
                             querydelay[wal->nextsector] = -1;
                             i++;
