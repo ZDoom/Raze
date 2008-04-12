@@ -333,10 +333,10 @@ void                polymer_drawmaskwall(int damaskwallcnt)
 
 void                polymer_drawsprite(int snum)
 {
-    int             curpicnum, glpic, xsize, ysize;
+    int             curpicnum, glpic, xsize, ysize, tilexoff, tileyoff, xoff, yoff;
     spritetype      *tspr;
     pthtyp*         pth;
-    float           color[4], xratio, ang, *curspritedata;
+    float           color[4], xratio, yratio, ang, *curspritedata;
     float           spos[3];
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
@@ -373,14 +373,25 @@ void                polymer_drawsprite(int snum)
     glpic = (pth) ? pth->glpic : 0;
 
     if (((tspr->cstat>>4) & 3) == 0)
-    {
-        xratio = (float)(tspr->xrepeat) / 160.0f;
-        xsize = tilesizx[curpicnum] * 32 * xratio;
-    }
+        xratio = (float)(tspr->xrepeat) * 32.0f / 160.0f;
     else
-        xsize = tspr->xrepeat * tilesizx[curpicnum] / 4;
+        xratio = (float)(tspr->xrepeat) / 4.0f;
 
-    ysize = tspr->yrepeat * tilesizy[curpicnum] / 4;
+    yratio = (float)(tspr->yrepeat) / 4.0f;
+
+    xsize = tilesizx[curpicnum] * xratio;
+    ysize = tilesizy[curpicnum] * yratio;
+
+    tilexoff = (int)tspr->xoffset;
+    tileyoff = (int)tspr->yoffset;
+    tilexoff += (signed char)((usehightile&&h_xsize[curpicnum])?(h_xoffs[curpicnum]):((picanm[curpicnum]>>8)&255));
+    tileyoff += (signed char)((usehightile&&h_xsize[curpicnum])?(h_yoffs[curpicnum]):((picanm[curpicnum]>>16)&255));
+
+    xoff = tilexoff * xratio;
+    yoff = tileyoff * yratio;
+
+    if (tspr->cstat & 128)
+        yoff -= ysize / 2;
 
     spos[0] = tspr->y;
     spos[1] = -(float)(tspr->z) / 16.0f;
@@ -416,6 +427,7 @@ void                polymer_drawsprite(int snum)
 
             bglLoadMatrixd(spritemodelview);
             bglRotatef((gtang * 90.0f), 0.0f, 0.0f, -1.0f);
+            bglTranslatef((float)(xoff)/1000.0f, (float)(yoff)/1000.0f, 0.0f);
             bglScalef((float)(xsize) / 1000.0f, (float)(ysize) / 1000.0f, 1.0f / 1000.0f);
 
             bglPolygonOffset(0.0f, 0.0f);
@@ -428,6 +440,7 @@ void                polymer_drawsprite(int snum)
 
             bglTranslatef(spos[0], spos[1], spos[2]);
             bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+            bglTranslatef((float)(xoff), (float)(yoff), 0.0f);
             bglScalef((float)(xsize), (float)(ysize), 1.0f);
 
             prsectors[tspr->sectnum]->wallsproffset += 0.5f;
@@ -442,6 +455,7 @@ void                polymer_drawsprite(int snum)
 
             bglTranslatef(spos[0], spos[1], spos[2]);
             bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+            bglTranslatef((float)(xoff), 1.0f, (float)(yoff));
             bglScalef((float)(xsize), 1.0f, (float)(ysize));
 
             curspritedata = horizsprite;
