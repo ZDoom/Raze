@@ -502,6 +502,7 @@ static void         polymer_displayrooms(short dacursectnum)
 {
     sectortype      *sec, *nextsec;
     walltype        *wal, *nextwal;
+    _prwall         *w;
     int             i, j;
     GLint           result;
     int             front;
@@ -571,7 +572,7 @@ static void         polymer_displayrooms(short dacursectnum)
 
     while (front != back)
     {
-        if ((front >= firstback) && (pr_occlusionculling) && (!querydelay[sectorqueue[front]]))
+        if ((front >= firstback) && (pr_occlusionculling) && (querydelay[sectorqueue[front]] > 0))
         {
             bglGetQueryObjectivARB(queryid[sectorqueue[front]],
                                    GL_QUERY_RESULT_ARB,
@@ -585,6 +586,8 @@ static void         polymer_displayrooms(short dacursectnum)
             else
                 querydelay[sectorqueue[front]] = pr_occlusionculling-1;
         }
+        else if (querydelay[sectorqueue[front]] == -1)
+            querydelay[sectorqueue[front]] = pr_occlusionculling-1;
         else if ((front >= firstback) && (pr_occlusionculling) && (querydelay[sectorqueue[front]]))
             querydelay[sectorqueue[front]]--;
 
@@ -618,6 +621,14 @@ static void         polymer_displayrooms(short dacursectnum)
                         nextsec = &sector[wal->nextsector];
                         nextwal = &wall[nextsec->wallptr];
 
+                        if (nextsec->floorz == nextsec->ceilingz)
+                        {
+                            querydelay[wal->nextsector] = -1;
+                            i++;
+                            wal = &wall[sec->wallptr + i];
+                            continue;
+                        }
+
                         bglDisable(GL_TEXTURE_2D);
                         bglDisable(GL_FOG);
                         bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -630,12 +641,23 @@ static void         polymer_displayrooms(short dacursectnum)
                         while (j < nextsec->wallnum)
                         {
                             if ((nextwal->nextwall == (sec->wallptr + i)) ||
-                                 ((nextwal->nextwall != -1) &&
+                                ((nextwal->nextwall != -1) &&
                                  (wallvisible(nextwal->nextwall)) &&
                                  (polymer_portalinfrustum(nextwal->nextwall, frustum))))
                             {
-                                bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), prwalls[nextwal->nextwall]->portal);
+                                w = prwalls[nextwal->nextwall];
+                                bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->portal);
                                 bglDrawArrays(GL_QUADS, 0, 4);
+                                if ((w->underover & 1) && (w->underover & 4))
+                                {
+                                    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->wallbuffer);
+                                    bglDrawArrays(GL_QUADS, 0, 4);
+                                }
+                                if ((w->underover & 2) && (w->underover & 8))
+                                {
+                                    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->overbuffer);
+                                    bglDrawArrays(GL_QUADS, 0, 4);
+                                }
                             }
 
                             j++;
@@ -1152,7 +1174,7 @@ static int          polymer_buildfloor(short sectnum)
     sectortype      *sec;
     int             i;
 
-    if (pr_verbosity >= 0) OSD_Printf("PR : Tesselating floor of sector %i...\n", sectnum);
+    if (pr_verbosity >= 2) OSD_Printf("PR : Tesselating floor of sector %i...\n", sectnum);
 
     s = prsectors[sectnum];
     sec = &sector[sectnum];
@@ -1245,6 +1267,8 @@ static int          polymer_initwall(short wallnum)
         w->portal = calloc(4, sizeof(GLfloat) * 5);
     if (w->bigportal == NULL)
         w->bigportal = calloc(4, sizeof(GLfloat) * 3);
+    if (w->cap == NULL)
+        w->cap = calloc(4, sizeof(GLfloat) * 3);
 
     w->controlstate = 2;
 
@@ -1678,6 +1702,13 @@ static void         polymer_updatewall(short wallnum)
     memcpy(&w->bigportal[6], &s->ceilbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
     memcpy(&w->bigportal[9], &s->ceilbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
 
+    memcpy(&w->cap[0], &s->ceilbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    memcpy(&w->cap[3], &s->ceilbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    memcpy(&w->cap[6], &s->ceilbuffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    memcpy(&w->cap[9], &s->ceilbuffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    w->cap[7] += 1048576; // this number is the result of 1048574 + 2
+    w->cap[10] += 1048576; // this one is arbitrary
+
     polymer_buffertoplane(w->bigportal, NULL, 4, w->plane);
 
     w->controlstate = 1;
@@ -1703,6 +1734,16 @@ static void         polymer_drawwall(short sectnum, short wallnum)
     {
         polymer_drawplane(sectnum, wallnum, w->overglpic, w->overcolor,
                           w->overbuffer, NULL, 0, w->plane);
+    }
+
+    if ((sector[sectnum].ceilingstat & 1) &&
+         ((wall[wallnum].nextsector == -1) ||
+         !(sector[wall[wallnum].nextsector].ceilingstat & 1)))
+    {
+        bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+        bglVertexPointer(3, GL_FLOAT, 0, w->cap);
+        bglDrawArrays(GL_QUADS, 0, 4);
+        bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing wall %i...\n", wallnum);

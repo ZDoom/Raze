@@ -88,6 +88,7 @@ typedef struct      s_prwall {
     GLfloat*        overbuffer;
     GLfloat*        portal;
     GLfloat*        bigportal;
+    GLfloat*        cap;
     GLdouble        plane[4];
     // attributes
     GLfloat         wallcolor[4], overcolor[4], maskcolor[4];
