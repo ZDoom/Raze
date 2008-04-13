@@ -572,24 +572,27 @@ static void         polymer_displayrooms(short dacursectnum)
 
     while (front != back)
     {
-        if ((front >= firstback) && (pr_occlusionculling) && (querydelay[sectorqueue[front]] > 0))
+        if ((front >= firstback) && (pr_occlusionculling))
         {
-            bglGetQueryObjectivARB(queryid[sectorqueue[front]],
-                                   GL_QUERY_RESULT_ARB,
-                                   &result);
-            bglDeleteQueriesARB(1, &queryid[sectorqueue[front]]);
-            if (!result)
+            if (querydelay[sectorqueue[front]] == 0)
             {
-                front++;
-                continue;
+                bglGetQueryObjectivARB(queryid[sectorqueue[front]],
+                                    GL_QUERY_RESULT_ARB,
+                                    &result);
+                bglDeleteQueriesARB(1, &queryid[sectorqueue[front]]);
+                if (!result)
+                {
+                    front++;
+                    continue;
+                }
+                else
+                    querydelay[sectorqueue[front]] = pr_occlusionculling-1;
             }
-            else
+            else if (querydelay[sectorqueue[front]] == -1)
                 querydelay[sectorqueue[front]] = pr_occlusionculling-1;
+            else if (querydelay[sectorqueue[front]])
+                querydelay[sectorqueue[front]]--;
         }
-        else if (querydelay[sectorqueue[front]] == -1)
-            querydelay[sectorqueue[front]] = pr_occlusionculling-1;
-        else if ((front >= firstback) && (pr_occlusionculling) && (querydelay[sectorqueue[front]]))
-            querydelay[sectorqueue[front]]--;
 
         polymer_pokesector(sectorqueue[front]);
         polymer_drawsector(sectorqueue[front]);
