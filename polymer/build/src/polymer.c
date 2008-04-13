@@ -5,7 +5,7 @@
 #include "polymer.h"
 
 // CVARS
-int             pr_occlusionculling = 1;
+int             pr_occlusionculling = 50;
 int             pr_fov = 426;           // appears to be the classic setting.
 int             pr_billboardingmode = 1;
 int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
@@ -427,7 +427,7 @@ void                polymer_drawsprite(int snum)
 
             bglLoadMatrixd(spritemodelview);
             bglRotatef((gtang * 90.0f), 0.0f, 0.0f, -1.0f);
-            bglTranslatef((float)(xoff)/1000.0f, (float)(yoff)/1000.0f, 0.0f);
+            bglTranslatef((float)(-xoff)/1000.0f, (float)(yoff)/1000.0f, 0.0f);
             bglScalef((float)(xsize) / 1000.0f, (float)(ysize) / 1000.0f, 1.0f / 1000.0f);
 
             bglPolygonOffset(0.0f, 0.0f);
@@ -440,7 +440,7 @@ void                polymer_drawsprite(int snum)
 
             bglTranslatef(spos[0], spos[1], spos[2]);
             bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
-            bglTranslatef((float)(xoff), (float)(yoff), 0.0f);
+            bglTranslatef((float)(-xoff), (float)(yoff), 0.0f);
             bglScalef((float)(xsize), (float)(ysize), 1.0f);
 
             prsectors[tspr->sectnum]->wallsproffset += 0.5f;
@@ -455,7 +455,7 @@ void                polymer_drawsprite(int snum)
 
             bglTranslatef(spos[0], spos[1], spos[2]);
             bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
-            bglTranslatef((float)(xoff), 1.0f, (float)(yoff));
+            bglTranslatef((float)(-xoff), 1.0f, (float)(yoff));
             bglScalef((float)(xsize), 1.0f, (float)(ysize));
 
             curspritedata = horizsprite;
