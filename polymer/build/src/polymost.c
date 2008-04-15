@@ -1986,22 +1986,22 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
             // tinting happens only to hightile textures, and only if the texture we're
             // rendering isn't for the same palette as what we asked for
             if (!(hictinting[globalpal].f&4))
-            if (pth && (pth->flags & 2))
-            {
-                if (pth->palnum != globalpal)
+                if (pth && (pth->flags & 2))
                 {
-                    // apply tinting for replaced textures
-                    pc[0] *= (float)hictinting[globalpal].r / 255.0;
-                    pc[1] *= (float)hictinting[globalpal].g / 255.0;
-                    pc[2] *= (float)hictinting[globalpal].b / 255.0;
+                    if (pth->palnum != globalpal)
+                    {
+                        // apply tinting for replaced textures
+                        pc[0] *= (float)hictinting[globalpal].r / 255.0;
+                        pc[1] *= (float)hictinting[globalpal].g / 255.0;
+                        pc[2] *= (float)hictinting[globalpal].b / 255.0;
+                    }
+                    if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
+                    {
+                        pc[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
+                        pc[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
+                        pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
+                    }
                 }
-                if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
-                {
-                    pc[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
-                    pc[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
-                    pc[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
-                }
-            }
 
             bglColor4f(pc[0],pc[1],pc[2],pc[3]);
         }
@@ -2845,7 +2845,7 @@ static void polymost_drawalls(int bunch)
     double t, r, t0, t1, ocy0, ocy1, ofy0, ofy1, oxp0, oyp0, ft[4];
     double oguo, ogux, oguy;
     int i, x, y, z, cz, fz, wallnum, sectnum, nextsectnum;
-    int ypan; // for panning correction
+    int ypan,yoffs; // for panning correction
 
     sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];
 
@@ -3728,8 +3728,18 @@ static void polymost_drawalls(int bunch)
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 
                 ypan = wal->ypanning;
-                if (ypan>256-(i-tilesizy[globalpicnum])*(256./i))
-                ypan -= (i-tilesizy[globalpicnum])*(256./i);
+                yoffs=(i-tilesizy[globalpicnum])*(255./i);
+                if (wal->cstat&4)
+                {
+                    if (ypan>256-yoffs)
+                    {
+                        ypan-=yoffs;
+                    }
+                }
+                else
+                {
+                    // not hacked yet
+                }
 
                 fy = (float)ypan * ((float)i) / 256.0;
                 gvx = (t0-t1)*t;
@@ -3775,8 +3785,17 @@ static void polymost_drawalls(int bunch)
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 
                 ypan = nwal->ypanning;
-				if (ypan>256-(i-tilesizy[globalpicnum])*(256./i))
-				ypan -= (i-tilesizy[globalpicnum])*(256./i);
+                yoffs=(i-tilesizy[globalpicnum])*(255./i);
+                if (!(nwal->cstat&4))
+                {
+                    if (ypan>256-yoffs){ypan-=yoffs;initprintf("FL\n");}
+                }
+                else
+                {
+                    // Still need a hack, depending on the wall(height,ypanning,yrepeat,tilesizy)
+                    // it should do "ypan-=yoffs" or "ypan+=yoffs" or [nothing].
+                    // Example: the film projector in the E1L1.map needs "ypan-=yoffs"
+                }
 
                 fy = (float)ypan * ((float)i) / 256.0;
                 gvx = (t0-t1)*t;
@@ -3818,8 +3837,18 @@ static void polymost_drawalls(int bunch)
             i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 
             ypan = wal->ypanning;
-            if (ypan>256-(i-tilesizy[globalpicnum])*(256./i))
-            ypan -= (i-tilesizy[globalpicnum])*(256./i);
+            yoffs=(i-tilesizy[globalpicnum])*(255./i);
+            if (!(wal->cstat&4))
+            {
+                if (ypan>256-yoffs)
+                {
+                    ypan-=yoffs;
+                }
+            }
+            else
+            {
+                // not hacked yet
+            }
 
             fy = (float)ypan * ((float)i) / 256.0;
             gvx = (t0-t1)*t;
