@@ -593,7 +593,7 @@ extern char display_mirror,loadfromgrouponly,rtsplaying;
 extern int groupfile;
 extern int ototalclock;
 
-extern intptr_t *animateptr[MAXANIMATES];
+extern int *animateptr[MAXANIMATES];
 extern int animategoal[MAXANIMATES];
 extern int animatevel[MAXANIMATES];
 // extern int oanimateval[MAXANIMATES];
@@ -691,9 +691,9 @@ extern int everyothertime;
 extern int mymaxlag, otherminlag, bufferjitter;
 
 extern int numinterpolations, startofdynamicinterpolations;
-extern intptr_t oldipos[MAXINTERPOLATIONS];
-extern intptr_t bakipos[MAXINTERPOLATIONS];
-extern intptr_t *curipos[MAXINTERPOLATIONS];
+extern int oldipos[MAXINTERPOLATIONS];
+extern int bakipos[MAXINTERPOLATIONS];
+extern int *curipos[MAXINTERPOLATIONS];
 
 extern short numclouds,clouds[128],cloudx[128],cloudy[128];
 extern int cloudtotalclock,totalmemory;

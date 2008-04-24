@@ -34,7 +34,7 @@ inline void updateinterpolations(void)  //Stick at beginning of domovethings
     for (;i>=0;i--) oldipos[i] = *curipos[i];
 }
 
-void setinterpolation(intptr_t *posptr)
+void setinterpolation(int *posptr)
 {
     int i=numinterpolations-1;
 
@@ -46,7 +46,7 @@ void setinterpolation(intptr_t *posptr)
     numinterpolations++;
 }
 
-void stopinterpolation(intptr_t *posptr)
+void stopinterpolation(int *posptr)
 {
     int i=numinterpolations-1;
 

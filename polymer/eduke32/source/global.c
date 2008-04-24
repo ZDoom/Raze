@@ -39,7 +39,7 @@ actordata_t hittype[MAXSPRITES];
 short spriteq[1024],spriteqloc,spriteqamount=64;
 animwalltype animwall[MAXANIMWALLS];
 short numanimwalls;
-intptr_t *animateptr[MAXANIMATES];
+int *animateptr[MAXANIMATES];
 int animategoal[MAXANIMATES], animatevel[MAXANIMATES], animatecnt;
 // int oanimateval[MAXANIMATES];
 short animatesect[MAXANIMATES];
@@ -165,9 +165,9 @@ int mymaxlag, otherminlag, bufferjitter = 1;
 short numclouds,clouds[128],cloudx[128],cloudy[128];
 int cloudtotalclock = 0,totalmemory = 0;
 int numinterpolations = 0, startofdynamicinterpolations = 0;
-intptr_t oldipos[MAXINTERPOLATIONS];
-intptr_t bakipos[MAXINTERPOLATIONS];
-intptr_t *curipos[MAXINTERPOLATIONS];
+int oldipos[MAXINTERPOLATIONS];
+int bakipos[MAXINTERPOLATIONS];
+int *curipos[MAXINTERPOLATIONS];
 
 int nextvoxid = 0;
 

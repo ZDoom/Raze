@@ -37,9 +37,9 @@ extern int g_iHiTagID;          // var ID of "HITAG"
 extern int g_iTextureID;        // var ID of "TEXTURE"
 extern int g_iThisActorID;      // var ID of "THISACTOR"
 
-extern int *actorLoadEventScrptr[MAXTILES];
+extern intptr_t *actorLoadEventScrptr[MAXTILES];
 
-extern int *apScriptGameEvent[MAXGAMEEVENTS];
+extern intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
 
 extern int otherp;
 extern int g_currentweapon;

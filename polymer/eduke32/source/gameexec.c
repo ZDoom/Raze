@@ -4476,8 +4476,8 @@ static int parse(void)
         insptr++;
         g_t[5] = *insptr++; // Ai
         g_t[4] = *(intptr_t *)(g_t[5]);       // Action
-        g_t[1] = *(intptr_t *)(g_t[5]+4);       // move
-        g_sp->hitag = *(intptr_t *)(g_t[5]+8);    // move flags
+        g_t[1] = *(((intptr_t *)g_t[5])+1);       // move
+        g_sp->hitag = *(((intptr_t *)g_t[5])+2);    // move flags
         g_t[0] = g_t[2] = g_t[3] = 0; // count, actioncount... g_t[3] = ???
         if (g_sp->hitag&random_angle)
             g_sp->ang = TRAND&2047;

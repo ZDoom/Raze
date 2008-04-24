@@ -6356,7 +6356,7 @@ int spawn(int j, int pn)
 void animatesprites(int x,int y,int a,int smoothratio)
 {
     int i, j, k, p, sect;
-    int l, t1,t3,t4;
+    intptr_t l, t1,t3,t4;
     spritetype *s,*t;
     int switchpic;
 
@@ -6914,7 +6914,7 @@ PALONLY:
 
             if (t4)
             {
-                l = *(int *)(t4+8);
+                l = *(((intptr_t *)t4)+2);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
                 if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
@@ -6970,7 +6970,7 @@ PALONLY:
                         break;
                     }
 
-                t->picnum += k + (*(int *)t4) + l * t3;
+                t->picnum += k + (*(intptr_t *)t4) + l * t3;
 
                 if (l > 0) while (tilesizx[t->picnum] == 0 && t->picnum > 0)
                         t->picnum -= l;       //Hack, for actors

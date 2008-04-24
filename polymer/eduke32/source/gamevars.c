@@ -479,14 +479,14 @@ int AddGameVar(const char *pszLabel, int lValue, unsigned int dwFlags)
         if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
         {
             if (!aGameVars[i].plValues)
-                aGameVars[i].plValues=Bcalloc(MAXPLAYERS,sizeof(int));
+                aGameVars[i].plValues=Bcalloc(MAXPLAYERS,sizeof(intptr_t));
             for (j=0;j<MAXPLAYERS;j++)
                 aGameVars[i].plValues[j]=lValue;
         }
         else if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
         {
             if (!aGameVars[i].plValues)
-                aGameVars[i].plValues=Bcalloc(MAXSPRITES,sizeof(int));
+                aGameVars[i].plValues=Bcalloc(MAXSPRITES,sizeof(intptr_t));
             for (j=0;j<MAXSPRITES;j++)
                 aGameVars[i].plValues[j]=lValue;
         }
