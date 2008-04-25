@@ -210,7 +210,7 @@ static inline uint64 B_SWAP64(uint64 l) { return (l>>56)|((l>>40)&0xff00)|((l>>2
 #endif
 
 #ifndef FP_OFF
-# define FP_OFF(__p) ((unsigned)(__p))
+# define FP_OFF(__p) ((uintptr_t)(__p))
 #endif
 
 #ifdef __compat_h_macrodef__

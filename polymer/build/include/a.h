@@ -192,47 +192,48 @@ extern void _cdecl stretchhline(int,int,int,int,int,int);
 #else				// _MSC_VER
 
 #define ENGINE_USING_A_C
+#include <stdint.h>
 
 void setvlinebpl(int dabpl);
-void fixtransluscence(int datransoff);
+void fixtransluscence(intptr_t datransoff);
 void settransnormal(void);
 void settransreverse(void);
 
-void sethlinesizes(int logx, int logy, int bufplc);
+void sethlinesizes(int logx, int logy, intptr_t bufplc);
 void setpalookupaddress(char *paladdr);
 void setuphlineasm4(int bxinc, int byinc);
-void hlineasm4(int cnt, int skiploadincs, int paloffs, unsigned int by, unsigned int bx, int p);
+void hlineasm4(int cnt, int skiploadincs, int paloffs, unsigned int by, unsigned int bx, intptr_t p);
 
-void setupslopevlin(int logylogx, int bufplc, int pinc);
-void slopevlin(int p, int i, int slopaloffs, int cnt, int bx, int by);
+void setupslopevlin(int logylogx, intptr_t bufplc, int pinc);
+void slopevlin(intptr_t p, int i, intptr_t slopaloffs, int cnt, int bx, int by);
 
 void setupvlineasm(int neglogy);
-void vlineasm1(int vinc, int paloffs, int cnt, unsigned int vplc, int bufplc, int p);
+void vlineasm1(int vinc, intptr_t paloffs, int cnt, unsigned int vplc, intptr_t bufplc, intptr_t p);
 
 void setupmvlineasm(int neglogy);
-void mvlineasm1(int vinc, int paloffs, int cnt, unsigned int vplc, int bufplc, int p);
+void mvlineasm1(int vinc, intptr_t paloffs, int cnt, unsigned int vplc, intptr_t bufplc, intptr_t p);
 
 void setuptvlineasm(int neglogy);
-void tvlineasm1(int vinc, int paloffs, int cnt, unsigned int vplc, int bufplc, int p);
+void tvlineasm1(int vinc, intptr_t paloffs, int cnt, unsigned int vplc, intptr_t bufplc, intptr_t p);
 
 void msethlineshift(int logx, int logy);
-void mhline(int bufplc, unsigned int bx, int cntup16, int junk, unsigned int by, int p);
+void mhline(intptr_t bufplc, unsigned int bx, int cntup16, int junk, unsigned int by, intptr_t p);
 
 void tsethlineshift(int logx, int logy);
-void thline(int bufplc, unsigned int bx, int cntup16, int junk, unsigned int by, int p);
+void thline(intptr_t bufplc, unsigned int bx, int cntup16, int junk, unsigned int by, intptr_t p);
 
-void setupspritevline(int paloffs, int bxinc, int byinc, int ysiz);
-void spritevline(int bx, int by, int cnt, int bufplc, int p);
+void setupspritevline(intptr_t paloffs, int bxinc, int byinc, int ysiz);
+void spritevline(int bx, int by, int cnt, intptr_t bufplc, intptr_t p);
 
-void msetupspritevline(int paloffs, int bxinc, int byinc, int ysiz);
-void mspritevline(int bx, int by, int cnt, int bufplc, int p);
+void msetupspritevline(intptr_t paloffs, int bxinc, int byinc, int ysiz);
+void mspritevline(int bx, int by, int cnt, intptr_t bufplc, intptr_t p);
 
-void tsetupspritevline(int paloffs, int bxinc, int byinc, int ysiz);
-void tspritevline(int bx, int by, int cnt, int bufplc, int p);
+void tsetupspritevline(intptr_t paloffs, int bxinc, int byinc, int ysiz);
+void tspritevline(int bx, int by, int cnt, intptr_t bufplc, intptr_t p);
 
-void setupdrawslab (int dabpl, int pal);
-void drawslab (int dx, int v, int dy, int vi, int vptr, int p);
-void stretchhline (int p0, int u, int cnt, int uinc, int rptr, int p);
+void setupdrawslab (int dabpl, intptr_t pal);
+void drawslab (int dx, int v, int dy, int vi, intptr_t vptr, intptr_t p);
+void stretchhline (intptr_t p0, int u, int cnt, int uinc, intptr_t rptr, intptr_t p);
 
 void mmxoverlay();
 

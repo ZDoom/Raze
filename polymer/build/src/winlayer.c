@@ -104,7 +104,8 @@ static void ProcessMouse(void);
 // video
 static int desktopxdim=0,desktopydim=0,desktopbpp=0,modesetusing=-1;
 int xres=-1, yres=-1, fullscreen=0, bpp=0, bytesperline=0, imageSize=0;
-int frameplace=0, lockcount=0;
+intptr frameplace=0;
+int lockcount=0;
 static int curvidmode = -1;
 static int customxdim = 640, customydim = 480, custombpp = 8, customfs = 0;
 static unsigned modeschecked=0;
@@ -2300,11 +2301,11 @@ void begindrawing(void)
 
     if (!fullscreen)
     {
-        frameplace = (int)lpPixels;
+        frameplace = (intptr_t)lpPixels;
     }
     else
     {
-        frameplace = (int)lpOffscreen;
+        frameplace = (intptr_t)lpOffscreen;
     }
 
     if (!modechange) return;

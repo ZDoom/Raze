@@ -3712,8 +3712,8 @@ static inline int boundmulscale(int a, int d, int c)
 #undef by
 #undef _scaler
 
-void qinterpolatedown16 (int bufptr, int num, int val, int add);
-void qinterpolatedown16short (int bufptr, int num, int val, int add);
+void qinterpolatedown16 (intptr_t bufptr, int num, int val, int add);
+void qinterpolatedown16short (intptr_t bufptr, int num, int val, int add);
 
 void clearbuf(void* d, int c, int a);
 void copybuf(void* s, void* d, int c);
