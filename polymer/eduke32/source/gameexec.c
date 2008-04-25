@@ -3727,7 +3727,8 @@ void OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
 
     {
         int og_i=g_i, og_p=g_p, okillit_flag=killit_flag;
-        int og_x=g_x, *og_t=g_t, *oinsptr=insptr;
+        int og_x=g_x, *og_t=g_t;
+        intptr_t *oinsptr=insptr;
         spritetype *og_sp=g_sp;
 
         g_i = iActor;    // current sprite ID
@@ -4474,6 +4475,7 @@ static int parse(void)
 
     case CON_AI:
         insptr++;
+        //Following changed to use pointersizes
         g_t[5] = *insptr++; // Ai
         g_t[4] = *(intptr_t *)(g_t[5]);       // Action
         g_t[1] = *(((intptr_t *)g_t[5])+1);       // move

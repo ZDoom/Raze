@@ -1331,7 +1331,8 @@ BOLT:
 static void movestandables(void)
 {
     int i = headspritestat[6], j, k, nexti, nextj, p=0, sect, switchpicnum;
-    int l=0, x, *t;
+    int l=0, x; 
+    intptr_t *t;
     spritetype *s;
     short m;
 
@@ -3441,7 +3442,8 @@ static short LocateTheLocator(int n,int sn)
 
 static void moveactors(void)
 {
-    int x, m, l, *t;
+    int x, m, l;
+    intptr_t *t;
     int a, j, nexti, nextj, sect, p, switchpicnum, k;
     spritetype *s;
     int i = headspritestat[1];
@@ -5331,7 +5333,8 @@ BOLT:
 
 static void moveeffectors(void)   //STATNUM 3
 {
-    int q=0, l, m, x, st, j, *t;
+    int q=0, l, m, x, st, j;
+    intptr_t *t;
     int i = headspritestat[3], nexti, nextk, p, sh, nextj;
     short k;
     spritetype *s;
