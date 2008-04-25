@@ -5,17 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <gdk-pixbuf/gdk-pixdata.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
-#include <gdk/gdkkeysyms.h>
-#include <gtk/gtk.h>
+#include "dynamicgtk.h"
 
 #include "baselayer.h"
 #include "build.h"
-
-#ifndef LINKED_GTK
-# include "dynamicgtk.h"
-#endif
 
 int gtkenabled = 0;
 

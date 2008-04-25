@@ -1693,6 +1693,7 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
             if (ysiz == pow2long[j]) { x |= 2; }
         }
         cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0);
+        initprintf("No cached tex for tile %d pal %d. ",dapic,dapalnum);
         writexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
     }
 

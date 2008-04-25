@@ -10,14 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <gdk-pixbuf/gdk-pixdata.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
-#include <gdk/gdkkeysyms.h>
-#include <gtk/gtk.h>
-
-#ifndef LINKED_GTK
-# include "dynamicgtk.h"
-#endif
+#include "dynamicgtk.h"
 
 #include "duke3d.h"
 #include "build.h"
@@ -273,8 +266,8 @@ static GtkWidget *create_window(void)
     GtkWidget *fullscreencheck;
     GtkWidget *vmode3dlabel;
     GtkWidget *inputdevlabel;
-/*    GtkWidget *sounddrvlabel;
-    GtkWidget *sounddrvcombo; */
+    /*    GtkWidget *sounddrvlabel;
+        GtkWidget *sounddrvcombo; */
     GtkWidget *inputmousecheck;
     GtkWidget *inputjoycheck;
     GtkWidget *vmode3dcombo;
@@ -368,21 +361,21 @@ static GtkWidget *create_window(void)
     gtk_fixed_put(GTK_FIXED(configlayout), inputdevlabel, 0, 120);
     gtk_widget_set_size_request(inputdevlabel, 88, 20);
     gtk_misc_set_alignment(GTK_MISC(inputdevlabel), 0, 0.5);
-/*
-    sounddrvlabel = gtk_label_new_with_mnemonic("S_ound driver:");
-    gtk_widget_show(sounddrvlabel);
-    gtk_fixed_put(GTK_FIXED(configlayout), sounddrvlabel, 0, 40);
-    gtk_widget_set_size_request(sounddrvlabel, 88, 29);
-    gtk_misc_set_alignment(GTK_MISC(sounddrvlabel), 0, 0.5);
+    /*
+        sounddrvlabel = gtk_label_new_with_mnemonic("S_ound driver:");
+        gtk_widget_show(sounddrvlabel);
+        gtk_fixed_put(GTK_FIXED(configlayout), sounddrvlabel, 0, 40);
+        gtk_widget_set_size_request(sounddrvlabel, 88, 29);
+        gtk_misc_set_alignment(GTK_MISC(sounddrvlabel), 0, 0.5);
 
-    sounddrvcombo = gtk_combo_box_new_text();
-    gtk_widget_show(sounddrvcombo);
-    gtk_fixed_put(GTK_FIXED(configlayout), sounddrvcombo, 88, 40);
-    gtk_widget_set_size_request(sounddrvcombo, 31, 30);
-    gtk_widget_add_accelerator(sounddrvcombo, "grab_focus", accel_group,
-                               GDK_O, GDK_MOD1_MASK,
-                               GTK_ACCEL_VISIBLE);
-*/
+        sounddrvcombo = gtk_combo_box_new_text();
+        gtk_widget_show(sounddrvcombo);
+        gtk_fixed_put(GTK_FIXED(configlayout), sounddrvcombo, 88, 40);
+        gtk_widget_set_size_request(sounddrvcombo, 31, 30);
+        gtk_widget_add_accelerator(sounddrvcombo, "grab_focus", accel_group,
+                                   GDK_O, GDK_MOD1_MASK,
+                                   GTK_ACCEL_VISIBLE);
+    */
     inputmousecheck = gtk_check_button_new_with_mnemonic("Mo_use");
     gtk_widget_show(inputmousecheck);
     gtk_fixed_put(GTK_FIXED(configlayout), inputmousecheck, 88, 120);
@@ -574,9 +567,9 @@ static GtkWidget *create_window(void)
     g_signal_connect((gpointer) fullscreencheck, "toggled",
                      G_CALLBACK(on_fullscreencheck_toggled),
                      NULL);
-/*    g_signal_connect((gpointer) sounddrvcombo, "changed",
-                     G_CALLBACK(on_sounddrvcombo_changed),
-                     NULL);*/
+    /*    g_signal_connect((gpointer) sounddrvcombo, "changed",
+                         G_CALLBACK(on_sounddrvcombo_changed),
+                         NULL);*/
     g_signal_connect((gpointer) inputmousecheck, "toggled",
                      G_CALLBACK(on_inputmousecheck_toggled),
                      NULL);
@@ -619,8 +612,8 @@ static GtkWidget *create_window(void)
     GLADE_HOOKUP_OBJECT(startwin, fullscreencheck, "fullscreencheck");
     GLADE_HOOKUP_OBJECT(startwin, vmode3dlabel, "vmode3dlabel");
     GLADE_HOOKUP_OBJECT(startwin, inputdevlabel, "inputdevlabel");
-/*    GLADE_HOOKUP_OBJECT(startwin, sounddrvlabel, "sounddrvlabel");
-    GLADE_HOOKUP_OBJECT(startwin, sounddrvcombo, "sounddrvcombo"); */
+    /*    GLADE_HOOKUP_OBJECT(startwin, sounddrvlabel, "sounddrvlabel");
+        GLADE_HOOKUP_OBJECT(startwin, sounddrvcombo, "sounddrvcombo"); */
     GLADE_HOOKUP_OBJECT(startwin, inputmousecheck, "inputmousecheck");
     GLADE_HOOKUP_OBJECT(startwin, inputjoycheck, "inputjoycheck");
     GLADE_HOOKUP_OBJECT(startwin, vmode3dcombo, "vmode3dcombo");

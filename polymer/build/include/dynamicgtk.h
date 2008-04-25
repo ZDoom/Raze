@@ -3,7 +3,19 @@
 
 #include <gdk-pixbuf/gdk-pixdata.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
+
+#if !GTK_CHECK_VERSION(2,4,0)
+#error You need at least 2.4.0 version of GTK+
+#endif
+
+#if !defined(LINKED_GTK)
+
+#ifndef G_GNUC_NULL_TERMINATED
+/* this is a glib-2.8.x thing: */
+#define G_GNUC_NULL_TERMINATED
+#endif
 
 struct _dynamicgtksyms {
 
@@ -228,6 +240,17 @@ void (*gtk_text_buffer_insert)            (GtkTextBuffer *buffer,
                                         GtkTextIter   *iter,
                                         const gchar   *text,
                                         gint           len);
+
+	// gtktextiter.h
+	// FIXME: should I put a #if !GTK_CHECK_VERSION(2,6,0)
+	// around these three, or should I not care??
+gboolean (*gtk_text_iter_backward_cursor_position)  (GtkTextIter *iter);
+gboolean (*gtk_text_iter_equal)			    (const GtkTextIter *lhs,
+						     const GtkTextIter *rhs);
+gboolean (*gtk_text_buffer_delete_interactive)	    (GtkTextBuffer *buffer,
+						     GtkTextIter   *start_iter,
+						     GtkTextIter   *end_iter,
+						     gboolean       default_editable);
 
 	// gtktextview.h
 GtkTextBuffer *(*gtk_text_view_get_buffer)            (GtkTextView   *text_view);
@@ -492,6 +515,11 @@ void dynamicgtk_uninit(void);
 #define gtk_text_buffer_get_end_iter dynamicgtksyms.gtk_text_buffer_get_end_iter
 #define gtk_text_buffer_insert dynamicgtksyms.gtk_text_buffer_insert
 
+// gtktextiter.h
+#define gtk_text_iter_backward_cursor_position dynamicgtksyms.gtk_text_iter_backward_cursor_position
+#define gtk_text_iter_equal dynamicgtksyms.gtk_text_iter_equal
+#define gtk_text_buffer_delete_interactive dynamicgtksyms.gtk_text_buffer_delete_interactive
+
 // gtktextview.h
 #define gtk_text_view_get_buffer dynamicgtksyms.gtk_text_view_get_buffer
 #define gtk_text_view_get_type dynamicgtksyms.gtk_text_view_get_type
@@ -562,6 +590,9 @@ void dynamicgtk_uninit(void);
 // gunicode.h
 #define g_utf8_collate dynamicgtksyms.g_utf8_collate
 
-#endif
+#endif	/* __dynamicgtkfoo__ */
 
-#endif
+#endif	/* LINKED_GTK */
+
+#endif	/* __dynamicgtk_h__ */
+

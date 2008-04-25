@@ -8,11 +8,7 @@
 #if defined USE_OPENGL
 
 #ifdef RENDERTYPESDL
-# ifdef __APPLE__
-#  include <SDL/SDL.h>
-# else
-#include "SDL.h"
-#endif
+#include "sdl_inc.h"
 #endif
 
 void (APIENTRY * bglClearColor)(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);

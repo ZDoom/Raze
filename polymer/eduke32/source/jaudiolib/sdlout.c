@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "sdlout.h"
-#include "SDL.h"
+#include "sdl_inc.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -117,10 +117,10 @@ int SDLSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, i
     initprintf("Initializing SDL sound...\n");
 
     initprintf("  - Requested sound format\n"
-             "      Channels:    %d\n"
-             "      Sample rate: %dHz\n"
-             "      Sample size: %d bits\n",
-             numchannels, mixrate, samplebits);
+               "      Channels:    %d\n"
+               "      Sample rate: %dHz\n"
+               "      Sample size: %d bits\n",
+               numchannels, mixrate, samplebits);
 
     spec.freq = mixrate;
     spec.format = (samplebits == 8 ? AUDIO_U8 : AUDIO_S16LSB);

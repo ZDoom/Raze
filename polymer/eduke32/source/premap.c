@@ -252,9 +252,12 @@ static void cachegoodsprites(void)
     for (i = TRANSPORTERBEAM; i < (TRANSPORTERBEAM+6); i++) tloadtile(i,1);
 
     for (i = SMALLSMOKE; i < (SMALLSMOKE+4); i++) tloadtile(i,1);
+    for (i = SHOTSPARK1; i < (SHOTSPARK1+4); i++) tloadtile(i,1);
 
     for (i = BLOOD; i < (BLOOD+4); i++) tloadtile(i,1);
     for (i = JIBS1; i < (JIBS5+5); i++) tloadtile(i,1);
+    for (i = JIBS6; i < (JIBS6+8); i++) tloadtile(i,1);
+
     for (i = SCRAP1; i < (SCRAP1+29); i++) tloadtile(i,1);
 
     tloadtile(FIRELASER,1);

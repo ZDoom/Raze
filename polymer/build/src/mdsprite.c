@@ -228,6 +228,7 @@ typedef struct { float xadd, yadd, zadd; short angadd, flags; } hudtyp;
 hudtyp hudmem[2][MAXTILES]; //~320KB ... ok for now ... could replace with dynamic alloc
 
 static char mdinited=0;
+int mdpause=0;
 
 #define MODELALLOCGROUP 256
 static int nummodelsalloced = 0, nextmodelid = 0;
@@ -1044,13 +1045,12 @@ static int mdloadskin(md2model *m, int number, int pal, int surf)
             if (ysiz == pow2long[j]) { i |= 2; }
         }
         cachead.flags = (i!=3) | (hasalpha ? 2 : 0);
+        initprintf("No cached tex for %s. ",fn);
         writexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:hictinting[pal].f, &cachead);
     }
 
     return(*texidx);
 }
-
-int mdpause;
 
 //Note: even though it says md2model, it works for both md2model&md3model
 static void updateanimation(md2model *m, spritetype *tspr)

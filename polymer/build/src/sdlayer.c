@@ -6,9 +6,7 @@
 
 #include <stdlib.h>
 #include <math.h>
-#ifndef __APPLE__
-# include "SDL.h"
-#endif
+#include "sdl_inc.h"
 #include "compat.h"
 #include "sdlayer.h"
 #include "cache1d.h"
@@ -22,7 +20,6 @@
 #endif
 
 #if defined __APPLE__
-# include <SDL/SDL.h>
 # include "osxbits.h"
 #elif defined HAVE_GTK2
 # include "gtkbits.h"
@@ -225,9 +222,15 @@ int initsystem(void)
     SDL_VERSION(&compiled);
 
     initprintf("Initializing SDL system interface "
-               "(compiled with SDL version %d.%d.%d, DLL version %d.%d.%d)\n",
-               linked->major, linked->minor, linked->patch,
-               compiled.major, compiled.minor, compiled.patch);
+               "(compiled against SDL version %d.%d.%d, found version %d.%d.%d)\n",
+               compiled.major, compiled.minor, compiled.patch,
+               linked->major, linked->minor, linked->patch);
+
+    if (SDL_VERSIONNUM(linked->major,linked->minor,linked->patch) < SDL_REQUIREDVERSION)
+    {	/*reject running under SDL versions older than what is stated in sdl_inc.h */
+        initprintf("You need at least v%d.%d.%d of SDL to run this game\n",SDL_MIN_X,SDL_MIN_Y,SDL_MIN_Z);
+        return -1;
+    }
 
     if (SDL_Init(SDL_INIT_VIDEO //| SDL_INIT_TIMER
 #ifdef NOSDLPARACHUTE

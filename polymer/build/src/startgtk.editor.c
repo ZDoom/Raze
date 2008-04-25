@@ -10,14 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <gdk-pixbuf/gdk-pixdata.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
-#include <gdk/gdkkeysyms.h>
-#include <gtk/gtk.h>
-
-#ifndef LINKED_GTK
-# include "dynamicgtk.h"
-#endif
+#include "dynamicgtk.h"
 
 #include "baselayer.h"
 #include "compat.h"

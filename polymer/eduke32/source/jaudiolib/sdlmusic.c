@@ -41,11 +41,8 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 #define cdecl
 #endif
 
-// for SDL_mixer.h _RW functions
-#define USE_RWOPS
-
-#include <SDL.h>
-#include <SDL_mixer.h>
+#define _NEED_SDLMIXER	1
+#include "sdl_inc.h"
 #include "music.h"
 
 #define __FX_TRUE  (1 == 1)
@@ -178,8 +175,17 @@ int MUSIC_Init(int SoundCard, int Address)
 {
     // Use an external MIDI player if the user has specified to do so
     char *command = getenv("EDUKE32_MUSIC_CMD");
+    const SDL_version *linked = Mix_Linked_Version();
+
+    if (SDL_VERSIONNUM(linked->major,linked->minor,linked->patch) < MIX_REQUIREDVERSION)
+    {
+        // reject running with SDL_Mixer versions older than what is stated in sdl_inc.h
+        initprintf("You need at least v%d.%d.%d of SDL_mixer for music\n",SDL_MIXER_MIN_X,SDL_MIXER_MIN_Y,SDL_MIXER_MIN_Z);
+        return(MUSIC_Error);
+    }
+
     external_midi = (command != NULL && command[0] != 0);
-    if(external_midi)
+    if (external_midi)
         Mix_SetMusicCMD(command);
 
     init_debugging();
@@ -204,7 +210,7 @@ int MUSIC_Shutdown(void)
     musdebug("shutting down sound subsystem.");
 
     // TODO - make sure this is being called from the menu -- SA
-    if(external_midi)
+    if (external_midi)
         Mix_SetMusicCMD(NULL);
 
     MUSIC_StopSong();
@@ -289,7 +295,7 @@ int MUSIC_StopSong(void)
     if (music_musicchunk)
         Mix_FreeMusic(music_musicchunk);
     if (music_songdata)
-        Bfree (music_songdata);
+        Bfree(music_songdata);
 
     music_musicchunk = NULL;
     music_songdata = NULL;

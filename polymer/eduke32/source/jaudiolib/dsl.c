@@ -25,14 +25,16 @@ Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
 
 #include "dsl.h"
 #include "compat.h"
-#include "SDL.h"
-#include "SDL_mixer.h"
+
+#define _NEED_SDLMIXER	1
+#include "sdl_inc.h"
 
 extern int MV_MixPage;
 
 int DSL_ErrorCode = DSL_Ok;
 
 static int mixer_initialized;
+static int interrupts_disabled = 0;
 
 static void(*_CallBackFunc)(void);
 static volatile char *_BufferStart;
@@ -90,6 +92,9 @@ static void DSL_SetErrorCode(int ErrorCode)
 
 int DSL_Init(void)
 {
+    /* FIXME: Do I need an SDL_mixer version check
+     * like that in sdlmusic.h here, too???
+     */
     DSL_SetErrorCode(DSL_Ok);
 
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
@@ -258,6 +263,9 @@ unsigned DSL_GetPlaybackRate(void)
 
 int DisableInterrupts(void)
 {
+    if (interrupts_disabled)
+        return 0;
+    interrupts_disabled = 1;
     SDL_LockAudio();
     return(0);
 }
@@ -265,6 +273,9 @@ int DisableInterrupts(void)
 int RestoreInterrupts(int flags)
 {
     UNREFERENCED_PARAMETER(flags);
+    if (!interrupts_disabled)
+        return 0;
+    interrupts_disabled = 0;
     SDL_UnlockAudio();
     return(0);
 }
