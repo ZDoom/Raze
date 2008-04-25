@@ -7390,18 +7390,21 @@ void execute(int iActor,int iPlayer,int lDist)
         return;
     }
 
-    if (g_t[4])
+/* Qbix: Changed variables to be aware of the sizeof *insptr 
+ * (wether it is int vs intptr_t), Although it is specificly cast to intptr_t*
+ * which might be corrected if the code is converted to use offsets */
+    if (g_t[4]) 
     {
         g_sp->lotag += TICSPERFRAME;
 
-        if (g_sp->lotag > *(intptr_t *)(g_t[4]+16))
+        if (g_sp->lotag > *(intptr_t *)(g_t[4]+4*sizeof(*insptr)))
         {
             g_t[2]++;
             g_sp->lotag = 0;
-            g_t[3] +=  *(intptr_t *)(g_t[4]+12);
+            g_t[3] +=  *(intptr_t *)(g_t[4]+3*sizeof(*insptr));
         }
 
-        if (klabs(g_t[3]) >= klabs(*(intptr_t *)(g_t[4]+4) * *(intptr_t *)(g_t[4]+12)))
+        if (klabs(g_t[3]) >= klabs(*(intptr_t *)(g_t[4]+sizeof(*insptr)) * *(intptr_t *)(g_t[4]+3*sizeof(*insptr))))
             g_t[3] = 0;
     }
 

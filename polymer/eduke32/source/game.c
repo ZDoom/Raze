@@ -6914,7 +6914,7 @@ PALONLY:
 
             if (t4)
             {
-                l = *(((intptr_t *)t4)+2);
+                l = *(((intptr_t *)t4)+2); //For TerminX: was *(int *)(t4+8)
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
                 if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
