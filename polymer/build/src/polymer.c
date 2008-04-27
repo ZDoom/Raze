@@ -230,8 +230,26 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     if ((cursectnum >= 0) && (cursectnum < numsectors))
         dacursectnum = cursectnum;
 
+    // unflag all sectors
+    i = 0;
+    while (i < numsectors)
+    {
+        prsectors[i]->controlstate = 0;
+        prsectors[i]->wallsproffset = 0.0f;
+        prsectors[i]->floorsproffset = 0.0f;
+        i++;
+    }
+    i = 0;
+    while (i < numwalls)
+    {
+        prwalls[i]->controlstate = 0;
+        i++;
+    }
+
     // external view (editor)
-    if ((dacursectnum < 0) || (dacursectnum >= numsectors))
+    if ((dacursectnum < 0) || (dacursectnum >= numsectors) ||
+        (daposz > sector[dacursectnum].floorz) ||
+        (daposz < sector[dacursectnum].ceilingz))
     {
         i = 0;
         while (i < numsectors)
@@ -254,22 +272,6 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
     }
 
     rootsectnum = dacursectnum;
-
-    // unflag all sectors
-    i = 0;
-    while (i < numsectors)
-    {
-        prsectors[i]->controlstate = 0;
-        prsectors[i]->wallsproffset = 0.0f;
-        prsectors[i]->floorsproffset = 0.0f;
-        i++;
-    }
-    i = 0;
-    while (i < numwalls)
-    {
-        prwalls[i]->controlstate = 0;
-        i++;
-    }
 
     // GO!
     depth = 0;

@@ -778,10 +778,13 @@ void editinput(void)
             }
         }
 
-        if (goalz < hiz+(4<<8)) goalz = hiz+(4<<8);
-        if (goalz > loz-(4<<8)) goalz = loz-(4<<8);
+        if (!noclip)
+        {
+            if (goalz < hiz+(4<<8)) goalz = hiz+(4<<8);
+            if (goalz > loz-(4<<8)) goalz = loz-(4<<8);
+        }
         if (zmode == 1) goalz = loz-zlock;
-        if (goalz < hiz+(4<<8)) goalz = ((loz+hiz)>>1);  //ceiling&floor too close
+        if (!noclip && (goalz < hiz+(4<<8))) goalz = ((loz+hiz)>>1);  //ceiling&floor too close
         if (zmode == 1) posz = goalz;
 
         if (goalz != posz)
@@ -793,8 +796,11 @@ void editinput(void)
 
             posz += hvel;
 
-            if (posz > loz-(4<<8)) posz = loz-(4<<8), hvel = 0;
-            if (posz < hiz+(4<<8)) posz = hiz+(4<<8), hvel = 0;
+            if (!noclip)
+            {
+                if (posz > loz-(4<<8)) posz = loz-(4<<8), hvel = 0;
+                if (posz < hiz+(4<<8)) posz = hiz+(4<<8), hvel = 0;
+            }
         }
         else
             hvel = 0;
