@@ -1440,24 +1440,21 @@ static void transvartype(int type)
     skipcomments(); //skip comments and whitespace
     if ((*textptr == '['))     //read of array as a gamevar
     {
-
+        f |= (MAXGAMEVARS<<2);
 //        initprintf("got an array");
         textptr++;
         i=GetADefID(label+(labelcnt<<6));
-        if (i >= 0)
-        {
-            *scriptptr++=i+1+MAXGAMEVARS;
-            transvartype(0);
-
-        }
-        else
+        if (i < 0)
         {
             error++;
             ReportError(ERROR_NOTAGAMEARRAY);
             return;
         }
 
+        *scriptptr++=(i|f);
+        transvartype(0);
         skipcomments(); //skip comments and whitespace
+
         if (*textptr != ']')
         {
             error++;
@@ -1521,8 +1518,8 @@ static void transvartype(int type)
     }
     if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%d: debug: accepted gamevar `%s'.\n",compilefile,line_number,label+(labelcnt<<6));
-    i |= f;
-    *scriptptr++=i;
+
+    *scriptptr++=(i|f);
 }
 
 static inline void transvar(void)

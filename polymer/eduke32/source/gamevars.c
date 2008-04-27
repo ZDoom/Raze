@@ -532,30 +532,41 @@ int GetGameVarID(int id, int iActor, int iPlayer)
 {
     int inv = 0;
 
+    if (id == MAXGAMEVARS)
+    {
+//            OSD_Printf("GetGameVarID(): reading gamevar constant\n");
+        return(*insptr++);
+    }
+
     if (id == g_iThisActorID)
         return iActor;
 
     if (id<0 || id >= iGameVarCount)
     {
-        if (id==MAXGAMEVARS)
+//        if (id < (MAXGAMEVARS<<1)+MAXGAMEVARS+1+MAXGAMEARRAYS)
+        if (id&(MAXGAMEVARS<<2))
         {
-//            OSD_Printf("GetGameVarID(): reading gamevar constant\n");
-            return(*insptr++);
-        }
-        if (id < MAXGAMEVARS+1+MAXGAMEARRAYS)
-        {
-            int index=0;
-//            OSD_Printf("GetGameVarID(): reading from array\n");
-            index=GetGameVarID(*insptr++,iActor,iPlayer);
-            if ((index < aGameArrays[id-MAXGAMEVARS-1].size)&&(index>=0))
-                inv =aGameArrays[id-MAXGAMEVARS-1].plValues[index];
-            else
+            int index=GetGameVarID(*insptr++,iActor,iPlayer);
+
+            id ^= (MAXGAMEVARS<<2);
+
+            if (id&(MAXGAMEVARS<<1)) // negative array access
             {
-                OSD_Printf("GetGameVarID(): invalid array index (%s[%d])\n",aGameArrays[id-MAXGAMEVARS-1].szLabel,index);
+                id ^= (MAXGAMEVARS<<1);
+//                OSD_Printf("GetGameVarID(): reading from array\n");
+                if ((index < aGameArrays[id].size)&&(index>=0))
+                    return(-aGameArrays[id].plValues[index]);
+                OSD_Printf("GetGameVarID(): invalid array index (%s[%d])\n",aGameArrays[id].szLabel,index);
                 return -1;
             }
-            return(inv);
+
+//            OSD_Printf("GetGameVarID(): reading from array\n");
+            if ((index < aGameArrays[id].size)&&(index>=0))
+                return(aGameArrays[id].plValues[index]);
+            OSD_Printf("GetGameVarID(): invalid array index (%s[%d])\n",aGameArrays[id].szLabel,index);
+            return -1;
         }
+
         if (!(id&(MAXGAMEVARS<<1)))
         {
             OSD_Printf("GetGameVarID(): invalid gamevar ID (%d)\n",id);
@@ -701,8 +712,9 @@ int GetGameVar(const char *szGameLabel, int lDefault, int iActor, int iPlayer)
 
 static intptr_t *GetGameValuePtr(const char *szGameLabel)
 {
-    int i;
-    for (i=0;i<iGameVarCount;i++)
+    int i=0;
+
+    for (;i<iGameVarCount;i++)
     {
         if (aGameVars[i].szLabel != NULL)
         {

@@ -6333,21 +6333,25 @@ static int parse(void)
             {
                 if (*insptr==MAXGAMEVARS) // addlogvar for a constant?  Har.
                     insptr++;
-                else if (*insptr&(MAXGAMEVARS<<1))
-                {
-                    m = -1;
-                    lVarID ^= (MAXGAMEVARS<<1);
-                }
-                else if (*insptr < MAXGAMEVARS+1+MAXGAMEARRAYS)
+//                else if (*insptr > iGameVarCount && (*insptr < (MAXGAMEVARS<<1)+MAXGAMEVARS+1+MAXGAMEARRAYS))
+                else if (*insptr&(MAXGAMEVARS<<2))
                 {
                     int index;
+
+                    lVarID ^= (MAXGAMEVARS<<2);
+
+                    if (lVarID&(MAXGAMEVARS<<1))
+                    {
+                        m = -1;
+                        lVarID ^= (MAXGAMEVARS<<1);
+                    }
 
                     insptr++;
 
                     index=GetGameVarID(*insptr++,g_i,g_p);
-                    if ((index < aGameArrays[lVarID-MAXGAMEVARS-1].size)&&(index>=0))
+                    if ((index < aGameArrays[lVarID].size)&&(index>=0))
                     {
-                        OSD_Printf("CONLOGVAR: L=%d %s[%d] =%d\n",l, aGameArrays[lVarID-MAXGAMEVARS-1].szLabel,index,aGameArrays[lVarID-MAXGAMEVARS-1].plValues[index]);
+                        OSD_Printf("CONLOGVAR: L=%d %s[%d] =%d\n",l, aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
                         break;
                     }
                     else
@@ -6355,6 +6359,11 @@ static int parse(void)
                         OSD_Printf("CONLOGVAR: L=%d INVALID ARRAY INDEX\n",l);
                         break;
                     }
+                }
+                else if (*insptr&(MAXGAMEVARS<<1))
+                {
+                    m = -1;
+                    lVarID ^= (MAXGAMEVARS<<1);
                 }
                 else
                 {
@@ -7392,10 +7401,10 @@ void execute(int iActor,int iPlayer,int lDist)
         return;
     }
 
-/* Qbix: Changed variables to be aware of the sizeof *insptr 
- * (wether it is int vs intptr_t), Although it is specificly cast to intptr_t*
- * which might be corrected if the code is converted to use offsets */
-    if (g_t[4]) 
+    /* Qbix: Changed variables to be aware of the sizeof *insptr
+     * (wether it is int vs intptr_t), Although it is specificly cast to intptr_t*
+     * which might be corrected if the code is converted to use offsets */
+    if (g_t[4])
     {
         g_sp->lotag += TICSPERFRAME;
 
