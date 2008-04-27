@@ -104,7 +104,7 @@ static void ProcessMouse(void);
 // video
 static int desktopxdim=0,desktopydim=0,desktopbpp=0,modesetusing=-1;
 int xres=-1, yres=-1, fullscreen=0, bpp=0, bytesperline=0, imageSize=0;
-intptr frameplace=0;
+intptr_t frameplace=0;
 int lockcount=0;
 static int curvidmode = -1;
 static int customxdim = 640, customydim = 480, custombpp = 8, customfs = 0;
