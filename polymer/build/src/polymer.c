@@ -869,7 +869,8 @@ static void         polymer_inb4mirror(GLfloat* buffer, GLdouble* plane)
 
 static void         polymer_animatesprites(void)
 {
-    asi.animatesprites(globalposx, globalposy, viewangle, asi.smoothratio);
+    if (asi.animatesprites)
+        asi.animatesprites(globalposx, globalposy, viewangle, asi.smoothratio);
 }
 
 // SECTORS
@@ -913,8 +914,8 @@ static int          polymer_updatesector(short sectnum)
     walltype        *wal;
     int             i, j;
     int             ceilz, florz;
-    int             tex, tey;
-    float           secangcos, secangsin, scalecoef;
+    int             tex, tey, heidiff;
+    float           secangcos, secangsin, scalecoef, xpancoef, ypancoef;
     int             ang, needfloor, wallinvalidate;
     short           curstat, curpicnum, floorpicnum, ceilingpicnum;
     char            curxpanning, curypanning;
@@ -1034,6 +1035,12 @@ static int          polymer_updatesector(short sectnum)
             tex = (curstat & 64) ? ((wal->x - wall[sec->wallptr].x) * secangsin) + ((-wal->y - -wall[sec->wallptr].y) * secangcos) : wal->x;
             tey = (curstat & 64) ? ((wal->x - wall[sec->wallptr].x) * secangcos) - ((wall[sec->wallptr].y - wal->y) * secangsin) : -wal->y;
 
+            if ((curstat & (2+64)) == (2+64))
+            {
+                heidiff = curbuffer[(i*5)+1] - curbuffer[1];
+                tey = sqrt((tey * tey) + (heidiff * heidiff));
+            }
+
             if (curstat & 4)
                 swaplong(&tex, &tey);
 
@@ -1042,8 +1049,24 @@ static int          polymer_updatesector(short sectnum)
 
             scalecoef = (curstat & 8) ? 8.0f : 16.0f;
 
-            curbuffer[(i*5)+3] = ((float)(tex) / (scalecoef * tilesizx[curpicnum])) + ((float)(curxpanning) / 256.0f);
-            curbuffer[(i*5)+4] = ((float)(tey) / (scalecoef * tilesizy[curpicnum])) + ((float)(curypanning) / 256.0f);
+            if (curxpanning)
+            {
+                xpancoef = (float)(pow2long[picsiz[curpicnum] & 15]);
+                xpancoef *= (float)(curxpanning) / (256.0f * (float)(tilesizx[curpicnum]));
+            }
+            else
+                xpancoef = 0;
+
+            if (curypanning)
+            {
+                ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
+                ypancoef *= (float)(curypanning) / (256.0f * (float)(tilesizy[curpicnum]));
+            }
+            else
+                ypancoef = 0;
+
+            curbuffer[(i*5)+3] = ((float)(tex) / (scalecoef * tilesizx[curpicnum])) + xpancoef;
+            curbuffer[(i*5)+4] = ((float)(tey) / (scalecoef * tilesizy[curpicnum])) + ypancoef;
 
             j--;
         }

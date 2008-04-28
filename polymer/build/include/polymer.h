@@ -2,7 +2,6 @@
 // TODO :
 // - CORE STUFF
 //   o put all the sector/wall geometry in VBOs
-//   o there's still a texture alignment problem with slopes (waterfall in launch facility)
 //   o wall palette problem (toxic waterfall in the abyss is blue)
 //   o there's also the texture alignment problem Hunter reported (san andreas fault)
 //   o also sliding doors are still fucked up sometimes (like under the bar in E1L2)
@@ -11,17 +10,12 @@
 //   o remove all the IM matrix crap and write real functions now that it works
 //   o polymer.c possibly needs to be split in several source files
 //   o some crap really needs factorization
-//   o only make parallaxes write into the depth buffer if map boundary (e1l2)
 //   o ... possibly more important stuff I don't have in mind right now
 // - SPRITES
 //   o port sprite panning and fullbrights from hacked polymost (:(
-//   o draw all opaques first, keep translucent for later with masks
 // - SKIES
 //   o figure a better way to handle ART skies - maybe add symetric caps that would fade to black like a big gem or something wow this is a long column lol ;0)
 //   o implement polymost skyboxes
-// - MIRRORS
-//   o figure out how to get mirror data from game
-//   o unified mirror transformation (not just walls)
 // - MDSPRITES
 //   o need to reimplement them - hopefully the loader can be reused without too much hassle
 //   o need full translation and rotation support from CON to attach to game world or tags
