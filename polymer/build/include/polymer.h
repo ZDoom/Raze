@@ -2,7 +2,6 @@
 // TODO :
 // - CORE STUFF
 //   o put all the sector/wall geometry in VBOs
-//   o wall palette problem (toxic waterfall in the abyss is blue)
 //   o there's also the texture alignment problem Hunter reported (san andreas fault)
 //   o also sliding doors are still fucked up sometimes (like under the bar in E1L2)
 //   o port glowmaps and detail maps from hacked polymost (:(

@@ -1311,7 +1311,8 @@ static int          polymer_initwall(short wallnum)
 static void         polymer_updatewall(short wallnum)
 {
     short           nwallnum, nnwallnum, curpicnum, wallpicnum, walloverpicnum, nwallpicnum;
-    char            curxpanning, curypanning, underwall, overwall;
+    char            curxpanning, curypanning, underwall, overwall, curpal;
+    signed char     curshade;
     walltype        *wal;
     sectortype      *sec, *nsec;
     _prwall         *w;
@@ -1400,9 +1401,6 @@ static void         polymer_updatewall(short wallnum)
 
     w->underover = underwall = overwall = 0;
 
-    w->wallcolor[0] = w->wallcolor[1] = w->wallcolor[2] = ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
-    w->wallcolor[3] = 1.0f;
-
     if (wal->cstat & 8)
         xref = 1;
     else
@@ -1427,6 +1425,10 @@ static void         polymer_updatewall(short wallnum)
             w->wallfbglpic = pth->ofb->glpic;
         else
             w->wallfbglpic = 0;
+
+        w->wallcolor[0] = w->wallcolor[1] = w->wallcolor[2] =
+            ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
+        w->wallcolor[3] = 1.0f;
 
         if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
         {
@@ -1496,12 +1498,16 @@ static void         polymer_updatewall(short wallnum)
             if (wal->cstat & 2)
             {
                 curpicnum = nwallpicnum;
+                curpal = wall[nwallnum].pal;
+                curshade = wall[nwallnum].shade;
                 curxpanning = wall[nwallnum].xpanning;
                 curypanning = wall[nwallnum].ypanning;
             }
             else
             {
                 curpicnum = wallpicnum;
+                curpal = wal->pal;
+                curshade = wal->shade;
                 curxpanning = wal->xpanning;
                 curypanning = wal->ypanning;
             }
@@ -1509,7 +1515,7 @@ static void         polymer_updatewall(short wallnum)
             if (!waloff[curpicnum])
                 loadtile(curpicnum);
 
-            pth = gltexcache(curpicnum, wal->pal, 0);
+            pth = gltexcache(curpicnum, curpal, 0);
             w->wallglpic = pth ? pth->glpic : 0;
 
             if (pth && (pth->flags & 16))
@@ -1517,11 +1523,15 @@ static void         polymer_updatewall(short wallnum)
             else
                 w->wallfbglpic = 0;
 
-            if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
+            w->wallcolor[0] = w->wallcolor[1] = w->wallcolor[2] =
+                ((float)(numpalookups-min(max(curshade,0),numpalookups)))/((float)numpalookups);
+            w->wallcolor[3] = 1.0f;
+
+            if (pth && (pth->flags & 2) && (pth->palnum != curpal))
             {
-                w->wallcolor[0] *= (float)hictinting[wal->pal].r / 255.0;
-                w->wallcolor[1] *= (float)hictinting[wal->pal].g / 255.0;
-                w->wallcolor[2] *= (float)hictinting[wal->pal].b / 255.0;
+                w->wallcolor[0] *= (float)hictinting[curpal].r / 255.0;
+                w->wallcolor[1] *= (float)hictinting[curpal].g / 255.0;
+                w->wallcolor[2] *= (float)hictinting[curpal].b / 255.0;
             }
 
             if ((!(wal->cstat & 2) && (wal->cstat & 4)) || ((wal->cstat & 2) && (wall[nwallnum].cstat & 4)))
@@ -1603,7 +1613,9 @@ static void         polymer_updatewall(short wallnum)
                 pth = gltexcache(wal->overpicnum, wal->pal, 0);
                 w->maskglpic = pth ? pth->glpic : 0;
 
-                memcpy(w->maskcolor, w->wallcolor, sizeof(GLfloat) * 3);
+                w->maskcolor[0] = w->maskcolor[1] = w->maskcolor[2] =
+                    ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
+                w->maskcolor[3] = 1.0f;
 
                 if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
                 {
@@ -1630,7 +1642,9 @@ static void         polymer_updatewall(short wallnum)
             else
                 w->overfbglpic = 0;
 
-            memcpy(w->overcolor, w->wallcolor, sizeof(GLfloat) * 4);
+            w->overcolor[0] = w->overcolor[1] = w->overcolor[2] =
+                ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
+            w->overcolor[3] = 1.0f;
 
             if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
             {
