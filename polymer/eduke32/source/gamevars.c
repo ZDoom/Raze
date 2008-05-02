@@ -530,7 +530,7 @@ static int GetGameID(const char *szGameLabel)
 
 int GetGameVarID(int id, int iActor, int iPlayer)
 {
-    int inv = 0;
+    int m = 1;
 
     if (id == MAXGAMEVARS)
     {
@@ -552,17 +552,13 @@ int GetGameVarID(int id, int iActor, int iPlayer)
 
             if (id&(MAXGAMEVARS<<1)) // negative array access
             {
+                m = -1;
                 id ^= (MAXGAMEVARS<<1);
-//                OSD_Printf("GetGameVarID(): reading from array\n");
-                if ((index < aGameArrays[id].size)&&(index>=0))
-                    return(-aGameArrays[id].plValues[index]);
-                OSD_Printf("GetGameVarID(): invalid array index (%s[%d])\n",aGameArrays[id].szLabel,index);
-                return -1;
             }
 
 //            OSD_Printf("GetGameVarID(): reading from array\n");
             if ((index < aGameArrays[id].size)&&(index>=0))
-                return(aGameArrays[id].plValues[index]);
+                return(m * aGameArrays[id].plValues[index]);
             OSD_Printf("GetGameVarID(): invalid array index (%s[%d])\n",aGameArrays[id].szLabel,index);
             return -1;
         }
@@ -573,7 +569,7 @@ int GetGameVarID(int id, int iActor, int iPlayer)
             return -1;
         }
 
-        inv = 1;
+        m = -1;
         id ^= (MAXGAMEVARS<<1);
     }
 
@@ -584,12 +580,10 @@ int GetGameVarID(int id, int iActor, int iPlayer)
         {
             //Bsprintf(g_szBuf,"GetGameVarID(%d, %d, %d) returns %d\n",id,iActor,iPlayer, aGameVars[id].plValues[iPlayer]);
             //AddLog(g_szBuf);
-            if (inv) return(-aGameVars[id].plValues[iPlayer]);
-            return (aGameVars[id].plValues[iPlayer]);
+            return(m * aGameVars[id].plValues[iPlayer]);
         }
 
-        if (inv) return(-aGameVars[id].lValue);
-        return (aGameVars[id].lValue);
+        return(m * aGameVars[id].lValue);
     }
 
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR)
@@ -597,34 +591,28 @@ int GetGameVarID(int id, int iActor, int iPlayer)
         // for the current actor
         if (iActor >= 0 && iActor <= MAXSPRITES)
         {
-            if (inv) return(-aGameVars[id].plValues[iActor]);
-            return (aGameVars[id].plValues[iActor]);
+            return(m * aGameVars[id].plValues[iActor]);
         }
 
-        if (inv) return(-aGameVars[id].lValue);
-        return (aGameVars[id].lValue);
+        return(m * aGameVars[id].lValue);
     }
 
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_INTPTR)
     {
-        if (inv) return(-(*((int*)aGameVars[id].lValue)));
-        return(*((int*)aGameVars[id].lValue));
+        return(m * (*((int*)aGameVars[id].lValue)));
     }
 
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_SHORTPTR)
     {
-        if (inv) return(-(*((short*)aGameVars[id].lValue)));
-        return(*((short*)aGameVars[id].lValue));
+        return(m * (*((short*)aGameVars[id].lValue)));
     }
 
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_CHARPTR)
     {
-        if (inv) return(-(*((char*)aGameVars[id].lValue)));
-        return(*((char*)aGameVars[id].lValue));
+        return(m * (*((char*)aGameVars[id].lValue)));
     }
 
-    if (inv) return(-aGameVars[id].lValue);
-    return (aGameVars[id].lValue);
+    return(m * aGameVars[id].lValue);
 }
 
 void SetGameArrayID(int id,int index, int lValue)

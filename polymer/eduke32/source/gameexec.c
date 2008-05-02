@@ -3897,7 +3897,7 @@ int furthestcanseepoint(int iActor,spritetype *ts,int *dax,int *day)
         d = klabs(hx-ts->x)+klabs(hy-ts->y);
         da = klabs(hx-s->x)+klabs(hy-s->y);
 
-        if (d < da)
+        if (d < da && hitsect > -1)
             if (cansee(hx,hy,hz,hitsect,s->x,s->y,s->z-(16<<8),s->sectnum))
             {
                 *dax = hx;
