@@ -39,4 +39,6 @@ pthtyp * gltexcache (int dapicnum, int dapalnum, int dameth);
 extern palette_t hictinting[MAXPALOOKUPS];
 extern float     gtang;
 
+#define HICEFFECTMASK (1|2|4)
+
 #endif // !_polymost_h_

@@ -6,10 +6,10 @@
 
 #include "kplib.h"
 
-#define HICEFFECTMASK (1|2|4)
 palette_t hictinting[MAXPALOOKUPS];
 
 //moved into polymost.h
+//#define HICEFFECTMASK (1|2|4)
 /*struct hicskybox_t {
     int ignore;
     char *face[6];

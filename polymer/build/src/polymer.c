@@ -333,6 +333,48 @@ void                polymer_drawmaskwall(int damaskwallcnt)
     polymer_drawplane(-1, -3, w->maskglpic, w->maskcolor, w->portal, NULL, 0, NULL);
 }
 
+static void         polymer_drawmdsprite(spritetype *tspr)
+{
+    md3model*       m;
+    float           spos[3];
+    float           ang;
+    int             surfi;
+    md3xyzn_t       *v0;
+    md3surf_t       *s;
+    GLuint          i;
+
+    m = (md3model*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
+    updateanimation((md2model *)m,tspr);
+
+    spos[0] = tspr->y;
+    spos[1] = -(float)(tspr->z) / 16.0f;
+    spos[2] = -tspr->x;
+    ang = (float)((tspr->ang) & 2047) / (2048.0f / 360.0f);
+
+    bglMatrixMode(GL_MODELVIEW);
+    bglPushMatrix();
+    bglTranslatef(spos[0], spos[1], spos[2]);
+    bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+    bglRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+    bglRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+    for (surfi=0;surfi<m->head.numsurfs;surfi++)
+    {
+        s = &m->head.surfs[surfi];
+        v0 = &s->xyzn[m->cframe*s->numverts];
+
+        i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,globalpal,surfi);
+        if (!i)
+            continue;
+
+        bglBindTexture(GL_TEXTURE_2D, i);
+
+        bglVertexPointer(3, GL_SHORT, sizeof(md3xyzn_t), v0);
+        bglTexCoordPointer(2, GL_FLOAT, 0, s->uv);
+        bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
+    }
+    bglPopMatrix();
+}
+
 void                polymer_drawsprite(int snum)
 {
     int             curpicnum, glpic, xsize, ysize, tilexoff, tileyoff, xoff, yoff;
@@ -344,6 +386,12 @@ void                polymer_drawsprite(int snum)
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
     tspr = tspriteptr[snum];
+
+    if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0)
+    {
+        polymer_drawmdsprite(tspr);
+        return;
+    }
 
     curpicnum = tspr->picnum;
     if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,tspr->owner+32768);

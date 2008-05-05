@@ -31,6 +31,7 @@
 # include "glbuild.h"
 # include "osd.h"
 # include "polymost.h"
+# include "mdsprite.h"
 # include "pragmas.h"
 # include <math.h>
 
@@ -157,6 +158,6 @@ static void         polymer_getsky(void);
 static void         polymer_drawskyquad(int p1, int p2, GLfloat height);
 static void         polymer_drawartsky(short tilenum);
 
-# endif
+# endif // !POLYMER_C
 
 #endif // !_polymer_h_
