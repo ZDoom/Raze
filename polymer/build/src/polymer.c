@@ -340,6 +340,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     md3model*       m;
     float           spos[3];
     float           ang;
+    float           scale;
     int             surfi;
     md3xyzn_t       *v0;
     md3surf_t       *s;
@@ -348,6 +349,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     m = (md3model*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
     updateanimation((md2model *)m,tspr);
 
+    if (m->head.flags == 1337)
+        return;
+
     spos[0] = tspr->y;
     spos[1] = -(float)(tspr->z) / 16.0f;
     spos[2] = -tspr->x;
@@ -355,16 +359,22 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
     bglMatrixMode(GL_MODELVIEW);
     bglPushMatrix();
+    scale = (m->head.flags == 1337) ? 1.0 : (1.0/64.0);
+    scale *= m->scale;
+    scale *= m->bscale;
+    scale *= 1024;
+
     bglTranslatef(spos[0], spos[1], spos[2]);
     bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
     bglRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
     bglRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+    bglScalef(scale * (float)(tspr->xrepeat) / 64.0, scale * (float)(tspr->xrepeat) / 64.0, scale * (float)(tspr->yrepeat) / 64.0);
     for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
         s = &m->head.surfs[surfi];
         v0 = &s->xyzn[m->cframe*s->numverts];
 
-        i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,globalpal,surfi);
+        i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
         if (!i)
             continue;
 
