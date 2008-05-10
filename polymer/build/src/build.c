@@ -235,7 +235,7 @@ static int osdcmd_vidmode(const osdfuncparm_t *parm)
         return OSDCMD_SHOWHELP;
     }
 
-    if (qsetmode != 200) 
+    if (qsetmode != 200)
     {
         qsetmodeany(newx,newy);
         xdim2d = xdim;
@@ -3162,6 +3162,7 @@ void overheadeditor(void)
         drawline16(0,searchy,8,searchy,15);
 
         col = 15-((gridlock<<1)+gridlock);
+        if (joinsector[0] >= 0)col = 11;
         drawline16(searchx,searchy-8,searchx,searchy-1,col);
         drawline16(searchx+1,searchy-8,searchx+1,searchy-1,col);
         drawline16(searchx,searchy+2,searchx,searchy+9,col);
@@ -5587,6 +5588,7 @@ void overheadeditor(void)
                 printmessage16("Arrow must be inside a sector before entering 3D mode.");
         }
 CANCEL:
+        if (keystatus[1] > 0 && joinsector[0] >= 0){keystatus[1]=0;joinsector[0]=-1;}
         if (keystatus[1] > 0)
         {
             keystatus[1] = 0;

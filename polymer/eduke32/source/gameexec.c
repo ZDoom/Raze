@@ -5597,8 +5597,10 @@ static int parse(void)
                 gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
             }
 
+#ifdef POLYMER
             if (rendmode == 4)
                 polymer_setanimatesprites(animatesprites, x,y,a,smoothratio);
+#endif
             drawrooms(x,y,z,a,horiz,sect);
             display_mirror = 2;
             animatesprites(x,y,a,smoothratio);
@@ -7023,6 +7025,13 @@ static int parse(void)
     case CON_STARTTRACK:
         insptr++;
         music_select=(ud.volume_number*MAXLEVELS)+(*(insptr++));
+        if (map[(unsigned char)music_select].musicfn != NULL)
+            playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
+        break;
+
+    case CON_STARTTRACKVAR:
+        insptr++;
+        music_select=(ud.volume_number*MAXLEVELS)+(GetGameVarID(*(insptr++), g_i, g_p));
         if (map[(unsigned char)music_select].musicfn != NULL)
             playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
         break;

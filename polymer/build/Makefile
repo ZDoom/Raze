@@ -16,6 +16,7 @@
 
 SUPERBUILD ?= 1
 POLYMOST ?= 1		
+POLYMER ?= 1
 USE_OPENGL ?= 1
 NOASM ?= 0
 LINKED_GTK ?= 0
@@ -88,8 +89,10 @@ ENGINEOBJS+= \
     $(OBJ)/mmulti.$o \
 	$(OBJ)/osd.$o \
 	$(OBJ)/pragmas.$o \
-	$(OBJ)/scriptfile.$o \
-	$(OBJ)/polymer.$o
+	$(OBJ)/scriptfile.$o
+ifeq (1,$(POLYMER))
+	ENGINEOBJS+=  $(OBJ)/polymer.$o
+endif
 
 EDITOROBJS=$(OBJ)/build.$o \
 	$(OBJ)/config.$o

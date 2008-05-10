@@ -6025,6 +6025,32 @@ int ExtInit(void)
     return rv;
 }
 
+#ifdef RENDERTYPEWIN
+void app_crashhandler(void)
+{
+    if (levelname[0])
+    {
+        char *f;
+        fixspritesectors();   //Do this before saving!
+        updatesector(startposx,startposy,&startsectnum);
+        if (pathsearchmode) f = levelname;
+        else
+        {
+            // virtual filesystem mode can't save to directories so drop the file into
+            // the current directory
+            f = strrchr(levelname, '/');
+            if (!f) f = levelname; else f++;
+        }
+        ExtPreSaveMap();
+        saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
+        ExtSaveMap(f);
+        message("Board saved");
+        asksave = 0;
+        keystatus[0x1f] = 0;
+    }
+}
+#endif
+
 void ExtUnInit(void)
 {
     int i;
@@ -6234,11 +6260,20 @@ static void Keys2d3d(void)
         {
             if (levelname[0])
             {
+                char *f;
                 fixspritesectors();   //Do this before saving!
                 updatesector(startposx,startposy,&startsectnum);
+                if (pathsearchmode) f = levelname;
+                else
+                {
+                    // virtual filesystem mode can't save to directories so drop the file into
+                    // the current directory
+                    f = strrchr(levelname, '/');
+                    if (!f) f = levelname; else f++;
+                }
                 ExtPreSaveMap();
-                saveboard(levelname,&startposx,&startposy,&startposz,&startang,&startsectnum);
-                ExtSaveMap(levelname);
+                saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
+                ExtSaveMap(f);
                 message("Board saved");
                 asksave = 0;
                 keystatus[0x1f] = 0;

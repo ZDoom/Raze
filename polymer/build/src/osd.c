@@ -225,17 +225,20 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
             osdrows = atoi(parm->parms[0]);
             if (osdrows < 1) osdrows = 1;
             else if (osdrows > osdmaxrows) osdrows = osdmaxrows;
-            if(osdrowscur!=-1)osdrowscur = osdrows;
-            return OSDCMD_OK;
-        }
-    } else
-    if (!Bstrcasecmp(parm->name, "logcutoff")) {
-        if (showval) { OSD_Printf("logcutoff is %d\n", logcutoff); return OSDCMD_OK; }
-        else {
-            logcutoff = atoi(parm->parms[0]);
+            if (osdrowscur!=-1)osdrowscur = osdrows;
             return OSDCMD_OK;
         }
     }
+    else
+        if (!Bstrcasecmp(parm->name, "logcutoff"))
+        {
+            if (showval) { OSD_Printf("logcutoff is %d\n", logcutoff); return OSDCMD_OK; }
+            else
+            {
+                logcutoff = atoi(parm->parms[0]);
+                return OSDCMD_OK;
+            }
+        }
     return OSDCMD_SHOWHELP;
 }
 
@@ -963,12 +966,12 @@ void OSD_Printf(const char *fmt, ...)
     Bvsnprintf(tmpstr, 1024, fmt, va);
     va_end(va);
 
-    if(linecnt<logcutoff)
+    if (linecnt<logcutoff)
     {
         if (osdlog&&(!logcutoff||linecnt<logcutoff))
             Bfputs(tmpstr, osdlog);
     }
-    else if(linecnt==logcutoff)
+    else if (linecnt==logcutoff)
     {
         Bfputs("\nMaximal log size reached. Logging stopped.\nSet the \"logcutoff\" console variable to a higher value if you need a longer log.\n", osdlog);
         linecnt=logcutoff+1;

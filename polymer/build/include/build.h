@@ -481,9 +481,11 @@ _equation       equation(int x1, int y1, int x2, int y2);
 int             sameside(_equation* eq, _point2d* p1, _point2d* p2);
 int             wallvisible(short wallnum);
 
+#ifdef POLYMER
 // polymer stuff for the game to provide it with the animatessprites ptr
 typedef void (*animatespritesptr)(int, int, int, int);
 EXTERN void polymer_setanimatesprites(animatespritesptr, int, int, int, int);
+#endif
 
 #define STATUS2DSIZ 144
 void   qsetmode640350(void);
@@ -565,7 +567,7 @@ int md_undefinemodel(int modelid);
 #define MAXPALCONV 200
 void clearconv();
 void setpalconv(int pal,int pal1,int pal2);
-void getpalmap(int stage,int *pal1,int *pal2);
+void getpalmap(int *stage,int *pal1,int *pal2);
 int checkpalmaps(int pal);
 void applypalmap(char *pic, char *palmap, int size, int pal);
 

@@ -450,6 +450,7 @@ static const char *keyw[] =
     "resizearray",              // 318
     "writearraytofile",         // 319
     "readarrayfromfile",        // 320
+    "starttrackvar",			// 321
     "<null>"
 };
 
@@ -3287,6 +3288,7 @@ static int parsecommand(void)
     case CON_SAVEGAMEVAR:
     case CON_READGAMEVAR:
     case CON_USERQUOTE:
+    case CON_STARTTRACKVAR:
         transvar();
         return 0;
 

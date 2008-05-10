@@ -1331,7 +1331,7 @@ BOLT:
 static void movestandables(void)
 {
     int i = headspritestat[6], j, k, nexti, nextj, p=0, sect, switchpicnum;
-    int l=0, x; 
+    int l=0, x;
     intptr_t *t;
     spritetype *s;
     short m;

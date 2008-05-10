@@ -115,7 +115,7 @@ void allocache(intptr_t *newhandle, int newbytes, char *newlockptr)
     // Make all requests a multiple of 16 bytes
     newbytes = (newbytes+15)&0xfffffff0;
 //printf("allocated %d bytes\n", newbytes);
-	
+
     if ((unsigned)newbytes > (unsigned)cachesize)
     {
         Bprintf("Cachesize: %d\n",cachesize);

@@ -70,14 +70,14 @@ static void PopulateForm(void)
         Bsprintf(buf, "%d x %d %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
         j = ComboBox_AddString(hwnd3d, buf);
         (void)ComboBox_SetItemData(hwnd3d, j, i);
-        if (i == mode3d) (void)ComboBox_SetCurSel(hwnd3d, j);
+        if (i == mode3d)(void)ComboBox_SetCurSel(hwnd3d, j);
 
         // only 8-bit modes get used for 2D
         if (validmode[i].bpp != 8 || validmode[i].xdim < 640 || validmode[i].ydim < 480) continue;
         Bsprintf(buf, "%d x %d", validmode[i].xdim, validmode[i].ydim);
         j = ComboBox_AddString(hwnd2d, buf);
         (void)ComboBox_SetItemData(hwnd2d, j, i);
-        if (i == mode2d) (void)ComboBox_SetCurSel(hwnd2d, j);
+        if (i == mode2d)(void)ComboBox_SetCurSel(hwnd2d, j);
     }
 }
 

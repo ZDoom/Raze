@@ -100,12 +100,12 @@ int dynamicgtk_init(void)
         GETDLSYM(gtk_text_buffer_delete_mark)
         GETDLSYM(gtk_text_buffer_get_end_iter)
         GETDLSYM(gtk_text_buffer_insert)
-	// FIXME: should I put a #if !GTK_CHECK_VERSION(2,6,0)
-	// around these three, or should I not care??
+        // FIXME: should I put a #if !GTK_CHECK_VERSION(2,6,0)
+        // around these three, or should I not care??
         GETDLSYM(gtk_text_iter_backward_cursor_position)
         GETDLSYM(gtk_text_iter_equal)
         GETDLSYM(gtk_text_buffer_delete_interactive)
-	//
+        //
         GETDLSYM(gtk_text_view_get_buffer)
         GETDLSYM(gtk_text_view_get_type)
         GETDLSYM(gtk_text_view_new)

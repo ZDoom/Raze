@@ -20,26 +20,28 @@ _prwall         *prwalls[MAXWALLS];
 
 GLfloat         skybox[16];
 
-GLfloat         vertsprite[4 * 5] = {
+GLfloat         vertsprite[4 * 5] =
+{
     -0.5f, 0.0f, 0.0f,
-     0.0f, 1.0f,
-     0.5f, 0.0f, 0.0f,
-     1.0f, 1.0f,
-     0.5f, 1.0f, 0.0f,
-     1.0f, 0.0f,
+    0.0f, 1.0f,
+    0.5f, 0.0f, 0.0f,
+    1.0f, 1.0f,
+    0.5f, 1.0f, 0.0f,
+    1.0f, 0.0f,
     -0.5f, 1.0f, 0.0f,
-     0.0f, 0.0f,
+    0.0f, 0.0f,
 };
 
-GLfloat         horizsprite[4 * 5] = {
+GLfloat         horizsprite[4 * 5] =
+{
     -0.5f, 0.0f, -0.5f,
-     0.0f, 1.0f,
-     0.5f, 0.0f, -0.5f,
-     1.0f, 1.0f,
-     0.5f, 0.0f, 0.5f,
-     1.0f, 0.0f,
+    0.0f, 1.0f,
+    0.5f, 0.0f, -0.5f,
+    1.0f, 1.0f,
+    0.5f, 0.0f, 0.5f,
+    1.0f, 0.0f,
     -0.5f, 0.0f, 0.5f,
-     0.0f, 0.0f,
+    0.0f, 0.0f,
 };
 
 // CONTROL
@@ -248,8 +250,8 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
 
     // external view (editor)
     if ((dacursectnum < 0) || (dacursectnum >= numsectors) ||
-        (daposz > sector[dacursectnum].floorz) ||
-        (daposz < sector[dacursectnum].ceilingz))
+            (daposz > sector[dacursectnum].floorz) ||
+            (daposz < sector[dacursectnum].ceilingz))
     {
         i = 0;
         while (i < numsectors)
@@ -458,62 +460,62 @@ void                polymer_drawsprite(int snum)
 
     switch ((tspr->cstat>>4) & 3)
     {
-        case 0:
-            bglMatrixMode(GL_MODELVIEW);
-            bglPushMatrix();
+    case 0:
+        bglMatrixMode(GL_MODELVIEW);
+        bglPushMatrix();
 
-            spritemodelview[12] =   curmodelviewmatrix[0] * spos[0] +
-                                    curmodelviewmatrix[4] * spos[1] +
-                                    curmodelviewmatrix[8] * spos[2] +
-                                    curmodelviewmatrix[12];
-            spritemodelview[13] =   curmodelviewmatrix[1] * spos[0] +
-                                    curmodelviewmatrix[5] * spos[1] +
-                                    curmodelviewmatrix[9] * spos[2] +
-                                    curmodelviewmatrix[13];
-            spritemodelview[14] =   curmodelviewmatrix[2]  * spos[0] +
-                                    curmodelviewmatrix[6]  * spos[1] +
-                                    curmodelviewmatrix[10] * spos[2] +
-                                    curmodelviewmatrix[14];
+        spritemodelview[12] =   curmodelviewmatrix[0] * spos[0] +
+                                curmodelviewmatrix[4] * spos[1] +
+                                curmodelviewmatrix[8] * spos[2] +
+                                curmodelviewmatrix[12];
+        spritemodelview[13] =   curmodelviewmatrix[1] * spos[0] +
+                                curmodelviewmatrix[5] * spos[1] +
+                                curmodelviewmatrix[9] * spos[2] +
+                                curmodelviewmatrix[13];
+        spritemodelview[14] =   curmodelviewmatrix[2]  * spos[0] +
+                                curmodelviewmatrix[6]  * spos[1] +
+                                curmodelviewmatrix[10] * spos[2] +
+                                curmodelviewmatrix[14];
 
-            bglLoadMatrixd(spritemodelview);
-            bglRotatef((gtang * 90.0f), 0.0f, 0.0f, -1.0f);
-            bglTranslatef((float)(-xoff)/1000.0f, (float)(yoff)/1000.0f, 0.0f);
-            bglScalef((float)(xsize) / 1000.0f, (float)(ysize) / 1000.0f, 1.0f / 1000.0f);
+        bglLoadMatrixd(spritemodelview);
+        bglRotatef((gtang * 90.0f), 0.0f, 0.0f, -1.0f);
+        bglTranslatef((float)(-xoff)/1000.0f, (float)(yoff)/1000.0f, 0.0f);
+        bglScalef((float)(xsize) / 1000.0f, (float)(ysize) / 1000.0f, 1.0f / 1000.0f);
 
-            bglPolygonOffset(0.0f, 0.0f);
-            break;
-        case 1:
-            bglMatrixMode(GL_MODELVIEW);
-            bglPushMatrix();
+        bglPolygonOffset(0.0f, 0.0f);
+        break;
+    case 1:
+        bglMatrixMode(GL_MODELVIEW);
+        bglPushMatrix();
 
-            ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
+        ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
 
-            bglTranslatef(spos[0], spos[1], spos[2]);
-            bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
-            bglTranslatef((float)(-xoff), (float)(yoff), 0.0f);
-            bglScalef((float)(xsize), (float)(ysize), 1.0f);
+        bglTranslatef(spos[0], spos[1], spos[2]);
+        bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+        bglTranslatef((float)(-xoff), (float)(yoff), 0.0f);
+        bglScalef((float)(xsize), (float)(ysize), 1.0f);
 
-            prsectors[tspr->sectnum]->wallsproffset += 0.5f;
-            bglPolygonOffset(-prsectors[tspr->sectnum]->wallsproffset,
-                             -prsectors[tspr->sectnum]->wallsproffset);
-            break;
-        case 2:
-            bglMatrixMode(GL_MODELVIEW);
-            bglPushMatrix();
+        prsectors[tspr->sectnum]->wallsproffset += 0.5f;
+        bglPolygonOffset(-prsectors[tspr->sectnum]->wallsproffset,
+                         -prsectors[tspr->sectnum]->wallsproffset);
+        break;
+    case 2:
+        bglMatrixMode(GL_MODELVIEW);
+        bglPushMatrix();
 
-            ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
+        ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
 
-            bglTranslatef(spos[0], spos[1], spos[2]);
-            bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
-            bglTranslatef((float)(-xoff), 1.0f, (float)(yoff));
-            bglScalef((float)(xsize), 1.0f, (float)(ysize));
+        bglTranslatef(spos[0], spos[1], spos[2]);
+        bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+        bglTranslatef((float)(-xoff), 1.0f, (float)(yoff));
+        bglScalef((float)(xsize), 1.0f, (float)(ysize));
 
-            curspritedata = horizsprite;
+        curspritedata = horizsprite;
 
-            prsectors[tspr->sectnum]->floorsproffset += 0.5f;
-            bglPolygonOffset(-prsectors[tspr->sectnum]->floorsproffset,
-                             -prsectors[tspr->sectnum]->floorsproffset);
-            break;
+        prsectors[tspr->sectnum]->floorsproffset += 0.5f;
+        bglPolygonOffset(-prsectors[tspr->sectnum]->floorsproffset,
+                         -prsectors[tspr->sectnum]->floorsproffset);
+        break;
     }
 
     bglMatrixMode(GL_TEXTURE);
@@ -598,7 +600,7 @@ static void         polymer_displayrooms(short dacursectnum)
     while (i < sec->wallnum)
     {
         if (((wallvisible(sec->wallptr + i))) &&
-            (polymer_portalinfrustum(sec->wallptr + i, frustum)))
+                (polymer_portalinfrustum(sec->wallptr + i, frustum)))
         {
             if (mirrorfrom[depth] != (sec->wallptr + i))
                 polymer_drawwall(dacursectnum, sec->wallptr + i);
@@ -606,7 +608,7 @@ static void         polymer_displayrooms(short dacursectnum)
             if ((wal->cstat&48) == 16) localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
 
             if ((wal->nextsector != -1) &&
-                 (drawingstate[wal->nextsector] == 0))
+                    (drawingstate[wal->nextsector] == 0))
             {
                 sectorqueue[back++] = wal->nextsector;
                 drawingstate[wal->nextsector] = 1;
@@ -627,8 +629,8 @@ static void         polymer_displayrooms(short dacursectnum)
             if (querydelay[sectorqueue[front]] == 0)
             {
                 bglGetQueryObjectivARB(queryid[sectorqueue[front]],
-                                    GL_QUERY_RESULT_ARB,
-                                    &result);
+                                       GL_QUERY_RESULT_ARB,
+                                       &result);
                 bglDeleteQueriesARB(1, &queryid[sectorqueue[front]]);
                 if (!result)
                 {
@@ -656,14 +658,14 @@ static void         polymer_displayrooms(short dacursectnum)
         while (i < sec->wallnum)
         {
             if ((wallvisible(sec->wallptr + i)) &&
-                (polymer_portalinfrustum(sec->wallptr + i, frustum)))
+                    (polymer_portalinfrustum(sec->wallptr + i, frustum)))
             {
                 polymer_drawwall(sectorqueue[front], sec->wallptr + i);
                 // mask
                 if ((wal->cstat&48) == 16) localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
 
                 if ((wal->nextsector != -1) &&
-                     (drawingstate[wal->nextsector] == 0))
+                        (drawingstate[wal->nextsector] == 0))
                 {
                     polymer_pokesector(wal->nextsector);
                     sectorqueue[back++] = wal->nextsector;
@@ -675,7 +677,7 @@ static void         polymer_displayrooms(short dacursectnum)
                         nextwal = &wall[nextsec->wallptr];
 
                         if ((nextsec->ceilingstat & 1) &&
-                            (nextsec->floorz == nextsec->ceilingz))
+                                (nextsec->floorz == nextsec->ceilingz))
                         {
                             querydelay[wal->nextsector] = -1;
                             i++;
@@ -695,9 +697,9 @@ static void         polymer_displayrooms(short dacursectnum)
                         while (j < nextsec->wallnum)
                         {
                             if ((nextwal->nextwall == (sec->wallptr + i)) ||
-                                ((nextwal->nextwall != -1) &&
-                                 (wallvisible(nextwal->nextwall)) &&
-                                 (polymer_portalinfrustum(nextwal->nextwall, frustum))))
+                                    ((nextwal->nextwall != -1) &&
+                                     (wallvisible(nextwal->nextwall)) &&
+                                     (polymer_portalinfrustum(nextwal->nextwall, frustum))))
                             {
                                 w = prwalls[nextwal->nextwall];
                                 bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->portal);
@@ -769,7 +771,7 @@ static void         polymer_drawplane(short sectnum, short wallnum, GLuint glpic
 {
 
     if ((depth < 1) && (plane != NULL) &&
-        (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
+            (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
     {
         int             gx, gy, gz, px, py, pz;
         float           coeff;
@@ -876,7 +878,7 @@ static void         polymer_drawplane(short sectnum, short wallnum, GLuint glpic
     OMGDRAWSHIT;
 
     if ((depth < 1) && (plane != NULL) &&
-         (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
+            (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
     {
         bglDisable(GL_STENCIL_TEST);
         bglClear(GL_STENCIL_BUFFER_BIT);
@@ -1005,10 +1007,10 @@ static int          polymer_updatesector(short sectnum)
     }
 
     if ((s->controlstate == 2) ||
-        (sec->floorz != s->floorz) ||
-        (sec->ceilingz != s->ceilingz) ||
-        (sec->floorheinum != s->floorheinum) ||
-        (sec->ceilingheinum != s->ceilingheinum))
+            (sec->floorz != s->floorz) ||
+            (sec->ceilingz != s->ceilingz) ||
+            (sec->floorheinum != s->floorheinum) ||
+            (sec->ceilingheinum != s->ceilingheinum))
     {
         wallinvalidate = 1;
 
@@ -1036,14 +1038,14 @@ static int          polymer_updatesector(short sectnum)
     if (picanm[ceilingpicnum]&192) ceilingpicnum += animateoffs(ceilingpicnum,sectnum);
 
     if ((s->controlstate != 2) && (!needfloor) &&
-        (sec->floorstat == s->floorstat) &&
-        (sec->ceilingstat == s->ceilingstat) &&
-        (floorpicnum == s->floorpicnum) &&
-        (ceilingpicnum == s->ceilingpicnum) &&
-        (sec->floorxpanning == s->floorxpanning) &&
-        (sec->ceilingxpanning == s->ceilingxpanning) &&
-        (sec->floorypanning == s->floorypanning) &&
-        (sec->ceilingypanning == s->ceilingypanning))
+            (sec->floorstat == s->floorstat) &&
+            (sec->ceilingstat == s->ceilingstat) &&
+            (floorpicnum == s->floorpicnum) &&
+            (ceilingpicnum == s->ceilingpicnum) &&
+            (sec->floorxpanning == s->floorxpanning) &&
+            (sec->ceilingxpanning == s->ceilingxpanning) &&
+            (sec->floorypanning == s->floorypanning) &&
+            (sec->ceilingypanning == s->ceilingypanning))
         goto attributes;
 
     wal = &wall[sec->wallptr];
@@ -1072,7 +1074,7 @@ static int          polymer_updatesector(short sectnum)
                 loadtile(curpicnum);
 
             if (((sec->floorstat & 64) || (sec->ceilingstat & 64)) &&
-                ((secangcos == 2) && (secangsin == 2)))
+                    ((secangcos == 2) && (secangsin == 2)))
             {
                 ang = (getangle(wall[wal->point2].x - wal->x, wall[wal->point2].y - wal->y) + 512) & 2047;
                 secangcos = (float)(sintable[(ang+512)&2047]) / 16383.0f;
@@ -1132,10 +1134,10 @@ static int          polymer_updatesector(short sectnum)
 attributes:
 
     if ((s->controlstate != 2) &&
-        (sec->floorshade == s->floorshade) &&
-        (sec->floorpal == s->floorpal) &&
-        (floorpicnum == s->floorpicnum) &&
-        (ceilingpicnum == s->ceilingpicnum))
+            (sec->floorshade == s->floorshade) &&
+            (sec->floorpal == s->floorpal) &&
+            (floorpicnum == s->floorpicnum) &&
+            (ceilingpicnum == s->ceilingpicnum))
         goto finish;
 
     i = 0;
@@ -1407,21 +1409,21 @@ static void         polymer_updatewall(short wallnum)
         nwallpicnum = 0;
 
     if ((w->controlstate != 2) &&
-        (w->invalidid == invalid) &&
-        (wal->cstat == w->cstat) &&
-        (wallpicnum == w->picnum) &&
-        (wal->pal == w->pal) &&
-        (wal->xpanning == w->xpanning) &&
-        (wal->ypanning == w->ypanning) &&
-        (wal->xrepeat == w->xrepeat) &&
-        (wal->yrepeat == w->yrepeat) &&
-        (walloverpicnum == w->overpicnum) &&
-        (wal->shade == w->shade) &&
-        ((nwallnum == -1) ||
-        ((nwallpicnum == w->nwallpicnum) &&
-         (wall[nwallnum].xpanning == w->nwallxpanning) &&
-         (wall[nwallnum].ypanning == w->nwallypanning) &&
-         (wall[nwallnum].cstat == w->nwallcstat))))
+            (w->invalidid == invalid) &&
+            (wal->cstat == w->cstat) &&
+            (wallpicnum == w->picnum) &&
+            (wal->pal == w->pal) &&
+            (wal->xpanning == w->xpanning) &&
+            (wal->ypanning == w->ypanning) &&
+            (wal->xrepeat == w->xrepeat) &&
+            (wal->yrepeat == w->yrepeat) &&
+            (walloverpicnum == w->overpicnum) &&
+            (wal->shade == w->shade) &&
+            ((nwallnum == -1) ||
+             ((nwallpicnum == w->nwallpicnum) &&
+              (wall[nwallnum].xpanning == w->nwallxpanning) &&
+              (wall[nwallnum].ypanning == w->nwallypanning) &&
+              (wall[nwallnum].cstat == w->nwallcstat))))
     {
         w->controlstate = 1;
         return; // screw you guys I'm going home
@@ -1475,7 +1477,7 @@ static void         polymer_updatewall(short wallnum)
             w->wallfbglpic = 0;
 
         w->wallcolor[0] = w->wallcolor[1] = w->wallcolor[2] =
-            ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
+                                                ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
         w->wallcolor[3] = 1.0f;
 
         if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
@@ -1531,9 +1533,9 @@ static void         polymer_updatewall(short wallnum)
         nnwallnum = wall[nwallnum].point2;
 
         if (((s->floorbuffer[((wallnum - sec->wallptr) * 5) + 1] != ns->floorbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-             (s->floorbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->floorbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
-            ((s->floorbuffer[((wallnum - sec->wallptr) * 5) + 1] <= ns->floorbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-             (s->floorbuffer[((wal->point2 - sec->wallptr) * 5) + 1] <= ns->floorbuffer[((nwallnum - nsec->wallptr) * 5) + 1])))
+                (s->floorbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->floorbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
+                ((s->floorbuffer[((wallnum - sec->wallptr) * 5) + 1] <= ns->floorbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
+                 (s->floorbuffer[((wal->point2 - sec->wallptr) * 5) + 1] <= ns->floorbuffer[((nwallnum - nsec->wallptr) * 5) + 1])))
             underwall = 1;
 
         if ((underwall) || (wal->cstat & 16))
@@ -1572,7 +1574,7 @@ static void         polymer_updatewall(short wallnum)
                 w->wallfbglpic = 0;
 
             w->wallcolor[0] = w->wallcolor[1] = w->wallcolor[2] =
-                ((float)(numpalookups-min(max(curshade,0),numpalookups)))/((float)numpalookups);
+                                                    ((float)(numpalookups-min(max(curshade,0),numpalookups)))/((float)numpalookups);
             w->wallcolor[3] = 1.0f;
 
             if (pth && (pth->flags & 2) && (pth->palnum != curpal))
@@ -1629,9 +1631,9 @@ static void         polymer_updatewall(short wallnum)
         }
 
         if (((s->ceilbuffer[((wallnum - sec->wallptr) * 5) + 1] != ns->ceilbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-             (s->ceilbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->ceilbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
-            ((s->ceilbuffer[((wallnum - sec->wallptr) * 5) + 1] >= ns->ceilbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-             (s->ceilbuffer[((wal->point2 - sec->wallptr) * 5) + 1] >= ns->ceilbuffer[((nwallnum - nsec->wallptr) * 5) + 1])))
+                (s->ceilbuffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->ceilbuffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
+                ((s->ceilbuffer[((wallnum - sec->wallptr) * 5) + 1] >= ns->ceilbuffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
+                 (s->ceilbuffer[((wal->point2 - sec->wallptr) * 5) + 1] >= ns->ceilbuffer[((nwallnum - nsec->wallptr) * 5) + 1])))
             overwall = 1;
 
         if ((overwall) || (wal->cstat & 16))
@@ -1662,7 +1664,7 @@ static void         polymer_updatewall(short wallnum)
                 w->maskglpic = pth ? pth->glpic : 0;
 
                 w->maskcolor[0] = w->maskcolor[1] = w->maskcolor[2] =
-                    ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
+                                                        ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
                 w->maskcolor[3] = 1.0f;
 
                 if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
@@ -1691,7 +1693,7 @@ static void         polymer_updatewall(short wallnum)
                 w->overfbglpic = 0;
 
             w->overcolor[0] = w->overcolor[1] = w->overcolor[2] =
-                ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
+                                                    ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
             w->overcolor[3] = 1.0f;
 
             if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
@@ -1828,8 +1830,8 @@ static void         polymer_drawwall(short sectnum, short wallnum)
     }
 
     if ((sector[sectnum].ceilingstat & 1) &&
-         ((wall[wallnum].nextsector == -1) ||
-         !(sector[wall[wallnum].nextsector].ceilingstat & 1)))
+            ((wall[wallnum].nextsector == -1) ||
+             !(sector[wall[wallnum].nextsector].ceilingstat & 1)))
     {
         bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
         bglVertexPointer(3, GL_FLOAT, 0, w->cap);
@@ -1849,7 +1851,8 @@ static void         polymer_buffertoplane(GLfloat* buffer, GLushort* indices, in
     int             i;
 
     i = 0;
-    do {
+    do
+    {
         vec1[0] = buffer[(INDICE(1)) + 0] - buffer[(INDICE(0)) + 0];
         vec1[1] = buffer[(INDICE(1)) + 1] - buffer[(INDICE(0)) + 1];
         vec1[2] = buffer[(INDICE(1)) + 2] - buffer[(INDICE(0)) + 2];
@@ -1974,8 +1977,8 @@ static void         polymer_scansprites(short sectnum, spritetype* localtsprite,
     {
         spr = &sprite[i];
         if ((((spr->cstat&0x8000) == 0) || (showinvisibility)) &&
-               (spr->xrepeat > 0) && (spr->yrepeat > 0) &&
-               (*localspritesortcnt < MAXSPRITESONSCREEN))
+                (spr->xrepeat > 0) && (spr->yrepeat > 0) &&
+                (*localspritesortcnt < MAXSPRITESONSCREEN))
         {
             copybufbyte(spr,&localtsprite[*localspritesortcnt],sizeof(spritetype));
             localtsprite[(*localspritesortcnt)++].owner = i;

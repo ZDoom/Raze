@@ -27,8 +27,10 @@
 # endif
 # ifdef USE_OPENGL
 #  include "glbuild.h"
+#  ifdef POLYMER
 #  include "polymer.h"
 # endif
+#endif
 #endif
 
 #include <math.h>
@@ -3188,7 +3190,7 @@ static void drawsprite(int snum)
 # endif
         return;
     }
-# ifdef USE_OPENGL
+# ifdef POLYMER
     if (rendmode == 4)
     {
         bglEnable(GL_ALPHA_TEST);
@@ -4124,6 +4126,7 @@ static void drawmaskwall(short damaskwallcnt)
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
     if (rendmode == 3) { polymost_drawmaskwall(damaskwallcnt); return; }
+# ifdef POLYMER
     if (rendmode == 4)
     {
         bglEnable(GL_ALPHA_TEST);
@@ -4136,6 +4139,7 @@ static void drawmaskwall(short damaskwallcnt)
 
         return;
     }
+#endif
 #endif
     //============================================================================= //POLYMOST ENDS
 
@@ -4626,7 +4630,9 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
     if (rendmode >= 3) { polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,uniqid); return; }
+# ifdef POLYMER
     if (rendmode == 4) { polymer_rotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2); return; }
+#endif
 #endif
     //============================================================================= //POLYMOST ENDS
 
@@ -5855,6 +5861,7 @@ void drawrooms(int daposx, int daposy, int daposz,
     dmost[0] = shortptr2[0]-windowy1;
 
 #ifdef POLYMOST
+# ifdef POLYMER
     if (rendmode == 4)
     {
         polymer_glinit();
@@ -5863,6 +5870,7 @@ void drawrooms(int daposx, int daposy, int daposz,
         gloy1 = 0;
         return;
     }
+# endif
 
     //============================================================================= //POLYMOST BEGINS
     polymost_drawrooms();
@@ -6127,7 +6135,7 @@ void drawmasks(void)
     _equation maskeq, p1eq, p2eq;
     _point2d dot, dot2, middle, pos, spr;
 
-#ifdef USE_OPENGL
+#ifdef POLYMER
     if ((rendmode == 4) && 0)
     {
         polymer_drawmasks();
@@ -6812,10 +6820,10 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
         sprite[i].hitag   = B_LITTLE16(sprite[i].hitag);
         sprite[i].extra   = B_LITTLE16(sprite[i].extra);
 
-        if(sprite[i].sectnum<0||sprite[i].sectnum>=MYMAXSECTORS)
+        if (sprite[i].sectnum<0||sprite[i].sectnum>=MYMAXSECTORS)
         {
-          initprintf("Map error: sprite #%d(%d,%d) with wrong sector(%d)\n",i,sprite[i].x,sprite[i].y,sprite[i].sectnum);
-          sprite[i].sectnum=MYMAXSECTORS-1;
+            initprintf("Map error: sprite #%d(%d,%d) with wrong sector(%d)\n",i,sprite[i].x,sprite[i].y,sprite[i].sectnum);
+            sprite[i].sectnum=MYMAXSECTORS-1;
         }
     }
 
@@ -6834,8 +6842,10 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
     memset(spriteext, 0, sizeof(spriteexttype) * MAXSPRITES);
     memset(spritesmooth, 0, sizeof(spritesmooth));
 
+# ifdef POLYMER
     if (rendmode == 4)
         polymer_loadboard();
+#endif
 #endif
     guniqhudid = 0;
 
@@ -7768,8 +7778,10 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
         polymost_glreset();
         polymost_glinit();
     }
+# ifdef POLYMER
     if (rendmode == 4)
         polymer_glinit();
+#endif
 #endif
     qsetmode = 200;
     return(0);
@@ -7844,9 +7856,9 @@ void nextpage(void)
 
     {
         int i;
-        for(i=0;i<MAXSPRITES;i++)
-          if((mdpause&&spriteext[i].mdanimtims)||(spriteext[i].flags & SPREXT_NOMDANIM))
-            spriteext[i].mdanimtims+=mdtims-omdtims;
+        for (i=0;i<MAXSPRITES;i++)
+            if ((mdpause&&spriteext[i].mdanimtims)||(spriteext[i].flags & SPREXT_NOMDANIM))
+                spriteext[i].mdanimtims+=mdtims-omdtims;
     }
 #endif
 
@@ -10280,7 +10292,7 @@ void preparemirror(int dax, int day, int daz, short daang, int dahoriz, short da
 //
 void completemirror(void)
 {
-    int i, dy; 
+    int i, dy;
     intptr_t p;
 
 #ifdef POLYMOST
@@ -11863,8 +11875,13 @@ int setrendermode(int renderer)
         else if (renderer > 4) renderer = 4;
     }
 
+# ifdef POLYMER
     if (renderer == 4)
         polymer_init();
+# else
+    if (renderer == 4)
+        renderer = 3;
+# endif
 
     rendmode = renderer;
 #endif

@@ -63,7 +63,7 @@ void slopevlin(intptr_t p, int i, intptr_t slopaloffs, int cnt, int bx, int by)
     unsigned int u, v;
 
     bz = asm3; bzinc = (asm1>>3);
-    slopalptr = (int* )slopaloffs;
+    slopalptr = (int*)slopaloffs;
     for (;cnt>0;cnt--)
     {
         i = krecip(bz>>6); bz += bzinc;

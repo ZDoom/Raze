@@ -146,7 +146,7 @@ GLboolean(APIENTRY * bglUnmapBufferARB)(GLenum target);
 // Occlusion queries
 void (APIENTRY * bglGenQueriesARB)(GLsizei n, GLuint *ids);
 void (APIENTRY * bglDeleteQueriesARB)(GLsizei n, const GLuint *ids);
-GLboolean (APIENTRY * bglIsQueryARB)(GLuint id);
+GLboolean(APIENTRY * bglIsQueryARB)(GLuint id);
 void (APIENTRY * bglBeginQueryARB)(GLenum target, GLuint id);
 void (APIENTRY * bglEndQueryARB)(GLenum target);
 void (APIENTRY * bglGetQueryivARB)(GLenum target, GLenum pname, GLint *params);

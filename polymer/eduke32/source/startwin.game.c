@@ -88,7 +88,7 @@ static void PopulateForm(int pgs)
             Bsprintf(buf, "%d x %d %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
             j = ComboBox_AddString(hwnd, buf);
             (void)ComboBox_SetItemData(hwnd, j, i);
-            if (i == mode) (void)ComboBox_SetCurSel(hwnd, j);
+            if (i == mode)(void)ComboBox_SetCurSel(hwnd, j);
         }
     }
 
@@ -144,7 +144,7 @@ static void PopulateForm(int pgs)
             Bsprintf(buf, "%s\t%s", grpfiles[i].name, fg->name);
             j = ListBox_AddString(hwnd, buf);
             (void)ListBox_SetItemData(hwnd, j, (LPARAM)fg);
-            if (!Bstrcasecmp(fg->name, settings.selectedgrp)) (void)ListBox_SetCurSel(hwnd, j);
+            if (!Bstrcasecmp(fg->name, settings.selectedgrp))(void)ListBox_SetCurSel(hwnd, j);
         }
     }
 }

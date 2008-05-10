@@ -694,12 +694,14 @@ cvar[] =
 #if defined(POLYMOST) && defined(USE_OPENGL)
     { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
     { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_BOOL, 0, 0, 1 },
+# ifdef POLYMER
     // polymer cvars
     { "pr_occlusionculling", "pr_occlusionculling: insert description that noone will ever read", (void*)&pr_occlusionculling, CVAR_INT, 0, 0, 512 },
     { "pr_fov", "pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 0, 1023},
     { "pr_billboardingmode", "pr_billboardingmode: face sprite display method. 0: classic mode; 1: polymost mode", (void*)&pr_billboardingmode, CVAR_INT, 0, 0, 1 },
     { "pr_verbosity", "pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 0, 3 },
     { "pr_wireframe", "pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT, 0, 0, 1 },
+#endif
 #endif
     { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
 
@@ -954,19 +956,19 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
 
     if (parm->numparms==1&&!Bstrcasecmp(parm->parms[0],"showkeys"))
     {
-        for(i=0;keynames[i].name;i++)OSD_Printf("%s\n",keynames[i].name);
+        for (i=0;keynames[i].name;i++)OSD_Printf("%s\n",keynames[i].name);
         return OSDCMD_OK;
     }
     if (parm->numparms==0)
     {
         OSD_Printf("Keybindings:\n");
-                for(i=0;i<MAXBOUNDKEYS;i++)if(*boundkeys[i].name)
-        OSD_Printf("%-11s = %s\n",boundkeys[i].key,boundkeys[i].name);
+        for (i=0;i<MAXBOUNDKEYS;i++)if (*boundkeys[i].name)
+                OSD_Printf("%-11s = %s\n",boundkeys[i].key,boundkeys[i].name);
         return OSDCMD_OK;
     }
 
     if (parm->numparms < 2) return OSDCMD_SHOWHELP;
-    for(i=0;keynames[i].name;i++)if(!Bstrcasecmp(parm->parms[0],keynames[i].name))break;
+    for (i=0;keynames[i].name;i++)if (!Bstrcasecmp(parm->parms[0],keynames[i].name))break;
     if (!keynames[i].name) return OSDCMD_SHOWHELP;
 
     Bstrncpy(boundkeys[keynames[i].id].name,parm->parms[1], MAXSCRIPTFILENAMELENGTH-1);

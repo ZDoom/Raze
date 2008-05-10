@@ -392,19 +392,14 @@ void setpalconv(int pal,int pal1,int pal2)
 }
 
 
-void getpalmap(int stage,int *pal1,int *pal2)
+void getpalmap(int *i,int *pal1,int *pal2)
 {
-    int i;
-    for (i=0;i<MAXPALCONV;i++)
-        if (palconv[i].pal==*pal2)
+    for (;*i<MAXPALCONV&&palconv[*i].pal1;(*i)++)
+        if (palconv[*i].pal==*pal2)
         {
-            if (!stage)
-            {
-                *pal1=palconv[i].pal1;
-                *pal2=palconv[i].pal2;
-                return;
-            }
-            stage--;
+            *pal1=palconv[*i].pal1;
+            *pal2=palconv[*i].pal2;
+            return;
         }
 }
 
@@ -415,7 +410,7 @@ int checkpalmaps(int pal)
     for (stage=0;stage<MAXPALCONV;stage++)
     {
         int pal1=0,pal2=pal;
-        getpalmap(stage,&pal1,&pal2);
+        getpalmap(&stage,&pal1,&pal2);
         if (!pal)break;
         if (pal1)val|=1<<(pal1-SPECPAL);
     }
@@ -435,6 +430,12 @@ void applypalmap(char *pic, char *palmap, int size, int pal)
         pic[r]=((pic[r]*(255-a)+hictinting[pal].r*a)*palmap[r])/255/255;
         pic[g]=((pic[g]*(255-a)+hictinting[pal].g*a)*palmap[g])/255/255;
         pic[b]=((pic[b]*(255-a)+hictinting[pal].b*a)*palmap[b])/255/255;
+
+        /*
+        		pic[r]=((255*(255-a)+hictinting[pal].r*a)*palmap[r])/255/255;
+        		pic[g]=((255*(255-a)+hictinting[pal].g*a)*palmap[g])/255/255;
+        		pic[b]=((255*(255-a)+hictinting[pal].b*a)*palmap[b])/255/255;
+        */
         if (glinfo.bgra)swapchar(&pic[r], &pic[b]);
         r+=4;g+=4;b+=4;
     }
@@ -449,7 +450,7 @@ static void applypalmapSkin(char *pic, int sizx, int sizy, int pal)
     {
         int pal1=0,pal2=pal;
         mdskinmap_t *sk;
-        getpalmap(stage,&pal1,&pal2);
+        getpalmap(&stage,&pal1,&pal2);
         if (!pal1)return;
 
         for (sk = modelhead->skinmap; sk; sk = sk->next)

@@ -437,12 +437,7 @@ pthtyp * gltexcache(int dapicnum, int dapalnum, int dameth)
                     if (pth2->flags & 8) pth->flags |= 8; //hasalpha
                     pth->hicr = si;
                     pth->next = gltexcachead[j];
-                    if (pth->palmap)
-                    {
-                        //_initprintf("Realloc #%d->#%d\n",pth2->palmap, pth->palmap);
-                        pth->palmap=malloc(pth->size*4);
-                        memcpy(pth->palmap, pth2->palmap, pth->size*4);
-                    }
+
                     gltexcachead[j] = pth;
                     return(pth);
                 }
@@ -1449,18 +1444,23 @@ failure:
     return -1;
 }
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
-static void applypalmapsT(char *pic, int sizx, int sizy, int pal)
+static void applypalmapsT(char *pic, int sizx, int sizy, int dapic,int dapalnum, int dameth)
 {
     //_initprintf("%d\n",pal);
     int stage;
+    pthtyp *pichead1=pichead;
+
     for (stage=0;stage<MAXPALCONV;stage++)
     {
-        int pal1=0,pal2=pal;
+        int pal1=0,pal2=dapalnum;
         pthtyp *pth;
-        getpalmap(stage,&pal1,&pal2);
+        getpalmap(&stage,&pal1,&pal2);
         if (!pal1)return;
 
-        for (pth=pichead; pth; pth=pth->next)
+        //_initprintf("Pal: %d\n",pal1);
+        if (hicfindsubst(dapic, pal1, 0))
+            gltexcache(dapic, pal1, dameth);
+        for (pth=pichead1; pth; pth=pth->next)
             if (pth->palnum ==pal1&&pth->palmap)break;
         if (!pth||pth->size!=sizx*sizy)continue;
 
@@ -1549,7 +1549,7 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
         pic = (coltype *)calloc(xsiz,ysiz*sizeof(coltype)); if (!pic) { free(picfil); return 1; }
 
         if (kprender(picfil,picfillen,(int)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0)) { free(picfil); free(pic); return -2; }
-        applypalmapsT((char *)pic,tsizx,tsizy,dapalnum);
+        applypalmapsT((char *)pic,tsizx,tsizy,dapic,dapalnum,dameth);
 
         r=(glinfo.bgra)?hictinting[dapalnum].r:hictinting[dapalnum].b;
         g=hictinting[dapalnum].g;
@@ -1632,7 +1632,6 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
                 memcpy(pth->palmap,pic,pth->size*4);
             }
             cachefil=0;
-            //_initprintf("#%d\n",pth->palmap);
         }
         fixtransparency(pic,tsizx,tsizy,xsiz,ysiz,dameth);
         uploadtexture(doalloc,xsiz,ysiz,intexfmt,texfmt,pic,-1,tsizy,dameth);
@@ -1805,12 +1804,6 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
     if (rendmode >= 3)
     {
         float hackscx, hackscy;
-
-        int pal1;
-        if (usehightile)
-            for (pal1=SPECPAL;pal1<=REDPAL;pal1++)
-                if (hicfindsubst(globalpicnum, pal1, 0))
-                    gltexcache(globalpicnum, pal1, method&(~3));
 
         if (skyclamphack) method |= 4;
         pth = gltexcache(globalpicnum,globalpal,method&(~3));
@@ -3789,7 +3782,10 @@ static void polymost_drawalls(int bunch)
                 yoffs=(i-tilesizy[globalpicnum])*(255./i);
                 if (!(nwal->cstat&4))
                 {
-                    if (ypan>256-yoffs){ypan-=yoffs;initprintf("FL\n");}
+                    if (ypan>256-yoffs)
+                    {
+                        ypan-=yoffs;
+                    }
                 }
                 else
                 {
@@ -5911,7 +5907,6 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
     //    basically this just means walls are repeating
     //    while sprites are clamped
     int mid;
-    int pal1;
 
     if (rendmode < 3) return;
 
@@ -5919,9 +5914,7 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
 
     //OSD_Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
-    for (pal1=SPECPAL;pal1<=REDPAL;pal1++)
-        if (hicfindsubst(globalpicnum, pal1, 0))
-            gltexcache(globalpicnum, pal1, (datype & 1) << 2);
+
 
     gltexcache(dapicnum, dapalnum, (datype & 1) << 2);
     hicprecaching = 0;

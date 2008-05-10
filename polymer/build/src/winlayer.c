@@ -47,6 +47,7 @@ int   _buildargc = 0;
 const char **_buildargv = NULL;
 static char *argvbuf = NULL;
 extern int app_main(int argc, const char *argv[]);
+extern void app_crashhandler(void);
 
 // Windows crud
 static HINSTANCE hInstance = 0;
@@ -250,6 +251,7 @@ static void SignalHandler(int signum)
     {
     case SIGSEGV:
         printOSD("Fatal Signal caught: SIGSEGV. Bailing out.\n");
+        app_crashhandler();
         uninitsystem();
         if (stdout) fclose(stdout);
         break;

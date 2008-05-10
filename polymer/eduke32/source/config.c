@@ -641,7 +641,6 @@ int32 CONFIG_ReadSetup(void)
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyClamping", &r_parallaxskyclamping);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyPanning", &r_parallaxskypanning);
-
         dummy = usemodels;
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "UseModels",&dummy);
         usemodels = dummy != 0;

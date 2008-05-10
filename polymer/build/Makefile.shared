@@ -155,3 +155,10 @@ ifneq (0,$(LINKED_GTK))
   BUILDCFLAGS+= -DLINKED_GTK
 endif
 
+ifneq (0,$(POLYMER))
+ ifneq (0,$(POLYMOST))
+  ifneq (0,$(USE_OPENGL))
+   BUILDCFLAGS+= -DPOLYMER
+  endif
+ endif
+endif

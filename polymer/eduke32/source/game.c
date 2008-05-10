@@ -4042,8 +4042,10 @@ void displayrooms(int snum,int smoothratio)
 #ifdef SE40
         se40code(s->x,s->y,s->z,ud.cameraang,s->yvel,smoothratio);
 #endif
+#ifdef POLYMER
         if (rendmode == 4)
             polymer_setanimatesprites(animatesprites, s->x, s->y, ud.cameraang, smoothratio);
+#endif
         drawrooms(s->x,s->y,s->z-(4<<8),ud.cameraang,s->yvel,s->sectnum);
         animatesprites(s->x,s->y,ud.cameraang,smoothratio);
         drawmasks();
@@ -4216,8 +4218,10 @@ void displayrooms(int snum,int smoothratio)
             gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
         }
 
+#ifdef POLYMER
         if (rendmode == 4)
             polymer_setanimatesprites(animatesprites, ud.camerax,ud.cameray,ud.cameraang,smoothratio);
+#endif
         drawrooms(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,ud.camerasect);
         animatesprites(ud.camerax,ud.cameray,ud.cameraang,smoothratio);
         drawmasks();
@@ -10181,6 +10185,14 @@ void backtomenu(void)
     else wm_setapptitle(HEAD);
 }
 
+#ifdef RENDERTYPEWIN
+void app_crashhandler(void)
+{
+    closedemowrite();
+    sendquit();
+}
+#endif
+
 void app_main(int argc,const char **argv)
 {
     int i, j;
@@ -11053,7 +11065,7 @@ RECHECK:
         ud.recstat = 2;
         which_demo++;
         if (which_demo == 10) which_demo = 1;
-        if (enterlevel(MODE_DEMO)) return 1;
+        if (enterlevel(MODE_DEMO)) ud.recstat = foundemo = 0;
     }
 
     if (foundemo == 0 || in_menu || KB_KeyWaiting() || numplayers > 1)
@@ -11924,8 +11936,8 @@ static int domovethings(void)
         pan3dsound();
     }
 
+#ifdef POLYMER
     //polymer invalidate
-#if defined(POLYMOST) && defined(USE_OPENGL)
     updatesectors = 1;
 #endif
 
