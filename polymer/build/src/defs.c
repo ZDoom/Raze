@@ -1006,8 +1006,8 @@ static int defsparser(scriptfile *script)
 #endif
                 }
                 break;
-        case T_SKIN: case T_DETAIL: case T_GLOW:
-case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL: case T_SPECPAL:
+                case T_SKIN: case T_DETAIL: case T_GLOW:
+                case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL: case T_SPECPAL:
                 {
                     char *skintokptr = script->ltextptr;
                     char *skinend, *skinfn = 0;
@@ -1398,8 +1398,8 @@ case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL:
                     if (pal<30)palbits|=1<<pal;
                 }
                 break;
-            case T_DETAIL: case T_GLOW:
-case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL: case T_SPECPAL:
+                case T_DETAIL: case T_GLOW:
+                case T_REDPAL: case T_BLUEPAL: case T_BROWNPAL: case T_GREYPAL: case T_GREENPAL: case T_SPECPAL:
                 {
                     char *detailtokptr = script->ltextptr, *detailend;
                     int pal = 0, i;

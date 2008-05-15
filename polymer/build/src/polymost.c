@@ -225,7 +225,7 @@ static inline void ftol(float f, int *a)
 #if 0 //(__GNUC__ >= 3)
         "flds %1; fistpl %0;"
 #else
-"flds %1; fistpl (%0);"
+        "flds %1; fistpl (%0);"
 #endif
     : "=r"(a) : "m"(f) : "memory","cc");
 }
@@ -236,7 +236,7 @@ static inline void dtol(double d, int *a)
 #if 0 //(__GNUC__ >= 3)
         "fldl %1; fistpl %0;"
 #else
-"fldl %1; fistpl (%0);"
+        "fldl %1; fistpl (%0);"
 #endif
     : "=r"(a) : "m"(d) : "memory","cc");
 }
@@ -6055,8 +6055,8 @@ int dxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *pac
             }
             else writebuf = packbuf;
 #else
-    cleng = lzwcompress(midbuf,(miplen/stride)*8,packbuf);
-    writebuf = packbuf;
+            cleng = lzwcompress(midbuf,(miplen/stride)*8,packbuf);
+            writebuf = packbuf;
 #endif
         }
         else
@@ -6086,8 +6086,8 @@ int dxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *pac
         }
         else writebuf = packbuf;
 #else
-    cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
-    writebuf = packbuf;
+        cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
+        writebuf = packbuf;
 #endif
     }
     else
@@ -6122,8 +6122,8 @@ int dxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *pac
         }
         else writebuf = packbuf;
 #else
-    cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
-    writebuf = packbuf;
+        cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
+        writebuf = packbuf;
 #endif
     }
     else
@@ -6177,8 +6177,8 @@ int dedxtfilter(int fil, texcachepicture *pict, char *pic, void *midbuf, char *p
         if (ispacked && cleng < j)
             if (lzf_decompress(packbuf,cleng,midbuf,j) == 0) return -1;
 #else
-    if (kread(fil,inbuf,cleng) < cleng) return -1;
-    if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
+        if (kread(fil,inbuf,cleng) < cleng) return -1;
+        if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
 #endif
         cptr = midbuf;
         for (k=0;k<8;k++) pic[k] = *cptr++;

@@ -9,7 +9,7 @@ OBJ=obj.msc
 !endif
 INC=include\ #
 !ifndef CFLAGS
-CFLAGS=/DSUPERBUILD /DPOLYMOST /DUSE_OPENGL /DKSFORBUILD
+CFLAGS=/DSUPERBUILD /DPOLYMOST /DUSE_OPENGL /DKSFORBUILD /DPOLYMER
 !endif
 
 o=obj
@@ -71,7 +71,9 @@ ENGINEOBJS= \
 	$(OBJ)\pragmas.$o \
 	$(OBJ)\scriptfile.$o \
 	$(OBJ)\winlayer.$o \
+!ifdef POLYMER
         $(OBJ)\polymer.$o
+!endif
 
 EDITOROBJS=$(OBJ)\build.$o \
 	$(OBJ)\startwin.editor.$o \

@@ -5097,7 +5097,7 @@ static int parse(void)
                 s1=fta_quotes[q1];
                 s2=fta_quotes[q2];
                 while (*s2&&st--)s2++;
-                while ((*s1=*s2)&&ln--){s1++;s2++;}
+                while ((*s1=*s2)&&ln--) {s1++;s2++;}
                 *s1=0;
             }
             break;
@@ -5624,7 +5624,7 @@ static int parse(void)
             int x1=GetGameVarID(*insptr++,g_i,g_p),  y1=GetGameVarID(*insptr++,g_i,g_p);
             int x2=GetGameVarID(*insptr++,g_i,g_p),  y2=GetGameVarID(*insptr++,g_i,g_p);
 
-            if (tw == CON_ROTATESPRITE){x<<=16;y<<=16;}
+            if (tw == CON_ROTATESPRITE) {x<<=16;y<<=16;}
             rotatesprite(x,y,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
             break;
         }

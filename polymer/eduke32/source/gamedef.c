@@ -3885,7 +3885,7 @@ static int parsecommand(void)
             {
                 t=tempscrptr[i];n=i;
                 for (j=i+2;j<3+tempscrptr[1]*2;j+=2)
-                    if (tempscrptr[j]<t){t=tempscrptr[j];n=j;}
+                    if (tempscrptr[j]<t) {t=tempscrptr[j];n=j;}
                 if (n!=i)
                 {
                     t=tempscrptr[i  ];tempscrptr[i  ]=tempscrptr[n  ];tempscrptr[n  ]=t;

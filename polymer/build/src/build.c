@@ -56,6 +56,12 @@ void _printmessage16(char name[82]);
 
 int vel, svel, angvel;
 
+// 0   1     2     3      4       5      6      7
+// up, down, left, right, lshift, rctrl, lctrl, space
+// 8  9  10    11    12   13
+// a, z, pgdn, pgup, [,], [.]
+// 14       15     16 17 18   19
+// kpenter, enter, =, -, tab, `
 unsigned char buildkeys[NUMBUILDKEYS] =
 {
     0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
@@ -123,6 +129,7 @@ unsigned char tempshade, temppal, tempvis, tempxrepeat, tempyrepeat;
 unsigned char somethingintab = 255;
 
 char mlook = 0;
+char unrealedlook=0, quickmapcycling=0; //PK
 
 static char boardfilename[BMAX_PATH], selectedboardfilename[BMAX_PATH];
 
@@ -159,6 +166,9 @@ static char scantoascwithshift[128] =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
 */
+int pk_turnaccel=16;
+int pk_turndecel=12;
+int pk_uedaccel=3;
 
 char changechar(char dachar, int dadir, char smooshyalign, char boundcheck);
 int adjustmark(int *xplc, int *yplc, short danumwalls);
@@ -192,6 +202,9 @@ void AutoAlignWalls(int nWall0, int ply);
 int gettile(int tilenum);
 
 int menuselect(void);
+
+int menuselect_pk(int); //PK
+
 int getfilenames(char *path, char *kind);
 void clearfilenames(void);
 void loadmhk();
@@ -571,9 +584,12 @@ void editinput(void)
     short /*sectnum, nextsectnum,*/ startwall, endwall, dasector, daang;
     int mousz, bstatus;
     int i, j, k, /*cnt,*/ tempint=0, doubvel, changedir/*, wallfind[2], daz[2]*/;
-    int dashade[2], goalz, xvect, yvect, hiz, loz;
+    int dashade[2], goalz, xvect, yvect, /*PK*/ zvect, hiz, loz;
     short hitsect, hitwall, hitsprite;
     int hitx, hity, hitz, dax, day, hihit, lohit;
+
+// 3B  3C  3D  3E   3F  40  41  42   43  44  57  58          46
+// F1  F2  F3  F4   F5  F6  F7  F8   F9 F10 F11 F12        SCROLL
 
     if (keystatus[0x57] > 0)  //F11 - brightness
     {
@@ -598,7 +614,78 @@ void editinput(void)
         ld = ldiv((int)(mousy), (1<<16)); mousy = ld.quot; mouseysurp = ld.rem;
     }
 
-    if (mlook)
+    // UnrealEd:
+    // rmb: mouselook
+    // lbm: x:turn y:fwd/back local x
+    // lmb&rmb: x:strafe y:up/dn (move in local yz plane)
+    // mmb: fwd/back in viewing vector
+
+    if (unrealedlook)    //PK
+    {
+        if ((bstatus&1) && !(bstatus&(2|4)))
+        {
+            ang += (mousx>>1)*msens;
+            if (mousx && !(mousx>>1))
+                ang++;
+            xvect = -((mousy*(int)sintable[(ang+2560)&2047])<<pk_uedaccel);
+            yvect = -((mousy*(int)sintable[(ang+2048)&2047])<<pk_uedaccel);
+
+            if (noclip)
+            {
+                posx += xvect>>14;
+                posy += yvect>>14;
+                updatesector(posx,posy,&cursectnum);
+            }
+            else clipmove(&posx,&posy,&posz,&cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK0);
+        }
+        else if (!mlook && (bstatus&2) && !(bstatus&(1|4)))
+        {
+            mlook=2;
+        }
+        else if ((bstatus&1) && (bstatus&2) && !(bstatus&4))
+        {
+            zmode = 2;
+            xvect = -((mousx*(int)sintable[(ang+2048)&2047])<<pk_uedaccel);
+            yvect = -((mousx*(int)sintable[(ang+1536)&2047])<<pk_uedaccel);
+            posz += mousy<<(4+pk_uedaccel);
+            if (noclip)
+            {
+                posx += xvect>>14;
+                posy += yvect>>14;
+                updatesectorz(posx,posy,posz,&cursectnum);
+            }
+            else clipmove(&posx,&posy,&posz,&cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK0);
+        }
+        else if (bstatus&4)
+        {
+            zmode = 2;
+
+            // horiz-100 of 200 is viewing at 326.4 build angle units (=atan(200/128)) upward
+            tempint = getangle(128, horiz-100);
+
+            xvect = -((mousy*
+                       ((int)sintable[(ang+2560)&2047]>>6)*
+                       ((int)sintable[(tempint+512)&2047])>>6)
+                      <<pk_uedaccel);
+            yvect = -((mousy*
+                       ((int)sintable[(ang+2048)&2047]>>6)*
+                       ((int)sintable[(tempint+512)&2047])>>6)
+                      <<pk_uedaccel);
+
+            zvect = mousy*(((int)sintable[(tempint+2048)&2047])>>(10-pk_uedaccel));
+
+            posz += zvect;
+            if (noclip)
+            {
+                posx += xvect>>16;
+                posy += yvect>>16;
+                updatesectorz(posx,posy,posz,&cursectnum);
+            }
+            else clipmove(&posx,&posy,&posz,&cursectnum,xvect>>2,yvect>>2,128L,4L<<8,4L<<8,CLIPMASK0);
+        }
+    }
+
+    if (mlook && !(unrealedlook && bstatus&(1|4)))
     {
         ang += (mousx>>1)*msens;
         horiz -= (mousy>>2)*msens;
@@ -619,7 +706,7 @@ void editinput(void)
         osearchx = searchx-mousx;
         osearchy = searchy-mousy;
     }
-    else
+    else if (!(unrealedlook && (bstatus&(1|2|4))))
     {
         osearchx = searchx;
         osearchy = searchy;
@@ -693,6 +780,7 @@ void editinput(void)
     }
     getzrange(posx,posy,posz,cursectnum,&hiz,&hihit,&loz,&lohit,128L,CLIPMASK0);
 
+    // zmode: 0: normal  1: z-locked  2: free z-movement
     if (keystatus[0x3a] > 0)
     {
         zmode++;
@@ -5587,8 +5675,70 @@ void overheadeditor(void)
             else
                 printmessage16("Arrow must be inside a sector before entering 3D mode.");
         }
+
+// vvv PK ------------------------------------ (LShift) Ctrl-X: (prev) next map
+// this is copied from 'L' (load map), but without copying the highlighted sectors
+
+        if (quickmapcycling && (keystatus[0x2d] > 0))   //X
+        {
+            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //Ctrl
+            {
+//				bad = 0;
+                i = menuselect_pk(keystatus[0x2a]>0 ? 0:1); // Left Shift: prev map
+                if (i < 0)
+                {
+                    if (i == -2)
+                        printmessage16("No .MAP files found.");
+                    else if (i == -3)
+                        printmessage16("Load map first!");
+                }
+                else
+                {
+                    Bstrcpy(boardfilename, selectedboardfilename);
+
+                    highlightcnt = -1;
+                    sectorhighlightstat = -1;
+                    newnumwalls = -1;
+                    joinsector[0] = -1;
+                    circlewall = -1;
+                    circlepoints = 7;
+
+                    for (i=0;i<MAXSECTORS;i++) sector[i].extra = -1;
+                    for (i=0;i<MAXWALLS;i++) wall[i].extra = -1;
+                    for (i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
+
+                    ExtPreLoadMap();
+                    i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+                    if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+                    if (i < 0)
+                    {
+                        printmessage16("Invalid map format.");
+                    }
+                    else
+                    {
+                        ExtLoadMap(boardfilename);
+
+                        if (mapversion < 7) printmessage16("Map loaded successfully and autoconverted to V7!");
+                        else printmessage16("Map loaded successfully.");
+                    }
+                    updatenumsprites();
+                    startposx = posx;      //this is same
+                    startposy = posy;
+                    startposz = posz;
+                    startang = ang;
+                    startsectnum = cursectnum;
+                }
+                showframe(1);
+                keystatus[0x1c] = 0;
+
+                keystatus[0x2d]=keystatus[0x13]=0;
+
+            }
+        }
+// ^^^ PK ------------------------------------
+
 CANCEL:
-        if (keystatus[1] > 0 && joinsector[0] >= 0){keystatus[1]=0;joinsector[0]=-1;}
+        if (keystatus[1] > 0 && joinsector[0] >= 0) {keystatus[1]=0;joinsector[0]=-1;}
         if (keystatus[1] > 0)
         {
             keystatus[1] = 0;
@@ -6663,15 +6813,58 @@ int getfilenames(char *path, char *kind)
     return(0);
 }
 
+// vvv PK ------------------------------------
+// copied off menuselect
+
+const char *g_oldpath=NULL;
+int menuselect_pk(int direction) // 20080104: jump to next (direction!=0) or prev (direction==0) file
+{
+    const char *chptr;
+
+    if (!g_oldpath) return -3;
+    else Bmemcpy(selectedboardfilename, g_oldpath, BMAX_PATH);
+
+    if (pathsearchmode)
+        Bcanonicalisefilename(selectedboardfilename, 1);  // clips off the last token and compresses relative path
+    else
+        Bcorrectfilename(selectedboardfilename, 1);
+
+    getfilenames(selectedboardfilename, "*.map");
+
+    chptr = strrchr(boardfilename,'/'); // PK
+    if (!chptr) chptr=boardfilename; else chptr++;
+    for (; findfileshigh; findfileshigh=findfileshigh->next)
+    {
+        if (!Bstrcmp(findfileshigh->name,chptr)) break;
+    }
+
+    if (!findfileshigh) findfileshigh=findfiles;
+
+    if (direction)
+    {
+        if (findfileshigh->next) findfileshigh=findfileshigh->next;
+    }
+    else
+    {
+        if (findfileshigh->prev) findfileshigh=findfileshigh->prev;
+    }
+
+    Bstrcat(selectedboardfilename, findfileshigh->name);
+
+    return(0);
+}
+// ^^^ PK ------------------------------------
+
 int menuselect(void)
 {
     int listsize;
     int i;
-    char ch, buffer[78];
+    char ch, buffer[78], /*PK*/ *chptr;
     static char oldpath[BMAX_PATH];
     CACHE1D_FIND_REC *dir;
-
     int bakpathsearchmode = pathsearchmode;
+
+    g_oldpath=oldpath; //PK: need it in menuselect_pk
 
     listsize = (ydim16-32)/8;
 
@@ -6682,6 +6875,15 @@ int menuselect(void)
         Bcorrectfilename(selectedboardfilename, 1);
 
     getfilenames(selectedboardfilename, "*.map");
+
+    // PK 20080103: start with last selected map
+    chptr = strrchr(boardfilename,'/');
+    if (!chptr) chptr=boardfilename; else chptr++;
+    for (; findfileshigh; findfileshigh=findfileshigh->next)
+    {
+        if (!Bstrcmp(findfileshigh->name,chptr)) break;
+    }
+    if (!findfileshigh) findfileshigh=findfiles;
 
     begindrawing();
     printmessage16("Select map file with arrow keys and enter.");
@@ -6713,7 +6915,7 @@ int menuselect(void)
                 for (i=listsize/2-1; i>=0; i--) if (!dir->prev) break; else dir=dir->prev;
             for (i=0; i<listsize && dir; i++, dir=dir->next)
             {
-                int c = dir->type == CACHE1D_FIND_DIR ? 4 : 3;
+                int c = dir->type == CACHE1D_FIND_DIR ? 2/*4*/ : 3; //PK
                 memset(buffer,0,sizeof(buffer));
                 strncpy(buffer,dir->name,25);
                 if (strlen(buffer) == 25)
@@ -6788,7 +6990,8 @@ int menuselect(void)
                 else if ((keystatus[0xc9]|keystatus[0xd1]) > 0) // page up/down
                 {
                     seeker = currentlist?findfileshigh:finddirshigh;
-                    i = (ydim2d-STATUS2DSIZ-48)>>3;
+                    i = (ydim2d-STATUS2DSIZ-48)>>5/*3*/;  //PK
+
                     while (i>0)
                     {
                         if (keystatus[0xd1]?seeker->next:seeker->prev)
@@ -7487,8 +7690,9 @@ void keytimerstuff(void)
 
     if (keystatus[buildkeys[5]] == 0)
     {
-        if (keystatus[buildkeys[2]] > 0) angvel = max(angvel-16,-128);
-        if (keystatus[buildkeys[3]] > 0) angvel = min(angvel+16,127);
+        // PK: With GCC and Polymost, keyboard turning lags
+        if (keystatus[buildkeys[2]] > 0) angvel = max(angvel-pk_turnaccel /* 16 */,-128);
+        if (keystatus[buildkeys[3]] > 0) angvel = min(angvel+pk_turnaccel /* 16 */,127);
     }
     else
     {
@@ -7500,8 +7704,8 @@ void keytimerstuff(void)
     /*  if (keystatus[buildkeys[12]] > 0) svel = min(svel+8,127);
         if (keystatus[buildkeys[13]] > 0) svel = max(svel-8,-128); */
 
-    if (angvel < 0) angvel = min(angvel+12,0);
-    if (angvel > 0) angvel = max(angvel-12,0);
+    if (angvel < 0) angvel = min(angvel+pk_turndecel /*12*/,0);
+    if (angvel > 0) angvel = max(angvel-pk_turndecel /*12*/,0);
     if (svel < 0) svel = min(svel+6,0);
     if (svel > 0) svel = max(svel-6,0);
     if (vel < 0) vel = min(vel+6,0);

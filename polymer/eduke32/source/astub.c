@@ -723,15 +723,15 @@ void ExtShowSectorData(short sectnum)   //F5
     printext16(x*8,ydim16+y*8,11,-1,"Item Count",0);
     enddrawing();
     PrintStatus("10%health=",numsprite[COLA],x,y+2,11);
-    PrintStatus("",multisprite[COLA],x2,y+2,1);
+    PrintStatus("",multisprite[COLA],x2,y+2,9);
     PrintStatus("30%health=",numsprite[SIXPAK],x,y+3,11);
-    PrintStatus("",multisprite[SIXPAK],x2,y+3,1);
+    PrintStatus("",multisprite[SIXPAK],x2,y+3,9);
     PrintStatus("Med-Kit  =",numsprite[FIRSTAID],x,y+4,11);
-    PrintStatus("",multisprite[FIRSTAID],x2,y+4,1);
+    PrintStatus("",multisprite[FIRSTAID],x2,y+4,9);
     PrintStatus("Atom     =",numsprite[ATOMICHEALTH],x,y+5,11);
-    PrintStatus("",multisprite[ATOMICHEALTH],x2,y+5,1);
+    PrintStatus("",multisprite[ATOMICHEALTH],x2,y+5,9);
     PrintStatus("Shields  =",numsprite[SHIELD],x,y+6,11);
-    PrintStatus("",multisprite[SHIELD],x2,y+6,1);
+    PrintStatus("",multisprite[SHIELD],x2,y+6,9);
 
     x=17;
     x2=30;
@@ -740,17 +740,17 @@ void ExtShowSectorData(short sectnum)   //F5
     printext16(x*8,ydim16+y*8,11,-1,"Inventory",0);
     enddrawing();
     PrintStatus("Steroids =",numsprite[STEROIDS],x,y+2,11);
-    PrintStatus("",multisprite[STEROIDS],x2,y+2,1);
+    PrintStatus("",multisprite[STEROIDS],x2,y+2,9);
     PrintStatus("Airtank  =",numsprite[AIRTANK],x,y+3,11);
-    PrintStatus("",multisprite[AIRTANK],x2,y+3,1);
+    PrintStatus("",multisprite[AIRTANK],x2,y+3,9);
     PrintStatus("Jetpack  =",numsprite[JETPACK],x,y+4,11);
-    PrintStatus("",multisprite[JETPACK],x2,y+4,1);
+    PrintStatus("",multisprite[JETPACK],x2,y+4,9);
     PrintStatus("Goggles  =",numsprite[HEATSENSOR],x,y+5,11);
-    PrintStatus("",multisprite[HEATSENSOR],x2,y+5,1);
+    PrintStatus("",multisprite[HEATSENSOR],x2,y+5,9);
     PrintStatus("Boots    =",numsprite[BOOTS],x,y+6,11);
-    PrintStatus("",multisprite[BOOTS],x2,y+6,1);
+    PrintStatus("",multisprite[BOOTS],x2,y+6,9);
     PrintStatus("HoloDuke =",numsprite[HOLODUKE],x,y+7,11);
-    PrintStatus("",multisprite[HOLODUKE],x2,y+7,1);
+    PrintStatus("",multisprite[HOLODUKE],x2,y+7,9);
     PrintStatus("Multi D  =",numsprite[APLAYER],x,y+8,11);
 
     x=33;
@@ -760,23 +760,23 @@ void ExtShowSectorData(short sectnum)   //F5
     printext16(x*8,ydim16+y*8,11,-1,"Weapon Count",0);
     enddrawing();
     PrintStatus("Pistol   =",numsprite[FIRSTGUNSPRITE],x,y+2,11);
-    PrintStatus("",multisprite[FIRSTGUNSPRITE],x2,y+2,1);
+    PrintStatus("",multisprite[FIRSTGUNSPRITE],x2,y+2,9);
     PrintStatus("Shotgun  =",numsprite[SHOTGUNSPRITE],x,y+3,11);
-    PrintStatus("",multisprite[SHOTGUNSPRITE],x2,y+3,1);
+    PrintStatus("",multisprite[SHOTGUNSPRITE],x2,y+3,9);
     PrintStatus("Chaingun =",numsprite[CHAINGUNSPRITE],x,y+4,11);
-    PrintStatus("",multisprite[CHAINGUNSPRITE],x2,y+4,1);
+    PrintStatus("",multisprite[CHAINGUNSPRITE],x2,y+4,9);
     PrintStatus("RPG      =",numsprite[RPGSPRITE],x,y+5,11);
-    PrintStatus("",multisprite[RPGSPRITE],x2,y+5,1);
+    PrintStatus("",multisprite[RPGSPRITE],x2,y+5,9);
     PrintStatus("Pipe Bomb=",numsprite[HEAVYHBOMB],x,y+6,11);
-    PrintStatus("",multisprite[HEAVYHBOMB],x2,y+6,1);
+    PrintStatus("",multisprite[HEAVYHBOMB],x2,y+6,9);
     PrintStatus("Shrinker =",numsprite[SHRINKERSPRITE],x,y+7,11);
-    PrintStatus("",multisprite[SHRINKERSPRITE],x2,y+7,1);
+    PrintStatus("",multisprite[SHRINKERSPRITE],x2,y+7,9);
     PrintStatus("Devastatr=",numsprite[DEVISTATORSPRITE],x,y+8,11);
-    PrintStatus("",multisprite[DEVISTATORSPRITE],x2,y+8,1);
+    PrintStatus("",multisprite[DEVISTATORSPRITE],x2,y+8,9);
     PrintStatus("Trip mine=",numsprite[TRIPBOMBSPRITE],x,y+9,11);
-    PrintStatus("",multisprite[TRIPBOMBSPRITE],x2,y+9,1);
+    PrintStatus("",multisprite[TRIPBOMBSPRITE],x2,y+9,9);
     PrintStatus("Freezeray=",numsprite[FREEZESPRITE],x,y+10,11);
-    PrintStatus("",multisprite[FREEZESPRITE],x2,y+10,1);
+    PrintStatus("",multisprite[FREEZESPRITE],x2,y+10,9);
 
     x=49;
     x2=62;
@@ -785,23 +785,23 @@ void ExtShowSectorData(short sectnum)   //F5
     printext16(x*8,ydim16+y*8,11,-1,"Ammo Count",0);
     enddrawing();
     PrintStatus("Pistol   =",numsprite[AMMO],x,y+2,11);
-    PrintStatus("",multisprite[AMMO],x2,y+2,1);
+    PrintStatus("",multisprite[AMMO],x2,y+2,9);
     PrintStatus("Shot     =",numsprite[SHOTGUNAMMO],x,y+3,11);
-    PrintStatus("",multisprite[SHOTGUNAMMO],x2,y+3,1);
+    PrintStatus("",multisprite[SHOTGUNAMMO],x2,y+3,9);
     PrintStatus("Chain    =",numsprite[BATTERYAMMO],x,y+4,11);
-    PrintStatus("",multisprite[BATTERYAMMO],x2,y+4,1);
+    PrintStatus("",multisprite[BATTERYAMMO],x2,y+4,9);
     PrintStatus("RPG Box  =",numsprite[RPGAMMO],x,y+5,11);
-    PrintStatus("",multisprite[RPGAMMO],x2,y+5,1);
+    PrintStatus("",multisprite[RPGAMMO],x2,y+5,9);
     PrintStatus("Pipe Bomb=",numsprite[HBOMBAMMO],x,y+6,11);
-    PrintStatus("",multisprite[HBOMBAMMO],x2,y+6,1);
+    PrintStatus("",multisprite[HBOMBAMMO],x2,y+6,9);
     PrintStatus("Shrinker =",numsprite[CRYSTALAMMO],x,y+7,11);
-    PrintStatus("",multisprite[CRYSTALAMMO],x2,y+7,1);
+    PrintStatus("",multisprite[CRYSTALAMMO],x2,y+7,9);
     PrintStatus("Devastatr=",numsprite[DEVISTATORAMMO],x,y+8,11);
-    PrintStatus("",multisprite[DEVISTATORAMMO],x2,y+8,1);
+    PrintStatus("",multisprite[DEVISTATORAMMO],x2,y+8,9);
     PrintStatus("Expander =",numsprite[GROWAMMO],x,y+9,11);
-    PrintStatus("",multisprite[GROWAMMO],x2,y+9,1);
+    PrintStatus("",multisprite[GROWAMMO],x2,y+9,9);
     PrintStatus("Freezeray=",numsprite[FREEZEAMMO],x,y+10,11);
-    PrintStatus("",multisprite[FREEZEAMMO],x2,y+10,1);
+    PrintStatus("",multisprite[FREEZEAMMO],x2,y+10,9);
 
     begindrawing();
     printext16(65*8,ydim16+4*8,11,-1,"MISC",0);
@@ -2156,7 +2156,7 @@ static int OnGotoTile(int iTile)
 
     bflushchars();
 
-    iNewTile = iTemp = iTile;
+    iNewTile = iTemp = 0; //iTile; //PK
 
     while (keystatus[1] == 0)
     {
@@ -2435,6 +2435,8 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
 
 }
 
+extern char unrealedlook; //PK
+
 static void Keys3d(void)
 {
     int i,count,rate,nexti;
@@ -2632,6 +2634,15 @@ static void Keys3d(void)
         Bsprintf(tempbuf,"Mouselook: %d",mlook);
         message(tempbuf);
         keystatus[KEYSC_F3] = 0;
+    }
+
+// PK
+    if (keystatus[KEYSC_F5])
+    {
+        unrealedlook = 1-unrealedlook;
+        Bsprintf(tempbuf,"UnrealEd mouse navigation: %d",unrealedlook);
+        message(tempbuf);
+        keystatus[KEYSC_F5] = 0;
     }
 
     if (keystatus[KEYSC_QUOTE]==1 && keystatus[0x0e]==1) // ' del
@@ -3074,12 +3085,15 @@ static void Keys3d(void)
     if (mlook == 2)
         mlook = 0;
 
-    if (bstatus&4)
+    if (!unrealedlook && (bstatus&4)) mlook = 2;
+
+//    if (bstatus&4)
+    if (bstatus&(16|32) && !(bstatus&(1|2|4)))  // PK: no btn: wheel changes shade
     {
-        if (bstatus&1)
-        {
-            mlook = 2;
-        }
+//        if (bstatus&1)
+//        {
+//            mlook = 2;
+//        }
         if (bstatus&32)  // -
         {
             mouseb &= ~32;
@@ -3092,7 +3106,7 @@ static void Keys3d(void)
                 }
                 else
                 {
-                    if ((keystatus[0x2a]|keystatus[0x36]) == 0)
+                    if ((keystatus[0x2a]|keystatus[0x36]) == 0)  //not SHIFT
                         k = 16;
                     else k = 1;
 
@@ -3258,7 +3272,9 @@ static void Keys3d(void)
         }
     }
 
-    if ((keystatus[KEYSC_DASH]|keystatus[KEYSC_EQUAL]|((bstatus&(16|32)) && !(bstatus&2))) > 0) // mousewheel, -, and +, cycle picnum
+//    if ((keystatus[KEYSC_DASH]|keystatus[KEYSC_EQUAL]|((bstatus&(16|32)) && !(bstatus&2))) > 0) // mousewheel, -, and +, cycle picnum
+    if (keystatus[KEYSC_DASH] | keystatus[KEYSC_EQUAL] | (bstatus&(16|32) && (bstatus&1) && !(bstatus&2)))  // PK: lmb only & mousewheel, -, and +, cycle picnum
+
     {
         j = i = (keystatus[KEYSC_EQUAL]|(bstatus&16))?1:-1;
         switch (searchstat)
@@ -3357,7 +3373,7 @@ static void Keys3d(void)
             if (searchstat == 2)
             {
                 sector[searchsector].floorstat ^= 64;
-                sprintf(getmessage,"Sector %d ceiling texture relativity %s",searchsector,sector[searchsector].floorstat&64?"ON":"OFF");
+                sprintf(getmessage,"Sector %d floor texture relativity %s",searchsector,sector[searchsector].floorstat&64?"ON":"OFF"); //PK (was ceiling in string)
                 message(getmessage);
                 asksave = 1;
             }
@@ -3532,7 +3548,8 @@ static void Keys3d(void)
     else
         updownunits = 1024;
 
-    if ((keystatus[0xc9] > 0) || ((bstatus&2) && (bstatus&16))) // PGUP
+//    if ((keystatus[0xc9] > 0) || ((bstatus&2) && (bstatus&16))) // PGUP
+    if ((keystatus[0xc9] > 0) || ((bstatus&2) && (bstatus&16) && !(bstatus&1))) // PK: PGUP, rmb only & mwheel
     {
         k = 0;
         if (highlightsectorcnt >= 0)
@@ -3668,7 +3685,8 @@ static void Keys3d(void)
         keystatus[0xc9] = 0;
         mouseb &= ~16;
     }
-    if ((keystatus[0xd1] > 0) || ((bstatus&2) && (bstatus&32))) // PGDN
+//    if ((keystatus[0xd1] > 0) || ((bstatus&2) && (bstatus&32))) // PGDN
+    if ((keystatus[0xd1] > 0) || ((bstatus&2) && (bstatus&32) && !(bstatus&1))) // PK: PGDN, rmb only & mwheel
     {
         k = 0;
         if (highlightsectorcnt >= 0)
@@ -3830,15 +3848,16 @@ static void Keys3d(void)
     clockcnt = ((clockcnt+1)&15);
 
     tempbuf[0] = 0;
-    if (bstatus&4)
+    if (bstatus&4 && !(bstatus&(1|2)) && !unrealedlook)  //PK
     {
-        if (bstatus&1) Bsprintf(tempbuf,"VIEW");
-        else Bsprintf(tempbuf,"SHADE");
+        Bsprintf(tempbuf,"VIEW");
+//        else Bsprintf(tempbuf,"SHADE");
     }
-    else if (bstatus&2)
+    else if (bstatus&2 && !(bstatus&1))
         Bsprintf(tempbuf,"Z");
-    else if (bstatus&1)
+    else if (bstatus&1 && !(bstatus&2))
         Bsprintf(tempbuf,"LOCK");
+
     if (tempbuf[0] != 0)
     {
         i = (Bstrlen(tempbuf)<<3)+6;
@@ -5399,6 +5418,54 @@ static int osdcmd_noclip(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+//PK vvv ------------
+extern int pk_turnaccel, pk_turndecel, pk_uedaccel;
+extern char quickmapcycling;
+
+static int osdcmd_vars_pk(const osdfuncparm_t *parm)
+{
+    int showval = (parm->numparms < 1);
+
+    // this is something of a misnomer, since it's actually accel+decel
+    if (!Bstrcasecmp(parm->name, "pk_turnaccel"))
+    {
+        if (showval) { OSD_Printf("Turning acceleration+declaration is %d\n", pk_turnaccel); }
+        else
+        {
+            pk_turnaccel = atoi(parm->parms[0]);
+            pk_turnaccel = pk_turnaccel<=pk_turndecel ? (pk_turndecel+1):pk_turnaccel;
+            pk_turnaccel = pk_turnaccel>256 ? 256:pk_turnaccel;
+        }
+    }
+    else if (!Bstrcasecmp(parm->name, "pk_turndecel"))
+    {
+        if (showval) { OSD_Printf("Turning deceleration is %d\n", pk_turndecel); }
+        else
+        {
+            pk_turndecel = atoi(parm->parms[0]);
+            pk_turndecel = pk_turndecel<=0 ? 1:pk_turndecel;
+            pk_turndecel = pk_turndecel>=pk_turnaccel ? (pk_turnaccel-1):pk_turndecel;
+            pk_turndecel = pk_turndecel>128 ? 128:pk_turndecel;
+        }
+    }
+    else if (!Bstrcasecmp(parm->name, "pk_quickmapcycling"))
+    {
+        OSD_Printf("Quick map cycling ((LShift-)Ctrl-X): %s\n",
+                   (quickmapcycling = !quickmapcycling) ? "on":"off");
+    }
+    else if (!Bstrcasecmp(parm->name, "pk_uedaccel"))
+    {
+        if (showval) { OSD_Printf("UnrealEd mouse navigation acceleration is %d\n", pk_uedaccel); }
+        else
+        {
+            pk_uedaccel = atoi(parm->parms[0]);
+            pk_uedaccel = pk_uedaccel<0 ? 0:pk_uedaccel;
+            pk_uedaccel = pk_uedaccel>5 ? 5:pk_uedaccel;
+        }
+    }
+    return OSDCMD_OK;
+}
+
 static int registerosdcommands(void)
 {
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
@@ -5419,6 +5486,11 @@ static int registerosdcommands(void)
 
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
 
+    //PK
+    OSD_RegisterFunction("pk_turnaccel", "pk_turnaccel: sets turning acceleration", osdcmd_vars_pk);
+    OSD_RegisterFunction("pk_turndecel", "pk_turndecel: sets turning deceleration", osdcmd_vars_pk);
+    OSD_RegisterFunction("pk_uedaccel", "pk_uedaccel: sets UnrealEd movement speed factor (0-5, exponentially)", osdcmd_vars_pk);
+    OSD_RegisterFunction("pk_quickmapcycling", "pk_quickmapcycling: allows cycling of maps with (Shift-)Ctrl-X", osdcmd_vars_pk);
     return 0;
 }
 

@@ -940,27 +940,27 @@ void menus(void)
                         break;
 
                     case 1:
-                        {
-                            char *s[] = { "Auto","","","","","","","","","Blue","Red","Green","Gray","Dark gray","Dark green","Brown",
-                                          "Dark blue","","","","","Bright red","","Yellow","",""
-                                        };
-                            gametext(d-50,yy,s[ud.color],MENUHIGHLIGHT(io),2+8+16);
-                        }
-                        break;
+                    {
+                        char *s[] = { "Auto","","","","","","","","","Blue","Red","Green","Gray","Dark gray","Dark green","Brown",
+                                      "Dark blue","","","","","Bright red","","Yellow","",""
+                                    };
+                        gametext(d-50,yy,s[ud.color],MENUHIGHLIGHT(io),2+8+16);
+                    }
+                    break;
 
                     case 2:
-                        {
-                            char *s[] = { "Blue", "Red", "Green", "Gray" };
-                            gametext(d-50,yy,s[ud.team],MENUHIGHLIGHT(io),2+8+16);
-                        }
-                        break;
+                    {
+                        char *s[] = { "Blue", "Red", "Green", "Gray" };
+                        gametext(d-50,yy,s[ud.team],MENUHIGHLIGHT(io),2+8+16);
+                    }
+                    break;
 
                     case 3:
-                        {
-                            char *s[] = { "Off", "All weapons", "Hitscan only" };
-                            gametext(d-50,yy,s[ud.config.AutoAim],MENUHIGHLIGHT(io),2+8+16);
-                        }
-                        break;
+                    {
+                        char *s[] = { "Off", "All weapons", "Hitscan only" };
+                        gametext(d-50,yy,s[ud.config.AutoAim],MENUHIGHLIGHT(io),2+8+16);
+                    }
+                    break;
 
                     case 4:
                         gametext(d-50,yy,ud.mouseaiming?"Hold button":"Toggle on/off",MENUHIGHLIGHT(io),2+8+16);
@@ -2634,38 +2634,38 @@ cheat_for_port_credits:
                     gametextpal(d,yy, ud.levelstats ? "Shown" : "Hidden", MENUHIGHLIGHT(io), 0);
                     break;
                 case 2:
+                {
+                    int i;
+                    i = ud.screen_size;
+                    barsm(d+8,yy+7, (short *)&ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),PHX(-5));
+                    if (i < ud.screen_size && i == 8 && ud.statusbarmode == 1 && bpp > 8)
                     {
-                        int i;
-                        i = ud.screen_size;
-                        barsm(d+8,yy+7, (short *)&ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),PHX(-5));
-                        if (i < ud.screen_size && i == 8 && ud.statusbarmode == 1 && bpp > 8)
+                        ud.statusbarmode = 0;
+                        if (ud.statusbarscale != 100)
+                            ud.screen_size = i;
+                    }
+                    else if (i > ud.screen_size && i == 8 && ud.statusbarmode == 0 && bpp > 8)
+                    {
+                        if (ud.statusbarscale != 100)
                         {
-                            ud.statusbarmode = 0;
-                            if (ud.statusbarscale != 100)
-                                ud.screen_size = i;
-                        }
-                        else if (i > ud.screen_size && i == 8 && ud.statusbarmode == 0 && bpp > 8)
-                        {
-                            if (ud.statusbarscale != 100)
-                            {
-                                ud.statusbarmode = 1;
-                                ud.screen_size = i;
-                            }
+                            ud.statusbarmode = 1;
+                            ud.screen_size = i;
                         }
                     }
-                    break;
+                }
+                break;
                 case 3:
+                {
+                    short sbs, sbsl;
+                    sbs = sbsl = ud.statusbarscale-37;
+                    barsm(d+8,yy+7, (short *)&sbs,8,x==io,MENUHIGHLIGHT(io),PHX(-5));
+                    if (x == io && sbs != sbsl)
                     {
-                        short sbs, sbsl;
-                        sbs = sbsl = ud.statusbarscale-37;
-                        barsm(d+8,yy+7, (short *)&sbs,8,x==io,MENUHIGHLIGHT(io),PHX(-5));
-                        if (x == io && sbs != sbsl)
-                        {
-                            sbs += 37;
-                            setstatusbarscale(sbs);
-                        }
+                        sbs += 37;
+                        setstatusbarscale(sbs);
                     }
-                    break;
+                }
+                break;
                 case 4:
                     if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
                     modval(0,1,(int *)&ud.runkey_mode,1,probey==io);
@@ -2897,37 +2897,37 @@ cheat_for_port_credits:
             break;
 
         case 2:
-            {
-                int dax = xdim, day = ydim, daz;
-                curvidmode = newvidmode = checkvideomode(&dax,&day,bpp,fullscreen,0);
-                if (newvidmode == 0x7fffffffl) newvidmode = validmodecnt;
-                newfullscreen = fullscreen;
-                changesmade = 0;
+        {
+            int dax = xdim, day = ydim, daz;
+            curvidmode = newvidmode = checkvideomode(&dax,&day,bpp,fullscreen,0);
+            if (newvidmode == 0x7fffffffl) newvidmode = validmodecnt;
+            newfullscreen = fullscreen;
+            changesmade = 0;
 
-                dax = 0;
-                for (day = 0; day < validmodecnt; day++)
+            dax = 0;
+            for (day = 0; day < validmodecnt; day++)
+            {
+                if (dax == sizeof(vidsets)/sizeof(vidsets[1])) break;
+                for (daz = 0; daz < dax; daz++)
+                    if ((validmode[day].bpp|((validmode[day].fs&1)<<16)) == (vidsets[daz]&0x1ffffl)) break;
+                if (vidsets[daz] != -1) continue;
+                if (validmode[day].bpp == 8)
                 {
-                    if (dax == sizeof(vidsets)/sizeof(vidsets[1])) break;
-                    for (daz = 0; daz < dax; daz++)
-                        if ((validmode[day].bpp|((validmode[day].fs&1)<<16)) == (vidsets[daz]&0x1ffffl)) break;
-                    if (vidsets[daz] != -1) continue;
-                    if (validmode[day].bpp == 8)
-                    {
-                        vidsets[dax++] = 8|((validmode[day].fs&1)<<16);
+                    vidsets[dax++] = 8|((validmode[day].fs&1)<<16);
 //                        8-bit Polymost can diaf
 //                        vidsets[dax++] = 0x20000|8|((validmode[day].fs&1)<<16);
-                    }
-                    else
-                        vidsets[dax++] = 0x20000|validmode[day].bpp|((validmode[day].fs&1)<<16);
                 }
-                for (dax = 0; dax < (int)(sizeof(vidsets)/sizeof(vidsets[1])) && vidsets[dax] != -1; dax++)
-                    if (vidsets[dax] == (((getrendermode()>=2)<<17)|(fullscreen<<16)|bpp)) break;
-                if (dax < (int)(sizeof(vidsets)/sizeof(vidsets[1]))) newvidset = dax;
-                curvidset = newvidset;
-
-                cmenu(203);
+                else
+                    vidsets[dax++] = 0x20000|validmode[day].bpp|((validmode[day].fs&1)<<16);
             }
-            break;
+            for (dax = 0; dax < (int)(sizeof(vidsets)/sizeof(vidsets[1])) && vidsets[dax] != -1; dax++)
+                if (vidsets[dax] == (((getrendermode()>=2)<<17)|(fullscreen<<16)|bpp)) break;
+            if (dax < (int)(sizeof(vidsets)/sizeof(vidsets[1]))) newvidset = dax;
+            curvidset = newvidset;
+
+            cmenu(203);
+        }
+        break;
         case 3:
             if (ud.recstat != 1)
                 cmenu(20002);
@@ -3007,64 +3007,64 @@ cheat_for_port_credits:
             break;
 
         case 1:
+        {
+            int lastvidset, lastvidmode, safevidmode = -1;
+            lastvidset = newvidset;
+            lastvidmode = newvidmode;
+            // find the next vidset compatible with the current fullscreen setting
+            while (vidsets[0] != -1)
             {
-                int lastvidset, lastvidmode, safevidmode = -1;
-                lastvidset = newvidset;
-                lastvidmode = newvidmode;
-                // find the next vidset compatible with the current fullscreen setting
-                while (vidsets[0] != -1)
+                newvidset++;
+                if (newvidset == sizeof(vidsets)/sizeof(vidsets[0]) || vidsets[newvidset] == -1)
                 {
-                    newvidset++;
-                    if (newvidset == sizeof(vidsets)/sizeof(vidsets[0]) || vidsets[newvidset] == -1)
-                    {
-                        newvidset = -1;
-                        continue;
-                    }
-                    if (((vidsets[newvidset]>>16)&1) != newfullscreen) continue;
-                    break;
+                    newvidset = -1;
+                    continue;
                 }
-
-                if ((vidsets[newvidset] & 0x0ffff) != (vidsets[lastvidset] & 0x0ffff))
-                {
-                    // adjust the video mode to something legal for the new vidset
-                    do
-                    {
-                        newvidmode++;
-                        if (newvidmode == lastvidmode) break;   // end of cycle
-                        if (newvidmode >= validmodecnt)
-                        {
-                            if (safevidmode != -1)
-                                break;
-                            newvidmode = 0;
-                        }
-                        if (validmode[newvidmode].bpp == (vidsets[newvidset]&0x0ffff) &&
-                                validmode[newvidmode].fs == newfullscreen &&
-                                validmode[newvidmode].xdim <= validmode[lastvidmode].xdim &&
-                                (safevidmode==-1?1:(validmode[newvidmode].xdim>=validmode[safevidmode].xdim)) &&
-                                validmode[newvidmode].ydim <= validmode[lastvidmode].ydim &&
-                                (safevidmode==-1?1:(validmode[newvidmode].ydim>=validmode[safevidmode].ydim))
-                           )
-                            safevidmode = newvidmode;
-                    }
-                    while (1);
-                    if (safevidmode == -1)
-                    {
-                        //OSD_Printf("No best fit!\n");
-                        newvidmode = lastvidmode;
-                        newvidset = lastvidset;
-                    }
-                    else
-                    {
-                        //OSD_Printf("Best fit is %dx%dx%d-%d %d\n",validmode[safevidmode].xdim,validmode[safevidmode].ydim,validmode[safevidmode].bpp,validmode[safevidmode].fs,safevidmode);
-                        newvidmode = safevidmode;
-                    }
-                }
-                if (newvidset != curvidset) changesmade |= 4;
-                else changesmade &= ~4;
-                if (newvidmode != curvidmode) changesmade |= 1;
-                else changesmade &= ~1;
+                if (((vidsets[newvidset]>>16)&1) != newfullscreen) continue;
+                break;
             }
-            break;
+
+            if ((vidsets[newvidset] & 0x0ffff) != (vidsets[lastvidset] & 0x0ffff))
+            {
+                // adjust the video mode to something legal for the new vidset
+                do
+                {
+                    newvidmode++;
+                    if (newvidmode == lastvidmode) break;   // end of cycle
+                    if (newvidmode >= validmodecnt)
+                    {
+                        if (safevidmode != -1)
+                            break;
+                        newvidmode = 0;
+                    }
+                    if (validmode[newvidmode].bpp == (vidsets[newvidset]&0x0ffff) &&
+                            validmode[newvidmode].fs == newfullscreen &&
+                            validmode[newvidmode].xdim <= validmode[lastvidmode].xdim &&
+                            (safevidmode==-1?1:(validmode[newvidmode].xdim>=validmode[safevidmode].xdim)) &&
+                            validmode[newvidmode].ydim <= validmode[lastvidmode].ydim &&
+                            (safevidmode==-1?1:(validmode[newvidmode].ydim>=validmode[safevidmode].ydim))
+                       )
+                        safevidmode = newvidmode;
+                }
+                while (1);
+                if (safevidmode == -1)
+                {
+                    //OSD_Printf("No best fit!\n");
+                    newvidmode = lastvidmode;
+                    newvidset = lastvidset;
+                }
+                else
+                {
+                    //OSD_Printf("Best fit is %dx%dx%d-%d %d\n",validmode[safevidmode].xdim,validmode[safevidmode].ydim,validmode[safevidmode].bpp,validmode[safevidmode].fs,safevidmode);
+                    newvidmode = safevidmode;
+                }
+            }
+            if (newvidset != curvidset) changesmade |= 4;
+            else changesmade &= ~4;
+            if (newvidmode != curvidmode) changesmade |= 1;
+            else changesmade &= ~1;
+        }
+        break;
 
         case 2:
             newfullscreen = !newfullscreen;
@@ -3382,44 +3382,44 @@ cheat_for_port_credits:
         break;
 
     case 210:
+    {
+        int32 sc;
+        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        menutext(320>>1,24,0,0,"KEYBOARD SETUP");
+
+        gametext(320>>1,90,"PRESS THE KEY TO ASSIGN AS",0,2+8+16);
+        sprintf(tempbuf,"%s FOR \"%s\"", whichkey?"SECONDARY":"PRIMARY", CONFIG_FunctionNumToName(function));
+        gametext(320>>1,90+9,tempbuf,0,2+8+16);
+        gametext(320>>1,90+9+9+9,"PRESS \"ESCAPE\" TO CANCEL",0,2+8+16);
+
+        sc = KB_GetLastScanCode();
+        if (sc != sc_None || RMB)
         {
-            int32 sc;
-            rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-            menutext(320>>1,24,0,0,"KEYBOARD SETUP");
-
-            gametext(320>>1,90,"PRESS THE KEY TO ASSIGN AS",0,2+8+16);
-            sprintf(tempbuf,"%s FOR \"%s\"", whichkey?"SECONDARY":"PRIMARY", CONFIG_FunctionNumToName(function));
-            gametext(320>>1,90+9,tempbuf,0,2+8+16);
-            gametext(320>>1,90+9+9+9,"PRESS \"ESCAPE\" TO CANCEL",0,2+8+16);
-
-            sc = KB_GetLastScanCode();
-            if (sc != sc_None || RMB)
+            if (sc == sc_Escape || RMB)
             {
-                if (sc == sc_Escape || RMB)
-                {
-                    sound(EXITMENUSOUND);
-                }
+                sound(EXITMENUSOUND);
+            }
+            else
+            {
+                sound(PISTOL_BODYHIT);
+
+                ud.config.KeyboardKeys[function][whichkey] = KB_GetLastScanCode();
+                if (function == gamefunc_Show_Console)
+                    OSD_CaptureKey(KB_GetLastScanCode());
                 else
-                {
-                    sound(PISTOL_BODYHIT);
-
-                    ud.config.KeyboardKeys[function][whichkey] = KB_GetLastScanCode();
-                    if (function == gamefunc_Show_Console)
-                        OSD_CaptureKey(KB_GetLastScanCode());
-                    else
-                        CONTROL_MapKey(function, ud.config.KeyboardKeys[function][0], ud.config.KeyboardKeys[function][1]);
-                }
-
-                cmenu(204);
-
-                currentlist = whichkey;
-                probey = function;
-
-                KB_ClearKeyDown(sc);
+                    CONTROL_MapKey(function, ud.config.KeyboardKeys[function][0], ud.config.KeyboardKeys[function][1]);
             }
 
-            break;
+            cmenu(204);
+
+            currentlist = whichkey;
+            probey = function;
+
+            KB_ClearKeyDown(sc);
         }
+
+        break;
+    }
     case 205:
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,24,0,0,"MOUSE SETUP");
@@ -3946,252 +3946,252 @@ cheat_for_port_credits:
     case 220:
     case 221:
     case 222:
+    {
+        int thispage, twothispage;
+
+        rotatesprite(320<<15,10<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        menutext(320>>1,15,0,0,"JOYSTICK AXES");
+
+        thispage = (current_menu < 217) ? (current_menu-208) : (current_menu-217)+2;
+        twothispage = (thispage*2+1 < joynumaxes);
+
+        onbar = 0;
+        switch (probey)
         {
-            int thispage, twothispage;
-
-            rotatesprite(320<<15,10<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-            menutext(320>>1,15,0,0,"JOYSTICK AXES");
-
-            thispage = (current_menu < 217) ? (current_menu-208) : (current_menu-217)+2;
-            twothispage = (thispage*2+1 < joynumaxes);
-
-            onbar = 0;
-            switch (probey)
-            {
-            case 0:
-            case 4:
-                onbar = 1;
-                x = probe(88,45+(probey==4)*64,0,1+(4<<twothispage));
-                break;
-            case 1:
-            case 2:
-            case 5:
-            case 6:
-                x = probe(172+(probey==2||probey==6)*72,45+15+(probey==5||probey==6)*64,0,1+(4<<twothispage));
-                break;
-            case 3:
-            case 7:
-                x = probe(88,45+15+15+(probey==7)*64,0,1+(4<<twothispage));
-                break;
-            default:
-                x = probe(60,79+79*twothispage,0,1+(4<<twothispage));
-                break;
-            }
-
-            switch (x)
-            {
-            case -1:
-                cmenu(206);
-                probey = 1;
-                break;
-            case 8:
-                if (joynumaxes > 2)
-                {
-                    if (thispage == ((joynumaxes+1)/2)-1) cmenu(208);
-                    else
-                    {
-                        if (current_menu == 209) cmenu(217);
-                        else cmenu(current_menu+1);
-                    }
-                }
-                break;
-
-            case 4: // bar
-                if (!twothispage && joynumaxes > 2)
-                    cmenu(208);
-            case 0:
-                break;
-
-            case 1: // digitals
-            case 2:
-            case 5:
-            case 6:
-                function = 3;
-                whichkey = ((thispage*2+(x==5||x==6)) << 1) + (x==2||x==6);
-                cmenu(211);
-                probey = ud.config.JoystickDigitalFunctions[whichkey>>1][whichkey&1];
-                if (probey < 0) probey = NUMGAMEFUNCTIONS-1;
-                break;
-
-            case 3: // analogues
-            case 7:
-                l = ud.config.JoystickAnalogueAxes[thispage*2+(x==7)];
-                if (l == analog_turning) l = analog_strafing;
-                else if (l == analog_strafing) l = analog_lookingupanddown;
-                else if (l == analog_lookingupanddown) l = analog_moving;
-                else if (l == analog_moving) l = -1;
-                else l = analog_turning;
-                ud.config.JoystickAnalogueAxes[thispage*2+(x==7)] = l;
-                CONTROL_MapAnalogAxis(thispage*2+(x==7),l,controldevice_joystick);
-                {
-                    extern int32 mouseyaxismode;	// player.c
-                    mouseyaxismode = -1;
-                }
-                break;
-            default:
-                break;
-            }
-
-            Bsprintf(tempbuf,(char *)getjoyname(0,thispage*2));
-            menutext(42,32,0,0,tempbuf);
-            if (twothispage)
-            {
-                Bsprintf(tempbuf,(char *)getjoyname(0,thispage*2+1));
-                menutext(42,32+64,0,0,tempbuf);
-            }
-            gametext(76,38,"SCALE",0,2+8+16);
-            l = (ud.config.JoystickAnalogueScale[thispage*2]+262144) >> 13;
-            bar(140+56,38+8,(short *)&l,1,x==0,0,0);
-            l = (l<<13)-262144;
-            if (l != ud.config.JoystickAnalogueScale[thispage*2])
-            {
-                CONTROL_SetAnalogAxisScale(thispage*2, l, controldevice_joystick);
-                ud.config.JoystickAnalogueScale[thispage*2] = l;
-            }
-            Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
-            gametext(140,38,tempbuf,0,2+8+16);
-
-            gametext(76,38+15,"DIGITAL",0,2+8+16);
-            if (ud.config.JoystickDigitalFunctions[thispage*2][0] < 0)
-                strcpy(tempbuf, "  -NONE-");
-            else
-                strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2][0]));
-
-            for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-            minitext(140+12,38+15,tempbuf,0,10+16);
-
-            if (ud.config.JoystickDigitalFunctions[thispage*2][1] < 0)
-                strcpy(tempbuf, "  -NONE-");
-            else
-                strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2][1]));
-
-            for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-            minitext(140+12+72,38+15,tempbuf,0,10+16);
-
-            gametext(76,38+15+15,"ANALOG",0,2+8+16);
-            if (CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[thispage*2]))
-            {
-                p = CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[thispage*2]);
-                if (p)
-                {
-                    gametext(140+12,38+15+15, strchr(p,'_')+1, 0, 2+8+16);
-                }
-            }
-
-            if (twothispage)
-            {
-                gametext(76,38+64,"SCALE",0,2+8+16);
-                l = (ud.config.JoystickAnalogueScale[thispage*2+1]+262144) >> 13;
-                bar(140+56,38+8+64,(short *)&l,1,x==4,0,0);
-                l = (l<<13)-262144;
-                if (l != ud.config.JoystickAnalogueScale[thispage*2+1])
-                {
-                    CONTROL_SetAnalogAxisScale(thispage*2+1, l, controldevice_joystick);
-                    ud.config.JoystickAnalogueScale[thispage*2+1] = l;
-                }
-                Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
-                gametext(140,38+64,tempbuf,0,2+8+16);
-
-                gametext(76,38+64+15,"DIGITAL",0,2+8+16);
-                if (ud.config.JoystickDigitalFunctions[thispage*2+1][0] < 0)
-                    strcpy(tempbuf, "  -NONE-");
-                else
-                    strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2+1][0]));
-
-                for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-                minitext(140+12,38+15+64,tempbuf,0,10+16);
-
-                if (ud.config.JoystickDigitalFunctions[thispage*2+1][1] < 0)
-                    strcpy(tempbuf, "  -NONE-");
-                else
-                    strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2+1][1]));
-
-                for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-                minitext(140+12+72,38+15+64,tempbuf,0,10+16);
-
-                gametext(76,38+64+15+15,"ANALOG",0,2+8+16);
-                if (CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[thispage*2+1]))
-                {
-                    p = CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[thispage*2+1]);
-                    if (p)
-                    {
-                        gametext(140+12,38+64+15+15, strchr(p,'_')+1, 0, 2+8+16);
-                    }
-                }
-            }
-
-            if (joynumaxes > 2)
-            {
-                menutext(320>>1,twothispage?158:108,SHX(-10),(joynumaxes<=2),"NEXT...");
-                sprintf(tempbuf,"Page %d of %d",thispage+1,(joynumaxes+1)/2);
-                gametext(320-100,158,tempbuf,0,2+8+16);
-            }
+        case 0:
+        case 4:
+            onbar = 1;
+            x = probe(88,45+(probey==4)*64,0,1+(4<<twothispage));
+            break;
+        case 1:
+        case 2:
+        case 5:
+        case 6:
+            x = probe(172+(probey==2||probey==6)*72,45+15+(probey==5||probey==6)*64,0,1+(4<<twothispage));
+            break;
+        case 3:
+        case 7:
+            x = probe(88,45+15+15+(probey==7)*64,0,1+(4<<twothispage));
+            break;
+        default:
+            x = probe(60,79+79*twothispage,0,1+(4<<twothispage));
             break;
         }
+
+        switch (x)
+        {
+        case -1:
+            cmenu(206);
+            probey = 1;
+            break;
+        case 8:
+            if (joynumaxes > 2)
+            {
+                if (thispage == ((joynumaxes+1)/2)-1) cmenu(208);
+                else
+                {
+                    if (current_menu == 209) cmenu(217);
+                    else cmenu(current_menu+1);
+                }
+            }
+            break;
+
+        case 4: // bar
+            if (!twothispage && joynumaxes > 2)
+                cmenu(208);
+        case 0:
+            break;
+
+        case 1: // digitals
+        case 2:
+        case 5:
+        case 6:
+            function = 3;
+            whichkey = ((thispage*2+(x==5||x==6)) << 1) + (x==2||x==6);
+            cmenu(211);
+            probey = ud.config.JoystickDigitalFunctions[whichkey>>1][whichkey&1];
+            if (probey < 0) probey = NUMGAMEFUNCTIONS-1;
+            break;
+
+        case 3: // analogues
+        case 7:
+            l = ud.config.JoystickAnalogueAxes[thispage*2+(x==7)];
+            if (l == analog_turning) l = analog_strafing;
+            else if (l == analog_strafing) l = analog_lookingupanddown;
+            else if (l == analog_lookingupanddown) l = analog_moving;
+            else if (l == analog_moving) l = -1;
+            else l = analog_turning;
+            ud.config.JoystickAnalogueAxes[thispage*2+(x==7)] = l;
+            CONTROL_MapAnalogAxis(thispage*2+(x==7),l,controldevice_joystick);
+            {
+                extern int32 mouseyaxismode;	// player.c
+                mouseyaxismode = -1;
+            }
+            break;
+        default:
+            break;
+        }
+
+        Bsprintf(tempbuf,(char *)getjoyname(0,thispage*2));
+        menutext(42,32,0,0,tempbuf);
+        if (twothispage)
+        {
+            Bsprintf(tempbuf,(char *)getjoyname(0,thispage*2+1));
+            menutext(42,32+64,0,0,tempbuf);
+        }
+        gametext(76,38,"SCALE",0,2+8+16);
+        l = (ud.config.JoystickAnalogueScale[thispage*2]+262144) >> 13;
+        bar(140+56,38+8,(short *)&l,1,x==0,0,0);
+        l = (l<<13)-262144;
+        if (l != ud.config.JoystickAnalogueScale[thispage*2])
+        {
+            CONTROL_SetAnalogAxisScale(thispage*2, l, controldevice_joystick);
+            ud.config.JoystickAnalogueScale[thispage*2] = l;
+        }
+        Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
+        gametext(140,38,tempbuf,0,2+8+16);
+
+        gametext(76,38+15,"DIGITAL",0,2+8+16);
+        if (ud.config.JoystickDigitalFunctions[thispage*2][0] < 0)
+            strcpy(tempbuf, "  -NONE-");
+        else
+            strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2][0]));
+
+        for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+        minitext(140+12,38+15,tempbuf,0,10+16);
+
+        if (ud.config.JoystickDigitalFunctions[thispage*2][1] < 0)
+            strcpy(tempbuf, "  -NONE-");
+        else
+            strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2][1]));
+
+        for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+        minitext(140+12+72,38+15,tempbuf,0,10+16);
+
+        gametext(76,38+15+15,"ANALOG",0,2+8+16);
+        if (CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[thispage*2]))
+        {
+            p = CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[thispage*2]);
+            if (p)
+            {
+                gametext(140+12,38+15+15, strchr(p,'_')+1, 0, 2+8+16);
+            }
+        }
+
+        if (twothispage)
+        {
+            gametext(76,38+64,"SCALE",0,2+8+16);
+            l = (ud.config.JoystickAnalogueScale[thispage*2+1]+262144) >> 13;
+            bar(140+56,38+8+64,(short *)&l,1,x==4,0,0);
+            l = (l<<13)-262144;
+            if (l != ud.config.JoystickAnalogueScale[thispage*2+1])
+            {
+                CONTROL_SetAnalogAxisScale(thispage*2+1, l, controldevice_joystick);
+                ud.config.JoystickAnalogueScale[thispage*2+1] = l;
+            }
+            Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
+            gametext(140,38+64,tempbuf,0,2+8+16);
+
+            gametext(76,38+64+15,"DIGITAL",0,2+8+16);
+            if (ud.config.JoystickDigitalFunctions[thispage*2+1][0] < 0)
+                strcpy(tempbuf, "  -NONE-");
+            else
+                strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2+1][0]));
+
+            for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+            minitext(140+12,38+15+64,tempbuf,0,10+16);
+
+            if (ud.config.JoystickDigitalFunctions[thispage*2+1][1] < 0)
+                strcpy(tempbuf, "  -NONE-");
+            else
+                strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2+1][1]));
+
+            for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
+            minitext(140+12+72,38+15+64,tempbuf,0,10+16);
+
+            gametext(76,38+64+15+15,"ANALOG",0,2+8+16);
+            if (CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[thispage*2+1]))
+            {
+                p = CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[thispage*2+1]);
+                if (p)
+                {
+                    gametext(140+12,38+64+15+15, strchr(p,'_')+1, 0, 2+8+16);
+                }
+            }
+        }
+
+        if (joynumaxes > 2)
+        {
+            menutext(320>>1,twothispage?158:108,SHX(-10),(joynumaxes<=2),"NEXT...");
+            sprintf(tempbuf,"Page %d of %d",thispage+1,(joynumaxes+1)/2);
+            gametext(320-100,158,tempbuf,0,2+8+16);
+        }
+        break;
+    }
 
     case 213:
     case 214:
     case 215:
     case 216:
+    {
+        // Pray this is enough pages for now :-|
+        int first,last;
+        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        menutext(320>>1,24,0,0,"JOY DEAD ZONES");
+
+        first = 4*(current_menu-213);
+        last  = min(4*(current_menu-213)+4,joynumaxes);
+
+        onbar = 1;
+        x = probe(320,48,15,2*(last-first)+(joynumaxes>4));
+
+        if (x==-1)
         {
-            // Pray this is enough pages for now :-|
-            int first,last;
-            rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-            menutext(320>>1,24,0,0,"JOY DEAD ZONES");
-
-            first = 4*(current_menu-213);
-            last  = min(4*(current_menu-213)+4,joynumaxes);
-
-            onbar = 1;
-            x = probe(320,48,15,2*(last-first)+(joynumaxes>4));
-
-            if (x==-1)
-            {
-                cmenu(206);
-                probey = 2;
-                break;
-            }
-            else if (x==2*(last-first) && joynumaxes>4)
-            {
-                cmenu((current_menu-213) == (joynumaxes/4) ? 213 : (current_menu+1));
-                probey = 0;
-                break;
-            }
-
-            for (m=first;m<last;m++)
-            {
-                unsigned short odx,dx,ody,dy;
-                Bsprintf(tempbuf,(char *)getjoyname(0,m));
-                menutext(32,48+30*(m-first),0,0,tempbuf);
-
-                gametext(128,48+30*(m-first)-8,"DEAD",0,2+8+16);
-                gametext(128,48+30*(m-first)-8+15,"SATU",0,2+8+16);
-
-                dx = odx = min(64,64l*ud.config.JoystickAnalogueDead[m]/10000l);
-                dy = ody = min(64,64l*ud.config.JoystickAnalogueSaturate[m]/10000l);
-
-                bar(217,48+30*(m-first),(short *)&dx,4,x==((m-first)*2),0,0);
-                bar(217,48+30*(m-first)+15,(short *)&dy,4,x==((m-first)*2+1),0,0);
-
-                Bsprintf(tempbuf,"%3d%%",100*dx/64);
-                gametext(217-49,48+30*(m-first)-8,tempbuf,0,2+8+16);
-                Bsprintf(tempbuf,"%3d%%",100*dy/64);
-                gametext(217-49,48+30*(m-first)-8+15,tempbuf,0,2+8+16);
-
-                if (dx != odx) ud.config.JoystickAnalogueDead[m]     = 10000l*dx/64l;
-                if (dy != ody) ud.config.JoystickAnalogueSaturate[m] = 10000l*dy/64l;
-                if (dx != odx || dy != ody)
-                    setjoydeadzone(m,ud.config.JoystickAnalogueDead[m],ud.config.JoystickAnalogueSaturate[m]);
-            }
-            //gametext(160,158,"DEAD = DEAD ZONE, SAT. = SATURATION",0,2+8+16);
-            if (joynumaxes>4)
-            {
-                menutext(32,48+30*(last-first),0,0,"NEXT...");
-                sprintf(tempbuf,"Page %d of %d", 1+(current_menu-213), (joynumaxes+3)/4);
-                gametext(320-100,158,tempbuf,0,2+8+16);
-            }
+            cmenu(206);
+            probey = 2;
             break;
         }
+        else if (x==2*(last-first) && joynumaxes>4)
+        {
+            cmenu((current_menu-213) == (joynumaxes/4) ? 213 : (current_menu+1));
+            probey = 0;
+            break;
+        }
+
+        for (m=first;m<last;m++)
+        {
+            unsigned short odx,dx,ody,dy;
+            Bsprintf(tempbuf,(char *)getjoyname(0,m));
+            menutext(32,48+30*(m-first),0,0,tempbuf);
+
+            gametext(128,48+30*(m-first)-8,"DEAD",0,2+8+16);
+            gametext(128,48+30*(m-first)-8+15,"SATU",0,2+8+16);
+
+            dx = odx = min(64,64l*ud.config.JoystickAnalogueDead[m]/10000l);
+            dy = ody = min(64,64l*ud.config.JoystickAnalogueSaturate[m]/10000l);
+
+            bar(217,48+30*(m-first),(short *)&dx,4,x==((m-first)*2),0,0);
+            bar(217,48+30*(m-first)+15,(short *)&dy,4,x==((m-first)*2+1),0,0);
+
+            Bsprintf(tempbuf,"%3d%%",100*dx/64);
+            gametext(217-49,48+30*(m-first)-8,tempbuf,0,2+8+16);
+            Bsprintf(tempbuf,"%3d%%",100*dy/64);
+            gametext(217-49,48+30*(m-first)-8+15,tempbuf,0,2+8+16);
+
+            if (dx != odx) ud.config.JoystickAnalogueDead[m]     = 10000l*dx/64l;
+            if (dy != ody) ud.config.JoystickAnalogueSaturate[m] = 10000l*dy/64l;
+            if (dx != odx || dy != ody)
+                setjoydeadzone(m,ud.config.JoystickAnalogueDead[m],ud.config.JoystickAnalogueSaturate[m]);
+        }
+        //gametext(160,158,"DEAD = DEAD ZONE, SAT. = SATURATION",0,2+8+16);
+        if (joynumaxes>4)
+        {
+            menutext(32,48+30*(last-first),0,0,"NEXT...");
+            sprintf(tempbuf,"Page %d of %d", 1+(current_menu-213), (joynumaxes+3)/4);
+            gametext(320-100,158,tempbuf,0,2+8+16);
+        }
+        break;
+    }
 
     case 700:
     case 701:
@@ -4724,104 +4724,104 @@ VOLUME_ALL_40x:
         }
 
     case 603:
+    {
+        int plrvotes = 0, j = 0;
+
+        x = probe(186,124,0,0);
+
+        if (voting != myconnectindex)
+            g_player[myconnectindex].ps->gm &= ~MODE_MENU;
+
+        if (x == -1)
         {
-            int plrvotes = 0, j = 0;
-
-            x = probe(186,124,0,0);
-
-            if (voting != myconnectindex)
-                g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-
-            if (x == -1)
+            if (voting == myconnectindex)
             {
-                if (voting == myconnectindex)
+                for (i=0;i<MAXPLAYERS;i++)
                 {
-                    for (i=0;i<MAXPLAYERS;i++)
-                    {
-                        g_player[i].vote = 0;
-                        g_player[i].gotvote = 0;
-                    }
-
-                    tempbuf[0] = 18;
-                    tempbuf[1] = 2;
-                    tempbuf[2] = myconnectindex;
-
-                    for (c=connecthead;c>=0;c=connectpoint2[c])
-                    {
-                        if (c != myconnectindex) sendpacket(c,tempbuf,3);
-                        if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                    }
-                    voting = -1;
+                    g_player[i].vote = 0;
+                    g_player[i].gotvote = 0;
                 }
-                cmenu(0);
-            }
 
-            for (i=0;i<MAXPLAYERS;i++)
-            {
-                plrvotes += g_player[i].vote;
-                j += g_player[i].gotvote;
-            }
-            if (j == numplayers || !g_player[myconnectindex].ps->i || (plrvotes > (numplayers>>1)) || (!networkmode && myconnectindex == connecthead))
-            {
-                if (plrvotes > (numplayers>>1) || !g_player[myconnectindex].ps->i || (!networkmode && myconnectindex == connecthead))
+                tempbuf[0] = 18;
+                tempbuf[1] = 2;
+                tempbuf[2] = myconnectindex;
+
+                for (c=connecthead;c>=0;c=connectpoint2[c])
                 {
-                    if (ud.m_player_skill == 3) ud.m_respawn_monsters = 1;
-                    else ud.m_respawn_monsters = 0;
-
-                    if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_ITEMRESPAWN)) ud.m_respawn_items = 1;
-                    else ud.m_respawn_items = 0;
-
-                    ud.m_respawn_inventory = 1;
-
-                    for (c=connecthead;c>=0;c=connectpoint2[c])
-                    {
-                        resetweapons(c);
-                        resetinventory(c);
-
-                    }
-
-                    mpchangemap(ud.m_volume_number,ud.m_level_number);
-
-                    if (voting == myconnectindex)
-                        adduserquote("VOTE SUCCEEDED");
-
-                    newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
-                    if (enterlevel(MODE_GAME)) backtomenu();
-
-                    return;
+                    if (c != myconnectindex) sendpacket(c,tempbuf,3);
+                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
                 }
-                else if (j == numplayers)
-                {
-                    for (i=0;i<MAXPLAYERS;i++)
-                    {
-                        g_player[i].vote = 0;
-                        g_player[i].gotvote = 0;
-                    }
-
-                    voting = -1;
-
-                    tempbuf[0] = 18;
-                    tempbuf[1] = 2;
-                    tempbuf[2] = myconnectindex;
-                    tempbuf[3] = 1;
-
-                    for (c=connecthead;c>=0;c=connectpoint2[c])
-                    {
-                        if (c != myconnectindex) sendpacket(c,tempbuf,4);
-                        if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
-                    }
-
-                    Bsprintf(fta_quotes[116],"VOTE FAILED");
-                    FTA(116,g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-                }
+                voting = -1;
             }
-            else
-            {
-                gametext(160,90,"WAITING FOR VOTES",0,2);
-            }
-            break;
+            cmenu(0);
         }
+
+        for (i=0;i<MAXPLAYERS;i++)
+        {
+            plrvotes += g_player[i].vote;
+            j += g_player[i].gotvote;
+        }
+        if (j == numplayers || !g_player[myconnectindex].ps->i || (plrvotes > (numplayers>>1)) || (!networkmode && myconnectindex == connecthead))
+        {
+            if (plrvotes > (numplayers>>1) || !g_player[myconnectindex].ps->i || (!networkmode && myconnectindex == connecthead))
+            {
+                if (ud.m_player_skill == 3) ud.m_respawn_monsters = 1;
+                else ud.m_respawn_monsters = 0;
+
+                if ((gametype_flags[ud.m_coop] & GAMETYPE_FLAG_ITEMRESPAWN)) ud.m_respawn_items = 1;
+                else ud.m_respawn_items = 0;
+
+                ud.m_respawn_inventory = 1;
+
+                for (c=connecthead;c>=0;c=connectpoint2[c])
+                {
+                    resetweapons(c);
+                    resetinventory(c);
+
+                }
+
+                mpchangemap(ud.m_volume_number,ud.m_level_number);
+
+                if (voting == myconnectindex)
+                    adduserquote("VOTE SUCCEEDED");
+
+                newgame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
+                if (enterlevel(MODE_GAME)) backtomenu();
+
+                return;
+            }
+            else if (j == numplayers)
+            {
+                for (i=0;i<MAXPLAYERS;i++)
+                {
+                    g_player[i].vote = 0;
+                    g_player[i].gotvote = 0;
+                }
+
+                voting = -1;
+
+                tempbuf[0] = 18;
+                tempbuf[1] = 2;
+                tempbuf[2] = myconnectindex;
+                tempbuf[3] = 1;
+
+                for (c=connecthead;c>=0;c=connectpoint2[c])
+                {
+                    if (c != myconnectindex) sendpacket(c,tempbuf,4);
+                    if ((!networkmode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
+                }
+
+                Bsprintf(fta_quotes[116],"VOTE FAILED");
+                FTA(116,g_player[myconnectindex].ps);
+                g_player[myconnectindex].ps->gm &= ~MODE_MENU;
+            }
+        }
+        else
+        {
+            gametext(160,90,"WAITING FOR VOTES",0,2);
+        }
+        break;
+    }
     case 600:
         c = (320>>1) - 120;
         if ((g_player[myconnectindex].ps->gm&MODE_GAME) != MODE_GAME)

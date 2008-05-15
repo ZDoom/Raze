@@ -8,7 +8,7 @@ int addtileP(int model,int tile,int pallet)
 {
     UNREFERENCED_PARAMETER(model);
     if (curextra==MAXTILES+EXTRATILES-2)return curextra;
-    if (tile2model[tile].modelid==-1){tile2model[tile].pal=pallet;return tile;}
+    if (tile2model[tile].modelid==-1) {tile2model[tile].pal=pallet;return tile;}
     if (tile2model[tile].pal==pallet)return tile;
     while (tile2model[tile].next!=-1)
     {
