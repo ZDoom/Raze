@@ -9,6 +9,27 @@
 extern "C" {
 #endif
 
+// Build keys
+#define BK_MOVEFORWARD   0
+#define BK_MOVEBACKWARD  1
+#define BK_TURNLEFT 	 2
+#define BK_TURNRIGHT	 3
+#define BK_RUN  		 4
+#define BK_STRAFE   	 5
+#define BK_SHOOT		 6
+#define BK_OPEN 		 7
+#define BK_MOVEUP   	 8
+#define BK_MOVEDOWN 	 9
+#define BK_LOOKUP   	10
+#define BK_LOOKDOWN 	11
+#define BK_STRAFELEFT   12
+#define BK_STRAFERIGHT  13
+#define BK_MODE2D_3D	14
+#define BK_PLAYERVIEW   15
+#define BK_ZOOMIN   	16
+#define BK_ZOOMOUT  	17
+#define BK_MESSAGE  	18
+#define BK_CONSOLE  	19
 #define NUMBUILDKEYS 20
 
 extern int qsetmode;

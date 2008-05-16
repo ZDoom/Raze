@@ -427,7 +427,7 @@ int app_main(int argc, const char **argv)
     {
         setbrightness(0,palette,0);
         overheadeditor();
-        keystatus[buildkeys[14]] = 0;
+        keystatus[buildkeys[BK_MODE2D_3D]] = 0;
     }
 CANCEL:
     quitflag = 0;
@@ -458,7 +458,7 @@ CANCEL:
         synctics = totalclock-lockclock;
         lockclock += synctics;
 
-        if (keystatus[1] > 0)
+        if (keystatus[1])
         {
             keystatus[1] = 0;
             begindrawing();	//{{{
@@ -481,7 +481,7 @@ CANCEL:
                 }
                 idle();
 
-                if (keystatus[0x15] != 0)
+                if (keystatus[0x15])
                 {
                     keystatus[0x15] = 0;
                     quitflag = 1; break;
@@ -507,7 +507,7 @@ CANCEL:
             if (handleevents()) { if (quitevent) break;	} // like saying no
             idle();
 
-            if (keystatus[0x15] != 0)
+            if (keystatus[0x15])
             {
                 char *f;
                 keystatus[0x15] = 0;
@@ -720,20 +720,20 @@ void editinput(void)
 
     showmouse();
 
-    if (keystatus[0x3b] > 0) posx--;
-    if (keystatus[0x3c] > 0) posx++;
-    if (keystatus[0x3d] > 0) posy--;
-    if (keystatus[0x3e] > 0) posy++;
+//    if (keystatus[0x3b] > 0) posx--;
+//    if (keystatus[0x3c] > 0) posx++;
+//    if (keystatus[0x3d] > 0) posy--;
+//    if (keystatus[0x3e] > 0) posy++;
 //    if (keystatus[0x43] > 0) ang--;
 //    if (keystatus[0x44] > 0) ang++;
 
-    if (keystatus[0x43] > 0)
+    if (keystatus[0x43])
     {
         mhk=1;
         loadmhk();
         keystatus[0x43] = 0;
     }
-    if (keystatus[0x44] > 0)
+    if (keystatus[0x44])
     {
         memset(spriteext, 0, sizeof(spriteexttype) * MAXSPRITES);
         memset(spritesmooth, 0, sizeof(spritesmooth));
@@ -749,7 +749,7 @@ void editinput(void)
     {
         //ENGINE calculates angvel for you
         doubvel = synctics;
-        if (keystatus[buildkeys[4]] > 0)  //Lt. shift makes turn velocity 50% faster
+        if (keystatus[buildkeys[BK_RUN]])  //Lt. shift makes turn velocity 50% faster
             doubvel += (synctics>>1);
         ang += ((angvel*doubvel)>>4);
         ang = (ang+2048)&2047;
@@ -757,7 +757,7 @@ void editinput(void)
     if ((vel|svel) != 0)
     {
         doubvel = synctics;
-        if (keystatus[buildkeys[4]] > 0)     //Lt. shift doubles forward velocity
+        if (keystatus[buildkeys[BK_RUN]])     //Lt. shift doubles forward velocity
             doubvel += synctics;
         xvect = 0, yvect = 0;
         if (vel != 0)
@@ -795,25 +795,25 @@ void editinput(void)
         if (goalz < hiz+(16<<8))   //ceiling&floor too close
             goalz = ((loz+hiz)>>1);
         goalz += mousz;
-        if (keystatus[buildkeys[8]] > 0)                            //A (stand high)
+        if (keystatus[buildkeys[BK_MOVEUP]])							//A (stand high)
         {
-            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)
-                horiz = max(-100,horiz-((keystatus[buildkeys[4]]+1)*synctics*2));
+            if (keystatus[0x1d]|keystatus[0x9d])
+                horiz = max(-100,horiz-((keystatus[buildkeys[BK_RUN]]+1)*synctics*2));
             else
             {
                 goalz -= (16<<8);
-                if (keystatus[buildkeys[4]] > 0)    //Either shift key
+                if (keystatus[buildkeys[BK_RUN]])    //Either shift key
                     goalz -= (24<<8);
             }
         }
-        if (keystatus[buildkeys[9]] > 0)                            //Z (stand low)
+        if (keystatus[buildkeys[BK_MOVEDOWN]])  						  //Z (stand low)
         {
-            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)
-                horiz = min(300,horiz+((keystatus[buildkeys[4]]+1)*synctics*2));
+            if (keystatus[0x1d]|keystatus[0x9d])
+                horiz = min(300,horiz+((keystatus[buildkeys[BK_RUN]]+1)*synctics*2));
             else
             {
                 goalz += (12<<8);
-                if (keystatus[buildkeys[4]] > 0)    //Either shift key
+                if (keystatus[buildkeys[BK_RUN]])    //Either shift key
                     goalz += (12<<8);
             }
         }
@@ -831,11 +831,11 @@ void editinput(void)
     else
     {
         goalz = posz;
-        if (keystatus[buildkeys[8]] > 0)                            //A
+        if (keystatus[buildkeys[BK_MOVEUP]])							//A
         {
-            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)
+            if (keystatus[0x1d]|keystatus[0x9d])
             {
-                horiz = max(-100,horiz-((keystatus[buildkeys[4]]+1)*synctics*2));
+                horiz = max(-100,horiz-((keystatus[buildkeys[BK_RUN]]+1)*synctics*2));
             }
             else
             {
@@ -844,15 +844,15 @@ void editinput(void)
                 else
                 {
                     zlock += (4<<8);
-                    keystatus[buildkeys[8]] = 0;
+                    keystatus[buildkeys[BK_MOVEUP]] = 0;
                 }
             }
         }
-        if (keystatus[buildkeys[9]] > 0)                            //Z (stand low)
+        if (keystatus[buildkeys[BK_MOVEDOWN]])  						  //Z (stand low)
         {
-            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)
+            if (keystatus[0x1d]|keystatus[0x9d])
             {
-                horiz = min(300,horiz+((keystatus[buildkeys[4]]+1)*synctics*2));
+                horiz = min(300,horiz+((keystatus[buildkeys[BK_RUN]]+1)*synctics*2));
             }
             else
             {
@@ -861,7 +861,7 @@ void editinput(void)
                 else if (zlock > 0)
                 {
                     zlock -= (4<<8);
-                    keystatus[buildkeys[9]] = 0;
+                    keystatus[buildkeys[BK_MOVEDOWN]] = 0;
                 }
             }
         }
@@ -877,10 +877,10 @@ void editinput(void)
 
         if (goalz != posz)
         {
-            //if (posz < goalz) hvel += (32<<keystatus[buildkeys[4]]);
-            //if (posz > goalz) hvel -= (32<<keystatus[buildkeys[4]]);
-            if (posz < goalz) hvel = ((synctics* 192)<<keystatus[buildkeys[4]]);
-            if (posz > goalz) hvel = ((synctics*-192)<<keystatus[buildkeys[4]]);
+            //if (posz < goalz) hvel += (32<<keystatus[buildkeys[BK_RUN]]);
+            //if (posz > goalz) hvel -= (32<<keystatus[buildkeys[BK_RUN]]);
+            if (posz < goalz) hvel = ((synctics* 192)<<keystatus[buildkeys[BK_RUN]]);
+            if (posz > goalz) hvel = ((synctics*-192)<<keystatus[buildkeys[BK_RUN]]);
 
             posz += hvel;
 
@@ -2420,7 +2420,7 @@ void editinput(void)
                 }
             }
         }
-        if (keystatus[0x1f] > 0)  //S (insert sprite) (3D)
+        if (keystatus[0x1f])  //S (insert sprite) (3D)
         {
             dax = 16384;
             day = divscale14(searchx-(xdim>>1),xdim>>1);
@@ -2541,7 +2541,7 @@ void editinput(void)
             keystatus[0xd3] = 0;
         }
 
-        if ((keystatus[0x3f]|keystatus[0x40]) > 0)  //F5,F6
+        if (keystatus[0x3f]||keystatus[0x40])  //F5,F6
         {
             switch (searchstat)
             {
@@ -2556,7 +2556,7 @@ void editinput(void)
             }
             keystatus[0x3f] = 0, keystatus[0x40] = 0;
         }
-        if ((keystatus[0x41]|keystatus[0x42]) > 0)  //F7,F8
+        if (keystatus[0x41]||keystatus[0x42])  //F7,F8
         {
             switch (searchstat)
             {
@@ -2573,11 +2573,11 @@ void editinput(void)
         }
 
     }
-    if (keystatus[buildkeys[14]] > 0)  // Enter
+    if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
     {
         setbrightness(0,palette,0);
         overheadeditor();
-        keystatus[buildkeys[14]] = 0;
+        keystatus[buildkeys[BK_MODE2D_3D]] = 0;
     }
 }
 
@@ -3009,8 +3009,8 @@ void overheadeditor(void)
     circlewall = -1;
     circlepoints = 7;
     bstatus = 0;
-    keystatus[buildkeys[14]] = 0;
-    while ((keystatus[buildkeys[14]]>>1) == 0)
+    keystatus[buildkeys[BK_MODE2D_3D]] = 0;
+    while ((keystatus[buildkeys[BK_MODE2D_3D]]>>1) == 0)
     {
         if (handleevents())
         {
@@ -3050,7 +3050,7 @@ void overheadeditor(void)
         {
             //ENGINE calculates angvel for you
             doubvel = synctics;
-            if (keystatus[buildkeys[4]] > 0)  //Lt. shift makes turn velocity 50% faster
+            if (keystatus[buildkeys[BK_RUN]])  //Lt. shift makes turn velocity 50% faster
                 doubvel += (synctics>>1);
             ang += ((angvel*doubvel)>>4);
             ang = (ang+2048)&2047;
@@ -3058,7 +3058,7 @@ void overheadeditor(void)
         if ((vel|svel) != 0)
         {
             doubvel = synctics;
-            if (keystatus[buildkeys[4]] > 0)     //Lt. shift doubles forward velocity
+            if (keystatus[buildkeys[BK_RUN]])     //Lt. shift doubles forward velocity
                 doubvel += synctics;
             xvect = 0, yvect = 0;
             if (vel != 0)
@@ -3275,7 +3275,7 @@ void overheadeditor(void)
         ExtCheckKeys(); // TX 20050101, it makes more sense to have this here so keys can be overwritten with new functions in bstub.c
 
         // Flip/mirror sector Ed Coolidge
-        if (keystatus[0x2d] > 0)  // X (2D)
+        if (keystatus[0x2d])  // X (2D)
         {
             if (highlightsectorcnt > 0)
             {
@@ -3395,7 +3395,7 @@ void overheadeditor(void)
                 asksave = 1;
             }
         }
-        if (keystatus[0x15] > 0)  // Y (2D)
+        if (keystatus[0x15])  // Y (2D)
         {
             if (highlightsectorcnt > 0)
             {
@@ -3515,7 +3515,7 @@ void overheadeditor(void)
         }
         // end edit for sector flip
 
-        if (keystatus[88] > 0)   //F12
+        if (keystatus[88])   //F12
         {
             keystatus[88] = 0;
             /*
@@ -3535,7 +3535,7 @@ void overheadeditor(void)
             */
             showframe(1);
         }
-        if (keystatus[0x30] > 0)  // B (clip Blocking xor) (2D)
+        if (keystatus[0x30])  // B (clip Blocking xor) (2D)
         {
             pointhighlight = getpointhighlight(mousxplc, mousyplc);
             linehighlight = getlinehighlight(mousxplc, mousyplc);
@@ -3560,10 +3560,10 @@ void overheadeditor(void)
             }
             keystatus[0x30] = 0;
         }
-        if (keystatus[0x21] > 0)  //F (F alone does nothing in 2D right now)
+        if (keystatus[0x21])  //F (F alone does nothing in 2D right now)
         {
             keystatus[0x21] = 0;
-            if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT-F (relative alignmment flip)
+            if (keystatus[0x38]|keystatus[0xb8])  //ALT-F (relative alignmment flip)
             {
                 linehighlight = getlinehighlight(mousxplc, mousyplc);
                 if (linehighlight >= 0)
@@ -3575,7 +3575,7 @@ void overheadeditor(void)
             }
         }
 
-        if (keystatus[0x18] > 0)  // O (ornament onto wall) (2D)
+        if (keystatus[0x18])  // O (ornament onto wall) (2D)
         {
             keystatus[0x18] = 0;
             if ((pointhighlight&0xc000) == 16384)
@@ -3606,7 +3606,7 @@ void overheadeditor(void)
             }
         }
 
-        if (keystatus[0x33] > 0)  // , (2D)
+        if (keystatus[0x33])  // , (2D)
         {
             if (highlightsectorcnt > 0)
             {
@@ -3688,7 +3688,7 @@ void overheadeditor(void)
                 if (pointhighlight >= 16384)
                 {
                     i = pointhighlight-16384;
-                    if ((keystatus[0x2a]|keystatus[0x36]) > 0)
+                    if (keystatus[0x2a]|keystatus[0x36])
                         sprite[i].ang = ((sprite[i].ang+2048-1)&2047);
                     else
                     {
@@ -3701,7 +3701,7 @@ void overheadeditor(void)
                 }
             }
         }
-        if (keystatus[0x34] > 0)  // .  (2D)
+        if (keystatus[0x34])  // .  (2D)
         {
             if (highlightsectorcnt > 0)
             {
@@ -3783,7 +3783,7 @@ void overheadeditor(void)
                 if (pointhighlight >= 16384)
                 {
                     i = pointhighlight-16384;
-                    if ((keystatus[0x2a]|keystatus[0x36]) > 0)
+                    if (keystatus[0x2a]|keystatus[0x36])
                         sprite[i].ang = ((sprite[i].ang+2048+1)&2047);
                     else
                     {
@@ -3796,7 +3796,7 @@ void overheadeditor(void)
                 }
             }
         }
-        if (keystatus[0x46] > 0)  //Scroll lock (set starting position)
+        if (keystatus[0x46])  //Scroll lock (set starting position)
         {
             startposx = posx;
             startposy = posy;
@@ -3807,7 +3807,7 @@ void overheadeditor(void)
             asksave = 1;
         }
 
-        if (keystatus[0x3f] > 0)  //F5
+        if (keystatus[0x3f])  //F5
         {
             keystatus[0x3f] = 0;
 
@@ -3820,7 +3820,7 @@ void overheadeditor(void)
                     break;
                 }
         }
-        if (keystatus[0x40] > 0)  //F6
+        if (keystatus[0x40])  //F6
         {
             keystatus[0x40] = 0;
 
@@ -3841,7 +3841,7 @@ void overheadeditor(void)
                 ydim16 = ydim-STATUS2DSIZ;
             }
         }
-        if (keystatus[0x41] > 0)  //F7
+        if (keystatus[0x41])  //F7
         {
             keystatus[0x41] = 0;
 
@@ -3854,7 +3854,7 @@ void overheadeditor(void)
                     break;
                 }
         }
-        if (keystatus[0x42] > 0)  //F8
+        if (keystatus[0x42])  //F8
         {
             keystatus[0x42] = 0;
 
@@ -3876,10 +3876,10 @@ void overheadeditor(void)
             }
         }
 
-        if (keystatus[0x14] > 0)  // T (tag)
+        if (keystatus[0x14])  // T (tag)
         {
             keystatus[0x14] = 0;
-            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //Ctrl-T
+            if (keystatus[0x1d]|keystatus[0x9d])  //Ctrl-T
             {
                 showtags ^= 1;
                 if (showtags == 0)
@@ -3887,7 +3887,7 @@ void overheadeditor(void)
                 else
                     printmessage16("Show tags ON");
             }
-            else if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT
+            else if (keystatus[0x38]|keystatus[0xb8])  //ALT
             {
                 if (pointhighlight >= 16384)
                 {
@@ -3921,10 +3921,10 @@ void overheadeditor(void)
                 printmessage16("");
             }
         }
-        if (keystatus[0x23] > 0)  //H (Hi 16 bits of tag)
+        if (keystatus[0x23])  //H (Hi 16 bits of tag)
         {
             keystatus[0x23] = 0;
-            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //Ctrl-H
+            if (keystatus[0x1d]|keystatus[0x9d])  //Ctrl-H
             {
                 pointhighlight = getpointhighlight(mousxplc, mousyplc);
                 linehighlight = getlinehighlight(mousxplc, mousyplc);
@@ -3945,7 +3945,7 @@ void overheadeditor(void)
                     asksave = 1;
                 }
             }
-            else if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT
+            else if (keystatus[0x38]|keystatus[0xb8])  //ALT
             {
                 if (pointhighlight >= 16384)
                 {
@@ -3978,7 +3978,7 @@ void overheadeditor(void)
             }
             printmessage16("");
         }
-        if (keystatus[0x19] > 0)  // P (palookup #)
+        if (keystatus[0x19])  // P (palookup #)
         {
             keystatus[0x19] = 0;
 
@@ -3999,7 +3999,7 @@ void overheadeditor(void)
                     break;
                 }
         }
-        if (keystatus[0x12] > 0)  // E (status list)
+        if (keystatus[0x12])  // E (status list)
         {
             if (pointhighlight >= 16384)
             {
@@ -4015,7 +4015,7 @@ void overheadeditor(void)
             keystatus[0x12] = 0;
         }
 
-        if (keystatus[0x0f] > 0)  //TAB
+        if (keystatus[0x0f])  //TAB
         {
             clearmidstatbar16();
 
@@ -4041,7 +4041,7 @@ void overheadeditor(void)
 
         if (highlightsectorcnt < 0)
         {
-            if (keystatus[0x36] > 0)  //Right shift (point highlighting)
+            if (keystatus[0x36])  //Right shift (point highlighting)
             {
                 if (highlightcnt == 0)
                 {
@@ -4081,7 +4081,7 @@ void overheadeditor(void)
                         tempint = highlighty1; highlighty1 = highlighty2; highlighty2 = tempint;
                     }
 
-                    if ((keystatus[0x1d]|keystatus[0x9d]) > 0)
+                    if (keystatus[0x1d]|keystatus[0x9d])
                     {
                         if ((linehighlight >= 0) && (linehighlight < MAXWALLS))
                         {
@@ -4131,7 +4131,7 @@ void overheadeditor(void)
         }
         if (highlightcnt < 0)
         {
-            if (keystatus[0xb8] > 0)  //Right alt (sector highlighting)
+            if (keystatus[0xb8])  //Right alt (sector highlighting)
             {
                 if (highlightsectorcnt == 0)
                 {
@@ -4462,7 +4462,7 @@ void overheadeditor(void)
             posy = mousyplc;
         }
 
-        if (((keystatus[buildkeys[8]] > 0) || (bstatus&16)) && (zoom < 16384))
+        if ((keystatus[buildkeys[BK_MOVEUP]] || (bstatus&16)) && (zoom < 16384))
         {
             zoom += synctics*(zoom>>4);
             if (zoom < 24) zoom += 2;
@@ -4474,7 +4474,7 @@ void overheadeditor(void)
                 posy = mousyplc;
             }
         }
-        if (((keystatus[buildkeys[9]] > 0) || (bstatus&32)) && (zoom > 8))
+        if ((keystatus[buildkeys[BK_MOVEDOWN]] || (bstatus&32)) && (zoom > 8))
         {
             zoom -= synctics*(zoom>>4);
             if (bstatus&32 && (keystatus[0x38] || keystatus[0xb8]))
@@ -4488,13 +4488,13 @@ void overheadeditor(void)
         if (zoom < 8) zoom = 8;
         if (zoom > 16384) zoom = 16384;
 
-        if (keystatus[0x22] > 0)  // G (grid on/off)
+        if (keystatus[0x22])  // G (grid on/off)
         {
             grid++;
             if (grid == 7) grid = 0;
             keystatus[0x22] = 0;
         }
-        if (keystatus[0x26] > 0)  // L (grid lock)
+        if (keystatus[0x26])  // L (grid lock)
         {
             gridlock = 1-gridlock, keystatus[0x26] = 0;
             if (gridlock == 0)
@@ -4503,7 +4503,7 @@ void overheadeditor(void)
                 printmessage16("Grid locking ON");
         }
 
-        if (keystatus[0x24] > 0)  // J (join sectors)
+        if (keystatus[0x24])  // J (join sectors)
         {
             if (joinsector[0] >= 0)
             {
@@ -4620,7 +4620,7 @@ void overheadeditor(void)
             keystatus[0x24] = 0;
         }
 
-        if (((keystatus[0x38]|keystatus[0xb8])&keystatus[0x1f]) > 0) //ALT-S
+        if ((keystatus[0x38]||keystatus[0xb8])&&keystatus[0x1f]) //ALT-S
         {
             if ((linehighlight >= 0) && (wall[linehighlight].nextwall == -1))
             {
@@ -4643,7 +4643,7 @@ void overheadeditor(void)
             }
             keystatus[0x1f] = 0;
         }
-        else if (keystatus[0x1f] > 0)  //S
+        else if (keystatus[0x1f])  //S
         {
             sucksect = -1;
             for (i=0;i<numsectors;i++)
@@ -4730,7 +4730,7 @@ void overheadeditor(void)
             keystatus[0x1f] = 0;
         }
 
-        if (keystatus[0x2e] > 0)  // C (make circle of points)
+        if (keystatus[0x2e])  // C (make circle of points)
         {
             if (highlightsectorcnt >= 0)
             {
@@ -4793,20 +4793,20 @@ void overheadeditor(void)
             }
             keystatus[0x2e] = 0;
         }
-        if (keystatus[0x4a] > 0)  // -
+        if (keystatus[0x4a])  // -
         {
             if (circlepoints > 1)
                 circlepoints--;
             keystatus[0x4a] = 0;
         }
-        if (keystatus[0x4e] > 0)  // +
+        if (keystatus[0x4e])  // +
         {
             if (circlepoints < 63)
                 circlepoints++;
             keystatus[0x4e] = 0;
         }
 
-        bad = (keystatus[0x39] > 0);  //Gotta do this to save lots of 3 spaces!
+        bad = (keystatus[0x39]);  //Gotta do this to save lots of 3 spaces!
 
         if (circlewall >= 0)
         {
@@ -5446,7 +5446,7 @@ void overheadeditor(void)
             }
         }
 
-        if (keystatus[0x1c] > 0) //Left Enter
+        if (keystatus[0x1c]) //Left Enter
         {
             keystatus[0x1c] = 0;
             if (keystatus[0x2a]&keystatus[0x1d])
@@ -5489,7 +5489,7 @@ void overheadeditor(void)
             }
         }
 
-        if ((keystatus[0x0e] > 0) && (newnumwalls >= numwalls)) //Backspace
+        if (keystatus[0x0e] && (newnumwalls >= numwalls)) //Backspace
         {
             if (newnumwalls > numwalls)
             {
@@ -5505,7 +5505,7 @@ void overheadeditor(void)
             }
         }
 
-        if ((keystatus[0xd3] > 0) && ((keystatus[0x1d]|keystatus[0x9d]) > 0) && (numwalls >= 0))
+        if (keystatus[0xd3] && (keystatus[0x1d]||keystatus[0x9d]) && (numwalls >= 0))
         {
             //sector delete
             keystatus[0xd3] = 0;
@@ -5544,7 +5544,7 @@ void overheadeditor(void)
                 }
         }
 
-        if ((keystatus[0xd3] > 0) && (pointhighlight >= 0))
+        if (keystatus[0xd3] && (pointhighlight >= 0))
         {
             if ((pointhighlight&0xc000) == 16384)   //Sprite Delete
             {
@@ -5556,7 +5556,7 @@ void overheadeditor(void)
             keystatus[0xd3] = 0;
         }
 
-        if (keystatus[0xd2] > 0)  //InsertPoint
+        if (keystatus[0xd2])  //InsertPoint
         {
             if (highlightsectorcnt >= 0)
             {
@@ -5667,11 +5667,11 @@ void overheadeditor(void)
         synctics = totalclock-lockclock;
         lockclock += synctics;
 
-        if (keystatus[buildkeys[14]] > 0)
+        if (keystatus[buildkeys[BK_MODE2D_3D]])
         {
             updatesector(posx,posy,&cursectnum);
             if (cursectnum >= 0)
-                keystatus[buildkeys[14]] = 2;
+                keystatus[buildkeys[BK_MODE2D_3D]] = 2;
             else
                 printmessage16("Arrow must be inside a sector before entering 3D mode.");
         }
@@ -5738,8 +5738,8 @@ void overheadeditor(void)
 // ^^^ PK ------------------------------------
 
 CANCEL:
-        if (keystatus[1] > 0 && joinsector[0] >= 0) {keystatus[1]=0;joinsector[0]=-1;}
-        if (keystatus[1] > 0)
+        if (keystatus[1] && joinsector[0] >= 0) {keystatus[1]=0;joinsector[0]=-1;}
+        if (keystatus[1])
         {
             keystatus[1] = 0;
             printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (Q)uit");
@@ -5759,7 +5759,7 @@ CANCEL:
 
                 ch = bgetchar();
 
-                if (keystatus[1] > 0)
+                if (keystatus[1])
                 {
                     keystatus[1] = 0;
                     bad = 0;
@@ -6014,7 +6014,7 @@ CANCEL:
 
                         ch = bgetchar();
 
-                        if (keystatus[1] > 0) bad = 1;
+                        if (keystatus[1]) bad = 1;
                         else if (ch == 13) bad = 2;
                         else if (ch > 0)
                         {
@@ -6975,7 +6975,7 @@ int menuselect(void)
             {
                 // JBF 20040208: seek to first name matching pressed character
                 CACHE1D_FIND_REC *seeker = currentlist ? findfiles : finddirs;
-                if ((keystatus[0xc7]|keystatus[0xcf]) > 0) // home/end
+                if (keystatus[0xc7]||keystatus[0xcf]) // home/end
                 {
                     while (keystatus[0xcf]?seeker->next:seeker->prev)
                         seeker = keystatus[0xcf]?seeker->next:seeker->prev;
@@ -6987,7 +6987,7 @@ int menuselect(void)
                     ch = keystatus[0xcf]?80:72;
                     keystatus[0xc7] = keystatus[0xcf] = 0;
                 }
-                else if ((keystatus[0xc9]|keystatus[0xd1]) > 0) // page up/down
+                else if (keystatus[0xc9]|keystatus[0xd1]) // page up/down
                 {
                     seeker = currentlist?findfileshigh:finddirshigh;
                     i = (ydim2d-STATUS2DSIZ-48)>>5/*3*/;  //PK
@@ -7028,10 +7028,10 @@ int menuselect(void)
                     }
                 }
             }
-            if (keystatus[0xcb] > 0) ch = 9;		// left arr
-            if (keystatus[0xcd] > 0) ch = 9;		// right arr
-            if (keystatus[0xc8] > 0) ch = 72;		// up arr
-            if (keystatus[0xd0] > 0) ch = 80;		// down arr
+            if (keystatus[0xcb]) ch = 9;		// left arr
+            if (keystatus[0xcd]) ch = 9;		// right arr
+            if (keystatus[0xc8]) ch = 72;   	// up arr
+            if (keystatus[0xd0]) ch = 80;   	// down arr
         }
         if (ch == 'f' || ch == 'F')
         {
@@ -7688,21 +7688,21 @@ void keytimerstuff(void)
     if (totalclock == ltotalclock) return;
     ltotalclock=totalclock;
 
-    if (keystatus[buildkeys[5]] == 0)
+    if (keystatus[buildkeys[BK_STRAFE]] == 0)
     {
         // PK: With GCC and Polymost, keyboard turning lags
-        if (keystatus[buildkeys[2]] > 0) angvel = max(angvel-pk_turnaccel /* 16 */,-128);
-        if (keystatus[buildkeys[3]] > 0) angvel = min(angvel+pk_turnaccel /* 16 */,127);
+        if (keystatus[buildkeys[BK_TURNLEFT]]) angvel = max(angvel-pk_turnaccel /* 16 */,-128);
+        if (keystatus[buildkeys[BK_TURNRIGHT]]) angvel = min(angvel+pk_turnaccel /* 16 */,127);
     }
     else
     {
-        if (keystatus[buildkeys[2]] > 0) svel = min(svel+16,255); // svel and vel aren't even chars...
-        if (keystatus[buildkeys[3]] > 0) svel = max(svel-16,-256);
+        if (keystatus[buildkeys[BK_TURNLEFT]]) svel = min(svel+16,255); // svel and vel aren't even chars...
+        if (keystatus[buildkeys[BK_TURNRIGHT]]) svel = max(svel-16,-256);
     }
-    if (keystatus[buildkeys[0]] > 0) vel = min(vel+16,255);
-    if (keystatus[buildkeys[1]] > 0) vel = max(vel-16,-256);
-    /*  if (keystatus[buildkeys[12]] > 0) svel = min(svel+8,127);
-        if (keystatus[buildkeys[13]] > 0) svel = max(svel-8,-128); */
+    if (keystatus[buildkeys[BK_MOVEFORWARD]])  vel = min(vel+16,255);
+    if (keystatus[buildkeys[BK_MOVEBACKWARD]]) vel = max(vel-16,-256);
+    /*  if (keystatus[buildkeys[BK_STRAFELEFT]])  svel = min(svel+8,127);
+    	if (keystatus[buildkeys[BK_STRAFERIGHT]]) svel = max(svel-8,-128); */
 
     if (angvel < 0) angvel = min(angvel+pk_turndecel /*12*/,0);
     if (angvel > 0) angvel = max(angvel-pk_turndecel /*12*/,0);
