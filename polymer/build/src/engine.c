@@ -11011,6 +11011,7 @@ void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
 //
 
 char spritecol2d[MAXTILES][2];
+int showfirstwall=0;
 
 void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 {
@@ -11061,6 +11062,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
             if ((i == linehighlight) || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
                 if (totalclock & 16) col += (2<<2);
         }
+        if (showfirstwall && (sector[searchsector].wallptr==i||sector[searchsector].wallptr==wall[i].nextwall))col = 14;
 
         xp1 = mulscale14(wal->x-posxe,zoome);
         yp1 = mulscale14(wal->y-posye,zoome);
@@ -11474,6 +11476,30 @@ void printext256(int xpos, int ypos, short col, short backcol, char *name, char 
 
         for (i=0;name[i];i++)
         {
+            if (name[i] == '^' && isdigit(name[i+1]))
+            {
+                char smallbuf[8];
+                int bi=0;
+                while (isdigit(name[i+1]) && bi<8)
+                {
+                    smallbuf[bi++]=name[i+1];
+                    i++;
+                }
+                smallbuf[bi++]=0;
+                if (col)col = atol(smallbuf);
+
+                if (gammabrightness)
+                {
+                    p = curpalette[col];
+                }
+                else
+                {
+                    p.r = britable[curbrightness][ curpalette[col].r ];
+                    p.g = britable[curbrightness][ curpalette[col].g ];
+                    p.b = britable[curbrightness][ curpalette[col].b ];
+                }
+                continue;
+            }
             letptr = &fontptr[name[i]<<3];
             xx = stx-fontsize;
             yy = ypos+7 + 2; //+1 is hack!
@@ -11511,6 +11537,19 @@ void printext256(int xpos, int ypos, short col, short backcol, char *name, char 
     begindrawing(); //{{{
     for (i=0;name[i];i++)
     {
+        if (name[i] == '^' && isdigit(name[i+1]))
+        {
+            char smallbuf[8];
+            int bi=0;
+            while (isdigit(name[i+1]) && bi<8)
+            {
+                smallbuf[bi++]=name[i+1];
+                i++;
+            }
+            smallbuf[bi++]=0;
+            if (col)col = atol(smallbuf);
+            continue;
+        }
         letptr = &fontptr[name[i]<<3];
         ptr = (char *)(ylookup[ypos+7]+(stx-fontsize)+frameplace);
         for (y=7;y>=0;y--)

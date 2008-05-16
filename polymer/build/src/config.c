@@ -199,6 +199,10 @@ int loadsetup(const char *fn)
 
     if (readconfig(fp, "mousesensitivity", val, VL) > 0) msens = Bstrtod(val, NULL);
 
+    if (readconfig(fp, "mousenavigation", val, VL) > 0) unrealedlook = Batoi(val);
+
+    if (readconfig(fp, "quickmapcycling", val, VL) > 0) quickmapcycling = Batoi(val);
+
     for (i=0;i<256;i++)remap[i]=i;
     remapinit=1;
     if (readconfig(fp, "remap", val, VL) > 0)
@@ -299,6 +303,12 @@ int writesetup(const char *fn)
              "; Mouse sensitivity\n"
              "mousesensitivity = %g\n"
              "\n"
+             "; Mouse navigation\n"
+             "mousenavigation = %d\n"
+             "\n"
+             "; Quick map cycling\n"
+             "quickmapcycling = %d\n"
+             "\n"
 #if 1
              "; Key Settings\n"
              ";  Here's a map of all the keyboard scan codes: NOTE: values are listed in hex!\n"
@@ -358,7 +368,7 @@ int writesetup(const char *fn)
 #if 0
              option[7]>>4, option[2],
 #endif
-             option[3], msens,
+             option[3], msens, unrealedlook, quickmapcycling,
 #if 1
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
              keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],

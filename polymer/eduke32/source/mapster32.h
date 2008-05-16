@@ -44,7 +44,8 @@ extern int searchx, searchy, osearchx, osearchy;      //search input
 extern short searchsector, searchwall, searchstat;     //search output
 
 extern short temppicnum, tempcstat, templotag, temphitag, tempextra;
-extern unsigned char tempshade, temppal, tempvis, tempxrepeat, tempyrepeat, somethingintab;
+extern unsigned char temppal, tempvis, tempxrepeat, tempyrepeat, somethingintab;
+extern signed char tempshade;
 
 static int ototalclock = 0, clockval[16], clockcnt = 0;
 
@@ -74,7 +75,7 @@ extern void fixrepeats(short i);
 
 char autospritehelp=0,autosecthelp=0;
 short MinRate=24, MinD=3;
-int xoldtimerhandler, lastmessagetime;
+int xoldtimerhandler, lastmessagetime=-1;
 
 char tempbuf[1024]; //1024
 int numsprite[MAXSPRITES];
@@ -135,6 +136,7 @@ extern short startang, startsectnum;
 
 int autosavetimer;
 extern int numsprites;
+extern int showfirstwall;
 extern char spritecol2d[MAXTILES][2];
 extern char custom2dcolors;
 extern char mlook;

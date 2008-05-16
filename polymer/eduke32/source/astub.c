@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "scriptfile.h"
 #include "crc32.h"
 
-#define VERSION " 1.1.0 svn"
+#define VERSION " 1.2.0 svn"
 
 static int floor_over_floor;
 
@@ -47,6 +47,7 @@ static char setupfilename[BMAX_PATH]= "mapster32.cfg";
 static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 static char *duke3dgrp = defaultduke3dgrp;
 static int fixmapbeforesaving = 1;
+static int lastsave = -180*60;
 static int NoAutoLoad = 0;
 
 #if !defined(_WIN32)
@@ -161,6 +162,12 @@ char *type2str[]={"Wall","Sector","Sector","Sprite","Wall"};
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int numdirs=0, numfiles=0;
 static int currentlist=0;
+static int mouseaction=0, mouseax=0, mouseay=0;
+static int repeatcountx, repeatcounty;
+static int infobox=1;
+
+extern char mskip;
+
 
 static void clearfilenames(void)
 {
@@ -1585,10 +1592,10 @@ static void message(char message[162])
     char tmpbuf[2048];
 
     _message(message);
+    lastmessagetime = totalclock;
     Bstrcpy(tmpbuf,message);
     Bstrcat(tmpbuf,"\n");
-    OSD_Printf(tmpbuf);
-    lastmessagetime = totalclock;
+    if (!mouseaction)OSD_Printf(tmpbuf);
 }
 
 static char lockbyte4094;
@@ -1658,13 +1665,20 @@ static void m32_showmouse(void)
     }
 }
 
-static int AskIfSure(void)
+static int AskIfSure(char *text)
 {
     int retval=1;
 
-    begindrawing(); //{{{
-    printext256(0,0,whitecol,0,"Are you sure you want to proceed?",0);
-    enddrawing();   //}}}
+    if (qsetmode == 200)
+    {
+        begindrawing(); //{{{
+        printext256(0,0,whitecol,0,text?text:"Are you sure you want to proceed?",0);
+        enddrawing();   //}}}
+    }
+    else
+    {
+        printmessage16(text?text:"Are you sure you want to proceed?");
+    }
 
     showframe(1);
 
@@ -1739,7 +1753,7 @@ static int OnSelectTile(int iTile);
 static int s_Zoom = INITIAL_ZOOM;
 static int s_TileZoom = 1;
 
-static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int TileDim);
+static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int TileDim, int offset);
 
 
 static int m32gettile(int idInitialTile)
@@ -1749,6 +1763,7 @@ static int m32gettile(int idInitialTile)
     int i;
     int iTile, iTopLeftTile;
     int idSelectedTile;
+    int mousedx, mousedy, mtile, omousex=searchx, omousey=searchy, moffset=0;
 
 // Enable following line for testing. I couldn't work out how to change vidmode on the fly
 // s_Zoom = NUM_ZOOMS - 1;
@@ -1912,15 +1927,45 @@ static int m32gettile(int idInitialTile)
         iTopLeftTile = MAXTILES-nDisplayedTiles;
     }
 
-
+    searchx=((iTile-iTopLeftTile)%nXTiles)*ZoomToThumbSize[s_Zoom]+ZoomToThumbSize[s_Zoom]/2;
+    searchy=((iTile-iTopLeftTile)/nXTiles)*ZoomToThumbSize[s_Zoom]+ZoomToThumbSize[s_Zoom]/2;
 
     ////////////////////////////////
     // Start of key handling code //
     ////////////////////////////////
 
-    while ((keystatus[KEYSC_ENTER]|keystatus[KEYSC_ESC]) == 0)  // <- Presumably one of these is escape key ???
+    while ((keystatus[KEYSC_ENTER]|keystatus[KEYSC_ESC]|(bstatus&1)) == 0) // <- Presumably one of these is escape key ???
     {
-        DrawTiles(iTopLeftTile, iTile, nXTiles, nYTiles, ZoomToThumbSize[s_Zoom]);
+        DrawTiles(iTopLeftTile, iTile, nXTiles, nYTiles, ZoomToThumbSize[s_Zoom],moffset);
+
+        getmousevalues(&mousedx,&mousedy,&bstatus);
+        searchx += mousedx;
+        searchy += mousedy;
+        if (searchx < 12) searchx = 12;
+        if (searchy < 12) searchy = 12;
+        if (searchx > xdim-13) searchx = xdim-13;
+        if (searchy > ydim-23) searchy = ydim-23;
+        if (bstatus&2)
+        {
+            moffset+=mousedy;
+            if (iTopLeftTile==0 && moffset>0)moffset=0;
+            while (moffset>ZoomToThumbSize[s_Zoom])
+            {
+                iTopLeftTile-=nXTiles;
+                moffset-=ZoomToThumbSize[s_Zoom];
+            }
+            while (moffset<-ZoomToThumbSize[s_Zoom])
+            {
+                iTopLeftTile+=nXTiles;
+                moffset+=ZoomToThumbSize[s_Zoom];
+            }
+        }
+        mtile=iTile=(searchx/ZoomToThumbSize[s_Zoom])+((searchy-moffset)/ZoomToThumbSize[s_Zoom])*nXTiles+iTopLeftTile;
+        while (iTile >= iTopLeftTile + nDisplayedTiles)
+        {
+            iTile-=nXTiles;
+            mtile=iTile;
+        }
 
         if (handleevents())
         {
@@ -1933,12 +1978,14 @@ static int m32gettile(int idInitialTile)
         lockclock += synctics;
 
         // Zoom in / out using numeric key pad's / and * keys
-        if (((keystatus[KEYSC_gSLASH] && (unsigned)s_Zoom<(NUM_ZOOMS-1))
-                || ((keystatus[KEYSC_gSTAR]) && s_Zoom>0)))
+        if (((keystatus[KEYSC_gSLASH] || bstatus&16) && s_Zoom<(signed)(NUM_ZOOMS-1))
+                || ((keystatus[KEYSC_gSTAR]  || bstatus&32) && s_Zoom>0))
         {
-            if (keystatus[KEYSC_gSLASH])
+            if (keystatus[KEYSC_gSLASH] || bstatus&16)
             {
                 keystatus[KEYSC_gSLASH] = 0;
+                mouseb &= ~16;
+                bstatus &= ~16;
 
                 // Watch out : If editor window is small, then the next zoom level
                 //  might get so large that even one tile might not fit !
@@ -1952,6 +1999,8 @@ static int m32gettile(int idInitialTile)
             else
             {
                 keystatus[KEYSC_gSTAR] = 0;
+                mouseb &= ~32;
+                bstatus &= ~32;
                 s_Zoom--;
             }
 
@@ -1972,7 +2021,8 @@ static int m32gettile(int idInitialTile)
             {
                 iTopLeftTile = MAXTILES - nDisplayedTiles;
             }
-
+            // scroll window so mouse points the same tile as it was before zooming
+            iTopLeftTile-=(searchx/ZoomToThumbSize[s_Zoom])+((searchy-moffset)/ZoomToThumbSize[s_Zoom])*nXTiles+iTopLeftTile-iTile;
         }
 
         if (keystatus[KEYSC_LEFT])
@@ -2089,7 +2139,7 @@ static int m32gettile(int idInitialTile)
         //	Adjust top-left to ensure tilenum is within displayed range of tiles
         //
 
-        while (iTile < iTopLeftTile)
+        while (iTile < iTopLeftTile - (moffset<0)?nXTiles:0)
         {
             iTopLeftTile -= nXTiles;
         }
@@ -2109,7 +2159,7 @@ static int m32gettile(int idInitialTile)
             iTopLeftTile = MAXTILES - nDisplayedTiles;
         }
 
-        if ((keystatus[KEYSC_ENTER]) == 0)  // uh ? Not escape key ?
+        if ((keystatus[KEYSC_ENTER] || (bstatus&1)) == 0)   // uh ? Not escape key ?
         {
             idSelectedTile = idInitialTile;
         }
@@ -2131,7 +2181,13 @@ static int m32gettile(int idInitialTile)
                 idSelectedTile = idInitialTile;
             }
         }
+        if (mtile!=iTile) // if changed by keyboard, update mouse cursor
+        {
+            searchx=((iTile-iTopLeftTile)%nXTiles)*ZoomToThumbSize[s_Zoom]+ZoomToThumbSize[s_Zoom]/2;
+            searchy=((iTile-iTopLeftTile)/nXTiles)*ZoomToThumbSize[s_Zoom]+ZoomToThumbSize[s_Zoom]/2+moffset;
+        }
     }
+    searchx=omousex;searchy=omousey;
 
     keystatus[KEYSC_ESC] = 0;
     keystatus[KEYSC_ENTER] = 0;
@@ -2313,9 +2369,7 @@ const char * GetTilePixels(const int idTile)
     return pPixelData;
 }
 
-#define PIXELS_PER_DISPLAY_LINE ylookup[1]
-
-static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int TileDim)
+static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int TileDim, int offset)
 {
     int XTile, YTile;
     int iTile, idTile;
@@ -2335,13 +2389,13 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
 
     clearview(0);
 
-    for (YTile = 0; YTile < nYTiles; YTile++)
+    for (YTile = 0-(offset>0); YTile < nYTiles+(offset<0)+1; YTile++)
     {
         for (XTile = 0; XTile < nXTiles; XTile++)
         {
             iTile = iTopLeft + XTile + (YTile * nXTiles);
 
-            if (iTile < localartlookupnum)
+            if (iTile>=0 && iTile < localartlookupnum)
             {
                 idTile = localartlookup[ iTile ];
 
@@ -2351,7 +2405,7 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
                 if (pRawPixels != NULL)
                 {
                     XPos = XTile * TileDim;
-                    YPos = YTile * TileDim;
+                    YPos = YTile * TileDim+offset;
 
                     if (polymost_drawtilescreen(XPos, YPos, idTile, TileDim, s_TileZoom))
                     {
@@ -2379,16 +2433,17 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
                         TileSizeX = (TileSizeX / DivInc) * MulInc;
                         TileSizeY = (TileSizeY / DivInc) * MulInc;
 
-                        pScreen = (char *)ylookup[YPos]+XPos+frameplace;
-
                         for (YOffset = 0; YOffset < TileSizeY; YOffset++)
                         {
-                            for (XOffset = 0; XOffset < TileSizeX; XOffset++)
+                            int y=YPos+YOffset;
+                            if (y>=0 && y<ydim)
                             {
-                                pScreen[XOffset] = pRawPixels[((YOffset * DivInc) / MulInc) + (((XOffset * DivInc) / MulInc) * tilesizy[idTile])];
+                                pScreen = (char *)ylookup[y]+XPos+frameplace;
+                                for (XOffset = 0; XOffset < TileSizeX; XOffset++)
+                                {
+                                    pScreen[XOffset] = pRawPixels[((YOffset * DivInc) / MulInc) + (((XOffset * DivInc) / MulInc) * tilesizy[idTile])];
+                                }
                             }
-
-                            pScreen += PIXELS_PER_DISPLAY_LINE;
                         }
                     }
                     if (localartfreq[iTile] != 0)
@@ -2405,15 +2460,20 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
     // Draw white box around currently selected tile
     //
 
-    XBox = (iSelected % nXTiles) * TileDim;
-    YBox = ((iSelected - (iSelected % nXTiles) - iTopLeft) / nXTiles) * TileDim;
+    XBox = ((iSelected-iTopLeft) % nXTiles) * TileDim;
+    YBox = ((iSelected - ((iSelected-iTopLeft) % nXTiles) - iTopLeft) / nXTiles) * TileDim+offset;
 
     for (i = 0; i < TileDim; i++)
     {
-        plotpixel(XBox+i,         YBox,           whitecol);
-        plotpixel(XBox+i,         YBox + TileDim, whitecol);
-        plotpixel(XBox,           YBox + i,       whitecol);
-        plotpixel(XBox + TileDim, YBox + i,       whitecol);
+        if (YBox>=0 && YBox<ydim)
+            plotpixel(XBox+i,         YBox,           whitecol);
+        if (YBox+TileDim>=0 && YBox+TileDim<ydim)
+            plotpixel(XBox+i,         YBox + TileDim, whitecol);
+        if (YBox+i>=0 && YBox+i<ydim)
+        {
+            plotpixel(XBox,           YBox + i,       whitecol);
+            plotpixel(XBox + TileDim, YBox + i,       whitecol);
+        }
     }
 
     idTile = localartlookup[ iSelected ];
@@ -2427,6 +2487,8 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
 
     Bsprintf(szT,"%d, %d",(picanm[idTile]>>8)&0xFF,(picanm[idTile]>>16)&0xFF);
     printext256((xdim>>2)+100,ydim-8,whitecol,-1,szT,0);
+
+    m32_showmouse();
 
     enddrawing();
     showframe(1);
@@ -2454,9 +2516,59 @@ int spriteongroundz(int searchwall)
     if (sprite[searchwall].cstat&128) z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);
     return z;
 }
+
+#define WIND1X   3
+#define WIND1Y 155
+void drawtileinfo(char *title,int x,int y,int picnum,int shade,int pal,int cstat,int lotag,int hitag,int extra)
+{
+    char buf[64];
+    int i,j;
+    int scale=65526;
+    int x1;
+
+    j = xdimgame>640?0:1;
+    i = ydimgame>>6;
+
+    x1=x+80;
+    if (j)x1/=2;
+    x1*=320./xdimgame;
+    scale/=max(tilesizx[picnum],tilesizy[picnum])/24.;
+    rotatesprite((x1+13)<<16,(y+11)<<16,scale,0,picnum,shade,pal,2,0L,0L,xdim-1L,ydim-1L);
+
+    x*=xdimgame/320.;
+    y*=ydimgame/200.;
+    begindrawing();
+    printext256(x+2,y+2,0,-1,title,j);
+    printext256(x,y,255-13,-1,title,j);
+
+    Bsprintf(buf,"Pic:%4d",picnum);
+    printext256(x+2,y+2+i*1,0,-1,buf,j);
+    printext256(x,y+i*1,whitecol,-1,buf,j);
+    Bsprintf(buf,"Shd:%4d",shade);
+    printext256(x+2,y+2+i*2,0,-1,buf,j);
+    printext256(x,y+i*2,whitecol,-1,buf,j);
+    Bsprintf(buf,"Pal:%4d",pal);
+    printext256(x+2,y+2+i*3,0,-1,buf,j);
+    printext256(x,y+i*3,whitecol,-1,buf,j);
+    Bsprintf(buf,"Cst:%4d",cstat);
+    printext256(x+2,y+2+i*4,0,-1,buf,j);
+    printext256(x,y+i*4,whitecol,-1,buf,j);
+    Bsprintf(buf,"Lot:%4d",lotag);
+    printext256(x+2,y+2+i*5,0,-1,buf,j);
+    printext256(x,y+i*5,whitecol,-1,buf,j);
+    Bsprintf(buf,"Hit:%4d",hitag);
+    printext256(x+2,y+2+i*6,0,-1,buf,j);
+    printext256(x,y+i*6,whitecol,-1,buf,j);
+    Bsprintf(buf,"Ext:%4d",extra);
+    printext256(x+2,y+2+i*7,0,-1,buf,j);
+    printext256(x,y+i*7,whitecol,-1,buf,j);
+    enddrawing();
+}
+int snap=0;int saveval1,saveval2,saveval3;
+
 static void Keys3d(void)
 {
-    int i,count,rate,nexti;
+    int i,count,rate,nexti,changedir;
     int j, k, tempint = 0, hiz, loz;
     int hitx, hity, hitz, hihit, lohit;
     char smooshyalign=0, repeatpanalign=0, buffer[80];
@@ -2506,77 +2618,100 @@ static void Keys3d(void)
             }
         }
 
-        if (tabgraphic == 1)
-            rotatesprite((44+(tilesizx[temppicnum]>>3))<<16,(114)<<16,32768,0,temppicnum,tempshade,temppal,2,0L,0L,xdim-1L,ydim-1L);
-        else if (tabgraphic == 2)
-            rotatesprite((44+(tilesizx[temppicnum]>>3))<<16,(114)<<16,16384,0,temppicnum,tempshade,temppal,2,0L,0L,xdim-1L,ydim-1L);
-
-        begindrawing();
-        j = xdimgame>640?0:1;
-        i = (ydimgame>>6)+(j<<2);
-        printext256((xdimgame>>6)+2,ydimgame-(ydimgame>>1)+2,0,-1,"Clipboard",j);
-        printext256((xdimgame>>6),ydimgame-(ydimgame>>1),whitecol,-1,"Clipboard",j);
-        Bsprintf(tempbuf,"Pic: %d %s",temppicnum,names[temppicnum]);
-        printext256((xdimgame>>6)+2,ydimgame-(ydimgame>>1)+2+i+i,0,-1,tempbuf,j);
-        printext256((xdimgame>>6),ydimgame-(ydimgame>>1)+i+i,whitecol,-1,tempbuf,j);
-        Bsprintf(tempbuf,"Shd: %d",tempshade);
-        printext256((xdimgame>>6)+2,ydimgame-(ydimgame>>1)+2+i+i+i,0,-1,tempbuf,j);
-        printext256((xdimgame>>6),ydimgame-(ydimgame>>1)+i+i+i,whitecol,-1,tempbuf,j);
-        Bsprintf(tempbuf,"Pal: %d",temppal);
-        printext256((xdimgame>>6)+2,ydimgame-(ydimgame>>1)+2+i+i+i+i,0,-1,tempbuf,j);
-        printext256((xdimgame>>6),ydimgame-(ydimgame>>1)+i+i+i+i,whitecol,-1,tempbuf,j);
-        Bsprintf(tempbuf,"Cst: %d",tempcstat);
-        printext256((xdimgame>>6)+2,ydimgame-(ydimgame>>1)+2+i+i+i+i+i,0,-1,tempbuf,j);
-        printext256((xdimgame>>6),ydimgame-(ydimgame>>1)+i+i+i+i+i,whitecol,-1,tempbuf,j);
-        Bsprintf(tempbuf,"Lot: %d",templotag);
-        printext256((xdimgame>>6)+2,ydimgame-(ydimgame>>1)+2+i+i+i+i+i+i,0,-1,tempbuf,j);
-        printext256((xdimgame>>6),ydimgame-(ydimgame>>1)+i+i+i+i+i+i,whitecol,-1,tempbuf,j);
-        Bsprintf(tempbuf,"Hit: %d",temphitag);
-        printext256((xdimgame>>6)+2,ydimgame-(ydimgame>>1)+2+i+i+i+i+i+i+i,0,-1,tempbuf,j);
-        printext256((xdimgame>>6),ydimgame-(ydimgame>>1)+i+i+i+i+i+i+i,whitecol,-1,tempbuf,j);
-        Bsprintf(tempbuf,"Ext: %d",tempextra);
-        printext256((xdimgame>>6)+2,ydimgame-(ydimgame>>1)+2+i+i+i+i+i+i+i+i,0,-1,tempbuf,j);
-        printext256((xdimgame>>6),ydimgame-(ydimgame>>1)+i+i+i+i+i+i+i+i,whitecol,-1,tempbuf,j);
-        enddrawing();
+        drawtileinfo("Clipboard",3,124,temppicnum,tempshade,temppal,tempcstat,templotag,temphitag,tempextra);
     }// end if usedcount
 
-    if ((totalclock > (lastmessagetime + 120*3)))
+    if (infobox)
     {
-        char msgbuf[2048];
+        char lines[8][64];
+        int dax, day, dist, height1=0,height2=0,height3=0, num=0;
+        int x,y;
+
+        height2=sector[searchsector].floorz-sector[searchsector].ceilingz;
         switch (searchstat)
         {
         case 0:
         case 4:
-        {
-            int dax, day, dist;
+            drawtileinfo("Current",WIND1X,WIND1Y,wall[searchwall].picnum,wall[searchwall].shade,
+                         wall[searchwall].pal,wall[searchwall].cstat,wall[searchwall].lotag,
+                         wall[searchwall].hitag,wall[searchwall].extra);
+
             dax = wall[searchwall].x-wall[wall[searchwall].point2].x;
             day = wall[searchwall].y-wall[wall[searchwall].point2].y;
             dist = ksqrt(dax*dax+day*day);
-            Bsprintf(msgbuf,"Wall %d: length:%d lo:%d hi:%d ex:%d",searchwall,dist,wall[searchwall].lotag,wall[searchwall].hitag,wall[searchwall].extra);
-            _message(msgbuf);
+            if (wall[searchwall].nextsector!=-1)
+            {
+                int nextsect=wall[searchwall].nextsector;
+                height1=sector[searchsector].floorz-sector[nextsect].floorz;
+                height2=sector[nextsect].floorz-sector[nextsect].ceilingz;
+                height3=sector[nextsect].ceilingz-sector[searchsector].ceilingz;
+            }
+            Bsprintf(lines[num++],"Panning: %3d, %3d",wall[searchwall].xpanning,wall[searchwall].ypanning);
+            Bsprintf(lines[num++],"Repeat:  %3d, %3d",wall[searchwall].xrepeat,wall[searchwall].yrepeat);
+            Bsprintf(lines[num++],"Overpic: %3d",wall[searchwall].overpicnum);
+            lines[num++][0]=0;
+            Bsprintf(lines[num++],"^251Wall %d^31",searchwall);
+            if (wall[searchwall].nextsector!=-1)
+                Bsprintf(lines[num++],"LoHeight:%d, HiHeight:%d, Length:%d",height1,height3,dist);
+            else
+                Bsprintf(lines[num++],"Height:%d, Length:%d",height2,dist);
             break;
-        }
         case 1:
-            Bsprintf(msgbuf,"Sector %d ceiling: lo:%s hi:%d ex:%d",searchsector,ExtGetSectorCaption(searchsector),sector[searchsector].hitag,sector[searchsector].extra);
-            _message(msgbuf);
+            drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].ceilingpicnum,sector[searchsector].ceilingshade,
+                         sector[searchsector].ceilingpal,sector[searchsector].ceilingstat,
+                         sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
+
+            Bsprintf(lines[num++],"Panning:  %d,%d",sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
+            Bsprintf(lines[num++],"CeilingZ: %d",sector[searchsector].ceilingz);
+            Bsprintf(lines[num++],"Slope:    %d",sector[searchsector].ceilingheinum);
+            lines[num++][0]=0;
+            Bsprintf(lines[num++],"^251Sector %d^31 ceiling  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
+            Bsprintf(lines[num++],"Height: %d",height2);
             break;
         case 2:
-            Bsprintf(msgbuf,"Sector %d floor: lo:%s hi:%d ex:%d",searchsector,ExtGetSectorCaption(searchsector),sector[searchsector].hitag,sector[searchsector].extra);
-            _message(msgbuf);
+            drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].floorpicnum,sector[searchsector].floorshade,
+                         sector[searchsector].floorpal,sector[searchsector].floorstat,
+                         sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
+
+            Bsprintf(lines[num++],"Panning: %d,%d",sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
+            Bsprintf(lines[num++],"FloorZ:  %d",sector[searchsector].floorz);
+            Bsprintf(lines[num++],"Slope:   %d",sector[searchsector].floorheinum);
+            lines[num++][0]=0;
+            Bsprintf(lines[num++],"^251Sector %d^31 floor  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
+            Bsprintf(lines[num++],"Height:%d",height2);
             break;
         case 3:
-        {
+            drawtileinfo("Current",WIND1X,WIND1Y,sprite[searchwall].picnum,sprite[searchwall].shade,
+                         sprite[searchwall].pal,sprite[searchwall].cstat,sprite[searchwall].lotag,
+                         sprite[searchwall].hitag,sprite[searchwall].extra);
+
+            Bsprintf(lines[num++],"Repeat:  %d,%d",sprite[searchwall].xrepeat,sprite[searchwall].yrepeat);
+            Bsprintf(lines[num++],"PosXY:   %d,%d",sprite[searchwall].x,sprite[searchwall].y);
+            Bsprintf(lines[num++],"PosZ: ""   %d",sprite[searchwall].z);// prevents tab character
+            lines[num++][0]=0;
+
             if (strlen(names[sprite[searchwall].picnum]) > 0)
             {
                 if (sprite[searchwall].picnum==SECTOREFFECTOR)
-                    Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",searchwall,SectorEffectorText(searchwall),sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
-                else Bsprintf(msgbuf,"Sprite %d %s: lo:%d hi:%d ex:%d",searchwall,names[sprite[searchwall].picnum],sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
+                    Bsprintf(lines[num++],"^251Sprite %d^31 %s",searchwall,SectorEffectorText(searchwall));
+                else Bsprintf(lines[num++],"^251Sprite %d^31 %s",searchwall,names[sprite[searchwall].picnum]);
             }
-            else Bsprintf(msgbuf,"Sprite %d picnum %d: lo:%d hi:%d ex:%d",searchwall,sprite[searchwall].picnum,sprite[searchwall].lotag,sprite[searchwall].hitag,sprite[searchwall].extra);
-            _message(msgbuf);
+            else Bsprintf(lines[num++],"^251Sprite %d^31, picnum %d",searchwall,sprite[searchwall].picnum);
+            Bsprintf(lines[num++],"Elevation:%d",getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y)-sprite[searchwall].z);
             break;
         }
+        x=WIND1X;y=WIND1Y;
+        x*=xdimgame/320.;
+        y*=ydimgame/200.;
+        y+=(ydimgame>>6)*8;
+        begindrawing();
+        for (i=0;i<num;i++)
+        {
+            printext256(x+2,y+2,0,-1,lines[i],xdimgame>640?0:1);
+            printext256(x,y,whitecol,-1,lines[i],xdimgame>640?0:1);
+            y+=ydimgame>>6;
         }
+        enddrawing();
     }
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_V]) // ' V
@@ -2606,7 +2741,7 @@ static void Keys3d(void)
             return;
         }
         visval = (unsigned char)getnumber256("Visibility of selected sectors: ",sector[searchsector].visibility,256L,0);
-        if (AskIfSure()) return;
+        if (AskIfSure(0)) return;
 
         for (i = 0; i < highlightsectorcnt; i++)
         {
@@ -2618,11 +2753,13 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_V])  //V
     {
+        int oldtile;
         if (searchstat == 0) tempint = wall[searchwall].picnum;
         if (searchstat == 1) tempint = sector[searchsector].ceilingpicnum;
         if (searchstat == 2) tempint = sector[searchsector].floorpicnum;
         if (searchstat == 3) tempint = sprite[searchwall].picnum;
         if (searchstat == 4) tempint = wall[searchwall].overpicnum;
+        oldtile = tempint;
         tempint = m32gettile(tempint);
         if (searchstat == 0) wall[searchwall].picnum = tempint;
         if (searchstat == 1) sector[searchsector].ceilingpicnum = tempint;
@@ -2634,7 +2771,7 @@ static void Keys3d(void)
             if (wall[searchwall].nextwall >= 0)
                 wall[wall[searchwall].nextwall].overpicnum = tempint;
         }
-        asksave = 1;
+        if (oldtile!=tempint)asksave = 1;
         keystatus[KEYSC_V] = 0;
     }
 
@@ -2702,7 +2839,7 @@ static void Keys3d(void)
         pal[1] = getnumber256("Floor palette: ",-1,MAXPALOOKUPS,1);
         pal[2] = getnumber256("Wall palette: ",-1,MAXPALOOKUPS,1);
         pal[3] = getnumber256("Sprite palette: ",-1,MAXPALOOKUPS,1);
-        if (AskIfSure()) return;
+        if (AskIfSure(0)) return;
 
         for (i = 0; i < highlightsectorcnt; i++)
         {
@@ -2750,7 +2887,7 @@ static void Keys3d(void)
         }
 
         pal = (unsigned char)getnumber256("Global palette: ",0,MAXPALOOKUPS,0);
-        if (AskIfSure()) return;
+        if (AskIfSure(0)) return;
 
         for (i = 0; i < highlightsectorcnt; i++)
         {
@@ -3186,13 +3323,13 @@ static void Keys3d(void)
 
                 if (k == 0)
                 {
-                    int shade=-1, i=0;
-                    if (searchstat == 0) shade=wall[i=searchwall].shade++;
-                    if (searchstat == 1) shade=sector[i=searchsector].ceilingshade++;
-                    if (searchstat == 2) shade=sector[i=searchsector].floorshade++;
-                    if (searchstat == 3) shade=sprite[i=searchwall].shade++;
-                    if (searchstat == 4) shade=wall[i=searchwall].shade++;
-                    if (shade!=-1)
+                    int shade=-1, i=-1;
+                    if (searchstat == 0) shade=++wall[i=searchwall].shade;
+                    if (searchstat == 1) shade=++sector[i=searchsector].ceilingshade;
+                    if (searchstat == 2) shade=++sector[i=searchsector].floorshade;
+                    if (searchstat == 3) shade=++sprite[i=searchwall].shade;
+                    if (searchstat == 4) shade=++wall[i=searchwall].shade;
+                    if (i!=-1)
                     {
                         Bsprintf(getmessage,"%s %d shade %d",type2str[searchstat],i,shade);
                         message(getmessage);
@@ -3283,13 +3420,13 @@ static void Keys3d(void)
 
                 if (k == 0)
                 {
-                    int shade=-1, i=0;
-                    if (searchstat == 0) shade=wall[i=searchwall].shade--;
-                    if (searchstat == 1) shade=sector[i=searchsector].ceilingshade--;
-                    if (searchstat == 2) shade=sector[i=searchsector].floorshade--;
-                    if (searchstat == 3) shade=sprite[i=searchwall].shade--;
-                    if (searchstat == 4) shade=wall[i=searchwall].shade--;
-                    if (shade!=-1)
+                    int shade=-1, i=-1;
+                    if (searchstat == 0) shade=--wall[i=searchwall].shade;
+                    if (searchstat == 1) shade=--sector[i=searchsector].ceilingshade;
+                    if (searchstat == 2) shade=--sector[i=searchsector].floorshade;
+                    if (searchstat == 3) shade=--sprite[i=searchwall].shade;
+                    if (searchstat == 4) shade=--wall[i=searchwall].shade;
+                    if (i!=-1)
                     {
                         Bsprintf(getmessage,"%s %d shade %d",type2str[searchstat],i,shade);
                         message(getmessage);
@@ -3609,9 +3746,17 @@ static void Keys3d(void)
         updownunits = 512;
     else
         updownunits = 1024;
-
-//    if ((keystatus[0xc9] > 0) || ((bstatus&2) && (bstatus&16))) // PGUP
-    if ((keystatus[0xc9] > 0) || ((bstatus&2) && (bstatus&16) && !(bstatus&1))) // PK: PGUP, rmb only & mwheel
+    mouseaction=0;
+    if (eitherALT && bstatus&1)
+    {
+        mousex=0;mskip=1;
+        if (mousey<0)
+        {
+            updownunits=klabs(mousey*128);
+            mouseaction=1;
+        }
+    }
+    if (keystatus[KEYSC_PGUP] || mouseaction || ((bstatus&2) && (bstatus&16 && !(bstatus&1)))) // PK: PGUP, rmb only & mwheel
     {
         k = 0;
         if (highlightsectorcnt >= 0)
@@ -3725,7 +3870,7 @@ static void Keys3d(void)
                 if (k == 0)
                 {
                     sprite[searchwall].z -= updownunits;
-                    sprite[searchwall].z = max(sprite[searchwall].z,spriteonceilingz(searchwall));
+                    if (!noclip)sprite[searchwall].z = max(sprite[searchwall].z,spriteonceilingz(searchwall));
                     sprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
                     message(getmessage);
 
@@ -3736,7 +3881,7 @@ static void Keys3d(void)
                         if ((highlight[i]&0xc000) == 16384)
                         {
                             sprite[highlight[i]&16383].z -= updownunits;
-                            sprite[highlight[i]&16383].z = max(sprite[highlight[i]&16383].z,spriteonceilingz(highlight[i]&16383));
+                            if (!noclip)sprite[highlight[i]&16383].z = max(sprite[highlight[i]&16383].z,spriteonceilingz(highlight[i]&16383));
                         }
                     sprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
                     message(getmessage);
@@ -3748,8 +3893,18 @@ static void Keys3d(void)
         keystatus[KEYSC_PGUP] = 0;
         mouseb &= ~16;
     }
-//    if ((keystatus[0xd1] > 0) || ((bstatus&2) && (bstatus&32))) // PGDN
-    if ((keystatus[0xd1] > 0) || ((bstatus&2) && (bstatus&32) && !(bstatus&1))) // PK: PGDN, rmb only & mwheel
+
+    mouseaction=0;
+    if (eitherALT && bstatus&1)
+    {
+        mousex=0;mskip=1;
+        if (mousey>0)
+        {
+            updownunits=klabs(mousey*128);
+            mouseaction=1;
+        }
+    }
+    if (keystatus[KEYSC_PGDN] || mouseaction || ((bstatus&2) && (bstatus&32) && !(bstatus&1))) // PK: PGDN, rmb only & mwheel
     {
         k = 0;
         if (highlightsectorcnt >= 0)
@@ -3862,7 +4017,7 @@ static void Keys3d(void)
                 if (k == 0)
                 {
                     sprite[searchwall].z += updownunits;
-                    sprite[searchwall].z = min(sprite[searchwall].z,spriteongroundz(searchwall));
+                    if (!noclip)sprite[searchwall].z = min(sprite[searchwall].z,spriteongroundz(searchwall));
                     sprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
                     message(getmessage);
 
@@ -3873,7 +4028,7 @@ static void Keys3d(void)
                         if ((highlight[i]&0xc000) == 16384)
                         {
                             sprite[highlight[i]&16383].z += updownunits;
-                            sprite[highlight[i]&16383].z = min(sprite[highlight[i]&16383].z,spriteongroundz(highlight[i]&16383));
+                            if (!noclip)sprite[highlight[i]&16383].z = min(sprite[highlight[i]&16383].z,spriteongroundz(highlight[i]&16383));
                         }
                     sprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
                     message(getmessage);
@@ -3920,6 +4075,31 @@ static void Keys3d(void)
         Bsprintf(tempbuf,"Z");
     else if (bstatus&1 && !(bstatus&2))
         Bsprintf(tempbuf,"LOCK");
+
+    if (bstatus&1)
+    {
+        Bsprintf(tempbuf,"LOCK");
+        switch (searchstat)
+        {
+        case 0:
+        case 4:
+            if (eitherSHIFT) Bsprintf(tempbuf,"PAN");
+            if (eitherCTRL)  Bsprintf(tempbuf,"SCALE");
+            if (eitherALT)   Bsprintf(tempbuf,"Z");
+            break;
+        case 1:
+        case 2:
+            if (eitherSHIFT) Bsprintf(tempbuf,"PAN");
+            if (eitherCTRL)  Bsprintf(tempbuf,"SLOPE");
+            if (eitherALT)   Bsprintf(tempbuf,"Z");
+            break;
+        case 3:
+            if (eitherSHIFT) Bsprintf(tempbuf,"MOVE XY");
+            if (eitherCTRL)  Bsprintf(tempbuf,"SIZE");
+            if (eitherALT)   Bsprintf(tempbuf,"MOVE Z");
+            break;
+        }
+    }
 
     if (tempbuf[0] != 0)
     {
@@ -4022,14 +4202,14 @@ static void Keys3d(void)
         message(tempbuf);
     }
 
-    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_G]) // ' g
-    {
-        keystatus[KEYSC_G] = 0;
-        tabgraphic++;
-        if (tabgraphic > 2) tabgraphic = 0;
-        if (tabgraphic) message("Graphics ON");
-        else message("Graphics OFF");
-    }
+    /*    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_G]) // ' g <Unused>
+        {
+            keystatus[KEYSC_G] = 0;
+            tabgraphic++;
+            if (tabgraphic > 2) tabgraphic = 0;
+            if (tabgraphic) message("Graphics ON");
+            else message("Graphics OFF");
+    	}*/
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_X]) // ' x
     {
@@ -4040,13 +4220,13 @@ static void Keys3d(void)
     }
 
 
-    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_R]) // ' r
-    {
-        keystatus[KEYSC_R] = 0;
-        framerateon=!framerateon;
-        if (framerateon) message("Framerate ON");
-        else message("Framerate OFF");
-    }
+    /*    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_R]) // ' r <Handled already>
+        {
+            keystatus[KEYSC_R] = 0;
+            framerateon=!framerateon;
+            if (framerateon) message("Framerate ON");
+            else message("Framerate OFF");
+    	}*/
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_W]) // ' w
     {
@@ -4196,8 +4376,9 @@ static void Keys3d(void)
         }
     }
 
-    if (keystatus[0x3c]>0) // F2
+    if (keystatus[KEYSC_F2]) // F2
     {
+        if (eitherSHIFT)infobox=!infobox;else
         usedcount=!usedcount;
         keystatus[KEYSC_F2] = 0;
     }
@@ -4407,7 +4588,7 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_ENTER]) // ' ENTER
     {
-        message("Pasted graphic only");
+        message("Pasted picnum only");
         switch (searchstat)
         {
         case 0 :
@@ -4429,8 +4610,938 @@ static void Keys3d(void)
         keystatus[KEYSC_ENTER]=0;
     }
 
+    i = 512;
+    if (keystatus[KEYSC_RSHIFT]) i = 8;
+    if (keystatus[KEYSC_LSHIFT]) i = 1;
+    mouseaction=0;
+    if (eitherCTRL && bstatus&1 && (searchstat == 1 || searchstat == 2))
+    {
+        mousex=0;mskip=1;
+        if (mousey<0)
+        {
+            i=klabs(mousey*2);
+            mouseaction=1;
+        }
+    }
 
+    if (keystatus[KEYSC_LBRACK] || mouseaction)  // [
+    {
+        keystatus[KEYSC_LBRACK] = 0;
+        if (eitherALT)
+        {
+            i = wall[searchwall].nextsector;
+            if (i >= 0)
+                switch (searchstat)
+                {
+                case 0:
+                case 1:
+                case 4:
+                    alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
+                    Bsprintf(tempbuf,"Sector %d align ceiling to wall %d",searchsector,searchwall);
+                    message(tempbuf);
+                    break;
+                case 2:
+                    alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
+                    Bsprintf(tempbuf,"Sector %d align floor to wall %d",searchsector,searchwall);
+                    message(tempbuf);
+                    break;
+                }
+        }
+        else
+        {
+            if (searchstat == 1)
+            {
+                if (!(sector[searchsector].ceilingstat&2))
+                    sector[searchsector].ceilingheinum = 0;
+                sector[searchsector].ceilingheinum = max(sector[searchsector].ceilingheinum-i,-32768);
+                Bsprintf(tempbuf,"Sector %d ceiling slope = %d",searchsector,sector[searchsector].ceilingheinum);
+                message(tempbuf);
+            }
+            if (searchstat == 2)
+            {
+                if (!(sector[searchsector].floorstat&2))
+                    sector[searchsector].floorheinum = 0;
+                sector[searchsector].floorheinum = max(sector[searchsector].floorheinum-i,-32768);
+                Bsprintf(tempbuf,"Sector %d floor slope = %d",searchsector,sector[searchsector].floorheinum);
+                message(tempbuf);
+            }
+        }
 
+        if (sector[searchsector].ceilingheinum == 0)
+            sector[searchsector].ceilingstat &= ~2;
+        else
+            sector[searchsector].ceilingstat |= 2;
+
+        if (sector[searchsector].floorheinum == 0)
+            sector[searchsector].floorstat &= ~2;
+        else
+            sector[searchsector].floorstat |= 2;
+        asksave = 1;
+    }
+
+    i = 512;
+    if (keystatus[KEYSC_RSHIFT]) i = 8;
+    if (keystatus[KEYSC_LSHIFT]) i = 1;
+    mouseaction=0;
+    if (eitherCTRL && bstatus&1 && (searchstat == 1 || searchstat == 2))
+    {
+        mousex=0;mskip=1;
+        if (mousey>0)
+        {
+            i=klabs(mousey*2);
+            mouseaction=1;
+        }
+    }
+    if (keystatus[KEYSC_RBRACK] || mouseaction)  // ]
+    {
+        keystatus[KEYSC_RBRACK] = 0;
+        if (eitherALT)
+        {
+            i = wall[searchwall].nextsector;
+            if (i >= 0)
+                switch (searchstat)
+                {
+                case 1:
+                    alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
+                    Bsprintf(tempbuf,"Sector %d align ceiling to wall %d",searchsector,searchwall);
+                    message(tempbuf);
+                    break;
+                case 0:
+                case 2:
+                case 4:
+                    alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
+                    Bsprintf(tempbuf,"Sector %d align floor to wall %d",searchsector,searchwall);
+                    message(tempbuf);
+                    break;
+                }
+        }
+        else
+        {
+            if (searchstat == 1)
+            {
+                if (!(sector[searchsector].ceilingstat&2))
+                    sector[searchsector].ceilingheinum = 0;
+                sector[searchsector].ceilingheinum = min(sector[searchsector].ceilingheinum+i,32767);
+                Bsprintf(tempbuf,"Sector %d ceiling slope = %d",searchsector,sector[searchsector].ceilingheinum);
+                message(tempbuf);
+            }
+            if (searchstat == 2)
+            {
+                if (!(sector[searchsector].floorstat&2))
+                    sector[searchsector].floorheinum = 0;
+                sector[searchsector].floorheinum = min(sector[searchsector].floorheinum+i,32767);
+                Bsprintf(tempbuf,"Sector %d floor slope = %d",searchsector,sector[searchsector].floorheinum);
+                message(tempbuf);
+            }
+        }
+
+        if (sector[searchsector].ceilingheinum == 0)
+            sector[searchsector].ceilingstat &= ~2;
+        else
+            sector[searchsector].ceilingstat |= 2;
+
+        if (sector[searchsector].floorheinum == 0)
+            sector[searchsector].floorstat &= ~2;
+        else
+            sector[searchsector].floorstat |= 2;
+
+        asksave = 1;
+    }
+
+    if (bstatus&1 && eitherSHIFT) mskip=1;
+    if (bstatus&1 && eitherSHIFT && (searchstat == 1 || searchstat == 2) && (mousex|mousey))
+    {
+        int fw,x1,y1,x2,y2,stat,ma,a=0;
+
+        stat=(searchstat==2)?sector[searchsector].floorstat:sector[searchsector].ceilingstat;
+        if (stat&64) // align to first wall
+        {
+            fw=sector[searchsector].wallptr;
+            x1=wall[fw].x,y1=wall[fw].y;
+            x2=wall[wall[fw].point2].x,y2=wall[wall[fw].point2].y;
+            a=getangle(x1-x2,y1-y2);
+        }
+        mouseax+=mousex;mouseay+=mousey;
+        ma=getangle(mouseax,mouseay);
+        ma+=ang-a;
+
+        i = stat;
+        i = (i&0x4)+((i>>4)&3);
+        if (stat&64) // align to first wall
+            switch (i)
+            {
+            case 0:break;
+            case 1:ma=-ma;break;
+            case 2:ma=1024-ma;break;
+            case 3:ma+=1024;break;
+            case 4:ma=-512-ma;break;
+            case 5:ma+=512;break;
+            case 6:ma-=512;break;
+            case 7:ma=512-ma;break;
+            }
+        else
+            switch (i)
+            {
+            case 0:ma=-ma;break;
+            case 1:break;
+            case 2:ma+=1024;break;
+            case 3:ma=1024-ma;break;
+            case 4:ma-=512;break;
+            case 5:ma=512-ma;break;
+            case 6:ma=-512-ma;break;
+            case 7:ma+=512;break;
+            }
+
+        a=ksqrt(mouseax*mouseax+mouseay*mouseay);
+        if (a)
+        {
+            int mult=(stat&8)?8192:8192*2;
+            x1=-a*sintable[(ma+2048)&2047]/mult;
+            y1=-a*sintable[(ma+1536)&2047]/mult;
+            if (x1||y1)
+            {
+                mouseax=0;mouseay=0;
+                if (searchstat==1)
+                {
+                    changedir=1;if (x1<0) {changedir=-1;x1*=-1;}
+                    while (x1--)sector[searchsector].ceilingxpanning = changechar(sector[searchsector].ceilingxpanning,changedir,0,0);
+                    changedir=1;if (y1<0) {changedir=-1;y1*=-1;}
+                    while (y1--)sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning,changedir,0,0);
+                    Bsprintf(tempbuf,"Sector %d ceiling panning: %d, %d",searchsector,sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
+                }
+                else
+                {
+                    changedir=1;if (x1<0) {changedir=-1;x1*=-1;}
+                    while (x1--)sector[searchsector].floorxpanning = changechar(sector[searchsector].floorxpanning,changedir,0,0);
+                    changedir=1;if (y1<0) {changedir=-1;y1*=-1;}
+                    while (y1--)sector[searchsector].floorypanning = changechar(sector[searchsector].floorypanning,changedir,0,0);
+                    Bsprintf(tempbuf,"Sector %d floor panning: %d, %d",searchsector,sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
+                }
+                message(tempbuf);
+                asksave=1;
+            }
+        }
+        mousex=0;mousey=0;
+    }
+    if (!mouseb) {mouseax=0;mouseay=0;}
+
+    smooshyalign = keystatus[KEYSC_gKP5];
+    repeatpanalign = eitherSHIFT;
+
+    updownunits=1;
+    mouseaction=0;
+
+    if (bstatus&1 && searchstat != 1 && searchstat != 2)
+    {
+        if (eitherSHIFT)
+        {
+            mskip=1;
+            if (mousex!=0)
+            {
+                mouseaction=1;
+                mouseax+=mousex;
+                updownunits=klabs(mouseax/2.);
+                if (updownunits) {mouseax=0;}
+            }
+        }
+        else
+            if (eitherCTRL)
+            {
+                mskip=1;
+                if (mousex!=0)
+                {
+                    mouseaction=2;
+                    repeatpanalign=0;
+                    if (searchstat==3)
+                    {
+                        updownunits=klabs(mouseax+=mousex)/4;
+                        if (updownunits)mouseax=0;
+                    }
+                    else
+                    {
+                        updownunits=klabs(mouseax+=mousex)/16;
+                        if (updownunits)mouseax=0;
+                    }
+                }
+            }
+    }
+
+    if (keystatus[KEYSC_gLEFT] || keystatus[KEYSC_gRIGHT] || mouseaction) // 4 & 6 (keypad)
+    {
+        if ((repeatcountx == 0) || (repeatcountx > 32) || mouseaction)
+        {
+            changedir = 0;
+            if (keystatus[KEYSC_gLEFT]  || mousex>0) changedir = -1;
+            if (keystatus[KEYSC_gRIGHT] || mousex<0) changedir = 1;
+
+            if ((searchstat == 0) || (searchstat == 4))
+            {
+                if (repeatpanalign == 0)
+                {
+                    while (updownunits--)wall[searchwall].xrepeat = changechar(wall[searchwall].xrepeat,changedir,smooshyalign,1);
+                    Bsprintf(tempbuf,"Wall %d repeat: %d, %d",searchwall,wall[searchwall].xrepeat,wall[searchwall].yrepeat);
+                }
+                else
+                {
+                    if (mouseaction)
+                    {
+                        i=wall[searchwall].cstat;
+                        i=((i>>3)&1)+((i>>7)&2);
+                        if (i==1||i==3)changedir*=-1;
+                    }
+                    while (updownunits--)wall[searchwall].xpanning = changechar(wall[searchwall].xpanning,changedir,smooshyalign,0);
+                    Bsprintf(tempbuf,"Wall %d panning: %d, %d",searchwall,wall[searchwall].xpanning,wall[searchwall].ypanning);
+                }
+                message(tempbuf);
+            }
+            if ((searchstat == 1) || (searchstat == 2))
+            {
+                if (searchstat == 1)
+                {
+                    while (updownunits--)sector[searchsector].ceilingxpanning = changechar(sector[searchsector].ceilingxpanning,changedir,smooshyalign,0);
+                    Bsprintf(tempbuf,"Sector %d ceiling panning: %d, %d",searchsector,sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
+                }
+                else
+                {
+                    while (updownunits--)sector[searchsector].floorxpanning = changechar(sector[searchsector].floorxpanning,changedir,smooshyalign,0);
+                    Bsprintf(tempbuf,"Sector %d floor panning: %d, %d",searchsector,sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
+                }
+                message(tempbuf);
+            }
+            if (searchstat == 3)
+            {
+                if (mouseaction==1)
+                {
+                    int xvect,yvect;
+                    short cursectnum=sprite[searchwall].sectnum;
+                    xvect = -((mousex*(int)sintable[(ang+2048)&2047])<<3);
+                    yvect = -((mousex*(int)sintable[(ang+1536)&2047])<<3);
+                    clipmove(&sprite[searchwall].x,&sprite[searchwall].y,&sprite[searchwall].z,
+                             &cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK1);
+                    setsprite(searchwall,sprite[searchwall].x,sprite[searchwall].y,sprite[searchwall].z);
+                }
+                else
+                {
+                    if (mouseaction==2)changedir*=-1;
+                    while (updownunits--)sprite[searchwall].xrepeat = changechar(sprite[searchwall].xrepeat,changedir,smooshyalign,1);
+                    if (sprite[searchwall].xrepeat < 4)
+                        sprite[searchwall].xrepeat = 4;
+                    Bsprintf(tempbuf,"Sprite %d repeat: %d, %d",searchwall,sprite[searchwall].xrepeat,sprite[searchwall].yrepeat);
+                    message(tempbuf);
+                }
+            }
+            asksave = 1;
+            repeatcountx = max(1,repeatcountx-2);
+        }
+        repeatcountx += synctics;
+    }
+    else
+        repeatcountx = 0;
+
+    updownunits=1;
+    mouseaction=0;
+    if (bstatus&1 && searchstat != 1 && searchstat != 2)
+    {
+        if (eitherSHIFT)
+        {
+            mskip=1;
+            if (mousey!=0)
+            {
+                mouseaction=1;
+                updownunits=klabs(mousey);
+                if (searchstat != 3)
+                {
+                    updownunits=klabs(mousey*128./tilesizy[wall[searchwall].picnum]);
+                }
+            }
+        }
+        else
+            if (eitherCTRL)
+            {
+                mskip=1;
+                if (mousey!=0)
+                {
+                    mouseaction=2;
+                    repeatpanalign=0;
+                    if (searchstat==3)
+                    {
+                        updownunits=klabs(mouseay+=mousey)/4;
+                        if (updownunits)mouseay=0;
+                    }
+                    else
+                    {
+                        updownunits=klabs(mouseay+=mousey)/32;
+                        if (updownunits)mouseay=0;
+                    }
+                }
+            }
+    }
+    if (!mouseb) {mouseax=0;mouseay=0;}
+    if (keystatus[KEYSC_gUP] || keystatus[KEYSC_gDOWN] || mouseaction)  // 2 & 8 (keypad)
+    {
+        if ((repeatcounty == 0) || (repeatcounty > 32) || mouseaction)
+        {
+            changedir = 0;
+            if (keystatus[KEYSC_gUP]   || mousey>0) changedir = -1;
+            if (keystatus[KEYSC_gDOWN] || mousey<0) changedir = 1;
+
+            if ((searchstat == 0) || (searchstat == 4))
+            {
+                if (repeatpanalign == 0)
+                {
+                    while (updownunits--)wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat,changedir,smooshyalign,1);
+                    Bsprintf(tempbuf,"Wall %d repeat: %d, %d",searchwall,wall[searchwall].xrepeat,wall[searchwall].yrepeat);
+                }
+                else
+                {
+                    while (updownunits--)wall[searchwall].ypanning = changechar(wall[searchwall].ypanning,changedir,smooshyalign,0);
+                    Bsprintf(tempbuf,"Wall %d panning: %d, %d",searchwall,wall[searchwall].xpanning,wall[searchwall].ypanning);
+                }
+                message(tempbuf);
+            }
+            if ((searchstat == 1) || (searchstat == 2))
+            {
+                if (searchstat == 1)
+                {
+                    while (updownunits--)sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning,changedir,smooshyalign,0);
+                    Bsprintf(tempbuf,"Sector %d ceiling panning: %d, %d",searchsector,sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
+                }
+                else
+                {
+                    while (updownunits--)sector[searchsector].floorypanning = changechar(sector[searchsector].floorypanning,changedir,smooshyalign,0);
+                    Bsprintf(tempbuf,"Sector %d floor panning: %d, %d",searchsector,sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
+                }
+                message(tempbuf);
+            }
+            if (searchstat == 3)
+            {
+                if (mouseaction==1)
+                {
+                    int xvect,yvect;
+                    short cursectnum=sprite[searchwall].sectnum;
+                    xvect = -((mousey*(int)sintable[(ang+2560)&2047])<<3);
+                    yvect = -((mousey*(int)sintable[(ang+2048)&2047])<<3);
+                    clipmove(&sprite[searchwall].x,&sprite[searchwall].y,&sprite[searchwall].z,
+                             &cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK1);
+                    setsprite(searchwall,sprite[searchwall].x,sprite[searchwall].y,sprite[searchwall].z);
+                }
+                else
+                {
+                    while (updownunits--)sprite[searchwall].yrepeat = changechar(sprite[searchwall].yrepeat,changedir,smooshyalign,1);
+                    if (sprite[searchwall].yrepeat < 4)
+                        sprite[searchwall].yrepeat = 4;
+                    Bsprintf(tempbuf,"Sprite %d repeat: %d, %d",searchwall,sprite[searchwall].xrepeat,sprite[searchwall].yrepeat);
+                    message(tempbuf);
+                }
+            }
+            asksave = 1;
+            repeatcounty = max(1,repeatcounty-2);
+        }
+        repeatcounty += synctics;
+    }
+    else
+        repeatcounty = 0;
+
+    if (keystatus[KEYSC_F11])  //F11 - brightness
+    {
+        extern short brightness;
+
+        keystatus[KEYSC_F11] = 0;
+        brightness++;
+        if (brightness >= 16) brightness = 0;
+        setbrightness(brightness,palette,0);
+        Bsprintf(tempbuf,"Brightness %d out of 16",brightness);
+        message(tempbuf);
+    }
+    if (keystatus[KEYSC_F12])   //F12
+    {
+        screencapture("captxxxx.tga",keystatus[KEYSC_LSHIFT]|keystatus[KEYSC_RSHIFT]);
+        message("Screenshot taken");
+        keystatus[KEYSC_F12] = 0;
+    }
+
+    if (keystatus[KEYSC_TAB])  //TAB
+    {
+        if (searchstat == 0)
+        {
+            temppicnum = wall[searchwall].picnum;
+            tempshade = wall[searchwall].shade;
+            temppal = wall[searchwall].pal;
+            tempxrepeat = wall[searchwall].xrepeat;
+            tempyrepeat = wall[searchwall].yrepeat;
+            tempcstat = wall[searchwall].cstat;
+            templotag = wall[searchwall].lotag;
+            temphitag = wall[searchwall].hitag;
+            tempextra = wall[searchwall].extra;
+        }
+        if (searchstat == 1)
+        {
+            temppicnum = sector[searchsector].ceilingpicnum;
+            tempshade = sector[searchsector].ceilingshade;
+            temppal = sector[searchsector].ceilingpal;
+            tempvis = sector[searchsector].visibility;
+            tempxrepeat = sector[searchsector].ceilingxpanning;
+            tempyrepeat = sector[searchsector].ceilingypanning;
+            tempcstat = sector[searchsector].ceilingstat;
+            templotag = sector[searchsector].lotag;
+            temphitag = sector[searchsector].hitag;
+            tempextra = sector[searchsector].extra;
+        }
+        if (searchstat == 2)
+        {
+            temppicnum = sector[searchsector].floorpicnum;
+            tempshade = sector[searchsector].floorshade;
+            temppal = sector[searchsector].floorpal;
+            tempvis = sector[searchsector].visibility;
+            tempxrepeat = sector[searchsector].floorxpanning;
+            tempyrepeat = sector[searchsector].floorypanning;
+            tempcstat = sector[searchsector].floorstat;
+            templotag = sector[searchsector].lotag;
+            temphitag = sector[searchsector].hitag;
+            tempextra = sector[searchsector].extra;
+        }
+        if (searchstat == 3)
+        {
+            temppicnum = sprite[searchwall].picnum;
+            tempshade = sprite[searchwall].shade;
+            temppal = sprite[searchwall].pal;
+            tempxrepeat = sprite[searchwall].xrepeat;
+            tempyrepeat = sprite[searchwall].yrepeat;
+            tempcstat = sprite[searchwall].cstat;
+            templotag = sprite[searchwall].lotag;
+            temphitag = sprite[searchwall].hitag;
+            tempextra = sprite[searchwall].extra;
+        }
+        if (searchstat == 4)
+        {
+            temppicnum = wall[searchwall].overpicnum;
+            tempshade = wall[searchwall].shade;
+            temppal = wall[searchwall].pal;
+            tempxrepeat = wall[searchwall].xrepeat;
+            tempyrepeat = wall[searchwall].yrepeat;
+            tempcstat = wall[searchwall].cstat;
+            templotag = wall[searchwall].lotag;
+            temphitag = wall[searchwall].hitag;
+            tempextra = wall[searchwall].extra;
+        }
+        somethingintab = searchstat;
+        keystatus[KEYSC_TAB] = 0;
+    }
+
+    if (keystatus[KEYSC_ENTER])
+    {
+        extern char pskysearch[MAXSECTORS];
+        short daang;int dashade[2];
+        if (eitherSHIFT)
+        {
+            if (((searchstat == 0) || (searchstat == 4)) && eitherCTRL)  //Ctrl-shift Enter (auto-shade)
+            {
+                dashade[0] = 127;
+                dashade[1] = -128;
+                i = searchwall;
+                do
+                {
+                    if ((int)wall[i].shade < dashade[0]) dashade[0] = wall[i].shade;
+                    if ((int)wall[i].shade > dashade[1]) dashade[1] = wall[i].shade;
+
+                    i = wall[i].point2;
+                }
+                while (i != searchwall);
+
+                daang = getangle(wall[wall[searchwall].point2].x-wall[searchwall].x,wall[wall[searchwall].point2].y-wall[searchwall].y);
+                i = searchwall;
+                do
+                {
+                    j = getangle(wall[wall[i].point2].x-wall[i].x,wall[wall[i].point2].y-wall[i].y);
+                    k = ((j+2048-daang)&2047);
+                    if (k > 1024)
+                        k = 2048-k;
+                    wall[i].shade = dashade[0]+mulscale10(k,dashade[1]-dashade[0]);
+
+                    i = wall[i].point2;
+                }
+                while (i != searchwall);
+                Bsprintf(tempbuf,"Wall %d auto-shaded",searchwall);
+                message(tempbuf);
+            }
+            else if (somethingintab < 255)
+            {
+                if (searchstat == 0) wall[searchwall].shade = tempshade, wall[searchwall].pal = temppal;
+                if (searchstat == 1)
+                {
+                    sector[searchsector].ceilingshade = tempshade, sector[searchsector].ceilingpal = temppal;
+                    if ((somethingintab == 1) || (somethingintab == 2))
+                        sector[searchsector].visibility = tempvis;
+                }
+                if (searchstat == 2)
+                {
+                    sector[searchsector].floorshade = tempshade, sector[searchsector].floorpal = temppal;
+                    if ((somethingintab == 1) || (somethingintab == 2))
+                        sector[searchsector].visibility = tempvis;
+                }
+                if (searchstat == 3) sprite[searchwall].shade = tempshade, sprite[searchwall].pal = temppal;
+                if (searchstat == 4) wall[searchwall].shade = tempshade, wall[searchwall].pal = temppal;
+                message("Pasted shading+pal");
+            }
+        }
+        else if (((searchstat == 0) || (searchstat == 4)) && eitherCTRL && (somethingintab < 255))  //Either ctrl key
+        {
+            i = searchwall;
+            do
+            {
+                wall[i].picnum = temppicnum;
+                wall[i].shade = tempshade;
+                wall[i].pal = temppal;
+                if ((somethingintab == 0) || (somethingintab == 4))
+                {
+                    wall[i].xrepeat = tempxrepeat;
+                    wall[i].yrepeat = tempyrepeat;
+                    wall[i].cstat = tempcstat;
+                }
+                fixrepeats((short)i);
+                i = wall[i].point2;
+            }
+            while (i != searchwall);
+            message("Pasted picnum+shading+pal");
+        }
+        else if (((searchstat == 1) || (searchstat == 2)) && eitherCTRL && (somethingintab < 255))  //Either ctrl key
+        {
+            clearbuf(&pskysearch[0],(int)((numsectors+3)>>2),0L);
+            if (searchstat == 1)
+            {
+                i = searchsector;
+                if ((sector[i].ceilingstat&1) > 0)
+                    pskysearch[i] = 1;
+
+                while (pskysearch[i] == 1)
+                {
+                    sector[i].ceilingpicnum = temppicnum;
+                    sector[i].ceilingshade = tempshade;
+                    sector[i].ceilingpal = temppal;
+                    if ((somethingintab == 1) || (somethingintab == 2))
+                    {
+                        sector[i].ceilingxpanning = tempxrepeat;
+                        sector[i].ceilingypanning = tempyrepeat;
+                        sector[i].ceilingstat = tempcstat;
+                    }
+                    pskysearch[i] = 2;
+
+                    startwall = sector[i].wallptr;
+                    endwall = startwall + sector[i].wallnum - 1;
+                    for (j=startwall;j<=endwall;j++)
+                    {
+                        k = wall[j].nextsector;
+                        if (k >= 0)
+                            if ((sector[k].ceilingstat&1) > 0)
+                                if (pskysearch[k] == 0)
+                                    pskysearch[k] = 1;
+                    }
+
+                    for (j=0;j<numsectors;j++)
+                        if (pskysearch[j] == 1)
+                            i = j;
+                }
+            }
+            if (searchstat == 2)
+            {
+                i = searchsector;
+                if ((sector[i].floorstat&1) > 0)
+                    pskysearch[i] = 1;
+
+                while (pskysearch[i] == 1)
+                {
+                    sector[i].floorpicnum = temppicnum;
+                    sector[i].floorshade = tempshade;
+                    sector[i].floorpal = temppal;
+                    if ((somethingintab == 1) || (somethingintab == 2))
+                    {
+                        sector[i].floorxpanning = tempxrepeat;
+                        sector[i].floorypanning = tempyrepeat;
+                        sector[i].floorstat = tempcstat;
+                    }
+                    pskysearch[i] = 2;
+
+                    startwall = sector[i].wallptr;
+                    endwall = startwall + sector[i].wallnum - 1;
+                    for (j=startwall;j<=endwall;j++)
+                    {
+                        k = wall[j].nextsector;
+                        if (k >= 0)
+                            if ((sector[k].floorstat&1) > 0)
+                                if (pskysearch[k] == 0)
+                                    pskysearch[k] = 1;
+                    }
+
+                    for (j=0;j<numsectors;j++)
+                        if (pskysearch[j] == 1)
+                            i = j;
+                }
+            }
+            message("Pasted picnum+shading+pal");
+        }
+        else if (somethingintab < 255)
+        {
+            if (searchstat == 0)
+            {
+                wall[searchwall].picnum = temppicnum;
+                wall[searchwall].shade = tempshade;
+                wall[searchwall].pal = temppal;
+                if (somethingintab == 0)
+                {
+                    wall[searchwall].xrepeat = tempxrepeat;
+                    wall[searchwall].yrepeat = tempyrepeat;
+                    wall[searchwall].cstat = tempcstat;
+                    wall[searchwall].lotag = templotag;
+                    wall[searchwall].hitag = temphitag;
+                    wall[searchwall].extra = tempextra;
+                }
+                fixrepeats(searchwall);
+            }
+            if (searchstat == 1)
+            {
+                sector[searchsector].ceilingpicnum = temppicnum;
+                sector[searchsector].ceilingshade = tempshade;
+                sector[searchsector].ceilingpal = temppal;
+                if ((somethingintab == 1) || (somethingintab == 2))
+                {
+                    sector[searchsector].ceilingxpanning = tempxrepeat;
+                    sector[searchsector].ceilingypanning = tempyrepeat;
+                    sector[searchsector].ceilingstat = tempcstat;
+                    sector[searchsector].visibility = tempvis;
+                    sector[searchsector].lotag = templotag;
+                    sector[searchsector].hitag = temphitag;
+                    sector[searchsector].extra = tempextra;
+                }
+            }
+            if (searchstat == 2)
+            {
+                sector[searchsector].floorpicnum = temppicnum;
+                sector[searchsector].floorshade = tempshade;
+                sector[searchsector].floorpal = temppal;
+                if ((somethingintab == 1) || (somethingintab == 2))
+                {
+                    sector[searchsector].floorxpanning= tempxrepeat;
+                    sector[searchsector].floorypanning= tempyrepeat;
+                    sector[searchsector].floorstat = tempcstat;
+                    sector[searchsector].visibility = tempvis;
+                    sector[searchsector].lotag = templotag;
+                    sector[searchsector].hitag = temphitag;
+                    sector[searchsector].extra = tempextra;
+                }
+            }
+            if (searchstat == 3)
+            {
+                sprite[searchwall].picnum = temppicnum;
+                if ((tilesizx[temppicnum] <= 0) || (tilesizy[temppicnum] <= 0))
+                {
+                    j = 0;
+                    for (k=0;k<MAXTILES;k++)
+                        if ((tilesizx[k] > 0) && (tilesizy[k] > 0))
+                        {
+                            j = k;
+                            break;
+                        }
+                    sprite[searchwall].picnum = j;
+                }
+                sprite[searchwall].shade = tempshade;
+                sprite[searchwall].pal = temppal;
+                if (somethingintab == 3)
+                {
+                    sprite[searchwall].xrepeat = tempxrepeat;
+                    sprite[searchwall].yrepeat = tempyrepeat;
+                    if (sprite[searchwall].xrepeat < 1) sprite[searchwall].xrepeat = 1;
+                    if (sprite[searchwall].yrepeat < 1) sprite[searchwall].yrepeat = 1;
+                    sprite[searchwall].cstat = tempcstat;
+                    sprite[searchwall].lotag = templotag;
+                    sprite[searchwall].hitag = temphitag;
+                    sprite[searchwall].extra = tempextra;
+                }
+            }
+            if (searchstat == 4)
+            {
+                wall[searchwall].overpicnum = temppicnum;
+                if (wall[searchwall].nextwall >= 0)
+                    wall[wall[searchwall].nextwall].overpicnum = temppicnum;
+                wall[searchwall].shade = tempshade;
+                wall[searchwall].pal = temppal;
+                if (somethingintab == 4)
+                {
+                    wall[searchwall].xrepeat = tempxrepeat;
+                    wall[searchwall].yrepeat = tempyrepeat;
+                    wall[searchwall].cstat = tempcstat;
+                    wall[searchwall].lotag = templotag;
+                    wall[searchwall].hitag = temphitag;
+                    wall[searchwall].extra = tempextra;
+                }
+                fixrepeats(searchwall);
+            }
+            message("Pasted clipboard");
+        }
+        asksave = 1;
+        keystatus[KEYSC_ENTER] = 0;
+    }
+
+    if (keystatus[KEYSC_C])
+    {
+        keystatus[KEYSC_C] = 0;
+        if (eitherALT)
+        {
+            if (somethingintab < 255)
+            {
+                switch (searchstat)
+                {
+                case 0:
+                    j = wall[searchwall].picnum;
+                    for (i=0;i<numwalls;i++)
+                        if (wall[i].picnum == j) wall[i].picnum = temppicnum;
+                    break;
+                case 1:
+                    j = sector[searchsector].ceilingpicnum;
+                    for (i=0;i<numsectors;i++)
+                        if (sector[i].ceilingpicnum == j) sector[i].ceilingpicnum = temppicnum;
+                    break;
+                case 2:
+                    j = sector[searchsector].floorpicnum;
+                    for (i=0;i<numsectors;i++)
+                        if (sector[i].floorpicnum == j) sector[i].floorpicnum = temppicnum;
+                    break;
+                case 3:
+                    j = sprite[searchwall].picnum;
+                    for (i=0;i<MAXSPRITES;i++)
+                        if (sprite[i].statnum < MAXSTATUS)
+                            if (sprite[i].picnum == j) sprite[i].picnum = temppicnum;
+                    break;
+                case 4:
+                    j = wall[searchwall].overpicnum;
+                    for (i=0;i<numwalls;i++)
+                        if (wall[i].overpicnum == j) wall[i].overpicnum = temppicnum;
+                    break;
+                }
+                message("Picnums replaced");
+                asksave = 1;
+            }
+        }
+        else	//C
+        {
+            if (searchstat == 3)
+            {
+                sprite[searchwall].cstat ^= 128;
+                Bsprintf(tempbuf,"Sprite %d centered %s",searchwall,(sprite[searchwall].cstat&128)?"ON":"OFF");
+                message(tempbuf);
+                asksave = 1;
+            }
+        }
+    }
+
+    if (keystatus[KEYSC_SLASH])  // /?     Reset panning&repeat to 0
+    {
+        if ((searchstat == 0) || (searchstat == 4))
+        {
+            wall[searchwall].xpanning = 0;
+            wall[searchwall].ypanning = 0;
+            wall[searchwall].xrepeat = 8;
+            wall[searchwall].yrepeat = 8;
+            wall[searchwall].cstat = 0;
+            fixrepeats((short)searchwall);
+        }
+        if (searchstat == 1)
+        {
+            sector[searchsector].ceilingxpanning = 0;
+            sector[searchsector].ceilingypanning = 0;
+            sector[searchsector].ceilingstat &= ~2;
+            sector[searchsector].ceilingheinum = 0;
+        }
+        if (searchstat == 2)
+        {
+            sector[searchsector].floorxpanning = 0;
+            sector[searchsector].floorypanning = 0;
+            sector[searchsector].floorstat &= ~2;
+            sector[searchsector].floorheinum = 0;
+        }
+        if (searchstat == 3)
+        {
+            if (eitherSHIFT)
+            {
+                sprite[searchwall].xrepeat = sprite[searchwall].yrepeat;
+            }
+            else
+            {
+                sprite[searchwall].xrepeat = 64;
+                sprite[searchwall].yrepeat = 64;
+            }
+        }
+        Bsprintf(tempbuf,"%s's size and panning reset",type2str[searchstat]);
+        message(tempbuf);
+        keystatus[KEYSC_SLASH] = 0;
+        asksave = 1;
+    }
+
+    if (keystatus[KEYSC_P])  // P (parallaxing sky)
+    {
+        if (eitherCTRL)
+        {
+            parallaxtype++;
+            if (parallaxtype == 3)
+                parallaxtype = 0;
+            sector[searchsector].ceilingstat ^= 1;
+            Bsprintf(tempbuf,"Parallax type %d",parallaxtype);
+            message(tempbuf);
+        }
+        else if (eitherALT)
+        {
+            switch (searchstat)
+            {
+            case 0:
+            case 4:
+                Bstrcpy(buffer,"Wall pal: ");
+                wall[searchwall].pal = getnumber256(buffer,wall[searchwall].pal,256L,0);
+                break;
+            case 1:
+                Bstrcpy(buffer,"Ceiling pal: ");
+                sector[searchsector].ceilingpal = getnumber256(buffer,sector[searchsector].ceilingpal,256L,0);
+                break;
+            case 2:
+                Bstrcpy(buffer,"Floor pal: ");
+                sector[searchsector].floorpal = getnumber256(buffer,sector[searchsector].floorpal,256L,0);
+                break;
+            case 3:
+                Bstrcpy(buffer,"Sprite pal: ");
+                sprite[searchwall].pal = getnumber256(buffer,sprite[searchwall].pal,256L,0);
+                break;
+            }
+        }
+        else
+        {
+            if ((searchstat == 0) || (searchstat == 1) || (searchstat == 4))
+            {
+                sector[searchsector].ceilingstat ^= 1;
+                Bsprintf(tempbuf,"Sector %d ceiling parallax %s",searchsector,sector[searchsector].ceilingstat&1?"ON":"OFF");
+                message(tempbuf);
+                asksave = 1;
+            }
+            else if (searchstat == 2)
+            {
+                sector[searchsector].floorstat ^= 1;
+                Bsprintf(tempbuf,"Sector %d floor parallax %s",searchsector,sector[searchsector].floorstat&1?"ON":"OFF");
+                message(tempbuf);
+                asksave = 1;
+            }
+        }
+        keystatus[KEYSC_P] = 0;
+    }
+
+    if (keystatus[KEYSC_D])   //Alt-D  (adjust sprite[].clipdist)
+    {
+        keystatus[KEYSC_D] = 0;
+        if (eitherALT)
+        {
+            if (searchstat == 3)
+            {
+                Bstrcpy(buffer,"Sprite clipdist: ");
+                sprite[searchwall].clipdist = getnumber256(buffer,sprite[searchwall].clipdist,256L,0);
+            }
+        }
+    }
 }// end 3d
 
 static void Keys2d(void)
@@ -4451,9 +5562,10 @@ static void Keys2d(void)
     printext16(9L,ydim2d-STATUS2DSIZ+9L,4,-1,tempbuf,0);
     printext16(8L,ydim2d-STATUS2DSIZ+8L,12,-1,tempbuf,0);
 
+    updatesector(mousxplc,mousyplc,&cursectornum);
+    searchsector=cursectornum;
     if ((totalclock > getmessagetimeoff) && (totalclock > (lastpm16time + 120*3)))
     {
-        updatesector(mousxplc,mousyplc,&cursectornum);
         if (pointhighlight >= 16384)
         {
             char tmpbuf[2048];
@@ -4538,6 +5650,14 @@ static void Keys2d(void)
     }
 
     /* start Mapster32 */
+
+    if (keystatus[KEYSC_F4])
+    {
+        showfirstwall = !showfirstwall;
+        Bsprintf(tempbuf,"Show first wall %s",showfirstwall?"ON":"OFF");
+        message(tempbuf);
+        keystatus[KEYSC_F4] = 0;
+    }
 
     if (keystatus[KEYSC_M])  // M (tag)
     {
@@ -5563,7 +6683,7 @@ static int registerosdcommands(void)
     OSD_RegisterFunction("pk_quickmapcycling", "pk_quickmapcycling: allows cycling of maps with (Shift-)Ctrl-X", osdcmd_vars_pk);
     return 0;
 }
-
+#define DUKEOSD
 #ifdef DUKEOSD
 void GAME_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
@@ -5636,23 +6756,25 @@ void GAME_clearbackground(int c, int r)
     int x, y, xsiz, ysiz, tx2, ty2;
     int daydim, bits;
 
-#ifdef _WIN32
-    if (qsetmode != 200)
-    {
-        OSD_SetFunctions(
-            NULL,
-            NULL,
-            NULL,
-            NULL,
-            NULL,
-            NULL,
-            (int(*)(void))GetTime,
-            NULL
-        );
-        return;
-    }
-#endif
-
+    UNREFERENCED_PARAMETER(c);
+    /*
+    #ifdef _WIN32
+        if (qsetmode != 200)
+        {
+            OSD_SetFunctions(
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                (int(*)(void))GetTime,
+                NULL
+            );
+            return;
+        }
+    #endif
+    */
     if (getrendermode() < 3) bits = BITS;
     else bits = BITSTL;
 
@@ -6183,12 +7305,11 @@ void app_crashhandler(void)
             f = strrchr(levelname, '/');
             if (!f) f = levelname; else f++;
         }
+        f=strstr(levelname,".map");
+        if (f)Bstrcpy(f,"_crash.map");else Bstrcat(f,"_crash.map");
         ExtPreSaveMap();
-        saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
-        ExtSaveMap(f);
-        message("Board saved");
-        asksave = 0;
-        keystatus[0x1f] = 0;
+        saveboard(levelname,&startposx,&startposy,&startposz,&startang,&startsectnum);
+        ExtSaveMap(levelname);
     }
 }
 #endif
@@ -6398,29 +7519,78 @@ static void Keys2d3d(void)
     }
 
     if (eitherCTRL)  //CTRL
+    {
+        char *f;
+        if (pathsearchmode) f = levelname;
+        else
+        {
+            // virtual filesystem mode can't save to directories so drop the file into
+            // the current directory
+            f = strrchr(levelname, '/');
+            if (!f) f = levelname; else f++;
+        }
+
         if (keystatus[KEYSC_S]) // S
         {
             if (levelname[0])
             {
-                char *f;
                 fixspritesectors();   //Do this before saving!
                 updatesector(startposx,startposy,&startsectnum);
-                if (pathsearchmode) f = levelname;
-                else
-                {
-                    // virtual filesystem mode can't save to directories so drop the file into
-                    // the current directory
-                    f = strrchr(levelname, '/');
-                    if (!f) f = levelname; else f++;
-                }
                 ExtPreSaveMap();
                 saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
                 ExtSaveMap(f);
                 message("Board saved");
                 asksave = 0;
                 keystatus[KEYSC_S] = 0;
+                lastsave=totalclock;
             }
         }
+        if (keystatus[KEYSC_L]) // L
+        {
+            extern int grponlymode;
+            extern void loadmhk();
+
+            if (totalclock < (lastsave + 120*10) || !AskIfSure("Are you sure you want to load the last saved map?"))
+            {
+                int sposx=posx,sposy=posy,sposz=posz,sang=ang;
+
+                lastsave=totalclock;
+                highlightcnt = -1;
+//  			  sectorhighlightstat = -1;
+//  			  newnumwalls = -1;
+//  			  joinsector[0] = -1;
+//  			  circlewall = -1;
+//  			  circlepoints = 7;
+
+                for (i=0;i<MAXSECTORS;i++) sector[i].extra = -1;
+                for (i=0;i<MAXWALLS;i++) wall[i].extra = -1;
+                for (i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
+
+                ExtPreLoadMap();
+                i = loadboard(f,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+                loadmhk();
+                if (i == -2) i = loadoldboard(f,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+                if (i < 0) printmessage16("Invalid map format.");
+                else
+                {
+                    ExtLoadMap(f);
+                    if (mapversion < 7) printmessage16("Map loaded successfully and autoconverted to V7!");
+                    else
+                    {
+                        message("Map loaded successfully");
+                    }
+                }
+                updatenumsprites();
+                startposx = posx;
+                startposy = posy;
+                startposz = posz;
+                startang = ang;
+                startsectnum = cursectnum;
+                posx=sposx;posy=sposy;posz=sposz;ang=sang;
+                keystatus[KEYSC_L]=0;
+            }
+        }
+    }
 
     if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
     {
@@ -6473,8 +7643,9 @@ static void Keys2d3d(void)
                 begindrawing();
                 if (tempbuf[charsperline] != 0)
                 {
-                    printext256((xdimgame>>6)+2,((i/charsperline)<<3)+(ydimgame-(ydimgame>>3))-(((getmessageleng-1)/charsperline)<<3)+2,0,-1,tempbuf,xdimgame>640?0:1);
-                    printext256((xdimgame>>6),((i/charsperline)<<3)+(ydimgame-(ydimgame>>3))-(((getmessageleng-1)/charsperline)<<3),whitecol,-1,tempbuf,xdimgame>640?0:1);
+                    printext256((xdimgame>>1)+2,((i/charsperline)<<3)+(ydimgame-(ydimgame>>3))-(((getmessageleng-1)/charsperline)<<3)+2,0,-1,tempbuf,xdimgame>640?0:1);
+                    printext256((xdimgame>>1),((i/charsperline)<<3)+(ydimgame-(ydimgame>>3))-(((getmessageleng-1)/charsperline)<<3),
+                                (totalclock > (lastmessagetime + 120*5))?whitecol:256-5,-1,tempbuf,xdimgame>640?0:1);
                 }
                 enddrawing();
             }
@@ -6496,7 +7667,7 @@ void ExtCheckKeys(void)
         if (sidemode != 1)
         {
             editinput();
-            m32_showmouse();
+            if (infobox)m32_showmouse();
         }
         return;
     }

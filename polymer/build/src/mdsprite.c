@@ -441,7 +441,7 @@ void applypalmap(char *pic, char *palmap, int size, int pal)
     }
 }
 
-static void applypalmapSkin(char *pic, int sizx, int sizy, int pal)
+static void applypalmapSkin(char *pic, int sizx, int sizy, md2model *m, int number, int pal, int surf)
 {
     int stage;
 
@@ -449,11 +449,12 @@ static void applypalmapSkin(char *pic, int sizx, int sizy, int pal)
     for (stage=0;stage<MAXPALCONV;stage++)
     {
         int pal1=0,pal2=pal;
-        mdskinmap_t *sk;
+        mdskinmap_t *sk=modelhead->skinmap;
         getpalmap(&stage,&pal1,&pal2);
         if (!pal1)return;
 
-        for (sk = modelhead->skinmap; sk; sk = sk->next)
+        mdloadskin((md2model *)m,number,pal1,surf);
+        for (; sk; sk = sk->next)
             if ((int)sk->palette == pal1&&sk->palmap)break;
         if (!sk||sk->size!=sizx*sizy)continue;
 
@@ -461,7 +462,7 @@ static void applypalmapSkin(char *pic, int sizx, int sizy, int pal)
     }
 }
 
-static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int *osizx, int *osizy, char *hasalpha, int pal, char effect)
+static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int *osizx, int *osizy, char *hasalpha, int pal, char effect, md2model *m, int number, int surf)
 {
     int picfillen, j,y,x;
     char *picfil,*cptr,al=255;
@@ -498,7 +499,7 @@ static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int
         { free(picfil); free(pic); return -1; }
     free(picfil);
 
-    applypalmapSkin((char *)pic,tsizx,tsizy,pal);
+    applypalmapSkin((char *)pic,tsizx,tsizy,m,number,pal,surf);
     cptr = &britable[gammabrightness ? 0 : curbrightness][0];
     r=(glinfo.bgra)?hictinting[pal].b:hictinting[pal].r;
     g=hictinting[pal].g;
@@ -763,7 +764,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         cachefil = -1;	// the compressed version will be saved to disk
 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
-        if (daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,(globalnoeffect)?0:hictinting[pal].f))
+        if (daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,(globalnoeffect)?0:hictinting[pal].f,m,number,surf))
         {
             kclose(filh);
             initprintf("Failed loading skin file \"%s\"\n", fn);
@@ -1617,8 +1618,6 @@ static int md3draw(md3model *m, spritetype *tspr)
     }
     for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
-        int pal1;
-
         s = &m->head.surfs[surfi];
         v0 = &s->xyzn[m->cframe*s->numverts];
         v1 = &s->xyzn[m->nframe*s->numverts];
@@ -1679,9 +1678,6 @@ static int md3draw(md3model *m, spritetype *tspr)
         bglMatrixMode(GL_MODELVIEW); //Let OpenGL (and perhaps hardware :) handle the matrix rotation
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; bglLoadMatrixf(mat);
         // PLAG: End
-
-        for (pal1=SPECPAL;pal1<=REDPAL;pal1++)
-            mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,pal1,surfi);
 
         i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,globalpal,surfi); if (!i) continue;
         //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,surfi); //hack for testing multiple surfaces per MD3

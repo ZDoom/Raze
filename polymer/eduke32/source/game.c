@@ -6676,6 +6676,10 @@ void animatesprites(int x,int y,int a,int smoothratio)
 #if defined(POLYMOST) && defined(USE_OPENGL)
             if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
+                int v=getangle(t->xvel,t->zvel>>4);
+                if (v>1023)v-=2048;
+                spriteext[i].pitch=v;
+
                 t->cstat &= ~4;
                 break;
             }

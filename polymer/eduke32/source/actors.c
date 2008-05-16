@@ -2393,10 +2393,15 @@ static void moveweapons(void)
                 }
 
                 for (f=1;f<=hittype[i].projectile.velmult;f++)
+                {
+                    dax = s->x;
+                    day = s->y;
+                    daz = s->z;
                     j = movesprite(i,
                                    (k*(sintable[(s->ang+512)&2047]))>>14,
                                    (k*(sintable[s->ang&2047]))>>14,ll,qq);
-
+                    if (j)break;
+                }
 
                 if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS) && s->yvel >= 0)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)

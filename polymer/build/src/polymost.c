@@ -1249,7 +1249,7 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
     unsigned int padx=0, pady=0;
     GLuint gi;
 
-    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) return;
+    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) {initprintf("\n");return;}
     if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
     {
         // lacking the necessary extensions to do this
@@ -4118,6 +4118,7 @@ void polymost_drawrooms()
     {
         short hitsect, hitwall, hitsprite;
         int vx, vy, vz, hitx, hity, hitz;
+        int cz, fz;
 
         ox2 = (searchx-ghalfx)/1.2; oy2 = (searchy-ghoriz)/ 1.2; oz2 = ghalfx;
 
@@ -4139,9 +4140,12 @@ void polymost_drawrooms()
         hitallsprites = 1;
         hitscan(globalposx,globalposy,globalposz,globalcursectnum, //Start position
                 vx>>12,vy>>12,vz>>8,&hitsect,&hitwall,&hitsprite,&hitx,&hity,&hitz,0xffff0030);
+        getzsofslope(hitsect,hitx,hity,&cz,&fz);
         hitallsprites = 0;
 
         searchsector = hitsect;
+        if (hitz<cz) searchstat = 1;else
+        if (hitz>fz) searchstat = 2;else
         if (hitwall >= 0)
         {
             searchwall = hitwall; searchstat = 0;
@@ -5547,6 +5551,31 @@ int polymost_printext256(int xpos, int ypos, short col, short backcol, char *nam
     bglBegin(GL_QUADS);
     for (c=0; name[c]; c++)
     {
+        if (name[c] == '^' && isdigit(name[c+1]))
+        {
+            char smallbuf[8];
+            int bi=0;
+            while (isdigit(name[c+1]) && bi<8)
+            {
+                smallbuf[bi++]=name[c+1];
+                c++;
+            }
+            smallbuf[bi++]=0;
+            if (col)col = atol(smallbuf);
+
+            if (gammabrightness)
+            {
+                p = curpalette[col];
+            }
+            else
+            {
+                p.r = britable[curbrightness][ curpalette[col].r ];
+                p.g = britable[curbrightness][ curpalette[col].g ];
+                p.b = britable[curbrightness][ curpalette[col].b ];
+            }
+            bglColor4ub(p.r,p.g,p.b,255);
+            continue;
+        }
         tx = (float)(name[c]%32)/32.0;
         ty = (float)((name[c]/32) + (fontsize*8))/16.0;
 
@@ -5932,8 +5961,6 @@ void polymost_precache(int dapicnum, int dapalnum, int datype)
 
         for (i=0;i<=j;i++)
         {
-            int pal1;
-            for (pal1=SPECPAL;pal1<=REDPAL;pal1++)mdloadskin((md2model*)models[mid],0,pal1,i);
             mdloadskin((md2model*)models[mid], 0, dapalnum, i);
         }
     }

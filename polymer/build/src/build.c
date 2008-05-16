@@ -122,13 +122,14 @@ short highlight[MAXWALLS];
 short highlightsector[MAXSECTORS], highlightsectorcnt = -1;
 extern char textfont[128][8];
 
-static char pskysearch[MAXSECTORS];
+char pskysearch[MAXSECTORS];
 
 short temppicnum, tempcstat, templotag, temphitag, tempextra;
-unsigned char tempshade, temppal, tempvis, tempxrepeat, tempyrepeat;
+unsigned char temppal, tempvis, tempxrepeat, tempyrepeat;
+signed char tempshade;
 unsigned char somethingintab = 255;
 
-char mlook = 0;
+char mlook = 0,mskip=0;
 char unrealedlook=0, quickmapcycling=0; //PK
 
 static char boardfilename[BMAX_PATH], selectedboardfilename[BMAX_PATH];
@@ -137,7 +138,7 @@ static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *fi
 static int numdirs=0, numfiles=0;
 static int currentlist=0;
 
-static int repeatcountx, repeatcounty;
+//static int repeatcountx, repeatcounty;
 
 static int fillist[640];
 
@@ -545,7 +546,7 @@ CANCEL:
     Bprintf("%s\n",kensig);
     return(0);
 }
-
+/*
 void showmouse(void)
 {
     int i;
@@ -557,7 +558,7 @@ void showmouse(void)
         plotpixel(searchx,searchy-i,whitecol);
         plotpixel(searchx,searchy+i,whitecol);
     }
-}
+}*/
 
 int mhk=0;
 void loadmhk()
@@ -580,29 +581,29 @@ void loadmhk()
 
 void editinput(void)
 {
-    char smooshyalign, repeatpanalign, buffer[80];
-    short /*sectnum, nextsectnum,*/ startwall, endwall, dasector, daang;
+//    char smooshyalign, repeatpanalign, buffer[80];
+//    short sectnum, nextsectnum, startwall, endwall, dasector, daang;
     int mousz, bstatus;
-    int i, j, k, /*cnt,*/ tempint=0, doubvel, changedir/*, wallfind[2], daz[2]*/;
-    int dashade[2], goalz, xvect, yvect, /*PK*/ zvect, hiz, loz;
+    int i, j, k, /*cnt,*/ tempint=0, doubvel/*, changedir, wallfind[2], daz[2]*/;
+    int /*dashade[2],*/ goalz, xvect, yvect,/*PK*/ zvect, hiz, loz;
     short hitsect, hitwall, hitsprite;
     int hitx, hity, hitz, dax, day, hihit, lohit;
 
 // 3B  3C  3D  3E   3F  40  41  42   43  44  57  58          46
 // F1  F2  F3  F4   F5  F6  F7  F8   F9 F10 F11 F12        SCROLL
 
-    if (keystatus[0x57] > 0)  //F11 - brightness
-    {
-        keystatus[0x57] = 0;
-        brightness++;
-        if (brightness >= 16) brightness = 0;
-        setbrightness(brightness,palette,0);
-    }
-    if (keystatus[88] > 0)   //F12
-    {
-        screencapture("captxxxx.tga",keystatus[0x2a]|keystatus[0x36]);
-        keystatus[88] = 0;
-    }
+    /*    if (keystatus[0x57] > 0)  //F11 - brightness
+        {
+            keystatus[0x57] = 0;
+            brightness++;
+            if (brightness >= 16) brightness = 0;
+            setbrightness(brightness,palette,0);
+        }
+        if (keystatus[88] > 0)   //F12
+        {
+            screencapture("captxxxx.tga",keystatus[0x2a]|keystatus[0x36]);
+            keystatus[88] = 0;
+    	}*/
 
     mousz = 0;
     getmousevalues(&mousx,&mousy,&bstatus);
@@ -620,7 +621,7 @@ void editinput(void)
     // lmb&rmb: x:strafe y:up/dn (move in local yz plane)
     // mmb: fwd/back in viewing vector
 
-    if (unrealedlook)    //PK
+    if (unrealedlook && !mskip)    //PK
     {
         if ((bstatus&1) && !(bstatus&(2|4)))
         {
@@ -685,9 +686,11 @@ void editinput(void)
         }
     }
 
-    if (mlook && !(unrealedlook && bstatus&(1|4)))
+    if (mskip)mskip=0;else
     {
-        ang += (mousx>>1)*msens;
+        if (mlook && !(unrealedlook && bstatus&(1|4)))
+{
+    ang += (mousx>>1)*msens;
         horiz -= (mousy>>2)*msens;
 
         if (mousy && !(mousy>>2))
@@ -707,18 +710,19 @@ void editinput(void)
         osearchy = searchy-mousy;
     }
     else if (!(unrealedlook && (bstatus&(1|2|4))))
-    {
-        osearchx = searchx;
-        osearchy = searchy;
-        searchx += mousx;
-        searchy += mousy;
-        if (searchx < 12) searchx = 12;
+{
+    osearchx = searchx;
+    osearchy = searchy;
+    searchx += mousx;
+    searchy += mousy;
+    if (searchx < 12) searchx = 12;
         if (searchy < 12) searchy = 12;
         if (searchx > xdim-13) searchx = xdim-13;
         if (searchy > ydim-13) searchy = ydim-13;
     }
+    }
 
-    showmouse();
+//    showmouse();
 
 //    if (keystatus[0x3b] > 0) posx--;
 //    if (keystatus[0x3c] > 0) posx++;
@@ -780,14 +784,13 @@ void editinput(void)
     }
     getzrange(posx,posy,posz,cursectnum,&hiz,&hihit,&loz,&lohit,128L,CLIPMASK0);
 
-    // zmode: 0: normal  1: z-locked  2: free z-movement
-    if (keystatus[0x3a] > 0)
-    {
-        zmode++;
-        if (zmode == 3) zmode = 0;
-        if (zmode == 1) zlock = (loz-posz)&0xfffffc00;
-        keystatus[0x3a] = 0;
-    }
+    /*    if (keystatus[0x3a] > 0)
+        {
+            zmode++;
+            if (zmode == 3) zmode = 0;
+            if (zmode == 1) zlock = (loz-posz)&0xfffffc00;
+            keystatus[0x3a] = 0;
+    	}*/
 
     if (zmode == 0)
     {
@@ -899,1527 +902,1528 @@ void editinput(void)
     {
         if ((bstatus&(1|2|4)) > 0)
             searchit = 0;
-        if (keystatus[0x4a] > 0)  // -
-        {
-            keystatus[0x4a] = 0;
-            if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT
-            {
-                if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL
+        /*  	  if (keystatus[0x4a] > 0)  // -
                 {
-                    if (visibility < 16384) visibility += visibility;
-                }
-                else
-                {
-                    if ((keystatus[0x2a]|keystatus[0x36]) == 0)
-                        k = 16; else k = 1;
+                    keystatus[0x4a] = 0;
+                    if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT
+                    {
+                        if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL
+                        {
+                            if (visibility < 16384) visibility += visibility;
+                        }
+                        else
+                        {
+                            if ((keystatus[0x2a]|keystatus[0x36]) == 0)
+                                k = 16; else k = 1;
 
-                    if (highlightsectorcnt >= 0)
-                        for (i=0;i<highlightsectorcnt;i++)
-                            if (highlightsector[i] == searchsector)
-                            {
-                                while (k > 0)
-                                {
-                                    for (i=0;i<highlightsectorcnt;i++)
+                            if (highlightsectorcnt >= 0)
+                                for (i=0;i<highlightsectorcnt;i++)
+                                    if (highlightsector[i] == searchsector)
                                     {
-                                        sector[highlightsector[i]].visibility++;
-                                        if (sector[highlightsector[i]].visibility == 240)
-                                            sector[highlightsector[i]].visibility = 239;
+                                        while (k > 0)
+                                        {
+                                            for (i=0;i<highlightsectorcnt;i++)
+                                            {
+                                                sector[highlightsector[i]].visibility++;
+                                                if (sector[highlightsector[i]].visibility == 240)
+                                                    sector[highlightsector[i]].visibility = 239;
+                                            }
+                                            k--;
+                                        }
+                                        break;
                                     }
-                                    k--;
-                                }
-                                break;
-                            }
-                    while (k > 0)
-                    {
-                        sector[searchsector].visibility++;
-                        if (sector[searchsector].visibility == 240)
-                            sector[searchsector].visibility = 239;
-                        k--;
-                    }
-                    asksave = 1;
-                }
-            }
-            else
-            {
-                k = 0;
-                if (highlightsectorcnt >= 0)
-                {
-                    for (i=0;i<highlightsectorcnt;i++)
-                        if (highlightsector[i] == searchsector)
-                        {
-                            k = 1;
-                            break;
-                        }
-                }
-
-                if (k == 0)
-                {
-                    if (searchstat == 0) wall[searchwall].shade++;
-                    if (searchstat == 1) sector[searchsector].ceilingshade++;
-                    if (searchstat == 2) sector[searchsector].floorshade++;
-                    if (searchstat == 3) sprite[searchwall].shade++;
-                    if (searchstat == 4) wall[searchwall].shade++;
-                }
-                else
-                {
-                    for (i=0;i<highlightsectorcnt;i++)
-                    {
-                        dasector = highlightsector[i];
-
-                        sector[dasector].ceilingshade++;        //sector shade
-                        sector[dasector].floorshade++;
-
-                        startwall = sector[dasector].wallptr;   //wall shade
-                        endwall = startwall + sector[dasector].wallnum - 1;
-                        for (j=startwall;j<=endwall;j++)
-                            wall[j].shade++;
-
-                        j = headspritesect[dasector];           //sprite shade
-                        while (j != -1)
-                        {
-                            sprite[j].shade++;
-                            j = nextspritesect[j];
-                        }
-                    }
-                }
-                asksave = 1;
-            }
-        }
-        if (keystatus[0x4e] > 0)  // +
-        {
-            keystatus[0x4e] = 0;
-            if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT
-            {
-                if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL
-                {
-                    if (visibility > 32) visibility >>= 1;
-                }
-                else
-                {
-                    if ((keystatus[0x2a]|keystatus[0x36]) == 0)
-                        k = 16; else k = 1;
-
-                    if (highlightsectorcnt >= 0)
-                        for (i=0;i<highlightsectorcnt;i++)
-                            if (highlightsector[i] == searchsector)
+                            while (k > 0)
                             {
-                                while (k > 0)
-                                {
-                                    for (i=0;i<highlightsectorcnt;i++)
-                                    {
-                                        sector[highlightsector[i]].visibility--;
-                                        if (sector[highlightsector[i]].visibility == 239)
-                                            sector[highlightsector[i]].visibility = 240;
-                                    }
-                                    k--;
-                                }
-                                break;
+                                sector[searchsector].visibility++;
+                                if (sector[searchsector].visibility == 240)
+                                    sector[searchsector].visibility = 239;
+                                k--;
                             }
-                    while (k > 0)
-                    {
-                        sector[searchsector].visibility--;
-                        if (sector[searchsector].visibility == 239)
-                            sector[searchsector].visibility = 240;
-                        k--;
-                    }
-                    asksave = 1;
-                }
-            }
-            else
-            {
-                k = 0;
-                if (highlightsectorcnt >= 0)
-                {
-                    for (i=0;i<highlightsectorcnt;i++)
-                        if (highlightsector[i] == searchsector)
-                        {
-                            k = 1;
-                            break;
-                        }
-                }
-
-                if (k == 0)
-                {
-                    if (searchstat == 0) wall[searchwall].shade--;
-                    if (searchstat == 1) sector[searchsector].ceilingshade--;
-                    if (searchstat == 2) sector[searchsector].floorshade--;
-                    if (searchstat == 3) sprite[searchwall].shade--;
-                    if (searchstat == 4) wall[searchwall].shade--;
-                }
-                else
-                {
-                    for (i=0;i<highlightsectorcnt;i++)
-                    {
-                        dasector = highlightsector[i];
-
-                        sector[dasector].ceilingshade--;        //sector shade
-                        sector[dasector].floorshade--;
-
-                        startwall = sector[dasector].wallptr;   //wall shade
-                        endwall = startwall + sector[dasector].wallnum - 1;
-                        for (j=startwall;j<=endwall;j++)
-                            wall[j].shade--;
-
-                        j = headspritesect[dasector];           //sprite shade
-                        while (j != -1)
-                        {
-                            sprite[j].shade--;
-                            j = nextspritesect[j];
+                            asksave = 1;
                         }
                     }
-                }
-                asksave = 1;
-            }
-        }
-        if (keystatus[0xc9] > 0) // PGUP
-        {
-            k = 0;
-            if (highlightsectorcnt >= 0)
-            {
-                for (i=0;i<highlightsectorcnt;i++)
-                    if (highlightsector[i] == searchsector)
+                    else
                     {
-                        k = 1;
-                        break;
-                    }
-            }
+                        k = 0;
+                        if (highlightsectorcnt >= 0)
+                        {
+                            for (i=0;i<highlightsectorcnt;i++)
+                                if (highlightsector[i] == searchsector)
+                                {
+                                    k = 1;
+                                    break;
+                                }
+                        }
 
-            if ((searchstat == 0) || (searchstat == 1))
-            {
-                if (k == 0)
-                {
-                    i = headspritesect[searchsector];
-                    while (i != -1)
-                    {
-                        tempint = getceilzofslope(searchsector,sprite[i].x,sprite[i].y);
-                        tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
-                        if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                        if (sprite[i].z == tempint)
-                            sprite[i].z -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                        i = nextspritesect[i];
-                    }
-                    sector[searchsector].ceilingz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                }
-                else
-                {
-                    for (j=0;j<highlightsectorcnt;j++)
-                    {
-                        i = headspritesect[highlightsector[j]];
-                        while (i != -1)
+                        if (k == 0)
                         {
-                            tempint = getceilzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
-                            tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
-                            if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                            if (sprite[i].z == tempint)
-                                sprite[i].z -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                            i = nextspritesect[i];
+                            if (searchstat == 0) wall[searchwall].shade++;
+                            if (searchstat == 1) sector[searchsector].ceilingshade++;
+                            if (searchstat == 2) sector[searchsector].floorshade++;
+                            if (searchstat == 3) sprite[searchwall].shade++;
+                            if (searchstat == 4) wall[searchwall].shade++;
                         }
-                        sector[highlightsector[j]].ceilingz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                    }
-                }
-            }
-            if (searchstat == 2)
-            {
-                if (k == 0)
-                {
-                    i = headspritesect[searchsector];
-                    while (i != -1)
-                    {
-                        tempint = getflorzofslope(searchsector,sprite[i].x,sprite[i].y);
-                        if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                        if (sprite[i].z == tempint)
-                            sprite[i].z -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                        i = nextspritesect[i];
-                    }
-                    sector[searchsector].floorz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                }
-                else
-                {
-                    for (j=0;j<highlightsectorcnt;j++)
-                    {
-                        i = headspritesect[highlightsector[j]];
-                        while (i != -1)
+                        else
                         {
-                            tempint = getflorzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
-                            if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                            if (sprite[i].z == tempint)
-                                sprite[i].z -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                            i = nextspritesect[i];
+                            for (i=0;i<highlightsectorcnt;i++)
+                            {
+                                dasector = highlightsector[i];
+
+                                sector[dasector].ceilingshade++;        //sector shade
+                                sector[dasector].floorshade++;
+
+                                startwall = sector[dasector].wallptr;   //wall shade
+                                endwall = startwall + sector[dasector].wallnum - 1;
+                                for (j=startwall;j<=endwall;j++)
+                                    wall[j].shade++;
+
+                                j = headspritesect[dasector];           //sprite shade
+                                while (j != -1)
+                                {
+                                    sprite[j].shade++;
+                                    j = nextspritesect[j];
+                                }
+                            }
                         }
-                        sector[highlightsector[j]].floorz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                        asksave = 1;
                     }
                 }
-            }
-            if (sector[searchsector].floorz < sector[searchsector].ceilingz)
-                sector[searchsector].floorz = sector[searchsector].ceilingz;
-            if (searchstat == 3)
-            {
-                if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL - put sprite on ceiling
+                if (keystatus[0x4e] > 0)  // +
                 {
-                    sprite[searchwall].z = getceilzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
-                    if (sprite[searchwall].cstat&128) sprite[searchwall].z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);
-                    if ((sprite[searchwall].cstat&48) != 32)
-                        sprite[searchwall].z += ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<2);
+                    keystatus[0x4e] = 0;
+                    if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT
+                    {
+                        if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL
+                        {
+                            if (visibility > 32) visibility >>= 1;
+                        }
+                        else
+                        {
+                            if ((keystatus[0x2a]|keystatus[0x36]) == 0)
+                                k = 16; else k = 1;
+
+                            if (highlightsectorcnt >= 0)
+                                for (i=0;i<highlightsectorcnt;i++)
+                                    if (highlightsector[i] == searchsector)
+                                    {
+                                        while (k > 0)
+                                        {
+                                            for (i=0;i<highlightsectorcnt;i++)
+                                            {
+                                                sector[highlightsector[i]].visibility--;
+                                                if (sector[highlightsector[i]].visibility == 239)
+                                                    sector[highlightsector[i]].visibility = 240;
+                                            }
+                                            k--;
+                                        }
+                                        break;
+                                    }
+                            while (k > 0)
+                            {
+                                sector[searchsector].visibility--;
+                                if (sector[searchsector].visibility == 239)
+                                    sector[searchsector].visibility = 240;
+                                k--;
+                            }
+                            asksave = 1;
+                        }
+                    }
+                    else
+                    {
+                        k = 0;
+                        if (highlightsectorcnt >= 0)
+                        {
+                            for (i=0;i<highlightsectorcnt;i++)
+                                if (highlightsector[i] == searchsector)
+                                {
+                                    k = 1;
+                                    break;
+                                }
+                        }
+
+                        if (k == 0)
+                        {
+                            if (searchstat == 0) wall[searchwall].shade--;
+                            if (searchstat == 1) sector[searchsector].ceilingshade--;
+                            if (searchstat == 2) sector[searchsector].floorshade--;
+                            if (searchstat == 3) sprite[searchwall].shade--;
+                            if (searchstat == 4) wall[searchwall].shade--;
+                        }
+                        else
+                        {
+                            for (i=0;i<highlightsectorcnt;i++)
+                            {
+                                dasector = highlightsector[i];
+
+                                sector[dasector].ceilingshade--;        //sector shade
+                                sector[dasector].floorshade--;
+
+                                startwall = sector[dasector].wallptr;   //wall shade
+                                endwall = startwall + sector[dasector].wallnum - 1;
+                                for (j=startwall;j<=endwall;j++)
+                                    wall[j].shade--;
+
+                                j = headspritesect[dasector];           //sprite shade
+                                while (j != -1)
+                                {
+                                    sprite[j].shade--;
+                                    j = nextspritesect[j];
+                                }
+                            }
+                        }
+                        asksave = 1;
+                    }
                 }
-                else
+                if (keystatus[0xc9] > 0) // PGUP
                 {
                     k = 0;
-                    if (highlightcnt >= 0)
-                        for (i=0;i<highlightcnt;i++)
-                            if (highlight[i] == searchwall+16384)
+                    if (highlightsectorcnt >= 0)
+                    {
+                        for (i=0;i<highlightsectorcnt;i++)
+                            if (highlightsector[i] == searchsector)
                             {
                                 k = 1;
                                 break;
                             }
+                    }
 
-                    if (k == 0)
-                        sprite[searchwall].z -= (4<<8);
-                    else
+                    if ((searchstat == 0) || (searchstat == 1))
                     {
-                        for (i=0;i<highlightcnt;i++)
-                            if ((highlight[i]&0xc000) == 16384)
-                                sprite[highlight[i]&16383].z -= (4<<8);
-                    }
-                }
-            }
-            asksave = 1;
-            keystatus[0xc9] = 0;
-        }
-        if (keystatus[0xd1] > 0) // PGDN
-        {
-            k = 0;
-            if (highlightsectorcnt >= 0)
-            {
-                for (i=0;i<highlightsectorcnt;i++)
-                    if (highlightsector[i] == searchsector)
-                    {
-                        k = 1;
-                        break;
-                    }
-            }
-
-            if ((searchstat == 0) || (searchstat == 1))
-            {
-                if (k == 0)
-                {
-                    i = headspritesect[searchsector];
-                    while (i != -1)
-                    {
-                        tempint = getceilzofslope(searchsector,sprite[i].x,sprite[i].y);
-                        if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                        tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
-                        if (sprite[i].z == tempint)
-                            sprite[i].z += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                        i = nextspritesect[i];
-                    }
-                    sector[searchsector].ceilingz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                }
-                else
-                {
-                    for (j=0;j<highlightsectorcnt;j++)
-                    {
-                        i = headspritesect[highlightsector[j]];
-                        while (i != -1)
+                        if (k == 0)
                         {
-                            tempint = getceilzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
-                            if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                            tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
-                            if (sprite[i].z == tempint)
-                                sprite[i].z += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                            i = nextspritesect[i];
-                        }
-                        sector[highlightsector[j]].ceilingz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                    }
-                }
-            }
-            if (searchstat == 2)
-            {
-                if (k == 0)
-                {
-                    i = headspritesect[searchsector];
-                    while (i != -1)
-                    {
-                        tempint = getflorzofslope(searchsector,sprite[i].x,sprite[i].y);
-                        if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                        if (sprite[i].z == tempint)
-                            sprite[i].z += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                        i = nextspritesect[i];
-                    }
-                    sector[searchsector].floorz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                }
-                else
-                {
-                    for (j=0;j<highlightsectorcnt;j++)
-                    {
-                        i = headspritesect[highlightsector[j]];
-                        while (i != -1)
-                        {
-                            tempint = getflorzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
-                            if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
-                            if (sprite[i].z == tempint)
-                                sprite[i].z += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                            i = nextspritesect[i];
-                        }
-                        sector[highlightsector[j]].floorz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
-                    }
-                }
-            }
-            if (sector[searchsector].ceilingz > sector[searchsector].floorz)
-                sector[searchsector].ceilingz = sector[searchsector].floorz;
-            if (searchstat == 3)
-            {
-                if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL - put sprite on ground
-                {
-                    sprite[searchwall].z = getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
-                    if (sprite[searchwall].cstat&128) sprite[searchwall].z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);
-                }
-                else
-                {
-                    k = 0;
-                    if (highlightcnt >= 0)
-                        for (i=0;i<highlightcnt;i++)
-                            if (highlight[i] == searchwall+16384)
+                            i = headspritesect[searchsector];
+                            while (i != -1)
                             {
-                                k = 1;
-                                break;
+                                tempint = getceilzofslope(searchsector,sprite[i].x,sprite[i].y);
+                                tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
+                                if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                                if (sprite[i].z == tempint)
+                                    sprite[i].z -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                                i = nextspritesect[i];
                             }
-
-                    if (k == 0)
-                        sprite[searchwall].z += (4<<8);
-                    else
-                    {
-                        for (i=0;i<highlightcnt;i++)
-                            if ((highlight[i]&0xc000) == 16384)
-                                sprite[highlight[i]&16383].z += (4<<8);
-                    }
-                }
-            }
-            asksave = 1;
-            keystatus[0xd1] = 0;
-        }
-        if (keystatus[0x0f] > 0)  //TAB
-        {
-            if (searchstat == 0)
-            {
-                temppicnum = wall[searchwall].picnum;
-                tempshade = wall[searchwall].shade;
-                temppal = wall[searchwall].pal;
-                tempxrepeat = wall[searchwall].xrepeat;
-                tempyrepeat = wall[searchwall].yrepeat;
-                tempcstat = wall[searchwall].cstat;
-                templotag = wall[searchwall].lotag;
-                temphitag = wall[searchwall].hitag;
-                tempextra = wall[searchwall].extra;
-            }
-            if (searchstat == 1)
-            {
-                temppicnum = sector[searchsector].ceilingpicnum;
-                tempshade = sector[searchsector].ceilingshade;
-                temppal = sector[searchsector].ceilingpal;
-                tempvis = sector[searchsector].visibility;
-                tempxrepeat = sector[searchsector].ceilingxpanning;
-                tempyrepeat = sector[searchsector].ceilingypanning;
-                tempcstat = sector[searchsector].ceilingstat;
-                templotag = sector[searchsector].lotag;
-                temphitag = sector[searchsector].hitag;
-                tempextra = sector[searchsector].extra;
-            }
-            if (searchstat == 2)
-            {
-                temppicnum = sector[searchsector].floorpicnum;
-                tempshade = sector[searchsector].floorshade;
-                temppal = sector[searchsector].floorpal;
-                tempvis = sector[searchsector].visibility;
-                tempxrepeat = sector[searchsector].floorxpanning;
-                tempyrepeat = sector[searchsector].floorypanning;
-                tempcstat = sector[searchsector].floorstat;
-                templotag = sector[searchsector].lotag;
-                temphitag = sector[searchsector].hitag;
-                tempextra = sector[searchsector].extra;
-            }
-            if (searchstat == 3)
-            {
-                temppicnum = sprite[searchwall].picnum;
-                tempshade = sprite[searchwall].shade;
-                temppal = sprite[searchwall].pal;
-                tempxrepeat = sprite[searchwall].xrepeat;
-                tempyrepeat = sprite[searchwall].yrepeat;
-                tempcstat = sprite[searchwall].cstat;
-                templotag = sprite[searchwall].lotag;
-                temphitag = sprite[searchwall].hitag;
-                tempextra = sprite[searchwall].extra;
-            }
-            if (searchstat == 4)
-            {
-                temppicnum = wall[searchwall].overpicnum;
-                tempshade = wall[searchwall].shade;
-                temppal = wall[searchwall].pal;
-                tempxrepeat = wall[searchwall].xrepeat;
-                tempyrepeat = wall[searchwall].yrepeat;
-                tempcstat = wall[searchwall].cstat;
-                templotag = wall[searchwall].lotag;
-                temphitag = wall[searchwall].hitag;
-                tempextra = wall[searchwall].extra;
-            }
-            somethingintab = searchstat;
-            keystatus[0x0f] = 0;
-        }
-        if (keystatus[0x1c] > 0) //Left ENTER
-        {
-            if ((keystatus[0x2a]|keystatus[0x36]) > 0)       //Either shift key
-            {
-                if (((searchstat == 0) || (searchstat == 4)) && ((keystatus[0x1d]|keystatus[0x9d]) > 0))  //Ctrl-shift Enter (auto-shade)
-                {
-                    dashade[0] = 127;
-                    dashade[1] = -128;
-                    i = searchwall;
-                    do
-                    {
-                        if ((int)wall[i].shade < dashade[0]) dashade[0] = wall[i].shade;
-                        if ((int)wall[i].shade > dashade[1]) dashade[1] = wall[i].shade;
-
-                        i = wall[i].point2;
-                    }
-                    while (i != searchwall);
-
-                    daang = getangle(wall[wall[searchwall].point2].x-wall[searchwall].x,wall[wall[searchwall].point2].y-wall[searchwall].y);
-                    i = searchwall;
-                    do
-                    {
-                        j = getangle(wall[wall[i].point2].x-wall[i].x,wall[wall[i].point2].y-wall[i].y);
-                        k = ((j+2048-daang)&2047);
-                        if (k > 1024)
-                            k = 2048-k;
-                        wall[i].shade = dashade[0]+mulscale10(k,dashade[1]-dashade[0]);
-
-                        i = wall[i].point2;
-                    }
-                    while (i != searchwall);
-                }
-                else if (somethingintab < 255)
-                {
-                    if (searchstat == 0) wall[searchwall].shade = tempshade, wall[searchwall].pal = temppal;
-                    if (searchstat == 1)
-                    {
-                        sector[searchsector].ceilingshade = tempshade, sector[searchsector].ceilingpal = temppal;
-                        if ((somethingintab == 1) || (somethingintab == 2))
-                            sector[searchsector].visibility = tempvis;
+                            sector[searchsector].ceilingz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                        }
+                        else
+                        {
+                            for (j=0;j<highlightsectorcnt;j++)
+                            {
+                                i = headspritesect[highlightsector[j]];
+                                while (i != -1)
+                                {
+                                    tempint = getceilzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
+                                    tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
+                                    if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                                    if (sprite[i].z == tempint)
+                                        sprite[i].z -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                                    i = nextspritesect[i];
+                                }
+                                sector[highlightsector[j]].ceilingz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                            }
+                        }
                     }
                     if (searchstat == 2)
                     {
-                        sector[searchsector].floorshade = tempshade, sector[searchsector].floorpal = temppal;
-                        if ((somethingintab == 1) || (somethingintab == 2))
-                            sector[searchsector].visibility = tempvis;
-                    }
-                    if (searchstat == 3) sprite[searchwall].shade = tempshade, sprite[searchwall].pal = temppal;
-                    if (searchstat == 4) wall[searchwall].shade = tempshade, wall[searchwall].pal = temppal;
-                }
-            }
-            else if (((searchstat == 0) || (searchstat == 4)) && ((keystatus[0x1d]|keystatus[0x9d]) > 0) && (somethingintab < 255))  //Either ctrl key
-            {
-                i = searchwall;
-                do
-                {
-                    wall[i].picnum = temppicnum;
-                    wall[i].shade = tempshade;
-                    wall[i].pal = temppal;
-                    if ((somethingintab == 0) || (somethingintab == 4))
-                    {
-                        wall[i].xrepeat = tempxrepeat;
-                        wall[i].yrepeat = tempyrepeat;
-                        wall[i].cstat = tempcstat;
-                    }
-                    fixrepeats((short)i);
-                    i = wall[i].point2;
-                }
-                while (i != searchwall);
-            }
-            else if (((searchstat == 1) || (searchstat == 2)) && ((keystatus[0x1d]|keystatus[0x9d]) > 0) && (somethingintab < 255))  //Either ctrl key
-            {
-                clearbuf(&pskysearch[0],(int)((numsectors+3)>>2),0L);
-                if (searchstat == 1)
-                {
-                    i = searchsector;
-                    if ((sector[i].ceilingstat&1) > 0)
-                        pskysearch[i] = 1;
-
-                    while (pskysearch[i] == 1)
-                    {
-                        sector[i].ceilingpicnum = temppicnum;
-                        sector[i].ceilingshade = tempshade;
-                        sector[i].ceilingpal = temppal;
-                        if ((somethingintab == 1) || (somethingintab == 2))
+                        if (k == 0)
                         {
-                            sector[i].ceilingxpanning = tempxrepeat;
-                            sector[i].ceilingypanning = tempyrepeat;
-                            sector[i].ceilingstat = tempcstat;
-                        }
-                        pskysearch[i] = 2;
-
-                        startwall = sector[i].wallptr;
-                        endwall = startwall + sector[i].wallnum - 1;
-                        for (j=startwall;j<=endwall;j++)
-                        {
-                            k = wall[j].nextsector;
-                            if (k >= 0)
-                                if ((sector[k].ceilingstat&1) > 0)
-                                    if (pskysearch[k] == 0)
-                                        pskysearch[k] = 1;
-                        }
-
-                        for (j=0;j<numsectors;j++)
-                            if (pskysearch[j] == 1)
-                                i = j;
-                    }
-                }
-                if (searchstat == 2)
-                {
-                    i = searchsector;
-                    if ((sector[i].floorstat&1) > 0)
-                        pskysearch[i] = 1;
-
-                    while (pskysearch[i] == 1)
-                    {
-                        sector[i].floorpicnum = temppicnum;
-                        sector[i].floorshade = tempshade;
-                        sector[i].floorpal = temppal;
-                        if ((somethingintab == 1) || (somethingintab == 2))
-                        {
-                            sector[i].floorxpanning = tempxrepeat;
-                            sector[i].floorypanning = tempyrepeat;
-                            sector[i].floorstat = tempcstat;
-                        }
-                        pskysearch[i] = 2;
-
-                        startwall = sector[i].wallptr;
-                        endwall = startwall + sector[i].wallnum - 1;
-                        for (j=startwall;j<=endwall;j++)
-                        {
-                            k = wall[j].nextsector;
-                            if (k >= 0)
-                                if ((sector[k].floorstat&1) > 0)
-                                    if (pskysearch[k] == 0)
-                                        pskysearch[k] = 1;
-                        }
-
-                        for (j=0;j<numsectors;j++)
-                            if (pskysearch[j] == 1)
-                                i = j;
-                    }
-                }
-            }
-            else if (somethingintab < 255)
-            {
-                if (searchstat == 0)
-                {
-                    wall[searchwall].picnum = temppicnum;
-                    wall[searchwall].shade = tempshade;
-                    wall[searchwall].pal = temppal;
-                    if (somethingintab == 0)
-                    {
-                        wall[searchwall].xrepeat = tempxrepeat;
-                        wall[searchwall].yrepeat = tempyrepeat;
-                        wall[searchwall].cstat = tempcstat;
-                        wall[searchwall].lotag = templotag;
-                        wall[searchwall].hitag = temphitag;
-                        wall[searchwall].extra = tempextra;
-                    }
-                    fixrepeats(searchwall);
-                }
-                if (searchstat == 1)
-                {
-                    sector[searchsector].ceilingpicnum = temppicnum;
-                    sector[searchsector].ceilingshade = tempshade;
-                    sector[searchsector].ceilingpal = temppal;
-                    if ((somethingintab == 1) || (somethingintab == 2))
-                    {
-                        sector[searchsector].ceilingxpanning = tempxrepeat;
-                        sector[searchsector].ceilingypanning = tempyrepeat;
-                        sector[searchsector].ceilingstat = tempcstat;
-                        sector[searchsector].visibility = tempvis;
-                        sector[searchsector].lotag = templotag;
-                        sector[searchsector].hitag = temphitag;
-                        sector[searchsector].extra = tempextra;
-                    }
-                }
-                if (searchstat == 2)
-                {
-                    sector[searchsector].floorpicnum = temppicnum;
-                    sector[searchsector].floorshade = tempshade;
-                    sector[searchsector].floorpal = temppal;
-                    if ((somethingintab == 1) || (somethingintab == 2))
-                    {
-                        sector[searchsector].floorxpanning= tempxrepeat;
-                        sector[searchsector].floorypanning= tempyrepeat;
-                        sector[searchsector].floorstat = tempcstat;
-                        sector[searchsector].visibility = tempvis;
-                        sector[searchsector].lotag = templotag;
-                        sector[searchsector].hitag = temphitag;
-                        sector[searchsector].extra = tempextra;
-                    }
-                }
-                if (searchstat == 3)
-                {
-                    sprite[searchwall].picnum = temppicnum;
-                    if ((tilesizx[temppicnum] <= 0) || (tilesizy[temppicnum] <= 0))
-                    {
-                        j = 0;
-                        for (k=0;k<MAXTILES;k++)
-                            if ((tilesizx[k] > 0) && (tilesizy[k] > 0))
+                            i = headspritesect[searchsector];
+                            while (i != -1)
                             {
-                                j = k;
+                                tempint = getflorzofslope(searchsector,sprite[i].x,sprite[i].y);
+                                if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                                if (sprite[i].z == tempint)
+                                    sprite[i].z -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                                i = nextspritesect[i];
+                            }
+                            sector[searchsector].floorz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                        }
+                        else
+                        {
+                            for (j=0;j<highlightsectorcnt;j++)
+                            {
+                                i = headspritesect[highlightsector[j]];
+                                while (i != -1)
+                                {
+                                    tempint = getflorzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
+                                    if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                                    if (sprite[i].z == tempint)
+                                        sprite[i].z -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                                    i = nextspritesect[i];
+                                }
+                                sector[highlightsector[j]].floorz -= 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                            }
+                        }
+                    }
+                    if (sector[searchsector].floorz < sector[searchsector].ceilingz)
+                        sector[searchsector].floorz = sector[searchsector].ceilingz;
+                    if (searchstat == 3)
+                    {
+                        if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL - put sprite on ceiling
+                        {
+                            sprite[searchwall].z = getceilzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
+                            if (sprite[searchwall].cstat&128) sprite[searchwall].z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);
+                            if ((sprite[searchwall].cstat&48) != 32)
+                                sprite[searchwall].z += ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<2);
+                        }
+                        else
+                        {
+                            k = 0;
+                            if (highlightcnt >= 0)
+                                for (i=0;i<highlightcnt;i++)
+                                    if (highlight[i] == searchwall+16384)
+                                    {
+                                        k = 1;
+                                        break;
+                                    }
+
+                            if (k == 0)
+                                sprite[searchwall].z -= (4<<8);
+                            else
+                            {
+                                for (i=0;i<highlightcnt;i++)
+                                    if ((highlight[i]&0xc000) == 16384)
+                                        sprite[highlight[i]&16383].z -= (4<<8);
+                            }
+                        }
+                    }
+                    asksave = 1;
+                    keystatus[0xc9] = 0;
+                }
+                if (keystatus[0xd1] > 0) // PGDN
+                {
+                    k = 0;
+                    if (highlightsectorcnt >= 0)
+                    {
+                        for (i=0;i<highlightsectorcnt;i++)
+                            if (highlightsector[i] == searchsector)
+                            {
+                                k = 1;
                                 break;
                             }
-                        sprite[searchwall].picnum = j;
                     }
-                    sprite[searchwall].shade = tempshade;
-                    sprite[searchwall].pal = temppal;
-                    if (somethingintab == 3)
+
+                    if ((searchstat == 0) || (searchstat == 1))
                     {
-                        sprite[searchwall].xrepeat = tempxrepeat;
-                        sprite[searchwall].yrepeat = tempyrepeat;
-                        if (sprite[searchwall].xrepeat < 1) sprite[searchwall].xrepeat = 1;
-                        if (sprite[searchwall].yrepeat < 1) sprite[searchwall].yrepeat = 1;
-                        sprite[searchwall].cstat = tempcstat;
-                        sprite[searchwall].lotag = templotag;
-                        sprite[searchwall].hitag = temphitag;
-                        sprite[searchwall].extra = tempextra;
-                    }
-                }
-                if (searchstat == 4)
-                {
-                    wall[searchwall].overpicnum = temppicnum;
-                    if (wall[searchwall].nextwall >= 0)
-                        wall[wall[searchwall].nextwall].overpicnum = temppicnum;
-                    wall[searchwall].shade = tempshade;
-                    wall[searchwall].pal = temppal;
-                    if (somethingintab == 4)
-                    {
-                        wall[searchwall].xrepeat = tempxrepeat;
-                        wall[searchwall].yrepeat = tempyrepeat;
-                        wall[searchwall].cstat = tempcstat;
-                        wall[searchwall].lotag = templotag;
-                        wall[searchwall].hitag = temphitag;
-                        wall[searchwall].extra = tempextra;
-                    }
-                    fixrepeats(searchwall);
-                }
-            }
-            asksave = 1;
-            keystatus[0x1c] = 0;
-        }
-        if (keystatus[0x2e] > 0)      //C
-        {
-            keystatus[0x2e] = 0;
-            if ((keystatus[0x38]|keystatus[0xb8]) > 0)    //Alt-C
-            {
-                if (somethingintab < 255)
-                {
-                    switch (searchstat)
-                    {
-                    case 0:
-                        j = wall[searchwall].picnum;
-                        for (i=0;i<numwalls;i++)
-                            if (wall[i].picnum == j) wall[i].picnum = temppicnum;
-                        break;
-                    case 1:
-                        j = sector[searchsector].ceilingpicnum;
-                        for (i=0;i<numsectors;i++)
-                            if (sector[i].ceilingpicnum == j) sector[i].ceilingpicnum = temppicnum;
-                        break;
-                    case 2:
-                        j = sector[searchsector].floorpicnum;
-                        for (i=0;i<numsectors;i++)
-                            if (sector[i].floorpicnum == j) sector[i].floorpicnum = temppicnum;
-                        break;
-                    case 3:
-                        j = sprite[searchwall].picnum;
-                        for (i=0;i<MAXSPRITES;i++)
-                            if (sprite[i].statnum < MAXSTATUS)
-                                if (sprite[i].picnum == j) sprite[i].picnum = temppicnum;
-                        break;
-                    case 4:
-                        j = wall[searchwall].overpicnum;
-                        for (i=0;i<numwalls;i++)
-                            if (wall[i].overpicnum == j) wall[i].overpicnum = temppicnum;
-                        break;
-                    }
-                }
-            }
-            else    //C
-            {
-                if (searchstat == 3)
-                {
-                    sprite[searchwall].cstat ^= 128;
-                    asksave = 1;
-                }
-            }
-        }
-# if 0
-        if (keystatus[0x2f] > 0)  //V
-        {
-            if (searchstat == 0) tempint = wall[searchwall].picnum;
-            if (searchstat == 1) tempint = sector[searchsector].ceilingpicnum;
-            if (searchstat == 2) tempint = sector[searchsector].floorpicnum;
-            if (searchstat == 3) tempint = sprite[searchwall].picnum;
-            if (searchstat == 4) tempint = wall[searchwall].overpicnum;
-            tempint = gettile(tempint);
-            if (searchstat == 0) wall[searchwall].picnum = tempint;
-            if (searchstat == 1) sector[searchsector].ceilingpicnum = tempint;
-            if (searchstat == 2) sector[searchsector].floorpicnum = tempint;
-            if (searchstat == 3) sprite[searchwall].picnum = tempint;
-            if (searchstat == 4)
-            {
-                wall[searchwall].overpicnum = tempint;
-                if (wall[searchwall].nextwall >= 0)
-                    wall[wall[searchwall].nextwall].overpicnum = tempint;
-            }
-            asksave = 1;
-            keystatus[0x2f] = 0;
-        }
-#endif
-        if (keystatus[0x1a])  // [
-        {
-            keystatus[0x1a] = 0;
-            if (keystatus[0x38]|keystatus[0xb8])
-            {
-                i = wall[searchwall].nextsector;
-                if (i >= 0)
-                    switch (searchstat)
-                    {
-                    case 0:
-                    case 1:
-                    case 4:
-                        alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
-                        break;
-                    case 2:
-                        alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
-                        break;
-                    }
-            }
-            else
-            {
-                i = 512;
-                if (keystatus[0x36]) i = 8;
-                if (keystatus[0x2a]) i = 1;
-
-                if (searchstat == 1)
-                {
-                    if (!(sector[searchsector].ceilingstat&2))
-                        sector[searchsector].ceilingheinum = 0;
-                    sector[searchsector].ceilingheinum = max(sector[searchsector].ceilingheinum-i,-32768);
-                }
-                if (searchstat == 2)
-                {
-                    if (!(sector[searchsector].floorstat&2))
-                        sector[searchsector].floorheinum = 0;
-                    sector[searchsector].floorheinum = max(sector[searchsector].floorheinum-i,-32768);
-                }
-            }
-
-            if (sector[searchsector].ceilingheinum == 0)
-                sector[searchsector].ceilingstat &= ~2;
-            else
-                sector[searchsector].ceilingstat |= 2;
-
-            if (sector[searchsector].floorheinum == 0)
-                sector[searchsector].floorstat &= ~2;
-            else
-                sector[searchsector].floorstat |= 2;
-            asksave = 1;
-        }
-        if (keystatus[0x1b])  // ]
-        {
-            keystatus[0x1b] = 0;
-            if (keystatus[0x38]|keystatus[0xb8])
-            {
-                i = wall[searchwall].nextsector;
-                if (i >= 0)
-                    switch (searchstat)
-                    {
-                    case 1:
-                        alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
-                        break;
-                    case 0:
-                    case 2:
-                    case 4:
-                        alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
-                        break;
-                    }
-            }
-            else
-            {
-                i = 512;
-                if (keystatus[0x36]) i = 8;
-                if (keystatus[0x2a]) i = 1;
-
-                if (searchstat == 1)
-                {
-                    if (!(sector[searchsector].ceilingstat&2))
-                        sector[searchsector].ceilingheinum = 0;
-                    sector[searchsector].ceilingheinum = min(sector[searchsector].ceilingheinum+i,32767);
-                }
-                if (searchstat == 2)
-                {
-                    if (!(sector[searchsector].floorstat&2))
-                        sector[searchsector].floorheinum = 0;
-                    sector[searchsector].floorheinum = min(sector[searchsector].floorheinum+i,32767);
-                }
-            }
-
-            if (sector[searchsector].ceilingheinum == 0)
-                sector[searchsector].ceilingstat &= ~2;
-            else
-                sector[searchsector].ceilingstat |= 2;
-
-            if (sector[searchsector].floorheinum == 0)
-                sector[searchsector].floorstat &= ~2;
-            else
-                sector[searchsector].floorstat |= 2;
-
-            asksave = 1;
-        }
-
-        smooshyalign = keystatus[0x4c];
-        repeatpanalign = (keystatus[0x2a]|keystatus[0x36]);
-        if ((keystatus[0x4b]|keystatus[0x4d]) > 0)  // 4 & 6 (keypad)
-        {
-            if ((repeatcountx == 0) || (repeatcountx > 32))
-            {
-                changedir = 0;
-                if (keystatus[0x4b] > 0) changedir = -1;
-                if (keystatus[0x4d] > 0) changedir = 1;
-
-                if ((searchstat == 0) || (searchstat == 4))
-                {
-                    if (repeatpanalign == 0)
-                        wall[searchwall].xrepeat = changechar(wall[searchwall].xrepeat,changedir,smooshyalign,1);
-                    else
-                        wall[searchwall].xpanning = changechar(wall[searchwall].xpanning,changedir,smooshyalign,0);
-                }
-                if ((searchstat == 1) || (searchstat == 2))
-                {
-                    if (searchstat == 1)
-                        sector[searchsector].ceilingxpanning = changechar(sector[searchsector].ceilingxpanning,changedir,smooshyalign,0);
-                    else
-                        sector[searchsector].floorxpanning = changechar(sector[searchsector].floorxpanning,changedir,smooshyalign,0);
-                }
-                if (searchstat == 3)
-                {
-                    sprite[searchwall].xrepeat = changechar(sprite[searchwall].xrepeat,changedir,smooshyalign,1);
-                    if (sprite[searchwall].xrepeat < 4)
-                        sprite[searchwall].xrepeat = 4;
-                }
-                asksave = 1;
-                repeatcountx = max(1,repeatcountx-2);
-            }
-            repeatcountx += synctics;
-        }
-        else
-            repeatcountx = 0;
-
-        if ((keystatus[0x48]|keystatus[0x50]) > 0)  // 2 & 8 (keypad)
-        {
-            if ((repeatcounty == 0) || (repeatcounty > 32))
-            {
-                changedir = 0;
-                if (keystatus[0x48] > 0) changedir = -1;
-                if (keystatus[0x50] > 0) changedir = 1;
-
-                if ((searchstat == 0) || (searchstat == 4))
-                {
-                    if (repeatpanalign == 0)
-                        wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat,changedir,smooshyalign,1);
-                    else
-                        wall[searchwall].ypanning = changechar(wall[searchwall].ypanning,changedir,smooshyalign,0);
-                }
-                if ((searchstat == 1) || (searchstat == 2))
-                {
-                    if (searchstat == 1)
-                        sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning,changedir,smooshyalign,0);
-                    else
-                        sector[searchsector].floorypanning = changechar(sector[searchsector].floorypanning,changedir,smooshyalign,0);
-                }
-                if (searchstat == 3)
-                {
-                    sprite[searchwall].yrepeat = changechar(sprite[searchwall].yrepeat,changedir,smooshyalign,1);
-                    if (sprite[searchwall].yrepeat < 4)
-                        sprite[searchwall].yrepeat = 4;
-                }
-                asksave = 1;
-                repeatcounty = max(1,repeatcounty-2);
-            }
-            repeatcounty += synctics;
-            //}
-        }
-        else
-            repeatcounty = 0;
-
-        if (keystatus[0x33] > 0) // , Search & fix panning to the left (3D)
-        {
-            if (searchstat == 3)
-            {
-                i = searchwall;
-                if ((keystatus[0x2a]|keystatus[0x36]) > 0)
-                    sprite[i].ang = ((sprite[i].ang+2048-1)&2047);
-                else
-                {
-                    sprite[i].ang = ((sprite[i].ang+2048-128)&2047);
-                    keystatus[0x33] = 0;
-                }
-            }
-        }
-        if (keystatus[0x34] > 0) // . Search & fix panning to the right (3D)
-        {
-            if ((searchstat == 0) || (searchstat == 4))
-            {
-                AutoAlignWalls((int)searchwall,0L);
-
-                /*wallfind[0] = searchwall;
-                cnt = 4096;
-                do
-                {
-                	wallfind[1] = wall[wallfind[0]].point2;
-                	j = -1;
-                	if (wall[wallfind[1]].picnum == wall[searchwall].picnum)
-                		j = wallfind[1];
-                	k = wallfind[1];
-
-                	while ((wall[wallfind[1]].nextwall >= 0) && (wall[wall[wallfind[1]].nextwall].point2 != k))
-                	{
-                		i = wall[wall[wallfind[1]].nextwall].point2;   //break if going around in circles on red lines with same picture on both sides
-                		if (wallfind[1] == wall[wall[i].nextwall].point2)
-                			break;
-
-                		wallfind[1] = wall[wall[wallfind[1]].nextwall].point2;
-                		if (wall[wallfind[1]].picnum == wall[searchwall].picnum)
-                			j = wallfind[1];
-                	}
-                	wallfind[1] = j;
-
-                	if ((j >= 0) && (wallfind[1] != searchwall))
-                	{
-                		j = (wall[wallfind[0]].xpanning+(wall[wallfind[0]].xrepeat<<3)) % tilesizx[wall[wallfind[0]].picnum];
-                		wall[wallfind[1]].cstat &= ~8;    //Set to non-flip
-                		wall[wallfind[1]].cstat |= 4;     //Set y-orientation
-                		wall[wallfind[1]].xpanning = j;
-
-                		for(k=0;k<2;k++)
-                		{
-                			sectnum = sectorofwall((short)wallfind[k]);
-                			nextsectnum = wall[wallfind[k]].nextsector;
-
-                			if (nextsectnum == -1)
-                			{
-                				if ((wall[wallfind[k]].cstat&4) == 0)
-                					daz[k] = sector[sectnum].ceilingz;
-                				else
-                					daz[k] = sector[sectnum].floorz;
-                			}
-                			else                                      //topstep
-                			{
-                				if (sector[nextsectnum].ceilingz > sector[sectnum].ceilingz)
-                					daz[k] = sector[nextsectnum].ceilingz;
-                				else if (sector[nextsectnum].floorz < sector[sectnum].floorz)
-                					daz[k] = sector[nextsectnum].floorz;
-                			}
-                		}
-
-                		j = (picsiz[wall[searchwall].picnum]>>4);
-                		if ((1<<j) != tilesizy[wall[searchwall].picnum]) j++;
-
-                		j = ((wall[wallfind[0]].ypanning+(((daz[1]-daz[0])*wall[wallfind[0]].yrepeat)>>(j+3)))&255);
-                		wall[wallfind[1]].ypanning = j;
-                		wall[wallfind[1]].yrepeat = wall[wallfind[0]].yrepeat;
-                		if (nextsectnum >= 0)
-                			if (sector[nextsectnum].ceilingz >= sector[sectnum].ceilingz)
-                				if (sector[nextsectnum].floorz <= sector[sectnum].floorz)
-                				{
-                					if (wall[wall[wallfind[1]].nextwall].picnum == wall[searchwall].picnum)
-                					{
-                						wall[wall[wallfind[1]].nextwall].yrepeat = wall[wallfind[0]].yrepeat;
-                						if ((wall[wall[wallfind[1]].nextwall].cstat&4) == 0)
-                							daz[1] = sector[nextsectnum].floorz;
-                						else
-                							daz[1] = sector[sectnum].ceilingz;
-                						wall[wall[wallfind[1]].nextwall].ypanning = j;
-                					}
-                				}
-                	}
-                	wallfind[0] = wallfind[1];
-                	cnt--;
-                }
-                while ((wall[wallfind[0]].picnum == wall[searchwall].picnum) && (wallfind[0] != searchwall) && (cnt > 0));
-                */
-
-                keystatus[0x34] = 0;
-            }
-            if (searchstat == 3)
-            {
-                i = searchwall;
-                if ((keystatus[0x2a]|keystatus[0x36]) > 0)
-                    sprite[i].ang = ((sprite[i].ang+2048+1)&2047);
-                else
-                {
-                    sprite[i].ang = ((sprite[i].ang+2048+128)&2047);
-                    keystatus[0x34] = 0;
-                }
-            }
-        }
-        if (keystatus[0x35] > 0)  // /?     Reset panning&repeat to 0
-        {
-            if ((searchstat == 0) || (searchstat == 4))
-            {
-                wall[searchwall].xpanning = 0;
-                wall[searchwall].ypanning = 0;
-                wall[searchwall].xrepeat = 8;
-                wall[searchwall].yrepeat = 8;
-                wall[searchwall].cstat = 0;
-                fixrepeats((short)searchwall);
-            }
-            if (searchstat == 1)
-            {
-                sector[searchsector].ceilingxpanning = 0;
-                sector[searchsector].ceilingypanning = 0;
-                sector[searchsector].ceilingstat &= ~2;
-                sector[searchsector].ceilingheinum = 0;
-            }
-            if (searchstat == 2)
-            {
-                sector[searchsector].floorxpanning = 0;
-                sector[searchsector].floorypanning = 0;
-                sector[searchsector].floorstat &= ~2;
-                sector[searchsector].floorheinum = 0;
-            }
-            if (searchstat == 3)
-            {
-                if ((keystatus[0x2a]|keystatus[0x36]) > 0)
-                {
-                    sprite[searchwall].xrepeat = sprite[searchwall].yrepeat;
-                }
-                else
-                {
-                    sprite[searchwall].xrepeat = 64;
-                    sprite[searchwall].yrepeat = 64;
-                }
-            }
-            keystatus[0x35] = 0;
-            asksave = 1;
-        }
-
-        if (keystatus[0x19] > 0)  // P (parallaxing sky)
-        {
-            if ((keystatus[0x1d]|keystatus[0x9d]) > 0)
-            {
-                parallaxtype++;
-                if (parallaxtype == 3)
-                    parallaxtype = 0;
-            }
-            else if ((keystatus[0x38]|keystatus[0xb8]) > 0)
-            {
-                switch (searchstat)
-                {
-                case 0:
-                case 4:
-                    Bstrcpy(buffer,"Wall pal: ");
-                    wall[searchwall].pal = getnumber256(buffer,wall[searchwall].pal,256L,0);
-                    break;
-                case 1:
-                    Bstrcpy(buffer,"Ceiling pal: ");
-                    sector[searchsector].ceilingpal = getnumber256(buffer,sector[searchsector].ceilingpal,256L,0);
-                    break;
-                case 2:
-                    Bstrcpy(buffer,"Floor pal: ");
-                    sector[searchsector].floorpal = getnumber256(buffer,sector[searchsector].floorpal,256L,0);
-                    break;
-                case 3:
-                    Bstrcpy(buffer,"Sprite pal: ");
-                    sprite[searchwall].pal = getnumber256(buffer,sprite[searchwall].pal,256L,0);
-                    break;
-                }
-            }
-            else
-            {
-                if ((searchstat == 0) || (searchstat == 1) || (searchstat == 4))
-                {
-                    sector[searchsector].ceilingstat ^= 1;
-                    asksave = 1;
-                }
-                else if (searchstat == 2)
-                {
-                    sector[searchsector].floorstat ^= 1;
-                    asksave = 1;
-                }
-            }
-            keystatus[0x19] = 0;
-        }
-
-        if (keystatus[0x20] != 0)   //Alt-D  (adjust sprite[].clipdist)
-        {
-            keystatus[0x20] = 0;
-            if ((keystatus[0x38]|keystatus[0xb8]) > 0)
-            {
-                if (searchstat == 3)
-                {
-                    Bstrcpy(buffer,"Sprite clipdist: ");
-                    sprite[searchwall].clipdist = getnumber256(buffer,sprite[searchwall].clipdist,256L,0);
-                }
-            }
-        }
-
-        if (keystatus[0x30] > 0)  // B (clip Blocking xor) (3D)
-        {
-            if (searchstat == 3)
-            {
-                sprite[searchwall].cstat ^= 1;
-                sprite[searchwall].cstat &= ~256;
-                sprite[searchwall].cstat |= ((sprite[searchwall].cstat&1)<<8);
-                asksave = 1;
-            }
-            else
-            {
-                wall[searchwall].cstat ^= 1;
-                wall[searchwall].cstat &= ~64;
-                if ((wall[searchwall].nextwall >= 0) && ((keystatus[0x2a]|keystatus[0x36]) == 0))
-                {
-                    wall[wall[searchwall].nextwall].cstat &= ~(1+64);
-                    wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&1);
-                }
-                asksave = 1;
-            }
-            keystatus[0x30] = 0;
-        }
-        if (keystatus[0x14] > 0)  // T (transluscence for sprites/masked walls)
-        {
-            /*if (searchstat == 1)   //Set masked/transluscent ceilings/floors
-            {
-            	i = (sector[searchsector].ceilingstat&(128+256));
-            	sector[searchsector].ceilingstat &= ~(128+256);
-            	switch(i)
-            	{
-            		case 0: sector[searchsector].ceilingstat |= 128; break;
-            		case 128: sector[searchsector].ceilingstat |= 256; break;
-            		case 256: sector[searchsector].ceilingstat |= 384; break;
-            		case 384: sector[searchsector].ceilingstat |= 0; break;
-            	}
-            	asksave = 1;
-            }
-            if (searchstat == 2)
-            {
-            	i = (sector[searchsector].floorstat&(128+256));
-            	sector[searchsector].floorstat &= ~(128+256);
-            	switch(i)
-            	{
-            		case 0: sector[searchsector].floorstat |= 128; break;
-            		case 128: sector[searchsector].floorstat |= 256; break;
-            		case 256: sector[searchsector].floorstat |= 384; break;
-            		case 384: sector[searchsector].floorstat |= 0; break;
-            	}
-            	asksave = 1;
-            }*/
-            if (searchstat == 3)
-            {
-                if ((sprite[searchwall].cstat&2) == 0)
-                    sprite[searchwall].cstat |= 2;
-                else if ((sprite[searchwall].cstat&512) == 0)
-                    sprite[searchwall].cstat |= 512;
-                else
-                    sprite[searchwall].cstat &= ~(2+512);
-                asksave = 1;
-            }
-            if (searchstat == 4)
-            {
-                if ((wall[searchwall].cstat&128) == 0)
-                    wall[searchwall].cstat |= 128;
-                else if ((wall[searchwall].cstat&512) == 0)
-                    wall[searchwall].cstat |= 512;
-                else
-                    wall[searchwall].cstat &= ~(128+512);
-
-                if (wall[searchwall].nextwall >= 0)
-                {
-                    wall[wall[searchwall].nextwall].cstat &= ~(128+512);
-                    wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&(128+512));
-                }
-                asksave = 1;
-            }
-            keystatus[0x14] = 0;
-        }
-
-        if (keystatus[0x2] > 0)  // 1 (make 1-way wall)
-        {
-            if (searchstat != 3)
-            {
-                wall[searchwall].cstat ^= 32;
-                asksave = 1;
-            }
-            else
-            {
-                sprite[searchwall].cstat ^= 64;
-                i = sprite[searchwall].cstat;
-                if ((i&48) == 32)
-                {
-                    sprite[searchwall].cstat &= ~8;
-                    if ((i&64) > 0)
-                        if (posz > sprite[searchwall].z)
-                            sprite[searchwall].cstat |= 8;
-                }
-                asksave = 1;
-            }
-            keystatus[0x2] = 0;
-        }
-        if (keystatus[0x3] > 0)  // 2 (bottom wall swapping)
-        {
-            if (searchstat != 3)
-            {
-                wall[searchwall].cstat ^= 2;
-                asksave = 1;
-            }
-            keystatus[0x3] = 0;
-        }
-        if (keystatus[0x18] > 0)  // O (top/bottom orientation - for doors)
-        {
-            if ((searchstat == 0) || (searchstat == 4))
-            {
-                wall[searchwall].cstat ^= 4;
-                asksave = 1;
-            }
-            if (searchstat == 3)   // O (ornament onto wall) (2D)
-            {
-                asksave = 1;
-                i = searchwall;
-
-                hitscan(sprite[i].x,sprite[i].y,sprite[i].z,sprite[i].sectnum,
-                        sintable[(sprite[i].ang+2560+1024)&2047],
-                        sintable[(sprite[i].ang+2048+1024)&2047],
-                        0,
-                        &hitsect,&hitwall,&hitsprite,&hitx,&hity,&hitz,CLIPMASK1);
-
-                sprite[i].x = hitx;
-                sprite[i].y = hity;
-                sprite[i].z = hitz;
-                changespritesect(i,hitsect);
-                if (hitwall >= 0)
-                    sprite[i].ang = ((getangle(wall[wall[hitwall].point2].x-wall[hitwall].x,wall[wall[hitwall].point2].y-wall[hitwall].y)+512)&2047);
-
-                //Make sure sprite's in right sector
-                if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
-                {
-                    j = wall[hitwall].point2;
-                    sprite[i].x -= ksgn(wall[j].y-wall[hitwall].y);
-                    sprite[i].y += ksgn(wall[j].x-wall[hitwall].x);
-                }
-            }
-            keystatus[0x18] = 0;
-        }
-        if (keystatus[0x32] > 0)  // M (masking walls)
-        {
-            if (searchstat != 3)
-            {
-                i = wall[searchwall].nextwall;
-                tempint = (keystatus[0x2a]|keystatus[0x36]);
-                if (i >= 0)
-                {
-                    wall[searchwall].cstat ^= 16;
-                    if ((wall[searchwall].cstat&16) > 0)
-                    {
-                        wall[searchwall].cstat &= ~8;
-                        if (tempint == 0)
+                        if (k == 0)
                         {
-                            wall[i].cstat |= 8;           //auto other-side flip
-                            wall[i].cstat |= 16;
-                            wall[i].overpicnum = wall[searchwall].overpicnum;
+                            i = headspritesect[searchsector];
+                            while (i != -1)
+                            {
+                                tempint = getceilzofslope(searchsector,sprite[i].x,sprite[i].y);
+                                if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                                tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
+                                if (sprite[i].z == tempint)
+                                    sprite[i].z += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                                i = nextspritesect[i];
+                            }
+                            sector[searchsector].ceilingz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                        }
+                        else
+                        {
+                            for (j=0;j<highlightsectorcnt;j++)
+                            {
+                                i = headspritesect[highlightsector[j]];
+                                while (i != -1)
+                                {
+                                    tempint = getceilzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
+                                    if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                                    tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2);
+                                    if (sprite[i].z == tempint)
+                                        sprite[i].z += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                                    i = nextspritesect[i];
+                                }
+                                sector[highlightsector[j]].ceilingz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                            }
                         }
                     }
-                    else
+                    if (searchstat == 2)
                     {
-                        wall[searchwall].cstat &= ~8;
-                        if (tempint == 0)
+                        if (k == 0)
                         {
-                            wall[i].cstat &= ~8;         //auto other-side unflip
-                            wall[i].cstat &= ~16;
+                            i = headspritesect[searchsector];
+                            while (i != -1)
+                            {
+                                tempint = getflorzofslope(searchsector,sprite[i].x,sprite[i].y);
+                                if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                                if (sprite[i].z == tempint)
+                                    sprite[i].z += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                                i = nextspritesect[i];
+                            }
+                            sector[searchsector].floorz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                        }
+                        else
+                        {
+                            for (j=0;j<highlightsectorcnt;j++)
+                            {
+                                i = headspritesect[highlightsector[j]];
+                                while (i != -1)
+                                {
+                                    tempint = getflorzofslope(highlightsector[j],sprite[i].x,sprite[i].y);
+                                    if (sprite[i].cstat&128) tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                                    if (sprite[i].z == tempint)
+                                        sprite[i].z += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                                    i = nextspritesect[i];
+                                }
+                                sector[highlightsector[j]].floorz += 1024 << ((keystatus[0x1d]|keystatus[0x9d])<<1);	// JBF 20031128
+                            }
                         }
                     }
-                    wall[searchwall].cstat &= ~32;
-                    if (tempint == 0) wall[i].cstat &= ~32;
-                    asksave = 1;
-                }
-            }
-            keystatus[0x32] = 0;
-        }
-        if (keystatus[0x23] > 0)  // H (hitscan sensitivity)
-        {
-            if (searchstat == 3)
-            {
-                sprite[searchwall].cstat ^= 256;
-                asksave = 1;
-            }
-            else
-            {
-                wall[searchwall].cstat ^= 64;
-                if ((wall[searchwall].nextwall >= 0) && ((keystatus[0x2a]|keystatus[0x36]) == 0))
-                {
-                    wall[wall[searchwall].nextwall].cstat &= ~64;
-                    wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&64);
-                }
-                asksave = 1;
-            }
-            keystatus[0x23] = 0;
-        }
-        if (keystatus[0x12] > 0)  // E (expand)
-        {
-            if (searchstat == 1)
-            {
-                sector[searchsector].ceilingstat ^= 8;
-                asksave = 1;
-            }
-            if (searchstat == 2)
-            {
-                sector[searchsector].floorstat ^= 8;
-                asksave = 1;
-            }
-            keystatus[0x12] = 0;
-        }
-        if (keystatus[0x13] > 0)  // R (relative alignment, rotation)
-        {
-            if (searchstat == 1)
-            {
-                sector[searchsector].ceilingstat ^= 64;
-                asksave = 1;
-            }
-            if (searchstat == 2)
-            {
-                sector[searchsector].floorstat ^= 64;
-                asksave = 1;
-            }
-            if (searchstat == 3)
-            {
-                i = sprite[searchwall].cstat;
-                if ((i&48) < 32) i += 16; else i &= ~48;
-                sprite[searchwall].cstat = i;
-                asksave = 1;
-            }
-            keystatus[0x13] = 0;
-        }
-        if (keystatus[0x21] > 0)  //F (Flip)
-        {
-            keystatus[0x21] = 0;
-            if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT-F (relative alignmment flip)
-            {
-                if (searchstat != 3)
-                {
-                    setfirstwall(searchsector,searchwall);
-                    asksave = 1;
-                }
-            }
-            else
-            {
-                if ((searchstat == 0) || (searchstat == 4))
-                {
-                    i = wall[searchwall].cstat;
-                    i = ((i>>3)&1)+((i>>7)&2);    //3-x,8-y
-                    switch (i)
+                    if (sector[searchsector].ceilingz > sector[searchsector].floorz)
+                        sector[searchsector].ceilingz = sector[searchsector].floorz;
+                    if (searchstat == 3)
                     {
-                    case 0:
-                        i = 1; break;
-                    case 1:
-                        i = 3; break;
-                    case 2:
-                        i = 0; break;
-                    case 3:
-                        i = 2; break;
+                        if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //CTRL - put sprite on ground
+                        {
+                            sprite[searchwall].z = getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
+                            if (sprite[searchwall].cstat&128) sprite[searchwall].z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);
+                        }
+                        else
+                        {
+                            k = 0;
+                            if (highlightcnt >= 0)
+                                for (i=0;i<highlightcnt;i++)
+                                    if (highlight[i] == searchwall+16384)
+                                    {
+                                        k = 1;
+                                        break;
+                                    }
+
+                            if (k == 0)
+                                sprite[searchwall].z += (4<<8);
+                            else
+                            {
+                                for (i=0;i<highlightcnt;i++)
+                                    if ((highlight[i]&0xc000) == 16384)
+                                        sprite[highlight[i]&16383].z += (4<<8);
+                            }
+                        }
                     }
-                    i = ((i&1)<<3)+((i&2)<<7);
-                    wall[searchwall].cstat &= ~0x0108;
-                    wall[searchwall].cstat |= i;
                     asksave = 1;
+                    keystatus[0xd1] = 0;
                 }
-                if (searchstat == 1)         //8-way ceiling flipping (bits 2,4,5)
+                if (keystatus[0x0f] > 0)  //TAB
                 {
-                    i = sector[searchsector].ceilingstat;
-                    i = (i&0x4)+((i>>4)&3);
-                    switch (i)
+                    if (searchstat == 0)
                     {
-                    case 0:
-                        i = 6; break;
-                    case 6:
-                        i = 3; break;
-                    case 3:
-                        i = 5; break;
-                    case 5:
-                        i = 1; break;
-                    case 1:
-                        i = 7; break;
-                    case 7:
-                        i = 2; break;
-                    case 2:
-                        i = 4; break;
-                    case 4:
-                        i = 0; break;
+                        temppicnum = wall[searchwall].picnum;
+                        tempshade = wall[searchwall].shade;
+                        temppal = wall[searchwall].pal;
+                        tempxrepeat = wall[searchwall].xrepeat;
+                        tempyrepeat = wall[searchwall].yrepeat;
+                        tempcstat = wall[searchwall].cstat;
+                        templotag = wall[searchwall].lotag;
+                        temphitag = wall[searchwall].hitag;
+                        tempextra = wall[searchwall].extra;
                     }
-                    i = (i&0x4)+((i&3)<<4);
-                    sector[searchsector].ceilingstat &= ~0x34;
-                    sector[searchsector].ceilingstat |= i;
-                    asksave = 1;
-                }
-                if (searchstat == 2)         //8-way floor flipping (bits 2,4,5)
-                {
-                    i = sector[searchsector].floorstat;
-                    i = (i&0x4)+((i>>4)&3);
-                    switch (i)
+                    if (searchstat == 1)
                     {
-                    case 0:
-                        i = 6; break;
-                    case 6:
-                        i = 3; break;
-                    case 3:
-                        i = 5; break;
-                    case 5:
-                        i = 1; break;
-                    case 1:
-                        i = 7; break;
-                    case 7:
-                        i = 2; break;
-                    case 2:
-                        i = 4; break;
-                    case 4:
-                        i = 0; break;
+                        temppicnum = sector[searchsector].ceilingpicnum;
+                        tempshade = sector[searchsector].ceilingshade;
+                        temppal = sector[searchsector].ceilingpal;
+                        tempvis = sector[searchsector].visibility;
+                        tempxrepeat = sector[searchsector].ceilingxpanning;
+                        tempyrepeat = sector[searchsector].ceilingypanning;
+                        tempcstat = sector[searchsector].ceilingstat;
+                        templotag = sector[searchsector].lotag;
+                        temphitag = sector[searchsector].hitag;
+                        tempextra = sector[searchsector].extra;
                     }
-                    i = (i&0x4)+((i&3)<<4);
-                    sector[searchsector].floorstat &= ~0x34;
-                    sector[searchsector].floorstat |= i;
-                    asksave = 1;
-                }
-                if (searchstat == 3)
-                {
-                    i = sprite[searchwall].cstat;
-                    if (((i&48) == 32) && ((i&64) == 0))
+                    if (searchstat == 2)
                     {
-                        sprite[searchwall].cstat &= ~0xc;
-                        sprite[searchwall].cstat |= (i&4)^4;
+                        temppicnum = sector[searchsector].floorpicnum;
+                        tempshade = sector[searchsector].floorshade;
+                        temppal = sector[searchsector].floorpal;
+                        tempvis = sector[searchsector].visibility;
+                        tempxrepeat = sector[searchsector].floorxpanning;
+                        tempyrepeat = sector[searchsector].floorypanning;
+                        tempcstat = sector[searchsector].floorstat;
+                        templotag = sector[searchsector].lotag;
+                        temphitag = sector[searchsector].hitag;
+                        tempextra = sector[searchsector].extra;
+                    }
+                    if (searchstat == 3)
+                    {
+                        temppicnum = sprite[searchwall].picnum;
+                        tempshade = sprite[searchwall].shade;
+                        temppal = sprite[searchwall].pal;
+                        tempxrepeat = sprite[searchwall].xrepeat;
+                        tempyrepeat = sprite[searchwall].yrepeat;
+                        tempcstat = sprite[searchwall].cstat;
+                        templotag = sprite[searchwall].lotag;
+                        temphitag = sprite[searchwall].hitag;
+                        tempextra = sprite[searchwall].extra;
+                    }
+                    if (searchstat == 4)
+                    {
+                        temppicnum = wall[searchwall].overpicnum;
+                        tempshade = wall[searchwall].shade;
+                        temppal = wall[searchwall].pal;
+                        tempxrepeat = wall[searchwall].xrepeat;
+                        tempyrepeat = wall[searchwall].yrepeat;
+                        tempcstat = wall[searchwall].cstat;
+                        templotag = wall[searchwall].lotag;
+                        temphitag = wall[searchwall].hitag;
+                        tempextra = wall[searchwall].extra;
+                    }
+                    somethingintab = searchstat;
+                    keystatus[0x0f] = 0;
+                }
+                if (keystatus[0x1c] > 0) //Left ENTER
+                {
+                    if ((keystatus[0x2a]|keystatus[0x36]) > 0)       //Either shift key
+                    {
+                        if (((searchstat == 0) || (searchstat == 4)) && ((keystatus[0x1d]|keystatus[0x9d]) > 0))  //Ctrl-shift Enter (auto-shade)
+                        {
+                            dashade[0] = 127;
+                            dashade[1] = -128;
+                            i = searchwall;
+                            do
+                            {
+                                if ((int)wall[i].shade < dashade[0]) dashade[0] = wall[i].shade;
+                                if ((int)wall[i].shade > dashade[1]) dashade[1] = wall[i].shade;
+
+                                i = wall[i].point2;
+                            }
+                            while (i != searchwall);
+
+                            daang = getangle(wall[wall[searchwall].point2].x-wall[searchwall].x,wall[wall[searchwall].point2].y-wall[searchwall].y);
+                            i = searchwall;
+                            do
+                            {
+                                j = getangle(wall[wall[i].point2].x-wall[i].x,wall[wall[i].point2].y-wall[i].y);
+                                k = ((j+2048-daang)&2047);
+                                if (k > 1024)
+                                    k = 2048-k;
+                                wall[i].shade = dashade[0]+mulscale10(k,dashade[1]-dashade[0]);
+
+                                i = wall[i].point2;
+                            }
+                            while (i != searchwall);
+                        }
+                        else if (somethingintab < 255)
+                        {
+                            if (searchstat == 0) wall[searchwall].shade = tempshade, wall[searchwall].pal = temppal;
+                            if (searchstat == 1)
+                            {
+                                sector[searchsector].ceilingshade = tempshade, sector[searchsector].ceilingpal = temppal;
+                                if ((somethingintab == 1) || (somethingintab == 2))
+                                    sector[searchsector].visibility = tempvis;
+                            }
+                            if (searchstat == 2)
+                            {
+                                sector[searchsector].floorshade = tempshade, sector[searchsector].floorpal = temppal;
+                                if ((somethingintab == 1) || (somethingintab == 2))
+                                    sector[searchsector].visibility = tempvis;
+                            }
+                            if (searchstat == 3) sprite[searchwall].shade = tempshade, sprite[searchwall].pal = temppal;
+                            if (searchstat == 4) wall[searchwall].shade = tempshade, wall[searchwall].pal = temppal;
+                        }
+                    }
+                    else if (((searchstat == 0) || (searchstat == 4)) && ((keystatus[0x1d]|keystatus[0x9d]) > 0) && (somethingintab < 255))  //Either ctrl key
+                    {
+                        i = searchwall;
+                        do
+                        {
+                            wall[i].picnum = temppicnum;
+                            wall[i].shade = tempshade;
+                            wall[i].pal = temppal;
+                            if ((somethingintab == 0) || (somethingintab == 4))
+                            {
+                                wall[i].xrepeat = tempxrepeat;
+                                wall[i].yrepeat = tempyrepeat;
+                                wall[i].cstat = tempcstat;
+                            }
+                            fixrepeats((short)i);
+                            i = wall[i].point2;
+                        }
+                        while (i != searchwall);
+                    }
+                    else if (((searchstat == 1) || (searchstat == 2)) && ((keystatus[0x1d]|keystatus[0x9d]) > 0) && (somethingintab < 255))  //Either ctrl key
+                    {
+                        clearbuf(&pskysearch[0],(int)((numsectors+3)>>2),0L);
+                        if (searchstat == 1)
+                        {
+                            i = searchsector;
+                            if ((sector[i].ceilingstat&1) > 0)
+                                pskysearch[i] = 1;
+
+                            while (pskysearch[i] == 1)
+                            {
+                                sector[i].ceilingpicnum = temppicnum;
+                                sector[i].ceilingshade = tempshade;
+                                sector[i].ceilingpal = temppal;
+                                if ((somethingintab == 1) || (somethingintab == 2))
+                                {
+                                    sector[i].ceilingxpanning = tempxrepeat;
+                                    sector[i].ceilingypanning = tempyrepeat;
+                                    sector[i].ceilingstat = tempcstat;
+                                }
+                                pskysearch[i] = 2;
+
+                                startwall = sector[i].wallptr;
+                                endwall = startwall + sector[i].wallnum - 1;
+                                for (j=startwall;j<=endwall;j++)
+                                {
+                                    k = wall[j].nextsector;
+                                    if (k >= 0)
+                                        if ((sector[k].ceilingstat&1) > 0)
+                                            if (pskysearch[k] == 0)
+                                                pskysearch[k] = 1;
+                                }
+
+                                for (j=0;j<numsectors;j++)
+                                    if (pskysearch[j] == 1)
+                                        i = j;
+                            }
+                        }
+                        if (searchstat == 2)
+                        {
+                            i = searchsector;
+                            if ((sector[i].floorstat&1) > 0)
+                                pskysearch[i] = 1;
+
+                            while (pskysearch[i] == 1)
+                            {
+                                sector[i].floorpicnum = temppicnum;
+                                sector[i].floorshade = tempshade;
+                                sector[i].floorpal = temppal;
+                                if ((somethingintab == 1) || (somethingintab == 2))
+                                {
+                                    sector[i].floorxpanning = tempxrepeat;
+                                    sector[i].floorypanning = tempyrepeat;
+                                    sector[i].floorstat = tempcstat;
+                                }
+                                pskysearch[i] = 2;
+
+                                startwall = sector[i].wallptr;
+                                endwall = startwall + sector[i].wallnum - 1;
+                                for (j=startwall;j<=endwall;j++)
+                                {
+                                    k = wall[j].nextsector;
+                                    if (k >= 0)
+                                        if ((sector[k].floorstat&1) > 0)
+                                            if (pskysearch[k] == 0)
+                                                pskysearch[k] = 1;
+                                }
+
+                                for (j=0;j<numsectors;j++)
+                                    if (pskysearch[j] == 1)
+                                        i = j;
+                            }
+                        }
+                    }
+                    else if (somethingintab < 255)
+                    {
+                        if (searchstat == 0)
+                        {
+                            wall[searchwall].picnum = temppicnum;
+                            wall[searchwall].shade = tempshade;
+                            wall[searchwall].pal = temppal;
+                            if (somethingintab == 0)
+                            {
+                                wall[searchwall].xrepeat = tempxrepeat;
+                                wall[searchwall].yrepeat = tempyrepeat;
+                                wall[searchwall].cstat = tempcstat;
+                                wall[searchwall].lotag = templotag;
+                                wall[searchwall].hitag = temphitag;
+                                wall[searchwall].extra = tempextra;
+                            }
+                            fixrepeats(searchwall);
+                        }
+                        if (searchstat == 1)
+                        {
+                            sector[searchsector].ceilingpicnum = temppicnum;
+                            sector[searchsector].ceilingshade = tempshade;
+                            sector[searchsector].ceilingpal = temppal;
+                            if ((somethingintab == 1) || (somethingintab == 2))
+                            {
+                                sector[searchsector].ceilingxpanning = tempxrepeat;
+                                sector[searchsector].ceilingypanning = tempyrepeat;
+                                sector[searchsector].ceilingstat = tempcstat;
+                                sector[searchsector].visibility = tempvis;
+                                sector[searchsector].lotag = templotag;
+                                sector[searchsector].hitag = temphitag;
+                                sector[searchsector].extra = tempextra;
+                            }
+                        }
+                        if (searchstat == 2)
+                        {
+                            sector[searchsector].floorpicnum = temppicnum;
+                            sector[searchsector].floorshade = tempshade;
+                            sector[searchsector].floorpal = temppal;
+                            if ((somethingintab == 1) || (somethingintab == 2))
+                            {
+                                sector[searchsector].floorxpanning= tempxrepeat;
+                                sector[searchsector].floorypanning= tempyrepeat;
+                                sector[searchsector].floorstat = tempcstat;
+                                sector[searchsector].visibility = tempvis;
+                                sector[searchsector].lotag = templotag;
+                                sector[searchsector].hitag = temphitag;
+                                sector[searchsector].extra = tempextra;
+                            }
+                        }
+                        if (searchstat == 3)
+                        {
+                            sprite[searchwall].picnum = temppicnum;
+                            if ((tilesizx[temppicnum] <= 0) || (tilesizy[temppicnum] <= 0))
+                            {
+                                j = 0;
+                                for (k=0;k<MAXTILES;k++)
+                                    if ((tilesizx[k] > 0) && (tilesizy[k] > 0))
+                                    {
+                                        j = k;
+                                        break;
+                                    }
+                                sprite[searchwall].picnum = j;
+                            }
+                            sprite[searchwall].shade = tempshade;
+                            sprite[searchwall].pal = temppal;
+                            if (somethingintab == 3)
+                            {
+                                sprite[searchwall].xrepeat = tempxrepeat;
+                                sprite[searchwall].yrepeat = tempyrepeat;
+                                if (sprite[searchwall].xrepeat < 1) sprite[searchwall].xrepeat = 1;
+                                if (sprite[searchwall].yrepeat < 1) sprite[searchwall].yrepeat = 1;
+                                sprite[searchwall].cstat = tempcstat;
+                                sprite[searchwall].lotag = templotag;
+                                sprite[searchwall].hitag = temphitag;
+                                sprite[searchwall].extra = tempextra;
+                            }
+                        }
+                        if (searchstat == 4)
+                        {
+                            wall[searchwall].overpicnum = temppicnum;
+                            if (wall[searchwall].nextwall >= 0)
+                                wall[wall[searchwall].nextwall].overpicnum = temppicnum;
+                            wall[searchwall].shade = tempshade;
+                            wall[searchwall].pal = temppal;
+                            if (somethingintab == 4)
+                            {
+                                wall[searchwall].xrepeat = tempxrepeat;
+                                wall[searchwall].yrepeat = tempyrepeat;
+                                wall[searchwall].cstat = tempcstat;
+                                wall[searchwall].lotag = templotag;
+                                wall[searchwall].hitag = temphitag;
+                                wall[searchwall].extra = tempextra;
+                            }
+                            fixrepeats(searchwall);
+                        }
+                    }
+                    asksave = 1;
+                    keystatus[0x1c] = 0;
+                }
+                if (keystatus[0x2e] > 0)      //C
+                {
+                    keystatus[0x2e] = 0;
+                    if ((keystatus[0x38]|keystatus[0xb8]) > 0)    //Alt-C
+                    {
+                        if (somethingintab < 255)
+                        {
+                            switch (searchstat)
+                            {
+                            case 0:
+                                j = wall[searchwall].picnum;
+                                for (i=0;i<numwalls;i++)
+                                    if (wall[i].picnum == j) wall[i].picnum = temppicnum;
+                                break;
+                            case 1:
+                                j = sector[searchsector].ceilingpicnum;
+                                for (i=0;i<numsectors;i++)
+                                    if (sector[i].ceilingpicnum == j) sector[i].ceilingpicnum = temppicnum;
+                                break;
+                            case 2:
+                                j = sector[searchsector].floorpicnum;
+                                for (i=0;i<numsectors;i++)
+                                    if (sector[i].floorpicnum == j) sector[i].floorpicnum = temppicnum;
+                                break;
+                            case 3:
+                                j = sprite[searchwall].picnum;
+                                for (i=0;i<MAXSPRITES;i++)
+                                    if (sprite[i].statnum < MAXSTATUS)
+                                        if (sprite[i].picnum == j) sprite[i].picnum = temppicnum;
+                                break;
+                            case 4:
+                                j = wall[searchwall].overpicnum;
+                                for (i=0;i<numwalls;i++)
+                                    if (wall[i].overpicnum == j) wall[i].overpicnum = temppicnum;
+                                break;
+                            }
+                        }
+                    }
+                    else    //C
+                    {
+                        if (searchstat == 3)
+                        {
+                            sprite[searchwall].cstat ^= 128;
+                            asksave = 1;
+                        }
+                    }
+                }
+        # if 0
+                if (keystatus[0x2f] > 0)  //V
+                {
+                    if (searchstat == 0) tempint = wall[searchwall].picnum;
+                    if (searchstat == 1) tempint = sector[searchsector].ceilingpicnum;
+                    if (searchstat == 2) tempint = sector[searchsector].floorpicnum;
+                    if (searchstat == 3) tempint = sprite[searchwall].picnum;
+                    if (searchstat == 4) tempint = wall[searchwall].overpicnum;
+                    tempint = gettile(tempint);
+                    if (searchstat == 0) wall[searchwall].picnum = tempint;
+                    if (searchstat == 1) sector[searchsector].ceilingpicnum = tempint;
+                    if (searchstat == 2) sector[searchsector].floorpicnum = tempint;
+                    if (searchstat == 3) sprite[searchwall].picnum = tempint;
+                    if (searchstat == 4)
+                    {
+                        wall[searchwall].overpicnum = tempint;
+                        if (wall[searchwall].nextwall >= 0)
+                            wall[wall[searchwall].nextwall].overpicnum = tempint;
+                    }
+                    asksave = 1;
+                    keystatus[0x2f] = 0;
+                }
+        #endif
+                if (keystatus[0x1a])  // [
+                {
+                    keystatus[0x1a] = 0;
+                    if (keystatus[0x38]|keystatus[0xb8])
+                    {
+                        i = wall[searchwall].nextsector;
+                        if (i >= 0)
+                            switch (searchstat)
+                            {
+                            case 0:
+                            case 1:
+                            case 4:
+                                alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
+                                break;
+                            case 2:
+                                alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
+                                break;
+                            }
                     }
                     else
                     {
-                        i = ((i>>2)&3);
-                        switch (i)
+                        i = 512;
+                        if (keystatus[0x36]) i = 8;
+                        if (keystatus[0x2a]) i = 1;
+
+                        if (searchstat == 1)
+                        {
+                            if (!(sector[searchsector].ceilingstat&2))
+                                sector[searchsector].ceilingheinum = 0;
+                            sector[searchsector].ceilingheinum = max(sector[searchsector].ceilingheinum-i,-32768);
+                        }
+                        if (searchstat == 2)
+                        {
+                            if (!(sector[searchsector].floorstat&2))
+                                sector[searchsector].floorheinum = 0;
+                            sector[searchsector].floorheinum = max(sector[searchsector].floorheinum-i,-32768);
+                        }
+                    }
+
+                    if (sector[searchsector].ceilingheinum == 0)
+                        sector[searchsector].ceilingstat &= ~2;
+                    else
+                        sector[searchsector].ceilingstat |= 2;
+
+                    if (sector[searchsector].floorheinum == 0)
+                        sector[searchsector].floorstat &= ~2;
+                    else
+                        sector[searchsector].floorstat |= 2;
+                    asksave = 1;
+                }
+                if (keystatus[0x1b])  // ]
+                {
+                    keystatus[0x1b] = 0;
+                    if (keystatus[0x38]|keystatus[0xb8])
+                    {
+                        i = wall[searchwall].nextsector;
+                        if (i >= 0)
+                            switch (searchstat)
+                            {
+                            case 1:
+                                alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
+                                break;
+                            case 0:
+                            case 2:
+                            case 4:
+                                alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
+                                break;
+                            }
+                    }
+                    else
+                    {
+                        i = 512;
+                        if (keystatus[0x36]) i = 8;
+                        if (keystatus[0x2a]) i = 1;
+
+                        if (searchstat == 1)
+                        {
+                            if (!(sector[searchsector].ceilingstat&2))
+                                sector[searchsector].ceilingheinum = 0;
+                            sector[searchsector].ceilingheinum = min(sector[searchsector].ceilingheinum+i,32767);
+                        }
+                        if (searchstat == 2)
+                        {
+                            if (!(sector[searchsector].floorstat&2))
+                                sector[searchsector].floorheinum = 0;
+                            sector[searchsector].floorheinum = min(sector[searchsector].floorheinum+i,32767);
+                        }
+                    }
+
+                    if (sector[searchsector].ceilingheinum == 0)
+                        sector[searchsector].ceilingstat &= ~2;
+                    else
+                        sector[searchsector].ceilingstat |= 2;
+
+                    if (sector[searchsector].floorheinum == 0)
+                        sector[searchsector].floorstat &= ~2;
+                    else
+                        sector[searchsector].floorstat |= 2;
+
+                    asksave = 1;
+                }
+
+                smooshyalign = keystatus[0x4c];
+                repeatpanalign = (keystatus[0x2a]|keystatus[0x36]);
+                if ((keystatus[0x4b]|keystatus[0x4d]) > 0)  // 4 & 6 (keypad)
+                {
+                    if ((repeatcountx == 0) || (repeatcountx > 32))
+                    {
+                        changedir = 0;
+                        if (keystatus[0x4b] > 0) changedir = -1;
+                        if (keystatus[0x4d] > 0) changedir = 1;
+
+                        if ((searchstat == 0) || (searchstat == 4))
+                        {
+                            if (repeatpanalign == 0)
+                                wall[searchwall].xrepeat = changechar(wall[searchwall].xrepeat,changedir,smooshyalign,1);
+                            else
+                                wall[searchwall].xpanning = changechar(wall[searchwall].xpanning,changedir,smooshyalign,0);
+                        }
+                        if ((searchstat == 1) || (searchstat == 2))
+                        {
+                            if (searchstat == 1)
+                                sector[searchsector].ceilingxpanning = changechar(sector[searchsector].ceilingxpanning,changedir,smooshyalign,0);
+                            else
+                                sector[searchsector].floorxpanning = changechar(sector[searchsector].floorxpanning,changedir,smooshyalign,0);
+                        }
+                        if (searchstat == 3)
+                        {
+                            sprite[searchwall].xrepeat = changechar(sprite[searchwall].xrepeat,changedir,smooshyalign,1);
+                            if (sprite[searchwall].xrepeat < 4)
+                                sprite[searchwall].xrepeat = 4;
+                        }
+                        asksave = 1;
+                        repeatcountx = max(1,repeatcountx-2);
+                    }
+                    repeatcountx += synctics;
+                }
+                else
+                    repeatcountx = 0;
+
+                if ((keystatus[0x48]|keystatus[0x50]) > 0)  // 2 & 8 (keypad)
+                {
+                    if ((repeatcounty == 0) || (repeatcounty > 32))
+                    {
+                        changedir = 0;
+                        if (keystatus[0x48] > 0) changedir = -1;
+                        if (keystatus[0x50] > 0) changedir = 1;
+
+                        if ((searchstat == 0) || (searchstat == 4))
+                        {
+                            if (repeatpanalign == 0)
+                                wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat,changedir,smooshyalign,1);
+                            else
+                                wall[searchwall].ypanning = changechar(wall[searchwall].ypanning,changedir,smooshyalign,0);
+                        }
+                        if ((searchstat == 1) || (searchstat == 2))
+                        {
+                            if (searchstat == 1)
+                                sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning,changedir,smooshyalign,0);
+                            else
+                                sector[searchsector].floorypanning = changechar(sector[searchsector].floorypanning,changedir,smooshyalign,0);
+                        }
+                        if (searchstat == 3)
+                        {
+                            sprite[searchwall].yrepeat = changechar(sprite[searchwall].yrepeat,changedir,smooshyalign,1);
+                            if (sprite[searchwall].yrepeat < 4)
+                                sprite[searchwall].yrepeat = 4;
+                        }
+                        asksave = 1;
+                        repeatcounty = max(1,repeatcounty-2);
+                    }
+                    repeatcounty += synctics;
+                    //}
+                }
+                else
+                    repeatcounty = 0;
+
+                if (keystatus[0x33] > 0) // , Search & fix panning to the left (3D)
+                {
+                    if (searchstat == 3)
+                    {
+                        i = searchwall;
+                        if ((keystatus[0x2a]|keystatus[0x36]) > 0)
+                            sprite[i].ang = ((sprite[i].ang+2048-1)&2047);
+                        else
+                        {
+                            sprite[i].ang = ((sprite[i].ang+2048-128)&2047);
+                            keystatus[0x33] = 0;
+                        }
+                    }
+                }
+                if (keystatus[0x34] > 0) // . Search & fix panning to the right (3D)
+                {
+                    if ((searchstat == 0) || (searchstat == 4))
+                    {
+                        AutoAlignWalls((int)searchwall,0L);
+
+        #if 0
+        				wallfind[0] = searchwall;
+                        cnt = 4096;
+                        do
+                        {
+                        	wallfind[1] = wall[wallfind[0]].point2;
+                        	j = -1;
+                        	if (wall[wallfind[1]].picnum == wall[searchwall].picnum)
+                        		j = wallfind[1];
+                        	k = wallfind[1];
+
+                        	while ((wall[wallfind[1]].nextwall >= 0) && (wall[wall[wallfind[1]].nextwall].point2 != k))
+                        	{
+                        		i = wall[wall[wallfind[1]].nextwall].point2;   //break if going around in circles on red lines with same picture on both sides
+                        		if (wallfind[1] == wall[wall[i].nextwall].point2)
+                        			break;
+
+                        		wallfind[1] = wall[wall[wallfind[1]].nextwall].point2;
+                        		if (wall[wallfind[1]].picnum == wall[searchwall].picnum)
+                        			j = wallfind[1];
+                        	}
+                        	wallfind[1] = j;
+
+                        	if ((j >= 0) && (wallfind[1] != searchwall))
+                        	{
+                        		j = (wall[wallfind[0]].xpanning+(wall[wallfind[0]].xrepeat<<3)) % tilesizx[wall[wallfind[0]].picnum];
+                        		wall[wallfind[1]].cstat &= ~8;    //Set to non-flip
+                        		wall[wallfind[1]].cstat |= 4;     //Set y-orientation
+                        		wall[wallfind[1]].xpanning = j;
+
+                        		for(k=0;k<2;k++)
+                        		{
+                        			sectnum = sectorofwall((short)wallfind[k]);
+                        			nextsectnum = wall[wallfind[k]].nextsector;
+
+                        			if (nextsectnum == -1)
+                        			{
+                        				if ((wall[wallfind[k]].cstat&4) == 0)
+                        					daz[k] = sector[sectnum].ceilingz;
+                        				else
+                        					daz[k] = sector[sectnum].floorz;
+                        			}
+                        			else                                      //topstep
+                        			{
+                        				if (sector[nextsectnum].ceilingz > sector[sectnum].ceilingz)
+                        					daz[k] = sector[nextsectnum].ceilingz;
+                        				else if (sector[nextsectnum].floorz < sector[sectnum].floorz)
+                        					daz[k] = sector[nextsectnum].floorz;
+                        			}
+                        		}
+
+                        		j = (picsiz[wall[searchwall].picnum]>>4);
+                        		if ((1<<j) != tilesizy[wall[searchwall].picnum]) j++;
+
+                        		j = ((wall[wallfind[0]].ypanning+(((daz[1]-daz[0])*wall[wallfind[0]].yrepeat)>>(j+3)))&255);
+                        		wall[wallfind[1]].ypanning = j;
+                        		wall[wallfind[1]].yrepeat = wall[wallfind[0]].yrepeat;
+                        		if (nextsectnum >= 0)
+                        			if (sector[nextsectnum].ceilingz >= sector[sectnum].ceilingz)
+                        				if (sector[nextsectnum].floorz <= sector[sectnum].floorz)
+                        				{
+                        					if (wall[wall[wallfind[1]].nextwall].picnum == wall[searchwall].picnum)
+                        					{
+                        						wall[wall[wallfind[1]].nextwall].yrepeat = wall[wallfind[0]].yrepeat;
+                        						if ((wall[wall[wallfind[1]].nextwall].cstat&4) == 0)
+                        							daz[1] = sector[nextsectnum].floorz;
+                        						else
+                        							daz[1] = sector[sectnum].ceilingz;
+                        						wall[wall[wallfind[1]].nextwall].ypanning = j;
+                        					}
+                        				}
+                        	}
+                        	wallfind[0] = wallfind[1];
+                        	cnt--;
+                        }
+                        while ((wall[wallfind[0]].picnum == wall[searchwall].picnum) && (wallfind[0] != searchwall) && (cnt > 0));
+        #endif
+
+                        keystatus[0x34] = 0;
+                    }
+                    if (searchstat == 3)
+                    {
+                        i = searchwall;
+                        if ((keystatus[0x2a]|keystatus[0x36]) > 0)
+                            sprite[i].ang = ((sprite[i].ang+2048+1)&2047);
+                        else
+                        {
+                            sprite[i].ang = ((sprite[i].ang+2048+128)&2047);
+                            keystatus[0x34] = 0;
+                        }
+                    }
+                }
+                if (keystatus[0x35] > 0)  // /?     Reset panning&repeat to 0
+                {
+                    if ((searchstat == 0) || (searchstat == 4))
+                    {
+                        wall[searchwall].xpanning = 0;
+                        wall[searchwall].ypanning = 0;
+                        wall[searchwall].xrepeat = 8;
+                        wall[searchwall].yrepeat = 8;
+                        wall[searchwall].cstat = 0;
+                        fixrepeats((short)searchwall);
+                    }
+                    if (searchstat == 1)
+                    {
+                        sector[searchsector].ceilingxpanning = 0;
+                        sector[searchsector].ceilingypanning = 0;
+                        sector[searchsector].ceilingstat &= ~2;
+                        sector[searchsector].ceilingheinum = 0;
+                    }
+                    if (searchstat == 2)
+                    {
+                        sector[searchsector].floorxpanning = 0;
+                        sector[searchsector].floorypanning = 0;
+                        sector[searchsector].floorstat &= ~2;
+                        sector[searchsector].floorheinum = 0;
+                    }
+                    if (searchstat == 3)
+                    {
+                        if ((keystatus[0x2a]|keystatus[0x36]) > 0)
+                        {
+                            sprite[searchwall].xrepeat = sprite[searchwall].yrepeat;
+                        }
+                        else
+                        {
+                            sprite[searchwall].xrepeat = 64;
+                            sprite[searchwall].yrepeat = 64;
+                        }
+                    }
+                    keystatus[0x35] = 0;
+                    asksave = 1;
+                }
+
+                if (keystatus[0x19] > 0)  // P (parallaxing sky)
+                {
+                    if ((keystatus[0x1d]|keystatus[0x9d]) > 0)
+                    {
+                        parallaxtype++;
+                        if (parallaxtype == 3)
+                            parallaxtype = 0;
+                    }
+                    else if ((keystatus[0x38]|keystatus[0xb8]) > 0)
+                    {
+                        switch (searchstat)
                         {
                         case 0:
-                            i = 1; break;
+                        case 4:
+                            Bstrcpy(buffer,"Wall pal: ");
+                            wall[searchwall].pal = getnumber256(buffer,wall[searchwall].pal,256L,0);
+                            break;
                         case 1:
-                            i = 3; break;
+                            Bstrcpy(buffer,"Ceiling pal: ");
+                            sector[searchsector].ceilingpal = getnumber256(buffer,sector[searchsector].ceilingpal,256L,0);
+                            break;
                         case 2:
-                            i = 0; break;
+                            Bstrcpy(buffer,"Floor pal: ");
+                            sector[searchsector].floorpal = getnumber256(buffer,sector[searchsector].floorpal,256L,0);
+                            break;
                         case 3:
-                            i = 2; break;
+                            Bstrcpy(buffer,"Sprite pal: ");
+                            sprite[searchwall].pal = getnumber256(buffer,sprite[searchwall].pal,256L,0);
+                            break;
                         }
-                        i <<= 2;
-                        sprite[searchwall].cstat &= ~0xc;
-                        sprite[searchwall].cstat |= i;
                     }
-                    asksave = 1;
+                    else
+                    {
+                        if ((searchstat == 0) || (searchstat == 1) || (searchstat == 4))
+                        {
+                            sector[searchsector].ceilingstat ^= 1;
+                            asksave = 1;
+                        }
+                        else if (searchstat == 2)
+                        {
+                            sector[searchsector].floorstat ^= 1;
+                            asksave = 1;
+                        }
+                    }
+                    keystatus[0x19] = 0;
                 }
-            }
-        }
+
+                if (keystatus[0x20] != 0)   //Alt-D  (adjust sprite[].clipdist)
+                {
+                    keystatus[0x20] = 0;
+                    if ((keystatus[0x38]|keystatus[0xb8]) > 0)
+                    {
+                        if (searchstat == 3)
+                        {
+                            Bstrcpy(buffer,"Sprite clipdist: ");
+                            sprite[searchwall].clipdist = getnumber256(buffer,sprite[searchwall].clipdist,256L,0);
+                        }
+                    }
+                }
+
+                if (keystatus[0x30] > 0)  // B (clip Blocking xor) (3D)
+                {
+                    if (searchstat == 3)
+                    {
+                        sprite[searchwall].cstat ^= 1;
+                        sprite[searchwall].cstat &= ~256;
+                        sprite[searchwall].cstat |= ((sprite[searchwall].cstat&1)<<8);
+                        asksave = 1;
+                    }
+                    else
+                    {
+                        wall[searchwall].cstat ^= 1;
+                        wall[searchwall].cstat &= ~64;
+                        if ((wall[searchwall].nextwall >= 0) && ((keystatus[0x2a]|keystatus[0x36]) == 0))
+                        {
+                            wall[wall[searchwall].nextwall].cstat &= ~(1+64);
+                            wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&1);
+                        }
+                        asksave = 1;
+                    }
+                    keystatus[0x30] = 0;
+                }
+                if (keystatus[0x14] > 0)  // T (transluscence for sprites/masked walls)
+                {
+        			if (searchstat == 1)   //Set masked/transluscent ceilings/floors
+                    {
+                    	i = (sector[searchsector].ceilingstat&(128+256));
+                    	sector[searchsector].ceilingstat &= ~(128+256);
+                    	switch(i)
+                    	{
+                    		case 0: sector[searchsector].ceilingstat |= 128; break;
+                    		case 128: sector[searchsector].ceilingstat |= 256; break;
+                    		case 256: sector[searchsector].ceilingstat |= 384; break;
+                    		case 384: sector[searchsector].ceilingstat |= 0; break;
+                    	}
+                    	asksave = 1;
+                    }
+                    if (searchstat == 2)
+                    {
+                    	i = (sector[searchsector].floorstat&(128+256));
+                    	sector[searchsector].floorstat &= ~(128+256);
+                    	switch(i)
+                    	{
+                    		case 0: sector[searchsector].floorstat |= 128; break;
+                    		case 128: sector[searchsector].floorstat |= 256; break;
+                    		case 256: sector[searchsector].floorstat |= 384; break;
+                    		case 384: sector[searchsector].floorstat |= 0; break;
+                    	}
+                    	asksave = 1;
+        			}
+                    if (searchstat == 3)
+                    {
+                        if ((sprite[searchwall].cstat&2) == 0)
+                            sprite[searchwall].cstat |= 2;
+                        else if ((sprite[searchwall].cstat&512) == 0)
+                            sprite[searchwall].cstat |= 512;
+                        else
+                            sprite[searchwall].cstat &= ~(2+512);
+                        asksave = 1;
+                    }
+                    if (searchstat == 4)
+                    {
+                        if ((wall[searchwall].cstat&128) == 0)
+                            wall[searchwall].cstat |= 128;
+                        else if ((wall[searchwall].cstat&512) == 0)
+                            wall[searchwall].cstat |= 512;
+                        else
+                            wall[searchwall].cstat &= ~(128+512);
+
+                        if (wall[searchwall].nextwall >= 0)
+                        {
+                            wall[wall[searchwall].nextwall].cstat &= ~(128+512);
+                            wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&(128+512));
+                        }
+                        asksave = 1;
+                    }
+                    keystatus[0x14] = 0;
+                }
+
+                if (keystatus[0x2] > 0)  // 1 (make 1-way wall)
+                {
+                    if (searchstat != 3)
+                    {
+                        wall[searchwall].cstat ^= 32;
+                        asksave = 1;
+                    }
+                    else
+                    {
+                        sprite[searchwall].cstat ^= 64;
+                        i = sprite[searchwall].cstat;
+                        if ((i&48) == 32)
+                        {
+                            sprite[searchwall].cstat &= ~8;
+                            if ((i&64) > 0)
+                                if (posz > sprite[searchwall].z)
+                                    sprite[searchwall].cstat |= 8;
+                        }
+                        asksave = 1;
+                    }
+                    keystatus[0x2] = 0;
+                }
+                if (keystatus[0x3] > 0)  // 2 (bottom wall swapping)
+                {
+                    if (searchstat != 3)
+                    {
+                        wall[searchwall].cstat ^= 2;
+                        asksave = 1;
+                    }
+                    keystatus[0x3] = 0;
+                }
+                if (keystatus[0x18] > 0)  // O (top/bottom orientation - for doors)
+                {
+                    if ((searchstat == 0) || (searchstat == 4))
+                    {
+                        wall[searchwall].cstat ^= 4;
+                        asksave = 1;
+                    }
+                    if (searchstat == 3)   // O (ornament onto wall) (2D)
+                    {
+                        asksave = 1;
+                        i = searchwall;
+
+                        hitscan(sprite[i].x,sprite[i].y,sprite[i].z,sprite[i].sectnum,
+                                sintable[(sprite[i].ang+2560+1024)&2047],
+                                sintable[(sprite[i].ang+2048+1024)&2047],
+                                0,
+                                &hitsect,&hitwall,&hitsprite,&hitx,&hity,&hitz,CLIPMASK1);
+
+                        sprite[i].x = hitx;
+                        sprite[i].y = hity;
+                        sprite[i].z = hitz;
+                        changespritesect(i,hitsect);
+                        if (hitwall >= 0)
+                            sprite[i].ang = ((getangle(wall[wall[hitwall].point2].x-wall[hitwall].x,wall[wall[hitwall].point2].y-wall[hitwall].y)+512)&2047);
+
+                        //Make sure sprite's in right sector
+                        if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
+                        {
+                            j = wall[hitwall].point2;
+                            sprite[i].x -= ksgn(wall[j].y-wall[hitwall].y);
+                            sprite[i].y += ksgn(wall[j].x-wall[hitwall].x);
+                        }
+                    }
+                    keystatus[0x18] = 0;
+                }
+                if (keystatus[0x32] > 0)  // M (masking walls)
+                {
+                    if (searchstat != 3)
+                    {
+                        i = wall[searchwall].nextwall;
+                        tempint = (keystatus[0x2a]|keystatus[0x36]);
+                        if (i >= 0)
+                        {
+                            wall[searchwall].cstat ^= 16;
+                            if ((wall[searchwall].cstat&16) > 0)
+                            {
+                                wall[searchwall].cstat &= ~8;
+                                if (tempint == 0)
+                                {
+                                    wall[i].cstat |= 8;           //auto other-side flip
+                                    wall[i].cstat |= 16;
+                                    wall[i].overpicnum = wall[searchwall].overpicnum;
+                                }
+                            }
+                            else
+                            {
+                                wall[searchwall].cstat &= ~8;
+                                if (tempint == 0)
+                                {
+                                    wall[i].cstat &= ~8;         //auto other-side unflip
+                                    wall[i].cstat &= ~16;
+                                }
+                            }
+                            wall[searchwall].cstat &= ~32;
+                            if (tempint == 0) wall[i].cstat &= ~32;
+                            asksave = 1;
+                        }
+                    }
+                    keystatus[0x32] = 0;
+                }
+                if (keystatus[0x23] > 0)  // H (hitscan sensitivity)
+                {
+                    if (searchstat == 3)
+                    {
+                        sprite[searchwall].cstat ^= 256;
+                        asksave = 1;
+                    }
+                    else
+                    {
+                        wall[searchwall].cstat ^= 64;
+                        if ((wall[searchwall].nextwall >= 0) && ((keystatus[0x2a]|keystatus[0x36]) == 0))
+                        {
+                            wall[wall[searchwall].nextwall].cstat &= ~64;
+                            wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&64);
+                        }
+                        asksave = 1;
+                    }
+                    keystatus[0x23] = 0;
+                }
+                if (keystatus[0x12] > 0)  // E (expand)
+                {
+                    if (searchstat == 1)
+                    {
+                        sector[searchsector].ceilingstat ^= 8;
+                        asksave = 1;
+                    }
+                    if (searchstat == 2)
+                    {
+                        sector[searchsector].floorstat ^= 8;
+                        asksave = 1;
+                    }
+                    keystatus[0x12] = 0;
+                }
+                if (keystatus[0x13] > 0)  // R (relative alignment, rotation)
+                {
+                    if (searchstat == 1)
+                    {
+                        sector[searchsector].ceilingstat ^= 64;
+                        asksave = 1;
+                    }
+                    if (searchstat == 2)
+                    {
+                        sector[searchsector].floorstat ^= 64;
+                        asksave = 1;
+                    }
+                    if (searchstat == 3)
+                    {
+                        i = sprite[searchwall].cstat;
+                        if ((i&48) < 32) i += 16; else i &= ~48;
+                        sprite[searchwall].cstat = i;
+                        asksave = 1;
+                    }
+                    keystatus[0x13] = 0;
+                }
+                if (keystatus[0x21] > 0)  //F (Flip)
+                {
+                    keystatus[0x21] = 0;
+                    if ((keystatus[0x38]|keystatus[0xb8]) > 0)  //ALT-F (relative alignmment flip)
+                    {
+                        if (searchstat != 3)
+                        {
+                            setfirstwall(searchsector,searchwall);
+                            asksave = 1;
+                        }
+                    }
+                    else
+                    {
+                        if ((searchstat == 0) || (searchstat == 4))
+                        {
+                            i = wall[searchwall].cstat;
+                            i = ((i>>3)&1)+((i>>7)&2);    //3-x,8-y
+                            switch (i)
+                            {
+                            case 0:
+                                i = 1; break;
+                            case 1:
+                                i = 3; break;
+                            case 2:
+                                i = 0; break;
+                            case 3:
+                                i = 2; break;
+                            }
+                            i = ((i&1)<<3)+((i&2)<<7);
+                            wall[searchwall].cstat &= ~0x0108;
+                            wall[searchwall].cstat |= i;
+                            asksave = 1;
+                        }
+                        if (searchstat == 1)         //8-way ceiling flipping (bits 2,4,5)
+                        {
+                            i = sector[searchsector].ceilingstat;
+                            i = (i&0x4)+((i>>4)&3);
+                            switch (i)
+                            {
+                            case 0:
+                                i = 6; break;
+                            case 6:
+                                i = 3; break;
+                            case 3:
+                                i = 5; break;
+                            case 5:
+                                i = 1; break;
+                            case 1:
+                                i = 7; break;
+                            case 7:
+                                i = 2; break;
+                            case 2:
+                                i = 4; break;
+                            case 4:
+                                i = 0; break;
+                            }
+                            i = (i&0x4)+((i&3)<<4);
+                            sector[searchsector].ceilingstat &= ~0x34;
+                            sector[searchsector].ceilingstat |= i;
+                            asksave = 1;
+                        }
+                        if (searchstat == 2)         //8-way floor flipping (bits 2,4,5)
+                        {
+                            i = sector[searchsector].floorstat;
+                            i = (i&0x4)+((i>>4)&3);
+                            switch (i)
+                            {
+                            case 0:
+                                i = 6; break;
+                            case 6:
+                                i = 3; break;
+                            case 3:
+                                i = 5; break;
+                            case 5:
+                                i = 1; break;
+                            case 1:
+                                i = 7; break;
+                            case 7:
+                                i = 2; break;
+                            case 2:
+                                i = 4; break;
+                            case 4:
+                                i = 0; break;
+                            }
+                            i = (i&0x4)+((i&3)<<4);
+                            sector[searchsector].floorstat &= ~0x34;
+                            sector[searchsector].floorstat |= i;
+                            asksave = 1;
+                        }
+                        if (searchstat == 3)
+                        {
+                            i = sprite[searchwall].cstat;
+                            if (((i&48) == 32) && ((i&64) == 0))
+                            {
+                                sprite[searchwall].cstat &= ~0xc;
+                                sprite[searchwall].cstat |= (i&4)^4;
+                            }
+                            else
+                            {
+                                i = ((i>>2)&3);
+                                switch (i)
+                                {
+                                case 0:
+                                    i = 1; break;
+                                case 1:
+                                    i = 3; break;
+                                case 2:
+                                    i = 0; break;
+                                case 3:
+                                    i = 2; break;
+                                }
+                                i <<= 2;
+                                sprite[searchwall].cstat &= ~0xc;
+                                sprite[searchwall].cstat |= i;
+                            }
+                            asksave = 1;
+                        }
+                    }
+        		}*/
         if (keystatus[0x1f])  //S (insert sprite) (3D)
         {
             dax = 16384;
@@ -2530,16 +2534,16 @@ void editinput(void)
 
             keystatus[0x1f] = 0;
         }
-        if (keystatus[0xd3] > 0)
-        {
-            if (searchstat == 3)
-            {
-                deletesprite(searchwall);
-                updatenumsprites();
-                asksave = 1;
-            }
-            keystatus[0xd3] = 0;
-        }
+        /*  	  if (keystatus[0xd3] > 0)
+                {
+                    if (searchstat == 3)
+                    {
+                        deletesprite(searchwall);
+                        updatenumsprites();
+                        asksave = 1;
+                    }
+                    keystatus[0xd3] = 0;
+        		}*/
 
         if (keystatus[0x3f]||keystatus[0x40])  //F5,F6
         {
@@ -2607,6 +2611,7 @@ char changechar(char dachar, int dadir, char smooshyalign, char boundcheck)
     return(dachar);
 }
 #if 0
+/*
 int gettile(int tilenum)
 {
     char snotbuf[80], ch;
@@ -2915,6 +2920,7 @@ int drawtilescreen(int pictopleft, int picbox)
 
     return(0);
 }
+*/
 #endif
 
 void overheadeditor(void)
@@ -3261,13 +3267,16 @@ void overheadeditor(void)
         drawline16(searchx+2,searchy+1,searchx+9,searchy+1,col);
 
         //Draw the white pixel closest to mouse cursor on linehighlight
-        getclosestpointonwall(mousxplc,mousyplc,(int)linehighlight,&dax,&day);
-        x2 = mulscale14(dax-posx,zoom);
-        y2 = mulscale14(day-posy,zoom);
-        if (wall[linehighlight].nextsector >= 0)
-            drawline16(halfxdim16+x2,midydim16+y2,halfxdim16+x2,midydim16+y2,15);
-        else
-            drawline16(halfxdim16+x2,midydim16+y2,halfxdim16+x2,midydim16+y2,5);
+        if (linehighlight>=0)
+        {
+            getclosestpointonwall(mousxplc,mousyplc,(int)linehighlight,&dax,&day);
+            x2 = mulscale14(dax-posx,zoom);
+            y2 = mulscale14(day-posy,zoom);
+            if (wall[linehighlight].nextsector >= 0)
+                drawline16(halfxdim16+x2,midydim16+y2,halfxdim16+x2,midydim16+y2,15);
+            else
+                drawline16(halfxdim16+x2,midydim16+y2,halfxdim16+x2,midydim16+y2,5);
+        }
         enddrawing();	//}}}
 
         OSD_Draw();
@@ -6237,7 +6246,7 @@ int getlinehighlight(int xplc, int yplc)
     if (numwalls == 0)
         return(-1);
     dist = 1024;
-    closest = numwalls-1;
+    closest = -1;
     for (i=0;i<numwalls;i++)
     {
         getclosestpointonwall(xplc,yplc,i,&nx,&ny);
@@ -6249,7 +6258,7 @@ int getlinehighlight(int xplc, int yplc)
         }
     }
 
-    if (wall[closest].nextwall >= 0)
+    if (closest>=0 && wall[closest].nextwall >= 0)
     {
         //if red line, allow highlighting of both sides
         x1 = wall[closest].x;
@@ -7301,7 +7310,7 @@ int loadnames(void)
 int loadnames(void)
 {
     char buffer[1024], *p, *name, *number, *endptr;
-    int num, syms=0, line=0, a;
+    int num, syms=0, line=0, a, comment=0;
     BFILE *fp;
 
     fp = fopenfrompath("NAMES.H","r");
@@ -7334,7 +7343,7 @@ int loadnames(void)
         while (*p == 32) p++;
         if (*p == 0) continue;	// blank line
 
-        if (*p == '#')
+        if (*p == '#' && !comment)
         {
             p++;
             while (*p == 32) p++;
@@ -7402,8 +7411,14 @@ int loadnames(void)
         }
         else if (*p == '/')
         {
+            if (*(p+1) == '*') {comment++;continue;}
             if (*(p+1) == '/') continue;	// comment
         }
+        else if (*p == '*' && p[1] == '/')
+        {
+            comment--;continue;
+        }
+        else if (comment)continue;
 badline:
         initprintf("Error: Invalid statement found at character %d on line %d\n", (p-buffer), line-1);
     }
@@ -7768,7 +7783,7 @@ void printmessage256(char name[82])
 void getclosestpointonwall(int x, int y, int dawall, int *nx, int *ny)
 {
     walltype *wal;
-    int i, j, dx, dy;
+    int64 i, j, dx, dy;
 
     wal = &wall[dawall];
     dx = wall[wal->point2].x-wal->x;
@@ -7777,9 +7792,9 @@ void getclosestpointonwall(int x, int y, int dawall, int *nx, int *ny)
     if (i <= 0) { *nx = wal->x; *ny = wal->y; return; }
     j = dx*dx+dy*dy;
     if (i >= j) { *nx = wal->x+dx; *ny = wal->y+dy; return; }
-    i = divscale30(i,j);
-    *nx = wal->x + mulscale30(dx,i);
-    *ny = wal->y + mulscale30(dy,i);
+    i=((i<<15)/j)<<15;
+    *nx = wal->x + ((dx*i)>>30);
+    *ny = wal->y + ((dy*i)>>30);
 }
 
 void initcrc(void)

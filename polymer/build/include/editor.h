@@ -38,12 +38,14 @@ extern int zmode, kensplayerheight;
 extern short defaultspritecstat;
 
 extern short temppicnum, tempcstat, templotag, temphitag, tempextra;
-extern unsigned char tempshade, temppal, tempxrepeat, tempyrepeat;
+extern unsigned char temppal, tempxrepeat, tempyrepeat;
+signed char tempshade;
 extern unsigned char somethingintab;
 
 extern unsigned char buildkeys[NUMBUILDKEYS];
 
 extern int ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
+extern char unrealedlook, quickmapcycling;
 
 
 extern int ExtInit(void);
