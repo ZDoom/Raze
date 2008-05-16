@@ -2941,7 +2941,7 @@ void overheadeditor(void)
     short hitsect, hitwall, hitsprite;
     int hitx, hity, hitz;
     walltype *wal;
-    int prefixarg;
+    int prefixarg = 0;
 
     //qsetmode640480();
     qsetmodeany(xdim2d,ydim2d);
@@ -4719,7 +4719,7 @@ void overheadeditor(void)
                 {
                     sprite[i].picnum = prefixarg;
                     sprite[i].xrepeat = sprite[i].yrepeat = 48;
-                    prefixarg=0;
+                    prefixarg = 0;
                 }
                 else if (somethingintab == 3)
                 {
