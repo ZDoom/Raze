@@ -2941,6 +2941,7 @@ void overheadeditor(void)
     short hitsect, hitwall, hitsprite;
     int hitx, hity, hitz;
     walltype *wal;
+    int prefixarg;
 
     //qsetmode640480();
     qsetmodeany(xdim2d,ydim2d);
@@ -4629,6 +4630,14 @@ void overheadeditor(void)
             keystatus[0x24] = 0;
         }
 
+// PK
+        for (i=0x02; i<=0x0b; i++)  // keys '1' to '0' on the upper row
+            if (keystatus[i])
+            {
+                prefixarg = i-1;
+                break;
+            }
+
         if ((keystatus[0x38]||keystatus[0xb8])&&keystatus[0x1f]) //ALT-S
         {
             if ((linehighlight >= 0) && (wall[linehighlight].nextwall == -1))
@@ -4705,7 +4714,14 @@ void overheadeditor(void)
                 else
                     sprite[i].picnum = 0;
 
-                if (somethingintab == 3)
+// PK
+                if (prefixarg)
+                {
+                    sprite[i].picnum = prefixarg;
+                    sprite[i].xrepeat = sprite[i].yrepeat = 48;
+                    prefixarg=0;
+                }
+                else if (somethingintab == 3)
                 {
                     sprite[i].picnum = temppicnum;
                     if ((tilesizx[temppicnum] <= 0) || (tilesizy[temppicnum] <= 0))

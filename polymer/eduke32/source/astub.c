@@ -1945,7 +1945,7 @@ static int m32gettile(int idInitialTile)
         if (searchy < 12) searchy = 12;
         if (searchx > xdim-13) searchx = xdim-13;
         if (searchy > ydim-23) searchy = ydim-23;
-        if (bstatus&2)
+/*        if (bstatus&2)
         {
             moffset+=mousedy;
             if (iTopLeftTile==0 && moffset>0)moffset=0;
@@ -1960,6 +1960,12 @@ static int m32gettile(int idInitialTile)
                 moffset+=ZoomToThumbSize[s_Zoom];
             }
         }
+*/
+        if (bstatus&16 && !eitherCTRL)
+            iTopLeftTile -= nXTiles;
+        if (bstatus&32 && !eitherCTRL)
+            iTopLeftTile += nXTiles;
+
         mtile=iTile=(searchx/ZoomToThumbSize[s_Zoom])+((searchy-moffset)/ZoomToThumbSize[s_Zoom])*nXTiles+iTopLeftTile;
         while (iTile >= iTopLeftTile + nDisplayedTiles)
         {
@@ -1978,10 +1984,10 @@ static int m32gettile(int idInitialTile)
         lockclock += synctics;
 
         // Zoom in / out using numeric key pad's / and * keys
-        if (((keystatus[KEYSC_gSLASH] || bstatus&16) && s_Zoom<(signed)(NUM_ZOOMS-1))
-                || ((keystatus[KEYSC_gSTAR]  || bstatus&32) && s_Zoom>0))
+        if (((keystatus[KEYSC_gSLASH] || (eitherCTRL && (bstatus&16))) && s_Zoom<(signed)(NUM_ZOOMS-1))
+                || ((keystatus[KEYSC_gSTAR]  || (eitherCTRL && (bstatus&32))) && s_Zoom>0))
         {
-            if (keystatus[KEYSC_gSLASH] || bstatus&16)
+            if (keystatus[KEYSC_gSLASH] || (eitherCTRL && (bstatus&16)))
             {
                 keystatus[KEYSC_gSLASH] = 0;
                 mouseb &= ~16;
