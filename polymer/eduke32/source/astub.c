@@ -2524,7 +2524,7 @@ int spriteongroundz(int searchwall)
 }
 
 #define WIND1X   3
-#define WIND1Y 155
+#define WIND1Y 150
 void drawtileinfo(char *title,int x,int y,int picnum,int shade,int pal,int cstat,int lotag,int hitag,int extra)
 {
     char buf[64];
@@ -4384,8 +4384,9 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_F2]) // F2
     {
-        if (eitherSHIFT)infobox=!infobox;else
-        usedcount=!usedcount;
+        if (eitherSHIFT)
+            infobox=!infobox;
+        else usedcount=!usedcount;
         keystatus[KEYSC_F2] = 0;
     }
     if (keystatus[KEYSC_TAB]) // TAB : USED
@@ -7673,7 +7674,7 @@ void ExtCheckKeys(void)
         if (sidemode != 1)
         {
             editinput();
-            if (infobox)m32_showmouse();
+            m32_showmouse();
         }
         return;
     }
