@@ -1440,7 +1440,7 @@ static void AcquireInputDevices(char acquire, signed char device)
 
     if (acquire)
     {
-        if (!appactive) return;		// why acquire when inactive?
+//  	  if (!appactive) return;     // why acquire when inactive?
         for (i=0; i<NUM_INPUTS; i++)
         {
             if (! *devicedef[i].did) continue;

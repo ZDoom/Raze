@@ -11036,6 +11036,7 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
     faketimerhandler();
     for (i=numwalls-1,wal=&wall[i];i>=0;i--,wal--)
     {
+        int64 dist,dx,dy;
         if (editstatus == 0)
         {
             if ((show2dwall[i>>3]&pow2char[i&7]) == 0) continue;
@@ -11068,6 +11069,11 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
         yp1 = mulscale14(wal->y-posye,zoome);
         xp2 = mulscale14(wall[wal->point2].x-posxe,zoome);
         yp2 = mulscale14(wall[wal->point2].y-posye,zoome);
+
+        dx=wal->x-wall[wal->point2].x;
+        dy=wal->y-wall[wal->point2].y;
+        dist=dx*dx+dy*dy;
+        if (dist>0xffffffff)col=9;
 
         if ((wal->cstat&64) > 0)
         {

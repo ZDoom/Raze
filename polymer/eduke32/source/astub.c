@@ -164,7 +164,7 @@ static int numdirs=0, numfiles=0;
 static int currentlist=0;
 static int mouseaction=0, mouseax=0, mouseay=0;
 static int repeatcountx, repeatcounty;
-static int infobox=1;
+static int infobox=3; // bit0: current window, bit1: mouse pointer, the variable should be renamed
 
 extern char mskip;
 
@@ -1936,18 +1936,16 @@ static int m32gettile(int idInitialTile)
 
     while ((keystatus[KEYSC_ENTER]|keystatus[KEYSC_ESC]|(bstatus&1)) == 0) // <- Presumably one of these is escape key ???
     {
-        DrawTiles(iTopLeftTile, iTile, nXTiles, nYTiles, ZoomToThumbSize[s_Zoom],moffset);
+        DrawTiles(iTopLeftTile, (iTile >= localartlookupnum)?localartlookupnum-1:iTile, nXTiles, nYTiles, ZoomToThumbSize[s_Zoom],moffset);
 
         getmousevalues(&mousedx,&mousedy,&bstatus);
         searchx += mousedx;
         searchy += mousedy;
-        if (searchx < 12) searchx = 12;
-        if (searchy < 12) searchy = 12;
-        if (searchx > xdim-13) searchx = xdim-13;
-        if (searchy > ydim-23) searchy = ydim-23;
-/*        if (bstatus&2)
+        if (bstatus&2)
         {
-            moffset+=mousedy;
+            moffset+=mousedy*2;
+            searchy += mousedy;
+            searchx -= mousedx;
             if (iTopLeftTile==0 && moffset>0)moffset=0;
             while (moffset>ZoomToThumbSize[s_Zoom])
             {
@@ -1960,12 +1958,21 @@ static int m32gettile(int idInitialTile)
                 moffset+=ZoomToThumbSize[s_Zoom];
             }
         }
-*/
-        if (bstatus&16 && !eitherCTRL)
-            iTopLeftTile -= nXTiles;
-        if (bstatus&32 && !eitherCTRL)
-            iTopLeftTile += nXTiles;
+        if (searchx < 12) searchx = 12;
+        if (searchy < 12) searchy = 12;
+        if (searchx > xdim-13) searchx = xdim-13;
+        if (searchy > ydim-23) searchy = ydim-23;
 
+        if (bstatus&16 && !eitherCTRL && iTopLeftTile > 0)
+        {
+            mouseb &= ~16;
+            iTopLeftTile -= (nXTiles*3);
+        }
+        if (bstatus&32 && !eitherCTRL && iTopLeftTile < MAXTILES-1)
+        {
+            mouseb &= ~32;
+            iTopLeftTile += (nXTiles*3);
+        }
         mtile=iTile=(searchx/ZoomToThumbSize[s_Zoom])+((searchy-moffset)/ZoomToThumbSize[s_Zoom])*nXTiles+iTopLeftTile;
         while (iTile >= iTopLeftTile + nDisplayedTiles)
         {
@@ -1984,10 +1991,10 @@ static int m32gettile(int idInitialTile)
         lockclock += synctics;
 
         // Zoom in / out using numeric key pad's / and * keys
-        if (((keystatus[KEYSC_gSLASH] || (eitherCTRL && (bstatus&16))) && s_Zoom<(signed)(NUM_ZOOMS-1))
-                || ((keystatus[KEYSC_gSTAR]  || (eitherCTRL && (bstatus&32))) && s_Zoom>0))
+        if (((keystatus[KEYSC_gSLASH] || (eitherCTRL && bstatus&16)) && s_Zoom<(signed)(NUM_ZOOMS-1))
+                || ((keystatus[KEYSC_gSTAR]  || (eitherCTRL && bstatus&32)) && s_Zoom>0))
         {
-            if (keystatus[KEYSC_gSLASH] || (eitherCTRL && (bstatus&16)))
+            if (keystatus[KEYSC_gSLASH] || (eitherCTRL && bstatus&16))
             {
                 keystatus[KEYSC_gSLASH] = 0;
                 mouseb &= ~16;
@@ -2009,6 +2016,8 @@ static int m32gettile(int idInitialTile)
                 bstatus &= ~32;
                 s_Zoom--;
             }
+
+            if (iTile >= localartlookupnum)iTile = localartlookupnum-1;
 
             // Calculate new num of tiles to display
             nXTiles = xdim / ZoomToThumbSize[s_Zoom];
@@ -2452,7 +2461,7 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
                             }
                         }
                     }
-                    if (localartfreq[iTile] != 0)
+                    if (localartfreq[iTile] != 0 && YPos >= 0 && YPos <= ydim-20)
                     {
                         Bsprintf(szT, "%d", localartfreq[iTile]);
                         printext256(XPos, YPos, whitecol, -1, szT, 1);
@@ -2469,30 +2478,31 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
     XBox = ((iSelected-iTopLeft) % nXTiles) * TileDim;
     YBox = ((iSelected - ((iSelected-iTopLeft) % nXTiles) - iTopLeft) / nXTiles) * TileDim+offset;
 
-    for (i = 0; i < TileDim; i++)
-    {
-        if (YBox>=0 && YBox<ydim)
-            plotpixel(XBox+i,         YBox,           whitecol);
-        if (YBox+TileDim>=0 && YBox+TileDim<ydim)
-            plotpixel(XBox+i,         YBox + TileDim, whitecol);
-        if (YBox+i>=0 && YBox+i<ydim)
+    if (iSelected-iTopLeft>0)
+        for (i = 0; i < TileDim; i++)
         {
-            plotpixel(XBox,           YBox + i,       whitecol);
-            plotpixel(XBox + TileDim, YBox + i,       whitecol);
+            if (YBox>=0 && YBox<ydim)
+                plotpixel(XBox+i,         YBox,           whitecol);
+            if (YBox+TileDim>=0 && YBox+TileDim<ydim)
+                plotpixel(XBox+i,         YBox + TileDim, whitecol);
+            if (YBox+i>=0 && YBox+i<ydim)
+            {
+                plotpixel(XBox,           YBox + i,       whitecol);
+                plotpixel(XBox + TileDim, YBox + i,       whitecol);
+            }
         }
-    }
 
     idTile = localartlookup[ iSelected ];
 
     Bsprintf(szT, "%d" , idTile);
-    printext256(0L, ydim-8, whitecol, -1, szT, 0);
-    printext256(xdim-(Bstrlen(names[idTile])<<3),ydim-8,whitecol,-1,names[idTile],0);
+    printext256(0L, ydim-8, whitecol, 0, szT, 0);
+    printext256(xdim-(Bstrlen(names[idTile])<<3),ydim-8,whitecol,0,names[idTile],0);
 
     Bsprintf(szT,"%dx%d",tilesizx[idTile],tilesizy[idTile]);
-    printext256(xdim>>2,ydim-8,whitecol,-1,szT,0);
+    printext256(xdim>>2,ydim-8,whitecol,0,szT,0);
 
     Bsprintf(szT,"%d, %d",(picanm[idTile]>>8)&0xFF,(picanm[idTile]>>16)&0xFF);
-    printext256((xdim>>2)+100,ydim-8,whitecol,-1,szT,0);
+    printext256((xdim>>2)+100,ydim-8,whitecol,0,szT,0);
 
     m32_showmouse();
 
@@ -2627,7 +2637,7 @@ static void Keys3d(void)
         drawtileinfo("Clipboard",3,124,temppicnum,tempshade,temppal,tempcstat,templotag,temphitag,tempextra);
     }// end if usedcount
 
-    if (infobox)
+    if (infobox&1)
     {
         char lines[8][64];
         int dax, day, dist, height1=0,height2=0,height3=0, num=0;
@@ -2672,7 +2682,7 @@ static void Keys3d(void)
             Bsprintf(lines[num++],"Slope:    %d",sector[searchsector].ceilingheinum);
             lines[num++][0]=0;
             Bsprintf(lines[num++],"^251Sector %d^31 ceiling  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
-            Bsprintf(lines[num++],"Height: %d",height2);
+            Bsprintf(lines[num++],"Height: %d, Visibility:%d",height2,sector[searchsector].visibility);
             break;
         case 2:
             drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].floorpicnum,sector[searchsector].floorshade,
@@ -2684,7 +2694,7 @@ static void Keys3d(void)
             Bsprintf(lines[num++],"Slope:   %d",sector[searchsector].floorheinum);
             lines[num++][0]=0;
             Bsprintf(lines[num++],"^251Sector %d^31 floor  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
-            Bsprintf(lines[num++],"Height:%d",height2);
+            Bsprintf(lines[num++],"Height:%d, Visibility:%d",height2,sector[searchsector].visibility);
             break;
         case 3:
             drawtileinfo("Current",WIND1X,WIND1Y,sprite[searchwall].picnum,sprite[searchwall].shade,
@@ -4385,8 +4395,11 @@ static void Keys3d(void)
     if (keystatus[KEYSC_F2]) // F2
     {
         if (eitherSHIFT)
-            infobox=!infobox;
-        else usedcount=!usedcount;
+            infobox^=1;
+        else
+            if (eitherCTRL)
+                infobox^=2;
+            else usedcount=!usedcount;
         keystatus[KEYSC_F2] = 0;
     }
     if (keystatus[KEYSC_TAB]) // TAB : USED
@@ -7492,6 +7505,9 @@ void ExtAnalyzeSprites(void)
     }
 }
 
+#define MESSAGEX 3 // (xdimgame>>1)
+#define MESSAGEY 3 // ((i/charsperline)<<3)+(ydimgame-(ydimgame>>3))-(((getmessageleng-1)/charsperline)<<3)
+
 static void Keys2d3d(void)
 {
     int i, j;
@@ -7650,8 +7666,8 @@ static void Keys2d3d(void)
                 begindrawing();
                 if (tempbuf[charsperline] != 0)
                 {
-                    printext256((xdimgame>>1)+2,((i/charsperline)<<3)+(ydimgame-(ydimgame>>3))-(((getmessageleng-1)/charsperline)<<3)+2,0,-1,tempbuf,xdimgame>640?0:1);
-                    printext256((xdimgame>>1),((i/charsperline)<<3)+(ydimgame-(ydimgame>>3))-(((getmessageleng-1)/charsperline)<<3),
+                    printext256((MESSAGEX*(xdimgame/320.))+2,(MESSAGEY*(ydimgame/200.))+2,0,-1,tempbuf,xdimgame>640?0:1);
+                    printext256(MESSAGEX*(xdimgame/320.),MESSAGEY*(ydimgame/200.),
                                 (totalclock > (lastmessagetime + 120*5))?whitecol:256-5,-1,tempbuf,xdimgame>640?0:1);
                 }
                 enddrawing();
@@ -7674,7 +7690,7 @@ void ExtCheckKeys(void)
         if (sidemode != 1)
         {
             editinput();
-            m32_showmouse();
+            if (infobox&2)m32_showmouse();
         }
         return;
     }
