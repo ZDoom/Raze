@@ -130,6 +130,7 @@ signed char tempshade;
 unsigned char somethingintab = 255;
 
 char mlook = 0,mskip=0;
+int revertCTRL=0,scrollamount=3;
 char unrealedlook=0, quickmapcycling=0; //PK
 
 static char boardfilename[BMAX_PATH], selectedboardfilename[BMAX_PATH];
@@ -482,9 +483,10 @@ CANCEL:
                 }
                 idle();
 
-                if (keystatus[0x15])
+                if (keystatus[0x15]||keystatus[0x1c]) // Y or ENTER
                 {
                     keystatus[0x15] = 0;
+                    keystatus[0x1c] = 0;
                     quitflag = 1; break;
                 }
             }
@@ -508,10 +510,11 @@ CANCEL:
             if (handleevents()) { if (quitevent) break;	} // like saying no
             idle();
 
-            if (keystatus[0x15])
+            if (keystatus[0x15] || keystatus[0x1c]) // Y or ENTER
             {
                 char *f;
                 keystatus[0x15] = 0;
+                keystatus[0x1c] = 0;
                 fixspritesectors();
                 updatesector(startposx,startposy,&startsectnum);
                 ExtPreSaveMap();

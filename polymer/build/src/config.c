@@ -201,7 +201,17 @@ int loadsetup(const char *fn)
 
     if (readconfig(fp, "mousenavigation", val, VL) > 0) unrealedlook = Batoi(val);
 
+    if (readconfig(fp, "mousenavigationaccel", val, VL) > 0) pk_uedaccel = Batoi(val);
+
     if (readconfig(fp, "quickmapcycling", val, VL) > 0) quickmapcycling = Batoi(val);
+
+    if (readconfig(fp, "revertCTRL", val, VL) > 0) revertCTRL = Batoi(val);
+
+    if (readconfig(fp, "scrollamount", val, VL) > 0) scrollamount = Batoi(val);
+
+    if (readconfig(fp, "turnaccel", val, VL) > 0) pk_turnaccel = Batoi(val);
+
+    if (readconfig(fp, "turndecel", val, VL) > 0) pk_turndecel = Batoi(val);
 
     for (i=0;i<256;i++)remap[i]=i;
     remapinit=1;
@@ -304,10 +314,31 @@ int writesetup(const char *fn)
              "mousesensitivity = %g\n"
              "\n"
              "; Mouse navigation\n"
+             ";   0 - No\n"
+             ";   1 - Yes\n"
              "mousenavigation = %d\n"
+             "; Mouse navigation acceleration\n"
              "\n"
-             "; Quick map cycling\n"
+             "mousenavigationaccel = %d\n"
+             "\n"
+             "; Quick map cycling (SHIFT)+CTRL+X\n"
+             ";   0 - No\n"
+             ";   1 - Yes\n"
              "quickmapcycling = %d\n"
+             "\n"
+             "; Revert CTRL for tile selction\n"
+             ";   0 - WHEEL:scrolling, CTRL+WHEEL:zooming\n"
+             ";   1 - CTRL+WHEEL:scrolling, WHEEL:zooming\n"
+             "revertCTRL = %d\n"
+             "\n"
+             "; Scroll amount for WHEEL in the tile selcetion\n"
+             "scrollamount = %d\n"
+             "\n"
+             "; Turning acceleration+declaration\n"
+             "turnaccel = %d\n"
+             "\n"
+             "; Turning deceleration\n"
+             "turndecel = %d\n"
              "\n"
 #if 1
              "; Key Settings\n"
@@ -368,7 +399,8 @@ int writesetup(const char *fn)
 #if 0
              option[7]>>4, option[2],
 #endif
-             option[3], msens, unrealedlook, quickmapcycling,
+             option[3], msens, unrealedlook, pk_uedaccel, quickmapcycling,
+             revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,
 #if 1
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
              keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],

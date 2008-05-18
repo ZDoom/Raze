@@ -48,6 +48,7 @@ static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 static char *duke3dgrp = defaultduke3dgrp;
 static int fixmapbeforesaving = 1;
 static int lastsave = -180*60;
+static int spnoclip=0;
 static int NoAutoLoad = 0;
 
 #if !defined(_WIN32)
@@ -1693,9 +1694,10 @@ static int AskIfSure(char *text)
             }
         }
         idle();
-        if (keystatus[KEYSC_Y])
+        if (keystatus[KEYSC_Y]||keystatus[KEYSC_ENTER])
         {
             keystatus[KEYSC_Y] = 0;
+            keystatus[KEYSC_ENTER] = 0;
             retval = 0;
             break;
         }
@@ -1763,6 +1765,7 @@ static int m32gettile(int idInitialTile)
     int i;
     int iTile, iTopLeftTile;
     int idSelectedTile;
+    int scrollmode;
     int mousedx, mousedy, mtile, omousex=searchx, omousey=searchy, moffset=0;
 
 // Enable following line for testing. I couldn't work out how to change vidmode on the fly
@@ -1946,7 +1949,12 @@ static int m32gettile(int idInitialTile)
             moffset+=mousedy*2;
             searchy += mousedy;
             searchx -= mousedx;
-            if (iTopLeftTile==0 && moffset>0)moffset=0;
+            if ((moffset < 0 && iTopLeftTile > localartlookupnum-nDisplayedTiles-1)
+                    || (moffset > 0 && iTopLeftTile==0))
+            {
+                moffset=0;
+                searchy -= mousedy*2;
+            }
             while (moffset>ZoomToThumbSize[s_Zoom])
             {
                 iTopLeftTile-=nXTiles;
@@ -1963,15 +1971,16 @@ static int m32gettile(int idInitialTile)
         if (searchx > xdim-13) searchx = xdim-13;
         if (searchy > ydim-23) searchy = ydim-23;
 
-        if (bstatus&16 && !eitherCTRL && iTopLeftTile > 0)
+        scrollmode=!(eitherCTRL^revertCTRL);
+        if (bstatus&16 && scrollmode && iTopLeftTile > 0)
         {
             mouseb &= ~16;
-            iTopLeftTile -= (nXTiles*3);
+            iTopLeftTile -= (nXTiles*scrollamount);
         }
-        if (bstatus&32 && !eitherCTRL && iTopLeftTile < MAXTILES-1)
+        if (bstatus&32 && scrollmode && iTopLeftTile < localartlookupnum-nDisplayedTiles-1)
         {
             mouseb &= ~32;
-            iTopLeftTile += (nXTiles*3);
+            iTopLeftTile += (nXTiles*scrollamount);
         }
         mtile=iTile=(searchx/ZoomToThumbSize[s_Zoom])+((searchy-moffset)/ZoomToThumbSize[s_Zoom])*nXTiles+iTopLeftTile;
         while (iTile >= iTopLeftTile + nDisplayedTiles)
@@ -1991,10 +2000,10 @@ static int m32gettile(int idInitialTile)
         lockclock += synctics;
 
         // Zoom in / out using numeric key pad's / and * keys
-        if (((keystatus[KEYSC_gSLASH] || (eitherCTRL && bstatus&16)) && s_Zoom<(signed)(NUM_ZOOMS-1))
-                || ((keystatus[KEYSC_gSTAR]  || (eitherCTRL && bstatus&32)) && s_Zoom>0))
+        if (((keystatus[KEYSC_gSLASH] || (!scrollmode && bstatus&16)) && s_Zoom<(signed)(NUM_ZOOMS-1))
+                || ((keystatus[KEYSC_gSTAR]  || (!scrollmode && bstatus&32)) && s_Zoom>0))
         {
-            if (keystatus[KEYSC_gSLASH] || (eitherCTRL && bstatus&16))
+            if (keystatus[KEYSC_gSLASH] || (!scrollmode && bstatus&16))
             {
                 keystatus[KEYSC_gSLASH] = 0;
                 mouseb &= ~16;
@@ -3886,7 +3895,7 @@ static void Keys3d(void)
                 if (k == 0)
                 {
                     sprite[searchwall].z -= updownunits;
-                    if (!noclip)sprite[searchwall].z = max(sprite[searchwall].z,spriteonceilingz(searchwall));
+                    if (!spnoclip)sprite[searchwall].z = max(sprite[searchwall].z,spriteonceilingz(searchwall));
                     sprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
                     message(getmessage);
 
@@ -3897,7 +3906,7 @@ static void Keys3d(void)
                         if ((highlight[i]&0xc000) == 16384)
                         {
                             sprite[highlight[i]&16383].z -= updownunits;
-                            if (!noclip)sprite[highlight[i]&16383].z = max(sprite[highlight[i]&16383].z,spriteonceilingz(highlight[i]&16383));
+                            if (!spnoclip)sprite[highlight[i]&16383].z = max(sprite[highlight[i]&16383].z,spriteonceilingz(highlight[i]&16383));
                         }
                     sprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
                     message(getmessage);
@@ -4033,7 +4042,7 @@ static void Keys3d(void)
                 if (k == 0)
                 {
                     sprite[searchwall].z += updownunits;
-                    if (!noclip)sprite[searchwall].z = min(sprite[searchwall].z,spriteongroundz(searchwall));
+                    if (!spnoclip)sprite[searchwall].z = min(sprite[searchwall].z,spriteongroundz(searchwall));
                     sprintf(getmessage,"Sprite %d z = %d",searchwall,sprite[searchwall].z);
                     message(getmessage);
 
@@ -4044,7 +4053,7 @@ static void Keys3d(void)
                         if ((highlight[i]&0xc000) == 16384)
                         {
                             sprite[highlight[i]&16383].z += updownunits;
-                            if (!noclip)sprite[highlight[i]&16383].z = min(sprite[highlight[i]&16383].z,spriteongroundz(highlight[i]&16383));
+                            if (!spnoclip)sprite[highlight[i]&16383].z = min(sprite[highlight[i]&16383].z,spriteongroundz(highlight[i]&16383));
                         }
                     sprintf(getmessage,"Sprite %d z = %d",highlight[i]&16383,sprite[highlight[i]&16383].z);
                     message(getmessage);
@@ -4937,7 +4946,7 @@ static void Keys3d(void)
                     xvect = -((mousex*(int)sintable[(ang+2048)&2047])<<3);
                     yvect = -((mousex*(int)sintable[(ang+1536)&2047])<<3);
                     clipmove(&sprite[searchwall].x,&sprite[searchwall].y,&sprite[searchwall].z,
-                             &cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK1);
+                             &cursectnum,xvect,yvect,128L,4L<<8,4L<<8,spnoclip?1:CLIPMASK0);
                     setsprite(searchwall,sprite[searchwall].x,sprite[searchwall].y,sprite[searchwall].z);
                 }
                 else
@@ -5042,7 +5051,7 @@ static void Keys3d(void)
                     xvect = -((mousey*(int)sintable[(ang+2560)&2047])<<3);
                     yvect = -((mousey*(int)sintable[(ang+2048)&2047])<<3);
                     clipmove(&sprite[searchwall].x,&sprite[searchwall].y,&sprite[searchwall].z,
-                             &cursectnum,xvect,yvect,128L,4L<<8,4L<<8,CLIPMASK1);
+                             &cursectnum,xvect,yvect,128L,4L<<8,4L<<8,spnoclip?1:CLIPMASK0);
                     setsprite(searchwall,sprite[searchwall].x,sprite[searchwall].y,sprite[searchwall].z);
                 }
                 else
@@ -7290,11 +7299,12 @@ int ExtInit(void)
 
 #if defined(_WIN32) && defined(DUKEOSD)
     OSD_SetFunctions(
-        GAME_drawosdchar,
-        GAME_drawosdstr,
-        GAME_drawosdcursor,
-        GAME_getcolumnwidth,
-        GAME_getrowheight,
+        /*  	  GAME_drawosdchar,
+                GAME_drawosdstr,
+                GAME_drawosdcursor,
+                GAME_getcolumnwidth,
+        		GAME_getrowheight,*/
+        0,0,0,0,0,
         GAME_clearbackground,
         (int(*)(void))GetTime,
         NULL
@@ -7527,6 +7537,14 @@ static void Keys2d3d(void)
         else message("Clipping enabled");
     }
 
+    if (eitherCTRL && keystatus[KEYSC_N]) // CTRL+N
+    {
+        keystatus[KEYSC_N] = 0;
+        spnoclip=!spnoclip;
+        if (noclip) message("Sprite clipping disabled");
+        else message("Sprite clipping enabled");
+    }
+
     if ((totalclock > autosavetimer) && (autosave))
     {
         if (asksave)
@@ -7636,11 +7654,12 @@ static void Keys2d3d(void)
         else
         {
             OSD_SetFunctions(
-                GAME_drawosdchar,
-                GAME_drawosdstr,
-                GAME_drawosdcursor,
-                GAME_getcolumnwidth,
-                GAME_getrowheight,
+                /*  			  GAME_drawosdchar,
+                                GAME_drawosdstr,
+                                GAME_drawosdcursor,
+                                GAME_getcolumnwidth,
+                				GAME_getrowheight,*/
+                0,0,0,0,0,
                 GAME_clearbackground,
                 (int(*)(void))GetTime,
                 NULL
