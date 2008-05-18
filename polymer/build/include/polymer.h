@@ -44,19 +44,27 @@ extern int          pr_wireframe;
 
 extern int          glerror;
 
+
 // DATA
-typedef struct      s_prsector {
+typedef struct      s_prplane {
     // geometry
-    GLdouble*       verts;
-    GLfloat*        floorbuffer;
-    GLfloat*        ceilbuffer;
-    GLdouble        floorplane[4], ceilplane[4];
+    GLfloat*        buffer;
+    GLuint          vbo;
     // attributes
-    GLfloat         floorcolor[4], ceilcolor[4];
-    GLuint          floorglpic, ceilglpic, floorfbglpic, ceilfbglpic;
+    GLdouble        plane[4];
+    GLfloat         color[4];
+    GLuint          glpic;
+    GLuint          fbglpic;
     // elements
-    GLushort*       floorindices;
-    GLushort*       ceilindices;
+    GLushort*       indices;
+    GLuint          ivbo;
+}                   _prplane;
+
+typedef struct      s_prsector {
+    // polymer data
+    GLdouble*       verts;
+    _prplane        floor;
+    _prplane        ceil;
     short           curindice;
     int             indicescount;
     // stuff
@@ -77,16 +85,12 @@ typedef struct      s_prsector {
 }                   _prsector;
 
 typedef struct      s_prwall {
-    // geometry
-    GLfloat*        wallbuffer;
-    GLfloat*        overbuffer;
-    GLfloat*        portal;
+    _prplane        wall;
+    _prplane        over;
+    _prplane        mask;
+    // stuff
     GLfloat*        bigportal;
     GLfloat*        cap;
-    GLdouble        plane[4];
-    // attributes
-    GLfloat         wallcolor[4], overcolor[4], maskcolor[4];
-    GLuint          wallglpic, overglpic, wallfbglpic, overfbglpic, maskglpic;
     // build wall data
     short           cstat, nwallcstat;
     short           picnum, overpicnum, nwallpicnum;
@@ -130,7 +134,7 @@ extern int cosviewingrangeglobalang, sinviewingrangeglobalang;
 
 // CORE
 static void         polymer_displayrooms(short sectnum);
-static void         polymer_drawplane(short sectnum, short wallnum, GLuint glpic, GLfloat* color, GLfloat* buffer, GLushort* indices, int indicecount, GLdouble* plane);
+static void         polymer_drawplane(short sectnum, short wallnum, _prplane* plane, int indicecount);
 static void         polymer_inb4mirror(GLfloat* buffer, GLdouble* plane);
 static void         polymer_animatesprites(void);
 // SECTORS
