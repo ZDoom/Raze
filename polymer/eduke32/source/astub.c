@@ -7541,7 +7541,7 @@ static void Keys2d3d(void)
     {
         keystatus[KEYSC_N] = 0;
         spnoclip=!spnoclip;
-        if (noclip) message("Sprite clipping disabled");
+        if (spnoclip) message("Sprite clipping disabled");
         else message("Sprite clipping enabled");
     }
 
