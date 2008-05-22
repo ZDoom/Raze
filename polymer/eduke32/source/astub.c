@@ -136,7 +136,6 @@ static char *Help3d[]=
     "",
     " ' A = TOGGLE AUTOSAVE",
     " ' D = CYCLE SPRITE SKILL DISPLAY",
-    " ' G = TOGGLE CLIPBOARD GRAPHIC DISPLAY",
     " ' R = TOGGLE FRAMERATE DISPLAY",
     " ' W = TOGGLE SPRITE DISPLAY",
     " ' X = SPRITE SHADE PREVIEW",
@@ -4159,18 +4158,15 @@ static void Keys3d(void)
                 Bsprintf(tempbuf,"%s",SKILLMODE[skill]);
                 break;
             case 10:
-                Bsprintf(tempbuf,"%d",tabgraphic);
-                break;
-            case 11:
                 Bsprintf(tempbuf,"%d",framerateon);
                 break;
-            case 12:
+            case 11:
                 Bsprintf(tempbuf,"%s",SPRDSPMODE[nosprites]);
                 break;
-            case 13:
+            case 12:
                 Bsprintf(tempbuf,"%d",shadepreview);
                 break;
-            case 14:
+            case 13:
                 Bsprintf(tempbuf,"%d",purpleon);
                 break;
             default :
@@ -4185,8 +4181,8 @@ static void Keys3d(void)
             else if (!strcmp(tempbuf,"2"))
                 Bsprintf(tempbuf,"ON (2)");
 
-            printext256((20+((xdimgame > 640) * 20))*8+2,8+(i*8+(xdimgame > 640))+2,0,-1,tempbuf,!(xdimgame > 640));
-            printext256((20+((xdimgame > 640) * 20))*8,8+(i*8+(xdimgame > 640)),whitecol,-1,tempbuf,!(xdimgame > 640));
+            printext256((20+((xdimgame > 640) * 20))*8+2,8+(i*(8+(xdimgame > 640)))+2,0,-1,tempbuf,!(xdimgame > 640));
+            printext256((20+((xdimgame > 640) * 20))*8,8+(i*(8+(xdimgame > 640))),whitecol,-1,tempbuf,!(xdimgame > 640));
             enddrawing();
         }
     }

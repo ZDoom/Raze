@@ -71,9 +71,7 @@ ENGINEOBJS= \
 	$(OBJ)\pragmas.$o \
 	$(OBJ)\scriptfile.$o \
 	$(OBJ)\winlayer.$o \
-!ifdef POLYMER
         $(OBJ)\polymer.$o
-!endif
 
 EDITOROBJS=$(OBJ)\build.$o \
 	$(OBJ)\startwin.editor.$o \

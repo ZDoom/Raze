@@ -5738,6 +5738,7 @@ void overheadeditor(void)
                     ExtPreLoadMap();
                     i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
                     if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+                    oposz = posz;
                     if (i < 0)
                     {
                         printmessage16("Invalid map format.");
@@ -5939,6 +5940,7 @@ CANCEL:
                         i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
                         loadmhk();
                         if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&posx,&posy,&posz,&ang,&cursectnum);
+                        oposz = posz;
                         if (i < 0)
                         {
                             printmessage16("Invalid map format.");
