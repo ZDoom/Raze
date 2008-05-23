@@ -17,7 +17,7 @@
 
 //Insert '|' in front of filename
 //Doing this tells kzopen to load the file only if inside a .ZIP file
-static int kzipopen(char *filnam)
+static intptr_t kzipopen(char *filnam)
 {
     unsigned int i;
     char newst[BMAX_PATH+4];
@@ -193,7 +193,7 @@ void suckcache(intptr_t *suckptr)
 
     //Can't exit early, because invalid pointer might be same even though lock = 0
     for (i=0;i<cacnum;i++)
-        if ((int)(*cac[i].hand) == (int)suckptr)
+        if ((intptr_t)(*cac[i].hand) == (intptr_t)suckptr)
         {
             if (*cac[i].lock) *cac[i].hand = 0;
             cac[i].lock = &zerochar;
@@ -431,7 +431,7 @@ static int *gfileoffs[MAXGROUPFILES];
 
 static char filegrp[MAXOPENFILES];
 static int filepos[MAXOPENFILES];
-static int filehan[MAXOPENFILES] =
+static intptr_t filehan[MAXOPENFILES] =
 {
     -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
     -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -584,8 +584,9 @@ void uninitgroupfile(void)
 
 int kopen4load(char *filename, char searchfirst)
 {
-    int i, j, k, fil, newhandle;
+    int  j, k, fil, newhandle;
     char bad, *gfileptr;
+    intptr_t i;
 
     newhandle = MAXOPENFILES-1;
     while (filehan[newhandle] != -1)
