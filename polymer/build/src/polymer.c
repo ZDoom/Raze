@@ -10,9 +10,12 @@ int             pr_fov = 426;           // appears to be the classic setting.
 int             pr_billboardingmode = 1;
 int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
 int             pr_wireframe = 0;
+int             pr_vbos = 0;
 int             pr_mirrordepth = 1;
 
 int             glerror;
+
+GLenum          mapvbousage = GL_STREAM_DRAW_ARB;
 
 // DATA
 _prsector       *prsectors[MAXSECTORS];
@@ -716,18 +719,19 @@ static void         polymer_displayrooms(short dacursectnum)
                                      (polymer_portalinfrustum(nextwal->nextwall, frustum))))
                             {
                                 w = prwalls[nextwal->nextwall];
-                                bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->mask.buffer);
+
+                                if (pr_vbos > 0)
+                                {
+                                    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
+                                    bglVertexPointer(3, GL_FLOAT, 0, NULL);
+                                }
+                                else
+                                    bglVertexPointer(3, GL_FLOAT, 0, w->bigportal);
+
                                 bglDrawArrays(GL_QUADS, 0, 4);
-                                if ((w->underover & 1) && (w->underover & 4))
-                                {
-                                    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->wall.buffer);
-                                    bglDrawArrays(GL_QUADS, 0, 4);
-                                }
-                                if ((w->underover & 2) && (w->underover & 8))
-                                {
-                                    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), w->over.buffer);
-                                    bglDrawArrays(GL_QUADS, 0, 4);
-                                }
+
+                                if (pr_vbos > 0)
+                                    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
                             }
 
                             j++;
@@ -772,13 +776,26 @@ static void         polymer_displayrooms(short dacursectnum)
     }
 }
 
+#define OMGDRAWSHITVBO                                                                      \
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, plane->vbo);                                      \
+    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), NULL);                               \
+    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), (GLfloat*)(3 * sizeof(GLfloat)));  \
+    if (!plane->indices)                                                                    \
+        bglDrawArrays(GL_QUADS, 0, 4);                                                      \
+    else                                                                                    \
+    {                                                                                       \
+        bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, plane->ivbo);                         \
+        bglDrawElements(GL_TRIANGLES, indicecount, GL_UNSIGNED_SHORT, NULL);                \
+    }                                                                                       \
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);                                               \
+    bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0)
 
-#define OMGDRAWSHIT                                                             \
-    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), plane->buffer);                 \
-    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &plane->buffer[3]);           \
-    if (!plane->indices)                                                               \
-        bglDrawArrays(GL_QUADS, 0, 4);                                          \
-    else                                                                        \
+#define OMGDRAWSHIT                                                                     \
+    bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), plane->buffer);                  \
+    bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &plane->buffer[3]);            \
+    if (!plane->indices)                                                                \
+        bglDrawArrays(GL_QUADS, 0, 4);                                                  \
+    else                                                                                \
         bglDrawElements(GL_TRIANGLES, indicecount, GL_UNSIGNED_SHORT, plane->indices)
 
 static void         polymer_drawplane(short sectnum, short wallnum, _prplane* plane, int indicecount)
@@ -800,7 +817,12 @@ static void         polymer_drawplane(short sectnum, short wallnum, _prplane* pl
         bglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
         bglStencilFunc(GL_EQUAL, 0, 0xffffffff);
 
-        OMGDRAWSHIT;
+        if (plane->vbo && (pr_vbos > 0)) {
+            OMGDRAWSHITVBO;
+        } else {
+            OMGDRAWSHIT;
+        }
+
         bglDepthMask(GL_TRUE);
 
         // set the depth to 1 where we put the stencil by drawing a screen aligned quad
@@ -889,7 +911,11 @@ static void         polymer_drawplane(short sectnum, short wallnum, _prplane* pl
         bglColor4f(plane->color[0], plane->color[1], plane->color[2], plane->color[3]);
 
     bglBindTexture(GL_TEXTURE_2D, plane->glpic);
-    OMGDRAWSHIT;
+    if (plane->vbo && (pr_vbos > 0)) {
+        OMGDRAWSHITVBO;
+    } else {
+        OMGDRAWSHIT;
+    }
 
     if ((depth < 1) && (plane->plane != NULL) &&
             (wallnum >= 0) && (wall[wallnum].overpicnum == 560)) // insert mirror condition here
@@ -1152,12 +1178,12 @@ static int          polymer_updatesector(short sectnum)
     i = -1;
 
 attributes:
-    if ((i == -1) || (wallinvalidate))
+    if ((pr_vbos > 0) && ((i == -1) || (wallinvalidate)))
     {
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->floor.vbo);
-        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, sec->wallnum * sizeof(GLfloat) * 5, s->floor.buffer, GL_STATIC_DRAW_ARB);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, sec->wallnum * sizeof(GLfloat) * 5, s->floor.buffer, mapvbousage);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->ceil.vbo);
-        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, sec->wallnum * sizeof(GLfloat) * 5, s->ceil.buffer, GL_STATIC_DRAW_ARB);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, sec->wallnum * sizeof(GLfloat) * 5, s->ceil.buffer, mapvbousage);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
     }
 
@@ -1230,11 +1256,13 @@ finish:
     if (needfloor)
     {
         polymer_buildfloor(sectnum);
-        bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
-        bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), s->floor.indices, GL_STATIC_DRAW_ARB);
-        bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->ceil.ivbo);
-        bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), s->ceil.indices, GL_STATIC_DRAW_ARB);
-        bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+        if ((pr_vbos > 0)) {
+            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
+            bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), s->floor.indices, mapvbousage);
+            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->ceil.ivbo);
+            bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), s->ceil.indices, mapvbousage);
+            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+        }
     }
 
     if (wallinvalidate)
@@ -1379,6 +1407,12 @@ static int          polymer_initwall(short wallnum)
         w->bigportal = calloc(4, sizeof(GLfloat) * 3);
     if (w->cap == NULL)
         w->cap = calloc(4, sizeof(GLfloat) * 3);
+
+    bglGenBuffersARB(1, &w->wall.vbo);
+    bglGenBuffersARB(1, &w->over.vbo);
+    bglGenBuffersARB(1, &w->mask.vbo);
+
+    bglGenBuffersARB(1, &w->stuffvbo);
 
     w->controlstate = 2;
 
@@ -1837,6 +1871,21 @@ static void         polymer_updatewall(short wallnum)
     memcpy(w->over.plane, w->wall.plane, sizeof(w->wall.plane));
     memcpy(w->mask.plane, w->wall.plane, sizeof(w->wall.plane));
 
+    if ((pr_vbos > 0))
+    {
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->wall.vbo);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, w->wall.buffer, mapvbousage);
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->over.vbo);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, w->over.buffer, mapvbousage);
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->mask.vbo);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, w->mask.buffer, mapvbousage);
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 8 * sizeof(GLfloat) * 3, NULL, mapvbousage);
+        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 3, w->bigportal);
+        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 3, 4 * sizeof(GLfloat) * 3, w->cap);
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+    }
+
     w->controlstate = 1;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated wall %i.\n", wallnum);
@@ -1865,8 +1914,20 @@ static void         polymer_drawwall(short sectnum, short wallnum)
              !(sector[wall[wallnum].nextsector].ceilingstat & 1)))
     {
         bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-        bglVertexPointer(3, GL_FLOAT, 0, w->cap);
+
+        if (pr_vbos)
+        {
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
+            bglVertexPointer(3, GL_FLOAT, 0, (const GLvoid*)(4 * sizeof(GLfloat) * 3));
+        }
+        else
+            bglVertexPointer(3, GL_FLOAT, 0, w->cap);
+
         bglDrawArrays(GL_QUADS, 0, 4);
+
+        if (pr_vbos)
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
         bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
 

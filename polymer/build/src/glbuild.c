@@ -140,6 +140,7 @@ void (APIENTRY * bglGenBuffersARB)(GLsizei n, GLuint * buffers);
 void (APIENTRY * bglBindBufferARB)(GLenum target, GLuint buffer);
 void (APIENTRY * bglDeleteBuffersARB)(GLsizei n, const GLuint * buffers);
 void (APIENTRY * bglBufferDataARB)(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
+void (APIENTRY * bglBufferSubDataARB)(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data);
 void* (APIENTRY * bglMapBufferARB)(GLenum target, GLenum access);
 GLboolean(APIENTRY * bglUnmapBufferARB)(GLenum target);
 
@@ -402,6 +403,7 @@ int loadglextensions(void)
     bglBindBufferARB    = GETPROCEXTSOFT("glBindBufferARB");
     bglDeleteBuffersARB = GETPROCEXTSOFT("glDeleteBuffersARB");
     bglBufferDataARB    = GETPROCEXTSOFT("glBufferDataARB");
+    bglBufferSubDataARB = GETPROCEXTSOFT("glBufferSubDataARB");
     bglMapBufferARB     = GETPROCEXTSOFT("glMapBufferARB");
     bglUnmapBufferARB   = GETPROCEXTSOFT("glUnmapBufferARB");
 
@@ -560,6 +562,7 @@ int unloadgldriver(void)
     bglBindBufferARB    = NULL;
     bglDeleteBuffersARB = NULL;
     bglBufferDataARB    = NULL;
+    bglBufferSubDataARB = NULL;
     bglMapBufferARB     = NULL;
     bglUnmapBufferARB   = NULL;
 

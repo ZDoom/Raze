@@ -175,6 +175,7 @@ extern void        (APIENTRY * bglGenBuffersARB)(GLsizei n, GLuint * buffers);
 extern void        (APIENTRY * bglBindBufferARB)(GLenum target, GLuint buffer);
 extern void        (APIENTRY * bglDeleteBuffersARB)(GLsizei n, const GLuint * buffers);
 extern void        (APIENTRY * bglBufferDataARB)(GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
+extern void        (APIENTRY * bglBufferSubDataARB)(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data);
 extern void*       (APIENTRY * bglMapBufferARB)(GLenum target, GLenum access);
 extern GLboolean   (APIENTRY * bglUnmapBufferARB)(GLenum target);
 

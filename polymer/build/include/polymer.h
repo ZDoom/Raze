@@ -1,22 +1,19 @@
 // here lies the GREAT JUSTICE RENDERER
 // TODO :
 // - CORE STUFF
-//   o put all the sector/wall geometry in VBOs
+//   o use BufferData only once for VBOs
 //   o there's also the texture alignment problem Hunter reported (san andreas fault)
 //   o also sliding doors are still fucked up sometimes (like under the bar in E1L2)
 //   o port glowmaps and detail maps from hacked polymost (:(
 //   o shading needs a lot of work
 //   o remove all the IM matrix crap and write real functions now that it works
-//   o polymer.c possibly needs to be split in several source files
-//   o some crap really needs factorization
-//   o ... possibly more important stuff I don't have in mind right now
 // - SPRITES
 //   o port sprite panning and fullbrights from hacked polymost (:(
 // - SKIES
 //   o figure a better way to handle ART skies - maybe add symetric caps that would fade to black like a big gem or something wow this is a long column lol ;0)
 //   o implement polymost skyboxes
 // - MDSPRITES
-//   o need to reimplement them - hopefully the loader can be reused without too much hassle
+//   o need to truly convert MD2s to MD3s with proper scale offset to just dump the data into VRAM
 //   o need full translation and rotation support from CON to attach to game world or tags
 //   o need to put frames into VBOs and blend between them
 //
@@ -41,6 +38,7 @@ extern int          pr_fov;
 extern int          pr_billboardingmode;
 extern int          pr_verbosity;
 extern int          pr_wireframe;
+extern int          pr_vbos;
 
 extern int          glerror;
 
@@ -91,6 +89,7 @@ typedef struct      s_prwall {
     // stuff
     GLfloat*        bigportal;
     GLfloat*        cap;
+    GLuint          stuffvbo;
     // build wall data
     short           cstat, nwallcstat;
     short           picnum, overpicnum, nwallpicnum;
