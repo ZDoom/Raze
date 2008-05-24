@@ -1356,9 +1356,9 @@ static md3model *md3load(int fil)
             for (surfi--;surfi>=0;surfi--) free(m->head.surfs[surfi].tris);
             if (m->head.tags) free(m->head.tags); free(m->head.frames); free(m); return(0);
         }
-        s->shaders = (md3shader_t *)(((int)s->tris)+leng[0]);
-        s->uv      = (md3uv_t     *)(((int)s->shaders)+leng[1]);
-        s->xyzn    = (md3xyzn_t   *)(((int)s->uv)+leng[2]);
+        s->shaders = (md3shader_t *)(((intptr_t)s->tris)+leng[0]);
+        s->uv      = (md3uv_t     *)(((intptr_t)s->shaders)+leng[1]);
+        s->xyzn    = (md3xyzn_t   *)(((intptr_t)s->uv)+leng[2]);
 
         klseek(fil,offs[0],SEEK_SET); kread(fil,s->tris   ,leng[0]);
         klseek(fil,offs[1],SEEK_SET); kread(fil,s->shaders,leng[1]);
