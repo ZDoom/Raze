@@ -115,12 +115,21 @@ typedef struct
     char nam[64]; //ascz surface name
     int flags; //?
     int numframes, numshaders, numverts, numtris; //numframes same as md3head,max shade=~256,vert=~4096,tri=~8192
-    md3tri_t *tris;       //file format: rel offs from md3surf
-    md3shader_t *shaders; //file format: rel offs from md3surf
-    md3uv_t *uv;          //file format: rel offs from md3surf
-    md3xyzn_t *xyzn;      //file format: rel offs from md3surf
+    int ofstris;
+    int ofsshaders;
+    int ofsuv;
+    int ofsxyzn;
     int ofsend;
+    // DO NOT read directly to this structure
+    // the following block is NOT in the file format
+    // be sure to use the SIZEOF_MD3SURF_T macro
+    md3tri_t *tris;
+    md3shader_t *shaders;
+    md3uv_t *uv;
+    md3xyzn_t *xyzn;
 } md3surf_t;
+
+#define SIZEOF_MD3SURF_T (sizeof(md3surf_t)-4*sizeof(void*))
 
 typedef struct
 {
@@ -128,11 +137,19 @@ typedef struct
     char nam[64]; //ascz path in PK3
     int flags; //?
     int numframes, numtags, numsurfs, numskins; //max=~1024,~16,~32,numskins=artifact of MD2; use shader field instead
-    md3frame_t *frames; //file format: abs offs
-    md3tag_t *tags;     //file format: abs offs
-    md3surf_t *surfs;   //file format: abs offs
-    int eof;           //file format: abs offs
+    int ofsframes;
+    int ofstags;
+    int ofssurfs;
+    int eof;
+    // DO NOT read directly to this structure
+    // the following block is NOT in the file format
+    // be sure to use the SIZEOF_MD3HEAD_T macro
+    md3frame_t *frames;
+    md3tag_t *tags;
+    md3surf_t *surfs;
 } md3head_t;
+
+#define SIZEOF_MD3HEAD_T (sizeof(md3head_t)-3*sizeof(void*))
 
 typedef struct
 {

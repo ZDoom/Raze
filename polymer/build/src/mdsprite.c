@@ -1277,12 +1277,12 @@ static md3model *md3load(int fil)
 
     m->muladdframes = NULL;
 
-    kread(fil,&m->head,sizeof(md3head_t));
+    kread(fil,&m->head,SIZEOF_MD3HEAD_T);
     m->head.id = B_LITTLE32(m->head.id);             m->head.vers = B_LITTLE32(m->head.vers);
     m->head.flags = B_LITTLE32(m->head.flags);       m->head.numframes = B_LITTLE32(m->head.numframes);
     m->head.numtags = B_LITTLE32(m->head.numtags);   m->head.numsurfs = B_LITTLE32(m->head.numsurfs);
-    m->head.numskins = B_LITTLE32(m->head.numskins); m->head.frames = (md3frame_t*)B_LITTLE32((int)m->head.frames);
-    m->head.tags = (md3tag_t*)B_LITTLE32((int)m->head.tags); m->head.surfs = (md3surf_t*)B_LITTLE32((int)m->head.surfs);
+    m->head.numskins = B_LITTLE32(m->head.numskins); m->head.ofsframes = B_LITTLE32(m->head.ofsframes);
+    m->head.ofstags = B_LITTLE32(m->head.ofstags); m->head.ofssurfs = B_LITTLE32(m->head.ofssurfs);
     m->head.eof = B_LITTLE32(m->head.eof);
 
     if ((m->head.id != 0x33504449) && (m->head.vers != 15)) { free(m); return(0); } //"IDP3"
@@ -1290,21 +1290,21 @@ static md3model *md3load(int fil)
     m->numskins = m->head.numskins; //<- dead code?
     m->numframes = m->head.numframes;
 
-    ofsurf = (int)m->head.surfs;
+    ofsurf = (int)m->head.ofssurfs;
 
-    klseek(fil,(int)m->head.frames,SEEK_SET); i = m->head.numframes*sizeof(md3frame_t);
+    klseek(fil,m->head.ofsframes,SEEK_SET); i = m->head.numframes*sizeof(md3frame_t);
     m->head.frames = (md3frame_t *)malloc(i); if (!m->head.frames) { free(m); return(0); }
     kread(fil,m->head.frames,i);
 
     if (m->head.numtags == 0) m->head.tags = NULL;
     else
     {
-        klseek(fil,(int)m->head.tags,SEEK_SET); i = m->head.numtags*sizeof(md3tag_t);
+        klseek(fil,m->head.ofstags,SEEK_SET); i = m->head.numtags*sizeof(md3tag_t);
         m->head.tags = (md3tag_t *)malloc(i); if (!m->head.tags) { free(m->head.frames); free(m); return(0); }
         kread(fil,m->head.tags,i);
     }
 
-    klseek(fil,(int)m->head.surfs,SEEK_SET); i = m->head.numsurfs*sizeof(md3surf_t);
+    klseek(fil,m->head.ofssurfs,SEEK_SET); i = m->head.numsurfs*sizeof(md3surf_t);
     m->head.surfs = (md3surf_t *)malloc(i); if (!m->head.surfs) { if (m->head.tags) free(m->head.tags); free(m->head.frames); free(m); return(0); }
 
 #if B_BIG_ENDIAN != 0
@@ -1330,7 +1330,7 @@ static md3model *md3load(int fil)
     for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
         s = &m->head.surfs[surfi];
-        klseek(fil,ofsurf,SEEK_SET); kread(fil,s,sizeof(md3surf_t));
+        klseek(fil,ofsurf,SEEK_SET); kread(fil,s,SIZEOF_MD3SURF_T);
 
 #if B_BIG_ENDIAN != 0
         {
@@ -1341,10 +1341,10 @@ static md3model *md3load(int fil)
         }
 #endif
 
-        offs[0] = ofsurf+((int)(s->tris)); leng[0] = s->numtris*sizeof(md3tri_t);
-        offs[1] = ofsurf+((int)(s->shaders)); leng[1] = s->numshaders*sizeof(md3shader_t);
-        offs[2] = ofsurf+((int)(s->uv)); leng[2] = s->numverts*sizeof(md3uv_t);
-        offs[3] = ofsurf+((int)(s->xyzn)); leng[3] = s->numframes*s->numverts*sizeof(md3xyzn_t);
+        offs[0] = ofsurf+s->ofstris; leng[0] = s->numtris*sizeof(md3tri_t);
+        offs[1] = ofsurf+s->ofsshaders; leng[1] = s->numshaders*sizeof(md3shader_t);
+        offs[2] = ofsurf+s->ofsuv; leng[2] = s->numverts*sizeof(md3uv_t);
+        offs[3] = ofsurf+s->ofsxyzn; leng[3] = s->numframes*s->numverts*sizeof(md3xyzn_t);
         //memoryusage += (s->numverts * s->numframes * sizeof(md3xyzn_t));
         //OSD_Printf("Current model geometry memory usage : %i.\n", memoryusage);
 
