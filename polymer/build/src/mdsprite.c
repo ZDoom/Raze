@@ -149,7 +149,7 @@ int md_loadmodel(const char *fn)
 
     if (nextmodelid >= nummodelsalloced)
     {
-        ml = (mdmodel **)realloc(models,(nummodelsalloced+MODELALLOCGROUP)*4); if (!ml) return(-1);
+        ml = (mdmodel **)realloc(models,(nummodelsalloced+MODELALLOCGROUP)*sizeof(void*)); if (!ml) return(-1);
         models = ml; nummodelsalloced += MODELALLOCGROUP;
     }
 
@@ -462,7 +462,7 @@ static void applypalmapSkin(char *pic, int sizx, int sizy, md2model *m, int numb
     }
 }
 
-static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int *osizx, int *osizy, char *hasalpha, int pal, char effect, md2model *m, int number, int surf)
+static int daskinloader(int filh, intptr_t *fptr, int *bpl, int *sizx, int *sizy, int *osizx, int *osizy, char *hasalpha, int pal, char effect, md2model *m, int number, int surf)
 {
     int picfillen, j,y,x;
     char *picfil,*cptr,al=255;
@@ -495,7 +495,7 @@ static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int
     if (!pic) { free(picfil); return -1; }
     memset(pic,0,xsiz*ysiz*sizeof(coltype));
 
-    if (kprender(picfil,picfillen,(int)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0))
+    if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0))
         { free(picfil); free(pic); return -1; }
     free(picfil);
 
@@ -552,7 +552,7 @@ static int daskinloader(int filh, int *fptr, int *bpl, int *sizx, int *sizy, int
     *sizx = xsiz;
     *sizy = ysiz;
     *bpl = xsiz;
-    *fptr = (int)pic;
+    *fptr = (intptr_t)pic;
     *hasalpha = (al != 255);
     return 0;
 }
@@ -668,7 +668,8 @@ failure:
 //Note: even though it says md2model, it works for both md2model&md3model
 int mdloadskin(md2model *m, int number, int pal, int surf)
 {
-    int i,j, fptr=0, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
+    int i,j, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
+    intptr_t fptr=0;
     char *skinfile, hasalpha, fn[BMAX_PATH+65];
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
@@ -1290,7 +1291,7 @@ static md3model *md3load(int fil)
     m->numskins = m->head.numskins; //<- dead code?
     m->numframes = m->head.numframes;
 
-    ofsurf = (int)m->head.ofssurfs;
+    ofsurf = m->head.ofssurfs;
 
     klseek(fil,m->head.ofsframes,SEEK_SET); i = m->head.numframes*sizeof(md3frame_t);
     m->head.frames = (md3frame_t *)malloc(i); if (!m->head.frames) { free(m); return(0); }
