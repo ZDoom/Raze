@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000-2005 Marc Alexander Lehmann <schmorp@schmorp.de>
+ * Copyright (c) 2000-2007 Marc Alexander Lehmann <schmorp@schmorp.de>
  * 
  * Redistribution and use in source and binary forms, with or without modifica-
  * tion, are permitted provided that the following conditions are met:
@@ -10,9 +10,6 @@
  *   2.  Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- * 
- *   3.  The name of the author may not be used to endorse or promote products
- *       derived from this software without specific prior written permission.
  * 
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MER-
@@ -26,14 +23,15 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Alternatively, the contents of this file may be used under the terms of
- * the GNU General Public License version 2 (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of the above. If you wish to
- * allow the use of your version of this file only under the terms of the
- * GPL and not to allow others to use your version of this file under the
- * BSD license, indicate your decision by deleting the provisions above and
- * replace them with the notice and other provisions required by the GPL. If
- * you do not delete the provisions above, a recipient may use your version
- * of this file under either the BSD or the GPL.
+ * the GNU General Public License ("GPL") version 2 or any later version,
+ * in which case the provisions of the GPL are applicable instead of
+ * the above. If you wish to allow the use of your version of this file
+ * only under the terms of the GPL and not to allow others to use your
+ * version of this file under the BSD license, indicate your decision
+ * by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL. If you do not delete the
+ * provisions above, a recipient may use your version of this file under
+ * either the BSD or the GPL.
  */
 
 #ifndef LZFP_h
@@ -46,29 +44,28 @@
 #endif
 
 /*
- * size of hashtable is (1 << HLOG) * sizeof (char *)
+ * Size of hashtable is (1 << HLOG) * sizeof (char *)
  * decompression is independent of the hash table size
  * the difference between 15 and 14 is very small
- * for small blocks (and 14 is usually a but faster).
+ * for small blocks (and 14 is usually a bit faster).
  * For a low-memory/faster configuration, use HLOG == 13;
- * For best compression, use 15 or 16 (or more).
+ * For best compression, use 15 or 16 (or more, up to 23).
  */
 #ifndef HLOG
-# define HLOG 14
+# define HLOG 16
 #endif
 
 /*
- * sacrifice very little compression quality in favour of compression speed.
+ * Sacrifice very little compression quality in favour of compression speed.
  * This gives almost the same compression as the default code, and is
- * (very roughly) 15% faster. This is the preferable mode of operation.
+ * (very roughly) 15% faster. This is the preferred mode of operation.
  */
-
 #ifndef VERY_FAST
 # define VERY_FAST 1
 #endif
 
 /*
- * sacrifice some more compression quality in favour of compression speed.
+ * Sacrifice some more compression quality in favour of compression speed.
  * (roughly 1-2% worse compression for large blocks and
  * 9-10% for small, redundant, blocks and >>20% better speed in both cases)
  * In short: when in need for speed, enable this for binary data,
@@ -79,30 +76,23 @@
 #endif
 
 /*
- * unconditionally aligning does not cost very much, so do it if unsure
+ * Unconditionally aligning does not cost very much, so do it if unsure
  */
 #ifndef STRICT_ALIGN
 # define STRICT_ALIGN !(defined(__i386) || defined (__amd64))
 #endif
 
 /*
- * use string functions to copy memory.
- * this is usually a loss, even with glibc's optimized memcpy
- */
-#ifndef USE_MEMCPY
-# define USE_MEMCPY 0
-#endif
-
-/*
- * you may choose to pre-set the hash table (might be faster on some
- * modern cpus and large (>>64k) blocks)
+ * You may choose to pre-set the hash table (might be faster on some
+ * modern cpus and large (>>64k) blocks, and also makes compression
+ * deterministic/repeatable when the configuration otherwise is the same).
  */
 #ifndef INIT_HTAB
 # define INIT_HTAB 0
 #endif
 
 /*
- * avoid assigning values to errno variable? for some embedding purposes
+ * Avoid assigning values to errno variable? for some embedding purposes
  * (linux kernel for example), this is neccessary. NOTE: this breaks
  * the documentation in lzf.h.
  */
@@ -117,6 +107,18 @@
  */
 #ifndef LZF_STATE_ARG
 # define LZF_STATE_ARG 0
+#endif
+
+/*
+ * Wether to add extra checks for input validity in lzf_decompress
+ * and return EINVAL if the input stream has been corrupted. This
+ * only shields against overflowing the input buffer and will not
+ * detect most corrupted streams.
+ * This check is not normally noticable on modern hardware
+ * (<1% slowdown), but might slow down older cpus considerably.
+ */
+#ifndef CHECK_INPUT
+# define CHECK_INPUT 1
 #endif
 
 /*****************************************************************************/
@@ -145,7 +147,7 @@ typedef const u8 *LZF_STATE[1 << (HLOG)];
 # endif
 #endif
 
-#if USE_MEMCPY || INIT_HTAB
+#if INIT_HTAB
 # ifdef __cplusplus
 #  include <cstring>
 # else
