@@ -866,15 +866,16 @@ void updateanimation(md2model *m, spritetype *tspr)
     mdanim_t *anim;
     int i, j, k;
     int fps;
+    char lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
-    m->cframe = m->nframe = tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].framenum;
+    m->cframe = m->nframe = tile2model[Ptile2tile(tspr->picnum,lpal)].framenum;
 
     for (anim = m->animations;
             anim && anim->startframe != m->cframe;
             anim = anim->next) ;
     if (!anim)
     {
-        if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdoldframe != m->cframe))
+        if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdoldframe != m->cframe))
         {
             if (spritesmooth[tspr->owner].mdsmooth == 0)
             {
@@ -883,7 +884,7 @@ void updateanimation(md2model *m, spritetype *tspr)
                 spritesmooth[tspr->owner].mdsmooth = 1;
                 spritesmooth[tspr->owner].mdcurframe = m->cframe;
             }
-            if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
+            if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
             {
                 spriteext[tspr->owner].mdanimtims = mdtims;
                 m->interpol = 0;
@@ -892,7 +893,7 @@ void updateanimation(md2model *m, spritetype *tspr)
                 spritesmooth[tspr->owner].mdcurframe = m->cframe;
             }
         }
-        else if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
+        else if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
         {
             spriteext[tspr->owner].mdanimtims = mdtims;
             m->interpol = 0;
@@ -914,7 +915,7 @@ void updateanimation(md2model *m, spritetype *tspr)
         spriteext[tspr->owner].mdanimcur = (short)anim->startframe;
         spriteext[tspr->owner].mdanimtims = mdtims;
         m->interpol = 0;
-        if (!r_animsmoothing || (tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration == 0))
+        if (!r_animsmoothing || (tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration == 0))
         {
             m->cframe = m->nframe = anim->startframe;
             return;
@@ -926,7 +927,7 @@ void updateanimation(md2model *m, spritetype *tspr)
     }
 
     if (spritesmooth[tspr->owner].mdsmooth)
-        fps = (1.0f / (float)(tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].smoothduration)) * 66;
+        fps = (1.0f / (float)(tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration)) * 66;
     else
         fps = anim->fpssc;
 
@@ -1446,6 +1447,7 @@ static int md3draw(md3model *m, spritetype *tspr)
     void*               vbotemp;
     point3d*            vertexhandle = NULL;
     unsigned short*     indexhandle;
+    char lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
     if (r_vbos && (m->vbos == NULL))
         mdloadvbos(m);
@@ -1557,7 +1559,7 @@ static int md3draw(md3model *m, spritetype *tspr)
     pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max((globalshade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
     if (!(hictinting[globalpal].f&4))
     {
-        if (!(m->flags&1)||sector[sprite[tspr->owner].sectnum].floorpal!=0)
+        if ( !(m->flags&1) || ( !(tspr->owner >= MAXSPRITES) && sector[sprite[tspr->owner].sectnum].floorpal!=0 ) ) 
         {
             pc[0] *= (float)hictinting[globalpal].r / 255.0;
             pc[1] *= (float)hictinting[globalpal].g / 255.0;
@@ -1680,12 +1682,12 @@ static int md3draw(md3model *m, spritetype *tspr)
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; bglLoadMatrixf(mat);
         // PLAG: End
 
-        i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,globalpal,surfi); if (!i) continue;
-        //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
+        i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,globalpal,surfi); if (!i) continue;
+        //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
         if (r_detailmapping && !r_depthpeeling && !(tspr->cstat&1024))
-            i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,DETAILPAL,surfi);
+            i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
         else
             i = 0;
 
@@ -1715,7 +1717,7 @@ static int md3draw(md3model *m, spritetype *tspr)
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
             for (sk = m->skinmap; sk; sk = sk->next)
-                if ((int)sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum && sk->surfnum == surfi)
+                if ((int)sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum && sk->surfnum == surfi)
                     f = sk->param;
 
             bglMatrixMode(GL_TEXTURE);
@@ -1725,7 +1727,7 @@ static int md3draw(md3model *m, spritetype *tspr)
         }
 
         if (r_glowmapping && !r_depthpeeling && !(tspr->cstat&1024))
-            i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,GLOWPAL,surfi);
+            i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
         else
             i = 0;
 
@@ -2874,7 +2876,7 @@ int mddraw(spritetype *tspr)
         allocmodelverts = maxmodelverts;
     }
 
-    vm = models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
+    vm = models[tile2model[Ptile2tile(tspr->picnum,(tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal)].modelid];
     if (vm->mdnum == 1) { return voxdraw((voxmodel *)vm,tspr); }
     if (vm->mdnum == 3) { return md3draw((md3model *)vm,tspr); }
     return 0;

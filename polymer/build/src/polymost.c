@@ -4928,7 +4928,6 @@ void polymost_dorotatesprite(int sx, int sy, int z, short a, short picnum,
             tspr.shade = dashade;
             tspr.pal = dapalnum;
             tspr.owner = uniqid+MAXSPRITES;
-            sprite[tspr.owner].pal=dapalnum;
             globalorientation = (dastat&1)+((dastat&32)<<4)+((dastat&4)<<1);
 
             if ((dastat&10) == 2)
