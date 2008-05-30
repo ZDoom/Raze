@@ -7291,7 +7291,7 @@ int ExtInit(void)
     getmessagetimeoff = 0;
 
     Bstrcpy(apptitle, "Mapster32"VERSION"");
-	autosavetimer = totalclock+120*autosave*3;
+	autosavetimer = totalclock+120*autosave*60;
 
 #if defined(_WIN32) && defined(DUKEOSD)
     OSD_SetFunctions(
@@ -7552,7 +7552,7 @@ static void Keys2d3d(void)
             ExtSaveMap("autosave.map");
             message("Board autosaved to AUTOSAVE.MAP");
         }
-		autosavetimer = totalclock+120*autosave*3;
+		autosavetimer = totalclock+120*autosave*60;
     }
 
     if (eitherCTRL)  //CTRL
