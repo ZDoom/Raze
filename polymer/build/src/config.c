@@ -213,6 +213,8 @@ int loadsetup(const char *fn)
 
     if (readconfig(fp, "turndecel", val, VL) > 0) pk_turndecel = Batoi(val);
 
+	if (readconfig(fp, "autosave", val, VL) > 0) autosave = Batoi(val);
+
     for (i=0;i<256;i++)remap[i]=i;
     remapinit=1;
     if (readconfig(fp, "remap", val, VL) > 0)
@@ -340,6 +342,9 @@ int writesetup(const char *fn)
              "; Turning deceleration\n"
              "turndecel = %d\n"
              "\n"
+			 "; Autosave map interval (minutes)\n"
+			 "autosave = %d\n"
+			 "\n"
 #if 1
              "; Key Settings\n"
              ";  Here's a map of all the keyboard scan codes: NOTE: values are listed in hex!\n"
@@ -400,7 +405,7 @@ int writesetup(const char *fn)
              option[7]>>4, option[2],
 #endif
              option[3], msens, unrealedlook, pk_uedaccel, quickmapcycling,
-             revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,
+			 revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,
 #if 1
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
              keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],

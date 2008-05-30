@@ -2403,7 +2403,7 @@ static void moveweapons(void)
                     if (j)break;
                 }
 
-                if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS) && s->yvel >= 0)
+                if (!(hittype[i].projectile.workslike & PROJECTILE_FLAG_BOUNCESOFFWALLS) && s->yvel >= 0 && sprite[s->yvel].sectnum < MAXSECTORS)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                         j = 49152|s->yvel;
 
@@ -2861,7 +2861,7 @@ static void moveweapons(void)
 
                 j = movesprite(i,(k*(sintable[(s->ang+512)&2047]))>>14,(k*(sintable[s->ang&2047]))>>14,ll,qq);
 
-                if (s->picnum == RPG && s->yvel >= 0)
+                if (s->picnum == RPG && s->yvel >= 0 && sprite[s->yvel].sectnum < MAXSECTORS)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                         j = 49152|s->yvel;
 

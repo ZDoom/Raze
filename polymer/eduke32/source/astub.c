@@ -48,8 +48,8 @@ static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 static char *duke3dgrp = defaultduke3dgrp;
 static int fixmapbeforesaving = 1;
 static int lastsave = -180*60;
-static int spnoclip=0;
 static int NoAutoLoad = 0;
+int spnoclip=1;
 
 #if !defined(_WIN32)
 static int usecwd = 0;
@@ -7291,7 +7291,7 @@ int ExtInit(void)
     getmessagetimeoff = 0;
 
     Bstrcpy(apptitle, "Mapster32"VERSION"");
-    autosavetimer = totalclock+120*180;
+	autosavetimer = totalclock+120*autosave*3;
 
 #if defined(_WIN32) && defined(DUKEOSD)
     OSD_SetFunctions(
@@ -7520,7 +7520,7 @@ static void Keys2d3d(void)
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_A]) // ' a
     {
         keystatus[KEYSC_A] = 0;
-        autosave=!autosave;
+		autosave=autosave?0:3;
         if (autosave) message("Autosave ON");
         else message("Autosave OFF");
     }
@@ -7552,7 +7552,7 @@ static void Keys2d3d(void)
             ExtSaveMap("autosave.map");
             message("Board autosaved to AUTOSAVE.MAP");
         }
-        autosavetimer = totalclock+120*180;
+		autosavetimer = totalclock+120*autosave*3;
     }
 
     if (eitherCTRL)  //CTRL
