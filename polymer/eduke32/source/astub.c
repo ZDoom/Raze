@@ -1584,7 +1584,7 @@ static inline void _message(char message[162])
 {
     Bstrcpy(getmessage,message);
     getmessageleng = strlen(getmessage);
-    getmessagetimeoff = totalclock+120*5;
+    getmessagetimeoff = totalclock+120*3;
 }
 
 static void message(char message[162])
@@ -2645,89 +2645,110 @@ static void Keys3d(void)
         drawtileinfo("Clipboard",3,124,temppicnum,tempshade,temppal,tempcstat,templotag,temphitag,tempextra);
     }// end if usedcount
 
-    if (infobox&1)
+//    if (infobox&1)
     {
         char lines[8][64];
         int dax, day, dist, height1=0,height2=0,height3=0, num=0;
         int x,y;
 
-        height2=sector[searchsector].floorz-sector[searchsector].ceilingz;
-        switch (searchstat)
+        if (infobox&1)
         {
-        case 0:
-        case 4:
-            drawtileinfo("Current",WIND1X,WIND1Y,wall[searchwall].picnum,wall[searchwall].shade,
-                         wall[searchwall].pal,wall[searchwall].cstat,wall[searchwall].lotag,
-                         wall[searchwall].hitag,wall[searchwall].extra);
-
-            dax = wall[searchwall].x-wall[wall[searchwall].point2].x;
-            day = wall[searchwall].y-wall[wall[searchwall].point2].y;
-            dist = ksqrt(dax*dax+day*day);
-            if (wall[searchwall].nextsector!=-1)
+            height2=sector[searchsector].floorz-sector[searchsector].ceilingz;
+            switch (searchstat)
             {
-                int nextsect=wall[searchwall].nextsector;
-                height1=sector[searchsector].floorz-sector[nextsect].floorz;
-                height2=sector[nextsect].floorz-sector[nextsect].ceilingz;
-                height3=sector[nextsect].ceilingz-sector[searchsector].ceilingz;
+            case 0:
+            case 4:
+                drawtileinfo("Current",WIND1X,WIND1Y,wall[searchwall].picnum,wall[searchwall].shade,
+                             wall[searchwall].pal,wall[searchwall].cstat,wall[searchwall].lotag,
+                             wall[searchwall].hitag,wall[searchwall].extra);
+
+                dax = wall[searchwall].x-wall[wall[searchwall].point2].x;
+                day = wall[searchwall].y-wall[wall[searchwall].point2].y;
+                dist = ksqrt(dax*dax+day*day);
+                if (wall[searchwall].nextsector!=-1)
+                {
+                    int nextsect=wall[searchwall].nextsector;
+                    height1=sector[searchsector].floorz-sector[nextsect].floorz;
+                    height2=sector[nextsect].floorz-sector[nextsect].ceilingz;
+                    height3=sector[nextsect].ceilingz-sector[searchsector].ceilingz;
+                }
+                Bsprintf(lines[num++],"Panning: %3d, %3d",wall[searchwall].xpanning,wall[searchwall].ypanning);
+                Bsprintf(lines[num++],"Repeat:  %3d, %3d",wall[searchwall].xrepeat,wall[searchwall].yrepeat);
+                Bsprintf(lines[num++],"Overpic: %3d",wall[searchwall].overpicnum);
+                lines[num++][0]=0;
+                if (!getmessageleng)
+                {
+                    Bsprintf(lines[num++],"^251Wall %d^31",searchwall);
+                    if (wall[searchwall].nextsector!=-1)
+                        Bsprintf(lines[num++],"LoHeight:%d, HiHeight:%d, Length:%d",height1,height3,dist);
+                    else
+                        Bsprintf(lines[num++],"Height:%d, Length:%d",height2,dist);
+                }
+                break;
+            case 1:
+                drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].ceilingpicnum,sector[searchsector].ceilingshade,
+                             sector[searchsector].ceilingpal,sector[searchsector].ceilingstat,
+                             sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
+
+                Bsprintf(lines[num++],"Panning:  %d,%d",sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
+                Bsprintf(lines[num++],"CeilingZ: %d",sector[searchsector].ceilingz);
+                Bsprintf(lines[num++],"Slope:    %d",sector[searchsector].ceilingheinum);
+                lines[num++][0]=0;
+                if (!getmessageleng)
+                {
+                    Bsprintf(lines[num++],"^251Sector %d^31 ceiling  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
+                    Bsprintf(lines[num++],"Height: %d, Visibility:%d",height2,sector[searchsector].visibility);
+                }
+                break;
+            case 2:
+                drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].floorpicnum,sector[searchsector].floorshade,
+                             sector[searchsector].floorpal,sector[searchsector].floorstat,
+                             sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
+
+                Bsprintf(lines[num++],"Panning: %d,%d",sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
+                Bsprintf(lines[num++],"FloorZ:  %d",sector[searchsector].floorz);
+                Bsprintf(lines[num++],"Slope:   %d",sector[searchsector].floorheinum);
+                lines[num++][0]=0;
+                if (!getmessageleng)
+                {
+                    Bsprintf(lines[num++],"^251Sector %d^31 floor  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
+                    Bsprintf(lines[num++],"Height:%d, Visibility:%d",height2,sector[searchsector].visibility);
+                }
+                break;
+            case 3:
+                drawtileinfo("Current",WIND1X,WIND1Y,sprite[searchwall].picnum,sprite[searchwall].shade,
+                             sprite[searchwall].pal,sprite[searchwall].cstat,sprite[searchwall].lotag,
+                             sprite[searchwall].hitag,sprite[searchwall].extra);
+
+                Bsprintf(lines[num++],"Repeat:  %d,%d",sprite[searchwall].xrepeat,sprite[searchwall].yrepeat);
+                Bsprintf(lines[num++],"PosXY:   %d,%d",sprite[searchwall].x,sprite[searchwall].y);
+                Bsprintf(lines[num++],"PosZ: ""   %d",sprite[searchwall].z);// prevents tab character
+                lines[num++][0]=0;
+
+                if (!getmessageleng)
+                {
+                    if (strlen(names[sprite[searchwall].picnum]) > 0)
+                    {
+                        if (sprite[searchwall].picnum==SECTOREFFECTOR)
+                            Bsprintf(lines[num++],"^251Sprite %d^31 %s",searchwall,SectorEffectorText(searchwall));
+                        else Bsprintf(lines[num++],"^251Sprite %d^31 %s",searchwall,names[sprite[searchwall].picnum]);
+                    }
+                    else Bsprintf(lines[num++],"^251Sprite %d^31, picnum %d",searchwall,sprite[searchwall].picnum);
+                    Bsprintf(lines[num++],"Elevation:%d",getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y)-sprite[searchwall].z);
+                }
+                break;
             }
-            Bsprintf(lines[num++],"Panning: %3d, %3d",wall[searchwall].xpanning,wall[searchwall].ypanning);
-            Bsprintf(lines[num++],"Repeat:  %3d, %3d",wall[searchwall].xrepeat,wall[searchwall].yrepeat);
-            Bsprintf(lines[num++],"Overpic: %3d",wall[searchwall].overpicnum);
-            lines[num++][0]=0;
-            Bsprintf(lines[num++],"^251Wall %d^31",searchwall);
-            if (wall[searchwall].nextsector!=-1)
-                Bsprintf(lines[num++],"LoHeight:%d, HiHeight:%d, Length:%d",height1,height3,dist);
-            else
-                Bsprintf(lines[num++],"Height:%d, Length:%d",height2,dist);
-            break;
-        case 1:
-            drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].ceilingpicnum,sector[searchsector].ceilingshade,
-                         sector[searchsector].ceilingpal,sector[searchsector].ceilingstat,
-                         sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
-
-            Bsprintf(lines[num++],"Panning:  %d,%d",sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
-            Bsprintf(lines[num++],"CeilingZ: %d",sector[searchsector].ceilingz);
-            Bsprintf(lines[num++],"Slope:    %d",sector[searchsector].ceilingheinum);
-            lines[num++][0]=0;
-            Bsprintf(lines[num++],"^251Sector %d^31 ceiling  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
-            Bsprintf(lines[num++],"Height: %d, Visibility:%d",height2,sector[searchsector].visibility);
-            break;
-        case 2:
-            drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].floorpicnum,sector[searchsector].floorshade,
-                         sector[searchsector].floorpal,sector[searchsector].floorstat,
-                         sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
-
-            Bsprintf(lines[num++],"Panning: %d,%d",sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
-            Bsprintf(lines[num++],"FloorZ:  %d",sector[searchsector].floorz);
-            Bsprintf(lines[num++],"Slope:   %d",sector[searchsector].floorheinum);
-            lines[num++][0]=0;
-            Bsprintf(lines[num++],"^251Sector %d^31 floor  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
-            Bsprintf(lines[num++],"Height:%d, Visibility:%d",height2,sector[searchsector].visibility);
-            break;
-        case 3:
-            drawtileinfo("Current",WIND1X,WIND1Y,sprite[searchwall].picnum,sprite[searchwall].shade,
-                         sprite[searchwall].pal,sprite[searchwall].cstat,sprite[searchwall].lotag,
-                         sprite[searchwall].hitag,sprite[searchwall].extra);
-
-            Bsprintf(lines[num++],"Repeat:  %d,%d",sprite[searchwall].xrepeat,sprite[searchwall].yrepeat);
-            Bsprintf(lines[num++],"PosXY:   %d,%d",sprite[searchwall].x,sprite[searchwall].y);
-            Bsprintf(lines[num++],"PosZ: ""   %d",sprite[searchwall].z);// prevents tab character
-            lines[num++][0]=0;
-
-            if (strlen(names[sprite[searchwall].picnum]) > 0)
-            {
-                if (sprite[searchwall].picnum==SECTOREFFECTOR)
-                    Bsprintf(lines[num++],"^251Sprite %d^31 %s",searchwall,SectorEffectorText(searchwall));
-                else Bsprintf(lines[num++],"^251Sprite %d^31 %s",searchwall,names[sprite[searchwall].picnum]);
-            }
-            else Bsprintf(lines[num++],"^251Sprite %d^31, picnum %d",searchwall,sprite[searchwall].picnum);
-            Bsprintf(lines[num++],"Elevation:%d",getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y)-sprite[searchwall].z);
-            break;
         }
         x=WIND1X;y=WIND1Y;
         x*=xdimgame/320.;
         y*=ydimgame/200.;
         y+=(ydimgame>>6)*8;
+        if (getmessageleng)
+        {
+            while (num < 4)
+                lines[num++][0] = 0;
+            Bsprintf(lines[num++],"^251%s",getmessage);
+        }
         begindrawing();
         for (i=0;i<num;i++)
         {
@@ -7323,7 +7344,8 @@ void app_crashhandler(void)
         char *f;
         fixspritesectors();   //Do this before saving!
         updatesector(startposx,startposy,&startsectnum);
-        if (pathsearchmode) f = levelname;
+        if (pathsearchmode)
+            f = levelname;
         else
         {
             // virtual filesystem mode can't save to directories so drop the file into
@@ -7332,7 +7354,9 @@ void app_crashhandler(void)
             if (!f) f = levelname; else f++;
         }
         f=strstr(levelname,".map");
-        if (f)Bstrcpy(f,"_crash.map");else Bstrcat(f,"_crash.map");
+        if (f)
+            Bstrcpy(f,"_crash.map");
+        else Bstrcat(f,"_crash.map");
         ExtPreSaveMap();
         saveboard(levelname,&startposx,&startposy,&startposz,&startang,&startsectnum);
         ExtSaveMap(levelname);
@@ -7516,7 +7540,7 @@ void ExtAnalyzeSprites(void)
 
 static void Keys2d3d(void)
 {
-    int i, j;
+    int i;
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_A]) // ' a
     {
         keystatus[KEYSC_A] = 0;
@@ -7666,9 +7690,9 @@ static void Keys2d3d(void)
 
     if (getmessageleng > 0)
     {
-        charsperline = 64;
+//        charsperline = 64;
         //if (dimensionmode[snum] == 2) charsperline = 80;
-        if (qsetmode == 200)
+/*        if (qsetmode == 200)
         {
             for (i=0;i<=getmessageleng;i+=charsperline)
             {
@@ -7688,7 +7712,8 @@ static void Keys2d3d(void)
                 enddrawing();
             }
         }
-        else printmessage16(getmessage);
+        else */ if (qsetmode != 200)
+            printmessage16(getmessage);
         if (totalclock > getmessagetimeoff)
             getmessageleng = 0;
     }

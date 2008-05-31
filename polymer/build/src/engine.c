@@ -5612,6 +5612,18 @@ static void sighandler(int sig, const siginfo_t *info, void *ctx)
 // preinitengine
 //
 static int preinitcalled = 0;
+
+#define DYNALLOC_ARRAYS
+
+#ifndef DYNALLOC_ARRAYS
+spriteexttype spriteext_s[MAXSPRITES+MAXUNIQHUDID];
+spritesmoothtype spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
+sectortype sector_s[MAXSECTORS];
+walltype wall_s[MAXWALLS];
+spritetype sprite_s[MAXSPRITES];
+spritetype tsprite_s[MAXSPRITESONSCREEN];
+#endif
+
 int preinitengine(void)
 {
     char *e;
@@ -5621,6 +5633,7 @@ int preinitengine(void)
 
     // this shite is to help get around data segment size limits on some platforms
 
+#ifdef DYNALLOC_ARRAYS
     sector = Bcalloc(MAXSECTORS,sizeof(sectortype));
     wall = Bcalloc(MAXWALLS,sizeof(walltype));
     sprite = Bcalloc(MAXSPRITES,sizeof(spritetype));
@@ -5630,6 +5643,14 @@ int preinitengine(void)
 
     if (!sector || !wall || !sprite || !tsprite || !spriteext || !spritesmooth)
         return 1;
+#else
+    sector = sector_s;
+    wall = wall_s;
+    sprite = sprite_s;
+    tsprite = tsprite_s;
+    spriteext = spriteext_s;
+    spritesmooth = spritesmooth_s;
+#endif
 
     if ((e = Bgetenv("BUILD_NOP6")) != NULL)
         if (!Bstrcasecmp(e, "TRUE"))
@@ -5758,6 +5779,7 @@ void uninitengine(void)
     for (i=0;i<MAXPALOOKUPS;i++)
         if (palookup[i] != NULL) { kkfree(palookup[i]); palookup[i] = NULL; }
 
+#ifdef DYNALLOC_ARRAYS
     if (sector != NULL)
         Bfree(sector);
     if (wall != NULL)
@@ -5770,6 +5792,7 @@ void uninitengine(void)
         Bfree(spriteext);
     if (spritesmooth != NULL)
         Bfree(spritesmooth);
+#endif
 }
 
 

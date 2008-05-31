@@ -171,9 +171,10 @@ typedef struct BPACK {
 } spriteexttype;
 
 typedef struct BPACK {
+    float smoothduration;
     short mdcurframe, mdoldframe;
     short mdsmooth;
-    float smoothduration;
+    char filler[2];
 } spritesmoothtype;
 
 #define SPREXT_NOTMD 1
