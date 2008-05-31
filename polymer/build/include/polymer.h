@@ -1,7 +1,6 @@
 // here lies the GREAT JUSTICE RENDERER
 // TODO :
 // - CORE STUFF
-//   o use BufferData only once for VBOs
 //   o there's also the texture alignment problem Hunter reported (san andreas fault)
 //   o also sliding doors are still fucked up sometimes (like under the bar in E1L2)
 //   o port glowmaps and detail maps from hacked polymost (:(
@@ -65,6 +64,7 @@ typedef struct      s_prsector {
     _prplane        ceil;
     short           curindice;
     int             indicescount;
+    int             oldindicescount;
     // stuff
     float           wallsproffset;
     float           floorsproffset;

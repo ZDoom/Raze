@@ -10,7 +10,7 @@ int             pr_fov = 426;           // appears to be the classic setting.
 int             pr_billboardingmode = 1;
 int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
 int             pr_wireframe = 0;
-int             pr_vbos = 0;
+int             pr_vbos = 1;
 int             pr_mirrordepth = 1;
 
 int             glerror;
@@ -992,6 +992,14 @@ static int          polymer_initsector(short sectnum)
     bglGenBuffersARB(1, &s->floor.ivbo);
     bglGenBuffersARB(1, &s->ceil.ivbo);
 
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->floor.vbo);
+    bglBufferDataARB(GL_ARRAY_BUFFER_ARB, sec->wallnum * sizeof(GLfloat) * 5, NULL, mapvbousage);
+
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->ceil.vbo);
+    bglBufferDataARB(GL_ARRAY_BUFFER_ARB, sec->wallnum * sizeof(GLfloat) * 5, NULL, mapvbousage);
+
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
     s->controlstate = 2; // let updatesector know that everything needs to go
 
     prsectors[sectnum] = s;
@@ -1181,9 +1189,9 @@ attributes:
     if ((pr_vbos > 0) && ((i == -1) || (wallinvalidate)))
     {
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->floor.vbo);
-        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, sec->wallnum * sizeof(GLfloat) * 5, s->floor.buffer, mapvbousage);
+        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sec->wallnum * sizeof(GLfloat) * 5, s->floor.buffer);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->ceil.vbo);
-        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, sec->wallnum * sizeof(GLfloat) * 5, s->ceil.buffer, mapvbousage);
+        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sec->wallnum * sizeof(GLfloat) * 5, s->ceil.buffer);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
     }
 
@@ -1257,10 +1265,18 @@ finish:
     {
         polymer_buildfloor(sectnum);
         if ((pr_vbos > 0)) {
+            if (s->oldindicescount < s->indicescount)
+            {
+                bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
+                bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), NULL, mapvbousage);
+                bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->ceil.ivbo);
+                bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), NULL, mapvbousage);
+                s->oldindicescount = s->indicescount;
+            }
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
-            bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), s->floor.indices, mapvbousage);
+            bglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, s->indicescount * sizeof(GLushort), s->floor.indices);
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->ceil.ivbo);
-            bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), s->ceil.indices, mapvbousage);
+            bglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, s->indicescount * sizeof(GLushort), s->ceil.indices);
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
         }
     }
@@ -1411,8 +1427,21 @@ static int          polymer_initwall(short wallnum)
     bglGenBuffersARB(1, &w->wall.vbo);
     bglGenBuffersARB(1, &w->over.vbo);
     bglGenBuffersARB(1, &w->mask.vbo);
-
     bglGenBuffersARB(1, &w->stuffvbo);
+
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->wall.vbo);
+    bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, NULL, mapvbousage);
+
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->over.vbo);
+    bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, NULL, mapvbousage);
+
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->mask.vbo);
+    bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, NULL, mapvbousage);
+
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
+    bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 8 * sizeof(GLfloat) * 3, NULL, mapvbousage);
+
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
     w->controlstate = 2;
 
@@ -1874,13 +1903,12 @@ static void         polymer_updatewall(short wallnum)
     if ((pr_vbos > 0))
     {
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->wall.vbo);
-        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, w->wall.buffer, mapvbousage);
+        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->wall.buffer);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->over.vbo);
-        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, w->over.buffer, mapvbousage);
+        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->over.buffer);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->mask.vbo);
-        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, w->mask.buffer, mapvbousage);
+        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->mask.buffer);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
-        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 8 * sizeof(GLfloat) * 3, NULL, mapvbousage);
         bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 3, w->bigportal);
         bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 3, 4 * sizeof(GLfloat) * 3, w->cap);
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
