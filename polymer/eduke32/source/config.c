@@ -400,14 +400,12 @@ void CONFIG_SetupMouse(void)
         Bsprintf(str,"MouseButton%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle,"Controls", str,temp))
-            if (CONFIG_FunctionNameToNum(temp) != -1 || (!temp[0] && CONFIG_FunctionNameToNum(temp) != -1))
-                ud.config.MouseFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
+        	ud.config.MouseFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"MouseButtonClicked%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle,"Controls", str,temp))
-            if (CONFIG_FunctionNameToNum(temp) != -1 || (!temp[0] && CONFIG_FunctionNameToNum(temp) != -1))
-                ud.config.MouseFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
+        	ud.config.MouseFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
     }
 
     // map over the axes
@@ -477,14 +475,12 @@ void CONFIG_SetupJoystick(void)
         Bsprintf(str,"JoystickButton%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle,"Controls", str,temp))
-            if (CONFIG_FunctionNameToNum(temp) != -1 || (!temp[0] && CONFIG_FunctionNameToNum(temp) != -1))
-                ud.config.JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
+        	ud.config.JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(temp);
 
         Bsprintf(str,"JoystickButtonClicked%d",i);
         temp[0] = 0;
         if (!SCRIPT_GetString(ud.config.scripthandle,"Controls", str,temp))
-            if (CONFIG_FunctionNameToNum(temp) != -1 || (!temp[0] && CONFIG_FunctionNameToNum(temp) != -1))
-                ud.config.JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
+        	ud.config.JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(temp);
     }
 
     // map over the axes
