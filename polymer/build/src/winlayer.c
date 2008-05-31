@@ -3319,8 +3319,11 @@ static int SetupOpenGL(int width, int height, int bitspp)
 
     if (!glinfo.dumped)
     {
+        int oldbpp = bpp;
+        bpp = 32;
         osdcmd_glinfo(NULL);
         glinfo.dumped = TRUE;
+        bpp = oldbpp;
     }
 
     return FALSE;

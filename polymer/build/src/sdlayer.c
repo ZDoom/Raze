@@ -1132,8 +1132,11 @@ int setvideomode(int x, int y, int c, int fs)
 
         if (!glinfo.dumped)
         {
+            int oldbpp = bpp;
+            bpp = 32;
             osdcmd_glinfo(NULL);
-            glinfo.dumped = 1;
+            glinfo.dumped = TRUE;
+            bpp = oldbpp;
         }
     }
 #endif
