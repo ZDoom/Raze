@@ -2158,9 +2158,6 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     if ((pr_vbos > 1) && (m->indices == NULL))
         polymer_loadmodelvbos(m);
 
-        if (m->head.flags == 1337)
-        return;
-
     spos[0] = tspr->y;
     spos[1] = -(float)(tspr->z) / 16.0f;
     spos[2] = -tspr->x;
@@ -2168,7 +2165,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
     bglMatrixMode(GL_MODELVIEW);
     bglPushMatrix();
-    scale = (m->head.flags == 1337) ? 1.0 : (1.0/64.0);
+    scale = (1.0/64.0);
     scale *= m->scale;
     scale *= m->bscale;
     scale *= 1024;

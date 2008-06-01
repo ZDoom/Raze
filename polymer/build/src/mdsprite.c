@@ -1095,7 +1095,11 @@ static md2model *md2load(int fil, const char *filnam)
     m3 = (md3model *)calloc(1, sizeof(md3model)); if (!m3) { free(m->skinfn); free(m->basepath); free(m->uv); free(m->tris); free(m->glcmds); free(m->frames); free(m); return(0); }
     m3->mdnum = 3; m3->texid = 0; m3->scale = m->scale;
     m3->head.id = 0x33504449; m3->head.vers = 15;
-    m3->head.flags = 1337; m3->head.numframes = m->numframes;
+    // this changes the conversion code to do real MD2->MD3 conversion
+    // it breaks HRP MD2 oozfilter, change the flags to 1337 to revert
+    // to the old, working code
+    m3->head.flags = 0;
+    m3->head.numframes = m->numframes;
     m3->head.numtags = 0; m3->head.numsurfs = 1;
     m3->head.numskins = 0;
 
@@ -1169,12 +1173,17 @@ static md2model *md2load(int fil, const char *filnam)
             while (k < m->numframes)
             {
                 f = (md2frame_t *)&m->frames[k*m->framebytes];
-                //s->xyzn[(k*s->numverts) + (i*3) + j].x = ((f->verts[m->tris[i].v[j]].v[0] * f->mul.x) + f->add.x);
-                //s->xyzn[(k*s->numverts) + (i*3) + j].y = ((f->verts[m->tris[i].v[j]].v[1] * f->mul.y) + f->add.y);
-                //s->xyzn[(k*s->numverts) + (i*3) + j].z = ((f->verts[m->tris[i].v[j]].v[2] * f->mul.z) + f->add.z);
-                s->xyzn[(k*s->numverts) + (i*3) + j].x = f->verts[m->tris[i].v[j]].v[0];
-                s->xyzn[(k*s->numverts) + (i*3) + j].y = f->verts[m->tris[i].v[j]].v[1];
-                s->xyzn[(k*s->numverts) + (i*3) + j].z = f->verts[m->tris[i].v[j]].v[2];
+                if (m3->head.flags == 1337)
+                {
+                    s->xyzn[(k*s->numverts) + (i*3) + j].x = f->verts[m->tris[i].v[j]].v[0];
+                    s->xyzn[(k*s->numverts) + (i*3) + j].y = f->verts[m->tris[i].v[j]].v[1];
+                    s->xyzn[(k*s->numverts) + (i*3) + j].z = f->verts[m->tris[i].v[j]].v[2];
+                } else {
+                    s->xyzn[(k*s->numverts) + (i*3) + j].x = ((f->verts[m->tris[i].v[j]].v[0] * f->mul.x) + f->add.x) * 64;
+                    s->xyzn[(k*s->numverts) + (i*3) + j].y = ((f->verts[m->tris[i].v[j]].v[1] * f->mul.y) + f->add.y) * 64;
+                    s->xyzn[(k*s->numverts) + (i*3) + j].z = ((f->verts[m->tris[i].v[j]].v[2] * f->mul.z) + f->add.z) * 64;
+                }
+
                 k++;
             }
             j++;
