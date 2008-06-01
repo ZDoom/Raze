@@ -173,6 +173,10 @@ typedef struct
     unsigned short      *vindexes;
     float               *maxdepths;
     GLuint*             vbos;
+    // polymer VBO names after that, allocated per surface
+    GLuint*             indices;
+    GLuint*             texcoords;
+    GLuint*             geometry;
 } md3model;
 
 #define VOXBORDWIDTH 1 //use 0 to save memory, but has texture artifacts; 1 looks better...

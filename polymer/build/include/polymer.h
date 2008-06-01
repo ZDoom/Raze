@@ -14,7 +14,7 @@
 // - MDSPRITES
 //   o need to truly convert MD2s to MD3s with proper scale offset to just dump the data into VRAM
 //   o need full translation and rotation support from CON to attach to game world or tags
-//   o need to put frames into VBOs and blend between them
+//   o need to blend between frames
 //
 // the renderer should hopefully be pretty solid after all that
 // the rest will be a bliss :)
@@ -160,6 +160,9 @@ static void         polymer_initskybox(void);
 static void         polymer_getsky(void);
 static void         polymer_drawskyquad(int p1, int p2, GLfloat height);
 static void         polymer_drawartsky(short tilenum);
+// MDSPRITES
+static void         polymer_drawmdsprite(spritetype *tspr);
+static void         polymer_loadmodelvbos(md3model* m);
 
 # endif // !POLYMER_C
 

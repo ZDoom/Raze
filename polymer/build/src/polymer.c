@@ -10,12 +10,13 @@ int             pr_fov = 426;           // appears to be the classic setting.
 int             pr_billboardingmode = 1;
 int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
 int             pr_wireframe = 0;
-int             pr_vbos = 1;
+int             pr_vbos = 2;
 int             pr_mirrordepth = 1;
 
 int             glerror;
 
 GLenum          mapvbousage = GL_STREAM_DRAW_ARB;
+GLenum          modelvbousage = GL_STATIC_DRAW_ARB;
 
 // DATA
 _prsector       *prsectors[MAXSECTORS];
@@ -338,58 +339,6 @@ void                polymer_drawmaskwall(int damaskwallcnt)
     w = prwalls[maskwall[damaskwallcnt]];
 
     polymer_drawplane(-1, -3, &w->mask, 0);
-}
-
-static void         polymer_drawmdsprite(spritetype *tspr)
-{
-    md3model*       m;
-    float           spos[3];
-    float           ang;
-    float           scale;
-    int             surfi;
-    md3xyzn_t       *v0;
-    md3surf_t       *s;
-    GLuint          i;
-
-    m = (md3model*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
-    updateanimation((md2model *)m,tspr);
-
-    if (m->head.flags == 1337)
-        return;
-
-    spos[0] = tspr->y;
-    spos[1] = -(float)(tspr->z) / 16.0f;
-    spos[2] = -tspr->x;
-    ang = (float)((tspr->ang) & 2047) / (2048.0f / 360.0f);
-
-    bglMatrixMode(GL_MODELVIEW);
-    bglPushMatrix();
-    scale = (m->head.flags == 1337) ? 1.0 : (1.0/64.0);
-    scale *= m->scale;
-    scale *= m->bscale;
-    scale *= 1024;
-
-    bglTranslatef(spos[0], spos[1], spos[2]);
-    bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
-    bglRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-    bglRotatef(90.0f, 0.0f, 0.0f, 1.0f);
-    bglScalef(scale * (float)(tspr->xrepeat) / 64.0, scale * (float)(tspr->xrepeat) / 64.0, scale * (float)(tspr->yrepeat) / 64.0);
-    for (surfi=0;surfi<m->head.numsurfs;surfi++)
-    {
-        s = &m->head.surfs[surfi];
-        v0 = &s->xyzn[m->cframe*s->numverts];
-
-        i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
-        if (!i)
-            continue;
-
-        bglBindTexture(GL_TEXTURE_2D, i);
-
-        bglVertexPointer(3, GL_SHORT, sizeof(md3xyzn_t), v0);
-        bglTexCoordPointer(2, GL_FLOAT, 0, s->uv);
-        bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
-    }
-    bglPopMatrix();
 }
 
 void                polymer_drawsprite(int snum)
@@ -2190,4 +2139,110 @@ static void         polymer_drawartsky(short tilenum)
         i++;
     }
 }
+
+// MDSPRITES
+static void         polymer_drawmdsprite(spritetype *tspr)
+{
+    md3model*       m;
+    float           spos[3];
+    float           ang;
+    float           scale;
+    int             surfi;
+    md3xyzn_t       *v0;
+    md3surf_t       *s;
+    GLuint          i;
+
+    m = (md3model*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
+    updateanimation((md2model *)m,tspr);
+
+    if ((pr_vbos > 1) && (m->indices == NULL))
+        polymer_loadmodelvbos(m);
+
+        if (m->head.flags == 1337)
+        return;
+
+    spos[0] = tspr->y;
+    spos[1] = -(float)(tspr->z) / 16.0f;
+    spos[2] = -tspr->x;
+    ang = (float)((tspr->ang) & 2047) / (2048.0f / 360.0f);
+
+    bglMatrixMode(GL_MODELVIEW);
+    bglPushMatrix();
+    scale = (m->head.flags == 1337) ? 1.0 : (1.0/64.0);
+    scale *= m->scale;
+    scale *= m->bscale;
+    scale *= 1024;
+
+    bglTranslatef(spos[0], spos[1], spos[2]);
+    bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+    bglRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+    bglRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+    bglScalef(scale * (float)(tspr->xrepeat) / 64.0, scale * (float)(tspr->xrepeat) / 64.0, scale * (float)(tspr->yrepeat) / 64.0);
+    for (surfi=0;surfi<m->head.numsurfs;surfi++)
+    {
+        s = &m->head.surfs[surfi];
+        v0 = &s->xyzn[m->cframe*s->numverts];
+
+        i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
+        if (!i)
+            continue;
+
+        bglBindTexture(GL_TEXTURE_2D, i);
+
+        if (pr_vbos > 1)
+        {
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->geometry[surfi]);
+            bglVertexPointer(3, GL_SHORT, sizeof(md3xyzn_t), (GLfloat*)(m->cframe * s->numverts * sizeof(md3xyzn_t)));
+
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->texcoords[surfi]);
+            bglTexCoordPointer(2, GL_FLOAT, 0, 0);
+
+            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
+            bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
+
+            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+        } else {
+            bglVertexPointer(3, GL_SHORT, sizeof(md3xyzn_t), v0);
+            bglTexCoordPointer(2, GL_FLOAT, 0, s->uv);
+            bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
+        }
+    }
+    bglPopMatrix();
+}
+
+static void         polymer_loadmodelvbos(md3model* m)
+{
+    int             i;
+    md3surf_t       *s;
+
+    m->indices = calloc(m->head.numsurfs, sizeof(GLuint));
+    m->texcoords = calloc(m->head.numsurfs, sizeof(GLuint));
+    m->geometry = calloc(m->head.numsurfs, sizeof(GLuint));
+
+    bglGenBuffersARB(m->head.numsurfs, m->indices);
+    bglGenBuffersARB(m->head.numsurfs, m->texcoords);
+    bglGenBuffersARB(m->head.numsurfs, m->geometry);
+
+    i = 0;
+    while (i < m->head.numsurfs)
+    {
+        s = &m->head.surfs[i];
+
+        bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[i]);
+        bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->numtris * sizeof(md3tri_t), s->tris, modelvbousage);
+
+        bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->texcoords[i]);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, s->numverts * sizeof(md3uv_t), s->uv, modelvbousage);
+
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->geometry[i]);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, s->numframes * s->numverts * sizeof(md3xyzn_t), s->xyzn, modelvbousage);
+
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+        i++;
+    }
+}
+
 #endif
