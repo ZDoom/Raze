@@ -7554,7 +7554,7 @@ void showsectordata(short sectnum)
 {
     char snotbuf[80];
 
-    Bsprintf(snotbuf,"Sector %d",sectnum);
+    Bsprintf(snotbuf,"Sector %d (F7 to edit)",sectnum);
     printext16(8,ydim-STATUS2DSIZ+32,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Firstwall: %d",sector[sectnum].wallptr);
     printext16(8,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
@@ -7611,7 +7611,7 @@ void showwalldata(short wallnum)
     int dax, day, dist;
     char snotbuf[80];
 
-    Bsprintf(snotbuf,"Wall %d",wallnum);
+    Bsprintf(snotbuf,"Wall %d (F8 to edit)",wallnum);
     printext16(8,ydim-STATUS2DSIZ+32,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"X-coordinate: %d",wall[wallnum].x);
     printext16(8,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
@@ -7669,7 +7669,7 @@ void showspritedata(short spritenum)
 {
     char snotbuf[80];
 
-    Bsprintf(snotbuf,"Sprite %d",spritenum);
+    Bsprintf(snotbuf,"Sprite %d (F8 to edit)",spritenum);
     printext16(8,ydim-STATUS2DSIZ+32,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"X-coordinate: %d",sprite[spritenum].x);
     printext16(8,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);

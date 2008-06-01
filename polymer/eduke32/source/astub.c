@@ -2676,14 +2676,13 @@ static void Keys3d(void)
                 Bsprintf(lines[num++],"Repeat:  %3d, %3d",wall[searchwall].xrepeat,wall[searchwall].yrepeat);
                 Bsprintf(lines[num++],"Overpic: %3d",wall[searchwall].overpicnum);
                 lines[num++][0]=0;
-                if (!getmessageleng)
-                {
-                    Bsprintf(lines[num++],"^251Wall %d^31",searchwall);
-                    if (wall[searchwall].nextsector!=-1)
-                        Bsprintf(lines[num++],"LoHeight:%d, HiHeight:%d, Length:%d",height1,height3,dist);
-                    else
-                        Bsprintf(lines[num++],"Height:%d, Length:%d",height2,dist);
-                }
+                if (getmessageleng)
+                    break;
+                Bsprintf(lines[num++],"^251Wall %d^31",searchwall);
+                if (wall[searchwall].nextsector!=-1)
+                    Bsprintf(lines[num++],"LoHeight:%d, HiHeight:%d, Length:%d",height1,height3,dist);
+                else
+                    Bsprintf(lines[num++],"Height:%d, Length:%d",height2,dist);
                 break;
             case 1:
                 drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].ceilingpicnum,sector[searchsector].ceilingshade,
@@ -2694,11 +2693,10 @@ static void Keys3d(void)
                 Bsprintf(lines[num++],"CeilingZ: %d",sector[searchsector].ceilingz);
                 Bsprintf(lines[num++],"Slope:    %d",sector[searchsector].ceilingheinum);
                 lines[num++][0]=0;
-                if (!getmessageleng)
-                {
-                    Bsprintf(lines[num++],"^251Sector %d^31 ceiling  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
-                    Bsprintf(lines[num++],"Height: %d, Visibility:%d",height2,sector[searchsector].visibility);
-                }
+                if (getmessageleng)
+                    break;
+                Bsprintf(lines[num++],"^251Sector %d^31 ceiling  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
+                Bsprintf(lines[num++],"Height: %d, Visibility:%d",height2,sector[searchsector].visibility);
                 break;
             case 2:
                 drawtileinfo("Current",WIND1X,WIND1Y,sector[searchsector].floorpicnum,sector[searchsector].floorshade,
@@ -2709,11 +2707,10 @@ static void Keys3d(void)
                 Bsprintf(lines[num++],"FloorZ:  %d",sector[searchsector].floorz);
                 Bsprintf(lines[num++],"Slope:   %d",sector[searchsector].floorheinum);
                 lines[num++][0]=0;
-                if (!getmessageleng)
-                {
-                    Bsprintf(lines[num++],"^251Sector %d^31 floor  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
-                    Bsprintf(lines[num++],"Height:%d, Visibility:%d",height2,sector[searchsector].visibility);
-                }
+                if (getmessageleng)
+                    break;
+                Bsprintf(lines[num++],"^251Sector %d^31 floor  Lotag:%s",searchsector,ExtGetSectorCaption(searchsector));
+                Bsprintf(lines[num++],"Height:%d, Visibility:%d",height2,sector[searchsector].visibility);
                 break;
             case 3:
                 drawtileinfo("Current",WIND1X,WIND1Y,sprite[searchwall].picnum,sprite[searchwall].shade,
@@ -2725,17 +2722,16 @@ static void Keys3d(void)
                 Bsprintf(lines[num++],"PosZ: ""   %d",sprite[searchwall].z);// prevents tab character
                 lines[num++][0]=0;
 
-                if (!getmessageleng)
+                if (getmessageleng)
+                    break;
+                if (strlen(names[sprite[searchwall].picnum]) > 0)
                 {
-                    if (strlen(names[sprite[searchwall].picnum]) > 0)
-                    {
-                        if (sprite[searchwall].picnum==SECTOREFFECTOR)
-                            Bsprintf(lines[num++],"^251Sprite %d^31 %s",searchwall,SectorEffectorText(searchwall));
-                        else Bsprintf(lines[num++],"^251Sprite %d^31 %s",searchwall,names[sprite[searchwall].picnum]);
-                    }
-                    else Bsprintf(lines[num++],"^251Sprite %d^31, picnum %d",searchwall,sprite[searchwall].picnum);
-                    Bsprintf(lines[num++],"Elevation:%d",getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y)-sprite[searchwall].z);
+                    if (sprite[searchwall].picnum==SECTOREFFECTOR)
+                        Bsprintf(lines[num++],"^251Sprite %d^31 %s",searchwall,SectorEffectorText(searchwall));
+                    else Bsprintf(lines[num++],"^251Sprite %d^31 %s",searchwall,names[sprite[searchwall].picnum]);
                 }
+                else Bsprintf(lines[num++],"^251Sprite %d^31, picnum %d",searchwall,sprite[searchwall].picnum);
+                Bsprintf(lines[num++],"Elevation:%d",getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y)-sprite[searchwall].z);
                 break;
             }
         }
@@ -5598,6 +5594,7 @@ static void Keys2d(void)
     char col;
 
     int repeatcountx=0,repeatcounty=0,smooshyalign,changedir;
+    static int opointhighlight=0, olinehighlight=0, ocursectornum=0;
     /*
        for(i=0;i<0x50;i++)
        {if(keystatus[i]==1) {Bsprintf(tempbuf,"key %d",i); printmessage16(tempbuf);
@@ -5642,7 +5639,31 @@ static void Keys2d(void)
         else _printmessage16("");
     }
 
+    if (opointhighlight != pointhighlight || olinehighlight != linehighlight || ocursectornum != cursectornum)
+    {
+        if (pointhighlight >= 16384)
+        {
+            i = pointhighlight-16384;
+            clearmidstatbar16();
+            showspritedata((short)i);
+        }
+        else if ((linehighlight >= 0) && (sectorofwall(linehighlight) == cursectornum))
+        {
+            clearmidstatbar16();
+            showwalldata((short)linehighlight);
+        }
+        else if (cursectornum >= 0)
+        {
+            clearmidstatbar16();
+            showsectordata((short)cursectornum);
+        }
+        opointhighlight = pointhighlight;
+        olinehighlight = linehighlight;
+        ocursectornum = cursectornum;
+    }
+
     begindrawing();
+
     for (i=0;i<numsprites;i++) // Game specific 2D sprite stuff goes here.  Drawn on top of everything else.
     {
         xp1 = mulscale14(sprite[i].x-posx,zoom);
@@ -5651,9 +5672,9 @@ static void Keys2d(void)
         if (sprite[i].picnum == 5 /*&& zoom >= 256*/ && sprite[i].sectnum != MAXSECTORS)
         {
             radius = mulscale15(sprite[i].hitag,zoom);
-            col = 6;
+            col = 14;
             if (i+16384 == pointhighlight)
-                if (totalclock & 32) col += (2<<2);
+                if (totalclock & 32) col -= (2<<2);
             drawlinepat = 0xf0f0f0f0;
             drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
             drawlinepat = 0xffffffff;
@@ -7312,7 +7333,7 @@ int ExtInit(void)
     getmessagetimeoff = 0;
 
     Bstrcpy(apptitle, "Mapster32"VERSION"");
-	autosavetimer = totalclock+120*autosave*60;
+    autosavetimer = totalclock+120*autosave;
 
 #if defined(_WIN32) && defined(DUKEOSD)
     OSD_SetFunctions(
@@ -7544,7 +7565,7 @@ static void Keys2d3d(void)
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_A]) // ' a
     {
         keystatus[KEYSC_A] = 0;
-		autosave=autosave?0:3;
+        autosave=autosave?0:180; // 3 minutes
         if (autosave) message("Autosave ON");
         else message("Autosave OFF");
     }
@@ -7567,7 +7588,7 @@ static void Keys2d3d(void)
 
     if ((totalclock > autosavetimer) && (autosave))
     {
-        if (asksave)
+        if (asksave == 1)
         {
             fixspritesectors();   //Do this before saving!
             //             updatesector(startposx,startposy,&startsectnum);
@@ -7575,8 +7596,9 @@ static void Keys2d3d(void)
             saveboard("autosave.map",&startposx,&startposy,&startposz,&startang,&startsectnum);
             ExtSaveMap("autosave.map");
             message("Board autosaved to AUTOSAVE.MAP");
+            asksave = 2;
         }
-		autosavetimer = totalclock+120*autosave*60;
+        autosavetimer = totalclock+120*autosave;
     }
 
     if (eitherCTRL)  //CTRL
@@ -7692,27 +7714,28 @@ static void Keys2d3d(void)
     {
 //        charsperline = 64;
         //if (dimensionmode[snum] == 2) charsperline = 80;
-/*        if (qsetmode == 200)
-        {
-            for (i=0;i<=getmessageleng;i+=charsperline)
-            {
-                for (j=0;j<charsperline;j++)
-                    tempbuf[j] = getmessage[i+j];
-                if (getmessageleng < i+charsperline)
-                    tempbuf[(getmessageleng-i)] = 0;
-                else
-                    tempbuf[charsperline] = 0;
-                begindrawing();
-                if (tempbuf[charsperline] != 0)
+        /*        if (qsetmode == 200)
                 {
-                    printext256((MESSAGEX*(xdimgame/320.))+2,(MESSAGEY*(ydimgame/200.))+2,0,-1,tempbuf,xdimgame>640?0:1);
-                    printext256(MESSAGEX*(xdimgame/320.),MESSAGEY*(ydimgame/200.),
-                                (totalclock > (lastmessagetime + 120*5))?whitecol:256-5,-1,tempbuf,xdimgame>640?0:1);
+                    for (i=0;i<=getmessageleng;i+=charsperline)
+                    {
+                        for (j=0;j<charsperline;j++)
+                            tempbuf[j] = getmessage[i+j];
+                        if (getmessageleng < i+charsperline)
+                            tempbuf[(getmessageleng-i)] = 0;
+                        else
+                            tempbuf[charsperline] = 0;
+                        begindrawing();
+                        if (tempbuf[charsperline] != 0)
+                        {
+                            printext256((MESSAGEX*(xdimgame/320.))+2,(MESSAGEY*(ydimgame/200.))+2,0,-1,tempbuf,xdimgame>640?0:1);
+                            printext256(MESSAGEX*(xdimgame/320.),MESSAGEY*(ydimgame/200.),
+                                        (totalclock > (lastmessagetime + 120*5))?whitecol:256-5,-1,tempbuf,xdimgame>640?0:1);
+                        }
+                        enddrawing();
+                    }
                 }
-                enddrawing();
-            }
-        }
-        else */ if (qsetmode != 200)
+                else */
+        if (qsetmode != 200)
             printmessage16(getmessage);
         if (totalclock > getmessagetimeoff)
             getmessageleng = 0;

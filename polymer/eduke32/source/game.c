@@ -4416,11 +4416,11 @@ int EGS(int whatsect,int s_x,int s_y,int s_z,int s_pn,int s_s,int s_xr,int s_yr,
     ResetActorGameVars(i);
     hittype[i].flags = 0;
 
-	{
-		int pl=findplayer(&sprite[i],&p);
-    	if (apScriptGameEvent[EVENT_EGS])
-			OnEvent(EVENT_EGS,i, pl, p);
-	}
+    {
+        int pl=findplayer(&sprite[i],&p);
+        if (apScriptGameEvent[EVENT_EGS])
+            OnEvent(EVENT_EGS,i, pl, p);
+    }
 
     return(i);
 }
@@ -6348,11 +6348,11 @@ int spawn(int j, int pn)
             break;
         }
 
-	{
-		int pl=findplayer(&sprite[i],&p);
-    	if (apScriptGameEvent[EVENT_SPAWN])
-			OnEvent(EVENT_SPAWN,i, pl, p);
-	}
+    {
+        int pl=findplayer(&sprite[i],&p);
+        if (apScriptGameEvent[EVENT_SPAWN])
+            OnEvent(EVENT_SPAWN,i, pl, p);
+    }
 
     return i;
 }

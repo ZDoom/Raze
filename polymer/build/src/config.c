@@ -342,7 +342,7 @@ int writesetup(const char *fn)
              "; Turning deceleration\n"
              "turndecel = %d\n"
              "\n"
-			 "; Autosave map interval (minutes)\n"
+			 "; Autosave map interval (seconds)\n"
 			 "autosave = %d\n"
 			 "\n"
 #if 1
