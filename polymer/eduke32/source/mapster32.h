@@ -93,7 +93,8 @@ short cursprite;
 int mousxplc, mousyplc, ppointhighlight;
 int counter=0;
 unsigned char nosprites=0,purpleon=0,skill=4;
-unsigned char framerateon=1,shadepreview=0,autosave=3,sidemode=0;
+unsigned char framerateon=1,shadepreview=0,sidemode=0;
+int autosave=180;
 extern int vel, svel, hvel, angvel;
 int xvel, yvel, timoff;
 

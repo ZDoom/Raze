@@ -213,7 +213,8 @@ int loadsetup(const char *fn)
 
     if (readconfig(fp, "turndecel", val, VL) > 0) pk_turndecel = Batoi(val);
 
-	if (readconfig(fp, "autosave", val, VL) > 0) autosave = Batoi(val);
+	if (readconfig(fp, "autosave", val, VL) > 0) autosave = Batoi(val)*60;
+	if (readconfig(fp, "autosavesec", val, VL) > 0) autosave = Batoi(val);
 
     for (i=0;i<256;i++)remap[i]=i;
     remapinit=1;
@@ -343,7 +344,7 @@ int writesetup(const char *fn)
              "turndecel = %d\n"
              "\n"
 			 "; Autosave map interval (seconds)\n"
-			 "autosave = %d\n"
+			 "autosavesec = %d\n"
 			 "\n"
 #if 1
              "; Key Settings\n"

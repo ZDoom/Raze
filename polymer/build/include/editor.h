@@ -48,7 +48,7 @@ extern int ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
 extern char unrealedlook, quickmapcycling;
 extern int pk_turnaccel,pk_turndecel,pk_uedaccel;
 extern int revertCTRL,scrollamount;
-extern unsigned char autosave;
+extern int autosave;
 
 
 extern int ExtInit(void);
