@@ -10973,7 +10973,7 @@ void clear2dscreen(void)
 //
 void draw2dgrid(int posxe, int posye, short ange, int zoome, short gride)
 {
-    int i, xp1, yp1, xp2=0, yp2, tempy;
+    int64 i, xp1, yp1, xp2=0, yp2, tempy;
 
     UNREFERENCED_PARAMETER(ange);
 

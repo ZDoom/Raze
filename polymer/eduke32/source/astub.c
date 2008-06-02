@@ -5639,7 +5639,7 @@ static void Keys2d(void)
         else _printmessage16("");
     }
 
-    if (opointhighlight != pointhighlight || olinehighlight != linehighlight || ocursectornum != cursectornum)
+    if (bstatus&1 || opointhighlight != pointhighlight || olinehighlight != linehighlight || ocursectornum != cursectornum)
     {
         if (pointhighlight >= 16384)
         {
@@ -5657,6 +5657,7 @@ static void Keys2d(void)
             clearmidstatbar16();
             showsectordata((short)cursectornum);
         }
+        else clearmidstatbar16();
         opointhighlight = pointhighlight;
         olinehighlight = linehighlight;
         ocursectornum = cursectornum;
@@ -5672,12 +5673,12 @@ static void Keys2d(void)
         if (sprite[i].picnum == 5 /*&& zoom >= 256*/ && sprite[i].sectnum != MAXSECTORS)
         {
             radius = mulscale15(sprite[i].hitag,zoom);
-            col = 14;
+            col = 6;
             if (i+16384 == pointhighlight)
-                if (totalclock & 32) col -= (2<<2);
-            drawlinepat = 0xf0f0f0f0;
+                if (totalclock & 32) col += (2<<2);
+//            drawlinepat = 0xf0f0f0f0;
             drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
-            drawlinepat = 0xffffffff;
+//            drawlinepat = 0xffffffff;
         }
     }
     enddrawing();
