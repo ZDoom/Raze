@@ -4475,6 +4475,23 @@ void overheadeditor(void)
             posy = mousyplc;
         }
 
+        if (circlewall != -1 && (keystatus[0x4a] || (bstatus&32 && !(keystatus[0x1d]|keystatus[0x9d]))))  // -
+        {
+            if (circlepoints > 1)
+                circlepoints--;
+            keystatus[0x4a] = 0;
+            mouseb &= ~32;
+            bstatus &= ~32;
+        }
+        if (circlewall != -1 && (keystatus[0x4e] || (bstatus&16 && !(keystatus[0x1d]|keystatus[0x9d]))))  // +
+        {
+            if (circlepoints < 63)
+                circlepoints++;
+            keystatus[0x4e] = 0;
+            mouseb &= ~16;
+            bstatus &= ~16;
+        }
+
         if ((keystatus[buildkeys[BK_MOVEUP]] || (bstatus&16)) && (zoom < 16384))
         {
             zoom += synctics*(zoom>>4);
@@ -4820,18 +4837,6 @@ void overheadeditor(void)
                     circlewall = linehighlight;
             }
             keystatus[0x2e] = 0;
-        }
-        if (keystatus[0x4a])  // -
-        {
-            if (circlepoints > 1)
-                circlepoints--;
-            keystatus[0x4a] = 0;
-        }
-        if (keystatus[0x4e])  // +
-        {
-            if (circlepoints < 63)
-                circlepoints++;
-            keystatus[0x4e] = 0;
         }
 
         bad = (keystatus[0x39]);  //Gotta do this to save lots of 3 spaces!
