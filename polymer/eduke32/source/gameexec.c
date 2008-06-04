@@ -6678,14 +6678,15 @@ static int parse(void)
             // syntax [gs]etactorvar[<var>].<varx> <VAR>
             // gets the value of the per-actor variable varx into VAR
             // <var> <varx> <VAR>
-            int lSprite=GetGameVarID(*insptr++, g_i, g_p), lVar1=*insptr++, lVar2=*insptr++;
+            int lSprite=GetGameVarID(*insptr++, g_i, g_p), lVar1=*insptr++;
+            j=*insptr++;
 
             if (tw == CON_SETACTORVAR)
             {
-                SetGameVarID(lVar1, GetGameVarID(lVar2, g_i, g_p), lSprite, g_p);
+                SetGameVarID(lVar1, GetGameVarID(j, g_i, g_p), lSprite, g_p);
                 break;
             }
-            SetGameVarID(lVar2, GetGameVarID(lVar1, lSprite, g_p), g_i, g_p);
+            SetGameVarID(j, GetGameVarID(lVar1, lSprite, g_p), g_i, g_p);
             break;
         }
 

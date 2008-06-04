@@ -2624,6 +2624,9 @@ static void Keys3d(void)
             {
                 if (wall[i].picnum == temppicnum) count++;
                 if (wall[i].overpicnum == temppicnum) count++;
+            }
+            for (i=0;i<numsectors;i++)
+            {
                 if (sector[i].ceilingpicnum == temppicnum) count++;
                 if (sector[i].floorpicnum == temppicnum) count++;
             }

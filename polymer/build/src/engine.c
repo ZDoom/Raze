@@ -7649,7 +7649,8 @@ int saveboard(char *filename, int *daposx, int *daposy, int *daposz,
         Bwrite(fil,&tsect[0],sizeof(sectortype) * numsectors);
         Bfree(tsect);
 
-        ts = B_LITTLE16(numwalls);      Bwrite(fil,&ts,2);
+        ts = B_LITTLE16(numwalls);
+        Bwrite(fil,&ts,2);
 
         twall = (walltype *)Bmalloc(sizeof(walltype) * numwalls);
 
@@ -7687,7 +7688,7 @@ int saveboard(char *filename, int *daposx, int *daposy, int *daposz,
 
         spri=tspri;
 
-        for (j=0;j<MAXSPRITES;j++)
+        for (j=0;j<numsprites;j++)
         {
             if (sprite[j].statnum != MAXSTATUS)
             {
