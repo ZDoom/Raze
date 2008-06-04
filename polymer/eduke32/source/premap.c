@@ -361,6 +361,7 @@ static void dofrontscreens(char *statustext)
 
         if (statustext) gametext(160,180,statustext,0,2+8+16);
 
+		OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
         nextpage();
 
         if (!statustext)
@@ -391,6 +392,7 @@ static void dofrontscreens(char *statustext)
         }
         menutext(160,105,0,0,"LOADING...");
         if (statustext) gametext(160,180,statustext,0,2+8+16);
+		OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
         nextpage();
     }
 }
