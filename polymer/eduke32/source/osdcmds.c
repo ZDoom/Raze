@@ -942,7 +942,7 @@ static int osdcmd_name(const osdfuncparm_t *parm)
         tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
     Bstrncpy(myname,tempbuf,sizeof(myname)-1);
-    myname[sizeof(myname)] = '\0';
+    myname[sizeof(myname)-1] = '\0';
 
     OSD_Printf("name %s\n",myname);
 

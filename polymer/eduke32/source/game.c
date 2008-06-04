@@ -9873,7 +9873,7 @@ static void Startup(void)
             tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
         Bstrncpy(myname,tempbuf,sizeof(myname)-1);
-        myname[sizeof(myname)] = '\0';
+        myname[sizeof(myname)-1] = '\0';
     }
 
     if (CommandMap)

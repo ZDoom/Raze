@@ -18,10 +18,8 @@
 //#include <GL/glext.h>
 #if defined(__APPLE__)
 # include <OpenGL/glext.h>
-#elif defined(_MSC_VER)
-# include "glext.h"
 #else
-# include "GL/glext.h"
+# include "glext.h"
 #endif
 
 #ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
