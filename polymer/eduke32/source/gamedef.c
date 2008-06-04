@@ -3106,6 +3106,27 @@ static int parsecommand(void)
             return 0;
         }
         textptr++;
+
+		if (scriptptr[-1] == g_iThisActorID) // convert to "setvarvar"
+		{
+			scriptptr--;
+			scriptptr[-1]=CON_SETVARVAR;
+			if (tw == CON_SETACTORVAR || tw == CON_SETPLAYERVAR)
+			{
+				transvartype(GAMEVAR_FLAG_READONLY);
+				transvar();
+			}
+			else
+			{
+				scriptptr++;
+				transvar();
+				scriptptr-=2;
+				transvartype(GAMEVAR_FLAG_READONLY);
+				scriptptr++;
+			}
+			break;
+		}
+
         /// now pointing at 'xxx'
 
         // get the ID of the DEF
