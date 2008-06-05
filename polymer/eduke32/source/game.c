@@ -446,8 +446,8 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
     {
         if (*t == '^' && isdigit(*(t+1)))
         {
-            char smallbuf[3];
-            t += 1;
+            char smallbuf[4];
+            t++;
             if (isdigit(*(t+1)))
             {
                 smallbuf[0] = *(t++);

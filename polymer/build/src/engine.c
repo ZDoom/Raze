@@ -11437,9 +11437,9 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
 //
 void printext16(int xpos, int ypos, short col, short backcol, char *name, char fontsize)
 {
-    int stx, i, x, y, charxsiz;
+    int stx, i, x, y, charxsiz, ocol = col, obackcol = backcol;
     char *fontptr, *letptr, *ptr;
-
+    char smallbuf[4];
     stx = xpos;
 
     if (fontsize) { fontptr = smalltextfont; charxsiz = 4; }
@@ -11448,6 +11448,68 @@ void printext16(int xpos, int ypos, short col, short backcol, char *name, char f
     begindrawing(); //{{{
     for (i=0;name[i];i++)
     {
+        if (name[i] == '^')
+        {
+            i++;
+            if (name[i] == 'O') // ^O resets formatting
+            {
+                col = ocol;
+                backcol = obackcol;
+                continue;
+            }
+            if (isdigit(name[i]))
+            {
+                if (isdigit(name[i+1]))
+                {
+                    if (isdigit(name[i+2]))
+                    {
+                        Bmemcpy(&smallbuf[0],&name[i],3);
+                        i += 2;
+                        smallbuf[3] = '\0';
+                    }
+                    else
+                    {
+                        Bmemcpy(&smallbuf[0],&name[i],2);
+                        i++;
+                        smallbuf[2] = '\0';
+                    }
+                }
+                else
+                {
+                    smallbuf[0] = name[i];
+                    smallbuf[1] = '\0';
+                }
+                col = atol(smallbuf);
+
+                if (name[i+1] == ',' && isdigit(name[i+2]))
+                {
+                    i+=2;
+                    if (isdigit(name[i+1]))
+                    {
+                        if (isdigit(name[i+2]))
+                        {
+                            Bmemcpy(&smallbuf[0],&name[i],3);
+                            i += 2;
+                            smallbuf[3] = '\0';
+                        }
+                        else
+                        {
+                            Bmemcpy(&smallbuf[0],&name[i],2);
+                            i++;
+                            smallbuf[2] = '\0';
+                        }
+                    }
+                    else
+                    {
+                        smallbuf[0] = name[i];
+                        smallbuf[1] = '\0';
+                    }
+                    backcol = atol(smallbuf);
+                }
+                continue;
+            }
+        }
+
         letptr = &fontptr[name[i]<<3];
         ptr = (char *)(bytesperline*(ypos+7)+(stx-fontsize)+frameplace);
         for (y=7;y>=0;y--)

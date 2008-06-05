@@ -6724,7 +6724,8 @@ int getnumber16(char namestart[80], int num, int maxnumber, char sign)
 
         ch = bgetchar();
 
-        Bsprintf(buffer,"%s%d_ ",namestart,danum);
+        Bsprintf(buffer,"%s^011%d",namestart,danum);
+        if (totalclock & 32) Bstrcat(buffer,"_ ");
         printmessage16(buffer);
         showframe(1);
 
@@ -7559,7 +7560,7 @@ void showsectordata(short sectnum)
 {
     char snotbuf[80];
 
-    Bsprintf(snotbuf,"Sector %d (F7 to edit)",sectnum);
+    Bsprintf(snotbuf,"^10Sector %d ^O(F7 to edit)",sectnum);
     printext16(8,ydim-STATUS2DSIZ+32,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"Firstwall: %d",sector[sectnum].wallptr);
     printext16(8,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
@@ -7616,7 +7617,7 @@ void showwalldata(short wallnum)
     int dax, day, dist;
     char snotbuf[80];
 
-    Bsprintf(snotbuf,"Wall %d (F8 to edit)",wallnum);
+    Bsprintf(snotbuf,"^10Wall %d ^O(F8 to edit)",wallnum);
     printext16(8,ydim-STATUS2DSIZ+32,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"X-coordinate: %d",wall[wallnum].x);
     printext16(8,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
@@ -7674,7 +7675,7 @@ void showspritedata(short spritenum)
 {
     char snotbuf[80];
 
-    Bsprintf(snotbuf,"Sprite %d (F8 to edit)",spritenum);
+    Bsprintf(snotbuf,"^10Sprite %d ^O(F8 to edit)",spritenum);
     printext16(8,ydim-STATUS2DSIZ+32,11,-1,snotbuf,0);
     Bsprintf(snotbuf,"X-coordinate: %d",sprite[spritenum].x);
     printext16(8,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
