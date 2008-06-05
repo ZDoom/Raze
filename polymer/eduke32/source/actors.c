@@ -548,7 +548,7 @@ void deletespriteEVENT(int s)
     if (apScriptGameEvent[EVENT_KILLIT])
     {
         int p;
-        int pl=findplayer(&sprite[s],(int *)&p);
+        int pl=findplayer(&sprite[s],&p);
         SetGameVarID(g_iReturnVarID,0, -1, -1);
         OnEvent(EVENT_KILLIT, s, pl, p);
         if (GetGameVarID(g_iReturnVarID, -1, -1))
@@ -7592,7 +7592,7 @@ void moveobjects(void)
             {
                 int pl;
                 j = nextspritestat[i];
-                pl=findplayer(&sprite[i],(int *)&p);
+                pl=findplayer(&sprite[i],&p);
                 OnEvent(EVENT_GAME,i, pl, p);
                 i = j;
             }
