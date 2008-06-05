@@ -7748,6 +7748,7 @@ void ExtUnInit(void)
         if (s_TileGroups[i].szText != NULL)
             Bfree(s_TileGroups[i].szText);
     }
+    if (helppage) free(helppage);
 }
 
 static char wallshades[MAXWALLS];
