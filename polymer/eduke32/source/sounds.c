@@ -269,7 +269,7 @@ int loadsound(unsigned int num)
 
     g_sounds[num].lock = 200;
 
-    allocache((int *)&g_sounds[num].ptr,l,(char *)&g_sounds[num].lock);
+    allocache((intptr_t *)&g_sounds[num].ptr,l,(char *)&g_sounds[num].lock);
     kread(fp, g_sounds[num].ptr , l);
     kclose(fp);
     return 1;
