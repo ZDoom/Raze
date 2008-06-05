@@ -6845,7 +6845,7 @@ int loadboard(char *filename, char fromwhere, int *daposx, int *daposy, int *dap
 
         if (sprite[i].sectnum<0||sprite[i].sectnum>=MYMAXSECTORS)
         {
-			initprintf("Map error: sprite #%d(%d,%d) with an illegal sector(%d)\n",i,sprite[i].x,sprite[i].y,sprite[i].sectnum);
+            initprintf("Map error: sprite #%d(%d,%d) with an illegal sector(%d)\n",i,sprite[i].x,sprite[i].y,sprite[i].sectnum);
             sprite[i].sectnum=MYMAXSECTORS-1;
         }
     }
@@ -7594,11 +7594,11 @@ int saveboard(char *filename, int *daposx, int *daposy, int *daposz,
     if ((fil = Bopen(filename,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
         return(-1);
 
-	for (j=0;j<MAXSPRITES;j++)if((unsigned)sprite[j].statnum>MAXSTATUS)
-	{
-		initprintf("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",j,sprite[j].x,sprite[j].y,sprite[j].statnum);
-		changespritestat(j,0);
-	}
+    for (j=0;j<MAXSPRITES;j++)if ((unsigned)sprite[j].statnum>MAXSTATUS)
+        {
+            initprintf("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",j,sprite[j].x,sprite[j].y,sprite[j].statnum);
+            changespritestat(j,0);
+        }
 
     numsprites = 0;
     for (j=0;j<MAXSTATUS;j++)

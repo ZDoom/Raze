@@ -138,7 +138,7 @@ static char *Help3d[]=
     " ' D = CYCLE SPRITE SKILL DISPLAY",
     " ' R = TOGGLE FRAMERATE DISPLAY",
     " ' W = TOGGLE SPRITE DISPLAY",
-    " ' X = SPRITE SHADE PREVIEW",
+    " ' X = MAP SHADE PREVIEW",
     " ' Y = TOGGLE PURPLE BACKGROUND",
     "",
     " ' T = CHANGE LOTAG",
@@ -4256,8 +4256,8 @@ static void Keys3d(void)
     {
         keystatus[KEYSC_X] = 0;
         shadepreview=!shadepreview;
-        if (shadepreview) message("Sprite shade preview ON");
-        else message("Sprite shade preview OFF");
+        if (shadepreview) message("Map shade preview ON");
+        else message("Map shade preview OFF");
     }
 
 
@@ -7405,10 +7405,70 @@ void ExtUnInit(void)
     }
 }
 
+static char wallshades[MAXWALLS];
+static char sectorshades[MAXSECTORS][2];
+static char spriteshades[MAXSPRITES];
+static char wallpals[MAXWALLS];
+static char sectorpals[MAXSECTORS][2];
+static char spritepals[MAXSPRITES];
+static char wallflag[MAXWALLS];
+
 void ExtPreCheckKeys(void) // just before drawrooms
 {
     if (qsetmode == 200)    //In 3D mode
     {
+        if (shadepreview)
+        {
+            int i = 0;
+            for (i=0;i<numsprites;i++)
+                if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || sprite[i].lotag == 3))
+                {
+                    int w;
+                    int start_wall = sector[sprite[i].sectnum].wallptr;
+                    int end_wall = start_wall + sector[sprite[i].sectnum].wallnum;
+
+                    for (w = start_wall; w < end_wall; w++)
+                    {
+                        if (!wallflag[w])
+                        {
+                            wallshades[w] = wall[w].shade;
+                            wall[w].shade = sprite[i].shade;
+                            wallpals[w] = wall[w].pal;
+                            wall[w].pal = sprite[i].pal;
+                            wallflag[w] = 1;
+                        }
+                        if (wall[w].nextwall >= 0)
+                        {
+                            if (!wallflag[wall[w].nextwall])
+                            {
+                                wallshades[wall[w].nextwall] = wall[wall[w].nextwall].shade;
+                                wall[wall[w].nextwall].shade = sprite[i].shade;
+                                wallpals[wall[w].nextwall] = wall[wall[w].nextwall].pal;
+                                wall[wall[w].nextwall].pal = sprite[i].pal;
+                                wallflag[wall[w].nextwall] = 1;
+                            }
+                        }
+                    }
+                    sectorshades[sprite[i].sectnum][0] = sector[sprite[i].sectnum].floorshade;
+                    sectorshades[sprite[i].sectnum][1] = sector[sprite[i].sectnum].ceilingshade;
+                    sector[sprite[i].sectnum].floorshade = sprite[i].shade;
+                    sector[sprite[i].sectnum].ceilingshade = sprite[i].shade;
+                    sectorpals[sprite[i].sectnum][0] = sector[sprite[i].sectnum].floorpal;
+                    sectorpals[sprite[i].sectnum][1] = sector[sprite[i].sectnum].ceilingpal;
+                    sector[sprite[i].sectnum].floorpal = sprite[i].pal;
+                    sector[sprite[i].sectnum].ceilingpal = sprite[i].pal;
+                    w = headspritesect[sprite[i].sectnum];
+                    while (w >= 0)
+                    {
+                        if (w == i) { w = nextspritesect[w]; continue; }
+                        spriteshades[w] = sprite[w].shade;
+                        sprite[w].shade = sprite[i].shade;
+                        spritepals[w] = sprite[w].pal;
+                        sprite[w].pal = sprite[i].pal;
+                        w = nextspritesect[w];
+                    }
+                }
+        }
         if (floor_over_floor) SE40Code(posx,posy,posz,ang,horiz);
         if (purpleon) clearview(255);
         if (sidemode != 0)
@@ -7749,6 +7809,52 @@ static void Keys2d3d(void)
 
 void ExtCheckKeys(void)
 {
+    if (qsetmode == 200)
+    {
+        if (shadepreview)
+        {
+            int i = 0;
+            for (i=0;i<numsprites;i++)
+                if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || sprite[i].lotag == 3))
+                {
+                    int w;
+                    int start_wall = sector[sprite[i].sectnum].wallptr;
+                    int end_wall = start_wall + sector[sprite[i].sectnum].wallnum;
+
+                    for (w = start_wall; w < end_wall; w++)
+                    {
+                        if (wallflag[w])
+                        {
+                            wall[w].shade = wallshades[w];
+                            wall[w].pal = wallpals[w];
+                            wallflag[w] = 0;
+                        }
+                        if (wall[w].nextwall >= 0)
+                        {
+                            if (wallflag[wall[w].nextwall])
+                            {
+                                wall[wall[w].nextwall].shade = wallshades[wall[w].nextwall];
+                                wall[wall[w].nextwall].pal = wallpals[wall[w].nextwall];
+                                wallflag[wall[w].nextwall] = 0;
+                            }
+                        }
+                    }
+                    sector[sprite[i].sectnum].floorshade = sectorshades[sprite[i].sectnum][0];
+                    sector[sprite[i].sectnum].ceilingshade = sectorshades[sprite[i].sectnum][1];
+                    sector[sprite[i].sectnum].floorpal = sectorpals[sprite[i].sectnum][0];
+                    sector[sprite[i].sectnum].ceilingpal = sectorpals[sprite[i].sectnum][1];
+
+                    w = headspritesect[sprite[i].sectnum];
+                    while (w >= 0)
+                    {
+                        if (w == i) { w = nextspritesect[w]; continue; }
+                        sprite[w].shade = spriteshades[w];
+                        sprite[w].pal = spritepals[w];
+                        w = nextspritesect[w];
+                    }
+                }
+        }
+    }
     readmousebstatus(&bstatus);
     Keys2d3d();
     if (qsetmode == 200)    //In 3D mode

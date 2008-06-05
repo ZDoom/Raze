@@ -12709,7 +12709,7 @@ FRAGBONUS:
             }
         }
         else break;
-		OnEvent(EVENT_DISPLAYBONUSSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
+        OnEvent(EVENT_DISPLAYBONUSSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
         nextpage();
     }
 }

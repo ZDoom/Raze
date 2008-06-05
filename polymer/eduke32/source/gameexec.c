@@ -2143,14 +2143,14 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         SetGameVarID(lVar2, g_player[iPlayer].ps->on_ground, g_i, g_p);
         return;
 
-/*    case PLAYER_NAME:
-        if (iSet)
-        {
-            g_player[iPlayer].ps->name[32]=lValue;
-            return;
-        }
-        SetGameVarID(lVar2, g_player[iPlayer].ps->name[32], g_i, g_p);
-        return;*/
+        /*    case PLAYER_NAME:
+                if (iSet)
+                {
+                    g_player[iPlayer].ps->name[32]=lValue;
+                    return;
+                }
+                SetGameVarID(lVar2, g_player[iPlayer].ps->name[32], g_i, g_p);
+                return;*/
 
     case PLAYER_INVEN_ICON:
         if (iSet)

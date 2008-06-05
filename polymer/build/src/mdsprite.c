@@ -1178,7 +1178,9 @@ static md2model *md2load(int fil, const char *filnam)
                     s->xyzn[(k*s->numverts) + (i*3) + j].x = f->verts[m->tris[i].v[j]].v[0];
                     s->xyzn[(k*s->numverts) + (i*3) + j].y = f->verts[m->tris[i].v[j]].v[1];
                     s->xyzn[(k*s->numverts) + (i*3) + j].z = f->verts[m->tris[i].v[j]].v[2];
-                } else {
+                }
+                else
+                {
                     s->xyzn[(k*s->numverts) + (i*3) + j].x = ((f->verts[m->tris[i].v[j]].v[0] * f->mul.x) + f->add.x) * 64;
                     s->xyzn[(k*s->numverts) + (i*3) + j].y = ((f->verts[m->tris[i].v[j]].v[1] * f->mul.y) + f->add.y) * 64;
                     s->xyzn[(k*s->numverts) + (i*3) + j].z = ((f->verts[m->tris[i].v[j]].v[2] * f->mul.z) + f->add.z) * 64;
@@ -1568,7 +1570,7 @@ static int md3draw(md3model *m, spritetype *tspr)
     pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max((globalshade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
     if (!(hictinting[globalpal].f&4))
     {
-        if ( !(m->flags&1) || ( !(tspr->owner >= MAXSPRITES) && sector[sprite[tspr->owner].sectnum].floorpal!=0 ) ) 
+        if (!(m->flags&1) || (!(tspr->owner >= MAXSPRITES) && sector[sprite[tspr->owner].sectnum].floorpal!=0))
         {
             pc[0] *= (float)hictinting[globalpal].r / 255.0;
             pc[1] *= (float)hictinting[globalpal].g / 255.0;

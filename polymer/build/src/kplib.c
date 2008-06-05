@@ -1960,7 +1960,7 @@ static int kgifrend(const char *kfilebuf, int kfilelength,
     int lzcols, dat, blocklen, bitcnt, xoff, transcol, backcol, *lptr;
     char numbits, startnumbits, chunkind, ilacefirst;
     const unsigned char *ptr, *cptr = 0;
-intptr_t yoff;
+    intptr_t yoff;
     UNREFERENCED_PARAMETER(kfilelength);
 
     coltype = 3; bitdepth = 8; //For PNGOUT

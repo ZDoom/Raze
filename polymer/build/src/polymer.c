@@ -368,8 +368,8 @@ void                polymer_drawsprite(int snum)
     pth = gltexcache(curpicnum, tspr->pal, 0);
 
     spriteplane.color[0] =
-    spriteplane.color[1] =
-    spriteplane.color[2] = ((float)(numpalookups-min(max(tspr->shade,0),numpalookups)))/((float)numpalookups);
+        spriteplane.color[1] =
+            spriteplane.color[2] = ((float)(numpalookups-min(max(tspr->shade,0),numpalookups)))/((float)numpalookups);
 
     if (pth && (pth->flags & 2) && (pth->palnum != tspr->pal))
     {
@@ -766,9 +766,12 @@ static void         polymer_drawplane(short sectnum, short wallnum, _prplane* pl
         bglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
         bglStencilFunc(GL_EQUAL, 0, 0xffffffff);
 
-        if (plane->vbo && (pr_vbos > 0)) {
+        if (plane->vbo && (pr_vbos > 0))
+        {
             OMGDRAWSHITVBO;
-        } else {
+        }
+        else
+        {
             OMGDRAWSHIT;
         }
 
@@ -860,9 +863,12 @@ static void         polymer_drawplane(short sectnum, short wallnum, _prplane* pl
         bglColor4f(plane->color[0], plane->color[1], plane->color[2], plane->color[3]);
 
     bglBindTexture(GL_TEXTURE_2D, plane->glpic);
-    if (plane->vbo && (pr_vbos > 0)) {
+    if (plane->vbo && (pr_vbos > 0))
+    {
         OMGDRAWSHITVBO;
-    } else {
+    }
+    else
+    {
         OMGDRAWSHIT;
     }
 
@@ -1213,7 +1219,8 @@ finish:
     if (needfloor)
     {
         polymer_buildfloor(sectnum);
-        if ((pr_vbos > 0)) {
+        if ((pr_vbos > 0))
+        {
             if (s->oldindicescount < s->indicescount)
             {
                 bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
@@ -1520,7 +1527,7 @@ static void         polymer_updatewall(short wallnum)
             w->wall.fbglpic = 0;
 
         w->wall.color[0] = w->wall.color[1] = w->wall.color[2] =
-                                                ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
+                                                  ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
         w->wall.color[3] = 1.0f;
 
         if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
@@ -1576,9 +1583,9 @@ static void         polymer_updatewall(short wallnum)
         nnwallnum = wall[nwallnum].point2;
 
         if (((s->floor.buffer[((wallnum - sec->wallptr) * 5) + 1] != ns->floor.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-              (s->floor.buffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->floor.buffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
-              ((s->floor.buffer[((wallnum - sec->wallptr) * 5) + 1] <= ns->floor.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-              (s->floor.buffer[((wal->point2 - sec->wallptr) * 5) + 1] <= ns->floor.buffer[((nwallnum - nsec->wallptr) * 5) + 1])))
+                (s->floor.buffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->floor.buffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
+                ((s->floor.buffer[((wallnum - sec->wallptr) * 5) + 1] <= ns->floor.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
+                 (s->floor.buffer[((wal->point2 - sec->wallptr) * 5) + 1] <= ns->floor.buffer[((nwallnum - nsec->wallptr) * 5) + 1])))
             underwall = 1;
 
         if ((underwall) || (wal->cstat & 16))
@@ -1617,7 +1624,7 @@ static void         polymer_updatewall(short wallnum)
                 w->wall.fbglpic = 0;
 
             w->wall.color[0] = w->wall.color[1] = w->wall.color[2] =
-                                                    ((float)(numpalookups-min(max(curshade,0),numpalookups)))/((float)numpalookups);
+                                                      ((float)(numpalookups-min(max(curshade,0),numpalookups)))/((float)numpalookups);
             w->wall.color[3] = 1.0f;
 
             if (pth && (pth->flags & 2) && (pth->palnum != curpal))
@@ -1674,9 +1681,9 @@ static void         polymer_updatewall(short wallnum)
         }
 
         if (((s->ceil.buffer[((wallnum - sec->wallptr) * 5) + 1] != ns->ceil.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-              (s->ceil.buffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->ceil.buffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
-              ((s->ceil.buffer[((wallnum - sec->wallptr) * 5) + 1] >= ns->ceil.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-              (s->ceil.buffer[((wal->point2 - sec->wallptr) * 5) + 1] >= ns->ceil.buffer[((nwallnum - nsec->wallptr) * 5) + 1])))
+                (s->ceil.buffer[((wal->point2 - sec->wallptr) * 5) + 1] != ns->ceil.buffer[((nwallnum - nsec->wallptr) * 5) + 1])) &&
+                ((s->ceil.buffer[((wallnum - sec->wallptr) * 5) + 1] >= ns->ceil.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
+                 (s->ceil.buffer[((wal->point2 - sec->wallptr) * 5) + 1] >= ns->ceil.buffer[((nwallnum - nsec->wallptr) * 5) + 1])))
             overwall = 1;
 
         if ((overwall) || (wal->cstat & 16))
@@ -1707,7 +1714,7 @@ static void         polymer_updatewall(short wallnum)
                 w->mask.glpic = pth ? pth->glpic : 0;
 
                 w->mask.color[0] = w->mask.color[1] = w->mask.color[2] =
-                                                        ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
+                                                          ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
                 w->mask.color[3] = 1.0f;
 
                 if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
@@ -1736,7 +1743,7 @@ static void         polymer_updatewall(short wallnum)
                 w->over.fbglpic = 0;
 
             w->over.color[0] = w->over.color[1] = w->over.color[2] =
-                                                    ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
+                                                      ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
             w->over.color[3] = 1.0f;
 
             if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
@@ -2199,7 +2206,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-        } else {
+        }
+        else
+        {
             bglVertexPointer(3, GL_SHORT, sizeof(md3xyzn_t), v0);
             bglTexCoordPointer(2, GL_FLOAT, 0, s->uv);
             bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);

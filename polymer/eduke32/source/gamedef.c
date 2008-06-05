@@ -1162,10 +1162,10 @@ static int CheckEventSync(int iEventID)
         case EVENT_CHEATGETFIRSTAID:
         case EVENT_DISPLAYCROSSHAIR:
         case EVENT_DISPLAYREST:
-		case EVENT_DISPLAYBONUSSCREEN:
-		case EVENT_DISPLAYMENU:
-		case EVENT_DISPLAYMENUREST:
-		case EVENT_DISPLAYLOADINGSCREEN:
+        case EVENT_DISPLAYBONUSSCREEN:
+        case EVENT_DISPLAYMENU:
+        case EVENT_DISPLAYMENUREST:
+        case EVENT_DISPLAYLOADINGSCREEN:
         case EVENT_DISPLAYROOMS:
         case EVENT_DISPLAYSBAR:
         case EVENT_DISPLAYWEAPON:
@@ -3111,25 +3111,25 @@ static int parsecommand(void)
         }
         textptr++;
 
-		if (scriptptr[-1] == g_iThisActorID) // convert to "setvarvar"
-		{
-			scriptptr--;
-			scriptptr[-1]=CON_SETVARVAR;
-			if (tw == CON_SETACTORVAR || tw == CON_SETPLAYERVAR)
-			{
-				transvartype(GAMEVAR_FLAG_READONLY);
-				transvar();
-			}
-			else
-			{
-				scriptptr++;
-				transvar();
-				scriptptr-=2;
-				transvartype(GAMEVAR_FLAG_READONLY);
-				scriptptr++;
-			}
-			break;
-		}
+        if (scriptptr[-1] == g_iThisActorID) // convert to "setvarvar"
+        {
+            scriptptr--;
+            scriptptr[-1]=CON_SETVARVAR;
+            if (tw == CON_SETACTORVAR || tw == CON_SETPLAYERVAR)
+            {
+                transvartype(GAMEVAR_FLAG_READONLY);
+                transvar();
+            }
+            else
+            {
+                scriptptr++;
+                transvar();
+                scriptptr-=2;
+                transvartype(GAMEVAR_FLAG_READONLY);
+                scriptptr++;
+            }
+            break;
+        }
 
         /// now pointing at 'xxx'
 
@@ -4890,10 +4890,10 @@ static void AddDefaultDefinitions(void)
     AddDefinition("EVENT_CROUCH",EVENT_CROUCH,LABEL_DEFINE);
     AddDefinition("EVENT_DISPLAYCROSSHAIR",EVENT_DISPLAYCROSSHAIR,LABEL_DEFINE);
     AddDefinition("EVENT_DISPLAYREST",EVENT_DISPLAYREST,LABEL_DEFINE);
-	AddDefinition("EVENT_DISPLAYBONUSSCREEN",EVENT_DISPLAYBONUSSCREEN,LABEL_DEFINE);
-	AddDefinition("EVENT_DISPLAYMENU",EVENT_DISPLAYMENU,LABEL_DEFINE);
-	AddDefinition("EVENT_DISPLAYMENUREST",EVENT_DISPLAYMENUREST,LABEL_DEFINE);
-	AddDefinition("EVENT_DISPLAYLOADINGSCREEN",EVENT_DISPLAYLOADINGSCREEN,LABEL_DEFINE);
+    AddDefinition("EVENT_DISPLAYBONUSSCREEN",EVENT_DISPLAYBONUSSCREEN,LABEL_DEFINE);
+    AddDefinition("EVENT_DISPLAYMENU",EVENT_DISPLAYMENU,LABEL_DEFINE);
+    AddDefinition("EVENT_DISPLAYMENUREST",EVENT_DISPLAYMENUREST,LABEL_DEFINE);
+    AddDefinition("EVENT_DISPLAYLOADINGSCREEN",EVENT_DISPLAYLOADINGSCREEN,LABEL_DEFINE);
     AddDefinition("EVENT_DISPLAYROOMS",EVENT_DISPLAYROOMS,LABEL_DEFINE);
     AddDefinition("EVENT_DISPLAYSBAR",EVENT_DISPLAYSBAR,LABEL_DEFINE);
     AddDefinition("EVENT_DISPLAYWEAPON",EVENT_DISPLAYWEAPON,LABEL_DEFINE);
