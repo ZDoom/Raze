@@ -1152,6 +1152,343 @@ static void Show2dText(char *name)
 
 }// end Show2dText
 
+// PK_ vvvv
+typedef struct helppage_
+{
+    int numlines;
+    char line[][80];  // C99 flexible array member
+} helppage_t;
+
+helppage_t **helppage=NULL;
+int numhelppages=0;
+
+static int emptyline(const char *start)
+{
+    int i;
+    for (i=0; i<80; i++)
+    {
+        if (start[i]=='\n' || !start[i]) break;
+        if (start[i]!=' ' && start[i]!='\t' && start[i]!='\r')
+            return 0;
+    }
+    return 1;
+}
+
+#define IHELP_INITPAGES 32
+#define IHELP_INITLINES 16
+
+static void ReadHelpFile(const char *name)
+{
+    BFILE *fp;
+    int i, j, k, numallocpages;
+    long int pos, charsread=0;
+    helppage_t *hp;
+    char skip=0;
+
+    if ((fp=fopenfrompath(name,"rb")) == NULL)
+    {
+        initprintf("Error initializing integrated help: file \"%s\" not found.\n", name);
+        return;
+    }
+
+    helppage=malloc(IHELP_INITPAGES * sizeof(helppage_t *));
+    numallocpages=IHELP_INITPAGES;
+    if (!helppage) goto ERROR;
+
+    i=0;
+    while (!Bfeof(fp) && !ferror(fp))
+    {
+        while (!Bfeof(fp))    // skip empty lines
+        {
+            pos = ftell(fp);
+            Bfgets(tempbuf, 80, fp);
+            charsread = ftell(fp)-pos;
+            if (!emptyline(tempbuf))
+            {
+                break;
+            }
+        }
+
+        if (Bfeof(fp) || charsread<=0) break;
+
+        hp=Bcalloc(1,sizeof(helppage_t) + IHELP_INITLINES*80);
+        if (!hp) goto ERROR;
+        hp->numlines = IHELP_INITLINES;
+
+        if (charsread == 79 && tempbuf[78]!='\n') skip=1;
+        j=0;
+
+        do
+        {
+            if (j >= hp->numlines)
+            {
+                hp=realloc(hp, sizeof(helppage_t) + 2*hp->numlines*80);
+                if (!hp) goto ERROR;
+                hp->numlines *= 2;
+            }
+
+            // limit the line length to 78 chars and probably get rid of the CR
+            if (charsread>0)
+            {
+                tempbuf[charsread-1]=0;
+                if (tempbuf[charsread-2]==0x0d) tempbuf[charsread-2]=0;
+            }
+
+            memcpy(hp->line[j], tempbuf, 80);
+
+            for (k=charsread; k<80; k++) hp->line[j][k]=0;
+
+            if (skip)
+            {
+                while (fgetc(fp)!='\n' && !Bfeof(fp)) /*skip rest of line*/;
+                skip=0;
+            }
+
+            pos = ftell(fp);
+            Bfgets(tempbuf, 80, fp);
+            charsread = ftell(fp)-pos;
+            if (charsread == 79 && tempbuf[78]!='\n') skip=1;
+
+            j++;
+
+        }
+        while (!emptyline(tempbuf) && !Bfeof(fp) && charsread>0);
+
+        hp=realloc(hp, sizeof(helppage_t) + j*80);
+        if (!hp) goto ERROR;
+        hp->numlines=j;
+
+        if (i >= numallocpages)
+        {
+            helppage = realloc(helppage, 2*numallocpages*sizeof(helppage_t *));
+            numallocpages *= 2;
+            if (!helppage) goto ERROR;
+        }
+        helppage[i] = hp;
+        i++;
+    }
+
+    helppage = realloc(helppage, i*sizeof(helppage_t *));
+    if (!helppage) goto ERROR;
+    numhelppages = i;
+
+    Bfclose(fp);
+    return;
+
+ERROR:
+
+    Bfclose(fp);
+    initprintf("ReadHelpFile(): ERROR allocating memory.\n");
+    return;
+}
+
+#define IHELP_NUMDISPLINES 10
+#define IHELP_PATLEN 45
+
+static void IntegratedHelp()
+{
+    int i, j;
+    int curhp=0, curline=0;
+    int highlighthp=-1, highlightline=-1, lasthighlighttime=0;
+    char disptext[IHELP_NUMDISPLINES][80];
+    char oldpattern[IHELP_PATLEN+1];
+
+    if (!helppage) return;
+
+    memset(oldpattern, 0, sizeof(char));
+    clearmidstatbar16();
+
+    while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0)
+    {
+        if (handleevents())
+        {
+            if (quitevent) quitevent = 0;
+        }
+        idle();
+//        printmessage16("Help mode, press <Esc> to exit");
+
+        if (keystatus[KEYSC_T])    // goto table of contents
+        {
+            keystatus[KEYSC_T]=0;
+            curhp=0;
+            curline=0;
+        }
+        else if (keystatus[KEYSC_G])    // goto arbitrary page
+        {
+            keystatus[KEYSC_G]=0;
+            Bsprintf(tempbuf, "Goto page: ");
+            curhp=getnumber16(tempbuf, 0, numhelppages-1, 0);
+            curline=0;
+        }
+        else if (keystatus[KEYSC_UP])    // scroll up
+        {
+            keystatus[KEYSC_UP]=0;
+            if (curline>0) curline--;
+        }
+        else if (keystatus[KEYSC_DOWN])    // scroll down
+        {
+            keystatus[KEYSC_DOWN]=0;
+            if (curline+IHELP_NUMDISPLINES < helppage[curhp]->numlines) curline++;
+        }
+        else if (keystatus[KEYSC_PGUP])    // scroll one page up
+        {
+            keystatus[KEYSC_PGUP]=0;
+            i=IHELP_NUMDISPLINES;
+            while (i>0 && curline>0) i--, curline--;
+        }
+        else if (keystatus[KEYSC_PGDN])    // scroll one page down
+        {
+            keystatus[KEYSC_PGDN]=0;
+            i=IHELP_NUMDISPLINES;
+            while (i>0 && curline+IHELP_NUMDISPLINES < helppage[curhp]->numlines) i--, curline++;
+        }
+        else if (keystatus[KEYSC_HOME])    // goto beginning of page
+        {
+            keystatus[KEYSC_HOME]=0;
+            curline=0;
+        }
+        else if (keystatus[KEYSC_END])    // goto end of page
+        {
+            keystatus[KEYSC_END]=0;
+            if ((curline=helppage[curhp]->numlines-IHELP_NUMDISPLINES) >= 0) /**/;
+            else curline=0;
+        }
+        else if (keystatus[KEYSC_LEFT])    // prev page
+        {
+            keystatus[KEYSC_LEFT]=0;
+            if (curhp>0)
+            {
+                curhp--;
+                curline=0;
+            }
+        }
+        else if (keystatus[KEYSC_RIGHT])    // next page
+        {
+            keystatus[KEYSC_RIGHT]=0;
+            if (curhp<numhelppages-1)
+            {
+                curhp++;
+                curline=0;
+            }
+        }
+
+        // based on 'save as' dialog in overheadeditor()
+        else if (keystatus[KEYSC_S])    // text search
+        {
+
+            char ch, bad=0, pattern[IHELP_PATLEN+1];
+
+            for (i=0; i<IHELP_PATLEN+1; i++) pattern[i]=0;
+
+            i=0;
+            bflushchars();
+            while (bad == 0)
+            {
+                Bsprintf(tempbuf,"Search: %s_", pattern);
+                printmessage16(tempbuf);
+                showframe(1);
+
+                if (handleevents())
+                {
+                    if (quitevent) quitevent = 0;
+                }
+                idle();
+
+                ch = bgetchar();
+
+                if (keystatus[1]) bad = 1;
+                else if (ch == 13) bad = 2;
+                else if (ch > 0)
+                {
+                    if (i > 0 && (ch == 8 || ch == 127))
+                    {
+                        i--;
+                        pattern[i] = 0;
+                    }
+                    else if (i < IHELP_PATLEN && ch >= 32 && ch < 128)
+                    {
+                        pattern[i++] = ch;
+                        pattern[i] = 0;
+                    }
+                }
+            }
+
+            if (bad==1)
+            {
+                keystatus[KEYSC_ESC] = 0;
+            }
+
+            if (bad==2)
+            {
+                keystatus[KEYSC_ENTER] = 0;
+
+                for (i=curhp; i<numhelppages; i++)
+                {
+                    for (j = (i==curhp)?(curline+1):0; j<helppage[i]->numlines; j++)
+                    {
+                        // entering an empty pattern will search with the last used pattern
+                        if (strstr(helppage[i]->line[j], pattern[0]?pattern:oldpattern))
+                        {
+                            curhp = i;
+
+                            if ((curline=j) <= helppage[i]->numlines-IHELP_NUMDISPLINES) /**/;
+                            else if ((curline=helppage[i]->numlines-IHELP_NUMDISPLINES) >= 0) /**/;
+                            else curline=0;
+
+                            highlighthp = i;
+                            highlightline = j;
+                            lasthighlighttime = totalclock;
+                            goto ENDFOR1;
+                        }
+                    }
+                }
+ENDFOR1:
+                if (pattern[0])
+                    memcpy(oldpattern, pattern, IHELP_PATLEN+1);
+            }
+        }
+        else    // '1'-'0' on the upper row
+        {
+            for (i=2; i<=11; i++)
+                if (keystatus[i]) break;
+            if (i--<12 && i<numhelppages)
+            {
+                curhp=i;
+            }
+        }
+
+        clearmidstatbar16();
+        if (curhp < helppage[0]->numlines)
+        {
+            printmessage16(helppage[0]->line[curhp]);
+        }
+        else
+        {
+            for (i=Bsprintf(tempbuf, "%d. (Untitled page)", curhp); i<80; i++)
+                tempbuf[i]=0;
+            printmessage16(tempbuf);
+        }
+
+        for (i=0; j=(curhp==0)?(i+curline+1):(i+curline),
+                i<IHELP_NUMDISPLINES && j<helppage[curhp]->numlines; i++)
+        {
+            Bmemcpy(disptext[i], helppage[curhp]->line[j], 80);
+            printext16(8,ydim-STATUS2DSIZ+32+i*9,11,
+                       (j==highlightline && curhp==highlighthp
+                        && totalclock-lasthighlighttime<120*5)?1:-1,
+                       disptext[i],0);
+        }
+
+        showframe(1);
+    }
+
+    printmessage16("");
+    showframe(1);
+
+    keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = 0;
+}
+// PK_ ^^^^
+
 static void Show3dText(char *name)
 {
     int fp,t;
@@ -5690,19 +6027,25 @@ static void Keys2d(void)
     {
         keystatus[KEYSC_F1]=0;
         clearmidstatbar16();
-        begindrawing();
-        for (i=0;i<MAXHELP2D;i++)
+
+// PK_
+        if (numhelppages>0) IntegratedHelp();
+        else
         {
-            k = 0;
-            j = 0;
-            if (i > 9)
+            begindrawing();
+            for (i=0;i<MAXHELP2D;i++)
             {
-                j = 256;
-                k = 90;
+                k = 0;
+                j = 0;
+                if (i > 9)
+                {
+                    j = 256;
+                    k = 90;
+                }
+                printext16(j,ydim16+32+(i*9)-k,11,-1,Help2d[i],0);
             }
-            printext16(j,ydim16+32+(i*9)-k,11,-1,Help2d[i],0);
+            enddrawing();
         }
-        enddrawing();
     }
 
     getpoint(searchx,searchy,&mousxplc,&mousyplc);
@@ -6503,6 +6846,8 @@ int ExtPreInit(int argc,const char **argv)
     initprintf("Copyright (c) 2008 EDuke32 team\n");
 
     checkcommandline(argc,argv);
+
+    ReadHelpFile("m32help.hlp");
 
     return 0;
 }
@@ -8788,38 +9133,6 @@ static void FuncMenuOpts(void)
 
     Bsprintf(snotbuf,"Global visibility divide");
     printext16(200,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
-    /*
-        Bsprintf(snotbuf,"     (0x%x), (0x%x)",sprite[spritenum].hitag,sprite[spritenum].lotag);
-        printext16(8,ydim-STATUS2DSIZ+104,11,-1,snotbuf,0);
-
-        printext16(200,ydim-STATUS2DSIZ+32,11,-1,names[sprite[spritenum].picnum],0);
-        Bsprintf(snotbuf,"Flags (hex): %x",sprite[spritenum].cstat);
-        printext16(200,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
-        Bsprintf(snotbuf,"Shade: %d",sprite[spritenum].shade);
-        printext16(200,ydim-STATUS2DSIZ+56,11,-1,snotbuf,0);
-        Bsprintf(snotbuf,"Pal: %d",sprite[spritenum].pal);
-        printext16(200,ydim-STATUS2DSIZ+64,11,-1,snotbuf,0);
-        Bsprintf(snotbuf,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat);
-        printext16(200,ydim-STATUS2DSIZ+72,11,-1,snotbuf,0);
-        Bsprintf(snotbuf,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset);
-        printext16(200,ydim-STATUS2DSIZ+80,11,-1,snotbuf,0);
-        Bsprintf(snotbuf,"Tile number: %d",sprite[spritenum].picnum);
-        printext16(200,ydim-STATUS2DSIZ+88,11,-1,snotbuf,0);
-
-        Bsprintf(snotbuf,"Angle (2048 degrees): %d",sprite[spritenum].ang);
-        printext16(400,ydim-STATUS2DSIZ+48,11,-1,snotbuf,0);
-        Bsprintf(snotbuf,"X-Velocity: %d",sprite[spritenum].xvel);
-        printext16(400,ydim-STATUS2DSIZ+56,11,-1,snotbuf,0);
-        Bsprintf(snotbuf,"Y-Velocity: %d",sprite[spritenum].yvel);
-        printext16(400,ydim-STATUS2DSIZ+64,11,-1,snotbuf,0);
-        Bsprintf(snotbuf,"Z-Velocity: %d",sprite[spritenum].zvel);
-        printext16(400,ydim-STATUS2DSIZ+72,11,-1,snotbuf,0);
-        Bsprintf(snotbuf,"Owner: %d",sprite[spritenum].owner);
-        printext16(400,ydim-STATUS2DSIZ+80,11,-1,snotbuf,0);
-        Bsprintf(snotbuf,"Clipdist: %d",sprite[spritenum].clipdist);
-        printext16(400,ydim-STATUS2DSIZ+88,11,-1,snotbuf,0);
-        Bsprintf(snotbuf,"Extra: %d",sprite[spritenum].extra);
-        printext16(400,ydim-STATUS2DSIZ+96,11,-1,snotbuf,0); */
 }
 
 static void FuncMenu(void)
