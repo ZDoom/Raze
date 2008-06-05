@@ -4775,7 +4775,8 @@ BOLT:
 static void moveexplosions(void)  // STATNUM 5
 {
     short i, j, nexti, sect, p;
-    int l, x, *t;
+    int l, x;
+    intptr_t *t;
     spritetype *s;
     int switchpicnum;
 
@@ -5338,8 +5339,8 @@ BOLT:
 
 static void moveeffectors(void)   //STATNUM 3
 {
-    int q=0, l, m, x, st, j;
-    intptr_t *t;
+    int q=0,  m, x, st, j;
+    intptr_t *t,l;
     int i = headspritestat[3], nexti, nextk, p, sh, nextj;
     short k;
     spritetype *s;
@@ -6891,9 +6892,9 @@ static void moveeffectors(void)   //STATNUM 3
             if (t[0] == 0) break;
 
             if (s->ang == 1536)
-                l = (int) &sc->ceilingz;
+                l = (intptr_t) &sc->ceilingz;
             else
-                l = (int) &sc->floorz;
+                l = (intptr_t) &sc->floorz;
 
             if (t[0] == 1)   //Decide if the s->sectnum should go up or down
             {
