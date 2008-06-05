@@ -1322,6 +1322,9 @@ static void AddSystemVars()
 
     AddGameVar("display_mirror",(int)&display_mirror, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_CHARPTR | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("randomseed",(int)&randomseed, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
+
+	AddGameVar("numwalls",(int)&numwalls, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY);
+	AddGameVar("numsectors",(int)&numsectors, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY);
 }
 
 void InitGameVars(void)
@@ -1463,4 +1466,7 @@ static void ResetPointerVars(void)
 
     aGameVars[GetGameID("display_mirror")].lValue = (intptr_t)&display_mirror;
     aGameVars[GetGameID("randomseed")].lValue = (intptr_t)&randomseed;
+
+	aGameVars[GetGameID("numwalls")].lValue = (intptr_t)&numwalls;
+	aGameVars[GetGameID("numsectors")].lValue = (intptr_t)&numsectors;
 }
