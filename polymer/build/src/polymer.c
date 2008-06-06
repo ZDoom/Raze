@@ -12,11 +12,14 @@ int             pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2
 int             pr_wireframe = 0;
 int             pr_vbos = 2;
 int             pr_mirrordepth = 1;
+int             pr_gpusmoothing = 1;
 
 int             glerror;
 
 GLenum          mapvbousage = GL_STREAM_DRAW_ARB;
 GLenum          modelvbousage = GL_STATIC_DRAW_ARB;
+
+GLuint          modelvp;
 
 // DATA
 _prsector       *prsectors[MAXSECTORS];
@@ -75,6 +78,32 @@ _pranimatespritesinfo asi;
 int                 polymer_init(void)
 {
     int             i, j;
+    char            modelvpstring[] =
+                    "!!ARBvp1.0\n"
+                    "ATTRIB in_pos = vertex.position;\n"
+                    "ATTRIB in_pos2 = vertex.texcoord[1];\n"
+                    "ATTRIB in_col = vertex.color;\n"
+                    "ATTRIB in_tex = vertex.texcoord;\n"
+                    "OUTPUT out_pos = result.position;\n"
+                    "OUTPUT out_col = result.color;\n"
+                    "OUTPUT out_tex = result.texcoord;\n"
+                    "OUTPUT out_fog = result.fogcoord;\n"
+                    "PARAM mvp[4] = { state.matrix.mvp };\n"
+                    "PARAM bld[2] = { state.matrix.texture[0].row[0..1] };\n"
+                    "TEMP a;\n"
+                    "TEMP b;\n"
+                    "MUL a, in_pos2, bld[0].x;\n"
+                    "MUL b, in_pos, bld[1].y;\n"
+                    "ADD a, a, b;\n"
+                    "DP4 b.x, mvp[0], a;\n"
+                    "DP4 b.y, mvp[1], a;\n"
+                    "DP4 b.z, mvp[2], a;\n"
+                    "DP4 b.w, mvp[3], a;\n"
+                    "MOV out_pos, b;\n"
+                    "MOV out_col, in_col;\n"
+                    "MOV out_tex, in_tex;\n"
+                    "MOV out_fog, b.z;\n"
+                    "END\n";
 
     if (pr_verbosity >= 1) OSD_Printf("Initalizing Polymer subsystem...\n");
 
@@ -117,6 +146,13 @@ int                 polymer_init(void)
             j++;
         }
         i++;
+    }
+
+    if (pr_gpusmoothing)
+    {
+        bglGenProgramsARB(1, &modelvp);
+        bglBindProgramARB(GL_VERTEX_PROGRAM_ARB, modelvp);
+        bglProgramStringARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(modelvpstring), modelvpstring);
     }
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete.\n");
@@ -2160,7 +2196,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     float           scale;
     GLfloat         color[4];
     int             surfi;
-    md3xyzn_t       *v0;
+    md3xyzn_t       *v0, *v1;
     md3surf_t       *s;
     GLuint          i;
 
@@ -2240,10 +2276,21 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
     bglColor4f(color[0], color[1], color[2], color[3]);
 
+    if (pr_gpusmoothing)
+    {
+        bglEnable(GL_VERTEX_PROGRAM_ARB);
+
+        bglMatrixMode(GL_TEXTURE);
+        bglLoadIdentity();
+        bglScalef(m->interpol, 1 - m->interpol, 1.0);
+        bglMatrixMode(GL_MODELVIEW);
+    }
+
     for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
         s = &m->head.surfs[surfi];
         v0 = &s->xyzn[m->cframe*s->numverts];
+        v1 = &s->xyzn[m->nframe*s->numverts];
 
         i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].skinnum,tspr->pal,surfi);
         if (!i)
@@ -2253,26 +2300,65 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
         if (pr_vbos > 1)
         {
-            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->geometry[surfi]);
-            bglVertexPointer(3, GL_SHORT, sizeof(md3xyzn_t), (GLfloat*)(m->cframe * s->numverts * sizeof(md3xyzn_t)));
-
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->texcoords[surfi]);
             bglTexCoordPointer(2, GL_FLOAT, 0, 0);
+
+            if (pr_gpusmoothing)
+            {
+                bglClientActiveTextureARB(GL_TEXTURE1_ARB);
+                bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            }
+
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, m->geometry[surfi]);
+            bglVertexPointer(3, GL_SHORT, sizeof(md3xyzn_t), (GLfloat*)(m->cframe * s->numverts * sizeof(md3xyzn_t)));
+            if (pr_gpusmoothing)
+                bglTexCoordPointer(3, GL_SHORT, sizeof(md3xyzn_t), (GLfloat*)(m->nframe * s->numverts * sizeof(md3xyzn_t)));
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m->indices[surfi]);
             bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
 
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+            if (pr_gpusmoothing)
+            {
+                bglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                bglClientActiveTextureARB(GL_TEXTURE0_ARB);
+            }
         }
         else
         {
             bglVertexPointer(3, GL_SHORT, sizeof(md3xyzn_t), v0);
             bglTexCoordPointer(2, GL_FLOAT, 0, s->uv);
+
+            if (pr_gpusmoothing)
+            {
+                bglClientActiveTextureARB(GL_TEXTURE1_ARB);
+                bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                bglTexCoordPointer(3, GL_SHORT, sizeof(md3xyzn_t), v1);
+            }
+
             bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, s->tris);
+
+            if (pr_gpusmoothing)
+            {
+                bglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                bglClientActiveTextureARB(GL_TEXTURE0_ARB);
+            }
         }
     }
+
     bglPopMatrix();
+
+    if (pr_gpusmoothing)
+    {
+        bglDisable(GL_VERTEX_PROGRAM_ARB);
+
+        bglMatrixMode(GL_TEXTURE);
+        bglLoadIdentity();
+        bglMatrixMode(GL_MODELVIEW);
+    }
+
     globalnoeffect=0;
 }
 

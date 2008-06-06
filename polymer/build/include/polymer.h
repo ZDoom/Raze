@@ -38,6 +38,7 @@ extern int          pr_billboardingmode;
 extern int          pr_verbosity;
 extern int          pr_wireframe;
 extern int          pr_vbos;
+extern int          pr_gpusmoothing;
 
 extern int          glerror;
 
@@ -124,13 +125,6 @@ void                polymer_drawmaskwall(int damaskwallcnt);
 void                polymer_drawsprite(int snum);
 
 # ifdef POLYMER_C
-
-extern int globalposx, globalposy, globalposz, globalhoriz;
-extern short globalang, globalcursectnum;
-extern int globalpal, cosglobalang, singlobalang;
-extern int cosviewingrangeglobalang, sinviewingrangeglobalang;
-extern float shadescale;
-extern int globalnoeffect;
 
 // CORE
 static void         polymer_displayrooms(short sectnum);

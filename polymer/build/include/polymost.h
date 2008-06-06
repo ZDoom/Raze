@@ -38,6 +38,12 @@ pthtyp * gltexcache (int dapicnum, int dapalnum, int dameth);
 
 extern palette_t hictinting[MAXPALOOKUPS];
 extern float     gtang;
+extern int globalposx, globalposy, globalposz, globalhoriz;
+extern short globalang, globalcursectnum;
+extern int globalpal, cosglobalang, singlobalang;
+extern int cosviewingrangeglobalang, sinviewingrangeglobalang;
+extern float shadescale;
+extern int globalnoeffect;
 
 #define HICEFFECTMASK (1|2|4)
 

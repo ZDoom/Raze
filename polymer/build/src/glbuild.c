@@ -107,6 +107,7 @@ void (APIENTRY * bglDeleteLists)(GLuint list, GLsizei range);
 void (APIENTRY * bglEnableClientState)(GLenum cap);
 void (APIENTRY * bglDisableClientState)(GLenum cap);
 void (APIENTRY * bglVertexPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+void (APIENTRY * bglNormalPointer)(GLenum type, GLsizei stride, const GLvoid *pointer);
 void (APIENTRY * bglTexCoordPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 void (APIENTRY * bglDrawArrays)(GLenum mode, GLint first, GLsizei count);
 void (APIENTRY * bglDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
@@ -353,6 +354,7 @@ int loadgldriver(const char *driver)
     bglEnableClientState    = GETPROC("glEnableClientState");
     bglDisableClientState   = GETPROC("glDisableClientState");
     bglVertexPointer        = GETPROC("glVertexPointer");
+    bglNormalPointer        = GETPROC("glNormalPointer");
     bglTexCoordPointer      = GETPROC("glTexCoordPointer");
     bglDrawArrays           = GETPROC("glDrawArrays");
     bglDrawElements         = GETPROC("glDrawElements");
@@ -530,6 +532,7 @@ int unloadgldriver(void)
     bglEnableClientState    = NULL;
     bglDisableClientState   = NULL;
     bglVertexPointer        = NULL;
+    bglNormalPointer        = NULL;
     bglTexCoordPointer      = NULL;
     bglDrawElements         = NULL;
 
