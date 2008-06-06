@@ -6037,7 +6037,9 @@ CANCEL:
                     bflushchars();
                     while (bad == 0)
                     {
-                        Bsprintf(buffer,"Save as: %s_", boardfilename);
+                        Bsprintf(buffer,"Save as: ^011%s", boardfilename);
+                        if (totalclock & 32)
+                            Bstrcat(buffer,"_");
                         printmessage16(buffer);
                         showframe(1);
 
@@ -6058,7 +6060,7 @@ CANCEL:
                                 i--;
                                 boardfilename[i] = 0;
                             }
-                            else if (i < 8 && ch > 32 && ch < 128)
+                            else if (i < 32 && ch > 32 && ch < 128)
                             {
                                 boardfilename[i++] = ch;
                                 boardfilename[i] = 0;
@@ -6784,7 +6786,8 @@ int getnumber256(char namestart[80], int num, int maxnumber, char sign)
 
         ch = bgetchar();
 
-        Bsprintf(buffer,"%s%d_ ",namestart,danum);
+        Bsprintf(buffer,"%s%d",namestart,danum);
+        if (totalclock & 32) Bstrcat(buffer,"_ ");
         printmessage256(buffer);
         showframe(1);
 

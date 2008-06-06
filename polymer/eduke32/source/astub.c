@@ -7783,7 +7783,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                             wall[w].pal = sprite[i].pal;
                             wallflag[w] = 1;
                         }
-                        if (wall[w].nextwall >= 0)
+/*                        if (wall[w].nextwall >= 0)
                         {
                             if (!wallflag[wall[w].nextwall])
                             {
@@ -7793,7 +7793,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                 wall[wall[w].nextwall].pal = sprite[i].pal;
                                 wallflag[wall[w].nextwall] = 1;
                             }
-                        }
+                        } */
                     }
                     sectorshades[sprite[i].sectnum][0] = sector[sprite[i].sectnum].floorshade;
                     sectorshades[sprite[i].sectnum][1] = sector[sprite[i].sectnum].ceilingshade;
@@ -8175,7 +8175,7 @@ void ExtCheckKeys(void)
                             wall[w].pal = wallpals[w];
                             wallflag[w] = 0;
                         }
-                        if (wall[w].nextwall >= 0)
+/*                        if (wall[w].nextwall >= 0)
                         {
                             if (wallflag[wall[w].nextwall])
                             {
@@ -8183,7 +8183,7 @@ void ExtCheckKeys(void)
                                 wall[wall[w].nextwall].pal = wallpals[wall[w].nextwall];
                                 wallflag[wall[w].nextwall] = 0;
                             }
-                        }
+                        } */
                     }
                     sector[sprite[i].sectnum].floorshade = sectorshades[sprite[i].sectnum][0];
                     sector[sprite[i].sectnum].ceilingshade = sectorshades[sprite[i].sectnum][1];
