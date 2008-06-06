@@ -367,9 +367,8 @@ void                polymer_drawsprite(int snum)
 
     pth = gltexcache(curpicnum, tspr->pal, 0);
 
-    spriteplane.color[0] =
-        spriteplane.color[1] =
-            spriteplane.color[2] = ((float)(numpalookups-min(max(tspr->shade,0),numpalookups)))/((float)numpalookups);
+    spriteplane.color[0] = spriteplane.color[1] = spriteplane.color[2] =
+        ((float)(numpalookups-min(max(tspr->shade*shadescale,0),numpalookups)))/((float)numpalookups);
 
     if (pth && (pth->flags & 2) && (pth->palnum != tspr->pal))
     {
@@ -496,7 +495,11 @@ void                polymer_drawsprite(int snum)
     if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
         bglEnable(GL_CULL_FACE);
 
+    bglEnable(GL_POLYGON_OFFSET_FILL);
+
     polymer_drawplane(-1, -3, &spriteplane, 0);
+
+    bglDisable(GL_POLYGON_OFFSET_FILL);
 
     if ((tspr->cstat & 64) && (((tspr->cstat>>4) & 3) == 1))
         bglDisable(GL_CULL_FACE);
@@ -1184,7 +1187,8 @@ attributes:
             if (!waloff[curpicnum])
                 loadtile(curpicnum);
 
-            curbuffer[0] = curbuffer[1] = curbuffer[2] = ((float)(numpalookups-min(max(curstat,0),numpalookups)))/((float)numpalookups);
+            curbuffer[0] = curbuffer[1] = curbuffer[2] =
+                ((float)(numpalookups-min(max(curstat*shadescale,0),numpalookups)))/((float)numpalookups);
             curbuffer[3] = 1.0f;
 
             pth = gltexcache(curpicnum,curxpanning,0);
@@ -1527,7 +1531,7 @@ static void         polymer_updatewall(short wallnum)
             w->wall.fbglpic = 0;
 
         w->wall.color[0] = w->wall.color[1] = w->wall.color[2] =
-                                                  ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
+            ((float)(numpalookups-min(max(wal->shade*shadescale,0),numpalookups)))/((float)numpalookups);
         w->wall.color[3] = 1.0f;
 
         if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
@@ -1624,7 +1628,7 @@ static void         polymer_updatewall(short wallnum)
                 w->wall.fbglpic = 0;
 
             w->wall.color[0] = w->wall.color[1] = w->wall.color[2] =
-                                                      ((float)(numpalookups-min(max(curshade,0),numpalookups)))/((float)numpalookups);
+                ((float)(numpalookups-min(max(curshade*shadescale,0),numpalookups)))/((float)numpalookups);
             w->wall.color[3] = 1.0f;
 
             if (pth && (pth->flags & 2) && (pth->palnum != curpal))
@@ -1714,7 +1718,7 @@ static void         polymer_updatewall(short wallnum)
                 w->mask.glpic = pth ? pth->glpic : 0;
 
                 w->mask.color[0] = w->mask.color[1] = w->mask.color[2] =
-                                                          ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
+                    ((float)(numpalookups-min(max(wal->shade*shadescale,0),numpalookups)))/((float)numpalookups);
                 w->mask.color[3] = 1.0f;
 
                 if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
@@ -1743,7 +1747,7 @@ static void         polymer_updatewall(short wallnum)
                 w->over.fbglpic = 0;
 
             w->over.color[0] = w->over.color[1] = w->over.color[2] =
-                                                      ((float)(numpalookups-min(max(wal->shade,0),numpalookups)))/((float)numpalookups);
+                ((float)(numpalookups-min(max(wal->shade*shadescale,0),numpalookups)))/((float)numpalookups);
             w->over.color[3] = 1.0f;
 
             if (pth && (pth->flags & 2) && (pth->palnum != wal->pal))
@@ -2154,6 +2158,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     float           spos[3];
     float           ang;
     float           scale;
+    GLfloat         color[4];
     int             surfi;
     md3xyzn_t       *v0;
     md3surf_t       *s;
@@ -2168,20 +2173,73 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     spos[0] = tspr->y;
     spos[1] = -(float)(tspr->z) / 16.0f;
     spos[2] = -tspr->x;
-    ang = (float)((tspr->ang) & 2047) / (2048.0f / 360.0f);
+    ang = (float)((tspr->ang+spriteext[tspr->owner].angoff) & 2047) / (2048.0f / 360.0f);
+    ang -= 90.0f;
+    if (((tspr->cstat>>4) & 3) == 2)
+        ang -= 90.0f;
 
     bglMatrixMode(GL_MODELVIEW);
     bglPushMatrix();
-    scale = (1.0/64.0);
+    scale = (1.0/4.0);
     scale *= m->scale;
     scale *= m->bscale;
-    scale *= 1024;
 
     bglTranslatef(spos[0], spos[1], spos[2]);
     bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
-    bglRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-    bglRotatef(90.0f, 0.0f, 0.0f, 1.0f);
-    bglScalef(scale * (float)(tspr->xrepeat) / 64.0, scale * (float)(tspr->xrepeat) / 64.0, scale * (float)(tspr->yrepeat) / 64.0);
+    if (((tspr->cstat>>4) & 3) == 2)
+    {
+        bglTranslatef(0.0f, 0.0, -(float)(tilesizy[tspr->picnum] * tspr->yrepeat) / 8.0f);
+        bglRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+    }
+    else
+        bglRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+
+    if ((tspr->cstat & 128) && (((tspr->cstat>>4) & 3) != 2))
+        bglTranslatef(0.0f, 0.0, -(float)(tilesizy[tspr->picnum] * tspr->yrepeat) / 8.0f);
+
+    if (tspr->cstat & 8)
+    {
+        bglTranslatef(0.0f, 0.0, (float)(tilesizy[tspr->picnum] * tspr->yrepeat) / 4.0f);
+        bglScalef(1.0f, 1.0f, -1.0f);
+    }
+
+    if (tspr->cstat & 4)
+        bglScalef(1.0f, -1.0f, 1.0f);
+
+    bglScalef(scale * tspr->xrepeat, scale * tspr->xrepeat, scale * tspr->yrepeat);
+    bglTranslatef(0.0f, 0.0, m->zadd * 64);
+
+    color[0] = color[1] = color[2] =
+        ((float)(numpalookups-min(max((tspr->shade*shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
+
+    if (!(hictinting[tspr->pal].f&4))
+    {
+        if (!(m->flags&1) || (!(tspr->owner >= MAXSPRITES) && sector[sprite[tspr->owner].sectnum].floorpal!=0))
+        {
+            color[0] *= (float)hictinting[globalpal].r / 255.0;
+            color[1] *= (float)hictinting[globalpal].g / 255.0;
+            color[2] *= (float)hictinting[globalpal].b / 255.0;
+            if (hictinting[MAXPALOOKUPS-1].r != 255 || hictinting[MAXPALOOKUPS-1].g != 255 || hictinting[MAXPALOOKUPS-1].b != 255)
+            {
+                color[0] *= (float)hictinting[MAXPALOOKUPS-1].r / 255.0;
+                color[1] *= (float)hictinting[MAXPALOOKUPS-1].g / 255.0;
+                color[2] *= (float)hictinting[MAXPALOOKUPS-1].b / 255.0;
+            }
+        }
+        else globalnoeffect=1;
+    }
+
+    if (tspr->cstat & 2)
+    {
+        if (!(tspr->cstat&512))
+            color[3] = 0.66;
+        else
+            color[3] = 0.33;
+    } else
+        color[3] = 1.0;
+
+    bglColor4f(color[0], color[1], color[2], color[3]);
+
     for (surfi=0;surfi<m->head.numsurfs;surfi++)
     {
         s = &m->head.surfs[surfi];
@@ -2215,6 +2273,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         }
     }
     bglPopMatrix();
+    globalnoeffect=0;
 }
 
 static void         polymer_loadmodelvbos(md3model* m)

@@ -84,7 +84,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define FOGSCALE 0.0000640
 #define PI 3.14159265358979323
 
-static float shadescale = 1.050;
+float shadescale = 1.050;
 
 static double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
 static double gcosang, gsinang, gcosang2, gsinang2;

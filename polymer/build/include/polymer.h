@@ -41,7 +41,6 @@ extern int          pr_vbos;
 
 extern int          glerror;
 
-
 // DATA
 typedef struct      s_prplane {
     // geometry
@@ -130,6 +129,8 @@ extern int globalposx, globalposy, globalposz, globalhoriz;
 extern short globalang, globalcursectnum;
 extern int globalpal, cosglobalang, singlobalang;
 extern int cosviewingrangeglobalang, sinviewingrangeglobalang;
+extern float shadescale;
+extern int globalnoeffect;
 
 // CORE
 static void         polymer_displayrooms(short sectnum);
