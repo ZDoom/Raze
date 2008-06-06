@@ -7599,6 +7599,7 @@ int saveboard(char *filename, int *daposx, int *daposy, int *daposz,
         }
 
     numsprites = 0;
+#if 0
     for (j=0;j<MAXSTATUS;j++)
     {
         i = headspritestat[j];
@@ -7608,6 +7609,13 @@ int saveboard(char *filename, int *daposx, int *daposy, int *daposz,
             i = nextspritestat[i];
         }
     }
+#else
+    for (j=0;j<MAXSPRITES;j++)
+    {
+        if (sprite[j].statnum != MAXSTATUS)
+            numsprites++;
+    }
+#endif
 
     if (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 || numsprites > MAXSPRITESV7)
         mapversion = 8;
