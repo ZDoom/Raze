@@ -7694,7 +7694,7 @@ int saveboard(char *filename, int *daposx, int *daposy, int *daposz,
 
         spri=tspri;
 
-        for (j=0;j<numsprites;j++)
+        for (j=0;j<MAXSPRITES;j++)
         {
             if (sprite[j].statnum != MAXSTATUS)
             {
