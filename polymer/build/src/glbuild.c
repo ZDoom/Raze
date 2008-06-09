@@ -75,8 +75,8 @@ void (APIENTRY * bglShadeModel)(GLenum mode);
 
 // Raster funcs
 void (APIENTRY * bglReadPixels)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
-void (APIENTRY * bglRasterPos4i)( GLint x, GLint y, GLint z, GLint w );
-void (APIENTRY * bglDrawPixels)( GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels );
+void (APIENTRY * bglRasterPos4i)(GLint x, GLint y, GLint z, GLint w);
+void (APIENTRY * bglDrawPixels)(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
 
 // Texture mapping
 void (APIENTRY * bglTexEnvf)(GLenum target, GLenum pname, GLfloat param);

@@ -157,7 +157,7 @@ static char *Help3d[]=
     " HOME = PGUP/PGDN MODIFIER (256 UNITS)",
     " END = PGUP/PGDN MODIFIER (512 UNITS)",
 };
-char *type2str[]={"Wall","Sector","Sector","Sprite","Wall"};
+static char *type2str[]={"Wall","Sector","Sector","Sprite","Wall"};
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int numdirs=0, numfiles=0;
@@ -167,7 +167,7 @@ static int repeatcountx, repeatcounty;
 static int infobox=3; // bit0: current window, bit1: mouse pointer, the variable should be renamed
 
 extern char mskip;
-
+extern short capturecount;
 
 static void clearfilenames(void)
 {
@@ -1917,22 +1917,24 @@ static void ReadGamePalette()
     ReadPaletteTable();
 }
 
-static inline void _message(char message[162])
+void message(const char *fmt, ...)
 {
-    Bstrcpy(getmessage,message);
+    char tmpstr[256];
+    va_list va;
+
+    va_start(va, fmt);
+    Bvsnprintf(tmpstr, 256, fmt, va);
+    va_end(va);
+
+    Bstrcpy(getmessage,tmpstr);
     getmessageleng = strlen(getmessage);
     getmessagetimeoff = totalclock+120*3;
-}
-
-static void message(char message[162])
-{
-    char tmpbuf[2048];
-
-    _message(message);
     lastmessagetime = totalclock;
-    Bstrcpy(tmpbuf,message);
-    Bstrcat(tmpbuf,"\n");
-    if (!mouseaction)OSD_Printf(tmpbuf);
+    if (!mouseaction)
+    {
+        Bstrcat(tmpstr,"\n");
+        OSD_Printf(tmpstr);
+    }
 }
 
 static char lockbyte4094;
@@ -3160,16 +3162,14 @@ static void Keys3d(void)
     {
         floor_over_floor = !floor_over_floor;
         //        if (!floor_over_floor) ResetFOFSize();
-        Bsprintf(tempbuf,"Floor-over-floor %s",floor_over_floor?"ON":"OFF");
-        message(tempbuf);
+        message("Floor-over-floor display %s",floor_over_floor?"enabled":"disabled");
         keystatus[KEYSC_3] = 0;
     }
 
     if (keystatus[KEYSC_F3])
     {
         mlook = 1-mlook;
-        Bsprintf(tempbuf,"Mouselook %s",mlook?"ON":"OFF");
-        message(tempbuf);
+        message("Mouselook: %s",mlook?"enabled":"disabled");
         keystatus[KEYSC_F3] = 0;
     }
 
@@ -3177,8 +3177,7 @@ static void Keys3d(void)
     if (keystatus[KEYSC_F5])
     {
         unrealedlook = 1-unrealedlook;
-        Bsprintf(tempbuf,"UnrealEd mouse navigation: %d",unrealedlook);
-        message(tempbuf);
+        message("UnrealEd mouse navigation: %s",unrealedlook?"enabled":"disabled");
         keystatus[KEYSC_F5] = 0;
     }
 
@@ -3190,14 +3189,12 @@ static void Keys3d(void)
         case 0:
         case 4:
             wall[searchwall].cstat = 0;
-            Bsprintf(tempbuf,"Wall %d cstat = 0",searchwall);
-            message(tempbuf);
+            message("Wall %d cstat = 0",searchwall);
             break;
             //            case 1: case 2: sector[searchsector].cstat = 0; break;
         case 3:
             sprite[searchwall].cstat = 0;
-            Bsprintf(tempbuf,"Sprite %d cstat = 0",searchwall);
-            message(tempbuf);
+            message("Sprite %d cstat = 0",searchwall);
             break;
         }
     }
@@ -3302,8 +3299,7 @@ static void Keys3d(void)
         {
             deletesprite(searchwall);
             updatenumsprites();
-            Bsprintf(tempbuf,"Sprite %d deleted",searchwall);
-            message(tempbuf);
+            message("Sprite %d deleted",searchwall);
             asksave = 1;
         }
         keystatus[KEYSC_DELETE] = 0;
@@ -3313,16 +3309,13 @@ static void Keys3d(void)
     {
         keystatus[KEYSC_F6] = 0;
         autospritehelp=!autospritehelp;
-        Bsprintf(tempbuf,"Automatic SECTOREFFECTOR help %s",autospritehelp?"ON":"OFF");
-        message(tempbuf);
+        message("Automatic SECTOREFFECTOR help %s",autospritehelp?"enabled":"disabled");
     }
     if (keystatus[KEYSC_F7])  //F7
     {
         keystatus[KEYSC_F7] = 0;
         autosecthelp=!autosecthelp;
-        Bsprintf(tempbuf,"Automatic sector tag help %s",autosecthelp?"ON":"OFF");
-        message(tempbuf);
-
+        message("Automatic sector tag help %s",autosecthelp?"enabled":"disabled");
     }
 
     if ((searchstat == 3) && (sprite[searchwall].picnum==SECTOREFFECTOR))
@@ -3345,8 +3338,7 @@ static void Keys3d(void)
                 sprite[i].ang = ((sprite[i].ang+2048-128)&2047);
                 keystatus[KEYSC_COMMA] = 0;
             }
-            Bsprintf(tempbuf,"Sprite %d angle: %d",i,sprite[i].ang);
-            message(tempbuf);
+            message("Sprite %d angle: %d",i,sprite[i].ang);
         }
     }
     if (keystatus[KEYSC_PERIOD]) // . Search & fix panning to the right (3D)
@@ -3354,8 +3346,7 @@ static void Keys3d(void)
         if ((searchstat == 0) || (searchstat == 4))
         {
             AutoAlignWalls((int)searchwall,0L);
-            Bsprintf(tempbuf,"Wall %d autoalign",searchwall);
-            message(tempbuf);
+            message("Wall %d autoalign",searchwall);
             keystatus[KEYSC_PERIOD] = 0;
         }
         if (searchstat == 3)
@@ -3368,8 +3359,7 @@ static void Keys3d(void)
                 sprite[i].ang = ((sprite[i].ang+2048+128)&2047);
                 keystatus[KEYSC_PERIOD] = 0;
             }
-            Bsprintf(tempbuf,"Sprite %d angle: %d",i,sprite[i].ang);
-            message(tempbuf);
+            message("Sprite %d angle: %d",i,sprite[i].ang);
         }
     }
 
@@ -3465,7 +3455,7 @@ static void Keys3d(void)
         if (searchstat != 3)
         {
             wall[searchwall].cstat ^= 32;
-            sprintf(getmessage,"Wall %d one side masking %s",searchwall,wall[searchwall].cstat&32?"ON":"OFF");
+            sprintf(getmessage,"Wall %d one side masking bit %s",searchwall,wall[searchwall].cstat&32?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -3481,7 +3471,7 @@ static void Keys3d(void)
                         sprite[searchwall].cstat |= 8;
             }
             asksave = 1;
-            sprintf(getmessage,"Sprite %d one sided %s",searchwall,sprite[searchwall].cstat&64?"ON":"OFF");
+            sprintf(getmessage,"Sprite %d one sided bit %s",searchwall,sprite[searchwall].cstat&64?"ON":"OFF");
             message(getmessage);
 
         }
@@ -3492,7 +3482,7 @@ static void Keys3d(void)
         if (searchstat != 3)
         {
             wall[searchwall].cstat ^= 2;
-            sprintf(getmessage,"Wall %d bottom texture swap %s",searchwall,wall[searchwall].cstat&2?"ON":"OFF");
+            sprintf(getmessage,"Wall %d bottom texture swap bit %s",searchwall,wall[searchwall].cstat&2?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -3546,7 +3536,7 @@ static void Keys3d(void)
             if (i >= 0)
             {
                 wall[searchwall].cstat ^= 16;
-                sprintf(getmessage,"Wall %d masking %s",searchwall,wall[searchwall].cstat&16?"ON":"OFF");
+                sprintf(getmessage,"Wall %d masking bit %s",searchwall,wall[searchwall].cstat&16?"ON":"OFF");
                 message(getmessage);
                 if ((wall[searchwall].cstat&16) > 0)
                 {
@@ -3607,7 +3597,7 @@ static void Keys3d(void)
             if (searchstat == 3)
             {
                 sprite[searchwall].cstat ^= 256;
-                sprintf(getmessage,"Sprite %d hitscan sensitivity %s",searchwall,sprite[searchwall].cstat&256?"ON":"OFF");
+                sprintf(getmessage,"Sprite %d hitscan sensitivity bit %s",searchwall,sprite[searchwall].cstat&256?"ON":"OFF");
                 message(getmessage);
                 asksave = 1;
             }
@@ -3620,7 +3610,7 @@ static void Keys3d(void)
                     wall[wall[searchwall].nextwall].cstat &= ~64;
                     wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&64);
                 }
-                sprintf(getmessage,"Wall %d hitscan sensitivity %s",searchwall,wall[searchwall].cstat&64?"ON":"OFF");
+                sprintf(getmessage,"Wall %d hitscan sensitivity bit %s",searchwall,wall[searchwall].cstat&64?"ON":"OFF");
                 message(getmessage);
 
                 asksave = 1;
@@ -3903,14 +3893,14 @@ static void Keys3d(void)
         if (searchstat == 1)
         {
             sector[searchsector].ceilingstat ^= 8;
-            sprintf(getmessage,"Sector %d ceiling texture expansion %s",searchsector,sector[searchsector].ceilingstat&8?"ON":"OFF");
+            sprintf(getmessage,"Sector %d ceiling texture expansion bit %s",searchsector,sector[searchsector].ceilingstat&8?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
         if (searchstat == 2)
         {
             sector[searchsector].floorstat ^= 8;
-            sprintf(getmessage,"Sector %d floor texture expansion %s",searchsector,sector[searchsector].floorstat&8?"ON":"OFF");
+            sprintf(getmessage,"Sector %d floor texture expansion bit %s",searchsector,sector[searchsector].floorstat&8?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -3934,14 +3924,14 @@ static void Keys3d(void)
             if (searchstat == 1)
             {
                 sector[searchsector].ceilingstat ^= 64;
-                sprintf(getmessage,"Sector %d ceiling texture relativity %s",searchsector,sector[searchsector].ceilingstat&64?"ON":"OFF");
+                sprintf(getmessage,"Sector %d ceiling texture relativity bit %s",searchsector,sector[searchsector].ceilingstat&64?"ON":"OFF");
                 message(getmessage);
                 asksave = 1;
             }
             if (searchstat == 2)
             {
                 sector[searchsector].floorstat ^= 64;
-                sprintf(getmessage,"Sector %d floor texture relativity %s",searchsector,sector[searchsector].floorstat&64?"ON":"OFF"); //PK (was ceiling in string)
+                sprintf(getmessage,"Sector %d floor texture relativity bit %s",searchsector,sector[searchsector].floorstat&64?"ON":"OFF"); //PK (was ceiling in string)
                 message(getmessage);
                 asksave = 1;
             }
@@ -4089,7 +4079,7 @@ static void Keys3d(void)
                 {
                     sprite[searchwall].cstat &= ~0xc;
                     sprite[searchwall].cstat |= ((i&4)^4);
-                    Bsprintf(getmessage,"Sprite %d flip %s",searchwall,sprite[searchwall].cstat&4?"ON":"OFF");
+                    Bsprintf(getmessage,"Sprite %d flip bit %s",searchwall,sprite[searchwall].cstat&4?"ON":"OFF");
                     message(getmessage);
                 }
                 else
@@ -4575,9 +4565,8 @@ static void Keys3d(void)
         keystatus[KEYSC_D] = 0;
         skill++;
         if (skill>MAXSKILL-1) skill=0;
-        sprintf(tempbuf,"%s",SKILLMODE[skill]);
+        message("%s",SKILLMODE[skill]);
         //        printext256(1*4,1*8,11,-1,tempbuf,0);
-        message(tempbuf);
     }
 
     /*    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_G]) // ' g <Unused>
@@ -4611,9 +4600,8 @@ static void Keys3d(void)
         keystatus[KEYSC_W] = 0;
         nosprites++;
         if (nosprites>3) nosprites=0;
-        Bsprintf(tempbuf,"%s",SPRDSPMODE[nosprites]);
+        message("%s",SPRDSPMODE[nosprites]);
         //        printext256(1*4,1*8,whitecol,-1,tempbuf,0);
-        message(tempbuf);
     }
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_Y]) // ' y
@@ -4637,8 +4625,7 @@ static void Keys3d(void)
                 if (wall[i].picnum==temppicnum)
                     wall[i].shade=tempshade;
             }
-            Bsprintf(tempbuf,"Walls with picnum %d have shade of %d",temppicnum,tempshade);
-            message(tempbuf);
+            message("Walls with picnum %d have shade of %d",temppicnum,tempshade);
             asksave=1;
             break;
         case 1:
@@ -4656,8 +4643,7 @@ static void Keys3d(void)
                         sector[i].floorshade=tempshade;
                     }
             }
-            Bsprintf(tempbuf,"Sectors with picnum %d have shade of %d",temppicnum,tempshade);
-            message(tempbuf);
+            message("Sectors with picnum %d have shade of %d",temppicnum,tempshade);
             asksave=1;
             break;
         case 3:
@@ -4668,8 +4654,7 @@ static void Keys3d(void)
                     sprite[i].shade=tempshade;
                 }
             }
-            Bsprintf(tempbuf,"Sprites with picnum %d have shade of %d",temppicnum,tempshade);
-            message(tempbuf);
+            message("Sprites with picnum %d have shade of %d",temppicnum,tempshade);
             asksave=1;
             break;
         }
@@ -4848,7 +4833,7 @@ static void Keys3d(void)
             sprite[searchwall].cstat ^= 1;
             //                                sprite[searchwall].cstat &= ~256;
             //                                sprite[searchwall].cstat |= ((sprite[searchwall].cstat&1)<<8);
-            sprintf(getmessage,"Sprite %d blocking %s",searchwall,sprite[searchwall].cstat&1?"ON":"OFF");
+            sprintf(getmessage,"Sprite %d blocking bit %s",searchwall,sprite[searchwall].cstat&1?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -4861,7 +4846,7 @@ static void Keys3d(void)
                 wall[wall[searchwall].nextwall].cstat &= ~(1+64);
                 wall[wall[searchwall].nextwall].cstat |= (wall[searchwall].cstat&1);
             }
-            sprintf(getmessage,"Wall %d blocking %s",searchwall,wall[searchwall].cstat&1?"ON":"OFF");
+            sprintf(getmessage,"Wall %d blocking bit %s",searchwall,wall[searchwall].cstat&1?"ON":"OFF");
             message(getmessage);
             asksave = 1;
         }
@@ -5019,13 +5004,11 @@ static void Keys3d(void)
                 case 1:
                 case 4:
                     alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
-                    Bsprintf(tempbuf,"Sector %d align ceiling to wall %d",searchsector,searchwall);
-                    message(tempbuf);
+                    message("Sector %d align ceiling to wall %d",searchsector,searchwall);
                     break;
                 case 2:
                     alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
-                    Bsprintf(tempbuf,"Sector %d align floor to wall %d",searchsector,searchwall);
-                    message(tempbuf);
+                    message("Sector %d align floor to wall %d",searchsector,searchwall);
                     break;
                 }
         }
@@ -5036,16 +5019,14 @@ static void Keys3d(void)
                 if (!(sector[searchsector].ceilingstat&2))
                     sector[searchsector].ceilingheinum = 0;
                 sector[searchsector].ceilingheinum = max(sector[searchsector].ceilingheinum-i,-32768);
-                Bsprintf(tempbuf,"Sector %d ceiling slope = %d",searchsector,sector[searchsector].ceilingheinum);
-                message(tempbuf);
+                message("Sector %d ceiling slope = %d",searchsector,sector[searchsector].ceilingheinum);
             }
             if (searchstat == 2)
             {
                 if (!(sector[searchsector].floorstat&2))
                     sector[searchsector].floorheinum = 0;
                 sector[searchsector].floorheinum = max(sector[searchsector].floorheinum-i,-32768);
-                Bsprintf(tempbuf,"Sector %d floor slope = %d",searchsector,sector[searchsector].floorheinum);
-                message(tempbuf);
+                message("Sector %d floor slope = %d",searchsector,sector[searchsector].floorheinum);
             }
         }
 
@@ -5085,15 +5066,13 @@ static void Keys3d(void)
                 {
                 case 1:
                     alignceilslope(searchsector,wall[searchwall].x,wall[searchwall].y,getceilzofslope(i,wall[searchwall].x,wall[searchwall].y));
-                    Bsprintf(tempbuf,"Sector %d align ceiling to wall %d",searchsector,searchwall);
-                    message(tempbuf);
+                    message("Sector %d align ceiling to wall %d",searchsector,searchwall);
                     break;
                 case 0:
                 case 2:
                 case 4:
                     alignflorslope(searchsector,wall[searchwall].x,wall[searchwall].y,getflorzofslope(i,wall[searchwall].x,wall[searchwall].y));
-                    Bsprintf(tempbuf,"Sector %d align floor to wall %d",searchsector,searchwall);
-                    message(tempbuf);
+                    message("Sector %d align floor to wall %d",searchsector,searchwall);
                     break;
                 }
         }
@@ -5104,16 +5083,14 @@ static void Keys3d(void)
                 if (!(sector[searchsector].ceilingstat&2))
                     sector[searchsector].ceilingheinum = 0;
                 sector[searchsector].ceilingheinum = min(sector[searchsector].ceilingheinum+i,32767);
-                Bsprintf(tempbuf,"Sector %d ceiling slope = %d",searchsector,sector[searchsector].ceilingheinum);
-                message(tempbuf);
+                message("Sector %d ceiling slope = %d",searchsector,sector[searchsector].ceilingheinum);
             }
             if (searchstat == 2)
             {
                 if (!(sector[searchsector].floorstat&2))
                     sector[searchsector].floorheinum = 0;
                 sector[searchsector].floorheinum = min(sector[searchsector].floorheinum+i,32767);
-                Bsprintf(tempbuf,"Sector %d floor slope = %d",searchsector,sector[searchsector].floorheinum);
-                message(tempbuf);
+                message("Sector %d floor slope = %d",searchsector,sector[searchsector].floorheinum);
             }
         }
 
@@ -5189,7 +5166,7 @@ static void Keys3d(void)
                     while (x1--)sector[searchsector].ceilingxpanning = changechar(sector[searchsector].ceilingxpanning,changedir,0,0);
                     changedir=1;if (y1<0) {changedir=-1;y1*=-1;}
                     while (y1--)sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning,changedir,0,0);
-                    Bsprintf(tempbuf,"Sector %d ceiling panning: %d, %d",searchsector,sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
+                    message("Sector %d ceiling panning: %d, %d",searchsector,sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
                 }
                 else
                 {
@@ -5197,9 +5174,8 @@ static void Keys3d(void)
                     while (x1--)sector[searchsector].floorxpanning = changechar(sector[searchsector].floorxpanning,changedir,0,0);
                     changedir=1;if (y1<0) {changedir=-1;y1*=-1;}
                     while (y1--)sector[searchsector].floorypanning = changechar(sector[searchsector].floorypanning,changedir,0,0);
-                    Bsprintf(tempbuf,"Sector %d floor panning: %d, %d",searchsector,sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
+                    message("Sector %d floor panning: %d, %d",searchsector,sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
                 }
-                message(tempbuf);
                 asksave=1;
             }
         }
@@ -5261,7 +5237,7 @@ static void Keys3d(void)
                 if (repeatpanalign == 0)
                 {
                     while (updownunits--)wall[searchwall].xrepeat = changechar(wall[searchwall].xrepeat,changedir,smooshyalign,1);
-                    Bsprintf(tempbuf,"Wall %d repeat: %d, %d",searchwall,wall[searchwall].xrepeat,wall[searchwall].yrepeat);
+                    message("Wall %d repeat: %d, %d",searchwall,wall[searchwall].xrepeat,wall[searchwall].yrepeat);
                 }
                 else
                 {
@@ -5272,23 +5248,21 @@ static void Keys3d(void)
                         if (i==1||i==3)changedir*=-1;
                     }
                     while (updownunits--)wall[searchwall].xpanning = changechar(wall[searchwall].xpanning,changedir,smooshyalign,0);
-                    Bsprintf(tempbuf,"Wall %d panning: %d, %d",searchwall,wall[searchwall].xpanning,wall[searchwall].ypanning);
+                    message("Wall %d panning: %d, %d",searchwall,wall[searchwall].xpanning,wall[searchwall].ypanning);
                 }
-                message(tempbuf);
             }
             if ((searchstat == 1) || (searchstat == 2))
             {
                 if (searchstat == 1)
                 {
                     while (updownunits--)sector[searchsector].ceilingxpanning = changechar(sector[searchsector].ceilingxpanning,changedir,smooshyalign,0);
-                    Bsprintf(tempbuf,"Sector %d ceiling panning: %d, %d",searchsector,sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
+                    message("Sector %d ceiling panning: %d, %d",searchsector,sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
                 }
                 else
                 {
                     while (updownunits--)sector[searchsector].floorxpanning = changechar(sector[searchsector].floorxpanning,changedir,smooshyalign,0);
-                    Bsprintf(tempbuf,"Sector %d floor panning: %d, %d",searchsector,sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
+                    message("Sector %d floor panning: %d, %d",searchsector,sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
                 }
-                message(tempbuf);
             }
             if (searchstat == 3)
             {
@@ -5308,8 +5282,7 @@ static void Keys3d(void)
                     while (updownunits--)sprite[searchwall].xrepeat = changechar(sprite[searchwall].xrepeat,changedir,smooshyalign,1);
                     if (sprite[searchwall].xrepeat < 4)
                         sprite[searchwall].xrepeat = 4;
-                    Bsprintf(tempbuf,"Sprite %d repeat: %d, %d",searchwall,sprite[searchwall].xrepeat,sprite[searchwall].yrepeat);
-                    message(tempbuf);
+                    message("Sprite %d repeat: %d, %d",searchwall,sprite[searchwall].xrepeat,sprite[searchwall].yrepeat);
                 }
             }
             asksave = 1;
@@ -5372,28 +5345,26 @@ static void Keys3d(void)
                 if (repeatpanalign == 0)
                 {
                     while (updownunits--)wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat,changedir,smooshyalign,1);
-                    Bsprintf(tempbuf,"Wall %d repeat: %d, %d",searchwall,wall[searchwall].xrepeat,wall[searchwall].yrepeat);
+                    message("Wall %d repeat: %d, %d",searchwall,wall[searchwall].xrepeat,wall[searchwall].yrepeat);
                 }
                 else
                 {
                     while (updownunits--)wall[searchwall].ypanning = changechar(wall[searchwall].ypanning,changedir,smooshyalign,0);
-                    Bsprintf(tempbuf,"Wall %d panning: %d, %d",searchwall,wall[searchwall].xpanning,wall[searchwall].ypanning);
+                    message("Wall %d panning: %d, %d",searchwall,wall[searchwall].xpanning,wall[searchwall].ypanning);
                 }
-                message(tempbuf);
             }
             if ((searchstat == 1) || (searchstat == 2))
             {
                 if (searchstat == 1)
                 {
                     while (updownunits--)sector[searchsector].ceilingypanning = changechar(sector[searchsector].ceilingypanning,changedir,smooshyalign,0);
-                    Bsprintf(tempbuf,"Sector %d ceiling panning: %d, %d",searchsector,sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
+                    message("Sector %d ceiling panning: %d, %d",searchsector,sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
                 }
                 else
                 {
                     while (updownunits--)sector[searchsector].floorypanning = changechar(sector[searchsector].floorypanning,changedir,smooshyalign,0);
-                    Bsprintf(tempbuf,"Sector %d floor panning: %d, %d",searchsector,sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
+                    message("Sector %d floor panning: %d, %d",searchsector,sector[searchsector].floorxpanning,sector[searchsector].floorypanning);
                 }
-                message(tempbuf);
             }
             if (searchstat == 3)
             {
@@ -5412,8 +5383,7 @@ static void Keys3d(void)
                     while (updownunits--)sprite[searchwall].yrepeat = changechar(sprite[searchwall].yrepeat,changedir,smooshyalign,1);
                     if (sprite[searchwall].yrepeat < 4)
                         sprite[searchwall].yrepeat = 4;
-                    Bsprintf(tempbuf,"Sprite %d repeat: %d, %d",searchwall,sprite[searchwall].xrepeat,sprite[searchwall].yrepeat);
-                    message(tempbuf);
+                    message("Sprite %d repeat: %d, %d",searchwall,sprite[searchwall].xrepeat,sprite[searchwall].yrepeat);
                 }
             }
             asksave = 1;
@@ -5432,14 +5402,7 @@ static void Keys3d(void)
         brightness++;
         if (brightness >= 16) brightness = 0;
         setbrightness(brightness,palette,0);
-        Bsprintf(tempbuf,"Brightness %d out of 16",brightness);
-        message(tempbuf);
-    }
-    if (keystatus[KEYSC_F12])   //F12
-    {
-        screencapture("captxxxx.tga",keystatus[KEYSC_LSHIFT]|keystatus[KEYSC_RSHIFT]);
-        message("Screenshot taken");
-        keystatus[KEYSC_F12] = 0;
+        message("Brightness: %d/16",brightness);
     }
 
     if (keystatus[KEYSC_TAB])  //TAB
@@ -5543,8 +5506,7 @@ static void Keys3d(void)
                     i = wall[i].point2;
                 }
                 while (i != searchwall);
-                Bsprintf(tempbuf,"Wall %d auto-shaded",searchwall);
-                message(tempbuf);
+                message("Wall %d auto-shaded",searchwall);
             }
             else if (somethingintab < 255)
             {
@@ -5808,8 +5770,7 @@ static void Keys3d(void)
             if (searchstat == 3)
             {
                 sprite[searchwall].cstat ^= 128;
-                Bsprintf(tempbuf,"Sprite %d centered %s",searchwall,(sprite[searchwall].cstat&128)?"ON":"OFF");
-                message(tempbuf);
+                message("Sprite %d center bit %s",searchwall,(sprite[searchwall].cstat&128)?"ON":"OFF");
                 asksave = 1;
             }
         }
@@ -5852,8 +5813,7 @@ static void Keys3d(void)
                 sprite[searchwall].yrepeat = 64;
             }
         }
-        Bsprintf(tempbuf,"%s's size and panning reset",type2str[searchstat]);
-        message(tempbuf);
+        message("%s's size and panning reset",type2str[searchstat]);
         keystatus[KEYSC_SLASH] = 0;
         asksave = 1;
     }
@@ -5866,8 +5826,7 @@ static void Keys3d(void)
             if (parallaxtype == 3)
                 parallaxtype = 0;
             sector[searchsector].ceilingstat ^= 1;
-            Bsprintf(tempbuf,"Parallax type %d",parallaxtype);
-            message(tempbuf);
+            message("Parallax type %d",parallaxtype);
         }
         else if (eitherALT)
         {
@@ -5897,15 +5856,13 @@ static void Keys3d(void)
             if ((searchstat == 0) || (searchstat == 1) || (searchstat == 4))
             {
                 sector[searchsector].ceilingstat ^= 1;
-                Bsprintf(tempbuf,"Sector %d ceiling parallax %s",searchsector,sector[searchsector].ceilingstat&1?"ON":"OFF");
-                message(tempbuf);
+                message("Sector %d ceiling parallax bit %s",searchsector,sector[searchsector].ceilingstat&1?"ON":"OFF");
                 asksave = 1;
             }
             else if (searchstat == 2)
             {
                 sector[searchsector].floorstat ^= 1;
-                Bsprintf(tempbuf,"Sector %d floor parallax %s",searchsector,sector[searchsector].floorstat&1?"ON":"OFF");
-                message(tempbuf);
+                message("Sector %d floor parallax bit %s",searchsector,sector[searchsector].floorstat&1?"ON":"OFF");
                 asksave = 1;
             }
         }
@@ -6068,8 +6025,7 @@ static void Keys2d(void)
     if (keystatus[KEYSC_F4])
     {
         showfirstwall = !showfirstwall;
-        Bsprintf(tempbuf,"Show first wall %s",showfirstwall?"ON":"OFF");
-        message(tempbuf);
+        message("Sector firstwall highlight ",showfirstwall?"enabled":"disabled");
         keystatus[KEYSC_F4] = 0;
     }
 
@@ -7057,7 +7013,7 @@ static int osdcmd_vars_pk(const osdfuncparm_t *parm)
     else if (!Bstrcasecmp(parm->name, "pk_quickmapcycling"))
     {
         OSD_Printf("Quick map cycling ((LShift-)Ctrl-X): %s\n",
-                   (quickmapcycling = !quickmapcycling) ? "on":"off");
+                   (quickmapcycling = !quickmapcycling) ? "enabled":"disabled");
     }
     else if (!Bstrcasecmp(parm->name, "pk_uedaccel"))
     {
@@ -7783,17 +7739,17 @@ void ExtPreCheckKeys(void) // just before drawrooms
                             wall[w].pal = sprite[i].pal;
                             wallflag[w] = 1;
                         }
-/*                        if (wall[w].nextwall >= 0)
-                        {
-                            if (!wallflag[wall[w].nextwall])
-                            {
-                                wallshades[wall[w].nextwall] = wall[wall[w].nextwall].shade;
-                                wall[wall[w].nextwall].shade = sprite[i].shade;
-                                wallpals[wall[w].nextwall] = wall[wall[w].nextwall].pal;
-                                wall[wall[w].nextwall].pal = sprite[i].pal;
-                                wallflag[wall[w].nextwall] = 1;
-                            }
-                        } */
+                        /*                        if (wall[w].nextwall >= 0)
+                                                {
+                                                    if (!wallflag[wall[w].nextwall])
+                                                    {
+                                                        wallshades[wall[w].nextwall] = wall[wall[w].nextwall].shade;
+                                                        wall[wall[w].nextwall].shade = sprite[i].shade;
+                                                        wallpals[wall[w].nextwall] = wall[wall[w].nextwall].pal;
+                                                        wall[wall[w].nextwall].pal = sprite[i].pal;
+                                                        wallflag[wall[w].nextwall] = 1;
+                                                    }
+                                                } */
                     }
                     sectorshades[sprite[i].sectnum][0] = sector[sprite[i].sectnum].floorshade;
                     sectorshades[sprite[i].sectnum][1] = sector[sprite[i].sectnum].ceilingshade;
@@ -7972,12 +7928,20 @@ void ExtAnalyzeSprites(void)
 static void Keys2d3d(void)
 {
     int i;
+
+    if (keystatus[KEYSC_F12])   //F12
+    {
+        screencapture("captxxxx.tga",keystatus[KEYSC_LSHIFT]|keystatus[KEYSC_RSHIFT]);
+        message("Saved screenshot %d",capturecount-1);
+        keystatus[KEYSC_F12] = 0;
+    }
+
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_A]) // ' a
     {
         keystatus[KEYSC_A] = 0;
         autosave=autosave?0:180; // 3 minutes
-        if (autosave) message("Autosave ON");
-        else message("Autosave OFF");
+        if (autosave) message("Autosave enabled, interval: %d seconds",autosave);
+        else message("Autosave disabled");
     }
 
     if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_N]) // ' n
@@ -8175,15 +8139,15 @@ void ExtCheckKeys(void)
                             wall[w].pal = wallpals[w];
                             wallflag[w] = 0;
                         }
-/*                        if (wall[w].nextwall >= 0)
-                        {
-                            if (wallflag[wall[w].nextwall])
-                            {
-                                wall[wall[w].nextwall].shade = wallshades[wall[w].nextwall];
-                                wall[wall[w].nextwall].pal = wallpals[wall[w].nextwall];
-                                wallflag[wall[w].nextwall] = 0;
-                            }
-                        } */
+                        /*                        if (wall[w].nextwall >= 0)
+                                                {
+                                                    if (wallflag[wall[w].nextwall])
+                                                    {
+                                                        wall[wall[w].nextwall].shade = wallshades[wall[w].nextwall];
+                                                        wall[wall[w].nextwall].pal = wallpals[wall[w].nextwall];
+                                                        wallflag[wall[w].nextwall] = 0;
+                                                    }
+                                                } */
                     }
                     sector[sprite[i].sectnum].floorshade = sectorshades[sprite[i].sectnum][0];
                     sector[sprite[i].sectnum].ceilingshade = sectorshades[sprite[i].sectnum][1];

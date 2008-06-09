@@ -6060,7 +6060,7 @@ CANCEL:
                                 i--;
                                 boardfilename[i] = 0;
                             }
-                            else if (i < 32 && ch > 32 && ch < 128)
+                            else if (i < 40 && ch > 32 && ch < 128)
                             {
                                 boardfilename[i++] = ch;
                                 boardfilename[i] = 0;

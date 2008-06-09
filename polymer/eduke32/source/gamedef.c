@@ -451,7 +451,7 @@ static const char *keyw[] =
     "writearraytofile",         // 319
     "readarrayfromfile",        // 320
     "starttrackvar",			// 321
-	"qgetsysstr",   			// 322
+    "qgetsysstr",   			// 322
     "<null>"
 };
 
@@ -4062,7 +4062,7 @@ repeatcase:
     case CON_QSTRCAT:
     case CON_QSTRCPY:
     case CON_QSTRLEN:
-	case CON_QGETSYSSTR:
+    case CON_QGETSYSSTR:
     case CON_HEADSPRITESTAT:
     case CON_PREVSPRITESTAT:
     case CON_NEXTSPRITESTAT:
@@ -4965,10 +4965,10 @@ static void AddDefaultDefinitions(void)
     AddDefinition("EVENT_KILLIT",EVENT_KILLIT,LABEL_DEFINE);
     AddDefinition("EVENT_LOADACTOR",EVENT_LOADACTOR,LABEL_DEFINE);
 
-	AddDefinition("STR_MAPNAME",STR_MAPNAME,LABEL_DEFINE);
-	AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME,LABEL_DEFINE);
-	AddDefinition("STR_PLAYERNAME",STR_PLAYERNAME,LABEL_DEFINE);
-	AddDefinition("STR_VERSION",STR_VERSION,LABEL_DEFINE);
+    AddDefinition("STR_MAPNAME",STR_MAPNAME,LABEL_DEFINE);
+    AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME,LABEL_DEFINE);
+    AddDefinition("STR_PLAYERNAME",STR_PLAYERNAME,LABEL_DEFINE);
+    AddDefinition("STR_VERSION",STR_VERSION,LABEL_DEFINE);
 
     AddDefinition("NO",0,LABEL_DEFINE|LABEL_ACTION|LABEL_AI|LABEL_MOVE);
 

@@ -4037,11 +4037,11 @@ cheat_for_port_credits:
             break;
         }
 
-        Bsprintf(tempbuf,(char *)getjoyname(0,thispage*2));
+        Bstrcpy(tempbuf,(char *)getjoyname(0,thispage*2));
         menutext(42,32,0,0,tempbuf);
         if (twothispage)
         {
-            Bsprintf(tempbuf,(char *)getjoyname(0,thispage*2+1));
+            Bstrcpy(tempbuf,(char *)getjoyname(0,thispage*2+1));
             menutext(42,32+64,0,0,tempbuf);
         }
         gametext(76,38,"SCALE",0,2+8+16);
@@ -4166,7 +4166,7 @@ cheat_for_port_credits:
         for (m=first;m<last;m++)
         {
             unsigned short odx,dx,ody,dy;
-            Bsprintf(tempbuf,(char *)getjoyname(0,m));
+            Bstrcpy(tempbuf,(char *)getjoyname(0,m));
             menutext(32,48+30*(m-first),0,0,tempbuf);
 
             gametext(128,48+30*(m-first)-8,"DEAD",0,2+8+16);

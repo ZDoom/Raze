@@ -655,7 +655,7 @@ static permfifotype permfifo[MAXPERMS];
 static int permhead = 0, permtail = 0;
 
 short numscans, numhits, numbunches;
-static short capturecount = 0;
+short capturecount = 0;
 
 char vgapal16[4*256] =
 {
@@ -11102,7 +11102,11 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
             if ((i == linehighlight) || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
                 if (totalclock & 16) col += (2<<2);
         }
-        if (showfirstwall && (sector[searchsector].wallptr==i||sector[searchsector].wallptr==wall[i].nextwall))col = 14;
+        if (showfirstwall && (sector[searchsector].wallptr==i||sector[searchsector].wallptr==wall[i].nextwall))
+        {
+            col = 14;
+            if (i == linehighlight) if (totalclock & 16) col -= (2<<2);
+        }
 
         xp1 = mulscale14(wal->x-posxe,zoome);
         yp1 = mulscale14(wal->y-posye,zoome);
@@ -11112,7 +11116,12 @@ void draw2dscreen(int posxe, int posye, short ange, int zoome, short gride)
         dx=wal->x-wall[wal->point2].x;
         dy=wal->y-wall[wal->point2].y;
         dist=dx*dx+dy*dy;
-        if (dist>0xffffffff)col=9;
+        if (dist>0xffffffff)
+        {
+            col=9;
+            if (i == linehighlight || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
+                if (totalclock & 16) col -= (2<<2);
+        }
 
         if ((wal->cstat&64) > 0)
         {
