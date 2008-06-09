@@ -10172,10 +10172,13 @@ void plotpixel(int x, int y, char col)
 
         setpolymost2dview();	// JBF 20040205: more efficient setup
 
-        bglBegin(GL_POINTS);
-        bglColor4ub(p.r,p.g,p.b,255);
-        bglVertex2i(x,y);
-        bglEnd();
+//         bglBegin(GL_POINTS);
+//         bglColor4ub(p.r,p.g,p.b,255);
+//         bglVertex2i(x,y);
+//         bglEnd();
+        bglRasterPos4i(x, y, 0, 1);
+        bglDrawPixels(1, 1, GL_RGB, GL_UNSIGNED_BYTE, &p);
+        bglRasterPos4i(0, 0, 0, 1);
 
         return;
     }

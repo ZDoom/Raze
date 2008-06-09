@@ -75,6 +75,8 @@ void (APIENTRY * bglShadeModel)(GLenum mode);
 
 // Raster funcs
 void (APIENTRY * bglReadPixels)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
+void (APIENTRY * bglRasterPos4i)( GLint x, GLint y, GLint z, GLint w );
+void (APIENTRY * bglDrawPixels)( GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels );
 
 // Texture mapping
 void (APIENTRY * bglTexEnvf)(GLenum target, GLenum pname, GLfloat param);
@@ -324,6 +326,8 @@ int loadgldriver(const char *driver)
 
     // Raster funcs
     bglReadPixels		= GETPROC("glReadPixels");
+    bglRasterPos4i		= GETPROC("glRasterPos4i");
+    bglDrawPixels		= GETPROC("glDrawPixels");
 
     // Texture mapping
     bglTexEnvf		=       GETPROC("glTexEnvf");
@@ -501,6 +505,8 @@ int unloadgldriver(void)
 
     // Raster funcs
     bglReadPixels		= NULL;
+    bglRasterPos4i		= NULL;
+    bglDrawPixels		= NULL;
 
     // Texture mapping
     bglTexEnvf		    = NULL;
