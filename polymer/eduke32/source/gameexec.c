@@ -5106,6 +5106,7 @@ static int parse(void)
     case CON_GETPNAME:
     case CON_QSTRCAT:
     case CON_QSTRCPY:
+	case CON_QGETSYSSTR:
     case CON_CHANGESPRITESTAT:
     case CON_CHANGESPRITESECT:
         insptr++;
@@ -5129,6 +5130,27 @@ static int parse(void)
                 }
                 else OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,i);
                 break;
+			case CON_QGETSYSSTR:
+				if (fta_quotes[i] != NULL)
+				switch(j)
+				{
+					case STR_MAPNAME:
+						Bstrcpy(fta_quotes[i],map[ud.volume_number*MAXLEVELS + ud.level_number].name);
+						break;
+					case STR_MAPFILENAME:
+						Bstrcpy(fta_quotes[i],map[ud.volume_number*MAXLEVELS + ud.level_number].filename);
+						break;
+					case STR_PLAYERNAME:
+						Bstrcpy(fta_quotes[i],g_player[g_p].user_name);
+						break;
+					case STR_VERSION:
+						Bstrcpy(fta_quotes[i],HEAD2);
+						break;
+					default:
+						OSD_Printf("%s %d unknown str ID %d %d\n",__FILE__,__LINE__,i,j);
+				}
+				else OSD_Printf("%s %d null quote %d %d\n",__FILE__,__LINE__,i,j);
+				break;
             case CON_QSTRCAT:
                 if (fta_quotes[i] != NULL && fta_quotes[j] != NULL)
                     Bstrncat(fta_quotes[i],fta_quotes[j],(MAXQUOTELEN-1)-Bstrlen(fta_quotes[i]));

@@ -803,6 +803,13 @@ enum events {
 	EVENT_DISPLAYLOADINGSCREEN
 };
 
+enum sysstrs {
+	STR_MAPNAME,
+	STR_MAPFILENAME,
+	STR_PLAYERNAME,
+	STR_VERSION
+};
+
 // store global game definitions
 
 
