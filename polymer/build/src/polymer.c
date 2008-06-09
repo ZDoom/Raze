@@ -114,6 +114,8 @@ GLfloat         skyboxdata[4 * 5 * 6] =
     1.0f, 0.0f,
 };
 
+GLuint          skyboxdatavbo;
+
 GLfloat         artskydata[16];
 
 // CONTROL
@@ -2260,6 +2262,19 @@ static void         polymer_drawskybox(short tilenum)
     pthtyp*         pth;
     int             i;
 
+    if ((pr_vbos > 0) && (skyboxdatavbo == 0))
+    {
+        bglGenBuffersARB(1, &skyboxdatavbo);
+
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, skyboxdatavbo);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5 * 6, skyboxdata, modelvbousage);
+
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+    }
+
+    if (pr_vbos > 0)
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, skyboxdatavbo);
+
     i = 0;
     while (i < 6)
     {
@@ -2267,13 +2282,23 @@ static void         polymer_drawskybox(short tilenum)
         pth = gltexcache(tilenum, 0, 4);
 
         bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
-        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), &skyboxdata[4 * 5 * i]);
-        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &skyboxdata[3 + (4 * 5 * i)]);
+        if (pr_vbos > 0)
+        {
+            bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), (GLfloat*)(4 * 5 * i * sizeof(GLfloat)));
+            bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), (GLfloat*)(((4 * 5 * i) + 3) * sizeof(GLfloat)));
+        } else {
+            bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), &skyboxdata[4 * 5 * i]);
+            bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &skyboxdata[3 + (4 * 5 * i)]);
+        }
         bglDrawArrays(GL_QUADS, 0, 4);
 
         i++;
     }
     drawingskybox = 0;
+
+    if (pr_vbos > 0)
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
     return;
 }
 
