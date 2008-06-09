@@ -151,10 +151,12 @@ static void         polymer_extractfrustum(GLdouble* modelview, GLdouble* projec
 static int          polymer_portalinfrustum(short wallnum, float* frustum);
 static void         polymer_scansprites(short sectnum, spritetype* tsprite, int* spritesortcnt);
 // SKIES
-static void         polymer_initskybox(void);
 static void         polymer_getsky(void);
-static void         polymer_drawskyquad(int p1, int p2, GLfloat height);
+static void         polymer_drawsky(short tilenum);
+static void         polymer_initartsky(void);
 static void         polymer_drawartsky(short tilenum);
+static void         polymer_drawartskyquad(int p1, int p2, GLfloat height);
+static void         polymer_drawskybox(short tilenum);
 // MDSPRITES
 static void         polymer_drawmdsprite(spritetype *tspr);
 static void         polymer_loadmodelvbos(md3model* m);

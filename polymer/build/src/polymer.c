@@ -25,8 +25,6 @@ GLuint          modelvp;
 _prsector       *prsectors[MAXSECTORS];
 _prwall         *prwalls[MAXWALLS];
 
-GLfloat         skybox[16];
-
 _prplane        spriteplane;
 
 GLfloat         vertsprite[4 * 5] =
@@ -52,6 +50,71 @@ GLfloat         horizsprite[4 * 5] =
     -0.5f, 0.0f, 0.5f,
     0.0f, 0.0f,
 };
+
+GLfloat         skyboxdata[4 * 5 * 6] =
+{
+    // -ZY
+    -0.5f, -0.5f, 0.5f,
+    0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,
+    1.0f, 1.0f,
+    -0.5f, 0.5f, -0.5f,
+    1.0f, 0.0f,
+    -0.5f, 0.5f, 0.5f,
+    0.0f, 0.0f,
+
+    // XY
+    -0.5f, -0.5f, -0.5f,
+    0.0f, 1.0f,
+    0.5f, -0.5f, -0.5f,
+    1.0f, 1.0f,
+    0.5f, 0.5f, -0.5f,
+    1.0f, 0.0f,
+    -0.5f, 0.5f, -0.5f,
+    0.0f, 0.0f,
+
+    // ZY
+    0.5f, -0.5f, -0.5f,
+    0.0f, 1.0f,
+    0.5f, -0.5f, 0.5f,
+    1.0f, 1.0f,
+    0.5f, 0.5f, 0.5f,
+    1.0f, 0.0f,
+    0.5f, 0.5f, -0.5f,
+    0.0f, 0.0f,
+
+    // -XY
+    0.5f, -0.5f, 0.5f,
+    0.0f, 1.0f,
+    -0.5f, -0.5f, 0.5f,
+    1.0f, 1.0f,
+    -0.5f, 0.5f, 0.5f,
+    1.0f, 0.0f,
+    0.5f, 0.5f, 0.5f,
+    0.0f, 0.0f,
+
+    // XZ
+    -0.5f, 0.5f, -0.5f,
+    1.0f, 1.0f,
+    0.5f, 0.5f, -0.5f,
+    1.0f, 0.0f,
+    0.5f, 0.5f, 0.5f,
+    0.0f, 0.0f,
+    -0.5f, 0.5f, 0.5f,
+    0.0f, 1.0f,
+
+    // X-Z
+    -0.5f, -0.5f, 0.5f,
+    0.0f, 0.0f,
+    0.5f, -0.5f, 0.5f,
+    0.0f, 1.0f,
+    0.5f, -0.5f, -0.5f,
+    1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,
+    1.0f, 0.0f,
+};
+
+GLfloat         artskydata[16];
 
 // CONTROL
 GLdouble        spritemodelview[16];
@@ -130,7 +193,7 @@ int                 polymer_init(void)
 
     polymer_loadboard();
 
-    polymer_initskybox();
+    polymer_initartsky();
 
     // init the face sprite modelview to identity
     i = 0;
@@ -260,7 +323,7 @@ void                polymer_drawrooms(int daposx, int daposy, int daposz, short 
 
     bglDisable(GL_DEPTH_TEST);
     bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    polymer_drawartsky(cursky);
+    polymer_drawsky(cursky);
     bglEnable(GL_DEPTH_TEST);
 
     bglScalef(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f);
@@ -2103,29 +2166,6 @@ static void         polymer_scansprites(short sectnum, spritetype* localtsprite,
 }
 
 // SKIES
-static void         polymer_initskybox(void)
-{
-    GLfloat         halfsqrt2 = 0.70710678f;
-
-    skybox[0] = -1.0f;          skybox[1] = 0.0f;           // 0
-    skybox[2] = -halfsqrt2;     skybox[3] = halfsqrt2;      // 1
-    skybox[4] = 0.0f;           skybox[5] = 1.0f;           // 2
-    skybox[6] = halfsqrt2;      skybox[7] = halfsqrt2;      // 3
-    skybox[8] = 1.0f;           skybox[9] = 0.0f;           // 4
-    skybox[10] = halfsqrt2;     skybox[11] = -halfsqrt2;    // 5
-    skybox[12] = 0.0f;          skybox[13] = -1.0f;         // 6
-    skybox[14] = -halfsqrt2;    skybox[15] = -halfsqrt2;    // 7
-
-    /*skybox[0] = -1.0f;          skybox[1] = 0.0f;           // 0
-    skybox[2] = -1.0f;          skybox[3] = 1.0;      // 1
-    skybox[4] = 0.0f;           skybox[5] = 1.0f;           // 2
-    skybox[6] = 1.0f;           skybox[7] = 1.0f;      // 3
-    skybox[8] = 1.0f;           skybox[9] = 0.0f;           // 4
-    skybox[10] = 1.0;           skybox[11] = -1.0;    // 5
-    skybox[12] = 0.0f;          skybox[13] = -1.0f;         // 6
-    skybox[14] = -1.0;          skybox[15] = -1.0;    // 7*/
-}
-
 static void         polymer_getsky(void)
 {
     int             i;
@@ -2142,22 +2182,32 @@ static void         polymer_getsky(void)
     }
 }
 
-static void         polymer_drawskyquad(int p1, int p2, GLfloat height)
+static void         polymer_drawsky(short tilenum)
 {
-    bglBegin(GL_QUADS);
-    bglTexCoord2f(0.0f, 0.0f);
-    //OSD_Printf("PR: drawing %f %f %f\n", skybox[(p1 * 2) + 1], height, skybox[p1 * 2]);
-    bglVertex3f(skybox[(p1 * 2) + 1], height, skybox[p1 * 2]);
-    bglTexCoord2f(0.0f, 1.0f);
-    //OSD_Printf("PR: drawing %f %f %f\n", skybox[(p1 * 2) + 1], -height, skybox[p1 * 2]);
-    bglVertex3f(skybox[(p1 * 2) + 1], -height, skybox[p1 * 2]);
-    bglTexCoord2f(1.0f, 1.0f);
-    //OSD_Printf("PR: drawing %f %f %f\n", skybox[(p2 * 2) + 1], -height, skybox[p2 * 2]);
-    bglVertex3f(skybox[(p2 * 2) + 1], -height, skybox[p2 * 2]);
-    bglTexCoord2f(1.0f, 0.0f);
-    //OSD_Printf("PR: drawing %f %f %f\n", skybox[(p2 * 2) + 1], height, skybox[p2 * 2]);
-    bglVertex3f(skybox[(p2 * 2) + 1], height, skybox[p2 * 2]);
-    bglEnd();
+    pthtyp*         pth;
+
+    drawingskybox = 1;
+    pth = gltexcache(tilenum,0,0);
+    drawingskybox = 0;
+
+    if (pth && (pth->flags & 4))
+        polymer_drawskybox(tilenum);
+    else
+        polymer_drawartsky(tilenum);
+}
+
+static void         polymer_initartsky(void)
+{
+    GLfloat         halfsqrt2 = 0.70710678f;
+
+    artskydata[0] = -1.0f;          artskydata[1] = 0.0f;           // 0
+    artskydata[2] = -halfsqrt2;     artskydata[3] = halfsqrt2;      // 1
+    artskydata[4] = 0.0f;           artskydata[5] = 1.0f;           // 2
+    artskydata[6] = halfsqrt2;      artskydata[7] = halfsqrt2;      // 3
+    artskydata[8] = 1.0f;           artskydata[9] = 0.0f;           // 4
+    artskydata[10] = halfsqrt2;     artskydata[11] = -halfsqrt2;    // 5
+    artskydata[12] = 0.0f;          artskydata[13] = -1.0f;         // 6
+    artskydata[14] = -halfsqrt2;    artskydata[15] = -halfsqrt2;    // 7
 }
 
 static void         polymer_drawartsky(short tilenum)
@@ -2182,9 +2232,49 @@ static void         polymer_drawartsky(short tilenum)
     while (i < j)
     {
         bglBindTexture(GL_TEXTURE_2D, glpics[pskyoff[i]]);
-        polymer_drawskyquad(i, (i + 1) & (j - 1), height);
+        polymer_drawartskyquad(i, (i + 1) & (j - 1), height);
         i++;
     }
+}
+
+static void         polymer_drawartskyquad(int p1, int p2, GLfloat height)
+{
+    bglBegin(GL_QUADS);
+    bglTexCoord2f(0.0f, 0.0f);
+    //OSD_Printf("PR: drawing %f %f %f\n", skybox[(p1 * 2) + 1], height, skybox[p1 * 2]);
+    bglVertex3f(artskydata[(p1 * 2) + 1], height, artskydata[p1 * 2]);
+    bglTexCoord2f(0.0f, 1.0f);
+    //OSD_Printf("PR: drawing %f %f %f\n", skybox[(p1 * 2) + 1], -height, skybox[p1 * 2]);
+    bglVertex3f(artskydata[(p1 * 2) + 1], -height, artskydata[p1 * 2]);
+    bglTexCoord2f(1.0f, 1.0f);
+    //OSD_Printf("PR: drawing %f %f %f\n", skybox[(p2 * 2) + 1], -height, skybox[p2 * 2]);
+    bglVertex3f(artskydata[(p2 * 2) + 1], -height, artskydata[p2 * 2]);
+    bglTexCoord2f(1.0f, 0.0f);
+    //OSD_Printf("PR: drawing %f %f %f\n", skybox[(p2 * 2) + 1], height, skybox[p2 * 2]);
+    bglVertex3f(artskydata[(p2 * 2) + 1], height, artskydata[p2 * 2]);
+    bglEnd();
+}
+
+static void         polymer_drawskybox(short tilenum)
+{
+    pthtyp*         pth;
+    int             i;
+
+    i = 0;
+    while (i < 6)
+    {
+        drawingskybox = i + 1;
+        pth = gltexcache(tilenum, 0, 4);
+
+        bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
+        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), &skyboxdata[4 * 5 * i]);
+        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &skyboxdata[3 + (4 * 5 * i)]);
+        bglDrawArrays(GL_QUADS, 0, 4);
+
+        i++;
+    }
+    drawingskybox = 0;
+    return;
 }
 
 // MDSPRITES

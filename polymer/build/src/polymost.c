@@ -366,7 +366,7 @@ float alphahackarray[MAXTILES];
 #define GLTEXCACHEADSIZ 8192
 static pthtyp *gltexcachead[GLTEXCACHEADSIZ];
 
-static int drawingskybox = 0;
+int drawingskybox = 0;
 
 pthtyp *pichead;
 

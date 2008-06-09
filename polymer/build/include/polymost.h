@@ -44,6 +44,7 @@ extern int globalpal, cosglobalang, singlobalang;
 extern int cosviewingrangeglobalang, sinviewingrangeglobalang;
 extern float shadescale;
 extern int globalnoeffect;
+extern int drawingskybox;
 
 #define HICEFFECTMASK (1|2|4)
 
