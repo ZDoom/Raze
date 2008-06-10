@@ -95,7 +95,8 @@ double gvo, gvx, gvy;
 double gdo, gdx, gdy;
 
 #if (USEZBUFFER != 0)
-int zbufmem = 0, zbufysiz = 0, zbufbpl = 0, *zbufoff = 0;
+int  zbufysiz = 0, zbufbpl = 0, *zbufoff = 0;
+intptr_t zbufmem = 0;
 #endif
 
 #ifdef USE_OPENGL
@@ -2189,7 +2190,7 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
         {
             zbufbpl = bytesperline;
             zbufysiz = ydim;
-            zbufmem = (int)realloc((void *)zbufmem,zbufbpl*zbufysiz*4);
+            zbufmem = (intptr_t)realloc((void *)zbufmem,zbufbpl*zbufysiz*4);
         }
         zbufoff = (int *)(zbufmem-(frameplace<<2));
 #endif
@@ -2327,7 +2328,7 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
                                     {
 #if (DEPTHDEBUG == 0)
 #if (USEZBUFFER != 0)
-                                        zbufoff[(int)vidp] = d0+16384; //+ hack so wall&floor sprites don't disappear
+                                        zbufoff[(intptr_t)vidp] = d0+16384; //+ hack so wall&floor sprites don't disappear
 #endif
                                         vidp[0] = palptr[walptr[(((u0>>16)&tsizxm1)<<ltsizy) + ((v0>>16)&tsizym1)]]; //+((d0>>13)&0x3f00)];
 #else
@@ -2349,7 +2350,7 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
                                     {
 #if (DEPTHDEBUG == 0)
 #if (USEZBUFFER != 0)
-                                        zbufoff[(int)vidp] = d0;
+                                        zbufoff[(intptr_t)vidp] = d0;
 #endif
                                         vidp[0] = palptr[walptr[imod(u0>>16,tsizx)*tsizy + ((v0>>16)&tsizym1)]]; //+((d0>>13)&0x3f00)];
 #else
@@ -2374,9 +2375,9 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
                                         dacol = walptr[(((u0>>16)&tsizxm1)*tsizy) + ((v0>>16)&tsizym1)];
 #if (DEPTHDEBUG == 0)
 #if (USEZBUFFER != 0)
-                                        if ((dacol != 255) && (d0 <= zbufoff[(int)vidp]))
+                                        if ((dacol != 255) && (d0 <= zbufoff[(intptr_t)vidp]))
                                         {
-                                            zbufoff[(int)vidp] = d0;
+                                            zbufoff[(intptr_t)vidp] = d0;
                                             vidp[0] = palptr[((int)dacol)]; //+((d0>>13)&0x3f00)];
                                         }
 #else
@@ -2402,9 +2403,9 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
                                         dacol = walptr[imod(u0>>16,tsizx)*tsizy + ((v0>>16)&tsizym1)];
 #if (DEPTHDEBUG == 0)
 #if (USEZBUFFER != 0)
-                                        if ((dacol != 255) && (d0 <= zbufoff[(int)vidp]))
+                                        if ((dacol != 255) && (d0 <= zbufoff[(intptr_t)vidp]))
                                         {
-                                            zbufoff[(int)vidp] = d0;
+                                            zbufoff[(intptr_t)vidp] = d0;
                                             vidp[0] = palptr[((int)dacol)]; //+((d0>>13)&0x3f00)];
                                         }
 #else
@@ -2431,9 +2432,9 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
                                     //dacol = walptr[(((u0>>16)&tsizxm1)<<ltsizy) + ((v0>>16)&tsizym1)];
 #if (DEPTHDEBUG == 0)
 #if (USEZBUFFER != 0)
-                                    if ((dacol != 255) && (d0 <= zbufoff[(int)vidp]))
+                                    if ((dacol != 255) && (d0 <= zbufoff[(intptr_t)vidp]))
                                     {
-                                        zbufoff[(int)vidp] = d0;
+                                        zbufoff[(intptr_t)vidp] = d0;
                                         vidp[0] = transluc[(((int)vidp[0])<<8)+((int)palptr[((int)dacol)])]; //+((d0>>13)&0x3f00)])];
                                     }
 #else
@@ -2460,9 +2461,9 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
                                     //dacol = walptr[(((u0>>16)&tsizxm1)<<ltsizy) + ((v0>>16)&tsizym1)];
 #if (DEPTHDEBUG == 0)
 #if (USEZBUFFER != 0)
-                                    if ((dacol != 255) && (d0 <= zbufoff[(int)vidp]))
+                                    if ((dacol != 255) && (d0 <= zbufoff[(intptr_t)vidp]))
                                     {
-                                        zbufoff[(int)vidp] = d0;
+                                        zbufoff[(intptr_t)vidp] = d0;
                                         vidp[0] = transluc[((int)vidp[0])+(((int)palptr[((int)dacol)/*+((d0>>13)&0x3f00)*/])<<8)];
                                     }
 #else
