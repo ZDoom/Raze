@@ -1621,7 +1621,7 @@ static int defsparser(scriptfile *script)
                 switch (getatoken(script,sound_musictokens,sizeof(sound_musictokens)/sizeof(tokenlist)))
                 {
                 case T_ID:
-                    scriptfile_getsymbol(script,(intptr_t *)&dummy2);
+                    scriptfile_getsymbol(script,(int *)&dummy2);
                     break;
                 case T_FILE:
                     scriptfile_getstring(script,&dummy2);

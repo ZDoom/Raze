@@ -2277,7 +2277,7 @@ static int isolid(int x, int y, int z)
 
 static voxmodel *vox2poly()
 {
-    int i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy, *bx0, *by0;
+    int i, j, x, y, z, v, ov, oz = 0, cnt, sc, x0, y0, dx, dy,*bx0, *by0;
     void (*daquad)(int, int, int, int, int, int, int, int, int, int);
 
     gvox = (voxmodel *)malloc(sizeof(voxmodel)); if (!gvox) return(0);
@@ -2297,7 +2297,7 @@ static voxmodel *vox2poly()
 
     i = ((max(ysiz,zsiz)+1)<<2);
     bx0 = (int *)malloc(i<<1); if (!bx0) { free(gvox); return(0); }
-    by0 = (int *)(((int)bx0)+i);
+    by0 = (int *)(((intptr_t)bx0)+i);
 
     for (cnt=0;cnt<2;cnt++)
     {
@@ -2681,7 +2681,7 @@ static int voxdraw(voxmodel *m, spritetype *tspr)
     float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], omat[16], pc[4];
     vert_t *vptr;
 
-    if ((int)m == (int)0xffffffff) // hackhackhack
+    if ((intptr_t)m == (intptr_t)(-1)) // hackhackhack
         return 0;
     if ((tspr->cstat&48)==32) return 0;
 
