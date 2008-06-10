@@ -1166,16 +1166,18 @@ typedef struct helppage_
 helppage_t **helppage=NULL;
 int numhelppages=0;
 
-static int emptyline(const char *start)
+static int newpage(const char *start)
 {
     int i;
     for (i=0; i<80; i++)
     {
-        if (start[i]=='\n' || !start[i]) break;
-        if (start[i]!=' ' && start[i]!='\t' && start[i]!='\r')
-            return 0;
+//        if (start[i]=='\n' || !start[i]) break;
+//        if (start[i]!=' ' && start[i]!='\t' && start[i]!='\r')
+//            return 0;
+        if (start[i] == '^' && start[i+1] == 'P')
+            return 1;
     }
-    return 1;
+    return 0;
 }
 
 #define IHELP_INITPAGES 32
@@ -1207,7 +1209,7 @@ static void ReadHelpFile(const char *name)
             pos = ftell(fp);
             Bfgets(tempbuf, 80, fp);
             charsread = ftell(fp)-pos;
-            if (!emptyline(tempbuf))
+            if (!newpage(tempbuf))
             {
                 break;
             }
@@ -1256,7 +1258,7 @@ static void ReadHelpFile(const char *name)
             j++;
 
         }
-        while (!emptyline(tempbuf) && !Bfeof(fp) && charsread>0);
+        while (!newpage(tempbuf) && !Bfeof(fp) && charsread>0);
 
         hp=realloc(hp, sizeof(helppage_t) + j*80);
         if (!hp) goto ERROR;
