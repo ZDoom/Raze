@@ -124,7 +124,8 @@ int loadplayer(int spot)
     char fn[13];
     char mpfn[13];
     char *fnptr, *scriptptrs;
-    int fil, bv, i, j, x;
+    int fil, bv, i, x;
+    intptr_t j;
     int32 nump;
 
     strcpy(fn, "egam0.sav");
@@ -273,12 +274,12 @@ int loadplayer(int spot)
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
     if (script != NULL)
         Bfree(script);
-    script = Bcalloc(1,g_ScriptSize * sizeof(int));
+    script = Bcalloc(1,g_ScriptSize * sizeof(intptr_t));
     if (kdfread(&script[0],sizeof(script),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
     for (i=0;i<g_ScriptSize;i++)
         if (scriptptrs[i])
         {
-            j = (int)script[i]+(int)&script[0];
+            j = (intptr_t)script[i]+(intptr_t)&script[0];
             script[i] = j;
         }
 
@@ -286,15 +287,15 @@ int loadplayer(int spot)
     for (i=0;i<MAXTILES;i++)
         if (actorscrptr[i])
         {
-            j = (int)actorscrptr[i]+(int)&script[0];
-            actorscrptr[i] = (int *)j;
+            j = (intptr_t)actorscrptr[i]+(intptr_t)&script[0];
+            actorscrptr[i] = (intptr_t *)j;
         }
     if (kdfread(&actorLoadEventScrptr[0],4,MAXTILES,fil) != MAXTILES) goto corrupt;
     for (i=0;i<MAXTILES;i++)
         if (actorLoadEventScrptr[i])
         {
-            j = (int)actorLoadEventScrptr[i]+(int)&script[0];
-            actorLoadEventScrptr[i] = (int *)j;
+            j = (intptr_t)actorLoadEventScrptr[i]+(intptr_t)&script[0];
+            actorLoadEventScrptr[i] = (intptr_t *)j;
         }
 
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
@@ -302,7 +303,7 @@ int loadplayer(int spot)
 
     for (i=0;i<MAXSPRITES;i++)
     {
-        j = (int)(&script[0]);
+        j = (intptr_t)(&script[0]);
         if (scriptptrs[i]&1) T2 += j;
         if (scriptptrs[i]&2) T5 += j;
         if (scriptptrs[i]&4) T6 += j;
@@ -314,8 +315,8 @@ int loadplayer(int spot)
 
     if (kdfread(&animatecnt,sizeof(animatecnt),1,fil) != 1) goto corrupt;
     if (kdfread(&animatesect[0],2,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
-    if (kdfread(&animateptr[0],sizeof(intptr_t),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
-    for (i = animatecnt-1;i>=0;i--) animateptr[i] = (intptr_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+    if (kdfread(&animateptr[0],sizeof(int),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
+    for (i = animatecnt-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
     if (kdfread(&animategoal[0],4,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
     if (kdfread(&animatevel[0],4,MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
 
@@ -521,7 +522,8 @@ corrupt:
 
 int saveplayer(int spot)
 {
-    int i, j;
+    int i;
+    intptr_t j;
     char fn[13];
     char mpfn[13];
     char *fnptr, *scriptptrs;
@@ -636,10 +638,10 @@ int saveplayer(int spot)
     scriptptrs = Bcalloc(1, g_ScriptSize * sizeof(scriptptrs));
     for (i=0;i<g_ScriptSize;i++)
     {
-        if ((int)script[i] >= (int)(&script[0]) && (int)script[i] < (int)(&script[g_ScriptSize]))
+        if ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))
         {
             scriptptrs[i] = 1;
-            j = (int)script[i] - (int)&script[0];
+            j = (intptr_t)script[i] - (intptr_t)&script[0];
             script[i] = j;
         }
         else scriptptrs[i] = 0;
@@ -651,36 +653,36 @@ int saveplayer(int spot)
     for (i=0;i<g_ScriptSize;i++)
         if (scriptptrs[i])
         {
-            j = script[i]+(int)&script[0];
+            j = script[i]+(intptr_t)&script[0];
             script[i] = j;
         }
 
     for (i=0;i<MAXTILES;i++)
         if (actorscrptr[i])
         {
-            j = (int)actorscrptr[i]-(int)&script[0];
-            actorscrptr[i] = (int *)j;
+            j = (intptr_t)actorscrptr[i]-(intptr_t)&script[0];
+            actorscrptr[i] = (intptr_t *)j;
         }
     dfwrite(&actorscrptr[0],4,MAXTILES,fil);
     for (i=0;i<MAXTILES;i++)
         if (actorscrptr[i])
         {
-            j = (int)actorscrptr[i]+(int)&script[0];
-            actorscrptr[i] = (int *)j;
+            j = (intptr_t)actorscrptr[i]+(intptr_t)&script[0];
+            actorscrptr[i] = (intptr_t *)j;
         }
 
     for (i=0;i<MAXTILES;i++)
         if (actorLoadEventScrptr[i])
         {
-            j = (int)actorLoadEventScrptr[i]-(int)&script[0];
-            actorLoadEventScrptr[i] = (int *)j;
+            j = (intptr_t)actorLoadEventScrptr[i]-(intptr_t)&script[0];
+            actorLoadEventScrptr[i] = (intptr_t *)j;
         }
     dfwrite(&actorLoadEventScrptr[0],4,MAXTILES,fil);
     for (i=0;i<MAXTILES;i++)
         if (actorLoadEventScrptr[i])
         {
-            j = (int)actorLoadEventScrptr[i]+(int)&script[0];
-            actorLoadEventScrptr[i] = (int *)j;
+            j = (intptr_t)actorLoadEventScrptr[i]+(intptr_t)&script[0];
+            actorLoadEventScrptr[i] = (intptr_t *)j;
         }
 
 
@@ -690,19 +692,19 @@ int saveplayer(int spot)
 
         if (actorscrptr[PN] == 0) continue;
 
-        j = (int)&script[0];
+        j = (intptr_t)&script[0];
 
-        if (T2 >= j && T2 < (int)(&script[g_ScriptSize]))
+        if (T2 >= j && T2 < (intptr_t)(&script[g_ScriptSize]))
         {
             scriptptrs[i] |= 1;
             T2 -= j;
         }
-        if (T5 >= j && T5 < (int)(&script[g_ScriptSize]))
+        if (T5 >= j && T5 < (intptr_t)(&script[g_ScriptSize]))
         {
             scriptptrs[i] |= 2;
             T5 -= j;
         }
-        if (T6 >= j && T6 < (int)(&script[g_ScriptSize]))
+        if (T6 >= j && T6 < (intptr_t)(&script[g_ScriptSize]))
         {
             scriptptrs[i] |= 4;
             T6 -= j;
@@ -715,7 +717,7 @@ int saveplayer(int spot)
     for (i=0;i<MAXSPRITES;i++)
     {
         if (actorscrptr[PN] == 0) continue;
-        j = (int)&script[0];
+        j = (intptr_t)&script[0];
 
         if (scriptptrs[i]&1)
             T2 += j;
@@ -730,9 +732,9 @@ int saveplayer(int spot)
     dfwrite(&pskyoff[0],sizeof(pskyoff[0]),MAXPSKYTILES,fil);
     dfwrite(&animatecnt,sizeof(animatecnt),1,fil);
     dfwrite(&animatesect[0],2,MAXANIMATES,fil);
-    for (i = animatecnt-1;i>=0;i--) animateptr[i] = (intptr_t *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
+    for (i = animatecnt-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
     dfwrite(&animateptr[0],4,MAXANIMATES,fil);
-    for (i = animatecnt-1;i>=0;i--) animateptr[i] = (intptr_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+    for (i = animatecnt-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
     dfwrite(&animategoal[0],4,MAXANIMATES,fil);
     dfwrite(&animatevel[0],4,MAXANIMATES,fil);
 
