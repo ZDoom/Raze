@@ -66,7 +66,7 @@ int cachecount = 0;
 char zerochar = 0;
 intptr_t cachestart = 0;
 int cacnum = 0, agecount = 0;
-typedef struct { intptr_t *hand, leng; char *lock ; } cactype;
+typedef struct { intptr_t *hand;int leng; char *lock ; } cactype;
 cactype cac[MAXCACHEOBJECTS];
 static int lockrecip[200];
 
@@ -119,7 +119,7 @@ void allocache(intptr_t *newhandle, int newbytes, char *newlockptr)
     if ((unsigned)newbytes > (unsigned)cachesize)
     {
         Bprintf("Cachesize: %d\n",cachesize);
-        Bprintf("*Newhandle: 0x%x, Newbytes: %d, *Newlock: %d\n",(intptr_t)newhandle,newbytes,*newlockptr);
+        Bprintf("*Newhandle: 0x%tx, Newbytes: %d, *Newlock: %d\n",(intptr_t)newhandle,newbytes,*newlockptr);
         reportandexit("BUFFER TOO BIG TO FIT IN CACHE!");
     }
 
@@ -239,7 +239,7 @@ static void reportandexit(char *errormessage)
     for (i=0;i<cacnum;i++)
     {
         Bprintf("%d- ",i);
-        if (cac[i].hand) Bprintf("ptr: 0x%x, ",*cac[i].hand);
+        if (cac[i].hand) Bprintf("ptr: 0x%tx, ",*cac[i].hand);
         else Bprintf("ptr: NULL, ");
         Bprintf("leng: %d, ",cac[i].leng);
         if (cac[i].lock) Bprintf("lock: %d\n",*cac[i].lock);
