@@ -66,7 +66,6 @@ extern int whitecol;
 extern char vgapal16[4*256];
 extern void AutoAlignWalls(int nWall0, int ply);
 extern char changechar(char dachar, int dadir, char smooshyalign, char boundcheck);
-extern void _printmessage16(char name[82]);
 extern void updatenumsprites(void);
 
 extern int lastpm16time, synctics;

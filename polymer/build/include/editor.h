@@ -84,7 +84,9 @@ void clearmidstatbar16(void);
 int getnumber256(char namestart[80], int num, int maxnumber, char sign);
 int getnumber16(char namestart[80], int num, int maxnumber, char sign);
 void printmessage256(char name[82]);
-void printmessage16(char name[82]);
+void _printmessage16(const char *fmt, ...);
+
+#define printmessage16(fmt, ...) lastpm16time = totalclock, _printmessage16(fmt, ## __VA_ARGS__)
 
 void getpoint(int searchxe, int searchye, int *x, int *y);
 int getpointhighlight(int xplc, int yplc);

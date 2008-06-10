@@ -52,8 +52,6 @@ extern char spritecol2d[MAXTILES][2];
 
 char noclip=0;
 
-void _printmessage16(char name[82]);
-
 int vel, svel, angvel;
 
 // 0   1     2     3      4       5      6      7
@@ -5752,8 +5750,8 @@ void overheadeditor(void)
                     {
                         ExtLoadMap(boardfilename);
 
-                        if (mapversion < 7) printmessage16("Map loaded successfully and autoconverted to V7!");
-                        else printmessage16("Map loaded successfully.");
+                        if (mapversion < 7) printmessage16("Map %s loaded successfully and autoconverted to V7!",boardfilename);
+                        else printmessage16("Map %s loaded successfully.",boardfilename);
                     }
                     updatenumsprites();
                     startposx = posx;      //this is same
@@ -6006,8 +6004,8 @@ CANCEL:
                                 }
                             }
 
-                            if (mapversion < 7) printmessage16("Map loaded successfully and autoconverted to V7!");
-                            else printmessage16("Map loaded successfully.");
+                            if (mapversion < 7) printmessage16("Map %s loaded successfully and autoconverted to V7!",boardfilename);
+                            else printmessage16("Map %s loaded successfully.",boardfilename);
                         }
                         updatenumsprites();
                         startposx = posx;      //this is same
@@ -7759,15 +7757,21 @@ void keytimerstuff(void)
             posz -= (horiz-101)*(vel/40); */
 }
 
-void _printmessage16(char name[82])
+void _printmessage16(const char *fmt, ...)
 {
-    char snotbuf[60];
     int i;
+    char snotbuf[60];
+    char tmpstr[64];
+    va_list va;
+
+    va_start(va, fmt);
+    Bvsnprintf(tmpstr, 64, fmt, va);
+    va_end(va);
 
     i = 0;
-    while ((name[i] != 0) && (i < 54))
+    while ((tmpstr[i] != 0) && (i < 54))
     {
-        snotbuf[i] = name[i];
+        snotbuf[i] = tmpstr[i];
         i++;
     }
     while (i < 54)
@@ -7780,13 +7784,6 @@ void _printmessage16(char name[82])
     printext16(200L-24, ydim-STATUS2DSIZ+8L, 9, 0, snotbuf, 0);
     enddrawing();
 }
-
-void printmessage16(char name[82])
-{
-    _printmessage16(name);
-    lastpm16time = totalclock;
-}
-
 
 void printmessage256(char name[82])
 {
