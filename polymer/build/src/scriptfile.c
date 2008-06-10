@@ -185,11 +185,12 @@ int scriptfile_getbraces(scriptfile *sf, char **braceend)
 
 int scriptfile_getlinum(scriptfile *sf, char *ptr)
 {
-    int i, stp, ind;
+    int i, stp;
+    intptr_t ind;
 
     //for(i=0;i<sf->linenum;i++) if (sf->lineoffs[i] >= ind) return(i+1); //brute force algo
 
-    ind = ((int)ptr) - ((int)sf->textbuf);
+    ind = ((intptr_t)ptr) - ((intptr_t)sf->textbuf);
 
     for (stp=1;stp+stp<sf->linenum;stp+=stp); //stp = highest power of 2 less than sf->linenum
     for (i=0;stp;stp>>=1)
