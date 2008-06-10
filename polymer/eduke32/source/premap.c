@@ -293,7 +293,7 @@ static int getsound(unsigned int num)
             (l < 12288))
     {
         g_sounds[num].lock = 199;
-        allocache((int *)&g_sounds[num].ptr,l,(char *)&g_sounds[num].lock);
+        allocache((intptr_t *)&g_sounds[num].ptr,l,(char *)&g_sounds[num].lock);
         if (g_sounds[num].ptr != NULL)
             kread(fp, g_sounds[num].ptr , l);
     }
