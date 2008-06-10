@@ -3727,8 +3727,8 @@ void OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
 
     {
         int og_i=g_i, og_p=g_p, okillit_flag=killit_flag;
-        int og_x=g_x, *og_t=g_t;
-        intptr_t *oinsptr=insptr;
+        int og_x=g_x;// *og_t=g_t;
+        intptr_t *oinsptr=insptr, *og_t=g_t;
         spritetype *og_sp=g_sp;
 
         g_i = iActor;    // current sprite ID
@@ -4077,7 +4077,8 @@ static void alterang(int a)
 
 static void move(void)
 {
-    int l, *moveptr;
+    int l; 
+    intptr_t *moveptr;
     int a = g_sp->hitag, goalang, angdif;
     int daxvel;
 
@@ -5290,7 +5291,7 @@ static int parse(void)
                 if (*lpDefault)
                 {
                     //AddLog("No Matching Case: Using Default");
-                    insptr=(int*)(*lpDefault + &script[0]);
+                    insptr=(intptr_t*)(*lpDefault + &script[0]);
                     while (1) if (parse()) break;
                 }
                 else
