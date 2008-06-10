@@ -1382,7 +1382,7 @@ void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
         s->floor.indices = realloc(s->floor.indices, s->indicescount * sizeof(GLushort));
         s->ceil.indices = realloc(s->ceil.indices, s->indicescount * sizeof(GLushort));
     }
-    s->ceil.indices[s->curindice] = (int)vertex;
+    s->ceil.indices[s->curindice] = (intptr_t)vertex;
     s->curindice++;
 }
 
@@ -1391,7 +1391,7 @@ static int          polymer_buildfloor(short sectnum)
     // This function tesselates the floor/ceiling of a sector and stores the triangles in a display list.
     _prsector*      s;
     sectortype      *sec;
-    int             i;
+    intptr_t             i;
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Tesselating floor of sector %i...\n", sectnum);
 
