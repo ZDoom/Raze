@@ -891,23 +891,23 @@ extern char g_szBuf[1024];
 #define NAM_GRENADE_LIFETIME    120
 #define NAM_GRENADE_LIFETIME_VAR    30
 
-extern int *aplWeaponClip[MAX_WEAPONS];            // number of items in clip
-extern int *aplWeaponReload[MAX_WEAPONS];          // delay to reload (include fire)
-extern int *aplWeaponFireDelay[MAX_WEAPONS];       // delay to fire
-extern int *aplWeaponHoldDelay[MAX_WEAPONS];       // delay after release fire button to fire (0 for none)
-extern int *aplWeaponTotalTime[MAX_WEAPONS];       // The total time the weapon is cycling before next fire.
-extern int *aplWeaponFlags[MAX_WEAPONS];           // Flags for weapon
-extern int *aplWeaponShoots[MAX_WEAPONS];          // what the weapon shoots
-extern int *aplWeaponSpawnTime[MAX_WEAPONS];       // the frame at which to spawn an item
-extern int *aplWeaponSpawn[MAX_WEAPONS];           // the item to spawn
-extern int *aplWeaponShotsPerBurst[MAX_WEAPONS];   // number of shots per 'burst' (one ammo per 'burst'
-extern int *aplWeaponWorksLike[MAX_WEAPONS];       // What original the weapon works like
-extern int *aplWeaponInitialSound[MAX_WEAPONS];    // Sound made when initialy firing. zero for no sound
-extern int *aplWeaponFireSound[MAX_WEAPONS];       // Sound made when firing (each time for automatic)
-extern int *aplWeaponSound2Time[MAX_WEAPONS];      // Alternate sound time
-extern int *aplWeaponSound2Sound[MAX_WEAPONS];     // Alternate sound sound ID
-extern int *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
-extern int *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
+extern intptr_t *aplWeaponClip[MAX_WEAPONS];            // number of items in clip
+extern intptr_t *aplWeaponReload[MAX_WEAPONS];          // delay to reload (include fire)
+extern intptr_t *aplWeaponFireDelay[MAX_WEAPONS];       // delay to fire
+extern intptr_t *aplWeaponHoldDelay[MAX_WEAPONS];       // delay after release fire button to fire (0 for none)
+extern intptr_t *aplWeaponTotalTime[MAX_WEAPONS];       // The total time the weapon is cycling before next fire.
+extern intptr_t *aplWeaponFlags[MAX_WEAPONS];           // Flags for weapon
+extern intptr_t *aplWeaponShoots[MAX_WEAPONS];          // what the weapon shoots
+extern intptr_t *aplWeaponSpawnTime[MAX_WEAPONS];       // the frame at which to spawn an item
+extern intptr_t *aplWeaponSpawn[MAX_WEAPONS];           // the item to spawn
+extern intptr_t *aplWeaponShotsPerBurst[MAX_WEAPONS];   // number of shots per 'burst' (one ammo per 'burst'
+extern intptr_t *aplWeaponWorksLike[MAX_WEAPONS];       // What original the weapon works like
+extern intptr_t *aplWeaponInitialSound[MAX_WEAPONS];    // Sound made when initialy firing. zero for no sound
+extern intptr_t *aplWeaponFireSound[MAX_WEAPONS];       // Sound made when firing (each time for automatic)
+extern intptr_t *aplWeaponSound2Time[MAX_WEAPONS];      // Alternate sound time
+extern intptr_t *aplWeaponSound2Sound[MAX_WEAPONS];     // Alternate sound sound ID
+extern intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
+extern intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
 
 extern short timer;
 

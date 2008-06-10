@@ -4271,23 +4271,23 @@ static void dumpdebugdata(void)
         for (j=0;j<numplayers;j++)
         {
             fprintf(fp,"Player %d\n\n",j);
-            fprintf(fp,"WEAPON%d_CLIP %d\n",i,aplWeaponClip[i][j]);
-            fprintf(fp,"WEAPON%d_RELOAD %d\n",i,aplWeaponReload[i][j]);
-            fprintf(fp,"WEAPON%d_FIREDELAY %d\n",i,aplWeaponFireDelay[i][j]);
-            fprintf(fp,"WEAPON%d_TOTALTIME %d\n",i,aplWeaponTotalTime[i][j]);
-            fprintf(fp,"WEAPON%d_HOLDDELAY %d\n",i,aplWeaponHoldDelay[i][j]);
-            fprintf(fp,"WEAPON%d_FLAGS %d\n",i,aplWeaponFlags[i][j]);
-            fprintf(fp,"WEAPON%d_SHOOTS %d\n",i,aplWeaponShoots[i][j]);
-            fprintf(fp,"WEAPON%d_SPAWNTIME %d\n",i,aplWeaponSpawnTime[i][j]);
-            fprintf(fp,"WEAPON%d_SPAWN %d\n",i,aplWeaponSpawn[i][j]);
-            fprintf(fp,"WEAPON%d_SHOTSPERBURST %d\n",i,aplWeaponShotsPerBurst[i][j]);
-            fprintf(fp,"WEAPON%d_WORKSLIKE %d\n",i,aplWeaponWorksLike[i][j]);
-            fprintf(fp,"WEAPON%d_INITIALSOUND %d\n",i,aplWeaponInitialSound[i][j]);
-            fprintf(fp,"WEAPON%d_FIRESOUND %d\n",i,aplWeaponFireSound[i][j]);
-            fprintf(fp,"WEAPON%d_SOUND2TIME %d\n",i,aplWeaponSound2Time[i][j]);
-            fprintf(fp,"WEAPON%d_SOUND2SOUND %d\n",i,aplWeaponSound2Sound[i][j]);
-            fprintf(fp,"WEAPON%d_RELOADSOUND1 %d\n",i,aplWeaponReloadSound1[i][j]);
-            fprintf(fp,"WEAPON%d_RELOADSOUND2 %d\n",i,aplWeaponReloadSound2[i][j]);
+            fprintf(fp,"WEAPON%d_CLIP %td\n",i,aplWeaponClip[i][j]);
+            fprintf(fp,"WEAPON%d_RELOAD %td\n",i,aplWeaponReload[i][j]);
+            fprintf(fp,"WEAPON%d_FIREDELAY %td\n",i,aplWeaponFireDelay[i][j]);
+            fprintf(fp,"WEAPON%d_TOTALTIME %td\n",i,aplWeaponTotalTime[i][j]);
+            fprintf(fp,"WEAPON%d_HOLDDELAY %td\n",i,aplWeaponHoldDelay[i][j]);
+            fprintf(fp,"WEAPON%d_FLAGS %td\n",i,aplWeaponFlags[i][j]);
+            fprintf(fp,"WEAPON%d_SHOOTS %td\n",i,aplWeaponShoots[i][j]);
+            fprintf(fp,"WEAPON%d_SPAWNTIME %td\n",i,aplWeaponSpawnTime[i][j]);
+            fprintf(fp,"WEAPON%d_SPAWN %td\n",i,aplWeaponSpawn[i][j]);
+            fprintf(fp,"WEAPON%d_SHOTSPERBURST %td\n",i,aplWeaponShotsPerBurst[i][j]);
+            fprintf(fp,"WEAPON%d_WORKSLIKE %td\n",i,aplWeaponWorksLike[i][j]);
+            fprintf(fp,"WEAPON%d_INITIALSOUND %td\n",i,aplWeaponInitialSound[i][j]);
+            fprintf(fp,"WEAPON%d_FIRESOUND %td\n",i,aplWeaponFireSound[i][j]);
+            fprintf(fp,"WEAPON%d_SOUND2TIME %td\n",i,aplWeaponSound2Time[i][j]);
+            fprintf(fp,"WEAPON%d_SOUND2SOUND %td\n",i,aplWeaponSound2Sound[i][j]);
+            fprintf(fp,"WEAPON%d_RELOADSOUND1 %td\n",i,aplWeaponReloadSound1[i][j]);
+            fprintf(fp,"WEAPON%d_RELOADSOUND2 %td\n",i,aplWeaponReloadSound2[i][j]);
         }
         fprintf(fp,"\n");
     }
@@ -4304,7 +4304,7 @@ static void dumpdebugdata(void)
                     if (aGameVars[i].plValues[j] != aGameVars[i].lDefault)
                     {
                         fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
-                        fprintf(fp,"%d",aGameVars[i].plValues[j]);
+                        fprintf(fp,"%td",aGameVars[i].plValues[j]);
                         fprintf(fp," GAMEVAR_FLAG_PERACTOR");
                         if (aGameVars[i].dwFlags != GAMEVAR_FLAG_PERACTOR)
                         {
@@ -9727,8 +9727,8 @@ static void compilecons(void)
 {
     int i;
     label     = (char *)&sprite[0]; // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
-    labelcode = (int *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
-    labeltype = (int *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
+    labelcode = (intptr_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
+    labeltype = (intptr_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
     // if we compile for a V7 engine wall[] should be used for label names since it's bigger
 
     if (userconfiles == 0)
@@ -9760,10 +9760,10 @@ static void compilecons(void)
     else
     {
         char *newlabel;
-        int *newlabelcode;
+        intptr_t *newlabelcode;
 
         newlabel     = (char *)malloc(labelcnt<<6);
-        newlabelcode = (int *)malloc(labelcnt*sizeof(int));
+        newlabelcode = (intptr_t *)malloc(labelcnt*sizeof(intptr_t));
 
         if (!newlabel || !newlabelcode)
         {
@@ -9771,7 +9771,7 @@ static void compilecons(void)
         }
 
         copybuf(label,     newlabel, (labelcnt*64)/4);
-        copybuf(labelcode, newlabelcode, (labelcnt*sizeof(int))/4);
+        copybuf(labelcode, newlabelcode, (labelcnt*sizeof(intptr_t))/4);
 
         label = newlabel;
         labelcode = newlabelcode;

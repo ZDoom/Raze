@@ -45,23 +45,23 @@ static int num_braces = 0;
 
 int redefined_quote_count = 0;
 
-int *aplWeaponClip[MAX_WEAPONS];       // number of items in magazine
-int *aplWeaponReload[MAX_WEAPONS];     // delay to reload (include fire)
-int *aplWeaponFireDelay[MAX_WEAPONS];      // delay to fire
-int *aplWeaponHoldDelay[MAX_WEAPONS];      // delay after release fire button to fire (0 for none)
-int *aplWeaponTotalTime[MAX_WEAPONS];      // The total time the weapon is cycling before next fire.
-int *aplWeaponFlags[MAX_WEAPONS];      // Flags for weapon
-int *aplWeaponShoots[MAX_WEAPONS];     // what the weapon shoots
-int *aplWeaponSpawnTime[MAX_WEAPONS];      // the frame at which to spawn an item
-int *aplWeaponSpawn[MAX_WEAPONS];      // the item to spawn
-int *aplWeaponShotsPerBurst[MAX_WEAPONS];  // number of shots per 'burst' (one ammo per 'burst'
-int *aplWeaponWorksLike[MAX_WEAPONS];      // What original the weapon works like
-int *aplWeaponInitialSound[MAX_WEAPONS];   // Sound made when initialy firing. zero for no sound
-int *aplWeaponFireSound[MAX_WEAPONS];      // Sound made when firing (each time for automatic)
-int *aplWeaponSound2Time[MAX_WEAPONS];     // Alternate sound time
-int *aplWeaponSound2Sound[MAX_WEAPONS];    // Alternate sound sound ID
-int *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
-int *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
+intptr_t *aplWeaponClip[MAX_WEAPONS];       // number of items in magazine
+intptr_t *aplWeaponReload[MAX_WEAPONS];     // delay to reload (include fire)
+intptr_t *aplWeaponFireDelay[MAX_WEAPONS];      // delay to fire
+intptr_t *aplWeaponHoldDelay[MAX_WEAPONS];      // delay after release fire button to fire (0 for none)
+intptr_t *aplWeaponTotalTime[MAX_WEAPONS];      // The total time the weapon is cycling before next fire.
+intptr_t *aplWeaponFlags[MAX_WEAPONS];      // Flags for weapon
+intptr_t *aplWeaponShoots[MAX_WEAPONS];     // what the weapon shoots
+intptr_t *aplWeaponSpawnTime[MAX_WEAPONS];      // the frame at which to spawn an item
+intptr_t *aplWeaponSpawn[MAX_WEAPONS];      // the item to spawn
+intptr_t *aplWeaponShotsPerBurst[MAX_WEAPONS];  // number of shots per 'burst' (one ammo per 'burst'
+intptr_t *aplWeaponWorksLike[MAX_WEAPONS];      // What original the weapon works like
+intptr_t *aplWeaponInitialSound[MAX_WEAPONS];   // Sound made when initialy firing. zero for no sound
+intptr_t *aplWeaponFireSound[MAX_WEAPONS];      // Sound made when firing (each time for automatic)
+intptr_t *aplWeaponSound2Time[MAX_WEAPONS];     // Alternate sound time
+intptr_t *aplWeaponSound2Sound[MAX_WEAPONS];    // Alternate sound sound ID
+intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
+intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
 
 int g_iReturnVarID=-1;      // var ID of "RETURN"
 int g_iWeaponVarID=-1;      // var ID of "WEAPON"
@@ -1409,7 +1409,7 @@ static void transvartype(int type)
             initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",compilefile,line_number,atol(textptr));
         *scriptptr++=MAXGAMEVARS;
         if (tolower(textptr[1])=='x')
-            sscanf(textptr+2,"%x",scriptptr);
+            sscanf(textptr+2,"%tx",scriptptr);
         else
             *scriptptr=atol(textptr);
         scriptptr++;
@@ -1621,7 +1621,7 @@ static int transnum(int type)
     }
     if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%d: debug: accepted constant %d.\n",compilefile,line_number,atol(textptr));
-    if (tolower(textptr[1])=='x')sscanf(textptr+2,"%x",scriptptr);
+    if (tolower(textptr[1])=='x')sscanf(textptr+2,"%tx",scriptptr);
     else
         *scriptptr = atol(textptr);
     scriptptr++;
@@ -4485,7 +4485,7 @@ repeatcase:
         if (!fta_quotes[k])
         {
             fta_quotes[k] = NULL;
-            Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
+            Bsprintf(tempbuf,"Failed allocating %td byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
             gameexit(tempbuf);
         }
 
@@ -4504,7 +4504,7 @@ repeatcase:
             if (!redefined_quotes[redefined_quote_count])
             {
                 redefined_quotes[redefined_quote_count] = NULL;
-                Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
+                Bsprintf(tempbuf,"Failed allocating %td byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
                 gameexit(tempbuf);
             }
         }
@@ -4598,7 +4598,7 @@ repeatcase:
             g_sounds[k].filename = Bcalloc(BMAX_PATH,sizeof(char));
         if (!g_sounds[k].filename)
         {
-            Bsprintf(tempbuf,"Failed allocating %d byte buffer.",sizeof(char) * BMAX_PATH);
+            Bsprintf(tempbuf,"Failed allocating %td byte buffer.",sizeof(char) * BMAX_PATH);
             gameexit(tempbuf);
         }
 
