@@ -115,6 +115,7 @@ char modechange=1, repaintneeded=0;
 char offscreenrendering=0;
 int glcolourdepth=32;
 char videomodereset = 0;
+char silentvideomodeswitch = 0;
 
 // input and events
 char inputdevices=0;
@@ -2094,8 +2095,9 @@ int setvideomode(int x, int y, int c, int fs)
         gammabrightness = 0;
     }
 
-    initprintf("Setting video mode %dx%d (%d-bit %s)\n",
-               x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
+    if (!silentvideomodeswitch)
+        initprintf("Setting video mode %dx%d (%d-bit %s)\n",
+                   x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
 
     if (CreateAppWindow(modenum)) return -1;
 
@@ -4008,6 +4010,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
                     regrabmouse = 1;
                 }
                 realfs = fullscreen;
+                silentvideomodeswitch = 1;
                 setgamemode(!fullscreen,xdim,ydim,bpp);
                 ShowWindow(hWindow, SW_MINIMIZE);
             }
@@ -4022,6 +4025,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
                 SetForegroundWindow(hWindow);
                 SetFocus(hWindow);
                 setgamemode(realfs,xdim,ydim,bpp);
+                silentvideomodeswitch = 0;
                 realfs = 0;
             }
         }
