@@ -21,13 +21,13 @@ Some commands work differently depending on the currently selected object.
 To solve ambiguous between sector and wall/sprite, one usually must press
 ALT to work with wall/sprite instead of sectors.
 
-RSHIFT select vertex/sprites
-RALT select sectors
-WHELL zoom
-WHELL+ALT move camera and zoom
-LEFT BUTTON drag sectors/vertex/sprites
-RIGHT BUTTON move camera
-RIGHT MIDDLE move camera
+^14RSHIFT^O       select vertex/sprites
+^14RALT^O         select sectors
+^14WHELL^O        zoom
+^14WHELL+ALT^O    move camera and zoom
+^14LEFT BUTTON^O  drag sectors/vertex/sprites
+^14RIGHT BUTTON^O move camera
+^14RIGHT MIDDLE^O move camera
 ^P
 LSHIFT show coords
 F1 show help
@@ -105,8 +105,8 @@ Z zoom out
 L toggle grid lock
 J join sectors
 S insert sprite
-	pressing a key from 1 to 0 on the upper row before pressing S will make the
-	inserted sprite's picnum be 1 to 10, respectively
+    pressing a key from 1 to 0 on the upper row before pressing S will make the
+    inserted sprite's picnum be 1 to 10, respectively
 S+ALT make inner sector
 C duplicate sectors/sprites
 C start circle attached to a wall
@@ -140,32 +140,32 @@ one of these objects:
 It's important to understand this concept:
 Some commands work differently depending on the current object(the object the
 mouse points at).
-Some commands manipulate only with current object, and some commands manipulate
-with sprites/sectors selected(hereinafter referred to as "selected") in 2D mode
-and some commands work globally.
+Some commands manipulate only with current object, and some commands
+manipulate with sprites/sectors selected(hereinafter referred to as
+"selected") in 2D mode and some commands work globally.
 
 Mouse buttons:
-LEFT lock the current object. The current object won't be changing as long as
-the button is pressed.
-LEFT+MIDDLE toggle mouse look
-WHEEL change shade/visibility
-LEFT+WHEEL change tile
-RIGHT+WHEEL move object up/down
+^14LEFT^O         lock the current object. The current object won't be
+             changing as long as the button is pressed.
+^14LEFT+MIDDLE^O  toggle mouse look
+^14WHEEL^O        change shade/visibility
+^14LEFT+WHEEL^O   change tile
+^14RIGHT+WHEEL^O  move object up/down
 
 Additionally, there is now UnrealEd-style mouse navigation in 3D mode (toggle
-it with F5), with the following bindings:
-RIGHT mouselook
-LEFT x: turning, y: move forward/back
-LEFT+RIGHT x: strafe left/right, y: move up/down
-MIDDLE y: move in viewing direction
-The console variable 'pk_uedaccel' changes the speed of navigation exponentially
-(valid values are 0-5).
+it with ^14F5^O), with the following bindings:
+^14RIGHT^O        mouselook
+^14LEFT^O         x: turning, y: move forward/back
+^14LEFT+RIGHT^O   x: strafe left/right, y: move up/down
+^14MIDDLE^O       y: move in viewing direction
+The console variable 'pk_uedaccel' changes the speed of navigation
+exponentially (valid values are 0-5).
 
-LEFT+ALT move object up/down
-LEFT+SHIFT pan ceiling/floor/wall
-LEFT+SHIFT move sprite in horizontal plane
-LEFT+CTRL scale wall texture or size of sprite
-LEFT+CTRL Change slope of sector
+^14LEFT+ALT^O     move object up/down
+^14LEFT+SHIFT^O   pan ceiling/floor/wall
+^14LEFT+SHIFT^O   move sprite in horizontal plane
+^14LEFT+CTRL^O    scale wall texture or size of sprite
+^14LEFT+CTRL^O    change slope of sector
 ^P
 UP move forward
 DOWN move backward
@@ -268,7 +268,7 @@ LENTER paste all(picnum+shading+pal+flags+tags+extra) properties of the
 clipboard on sector/wall/sprite
 
 ' A toggle autosave. The interval is configurable in the cfg
-	(by default: every 3 minutes)
+    (by default: every 3 minutes)
 
 ' N toggle noclip for the camera
 N+CTRL toggle noclip sprites
