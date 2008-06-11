@@ -452,6 +452,7 @@ static const char *keyw[] =
     "readarrayfromfile",        // 320
     "starttrackvar",			// 321
     "qgetsysstr",   			// 322
+	"getticks", 				// 323
     "<null>"
 };
 
@@ -3284,6 +3285,7 @@ static int parsecommand(void)
         break;
     }
 
+	case CON_GETTICKS:
     case CON_GETCURRADDRESS:
         transvartype(GAMEVAR_FLAG_READONLY);
         return 0;
