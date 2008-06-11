@@ -303,7 +303,7 @@ void DumpGameVars(FILE *fp)
             else if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_CHARPTR))
                 fprintf(fp,"%d",*((char*)aGameVars[i].lValue));
             else
-                fprintf(fp,"%td",aGameVars[i].lValue);
+                fprintf(fp,"%" PRIdPTR "",aGameVars[i].lValue);
             if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERPLAYER))
                 fprintf(fp," GAMEVAR_FLAG_PERPLAYER");
             else if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERACTOR))

@@ -14,6 +14,8 @@
 // (ie, they're guaranteed to be the same size as a pointer)
 #ifdef HAVE_INTTYPES
 #  include <inttypes.h>
+#elif defined(_MSC_VER)
+#  include "msvc/inttypes.h" // from http://code.google.com/p/msinttypes/
 #endif
 
 // Define this to rewrite all 'B' versions to library functions. This

@@ -17,8 +17,9 @@ Every time mouse is pointing at one of these:
 5. Wall (wall without sector - map is corrupt)
 6. Sprite (sprite without sector - map is corrupt)
 
-Some commands work differently depending on the current object(the object the mouse points at).
-To solve ambiguous between sector and wall/sprite, one usually must press ALT to work with wall/sprite instead of sectors.
+Some commands work differently depending on the currently selected object.
+To solve ambiguous between sector and wall/sprite, one usually must press
+ALT to work with wall/sprite instead of sectors.
 
 RSHIFT select vertex/sprites
 RALT select sectors
@@ -96,12 +97,16 @@ TAB show sector data
 TAB+CTRL show wall/sprite data
 TAB+ALT show wall/sprite data (Windows may trigger on this shortcut)
 
-LCTRL+RSHIFT select all walls of the current sector(point at a wall and holding CTRL, press SHIFT).
+LCTRL+RSHIFT select all walls of the current sector(point at a wall and holding
+CTRL, press SHIFT).
+
 A zoom in
 Z zoom out
 L toggle grid lock
 J join sectors
-S insert sprite (As of the newest snapshot (20080516), pressing a key from 1 to 0 on the upper row before pressing S will make the inserted sprite's picnum be 1 to 10, respectively)
+S insert sprite
+	pressing a key from 1 to 0 on the upper row before pressing S will make the
+	inserted sprite's picnum be 1 to 10, respectively
 S+ALT make inner sector
 C duplicate sectors/sprites
 C start circle attached to a wall
@@ -124,9 +129,8 @@ ESC menu
 S+CTRL save map
 L+CTRL load map
 ^P
-The purpose of mouse in 3D mode is pointing at some objects in a map and looking around(F3 - mouselook).
-
-Mouse pointer always points(see info about it at the bottom of the screen) at one of these object:
+Mouse pointer always points(see info about it at the bottom of the screen) at
+one of these objects:
 1. wall
 2. ceiling of sector
 3. floor of sector
@@ -134,22 +138,28 @@ Mouse pointer always points(see info about it at the bottom of the screen) at on
 5. masked wall (non-transparent or semi-transparent wall between sectors)
 
 It's important to understand this concept:
-Some commands work differently depending on the current object(the object the mouse points at).
-Some commands manipulate only with current object, and some commands manipulate with sprites/sectors selected(hereinafter referred to as "selected") in 2D mode, and some commands work globally.
+Some commands work differently depending on the current object(the object the
+mouse points at).
+Some commands manipulate only with current object, and some commands manipulate
+with sprites/sectors selected(hereinafter referred to as "selected") in 2D mode
+and some commands work globally.
 
 Mouse buttons:
-LEFT lock the current object. The current object won't be changing as long as the button pressed.
+LEFT lock the current object. The current object won't be changing as long as
+the button is pressed.
 LEFT+MIDDLE toggle mouse look
 WHEEL change shade/visibility
 LEFT+WHEEL change tile
 RIGHT+WHEEL move object up/down
 
-Additionally, there is now UnrealEd-style mouse navigation in 3D mode (toggle it with F5), with the following bindings:
+Additionally, there is now UnrealEd-style mouse navigation in 3D mode (toggle
+it with F5), with the following bindings:
 RIGHT mouselook
 LEFT x: turning, y: move forward/back
 LEFT+RIGHT x: strafe left/right, y: move up/down
 MIDDLE y: move in viewing direction
-The console variable 'pk_uedaccel' changes the speed of navigation exponentially (valid values are 0-5).
+The console variable 'pk_uedaccel' changes the speed of navigation exponentially
+(valid values are 0-5).
 
 LEFT+ALT move object up/down
 LEFT+SHIFT pan ceiling/floor/wall
@@ -233,7 +243,10 @@ Note: CTRL, HOME, END are modifiers so they work with mouse too.
 ' X toggle sprite shade preview
 ' W toggle sprite display
 ' Y toggle purple background
-' C copy shade from the clipboard to all objects in the map which are the same tile as the tile of the object that in the clipboard. It works separately for sectors/walls/sprites depending on the current object. (I hope somebody who understands this, will clarify this)
+' C copy shade from the clipboard to all objects in the map which are the same
+tile as the tile of the object that in the clipboard. It works separately for
+sectors/walls/sprites depending on the current object. (I hope somebody who
+understands this, will clarify this)
 ' T set lotag
 ' H set hitag
 ' S set shade
@@ -247,18 +260,21 @@ T cycles translucence for sprites/masked walls
 
 LENTER+CTRL+SHIFT autoshade wall
 ' LENTER paste picnum only
-LENTER+SHIFT paste some visaul(shading+pal) properties of the clipboard on sector/wall/sprite
-LENTER+CTRL paste some visaul(picnum+shading+pal) properties of the clipboard on sector/wall/sprite
-LENTER paste all(picnum+shading+pal+flags+tags+extra) properties of the clipboard on sector/wall/sprite
+LENTER+SHIFT paste some visaul(shading+pal) properties of the clipboard on
+sector/wall/sprite
+LENTER+CTRL paste some visaul(picnum+shading+pal) properties of the clipboard
+on sector/wall/sprite
+LENTER paste all(picnum+shading+pal+flags+tags+extra) properties of the
+clipboard on sector/wall/sprite
 
-' A toggle autosave. The interval is configurable in the mapster32(by default: every 3 minutes)
+' A toggle autosave. The interval is configurable in the cfg
+	(by default: every 3 minutes)
 
 ' N toggle noclip for the camera
 N+CTRL toggle noclip sprites
 
 S+CTRL save map
 L+CTRL load map
-' 5 something strange, I don't know yet. Some comments from the source code: "Motorcycle ha ha ha","What the f*** is this supposed to do?".
 
 ESC quit
 F11 brightness

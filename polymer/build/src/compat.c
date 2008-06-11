@@ -395,7 +395,7 @@ char *Bgetsupportdir(int global)
 int Bcorrectfilename(char *filename, int removefn)
 {
     char *fn;
-    char *tokarr[64], *first, *next, *token;
+    char *tokarr[64], *first, *next = NULL, *token;
     int i, ntok = 0, leadslash = 0, trailslash = 0;
 
     fn = strdup(filename);

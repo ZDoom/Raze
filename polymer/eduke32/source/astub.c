@@ -7938,7 +7938,7 @@ static void Keys2d3d(void)
     if (keystatus[KEYSC_F12])   //F12
     {
         screencapture("captxxxx.tga",keystatus[KEYSC_LSHIFT]|keystatus[KEYSC_RSHIFT]);
-        message("Saved screenshot %d",capturecount-1);
+        message("Saved screenshot %04d",capturecount-1);
         keystatus[KEYSC_F12] = 0;
     }
 

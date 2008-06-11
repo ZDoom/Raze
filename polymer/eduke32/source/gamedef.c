@@ -1409,7 +1409,7 @@ static void transvartype(int type)
             initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",compilefile,line_number,atol(textptr));
         *scriptptr++=MAXGAMEVARS;
         if (tolower(textptr[1])=='x')
-            sscanf(textptr+2,"%tx",scriptptr);
+            sscanf(textptr+2,"%" PRIxPTR "",scriptptr);
         else
             *scriptptr=atol(textptr);
         scriptptr++;
@@ -1621,7 +1621,7 @@ static int transnum(int type)
     }
     if (!(error || warning) && g_ScriptDebug > 1)
         initprintf("%s:%d: debug: accepted constant %d.\n",compilefile,line_number,atol(textptr));
-    if (tolower(textptr[1])=='x')sscanf(textptr+2,"%tx",scriptptr);
+    if (tolower(textptr[1])=='x')sscanf(textptr+2,"%" PRIxPTR "",scriptptr);
     else
         *scriptptr = atol(textptr);
     scriptptr++;
@@ -4485,7 +4485,7 @@ repeatcase:
         if (!fta_quotes[k])
         {
             fta_quotes[k] = NULL;
-            Bsprintf(tempbuf,"Failed allocating %td byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
+            Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
             gameexit(tempbuf);
         }
 
@@ -4504,7 +4504,7 @@ repeatcase:
             if (!redefined_quotes[redefined_quote_count])
             {
                 redefined_quotes[redefined_quote_count] = NULL;
-                Bsprintf(tempbuf,"Failed allocating %td byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
+                Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(char) * MAXQUOTELEN);
                 gameexit(tempbuf);
             }
         }
@@ -4598,7 +4598,7 @@ repeatcase:
             g_sounds[k].filename = Bcalloc(BMAX_PATH,sizeof(char));
         if (!g_sounds[k].filename)
         {
-            Bsprintf(tempbuf,"Failed allocating %td byte buffer.",sizeof(char) * BMAX_PATH);
+            Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte buffer.",sizeof(char) * BMAX_PATH);
             gameexit(tempbuf);
         }
 

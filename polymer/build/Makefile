@@ -26,6 +26,7 @@ BUILD32_ON_64 ?= 0
 #  RELEASE - 1 = no debugging
 #  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
 RELEASE?=1
+LEVEL3?=0
 EFENCE?=0
 
 # SDK locations - adjust to match your setup
@@ -44,9 +45,13 @@ res=o
 asm=nasm
 
 # debugging and release
-ifneq ($(RELEASE),0)
+ifneq (0,$(RELEASE))
   # debugging disabled
-  debug=-fomit-frame-pointer -O2
+  ifeq (1,$(LEVEL3))
+    debug=-fomit-frame-pointer -O3
+  else
+    debug=-fomit-frame-pointer -O2
+  endif
 else
   # debugging enabled
   debug=-ggdb -O0 -DDEBUGGINGAIDS -DNOSDLPARACHUTE

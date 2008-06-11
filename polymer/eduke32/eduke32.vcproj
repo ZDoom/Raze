@@ -706,11 +706,11 @@
 					>
 				</File>
 				<File
-                                        RelativePath=".\source\jaudiolib\openal.h"
-                                        >
-                                </File>
-                                <File
 					RelativePath=".\source\jaudiolib\music.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\openal.h"
 					>
 				</File>
 				<File
@@ -778,11 +778,11 @@
 					>
 				</File>
 				<File
-                                        RelativePath=".\source\jaudiolib\openal.c"
-                                        >
-                                </File>
-                                <File
 					RelativePath=".\source\jaudiolib\music.c"
+					>
+				</File>
+				<File
+					RelativePath=".\source\jaudiolib\openal.c"
 					>
 				</File>
 				<File
@@ -890,6 +890,14 @@
 					>
 				</File>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="Misc"
+			>
+			<File
+				RelativePath=".\m32help.hlp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

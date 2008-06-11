@@ -4271,23 +4271,23 @@ static void dumpdebugdata(void)
         for (j=0;j<numplayers;j++)
         {
             fprintf(fp,"Player %d\n\n",j);
-            fprintf(fp,"WEAPON%d_CLIP %td\n",i,aplWeaponClip[i][j]);
-            fprintf(fp,"WEAPON%d_RELOAD %td\n",i,aplWeaponReload[i][j]);
-            fprintf(fp,"WEAPON%d_FIREDELAY %td\n",i,aplWeaponFireDelay[i][j]);
-            fprintf(fp,"WEAPON%d_TOTALTIME %td\n",i,aplWeaponTotalTime[i][j]);
-            fprintf(fp,"WEAPON%d_HOLDDELAY %td\n",i,aplWeaponHoldDelay[i][j]);
-            fprintf(fp,"WEAPON%d_FLAGS %td\n",i,aplWeaponFlags[i][j]);
-            fprintf(fp,"WEAPON%d_SHOOTS %td\n",i,aplWeaponShoots[i][j]);
-            fprintf(fp,"WEAPON%d_SPAWNTIME %td\n",i,aplWeaponSpawnTime[i][j]);
-            fprintf(fp,"WEAPON%d_SPAWN %td\n",i,aplWeaponSpawn[i][j]);
-            fprintf(fp,"WEAPON%d_SHOTSPERBURST %td\n",i,aplWeaponShotsPerBurst[i][j]);
-            fprintf(fp,"WEAPON%d_WORKSLIKE %td\n",i,aplWeaponWorksLike[i][j]);
-            fprintf(fp,"WEAPON%d_INITIALSOUND %td\n",i,aplWeaponInitialSound[i][j]);
-            fprintf(fp,"WEAPON%d_FIRESOUND %td\n",i,aplWeaponFireSound[i][j]);
-            fprintf(fp,"WEAPON%d_SOUND2TIME %td\n",i,aplWeaponSound2Time[i][j]);
-            fprintf(fp,"WEAPON%d_SOUND2SOUND %td\n",i,aplWeaponSound2Sound[i][j]);
-            fprintf(fp,"WEAPON%d_RELOADSOUND1 %td\n",i,aplWeaponReloadSound1[i][j]);
-            fprintf(fp,"WEAPON%d_RELOADSOUND2 %td\n",i,aplWeaponReloadSound2[i][j]);
+            fprintf(fp,"WEAPON%d_CLIP %" PRIdPTR "\n",i,aplWeaponClip[i][j]);
+            fprintf(fp,"WEAPON%d_RELOAD %" PRIdPTR "\n",i,aplWeaponReload[i][j]);
+            fprintf(fp,"WEAPON%d_FIREDELAY %" PRIdPTR "\n",i,aplWeaponFireDelay[i][j]);
+            fprintf(fp,"WEAPON%d_TOTALTIME %" PRIdPTR "\n",i,aplWeaponTotalTime[i][j]);
+            fprintf(fp,"WEAPON%d_HOLDDELAY %" PRIdPTR "\n",i,aplWeaponHoldDelay[i][j]);
+            fprintf(fp,"WEAPON%d_FLAGS %" PRIdPTR "\n",i,aplWeaponFlags[i][j]);
+            fprintf(fp,"WEAPON%d_SHOOTS %" PRIdPTR "\n",i,aplWeaponShoots[i][j]);
+            fprintf(fp,"WEAPON%d_SPAWNTIME %" PRIdPTR "\n",i,aplWeaponSpawnTime[i][j]);
+            fprintf(fp,"WEAPON%d_SPAWN %" PRIdPTR "\n",i,aplWeaponSpawn[i][j]);
+            fprintf(fp,"WEAPON%d_SHOTSPERBURST %" PRIdPTR "\n",i,aplWeaponShotsPerBurst[i][j]);
+            fprintf(fp,"WEAPON%d_WORKSLIKE %" PRIdPTR "\n",i,aplWeaponWorksLike[i][j]);
+            fprintf(fp,"WEAPON%d_INITIALSOUND %" PRIdPTR "\n",i,aplWeaponInitialSound[i][j]);
+            fprintf(fp,"WEAPON%d_FIRESOUND %" PRIdPTR "\n",i,aplWeaponFireSound[i][j]);
+            fprintf(fp,"WEAPON%d_SOUND2TIME %" PRIdPTR "\n",i,aplWeaponSound2Time[i][j]);
+            fprintf(fp,"WEAPON%d_SOUND2SOUND %" PRIdPTR "\n",i,aplWeaponSound2Sound[i][j]);
+            fprintf(fp,"WEAPON%d_RELOADSOUND1 %" PRIdPTR "\n",i,aplWeaponReloadSound1[i][j]);
+            fprintf(fp,"WEAPON%d_RELOADSOUND2 %" PRIdPTR "\n",i,aplWeaponReloadSound2[i][j]);
         }
         fprintf(fp,"\n");
     }
@@ -4304,7 +4304,7 @@ static void dumpdebugdata(void)
                     if (aGameVars[i].plValues[j] != aGameVars[i].lDefault)
                     {
                         fprintf(fp,"gamevar %s ",aGameVars[i].szLabel);
-                        fprintf(fp,"%td",aGameVars[i].plValues[j]);
+                        fprintf(fp,"%" PRIdPTR "",aGameVars[i].plValues[j]);
                         fprintf(fp," GAMEVAR_FLAG_PERACTOR");
                         if (aGameVars[i].dwFlags != GAMEVAR_FLAG_PERACTOR)
                         {

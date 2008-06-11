@@ -235,7 +235,7 @@ int loadgldriver(const char *driver)
 #elif defined __APPLE__
         driver = "/System/Library/Frameworks/OpenGL.framework/OpenGL";
 #else
-        driver = "libGL.so";
+        driver = "libGL.so.1";
 #endif
     }
 
@@ -624,7 +624,7 @@ int loadglulibrary(const char *driver)
 #elif defined __APPLE__
         driver = "/System/Library/Frameworks/OpenGL.framework/OpenGL"; // FIXME: like I know anything about Apple.  Hah.
 #else
-        driver = "libGLU.so";
+        driver = "libGLU.so.1";
 #endif
     }
 

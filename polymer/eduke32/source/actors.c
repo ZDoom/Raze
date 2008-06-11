@@ -5579,7 +5579,7 @@ static void moveeffectors(void)   //STATNUM 3
 
             if (s->owner == -1)
             {
-                Bsprintf(tempbuf,"Could not find any locators for SE# 6 and 14 with a hitag of %td.\n",t[3]);
+                Bsprintf(tempbuf,"Could not find any locators for SE# 6 and 14 with a hitag of %" PRIdPTR ".\n",t[3]);
                 gameexit(tempbuf);
             }
 
