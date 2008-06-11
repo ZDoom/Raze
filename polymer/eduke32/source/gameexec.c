@@ -4077,7 +4077,7 @@ static void alterang(int a)
 
 static void move(void)
 {
-    int l; 
+    int l;
     intptr_t *moveptr;
     int a = g_sp->hitag, goalang, angdif;
     int daxvel;
@@ -7349,11 +7349,11 @@ static int parse(void)
         hittype[g_i].flags = GetGameVarID(*insptr++, g_i, g_p);
         break;
 
-	case CON_GETTICKS:
-		insptr++;
-		j=*insptr++;
-		SetGameVarID(j, getticks(), g_i, g_p);
-		break;
+    case CON_GETTICKS:
+        insptr++;
+        j=*insptr++;
+        SetGameVarID(j, getticks(), g_i, g_p);
+        break;
 
     case CON_GETCURRADDRESS:
         insptr++;

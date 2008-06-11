@@ -118,7 +118,7 @@ char videomodereset = 0;
 
 // input and events
 char inputdevices=0;
-char quitevent=0, appactive=1, realfs=0;
+char quitevent=0, appactive=1, realfs=0, regrabmouse=0;
 volatile int mousex=0, mousey=0, mouseb=0;
 static unsigned int mousewheel[2] = { 0,0 };
 #define MouseWheelFakePressTime (50)	// getticks() is a 1000Hz timer, and the button press is faked for 100ms
@@ -4002,12 +4002,22 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         {
             if (!appactive && fullscreen)
             {
+                if (mousegrab)
+                {
+                    grabmouse(0);
+                    regrabmouse = 1;
+                }
                 realfs = fullscreen;
                 setgamemode(!fullscreen,xdim,ydim,bpp);
                 ShowWindow(hWindow, SW_MINIMIZE);
             }
             else if (appactive && realfs)
             {
+                if (regrabmouse)
+                {
+                    grabmouse(1);
+                    regrabmouse = 0;
+                }
                 ShowWindow(hWindow, SW_SHOWNORMAL);
                 SetForegroundWindow(hWindow);
                 SetFocus(hWindow);
