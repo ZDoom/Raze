@@ -7710,6 +7710,7 @@ void ExtUnInit(void)
         if (s_TileGroups[i].szText != NULL)
             Bfree(s_TileGroups[i].szText);
     }
+    for (i = 0; i < numhelppages;i++) free(helppage[i]);
     if (helppage) free(helppage);
 }
 
