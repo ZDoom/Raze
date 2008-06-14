@@ -17,7 +17,7 @@ BUILD32_ON_64 = 0
 RELEASE?=1
 NOSOUND?=0
 USE_OPENAL?=1
-LEVEL3?=0
+OPTLEVEL?=2
 
 # build locations
 
@@ -31,11 +31,7 @@ o=o
 
 ifneq (0,$(RELEASE))
   # debugging disabled
-  ifeq (1,$(LEVEL3))
-    debug=-fomit-frame-pointer -O3
-  else
-    debug=-fomit-frame-pointer -O2
-  endif
+  debug=-fomit-frame-pointer -O$(OPTLEVEL)
 else
   # debugging enabled
   debug=-ggdb -O0 -DDEBUGGINGAIDS
@@ -228,7 +224,7 @@ enginelib editorlib:
 	$(MAKE) -C $(EROOT)/ "OBJ=$(CURDIR)/$(EOBJ)" \
 		SUPERBUILD=$(SUPERBUILD) POLYMOST=$(POLYMOST) \
 		USE_OPENGL=$(USE_OPENGL) BUILD32_ON_64=$(BUILD32_ON_64) \
-		NOASM=$(NOASM) RELEASE=$(RELEASE) LEVEL3=$(LEVEL3) $@
+		NOASM=$(NOASM) RELEASE=$(RELEASE) OPTLEVEL=$(OPTLEVEL) $@
 	
 $(EOBJ)/$(ENGINELIB): enginelib
 $(EOBJ)/$(EDITORLIB): editorlib

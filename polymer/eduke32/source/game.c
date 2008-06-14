@@ -54,7 +54,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20080401
+#define BUILDDATE 20080612
 #define UPDATEINTERVAL 604800 // 1w
 #endif
 
@@ -7925,7 +7925,13 @@ static void nonsharedkeys(void)
     {
         CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
         ud.crosshair = (ud.crosshair==3)?0:ud.crosshair+1;
-        FTA(ud.crosshair?20:21,g_player[screenpeek].ps);
+        if (ud.crosshair)
+        {
+            int size[] = { 100, 50, 25 };
+            Bsprintf(fta_quotes[122],"%s [%d%%]",fta_quotes[20],size[ud.crosshair-1]);
+            FTA(122,g_player[screenpeek].ps);
+        }
+        else FTA(21,g_player[screenpeek].ps);
     }
 
     if (ud.overhead_on && BUTTON(gamefunc_Map_Follow_Mode))

@@ -1897,7 +1897,7 @@ static int animatefist(int gs,int snum)
 
 static int animateknee(int gs,int snum)
 {
-    short knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
+    static signed char knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
     int looking_arc, pal;
 
     if (g_player[snum].ps->knee_incs > 11 || g_player[snum].ps->knee_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
@@ -1922,7 +1922,7 @@ static int animateknee(int gs,int snum)
 
 static int animateknuckles(int gs,int snum)
 {
-    short knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
+    static char knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
     int looking_arc, pal;
 
     if (g_player[snum].ps->knuckle_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
