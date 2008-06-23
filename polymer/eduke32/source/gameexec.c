@@ -5532,7 +5532,7 @@ static int parse(void)
     {
         int32 i=0;
         insptr++;
-        if (ud.config.scripthandle < 0) break;
+		if (ud.config.scripthandle < 0) {insptr++;break;}
         switch (tw)
         {
         case CON_SAVEGAMEVAR:
