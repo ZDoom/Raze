@@ -226,6 +226,8 @@ extern keybind boundkeys[MAXBOUNDKEYS];
 
 void CONTROL_ProcessBinds(void);
 
+#define CONTROL_NUM_FLAGS   64
+
 #ifdef __cplusplus
 };
 #endif

@@ -10652,6 +10652,7 @@ void app_main(int argc,const char **argv)
     clearsoundlocks();
 
     load_script("autoexec.cfg");
+    load_script("binds.cfg");
 
     if (ud.warp_on > 1 && ud.multimode < 2)
     {

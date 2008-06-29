@@ -952,7 +952,7 @@ static int osdcmd_name(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-extern int extinput[64];
+extern int extinput[CONTROL_NUM_FLAGS];
 
 static int osdcmd_button(const osdfuncparm_t *parm)
 {
@@ -999,7 +999,7 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
     else boundkeys[keynames[i].id].repeat = 1;
     Bstrncpy(boundkeys[keynames[i].id].name,parm->parms[j], MAXBINDSTRINGLENGTH-1);
     boundkeys[keynames[i].id].key=keynames[i].name;
-//    OSD_Printf("key %s repeat %d string %s\n",keynames[i].name,boundkeys[keynames[i].id].repeat, boundkeys[keynames[i].id].name);
+    OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;
 }
 
