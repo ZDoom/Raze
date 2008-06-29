@@ -26,6 +26,8 @@ static symbol_t *findexactsymbol(const char *name);
 
 static int _internal_osdfunc_listsymbols(const osdfuncparm_t *);
 static int _internal_osdfunc_help(const osdfuncparm_t *);
+static int _internal_osdfunc_alias(const osdfuncparm_t *);
+static int _internal_osdfunc_aliasfunc(const osdfuncparm_t *);
 // static int _internal_osdfunc_dumpbuildinfo(const osdfuncparm_t *);
 // static int _internal_osdfunc_setrendermode(const osdfuncparm_t *);
 
@@ -213,6 +215,38 @@ static void _internal_onshowosd(int a)
 
 ////////////////////////////
 
+static int _internal_osdfunc_alias(const osdfuncparm_t *parm)
+{
+    symbol_t *i;
+
+    if (parm->numparms < 1)
+    {
+        OSD_Printf("Alias listing:\n");
+        for (i=symbols; i!=NULL; i=i->next)
+            if (i->func == (void *)_internal_osdfunc_aliasfunc)
+                OSD_Printf("     %s\n", i->name);
+        return OSDCMD_OK;
+    }
+
+    if (parm->numparms < 2)
+    {
+        for (i=symbols; i!=NULL; i=i->next)
+            if (!Bstrcasecmp(parm->parms[0],i->name))
+                OSD_Printf("alias %s \"%s\"\n", i->name, i->help);
+        return OSDCMD_OK;
+    }
+
+    OSD_RegisterFunction(Bstrdup(parm->parms[0]),Bstrdup(parm->parms[1]),_internal_osdfunc_aliasfunc);
+    OSD_Printf("%s\n",parm->raw);
+    return OSDCMD_OK;
+}
+
+static int _internal_osdfunc_aliasfunc(const osdfuncparm_t *parm)
+{
+    UNREFERENCED_PARAMETER(parm);
+    return OSDCMD_OK;
+}
+
 static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
 {
     int showval = (parm->numparms < 1);
@@ -319,6 +353,7 @@ void OSD_Init(void)
     OSD_RegisterFunction("osdrows","osdrows: sets the number of visible lines of the OSD",_internal_osdfunc_vars);
     OSD_RegisterFunction("logcutoff","logcutoff: sets the maximal line count of the log file",_internal_osdfunc_vars);
     OSD_RegisterFunction("clear","clear: clears the console text buffer",_internal_osdfunc_clear);
+    OSD_RegisterFunction("alias","alias: creates an alias for calling multiple commands",_internal_osdfunc_alias);
 
     atexit(OSD_Cleanup);
 }
@@ -1163,12 +1198,15 @@ int OSD_Dispatch(const char *cmd)
         ofp.numparms = numparms;
         ofp.parms    = (const char **)parms;
         ofp.raw      = cmd;
+        if (symb->func == _internal_osdfunc_aliasfunc)
+            OSD_Dispatch(symb->help);
         switch (symb->func(&ofp))
         {
         case OSDCMD_OK:
             break;
         case OSDCMD_SHOWHELP:
-            OSD_Printf("%s\n", symb->help); break;
+            OSD_Printf("%s\n", symb->help);
+            break;
         }
 
         state = wtp;
@@ -1193,12 +1231,12 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 
     if (!name)
     {
-        Bprintf("OSD_RegisterFunction(): may not register a function with a null name\n");
+        OSD_Printf("OSD_RegisterFunction(): may not register a function with a null name\n");
         return -1;
     }
     if (!name[0])
     {
-        Bprintf("OSD_RegisterFunction(): may not register a function with no name\n");
+        OSD_Printf("OSD_RegisterFunction(): may not register a function with no name\n");
         return -1;
     }
 
@@ -1207,7 +1245,7 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
     {
         if ((cp == name) && (*cp >= '0') && (*cp <= '9'))
         {
-            Bprintf("OSD_RegisterFunction(): first character of function name \"%s\" must not be a numeral\n", name);
+            OSD_Printf("OSD_RegisterFunction(): first character of function name \"%s\" must not be a numeral\n", name);
             return -1;
         }
         if ((*cp < '0') ||
@@ -1215,7 +1253,7 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
                 (*cp > 'Z' && *cp < 'a' && *cp != '_') ||
                 (*cp > 'z'))
         {
-            Bprintf("OSD_RegisterFunction(): illegal character in function name \"%s\"\n", name);
+            OSD_Printf("OSD_RegisterFunction(): illegal character in function name \"%s\"\n", name);
             return -1;
         }
     }
@@ -1223,21 +1261,24 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
     if (!help) help = "(no description for this function)";
     if (!func)
     {
-        Bprintf("OSD_RegisterFunction(): may not register a null function\n");
+        OSD_Printf("OSD_RegisterFunction(): may not register a null function\n");
         return -1;
     }
 
     symb = findexactsymbol(name);
-    if (symb)
+    if (symb) // allow this now for reusing an alias name
     {
-        Bprintf("OSD_RegisterFunction(): \"%s\" is already defined\n", name);
-        return -1;
+//        OSD_Printf("OSD_RegisterFunction(): \"%s\" is already defined\n", name);
+//        return -1;
+//        Bfree(symb->help);
+        symb->help = help;
+        symb->func = func;
     }
 
     symb = addnewsymbol(name);
     if (!symb)
     {
-        Bprintf("OSD_RegisterFunction(): Failed registering function \"%s\"\n", name);
+        OSD_Printf("OSD_RegisterFunction(): Failed registering function \"%s\"\n", name);
         return -1;
     }
 
