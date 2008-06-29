@@ -979,7 +979,9 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
     }
 
     if (parm->numparms < 2) return OSDCMD_SHOWHELP;
-    for (i=0;keynames[i].name;i++)if (!Bstrcasecmp(parm->parms[0],keynames[i].name))break;
+    for (i=0;keynames[i].name;i++)
+        if (!Bstrcasecmp(parm->parms[0],keynames[i].name))
+            break;
     if (!keynames[i].name) return OSDCMD_SHOWHELP;
 
     j = 1;
@@ -992,6 +994,29 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
     Bstrncpy(boundkeys[keynames[i].id].name,parm->parms[j], MAXBINDSTRINGLENGTH-1);
     boundkeys[keynames[i].id].key=keynames[i].name;
     OSD_Printf("key %s repeat %d string %s\n",keynames[i].name,boundkeys[keynames[i].id].repeat, boundkeys[keynames[i].id].name);
+    return OSDCMD_OK;
+}
+
+static int osdcmd_unbind(const osdfuncparm_t *parm)
+{
+    int i, j;
+
+    if (parm->numparms==1&&!Bstrcasecmp(parm->parms[0],"all"))
+    {
+        for (i=0;i<MAXBOUNDKEYS;i++)if (*boundkeys[i].name)
+            boundkeys[i].name[0] = 0;
+        OSD_Printf("unbound all key\n");
+        return OSDCMD_OK;
+    }
+    if (parm->numparms < 1) return OSDCMD_SHOWHELP;
+    for (i=0;keynames[i].name;i++)
+        if (!Bstrcasecmp(parm->parms[0],keynames[i].name))
+            break;
+    if (!keynames[i].name) return OSDCMD_SHOWHELP;
+
+    boundkeys[keynames[i].id].repeat = 0;
+    boundkeys[keynames[i].id].name[0] = 0;
+    OSD_Printf("unbound key %s\n",keynames[i].name);
     return OSDCMD_OK;
 }
 
@@ -1050,7 +1075,8 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: immediately change the video mode",osdcmd_vidmode);
 
-    OSD_RegisterFunction("bind","bind <key> <scriptfile>: executes a command script when <key> gets pressed. Type \"bind showkeys\" for a list of keys.", osdcmd_bind);
+    OSD_RegisterFunction("bind","bind <key> <string>: associates a keypress with a string of console input. Type \"bind showkeys\" for a list of keys and \"listsymbols\" for a list of valid console commands.", osdcmd_bind);
+    OSD_RegisterFunction("unbind","unbind <key>: unbinds a key.  Type \"unbind all\" to unbind all keys.", osdcmd_unbind);
     for (i=0;i<NUMGAMEFUNCTIONS;i++)
     {
         Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);
