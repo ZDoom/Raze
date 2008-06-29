@@ -970,6 +970,7 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
         for (i=0;keynames[i].name;i++)OSD_Printf("%s\n",keynames[i].name);
         return OSDCMD_OK;
     }
+
     if (parm->numparms==0)
     {
         OSD_Printf("Keybindings:\n");
@@ -978,11 +979,16 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
-    if (parm->numparms < 2) return OSDCMD_SHOWHELP;
     for (i=0;keynames[i].name;i++)
         if (!Bstrcasecmp(parm->parms[0],keynames[i].name))
             break;
     if (!keynames[i].name) return OSDCMD_SHOWHELP;
+
+    if (parm->numparms < 2)
+    {
+        OSD_Printf("%-11s = %s\n",keynames[i].name, boundkeys[keynames[i].id].name);
+        return OSDCMD_OK;
+    }
 
     j = 1;
     if (parm->numparms >= 2 && !Bstrcasecmp(parm->parms[j],"repeat"))
@@ -999,7 +1005,7 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
 
 static int osdcmd_unbind(const osdfuncparm_t *parm)
 {
-    int i, j;
+    int i;
 
     if (parm->numparms==1&&!Bstrcasecmp(parm->parms[0],"all"))
     {
@@ -1079,8 +1085,11 @@ int registerosdcommands(void)
     OSD_RegisterFunction("unbind","unbind <key>: unbinds a key.  Type \"unbind all\" to unbind all keys.", osdcmd_unbind);
     for (i=0;i<NUMGAMEFUNCTIONS;i++)
     {
+        char *t;
         Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);
-        OSD_RegisterFunction(Bstrdup(tempbuf),"game button",osdcmd_button);
+        t = Bstrdup(tempbuf);
+        Bstrcat(tempbuf,": game button");
+        OSD_RegisterFunction(t,Bstrdup(tempbuf),osdcmd_button);
     }
     //baselayer_onvideomodechange = onvideomodechange;
 

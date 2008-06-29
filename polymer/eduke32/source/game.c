@@ -161,7 +161,9 @@ keydef keynames[]=
     {"BACKSPACE",   sc_BackSpace},
     {"TAB",         sc_Tab},
     {"LEFTALT",     sc_LeftAlt},
+    {"RIGHTALT",    sc_RightAlt},
     {"LEFTCONTROL", sc_LeftControl},
+    {"RIGHTCONTROL",sc_RightControl},
     {"CAPSLOCK",    sc_CapsLock},
     {"LEFTSHIFT",   sc_LeftShift},
     {"RIGHTSHIFT",  sc_RightShift},
@@ -244,6 +246,12 @@ keydef keynames[]=
     {"X",           sc_X},
     {"Y",           sc_Y},
     {"Z",           sc_Z},
+
+    {"UPARROW",     sc_UpArrow},
+    {"DOWNARROW",   sc_DownArrow},
+    {"LEFTARROW",   sc_LeftArrow},
+    {"RIGHTARROW",  sc_RightArrow},
+
     {0,0}
 };
 
