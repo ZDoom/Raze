@@ -327,7 +327,7 @@ void CONFIG_SetDefaults(void)
 
 void CONFIG_ReadKeys(void)
 {
-    int32 i;
+    int32 i, j;
     int32 numkeyentries;
     int32 function;
     char keyname1[80];
@@ -370,7 +370,12 @@ void CONFIG_ReadKeys(void)
             if (key1 != 0xff && keyname1[0])
             {
                 boundkeys[key1].repeat = 1;
-                boundkeys[key1].key=Bstrdup(keyname1);
+                for (j=0;keynames[j].name;j++)
+                    if (key1 == keynames[j].id)
+                        break;
+                if (keynames[j].name)
+                    boundkeys[key1].key=Bstrdup(keynames[j].name);
+                else boundkeys[key1].key=Bstrdup(keyname1);
                 if (!boundkeys[key1].name[0])
                 {
                     Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(function));
@@ -385,7 +390,12 @@ void CONFIG_ReadKeys(void)
             if (key2 != 0xff && keyname2[0])
             {
                 boundkeys[key2].repeat = 1;
-                boundkeys[key2].key=Bstrdup(keyname2);
+                for (j=0;keynames[j].name;j++)
+                    if (key2 == keynames[j].id)
+                        break;
+                if (keynames[j].name)
+                    boundkeys[key2].key=Bstrdup(keynames[j].name);
+                else boundkeys[key2].key=Bstrdup(keyname2);
                 if (!boundkeys[key2].name[0])
                 {
                     Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(function));
