@@ -7814,10 +7814,13 @@ int load_script(const char *szScript)
     if (fp != NULL)
     {
         char line[255];
+        extern int cmdfromscript;
 
         OSD_Printf("Executing \"%s\"\n", szScript);
+        cmdfromscript = 1;
         while (fgets(line ,sizeof(line)-1, fp) != NULL)
             OSD_Dispatch(strtok(line,"\r\n"));
+        cmdfromscript = 0;
         fclose(fp);
         return 0;
     }

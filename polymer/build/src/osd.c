@@ -1140,6 +1140,12 @@ int OSD_Dispatch(const char *cmd)
             continue;
         }
 
+        if (wp[0] == '/' && wp[1] == '/') // cheap hack
+        {
+            free(workbuf);
+            return -1;
+        }
+
         symb = findexactsymbol(wp);
         if (!symb)
         {

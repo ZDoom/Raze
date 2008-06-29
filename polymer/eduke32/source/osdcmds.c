@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern int voting;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
+int cmdfromscript = 0;
 
 static inline int osdcmd_quit(const osdfuncparm_t *parm)
 {
@@ -999,7 +1000,8 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
     else boundkeys[keynames[i].id].repeat = 1;
     Bstrncpy(boundkeys[keynames[i].id].name,parm->parms[j], MAXBINDSTRINGLENGTH-1);
     boundkeys[keynames[i].id].key=keynames[i].name;
-    OSD_Printf("%s\n",parm->raw);
+    if (!cmdfromscript)
+        OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;
 }
 
