@@ -991,15 +991,15 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
     }
 
     j = 1;
-    if (parm->numparms >= 2 && !Bstrcasecmp(parm->parms[j],"repeat"))
+    if (parm->numparms >= 2 && !Bstrcasecmp(parm->parms[j],"norepeat"))
     {
-        boundkeys[keynames[i].id].repeat = 1;
+        boundkeys[keynames[i].id].repeat = 0;
         j++;
     }
-    else boundkeys[keynames[i].id].repeat = 0;
+    else boundkeys[keynames[i].id].repeat = 1;
     Bstrncpy(boundkeys[keynames[i].id].name,parm->parms[j], MAXBINDSTRINGLENGTH-1);
     boundkeys[keynames[i].id].key=keynames[i].name;
-    OSD_Printf("key %s repeat %d string %s\n",keynames[i].name,boundkeys[keynames[i].id].repeat, boundkeys[keynames[i].id].name);
+//    OSD_Printf("key %s repeat %d string %s\n",keynames[i].name,boundkeys[keynames[i].id].repeat, boundkeys[keynames[i].id].name);
     return OSDCMD_OK;
 }
 
@@ -1011,7 +1011,7 @@ static int osdcmd_unbind(const osdfuncparm_t *parm)
     {
         for (i=0;i<MAXBOUNDKEYS;i++)if (*boundkeys[i].name)
             boundkeys[i].name[0] = 0;
-        OSD_Printf("unbound all key\n");
+        OSD_Printf("unbound all keys\n");
         return OSDCMD_OK;
     }
     if (parm->numparms < 1) return OSDCMD_SHOWHELP;
