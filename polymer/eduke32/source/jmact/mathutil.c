@@ -37,14 +37,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Ken's reverse-engineering job
 int32 FindDistance2D(int32 x, int32 y)
 {
-	int32 i;
-	x = labs(x);
-	y = labs(y);
-	if (!x) return(y);
-	if (!y) return(x);
-	if (y < x) { i = x; x = y; y = i; } //swap x, y
-	x += (x>>1);
-	return ((x>>6)+(x>>2)+y-(y>>5)-(y>>7)); //handle 1 octant
+    int32 i;
+    x = labs(x);
+    y = labs(y);
+    if (!x) return(y);
+    if (!y) return(x);
+    if (y < x) { i = x; x = y; y = i; } //swap x, y
+    x += (x>>1);
+    return ((x>>6)+(x>>2)+y-(y>>5)-(y>>7)); //handle 1 octant
 }
 
 // My abomination
@@ -59,7 +59,7 @@ int32 FindDistance2D(int32 dx, int32 dy)
 int32 FindDistance3D(int32 dx, int32 dy, int32 dz)
 {
 //	return (int32)floor(sqrt((double)(sqr(dx)+sqr(dy)+sqr(dz))));
-	return ksqrt(square(dx)+square(dy)+square(dz));
+    return ksqrt(square(dx)+square(dy)+square(dz));
 }
 
 #else
@@ -77,36 +77,36 @@ int32 FindDistance3D(int32 dx, int32 dy, int32 dz)
 
 int32 FindDistance2D(int32 x, int32 y)
 {
-  int32 t;
+    int32 t;
 
-  x= abs(x);        /* absolute values */
-  y= abs(y);
+    x= abs(x);        /* absolute values */
+    y= abs(y);
 
-  if (x<y)
-     SWAP(x,y);
+    if (x<y)
+        SWAP(x,y);
 
-  t = y + (y>>1);
+    t = y + (y>>1);
 
-  return (x - (x>>5) - (x>>7)  + (t>>2) + (t>>6));
+    return (x - (x>>5) - (x>>7)  + (t>>2) + (t>>6));
 }
 
 
 int32 FindDistance3D(int32 x, int32 y, int32 z)
-   {
-   int32 t;
+{
+    int32 t;
 
-   x= abs(x);           /* absolute values */
-   y= abs(y);
-   z= abs(z);
+    x= abs(x);           /* absolute values */
+    y= abs(y);
+    z= abs(z);
 
-   if (x<y)
-     SWAP(x,y);
+    if (x<y)
+        SWAP(x,y);
 
-   if (x<z)
-     SWAP(x,z);
+    if (x<z)
+        SWAP(x,z);
 
-   t = y + z;
+    t = y + z;
 
-   return (x - (x>>4) + (t>>2) + (t>>3));
-   }
+    return (x - (x>>4) + (t>>2) + (t>>3));
+}
 #endif

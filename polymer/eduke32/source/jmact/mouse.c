@@ -1,7 +1,7 @@
 /*
  * mouse.c
  * MACT library -to- JonoF's Build Port Mouse Glue
- * 
+ *
  * by Jonathon Fowler
  *
  * Since we don't have the source to the MACT library I've had to
@@ -38,46 +38,46 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "baselayer.h"
 
 
-boolean MOUSE_Init( void )
+boolean MOUSE_Init(void)
 {
-	initmouse();
-	return ((inputdevices & 2) == 2);
+    initmouse();
+    return ((inputdevices & 2) == 2);
 }
 
 
-void MOUSE_Shutdown( void )
+void MOUSE_Shutdown(void)
 {
-	uninitmouse();
+    uninitmouse();
 }
 
 
-void MOUSE_ShowCursor( void )
-{
-}
-
-
-void MOUSE_HideCursor( void )
+void MOUSE_ShowCursor(void)
 {
 }
 
 
-int32 MOUSE_GetButtons( void )
+void MOUSE_HideCursor(void)
 {
-	int32 buttons;
-	readmousebstatus(&buttons);
-	return buttons;
 }
 
 
-int32 MOUSE_ClearButton( int32 b )
+int32 MOUSE_GetButtons(void)
 {
-	return (mouseb &= ~b);
+    int32 buttons;
+    readmousebstatus(&buttons);
+    return buttons;
 }
 
 
-void MOUSE_GetDelta( int32*x, int32*y  )
+int32 MOUSE_ClearButton(int32 b)
 {
-	readmousexy(x,y);
+    return (mouseb &= ~b);
+}
+
+
+void MOUSE_GetDelta(int32*x, int32*y)
+{
+    readmousexy(x,y);
 }
 
 
