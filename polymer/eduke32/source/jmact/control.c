@@ -159,10 +159,10 @@ boolean CONTROL_KeyboardFunctionPressed(int32 which)
 
     if (!CONTROL_Flags[which].used) return false;
 
-    if (CONTROL_KeyMapping[which].key1 != KEYUNDEFINED)
+    if (CONTROL_KeyMapping[which].key1 != KEYUNDEFINED && !boundkeys[CONTROL_KeyMapping[which].key1].name[0])
         key1 = KB_KeyDown[ CONTROL_KeyMapping[which].key1 ] ? true : false;
 
-    if (CONTROL_KeyMapping[which].key2 != KEYUNDEFINED)
+    if (CONTROL_KeyMapping[which].key2 != KEYUNDEFINED && !boundkeys[CONTROL_KeyMapping[which].key1].name[0])
         key2 = KB_KeyDown[ CONTROL_KeyMapping[which].key2 ] ? true : false;
 
     return (key1 | key2);
@@ -786,6 +786,27 @@ void CONTROL_ClearButton( int32 whichbutton )
     CONTROL_Flags[whichbutton].cleared = true;
 }
 
+int extinput[CONTROL_NUM_FLAGS];
+keybind boundkeys[MAXBOUNDKEYS];
+
+void CONTROL_ProcessBinds(void)
+{
+    int i;
+
+    for (i=0;i<256;i++)
+    {
+        if (boundkeys[i].name[0] && KB_KeyPressed(i))
+        {
+            if (boundkeys[i].repeat || (boundkeys[i].laststate == 0)) 
+                OSD_Dispatch(boundkeys[i].name);
+//            if (!boundkeys[i].repeat)
+//                KB_ClearKeyDown(i);
+        }
+        boundkeys[i].laststate = KB_KeyPressed(i);
+    }
+}
+
+
 void CONTROL_GetInput( ControlInfo *info )
 {
     int32 i, periphs[CONTROL_NUM_FLAGS];
@@ -800,12 +821,15 @@ void CONTROL_GetInput( ControlInfo *info )
     CONTROL_ButtonHeldState2 = CONTROL_ButtonState2;
     CONTROL_ButtonState1 = CONTROL_ButtonState2 = 0;
 
+    CONTROL_ProcessBinds();
+
     for (i=0; i<CONTROL_NUM_FLAGS; i++) {
-        CONTROL_SetFlag(i, CONTROL_KeyboardFunctionPressed(i) | periphs[i]);
+        CONTROL_SetFlag(i, CONTROL_KeyboardFunctionPressed(i) | periphs[i] | extinput[i]);
 
         if (CONTROL_Flags[i].cleared == false) BUTTONSET(i, CONTROL_Flags[i].active);
         else if (CONTROL_Flags[i].active == false) CONTROL_Flags[i].cleared = 0;
     }
+    memset(extinput, 0, sizeof(extinput));
 }
 
 void CONTROL_WaitRelease( void )

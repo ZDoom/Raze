@@ -2873,7 +2873,7 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
 
     // Allocate mix buffer within 1st megabyte
     // use calloc to clear the memory for the first playback.
-    ptr = (char *)calloc(1,TotalBufferSize + 8);	// FIXME: temporarily fixes bounds error somewhere...
+    ptr = (char *)Bcalloc(1,TotalBufferSize + 8);	// FIXME: temporarily fixes bounds error somewhere...
     if (!ptr)
     {
         USRHOOKS_FreeMem(MV_Voices);

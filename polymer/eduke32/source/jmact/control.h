@@ -212,6 +212,20 @@ void CONTROL_PrintKeyMap(void);
 void CONTROL_PrintControlFlag(int32 which);
 void CONTROL_PrintAxes( void );
 
+#define MAXBINDSTRINGLENGTH 128
+#define MAXBOUNDKEYS 256
+
+typedef struct binding {
+    char *key;
+    char name[MAXBINDSTRINGLENGTH];
+    char repeat;
+    char laststate;
+} keybind;
+
+extern keybind boundkeys[MAXBOUNDKEYS];
+
+void CONTROL_ProcessBinds(void);
+
 #ifdef __cplusplus
 };
 #endif

@@ -512,45 +512,45 @@ void sound(int num)
 int spritesound(unsigned int num, int i)
 {
     if (num >= MAXSOUNDS) return -1;
-	if (i < 0)
-	{
-		sound(num);
-		return 0;
-	}
+    if (i < 0)
+    {
+        sound(num);
+        return 0;
+    }
     return xyzsound(num,i,SX,SY,SZ);
 }
 
 void stopspritesound(int num, int i)
 {
     UNREFERENCED_PARAMETER(i);
-	if (num >= 0 && num < MAXSOUNDS) stopsound(num);
+    if (num >= 0 && num < MAXSOUNDS) stopsound(num);
 }
 
 void stopsound(int num)
 {
-	if (num >= 0 && num < MAXSOUNDS)
-    if (g_sounds[num].num > 0)
-    {
-        FX_StopSound(g_sounds[num].SoundOwner[g_sounds[num].num-1].voice);
-        testcallback(num);
-    }
+    if (num >= 0 && num < MAXSOUNDS)
+        if (g_sounds[num].num > 0)
+        {
+            FX_StopSound(g_sounds[num].SoundOwner[g_sounds[num].num-1].voice);
+            testcallback(num);
+        }
 }
 
 void stopenvsound(int num,int i)
 {
     int j, k;
 
-	if (num >= 0 && num < MAXSOUNDS)
-    if (g_sounds[num].num > 0)
-    {
-        k = g_sounds[num].num;
-        for (j=0;j<k;j++)
-            if (g_sounds[num].SoundOwner[j].i == i)
-            {
-                FX_StopSound(g_sounds[num].SoundOwner[j].voice);
-                break;
-            }
-    }
+    if (num >= 0 && num < MAXSOUNDS)
+        if (g_sounds[num].num > 0)
+        {
+            k = g_sounds[num].num;
+            for (j=0;j<k;j++)
+                if (g_sounds[num].SoundOwner[j].i == i)
+                {
+                    FX_StopSound(g_sounds[num].SoundOwner[j].voice);
+                    break;
+                }
+        }
 }
 
 void pan3dsound(void)

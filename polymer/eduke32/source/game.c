@@ -247,8 +247,6 @@ keydef keynames[]=
     {0,0}
 };
 
-keybind boundkeys[MAXBOUNDKEYS];
-
 enum
 {
     T_EOF = -2,
@@ -602,6 +600,8 @@ void getpackets(void)
 
     sampletimer();
     AudioUpdate();
+
+    CONTROL_ProcessBinds();
 
     if (ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
@@ -7821,12 +7821,6 @@ static void nonsharedkeys(void)
     int i,ch;
     int j;
 
-    for (i=0;i<256;i++)
-        if (*boundkeys[i].name&&KB_KeyPressed(i))
-        {
-            load_script(boundkeys[i].name);
-            KB_ClearKeyDown(i);
-        }
     if (ud.recstat == 2)
     {
         ControlInfo noshareinfo;
@@ -8588,7 +8582,7 @@ static void setup_rancid_net(const char *fn)
         netparamcount = rancid_players;
         if (rancid_local_port_string[0] == '-')
             netparamcount++;
-        netparam = (char **)calloc(netparamcount, sizeof(char **));
+        netparam = (char **)Bcalloc(netparamcount, sizeof(char **));
 
         for (i=0;i<rancid_players;i++)
         {
@@ -8934,7 +8928,7 @@ static int loaddefinitions_game(const char *fn, int preload)
 static void addgroup(const char *buffer)
 {
     struct strllist *s;
-    s = (struct strllist *)calloc(1,sizeof(struct strllist));
+    s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
     s->str = Bstrdup(buffer);
     if (Bstrchr(s->str,'.') == 0)
         Bstrcat(s->str,".grp");
@@ -8952,7 +8946,7 @@ static void addgroup(const char *buffer)
 static void addgamepath(const char *buffer)
 {
     struct strllist *s;
-    s = (struct strllist *)calloc(1,sizeof(struct strllist));
+    s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
     s->str = strdup(buffer);
 
     if (CommandPaths)
@@ -9117,7 +9111,7 @@ static void checkcommandline(int argc, const char **argv)
                     g_NoSetup = TRUE;
                     firstnet = i;
                     netparamcount = argc - i - 1;
-                    netparam = (char **)calloc(netparamcount, sizeof(char**));
+                    netparam = (char **)Bcalloc(netparamcount, sizeof(char**));
                     i++;
                     continue;
                 }

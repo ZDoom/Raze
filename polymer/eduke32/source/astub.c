@@ -647,7 +647,6 @@ void ExtShowSectorData(short sectnum)   //F5
 {
     short statnum=0;
     int x,x2,y;
-    int nexti;
     int i;
     int secrets=0;
     int totalactors1=0,totalactors2=0,totalactors3=0,totalactors4=0;
@@ -666,56 +665,52 @@ void ExtShowSectorData(short sectnum)   //F5
     i = headspritestat[statnum];
     while (i != -1)
     {
-        nexti = nextspritestat[i];
-        i = nexti;
-
+        switch (sprite[i].picnum)
         {
-            switch (sprite[i].picnum)
-            {
-            case RECON:
-            case DRONE:
-            case LIZTROOPONTOILET:
-            case LIZTROOPSTAYPUT:
-            case LIZTROOPSHOOT:
-            case LIZTROOPJETPACK:
-            case LIZTROOPDUCKING:
-            case LIZTROOPRUNNING:
-            case LIZTROOP:
-            case OCTABRAIN:
-            case OCTABRAINSTAYPUT:
-            case COMMANDER:
-            case COMMANDERSTAYPUT:
-            case EGG:
-            case PIGCOP:
-            case PIGCOPSTAYPUT:
-            case PIGCOPDIVE:
-            case LIZMAN:
-            case LIZMANSTAYPUT:
-            case LIZMANSPITTING:
-            case LIZMANFEEDING:
-            case LIZMANJUMP:
-            case ORGANTIC:
-            case BOSS1:
-            case BOSS2:
-            case BOSS3:
-            case GREENSLIME:
-            case ROTATEGUN:
-            case TANK:
-            case NEWBEAST:
-            case BOSS4:
-                if (sprite[i].lotag<=1) totalactors1++;
-                if (sprite[i].lotag<=2) totalactors2++;
-                if (sprite[i].lotag<=3) totalactors3++;
-                if (sprite[i].lotag<=4) totalactors4++;
-                break;
+        case RECON:
+        case DRONE:
+        case LIZTROOPONTOILET:
+        case LIZTROOPSTAYPUT:
+        case LIZTROOPSHOOT:
+        case LIZTROOPJETPACK:
+        case LIZTROOPDUCKING:
+        case LIZTROOPRUNNING:
+        case LIZTROOP:
+        case OCTABRAIN:
+        case OCTABRAINSTAYPUT:
+        case COMMANDER:
+        case COMMANDERSTAYPUT:
+        case EGG:
+        case PIGCOP:
+        case PIGCOPSTAYPUT:
+        case PIGCOPDIVE:
+        case LIZMAN:
+        case LIZMANSTAYPUT:
+        case LIZMANSPITTING:
+        case LIZMANFEEDING:
+        case LIZMANJUMP:
+        case ORGANTIC:
+        case BOSS1:
+        case BOSS2:
+        case BOSS3:
+        case GREENSLIME:
+        case ROTATEGUN:
+        case TANK:
+        case NEWBEAST:
+        case BOSS4:
+            if (sprite[i].lotag<=1) totalactors1++;
+            if (sprite[i].lotag<=2) totalactors2++;
+            if (sprite[i].lotag<=3) totalactors3++;
+            if (sprite[i].lotag<=4) totalactors4++;
+            break;
 
-            case RESPAWN:
-                totalrespawn++;
+        case RESPAWN:
+            totalrespawn++;
 
-            default:
-                break;
-            }
+        default:
+            break;
         }
+        i = nextspritestat[i];
     }
 
     for (i=0;i<MAXSPRITES;i++) numsprite[i]=0;
@@ -6639,7 +6634,7 @@ static void comlinehelp(void)
 static void addgamepath(const char *buffer)
 {
     struct strllist *s;
-    s = (struct strllist *)calloc(1,sizeof(struct strllist));
+    s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
     s->str = strdup(buffer);
 
     if (CommandPaths)
@@ -6655,7 +6650,7 @@ static void addgamepath(const char *buffer)
 static void addgroup(const char *buffer)
 {
     struct strllist *s;
-    s = (struct strllist *)calloc(1,sizeof(struct strllist));
+    s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
     s->str = Bstrdup(buffer);
     if (Bstrchr(s->str,'.') == 0)
         Bstrcat(s->str,".grp");

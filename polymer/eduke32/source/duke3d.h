@@ -311,12 +311,11 @@ typedef struct {
 
 typedef struct {
     int  length, num, soundsiz;
-    char *filename, *ptr;
-    char *filename1;
-    short ps,pe,vo;
-    volatile char lock;
-    char pr,m;
+    char *filename, *ptr, *filename1;
     SOUNDOWNER SoundOwner[4];
+    short ps,pe,vo;
+    char pr,m;
+    volatile char lock;
 } sound_t;
 
 extern sound_t g_sounds[MAXSOUNDS];
@@ -807,7 +806,8 @@ enum sysstrs {
 	STR_MAPNAME,
 	STR_MAPFILENAME,
 	STR_PLAYERNAME,
-	STR_VERSION
+	STR_VERSION,
+    STR_GAMETYPE
 };
 
 // store global game definitions
@@ -1018,22 +1018,12 @@ extern playerdata_t g_player[MAXPLAYERS];
 #include "funct.h"
 
 // key bindings stuff
-#define MAXSCRIPTFILENAMELENGTH 32
-#define MAXBOUNDKEYS 256
-
 typedef struct {
     char *name;
     int id;
 } keydef;
 
 extern keydef keynames[];
-
-typedef struct binding {
-    char *key;
-    char name[MAXSCRIPTFILENAMELENGTH];
-} keybind;
-
-extern keybind boundkeys[MAXBOUNDKEYS];
 
 #ifdef __cplusplus
 }

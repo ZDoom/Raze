@@ -952,9 +952,18 @@ static int osdcmd_name(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+extern int extinput[64];
+
+static int osdcmd_button(const osdfuncparm_t *parm)
+{
+    char *p = (char *)parm->name+9;  // skip "gamefunc_"
+    extinput[CONFIG_FunctionNameToNum(p)] = 1;
+    return OSDCMD_OK;
+}
+
 static int osdcmd_bind(const osdfuncparm_t *parm)
 {
-    int i;
+    int i, j;
 
     if (parm->numparms==1&&!Bstrcasecmp(parm->parms[0],"showkeys"))
     {
@@ -973,8 +982,16 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
     for (i=0;keynames[i].name;i++)if (!Bstrcasecmp(parm->parms[0],keynames[i].name))break;
     if (!keynames[i].name) return OSDCMD_SHOWHELP;
 
-    Bstrncpy(boundkeys[keynames[i].id].name,parm->parms[1], MAXSCRIPTFILENAMELENGTH-1);
+    j = 1;
+    if (parm->numparms >= 2 && !Bstrcasecmp(parm->parms[j],"repeat"))
+    {
+        boundkeys[keynames[i].id].repeat = 1;
+        j++;
+    }
+    else boundkeys[keynames[i].id].repeat = 0;
+    Bstrncpy(boundkeys[keynames[i].id].name,parm->parms[j], MAXBINDSTRINGLENGTH-1);
     boundkeys[keynames[i].id].key=keynames[i].name;
+    OSD_Printf("key %s repeat %d string %s\n",keynames[i].name,boundkeys[keynames[i].id].repeat, boundkeys[keynames[i].id].name);
     return OSDCMD_OK;
 }
 
@@ -1034,6 +1051,11 @@ int registerosdcommands(void)
     OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: immediately change the video mode",osdcmd_vidmode);
 
     OSD_RegisterFunction("bind","bind <key> <scriptfile>: executes a command script when <key> gets pressed. Type \"bind showkeys\" for a list of keys.", osdcmd_bind);
+    for (i=0;i<NUMGAMEFUNCTIONS;i++)
+    {
+        Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);
+        OSD_RegisterFunction(Bstrdup(tempbuf),"game button",osdcmd_button);
+    }
     //baselayer_onvideomodechange = onvideomodechange;
 
     return 0;

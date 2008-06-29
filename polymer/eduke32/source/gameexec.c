@@ -5147,6 +5147,9 @@ static int parse(void)
                     case STR_VERSION:
                         Bstrcpy(fta_quotes[i],HEAD2);
                         break;
+                    case STR_GAMETYPE:
+                        Bstrcpy(fta_quotes[i],gametype_names[ud.coop]);
+                        break;
                     default:
                         OSD_Printf("%s %d unknown str ID %d %d\n",__FILE__,__LINE__,i,j);
                     }
@@ -5532,7 +5535,11 @@ static int parse(void)
     {
         int32 i=0;
         insptr++;
-		if (ud.config.scripthandle < 0) {insptr++;break;}
+        if (ud.config.scripthandle < 0)
+        {
+            insptr++;
+            break;
+        }
         switch (tw)
         {
         case CON_SAVEGAMEVAR:
