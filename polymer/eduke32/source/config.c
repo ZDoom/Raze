@@ -338,6 +338,8 @@ void CONFIG_ReadKeys(void)
 
     numkeyentries = SCRIPT_NumberEntries(ud.config.scripthandle,"KeyDefinitions");
 
+    Bmemset(&boundkeys,0,sizeof(boundkeys));
+
     for (i=0;i<numkeyentries;i++)
     {
         function = CONFIG_FunctionNameToNum(SCRIPT_Entry(ud.config.scripthandle,"KeyDefinitions", i));
@@ -365,6 +367,36 @@ void CONFIG_ReadKeys(void)
             }
             ud.config.KeyboardKeys[function][0] = key1;
             ud.config.KeyboardKeys[function][1] = key2;
+            if (key1 != 0xff && keyname1[0])
+            {
+                boundkeys[key1].repeat = 1;
+                boundkeys[key1].key=Bstrdup(keyname1);
+                if (!boundkeys[key1].name[0])
+                {
+                    Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(function));
+                    Bstrncpy(boundkeys[key1].name,tempbuf, MAXBINDSTRINGLENGTH-1);
+                }
+                else
+                {
+                    Bsprintf(tempbuf,"; gamefunc_%s",CONFIG_FunctionNumToName(function));
+                    Bstrncat(boundkeys[key1].name,tempbuf, MAXBINDSTRINGLENGTH-1);
+                }
+            }
+            if (key2 != 0xff && keyname2[0])
+            {
+                boundkeys[key2].repeat = 1;
+                boundkeys[key2].key=Bstrdup(keyname2);
+                if (!boundkeys[key2].name[0])
+                {
+                    Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(function));
+                    Bstrncpy(boundkeys[key2].name,tempbuf, MAXBINDSTRINGLENGTH-1);
+                }
+                else
+                {
+                    Bsprintf(tempbuf,"; gamefunc_%s",CONFIG_FunctionNumToName(function));
+                    Bstrncat(boundkeys[key2].name,tempbuf, MAXBINDSTRINGLENGTH-1);
+                }
+            }
         }
     }
 
