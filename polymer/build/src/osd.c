@@ -228,7 +228,7 @@ static int _internal_osdfunc_alias(const osdfuncparm_t *parm)
                 else OSD_Printf("%s is a function, not an alias\n",i->name);
                 return OSDCMD_OK;
             }
-            if (i->func != (void *)OSD_ALIAS)
+            if (i->func != (void *)OSD_ALIAS && i->func != (void *)OSD_UNALIASED)
             {
                 OSD_Printf("Cannot override function \"%s\" with alias\n",i->name);
                 return OSDCMD_OK;
@@ -238,6 +238,33 @@ static int _internal_osdfunc_alias(const osdfuncparm_t *parm)
 
     OSD_RegisterFunction(Bstrdup(parm->parms[0]),Bstrdup(parm->parms[1]),(void *)OSD_ALIAS);
     OSD_Printf("%s\n",parm->raw);
+    return OSDCMD_OK;
+}
+
+static int _internal_osdfunc_unalias(const osdfuncparm_t *parm)
+{
+    symbol_t *i;
+
+    if (parm->numparms < 1)
+        return OSDCMD_SHOWHELP;
+
+    for (i=symbols; i!=NULL; i=i->next)
+    {
+        if (!Bstrcasecmp(parm->parms[0],i->name))
+        {
+            if (parm->numparms < 2)
+            {
+                if (i->func == (void *)OSD_ALIAS)
+                {
+                    OSD_Printf("Removed alias %s \(\"%s\"\)\n", i->name, i->help);
+                    i->func = (void *)OSD_UNALIASED;
+                }
+                else OSD_Printf("Invalid alias %s\n",i->name);
+                return OSDCMD_OK;
+            }
+        }
+    }
+    OSD_Printf("Invalid alias %s\n",parm->parms[0]);
     return OSDCMD_OK;
 }
 
@@ -278,7 +305,8 @@ static int _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
 
     OSD_Printf("Symbol listing:\n");
     for (i=symbols; i!=NULL; i=i->next)
-        OSD_Printf("     %s\n", i->name);
+        if (i->func != (void *)OSD_UNALIASED)
+            OSD_Printf("     %s\n", i->name);
 
     return OSDCMD_OK;
 }
@@ -348,6 +376,7 @@ void OSD_Init(void)
     OSD_RegisterFunction("logcutoff","logcutoff: sets the maximal line count of the log file",_internal_osdfunc_vars);
     OSD_RegisterFunction("clear","clear: clears the console text buffer",_internal_osdfunc_clear);
     OSD_RegisterFunction("alias","alias: creates an alias for calling multiple commands",_internal_osdfunc_alias);
+    OSD_RegisterFunction("unalias","unalias: removes an alias created with \"alias\"",_internal_osdfunc_unalias);
 
     atexit(OSD_Cleanup);
 }
@@ -1194,7 +1223,7 @@ int OSD_Dispatch(const char *cmd)
         ofp.raw      = cmd;
         if (symb->func == (void *)OSD_ALIAS)
             OSD_Dispatch(symb->help);
-        else
+        else if (symb->func != (void *)OSD_UNALIASED)
         {
             switch (symb->func(&ofp))
             {
@@ -1265,13 +1294,14 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
     symb = findexactsymbol(name);
     if (symb) // allow this now for reusing an alias name
     {
-        if (symb->func != (void *)OSD_ALIAS)
+        if (symb->func != (void *)OSD_ALIAS && symb->func != (void *)OSD_UNALIASED)
         {
             OSD_Printf("OSD_RegisterFunction(): \"%s\" is already defined\n", name);
             return -1;
         }
         Bfree((char *)symb->help);
         symb->help = help;
+        symb->func = func;
         return 0;
     }
 
@@ -1354,7 +1384,7 @@ static symbol_t *findsymbol(const char *name, symbol_t *startingat)
     if (!startingat) return NULL;
 
     for (; startingat; startingat=startingat->next)
-        if (!Bstrncasecmp(name, startingat->name, Bstrlen(name))) return startingat;
+        if (startingat->func != (void *)OSD_UNALIASED && !Bstrncasecmp(name, startingat->name, Bstrlen(name))) return startingat;
 
     return NULL;
 }

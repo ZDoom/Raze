@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "scriplib.h"
 #include "osd.h"
+#include "osdcmds.h"
 
 #include "baselayer.h"
 
@@ -801,6 +802,10 @@ void CONFIG_WriteBinds(void) // save binds and aliases to disk
             if (symb->func == (void *)OSD_ALIAS)
                 fprintf(fp,"alias %s \"%s\"\n", symb->name, symb->help);
 
+/*        for (i = 0; i < sizeof(cvar)/sizeof(cvarmappings); i++)
+            if (!(cvar[i].type&CVAR_NOSAVE))
+                fprintf(fp,"%s \"%d\"\n",cvar[i].name,*(int*)cvar[i].var);
+                */
         fclose(fp);
     }
 }

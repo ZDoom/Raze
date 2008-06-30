@@ -645,31 +645,13 @@ static int osdcmd_exec(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-enum cvartypes
-{
-    CVAR_INT,
-    CVAR_UNSIGNEDINT,
-    CVAR_BOOL,
-    CVAR_STRING
-};
-
-struct cvarmappings
-{
-    char *name;
-    char *helpstr;
-    void *var;
-    int type;       // 0 = integer, 1 = unsigned integer, 2 = boolean, 3 = string, |128 = not in multiplayer, |256 = update multi
-    int extra;      // for string, is the length
-    int min;
-    int max;
-}
-cvar[] =
+cvarmappings cvar[] =
 {
     { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_INT, 0, 0, 3 },
 
-    { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&ud.config.AutoAim, CVAR_INT|256, 0, 0, 2 },
+    { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&ud.config.AutoAim, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
     { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
-    { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT|256, 0, 0, 2 },
+    { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
 
 
     { "cl_deathmessages", "cl_deathmessages: enable/disable multiplayer death messages", (void*)&ud.deathmsgs, CVAR_BOOL, 0, 0, 1 },
@@ -690,7 +672,7 @@ cvar[] =
     { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing\n", (void*)&ud.viewbob, CVAR_BOOL, 0, 0, 1 },
 
     { "cl_weaponsway", "cl_weaponsway: enable/disable player weapon swaying\n", (void*)&ud.weaponsway, CVAR_BOOL, 0, 0, 1 },
-    { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|256, 0, 0, 3 },
+    { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|CVAR_MULTI, 0, 0, 3 },
     { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void*)&ud.angleinterpolation, CVAR_INT, 0, 0, 256 },
 #if defined(POLYMOST) && defined(USE_OPENGL)
     { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
@@ -724,11 +706,11 @@ static int osdcmd_cvar_set(const osdfuncparm_t *parm)
     int showval = (parm->numparms == 0);
     unsigned int i;
 
-    for (i = 0; i < sizeof(cvar)/sizeof(struct cvarmappings); i++)
+    for (i = 0; i < sizeof(cvar)/sizeof(cvarmappings); i++)
     {
         if (!Bstrcasecmp(parm->name, cvar[i].name))
         {
-            if ((cvar[i].type & 0x80) && numplayers > 1)
+            if ((cvar[i].type & CVAR_NOMULTI) && numplayers > 1)
             {
                 // sound the alarm
                 OSD_Printf("Cvar \"%s\" locked in multiplayer.\n",cvar[i].name);
@@ -778,7 +760,7 @@ static int osdcmd_cvar_set(const osdfuncparm_t *parm)
                 default:
                     break;
                 }
-            if (cvar[i].type&256)
+            if (cvar[i].type&CVAR_MULTI)
                 updateplayer();
         }
     }

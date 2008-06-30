@@ -25,6 +25,7 @@ typedef struct _symbol
 extern symbol_t *symbols;
 
 #define OSD_ALIAS 1337
+#define OSD_UNALIASED 1338
 
 #define OSDCMD_OK	0
 #define OSDCMD_SHOWHELP 1
