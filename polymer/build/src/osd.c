@@ -7,17 +7,7 @@
 #include "compat.h"
 #include "baselayer.h"
 
-
-typedef struct _symbol
-{
-    const char *name;
-    struct _symbol *next;
-
-    const char *help;
-    int (*func)(const osdfuncparm_t *);
-} symbol_t;
-
-static symbol_t *symbols = NULL;
+symbol_t *symbols = NULL;
 static symbol_t *addnewsymbol(const char *name);
 static symbol_t *findsymbol(const char *name, symbol_t *startingat);
 static symbol_t *findexactsymbol(const char *name);
@@ -27,7 +17,6 @@ static symbol_t *findexactsymbol(const char *name);
 static int _internal_osdfunc_listsymbols(const osdfuncparm_t *);
 static int _internal_osdfunc_help(const osdfuncparm_t *);
 static int _internal_osdfunc_alias(const osdfuncparm_t *);
-static int _internal_osdfunc_aliasfunc(const osdfuncparm_t *);
 // static int _internal_osdfunc_dumpbuildinfo(const osdfuncparm_t *);
 // static int _internal_osdfunc_setrendermode(const osdfuncparm_t *);
 
@@ -223,27 +212,32 @@ static int _internal_osdfunc_alias(const osdfuncparm_t *parm)
     {
         OSD_Printf("Alias listing:\n");
         for (i=symbols; i!=NULL; i=i->next)
-            if (i->func == (void *)_internal_osdfunc_aliasfunc)
+            if (i->func == (void *)OSD_ALIAS)
                 OSD_Printf("     %s\n", i->name);
         return OSDCMD_OK;
     }
 
-    if (parm->numparms < 2)
+    for (i=symbols; i!=NULL; i=i->next)
     {
-        for (i=symbols; i!=NULL; i=i->next)
+        if (parm->numparms < 2)
+        {
             if (!Bstrcasecmp(parm->parms[0],i->name))
-                OSD_Printf("alias %s \"%s\"\n", i->name, i->help);
-        return OSDCMD_OK;
+            {
+                if (i->func == (void *)OSD_ALIAS)
+                    OSD_Printf("alias %s \"%s\"\n", i->name, i->help);
+                else OSD_Printf("%s is a function, not an alias\n",i->name);
+            }
+            return OSDCMD_OK;
+        }
+        if (i != NULL && !Bstrcasecmp(parm->parms[0],i->name) && i->func != (void *)OSD_ALIAS)
+        {
+            OSD_Printf("Cannot override function \"%s\" with alias\n",i->name);
+            return OSDCMD_OK;
+        }
     }
 
-    OSD_RegisterFunction(Bstrdup(parm->parms[0]),Bstrdup(parm->parms[1]),_internal_osdfunc_aliasfunc);
+    OSD_RegisterFunction(Bstrdup(parm->parms[0]),Bstrdup(parm->parms[1]),(void *)OSD_ALIAS);
     OSD_Printf("%s\n",parm->raw);
-    return OSDCMD_OK;
-}
-
-static int _internal_osdfunc_aliasfunc(const osdfuncparm_t *parm)
-{
-    UNREFERENCED_PARAMETER(parm);
     return OSDCMD_OK;
 }
 
@@ -1198,15 +1192,18 @@ int OSD_Dispatch(const char *cmd)
         ofp.numparms = numparms;
         ofp.parms    = (const char **)parms;
         ofp.raw      = cmd;
-        if (symb->func == _internal_osdfunc_aliasfunc)
+        if (symb->func == (void *)OSD_ALIAS)
             OSD_Dispatch(symb->help);
-        switch (symb->func(&ofp))
+        else
         {
-        case OSDCMD_OK:
-            break;
-        case OSDCMD_SHOWHELP:
-            OSD_Printf("%s\n", symb->help);
-            break;
+            switch (symb->func(&ofp))
+            {
+            case OSDCMD_OK:
+                break;
+            case OSDCMD_SHOWHELP:
+                OSD_Printf("%s\n", symb->help);
+                break;
+            }
         }
 
         state = wtp;
@@ -1268,8 +1265,11 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
     symb = findexactsymbol(name);
     if (symb) // allow this now for reusing an alias name
     {
-//        OSD_Printf("OSD_RegisterFunction(): \"%s\" is already defined\n", name);
-//        return -1;
+        if (symb->func != (void *)OSD_ALIAS)
+        {
+            OSD_Printf("OSD_RegisterFunction(): \"%s\" is already defined\n", name);
+            return -1;
+        }
 //        Bfree(symb->help);
         symb->help = help;
         symb->func = func;

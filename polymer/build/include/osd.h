@@ -13,6 +13,19 @@ typedef struct {
 	const char *raw;
 } osdfuncparm_t;
 
+typedef struct _symbol
+{
+    const char *name;
+    struct _symbol *next;
+
+    const char *help;
+    int (*func)(const osdfuncparm_t *);
+} symbol_t;
+
+extern symbol_t *symbols;
+
+#define OSD_ALIAS 0x1337
+
 #define OSDCMD_OK	0
 #define OSDCMD_SHOWHELP 1
 
