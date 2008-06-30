@@ -382,9 +382,9 @@ void CONFIG_ReadKeys(void)
                 if (keynames[j].name)
                     boundkeys[key1].key=Bstrdup(keynames[j].name);
                 else boundkeys[key1].key=Bstrdup(keyname1);
-                if (!boundkeys[key1].name[0])
+                Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(function));
+                if (!boundkeys[key1].name[0] || !Bstrcasecmp(tempbuf,boundkeys[key1].name))
                 {
-                    Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(function));
                     Bstrncpy(boundkeys[key1].name,tempbuf, MAXBINDSTRINGLENGTH-1);
                 }
                 else
@@ -402,9 +402,9 @@ void CONFIG_ReadKeys(void)
                 if (keynames[j].name)
                     boundkeys[key2].key=Bstrdup(keynames[j].name);
                 else boundkeys[key2].key=Bstrdup(keyname2);
-                if (!boundkeys[key2].name[0])
+                Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(function));
+                if (!boundkeys[key2].name[0] || !Bstrcasecmp(tempbuf,boundkeys[key2].name))
                 {
-                    Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(function));
                     Bstrncpy(boundkeys[key2].name,tempbuf, MAXBINDSTRINGLENGTH-1);
                 }
                 else
@@ -430,7 +430,7 @@ void MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2
     int j;
 
     CONTROL_MapKey(which, key1, key2);
-    if (key1)
+    if (key1 && key1 != 0xff)
     {
         boundkeys[key1].repeat = 1;
         for (j=0;keynames[j].name;j++)
@@ -438,10 +438,19 @@ void MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2
                 break;
         if (keynames[j].name)
             boundkeys[key1].key=Bstrdup(keynames[j].name);
+
         Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(which));
-        Bstrncpy(boundkeys[key1].name,tempbuf, MAXBINDSTRINGLENGTH-1);
+        if (!boundkeys[key1].name[0] || !Bstrcasecmp(tempbuf,boundkeys[key1].name))
+        {
+            Bstrncpy(boundkeys[key1].name,tempbuf, MAXBINDSTRINGLENGTH-1);
+        }
+        else
+        {
+            Bsprintf(tempbuf,"; gamefunc_%s",CONFIG_FunctionNumToName(which));
+            Bstrncat(boundkeys[key1].name,tempbuf, MAXBINDSTRINGLENGTH-1);
+        }
     }
-    if (key2)
+    if (key2 && key2 != 0xff)
     {
         boundkeys[key2].repeat = 1;
         for (j=0;keynames[j].name;j++)
@@ -449,12 +458,21 @@ void MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2
                 break;
         if (keynames[j].name)
             boundkeys[key2].key=Bstrdup(keynames[j].name);
+
         Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(which));
-        Bstrncpy(boundkeys[key2].name,tempbuf, MAXBINDSTRINGLENGTH-1);
+        if (!boundkeys[key2].name[0] || !Bstrcasecmp(tempbuf,boundkeys[key2].name))
+        {
+            Bstrncpy(boundkeys[key2].name,tempbuf, MAXBINDSTRINGLENGTH-1);
+        }
+        else
+        {
+            Bsprintf(tempbuf,"; gamefunc_%s",CONFIG_FunctionNumToName(which));
+            Bstrncat(boundkeys[key2].name,tempbuf, MAXBINDSTRINGLENGTH-1);
+        }
     }
-    if (!key1 && oldkey1)
+    if ((!key1 || key1 == 0xff) && oldkey1)
         boundkeys[oldkey1].name[0] = 0;
-    if (!key2 && oldkey2)
+    if ((!key2 || key2 == 0xff) && oldkey2)
         boundkeys[oldkey2].name[0] = 0;
 }
 

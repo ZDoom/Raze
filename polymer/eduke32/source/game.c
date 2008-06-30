@@ -608,7 +608,7 @@ void getpackets(void)
         vscrn();
     }
 
-    if (KB_KeyPressed(sc_F12))
+    if (KB_UnBoundKeyPressed(sc_F12))
     {
         KB_ClearKeyDown(sc_F12);
         screencapture("duke0000.tga",0);
@@ -10798,12 +10798,6 @@ MAIN_LOOP_RESTART:
             gametext(160,48,tempbuf,0,2+8+16);
             gametext(160,70,"PRESS F1 TO VOTE YES, F2 TO VOTE NO",0,2+8+16);
         }
-
-        //        if(KB_KeyPressed(sc_F))
-        //        {
-        //            KB_ClearKeyDown(sc_F);
-        //            addplayer();
-        //        }
 
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)
             goto MAIN_LOOP_RESTART;

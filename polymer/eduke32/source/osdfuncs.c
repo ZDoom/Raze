@@ -21,14 +21,14 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
 
     for (x = (x<<3)+x; len>0; len--, ch++, x++)
     {
-/*
-        if (*ch == '^' && isdigit(*(ch+1)))
+/*        if (*ch == '^' && isdigit(*(ch+1)))
         {
             char smallbuf[4];
-            ch++;
+            ch++, len--;
             if (isdigit(*(ch+1)))
             {
                 smallbuf[0] = *(ch++);
+                len--;
                 smallbuf[1] = *(ch);
                 smallbuf[2] = '\0';
                 pal = atol(smallbuf);
@@ -39,9 +39,9 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
                 smallbuf[1] = '\0';
                 pal = atol(smallbuf);
             }
+            x--;
             continue;
-        }
-        */
+        } */
         if (*ch == 32)
         {
 //            x+=5;

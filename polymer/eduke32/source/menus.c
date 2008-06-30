@@ -3353,7 +3353,7 @@ cheat_for_port_credits:
             char key[2];
             key[0] = ud.config.KeyboardKeys[probey][0];
             key[1] = ud.config.KeyboardKeys[probey][1];
-            ud.config.KeyboardKeys[probey][currentlist] = 0;
+            ud.config.KeyboardKeys[probey][currentlist] = 0xff;
             MapKey(probey, ud.config.KeyboardKeys[probey][0], key[0], ud.config.KeyboardKeys[probey][1], key[1]);
             sound(KICK_HIT);
             KB_ClearKeyDown(sc_Delete);
