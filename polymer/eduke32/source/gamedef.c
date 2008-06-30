@@ -4289,6 +4289,12 @@ repeatcase:
             gamefunctions[j][i] = *textptr;
             keydefaults[j*3][i] = *textptr;
             textptr++,i++;
+            if (*textptr == '/')
+            {
+                initprintf("%s:%d: warning: invalid character in function name.\n",compilefile,line_number);
+                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                break;
+            }
             if (i >= MAXGAMEFUNCLEN-1)
             {
                 initprintf("%s:%d: error: function name exceeds limit of %d characters.\n",compilefile,line_number,MAXGAMEFUNCLEN);
