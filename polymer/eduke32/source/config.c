@@ -150,7 +150,8 @@ void CONFIG_SetDefaultKeys(int type)
 {
     int32 i,f;
 
-    memset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
+    Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
+    Bmemset(&boundkeys,0,sizeof(boundkeys));
 
     if (type == 1)
     {
@@ -162,7 +163,7 @@ void CONFIG_SetDefaultKeys(int type)
             ud.config.KeyboardKeys[f][1] = KB_StringToScanCode((char *)oldkeydefaults[i+2]);
 
             if (f == gamefunc_Show_Console) OSD_CaptureKey(ud.config.KeyboardKeys[f][0]);
-            else CONTROL_MapKey(f, ud.config.KeyboardKeys[f][0], ud.config.KeyboardKeys[f][1]);
+            else MapKey(f, ud.config.KeyboardKeys[f][0], 0, ud.config.KeyboardKeys[f][1], 0);
         }
         return;
     }
@@ -175,7 +176,7 @@ void CONFIG_SetDefaultKeys(int type)
         ud.config.KeyboardKeys[f][1] = KB_StringToScanCode(keydefaults[i+2]);
 
         if (f == gamefunc_Show_Console) OSD_CaptureKey(ud.config.KeyboardKeys[f][0]);
-        else CONTROL_MapKey(f, ud.config.KeyboardKeys[f][0], ud.config.KeyboardKeys[f][1]);
+        else MapKey(f, ud.config.KeyboardKeys[f][0], 0, ud.config.KeyboardKeys[f][1], 0);
     }
 }
 
@@ -420,10 +421,42 @@ void CONFIG_ReadKeys(void)
         if (i == gamefunc_Show_Console)
             OSD_CaptureKey(ud.config.KeyboardKeys[i][0]);
         else
-            CONTROL_MapKey(i, ud.config.KeyboardKeys[i][0], ud.config.KeyboardKeys[i][1]);
+            MapKey(i, ud.config.KeyboardKeys[i][0], 0, ud.config.KeyboardKeys[i][1], 0);
     }
 }
 
+void MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
+{
+    int j;
+
+    CONTROL_MapKey(which, key1, key2);
+    if (key1)
+    {
+        boundkeys[key1].repeat = 1;
+        for (j=0;keynames[j].name;j++)
+            if (key1 == keynames[j].id)
+                break;
+        if (keynames[j].name)
+            boundkeys[key1].key=Bstrdup(keynames[j].name);
+        Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(which));
+        Bstrncpy(boundkeys[key1].name,tempbuf, MAXBINDSTRINGLENGTH-1);
+    }
+    if (key2)
+    {
+        boundkeys[key2].repeat = 1;
+        for (j=0;keynames[j].name;j++)
+            if (key2 == keynames[j].id)
+                break;
+        if (keynames[j].name)
+            boundkeys[key2].key=Bstrdup(keynames[j].name);
+        Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(which));
+        Bstrncpy(boundkeys[key2].name,tempbuf, MAXBINDSTRINGLENGTH-1);
+    }
+    if (!key1 && oldkey1)
+        boundkeys[oldkey1].name[0] = 0;
+    if (!key2 && oldkey2)
+        boundkeys[oldkey2].name[0] = 0;
+}
 
 /*
 ===================

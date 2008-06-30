@@ -918,12 +918,10 @@ static int osdcmd_name(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-extern int extinput[CONTROL_NUM_FLAGS];
-
 static int osdcmd_button(const osdfuncparm_t *parm)
 {
     char *p = (char *)parm->name+9;  // skip "gamefunc_"
-    extinput[CONFIG_FunctionNameToNum(p)] = 1;
+    extinput[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
     return OSDCMD_OK;
 }
 

@@ -37,4 +37,6 @@ void CONFIG_SetDefaultKeys(int type);
 int32 CONFIG_GetMapBestTime(char *mapname);
 int32 CONFIG_SetMapBestTime(char *mapname, int32 tm);
 
+void MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
+
 #endif

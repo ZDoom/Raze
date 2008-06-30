@@ -3350,8 +3350,11 @@ cheat_for_port_credits:
         }
         else if (KB_KeyPressed(sc_Delete))
         {
+            char key[2];
+            key[0] = ud.config.KeyboardKeys[probey][0];
+            key[1] = ud.config.KeyboardKeys[probey][1];
             ud.config.KeyboardKeys[probey][currentlist] = 0;
-            CONTROL_MapKey(probey, ud.config.KeyboardKeys[probey][0], ud.config.KeyboardKeys[probey][1]);
+            MapKey(probey, ud.config.KeyboardKeys[probey][0], key[0], ud.config.KeyboardKeys[probey][1], key[1]);
             sound(KICK_HIT);
             KB_ClearKeyDown(sc_Delete);
         }
@@ -3406,13 +3409,17 @@ cheat_for_port_credits:
             }
             else
             {
+                char key[2];
+                key[0] = ud.config.KeyboardKeys[function][0];
+                key[1] = ud.config.KeyboardKeys[function][1];
+
                 sound(PISTOL_BODYHIT);
 
                 ud.config.KeyboardKeys[function][whichkey] = KB_GetLastScanCode();
                 if (function == gamefunc_Show_Console)
                     OSD_CaptureKey(KB_GetLastScanCode());
                 else
-                    CONTROL_MapKey(function, ud.config.KeyboardKeys[function][0], ud.config.KeyboardKeys[function][1]);
+                    MapKey(function, ud.config.KeyboardKeys[function][0], key[0], ud.config.KeyboardKeys[function][1], key[1]);
             }
 
             cmenu(204);
