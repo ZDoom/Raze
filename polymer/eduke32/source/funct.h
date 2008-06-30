@@ -238,7 +238,6 @@ extern void sendboardname(void);
 extern void sendquit(void);
 
 extern void adduserquote(const char *daquote);
-extern const char *stripcolorcodes(const char *t);
 extern void mpchangemap(int volume, int level);
 
 extern inline int checkspriteflags(int iActor, int iType);

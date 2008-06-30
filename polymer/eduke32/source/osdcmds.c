@@ -30,9 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "crc32.h"
 #include <ctype.h>
 
-extern int voting;
+extern int voting, doquicksave;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
-int cmdfromscript = 0;
 
 static inline int osdcmd_quit(const osdfuncparm_t *parm)
 {
@@ -629,22 +628,6 @@ static int osdcmd_cmenu(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_exec(const osdfuncparm_t *parm)
-{
-    char fn[BMAX_PATH];
-    extern int load_script(char *szStartupScript);
-
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-    Bstrcpy(fn,parm->parms[0]);
-
-    if (load_script(fn))
-    {
-        OSD_Printf("exec: file \"%s\" not found.\n", fn);
-        return OSDCMD_OK;
-    }
-    return OSDCMD_OK;
-}
-
 cvarmappings cvar[] =
 {
     { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_INT, 0, 0, 3 },
@@ -982,8 +965,20 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
     else boundkeys[keynames[i].id].repeat = 1;
     Bstrncpy(boundkeys[keynames[i].id].name,parm->parms[j], MAXBINDSTRINGLENGTH-1);
     boundkeys[keynames[i].id].key=keynames[i].name;
-    if (!cmdfromscript)
+    if (!osdexecscript)
         OSD_Printf("%s\n",parm->raw);
+    return OSDCMD_OK;
+}
+
+static int osdcmd_unbindall(const osdfuncparm_t *parm)
+{
+    int i;
+
+    UNREFERENCED_PARAMETER(parm);
+
+    for (i=0;i<MAXBOUNDKEYS;i++)if (*boundkeys[i].name)
+        boundkeys[i].name[0] = 0;
+    OSD_Printf("unbound all keys\n");
     return OSDCMD_OK;
 }
 
@@ -991,13 +986,6 @@ static int osdcmd_unbind(const osdfuncparm_t *parm)
 {
     int i;
 
-    if (parm->numparms==1&&!Bstrcasecmp(parm->parms[0],"all"))
-    {
-        for (i=0;i<MAXBOUNDKEYS;i++)if (*boundkeys[i].name)
-            boundkeys[i].name[0] = 0;
-        OSD_Printf("unbound all keys\n");
-        return OSDCMD_OK;
-    }
     if (parm->numparms < 1) return OSDCMD_SHOWHELP;
     for (i=0;keynames[i].name;i++)
         if (!Bstrcasecmp(parm->parms[0],keynames[i].name))
@@ -1007,6 +995,24 @@ static int osdcmd_unbind(const osdfuncparm_t *parm)
     boundkeys[keynames[i].id].repeat = 0;
     boundkeys[keynames[i].id].name[0] = 0;
     OSD_Printf("unbound key %s\n",keynames[i].name);
+    return OSDCMD_OK;
+}
+
+static int osdcmd_quicksave(const osdfuncparm_t *parm)
+{
+    UNREFERENCED_PARAMETER(parm);
+    if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
+        OSD_Printf("quicksave: not in a game.\n");
+    else doquicksave = 1;
+    return OSDCMD_OK;
+}
+
+static int osdcmd_quickload(const osdfuncparm_t *parm)
+{
+    UNREFERENCED_PARAMETER(parm);
+    if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
+        OSD_Printf("quickload: not in a game.\n");
+    else doquicksave = 2;
     return OSDCMD_OK;
 }
 
@@ -1031,13 +1037,23 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
 
+    OSD_RegisterFunction("bind","bind <key> <string>: associates a keypress with a string of console input. Type \"bind showkeys\" for a list of keys and \"listsymbols\" for a list of valid console commands.", osdcmd_bind);
+
     OSD_RegisterFunction("cl_statusbarscale","cl_statusbarscale: changes the status bar scale", osdcmd_setstatusbarscale);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
 
     OSD_RegisterFunction("echo","echo [text]: echoes text to the console", osdcmd_echo);
-    OSD_RegisterFunction("exec","exec <scriptfile>: executes a script", osdcmd_exec);
 
     OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
+
+    for (i=0;i<NUMGAMEFUNCTIONS;i++)
+    {
+        char *t;
+        Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);
+        t = Bstrdup(tempbuf);
+        Bstrcat(tempbuf,": game button");
+        OSD_RegisterFunction(t,Bstrdup(tempbuf),osdcmd_button);
+    }
 
     OSD_RegisterFunction("gamma","gamma <value>: changes brightness", osdcmd_gamma);
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
@@ -1048,6 +1064,8 @@ int registerosdcommands(void)
     OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
+    OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
+    OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
 
     OSD_RegisterFunction("rate","rate: sets the multiplayer packet send rate, in packets/sec",osdcmd_rate);
@@ -1060,21 +1078,14 @@ int registerosdcommands(void)
     OSD_RegisterFunction("setactorvar","setactorvar <actorID> <gamevar> <value>: sets the value of a gamevar", osdcmd_setactorvar);
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 
+    OSD_RegisterFunction("unbind","unbind <key>: unbinds a key.", osdcmd_unbind);
+    OSD_RegisterFunction("unbindall","unbindall: unbinds all keys.", osdcmd_unbindall);
+
     OSD_RegisterFunction("usejoystick","usejoystick: enables input from the joystick if it is present",osdcmd_usemousejoy);
     OSD_RegisterFunction("usemouse","usemouse: enables input from the mouse if it is present",osdcmd_usemousejoy);
 
     OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: immediately change the video mode",osdcmd_vidmode);
 
-    OSD_RegisterFunction("bind","bind <key> <string>: associates a keypress with a string of console input. Type \"bind showkeys\" for a list of keys and \"listsymbols\" for a list of valid console commands.", osdcmd_bind);
-    OSD_RegisterFunction("unbind","unbind <key>: unbinds a key.  Type \"unbind all\" to unbind all keys.", osdcmd_unbind);
-    for (i=0;i<NUMGAMEFUNCTIONS;i++)
-    {
-        char *t;
-        Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);
-        t = Bstrdup(tempbuf);
-        Bstrcat(tempbuf,": game button");
-        OSD_RegisterFunction(t,Bstrdup(tempbuf),osdcmd_button);
-    }
     //baselayer_onvideomodechange = onvideomodechange;
 
     return 0;

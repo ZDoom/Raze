@@ -179,3 +179,5 @@ char cheatkey[2] = { sc_D, sc_N };
 char setupfilename[BMAX_PATH]= "duke3d.cfg";
 char datetimestring[] = ""__DATE__" "__TIME__"";
 
+int doquicksave = 0;
+

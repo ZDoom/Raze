@@ -55,6 +55,8 @@ static boolean CONTROL_Started = false;
 static int32 ticrate;
 static int32 CONTROL_DoubleClickSpeed;
 
+int extinput[CONTROL_NUM_FLAGS];
+keybind boundkeys[MAXBOUNDKEYS];
 
 void CONTROL_GetMouseDelta(void)
 {
@@ -843,9 +845,6 @@ void CONTROL_ClearButton(int32 whichbutton)
     BUTTONCLEAR(whichbutton);
     CONTROL_Flags[whichbutton].cleared = true;
 }
-
-int extinput[CONTROL_NUM_FLAGS];
-keybind boundkeys[MAXBOUNDKEYS];
 
 void CONTROL_ProcessBinds(void)
 {

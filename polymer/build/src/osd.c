@@ -6,6 +6,7 @@
 #include "osd.h"
 #include "compat.h"
 #include "baselayer.h"
+#include "cache1d.h"
 
 symbol_t *symbols = NULL;
 static symbol_t *addnewsymbol(const char *name);
@@ -82,6 +83,7 @@ static int  osdexeccount=0;		// number of lines from the head of the history buf
 // maximal log line count
 int logcutoff=120000;
 int linecnt;
+int osdexecscript=0;
 
 // presentation parameters
 static int  osdpromptshade=0;
@@ -102,6 +104,61 @@ static int (*getrowheight)(int) = _internal_getrowheight;
 static void (*clearbackground)(int,int) = _internal_clearbackground;
 static int (*gettime)(void) = _internal_gettime;
 static void (*onshowosd)(int) = _internal_onshowosd;
+
+const char *stripcolorcodes(const char *t)
+{
+    int i = 0;
+    static char colstrip[1024];
+
+    while (*t)
+    {
+        if (*t == '^' && isdigit(*(t+1)))
+        {
+            t += 2;
+            if (isdigit(*t))
+                t++;
+            continue;
+        }
+        colstrip[i] = *t;
+        i++,t++;
+    }
+    colstrip[i] = '\0';
+    return(colstrip);
+}
+
+int OSD_Exec(const char *szScript)
+{
+    FILE* fp = fopenfrompath(szScript, "r");
+
+    if (fp != NULL)
+    {
+        char line[255];
+
+        OSD_Printf("Executing \"%s\"\n", szScript);
+        osdexecscript++;
+        while (fgets(line ,sizeof(line)-1, fp) != NULL)
+            OSD_Dispatch(strtok(line,"\r\n"));
+        osdexecscript--;
+        fclose(fp);
+        return 0;
+    }
+    return 1;
+}
+
+static int _internal_osdfunc_exec(const osdfuncparm_t *parm)
+{
+    char fn[BMAX_PATH];
+
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    Bstrcpy(fn,parm->parms[0]);
+
+    if (OSD_Exec(fn))
+    {
+        OSD_Printf("exec: file \"%s\" not found.\n", fn);
+        return OSDCMD_OK;
+    }
+    return OSDCMD_OK;
+}
 
 static void _internal_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
@@ -213,7 +270,7 @@ static int _internal_osdfunc_alias(const osdfuncparm_t *parm)
         OSD_Printf("Alias listing:\n");
         for (i=symbols; i!=NULL; i=i->next)
             if (i->func == (void *)OSD_ALIAS)
-                OSD_Printf("     %s\n", i->name);
+                OSD_Printf("     %s \"%s\"\n", i->name, i->help);
         return OSDCMD_OK;
     }
 
@@ -237,7 +294,8 @@ static int _internal_osdfunc_alias(const osdfuncparm_t *parm)
     }
 
     OSD_RegisterFunction(Bstrdup(parm->parms[0]),Bstrdup(parm->parms[1]),(void *)OSD_ALIAS);
-    OSD_Printf("%s\n",parm->raw);
+    if (!osdexecscript)
+        OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;
 }
 
@@ -256,7 +314,7 @@ static int _internal_osdfunc_unalias(const osdfuncparm_t *parm)
             {
                 if (i->func == (void *)OSD_ALIAS)
                 {
-                    OSD_Printf("Removed alias %s \(\"%s\"\)\n", i->name, i->help);
+                    OSD_Printf("Removed alias %s (\"%s\")\n", i->name, i->help);
                     i->func = (void *)OSD_UNALIASED;
                 }
                 else OSD_Printf("Invalid alias %s\n",i->name);
@@ -300,13 +358,35 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
 static int _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
 {
     symbol_t *i;
+    int maxwidth = 0;
 
     UNREFERENCED_PARAMETER(parm);
 
-    OSD_Printf("Symbol listing:\n");
     for (i=symbols; i!=NULL; i=i->next)
         if (i->func != (void *)OSD_UNALIASED)
-            OSD_Printf("     %s\n", i->name);
+            maxwidth = max((unsigned)maxwidth,Bstrlen(i->name));
+
+    if (maxwidth > 0)
+    {
+        int x = 0;
+        maxwidth += 3;
+        OSD_Printf("Symbol listing:\n");
+        for (i=symbols; i!=NULL; i=i->next)
+        {
+            if (i->func != (void *)OSD_UNALIASED)
+            {
+                OSD_Printf("%-*s",maxwidth,i->name);
+                x += maxwidth;
+            }
+            if (x > osdcols - maxwidth)
+            {
+                x = 0;
+                OSD_Printf("\n");
+            }
+        }
+        if (x)
+            OSD_Printf("\n");
+    }
 
     return OSDCMD_OK;
 }
@@ -377,6 +457,7 @@ void OSD_Init(void)
     OSD_RegisterFunction("clear","clear: clears the console text buffer",_internal_osdfunc_clear);
     OSD_RegisterFunction("alias","alias: creates an alias for calling multiple commands",_internal_osdfunc_alias);
     OSD_RegisterFunction("unalias","unalias: removes an alias created with \"alias\"",_internal_osdfunc_unalias);
+    OSD_RegisterFunction("exec","exec <scriptfile>: executes a script", _internal_osdfunc_exec);
 
     atexit(OSD_Cleanup);
 }
@@ -548,14 +629,33 @@ int OSD_HandleKey(int sc, int press)
                             if (findsymbol(osdedittmp, tabc->next))
                             {
                                 symbol_t *symb=tabc;
+                                int maxwidth = 0, x = 0;
 
-                                OSD_Printf("Matching symbols:\n");
+                                OSD_Printf("Completions for '%s':\n",osdedittmp);
                                 while (symb && symb != lastmatch)
                                 {
-                                    OSD_Printf("     %s\n", symb->name);
+                                    maxwidth = max((unsigned)maxwidth,Bstrlen(symb->name));
                                     lastmatch = symb;
                                     symb=findsymbol(osdedittmp, lastmatch->next);
                                 }
+                                maxwidth += 3;
+                                symb = tabc;
+                                OSD_Printf("     ");
+                                while (symb && symb != lastmatch)
+                                {
+                                    OSD_Printf("%-*s",maxwidth,symb->name);
+                                    x += maxwidth;
+                                    lastmatch = symb;
+                                    symb=findsymbol(osdedittmp, lastmatch->next);
+                                    if (x > osdcols - maxwidth)
+                                    {
+                                        x = 0;
+                                        OSD_Printf("\n");
+                                        OSD_Printf("     ");
+                                    }
+                                }
+                                if (x)
+                                    OSD_Printf("\n");
                             }
                         }
                     }

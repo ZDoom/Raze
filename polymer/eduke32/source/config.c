@@ -199,7 +199,11 @@ void CONFIG_SetDefaults(void)
     ud.config.AutoAim = 1;
     ud.config.FXDevice = 0;
     ud.config.FXVolume = 220;
+#if defined(_WIN32)
     ud.config.MixRate = 44100;
+#else
+    ud.config.MixRate = 48000;
+#endif
     ud.config.MouseBias = 0;
     ud.config.MouseFilter = 0;
     ud.config.MusicDevice = 0;

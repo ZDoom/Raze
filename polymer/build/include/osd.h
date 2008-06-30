@@ -22,13 +22,18 @@ typedef struct _symbol
     int (*func)(const osdfuncparm_t *);
 } symbol_t;
 
-extern symbol_t *symbols;
+symbol_t *symbols;
+const char *stripcolorcodes(const char *t);
 
 #define OSD_ALIAS 1337
 #define OSD_UNALIASED 1338
 
 #define OSDCMD_OK	0
 #define OSDCMD_SHOWHELP 1
+
+int osdexecscript;
+
+int OSD_Exec(const char *szScript);
 
 // initializes things
 void OSD_Init(void);

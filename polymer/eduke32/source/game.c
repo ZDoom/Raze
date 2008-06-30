@@ -384,26 +384,6 @@ void setgamepalette(player_struct *player, char *pal, int set)
 
 #define TEXTWRAPLEN (scale(35,ud.config.ScreenWidth,320))
 
-const char *stripcolorcodes(const char *t)
-{
-    int i = 0;
-    static char colstrip[1024];
-
-    while (*t)
-    {
-        if (*t == '^' && isdigit(*(t+1)))
-        {
-            t += 2;
-            if (isdigit(*t))
-                t++;
-            continue;
-        }
-        colstrip[i] = *t;
-        i++,t++;
-    }
-    colstrip[i] = '\0';
-    return(colstrip);
-}
 int gametext_(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2)
 {
     return gametext_z(small,starttile,x,y,t,s,p,orientation,x1,y1,x2,y2,65536);
@@ -2692,6 +2672,7 @@ static void showtwoscreens(void)
 }
 
 extern int qsetmode;
+extern int doquicksave;
 
 void gameexit(const char *t)
 {
@@ -7810,30 +7791,12 @@ FOUNDCHEAT:
     }
 }
 
-int load_script(const char *szScript)
-{
-    FILE* fp = fopenfrompath(szScript, "r");
-
-    if (fp != NULL)
-    {
-        char line[255];
-        extern int cmdfromscript;
-
-        OSD_Printf("Executing \"%s\"\n", szScript);
-        cmdfromscript = 1;
-        while (fgets(line ,sizeof(line)-1, fp) != NULL)
-            OSD_Dispatch(strtok(line,"\r\n"));
-        cmdfromscript = 0;
-        fclose(fp);
-        return 0;
-    }
-    return 1;
-}
-
 static void nonsharedkeys(void)
 {
     int i,ch;
     int j;
+
+    CONTROL_ProcessBinds();
 
     if (ud.recstat == 2)
     {
@@ -7843,12 +7806,12 @@ static void nonsharedkeys(void)
 
     if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
     {
-        if (KB_KeyPressed(sc_F1) || KB_KeyPressed(sc_F2) || ud.autovote)
+        if (KB_UnBoundKeyPressed(sc_F1) || KB_UnBoundKeyPressed(sc_F2) || ud.autovote)
         {
             tempbuf[0] = 18;
             tempbuf[1] = 0;
             tempbuf[2] = myconnectindex;
-            tempbuf[3] = (KB_KeyPressed(sc_F1) || ud.autovote?ud.autovote-1:0);
+            tempbuf[3] = (KB_UnBoundKeyPressed(sc_F1) || ud.autovote?ud.autovote-1:0);
 
             for (i=connecthead;i >= 0;i=connectpoint2[i])
             {
@@ -7958,52 +7921,52 @@ static void nonsharedkeys(void)
     if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED)
     {
         i = 0;
-        if (KB_KeyPressed(sc_F1))
+        if (KB_UnBoundKeyPressed(sc_F1))
         {
             KB_ClearKeyDown(sc_F1);
             i = 1;
         }
-        if (KB_KeyPressed(sc_F2))
+        if (KB_UnBoundKeyPressed(sc_F2))
         {
             KB_ClearKeyDown(sc_F2);
             i = 2;
         }
-        if (KB_KeyPressed(sc_F3))
+        if (KB_UnBoundKeyPressed(sc_F3))
         {
             KB_ClearKeyDown(sc_F3);
             i = 3;
         }
-        if (KB_KeyPressed(sc_F4))
+        if (KB_UnBoundKeyPressed(sc_F4))
         {
             KB_ClearKeyDown(sc_F4);
             i = 4;
         }
-        if (KB_KeyPressed(sc_F5))
+        if (KB_UnBoundKeyPressed(sc_F5))
         {
             KB_ClearKeyDown(sc_F5);
             i = 5;
         }
-        if (KB_KeyPressed(sc_F6))
+        if (KB_UnBoundKeyPressed(sc_F6))
         {
             KB_ClearKeyDown(sc_F6);
             i = 6;
         }
-        if (KB_KeyPressed(sc_F7))
+        if (KB_UnBoundKeyPressed(sc_F7))
         {
             KB_ClearKeyDown(sc_F7);
             i = 7;
         }
-        if (KB_KeyPressed(sc_F8))
+        if (KB_UnBoundKeyPressed(sc_F8))
         {
             KB_ClearKeyDown(sc_F8);
             i = 8;
         }
-        if (KB_KeyPressed(sc_F9))
+        if (KB_UnBoundKeyPressed(sc_F9))
         {
             KB_ClearKeyDown(sc_F9);
             i = 9;
         }
-        if (KB_KeyPressed(sc_F10))
+        if (KB_UnBoundKeyPressed(sc_F10))
         {
             KB_ClearKeyDown(sc_F10);
             i = 10;
@@ -8099,7 +8062,7 @@ static void nonsharedkeys(void)
             inputloc = 0;
         }
 
-        if (KB_KeyPressed(sc_F1) || (ud.show_help && (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || MOUSE_GetButtons()&LEFT_MOUSE)))
+        if (KB_UnBoundKeyPressed(sc_F1) || (ud.show_help && (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || MOUSE_GetButtons()&LEFT_MOUSE)))
         {
             KB_ClearKeyDown(sc_F1);
             KB_ClearKeyDown(sc_Space);
@@ -8127,7 +8090,7 @@ static void nonsharedkeys(void)
 
         //        if(ud.multimode < 2)
         {
-            if (ud.recstat != 2 && KB_KeyPressed(sc_F2))
+            if (ud.recstat != 2 && KB_UnBoundKeyPressed(sc_F2))
             {
                 KB_ClearKeyDown(sc_F2);
 
@@ -8159,7 +8122,7 @@ FAKE_F2:
                 }
             }
 
-            if (KB_KeyPressed(sc_F3))
+            if (KB_UnBoundKeyPressed(sc_F3))
             {
                 KB_ClearKeyDown(sc_F3);
 
@@ -8181,7 +8144,7 @@ FAKE_F3:
             }
         }
 
-        if (KB_KeyPressed(sc_F4) && ud.config.FXDevice >= 0)
+        if (KB_UnBoundKeyPressed(sc_F4) && ud.config.FXDevice >= 0)
         {
             KB_ClearKeyDown(sc_F4);
             FX_StopAllSounds();
@@ -8197,9 +8160,10 @@ FAKE_F3:
 
         }
 
-        if (KB_KeyPressed(sc_F6) && (g_player[myconnectindex].ps->gm&MODE_GAME))
+        if ((KB_UnBoundKeyPressed(sc_F6) || doquicksave == 1) && (g_player[myconnectindex].ps->gm&MODE_GAME))
         {
             KB_ClearKeyDown(sc_F6);
+            doquicksave = 0;
 
             if (movesperpacket == 4 && connecthead != myconnectindex)
                 return;
@@ -8228,7 +8192,7 @@ FAKE_F3:
             }
         }
 
-        if (KB_KeyPressed(sc_F7))
+        if (KB_UnBoundKeyPressed(sc_F7))
         {
             KB_ClearKeyDown(sc_F7);
             if (g_player[myconnectindex].ps->over_shoulder_on)
@@ -8242,7 +8206,7 @@ FAKE_F3:
             FTA(109+g_player[myconnectindex].ps->over_shoulder_on,g_player[myconnectindex].ps);
         }
 
-        if (KB_KeyPressed(sc_F5) && ud.config.MusicDevice >= 0)
+        if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicDevice >= 0)
         {
             KB_ClearKeyDown(sc_F5);
             if (map[(unsigned char)music_select].musicfn1 != NULL)
@@ -8256,7 +8220,7 @@ FAKE_F3:
             FTA(26,g_player[myconnectindex].ps);
         }
 
-        if (KB_KeyPressed(sc_F8))
+        if (KB_UnBoundKeyPressed(sc_F8))
         {
             KB_ClearKeyDown(sc_F8);
             ud.fta_on = !ud.fta_on;
@@ -8269,9 +8233,10 @@ FAKE_F3:
             }
         }
 
-        if (KB_KeyPressed(sc_F9) && (g_player[myconnectindex].ps->gm&MODE_GAME))
+        if ((KB_UnBoundKeyPressed(sc_F9) || doquicksave == 2) && (g_player[myconnectindex].ps->gm&MODE_GAME))
         {
             KB_ClearKeyDown(sc_F9);
+            doquicksave = 0;
 
             if (movesperpacket == 4 && myconnectindex != connecthead)
                 return;
@@ -8298,7 +8263,7 @@ FAKE_F3:
             }
         }
 
-        if (KB_KeyPressed(sc_F10))
+        if (KB_UnBoundKeyPressed(sc_F10))
         {
             KB_ClearKeyDown(sc_F10);
             cmenu(500);
@@ -8365,7 +8330,7 @@ FAKE_F3:
         vscrn();
     }
 
-    if (KB_KeyPressed(sc_F11))
+    if (KB_UnBoundKeyPressed(sc_F11))
     {
         KB_ClearKeyDown(sc_F11);
         ud.brightness+=8;
@@ -10657,8 +10622,8 @@ void app_main(int argc,const char **argv)
     FX_StopAllSounds();
     clearsoundlocks();
 
-    load_script("autoexec.cfg");
-    load_script("binds.cfg");
+    OSD_Exec("autoexec.cfg");
+    OSD_Exec("binds.cfg");
 
     if (ud.warp_on > 1 && ud.multimode < 2)
     {

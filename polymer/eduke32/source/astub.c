@@ -6941,38 +6941,6 @@ static int osdcmd_gamma(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int load_script(const char *szScript)
-{
-    FILE* fp = fopenfrompath(szScript, "r");
-
-    if (fp != NULL)
-    {
-        char line[255];
-
-        OSD_Printf("Executing \"%s\"\n", szScript);
-        while (fgets(line ,sizeof(line)-1, fp) != NULL)
-            OSD_Dispatch(strtok(line,"\r\n"));
-        fclose(fp);
-        return 0;
-    }
-    return 1;
-}
-
-static int osdcmd_exec(const osdfuncparm_t *parm)
-{
-    char fn[BMAX_PATH];
-
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-    Bstrcpy(fn,parm->parms[0]);
-
-    if (load_script(fn))
-    {
-        OSD_Printf("exec: file \"%s\" not found.\n", fn);
-        return OSDCMD_OK;
-    }
-    return OSDCMD_OK;
-}
-
 static int osdcmd_noclip(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
@@ -7035,7 +7003,6 @@ static int registerosdcommands(void)
 
     OSD_RegisterFunction("echo","echo [text]: echoes text to the console", osdcmd_echo);
     OSD_RegisterFunction("editorgridextent","editorgridextent: sets the size of the 2D mode editing grid",osdcmd_editorgridextent);
-    OSD_RegisterFunction("exec","exec <scriptfile>: executes a script", osdcmd_exec);
 
     OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
 
