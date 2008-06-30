@@ -258,6 +258,8 @@ keydef keynames[]=
     {0,0}
 };
 
+char *mousenames[] = { "mouse1", "mouse2", "mouse3", "mouse4", "mouse5", "mouse6" };
+
 enum
 {
     T_EOF = -2,

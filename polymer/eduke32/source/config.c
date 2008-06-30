@@ -854,6 +854,10 @@ void CONFIG_WriteBinds(void) // save binds and aliases to disk
             if (boundkeys[i].key && *boundkeys[i].name)
                 fprintf(fp,"bind %s%s \"%s\"\n",boundkeys[i].key,boundkeys[i].repeat?"":" norepeat",boundkeys[i].name);
 
+        for (i=0;i<MAXMOUSEBUTTONS;i++)
+            if (mousebind[i].key && *mousebind[i].name)
+                fprintf(fp,"bind %s%s \"%s\"\n",mousebind[i].key,mousebind[i].repeat?"":" norepeat",mousebind[i].name);
+
         for (symb=symbols; symb!=NULL; symb=symb->next)
             if (symb->func == (void *)OSD_ALIAS)
                 fprintf(fp,"alias %s \"%s\"\n", symb->name, symb->help);

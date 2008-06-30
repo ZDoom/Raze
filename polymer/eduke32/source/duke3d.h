@@ -1024,6 +1024,7 @@ typedef struct {
 } keydef;
 
 extern keydef keynames[];
+extern char *mousenames[];
 
 #ifdef __cplusplus
 }

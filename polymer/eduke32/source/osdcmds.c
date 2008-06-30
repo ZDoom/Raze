@@ -932,21 +932,53 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
     if (parm->numparms==1&&!Bstrcasecmp(parm->parms[0],"showkeys"))
     {
         for (i=0;keynames[i].name;i++)OSD_Printf("%s\n",keynames[i].name);
+        for (i=0;i<MAXMOUSEBUTTONS;i++)OSD_Printf("%s\n",mousenames[i]);
         return OSDCMD_OK;
     }
 
     if (parm->numparms==0)
     {
         OSD_Printf("Keybindings:\n");
-        for (i=0;i<MAXBOUNDKEYS;i++)if (*boundkeys[i].name)
+        for (i=0;i<MAXBOUNDKEYS;i++)
+            if (*boundkeys[i].name)
                 OSD_Printf("%-11s = %s\n",boundkeys[i].key,boundkeys[i].name);
+        for (i=0;i<MAXMOUSEBUTTONS;i++)
+            if (*mousebind[i].name)
+                OSD_Printf("%-11s = %s\n",mousebind[i].key,mousebind[i].name);
         return OSDCMD_OK;
     }
 
     for (i=0;keynames[i].name;i++)
         if (!Bstrcasecmp(parm->parms[0],keynames[i].name))
             break;
-    if (!keynames[i].name) return OSDCMD_SHOWHELP;
+
+    if (!keynames[i].name) 
+    {
+        for (i=0;i<MAXMOUSEBUTTONS;i++)
+            if (!Bstrcasecmp(parm->parms[0],mousenames[i]))
+                break;
+        if (i >= MAXMOUSEBUTTONS)
+            return OSDCMD_SHOWHELP;
+
+        if (parm->numparms < 2)
+        {
+            OSD_Printf("%-11s = %s\n",mousenames[i], mousebind[i].name);
+            return OSDCMD_OK;
+        }
+
+        j = 1;
+        if (parm->numparms >= 2 && !Bstrcasecmp(parm->parms[j],"norepeat"))
+        {
+            mousebind[i].repeat = 0;
+            j++;
+        }
+        else mousebind[i].repeat = 1;
+        Bstrncpy(mousebind[i].name,parm->parms[j], MAXBINDSTRINGLENGTH-1);
+        mousebind[i].key=mousenames[i];
+        if (!osdexecscript)
+            OSD_Printf("%s\n",parm->raw);
+        return OSDCMD_OK;
+    }
 
     if (parm->numparms < 2)
     {
@@ -974,8 +1006,12 @@ static int osdcmd_unbindall(const osdfuncparm_t *parm)
 
     UNREFERENCED_PARAMETER(parm);
 
-    for (i=0;i<MAXBOUNDKEYS;i++)if (*boundkeys[i].name)
-        boundkeys[i].name[0] = 0;
+    for (i=0;i<MAXBOUNDKEYS;i++)
+        if (*boundkeys[i].name)
+            boundkeys[i].name[0] = 0;
+    for (i=0;i<MAXMOUSEBUTTONS;i++)
+        if (*mousebind[i].name)
+            mousebind[i].name[0] = 0;
     OSD_Printf("unbound all keys\n");
     return OSDCMD_OK;
 }
@@ -988,8 +1024,18 @@ static int osdcmd_unbind(const osdfuncparm_t *parm)
     for (i=0;keynames[i].name;i++)
         if (!Bstrcasecmp(parm->parms[0],keynames[i].name))
             break;
-    if (!keynames[i].name) return OSDCMD_SHOWHELP;
-
+    if (!keynames[i].name)
+    {
+        for (i=0;i<MAXMOUSEBUTTONS;i++)
+            if (!Bstrcasecmp(parm->parms[0],mousenames[i]))
+                break;
+        if (i >= MAXMOUSEBUTTONS)
+            return OSDCMD_SHOWHELP;
+        mousebind[i].repeat = 0;
+        mousebind[i].name[0] = 0;
+        OSD_Printf("unbound %s\n",mousebind[i].name);
+        return OSDCMD_OK;
+    }
     boundkeys[keynames[i].id].repeat = 0;
     boundkeys[keynames[i].id].name[0] = 0;
     OSD_Printf("unbound key %s\n",keynames[i].name);

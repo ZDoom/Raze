@@ -57,6 +57,7 @@ static int32 CONTROL_DoubleClickSpeed;
 
 int extinput[CONTROL_NUM_FLAGS];
 keybind boundkeys[MAXBOUNDKEYS];
+keybind mousebind[MAXMOUSEBUTTONS];
 
 void CONTROL_GetMouseDelta(void)
 {
@@ -732,13 +733,25 @@ void CONTROL_ButtonFunctionState(int32 *p1)
 
     for (i=0; i<CONTROL_NumMouseButtons; i++)
     {
-        j = CONTROL_MouseButtonMapping[i].doubleclicked;
-        if (j != KEYUNDEFINED)
-            p1[j] |= CONTROL_MouseButtonClickedState[i];
+        if (mousebind[i].name[0] && CONTROL_MouseButtonState[i])
+        {
+            if (mousebind[i].repeat || (mousebind[i].laststate == 0))
+                OSD_Dispatch(mousebind[i].name);
+//            if (!boundkeys[i].repeat)
+//                KB_ClearKeyDown(i);
+        }
+        mousebind[i].laststate = CONTROL_MouseButtonState[i];
 
-        j = CONTROL_MouseButtonMapping[i].singleclicked;
-        if (j != KEYUNDEFINED)
-            p1[j] |= CONTROL_MouseButtonState[i];
+        if (!mousebind[i].name[0])
+        {
+            j = CONTROL_MouseButtonMapping[i].doubleclicked;
+            if (j != KEYUNDEFINED)
+                p1[j] |= CONTROL_MouseButtonClickedState[i];
+
+            j = CONTROL_MouseButtonMapping[i].singleclicked;
+            if (j != KEYUNDEFINED)
+                p1[j] |= CONTROL_MouseButtonState[i];
+        }
     }
 
     for (i=0; i<CONTROL_NumJoyButtons; i++)

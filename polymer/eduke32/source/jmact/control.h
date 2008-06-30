@@ -223,6 +223,7 @@ typedef struct binding {
 } keybind;
 
 extern keybind boundkeys[MAXBOUNDKEYS];
+extern keybind mousebind[6]; // FIXME
 
 void CONTROL_ProcessBinds(void);
 
