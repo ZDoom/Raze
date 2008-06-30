@@ -219,20 +219,20 @@ static int _internal_osdfunc_alias(const osdfuncparm_t *parm)
 
     for (i=symbols; i!=NULL; i=i->next)
     {
-        if (parm->numparms < 2)
+        if (!Bstrcasecmp(parm->parms[0],i->name))
         {
-            if (!Bstrcasecmp(parm->parms[0],i->name))
+            if (parm->numparms < 2)
             {
                 if (i->func == (void *)OSD_ALIAS)
                     OSD_Printf("alias %s \"%s\"\n", i->name, i->help);
                 else OSD_Printf("%s is a function, not an alias\n",i->name);
+                return OSDCMD_OK;
             }
-            return OSDCMD_OK;
-        }
-        if (i != NULL && !Bstrcasecmp(parm->parms[0],i->name) && i->func != (void *)OSD_ALIAS)
-        {
-            OSD_Printf("Cannot override function \"%s\" with alias\n",i->name);
-            return OSDCMD_OK;
+            if (i->func != (void *)OSD_ALIAS)
+            {
+                OSD_Printf("Cannot override function \"%s\" with alias\n",i->name);
+                return OSDCMD_OK;
+            }
         }
     }
 
@@ -1270,9 +1270,9 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
             OSD_Printf("OSD_RegisterFunction(): \"%s\" is already defined\n", name);
             return -1;
         }
-//        Bfree(symb->help);
+        Bfree((char *)symb->help);
         symb->help = help;
-        symb->func = func;
+        return 0;
     }
 
     symb = addnewsymbol(name);
