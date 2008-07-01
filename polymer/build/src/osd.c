@@ -79,6 +79,7 @@ static int  osdhistorysize=0;		// number of entries in history
 // execution buffer
 // the execution buffer works from the command history
 static int  osdexeccount=0;		// number of lines from the head of the history buffer to execute
+static int  osdcompletionstyle=0;
 
 // maximal log line count
 int logcutoff=120000;
@@ -339,6 +340,19 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
             if (osdrows < 1) osdrows = 1;
             else if (osdrows > osdmaxrows) osdrows = osdmaxrows;
             if (osdrowscur!=-1)osdrowscur = osdrows;
+            OSD_Printf("%s\n",parm->raw);
+            return OSDCMD_OK;
+        }
+    }
+    if (!Bstrcasecmp(parm->name, "osdcompletionstyle"))
+    {
+        if (showval) { OSD_Printf("osdcompletionstyle is %d\n", osdcompletionstyle); return OSDCMD_OK; }
+        else
+        {
+            osdcompletionstyle = atoi(parm->parms[0]);
+            if (osdcompletionstyle < 0) osdcompletionstyle = 0;
+            else if (osdcompletionstyle > 1) osdcompletionstyle = 1;
+            OSD_Printf("%s\n",parm->raw);
             return OSDCMD_OK;
         }
     }
@@ -349,6 +363,7 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
             else
             {
                 logcutoff = atoi(parm->parms[0]);
+                OSD_Printf("%s\n",parm->raw);
                 return OSDCMD_OK;
             }
         }
@@ -458,6 +473,7 @@ void OSD_Init(void)
     OSD_RegisterFunction("alias","alias: creates an alias for calling multiple commands",_internal_osdfunc_alias);
     OSD_RegisterFunction("unalias","unalias: removes an alias created with \"alias\"",_internal_osdfunc_unalias);
     OSD_RegisterFunction("exec","exec <scriptfile>: executes a script", _internal_osdfunc_exec);
+    OSD_RegisterFunction("osdcompletionstyle","osdcompletionstyle: sets the type of tab completion to be used in the OSD; 0 (default) = bash style, 1 = cycling style",_internal_osdfunc_vars);
 
     atexit(OSD_Cleanup);
 }
@@ -535,7 +551,12 @@ void OSD_CaptureKey(int sc)
     osdkey = sc;
 }
 
-
+//
+// OSD_FindDiffPoint() -- Finds the length of the longest common prefix of 2 strings, stolen from ZDoom
+//
+static int OSD_FindDiffPoint (const char *str1, const char *str2){	int i;
+	for (i = 0; Btolower(str1[i]) == Btolower(str2[i]); i++)		if (str1[i] == 0 || str2[i] == 0)			break;
+	return i;}
 //
 // OSD_HandleKey() -- Handles keyboard input when capturing input.
 // 	Returns 0 if the key was handled internally, or the scancode if it should
@@ -611,6 +632,8 @@ int OSD_HandleKey(int sc, int press)
         }
         else if (ch == 9)  	// tab
         {
+            int commonsize = 512;
+
             if (!lastmatch)
             {
                 for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
@@ -634,6 +657,18 @@ int OSD_HandleKey(int sc, int press)
                                 OSD_Printf("Completions for '%s':\n",osdedittmp);
                                 while (symb && symb != lastmatch)
                                 {
+                                    int diffpt;
+
+                                    if (lastmatch)
+                                    {
+                                        diffpt = OSD_FindDiffPoint(symb->name,lastmatch->name);
+                                        if (diffpt < commonsize)
+                                        {
+                                            commonsize = diffpt;
+//                                            OSD_Printf("commonsize %d\n",commonsize);
+                                        }
+                                    }
+
                                     maxwidth = max((unsigned)maxwidth,Bstrlen(symb->name));
                                     lastmatch = symb;
                                     symb=findsymbol(osdedittmp, lastmatch->next);
@@ -651,7 +686,8 @@ int OSD_HandleKey(int sc, int press)
                                     {
                                         x = 0;
                                         OSD_Printf("\n");
-                                        OSD_Printf("     ");
+                                        if (symb && symb != lastmatch)
+                                            OSD_Printf("     ");
                                     }
                                 }
                                 if (x)
@@ -663,16 +699,20 @@ int OSD_HandleKey(int sc, int press)
             }
             else
             {
-                tabc = findsymbol(osdedittmp, lastmatch->next);
-                if (!tabc && lastmatch)
-                    tabc = findsymbol(osdedittmp, NULL);	// wrap
+                if (osdcompletionstyle == 1)
+                {
+                    tabc = findsymbol(osdedittmp, lastmatch->next);
+                    if (!tabc && lastmatch)
+                        tabc = findsymbol(osdedittmp, NULL);	// wrap */
+                }
             }
 
             if (tabc)
             {
                 for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
                 osdeditlen = i;
-                for (j=0;tabc->name[j] && osdeditlen <= EDITLENGTH;i++,j++,osdeditlen++)
+                for (j=0;tabc->name[j] && osdeditlen <= EDITLENGTH 
+                    && (!osdcompletionstyle?osdeditlen < commonsize:1);i++,j++,osdeditlen++)
                     osdeditbuf[i] = tabc->name[j];
                 osdeditcursor = osdeditlen;
                 osdeditwinend = osdeditcursor;
