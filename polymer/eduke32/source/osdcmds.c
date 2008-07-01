@@ -1033,7 +1033,7 @@ static int osdcmd_unbind(const osdfuncparm_t *parm)
             return OSDCMD_SHOWHELP;
         mousebind[i].repeat = 0;
         mousebind[i].name[0] = 0;
-        OSD_Printf("unbound %s\n",mousebind[i].name);
+        OSD_Printf("unbound %s\n",mousenames[i]);
         return OSDCMD_OK;
     }
     boundkeys[keynames[i].id].repeat = 0;
