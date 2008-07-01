@@ -21,27 +21,27 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
 
     for (x = (x<<3)+x; len>0; len--, ch++, x++)
     {
-/*        if (*ch == '^' && isdigit(*(ch+1)))
-        {
-            char smallbuf[4];
-            ch++, len--;
-            if (isdigit(*(ch+1)))
-            {
-                smallbuf[0] = *(ch++);
-                len--;
-                smallbuf[1] = *(ch);
-                smallbuf[2] = '\0';
-                pal = atol(smallbuf);
-            }
-            else
-            {
-                smallbuf[0] = *(ch);
-                smallbuf[1] = '\0';
-                pal = atol(smallbuf);
-            }
-            x--;
-            continue;
-        } */
+        /*        if (*ch == '^' && isdigit(*(ch+1)))
+                {
+                    char smallbuf[4];
+                    ch++, len--;
+                    if (isdigit(*(ch+1)))
+                    {
+                        smallbuf[0] = *(ch++);
+                        len--;
+                        smallbuf[1] = *(ch);
+                        smallbuf[2] = '\0';
+                        pal = atol(smallbuf);
+                    }
+                    else
+                    {
+                        smallbuf[0] = *(ch);
+                        smallbuf[1] = '\0';
+                        pal = atol(smallbuf);
+                    }
+                    x--;
+                    continue;
+                } */
         if (*ch == 32)
         {
 //            x+=5;
@@ -52,8 +52,8 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
         if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
 
         rotatesprite(x<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
-/*        if (*ch >= '0' && *ch <= '9') x+=8;
-        else x += tilesizx[ac]; */
+        /*        if (*ch >= '0' && *ch <= '9') x+=8;
+                else x += tilesizx[ac]; */
         x += OSDCHAR_WIDTH;
     }
 }

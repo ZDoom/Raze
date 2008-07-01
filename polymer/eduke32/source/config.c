@@ -862,10 +862,10 @@ void CONFIG_WriteBinds(void) // save binds and aliases to disk
             if (symb->func == (void *)OSD_ALIAS)
                 fprintf(fp,"alias %s \"%s\"\n", symb->name, symb->help);
 
-/*        for (i = 0; i < sizeof(cvar)/sizeof(cvarmappings); i++)
-            if (!(cvar[i].type&CVAR_NOSAVE))
-                fprintf(fp,"%s \"%d\"\n",cvar[i].name,*(int*)cvar[i].var);
-                */
+        /*        for (i = 0; i < sizeof(cvar)/sizeof(cvarmappings); i++)
+                    if (!(cvar[i].type&CVAR_NOSAVE))
+                        fprintf(fp,"%s \"%d\"\n",cvar[i].name,*(int*)cvar[i].var);
+                        */
         fclose(fp);
     }
 }

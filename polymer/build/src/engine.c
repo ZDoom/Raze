@@ -2462,9 +2462,10 @@ static void parascan(int dax1, int dax2, int sectnum, char dastat, int bunch)
     {
         wallnum = thewall[z]; nextsectnum = wall[wallnum].nextsector;
 
-        if(nextsectnum >= 0) { //else negative array access
-                if (dastat == 0) j = sector[nextsectnum].ceilingstat;
-                else j = sector[nextsectnum].floorstat;
+        if (nextsectnum >= 0)  //else negative array access
+        {
+            if (dastat == 0) j = sector[nextsectnum].ceilingstat;
+            else j = sector[nextsectnum].floorstat;
         }
 
         if ((nextsectnum < 0) || (wall[wallnum].cstat&32) || ((j&1) == 0))

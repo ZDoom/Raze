@@ -344,7 +344,80 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
             return OSDCMD_OK;
         }
     }
-    if (!Bstrcasecmp(parm->name, "osdcompletionstyle"))
+    else if (!Bstrcasecmp(parm->name, "osdpromptshade"))
+    {
+        if (showval) { OSD_Printf("osdpromptshade is %d\n", osdpromptshade); return OSDCMD_OK; }
+        else
+        {
+            osdpromptshade = atoi(parm->parms[0]);
+            if (osdpromptshade < -128) osdpromptshade = -128;
+            else if (osdpromptshade > 127) osdpromptshade = 127;
+            OSD_Printf("%s\n",parm->raw);
+            return OSDCMD_OK;
+        }
+    }
+    else if (!Bstrcasecmp(parm->name, "osdeditshade"))
+    {
+        if (showval) { OSD_Printf("osdeditshade is %d\n", osdeditshade); return OSDCMD_OK; }
+        else
+        {
+            osdeditshade = atoi(parm->parms[0]);
+            if (osdeditshade < -128) osdeditshade = -128;
+            else if (osdeditshade > 127) osdeditshade = 127;
+            OSD_Printf("%s\n",parm->raw);
+            return OSDCMD_OK;
+        }
+    }
+    else if (!Bstrcasecmp(parm->name, "osdtextshade"))
+    {
+        if (showval) { OSD_Printf("osdtextshade is %d\n", osdtextshade); return OSDCMD_OK; }
+        else
+        {
+            osdtextshade = atoi(parm->parms[0]);
+            if (osdtextshade < -128) osdtextshade = -128;
+            else if (osdtextshade > 127) osdtextshade = 127;
+            OSD_Printf("%s\n",parm->raw);
+            return OSDCMD_OK;
+        }
+    }
+
+    else if (!Bstrcasecmp(parm->name, "osdpromptpal"))
+    {
+        if (showval) { OSD_Printf("osdpromptpal is %d\n", osdpromptpal); return OSDCMD_OK; }
+        else
+        {
+            osdpromptpal = atoi(parm->parms[0]);
+            if (osdpromptpal < 0) osdpromptpal = 0;
+            else if (osdpromptpal > MAXPALOOKUPS-1) osdpromptpal = MAXPALOOKUPS;
+            OSD_Printf("%s\n",parm->raw);
+            return OSDCMD_OK;
+        }
+    }
+    else if (!Bstrcasecmp(parm->name, "osdeditpal"))
+    {
+        if (showval) { OSD_Printf("osdeditpal is %d\n", osdeditpal); return OSDCMD_OK; }
+        else
+        {
+            osdeditpal = atoi(parm->parms[0]);
+            if (osdeditpal < 0) osdeditpal = 0;
+            else if (osdeditpal > MAXPALOOKUPS-1) osdeditpal = MAXPALOOKUPS;
+            OSD_Printf("%s\n",parm->raw);
+            return OSDCMD_OK;
+        }
+    }
+    else if (!Bstrcasecmp(parm->name, "osdtextpal"))
+    {
+        if (showval) { OSD_Printf("osdtextpal is %d\n", osdtextpal); return OSDCMD_OK; }
+        else
+        {
+            osdtextpal = atoi(parm->parms[0]);
+            if (osdtextpal < 0) osdtextpal = 0;
+            else if (osdtextpal > MAXPALOOKUPS-1) osdtextpal = MAXPALOOKUPS;
+            OSD_Printf("%s\n",parm->raw);
+            return OSDCMD_OK;
+        }
+    }
+    else if (!Bstrcasecmp(parm->name, "osdcompletionstyle"))
     {
         if (showval) { OSD_Printf("osdcompletionstyle is %d\n", osdcompletionstyle); return OSDCMD_OK; }
         else
@@ -356,17 +429,16 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
             return OSDCMD_OK;
         }
     }
-    else
-        if (!Bstrcasecmp(parm->name, "logcutoff"))
+    else if (!Bstrcasecmp(parm->name, "logcutoff"))
+    {
+        if (showval) { OSD_Printf("logcutoff is %d\n", logcutoff); return OSDCMD_OK; }
+        else
         {
-            if (showval) { OSD_Printf("logcutoff is %d\n", logcutoff); return OSDCMD_OK; }
-            else
-            {
-                logcutoff = atoi(parm->parms[0]);
-                OSD_Printf("%s\n",parm->raw);
-                return OSDCMD_OK;
-            }
+            logcutoff = atoi(parm->parms[0]);
+            OSD_Printf("%s\n",parm->raw);
+            return OSDCMD_OK;
         }
+    }
     return OSDCMD_SHOWHELP;
 }
 
@@ -474,6 +546,12 @@ void OSD_Init(void)
     OSD_RegisterFunction("unalias","unalias: removes an alias created with \"alias\"",_internal_osdfunc_unalias);
     OSD_RegisterFunction("exec","exec <scriptfile>: executes a script", _internal_osdfunc_exec);
     OSD_RegisterFunction("osdcompletionstyle","osdcompletionstyle: sets the type of tab completion to be used in the OSD; 0 (default) = bash style, 1 = cycling style",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdeditshade","osdeditshade: sets the shade of the OSD input text",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdtextshade","osdtextshade: sets the shade of the OSD text",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdpromptpal","osdpromptpal: sets the palette of the OSD prompt",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdeditpal","osdeditpal: sets the palette of the OSD input text",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdtextpal","osdtextpal: sets the palette of the OSD text",_internal_osdfunc_vars);
 
     atexit(OSD_Cleanup);
 }
@@ -554,9 +632,17 @@ void OSD_CaptureKey(int sc)
 //
 // OSD_FindDiffPoint() -- Finds the length of the longest common prefix of 2 strings, stolen from ZDoom
 //
-static int OSD_FindDiffPoint (const char *str1, const char *str2){	int i;
-	for (i = 0; Btolower(str1[i]) == Btolower(str2[i]); i++)		if (str1[i] == 0 || str2[i] == 0)			break;
-	return i;}
+static int OSD_FindDiffPoint(const char *str1, const char *str2)
+{
+    int i;
+
+    for (i = 0; Btolower(str1[i]) == Btolower(str2[i]); i++)
+        if (str1[i] == 0 || str2[i] == 0)
+            break;
+
+    return i;
+}
+
 //
 // OSD_HandleKey() -- Handles keyboard input when capturing input.
 // 	Returns 0 if the key was handled internally, or the scancode if it should
@@ -651,10 +737,10 @@ int OSD_HandleKey(int sc, int press)
                         {
                             if (findsymbol(osdedittmp, tabc->next))
                             {
+                                char tempbuf[512];
                                 symbol_t *symb=tabc;
                                 int maxwidth = 0, x = 0;
 
-                                OSD_Printf("Completions for '%s':\n",osdedittmp);
                                 while (symb && symb != lastmatch)
                                 {
                                     int diffpt;
@@ -673,6 +759,13 @@ int OSD_HandleKey(int sc, int press)
                                     lastmatch = symb;
                                     symb=findsymbol(osdedittmp, lastmatch->next);
                                 }
+                                if (!osdcompletionstyle)
+                                {
+                                    Bstrncpy(tempbuf,tabc->name,commonsize);
+                                    tempbuf[commonsize] = '\0';
+                                }
+                                else Bstrcpy(tempbuf,osdedittmp);
+                                OSD_Printf("Completions for '%s':\n",tempbuf);
                                 maxwidth += 3;
                                 symb = tabc;
                                 OSD_Printf("     ");
@@ -711,8 +804,8 @@ int OSD_HandleKey(int sc, int press)
             {
                 for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
                 osdeditlen = i;
-                for (j=0;tabc->name[j] && osdeditlen <= EDITLENGTH 
-                    && (!osdcompletionstyle?osdeditlen < commonsize:1);i++,j++,osdeditlen++)
+                for (j=0;tabc->name[j] && osdeditlen <= EDITLENGTH
+                        && (!osdcompletionstyle?osdeditlen < commonsize:1);i++,j++,osdeditlen++)
                     osdeditbuf[i] = tabc->name[j];
                 osdeditcursor = osdeditlen;
                 osdeditwinend = osdeditcursor;

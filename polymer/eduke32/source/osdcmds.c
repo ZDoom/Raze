@@ -952,7 +952,7 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
         if (!Bstrcasecmp(parm->parms[0],keynames[i].name))
             break;
 
-    if (!keynames[i].name) 
+    if (!keynames[i].name)
     {
         for (i=0;i<MAXMOUSEBUTTONS;i++)
             if (!Bstrcasecmp(parm->parms[0],mousenames[i]))
