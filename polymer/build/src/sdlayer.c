@@ -1416,16 +1416,17 @@ int handleevents(void)
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.sym];
 
-            if (ev.key.keysym.unicode != 0 && ev.key.type == SDL_KEYDOWN &&
+            if (code != osdkey && ev.key.keysym.unicode != 0 && ev.key.type == SDL_KEYDOWN &&
                     (ev.key.keysym.unicode & 0xff80) == 0 &&
                     ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
             {
                 keyasciififo[keyasciififoend] = ev.key.keysym.unicode & 0x7f;
                 keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
+                OSD_HandleChars();
             }
 
             // hook in the osd
-            if (OSD_HandleKey(code, (ev.key.type == SDL_KEYDOWN)) == 0)
+            if (OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN)) == 0)
                 break;
 
             if (ev.key.type == SDL_KEYDOWN)

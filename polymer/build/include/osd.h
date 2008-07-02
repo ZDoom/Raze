@@ -31,7 +31,8 @@ const char *stripcolorcodes(const char *t);
 #define OSDCMD_OK	0
 #define OSDCMD_SHOWHELP 1
 
-int osdexecscript;
+extern int osdexecscript;
+extern int osdkey;
 
 int OSD_Exec(const char *szScript);
 
@@ -65,7 +66,8 @@ void OSD_CaptureKey(int sc);
 
 // handles keyboard input when capturing input. returns 0 if key was handled
 // or the scancode if it should be handled by the game.
-int  OSD_HandleKey(int sc, int press);
+int  OSD_HandleScanCode(int sc, int press);
+int  OSD_HandleChars(void);
 
 // handles the readjustment when screen resolution changes
 void OSD_ResizeDisplay(int w,int h);

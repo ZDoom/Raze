@@ -52,7 +52,7 @@ static char osdinput=0;         // capture input?
 static int  osdhead=0; 			// topmost visible line number
 static BFILE *osdlog=NULL;		// log filehandle
 static char osdinited=0;		// text buffer initialized?
-static int  osdkey=0x29;		// tilde shows the osd
+int  osdkey=0x29;		        // tilde shows the osd
 static int  keytime=0;
 static int osdscrtime = 0;
 
@@ -648,50 +648,22 @@ static int OSD_FindDiffPoint(const char *str1, const char *str2)
 // 	Returns 0 if the key was handled internally, or the scancode if it should
 // 	be passed on to the game.
 //
-int OSD_HandleKey(int sc, int press)
+
+int OSD_HandleChars(void)
 {
-    char ch;
     int i,j;
     symbol_t *tabc = NULL;
     static symbol_t *lastmatch = NULL;
+    char ch;
 
-    if (!osdinited) return sc;
+    if (!osdinited) return 1;
 
-    if (sc == osdkey)
-    {
-        if (press)
-        {
-            osdscroll = -osdscroll;
-            if (osdrowscur == -1)
-                osdscroll = 1;
-            else if (osdrowscur == osdrows)
-                osdscroll = -1;
-            osdrowscur += osdscroll;
-            OSD_CaptureInput(osdscroll == 1);
-            osdscrtime = getticks();
-        }
-        return 0;//sc;
-    }
-    else if (!osdinput)
-    {
-        return sc;
-    }
-
-    if (!press)
-    {
-        if (sc == 42 || sc == 54) // shift
-            osdeditshift = 0;
-        if (sc == 29 || sc == 157)	// control
-            osdeditcontrol = 0;
-        return 0;//sc;
-    }
-
-    keytime = gettime();
-
-    if (sc != 15) lastmatch = NULL;		// tab
+    if (!osdinput)
+        return 1;
 
     while ((ch = bgetchar()))
     {
+        if (ch != 9) lastmatch = NULL;		// tab
         if (ch == 1)  	// control a. jump to beginning of line
         {
         }
@@ -706,7 +678,7 @@ int OSD_HandleKey(int sc, int press)
         }
         else if (ch == 8 || ch == 127)  	// control h, backspace
         {
-            if (!osdeditcursor || !osdeditlen) return 0;
+            if (!osdeditcursor || !osdeditlen) continue;
             if (!osdovertype)
             {
                 if (osdeditcursor < osdeditlen)
@@ -887,7 +859,7 @@ int OSD_HandleKey(int sc, int press)
         else if (ch >= 32)  	// text char
         {
             if (!osdovertype && osdeditlen == EDITLENGTH)	// buffer full, can't insert another char
-                return 0;
+                continue;
 
             if (!osdovertype)
             {
@@ -905,6 +877,43 @@ int OSD_HandleKey(int sc, int press)
             if (osdeditcursor>osdeditwinend) osdeditwinstart++,osdeditwinend++;
         }
     }
+    return 0;
+}
+
+int OSD_HandleScanCode(int sc, int press)
+{
+    if (!osdinited) return sc;
+
+    if (sc == osdkey)
+    {
+        if (press)
+        {
+            osdscroll = -osdscroll;
+            if (osdrowscur == -1)
+                osdscroll = 1;
+            else if (osdrowscur == osdrows)
+                osdscroll = -1;
+            osdrowscur += osdscroll;
+            OSD_CaptureInput(osdscroll == 1);
+            osdscrtime = getticks();
+        }
+        return 0;//sc;
+    }
+    else if (!osdinput)
+    {
+        return sc;
+    }
+
+    if (!press)
+    {
+        if (sc == 42 || sc == 54) // shift
+            osdeditshift = 0;
+        if (sc == 29 || sc == 157)	// control
+            osdeditcontrol = 0;
+        return 0;//sc;
+    }
+
+    keytime = gettime();
 
     if (sc == 15)  		// tab
     {

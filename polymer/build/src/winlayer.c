@@ -799,6 +799,7 @@ int bkbhit(void)
 
 void bflushchars(void)
 {
+    Bmemset(&keyasciififo,0,sizeof(keyasciififo));
     keyasciififoplc = keyasciififoend = 0;
 }
 
@@ -1043,7 +1044,7 @@ void releaseallbuttons(void)
     {
         //if (!keystatus[i]) continue;
         //if (OSD_HandleKey(i, 0) != 0) {
-        OSD_HandleKey(i, 0);
+        OSD_HandleScanCode(i, 0);
         SetKey(i, 0);
         if (keypresscallback) keypresscallback(i, 0);
         //}
@@ -1648,7 +1649,7 @@ static void ProcessInputDevices(void)
                     //if (IsDebuggerPresent() && k == DIK_F12) continue;
 
                     // hook in the osd
-                    if (OSD_HandleKey(k, (didod[i].dwData & 0x80)) != 0)
+                    if (OSD_HandleScanCode(k, (didod[i].dwData & 0x80)) != 0)
                     {
                         SetKey(k, (didod[i].dwData & 0x80) == 0x80);
 
@@ -1726,14 +1727,14 @@ static void ProcessInputDevices(void)
         u = (1000 + t - lastKeyTime)%1000;
         if ((u >= 250) && !(lastKeyDown&0x80000000l))
         {
-            if (OSD_HandleKey(lastKeyDown, 1) != 0)
+            if (OSD_HandleScanCode(lastKeyDown, 1) != 0)
                 SetKey(lastKeyDown, 1);
             lastKeyDown |= 0x80000000l;
             lastKeyTime = t;
         }
         else if ((u >= 30) && (lastKeyDown&0x80000000l))
         {
-            if (OSD_HandleKey(lastKeyDown&(0x7fffffffl), 1) != 0)
+            if (OSD_HandleScanCode(lastKeyDown&(0x7fffffffl), 1) != 0)
                 SetKey(lastKeyDown&(0x7fffffffl), 1);
             lastKeyTime = t;
         }
@@ -4123,8 +4124,10 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
     case WM_CHAR:
         if (((keyasciififoend+1)&(KEYFIFOSIZ-1)) == keyasciififoplc) return 0;
         if ((keyasciififoend - keyasciififoplc) > 0) return 0;
+        if (Btolower(scantoasc[osdkey]) == Btolower((unsigned char)wParam)) return 0;
         keyasciififo[keyasciififoend] = (unsigned char)wParam;
         keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
+        OSD_HandleChars();
         //OSD_Printf("WM_CHAR %d, %d-%d\n",wParam,keyasciififoplc,keyasciififoend);
         return 0;
 

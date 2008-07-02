@@ -66,6 +66,7 @@ extern char inputdevices;
 #define KEYFIFOSIZ 64
 extern char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
 extern unsigned char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
+extern char scantoasc[128];
 
 // mouse
 extern volatile int mousex, mousey, mouseb;
