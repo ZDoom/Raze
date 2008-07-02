@@ -10574,7 +10574,7 @@ void app_main(int argc,const char **argv)
         GAME_onshowosd
     );
     OSD_SetParameters(0,10, 0,12, 4,12);
-    OSD_SetVersionString(HEAD2,0,10);
+    OSD_SetVersionString(HEAD2,0,0);
     registerosdcommands();
 
     if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)

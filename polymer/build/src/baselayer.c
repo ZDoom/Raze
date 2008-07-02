@@ -174,10 +174,10 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 {
     int showval = (parm->numparms < 1);
 
-    if (!Bstrcasecmp(parm->name, "screencaptureformat"))
+    if (!Bstrcasecmp(parm->name, "r_captureformat"))
     {
         const char *fmts[] = {"TGA", "PCX"};
-        if (showval) { OSD_Printf("captureformat is %s\n", fmts[captureformat]); }
+        if (showval) { OSD_Printf("r_captureformat is %s\n", fmts[captureformat]); }
         else
         {
             int j;
@@ -189,14 +189,14 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 #ifdef SUPERBUILD
-    else if (!Bstrcasecmp(parm->name, "novoxmips"))
+    else if (!Bstrcasecmp(parm->name, "r_novoxmips"))
     {
-        if (showval) { OSD_Printf("novoxmips is %d\n", novoxmips); }
+        if (showval) { OSD_Printf("r_novoxmips is %d\n", novoxmips); }
         else { novoxmips = (atoi(parm->parms[0]) != 0); }
     }
-    else if (!Bstrcasecmp(parm->name, "usevoxels"))
+    else if (!Bstrcasecmp(parm->name, "r_voxels"))
     {
-        if (showval) { OSD_Printf("usevoxels is %d\n", usevoxels); }
+        if (showval) { OSD_Printf("r_voxels is %d\n", usevoxels); }
         else { usevoxels = (atoi(parm->parms[0]) != 0); }
     }
 #endif
@@ -218,10 +218,10 @@ int baselayer_init(void)
                          ,
                          osdfunc_setrendermode);
 #endif
-    OSD_RegisterFunction("screencaptureformat","screencaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars);
+    OSD_RegisterFunction("r_captureformat","screencaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars);
 #ifdef SUPERBUILD
-    OSD_RegisterFunction("novoxmips","novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",osdcmd_vars);
-    OSD_RegisterFunction("usevoxels","usevoxels: enable/disable automatic sprite->voxel rendering",osdcmd_vars);
+    OSD_RegisterFunction("r_novoxmips","novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",osdcmd_vars);
+    OSD_RegisterFunction("r_voxels","usevoxels: enable/disable automatic sprite->voxel rendering",osdcmd_vars);
 #endif
 #if defined(POLYMOST) && defined(USE_OPENGL)
 #ifdef DEBUGGINGAIDS

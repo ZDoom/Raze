@@ -5671,40 +5671,40 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
     int showval = (parm->numparms < 1), val = 0;
 
     if (!showval) val = atoi(parm->parms[0]);
-    if (!Bstrcasecmp(parm->name, "usemodels"))
+    if (!Bstrcasecmp(parm->name, "r_models"))
     {
-        if (showval) { OSD_Printf("usemodels is %d\n", usemodels); }
+        if (showval) { OSD_Printf("r_models is %d\n", usemodels); }
         else usemodels = (val != 0);
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "usehightile"))
+    else if (!Bstrcasecmp(parm->name, "r_hightile"))
     {
-        if (showval) { OSD_Printf("usehightile is %d\n", usehightile); }
+        if (showval) { OSD_Printf("r_hightile is %d\n", usehightile); }
         else usehightile = (val != 0);
         return OSDCMD_OK;
     }
 #ifdef USE_OPENGL
-    else if (!Bstrcasecmp(parm->name, "glusetexcompr"))
+    else if (!Bstrcasecmp(parm->name, "r_usetexcompr"))
     {
-        if (showval) { OSD_Printf("glusetexcompr is %d\n", glusetexcompr); }
+        if (showval) { OSD_Printf("r_usetexcompr is %d\n", glusetexcompr); }
         else glusetexcompr = (val != 0);
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "glredbluemode"))
+    else if (!Bstrcasecmp(parm->name, "r_redbluemode"))
     {
-        if (showval) { OSD_Printf("glredbluemode is %d\n", glredbluemode); }
+        if (showval) { OSD_Printf("r_redbluemode is %d\n", glredbluemode); }
         else glredbluemode = (val != 0);
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "gltexturemaxsize"))
+    else if (!Bstrcasecmp(parm->name, "r_texturemaxsize"))
     {
-        if (showval) { OSD_Printf("gltexturemaxsize is %d\n", gltexmaxsize); }
+        if (showval) { OSD_Printf("r_texturemaxsize is %d\n", gltexmaxsize); }
         else gltexmaxsize = val;
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "gltexturemiplevel"))
+    else if (!Bstrcasecmp(parm->name, "r_texturemiplevel"))
     {
-        if (showval) { OSD_Printf("gltexturemiplevel is %d\n", gltexmiplevel); }
+        if (showval) { OSD_Printf("r_texturemiplevel is %d\n", gltexmiplevel); }
         else gltexmiplevel = val;
         return OSDCMD_OK;
     }
@@ -5822,33 +5822,33 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else r_parallaxskypanning = (val != 0);
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "glpolygonmode"))
+    else if (!Bstrcasecmp(parm->name, "r_polygonmode"))
     {
-        if (showval) { OSD_Printf("glpolygonmode is %d\n", glpolygonmode); }
+        if (showval) { OSD_Printf("r_polygonmode is %d\n", glpolygonmode); }
         else glpolygonmode = val;
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "glusetexcache"))
+    else if (!Bstrcasecmp(parm->name, "r_usetexcache"))
     {
-        if (showval) { OSD_Printf("glusetexcache is %d\n", glusetexcache); }
+        if (showval) { OSD_Printf("r_usetexcache is %d\n", glusetexcache); }
         else glusetexcache = (val != 0);
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "glusetexcachecompression"))
+    else if (!Bstrcasecmp(parm->name, "r_usetexcachecompression"))
     {
-        if (showval) { OSD_Printf("glusetexcachecompression is %d\n", glusetexcachecompression); }
+        if (showval) { OSD_Printf("r_usetexcachecompression is %d\n", glusetexcachecompression); }
         else glusetexcachecompression = (val != 0);
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "glmultisample"))
+    else if (!Bstrcasecmp(parm->name, "r_multisample"))
     {
-        if (showval) { OSD_Printf("glmultisample is %d\n", glmultisample); }
+        if (showval) { OSD_Printf("r_multisample is %d\n", glmultisample); }
         else glmultisample = max(0,val);
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "glnvmultisamplehint"))
+    else if (!Bstrcasecmp(parm->name, "r_nvmultisamplehint"))
     {
-        if (showval) { OSD_Printf("glnvmultisamplehint is %d\n", glnvmultisamplehint); }
+        if (showval) { OSD_Printf("r_nvmultisamplehint is %d\n", glnvmultisamplehint); }
         else glnvmultisamplehint = (val != 0);
         return OSDCMD_OK;
     }
@@ -5899,17 +5899,17 @@ static int dumptexturedefs(const osdfuncparm_t *parm)
 void polymost_initosdfuncs(void)
 {
 #ifdef USE_OPENGL
-    OSD_RegisterFunction("glusetexcompr","glusetexcompr: enable/disable OpenGL texture compression",osdcmd_polymostvars);
-    OSD_RegisterFunction("glredbluemode","glredbluemode: enable/disable experimental OpenGL red-blue glasses mode",osdcmd_polymostvars);
-    OSD_RegisterFunction("gltexturemode", "gltexturemode: changes the texture filtering settings", gltexturemode);
-    OSD_RegisterFunction("gltextureanisotropy", "gltextureanisotropy: changes the OpenGL texture anisotropy setting", gltextureanisotropy);
-    OSD_RegisterFunction("gltexturemaxsize","gltexturemaxsize: changes the maximum OpenGL texture size limit",osdcmd_polymostvars);
-    OSD_RegisterFunction("gltexturemiplevel","gltexturemiplevel: changes the highest OpenGL mipmap level used",osdcmd_polymostvars);
-    OSD_RegisterFunction("glpolygonmode","glpolygonmode: debugging feature",osdcmd_polymostvars); //FUK
-    OSD_RegisterFunction("glusetexcache","glusetexcache: enable/disable OpenGL compressed texture cache",osdcmd_polymostvars);
-    OSD_RegisterFunction("glusetexcachecompression","usetexcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars);
-    OSD_RegisterFunction("glmultisample","glmultisample: sets the number of samples used for antialiasing (0 = off)",osdcmd_polymostvars);
-    OSD_RegisterFunction("glnvmultisamplehint","glnvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_usetexcompr","r_usetexcompr: enable/disable OpenGL texture compression",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_texturemode", "r_texturemode: changes the texture filtering settings", gltexturemode);
+    OSD_RegisterFunction("r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", gltextureanisotropy);
+    OSD_RegisterFunction("r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_polygonmode","r_polygonmode: debugging feature",osdcmd_polymostvars); //FUK
+    OSD_RegisterFunction("r_usetexcache","r_usetexcache: enable/disable OpenGL compressed texture cache",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_usetexcachecompression","usetexcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars);
     OSD_RegisterFunction("r_shadescale","r_shadescale: multiplier for lighting",osdcmd_polymostvars);
     OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
     OSD_RegisterFunction("r_peelscount","r_peelscount: sets the number of depth layers for depth peeling",osdcmd_polymostvars);
@@ -5923,8 +5923,8 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",osdcmd_polymostvars);
     OSD_RegisterFunction("r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",osdcmd_polymostvars);
 #endif
-    OSD_RegisterFunction("usemodels","usemodels: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
-    OSD_RegisterFunction("usehightile","usehightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_models","r_models: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_hightile","r_hightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);
     //OSD_RegisterFunction("dumptexturedefs","dumptexturedefs: dumps all texture definitions in the new style",dumptexturedefs);
 }
 

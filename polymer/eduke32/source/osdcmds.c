@@ -645,18 +645,19 @@ cvarmappings cvar[] =
 
     { "cl_messagetime", "cl_messagetime: length of time to display multiplayer chat messages\n", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
 
-    { "cl_mousebias", "cl_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time\n", (void*)&ud.config.MouseBias, CVAR_INT, 0, 0, 32 },
-    { "cl_mousefilter", "cl_mousefilter: amount of mouse movement to filter out\n", (void*)&ud.config.MouseFilter, CVAR_INT, 0, 0, 512 },
-
     { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
     { "cl_showfps", "cl_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
-    { "cl_smoothinput", "cl_smoothinput: enable/disable input smoothing\n", (void*)&ud.config.SmoothInput, CVAR_BOOL, 0, 0, 1 },
 
     { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing\n", (void*)&ud.viewbob, CVAR_BOOL, 0, 0, 1 },
 
     { "cl_weaponsway", "cl_weaponsway: enable/disable player weapon swaying\n", (void*)&ud.weaponsway, CVAR_BOOL, 0, 0, 1 },
     { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void*)&ud.weaponswitch, CVAR_INT|CVAR_MULTI, 0, 0, 3 },
     { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void*)&ud.angleinterpolation, CVAR_INT, 0, 0, 256 },
+
+    { "in_mousebias", "in_mousebias: emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time\n", (void*)&ud.config.MouseBias, CVAR_INT, 0, 0, 32 },
+    { "in_mousefilter", "in_mousefilter: amount of mouse movement to filter out\n", (void*)&ud.config.MouseFilter, CVAR_INT, 0, 0, 512 },
+    { "in_smoothinput", "in_smoothinput: enable/disable input smoothing\n", (void*)&ud.config.SmoothInput, CVAR_BOOL, 0, 0, 1 },
+
 #if defined(POLYMOST) && defined(USE_OPENGL)
     { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 0, 1 },
     { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_BOOL, 0, 0, 1 },
@@ -866,11 +867,11 @@ void onvideomodechange(int newmode)
 static int osdcmd_usemousejoy(const osdfuncparm_t *parm)
 {
     int showval = (parm->numparms < 1);
-    if (!Bstrcasecmp(parm->name, "usemouse"))
+    if (!Bstrcasecmp(parm->name, "in_mouse"))
     {
         if (showval)
         {
-            OSD_Printf("usemouse is %d\n", ud.config.UseMouse);
+            OSD_Printf("in_mouse is %d\n", ud.config.UseMouse);
         }
         else
         {
@@ -879,11 +880,11 @@ static int osdcmd_usemousejoy(const osdfuncparm_t *parm)
         }
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "usejoystick"))
+    else if (!Bstrcasecmp(parm->name, "in_joystick"))
     {
         if (showval)
         {
-            OSD_Printf("usejoystick is %d\n", ud.config.UseJoystick);
+            OSD_Printf("in_joystick is %d\n", ud.config.UseJoystick);
         }
         else
         {
@@ -1103,6 +1104,8 @@ int registerosdcommands(void)
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
 
+    OSD_RegisterFunction("in_joystick","in_joystick: enables input from the joystick if it is present",osdcmd_usemousejoy);
+    OSD_RegisterFunction("in_mouse","in_mouse: enables input from the mouse if it is present",osdcmd_usemousejoy);
     OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
 
     OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
@@ -1124,9 +1127,6 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("unbind","unbind <key>: unbinds a key.", osdcmd_unbind);
     OSD_RegisterFunction("unbindall","unbindall: unbinds all keys.", osdcmd_unbindall);
-
-    OSD_RegisterFunction("usejoystick","usejoystick: enables input from the joystick if it is present",osdcmd_usemousejoy);
-    OSD_RegisterFunction("usemouse","usemouse: enables input from the mouse if it is present",osdcmd_usemousejoy);
 
     OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: immediately change the video mode",osdcmd_vidmode);
 
