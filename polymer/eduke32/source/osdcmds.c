@@ -639,14 +639,12 @@ cvarmappings cvar[] =
 
     { "cl_deathmessages", "cl_deathmessages: enable/disable multiplayer death messages", (void*)&ud.deathmsgs, CVAR_BOOL, 0, 0, 1 },
     { "cl_democams", "cl_democams: enable/disable demo playback cameras", (void*)&ud.democams, CVAR_BOOL, 0, 0, 1 },
-    { "cl_drawweapon", "cl_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
 
     { "cl_idplayers", "cl_idplayers: enable/disable name display when aiming at opponents", (void*)&ud.idplayers, CVAR_BOOL, 0, 0, 1 },
 
     { "cl_messagetime", "cl_messagetime: length of time to display multiplayer chat messages\n", (void*)&ud.msgdisptime, CVAR_INT, 0, 0, 3600 },
 
     { "cl_showcoords", "cl_showcoords: show your position in the game world", (void*)&ud.coords, CVAR_BOOL, 0, 0, 1 },
-    { "cl_showfps", "cl_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
 
     { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing\n", (void*)&ud.viewbob, CVAR_BOOL, 0, 0, 1 },
 
@@ -672,6 +670,8 @@ cvarmappings cvar[] =
     { "pr_gpusmoothing", "pr_gpusmoothing: toggles model animation interpolation", (void*)&pr_gpusmoothing, CVAR_INT, 0, 0, 1 },
 #endif
 #endif
+    { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
+    { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
     { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
 
     { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
@@ -939,13 +939,25 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
 
     if (parm->numparms==0)
     {
-        OSD_Printf("Keybindings:\n");
+        int j=0;
+
+        OSD_Printf("Current key bindings:\n");
         for (i=0;i<MAXBOUNDKEYS;i++)
             if (*boundkeys[i].name)
+            {
+                j++;
                 OSD_Printf("%-11s = %s\n",boundkeys[i].key,boundkeys[i].name);
+            }
         for (i=0;i<MAXMOUSEBUTTONS;i++)
             if (*mousebind[i].name)
+            {
+                j++;
                 OSD_Printf("%-11s = %s\n",mousebind[i].key,mousebind[i].name);
+            }
+
+        if (j == 0)
+            OSD_Printf("No binds found.\n");
+
         return OSDCMD_OK;
     }
 

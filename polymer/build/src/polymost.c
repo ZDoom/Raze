@@ -5684,9 +5684,9 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 #ifdef USE_OPENGL
-    else if (!Bstrcasecmp(parm->name, "r_usetexcompr"))
+    else if (!Bstrcasecmp(parm->name, "r_texcompr"))
     {
-        if (showval) { OSD_Printf("r_usetexcompr is %d\n", glusetexcompr); }
+        if (showval) { OSD_Printf("r_texcompr is %d\n", glusetexcompr); }
         else glusetexcompr = (val != 0);
         return OSDCMD_OK;
     }
@@ -5828,15 +5828,15 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else glpolygonmode = val;
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "r_usetexcache"))
+    else if (!Bstrcasecmp(parm->name, "r_texcache"))
     {
-        if (showval) { OSD_Printf("r_usetexcache is %d\n", glusetexcache); }
+        if (showval) { OSD_Printf("r_texcache is %d\n", glusetexcache); }
         else glusetexcache = (val != 0);
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "r_usetexcachecompression"))
+    else if (!Bstrcasecmp(parm->name, "r_texcachecompression"))
     {
-        if (showval) { OSD_Printf("r_usetexcachecompression is %d\n", glusetexcachecompression); }
+        if (showval) { OSD_Printf("r_texcachecompression is %d\n", glusetexcachecompression); }
         else glusetexcachecompression = (val != 0);
         return OSDCMD_OK;
     }
@@ -5899,15 +5899,15 @@ static int dumptexturedefs(const osdfuncparm_t *parm)
 void polymost_initosdfuncs(void)
 {
 #ifdef USE_OPENGL
-    OSD_RegisterFunction("r_usetexcompr","r_usetexcompr: enable/disable OpenGL texture compression",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_texcompr","r_texcompr: enable/disable OpenGL texture compression",osdcmd_polymostvars);
     OSD_RegisterFunction("r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",osdcmd_polymostvars);
     OSD_RegisterFunction("r_texturemode", "r_texturemode: changes the texture filtering settings", gltexturemode);
     OSD_RegisterFunction("r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", gltextureanisotropy);
     OSD_RegisterFunction("r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",osdcmd_polymostvars);
     OSD_RegisterFunction("r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",osdcmd_polymostvars);
     OSD_RegisterFunction("r_polygonmode","r_polygonmode: debugging feature",osdcmd_polymostvars); //FUK
-    OSD_RegisterFunction("r_usetexcache","r_usetexcache: enable/disable OpenGL compressed texture cache",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_usetexcachecompression","usetexcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_texcachecompression","r_texcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars);
     OSD_RegisterFunction("r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",osdcmd_polymostvars);
     OSD_RegisterFunction("r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars);
     OSD_RegisterFunction("r_shadescale","r_shadescale: multiplier for lighting",osdcmd_polymostvars);

@@ -79,7 +79,6 @@ static int  osdhistorysize=0;		// number of entries in history
 // execution buffer
 // the execution buffer works from the command history
 static int  osdexeccount=0;		// number of lines from the head of the history buffer to execute
-static int  osdcompletionstyle=0;
 
 // maximal log line count
 int logcutoff=120000;
@@ -268,10 +267,16 @@ static int _internal_osdfunc_alias(const osdfuncparm_t *parm)
 
     if (parm->numparms < 1)
     {
+        int j = 0;
         OSD_Printf("Alias listing:\n");
         for (i=symbols; i!=NULL; i=i->next)
             if (i->func == (void *)OSD_ALIAS)
+            {
+                j++;
                 OSD_Printf("     %s \"%s\"\n", i->name, i->help);
+            }
+        if (j == 0)
+            OSD_Printf("No aliases found.\n");
         return OSDCMD_OK;
     }
 
@@ -417,18 +422,6 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
             return OSDCMD_OK;
         }
     }
-    else if (!Bstrcasecmp(parm->name, "osdcompletionstyle"))
-    {
-        if (showval) { OSD_Printf("osdcompletionstyle is %d\n", osdcompletionstyle); return OSDCMD_OK; }
-        else
-        {
-            osdcompletionstyle = atoi(parm->parms[0]);
-            if (osdcompletionstyle < 0) osdcompletionstyle = 0;
-            else if (osdcompletionstyle > 1) osdcompletionstyle = 1;
-            OSD_Printf("%s\n",parm->raw);
-            return OSDCMD_OK;
-        }
-    }
     else if (!Bstrcasecmp(parm->name, "logcutoff"))
     {
         if (showval) { OSD_Printf("logcutoff is %d\n", logcutoff); return OSDCMD_OK; }
@@ -538,14 +531,13 @@ void OSD_Init(void)
     osdinited=1;
 
     OSD_RegisterFunction("listsymbols","listsymbols: lists all the recognized symbols",_internal_osdfunc_listsymbols);
-    OSD_RegisterFunction("help","help: displays help on the named symbol",_internal_osdfunc_help);
+    OSD_RegisterFunction("help","help: displays help for the specified cvar or command",_internal_osdfunc_help);
     OSD_RegisterFunction("osdrows","osdrows: sets the number of visible lines of the OSD",_internal_osdfunc_vars);
     OSD_RegisterFunction("logcutoff","logcutoff: sets the maximal line count of the log file",_internal_osdfunc_vars);
     OSD_RegisterFunction("clear","clear: clears the console text buffer",_internal_osdfunc_clear);
     OSD_RegisterFunction("alias","alias: creates an alias for calling multiple commands",_internal_osdfunc_alias);
     OSD_RegisterFunction("unalias","unalias: removes an alias created with \"alias\"",_internal_osdfunc_unalias);
     OSD_RegisterFunction("exec","exec <scriptfile>: executes a script", _internal_osdfunc_exec);
-    OSD_RegisterFunction("osdcompletionstyle","osdcompletionstyle: sets the type of tab completion to be used in the OSD; 0 (default) = bash style, 1 = cycling style",_internal_osdfunc_vars);
     OSD_RegisterFunction("osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",_internal_osdfunc_vars);
     OSD_RegisterFunction("osdeditshade","osdeditshade: sets the shade of the OSD input text",_internal_osdfunc_vars);
     OSD_RegisterFunction("osdtextshade","osdtextshade: sets the shade of the OSD text",_internal_osdfunc_vars);
@@ -709,7 +701,6 @@ int OSD_HandleChars(void)
                         {
                             if (findsymbol(osdedittmp, tabc->next))
                             {
-                                char tempbuf[512];
                                 symbol_t *symb=tabc;
                                 int maxwidth = 0, x = 0;
 
@@ -731,18 +722,13 @@ int OSD_HandleChars(void)
                                     lastmatch = symb;
                                     symb=findsymbol(osdedittmp, lastmatch->next);
                                 }
-                                if (!osdcompletionstyle)
-                                {
-                                    Bstrncpy(tempbuf,tabc->name,commonsize);
-                                    tempbuf[commonsize] = '\0';
-                                }
-                                else Bstrcpy(tempbuf,osdedittmp);
-                                OSD_Printf("Completions for '%s':\n",tempbuf);
+                                OSD_Printf("Completions for '%s':\n",osdedittmp);
                                 maxwidth += 3;
                                 symb = tabc;
-                                OSD_Printf("     ");
+//                                OSD_Printf("     ");
                                 while (symb && symb != lastmatch)
                                 {
+                                    tabc = symb;
                                     OSD_Printf("%-*s",maxwidth,symb->name);
                                     x += maxwidth;
                                     lastmatch = symb;
@@ -751,8 +737,8 @@ int OSD_HandleChars(void)
                                     {
                                         x = 0;
                                         OSD_Printf("\n");
-                                        if (symb && symb != lastmatch)
-                                            OSD_Printf("     ");
+//                                        if (symb && symb != lastmatch)
+  //                                          OSD_Printf("     ");
                                     }
                                 }
                                 if (x)
@@ -764,12 +750,9 @@ int OSD_HandleChars(void)
             }
             else
             {
-                if (osdcompletionstyle == 1)
-                {
-                    tabc = findsymbol(osdedittmp, lastmatch->next);
-                    if (!tabc && lastmatch)
-                        tabc = findsymbol(osdedittmp, NULL);	// wrap */
-                }
+                tabc = findsymbol(osdedittmp, lastmatch->next);
+                if (!tabc && lastmatch)
+                    tabc = findsymbol(osdedittmp, NULL);	// wrap */
             }
 
             if (tabc)
@@ -777,7 +760,7 @@ int OSD_HandleChars(void)
                 for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
                 osdeditlen = i;
                 for (j=0;tabc->name[j] && osdeditlen <= EDITLENGTH
-                        && (!osdcompletionstyle?osdeditlen < commonsize:1);i++,j++,osdeditlen++)
+                        && (osdeditlen < commonsize);i++,j++,osdeditlen++)
                     osdeditbuf[i] = tabc->name[j];
                 osdeditcursor = osdeditlen;
                 osdeditwinend = osdeditcursor;
