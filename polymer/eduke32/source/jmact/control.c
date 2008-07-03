@@ -56,8 +56,8 @@ static int32 ticrate;
 static int32 CONTROL_DoubleClickSpeed;
 
 int extinput[CONTROL_NUM_FLAGS];
-keybind boundkeys[MAXBOUNDKEYS];
-keybind mousebind[MAXMOUSEBUTTONS];
+keybind boundkeys[MAXBOUNDKEYS], mousebind[MAXMOUSEBUTTONS];
+int bindsenabled = 0;
 
 void CONTROL_GetMouseDelta(void)
 {
@@ -168,10 +168,10 @@ boolean CONTROL_KeyboardFunctionPressed(int32 which)
 
     if (!CONTROL_Flags[which].used) return false;
 
-    if (CONTROL_KeyMapping[which].key1 != KEYUNDEFINED && !boundkeys[CONTROL_KeyMapping[which].key1].name[0])
+    if (CONTROL_KeyMapping[which].key1 != KEYUNDEFINED && !boundkeys[CONTROL_KeyMapping[which].key1].cmd[0])
         key1 = KB_KeyDown[ CONTROL_KeyMapping[which].key1 ] ? true : false;
 
-    if (CONTROL_KeyMapping[which].key2 != KEYUNDEFINED && !boundkeys[CONTROL_KeyMapping[which].key1].name[0])
+    if (CONTROL_KeyMapping[which].key2 != KEYUNDEFINED && !boundkeys[CONTROL_KeyMapping[which].key1].cmd[0])
         key2 = KB_KeyDown[ CONTROL_KeyMapping[which].key2 ] ? true : false;
 
     return (key1 | key2);
@@ -733,16 +733,19 @@ void CONTROL_ButtonFunctionState(int32 *p1)
 
     for (i=0; i<CONTROL_NumMouseButtons; i++)
     {
-        if (mousebind[i].name[0] && CONTROL_MouseButtonState[i])
+        if (bindsenabled)
         {
-            if (mousebind[i].repeat || (mousebind[i].laststate == 0))
-                OSD_Dispatch(mousebind[i].name);
-//            if (!boundkeys[i].repeat)
-//                KB_ClearKeyDown(i);
+            if (mousebind[i].cmd[0] && CONTROL_MouseButtonState[i])
+            {
+                if (mousebind[i].repeat || (mousebind[i].laststate == 0))
+                    OSD_Dispatch(mousebind[i].cmd);
+    //            if (!boundkeys[i].repeat)
+    //                KB_ClearKeyDown(i);
+            }
+            mousebind[i].laststate = CONTROL_MouseButtonState[i];
         }
-        mousebind[i].laststate = CONTROL_MouseButtonState[i];
 
-        if (!mousebind[i].name[0])
+        if (!mousebind[i].cmd[0])
         {
             j = CONTROL_MouseButtonMapping[i].doubleclicked;
             if (j != KEYUNDEFINED)
@@ -863,12 +866,14 @@ void CONTROL_ProcessBinds(void)
 {
     int i;
 
-    for (i=0;i<256;i++)
+    if (!bindsenabled) return;
+
+    for (i=0;i<MAXBOUNDKEYS;i++)
     {
-        if (boundkeys[i].name[0] && KB_KeyPressed(i))
+        if (boundkeys[i].cmd[0] && KB_KeyPressed(i))
         {
             if (boundkeys[i].repeat || (boundkeys[i].laststate == 0))
-                OSD_Dispatch(boundkeys[i].name);
+                OSD_Dispatch(boundkeys[i].cmd);
 //            if (!boundkeys[i].repeat)
 //                KB_ClearKeyDown(i);
         }

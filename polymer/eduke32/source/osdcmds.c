@@ -922,6 +922,7 @@ static int osdcmd_name(const osdfuncparm_t *parm)
 static int osdcmd_button(const osdfuncparm_t *parm)
 {
     char *p = (char *)parm->name+9;  // skip "gamefunc_"
+//    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
     extinput[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
     return OSDCMD_OK;
 }
@@ -943,16 +944,16 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
 
         OSD_Printf("Current key bindings:\n");
         for (i=0;i<MAXBOUNDKEYS;i++)
-            if (*boundkeys[i].name)
+            if (boundkeys[i].cmd[0])
             {
                 j++;
-                OSD_Printf("%-11s = %s\n",boundkeys[i].key,boundkeys[i].name);
+                OSD_Printf("%-11s = %s\n",boundkeys[i].key,boundkeys[i].cmd);
             }
         for (i=0;i<MAXMOUSEBUTTONS;i++)
-            if (*mousebind[i].name)
+            if (mousebind[i].cmd[0])
             {
                 j++;
-                OSD_Printf("%-11s = %s\n",mousebind[i].key,mousebind[i].name);
+                OSD_Printf("%-11s = %s\n",mousebind[i].key,mousebind[i].cmd);
             }
 
         if (j == 0)
@@ -975,18 +976,27 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
 
         if (parm->numparms < 2)
         {
-            OSD_Printf("%-11s = %s\n",mousenames[i], mousebind[i].name);
+            OSD_Printf("%-11s = %s\n",mousenames[i], mousebind[i].cmd);
             return OSDCMD_OK;
         }
 
         j = 1;
+
+        mousebind[i].repeat = 1;
         if (parm->numparms >= 2 && !Bstrcasecmp(parm->parms[j],"norepeat"))
         {
             mousebind[i].repeat = 0;
             j++;
         }
-        else mousebind[i].repeat = 1;
-        Bstrncpy(mousebind[i].name,parm->parms[j], MAXBINDSTRINGLENGTH-1);
+
+        Bstrcpy(tempbuf,parm->parms[j++]);
+        for (;j<parm->numparms;j++)
+        {
+            Bstrcat(tempbuf," ");
+            Bstrcat(tempbuf,parm->parms[j++]);
+        }
+        Bstrncpy(mousebind[i].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
+
         mousebind[i].key=mousenames[i];
         if (!osdexecscript)
             OSD_Printf("%s\n",parm->raw);
@@ -995,18 +1005,27 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
 
     if (parm->numparms < 2)
     {
-        OSD_Printf("%-11s = %s\n",keynames[i].name, boundkeys[keynames[i].id].name);
+        OSD_Printf("%-11s = %s\n",keynames[i].name, boundkeys[keynames[i].id].cmd);
         return OSDCMD_OK;
     }
 
     j = 1;
+
+    boundkeys[keynames[i].id].repeat = 1;
     if (parm->numparms >= 2 && !Bstrcasecmp(parm->parms[j],"norepeat"))
     {
         boundkeys[keynames[i].id].repeat = 0;
         j++;
     }
-    else boundkeys[keynames[i].id].repeat = 1;
-    Bstrncpy(boundkeys[keynames[i].id].name,parm->parms[j], MAXBINDSTRINGLENGTH-1);
+
+    Bstrcpy(tempbuf,parm->parms[j++]);
+    for (;j<parm->numparms;j++)
+    {
+        Bstrcat(tempbuf," ");
+        Bstrcat(tempbuf,parm->parms[j++]);
+    }
+    Bstrncpy(boundkeys[keynames[i].id].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
+
     boundkeys[keynames[i].id].key=keynames[i].name;
     if (!osdexecscript)
         OSD_Printf("%s\n",parm->raw);
@@ -1020,11 +1039,11 @@ static int osdcmd_unbindall(const osdfuncparm_t *parm)
     UNREFERENCED_PARAMETER(parm);
 
     for (i=0;i<MAXBOUNDKEYS;i++)
-        if (*boundkeys[i].name)
-            boundkeys[i].name[0] = 0;
+        if (boundkeys[i].cmd[0])
+            boundkeys[i].cmd[0] = 0;
     for (i=0;i<MAXMOUSEBUTTONS;i++)
-        if (*mousebind[i].name)
-            mousebind[i].name[0] = 0;
+        if (mousebind[i].cmd[0])
+            mousebind[i].cmd[0] = 0;
     OSD_Printf("unbound all keys\n");
     return OSDCMD_OK;
 }
@@ -1045,12 +1064,12 @@ static int osdcmd_unbind(const osdfuncparm_t *parm)
         if (i >= MAXMOUSEBUTTONS)
             return OSDCMD_SHOWHELP;
         mousebind[i].repeat = 0;
-        mousebind[i].name[0] = 0;
+        mousebind[i].cmd[0] = 0;
         OSD_Printf("unbound %s\n",mousenames[i]);
         return OSDCMD_OK;
     }
     boundkeys[keynames[i].id].repeat = 0;
-    boundkeys[keynames[i].id].name[0] = 0;
+    boundkeys[keynames[i].id].cmd[0] = 0;
     OSD_Printf("unbound key %s\n",keynames[i].name);
     return OSDCMD_OK;
 }
@@ -1070,6 +1089,14 @@ static int osdcmd_quickload(const osdfuncparm_t *parm)
     if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
         OSD_Printf("quickload: not in a game.\n");
     else doquicksave = 2;
+    return OSDCMD_OK;
+}
+
+static int osdcmd_screenshot(const osdfuncparm_t *parm)
+{
+    UNREFERENCED_PARAMETER(parm);
+    KB_ClearKeysDown();
+    screencapture("duke0000.tga",0);
     return OSDCMD_OK;
 }
 
@@ -1135,6 +1162,8 @@ int registerosdcommands(void)
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
     OSD_RegisterFunction("setvarvar","setvar <gamevar> <gamevar>: sets the value of a gamevar", osdcmd_setvar);
     OSD_RegisterFunction("setactorvar","setactorvar <actorID> <gamevar> <value>: sets the value of a gamevar", osdcmd_setactorvar);
+    OSD_RegisterFunction("screenshot","screenshot: takes a screenshot.  See r_scrcaptureformat.", osdcmd_screenshot);
+
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 
     OSD_RegisterFunction("unbind","unbind <key>: unbinds a key.", osdcmd_unbind);

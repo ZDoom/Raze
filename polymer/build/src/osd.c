@@ -725,7 +725,7 @@ int OSD_HandleChars(void)
                                 OSD_Printf("Completions for '%s':\n",osdedittmp);
                                 maxwidth += 3;
                                 symb = tabc;
-//                                OSD_Printf("     ");
+                                OSD_Printf("  ");
                                 while (symb && symb != lastmatch)
                                 {
                                     tabc = symb;
@@ -737,8 +737,8 @@ int OSD_HandleChars(void)
                                     {
                                         x = 0;
                                         OSD_Printf("\n");
-//                                        if (symb && symb != lastmatch)
-  //                                          OSD_Printf("     ");
+                                        if (symb && symb != lastmatch)
+                                            OSD_Printf("  ");
                                     }
                                 }
                                 if (x)

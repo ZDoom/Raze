@@ -217,13 +217,15 @@ void CONTROL_PrintAxes( void );
 
 typedef struct binding {
     char *key;
-    char name[MAXBINDSTRINGLENGTH];
+    char cmd[MAXBINDSTRINGLENGTH];
     char repeat;
     char laststate;
 } keybind;
 
-extern keybind boundkeys[MAXBOUNDKEYS];
-extern keybind mousebind[6]; // FIXME
+#define MAXMOUSEBUTTONS 6
+
+extern keybind boundkeys[MAXBOUNDKEYS], mousebind[MAXMOUSEBUTTONS];
+extern int bindsenabled;
 
 void CONTROL_ProcessBinds(void);
 

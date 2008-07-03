@@ -3594,13 +3594,13 @@ cheat_for_port_credits:
                 {
                     ud.config.MouseFunctions[whichkey>>1][whichkey&1] = x;
                     CONTROL_MapButton(x, whichkey>>1, whichkey&1, controldevice_mouse);
-                    mousebind[whichkey>>1].name[0] = 0;
+                    mousebind[whichkey>>1].cmd[0] = 0; // kill the bind when changing the button in the menu
                 }
                 else
                 {
                     ud.config.MouseFunctions[whichkey-(MAXMOUSEBUTTONS-2)][0] = x;
                     CONTROL_MapButton(x, whichkey-(MAXMOUSEBUTTONS-2), 0, controldevice_mouse);
-                    mousebind[whichkey-(MAXMOUSEBUTTONS-2)].name[0] = 0;
+                    mousebind[whichkey-(MAXMOUSEBUTTONS-2)].cmd[0] = 0;
                 }
                 cmenu(205);
                 probey = whichkey;

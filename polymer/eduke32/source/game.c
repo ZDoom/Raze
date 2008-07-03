@@ -54,7 +54,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20080612
+#define BUILDDATE 20080702
 #define UPDATEINTERVAL 604800 // 1w
 #endif
 
@@ -594,7 +594,7 @@ void getpackets(void)
     sampletimer();
     AudioUpdate();
 
-    CONTROL_ProcessBinds();
+//    CONTROL_ProcessBinds();
 
     if (ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
@@ -10717,6 +10717,9 @@ MAIN_LOOP_RESTART:
         }
 
         AudioUpdate();
+
+        // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
+        bindsenabled = (g_player[myconnectindex].ps->gm == MODE_GAME || g_player[myconnectindex].ps->gm == MODE_DEMO);
 
         OSD_DispatchQueued();
 

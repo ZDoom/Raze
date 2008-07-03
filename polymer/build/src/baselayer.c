@@ -174,10 +174,10 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
 {
     int showval = (parm->numparms < 1);
 
-    if (!Bstrcasecmp(parm->name, "r_captureformat"))
+    if (!Bstrcasecmp(parm->name, "r_scrcaptureformat"))
     {
         const char *fmts[] = {"TGA", "PCX"};
-        if (showval) { OSD_Printf("r_captureformat is %s\n", fmts[captureformat]); }
+        if (showval) { OSD_Printf("r_scrcaptureformat is %s\n", fmts[captureformat]); }
         else
         {
             int j;
@@ -218,7 +218,7 @@ int baselayer_init(void)
                          ,
                          osdfunc_setrendermode);
 #endif
-    OSD_RegisterFunction("r_captureformat","screencaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars);
+    OSD_RegisterFunction("r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars);
 #ifdef SUPERBUILD
     OSD_RegisterFunction("r_novoxmips","novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",osdcmd_vars);
     OSD_RegisterFunction("r_voxels","usevoxels: enable/disable automatic sprite->voxel rendering",osdcmd_vars);
