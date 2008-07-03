@@ -594,7 +594,7 @@ void getpackets(void)
     sampletimer();
     AudioUpdate();
 
-//    CONTROL_ProcessBinds();
+    CONTROL_ProcessBinds();
 
     if (ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
@@ -12029,6 +12029,7 @@ void dobonus(int bonusonly)
     FX_StopAllSounds();
     clearsoundlocks();
     FX_SetReverb(0L);
+    bindsenabled = 1; // so you can use your screenshot bind on the score screens
 
     if (bonusonly) goto FRAGBONUS;
 
