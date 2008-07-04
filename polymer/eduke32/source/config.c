@@ -152,6 +152,7 @@ void CONFIG_SetDefaultKeys(int type)
 
     Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
     Bmemset(&boundkeys,0,sizeof(boundkeys));
+    Bmemset(&mousebind,0,sizeof(mousebind));
 
     if (type == 1)
     {
@@ -333,7 +334,7 @@ void CONFIG_SetDefaults(void)
 
 void CONFIG_ReadKeys(void)
 {
-    int32 i, j;
+    int32 i;
     int32 numkeyentries;
     int32 function;
     char keyname1[80];
@@ -373,6 +374,7 @@ void CONFIG_ReadKeys(void)
             }
             ud.config.KeyboardKeys[function][0] = key1;
             ud.config.KeyboardKeys[function][1] = key2;
+/*
             if (key1 != 0xff && keyname1[0])
             {
                 boundkeys[key1].repeat = 1;
@@ -382,14 +384,14 @@ void CONFIG_ReadKeys(void)
                 if (keynames[j].name)
                     boundkeys[key1].key=Bstrdup(keynames[j].name);
                 else boundkeys[key1].key=Bstrdup(keyname1);
-                Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(function));
+                Bsprintf(tempbuf,"gamefunc_%s;",CONFIG_FunctionNumToName(function));
                 if (!boundkeys[key1].cmd[0] || !Bstrcasecmp(tempbuf,boundkeys[key1].cmd))
                 {
                     Bstrncpy(boundkeys[key1].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
                 }
                 else
                 {
-                    Bsprintf(tempbuf,"; gamefunc_%s",CONFIG_FunctionNumToName(function));
+                    Bsprintf(tempbuf,"gamefunc_%s;",CONFIG_FunctionNumToName(function));
                     Bstrncat(boundkeys[key1].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
                 }
             }
@@ -402,17 +404,18 @@ void CONFIG_ReadKeys(void)
                 if (keynames[j].name)
                     boundkeys[key2].key=Bstrdup(keynames[j].name);
                 else boundkeys[key2].key=Bstrdup(keyname2);
-                Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(function));
+                Bsprintf(tempbuf,"gamefunc_%s;",CONFIG_FunctionNumToName(function));
                 if (!boundkeys[key2].cmd[0] || !Bstrcasecmp(tempbuf,boundkeys[key2].cmd))
                 {
                     Bstrncpy(boundkeys[key2].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
                 }
                 else
                 {
-                    Bsprintf(tempbuf,"; gamefunc_%s",CONFIG_FunctionNumToName(function));
+                    Bsprintf(tempbuf,"gamefunc_%s;",CONFIG_FunctionNumToName(function));
                     Bstrncat(boundkeys[key2].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
                 }
             }
+            */
         }
     }
 
@@ -425,55 +428,43 @@ void CONFIG_ReadKeys(void)
     }
 }
 
+// wrapper for CONTROL_MapKey(), generates key bindings to reflect changes to keyboard setup
 void MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
 {
-    int j;
+    int i, j, k;
+    int ii[] = { key1, key2, oldkey1, oldkey2 };
+    char buf[128];
 
     CONTROL_MapKey(which, key1, key2);
-    if (key1 && key1 != 0xff)
+
+    for (k = 0; (unsigned)k < (sizeof(ii) / sizeof(ii[0])); k++)
     {
-        boundkeys[key1].repeat = 1;
+        if (ii[k] == 0xff || !ii[k]) continue;
+
         for (j=0;keynames[j].name;j++)
-            if (key1 == keynames[j].id)
+            if (ii[k] == keynames[j].id)
                 break;
         if (keynames[j].name)
-            boundkeys[key1].key=Bstrdup(keynames[j].name);
+            boundkeys[ii[k]].key=Bstrdup(keynames[j].name);
 
-        Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(which));
-        if (!boundkeys[key1].cmd[0] || !Bstrcasecmp(tempbuf,boundkeys[key1].cmd))
-        {
-            Bstrncpy(boundkeys[key1].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
-        }
-        else
-        {
-            Bsprintf(tempbuf,"; gamefunc_%s",CONFIG_FunctionNumToName(which));
-            Bstrncat(boundkeys[key1].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
-        }
-    }
-    if (key2 && key2 != 0xff)
-    {
-        boundkeys[key2].repeat = 1;
-        for (j=0;keynames[j].name;j++)
-            if (key2 == keynames[j].id)
-                break;
-        if (keynames[j].name)
-            boundkeys[key2].key=Bstrdup(keynames[j].name);
+        boundkeys[ii[k]].repeat = 1;
+        boundkeys[ii[k]].cmd[0] = 0;
+        tempbuf[0] = 0;
 
-        Bsprintf(tempbuf,"gamefunc_%s",CONFIG_FunctionNumToName(which));
-        if (!boundkeys[key2].cmd[0] || !Bstrcasecmp(tempbuf,boundkeys[key2].cmd))
+        for (i=0;i<NUMGAMEFUNCTIONS;i++)
         {
-            Bstrncpy(boundkeys[key2].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
+            if (ud.config.KeyboardKeys[i][0] == ii[k] || ud.config.KeyboardKeys[i][1] == ii[k])
+            {
+                Bsprintf(buf,"gamefunc_%s; ",CONFIG_FunctionNumToName(i));
+                Bstrcat(tempbuf,buf);
+            }
         }
-        else
-        {
-            Bsprintf(tempbuf,"; gamefunc_%s",CONFIG_FunctionNumToName(which));
-            Bstrncat(boundkeys[key2].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
-        }
+        Bstrncpy(boundkeys[ii[k]].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
+
+        i = Bstrlen(boundkeys[ii[k]].cmd);
+        if (i)
+          boundkeys[ii[k]].cmd[i-2] = 0; // cut off the trailing "; "
     }
-    if ((!key1 || key1 == 0xff) && oldkey1)
-        boundkeys[oldkey1].cmd[0] = 0;
-    if ((!key2 || key2 == 0xff) && oldkey2)
-        boundkeys[oldkey2].cmd[0] = 0;
 }
 
 /*
@@ -851,11 +842,11 @@ void CONFIG_WriteBinds(void) // save binds and aliases to disk
         symbol_t *symb;
         fprintf(fp,"// this file automatically generated by EDuke32\n// do not modify if you lack common sense\n");
         for (i=0;i<MAXBOUNDKEYS;i++)
-            if (boundkeys[i].key && *boundkeys[i].cmd)
+            if (boundkeys[i].cmd[0] && boundkeys[i].key)
                 fprintf(fp,"bind %s%s \"%s\"\n",boundkeys[i].key,boundkeys[i].repeat?"":" norepeat",boundkeys[i].cmd);
 
         for (i=0;i<MAXMOUSEBUTTONS;i++)
-            if (mousebind[i].key && *mousebind[i].cmd)
+            if (mousebind[i].cmd[0])
                 fprintf(fp,"bind %s%s \"%s\"\n",mousebind[i].key,mousebind[i].repeat?"":" norepeat",mousebind[i].cmd);
 
         for (symb=symbols; symb!=NULL; symb=symb->next)
