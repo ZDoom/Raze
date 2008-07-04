@@ -641,226 +641,219 @@ static int OSD_FindDiffPoint(const char *str1, const char *str2)
 // 	be passed on to the game.
 //
 
-int OSD_HandleChars(void)
+int OSD_HandleChar(char ch)
 {
     int i,j;
     symbol_t *tabc = NULL;
     static symbol_t *lastmatch = NULL;
-    char ch;
 
-    if (!osdinited) return 1;
+    if (!osdinited || !osdinput) return ch;
 
-    if (!osdinput)
-        return 1;
-
-    while ((ch = bgetchar()))
+    if (ch != 9) lastmatch = NULL;		// tab
+    if (ch == 1)  	// control a. jump to beginning of line
     {
-        if (ch != 9) lastmatch = NULL;		// tab
-        if (ch == 1)  	// control a. jump to beginning of line
+    }
+    else if (ch == 2)  	// control b, move one character left
+    {
+    }
+    else if (ch == 5)  	// control e, jump to end of line
+    {
+    }
+    else if (ch == 6)  	// control f, move one character right
+    {
+    }
+    else if (ch == 8 || ch == 127)  	// control h, backspace
+    {
+        if (!osdeditcursor || !osdeditlen) return 0;
+        if (!osdovertype)
         {
+            if (osdeditcursor < osdeditlen)
+                Bmemmove(osdeditbuf+osdeditcursor-1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
+            osdeditlen--;
         }
-        else if (ch == 2)  	// control b, move one character left
-        {
-        }
-        else if (ch == 5)  	// control e, jump to end of line
-        {
-        }
-        else if (ch == 6)  	// control f, move one character right
-        {
-        }
-        else if (ch == 8 || ch == 127)  	// control h, backspace
-        {
-            if (!osdeditcursor || !osdeditlen) continue;
-            if (!osdovertype)
-            {
-                if (osdeditcursor < osdeditlen)
-                    Bmemmove(osdeditbuf+osdeditcursor-1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
-                osdeditlen--;
-            }
-            osdeditcursor--;
-            if (osdeditcursor<osdeditwinstart) osdeditwinstart--,osdeditwinend--;
-        }
-        else if (ch == 9)  	// tab
-        {
-            int commonsize = 512;
+        osdeditcursor--;
+        if (osdeditcursor<osdeditwinstart) osdeditwinstart--,osdeditwinend--;
+    }
+    else if (ch == 9)  	// tab
+    {
+        int commonsize = 512;
 
-            if (!lastmatch)
-            {
-                for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
-                for (j=0;osdeditbuf[i] != ' ' && i < osdeditlen;j++,i++)
-                    osdedittmp[j] = osdeditbuf[i];
-                osdedittmp[j] = 0;
+        if (!lastmatch)
+        {
+            for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
+            for (j=0;osdeditbuf[i] != ' ' && i < osdeditlen;j++,i++)
+                osdedittmp[j] = osdeditbuf[i];
+            osdedittmp[j] = 0;
 
-                if (j > 0)
+            if (j > 0)
+            {
+                tabc = findsymbol(osdedittmp, NULL);
+
+                if (tabc)
                 {
-                    tabc = findsymbol(osdedittmp, NULL);
-
-                    if (tabc)
+                    if (tabc->next)
                     {
-                        if (tabc->next)
+                        if (findsymbol(osdedittmp, tabc->next))
                         {
-                            if (findsymbol(osdedittmp, tabc->next))
+                            symbol_t *symb=tabc;
+                            int maxwidth = 0, x = 0, num = 0;
+
+                            while (symb && symb != lastmatch)
                             {
-                                symbol_t *symb=tabc;
-                                int maxwidth = 0, x = 0, num = 0;
+                                int diffpt;
 
-                                while (symb && symb != lastmatch)
+                                num++;
+
+                                if (lastmatch)
                                 {
-                                    int diffpt;
-
-                                    num++;
-
-                                    if (lastmatch)
+                                    diffpt = OSD_FindDiffPoint(symb->name,lastmatch->name);
+                                    if (diffpt < commonsize)
                                     {
-                                        diffpt = OSD_FindDiffPoint(symb->name,lastmatch->name);
-                                        if (diffpt < commonsize)
-                                        {
-                                            commonsize = diffpt;
+                                        commonsize = diffpt;
 //                                            OSD_Printf("commonsize %d\n",commonsize);
-                                        }
                                     }
+                                }
 
-                                    maxwidth = max((unsigned)maxwidth,Bstrlen(symb->name));
-                                    lastmatch = symb;
-                                    symb=findsymbol(osdedittmp, lastmatch->next);
-                                }
-                                OSD_Printf("Found %d completions for '%s':\n",num,osdedittmp);
-                                maxwidth += 3;
-                                symb = tabc;
-                                OSD_Printf("  ");
-                                while (symb && symb != lastmatch)
-                                {
-                                    tabc = symb;
-                                    OSD_Printf("%-*s",maxwidth,symb->name);
-                                    x += maxwidth;
-                                    lastmatch = symb;
-                                    symb=findsymbol(osdedittmp, lastmatch->next);
-                                    if (x > osdcols - maxwidth)
-                                    {
-                                        x = 0;
-                                        OSD_Printf("\n");
-                                        if (symb && symb != lastmatch)
-                                            OSD_Printf("  ");
-                                    }
-                                }
-                                if (x)
-                                    OSD_Printf("\n");
+                                maxwidth = max((unsigned)maxwidth,Bstrlen(symb->name));
+                                lastmatch = symb;
+                                symb=findsymbol(osdedittmp, lastmatch->next);
                             }
+                            OSD_Printf("Found %d completions for '%s':\n",num,osdedittmp);
+                            maxwidth += 3;
+                            symb = tabc;
+                            OSD_Printf("  ");
+                            while (symb && symb != lastmatch)
+                            {
+                                tabc = symb;
+                                OSD_Printf("%-*s",maxwidth,symb->name);
+                                x += maxwidth;
+                                lastmatch = symb;
+                                symb=findsymbol(osdedittmp, lastmatch->next);
+                                if (x > osdcols - maxwidth)
+                                {
+                                    x = 0;
+                                    OSD_Printf("\n");
+                                    if (symb && symb != lastmatch)
+                                        OSD_Printf("  ");
+                                }
+                            }
+                            if (x)
+                                OSD_Printf("\n");
                         }
                     }
                 }
             }
-            else
-            {
-                tabc = findsymbol(osdedittmp, lastmatch->next);
-                if (!tabc && lastmatch)
-                    tabc = findsymbol(osdedittmp, NULL);	// wrap */
-            }
+        }
+        else
+        {
+            tabc = findsymbol(osdedittmp, lastmatch->next);
+            if (!tabc && lastmatch)
+                tabc = findsymbol(osdedittmp, NULL);	// wrap */
+        }
 
-            if (tabc)
+        if (tabc)
+        {
+            for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
+            osdeditlen = i;
+            for (j=0;tabc->name[j] && osdeditlen <= EDITLENGTH
+                    && (osdeditlen < commonsize);i++,j++,osdeditlen++)
+                osdeditbuf[i] = tabc->name[j];
+            osdeditcursor = osdeditlen;
+            osdeditwinend = osdeditcursor;
+            osdeditwinstart = osdeditwinend-editlinewidth;
+            if (osdeditwinstart<0)
             {
-                for (i=osdeditcursor;i>0;i--) if (osdeditbuf[i-1] == ' ') break;
-                osdeditlen = i;
-                for (j=0;tabc->name[j] && osdeditlen <= EDITLENGTH
-                        && (osdeditlen < commonsize);i++,j++,osdeditlen++)
-                    osdeditbuf[i] = tabc->name[j];
-                osdeditcursor = osdeditlen;
-                osdeditwinend = osdeditcursor;
-                osdeditwinstart = osdeditwinend-editlinewidth;
-                if (osdeditwinstart<0)
-                {
-                    osdeditwinstart=0;
-                    osdeditwinend = editlinewidth;
-                }
-
-                lastmatch = tabc;
-            }
-        }
-        else if (ch == 11)  	// control k, delete all to end of line
-        {
-        }
-        else if (ch == 12)  	// control l, clear screen
-        {
-            Bmemset(osdtext,0,sizeof(osdtext));
-            osdlines = 1;
-        }
-        else if (ch == 13)  	// control m, enter
-        {
-            if (osdeditlen>0)
-            {
-                osdeditbuf[osdeditlen] = 0;
-                Bmemmove(osdhistorybuf[1], osdhistorybuf[0], HISTORYDEPTH*(EDITLENGTH+1));
-                Bmemmove(osdhistorybuf[0], osdeditbuf, EDITLENGTH+1);
-                if (osdhistorysize < HISTORYDEPTH) osdhistorysize++;
-                if (osdexeccount == HISTORYDEPTH)
-                    OSD_Printf("Command Buffer Warning: Failed queueing command "
-                               "for execution. Buffer full.\n");
-                else
-                    osdexeccount++;
-                osdhistorypos=-1;
-            }
-
-            osdeditlen=0;
-            osdeditcursor=0;
-            osdeditwinstart=0;
-            osdeditwinend=editlinewidth;
-        }
-        else if (ch == 16)  	// control p, previous (ie. up arrow)
-        {
-        }
-        else if (ch == 20)  	// control t, swap previous two chars
-        {
-        }
-        else if (ch == 21)  	// control u, delete all to beginning
-        {
-            if (osdeditcursor>0 && osdeditlen)
-            {
-                if (osdeditcursor<osdeditlen)
-                    Bmemmove(osdeditbuf, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
-                osdeditlen-=osdeditcursor;
-                osdeditcursor = 0;
-                osdeditwinstart = 0;
+                osdeditwinstart=0;
                 osdeditwinend = editlinewidth;
             }
-        }
-        else if (ch == 23)  	// control w, delete one word back
-        {
-            if (osdeditcursor>0 && osdeditlen>0)
-            {
-                i=osdeditcursor;
-                while (i>0 && osdeditbuf[i-1]==32) i--;
-                while (i>0 && osdeditbuf[i-1]!=32) i--;
-                if (osdeditcursor<osdeditlen)
-                    Bmemmove(osdeditbuf+i, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
-                osdeditlen -= (osdeditcursor-i);
-                osdeditcursor = i;
-                if (osdeditcursor < osdeditwinstart)
-                {
-                    osdeditwinstart=osdeditcursor;
-                    osdeditwinend=osdeditwinstart+editlinewidth;
-                }
-            }
-        }
-        else if (ch >= 32)  	// text char
-        {
-            if (!osdovertype && osdeditlen == EDITLENGTH)	// buffer full, can't insert another char
-                continue;
 
-            if (!osdovertype)
-            {
-                if (osdeditcursor < osdeditlen)
-                    Bmemmove(osdeditbuf+osdeditcursor+1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
-                osdeditlen++;
-            }
-            else
-            {
-                if (osdeditcursor == osdeditlen)
-                    osdeditlen++;
-            }
-            osdeditbuf[osdeditcursor] = ch;
-            osdeditcursor++;
-            if (osdeditcursor>osdeditwinend) osdeditwinstart++,osdeditwinend++;
+            lastmatch = tabc;
         }
+    }
+    else if (ch == 11)  	// control k, delete all to end of line
+    {
+    }
+    else if (ch == 12)  	// control l, clear screen
+    {
+        Bmemset(osdtext,0,sizeof(osdtext));
+        osdlines = 1;
+    }
+    else if (ch == 13)  	// control m, enter
+    {
+        if (osdeditlen>0)
+        {
+            osdeditbuf[osdeditlen] = 0;
+            Bmemmove(osdhistorybuf[1], osdhistorybuf[0], HISTORYDEPTH*(EDITLENGTH+1));
+            Bmemmove(osdhistorybuf[0], osdeditbuf, EDITLENGTH+1);
+            if (osdhistorysize < HISTORYDEPTH) osdhistorysize++;
+            if (osdexeccount == HISTORYDEPTH)
+                OSD_Printf("Command Buffer Warning: Failed queueing command "
+                           "for execution. Buffer full.\n");
+            else
+                osdexeccount++;
+            osdhistorypos=-1;
+        }
+
+        osdeditlen=0;
+        osdeditcursor=0;
+        osdeditwinstart=0;
+        osdeditwinend=editlinewidth;
+    }
+    else if (ch == 16)  	// control p, previous (ie. up arrow)
+    {
+    }
+    else if (ch == 20)  	// control t, swap previous two chars
+    {
+    }
+    else if (ch == 21)  	// control u, delete all to beginning
+    {
+        if (osdeditcursor>0 && osdeditlen)
+        {
+            if (osdeditcursor<osdeditlen)
+                Bmemmove(osdeditbuf, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
+            osdeditlen-=osdeditcursor;
+            osdeditcursor = 0;
+            osdeditwinstart = 0;
+            osdeditwinend = editlinewidth;
+        }
+    }
+    else if (ch == 23)  	// control w, delete one word back
+    {
+        if (osdeditcursor>0 && osdeditlen>0)
+        {
+            i=osdeditcursor;
+            while (i>0 && osdeditbuf[i-1]==32) i--;
+            while (i>0 && osdeditbuf[i-1]!=32) i--;
+            if (osdeditcursor<osdeditlen)
+                Bmemmove(osdeditbuf+i, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
+            osdeditlen -= (osdeditcursor-i);
+            osdeditcursor = i;
+            if (osdeditcursor < osdeditwinstart)
+            {
+                osdeditwinstart=osdeditcursor;
+                osdeditwinend=osdeditwinstart+editlinewidth;
+            }
+        }
+    }
+    else if (ch >= 32)  	// text char
+    {
+        if (!osdovertype && osdeditlen == EDITLENGTH)	// buffer full, can't insert another char
+            return 0;
+
+        if (!osdovertype)
+        {
+            if (osdeditcursor < osdeditlen)
+                Bmemmove(osdeditbuf+osdeditcursor+1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);
+            osdeditlen++;
+        }
+        else
+        {
+            if (osdeditcursor == osdeditlen)
+                osdeditlen++;
+        }
+        osdeditbuf[osdeditcursor] = ch;
+        osdeditcursor++;
+        if (osdeditcursor>osdeditwinend) osdeditwinstart++,osdeditwinend++;
     }
     return 0;
 }

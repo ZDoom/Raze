@@ -4125,9 +4125,9 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         if (((keyasciififoend+1)&(KEYFIFOSIZ-1)) == keyasciififoplc) return 0;
         if ((keyasciififoend - keyasciififoplc) > 0) return 0;
         if (Btolower(scantoasc[osdkey]) == Btolower((unsigned char)wParam)) return 0;
+        if (!OSD_HandleChar((unsigned char)wParam)) return 0;
         keyasciififo[keyasciififoend] = (unsigned char)wParam;
         keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
-        OSD_HandleChars();
         //OSD_Printf("WM_CHAR %d, %d-%d\n",wParam,keyasciififoplc,keyasciififoend);
         return 0;
 

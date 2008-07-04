@@ -1420,9 +1420,11 @@ int handleevents(void)
                     (ev.key.keysym.unicode & 0xff80) == 0 &&
                     ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
             {
-                keyasciififo[keyasciififoend] = ev.key.keysym.unicode & 0x7f;
-                keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
-                OSD_HandleChars();
+                if (OSD_HandleChars(ev.key.keysym.unicode & 0x7f))
+                {
+                    keyasciififo[keyasciififoend] = ev.key.keysym.unicode & 0x7f;
+                    keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
+                }
             }
 
             // hook in the osd
