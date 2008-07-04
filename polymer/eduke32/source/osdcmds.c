@@ -1240,7 +1240,7 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("fileinfo","fileinfo <file>: gets a file's information", osdcmd_fileinfo);
 
-    for (i=0;i<NUMGAMEFUNCTIONS;i++)
+    for (i=0;i<NUMGAMEFUNCTIONS-1;i++)
     {
         char *t;
         Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);

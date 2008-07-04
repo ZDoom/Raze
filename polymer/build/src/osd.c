@@ -702,11 +702,13 @@ int OSD_HandleChars(void)
                             if (findsymbol(osdedittmp, tabc->next))
                             {
                                 symbol_t *symb=tabc;
-                                int maxwidth = 0, x = 0;
+                                int maxwidth = 0, x = 0, num = 0;
 
                                 while (symb && symb != lastmatch)
                                 {
                                     int diffpt;
+
+                                    num++;
 
                                     if (lastmatch)
                                     {
@@ -722,7 +724,7 @@ int OSD_HandleChars(void)
                                     lastmatch = symb;
                                     symb=findsymbol(osdedittmp, lastmatch->next);
                                 }
-                                OSD_Printf("Completions for '%s':\n",osdedittmp);
+                                OSD_Printf("Found %d completions for '%s':\n",num,osdedittmp);
                                 maxwidth += 3;
                                 symb = tabc;
                                 OSD_Printf("  ");

@@ -54,7 +54,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20080702
+#define BUILDDATE 20080703
 #define UPDATEINTERVAL 604800 // 1w
 #endif
 
@@ -10464,8 +10464,8 @@ void app_main(int argc,const char **argv)
         (int(*)(void))GetTime,
         GAME_onshowosd
     );
-    OSD_SetParameters(0,10, 0,12, 4,12);
-    OSD_SetVersionString(HEAD2,0,0);
+    OSD_SetParameters(10,0, 0,12, 4,12);
+    OSD_SetVersionString(HEAD2, 10,0);
     registerosdcommands();
 
     if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
