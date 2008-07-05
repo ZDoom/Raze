@@ -1420,7 +1420,7 @@ int handleevents(void)
                     (ev.key.keysym.unicode & 0xff80) == 0 &&
                     ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
             {
-                if (OSD_HandleChars(ev.key.keysym.unicode & 0x7f))
+                if (OSD_HandleChar(ev.key.keysym.unicode & 0x7f))
                 {
                     keyasciififo[keyasciififoend] = ev.key.keysym.unicode & 0x7f;
                     keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));

@@ -67,7 +67,7 @@ void OSD_CaptureKey(int sc);
 // handles keyboard input when capturing input. returns 0 if key was handled
 // or the scancode if it should be handled by the game.
 int  OSD_HandleScanCode(int sc, int press);
-int  OSD_HandleChars(char ch);
+int  OSD_HandleChar(char ch);
 
 // handles the readjustment when screen resolution changes
 void OSD_ResizeDisplay(int w,int h);
