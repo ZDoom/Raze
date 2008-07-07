@@ -374,48 +374,6 @@ void CONFIG_ReadKeys(void)
             }
             ud.config.KeyboardKeys[function][0] = key1;
             ud.config.KeyboardKeys[function][1] = key2;
-/*
-            if (key1 != 0xff && keyname1[0])
-            {
-                boundkeys[key1].repeat = 1;
-                for (j=0;keynames[j].name;j++)
-                    if (key1 == keynames[j].id)
-                        break;
-                if (keynames[j].name)
-                    boundkeys[key1].key=Bstrdup(keynames[j].name);
-                else boundkeys[key1].key=Bstrdup(keyname1);
-                Bsprintf(tempbuf,"gamefunc_%s;",CONFIG_FunctionNumToName(function));
-                if (!boundkeys[key1].cmd[0] || !Bstrcasecmp(tempbuf,boundkeys[key1].cmd))
-                {
-                    Bstrncpy(boundkeys[key1].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
-                }
-                else
-                {
-                    Bsprintf(tempbuf,"gamefunc_%s;",CONFIG_FunctionNumToName(function));
-                    Bstrncat(boundkeys[key1].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
-                }
-            }
-            if (key2 != 0xff && keyname2[0])
-            {
-                boundkeys[key2].repeat = 1;
-                for (j=0;keynames[j].name;j++)
-                    if (key2 == keynames[j].id)
-                        break;
-                if (keynames[j].name)
-                    boundkeys[key2].key=Bstrdup(keynames[j].name);
-                else boundkeys[key2].key=Bstrdup(keyname2);
-                Bsprintf(tempbuf,"gamefunc_%s;",CONFIG_FunctionNumToName(function));
-                if (!boundkeys[key2].cmd[0] || !Bstrcasecmp(tempbuf,boundkeys[key2].cmd))
-                {
-                    Bstrncpy(boundkeys[key2].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
-                }
-                else
-                {
-                    Bsprintf(tempbuf,"gamefunc_%s;",CONFIG_FunctionNumToName(function));
-                    Bstrncat(boundkeys[key2].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
-                }
-            }
-            */
         }
     }
 
@@ -433,7 +391,7 @@ void MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2
 {
     int i, j, k;
     int ii[] = { key1, key2, oldkey1, oldkey2 };
-    char buf[128];
+    char buf[64];
 
     CONTROL_MapKey(which, key1, key2);
 

@@ -71,7 +71,7 @@ static int  osdeditwinend=60-1-3;
 #define editlinewidth (osdcols-1-3)
 
 // command processing
-#define HISTORYDEPTH 16
+#define HISTORYDEPTH 32
 static int  osdhistorypos=-1;		// position we are at in the history buffer
 static int  osdhistorybuf[HISTORYDEPTH][EDITLENGTH+1];	// history strings
 static int  osdhistorysize=0;		// number of entries in history
@@ -531,7 +531,7 @@ void OSD_Init(void)
     osdinited=1;
 
     OSD_RegisterFunction("listsymbols","listsymbols: lists all the recognized symbols",_internal_osdfunc_listsymbols);
-    OSD_RegisterFunction("help","help: displays help for the specified cvar or command",_internal_osdfunc_help);
+    OSD_RegisterFunction("help","help: displays help for the specified cvar or command; \"listsymbols\" to show all commands",_internal_osdfunc_help);
     OSD_RegisterFunction("osdrows","osdrows: sets the number of visible lines of the OSD",_internal_osdfunc_vars);
     OSD_RegisterFunction("logcutoff","logcutoff: sets the maximal line count of the log file",_internal_osdfunc_vars);
     OSD_RegisterFunction("clear","clear: clears the console text buffer",_internal_osdfunc_clear);
@@ -718,7 +718,7 @@ int OSD_HandleChar(char ch)
                                 lastmatch = symb;
                                 symb=findsymbol(osdedittmp, lastmatch->next);
                             }
-                            OSD_Printf("Found %d completions for '%s':\n",num,osdedittmp);
+                            OSD_Printf("Found %d possible completions for '%s':\n",num,osdedittmp);
                             maxwidth += 3;
                             symb = tabc;
                             OSD_Printf("  ");
