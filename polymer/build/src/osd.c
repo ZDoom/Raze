@@ -57,7 +57,7 @@ static int  keytime=0;
 static int osdscrtime = 0;
 
 // command prompt editing
-#define EDITLENGTH 512
+#define EDITLENGTH 511
 static int  osdovertype=0;		// insert (0) or overtype (1)
 static char osdeditbuf[EDITLENGTH+1];	// editing buffer
 static char osdedittmp[EDITLENGTH+1];	// editing buffer temporary workspace
@@ -73,7 +73,7 @@ static int  osdeditwinend=60-1-3;
 // command processing
 #define HISTORYDEPTH 32
 static int  osdhistorypos=-1;		// position we are at in the history buffer
-static int  osdhistorybuf[HISTORYDEPTH][EDITLENGTH+1];	// history strings
+static char osdhistorybuf[HISTORYDEPTH][EDITLENGTH+1];	// history strings
 static int  osdhistorysize=0;		// number of entries in history
 
 // execution buffer
@@ -497,6 +497,17 @@ static int _internal_osdfunc_clear(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int _internal_osdfunc_history(const osdfuncparm_t *parm)
+{
+    int i, j = 0;
+    UNREFERENCED_PARAMETER(parm);
+    OSD_Printf("%s\n",parm->raw);
+    for (i=HISTORYDEPTH-1; i>=0;i--)
+        if (osdhistorybuf[i][0])
+            OSD_Printf("%4d \"%s\"\n",++j,osdhistorybuf[i]);
+    return OSDCMD_OK;
+}
+
 ////////////////////////////
 
 
@@ -544,6 +555,7 @@ void OSD_Init(void)
     OSD_RegisterFunction("osdpromptpal","osdpromptpal: sets the palette of the OSD prompt",_internal_osdfunc_vars);
     OSD_RegisterFunction("osdeditpal","osdeditpal: sets the palette of the OSD input text",_internal_osdfunc_vars);
     OSD_RegisterFunction("osdtextpal","osdtextpal: sets the palette of the OSD text",_internal_osdfunc_vars);
+    OSD_RegisterFunction("history","history: displays the console command history",_internal_osdfunc_history);
 
     atexit(OSD_Cleanup);
 }
@@ -783,14 +795,25 @@ int OSD_HandleChar(char ch)
         if (osdeditlen>0)
         {
             osdeditbuf[osdeditlen] = 0;
-            Bmemmove(osdhistorybuf[1], osdhistorybuf[0], HISTORYDEPTH*(EDITLENGTH+1));
-            Bmemmove(osdhistorybuf[0], osdeditbuf, EDITLENGTH+1);
-            if (osdhistorysize < HISTORYDEPTH) osdhistorysize++;
-            if (osdexeccount == HISTORYDEPTH)
-                OSD_Printf("Command Buffer Warning: Failed queueing command "
-                           "for execution. Buffer full.\n");
+            if (Bstrcmp(osdhistorybuf[0], osdeditbuf))
+            {
+                Bmemmove(osdhistorybuf[1], osdhistorybuf[0], (HISTORYDEPTH-1)*(EDITLENGTH+1));
+                Bmemmove(osdhistorybuf[0], osdeditbuf, EDITLENGTH+1);
+                if (osdhistorysize < HISTORYDEPTH) osdhistorysize++;
+                if (osdexeccount == HISTORYDEPTH)
+                    OSD_Printf("Command Buffer Warning: Failed queueing command "
+                    "for execution. Buffer full.\n");
+                else
+                    osdexeccount++;
+            }
             else
-                osdexeccount++;
+            {
+                if (osdexeccount == HISTORYDEPTH)
+                    OSD_Printf("Command Buffer Warning: Failed queueing command "
+                    "for execution. Buffer full.\n");
+                else
+                    osdexeccount++;
+            }
             osdhistorypos=-1;
         }
 
