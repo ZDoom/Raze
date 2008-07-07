@@ -1416,7 +1416,7 @@ int handleevents(void)
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.sym];
 
-            if (code != osdkey && ev.key.keysym.unicode != 0 && ev.key.type == SDL_KEYDOWN &&
+            if (code != OSD_OSDKey() && ev.key.keysym.unicode != 0 && ev.key.type == SDL_KEYDOWN &&
                     (ev.key.keysym.unicode & 0xff80) == 0 &&
                     ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
             {

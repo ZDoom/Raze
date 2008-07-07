@@ -1110,7 +1110,7 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
         Bstrncpy(mousebind[i].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
 
         mousebind[i].key=mousenames[i];
-        if (!osdexecscript)
+        if (!OSD_ParsingScript())
             OSD_Printf("%s\n",parm->raw);
         return OSDCMD_OK;
     }
@@ -1139,7 +1139,7 @@ static int osdcmd_bind(const osdfuncparm_t *parm)
     Bstrncpy(boundkeys[keynames[i].id].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
 
     boundkeys[keynames[i].id].key=keynames[i].name;
-    if (!osdexecscript)
+    if (!OSD_ParsingScript())
         OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;
 }

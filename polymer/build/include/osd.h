@@ -31,9 +31,8 @@ const char *stripcolorcodes(const char *t);
 #define OSDCMD_OK	0
 #define OSDCMD_SHOWHELP 1
 
-extern int osdexecscript;
-extern int osdkey;
-
+int OSD_ParsingScript(void);
+int OSD_OSDKey(void);
 int OSD_Exec(const char *szScript);
 
 // initializes things

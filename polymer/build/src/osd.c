@@ -52,7 +52,7 @@ static char osdinput=0;         // capture input?
 static int  osdhead=0; 			// topmost visible line number
 static BFILE *osdlog=NULL;		// log filehandle
 static char osdinited=0;		// text buffer initialized?
-int  osdkey=0x29;		        // tilde shows the osd
+static int  osdkey=0x29;		        // tilde shows the osd
 static int  keytime=0;
 static int osdscrtime = 0;
 
@@ -75,15 +75,16 @@ static int  osdeditwinend=60-1-3;
 static int  osdhistorypos=-1;		// position we are at in the history buffer
 static char osdhistorybuf[HISTORYDEPTH][EDITLENGTH+1];	// history strings
 static int  osdhistorysize=0;		// number of entries in history
+static int  osdhistorytotal=0;      // number of total history entries
 
 // execution buffer
 // the execution buffer works from the command history
 static int  osdexeccount=0;		// number of lines from the head of the history buffer to execute
 
 // maximal log line count
-int logcutoff=120000;
-int linecnt;
-int osdexecscript=0;
+static int logcutoff=120000;
+static int linecnt;
+static int osdexecscript=0;
 
 // presentation parameters
 static int  osdpromptshade=0;
@@ -504,7 +505,7 @@ static int _internal_osdfunc_history(const osdfuncparm_t *parm)
     OSD_Printf("%s\n",parm->raw);
     for (i=HISTORYDEPTH-1; i>=0;i--)
         if (osdhistorybuf[i][0])
-            OSD_Printf("%4d \"%s\"\n",++j,osdhistorybuf[i]);
+            OSD_Printf("%4d \"%s\"\n",osdhistorytotal-osdhistorysize+(++j),osdhistorybuf[i]);
     return OSDCMD_OK;
 }
 
@@ -800,6 +801,7 @@ int OSD_HandleChar(char ch)
                 Bmemmove(osdhistorybuf[1], osdhistorybuf[0], (HISTORYDEPTH-1)*(EDITLENGTH+1));
                 Bmemmove(osdhistorybuf[0], osdeditbuf, EDITLENGTH+1);
                 if (osdhistorysize < HISTORYDEPTH) osdhistorysize++;
+                osdhistorytotal++;
                 if (osdexeccount == HISTORYDEPTH)
                     OSD_Printf("Command Buffer Warning: Failed queueing command "
                     "for execution. Buffer full.\n");
@@ -1573,6 +1575,16 @@ void OSD_SetVersionString(const char *version, int shade, int pal)
     osdversionstringlen = Bstrlen(osdversionstring);
     osdversionstringshade = shade;
     osdversionstringpal = pal;
+}
+
+int OSD_ParsingScript(void)
+{
+    return osdexecscript;
+}
+
+int OSD_OSDKey(void)
+{
+    return osdkey;
 }
 
 //
