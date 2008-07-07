@@ -9031,23 +9031,6 @@ static void checkcommandline(int argc, const char **argv)
 #endif
             }
 
-            k = Bstrchr(c,'.');
-            if (k)
-            {
-                if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
-                {
-                    addgroup(argv[i++]);
-                    continue;
-                }
-                if (!Bstrcasecmp(k,".con"))
-                {
-                    confilename = (char *)argv[i++];
-                    userconfiles = 1;
-                    initprintf("Using CON file '%s'.\n",confilename);
-                    continue;
-                }
-            }
-
             if (firstnet > 0)
             {
                 if (*c == '-' || *c == '/')
@@ -9315,6 +9298,25 @@ static void checkcommandline(int argc, const char **argv)
                     if (!g_ScriptDebug)
                         g_ScriptDebug = 1;
                     break;
+                }
+            }
+            else
+            {
+                k = Bstrchr(c,'.');
+                if (k)
+                {
+                    if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
+                    {
+                        addgroup(argv[i++]);
+                        continue;
+                    }
+                    if (!Bstrcasecmp(k,".con"))
+                    {
+                        confilename = (char *)argv[i++];
+                        userconfiles = 1;
+                        initprintf("Using CON file '%s'.\n",confilename);
+                        continue;
+                    }
                 }
             }
             i++;

@@ -6760,16 +6760,6 @@ static void checkcommandline(int argc, const char **argv)
 #endif
             }
 
-            k = Bstrchr(c,'.');
-            if (k)
-            {
-                if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
-                {
-                    addgroup(argv[i++]);
-                    continue;
-                }
-            }
-
             if ((*c == '/') || (*c == '-'))
             {
                 c++;
@@ -6796,6 +6786,18 @@ static void checkcommandline(int argc, const char **argv)
                     if (!*c) break;
                     addgroup(c);
                     break;
+                }
+            }
+            else
+            {
+                k = Bstrchr(c,'.');
+                if (k)
+                {
+                    if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
+                    {
+                        addgroup(argv[i++]);
+                        continue;
+                    }
                 }
             }
             i++;
