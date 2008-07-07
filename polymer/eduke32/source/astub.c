@@ -6668,7 +6668,7 @@ static void addgroup(const char *buffer)
 static void checkcommandline(int argc, const char **argv)
 {
     int i = 1;
-    char *c;
+    char *c, *k;
 
     if (argc > 1)
     {
@@ -6758,6 +6758,16 @@ static void checkcommandline(int argc, const char **argv)
                     continue;
                 }
 #endif
+            }
+
+            k = Bstrchr(c,'.');
+            if (k)
+            {
+                if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
+                {
+                    addgroup(argv[i++]);
+                    continue;
+                }
             }
 
             if ((*c == '/') || (*c == '-'))
@@ -7013,6 +7023,7 @@ static int registerosdcommands(void)
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
+    OSD_RegisterFunction("exit","exit: exits the game immediately", osdcmd_quit);
 
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
 

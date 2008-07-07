@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "crc32.h"
 #include <ctype.h>
+#include <limits.h>
 
 extern int voting, doquicksave;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
@@ -673,6 +674,7 @@ cvarmappings cvar[] =
     { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
     { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
     { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
+    { "r_visibility", "r_visibility: sets the global map visibility", (void*)&ud.const_visibility, CVAR_INT|128, 0, INT_MIN, INT_MAX },
 
     { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
     { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&ud.config.VoiceToggle, CVAR_INT, 0, 0, 2 },
@@ -1263,6 +1265,7 @@ int registerosdcommands(void)
     OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
     OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
+    OSD_RegisterFunction("exit","exit: exits the game immediately", osdcmd_quit);
 
     OSD_RegisterFunction("rate","rate: sets the multiplayer packet send rate, in packets/sec",osdcmd_rate);
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
