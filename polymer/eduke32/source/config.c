@@ -816,14 +816,15 @@ void CONFIG_WriteBinds(void) // save binds and aliases to disk
                         fprintf(fp,"%s \"%d\"\n",cvar[i].name,*(int*)cvar[i].var);
                         */
         fclose(fp);
+        OSD_Printf("Wrote binds.cfg\n");
+        return;
     }
+    OSD_Printf("Error writing binds.cfg: %s\n",strerror(errno));
 }
 
 void CONFIG_WriteSetup(void)
 {
     int32 dummy;
-
-    CONFIG_WriteBinds();
 
     if (!ud.config.setupread) return;
 
@@ -1022,6 +1023,8 @@ void CONFIG_WriteSetup(void)
 
     SCRIPT_Save(ud.config.scripthandle, setupfilename);
     SCRIPT_Free(ud.config.scripthandle);
+    OSD_Printf("Wrote %s\n",setupfilename);
+    CONFIG_WriteBinds();
 }
 
 

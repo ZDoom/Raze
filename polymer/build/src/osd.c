@@ -542,21 +542,21 @@ void OSD_Init(void)
 
     osdinited=1;
 
-    OSD_RegisterFunction("listsymbols","listsymbols: lists all the recognized symbols",_internal_osdfunc_listsymbols);
-    OSD_RegisterFunction("help","help: displays help for the specified cvar or command; \"listsymbols\" to show all commands",_internal_osdfunc_help);
-    OSD_RegisterFunction("osdrows","osdrows: sets the number of visible lines of the OSD",_internal_osdfunc_vars);
-    OSD_RegisterFunction("logcutoff","logcutoff: sets the maximal line count of the log file",_internal_osdfunc_vars);
-    OSD_RegisterFunction("clear","clear: clears the console text buffer",_internal_osdfunc_clear);
     OSD_RegisterFunction("alias","alias: creates an alias for calling multiple commands",_internal_osdfunc_alias);
-    OSD_RegisterFunction("unalias","unalias: removes an alias created with \"alias\"",_internal_osdfunc_unalias);
+    OSD_RegisterFunction("clear","clear: clears the console text buffer",_internal_osdfunc_clear);
     OSD_RegisterFunction("exec","exec <scriptfile>: executes a script", _internal_osdfunc_exec);
-    OSD_RegisterFunction("osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdeditshade","osdeditshade: sets the shade of the OSD input text",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdtextshade","osdtextshade: sets the shade of the OSD text",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdpromptpal","osdpromptpal: sets the palette of the OSD prompt",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdeditpal","osdeditpal: sets the palette of the OSD input text",_internal_osdfunc_vars);
-    OSD_RegisterFunction("osdtextpal","osdtextpal: sets the palette of the OSD text",_internal_osdfunc_vars);
+    OSD_RegisterFunction("help","help: displays help for the specified cvar or command; \"listsymbols\" to show all commands",_internal_osdfunc_help);
     OSD_RegisterFunction("history","history: displays the console command history",_internal_osdfunc_history);
+    OSD_RegisterFunction("listsymbols","listsymbols: lists all the recognized symbols",_internal_osdfunc_listsymbols);
+    OSD_RegisterFunction("logcutoff","logcutoff: sets the maximal line count of the log file",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdeditpal","osdeditpal: sets the palette of the OSD input text",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdeditshade","osdeditshade: sets the shade of the OSD input text",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdpromptpal","osdpromptpal: sets the palette of the OSD prompt",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdrows","osdrows: sets the number of visible lines of the OSD",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdtextpal","osdtextpal: sets the palette of the OSD text",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdtextshade","osdtextshade: sets the shade of the OSD text",_internal_osdfunc_vars);
+    OSD_RegisterFunction("unalias","unalias: removes an alias created with \"alias\"",_internal_osdfunc_unalias);
 
     atexit(OSD_Cleanup);
 }
@@ -654,6 +654,63 @@ static int OSD_FindDiffPoint(const char *str1, const char *str2)
 // 	be passed on to the game.
 //
 
+static void OSD_HistoryPrev(void)
+{
+    if (osdhistorypos < osdhistorysize-1)
+    {
+        osdhistorypos++;
+        memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
+        osdeditlen = osdeditcursor = 0;
+        while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
+        if (osdeditcursor<osdeditwinstart)
+        {
+            osdeditwinend = osdeditcursor;
+            osdeditwinstart = osdeditwinend-editlinewidth;
+
+            if (osdeditwinstart<0)
+                osdeditwinend-=osdeditwinstart,
+                osdeditwinstart=0;
+        }
+        else if (osdeditcursor>=osdeditwinend)
+            osdeditwinstart+=(osdeditcursor-osdeditwinend),
+            osdeditwinend+=(osdeditcursor-osdeditwinend);
+    }
+}
+
+static void OSD_HistoryNext(void)
+{
+    if (osdhistorypos >= 0)
+    {
+        if (osdhistorypos == 0)
+        {
+            osdeditlen=0;
+            osdeditcursor=0;
+            osdeditwinstart=0;
+            osdeditwinend=editlinewidth;
+            osdhistorypos = -1;
+        }
+        else
+        {
+            osdhistorypos--;
+            memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
+            osdeditlen = osdeditcursor = 0;
+            while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
+            if (osdeditcursor<osdeditwinstart)
+            {
+                osdeditwinend = osdeditcursor;
+                osdeditwinstart = osdeditwinend-editlinewidth;
+
+                if (osdeditwinstart<0)
+                    osdeditwinend-=osdeditwinstart,
+                    osdeditwinstart=0;
+            }
+            else if (osdeditcursor>=osdeditwinend)
+                osdeditwinstart+=(osdeditcursor-osdeditwinend),
+                osdeditwinend+=(osdeditcursor-osdeditwinend);
+        }
+    }
+}
+
 int OSD_HandleChar(char ch)
 {
     int i,j;
@@ -665,15 +722,37 @@ int OSD_HandleChar(char ch)
     if (ch != 9) lastmatch = NULL;		// tab
     if (ch == 1)  	// control a. jump to beginning of line
     {
+        osdeditcursor=0;
+        osdeditwinstart=0;
+        osdeditwinend=editlinewidth;
     }
     else if (ch == 2)  	// control b, move one character left
     {
+        if (osdeditcursor > 0) osdeditcursor--;
+    }
+    else if (ch == 3)  	// control c
+    {
+        OSD_Printf("%s\n",osdeditbuf);
+        osdeditlen=0;
+        osdeditcursor=0;
+        osdeditwinstart=0;
+        osdeditwinend=editlinewidth;
+        osdeditbuf[0] = 0;
     }
     else if (ch == 5)  	// control e, jump to end of line
     {
+        osdeditcursor = osdeditlen;
+        osdeditwinend = osdeditcursor;
+        osdeditwinstart = osdeditwinend-editlinewidth;
+        if (osdeditwinstart<0)
+        {
+            osdeditwinstart=0;
+            osdeditwinend = editlinewidth;
+        }
     }
     else if (ch == 6)  	// control f, move one character right
     {
+        if (osdeditcursor < osdeditlen) osdeditcursor++;
     }
     else if (ch == 8 || ch == 127)  	// control h, backspace
     {
@@ -785,6 +864,7 @@ int OSD_HandleChar(char ch)
     }
     else if (ch == 11)  	// control k, delete all to end of line
     {
+        Bmemset(osdeditbuf+osdeditcursor,0,sizeof(osdeditbuf)-osdeditcursor);
     }
     else if (ch == 12)  	// control l, clear screen
     {
@@ -824,8 +904,13 @@ int OSD_HandleChar(char ch)
         osdeditwinstart=0;
         osdeditwinend=editlinewidth;
     }
+    else if (ch == 14)  	// control n, next (ie. down arrow)
+    {
+        OSD_HistoryNext();
+    }
     else if (ch == 16)  	// control p, previous (ie. up arrow)
     {
+        OSD_HistoryPrev();
     }
     else if (ch == 20)  	// control t, swap previous two chars
     {
@@ -1022,58 +1107,11 @@ int OSD_HandleScanCode(int sc, int press)
     }
     else if (sc == 200)  	// up
     {
-        if (osdhistorypos < osdhistorysize-1)
-        {
-            osdhistorypos++;
-            memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
-            osdeditlen = osdeditcursor = 0;
-            while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
-            if (osdeditcursor<osdeditwinstart)
-            {
-                osdeditwinend = osdeditcursor;
-                osdeditwinstart = osdeditwinend-editlinewidth;
-
-                if (osdeditwinstart<0)
-                    osdeditwinend-=osdeditwinstart,
-                                   osdeditwinstart=0;
-            }
-            else if (osdeditcursor>=osdeditwinend)
-                osdeditwinstart+=(osdeditcursor-osdeditwinend),
-                                 osdeditwinend+=(osdeditcursor-osdeditwinend);
-        }
+        OSD_HistoryPrev();
     }
     else if (sc == 208)  	// down
     {
-        if (osdhistorypos >= 0)
-        {
-            if (osdhistorypos == 0)
-            {
-                osdeditlen=0;
-                osdeditcursor=0;
-                osdeditwinstart=0;
-                osdeditwinend=editlinewidth;
-                osdhistorypos = -1;
-            }
-            else
-            {
-                osdhistorypos--;
-                memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
-                osdeditlen = osdeditcursor = 0;
-                while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
-                if (osdeditcursor<osdeditwinstart)
-                {
-                    osdeditwinend = osdeditcursor;
-                    osdeditwinstart = osdeditwinend-editlinewidth;
-
-                    if (osdeditwinstart<0)
-                        osdeditwinend-=osdeditwinstart,
-                                       osdeditwinstart=0;
-                }
-                else if (osdeditcursor>=osdeditwinend)
-                    osdeditwinstart+=(osdeditcursor-osdeditwinend),
-                                     osdeditwinend+=(osdeditcursor-osdeditwinend);
-            }
-        }
+        OSD_HistoryNext();
     }
     else if (sc == 42 || sc == 54)  	// shift
     {
