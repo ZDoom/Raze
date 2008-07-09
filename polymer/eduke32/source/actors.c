@@ -501,7 +501,7 @@ int movesprite(int spritenum, int xchange, int ychange, int zchange, unsigned in
         {
             sprite[spritenum].x = oldx;
             sprite[spritenum].y = oldy;
-            if (sector[dasectnum].lotag == 1 && sprite[spritenum].picnum == LIZMAN)
+            if (dasectnum >= 0 && sector[dasectnum].lotag == 1 && sprite[spritenum].picnum == LIZMAN)
                 sprite[spritenum].ang = (TRAND&2047);
             else if ((hittype[spritenum].temp_data[0]&3) == 1 && sprite[spritenum].picnum != COMMANDER)
                 sprite[spritenum].ang = (TRAND&2047);
