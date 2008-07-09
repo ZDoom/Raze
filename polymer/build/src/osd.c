@@ -656,59 +656,56 @@ static int OSD_FindDiffPoint(const char *str1, const char *str2)
 
 static void OSD_HistoryPrev(void)
 {
-    if (osdhistorypos < osdhistorysize-1)
-    {
-        osdhistorypos++;
-        memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
-        osdeditlen = osdeditcursor = 0;
-        while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
-        if (osdeditcursor<osdeditwinstart)
-        {
-            osdeditwinend = osdeditcursor;
-            osdeditwinstart = osdeditwinend-editlinewidth;
+    if (osdhistorypos >= osdhistorysize-1) return;
 
-            if (osdeditwinstart<0)
-                osdeditwinend-=osdeditwinstart,
-                osdeditwinstart=0;
-        }
-        else if (osdeditcursor>=osdeditwinend)
-            osdeditwinstart+=(osdeditcursor-osdeditwinend),
-            osdeditwinend+=(osdeditcursor-osdeditwinend);
+    osdhistorypos++;
+    memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
+    osdeditlen = osdeditcursor = 0;
+    while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
+    if (osdeditcursor<osdeditwinstart)
+    {
+        osdeditwinend = osdeditcursor;
+        osdeditwinstart = osdeditwinend-editlinewidth;
+
+        if (osdeditwinstart<0)
+            osdeditwinend-=osdeditwinstart,
+            osdeditwinstart=0;
     }
+    else if (osdeditcursor>=osdeditwinend)
+        osdeditwinstart+=(osdeditcursor-osdeditwinend),
+        osdeditwinend+=(osdeditcursor-osdeditwinend);
 }
 
 static void OSD_HistoryNext(void)
 {
-    if (osdhistorypos >= 0)
-    {
-        if (osdhistorypos == 0)
-        {
-            osdeditlen=0;
-            osdeditcursor=0;
-            osdeditwinstart=0;
-            osdeditwinend=editlinewidth;
-            osdhistorypos = -1;
-        }
-        else
-        {
-            osdhistorypos--;
-            memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
-            osdeditlen = osdeditcursor = 0;
-            while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
-            if (osdeditcursor<osdeditwinstart)
-            {
-                osdeditwinend = osdeditcursor;
-                osdeditwinstart = osdeditwinend-editlinewidth;
+    if (osdhistorypos < 0) return;
 
-                if (osdeditwinstart<0)
-                    osdeditwinend-=osdeditwinstart,
-                    osdeditwinstart=0;
-            }
-            else if (osdeditcursor>=osdeditwinend)
-                osdeditwinstart+=(osdeditcursor-osdeditwinend),
-                osdeditwinend+=(osdeditcursor-osdeditwinend);
-        }
+    if (osdhistorypos == 0)
+    {
+        osdeditlen=0;
+        osdeditcursor=0;
+        osdeditwinstart=0;
+        osdeditwinend=editlinewidth;
+        osdhistorypos = -1;
+        return;
     }
+
+    osdhistorypos--;
+    memcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
+    osdeditlen = osdeditcursor = 0;
+    while (osdeditbuf[osdeditcursor]) osdeditlen++, osdeditcursor++;
+    if (osdeditcursor<osdeditwinstart)
+    {
+        osdeditwinend = osdeditcursor;
+        osdeditwinstart = osdeditwinend-editlinewidth;
+
+        if (osdeditwinstart<0)
+            osdeditwinend-=osdeditwinstart,
+            osdeditwinstart=0;
+    }
+    else if (osdeditcursor>=osdeditwinend)
+        osdeditwinstart+=(osdeditcursor-osdeditwinend),
+        osdeditwinend+=(osdeditcursor-osdeditwinend);
 }
 
 int OSD_HandleChar(char ch)
@@ -781,58 +778,50 @@ int OSD_HandleChar(char ch)
             {
                 tabc = findsymbol(osdedittmp, NULL);
 
-                if (tabc)
+                if (tabc && tabc->next && findsymbol(osdedittmp, tabc->next))
                 {
-                    if (tabc->next)
+                    symbol_t *symb=tabc;
+                    int maxwidth = 0, x = 0, num = 0;
+
+                    while (symb && symb != lastmatch)
                     {
-                        if (findsymbol(osdedittmp, tabc->next))
+                        int diffpt;
+
+                        num++;
+
+                        if (lastmatch)
                         {
-                            symbol_t *symb=tabc;
-                            int maxwidth = 0, x = 0, num = 0;
-
-                            while (symb && symb != lastmatch)
+                            diffpt = OSD_FindDiffPoint(symb->name,lastmatch->name);
+                            if (diffpt < commonsize)
                             {
-                                int diffpt;
-
-                                num++;
-
-                                if (lastmatch)
-                                {
-                                    diffpt = OSD_FindDiffPoint(symb->name,lastmatch->name);
-                                    if (diffpt < commonsize)
-                                    {
-                                        commonsize = diffpt;
-//                                            OSD_Printf("commonsize %d\n",commonsize);
-                                    }
-                                }
-
-                                maxwidth = max((unsigned)maxwidth,Bstrlen(symb->name));
-                                lastmatch = symb;
-                                symb=findsymbol(osdedittmp, lastmatch->next);
+                                commonsize = diffpt;
+                                //                                            OSD_Printf("commonsize %d\n",commonsize);
                             }
-                            OSD_Printf("Found %d possible completions for '%s':\n",num,osdedittmp);
-                            maxwidth += 3;
-                            symb = tabc;
-                            OSD_Printf("  ");
-                            while (symb && symb != lastmatch)
-                            {
-                                tabc = symb;
-                                OSD_Printf("%-*s",maxwidth,symb->name);
-                                x += maxwidth;
-                                lastmatch = symb;
-                                symb=findsymbol(osdedittmp, lastmatch->next);
-                                if (x > osdcols - maxwidth)
-                                {
-                                    x = 0;
-                                    OSD_Printf("\n");
-                                    if (symb && symb != lastmatch)
-                                        OSD_Printf("  ");
-                                }
-                            }
-                            if (x)
-                                OSD_Printf("\n");
+                        }
+
+                        maxwidth = max((unsigned)maxwidth,Bstrlen(symb->name));
+                        lastmatch = symb;
+                        symb=findsymbol(osdedittmp, lastmatch->next);
+                    }
+                    OSD_Printf("Found %d possible completions for '%s':\n",num,osdedittmp);
+                    maxwidth += 3;
+                    symb = tabc;
+                    OSD_Printf("  ");
+                    while (symb && (symb != lastmatch))
+                    {
+                        tabc = lastmatch = symb;
+                        OSD_Printf("%-*s",maxwidth,symb->name);
+                        symb=findsymbol(osdedittmp, lastmatch->next);
+                        x += maxwidth;
+                        if (x > (osdcols - maxwidth))
+                        {
+                            x = 0;
+                            OSD_Printf("\n");
+                            if (symb && (symb != lastmatch))
+                                OSD_Printf("  ");
                         }
                     }
+                    if (x) OSD_Printf("\n");
                 }
             }
         }
