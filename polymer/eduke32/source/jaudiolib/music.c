@@ -192,7 +192,7 @@ void MUSIC_SetVolume
     volume = max(0, volume);
     volume = min(volume, 255);
 #ifdef USE_OPENAL
-        AL_SetMusicVolume(volume);
+    AL_SetMusicVolume(volume);
 #endif
     if (MUSIC_SoundDevice != -1)
     {
@@ -300,7 +300,7 @@ void MUSIC_Continue
 
 {
 #ifdef USE_OPENAL
-        AL_Continue();
+    AL_Continue();
 #endif
     MIDI_ContinueSong();
 }
@@ -319,7 +319,7 @@ void MUSIC_Pause
 
 {
 #ifdef USE_OPENAL
-        AL_Pause();
+    AL_Pause();
 #endif
     MIDI_PauseSong();
 }
@@ -338,7 +338,7 @@ int MUSIC_StopSong
 
 {
 #ifdef USE_OPENAL
-        AL_Stop();
+    AL_Stop();
 #endif
     MUSIC_StopFade();
     MIDI_StopSong();
@@ -363,19 +363,19 @@ int MUSIC_PlaySong
     int status;
 
 #ifdef USE_OPENAL
-   AL_PlaySong((char *)song,loopflag);
+    AL_PlaySong((char *)song,loopflag);
 
-   if(AL_isntALmusic())
+    if (AL_isntALmusic())
 #endif
-   {
-    MUSIC_StopSong();
-    status = MIDI_PlaySong(song, loopflag);
-    if (status != MIDI_Ok)
     {
-        MUSIC_SetErrorCode(MUSIC_MidiError);
-        return(MUSIC_Warning);
+        MUSIC_StopSong();
+        status = MIDI_PlaySong(song, loopflag);
+        if (status != MIDI_Ok)
+        {
+            MUSIC_SetErrorCode(MUSIC_MidiError);
+            return(MUSIC_Warning);
+        }
     }
-   }
 
     return(MUSIC_Ok);
 }

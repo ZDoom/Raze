@@ -275,7 +275,7 @@ int RestoreInterrupts(int flags)
     UNREFERENCED_PARAMETER(flags);
     if (--interrupts_disabled)
         return 0;
- //   interrupts_disabled = 0;
+//   interrupts_disabled = 0;
     SDL_UnlockAudio();
     return(0);
 }

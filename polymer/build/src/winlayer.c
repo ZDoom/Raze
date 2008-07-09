@@ -522,7 +522,7 @@ int initsystem(void)
 {
     DEVMODE desktopmode;
 
-    initprintf("Initializing Windows DirectX/GDI system interface\n");
+//    initprintf("Initializing Windows DirectX/GDI system interface\n");
 
     // get the desktop dimensions before anything changes them
     ZeroMemory(&desktopmode, sizeof(DEVMODE));
@@ -873,9 +873,9 @@ void uninitmouse(void)
     grabmouse(0);
     moustat=mousegrab=0;
     SetEvent(inputevt[MOUSE]);
-    if (WaitForSingleObject(mousethread, 300) == WAIT_OBJECT_0)
-        initprintf("DirectInput: Mouse thread has exited\n");
-    else
+    if (WaitForSingleObject(mousethread, 300) != WAIT_OBJECT_0)
+//        initprintf("DirectInput: Mouse thread has exited\n");
+//    else
         initprintf("DirectInput: Mouse thread failed to exit!\n");
 }
 
@@ -1194,7 +1194,7 @@ static BOOL InitDirectInput(void)
     // load up the DirectInput DLL
     if (!hDInputDLL)
     {
-        initprintf("  - Loading DINPUT.DLL\n");
+//        initprintf("  - Loading DINPUT.DLL\n");
         hDInputDLL = LoadLibrary("DINPUT.DLL");
         if (!hDInputDLL)
         {
@@ -1208,7 +1208,7 @@ static BOOL InitDirectInput(void)
     if (!aDirectInputCreateA) ShowErrorBox("Error fetching DirectInputCreateA()");
 
     // create a new DirectInput object
-    initprintf("  - Creating DirectInput object\n");
+//    initprintf("  - Creating DirectInput object\n");
     result = aDirectInputCreateA(hInstance, DIRECTINPUT_VERSION, &lpDI, NULL);
     if FAILED(result) { HorribleDInputDeath("DirectInputCreateA() failed", result); }
     else if (result != DI_OK) initprintf("    Created DirectInput object with warning: %s\n",GetDInputError(result));
@@ -1234,7 +1234,7 @@ static BOOL InitDirectInput(void)
         if ((inputdevices & (1<<devn)) == 0) continue;
         *devicedef[devn].did = NULL;
 
-        initprintf("  - Creating %s device\n", devicedef[devn].name);
+//        initprintf("  - Creating %s device\n", devicedef[devn].name);
         result = IDirectInput_CreateDevice(lpDI, &guidDevs[devn], &dev, NULL);
         if FAILED(result) { HorribleDInputDeath("Failed creating device", result); }
         else if (result != DI_OK) initprintf("    Created device with warning: %s\n",GetDInputError(result));
@@ -1345,7 +1345,7 @@ static void UninitDirectInput(void)
     {
         if (*devicedef[devn].did)
         {
-            initprintf("  - Releasing %s device\n", devicedef[devn].name);
+//            initprintf("  - Releasing %s device\n", devicedef[devn].name);
 
             if (devn != JOYSTICK) IDirectInputDevice2_SetEventNotification(*devicedef[devn].did, NULL);
 
@@ -1361,14 +1361,14 @@ static void UninitDirectInput(void)
 
     if (lpDI)
     {
-        initprintf("  - Releasing DirectInput object\n");
+//        initprintf("  - Releasing DirectInput object\n");
         IDirectInput_Release(lpDI);
         lpDI = NULL;
     }
 
     if (hDInputDLL)
     {
-        initprintf("  - Unloading DINPUT.DLL\n");
+//        initprintf("  - Unloading DINPUT.DLL\n");
         FreeLibrary(hDInputDLL);
         hDInputDLL = NULL;
     }
@@ -2128,8 +2128,9 @@ int setvideomode(int x, int y, int c, int fs)
 	validmode[validmodecnt].fs=f; \
 	validmode[validmodecnt].extra=n; \
 	validmodecnt++; \
-	initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed"); \
-	}
+    }
+/*	initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed"); \
+	} */
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
@@ -2228,7 +2229,7 @@ void getvalidmodes(void)
     if (modeschecked) return;
 
     validmodecnt=0;
-    initprintf("Detecting video modes:\n");
+//    initprintf("Detecting video modes:\n");
 
     if (bDDrawInited)
     {
@@ -2723,7 +2724,7 @@ static BOOL WINAPI InitDirectDraw_enum(GUID *lpGUID, LPSTR lpDesc, LPSTR lpName,
     UNREFERENCED_PARAMETER(lpGUID);
     UNREFERENCED_PARAMETER(lpName);
     UNREFERENCED_PARAMETER(lpContext);
-    initprintf("    * %s\n", lpDesc);
+//    initprintf("    * %s\n", lpDesc);
     return 1;
 }
 
@@ -2741,7 +2742,7 @@ static BOOL InitDirectDraw(void)
     // load up the DirectDraw DLL
     if (!hDDrawDLL)
     {
-        initprintf("  - Loading DDRAW.DLL\n");
+//        initprintf("  - Loading DDRAW.DLL\n");
         hDDrawDLL = LoadLibrary("DDRAW.DLL");
         if (!hDDrawDLL)
         {
@@ -2760,7 +2761,7 @@ static BOOL InitDirectDraw(void)
     }
 
     // enumerate the devices to make us look fancy
-    initprintf("  - Enumerating display devices\n");
+//    initprintf("  - Enumerating display devices\n");
     aDirectDrawEnumerate(InitDirectDraw_enum, NULL);
 
     // get the pointer to DirectDrawCreate
@@ -2773,7 +2774,7 @@ static BOOL InitDirectDraw(void)
     }
 
     // create a new DirectDraw object
-    initprintf("  - Creating DirectDraw object\n");
+//    initprintf("  - Creating DirectDraw object\n");
     result = aDirectDrawCreate(NULL, &lpDD, NULL);
     if (result != DD_OK)
     {
@@ -2783,7 +2784,7 @@ static BOOL InitDirectDraw(void)
     }
 
     // fetch capabilities
-    initprintf("  - Checking capabilities\n");
+//    initprintf("  - Checking capabilities\n");
     ddcaps.dwSize = sizeof(DDCAPS);
     result = IDirectDraw_GetCaps(lpDD, &ddcaps, NULL);
     if (result != DD_OK)
@@ -2815,14 +2816,14 @@ static void UninitDirectDraw(void)
 
     if (lpDD)
     {
-        initprintf("  - Releasing DirectDraw object\n");
+//        initprintf("  - Releasing DirectDraw object\n");
         IDirectDraw_Release(lpDD);
         lpDD = NULL;
     }
 
     if (hDDrawDLL)
     {
-        initprintf("  - Unloading DDRAW.DLL\n");
+//        initprintf("  - Unloading DDRAW.DLL\n");
         FreeLibrary(hDDrawDLL);
         hDDrawDLL = NULL;
     }

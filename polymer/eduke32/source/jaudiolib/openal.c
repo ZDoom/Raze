@@ -403,13 +403,13 @@ int update()
         case 1:
             while (processed--)
             {
-    			ALdoing="update1";
+                ALdoing="update1";
                 balSourceUnqueueBuffers(music.source,1,&buffer);
                 check(1);
                 active=stream(buffer);
                 if (active)
                 {
-    				ALdoing="update2";
+                    ALdoing="update2";
                     balSourceQueueBuffers(music.source,1,&buffer);
                     check(1);
                 }
@@ -450,7 +450,7 @@ int stream(ALuint buffer)
 {
     ALsizei  size=0;
     int  section,result;
-     
+
     while (size<BUFFER_SIZE)
     {
         result=ov_read(&music.def.oggStream,pcm+size,BUFFER_SIZE-size,0,2,1,&section);
@@ -513,7 +513,7 @@ void AL_PlaySong(char *ptr,int loop)
 
     switch (music.type)
     {
-    case 1: 
+    case 1:
         stream(music.buffers[0]);
         if (!stream(music.buffers[1]))
             bf=1;

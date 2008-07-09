@@ -164,7 +164,7 @@ void CONFIG_SetDefaultKeys(int type)
             ud.config.KeyboardKeys[f][1] = KB_StringToScanCode((char *)oldkeydefaults[i+2]);
 
             if (f == gamefunc_Show_Console) OSD_CaptureKey(ud.config.KeyboardKeys[f][0]);
-            else MapKey(f, ud.config.KeyboardKeys[f][0], 0, ud.config.KeyboardKeys[f][1], 0);
+            else CONFIG_MapKey(f, ud.config.KeyboardKeys[f][0], 0, ud.config.KeyboardKeys[f][1], 0);
         }
         return;
     }
@@ -177,7 +177,7 @@ void CONFIG_SetDefaultKeys(int type)
         ud.config.KeyboardKeys[f][1] = KB_StringToScanCode(keydefaults[i+2]);
 
         if (f == gamefunc_Show_Console) OSD_CaptureKey(ud.config.KeyboardKeys[f][0]);
-        else MapKey(f, ud.config.KeyboardKeys[f][0], 0, ud.config.KeyboardKeys[f][1], 0);
+        else CONFIG_MapKey(f, ud.config.KeyboardKeys[f][0], 0, ud.config.KeyboardKeys[f][1], 0);
     }
 }
 
@@ -382,12 +382,12 @@ void CONFIG_ReadKeys(void)
         if (i == gamefunc_Show_Console)
             OSD_CaptureKey(ud.config.KeyboardKeys[i][0]);
         else
-            MapKey(i, ud.config.KeyboardKeys[i][0], 0, ud.config.KeyboardKeys[i][1], 0);
+            CONFIG_MapKey(i, ud.config.KeyboardKeys[i][0], 0, ud.config.KeyboardKeys[i][1], 0);
     }
 }
 
 // wrapper for CONTROL_MapKey(), generates key bindings to reflect changes to keyboard setup
-void MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
+void CONFIG_MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
 {
     int i, j, k;
     int ii[] = { key1, key2, oldkey1, oldkey2 };
@@ -421,7 +421,7 @@ void MapKey(int32 which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2
 
         i = Bstrlen(boundkeys[ii[k]].cmd);
         if (i)
-          boundkeys[ii[k]].cmd[i-2] = 0; // cut off the trailing "; "
+            boundkeys[ii[k]].cmd[i-2] = 0; // cut off the trailing "; "
     }
 }
 

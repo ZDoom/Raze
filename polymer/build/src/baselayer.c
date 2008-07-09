@@ -56,7 +56,7 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 
     char *modestrs[] =
     {
-        "classic software", "polygonal flat-shaded software",
+        "classic software", "completely broken polygonal flat-shaded software",
         "polygonal textured software", "polygonal OpenGL", "great justice"
     };
 
@@ -106,8 +106,15 @@ int osdcmd_glinfo(const osdfuncparm_t *parm)
     initprintf("OpenGL Information:\n"
                " Version:  %s\n"
                " Vendor:   %s\n"
-               " Renderer: %s\n"
-               " Maximum anisotropy:      %.1f%s\n"
+               " Renderer: %s\n",
+               glinfo.version,
+               glinfo.vendor,
+               glinfo.renderer);
+
+    if (!glinfo.dumped)
+        return OSDCMD_OK;
+
+    initprintf(" Maximum anisotropy:      %.1f%s\n"
                " BGRA textures:           %s\n"
                " Non-x^2 textures:        %s\n"
                " Texure compression:      %s\n"
@@ -123,9 +130,6 @@ int osdcmd_glinfo(const osdfuncparm_t *parm)
                " env_combine:             %s\n"
                " Vertex Buffer Objects:   %s\n"
                " Extensions:\n",
-               glinfo.version,
-               glinfo.vendor,
-               glinfo.renderer,
                glinfo.maxanisotropy, glinfo.maxanisotropy>1.0?"":" (no anisotropic filtering)",
                glinfo.bgra ? "supported": "not supported",
                glinfo.texnpot ? "supported": "not supported",

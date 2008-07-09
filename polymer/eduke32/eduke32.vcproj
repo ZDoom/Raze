@@ -782,6 +782,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\source\jaudiolib\mv_mix-c.c"
+					>
+				</File>
+				<File
 					RelativePath=".\source\jaudiolib\openal.c"
 					>
 				</File>

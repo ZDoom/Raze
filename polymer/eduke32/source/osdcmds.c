@@ -354,9 +354,9 @@ static int osdcmd_restartsound(const osdfuncparm_t *parm)
     SoundShutdown();
     MusicShutdown();
 
-    initprintf("Checking music inits...\n");
+    initprintf("Initializing music...\n");
     MusicStartup();
-    initprintf("Checking sound inits...\n");
+    initprintf("Initializing sound...\n");
     SoundStartup();
 
     FX_StopAllSounds();

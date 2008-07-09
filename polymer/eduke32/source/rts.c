@@ -78,7 +78,7 @@ int32 RTS_AddFile(const char *filename)
     startlump = numlumps;
 
     // WAD file
-    initprintf("    Adding %s.\n",filename);
+//    initprintf("    Adding %s.\n",filename);
     kread(handle, &header, sizeof(header));
     if (strncmp(header.identification,"IWAD",4))
     {
@@ -146,7 +146,7 @@ void RTS_Init(const char *filename)
     numlumps = 0;
     lumpinfo = NULL;   // will be realloced as lumps are added
 
-    initprintf("RTS Manager Started.\n");
+//    initprintf("RTS Manager Started.\n");
     if (RTS_AddFile(filename)) return;
 
     if (!numlumps) return;

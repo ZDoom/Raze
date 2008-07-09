@@ -44,9 +44,9 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 extern int MUSIC_SoundDevice;
 
 static const int _MIDI_CommandLengths[ NUM_MIDI_CHANNELS ] =
-    {
-        0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 2, 0
-    };
+{
+    0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 2, 0
+};
 
 static int(*_MIDI_RerouteFunctions[ NUM_MIDI_CHANNELS ])
 (
@@ -54,10 +54,10 @@ static int(*_MIDI_RerouteFunctions[ NUM_MIDI_CHANNELS ])
     int c1,
     int c2
 ) =
-    {
-        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-    };
+{
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 static track *_MIDI_TrackPtr = NULL;
 static int    _MIDI_TrackMemSize;
@@ -91,10 +91,10 @@ static int _MIDI_TotalVolume = MIDI_MaxVolume;
 
 static int _MIDI_ChannelVolume[ NUM_MIDI_CHANNELS ];
 static int _MIDI_UserChannelVolume[ NUM_MIDI_CHANNELS ] =
-    {
-        256, 256, 256, 256, 256, 256, 256, 256,
-        256, 256, 256, 256, 256, 256, 256, 256
-    };
+{
+    256, 256, 256, 256, 256, 256, 256, 256,
+    256, 256, 256, 256, 256, 256, 256, 256
+};
 
 static midifuncs *_MIDI_Funcs = NULL;
 

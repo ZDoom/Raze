@@ -359,8 +359,8 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         rotatesprite(x<<16,(y<<16)+(small?ud.config.ScreenHeight<<15:0),z,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
 
 //        if ((*t >= '0' && *t <= '9'))
-            x += 8*z/65536;
-  //      else x += tilesizx[ac]*z/65536;//(tilesizx[ac]>>small);
+        x += 8*z/65536;
+        //      else x += tilesizx[ac]*z/65536;//(tilesizx[ac]>>small);
         if (t-oldt >= (signed)TEXTWRAPLEN-!small) oldt = (char *)t, x = oldx, y+=8*z/65536;
         t++;
     }
@@ -9832,11 +9832,11 @@ static void Startup(void)
     inittimer(TICRATE);
 
     //initprintf("* Hold Esc to Abort. *\n");
-    initprintf("Loading art header...\n");
+//    initprintf("Loading art header...\n");
     if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
         gameexit("Failed loading art.");
 
-    initprintf("Loading palette/lookups...\n");
+//    initprintf("Loading palette/lookups...\n");
     genspriteremaps();
 
     readsavenames();
@@ -10517,9 +10517,9 @@ void app_main(int argc,const char **argv)
         ud.config.ScreenBPP = bpp[i];
     }
 
-    initprintf("Checking music inits...\n");
+    initprintf("Initializing music...\n");
     MusicStartup();
-    initprintf("Checking sound inits...\n");
+    initprintf("Initializing sound...\n");
     SoundStartup();
     loadtmb();
 

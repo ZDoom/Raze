@@ -1874,7 +1874,7 @@ static void ReadPaletteTable()
             return;
         }
     }
-    initprintf("Loading palette lookups... ");
+//    initprintf("Loading palette lookups... ");
     kread(fp,&num_tables,1);
     for (j=0;j<num_tables;j++)
     {

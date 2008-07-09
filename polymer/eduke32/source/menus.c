@@ -2491,17 +2491,21 @@ cheat_for_port_credits:
                     gametextpal(d,yy, glwidescreen ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
                 case 1:
+                {
+                    int dummy = glanisotropy;
+                    modval(0,glinfo.maxanisotropy+1,(int *)&dummy,1,probey==io);
+                    if (dummy > glanisotropy) glanisotropy *= 2;
+                    else if (dummy < glanisotropy) glanisotropy /= 2;
                     if (x==io)
-                    {
                         glanisotropy *= 2;
-                        if (glanisotropy > glinfo.maxanisotropy) glanisotropy = 1;
-                        gltexapplyprops();
-                    }
+                    if (glanisotropy > glinfo.maxanisotropy) glanisotropy = 1;
+                    else if (glanisotropy < 1) glanisotropy = glinfo.maxanisotropy;
+                    gltexapplyprops();
                     if (glanisotropy == 1) strcpy(tempbuf,"NONE");
                     else sprintf(tempbuf,"%dx",glanisotropy);
                     gametextpal(d,yy, tempbuf, MENUHIGHLIGHT(io), 0);
                     break;
-
+                }
                 case 2:
                     if (x==io) usehightile = 1-usehightile;
                     modval(0,1,(int *)&usehightile,1,probey==io);
@@ -3231,8 +3235,8 @@ cheat_for_port_credits:
                 (newvidmode==validmodecnt)?ydim:validmode[newvidmode].ydim);
         gametext(c+154,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
 
-        menutext(c,50+16,MENUHIGHLIGHT(1),0,"VIDEO MODE");
-        sprintf(tempbuf, "%dbit %s", vidsets[newvidset]&0x0ffff, (vidsets[newvidset]&0x20000)?"Polymost":"Classic");
+        menutext(c,50+16,MENUHIGHLIGHT(1),0,"RENDERER");
+        sprintf(tempbuf, "%d-bit %s", vidsets[newvidset]&0x0ffff, (vidsets[newvidset]&0x20000)?"OpenGL":"Software");
         gametext(c+154,50+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
         menutext(c,50+16+16,MENUHIGHLIGHT(2),0,"FULLSCREEN");
@@ -3354,7 +3358,7 @@ cheat_for_port_credits:
             key[0] = ud.config.KeyboardKeys[probey][0];
             key[1] = ud.config.KeyboardKeys[probey][1];
             ud.config.KeyboardKeys[probey][currentlist] = 0xff;
-            MapKey(probey, ud.config.KeyboardKeys[probey][0], key[0], ud.config.KeyboardKeys[probey][1], key[1]);
+            CONFIG_MapKey(probey, ud.config.KeyboardKeys[probey][0], key[0], ud.config.KeyboardKeys[probey][1], key[1]);
             sound(KICK_HIT);
             KB_ClearKeyDown(sc_Delete);
         }
@@ -3419,7 +3423,7 @@ cheat_for_port_credits:
                 if (function == gamefunc_Show_Console)
                     OSD_CaptureKey(KB_GetLastScanCode());
                 else
-                    MapKey(function, ud.config.KeyboardKeys[function][0], key[0], ud.config.KeyboardKeys[function][1], key[1]);
+                    CONFIG_MapKey(function, ud.config.KeyboardKeys[function][0], key[0], ud.config.KeyboardKeys[function][1], key[1]);
             }
 
             cmenu(204);

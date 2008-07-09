@@ -195,7 +195,7 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
         _DSOUND_CriticalSectionAlloced = TRUE;
     }
 
-    initprintf("  - Loading DSOUND.DLL\n");
+//    initprintf("  - Loading DSOUND.DLL\n");
     hDSoundDLL = LoadLibrary("DSOUND.DLL");
     if (!hDSoundDLL)
     {
@@ -212,7 +212,7 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
         return DSOUND_Error;
     }
 
-    initprintf("  - Creating DirectSound object\n");
+//    initprintf("  - Creating DirectSound object\n");
     hr = aDirectSoundCreate(NULL, &lpDS, NULL);
     if (hr != DS_OK)
     {
@@ -229,7 +229,7 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
         return DSOUND_Error;
     }
 
-    initprintf("  - Creating primary buffer\n");
+//    initprintf("  - Creating primary buffer\n");
     ZeroMemory(&dsbuf, sizeof(dsbuf));
     dsbuf.dwSize = sizeof(DSBUFFERDESC);
     dsbuf.dwFlags = DSBCAPS_PRIMARYBUFFER;
@@ -242,10 +242,10 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
     }
 
     initprintf("  - Setting primary buffer format\n"
-             "      Channels:    %d\n"
-             "      Sample rate: %dHz\n"
-             "      Sample size: %d bits\n",
-             numchannels, mixrate, samplebits);
+               "      Channels:    %d\n"
+               "      Sample rate: %dHz\n"
+               "      Sample size: %d bits\n",
+               numchannels, mixrate, samplebits);
     ZeroMemory(&wfex, sizeof(wfex));
     wfex.wFormatTag      = WAVE_FORMAT_PCM;
     wfex.nChannels       = numchannels;
@@ -351,7 +351,7 @@ int DSOUND_Shutdown(void)
 
     if (lpDSBSecondary)
     {
-        initprintf("  - Releasing secondary buffer\n");
+//        initprintf("  - Releasing secondary buffer\n");
         IDirectSoundBuffer_Stop(lpDSBSecondary);
         IDirectSoundBuffer_Release(lpDSBSecondary);
         lpDSBSecondary = NULL;
@@ -359,21 +359,21 @@ int DSOUND_Shutdown(void)
 
     if (lpDSBPrimary)
     {
-        initprintf("  - Releasing primary buffer\n");
+//        initprintf("  - Releasing primary buffer\n");
         IDirectSoundBuffer_Release(lpDSBPrimary);
         lpDSBPrimary = NULL;
     }
 
     if (lpDS)
     {
-        initprintf("  - Releasing DirectSound object\n");
+//        initprintf("  - Releasing DirectSound object\n");
         IDirectSound_Release(lpDS);
         lpDS = NULL;
     }
 
     if (hDSoundDLL)
     {
-        initprintf("  - Unloading DSOUND.DLL\n");
+//        initprintf("  - Unloading DSOUND.DLL\n");
         FreeLibrary(hDSoundDLL);
         hDSoundDLL = NULL;
     }
@@ -589,10 +589,12 @@ int DSOUND_StopPlayback(void)
     {
         SetEvent(isrfinish);
 
-        initprintf("DirectSound: Waiting for sound thread to exit\n");
-        if (WaitForSingleObject(isrthread, 300) == WAIT_OBJECT_0)
-            initprintf("DirectSound: Sound thread has exited\n");
-        else
+//        initprintf("DirectSound: Waiting for sound thread to exit\n");
+//        if (WaitForSingleObject(isrthread, 300) == WAIT_OBJECT_0)
+//            initprintf("DirectSound: Sound thread has exited\n");
+//        else
+//            initprintf("DirectSound: Sound thread failed to exit!\n");
+        if (WaitForSingleObject(isrthread, 300) != WAIT_OBJECT_0)
             initprintf("DirectSound: Sound thread failed to exit!\n");
         /*
         while (1) {

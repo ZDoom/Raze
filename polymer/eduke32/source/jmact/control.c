@@ -960,10 +960,12 @@ boolean CONTROL_Startup(controltype which, int32(*TimeFunction)(void), int32 tic
     //		break;
     //}
 
+    /*
     if (CONTROL_MousePresent)
         initprintf("CONTROL_Startup: Mouse Present\n");
     if (CONTROL_JoyPresent)
         initprintf("CONTROL_Startup: Joystick Present\n");
+    */
 
     CONTROL_ButtonState1     = 0;
     CONTROL_ButtonState2     = 0;
