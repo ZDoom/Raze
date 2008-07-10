@@ -4732,13 +4732,13 @@ repeatcase:
 
             if (keyword() != -1)
             {
-                initprintf("Duke Nukem 3D v1.3D style CON files detected.\n");
+//                initprintf("Duke Nukem 3D v1.3D style CON files detected.\n");
                 break;
             }
             else
             {
                 g_ScriptVersion = 14;
-                initprintf("Duke Nukem 3D v1.4+ style CON files detected.\n");
+//                initprintf("Duke Nukem 3D v1.4+ style CON files detected.\n");
             }
 
         }
@@ -5194,9 +5194,9 @@ void loadefs(const char *filenam)
                 k++;
         }
 
-        initprintf("\nCompiled code size: %ld bytes\n",(unsigned)(scriptptr-script));
+        initprintf("Compiled code size: %ld bytes, version %s\n",(unsigned)(scriptptr-script),(g_ScriptVersion == 14?"1.4+":"1.3D"));
         initprintf("%ld/%ld labels, %d/%d variables\n",labelcnt,min((MAXSECTORS * sizeof(sectortype)/sizeof(int)),(MAXSPRITES * sizeof(spritetype)/(1<<6))),iGameVarCount,MAXGAMEVARS);
-        initprintf("%ld event definitions, %ld defined actors\n\n",j,k);
+        initprintf("%ld event definitions, %ld defined actors\n",j,k);
 
         for (i=0;i<128;i++)
             if (fta_quotes[i] == NULL)

@@ -10404,10 +10404,10 @@ void app_main(int argc,const char **argv)
     if (VOLUMEALL) wm_setapptitle(HEAD2);
     else wm_setapptitle(HEAD);
 
-    initprintf("\n");
+//    initprintf("\n");
 
     if (g_ScriptDebug)
-        initprintf("CON debugging activated (level %d).\n\n",g_ScriptDebug);
+        initprintf("CON debugging activated (level %d).\n",g_ScriptDebug);
 
     RegisterShutdownFunction(Shutdown);
 

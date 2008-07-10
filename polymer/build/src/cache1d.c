@@ -104,7 +104,7 @@ void initcache(intptr_t dacachestart, int dacachesize)
     cac[0].lock = &zerochar;
     cacnum = 1;
 
-    initprintf("Initialized %.1f megabytes of cache\n", (float)(dacachesize/1024.f/1024.f));
+    initprintf("Initialized %.1f megabyte cache\n", (float)(dacachesize/1024.f/1024.f));
 }
 
 void allocache(intptr_t *newhandle, int newbytes, char *newlockptr)

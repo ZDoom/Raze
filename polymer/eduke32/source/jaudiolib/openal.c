@@ -349,6 +349,7 @@ void AL_Shutdown()
 {
     if (openal_disabled)return;
 
+    initprintf("Uninitializing OpenAL...\n");
     ALdoing="Shut";
     balcMakeContextCurrent(NULL);
     check(1);

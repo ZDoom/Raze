@@ -510,10 +510,10 @@ static void print_os_version(void)
 
     if (ver != NULL)
     {
-        initprintf("OS: Windows %s (Version %lu.%lu.%lu)\n", ver, osv.dwMajorVersion, osv.dwMinorVersion,
-                   awful_windows_9x?osv.dwBuildNumber&0xffff:osv.dwBuildNumber);
-        if (osv.szCSDVersion[0])
-            initprintf("  - %s\n", osv.szCSDVersion);
+        initprintf("OS: Windows %s (%lu.%lu.%lu) %s\n", ver, osv.dwMajorVersion, osv.dwMinorVersion,
+                   awful_windows_9x?osv.dwBuildNumber&0xffff:osv.dwBuildNumber,osv.szCSDVersion);
+//        if (osv.szCSDVersion[0])
+  //          initprintf("  - %s\n", osv.szCSDVersion);
     }
 }
 
@@ -833,7 +833,7 @@ int initmouse(void)
 
     if (moustat) return 0;
 
-    initprintf("Initializing mouse... ");
+//    initprintf("Initializing mouse... ");
 
     moustat=1;
     mousethread = CreateThread
@@ -848,13 +848,13 @@ int initmouse(void)
 
     if (!mousethread)
     {
-        initprintf("FAILED!\n");
+        initprintf("Failed to create mouse thread!\n");
         return 0;
     }
 
     SetThreadPriority(mousethread, THREAD_PRIORITY_HIGHEST);
     ResumeThread(mousethread);
-    initprintf("OK\n");
+//    initprintf("OK\n");
 
     // grab input
     grabmouse(1);
