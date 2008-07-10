@@ -212,9 +212,11 @@ int main(int argc, char *argv[])
 //
 int initsystem(void)
 {
+    /*
 #ifdef DEBUGGINGAIDS
     const SDL_VideoInfo *vid;
 #endif
+    */
     const SDL_version *linked = SDL_Linked_Version();
     SDL_version compiled;
     char drvname[32];
@@ -272,6 +274,7 @@ int initsystem(void)
     if (SDL_VideoDriverName(drvname, 32))
         initprintf("Using \"%s\" video driver\n", drvname);
 
+    /*
     // dump a quick summary of the graphics hardware
 #ifdef DEBUGGINGAIDS
     vid = SDL_GetVideoInfo();
@@ -287,7 +290,7 @@ int initsystem(void)
     initprintf("  Accelerated colour fills?              %s\n", (vid->blit_fill)?"Yes":"No");
     initprintf("  Total video memory:                    %dKB\n", vid->video_mem);
 #endif
-
+*/
     return 0;
 }
 
@@ -734,7 +737,7 @@ void getvalidmodes(void)
     if (modeschecked) return;
 
     validmodecnt=0;
-    initprintf("Detecting video modes:\n");
+//    initprintf("Detecting video modes:\n");
 
 #define ADDMODE(x,y,c,f) if (validmodecnt<MAXVALIDMODES) { \
 	int mn; \
@@ -747,7 +750,7 @@ void getvalidmodes(void)
 		validmode[validmodecnt].bpp=c; \
 		validmode[validmodecnt].fs=f; \
 		validmodecnt++; \
-		initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed"); \
+		/*initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed");*/ \
 	} \
 }
 

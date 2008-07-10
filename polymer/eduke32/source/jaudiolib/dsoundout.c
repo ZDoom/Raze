@@ -241,10 +241,12 @@ int DSOUND_Init(int soundcard, int mixrate, int numchannels, int samplebits, int
         return DSOUND_Error;
     }
 
-    initprintf("  - Setting primary buffer format\n"
+/*    initprintf("  - Setting primary buffer format\n"
                "      Channels:    %d\n"
                "      Sample rate: %dHz\n"
                "      Sample size: %d bits\n",
+               numchannels, mixrate, samplebits); */
+    initprintf("  - Primary buffer format: %d ch, %dHz, %d bits\n",
                numchannels, mixrate, samplebits);
     ZeroMemory(&wfex, sizeof(wfex));
     wfex.wFormatTag      = WAVE_FORMAT_PCM;

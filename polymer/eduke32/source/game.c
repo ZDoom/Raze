@@ -359,8 +359,8 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         rotatesprite(x<<16,(y<<16)+(small?ud.config.ScreenHeight<<15:0),z,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
 
 //        if ((*t >= '0' && *t <= '9'))
-        x += 8*z/65536;
-        //      else x += tilesizx[ac]*z/65536;//(tilesizx[ac]>>small);
+            x += 8*z/65536;
+  //      else x += tilesizx[ac]*z/65536;//(tilesizx[ac]>>small);
         if (t-oldt >= (signed)TEXTWRAPLEN-!small) oldt = (char *)t, x = oldx, y+=8*z/65536;
         t++;
     }
@@ -9029,6 +9029,18 @@ static void checkcommandline(int argc, const char **argv)
                     continue;
                 }
 #endif
+                if (!Bstrcasecmp(c+1,"cachesize"))
+                {
+                    if (argc > i+1)
+                    {
+                        unsigned int j = atol((char *)argv[i+1]);
+                        MAXCACHE1DSIZE = j<<10;
+                        initprintf("Cache size: %dkB\n",j);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
             }
 
             if (firstnet > 0)

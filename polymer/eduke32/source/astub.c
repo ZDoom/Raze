@@ -1896,7 +1896,7 @@ static void ReadPaletteTable()
     kread(fp,REALMSpalette,768);
     kread(fp,BOSS1palette,768);
     kclose(fp);
-    initprintf("success.\n");
+//    initprintf("success.\n");
 }// end ReadPaletteTable
 
 static void ReadGamePalette()
@@ -1910,11 +1910,11 @@ static void ReadGamePalette()
             wm_msgbox(tempbuf,"palette.dat not found");
             exit(0);
         }
-    initprintf("Loading game palette... ");
+//    initprintf("Loading game palette... ");
     kread(fp,GAMEpalette,768);
     for (i=0;i<768;++i) GAMEpalette[i]=GAMEpalette[i];
     kclose(fp);
-    initprintf("success.\n");
+//    initprintf("success.\n");
     ReadPaletteTable();
 }
 

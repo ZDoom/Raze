@@ -2856,7 +2856,7 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
     // Set number of voices before calculating volume table
     MV_MaxVoices = Voices;
 
-    initprintf("  - Maximum voices: %d\n", MV_MaxVoices);
+//    initprintf("  - Maximum voices: %d\n", MV_MaxVoices);
 
     LL_Reset(&VoiceList, next, prev);
     LL_Reset(&VoicePool, next, prev);
@@ -2869,7 +2869,8 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
     // Set the sampling rate
     MV_RequestedMixRate = MixRate;
 
-    initprintf("  - Using %d byte mixing buffers\n", MixBufferSize);
+//    initprintf("  - Using %d byte mixing buffers\n", MixBufferSize);
+    initprintf("  - %d voices, %d byte mixing buffers\n", MV_MaxVoices, MixBufferSize);
 
     // Allocate mix buffer within 1st megabyte
     // use calloc to clear the memory for the first playback.
@@ -2890,8 +2891,13 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
 
     // Initialize the sound card
 #if defined(_WIN32)
+    status = DSOUND_Init(soundcard, MixRate, numchannels, samplebits, TotalBufferSize);
+    if (status != DSOUND_Ok)
+    {
+        MV_SetErrorCode(MV_BlasterError);
+    }
 #ifdef USE_OPENAL
-    if (AL_Init())
+    else if (AL_Init())
     {
         int i;
 
@@ -2904,12 +2910,6 @@ int MV_Init(int soundcard, int MixRate, int Voices, int numchannels, int sampleb
         }
     }
 #endif
-
-    status = DSOUND_Init(soundcard, MixRate, numchannels, samplebits, TotalBufferSize);
-    if (status != DSOUND_Ok)
-    {
-        MV_SetErrorCode(MV_BlasterError);
-    }
 #else
     status = DSL_Init();
     if (status != DSL_Ok)
