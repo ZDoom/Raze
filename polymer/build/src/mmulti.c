@@ -411,7 +411,7 @@ int initmultiplayersparms(int argc, char **argv)
     initmultiplayers_reset();
     danetmode = 255; daindex = 0;
 
-    if (!argv) return 0;
+//    if (!argv) return 0;
     // go looking for the port, if specified
     for (i=0;i<argc;i++)
     {
