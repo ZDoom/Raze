@@ -5163,7 +5163,7 @@ void loadefs(const char *filenam)
         {
             if (groupfile != -1 && loadfromgrouponly == 0)
             {
-                initprintf("Error(s) found in file `%s'.  Do you want to use the INTERNAL DEFAULTS (y/N)?\n",filenam);
+//                initprintf("Error(s) found in file `%s'.  Do you want to use the INTERNAL DEFAULTS (y/N)?\n",filenam);
 
                 i=wm_ynbox("CON File Compilation Error", "Error(s) found in file `%s'. Do you want to use the "
                            "INTERNAL DEFAULTS?",filenam);
@@ -5174,7 +5174,14 @@ void loadefs(const char *filenam)
                     loadfromgrouponly = 1;
                     return;
                 }
-                else gameexit("");
+                else 
+                {
+#if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2))
+                    while(!quitevent) // keep the window open so people can copy CON errors out of it
+                        handleevents();
+#endif
+                    gameexit("");
+                }
             }
         }
     }

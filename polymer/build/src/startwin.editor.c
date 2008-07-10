@@ -363,18 +363,21 @@ int startwin_close(void)
 int startwin_puts(const char *buf)
 {
     const char *p = NULL, *q = NULL;
-    char workbuf[1024];
+    static char workbuf[1024];
     static int newline = 0;
     int curlen, linesbefore, linesafter;
     HWND edctl;
     int vis;
+    static HWND dactrl = NULL;
 
     if (!startupdlg) return 1;
 
     edctl = pages[TAB_MESSAGES];
     if (!edctl) return -1;
 
-    vis = ((int)SendMessage(GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL), TCM_GETCURSEL,0,0) == TAB_MESSAGES);
+    if (!dactrl) dactrl = GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL);
+
+    vis = ((int)SendMessage(dactrl, TCM_GETCURSEL,0,0) == TAB_MESSAGES);
 
     if (vis) SendMessage(edctl, WM_SETREDRAW, FALSE,0);
     curlen = SendMessage(edctl, WM_GETTEXTLENGTH, 0,0);
