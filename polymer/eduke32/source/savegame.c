@@ -356,8 +356,8 @@ int loadplayer(int spot)
     if (kdfread(&global_random,sizeof(global_random),1,fil) != 1) goto corrupt;
     if (kdfread(&parallaxyscale,sizeof(parallaxyscale),1,fil) != 1) goto corrupt;
 
-    if (kdfread(&projectile[0],sizeof(proj_struct),MAXTILES,fil) != MAXTILES) goto corrupt;
-    if (kdfread(&defaultprojectile[0],sizeof(proj_struct),MAXTILES,fil) != MAXTILES) goto corrupt;
+    if (kdfread(&projectile[0],sizeof(projectile_t),MAXTILES,fil) != MAXTILES) goto corrupt;
+    if (kdfread(&defaultprojectile[0],sizeof(projectile_t),MAXTILES,fil) != MAXTILES) goto corrupt;
 
     if (kdfread(&spriteflags[0],sizeof(spriteflags[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
 
@@ -764,8 +764,8 @@ int saveplayer(int spot)
     dfwrite(&global_random,sizeof(global_random),1,fil);
     dfwrite(&parallaxyscale,sizeof(parallaxyscale),1,fil);
 
-    dfwrite(&projectile[0],sizeof(proj_struct),MAXTILES,fil);
-    dfwrite(&defaultprojectile[0],sizeof(proj_struct),MAXTILES,fil);
+    dfwrite(&projectile[0],sizeof(projectile_t),MAXTILES,fil);
+    dfwrite(&defaultprojectile[0],sizeof(projectile_t),MAXTILES,fil);
 
     dfwrite(&spriteflags[0],sizeof(spriteflags[0]),MAXTILES,fil);
 

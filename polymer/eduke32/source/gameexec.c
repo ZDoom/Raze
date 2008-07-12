@@ -5748,8 +5748,11 @@ static int parse(void)
 #ifdef SE40
             se40code(x,y,z,a,horiz,smoothratio);
 #endif
-
-            if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0) && (rendmode != 4))
+            if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
+#if defined(POLYMOST) && defined(USE_OPENGL)
+                && (rendmode != 4)
+#endif
+                )
             {
                 int j, i = 0, k, dst = 0x7fffffff;
 

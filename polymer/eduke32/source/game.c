@@ -4068,7 +4068,11 @@ void displayrooms(int snum,int smoothratio)
 #ifdef SE40
         se40code(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,smoothratio);
 #endif
-        if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0) && (rendmode != 4))
+        if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
+#if defined(POLYMOST) && defined(USE_OPENGL)
+            && (rendmode != 4)
+#endif
+            )
         {
             dst = 0x7fffffff;
             i = 0;
@@ -7086,7 +7090,7 @@ PALONLY:
 
 static char terminx[64] = { "Undead TC still sucks." };
 
-char cheatquotes[][MAXCHEATLEN] =
+char cheatstrings[][MAXCHEATLEN] =
 {
     "cornholio",    // 0
     "stuff",        // 1
@@ -7236,8 +7240,8 @@ static void cheats(void)
 
     if (VOLUMEONE && !z)
     {
-        Bstrcpy(cheatquotes[2],"scotty##");
-        Bstrcpy(cheatquotes[6],"<RESERVED>");
+        Bstrcpy(cheatstrings[2],"scotty##");
+        Bstrcpy(cheatstrings[6],"<RESERVED>");
         z=1;
     }
 
@@ -7271,9 +7275,9 @@ static void cheats(void)
             {
                 for (j = 0;j<cheatbuflen;j++)
                 {
-                    if (cheatbuf[j] == cheatquotes[k][j] || (cheatquotes[k][j] == '#' && ch >= '0' && ch <= '9'))
+                    if (cheatbuf[j] == cheatstrings[k][j] || (cheatstrings[k][j] == '#' && ch >= '0' && ch <= '9'))
                     {
-                        if (cheatquotes[k][j+1] == 0) goto FOUNDCHEAT;
+                        if (cheatstrings[k][j+1] == 0) goto FOUNDCHEAT;
                         if (j == cheatbuflen-1) return;
                     }
                     else break;
@@ -7464,7 +7468,7 @@ FOUNDCHEAT:
                 case CHEAT_SKILL:
                     if (k == CHEAT_SCOTTY)
                     {
-                        i = Bstrlen(cheatquotes[k])-3+VOLUMEONE;
+                        i = Bstrlen(cheatstrings[k])-3+VOLUMEONE;
                         if (!consolecheat)
                         {
                             // JBF 20030914
@@ -7503,7 +7507,7 @@ FOUNDCHEAT:
                     }
                     else
                     {
-                        i = Bstrlen(cheatquotes[k])-1;
+                        i = Bstrlen(cheatstrings[k])-1;
                         ud.m_player_skill = ud.player_skill = cheatbuf[i] - '1';
                     }
                     if (numplayers > 1 && myconnectindex == connecthead)

@@ -173,7 +173,7 @@ int nextvoxid = 0;
 
 int spriteflags[MAXTILES];
 
-proj_struct projectile[MAXTILES], thisprojectile[MAXSPRITES], defaultprojectile[MAXTILES];
+projectile_t projectile[MAXTILES], thisprojectile[MAXSPRITES], defaultprojectile[MAXTILES];
 
 char cheatkey[2] = { sc_D, sc_N };
 char setupfilename[BMAX_PATH]= "duke3d.cfg";

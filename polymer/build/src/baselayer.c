@@ -49,6 +49,7 @@ struct glinfo glinfo =
 static void onvideomodechange(int newmode) { UNREFERENCED_PARAMETER(newmode); }
 void (*baselayer_onvideomodechange)(int) = onvideomodechange;
 
+#if defined(POLYMOST)
 static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 {
     int m;
@@ -70,8 +71,7 @@ static int osdfunc_setrendermode(const osdfuncparm_t *parm)
 
     return OSDCMD_OK;
 }
-
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#if defined(USE_OPENGL)
 #ifdef DEBUGGINGAIDS
 static int osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 {
@@ -172,6 +172,7 @@ int osdcmd_glinfo(const osdfuncparm_t *parm)
 
     return OSDCMD_OK;
 }
+#endif
 #endif
 
 static int osdcmd_vars(const osdfuncparm_t *parm)

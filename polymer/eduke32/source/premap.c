@@ -399,7 +399,7 @@ static void dofrontscreens(char *statustext)
 
 void cacheit(void)
 {
-    int i,j,k, pc=0;
+    int i,j,pc=0;
     int tc;
     unsigned int starttime, endtime;
 
@@ -466,6 +466,8 @@ void cacheit(void)
 #if defined(POLYMOST) && defined(USE_OPENGL)
             if (ud.config.useprecache)
             {
+                int k;
+
                 if (precachehightile[0][i>>3] & pow2char[i&7])
                     for (k=0; k<MAXPALOOKUPS && !KB_KeyPressed(sc_Space); k++)
                         polymost_precache(i,k,0);

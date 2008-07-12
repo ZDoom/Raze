@@ -15,6 +15,7 @@
 #include "util_lib.h"
 
 #include "baselayer.h"
+#include "osd.h"
 #include "pragmas.h"
 
 

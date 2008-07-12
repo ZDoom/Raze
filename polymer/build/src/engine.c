@@ -6286,7 +6286,7 @@ killsprite:
         while (maskwallcnt)
         {
             maskwallcnt--;
-
+#if defined(USE_OPENGL) && defined(POLYMER)
             if (rendmode == 4)
             {
                 dot.x = wall[maskwall[maskwallcnt]].x;
@@ -6295,6 +6295,7 @@ killsprite:
                 dot2.y = wall[wall[maskwall[maskwallcnt]].point2].y;
             }
             else
+#endif
             {
                 dot.x = wall[thewall[maskwall[maskwallcnt]]].x;
                 dot.y = wall[thewall[maskwall[maskwallcnt]]].y;

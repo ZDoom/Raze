@@ -2664,21 +2664,6 @@ static int OnSelectTile(int iTile)
     clearview(0);
 
     //
-    // Display the description strings for each available tile group
-    //
-
-    for (i = 0; (unsigned)i < tile_groups; i++)
-    {
-        if (s_TileGroups[i].szText != NULL)
-        {
-            if ((i+2)*16 > ydimgame) break;
-            Bsprintf(tempbuf,"(%c) %s",s_TileGroups[i].key1,s_TileGroups[i].szText);
-            printext256(10L, (i+1)*16, whitecol, -1, tempbuf, 0);
-        }
-    }
-    showframe(1);
-
-    //
     //	Await appropriate selection keypress.
     //
 
@@ -2691,6 +2676,21 @@ static int OnSelectTile(int iTile)
             if (quitevent) quitevent = 0;
         }
         idle();
+
+        //
+        // Display the description strings for each available tile group
+        //
+        for (i = 0; (unsigned)i < tile_groups; i++)
+        {
+            if (s_TileGroups[i].szText != NULL)
+            {
+                if ((i+2)*16 > ydimgame) break;
+                Bsprintf(tempbuf,"(%c) %s",s_TileGroups[i].key1,s_TileGroups[i].szText);
+                printext256(10L, (i+1)*16, whitecol, -1, tempbuf, 0);
+            }
+        }
+        showframe(1);
+
 
         ch = bgetchar();
 
@@ -3016,9 +3016,9 @@ static void Keys3d(void)
                     height2=sector[nextsect].floorz-sector[nextsect].ceilingz;
                     height3=sector[nextsect].ceilingz-sector[searchsector].ceilingz;
                 }
-                Bsprintf(lines[num++],"Panning: %3d, %3d",wall[searchwall].xpanning,wall[searchwall].ypanning);
-                Bsprintf(lines[num++],"Repeat:  %3d, %3d",wall[searchwall].xrepeat,wall[searchwall].yrepeat);
-                Bsprintf(lines[num++],"Overpic: %3d",wall[searchwall].overpicnum);
+                Bsprintf(lines[num++],"Panning: %d, %d",wall[searchwall].xpanning,wall[searchwall].ypanning);
+                Bsprintf(lines[num++],"Repeat:  %d, %d",wall[searchwall].xrepeat,wall[searchwall].yrepeat);
+                Bsprintf(lines[num++],"Overpic: %d",wall[searchwall].overpicnum);
                 lines[num++][0]=0;
                 if (getmessageleng)
                     break;
@@ -3033,7 +3033,7 @@ static void Keys3d(void)
                              sector[searchsector].ceilingpal,sector[searchsector].ceilingstat,
                              sector[searchsector].lotag,sector[searchsector].hitag,sector[searchsector].extra);
 
-                Bsprintf(lines[num++],"Panning:  %d,%d",sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
+                Bsprintf(lines[num++],"Panning:  %d, %d",sector[searchsector].ceilingxpanning,sector[searchsector].ceilingypanning);
                 Bsprintf(lines[num++],"CeilingZ: %d",sector[searchsector].ceilingz);
                 Bsprintf(lines[num++],"Slope:    %d",sector[searchsector].ceilingheinum);
                 lines[num++][0]=0;

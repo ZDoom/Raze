@@ -4596,17 +4596,17 @@ repeatcase:
             textptr++;
         while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ')
         {
-            cheatquotes[k][i] = *textptr;
+            cheatstrings[k][i] = *textptr;
             textptr++,i++;
-            if (i >= (signed)sizeof(cheatquotes[k])-1)
+            if (i >= (signed)sizeof(cheatstrings[k])-1)
             {
-                initprintf("%s:%d: error: cheat exceeds limit of %d characters.\n",compilefile,line_number,MAXCHEATLEN,sizeof(cheatquotes[k])-1);
+                initprintf("%s:%d: error: cheat exceeds limit of %d characters.\n",compilefile,line_number,MAXCHEATLEN,sizeof(cheatstrings[k])-1);
                 error++;
                 while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0 && *textptr != ' ') textptr++;
                 break;
             }
         }
-        cheatquotes[k][i] = '\0';
+        cheatstrings[k][i] = '\0';
         return 0;
 
     case CON_DEFINESOUND:

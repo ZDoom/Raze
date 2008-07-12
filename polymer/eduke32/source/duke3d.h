@@ -552,7 +552,7 @@ typedef struct {
     int workslike, extra, cstat, extra_rand, hitradius, range;
     short spawns, sound, isound, vel, decal, trail, tnum, drop, clipdist, offset, bounces, bsound, toffset;
     signed char sxrepeat, syrepeat, txrepeat, tyrepeat, shade, xrepeat, yrepeat, pal, velmult;
-} proj_struct;
+} projectile_t;
 
 // extern char gotz;
 
@@ -573,7 +573,7 @@ typedef struct {
     short tempang,actorstayput,dispicnum;
     short timetosleep;
     char cgg;
-    proj_struct projectile;
+    projectile_t projectile;
 } actordata_t;
 
 extern actordata_t hittype[MAXSPRITES];
@@ -963,7 +963,7 @@ enum projectileflags {
     PROJECTILE_FLAG_FORCEIMPACT         = 262144
 };
 
-extern proj_struct projectile[MAXTILES], defaultprojectile[MAXTILES];
+extern projectile_t projectile[MAXTILES], defaultprojectile[MAXTILES];
 
 // logo control
 
@@ -984,10 +984,10 @@ extern int g_NumPalettes;
 extern int g_ScriptDebug;
 
 #define MAXCHEATLEN 20
-#define NUMCHEATCODES (signed int)(sizeof(cheatquotes)/sizeof(cheatquotes[MAXCHEATLEN]))
+#define NUMCHEATCODES (signed int)(sizeof(cheatstrings)/sizeof(cheatstrings[0]))
 
 extern char cheatkey[2];
-extern char cheatquotes[][MAXCHEATLEN];
+extern char cheatstrings[][MAXCHEATLEN];
 
 extern short weapon_sprites[MAX_WEAPONS];
 

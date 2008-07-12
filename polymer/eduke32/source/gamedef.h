@@ -52,7 +52,7 @@ extern int g_kb;
 extern int g_looking_angSR1;
 extern int display_bonus_screen;
 extern int lastvisinc;
-extern char cheatquotes[][MAXCHEATLEN];
+extern char cheatstrings[][MAXCHEATLEN];
 extern char compilefile[BMAX_PATH];
 extern int total_lines,line_number;
 extern int error,warning;
