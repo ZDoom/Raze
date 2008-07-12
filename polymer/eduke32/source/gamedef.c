@@ -563,6 +563,23 @@ const memberlabel_t actorlabels[]=
     { "mdflags", ACTOR_MDFLAGS, 0, 0 },
     { "xpanning", ACTOR_XPANNING, 0, 0 },
     { "ypanning", ACTOR_YPANNING, 0, 0 },
+
+    // tsprite access
+
+    { "tsprx", ACTOR_TSPRX, 0, 0 },
+    { "tspry", ACTOR_TSPRY, 0, 0 },
+    { "tsprz", ACTOR_TSPRZ, 0, 0 },
+    { "tsprcstat", ACTOR_TSPRCSTAT, 0, 0 },
+    { "tsprpicnum", ACTOR_TSPRPICNUM, 0, 0 },
+    { "tsprshade", ACTOR_TSPRSHADE, 0, 0 },
+    { "tsprpal", ACTOR_TSPRPAL, 0, 0 },
+    { "tsprxrepeat", ACTOR_TSPRXREPEAT, 0, 0 },
+    { "tspryrepeat", ACTOR_TSPRYREPEAT, 0, 0 },
+    { "tsprxoffset", ACTOR_TSPRXOFFSET, 0, 0 },
+    { "tspryoffset", ACTOR_TSPRYOFFSET, 0, 0 },
+    { "tsprsectnum", ACTOR_TSPRSECTNUM, 0, 0 },
+    { "tsprang", ACTOR_TSPRANG, 0, 0 },
+
     { "", -1, 0, 0  }     // END OF LIST
 };
 
@@ -1154,6 +1171,7 @@ static int CheckEventSync(int iEventID)
     {
         switch (iEventID)
         {
+        case EVENT_ANIMATESPRITES:
         case EVENT_CHEATGETSTEROIDS:
         case EVENT_CHEATGETHEAT:
         case EVENT_CHEATGETBOOT:
@@ -4890,6 +4908,7 @@ static void AddDefaultDefinitions(void)
 {
     AddDefinition("EVENT_AIMDOWN",EVENT_AIMDOWN,LABEL_DEFINE);
     AddDefinition("EVENT_AIMUP",EVENT_AIMUP,LABEL_DEFINE);
+    AddDefinition("EVENT_ANIMATESPRITES",EVENT_ANIMATESPRITES,LABEL_DEFINE);
     AddDefinition("EVENT_CHANGEWEAPON",EVENT_CHANGEWEAPON,LABEL_DEFINE);
     AddDefinition("EVENT_CHEATGETBOOT",EVENT_CHEATGETBOOT,LABEL_DEFINE);
     AddDefinition("EVENT_CHEATGETFIRSTAID",EVENT_CHEATGETFIRSTAID,LABEL_DEFINE);

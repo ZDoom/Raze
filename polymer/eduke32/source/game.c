@@ -277,11 +277,6 @@ void setgamepalette(player_struct *player, char *pal, int set)
 
 #define TEXTWRAPLEN (scale(39,ud.config.ScreenWidth,320))
 
-int gametext_(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2)
-{
-    return gametext_z(small,starttile,x,y,t,s,p,orientation,x1,y1,x2,y2,65536);
-}
-
 int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2, int z)
 {
     int ac,newx,oldx=x;
@@ -358,9 +353,9 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
 
         rotatesprite(x<<16,(y<<16)+(small?ud.config.ScreenHeight<<15:0),z,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
 
-//        if ((*t >= '0' && *t <= '9'))
+        if ((*t >= '0' && *t <= '9'))
             x += 8*z/65536;
-  //      else x += tilesizx[ac]*z/65536;//(tilesizx[ac]>>small);
+        else x += tilesizx[ac]*z/65536;//(tilesizx[ac]>>small);
         if (t-oldt >= (signed)TEXTWRAPLEN-!small) oldt = (char *)t, x = oldx, y+=8*z/65536;
         t++;
     }
@@ -370,19 +365,19 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
 
 inline int gametext(int x,int y,const char *t,int s,int dabits)
 {
-    return(gametext_(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+    return(gametext_z(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
 }
 
 inline int gametextpal(int x,int y,const char *t,int s,int p)
 {
-    return(gametext_(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1));
+    return(gametext_z(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536));
 }
 
 static inline int mpgametext(int y,const char *t,int s,int dabits)
 {
     if (xdim >= 640 && ydim >= 480)
-        return(gametext_(1,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
-    return(gametext_(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1));
+        return(gametext_z(1,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
+    return(gametext_z(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
 }
 
 static int minitext_(int x,int y,const char *t,int s,int p,int sb)
@@ -7077,6 +7072,12 @@ PALONLY:
         if (sector[t->sectnum].floorpicnum == MIRROR)
             t->xrepeat = t->yrepeat = 0;
     }
+    for (j=0;j < spritesortcnt; j++)
+        if (spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
+        {
+            OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
+            spriteext[tsprite[j].owner].tspr = NULL;
+        }
 }
 #ifdef _MSC_VER
 //#pragma auto_inline()
@@ -8248,7 +8249,7 @@ static void comlinehelp(void)
               "-NUM\t\tLoad and run a game from slot NUM (0-9)\n"
               "-a\t\tUse fake player AI (fake multiplayer only)\n"
               "-cNUM\t\tUse MP mode NUM, 1 = DukeMatch(spawn), 2 = Coop, 3 = Dukematch(no spawn)\n"
-              "-cfg FILE\tUse configuration file FILE\n"
+              "-cfg FILE\t\tUse configuration file FILE\n"
               "-dFILE\t\tStart to play demo FILE\n"
               /*              "-fNUM\t\tSend fewer packets in multiplayer (1, 2, 4) (deprecated)\n" */
               "-game_dir DIR\tSee -j\n"
@@ -8278,10 +8279,14 @@ static void comlinehelp(void)
 #endif
               "-vNUM\t\tWarp to volume NUM (1-4), see -l\n"
               "-xFILE\t\tLoad CON script FILE (default EDUKE.CON/GAME.CON)\n"
-              "-zNUM, -condebug\tLine-by-line CON compilation debugging, NUM is verbosity\n"
-              "\n-?, -help, --help\tDisplay this help message and exit"
-              ;
+              "-zNUM,\n-condebug\tLine-by-line CON compilation debugging, NUM is verbosity\n"
+              "\n-?, -help\tDisplay this help message and exit"
+;
+#if defined RENDERTYPEWIN
     wm_msgbox(HEAD2,s);
+#else
+    initprintf("%s\n",s);
+#endif
 }
 
 static signed int rancid_players = 0;

@@ -168,6 +168,7 @@ typedef struct BPACK {
     unsigned char flags;
     unsigned char xpanning, ypanning;
     char filler[1];
+    spritetype *tspr;
 } spriteexttype;
 
 typedef struct BPACK {
@@ -181,6 +182,8 @@ typedef struct BPACK {
 #define SPREXT_NOMDANIM 2
 #define SPREXT_AWAY1 4
 #define SPREXT_AWAY2 8
+#define SPREXT_TSPRACCESS 16
+
 EXTERN spriteexttype *spriteext;
 EXTERN spritesmoothtype *spritesmooth;
 EXTERN int guniqhudid;

@@ -3923,6 +3923,7 @@ static void polymost_scansector(int sectnum)
                 if ((spr->cstat&48) || (xs*gcosang+ys*gsinang > 0))
                 {
                     copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
+                    spriteext[z].tspr = (spritetype *)&tsprite[spritesortcnt];
                     tsprite[spritesortcnt++].owner = z;
                 }
             }

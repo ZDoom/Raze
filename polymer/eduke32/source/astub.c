@@ -168,6 +168,7 @@ static int infobox=3; // bit0: current window, bit1: mouse pointer, the variable
 
 extern char mskip;
 extern short capturecount;
+extern int editorgridextent;	// in engine.c
 
 static void clearfilenames(void)
 {
@@ -6346,10 +6347,13 @@ static void Keys2d(void)
         else if (pointhighlight <= 16383)
         {
             i = linehighlight;
+            j = wall[i].x;
+            k = wall[i].y;
             Bsprintf(tempbuf,"Wall %d x: ",i);
-            wall[i].x = getnumber16(tempbuf,wall[i].x,131072,1);
+            j = getnumber16(tempbuf,j,editorgridextent,1);
             Bsprintf(tempbuf,"Wall %d y: ",i);
-            wall[i].y = getnumber16(tempbuf,wall[i].y,131072,1);
+            k = getnumber16(tempbuf,k,editorgridextent,1);
+            dragpoint(i, j, k);
             Bsprintf(tempbuf,"Wall %d updated",i);
             printmessage16(tempbuf);
         }

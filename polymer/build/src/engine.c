@@ -756,6 +756,7 @@ static void scansector(short sectnum)
                 if ((spr->cstat&48) || (xs*cosglobalang+ys*singlobalang > 0))
                 {
                     copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
+                    spriteext[z].tspr = (spritetype *)&tsprite[spritesortcnt];
                     tsprite[spritesortcnt++].owner = z;
                 }
             }

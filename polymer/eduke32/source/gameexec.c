@@ -3433,6 +3433,162 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         SetGameVarID(lVar2, spriteext[iActor].ypanning,g_i,g_p);
         return;
 
+    case ACTOR_TSPRX:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->x=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->x,g_i,g_p);
+        return;
+
+    case ACTOR_TSPRY:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->y=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->y,g_i,g_p);
+        return;
+
+    case ACTOR_TSPRZ:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->z=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->z,g_i,g_p);
+        return;
+
+    case ACTOR_TSPRCSTAT:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->cstat=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->cstat,g_i,g_p);
+        return;
+
+    case ACTOR_TSPRPICNUM:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->picnum=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->picnum,g_i,g_p);
+        return;
+
+    case ACTOR_TSPRSHADE:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->shade=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->shade,g_i,g_p);
+        return;
+
+    case ACTOR_TSPRPAL:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->pal=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->pal,g_i,g_p);
+        return;
+
+    case ACTOR_TSPRXREPEAT:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->xrepeat=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->xrepeat,g_i,g_p);
+        return;
+
+    case ACTOR_TSPRYREPEAT:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->yrepeat=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->yrepeat,g_i,g_p);
+        return;
+
+    case ACTOR_TSPRXOFFSET:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->xoffset=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->xoffset,g_i,g_p);
+        return;
+
+    case ACTOR_TSPRYOFFSET:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->yoffset=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->yoffset,g_i,g_p);
+        return;
+
+    case ACTOR_TSPRSECTNUM:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->sectnum=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->sectnum,g_i,g_p);
+        return;
+
+    case ACTOR_TSPRANG:
+        if (!spriteext[iActor].tspr)
+            return;
+
+        if (iSet)
+        {
+            spriteext[iActor].tspr->ang=lValue;
+            return;
+        }
+        SetGameVarID(lVar2, spriteext[iActor].tspr->ang,g_i,g_p);
+        return;
+
     default:
         return;
     }
