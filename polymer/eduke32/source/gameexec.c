@@ -50,7 +50,8 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
         return;
     }
 
-    lValue=GetGameVarID(lVar2, g_i, g_p);
+    if (iSet)
+        lValue=GetGameVarID(lVar2, g_i, g_p);
 
     switch (lLabelID)
     {
@@ -878,7 +879,8 @@ static void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
     }
 
-    lValue=GetGameVarID(lVar2, g_i, g_p);
+    if (iSet)
+        lValue=GetGameVarID(lVar2, g_i, g_p);
 
     switch (lLabelID)
     {
@@ -1155,7 +1157,8 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         return;
     }
 
-    lValue=GetGameVarID(lVar2, g_i, g_p);
+    if (iSet)
+        lValue=GetGameVarID(lVar2, g_i, g_p);
 
     switch (lLabelID)
     {
@@ -2498,7 +2501,8 @@ static void DoInput(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
     }
 
-    lValue=GetGameVarID(lVar2, g_i, g_p);
+    if (iSet)
+        lValue=GetGameVarID(lVar2, g_i, g_p);
 
     switch (lLabelID)
     {
@@ -2571,7 +2575,8 @@ static void DoWall(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
     }
 
-    lValue=GetGameVarID(lVar2, g_i, g_p);
+    if (iSet)
+        lValue=GetGameVarID(lVar2, g_i, g_p);
 
     switch (lLabelID)
     {
@@ -2746,7 +2751,8 @@ static void DoSector(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
     }
 
-    lValue=GetGameVarID(lVar2, g_i, g_p);
+    if (iSet)
+        lValue=GetGameVarID(lVar2, g_i, g_p);
 
     switch (lLabelID)
     {
@@ -2978,7 +2984,8 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         return;
     }
 
-    lValue=GetGameVarID(lVar2, g_i, g_p);
+    if (iSet)
+        lValue=GetGameVarID(lVar2, g_i, g_p);
 
     switch (lLabelID)
     {
@@ -3453,14 +3460,15 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
     }
 
-    lValue=GetGameVarID(lVar2, g_i, g_p);
+    if (iSet)
+        lValue=GetGameVarID(lVar2, g_i, g_p);
+
+    if (!spriteext[iActor].tspr)
+        return;
 
     switch (lLabelID)
     {
     case ACTOR_TSPRX:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->x=lValue;
@@ -3470,9 +3478,6 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
 
     case ACTOR_TSPRY:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->y=lValue;
@@ -3482,9 +3487,6 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
 
     case ACTOR_TSPRZ:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->z=lValue;
@@ -3494,9 +3496,6 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
 
     case ACTOR_TSPRCSTAT:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->cstat=lValue;
@@ -3506,9 +3505,6 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
 
     case ACTOR_TSPRPICNUM:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->picnum=lValue;
@@ -3518,9 +3514,6 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
 
     case ACTOR_TSPRSHADE:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->shade=lValue;
@@ -3530,9 +3523,6 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
 
     case ACTOR_TSPRPAL:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->pal=lValue;
@@ -3542,9 +3532,6 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
 
     case ACTOR_TSPRXREPEAT:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->xrepeat=lValue;
@@ -3554,9 +3541,6 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
 
     case ACTOR_TSPRYREPEAT:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->yrepeat=lValue;
@@ -3566,9 +3550,6 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
 
     case ACTOR_TSPRXOFFSET:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->xoffset=lValue;
@@ -3578,9 +3559,6 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
 
     case ACTOR_TSPRYOFFSET:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->yoffset=lValue;
@@ -3590,9 +3568,6 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
 
     case ACTOR_TSPRSECTNUM:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->sectnum=lValue;
@@ -3602,9 +3577,6 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
 
     case ACTOR_TSPRANG:
-        if (!spriteext[iActor].tspr)
-            return;
-
         if (iSet)
         {
             spriteext[iActor].tspr->ang=lValue;
@@ -3629,7 +3601,8 @@ static void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
         return;
     }
 
-    lValue=GetGameVarID(lVar2, g_i, g_p);
+    if (iSet)
+        lValue=GetGameVarID(lVar2, g_i, g_p);
 
     switch (lLabelID)
     {
@@ -5774,9 +5747,9 @@ static int parse(void)
 #endif
             if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                    && (rendmode != 4)
+                && (rendmode != 4)
 #endif
-               )
+                )
             {
                 int j, i = 0, k, dst = 0x7fffffff;
 
@@ -6951,9 +6924,7 @@ static int parse(void)
             // syntax [gs]etactor[<var>].x <VAR>
             // <varid> <xxxid> <varid>
 
-            int lVar1=*insptr++, lLabelID=*insptr++, lVar2;
-
-            lVar2=*insptr++;
+            int lVar1=*insptr++, lLabelID=*insptr++, lVar2=*insptr++;
 
             DoTsprite(tw==CON_SETTSPR, lVar1, lLabelID, lVar2);
             break;
