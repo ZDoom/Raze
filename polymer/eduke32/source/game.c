@@ -4070,9 +4070,9 @@ void displayrooms(int snum,int smoothratio)
 #endif
         if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            && (rendmode != 4)
+                && (rendmode != 4)
 #endif
-            )
+           )
         {
             dst = 0x7fffffff;
             i = 0;
@@ -8285,7 +8285,7 @@ static void comlinehelp(void)
               "-xFILE\t\tLoad CON script FILE (default EDUKE.CON/GAME.CON)\n"
               "-zNUM,\n-condebug\tLine-by-line CON compilation debugging, NUM is verbosity\n"
               "\n-?, -help\tDisplay this help message and exit"
-;
+              ;
 #if defined RENDERTYPEWIN
     wm_msgbox(HEAD2,s);
 #else

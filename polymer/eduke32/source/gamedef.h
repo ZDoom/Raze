@@ -443,6 +443,10 @@ enum actorlabels
     ACTOR_MDFLAGS,
     ACTOR_XPANNING,
     ACTOR_YPANNING,
+};
+
+enum tsprlabels
+{
     ACTOR_TSPRX,
     ACTOR_TSPRY,
     ACTOR_TSPRZ,
@@ -825,5 +829,7 @@ enum keywords
     CON_READARRAYFROMFILE,  // 320
 	CON_STARTTRACKVAR,  	// 321
 	CON_QGETSYSSTR, 		// 322
-	CON_GETTICKS			// 323
+	CON_GETTICKS,			// 323
+    CON_GETTSPR,            // 324
+    CON_SETTSPR,            // 325
 };

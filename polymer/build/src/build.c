@@ -5714,6 +5714,7 @@ void overheadeditor(void)
         {
             if ((keystatus[0x1d]|keystatus[0x9d]) > 0)  //Ctrl
             {
+nextmap:
 //				bad = 0;
                 i = menuselect_pk(keystatus[0x2a]>0 ? 0:1); // Left Shift: prev map
                 if (i < 0)
@@ -5744,7 +5745,8 @@ void overheadeditor(void)
                     oposz = posz;
                     if (i < 0)
                     {
-                        printmessage16("Invalid map format.");
+//                        printmessage16("Invalid map format.");
+                        goto nextmap;
                     }
                     else
                     {

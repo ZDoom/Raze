@@ -2888,7 +2888,7 @@ void drawtileinfo(char *title,int x,int y,int picnum,int shade,int pal,int cstat
 {
     char buf[64];
     int i,j;
-    int scale=65526;
+    int scale=65536;
     int x1;
 
     j = xdimgame>640?0:1;

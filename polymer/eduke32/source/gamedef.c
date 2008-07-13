@@ -453,6 +453,8 @@ static const char *keyw[] =
     "starttrackvar",			// 321
     "qgetsysstr",   			// 322
     "getticks", 				// 323
+    "gettspr",                  // 324
+    "settspr",                  // 325
     "<null>"
 };
 
@@ -564,6 +566,11 @@ const memberlabel_t actorlabels[]=
     { "xpanning", ACTOR_XPANNING, 0, 0 },
     { "ypanning", ACTOR_YPANNING, 0, 0 },
 
+    { "", -1, 0, 0  }     // END OF LIST
+};
+
+const memberlabel_t tsprlabels[]=
+{
     // tsprite access
 
     { "tsprx", ACTOR_TSPRX, 0, 0 },
@@ -3303,6 +3310,76 @@ static int parsecommand(void)
         break;
     }
 
+    case CON_GETTSPR:
+    case CON_SETTSPR:
+    {
+        int lLabelID;
+
+        if (current_event != EVENT_ANIMATESPRITES)
+        {
+            ReportError(-1);
+            initprintf("%s:%d: warning: found `%s' outside of EVENT_ANIMATESPRITES\n",compilefile,line_number,tempbuf);
+        }
+
+        // syntax getwall[<var>].x <VAR>
+        // gets the value of wall[<var>].xxx into <VAR>
+
+        // now get name of .xxx
+        while ((*textptr != '['))
+        {
+            textptr++;
+        }
+        if (*textptr == '[')
+            textptr++;
+
+        // get the ID of the DEF
+//        labelsonly = 1;
+        transvar();
+        labelsonly = 0;
+        // now get name of .xxx
+        while (*textptr != '.')
+        {
+            if (*textptr == 0xa)
+                break;
+            if (!*textptr)
+                break;
+
+            textptr++;
+        }
+        if (*textptr!='.')
+        {
+            error++;
+            ReportError(ERROR_SYNTAXERROR);
+            return 0;
+        }
+        textptr++;
+        /// now pointing at 'xxx'
+        getlabel();
+        //printf("found xxx label of '%s'\n",   label+(labelcnt<<6));
+
+        lLabelID=getlabeloffset(tsprlabels,label+(labelcnt<<6));
+        //printf("LabelID is %d\n",lLabelID);
+        if (lLabelID == -1)
+        {
+            error++;
+            ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+            return 0;
+        }
+
+        *scriptptr++=tsprlabels[lLabelID].lId;
+
+        //printf("member's flags are: %02Xh\n",actorlabels[lLabelID].flags);
+
+        // now at target VAR...
+
+        // get the ID of the DEF
+        if (tw == CON_GETTSPR)
+            transvartype(GAMEVAR_FLAG_READONLY);
+        else
+            transvar();
+        break;
+    }
+
     case CON_GETTICKS:
         if (CheckEventSync(current_event))
             ReportError(WARNING_REVEVENTSYNC);
@@ -5193,10 +5270,10 @@ void loadefs(const char *filenam)
                     loadfromgrouponly = 1;
                     return;
                 }
-                else 
+                else
                 {
 #if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2))
-                    while(!quitevent) // keep the window open so people can copy CON errors out of it
+                    while (!quitevent) // keep the window open so people can copy CON errors out of it
                         handleevents();
 #endif
                     gameexit("");
