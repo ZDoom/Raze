@@ -316,6 +316,41 @@ void ExtSaveMap(const char *mapname)
     saveboard("backup.map",&posx,&posy,&posz,&ang,&cursectnum);
 }
 
+int getTileGroup(const char *groupName)
+{
+    int temp;
+    for (temp = 0; temp < MAX_TILE_GROUPS; temp++)
+    {
+        if (s_TileGroups[temp].szText == NULL) {
+            return -1;
+        }
+        if (!strcmp(s_TileGroups[temp].szText, groupName))
+        {
+            return temp;
+        }
+    }
+    return -1;
+}
+
+int tileInGroup(int group, int tilenum)
+{
+    // @todo Make a bitmap instead of doing this slow search..
+    int temp;
+    if (group < 0 || group >= MAX_TILE_GROUPS || s_TileGroups[group].szText == NULL)
+    {
+        // group isn't valid.
+        return 0;
+    }
+    for (temp = 0; temp < s_TileGroups[group].nIds; temp++)
+    {
+        if (tilenum == s_TileGroups[group].pIds[temp])
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 const char *ExtGetSectorCaption(short sectnum)
 {
     if (qsetmode != 200 && (!(onnames==1 || onnames==4 || onnames==7) || (onnames==8)))
@@ -549,43 +584,10 @@ const char *ExtGetSpriteCaption(short spritenum)
 
     if (onnames==5)
     {
-        switch (sprite[spritenum].picnum)
-        {
-        case FIRSTGUNSPRITE:
-        case CHAINGUNSPRITE :
-        case RPGSPRITE:
-        case FREEZESPRITE:
-        case SHRINKERSPRITE:
-        case HEAVYHBOMB:
-        case TRIPBOMBSPRITE:
-        case SHOTGUNSPRITE:
-        case DEVISTATORSPRITE:
-        case FREEZEAMMO:
-        case AMMO:
-        case BATTERYAMMO:
-        case DEVISTATORAMMO:
-        case RPGAMMO:
-        case GROWAMMO:
-        case CRYSTALAMMO:
-        case HBOMBAMMO:
-        case AMMOLOTS:
-        case SHOTGUNAMMO:
-        case COLA:
-        case SIXPAK:
-        case FIRSTAID:
-        case SHIELD:
-        case STEROIDS:
-        case AIRTANK:
-        case JETPACK:
-        case HEATSENSOR:
-        case ACCESSCARD:
-        case BOOTS:
-            break;
-        default:
+        if (!tileInGroup(tilegroupItems, sprite[spritenum].picnum))
         {
             tempbuf[0] = 0;
             return(tempbuf);
-        }
         }
     }
 
@@ -666,51 +668,16 @@ void ExtShowSectorData(short sectnum)   //F5
     i = headspritestat[statnum];
     while (i != -1)
     {
-        switch (sprite[i].picnum)
+        // Count all non-player actors.
+        if (tileInGroup(tilegroupActors, sprite[i].picnum))
         {
-        case RECON:
-        case DRONE:
-        case LIZTROOPONTOILET:
-        case LIZTROOPSTAYPUT:
-        case LIZTROOPSHOOT:
-        case LIZTROOPJETPACK:
-        case LIZTROOPDUCKING:
-        case LIZTROOPRUNNING:
-        case LIZTROOP:
-        case OCTABRAIN:
-        case OCTABRAINSTAYPUT:
-        case COMMANDER:
-        case COMMANDERSTAYPUT:
-        case EGG:
-        case PIGCOP:
-        case PIGCOPSTAYPUT:
-        case PIGCOPDIVE:
-        case LIZMAN:
-        case LIZMANSTAYPUT:
-        case LIZMANSPITTING:
-        case LIZMANFEEDING:
-        case LIZMANJUMP:
-        case ORGANTIC:
-        case BOSS1:
-        case BOSS2:
-        case BOSS3:
-        case GREENSLIME:
-        case ROTATEGUN:
-        case TANK:
-        case NEWBEAST:
-        case BOSS4:
             if (sprite[i].lotag<=1) totalactors1++;
             if (sprite[i].lotag<=2) totalactors2++;
             if (sprite[i].lotag<=3) totalactors3++;
             if (sprite[i].lotag<=4) totalactors4++;
-            break;
-
-        case RESPAWN:
-            totalrespawn++;
-
-        default:
-            break;
         }
+        if (sprite[i].picnum == RESPAWN) totalrespawn++;
+
         i = nextspritestat[i];
     }
 
@@ -2126,6 +2093,8 @@ static int m32gettile(int idInitialTile)
     {
         nXTiles = xdim / ZoomToThumbSize[s_Zoom];
         nYTiles = ydim / ZoomToThumbSize[s_Zoom];
+        // Refuse to draw less than half of a row.
+        if (ZoomToThumbSize[s_Zoom]/2 < 12) nYTiles--;
         nDisplayedTiles  = nXTiles * nYTiles;
 
         if (!nDisplayedTiles)
@@ -2306,10 +2275,13 @@ static int m32gettile(int idInitialTile)
                 moffset+=ZoomToThumbSize[s_Zoom];
             }
         }
-        if (searchx < 12) searchx = 12;
-        if (searchy < 12) searchy = 12;
-        if (searchx > xdim-13) searchx = xdim-13;
-        if (searchy > ydim-23) searchy = ydim-23;
+
+        // Keep the pointer visible at all times.
+        temp = min((ZoomToThumbSize[s_Zoom] / 2), 12);
+        if (searchx < temp) searchx = temp;
+        if (searchy < temp) searchy = temp;
+        if (searchx > xdim - temp) searchx = xdim - temp;
+        if (searchy > ydim - temp) searchy = ydim - temp;
 
         scrollmode=!(eitherCTRL^revertCTRL);
         if (bstatus&16 && scrollmode && iTopLeftTile > 0)
@@ -2371,6 +2343,8 @@ static int m32gettile(int idInitialTile)
             // Calculate new num of tiles to display
             nXTiles = xdim / ZoomToThumbSize[s_Zoom];
             nYTiles = ydim / ZoomToThumbSize[s_Zoom];
+            // Refuse to draw less than half of a row.
+            if (ZoomToThumbSize[s_Zoom]/2 < 12) nYTiles--;
             nDisplayedTiles  = nXTiles * nYTiles;
 
             // Determine if the top-left displayed tile needs to
@@ -2843,15 +2817,28 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
 
     idTile = localartlookup[ iSelected ];
 
+    // Draw info bar at bottom.
+
+    // Clear out behind the text for improved visibility.
+    //drawline256(0, (ydim-12)<<12, xdim<<12, (ydim-12)<<12, whitecol);
+    for (i=ydim-12; i<ydim; i++) {
+        drawline256(0, i<<12, xdim<<12, i<<12, (ydim-i));
+    }
+
+    // Tile number on left.
     Bsprintf(szT, "%d" , idTile);
-    printext256(0L, ydim-8, whitecol, 0, szT, 0);
-    printext256(xdim-(Bstrlen(names[idTile])<<3),ydim-8,whitecol,0,names[idTile],0);
+    printext256(1, ydim-10, whitecol, -1, szT, 0);
 
+    // Tile name on right.
+    printext256(xdim-(Bstrlen(names[idTile])<<3)-1,ydim-10,whitecol,-1,names[idTile],0);
+
+    // Tile dimensions.
     Bsprintf(szT,"%dx%d",tilesizx[idTile],tilesizy[idTile]);
-    printext256(xdim>>2,ydim-8,whitecol,0,szT,0);
+    printext256(xdim>>2,ydim-10,whitecol,-1,szT,0);
 
+    // EditArt animation flags.
     Bsprintf(szT,"%d, %d",(picanm[idTile]>>8)&0xFF,(picanm[idTile]>>16)&0xFF);
-    printext256((xdim>>2)+100,ydim-8,whitecol,0,szT,0);
+    printext256((xdim>>2)+100,ydim-10,whitecol,-1,szT,0);
 
     m32_showmouse();
 
@@ -6448,101 +6435,6 @@ static void Keys2d(void)
 
 void ExtSetupSpecialSpriteCols(void)
 {
-    int i;
-    for (i=0;i<MAXTILES;i++)
-
-        switch (i)
-        {
-        case SECTOREFFECTOR:
-        case ACTIVATOR:
-        case TOUCHPLATE:
-        case ACTIVATORLOCKED:
-        case MUSICANDSFX:
-        case LOCATORS:
-        case CYCLER:
-        case MASTERSWITCH:
-        case RESPAWN:
-        case GPSPEED:
-            spritecol2d[i][0] = 15;
-            spritecol2d[i][1] = 15;
-            break;
-        case APLAYER:
-            spritecol2d[i][0] = 2;
-            spritecol2d[i][1] = 2;
-            break;
-        case LIZTROOP :
-        case LIZTROOPRUNNING :
-        case LIZTROOPSTAYPUT :
-        case LIZTROOPSHOOT :
-        case LIZTROOPJETPACK :
-        case LIZTROOPONTOILET :
-        case LIZTROOPDUCKING :
-        case PIGCOP:
-        case PIGCOPSTAYPUT:
-        case PIGCOPDIVE:
-        case LIZMAN:
-        case LIZMANSTAYPUT:
-        case LIZMANSPITTING:
-        case LIZMANFEEDING:
-        case LIZMANJUMP:
-        case BOSS1:
-        case BOSS1STAYPUT:
-        case BOSS1SHOOT:
-        case BOSS1LOB:
-        case BOSSTOP:
-        case COMMANDER:
-        case COMMANDERSTAYPUT:
-        case OCTABRAIN:
-        case OCTABRAINSTAYPUT:
-        case RECON:
-        case DRONE:
-        case ROTATEGUN:
-        case EGG:
-        case ORGANTIC:
-        case GREENSLIME:
-        case BOSS2:
-        case BOSS3:
-        case TANK:
-        case NEWBEAST:
-        case BOSS4:
-            spritecol2d[i][0] = 31;
-            spritecol2d[i][1] = 31;
-            break;
-        case FIRSTGUNSPRITE:
-        case CHAINGUNSPRITE :
-        case RPGSPRITE:
-        case FREEZESPRITE:
-        case SHRINKERSPRITE:
-        case HEAVYHBOMB:
-        case TRIPBOMBSPRITE:
-        case SHOTGUNSPRITE:
-        case DEVISTATORSPRITE:
-        case FREEZEAMMO:
-        case AMMO:
-        case BATTERYAMMO:
-        case DEVISTATORAMMO:
-        case RPGAMMO:
-        case GROWAMMO:
-        case CRYSTALAMMO:
-        case HBOMBAMMO:
-        case AMMOLOTS:
-        case SHOTGUNAMMO:
-        case COLA:
-        case SIXPAK:
-        case FIRSTAID:
-        case SHIELD:
-        case STEROIDS:
-        case AIRTANK:
-        case JETPACK:
-        case HEATSENSOR:
-        case ACCESSCARD:
-        case BOOTS:
-            spritecol2d[i][0] = 24;
-            spritecol2d[i][1] = 24;
-            break;
-        default:
-            break;
-        }
 }
 
 static void InitCustomColors(void)
@@ -7167,7 +7059,8 @@ enum
     T_TILERANGE,
     T_HOTKEY,
     T_TILES,
-    T_NOAUTOLOAD
+    T_NOAUTOLOAD,
+    T_COLORS
 };
 
 typedef struct
@@ -7371,6 +7264,7 @@ int parsetilegroups(scriptfile *script)
                     { "tilerange",  T_TILERANGE   },
                     { "hotkey",     T_HOTKEY      },
                     { "tiles",      T_TILES       },
+                    { "colors",     T_COLORS      },
                 };
 
                 int token = getatoken(script,tgtokens2,sizeof(tgtokens2)/sizeof(tokenlist));
@@ -7395,6 +7289,16 @@ int parsetilegroups(scriptfile *script)
                         s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i++;
 //                        OSD_Printf("added tile %d to group %d\n",i,g);
                     }
+                    break;
+                }
+                case T_COLORS:
+                {
+                    int j;
+                    if (scriptfile_getsymbol(script, &i)) break;
+                    if (scriptfile_getsymbol(script, &j)) break;
+                    if (i < 0 || i >= 256 || j < 0 || j >= 256) break;
+                    s_TileGroups[tile_groups].color1 = i;
+                    s_TileGroups[tile_groups].color2 = j;
                     break;
                 }
                 case T_HOTKEY:
@@ -7437,9 +7341,9 @@ int parsetilegroups(scriptfile *script)
 
 int loadtilegroups(char *fn)
 {
-    int i;
+    int i, j;
     scriptfile *script;
-    TileGroup blank = { NULL,     0,  NULL,     0, 0 };
+    TileGroup blank = { NULL,     0,  NULL,     0, 0, 0, 0};
 
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
@@ -7453,6 +7357,26 @@ int loadtilegroups(char *fn)
 
     scriptfile_close(script);
     scriptfile_clearsymbols();
+
+    tilegroupItems = getTileGroup("Items");
+    tilegroupActors = getTileGroup("Actors");
+
+    // Apply 2d sprite colors as specified in tiles.cfg.
+    for (i = 0; i < MAX_TILE_GROUPS; i++)
+    {
+        if (s_TileGroups[i].szText == NULL) break;
+        // If the colors were specified...
+        if (s_TileGroups[i].color1 && s_TileGroups[i].color2)
+        {
+            for (j = 0; j < s_TileGroups[i].nIds; j++)
+            {
+                // Apply the colors to all tiles in the group.
+                spritecol2d[s_TileGroups[i].pIds[j]][0] = s_TileGroups[i].color1;
+                spritecol2d[s_TileGroups[i].pIds[j]][1] = s_TileGroups[i].color2;
+            }
+        }
+    }
+
 
     return 0;
 }

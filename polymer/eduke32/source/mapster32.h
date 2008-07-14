@@ -183,12 +183,17 @@ typedef struct
 	char *szText ;		// description to present to user.
 	char  key1 ;		// key1 and key2 are two alternative keypresses used to
 	char  key2 ;		//    select tile set. Bodge to do eary upper/lower case handling
+    char  color1;       // 2d sprite color 1
+    char  color2;       // 2d sprite color 2
 } TileGroup;
 
 #define MAX_TILE_GROUPS 32
 #define MAX_TILE_GROUP_ENTRIES 1024
 
 TileGroup s_TileGroups[MAX_TILE_GROUPS];
+
+int tilegroupItems;
+int tilegroupActors;
 
 static unsigned int tile_groups = 0;
 
