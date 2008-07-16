@@ -1030,6 +1030,7 @@ typedef struct {
     char earthquaketime;
     int lockclock;
     int randomseed, global_random;
+    char scriptptrs[MAXSPRITES];
 } mapstate_t;
 
 typedef struct {

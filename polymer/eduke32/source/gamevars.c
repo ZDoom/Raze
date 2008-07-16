@@ -100,6 +100,9 @@ int ReadGameVars(int fil)
 {
     int i;
     intptr_t l;
+    char savedstate[MAXVOLUMES*MAXLEVELS];
+
+    Bmemset(&savedstate,0,sizeof(savedstate));
 
     //     AddLog("Reading gamevars from savegame");
 
@@ -187,6 +190,24 @@ int ReadGameVars(int fil)
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
+
+    if (kdfread(&savedstate[0],sizeof(savedstate),1,fil) != 1) goto corrupt;
+
+    for (i=0;i<(MAXVOLUMES*MAXLEVELS);i++)
+    {
+        if (savedstate[i])
+        {
+            if (map[i].savedstate == NULL)
+                map[i].savedstate = Bcalloc(1,sizeof(mapstate_t));
+            if (kdfread(map[i].savedstate,sizeof(mapstate_t),1,fil) != sizeof(mapstate_t)) goto corrupt;
+        }
+        else if (map[i].savedstate)
+        {
+            Bfree(map[i].savedstate);
+            map[i].savedstate = NULL;
+        }
+    }
+
     if (kdfread(&l,sizeof(l),1,fil) != 1) goto corrupt;
     if (kdfread(g_szBuf,l,1,fil) != 1) goto corrupt;
     g_szBuf[l]=0;
@@ -214,6 +235,9 @@ void SaveGameVars(FILE *fil)
 {
     int i;
     intptr_t l;
+    char savedstate[MAXVOLUMES*MAXLEVELS];
+
+    Bmemset(&savedstate,0,sizeof(savedstate));
 
     //   AddLog("Saving Game Vars to File");
     dfwrite(&iGameVarCount,sizeof(iGameVarCount),1,fil);
@@ -271,6 +295,16 @@ void SaveGameVars(FILE *fil)
             l = (intptr_t)apScriptGameEvent[i]+(intptr_t)&script[0];
             apScriptGameEvent[i] = (intptr_t *)l;
         }
+
+    for (i=0;i<(MAXVOLUMES*MAXLEVELS);i++)
+        if (map[i].savedstate != NULL)
+            savedstate[i] = 1;
+
+    dfwrite(&savedstate[0],sizeof(savedstate),1,fil);
+
+    for (i=0;i<(MAXVOLUMES*MAXLEVELS);i++)
+        if (map[i].savedstate)
+            dfwrite(map[i].savedstate,sizeof(mapstate_t),1,fil);
 
     Bsprintf(g_szBuf,"EOF: EDuke32");
     l=strlen(g_szBuf);

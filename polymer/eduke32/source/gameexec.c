@@ -7742,6 +7742,7 @@ void savemapstate(mapstate_t *save)
     if (save != NULL)
     {
         int i;
+        intptr_t j;
 
         Bmemcpy(&save->numwalls,&numwalls,sizeof(numwalls));
         Bmemcpy(&save->wall[0],&wall[0],sizeof(walltype)*MAXWALLS);
@@ -7755,7 +7756,46 @@ void savemapstate(mapstate_t *save)
         Bmemcpy(&save->headspritestat[0],&headspritestat[0],sizeof(headspritestat));
         Bmemcpy(&save->prevspritestat[0],&prevspritestat[0],sizeof(prevspritestat));
         Bmemcpy(&save->nextspritestat[0],&nextspritestat[0],sizeof(nextspritestat));
+
+        for (i=0;i<MAXSPRITES;i++)
+        {
+            save->scriptptrs[i] = 0;
+
+            if (actorscrptr[PN] == 0) continue;
+
+            j = (intptr_t)&script[0];
+
+            if (T2 >= j && T2 < (intptr_t)(&script[g_ScriptSize]))
+            {
+                save->scriptptrs[i] |= 1;
+                T2 -= j;
+            }
+            if (T5 >= j && T5 < (intptr_t)(&script[g_ScriptSize]))
+            {
+                save->scriptptrs[i] |= 2;
+                T5 -= j;
+            }
+            if (T6 >= j && T6 < (intptr_t)(&script[g_ScriptSize]))
+            {
+                save->scriptptrs[i] |= 4;
+                T6 -= j;
+            }
+        }
+
         Bmemcpy(&save->hittype[0],&hittype[0],sizeof(actordata_t)*MAXSPRITES);
+
+        for (i=0;i<MAXSPRITES;i++)
+        {
+            if (actorscrptr[PN] == 0) continue;
+            j = (intptr_t)&script[0];
+
+            if (save->scriptptrs[i]&1)
+                T2 += j;
+            if (save->scriptptrs[i]&2)
+                T5 += j;
+            if (save->scriptptrs[i]&4)
+                T6 += j;
+        }
 
         Bmemcpy(&save->numcyclers,&numcyclers,sizeof(numcyclers));
         Bmemcpy(&save->cyclers[0][0],&cyclers[0][0],sizeof(cyclers));
@@ -7797,6 +7837,7 @@ void restoremapstate(mapstate_t *save)
     if (save != NULL)
     {
         int i, k, x;
+        intptr_t j;
 
         pub = NUMPAGES;
         pus = NUMPAGES;
@@ -7815,6 +7856,14 @@ void restoremapstate(mapstate_t *save)
         Bmemcpy(&prevspritestat[0],&save->prevspritestat[0],sizeof(prevspritestat));
         Bmemcpy(&nextspritestat[0],&save->nextspritestat[0],sizeof(nextspritestat));
         Bmemcpy(&hittype[0],&save->hittype[0],sizeof(actordata_t)*MAXSPRITES);
+
+        for (i=0;i<MAXSPRITES;i++)
+        {
+            j = (intptr_t)(&script[0]);
+            if (save->scriptptrs[i]&1) T2 += j;
+            if (save->scriptptrs[i]&2) T5 += j;
+            if (save->scriptptrs[i]&4) T6 += j;
+        }
 
         Bmemcpy(&numcyclers,&save->numcyclers,sizeof(numcyclers));
         Bmemcpy(&cyclers[0][0],&save->cyclers[0][0],sizeof(cyclers));
