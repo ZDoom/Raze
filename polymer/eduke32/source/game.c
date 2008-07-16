@@ -7077,7 +7077,7 @@ PALONLY:
             t->xrepeat = t->yrepeat = 0;
     }
     for (j=0;j < spritesortcnt; j++)
-        if (spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
+        if (tsprite[j].owner > 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
         {
             OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
             spriteext[tsprite[j].owner].tspr = NULL;
@@ -9559,6 +9559,8 @@ static void freeconmem(void)
             Bfree(map[i].musicfn);
         if (map[i].musicfn1 != NULL)
             Bfree(map[i].musicfn1);
+        if (map[i].savedstate != NULL)
+            Bfree(map[i].savedstate);
     }
 
     for (i=MAXQUOTES-1;i>=0;i--)

@@ -1212,6 +1212,26 @@ static int osdcmd_screenshot(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+extern void savemapstate(mapstate_t *save);
+extern void restoremapstate(mapstate_t *save);
+
+int osdcmd_savestate(const osdfuncparm_t *parm)
+{
+    UNREFERENCED_PARAMETER(parm);
+    if (map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate == NULL)
+        map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate = Bcalloc(1,sizeof(mapstate_t));
+    savemapstate(map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+    return OSDCMD_OK;
+}
+
+int osdcmd_restorestate(const osdfuncparm_t *parm)
+{
+    UNREFERENCED_PARAMETER(parm);
+    if (map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate)
+        restoremapstate(map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+    return OSDCMD_OK;
+}
+
 int registerosdcommands(void)
 {
     unsigned int i;
@@ -1283,7 +1303,8 @@ int registerosdcommands(void)
     OSD_RegisterFunction("unbindall","unbindall: unbinds all keys.", osdcmd_unbindall);
 
     OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: immediately change the video mode",osdcmd_vidmode);
-
+    OSD_RegisterFunction("savestate","",osdcmd_savestate);
+    OSD_RegisterFunction("restorestate","",osdcmd_restorestate);
     //baselayer_onvideomodechange = onvideomodechange;
 
     return 0;

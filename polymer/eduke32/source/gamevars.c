@@ -541,9 +541,8 @@ int GetGameVarID(int id, int iActor, int iPlayer)
     if (id == g_iThisActorID)
         return iActor;
 
-    if (id<0 || id >= iGameVarCount)
+    if (id >= iGameVarCount || id<0)
     {
-//  	  if (id < (MAXGAMEVARS<<1)+MAXGAMEVARS+1+MAXGAMEARRAYS)
         if (id&(MAXGAMEVARS<<2))
         {
             int index=GetGameVarID(*insptr++,iActor,iPlayer);

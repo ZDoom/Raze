@@ -64,13 +64,14 @@ typedef struct
     int maxParm2;
 } memberlabel_t;
 
-/* extern memberlabel_t sectorlabels[];
-extern memberlabel_t walllabels[]; */
+extern const memberlabel_t sectorlabels[];
+extern const memberlabel_t walllabels[];
 extern const memberlabel_t actorlabels[];
 extern const memberlabel_t playerlabels[];
-/* extern memberlabel_t projectilelabels[];
-extern memberlabel_t userdeflabels[];
-extern memberlabel_t inputlabels[]; */
+extern const memberlabel_t projectilelabels[];
+extern const memberlabel_t userdeflabels[];
+extern const memberlabel_t inputlabels[];
+extern const memberlabel_t tsprlabels[];
 
 enum errors
 {
@@ -827,9 +828,12 @@ enum keywords
     CON_RESIZEARRAY,        // 318
     CON_WRITEARRAYTOFILE,   // 319
     CON_READARRAYFROMFILE,  // 320
-	CON_STARTTRACKVAR,  	// 321
-	CON_QGETSYSSTR, 		// 322
-	CON_GETTICKS,			// 323
+    CON_STARTTRACKVAR,  	// 321
+    CON_QGETSYSSTR, 		// 322
+    CON_GETTICKS,			// 323
     CON_GETTSPR,            // 324
     CON_SETTSPR,            // 325
+    CON_SAVEMAPSTATE,       // 326
+    CON_LOADMAPSTATE,       // 327
+    CON_CLEARMAPSTATE,      // 328
 };

@@ -321,7 +321,8 @@ int getTileGroup(const char *groupName)
     int temp;
     for (temp = 0; temp < MAX_TILE_GROUPS; temp++)
     {
-        if (s_TileGroups[temp].szText == NULL) {
+        if (s_TileGroups[temp].szText == NULL)
+        {
             return -1;
         }
         if (!strcmp(s_TileGroups[temp].szText, groupName))
@@ -2821,7 +2822,8 @@ static int DrawTiles(int iTopLeft, int iSelected, int nXTiles, int nYTiles, int 
 
     // Clear out behind the text for improved visibility.
     //drawline256(0, (ydim-12)<<12, xdim<<12, (ydim-12)<<12, whitecol);
-    for (i=ydim-12; i<ydim; i++) {
+    for (i=ydim-12; i<ydim; i++)
+    {
         drawline256(0, i<<12, xdim<<12, i<<12, (ydim-i));
     }
 

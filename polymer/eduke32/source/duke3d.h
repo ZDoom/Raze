@@ -67,7 +67,7 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
 #define BYTEVERSION_13  27
 #define BYTEVERSION_14  116
 #define BYTEVERSION_15  117
-#define BYTEVERSION_JF  180 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
+#define BYTEVERSION_JF  183 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
 
 #define BYTEVERSION (BYTEVERSION_JF+(PLUTOPAK?1:(VOLUMEONE<<1)))    // JBF 20040116: different data files give different versions
 
@@ -996,8 +996,46 @@ extern int redefined_quote_count;
 extern char setupfilename[BMAX_PATH];
 
 typedef struct {
+// this needs to have a copy of everything related to the map/actor state
+// see savegame.c
+    short numwalls;
+    walltype wall[MAXWALLS];
+    short numsectors;
+    sectortype sector[MAXSECTORS];
+    spritetype sprite[MAXSPRITES];
+    spriteexttype spriteext[MAXSPRITES];
+    short headspritesect[MAXSECTORS+1];
+    short prevspritesect[MAXSPRITES];
+    short nextspritesect[MAXSPRITES];
+    short headspritestat[MAXSTATUS+1];
+    short prevspritestat[MAXSPRITES];
+    short nextspritestat[MAXSPRITES];
+    short numcyclers;
+    short cyclers[MAXCYCLERS][6];
+    playerspawn_t g_PlayerSpawnPoints[MAXPLAYERS];
+    short numanimwalls;
+    short spriteq[1024],spriteqloc;
+    animwalltype animwall[MAXANIMWALLS];
+    int msx[2048], msy[2048];
+    short mirrorwall[64], mirrorsector[64], mirrorcnt;
+    char show2dsector[(MAXSECTORS+7)>>3];
+    short numclouds,clouds[128],cloudx[128],cloudy[128];
+    actordata_t hittype[MAXSPRITES];
+    short pskyoff[MAXPSKYTILES], pskybits;
+
+    int animategoal[MAXANIMATES], animatevel[MAXANIMATES], animatecnt;
+    short animatesect[MAXANIMATES];
+    int animateptr[MAXANIMATES];
+    char numplayersprites;
+    char earthquaketime;
+    int lockclock;
+    int randomseed, global_random;
+} mapstate_t;
+
+typedef struct {
 	int partime, designertime;
 	char *name, *filename, *musicfn, *musicfn1;
+    mapstate_t *savedstate;
 } map_t;
 
 extern map_t map[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music

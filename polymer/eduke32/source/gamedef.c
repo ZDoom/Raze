@@ -455,10 +455,13 @@ static const char *keyw[] =
     "getticks", 				// 323
     "gettspr",                  // 324
     "settspr",                  // 325
+    "savemapstate",             // 326
+    "loadmapstate",             // 327
+    "clearmapstate",            // 328
     "<null>"
 };
 
-static const memberlabel_t sectorlabels[]=
+const memberlabel_t sectorlabels[]=
 {
     { "wallptr", SECTOR_WALLPTR, 0, 0 },
     { "wallnum", SECTOR_WALLNUM, 0, 0 },
@@ -486,7 +489,7 @@ static const memberlabel_t sectorlabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
-static const memberlabel_t walllabels[]=
+const memberlabel_t walllabels[]=
 {
     { "x", WALL_X, 0, 0 },
     { "y", WALL_Y, 0, 0 },
@@ -740,7 +743,7 @@ const memberlabel_t playerlabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
-static const memberlabel_t projectilelabels[]=
+const memberlabel_t projectilelabels[]=
 {
     { "workslike", PROJ_WORKSLIKE, 0, 0 },
     { "spawns", PROJ_SPAWNS, 0, 0 },
@@ -773,7 +776,7 @@ static const memberlabel_t projectilelabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
-static const memberlabel_t userdefslabels[]=
+const memberlabel_t userdefslabels[]=
 {
     //        { "<null>", 1, 0, 0 },
     { "god", USERDEFS_GOD, 0, 0 },
@@ -871,7 +874,7 @@ static const memberlabel_t userdefslabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
-static const memberlabel_t inputlabels[]=
+const memberlabel_t inputlabels[]=
 {
     { "avel", INPUT_AVEL, 0, 0 },
     { "horz", INPUT_HORZ, 0, 0 },
@@ -1764,8 +1767,7 @@ static int parsecommand(void)
                 }
                 else
                 {
-                    char *gl;
-                    gl = (char *)translatelabeltype(labeltype[j]);
+                    char *gl = (char *)translatelabeltype(labeltype[j]);
                     ReportError(-1);
                     initprintf("%s:%d: warning: expected a state, found a %s.\n",compilefile,line_number,gl);
                     Bfree(gl);
@@ -3576,6 +3578,9 @@ static int parsecommand(void)
         return 0;
 
     case CON_FLASH:
+    case CON_SAVEMAPSTATE:
+    case CON_LOADMAPSTATE:
+    case CON_CLEARMAPSTATE:
         return 0;
 
     case CON_DRAGPOINT:

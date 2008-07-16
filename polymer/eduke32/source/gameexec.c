@@ -30,6 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "osd.h"
 
+void restoremapstate(mapstate_t *save);
+void savemapstate(mapstate_t *save);
+
 int g_i,g_p;
 static int g_x;
 static intptr_t *g_t;
@@ -874,7 +877,10 @@ static void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 
     if (proj < 0 || proj >= MAXSPRITES)
     {
-        OSD_Printf("DoThisProjectile(): invalid projectile (%d)\n",proj);
+//        OSD_Printf("DoThisProjectile(): invalid projectile (%d)\n",proj);
+        OSD_Printf("DoThisProjectile(): tried to %s %s on invalid target projectile (%d) %d %d from %s\n",
+                   iSet?"set":"get",projectilelabels[lLabelID].name,proj,g_i,g_sp->picnum,
+                   (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
         insptr += (lVar2 == MAXGAMEVARS);
         return;
     }
@@ -1152,8 +1158,11 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
     if (iPlayer<0 || iPlayer >= ud.multimode)
     {
+//        OSD_Printf("DoPlayer(): invalid target player (%d) %d\n",iPlayer,g_i);
+        OSD_Printf("DoPlayer(): tried to %s %s on invalid target player (%d) %d from %s\n",
+                   iSet?"set":"get",actorlabels[lLabelID].name,iPlayer,g_i,
+                   (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
         insptr += (lVar2 == MAXGAMEVARS);
-        OSD_Printf("DoPlayer(): invalid target player (%d) %d\n",iPlayer,g_i);
         return;
     }
 
@@ -2979,7 +2988,9 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
     if (iActor < 0 || iActor >= MAXSPRITES)
     {
-        OSD_Printf("DoActor(): invalid target sprite (%d) %d %d\n",iActor,g_i,g_sp->picnum);
+        OSD_Printf("DoActor(): tried to %s %s on invalid target sprite (%d) %d %d from %s\n",
+                   iSet?"set":"get",actorlabels[lLabelID].name,iActor,g_i,g_sp->picnum,
+                   (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
         insptr += (lVar2 == MAXGAMEVARS);
         return;
     }
@@ -5747,9 +5758,9 @@ static int parse(void)
 #endif
             if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                && (rendmode != 4)
+                    && (rendmode != 4)
 #endif
-                )
+               )
             {
                 int j, i = 0, k, dst = 0x7fffffff;
 
@@ -6391,6 +6402,28 @@ static int parse(void)
         sprite[g_i].shade = -127;
         g_player[g_p].ps->visibility = -127;
         lastvisinc = totalclock+32;
+        return 0;
+
+    case CON_SAVEMAPSTATE:
+        if (map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate == NULL)
+            map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate = Bcalloc(1,sizeof(mapstate_t));
+        savemapstate(map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+        insptr++;
+        return 0;
+
+    case CON_LOADMAPSTATE:
+        if (map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate)
+            restoremapstate(map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+        insptr++;
+        return 0;
+
+    case CON_CLEARMAPSTATE:
+        if (map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate)
+        {
+            Bfree(map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
+            map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate = NULL;
+        }
+        insptr++;
         return 0;
 
     case CON_STOPALLSOUNDS:
@@ -7293,10 +7326,8 @@ static int parse(void)
             insptr=savedinsptr;
             insptr++;
             i=*insptr++;
-            j=0;
-
-            if (GetGameVarID(i, g_i, g_p) != *insptr)
-                j=1;
+            if (GetGameVarID(i, g_i, g_p) == *insptr)
+                j=0;
             parseifelse(j);
         }
         break;
@@ -7313,10 +7344,8 @@ static int parse(void)
             insptr++;
             i=*insptr++;
             k=*(insptr);
-            j=0;
-
-            if (GetGameVarID(i, g_i, g_p) != GetGameVarID(k, g_i, g_p))
-                j=1;
+            if (GetGameVarID(i, g_i, g_p) == GetGameVarID(k, g_i, g_p))
+                j=0;
             parseifelse(j);
         }
         break;
@@ -7451,6 +7480,14 @@ static int parse(void)
             insptr++;
             break;
         }
+
+        if (g_p < 0 || g_p >= MAXPLAYERS)
+        {
+            OSD_Printf("CON_QUOTE: bad player for quote %d: (%d)\n",*insptr,g_p);
+            insptr++;
+            break;
+        }
+
         FTA(*insptr++,g_player[g_p].ps);
         break;
 
@@ -7697,5 +7734,196 @@ void execute(int iActor,int iPlayer,int lDist)
                     changespritestat(g_i,2);
                 break;
             }
+    }
+}
+
+void savemapstate(mapstate_t *save)
+{
+    if (save != NULL)
+    {
+        int i;
+
+        Bmemcpy(&save->numwalls,&numwalls,sizeof(numwalls));
+        Bmemcpy(&save->wall[0],&wall[0],sizeof(walltype)*MAXWALLS);
+        Bmemcpy(&save->numsectors,&numsectors,sizeof(numsectors));
+        Bmemcpy(&save->sector[0],&sector[0],sizeof(sectortype)*MAXSECTORS);
+        Bmemcpy(&save->sprite[0],&sprite[0],sizeof(spritetype)*MAXSPRITES);
+        Bmemcpy(&save->spriteext[0],&spriteext[0],sizeof(spriteexttype)*MAXSPRITES);
+        Bmemcpy(&save->headspritesect[0],&headspritesect[0],sizeof(headspritesect));
+        Bmemcpy(&save->prevspritesect[0],&prevspritesect[0],sizeof(prevspritesect));
+        Bmemcpy(&save->nextspritesect[0],&nextspritesect[0],sizeof(nextspritesect));
+        Bmemcpy(&save->headspritestat[0],&headspritestat[0],sizeof(headspritestat));
+        Bmemcpy(&save->prevspritestat[0],&prevspritestat[0],sizeof(prevspritestat));
+        Bmemcpy(&save->nextspritestat[0],&nextspritestat[0],sizeof(nextspritestat));
+        Bmemcpy(&save->hittype[0],&hittype[0],sizeof(actordata_t)*MAXSPRITES);
+
+        Bmemcpy(&save->numcyclers,&numcyclers,sizeof(numcyclers));
+        Bmemcpy(&save->cyclers[0][0],&cyclers[0][0],sizeof(cyclers));
+        Bmemcpy(&save->g_PlayerSpawnPoints[0],&g_PlayerSpawnPoints[0],sizeof(g_PlayerSpawnPoints));
+        Bmemcpy(&save->numanimwalls,&numanimwalls,sizeof(numanimwalls));
+        Bmemcpy(&save->spriteq[0],&spriteq[0],sizeof(spriteq));
+        Bmemcpy(&save->spriteqloc,&spriteqloc,sizeof(spriteqloc));
+        Bmemcpy(&save->animwall[0],&animwall[0],sizeof(animwall));
+        Bmemcpy(&save->msx[0],&msx[0],sizeof(msx));
+        Bmemcpy(&save->msy[0],&msy[0],sizeof(msy));
+        Bmemcpy(&save->mirrorwall[0],&mirrorwall[0],sizeof(mirrorwall));
+        Bmemcpy(&save->mirrorsector[0],&mirrorsector[0],sizeof(mirrorsector));
+        Bmemcpy(&save->mirrorcnt,&mirrorcnt,sizeof(mirrorcnt));
+        Bmemcpy(&save->show2dsector[0],&show2dsector[0],sizeof(show2dsector));
+        Bmemcpy(&save->numclouds,&numclouds,sizeof(numclouds));
+        Bmemcpy(&save->clouds[0],&clouds[0],sizeof(clouds));
+        Bmemcpy(&save->cloudx[0],&cloudx[0],sizeof(cloudx));
+        Bmemcpy(&save->cloudy[0],&cloudy[0],sizeof(cloudy));
+        Bmemcpy(&save->pskyoff[0],&pskyoff[0],sizeof(pskyoff));
+        Bmemcpy(&save->pskybits,&pskybits,sizeof(pskybits));
+        Bmemcpy(&save->animategoal[0],&animategoal[0],sizeof(animategoal));
+        Bmemcpy(&save->animatevel[0],&animatevel[0],sizeof(animatevel));
+        Bmemcpy(&save->animatecnt,&animatecnt,sizeof(animatecnt));
+        Bmemcpy(&save->animatesect[0],&animatesect[0],sizeof(animatesect));
+        for (i = animatecnt-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
+        Bmemcpy(&save->animateptr[0],&animateptr[0],sizeof(animateptr));
+        for (i = animatecnt-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+        Bmemcpy(&save->numplayersprites,&numplayersprites,sizeof(numplayersprites));
+        Bmemcpy(&save->earthquaketime,&earthquaketime,sizeof(earthquaketime));
+        Bmemcpy(&save->lockclock,&lockclock,sizeof(lockclock));
+        Bmemcpy(&save->randomseed,&randomseed,sizeof(randomseed));
+        Bmemcpy(&save->global_random,&global_random,sizeof(global_random));
+        ototalclock = totalclock;
+    }
+}
+
+void restoremapstate(mapstate_t *save)
+{
+    if (save != NULL)
+    {
+        int i, k, x;
+
+        pub = NUMPAGES;
+        pus = NUMPAGES;
+        vscrn();
+
+        Bmemcpy(&numwalls,&save->numwalls,sizeof(numwalls));
+        Bmemcpy(&wall[0],&save->wall[0],sizeof(walltype)*MAXWALLS);
+        Bmemcpy(&numsectors,&save->numsectors,sizeof(numsectors));
+        Bmemcpy(&sector[0],&save->sector[0],sizeof(sectortype)*MAXSECTORS);
+        Bmemcpy(&sprite[0],&save->sprite[0],sizeof(spritetype)*MAXSPRITES);
+        Bmemcpy(&spriteext[0],&save->spriteext[0],sizeof(spriteexttype)*MAXSPRITES);
+        Bmemcpy(&headspritesect[0],&save->headspritesect[0],sizeof(headspritesect));
+        Bmemcpy(&prevspritesect[0],&save->prevspritesect[0],sizeof(prevspritesect));
+        Bmemcpy(&nextspritesect[0],&save->nextspritesect[0],sizeof(nextspritesect));
+        Bmemcpy(&headspritestat[0],&save->headspritestat[0],sizeof(headspritestat));
+        Bmemcpy(&prevspritestat[0],&save->prevspritestat[0],sizeof(prevspritestat));
+        Bmemcpy(&nextspritestat[0],&save->nextspritestat[0],sizeof(nextspritestat));
+        Bmemcpy(&hittype[0],&save->hittype[0],sizeof(actordata_t)*MAXSPRITES);
+
+        Bmemcpy(&numcyclers,&save->numcyclers,sizeof(numcyclers));
+        Bmemcpy(&cyclers[0][0],&save->cyclers[0][0],sizeof(cyclers));
+        Bmemcpy(&g_PlayerSpawnPoints[0],&save->g_PlayerSpawnPoints[0],sizeof(g_PlayerSpawnPoints));
+        Bmemcpy(&numanimwalls,&save->numanimwalls,sizeof(numanimwalls));
+        Bmemcpy(&spriteq[0],&save->spriteq[0],sizeof(spriteq));
+        Bmemcpy(&spriteqloc,&save->spriteqloc,sizeof(spriteqloc));
+        Bmemcpy(&animwall[0],&save->animwall[0],sizeof(animwall));
+        Bmemcpy(&msx[0],&save->msx[0],sizeof(msx));
+        Bmemcpy(&msy[0],&save->msy[0],sizeof(msy));
+        Bmemcpy(&mirrorwall[0],&save->mirrorwall[0],sizeof(mirrorwall));
+        Bmemcpy(&mirrorsector[0],&save->mirrorsector[0],sizeof(mirrorsector));
+        Bmemcpy(&mirrorcnt,&save->mirrorcnt,sizeof(mirrorcnt));
+        Bmemcpy(&show2dsector[0],&save->show2dsector[0],sizeof(show2dsector));
+        Bmemcpy(&numclouds,&save->numclouds,sizeof(numclouds));
+        Bmemcpy(&clouds[0],&save->clouds[0],sizeof(clouds));
+        Bmemcpy(&cloudx[0],&save->cloudx[0],sizeof(cloudx));
+        Bmemcpy(&cloudy[0],&save->cloudy[0],sizeof(cloudy));
+        Bmemcpy(&pskyoff[0],&save->pskyoff[0],sizeof(pskyoff));
+        Bmemcpy(&pskybits,&save->pskybits,sizeof(pskybits));
+        Bmemcpy(&animategoal[0],&save->animategoal[0],sizeof(animategoal));
+        Bmemcpy(&animatevel[0],&save->animatevel[0],sizeof(animatevel));
+        Bmemcpy(&animatecnt,&save->animatecnt,sizeof(animatecnt));
+        Bmemcpy(&animatesect[0],&save->animatesect[0],sizeof(animatesect));
+        Bmemcpy(&animateptr[0],&save->animateptr[0],sizeof(animateptr));
+        for (i = animatecnt-1;i>=0;i--) animateptr[i] = (int *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+        Bmemcpy(&numplayersprites,&save->numplayersprites,sizeof(numplayersprites));
+        Bmemcpy(&earthquaketime,&save->earthquaketime,sizeof(earthquaketime));
+        Bmemcpy(&lockclock,&save->lockclock,sizeof(lockclock));
+        Bmemcpy(&randomseed,&save->randomseed,sizeof(randomseed));
+        Bmemcpy(&global_random,&save->global_random,sizeof(global_random));
+
+        if (g_player[myconnectindex].ps->over_shoulder_on != 0)
+        {
+            cameradist = 0;
+            cameraclock = 0;
+            g_player[myconnectindex].ps->over_shoulder_on = 1;
+        }
+
+        screenpeek = myconnectindex;
+
+        if (ud.lockout == 0)
+        {
+            for (x=0;x<numanimwalls;x++)
+                if (wall[animwall[x].wallnum].extra >= 0)
+                    wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
+        }
+        else
+        {
+            for (x=0;x<numanimwalls;x++)
+                switch (dynamictostatic[wall[animwall[x].wallnum].picnum])
+                {
+                case FEMPIC1__STATIC:
+                    wall[animwall[x].wallnum].picnum = BLANKSCREEN;
+                    break;
+                case FEMPIC2__STATIC:
+                case FEMPIC3__STATIC:
+                    wall[animwall[x].wallnum].picnum = SCREENBREAK6;
+                    break;
+                }
+        }
+
+        numinterpolations = 0;
+        startofdynamicinterpolations = 0;
+
+        k = headspritestat[3];
+        while (k >= 0)
+        {
+            switch (sprite[k].lotag)
+            {
+            case 31:
+                setinterpolation(&sector[sprite[k].sectnum].floorz);
+                break;
+            case 32:
+                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+                break;
+            case 25:
+                setinterpolation(&sector[sprite[k].sectnum].floorz);
+                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+                break;
+            case 17:
+                setinterpolation(&sector[sprite[k].sectnum].floorz);
+                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+                break;
+            case 0:
+            case 5:
+            case 6:
+            case 11:
+            case 14:
+            case 15:
+            case 16:
+            case 26:
+            case 30:
+                setsectinterpolate(k);
+                break;
+            }
+
+            k = nextspritestat[k];
+        }
+
+        for (i=numinterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
+        for (i = animatecnt-1;i>=0;i--)
+            setinterpolation(animateptr[i]);
+
+        resetmys();
+
+        flushpackets();
+        clearfifo();
+        waitforeverybody();
+        resettimevars();
     }
 }
