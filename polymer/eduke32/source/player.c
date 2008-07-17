@@ -138,39 +138,33 @@ static void tracers(int x1,int y1,int z1,int x2,int y2,int z2,int n)
 
 static void hitscantrail(int x1, int y1, int z1, int x2, int y2, int z2, int ang, int atwith)
 {
-    int xv, yv, zv, n, j, i;
+    int n, j, i;
     short sect = -1;
 
     x1 += (sintable[(348+ang+512)&2047]/projectile[atwith].offset);
     y1 += (sintable[(ang+348)&2047]/projectile[atwith].offset);
+    z1 += 1024+(projectile[atwith].toffset<<8);
 
     n = ((FindDistance2D(x1-x2,y1-y2))>>8)+1;
 
-    if (projectile[atwith].toffset != 0)
-        z1 += (projectile[atwith].toffset<<8);
+    x2 = ((x2-x1)/n);
+    y2 = ((y2-y1)/n);
+    z2 = ((z2-z1)/n);
 
-    z1 += 1024;
+    x1 += x2>>2;
+    y1 += y2>>2;
+    z1 += (z2>>2);
 
-    xv = (x2-x1)/n;
-    yv = (y2-y1)/n;
-    zv = (z2-z1)/n;
-
-    x1 += xv>>2;
-    y1 += yv>>2;
-    z1 += zv>>2;
-
-    for (i=0;i<projectile[atwith].tnum;i++)
+    for (i=projectile[atwith].tnum;i>0;i--)
     {
-        x1 += xv;
-        y1 += yv;
-        z1 += zv;
+        x1 += x2;
+        y1 += y2;
+        z1 += z2;
         updatesector(x1,y1,&sect);
-        if (sect >= 0)
-        {
-            j = EGS(sect,x1,y1,z1,projectile[atwith].trail,-32,projectile[atwith].txrepeat,projectile[atwith].tyrepeat,ang,0,0,g_player[0].ps->i,0);
-            changespritestat(j,1);
-        }
-        else continue;
+        if (sect < 0 || z1 > getflorzofslope(sect,x1,y1) || z1 < getceilzofslope(sect,x1,y1))
+            break;
+        j = EGS(sect,x1,y1,z1,projectile[atwith].trail,-32,projectile[atwith].txrepeat,projectile[atwith].tyrepeat,ang,0,0,g_player[0].ps->i,0);
+        changespritestat(j,1);
     }
 }
 
@@ -178,10 +172,9 @@ int hits(int i)
 {
     int sx,sy,sz;
     short sect,hw,hs;
-    int zoff;
+    int zoff = 0;
 
     if (PN == APLAYER) zoff = (40<<8);
-    else zoff = 0;
 
     hitscan(SX,SY,SZ-zoff,SECT,
             sintable[(SA+512)&2047],
