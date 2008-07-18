@@ -831,6 +831,7 @@ enum gamevarflags {
     GAMEVAR_FLAG_SYNCCHECK  = 16384, // check event sync when translating
     GAMEVAR_FLAG_SHORTPTR   = 32768, // plValue is a pointer to a short
     GAMEVAR_FLAG_CHARPTR    = 65536, // plValue is a pointer to a char
+    GAMEVAR_FLAG_NORESET    = 131072, // var values are not reset when restoring map state
 };
 
 enum gamearrayflags {
@@ -1031,6 +1032,7 @@ typedef struct {
     int lockclock;
     int randomseed, global_random;
     char scriptptrs[MAXSPRITES];
+    intptr_t *vars[MAXGAMEVARS];
 } mapstate_t;
 
 typedef struct {

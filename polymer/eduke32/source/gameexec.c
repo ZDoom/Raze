@@ -7828,9 +7828,30 @@ void savemapstate(mapstate_t *save)
         Bmemcpy(&save->lockclock,&lockclock,sizeof(lockclock));
         Bmemcpy(&save->randomseed,&randomseed,sizeof(randomseed));
         Bmemcpy(&save->global_random,&global_random,sizeof(global_random));
+
+        for (i = 0; i<iGameVarCount;i++)
+        {
+            if (aGameVars[i].dwFlags & GAMEVAR_FLAG_NORESET) continue;
+            if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
+            {
+                if (!save->vars[i])
+                    save->vars[i] = Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+                Bmemcpy(&save->vars[i][0],&aGameVars[i].plValues[0],sizeof(intptr_t) * MAXPLAYERS);
+            }
+            else if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
+            {
+                if (!save->vars[i])
+                    save->vars[i] = Bcalloc(MAXSPRITES,sizeof(intptr_t));
+                Bmemcpy(&save->vars[i][0],&aGameVars[i].plValues[0],sizeof(intptr_t) * MAXSPRITES);
+            }
+            else save->vars[i] = (intptr_t *)aGameVars[i].lValue;
+        }
+
         ototalclock = totalclock;
     }
 }
+
+extern void ResetPointerVars(void);
 
 void restoremapstate(mapstate_t *save)
 {
@@ -7895,6 +7916,18 @@ void restoremapstate(mapstate_t *save)
         Bmemcpy(&lockclock,&save->lockclock,sizeof(lockclock));
         Bmemcpy(&randomseed,&save->randomseed,sizeof(randomseed));
         Bmemcpy(&global_random,&save->global_random,sizeof(global_random));
+
+        for (i = 0; i<iGameVarCount;i++)
+        {
+            if (aGameVars[i].dwFlags & GAMEVAR_FLAG_NORESET) continue;
+            if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
+                Bmemcpy(&aGameVars[i].plValues[0],&save->vars[i][0],sizeof(intptr_t) * MAXPLAYERS);
+            else if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
+                Bmemcpy(&aGameVars[i].plValues[0],&save->vars[i][0],sizeof(intptr_t) * MAXSPRITES);
+            else aGameVars[i].lValue = (intptr_t)save->vars[i];
+        }
+
+        ResetPointerVars();
 
         if (g_player[myconnectindex].ps->over_shoulder_on != 0)
         {

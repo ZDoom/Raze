@@ -246,4 +246,6 @@ extern int getteampal(int team);
 
 extern void se40code(int x,int y,int z,int a,int h, int smoothratio);
 
+extern void FreeMapState(int mapnum);
+
 #endif // __funct_h__

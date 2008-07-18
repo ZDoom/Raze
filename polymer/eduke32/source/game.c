@@ -9560,7 +9560,7 @@ static void freeconmem(void)
         if (map[i].musicfn1 != NULL)
             Bfree(map[i].musicfn1);
         if (map[i].savedstate != NULL)
-            Bfree(map[i].savedstate);
+            FreeMapState(i);
     }
 
     for (i=MAXQUOTES-1;i>=0;i--)

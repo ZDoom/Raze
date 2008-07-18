@@ -28,8 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern int g_i,g_p;
 
-static void ResetPointerVars(void);
-
+void ResetPointerVars(void);
+extern void FreeMapState(int mapnum);
 static void FreeGameVars(void) /* called from ReadGameVars() and ResetGameVars() */
 {
     // call this function as many times as needed.
@@ -98,7 +98,7 @@ static void ClearGameVars(void)
 
 int ReadGameVars(int fil)
 {
-    int i;
+    int i, j;
     intptr_t l;
     char savedstate[MAXVOLUMES*MAXLEVELS];
 
@@ -200,11 +200,26 @@ int ReadGameVars(int fil)
             if (map[i].savedstate == NULL)
                 map[i].savedstate = Bcalloc(1,sizeof(mapstate_t));
             if (kdfread(map[i].savedstate,sizeof(mapstate_t),1,fil) != sizeof(mapstate_t)) goto corrupt;
+            for (j=0;j<iGameVarCount;j++)
+            {
+                if (aGameVars[j].dwFlags & GAMEVAR_FLAG_NORESET) continue;
+                if (aGameVars[j].dwFlags & GAMEVAR_FLAG_PERPLAYER)
+                {
+                    if (!map[i].savedstate->vars[j])
+                        map[i].savedstate->vars[j] = Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+                    if (kdfread(&map[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXPLAYERS, 1, fil) != 1) goto corrupt;
+                }
+                else if (aGameVars[j].dwFlags & GAMEVAR_FLAG_PERACTOR)
+                {
+                    if (!map[i].savedstate->vars[j])
+                        map[i].savedstate->vars[j] = Bcalloc(MAXSPRITES,sizeof(intptr_t));
+                    if (kdfread(&map[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, fil) != MAXSPRITES) goto corrupt;
+                }
+            }
         }
         else if (map[i].savedstate)
         {
-            Bfree(map[i].savedstate);
-            map[i].savedstate = NULL;
+            FreeMapState(i);
         }
     }
 
@@ -233,7 +248,7 @@ corrupt:
 
 void SaveGameVars(FILE *fil)
 {
-    int i;
+    int i, j;
     intptr_t l;
     char savedstate[MAXVOLUMES*MAXLEVELS];
 
@@ -304,7 +319,21 @@ void SaveGameVars(FILE *fil)
 
     for (i=0;i<(MAXVOLUMES*MAXLEVELS);i++)
         if (map[i].savedstate)
+        {
             dfwrite(map[i].savedstate,sizeof(mapstate_t),1,fil);
+            for (j=0;j<iGameVarCount;j++)
+            {
+                if (aGameVars[j].dwFlags & GAMEVAR_FLAG_NORESET) continue;
+                if (aGameVars[j].dwFlags & GAMEVAR_FLAG_PERPLAYER)
+                {
+                    dfwrite(&map[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXPLAYERS, 1, fil);
+                }
+                else if (aGameVars[j].dwFlags & GAMEVAR_FLAG_PERACTOR)
+                {
+                    dfwrite(&map[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXSPRITES, 1, fil);
+                }
+            }
+        }
 
     Bsprintf(g_szBuf,"EOF: EDuke32");
     l=strlen(g_szBuf);
@@ -1425,7 +1454,7 @@ void InitGameVarPointers(void)
     }
 }
 
-static void ResetPointerVars(void)
+void ResetPointerVars(void)
 {
     aGameVars[GetGameID("RESPAWN_MONSTERS")].lValue = (intptr_t)&ud.respawn_monsters;
     aGameVars[GetGameID("RESPAWN_ITEMS")].lValue = (intptr_t)&ud.respawn_items;

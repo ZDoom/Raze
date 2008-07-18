@@ -1236,6 +1236,13 @@ void newgame(int vn,int ln,int sk)
 
     ResetSystemDefaults();
 
+    for (i=0;i<(MAXVOLUMES*MAXLEVELS);i++)
+        if (map[i].savedstate)
+        {
+            Bfree(map[i].savedstate);
+            map[i].savedstate = NULL;
+        }
+
     if (ud.m_coop != 1)
     {
         for (i=0;i<MAX_WEAPONS;i++)
@@ -1853,4 +1860,26 @@ int enterlevel(int g)
     OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
     initprintf("E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,map[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
     return 0;
+}
+
+void FreeMapState(int mapnum)
+{
+    int j;
+
+    for (j=0;j<iGameVarCount;j++)
+    {
+        if (aGameVars[j].dwFlags & GAMEVAR_FLAG_NORESET) continue;
+        if (aGameVars[j].dwFlags & GAMEVAR_FLAG_PERPLAYER)
+        {
+            if (map[mapnum].savedstate->vars[j])
+                Bfree(map[mapnum].savedstate->vars[j]);
+        }
+        else if (aGameVars[j].dwFlags & GAMEVAR_FLAG_PERACTOR)
+        {
+            if (map[mapnum].savedstate->vars[j])
+                Bfree(map[mapnum].savedstate->vars[j]);
+        }
+    }
+    Bfree(map[mapnum].savedstate);
+    map[mapnum].savedstate = NULL;
 }
