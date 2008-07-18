@@ -1655,6 +1655,11 @@ char *OSD_GetFmtPtr(void)
     return (&osdfmt[0]);
 }
 
+char *OSD_GetFmt(char *ptr)
+{
+    return (ptr - &osdtext[0] + &osdfmt[0]);
+}
+
 //
 // addnewsymbol() -- Allocates space for a new symbol and attaches it
 //   appropriately to the lists, sorted.

@@ -32,8 +32,12 @@ const char *stripcolorcodes(const char *t);
 #define OSDCMD_SHOWHELP 1
 
 int OSD_ParsingScript(void);
+
 int OSD_OSDKey(void);
+
 int OSD_Exec(const char *szScript);
+
+char *OSD_GetFmt(char *ptr);
 char *OSD_GetTextPtr(void);
 char *OSD_GetFmtPtr(void);
 

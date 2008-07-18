@@ -20,7 +20,7 @@ $(OBJ)/rts.$o: $(SRC)/rts.c $(duke3d_h)
 $(OBJ)/config.$o: $(SRC)/config.c $(duke3d_h) $(SRC)/jmact/scriplib.h $(INC)/_functio.h
 $(OBJ)/testcd.$o: $(SRC)/testcd.c
 $(OBJ)/winbits.$o: $(SRC)/winbits.c
-$(OBJ)/osdfuncs.$o: $(SRC)/names.h $(EINC)/build.h
+$(OBJ)/osdfuncs.$o: $(SRC)/names.h $(EINC)/build.h $(EINC)/osd.h
 $(OBJ)/osdcmds.$o: $(SRC)/osdcmds.c $(INC)/osdcmds.h $(EINC)/osd.h $(duke3d_h)
 
 $(OBJ)/astub.$o: $(SRC)/astub.c $(SRC)/mapster32.h $(EINC)/build.h $(EINC)/pragmas.h $(EINC)/compat.h $(EINC)/editor.h
