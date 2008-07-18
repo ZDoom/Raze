@@ -464,7 +464,7 @@ void adduserquote(const char *daquote)
         user_quote_time[i] = user_quote_time[i-1];
     }
     Bstrcpy(user_quote[0],daquote);
-    OSD_Printf("%s\n",stripcolorcodes(daquote));
+    OSD_Printf("%s\n",daquote);
 
     user_quote_time[0] = ud.msgdisptime;
     pub = NUMPAGES;
@@ -487,7 +487,7 @@ void getpackets(void)
     {
         if (setgamemode(!ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
         {
-            OSD_Printf("Failed setting fullscreen video mode.\n");
+            OSD_Printf(OSDTEXT_DARKRED "Failed setting fullscreen video mode.\n");
             if (setgamemode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP))
                 gameexit("Failed to recover from failure to set fullscreen video mode.\n");
         }
@@ -2426,7 +2426,7 @@ static void operatefta(void)
 
     if (fta_quotes[g_player[screenpeek].ps->ftq] == NULL)
     {
-        OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,g_player[screenpeek].ps->ftq);
+        OSD_Printf(OSDTEXT_DARKRED "%s %d null quote %d\n",__FILE__,__LINE__,g_player[screenpeek].ps->ftq);
         return;
     }
 
@@ -2473,7 +2473,7 @@ void FTA(int q,player_struct *p)
 {
     if (fta_quotes[p->ftq] == NULL)
     {
-        OSD_Printf("%s %d null quote %d\n",__FILE__,__LINE__,p->ftq);
+        OSD_Printf(OSDTEXT_DARKRED "%s %d null quote %d\n",__FILE__,__LINE__,p->ftq);
         return;
     }
 
@@ -2490,7 +2490,7 @@ void FTA(int q,player_struct *p)
     {
         if (p->ftq != q)
             if (p == g_player[screenpeek].ps)
-                OSD_Printf("%s\n",stripcolorcodes(fta_quotes[q]));
+                OSD_Printf(OSDTEXT_BLUE "%s\n",stripcolorcodes(fta_quotes[q]));
 
         p->ftq = q;
         pub = NUMPAGES;
@@ -5324,7 +5324,7 @@ int spawn(int j, int pn)
             if (sp->hitag && sp->picnum == WATERBUBBLEMAKER)
             {
                 // JBF 20030913: Pisses off move(), eg. in bobsp2
-                OSD_Printf("WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
+                OSD_Printf(OSDTEXT_DARKRED "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
                            i,sp->x,sp->y);
                 sp->hitag = 0;
             }
@@ -10139,6 +10139,7 @@ void app_main(int argc,const char **argv)
 #endif
 
     OSD_SetLogFile("eduke32.log");
+    OSD_SetParameters(10,0, 0,12, 4,12);
 
     wm_setapptitle(HEAD2);
 

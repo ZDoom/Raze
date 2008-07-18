@@ -34,6 +34,8 @@ const char *stripcolorcodes(const char *t);
 int OSD_ParsingScript(void);
 int OSD_OSDKey(void);
 int OSD_Exec(const char *szScript);
+char *OSD_GetTextPtr(void);
+char *OSD_GetFmtPtr(void);
 
 // initializes things
 void OSD_Init(void);
@@ -98,6 +100,20 @@ int OSD_Dispatch(const char *cmd);
 //   help = a short help string
 //   func = the entry point to the function
 int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const osdfuncparm_t*));
+
+// these correspond to the Duke palettes, so they shouldn't really be here
+// ...but I don't care
+
+#define OSDTEXT_BLUE "^00"
+#define OSDTEXT_DARKRED "^10"
+#define OSDTEXT_GREEN "^11"
+#define OSDTEXT_GRAY "^12"
+#define OSDTEXT_DARKGRAY "^13"
+#define OSDTEXT_DARKGREEN "^14"
+#define OSDTEXT_BROWN "^15"
+#define OSDTEXT_DARKBLUE "^16"
+#define OSDTEXT_RED "^21"
+#define OSDTEXT_YELLOW "^23"
 
 #endif // __osd_h__
 

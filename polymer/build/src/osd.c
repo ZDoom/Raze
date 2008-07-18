@@ -35,6 +35,7 @@ static void _internal_onshowosd(int);
 
 // history display
 static char osdtext[TEXTSIZE];
+static char osdfmt[TEXTSIZE];
 static char osdversionstring[32];
 static int  osdversionstringlen;
 static int  osdversionstringshade;
@@ -494,6 +495,7 @@ static int _internal_osdfunc_clear(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
     Bmemset(osdtext,0,sizeof(osdtext));
+    Bmemset(osdfmt,osdtextpal,sizeof(osdfmt));
     osdlines = 1;
     return OSDCMD_OK;
 }
@@ -538,6 +540,7 @@ void OSD_Cleanup(void)
 void OSD_Init(void)
 {
     Bmemset(osdtext, 32, TEXTSIZE);
+    Bmemset(osdfmt, osdtextpal, TEXTSIZE);
     osdlines=1;
 
     osdinited=1;
@@ -803,7 +806,7 @@ int OSD_HandleChar(char ch)
                         lastmatch = symb;
                         symb=findsymbol(osdedittmp, lastmatch->next);
                     }
-                    OSD_Printf("Found %d possible completions for '%s':\n",num,osdedittmp);
+                    OSD_Printf(OSDTEXT_GREEN "Found %d possible completions for '%s':\n",num,osdedittmp);
                     maxwidth += 3;
                     symb = tabc;
                     OSD_Printf("  ");
@@ -858,6 +861,7 @@ int OSD_HandleChar(char ch)
     else if (ch == 12)  	// control l, clear screen
     {
         Bmemset(osdtext,0,sizeof(osdtext));
+        Bmemset(osdfmt,osdtextpal,sizeof(osdfmt));
         osdlines = 1;
     }
     else if (ch == 13)  	// control m, enter
@@ -1140,6 +1144,7 @@ void OSD_ResizeDisplay(int w, int h)
     int newcols;
     int newmaxlines;
     char newtext[TEXTSIZE];
+    char newfmt[TEXTSIZE];
     int i,j,k;
 
     newcols = getcolumnwidth(w);
@@ -1152,9 +1157,11 @@ void OSD_ResizeDisplay(int w, int h)
     for (i=0;i<j;i++)
     {
         memcpy(newtext+newcols*i, osdtext+osdcols*i, k);
+        memcpy(newfmt+newcols*i, osdfmt+osdcols*i, k);
     }
 
     memcpy(osdtext, newtext, TEXTSIZE);
+    memcpy(osdfmt, newfmt, TEXTSIZE);
     osdcols = newcols;
     osdmaxlines = newmaxlines;
     osdmaxrows = getrowheight(h)-2;
@@ -1281,13 +1288,14 @@ static inline void linefeed(void)
 {
     Bmemmove(osdtext+osdcols, osdtext, TEXTSIZE-osdcols);
     Bmemset(osdtext, 32, osdcols);
-
+    Bmemmove(osdfmt+osdcols, osdfmt, TEXTSIZE-osdcols);
+    Bmemset(osdfmt, osdtextpal, osdcols);
     if (osdlines < osdmaxlines) osdlines++;
 }
 
 void OSD_Printf(const char *fmt, ...)
 {
-    char tmpstr[1024], *chp;
+    char tmpstr[1024], *chp, p=osdtextpal;
     va_list va;
 
     if (!osdinited) OSD_Init();
@@ -1299,7 +1307,7 @@ void OSD_Printf(const char *fmt, ...)
     if (linecnt<logcutoff)
     {
         if (osdlog&&(!logcutoff||linecnt<logcutoff))
-            Bfputs(tmpstr, osdlog);
+            Bfputs(stripcolorcodes(tmpstr), osdlog);
     }
     else if (linecnt==logcutoff)
     {
@@ -1310,7 +1318,25 @@ void OSD_Printf(const char *fmt, ...)
 
     for (chp = tmpstr; *chp; chp++)
     {
-        if (*chp == '\r') osdpos=0;
+        if (*chp == '^' && isdigit(*(chp+1)))
+        {
+            char smallbuf[4];
+            chp++;
+            if (isdigit(*(chp+1)))
+            {
+                smallbuf[0] = *(chp++);
+                smallbuf[1] = *(chp);
+                smallbuf[2] = '\0';
+                p = atol(smallbuf);
+            }
+            else
+            {
+                smallbuf[0] = *(chp);
+                smallbuf[1] = '\0';
+                p = atol(smallbuf);
+            }
+        }
+        else if (*chp == '\r') osdpos=0;
         else if (*chp == '\n')
         {
             osdpos=0;
@@ -1319,7 +1345,8 @@ void OSD_Printf(const char *fmt, ...)
         }
         else
         {
-            osdtext[osdpos++] = *chp;
+            osdtext[osdpos] = *chp;
+            osdfmt[osdpos++] = p;
             if (osdpos == osdcols)
             {
                 osdpos = 0;
@@ -1612,6 +1639,16 @@ int OSD_ParsingScript(void)
 int OSD_OSDKey(void)
 {
     return osdkey;
+}
+
+char *OSD_GetTextPtr(void)
+{
+    return (&osdtext[0]);
+}
+
+char *OSD_GetFmtPtr(void)
+{
+    return (&osdfmt[0]);
 }
 
 //

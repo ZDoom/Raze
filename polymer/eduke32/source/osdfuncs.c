@@ -51,7 +51,7 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
         ac = *ch-'!'+STARTALPHANUM;
         if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
 
-        rotatesprite(x<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
+        rotatesprite(x<<16, (y<<3)<<16, 65536l, 0, ac, shade, *(ch-OSD_GetTextPtr()+OSD_GetFmtPtr()), 8|16, 0, 0, xdim-1, ydim-1);
         /*        if (*ch >= '0' && *ch <= '9') x+=8;
                 else x += tilesizx[ac]; */
         x += OSDCHAR_WIDTH;

@@ -1298,7 +1298,7 @@ int getteampal(int team)
 static void resetpspritevars(char g)
 {
     short i, j, nexti,circ;
-    int firstx,firsty;
+//    int firstx,firsty;
     spritetype *s;
     char aimmode[MAXPLAYERS],autoaim[MAXPLAYERS],weaponswitch[MAXPLAYERS];
     STATUSBARTYPE tsbar[MAXPLAYERS];
@@ -1379,11 +1379,11 @@ static void resetpspritevars(char g)
         if (numplayersprites == MAXPLAYERS)
             gameexit("\nToo many player sprites (max 16.)");
 
-        if (numplayersprites == 0)
+/*        if (numplayersprites == 0)
         {
             firstx = g_player[0].ps->posx;
             firsty = g_player[0].ps->posy;
-        }
+        }*/
 
         g_PlayerSpawnPoints[(unsigned char)numplayersprites].ox = s->x;
         g_PlayerSpawnPoints[(unsigned char)numplayersprites].oy = s->y;
@@ -1858,7 +1858,7 @@ int enterlevel(int g)
     // variables are set by pointer...
 
     OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
-    initprintf("E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,map[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
+    initprintf("^21E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,map[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
     return 0;
 }
 
