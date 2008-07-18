@@ -7858,7 +7858,11 @@ void restoremapstate(mapstate_t *save)
     if (save != NULL)
     {
         int i, k, x;
+        char phealth[ud.multimode];
         intptr_t j;
+
+        for (i=0;i<ud.multimode;i++)
+            phealth[i] = sprite[g_player[i].ps->i].extra;
 
         pub = NUMPAGES;
         pus = NUMPAGES;
@@ -7928,6 +7932,9 @@ void restoremapstate(mapstate_t *save)
         }
 
         ResetPointerVars();
+
+        for (i=0;i<ud.multimode;i++)
+            sprite[g_player[i].ps->i].extra = phealth[i];
 
         if (g_player[myconnectindex].ps->over_shoulder_on != 0)
         {
