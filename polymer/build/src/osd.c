@@ -31,8 +31,6 @@ static void _internal_clearbackground(int,int);
 static int _internal_gettime(void);
 static void _internal_onshowosd(int);
 
-#define TEXTSIZE 32768
-
 // history display
 static char osdtext[TEXTSIZE];
 static char osdfmt[TEXTSIZE];
@@ -369,8 +367,8 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
         else
         {
             osdeditshade = atoi(parm->parms[0]);
-            if (osdeditshade < -128) osdeditshade = -128;
-            else if (osdeditshade > 127) osdeditshade = 127;
+            if (osdeditshade < 0) osdeditshade = 0;
+            else if (osdeditshade > 7) osdeditshade = 7;
             OSD_Printf("%s\n",parm->raw);
             return OSDCMD_OK;
         }
@@ -381,8 +379,8 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
         else
         {
             osdtextshade = atoi(parm->parms[0]);
-            if (osdtextshade < -128) osdtextshade = -128;
-            else if (osdtextshade > 127) osdtextshade = 127;
+            if (osdtextshade < 0) osdtextshade = 0;
+            else if (osdtextshade > 7) osdtextshade = 7;
             OSD_Printf("%s\n",parm->raw);
             return OSDCMD_OK;
         }
@@ -495,7 +493,7 @@ static int _internal_osdfunc_clear(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
     Bmemset(osdtext,0,sizeof(osdtext));
-    Bmemset(osdfmt,osdtextpal,sizeof(osdfmt));
+    Bmemset(osdfmt,osdtextpal+(osdtextshade<<5),sizeof(osdfmt));
     osdlines = 1;
     return OSDCMD_OK;
 }
@@ -540,7 +538,7 @@ void OSD_Cleanup(void)
 void OSD_Init(void)
 {
     Bmemset(osdtext, 32, TEXTSIZE);
-    Bmemset(osdfmt, osdtextpal, TEXTSIZE);
+    Bmemset(osdfmt, osdtextpal+(osdtextshade<<5), TEXTSIZE);
     osdlines=1;
 
     osdinited=1;
@@ -861,7 +859,7 @@ int OSD_HandleChar(char ch)
     else if (ch == 12)  	// control l, clear screen
     {
         Bmemset(osdtext,0,sizeof(osdtext));
-        Bmemset(osdfmt,osdtextpal,sizeof(osdfmt));
+        Bmemset(osdfmt,osdtextpal+(osdtextshade<<5),sizeof(osdfmt));
         osdlines = 1;
     }
     else if (ch == 13)  	// control m, enter
@@ -1271,7 +1269,7 @@ void OSD_Draw(void)
 
     len = min(osdcols-1-3, osdeditlen-osdeditwinstart);
     for (x=0; x<len; x++)
-        drawosdchar(3+x,osdrowscur,osdeditbuf[osdeditwinstart+x],osdeditshade,osdeditpal);
+        drawosdchar(3+x,osdrowscur,osdeditbuf[osdeditwinstart+x],osdeditshade<<1,osdeditpal);
 
     drawosdcursor(3+osdeditcursor-osdeditwinstart,osdrowscur,osdovertype,keytime);
 
@@ -1295,7 +1293,7 @@ static inline void linefeed(void)
 
 void OSD_Printf(const char *fmt, ...)
 {
-    char tmpstr[1024], *chp, p=osdtextpal;
+    char tmpstr[1024], *chp, p=osdtextpal, s=osdtextshade;
     va_list va;
 
     if (!osdinited) OSD_Init();
@@ -1336,6 +1334,12 @@ void OSD_Printf(const char *fmt, ...)
                 p = atol(smallbuf);
             }
         }
+        else if (*chp == '^' && Btoupper(*(chp+1)) == 'S')
+        {
+            chp++;
+            if (isdigit(*(++chp)))
+                s = *chp;
+        }
         else if (*chp == '\r') osdpos=0;
         else if (*chp == '\n')
         {
@@ -1346,7 +1350,7 @@ void OSD_Printf(const char *fmt, ...)
         else
         {
             osdtext[osdpos] = *chp;
-            osdfmt[osdpos++] = p;
+            osdfmt[osdpos++] = p+(s<<5);
             if (osdpos == osdcols)
             {
                 osdpos = 0;
@@ -1506,7 +1510,7 @@ int OSD_Dispatch(const char *cmd)
         symb = findexactsymbol(wp);
         if (!symb)
         {
-            OSD_Printf("Error: \"%s\" is not defined\n", wp);
+            OSD_Printf(OSDTEXT_RED "Error: \"%s\" is not a valid command or cvar\n", wp);
             free(workbuf);
             return -1;
         }

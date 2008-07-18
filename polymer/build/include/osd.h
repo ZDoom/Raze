@@ -105,6 +105,7 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 // ...but I don't care
 
 #define OSDTEXT_BLUE "^00"
+#define OSDTEXT_GOLD "^07"
 #define OSDTEXT_DARKRED "^10"
 #define OSDTEXT_GREEN "^11"
 #define OSDTEXT_GRAY "^12"
@@ -114,6 +115,9 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 #define OSDTEXT_DARKBLUE "^16"
 #define OSDTEXT_RED "^21"
 #define OSDTEXT_YELLOW "^23"
+#define OSDTEXT_BRIGHT "^S0"
+
+#define TEXTSIZE 32768
 
 #endif // __osd_h__
 

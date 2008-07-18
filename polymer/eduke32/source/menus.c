@@ -389,14 +389,8 @@ static void bar_(int type, int x,int y,short *p,int dainc,int damodify,int s, in
         rotatesprite((x<<16)+((65-xloc)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
 }
 
-static inline void bar(int x,int y,short *p,int dainc,int damodify,int s, int pa)
-{
-    bar_(0,x,y,p,dainc,damodify,s,pa);
-}
-static inline void barsm(int x,int y,short *p,int dainc,int damodify,int s, int pa)
-{
-    bar_(1,x,y,p,dainc,damodify,s,pa);
-}
+#define bar(x,y,p,dainc,damodify,s,pa) bar_(0,x,y,p,dainc,damodify,s,pa);
+#define barsm(x,y,p,dainc,damodify,s,pa) bar_(1,x,y,p,dainc,damodify,s,pa);
 
 static void modval(int min, int max,int *p,int dainc,int damodify)
 {

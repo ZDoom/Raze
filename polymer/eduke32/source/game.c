@@ -10139,7 +10139,7 @@ void app_main(int argc,const char **argv)
 #endif
 
     OSD_SetLogFile("eduke32.log");
-    OSD_SetParameters(10,0, 0,12, 4,12);
+    OSD_SetParameters(6,0, 0,12, 2,12);
 
     wm_setapptitle(HEAD2);
 
@@ -10509,7 +10509,6 @@ void app_main(int argc,const char **argv)
         (int(*)(void))GetTime,
         GAME_onshowosd
     );
-    OSD_SetParameters(10,0, 0,12, 4,12);
     OSD_SetVersionString(HEAD2, 10,0);
     registerosdcommands();
 
@@ -10795,7 +10794,7 @@ static int opendemoread(int which_demo) // 0 = mine
         if (ver == BYTEVERSION_JF)   initprintf("Demo %s is for Regular edition.\n", d);
         else if (ver == BYTEVERSION_JF+1) initprintf("Demo %s is for Atomic edition.\n", d);
         else if (ver == BYTEVERSION_JF+2) initprintf("Demo %s is for Shareware version.\n", d);
-        else OSD_Printf("Demo %s is of an incompatible version (%d).\n", d, ver);
+//        else OSD_Printf("Demo %s is of an incompatible version (%d).\n", d, ver);
         kclose(recfilep);
         ud.reccnt=0;
         demo_version = 0;
@@ -10865,7 +10864,7 @@ static int opendemoread(int which_demo) // 0 = mine
     newgame(ud.volume_number,ud.level_number,ud.player_skill);
     return(1);
 corrupt:
-    OSD_Printf("Demo %d header is corrupt.\n",which_demo);
+    OSD_Printf(OSDTEXT_DARKRED "Demo %d header is corrupt.\n",which_demo);
     ud.reccnt = 0;
     kclose(recfilep);
     return 0;
@@ -11018,7 +11017,7 @@ RECHECK:
                     l = min(ud.reccnt,RECSYNCBUFSIZ);
                     if (kdfread(recsync,sizeof(input)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode)
                     {
-                        OSD_Printf("Demo %d is corrupt.\n", which_demo-1);
+                        OSD_Printf(OSDTEXT_DARKRED "Demo %d is corrupt.\n", which_demo-1);
                         foundemo = 0;
                         ud.reccnt = 0;
                         kclose(recfilep);
