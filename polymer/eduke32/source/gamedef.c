@@ -1401,7 +1401,7 @@ static int transword(void) //Returns its code #
     {
         if (Bstrcmp(tempbuf,keyw[i]) == 0)
         {
-            *scriptptr = i;
+            *scriptptr = i + (line_number<<12);
             textptr += l;
             scriptptr++;
             if (!(error || warning) && g_ScriptDebug)

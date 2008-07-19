@@ -89,12 +89,12 @@ int loadpheader(char spot,struct savehead *saveh)
     //    AddLog(g_szBuf);
 
     if (kdfread(&bv,4,1,fil) != 1) goto corrupt;
-    if (bv != BYTEVERSION)
+/*    if (bv != BYTEVERSION)
     {
         FTA(114,g_player[myconnectindex].ps);
         kclose(fil);
         return 1;
-    }
+    }*/
 
     if (kdfread(&saveh->numplr,sizeof(int32),1,fil) != 1) goto corrupt;
 
@@ -270,6 +270,7 @@ int loadplayer(int spot)
     if (kdfread(&cloudy[0],sizeof(short)<<7,1,fil) != 1) goto corrupt;
 
     if (kdfread(&g_ScriptSize,sizeof(g_ScriptSize),1,fil) != 1) goto corrupt;
+    if (!g_ScriptSize) goto corrupt;
     scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(scriptptrs));
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),g_ScriptSize,fil) != g_ScriptSize) goto corrupt;
     if (script != NULL)

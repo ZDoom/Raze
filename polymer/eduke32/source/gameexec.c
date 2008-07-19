@@ -32,12 +32,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void restoremapstate(mapstate_t *save);
 void savemapstate(mapstate_t *save);
+#define CON_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT "Line %d, "
 
 int g_i,g_p;
 static int g_x;
 static intptr_t *g_t;
 static spritetype *g_sp;
 static int killit_flag;
+int line_num;
 
 static int parse(void);
 
@@ -878,7 +880,7 @@ static void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
     if (proj < 0 || proj >= MAXSPRITES)
     {
 //        OSD_Printf("DoThisProjectile(): invalid projectile (%d)\n",proj);
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoThisProjectile(): tried to %s %s on invalid target projectile (%d) %d %d from %s\n",
+        OSD_Printf(CON_ERROR "DoThisProjectile(): tried to %s %s on invalid target projectile (%d) %d %d from %s\n",line_num,
                    iSet?"set":"get",projectilelabels[lLabelID].name,proj,g_i,g_sp->picnum,
                    (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
         insptr += (lVar2 == MAXGAMEVARS);
@@ -1158,7 +1160,7 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     if (iPlayer<0 || iPlayer >= ud.multimode)
     {
 //        OSD_Printf("DoPlayer(): invalid target player (%d) %d\n",iPlayer,g_i);
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoPlayer(): tried to %s %s on invalid target player (%d) from spr %d gv %s\n",
+        OSD_Printf(CON_ERROR "DoPlayer(): tried to %s %s on invalid target player (%d) from spr %d gv %s\n",line_num,
                    iSet?"set":"get",playerlabels[lLabelID].name,iPlayer,g_i,
                    (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
         insptr += (lVar2 == MAXGAMEVARS);
@@ -1167,7 +1169,7 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
     if (lParm2 < 0 || lParm2 >= playerlabels[lLabelID].maxParm2)
     {
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoPlayer(): tried to %s invalid %s position %d on player (%d) from spr %d\n",
+        OSD_Printf(CON_ERROR "DoPlayer(): tried to %s invalid %s position %d on player (%d) from spr %d\n",line_num,
                    iSet?"set":"get",playerlabels[lLabelID].name,lParm2,iPlayer,g_i);
         insptr += (lVar2 == MAXGAMEVARS);
         return;
@@ -2507,7 +2509,7 @@ static void DoInput(int iSet, int lVar1, int lLabelID, int lVar2)
     if (iPlayer<0 || iPlayer >= ud.multimode)
     {
         insptr += (lVar2 == MAXGAMEVARS);
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoInput(): invalid target player (%d) %d\n",iPlayer,g_i);
+        OSD_Printf(CON_ERROR "DoInput(): invalid target player (%d) %d\n",line_num,iPlayer,g_i);
         return;
     }
 
@@ -2988,7 +2990,7 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
     if (iActor < 0 || iActor >= MAXSPRITES)
     {
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoActor(): tried to %s %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",
+        OSD_Printf(CON_ERROR "DoActor(): tried to %s %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",line_num,
                    iSet?"set":"get",actorlabels[lLabelID].name,iActor,g_i,g_sp->picnum,
                    (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
         insptr += (lVar2 == MAXGAMEVARS);
@@ -2997,7 +2999,7 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
     if (lParm2 < 0 || lParm2 >= actorlabels[lLabelID].maxParm2)
     {
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoActor(): tried to %s invalid %s position %d on sprite (%d) from spr %d\n",
+        OSD_Printf(CON_ERROR "DoActor(): tried to %s invalid %s position %d on sprite (%d) from spr %d\n",line_num,
                    iSet?"set":"get",actorlabels[lLabelID].name,lParm2,iActor,g_i);
         insptr += (lVar2 == MAXGAMEVARS);
         return;
@@ -3473,7 +3475,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
 
     if (iActor < 0 || iActor >= MAXSPRITES)
     {
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoTsprite(): invalid target sprite (%d) %d %d\n",iActor,g_i,g_sp->picnum);
+        OSD_Printf(CON_ERROR "DoTsprite(): invalid target sprite (%d) %d %d\n",line_num,iActor,g_i,g_sp->picnum);
         insptr += (lVar2 == MAXGAMEVARS);
         return;
     }
@@ -3614,7 +3616,7 @@ static void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 
     if (lVar1 < 0 || lVar1 >= MAXTILES)
     {
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoProjectile(): invalid tile (%d)\n",lVar1);
+        OSD_Printf(CON_ERROR "DoProjectile(): invalid tile (%d)\n",line_num,lVar1);
         insptr += (lVar2 == MAXGAMEVARS);
         return;
     }
@@ -3885,7 +3887,7 @@ void OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
 {
     if (iEventID >= MAXGAMEEVENTS)
     {
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "OnEvent(): invalid event ID");
+        OSD_Printf(CON_ERROR "OnEvent(): invalid event ID",line_num);
         return;
     }
 
@@ -4449,7 +4451,7 @@ static inline void parseifelse(int condition)
         return;
     }
     insptr = (intptr_t *) *(insptr+1);
-    if (*insptr == CON_ELSE)
+    if (((*insptr)&0xFFF) == CON_ELSE)
     {
         // else...
         // skip 'else' and...
@@ -4470,6 +4472,9 @@ static int parse(void)
     //      Bsprintf(g_szBuf,"Parsing: %d",*insptr);
     //      AddLog(g_szBuf);
 
+    line_num = tw>>12;
+    tw &= 0xFFF;
+
     switch (tw)
     {
     case CON_REDEFINEQUOTE:
@@ -4478,7 +4483,7 @@ static int parse(void)
             int q = *insptr++, i = *insptr++;
             if (fta_quotes[q] == NULL || redefined_quotes[i] == NULL)
             {
-                OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d %d\n",__FILE__,__LINE__,q,i);
+                OSD_Printf(CON_ERROR "%s %d null quote %d %d\n",line_num,__FILE__,__LINE__,q,i);
                 break;
             }
             Bstrcpy(fta_quotes[q],redefined_quotes[i]);
@@ -5300,7 +5305,7 @@ static int parse(void)
                         Bstrcpy(fta_quotes[i],g_player[j].user_name);
                     else Bsprintf(fta_quotes[i],"%d",j);
                 }
-                else OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d\n",__FILE__,__LINE__,i);
+                else OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,i);
                 break;
             case CON_QGETSYSSTR:
                 if (fta_quotes[i] != NULL)
@@ -5322,19 +5327,19 @@ static int parse(void)
                         Bstrcpy(fta_quotes[i],gametype_names[ud.coop]);
                         break;
                     default:
-                        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d unknown str ID %d %d\n",__FILE__,__LINE__,i,j);
+                        OSD_Printf(CON_ERROR "%s %d unknown str ID %d %d\n",line_num,__FILE__,__LINE__,i,j);
                     }
-                else OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d %d\n",__FILE__,__LINE__,i,j);
+                else OSD_Printf(CON_ERROR "%s %d null quote %d %d\n",line_num,__FILE__,__LINE__,i,j);
                 break;
             case CON_QSTRCAT:
                 if (fta_quotes[i] != NULL && fta_quotes[j] != NULL)
                     Bstrncat(fta_quotes[i],fta_quotes[j],(MAXQUOTELEN-1)-Bstrlen(fta_quotes[i]));
-                else OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d %d\n",__FILE__,__LINE__,i,j);
+                else OSD_Printf(CON_ERROR "%s %d null quote %d %d\n",line_num,__FILE__,__LINE__,i,j);
                 break;
             case CON_QSTRCPY:
                 if (fta_quotes[i] != NULL && fta_quotes[j] != NULL)
                     Bstrcpy(fta_quotes[i],fta_quotes[j]);
-                else OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d %d\n",__FILE__,__LINE__,i,j);
+                else OSD_Printf(CON_ERROR "%s %d null quote %d %d\n",line_num,__FILE__,__LINE__,i,j);
                 break;
             case CON_CHANGESPRITESTAT:
                 changespritestat(i,j);
@@ -5354,13 +5359,13 @@ static int parse(void)
 
             if (volnume > MAXVOLUMES-1 || volnume < 0)
             {
-                OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "CON_STARTLEVEL: invalid volume (%d)\n",volnume);
+                OSD_Printf(CON_ERROR "CON_STARTLEVEL: invalid volume (%d)\n",line_num,volnume);
                 break;
             }
 
             if (levnume > MAXLEVELS-1 || levnume < 0)
             {
-                OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "CON_STARTLEVEL: invalid level (%d)\n",levnume);
+                OSD_Printf(CON_ERROR "CON_STARTLEVEL: invalid level (%d)\n",line_num,levnume);
                 break;
             }
 
@@ -5519,7 +5524,7 @@ static int parse(void)
                     break;
                 }
             }
-            else OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "CON_DIST/CON_LDIST: error: invalid sprite\n");
+            else OSD_Printf(CON_ERROR "CON_DIST/CON_LDIST: error: invalid sprite\n",line_num);
 
             SetGameVarID(distvar, distx, g_i, g_p);
             break;
@@ -5856,7 +5861,7 @@ static int parse(void)
                     int z=65536;
                     if (fta_quotes[q] == NULL)
                     {
-                        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d\n",__FILE__,__LINE__,q);
+                        OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,q);
                         break;
                     }
                     if (tw == CON_GAMETEXTZ)z=GetGameVarID(*insptr++,g_i,g_p);
@@ -5870,7 +5875,7 @@ static int parse(void)
 
             if (fta_quotes[q] == NULL)
             {
-                OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d\n",__FILE__,__LINE__,q);
+                OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,q);
                 break;
             }
             minitextshade(x,y,fta_quotes[q],shade,pal,26);
@@ -6536,8 +6541,8 @@ static int parse(void)
                 Bsprintf(fta_quotes[dq],tempbuf,var1,var2,var3,var4);
                 break;
             }
-            if (fta_quotes[sq] == NULL) OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d\n",__FILE__,__LINE__,sq);
-            if (fta_quotes[dq] == NULL) OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d\n",__FILE__,__LINE__,dq);
+            if (fta_quotes[sq] == NULL) OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,sq);
+            if (fta_quotes[dq] == NULL) OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,dq);
             insptr += 4;
             break;
         }
@@ -6583,7 +6588,7 @@ static int parse(void)
                     }
                     else
                     {
-                        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "CONLOGVAR: L=%d INVALID ARRAY INDEX\n",l);
+                        OSD_Printf(CON_ERROR "CONLOGVAR: L=%d INVALID ARRAY INDEX\n",line_num,l);
                         break;
                     }
                 }
@@ -6596,7 +6601,7 @@ static int parse(void)
                 {
                     // invalid varID
                     insptr++;
-                    OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "CONLOGVAR: L=%d INVALID VARIABLE\n",l);
+                    OSD_Printf(CON_ERROR "CONLOGVAR: L=%d INVALID VARIABLE\n",line_num,l);
                     break;  // out of switch
                 }
             }
@@ -7482,14 +7487,14 @@ static int parse(void)
 
         if (fta_quotes[*insptr] == NULL)
         {
-            OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d\n",__FILE__,__LINE__,*insptr);
+            OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,*insptr);
             insptr++;
             break;
         }
 
         if (g_p < 0 || g_p >= MAXPLAYERS)
         {
-            OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "CON_QUOTE: bad player for quote %d: (%d)\n",*insptr,g_p);
+            OSD_Printf(CON_ERROR "CON_QUOTE: bad player for quote %d: (%d)\n",line_num,*insptr,g_p);
             insptr++;
             break;
         }
@@ -7504,7 +7509,7 @@ static int parse(void)
 
             if (fta_quotes[i] == NULL)
             {
-                OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d\n",__FILE__,__LINE__,i);
+                OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,i);
                 break;
             }
             adduserquote(fta_quotes[i]);

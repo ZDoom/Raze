@@ -4003,7 +4003,7 @@ void processinput(int snum)
                         p->scream_voice = spritesound(DUKE_SCREAM,pi);
                 }
 
-                if ((p->posz+p->poszv) >= (fz-(i<<8)))   // hit the ground
+                if ((p->posz+p->poszv) >= (fz-(i<<8)) && p->cursectnum >= 0)   // hit the ground
                     if (sector[p->cursectnum].lotag != 1)
                     {
                         if (p->falling_counter > 62) quickkill(p);
