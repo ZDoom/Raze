@@ -119,6 +119,11 @@ const char *stripcolorcodes(const char *t)
                 t++;
             continue;
         }
+        if (*t == '^' && (Btoupper(*(t+1)) == 'S'||Btoupper(*(t+1)) == 'O'))
+        {
+            t += 2;
+            continue;
+        }
         colstrip[i] = *t;
         i++,t++;
     }
@@ -1339,6 +1344,12 @@ void OSD_Printf(const char *fmt, ...)
             chp++;
             if (isdigit(*(++chp)))
                 s = *chp;
+        }
+        else if (*chp == '^' && Btoupper(*(chp+1)) == 'O')
+        {
+            chp++;
+            p = osdtextpal;
+            s = osdtextshade;
         }
         else if (*chp == '\r') osdpos=0;
         else if (*chp == '\n')

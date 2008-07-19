@@ -151,6 +151,9 @@ static char recbuf[180];
 
 extern void computergetinput(int snum, input *syn);
 
+#define USERQUOTE_LEFTOFFSET 5
+#define USERQUOTE_RIGHTOFFSET 14
+
 enum
 {
     T_EOF = -2,
@@ -275,8 +278,6 @@ void setgamepalette(player_struct *player, char *pal, int set)
     player->palette = pal;
 }
 
-#define TEXTWRAPLEN (scale(39,ud.config.ScreenWidth,320))
-
 int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2, int z)
 {
     int ac,newx,oldx=x;
@@ -342,7 +343,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         }
         if (*t == 32)
         {
-            x+=8*z/65536;
+            x+=5*z/65536;
             t++;
             continue;
         }
@@ -356,7 +357,36 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         if ((*t >= '0' && *t <= '9'))
             x += 8*z/65536;
         else x += tilesizx[ac]*z/65536;//(tilesizx[ac]>>small);
-        if (t-oldt >= (signed)TEXTWRAPLEN-!small) oldt = (char *)t, x = oldx, y+=8*z/65536;
+        if (x > (ud.config.ScreenWidth - 14)) oldt = (char *)t, x = oldx, y+=8*z/65536;
+        t++;
+    }
+
+    return (x);
+}
+
+int gametextlen(int x,const char *t)
+{
+    int ac;
+
+    if (t == NULL)
+        return -1;
+
+    while (*t)
+    {
+        if (*t == 32)
+        {
+            x+=5;
+            t++;
+            continue;
+        }
+        else ac = *t - '!' + STARTALPHANUM;
+
+        if (ac < STARTALPHANUM || ac > (STARTALPHANUM + 93))
+            break;
+
+        if ((*t >= '0' && *t <= '9'))
+            x += 8;
+        else x += tilesizx[ac];
         t++;
     }
 
@@ -2404,10 +2434,10 @@ static void operatefta(void)
     {
         if (user_quote_time[i] <= 0) break;
         k = user_quote_time[i];
-        l = Bstrlen(user_quote[i]);
-        while (l > TEXTWRAPLEN)
+        l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(user_quote[i]));
+        while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
         {
-            l -= TEXTWRAPLEN;
+            l -= (ud.config.ScreenWidth-USERQUOTE_RIGHTOFFSET);
             j -= 8;
         }
         if (k > 4)
@@ -2446,18 +2476,6 @@ static void operatefta(void)
     if (g_player[screenpeek].ps->ftq == 115 || g_player[screenpeek].ps->ftq == 116 || g_player[screenpeek].ps->ftq == 117)
     {
         k = quotebot-8-4;
-        /*        for(i=0;i<MAXUSERQUOTES;i++)
-                {
-                    if (user_quote_time[i] <= 0) break;
-                    k -= 8;
-                    l = Bstrlen(user_quote[i]);
-                    while(l > TEXTWRAPLEN)
-                    {
-                        l -= TEXTWRAPLEN;
-                        k -= 8;
-                    }
-                }
-                k -= 4; */
     }
 
     j = g_player[screenpeek].ps->fta;
@@ -2676,10 +2694,10 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
     }
     c = 4-(sintable[(totalclock<<4)&2047]>>11);
 
-    i = Bstrlen(t);
-    while (i > TEXTWRAPLEN-!small)
+    i = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(t));
+    while (i > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
     {
-        i -= TEXTWRAPLEN-!small;
+        i -= (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET);
         y += 8;
     }
 
@@ -2754,10 +2772,10 @@ static void typemode(void)
                 }
                 adduserquote(recbuf);
                 quotebot += 8;
-                l = Bstrlen(recbuf);
-                while (l > TEXTWRAPLEN)
+                l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(recbuf));
+                while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
                 {
-                    l -= TEXTWRAPLEN;
+                    l -= (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET);
                     quotebot += 8;
                 }
                 quotebotgoal = quotebot;

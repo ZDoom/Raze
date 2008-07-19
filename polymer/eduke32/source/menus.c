@@ -2734,7 +2734,7 @@ cheat_for_port_credits:
                 "Parental lock",
                 "-",
                 "Game messages",
-                "HUD weapon",
+                "HUD weapon display",
                 "FPS counter",
                 "-",
                 "Automatic voting",
@@ -2812,7 +2812,7 @@ cheat_for_port_credits:
                     }
                     modval(0,2,(int *)&ud.drawweapon,1,probey==io);
                     {
-                        char *s[] = { "Off", "On", "Icon" };
+                        char *s[] = { "Disabled", "Normal", "Item" };
                         gametextpal(d,yy, s[ud.drawweapon], MENUHIGHLIGHT(io), 0);
                         break;
                     }

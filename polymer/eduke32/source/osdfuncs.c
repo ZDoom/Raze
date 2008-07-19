@@ -1,6 +1,7 @@
 #include "duke3d.h"
 #include "build.h"
 #include "namesdyn.h"
+#include "osdfuncs.h"
 
 void GAME_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
@@ -13,15 +14,10 @@ void GAME_drawosdchar(int x, int y, char ch, int shade, int pal)
     rotatesprite(((x<<3)+x)<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
 }
 
-#define OSDCHAR_WIDTH 8
-
 void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
 {
     short ac;
     char *ptr = OSD_GetTextPtr();
-
-    UNREFERENCED_PARAMETER(shade);
-    UNREFERENCED_PARAMETER(pal);
 
     for (x = (x<<3)+x; len>0; len--, ch++, x++)
     {
