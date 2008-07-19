@@ -119,7 +119,12 @@ const char *stripcolorcodes(const char *t)
                 t++;
             continue;
         }
-        if (*t == '^' && (Btoupper(*(t+1)) == 'S'||Btoupper(*(t+1)) == 'O'))
+        if (*t == '^' && (Btoupper(*(t+1)) == 'S'))
+        {
+            t += 3;
+            continue;
+        }
+        if (*t == '^' && (Btoupper(*(t+1)) == 'O'))
         {
             t += 2;
             continue;

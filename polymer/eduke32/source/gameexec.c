@@ -1150,7 +1150,6 @@ static void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 {
     int lValue;
-    int lTemp;
     int iPlayer=g_p;
 
     if (lVar1 != g_iThisActorID)
@@ -1159,9 +1158,17 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
     if (iPlayer<0 || iPlayer >= ud.multimode)
     {
 //        OSD_Printf("DoPlayer(): invalid target player (%d) %d\n",iPlayer,g_i);
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoPlayer(): tried to %s %s on invalid target player (%d) %d from %s\n",
+        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoPlayer(): tried to %s %s on invalid target player (%d) from spr %d gv %s\n",
                    iSet?"set":"get",playerlabels[lLabelID].name,iPlayer,g_i,
                    (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
+        insptr += (lVar2 == MAXGAMEVARS);
+        return;
+    }
+
+    if (lParm2 < 0 || lParm2 > playerlabels[lLabelID].maxParm2)
+    {
+        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoPlayer(): tried to %s invalid %s position %d on player (%d) from spr %d\n",
+                   iSet?"set":"get",playerlabels[lLabelID].name,lParm2,iPlayer,g_i);
         insptr += (lVar2 == MAXGAMEVARS);
         return;
     }
@@ -1199,23 +1206,21 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         return;
 
     case PLAYER_LOOGIEX:
-        lTemp=lParm2;
         if (iSet)
         {
-            g_player[iPlayer].ps->loogiex[lTemp]=lValue;
+            g_player[iPlayer].ps->loogiex[lParm2]=lValue;
             return;
         }
-        SetGameVarID(lVar2, g_player[iPlayer].ps->loogiex[lTemp], g_i, g_p);
+        SetGameVarID(lVar2, g_player[iPlayer].ps->loogiex[lParm2], g_i, g_p);
         return;
 
     case PLAYER_LOOGIEY:
-        lTemp=lParm2;
         if (iSet)
         {
-            g_player[iPlayer].ps->loogiey[lTemp]=lValue;
+            g_player[iPlayer].ps->loogiey[lParm2]=lValue;
             return;
         }
-        SetGameVarID(lVar2, g_player[iPlayer].ps->loogiey[lTemp], g_i, g_p);
+        SetGameVarID(lVar2, g_player[iPlayer].ps->loogiey[lParm2], g_i, g_p);
         return;
 
     case PLAYER_NUMLOOGS:
@@ -1552,13 +1557,12 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         return;
 
     case PLAYER_AMMO_AMOUNT:
-        lTemp=lParm2;
         if (iSet)
         {
-            g_player[iPlayer].ps->ammo_amount[lTemp]=lValue;
+            g_player[iPlayer].ps->ammo_amount[lParm2]=lValue;
             return;
         }
-        SetGameVarID(lVar2, g_player[iPlayer].ps->ammo_amount[lTemp], g_i, g_p);
+        SetGameVarID(lVar2, g_player[iPlayer].ps->ammo_amount[lParm2], g_i, g_p);
         return;
 
     case PLAYER_WACKEDBYACTOR:
@@ -2261,13 +2265,12 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         return;
 
     case PLAYER_GOTWEAPON:
-        lTemp=lParm2;
         if (iSet)
         {
-            g_player[iPlayer].ps->gotweapon[lTemp]=lValue;
+            g_player[iPlayer].ps->gotweapon[lParm2]=lValue;
             return;
         }
-        SetGameVarID(lVar2, g_player[iPlayer].ps->gotweapon[lTemp], g_i, g_p);
+        SetGameVarID(lVar2, g_player[iPlayer].ps->gotweapon[lParm2], g_i, g_p);
         return;
 
     case PLAYER_REFRESH_INVENTORY:
@@ -2354,13 +2357,12 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         return;
 
     case PLAYER_PALS:
-        lTemp=lParm2;
         if (iSet)
         {
-            g_player[iPlayer].ps->pals[lTemp]=lValue;
+            g_player[iPlayer].ps->pals[lParm2]=lValue;
             return;
         }
-        SetGameVarID(lVar2, g_player[iPlayer].ps->pals[lTemp], g_i, g_p);
+        SetGameVarID(lVar2, g_player[iPlayer].ps->pals[lParm2], g_i, g_p);
         return;
 
     case PLAYER_MAX_ACTORS_KILLED:
@@ -2481,13 +2483,12 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         return;
 
     case PLAYER_MAX_AMMO_AMOUNT:
-        lTemp=lParm2;
         if (iSet)
         {
-            g_player[iPlayer].ps->max_ammo_amount[lTemp]=lValue;
+            g_player[iPlayer].ps->max_ammo_amount[lParm2]=lValue;
             return;
         }
-        SetGameVarID(lVar2, g_player[iPlayer].ps->max_ammo_amount[lTemp], g_i, g_p);
+        SetGameVarID(lVar2, g_player[iPlayer].ps->max_ammo_amount[lParm2], g_i, g_p);
         return;
 
     default:
@@ -2980,7 +2981,6 @@ static void DoSector(int iSet, int lVar1, int lLabelID, int lVar2)
 static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 {
     int lValue;
-    int lTemp;
     int iActor=g_i;
 
     if (lVar1 != g_iThisActorID)
@@ -2988,9 +2988,17 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
     if (iActor < 0 || iActor >= MAXSPRITES)
     {
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoActor(): tried to %s %s on invalid target sprite (%d) %d %d from %s\n",
+        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoActor(): tried to %s %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",
                    iSet?"set":"get",actorlabels[lLabelID].name,iActor,g_i,g_sp->picnum,
                    (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
+        insptr += (lVar2 == MAXGAMEVARS);
+        return;
+    }
+
+    if (lParm2 < 0 || lParm2 > actorlabels[lLabelID].maxParm2)
+    {
+        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoActor(): tried to %s invalid %s position %d on sprite (%d) from spr %d\n",
+                   iSet?"set":"get",actorlabels[lLabelID].name,lParm2,iActor,g_i);
         insptr += (lVar2 == MAXGAMEVARS);
         return;
     }
@@ -3361,13 +3369,12 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         return;
 
     case ACTOR_HTG_T:
-        lTemp=lParm2;
         if (iSet)
         {
-            hittype[iActor].temp_data[lTemp]=lValue;
+            hittype[iActor].temp_data[lParm2]=lValue;
             return;
         }
-        SetGameVarID(lVar2, hittype[iActor].temp_data[lTemp], g_i, g_p);
+        SetGameVarID(lVar2, hittype[iActor].temp_data[lParm2], g_i, g_p);
         return;
 
     case ACTOR_ANGOFF:

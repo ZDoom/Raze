@@ -555,7 +555,7 @@ const memberlabel_t actorlabels[]=
     { "htbposx", ACTOR_HTBPOSX, 0, 0 },
     { "htbposy", ACTOR_HTBPOSY, 0, 0 },
     { "htbposz", ACTOR_HTBPOSZ, 0, 0 },
-    { "htg_t", ACTOR_HTG_T, LABEL_HASPARM2, 8 },
+    { "htg_t", ACTOR_HTG_T, LABEL_HASPARM2, 9 },
 
     // model flags
 
@@ -598,8 +598,8 @@ const memberlabel_t playerlabels[]=
     { "zoom", PLAYER_ZOOM, 0, 0 },
     { "exitx", PLAYER_EXITX, 0, 0 },
     { "exity", PLAYER_EXITY, 0, 0 },
-    { "loogiex", PLAYER_LOOGIEX, LABEL_HASPARM2, 64 },
-    { "loogiey", PLAYER_LOOGIEY, LABEL_HASPARM2, 64 },
+    { "loogiex", PLAYER_LOOGIEX, LABEL_HASPARM2, 63 },
+    { "loogiey", PLAYER_LOOGIEY, LABEL_HASPARM2, 63 },
     { "numloogs", PLAYER_NUMLOOGS, 0, 0 },
     { "loogcnt", PLAYER_LOOGCNT, 0, 0 },
     { "posx", PLAYER_POSX, 0, 0 },
@@ -725,7 +725,7 @@ const memberlabel_t playerlabels[]=
     { "hard_landing", PLAYER_HARD_LANDING, 0, 0 },
     { "max_secret_rooms", PLAYER_MAX_SECRET_ROOMS, 0, 0 },
     { "secret_rooms", PLAYER_SECRET_ROOMS, 0, 0 },
-    { "pals", PLAYER_PALS, LABEL_HASPARM2, 2 },
+    { "pals", PLAYER_PALS, LABEL_HASPARM2, 3 },
     { "max_actors_killed", PLAYER_MAX_ACTORS_KILLED, 0, 0 },
     { "actors_killed", PLAYER_ACTORS_KILLED, 0, 0 },
     { "return_to_center", PLAYER_RETURN_TO_CENTER, 0, 0 },
@@ -1839,7 +1839,7 @@ static int parsecommand(void)
 
         // get the ID of the DEF
 //        if (tw == CON_SETTHISPROJECTILE)
-//            labelsonly = 1;
+        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
@@ -2735,7 +2735,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-//        labelsonly = 1;
+        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
@@ -2866,7 +2866,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-//        labelsonly = 1;
+        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
@@ -2929,7 +2929,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-//        labelsonly = 1;
+        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
@@ -3006,7 +3006,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-//        labelsonly = 1;
+        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
@@ -3119,7 +3119,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-//        labelsonly = 1;
+        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .<varx>
@@ -3254,7 +3254,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-//        labelsonly = 1;
+        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
@@ -3335,7 +3335,7 @@ static int parsecommand(void)
             textptr++;
 
         // get the ID of the DEF
-//        labelsonly = 1;
+        labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
