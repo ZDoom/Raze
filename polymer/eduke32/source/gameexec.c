@@ -1165,7 +1165,7 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         return;
     }
 
-    if (lParm2 < 0 || lParm2 > playerlabels[lLabelID].maxParm2)
+    if (lParm2 < 0 || lParm2 >= playerlabels[lLabelID].maxParm2)
     {
         OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoPlayer(): tried to %s invalid %s position %d on player (%d) from spr %d\n",
                    iSet?"set":"get",playerlabels[lLabelID].name,lParm2,iPlayer,g_i);
@@ -2995,7 +2995,7 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         return;
     }
 
-    if (lParm2 < 0 || lParm2 > actorlabels[lLabelID].maxParm2)
+    if (lParm2 < 0 || lParm2 >= actorlabels[lLabelID].maxParm2)
     {
         OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "DoActor(): tried to %s invalid %s position %d on sprite (%d) from spr %d\n",
                    iSet?"set":"get",actorlabels[lLabelID].name,lParm2,iActor,g_i);

@@ -129,7 +129,8 @@ void showframe(int);
 
 int setpalette(int start, int num, char *dapal);
 //int getpalette(int start, int num, char *dapal);
-int setgamma(float ro, float go, float bo);
+int setgamma(void);
+float vid_gamma, vid_contrast, vid_brightness;
 
 int switchrendermethod(int,int);    // 0 = software, 1 = opengl | bool = reinit
 

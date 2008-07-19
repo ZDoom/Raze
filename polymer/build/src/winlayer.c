@@ -62,6 +62,7 @@ int	   is_vista = 0;
 
 static WORD sysgamma[3][256];
 extern int curbrightness, gammabrightness;
+extern float vid_gamma, vid_contrast, vid_brightness;
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
 // OpenGL stuff
@@ -2104,9 +2105,9 @@ int setvideomode(int x, int y, int c, int fs)
 
     if (!gammabrightness)
     {
-        float f = 1.0 + ((float)curbrightness / 10.0);
+//        float f = 1.0 + ((float)curbrightness / 10.0);
         if (getgammaramp(sysgamma) >= 0) gammabrightness = 1;
-        if (gammabrightness && setgamma(f,f,f) < 0) gammabrightness = 0;
+        if (gammabrightness && setgamma() < 0) gammabrightness = 0;
     }
 
     for (i=0;i<NUM_INPUTS;i++) if (inp[i]) AcquireInputDevices(1,i);
@@ -2657,22 +2658,30 @@ static int setgammaramp(WORD gt[3][256])
     }
 }
 
-int setgamma(float ro, float go, float bo)
+int setgamma(void)
 {
     int i;
-    WORD gt[3][256];
+    WORD gammaTable[768];
+    float gamma = max(0.1f,min(4.f,vid_gamma));
+    float contrast = max(0.1f,min(3.f,vid_contrast));
+    float bright = max(-0.8f,min(0.8f,vid_brightness));
+
+    double invgamma = 1 / gamma;
+    double norm = pow(255., invgamma - 1);
 
     if (!hWindow) return -1;
 
-    ro = 1.0 / ro; go = 1.0 / go; bo = 1.0 / bo;
-    for (i=0;i<256;i++)
-    {
-        gt[0][i] = (WORD)min(65535, max(0, (int)(pow((double)i / 256.0, ro) * 65535.0 + 0.5)));
-        gt[1][i] = (WORD)min(65535, max(0, (int)(pow((double)i / 256.0, go) * 65535.0 + 0.5)));
-        gt[2][i] = (WORD)min(65535, max(0, (int)(pow((double)i / 256.0, go) * 65535.0 + 0.5)));
-    }
+    // This formula is taken from Doomsday
 
-    return setgammaramp(gt);
+    for (i = 0; i < 256; i++)
+    {
+        double val = i * contrast - (contrast - 1) * 127;
+        if (gamma != 1) val = pow(val, invgamma) / norm;
+        val += bright * 128;
+
+        gammaTable[i] = gammaTable[i + 256] = gammaTable[i + 512] = (WORD)max(0.f,(double)min(0xffff,val*256));
+    }
+    return setgammaramp(gammaTable);
 }
 
 static int getgammaramp(WORD gt[3][256])

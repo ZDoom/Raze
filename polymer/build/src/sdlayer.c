@@ -57,7 +57,7 @@ char videomodereset = 0;
 char nofog=0;
 static unsigned short sysgamma[3][256];
 extern int curbrightness, gammabrightness;
-
+extern float vid_gamma, vid_contrast, vid_brightness;
 #ifdef USE_OPENGL
 // OpenGL stuff
 static char nogl=0;
@@ -1160,12 +1160,12 @@ int setvideomode(int x, int y, int c, int fs)
     // save the current system gamma to determine if gamma is available
     if (!gammabrightness)
     {
-        float f = 1.0 + ((float)curbrightness / 10.0);
+//        float f = 1.0 + ((float)curbrightness / 10.0);
         if (SDL_GetGammaRamp(sysgamma[0], sysgamma[1], sysgamma[2]) >= 0)
             gammabrightness = 1;
 
         // see if gamma really is working by trying to set the brightness
-        if (gammabrightness && SDL_SetGamma(f,f,f) < 0)
+        if (gammabrightness && setgamma() < 0)
             gammabrightness = 0;	// nope
     }
 
@@ -1363,9 +1363,28 @@ int getpalette(int start, int num, char *dapal)
 //
 // setgamma
 //
-int setgamma(float ro, float go, float bo)
+int setgamma(void)
 {
-    return SDL_SetGamma(ro,go,bo);
+    int i;
+    unsigned short gammaTable[768];
+    float gamma = max(0.1f,min(4.f,vid_gamma));
+    float contrast = max(0.1f,min(3.f,vid_contrast));
+    float bright = max(-0.8f,min(0.8f,vid_brightness));
+
+    double invgamma = 1 / gamma;
+    double norm = pow(255., invgamma - 1);
+
+    // This formula is taken from Doomsday
+
+    for (i = 0; i < 256; i++)
+    {
+        double val = i * contrast - (contrast - 1) * 127;
+        if (gamma != 1) val = pow(val, invgamma) / norm;
+        val += bright * 128;
+
+        gammaTable[i] = gammaTable[i + 256] = gammaTable[i + 512] = (unsigned short)max(0.f,(double)min(0xffff,val*256));
+    }
+    return SDL_SetGammaRamp(&gammaTable[0],&gammaTable[256],&gammaTable[512]);
 }
 
 #ifndef __APPLE__

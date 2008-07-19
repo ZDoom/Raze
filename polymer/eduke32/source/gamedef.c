@@ -555,7 +555,7 @@ const memberlabel_t actorlabels[]=
     { "htbposx", ACTOR_HTBPOSX, 0, 0 },
     { "htbposy", ACTOR_HTBPOSY, 0, 0 },
     { "htbposz", ACTOR_HTBPOSZ, 0, 0 },
-    { "htg_t", ACTOR_HTG_T, LABEL_HASPARM2, 9 },
+    { "htg_t", ACTOR_HTG_T, LABEL_HASPARM2, 10 },
 
     // model flags
 
@@ -598,8 +598,8 @@ const memberlabel_t playerlabels[]=
     { "zoom", PLAYER_ZOOM, 0, 0 },
     { "exitx", PLAYER_EXITX, 0, 0 },
     { "exity", PLAYER_EXITY, 0, 0 },
-    { "loogiex", PLAYER_LOOGIEX, LABEL_HASPARM2, 63 },
-    { "loogiey", PLAYER_LOOGIEY, LABEL_HASPARM2, 63 },
+    { "loogiex", PLAYER_LOOGIEX, LABEL_HASPARM2, 64 },
+    { "loogiey", PLAYER_LOOGIEY, LABEL_HASPARM2, 64 },
     { "numloogs", PLAYER_NUMLOOGS, 0, 0 },
     { "loogcnt", PLAYER_LOOGCNT, 0, 0 },
     { "posx", PLAYER_POSX, 0, 0 },

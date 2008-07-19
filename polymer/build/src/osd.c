@@ -814,7 +814,7 @@ int OSD_HandleChar(char ch)
                         lastmatch = symb;
                         symb=findsymbol(osdedittmp, lastmatch->next);
                     }
-                    OSD_Printf(OSDTEXT_GREEN "Found %d possible completions for '%s':\n",num,osdedittmp);
+                    OSD_Printf(OSDTEXT_RED "Found %d possible completions for '%s':\n",num,osdedittmp);
                     maxwidth += 3;
                     symb = tabc;
                     OSD_Printf("  ");

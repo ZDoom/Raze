@@ -208,6 +208,45 @@ static int osdcmd_vars(const osdfuncparm_t *parm)
     return OSDCMD_SHOWHELP;
 }
 
+static int osdcmd_vid_gamma(const osdfuncparm_t *parm)
+{
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("\"vid_gamma\" is \"%.1f\"\n",vid_gamma);
+        return OSDCMD_SHOWHELP;
+    }
+    vid_gamma = atof(parm->parms[0]);
+    OSD_Printf("%s\n",parm->raw);
+    setgamma();
+    return OSDCMD_OK;
+}
+
+static int osdcmd_vid_brightness(const osdfuncparm_t *parm)
+{
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("\"vid_brightness\" is \"%.1f\"\n",vid_brightness);
+        return OSDCMD_SHOWHELP;
+    }
+    vid_brightness = atof(parm->parms[0]);
+    OSD_Printf("%s\n",parm->raw);
+    setgamma();
+    return OSDCMD_OK;
+}
+
+static int osdcmd_vid_contrast(const osdfuncparm_t *parm)
+{
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("\"vid_contrast\" is \"%.1f\"\n",vid_contrast);
+        return OSDCMD_SHOWHELP;
+    }
+    vid_contrast = atof(parm->parms[0]);
+    OSD_Printf("%s\n",parm->raw);
+    setgamma();
+    return OSDCMD_OK;
+}
+
 int baselayer_init(void)
 {
 #ifdef POLYMOST
@@ -234,7 +273,9 @@ int baselayer_init(void)
 #endif
     OSD_RegisterFunction("glinfo","glinfo: shows OpenGL information about the current OpenGL mode",osdcmd_glinfo);
 #endif
-
+    OSD_RegisterFunction("vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",osdcmd_vid_gamma);
+    OSD_RegisterFunction("vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",osdcmd_vid_contrast);
+    OSD_RegisterFunction("vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",osdcmd_vid_brightness);
     return 0;
 }
 

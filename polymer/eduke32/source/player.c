@@ -3583,7 +3583,7 @@ void processinput(int snum)
                         Bsprintf(tempbuf,fta_quotes[PPDEATHSTRINGS+i+(mulscale(krand(), 3, 16)*10)],name1,name2);
                         if (ud.config.ScreenWidth >= 800)
                             adduserquote(tempbuf);
-                        else OSD_Printf("%s\n",stripcolorcodes(tempbuf));
+                        else OSD_Printf("%s\n",tempbuf);
                     }
                 }
                 else
@@ -3604,7 +3604,7 @@ void processinput(int snum)
                     {
                         if (ud.config.ScreenWidth >= 800)
                             adduserquote(tempbuf);
-                        else OSD_Printf("%s\n",stripcolorcodes(tempbuf));
+                        else OSD_Printf("%s\n",tempbuf);
                     }
                 }
 

@@ -766,16 +766,16 @@ static int osdcmd_sensitivity(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_gamma(const osdfuncparm_t *parm)
+static int osdcmd_setbrightness(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1)
     {
-        OSD_Printf("\"gamma\" \"%d\"\n",ud.brightness>>2);
+//        OSD_Printf("\"setbri\" \"%d\"\n",ud.brightness>>2);
         return OSDCMD_SHOWHELP;
     }
     ud.brightness = atoi(parm->parms[0])<<2;
     setbrightness(ud.brightness>>2,&g_player[screenpeek].ps->palette[0],0);
-    OSD_Printf("gamma %d\n",ud.brightness>>2);
+    OSD_Printf("setbrightness %d\n",ud.brightness>>2);
     return OSDCMD_OK;
 }
 
@@ -1215,7 +1215,7 @@ static int osdcmd_screenshot(const osdfuncparm_t *parm)
 extern void savemapstate(mapstate_t *save);
 extern void restoremapstate(mapstate_t *save);
 
-int osdcmd_savestate(const osdfuncparm_t *parm)
+static int osdcmd_savestate(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
     if (map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate == NULL)
@@ -1224,7 +1224,7 @@ int osdcmd_savestate(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_restorestate(const osdfuncparm_t *parm)
+static int osdcmd_restorestate(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
     if (map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate)
@@ -1271,7 +1271,7 @@ int registerosdcommands(void)
         OSD_RegisterFunction(t,Bstrdup(tempbuf),osdcmd_button);
     }
 
-    OSD_RegisterFunction("gamma","gamma <value>: changes brightness", osdcmd_gamma);
+    OSD_RegisterFunction("setbrightness","setbrightness <value>: changes brightness", osdcmd_setbrightness);
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
 

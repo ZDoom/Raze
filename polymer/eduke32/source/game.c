@@ -2517,8 +2517,8 @@ void FTA(int q, player_struct *p)
         if (p->ftq != q)
             if (p == g_player[screenpeek].ps)
             {
-                if (cq) OSD_Printf(OSDTEXT_BLUE OSDTEXT_BRIGHT "%s\n",stripcolorcodes(fta_quotes[q]));
-                else OSD_Printf("%s\n",stripcolorcodes(fta_quotes[q]));
+                if (cq) OSD_Printf(OSDTEXT_BLUE "%s\n",fta_quotes[q]);
+                else OSD_Printf("%s\n",fta_quotes[q]);
             }
 
         p->ftq = q;
