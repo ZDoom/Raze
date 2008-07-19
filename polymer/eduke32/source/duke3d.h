@@ -525,7 +525,6 @@ extern short spriteq[1024],spriteqloc,spriteqamount;
 extern user_defs ud;
 extern short int moustat;
 extern short int global_random;
-extern int scaredfallz;
 extern char buf[1024]; //My own generic input buffer
 
 #define MAXQUOTELEN 128

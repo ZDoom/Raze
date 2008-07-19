@@ -250,7 +250,7 @@ int loadsound(unsigned int num)
 
     if (g_sounds[num].filename == NULL)
     {
-        OSD_Printf(OSDTEXT_DARKRED "Sound (#%d) not defined!\n",num);
+        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "Sound (#%d) not defined!\n",num);
         return 0;
     }
 

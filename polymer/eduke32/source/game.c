@@ -517,7 +517,7 @@ void getpackets(void)
     {
         if (setgamemode(!ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
         {
-            OSD_Printf(OSDTEXT_DARKRED "Failed setting fullscreen video mode.\n");
+            OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "Failed setting fullscreen video mode.\n");
             if (setgamemode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP))
                 gameexit("Failed to recover from failure to set fullscreen video mode.\n");
         }
@@ -2456,7 +2456,7 @@ static void operatefta(void)
 
     if (fta_quotes[g_player[screenpeek].ps->ftq] == NULL)
     {
-        OSD_Printf(OSDTEXT_DARKRED "%s %d null quote %d\n",__FILE__,__LINE__,g_player[screenpeek].ps->ftq);
+        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d\n",__FILE__,__LINE__,g_player[screenpeek].ps->ftq);
         return;
     }
 
@@ -2487,11 +2487,19 @@ static void operatefta(void)
             gametext(320>>1,k,fta_quotes[g_player[screenpeek].ps->ftq],0,2+8+16+1+32);
 }
 
-void FTA(int q,player_struct *p)
+void FTA(int q, player_struct *p)
 {
-    if (fta_quotes[p->ftq] == NULL)
+    int cq = 0;
+
+    if (q & MAXQUOTES)
     {
-        OSD_Printf(OSDTEXT_DARKRED "%s %d null quote %d\n",__FILE__,__LINE__,p->ftq);
+        cq = 1;
+        q &= ~MAXQUOTES;
+    }
+
+    if (fta_quotes[q] == NULL)
+    {
+        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d\n",__FILE__,__LINE__,q);
         return;
     }
 
@@ -2508,7 +2516,10 @@ void FTA(int q,player_struct *p)
     {
         if (p->ftq != q)
             if (p == g_player[screenpeek].ps)
-                OSD_Printf(OSDTEXT_BLUE "%s\n",stripcolorcodes(fta_quotes[q]));
+            {
+                if (cq) OSD_Printf(OSDTEXT_BLUE OSDTEXT_BRIGHT "%s\n",stripcolorcodes(fta_quotes[q]));
+                else OSD_Printf("%s\n",stripcolorcodes(fta_quotes[q]));
+            }
 
         p->ftq = q;
         pub = NUMPAGES;
@@ -5342,7 +5353,7 @@ int spawn(int j, int pn)
             if (sp->hitag && sp->picnum == WATERBUBBLEMAKER)
             {
                 // JBF 20030913: Pisses off move(), eg. in bobsp2
-                OSD_Printf(OSDTEXT_DARKRED "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
+                OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
                            i,sp->x,sp->y);
                 sp->hitag = 0;
             }
@@ -10882,7 +10893,7 @@ static int opendemoread(int which_demo) // 0 = mine
     newgame(ud.volume_number,ud.level_number,ud.player_skill);
     return(1);
 corrupt:
-    OSD_Printf(OSDTEXT_DARKRED "Demo %d header is corrupt.\n",which_demo);
+    OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "Demo %d header is corrupt.\n",which_demo);
     ud.reccnt = 0;
     kclose(recfilep);
     return 0;
@@ -11035,7 +11046,7 @@ RECHECK:
                     l = min(ud.reccnt,RECSYNCBUFSIZ);
                     if (kdfread(recsync,sizeof(input)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode)
                     {
-                        OSD_Printf(OSDTEXT_DARKRED "Demo %d is corrupt.\n", which_demo-1);
+                        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "Demo %d is corrupt.\n", which_demo-1);
                         foundemo = 0;
                         ud.reccnt = 0;
                         kclose(recfilep);
