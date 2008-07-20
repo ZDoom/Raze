@@ -315,9 +315,9 @@ inline int menutext(int x,int y,int s,int p,const char *t)
     return(menutext_(x,y,s,p,(char *)stripcolorcodes(t)));
 }
 
-static void bar_(int type, int x,int y,short *p,int dainc,int damodify,int s, int pa)
+static void _bar(int type, int x,int y,int *p,int dainc,int damodify,int s, int pa, int min, int max)
 {
-    short xloc;
+    int xloc;
     char rev;
 
     if (dainc < 0)
@@ -332,39 +332,39 @@ static void bar_(int type, int x,int y,short *p,int dainc,int damodify,int s, in
     {
         if (rev == 0)
         {
-            if (*p > 0 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELUP || mii < -256))))         // && onbar) )
+            if (*p > min && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELUP || mii < -256))))         // && onbar) )
             {
                 KB_ClearKeyDown(sc_LeftArrow);
                 KB_ClearKeyDown(sc_kpad_4);
                 MOUSE_ClearButton(WHEELUP_MOUSE);
                 mii = 0;
                 *p -= dainc;
-                if (*p < 0)
-                    *p = 0;
+                if (*p < min)
+                    *p = min;
                 sound(KICK_HIT);
             }
-            if (*p < 63 && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELDOWN || mii > 256))))        //&& onbar) )
+            if (*p < max && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELDOWN || mii > 256))))        //&& onbar) )
             {
                 KB_ClearKeyDown(sc_RightArrow);
                 KB_ClearKeyDown(sc_kpad_6);
                 MOUSE_ClearButton(WHEELDOWN_MOUSE);
                 mii = 0;
                 *p += dainc;
-                if (*p > 63)
-                    *p = 63;
+                if (*p > max)
+                    *p = max;
                 sound(KICK_HIT);
             }
         }
         else
         {
-            if (*p > 0 && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256)))        //&& onbar) )
+            if (*p > min && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256)))        //&& onbar) )
             {
                 KB_ClearKeyDown(sc_RightArrow);
                 KB_ClearKeyDown(sc_kpad_6);
 
                 *p -= dainc;
-                if (*p < 0)
-                    *p = 0;
+                if (*p < min)
+                    *p = min;
                 sound(KICK_HIT);
             }
             if (*p < 64 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256)))         // && onbar) )
@@ -373,24 +373,23 @@ static void bar_(int type, int x,int y,short *p,int dainc,int damodify,int s, in
                 KB_ClearKeyDown(sc_kpad_4);
 
                 *p += dainc;
-                if (*p > 64)
-                    *p = 64;
+                if (*p > max)
+                    *p = max;
                 sound(KICK_HIT);
             }
         }
     }
 
     xloc = *p;
-
     rotatesprite((x<<16)+(22<<(16-type)),(y<<16)-(3<<(16-type)),65536L>>type,0,SLIDEBAR,s,pa,10,0,0,xdim-1,ydim-1);
     if (rev == 0)
-        rotatesprite((x<<16)+((xloc+1)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
+        rotatesprite((x<<16)+((scale(64,xloc-min,max-min)+1)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
     else
-        rotatesprite((x<<16)+((65-xloc)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
+        rotatesprite((x<<16)+((65-scale(64,xloc-min,max-min))<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
 }
 
-#define bar(x,y,p,dainc,damodify,s,pa) bar_(0,x,y,p,dainc,damodify,s,pa);
-#define barsm(x,y,p,dainc,damodify,s,pa) bar_(1,x,y,p,dainc,damodify,s,pa);
+#define bar(x,y,p,dainc,damodify,s,pa) _bar(0,x,y,p,dainc,damodify,s,pa,0,63);
+#define barsm(x,y,p,dainc,damodify,s,pa) _bar(1,x,y,p,dainc,damodify,s,pa,0,63);
 
 static void modval(int min, int max,int *p,int dainc,int damodify)
 {
@@ -2556,6 +2555,68 @@ cheat_for_port_credits:
         }
 #endif
         break;
+    case 231:
+        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        menutext(320>>1,24,0,0,"BRIGHTNESS");
+
+        c = (320>>1)-120;
+
+        x = 4;
+
+        onbar = 1;
+        x = probe(c,probey==3?58:50,16,x);
+
+        if (x == -1)
+        {
+            cmenu(203);
+            probey = 4;
+            break;
+        }
+
+        menutext(c,50,MENUHIGHLIGHT(0),0,"GAMMA");
+        menutext(c,50+16,MENUHIGHLIGHT(1),0,"CONTRAST");
+        menutext(c,50+16+16,MENUHIGHLIGHT(2),0,"BRIGHTNESS");
+        menutext(c,50+16+16+16+8,MENUHIGHLIGHT(3),0,"RESET TO DEFAULTS");
+        {
+            int b = (vid_gamma*40960.f);
+            _bar(0,c+171,50,&b,4096,x==0,MENUHIGHLIGHT(0),0,8192,163840);
+
+            if (b != (vid_gamma*40960.f))
+            {
+                vid_gamma = b/40960.f;
+                ud.brightness = min(max((float)((vid_gamma-1.0)*10.0),0),15);
+                ud.brightness <<= 2;
+                setgamma();
+            }
+
+            b = (vid_contrast*40960.f);
+            _bar(0,c+171,50+16,&b,4096,x==1,MENUHIGHLIGHT(1),0,4096,122880);
+
+            if (b != (vid_contrast*40960.f))
+            {
+                vid_contrast = b/40960.f;
+                setgamma();
+            }
+
+            b = (vid_brightness*40960.f);
+            _bar(0,c+171,50+16+16,&b,2048,x==2,MENUHIGHLIGHT(2),0,-32767,32767);
+
+            if (b != (vid_brightness*40960.f))
+            {
+                vid_brightness = b/40960.f;
+                setgamma();
+            }
+
+            if (x == 3)
+            {
+                vid_gamma = DEFAULT_GAMMA;
+                vid_contrast = DEFAULT_CONTRAST;
+                vid_brightness = DEFAULT_BRIGHTNESS;
+                setgamma();
+            }
+        }
+
+        break;
 
     case 200:
 
@@ -2640,7 +2701,7 @@ cheat_for_port_credits:
                 {
                     int i;
                     i = ud.screen_size;
-                    barsm(d+8,yy+7, (short *)&ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),PHX(-5));
+                    barsm(d+8,yy+7, &ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),PHX(-5));
                     if (i < ud.screen_size && i == 8 && ud.statusbarmode == 1 && bpp > 8)
                     {
                         ud.statusbarmode = 0;
@@ -2659,9 +2720,9 @@ cheat_for_port_credits:
                 break;
                 case 3:
                 {
-                    short sbs, sbsl;
+                    int sbs, sbsl;
                     sbs = sbsl = ud.statusbarscale-37;
-                    barsm(d+8,yy+7, (short *)&sbs,8,x==io,MENUHIGHLIGHT(io),PHX(-5));
+                    barsm(d+8,yy+7, &sbs,8,x==io,MENUHIGHLIGHT(io),PHX(-5));
                     if (x == io && sbs != sbsl)
                     {
                         sbs += 37;
@@ -2965,7 +3026,7 @@ cheat_for_port_credits:
 #else
         x = 6;
 #endif
-        onbar = (probey == 4);
+        onbar = 0; // (probey == 4);
         if (probey == 0 || probey == 1 || probey == 2)
             x = probe(c,50,16,x);
         else if (probey == 3)
@@ -3187,6 +3248,7 @@ cheat_for_port_credits:
             break;
 
         case 4:
+            cmenu(231);
             break;
 
         case 5:
@@ -3239,16 +3301,16 @@ cheat_for_port_credits:
         menutext(c+16,50+16+16+22,MENUHIGHLIGHT(3),changesmade==0,"APPLY CHANGES");
 
         menutext(c,50+62+16,MENUHIGHLIGHT(4),PHX(-6),"BRIGHTNESS");
-        {
-            short ss = ud.brightness;
-            bar(c+171,50+62+16,&ss,8,x==4,MENUHIGHLIGHT(4),PHX(-6));
-            if (x==4)
-            {
-                ud.brightness = ss;
-                setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
-            }
-        }
-
+        /*        {
+                    short ss = ud.brightness;
+                    bar(c+171,50+62+16,&ss,8,x==4,MENUHIGHLIGHT(4),PHX(-6));
+                    if (x==4)
+                    {
+                        ud.brightness = ss;
+                        setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+                    }
+                }
+        */
         if (bpp == 8)
         {
             menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"DETAIL");
@@ -3520,7 +3582,7 @@ cheat_for_port_credits:
         gametextpal(40,122+9+9+9,"ADVANCED",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1),10);
 
         {
-            short sense;
+            int sense;
             sense = CONTROL_GetMouseSensitivity()-1;
             barsm(248,128,&sense,2,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
             CONTROL_SetMouseSensitivity(sense+1);
@@ -3774,7 +3836,7 @@ cheat_for_port_credits:
 
         menutext(c,46,MENUHIGHLIGHT(0),0,"X-AXIS SCALE");
         l = (ud.config.MouseAnalogueScale[0]+262144) >> 13;
-        bar(c+160+40,46,(short *)&l,1,x==0,MENUHIGHLIGHT(0),0);
+        bar(c+160+40,46,&l,1,x==0,MENUHIGHLIGHT(0),0);
         l = (l<<13)-262144;
         if (l != ud.config.MouseAnalogueScale[0])
         {
@@ -3786,7 +3848,7 @@ cheat_for_port_credits:
 
         menutext(c,46+16,MENUHIGHLIGHT(1),0,"Y-AXIS SCALE");
         l = (ud.config.MouseAnalogueScale[1]+262144) >> 13;
-        bar(c+160+40,46+16,(short *)&l,1,x==1,MENUHIGHLIGHT(1),0);
+        bar(c+160+40,46+16,&l,1,x==1,MENUHIGHLIGHT(1),0);
         l = (l<<13)-262144;
         if (l != ud.config.MouseAnalogueScale[1])
         {
@@ -3798,7 +3860,7 @@ cheat_for_port_credits:
 
         menutext(c,46+16+16,MENUHIGHLIGHT(2),0,"DEAD ZONE");
         l = ud.config.MouseFilter>>1;
-        bar(c+160+40,46+16+16,(short *)&l,2,x==2,MENUHIGHLIGHT(2),0);
+        bar(c+160+40,46+16+16,&l,2,x==2,MENUHIGHLIGHT(2),0);
         ud.config.MouseFilter = l<<1;
         menutext(c,46+16+16+16+8,/*(MENUHIGHLIGHT(3))+(MENUHIGHLIGHT(4))+(MENUHIGHLIGHT(5))+(MENUHIGHLIGHT(6))-24*/0,0,"DIGITAL AXES ACTIONS");
 
@@ -4053,7 +4115,7 @@ cheat_for_port_credits:
         }
         gametext(76,38,"SCALE",0,2+8+16);
         l = (ud.config.JoystickAnalogueScale[thispage*2]+262144) >> 13;
-        bar(140+56,38+8,(short *)&l,1,x==0,0,0);
+        bar(140+56,38+8,&l,1,x==0,0,0);
         l = (l<<13)-262144;
         if (l != ud.config.JoystickAnalogueScale[thispage*2])
         {
@@ -4094,7 +4156,7 @@ cheat_for_port_credits:
         {
             gametext(76,38+64,"SCALE",0,2+8+16);
             l = (ud.config.JoystickAnalogueScale[thispage*2+1]+262144) >> 13;
-            bar(140+56,38+8+64,(short *)&l,1,x==4,0,0);
+            bar(140+56,38+8+64,&l,1,x==4,0,0);
             l = (l<<13)-262144;
             if (l != ud.config.JoystickAnalogueScale[thispage*2+1])
             {
@@ -4172,7 +4234,7 @@ cheat_for_port_credits:
 
         for (m=first;m<last;m++)
         {
-            unsigned short odx,dx,ody,dy;
+            int odx,dx,ody,dy;
             Bstrcpy(tempbuf,(char *)getjoyname(0,m));
             menutext(32,48+30*(m-first),0,0,tempbuf);
 
@@ -4182,8 +4244,8 @@ cheat_for_port_credits:
             dx = odx = min(64,64l*ud.config.JoystickAnalogueDead[m]/10000l);
             dy = ody = min(64,64l*ud.config.JoystickAnalogueSaturate[m]/10000l);
 
-            bar(217,48+30*(m-first),(short *)&dx,4,x==((m-first)*2),0,0);
-            bar(217,48+30*(m-first)+15,(short *)&dy,4,x==((m-first)*2+1),0,0);
+            bar(217,48+30*(m-first),&dx,4,x==((m-first)*2),0,0);
+            bar(217,48+30*(m-first)+15,&dy,4,x==((m-first)*2+1),0,0);
 
             Bsprintf(tempbuf,"%3d%%",100*dx/64);
             gametext(217-49,48+30*(m-first)-8,tempbuf,0,2+8+16);
@@ -4294,7 +4356,7 @@ cheat_for_port_credits:
         {
             l = ud.config.FXVolume;
             ud.config.FXVolume >>= 2;
-            bar(c+167+40,50+16+16,(short *)&ud.config.FXVolume,4,(ud.config.FXDevice>=0)&&x==2,MENUHIGHLIGHT(2),ud.config.SoundToggle==0||(ud.config.FXDevice<0));
+            bar(c+167+40,50+16+16,&ud.config.FXVolume,4,(ud.config.FXDevice>=0)&&x==2,MENUHIGHLIGHT(2),ud.config.SoundToggle==0||(ud.config.FXDevice<0));
             if (l != ud.config.FXVolume)
                 ud.config.FXVolume <<= 2;
             if (l != ud.config.FXVolume)
@@ -4306,7 +4368,7 @@ cheat_for_port_credits:
             l = ud.config.MusicVolume;
             ud.config.MusicVolume >>= 2;
             bar(c+167+40,50+16+16+16,
-                (short *)&ud.config.MusicVolume,4,
+                &ud.config.MusicVolume,4,
                 (ud.config.MusicDevice>=0) && x==3,MENUHIGHLIGHT(3),
                 ud.config.MusicToggle==0||(ud.config.MusicDevice<0));
             ud.config.MusicVolume <<= 2;

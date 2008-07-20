@@ -834,26 +834,22 @@ int OSD_HandleChar(char ch)
                 if (tabc && tabc->next && findsymbol(osdedittmp, tabc->next))
                 {
                     symbol_t *symb=tabc;
-                    int maxwidth = 0, x = 0, num = 0;
+                    int maxwidth = 0, x = 0, num = 0, diffpt;
 
                     while (symb && symb != lastmatch)
                     {
-                        int diffpt;
-
                         num++;
 
                         if (lastmatch)
                         {
                             diffpt = OSD_FindDiffPoint(symb->name,lastmatch->name);
                             if (diffpt < commonsize)
-                            {
                                 commonsize = diffpt;
-                                //                                            OSD_Printf("commonsize %d\n",commonsize);
-                            }
                         }
 
                         maxwidth = max((unsigned)maxwidth,Bstrlen(symb->name));
                         lastmatch = symb;
+                        if (!lastmatch->next) break;
                         symb=findsymbol(osdedittmp, lastmatch->next);
                     }
                     OSD_Printf(OSDTEXT_RED "Found %d possible completions for '%s':\n",num,osdedittmp);
@@ -864,6 +860,7 @@ int OSD_HandleChar(char ch)
                     {
                         tabc = lastmatch = symb;
                         OSD_Printf("%-*s",maxwidth,symb->name);
+                        if (!lastmatch->next) break;
                         symb=findsymbol(osdedittmp, lastmatch->next);
                         x += maxwidth;
                         if (x > (osdcols - maxwidth))

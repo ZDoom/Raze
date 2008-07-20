@@ -653,15 +653,15 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenGamma",&ud.brightness);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenSize",&ud.screen_size);
 
-    tempbuf[0] = 0;
-    SCRIPT_GetString(ud.config.scripthandle, "Screen Setup", "VidGamma",&tempbuf[0]);
-    if (tempbuf[0]) vid_gamma = atof(tempbuf);
-    tempbuf[0] = 0;
-    SCRIPT_GetString(ud.config.scripthandle, "Screen Setup", "VidBrightness",&tempbuf[0]);
-    if (tempbuf[0]) vid_brightness = atof(tempbuf);
-    tempbuf[0] = 0;
-    SCRIPT_GetString(ud.config.scripthandle, "Screen Setup", "VidContrast",&tempbuf[0]);
-    if (tempbuf[0]) vid_contrast = atof(tempbuf);
+        tempbuf[0] = 0;
+        SCRIPT_GetString(ud.config.scripthandle, "Screen Setup", "VidGamma",&tempbuf[0]);
+        if (tempbuf[0]) vid_gamma = atof(tempbuf);
+        tempbuf[0] = 0;
+        SCRIPT_GetString(ud.config.scripthandle, "Screen Setup", "VidBrightness",&tempbuf[0]);
+        if (tempbuf[0]) vid_brightness = atof(tempbuf);
+        tempbuf[0] = 0;
+        SCRIPT_GetString(ud.config.scripthandle, "Screen Setup", "VidContrast",&tempbuf[0]);
+        if (tempbuf[0]) vid_contrast = atof(tempbuf);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", &ud.config.ScreenBPP);

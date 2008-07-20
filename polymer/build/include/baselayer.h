@@ -132,6 +132,10 @@ int setpalette(int start, int num, char *dapal);
 int setgamma(void);
 float vid_gamma, vid_contrast, vid_brightness;
 
+#define DEFAULT_GAMMA 1.2
+#define DEFAULT_CONTRAST 1.2
+#define DEFAULT_BRIGHTNESS 0.0
+
 int switchrendermethod(int,int);    // 0 = software, 1 = opengl | bool = reinit
 
 int wm_msgbox(char *name, char *fmt, ...);

@@ -89,12 +89,12 @@ int loadpheader(char spot,struct savehead *saveh)
     //    AddLog(g_szBuf);
 
     if (kdfread(&bv,4,1,fil) != 1) goto corrupt;
-/*    if (bv != BYTEVERSION)
-    {
-        FTA(114,g_player[myconnectindex].ps);
-        kclose(fil);
-        return 1;
-    }*/
+    /*    if (bv != BYTEVERSION)
+        {
+            FTA(114,g_player[myconnectindex].ps);
+            kclose(fil);
+            return 1;
+        }*/
 
     if (kdfread(&saveh->numplr,sizeof(int32),1,fil) != 1) goto corrupt;
 

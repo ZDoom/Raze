@@ -78,7 +78,10 @@ int dommxoverlay = 1, beforedrawrooms = 1, indrawroomsandmasks = 0;
 static int oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
 int curbrightness = 0, gammabrightness = 0;
-float vid_gamma = 1.0, vid_contrast = 1.0, vid_brightness = 0.0;
+
+float vid_gamma = DEFAULT_GAMMA;
+float vid_contrast = DEFAULT_CONTRAST;
+float vid_brightness = DEFAULT_BRIGHTNESS;
 
 //Textured Map variables
 static char globalpolytype;
@@ -9991,8 +9994,8 @@ void setbrightness(char dabrightness, char *dapal, char noapply)
     lastbright = curbrightness;
     if (!(noapply&4))
         curbrightness = min(max((int)dabrightness,0),15);
-
-    vid_gamma = 1.0 + ((float)curbrightness / 10.0);
+    if (lastbright != (unsigned)curbrightness)
+        vid_gamma = 1.0 + ((float)curbrightness / 10.0);
     if (setgamma()) j = curbrightness; else j = 0;
 
     for (k=i=0;i<256;i++)

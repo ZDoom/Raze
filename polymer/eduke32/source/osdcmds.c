@@ -1232,6 +1232,47 @@ static int osdcmd_restorestate(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int osdcmd_vid_gamma(const osdfuncparm_t *parm)
+{
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("\"vid_gamma\" is \"%.1f\"\n",vid_gamma);
+        return OSDCMD_SHOWHELP;
+    }
+    vid_gamma = atof(parm->parms[0]);
+    ud.brightness = min(max((float)((vid_gamma-1.0)*10.0),0),15);
+    ud.brightness <<= 2;
+    OSD_Printf("%s\n",parm->raw);
+    setgamma();
+    return OSDCMD_OK;
+}
+
+static int osdcmd_vid_brightness(const osdfuncparm_t *parm)
+{
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("\"vid_brightness\" is \"%.1f\"\n",vid_brightness);
+        return OSDCMD_SHOWHELP;
+    }
+    vid_brightness = atof(parm->parms[0]);
+    OSD_Printf("%s\n",parm->raw);
+    setgamma();
+    return OSDCMD_OK;
+}
+
+static int osdcmd_vid_contrast(const osdfuncparm_t *parm)
+{
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("\"vid_contrast\" is \"%.1f\"\n",vid_contrast);
+        return OSDCMD_SHOWHELP;
+    }
+    vid_contrast = atof(parm->parms[0]);
+    OSD_Printf("%s\n",parm->raw);
+    setgamma();
+    return OSDCMD_OK;
+}
+
 int registerosdcommands(void)
 {
     unsigned int i;
@@ -1302,7 +1343,10 @@ int registerosdcommands(void)
     OSD_RegisterFunction("unbind","unbind <key>: unbinds a key.", osdcmd_unbind);
     OSD_RegisterFunction("unbindall","unbindall: unbinds all keys.", osdcmd_unbindall);
 
-    OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: immediately change the video mode",osdcmd_vidmode);
+    OSD_RegisterFunction("vidmode","vidmode [xdim ydim] [bpp] [fullscreen]: change the video mode",osdcmd_vidmode);
+    OSD_RegisterFunction("vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",osdcmd_vid_gamma);
+    OSD_RegisterFunction("vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",osdcmd_vid_contrast);
+    OSD_RegisterFunction("vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",osdcmd_vid_brightness);
     OSD_RegisterFunction("savestate","",osdcmd_savestate);
     OSD_RegisterFunction("restorestate","",osdcmd_restorestate);
     //baselayer_onvideomodechange = onvideomodechange;

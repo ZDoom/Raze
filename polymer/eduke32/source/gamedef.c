@@ -1847,7 +1847,7 @@ static int parsecommand(void)
 
         // get the ID of the DEF
         if (tw == CON_SETTHISPROJECTILE)
-        labelsonly = 1;
+            labelsonly = 1;
         transvar();
         labelsonly = 0;
         // now get name of .xxx
