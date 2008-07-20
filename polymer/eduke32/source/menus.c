@@ -2577,9 +2577,18 @@ cheat_for_port_credits:
         menutext(c,50+16,MENUHIGHLIGHT(1),0,"CONTRAST");
         menutext(c,50+16+16,MENUHIGHLIGHT(2),0,"BRIGHTNESS");
         menutext(c,50+16+16+16+8,MENUHIGHLIGHT(3),0,"RESET TO DEFAULTS");
+
+        Bsprintf(tempbuf,"%.2f",vid_gamma);
+        gametext(c+177-52,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
+        Bsprintf(tempbuf,"%.2f",vid_contrast);
+        gametext(c+177-52,50+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
+        Bsprintf(tempbuf,"%.2f",vid_brightness);
+        gametext(c+177-52,50+16+16-8,tempbuf,MENUHIGHLIGHT(2),2+8+16);
+
+
         {
             int b = (vid_gamma*40960.f);
-            _bar(0,c+171,50,&b,4096,x==0,MENUHIGHLIGHT(0),0,8192,163840);
+            _bar(0,c+177,50,&b,4096,x==0,MENUHIGHLIGHT(0),0,8192,163840);
 
             if (b != (vid_gamma*40960.f))
             {
@@ -2590,7 +2599,7 @@ cheat_for_port_credits:
             }
 
             b = (vid_contrast*40960.f);
-            _bar(0,c+171,50+16,&b,4096,x==1,MENUHIGHLIGHT(1),0,4096,122880);
+            _bar(0,c+177,50+16,&b,4096,x==1,MENUHIGHLIGHT(1),0,4096,122880);
 
             if (b != (vid_contrast*40960.f))
             {
@@ -2599,7 +2608,7 @@ cheat_for_port_credits:
             }
 
             b = (vid_brightness*40960.f);
-            _bar(0,c+171,50+16+16,&b,2048,x==2,MENUHIGHLIGHT(2),0,-32767,32767);
+            _bar(0,c+177,50+16+16,&b,2048,x==2,MENUHIGHLIGHT(2),0,-32767,32767);
 
             if (b != (vid_brightness*40960.f))
             {
