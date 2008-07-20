@@ -43,6 +43,8 @@ static int checking_switch = 0, current_event = -1;
 static int labelsonly = 0, nokeywordcheck = 0, dynamicremap = 0;
 static int num_braces = 0;
 
+static int increasescriptsize(int size);
+
 int redefined_quote_count = 0;
 
 intptr_t *aplWeaponClip[MAX_WEAPONS];       // number of items in magazine
@@ -458,6 +460,7 @@ static const char *keyw[] =
     "savemapstate",             // 326
     "loadmapstate",             // 327
     "clearmapstate",            // 328
+    "scriptsize",               // 329
     "<null>"
 };
 
@@ -885,10 +888,124 @@ const memberlabel_t inputlabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
+static int increasescriptsize(int size)
+{
+    intptr_t oscriptptr = (unsigned)(scriptptr-script);
+    intptr_t ocasescriptptr = (unsigned)(casescriptptr-script);
+    intptr_t oparsing_event = (unsigned)(parsing_event-script);
+    intptr_t oparsing_actor = (unsigned)(parsing_actor-script);
+    char *scriptptrs;
+    intptr_t *newscript;
+    intptr_t i, j;
+    int osize = g_ScriptSize;
+
+    for (i=0;i<MAXSECTORS;i++)
+    {
+        if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
+        {
+            labelcode[i] -= (intptr_t)&script[0];
+        }
+    }
+
+    scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(char));
+    for (i=0;i<g_ScriptSize;i++)
+    {
+//            initprintf("%d\n",i);
+        if ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))
+        {
+            scriptptrs[i] = 1;
+            j = (intptr_t)script[i] - (intptr_t)&script[0];
+            script[i] = j;
+        }
+        else scriptptrs[i] = 0;
+    }
+
+    for (i=0;i<MAXTILES;i++)
+        if (actorscrptr[i])
+        {
+            j = (intptr_t)actorscrptr[i]-(intptr_t)&script[0];
+            actorscrptr[i] = (intptr_t *)j;
+        }
+
+    for (i=0;i<MAXTILES;i++)
+        if (actorLoadEventScrptr[i])
+        {
+            j = (intptr_t)actorLoadEventScrptr[i]-(intptr_t)&script[0];
+            actorLoadEventScrptr[i] = (intptr_t *)j;
+        }
+
+    for (i=0;i<MAXGAMEEVENTS;i++)
+        if (apScriptGameEvent[i])
+        {
+            j = (intptr_t)apScriptGameEvent[i]-(intptr_t)&script[0];
+            apScriptGameEvent[i] = (intptr_t *)j;
+        }
+
+    //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
+    g_ScriptSize = size;
+    initprintf("Increasing script buffer size to %d bytes...\n",g_ScriptSize);
+    newscript = (intptr_t *)Brealloc(script, g_ScriptSize * sizeof(intptr_t));
+
+    if (newscript == NULL)
+    {
+        ReportError(-1);
+        initprintf("%s:%d: out of memory: Aborted (%ud)\n",compilefile,line_number,(unsigned)(scriptptr-script));
+        initprintf(tempbuf);
+        error++;
+        return 1;
+    }
+    script = newscript;
+    scriptptr = (intptr_t *)(script+oscriptptr);
+    //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
+    if (casescriptptr != NULL)
+        casescriptptr = (intptr_t *)(script+ocasescriptptr);
+    if (parsing_event != NULL)
+        parsing_event = (intptr_t *)(script+oparsing_event);
+    if (parsing_actor != NULL)
+        parsing_actor = (intptr_t *)(script+oparsing_actor);
+
+    for (i=0;i<MAXSECTORS;i++)
+    {
+        if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
+        {
+            labelcode[i] += (intptr_t)&script[0];
+        }
+    }
+
+    for (i=0;i<g_ScriptSize-(size-osize);i++)
+        if (scriptptrs[i])
+        {
+            j = (intptr_t)script[i]+(intptr_t)&script[0];
+            script[i] = j;
+        }
+
+    for (i=0;i<MAXTILES;i++)
+        if (actorscrptr[i])
+        {
+            j = (intptr_t)actorscrptr[i]+(intptr_t)&script[0];
+            actorscrptr[i] = (intptr_t *)j;
+        }
+
+    for (i=0;i<MAXTILES;i++)
+        if (actorLoadEventScrptr[i])
+        {
+            j = (intptr_t)actorLoadEventScrptr[i]+(intptr_t)&script[0];
+            actorLoadEventScrptr[i] = (intptr_t *)j;
+        }
+
+    for (i=0;i<MAXGAMEEVENTS;i++)
+        if (apScriptGameEvent[i])
+        {
+            j = (intptr_t)apScriptGameEvent[i]+(intptr_t)&script[0];
+            apScriptGameEvent[i] = (intptr_t *)j;
+        }
+    Bfree(scriptptrs);
+    return 0;
+}
+
 static int skipcomments(void)
 {
     char c;
-    intptr_t i, j;
 
     while ((c = *textptr))
     {
@@ -935,116 +1052,7 @@ static int skipcomments(void)
     }
 
     if ((unsigned)(scriptptr-script) > (unsigned)(g_ScriptSize-32))
-    {
-        intptr_t oscriptptr = (unsigned)(scriptptr-script);
-        intptr_t ocasescriptptr = (unsigned)(casescriptptr-script);
-        intptr_t oparsing_event = (unsigned)(parsing_event-script);
-        intptr_t oparsing_actor = (unsigned)(parsing_actor-script);
-        char *scriptptrs;
-        intptr_t *newscript;
-
-        for (i=0;i<MAXSECTORS;i++)
-        {
-            if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
-            {
-                labelcode[i] -= (intptr_t)&script[0];
-            }
-        }
-
-        scriptptrs = Bcalloc(1,g_ScriptSize * sizeof(char));
-        for (i=0;i<g_ScriptSize;i++)
-        {
-//            initprintf("%d\n",i);
-            if ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_ScriptSize]))
-            {
-                scriptptrs[i] = 1;
-                j = (intptr_t)script[i] - (intptr_t)&script[0];
-                script[i] = j;
-            }
-            else scriptptrs[i] = 0;
-        }
-
-        for (i=0;i<MAXTILES;i++)
-            if (actorscrptr[i])
-            {
-                j = (intptr_t)actorscrptr[i]-(intptr_t)&script[0];
-                actorscrptr[i] = (intptr_t *)j;
-            }
-
-        for (i=0;i<MAXTILES;i++)
-            if (actorLoadEventScrptr[i])
-            {
-                j = (intptr_t)actorLoadEventScrptr[i]-(intptr_t)&script[0];
-                actorLoadEventScrptr[i] = (intptr_t *)j;
-            }
-
-        for (i=0;i<MAXGAMEEVENTS;i++)
-            if (apScriptGameEvent[i])
-            {
-                j = (intptr_t)apScriptGameEvent[i]-(intptr_t)&script[0];
-                apScriptGameEvent[i] = (intptr_t *)j;
-            }
-
-        //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
-        g_ScriptSize += 16384;
-        initprintf("Increasing script buffer size to %d bytes...\n",g_ScriptSize);
-        newscript = (intptr_t *)Brealloc(script, g_ScriptSize * sizeof(intptr_t));
-
-        if (newscript == NULL)
-        {
-            ReportError(-1);
-            initprintf("%s:%d: out of memory: Aborted (%ud)\n",compilefile,line_number,(unsigned)(scriptptr-script));
-            initprintf(tempbuf);
-            error++;
-            return 1;
-        }
-        script = newscript;
-        scriptptr = (intptr_t *)(script+oscriptptr);
-        //initprintf("offset: %d\n",(unsigned)(scriptptr-script));
-        if (casescriptptr != NULL)
-            casescriptptr = (intptr_t *)(script+ocasescriptptr);
-        if (parsing_event != NULL)
-            parsing_event = (intptr_t *)(script+oparsing_event);
-        if (parsing_actor != NULL)
-            parsing_actor = (intptr_t *)(script+oparsing_actor);
-
-        for (i=0;i<MAXSECTORS;i++)
-        {
-            if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
-            {
-                labelcode[i] += (intptr_t)&script[0];
-            }
-        }
-
-        for (i=0;i<g_ScriptSize-16384;i++)
-            if (scriptptrs[i])
-            {
-                j = (intptr_t)script[i]+(intptr_t)&script[0];
-                script[i] = j;
-            }
-
-        for (i=0;i<MAXTILES;i++)
-            if (actorscrptr[i])
-            {
-                j = (intptr_t)actorscrptr[i]+(intptr_t)&script[0];
-                actorscrptr[i] = (intptr_t *)j;
-            }
-
-        for (i=0;i<MAXTILES;i++)
-            if (actorLoadEventScrptr[i])
-            {
-                j = (intptr_t)actorLoadEventScrptr[i]+(intptr_t)&script[0];
-                actorLoadEventScrptr[i] = (intptr_t *)j;
-            }
-
-        for (i=0;i<MAXGAMEEVENTS;i++)
-            if (apScriptGameEvent[i])
-            {
-                j = (intptr_t)apScriptGameEvent[i]+(intptr_t)&script[0];
-                apScriptGameEvent[i] = (intptr_t *)j;
-            }
-        Bfree(scriptptrs);
-    }
+        return increasescriptsize(g_ScriptSize+16384);
 
     return 0;
 }
@@ -4796,6 +4804,14 @@ repeatcase:
             return 1;
         }
         return 0;
+
+    case CON_SCRIPTSIZE:
+        scriptptr--;
+        transnum(LABEL_DEFINE);
+        j = *(scriptptr-1);
+        scriptptr--;
+        skipcomments();
+        return increasescriptsize(j);
 
     case CON_FALL:
     case CON_TIP:

@@ -836,4 +836,5 @@ enum keywords
     CON_SAVEMAPSTATE,       // 326
     CON_LOADMAPSTATE,       // 327
     CON_CLEARMAPSTATE,      // 328
+    CON_SCRIPTSIZE,         // 329
 };
