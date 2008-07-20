@@ -5048,7 +5048,7 @@ VOLUME_ALL_40x:
 
         break;
     }
-    OnEvent(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek, -1);
+    OnEvent(EVENT_DISPLAYMENUREST, g_player[myconnectindex].ps->i, myconnectindex, -1);
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)
     {
