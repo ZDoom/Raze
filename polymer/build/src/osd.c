@@ -7,6 +7,7 @@
 #include "compat.h"
 #include "baselayer.h"
 #include "cache1d.h"
+#include "pragmas.h"
 
 symbol_t *symbols = NULL;
 static symbol_t *addnewsymbol(const char *name);
@@ -84,6 +85,7 @@ static int  osdexeccount=0;		// number of lines from the head of the history buf
 static int logcutoff=120000;
 static int linecnt;
 static int osdexecscript=0;
+static int osdtextmode=0;
 
 // presentation parameters
 static int  osdpromptshade=0;
@@ -104,6 +106,12 @@ static int (*getrowheight)(int) = _internal_getrowheight;
 static void (*clearbackground)(int,int) = _internal_clearbackground;
 static int (*gettime)(void) = _internal_gettime;
 static void (*onshowosd)(int) = _internal_onshowosd;
+
+static void (*_drawosdchar)(int, int, char, int, int) = _internal_drawosdchar;
+static void (*_drawosdstr)(int, int, char*, int, int, int) = _internal_drawosdstr;
+static void (*_drawosdcursor)(int, int, int, int) = _internal_drawosdcursor;
+static int (*_getcolumnwidth)(int) = _internal_getcolumnwidth;
+static int (*_getrowheight)(int) = _internal_getrowheight;
 
 const char *stripcolorcodes(const char *t)
 {
@@ -432,6 +440,39 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
             return OSDCMD_OK;
         }
     }
+    else if (!Bstrcasecmp(parm->name, "osdtextmode"))
+    {
+        if (showval) { OSD_Printf("osdtextmode is %d\n", osdtextmode); return OSDCMD_OK; }
+        else
+        {
+            osdtextmode = atoi(parm->parms[0]);
+            if (osdtextmode < 0) osdtextmode = 0;
+            else if (osdtextmode > 1) osdtextmode = 1;
+            if (osdtextmode == 1)
+            {
+                if (drawosdchar != _internal_drawosdchar)
+                {
+                    swaplong(&_drawosdchar,&drawosdchar);
+                    swaplong(&_drawosdstr,&drawosdstr);
+                    swaplong(&_drawosdcursor,&drawosdcursor);
+                    swaplong(&_getcolumnwidth,&getcolumnwidth);
+                    swaplong(&_getrowheight,&getrowheight);
+                }
+            }
+            else if (drawosdchar == _internal_drawosdchar)
+            {
+                swaplong(&_drawosdchar,&drawosdchar);
+                swaplong(&_drawosdstr,&drawosdstr);
+                swaplong(&_drawosdcursor,&drawosdcursor);
+                swaplong(&_getcolumnwidth,&getcolumnwidth);
+                swaplong(&_getrowheight,&getrowheight);
+            }
+
+            OSD_ResizeDisplay(xdim, ydim);
+            OSD_Printf("%s\n",parm->raw);
+            return OSDCMD_OK;
+        }
+    }
     else if (!Bstrcasecmp(parm->name, "logcutoff"))
     {
         if (showval) { OSD_Printf("logcutoff is %d\n", logcutoff); return OSDCMD_OK; }
@@ -565,6 +606,7 @@ void OSD_Init(void)
     OSD_RegisterFunction("osdpromptpal","osdpromptpal: sets the palette of the OSD prompt",_internal_osdfunc_vars);
     OSD_RegisterFunction("osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",_internal_osdfunc_vars);
     OSD_RegisterFunction("osdrows","osdrows: sets the number of visible lines of the OSD",_internal_osdfunc_vars);
+    OSD_RegisterFunction("osdtextmode","osdtextmode: set OSD text mode (0:graphical, 1:fast)",_internal_osdfunc_vars);
     OSD_RegisterFunction("osdtextpal","osdtextpal: sets the palette of the OSD text",_internal_osdfunc_vars);
     OSD_RegisterFunction("osdtextshade","osdtextshade: sets the shade of the OSD text",_internal_osdfunc_vars);
     OSD_RegisterFunction("unalias","unalias: removes an alias created with \"alias\"",_internal_osdfunc_unalias);
@@ -1674,6 +1716,11 @@ char *OSD_GetFmtPtr(void)
 char *OSD_GetFmt(char *ptr)
 {
     return (ptr - &osdtext[0] + &osdfmt[0]);
+}
+
+int OSD_TextMode(void)
+{
+    return osdtextmode;
 }
 
 //
