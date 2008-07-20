@@ -643,7 +643,7 @@ static int defsparser(scriptfile *script)
             lastmodelid = md_loadmodel(modelfn);
             if (lastmodelid < 0)
             {
-                initprintf("Failure loading MD2/MD3 model \"%s\"\n", modelfn);
+                initprintf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn);
                 break;
             }
             md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0,0);
@@ -858,16 +858,16 @@ static int defsparser(scriptfile *script)
             seenframe = 0;
 
             if (scriptfile_getstring(script,&modelfn)) break;
-
+            if (scriptfile_getbraces(script,&modelend)) break;
 #if defined(POLYMOST) && defined(USE_OPENGL)
             lastmodelid = md_loadmodel(modelfn);
             if (lastmodelid < 0)
             {
-                initprintf("Failure loading MD2/MD3 model \"%s\"\n", modelfn);
+                initprintf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn);
+                script->textptr = modelend+1;
                 break;
             }
 #endif
-            if (scriptfile_getbraces(script,&modelend)) break;
             while (script->textptr < modelend)
             {
                 int token = getatoken(script,modeltokens,sizeof(modeltokens)/sizeof(tokenlist));

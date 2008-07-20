@@ -8692,8 +8692,8 @@ static int parsedefinitions_game(scriptfile *script, const int preload)
 
                 if (!included)
                 {
-                    initprintf("Warning: Failed including %s on line %s:%d\n",
-                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+//                    initprintf("Warning: Failed including %s on line %s:%d\n",
+//                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
                 }
                 else
                 {
