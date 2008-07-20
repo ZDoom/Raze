@@ -680,11 +680,11 @@ static void OSD_HistoryPrev(void)
 
         if (osdeditwinstart<0)
             osdeditwinend-=osdeditwinstart,
-            osdeditwinstart=0;
+                           osdeditwinstart=0;
     }
     else if (osdeditcursor>=osdeditwinend)
         osdeditwinstart+=(osdeditcursor-osdeditwinend),
-        osdeditwinend+=(osdeditcursor-osdeditwinend);
+                         osdeditwinend+=(osdeditcursor-osdeditwinend);
 }
 
 static void OSD_HistoryNext(void)
@@ -712,11 +712,11 @@ static void OSD_HistoryNext(void)
 
         if (osdeditwinstart<0)
             osdeditwinend-=osdeditwinstart,
-            osdeditwinstart=0;
+                           osdeditwinstart=0;
     }
     else if (osdeditcursor>=osdeditwinend)
         osdeditwinstart+=(osdeditcursor-osdeditwinend),
-        osdeditwinend+=(osdeditcursor-osdeditwinend);
+                         osdeditwinend+=(osdeditcursor-osdeditwinend);
 }
 
 int OSD_HandleChar(char ch)
@@ -885,7 +885,7 @@ int OSD_HandleChar(char ch)
                 osdhistorytotal++;
                 if (osdexeccount == HISTORYDEPTH)
                     OSD_Printf("Command Buffer Warning: Failed queueing command "
-                    "for execution. Buffer full.\n");
+                               "for execution. Buffer full.\n");
                 else
                     osdexeccount++;
             }
@@ -893,7 +893,7 @@ int OSD_HandleChar(char ch)
             {
                 if (osdexeccount == HISTORYDEPTH)
                     OSD_Printf("Command Buffer Warning: Failed queueing command "
-                    "for execution. Buffer full.\n");
+                               "for execution. Buffer full.\n");
                 else
                     osdexeccount++;
             }

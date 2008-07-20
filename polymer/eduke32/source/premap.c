@@ -1379,11 +1379,11 @@ static void resetpspritevars(char g)
         if (numplayersprites == MAXPLAYERS)
             gameexit("\nToo many player sprites (max 16.)");
 
-/*        if (numplayersprites == 0)
-        {
-            firstx = g_player[0].ps->posx;
-            firsty = g_player[0].ps->posy;
-        }*/
+        /*        if (numplayersprites == 0)
+                {
+                    firstx = g_player[0].ps->posx;
+                    firsty = g_player[0].ps->posy;
+                }*/
 
         g_PlayerSpawnPoints[(unsigned char)numplayersprites].ox = s->x;
         g_PlayerSpawnPoints[(unsigned char)numplayersprites].oy = s->y;

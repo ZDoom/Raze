@@ -514,7 +514,7 @@ static void print_os_version(void)
         initprintf("OS: Windows %s (%lu.%lu.%lu) %s\n", ver, osv.dwMajorVersion, osv.dwMinorVersion,
                    awful_windows_9x?osv.dwBuildNumber&0xffff:osv.dwBuildNumber,osv.szCSDVersion);
 //        if (osv.szCSDVersion[0])
-  //          initprintf("  - %s\n", osv.szCSDVersion);
+        //          initprintf("  - %s\n", osv.szCSDVersion);
     }
 }
 
