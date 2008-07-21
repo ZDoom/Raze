@@ -407,7 +407,7 @@ typedef struct {
 typedef struct {
     int const_visibility,uw_framerate;
     int camera_time,folfvel,folavel,folx,foly,fola;
-    int reccnt;
+    int reccnt,crosshairscale;
 
     int runkey_mode,statusbarscale,mouseaiming,weaponswitch,drawweapon;   // JBF 20031125
     int democams,color,msgdisptime,statusbarmode;

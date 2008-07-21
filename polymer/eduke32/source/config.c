@@ -225,7 +225,8 @@ void CONFIG_SetDefaults(void)
     ud.brightness = 8;
     ud.camerasprite = -1;
     ud.color = 0;
-    ud.crosshair = 2;
+    ud.crosshair = 1;
+    ud.crosshairscale = 50;
     ud.deathmsgs = 1;
     ud.democams = 1;
     ud.detail = 1;
@@ -705,6 +706,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup",&ud.config.ForceSetup);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "RunMode",&ud.config.RunMode);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Crosshairs",&ud.crosshair);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "CrosshairScale",&ud.crosshairscale);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "StatusBarScale",&ud.statusbarscale);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "ShowLevelStats",&ud.levelstats);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "ShowOpponentWeapons",&ud.config.ShowOpponentWeapons);
@@ -857,6 +859,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "AutoVote",ud.autovote,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Color",ud.color,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Crosshairs",ud.crosshair,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "CrosshairScale",ud.crosshairscale,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DeathMessages",ud.deathmsgs,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DemoCams",ud.democams,false,false);
     ud.executions++;

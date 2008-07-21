@@ -2638,10 +2638,11 @@ cheat_for_port_credits:
             char *opts[] =
             {
                 "Show crosshair",
-                "Show level stats",
+                "Crosshair size",
                 "-",
                 "Screen size",
                 "Status bar size",
+                "Show level stats",
                 "-",
                 "Allow walk with autorun",
                 "-",
@@ -2651,8 +2652,6 @@ cheat_for_port_credits:
                 "Show DM opponent weapon",
                 "Demo playback cameras",
                 "Demo recording",
-                "-",
-                "-",
                 "-",
                 "-",
                 "-",
@@ -2672,7 +2671,7 @@ cheat_for_port_credits:
                 io++;
             }
 
-            onbar = (probey == 2 || probey == 3);
+            onbar = (probey == 1 || probey == 2 || probey == 3);
             x = probesm(c,yy+5,0,io);
 
             if (x == -1)
@@ -2693,18 +2692,19 @@ cheat_for_port_credits:
                 switch (io)
                 {
                 case 0:
-                    if (x==io) ud.crosshair = (ud.crosshair==3)?0:ud.crosshair+1;
-                    modval(0,3,(int *)&ud.crosshair,1,probey==io);
+                    if (x==io) ud.crosshair = !ud.crosshair;
+                    modval(0,1,(int *)&ud.crosshair,1,probey==io);
                     {
-                        char *s[] = { "OFF", "ON [100%]", "ON [50%]", "ON [25%]" };
-                        gametextpal(d,yy,s[ud.crosshair], MENUHIGHLIGHT(io), 0);
+                        gametextpal(d,yy,ud.crosshair?"Yes":"No", MENUHIGHLIGHT(io), 0);
                         break;
                     }
                 case 1:
-                    if (x==io) ud.levelstats = 1-ud.levelstats;
-                    modval(0,1,(int *)&ud.levelstats,1,probey==io);
-                    gametextpal(d,yy, ud.levelstats ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
-                    break;
+                {
+                    int sbs = ud.crosshairscale;
+                    _bar(1,d+8,yy+7, &sbs,15,x==io,MENUHIGHLIGHT(io),0,25,100);
+                    ud.crosshairscale = min(100,max(10,sbs));
+                }
+                break;
                 case 2:
                 {
                     int i;
@@ -2739,33 +2739,38 @@ cheat_for_port_credits:
                 }
                 break;
                 case 4:
+                    if (x==io) ud.levelstats = 1-ud.levelstats;
+                    modval(0,1,(int *)&ud.levelstats,1,probey==io);
+                    gametextpal(d,yy, ud.levelstats ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                    break;
+                case 5:
                     if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
                     modval(0,1,(int *)&ud.runkey_mode,1,probey==io);
                     gametextpal(d,yy, ud.runkey_mode ? "No" : "Yes", MENUHIGHLIGHT(io), 0);
                     break;
-                case 5:
+                case 6:
                     if (x==io) ud.shadows = 1-ud.shadows;
                     modval(0,1,(int *)&ud.shadows,1,probey==io);
                     gametextpal(d,yy, ud.shadows ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 6:
+                case 7:
                     if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
                     if (!ud.screen_tilting)setrollangle(0);
                     modval(0,1,(int *)&ud.screen_tilting,1,probey==io);
                     gametextpal(d,yy, ud.screen_tilting ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;  // original had a 'full' option
-                case 7:
+                case 8:
                     if (x==io) ud.showweapons = 1-ud.showweapons;
                     modval(0,1,(int *)&ud.showweapons,1,probey==io);
                     ud.config.ShowOpponentWeapons = ud.showweapons;
                     gametextpal(d,yy, ud.config.ShowOpponentWeapons ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
-                case 8:
+                case 9:
                     if (x==io) ud.democams = 1-ud.democams;
                     modval(0,1,(int *)&ud.democams,1,probey==io);
                     gametextpal(d,yy, ud.democams ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 9:
+                case 10:
                     if (x==io)
                     {
                         enabled = !((g_player[myconnectindex].ps->gm&MODE_GAME) && ud.m_recstat != 1);
@@ -2776,7 +2781,7 @@ cheat_for_port_credits:
                         enabled = 0;
                     gametextpal(d,yy,ud.m_recstat?((ud.m_recstat && enabled && g_player[myconnectindex].ps->gm&MODE_GAME)?"Running":"On"):"Off",enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE,enabled?0:1);
                     break;
-                case 10:
+                case 11:
                     if (x==io) cmenu(201);
                     break;
                 default:
@@ -2846,7 +2851,7 @@ cheat_for_port_credits:
             if (x == -1)
             {
                 cmenu(200);
-                probey = 10;
+                probey = 11;
                 break;
             }
 
@@ -3839,6 +3844,7 @@ cheat_for_port_credits:
         case 5:
         case 6:
             gametext(160,144+9+9,"DIGITAL AXES ARE NOT FOR MOUSE LOOK",0,2+8+16);
+            gametext(160,144+9+9+9,"OR FOR AIMING UP AND DOWN",0,2+8+16);
             break;
         }
 
@@ -4387,7 +4393,7 @@ cheat_for_port_credits:
         menutext(c,50+16+16+16+16,MENUHIGHLIGHT(4),(ud.config.FXDevice<0)||ud.config.SoundToggle==0,"DUKE TALK");
         menutext(c,50+16+16+16+16+16,MENUHIGHLIGHT(5),(ud.config.FXDevice<0)||ud.config.SoundToggle==0,"AMBIENCE");
 
-        menutext(c,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(ud.config.FXDevice<0)||ud.config.SoundToggle==0,"FLIP STEREO");
+        menutext(c,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(ud.config.FXDevice<0)||ud.config.SoundToggle==0,"REVERSE STEREO");
 
         {
             char *s[] = { "OFF", "LOCAL", "ALL" };

@@ -174,6 +174,9 @@ int r_animsmoothing = 1;
 int r_parallaxskyclamping = 1;
 int r_parallaxskypanning = 0;
 
+// line of sight checks before mddraw()
+int r_cullobstructedmodels = 0;
+
 static float fogresult, fogcol[4];
 
 // making this a macro should speed things up at the expense of code size
@@ -4423,6 +4426,7 @@ void polymost_drawsprite(int snum)
     int posx,posy;
     int oldsizx, oldsizy;
     int tsizx, tsizy;
+    short datempsectnum;
 
     tspr = tspriteptr[snum];
     if (tspr->owner < 0 || tspr->picnum < 0) return;
@@ -4467,7 +4471,46 @@ void polymost_drawsprite(int snum)
     {
         if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0)
         {
-            if (mddraw(tspr)) return;
+            if (r_cullobstructedmodels)
+            {
+                i = 0;
+                do // this is so gay
+                {
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                    { i++; break; }
+                    if (cansee(globalposx, globalposy, globalposz+6144, globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                    { i++; break; }
+                    if (cansee(globalposx, globalposy, globalposz-6144, globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                    { i++; break; }
+                    if (cansee(globalposx, globalposy, sector[globalcursectnum].ceilingz, globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                    { i++; break; }
+                    if (cansee(globalposx, globalposy, sector[globalcursectnum].floorz, globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                    { i++; break; }
+                    updatesector(tspr->x+384,tspr->y,&datempsectnum);
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x+384, tspr->y, sector[datempsectnum].ceilingz, datempsectnum))
+                    { i++; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x+384, tspr->y, sector[datempsectnum].floorz, datempsectnum))
+                    { i++; break; }
+                    updatesector(tspr->x-384,tspr->y,&datempsectnum);
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x-384, tspr->y, sector[datempsectnum].ceilingz, datempsectnum))
+                    { i++; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x-384, tspr->y, sector[datempsectnum].floorz, datempsectnum))
+                    { i++; break; }
+                    updatesector(tspr->x,tspr->y+384,&datempsectnum);
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x, tspr->y+384, sector[datempsectnum].ceilingz, datempsectnum))
+                    { i++; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x, tspr->y+384, sector[datempsectnum].floorz, datempsectnum))
+                    { i++; break; }
+                    updatesector(tspr->x,tspr->y-384,&datempsectnum);
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x, tspr->y-384, sector[datempsectnum].ceilingz, datempsectnum))
+                    { i++; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x, tspr->y-384, sector[datempsectnum].floorz, datempsectnum))
+                    { i++; break; }
+                    break;
+                } while (1);
+            } else i = 1;
+
+            if (i && mddraw(tspr)) return;
             break;	// else, render as flat sprite
         }
         if (usevoxels && (tspr->cstat&48)!=48 && tiletovox[tspr->picnum] >= 0 && voxmodels[ tiletovox[tspr->picnum] ])
@@ -5863,6 +5906,12 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         }
         return OSDCMD_OK;
     }
+    else if (!Bstrcasecmp(parm->name, "r_cullobstructedmodels"))
+    {
+        if (showval) { OSD_Printf("r_cullobstructedmodels is %d\n", r_cullobstructedmodels); }
+        else r_cullobstructedmodels = (val != 0);
+        return OSDCMD_OK;
+    }
 #endif
     return OSDCMD_SHOWHELP;
 }
@@ -5923,6 +5972,7 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",osdcmd_polymostvars);
     OSD_RegisterFunction("r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",osdcmd_polymostvars);
     OSD_RegisterFunction("r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_cullobstructedmodels","r_cullobstructedmodels: enable/disable hack to cull \"unseen\" models",osdcmd_polymostvars);
 #endif
     OSD_RegisterFunction("r_models","r_models: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
     OSD_RegisterFunction("r_hightile","r_hightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);

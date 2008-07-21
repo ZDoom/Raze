@@ -631,7 +631,7 @@ static int osdcmd_cmenu(const osdfuncparm_t *parm)
 
 cvarmappings cvar[] =
 {
-    { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_INT, 0, 0, 3 },
+    { "crosshair", "crosshair: enable/disable crosshair", (void*)&ud.crosshair, CVAR_BOOL, 0, 0, 1 },
 
     { "cl_autoaim", "cl_autoaim: enable/disable weapon autoaim", (void*)&ud.config.AutoAim, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
     { "cl_automsg", "cl_automsg: enable/disable automatically sending messages to all players", (void*)&ud.automsg, CVAR_BOOL, 0, 0, 1 },
@@ -1273,6 +1273,20 @@ static int osdcmd_vid_contrast(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int osdcmd_setcrosshairscale(const osdfuncparm_t *parm)
+{
+    if (parm->numparms == 0)
+    {
+        OSD_Printf("\"cl_crosshairscale\" is \"%d\"\n", ud.crosshairscale);
+        return OSDCMD_SHOWHELP;
+    }
+    else if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    ud.crosshairscale = min(100,max(10,Batol(parm->parms[0])));
+    OSD_Printf("cl_statusbarscale %d\n", ud.crosshairscale);
+    return OSDCMD_OK;
+}
+
 int registerosdcommands(void)
 {
     unsigned int i;
@@ -1297,6 +1311,7 @@ int registerosdcommands(void)
     OSD_RegisterFunction("bind","bind <key> <string>: associates a keypress with a string of console input. Type \"bind showkeys\" for a list of keys and \"listsymbols\" for a list of valid console commands.", osdcmd_bind);
 
     OSD_RegisterFunction("cl_statusbarscale","cl_statusbarscale: changes the status bar scale", osdcmd_setstatusbarscale);
+    OSD_RegisterFunction("cl_crosshairscale","cl_crosshairscale: changes the crosshair scale", osdcmd_setcrosshairscale);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
 
     OSD_RegisterFunction("echo","echo [text]: echoes text to the console", osdcmd_echo);
