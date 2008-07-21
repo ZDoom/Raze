@@ -589,7 +589,7 @@ void CONFIG_SetupJoystick(void)
 ===================
 */
 extern char *duke3dgrp;
-extern void check_player_color(int *color,int prev_color);
+extern void check_valid_color(int *color,int prev_color);
 
 int32 CONFIG_ReadSetup(void)
 {
@@ -714,7 +714,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "DemoCams",&ud.democams);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Color",&ud.color);
-        check_player_color((int *)&ud.color,-1);
+        check_valid_color((int *)&ud.color,-1);
         g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Team",&dummy);
         ud.team = 0;

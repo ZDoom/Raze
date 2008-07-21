@@ -57,7 +57,6 @@ char videomodereset = 0;
 char nofog=0;
 static unsigned short sysgamma[3][256];
 extern int curbrightness, gammabrightness;
-extern float vid_gamma, vid_contrast, vid_brightness;
 #ifdef USE_OPENGL
 // OpenGL stuff
 static char nogl=0;

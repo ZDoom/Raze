@@ -79,9 +79,9 @@ static int oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
 int curbrightness = 0, gammabrightness = 0;
 
-float vid_gamma = DEFAULT_GAMMA;
-float vid_contrast = DEFAULT_CONTRAST;
-float vid_brightness = DEFAULT_BRIGHTNESS;
+double vid_gamma = DEFAULT_GAMMA;
+double vid_contrast = DEFAULT_CONTRAST;
+double vid_brightness = DEFAULT_BRIGHTNESS;
 
 //Textured Map variables
 static char globalpolytype;

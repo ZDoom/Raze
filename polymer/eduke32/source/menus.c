@@ -533,7 +533,7 @@ static int getfilenames(const char *path, char kind[])
 
 int quittimer = 0;
 
-void check_player_color(int *color,int prev_color)
+void check_valid_color(int *color, int prev_color)
 {
     int i, disallowed[] = { 1, 2, 3, 4, 5, 6, 7, 8, 17, 18, 19, 20, 22 };
 
@@ -802,10 +802,10 @@ void menus(void)
                             ud.color++;
                             if (ud.color > 23)
                                 ud.color = 0;
-                            check_player_color((int *)&ud.color,-1);
+                            check_valid_color((int *)&ud.color,-1);
                         }
                         modval(0,23,(int *)&ud.color,1,probey==1);
-                        check_player_color((int *)&ud.color,i);
+                        check_valid_color((int *)&ud.color,i);
                         if (ud.color != i)
                             updateplayer();
                         break;
@@ -2578,13 +2578,12 @@ cheat_for_port_credits:
         menutext(c,50+16+16,MENUHIGHLIGHT(2),0,"BRIGHTNESS");
         menutext(c,50+16+16+16+8,MENUHIGHLIGHT(3),0,"RESET TO DEFAULTS");
 
-        Bsprintf(tempbuf,"%.2f",vid_gamma);
-        gametext(c+177-52,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
-        Bsprintf(tempbuf,"%.2f",vid_contrast);
-        gametext(c+177-52,50+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
-        Bsprintf(tempbuf,"%.2f",vid_brightness);
-        gametext(c+177-52,50+16+16-8,tempbuf,MENUHIGHLIGHT(2),2+8+16);
-
+        Bsprintf(tempbuf,"%s%.2f",vid_gamma>=0?" ":"",vid_gamma);
+        gametext(c+177-56,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
+        Bsprintf(tempbuf,"%s%.2f",vid_contrast>=0?" ":"",vid_contrast);
+        gametext(c+177-56,50+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
+        Bsprintf(tempbuf,"%s%.2f",vid_brightness>=0?" ":"",vid_brightness);
+        gametext(c+177-56,50+16+16-8,tempbuf,MENUHIGHLIGHT(2),2+8+16);
 
         {
             int b = (vid_gamma*40960.f);
@@ -2608,7 +2607,7 @@ cheat_for_port_credits:
             }
 
             b = (vid_brightness*40960.f);
-            _bar(0,c+177,50+16+16,&b,2048,x==2,MENUHIGHLIGHT(2),0,-32767,32767);
+            _bar(0,c+177,50+16+16,&b,2048,x==2,MENUHIGHLIGHT(2),0,-32768,32768);
 
             if (b != (vid_brightness*40960.f))
             {
@@ -2638,20 +2637,20 @@ cheat_for_port_credits:
             int io, ii, yy, d=c+160+40, enabled;
             char *opts[] =
             {
-                "Crosshair",
-                "Level stats",
+                "Show crosshair",
+                "Show level stats",
                 "-",
                 "Screen size",
                 "Status bar size",
                 "-",
-                "Run key style",
+                "Allow walk with autorun",
                 "-",
                 "Shadows",
                 "Screen tilting",
                 "-",
-                "Show opponent weapon",
+                "Show DM opponent weapon",
                 "Demo playback cameras",
-                "Record demo",
+                "Demo recording",
                 "-",
                 "-",
                 "-",
@@ -2704,7 +2703,7 @@ cheat_for_port_credits:
                 case 1:
                     if (x==io) ud.levelstats = 1-ud.levelstats;
                     modval(0,1,(int *)&ud.levelstats,1,probey==io);
-                    gametextpal(d,yy, ud.levelstats ? "Shown" : "Hidden", MENUHIGHLIGHT(io), 0);
+                    gametextpal(d,yy, ud.levelstats ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 2:
                 {
@@ -2731,7 +2730,7 @@ cheat_for_port_credits:
                 {
                     int sbs, sbsl;
                     sbs = sbsl = ud.statusbarscale-37;
-                    barsm(d+8,yy+7, &sbs,8,x==io,MENUHIGHLIGHT(io),PHX(-5));
+                    barsm(d+8,yy+7, &sbs,4,x==io,MENUHIGHLIGHT(io),0);
                     if (x == io && sbs != sbsl)
                     {
                         sbs += 37;
@@ -2742,7 +2741,7 @@ cheat_for_port_credits:
                 case 4:
                     if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
                     modval(0,1,(int *)&ud.runkey_mode,1,probey==io);
-                    gametextpal(d,yy, ud.runkey_mode ? "Classic" : "Modern", MENUHIGHLIGHT(io), 0);
+                    gametextpal(d,yy, ud.runkey_mode ? "No" : "Yes", MENUHIGHLIGHT(io), 0);
                     break;
                 case 5:
                     if (x==io) ud.shadows = 1-ud.shadows;
@@ -2759,7 +2758,7 @@ cheat_for_port_credits:
                     if (x==io) ud.showweapons = 1-ud.showweapons;
                     modval(0,1,(int *)&ud.showweapons,1,probey==io);
                     ud.config.ShowOpponentWeapons = ud.showweapons;
-                    gametextpal(d,yy, ud.config.ShowOpponentWeapons ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    gametextpal(d,yy, ud.config.ShowOpponentWeapons ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 8:
                     if (x==io) ud.democams = 1-ud.democams;
@@ -2803,17 +2802,17 @@ cheat_for_port_credits:
             {
                 "Parental lock",
                 "-",
-                "Game messages",
+                "Item/status messages",
                 "HUD weapon display",
-                "FPS counter",
+                "Show framerate",
                 "-",
-                "Automatic voting",
-                "Send MP messages to all",
-                "Display other player IDs",
+                "Multiplayer auto voting",
+                "Private messages in DM",
+                "Show player names in DM",
                 "-",
                 "Show startup window",
 #ifdef _WIN32
-                "Release notification",
+                "Auto-check for updates",
 #else
                 "-",
                 "-",
@@ -2889,7 +2888,7 @@ cheat_for_port_credits:
                 case 3:
                     if (x==io) ud.tickrate = 1-ud.tickrate;
                     modval(0,1,(int *)&ud.tickrate,1,probey==io);
-                    gametextpal(d,yy, ud.tickrate ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    gametextpal(d,yy, ud.tickrate ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 4:
                     if (x==io)
@@ -2905,17 +2904,17 @@ cheat_for_port_credits:
                 case 5:
                     if (x==io) ud.automsg = 1-ud.automsg;
                     modval(0,1,(int *)&ud.automsg,1,probey==io);
-                    gametextpal(d,yy, ud.automsg ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    gametextpal(d,yy, ud.automsg ? "Off" : "On", MENUHIGHLIGHT(io), 0);
                     break;
                 case 6:
                     if (x==io) ud.idplayers = 1-ud.idplayers;
                     modval(0,1,(int *)&ud.idplayers,1,probey==io);
-                    gametextpal(d,yy, ud.idplayers ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    gametextpal(d,yy, ud.idplayers ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 7:
                     if (x==io) ud.config.ForceSetup = 1-ud.config.ForceSetup;
                     modval(0,1,(int *)&ud.config.ForceSetup,1,probey==io);
-                    gametextpal(d,yy, ud.config.ForceSetup ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    gametextpal(d,yy, ud.config.ForceSetup ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
 #ifdef _WIN32
                 case 8:
@@ -2924,7 +2923,7 @@ cheat_for_port_credits:
                     modval(0,1,(int *)&ud.config.CheckForUpdates,1,probey==io);
                     if (ud.config.CheckForUpdates != i)
                         ud.config.LastUpdateCheck = 0;
-                    gametextpal(d,yy, ud.config.CheckForUpdates ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    gametextpal(d,yy, ud.config.CheckForUpdates ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 9:
 #else

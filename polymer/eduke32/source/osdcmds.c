@@ -1312,7 +1312,7 @@ int registerosdcommands(void)
         OSD_RegisterFunction(t,Bstrdup(tempbuf),osdcmd_button);
     }
 
-    OSD_RegisterFunction("setbrightness","setbrightness <value>: changes brightness", osdcmd_setbrightness);
+    OSD_RegisterFunction("setbrightness","setbrightness <value>: changes brightness (obsolete)", osdcmd_setbrightness);
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
 

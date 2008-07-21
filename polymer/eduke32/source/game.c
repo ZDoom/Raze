@@ -54,7 +54,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20080703
+#define BUILDDATE 20080720 // this is checked against http://eduke32.com/VERSION
 #define UPDATEINTERVAL 604800 // 1w
 #endif
 

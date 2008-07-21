@@ -130,7 +130,7 @@ void showframe(int);
 int setpalette(int start, int num, char *dapal);
 //int getpalette(int start, int num, char *dapal);
 int setgamma(void);
-float vid_gamma, vid_contrast, vid_brightness;
+double vid_gamma, vid_contrast, vid_brightness;
 
 #define DEFAULT_GAMMA 1.2
 #define DEFAULT_CONTRAST 1.2

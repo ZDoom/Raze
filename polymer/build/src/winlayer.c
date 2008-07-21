@@ -62,7 +62,6 @@ int	   is_vista = 0;
 
 static WORD sysgamma[3][256];
 extern int curbrightness, gammabrightness;
-extern float vid_gamma, vid_contrast, vid_brightness;
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
 // OpenGL stuff

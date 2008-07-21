@@ -18,6 +18,7 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
 {
     short ac;
     char *ptr = OSD_GetTextPtr();
+    char *fmt = OSD_GetFmtPtr();
 
     for (x = (x<<3)+x; len>0; len--, ch++, x++)
     {
@@ -31,8 +32,10 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
 
         // use the format byte if the text falls within the bounds of the console buffer
         if (ch > ptr && ch < (ptr + TEXTSIZE))
-            rotatesprite(x<<16, (y<<3)<<16, 65536l, 0, ac, (*(OSD_GetFmt(ch))&~0x1F)>>4,
-                         *(OSD_GetFmt(ch))&~0xE0, 8|16, 0, 0, xdim-1, ydim-1);
+        {
+            rotatesprite(x<<16, (y<<3)<<16, 65536l, 0, ac, (*(ch-ptr+fmt)&~0x1F)>>4,
+                         *(ch-ptr+fmt)&~0xE0, 8|16, 0, 0, xdim-1, ydim-1);
+        }
         else
             rotatesprite(x<<16, (y<<3)<<16, 65536l, 0, ac, shade,
                          pal, 8|16, 0, 0, xdim-1, ydim-1);
