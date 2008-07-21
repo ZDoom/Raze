@@ -178,6 +178,9 @@ int r_parallaxskypanning = 0;
 int r_cullobstructedmodels = 0;
 #define CULL_DELAY 5
 
+// fullbright cvar
+int r_fullbright = 1;
+
 static float fogresult, fogcol[4];
 
 // making this a macro should speed things up at the expense of code size
@@ -579,7 +582,7 @@ void gltexapplyprops(void)
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
             if (glinfo.maxanisotropy > 1.0)
                 bglTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
-            if (pth->flags & 16)
+            if (r_fullbright && pth->flags & 16)
             {
                 bglBindTexture(GL_TEXTURE_2D,pth->ofb->glpic);
                 bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
@@ -1234,6 +1237,7 @@ int trytexcache(char *fn, int len, int dameth, char effect, texcacheheader *head
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
 
+    if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
     if (!glinfo.texnpot && (head->flags & 1)) goto failure;
 
     return fil;
@@ -1813,7 +1817,7 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
         if (skyclamphack) method |= 4;
         pth = gltexcache(globalpicnum,globalpal,method&(~3));
 
-        if (pth->flags & 16)
+        if (r_fullbright && pth->flags & 16)
             if (indrawroomsandmasks)
             {
                 if (!fullbrightdrawingpass)
@@ -4420,6 +4424,25 @@ void polymost_drawmaskwall(int damaskwallcnt)
 int lastcullcheck[MAXSPRITES];
 char cullmodel[MAXSPRITES];
 
+int polymost_checkcoordinates(int x, int y, spritetype *tspr)
+{
+    short datempsectnum;
+
+    updatesector(tspr->x+x,tspr->y+y,&datempsectnum);
+    if (datempsectnum == -1)
+        return 0;
+    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+        tspr->x+x, tspr->y+y, sector[datempsectnum].floorz, datempsectnum))
+        return 1;
+    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+        tspr->x+x, tspr->y+y, sector[datempsectnum].ceilingz, datempsectnum))
+        return 1;
+    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+        tspr->x+x, tspr->y+y, tspr->z, datempsectnum))
+        return 1;
+    return 0;
+}
+
 void polymost_drawsprite(int snum)
 {
     double px[6], py[6];
@@ -4430,8 +4453,7 @@ void polymost_drawsprite(int snum)
     int posx,posy;
     int oldsizx, oldsizy;
     int tsizx, tsizy;
-    short datempsectnum;
-
+    
     tspr = tspriteptr[snum];
     if (tspr->owner < 0 || tspr->picnum < 0) return;
 
@@ -4481,11 +4503,21 @@ void polymost_drawsprite(int snum)
                 {
                     if (totalclock < lastcullcheck[tspr->owner])
                         break;
+                    cullmodel[tspr->owner] = 1;
                     if (cansee(globalposx, globalposy, sector[globalcursectnum].ceilingz,
                         globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
                     { cullmodel[tspr->owner] = 0; break; }
                     if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                        tspr->x, tspr->y, tspr->z-((tilesizy[tspr->picnum]*tspr->yrepeat)<<2),
+                        tspr->sectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x, tspr->y, tspr->z,
+                        tspr->sectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x, tspr->y, globalposz,
+                        tspr->sectnum))
                     { cullmodel[tspr->owner] = 0; break; }
                     if (cansee(globalposx, globalposy, sector[globalcursectnum].floorz,
                         globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
@@ -4498,58 +4530,37 @@ void polymost_drawsprite(int snum)
                         tspr->x, tspr->y, tspr->z, tspr->sectnum))
                     { cullmodel[tspr->owner] = 0; break; }
 
-                    updatesector(tspr->x+384,tspr->y,&datempsectnum);
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x+384, tspr->y, sector[datempsectnum].floorz, datempsectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x+384, tspr->y, sector[datempsectnum].ceilingz, datempsectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x+384, tspr->y, tspr->z, datempsectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
+                    if (polymost_checkcoordinates(0, 0, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
 
-                    updatesector(tspr->x-384,tspr->y,&datempsectnum);
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x-384, tspr->y, sector[datempsectnum].floorz, datempsectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x-384, tspr->y, sector[datempsectnum].ceilingz, datempsectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x-384, tspr->y, tspr->z, datempsectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
 
-                    updatesector(tspr->x,tspr->y+384,&datempsectnum);
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x, tspr->y+384, sector[datempsectnum].floorz, datempsectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x, tspr->y+384, sector[datempsectnum].ceilingz, datempsectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x, tspr->y+384, tspr->z, datempsectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
+                    i = 768;
+                    if (polymost_checkcoordinates(-i, 0, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
+                    if (polymost_checkcoordinates(-i, -i, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
+                    if (polymost_checkcoordinates(0, -i, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
 
-                    updatesector(tspr->x,tspr->y-384,&datempsectnum);
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x, tspr->y-384, sector[datempsectnum].floorz, datempsectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x, tspr->y-384, sector[datempsectnum].ceilingz, datempsectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x, tspr->y-384, tspr->z, datempsectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
-                    cullmodel[tspr->owner] = 1;
+                    if (polymost_checkcoordinates(i, 0, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
+                    if (polymost_checkcoordinates(i, i, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
+                    if (polymost_checkcoordinates(0, i, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
+
+                    if (polymost_checkcoordinates(-i, i, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
+                    if (polymost_checkcoordinates(i, -i, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
                     break;
                 } while (1);
-                if (totalclock > lastcullcheck[tspr->owner])
+                if (totalclock >= lastcullcheck[tspr->owner])
                     lastcullcheck[tspr->owner] = totalclock + CULL_DELAY;
             } 
             else cullmodel[tspr->owner] = 0;
-
-            if (!cullmodel[tspr->owner] && mddraw(tspr)) return;
+            if (cullmodel[tspr->owner]) break;
+            if (mddraw(tspr)) return;
             break;	// else, render as flat sprite
         }
         if (usevoxels && (tspr->cstat&48)!=48 && tiletovox[tspr->picnum] >= 0 && voxmodels[ tiletovox[tspr->picnum] ])
@@ -5951,6 +5962,12 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else r_cullobstructedmodels = (val != 0);
         return OSDCMD_OK;
     }
+    else if (!Bstrcasecmp(parm->name, "r_fullbright"))
+    {
+        if (showval) { OSD_Printf("r_fullbright is %d\n", r_fullbright); }
+        else r_fullbright = (val != 0);
+        return OSDCMD_OK;
+    }
 #endif
     return OSDCMD_SHOWHELP;
 }
@@ -5988,30 +6005,31 @@ static int dumptexturedefs(const osdfuncparm_t *parm)
 void polymost_initosdfuncs(void)
 {
 #ifdef USE_OPENGL
-    OSD_RegisterFunction("r_texcompr","r_texcompr: enable/disable OpenGL texture compression",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_cullobstructedmodels","r_cullobstructedmodels: enable/disable hack to cull \"obstructed\" models",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_fullbright","r_fullbright: enable/disable fullbright textures",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_glowmapping","r_glowmapping: enable/disable glow mapping",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_peelscount","r_peelscount: sets the number of depth layers for depth peeling",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_polygonmode","r_polygonmode: debugging feature",osdcmd_polymostvars); //FUK
     OSD_RegisterFunction("r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_texturemode", "r_texturemode: changes the texture filtering settings", gltexturemode);
+    OSD_RegisterFunction("r_shadescale","r_shadescale: multiplier for lighting",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_texcachecompression","r_texcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_texcompr","r_texcompr: enable/disable OpenGL texture compression",osdcmd_polymostvars);
     OSD_RegisterFunction("r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", gltextureanisotropy);
     OSD_RegisterFunction("r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",osdcmd_polymostvars);
     OSD_RegisterFunction("r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_polygonmode","r_polygonmode: debugging feature",osdcmd_polymostvars); //FUK
-    OSD_RegisterFunction("r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_texcachecompression","r_texcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_shadescale","r_shadescale: multiplier for lighting",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_peelscount","r_peelscount: sets the number of depth layers for depth peeling",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_glowmapping","r_glowmapping: enable/disable glow mapping",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_texturemode", "r_texturemode: changes the texture filtering settings", gltexturemode);
     OSD_RegisterFunction("r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_cullobstructedmodels","r_cullobstructedmodels: enable/disable hack to cull \"unseen\" models",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",osdcmd_polymostvars);
 #endif
     OSD_RegisterFunction("r_models","r_models: enable/disable model rendering in >8-bit mode",osdcmd_polymostvars);
     OSD_RegisterFunction("r_hightile","r_hightile: enable/disable hightile texture rendering in >8-bit mode",osdcmd_polymostvars);

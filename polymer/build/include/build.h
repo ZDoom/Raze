@@ -547,6 +547,7 @@ extern int r_animsmoothing;
 extern int r_parallaxskyclamping;
 extern int r_parallaxskypanning;
 extern int r_cullobstructedmodels;
+extern int r_fullbright;
 extern int mdtims, omdtims;
 #endif
 

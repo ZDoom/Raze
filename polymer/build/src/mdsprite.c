@@ -591,6 +591,7 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
 
+    if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
     if (!glinfo.texnpot && (head->flags & 1)) goto failure;
 
     return fil;

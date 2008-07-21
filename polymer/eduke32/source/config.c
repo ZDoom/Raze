@@ -685,6 +685,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLDepthPeeling", &r_depthpeeling);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLPeelsCount", &r_peelscount);
 
+        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLFullbrights", &r_fullbright);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLDetailMapping", &r_detailmapping);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLGlowMapping", &r_glowmapping);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLVertexArrays", &r_vertexarrays);
@@ -894,6 +895,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLDepthPeeling",r_depthpeeling,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLPeelsCount",r_peelscount,false,false);
 
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLFullbright", r_fullbright,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLDetailMapping", r_detailmapping,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLGlowMapping", r_glowmapping,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLVertexArrays", r_vertexarrays,false,false);
