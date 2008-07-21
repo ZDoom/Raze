@@ -4431,14 +4431,14 @@ int polymost_checkcoordinates(int x, int y, spritetype *tspr)
     updatesector(tspr->x+x,tspr->y+y,&datempsectnum);
     if (datempsectnum == -1)
         return 0;
+    /*    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+            tspr->x+x, tspr->y+y, sector[datempsectnum].floorz, datempsectnum))
+            return 1;
+        if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+            tspr->x+x, tspr->y+y, sector[datempsectnum].ceilingz, datempsectnum))
+            return 1; */
     if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-        tspr->x+x, tspr->y+y, sector[datempsectnum].floorz, datempsectnum))
-        return 1;
-    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-        tspr->x+x, tspr->y+y, sector[datempsectnum].ceilingz, datempsectnum))
-        return 1;
-    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-        tspr->x+x, tspr->y+y, tspr->z, datempsectnum))
+               tspr->x+x, tspr->y+y, tspr->z, datempsectnum))
         return 1;
     return 0;
 }
@@ -4453,7 +4453,7 @@ void polymost_drawsprite(int snum)
     int posx,posy;
     int oldsizx, oldsizy;
     int tsizx, tsizy;
-    
+
     tspr = tspriteptr[snum];
     if (tspr->owner < 0 || tspr->picnum < 0) return;
 
@@ -4504,35 +4504,24 @@ void polymost_drawsprite(int snum)
                     if (totalclock < lastcullcheck[tspr->owner])
                         break;
                     cullmodel[tspr->owner] = 1;
-                    if (cansee(globalposx, globalposy, sector[globalcursectnum].ceilingz,
-                        globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, sector[globalcursectnum].ceilingz, globalcursectnum,
+                               tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                        { cullmodel[tspr->owner] = 0; break; }
                     if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x, tspr->y, tspr->z-((tilesizy[tspr->picnum]*tspr->yrepeat)<<2),
-                        tspr->sectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
+                               tspr->x, tspr->y, tspr->z-((tilesizy[tspr->picnum]*tspr->yrepeat)<<2),tspr->sectnum))
+                        { cullmodel[tspr->owner] = 0; break; }
                     if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x, tspr->y, tspr->z,
-                        tspr->sectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
+                               tspr->x, tspr->y, tspr->z,tspr->sectnum))
+                        { cullmodel[tspr->owner] = 0; break; }
                     if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                        tspr->x, tspr->y, globalposz,
-                        tspr->sectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
-                    if (cansee(globalposx, globalposy, sector[globalcursectnum].floorz,
-                        globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
-
-                    if (cansee(globalposx, globalposy, globalposz+6144, globalcursectnum,
-                        tspr->x, tspr->y, tspr->z, tspr->sectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
-                    if (cansee(globalposx, globalposy, globalposz-6144, globalcursectnum,
-                        tspr->x, tspr->y, tspr->z, tspr->sectnum))
-                    { cullmodel[tspr->owner] = 0; break; }
+                               tspr->x, tspr->y, globalposz,tspr->sectnum))
+                        { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, sector[globalcursectnum].floorz, globalcursectnum,
+                               tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                        { cullmodel[tspr->owner] = 0; break; }
 
                     if (polymost_checkcoordinates(0, 0, tspr))
                         { cullmodel[tspr->owner] = 0; break; }
-
 
                     i = 768;
                     if (polymost_checkcoordinates(-i, 0, tspr))
@@ -4554,10 +4543,11 @@ void polymost_drawsprite(int snum)
                     if (polymost_checkcoordinates(i, -i, tspr))
                         { cullmodel[tspr->owner] = 0; break; }
                     break;
-                } while (1);
+                }
+                while (1);
                 if (totalclock >= lastcullcheck[tspr->owner])
                     lastcullcheck[tspr->owner] = totalclock + CULL_DELAY;
-            } 
+            }
             else cullmodel[tspr->owner] = 0;
             if (cullmodel[tspr->owner]) break;
             if (mddraw(tspr)) return;
