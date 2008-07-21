@@ -782,6 +782,7 @@ int OSD_HandleChar(char ch)
     }
     else if (ch == 3)  	// control c
     {
+        osdeditbuf[osdeditlen] = 0;
         OSD_Printf("%s\n",osdeditbuf);
         osdeditlen=0;
         osdeditcursor=0;
