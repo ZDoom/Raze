@@ -176,6 +176,7 @@ int r_parallaxskypanning = 0;
 
 // line of sight checks before mddraw()
 int r_cullobstructedmodels = 0;
+#define CULL_DELAY 5
 
 static float fogresult, fogcol[4];
 
@@ -4416,6 +4417,9 @@ void polymost_drawmaskwall(int damaskwallcnt)
     drawpoly(dpx,dpy,n,method);
 }
 
+int lastcullcheck[MAXSPRITES];
+char cullmodel[MAXSPRITES];
+
 void polymost_drawsprite(int snum)
 {
     double px[6], py[6];
@@ -4473,44 +4477,79 @@ void polymost_drawsprite(int snum)
         {
             if (r_cullobstructedmodels)
             {
-                i = 0;
                 do // this is so gay
                 {
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
-                    { i++; break; }
-                    if (cansee(globalposx, globalposy, globalposz+6144, globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
-                    { i++; break; }
-                    if (cansee(globalposx, globalposy, globalposz-6144, globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
-                    { i++; break; }
-                    if (cansee(globalposx, globalposy, sector[globalcursectnum].ceilingz, globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
-                    { i++; break; }
-                    if (cansee(globalposx, globalposy, sector[globalcursectnum].floorz, globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
-                    { i++; break; }
+                    if (totalclock < lastcullcheck[tspr->owner])
+                        break;
+                    if (cansee(globalposx, globalposy, sector[globalcursectnum].ceilingz,
+                        globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, sector[globalcursectnum].floorz,
+                        globalcursectnum, tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+
+                    if (cansee(globalposx, globalposy, globalposz+6144, globalcursectnum,
+                        tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, globalposz-6144, globalcursectnum,
+                        tspr->x, tspr->y, tspr->z, tspr->sectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+
                     updatesector(tspr->x+384,tspr->y,&datempsectnum);
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x+384, tspr->y, sector[datempsectnum].ceilingz, datempsectnum))
-                    { i++; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x+384, tspr->y, sector[datempsectnum].floorz, datempsectnum))
-                    { i++; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x+384, tspr->y, sector[datempsectnum].floorz, datempsectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x+384, tspr->y, sector[datempsectnum].ceilingz, datempsectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x+384, tspr->y, tspr->z, datempsectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+
                     updatesector(tspr->x-384,tspr->y,&datempsectnum);
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x-384, tspr->y, sector[datempsectnum].ceilingz, datempsectnum))
-                    { i++; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x-384, tspr->y, sector[datempsectnum].floorz, datempsectnum))
-                    { i++; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x-384, tspr->y, sector[datempsectnum].floorz, datempsectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x-384, tspr->y, sector[datempsectnum].ceilingz, datempsectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x-384, tspr->y, tspr->z, datempsectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+
                     updatesector(tspr->x,tspr->y+384,&datempsectnum);
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x, tspr->y+384, sector[datempsectnum].ceilingz, datempsectnum))
-                    { i++; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x, tspr->y+384, sector[datempsectnum].floorz, datempsectnum))
-                    { i++; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x, tspr->y+384, sector[datempsectnum].floorz, datempsectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x, tspr->y+384, sector[datempsectnum].ceilingz, datempsectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x, tspr->y+384, tspr->z, datempsectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+
                     updatesector(tspr->x,tspr->y-384,&datempsectnum);
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x, tspr->y-384, sector[datempsectnum].ceilingz, datempsectnum))
-                    { i++; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum, tspr->x, tspr->y-384, sector[datempsectnum].floorz, datempsectnum))
-                    { i++; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x, tspr->y-384, sector[datempsectnum].floorz, datempsectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x, tspr->y-384, sector[datempsectnum].ceilingz, datempsectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                        tspr->x, tspr->y-384, tspr->z, datempsectnum))
+                    { cullmodel[tspr->owner] = 0; break; }
+                    cullmodel[tspr->owner] = 1;
                     break;
                 } while (1);
-            } else i = 1;
+                if (totalclock > lastcullcheck[tspr->owner])
+                    lastcullcheck[tspr->owner] = totalclock + CULL_DELAY;
+            } 
+            else cullmodel[tspr->owner] = 0;
 
-            if (i && mddraw(tspr)) return;
+            if (!cullmodel[tspr->owner] && mddraw(tspr)) return;
             break;	// else, render as flat sprite
         }
         if (usevoxels && (tspr->cstat&48)!=48 && tiletovox[tspr->picnum] >= 0 && voxmodels[ tiletovox[tspr->picnum] ])

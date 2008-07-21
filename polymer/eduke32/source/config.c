@@ -695,6 +695,7 @@ int32 CONFIG_ReadSetup(void)
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyClamping", &r_parallaxskyclamping);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyPanning", &r_parallaxskypanning);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLCullObstructedModels", &r_cullobstructedmodels);
         dummy = usemodels;
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "UseModels",&dummy);
         usemodels = dummy != 0;
@@ -903,6 +904,7 @@ void CONFIG_WriteSetup(void)
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyClamping",r_parallaxskyclamping,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyPanning",r_parallaxskypanning,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLCullObstructedModels", r_cullobstructedmodels,false,false);
 #endif
 #ifdef RENDERTYPEWIN
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq",maxrefreshfreq,false,false);
