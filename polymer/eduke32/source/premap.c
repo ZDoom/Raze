@@ -40,6 +40,8 @@ short spritecache[MAXTILES][3];
 static char precachehightile[2][MAXTILES>>3];
 static int  precachecount;
 
+extern char *duke3dgrpstring;
+
 static void tloadtile(int tilenume, int type)
 {
     if ((picanm[tilenume]&63) < 1)
@@ -1671,14 +1673,11 @@ int enterlevel(int g)
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
         Bstrcpy(levname, boardfilename);
-        Bsprintf(apptitle," - %s",levname);
+        Bsprintf(apptitle,HEAD2 " - %s - %s",levname,duke3dgrpstring);
     }
-    else Bsprintf(apptitle," - %s",map[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
+    else Bsprintf(apptitle,HEAD2 " - %s - %s",map[(ud.volume_number*MAXLEVELS)+ud.level_number].name,duke3dgrpstring);
 
-    if (VOLUMEALL) Bsprintf(tempbuf,HEAD2);
-    else Bsprintf(tempbuf,HEAD);
-
-    Bstrcat(tempbuf,apptitle);
+    Bstrcpy(tempbuf,apptitle);
     wm_setapptitle(tempbuf);
 
     if (!VOLUMEONE)

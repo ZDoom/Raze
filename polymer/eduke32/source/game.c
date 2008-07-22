@@ -54,7 +54,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20080720 // this is checked against http://eduke32.com/VERSION
+#define BUILDDATE 20080722 // this is checked against http://eduke32.com/VERSION
 #define UPDATEINTERVAL 604800 // 1w
 #endif
 
@@ -114,6 +114,7 @@ static int sendmessagecommand = -1;
 
 char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 char *duke3dgrp = defaultduke3dgrp;
+char *duke3dgrpstring = NULL;
 static char defaultconfilename[BMAX_PATH] = {"EDUKE.CON"};
 static char *confilename = defaultconfilename;
 static char *duke3ddef = "duke3d.def";
@@ -6475,7 +6476,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
             }
         }
 
-        if (t->statnum == 99) continue;
+        if (t->statnum == STAT_NOCULL) continue;
         if (s->statnum != 1 && s->picnum == APLAYER && g_player[s->yvel].ps->newowner == -1 && s->owner >= 0)
         {
             t->x -= mulscale16(65536-smoothratio,g_player[s->yvel].ps->posx-g_player[s->yvel].ps->oposx);
@@ -6666,7 +6667,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
                 {
                     memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
-                    tsprite[spritesortcnt].statnum = 99;
+                    tsprite[spritesortcnt].statnum = STAT_NOCULL;
 
                     /*                    tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
                                         if (t->yrepeat < 4) t->yrepeat = 4; */
@@ -6698,7 +6699,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
                 {
                     memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
-                    tsprite[spritesortcnt].statnum = 99;
+                    tsprite[spritesortcnt].statnum = STAT_NOCULL;
 
                     tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
                     if (t->yrepeat < 4) t->yrepeat = 4;
@@ -6939,7 +6940,7 @@ PALONLY:
                             {
                                 memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
-                                tsprite[spritesortcnt].statnum = 99;
+                                tsprite[spritesortcnt].statnum = STAT_NOCULL;
 
                                 tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
                                 if (t->yrepeat < 4) t->yrepeat = 4;
@@ -7107,7 +7108,7 @@ PALONLY:
     }
     for (j=0;j < spritesortcnt; j++)
     {
-        if (display_mirror) tsprite[j].statnum = 99;
+        if (display_mirror) tsprite[j].statnum = STAT_NOCULL;
         if (tsprite[j].owner > 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
         {
             OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
@@ -9394,8 +9395,8 @@ static void Logo(void)
     flushperms();
     nextpage();
 
-    if (VOLUMEALL) wm_setapptitle(HEAD2);
-    else wm_setapptitle(HEAD);
+    Bsprintf(tempbuf,HEAD2 " - %s",duke3dgrpstring);
+    wm_setapptitle(tempbuf);
 
     MUSIC_StopSong();
     FX_StopAllSounds(); // JBF 20031228
@@ -10139,8 +10140,8 @@ void backtomenu(void)
     g_player[myconnectindex].ps->gm = MODE_MENU;
     cmenu(0);
     KB_FlushKeyboardQueue();
-    if (VOLUMEALL) wm_setapptitle(HEAD2);
-    else wm_setapptitle(HEAD);
+    Bsprintf(tempbuf,HEAD2 " - %s",duke3dgrpstring);
+    wm_setapptitle(tempbuf);
 }
 
 #ifdef RENDERTYPEWIN
@@ -10341,6 +10342,7 @@ void app_main(int argc,const char **argv)
             if (!Bstrcasecmp(fg->name, defaultduke3dgrp))
             {
                 g_GameType = grpfiles[i].game;
+                duke3dgrpstring = (char *)grpfiles[i].name;
                 break;
             }
         }
@@ -10348,6 +10350,7 @@ void app_main(int argc,const char **argv)
         {
             Bstrcpy(defaultduke3dgrp, first->name);
             g_GameType = first->game;
+            duke3dgrpstring = (char *)grpfiles[0].name;
         }
     }
 
@@ -10445,8 +10448,9 @@ void app_main(int argc,const char **argv)
 
     // gotta set the proper title after we compile the CONs if this is the full version
 
-    if (VOLUMEALL) wm_setapptitle(HEAD2);
-    else wm_setapptitle(HEAD);
+    Bsprintf(tempbuf,HEAD2 " - %s",duke3dgrpstring);
+    wm_setapptitle(tempbuf);
+
 
 //    initprintf("\n");
 
@@ -11974,8 +11978,8 @@ void dobonus(int bonusonly)
         350, 380,VICTORY1+8,86,59
     };
 
-    if (VOLUMEALL) wm_setapptitle(HEAD2);
-    else wm_setapptitle(HEAD);
+    Bsprintf(tempbuf,HEAD2 " - %s",duke3dgrpstring);
+    wm_setapptitle(tempbuf);
 
     if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])
     {

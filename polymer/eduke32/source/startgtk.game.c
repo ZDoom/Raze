@@ -31,6 +31,7 @@ static struct
     int usemouse, usejoy;
     char selectedgrp[BMAX_PATH+1];
     int game;
+    int crcval;
 } settings;
 
 extern int gtkenabled;
@@ -224,6 +225,7 @@ static void on_gamelist_selection_changed(GtkTreeSelection *selection, gpointer 
         gtk_tree_model_get(model, &iter, 2, (gpointer)&fg, -1);
         strcpy(settings.selectedgrp, fg->name);
         settings.game = fg->game;
+        settings.crcval = fg->crcval;
     }
 }
 
@@ -741,7 +743,7 @@ int startwin_idle(void *s)
     return 0;
 }
 
-extern char *duke3dgrp;
+extern char *duke3dgrp, *duke3dgrpstring;
 
 int startwin_run(void)
 {
@@ -766,6 +768,8 @@ int startwin_run(void)
     SetPage(TAB_MESSAGES);
     if (retval)
     {
+        int i;
+
         ud.config.ScreenMode = settings.fullscreen;
         ud.config.ScreenWidth = settings.xdim3d;
         ud.config.ScreenHeight = settings.ydim3d;
@@ -775,6 +779,10 @@ int startwin_run(void)
         ud.config.UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
         g_GameType = settings.game;
+
+        for (i = 0; i<numgrpfiles; i++) if (settings.crcval == grpfiles[i].crcval) break;
+        if (i != numgrpfiles)
+            duke3dgrpstring = (char *)grpfiles[i].name;
     }
 
     return retval;

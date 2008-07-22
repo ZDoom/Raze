@@ -838,4 +838,5 @@ enum keywords
     CON_LOADMAPSTATE,       // 327
     CON_CLEARMAPSTATE,      // 328
     CON_SCRIPTSIZE,         // 329
+    CON_DEFINEGAMENAME,     // 330
 };

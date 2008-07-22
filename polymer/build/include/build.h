@@ -49,6 +49,8 @@ extern "C" {
 #define GREENPAL    (MAXPALOOKUPS - 7)
 #define SPECPAL     (MAXPALOOKUPS - 8)
 
+#define STAT_NOCULL 99
+
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)
 
@@ -547,7 +549,7 @@ extern int r_animsmoothing;
 extern int r_parallaxskyclamping;
 extern int r_parallaxskypanning;
 extern int r_cullobstructedmodels;
-extern int r_fullbright;
+extern int r_fullbrights;
 extern int mdtims, omdtims;
 #endif
 

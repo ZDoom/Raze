@@ -179,7 +179,7 @@ int r_cullobstructedmodels = 0;
 #define CULL_DELAY 5
 
 // fullbright cvar
-int r_fullbright = 1;
+int r_fullbrights = 1;
 
 static float fogresult, fogcol[4];
 
@@ -582,7 +582,7 @@ void gltexapplyprops(void)
             bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
             if (glinfo.maxanisotropy > 1.0)
                 bglTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
-            if (r_fullbright && pth->flags & 16)
+            if (r_fullbrights && pth->flags & 16)
             {
                 bglBindTexture(GL_TEXTURE_2D,pth->ofb->glpic);
                 bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
@@ -1817,7 +1817,7 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
         if (skyclamphack) method |= 4;
         pth = gltexcache(globalpicnum,globalpal,method&(~3));
 
-        if (r_fullbright && pth->flags & 16)
+        if (r_fullbrights && pth->flags & 16)
             if (indrawroomsandmasks)
             {
                 if (!fullbrightdrawingpass)
@@ -4514,7 +4514,7 @@ void polymost_drawsprite(int snum)
                     if (totalclock < lastcullcheck[tspr->owner])
                         break;
                     cullmodel[tspr->owner] = 1;
-                    if (tspr->statnum == 99)
+                    if (tspr->statnum == STAT_NOCULL)
                         { cullmodel[tspr->owner] = 0; break; }
 /*                    if (cansee(globalposx, globalposy, sector[globalcursectnum].ceilingz, globalcursectnum,
                                tspr->x, tspr->y, tspr->z, tspr->sectnum))
@@ -4525,9 +4525,9 @@ void polymost_drawsprite(int snum)
                     if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
                                tspr->x, tspr->y, tspr->z,tspr->sectnum))
                         { cullmodel[tspr->owner] = 0; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+/*                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
                                tspr->x, tspr->y, globalposz,tspr->sectnum))
-                        { cullmodel[tspr->owner] = 0; break; }
+                        { cullmodel[tspr->owner] = 0; break; } */
 /*                    if (cansee(globalposx, globalposy, sector[globalcursectnum].floorz, globalcursectnum,
                                tspr->x, tspr->y, tspr->z, tspr->sectnum))
                         { cullmodel[tspr->owner] = 0; break; } */
@@ -4535,7 +4535,7 @@ void polymost_drawsprite(int snum)
                     if (polymost_checkcoordinates(0, 0, tspr))
                         { cullmodel[tspr->owner] = 0; break; }
 
-                    i = 640;
+                    i = 256;
                     if (polymost_checkcoordinates(-i, 0, tspr))
                         { cullmodel[tspr->owner] = 0; break; }
                     if (polymost_checkcoordinates(-i, -i, tspr))
@@ -5964,10 +5964,10 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else r_cullobstructedmodels = (val != 0);
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "r_fullbright"))
+    else if (!Bstrcasecmp(parm->name, "r_fullbrights"))
     {
-        if (showval) { OSD_Printf("r_fullbright is %d\n", r_fullbright); }
-        else r_fullbright = (val != 0);
+        if (showval) { OSD_Printf("r_fullbrights is %d\n", r_fullbrights); }
+        else r_fullbrights = (val != 0);
         return OSDCMD_OK;
     }
 #endif
@@ -6012,7 +6012,7 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
     OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
     OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_fullbright","r_fullbright: enable/disable fullbright textures",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_fullbrights","r_fullbrights: enable/disable fullbright textures",osdcmd_polymostvars);
     OSD_RegisterFunction("r_glowmapping","r_glowmapping: enable/disable glow mapping",osdcmd_polymostvars);
     OSD_RegisterFunction("r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",osdcmd_polymostvars);
     OSD_RegisterFunction("r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",osdcmd_polymostvars);

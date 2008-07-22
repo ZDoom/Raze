@@ -2,7 +2,7 @@
 #define __grpscan_h__
 
 // List of internally-known GRP files
-#define numgrpfiles 9
+#define numgrpfiles 8
 struct grpfile {
 	const char *name;
 	int crcval;

@@ -2426,7 +2426,7 @@ cheat_for_port_credits:
             int io, ii, yy, d=c+160+40, enabled;
             char *opts[] =
             {
-                "Widescreen",
+                "Use widescreen hack",
                 "-",
                 "Anisotropic filtering",
                 "-",
@@ -2439,7 +2439,7 @@ cheat_for_port_credits:
                 "Use glow textures",
                 "-",
                 "Use models",
-                "-",
+                "Blend model animations",
                 "-",
                 "-",
                 NULL
@@ -2481,7 +2481,7 @@ cheat_for_port_credits:
                 case 0:
                     if (x==io) glwidescreen = 1-glwidescreen;
                     modval(0,1,(int *)&glwidescreen,1,probey==io);
-                    gametextpal(d,yy, glwidescreen ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    gametextpal(d,yy, glwidescreen ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 1:
                 {
@@ -2517,13 +2517,13 @@ cheat_for_port_credits:
                     gametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 5:
-                    enabled = (glusetexcompr && usehightile && ud.config.useprecache);
+                    enabled = (glusetexcompr && usehightile);
                     if (enabled && x==io) glusetexcache = !glusetexcache;
                     if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==io);
                     gametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 6:
-                    enabled = (glusetexcompr && usehightile && ud.config.useprecache && glusetexcache);
+                    enabled = (glusetexcompr && usehightile && glusetexcache);
                     if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
                     if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==io);
                     gametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
@@ -2544,6 +2544,12 @@ cheat_for_port_credits:
                     if (x==io) usemodels = 1-usemodels;
                     modval(0,1,(int *)&usemodels,1,probey==io);
                     gametextpal(d,yy, usemodels ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                    break;
+                case 10:
+                    enabled = usemodels;
+                    if (enabled && x==io) r_animsmoothing = !r_animsmoothing;
+                    if (enabled) modval(0,1,(int *)&r_animsmoothing,1,probey==io);
+                    gametextpal(d,yy, r_animsmoothing && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 default:
                     break;

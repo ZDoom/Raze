@@ -34,6 +34,7 @@ static struct
     int usemouse, usejoy;
     char selectedgrp[BMAX_PATH+1];
     int game;
+    int crcval; // for finding the grp in the list again
 }
 settings;
 
@@ -211,6 +212,7 @@ static INT_PTR CALLBACK GamePageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
             {
                 strcpy(settings.selectedgrp, ((struct grpfile*)i)->name);
                 settings.game = ((struct grpfile*)i)->game;
+                settings.crcval = ((struct grpfile*)i)->crcval;
             }
             return TRUE;
         }
@@ -564,7 +566,7 @@ int startwin_idle(void *v)
     return 0;
 }
 
-extern char *duke3dgrp;
+extern char *duke3dgrp, *duke3dgrpstring;
 
 int startwin_run(void)
 {
@@ -587,6 +589,7 @@ int startwin_run(void)
     settings.usemouse = ud.config.UseMouse;
     settings.usejoy = ud.config.UseJoystick;
     settings.game = g_GameType;
+//    settings.crcval = 0;
     strncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
     PopulateForm(-1);
 
@@ -611,6 +614,8 @@ int startwin_run(void)
     EnableConfig(0);
     if (done)
     {
+        int i;
+
         ud.config.ScreenMode = settings.fullscreen;
         ud.config.ScreenWidth = settings.xdim;
         ud.config.ScreenHeight = settings.ydim;
@@ -620,6 +625,10 @@ int startwin_run(void)
         ud.config.UseJoystick = settings.usejoy;
         duke3dgrp = settings.selectedgrp;
         g_GameType = settings.game;
+
+        for (i = 0; i<numgrpfiles; i++) if (settings.crcval == grpfiles[i].crcval) break;
+        if (i != numgrpfiles)
+            duke3dgrpstring = (char *)grpfiles[i].name;
     }
 
     if (wavedevs)
