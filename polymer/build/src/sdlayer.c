@@ -897,6 +897,7 @@ int setvideomode(int x, int y, int c, int fs)
 {
     int regrab = 0;
     static int warnonce = 0;
+    static int ovsync = 1;
 
     if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) &&
             !videomodereset)
@@ -956,6 +957,7 @@ int setvideomode(int x, int y, int c, int fs)
             { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
             { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
             { SDL_GL_STENCIL_SIZE, 1 },
+            { SDL_GL_SWAP_CONTROL, vsync },
         };
 
         if (nogl) return -1;
@@ -977,8 +979,20 @@ int setvideomode(int x, int y, int c, int fs)
                 SDL_GL_SetAttribute(attributes[i].attr, j);
             }
 
-            SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, vsync);
+            /* HACK: changing SDL GL attribs only works before surface creation,
+               so we have to create a new surface in a different format first
+               to force the surface we WANT to be recreated instead of reused. */
 
+            if (vsync != ovsync)
+            {
+                if (sdl_surface)
+                {
+                    SDL_FreeSurface(sdl_surface);
+                    sdl_surface = SDL_SetVideoMode(x, y, 8, SURFACE_FLAGS | ((fs&1)?SDL_FULLSCREEN:0));
+                    SDL_FreeSurface(sdl_surface);
+                }
+                ovsync = vsync;
+            }
             sdl_surface = SDL_SetVideoMode(x, y, c, SDL_OPENGL | ((fs&1)?SDL_FULLSCREEN:0));
             if (!sdl_surface)
             {

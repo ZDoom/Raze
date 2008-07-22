@@ -2441,7 +2441,7 @@ cheat_for_port_credits:
                 "Use models",
                 "Blend model animations",
                 "-",
-                "Enable VSync",
+                "Use VSync",
                 NULL
             };
 

@@ -2120,6 +2120,7 @@ int setvideomode(int x, int y, int c, int fs)
     for (i=0;i<NUM_INPUTS;i++) if (inp[i]) AcquireInputDevices(1,i);
     modechange=1;
     videomodereset = 0;
+    OSD_ResizeDisplay(xres,yres);
     //baselayer_onvideomodechange(c>8);
 
     return 0;

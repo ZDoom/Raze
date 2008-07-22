@@ -5977,7 +5977,8 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
     else if (!Bstrcasecmp(parm->name, "r_swapinterval"))
     {
         if (showval) { OSD_Printf("r_swapinterval is %d\n", vsync); }
-        else vsync = (val != 0);
+//        else vsync = (val != 0);
+        else setvsync(val != 0);
         return OSDCMD_OK;
     }
 #endif
