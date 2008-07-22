@@ -315,7 +315,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
             if (ac < starttile || ac > (starttile + 93)) break;
 
             if (*t >= '0' && *t <= '9')
-                newx += (8-squishtext)*z/65536;
+                newx += (8)*z/65536;
             else newx += (tilesizx[ac]-squishtext)*z/65536;
             t++;
         }
@@ -356,10 +356,10 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         if (ac < starttile || ac > (starttile + 93))
             break;
 
-        rotatesprite(x<<16,(y<<16)+(small?ud.config.ScreenHeight<<15:0),z,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
+        rotatesprite(x<<16,(y<<16)+((small&1)?ud.config.ScreenHeight<<15:0),z,0,ac,s,p,(small&1)?(8|16):(2|orientation),x1,y1,x2,y2);
 
         if ((*t >= '0' && *t <= '9'))
-            x += (8-squishtext)*z/65536;
+            x += (8)*z/65536;
         else x += (tilesizx[ac]-squishtext)*z/65536;//(tilesizx[ac]>>small);
         if (x > (ud.config.ScreenWidth - 14)) oldt = (char *)t, x = oldx, y+=8*z/65536;
         t++;
@@ -2706,7 +2706,7 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
         y += 8;
     }
 
-    rotatesprite((x+(small?4:8))<<16,((y+(small?0:4))<<16)+(small?ud.config.ScreenHeight<<15:0),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,small?(8|16):2+8,0,0,xdim-1,ydim-1);
+    rotatesprite((x+((small&1)?4:8))<<16,((y+((small&1)?0:4))<<16)+((small&1)?ud.config.ScreenHeight<<15:0),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8,0,0,xdim-1,ydim-1);
     return (0);
 }
 
@@ -6469,7 +6469,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
             }
         }
 
-        if (t->statnum == STAT_NOCULL) continue;
+        if (t->statnum == TSPR_TEMP) continue;
         if (s->statnum != 1 && s->picnum == APLAYER && g_player[s->yvel].ps->newowner == -1 && s->owner >= 0)
         {
             t->x -= mulscale16(65536-smoothratio,g_player[s->yvel].ps->posx-g_player[s->yvel].ps->oposx);
@@ -6660,7 +6660,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
                 {
                     memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
-                    tsprite[spritesortcnt].statnum = STAT_NOCULL;
+                    tsprite[spritesortcnt].statnum = TSPR_TEMP;
 
                     /*                    tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
                                         if (t->yrepeat < 4) t->yrepeat = 4; */
@@ -6692,7 +6692,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
                 {
                     memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
-                    tsprite[spritesortcnt].statnum = STAT_NOCULL;
+                    tsprite[spritesortcnt].statnum = TSPR_TEMP;
 
                     tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
                     if (t->yrepeat < 4) t->yrepeat = 4;
@@ -6911,7 +6911,7 @@ PALONLY:
         }
 
         if (s->statnum == 13 || badguy(s) || checkspriteflags(t->owner,SPRITE_FLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
-            if (t->statnum != 99 && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE)
+            if (t->statnum != TSPR_TEMP && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE)
                 if (s->picnum != HOTMEAT)
                 {
                     if (hittype[i].dispicnum < 0)
@@ -6933,7 +6933,7 @@ PALONLY:
                             {
                                 memcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
-                                tsprite[spritesortcnt].statnum = STAT_NOCULL;
+                                tsprite[spritesortcnt].statnum = TSPR_TEMP;
 
                                 tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
                                 if (t->yrepeat < 4) t->yrepeat = 4;
@@ -7101,7 +7101,7 @@ PALONLY:
     }
     for (j=0;j < spritesortcnt; j++)
     {
-        if (display_mirror) tsprite[j].statnum = STAT_NOCULL;
+        if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
         if (tsprite[j].owner > 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
         {
             OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);

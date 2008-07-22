@@ -2549,7 +2549,7 @@ cheat_for_port_credits:
                     enabled = usemodels;
                     if (enabled && x==io) r_animsmoothing = !r_animsmoothing;
                     if (enabled) modval(0,1,(int *)&r_animsmoothing,1,probey==io);
-                    mgametextpal(d,yy, r_animsmoothing && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    mgametextpal(d,yy, r_animsmoothing && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 default:
                     break;

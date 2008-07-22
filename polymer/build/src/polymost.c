@@ -4422,7 +4422,7 @@ void polymost_drawmaskwall(int damaskwallcnt)
     drawpoly(dpx,dpy,n,method);
 }
 
-int lastcullcheck[MAXSPRITES];
+// int lastcullcheck[MAXSPRITES];
 char cullmodel[MAXSPRITES];
 
 int polymost_checkcoordinates(int x, int y, spritetype *tspr)
@@ -4447,9 +4447,9 @@ int polymost_checkcoordinates(int x, int y, spritetype *tspr)
         if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
             tspr->x+x, tspr->y+y, tspr->z-((tilesizy[tspr->picnum]*tspr->yrepeat)*i)-512, datempsectnum))
             return 1;
-        if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+/*        if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
             tspr->x+x, tspr->y+y, tspr->z+((tilesizy[tspr->picnum]*tspr->yrepeat)*i), datempsectnum))
-            return 1;
+            return 1; */
     }
     return 0;
 }
@@ -4508,15 +4508,18 @@ void polymost_drawsprite(int snum)
     {
         if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0)
         {
+            if (tspr->owner < 0 || tspr->owner >= MAXSPRITES || tspr->statnum == TSPR_MIRROR)
+            {
+                if (mddraw(tspr)) return;
+                break;	// else, render as flat sprite
+            }
             if (r_cullobstructedmodels)
             {
                 do // this is so gay
                 {
-                    if (totalclock < lastcullcheck[tspr->owner])
+                    if (/*totalclock < lastcullcheck[tspr->owner] ||*/ tspr->statnum == TSPR_TEMP)
                         break;
                     cullmodel[tspr->owner] = 1;
-                    if (tspr->statnum == STAT_NOCULL)
-                        { cullmodel[tspr->owner] = 0; break; }
 /*                    if (cansee(globalposx, globalposy, sector[globalcursectnum].ceilingz, globalcursectnum,
                                tspr->x, tspr->y, tspr->z, tspr->sectnum))
                         { cullmodel[tspr->owner] = 0; break; }
@@ -4558,8 +4561,8 @@ void polymost_drawsprite(int snum)
                     break;
                 }
                 while (1);
-                if (totalclock >= lastcullcheck[tspr->owner])
-                    lastcullcheck[tspr->owner] = totalclock + CULL_DELAY;
+/*                if (totalclock >= lastcullcheck[tspr->owner])
+                    lastcullcheck[tspr->owner] = totalclock + CULL_DELAY; */
             }
             else cullmodel[tspr->owner] = 0;
             if (cullmodel[tspr->owner]) break;

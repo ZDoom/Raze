@@ -49,7 +49,8 @@ extern "C" {
 #define GREENPAL    (MAXPALOOKUPS - 7)
 #define SPECPAL     (MAXPALOOKUPS - 8)
 
-#define STAT_NOCULL 99
+#define TSPR_TEMP 99
+#define TSPR_MIRROR 100
 
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)
