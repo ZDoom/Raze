@@ -16,6 +16,8 @@ extern const char **_buildargv;
 
 extern char quitevent, appactive;
 
+extern int vsync;
+
 // NOTE: these are implemented in game-land so they may be overridden in game specific ways
 extern int startwin_open(void);
 extern int startwin_close(void);
@@ -55,9 +57,11 @@ struct glinfo {
     char multitex;
     char envcombine;
     char vbos;
+    char vsync;
     char dumped;
 };
 extern struct glinfo glinfo;
+extern void setvsync(int sync);
 #endif
 
 extern char inputdevices;

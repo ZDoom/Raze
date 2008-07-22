@@ -61,6 +61,7 @@ extern int curbrightness, gammabrightness;
 // OpenGL stuff
 static char nogl=0;
 #endif
+int vsync=1;
 
 // input
 char inputdevices=0;
@@ -205,6 +206,15 @@ int main(int argc, char *argv[])
     return r;
 }
 
+#if defined(USE_OPENGL) && defined(POLYMOST)
+void setvsync(int sync)
+{
+    vsync = sync;
+    resetvideomode();
+    if (setgamemode(fullscreen,xdim,ydim,bpp))
+        OSD_Printf("restartvid: Reset failed...\n");
+}
+#endif
 
 //
 // initsystem() -- init SDL systems
@@ -966,6 +976,8 @@ int setvideomode(int x, int y, int c, int fs)
                 }
                 SDL_GL_SetAttribute(attributes[i].attr, j);
             }
+
+            SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, vsync);
 
             sdl_surface = SDL_SetVideoMode(x, y, c, SDL_OPENGL | ((fs&1)?SDL_FULLSCREEN:0));
             if (!sdl_surface)

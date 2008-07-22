@@ -186,6 +186,7 @@ int (WINAPI * bwglChoosePixelFormat)(HDC,CONST PIXELFORMATDESCRIPTOR*);
 int (WINAPI * bwglDescribePixelFormat)(HDC,int,UINT,LPPIXELFORMATDESCRIPTOR);
 int (WINAPI * bwglGetPixelFormat)(HDC);
 BOOL (WINAPI * bwglSetPixelFormat)(HDC,int,const PIXELFORMATDESCRIPTOR*);
+BOOL (WINAPI * bwglSwapIntervalEXT)(int);
 
 static HANDLE hGLDLL, hGLUDLL;
 #else
@@ -423,6 +424,9 @@ int loadglextensions(void)
     bglGetQueryObjectivARB  = GETPROCEXTSOFT("glGetQueryObjectivARB");
     bglGetQueryObjectuivARB = GETPROCEXTSOFT("glGetQueryObjectuivARB");
 
+#ifdef RENDERTYPEWIN
+    bwglSwapIntervalEXT	    = GETPROCEXTSOFT("wglSwapIntervalEXT");
+#endif
     return err;
 }
 
@@ -586,6 +590,7 @@ int unloadgldriver(void)
     bwglDescribePixelFormat	= NULL;
     bwglGetPixelFormat	= NULL;
     bwglSetPixelFormat	= NULL;
+    bwglSwapIntervalEXT	= NULL;
 #endif
 
     return 0;

@@ -220,6 +220,7 @@ extern int (WINAPI * bwglChoosePixelFormat)(HDC,CONST PIXELFORMATDESCRIPTOR*);
 extern int (WINAPI * bwglDescribePixelFormat)(HDC,int,UINT,LPPIXELFORMATDESCRIPTOR);
 extern int (WINAPI * bwglGetPixelFormat)(HDC);
 extern BOOL (WINAPI * bwglSetPixelFormat)(HDC,int,const PIXELFORMATDESCRIPTOR*);
+extern BOOL (WINAPI * bwglSwapIntervalEXT)(int);
 #endif
 
 #endif //USE_OPENGL

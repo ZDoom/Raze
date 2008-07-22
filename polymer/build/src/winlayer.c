@@ -116,7 +116,7 @@ char offscreenrendering=0;
 int glcolourdepth=32;
 char videomodereset = 0;
 char silentvideomodeswitch = 0;
-
+int vsync=1;
 // input and events
 char inputdevices=0;
 char quitevent=0, appactive=1, realfs=0, regrabmouse=0;
@@ -2065,6 +2065,11 @@ int checkvideomode(int *x, int *y, int c, int fs, int forced)
 //
 // setvideomode() -- set the video mode
 //
+
+#if defined(USE_OPENGL) && defined(POLYMOST)
+static HWND hGLWindow = NULL;
+#endif
+
 int setvideomode(int x, int y, int c, int fs)
 {
     char i,inp[NUM_INPUTS];
@@ -2109,6 +2114,9 @@ int setvideomode(int x, int y, int c, int fs)
         if (gammabrightness && setgamma() < 0) gammabrightness = 0;
     }
 
+#if defined(USE_OPENGL) && defined(POLYMOST)
+    if (hGLWindow && glinfo.vsync) bwglSwapIntervalEXT(vsync);
+#endif
     for (i=0;i<NUM_INPUTS;i++) if (inp[i]) AcquireInputDevices(1,i);
     modechange=1;
     videomodereset = 0;
@@ -2135,6 +2143,17 @@ int setvideomode(int x, int y, int c, int fs)
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
+void setvsync(int sync)
+{
+    if (!glinfo.vsync)
+    {
+        vsync = 0;
+        return;
+    }
+    vsync = sync;
+    bwglSwapIntervalEXT(sync);
+}
+
 static void cdsenummodes(void)
 {
     DEVMODE dm;
@@ -3108,8 +3127,6 @@ static int SetupDIB(int width, int height)
 // ReleaseOpenGL() -- cleans up OpenGL rendering stuff
 //
 
-static HWND hGLWindow = NULL;
-
 static void ReleaseOpenGL(void)
 {
     if (hGLRC)
@@ -3323,6 +3340,10 @@ static int SetupOpenGL(int width, int height, int bitspp)
             else if (!Bstrcmp((char *)p2, "GL_ARB_vertex_buffer_object"))
             {
                 glinfo.vbos = 1;
+            }
+            else if (!Bstrcmp((char *)p2, "WGL_EXT_swap_control"))
+            {
+                glinfo.vsync = 1;
             }
         }
         Bfree(p);

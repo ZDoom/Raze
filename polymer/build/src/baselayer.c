@@ -42,6 +42,7 @@ struct glinfo glinfo =
     0,       // multitexturing
     0,       // env_combine
     0,       // Vertex Buffer Objects
+    0,       // VSync support
     0,       // GL info dumped
 };
 #endif

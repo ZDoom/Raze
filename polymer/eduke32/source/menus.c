@@ -2441,7 +2441,7 @@ cheat_for_port_credits:
                 "Use models",
                 "Blend model animations",
                 "-",
-                "-",
+                "Enable VSync",
                 NULL
             };
 
@@ -2551,6 +2551,16 @@ cheat_for_port_credits:
                     if (enabled) modval(0,1,(int *)&r_animsmoothing,1,probey==io);
                     mgametextpal(d,yy, r_animsmoothing && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
+                case 11:
+                    {
+                        int ovsync = vsync;
+                        if (x==io) vsync = !vsync;
+                        modval(0,1,(int *)&vsync,1,probey==io);
+                        mgametextpal(d,yy, vsync? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                        if (vsync != ovsync)
+                            setvsync(vsync);
+                        break;
+                    }
                 default:
                     break;
                 }

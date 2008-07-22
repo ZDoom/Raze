@@ -177,7 +177,7 @@ int r_parallaxskypanning = 0;
 // line of sight checks before mddraw()
 int r_cullobstructedmodels = 0;
 #define CULL_DELAY 5
-#define CULL_OFFSET 256
+#define CULL_OFFSET 384
 
 // fullbright cvar
 int r_fullbrights = 1;
@@ -5974,6 +5974,12 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else r_fullbrights = (val != 0);
         return OSDCMD_OK;
     }
+    else if (!Bstrcasecmp(parm->name, "r_swapinterval"))
+    {
+        if (showval) { OSD_Printf("r_swapinterval is %d\n", vsync); }
+        else vsync = (val != 0);
+        return OSDCMD_OK;
+    }
 #endif
     return OSDCMD_SHOWHELP;
 }
@@ -6026,6 +6032,7 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_polygonmode","r_polygonmode: debugging feature",osdcmd_polymostvars); //FUK
     OSD_RegisterFunction("r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",osdcmd_polymostvars);
     OSD_RegisterFunction("r_shadescale","r_shadescale: multiplier for lighting",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",osdcmd_polymostvars);
     OSD_RegisterFunction("r_texcachecompression","r_texcachecompression: enable/disable compression of files in the OpenGL compressed texture cache",osdcmd_polymostvars);
     OSD_RegisterFunction("r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",osdcmd_polymostvars);
     OSD_RegisterFunction("r_texcompr","r_texcompr: enable/disable OpenGL texture compression",osdcmd_polymostvars);
