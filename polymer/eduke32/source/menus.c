@@ -2430,15 +2430,15 @@ cheat_for_port_credits:
                 "-",
                 "Anisotropic filtering",
                 "-",
-                "Hightile textures",
-                "Precache textures",
+                "Enable hires textures",
+                "Precache hires textures",
                 "GL texture compression",
                 "Cache textures on disk",
                 "Compress disk cache",
-                "Detail mapping",
-                "Glow mapping",
+                "Use detail textures",
+                "Use glow textures",
                 "-",
-                "Models",
+                "Use models",
                 "-",
                 "-",
                 "-",
@@ -2502,7 +2502,7 @@ cheat_for_port_credits:
                 case 2:
                     if (x==io) usehightile = 1-usehightile;
                     modval(0,1,(int *)&usehightile,1,probey==io);
-                    gametextpal(d,yy, usehightile ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    gametextpal(d,yy, usehightile ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 3:
                     enabled = usehightile;
@@ -2532,18 +2532,18 @@ cheat_for_port_credits:
                     enabled = usehightile;
                     if (enabled && x==io) r_detailmapping = !r_detailmapping;
                     if (enabled) modval(0,1,(int *)&r_detailmapping,1,probey==io);
-                    gametextpal(d,yy, r_detailmapping && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    gametextpal(d,yy, r_detailmapping && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 8:
                     enabled = usehightile;
                     if (enabled && x==io) r_glowmapping = !r_glowmapping;
                     if (enabled) modval(0,1,(int *)&r_glowmapping,1,probey==io);
-                    gametextpal(d,yy, r_glowmapping && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    gametextpal(d,yy, r_glowmapping && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 9:
                     if (x==io) usemodels = 1-usemodels;
                     modval(0,1,(int *)&usemodels,1,probey==io);
-                    gametextpal(d,yy, usemodels ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    gametextpal(d,yy, usemodels ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 default:
                     break;
@@ -3333,7 +3333,7 @@ cheat_for_port_credits:
 #if defined(POLYMOST) && defined(USE_OPENGL)
         else
         {
-            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,"TEX FILTERING");
+            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,"FILTERING");
             switch (gltexfiltermode)
             {
             case 0:

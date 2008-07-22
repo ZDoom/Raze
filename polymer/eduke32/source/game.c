@@ -7106,11 +7106,14 @@ PALONLY:
             t->xrepeat = t->yrepeat = 0;
     }
     for (j=0;j < spritesortcnt; j++)
+    {
+        if (display_mirror) tsprite[j].statnum = 99;
         if (tsprite[j].owner > 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
         {
             OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
             spriteext[tsprite[j].owner].tspr = NULL;
         }
+    }
 }
 #ifdef _MSC_VER
 //#pragma auto_inline()
