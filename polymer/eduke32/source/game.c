@@ -283,6 +283,9 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
 {
     int ac,newx,oldx=x;
     char centre, *oldt;
+    int squishtext = (small == 2);
+
+    small &= ~2;
 
     centre = (x == (320>>1));
     newx = 0;
@@ -303,7 +306,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
             }
             if (*t == 32)
             {
-                newx+=5*z/65536;
+                newx+=(5-squishtext)*z/65536;
                 t++;
                 continue;
             }
@@ -312,8 +315,8 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
             if (ac < starttile || ac > (starttile + 93)) break;
 
             if (*t >= '0' && *t <= '9')
-                newx += 8*z/65536;
-            else newx += tilesizx[ac]*z/65536;
+                newx += (8-squishtext)*z/65536;
+            else newx += (tilesizx[ac]-squishtext)*z/65536;
             t++;
         }
 
@@ -344,7 +347,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         }
         if (*t == 32)
         {
-            x+=5*z/65536;
+            x+=(5-squishtext)*z/65536;
             t++;
             continue;
         }
@@ -356,8 +359,8 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         rotatesprite(x<<16,(y<<16)+(small?ud.config.ScreenHeight<<15:0),z,0,ac,s,p,small?(8|16):(2|orientation),x1,y1,x2,y2);
 
         if ((*t >= '0' && *t <= '9'))
-            x += 8*z/65536;
-        else x += tilesizx[ac]*z/65536;//(tilesizx[ac]>>small);
+            x += (8-squishtext)*z/65536;
+        else x += (tilesizx[ac]-squishtext)*z/65536;//(tilesizx[ac]>>small);
         if (x > (ud.config.ScreenWidth - 14)) oldt = (char *)t, x = oldx, y+=8*z/65536;
         t++;
     }
@@ -392,16 +395,6 @@ int gametextlen(int x,const char *t)
     }
 
     return (x);
-}
-
-inline int gametext(int x,int y,const char *t,int s,int dabits)
-{
-    return(gametext_z(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
-}
-
-inline int gametextpal(int x,int y,const char *t,int s,int p)
-{
-    return(gametext_z(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536));
 }
 
 static inline int mpgametext(int y,const char *t,int s,int dabits)

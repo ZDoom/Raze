@@ -118,8 +118,6 @@ extern void loadefs(const char *fn);
 extern int furthestangle(int iActor,int angs);
 extern void execute(int iActor,int iPlayer,int lDist);
 extern void overwritesprite(int thex,int they,int tilenum,int shade,int stat,int dapalnum);
-extern inline int gametext(int x,int y,const char *t,int s,int dabits);
-extern inline int gametextpal(int x,int y,const char *t,int s,int p);
 extern inline int minitext(int x,int y,const char *t,int p,int sb);
 extern void gamenumber(int x,int y,int n,int s);
 extern void Shutdown(void);
@@ -201,6 +199,11 @@ extern void myosx(int x,int y,int tilenum,int shade,int orientation);
 extern void myospalx(int x,int y,int tilenum,int shade,int orientation,int p);
 extern void ResetGameVars(void);
 extern void ResetActorGameVars(int iActor);
+
+#define gametext(x,y,t,s,dabits) gametext_z(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536)
+#define gametextpal(x,y,t,s,p) gametext_z(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536)
+#define mgametext(x,y,t,s,dabits) gametext_z(2,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536)
+#define mgametextpal(x,y,t,s,p) gametext_z(2,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536)
 
 extern void setupdynamictostatic();
 extern void processnames(const char *szLabel, int lValue);

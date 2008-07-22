@@ -177,6 +177,7 @@ int r_parallaxskypanning = 0;
 // line of sight checks before mddraw()
 int r_cullobstructedmodels = 0;
 #define CULL_DELAY 5
+#define CULL_OFFSET 256
 
 // fullbright cvar
 int r_fullbrights = 1;
@@ -4441,10 +4442,10 @@ int polymost_checkcoordinates(int x, int y, spritetype *tspr)
     if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
                tspr->x+x, tspr->y+y, tspr->z, datempsectnum))
         return 1;
-    for (i=5;i>-1;i--)
+    for (i=4;i>-1;i--)
     {
         if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-            tspr->x+x, tspr->y+y, tspr->z-((tilesizy[tspr->picnum]*tspr->yrepeat)*i), datempsectnum))
+            tspr->x+x, tspr->y+y, tspr->z-((tilesizy[tspr->picnum]*tspr->yrepeat)*i)-512, datempsectnum))
             return 1;
         if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
             tspr->x+x, tspr->y+y, tspr->z+((tilesizy[tspr->picnum]*tspr->yrepeat)*i), datempsectnum))
@@ -4535,7 +4536,7 @@ void polymost_drawsprite(int snum)
                     if (polymost_checkcoordinates(0, 0, tspr))
                         { cullmodel[tspr->owner] = 0; break; }
 
-                    i = 256;
+                    i = CULL_OFFSET;
                     if (polymost_checkcoordinates(-i, 0, tspr))
                         { cullmodel[tspr->owner] = 0; break; }
                     if (polymost_checkcoordinates(-i, -i, tspr))
