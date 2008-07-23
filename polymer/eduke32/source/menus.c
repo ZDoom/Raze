@@ -2831,6 +2831,8 @@ cheat_for_port_credits:
                 "Private messages in DM",
                 "Show player names in DM",
                 "-",
+                "Console text style",
+                "-",
                 "Show startup window",
 #ifdef _WIN32
                 "Auto-check for updates",
@@ -2838,9 +2840,6 @@ cheat_for_port_credits:
                 "-",
                 "-",
 #endif
-                "-",
-                "-",
-                "-",
                 "-",
                 "-",
                 "-",
@@ -2933,12 +2932,22 @@ cheat_for_port_credits:
                     mgametextpal(d,yy, ud.idplayers ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 7:
+                    {
+                        int osdmode = OSD_GetTextMode();
+                        if (x==io) osdmode = !osdmode;
+                        modval(0,1,(int *)&osdmode,1,probey==io);
+                        mgametextpal(d,yy, osdmode? "Fast" : "Nice", MENUHIGHLIGHT(io), 0);
+                        if (OSD_GetTextMode() != osdmode)
+                            OSD_SetTextMode(osdmode);
+                        break;
+                    }
+                case 8:
                     if (x==io) ud.config.ForceSetup = 1-ud.config.ForceSetup;
                     modval(0,1,(int *)&ud.config.ForceSetup,1,probey==io);
                     mgametextpal(d,yy, ud.config.ForceSetup ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
 #ifdef _WIN32
-                case 8:
+                case 9:
                     i = ud.config.CheckForUpdates;
                     if (x==io) ud.config.CheckForUpdates = 1-ud.config.CheckForUpdates;
                     modval(0,1,(int *)&ud.config.CheckForUpdates,1,probey==io);
@@ -2946,9 +2955,9 @@ cheat_for_port_credits:
                         ud.config.LastUpdateCheck = 0;
                     mgametextpal(d,yy, ud.config.CheckForUpdates ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
-                case 9:
+                case 10:
 #else
-                case 8:
+                case 9:
 #endif
                     if (x==io) cmenu(200);
                     break;

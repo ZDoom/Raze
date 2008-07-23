@@ -209,6 +209,7 @@ int main(int argc, char *argv[])
 #if defined(USE_OPENGL) && defined(POLYMOST)
 void setvsync(int sync)
 {
+    if (vsync == sync) return;
     vsync = sync;
     resetvideomode();
     if (setgamemode(fullscreen,xdim,ydim,bpp))
@@ -988,7 +989,7 @@ int setvideomode(int x, int y, int c, int fs)
                 if (sdl_surface)
                 {
                     SDL_FreeSurface(sdl_surface);
-                    sdl_surface = SDL_SetVideoMode(x, y, 8, SURFACE_FLAGS | ((fs&1)?SDL_FULLSCREEN:0));
+                    sdl_surface = SDL_SetVideoMode(1, 1, 8, SDL_NOFRAME | SURFACE_FLAGS | ((fs&1)?SDL_FULLSCREEN:0));
                     SDL_FreeSurface(sdl_surface);
                 }
                 ovsync = vsync;

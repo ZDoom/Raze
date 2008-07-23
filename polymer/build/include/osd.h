@@ -34,7 +34,8 @@ const char *stripcolorcodes(const char *t);
 int OSD_ParsingScript(void);
 
 int OSD_OSDKey(void);
-int OSD_TextMode(void);
+int OSD_GetTextMode(void);
+void OSD_SetTextMode(int mode);
 
 int OSD_Exec(const char *szScript);
 

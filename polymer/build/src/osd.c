@@ -85,8 +85,11 @@ static int  osdexeccount=0;		// number of lines from the head of the history buf
 static int logcutoff=120000;
 static int linecnt;
 static int osdexecscript=0;
+#ifdef _WIN32
 static int osdtextmode=0;
-
+#else
+static int osdtextmode=1;
+#endif
 // presentation parameters
 static int  osdpromptshade=0;
 static int  osdpromptpal=0;
@@ -161,6 +164,62 @@ int OSD_Exec(const char *szScript)
         return 0;
     }
     return 1;
+}
+
+int OSD_ParsingScript(void)
+{
+    return osdexecscript;
+}
+
+int OSD_OSDKey(void)
+{
+    return osdkey;
+}
+
+char *OSD_GetTextPtr(void)
+{
+    return (&osdtext[0]);
+}
+
+char *OSD_GetFmtPtr(void)
+{
+    return (&osdfmt[0]);
+}
+
+char *OSD_GetFmt(char *ptr)
+{
+    return (ptr - &osdtext[0] + &osdfmt[0]);
+}
+
+int OSD_GetTextMode(void)
+{
+    return osdtextmode;
+}
+
+void OSD_SetTextMode(int mode)
+{
+    osdtextmode = (mode != 0);
+    if (osdtextmode)
+    {
+        if (drawosdchar != _internal_drawosdchar)
+        {
+            swaplong(&_drawosdchar,&drawosdchar);
+            swaplong(&_drawosdstr,&drawosdstr);
+            swaplong(&_drawosdcursor,&drawosdcursor);
+            swaplong(&_getcolumnwidth,&getcolumnwidth);
+            swaplong(&_getrowheight,&getrowheight);
+        }
+    }
+    else if (drawosdchar == _internal_drawosdchar)
+    {
+        swaplong(&_drawosdchar,&drawosdchar);
+        swaplong(&_drawosdstr,&drawosdstr);
+        swaplong(&_drawosdcursor,&drawosdcursor);
+        swaplong(&_getcolumnwidth,&getcolumnwidth);
+        swaplong(&_getrowheight,&getrowheight);
+    }
+    if (qsetmode == 200)
+        OSD_ResizeDisplay(xdim, ydim);
 }
 
 static int _internal_osdfunc_exec(const osdfuncparm_t *parm)
@@ -445,30 +504,7 @@ static int _internal_osdfunc_vars(const osdfuncparm_t *parm)
         if (showval) { OSD_Printf("osdtextmode is %d\n", osdtextmode); return OSDCMD_OK; }
         else
         {
-            osdtextmode = atoi(parm->parms[0]);
-            if (osdtextmode < 0) osdtextmode = 0;
-            else if (osdtextmode > 1) osdtextmode = 1;
-            if (osdtextmode == 1)
-            {
-                if (drawosdchar != _internal_drawosdchar)
-                {
-                    swaplong(&_drawosdchar,&drawosdchar);
-                    swaplong(&_drawosdstr,&drawosdstr);
-                    swaplong(&_drawosdcursor,&drawosdcursor);
-                    swaplong(&_getcolumnwidth,&getcolumnwidth);
-                    swaplong(&_getrowheight,&getrowheight);
-                }
-            }
-            else if (drawosdchar == _internal_drawosdchar)
-            {
-                swaplong(&_drawosdchar,&drawosdchar);
-                swaplong(&_drawosdstr,&drawosdstr);
-                swaplong(&_drawosdcursor,&drawosdcursor);
-                swaplong(&_getcolumnwidth,&getcolumnwidth);
-                swaplong(&_getrowheight,&getrowheight);
-            }
-
-            OSD_ResizeDisplay(xdim, ydim);
+            OSD_SetTextMode(atoi(parm->parms[0]) != 0);
             OSD_Printf("%s\n",parm->raw);
             return OSDCMD_OK;
         }
@@ -1683,42 +1719,12 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 //
 void OSD_SetVersionString(const char *version, int shade, int pal)
 {
-    if (!osdinited) OSD_Init();
+//    if (!osdinited) OSD_Init();
 
     Bstrcpy(osdversionstring,version);
     osdversionstringlen = Bstrlen(osdversionstring);
     osdversionstringshade = shade;
     osdversionstringpal = pal;
-}
-
-int OSD_ParsingScript(void)
-{
-    return osdexecscript;
-}
-
-int OSD_OSDKey(void)
-{
-    return osdkey;
-}
-
-char *OSD_GetTextPtr(void)
-{
-    return (&osdtext[0]);
-}
-
-char *OSD_GetFmtPtr(void)
-{
-    return (&osdfmt[0]);
-}
-
-char *OSD_GetFmt(char *ptr)
-{
-    return (ptr - &osdtext[0] + &osdfmt[0]);
-}
-
-int OSD_TextMode(void)
-{
-    return osdtextmode;
 }
 
 //

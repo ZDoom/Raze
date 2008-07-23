@@ -80,7 +80,7 @@ extern int *joyaxis, *joyhat, joyb;
 extern char joyisgamepad, joynumaxes, joynumbuttons, joynumhats;
 extern int joyaxespresent;
 
-
+extern int qsetmode;
 
 int initsystem(void);
 void uninitsystem(void);

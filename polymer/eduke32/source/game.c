@@ -10166,7 +10166,16 @@ void app_main(int argc,const char **argv)
 
     OSD_SetLogFile("eduke32.log");
     OSD_SetParameters(6,0, 0,12, 2,12);
-
+    OSD_SetFunctions(
+        GAME_drawosdchar,
+        GAME_drawosdstr,
+        GAME_drawosdcursor,
+        GAME_getcolumnwidth,
+        GAME_getrowheight,
+        GAME_clearbackground,
+        (int(*)(void))GetTime,
+        GAME_onshowosd
+    );
     wm_setapptitle(HEAD2);
 
     initprintf("%s (%s)\n",apptitle,datetimestring);
@@ -10519,25 +10528,6 @@ void app_main(int argc,const char **argv)
     if (numlumps) initprintf("Using .RTS file '%s'\n",ud.rtsname);
 
     initprintf("Initializing OSD...\n");
-
-    OSD_SetFunctions(
-#ifdef _WIN32
-        GAME_drawosdchar,
-        GAME_drawosdstr,
-        GAME_drawosdcursor,
-        GAME_getcolumnwidth,
-        GAME_getrowheight,
-#else
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-#endif
-        GAME_clearbackground,
-        (int(*)(void))GetTime,
-        GAME_onshowosd
-    );
     OSD_SetVersionString(HEAD2, 10,0);
     registerosdcommands();
 

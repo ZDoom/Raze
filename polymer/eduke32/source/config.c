@@ -706,6 +706,13 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "UseHightile",&dummy);
         usehightile = dummy != 0;
 #endif
+#ifdef _WIN32
+        dummy = 0;
+#else
+        dummy = 1;
+#endif
+        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "OSDTextMode",&dummy);
+        OSD_SetTextMode(dummy);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions",&ud.executions);
         SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup",&ud.config.ForceSetup);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "RunMode",&ud.config.RunMode);
@@ -935,6 +942,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "UseHightile",usehightile,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "UseModels",usemodels,false,false);
 #endif
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "OSDTextMode",OSD_GetTextMode(),false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "AmbienceToggle",ud.config.AmbienceToggle,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "FXVolume",ud.config.FXVolume,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "MusicToggle",ud.config.MusicToggle,false,false);
