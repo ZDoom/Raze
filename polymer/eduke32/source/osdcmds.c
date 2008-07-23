@@ -555,6 +555,27 @@ static int osdcmd_setvar(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int osdcmd_addlogvar(const osdfuncparm_t *parm)
+{
+    int i;
+    char varname[256];
+
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    if (numplayers > 1)
+    {
+        OSD_Printf("Command not allowed in multiplayer\n");
+        return OSDCMD_OK;
+    }
+
+    strcpy(varname,parm->parms[0]);
+    for (i=0;i<iGameVarCount;i++)
+        if (aGameVars[i].szLabel != NULL)
+            if (Bstrcmp(varname, aGameVars[i].szLabel) == 0)
+                OSD_Printf("%s = %d\n", varname, GetGameVarID(i, g_player[myconnectindex].ps->i, myconnectindex));
+    return OSDCMD_OK;
+}
+
 static int osdcmd_setactorvar(const osdfuncparm_t *parm)
 {
     int i, varval, ID;
@@ -1348,6 +1369,7 @@ int registerosdcommands(void)
     OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
 
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
+    OSD_RegisterFunction("addlogvar","addlogvar <gamevar>: prints the value of a gamevar", osdcmd_addlogvar);
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
     OSD_RegisterFunction("setvarvar","setvar <gamevar> <gamevar>: sets the value of a gamevar", osdcmd_setvar);
     OSD_RegisterFunction("setactorvar","setactorvar <actorID> <gamevar> <value>: sets the value of a gamevar", osdcmd_setactorvar);

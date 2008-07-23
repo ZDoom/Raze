@@ -10528,6 +10528,27 @@ void app_main(int argc,const char **argv)
     if (numlumps) initprintf("Using .RTS file '%s'\n",ud.rtsname);
 
     initprintf("Initializing OSD...\n");
+
+    OSD_SetFunctions(
+#if 1
+//#ifndef _WIN32
+        GAME_drawosdchar,
+        GAME_drawosdstr,
+        GAME_drawosdcursor,
+        GAME_getcolumnwidth,
+        GAME_getrowheight,
+#else
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+#endif
+        GAME_clearbackground,
+        (int(*)(void))GetTime,
+        GAME_onshowosd
+    );
+    OSD_SetParameters(10,0, 0,12, 4,12);
     OSD_SetVersionString(HEAD2, 10,0);
     registerosdcommands();
 

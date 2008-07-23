@@ -4492,7 +4492,7 @@ static int parse(void)
             int q = *insptr++, i = *insptr++;
             if (fta_quotes[q] == NULL || redefined_quotes[i] == NULL)
             {
-                OSD_Printf(CON_ERROR "%s %d null quote %d %d\n",line_num,__FILE__,__LINE__,q,i);
+                OSD_Printf(CON_ERROR "CON_REDEFINEQUOTE: %s %d null quote\n",line_num,q,i);
                 break;
             }
             Bstrcpy(fta_quotes[q],redefined_quotes[i]);
@@ -4921,6 +4921,7 @@ static int parse(void)
         return 1;
     case CON_ADDAMMO:
         insptr++;
+        if(!(*insptr<MAX_WEAPONS)){OSD_Printf(CON_ERROR "CON_ADDAMMO: Invalid weapon ID %d\n",line_num,*insptr);insptr+=2;break;}
         if (g_player[g_p].ps->ammo_amount[*insptr] >= g_player[g_p].ps->max_ammo_amount[*insptr])
         {
             killit_flag = 2;
@@ -4974,6 +4975,7 @@ static int parse(void)
 
     case CON_ADDWEAPON:
         insptr++;
+        if(!(*insptr<MAX_WEAPONS)){OSD_Printf(CON_ERROR "CON_ADDWEAPON: Invalid weapon ID %d\n",line_num,*insptr);insptr+=2;break;}
         if (g_player[g_p].ps->gotweapon[*insptr] == 0)
         {
             if (!(g_player[g_p].ps->weaponswitch & 1)) addweaponnoswitch(g_player[g_p].ps, *insptr);
@@ -5136,18 +5138,22 @@ static int parse(void)
             switch (tw)
             {
             case CON_ACTIVATEBYSECTOR:
+                if(!(var1<numsectors)){OSD_Printf(CON_ERROR "CON_ACTIVATEBYSECTOR: Invalid sector %d\n",line_num,var1);break;}
                 activatebysector(var1, var2);
                 break;
             case CON_OPERATESECTORS:
+                if(!(var1<numsectors)){OSD_Printf(CON_ERROR "CON_OPERATESECTORS: Invalid sector %d\n",line_num,var1);break;}
                 operatesectors(var1, var2);
                 break;
             case CON_OPERATEACTIVATORS:
+                if(!(var1<numsectors)){OSD_Printf(CON_ERROR "CON_OPERATEACTIVATORS: Invalid sector %d\n",line_num,var1);break;}
                 operateactivators(var1, var2);
                 break;
             case CON_SETASPECT:
                 setaspect(var1, var2);
                 break;
             case CON_SSP:
+                if(!(var1<MAXSPRITES)){OSD_Printf(CON_ERROR "CON_SSP: Invalid sprite %d\n",line_num,var1);break;}
                 ssp(var1, var2);
                 break;
             }
@@ -5157,10 +5163,14 @@ static int parse(void)
     case CON_CANSEESPR:
         insptr++;
         {
-            int lVar1 = GetGameVarID(*insptr++,g_i,g_p), lVar2 = GetGameVarID(*insptr++,g_i,g_p);
+            int lVar1 = GetGameVarID(*insptr++,g_i,g_p), lVar2 = GetGameVarID(*insptr++,g_i,g_p), res;
 
-            SetGameVarID(*insptr++, cansee(sprite[lVar1].x,sprite[lVar1].y,sprite[lVar1].z,sprite[lVar1].sectnum,
-                                           sprite[lVar2].x,sprite[lVar2].y,sprite[lVar2].z,sprite[lVar2].sectnum), g_i, g_p);
+            if(!(lVar1<MAXSPRITES)){OSD_Printf(CON_ERROR "CON_CANSEESPR: Invalid sprite %d\n",line_num,lVar1);res=0;}
+            if(!(lVar1<MAXSPRITES)){OSD_Printf(CON_ERROR "CON_CANSEESPR: Invalid sprite %d\n",line_num,lVar1);res=0;}
+				else res=cansee(sprite[lVar1].x,sprite[lVar1].y,sprite[lVar1].z,sprite[lVar1].sectnum,
+                                                sprite[lVar2].x,sprite[lVar2].y,sprite[lVar2].z,sprite[lVar2].sectnum);
+
+            SetGameVarID(*insptr++, res, g_i, g_p);
             break;
         }
 
@@ -5314,7 +5324,7 @@ static int parse(void)
                         Bstrcpy(fta_quotes[i],g_player[j].user_name);
                     else Bsprintf(fta_quotes[i],"%d",j);
                 }
-                else OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,i);
+                else OSD_Printf(CON_ERROR "CON_GETPNAME: null quote %d\n",line_num,i);
                 break;
             case CON_QGETSYSSTR:
                 if (fta_quotes[i] != NULL)
@@ -5336,24 +5346,28 @@ static int parse(void)
                         Bstrcpy(fta_quotes[i],gametype_names[ud.coop]);
                         break;
                     default:
-                        OSD_Printf(CON_ERROR "%s %d unknown str ID %d %d\n",line_num,__FILE__,__LINE__,i,j);
+                        OSD_Printf(CON_ERROR "CON_QGETSYSSTR: unknown str ID %d %d\n",line_num,i,j);
                     }
-                else OSD_Printf(CON_ERROR "%s %d null quote %d %d\n",line_num,__FILE__,__LINE__,i,j);
+                else OSD_Printf(CON_ERROR "CON_QGETSYSSTR: null quote %d %d\n",line_num,i,j);
                 break;
             case CON_QSTRCAT:
                 if (fta_quotes[i] != NULL && fta_quotes[j] != NULL)
                     Bstrncat(fta_quotes[i],fta_quotes[j],(MAXQUOTELEN-1)-Bstrlen(fta_quotes[i]));
-                else OSD_Printf(CON_ERROR "%s %d null quote %d %d\n",line_num,__FILE__,__LINE__,i,j);
+                else OSD_Printf(CON_ERROR "CON_QSTRCAT: null quote %d %d\n",line_num,i,j);
                 break;
             case CON_QSTRCPY:
                 if (fta_quotes[i] != NULL && fta_quotes[j] != NULL)
                     Bstrcpy(fta_quotes[i],fta_quotes[j]);
-                else OSD_Printf(CON_ERROR "%s %d null quote %d %d\n",line_num,__FILE__,__LINE__,i,j);
+                else OSD_Printf(CON_ERROR "CON_QSTRCPY: null quote %d %d\n",line_num,i,j);
                 break;
             case CON_CHANGESPRITESTAT:
+                if(!(i<MAXSPRITES)){OSD_Printf(CON_ERROR "CON_CHANGESPRITESTAT: Invalid sprite %d\n",line_num,i);break;}
+                if(!(j<MAXSTATUS)) {OSD_Printf(CON_ERROR "CON_CHANGESPRITESTAT: Invalid status %d\n",line_num,j);break;}
                 changespritestat(i,j);
                 break;
             case CON_CHANGESPRITESECT:
+                if(!(i<MAXSPRITES)){OSD_Printf(CON_ERROR "CON_CHANGESPRITESECT: Invalid sprite %d\n",line_num,i);break;}
+                if(!(j<numsectors)){OSD_Printf(CON_ERROR "CON_CHANGESPRITESECT: Invalid sector %d\n",line_num,j);break;}
                 changespritesect(i,j);
                 break;
             }
@@ -5533,7 +5547,7 @@ static int parse(void)
                     break;
                 }
             }
-            else OSD_Printf(CON_ERROR "CON_DIST/CON_LDIST: error: invalid sprite\n",line_num);
+            else OSD_Printf(CON_ERROR "CON_DIST/CON_LDIST: invalid sprite\n",line_num);
 
             SetGameVarID(distvar, distx, g_i, g_p);
             break;
@@ -5870,7 +5884,7 @@ static int parse(void)
                     int z=65536;
                     if (fta_quotes[q] == NULL)
                     {
-                        OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,q);
+                        OSD_Printf(CON_ERROR "CON_GAMETEXT: null quote %d\n",line_num,q);
                         break;
                     }
                     if (tw == CON_GAMETEXTZ)z=GetGameVarID(*insptr++,g_i,g_p);
@@ -5884,7 +5898,7 @@ static int parse(void)
 
             if (fta_quotes[q] == NULL)
             {
-                OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,q);
+                OSD_Printf(CON_ERROR "CON_MINITEXT: null quote %d\n",line_num,q);
                 break;
             }
             minitextshade(x,y,fta_quotes[q],shade,pal,26);
@@ -5941,6 +5955,12 @@ static int parse(void)
             int sect1=GetGameVarID(*insptr++,g_i,g_p);
             int x2=GetGameVarID(*insptr++,g_i,g_p), y2=GetGameVarID(*insptr++,g_i,g_p), z2=GetGameVarID(*insptr++,g_i,g_p);
             int sect2=GetGameVarID(*insptr++,g_i,g_p), rvar=*insptr++;
+  
+            if(!(sect1<numsectors)||!(sect2<numsectors))
+			{
+				OSD_Printf(CON_ERROR "CON_CANSEE: Invalid sector\n",line_num);
+				SetGameVarID(rvar, 0, g_i, g_p);
+			}
 
             SetGameVarID(rvar, cansee(x1,y1,z1,sect1,x2,y2,z2,sect2), g_i, g_p);
             break;
@@ -6011,6 +6031,7 @@ static int parse(void)
         insptr++;
         {
             int sectnum = GetGameVarID(*insptr++,g_i,g_p), x = GetGameVarID(*insptr++,g_i,g_p), y = GetGameVarID(*insptr++,g_i,g_p);
+            if(!(sectnum<numsectors)){OSD_Printf(CON_ERROR "CON_GETCEILZOFSLOPE/CON_SETCEILZOFSLOPE: Invalid sector %d\n",line_num,sectnum);insptr++;break;}
 
             if (tw == CON_GETFLORZOFSLOPE)
             {
@@ -6321,6 +6342,9 @@ static int parse(void)
             g_player[g_p].ps->inven_icon = 7;
             g_player[g_p].ps->boot_amount = *insptr;
             break;
+		default:
+			OSD_Printf(CON_ERROR "CON_ADDINVENTORY: Invalid inventory ID %d\n",line_num,*(insptr-1));
+			break;
         }
         insptr++;
         break;
@@ -6550,8 +6574,8 @@ static int parse(void)
                 Bsprintf(fta_quotes[dq],tempbuf,var1,var2,var3,var4);
                 break;
             }
-            if (fta_quotes[sq] == NULL) OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,sq);
-            if (fta_quotes[dq] == NULL) OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,dq);
+            if (fta_quotes[sq] == NULL) OSD_Printf(CON_ERROR "CON_QSPRINTF: null quote %d\n",line_num,sq);
+            if (fta_quotes[dq] == NULL) OSD_Printf(CON_ERROR "CON_QSPRINTF: null quote %d\n",line_num,dq);
             insptr += 4;
             break;
         }
@@ -6597,7 +6621,7 @@ static int parse(void)
                     }
                     else
                     {
-                        OSD_Printf(CON_ERROR "CONLOGVAR: L=%d INVALID ARRAY INDEX\n",line_num,l);
+                        OSD_Printf(CON_ERROR "CON_ADDLOGVAR: L=%d invalid array index\n",line_num,l);
                         break;
                     }
                 }
@@ -6610,7 +6634,7 @@ static int parse(void)
                 {
                     // invalid varID
                     insptr++;
-                    OSD_Printf(CON_ERROR "CONLOGVAR: L=%d INVALID VARIABLE\n",line_num,l);
+                    OSD_Printf(CON_ERROR "CON_ADDLOGVAR: L=%d invalid variable\n",line_num,l);
                     break;  // out of switch
                 }
             }
@@ -7496,7 +7520,7 @@ static int parse(void)
 
         if (fta_quotes[*insptr] == NULL)
         {
-            OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,*insptr);
+            OSD_Printf(CON_ERROR "CON_QUOTE: null quote %d\n",line_num,*insptr);
             insptr++;
             break;
         }
@@ -7518,7 +7542,7 @@ static int parse(void)
 
             if (fta_quotes[i] == NULL)
             {
-                OSD_Printf(CON_ERROR "%s %d null quote %d\n",line_num,__FILE__,__LINE__,i);
+                OSD_Printf(CON_ERROR "CON_USERQUOTE: null quote %d\n",line_num,i);
                 break;
             }
             adduserquote(fta_quotes[i]);
