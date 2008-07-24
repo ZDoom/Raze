@@ -3896,7 +3896,7 @@ static void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 
 void OnEvent(int iEventID, int iActor, int iPlayer, int lDist)
 {
-    if (iEvent<0 || iEventID >= MAXGAMEEVENTS)
+    if (iEventID<0 || iEventID >= MAXGAMEEVENTS)
     {
         OSD_Printf(CON_ERROR "OnEvent(): invalid event ID",line_num);
         return;
@@ -5730,21 +5730,21 @@ static int parse(void)
         switch (tw)
         {
         case CON_SOUNDONCEVAR:
- 			if (j<0 || j*>=MAXSOUNDS) {OSD_Printf(CON_ERROR "CON_SOUNDONCEVAR: Invalid sound %d\n",line_num,j);break;}
+ 			if (j<0 || j>=MAXSOUNDS) {OSD_Printf(CON_ERROR "CON_SOUNDONCEVAR: Invalid sound %d\n",line_num,j);break;}
             if (!isspritemakingsound(g_i,j))
                 spritesound((short)j,g_i);
             break;
         case CON_GLOBALSOUNDVAR:
- 			if (j*<0 || j*>=MAXSOUNDS) {OSD_Printf(CON_ERROR "CON_GLOBALSOUNDVAR: Invalid sound %d\n",line_num,j);break;}
+ 			if (j<0 || j>=MAXSOUNDS) {OSD_Printf(CON_ERROR "CON_GLOBALSOUNDVAR: Invalid sound %d\n",line_num,j);break;}
             spritesound((short)j,g_player[screenpeek].ps->i);
             break;
         case CON_STOPSOUNDVAR:
- 			if (j*<0 || j*>=MAXSOUNDS) {OSD_Printf(CON_ERROR "CON_STOPSOUNDVAR: Invalid sound %d\n",line_num,j);break;}
+ 			if (j<0 || j>=MAXSOUNDS) {OSD_Printf(CON_ERROR "CON_STOPSOUNDVAR: Invalid sound %d\n",line_num,j);break;}
             if (isspritemakingsound(g_i,j))
                 stopspritesound((short)j,g_i);
             break;
         case CON_SOUNDVAR:
- 			if (j*<0 || j*>=MAXSOUNDS) {OSD_Printf(CON_ERROR "CON_SOUNDVAR: Invalid sound %d\n",line_num,j);break;}
+ 			if (j<0 || j>=MAXSOUNDS) {OSD_Printf(CON_ERROR "CON_SOUNDVAR: Invalid sound %d\n",line_num,j);break;}
             spritesound((short)j,g_i);
             break;
         }
