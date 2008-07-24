@@ -10326,6 +10326,18 @@ void app_main(int argc,const char **argv)
         exit(1);
     }
 
+    OSD_SetFunctions(
+        GAME_drawosdchar,
+        GAME_drawosdstr,
+        GAME_drawosdcursor,
+        GAME_getcolumnwidth,
+        GAME_getrowheight,
+        GAME_clearbackground,
+        (int(*)(void))GetTime,
+        GAME_onshowosd
+    );
+    OSD_SetParameters(10,0, 0,12, 4,12);
+
     initprintf("Using config file '%s'.\n",setupfilename);
 
     ScanGroups();
@@ -10529,26 +10541,6 @@ void app_main(int argc,const char **argv)
 
     initprintf("Initializing OSD...\n");
 
-    OSD_SetFunctions(
-#if 1
-//#ifndef _WIN32
-        GAME_drawosdchar,
-        GAME_drawosdstr,
-        GAME_drawosdcursor,
-        GAME_getcolumnwidth,
-        GAME_getrowheight,
-#else
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-#endif
-        GAME_clearbackground,
-        (int(*)(void))GetTime,
-        GAME_onshowosd
-    );
-    OSD_SetParameters(10,0, 0,12, 4,12);
     OSD_SetVersionString(HEAD2, 10,0);
     registerosdcommands();
 

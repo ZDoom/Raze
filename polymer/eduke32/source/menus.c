@@ -2573,14 +2573,14 @@ cheat_for_port_credits:
         break;
     case 231:
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,24,0,0,"COLOR ADJUSTMENT");
+        menutext(320>>1,24,0,0,"COLOR CORRECTION");
 
         c = (320>>1)-120;
 
         x = 4;
 
-        onbar = 1;
-        x = probe(c,probey==3?58:50,16,x);
+        onbar = (probey != 3);
+        x = probe(c,probey==3?106:98,16,x);
 
         if (x == -1)
         {
@@ -2589,32 +2589,35 @@ cheat_for_port_credits:
             break;
         }
 
-        menutext(c,50,MENUHIGHLIGHT(0),0,"GAMMA");
-        menutext(c,50+16,MENUHIGHLIGHT(1),0,"CONTRAST");
-        menutext(c,50+16+16,MENUHIGHLIGHT(2),0,"BRIGHTNESS");
-        menutext(c,50+16+16+16+8,MENUHIGHLIGHT(3),0,"RESET TO DEFAULTS");
+        menutext(c,98,MENUHIGHLIGHT(0),0,"GAMMA");
+        menutext(c,98+16,MENUHIGHLIGHT(1),0,"CONTRAST");
+        menutext(c,98+16+16,MENUHIGHLIGHT(2),0,"BRIGHTNESS");
+        menutext(c,98+16+16+16+8,MENUHIGHLIGHT(3),0,"RESET TO DEFAULTS");
 
         Bsprintf(tempbuf,"%s%.2f",vid_gamma>=0?" ":"",vid_gamma);
-        mgametext(c+177-56,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
+        mgametext(c+177-56,98-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
         Bsprintf(tempbuf,"%s%.2f",vid_contrast>=0?" ":"",vid_contrast);
-        mgametext(c+177-56,50+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
+        mgametext(c+177-56,98+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
         Bsprintf(tempbuf,"%s%.2f",vid_brightness>=0?" ":"",vid_brightness);
-        mgametext(c+177-56,50+16+16-8,tempbuf,MENUHIGHLIGHT(2),2+8+16);
+        mgametext(c+177-56,98+16+16-8,tempbuf,MENUHIGHLIGHT(2),2+8+16);
+
+        rotatesprite(40<<16,24<<16,24576,0,BONUSSCREEN,0,0,2+8+16,0,scale(ydim,35,200),xdim-1,scale(ydim,80,200)-1);
+        rotatesprite(160<<16,27<<16,24576,0,3290,0,0,2+8+16,0,scale(ydim,35,200),xdim-1,scale(ydim,80,200)-1);
 
         {
             int b = (vid_gamma*40960.f);
-            _bar(0,c+177,50,&b,4096,x==0,MENUHIGHLIGHT(0),0,8192,163840);
+            _bar(0,c+177,98,&b,4096,x==0,MENUHIGHLIGHT(0),0,8192,163840);
 
             if (b != (vid_gamma*40960.f))
             {
                 vid_gamma = b/40960.f;
-                ud.brightness = min(max((float)((vid_gamma-1.0)*10.0),0),15);
+                ud.brightness = min(max((double)((vid_gamma-1.0)*10.0),0),15);
                 ud.brightness <<= 2;
                 setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
             }
 
             b = (vid_contrast*40960.f);
-            _bar(0,c+177,50+16,&b,4096,x==1,MENUHIGHLIGHT(1),0,4096,122880);
+            _bar(0,c+177,98+16,&b,2048,x==1,MENUHIGHLIGHT(1),0,4096,110592);
 
             if (b != (vid_contrast*40960.f))
             {
@@ -2623,7 +2626,7 @@ cheat_for_port_credits:
             }
 
             b = (vid_brightness*40960.f);
-            _bar(0,c+177,50+16+16,&b,2048,x==2,MENUHIGHLIGHT(2),0,-32768,32768);
+            _bar(0,c+177,98+16+16,&b,2048,x==2,MENUHIGHLIGHT(2),0,-32768,32768);
 
             if (b != (vid_brightness*40960.f))
             {
@@ -3339,7 +3342,7 @@ cheat_for_port_credits:
 
         menutext(c+16,50+16+16+22,MENUHIGHLIGHT(3),changesmade==0,"APPLY CHANGES");
 
-        menutext(c,50+62+16,MENUHIGHLIGHT(4),PHX(-6),"COLOR ADJUSTMENT");
+        menutext(c,50+62+16,MENUHIGHLIGHT(4),PHX(-6),"COLOR CORRECTION");
         /*        {
                     short ss = ud.brightness;
                     bar(c+171,50+62+16,&ss,8,x==4,MENUHIGHLIGHT(4),PHX(-6));
