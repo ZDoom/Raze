@@ -1339,7 +1339,8 @@ static void AddSystemVars()
     AddGameVar("windowy2",(intptr_t)&windowy2, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("totalclock",(intptr_t)&totalclock, GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("lastvisinc",(intptr_t)&lastvisinc, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
-    AddGameVar("numsectors",(intptr_t)&numsectors, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY);
+    AddGameVar("numsectors",(intptr_t)&numsectors, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_READONLY);
+
     AddGameVar("numplayers",(intptr_t)&numplayers, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY);
     AddGameVar("viewingrange",(intptr_t)&viewingrange, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("yxaspect",(intptr_t)&yxaspect, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
@@ -1385,8 +1386,8 @@ static void AddSystemVars()
     AddGameVar("display_mirror",(intptr_t)&display_mirror, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_CHARPTR | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("randomseed",(intptr_t)&randomseed, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR);
 
-    AddGameVar("NUMWALLS",(intptr_t)&numwalls, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY);
-    AddGameVar("NUMSECTORS",(intptr_t)&numsectors, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY);
+    AddGameVar("NUMWALLS",(intptr_t)&numwalls, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_READONLY);
+    AddGameVar("NUMSECTORS",(intptr_t)&numsectors, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_READONLY);
 }
 
 void InitGameVars(void)

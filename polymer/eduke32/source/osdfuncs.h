@@ -7,3 +7,4 @@ void GAME_clearbackground(int c, int r);
 void GAME_onshowosd(int shown);
 
 #define OSDCHAR_WIDTH 8
+

@@ -45,7 +45,7 @@ static int parse(void);
 
 static void DoUserDef(int iSet, int lLabelID, int lVar2)
 {
-    int lValue;
+    int lValue=0;
 
     if (g_p != myconnectindex)
     {
@@ -881,7 +881,7 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
 
 static void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    int lValue,proj=g_i;
+    int lValue=0,proj=g_i;
 
     if (lVar1 != g_iThisActorID)
         proj=GetGameVarID(lVar1, g_i, g_p);
@@ -1160,7 +1160,7 @@ static void DoThisProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 
 static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 {
-    int lValue;
+    int lValue=0;
     int iPlayer=g_p;
 
     if (lVar1 != g_iThisActorID)
@@ -2509,7 +2509,7 @@ static void DoPlayer(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
 static void DoInput(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    int lValue;
+    int lValue=0;
     int iPlayer=g_p;
 
     if (lVar1 != g_iThisActorID)
@@ -2587,12 +2587,13 @@ static void DoInput(int iSet, int lVar1, int lLabelID, int lVar2)
 
 static void DoWall(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    int lValue;
+    int lValue=0;
     int iWall = GetGameVarID(lVar1, g_i, g_p);
 
-    if (iWall<0 || iWall >= MAXWALLS)
+    if (iWall<0 || iWall >= numwalls)
     {
         insptr += (lVar2 == MAXGAMEVARS);
+		OSD_Printf(CON_ERROR "DoWall(): Invalid wall %d\n",line_num,iWall);
         return;
     }
 
@@ -2760,15 +2761,16 @@ static void DoWall(int iSet, int lVar1, int lLabelID, int lVar2)
 
 static void DoSector(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    int lValue;
+    int lValue=0;
     int iSector=sprite[g_i].sectnum;
 
     if (lVar1 != g_iThisActorID)
         iSector=GetGameVarID(lVar1, g_i, g_p);
 
-    if (iSector<0 || iSector >= MAXSECTORS)
+    if (iSector<0 || iSector >= numsectors)
     {
-        insptr += (lVar2 == MAXGAMEVARS);
+ 		OSD_Printf(CON_ERROR "DoSector(): Invalid sector %d\n",line_num,iSector);
+       	insptr += (lVar2 == MAXGAMEVARS);
         return;
     }
 
@@ -2991,7 +2993,7 @@ static void DoSector(int iSet, int lVar1, int lLabelID, int lVar2)
 
 static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 {
-    int lValue;
+    int lValue=0;
     int iActor=g_i;
 
     if (lVar1 != g_iThisActorID)
@@ -3476,7 +3478,7 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
 
 static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    int lValue;
+    int lValue=0;
     int iActor=g_i;
 
     if (lVar1 != g_iThisActorID)
@@ -3621,7 +3623,7 @@ static void DoTsprite(int iSet, int lVar1, int lLabelID, int lVar2)
 
 static void DoProjectile(int iSet, int lVar1, int lLabelID, int lVar2)
 {
-    int lValue;
+    int lValue=0;
 
     if (lVar1 < 0 || lVar1 >= MAXTILES)
     {
@@ -4792,6 +4794,7 @@ static int parse(void)
 
     case CON_SOUNDONCE:
         insptr++;
+ 		if (*insptr<0 || *insptr>=MAXSOUNDS) {OSD_Printf(CON_ERROR "CON_SOUNDONCE: Invalid sound %d\n",line_num,*insptr);insptr++;}
         if (!isspritemakingsound(g_i,*insptr))
             spritesound((short) *insptr,g_i);
         insptr++;
@@ -4799,6 +4802,7 @@ static int parse(void)
 
     case CON_IFSOUND:
         insptr++;
+ 		if (*insptr<0 || *insptr>=MAXSOUNDS) {OSD_Printf(CON_ERROR "CON_IFSOUND: Invalid sound %d\n",line_num,*insptr);insptr++;}
         parseifelse(isspritemakingsound(g_i,*insptr));
         //    parseifelse(SoundOwner[*insptr][0].i == g_i);
         break;
@@ -4921,7 +4925,7 @@ static int parse(void)
         return 1;
     case CON_ADDAMMO:
         insptr++;
-        if(!(*insptr<MAX_WEAPONS)){OSD_Printf(CON_ERROR "CON_ADDAMMO: Invalid weapon ID %d\n",line_num,*insptr);insptr+=2;break;}
+        if (*insptr<0 || *insptr>=MAX_WEAPONS) {OSD_Printf(CON_ERROR "CON_ADDAMMO: Invalid weapon ID %d\n",line_num,*insptr);insptr+=2;break;}
         if (g_player[g_p].ps->ammo_amount[*insptr] >= g_player[g_p].ps->max_ammo_amount[*insptr])
         {
             killit_flag = 2;
@@ -4975,7 +4979,7 @@ static int parse(void)
 
     case CON_ADDWEAPON:
         insptr++;
-        if(!(*insptr<MAX_WEAPONS)){OSD_Printf(CON_ERROR "CON_ADDWEAPON: Invalid weapon ID %d\n",line_num,*insptr);insptr+=2;break;}
+        if (*insptr<0 ||*insptr>=MAX_WEAPONS) {OSD_Printf(CON_ERROR "CON_ADDWEAPON: Invalid weapon ID %d\n",line_num,*insptr);insptr+=2;break;}
         if (g_player[g_p].ps->gotweapon[*insptr] == 0)
         {
             if (!(g_player[g_p].ps->weaponswitch & 1)) addweaponnoswitch(g_player[g_p].ps, *insptr);
@@ -5138,22 +5142,22 @@ static int parse(void)
             switch (tw)
             {
             case CON_ACTIVATEBYSECTOR:
-                if(!(var1<numsectors)){OSD_Printf(CON_ERROR "CON_ACTIVATEBYSECTOR: Invalid sector %d\n",line_num,var1);break;}
+                if (var1<0 || var1>=numsectors) {OSD_Printf(CON_ERROR "CON_ACTIVATEBYSECTOR: Invalid sector %d\n",line_num,var1);break;}
                 activatebysector(var1, var2);
                 break;
             case CON_OPERATESECTORS:
-                if(!(var1<numsectors)){OSD_Printf(CON_ERROR "CON_OPERATESECTORS: Invalid sector %d\n",line_num,var1);break;}
+                if (var1<0 || var1>=numsectors) {OSD_Printf(CON_ERROR "CON_OPERATESECTORS: Invalid sector %d\n",line_num,var1);break;}
                 operatesectors(var1, var2);
                 break;
             case CON_OPERATEACTIVATORS:
-                if(!(var1<numsectors)){OSD_Printf(CON_ERROR "CON_OPERATEACTIVATORS: Invalid sector %d\n",line_num,var1);break;}
+                if (var1<0 || var1>=numsectors) {OSD_Printf(CON_ERROR "CON_OPERATEACTIVATORS: Invalid sector %d\n",line_num,var1);break;}
                 operateactivators(var1, var2);
                 break;
             case CON_SETASPECT:
                 setaspect(var1, var2);
                 break;
             case CON_SSP:
-                if(!(var1<MAXSPRITES)){OSD_Printf(CON_ERROR "CON_SSP: Invalid sprite %d\n",line_num,var1);break;}
+                if (var1<0 || var1>=MAXSPRITES) { OSD_Printf(CON_ERROR "CON_SSP: Invalid sprite %d\n",line_num,var1);break;}
                 ssp(var1, var2);
                 break;
             }
@@ -5165,8 +5169,8 @@ static int parse(void)
         {
             int lVar1 = GetGameVarID(*insptr++,g_i,g_p), lVar2 = GetGameVarID(*insptr++,g_i,g_p), res;
 
-            if(!(lVar1<MAXSPRITES)){OSD_Printf(CON_ERROR "CON_CANSEESPR: Invalid sprite %d\n",line_num,lVar1);res=0;}
-            if(!(lVar1<MAXSPRITES)){OSD_Printf(CON_ERROR "CON_CANSEESPR: Invalid sprite %d\n",line_num,lVar1);res=0;}
+            if (lVar1<0 || lVar1>=MAXSPRITES) {OSD_Printf(CON_ERROR "CON_CANSEESPR: Invalid sprite %d\n",line_num,lVar1);res=0;}
+            if (lVar1<0 || lVar1>=MAXSPRITES) {OSD_Printf(CON_ERROR "CON_CANSEESPR: Invalid sprite %d\n",line_num,lVar1);res=0;}
 				else res=cansee(sprite[lVar1].x,sprite[lVar1].y,sprite[lVar1].z,sprite[lVar1].sectnum,
                                                 sprite[lVar2].x,sprite[lVar2].y,sprite[lVar2].z,sprite[lVar2].sectnum);
 
@@ -5361,13 +5365,13 @@ static int parse(void)
                 else OSD_Printf(CON_ERROR "CON_QSTRCPY: null quote %d %d\n",line_num,i,j);
                 break;
             case CON_CHANGESPRITESTAT:
-                if(!(i<MAXSPRITES)){OSD_Printf(CON_ERROR "CON_CHANGESPRITESTAT: Invalid sprite %d\n",line_num,i);break;}
-                if(!(j<MAXSTATUS)) {OSD_Printf(CON_ERROR "CON_CHANGESPRITESTAT: Invalid status %d\n",line_num,j);break;}
+                if (i<0 || i>=MAXSPRITES) {OSD_Printf(CON_ERROR "CON_CHANGESPRITESTAT: Invalid sprite %d\n",line_num,i);break;}
+                if (j<0 || j>=MAXSTATUS)  {OSD_Printf(CON_ERROR "CON_CHANGESPRITESTAT: Invalid status %d\n",line_num,j);break;}
                 changespritestat(i,j);
                 break;
             case CON_CHANGESPRITESECT:
-                if(!(i<MAXSPRITES)){OSD_Printf(CON_ERROR "CON_CHANGESPRITESECT: Invalid sprite %d\n",line_num,i);break;}
-                if(!(j<numsectors)){OSD_Printf(CON_ERROR "CON_CHANGESPRITESECT: Invalid sector %d\n",line_num,j);break;}
+                if (i<0 || i>=MAXSPRITES) {OSD_Printf(CON_ERROR "CON_CHANGESPRITESECT: Invalid sprite %d\n",line_num,i);break;}
+                if (j<0 || j>=numsectors) {OSD_Printf(CON_ERROR "CON_CHANGESPRITESECT: Invalid sector %d\n",line_num,j);break;}
                 changespritesect(i,j);
                 break;
             }
@@ -5525,6 +5529,7 @@ static int parse(void)
         {
             int wallnum = GetGameVarID(*insptr++, g_i, g_p), newx = GetGameVarID(*insptr++, g_i, g_p), newy = GetGameVarID(*insptr++, g_i, g_p);
 
+			if (wallnum<0 || wallnum>=numwalls) {OSD_Printf(CON_ERROR "CON_DRAGPOINT: Invalid wall %d\n",line_num,wallnum);break;}
             dragpoint(wallnum,newx,newy);
             break;
         }
@@ -5956,7 +5961,7 @@ static int parse(void)
             int x2=GetGameVarID(*insptr++,g_i,g_p), y2=GetGameVarID(*insptr++,g_i,g_p), z2=GetGameVarID(*insptr++,g_i,g_p);
             int sect2=GetGameVarID(*insptr++,g_i,g_p), rvar=*insptr++;
   
-            if(!(sect1<numsectors)||!(sect2<numsectors))
+            if (sect1<0 || sect1>=numsectors || sect2<0 || sect2>=numsectors)
 			{
 				OSD_Printf(CON_ERROR "CON_CANSEE: Invalid sector\n",line_num);
 				SetGameVarID(rvar, 0, g_i, g_p);
@@ -6031,7 +6036,12 @@ static int parse(void)
         insptr++;
         {
             int sectnum = GetGameVarID(*insptr++,g_i,g_p), x = GetGameVarID(*insptr++,g_i,g_p), y = GetGameVarID(*insptr++,g_i,g_p);
-            if(!(sectnum<numsectors)){OSD_Printf(CON_ERROR "CON_GETCEILZOFSLOPE/CON_SETCEILZOFSLOPE: Invalid sector %d\n",line_num,sectnum);insptr++;break;}
+            if (sectnum<0 || sectnum>=numsectors) 
+			{
+				OSD_Printf(CON_ERROR "CON_GETCEILZOFSLOPE/CON_SETCEILZOFSLOPE: Invalid sector %d\n",line_num,sectnum);
+				insptr++;
+				break;
+			}
 
             if (tw == CON_GETFLORZOFSLOPE)
             {
@@ -7033,12 +7043,15 @@ static int parse(void)
 
         insptr++;
 
-        if (j < ud.multimode)
+        if (j >=0 && j < ud.multimode)
         {
             if (tw == CON_CHECKAVAILWEAPON)
                 checkavailweapon(g_player[j].ps);
             else checkavailinven(g_player[j].ps);
         }
+		else
+			OSD_Printf(CON_ERROR "CON_CHECKAVAILWEAPON/CON_CHECKAVAILINVEN: Invalid player ID %d\n",line_num,j);
+		
         break;
 
     case CON_GETPLAYERANGLE:
