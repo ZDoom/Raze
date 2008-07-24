@@ -654,7 +654,10 @@ static int defsparser(scriptfile *script)
         break;
         case T_DEFINEMODELFRAME:
         {
-            char *framename, happy=1;
+            char *framename;
+#if defined(POLYMOST) && defined(USE_OPENGL)
+            char happy=1;
+#endif
             int ftilenume, ltilenume, tilex;
 
             if (scriptfile_getstring(script,&framename)) break;
@@ -1535,7 +1538,10 @@ static int defsparser(scriptfile *script)
 
         case T_UNDEFMODELOF:
         {
-            int mid,r0;
+            int r0;
+#if defined(POLYMOST) && defined(USE_OPENGL)
+            int mid;
+#endif
 
             if (scriptfile_getsymbol(script,&r0)) break;
             if ((unsigned)r0 >= (unsigned)MAXTILES)

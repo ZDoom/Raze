@@ -507,7 +507,9 @@ void   drawcircle16(int x1, int y1, int r, char col);
 int   setrendermode(int renderer);
 int   getrendermode(void);
 
+#ifdef POLYMOST
 void    setrollangle(int rolla);
+#endif
 
 //  pal: pass -1 to invalidate all palettes for the tile, or >=0 for a particular palette
 //  how: pass -1 to invalidate all instances of the tile in texture memory, or a bitfield

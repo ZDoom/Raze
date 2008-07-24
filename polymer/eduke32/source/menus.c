@@ -614,12 +614,12 @@ void menus(void)
 
     sh = 4-(sintable[(totalclock<<4)&2047]>>11);
 
-    if (bpp > 8)
+    if (getrendermode() >= 3)
     {
         int x,y=0;
-        for (;y<ydim;y+=tilesizy[BIGHOLE])
-            for (x=0;x<xdim;x+=tilesizx[BIGHOLE])
-                rotatesprite(x<<16,y<<16,65536L,0,BIGHOLE,80,0,1+8+16,0,0,xdim-1,ydim-1);
+        for (;y<ydim;y+=tilesizy[MENUSCREEN])
+            for (x=0;x<xdim;x+=tilesizx[MENUSCREEN])
+                rotatesprite(x<<16,y<<16,65536L,0,MENUSCREEN,80,0,1+8+16,0,0,xdim-1,ydim-1);
     }
 
     if (!(current_menu >= 1000 && current_menu <= 2999 && current_menu >= 300 && current_menu <= 369))
@@ -2730,13 +2730,13 @@ cheat_for_port_credits:
                     int i;
                     i = ud.screen_size;
                     barsm(d+8,yy+7, &ud.screen_size,-4,x==io,MENUHIGHLIGHT(io),PHX(-5));
-                    if (i < ud.screen_size && i == 8 && ud.statusbarmode == 1 && bpp > 8)
+                    if (getrendermode() >= 3 && i < ud.screen_size && i == 8 && ud.statusbarmode == 1)
                     {
                         ud.statusbarmode = 0;
                         if (ud.statusbarscale != 100)
                             ud.screen_size = i;
                     }
-                    else if (i > ud.screen_size && i == 8 && ud.statusbarmode == 0 && bpp > 8)
+                    else if (getrendermode() >= 3 && i > ud.screen_size && i == 8 && ud.statusbarmode == 0)
                     {
                         if (ud.statusbarscale != 100)
                         {
@@ -2775,7 +2775,9 @@ cheat_for_port_credits:
                     break;
                 case 7:
                     if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
-                    if (!ud.screen_tilting)setrollangle(0);
+#ifdef POLYMOST
+                    if (!ud.screen_tilting) setrollangle(0);
+#endif
                     modval(0,1,(int *)&ud.screen_tilting,1,probey==io);
                     mgametextpal(d,yy, ud.screen_tilting ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;  // original had a 'full' option
@@ -3064,7 +3066,7 @@ cheat_for_port_credits:
         c = (320>>1)-120;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        x = (6+(bpp>8));
+        x = (6+(getrendermode() >= 3));
 #else
         x = 6;
 #endif
@@ -3294,7 +3296,7 @@ cheat_for_port_credits:
             break;
 
         case 5:
-            if (bpp==8)
+            if (!getrendermode())
             {
                 ud.detail = 1-ud.detail;
                 break;
@@ -3321,7 +3323,7 @@ cheat_for_port_credits:
             gltexapplyprops();
             break;
         case 6:
-            if (bpp==8) break;
+            if (!getrendermode()) break;
             cmenu(230);
             break;
 #endif
@@ -3353,7 +3355,7 @@ cheat_for_port_credits:
                     }
                 }
         */
-        if (bpp == 8)
+        if (!getrendermode())
         {
             menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"PIXEL DOUBLING");
             menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"OFF":"ON");
@@ -3362,7 +3364,7 @@ cheat_for_port_credits:
 #if defined(POLYMOST) && defined(USE_OPENGL)
         else
         {
-            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),bpp==8,"FILTERING");
+            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),!getrendermode(),"FILTERING");
             switch (gltexfiltermode)
             {
             case 0:
@@ -3387,7 +3389,7 @@ cheat_for_port_credits:
                 strcpy(tempbuf,"OTHER");
                 break;
             }
-            mgametextpal(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),bpp==8);
+            mgametextpal(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),!getrendermode());
             menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"MORE SETTINGS");
         }
 #endif

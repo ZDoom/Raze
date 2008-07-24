@@ -712,11 +712,16 @@ static void scansector(short sectnum);
 #include "hightile.c"
 #include "polymost.c"
 #else
-void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect) { }
-int hicsetsubsttex(int picnum, int palnum, char *filen, float alphacut, float xscale, float yscale, char flags) { return 0; }
-int hicsetskybox(int picnum, int palnum, char *faces[6]) { return 0; }
-int hicclearsubst(int picnum, int palnum) { return 0; }
-int polymost_drawtilescreen(int tilex, int tiley, int wallnum, int dimen, int tilezoom) { return -1; }
+void hicsetpalettetint(int palnum, unsigned char r, unsigned char g, unsigned char b, unsigned char effect)
+{ UNREFERENCED_PARAMETER(palnum); UNREFERENCED_PARAMETER(r); UNREFERENCED_PARAMETER(g); UNREFERENCED_PARAMETER(b); UNREFERENCED_PARAMETER(effect);}
+int hicsetsubsttex(int picnum, int palnum, char *filen, float alphacut, float xscale, float yscale, char flags)
+{ UNREFERENCED_PARAMETER(picnum); UNREFERENCED_PARAMETER(palnum); UNREFERENCED_PARAMETER(filen); UNREFERENCED_PARAMETER(alphacut); UNREFERENCED_PARAMETER(xscale); UNREFERENCED_PARAMETER(yscale); UNREFERENCED_PARAMETER(flags); return 0;}
+int hicsetskybox(int picnum, int palnum, char *faces[6])
+{ UNREFERENCED_PARAMETER(picnum); UNREFERENCED_PARAMETER(palnum); UNREFERENCED_PARAMETER(faces); return 0;}
+int hicclearsubst(int picnum, int palnum)
+{ UNREFERENCED_PARAMETER(picnum); UNREFERENCED_PARAMETER(palnum);return 0;}
+int polymost_drawtilescreen(int tilex, int tiley, int wallnum, int dimen, int tilezoom)
+{ UNREFERENCED_PARAMETER(tilex); UNREFERENCED_PARAMETER(tiley); UNREFERENCED_PARAMETER(wallnum); UNREFERENCED_PARAMETER(dimen); UNREFERENCED_PARAMETER(tilezoom);return -1;}
 #endif
 //============================================================================= //POLYMOST ENDS
 
@@ -4633,6 +4638,7 @@ static void dorotatesprite(int sx, int sy, int z, short a, short picnum, signed 
     int xv, yv, xv2, yv2, qlinemode=0, y1ve[4], y2ve[4], u4, d4;
     char bad;
 
+    UNREFERENCED_PARAMETER(uniqid);
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
     if (rendmode >= 3) { polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,uniqid); return; }
@@ -7579,7 +7585,7 @@ int loadmaphack(char *filename)
     return 0;
 }
 #else
-int loadmaphack(char *filename) { return -1; }
+int loadmaphack(char *filename) { UNREFERENCED_PARAMETER(filename); return -1; }
 #endif
 
 
@@ -9985,13 +9991,11 @@ void setvgapalette(void)
 //
 // setbrightness
 //
-static unsigned int lastpalettesum = 0;
 void setbrightness(char dabrightness, char *dapal, char noapply)
 {
     int i, k, j;
-    unsigned int newpalettesum, lastbright;
+    unsigned int lastbright = curbrightness;
 
-    lastbright = curbrightness;
     if (!(noapply&4))
     {
         curbrightness = min(max((int)dabrightness,0),15);
@@ -10021,7 +10025,8 @@ void setbrightness(char dabrightness, char *dapal, char noapply)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (rendmode >= 3)
     {
-        newpalettesum = crc32once((unsigned char *)curpalettefaded, sizeof(curpalettefaded));
+        static unsigned int lastpalettesum = 0;
+        unsigned int newpalettesum = crc32once((unsigned char *)curpalettefaded, sizeof(curpalettefaded));
 
         // only reset the textures if the preserve flag (bit 1 of noapply) is clear and
         // either (a) the new palette is different to the last, or (b) the brightness
@@ -11704,7 +11709,7 @@ int screencapture_tga(char *filename, char inverseit)
     int i,j;
     char *ptr, head[18] = { 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };
     //char palette[4*256];
-    char *fn = Bstrdup(filename), *inversebuf, c;
+    char *fn = Bstrdup(filename), *inversebuf;
     BFILE *fil;
 
     do      // JBF 2004022: So we don't overwrite existing screenshots
@@ -11793,6 +11798,7 @@ int screencapture_tga(char *filename, char inverseit)
 #if defined(POLYMOST) && defined(USE_OPENGL)
         if (rendmode >= 3 && qsetmode == 200)
         {
+            char c;
             // 24bit
             inversebuf = (char *)kmalloc(xdim*ydim*3);
             if (inversebuf)
@@ -12029,6 +12035,7 @@ int screencapture(char *filename, char inverseit)
 //
 int setrendermode(int renderer)
 {
+    UNREFERENCED_PARAMETER(renderer);
 #ifdef POLYMOST
     if (bpp == 8)
     {
@@ -12071,13 +12078,14 @@ int getrendermode(void)
 //
 // setrollangle
 //
+#ifdef POLYMOST
 void setrollangle(int rolla)
 {
-#ifdef POLYMOST
+    UNREFERENCED_PARAMETER(rolla);
     if (rolla == 0) gtang = 0.0;
     else gtang = PI * (double)rolla / 1024.0;
-#endif
 }
+#endif
 
 
 //
@@ -12123,6 +12131,9 @@ void invalidatetile(short tilenume, int pal, int how)
         }
     }
 #endif
+    UNREFERENCED_PARAMETER(tilenume);
+    UNREFERENCED_PARAMETER(pal);
+    UNREFERENCED_PARAMETER(how);
 }
 
 

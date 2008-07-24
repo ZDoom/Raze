@@ -5793,7 +5793,7 @@ static int parse(void)
 #endif
             if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                    && (rendmode != 4)
+                    && (getrendermode() != 4)
 #endif
                )
             {
@@ -5830,7 +5830,7 @@ static int parse(void)
             }
 
 #ifdef POLYMER
-            if (rendmode == 4)
+            if (getrendermode() == 4)
                 polymer_setanimatesprites(animatesprites, x,y,a,smoothratio);
 #endif
             drawrooms(x,y,z,a,horiz,sect);

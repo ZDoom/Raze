@@ -2345,7 +2345,7 @@ static void tics(void)
     if (i != frameval[framecnt])
     {
         j=(timer*AVERAGEFRAMES)/(i-frameval[framecnt]);
-        if (ud.tickrate && !(g_player[myconnectindex].ps->gm&MODE_MENU))
+        if (ud.tickrate /*&& !(g_player[myconnectindex].ps->gm&MODE_MENU)*/)
         {
             int ii, k = 0, p = 8;
 
@@ -3627,7 +3627,7 @@ void drawbackground(void)
     else
     {
         // when not rendering a game, fullscreen wipe
-#define MENUTILE bpp==8?MENUSCREEN:LOADSCREEN
+#define MENUTILE (!getrendermode()?MENUSCREEN:LOADSCREEN)
         SetGameVarID(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
         OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1);
         if (GetGameVar("MENU_TILE", tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?0:1, -1, -1))
@@ -3911,11 +3911,7 @@ void displayrooms(int snum,int smoothratio)
         pub = 0;
     }
 
-#ifdef POLYMOST
-    if (ud.overhead_on == 2 || ud.show_help || (p->cursectnum == -1 && rendmode < 3))
-#else
-    if (ud.overhead_on == 2 || ud.show_help || p->cursectnum == -1)
-#endif
+    if (ud.overhead_on == 2 || ud.show_help || (p->cursectnum == -1 && getrendermode() < 3))
         return;
 
     smoothratio = min(max(smoothratio,0),65536);
@@ -3926,10 +3922,7 @@ void displayrooms(int snum,int smoothratio)
 
     ud.camerasect = p->cursectnum;
 
-#ifdef POLYMOST
-    if (rendmode < 3)
-#endif
-        if (ud.camerasect < 0 || ud.camerasect >= MAXSECTORS) return;
+    if (getrendermode() < 3 && (ud.camerasect < 0 || ud.camerasect >= MAXSECTORS)) return;
 
     dointerpolations(smoothratio);
 
@@ -3947,7 +3940,7 @@ void displayrooms(int snum,int smoothratio)
         se40code(s->x,s->y,s->z,ud.cameraang,s->yvel,smoothratio);
 #endif
 #ifdef POLYMER
-        if (rendmode == 4)
+        if (getrendermode() == 4)
             polymer_setanimatesprites(animatesprites, s->x, s->y, ud.cameraang, smoothratio);
 #endif
         drawrooms(s->x,s->y,s->z-(4<<8),ud.cameraang,s->yvel,s->sectnum);
@@ -4016,7 +4009,9 @@ void displayrooms(int snum,int smoothratio)
         }
         else if (getrendermode() > 0 && ud.screen_tilting /*&& (p->rotscrnang || p->orotscrnang)*/)
         {
+#ifdef POLYMOST
             setrollangle(p->orotscrnang + mulscale16(((p->rotscrnang - p->orotscrnang + 1024)&2047)-1024,smoothratio));
+#endif
             p->orotscrnang = p->rotscrnang; // JBF: save it for next time
         }
 
@@ -4093,7 +4088,7 @@ void displayrooms(int snum,int smoothratio)
 #endif
         if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                && (rendmode != 4)
+                && (getrendermode() != 4)
 #endif
            )
         {
@@ -4127,7 +4122,7 @@ void displayrooms(int snum,int smoothratio)
         }
 
 #ifdef POLYMER
-        if (rendmode == 4)
+        if (getrendermode() == 4)
             polymer_setanimatesprites(animatesprites, ud.camerax,ud.cameray,ud.cameraang,smoothratio);
 #endif
         drawrooms(ud.camerax,ud.cameray,ud.cameraz,ud.cameraang,ud.camerahoriz,ud.camerasect);
@@ -6305,7 +6300,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
                 continue;
             case CHAIR3__STATIC:
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     t->cstat &= ~4;
                     break;
@@ -6588,7 +6583,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
         case RPG__STATIC:
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 int v=getangle(t->xvel,t->zvel>>4);
                 if (v>1023)v-=2048;
@@ -6612,7 +6607,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
         case RECON__STATIC:
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
@@ -6715,7 +6710,7 @@ void animatesprites(int x,int y,int a,int smoothratio)
             {
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     k = 0;
                     t->cstat &= ~4;
@@ -6839,7 +6834,7 @@ PALONLY:
                 l = *(((intptr_t *)t4)+2); //For TerminX: was *(int *)(t4+8)
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     k = 0;
                     t->cstat &= ~4;
@@ -6950,14 +6945,14 @@ PALONLY:
                                 tsprite[spritesortcnt].yrepeat = yrep;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                                if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
+                                if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
                                 {
                                     tsprite[spritesortcnt].yrepeat = 0;
                                     // 512:trans reverse
                                     //1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
                                     tsprite[spritesortcnt].cstat |= (512+1024);
                                 }
-                                else if (bpp > 8)
+                                else if (getrendermode() >= 3)
                                 {
                                     int ii;
 
@@ -7013,7 +7008,7 @@ PALONLY:
             break;
         case PLAYERONWATER__STATIC:
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 k = 0;
                 t->cstat &= ~4;
@@ -7077,7 +7072,7 @@ PALONLY:
         case RAT__STATIC:
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-            if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
@@ -7760,7 +7755,7 @@ static void nonsharedkeys(void)
             {
                 if (ud.screen_size > 0)
                     sound(THUD);
-                if (ud.screen_size == 8 && ud.statusbarmode == 0 && bpp > 8)
+                if (getrendermode() >= 3 && ud.screen_size == 8 && ud.statusbarmode == 0)
                     ud.statusbarmode = 1;
                 else ud.screen_size -= 4;
 
@@ -7784,7 +7779,7 @@ static void nonsharedkeys(void)
             if (!SHIFTS_IS_PRESSED)
             {
                 if (ud.screen_size < 64) sound(THUD);
-                if (ud.screen_size == 8 && ud.statusbarmode == 1 && bpp > 8)
+                if (getrendermode() >= 3 && ud.screen_size == 8 && ud.statusbarmode == 1)
                     ud.statusbarmode = 0;
                 else ud.screen_size += 4;
             }
@@ -10326,18 +10321,6 @@ void app_main(int argc,const char **argv)
         exit(1);
     }
 
-    OSD_SetFunctions(
-        GAME_drawosdchar,
-        GAME_drawosdstr,
-        GAME_drawosdcursor,
-        GAME_getcolumnwidth,
-        GAME_getrowheight,
-        GAME_clearbackground,
-        (int(*)(void))GetTime,
-        GAME_onshowosd
-    );
-    OSD_SetParameters(10,0, 0,12, 4,12);
-
     initprintf("Using config file '%s'.\n",setupfilename);
 
     ScanGroups();
@@ -10366,6 +10349,7 @@ void app_main(int argc,const char **argv)
             g_GameType = first->game;
             duke3dgrpstring = (char *)grpfiles[0].name;
         }
+        else if (!fg) duke3dgrpstring = "Unknown GRP";
     }
 
 #if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2))
@@ -10753,7 +10737,7 @@ MAIN_LOOP_RESTART:
         else
             i = 65536;
 
-        if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || bpp == 8))
+        if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || !getrendermode()))
         {
             ud.statusbarmode = 0;
             vscrn();

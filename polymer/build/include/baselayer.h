@@ -6,6 +6,7 @@
 #define __baselayer_h__
 
 #include "compat.h"
+#include "osd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +34,6 @@ extern char offscreenrendering;
 extern void (*baselayer_onvideomodechange)(int);
 
 #ifdef USE_OPENGL
-#include "osd.h"
 extern int osdcmd_glinfo(const osdfuncparm_t *parm);
 
 struct glinfo {
