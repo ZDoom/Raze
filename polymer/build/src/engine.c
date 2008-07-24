@@ -9993,9 +9993,12 @@ void setbrightness(char dabrightness, char *dapal, char noapply)
 
     lastbright = curbrightness;
     if (!(noapply&4))
+    {
         curbrightness = min(max((int)dabrightness,0),15);
-    if (lastbright != (unsigned)curbrightness)
-        vid_gamma = 1.0 + ((float)curbrightness / 10.0);
+        if (lastbright != (unsigned)curbrightness)
+            vid_gamma = 1.0 + ((float)curbrightness / 10.0);
+    }
+
     if (setgamma()) j = curbrightness; else j = 0;
 
     for (k=i=0;i<256;i++)

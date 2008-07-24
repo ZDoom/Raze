@@ -2573,7 +2573,7 @@ cheat_for_port_credits:
         break;
     case 231:
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
-        menutext(320>>1,24,0,0,"BRIGHTNESS");
+        menutext(320>>1,24,0,0,"COLOR ADJUSTMENT");
 
         c = (320>>1)-120;
 
@@ -2610,7 +2610,7 @@ cheat_for_port_credits:
                 vid_gamma = b/40960.f;
                 ud.brightness = min(max((float)((vid_gamma-1.0)*10.0),0),15);
                 ud.brightness <<= 2;
-                setgamma();
+                setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
             }
 
             b = (vid_contrast*40960.f);
@@ -2619,7 +2619,7 @@ cheat_for_port_credits:
             if (b != (vid_contrast*40960.f))
             {
                 vid_contrast = b/40960.f;
-                setgamma();
+                setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
             }
 
             b = (vid_brightness*40960.f);
@@ -2628,7 +2628,7 @@ cheat_for_port_credits:
             if (b != (vid_brightness*40960.f))
             {
                 vid_brightness = b/40960.f;
-                setgamma();
+                setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
             }
 
             if (x == 3)
@@ -2636,7 +2636,8 @@ cheat_for_port_credits:
                 vid_gamma = DEFAULT_GAMMA;
                 vid_contrast = DEFAULT_CONTRAST;
                 vid_brightness = DEFAULT_BRIGHTNESS;
-                setgamma();
+                ud.brightness = 0;
+                setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
             }
         }
 
@@ -3338,7 +3339,7 @@ cheat_for_port_credits:
 
         menutext(c+16,50+16+16+22,MENUHIGHLIGHT(3),changesmade==0,"APPLY CHANGES");
 
-        menutext(c,50+62+16,MENUHIGHLIGHT(4),PHX(-6),"BRIGHTNESS");
+        menutext(c,50+62+16,MENUHIGHLIGHT(4),PHX(-6),"COLOR ADJUSTMENT");
         /*        {
                     short ss = ud.brightness;
                     bar(c+171,50+62+16,&ss,8,x==4,MENUHIGHLIGHT(4),PHX(-6));
@@ -3351,8 +3352,8 @@ cheat_for_port_credits:
         */
         if (bpp == 8)
         {
-            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"DETAIL");
-            menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"HIGH":"LOW");
+            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"PIXEL DOUBLING");
+            menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"OFF":"ON");
             modval(0,1,(int *)&ud.detail,1,probey==5);
         }
 #if defined(POLYMOST) && defined(USE_OPENGL)

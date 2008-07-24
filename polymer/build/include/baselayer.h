@@ -137,8 +137,8 @@ int setgamma(void);
 double vid_gamma, vid_contrast, vid_brightness;
 
 #define DEFAULT_GAMMA 1.0
-#define DEFAULT_CONTRAST 1.2
-#define DEFAULT_BRIGHTNESS 0.1
+#define DEFAULT_CONTRAST 1.0
+#define DEFAULT_BRIGHTNESS 0.0
 
 int switchrendermethod(int,int);    // 0 = software, 1 = opengl | bool = reinit
 

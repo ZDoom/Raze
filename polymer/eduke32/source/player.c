@@ -659,13 +659,12 @@ int shoot(int i,int atwith)
             {
                 k = EGS(hitsect,hitx,hity,hitz,SHOTSPARK1,-15,10,10,sa,0,0,i,4);
                 sprite[k].extra = projectile[atwith].extra;
+                if (projectile[atwith].extra_rand > 0)
+                    sprite[k].extra += (TRAND%projectile[atwith].extra_rand);
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
                 hittype[k].temp_data[6] = hitwall;
                 hittype[k].temp_data[7] = hitsect;
                 hittype[k].temp_data[8] = hitspr;
-
-                if (projectile[atwith].extra_rand > 0)
-                    sprite[k].extra += (TRAND%projectile[atwith].extra_rand);
 
                 if (hitwall == -1 && hitspr == -1)
                 {
@@ -826,6 +825,8 @@ DOSKIPBULLETHOLE:
             {
                 k = EGS(hitsect,hitx,hity,hitz,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
                 sprite[k].extra = projectile[atwith].extra;
+                if (projectile[atwith].extra_rand > 0)
+                    sprite[k].extra += (TRAND%projectile[atwith].extra_rand);
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
                 hittype[k].temp_data[6] = hitwall;
                 hittype[k].temp_data[7] = hitsect;

@@ -694,6 +694,7 @@ cvarmappings cvar[] =
 #endif
     { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
     { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
+    { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void*)&ud.shadows, CVAR_BOOL, 0, 0, 1 },
     { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
     { "r_visibility", "r_visibility: sets the global map visibility", (void*)&ud.const_visibility, CVAR_INT|128, 0, INT_MIN, INT_MAX },
 
@@ -1264,7 +1265,7 @@ static int osdcmd_vid_gamma(const osdfuncparm_t *parm)
     ud.brightness = min(max((float)((vid_gamma-1.0)*10.0),0),15);
     ud.brightness <<= 2;
     OSD_Printf("%s\n",parm->raw);
-    setgamma();
+    setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
     return OSDCMD_OK;
 }
 
@@ -1277,7 +1278,7 @@ static int osdcmd_vid_brightness(const osdfuncparm_t *parm)
     }
     vid_brightness = atof(parm->parms[0]);
     OSD_Printf("%s\n",parm->raw);
-    setgamma();
+    setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
     return OSDCMD_OK;
 }
 
@@ -1290,7 +1291,7 @@ static int osdcmd_vid_contrast(const osdfuncparm_t *parm)
     }
     vid_contrast = atof(parm->parms[0]);
     OSD_Printf("%s\n",parm->raw);
-    setgamma();
+    setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
     return OSDCMD_OK;
 }
 
