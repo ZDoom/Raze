@@ -734,8 +734,8 @@ void menus(void)
                 "Mouse aim",
                 "-",
                 "-",
-                "Switch weapon on pickup",
-                "Switch weapon when empty",
+                "Switch weapons on pickup",
+                "Switch weapons when empty",
                 "-",
                 "-",
                 "Network packets/sec",
@@ -951,7 +951,7 @@ void menus(void)
 
                     case 3:
                     {
-                        char *s[] = { "Off", "All weapons", "Hitscan only" };
+                        char *s[] = { "Off", "All weapons", "Bullets only" };
                         mgametext(d-50,yy,s[ud.config.AutoAim],MENUHIGHLIGHT(io),2+8+16);
                     }
                     break;
@@ -3544,9 +3544,9 @@ cheat_for_port_credits:
 
         onbar = (probey == (MAXMOUSEBUTTONS-2)*2+2);
         if (probey < (MAXMOUSEBUTTONS-2)*2+2)
-            x = probesm(73,40,8,(MAXMOUSEBUTTONS-2)*2+2+2+2);
+            x = probesm(73,38,8,(MAXMOUSEBUTTONS-2)*2+2+2+2+1);
         else
-            x = probesm(40,128-((MAXMOUSEBUTTONS-2)*2+2)*9,9,(MAXMOUSEBUTTONS-2)*2+2+2+2);
+            x = probesm(40,123-((MAXMOUSEBUTTONS-2)*2+2)*9,9,(MAXMOUSEBUTTONS-2)*2+2+2+2+1);
 
         if (x==-1)
         {
@@ -3569,6 +3569,11 @@ cheat_for_port_credits:
             ud.mouseflip = 1-ud.mouseflip;
         }
         else if (x == (MAXMOUSEBUTTONS-2)*2+2+2+1)
+        {
+            //input smoothing
+            ud.config.SmoothInput = !ud.config.SmoothInput;
+        }
+        else if (x == (MAXMOUSEBUTTONS-2)*2+2+2+2)
         {
             //advanced
             cmenu(212);
@@ -3608,46 +3613,49 @@ cheat_for_port_credits:
                 m = ud.config.MouseFunctions[l-(MAXMOUSEBUTTONS-2)][0];
             }
 
-            minitextshade(c+20,36+l*8,tempbuf,(l==probey)?0:16,1,10+16);
+            minitextshade(c+20,34+l*8,tempbuf,(l==probey)?0:16,1,10+16);
 
             if (m == -1)
-                minitextshade(c+100+20,36+l*8,"  -NONE-",(l==probey)?0:16,2,10+16);
+                minitextshade(c+100+20,34+l*8,"  -NONE-",(l==probey)?0:16,2,10+16);
             else
             {
                 strcpy(tempbuf, CONFIG_FunctionNumToName(m));
                 for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-                minitextshade(c+100+20,36+l*8,tempbuf,(l==probey)?0:16,2,10+16);
+                minitextshade(c+100+20,34+l*8,tempbuf,(l==probey)?0:16,2,10+16);
             }
         }
 
-        mgametextpal(40,122,"SENSITIVITY",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),10);
-        mgametextpal(40,122+9,"MOUSE AIMING TOGGLE",!ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):DISABLEDMENUSHADE,10);
-        mgametextpal(40,122+9+9,"INVERT MOUSE AIM",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2),10);
-        mgametextpal(40,122+9+9+9,"ADVANCED",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1),10);
+        mgametextpal(40,118,"Sensitivity",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),10);
+        mgametextpal(40,118+9,"Use mouse aiming",!ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):DISABLEDMENUSHADE,10);
+        mgametextpal(40,118+9+9,"Invert mouse",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2),10);
+        mgametextpal(40,118+9+9+9,"Use mouse input smoothing",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1),10);
+        mgametextpal(40,118+9+9+9+9,"Advanced mouse setup",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+2),10);
 
         {
             int sense;
             sense = CONTROL_GetMouseSensitivity()-1;
-            barsm(248,128,&sense,2,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
+            barsm(248,126,&sense,2,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
             CONTROL_SetMouseSensitivity(sense+1);
         }
 
         if (!ud.mouseaiming) modval(0,1,(int *)&myaimmode,1,probey == (MAXMOUSEBUTTONS-2)*2+2+1);
         else if (probey == (MAXMOUSEBUTTONS-2)*2+2+1)
         {
-            mgametext(160,144+9+9,"SET MOUSE AIM TYPE TO TOGGLE ON/OFF",0,2+8+16);
-            mgametext(160,144+9+9+9,"IN THE PLAYER SETUP MENU TO ENABLE",0,2+8+16);
+            mgametext(160,140+9+9+9,"SET MOUSE AIM TYPE TO TOGGLE ON/OFF",0,2+8+16);
+            mgametext(160,140+9+9+9+9,"IN THE PLAYER SETUP MENU TO ENABLE",0,2+8+16);
         }
 
         modval(0,1,(int *)&ud.mouseflip,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2);
+        modval(0,1,(int *)&ud.config.SmoothInput,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2+1);
 
-        mgametextpal(240,122+9, myaimmode && !ud.mouseaiming ? "On" : "Off", !ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):DISABLEDMENUSHADE, 0);
-        mgametextpal(240,122+9+9, !ud.mouseflip ? "On" : "Off", MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2), 0);
+        mgametextpal(240,118+9, myaimmode && !ud.mouseaiming ? "Yes" : "No", !ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):DISABLEDMENUSHADE, 0);
+        mgametextpal(240,118+9+9, !ud.mouseflip ? "Yes" : "No", MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2), 0);
+        mgametextpal(240,118+9+9+9, ud.config.SmoothInput ? "Yes" : "No", MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1), 0);
 
         if (probey < (MAXMOUSEBUTTONS-2)*2+2)
         {
-            mgametext(160,164,"UP/DOWN = SELECT BUTTON",0,2+8+16);
-            mgametext(160,164+9,"ENTER = MODIFY",0,2+8+16);
+            mgametext(160,160+9,"UP/DOWN = SELECT BUTTON",0,2+8+16);
+            mgametext(160,160+9+9,"ENTER = MODIFY",0,2+8+16);
         }
         break;
 
@@ -3830,7 +3838,7 @@ cheat_for_port_credits:
         else if (probey < 7)
         {
             m=50;
-            x = probesm(c+10,96+16-(10+10+10),10,7);
+            x = probesm(c+10,97+16-(9+9+9),9,7);
         }
         else
         {
@@ -3841,7 +3849,7 @@ cheat_for_port_credits:
         {
         case -1:
             cmenu(205);
-            probey = (MAXMOUSEBUTTONS-2)*2+2+2+1;
+            probey = (MAXMOUSEBUTTONS-2)*2+2+2+2;
             break;
 
         case 0:
@@ -3907,7 +3915,8 @@ cheat_for_port_credits:
         l = ud.config.MouseFilter>>1;
         bar(c+160+40,46+16+16,&l,2,x==2,MENUHIGHLIGHT(2),0);
         ud.config.MouseFilter = l<<1;
-        menutext(c,46+16+16+16+8,/*(MENUHIGHLIGHT(3))+(MENUHIGHLIGHT(4))+(MENUHIGHLIGHT(5))+(MENUHIGHLIGHT(6))-24*/0,0,"DIGITAL AXES ACTIONS");
+        rotatesprite(320<<15,94<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        menutext(320>>1,43+16+16+16+8,0,0,"DIGITAL AXES SETUP");
 
         if (ud.config.MouseFilter == 0)
             Bsprintf(tempbuf," OFF");
@@ -3921,41 +3930,41 @@ cheat_for_port_credits:
         mgametext(c+160-16,46+16+16-8,tempbuf,MENUHIGHLIGHT(2),2+8+16);
 
 
-        mgametextpal(c+10,90+16,"UP:",MENUHIGHLIGHT(3),10);
+        mgametextpal(c+10,92+16,"UP:",MENUHIGHLIGHT(3),10);
         if (ud.config.MouseDigitalFunctions[1][0] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[1][0]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitextshade(c+10+60,91+16,tempbuf,MENUHIGHLIGHT(3),0,10+16);
+        minitextshade(c+10+60,93+16,tempbuf,MENUHIGHLIGHT(3),0,10+16);
 
-        mgametextpal(c+10,90+16+10,"DOWN:",MENUHIGHLIGHT(4),10);
+        mgametextpal(c+10,92+16+9,"DOWN:",MENUHIGHLIGHT(4),10);
         if (ud.config.MouseDigitalFunctions[1][1] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[1][1]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitextshade(c+10+60,91+16+10,tempbuf,MENUHIGHLIGHT(4),0,10+16);
+        minitextshade(c+10+60,93+16+9,tempbuf,MENUHIGHLIGHT(4),0,10+16);
 
-        mgametextpal(c+10,90+16+10+10,"LEFT:",MENUHIGHLIGHT(5),10);
+        mgametextpal(c+10,92+16+9+9,"LEFT:",MENUHIGHLIGHT(5),10);
         if (ud.config.MouseDigitalFunctions[0][0] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[0][0]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitextshade(c+10+60,91+16+10+10,tempbuf,MENUHIGHLIGHT(5),0,10+16);
+        minitextshade(c+10+60,93+16+9+9,tempbuf,MENUHIGHLIGHT(5),0,10+16);
 
-        mgametextpal(c+10,90+16+10+10+10,"RIGHT:",MENUHIGHLIGHT(6),10);
+        mgametextpal(c+10,92+16+9+9+9,"RIGHT:",MENUHIGHLIGHT(6),10);
         if (ud.config.MouseDigitalFunctions[0][1] < 0)
             strcpy(tempbuf, "  -NONE-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[0][1]));
 
         for (i=0;tempbuf[i];i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-        minitextshade(c+10+60,91+16+10+10+10,tempbuf,MENUHIGHLIGHT(6),0,10+16);
+        minitextshade(c+10+60,93+16+9+9+9,tempbuf,MENUHIGHLIGHT(6),0,10+16);
 
         break;
 
