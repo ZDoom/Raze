@@ -6,12 +6,14 @@
 void GAME_drawosdchar(int x, int y, char ch, int shade, int pal)
 {
     short ac;
+    int ht = usehightile;
 
     if (ch == 32) return;
     ac = ch-'!'+STARTALPHANUM;
     if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
-
+    usehightile = 0;
     rotatesprite(((x<<3)+x)<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
+    usehightile = ht;
 }
 
 void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
@@ -19,6 +21,9 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
     short ac;
     char *ptr = OSD_GetTextPtr();
     char *fmt = OSD_GetFmtPtr();
+    int ht = usehightile;
+
+    usehightile = 0;
 
     for (x = (x<<3)+x; len>0; len--, ch++, x++)
     {
@@ -28,7 +33,7 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
             continue;
         }
         ac = *ch-'!'+STARTALPHANUM;
-        if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
+        if (ac < STARTALPHANUM || ac > ENDALPHANUM) { usehightile = ht; return; }
 
         // use the format byte if the text falls within the bounds of the console buffer
         if (ch > ptr && ch < (ptr + TEXTSIZE))
@@ -41,6 +46,7 @@ void GAME_drawosdstr(int x, int y, char *ch, int len, int shade, int pal)
                          pal, 8|16, 0, 0, xdim-1, ydim-1);
         x += OSDCHAR_WIDTH;
     }
+    usehightile = ht;
 }
 
 void GAME_drawosdcursor(int x, int y, int type, int lastkeypress)

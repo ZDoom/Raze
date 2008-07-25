@@ -4452,31 +4452,31 @@ repeatcase:
         return 0;
 
     case CON_DEFINEGAMENAME:
+    {
+        char gamename[32];
+        scriptptr--;
+        while (*textptr == ' ' || *textptr == '\t') textptr++;
+
+        i = 0;
+
+        while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
         {
-            char gamename[32];
-            scriptptr--;
-            while (*textptr == ' ' || *textptr == '\t') textptr++;
-
-            i = 0;
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+            gamename[i] = *textptr;
+            textptr++,i++;
+            if (i >= (signed)sizeof(gamename)-1)
             {
-                gamename[i] = *textptr;
-                textptr++,i++;
-                if (i >= (signed)sizeof(gamename)-1)
-                {
-                    initprintf("%s:%d: error: game name exceeds limit of %d characters.\n",compilefile,line_number,sizeof(gamename)-1);
-                    error++;
-                    while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
-                    break;
-                }
+                initprintf("%s:%d: error: game name exceeds limit of %d characters.\n",compilefile,line_number,sizeof(gamename)-1);
+                error++;
+                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
+                break;
             }
-            gamename[i] = '\0';
-            duke3dgrpstring = Bstrdup(gamename);
-            Bsprintf(tempbuf,HEAD2 " - %s",duke3dgrpstring);
-            wm_setapptitle(tempbuf);
         }
-        return 0;
+        gamename[i] = '\0';
+        duke3dgrpstring = Bstrdup(gamename);
+        Bsprintf(tempbuf,HEAD2 " - %s",duke3dgrpstring);
+        wm_setapptitle(tempbuf);
+    }
+    return 0;
 
     case CON_DEFINEGAMETYPE:
         scriptptr--; //remove opcode from compiled code

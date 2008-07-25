@@ -2552,15 +2552,15 @@ cheat_for_port_credits:
                     mgametextpal(d,yy, r_animsmoothing && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 11:
-                    {
-                        int ovsync = vsync;
-                        if (x==io) vsync = !vsync;
-                        modval(0,1,(int *)&vsync,1,probey==io);
-                        mgametextpal(d,yy, vsync? "Yes" : "No", MENUHIGHLIGHT(io), 0);
-                        if (vsync != ovsync)
-                            setvsync(vsync);
-                        break;
-                    }
+                {
+                    int ovsync = vsync;
+                    if (x==io) vsync = !vsync;
+                    modval(0,1,(int *)&vsync,1,probey==io);
+                    mgametextpal(d,yy, vsync? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                    if (vsync != ovsync)
+                        setvsync(vsync);
+                    break;
+                }
                 default:
                     break;
                 }
@@ -2938,15 +2938,15 @@ cheat_for_port_credits:
                     mgametextpal(d,yy, ud.idplayers ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 7:
-                    {
-                        int osdmode = OSD_GetTextMode();
-                        if (x==io) osdmode = !osdmode;
-                        modval(0,1,(int *)&osdmode,1,probey==io);
-                        mgametextpal(d,yy, osdmode? "Fast" : "Nice", MENUHIGHLIGHT(io), 0);
-                        if (OSD_GetTextMode() != osdmode)
-                            OSD_SetTextMode(osdmode);
-                        break;
-                    }
+                {
+                    int osdmode = OSD_GetTextMode();
+                    if (x==io) osdmode = !osdmode;
+                    modval(0,1,(int *)&osdmode,1,probey==io);
+                    mgametextpal(d,yy, osdmode? "Fast" : "Nice", MENUHIGHLIGHT(io), 0);
+                    if (OSD_GetTextMode() != osdmode)
+                        OSD_SetTextMode(osdmode);
+                    break;
+                }
                 case 8:
                     if (x==io) ud.config.ForceSetup = 1-ud.config.ForceSetup;
                     modval(0,1,(int *)&ud.config.ForceSetup,1,probey==io);
