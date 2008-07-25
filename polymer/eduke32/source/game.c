@@ -1812,10 +1812,6 @@ void txdigitalnumberz(int starttile, int x,int y,int n,int s,int pal,int cs,int 
         j += (tilesizx[p]+1)*z/65536;
     }
 }
-void txdigitalnumber(int starttile, int x,int y,int n,int s,int pal,int cs,int x1, int y1, int x2, int y2)
-{
-    txdigitalnumberz(starttile,x,y,n,s,pal,cs,x1,y1,x2,y2,65536);
-}
 
 static void displayinventory(player_struct *p)
 {
@@ -2695,7 +2691,7 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
     {
         if (g_player[myconnectindex].ps->gm&MODE_TYPE)
             x = mpgametext(y,t,c,2+8+16);
-        else x = gametext(x,y,t,c,2+8+16);
+        else x = mgametext(x,y,t,c,2+8+16);
     }
     c = 4-(sintable[(totalclock<<4)&2047]>>11);
 

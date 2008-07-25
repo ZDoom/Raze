@@ -7819,7 +7819,7 @@ int setgamemode(char davidoption, int daxdim, int daydim, int dabpp)
 
     setview(0L,0L,xdim-1,ydim-1);
     clearallviews(0L);
-    setbrightness(curbrightness,&palette[0],0);
+    setbrightness(curbrightness,palette,0);
 
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
@@ -9985,7 +9985,7 @@ void setvgapalette(void)
         curpalettefaded[i].g = curpalette[i].g = vgapal16[4*i+1] << 2;
         curpalettefaded[i].r = curpalette[i].r = vgapal16[4*i+2] << 2;
     }
-    setpalette(0,256,vgapal16);
+    setpalette(0,256);
 }
 
 //
@@ -10014,13 +10014,13 @@ void setbrightness(char dabrightness, char *dapal, char noapply)
         curpalette[i].f = 0;
 
         // brightness adjust the palette
-        curpalettefaded[i].b = (tempbuf[k++] = britable[j][ curpalette[i].b ]);
-        curpalettefaded[i].g = (tempbuf[k++] = britable[j][ curpalette[i].g ]);
-        curpalettefaded[i].r = (tempbuf[k++] = britable[j][ curpalette[i].r ]);
-        curpalettefaded[i].f = tempbuf[k++] = 0;
+        curpalettefaded[i].b = britable[j][ curpalette[i].b ];
+        curpalettefaded[i].g = britable[j][ curpalette[i].g ];
+        curpalettefaded[i].r = britable[j][ curpalette[i].r ];
+        curpalettefaded[i].f = 0;
     }
 
-    if ((noapply&1) == 0) setpalette(0,256,(char*)tempbuf);
+    if ((noapply&1) == 0) setpalette(0,256);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (rendmode >= 3)
@@ -10068,19 +10068,16 @@ void setpalettefade(char r, char g, char b, char offset)
             p.r = britable[curbrightness][ curpalette[i].r ];
         }
 
-        tempbuf[k++] =
-            (curpalettefaded[i].b =
-                 p.b + ((((int)palfadergb.b - (int)p.b) * (int)offset) >> 6)) >> 2;
-        tempbuf[k++] =
-            (curpalettefaded[i].g =
-                 p.g + ((((int)palfadergb.g - (int)p.g) * (int)offset) >> 6)) >> 2;
-        tempbuf[k++] =
-            (curpalettefaded[i].r =
-                 p.r + ((((int)palfadergb.r - (int)p.r) * (int)offset) >> 6)) >> 2;
-        tempbuf[k++] = curpalettefaded[i].f = 0;
+        curpalettefaded[i].b =
+                 p.b + (((palfadergb.b - p.b) * offset) >> 6);
+        curpalettefaded[i].g =
+                 p.g + (((palfadergb.g - p.g) * offset) >> 6);
+        curpalettefaded[i].r =
+                 p.r + (((palfadergb.r - p.r) * offset) >> 6);
+        curpalettefaded[i].f = 0;
     }
 
-    setpalette(0,256,(char*)tempbuf);
+    setpalette(0,256);
 }
 
 

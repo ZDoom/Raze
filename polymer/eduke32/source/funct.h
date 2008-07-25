@@ -194,7 +194,6 @@ extern void fadepal(int r, int g, int b, int start, int end, int step);
 extern inline int minitextshade(int x,int y,const char *t,int s,int p,int sb);
 extern inline int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2,int z);
 extern void txdigitalnumberz(int starttile, int x,int y,int n,int s,int pal,int cs,int x1, int y1, int x2, int y2, int z);
-extern void txdigitalnumber(int starttile, int x,int y,int n,int s,int pal,int cs,int x1, int y1, int x2, int y2);
 extern void myosx(int x,int y,int tilenum,int shade,int orientation);
 extern void myospalx(int x,int y,int tilenum,int shade,int orientation,int p);
 extern void ResetGameVars(void);

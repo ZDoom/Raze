@@ -101,10 +101,10 @@ static void SearchSectorsForward();
 static void SearchSectorsBackward();
 static inline void SpriteName(short spritenum, char *lo2);
 static void PrintStatus(char *string,int num,char x,char y,char color);
-static void SetBOSS1Palette();
-// static void SetSLIMEPalette();
-static void SetWATERPalette();
-static void SetGAMEPalette();
+static inline void SetBOSS1Palette();
+static inline void SetSLIMEPalette();
+static inline void SetWATERPalette();
+static inline void SetGAMEPalette();
 static void kensetpalette(char *vgapal);
 
 extern short grid;

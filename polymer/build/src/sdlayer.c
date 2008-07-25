@@ -1339,7 +1339,7 @@ void showframe(int w)
 //
 // setpalette() -- set palette values
 //
-int setpalette(int start, int num, char *dapal)
+int setpalette(int start, int num)
 {
     SDL_Color pal[256];
     int i,n;
@@ -1349,15 +1349,7 @@ int setpalette(int start, int num, char *dapal)
     copybuf(curpalettefaded, pal, 256);
 
     for (i=start, n=num; n>0; i++, n--)
-    {
-        /*
-        pal[i].b = dapal[0] << 2;
-        pal[i].g = dapal[1] << 2;
-        pal[i].r = dapal[2] << 2;
-        */
         curpalettefaded[i].f = pal[i].unused = 0;
-        dapal += 4;
-    }
 
     //return SDL_SetPalette(sdl_surface, SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
     return SDL_SetColors(sdl_surface, pal, 0, 256);

@@ -4535,11 +4535,13 @@ static void Keys3d(void)
     */
     if (sector[cursectnum].lotag==2)
     {
-        if (sector[cursectnum].floorpal==8) SetBOSS1Palette();
+        if (sector[cursectnum].ceilingpicnum==FLOORSLIME) SetSLIMEPalette();
         else SetWATERPalette();
     }
     else SetGAMEPalette();
 
+    if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
+        SetGAMEPalette();
 
     //Stick this in 3D part of ExtCheckKeys
     //Also choose your own key scan codes
@@ -8166,50 +8168,34 @@ void faketimerhandler(void)
     }
 }
 
-static void SetBOSS1Palette()
+extern short brightness;
+
+static inline void SetBOSS1Palette()
 {
     if (acurpalette==3) return;
     acurpalette=3;
-    kensetpalette(BOSS1palette);
+    setbrightness(brightness,BOSS1palette,0);
 }
 
-/*
-static void SetSLIMEPalette()
+static inline void SetSLIMEPalette()
 {
     if (acurpalette==2) return;
     acurpalette=2;
-    kensetpalette(SLIMEpalette);
+    setbrightness(brightness,SLIMEpalette,0);
 }
-*/
 
-static void SetWATERPalette()
+static inline void SetWATERPalette()
 {
     if (acurpalette==1) return;
     acurpalette=1;
-    kensetpalette(WATERpalette);
+    setbrightness(brightness,WATERpalette,0);
 }
 
-
-static void SetGAMEPalette()
+static inline void SetGAMEPalette()
 {
     if (acurpalette==0) return;
     acurpalette=0;
-    kensetpalette(GAMEpalette);
-}
-
-static void kensetpalette(char *vgapal)
-{
-    int i;
-    char vesapal[1024];
-
-    for (i=0;i<256;i++)
-    {
-        vesapal[i*4+0] = vgapal[i*3+2];
-        vesapal[i*4+1] = vgapal[i*3+1];
-        vesapal[i*4+2] = vgapal[i*3+0];
-        vesapal[i*4+3] = 0;
-    }
-    setpalette(0L,256L,vesapal);
+    setbrightness(brightness,GAMEpalette,0);
 }
 
 static void SearchSectorsForward()

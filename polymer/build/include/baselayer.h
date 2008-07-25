@@ -131,7 +131,7 @@ void begindrawing(void);
 void enddrawing(void);
 void showframe(int);
 
-int setpalette(int start, int num, char *dapal);
+int setpalette(int start, int num);
 //int getpalette(int start, int num, char *dapal);
 int setgamma(void);
 double vid_gamma, vid_contrast, vid_brightness;

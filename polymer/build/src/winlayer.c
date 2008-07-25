@@ -2503,35 +2503,24 @@ void showframe(int w)
 // New behaviour: curpalettefaded is the live palette, and any changes this function
 // makes are done to it and not the base palette.
 //
-int setpalette(int start, int num, char *dapal)
+int setpalette(int start, int num)
 {
     int i, n;
     HRESULT result;
     RGBQUAD *rgb;
     //HPALETTE hPalPrev;
 
-    struct logpal
+    static struct logpal
     {
         WORD palVersion;
         WORD palNumEntries;
         PALETTEENTRY palPalEntry[256];
     } lpal;
 
-    UNREFERENCED_PARAMETER(dapal);
-
-    copybuf(curpalettefaded, lpal.palPalEntry, 256);
-
-    for (i=start, n=num; n>0; i++, n--)
-    {
-        /*
-        lpal.palPalEntry[i].peBlue = dapal[0] << 2;
-        lpal.palPalEntry[i].peGreen = dapal[1] << 2;
-        lpal.palPalEntry[i].peRed = dapal[2] << 2;
-        */
-        curpalettefaded[i].f = lpal.palPalEntry[i].peFlags = PC_RESERVED | PC_NOCOLLAPSE;
-        //dapal += 4;
-    }
-
+//    copybufbyte(curpalettefaded, lpal.palPalEntry, 256);
+    Bmemcpy(lpal.palPalEntry, curpalettefaded, sizeof(lpal.palPalEntry));
+    for (i=start, n=num-1; n>0; i++, n--)
+        curpalettefaded[i].f = lpal.palPalEntry[i].peFlags = PC_NOCOLLAPSE;
 
     if (bpp > 8) return 0;	// no palette in opengl
 
@@ -2600,12 +2589,11 @@ int setpalette(int start, int num, char *dapal)
         }
 
         SetBWSystemColours();
-
     }
     else
     {
         if (!lpDDPalette) return -1;
-        result = IDirectDrawPalette_SetEntries(lpDDPalette, 0, start, num, (PALETTEENTRY*)&lpal.palPalEntry[start]);
+        result = IDirectDrawPalette_SetEntries(lpDDPalette, 0, 0, 256, (LPPALETTEENTRY)lpal.palPalEntry);
         if (result != DD_OK)
         {
             initprintf("Palette set failed: %s\n", GetDDrawError(result));
@@ -2937,6 +2925,7 @@ static int SetupDirectDraw(int width, int height)
 {
     HRESULT result;
     DDSURFACEDESC ddsd;
+    int i;
 
     // now create the DirectDraw surfaces
     ZeroMemory(&ddsd, sizeof(ddsd));
@@ -2978,7 +2967,9 @@ static int SetupDirectDraw(int width, int height)
 
     // attach a palette to the primary surface
     initprintf("  - Creating palette\n");
-    result = IDirectDraw_CreatePalette(lpDD, DDPCAPS_8BIT | DDPCAPS_ALLOW256, (PALETTEENTRY*)curpalette, &lpDDPalette, NULL);
+    for (i=0; i<256; i++)
+        curpalettefaded[i].f = PC_NOCOLLAPSE;
+    result = IDirectDraw_CreatePalette(lpDD, DDPCAPS_8BIT | DDPCAPS_ALLOW256, (LPPALETTEENTRY)curpalettefaded, &lpDDPalette, NULL);
     if (result != DD_OK)
     {
         ShowDDrawErrorBox("Failure creating palette", result);
@@ -3519,7 +3510,6 @@ static BOOL CreateAppWindow(int modenum)
         }
 
         modesetusing = -1;
-
     }
     else
     {
@@ -4072,7 +4062,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         {
             if (appactive)
             {
-                setpalette(0,0,0);
+                setpalette(0,0);
                 SetBWSystemColours();
                 //					initprintf("Resetting palette.\n");
             }
@@ -4094,7 +4084,19 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
     case WM_PALETTECHANGED:
         // someone stole the palette so try and steal it back
-        if (appactive && (HWND)wParam != hWindow) setpalette(0,0,0);
+        if (appactive && (HWND)wParam != hWindow) setpalette(0,0);
+        if (bDDrawInited && bpp == 8 && fullscreen)
+        {
+                int result = IDirectDrawSurface_SetPalette(lpDDSPrimary, lpDDPalette);
+                OSD_Printf("DirectDraw palette stolen!  Resetting...\n");
+                if (result != DD_OK)
+                {
+                    ShowDDrawErrorBox("Failure setting palette", result);
+                    UninitDirectDraw();
+                    break;
+                }
+                setpalette(0,0);
+        }
         break;
 
     case WM_DISPLAYCHANGE:
