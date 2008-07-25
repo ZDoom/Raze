@@ -464,6 +464,7 @@ static const char *keyw[] =
     "clearmapstate",            // 328
     "scriptsize",               // 329
     "definegamename",           // 330
+    "cmenu",                    // 331
     "<null>"
 };
 
@@ -3416,6 +3417,7 @@ static int parsecommand(void)
         if (!CheckEventSync(current_event))
             ReportError(WARNING_EVENTSYNC);
     case CON_JUMP:
+    case CON_CMENU:
     case CON_SOUNDVAR:
     case CON_GLOBALSOUNDVAR:
     case CON_STOPSOUNDVAR:

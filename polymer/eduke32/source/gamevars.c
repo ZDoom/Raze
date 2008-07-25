@@ -1341,6 +1341,7 @@ static void AddSystemVars()
     AddGameVar("lastvisinc",(intptr_t)&lastvisinc, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("numsectors",(intptr_t)&numsectors, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_SHORTPTR | GAMEVAR_FLAG_READONLY);
 
+    AddGameVar("current_menu",(intptr_t)&current_menu, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY);
     AddGameVar("numplayers",(intptr_t)&numplayers, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY);
     AddGameVar("viewingrange",(intptr_t)&viewingrange, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
     AddGameVar("yxaspect",(intptr_t)&yxaspect, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_INTPTR | GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYNCCHECK);
@@ -1488,6 +1489,7 @@ void ResetPointerVars(void)
     aGameVars[GetGameID("lastvisinc")].lValue = (intptr_t)&lastvisinc;
     aGameVars[GetGameID("numsectors")].lValue = (intptr_t)&numsectors;
     aGameVars[GetGameID("numplayers")].lValue = (intptr_t)&numplayers;
+    aGameVars[GetGameID("current_menu")].lValue = (intptr_t)&current_menu;
     aGameVars[GetGameID("viewingrange")].lValue = (intptr_t)&viewingrange;
     aGameVars[GetGameID("yxaspect")].lValue = (intptr_t)&yxaspect;
     aGameVars[GetGameID("gravitationalconstant")].lValue = (intptr_t)&gc;

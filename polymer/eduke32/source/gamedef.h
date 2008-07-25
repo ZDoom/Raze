@@ -839,4 +839,5 @@ enum keywords
     CON_CLEARMAPSTATE,      // 328
     CON_SCRIPTSIZE,         // 329
     CON_DEFINEGAMENAME,     // 330
+    CON_CMENU,              // 331
 };
