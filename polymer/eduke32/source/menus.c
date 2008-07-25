@@ -2572,6 +2572,7 @@ cheat_for_port_credits:
 #endif
         break;
     case 231:
+    case 232:
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,24,0,0,"COLOR CORRECTION");
 
@@ -2584,8 +2585,20 @@ cheat_for_port_credits:
 
         if (x == -1)
         {
-            cmenu(203);
-            probey = 4;
+            if (g_player[myconnectindex].ps->gm&MODE_GAME && current_menu == 232)
+            {
+                g_player[myconnectindex].ps->gm &= ~MODE_MENU;
+                if (ud.multimode < 2  && ud.recstat != 2)
+                {
+                    ready2send = 1;
+                    totalclock = ototalclock;
+                }
+            }
+            else
+            {
+                cmenu(203);
+                probey = 4;
+            }
             break;
         }
 

@@ -8245,7 +8245,7 @@ FAKE_F3:
         restorepalette = 1;
         vscrn();
     }
-
+/*
     if (KB_UnBoundKeyPressed(sc_F11))
     {
         KB_ClearKeyDown(sc_F11);
@@ -8260,6 +8260,20 @@ FAKE_F3:
         setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
         if (ud.brightness < 40) FTA(29 + (ud.brightness>>3) ,g_player[myconnectindex].ps);
         else if (ud.brightness < 80) FTA(96 + (ud.brightness>>3) - 5,g_player[myconnectindex].ps);
+    }
+*/
+    if (KB_UnBoundKeyPressed(sc_F11))
+    {
+        KB_ClearKeyDown(sc_F11);
+        cmenu(232);
+        FX_StopAllSounds();
+        clearsoundlocks();
+        g_player[myconnectindex].ps->gm |= MODE_MENU;
+        if (ud.multimode < 2 && ud.recstat != 2)
+        {
+            ready2send = 0;
+            totalclock = ototalclock;
+        }
     }
 }
 

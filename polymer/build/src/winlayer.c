@@ -2890,28 +2890,28 @@ static void ReleaseDirectDrawSurfaces(void)
 {
     if (lpDDPalette)
     {
-        initprintf("  - Releasing palette\n");
+//        initprintf("  - Releasing palette\n");
         IDirectDrawPalette_Release(lpDDPalette);
         lpDDPalette = NULL;
     }
 
     if (lpDDSBack)
     {
-        initprintf("  - Releasing back-buffer surface\n");
+//        initprintf("  - Releasing back-buffer surface\n");
         IDirectDrawSurface_Release(lpDDSBack);
         lpDDSBack = NULL;
     }
 
     if (lpDDSPrimary)
     {
-        initprintf("  - Releasing primary surface\n");
+//        initprintf("  - Releasing primary surface\n");
         IDirectDrawSurface_Release(lpDDSPrimary);
         lpDDSPrimary = NULL;
     }
 
     if (lpOffscreen)
     {
-        initprintf("  - Freeing offscreen buffer\n");
+//        initprintf("  - Freeing offscreen buffer\n");
         free(lpOffscreen);
         lpOffscreen = NULL;
     }
@@ -2934,7 +2934,7 @@ static int SetupDirectDraw(int width, int height)
     ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
     ddsd.dwBackBufferCount = 2;	// triple-buffer
 
-    initprintf("  - Creating primary surface\n");
+//    initprintf("  - Creating primary surface\n");
     result = IDirectDraw_CreateSurface(lpDD, &ddsd, &lpDDSPrimary, NULL);
     if (result != DD_OK)
     {
@@ -2947,7 +2947,7 @@ static int SetupDirectDraw(int width, int height)
     ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER;
     numpages = 1;	// KJS 20031225
 
-    initprintf("  - Getting back buffer\n");
+//    initprintf("  - Getting back buffer\n");
     result = IDirectDrawSurface_GetAttachedSurface(lpDDSPrimary, &ddsd.ddsCaps, &lpDDSBack);
     if (result != DD_OK)
     {
@@ -2956,7 +2956,7 @@ static int SetupDirectDraw(int width, int height)
         return TRUE;
     }
 
-    initprintf("  - Allocating offscreen buffer\n");
+//    initprintf("  - Allocating offscreen buffer\n");
     lpOffscreen = (char *)malloc((width|1)*height);
     if (!lpOffscreen)
     {
@@ -2966,7 +2966,7 @@ static int SetupDirectDraw(int width, int height)
     }
 
     // attach a palette to the primary surface
-    initprintf("  - Creating palette\n");
+//    initprintf("  - Creating palette\n");
     for (i=0; i<256; i++)
         curpalettefaded[i].f = PC_NOCOLLAPSE;
     result = IDirectDraw_CreatePalette(lpDD, DDPCAPS_8BIT | DDPCAPS_ALLOW256, (LPPALETTEENTRY)curpalettefaded, &lpDDPalette, NULL);
@@ -4084,19 +4084,18 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
     case WM_PALETTECHANGED:
         // someone stole the palette so try and steal it back
-        if (appactive && (HWND)wParam != hWindow) setpalette(0,0);
         if (bDDrawInited && bpp == 8 && fullscreen)
         {
                 int result = IDirectDrawSurface_SetPalette(lpDDSPrimary, lpDDPalette);
-                OSD_Printf("DirectDraw palette stolen!  Resetting...\n");
                 if (result != DD_OK)
                 {
-                    ShowDDrawErrorBox("Failure setting palette", result);
-                    UninitDirectDraw();
+                    initprintf("Palette set failed: %s\n", GetDDrawError(result));
                     break;
                 }
-                setpalette(0,0);
+                setpalette(0,256);
+                break;
         }
+        if (appactive && (HWND)wParam != hWindow) setpalette(0,256);
         break;
 
     case WM_DISPLAYCHANGE:
