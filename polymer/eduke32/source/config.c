@@ -30,12 +30,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <time.h>
 */
 
+#include "baselayer.h"
 #include "duke3d.h"
 #include "scriplib.h"
 #include "osd.h"
 #include "osdcmds.h"
-
-#include "baselayer.h"
+#include "osdfuncs.h"
 
 // we load this in to get default button and key assignments
 // as well as setting up function mappings
@@ -713,6 +713,7 @@ int32 CONFIG_ReadSetup(void)
 #endif
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "OSDTextMode",&dummy);
         OSD_SetTextMode(dummy);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "OSDHightile",&r_osdhightile);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions",&ud.executions);
         SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup",&ud.config.ForceSetup);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "RunMode",&ud.config.RunMode);
@@ -943,6 +944,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "UseModels",usemodels,false,false);
 #endif
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "OSDTextMode",OSD_GetTextMode(),false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "OSDHightile",r_osdhightile,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "AmbienceToggle",ud.config.AmbienceToggle,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "FXVolume",ud.config.FXVolume,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Sound Setup", "MusicToggle",ud.config.MusicToggle,false,false);

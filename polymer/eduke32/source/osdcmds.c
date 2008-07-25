@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "baselayer.h"
 #include "duke3d.h"
 #include "crc32.h"
+#include "osdfuncs.h"
 #include <ctype.h>
 #include <limits.h>
 
@@ -693,6 +694,7 @@ cvarmappings cvar[] =
 #endif
 #endif
     { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
+    { "r_osdhightile", "r_osdhightile: enable/disable hires art replacements for console text", (void*)&r_osdhightile, CVAR_BOOL, 0, 0, 1 },
     { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
     { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void*)&ud.shadows, CVAR_BOOL, 0, 0, 1 },
     { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
