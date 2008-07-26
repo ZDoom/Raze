@@ -4667,7 +4667,7 @@ SHOOTINCODE:
     if (hittype[p->i].temp_data[7])
     {
         hittype[p->i].temp_data[7]--;
-        if (p->last_weapon == -1 && hittype[p->i].temp_data[7] != 0 && hittype[p->i].temp_data[7] % 2 == 0)
+        if (p->last_weapon == -1 && hittype[p->i].temp_data[7] != 0 && ((hittype[p->i].temp_data[7] & 1) == 0))
         {
             if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AMMOPERSHOT)
             {
