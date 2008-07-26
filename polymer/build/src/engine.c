@@ -12034,17 +12034,8 @@ int setrendermode(int renderer)
 {
     UNREFERENCED_PARAMETER(renderer);
 #ifdef POLYMOST
-    if (bpp == 8)
-    {
-        if (renderer < 0) renderer = 0;
-        else if (renderer > 2) renderer = 2;
-    }
-    else
-    {
-        if (renderer < 3) renderer = 3;
-        else if (renderer > 4) renderer = 4;
-    }
-
+    if (bpp == 8) renderer = 0;
+    else renderer = min(4,max(3,renderer));
 # ifdef POLYMER
     if (renderer == 4)
         polymer_init();
