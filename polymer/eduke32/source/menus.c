@@ -367,7 +367,7 @@ static void _bar(int type, int x,int y,int *p,int dainc,int damodify,int s, int 
                     *p = min;
                 sound(KICK_HIT);
             }
-            if (*p < 64 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256)))         // && onbar) )
+            if (*p < max && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256)))         // && onbar) )
             {
                 KB_ClearKeyDown(sc_LeftArrow);
                 KB_ClearKeyDown(sc_kpad_4);
@@ -2618,12 +2618,12 @@ cheat_for_port_credits:
         rotatesprite(160<<16,27<<16,24576,0,3290,0,0,2+8+16,0,scale(ydim,35,200),xdim-1,scale(ydim,80,200)-1);
 
         {
-            int b = (vid_gamma*40960.f);
+            int b = (double)(vid_gamma*40960.f);
             _bar(0,c+177,98,&b,4096,x==0,MENUHIGHLIGHT(0),0,8192,163840);
 
-            if (b != (vid_gamma*40960.f))
+            if (b != (double)(vid_gamma*40960.f))
             {
-                vid_gamma = b/40960.f;
+                vid_gamma = (double)b/40960.f;
                 ud.brightness = min(max((double)((vid_gamma-1.0)*10.0),0),15);
                 ud.brightness <<= 2;
                 setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
@@ -2634,7 +2634,7 @@ cheat_for_port_credits:
 
             if (b != (vid_contrast*40960.f))
             {
-                vid_contrast = b/40960.f;
+                vid_contrast = (double)b/40960.f;
                 setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
             }
 
@@ -2643,7 +2643,7 @@ cheat_for_port_credits:
 
             if (b != (vid_brightness*40960.f))
             {
-                vid_brightness = b/40960.f;
+                vid_brightness = (double)b/40960.f;
                 setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
             }
 

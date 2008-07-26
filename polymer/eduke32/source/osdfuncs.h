@@ -6,7 +6,7 @@ int GAME_getrowheight(int w);
 void GAME_clearbackground(int c, int r);
 void GAME_onshowosd(int shown);
 
-extern int r_osdhightile;
+extern int osdhightile;
 
 #define OSDCHAR_WIDTH 8
 

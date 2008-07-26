@@ -9994,13 +9994,13 @@ void setvgapalette(void)
 void setbrightness(char dabrightness, char *dapal, char noapply)
 {
     int i, k, j;
-    unsigned int lastbright = curbrightness;
+//    unsigned int lastbright = curbrightness;
 
     if (!(noapply&4))
     {
         curbrightness = min(max((int)dabrightness,0),15);
-        if (lastbright != (unsigned)curbrightness)
-            vid_gamma = 1.0 + ((float)curbrightness / 10.0);
+//        if (lastbright != (unsigned)curbrightness)
+//            vid_gamma = 1.0 + ((float)curbrightness / 10.0);
     }
 
     if (setgamma()) j = curbrightness; else j = 0;

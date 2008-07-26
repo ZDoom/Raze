@@ -4464,7 +4464,7 @@ void polymost_drawsprite(int snum)
     int posx,posy;
     int oldsizx, oldsizy;
     int tsizx, tsizy;
-
+    md2model *modelptr = NULL;
     tspr = tspriteptr[snum];
     if (tspr->owner < 0 || tspr->picnum < 0) return;
 
@@ -4513,7 +4513,8 @@ void polymost_drawsprite(int snum)
                 if (mddraw(tspr)) return;
                 break;	// else, render as flat sprite
             }
-            if (r_cullobstructedmodels)
+            modelptr = (md2model *)models[tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid];
+            if (r_cullobstructedmodels == 1 || (r_cullobstructedmodels == 2 && (modelptr->usesalpha)))
             {
                 do // this is so gay
                 {
@@ -5965,7 +5966,7 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
     else if (!Bstrcasecmp(parm->name, "r_cullobstructedmodels"))
     {
         if (showval) { OSD_Printf("r_cullobstructedmodels is %d\n", r_cullobstructedmodels); }
-        else r_cullobstructedmodels = (val != 0);
+        else r_cullobstructedmodels = max(0,min(val,2));
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->name, "r_fullbrights"))

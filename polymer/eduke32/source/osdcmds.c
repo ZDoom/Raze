@@ -694,7 +694,7 @@ cvarmappings cvar[] =
 #endif
 #endif
     { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void*)&ud.drawweapon, CVAR_INT, 0, 0, 2 },
-    { "r_osdhightile", "r_osdhightile: enable/disable hires art replacements for console text", (void*)&r_osdhightile, CVAR_BOOL, 0, 0, 1 },
+    { "osdhightile", "osdhightile: enable/disable hires art replacements for console text", (void*)&osdhightile, CVAR_BOOL, 0, 0, 1 },
     { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
     { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void*)&ud.shadows, CVAR_BOOL, 0, 0, 1 },
     { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
@@ -790,6 +790,7 @@ static int osdcmd_sensitivity(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+/*
 static int osdcmd_setbrightness(const osdfuncparm_t *parm)
 {
     if (parm->numparms != 1)
@@ -802,6 +803,7 @@ static int osdcmd_setbrightness(const osdfuncparm_t *parm)
     OSD_Printf("setbrightness %d\n",ud.brightness>>2);
     return OSDCMD_OK;
 }
+*/
 
 static int osdcmd_give(const osdfuncparm_t *parm)
 {
@@ -1351,7 +1353,7 @@ int registerosdcommands(void)
         OSD_RegisterFunction(t,Bstrdup(tempbuf),osdcmd_button);
     }
 
-    OSD_RegisterFunction("setbrightness","setbrightness <value>: changes brightness (obsolete)", osdcmd_setbrightness);
+//    OSD_RegisterFunction("setbrightness","setbrightness <value>: changes brightness (obsolete)", osdcmd_setbrightness);
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
 
