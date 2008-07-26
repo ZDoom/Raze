@@ -1961,16 +1961,21 @@ void DoFire(player_struct *p)
         shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
         for (i=1;i<aplWeaponShotsPerBurst[p->curr_weapon][snum];i++)
         {
-            if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AMMOPERSHOT)
+            if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYOTHER)
             {
-                if (p->ammo_amount[p->curr_weapon] > 0)
-                {
-                    p->ammo_amount[p->curr_weapon]--;
-                    shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
-                }
+                // this makes the projectiles fire on a delay from player code
+                hittype[p->i].temp_data[7] = (aplWeaponShotsPerBurst[p->curr_weapon][snum])<<1;
             }
             else
+            {
+                if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AMMOPERSHOT)
+                {
+                    if (p->ammo_amount[p->curr_weapon] > 0)
+                        p->ammo_amount[p->curr_weapon]--;
+                    else break;
+                }
                 shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
+            }
         }
 
         if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
@@ -4657,6 +4662,29 @@ SHOOTINCODE:
 
     if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_GLOWS)
         p->random_club_frame += 64; // Glowing
+    
+    // this is for WEAPON_FLAG_FIREEVERYOTHER
+    if (hittype[p->i].temp_data[7])
+    {
+        hittype[p->i].temp_data[7]--;
+        if (p->last_weapon == -1 && hittype[p->i].temp_data[7] != 0 && hittype[p->i].temp_data[7] % 2 == 0)
+        {
+            if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AMMOPERSHOT)
+            {
+                if (p->ammo_amount[p->curr_weapon] > 0)
+                    p->ammo_amount[p->curr_weapon]--;
+                else
+                {
+                    hittype[p->i].temp_data[7] = 0;
+                    checkavailweapon(p);
+                }
+            }
+            if (hittype[p->i].temp_data[7] != 0)
+            {
+                shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
+            }
+        }
+    }
 
     if (p->rapid_fire_hold == 1)
     {
