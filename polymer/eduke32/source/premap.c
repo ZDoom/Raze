@@ -1686,7 +1686,7 @@ int enterlevel(int g)
         {
             if (loadboard(boardfilename,0,&g_player[0].ps->posx, &g_player[0].ps->posy, &g_player[0].ps->posz, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
             {
-                initprintf("Map '%s' not found!\n",boardfilename);
+                OSD_Printf(OSD_ERROR "Map '%s' not found!\n",boardfilename);
                 //gameexit(tempbuf);
                 return 1;
             }
@@ -1708,7 +1708,7 @@ int enterlevel(int g)
         }
         else if (loadboard(map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,0,&g_player[0].ps->posx, &g_player[0].ps->posy, &g_player[0].ps->posz, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
         {
-            initprintf("Map %s not found!\n",map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
+            OSD_Printf(OSD_ERROR "Map %s not found!\n",map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
             //gameexit(tempbuf);
             return 1;
         }
@@ -1739,7 +1739,7 @@ int enterlevel(int g)
 
         if (loadboard(levname,1,&g_player[0].ps->posx, &g_player[0].ps->posy, &g_player[0].ps->posz, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
         {
-            initprintf("Map '%s' not found!\n",map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
+            OSD_Printf(OSD_ERROR "Map '%s' not found!\n",map[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
             //gameexit(tempbuf);
             return 1;
         }

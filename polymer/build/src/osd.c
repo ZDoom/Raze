@@ -231,7 +231,7 @@ static int _internal_osdfunc_exec(const osdfuncparm_t *parm)
 
     if (OSD_Exec(fn))
     {
-        OSD_Printf("exec: file \"%s\" not found.\n", fn);
+        OSD_Printf(OSD_ERROR "exec: file \"%s\" not found.\n", fn);
         return OSDCMD_OK;
     }
     return OSDCMD_OK;

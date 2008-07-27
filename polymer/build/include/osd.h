@@ -123,6 +123,7 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 #define OSDTEXT_YELLOW "^23"
 #define OSDTEXT_BRIGHT "^S0"
 
+#define OSD_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT
 #define TEXTSIZE 32768
 
 #endif // __osd_h__

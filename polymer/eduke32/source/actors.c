@@ -1030,7 +1030,8 @@ static void moveplayers(void) //Players
                     otherx = 0;
                 }
 
-                execute(i,s->yvel,otherx);
+                if (actorscrptr[sprite[i].picnum])
+                    execute(i,s->yvel,otherx);
 
                 if (ud.multimode > 1)
                     if (sprite[g_player[otherp].ps->i].extra > 0)
@@ -2261,11 +2262,13 @@ CLEAR_THE_BOLT:
         case STEAM__STATIC:
         case CEILINGSTEAM__STATIC:
             p = findplayer(s, &x);
-            execute(i,p,x);
+            if (actorscrptr[sprite[i].picnum])
+                execute(i,p,x);
             goto BOLT;
         case WATERBUBBLEMAKER__STATIC:
             p = findplayer(s, &x);
-            execute(i,p,x);
+            if (actorscrptr[sprite[i].picnum])
+                execute(i,p,x);
             goto BOLT;
         }
 
@@ -2730,8 +2733,11 @@ static void moveweapons(void)
 
                     if (hittype[i].projectile.workslike & PROJECTILE_FLAG_HITSCAN)
                     {
-                        p = findplayer(s,&x);
-                        execute(i,p,x);
+                        if (actorscrptr[sprite[i].picnum])
+                        {
+                            p = findplayer(s,&x);
+                            execute(i,p,x);
+                        }
                         goto BOLT;
                     }
 
@@ -3091,8 +3097,11 @@ static void moveweapons(void)
                 goto BOLT;
 
             case SHOTSPARK1__STATIC:
-                p = findplayer(s,&x);
-                execute(i,p,x);
+                if (actorscrptr[sprite[i].picnum])
+                {
+                    p = findplayer(s,&x);
+                    execute(i,p,x);
+                }
                 goto BOLT;
             }
         }
@@ -4760,10 +4769,11 @@ DETONATEB:
             }
         }
         // #endif
-
-        p = findplayer(s,&x);
-
-        execute(i,p,x);
+        if (actorscrptr[sprite[i].picnum])
+        {
+            p = findplayer(s,&x);
+            execute(i,p,x);
+        }
 
 BOLT:
 
@@ -5204,8 +5214,11 @@ static void moveexplosions(void)  // STATNUM 5
             case FORCERIPPLE__STATIC:
             case TRANSPORTERSTAR__STATIC:
             case TRANSPORTERBEAM__STATIC:
-                p = findplayer(s,&x);
-                execute(i,p,x);
+                if (actorscrptr[sprite[i].picnum])
+                {
+                    p = findplayer(s,&x);
+                    execute(i,p,x);
+                }
                 goto BOLT;
 
             case SHELL__STATIC:

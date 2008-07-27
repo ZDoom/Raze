@@ -511,7 +511,7 @@ void getpackets(void)
     {
         if (setgamemode(!ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
         {
-            OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "Failed setting fullscreen video mode.\n");
+            OSD_Printf(OSD_ERROR "Failed setting fullscreen video mode.\n");
             if (setgamemode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP))
                 gameexit("Failed to recover from failure to set fullscreen video mode.\n");
         }
@@ -2446,7 +2446,7 @@ static void operatefta(void)
 
     if (fta_quotes[g_player[screenpeek].ps->ftq] == NULL)
     {
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d\n",__FILE__,__LINE__,g_player[screenpeek].ps->ftq);
+        OSD_Printf(OSD_ERROR "%s %d null quote %d\n",__FILE__,__LINE__,g_player[screenpeek].ps->ftq);
         return;
     }
 
@@ -2489,7 +2489,7 @@ void FTA(int q, player_struct *p)
 
     if (fta_quotes[q] == NULL)
     {
-        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "%s %d null quote %d\n",__FILE__,__LINE__,q);
+        OSD_Printf(OSD_ERROR "%s %d null quote %d\n",__FILE__,__LINE__,q);
         return;
     }
 
@@ -5338,7 +5338,7 @@ int spawn(int j, int pn)
             if (sp->hitag && sp->picnum == WATERBUBBLEMAKER)
             {
                 // JBF 20030913: Pisses off move(), eg. in bobsp2
-                OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
+                OSD_Printf(OSD_ERROR "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
                            i,sp->x,sp->y);
                 sp->hitag = 0;
             }
@@ -9672,12 +9672,14 @@ void Shutdown(void)
 
 static void compilecons(void)
 {
-    int i;
+    int i, psm = pathsearchmode;
     label     = (char *)&sprite[0]; // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
     labelcode = (intptr_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
     labeltype = (intptr_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
-    // if we compile for a V7 engine wall[] should be used for label names since it's bigger
 
+    Bcorrectfilename(confilename,0);
+    // if we compile for a V7 engine wall[] should be used for label names since it's bigger
+    pathsearchmode = 1;
     if (userconfiles == 0)
     {
         i = kopen4load(confilename,0);
@@ -9728,6 +9730,7 @@ static void compilecons(void)
     clearbufbyte(&wall[0], sizeof(walltype) * MAXWALLS, 0);
 
     OnEvent(EVENT_INIT, -1, -1, -1);
+    pathsearchmode = psm;
 }
 
 static void sanitizegametype()
@@ -10167,6 +10170,12 @@ void app_main(int argc,const char **argv)
 
 #ifdef RENDERTYPEWIN
     backgroundidle = 0;
+#endif
+
+#ifdef _WIN32
+    tempbuf[GetModuleFileName(NULL,tempbuf,BMAX_PATH)] = 0;
+    Bcorrectfilename(tempbuf,1);
+    chdir(tempbuf);
 #endif
 
     OSD_SetLogFile("eduke32.log");
@@ -10890,7 +10899,7 @@ static int opendemoread(int which_demo) // 0 = mine
     newgame(ud.volume_number,ud.level_number,ud.player_skill);
     return(1);
 corrupt:
-    OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "Demo %d header is corrupt.\n",which_demo);
+    OSD_Printf(OSD_ERROR "Demo %d header is corrupt.\n",which_demo);
     ud.reccnt = 0;
     kclose(recfilep);
     return 0;
@@ -11043,7 +11052,7 @@ RECHECK:
                     l = min(ud.reccnt,RECSYNCBUFSIZ);
                     if (kdfread(recsync,sizeof(input)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode)
                     {
-                        OSD_Printf(OSDTEXT_DARKRED OSDTEXT_BRIGHT "Demo %d is corrupt.\n", which_demo-1);
+                        OSD_Printf(OSD_ERROR "Demo %d is corrupt.\n", which_demo-1);
                         foundemo = 0;
                         ud.reccnt = 0;
                         kclose(recfilep);

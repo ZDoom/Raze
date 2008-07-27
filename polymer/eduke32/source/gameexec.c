@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void restoremapstate(mapstate_t *save);
 void savemapstate(mapstate_t *save);
-#define CON_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT "Line %d, "
+#define CON_ERROR OSD_ERROR "Line %d, "
 
 int g_i,g_p;
 static int g_x;
@@ -7719,15 +7719,15 @@ void LoadActor(int iActor)
 
 void execute(int iActor,int iPlayer,int lDist)
 {
-    short temp, temp2;
+    int temp, temp2;
+
+//    if (actorscrptr[sprite[iActor].picnum] == 0) return;
 
     g_i = iActor;    // Sprite ID
     g_p = iPlayer;   // Player ID
     g_x = lDist;     // ??
     g_sp = &sprite[g_i];    // Pointer to sprite structure
     g_t = &hittype[g_i].temp_data[0];   // Sprite's 'extra' data
-
-    if (actorscrptr[g_sp->picnum] == 0) return;
 
     insptr = 4 + (actorscrptr[g_sp->picnum]);
 
@@ -7946,8 +7946,8 @@ void restoremapstate(mapstate_t *save)
     if (save != NULL)
     {
         int i, k, x;
-        char phealth[ud.multimode];
         intptr_t j;
+        char phealth[MAXPLAYERS];
 
         for (i=0;i<ud.multimode;i++)
             phealth[i] = sprite[g_player[i].ps->i].extra;

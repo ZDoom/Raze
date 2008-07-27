@@ -188,7 +188,7 @@ static int osdcmd_map(const osdfuncparm_t *parm)
 
     if ((i = kopen4load(filename,0)) < 0)
     {
-        OSD_Printf("map: file \"%s\" not found.\n", filename);
+        OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
         return OSDCMD_OK;
     }
     kclose(i);
