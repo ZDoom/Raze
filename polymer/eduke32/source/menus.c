@@ -3093,7 +3093,7 @@ cheat_for_port_credits:
         c = (320>>1)-120;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        x = (7+(getrendermode() >= 3));
+        x = (7/*+(getrendermode() >= 3)*/);
 #else
         x = 7;
 #endif
