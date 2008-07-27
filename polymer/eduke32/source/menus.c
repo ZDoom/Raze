@@ -738,7 +738,7 @@ void menus(void)
                 "Switch weapons when empty",
                 "-",
                 "-",
-                "Network packets/sec",
+                "Net packets per second",
                 "-",
                 "-",
                 "Multiplayer macros",

@@ -9369,6 +9369,12 @@ static void checkcommandline(int argc, const char **argv)
                         initprintf("Using CON file '%s'.\n",confilename);
                         continue;
                     }
+                    if (!Bstrcasecmp(k,".def"))
+                    {
+                        duke3ddef = (char *)argv[i++];
+                        initprintf("Using DEF file: %s.\n",duke3ddef);
+                        continue;
+                    }
                 }
             }
             i++;

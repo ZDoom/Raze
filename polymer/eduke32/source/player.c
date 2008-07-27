@@ -548,8 +548,8 @@ int shoot(int i,int atwith)
 
             if (p >= 0)
             {
-                int angRange;
-                int zRange;
+                int angRange=32;
+                int zRange=256;
 
                 SetGameVarID(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
                 OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
@@ -560,7 +560,7 @@ int shoot(int i,int atwith)
                 }
                 if (j >= 0)
                 {
-                    dal = ((sprite[j].xrepeat*tilesizy[sprite[j].picnum])<<1)+(5<<8);
+                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(5<<8);
                     if (((sprite[j].picnum >= GREENSLIME)&&(sprite[j].picnum <= GREENSLIME+7))||(sprite[j].picnum ==ROTATEGUN))
                     {
                         dal -= (8<<8);
@@ -570,8 +570,6 @@ int shoot(int i,int atwith)
                     sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
                 }
 
-                angRange=32;
-                zRange=256;
                 SetGameVarID(g_iAngRangeVarID,angRange, i,p);
                 SetGameVarID(g_iZRangeVarID,zRange,i,p);
                 OnEvent(EVENT_GETSHOTRANGE, i,p, -1);
@@ -589,7 +587,7 @@ int shoot(int i,int atwith)
                         if (hitspr != -1)
                         {
                             if (sprite[hitspr].statnum == 1 || sprite[hitspr].statnum == 2 || sprite[hitspr].statnum == 10 || sprite[hitspr].statnum == 13)
-                                j = 1;
+                                j = hitspr;
                         }
                     }
 
@@ -885,7 +883,7 @@ DOSKIPBULLETHOLE:
                 }
                 if (j >= 0)
                 {
-                    dal = ((sprite[j].xrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
+                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
                     zvel = ((sprite[j].z-sz-dal)*vel) / ldist(&sprite[g_player[p].ps->i], &sprite[j]);
                     if (sprite[j].picnum != RECON)
                         sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
@@ -1115,8 +1113,8 @@ DOSKIPBULLETHOLE:
 
             if (p >= 0)
             {
-                int angRange;
-                int zRange;
+                int angRange=32;
+                int zRange=256;
 
                 SetGameVarID(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
                 OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
@@ -1127,7 +1125,7 @@ DOSKIPBULLETHOLE:
                 }
                 if (j >= 0)
                 {
-                    dal = ((sprite[j].xrepeat*tilesizy[sprite[j].picnum])<<1)+(5<<8);
+                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(5<<8);
                     if (((sprite[j].picnum>=GREENSLIME)&&(sprite[j].picnum<=GREENSLIME+7))||(sprite[j].picnum==ROTATEGUN))
                     {
 
@@ -1137,9 +1135,6 @@ DOSKIPBULLETHOLE:
                     zvel = ((sprite[j].z-sz-dal)<<8) / ldist(&sprite[g_player[p].ps->i], &sprite[j]) ;
                     sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
                 }
-
-                angRange=32;
-                zRange=256;
 
                 SetGameVarID(g_iAngRangeVarID,angRange, i,p);
                 SetGameVarID(g_iZRangeVarID,zRange,i,p);
@@ -1160,7 +1155,7 @@ DOSKIPBULLETHOLE:
                         if (hitspr != -1)
                         {
                             if (sprite[hitspr].statnum == 1 || sprite[hitspr].statnum == 2 || sprite[hitspr].statnum == 10 || sprite[hitspr].statnum == 13)
-                                j = 1;
+                                j = hitspr;
                         }
                     }
 
@@ -1419,7 +1414,7 @@ SKIPBULLETHOLE:
 
                 if (j >= 0)
                 {
-                    dal = ((sprite[j].xrepeat*tilesizy[sprite[j].picnum])<<1)-(12<<8);
+                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)-(12<<8);
                     zvel = ((sprite[j].z-sz-dal)*vel) / ldist(&sprite[g_player[p].ps->i], &sprite[j]) ;
                     sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
                 }
@@ -1519,7 +1514,7 @@ SKIPBULLETHOLE:
 
                 if (j >= 0)
                 {
-                    dal = ((sprite[j].xrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
+                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
                     zvel = ((sprite[j].z-sz-dal)*vel) / ldist(&sprite[g_player[p].ps->i], &sprite[j]);
                     if (sprite[j].picnum != RECON)
                         sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
@@ -1718,7 +1713,7 @@ SKIPBULLETHOLE:
 
                 if (j >= 0)
                 {
-                    dal = ((sprite[j].xrepeat*tilesizy[sprite[j].picnum])<<1)+(5<<8);
+                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(5<<8);
                     if (((sprite[j].picnum >= GREENSLIME)&&(sprite[j].picnum <= GREENSLIME+7))||(sprite[j].picnum ==ROTATEGUN))
                     {
                         dal -= (8<<8);
@@ -1810,7 +1805,7 @@ SKIPBULLETHOLE:
 
                 if (j >= 0)
                 {
-                    dal = ((sprite[j].xrepeat*tilesizy[sprite[j].picnum])<<1);
+                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1);
                     zvel = ((sprite[j].z-sz-dal-(4<<8))*768) / (ldist(&sprite[g_player[p].ps->i], &sprite[j]));
                     sa = getangle(sprite[j].x-sx,sprite[j].y-sy);
                 }

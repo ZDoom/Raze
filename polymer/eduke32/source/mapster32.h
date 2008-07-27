@@ -105,7 +105,6 @@ static inline void SetBOSS1Palette();
 static inline void SetSLIMEPalette();
 static inline void SetWATERPalette();
 static inline void SetGAMEPalette();
-static void kensetpalette(char *vgapal);
 
 extern short grid;
 

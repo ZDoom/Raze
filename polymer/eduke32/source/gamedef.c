@@ -3430,6 +3430,7 @@ static int parsecommand(void)
     case CON_READGAMEVAR:
     case CON_USERQUOTE:
     case CON_STARTTRACKVAR:
+    case CON_CLEARMAPSTATE:
         transvar();
         return 0;
 
@@ -3594,7 +3595,6 @@ static int parsecommand(void)
     case CON_FLASH:
     case CON_SAVEMAPSTATE:
     case CON_LOADMAPSTATE:
-    case CON_CLEARMAPSTATE:
         return 0;
 
     case CON_DRAGPOINT:

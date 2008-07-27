@@ -6504,11 +6504,10 @@ case CON_CHANGESPRITESECT:
         return 0;
 
     case CON_CLEARMAPSTATE:
-        if (map[ud.volume_number*MAXLEVELS+ud.level_number].savedstate)
-        {
-            FreeMapState(ud.volume_number*MAXLEVELS+ud.level_number);
-        }
         insptr++;
+        j = GetGameVarID(*insptr++,g_i,g_p);
+        if (map[j].savedstate)
+            FreeMapState(j);
         return 0;
 
     case CON_STOPALLSOUNDS:

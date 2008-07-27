@@ -38,6 +38,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "scriptfile.h"
 #include "crc32.h"
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #define VERSION " 1.2.0devel"
 
 static int floor_over_floor;
@@ -1163,7 +1168,7 @@ static void ReadHelpFile(const char *name)
 
     helppage=malloc(IHELP_INITPAGES * sizeof(helppage_t *));
     numallocpages=IHELP_INITPAGES;
-    if (!helppage) goto ERROR;
+    if (!helppage) goto HELPFILE_ERROR;
 
     i=0;
     while (!Bfeof(fp) && !ferror(fp))
@@ -1182,7 +1187,7 @@ static void ReadHelpFile(const char *name)
         if (Bfeof(fp) || charsread<=0) break;
 
         hp=Bcalloc(1,sizeof(helppage_t) + IHELP_INITLINES*80);
-        if (!hp) goto ERROR;
+        if (!hp) goto HELPFILE_ERROR;
         hp->numlines = IHELP_INITLINES;
 
         if (charsread == 79 && tempbuf[78]!='\n') skip=1;
@@ -1193,7 +1198,7 @@ static void ReadHelpFile(const char *name)
             if (j >= hp->numlines)
             {
                 hp=realloc(hp, sizeof(helppage_t) + 2*hp->numlines*80);
-                if (!hp) goto ERROR;
+                if (!hp) goto HELPFILE_ERROR;
                 hp->numlines *= 2;
             }
 
@@ -1225,27 +1230,27 @@ static void ReadHelpFile(const char *name)
         while (!newpage(tempbuf) && !Bfeof(fp) && charsread>0);
 
         hp=realloc(hp, sizeof(helppage_t) + j*80);
-        if (!hp) goto ERROR;
+        if (!hp) goto HELPFILE_ERROR;
         hp->numlines=j;
 
         if (i >= numallocpages)
         {
             helppage = realloc(helppage, 2*numallocpages*sizeof(helppage_t *));
             numallocpages *= 2;
-            if (!helppage) goto ERROR;
+            if (!helppage) goto HELPFILE_ERROR;
         }
         helppage[i] = hp;
         i++;
     }
 
     helppage = realloc(helppage, i*sizeof(helppage_t *));
-    if (!helppage) goto ERROR;
+    if (!helppage) goto HELPFILE_ERROR;
     numhelppages = i;
 
     Bfclose(fp);
     return;
 
-ERROR:
+HELPFILE_ERROR:
 
     Bfclose(fp);
     initprintf("ReadHelpFile(): ERROR allocating memory.\n");
@@ -6698,6 +6703,12 @@ static void checkcommandline(int argc, const char **argv)
                         addgroup(argv[i++]);
                         continue;
                     }
+                    if (!Bstrcasecmp(k,".def"))
+                    {
+                        defsfilename = (char *)argv[i++];
+                        initprintf("Using DEF file: %s.\n",defsfilename);
+                        continue;
+                    }
                 }
             }
             i++;
@@ -6708,6 +6719,12 @@ static void checkcommandline(int argc, const char **argv)
 int ExtPreInit(int argc,const char **argv)
 {
     wm_setapptitle("Mapster32"VERSION);
+
+#ifdef _WIN32
+    tempbuf[GetModuleFileName(NULL,tempbuf,BMAX_PATH)] = 0;
+    Bcorrectfilename(tempbuf,1);
+    chdir(tempbuf);
+#endif
 
     OSD_SetLogFile("mapster32.log");
     OSD_SetVersionString("Mapster32"VERSION,0,2);
