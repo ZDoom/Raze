@@ -10,6 +10,8 @@ extern struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 
 int registerosdcommands(void);
 
+extern float r_ambientlight,r_ambientlightrecip;
+
 enum cvartypes
 {
     CVAR_INT,

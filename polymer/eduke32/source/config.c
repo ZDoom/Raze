@@ -663,6 +663,13 @@ int32 CONFIG_ReadSetup(void)
         tempbuf[0] = 0;
         SCRIPT_GetString(ud.config.scripthandle, "Screen Setup", "VidContrast",&tempbuf[0]);
         if (tempbuf[0]) vid_contrast = atof(tempbuf);
+        tempbuf[0] = 0;
+        SCRIPT_GetString(ud.config.scripthandle, "Screen Setup", "AmbientLight",&tempbuf[0]);
+        if (atof(tempbuf)) 
+        {
+            r_ambientlight = atof(tempbuf);
+            r_ambientlightrecip = 1/r_ambientlight;
+        }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", &ud.config.ScreenBPP);
@@ -963,7 +970,8 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutString(ud.config.scripthandle, "Screen Setup", "VidBrightness",tempbuf);
     Bsprintf(tempbuf,"%.2f",vid_contrast);
     SCRIPT_PutString(ud.config.scripthandle, "Screen Setup", "VidContrast",tempbuf);
-
+    Bsprintf(tempbuf,"%.2f",r_ambientlight);
+    SCRIPT_PutString(ud.config.scripthandle, "Screen Setup", "AmbientLight",tempbuf);
 #ifdef _WIN32
     SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "CheckForUpdates", ud.config.CheckForUpdates, false, false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "LastUpdateCheck", ud.config.LastUpdateCheck, false, false);

@@ -3891,6 +3891,7 @@ void se40code(int x,int y,int z,int a,int h, int smoothratio)
 #endif
 
 static int oyrepeat=-1;
+extern float r_ambientlight;
 
 void displayrooms(int snum,int smoothratio)
 {
@@ -3912,7 +3913,7 @@ void displayrooms(int snum,int smoothratio)
 
     smoothratio = min(max(smoothratio,0),65536);
 
-    visibility = p->visibility;
+    visibility = p->visibility*(numplayers>1?1:r_ambientlightrecip);
 
     if (ud.pause_on || g_player[snum].ps->on_crane > -1) smoothratio = 65536;
 

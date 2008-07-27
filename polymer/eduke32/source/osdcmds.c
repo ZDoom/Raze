@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern int voting, doquicksave;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
+float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
 
 static inline int osdcmd_quit(const osdfuncparm_t *parm)
 {
@@ -698,8 +699,7 @@ cvarmappings cvar[] =
     { "r_showfps", "r_showfps: show the frame rate counter", (void*)&ud.tickrate, CVAR_BOOL, 0, 0, 1 },
     { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void*)&ud.shadows, CVAR_BOOL, 0, 0, 1 },
     { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void*)&ud.config.useprecache, CVAR_BOOL, 0, 0, 1 },
-    { "r_visibility", "r_visibility: sets the global map visibility", (void*)&ud.const_visibility, CVAR_INT|128, 0, INT_MIN, INT_MAX },
-
+    
     { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void*)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 0, 1 },
     { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void*)&ud.config.VoiceToggle, CVAR_INT, 0, 0, 2 },
     { "snd_fxvolume", "snd_fxvolume: volume of sound effects", (void*)&ud.config.FXVolume, CVAR_INT, 0, 0, 255 },
@@ -1313,6 +1313,22 @@ static int osdcmd_setcrosshairscale(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int osdcmd_visibility(const osdfuncparm_t *parm)
+{
+    float f;
+
+    if (parm->numparms != 1)
+    {
+        OSD_Printf("\"r_ambientlight\" is \"%.1f\"\n",r_ambientlight);
+        return OSDCMD_SHOWHELP;
+    }
+    f = max(0.05f,min(10.f,atof(parm->parms[0])));
+    r_ambientlight = f;
+    r_ambientlightrecip = 1/f;
+    OSD_Printf("%s\n",parm->raw);
+    return OSDCMD_OK;
+}
+
 int registerosdcommands(void)
 {
     unsigned int i;
@@ -1372,6 +1388,8 @@ int registerosdcommands(void)
     OSD_RegisterFunction("rate","rate: sets the multiplayer packet send rate, in packets/sec",osdcmd_rate);
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
     OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
+
+    OSD_RegisterFunction("r_ambientlight", "r_ambientlight: sets the global map light level",osdcmd_visibility);
 
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
     OSD_RegisterFunction("addlogvar","addlogvar <gamevar>: prints the value of a gamevar", osdcmd_addlogvar);

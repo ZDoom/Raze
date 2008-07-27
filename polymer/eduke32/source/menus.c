@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "mouse.h"
 #include "osd.h"
+#include "osdcmds.h"
 #include <sys/stat.h>
 
 extern char inputloc;
@@ -2441,6 +2442,7 @@ cheat_for_port_credits:
                 "Use models",
                 "Blend model animations",
                 "-",
+                "Ambient light level",
                 "Use VSync",
                 NULL
             };
@@ -2457,7 +2459,7 @@ cheat_for_port_credits:
                 io++;
             }
 
-            onbar = 0;
+            onbar = (probey==11);
             x = probesm(c,yy+5,0,io);
 
             if (x == -1)
@@ -2552,6 +2554,18 @@ cheat_for_port_credits:
                     mgametextpal(d,yy, r_animsmoothing && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 11:
+                {
+                    int i = (float)r_ambientlight*1024.f;
+                    int j = i;
+                    _bar(1,d+8,yy+7, &i,128,x==io,MENUHIGHLIGHT(io),0,128,4096);
+                    if (i != j)
+                    {
+                        r_ambientlight = (float)i/1024.f;
+                        r_ambientlightrecip = 1/r_ambientlight;
+                    }
+                    break;
+                }
+                case 12:
                 {
                     int ovsync = vsync;
                     if (x==io) vsync = !vsync;
@@ -3079,11 +3093,11 @@ cheat_for_port_credits:
         c = (320>>1)-120;
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        x = (6+(getrendermode() >= 3));
+        x = (7+(getrendermode() >= 3));
 #else
-        x = 6;
+        x = 7;
 #endif
-        onbar = 0; // (probey == 4);
+        onbar = (!getrendermode() && probey == 6); // (probey == 4);
         if (probey == 0 || probey == 1 || probey == 2)
             x = probe(c,50,16,x);
         else if (probey == 3)
@@ -3370,9 +3384,18 @@ cheat_for_port_credits:
         */
         if (!getrendermode())
         {
+            int i = (float)r_ambientlight*1024.f;
+            int j = i;
             menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"PIXEL DOUBLING");
             menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"OFF":"ON");
             modval(0,1,(int *)&ud.detail,1,probey==5);
+            menutext(c,50+62+16+16+16,MENUHIGHLIGHT(4),PHX(-6),"AMBIENT LIGHT");
+            _bar(0,c+171,50+62+16+16+16,&i,128,x==6,MENUHIGHLIGHT(probey),0,128,4096);
+            if (i != j)
+            {
+                r_ambientlight = (float)i/1024.f;
+                r_ambientlightrecip = 1/r_ambientlight;
+            }
         }
 #if defined(POLYMOST) && defined(USE_OPENGL)
         else
