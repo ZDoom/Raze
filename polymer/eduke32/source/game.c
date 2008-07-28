@@ -2343,26 +2343,21 @@ static void tics(void)
         j=(timer*AVERAGEFRAMES)/(i-frameval[framecnt]);
         if (ud.tickrate /*&& !(g_player[myconnectindex].ps->gm&MODE_MENU)*/)
         {
-            int ii, k = 0, p = 8;
+            int p = 32;
 
-            Bsprintf(b,"%d",max(j,0));
+            Bsprintf(b,"%4d",max(j,0));
 //            minitext(scale(windowx1,320,xdim)+1,scale(windowy1,200,ydim)+1,b,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
 
-            ii = scale(k,ydim,200)+windowy1;
-
-            if (j > 9) p += 8;
-            if (j > 99) p += 8;
-            if (j > 999) p += 8;
             if (xdim <= 640) p >>= 1;
 
-            printext256(windowx2-p+1,ii+2,0,-1,b,!(xdim > 640));
-            printext256(windowx2-p,ii+1,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?248:31,-1,b,!(xdim > 640));
+            printext256(windowx2-p+1,windowy1+2,0,-1,b,!(xdim > 640));
+            printext256(windowx2-p,windowy1+1,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?248:31,-1,b,!(xdim > 640));
 
             if (numplayers > 1)
                 if ((totalclock - lastpackettime) > 1)
                 {
-                    for (ii = (totalclock - lastpackettime);ii>0 && ii<(xdim>>2);ii--)
-                        printext256(4L*ii,scale(k,ydim,200),31,-1,".",0);
+                    for (p = (totalclock - lastpackettime);p>0 && p<(xdim>>2);p--)
+                        printext256(4L*p,0,31,-1,".",0);
                 }
 
         }
@@ -8246,23 +8241,23 @@ FAKE_F3:
         restorepalette = 1;
         vscrn();
     }
-/*
-    if (KB_UnBoundKeyPressed(sc_F11))
-    {
-        KB_ClearKeyDown(sc_F11);
-        ud.brightness+=8;
-        if (SHIFTS_IS_PRESSED) ud.brightness-=16;
+    /*
+        if (KB_UnBoundKeyPressed(sc_F11))
+        {
+            KB_ClearKeyDown(sc_F11);
+            ud.brightness+=8;
+            if (SHIFTS_IS_PRESSED) ud.brightness-=16;
 
-        if (ud.brightness > (7<<3))
-            ud.brightness = 0;
-        else if (ud.brightness < 0)
-            ud.brightness = (7<<3);
+            if (ud.brightness > (7<<3))
+                ud.brightness = 0;
+            else if (ud.brightness < 0)
+                ud.brightness = (7<<3);
 
-        setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
-        if (ud.brightness < 40) FTA(29 + (ud.brightness>>3) ,g_player[myconnectindex].ps);
-        else if (ud.brightness < 80) FTA(96 + (ud.brightness>>3) - 5,g_player[myconnectindex].ps);
-    }
-*/
+            setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+            if (ud.brightness < 40) FTA(29 + (ud.brightness>>3) ,g_player[myconnectindex].ps);
+            else if (ud.brightness < 80) FTA(96 + (ud.brightness>>3) - 5,g_player[myconnectindex].ps);
+        }
+    */
     if (KB_UnBoundKeyPressed(sc_F11))
     {
         KB_ClearKeyDown(sc_F11);
@@ -9400,7 +9395,7 @@ static void Logo(void)
     flushperms();
     nextpage();
 
-    Bsprintf(tempbuf,HEAD2 " - %s",duke3dgrpstring);
+    Bsprintf(tempbuf,"%s - " HEAD2,duke3dgrpstring);
     wm_setapptitle(tempbuf);
 
     MUSIC_StopSong();
@@ -10472,7 +10467,7 @@ void app_main(int argc,const char **argv)
 
     // gotta set the proper title after we compile the CONs if this is the full version
 
-    Bsprintf(tempbuf,HEAD2 " - %s",duke3dgrpstring);
+    Bsprintf(tempbuf,"%s - " HEAD2,duke3dgrpstring);
     wm_setapptitle(tempbuf);
 
 
@@ -11984,7 +11979,7 @@ void dobonus(int bonusonly)
         350, 380,VICTORY1+8,86,59
     };
 
-    Bsprintf(tempbuf,HEAD2 " - %s",duke3dgrpstring);
+    Bsprintf(tempbuf,"%s - " HEAD2,duke3dgrpstring);
     wm_setapptitle(tempbuf);
 
     if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])

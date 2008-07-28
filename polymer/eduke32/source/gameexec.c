@@ -5719,7 +5719,7 @@ case CON_CHANGESPRITESECT:
         hittype[g_i].temp_data[9]=0;
         break;
     }
-    
+
     case CON_CMENU:
         insptr++;
         j=GetGameVarID(*insptr++, g_i, g_p);

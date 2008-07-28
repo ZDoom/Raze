@@ -4657,7 +4657,7 @@ SHOOTINCODE:
 
     if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_GLOWS)
         p->random_club_frame += 64; // Glowing
-    
+
     // this is for WEAPON_FLAG_FIREEVERYOTHER
     if (hittype[p->i].temp_data[7])
     {

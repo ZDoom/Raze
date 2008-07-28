@@ -2680,6 +2680,7 @@ cheat_for_port_credits:
             int io, ii, yy, d=c+160+40, enabled;
             char *opts[] =
             {
+                "Show setup window at start",
                 "Show crosshair",
                 "Crosshair size",
                 "-",
@@ -2692,8 +2693,7 @@ cheat_for_port_credits:
                 "Shadows",
                 "Screen tilting",
                 "-",
-                "Show DM opponent weapon",
-                "Demo playback cameras",
+                "Show framerate",
                 "Demo recording",
                 "-",
                 "-",
@@ -2714,7 +2714,7 @@ cheat_for_port_credits:
                 io++;
             }
 
-            onbar = (probey == 1 || probey == 2 || probey == 3);
+            onbar = (probey == 2 || probey == 3 || probey == 4);
             x = probesm(c,yy+5,0,io);
 
             if (x == -1)
@@ -2735,20 +2735,25 @@ cheat_for_port_credits:
                 switch (io)
                 {
                 case 0:
+                    if (x==io) ud.config.ForceSetup = 1-ud.config.ForceSetup;
+                    modval(0,1,(int *)&ud.config.ForceSetup,1,probey==io);
+                    mgametextpal(d,yy, ud.config.ForceSetup ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                    break;
+                case 1:
                     if (x==io) ud.crosshair = !ud.crosshair;
                     modval(0,1,(int *)&ud.crosshair,1,probey==io);
                     {
                         mgametextpal(d,yy,ud.crosshair?"Yes":"No", MENUHIGHLIGHT(io), 0);
                         break;
                     }
-                case 1:
+                case 2:
                 {
                     int sbs = ud.crosshairscale;
                     _bar(1,d+8,yy+7, &sbs,5,x==io,MENUHIGHLIGHT(io),0,25,100);
                     ud.crosshairscale = min(100,max(10,sbs));
                 }
                 break;
-                case 2:
+                case 3:
                 {
                     int i;
                     i = ud.screen_size;
@@ -2769,7 +2774,7 @@ cheat_for_port_credits:
                     }
                 }
                 break;
-                case 3:
+                case 4:
                 {
                     int sbs, sbsl;
                     sbs = sbsl = ud.statusbarscale-37;
@@ -2781,22 +2786,22 @@ cheat_for_port_credits:
                     }
                 }
                 break;
-                case 4:
+                case 5:
                     if (x==io) ud.levelstats = 1-ud.levelstats;
                     modval(0,1,(int *)&ud.levelstats,1,probey==io);
                     mgametextpal(d,yy, ud.levelstats ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
-                case 5:
+                case 6:
                     if (x==io) ud.runkey_mode = 1-ud.runkey_mode;
                     modval(0,1,(int *)&ud.runkey_mode,1,probey==io);
                     mgametextpal(d,yy, ud.runkey_mode ? "No" : "Yes", MENUHIGHLIGHT(io), 0);
                     break;
-                case 6:
+                case 7:
                     if (x==io) ud.shadows = 1-ud.shadows;
                     modval(0,1,(int *)&ud.shadows,1,probey==io);
                     mgametextpal(d,yy, ud.shadows ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 7:
+                case 8:
                     if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
 #ifdef POLYMOST
                     if (!ud.screen_tilting) setrollangle(0);
@@ -2804,16 +2809,10 @@ cheat_for_port_credits:
                     modval(0,1,(int *)&ud.screen_tilting,1,probey==io);
                     mgametextpal(d,yy, ud.screen_tilting ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;  // original had a 'full' option
-                case 8:
-                    if (x==io) ud.showweapons = 1-ud.showweapons;
-                    modval(0,1,(int *)&ud.showweapons,1,probey==io);
-                    ud.config.ShowOpponentWeapons = ud.showweapons;
-                    mgametextpal(d,yy, ud.config.ShowOpponentWeapons ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
-                    break;
                 case 9:
-                    if (x==io) ud.democams = 1-ud.democams;
-                    modval(0,1,(int *)&ud.democams,1,probey==io);
-                    mgametextpal(d,yy, ud.democams ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    if (x==io) ud.tickrate = 1-ud.tickrate;
+                    modval(0,1,(int *)&ud.tickrate,1,probey==io);
+                    mgametextpal(d,yy, ud.tickrate ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 10:
                     if (x==io)
@@ -2854,17 +2853,17 @@ cheat_for_port_credits:
                 "-",
                 "Show inv & pickup messages",
                 "HUD weapon display",
-                "Show framerate",
+                "Demo playback cameras",
                 "-",
-                "Multiplayer auto voting",
-                "Private messages in DM",
-                "Show player names in DM",
+                "DM: Ignore map votes",
+                "DM: Use private messages",
+                "DM: Show player names",
+                "DM: Show player weapons",
                 "-",
                 "Console text style",
                 "-",
-                "Show startup window",
 #ifdef _WIN32
-                "Auto-check for updates",
+                "Check for updates at start",
 #else
                 "-",
                 "-",
@@ -2930,14 +2929,14 @@ cheat_for_port_credits:
                     }
                     modval(0,2,(int *)&ud.drawweapon,1,probey==io);
                     {
-                        char *s[] = { "Disabled", "Normal", "Item" };
+                        char *s[] = { "Off", "Normal", "Icon only" };
                         mgametextpal(d,yy, s[ud.drawweapon], MENUHIGHLIGHT(io), 0);
                         break;
                     }
                 case 3:
-                    if (x==io) ud.tickrate = 1-ud.tickrate;
-                    modval(0,1,(int *)&ud.tickrate,1,probey==io);
-                    mgametextpal(d,yy, ud.tickrate ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                    if (x==io) ud.democams = 1-ud.democams;
+                    modval(0,1,(int *)&ud.democams,1,probey==io);
+                    mgametextpal(d,yy, ud.democams ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
                 case 4:
                     if (x==io)
@@ -2961,6 +2960,12 @@ cheat_for_port_credits:
                     mgametextpal(d,yy, ud.idplayers ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 7:
+                    if (x==io) ud.showweapons = 1-ud.showweapons;
+                    modval(0,1,(int *)&ud.showweapons,1,probey==io);
+                    ud.config.ShowOpponentWeapons = ud.showweapons;
+                    mgametextpal(d,yy, ud.config.ShowOpponentWeapons ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                    break;
+                case 8:
                 {
                     int osdmode = OSD_GetTextMode();
                     if (x==io) osdmode = !osdmode;
@@ -2970,11 +2975,6 @@ cheat_for_port_credits:
                         OSD_SetTextMode(osdmode);
                     break;
                 }
-                case 8:
-                    if (x==io) ud.config.ForceSetup = 1-ud.config.ForceSetup;
-                    modval(0,1,(int *)&ud.config.ForceSetup,1,probey==io);
-                    mgametextpal(d,yy, ud.config.ForceSetup ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
-                    break;
 #ifdef _WIN32
                 case 9:
                     i = ud.config.CheckForUpdates;
@@ -3024,6 +3024,7 @@ cheat_for_port_credits:
             break;
 
         case 1:
+            changesmade = 0;
             cmenu(700);
             break;
 
@@ -3105,11 +3106,6 @@ cheat_for_port_credits:
         {
             sound(PISTOL_BODYHIT);
             x=probey;
-            if (x > 0)
-            {
-                KB_ClearKeyDown(sc_LeftArrow);
-                KB_ClearKeyDown(sc_RightArrow);
-            }
         }
 
         switch (x)
@@ -3200,6 +3196,8 @@ cheat_for_port_credits:
             else changesmade &= ~4;
             if (newvidmode != curvidmode) changesmade |= 1;
             else changesmade &= ~1;
+            KB_ClearKeyDown(sc_LeftArrow);
+            KB_ClearKeyDown(sc_RightArrow);
         }
         break;
 
@@ -3275,6 +3273,8 @@ cheat_for_port_credits:
             }
             if (newfullscreen == fullscreen) changesmade &= ~2;
             else changesmade |= 2;
+            KB_ClearKeyDown(sc_LeftArrow);
+            KB_ClearKeyDown(sc_RightArrow);
             break;
 
         case 3:
@@ -3667,7 +3667,7 @@ cheat_for_port_credits:
             }
         }
 
-        mgametextpal(40,118,"Sensitivity",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),10);
+        mgametextpal(40,118,"Base mouse sensitivity",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),10);
         mgametextpal(40,118+9,"Use mouse aiming",!ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):DISABLEDMENUSHADE,10);
         mgametextpal(40,118+9+9,"Invert mouse",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2),10);
         mgametextpal(40,118+9+9+9,"Use mouse input smoothing",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1),10);
@@ -4365,127 +4365,253 @@ cheat_for_port_credits:
 
     case 700:
     case 701:
+
         c = (320>>1)-120;
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,24,0,0,"SOUND SETUP");
-        onbar = (probey == 2 || probey == 3);
 
-        x = probe(c,50,16,7);
-        switch (x)
         {
-        case -1:
-            if (g_player[myconnectindex].ps->gm&MODE_GAME && current_menu == 701)
+            int io, ii, yy, d=c+160+40, enabled, j;
+            char *opts[] =
             {
-                g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-                if (ud.multimode < 2  && ud.recstat != 2)
+                "Sound",
+                "Sound volume",
+                "-",
+                "Music",
+                "Music volume",
+                "-",
+                "Sample rate",
+                "Number of voices",
+                "-",
+                "Restart sound system",
+                "-",
+                "Duke talk",
+                "Other player sounds in DM",
+                "Ambient sounds",
+                "Reverse stereo channels",
+                NULL
+            };
+
+            yy = 37;
+            for (ii=io=0; opts[ii]; ii++)
+            {
+                if (opts[ii][0] == '-' && !opts[ii][1])
                 {
-                    ready2send = 1;
-                    totalclock = ototalclock;
+                    if (io <= probey) yy += 4;
+                    continue;
                 }
+                if (io < probey) yy += 8;
+                io++;
             }
 
-            else cmenu(202);
-            probey = 1;
-            break;
-        case 0:
-            if (ud.config.FXDevice >= 0)
+            onbar = (probey == 1 || probey == 3);
+            x = probesm(c,yy+5,0,io);
+
+            if (x == -1)
             {
-                ud.config.SoundToggle = 1-ud.config.SoundToggle;
-                if (ud.config.SoundToggle == 0)
+                if (g_player[myconnectindex].ps->gm&MODE_GAME && current_menu == 701)
                 {
-                    FX_StopAllSounds();
-                    clearsoundlocks();
-                }
-                onbar = 0;
-            }
-            break;
-        case 1:
-            if (ud.config.MusicDevice >= 0 && (numplayers < 2 || ud.config.MusicToggle))
-            {
-                ud.config.MusicToggle = 1-ud.config.MusicToggle;
-                if (ud.config.MusicToggle == 0) MUSIC_Pause();
-                else
-                {
-                    if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
+                    g_player[myconnectindex].ps->gm &= ~MODE_MENU;
+                    if (ud.multimode < 2  && ud.recstat != 2)
                     {
-                        if (map[(unsigned char)music_select].musicfn != NULL)
-                            playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
+                        ready2send = 1;
+                        totalclock = ototalclock;
                     }
-                    else playmusic(&env_music_fn[0][0],MAXVOLUMES*MAXLEVELS);
-
-                    MUSIC_Continue();
                 }
-            }
-            onbar = 0;
 
-            break;
-        case 4:
-            if (ud.config.SoundToggle && (ud.config.FXDevice >= 0))
+                else cmenu(202);
+                probey = 1;
+            }
+
+            yy = 37;
+            for (ii=io=0; opts[ii]; ii++)
             {
-                ud.config.VoiceToggle = (ud.config.VoiceToggle == 2) ? 0 : ud.config.VoiceToggle+1;
+                if (opts[ii][0] == '-' && !opts[ii][1])
+                {
+                    yy += 4;
+                    continue;
+                }
+                enabled = 1;
+
+                switch (io)
+                {
+                case 0:
+                    if (ud.config.FXDevice >= 0)
+                    {
+                        i = ud.config.SoundToggle;
+                        modval(0,1,(int *)&ud.config.SoundToggle,1,probey==io);
+                        if (x==io)
+                            ud.config.SoundToggle = 1-ud.config.SoundToggle;
+                        if (i != ud.config.SoundToggle)
+                        {
+                            if (ud.config.SoundToggle == 0)
+                            {
+                                FX_StopAllSounds();
+                                clearsoundlocks();
+                            }
+                        }
+                    }
+                    mgametextpal(d,yy, ud.config.SoundToggle ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    break;
+                case 1:
+                {
+                    enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
+                    l = ud.config.FXVolume;
+                    ud.config.FXVolume >>= 2;
+                    _bar(1,d+8,yy+7, &ud.config.FXVolume,4,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,64);
+                    ud.config.FXVolume <<= 2;
+                    if (l != ud.config.FXVolume)
+                        FX_SetVolume((short) ud.config.FXVolume);
+                }
+                break;
+                case 2:
+                    if (ud.config.MusicDevice >= 0 && (numplayers < 2 || ud.config.MusicToggle))
+                    {
+                        i = ud.config.MusicToggle;
+                        modval(0,1,(int *)&ud.config.MusicToggle,1,probey==io);
+                        if (x==io)
+                            ud.config.MusicToggle = 1-ud.config.MusicToggle;
+                        if (i != ud.config.MusicToggle)
+                        {
+                            if (ud.config.MusicToggle == 0) MUSIC_Pause();
+                            else
+                            {
+                                if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
+                                {
+                                    if (map[(unsigned char)music_select].musicfn != NULL)
+                                        playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
+                                }
+                                else playmusic(&env_music_fn[0][0],MAXVOLUMES*MAXLEVELS);
+
+                                MUSIC_Continue();
+                            }
+                        }
+                    }
+                    mgametextpal(d,yy, ud.config.MusicToggle ? "On" : "Off", MENUHIGHLIGHT(io), 0);
+                    break;
+                case 3:
+                {
+                    enabled = (ud.config.MusicToggle && ud.config.MusicDevice >= 0);
+                    l = ud.config.MusicVolume;
+                    ud.config.MusicVolume >>= 2;
+                    _bar(1,d+8,yy+7, &ud.config.MusicVolume,4,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,64);
+                    ud.config.MusicVolume <<= 2;
+                    if (l != ud.config.MusicVolume)
+                        MUSIC_SetVolume((short) ud.config.MusicVolume);
+                }
+                break;
+                case 4:
+                {
+                    int rates[] = { 8000, 11025, 16000, 22050, 32000, 44100, 48000 };
+                    int j = (sizeof(rates)/sizeof(rates[0]));
+
+                    for (i = 0;i<j;i++)
+                        if (rates[i] == ud.config.MixRate)
+                            break;
+
+                    modval(0,j-1,(int *)&i,1,enabled && probey==io);
+                    if (x == io)
+                    {
+                        i++;
+                        if (i >= j)
+                            i = 0;
+                    }
+                    if (i == j)
+                        Bsprintf(tempbuf,"Other");
+                    else
+                    {
+                        Bsprintf(tempbuf,"%d Hz",rates[i]);
+                        if (rates[i] != ud.config.MixRate)
+                        {
+                            ud.config.MixRate = rates[i];
+                            changesmade |= 8;
+                        }
+                    }
+                    mgametextpal(d,yy,tempbuf, MENUHIGHLIGHT(io), 0);
+                }
+                break;
+                case 5:
+                    i = ud.config.NumVoices;
+                    if (x==io)
+                    {
+                        ud.config.NumVoices++;
+                        if (ud.config.NumVoices > 32)
+                            ud.config.NumVoices = 4;
+                    }
+                    modval(4,32,(int *)&ud.config.NumVoices,1,probey==io);
+                    if (ud.config.NumVoices != i)
+                        changesmade |= 8;
+                    Bsprintf(tempbuf,"%d",ud.config.NumVoices);
+                    mgametextpal(d,yy, tempbuf, MENUHIGHLIGHT(io), 0);
+                    break;
+                case 6:
+                    enabled = (changesmade&8);
+                    if (!enabled) break;
+                    if (x == io)
+                    {
+                        SoundShutdown();
+                        MusicShutdown();
+
+                        initprintf("Initializing music...\n");
+                        MusicStartup();
+                        initprintf("Initializing sound...\n");
+                        SoundStartup();
+
+                        FX_StopAllSounds();
+                        clearsoundlocks();
+
+                        if (ud.config.MusicToggle == 1)
+                        {
+                            if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
+                            {
+                                if (map[(unsigned char)music_select].musicfn != NULL)
+                                    playmusic(&map[(unsigned char)music_select].musicfn[0],music_select);
+                            }
+                            else playmusic(&env_music_fn[0][0],MAXVOLUMES*MAXLEVELS);
+                        }
+                        changesmade &= ~8;
+                    }
+                    break;
+                case 7:
+                    enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
+                    i = j = (ud.config.VoiceToggle&1);
+                    modval(0,1,(int *)&i,1,enabled && probey==io);
+                    if (x == io || j != i)
+                        ud.config.VoiceToggle ^= 1;
+                    mgametextpal(d,yy, ud.config.VoiceToggle&1? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, enabled?0:1);
+                    break;
+                case 8:
+                    enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
+                    i = j = (ud.config.VoiceToggle&4);
+                    modval(0,1,(int *)&i,1,enabled && probey==io);
+                    if (x == io || j != i)
+                        ud.config.VoiceToggle ^= 4;
+                    mgametextpal(d,yy, ud.config.VoiceToggle&4? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, enabled?0:1);
+                    break;
+                case 9:
+                    enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
+                    modval(0,1,(int *)&ud.config.AmbienceToggle,1,enabled && probey==io);
+                    if (enabled && x == io)
+                        ud.config.AmbienceToggle = 1-ud.config.AmbienceToggle;
+                    mgametextpal(d,yy, ud.config.AmbienceToggle? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, enabled?0:1);
+                    break;
+                case 10:
+                    enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
+                    modval(0,1,(int *)&ud.config.ReverseStereo,1,enabled && probey==io);
+                    if (enabled && x == io)
+                        ud.config.ReverseStereo = 1-ud.config.ReverseStereo;
+                    mgametextpal(d,yy, ud.config.ReverseStereo? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, enabled?0:1);
+                    break;
+
+                default:
+                    break;
+                }
+                mgametextpal(c,yy, opts[ii], enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, enabled?10:1);
+                io++;
+                yy += 8;
+
             }
-            onbar = 0;
-            break;
-        case 5:
-            if (ud.config.SoundToggle && (ud.config.FXDevice >= 0)) ud.config.AmbienceToggle = 1-ud.config.AmbienceToggle;
-            onbar = 0;
-            break;
-        case 6:
-            if (ud.config.SoundToggle && (ud.config.FXDevice >= 0))
-            {
-                ud.config.ReverseStereo = 1-ud.config.ReverseStereo;
-                FX_SetReverseStereo(ud.config.ReverseStereo);
-            }
-            onbar = 0;
-            break;
-        default:
-            onbar = 1;
-            break;
         }
-
-        menutext(c+151+40,50,MENUHIGHLIGHT(0),(ud.config.FXDevice<0),ud.config.SoundToggle && ud.config.FXDevice >= 0?"ON":"OFF");
-
-        menutext(c+151+40,50+16,MENUHIGHLIGHT(1),(ud.config.MusicDevice<0||(numplayers > 1 && !ud.config.MusicToggle)),(ud.config.MusicToggle && (ud.config.MusicDevice >= 0))?"ON":"OFF");
-
-        menutext(c,50,MENUHIGHLIGHT(0),(ud.config.FXDevice<0),"SOUND");
-        menutext(c,50+16+16,MENUHIGHLIGHT(2),(ud.config.FXDevice<0)||ud.config.SoundToggle==0,"SOUND VOLUME");
-        {
-            l = ud.config.FXVolume;
-            ud.config.FXVolume >>= 2;
-            bar(c+167+40,50+16+16,&ud.config.FXVolume,4,(ud.config.FXDevice>=0)&&x==2,MENUHIGHLIGHT(2),ud.config.SoundToggle==0||(ud.config.FXDevice<0));
-            if (l != ud.config.FXVolume)
-                ud.config.FXVolume <<= 2;
-            if (l != ud.config.FXVolume)
-                FX_SetVolume((short) ud.config.FXVolume);
-        }
-        menutext(c,50+16,MENUHIGHLIGHT(1),(ud.config.MusicDevice<0||(numplayers > 1 && !ud.config.MusicToggle)),"MUSIC");
-        menutext(c,50+16+16+16,MENUHIGHLIGHT(3),(ud.config.MusicDevice<0)||ud.config.MusicToggle==0,"MUSIC VOLUME");
-        {
-            l = ud.config.MusicVolume;
-            ud.config.MusicVolume >>= 2;
-            bar(c+167+40,50+16+16+16,
-                &ud.config.MusicVolume,4,
-                (ud.config.MusicDevice>=0) && x==3,MENUHIGHLIGHT(3),
-                ud.config.MusicToggle==0||(ud.config.MusicDevice<0));
-            ud.config.MusicVolume <<= 2;
-            if (l != ud.config.MusicVolume)
-                MUSIC_SetVolume((short) ud.config.MusicVolume);
-
-        }
-        menutext(c,50+16+16+16+16,MENUHIGHLIGHT(4),(ud.config.FXDevice<0)||ud.config.SoundToggle==0,"DUKE TALK");
-        menutext(c,50+16+16+16+16+16,MENUHIGHLIGHT(5),(ud.config.FXDevice<0)||ud.config.SoundToggle==0,"AMBIENCE");
-
-        menutext(c,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(ud.config.FXDevice<0)||ud.config.SoundToggle==0,"REVERSE STEREO");
-
-        {
-            char *s[] = { "OFF", "LOCAL", "ALL" };
-            menutext(c+151+40,50+16+16+16+16,MENUHIGHLIGHT(4),(ud.config.FXDevice<0)||ud.config.SoundToggle==0,s[ud.config.VoiceToggle]);
-        }
-
-        menutext(c+151+40,50+16+16+16+16+16,MENUHIGHLIGHT(5),(ud.config.FXDevice<0)||ud.config.SoundToggle==0,ud.config.AmbienceToggle?"ON":"OFF");
-
-        menutext(c+151+40,50+16+16+16+16+16+16,MENUHIGHLIGHT(6),(ud.config.FXDevice<0)||ud.config.SoundToggle==0,ud.config.ReverseStereo?"ON":"OFF");
-
         break;
 
     case 350:

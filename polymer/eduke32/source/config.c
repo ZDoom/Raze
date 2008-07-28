@@ -253,7 +253,7 @@ void CONFIG_SetDefaults(void)
     ud.angleinterpolation = 0;
     ud.config.UseJoystick = 0;
     ud.config.UseMouse = 1;
-    ud.config.VoiceToggle = 2;
+    ud.config.VoiceToggle = 5; // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
 
     Bstrcpy(ud.rtsname, "DUKE.RTS");
     Bstrcpy(myname, "Duke");
@@ -665,7 +665,7 @@ int32 CONFIG_ReadSetup(void)
         if (tempbuf[0]) vid_contrast = atof(tempbuf);
         tempbuf[0] = 0;
         SCRIPT_GetString(ud.config.scripthandle, "Screen Setup", "AmbientLight",&tempbuf[0]);
-        if (atof(tempbuf)) 
+        if (atof(tempbuf))
         {
             r_ambientlight = atof(tempbuf);
             r_ambientlightrecip = 1.f/r_ambientlight;

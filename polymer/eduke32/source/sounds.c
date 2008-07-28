@@ -300,9 +300,12 @@ int xyzsound(int num,int i,int x,int y,int z)
 
     if (g_sounds[num].m&4)
     {
-        if (ud.config.VoiceToggle==0)
-            return -1;
-        else if (ud.multimode > 1 && PN == APLAYER && sprite[i].yvel != screenpeek && ud.config.VoiceToggle!=2)
+        if (ud.multimode > 1 && PN == APLAYER && sprite[i].yvel != screenpeek) // other player sound
+        {
+            if (!(ud.config.VoiceToggle&4))
+                return -1;
+        }
+        else if (!(ud.config.VoiceToggle&1))
             return -1;
         for (j=0;j<MAXSOUNDS;j++)
             for (k=0;k<g_sounds[j].num;k++)
@@ -440,7 +443,7 @@ void sound(int num)
 
     if (ud.config.FXDevice < 0) return;
     if (ud.config.SoundToggle==0) return;
-    if (ud.config.VoiceToggle==0 && (g_sounds[num].m&4)) return;
+    if (!(ud.config.VoiceToggle&1) && (g_sounds[num].m&4)) return;
     if ((g_sounds[num].m&8) && ud.lockout) return;
     if (FX_VoiceAvailable(g_sounds[num].pr) == 0) return;
     if (num > MAXSOUNDS-1 || !g_sounds[num].filename)
