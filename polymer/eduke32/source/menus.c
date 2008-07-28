@@ -3101,11 +3101,17 @@ cheat_for_port_credits:
         else
             x = probe(c,50+62-16-16-16,16,x);
 
-        if (probey==0 && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_RightArrow)))
+        if ((probey==0 || probey==1 || probey==2) && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_RightArrow)))
         {
             sound(PISTOL_BODYHIT);
-            x=0;
+            x=probey;
+            if (x > 0)
+            {
+                KB_ClearKeyDown(sc_LeftArrow);
+                KB_ClearKeyDown(sc_RightArrow);
+            }
         }
+
         switch (x)
         {
         case -1:
@@ -3356,14 +3362,14 @@ cheat_for_port_credits:
         sprintf(tempbuf,"%d x %d",
                 (newvidmode==validmodecnt)?xdim:validmode[newvidmode].xdim,
                 (newvidmode==validmodecnt)?ydim:validmode[newvidmode].ydim);
-        mgametext(c+160,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
+        mgametext(c+168,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
 
         menutext(c,50+16,MENUHIGHLIGHT(1),0,"RENDERER");
         Bsprintf(tempbuf,(vidsets[newvidset]&0x20000)?"%d-bit OpenGL":"Software", vidsets[newvidset]&0x0ffff);
-        mgametext(c+160,50+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
+        mgametext(c+168,50+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
         menutext(c,50+16+16,MENUHIGHLIGHT(2),0,"FULLSCREEN");
-        menutext(c+160,50+16+16,MENUHIGHLIGHT(2),0,newfullscreen?"YES":"NO");
+        menutext(c+168,50+16+16,MENUHIGHLIGHT(2),0,newfullscreen?"YES":"NO");
 
         menutext(c+16,50+16+16+22,MENUHIGHLIGHT(3),changesmade==0,"APPLY CHANGES");
 
@@ -3383,10 +3389,10 @@ cheat_for_port_credits:
             int i = (float)r_ambientlight*1024.f;
             int j = i;
             menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"PIXEL DOUBLING");
-            menutext(c+160,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"OFF":"ON");
+            menutext(c+168,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"OFF":"ON");
             modval(0,1,(int *)&ud.detail,1,probey==5);
             menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),PHX(-6),"AMBIENT LIGHT");
-            _bar(0,c+177,50+62+16+16+16,&i,128,x==6,MENUHIGHLIGHT(6),numplayers>1,128,4096);
+            _bar(0,c+185,50+62+16+16+16,&i,128,x==6,MENUHIGHLIGHT(6),numplayers>1,128,4096);
             if (i != j)
             {
                 r_ambientlight = (float)i/1024.f;
@@ -3396,6 +3402,7 @@ cheat_for_port_credits:
 #if defined(POLYMOST) && defined(USE_OPENGL)
         else
         {
+            int filter = gltexfiltermode;
             menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"TEXTURE FILTER");
             switch (gltexfiltermode)
             {
@@ -3421,7 +3428,10 @@ cheat_for_port_credits:
                 strcpy(tempbuf,"OTHER");
                 break;
             }
-            mgametextpal(c+160,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),!getrendermode());
+            modval(0,5,(int *)&gltexfiltermode,1,probey==5);
+            if (gltexfiltermode != filter)
+                gltexapplyprops();
+            mgametextpal(c+168,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),!getrendermode());
             menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"MORE SETTINGS");
         }
 #endif

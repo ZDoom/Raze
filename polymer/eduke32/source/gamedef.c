@@ -5362,16 +5362,15 @@ void loadefs(const char *filenam)
 //        if (!Bstrcmp(fta_quotes[13],"PRESS SPACE TO RESTART LEVEL"))
 //            Bstrcpy(fta_quotes[13],"PRESS USE TO RESTART LEVEL");
 
-        Bmemset(tempbuf,0,sizeof(tempbuf));
-
-        for (i=0;i<MAXQUOTELEN-5;i++)
+        for (i=0;i<MAXQUOTELEN-6;i++)
             if (Bstrncmp(&fta_quotes[13][i],"SPACE",5) == 0)
             {
+                Bmemset(tempbuf,0,sizeof(tempbuf));
                 Bstrncpy(tempbuf,fta_quotes[13],i);
-                Bstrcat(tempbuf,"USE");
+                Bstrcat(tempbuf,"OPEN");
                 Bstrcat(tempbuf,&fta_quotes[13][i+5]);
-                Bstrcpy(fta_quotes[13],tempbuf);
-                break;
+                Bstrncpy(fta_quotes[13],tempbuf,MAXQUOTELEN-1);
+                i = 0;
             }
 
         {
