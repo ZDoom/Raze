@@ -1324,7 +1324,7 @@ static int osdcmd_visibility(const osdfuncparm_t *parm)
     }
     f = max(0.05f,min(10.f,atof(parm->parms[0])));
     r_ambientlight = f;
-    r_ambientlightrecip = 1/f;
+    r_ambientlightrecip = 1.f/r_ambientlight;
     OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;
 }

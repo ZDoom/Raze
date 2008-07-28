@@ -5358,6 +5358,22 @@ void loadefs(const char *filenam)
         for (i=0;i<128;i++)
             if (fta_quotes[i] == NULL)
                 fta_quotes[i] = Bcalloc(MAXQUOTELEN,sizeof(char));
+
+//        if (!Bstrcmp(fta_quotes[13],"PRESS SPACE TO RESTART LEVEL"))
+//            Bstrcpy(fta_quotes[13],"PRESS USE TO RESTART LEVEL");
+
+        Bmemset(tempbuf,0,sizeof(tempbuf));
+
+        for (i=0;i<MAXQUOTELEN-5;i++)
+            if (Bstrncmp(&fta_quotes[13][i],"SPACE",5) == 0)
+            {
+                Bstrncpy(tempbuf,fta_quotes[13],i);
+                Bstrcat(tempbuf,"USE");
+                Bstrcat(tempbuf,&fta_quotes[13][i+5]);
+                Bstrcpy(fta_quotes[13],tempbuf);
+                break;
+            }
+
         {
             const char *ppdeathstrings[] =
             {

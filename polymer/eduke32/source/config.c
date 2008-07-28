@@ -668,7 +668,7 @@ int32 CONFIG_ReadSetup(void)
         if (atof(tempbuf)) 
         {
             r_ambientlight = atof(tempbuf);
-            r_ambientlightrecip = 1/r_ambientlight;
+            r_ambientlightrecip = 1.f/r_ambientlight;
         }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)

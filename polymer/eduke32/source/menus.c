@@ -191,10 +191,11 @@ static inline int probesm(int x,int y,int i,int n)
     return probe_(1,x,y,i,n);
 }
 
-static int menutext_(int x,int y,short s,short p,char *t)
+int menutext(int x,int y,int s,int p,char *t)
 {
     short i, ac, centre;
 
+    t = (char *)stripcolorcodes(t);
     y -= 12;
 
     i = centre = 0;
@@ -309,11 +310,6 @@ static int menutext_(int x,int y,short s,short p,char *t)
         t++;
     }
     return (x);
-}
-
-inline int menutext(int x,int y,int s,int p,const char *t)
-{
-    return(menutext_(x,y,s,p,(char *)stripcolorcodes(t)));
 }
 
 static void _bar(int type, int x,int y,int *p,int dainc,int damodify,int s, int pa, int min, int max)
@@ -2557,11 +2553,11 @@ cheat_for_port_credits:
                 {
                     int i = (float)r_ambientlight*1024.f;
                     int j = i;
-                    _bar(1,d+8,yy+7, &i,128,x==io,MENUHIGHLIGHT(io),0,128,4096);
+                    _bar(1,d+8,yy+7, &i,128,x==io,MENUHIGHLIGHT(io),numplayers>1,128,4096);
                     if (i != j)
                     {
                         r_ambientlight = (float)i/1024.f;
-                        r_ambientlightrecip = 1/r_ambientlight;
+                        r_ambientlightrecip = 1.f/r_ambientlight;
                     }
                     break;
                 }
@@ -3360,14 +3356,14 @@ cheat_for_port_credits:
         sprintf(tempbuf,"%d x %d",
                 (newvidmode==validmodecnt)?xdim:validmode[newvidmode].xdim,
                 (newvidmode==validmodecnt)?ydim:validmode[newvidmode].ydim);
-        mgametext(c+154,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
+        mgametext(c+160,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
 
         menutext(c,50+16,MENUHIGHLIGHT(1),0,"RENDERER");
-        sprintf(tempbuf, "%d-bit %s", vidsets[newvidset]&0x0ffff, (vidsets[newvidset]&0x20000)?"OpenGL":"Software");
-        mgametext(c+154,50+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
+        Bsprintf(tempbuf,(vidsets[newvidset]&0x20000)?"%d-bit OpenGL":"Software", vidsets[newvidset]&0x0ffff);
+        mgametext(c+160,50+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
         menutext(c,50+16+16,MENUHIGHLIGHT(2),0,"FULLSCREEN");
-        menutext(c+154,50+16+16,MENUHIGHLIGHT(2),0,newfullscreen?"YES":"NO");
+        menutext(c+160,50+16+16,MENUHIGHLIGHT(2),0,newfullscreen?"YES":"NO");
 
         menutext(c+16,50+16+16+22,MENUHIGHLIGHT(3),changesmade==0,"APPLY CHANGES");
 
@@ -3387,20 +3383,20 @@ cheat_for_port_credits:
             int i = (float)r_ambientlight*1024.f;
             int j = i;
             menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"PIXEL DOUBLING");
-            menutext(c+154,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"OFF":"ON");
+            menutext(c+160,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"OFF":"ON");
             modval(0,1,(int *)&ud.detail,1,probey==5);
-            menutext(c,50+62+16+16+16,MENUHIGHLIGHT(4),PHX(-6),"AMBIENT LIGHT");
-            _bar(0,c+171,50+62+16+16+16,&i,128,x==6,MENUHIGHLIGHT(probey),0,128,4096);
+            menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),PHX(-6),"AMBIENT LIGHT");
+            _bar(0,c+177,50+62+16+16+16,&i,128,x==6,MENUHIGHLIGHT(6),numplayers>1,128,4096);
             if (i != j)
             {
                 r_ambientlight = (float)i/1024.f;
-                r_ambientlightrecip = 1/r_ambientlight;
+                r_ambientlightrecip = 1.f/r_ambientlight;
             }
         }
 #if defined(POLYMOST) && defined(USE_OPENGL)
         else
         {
-            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),!getrendermode(),"FILTERING");
+            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"TEXTURE FILTER");
             switch (gltexfiltermode)
             {
             case 0:
@@ -3425,7 +3421,7 @@ cheat_for_port_credits:
                 strcpy(tempbuf,"OTHER");
                 break;
             }
-            mgametextpal(c+154,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),!getrendermode());
+            mgametextpal(c+160,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),!getrendermode());
             menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"MORE SETTINGS");
         }
 #endif
