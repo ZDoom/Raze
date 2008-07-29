@@ -3174,8 +3174,8 @@ static void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
             if (j < 22000) j = 22000;
             else if (j > (65536<<1)) j = (65536<<1);
 
-            rotatesprite((x1<<4)+(xdim<<15),(y1<<4)+(ydim<<15),j,
-                         daang,i,sprite[g_player[p].ps->i].shade,/*sprite[g_player[p].ps->i].pal*/sector[g_player[p].ps->cursectnum].floorpal,
+            rotatesprite((x1<<4)+(xdim<<15),(y1<<4)+(ydim<<15),j,daang,i,sprite[g_player[p].ps->i].shade,
+                (g_player[p].ps->cursectnum > -1)?sector[g_player[p].ps->cursectnum].floorpal:0,
                          (sprite[g_player[p].ps->i].cstat&2)>>1,windowx1,windowy1,windowx2,windowy2);
         }
     }
@@ -3412,11 +3412,14 @@ void displayrest(int smoothratio)
 
     SetGameVarID(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
     OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek, -1);
+    i = usehightile;
+    if (r_downsize > 1)
+        usehightile = 0;
     if (GetGameVarID(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
         coolgaugetext(screenpeek);
 
     operatefta();
-
+    usehightile = i;
     if (KB_KeyPressed(sc_Escape) && ud.overhead_on == 0
             && ud.show_help == 0
             && g_player[myconnectindex].ps->newowner == -1)
@@ -4265,8 +4268,13 @@ int EGS(int whatsect,int s_x,int s_y,int s_z,int s_pn,int s_s,int s_xr,int s_yr,
     s->clipdist = 0;
     s->pal = 0;
     s->lotag = 0;
-
-    hittype[i].picnum = sprite[s_ow].picnum;
+    
+    if (s_ow > -1 && s_ow < MAXSPRITES)
+    {
+        hittype[i].picnum = sprite[s_ow].picnum;
+        hittype[i].floorz = hittype[s_ow].floorz;
+        hittype[i].ceilingz = hittype[s_ow].ceilingz;
+    }
 
     hittype[i].lastvx = 0;
     hittype[i].lastvy = 0;
@@ -4279,8 +4287,6 @@ int EGS(int whatsect,int s_x,int s_y,int s_z,int s_pn,int s_s,int s_xr,int s_yr,
     hittype[i].movflag = 0;
     hittype[i].tempang = 0;
     hittype[i].dispicnum = 0;
-    hittype[i].floorz = hittype[s_ow].floorz;
-    hittype[i].ceilingz = hittype[s_ow].ceilingz;
 
     T1=T3=T4=T6=T7=T8=T9=0;
 

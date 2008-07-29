@@ -1743,6 +1743,7 @@ SKIPBULLETHOLE:
             k = 0;
 
             //            RESHOOTGROW:
+            if (sect < 0) break;
 
             s->cstat &= ~257;
             if (hittype[i].temp_data[9]) zvel = hittype[i].temp_data[9];
@@ -2113,7 +2114,7 @@ void displayweapon(int snum)
 {
     int gun_pos, looking_arc, cw;
     int weapon_xoffset, i, j;
-    int o = 0,pal;
+    int o = 0,pal = 0;
     player_struct *p = g_player[snum].ps;
     short *kb = &p->kickback_pic;
     int gs;
@@ -3970,7 +3971,7 @@ void processinput(int snum)
         else
         {
             if (p->footprintcount > 0 && p->on_ground)
-                if ((sector[p->cursectnum].floorstat&2) != 2)
+                if (p->cursectnum > -1 && (sector[p->cursectnum].floorstat&2) != 2)
                 {
                     for (j=headspritesect[psect];j>=0;j=nextspritesect[j])
                         if (sprite[j].picnum == FOOTPRINTS || sprite[j].picnum == FOOTPRINTS2 || sprite[j].picnum == FOOTPRINTS3 || sprite[j].picnum == FOOTPRINTS4)
@@ -3980,7 +3981,7 @@ void processinput(int snum)
                     if (j < 0)
                     {
                         p->footprintcount--;
-                        if (sector[p->cursectnum].lotag == 0 && sector[p->cursectnum].hitag == 0)
+                        if (p->cursectnum > -1 && sector[p->cursectnum].lotag == 0 && sector[p->cursectnum].hitag == 0)
                         {
                             switch (TRAND&3)
                             {

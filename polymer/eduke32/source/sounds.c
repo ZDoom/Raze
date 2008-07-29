@@ -338,7 +338,7 @@ int xyzsound(int num,int i,int x,int y,int z)
 
     sndist += g_sounds[num].vo;
     if (sndist < 0) sndist = 0;
-    if (sndist && PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,SX,SY,SZ-(24<<8),SECT))
+    if (cs > -1 && sndist && PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,SX,SY,SZ-(24<<8),SECT))
         sndist += sndist>>5;
 
     switch (num)
@@ -348,11 +348,11 @@ int xyzsound(int num,int i,int x,int y,int z)
     case RPG_EXPLODE:
         if (sndist > (6144))
             sndist = 6144;
-        if (sector[g_player[screenpeek].ps->cursectnum].lotag == 2)
+        if (g_player[screenpeek].ps->cursectnum > -1 && sector[g_player[screenpeek].ps->cursectnum].lotag == 2)
             pitch -= 1024;
         break;
     default:
-        if (sector[g_player[screenpeek].ps->cursectnum].lotag == 2 && (g_sounds[num].m&4) == 0)
+        if (g_player[screenpeek].ps->cursectnum > -1 && sector[g_player[screenpeek].ps->cursectnum].lotag == 2 && (g_sounds[num].m&4) == 0)
             pitch = -768;
         if (sndist > 31444 && PN != MUSICANDSFX)
             return -1;
@@ -605,7 +605,7 @@ void pan3dsound(void)
             sndist += g_sounds[j].vo;
             if (sndist < 0) sndist = 0;
 
-            if (sndist && PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,sx,sy,sz-(24<<8),SECT))
+            if (cs > -1 && sndist && PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,sx,sy,sz-(24<<8),SECT))
                 sndist += sndist>>5;
 
             if (PN == MUSICANDSFX && SLT < 999)

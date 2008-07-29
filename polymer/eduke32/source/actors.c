@@ -962,7 +962,7 @@ void movedummyplayers(void)
 
         p = sprite[OW].yvel;
 
-        if (g_player[p].ps->on_crane >= 0 || sector[g_player[p].ps->cursectnum].lotag != 1 || sprite[g_player[p].ps->i].extra <= 0)
+        if (g_player[p].ps->on_crane >= 0 || (g_player[p].ps->cursectnum > -1 && sector[g_player[p].ps->cursectnum].lotag != 1) || sprite[g_player[p].ps->i].extra <= 0)
         {
             g_player[p].ps->dummyplayersprite = -1;
             KILLIT(i);

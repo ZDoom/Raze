@@ -3044,16 +3044,19 @@ CHECKINV1:
                     {
                         p->inven_icon = 3;
 
-                        p->holoduke_on = i =
-                                             EGS(p->cursectnum,
-                                                 p->posx,
-                                                 p->posy,
-                                                 p->posz+(30<<8),APLAYER,-64,0,0,p->ang,0,0,-1,10);
-                        T4 = T5 = 0;
-                        SP = snum;
-                        sprite[i].extra = 0;
-                        FTA(47,p);
-                        spritesound(TELEPORTER,p->holoduke_on);
+                        if (p->cursectnum > -1)
+                        {
+                            p->holoduke_on = i =
+                                                 EGS(p->cursectnum,
+                                                     p->posx,
+                                                     p->posy,
+                                                     p->posz+(30<<8),APLAYER,-64,0,0,p->ang,0,0,-1,10);
+                            T4 = T5 = 0;
+                            SP = snum;
+                            sprite[i].extra = 0;
+                            FTA(47,p);
+                            spritesound(TELEPORTER,p->holoduke_on);
+                        }
                     }
                     else FTA(49,p);
                 }
