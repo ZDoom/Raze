@@ -1248,6 +1248,9 @@ int trytexcache(char *fn, int len, int dameth, char effect, texcacheheader *head
     head->flags = B_LITTLE32(head->flags);
     head->quality = B_LITTLE32(head->quality);
 
+    if ((head->flags & 4) && !glusetexcachecompression) goto failure;
+    if (!(head->flags & 4) && glusetexcachecompression) goto failure;
+
     if (head->quality != r_downsize) goto failure;
     if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
     if (!glinfo.texnpot && (head->flags & 1)) goto failure;
@@ -1705,9 +1708,9 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
     if (cachefil < 0)
     {
         // save off the compressed version
-        cachead.xdim = tsizx;
-        cachead.ydim = tsizy;
         cachead.quality = r_downsize;
+        cachead.xdim = tsizx>>cachead.quality;
+        cachead.ydim = tsizy>>cachead.quality;
         x = 0;
         for (j=0;j<31;j++)
         {

@@ -3188,6 +3188,7 @@ void checksectors(int snum)
     player_struct *p = g_player[snum].ps;
     short j,hitscanwall;
 
+    if (p->cursectnum > -1)
     switch (sector[p->cursectnum].lotag)
     {
 

@@ -593,6 +593,8 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
     head->quality = B_LITTLE32(head->quality);
 
     if (head->quality != r_downsize) goto failure;
+    if ((head->flags & 4) && !glusetexcachecompression) goto failure;
+    if (!(head->flags & 4) && glusetexcachecompression) goto failure;
     if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
     if (!glinfo.texnpot && (head->flags & 1)) goto failure;
 
@@ -633,8 +635,6 @@ static int mdloadskin_cached(int fil, texcacheheader *head, int *doalloc, GLuint
         pict.ydim = B_LITTLE32(pict.ydim);
         pict.border = B_LITTLE32(pict.border);
         pict.depth = B_LITTLE32(pict.depth);
-        pict.xdim >>= head->quality;
-        pict.ydim >>= head->quality;
 
         if (level == 0) { *xsiz = pict.xdim; *ysiz = pict.ydim; }
 
@@ -849,9 +849,10 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
     if (cachefil < 0)
     {
         // save off the compressed version
-        cachead.xdim = osizx;
-        cachead.ydim = osizy;
         cachead.quality = r_downsize;
+        cachead.xdim = osizx>>cachead.quality;
+        cachead.ydim = osizy>>cachead.quality;
+
         i = 0;
         for (j=0;j<31;j++)
         {

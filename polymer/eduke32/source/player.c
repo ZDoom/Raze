@@ -2014,10 +2014,13 @@ void DoSpawn(player_struct *p)
 
 void displaymasks(int snum)
 {
-    int p = sector[g_player[snum].ps->cursectnum].floorpal;
+    int p;
 
     if (sprite[g_player[snum].ps->i].pal == 1)
         p = 1;
+    else if (g_player[snum].ps->cursectnum > -1)
+        p = sector[g_player[snum].ps->cursectnum].floorpal;
+    else p = 0;
 
     if (g_player[snum].ps->scuba_on)
     {
@@ -2167,7 +2170,8 @@ void displayweapon(int snum)
                 pal = 1;
             else
             {
-                pal = sector[p->cursectnum].floorpal;
+                if (p->cursectnum > -1)
+                    pal = sector[p->cursectnum].floorpal;
                 if (pal == 0)
                     pal = p->palookup;
             }
@@ -2215,7 +2219,8 @@ void displayweapon(int snum)
                             pal = 1;
                         else
                         {
-                            pal = sector[p->cursectnum].floorpal;
+                            if (p->cursectnum > -1)
+                                pal = sector[p->cursectnum].floorpal;
                             if (pal == 0)
                                 pal = p->palookup;
                         }
@@ -2238,8 +2243,9 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else
+                    else if (p->cursectnum > -1)
                         pal = sector[p->cursectnum].floorpal;
+                    else pal = 0;
 
                     weapon_xoffset += 8;
                     gun_pos -= 10;
@@ -2267,7 +2273,9 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else pal = sector[p->cursectnum].floorpal;
+                    else if (p->cursectnum > -1)
+                        pal = sector[p->cursectnum].floorpal;
+                    else pal = 0;
 
                     weapon_xoffset -= sintable[(768+((*kb)<<7))&2047]>>11;
                     gun_pos += sintable[(768+((*kb)<<7))&2047]>>11;
@@ -2294,8 +2302,9 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else
+                    else if (p->cursectnum > -1)
                         pal = sector[p->cursectnum].floorpal;
+                    else pal = 0;
 
 
                     weapon_xoffset -= 8;
@@ -2379,8 +2388,9 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else
+                    else if (p->cursectnum > -1)
                         pal = sector[p->cursectnum].floorpal;
+                    else pal = 0;
 
                     if (*kb > 0)
                         gun_pos -= sintable[(*kb)<<7]>>12;
@@ -2429,8 +2439,9 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else
+                    else if (p->cursectnum > -1)
                         pal = sector[p->cursectnum].floorpal;
+                    else pal = 0;
 
                     if ((*kb) < *aplWeaponTotalTime[PISTOL_WEAPON]+1)
                     {
@@ -2484,8 +2495,9 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else
+                    else if (p->cursectnum > -1)
                         pal = sector[p->cursectnum].floorpal;
+                    else pal = 0;
 
                     if ((*kb))
                     {
@@ -2520,8 +2532,9 @@ void displayweapon(int snum)
                     static char remote_frames[] = {0,1,1,2,1,1,0,0,0,0,0};
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else
+                    else if (p->cursectnum > -1)
                         pal = sector[p->cursectnum].floorpal;
+                    else pal = 0;
 
                     weapon_xoffset = -48;
                     if ((*kb))
@@ -2540,8 +2553,9 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else
+                    else if (p->cursectnum > -1)
                         pal = sector[p->cursectnum].floorpal;
+                    else pal = 0;
 
                     if ((*kb) < (*aplWeaponTotalTime[DEVISTATOR_WEAPON]+1) && (*kb) > 0)
                     {
@@ -2576,8 +2590,9 @@ void displayweapon(int snum)
                 {
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else
+                    else if (p->cursectnum > -1)
                         pal = sector[p->cursectnum].floorpal;
+                    else pal = 0;
 
                     if ((*kb) < (aplWeaponTotalTime[p->curr_weapon][snum]+1) && (*kb) > 0)
                     {
@@ -2604,9 +2619,11 @@ void displayweapon(int snum)
                 {
                     weapon_xoffset += 28;
                     looking_arc += 18;
-                    pal = sector[p->cursectnum].floorpal;
                     if (sprite[p->i].pal == 1)
                         pal = 1;
+                    else if (p->cursectnum > -1)
+                        pal = sector[p->cursectnum].floorpal;
+                    else pal = 0;
                     {
                         if ((*kb) < aplWeaponTotalTime[p->curr_weapon][snum] && (*kb) > 0)
                         {
@@ -2647,8 +2664,9 @@ void displayweapon(int snum)
                     looking_arc += 18;
                     if (sprite[p->i].pal == 1)
                         pal = 1;
-                    else
+                    else if (p->cursectnum > -1)
                         pal = sector[p->cursectnum].floorpal;
+                    else pal = 0;
                     if (((*kb) > 0) && ((*kb) < aplWeaponTotalTime[p->curr_weapon][snum]))
                     {
                         if (sprite[p->i].pal != 1)
@@ -3155,7 +3173,7 @@ static int doincrements(player_struct *p)
         }
     }
 
-    if (p->scuba_on == 0 && sector[p->cursectnum].lotag == 2)
+    if (p->cursectnum > -1 && p->scuba_on == 0 && sector[p->cursectnum].lotag == 2)
     {
         if (p->scuba_amount > 0)
         {
@@ -4368,7 +4386,7 @@ HORIZONLY:
     if (psectlotag == 1 || p->spritebridge == 1) i = (4L<<8);
     else i = (20L<<8);
 
-    if (sector[p->cursectnum].lotag == 2) k = 0;
+    if (p->cursectnum > -1 && sector[p->cursectnum].lotag == 2) k = 0;
     else k = 1;
 
     if (ud.clipping)
@@ -4422,7 +4440,7 @@ HORIZONLY:
         }
     }
 
-    if (truefdist < PHEIGHT && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
+    if (p->cursectnum > -1 && truefdist < PHEIGHT && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
         if (!isspritemakingsound(pi,DUKE_ONWATER))
             spritesound(DUKE_ONWATER,pi);
 
