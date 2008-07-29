@@ -633,6 +633,8 @@ static int mdloadskin_cached(int fil, texcacheheader *head, int *doalloc, GLuint
         pict.ydim = B_LITTLE32(pict.ydim);
         pict.border = B_LITTLE32(pict.border);
         pict.depth = B_LITTLE32(pict.depth);
+        pict.xdim >>= head->quality;
+        pict.ydim >>= head->quality;
 
         if (level == 0) { *xsiz = pict.xdim; *ysiz = pict.ydim; }
 
