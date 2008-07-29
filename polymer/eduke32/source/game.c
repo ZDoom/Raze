@@ -284,6 +284,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
     int ac,newx,oldx=x;
     char centre, *oldt;
     int squishtext = (small == 2);
+    int ht = usehightile;
 
     small &= ~2;
 
@@ -323,7 +324,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         t = oldt;
         x = (320>>1)-(newx>>1);
     }
-
+    usehightile = (ht && !r_downsize);
     while (*t)
     {
         if (*t == '^' && isdigit(*(t+1)))
@@ -364,7 +365,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         if (x > (ud.config.ScreenWidth - 14)) oldt = (char *)t, x = oldx, y+=8*z/65536;
         t++;
     }
-
+    usehightile = ht;
     return (x);
 }
 
@@ -408,10 +409,12 @@ static int minitext_(int x,int y,const char *t,int s,int p,int sb)
 {
     int ac;
     char ch,cmode;
+    int ht = usehightile;
 
     cmode = (sb&256)!=0;
     sb &= 255;
 
+    usehightile = (ht && !r_downsize);
     while (*t)
     {
         ch = Btoupper(*t);
@@ -429,6 +432,7 @@ static int minitext_(int x,int y,const char *t,int s,int p,int sb)
 
         t++;
     }
+    usehightile = ht;
     return (x);
 }
 

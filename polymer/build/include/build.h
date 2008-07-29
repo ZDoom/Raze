@@ -553,6 +553,7 @@ extern int r_parallaxskyclamping;
 extern int r_parallaxskypanning;
 extern int r_cullobstructedmodels;
 extern int r_fullbrights;
+extern int r_downsize;
 extern int mdtims, omdtims;
 #endif
 

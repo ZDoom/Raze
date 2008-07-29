@@ -590,7 +590,9 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
+    head->quality = B_LITTLE32(head->quality);
 
+    if (head->quality != r_downsize) goto failure;
     if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
     if (!glinfo.texnpot && (head->flags & 1)) goto failure;
 
@@ -795,7 +797,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         if (glinfo.texcompr && glusetexcompr) intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
         else if (!hasalpha) intexfmt = GL_RGB;
         if (glinfo.bgra) texfmt = GL_BGRA;
-        uploadtexture((doalloc&1), xsiz, ysiz, intexfmt, texfmt, (coltype*)fptr, xsiz, ysiz, 0);
+        uploadtexture((doalloc&1), xsiz, ysiz, intexfmt, texfmt, (coltype*)fptr, xsiz, ysiz, 0|8192);
         free((void*)fptr);
     }
 
@@ -847,6 +849,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         // save off the compressed version
         cachead.xdim = osizx;
         cachead.ydim = osizy;
+        cachead.quality = r_downsize;
         i = 0;
         for (j=0;j<31;j++)
         {

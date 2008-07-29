@@ -182,6 +182,9 @@ int r_cullobstructedmodels = 0;
 // fullbright cvar
 int r_fullbrights = 1;
 
+// texture downsizing
+int r_downsize = 0;
+
 static float fogresult, fogcol[4];
 
 // making this a macro should speed things up at the expense of code size
@@ -329,6 +332,7 @@ typedef struct
     char magic[8];	// 'Polymost'
     int xdim, ydim;	// of image, unpadded
     int flags;		// 1 = !2^x, 2 = has alpha, 4 = lzw compressed
+    int quality;    // r_downsize at the time the cache was written
 } texcacheheader;
 typedef struct
 {
@@ -968,6 +972,9 @@ static void uploadtexture(int doalloc, int xsiz, int ysiz, int intexfmt, int tex
 {
     coltype *wpptr, *rpptr;
     int x2, y2, j, js=0, x3, y3, y, x, r, g, b, a, k;
+    int hi = (dameth&8192);
+
+    dameth &= ~8192;
 
     if (gltexmaxsize <= 0)
     {
@@ -984,6 +991,8 @@ static void uploadtexture(int doalloc, int xsiz, int ysiz, int intexfmt, int tex
     js = max(0,min(gltexmaxsize-1,gltexmiplevel));
     gltexmiplevel = js;
     while ((xsiz>>js) > (1<<gltexmaxsize) || (ysiz>>js) > (1<<gltexmaxsize)) js++;
+
+    if (hi) js = r_downsize;
 
     /*
     OSD_Printf("Uploading %dx%d %s as %s\n", xsiz,ysiz,
@@ -1237,7 +1246,9 @@ int trytexcache(char *fn, int len, int dameth, char effect, texcacheheader *head
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
+    head->quality = B_LITTLE32(head->quality);
 
+    if (head->quality != r_downsize) goto failure;
     if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
     if (!glinfo.texnpot && (head->flags & 1)) goto failure;
 
@@ -1320,6 +1331,7 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
+    head->quality = B_LITTLE32(head->quality);
 
     if (Bwrite(fil, head, sizeof(texcacheheader)) != sizeof(texcacheheader)) goto failure;
 
@@ -1644,7 +1656,7 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
             cachefil=0;
         }
         fixtransparency(pic,tsizx,tsizy,xsiz,ysiz,dameth);
-        uploadtexture(doalloc,xsiz,ysiz,intexfmt,texfmt,pic,-1,tsizy,dameth);
+        uploadtexture(doalloc,xsiz,ysiz,intexfmt,texfmt,pic,-1,tsizy,dameth|8192);
     }
 
     // precalculate scaling parameters for replacement
@@ -1695,6 +1707,7 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
         // save off the compressed version
         cachead.xdim = tsizx;
         cachead.ydim = tsizy;
+        cachead.quality = r_downsize;
         x = 0;
         for (j=0;j<31;j++)
         {
@@ -5982,6 +5995,19 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         else setvsync(val != 0);
         return OSDCMD_OK;
     }
+    else if (!Bstrcasecmp(parm->name, "r_downsize"))
+    {
+        if (showval) { OSD_Printf("r_downsize is %d\n", r_downsize); }
+        else if (val < 0 || val > 5) { OSD_Printf("Value out of range.\n"); }
+        else
+        {
+            r_downsize = val;
+            resetvideomode();
+            if (setgamemode(fullscreen,xdim,ydim,bpp))
+                OSD_Printf("restartvid: Reset failed...\n");
+        }
+        return OSDCMD_OK;
+    }
 #endif
     return OSDCMD_SHOWHELP;
 }
@@ -6024,6 +6050,7 @@ void polymost_initosdfuncs(void)
     OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
     OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
     OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_downsize","r_downsize: controls downsizing factor for hires textures",osdcmd_polymostvars);
     OSD_RegisterFunction("r_fullbrights","r_fullbrights: enable/disable fullbright textures",osdcmd_polymostvars);
     OSD_RegisterFunction("r_glowmapping","r_glowmapping: enable/disable glow mapping",osdcmd_polymostvars);
     OSD_RegisterFunction("r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",osdcmd_polymostvars);

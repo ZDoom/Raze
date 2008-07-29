@@ -194,6 +194,7 @@ static inline int probesm(int x,int y,int i,int n)
 int menutext(int x,int y,int s,int p,char *t)
 {
     short i, ac, centre;
+    int ht = usehightile;
 
     t = (char *)stripcolorcodes(t);
     y -= 12;
@@ -257,6 +258,7 @@ int menutext(int x,int y,int s,int p,char *t)
     if (centre)
         x = (320-centre-10)>>1;
 
+    usehightile = (ht && r_downsize < 3);
     while (*t)
     {
         if (*t == ' ')
@@ -309,6 +311,7 @@ int menutext(int x,int y,int s,int p,char *t)
         x += tilesizx[ac];
         t++;
     }
+    usehightile = ht;
     return (x);
 }
 
@@ -327,53 +330,35 @@ static void _bar(int type, int x,int y,int *p,int dainc,int damodify,int s, int 
 
     if (damodify)
     {
-        if (rev == 0)
+        if (*p >= min && *p <= max && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELUP || mii < -256))))         // && onbar) )
         {
-            if (*p > min && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELUP || mii < -256))))         // && onbar) )
-            {
-                KB_ClearKeyDown(sc_LeftArrow);
-                KB_ClearKeyDown(sc_kpad_4);
-                MOUSE_ClearButton(WHEELUP_MOUSE);
-                mii = 0;
+            KB_ClearKeyDown(sc_LeftArrow);
+            KB_ClearKeyDown(sc_kpad_4);
+            MOUSE_ClearButton(WHEELUP_MOUSE);
+            mii = 0;
+            if (!rev)
                 *p -= dainc;
-                if (*p < min)
-                    *p = min;
-                sound(KICK_HIT);
-            }
-            if (*p < max && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELDOWN || mii > 256))))        //&& onbar) )
-            {
-                KB_ClearKeyDown(sc_RightArrow);
-                KB_ClearKeyDown(sc_kpad_6);
-                MOUSE_ClearButton(WHEELDOWN_MOUSE);
-                mii = 0;
-                *p += dainc;
-                if (*p > max)
-                    *p = max;
-                sound(KICK_HIT);
-            }
+            else *p += dainc;
+            if (*p < min)
+                *p = min;
+            if (*p > max)
+                *p = max;
+            sound(KICK_HIT);
         }
-        else
+        if (*p <= max && *p >= min && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELDOWN || mii > 256))))        //&& onbar) )
         {
-            if (*p > min && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256)))        //&& onbar) )
-            {
-                KB_ClearKeyDown(sc_RightArrow);
-                KB_ClearKeyDown(sc_kpad_6);
-
-                *p -= dainc;
-                if (*p < min)
-                    *p = min;
-                sound(KICK_HIT);
-            }
-            if (*p < max && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256)))         // && onbar) )
-            {
-                KB_ClearKeyDown(sc_LeftArrow);
-                KB_ClearKeyDown(sc_kpad_4);
-
+            KB_ClearKeyDown(sc_RightArrow);
+            KB_ClearKeyDown(sc_kpad_6);
+            MOUSE_ClearButton(WHEELDOWN_MOUSE);
+            mii = 0;
+            if (!rev)
                 *p += dainc;
-                if (*p > max)
-                    *p = max;
-                sound(KICK_HIT);
-            }
+            else *p -= dainc;
+            if (*p > max)
+                *p = max;
+            if (*p < min)
+                *p = min;
+            sound(KICK_HIT);
         }
     }
 
@@ -2182,7 +2167,7 @@ cheat_for_port_credits:
                      scale(320-40+4,xdim,320)-1,scale(12+32+112+4,ydim,200)-1);
 
         // path
-        minitext(52,32,boardfilename,0,26);
+        minitext(38,45,boardfilename,0,26);
 
         {
             // JBF 20040208: seek to first name matching pressed character
@@ -2238,33 +2223,33 @@ cheat_for_port_credits:
                 }
             }
         }
-        mgametext(40+4,12+32,"DIRECTORIES",0,2+8+16);
+        mgametext(40+4,32,"DIRECTORIES",0,2+8+16);
 
         if (finddirshigh)
         {
             dir = finddirshigh;
-            for (i=0; i<2; i++) if (!dir->prev) break;
+            for (i=0; i<6; i++) if (!dir->prev) break;
                 else dir=dir->prev;
-            for (i=2; i>-2 && dir; i--, dir=dir->next)
+            for (i=6; i>-7 && dir; i--, dir=dir->next)
             {
                 if (dir == finddirshigh) c=0;
                 else c=16;
-                minitextshade(40,1+12+32+8*(3-i),dir->name,c,0,26);
+                minitextshade(40,1+12+32+8*(7-i),dir->name,c,0,26);
             }
         }
 
-        mgametext(40+4,8+32+40+8-1,"MAP FILES",0,2+8+16);
+        mgametext(180+4,32,"MAP FILES",0,2+8+16);
 
         if (findfileshigh)
         {
             dir = findfileshigh;
-            for (i=0; i<4; i++) if (!dir->prev) break;
+            for (i=0; i<7; i++) if (!dir->prev) break;
                 else dir=dir->prev;
-            for (i=4; i>-4 && dir; i--, dir=dir->next)
+            for (i=7; i>-7 && dir; i--, dir=dir->next)
             {
                 if (dir == findfileshigh) c=0;
                 else c=16;
-                minitextshade(40,(8+32+8*5)+8*(6-i),dir->name,c,2,26);
+                minitextshade(180,1+12+32+8*(7-i),dir->name,c,2,26);
             }
         }
 
@@ -2283,8 +2268,8 @@ cheat_for_port_credits:
 
         onbar = 0;
         probey = 2;
-        if (currentlist == 0) x = probe(50,12+32+16+4,0,3);
-        else x = probe(50,8+32+40+40+4,0,3);
+        if (currentlist == 0) x = probesm(45,32+4+1,0,3);
+        else x = probesm(185,32+4+1,0,3);
 
         if (probey == 1)
         {
@@ -2423,11 +2408,13 @@ cheat_for_port_credits:
             int io, ii, yy, d=c+160+40, enabled;
             char *opts[] =
             {
-                "Use widescreen hack",
-                "-",
+                "Widescreen",
                 "Anisotropic filtering",
+                "Use VSync",
+                "Ambient light level",
                 "-",
                 "Enable hires textures",
+                "Hires texture quality",
                 "Precache hires textures",
                 "GL texture compression",
                 "Cache textures on disk",
@@ -2437,9 +2424,7 @@ cheat_for_port_credits:
                 "-",
                 "Use models",
                 "Blend model animations",
-                "-",
-                "Ambient light level",
-                "Use VSync",
+                "Cull obstructed models",
                 NULL
             };
 
@@ -2455,7 +2440,7 @@ cheat_for_port_credits:
                 io++;
             }
 
-            onbar = (probey==11);
+            onbar = (probey==3||probey==5);
             x = probesm(c,yy+5,0,io);
 
             if (x == -1)
@@ -2498,70 +2483,6 @@ cheat_for_port_credits:
                     break;
                 }
                 case 2:
-                    if (x==io) usehightile = 1-usehightile;
-                    modval(0,1,(int *)&usehightile,1,probey==io);
-                    mgametextpal(d,yy, usehightile ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
-                    break;
-                case 3:
-                    enabled = usehightile;
-                    if (enabled && x==io) ud.config.useprecache = !ud.config.useprecache;
-                    if (enabled) modval(0,1,(int *)&ud.config.useprecache,1,probey==io);
-                    mgametextpal(d,yy, ud.config.useprecache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
-                    break;
-                case 4:
-                    enabled = usehightile;
-                    if (enabled && x==io) glusetexcompr = !glusetexcompr;
-                    if (enabled) modval(0,1,(int *)&glusetexcompr,1,probey==io);
-                    mgametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
-                    break;
-                case 5:
-                    enabled = (glusetexcompr && usehightile);
-                    if (enabled && x==io) glusetexcache = !glusetexcache;
-                    if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==io);
-                    mgametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
-                    break;
-                case 6:
-                    enabled = (glusetexcompr && usehightile && glusetexcache);
-                    if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
-                    if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==io);
-                    mgametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
-                    break;
-                case 7:
-                    enabled = usehightile;
-                    if (enabled && x==io) r_detailmapping = !r_detailmapping;
-                    if (enabled) modval(0,1,(int *)&r_detailmapping,1,probey==io);
-                    mgametextpal(d,yy, r_detailmapping && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
-                    break;
-                case 8:
-                    enabled = usehightile;
-                    if (enabled && x==io) r_glowmapping = !r_glowmapping;
-                    if (enabled) modval(0,1,(int *)&r_glowmapping,1,probey==io);
-                    mgametextpal(d,yy, r_glowmapping && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
-                    break;
-                case 9:
-                    if (x==io) usemodels = 1-usemodels;
-                    modval(0,1,(int *)&usemodels,1,probey==io);
-                    mgametextpal(d,yy, usemodels ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
-                    break;
-                case 10:
-                    enabled = usemodels;
-                    if (enabled && x==io) r_animsmoothing = !r_animsmoothing;
-                    if (enabled) modval(0,1,(int *)&r_animsmoothing,1,probey==io);
-                    mgametextpal(d,yy, r_animsmoothing && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
-                    break;
-                case 11:
-                {
-                    int i = (float)r_ambientlight*1024.f;
-                    int j = i;
-                    _bar(1,d+8,yy+7, &i,128,x==io,MENUHIGHLIGHT(io),numplayers>1,128,4096);
-                    if (i != j)
-                    {
-                        r_ambientlight = (float)i/1024.f;
-                        r_ambientlightrecip = 1.f/r_ambientlight;
-                    }
-                    break;
-                }
-                case 12:
                 {
                     int ovsync = vsync;
                     if (x==io) vsync = !vsync;
@@ -2571,6 +2492,89 @@ cheat_for_port_credits:
                         setvsync(vsync);
                     break;
                 }
+                case 3:
+                {
+                    int i = (float)r_ambientlight*1024.f;
+                    int j = i;
+                    _bar(1,d+8,yy+7, &i,128,x==io,MENUHIGHLIGHT(io),0,128,4096);
+                    if (i != j)
+                    {
+                        r_ambientlight = (float)i/1024.f;
+                        r_ambientlightrecip = 1.f/r_ambientlight;
+                    }
+                    break;
+                }
+                case 4:
+                    if (x==io) usehightile = 1-usehightile;
+                    modval(0,1,(int *)&usehightile,1,probey==io);
+                    mgametextpal(d,yy, usehightile ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                    break;
+                case 5:
+                {
+                    i = r_downsize;
+                    enabled = usehightile;
+                    _bar(1,d+8,yy+7, &r_downsize,-1,enabled && x==io,MENUHIGHLIGHT(io),!enabled,0,5);
+                    if (r_downsize != i)
+                    {
+                        resetvideomode();
+                        if (setgamemode(fullscreen,xdim,ydim,bpp))
+                            OSD_Printf("restartvid: Reset failed...\n");
+                    }
+                    break;
+                }
+                case 6:
+                    enabled = usehightile;
+                    if (enabled && x==io) ud.config.useprecache = !ud.config.useprecache;
+                    if (enabled) modval(0,1,(int *)&ud.config.useprecache,1,probey==io);
+                    mgametextpal(d,yy, ud.config.useprecache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    break;
+                case 7:
+                    enabled = usehightile;
+                    if (enabled && x==io) glusetexcompr = !glusetexcompr;
+                    if (enabled) modval(0,1,(int *)&glusetexcompr,1,probey==io);
+                    mgametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    break;
+                case 8:
+                    enabled = (glusetexcompr && usehightile);
+                    if (enabled && x==io) glusetexcache = !glusetexcache;
+                    if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==io);
+                    mgametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    break;
+                case 9:
+                    enabled = (glusetexcompr && usehightile && glusetexcache);
+                    if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
+                    if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==io);
+                    mgametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    break;
+                case 10:
+                    enabled = usehightile;
+                    if (enabled && x==io) r_detailmapping = !r_detailmapping;
+                    if (enabled) modval(0,1,(int *)&r_detailmapping,1,probey==io);
+                    mgametextpal(d,yy, r_detailmapping && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    break;
+                case 11:
+                    enabled = usehightile;
+                    if (enabled && x==io) r_glowmapping = !r_glowmapping;
+                    if (enabled) modval(0,1,(int *)&r_glowmapping,1,probey==io);
+                    mgametextpal(d,yy, r_glowmapping && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    break;
+                case 12:
+                    if (x==io) usemodels = 1-usemodels;
+                    modval(0,1,(int *)&usemodels,1,probey==io);
+                    mgametextpal(d,yy, usemodels ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                    break;
+                case 13:
+                    enabled = usemodels;
+                    if (enabled && x==io) r_animsmoothing = !r_animsmoothing;
+                    if (enabled) modval(0,1,(int *)&r_animsmoothing,1,probey==io);
+                    mgametextpal(d,yy, r_animsmoothing && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    break;
+                case 14:
+                    enabled = usemodels;
+                    if (enabled && x==io) r_cullobstructedmodels = !r_cullobstructedmodels;
+                    if (enabled) modval(0,1,(int *)&r_cullobstructedmodels,1,probey==io);
+                    mgametextpal(d,yy, r_cullobstructedmodels && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    break;
                 default:
                     break;
                 }
