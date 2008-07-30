@@ -568,7 +568,7 @@ int mdloadskin_trytexcache(char *fn, int len, int pal, char effect, texcachehead
     if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
     {
         // lacking the necessary extensions to do this
-        initprintf("Warning: the GL driver lacks necessary functions to use caching\n");
+        OSD_Printf("Warning: the GL driver lacks necessary functions to use caching\n");
         glusetexcache = 0;
         return -1;
     }
@@ -745,7 +745,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
 
     if ((filh = kopen4load(fn, 0)) < 0)
     {
-        initprintf("Skin %s not found.\n",fn);
+        OSD_Printf("Skin %s not found.\n",fn);
         skinfile[0] = 0;
         return 0;
     }
@@ -773,7 +773,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
         if (daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,(globalnoeffect)?0:hictinting[pal].f,m,number,surf))
         {
             kclose(filh);
-            initprintf("Failed loading skin file \"%s\"\n", fn);
+            OSD_Printf("Failed loading skin file \"%s\"\n", fn);
             skinfile[0] = 0;
             return(0);
         }
@@ -860,7 +860,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
             if (ysiz == pow2long[j]) { i |= 2; }
         }
         cachead.flags = (i!=3) | (hasalpha ? 2 : 0);
-        initprintf("No cached tex for %s.\n",fn);
+        OSD_Printf("No cached tex for %s.\n",fn);
         writexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:hictinting[pal].f, &cachead);
     }
 

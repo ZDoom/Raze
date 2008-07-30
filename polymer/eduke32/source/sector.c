@@ -3192,47 +3192,47 @@ void checksectors(int snum)
     short j,hitscanwall;
 
     if (p->cursectnum > -1)
-    switch (sector[p->cursectnum].lotag)
-    {
+        switch (sector[p->cursectnum].lotag)
+        {
 
-    case 32767:
-        sector[p->cursectnum].lotag = 0;
-        FTA(9,p);
-        p->secret_rooms++;
-        return;
-    case -1:
-        for (i=connecthead;i>=0;i=connectpoint2[i])
-            g_player[i].ps->gm = MODE_EOL;
-        sector[p->cursectnum].lotag = 0;
-        if (ud.from_bonus)
-        {
-            ud.level_number = ud.from_bonus;
-            ud.m_level_number = ud.level_number;
-            ud.from_bonus = 0;
-        }
-        else
-        {
-            ud.level_number++;
-            if (ud.level_number > MAXLEVELS-1)
-                ud.level_number = 0;
-            ud.m_level_number = ud.level_number;
-        }
-        return;
-    case -2:
-        sector[p->cursectnum].lotag = 0;
-        p->timebeforeexit = 26*8;
-        p->customexitsound = sector[p->cursectnum].hitag;
-        return;
-    default:
-        if (sector[p->cursectnum].lotag >= 10000 && sector[p->cursectnum].lotag < 16383)
-        {
-            if (snum == screenpeek || (gametype_flags[ud.coop]&GAMETYPE_FLAG_COOPSOUND))
-                spritesound(sector[p->cursectnum].lotag-10000,p->i);
+        case 32767:
             sector[p->cursectnum].lotag = 0;
-        }
-        break;
+            FTA(9,p);
+            p->secret_rooms++;
+            return;
+        case -1:
+            for (i=connecthead;i>=0;i=connectpoint2[i])
+                g_player[i].ps->gm = MODE_EOL;
+            sector[p->cursectnum].lotag = 0;
+            if (ud.from_bonus)
+            {
+                ud.level_number = ud.from_bonus;
+                ud.m_level_number = ud.level_number;
+                ud.from_bonus = 0;
+            }
+            else
+            {
+                ud.level_number++;
+                if (ud.level_number > MAXLEVELS-1)
+                    ud.level_number = 0;
+                ud.m_level_number = ud.level_number;
+            }
+            return;
+        case -2:
+            sector[p->cursectnum].lotag = 0;
+            p->timebeforeexit = 26*8;
+            p->customexitsound = sector[p->cursectnum].hitag;
+            return;
+        default:
+            if (sector[p->cursectnum].lotag >= 10000 && sector[p->cursectnum].lotag < 16383)
+            {
+                if (snum == screenpeek || (gametype_flags[ud.coop]&GAMETYPE_FLAG_COOPSOUND))
+                    spritesound(sector[p->cursectnum].lotag-10000,p->i);
+                sector[p->cursectnum].lotag = 0;
+            }
+            break;
 
-    }
+        }
 
     //After this point the the player effects the map with space
 

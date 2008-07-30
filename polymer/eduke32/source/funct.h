@@ -118,7 +118,6 @@ extern void loadefs(const char *fn);
 extern int furthestangle(int iActor,int angs);
 extern void execute(int iActor,int iPlayer,int lDist);
 extern void overwritesprite(int thex,int they,int tilenum,int shade,int stat,int dapalnum);
-extern inline int minitext(int x,int y,const char *t,int p,int sb);
 extern void gamenumber(int x,int y,int n,int s);
 extern void Shutdown(void);
 extern void getpackets(void);
@@ -191,13 +190,17 @@ extern inline void setstatusbarscale(int sc);
 extern void setgamepalette(player_struct *player, char *pal, int set);
 extern void fadepal(int r, int g, int b, int start, int end, int step);
 
-extern inline int minitextshade(int x,int y,const char *t,int s,int p,int sb);
 extern inline int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2,int z);
 extern void txdigitalnumberz(int starttile, int x,int y,int n,int s,int pal,int cs,int x1, int y1, int x2, int y2, int z);
 extern void myosx(int x,int y,int tilenum,int shade,int orientation);
 extern void myospalx(int x,int y,int tilenum,int shade,int orientation,int p);
 extern void ResetGameVars(void);
 extern void ResetActorGameVars(int iActor);
+
+extern int minitext_(int x,int y,const char *t,int s,int p,int sb);
+
+#define minitextshade(x, y, t, s, p, sb) minitext_(x,y,t,s,p,sb)
+#define minitext(x, y, t, p, sb) minitext_(x,y,t,0,p,sb)
 
 #define gametext(x,y,t,s,dabits) gametext_z(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536)
 #define gametextpal(x,y,t,s,p) gametext_z(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536)

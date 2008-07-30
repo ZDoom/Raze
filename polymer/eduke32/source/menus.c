@@ -51,6 +51,8 @@ static char *mousebuttonnames[] = { "Left", "Right", "Middle", "Thumb", "Wheel U
 
 extern int voting;
 
+#define USERMAPENTRYLENGTH 25
+
 void cmenu(int cm)
 {
     current_menu = cm;
@@ -2227,14 +2229,26 @@ cheat_for_port_credits:
 
         if (finddirshigh)
         {
+            int len;
+
             dir = finddirshigh;
-            for (i=0; i<6; i++) if (!dir->prev) break;
+            for (i=0; i<5; i++) if (!dir->prev) break;
                 else dir=dir->prev;
-            for (i=6; i>-7 && dir; i--, dir=dir->next)
+            for (i=5; i>-8 && dir; i--, dir=dir->next)
             {
                 if (dir == finddirshigh && currentlist == 0) c=0;
                 else c=16;
-                minitextshade(40,1+12+32+8*(7-i),dir->name,c,0,26);
+                len = Bstrlen(dir->name);
+                Bstrncpy(tempbuf,dir->name,len);
+                if (len > USERMAPENTRYLENGTH)
+                {
+                    len = USERMAPENTRYLENGTH-3;
+                    tempbuf[len] = 0;
+                    while (len < USERMAPENTRYLENGTH)
+                        tempbuf[len++] = '.';
+                }
+                tempbuf[len] = 0;
+                minitextshade(40,1+12+32+8*(6-i),tempbuf,c,0,26);
             }
         }
 
@@ -2242,14 +2256,26 @@ cheat_for_port_credits:
 
         if (findfileshigh)
         {
+            int len;
+
             dir = findfileshigh;
-            for (i=0; i<7; i++) if (!dir->prev) break;
+            for (i=0; i<6; i++) if (!dir->prev) break;
                 else dir=dir->prev;
-            for (i=7; i>-7 && dir; i--, dir=dir->next)
+            for (i=6; i>-8 && dir; i--, dir=dir->next)
             {
                 if (dir == findfileshigh && currentlist == 1) c=0;
                 else c=16;
-                minitextshade(180,1+12+32+8*(7-i),dir->name,c,2,26);
+                len = Bstrlen(dir->name);
+                Bstrncpy(tempbuf,dir->name,len);
+                if (len > USERMAPENTRYLENGTH)
+                {
+                    len = USERMAPENTRYLENGTH-3;
+                    tempbuf[len] = 0;
+                    while (len < USERMAPENTRYLENGTH)
+                        tempbuf[len++] = '.';
+                }
+                tempbuf[len] = 0;
+                minitextshade(180,1+12+32+8*(6-i),tempbuf,c,2,26);
             }
         }
 

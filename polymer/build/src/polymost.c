@@ -1225,7 +1225,7 @@ int trytexcache(char *fn, int len, int dameth, char effect, texcacheheader *head
     if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
     {
         // lacking the necessary extensions to do this
-        initprintf("Warning: the GL driver lacks necessary functions to use caching\n");
+        OSD_Printf("Warning: the GL driver lacks necessary functions to use caching\n");
         glusetexcache = 0;
         return -1;
     }
@@ -1274,11 +1274,11 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
     unsigned int padx=0, pady=0;
     GLuint gi;
 
-    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) {initprintf("\n");return;}
+    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache) {OSD_Printf("\n");return;}
     if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
     {
         // lacking the necessary extensions to do this
-        initprintf("Warning: the GL driver lacks necessary functions to use caching\n");
+        OSD_Printf("Warning: the GL driver lacks necessary functions to use caching\n");
         glusetexcache = 0;
         return;
     }
@@ -1292,11 +1292,11 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
                 // try to create the cache directory
                 if (Bmkdir(TEXCACHEDIR, S_IRWXU) < 0)
                 {
-                    initprintf("Failed to create texture cache directory %s\n", TEXCACHEDIR);
+                    OSD_Printf("Failed to create texture cache directory %s\n", TEXCACHEDIR);
                     glusetexcache = 0;
                     return;
                 }
-                else initprintf("Created texture cache directory %s\n", TEXCACHEDIR);
+                else OSD_Printf("Created texture cache directory %s\n", TEXCACHEDIR);
             }
             else
             {
@@ -1323,7 +1323,7 @@ void writexcache(char *fn, int len, int dameth, char effect, texcacheheader *hea
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
     sprintf(cp, "-%x-%x%x", len, dameth, effect);
 
-    initprintf("Writing cached tex: %s\n", cachefn);
+    OSD_Printf("Writing cached tex: %s\n", cachefn);
 
     fil = Bopen(cachefn,BO_BINARY|BO_CREAT|BO_TRUNC|BO_RDWR,BS_IREAD|BS_IWRITE);
     if (fil < 0) return;
@@ -1452,7 +1452,7 @@ int gloadtile_cached(int fil, texcacheheader *head, int *doalloc, pthtyp *pth,in
             format = B_LITTLE32(format);
             if (pict.format != format)
             {
-                initprintf("invalid texture cache file format %d %d\n",pict.format, format);
+                OSD_Printf("invalid texture cache file format %d %d\n",pict.format, format);
                 goto failure;
             }
         }
@@ -1522,7 +1522,7 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
 
     if ((filh = kopen4load(fn, 0)) < 0)
     {
-        initprintf("hightile: %s (pic %d) not found\n", fn, dapic);
+        OSD_Printf("hightile: %s (pic %d) not found\n", fn, dapic);
         if (facen > 0)
             hicr->skybox->ignore = 1;
         else
@@ -1719,7 +1719,7 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
             if (ysiz == pow2long[j]) { x |= 2; }
         }
         cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0);
-        initprintf("No cached tex for tile %d pal %d.\n",dapic,dapalnum);
+        OSD_Printf("No cached tex for tile %d pal %d.\n",dapic,dapalnum);
         writexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
     }
 

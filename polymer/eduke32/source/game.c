@@ -405,7 +405,7 @@ static inline int mpgametext(int y,const char *t,int s,int dabits)
     return(gametext_z(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
 }
 
-static int minitext_(int x,int y,const char *t,int s,int p,int sb)
+int minitext_(int x,int y,const char *t,int s,int p,int sb)
 {
     int ac;
     char ch,cmode;
@@ -417,6 +417,25 @@ static int minitext_(int x,int y,const char *t,int s,int p,int sb)
     usehightile = (ht && !r_downsize);
     while (*t)
     {
+        if (*t == '^' && isdigit(*(t+1)))
+        {
+            char smallbuf[4];
+            t++;
+            if (isdigit(*(t+1)))
+            {
+                smallbuf[0] = *(t++);
+                smallbuf[1] = *(t++);
+                smallbuf[2] = '\0';
+                p = atol(smallbuf);
+            }
+            else
+            {
+                smallbuf[0] = *(t++);
+                smallbuf[1] = '\0';
+                p = atol(smallbuf);
+            }
+            continue;
+        }
         ch = Btoupper(*t);
         if (ch == 32)
         {
@@ -434,16 +453,6 @@ static int minitext_(int x,int y,const char *t,int s,int p,int sb)
     }
     usehightile = ht;
     return (x);
-}
-
-inline int minitextshade(int x,int y,const char *t,int s,int p,int sb)
-{
-    return (minitext_(x,y,(char *)stripcolorcodes(t),s,p,sb));
-}
-
-inline int minitext(int x,int y,const char *t,int p,int sb)
-{
-    return (minitext_(x,y,(char *)stripcolorcodes(t),0,p,sb));
 }
 
 #if 0
@@ -3175,7 +3184,7 @@ static void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
             else if (j > (65536<<1)) j = (65536<<1);
 
             rotatesprite((x1<<4)+(xdim<<15),(y1<<4)+(ydim<<15),j,daang,i,sprite[g_player[p].ps->i].shade,
-                (g_player[p].ps->cursectnum > -1)?sector[g_player[p].ps->cursectnum].floorpal:0,
+                         (g_player[p].ps->cursectnum > -1)?sector[g_player[p].ps->cursectnum].floorpal:0,
                          (sprite[g_player[p].ps->i].cstat&2)>>1,windowx1,windowy1,windowx2,windowy2);
         }
     }
@@ -3399,7 +3408,7 @@ void displayrest(int smoothratio)
 
             if (ud.overhead_on == 2)
             {
-                a = (ud.screen_size > 2)?scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100):5;
+                a = (ud.screen_size > 2)?scale(tilesizy[ud.screen_size==4?INVENTORYBOX:BOTTOMSTATUSBAR],ud.statusbarscale,100):5;
                 minitext(5,200-a-6-6-6-6,volume_names[ud.volume_number],0,2+8+16);
                 minitext(5,200-a-6-6-6-6-6,map[ud.volume_number*MAXLEVELS + ud.level_number].name,0,2+8+16);
             }
@@ -3505,22 +3514,22 @@ void displayrest(int smoothratio)
     // JBF 20040124: display level stats in screen corner
     if (ud.levelstats && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
     {
-        i = (ud.screen_size > 2)?scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100):5;
+        i = (ud.screen_size > 2)?scale(tilesizy[ud.screen_size==4?INVENTORYBOX:BOTTOMSTATUSBAR],ud.statusbarscale,100):5;
 
-        Bsprintf(tempbuf,"T:%d:%02d",
+        Bsprintf(tempbuf,"T:^15%d:%02d",
                  (g_player[myconnectindex].ps->player_par/(26*60)),
                  (g_player[myconnectindex].ps->player_par/26)%60);
         minitext(5,200-i-6-6-6,tempbuf,10,26);
 
         if (ud.player_skill > 3 || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY)))
-            Bsprintf(tempbuf,"K:%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?g_player[i].ps->frag-g_player[i].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
+            Bsprintf(tempbuf,"K:^15%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?g_player[i].ps->frag-g_player[i].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
         else
-            Bsprintf(tempbuf,"K:%d/%d",g_player[myconnectindex].ps->actors_killed,
+            Bsprintf(tempbuf,"K:^15%d/%d",g_player[myconnectindex].ps->actors_killed,
                      g_player[myconnectindex].ps->max_actors_killed>g_player[myconnectindex].ps->actors_killed?
                      g_player[myconnectindex].ps->max_actors_killed:g_player[myconnectindex].ps->actors_killed);
         minitext(5,200-i-6-6,tempbuf,10,26);
 
-        Bsprintf(tempbuf,"S:%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
+        Bsprintf(tempbuf,"S:^15%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
         minitext(5,200-i-6,tempbuf,10,26);
     }
     if (tintf > 0 || dotint) palto(tintr,tintg,tintb,tintf|128);
@@ -4266,7 +4275,7 @@ int EGS(int whatsect,int s_x,int s_y,int s_z,int s_pn,int s_s,int s_xr,int s_yr,
     s->clipdist = 0;
     s->pal = 0;
     s->lotag = 0;
-    
+
     if (s_ow > -1 && s_ow < MAXSPRITES)
     {
         hittype[i].picnum = sprite[s_ow].picnum;
