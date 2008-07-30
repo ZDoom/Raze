@@ -3423,7 +3423,7 @@ void displayrest(int smoothratio)
             if (ud.overhead_on == 2)
             {
                 if (ud.screen_size > 0) a = 147;
-                else a = 182;
+                else a = 179;
                 minitext(5,a+6,volume_names[ud.volume_number],0,2+8+16);
                 minitext(5,a+6+6,map[ud.volume_number*MAXLEVELS + ud.level_number].name,0,2+8+16);
             }
@@ -3527,19 +3527,28 @@ void displayrest(int smoothratio)
     tics();
 
     // JBF 20040124: display level stats in screen corner
-    if ((ud.overhead_on == 2 || ud.levelstats) && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+    if ((ud.overhead_on != 2 && ud.levelstats) && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
     {
         if (ud.screen_size == 4)
-            i = scale(tilesizy[INVENTORYBOX]+6,ud.statusbarscale,100);
-        if (ud.screen_size > 2)
-            i = scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100);
-        else i = 5;
+        {
+            i = scale(tilesizy[INVENTORYBOX]+2,ud.statusbarscale,100);
+            j = scale(scale(5,ud.config.ScreenWidth,320),ud.statusbarscale,100);
+        }
+        else if (ud.screen_size > 2)
+        {
+            i = scale(tilesizy[BOTTOMSTATUSBAR]+1,ud.statusbarscale,100);
+            j = scale(2,ud.config.ScreenWidth,320);
+        }
+        else
+        {
+            i = 2;
+            j = scale(2,ud.config.ScreenWidth,320);
+        }
 
         Bsprintf(tempbuf,"T:^15%d:%02d",
                  (g_player[myconnectindex].ps->player_par/(26*60)),
                  (g_player[myconnectindex].ps->player_par/26)%60);
-//        minitext(5,200-i-6-6-6,tempbuf,10,26);
-        gametext_z(9,STARTALPHANUM, scale(5,ud.config.ScreenWidth,320),scale(200-i,ud.config.ScreenHeight,200)-8-8-8,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+        gametext_z(9,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-7-7-7,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (ud.player_skill > 3 || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY)))
             Bsprintf(tempbuf,"K:^15%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?g_player[i].ps->frag-g_player[i].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
@@ -3554,14 +3563,12 @@ void displayrest(int smoothratio)
                          g_player[myconnectindex].ps->max_actors_killed>g_player[myconnectindex].ps->actors_killed?
                          g_player[myconnectindex].ps->max_actors_killed:g_player[myconnectindex].ps->actors_killed);
         }
-//        minitext(5,200-i-6-6,tempbuf,10,26);
-        gametext_z(9,STARTALPHANUM, scale(5,ud.config.ScreenWidth,320),scale(200-i,ud.config.ScreenHeight,200)-8-8,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+        gametext_z(9,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-7-7,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (g_player[myconnectindex].ps->secret_rooms == g_player[myconnectindex].ps->max_secret_rooms)
             Bsprintf(tempbuf,"S:%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
         else Bsprintf(tempbuf,"S:^15%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
-//        minitext(5,200-i-6,tempbuf,10,26);
-        gametext_z(9,STARTALPHANUM, scale(5,ud.config.ScreenWidth,320),scale(200-i,ud.config.ScreenHeight,200)-8,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+        gametext_z(9,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-7,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
     }
     if (tintf > 0 || dotint) palto(tintr,tintg,tintb,tintf|128);
 }
