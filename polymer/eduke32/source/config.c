@@ -705,7 +705,7 @@ int32 CONFIG_ReadSetup(void)
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyClamping", &r_parallaxskyclamping);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyPanning", &r_parallaxskypanning);
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLCullObstructedModels", &r_cullobstructedmodels);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLOcclusionChecking", &r_modelocclusionchecking);
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "GLTextureQuality", &r_downsize);
         dummy = usemodels;
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "UseModels",&dummy);
@@ -926,7 +926,7 @@ void CONFIG_WriteSetup(void)
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyClamping",r_parallaxskyclamping,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLParallaxSkyPanning",r_parallaxskypanning,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLCullObstructedModels", r_cullobstructedmodels,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLOcclusionChecking", r_modelocclusionchecking,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "GLTextureQuality", r_downsize,false,false);
 #endif
 #ifdef RENDERTYPEWIN

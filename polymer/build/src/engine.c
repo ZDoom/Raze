@@ -6345,7 +6345,12 @@ killsprite:
             if (tspriteptr[spritesortcnt] != NULL)
                 drawsprite(spritesortcnt);
         }
-
+#if defined(USE_OPENGL) && defined(POLYMOST)
+        if (totalclock < lastcullcheck - CULL_DELAY)
+            lastcullcheck = totalclock;
+        if (totalclock >= lastcullcheck + CULL_DELAY)
+            lastcullcheck = (totalclock + CULL_DELAY);
+#endif
     } /* depthpeeling */
 #if defined(USE_OPENGL) && defined(POLYMOST)
     else
@@ -6356,6 +6361,8 @@ killsprite:
 
         while (j > 0) drawsprite(--j);
         while (k > 0) drawmaskwall(--k);
+        if (totalclock >= lastcullcheck + CULL_DELAY)
+            lastcullcheck = (totalclock + CULL_DELAY);
     }
 #endif
 

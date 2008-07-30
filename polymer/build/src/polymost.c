@@ -175,9 +175,9 @@ int r_parallaxskyclamping = 1;
 int r_parallaxskypanning = 0;
 
 // line of sight checks before mddraw()
-int r_cullobstructedmodels = 0;
-#define CULL_DELAY 5
+int r_modelocclusionchecking = 0;
 #define CULL_OFFSET 384
+#define CULL_DELAY 3
 
 // fullbright cvar
 int r_fullbrights = 1;
@@ -4439,35 +4439,38 @@ void polymost_drawmaskwall(int damaskwallcnt)
     drawpoly(dpx,dpy,n,method);
 }
 
-// int lastcullcheck[MAXSPRITES];
+int lastcullcheck = 0;
 char cullmodel[MAXSPRITES];
 
 int polymost_checkcoordinates(int x, int y, spritetype *tspr)
 {
     short datempsectnum = tspr->sectnum;
-    int i;
+    int oldx = x, i, j = (tilesizy[tspr->picnum]*tspr->yrepeat);
 
+RECHECK:
     updatesector(tspr->x+x,tspr->y+y,&datempsectnum);
+
     if (datempsectnum == -1)
-        return 0;
-    /*    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-            tspr->x+x, tspr->y+y, sector[datempsectnum].floorz, datempsectnum))
-            return 1;
-        if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-            tspr->x+x, tspr->y+y, sector[datempsectnum].ceilingz, datempsectnum))
-            return 1; */
-    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-               tspr->x+x, tspr->y+y, tspr->z, datempsectnum))
-        return 1;
+    {
+        if (x == y || x != oldx)
+            return 0;
+        swaplong(&x,&y);
+        updatesector(tspr->x+x,tspr->y+y,&datempsectnum);
+    }
+
     for (i=4;i>-1;i--)
     {
         if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-            tspr->x+x, tspr->y+y, tspr->z-((tilesizy[tspr->picnum]*tspr->yrepeat)*i)-512, datempsectnum))
+            tspr->x+x, tspr->y+y, tspr->z-(j*i)-512, datempsectnum))
             return 1;
-/*        if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-            tspr->x+x, tspr->y+y, tspr->z+((tilesizy[tspr->picnum]*tspr->yrepeat)*i), datempsectnum))
-            return 1; */
     }
+
+    if (x != y && x == oldx)
+    {
+        swaplong(&x,&y);
+        goto RECHECK;
+    }
+
     return 0;
 }
 
@@ -4481,7 +4484,6 @@ void polymost_drawsprite(int snum)
     int posx,posy;
     int oldsizx, oldsizy;
     int tsizx, tsizy;
-    md2model *modelptr = NULL;
     tspr = tspriteptr[snum];
     if (tspr->owner < 0 || tspr->picnum < 0) return;
 
@@ -4530,57 +4532,41 @@ void polymost_drawsprite(int snum)
                 if (mddraw(tspr)) return;
                 break;	// else, render as flat sprite
             }
-            modelptr = (md2model *)models[tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid];
-            if (r_cullobstructedmodels == 1 || (r_cullobstructedmodels == 2 && (modelptr->usesalpha)))
+            if (r_modelocclusionchecking)
             {
-                do // this is so gay
+                if (totalclock >= lastcullcheck + CULL_DELAY)
                 {
-                    if (/*totalclock < lastcullcheck[tspr->owner] ||*/ tspr->statnum == TSPR_TEMP)
+                    do // this is so gay
+                    {
+                        // don't bother with shadows because processing its owner will take care of it
+                        if (tspr->statnum == TSPR_TEMP)
+                            break;
+                        cullmodel[tspr->owner] = 1;
+
+                        if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
+                            tspr->x, tspr->y, tspr->z,tspr->sectnum))
+                        { cullmodel[tspr->owner] = 0; break; }
+
+                        if (polymost_checkcoordinates(-CULL_OFFSET, 0, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
+                        if (polymost_checkcoordinates(-CULL_OFFSET, -CULL_OFFSET, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
+
+                        if (polymost_checkcoordinates(CULL_OFFSET, 0, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
+                        if (polymost_checkcoordinates(CULL_OFFSET, CULL_OFFSET, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
+
+                        if (polymost_checkcoordinates(-CULL_OFFSET, CULL_OFFSET, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
+
+                        if (polymost_checkcoordinates(0, 0, tspr))
+                        { cullmodel[tspr->owner] = 0; break; }
+
                         break;
-                    cullmodel[tspr->owner] = 1;
-/*                    if (cansee(globalposx, globalposy, sector[globalcursectnum].ceilingz, globalcursectnum,
-                               tspr->x, tspr->y, tspr->z, tspr->sectnum))
-                        { cullmodel[tspr->owner] = 0; break; }
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                               tspr->x, tspr->y, tspr->z-((tilesizy[tspr->picnum]*tspr->yrepeat)<<2),tspr->sectnum))
-                        { cullmodel[tspr->owner] = 0; break; } */
-                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                               tspr->x, tspr->y, tspr->z,tspr->sectnum))
-                        { cullmodel[tspr->owner] = 0; break; }
-/*                    if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
-                               tspr->x, tspr->y, globalposz,tspr->sectnum))
-                        { cullmodel[tspr->owner] = 0; break; } */
-/*                    if (cansee(globalposx, globalposy, sector[globalcursectnum].floorz, globalcursectnum,
-                               tspr->x, tspr->y, tspr->z, tspr->sectnum))
-                        { cullmodel[tspr->owner] = 0; break; } */
-
-                    if (polymost_checkcoordinates(0, 0, tspr))
-                        { cullmodel[tspr->owner] = 0; break; }
-
-                    i = CULL_OFFSET;
-                    if (polymost_checkcoordinates(-i, 0, tspr))
-                        { cullmodel[tspr->owner] = 0; break; }
-                    if (polymost_checkcoordinates(-i, -i, tspr))
-                        { cullmodel[tspr->owner] = 0; break; }
-                    if (polymost_checkcoordinates(0, -i, tspr))
-                        { cullmodel[tspr->owner] = 0; break; }
-
-                    if (polymost_checkcoordinates(i, 0, tspr))
-                        { cullmodel[tspr->owner] = 0; break; }
-                    if (polymost_checkcoordinates(i, i, tspr))
-                        { cullmodel[tspr->owner] = 0; break; }
-                    if (polymost_checkcoordinates(0, i, tspr))
-                        { cullmodel[tspr->owner] = 0; break; }
-
-                    if (polymost_checkcoordinates(-i, i, tspr))
-                        { cullmodel[tspr->owner] = 0; break; }
-                    if (polymost_checkcoordinates(i, -i, tspr))
-                        { cullmodel[tspr->owner] = 0; break; }
-                    break;
+                    }
+                    while (1);
                 }
-                while (1);
-/*                if (totalclock >= lastcullcheck[tspr->owner])
-                    lastcullcheck[tspr->owner] = totalclock + CULL_DELAY; */
             }
             else cullmodel[tspr->owner] = 0;
             if (cullmodel[tspr->owner]) break;
@@ -5980,10 +5966,10 @@ static int osdcmd_polymostvars(const osdfuncparm_t *parm)
         }
         return OSDCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->name, "r_cullobstructedmodels"))
+    else if (!Bstrcasecmp(parm->name, "r_modelocclusionchecking"))
     {
-        if (showval) { OSD_Printf("r_cullobstructedmodels is %d\n", r_cullobstructedmodels); }
-        else r_cullobstructedmodels = max(0,min(val,2));
+        if (showval) { OSD_Printf("r_modelocclusionchecking is %d\n", r_modelocclusionchecking); }
+        else r_modelocclusionchecking = max(0,min(val,2));
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->name, "r_fullbrights"))
@@ -6050,7 +6036,7 @@ void polymost_initosdfuncs(void)
 {
 #ifdef USE_OPENGL
     OSD_RegisterFunction("r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",osdcmd_polymostvars);
-    OSD_RegisterFunction("r_cullobstructedmodels","r_cullobstructedmodels: enable/disable hack to cull \"obstructed\" models",osdcmd_polymostvars);
+    OSD_RegisterFunction("r_modelocclusionchecking","r_modelocclusionchecking: enable/disable hack to cull \"obstructed\" models",osdcmd_polymostvars);
     OSD_RegisterFunction("r_curpeel","r_curpeel: allows to display one depth layer at a time (for development purposes)",osdcmd_polymostvars);
     OSD_RegisterFunction("r_depthpeeling","r_depthpeeling: enable/disable order-independant transparency",osdcmd_polymostvars);
     OSD_RegisterFunction("r_detailmapping","r_detailmapping: enable/disable detail mapping",osdcmd_polymostvars);

@@ -2450,7 +2450,7 @@ cheat_for_port_credits:
                 "-",
                 "Use models",
                 "Blend model animations",
-                "Cull obstructed models",
+                "Model occlusion checking",
                 NULL
             };
 
@@ -2553,37 +2553,37 @@ cheat_for_port_credits:
                     enabled = usehightile;
                     if (enabled && x==io) ud.config.useprecache = !ud.config.useprecache;
                     if (enabled) modval(0,1,(int *)&ud.config.useprecache,1,probey==io);
-                    mgametextpal(d,yy, ud.config.useprecache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    mgametextpal(d,yy, ud.config.useprecache ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 7:
                     enabled = usehightile;
                     if (enabled && x==io) glusetexcompr = !glusetexcompr;
                     if (enabled) modval(0,1,(int *)&glusetexcompr,1,probey==io);
-                    mgametextpal(d,yy, glusetexcompr && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    mgametextpal(d,yy, glusetexcompr ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 8:
                     enabled = (glusetexcompr && usehightile);
                     if (enabled && x==io) glusetexcache = !glusetexcache;
                     if (enabled) modval(0,1,(int *)&glusetexcache,1,probey==io);
-                    mgametextpal(d,yy, glusetexcache && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    mgametextpal(d,yy, glusetexcache ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 9:
                     enabled = (glusetexcompr && usehightile && glusetexcache);
                     if (enabled && x==io) glusetexcachecompression = !glusetexcachecompression;
                     if (enabled) modval(0,1,(int *)&glusetexcachecompression,1,probey==io);
-                    mgametextpal(d,yy, glusetexcachecompression && enabled ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    mgametextpal(d,yy, glusetexcachecompression ? "On" : "Off", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 10:
                     enabled = usehightile;
                     if (enabled && x==io) r_detailmapping = !r_detailmapping;
                     if (enabled) modval(0,1,(int *)&r_detailmapping,1,probey==io);
-                    mgametextpal(d,yy, r_detailmapping && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    mgametextpal(d,yy, r_detailmapping ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 11:
                     enabled = usehightile;
                     if (enabled && x==io) r_glowmapping = !r_glowmapping;
                     if (enabled) modval(0,1,(int *)&r_glowmapping,1,probey==io);
-                    mgametextpal(d,yy, r_glowmapping && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    mgametextpal(d,yy, r_glowmapping ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 12:
                     if (x==io) usemodels = 1-usemodels;
@@ -2594,13 +2594,13 @@ cheat_for_port_credits:
                     enabled = usemodels;
                     if (enabled && x==io) r_animsmoothing = !r_animsmoothing;
                     if (enabled) modval(0,1,(int *)&r_animsmoothing,1,probey==io);
-                    mgametextpal(d,yy, r_animsmoothing && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    mgametextpal(d,yy, r_animsmoothing ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 case 14:
                     enabled = usemodels;
-                    if (enabled && x==io) r_cullobstructedmodels = !r_cullobstructedmodels;
-                    if (enabled) modval(0,1,(int *)&r_cullobstructedmodels,1,probey==io);
-                    mgametextpal(d,yy, r_cullobstructedmodels && enabled ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
+                    if (enabled && x==io) r_modelocclusionchecking = !r_modelocclusionchecking;
+                    if (enabled) modval(0,1,(int *)&r_modelocclusionchecking,1,probey==io);
+                    mgametextpal(d,yy, r_modelocclusionchecking ? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, 0);
                     break;
                 default:
                     break;

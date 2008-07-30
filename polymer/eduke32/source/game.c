@@ -2355,13 +2355,13 @@ static void coolgaugetext(int snum)
     }
 }
 
-#define AVERAGEFRAMES 16
-static int frameval[AVERAGEFRAMES], framecnt = 0;
+#define AVERAGEFRAMES 128
 
 static void tics(void)
 {
     int i = totalclock,j;
-    char b[10];
+    static int frameval[AVERAGEFRAMES], framecnt = 0;
+    char b[4];
 
     if (i != frameval[framecnt])
     {
@@ -3530,7 +3530,7 @@ void displayrest(int smoothratio)
         if (ud.screen_size == 4)
         {
             i = scale(tilesizy[INVENTORYBOX]+2,ud.statusbarscale,100);
-            j = scale(scale(5,ud.config.ScreenWidth,320),ud.statusbarscale,100);
+            j = scale(scale(6,ud.config.ScreenWidth,320),ud.statusbarscale,100);
         }
         else if (ud.screen_size > 2)
         {
