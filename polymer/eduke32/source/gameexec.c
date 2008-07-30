@@ -5153,7 +5153,7 @@ static int parse(void)
                 operatesectors(var1, var2);
                 break;
             case CON_OPERATEACTIVATORS:
-                if (var1<0 || var1>=numsectors) {OSD_Printf(CON_ERROR "CON_OPERATEACTIVATORS: Invalid sector %d\n",line_num,var1);break;}
+                if (var1<0 || var1>=0xffff) {OSD_Printf(CON_ERROR "CON_OPERATEACTIVATORS: Invalid sector %d\n",line_num,var1);break;}
                 operateactivators(var1, var2);
                 break;
             case CON_SETASPECT:

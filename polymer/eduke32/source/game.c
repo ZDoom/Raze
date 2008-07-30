@@ -54,7 +54,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20080722 // this is checked against http://eduke32.com/VERSION
+#define BUILDDATE 20080729 // this is checked against http://eduke32.com/VERSION
 #define UPDATEINTERVAL 604800 // 1w
 #endif
 
@@ -283,10 +283,8 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
 {
     int ac,newx,oldx=x;
     char centre, *oldt;
-    int squishtext = (small == 2);
+    int squishtext = (small&2);
     int ht = usehightile;
-
-    small &= ~2;
 
     centre = (x == (320>>1));
     newx = 0;
@@ -307,7 +305,10 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
             }
             if (*t == 32)
             {
-                newx+=(5-squishtext)*z/65536;
+                if (small&8)
+                    newx+=(8-squishtext)*z/65536;
+                else
+                    newx+=(5-squishtext)*z/65536;
                 t++;
                 continue;
             }
@@ -317,7 +318,12 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
 
             if (*t >= '0' && *t <= '9')
                 newx += (8)*z/65536;
-            else newx += (tilesizx[ac]-squishtext)*z/65536;
+            else
+            {
+                if (small&8)
+                    newx += (8-squishtext)*z/65536;
+                else newx += (tilesizx[ac]-squishtext)*z/65536;
+            }
             t++;
         }
 
@@ -348,7 +354,10 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         }
         if (*t == 32)
         {
-            x+=(5-squishtext)*z/65536;
+            if (small&8)
+                x+=(8-squishtext)*z/65536;
+            else
+                x+=(5-squishtext)*z/65536;
             t++;
             continue;
         }
@@ -357,11 +366,16 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         if (ac < starttile || ac > (starttile + 93))
             break;
 
-        rotatesprite(x<<16,(y<<16)+((small&1)?ud.config.ScreenHeight<<15:0),z,0,ac,s,p,(small&1)?(8|16):(2|orientation),x1,y1,x2,y2);
+        rotatesprite(x<<16,(y<<16)+((small&4)?ud.config.ScreenHeight<<15:0),z,0,ac,s,p,(small&1)?(8|16):(2|orientation),x1,y1,x2,y2);
 
         if ((*t >= '0' && *t <= '9'))
             x += (8)*z/65536;
-        else x += (tilesizx[ac]-squishtext)*z/65536;//(tilesizx[ac]>>small);
+        else
+        {
+            if (small&8)
+                x += (8-squishtext)*z/65536;//(tilesizx[ac]>>small);
+            else x += (tilesizx[ac]-squishtext)*z/65536;//(tilesizx[ac]>>small);
+        }
         if (x > (ud.config.ScreenWidth - 14)) oldt = (char *)t, x = oldx, y+=8*z/65536;
         t++;
     }
@@ -401,7 +415,7 @@ int gametextlen(int x,const char *t)
 static inline int mpgametext(int y,const char *t,int s,int dabits)
 {
     if (xdim >= 640 && ydim >= 480)
-        return(gametext_z(1,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
+        return(gametext_z(5,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
     return(gametext_z(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
 }
 
@@ -3408,9 +3422,10 @@ void displayrest(int smoothratio)
 
             if (ud.overhead_on == 2)
             {
-                a = (ud.screen_size > 2)?scale(tilesizy[ud.screen_size==4?INVENTORYBOX:BOTTOMSTATUSBAR],ud.statusbarscale,100):5;
-                minitext(5,200-a-6-6-6-6,volume_names[ud.volume_number],0,2+8+16);
-                minitext(5,200-a-6-6-6-6-6,map[ud.volume_number*MAXLEVELS + ud.level_number].name,0,2+8+16);
+                if (ud.screen_size > 0) a = 147;
+                else a = 182;
+                minitext(5,a+6,volume_names[ud.volume_number],0,2+8+16);
+                minitext(5,a+6+6,map[ud.volume_number*MAXLEVELS + ud.level_number].name,0,2+8+16);
             }
         }
     }
@@ -3512,25 +3527,41 @@ void displayrest(int smoothratio)
     tics();
 
     // JBF 20040124: display level stats in screen corner
-    if (ud.levelstats && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+    if ((ud.overhead_on == 2 || ud.levelstats) && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
     {
-        i = (ud.screen_size > 2)?scale(tilesizy[ud.screen_size==4?INVENTORYBOX:BOTTOMSTATUSBAR],ud.statusbarscale,100):5;
+        if (ud.screen_size == 4)
+            i = scale(tilesizy[INVENTORYBOX]+6,ud.statusbarscale,100);
+        if (ud.screen_size > 2)
+            i = scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100);
+        else i = 5;
 
         Bsprintf(tempbuf,"T:^15%d:%02d",
                  (g_player[myconnectindex].ps->player_par/(26*60)),
                  (g_player[myconnectindex].ps->player_par/26)%60);
-        minitext(5,200-i-6-6-6,tempbuf,10,26);
+//        minitext(5,200-i-6-6-6,tempbuf,10,26);
+        gametext_z(9,STARTALPHANUM, scale(5,ud.config.ScreenWidth,320),scale(200-i,ud.config.ScreenHeight,200)-8-8-8,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (ud.player_skill > 3 || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY)))
             Bsprintf(tempbuf,"K:^15%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?g_player[i].ps->frag-g_player[i].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
         else
-            Bsprintf(tempbuf,"K:^15%d/%d",g_player[myconnectindex].ps->actors_killed,
-                     g_player[myconnectindex].ps->max_actors_killed>g_player[myconnectindex].ps->actors_killed?
-                     g_player[myconnectindex].ps->max_actors_killed:g_player[myconnectindex].ps->actors_killed);
-        minitext(5,200-i-6-6,tempbuf,10,26);
+        {
+            if (g_player[myconnectindex].ps->actors_killed >= g_player[myconnectindex].ps->max_actors_killed)
+                Bsprintf(tempbuf,"K:%d/%d",g_player[myconnectindex].ps->actors_killed,
+                         g_player[myconnectindex].ps->max_actors_killed>g_player[myconnectindex].ps->actors_killed?
+                         g_player[myconnectindex].ps->max_actors_killed:g_player[myconnectindex].ps->actors_killed);
+            else
+                Bsprintf(tempbuf,"K:^15%d/%d",g_player[myconnectindex].ps->actors_killed,
+                         g_player[myconnectindex].ps->max_actors_killed>g_player[myconnectindex].ps->actors_killed?
+                         g_player[myconnectindex].ps->max_actors_killed:g_player[myconnectindex].ps->actors_killed);
+        }
+//        minitext(5,200-i-6-6,tempbuf,10,26);
+        gametext_z(9,STARTALPHANUM, scale(5,ud.config.ScreenWidth,320),scale(200-i,ud.config.ScreenHeight,200)-8-8,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
-        Bsprintf(tempbuf,"S:^15%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
-        minitext(5,200-i-6,tempbuf,10,26);
+        if (g_player[myconnectindex].ps->secret_rooms == g_player[myconnectindex].ps->max_secret_rooms)
+            Bsprintf(tempbuf,"S:%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
+        else Bsprintf(tempbuf,"S:^15%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
+//        minitext(5,200-i-6,tempbuf,10,26);
+        gametext_z(9,STARTALPHANUM, scale(5,ud.config.ScreenWidth,320),scale(200-i,ud.config.ScreenHeight,200)-8,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
     }
     if (tintf > 0 || dotint) palto(tintr,tintg,tintb,tintf|128);
 }

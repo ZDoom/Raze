@@ -535,15 +535,16 @@ static int _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
 
     if (maxwidth > 0)
     {
-        int x = 0;
+        int x = 0, count = 0;
         maxwidth += 3;
-        OSD_Printf("Symbol listing:\n");
+        OSD_Printf(OSDTEXT_RED "\nSymbol listing:\n");
         for (i=symbols; i!=NULL; i=i->next)
         {
             if (i->func != (void *)OSD_UNALIASED)
             {
                 OSD_Printf("%-*s",maxwidth,i->name);
                 x += maxwidth;
+                count++;
             }
             if (x > osdcols - maxwidth)
             {
@@ -551,10 +552,9 @@ static int _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
                 OSD_Printf("\n");
             }
         }
-        if (x)
-            OSD_Printf("\n");
+        if (x) OSD_Printf("\n");
+        OSD_Printf(OSDTEXT_RED "Found %d symbols\n",count);
     }
-
     return OSDCMD_OK;
 }
 
