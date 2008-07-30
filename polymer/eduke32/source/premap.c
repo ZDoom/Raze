@@ -1583,7 +1583,7 @@ void resetmys(void)
 
 extern int voting, vote_map, vote_episode;
 
-static void getlevelfromfilename(const char *fn, char *volume, char *level)
+void getlevelfromfilename(const char *fn, char *volume, char *level)
 {
     for (*volume=0;*volume<MAXVOLUMES;(*volume)++)
     {
@@ -1673,9 +1673,9 @@ int enterlevel(int g)
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
         Bstrcpy(levname, boardfilename);
-        Bsprintf(apptitle,"%s - %s - " HEAD2,levname,duke3dgrpstring);
+        Bsprintf(apptitle,"%s - %s - " APPNAME,levname,duke3dgrpstring);
     }
-    else Bsprintf(apptitle,"%s - %s - " HEAD2,map[(ud.volume_number*MAXLEVELS)+ud.level_number].name,duke3dgrpstring);
+    else Bsprintf(apptitle,"%s - %s - " APPNAME,map[(ud.volume_number*MAXLEVELS)+ud.level_number].name,duke3dgrpstring);
 
     Bstrcpy(tempbuf,apptitle);
     wm_setapptitle(tempbuf);

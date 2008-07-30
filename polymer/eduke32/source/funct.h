@@ -249,5 +249,6 @@ extern int getteampal(int team);
 extern void se40code(int x,int y,int z,int a,int h, int smoothratio);
 
 extern void FreeMapState(int mapnum);
+extern void getlevelfromfilename(const char *fn, char *volume, char *level);
 
 #endif // __funct_h__

@@ -324,7 +324,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
         t = oldt;
         x = (320>>1)-(newx>>1);
     }
-    usehightile = (ht && !r_downsize);
+    usehightile = (ht && r_downsize < 2);
     while (*t)
     {
         if (*t == '^' && isdigit(*(t+1)))
@@ -3399,11 +3399,9 @@ void displayrest(int smoothratio)
 
             if (ud.overhead_on == 2)
             {
-                if (ud.screen_size > 0) a = 147;
-                else a = 182;
-
-                minitext(1,a+6,volume_names[ud.volume_number],0,2+8+16);
-                minitext(1,a+12,map[ud.volume_number*MAXLEVELS + ud.level_number].name,0,2+8+16);
+                a = (ud.screen_size > 2)?scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100):5;
+                minitext(5,200-a-6-6-6-6,volume_names[ud.volume_number],0,2+8+16);
+                minitext(5,200-a-6-6-6-6-6,map[ud.volume_number*MAXLEVELS + ud.level_number].name,0,2+8+16);
             }
         }
     }
@@ -3507,23 +3505,23 @@ void displayrest(int smoothratio)
     // JBF 20040124: display level stats in screen corner
     if (ud.levelstats && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
     {
-        i = (ud.screen_size <= 4)?0:scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100);
+        i = (ud.screen_size > 2)?scale(tilesizy[BOTTOMSTATUSBAR],ud.statusbarscale,100):5;
 
-        Bsprintf(tempbuf,"Time: %d:%02d",
+        Bsprintf(tempbuf,"T:%d:%02d",
                  (g_player[myconnectindex].ps->player_par/(26*60)),
                  (g_player[myconnectindex].ps->player_par/26)%60);
-        minitext(320-5*12,200-i-6-6-6,tempbuf,0,26);
+        minitext(5,200-i-6-6-6,tempbuf,10,26);
 
         if (ud.player_skill > 3 || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY)))
-            Bsprintf(tempbuf,"Kills: %d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?g_player[i].ps->frag-g_player[i].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
+            Bsprintf(tempbuf,"K:%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?g_player[i].ps->frag-g_player[i].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
         else
-            Bsprintf(tempbuf,"Kills: %d/%d",g_player[myconnectindex].ps->actors_killed,
+            Bsprintf(tempbuf,"K:%d/%d",g_player[myconnectindex].ps->actors_killed,
                      g_player[myconnectindex].ps->max_actors_killed>g_player[myconnectindex].ps->actors_killed?
                      g_player[myconnectindex].ps->max_actors_killed:g_player[myconnectindex].ps->actors_killed);
-        minitext(320-5*12,200-i-6-6,tempbuf,0,26);
+        minitext(5,200-i-6-6,tempbuf,10,26);
 
-        Bsprintf(tempbuf,"Secrets: %d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
-        minitext(320-5*12,200-i-6,tempbuf,0,26);
+        Bsprintf(tempbuf,"S:%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
+        minitext(5,200-i-6,tempbuf,10,26);
     }
     if (tintf > 0 || dotint) palto(tintr,tintg,tintb,tintf|128);
 }
@@ -9407,7 +9405,7 @@ static void Logo(void)
     flushperms();
     nextpage();
 
-    Bsprintf(tempbuf,"%s - " HEAD2,duke3dgrpstring);
+    Bsprintf(tempbuf,"%s - " APPNAME,duke3dgrpstring);
     wm_setapptitle(tempbuf);
 
     MUSIC_StopSong();
@@ -10155,7 +10153,7 @@ void backtomenu(void)
     g_player[myconnectindex].ps->gm = MODE_MENU;
     cmenu(0);
     KB_FlushKeyboardQueue();
-    Bsprintf(tempbuf,HEAD2 " - %s",duke3dgrpstring);
+    Bsprintf(tempbuf,APPNAME " - %s",duke3dgrpstring);
     wm_setapptitle(tempbuf);
 }
 
@@ -10479,7 +10477,7 @@ void app_main(int argc,const char **argv)
 
     // gotta set the proper title after we compile the CONs if this is the full version
 
-    Bsprintf(tempbuf,"%s - " HEAD2,duke3dgrpstring);
+    Bsprintf(tempbuf,"%s - " APPNAME,duke3dgrpstring);
     wm_setapptitle(tempbuf);
 
 
@@ -11991,7 +11989,7 @@ void dobonus(int bonusonly)
         350, 380,VICTORY1+8,86,59
     };
 
-    Bsprintf(tempbuf,"%s - " HEAD2,duke3dgrpstring);
+    Bsprintf(tempbuf,"%s - " APPNAME,duke3dgrpstring);
     wm_setapptitle(tempbuf);
 
     if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])

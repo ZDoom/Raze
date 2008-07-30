@@ -183,7 +183,8 @@ int r_cullobstructedmodels = 0;
 int r_fullbrights = 1;
 
 // texture downsizing
-int r_downsize = 0;
+// is medium quality a good default?
+int r_downsize = 1;
 
 static float fogresult, fogcol[4];
 
@@ -1718,7 +1719,7 @@ int gloadtile_hi(int dapic,int dapalnum, int facen, hicreplctyp *hicr, int damet
             if (ysiz == pow2long[j]) { x |= 2; }
         }
         cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0);
-        initprintf("No cached tex for tile %d pal %d. ",dapic,dapalnum);
+        initprintf("No cached tex for tile %d pal %d.\n",dapic,dapalnum);
         writexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
     }
 

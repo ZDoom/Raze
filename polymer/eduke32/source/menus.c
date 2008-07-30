@@ -2167,7 +2167,7 @@ cheat_for_port_credits:
                      scale(320-40+4,xdim,320)-1,scale(12+32+112+4,ydim,200)-1);
 
         // path
-        minitext(38,45,boardfilename,0,26);
+        minitext(38,45,boardfilename,16,26);
 
         {
             // JBF 20040208: seek to first name matching pressed character
@@ -2232,7 +2232,7 @@ cheat_for_port_credits:
                 else dir=dir->prev;
             for (i=6; i>-7 && dir; i--, dir=dir->next)
             {
-                if (dir == finddirshigh) c=0;
+                if (dir == finddirshigh && currentlist == 0) c=0;
                 else c=16;
                 minitextshade(40,1+12+32+8*(7-i),dir->name,c,0,26);
             }
@@ -2247,7 +2247,7 @@ cheat_for_port_credits:
                 else dir=dir->prev;
             for (i=7; i>-7 && dir; i--, dir=dir->next)
             {
-                if (dir == findfileshigh) c=0;
+                if (dir == findfileshigh && currentlist == 1) c=0;
                 else c=16;
                 minitextshade(180,1+12+32+8*(7-i),dir->name,c,2,26);
             }

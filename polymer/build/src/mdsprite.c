@@ -860,7 +860,7 @@ int mdloadskin(md2model *m, int number, int pal, int surf)
             if (ysiz == pow2long[j]) { i |= 2; }
         }
         cachead.flags = (i!=3) | (hasalpha ? 2 : 0);
-        initprintf("No cached tex for %s. ",fn);
+        initprintf("No cached tex for %s.\n",fn);
         writexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:hictinting[pal].f, &cachead);
     }
 

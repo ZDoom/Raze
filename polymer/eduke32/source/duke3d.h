@@ -22,8 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
+#define APPNAME "EDuke32"
 #define VERSION " 1.5.0devel"
-#define HEAD2 "EDuke32"VERSION
+#define HEAD2 APPNAME VERSION
 
 #ifdef __cplusplus
 extern "C" {

@@ -4475,7 +4475,7 @@ repeatcase:
         }
         gamename[i] = '\0';
         duke3dgrpstring = Bstrdup(gamename);
-        Bsprintf(tempbuf,"%s - " HEAD2,duke3dgrpstring);
+        Bsprintf(tempbuf,"%s - " APPNAME,duke3dgrpstring);
         wm_setapptitle(tempbuf);
     }
     return 0;
