@@ -283,7 +283,7 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
 {
     int ac,newx,oldx=x;
     char centre, *oldt;
-    int squishtext = (small&2);
+    int squishtext = ((small&2)!=0);
     int ht = usehightile;
 
     centre = (x == (320>>1));
@@ -370,12 +370,10 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
 
         if ((*t >= '0' && *t <= '9'))
             x += (8)*z/65536;
-        else
-        {
-            if (small&8)
-                x += (8-squishtext)*z/65536;//(tilesizx[ac]>>small);
-            else x += (tilesizx[ac]-squishtext)*z/65536;//(tilesizx[ac]>>small);
-        }
+        else if (small&8)
+            x += (8-squishtext)*z/65536;//(tilesizx[ac]>>small);
+        else x += (tilesizx[ac]-squishtext)*z/65536;//(tilesizx[ac]>>small);
+
         if (x > (ud.config.ScreenWidth - 14)) oldt = (char *)t, x = oldx, y+=8*z/65536;
         t++;
     }
