@@ -415,7 +415,7 @@ typedef struct {
 
     int entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
     int coords,tickrate,levelstats,m_coop,coop,screen_size,lockout,crosshair;
-    int playerai,angleinterpolation,deathmsgs;
+    int playerai,angleinterpolation,obituaries;
 
     int respawn_monsters,respawn_items,respawn_inventory,recstat,monsters_off,brightness;
     int m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off,detail;

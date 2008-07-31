@@ -2355,28 +2355,28 @@ static void coolgaugetext(int snum)
     }
 }
 
-#define AVERAGEFRAMES 128
-
 static void tics(void)
 {
-    int i = totalclock,j;
+    #define AVERAGEFRAMES 128
+    #define COLOR_RED 248
+    #define COLOR_WHITE 31
+
+    int i = totalclock;
     static int frameval[AVERAGEFRAMES], framecnt = 0;
-    char b[4];
 
     if (i != frameval[framecnt])
     {
-        j=(timer*AVERAGEFRAMES)/(i-frameval[framecnt]);
+        framerate=(timer*AVERAGEFRAMES)/(i-frameval[framecnt]);
         if (ud.tickrate /*&& !(g_player[myconnectindex].ps->gm&MODE_MENU)*/)
         {
             int p = 32;
 
-            Bsprintf(b,"%4d",max(j,0));
-//            minitext(scale(windowx1,320,xdim)+1,scale(windowy1,200,ydim)+1,b,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?2:0,26);
+            Bsprintf(tempbuf,"%4d",max(framerate,0));
 
             if (xdim <= 640) p >>= 1;
 
-            printext256(windowx2-p+1,windowy1+2,0,-1,b,!(xdim > 640));
-            printext256(windowx2-p,windowy1+1,(timer*AVERAGEFRAMES)/(i-frameval[framecnt]) < 40?248:31,-1,b,!(xdim > 640));
+            printext256(windowx2-p+1,windowy1+2,0,-1,tempbuf,!(xdim > 640));
+            printext256(windowx2-p,windowy1+1,framerate<40?COLOR_RED:COLOR_WHITE,-1,tempbuf,!(xdim > 640));
 
             if (numplayers > 1)
                 if ((totalclock - lastpackettime) > 1)
@@ -2386,7 +2386,6 @@ static void tics(void)
                 }
 
         }
-        framerate = j;
         frameval[framecnt] = i;
     }
     framecnt = ((framecnt+1)&(AVERAGEFRAMES-1));
@@ -3549,7 +3548,7 @@ void displayrest(int smoothratio)
         gametext_z(9,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-7-7-7,tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (ud.player_skill > 3 || (ud.multimode > 1 && !GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY)))
-            Bsprintf(tempbuf,"K:^15%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?g_player[i].ps->frag-g_player[i].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
+            Bsprintf(tempbuf,"K:^15%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_FLAG_PLAYERSFRIENDLY))?g_player[myconnectindex].ps->frag-g_player[myconnectindex].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
         else
         {
             if (g_player[myconnectindex].ps->actors_killed >= g_player[myconnectindex].ps->max_actors_killed)

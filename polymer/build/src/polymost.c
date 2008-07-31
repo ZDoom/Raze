@@ -177,7 +177,7 @@ int r_parallaxskypanning = 0;
 // line of sight checks before mddraw()
 int r_modelocclusionchecking = 0;
 #define CULL_OFFSET 384
-#define CULL_DELAY 3
+#define CULL_DELAY 2
 
 // fullbright cvar
 int r_fullbrights = 1;
@@ -4527,12 +4527,13 @@ void polymost_drawsprite(int snum)
     {
         if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0)
         {
+//            md2model *modelptr = (md2model *)models[tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid];
             if (tspr->owner < 0 || tspr->owner >= MAXSPRITES || tspr->statnum == TSPR_MIRROR)
             {
                 if (mddraw(tspr)) return;
                 break;	// else, render as flat sprite
             }
-            if (r_modelocclusionchecking)
+            if (r_modelocclusionchecking /*&& modelptr->usesalpha && !(tspr->cstat & 1024)*/)
             {
                 if (totalclock >= lastcullcheck + CULL_DELAY)
                 {

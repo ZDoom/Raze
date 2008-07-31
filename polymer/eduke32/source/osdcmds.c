@@ -661,7 +661,7 @@ cvarmappings cvar[] =
     { "cl_autovote", "cl_autovote: enable/disable automatic voting", (void*)&ud.autovote, CVAR_INT|CVAR_MULTI, 0, 0, 2 },
 
 
-    { "cl_deathmessages", "cl_deathmessages: enable/disable multiplayer death messages", (void*)&ud.deathmsgs, CVAR_BOOL, 0, 0, 1 },
+    { "cl_obituaries", "cl_obituaries: enable/disable multiplayer death messages", (void*)&ud.obituaries, CVAR_BOOL, 0, 0, 1 },
     { "cl_democams", "cl_democams: enable/disable demo playback cameras", (void*)&ud.democams, CVAR_BOOL, 0, 0, 1 },
 
     { "cl_idplayers", "cl_idplayers: enable/disable name display when aiming at opponents", (void*)&ud.idplayers, CVAR_BOOL, 0, 0, 1 },

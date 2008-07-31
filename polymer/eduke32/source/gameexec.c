@@ -847,13 +847,13 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
         SetGameVarID(lVar2, ud.angleinterpolation, g_i, g_p);
         return;
 
-    case USERDEFS_DEATHMSGS:
+    case USERDEFS_OBITUARIES:
         if (iSet)
         {
-            ud.deathmsgs = lValue;
+            ud.obituaries = lValue;
             return;
         }
-        SetGameVarID(lVar2, ud.deathmsgs, g_i, g_p);
+        SetGameVarID(lVar2, ud.obituaries, g_i, g_p);
         return;
 
     case USERDEFS_LEVELSTATS:

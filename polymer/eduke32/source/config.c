@@ -227,7 +227,7 @@ void CONFIG_SetDefaults(void)
     ud.color = 0;
     ud.crosshair = 1;
     ud.crosshairscale = 50;
-    ud.deathmsgs = 1;
+    ud.obituaries = 1;
     ud.democams = 1;
     ud.detail = 1;
     ud.drawweapon = 1;
@@ -732,7 +732,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "ShowOpponentWeapons",&ud.config.ShowOpponentWeapons);
         ud.showweapons = ud.config.ShowOpponentWeapons;
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "ShowViewWeapon",&ud.drawweapon);
-        SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "DeathMessages",&ud.deathmsgs);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "DeathMessages",&ud.obituaries);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "DemoCams",&ud.democams);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "ShowFPS",&ud.tickrate);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Color",&ud.color);
@@ -880,7 +880,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Color",ud.color,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Crosshairs",ud.crosshair,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "CrosshairScale",ud.crosshairscale,false,false);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DeathMessages",ud.deathmsgs,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DeathMessages",ud.obituaries,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "DemoCams",ud.democams,false,false);
     ud.executions++;
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Executions",ud.executions,false,false);

@@ -2890,6 +2890,7 @@ cheat_for_port_credits:
                 "DM: Use private messages",
                 "DM: Show player names",
                 "DM: Show player weapons",
+                "DM: Show player obituaries",
                 "-",
                 "Console text style",
                 "-",
@@ -2899,8 +2900,6 @@ cheat_for_port_credits:
                 "-",
                 "-",
 #endif
-                "-",
-                "-",
                 "-",
                 "-",
                 "-",
@@ -2997,6 +2996,11 @@ cheat_for_port_credits:
                     mgametextpal(d,yy, ud.config.ShowOpponentWeapons ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 8:
+                    if (x==io) ud.obituaries = 1-ud.obituaries;
+                    modval(0,1,(int *)&ud.obituaries,1,probey==io);
+                    mgametextpal(d,yy, ud.obituaries ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                    break;
+                case 9:
                 {
                     int osdmode = OSD_GetTextMode();
                     if (x==io) osdmode = !osdmode;
@@ -3007,7 +3011,7 @@ cheat_for_port_credits:
                     break;
                 }
 #ifdef _WIN32
-                case 9:
+                case 10:
                     i = ud.config.CheckForUpdates;
                     if (x==io) ud.config.CheckForUpdates = 1-ud.config.CheckForUpdates;
                     modval(0,1,(int *)&ud.config.CheckForUpdates,1,probey==io);
@@ -3015,9 +3019,9 @@ cheat_for_port_credits:
                         ud.config.LastUpdateCheck = 0;
                     mgametextpal(d,yy, ud.config.CheckForUpdates ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
-                case 10:
+                case 11:
 #else
-                case 9:
+                case 10:
 #endif
                     if (x==io) cmenu(200);
                     break;

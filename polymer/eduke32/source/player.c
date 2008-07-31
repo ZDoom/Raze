@@ -3550,7 +3550,7 @@ void processinput(int snum)
                         FTA(116,g_player[p->frag_ps].ps);
                     }
 
-                    if (ud.deathmsgs)
+                    if (ud.obituaries)
                     {
                         char name1[32],name2[32];
 
@@ -3620,7 +3620,7 @@ void processinput(int snum)
                     }
                     else Bsprintf(tempbuf,fta_quotes[PSDEATHSTRINGS+3],&g_player[snum].user_name[0],p->team+1);
 
-                    if (ud.deathmsgs)
+                    if (ud.obituaries)
                     {
                         if (ud.config.ScreenWidth >= 800)
                             adduserquote(tempbuf);
