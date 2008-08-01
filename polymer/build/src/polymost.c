@@ -176,8 +176,6 @@ int r_parallaxskypanning = 0;
 
 // line of sight checks before mddraw()
 int r_modelocclusionchecking = 0;
-#define CULL_OFFSET 384
-#define CULL_DELAY 2
 
 // fullbright cvar
 int r_fullbrights = 1;
@@ -4439,8 +4437,13 @@ void polymost_drawmaskwall(int damaskwallcnt)
     drawpoly(dpx,dpy,n,method);
 }
 
+#define CULL_OFFSET 384
+#define CULL_DELAY 2
+#define MAXCULLCHECKS 1024
+
 int lastcullcheck = 0;
 char cullmodel[MAXSPRITES];
+int cullcheckcnt = 0;
 
 int polymost_checkcoordinates(int x, int y, spritetype *tspr)
 {
@@ -4448,7 +4451,7 @@ int polymost_checkcoordinates(int x, int y, spritetype *tspr)
     int oldx = x, i, j = (tilesizy[tspr->picnum]*tspr->yrepeat);
 
 RECHECK:
-    updatesector(tspr->x+x,tspr->y+y,&datempsectnum);
+    updatesectorz(tspr->x+x,tspr->y+y,tspr->z,&datempsectnum);
 
     if (datempsectnum == -1)
     {
@@ -4460,6 +4463,7 @@ RECHECK:
 
     for (i=4;i>-1;i--)
     {
+        cullcheckcnt++;
         if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
             tspr->x+x, tspr->y+y, tspr->z-(j*i)-512, datempsectnum))
             return 1;
@@ -4533,35 +4537,38 @@ void polymost_drawsprite(int snum)
                 if (mddraw(tspr)) return;
                 break;	// else, render as flat sprite
             }
-            if (r_modelocclusionchecking /*&& modelptr->usesalpha && !(tspr->cstat & 1024)*/)
+            if (r_modelocclusionchecking)
             {
-                if (totalclock >= lastcullcheck + CULL_DELAY)
+                if (totalclock >= lastcullcheck + CULL_DELAY && cullcheckcnt < MAXCULLCHECKS && (/*modelptr->usesalpha ||*/ tspr->yrepeat*tilesizy[sprite[tspr->owner].picnum] > 1536 || tspr->xrepeat*tilesizx[sprite[tspr->owner].picnum] > 1536))
                 {
                     do // this is so gay
                     {
+                        unsigned int t = getticks()+4;
+
                         // don't bother with shadows because processing its owner will take care of it
                         if (tspr->statnum == TSPR_TEMP)
                             break;
                         cullmodel[tspr->owner] = 1;
+                        cullcheckcnt++;
 
                         if (cansee(globalposx, globalposy, globalposz, globalcursectnum,
                             tspr->x, tspr->y, tspr->z,tspr->sectnum))
                         { cullmodel[tspr->owner] = 0; break; }
 
-                        if (polymost_checkcoordinates(-CULL_OFFSET, 0, tspr))
+                        if (polymost_checkcoordinates(-CULL_OFFSET, 0, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
                         { cullmodel[tspr->owner] = 0; break; }
-                        if (polymost_checkcoordinates(-CULL_OFFSET, -CULL_OFFSET, tspr))
-                        { cullmodel[tspr->owner] = 0; break; }
-
-                        if (polymost_checkcoordinates(CULL_OFFSET, 0, tspr))
-                        { cullmodel[tspr->owner] = 0; break; }
-                        if (polymost_checkcoordinates(CULL_OFFSET, CULL_OFFSET, tspr))
+                        if (polymost_checkcoordinates(-CULL_OFFSET, -CULL_OFFSET, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
                         { cullmodel[tspr->owner] = 0; break; }
 
-                        if (polymost_checkcoordinates(-CULL_OFFSET, CULL_OFFSET, tspr))
+                        if (polymost_checkcoordinates(CULL_OFFSET, 0, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
+                        { cullmodel[tspr->owner] = 0; break; }
+                        if (polymost_checkcoordinates(CULL_OFFSET, CULL_OFFSET, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
                         { cullmodel[tspr->owner] = 0; break; }
 
-                        if (polymost_checkcoordinates(0, 0, tspr))
+                        if (polymost_checkcoordinates(-CULL_OFFSET, CULL_OFFSET, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
+                        { cullmodel[tspr->owner] = 0; break; }
+
+                        if (polymost_checkcoordinates(0, 0, tspr) || getticks() > t || cullcheckcnt >= MAXCULLCHECKS)
                         { cullmodel[tspr->owner] = 0; break; }
 
                         break;

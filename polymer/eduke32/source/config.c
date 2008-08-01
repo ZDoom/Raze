@@ -773,6 +773,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Sound Setup", "SoundToggle",&ud.config.SoundToggle);
         SCRIPT_GetNumber(ud.config.scripthandle, "Sound Setup", "MusicToggle",&ud.config.MusicToggle);
         SCRIPT_GetNumber(ud.config.scripthandle, "Sound Setup", "VoiceToggle",&ud.config.VoiceToggle);
+        if (ud.config.VoiceToggle == 2) ud.config.VoiceToggle = 5;
         SCRIPT_GetNumber(ud.config.scripthandle, "Sound Setup", "AmbienceToggle",&ud.config.AmbienceToggle);
         SCRIPT_GetNumber(ud.config.scripthandle, "Sound Setup", "NumVoices",&ud.config.NumVoices);
         SCRIPT_GetNumber(ud.config.scripthandle, "Sound Setup", "NumChannels",&ud.config.NumChannels);

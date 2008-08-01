@@ -61,7 +61,7 @@ extern int curbrightness, gammabrightness;
 // OpenGL stuff
 static char nogl=0;
 #endif
-int vsync=1;
+int vsync=0;
 
 // input
 char inputdevices=0;

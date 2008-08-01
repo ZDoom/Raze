@@ -116,7 +116,7 @@ char offscreenrendering=0;
 int glcolourdepth=32;
 char videomodereset = 0;
 char silentvideomodeswitch = 0;
-int vsync=1;
+int vsync=0;
 // input and events
 char inputdevices=0;
 char quitevent=0, appactive=1, realfs=0, regrabmouse=0;

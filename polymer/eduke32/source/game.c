@@ -865,7 +865,7 @@ void getpackets(void)
 
                 if (numlumps == 0) break;
 
-                if (ud.config.SoundToggle == 0 || ud.lockout == 1 || ud.config.FXDevice < 0)
+                if (ud.config.SoundToggle == 0 || ud.lockout == 1 || ud.config.FXDevice < 0 || !(ud.config.VoiceToggle & 4))
                     break;
                 rtsptr = (char *)RTS_GetSound(packbuf[1]-1);
                 if (*rtsptr == 'C')
@@ -4087,7 +4087,6 @@ void displayrooms(int snum,int smoothratio)
             ud.camerasect = sprite[p->newowner].sectnum;
             smoothratio = 65536L;
         }
-
         else if (p->over_shoulder_on == 0)
         {
             if (ud.viewbob)
@@ -7987,7 +7986,7 @@ static void nonsharedkeys(void)
             }
 
             if (ud.lockout == 0)
-                if (ud.config.SoundToggle && ALT_IS_PRESSED && (RTS_NumSounds() > 0) && rtsplaying == 0 && ud.config.VoiceToggle)
+                if (ud.config.SoundToggle && ALT_IS_PRESSED && (RTS_NumSounds() > 0) && rtsplaying == 0 && (ud.config.VoiceToggle & 1))
                 {
                     rtsptr = (char *)RTS_GetSound(i-1);
                     if (*rtsptr == 'C')

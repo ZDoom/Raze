@@ -6289,6 +6289,7 @@ killsprite:
     {
 #if defined(USE_OPENGL) && defined(POLYMOST)
         curpolygonoffset = 0;
+        cullcheckcnt = 0;
 #endif
         pos.x = globalposx;
         pos.y = globalposy;
@@ -6356,11 +6357,14 @@ killsprite:
     else
     {
         curpolygonoffset = 0;
+        cullcheckcnt = 0;
         j = spritesortcnt;
         k = maskwallcnt;
 
         while (j > 0) drawsprite(--j);
         while (k > 0) drawmaskwall(--k);
+        if (totalclock < lastcullcheck - CULL_DELAY)
+            lastcullcheck = totalclock;
         if (totalclock >= lastcullcheck + CULL_DELAY)
             lastcullcheck = (totalclock + CULL_DELAY);
     }
