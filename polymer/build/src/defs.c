@@ -70,6 +70,7 @@ enum
     T_LOADGRP,
     T_DUMMYTILE,T_DUMMYTILERANGE,
     T_SETUPTILE,T_SETUPTILERANGE,
+    T_ANIMTILERANGE,
     T_CACHESIZE,
     T_MUSIC,T_ID,T_SOUND,
     T_REDPAL,T_BLUEPAL,T_BROWNPAL,T_GREYPAL,T_GREENPAL,T_SPECPAL
@@ -123,6 +124,7 @@ static tokenlist basetokens[] =
     { "dummytilerange",  T_DUMMYTILERANGE   },
     { "setuptile",       T_SETUPTILE        },
     { "setuptilerange",  T_SETUPTILERANGE   },
+    { "animtilerange",   T_ANIMTILERANGE    },
     { "cachesize",       T_CACHESIZE        },
 };
 
@@ -563,6 +565,26 @@ static int defsparser(scriptfile *script)
                     }
                 }
             }
+            break;
+        }
+        case T_ANIMTILERANGE:
+        {
+            int tile1, tile2, spd, type, i;
+
+            if (scriptfile_getsymbol(script,&tile1)) break;
+            if (tile1 >= MAXTILES)break;
+            if (scriptfile_getsymbol(script,&tile2)) break;
+            if (tile2 >= MAXTILES)break;
+            if (scriptfile_getsymbol(script,&spd)) break;
+            if (scriptfile_getsymbol(script,&type)) break;
+            if (tile2 < tile1)
+            {
+                initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+                i = tile2;
+                tile2 = tile1;
+                tile1 = i;
+            }
+            picanm[tile1]=(spd<<24)+(type<<6)+tile2-tile1;
             break;
         }
         case T_DUMMYTILE:
