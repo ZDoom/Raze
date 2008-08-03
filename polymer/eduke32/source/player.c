@@ -3604,7 +3604,7 @@ void processinput(int snum)
                         if (ud.config.ScreenWidth >= 800)
                             adduserquote(tempbuf);
                         else OSD_Printf("%s\n",tempbuf);
-                    }
+                    } else krand();
                 }
                 else
                 {
