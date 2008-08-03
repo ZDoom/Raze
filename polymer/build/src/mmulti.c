@@ -841,6 +841,7 @@ int getexternaladdress(char *buffer, const char *host, int port)
     struct sockaddr_in dest_addr;
     struct hostent *h;
     char *req = "GET / HTTP/1.0\r\n\r\n";
+    char *text = "Current IP Address: ";
     char tempbuf[1024], ipaddr[32];
 
     memset(buffer, 0, sizeof(buffer));
@@ -871,7 +872,6 @@ int getexternaladdress(char *buffer, const char *host, int port)
 
     memset(&(dest_addr.sin_zero), '\0', 8);
 
-
     mysock = socket(PF_INET, SOCK_STREAM, 0);
 
     if (mysock == INVALID_SOCKET)
@@ -896,13 +896,13 @@ int getexternaladdress(char *buffer, const char *host, int port)
     //    initprintf("sent %d bytes\n",bytes_sent);
     recv(mysock, (char *)&tempbuf, sizeof(tempbuf), 0);
     closesocket(mysock);
-
-    for (i=0;(unsigned)i<strlen(tempbuf);i++)
+    j = Bstrlen(text);
+    for (i=Bstrlen(tempbuf);i>0;i--)
     {
-        if (tempbuf[i] == ':' && tempbuf[i+1] == ' ')
-            i += 2;
-        if (isdigit(tempbuf[i]) && (isdigit(tempbuf[i+1]) || (tempbuf[i+1] == '.')) && (isdigit(tempbuf[i+2]) || (tempbuf[i+2] == '.')) && (isdigit(tempbuf[i+3]) || (tempbuf[i+3] == '.')))
+        if (!Bstrncmp(&tempbuf[i], text, j))
         {
+            i += j;
+            j = 0;
             while (isdigit(tempbuf[i]) || (tempbuf[i] == '.'))
             {
                 ipaddr[j] = tempbuf[i];
@@ -912,7 +912,7 @@ int getexternaladdress(char *buffer, const char *host, int port)
             break;
         }
     }
-    memcpy(buffer,&ipaddr,j);
+    Bmemcpy(buffer,&ipaddr,j);
     return(1);
 }
 

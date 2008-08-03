@@ -8464,9 +8464,9 @@ static void setup_rancid_net(const char *fn)
         if (!Bstrlen(rancid_ip_strings[MAXPLAYERS-1])||!Bstrlen(rancid_ip_strings[1]))
         {
             if (!Bstrlen(rancid_ip_strings[MAXPLAYERS-1]))
-                initprintf("rmnet: Interface not defined\n");
+                initprintf("rmnet: Interface not defined!\n");
             if (!Bstrlen(rancid_ip_strings[1]))
-                initprintf("rmnet: No peers configured\n");
+                initprintf("rmnet: No peers configured!\n");
             gameexit("Malformed network configuration file!");
             return;
         }
@@ -8536,6 +8536,7 @@ static void setup_rancid_net(const char *fn)
                         }
                     }
                 }
+                else initprintf("rmnet: Unable to get external interface address!  Expect problems...\n");
             }
         }
         qsort((char *)rancid_ip_strings, rancid_players, sizeof(rancid_ip_strings[0]), (int(*)(const void*,const void*))stringsort);
