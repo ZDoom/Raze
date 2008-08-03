@@ -48,7 +48,7 @@ short cyclers[MAXCYCLERS][6],numcyclers;
 
 char *fta_quotes[MAXQUOTES],*redefined_quotes[MAXQUOTES];
 
-char tempbuf[2048], packbuf[576];
+char tempbuf[2048], packbuf[576], menutextbuf[128];
 
 char buf[1024];
 

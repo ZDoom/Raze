@@ -107,7 +107,8 @@ extern void savetemp(const char *fn,int daptr,int dasiz);
 // extern int loadpheader(char spot,int32 *vn,int32 *ln,int32 *psk,int32 *numplr);
 extern int loadplayer(int spot);
 extern int saveplayer(int spot);
-extern int menutext(int x,int y,int s,int p,char *t);
+extern int menutext_(int x,int y,int s,int p,char *t);
+#define menutext(x,y,s,p,t) menutext_(x,y,s,p,(char *)stripcolorcodes(t,menutextbuf))
 extern void menus(void);
 extern void palto(int r,int g,int b,int e);
 extern void playanm(const char *fn,char);

@@ -116,35 +116,38 @@ static void (*_drawosdcursor)(int, int, int, int) = _internal_drawosdcursor;
 static int (*_getcolumnwidth)(int) = _internal_getcolumnwidth;
 static int (*_getrowheight)(int) = _internal_getrowheight;
 
-const char *stripcolorcodes(const char *t)
-{
-    int i = 0;
-    static char colstrip[1024];
+// color code format is as follows:
+// ^## sets a color, where ## is the palette number
+// ^S# sets a shade, range is 0-7 equiv to shades 0-14
+// ^O resets formatting to defaults
 
-    while (*t)
+const char *stripcolorcodes(const char *in, char *out)
+{
+    char *ptr = out;
+
+    while (*in)
     {
-        if (*t == '^' && isdigit(*(t+1)))
+        if (*in == '^' && isdigit(*(in+1)))
         {
-            t += 2;
-            if (isdigit(*t))
-                t++;
+            in += 2;
+            if (isdigit(*in))
+                in++;
             continue;
         }
-        if (*t == '^' && (Btoupper(*(t+1)) == 'S'))
+        if (*in == '^' && (Btoupper(*(in+1)) == 'S') && isdigit(*(in+2)))
         {
-            t += 3;
+            in += 3;
             continue;
         }
-        if (*t == '^' && (Btoupper(*(t+1)) == 'O'))
+        if (*in == '^' && (Btoupper(*(in+1)) == 'O'))
         {
-            t += 2;
+            in += 2;
             continue;
         }
-        colstrip[i] = *t;
-        i++,t++;
+        *(out++) = *(in++);
     }
-    colstrip[i] = '\0';
-    return(colstrip);
+    *out = '\0';
+    return(ptr);
 }
 
 int OSD_Exec(const char *szScript)
@@ -1380,7 +1383,8 @@ static inline void linefeed(void)
 
 void OSD_Printf(const char *fmt, ...)
 {
-    char tmpstr[1024], *chp, p=osdtextpal, s=osdtextshade;
+    static char tmpstr[1024];
+    char *chp, p=osdtextpal, s=osdtextshade;
     va_list va;
 
     if (!osdinited) OSD_Init();
@@ -1392,14 +1396,17 @@ void OSD_Printf(const char *fmt, ...)
     if (linecnt<logcutoff)
     {
         if (osdlog&&(!logcutoff||linecnt<logcutoff))
-            Bfputs(stripcolorcodes(tmpstr), osdlog);
+        {
+            chp = Bstrdup(tmpstr);
+            Bfputs(stripcolorcodes(tmpstr,chp), osdlog);
+            Bfree(chp);
+        }
     }
     else if (linecnt==logcutoff)
     {
         Bfputs("\nMaximal log size reached. Logging stopped.\nSet the \"logcutoff\" console variable to a higher value if you need a longer log.\n", osdlog);
         linecnt=logcutoff+1;
     }
-
 
     for (chp = tmpstr; *chp; chp++)
     {

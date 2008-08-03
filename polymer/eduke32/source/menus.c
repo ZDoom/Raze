@@ -193,12 +193,11 @@ static inline int probesm(int x,int y,int i,int n)
     return probe_(1,x,y,i,n);
 }
 
-int menutext(int x,int y,int s,int p,char *t)
+int menutext_(int x,int y,int s,int p,char *t)
 {
     short i, ac, centre;
     int ht = usehightile;
 
-    t = (char *)stripcolorcodes(t);
     y -= 12;
 
     i = centre = 0;
@@ -873,7 +872,7 @@ void menus(void)
             {
                 x = strget(d-50,37,buf,30,0);
 
-                while (Bstrlen(stripcolorcodes(buf)) > 10)
+                while (Bstrlen(stripcolorcodes(buf,tempbuf)) > 10)
                 {
                     buf[Bstrlen(buf)-1] = '\0';
                     inputloc--;

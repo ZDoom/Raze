@@ -926,6 +926,8 @@ static int osdcmd_usemousejoy(const osdfuncparm_t *parm)
 
 static int osdcmd_name(const osdfuncparm_t *parm)
 {
+    char namebuf[32];
+
     if (parm->numparms != 1)
     {
         OSD_Printf("\"name\" is \"%s\"\n",myname);
@@ -934,7 +936,7 @@ static int osdcmd_name(const osdfuncparm_t *parm)
 
     Bstrcpy(tempbuf,parm->parms[0]);
 
-    while (Bstrlen(stripcolorcodes(tempbuf)) > 10)
+    while (Bstrlen(stripcolorcodes(tempbuf,namebuf)) > 10)
         tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
     Bstrncpy(myname,tempbuf,sizeof(myname)-1);

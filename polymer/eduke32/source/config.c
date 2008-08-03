@@ -620,7 +620,7 @@ int32 CONFIG_ReadSetup(void)
 
         SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);
 
-        while (Bstrlen(stripcolorcodes(tempbuf)) > 10)
+        while (Bstrlen(stripcolorcodes(tempbuf,tempbuf)) > 10)
             tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
         Bstrncpy(myname,tempbuf,sizeof(myname)-1);

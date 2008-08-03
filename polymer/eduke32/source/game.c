@@ -2443,7 +2443,7 @@ static void operatefta(void)
     {
         if (user_quote_time[i] <= 0) break;
         k = user_quote_time[i];
-        l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(user_quote[i]));
+        l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(user_quote[i],tempbuf));
         while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
         {
             l -= (ud.config.ScreenWidth-USERQUOTE_RIGHTOFFSET);
@@ -2714,7 +2714,7 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
     }
     c = 4-(sintable[(totalclock<<4)&2047]>>11);
 
-    i = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(t));
+    i = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(t,tempbuf));
     while (i > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
     {
         i -= (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET);
@@ -2792,7 +2792,7 @@ static void typemode(void)
                 }
                 adduserquote(recbuf);
                 quotebot += 8;
-                l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(recbuf));
+                l = gametextlen(USERQUOTE_LEFTOFFSET,stripcolorcodes(recbuf,tempbuf));
                 while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
                 {
                     l -= (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET);
@@ -9874,7 +9874,7 @@ static void Startup(void)
         //        myname[10] = '\0';
         Bstrcpy(tempbuf,CommandName);
 
-        while (Bstrlen(stripcolorcodes(tempbuf)) > 10)
+        while (Bstrlen(stripcolorcodes(tempbuf,tempbuf)) > 10)
             tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
         Bstrncpy(myname,tempbuf,sizeof(myname)-1);
@@ -9925,36 +9925,6 @@ static void Startup(void)
         if (ud.executions >= 50) initprintf("IT IS NOW TIME TO UPGRADE TO THE COMPLETE VERSION!!!\n");
     }
 
-    if (CONTROL_Startup(1, &GetTime, TICRATE))
-    {
-        uninitengine();
-        exit(1);
-    }
-    SetupGameButtons();
-    CONFIG_SetupMouse();
-    CONFIG_SetupJoystick();
-
-    CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
-    CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
-
-    // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-    for (i=0;i<joynumaxes;i++)
-        setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
-
-    inittimer(TICRATE);
-
-    //initprintf("* Hold Esc to Abort. *\n");
-//    initprintf("Loading art header...\n");
-    if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
-        gameexit("Failed loading art.");
-
-//    initprintf("Loading palette/lookups...\n");
-    genspriteremaps();
-
-    readsavenames();
-
-    tilesizx[MIRROR] = tilesizy[MIRROR] = 0;
-
     for (i=0;i<MAXPLAYERS;i++)
         g_player[i].playerreadyflag = 0;
 
@@ -9990,6 +9960,36 @@ static void Startup(void)
 
     if (numplayers > 1)
         initprintf("Multiplayer initialized.\n");
+
+    if (CONTROL_Startup(1, &GetTime, TICRATE))
+    {
+        uninitengine();
+        exit(1);
+    }
+    SetupGameButtons();
+    CONFIG_SetupMouse();
+    CONFIG_SetupJoystick();
+
+    CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
+    CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
+
+    // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
+    for (i=0;i<joynumaxes;i++)
+        setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
+
+    inittimer(TICRATE);
+
+    //initprintf("* Hold Esc to Abort. *\n");
+//    initprintf("Loading art header...\n");
+    if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
+        gameexit("Failed loading art.");
+
+//    initprintf("Loading palette/lookups...\n");
+    genspriteremaps();
+
+    readsavenames();
+
+    tilesizx[MIRROR] = tilesizy[MIRROR] = 0;
 
     screenpeek = myconnectindex;
 
@@ -12821,11 +12821,9 @@ void spriteglass(int i,int n)
 
 void ceilingglass(int i,int sectnum,int n)
 {
-    int j, xv, yv, z, x1, y1;
-    int a,s, startwall,endwall;
-
-    startwall = sector[sectnum].wallptr;
-    endwall = startwall+sector[sectnum].wallnum;
+    int j, xv, yv, z, x1, y1, a,s;
+    int startwall = sector[sectnum].wallptr;
+    int endwall = startwall+sector[sectnum].wallnum;
 
     for (s=startwall;s<(endwall-1);s++)
     {

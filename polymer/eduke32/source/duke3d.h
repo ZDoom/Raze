@@ -511,7 +511,7 @@ typedef struct {
     char return_to_center, reloading, name[32];
 } player_struct;
 
-extern char tempbuf[2048], packbuf[576];
+extern char tempbuf[2048], packbuf[576], menutextbuf[128];
 
 extern int gc;
 

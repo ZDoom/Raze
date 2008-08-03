@@ -5628,12 +5628,12 @@ static int preinitcalled = 0;
 #define DYNALLOC_ARRAYS
 
 #ifndef DYNALLOC_ARRAYS
-spriteexttype spriteext_s[MAXSPRITES+MAXUNIQHUDID];
-spritesmoothtype spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
-sectortype sector_s[MAXSECTORS];
-walltype wall_s[MAXWALLS];
-spritetype sprite_s[MAXSPRITES];
-spritetype tsprite_s[MAXSPRITESONSCREEN];
+static spriteexttype spriteext_s[MAXSPRITES+MAXUNIQHUDID];
+static spritesmoothtype spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
+static sectortype sector_s[MAXSECTORS];
+static walltype wall_s[MAXWALLS];
+static spritetype sprite_s[MAXSPRITES];
+static spritetype tsprite_s[MAXSPRITESONSCREEN];
 #endif
 
 int preinitengine(void)
