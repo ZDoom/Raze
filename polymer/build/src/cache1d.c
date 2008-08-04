@@ -918,7 +918,8 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
         searchpath_t *search = NULL;
         BDIR *dir;
         struct Bdirent *dirent;
-        const char *d = ".";
+        // Adjusted for the following "autoload" dir fix - NY00123
+        const char *d = "./";
         int stackdepth = CACHE1D_SOURCE_CURDIR;
         char buf[BMAX_PATH];
 
@@ -928,9 +929,10 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int type)
         {
             if (!pathsearchmode)
             {
-                strcpy(buf, path);
+                // Fix for "autoload" dir in multi-user environments - NY00123
+                strcpy(buf, d);
+                strcat(buf, path);
                 if (*path) strcat(buf, "/");
-                strcat(buf, d);
             }
             else strcpy(buf, d);
             dir = Bopendir(buf);

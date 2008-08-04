@@ -898,7 +898,6 @@ int getexternaladdress(char *buffer, const char *host, int port)
     closesocket(mysock);
     j = Bstrlen(text);
     for (i=Bstrlen(tempbuf);i>0;i--)
-    {
         if (!Bstrncmp(&tempbuf[i], text, j))
         {
             i += j;
@@ -911,7 +910,6 @@ int getexternaladdress(char *buffer, const char *host, int port)
             ipaddr[j++] = '\0';
             break;
         }
-    }
     Bmemcpy(buffer,&ipaddr,j);
     return(1);
 }

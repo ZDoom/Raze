@@ -2357,9 +2357,9 @@ static void coolgaugetext(int snum)
 
 static void tics(void)
 {
-    #define AVERAGEFRAMES 128
-    #define COLOR_RED 248
-    #define COLOR_WHITE 31
+#define AVERAGEFRAMES 128
+#define COLOR_RED 248
+#define COLOR_WHITE 31
 
     int i = totalclock;
     static int frameval[AVERAGEFRAMES], framecnt = 0;
@@ -8518,10 +8518,8 @@ static void setup_rancid_net(const char *fn)
             Bstrcpy(tmp,strtok(tempbuf,"."));
             if (i == rancid_players && ((Bstrcmp(tmp,"192") == 0) || (Bstrcmp(tmp,"172") == 0) || (Bstrcmp(tmp,"169") == 0) || (Bstrcmp(tmp,"10") == 0)))
             {
-                int ii = getexternaladdress(tempbuf, "checkip.dyndns.org", 80);
-
-                if (!ii)
-                    ii = getexternaladdress(tempbuf, "checkip.dyndns.org", 8245);
+                int ii = getexternaladdress(tempbuf, "checkip.dyndns.org", 8245);
+                if (!ii) ii = getexternaladdress(tempbuf, "checkip.dyndns.org", 80);
                 if (ii)
                 {
                     if (tempbuf[0])

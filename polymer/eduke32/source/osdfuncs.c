@@ -72,23 +72,44 @@ int GAME_getrowheight(int w)
     return w>>3;
 }
 
-void GAME_onshowosd(int shown)
-{
-    vscrn();
-    if (numplayers == 1)
-        if ((shown && !ud.pause_on) || (!shown && ud.pause_on))
-            KB_KeyDown[sc_Pause] = 1;
-}
-
 //#define BGTILE 311
 //#define BGTILE 1156
 #define BGTILE 1141	// BIGHOLE
+#define BGTILE_SIZEX 128
+#define BGTILE_SIZEY 128
 #define BORDTILE 3250	// VIEWBORDER
 #define BITSTH 1+32+8+16	// high translucency
 #define BITSTL 1+8+16	// low translucency
 #define BITS 8+16+64		// solid
 #define SHADE 16
 #define PALETTE 4
+
+void GAME_onshowosd(int shown)
+{
+    // fix for TCs like Layre which don't have the BGTILE for some reason
+    // most of this is copied from my dummytile stuff in defs.c
+    if (!tilesizx[BGTILE] || !tilesizy[BGTILE])
+    {
+        extern char faketile[MAXTILES];
+        int j;
+
+        tilesizx[BGTILE] = BGTILE_SIZEX;
+        tilesizy[BGTILE] = BGTILE_SIZEY;
+        faketile[BGTILE] = 1;
+        picanm[BGTILE] = 0;
+
+        j = 15; while ((j > 1) && (pow2long[j] > BGTILE_SIZEX)) j--;
+        picsiz[BGTILE] = ((char)j);
+        j = 15; while ((j > 1) && (pow2long[j] > BGTILE_SIZEY)) j--;
+        picsiz[BGTILE] += ((char)(j<<4));
+    }
+
+    vscrn();
+    if (numplayers == 1)
+        if ((shown && !ud.pause_on) || (!shown && ud.pause_on))
+            KB_KeyDown[sc_Pause] = 1;
+}
+
 void GAME_clearbackground(int c, int r)
 {
     int x, y, xsiz, ysiz, tx2, ty2;
