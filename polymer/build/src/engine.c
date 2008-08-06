@@ -5299,7 +5299,7 @@ static void loadpalette(void)
 //
 // getclosestcol (internal)
 //
-static int getclosestcol(int r, int g, int b)
+int getclosestcol(int r, int g, int b)
 {
     int i, j, k, dist, mindist, retcol;
     char *pal1;

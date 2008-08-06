@@ -1,6 +1,6 @@
 #include <cstdio>
 #include "mdump.h"
-#include <tchar.H>
+#include <tchar.h>
 LPCSTR MiniDumper::m_szAppName;
 
 MiniDumper g_dumper("eduke32");

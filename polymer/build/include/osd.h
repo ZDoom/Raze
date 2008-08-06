@@ -121,6 +121,7 @@ int OSD_RegisterFunction(const char *name, const char *help, int (*func)(const o
 #define OSDTEXT_DARKBLUE "^16"
 #define OSDTEXT_RED "^21"
 #define OSDTEXT_YELLOW "^23"
+
 #define OSDTEXT_BRIGHT "^S0"
 
 #define OSD_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT

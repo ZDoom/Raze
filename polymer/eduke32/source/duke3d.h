@@ -106,7 +106,7 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
 
 // #define GC (TICSPERFRAME*44)
 
-#define MAXSOUNDS 1536
+#define MAXSOUNDS 2560
 
 /*
 #pragma aux sgn =\
@@ -172,7 +172,7 @@ enum gamemodes {
 
 // Defines the motion characteristics of an actor
 
-enum actormotion {
+enum actormotion_flags {
     face_player         = 1,
     geth                = 2,
     getv                = 4,
@@ -193,7 +193,7 @@ enum actormotion {
 
 // Defines for 'useractor' keyword
 
-enum useractortypes {
+enum useractor_types {
     notenemy,
     enemy,
     enemystayput
@@ -201,7 +201,7 @@ enum useractortypes {
 
 // Player Actions.
 
-enum playeractions {
+enum player_action_flags {
     pstanding       = 1,
     pwalking        = 2,
     prunning        = 4,
@@ -221,7 +221,7 @@ enum playeractions {
     pfacing         = 65536
 };
 
-enum inventory {
+enum inventory_indexes {
     GET_STEROIDS,
     GET_SHIELD,
     GET_SCUBA,
@@ -235,7 +235,7 @@ enum inventory {
 
 #define TRAND krand()
 
-enum weapons {
+enum weapon_indexes {
     KNEE_WEAPON,
     PISTOL_WEAPON,
     SHOTGUN_WEAPON,
@@ -276,12 +276,6 @@ void deletespriteEVENT(int s);
 
 #define AFLAMABLE(X) (X==BOX||X==TREE1||X==TREE2||X==TIRE||X==CONE)
 
-
-#define IFSKILL1 if(player_skill<1)
-#define IFSKILL2 if(player_skill<2)
-#define IFSKILL3 if(player_skill<3)
-#define IFSKILL4 if(player_skill<4)
-
 #define rnd(X) ((TRAND>>8)>=(255-(X)))
 
 #define __USRHOOKS_H
@@ -296,10 +290,10 @@ typedef struct {
     unsigned int bits, extbits;
     short fvel, svel;
     signed char avel, horz;
-} input;
+} input_t;
 
 #define sync dsync  // JBF 20040604: sync is a function on some platforms
-extern input recsync[RECSYNCBUFSIZ];
+extern input_t recsync[RECSYNCBUFSIZ];
 
 extern int movefifosendplc;
 
@@ -576,8 +570,8 @@ typedef struct {
 
 extern actordata_t hittype[MAXSPRITES];
 
-extern input loc;
-extern input recsync[RECSYNCBUFSIZ];
+extern input_t loc;
+extern input_t recsync[RECSYNCBUFSIZ];
 extern int avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
 
 extern int numplayers, myconnectindex;
@@ -1043,7 +1037,7 @@ extern map_t map[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing"
 
 typedef struct {
 	player_struct *ps;
-	input *sync;
+	input_t *sync;
 
 	int movefifoend, syncvalhead, myminlag;
 	int pcolor, pteam, frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
@@ -1052,7 +1046,7 @@ typedef struct {
 	char user_name[32], syncval[MOVEFIFOSIZ];
 } playerdata_t;
 
-extern input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
+extern input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 extern playerspawn_t g_PlayerSpawnPoints[MAXPLAYERS];
 extern playerdata_t g_player[MAXPLAYERS];
 #include "funct.h"

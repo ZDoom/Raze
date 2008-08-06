@@ -46,6 +46,7 @@ static int function, whichkey;
 static int changesmade, newvidmode, curvidmode, newfullscreen;
 static int vidsets[16] = { -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };
 static int curvidset, newvidset = 0;
+static int soundbits, soundvoices, soundrate;
 
 static char *mousebuttonnames[] = { "Left", "Right", "Middle", "Thumb", "Wheel Up", "Wheel Down" };
 
@@ -4404,6 +4405,13 @@ cheat_for_port_credits:
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,24,0,0,"SOUND SETUP");
 
+        if (!(changesmade & 8))
+        {
+            soundrate = ud.config.MixRate;
+            soundvoices = ud.config.NumVoices;
+            soundbits = ud.config.NumBits;
+        }
+
         {
             int io, ii, yy, d=c+160+40, enabled, j;
             char *opts[] =
@@ -4415,6 +4423,7 @@ cheat_for_port_credits:
                 "Music volume",
                 "-",
                 "Sample rate",
+                "Sample size",
                 "Number of voices",
                 "-",
                 "Restart sound system",
@@ -4443,6 +4452,10 @@ cheat_for_port_credits:
 
             if (x == -1)
             {
+                ud.config.MixRate = soundrate;
+                ud.config.NumVoices = soundvoices;
+                ud.config.NumBits = soundbits;
+
                 if (g_player[myconnectindex].ps->gm&MODE_GAME && current_menu == 701)
                 {
                     g_player[myconnectindex].ps->gm &= ~MODE_MENU;
@@ -4565,6 +4578,21 @@ cheat_for_port_credits:
                 }
                 break;
                 case 5:
+                    i = ud.config.NumBits;
+                    if (x==io)
+                    {
+                        if (ud.config.NumBits == 8)
+                            ud.config.NumBits = 16;
+                        else if (ud.config.NumBits == 16)
+                            ud.config.NumBits = 8;
+                    }
+                    modval(8,16,(int *)&ud.config.NumBits,8,probey==io);
+                    if (ud.config.NumBits != i)
+                        changesmade |= 8;
+                    Bsprintf(tempbuf,"%d-bit",ud.config.NumBits);
+                    mgametextpal(d,yy, tempbuf, MENUHIGHLIGHT(io), 0);
+                    break;
+                case 6:
                     i = ud.config.NumVoices;
                     if (x==io)
                     {
@@ -4578,7 +4606,7 @@ cheat_for_port_credits:
                     Bsprintf(tempbuf,"%d",ud.config.NumVoices);
                     mgametextpal(d,yy, tempbuf, MENUHIGHLIGHT(io), 0);
                     break;
-                case 6:
+                case 7:
                     enabled = (changesmade&8);
                     if (!enabled) break;
                     if (x == io)
@@ -4606,7 +4634,7 @@ cheat_for_port_credits:
                         changesmade &= ~8;
                     }
                     break;
-                case 7:
+                case 8:
                     enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
                     i = j = (ud.config.VoiceToggle&1);
                     modval(0,1,(int *)&i,1,enabled && probey==io);
@@ -4614,7 +4642,7 @@ cheat_for_port_credits:
                         ud.config.VoiceToggle ^= 1;
                     mgametextpal(d,yy, ud.config.VoiceToggle&1? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, enabled?0:1);
                     break;
-                case 8:
+                case 9:
                     enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
                     i = j = (ud.config.VoiceToggle&4);
                     modval(0,1,(int *)&i,1,enabled && probey==io);
@@ -4622,14 +4650,14 @@ cheat_for_port_credits:
                         ud.config.VoiceToggle ^= 4;
                     mgametextpal(d,yy, ud.config.VoiceToggle&4? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, enabled?0:1);
                     break;
-                case 9:
+                case 10:
                     enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
                     modval(0,1,(int *)&ud.config.AmbienceToggle,1,enabled && probey==io);
                     if (enabled && x == io)
                         ud.config.AmbienceToggle = 1-ud.config.AmbienceToggle;
                     mgametextpal(d,yy, ud.config.AmbienceToggle? "Yes" : "No", enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE, enabled?0:1);
                     break;
-                case 10:
+                case 11:
                     enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
                     modval(0,1,(int *)&ud.config.ReverseStereo,1,enabled && probey==io);
                     if (enabled && x == io)

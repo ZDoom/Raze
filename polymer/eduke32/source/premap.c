@@ -1548,13 +1548,13 @@ void clearfifo(void)
     avgfvel = avgsvel = avgavel = avghorz = avgbits = avgextbits = 0;
     otherminlag = mymaxlag = 0;
 
-    clearbufbyte(&loc,sizeof(input),0L);
-    clearbufbyte(&inputfifo,sizeof(input)*MOVEFIFOSIZ*MAXPLAYERS,0L);
+    clearbufbyte(&loc,sizeof(input_t),0L);
+    clearbufbyte(&inputfifo,sizeof(input_t)*MOVEFIFOSIZ*MAXPLAYERS,0L);
     for (;i<MAXPLAYERS;i++)
     {
 //		Bmemset(g_player[i].inputfifo,0,sizeof(g_player[i].inputfifo));
         if (g_player[i].sync != NULL)
-            Bmemset(g_player[i].sync,0,sizeof(input));
+            Bmemset(g_player[i].sync,0,sizeof(input_t));
         Bmemset(&g_player[i].movefifoend,0,sizeof(g_player[i].movefifoend));
         Bmemset(&g_player[i].syncvalhead,0,sizeof(g_player[i].syncvalhead));
         Bmemset(&g_player[i].myminlag,0,sizeof(g_player[i].myminlag));

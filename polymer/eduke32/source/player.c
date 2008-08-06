@@ -3412,7 +3412,6 @@ void processinput(int snum)
                     if (ud.level_number > MAXLEVELS-1)
                         ud.level_number = 0;
                     ud.m_level_number = ud.level_number;
-
                 }
             }
             for (i=connecthead;i>=0;i=connectpoint2[i])
@@ -3558,12 +3557,13 @@ void processinput(int snum)
                             i = 9;
                         else
                         {
-                            switch (dynamictostatic[hittype[p->i].picnum])
+                            // temp_data[1] on a player's APLAYER actor means the player is frozen
+                            if (hittype[p->i].temp_data[1] == 1)
+                                i = 7;
+                            else switch (dynamictostatic[hittype[p->i].picnum])
                             {
                             case KNEE__STATIC:
-                                if (hittype[p->i].temp_data[1] == 1)
-                                    i = 7;
-                                else i = 0;
+                                i = 0;
                                 break;
                             case SHOTSPARK1__STATIC:
                                 switch (g_player[p->frag_ps].ps->curr_weapon)
@@ -5238,7 +5238,7 @@ static int goalsect[MAXPLAYERS], goalwall[MAXPLAYERS], goalsprite[MAXPLAYERS], g
 static int goalplayer[MAXPLAYERS], clipmovecount[MAXPLAYERS];
 short searchsect[MAXSECTORS], searchparent[MAXSECTORS];
 char dashow2dsector[(MAXSECTORS+7)>>3];
-void computergetinput(int snum, input *syn)
+void computergetinput(int snum, input_t *syn)
 {
     int i, j, k, l, x1, y1, z1, x2, y2, z2, x3, y3, z3, dx, dy;
     int dist, daang, zang, fightdist, damyang, damysect;

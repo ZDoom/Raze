@@ -3,6 +3,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "compat.h"
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
@@ -27,7 +29,6 @@
 #define ioctlsocket ioctl
 #define LPHOSTENT struct hostent *
 
-#include "compat.h"
 #include <sys/time.h>
 static int GetTickCount(void)
 {

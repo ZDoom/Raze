@@ -36,7 +36,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "fx_man.h"
 #include "sounds.h"
 #include "config.h"
-
 #include "osd.h"
 #include "osdfuncs.h"
 #include "osdcmds.h"
@@ -44,9 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "grpscan.h"
 #include "gamedef.h"
 #include "kplib.h"
-
 //#include "crc32.h"
-
 #include "util_lib.h"
 
 #ifdef _WIN32
@@ -54,9 +51,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <shellapi.h>
 extern int getversionfromwebsite(char *buffer);
-#define BUILDDATE 20080729 // this is checked against http://eduke32.com/VERSION
+#define BUILDDATE 20080806 // this is checked against http://eduke32.com/VERSION
 #define UPDATEINTERVAL 604800 // 1w
-#endif
+#else
+static int usecwd = 0;
+#endif /* _WIN32 */
 
 #define IDFSIZE 479985668
 #define IDFILENAME "DUKE3D.IDF"
@@ -66,9 +65,6 @@ extern int getversionfromwebsite(char *buffer);
 int cameradist = 0, cameraclock = 0;
 static int playerswhenstarted;
 static int qe,cp;
-#if !defined(_WIN32)
-static int usecwd = 0;
-#endif
 static int g_CommandSetup = 0;
 static int g_NoSetup = 0;
 static int g_NoAutoLoad = 0;
@@ -130,11 +126,7 @@ static int user_quote_time[MAXUSERQUOTES];
 static char user_quote[MAXUSERQUOTES][178];
 // char typebuflen,typebuf[41];
 
-#ifdef JFAUD
-static int MAXCACHE1DSIZE = (16*1048576);
-#else
 static int MAXCACHE1DSIZE = (32*1048576);
-#endif
 
 int tempwallptr;
 
@@ -150,7 +142,7 @@ static int playback(void);
 
 static char recbuf[180];
 
-extern void computergetinput(int snum, input *syn);
+extern void computergetinput(int snum, input_t *syn);
 
 #define USERQUOTE_LEFTOFFSET 5
 #define USERQUOTE_RIGHTOFFSET 14
@@ -248,34 +240,10 @@ void setgamepalette(player_struct *player, char *pal, int set)
         return;
     }
 
-#if 0
-    if (getrendermode() < 3)
-    {
-        // 8-bit mode
-        player->palette = pal;
-        setbrightness(ud.brightness>>2, pal, set);
-        //pub = pus = NUMPAGES;
-        return;
-    }
-
-    if (pal == palette || pal == waterpal || pal == slimepal)
-    {
-        if (player->palette != palette && player->palette != waterpal && player->palette != slimepal)
-            setbrightness(ud.brightness>>2, palette, set);
-        else setpalettefade(0,0,0,0);
-    }
-    else
-    {
-        if (pal != titlepal && pal != drealms && pal != endingpal && pal != animpal)
-            pal = palette;
-        setbrightness(ud.brightness>>2, pal, set);
-    }
-#else
     if (!(pal == palette || pal == waterpal || pal == slimepal || pal == drealms || pal == titlepal || pal == endingpal || pal == animpal))
         pal = palette;
 
     setbrightness(ud.brightness>>2, pal, set);
-#endif
     player->palette = pal;
 }
 
@@ -467,16 +435,6 @@ int minitext_(int x,int y,const char *t,int s,int p,int sb)
     return (x);
 }
 
-#if 0
-static void gamenumber(int x,int y,int n,char s)
-{
-    char b[10];
-    //ltoa(n,b,10);
-    Bsnprintf(b,10,"%d",n);
-    gametext(x,y,b,s,2+8+16);
-}
-#endif
-
 static void allowtimetocorrecterrorswhenquitting(void)
 {
     int i, j, oldtotalclock;
@@ -525,7 +483,7 @@ void getpackets(void)
 {
     int i, j, k, l;
     int other, packbufleng;
-    input *osyn, *nsyn;
+    input_t *osyn, *nsyn;
 
     sampletimer();
     AudioUpdate();
@@ -586,8 +544,8 @@ void getpackets(void)
                     j++;
                 }
 
-            osyn = (input *)&inputfifo[(g_player[connecthead].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
-            nsyn = (input *)&inputfifo[(g_player[connecthead].movefifoend)&(MOVEFIFOSIZ-1)][0];
+            osyn = (input_t *)&inputfifo[(g_player[connecthead].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
+            nsyn = (input_t *)&inputfifo[(g_player[connecthead].movefifoend)&(MOVEFIFOSIZ-1)][0];
 
             k = j;
             for (i=connecthead;i>=0;i=connectpoint2[i])
@@ -605,7 +563,7 @@ void getpackets(void)
                     continue;
                 }
 
-                copybufbyte(&osyn[i],&nsyn[i],sizeof(input));
+                copybufbyte(&osyn[i],&nsyn[i],sizeof(input_t));
                 if (l&1)   nsyn[i].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
                 if (l&2)   nsyn[i].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
                 if (l&4)   nsyn[i].avel = (signed char)packbuf[j++];
@@ -638,7 +596,7 @@ void getpackets(void)
                 if (i != myconnectindex)
                     for (j=1;j<movesperpacket;j++)
                     {
-                        copybufbyte(&nsyn[i],&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input));
+                        copybufbyte(&nsyn[i],&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t));
                         g_player[i].movefifoend++;
                     }
 
@@ -649,10 +607,10 @@ void getpackets(void)
             j = 3;
             k = packbuf[1] + (int)(packbuf[2]<<8);
 
-            osyn = (input *)&inputfifo[(g_player[other].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
-            nsyn = (input *)&inputfifo[(g_player[other].movefifoend)&(MOVEFIFOSIZ-1)][0];
+            osyn = (input_t *)&inputfifo[(g_player[other].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
+            nsyn = (input_t *)&inputfifo[(g_player[other].movefifoend)&(MOVEFIFOSIZ-1)][0];
 
-            copybufbyte(&osyn[other],&nsyn[other],sizeof(input));
+            copybufbyte(&osyn[other],&nsyn[other],sizeof(input_t));
             if (k&1)   nsyn[other].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
             if (k&2)   nsyn[other].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
             if (k&4)   nsyn[other].avel = (signed char)packbuf[j++];
@@ -675,7 +633,7 @@ void getpackets(void)
 
             for (i=1;i<movesperpacket;i++)
             {
-                copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input));
+                copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input_t));
                 g_player[other].movefifoend++;
             }
 
@@ -696,10 +654,10 @@ void getpackets(void)
                         j++;
                     }
 
-            osyn = (input *)&inputfifo[(g_player[other].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
-            nsyn = (input *)&inputfifo[(g_player[other].movefifoend)&(MOVEFIFOSIZ-1)][0];
+            osyn = (input_t *)&inputfifo[(g_player[other].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
+            nsyn = (input_t *)&inputfifo[(g_player[other].movefifoend)&(MOVEFIFOSIZ-1)][0];
 
-            copybufbyte(&osyn[other],&nsyn[other],sizeof(input));
+            copybufbyte(&osyn[other],&nsyn[other],sizeof(input_t));
             k = packbuf[j++];
             k += (int)(packbuf[j++]<<8);
 
@@ -719,7 +677,7 @@ void getpackets(void)
 
             for (i=1;i<movesperpacket;i++)
             {
-                copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input));
+                copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input_t));
                 g_player[other].movefifoend++;
             }
 
@@ -1023,7 +981,7 @@ void faketimerhandler(void)
 {
     int i, j, k;
     //    short who;
-    input *osyn, *nsyn;
+    input_t *osyn, *nsyn;
 
     if (qe == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && KB_KeyPressed(sc_Delete))
     {
@@ -1054,7 +1012,7 @@ void faketimerhandler(void)
     if (g_player[myconnectindex].movefifoend&(movesperpacket-1))
     {
         copybufbyte(&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex],
-                    &inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex],sizeof(input));
+                    &inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex],sizeof(input_t));
         g_player[myconnectindex].movefifoend++;
         return;
     }
@@ -1073,7 +1031,7 @@ void faketimerhandler(void)
         if (ud.multimode > 1) for (i=connecthead;i>=0;i=connectpoint2[i])
                 if (i != myconnectindex)
                 {
-                    //clearbufbyte(&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input),0L);
+                    //clearbufbyte(&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t),0L);
                     if (ud.playerai)
                         computergetinput(i,&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i]);
                     inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i].svel++;
@@ -1128,8 +1086,8 @@ void faketimerhandler(void)
                 g_player[i].myminlag = 0x7fffffff;
         }
 
-        osyn = (input *)&inputfifo[(g_player[myconnectindex].movefifoend-2)&(MOVEFIFOSIZ-1)][myconnectindex];
-        nsyn = (input *)&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex];
+        osyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-2)&(MOVEFIFOSIZ-1)][myconnectindex];
+        nsyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex];
 
         k = j;
         packbuf[j++] = 0;
@@ -1203,8 +1161,8 @@ void faketimerhandler(void)
         packbuf[2] = 0;
         j = 3;
 
-        osyn = (input *)&inputfifo[(g_player[myconnectindex].movefifoend-2)&(MOVEFIFOSIZ-1)][myconnectindex];
-        nsyn = (input *)&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex];
+        osyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-2)&(MOVEFIFOSIZ-1)][myconnectindex];
+        nsyn = (input_t *)&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex];
 
         if (nsyn[0].fvel != osyn[0].fvel)
         {
@@ -1263,8 +1221,8 @@ void faketimerhandler(void)
         for (i=connecthead;i>=0;i=connectpoint2[i])
             if (g_player[i].playerquitflag && (g_player[i].movefifoend <= movefifosendplc)) return;
 
-        osyn = (input *)&inputfifo[(movefifosendplc-1)&(MOVEFIFOSIZ-1)][0];
-        nsyn = (input *)&inputfifo[(movefifosendplc)&(MOVEFIFOSIZ-1)][0];
+        osyn = (input_t *)&inputfifo[(movefifosendplc-1)&(MOVEFIFOSIZ-1)][0];
+        nsyn = (input_t *)&inputfifo[(movefifosendplc)&(MOVEFIFOSIZ-1)][0];
 
         //MASTER -> SLAVE packet
         packbuf[0] = 0;
@@ -2355,28 +2313,26 @@ static void coolgaugetext(int snum)
     }
 }
 
-static void tics(void)
-{
 #define AVERAGEFRAMES 128
 #define COLOR_RED 248
 #define COLOR_WHITE 31
 
-    int i = totalclock;
+static void ShowFrameRate(void)
+{
     static int frameval[AVERAGEFRAMES], framecnt = 0;
 
-    if (i != frameval[framecnt])
+    if (totalclock != frameval[framecnt])
     {
-        framerate=(timer*AVERAGEFRAMES)/(i-frameval[framecnt]);
-        if (ud.tickrate /*&& !(g_player[myconnectindex].ps->gm&MODE_MENU)*/)
+        framerate=(timer*AVERAGEFRAMES)/(totalclock-frameval[framecnt]);
+        frameval[framecnt] = totalclock;
+        if (ud.tickrate)
         {
-            int p = 32;
+            int x = (xdim <= 640);
+            int p = 32>>x;
 
             Bsprintf(tempbuf,"%4d",max(framerate,0));
-
-            if (xdim <= 640) p >>= 1;
-
-            printext256(windowx2-p+1,windowy1+2,0,-1,tempbuf,!(xdim > 640));
-            printext256(windowx2-p,windowy1+1,framerate<40?COLOR_RED:COLOR_WHITE,-1,tempbuf,!(xdim > 640));
+            printext256(windowx2-p+1,windowy1+2,0,-1,tempbuf,x);
+            printext256(windowx2-p,windowy1+1,(framerate < 40) ? COLOR_RED : COLOR_WHITE,-1,tempbuf,x);
 
             if (numplayers > 1)
                 if ((totalclock - lastpackettime) > 1)
@@ -2384,14 +2340,12 @@ static void tics(void)
                     for (p = (totalclock - lastpackettime);p>0 && p<(xdim>>2);p--)
                         printext256(4L*p,0,31,-1,".",0);
                 }
-
         }
-        frameval[framecnt] = i;
     }
     framecnt = ((framecnt+1)&(AVERAGEFRAMES-1));
 }
 
-static void coords(int snum)
+static void ShowCoordinates(int snum)
 {
     int y = 8;
 
@@ -3271,7 +3225,7 @@ void displayrest(int smoothratio)
         }
 #endif
     }
-#endif
+#endif /* USE_OPENGL && POLYMOST */
     // this does pain tinting etc from the CON
     if (pp->pals_time >= 0 && pp->loogcnt == 0)	// JBF 20040101: pals_time > 0 now >= 0
     {
@@ -3509,7 +3463,7 @@ void displayrest(int smoothratio)
         menus();
 
     if (ud.coords)
-        coords(screenpeek);
+        ShowCoordinates(screenpeek);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     {
@@ -3521,7 +3475,7 @@ void displayrest(int smoothratio)
     }
 #endif
 
-    tics();
+    ShowFrameRate();
 
     // JBF 20040124: display level stats in screen corner
     if ((ud.overhead_on != 2 && ud.levelstats) && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
@@ -3934,7 +3888,7 @@ void se40code(int x,int y,int z,int a,int h, int smoothratio)
         i = nextspritestat[i];
     }
 }
-#endif
+#endif /* SE40 */
 
 static int oyrepeat=-1;
 extern float r_ambientlight;
@@ -10265,7 +10219,7 @@ void app_main(int argc,const char **argv)
     checkcommandline(argc,argv);
 
     g_player[0].ps = (player_struct *) Bcalloc(1, sizeof(player_struct));
-    g_player[0].sync = (input *) Bcalloc(1, sizeof(input));
+    g_player[0].sync = (input_t *) Bcalloc(1, sizeof(input_t));
 
     if (getcwd(cwd,BMAX_PATH)) addsearchpath(cwd);
 
@@ -10544,7 +10498,7 @@ void app_main(int argc,const char **argv)
     for (i=1;i<ud.multimode;i++)
     {
         g_player[i].ps = (player_struct *) Bcalloc(1,sizeof(player_struct));
-        g_player[i].sync = (input *) Bcalloc(1,sizeof(input));
+        g_player[i].sync = (input_t *) Bcalloc(1,sizeof(input_t));
     }
 
     g_player[myconnectindex].ps->palette = (char *) &palette[0];
@@ -10643,7 +10597,7 @@ void app_main(int argc,const char **argv)
 
     setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
 
-    //    ESCESCAPE;
+    //    if(KB_KeyPressed( sc_Escape ) ) gameexit(" ");
 
     FX_StopAllSounds();
     clearsoundlocks();
@@ -10934,7 +10888,7 @@ static int opendemoread(int which_demo) // 0 = mine
         if (!g_player[i].ps)
             g_player[i].ps = (player_struct *) Bcalloc(1,sizeof(player_struct));
         if (!g_player[i].sync)
-            g_player[i].sync = (input *) Bcalloc(1,sizeof(input));
+            g_player[i].sync = (input_t *) Bcalloc(1,sizeof(input_t));
 
         if (kread(recfilep,(char *)g_player[i].user_name,sizeof(g_player[i].user_name)) != sizeof(g_player[i].user_name)) goto corrupt;
         OSD_Printf("ud.user_name: %s\n",g_player[i].user_name);
@@ -11008,12 +10962,12 @@ static void record(void)
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
     {
-        copybufbyte(g_player[i].sync,&recsync[ud.reccnt],sizeof(input));
+        copybufbyte(g_player[i].sync,&recsync[ud.reccnt],sizeof(input_t));
         ud.reccnt++;
         totalreccnt++;
         if (ud.reccnt >= RECSYNCBUFSIZ)
         {
-            dfwrite(recsync,sizeof(input)*ud.multimode,ud.reccnt/ud.multimode,frecfilep);
+            dfwrite(recsync,sizeof(input_t)*ud.multimode,ud.reccnt/ud.multimode,frecfilep);
             ud.reccnt = 0;
         }
     }
@@ -11025,7 +10979,7 @@ void closedemowrite(void)
     {
         if (ud.reccnt > 0)
         {
-            dfwrite(recsync,sizeof(input)*ud.multimode,ud.reccnt/ud.multimode,frecfilep);
+            dfwrite(recsync,sizeof(input_t)*ud.multimode,ud.reccnt/ud.multimode,frecfilep);
 
             fseek(frecfilep,SEEK_SET,0L);
             fwrite(&totalreccnt,sizeof(int),1,frecfilep);
@@ -11104,7 +11058,7 @@ RECHECK:
                 {
                     i = 0;
                     l = min(ud.reccnt,RECSYNCBUFSIZ);
-                    if (kdfread(recsync,sizeof(input)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode)
+                    if (kdfread(recsync,sizeof(input_t)*ud.multimode,l/ud.multimode,recfilep) != l/ud.multimode)
                     {
                         OSD_Printf(OSD_ERROR "Demo %d is corrupt.\n", which_demo-1);
                         foundemo = 0;
@@ -11117,7 +11071,7 @@ RECHECK:
 
                 for (j=connecthead;j>=0;j=connectpoint2[j])
                 {
-                    copybufbyte(&recsync[i],&inputfifo[g_player[j].movefifoend&(MOVEFIFOSIZ-1)][j],sizeof(input));
+                    copybufbyte(&recsync[i],&inputfifo[g_player[j].movefifoend&(MOVEFIFOSIZ-1)][j],sizeof(input_t));
                     g_player[j].movefifoend++;
                     i++;
                     ud.reccnt--;
@@ -11286,14 +11240,14 @@ static void fakedomovethingscorrect(void)
 
 static void fakedomovethings(void)
 {
-    input *syn;
+    input_t *syn;
     player_struct *p;
     int i, j, k, doubvel, fz, cz, hz, lz, x, y;
     unsigned int sb_snum;
     short psect, psectlotag, tempsect, backcstat;
     char shrunk, spritebridge;
 
-    syn = (input *)&inputfifo[fakemovefifoplc&(MOVEFIFOSIZ-1)][myconnectindex];
+    syn = (input_t *)&inputfifo[fakemovefifoplc&(MOVEFIFOSIZ-1)][myconnectindex];
 
     p = g_player[myconnectindex].ps;
 
@@ -11835,7 +11789,7 @@ static int domovethings(void)
     everyothertime++;
 
     for (i=connecthead;i>=0;i=connectpoint2[i])
-        copybufbyte(&inputfifo[movefifoplc&(MOVEFIFOSIZ-1)][i],g_player[i].sync,sizeof(input));
+        copybufbyte(&inputfifo[movefifoplc&(MOVEFIFOSIZ-1)][i],g_player[i].sync,sizeof(input_t));
     movefifoplc++;
 
     updateinterpolations();

@@ -81,7 +81,7 @@ char numplayersprites,loadfromgrouponly=0,earthquaketime;
 
 int fricxv,fricyv;
 playerdata_t g_player[MAXPLAYERS];
-input inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
+input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 playerspawn_t g_PlayerSpawnPoints[MAXPLAYERS];
 user_defs ud;
 
@@ -89,8 +89,8 @@ char pus, pub;
 char syncstat;
 int syncvaltail, syncvaltottail;
 
-input loc;
-input recsync[RECSYNCBUFSIZ];
+input_t loc;
+input_t recsync[RECSYNCBUFSIZ];
 int avgfvel, avgsvel, avgavel, avghorz, avgbits, avgextbits;
 
 int movefifosendplc;
