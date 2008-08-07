@@ -2012,8 +2012,11 @@ static void coolgaugetext(int snum)
                 Bmemcpy(ammo_sprites,asprites,sizeof(ammo_sprites));
             }
 
-            rotatesprite(sbarx(5+1),sbary(200-25+1),sbarsc(49152L),0,SIXPAK,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(5),sbary(200-25),sbarsc(49152L),0,SIXPAK,0,0,10+16,0,0,xdim-1,ydim-1);
+//            rotatesprite(sbarx(5+1),sbary(200-25+1),sbarsc(49152L),0,SIXPAK,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
+//            rotatesprite(sbarx(5),sbary(200-25),sbarsc(49152L),0,SIXPAK,0,0,10+16,0,0,xdim-1,ydim-1);
+
+            rotatesprite(sbarx(2+1),sbary(200-22+1),sbarsc(49152L),0,COLA,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(2),sbary(200-22),sbarsc(49152L),0,COLA,0,0,10+16,0,0,xdim-1,ydim-1);
 
             if (sprite[p->i].pal == 1 && p->last_extra < 2)
                 altdigitalnumber(40,-(200-22),1,-16,10+16);
@@ -2024,10 +2027,18 @@ static void coolgaugetext(int snum)
 
             altdigitalnumber(105,-(200-22),p->shield_amount,-16,10+16);
 
+            if (p->got_access&1) rotatesprite(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+            if (p->got_access&2) rotatesprite(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+            if (p->got_access&4) rotatesprite(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+
+            if (p->got_access&1) rotatesprite(sbarxr(39),sbary(200-43),sbarsc(32768),0,ACCESSCARD,0,0,10+16,0,0,xdim-1,ydim-1);
+            if (p->got_access&2) rotatesprite(sbarxr(34),sbary(200-41),sbarsc(32768),0,ACCESSCARD,0,21,10+16,0,0,xdim-1,ydim-1);
+            if (p->got_access&4) rotatesprite(sbarxr(29),sbary(200-39),sbarsc(32768),0,ACCESSCARD,0,23,10+16,0,0,xdim-1,ydim-1);
+
             i = 32768;
             if (p->curr_weapon == PISTOL_WEAPON) i = 16384;
-            rotatesprite(sbarxr(57-1),sbary(200-14+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,2+1+32,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarxr(57),sbary(200-14),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,2,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,2+1+32,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarxr(57),sbary(200-15),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,2,0,0,xdim-1,ydim-1);
 
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
             else i = p->curr_weapon;
@@ -2119,14 +2130,6 @@ static void coolgaugetext(int snum)
                 }
 
             }
-            if (p->got_access&1) rotatesprite(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
-            if (p->got_access&2) rotatesprite(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
-            if (p->got_access&4) rotatesprite(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
-
-            if (p->got_access&1) rotatesprite(sbarxr(39),sbary(200-43),sbarsc(32768),0,ACCESSCARD,0,0,10+16,0,0,xdim-1,ydim-1);
-            if (p->got_access&2) rotatesprite(sbarxr(34),sbary(200-41),sbarsc(32768),0,ACCESSCARD,0,21,10+16,0,0,xdim-1,ydim-1);
-            if (p->got_access&4) rotatesprite(sbarxr(29),sbary(200-39),sbarsc(32768),0,ACCESSCARD,0,23,10+16,0,0,xdim-1,ydim-1);
-
             return;
         }
         rotatesprite(sbarx(5),sbary(200-28),sbarsc(65536L),0,HEALTHBOX,0,21,10+16,0,0,xdim-1,ydim-1);

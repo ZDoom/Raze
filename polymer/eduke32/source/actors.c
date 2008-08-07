@@ -587,7 +587,8 @@ void lotsofmoneymailpaper(int sp, int n, int pic)
 void guts(int sp, int gtype, int n)
 {
     int gutz,floorz;
-    int i,a,j,sx,sy,pal;
+    int i,a,j,sx,sy;
+//    int pal;
     spritetype *s = &sprite[sp];
 
     if (badguy(s) && s->xrepeat < 16)
@@ -603,9 +604,9 @@ void guts(int sp, int gtype, int n)
     if (s->picnum == COMMANDER)
         gutz -= (24<<8);
 
-    if (badguy(s) && s->pal == 6)
-        pal = 6;
-    else pal = 0;
+//    if (badguy(s) && s->pal == 6)
+//        pal = 6;
+//    else pal = 0;
 
     for (j=0;j<n;j++)
     {
@@ -616,8 +617,9 @@ void guts(int sp, int gtype, int n)
             sprite[i].xrepeat >>= 2;
             sprite[i].yrepeat >>= 2;
         }
-        if (pal == 6)
-            sprite[i].pal = 6;
+//        if (pal == 6)
+//            sprite[i].pal = 6;
+        sprite[i].pal = s->pal;
     }
 }
 
@@ -644,6 +646,7 @@ void gutsdir(int sp, int gtype, int n)
     {
         a = TRAND&2047;
         i = EGS(s->sectnum,s->x,s->y,gutz,gtype,-32,sx,sy,a,256+(TRAND&127),-512-(TRAND&2047),sp,5);
+        sprite[i].pal = s->pal;
     }
 }
 
