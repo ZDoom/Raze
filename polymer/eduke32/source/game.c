@@ -147,6 +147,9 @@ extern void computergetinput(int snum, input_t *syn);
 #define USERQUOTE_LEFTOFFSET 5
 #define USERQUOTE_RIGHTOFFSET 14
 
+int althud_numbertile = 2930;
+int althud_numberpal = 0;
+
 enum
 {
     T_EOF = -2,
@@ -1834,7 +1837,7 @@ static void altdigitalnumber(int x,int y,int n,char s,char cs)
 
     for (k=0;k<i;k++)
     {
-        p = 2930+*(b+k)-'0';
+        p = althud_numbertile+*(b+k)-'0';
         j += tilesizx[p]+1;
     }
     c = x-(j>>1);
@@ -1844,10 +1847,10 @@ static void altdigitalnumber(int x,int y,int n,char s,char cs)
 //        j = 0;
         for (k=0;k<i;k++)
         {
-            p = 2930+*(b+k)-'0';
+            p = althud_numbertile+*(b+k)-'0';
             if (shd)
                 rotatesprite(sbarxr(c+j-1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|1|32,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarxr(c+j),sbary(y),sbarsc(65536L),0,p,s,0,cs,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarxr(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs,0,0,xdim-1,ydim-1);
             j -= tilesizx[p]+1;
         }
         return;
@@ -1855,10 +1858,10 @@ static void altdigitalnumber(int x,int y,int n,char s,char cs)
     j = 0;
     for (k=0;k<i;k++)
     {
-        p = 2930+*(b+k)-'0';
+        p = althud_numbertile+*(b+k)-'0';
             if (shd)
                 rotatesprite(sbarx(c+j+1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|1|32,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,0,cs,0,0,xdim-1,ydim-1);
+        rotatesprite(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs,0,0,xdim-1,ydim-1);
         j += tilesizx[p]+1;
     }
 }
@@ -2029,12 +2032,12 @@ static void coolgaugetext(int snum)
             altdigitalnumber(105,-(200-22),p->shield_amount,-16,10+16);
 
             if (p->got_access&1) rotatesprite(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
-            if (p->got_access&2) rotatesprite(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
-            if (p->got_access&4) rotatesprite(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+            if (p->got_access&4) rotatesprite(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+            if (p->got_access&2) rotatesprite(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
 
             if (p->got_access&1) rotatesprite(sbarxr(39),sbary(200-43),sbarsc(32768),0,ACCESSCARD,0,0,10+16,0,0,xdim-1,ydim-1);
-            if (p->got_access&2) rotatesprite(sbarxr(34),sbary(200-41),sbarsc(32768),0,ACCESSCARD,0,21,10+16,0,0,xdim-1,ydim-1);
-            if (p->got_access&4) rotatesprite(sbarxr(29),sbary(200-39),sbarsc(32768),0,ACCESSCARD,0,23,10+16,0,0,xdim-1,ydim-1);
+            if (p->got_access&4) rotatesprite(sbarxr(34),sbary(200-41),sbarsc(32768),0,ACCESSCARD,0,23,10+16,0,0,xdim-1,ydim-1);
+            if (p->got_access&2) rotatesprite(sbarxr(29),sbary(200-39),sbarsc(32768),0,ACCESSCARD,0,21,10+16,0,0,xdim-1,ydim-1);
 
             i = 32768;
             if (p->curr_weapon == PISTOL_WEAPON) i = 16384;
@@ -3687,7 +3690,7 @@ void displayrest(int smoothratio)
     {
         if (ud.screen_size == 4)
         {
-            i = scale(tilesizy[INVENTORYBOX]+2,ud.statusbarscale,100);
+            i = scale(tilesizy[ud.althud ? SHIELD : INVENTORYBOX]+2,ud.statusbarscale,100);
             j = scale(scale(6,ud.config.ScreenWidth,320),ud.statusbarscale,100);
         }
         else if (ud.screen_size > 2)
