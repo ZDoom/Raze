@@ -200,6 +200,12 @@ static inline int sbarx(int x)
     return (((320l<<16) - scale(320l<<16,ud.statusbarscale,100)) >> 1) + scale(x<<16,ud.statusbarscale,100);
 }
 
+static inline int sbarxr(int x)
+{
+    if (ud.screen_size == 4 /*|| ud.statusbarmode == 1*/) return (320l<<16) - scale(x<<16,ud.statusbarscale,100);
+    return (((320l<<16) - scale(320l<<16,ud.statusbarscale,100)) >> 1) + scale(x<<16,ud.statusbarscale,100);
+}
+
 static inline int sbary(int y)
 {
     return ((200l<<16) - scale(200l<<16,ud.statusbarscale,100) + scale(y<<16,ud.statusbarscale,100));
@@ -1565,9 +1571,19 @@ void myospalx(int x, int y, int tilenum, int shade, int orientation, int p)
 static void invennum(int x,int y,char num1,char ha,char sbits)
 {
     char dabuf[80] = {0};
+    int shd = (x < 0);
+
+    if (shd) x = -x;
+
     Bsprintf(dabuf,"%d",num1);
     if (num1 > 99)
     {
+        if (shd)
+        {
+            rotatesprite(sbarx(x-4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,1|32|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,1|32|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,4,1|32|sbits,0,0,xdim-1,ydim-1);
+        }
         rotatesprite(sbarx(x-4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
@@ -1575,6 +1591,12 @@ static void invennum(int x,int y,char num1,char ha,char sbits)
     }
     if (num1 > 9)
     {
+        if (shd)
+        {
+            rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,1|32|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,1|32|sbits,0,0,xdim-1,ydim-1);
+        }
+
         rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
         return;
@@ -1796,6 +1818,50 @@ void txdigitalnumberz(int starttile, int x,int y,int n,int s,int pal,int cs,int 
     }
 }
 
+static void altdigitalnumber(int x,int y,int n,char s,char cs)
+{
+    int i, j = 0, k, p, c;
+    char b[10];
+    int rev = (x < 0);
+    int shd = (y < 0);
+
+    if (rev) x = -x;
+    if (shd) y = -y;
+
+    Bsnprintf(b,10,"%d",n);
+    i = Bstrlen(b);
+
+    for (k=0;k<i;k++)
+    {
+        p = 2930+*(b+k)-'0';
+        j += tilesizx[p]+1;
+    }
+    c = x-(j>>1);
+
+    if (rev)
+    {
+//        j = 0;
+        for (k=0;k<i;k++)
+        {
+            p = 2930+*(b+k)-'0';
+            if (shd)
+                rotatesprite(sbarxr(c+j-1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|1|32,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarxr(c+j),sbary(y),sbarsc(65536L),0,p,s,0,cs,0,0,xdim-1,ydim-1);
+            j -= tilesizx[p]+1;
+        }
+        return;
+    }
+    j = 0;
+    for (k=0;k<i;k++)
+    {
+        p = 2930+*(b+k)-'0';
+            if (shd)
+                rotatesprite(sbarx(c+j+1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|1|32,0,0,xdim-1,ydim-1);
+        rotatesprite(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,0,cs,0,0,xdim-1,ydim-1);
+        j += tilesizx[p]+1;
+    }
+}
+
 static void displayinventory(player_struct *p)
 {
     int n, j = 0, xoff = 0, y;
@@ -1819,17 +1885,17 @@ static void displayinventory(player_struct *p)
 
     j = 0;
 
-    if (ud.screen_size > 4)
-        y = 154;
-    else y = (ud.drawweapon == 2?150:172);
+//    if (ud.screen_size > 4)
+    y = 154;
+//    else y = (ud.drawweapon == 2?150:172);
 
-    if (ud.screen_size == 4 && ud.drawweapon != 2)
-    {
-        xoff += 65;
-        if (ud.multimode > 1)
-            xoff -= 9;
-    }
-
+    /*    if (ud.screen_size == 4 && ud.drawweapon != 2)
+        {
+            xoff += 65;
+            if (ud.multimode > 1)
+                xoff -= 9;
+        }
+    */
     while (j <= 9)
     {
         if (n&(1<<j))
@@ -1928,6 +1994,141 @@ static void coolgaugetext(int snum)
 
     if (ss == 4)   //DRAW MINI STATUS BAR:
     {
+        if (ud.althud) // althud
+        {
+            static int ammo_sprites[MAX_WEAPONS];
+
+            if (!ammo_sprites[0])
+            {
+                /* this looks stupid but it lets us initialize static memory to dynamic values
+                   these values can be changed from the CONs with dynamic tile remapping
+                   but we don't want to have to recreate the values in memory every time
+                   the HUD is drawn */
+
+                int asprites[MAX_WEAPONS] = { BOOTS, AMMO, SHOTGUNAMMO,
+                                              BATTERYAMMO, RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO,
+                                              TRIPBOMBSPRITE, FREEZEAMMO, HBOMBAMMO, GROWAMMO
+                                            };
+                Bmemcpy(ammo_sprites,asprites,sizeof(ammo_sprites));
+            }
+
+            rotatesprite(sbarx(5+1),sbary(200-25+1),sbarsc(49152L),0,SIXPAK,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(5),sbary(200-25),sbarsc(49152L),0,SIXPAK,0,0,10+16,0,0,xdim-1,ydim-1);
+
+            if (sprite[p->i].pal == 1 && p->last_extra < 2)
+                altdigitalnumber(40,-(200-22),1,-16,10+16);
+            else altdigitalnumber(40,-(200-22),p->last_extra,-16,10+16);
+
+            rotatesprite(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(62),sbary(200-25),sbarsc(49152L),0,SHIELD,0,0,10+16,0,0,xdim-1,ydim-1);
+
+            altdigitalnumber(105,-(200-22),p->shield_amount,-16,10+16);
+
+            i = 32768;
+            if (p->curr_weapon == PISTOL_WEAPON) i = 16384;
+            rotatesprite(sbarxr(57-1),sbary(200-14+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,2+1+32,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarxr(57),sbary(200-14),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,2,0,0,xdim-1,ydim-1);
+
+            if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
+            else i = p->curr_weapon;
+            altdigitalnumber(-20,-(200-22),p->ammo_amount[i],-16,10+16);
+
+            o = 100;
+            permbit = 0;
+
+            if (p->inven_icon)
+            {
+                switch (p->inven_icon)
+                {
+                case 1:
+                    i = FIRSTAID_ICON;
+                    break;
+                case 2:
+                    i = STEROIDS_ICON;
+                    break;
+                case 3:
+                    i = HOLODUKE_ICON;
+                    break;
+                case 4:
+                    i = JETPACK_ICON;
+                    break;
+                case 5:
+                    i = HEAT_ICON;
+                    break;
+                case 6:
+                    i = AIRTANK_ICON;
+                    break;
+                case 7:
+                    i = BOOT_ICON;
+                    break;
+                default:
+                    i = -1;
+                }
+                if (i >= 0)
+                {
+                    rotatesprite(sbarx(231-o+1),sbary(200-21-2+1),sbarsc(65536L),0,i,0,4,10+16+permbit+1+32,0,0,xdim-1,ydim-1);
+                    rotatesprite(sbarx(231-o),sbary(200-21-2),sbarsc(65536L),0,i,0,0,10+16+permbit,0,0,xdim-1,ydim-1);
+                }
+
+                minitext(292-30-o+1,190-3+1,"%",4,32+1+10+16+permbit + 256);
+                minitext(292-30-o,190-3,"%",6,10+16+permbit + 256);
+
+                j = 0x80000000;
+                switch (p->inven_icon)
+                {
+                case 1:
+                    i = p->firstaid_amount;
+                    break;
+                case 2:
+                    i = ((p->steroids_amount+3)>>2);
+                    break;
+                case 3:
+                    i = ((p->holoduke_amount+15)/24);
+                    j = p->holoduke_on;
+                    break;
+                case 4:
+                    i = ((p->jetpack_amount+15)>>4);
+                    j = p->jetpack_on;
+                    break;
+                case 5:
+                    i = p->heat_amount/12;
+                    j = p->heat_on;
+                    break;
+                case 6:
+                    i = ((p->scuba_amount+63)>>6);
+                    break;
+                case 7:
+                    i = (p->boot_amount>>1);
+                    break;
+                }
+                invennum(-(284-30-o),200-6-3,(char)i,0,10+permbit);
+                if (j > 0)
+                {
+                    minitext(288-30-o+1,180-3+1,"ON",4,32+1+10+16+permbit + 256);
+                    minitext(288-30-o,180-3,"ON",0,10+16+permbit + 256);
+                }
+                else if ((unsigned int)j != 0x80000000)
+                {
+                    minitext(284-30-o+1,180-3+1,"OFF",4,32+1+10+16+permbit + 256);
+                    minitext(284-30-o,180-3,"OFF",2,10+16+permbit + 256);
+                }
+                if (p->inven_icon >= 6)
+                {
+                    minitext(284-35-o+1,180-3+1,"AUTO",4,32+1+10+16+permbit + 256);
+                    minitext(284-35-o,180-3,"AUTO",2,10+16+permbit + 256);
+                }
+
+            }
+            if (p->got_access&1) rotatesprite(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+            if (p->got_access&2) rotatesprite(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+            if (p->got_access&4) rotatesprite(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+
+            if (p->got_access&1) rotatesprite(sbarxr(39),sbary(200-43),sbarsc(32768),0,ACCESSCARD,0,0,10+16,0,0,xdim-1,ydim-1);
+            if (p->got_access&2) rotatesprite(sbarxr(34),sbary(200-41),sbarsc(32768),0,ACCESSCARD,0,21,10+16,0,0,xdim-1,ydim-1);
+            if (p->got_access&4) rotatesprite(sbarxr(29),sbary(200-39),sbarsc(32768),0,ACCESSCARD,0,23,10+16,0,0,xdim-1,ydim-1);
+
+            return;
+        }
         rotatesprite(sbarx(5),sbary(200-28),sbarsc(65536L),0,HEALTHBOX,0,21,10+16,0,0,xdim-1,ydim-1);
         if (p->inven_icon)
             rotatesprite(sbarx(69),sbary(200-30),sbarsc(65536L),0,INVENTORYBOX,0,21,10+16,0,0,xdim-1,ydim-1);

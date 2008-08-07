@@ -3561,41 +3561,41 @@ void processinput(int snum)
                             if (hittype[p->i].temp_data[1] == 1)
                                 i = 7;
                             else switch (dynamictostatic[hittype[p->i].picnum])
-                            {
-                            case KNEE__STATIC:
-                                i = 0;
-                                break;
-                            case SHOTSPARK1__STATIC:
-                                switch (g_player[p->frag_ps].ps->curr_weapon)
                                 {
+                                case KNEE__STATIC:
+                                    i = 0;
+                                    break;
+                                case SHOTSPARK1__STATIC:
+                                    switch (g_player[p->frag_ps].ps->curr_weapon)
+                                    {
+                                    default:
+                                    case PISTOL_WEAPON:
+                                        i = 1;
+                                        break;
+                                    case SHOTGUN_WEAPON:
+                                        i = 2;
+                                        break;
+                                    case CHAINGUN_WEAPON:
+                                        i = 3;
+                                        break;
+                                    }
+                                    break;
+                                case RPG__STATIC:
+                                    i = 4;
+                                    break;
+                                case RADIUSEXPLOSION__STATIC:
+                                    i = 5;
+                                    break;
+                                case SHRINKSPARK__STATIC:
+                                    i = 6;
+                                    break;
+                                case GROWSPARK__STATIC:
+                                    i = 8;
+                                    break;
                                 default:
-                                case PISTOL_WEAPON:
-                                    i = 1;
-                                    break;
-                                case SHOTGUN_WEAPON:
-                                    i = 2;
-                                    break;
-                                case CHAINGUN_WEAPON:
-                                    i = 3;
+                                    i = 0;
                                     break;
                                 }
-                                break;
-                            case RPG__STATIC:
-                                i = 4;
-                                break;
-                            case RADIUSEXPLOSION__STATIC:
-                                i = 5;
-                                break;
-                            case SHRINKSPARK__STATIC:
-                                i = 6;
-                                break;
-                            case GROWSPARK__STATIC:
-                                i = 8;
-                                break;
-                            default:
-                                i = 0;
-                                break;
-                            }
                         }
                         Bstrcpy(name1,&g_player[snum].user_name[0]);
                         Bstrcpy(name2,&g_player[p->frag_ps].user_name[0]);

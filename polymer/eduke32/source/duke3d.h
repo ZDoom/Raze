@@ -405,7 +405,7 @@ typedef struct {
     int runkey_mode,statusbarscale,mouseaiming,weaponswitch,drawweapon;   // JBF 20031125
     int democams,color,msgdisptime,statusbarmode;
     int m_noexits,noexits,autovote,automsg,idplayers;
-	int team, viewbob, weaponsway;
+	int team, viewbob, weaponsway, althud;
 
     int entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
     int coords,tickrate,levelstats,m_coop,coop,screen_size,lockout,crosshair;

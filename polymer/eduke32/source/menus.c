@@ -2884,6 +2884,7 @@ cheat_for_port_credits:
                 "-",
                 "Show inv & pickup messages",
                 "HUD weapon display",
+                "Use alternate HUD",
                 "Demo playback cameras",
                 "-",
                 "DM: Ignore map votes",
@@ -2900,8 +2901,6 @@ cheat_for_port_credits:
                 "-",
                 "-",
 #endif
-                "-",
-                "-",
                 "-",
                 "Previous page",
                 NULL
@@ -2964,11 +2963,16 @@ cheat_for_port_credits:
                         break;
                     }
                 case 3:
+                    if (x==io) ud.althud = 1-ud.althud;
+                    modval(0,1,(int *)&ud.althud,1,probey==io);
+                    mgametextpal(d,yy, ud.althud ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
+                    break;
+                case 4:
                     if (x==io) ud.democams = 1-ud.democams;
                     modval(0,1,(int *)&ud.democams,1,probey==io);
                     mgametextpal(d,yy, ud.democams ? "On" : "Off", MENUHIGHLIGHT(io), 0);
                     break;
-                case 4:
+                case 5:
                     if (x==io)
                     {
                         ud.autovote = (ud.autovote == 2) ? 0 : ud.autovote+1;
@@ -2979,28 +2983,28 @@ cheat_for_port_credits:
                         mgametextpal(d,yy, s[ud.autovote], MENUHIGHLIGHT(io), 0);
                         break;
                     }
-                case 5:
+                case 6:
                     if (x==io) ud.automsg = 1-ud.automsg;
                     modval(0,1,(int *)&ud.automsg,1,probey==io);
                     mgametextpal(d,yy, ud.automsg ? "Off" : "On", MENUHIGHLIGHT(io), 0);
                     break;
-                case 6:
+                case 7:
                     if (x==io) ud.idplayers = 1-ud.idplayers;
                     modval(0,1,(int *)&ud.idplayers,1,probey==io);
                     mgametextpal(d,yy, ud.idplayers ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
-                case 7:
+                case 8:
                     if (x==io) ud.showweapons = 1-ud.showweapons;
                     modval(0,1,(int *)&ud.showweapons,1,probey==io);
                     ud.config.ShowOpponentWeapons = ud.showweapons;
                     mgametextpal(d,yy, ud.config.ShowOpponentWeapons ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
-                case 8:
+                case 9:
                     if (x==io) ud.obituaries = 1-ud.obituaries;
                     modval(0,1,(int *)&ud.obituaries,1,probey==io);
                     mgametextpal(d,yy, ud.obituaries ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
-                case 9:
+                case 10:
                 {
                     int osdmode = OSD_GetTextMode();
                     if (x==io) osdmode = !osdmode;
@@ -3011,7 +3015,7 @@ cheat_for_port_credits:
                     break;
                 }
 #ifdef _WIN32
-                case 10:
+                case 11:
                     i = ud.config.CheckForUpdates;
                     if (x==io) ud.config.CheckForUpdates = 1-ud.config.CheckForUpdates;
                     modval(0,1,(int *)&ud.config.CheckForUpdates,1,probey==io);
@@ -3019,9 +3023,9 @@ cheat_for_port_credits:
                         ud.config.LastUpdateCheck = 0;
                     mgametextpal(d,yy, ud.config.CheckForUpdates ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
-                case 11:
+                case 12:
 #else
-                case 10:
+                case 11:
 #endif
                     if (x==io) cmenu(200);
                     break;

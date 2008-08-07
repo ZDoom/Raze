@@ -874,6 +874,15 @@ static void DoUserDef(int iSet, int lLabelID, int lVar2)
         SetGameVarID(lVar2, ud.crosshairscale, g_i, g_p);
         return;
 
+    case USERDEFS_ALTHUD:
+        if (iSet)
+        {
+            ud.althud = lValue;
+            return;
+        }
+        SetGameVarID(lVar2, ud.althud, g_i, g_p);
+        return;
+
     default:
         return;
     }

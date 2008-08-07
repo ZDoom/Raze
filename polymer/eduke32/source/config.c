@@ -220,6 +220,7 @@ void CONFIG_SetDefaults(void)
     ud.config.ShowOpponentWeapons = 0;
     ud.config.SmoothInput = 1;
     ud.config.SoundToggle = 1;
+    ud.althud = 1;
     ud.automsg = 0;
     ud.autovote = 0;
     ud.brightness = 8;
@@ -749,6 +750,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "IDPlayers",&ud.automsg);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "ViewBobbing",&ud.viewbob);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "WeaponSway",&ud.weaponsway);
+        SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "AltHud",&ud.althud);
 
         dummy = ud.config.useprecache;
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "UsePrecache",&dummy);
@@ -899,6 +901,7 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "UsePrecache",ud.config.useprecache,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "ViewBobbing",ud.viewbob,false,false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "WeaponSway",ud.weaponsway,false,false);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "AltHud",ud.althud,false,false);
 //    SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "AngleInterpolation",ud.angleinterpolation,false,false);
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Detail",ud.detail,false,false);
