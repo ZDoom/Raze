@@ -1320,6 +1320,27 @@ static int osdcmd_setcrosshairscale(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+extern void SetCrosshairColor(int r, int g, int b);
+extern int crosshair_red;
+extern int crosshair_green;
+extern int crosshair_blue;
+
+static int osdcmd_crosshaircolor(const osdfuncparm_t *parm)
+{
+    int r, g, b;
+
+    if (parm->numparms != 3)
+    {
+        OSD_Printf("\"crosshaircolor\" : r:%d g:%d b:%d\n",crosshair_red,crosshair_green,crosshair_blue);
+        return OSDCMD_SHOWHELP;
+    }
+    r = atol(parm->parms[0]);
+    g = atol(parm->parms[1]);
+    b = atol(parm->parms[2]);
+    SetCrosshairColor(r,g,b);
+    return OSDCMD_OK;
+}
+
 static int osdcmd_visibility(const osdfuncparm_t *parm)
 {
     float f;
@@ -1361,6 +1382,7 @@ int registerosdcommands(void)
 
     OSD_RegisterFunction("cl_statusbarscale","cl_statusbarscale: changes the status bar scale", osdcmd_setstatusbarscale);
     OSD_RegisterFunction("cl_crosshairscale","cl_crosshairscale: changes the crosshair scale", osdcmd_setcrosshairscale);
+    OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes crosshair color", osdcmd_crosshaircolor);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
 
     OSD_RegisterFunction("echo","echo [text]: echoes text to the console", osdcmd_echo);

@@ -3363,6 +3363,40 @@ static void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
     }
 }
 
+int crosshair_red = 255;
+int crosshair_green = 255;
+int crosshair_blue = 0;
+#define CROSSHAIR_PAL (MAXPALOOKUPS>>1)
+
+void SetCrosshairColor(int r, int g, int b)
+{
+    /* TODO: turn this into something useful */
+    char *ptr = (char *)waloff[CROSSHAIR];
+    int i, ii;
+    extern int getclosestcol(int r, int g, int b);
+
+    hictinting[CROSSHAIR_PAL].r = crosshair_red = r;
+    hictinting[CROSSHAIR_PAL].g = crosshair_green = g;
+    hictinting[CROSSHAIR_PAL].b = crosshair_blue = b;
+    hictinting[CROSSHAIR_PAL].f = 0;
+    invalidatetile(CROSSHAIR, -1, -1);
+
+    if (waloff[CROSSHAIR] == 0) return;
+
+    ii = 0;
+    i = getclosestcol(crosshair_red>>2, crosshair_green>>2, crosshair_blue>>2);
+    while (ii < tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR])
+    {
+        if (*ptr != 255)
+            *ptr = i;
+        ptr++;
+        ii++;
+    }
+    for (i = 0; i < 256; i++)
+        tempbuf[i] = i;
+    makepalookup(CROSSHAIR_PAL,tempbuf,crosshair_red>>2, crosshair_green>>2, crosshair_blue>>2,1);
+}
+
 void palto(int r,int g,int b,int e)
 {
     int tc;
@@ -3646,7 +3680,7 @@ void displayrest(int smoothratio)
         SetGameVarID(g_iReturnVarID,0,g_player[screenpeek].ps->i,screenpeek);
         OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, -1);
         if (GetGameVarID(g_iReturnVarID,g_player[screenpeek].ps->i,screenpeek) == 0)
-            rotatesprite((160L-(g_player[myconnectindex].ps->look_ang>>1))<<16,100L<<16,scale(65536,ud.crosshairscale,100),0,CROSSHAIR,0,0,2+1,windowx1,windowy1,windowx2,windowy2);
+            rotatesprite((160L-(g_player[myconnectindex].ps->look_ang>>1))<<16,100L<<16,scale(65536,ud.crosshairscale,100),0,CROSSHAIR,0,CROSSHAIR_PAL,2+1,windowx1,windowy1,windowx2,windowy2);
     }
 #if 0
     if (gametype_flags[ud.coop] & GAMETYPE_FLAG_TDM)
@@ -8024,11 +8058,7 @@ static void nonsharedkeys(void)
         CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
         ud.crosshair = !ud.crosshair;
         if (ud.crosshair)
-        {
-//            Bsprintf(fta_quotes[122],"%s [%d%%]",fta_quotes[20],size[ud.crosshair-1]);
-//            FTA(122,g_player[screenpeek].ps);
             FTA(20,g_player[screenpeek].ps);
-        }
         else FTA(21,g_player[screenpeek].ps);
     }
 

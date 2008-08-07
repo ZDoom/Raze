@@ -399,6 +399,11 @@ static void dofrontscreens(char *statustext)
     }
 }
 
+extern void SetCrosshairColor(int r, int g, int b);
+extern int crosshair_red;
+extern int crosshair_green;
+extern int crosshair_blue;
+
 void cacheit(void)
 {
     int i,j,pc=0;
@@ -496,6 +501,9 @@ void cacheit(void)
             tc = totalclock;
         }
     }
+
+    loadtile(CROSSHAIR);
+    SetCrosshairColor(crosshair_red, crosshair_green, crosshair_blue);
 
     clearbufbyte(gotpic,sizeof(gotpic),0L);
 
