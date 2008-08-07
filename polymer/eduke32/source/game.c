@@ -1580,9 +1580,9 @@ static void invennum(int x,int y,char num1,char ha,char sbits)
     {
         if (shd)
         {
-            rotatesprite(sbarx(x-4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,1|32|sbits,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,1|32|sbits,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,4,1|32|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x-4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
         }
         rotatesprite(sbarx(x-4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
@@ -1593,14 +1593,15 @@ static void invennum(int x,int y,char num1,char ha,char sbits)
     {
         if (shd)
         {
-            rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,1|32|sbits,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,1|32|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,1|sbits,0,0,xdim-1,ydim-1);
         }
 
         rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
         rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
         return;
     }
+    rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,sbits,0,0,xdim-1,ydim-1);
     rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
 }
 
@@ -2007,7 +2008,7 @@ static void coolgaugetext(int snum)
 
                 int asprites[MAX_WEAPONS] = { BOOTS, AMMO, SHOTGUNAMMO,
                                               BATTERYAMMO, RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO,
-                                              TRIPBOMBSPRITE, FREEZEAMMO, HBOMBAMMO, GROWAMMO
+                                              TRIPBOMBSPRITE, FREEZEAMMO+1, HBOMBAMMO, GROWAMMO
                                             };
                 Bmemcpy(ammo_sprites,asprites,sizeof(ammo_sprites));
             }
@@ -2081,7 +2082,7 @@ static void coolgaugetext(int snum)
                     rotatesprite(sbarx(231-o),sbary(200-21-2),sbarsc(65536L),0,i,0,0,10+16+permbit,0,0,xdim-1,ydim-1);
                 }
 
-                minitext(292-30-o+1,190-3+1,"%",4,32+1+10+16+permbit + 256);
+                minitext(292-30-o+1,190-3+1,"%",4,1+10+16+permbit + 256);
                 minitext(292-30-o,190-3,"%",6,10+16+permbit + 256);
 
                 j = 0x80000000;
@@ -2115,17 +2116,17 @@ static void coolgaugetext(int snum)
                 invennum(-(284-30-o),200-6-3,(char)i,0,10+permbit);
                 if (j > 0)
                 {
-                    minitext(288-30-o+1,180-3+1,"ON",4,32+1+10+16+permbit + 256);
+                    minitext(288-30-o+1,180-3+1,"ON",4,1+10+16+permbit + 256);
                     minitext(288-30-o,180-3,"ON",0,10+16+permbit + 256);
                 }
                 else if ((unsigned int)j != 0x80000000)
                 {
-                    minitext(284-30-o+1,180-3+1,"OFF",4,32+1+10+16+permbit + 256);
+                    minitext(284-30-o+1,180-3+1,"OFF",4,1+10+16+permbit + 256);
                     minitext(284-30-o,180-3,"OFF",2,10+16+permbit + 256);
                 }
                 if (p->inven_icon >= 6)
                 {
-                    minitext(284-35-o+1,180-3+1,"AUTO",4,32+1+10+16+permbit + 256);
+                    minitext(284-35-o+1,180-3+1,"AUTO",4,1+10+16+permbit + 256);
                     minitext(284-35-o,180-3,"AUTO",2,10+16+permbit + 256);
                 }
 

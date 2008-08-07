@@ -608,7 +608,7 @@ void guts(int sp, int gtype, int n)
 //        pal = 6;
 //    else pal = 0;
 
-    for (j=0;j<n;j++)
+    for (j=n;j>0;j--)
     {
         a = TRAND&2047;
         i = EGS(s->sectnum,s->x+(TRAND&255)-128,s->y+(TRAND&255)-128,gutz-(TRAND&8191),gtype,-32,sx,sy,a,48+(TRAND&31),-512-(TRAND&2047),sp,5);
@@ -642,7 +642,7 @@ void gutsdir(int sp, int gtype, int n)
     if (s->picnum == COMMANDER)
         gutz -= (24<<8);
 
-    for (j=0;j<n;j++)
+    for (j=n;j>0;j--)
     {
         a = TRAND&2047;
         i = EGS(s->sectnum,s->x,s->y,gutz,gtype,-32,sx,sy,a,256+(TRAND&127),-512-(TRAND&2047),sp,5);
