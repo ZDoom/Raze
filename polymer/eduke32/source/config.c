@@ -246,7 +246,7 @@ void CONFIG_SetDefaults(void)
     ud.screen_tilting = 1;
     ud.shadows = 1;
     ud.statusbarmode = 0;
-    ud.statusbarscale = 100;
+    ud.statusbarscale = 50;
     ud.team = 0;
     ud.viewbob = 1;
     ud.weaponsway = 1;

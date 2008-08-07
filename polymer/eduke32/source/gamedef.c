@@ -576,6 +576,8 @@ const memberlabel_t actorlabels[]=
     { "xpanning", ACTOR_XPANNING, 0, 0 },
     { "ypanning", ACTOR_YPANNING, 0, 0 },
 
+    { "htflags", ACTOR_HTFLAGS, 0, 0 },
+
     { "", -1, 0, 0  }     // END OF LIST
 };
 

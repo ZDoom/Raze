@@ -446,6 +446,7 @@ enum actorlabels
     ACTOR_MDFLAGS,
     ACTOR_XPANNING,
     ACTOR_YPANNING,
+    ACTOR_HTFLAGS,
 };
 
 enum tsprlabels

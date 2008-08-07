@@ -2019,8 +2019,8 @@ static void coolgaugetext(int snum)
 //            rotatesprite(sbarx(5+1),sbary(200-25+1),sbarsc(49152L),0,SIXPAK,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
 //            rotatesprite(sbarx(5),sbary(200-25),sbarsc(49152L),0,SIXPAK,0,0,10+16,0,0,xdim-1,ydim-1);
 
-            rotatesprite(sbarx(2+1),sbary(200-22+1),sbarsc(49152L),0,COLA,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(2),sbary(200-22),sbarsc(49152L),0,COLA,0,0,10+16,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(2+1),sbary(200-21+1),sbarsc(49152L),0,COLA,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(2),sbary(200-21),sbarsc(49152L),0,COLA,0,0,10+16,0,0,xdim-1,ydim-1);
 
             if (sprite[p->i].pal == 1 && p->last_extra < 2)
                 altdigitalnumber(40,-(200-22),1,-16,10+16);
@@ -3363,6 +3363,7 @@ static void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
     }
 }
 
+extern int getclosestcol(int r, int g, int b);
 int crosshair_red = 255;
 int crosshair_green = 255;
 int crosshair_blue = 0;
@@ -3373,24 +3374,47 @@ void SetCrosshairColor(int r, int g, int b)
     /* TODO: turn this into something useful */
     char *ptr = (char *)waloff[CROSSHAIR];
     int i, ii;
-    extern int getclosestcol(int r, int g, int b);
+    static int crosshair_red_default = -1;
+    static int crosshair_green_default = -1;
+    static int crosshair_blue_default = -1;
 
     hictinting[CROSSHAIR_PAL].r = crosshair_red = r;
     hictinting[CROSSHAIR_PAL].g = crosshair_green = g;
     hictinting[CROSSHAIR_PAL].b = crosshair_blue = b;
-    hictinting[CROSSHAIR_PAL].f = 0;
+    hictinting[CROSSHAIR_PAL].f = 1;
     invalidatetile(CROSSHAIR, -1, -1);
 
     if (waloff[CROSSHAIR] == 0) return;
 
-    ii = 0;
+    if (crosshair_red_default == -1)
+    {
+        // use the brightest color in the original 8-bit tile
+        int bri = 0, j = 0;
+        ii = tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR];
+        while (ii > 0)
+        {
+            if (*ptr != 255)
+            {
+                i = curpalette[(int)*ptr].r+curpalette[(int)*ptr].g+curpalette[(int)*ptr].b;
+                if (i > j) { j = i; bri = *ptr; }
+            }
+            ptr++;
+            ii--;
+        }
+        OSD_Printf("brightest color index: %d\n",bri);
+        crosshair_red_default = crosshair_red = curpalette[bri].r;
+        crosshair_green_default = crosshair_green = curpalette[bri].g;
+        crosshair_blue_default = crosshair_blue = curpalette[bri].b;
+    }
+
     i = getclosestcol(crosshair_red>>2, crosshair_green>>2, crosshair_blue>>2);
-    while (ii < tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR])
+    ii = tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR];
+    while (ii > 0)
     {
         if (*ptr != 255)
             *ptr = i;
         ptr++;
-        ii++;
+        ii--;
     }
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;

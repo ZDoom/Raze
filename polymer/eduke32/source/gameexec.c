@@ -3480,6 +3480,15 @@ static void DoActor(int iSet, int lVar1, int lLabelID, int lVar2, int lParm2)
         SetGameVarID(lVar2, spriteext[iActor].ypanning,g_i,g_p);
         return;
 
+    case ACTOR_HTFLAGS:
+        if (iSet)
+        {
+            hittype[iActor].flags=lValue;
+            return;
+        }
+        SetGameVarID(lVar2,hittype[iActor].flags, g_i, g_p);
+        return;
+
     default:
         return;
     }
