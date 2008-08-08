@@ -874,6 +874,7 @@ static int osdcmd_give(const osdfuncparm_t *parm)
 void onvideomodechange(int newmode)
 {
     char *pal;
+    extern int crosshair_sum;
 
     if (newmode)
     {
@@ -895,6 +896,7 @@ void onvideomodechange(int newmode)
 
     setbrightness(ud.brightness>>2, pal, 0);
     restorepalette = 1;
+    crosshair_sum = 0;
 }
 
 static int osdcmd_usemousejoy(const osdfuncparm_t *parm)

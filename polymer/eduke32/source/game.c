@@ -3368,6 +3368,7 @@ static void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 extern int getclosestcol(int r, int g, int b);
 palette_t crosshair_colors = { 255, 255, 255, 0 };
 palette_t default_crosshair_colors = { 0, 0, 0, 0 };
+int crosshair_sum;
 
 void GetCrosshairColor(void)
 {
@@ -3408,10 +3409,9 @@ void SetCrosshairColor(int r, int g, int b)
 {
     char *ptr = (char *)waloff[CROSSHAIR];
     int i, ii;
-    static int sum;
 
-    if (default_crosshair_colors.f == 0 || sum == r+(g<<1)+(b<<2)) return;
-    sum = r+(g<<1)+(b<<2);
+    if (default_crosshair_colors.f == 0 || crosshair_sum == r+(g<<1)+(b<<2)) return;
+    crosshair_sum = r+(g<<1)+(b<<2);
     crosshair_colors.r = r;
     crosshair_colors.g = g;
     crosshair_colors.b = b;
@@ -3422,7 +3422,10 @@ void SetCrosshairColor(int r, int g, int b)
         ptr = (char *)waloff[CROSSHAIR];
     }
 
-    i = getclosestcol(crosshair_colors.r>>2, crosshair_colors.g>>2, crosshair_colors.b>>2);
+    if (getrendermode() < 3)
+        i = getclosestcol(crosshair_colors.r>>2, crosshair_colors.g>>2, crosshair_colors.b>>2);
+    else i = getclosestcol(63, 63, 63); // use white in GL so we can tint it to the right color
+
     ii = tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR];
     while (ii > 0)
     {
