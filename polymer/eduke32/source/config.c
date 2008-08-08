@@ -816,22 +816,18 @@ int32 CONFIG_ReadSetup(void)
         {
             char *ptr = strtok(tempbuf,",");
             palette_t temppal;
-            if (ptr != NULL)
+            char *palptr = (char *)&temppal;
+
+            i = 0;
+            while (ptr != NULL && i < 3)
             {
-                temppal.r = atoi(ptr);
+                palptr[i++] = atoi(ptr);
                 ptr = strtok(NULL,",");
-                if (ptr != NULL)
-                {
-                    temppal.g = atoi(ptr);
-                    ptr = strtok(NULL,",");
-                    if (ptr != NULL)
-                    {
-                        temppal.b = atoi(ptr);
-                        ptr = strtok(NULL,",");
-                        Bmemcpy(&crosshair_colors,&temppal,sizeof(palette_t));
-                        default_crosshair_colors.f = 1;
-                    }
-                }
+            }
+            if (i == 3)
+            {
+                Bmemcpy(&crosshair_colors,&temppal,sizeof(palette_t));
+                default_crosshair_colors.f = 1;
             }
         }
     }
@@ -1013,8 +1009,12 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", windowy, false, false);
 #endif
 
-    Bsprintf(tempbuf,"%d,%d,%d",crosshair_colors.r,crosshair_colors.g,crosshair_colors.b);
-    SCRIPT_PutString(ud.config.scripthandle, "Misc", "CrosshairColor",tempbuf);
+    if (crosshair_colors.r != default_crosshair_colors.r || crosshair_colors.g != default_crosshair_colors.g
+        || crosshair_colors.b != default_crosshair_colors.b)
+    {
+        Bsprintf(tempbuf,"%d,%d,%d",crosshair_colors.r,crosshair_colors.g,crosshair_colors.b);
+        SCRIPT_PutString(ud.config.scripthandle, "Misc", "CrosshairColor",tempbuf);
+    }
 
     // JBF 20031211
     for (dummy=0;dummy<NUMGAMEFUNCTIONS;dummy++)

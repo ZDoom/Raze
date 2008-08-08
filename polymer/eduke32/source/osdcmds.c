@@ -1329,7 +1329,7 @@ static int osdcmd_crosshaircolor(const osdfuncparm_t *parm)
 
     if (parm->numparms != 3)
     {
-        OSD_Printf("\"crosshaircolor\" : r:%d g:%d b:%d\n",crosshair_colors.r,crosshair_colors.g,crosshair_colors.b);
+        OSD_Printf("crosshaircolor: r:%d g:%d b:%d\n",crosshair_colors.r,crosshair_colors.g,crosshair_colors.b);
         return OSDCMD_SHOWHELP;
     }
     r = atol(parm->parms[0]);
