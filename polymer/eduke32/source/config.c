@@ -592,6 +592,8 @@ void CONFIG_SetupJoystick(void)
 */
 extern char *duke3dgrp;
 extern void check_valid_color(int *color,int prev_color);
+extern palette_t crosshair_colors;
+extern palette_t default_crosshair_colors;
 
 int32 CONFIG_ReadSetup(void)
 {
@@ -727,6 +729,7 @@ int32 CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup",&ud.config.ForceSetup);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "RunMode",&ud.config.RunMode);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Crosshairs",&ud.crosshair);
+
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "CrosshairScale",&ud.crosshairscale);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "StatusBarScale",&ud.statusbarscale);
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "ShowLevelStats",&ud.levelstats);
@@ -807,6 +810,30 @@ int32 CONFIG_ReadSetup(void)
         windowy = -1;
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", (int32 *)&windowy);
 #endif
+        tempbuf[0] = 0;
+        SCRIPT_GetString(ud.config.scripthandle, "Misc", "CrosshairColor",&tempbuf[0]);
+        if (tempbuf[0])
+        {
+            char *ptr = strtok(tempbuf,",");
+            palette_t temppal;
+            if (ptr != NULL)
+            {
+                temppal.r = atoi(ptr);
+                ptr = strtok(NULL,",");
+                if (ptr != NULL)
+                {
+                    temppal.g = atoi(ptr);
+                    ptr = strtok(NULL,",");
+                    if (ptr != NULL)
+                    {
+                        temppal.b = atoi(ptr);
+                        ptr = strtok(NULL,",");
+                        Bmemcpy(&crosshair_colors,&temppal,sizeof(palette_t));
+                        default_crosshair_colors.f = 1;
+                    }
+                }
+            }
+        }
     }
 
     CONFIG_ReadKeys();
@@ -985,6 +1012,9 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPosX", windowx, false, false);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", windowy, false, false);
 #endif
+
+    Bsprintf(tempbuf,"%d,%d,%d",crosshair_colors.r,crosshair_colors.g,crosshair_colors.b);
+    SCRIPT_PutString(ud.config.scripthandle, "Misc", "CrosshairColor",tempbuf);
 
     // JBF 20031211
     for (dummy=0;dummy<NUMGAMEFUNCTIONS;dummy++)

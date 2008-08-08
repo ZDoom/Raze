@@ -2048,7 +2048,7 @@ static void coolgaugetext(int snum)
             else i = p->curr_weapon;
             altdigitalnumber(-20,-(200-22),p->ammo_amount[i],-16,10+16);
 
-            o = 100;
+            o = 102;
             permbit = 0;
 
             if (p->inven_icon)
@@ -3363,39 +3363,29 @@ static void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
     }
 }
 
-extern int getclosestcol(int r, int g, int b);
-int crosshair_red = 255;
-int crosshair_green = 255;
-int crosshair_blue = 0;
-static int crosshair_red_default = -1;
-static int crosshair_green_default = -1;
-static int crosshair_blue_default = -1;
 #define CROSSHAIR_PAL (MAXPALOOKUPS>>1)
 
-void SetCrosshairColor(int r, int g, int b)
+extern int getclosestcol(int r, int g, int b);
+palette_t crosshair_colors = { 255, 255, 255, 0 };
+palette_t default_crosshair_colors = { 0, 0, 0, 0 };
+
+void GetCrosshairColor(void)
 {
-    /* TODO: turn this into something useful */
-    char *ptr = (char *)waloff[CROSSHAIR];
-    int i, ii;
-    static int sum;
-
-    if (sum == r+(g<<1)+(b<<2)) return;
-    sum = r+(g<<1)+(b<<2);
-    crosshair_red = r;
-    crosshair_green = g;
-    crosshair_blue = b;
-
-    if (waloff[CROSSHAIR] == 0)
-    {
-        loadtile(CROSSHAIR);
-        ptr = (char *)waloff[CROSSHAIR];
-    }
-
-    if (crosshair_red_default == -1)
+    if (default_crosshair_colors.f == 0)
     {
         // use the brightest color in the original 8-bit tile
-        int bri = 0, j = 0;
+        int bri = 0, j = 0, i;
+        int ii;
+        char *ptr = (char *)waloff[CROSSHAIR];
+
+        if (waloff[CROSSHAIR] == 0)
+        {
+            loadtile(CROSSHAIR);
+            ptr = (char *)waloff[CROSSHAIR];
+        }
+
         ii = tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR];
+
         while (ii > 0)
         {
             if (*ptr != 255)
@@ -3406,12 +3396,33 @@ void SetCrosshairColor(int r, int g, int b)
             ptr++;
             ii--;
         }
-        crosshair_red_default = crosshair_red = curpalette[bri].r;
-        crosshair_green_default = crosshair_green = curpalette[bri].g;
-        crosshair_blue_default = crosshair_blue = curpalette[bri].b;
+
+        default_crosshair_colors.r = crosshair_colors.r = curpalette[bri].r;
+        default_crosshair_colors.g = crosshair_colors.g = curpalette[bri].g;
+        default_crosshair_colors.b = crosshair_colors.b = curpalette[bri].b;
+        default_crosshair_colors.f = 1;
+    }
+}
+
+void SetCrosshairColor(int r, int g, int b)
+{
+    char *ptr = (char *)waloff[CROSSHAIR];
+    int i, ii;
+    static int sum;
+
+    if (default_crosshair_colors.f == 0 || sum == r+(g<<1)+(b<<2)) return;
+    sum = r+(g<<1)+(b<<2);
+    crosshair_colors.r = r;
+    crosshair_colors.g = g;
+    crosshair_colors.b = b;
+
+    if (waloff[CROSSHAIR] == 0)
+    {
+        loadtile(CROSSHAIR);
+        ptr = (char *)waloff[CROSSHAIR];
     }
 
-    i = getclosestcol(crosshair_red>>2, crosshair_green>>2, crosshair_blue>>2);
+    i = getclosestcol(crosshair_colors.r>>2, crosshair_colors.g>>2, crosshair_colors.b>>2);
     ii = tilesizx[CROSSHAIR]*tilesizy[CROSSHAIR];
     while (ii > 0)
     {
@@ -3422,11 +3433,11 @@ void SetCrosshairColor(int r, int g, int b)
     }
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
-    makepalookup(CROSSHAIR_PAL,tempbuf,crosshair_red>>2, crosshair_green>>2, crosshair_blue>>2,1);
+    makepalookup(CROSSHAIR_PAL,tempbuf,crosshair_colors.r>>2, crosshair_colors.g>>2, crosshair_colors.b>>2,1);
 
-    hictinting[CROSSHAIR_PAL].r = crosshair_red;
-    hictinting[CROSSHAIR_PAL].g = crosshair_green;
-    hictinting[CROSSHAIR_PAL].b = crosshair_blue;
+    hictinting[CROSSHAIR_PAL].r = crosshair_colors.r;
+    hictinting[CROSSHAIR_PAL].g = crosshair_colors.g;
+    hictinting[CROSSHAIR_PAL].b = crosshair_colors.b;
     hictinting[CROSSHAIR_PAL].f = 1;
     invalidatetile(CROSSHAIR, -1, -1);
 }

@@ -1321,9 +1321,7 @@ static int osdcmd_setcrosshairscale(const osdfuncparm_t *parm)
 }
 
 extern void SetCrosshairColor(int r, int g, int b);
-extern int crosshair_red;
-extern int crosshair_green;
-extern int crosshair_blue;
+extern palette_t crosshair_colors;
 
 static int osdcmd_crosshaircolor(const osdfuncparm_t *parm)
 {
@@ -1331,7 +1329,7 @@ static int osdcmd_crosshaircolor(const osdfuncparm_t *parm)
 
     if (parm->numparms != 3)
     {
-        OSD_Printf("\"crosshaircolor\" : r:%d g:%d b:%d\n",crosshair_red,crosshair_green,crosshair_blue);
+        OSD_Printf("\"crosshaircolor\" : r:%d g:%d b:%d\n",crosshair_colors.r,crosshair_colors.g,crosshair_colors.b);
         return OSDCMD_SHOWHELP;
     }
     r = atol(parm->parms[0]);
