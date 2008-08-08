@@ -3367,6 +3367,9 @@ extern int getclosestcol(int r, int g, int b);
 int crosshair_red = 255;
 int crosshair_green = 255;
 int crosshair_blue = 0;
+static int crosshair_red_default = -1;
+static int crosshair_green_default = -1;
+static int crosshair_blue_default = -1;
 #define CROSSHAIR_PAL (MAXPALOOKUPS>>1)
 
 void SetCrosshairColor(int r, int g, int b)
@@ -3374,17 +3377,19 @@ void SetCrosshairColor(int r, int g, int b)
     /* TODO: turn this into something useful */
     char *ptr = (char *)waloff[CROSSHAIR];
     int i, ii;
-    static int crosshair_red_default = -1;
-    static int crosshair_green_default = -1;
-    static int crosshair_blue_default = -1;
+    static int sum;
 
-    hictinting[CROSSHAIR_PAL].r = crosshair_red = r;
-    hictinting[CROSSHAIR_PAL].g = crosshair_green = g;
-    hictinting[CROSSHAIR_PAL].b = crosshair_blue = b;
-    hictinting[CROSSHAIR_PAL].f = 1;
-    invalidatetile(CROSSHAIR, -1, -1);
+    if (sum == r+(g<<1)+(b<<2)) return;
+    sum = r+(g<<1)+(b<<2);
+    crosshair_red = r;
+    crosshair_green = g;
+    crosshair_blue = b;
 
-    if (waloff[CROSSHAIR] == 0) return;
+    if (waloff[CROSSHAIR] == 0)
+    {
+        loadtile(CROSSHAIR);
+        ptr = (char *)waloff[CROSSHAIR];
+    }
 
     if (crosshair_red_default == -1)
     {
@@ -3401,7 +3406,6 @@ void SetCrosshairColor(int r, int g, int b)
             ptr++;
             ii--;
         }
-        OSD_Printf("brightest color index: %d\n",bri);
         crosshair_red_default = crosshair_red = curpalette[bri].r;
         crosshair_green_default = crosshair_green = curpalette[bri].g;
         crosshair_blue_default = crosshair_blue = curpalette[bri].b;
@@ -3419,6 +3423,12 @@ void SetCrosshairColor(int r, int g, int b)
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
     makepalookup(CROSSHAIR_PAL,tempbuf,crosshair_red>>2, crosshair_green>>2, crosshair_blue>>2,1);
+
+    hictinting[CROSSHAIR_PAL].r = crosshair_red;
+    hictinting[CROSSHAIR_PAL].g = crosshair_green;
+    hictinting[CROSSHAIR_PAL].b = crosshair_blue;
+    hictinting[CROSSHAIR_PAL].f = 1;
+    invalidatetile(CROSSHAIR, -1, -1);
 }
 
 void palto(int r,int g,int b,int e)

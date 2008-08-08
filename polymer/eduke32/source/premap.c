@@ -502,9 +502,6 @@ void cacheit(void)
         }
     }
 
-    loadtile(CROSSHAIR);
-    SetCrosshairColor(crosshair_red, crosshair_green, crosshair_blue);
-
     clearbufbyte(gotpic,sizeof(gotpic),0L);
 
     endtime = getticks();
@@ -561,6 +558,8 @@ void vscrn(void)
     y2 = scale(y2,ydim,200);
 
     setview(x1,y1,x2-1,y2-1);
+
+    SetCrosshairColor(crosshair_red, crosshair_green, crosshair_blue);
 
     pub = NUMPAGES;
     pus = NUMPAGES;
