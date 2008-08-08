@@ -6896,7 +6896,7 @@ int menuselect_pk(int direction) // 20080104: jump to next (direction!=0) or pre
 
 int menuselect(void)
 {
-    int listsize;
+    static int listsize;
     int i;
     char ch, buffer[78], /*PK*/ *chptr;
     static char oldpath[BMAX_PATH];
@@ -6951,10 +6951,14 @@ int menuselect(void)
         if (finddirshigh)
         {
             dir = finddirshigh;
-                for (i=listsize/2-1; i>=0; i--) if (!dir->prev) break; else dir=dir->prev;
-            for (i=0; i<listsize && dir; i++, dir=dir->next)
+            for (i=(listsize/2)-1; i>=0; i--)
             {
-                int c = dir->type == CACHE1D_FIND_DIR ? 2/*4*/ : 3; //PK
+                if (!dir->prev) break; 
+                else dir=dir->prev;
+            }
+            for (i=0; ((i<listsize) && dir); i++, dir=dir->next)
+            {
+                int c = (dir->type == CACHE1D_FIND_DIR ? 2 : 3); //PK
                 memset(buffer,0,sizeof(buffer));
                 strncpy(buffer,dir->name,25);
                 if (strlen(buffer) == 25)
@@ -6974,8 +6978,12 @@ int menuselect(void)
         if (findfileshigh)
         {
             dir = findfileshigh;
-                for (i=listsize/2-1; i>=0; i--) if (!dir->prev) break; else dir=dir->prev;
-            for (i=0; i<listsize && dir; i++, dir=dir->next)
+            for (i=(listsize/2)-1; i>=0; i--)
+            {
+                if (!dir->prev) break;
+                else dir=dir->prev;
+            }
+            for (i=0; ((i<listsize) && dir); i++, dir=dir->next)
             {
                 if (dir == findfileshigh)
                 {

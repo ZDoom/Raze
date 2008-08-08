@@ -149,6 +149,7 @@ extern void computergetinput(int snum, input_t *syn);
 
 int althud_numbertile = 2930;
 int althud_numberpal = 0;
+int althud_shadows = 1;
 
 enum
 {
@@ -191,35 +192,86 @@ static int getatoken(scriptfile *sf, tokenlist *tl, int ntokens)
     return T_ERROR;
 }
 
+#ifdef ANSI_FUNC
+
 inline void setstatusbarscale(int sc)
+#else
+
+inline void 
+setstatusbarscale (sc)
+int sc;
+#endif
 {
     ud.statusbarscale = min(100,max(10,sc));
     vscrn();
 }
 
+#ifdef ANSI_FUNC
+
 static inline int sbarx(int x)
+#else
+
+static inline int 
+sbarx (x)
+int x;
+#endif
 {
     if (ud.screen_size == 4 /*|| ud.statusbarmode == 1*/) return scale(x<<16,ud.statusbarscale,100);
     return (((320l<<16) - scale(320l<<16,ud.statusbarscale,100)) >> 1) + scale(x<<16,ud.statusbarscale,100);
 }
 
+#ifdef ANSI_FUNC
+
 static inline int sbarxr(int x)
+#else
+
+static inline int 
+sbarxr (x)
+int x;
+#endif
 {
     if (ud.screen_size == 4 /*|| ud.statusbarmode == 1*/) return (320l<<16) - scale(x<<16,ud.statusbarscale,100);
     return (((320l<<16) - scale(320l<<16,ud.statusbarscale,100)) >> 1) + scale(x<<16,ud.statusbarscale,100);
 }
 
+#ifdef ANSI_FUNC
+
 static inline int sbary(int y)
+#else
+
+static inline int 
+sbary (y)
+int y;
+#endif
 {
     return ((200l<<16) - scale(200l<<16,ud.statusbarscale,100) + scale(y<<16,ud.statusbarscale,100));
 }
 
+#ifdef ANSI_FUNC
+
 static inline int sbarsc(int sc)
+#else
+
+static inline int 
+sbarsc (sc)
+int sc;
+#endif
 {
     return scale(sc,ud.statusbarscale,100);
 }
 
+#ifdef ANSI_FUNC
+
 static void patchstatusbar(int x1, int y1, int x2, int y2)
+#else
+
+static void 
+patchstatusbar (x1, y1, x2, y2)
+int x1;
+int y1;
+int x2;
+int y2;
+#endif
 {
     int scl, tx, ty;
     int clx1,cly1,clx2,cly2,clofx,clofy;
@@ -256,7 +308,27 @@ void setgamepalette(player_struct *player, char *pal, int set)
     player->palette = pal;
 }
 
+#ifdef ANSI_FUNC
+
 int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,int orientation,int x1, int y1, int x2, int y2, int z)
+#else
+
+int 
+gametext_z (small, starttile, x, y, t, s, p, orientation, x1, y1, x2, y2, z)
+int small;
+int starttile;
+int x;
+int y;
+const char *t;
+int s;
+int p;
+int orientation;
+int x1;
+int y1;
+int x2;
+int y2;
+int z;
+#endif
 {
     int ac,newx,oldx=x;
     char centre, *oldt;
@@ -358,7 +430,16 @@ int gametext_z(int small, int starttile, int x,int y,const char *t,int s,int p,i
     return (x);
 }
 
+#ifdef ANSI_FUNC
+
 int gametextlen(int x,const char *t)
+#else
+
+int 
+gametextlen (x, t)
+int x;
+const char *t;
+#endif
 {
     int ac;
 
@@ -387,14 +468,38 @@ int gametextlen(int x,const char *t)
     return (x);
 }
 
+#ifdef ANSI_FUNC
+
 static inline int mpgametext(int y,const char *t,int s,int dabits)
+#else
+
+static inline int 
+mpgametext (y, t, s, dabits)
+int y;
+const char *t;
+int s;
+int dabits;
+#endif
 {
     if (xdim >= 640 && ydim >= 480)
         return(gametext_z(5,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
     return(gametext_z(0,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
 }
 
+#ifdef ANSI_FUNC
+
 int minitext_(int x,int y,const char *t,int s,int p,int sb)
+#else
+
+int 
+minitext_ (x, y, t, s, p, sb)
+int x;
+int y;
+const char *t;
+int s;
+int p;
+int sb;
+#endif
 {
     int ac;
     char ch,cmode;
@@ -444,7 +549,14 @@ int minitext_(int x,int y,const char *t,int s,int p,int sb)
     return (x);
 }
 
+#ifdef ANSI_FUNC
+
 static void allowtimetocorrecterrorswhenquitting(void)
+#else
+
+static void 
+allowtimetocorrecterrorswhenquitting ()
+#endif
 {
     int i, j, oldtotalclock;
 
@@ -470,7 +582,15 @@ static void allowtimetocorrecterrorswhenquitting(void)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void adduserquote(const char *daquote)
+#else
+
+void 
+adduserquote (daquote)
+const char *daquote;
+#endif
 {
     int i;
 
@@ -488,7 +608,14 @@ void adduserquote(const char *daquote)
 
 int lastpackettime = 0;
 
+#ifdef ANSI_FUNC
+
 void getpackets(void)
+#else
+
+void 
+getpackets ()
+#endif
 {
     int i, j, k, l;
     int other, packbufleng;
@@ -986,7 +1113,14 @@ void getpackets(void)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void faketimerhandler(void)
+#else
+
+void 
+faketimerhandler ()
+#endif
 {
     int i, j, k;
     //    short who;
@@ -1318,7 +1452,14 @@ typedef struct
 cactype;
 extern cactype cac[];
 
+#ifdef ANSI_FUNC
+
 static void caches(void)
+#else
+
+static void 
+caches ()
+#endif
 {
     short i,k;
 
@@ -1342,7 +1483,14 @@ static void caches(void)
         }
 }
 
+#ifdef ANSI_FUNC
+
 static void checksync(void)
+#else
+
+static void 
+checksync ()
+#endif
 {
     int i;
 
@@ -1378,7 +1526,15 @@ static void checksync(void)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void check_fta_sounds(int i)
+#else
+
+void 
+check_fta_sounds (i)
+int i;
+#endif
 {
     if (sprite[i].extra > 0)
         switch (dynamictostatic[PN])
@@ -1460,19 +1616,45 @@ int inventory(spritetype *s)
     return 0;
 }
 
+#ifdef ANSI_FUNC
+
 inline int checkspriteflags(int iActor, int iType)
+#else
+
+inline int 
+checkspriteflags (iActor, iType)
+int iActor;
+int iType;
+#endif
 {
     if ((spriteflags[sprite[iActor].picnum]^hittype[iActor].flags) & iType) return 1;
     return 0;
 }
 
+#ifdef ANSI_FUNC
+
 inline int checkspriteflagsp(int iPicnum, int iType)
+#else
+
+inline int 
+checkspriteflagsp (iPicnum, iType)
+int iPicnum;
+int iType;
+#endif
 {
     if (spriteflags[iPicnum] & iType) return 1;
     return 0;
 }
 
+#ifdef ANSI_FUNC
+
 int badguypic(int pn)
+#else
+
+int 
+badguypic (pn)
+int pn;
+#endif
 {
     //this case can't be handled by the dynamictostatic system because it adds
     //stuff to the value from names.h so handling separately
@@ -1531,7 +1713,19 @@ inline int badguy(spritetype *s)
     return(badguypic(s->picnum));
 }
 
+#ifdef ANSI_FUNC
+
 void myos(int x, int y, int tilenum, int shade, int orientation)
+#else
+
+void 
+myos (x, y, tilenum, shade, orientation)
+int x;
+int y;
+int tilenum;
+int shade;
+int orientation;
+#endif
 {
     int p = sector[g_player[screenpeek].ps->cursectnum].floorpal, a = 0;
 
@@ -1540,8 +1734,21 @@ void myos(int x, int y, int tilenum, int shade, int orientation)
 
     rotatesprite(x<<16,y<<16,65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
+
+#ifdef ANSI_FUNC
 
 void myospal(int x, int y, int tilenum, int shade, int orientation, int p)
+#else
+
+void 
+myospal (x, y, tilenum, shade, orientation, p)
+int x;
+int y;
+int tilenum;
+int shade;
+int orientation;
+int p;
+#endif
 {
     int a = 0;
 
@@ -1551,7 +1758,19 @@ void myospal(int x, int y, int tilenum, int shade, int orientation, int p)
     rotatesprite(x<<16,y<<16,65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
+#ifdef ANSI_FUNC
+
 void myosx(int x, int y, int tilenum, int shade, int orientation)
+#else
+
+void 
+myosx (x, y, tilenum, shade, orientation)
+int x;
+int y;
+int tilenum;
+int shade;
+int orientation;
+#endif
 {
     int p = sector[g_player[screenpeek].ps->cursectnum].floorpal, a = 0;
 
@@ -1561,7 +1780,20 @@ void myosx(int x, int y, int tilenum, int shade, int orientation)
     rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
+#ifdef ANSI_FUNC
+
 void myospalx(int x, int y, int tilenum, int shade, int orientation, int p)
+#else
+
+void 
+myospalx (x, y, tilenum, shade, orientation, p)
+int x;
+int y;
+int tilenum;
+int shade;
+int orientation;
+int p;
+#endif
 {
     int a = 0;
 
@@ -1571,12 +1803,24 @@ void myospalx(int x, int y, int tilenum, int shade, int orientation, int p)
     rotatesprite(x<<16,y<<16,32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
+#ifdef ANSI_FUNC
+
 static void invennum(int x,int y,char num1,char ha,char sbits)
+#else
+
+static void 
+invennum (x, y, num1, ha, sbits)
+int x;
+int y;
+char num1;
+char ha;
+char sbits;
+#endif
 {
     char dabuf[80] = {0};
-    int shd = (x < 0);
+    int shd = (althud_shadows && (x < 0));
 
-    if (shd) x = -x;
+    if (x < 0) x = -x;
 
     Bsprintf(dabuf,"%d",num1);
     if (num1 > 99)
@@ -1608,7 +1852,20 @@ static void invennum(int x,int y,char num1,char ha,char sbits)
     rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
 }
 
+#ifdef ANSI_FUNC
+
 static void weaponnum(short ind,int x,int y,int num1, int num2,char ha)
+#else
+
+static void 
+weaponnum (ind, x, y, num1, num2, ha)
+short ind;
+int x;
+int y;
+int num1;
+int num2;
+char ha;
+#endif
 {
     char dabuf[80] = {0};
 
@@ -1644,7 +1901,20 @@ static void weaponnum(short ind,int x,int y,int num1, int num2,char ha)
     rotatesprite(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
 }
 
+#ifdef ANSI_FUNC
+
 static void weaponnum999(char ind,int x,int y,int num1, int num2,char ha)
+#else
+
+static void 
+weaponnum999 (ind, x, y, num1, num2, ha)
+char ind;
+int x;
+int y;
+int num1;
+int num2;
+char ha;
+#endif
 {
     char dabuf[80] = {0};
 
@@ -1771,7 +2041,19 @@ static void weapon_amounts(player_struct *p,int x,int y,int u)
     }
 }
 
+#ifdef ANSI_FUNC
+
 static void digitalnumber(int x,int y,int n,char s,char cs)
+#else
+
+static void 
+digitalnumber (x, y, n, s, cs)
+int x;
+int y;
+int n;
+char s;
+char cs;
+#endif
 {
     int i, j = 0, k, p, c;
     char b[10];
@@ -1795,7 +2077,26 @@ static void digitalnumber(int x,int y,int n,char s,char cs)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void txdigitalnumberz(int starttile, int x,int y,int n,int s,int pal,int cs,int x1, int y1, int x2, int y2, int z)
+#else
+
+void 
+txdigitalnumberz (starttile, x, y, n, s, pal, cs, x1, y1, x2, y2, z)
+int starttile;
+int x;
+int y;
+int n;
+int s;
+int pal;
+int cs;
+int x1;
+int y1;
+int x2;
+int y2;
+int z;
+#endif
 {
     int i, j = 0, k, p, c;
     char b[10];
@@ -1822,15 +2123,27 @@ void txdigitalnumberz(int starttile, int x,int y,int n,int s,int pal,int cs,int 
     }
 }
 
+#ifdef ANSI_FUNC
+
 static void altdigitalnumber(int x,int y,int n,char s,char cs)
+#else
+
+static void 
+altdigitalnumber (x, y, n, s, cs)
+int x;
+int y;
+int n;
+char s;
+char cs;
+#endif
 {
     int i, j = 0, k, p, c;
     char b[10];
     int rev = (x < 0);
-    int shd = (y < 0);
+    int shd = (althud_shadows && (y < 0));
 
     if (rev) x = -x;
-    if (shd) y = -y;
+    if (y < 0) y = -y;
 
     Bsnprintf(b,10,"%d",n);
     i = Bstrlen(b);
@@ -1939,7 +2252,14 @@ static void displayinventory(player_struct *p)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void displayfragbar(void)
+#else
+
+void 
+displayfragbar ()
+#endif
 {
     int i, j = 0;
 
@@ -1961,7 +2281,15 @@ void displayfragbar(void)
 
 #define SBY (200-tilesizy[BOTTOMSTATUSBAR])
 
+#ifdef ANSI_FUNC
+
 static void coolgaugetext(int snum)
+#else
+
+static void 
+coolgaugetext (snum)
+int snum;
+#endif
 {
     player_struct *p = g_player[snum].ps;
     int i, j, o, ss = ud.screen_size, u;
@@ -2018,22 +2346,26 @@ static void coolgaugetext(int snum)
 
 //            rotatesprite(sbarx(5+1),sbary(200-25+1),sbarsc(49152L),0,SIXPAK,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
 //            rotatesprite(sbarx(5),sbary(200-25),sbarsc(49152L),0,SIXPAK,0,0,10+16,0,0,xdim-1,ydim-1);
-
-            rotatesprite(sbarx(2+1),sbary(200-21+1),sbarsc(49152L),0,COLA,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
+            if (althud_shadows)
+                rotatesprite(sbarx(2+1),sbary(200-21+1),sbarsc(49152L),0,COLA,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
             rotatesprite(sbarx(2),sbary(200-21),sbarsc(49152L),0,COLA,0,0,10+16,0,0,xdim-1,ydim-1);
 
             if (sprite[p->i].pal == 1 && p->last_extra < 2)
                 altdigitalnumber(40,-(200-22),1,-16,10+16);
             else altdigitalnumber(40,-(200-22),p->last_extra,-16,10+16);
 
-            rotatesprite(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
+            if (althud_shadows)
+                rotatesprite(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
             rotatesprite(sbarx(62),sbary(200-25),sbarsc(49152L),0,SHIELD,0,0,10+16,0,0,xdim-1,ydim-1);
 
             altdigitalnumber(105,-(200-22),p->shield_amount,-16,10+16);
 
-            if (p->got_access&1) rotatesprite(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
-            if (p->got_access&4) rotatesprite(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
-            if (p->got_access&2) rotatesprite(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+            if (althud_shadows)
+            {
+                if (p->got_access&1) rotatesprite(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+                if (p->got_access&4) rotatesprite(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+                if (p->got_access&2) rotatesprite(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+32+1,0,0,xdim-1,ydim-1);
+            }
 
             if (p->got_access&1) rotatesprite(sbarxr(39),sbary(200-43),sbarsc(32768),0,ACCESSCARD,0,0,10+16,0,0,xdim-1,ydim-1);
             if (p->got_access&4) rotatesprite(sbarxr(34),sbary(200-41),sbarsc(32768),0,ACCESSCARD,0,23,10+16,0,0,xdim-1,ydim-1);
@@ -2041,7 +2373,8 @@ static void coolgaugetext(int snum)
 
             i = 32768;
             if (p->curr_weapon == PISTOL_WEAPON) i = 16384;
-            rotatesprite(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,2+1+32,0,0,xdim-1,ydim-1);
+            if (althud_shadows)
+                rotatesprite(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,2+1+32,0,0,xdim-1,ydim-1);
             rotatesprite(sbarxr(57),sbary(200-15),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,2,0,0,xdim-1,ydim-1);
 
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
@@ -2081,11 +2414,13 @@ static void coolgaugetext(int snum)
                 }
                 if (i >= 0)
                 {
-                    rotatesprite(sbarx(231-o+1),sbary(200-21-2+1),sbarsc(65536L),0,i,0,4,10+16+permbit+1+32,0,0,xdim-1,ydim-1);
+                    if (althud_shadows)
+                        rotatesprite(sbarx(231-o+1),sbary(200-21-2+1),sbarsc(65536L),0,i,0,4,10+16+permbit+1+32,0,0,xdim-1,ydim-1);
                     rotatesprite(sbarx(231-o),sbary(200-21-2),sbarsc(65536L),0,i,0,0,10+16+permbit,0,0,xdim-1,ydim-1);
                 }
 
-                minitext(292-30-o+1,190-3+1,"%",4,1+10+16+permbit + 256);
+                if (althud_shadows)
+                    minitext(292-30-o+1,190-3+1,"%",4,1+10+16+permbit + 256);
                 minitext(292-30-o,190-3,"%",6,10+16+permbit + 256);
 
                 j = 0x80000000;
@@ -2119,17 +2454,20 @@ static void coolgaugetext(int snum)
                 invennum(-(284-30-o),200-6-3,(char)i,0,10+permbit);
                 if (j > 0)
                 {
-                    minitext(288-30-o+1,180-3+1,"ON",4,1+10+16+permbit + 256);
+                    if (althud_shadows)
+                        minitext(288-30-o+1,180-3+1,"ON",4,1+10+16+permbit + 256);
                     minitext(288-30-o,180-3,"ON",0,10+16+permbit + 256);
                 }
                 else if ((unsigned int)j != 0x80000000)
                 {
-                    minitext(284-30-o+1,180-3+1,"OFF",4,1+10+16+permbit + 256);
+                    if (althud_shadows)
+                        minitext(284-30-o+1,180-3+1,"OFF",4,1+10+16+permbit + 256);
                     minitext(284-30-o,180-3,"OFF",2,10+16+permbit + 256);
                 }
                 if (p->inven_icon >= 6)
                 {
-                    minitext(284-35-o+1,180-3+1,"AUTO",4,1+10+16+permbit + 256);
+                    if (althud_shadows)
+                        minitext(284-35-o+1,180-3+1,"AUTO",4,1+10+16+permbit + 256);
                     minitext(284-35-o,180-3,"AUTO",2,10+16+permbit + 256);
                 }
 
@@ -2525,7 +2863,14 @@ static void coolgaugetext(int snum)
 #define COLOR_RED 248
 #define COLOR_WHITE 31
 
+#ifdef ANSI_FUNC
+
 static void ShowFrameRate(void)
+#else
+
+static void 
+ShowFrameRate ()
+#endif
 {
     static int frameval[AVERAGEFRAMES], framecnt = 0;
 
@@ -2553,7 +2898,15 @@ static void ShowFrameRate(void)
     framecnt = ((framecnt+1)&(AVERAGEFRAMES-1));
 }
 
+#ifdef ANSI_FUNC
+
 static void ShowCoordinates(int snum)
+#else
+
+static void 
+ShowCoordinates (snum)
+int snum;
+#endif
 {
     int y = 8;
 
@@ -2590,7 +2943,14 @@ static void ShowCoordinates(int snum)
     printext256(250L,y+99L+7,31,-1,tempbuf,0);
 }
 
+#ifdef ANSI_FUNC
+
 static void operatefta(void)
+#else
+
+static void 
+operatefta ()
+#endif
 {
     int i, j = 200-45, k, l;
 
@@ -2698,14 +3058,34 @@ void FTA(int q, player_struct *p)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void fadepal(int r, int g, int b, int start, int end, int step)
+#else
+
+void 
+fadepal (r, g, b, start, end, step)
+int r;
+int g;
+int b;
+int start;
+int end;
+int step;
+#endif
 {
     if (getrendermode() >= 3) return;
     if (step > 0) for (; start < end; start += step) palto(r,g,b,start);
     else for (; start >= end; start += step) palto(r,g,b,start);
 }
 
+#ifdef ANSI_FUNC
+
 static void showtwoscreens(void)
+#else
+
+static void 
+showtwoscreens ()
+#endif
 {
     int flags = GetGameVar("LOGO_FLAGS",255, -1, -1);
 
@@ -2763,7 +3143,15 @@ static void showtwoscreens(void)
 extern int qsetmode;
 extern int doquicksave;
 
+#ifdef ANSI_FUNC
+
 void gameexit(const char *t)
+#else
+
+void 
+gameexit (t)
+const char *t;
+#endif
 {
     if (*t != 0) g_player[myconnectindex].ps->palette = (char *) &palette[0];
 
@@ -2814,7 +3202,20 @@ void gameexit(const char *t)
 
 char inputloc = 0;
 
+#ifdef ANSI_FUNC
+
 static int strget_(int small,int x,int y,char *t,int dalen,int c)
+#else
+
+static int 
+strget_ (small, x, y, t, dalen, c)
+int small;
+int x;
+int y;
+char *t;
+int dalen;
+int c;
+#endif
 {
     char ch;
     int i;
@@ -2887,24 +3288,67 @@ static int strget_(int small,int x,int y,char *t,int dalen,int c)
     return (0);
 }
 
+#ifdef ANSI_FUNC
+
 inline int strget(int x,int y,char *t,int dalen,int c)
+#else
+
+inline int 
+strget (x, y, t, dalen, c)
+int x;
+int y;
+char *t;
+int dalen;
+int c;
+#endif
 {
     return(strget_(0,x,y,t,dalen,c));
 }
 
+#ifdef ANSI_FUNC
+
 inline int strgetsm(int x,int y,char *t,int dalen,int c)
+#else
+
+inline int 
+strgetsm (x, y, t, dalen, c)
+int x;
+int y;
+char *t;
+int dalen;
+int c;
+#endif
 {
     return(strget_(1,x,y,t,dalen,c));
 }
 
+#ifdef ANSI_FUNC
+
 inline int mpstrget(int x,int y,char *t,int dalen,int c)
+#else
+
+inline int 
+mpstrget (x, y, t, dalen, c)
+int x;
+int y;
+char *t;
+int dalen;
+int c;
+#endif
 {
     if (xdim >= 640 && ydim >= 480)
         return(strgetsm(x,y,t,dalen,c));
     return(strget(x,y,t,dalen,c));
 }
 
+#ifdef ANSI_FUNC
+
 static void typemode(void)
+#else
+
+static void 
+typemode ()
+#endif
 {
     short ch, hitstate, i, j, l;
 
@@ -3058,7 +3502,14 @@ static void typemode(void)
     }
 }
 
+#ifdef ANSI_FUNC
+
 static void moveclouds(void)
+#else
+
+static void 
+moveclouds ()
+#endif
 {
     if (totalclock > cloudtotalclock || totalclock < (cloudtotalclock-7))
     {
@@ -3077,7 +3528,18 @@ static void moveclouds(void)
     }
 }
 
+#ifdef ANSI_FUNC
+
 static void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
+#else
+
+static void 
+drawoverheadmap (cposx, cposy, czoom, cang)
+int cposx;
+int cposy;
+int czoom;
+short cang;
+#endif
 {
     int i, j, k, l, x1, y1, x2=0, y2=0, x3, y3, x4, y4, ox, oy, xoff, yoff;
     int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
@@ -3370,7 +3832,14 @@ palette_t crosshair_colors = { 255, 255, 255, 0 };
 palette_t default_crosshair_colors = { 0, 0, 0, 0 };
 int crosshair_sum;
 
+#ifdef ANSI_FUNC
+
 void GetCrosshairColor(void)
+#else
+
+void 
+GetCrosshairColor ()
+#endif
 {
     if (default_crosshair_colors.f == 0)
     {
@@ -3405,12 +3874,23 @@ void GetCrosshairColor(void)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void SetCrosshairColor(int r, int g, int b)
+#else
+
+void 
+SetCrosshairColor (r, g, b)
+int r;
+int g;
+int b;
+#endif
 {
     char *ptr = (char *)waloff[CROSSHAIR];
     int i, ii;
 
     if (default_crosshair_colors.f == 0 || crosshair_sum == r+(g<<1)+(b<<2)) return;
+
     crosshair_sum = r+(g<<1)+(b<<2);
     crosshair_colors.r = r;
     crosshair_colors.g = g;
@@ -3441,11 +3921,22 @@ void SetCrosshairColor(int r, int g, int b)
     hictinting[CROSSHAIR_PAL].r = crosshair_colors.r;
     hictinting[CROSSHAIR_PAL].g = crosshair_colors.g;
     hictinting[CROSSHAIR_PAL].b = crosshair_colors.b;
-    hictinting[CROSSHAIR_PAL].f = 1;
+    hictinting[CROSSHAIR_PAL].f = 17;
     invalidatetile(CROSSHAIR, -1, -1);
 }
 
+#ifdef ANSI_FUNC
+
 void palto(int r,int g,int b,int e)
+#else
+
+void 
+palto (r, g, b, e)
+int r;
+int g;
+int b;
+int e;
+#endif
 {
     int tc;
     /*
@@ -3470,7 +3961,15 @@ void palto(int r,int g,int b,int e)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void displayrest(int smoothratio)
+#else
+
+void 
+displayrest (smoothratio)
+int smoothratio;
+#endif
 {
     int a, i, j;
     char fader=0,fadeg=0,fadeb=0,fadef=0,tintr=0,tintg=0,tintb=0,tintf=0,dotint=0;
@@ -3871,7 +4370,14 @@ static void view(player_struct *pp, int *vx, int *vy,int *vz,short *vsectnum, in
 }
 
 //REPLACE FULLY
+#ifdef ANSI_FUNC
+
 void drawbackground(void)
+#else
+
+void 
+drawbackground ()
+#endif
 {
     int dapicnum;
     int x,y,x1,y1,x2,y2,rx;
@@ -4010,7 +4516,21 @@ void drawbackground(void)
 // If standing in sector with SE43 or SE45
 // then draw viewing to SE40 and lower all =hi SE42 floors.
 
+#ifdef ANSI_FUNC
+
 static void SE40_Draw(int spnum,int x,int y,int z,int a,int h,int smoothratio)
+#else
+
+static void 
+SE40_Draw (spnum, x, y, z, a, h, smoothratio)
+int spnum;
+int x;
+int y;
+int z;
+int a;
+int h;
+int smoothratio;
+#endif
 {
     static int tempsectorz[MAXSECTORS];
     static int tempsectorpicnum[MAXSECTORS];
@@ -4154,7 +4674,20 @@ static void SE40_Draw(int spnum,int x,int y,int z,int a,int h,int smoothratio)
     }
 } // end SE40
 
+#ifdef ANSI_FUNC
+
 void se40code(int x,int y,int z,int a,int h, int smoothratio)
+#else
+
+void 
+se40code (x, y, z, a, h, smoothratio)
+int x;
+int y;
+int z;
+int a;
+int h;
+int smoothratio;
+#endif
 {
     int i= headspritestat[15];
 
@@ -4183,7 +4716,16 @@ void se40code(int x,int y,int z,int a,int h, int smoothratio)
 static int oyrepeat=-1;
 extern float r_ambientlight;
 
+#ifdef ANSI_FUNC
+
 void displayrooms(int snum,int smoothratio)
+#else
+
+void 
+displayrooms (snum, smoothratio)
+int snum;
+int smoothratio;
+#endif
 {
     int dst,j,fz,cz;
     int tposx,tposy,i;
@@ -4451,7 +4993,14 @@ void displayrooms(int snum,int smoothratio)
     else p->visibility = ud.const_visibility;
 }
 
+#ifdef ANSI_FUNC
+
 static void dumpdebugdata(void)
+#else
+
+static void 
+dumpdebugdata ()
+#endif
 {
     int i,j,x;
     FILE * fp=fopen("debug.con","w");
@@ -4516,7 +5065,27 @@ static void dumpdebugdata(void)
     saveboard("debug.map",&g_player[myconnectindex].ps->posx,&g_player[myconnectindex].ps->posy,&g_player[myconnectindex].ps->posz,&g_player[myconnectindex].ps->ang,&g_player[myconnectindex].ps->cursectnum);
 }
 
+#ifdef ANSI_FUNC
+
 int EGS(int whatsect,int s_x,int s_y,int s_z,int s_pn,int s_s,int s_xr,int s_yr,int s_a,int s_ve,int s_zv,int s_ow,int s_ss)
+#else
+
+int 
+EGS (whatsect, s_x, s_y, s_z, s_pn, s_s, s_xr, s_yr, s_a, s_ve, s_zv, s_ow, s_ss)
+int whatsect;
+int s_x;
+int s_y;
+int s_z;
+int s_pn;
+int s_s;
+int s_xr;
+int s_yr;
+int s_a;
+int s_ve;
+int s_zv;
+int s_ow;
+int s_ss;
+#endif
 {
     int i = insertsprite(whatsect,s_ss);
     int p;
@@ -4617,7 +5186,15 @@ int EGS(int whatsect,int s_x,int s_y,int s_z,int s_pn,int s_s,int s_xr,int s_yr,
     return(i);
 }
 
+#ifdef ANSI_FUNC
+
 int wallswitchcheck(int i)
+#else
+
+int 
+wallswitchcheck (i)
+int i;
+#endif
 {
     int j;
     //MULTISWITCH has 4 states so deal with it separately
@@ -4675,7 +5252,16 @@ int wallswitchcheck(int i)
     return 0;
 }
 
+#ifdef ANSI_FUNC
+
 int spawn(int j, int pn)
+#else
+
+int 
+spawn (j, pn)
+int j;
+int pn;
+#endif
 {
     int i, s, startwall, endwall, sect, clostest=0;
     int x, y, d, p;
@@ -6555,7 +7141,18 @@ int spawn(int j, int pn)
 //#pragma auto_inline(off)
 #pragma optimize("g",off)
 #endif
+#ifdef ANSI_FUNC
+
 void animatesprites(int x,int y,int a,int smoothratio)
+#else
+
+void 
+animatesprites (x, y, a, smoothratio)
+int x;
+int y;
+int a;
+int smoothratio;
+#endif
 {
     int i, j, k, p, sect;
     intptr_t l, t1,t3,t4;
@@ -7462,7 +8059,14 @@ enum cheats
     CHEAT_SCREAMFORME,
 };
 
+#ifdef ANSI_FUNC
+
 void CheatGetInventory(void)
+#else
+
+void 
+CheatGetInventory ()
+#endif
 {
     SetGameVarID(g_iReturnVarID, 400, g_player[myconnectindex].ps->i, myconnectindex);
     OnEvent(EVENT_CHEATGETSTEROIDS, g_player[myconnectindex].ps->i, myconnectindex, -1);
@@ -7531,7 +8135,14 @@ void CheatGetInventory(void)
 
 signed char cheatbuf[MAXCHEATLEN],cheatbuflen;
 
+#ifdef ANSI_FUNC
+
 static void cheats(void)
+#else
+
+static void 
+cheats ()
+#endif
 {
     short ch, i, j, k=0, weapon;
     static int z=0;
@@ -8000,7 +8611,14 @@ FOUNDCHEAT:
     }
 }
 
+#ifdef ANSI_FUNC
+
 static void nonsharedkeys(void)
+#else
+
+static void 
+nonsharedkeys ()
+#endif
 {
     int i,ch;
     int j;
@@ -8566,7 +9184,14 @@ FAKE_F3:
     }
 }
 
+#ifdef ANSI_FUNC
+
 static void comlinehelp(void)
+#else
+
+static void 
+comlinehelp ()
+#endif
 {
     char *s = "Usage: eduke32 [OPTIONS]\n"
               "Example: eduke32 -q4 -a -m -tx -map nukeland.map\n\n"
@@ -8618,7 +9243,15 @@ static char rancid_ip_strings[MAXPLAYERS][32], rancid_local_port_string[8];
 
 extern int getexternaladdress(char *buffer, const char *host, int port);
 
+#ifdef ANSI_FUNC
+
 static int load_rancid_net(const char *fn)
+#else
+
+static int 
+load_rancid_net (fn)
+const char *fn;
+#endif
 {
     int tokn;
     char *cmdtokptr;
@@ -8688,12 +9321,29 @@ static int load_rancid_net(const char *fn)
     return 0;
 }
 
+#ifdef ANSI_FUNC
+
 static inline int stringsort(const char *p1, const char *p2)
+#else
+
+static inline int 
+stringsort (p1, p2)
+const char *p1;
+const char *p2;
+#endif
 {
     return Bstrcmp(&p1[0],&p2[0]);
 }
 
+#ifdef ANSI_FUNC
+
 static void setup_rancid_net(const char *fn)
+#else
+
+static void 
+setup_rancid_net (fn)
+const char *fn;
+#endif
 {
     int i;
 
@@ -8800,7 +9450,14 @@ static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *fi
 static int numdirs=0, numfiles=0;
 static int currentlist=0;
 
+#ifdef ANSI_FUNC
+
 static void clearfilenames(void)
+#else
+
+static void 
+clearfilenames ()
+#endif
 {
     klistfree(finddirs);
     klistfree(findfiles);
@@ -8808,7 +9465,16 @@ static void clearfilenames(void)
     numfiles = numdirs = 0;
 }
 
+#ifdef ANSI_FUNC
+
 static int getfilenames(const char *path, char kind[])
+#else
+
+static int 
+getfilenames (path, kind)
+const char *path;
+char kind[];
+#endif
 {
     CACHE1D_FIND_REC *r;
 
@@ -8826,7 +9492,15 @@ static int getfilenames(const char *path, char kind[])
     return(0);
 }
 
+#ifdef ANSI_FUNC
+
 static void autoloadgrps(const char *fn)
+#else
+
+static void 
+autoloadgrps (fn)
+const char *fn;
+#endif
 {
     Bsprintf(tempbuf,"autoload/%s",fn);
     getfilenames(tempbuf,"*.grp");
@@ -8839,7 +9513,17 @@ static void autoloadgrps(const char *fn)
     while (findfiles) { Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name); initprintf("Using group file '%s'.\n",tempbuf); initgroupfile(tempbuf); findfiles = findfiles->next; }
 }
 
+#ifdef ANSI_FUNC
+
 static char *makename(char *destname, char *OGGname, char *origname)
+#else
+
+static char *
+makename (destname, OGGname, origname)
+char *destname;
+char *OGGname;
+char *origname;
+#endif
 {
     if (!origname)
         return destname;
@@ -8867,7 +9551,16 @@ static char *makename(char *destname, char *OGGname, char *origname)
     return destname;
 }
 
+#ifdef ANSI_FUNC
+
 static int AL_DefineSound(int ID,char *name)
+#else
+
+static int 
+AL_DefineSound (ID, name)
+int ID;
+char *name;
+#endif
 {
     if (ID>=MAXSOUNDS)
         return 1;
@@ -8877,7 +9570,16 @@ static int AL_DefineSound(int ID,char *name)
     return 0;
 }
 
+#ifdef ANSI_FUNC
+
 static int AL_DefineMusic(char *ID,char *name)
+#else
+
+static int 
+AL_DefineMusic (ID, name)
+char *ID;
+char *name;
+#endif
 {
     int lev,ep,sel;char b1,b2;
 
@@ -9111,7 +9813,16 @@ static int parsedefinitions_game(scriptfile *script, const int preload)
     return 0;
 }
 
+#ifdef ANSI_FUNC
+
 static int loaddefinitions_game(const char *fn, int preload)
+#else
+
+static int 
+loaddefinitions_game (fn, preload)
+const char *fn;
+int preload;
+#endif
 {
     scriptfile *script;
 
@@ -9126,7 +9837,15 @@ static int loaddefinitions_game(const char *fn, int preload)
     return 0;
 }
 
+#ifdef ANSI_FUNC
+
 static void addgroup(const char *buffer)
+#else
+
+static void 
+addgroup (buffer)
+const char *buffer;
+#endif
 {
     struct strllist *s;
     s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
@@ -9144,7 +9863,15 @@ static void addgroup(const char *buffer)
     CommandGrps = s;
 }
 
+#ifdef ANSI_FUNC
+
 static void addgamepath(const char *buffer)
+#else
+
+static void 
+addgamepath (buffer)
+const char *buffer;
+#endif
 {
     struct strllist *s;
     s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
@@ -9161,7 +9888,16 @@ static void addgamepath(const char *buffer)
 }
 
 
+#ifdef ANSI_FUNC
+
 static void checkcommandline(int argc, const char **argv)
+#else
+
+static void 
+checkcommandline (argc, argv)
+int argc;
+const char **argv;
+#endif
 {
     short i, j;
     char *c;
@@ -9670,7 +10406,14 @@ static void checkcommandline(int argc, const char **argv)
     }
 }
 
+#ifdef ANSI_FUNC
+
 static void Logo(void)
+#else
+
+static void 
+Logo ()
+#endif
 {
     int soundanm = 0;
     int logoflags=GetGameVar("LOGO_FLAGS",255, -1, -1);
@@ -9857,7 +10600,14 @@ static void Logo(void)
     clearview(0L);
 }
 
+#ifdef ANSI_FUNC
+
 static void loadtmb(void)
+#else
+
+static void 
+loadtmb ()
+#endif
 {
     unsigned char tmb[8000];
     int fil, l;
@@ -9870,7 +10620,14 @@ static void loadtmb(void)
     kclose(fil);
 }
 
+#ifdef ANSI_FUNC
+
 static void freeconmem(void)
+#else
+
+static void 
+freeconmem ()
+#endif
 {
     int i;
 
@@ -9944,7 +10701,14 @@ static void freeconmem(void)
 ===================
 */
 
+#ifdef ANSI_FUNC
+
 void Shutdown(void)
+#else
+
+void 
+Shutdown ()
+#endif
 {
     SoundShutdown();
     MusicShutdown();
@@ -9964,7 +10728,14 @@ void Shutdown(void)
 ===================
 */
 
+#ifdef ANSI_FUNC
+
 static void compilecons(void)
+#else
+
+static void 
+compilecons ()
+#endif
 {
     int i, psm = pathsearchmode;
     label     = (char *)&sprite[0]; // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
@@ -10027,7 +10798,14 @@ static void compilecons(void)
     pathsearchmode = psm;
 }
 
+#ifdef ANSI_FUNC
+
+static void 
+sanitizegametype (void)
+#else
+
 static void sanitizegametype()
+#endif
 {
     //    initprintf("ud.m_coop=%i before sanitization\n",ud.m_coop);
     if (ud.m_coop >= num_gametypes || ud.m_coop < 0)
@@ -10041,7 +10819,14 @@ static void sanitizegametype()
     //     initprintf("ud.m_coop=%i after sanitisation\n",ud.m_coop);
 }
 
+#ifdef ANSI_FUNC
+
 static void genspriteremaps(void)
+#else
+
+static void 
+genspriteremaps ()
+#endif
 {
     int j,fp;
     signed char look_pos;
@@ -10084,7 +10869,14 @@ static void genspriteremaps(void)
 extern int startwin_run(void);
 static void SetupGameButtons(void);
 
+#ifdef ANSI_FUNC
+
 static void Startup(void)
+#else
+
+static void 
+Startup ()
+#endif
 {
     int i;
 
@@ -10236,13 +11028,28 @@ static void Startup(void)
         networkmode = 1;
 }
 
+#ifdef ANSI_FUNC
+
 void sendscore(const char *s)
+#else
+
+void 
+sendscore (s)
+const char *s;
+#endif
 {
     if (numplayers > 1)
         genericmultifunction(-1,(char *)s,strlen(s)+1,5);
 }
 
+#ifdef ANSI_FUNC
+
 static void sendwchoice(void)
+#else
+
+static void 
+sendwchoice ()
+#endif
 {
     int i,l;
 
@@ -10263,7 +11070,14 @@ static void sendwchoice(void)
     }
 }
 
+#ifdef ANSI_FUNC
+
 static void sendplayerupdate(void)
+#else
+
+static void 
+sendplayerupdate ()
+#endif
 {
     int i,l;
 
@@ -10290,7 +11104,14 @@ static void sendplayerupdate(void)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void sendboardname(void)
+#else
+
+void 
+sendboardname ()
+#endif
 {
     if (numplayers > 1)
     {
@@ -10314,7 +11135,16 @@ void sendboardname(void)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void mpchangemap(int volume, int level)
+#else
+
+void 
+mpchangemap (volume, level)
+int volume;
+int level;
+#endif
 {
     int i;
 
@@ -10338,7 +11168,14 @@ void mpchangemap(int volume, int level)
     }
 }
 
+#ifdef ANSI_FUNC
+
 static void getnames(void)
+#else
+
+static void 
+getnames ()
+#endif
 {
     int l;
 
@@ -10358,7 +11195,14 @@ static void getnames(void)
         gameexit("Please put the Duke Nukem 3D Atomic Edition CD in the CD-ROM drive.");
 }
 
+#ifdef ANSI_FUNC
+
 void updateplayer(void)
+#else
+
+void 
+updateplayer ()
+#endif
 {
     int l;
 
@@ -10391,7 +11235,21 @@ void updateplayer(void)
 }
 
 #if 0
+#ifdef ANSI_FUNC
+
 void writestring(int a1,int a2,int a3,short a4,int vx,int vy,int vz)
+#else
+
+void 
+writestring (a1, a2, a3, a4, vx, vy, vz)
+int a1;
+int a2;
+int a3;
+short a4;
+int vx;
+int vy;
+int vz;
+#endif
 {
 
     FILE *fp;
@@ -10407,7 +11265,14 @@ void writestring(int a1,int a2,int a3,short a4,int vx,int vy,int vz)
 char testcd(char *fn, int testsiz);
 
 // JBF: various hacks here
+#ifdef ANSI_FUNC
+
 static void copyprotect(void)
+#else
+
+static void 
+copyprotect ()
+#endif
 {
     //    FILE *fp;
     //    char idfile[256];
@@ -10427,7 +11292,14 @@ static void copyprotect(void)
 }
 #endif
 
+#ifdef ANSI_FUNC
+
 void backtomenu(void)
+#else
+
+void 
+backtomenu ()
+#endif
 {
     boardfilename[0] = 0;
     if (ud.recstat == 1) closedemowrite();
@@ -10440,14 +11312,30 @@ void backtomenu(void)
 }
 
 #ifdef RENDERTYPEWIN
+#ifdef ANSI_FUNC
+
 void app_crashhandler(void)
+#else
+
+void 
+app_crashhandler ()
+#endif
 {
     closedemowrite();
     sendquit();
 }
 #endif
 
+#ifdef ANSI_FUNC
+
 void app_main(int argc,const char **argv)
+#else
+
+void 
+app_main (argc, argv)
+int argc;
+const char **argv;
+#endif
 {
     int i, j;
     char cwd[BMAX_PATH];
@@ -11092,7 +11980,16 @@ MAIN_LOOP_RESTART:
 
 static int demo_version;
 
-static int opendemoread(int which_demo) // 0 = mine
+#ifdef ANSI_FUNC
+
+static int opendemoread(int which_demo)
+#else
+
+static int 
+opendemoread (which_demo)
+int which_demo;
+#endif
+ // 0 = mine
 {
     char d[13];
     char ver;
@@ -11199,7 +12096,14 @@ corrupt:
     return 0;
 }
 
+#ifdef ANSI_FUNC
+
 void opendemowrite(void)
+#else
+
+void 
+opendemowrite ()
+#endif
 {
     char *d = "demo1.dmo";
     int dummylong = 0;
@@ -11242,7 +12146,14 @@ void opendemowrite(void)
     ud.reccnt = 0;
 }
 
+#ifdef ANSI_FUNC
+
 static void record(void)
+#else
+
+static void 
+record ()
+#endif
 {
     short i;
 
@@ -11259,7 +12170,14 @@ static void record(void)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void closedemowrite(void)
+#else
+
+void 
+closedemowrite ()
+#endif
 {
     if (ud.recstat == 1)
     {
@@ -11279,7 +12197,14 @@ static int which_demo = 1;
 static int in_menu = 0;
 
 // extern int syncs[];
+#ifdef ANSI_FUNC
+
 static int playback(void)
+#else
+
+static int 
+playback ()
+#endif
 {
     int i,j,k,l;
     int foundemo = 0;
@@ -11464,7 +12389,14 @@ RECHECK:
     return 1;
 }
 
+#ifdef ANSI_FUNC
+
+static int 
+moveloop (void)
+#else
+
 static int moveloop()
+#endif
 {
     int i;
 
@@ -11484,7 +12416,14 @@ static int moveloop()
     return 0;
 }
 
+#ifdef ANSI_FUNC
+
 static void fakedomovethingscorrect(void)
+#else
+
+static void 
+fakedomovethingscorrect ()
+#endif
 {
     int i;
     player_struct *p;
@@ -11524,7 +12463,14 @@ static void fakedomovethingscorrect(void)
         fakedomovethings();
 }
 
+#ifdef ANSI_FUNC
+
 static void fakedomovethings(void)
+#else
+
+static void 
+fakedomovethings ()
+#endif
 {
     input_t *syn;
     player_struct *p;
@@ -11962,7 +12908,14 @@ ENDFAKEPROCESSINPUT:
     sprite[p->i].cstat = backcstat;
 }
 
+#ifdef ANSI_FUNC
+
 static int domovethings(void)
+#else
+
+static int 
+domovethings ()
+#endif
 {
     int i, j;
     char ch;
@@ -12197,7 +13150,14 @@ static int domovethings(void)
     return 0;
 }
 
+#ifdef ANSI_FUNC
+
 static void doorders(void)
+#else
+
+static void 
+doorders ()
+#endif
 {
     setview(0,0,xdim-1,ydim-1);
 
@@ -12244,7 +13204,15 @@ static void doorders(void)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void dobonus(int bonusonly)
+#else
+
+void 
+dobonus (bonusonly)
+int bonusonly;
+#endif
 {
     int t, tinc,gfx_offset;
     int i, y,xfragtotal,yfragtotal;
@@ -12958,7 +13926,15 @@ FRAGBONUS:
     }
 }
 
+#ifdef ANSI_FUNC
+
 static void cameratext(short i)
+#else
+
+static void 
+cameratext (i)
+short i;
+#endif
 {
     char flipbits;
     int x , y;
@@ -12982,7 +13958,19 @@ static void cameratext(short i)
 }
 
 #if 0
+#ifdef ANSI_FUNC
+
 void vglass(int x,int y,short a,short wn,short n)
+#else
+
+void 
+vglass (x, y, a, wn, n)
+int x;
+int y;
+short a;
+short wn;
+short n;
+#endif
 {
     int z, zincs;
     short sect;
@@ -12996,7 +13984,17 @@ void vglass(int x,int y,short a,short wn,short n)
 }
 #endif
 
+#ifdef ANSI_FUNC
+
 void lotsofglass(int i,int wallnum,int n)
+#else
+
+void 
+lotsofglass (i, wallnum, n)
+int i;
+int wallnum;
+int n;
+#endif
 {
     int j, xv, yv, z, x1, y1;
     short sect;
@@ -13045,7 +14043,16 @@ void lotsofglass(int i,int wallnum,int n)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void spriteglass(int i,int n)
+#else
+
+void 
+spriteglass (i, n)
+int i;
+int n;
+#endif
 {
     int j, k, a, z;
 
@@ -13058,7 +14065,17 @@ void spriteglass(int i,int n)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void ceilingglass(int i,int sectnum,int n)
+#else
+
+void 
+ceilingglass (i, sectnum, n)
+int i;
+int sectnum;
+int n;
+#endif
 {
     int j, xv, yv, z, x1, y1, a,s;
     int startwall = sector[sectnum].wallptr;
@@ -13083,7 +14100,17 @@ void ceilingglass(int i,int sectnum,int n)
     }
 }
 
+#ifdef ANSI_FUNC
+
 void lotsofcolourglass(int i,int wallnum,int n)
+#else
+
+void 
+lotsofcolourglass (i, wallnum, n)
+int i;
+int wallnum;
+int n;
+#endif
 {
     int j, xv, yv, z, x1, y1;
     short sect = -1;
@@ -13122,7 +14149,14 @@ void lotsofcolourglass(int i,int wallnum,int n)
     }
 }
 
+#ifdef ANSI_FUNC
+
 static void SetupGameButtons(void)
+#else
+
+static void 
+SetupGameButtons ()
+#endif
 {
     CONTROL_DefineFlag(gamefunc_Move_Forward,false);
     CONTROL_DefineFlag(gamefunc_Move_Backward,false);
@@ -13186,7 +14220,14 @@ static void SetupGameButtons(void)
 ===================
 */
 
+#ifdef ANSI_FUNC
+
 inline int GetTime(void)
+#else
+
+inline int 
+GetTime ()
+#endif
 {
     return totalclock;
 }

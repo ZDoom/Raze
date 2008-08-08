@@ -2023,7 +2023,7 @@ void drawpoly(double *dpx, double *dpy, int n, int method)
                     }
                 }
                 // hack: this is for drawing the 8-bit crosshair recolored in polymost
-                else if (globalpal == (MAXPALOOKUPS>>1))
+                else if (hictinting[globalpal].f & 16)
                 {
                     pc[0] *= (float)hictinting[globalpal].r / 255.0;
                     pc[1] *= (float)hictinting[globalpal].g / 255.0;
