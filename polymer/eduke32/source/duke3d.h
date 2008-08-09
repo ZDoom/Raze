@@ -597,8 +597,6 @@ extern int movefifoplc, vel,svel,angvel,horiz;
 
 extern short mirrorwall[64], mirrorsector[64], mirrorcnt;
 
-#define NUMKEYS 19
-
 #include "funct.h"
 
 extern int screencapt;

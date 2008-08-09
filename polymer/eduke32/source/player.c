@@ -161,7 +161,8 @@ static void hitscantrail(int x1, int y1, int z1, int x2, int y2, int z2, int ang
         y1 += y2;
         z1 += z2;
         updatesector(x1,y1,&sect);
-        if (sect < 0 || z1 > getflorzofslope(sect,x1,y1) || z1 < getceilzofslope(sect,x1,y1))
+        getzsofslope(sect,x1,y1,&n,&j);
+        if (sect < 0 || z1 > j || z1 < n)
             break;
         j = EGS(sect,x1,y1,z1,projectile[atwith].trail,-32,projectile[atwith].txrepeat,projectile[atwith].tyrepeat,ang,0,0,g_player[0].ps->i,0);
         changespritestat(j,1);
@@ -3297,10 +3298,14 @@ void processinput(int snum)
     shrunk = (s->yrepeat < 32);
     getzrange(p->posx,p->posy,p->posz,psect,&cz,&hz,&fz,&lz,163L,CLIPMASK0);
 
+    /*    
     j = getflorzofslope(psect,p->posx,p->posy);
 
     p->truefz = j;
     p->truecz = getceilzofslope(psect,p->posx,p->posy);
+    */
+    getzsofslope(psect,p->posx,p->posy,&p->truecz,&p->truefz);
+    j = p->truefz;
 
     truefdist = klabs(p->posz-j);
     if ((lz&49152) == 16384 && psectlotag == 1 && truefdist > PHEIGHT+(16<<8))
@@ -4937,7 +4942,10 @@ SHOOTINCODE:
                     p->weapon_pos = 10;
                 }
                 else
+                {
+                    p->weapon_pos = 10;
                     checkavailweapon(p);
+                }
             }
         }
         else if (aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON)

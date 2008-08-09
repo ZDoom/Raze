@@ -596,10 +596,7 @@ int GetGameVarID(int id, int iActor, int iPlayer)
     int m = 1;
 
     if (id == MAXGAMEVARS)
-    {
-//  		  OSD_Printf("GetGameVarID(): reading gamevar constant\n");
         return(*insptr++);
-    }
 
     if (id == g_iThisActorID)
         return iActor;
@@ -610,12 +607,12 @@ int GetGameVarID(int id, int iActor, int iPlayer)
         {
             int index=GetGameVarID(*insptr++,iActor,iPlayer);
 
-            id ^= (MAXGAMEVARS<<2);
+            id &= ~(MAXGAMEVARS<<2);
 
             if (id&(MAXGAMEVARS<<1)) // negative array access
             {
                 m = -1;
-                id ^= (MAXGAMEVARS<<1);
+                id &= ~(MAXGAMEVARS<<1);
             }
 
 //  		  OSD_Printf("GetGameVarID(): reading from array\n");
@@ -632,7 +629,7 @@ int GetGameVarID(int id, int iActor, int iPlayer)
         }
 
         m = -1;
-        id ^= (MAXGAMEVARS<<1);
+        id &= ~(MAXGAMEVARS<<1);
     }
 
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER)
@@ -652,27 +649,19 @@ int GetGameVarID(int id, int iActor, int iPlayer)
     {
         // for the current actor
         if (iActor >= 0 && iActor <= MAXSPRITES)
-        {
             return(m * aGameVars[id].plValues[iActor]);
-        }
 
         return(m * aGameVars[id].lValue);
     }
 
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_INTPTR)
-    {
         return(m * (*((int*)aGameVars[id].lValue)));
-    }
 
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_SHORTPTR)
-    {
         return(m * (*((short*)aGameVars[id].lValue)));
-    }
 
     if (aGameVars[id].dwFlags & GAMEVAR_FLAG_CHARPTR)
-    {
         return(m * (*((char*)aGameVars[id].lValue)));
-    }
 
     return(m * aGameVars[id].lValue);
 }

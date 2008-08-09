@@ -54,7 +54,6 @@ extern signed char tempshade;
 static int ototalclock = 0, clockval[AVERAGEFRAMES], clockcnt = 0;
 
 #define NUMOPTIONS 9
-#define NUMKEYS 19
 
 char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
 unsigned char keys[NUMBUILDKEYS] =

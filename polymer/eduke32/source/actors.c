@@ -4067,7 +4067,7 @@ static void moveactors(void)
 
                 if (t[3]>0)
                 {
-                    short frames[] = {5,5,6,6,7,7,6,5};
+                    static char frames[] = {5,5,6,6,7,7,6,5};
 
                     s->picnum = GREENSLIME+frames[t[3]];
 
@@ -4441,7 +4441,7 @@ DETONATEB:
             //  if(lPipeBombControl & PIPEBOMB_TIMER)
             //       {
 
-            if (s->picnum == HEAVYHBOMB && hittype[i].temp_data[6] == 1)
+            if (s->picnum == HEAVYHBOMB && t[6] == 1)
             {
                 /*                if(s->extra >= 1)
                                 {
@@ -4452,24 +4452,18 @@ DETONATEB:
                                     s->lotag=911;
                 */
 
-                if (hittype[i].temp_data[7] >= 1)
-                {
-                    hittype[i].temp_data[7]--;
-                }
+                if (t[7] > 0)
+                    t[7]--;
 
-                if (hittype[i].temp_data[7] <= 0)
-                {
-                    hittype[i].temp_data[6] = 3;
-                    //                    s->extra = *actorscrptr[s->picnum];
-                }
+                if (t[7] == 0)
+                    t[6] = 3;
             }
             //      }
 
-            if ((l >= 0 && g_player[l].ps->hbomb_on == 0 && hittype[i].temp_data[6] == 2) || t[3] == 1)
-                hittype[i].temp_data[6] = 3;
+            if ((l >= 0 && g_player[l].ps->hbomb_on == 0 && t[6] == 2) || t[3] == 1)
+                t[6] = 3;
 
-            if (hittype[i].temp_data[6] == 3)
-
+            if (t[6] == 3)
             {
                 t[4]++;
 
@@ -4754,8 +4748,6 @@ DETONATEB:
             goto BOLT;
         }
 
-
-        // #ifndef VOLOMEONE
         if (ud.multimode < 2 && badguy(s))
         {
             if (actor_tog == 1)
@@ -4770,7 +4762,7 @@ DETONATEB:
                     s->cstat = 257;
             }
         }
-        // #endif
+
         if (actorscrptr[sprite[i].picnum])
         {
             p = findplayer(s,&x);
@@ -4778,7 +4770,6 @@ DETONATEB:
         }
 
 BOLT:
-
         i = nexti;
     }
 
@@ -5037,13 +5028,8 @@ static void moveexplosions(void)  // STATNUM 5
                 if (s->xvel > 0) s->xvel--;
                 else s->xvel = 0;
 
-                if (t[5] < 30*10)
-                    t[5]++;
-                else
-                {
+                if ((t[5]++) == ((30*10)-1))
                     KILLIT(i);
-                }
-
 
                 if (s->zvel > 1024 && s->zvel < 1280)
                 {
@@ -5051,8 +5037,7 @@ static void moveexplosions(void)  // STATNUM 5
                     sect = s->sectnum;
                 }
 
-                l = getflorzofslope(sect,s->x,s->y);
-                x = getceilzofslope(sect,s->x,s->y);
+                getzsofslope(sect,s->x,s->y,&x,&l);
                 if (x == l || sect < 0 || sect >= MAXSECTORS) KILLIT(i);
 
                 if (s->z < l-(2<<8))
