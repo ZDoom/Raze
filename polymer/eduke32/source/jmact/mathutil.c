@@ -31,43 +31,34 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "types.h"
-#include "compat.h"
 #include "pragmas.h"
 
 // I wonder if it's faster to use Ken's functions here...
 
 int FindDistance2D(int x, int y)
 {
-    int t;
-
-    x= klabs(x);        /* absolute values */
+    x= klabs(x);
     y= klabs(y);
 
-    if (x<y)
-        swaplong(&x,&y);
+    if (x<y) swaplong(&x,&y);
 
-    t = y + (y>>1);
-
-    return (x - (x>>5) - (x>>7)  + (t>>2) + (t>>6));
+    {
+        int t = y + (y>>1);
+        return (x - (x>>5) - (x>>7)  + (t>>2) + (t>>6));
+    }
 }
-
 
 int FindDistance3D(int x, int y, int z)
 {
-    int t;
-
-    x= klabs(x);           /* absolute values */
+    x= klabs(x);
     y= klabs(y);
     z= klabs(z);
 
-    if (x<y)
-        swaplong(&x,&y);
+    if (x<y) swaplong(&x,&y);
+    if (x<z) swaplong(&x,&z);
 
-    if (x<z)
-        swaplong(&x,&z);
-
-    t = y + z;
-
-    return (x - (x>>4) + (t>>2) + (t>>3));
+    {
+        int t = y + z;
+        return (x - (x>>4) + (t>>2) + (t>>3));
+    }
 }

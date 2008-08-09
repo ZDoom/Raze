@@ -83,7 +83,6 @@ extern int g_ScriptVersion, g_Shareware, g_GameType;
 
 #include "types.h"
 #include "file_lib.h"
-#include "develop.h"
 #include "gamedefs.h"
 #include "keyboard.h"
 #include "util_lib.h"

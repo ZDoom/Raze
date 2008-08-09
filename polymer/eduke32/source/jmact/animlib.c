@@ -27,7 +27,6 @@ Modifications for JonoF's port by Jonathon Fowler (jonof@edgenetwk.com)
 
 #include "compat.h"
 #include "types.h"
-#include "develop.h"
 #include "util_lib.h"
 #include "animlib.h"
 
